@@ -115,3 +115,4 @@ short DAT_0059d52a;
 /* Function start: 0x447548 */ /* TODO */ void LoopAudioSoundFn7548(void){}
 /* Function start: 0x4473F3 */ /* TODO */ void GetAudioVoiceFn73F3(void){}
 /* Function start: 0x42B300 */ /* TODO */ void LoopAudioStreamFnB300(void){}
+/* Function start: 0x4154C0 */ /* TODO */ short ScanTbl0059d100Fn54C0(void){return 0;}
