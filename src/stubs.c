@@ -106,3 +106,5 @@ short DAT_0059d52a;
 /* Function start: 0x42A120 */ /* TODO */ short LoopNavFnA120(int a){(void)a;return 0;}
 /* Function start: 0x40BFF0 */ /* TODO */ void ReleaseTbl0046c35fFnBFF0(short a){(void)a;}
 /* Function start: 0x431470 */ /* TODO */ void GetPilotFn1470(void){}
+/* Function start: 0x406160 */ /* TODO */ void SetInputFn6160(void){}
+/* Function start: 0x40E820 */ /* TODO */ void GetTbl0059b320FnE820(short i){(void)i;}

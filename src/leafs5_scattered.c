@@ -4,6 +4,7 @@
 #include "wc1.h"
 
 unsigned char  DAT_0059d620[512];
+extern unsigned char DAT_0059d630[];
 unsigned char  DAT_005a7ddd, DAT_005a7ddc, DAT_005a7dee, DAT_005a7ded;
 int            DAT_005a7de1;
 unsigned char  DAT_00469060;
