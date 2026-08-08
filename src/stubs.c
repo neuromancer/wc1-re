@@ -122,3 +122,8 @@ short DAT_0059d52a;
 /* Function start: 0x424490 */ /* TODO */ void ReleaseTbl00469d50Fn4490(void){}
 /* Function start: 0x401210 */ /* TODO */ void ScanTbl0046c028Fn1210(void){}
 /* Function start: 0x424BE0 */ /* TODO */ void SetNavFn4BE0(void){}
+/* Function start: 0x428EA0 */ /* TODO */ void LoopLocalFn8EA0(int m){(void)m;}
+/* Function start: 0x42E090 */
+/* TODO: CheckMcgaVideoMode. Ghidra's prototype shows no parameters, but the call
+   site at 0x0042F7E0 passes (viewport*, short, int) -- another wrong DB prototype. */
+int CheckMcgaVideoMode(int *p, short a, int b) { (void)p; (void)a; (void)b; return 0; }

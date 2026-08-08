@@ -27,7 +27,7 @@ unsigned char  DAT_0059a850;
 extern unsigned char DAT_0046af6c;
 
 extern void PumpMessagesWhileDebugPaused(unsigned int arg);   /* 0x0041CD40 */
-extern void SetShipAiFnEE80(void);                            /* 0x0042EE80 */
+extern void SetShipAiFnEE80(void);
 extern void GetSfxFnB640(void);                               /* 0x0042B640 */
 extern void GetG005a8760Fn3DB0(const char *fmt, ...);         /* 0x00403DB0 */
 
