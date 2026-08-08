@@ -56,9 +56,11 @@ void PumpMessagesWhileDebugPaused(unsigned int arg) { (void)arg; }
 /* Function start: 0x40A360 */ /* TODO */ void DispatchTbl0059d5e0FnA360(short a) { (void)a; }
 /* Function start: 0x421100 */ /* TODO */ void ScanTbl0059cab0Fn1100(short a, int b) { (void)a; (void)b; }
 /* Function start: 0x427C50 */ /* TODO */ void GetShipAiFn7C50(void) {}
-/* Function start: 0x429DD0 */ /* TODO */ void UiRoutine05(void) {}
 /* Function start: 0x409DD0 */ /* TODO */ void GetUiFn9DD0(void) {}
 /* Function start: 0x4360F0 */ /* TODO */ void GetUiFn60F0(unsigned char a, int b) { (void)a; (void)b; }
 /* Function start: 0x435760 */ /* TODO */ void LoopInputFn5760(int n) { (void)n; }
 /* Function start: 0x42F940b */ /* TODO */ void ReleaseTbl005a7f10FnF940(void *p) { (void)p; }
 /* Function start: 0x42E330 */  /* TODO */ void DoLocalFnE330(void) {}
+/* Function start: 0x4141B0 */ /* TODO */ void DoLocalFn41B0(int *p, int v) { (void)p; (void)v; }
+/* Function start: 0x417760 */ /* TODO */ void GetUiFn7760(void) {}
+/* Function start: 0x421AE0 */ /* TODO */ void BlitUiFn1AE0(void *p, unsigned int v) { (void)p; (void)v; }

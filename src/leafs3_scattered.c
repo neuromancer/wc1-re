@@ -29,7 +29,7 @@ extern void DoShipAiFn2C70(short a, int b);            /* 0x00402C70 */
 extern void DispatchTbl0059d5e0FnA360(short a);        /* 0x0040A360 */
 extern void ScanTbl0059cab0Fn1100(short a, int b);     /* 0x00421100 */
 extern void GetShipAiFn7C50(void);                     /* 0x00427C50 */
-extern void UiRoutine05(void);                         /* 0x00429DD0 */
+extern unsigned int UiRoutine05(void);                 /* 0x00427B00 */
 extern void GetUiFn9DD0(void);                         /* 0x00409DD0 */
 extern void GetUiFn60F0(unsigned char a, int b);       /* 0x004360F0 */
 extern void DoUiFn3500(unsigned int v);                /* 0x00403500 */
