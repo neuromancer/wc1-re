@@ -14,7 +14,7 @@ char          *DAT_00469004;
 extern unsigned char DAT_0046c03c;
 extern char         *PTR_s_MISSILE_LOCKED_004691d4[];
 
-extern void GetTbl0059d710Fn9210(short a, int *p);              /* 0x00419210 */
+extern short GetTbl0059d710Fn9210(short a, void *p);           /* 0x00419210 */
 extern long CalcVideoFn4F20(void);                              /* 0x00434F20 */
 extern void DoLocalFn84C0(int v);                               /* 0x004184C0 */
 extern void DispatchTbl0059b9e0Fn17D0(void *a, int b, short c); /* 0x004117D0 */
@@ -24,7 +24,7 @@ extern void DispatchG004691e2Fn6260(char *a, unsigned char b);  /* 0x00416260 */
 /* Function start: 0x40A160 */
 void GetShipAiFnA160(short ship)
 {
-    GetTbl0059d710Fn9210(ship, (int *)(&DAT_0059dd10[0] + ship * 0xc));
+    GetTbl0059d710Fn9210(ship, &DAT_0059dd10[0] + ship * 0xc);
 }
 
 /* Function start: 0x40DF50 */

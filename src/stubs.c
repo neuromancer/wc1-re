@@ -73,7 +73,7 @@ char *PTR_s_Never_mind____0046af90[32];
 /* Function start: 0x440C00 */ /* TODO */ void ValidateViewportBounds(int *a,int *b,unsigned int *c){(void)a;(void)b;(void)c;}
 /* Function start: 0x4272F0 */ /* TODO */ void Helper4272F0(void) {}
 /* Function start: 0x402110 */ /* TODO */ void AbortToDesktop(void) {}
-/* Function start: 0x419210 */ /* TODO */ void GetTbl0059d710Fn9210(short a,int *p){(void)a;(void)p;}
+/* Function start: 0x419210 */ /* TODO */ short GetTbl0059d710Fn9210(short a,void *p){(void)a;(void)p;return 0;}
 /* Function start: 0x434F20 */ /* TODO */ long CalcVideoFn4F20(void){return 0;}
 /* Function start: 0x4184C0 */ /* TODO */ void DoLocalFn84C0(int v){(void)v;}
 /* Function start: 0x4117D0 */ /* TODO */ void DispatchTbl0059b9e0Fn17D0(void *a,int b,short c){(void)a;(void)b;(void)c;}
