@@ -43,33 +43,33 @@ void PumpMessagesWhileDebugPaused(unsigned int arg) { (void)arg; }
 
 /* Forward references still to be implemented; each is a real function. */
 /* Function start: 0x433120 */ /* TODO */ void DIBwholePaletteFromWords(void) {}
-/* Function start: 0x407460 */ /* TODO */ void HelperOf4075A0A(short s) { (void)s; }
-/* Function start: 0x402C70 */ /* TODO */ void DoShipAiFn2C70(short a, int b) { (void)a; (void)b; }
+/* Function start: 0x422780 */ /* TODO */ void HelperOf4075A0A(short s) { (void)s; }
+/* Function start: 0x422C70 */ /* TODO */ void DoShipAiFn2C70(short a, int b) { (void)a; (void)b; }
 /* Function start: 0x40A360 */ /* TODO */ void DispatchTbl0059d5e0FnA360(short a) { (void)a; }
 /* Function start: 0x421100 */ /* TODO */ void ScanTbl0059cab0Fn1100(short a, int b) { (void)a; (void)b; }
 /* Function start: 0x427C50 */ /* TODO */ void GetShipAiFn7C50(void) {}
-/* Function start: 0x409DD0 */ /* TODO */ void GetUiFn9DD0(void) {}
+/* Function start: 0x429DD0 */ /* TODO */ void GetUiFn9DD0(void) {}
 /* Function start: 0x4360F0 */ /* TODO */ void GetUiFn60F0(unsigned char a, int b) { (void)a; (void)b; }
 /* Function start: 0x435760 */ /* TODO */ void LoopInputFn5760(int n) { (void)n; }
-/* Function start: 0x42F940b */ /* TODO */ void ReleaseTbl005a7f10FnF940(void *p) { (void)p; }
+/* Function start: 0x40F940 */ /* TODO */ void ReleaseTbl005a7f10FnF940(void *p) { (void)p; }
 /* Function start: 0x417760 */ /* TODO */ void GetUiFn7760(void) {}
-/* Function start: 0x421AE0 */ /* TODO */ void BlitUiFn1AE0(void *p, unsigned int v) { (void)p; (void)v; }
-/* Function start: 0x409BD0 */ /* TODO */ void ReleaseTbl0046c028Fn9BD0(short i) { (void)i; }
+/* Function start: 0x441AE0 */ /* TODO */ void BlitUiFn1AE0(void *p, unsigned int v) { (void)p; (void)v; }
+/* Function start: 0x419BD0 */ /* TODO */ void ReleaseTbl0046c028Fn9BD0(short i) { (void)i; }
 /* Function start: 0x419290 */ /* TODO */ void SetTbl0059d710Fn9290(short a, int *p) { (void)a; (void)p; }
-/* Function start: 0x406310 */ /* TODO */ void ShipAiRoutine04(short a, short b) { (void)a; (void)b; }
-/* Function start: 0x4075A0b */ /* TODO */ void ShipAiRoutine21(short a, int b) { (void)a; (void)b; }
-/* Function start: 0x406910 */ /* TODO */ void ShipAiRoutine07(short a, int b) { (void)a; (void)b; }
+/* Function start: 0x419310 */ /* TODO */ void ShipAiRoutine04(short a, short b) { (void)a; (void)b; }
+/* Function start: 0x422D90 */ /* TODO */ void ShipAiRoutine21(short a, int b) { (void)a; (void)b; }
+/* Function start: 0x41E750 */ /* TODO */ void ShipAiRoutine07(short a, int b) { (void)a; (void)b; }
 /* Function start: 0x402320 */ /* TODO */ void PumpWindowMessages(void) {}
 /* Function start: 0x4359C0 */ /* TODO */ void DispatchTbl0046da90Fn59C0(int a) { (void)a; }
-/* Function start: 0x421A90 */ /* TODO */ void DoLocalFn1A90(void *a, void *b) { (void)a; (void)b; }
+/* Function start: 0x441A90 */ /* TODO */ void DoLocalFn1A90(void *a, void *b) { (void)a; (void)b; }
 /* Function start: 0x4273C0 */ /* TODO */ void ShowMemoryStatusDebug(void) {}
 /* Function start: 0x428F20 */ /* TODO */ void DoLocalFn8F20(const char *s) { (void)s; }
-/* Function start: 0x428FA0b */ /* TODO */ void HelperOf428F80A(const char *s) { (void)s; }
+/* Function start: 0x413CE0 */ /* TODO */ void HelperOf428F80A(const char *s) { (void)s; }
 /* Function start: 0x428FA0 */ /* TODO */ void ShowOnScreenMessage(short f, short d, const char *fmt, ...) { (void)f; (void)d; (void)fmt; }
-/* Function start: 0x430C00 */ /* TODO */ void CombatRoutine03(int a, short b) { (void)a; (void)b; }
+/* Function start: 0x430CB0 */ /* TODO */ void CombatRoutine03(int a, short b) { (void)a; (void)b; }
 char *PTR_s_Never_mind____0046af90[32];
-/* Function start: 0x403BA0 */ /* TODO */ void DoLocalFn3BA0(int a,int b,unsigned int c,int d,int e){(void)a;(void)b;(void)c;(void)d;(void)e;}
-/* Function start: 0x406200 */ /* TODO */ void ShipAiRoutine02(short a,unsigned int b,int c){(void)a;(void)b;(void)c;}
+/* Function start: 0x423BA0 */ /* TODO */ void DoLocalFn3BA0(int a,int b,unsigned int c,int d,int e){(void)a;(void)b;(void)c;(void)d;(void)e;}
+/* Function start: 0x407270 */ /* TODO */ void ShipAiRoutine02(short a,unsigned int b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x440C00 */ /* TODO */ void ValidateViewportBounds(int *a,int *b,unsigned int *c){(void)a;(void)b;(void)c;}
 /* Function start: 0x4272F0 */ /* TODO */ void Helper4272F0(void) {}
 /* Function start: 0x402110 */ /* TODO */ void AbortToDesktop(void) {}
@@ -85,11 +85,11 @@ char *PTR_s_MISSILE_LOCKED_004691d4[8];
 /* Function start: 0x419950 */ /* TODO */ void DoLocalFn9950(unsigned int *p,int v){(void)p;(void)v;}
 /* Function start: 0x414BF0 */ /* TODO */ void ReportComponentHit(char a,char b,char c){(void)a;(void)b;(void)c;}
 /* Function start: 0x419990 */ /* TODO */ void DoLocalFn9990(int *a,int *b,short c){(void)a;(void)b;(void)c;}
-/* Function start: 0x40AA00 */ /* TODO */ void ScanTbl0059cab0Fn0AA0(short a){(void)a;}
+/* Function start: 0x420AA0 */ /* TODO */ void ScanTbl0059cab0Fn0AA0(short a){(void)a;}
 /* Function start: 0x4148A0 */ /* TODO */ void SetTbl0059dec0Fn48A0(short i,int v){(void)i;(void)v;}
-/* Function start: 0x407060 */ /* TODO */ int ShipAiRoutine18(short s){(void)s;return 0;}
+/* Function start: 0x422560 */ /* TODO */ int ShipAiRoutine18(short s){(void)s;return 0;}
 /* Function start: 0x435090 */ /* TODO */ void DoLocalFn5090(short a,short b,short *p){(void)a;(void)b;(void)p;}
-/* Function start: 0x427440 */ /* TODO */ unsigned int GameNoBodyStubv20(void){return 0;}
+/* Function start: 0x436910 */ /* TODO */ unsigned int GameNoBodyStubv20(void){return 0;}
 /* Function start: 0x442460 */ /* TODO */ void Streamer_stop(void) {}
 /* Function start: 0x403DE0 */ /* TODO */ void MonoDebug_print(const char *s){(void)s;}
 /* Function start: 0x406FB0 */ /* TODO */ void ShipAiState29(short a,short b){(void)a;(void)b;}
@@ -98,20 +98,20 @@ char *PTR_s_MISSILE_LOCKED_004691d4[8];
 short DAT_0059d52a;
 /* Function start: 0x4171D0 */ /* TODO */ void SetCombatFn71D0(void){}
 /* Function start: 0x417260 */ /* TODO */ void DrawCombatFn7260(void){}
-/* Function start: 0x417A00 */ /* TODO */ void CombatRoutine02(short a,int b,unsigned int c,int d,int e){(void)a;(void)b;(void)c;(void)d;(void)e;}
-/* Function start: 0x429E30 */ /* TODO */ short UiRoutine03(void){return 1;}
+/* Function start: 0x416E20 */ /* TODO */ void CombatRoutine02(short a,int b,unsigned int c,int d,int e){(void)a;(void)b;(void)c;(void)d;(void)e;}
+/* Function start: 0x41DAA0 */ /* TODO */ short UiRoutine03(void){return 1;}
 /* Function start: 0x42A120 */ /* TODO */ short LoopNavFnA120(int a){(void)a;return 0;}
 /* Function start: 0x40BFF0 */ /* TODO */ void ReleaseTbl0046c35fFnBFF0(short a){(void)a;}
 /* Function start: 0x431470 */ /* TODO */ void GetPilotFn1470(void){}
-/* Function start: 0x40E820 */ /* TODO */ void GetTbl0059b320FnE820(short i){(void)i;}
+/* Function start: 0x41E820 */ /* TODO */ void GetTbl0059b320FnE820(short i){(void)i;}
 /* Function start: 0x4142B0 */ /* TODO */ void GetCombatFn42B0(int a,unsigned short b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x41D2E0 */ /* TODO */ void FetchDiskPacketRetrying(short a,int b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x42FAE0 */ /* TODO */ void ReleasePacketHandle(int h){(void)h;}
 /* Function start: 0x41C910 */ /* TODO */ void DebugOverlayThreadProc(int p){(void)p;}
 /* Function start: 0x409F80 */ /* TODO */ void DispatchDebugFn9F80(short i){(void)i;}
 /* Function start: 0x40A030 */ /* TODO */ void DispatchTbl0059d400FnA030(short i){(void)i;}
-/* Function start: 0x413C40 */ /* TODO */ void DoLocalFn3C40(void *p){(void)p;}
-/* Function start: 0x427610 */ /* TODO */ void LoopG0059861cFn7610(void){}
-/* Function start: 0x427548 */ /* TODO */ void LoopAudioSoundFn7548(void){}
-/* Function start: 0x4273F3 */ /* TODO */ void GetAudioVoiceFn73F3(void){}
+/* Function start: 0x403C40 */ /* TODO */ void DoLocalFn3C40(void *p){(void)p;}
+/* Function start: 0x447610 */ /* TODO */ void LoopG0059861cFn7610(void){}
+/* Function start: 0x447548 */ /* TODO */ void LoopAudioSoundFn7548(void){}
+/* Function start: 0x4473F3 */ /* TODO */ void GetAudioVoiceFn73F3(void){}
 /* Function start: 0x42B300 */ /* TODO */ void LoopAudioStreamFnB300(void){}

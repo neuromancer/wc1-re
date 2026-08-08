@@ -26,7 +26,7 @@ extern void ShipAiRoutine07(short a, int b);                  /* 0x00406910-fami
 extern void PumpWindowMessages(void);                         /* 0x00402320 */
 extern void DispatchTbl0046da90Fn59C0(int a);                 /* 0x004359C0 */
 
-/* Function start: 0x4030E0 */
+/* Function start: 0x402E80 */
 /* Byte-identical duplicate of SetMousePosition (0x00402E80); both exist because
  * VC++ 4.2's linker did no COMDAT folding. */
 void ForwardSetCursorPos(int x, int y) { SetCursorPos(x, y); }

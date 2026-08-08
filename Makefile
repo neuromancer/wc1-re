@@ -269,6 +269,11 @@ ANALYZE_FILES ?= all
 sort:
 	@python3 bin/sortByAddress.py
 
+# Verify every `Function start:` annotation names the function really at that
+# address.  A wrong annotation makes `report` compare against the wrong original.
+audit-addresses:
+	@python3 bin/auditAddresses.py
+
 progress:
 	@python3 bin/showProgress.py
 
@@ -461,6 +466,7 @@ clean-wine:
 	analyze \
 	analyze-clang \
 	analyze-static \
+	audit-addresses \
 	audit-auto-complete-globals \
 	audit-rebuilt-global-layout \
 	build \

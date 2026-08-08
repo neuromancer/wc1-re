@@ -170,6 +170,21 @@ Writing it with the real one-argument signature took it to 100%.  Same rule as t
 **the export is the source of truth, the decompilation is a hint.**  When a call in the
 decompilation looks argument-less, check the push sequence before believing it.
 
+## Do not infer a stub's address from its name
+
+Operational names encode only the LOW FOUR hex digits: `GetUiFn9DD0` is at
+`0x00429DD0`, not `0x00409DD0`.  Filling in the high bits by eye produced **25 wrong
+`Function start:` annotations** before I noticed.
+
+A wrong annotation is worse than none: `make export-asm` exports whatever original lives
+at that address, and `make report` then scores your function against an unrelated one, so
+the number looks fine and means nothing.
+
+    make audit-addresses          # check every annotation against the inventory
+    bin/auditAddresses.py --fix   # rewrite them to the real addresses
+
+Run it before trusting a report.
+
 ## Reading the comparison
 
 **All comparisons go through binary-comp.** It is the only scorer; do not hand-roll one.
