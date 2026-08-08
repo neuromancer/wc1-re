@@ -116,3 +116,6 @@ short DAT_0059d52a;
 /* Function start: 0x4473F3 */ /* TODO */ void GetAudioVoiceFn73F3(void){}
 /* Function start: 0x42B300 */ /* TODO */ void LoopAudioStreamFnB300(void){}
 /* Function start: 0x4154C0 */ /* TODO */ short ScanTbl0059d100Fn54C0(void){return 0;}
+/* Function start: 0x435470 */ /* TODO */ void LoopLocalFn5470(void *d,const char *s){(void)d;(void)s;}
+/* Function start: 0x436DE0 */ /* TODO */ void SetUiFn6DE0(void *a,unsigned short b,unsigned short c){(void)a;(void)b;(void)c;}
+/* Function start: 0x40FA90 */ /* TODO */ unsigned int GetG0046ad88FnFA90(int a,int b){(void)a;(void)b;return 0;}
