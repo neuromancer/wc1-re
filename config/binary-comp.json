@@ -1,0 +1,44 @@
+{
+  "build": {
+    "jobs": 12
+  },
+  "targets": {
+    "full": {
+      "original_exe": "../data/full/WC1.ORI.EXE",
+      "rebuilt_exe": "../WC1.EXE",
+      "map": "../WC1.map",
+      "source_dirs": ["../src", "../src/ix"],
+      "code_export_dir": "../code-full",
+      "asm_dir": "../out",
+      "map_skip": "src/map",
+      "library_ranges": [["0x00449100", "0x00463000"]],
+      "globals_source": "../src/globals.c",
+      "globals_header": "../src/globals.h",
+      "code_globals_header": "../code-full/globals.h",
+      "auto_complete": "../src/auto_complete.txt",
+      "values": {
+        "policy": "checkValuesCapstone.json"
+      },
+      "build": {
+        "clean": "make clean",
+        "build": "make WC1.EXE"
+      }
+    }
+  },
+  "values_capstone": {
+    "config": "config/checkValuesCapstone.json",
+    "full": {
+      "recompiled_exe": "WC1.EXE",
+      "map": "WC1.map",
+      "build_target": "WC1.EXE"
+    }
+  },
+  "paths": {
+    "full": {
+      "exe": "data/full/WC1.ORI.EXE",
+      "src_dir": "src",
+      "code_dir": "code-full",
+      "asm_dir": "out"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "max_disassembly_bytes": "0x20000",
+  "max_member_displacement": "0x10000",
+  "nearby_window": 32,
+  "small_immediate_min": "-0x10000",
+  "small_immediate_max": "0x400000",
+  "value_mnemonics": [
+    "push",
+    "mov",
+    "cmp",
+    "add",
+    "sub",
+    "or",
+    "and",
+    "xor",
+    "test"
+  ],
+  "padding_mnemonics": [
+    "nop",
+    "int3"
+  ],
+  "stack_registers": [
+    "esp",
+    "ebp"
+  ],
+  "diagnostic_functions": [
+    "Parser::ReportUnknownLabel",
+    "ShowError",
+    "ShowMessage",
+    "ShowMessageYesNo",
+    "WriteToLog",
+    "WriteToMessageLog"
+  ],
+  "literal_strings": {
+    "allowed_one_char": [
+      "a",
+      "r",
+      "w"
+    ],
+    "reject_substrings": [
+      "@"
+    ]
+  }
+}

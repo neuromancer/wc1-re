@@ -1,0 +1,38 @@
+# Build artifacts
+out/
+*.obj
+*.asm
+*.map
+*.stdout
+
+# Executables
+*.EXE
+*.exe
+
+# wibo binary
+wibo
+
+# Ghidra export (large; regenerate from the WC project)
+code-full/
+
+# Original binary and game data (never vendored)
+data/full/
+data/*.zip
+
+# Third-party SDK libs the user must supply
+3rdparty/dx/lib/*.lib
+3rdparty/dx/include/*
+3rdparty/msvcrt40.dll
+
+# Wine
+.wine-wc1/
+
+# Analysis output
+analysis/out/
+
+# Python
+__pycache__/
+*.py[codz]
+*$py.class
+
+.DS_Store
