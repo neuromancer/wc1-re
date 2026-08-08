@@ -98,3 +98,8 @@ short DAT_0059d52a;
 /* Function start: 0x4171D0 */ /* TODO */ void SetCombatFn71D0(void){}
 /* Function start: 0x417260 */ /* TODO */ void DrawCombatFn7260(void){}
 /* Function start: 0x417A00 */ /* TODO */ void CombatRoutine02(short a,int b,unsigned int c,int d,int e){(void)a;(void)b;(void)c;(void)d;(void)e;}
+/* Function start: 0x429E30 */ /* TODO */ short UiRoutine03(void){return 1;}
+/* Function start: 0x41D2E0b */ /* TODO */ void FetchDiskPacketRetrying(short a,int b,int c){(void)a;(void)b;(void)c;}
+/* Function start: 0x42A120 */ /* TODO */ short LoopNavFnA120(int a){(void)a;return 0;}
+/* Function start: 0x40BFF0 */ /* TODO */ void ReleaseTbl0046c35fFnBFF0(short a){(void)a;}
+/* Function start: 0x431470 */ /* TODO */ void GetPilotFn1470(void){}
