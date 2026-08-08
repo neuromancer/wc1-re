@@ -91,3 +91,9 @@ char *PTR_s_Never_mind____0046af90[32];
 /* Function start: 0x4117D0 */ /* TODO */ void DispatchTbl0059b9e0Fn17D0(void *a,int b,short c){(void)a;(void)b;(void)c;}
 /* Function start: 0x416260 */ /* TODO */ void DispatchG004691e2Fn6260(char *a,unsigned char b){(void)a;(void)b;}
 char *PTR_s_MISSILE_LOCKED_004691d4[8];
+/* Function start: 0x418780 */ /* TODO */ void DoLocalFn8780(int a,short b,int *p){(void)a;(void)b;(void)p;}
+/* Function start: 0x419660 */ /* TODO */ void GetG0059c490Fn9660(short a,void *p){(void)a;(void)p;}
+/* Function start: 0x419810 */ /* TODO */ void DoShipAiFn9810(short a,void *p){(void)a;(void)p;}
+/* Function start: 0x419950 */ /* TODO */ void DoLocalFn9950(unsigned int *p,int v){(void)p;(void)v;}
+/* Function start: 0x414BF0 */ /* TODO */ void ReportComponentHit(char a,char b,char c){(void)a;(void)b;(void)c;}
+/* Function start: 0x428280 */ /* TODO */ void GetTbl0059b470Fn8280(short a,int b){(void)a;(void)b;}
