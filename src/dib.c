@@ -77,3 +77,6 @@ void GetVideoFn2680(void)
     (**(void (**)(void *))(*DAT_0046b1a4 + 0x4c))(DAT_0046b1a4);
     (**(void (**)(void *))(*DAT_0046b1a4 + 8))(DAT_0046b1a4);
 }
+
+/* Palette shadow written by the DIBset*Palette family (R at +2, G at +1, B at +0). */
+unsigned char DAT_00486110[1024];

@@ -17,7 +17,7 @@ extern unsigned long g_dwGameClockBase_005a89a8;
 extern void DoLocalFn3BA0(int a, int b, unsigned int c, int d, int e);  /* 0x00403BA0 */
 extern void ShipAiRoutine02(short a, unsigned int b, int c);            /* 0x00406200-family */
 extern void ValidateViewportBounds(int *a, int *b, unsigned int *c);    /* 0x00440C00 */
-extern void SetTbl00486112Fn3020(short a, unsigned short *b);           /* 0x00443020 */
+extern void SetTbl00486112Fn3020(short a, unsigned short *b);           /* 0x00433020 */
 /* 0x0044A7D0 is the debug CRT free helper (_free_dbg family). */
 extern void _free_dbg(void *p, int blockType);
 

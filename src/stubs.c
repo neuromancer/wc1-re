@@ -71,7 +71,6 @@ char *PTR_s_Never_mind____0046af90[32];
 /* Function start: 0x403BA0 */ /* TODO */ void DoLocalFn3BA0(int a,int b,unsigned int c,int d,int e){(void)a;(void)b;(void)c;(void)d;(void)e;}
 /* Function start: 0x406200 */ /* TODO */ void ShipAiRoutine02(short a,unsigned int b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x440C00 */ /* TODO */ void ValidateViewportBounds(int *a,int *b,unsigned int *c){(void)a;(void)b;(void)c;}
-/* Function start: 0x443020 */ /* TODO */ void SetTbl00486112Fn3020(short a,unsigned short *b){(void)a;(void)b;}
 /* Function start: 0x4272F0 */ /* TODO */ void Helper4272F0(void) {}
 /* Function start: 0x402110 */ /* TODO */ void AbortToDesktop(void) {}
 /* Function start: 0x419210 */ /* TODO */ void GetTbl0059d710Fn9210(short a,int *p){(void)a;(void)p;}
