@@ -95,3 +95,6 @@ char *PTR_s_MISSILE_LOCKED_004691d4[8];
 /* Function start: 0x406D80 */ /* TODO */ void ShipAiState40(short a,short b){(void)a;(void)b;}
 /* Function start: 0x414180 */ /* TODO */ void DoLocalFn4180(int *p){(void)p;}
 short DAT_0059d52a;
+/* Function start: 0x4171D0 */ /* TODO */ void SetCombatFn71D0(void){}
+/* Function start: 0x417260 */ /* TODO */ void DrawCombatFn7260(void){}
+/* Function start: 0x417A00 */ /* TODO */ void CombatRoutine02(short a,int b,unsigned int c,int d,int e){(void)a;(void)b;(void)c;(void)d;(void)e;}
