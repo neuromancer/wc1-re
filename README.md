@@ -36,10 +36,13 @@ Then supply the pieces that cannot be vendored:
    `../releases/win32/WC1.EXE`; override with `ORIGINAL_SRC=/path/to/WC1.EXE`.
 2. **`3rdparty/msvcrt40.dll`** — the MSVC420 submodule ships one that does not work under
    wibo; drop a working copy here.
-3. **`3rdparty/dx/lib/{ddraw,dsound}.lib`** plus matching headers in `3rdparty/dx/include`.
-   `DDRAW.DLL` and `DSOUND.DLL` are bound through the import table, so import libraries are
-   needed at link time and MSVC 4.2 predates them.
-4. **`code-full/`** — the Ghidra-exported disassembly, strings and globals for `WC1.EXE`.
+3. **`code-full/`** — the original disassembly. `make export-asm` generates it from the PE
+   for whatever is annotated in `src/`; for the full export with recovered names, globals
+   and strings, run binary-comp's `ghidra_scripts/ExportToCompile.java` from Ghidra's
+   Script Manager. See [`docs/EXPORT.md`](docs/EXPORT.md).
+
+`ddraw.lib` / `dsound.lib` and their headers are already inside the MSVC420 submodule, so no
+separate DirectX SDK is needed.
 
 If you already have the sibling project checked out, you can reuse its `binary-comp` instead
 of the submodule:
@@ -51,14 +54,21 @@ make report BINARY_COMP="env PYTHONPATH=../my-teacher-is-an-alien-re/binary-comp
 ## Building
 
 ```sh
-make                # build WC1.EXE
-make progress       # reimplementation progress
-make report         # per-function similarity against the original
-make order          # compilation-unit boundary hints
-make verify         # the primary verification checklist
-make run-wine       # build and launch under Wine
-make sort           # check source files are address-sorted
+make                        # build WC1.EXE
+make export-asm             # (re)generate code-full/ from the original PE
+make compare-func FUNC=X    # compare one function against the original
+make report                 # per-function similarity + summary
+make order                  # compilation-unit boundary hints
+make verify                 # the primary verification checklist
+make progress               # reimplementation progress
+make sort                   # check source files are address-sorted
+make run-wine               # build and launch under Wine
 ```
+
+All comparison and verification goes through **binary-comp**; the Makefile exposes every
+one of its commands (`calls`, `compare`, `data`, `exe`, `export-asm`, `global-access`,
+`globals`, `order`, `report`, `seh`, `triage`, `values`, `vtables`). The only targets from
+the sibling project that are absent are the `*-demo` ones -- WC1 shipped no demo build.
 
 ## Layout
 
@@ -67,8 +77,8 @@ src/            game core (C).  src/map is the address-sorted function inventory
 src/ix/         ix audio library (C++), one file per original module
 include/        shared headers (wc1.h)
 config/         binary-comp configuration
-docs/           COMPILER.md, ORDER.md, LABELS.md
-bin/            showProgress.py, sortByAddress.py
+docs/           COMPILER.md, PATTERNS.md, EXPORT.md, ORDER.md, LABELS.md
+bin/            showProgress.py, sortByAddress.py, sweepFlags.py
 tools/          analyze_clang.sh, analyze_static.sh (analysis-only Clang passes)
 code-full/      Ghidra export (not vendored)
 data/full/      original executable and game data (not vendored)
@@ -101,7 +111,10 @@ from 16-bit DOS C.
 
 ## Status
 
-Scaffolding only. `src/ix/*.cpp` carry the full per-module function lists (in original source
+`make report`: **9 of 10 functions at 100.00%** (the tenth is the deliberate `WinMain`
+stub). Implemented so far: `MinShort`, `MaxShort`, `GetShiftKeyState`, `GetControlKeyState`,
+`GetGameClockTicks`, `WriteDebugString`, `SetMousePosition`, `RandomInRange`,
+`RandomBelowOrEqual`. `src/ix/*.cpp` carry the full per-module function lists (in original source
 order, with recovered assert line numbers) as stubs; `src/main.c` documents `main()` at
 `0x004274E0` but is deliberately not implemented, because writing it before its init callees
 are recovered would mean inventing the call order that the comparison exists to verify.

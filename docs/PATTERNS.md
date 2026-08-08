@@ -77,16 +77,29 @@ must therefore be using the windows.h one; do not redeclare it.
 
 ## Reading the comparison
 
-`bin/cmpFunc.py NAME` is the fast inner loop. It deliberately ignores things that cannot
-match by construction:
+**All comparisons go through binary-comp.** It is the only scorer; do not hand-roll one.
 
-- stack displacements (our locals differ; MSVC prints them symbolically as `_n$[esp]`)
-- absolute addresses, global symbol spellings, branch/call targets
-- Ghidra vs MASM mnemonic aliases (`JZ`/`je`, `JNZ`/`jne`, …)
-- `[edi+edx*1]` vs `[edi+edx]`, `ret 0` vs `ret`
+    make compare-func FUNC=MinShort    # one function, instruction-by-instruction
+    make report                        # every annotated function + summary
+    make report FILTER=mathutil        # restrict to matching files
+    make order                         # compilation-unit boundary evidence
+    make verify                        # the full expected-zero gate list
 
-It deliberately does **not** ignore register width: `mov eax,ecx` and `mov ax,cx` are
-reported as different, because that distinction is usually the real signal.
+`compare-func` prints the two instruction streams side by side with the original's
+addresses on the right, then a similarity percentage.
 
-`make report` (binary-comp) remains the authoritative check — it also validates addresses,
-data layout and call targets, which this tool cannot.
+Both `compare-func` and `report` require:
+
+- `code-full/FUN_<addr>.disassembled.txt` for the function -- `make export-asm` generates
+  these from the PE using the `/* Function start: 0x... */` annotations in `src/`
+  (see docs/EXPORT.md);
+- a **linked** `WC1.EXE` and `WC1.map`, which is why `src/stubs.c` provides a `WinMain`
+  stub. Nothing can be compared until the project links.
+
+`bin/sweepFlags.py` drives builds across flag combinations and scores each one with
+`make report`, so flag calibration uses the same authority as everything else.
+
+## Current state
+
+    make report
+    ... 9 of 10 at 100.00%; WinMain is a deliberate stub at 1.22%

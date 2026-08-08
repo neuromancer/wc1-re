@@ -1,91 +1,82 @@
 #!/usr/bin/env python3
-"""Search compiler flag combinations for the best match on a set of functions.
+"""Search compiler-flag combinations, scored by binary-comp.
 
-Calibration tool: the original's flags are not documented anywhere, so we
-recover them by compiling one representative file many ways and scoring each
-result against the original disassembly.
+The original's flags are not documented anywhere, so they get recovered by
+building the project many ways and asking binary-comp which build matches best.
+Scoring is always binary-comp's `report`; this script only drives the build.
 
-    bin/sweepFlags.py src/mathutil.c MinShort MaxShort
+    bin/sweepFlags.py                     # sweep CFLAGS_CORE
+    bin/sweepFlags.py --ix                # sweep CFLAGS_IX instead
+    bin/sweepFlags.py --filter mathutil   # restrict the report to one file
 """
-import importlib.util
-import itertools
-import os
+import argparse
+import re
 import subprocess
 import sys
+import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-spec = importlib.util.spec_from_file_location('cmpfunc', os.path.join(ROOT, 'bin', 'cmpFunc.py'))
-cmpfunc = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(cmpfunc)
 
-BASE = ['/nologo', '/c', '/MTd', '/I', 'include']
-TMP = os.path.join(ROOT, 'out', 'sweep')
-
-# Candidate optimizer sets. MSVC 4.2 presets plus hand-built combinations.
-CANDIDATES = [
-    ['/Od'],
-    ['/O1'], ['/O2'],
-    ['/Ox'],
-    ['/Og'], ['/Og', '/Os'], ['/Og', '/Ot'],
-    ['/Og', '/Oi', '/Ot', '/Oy', '/Ob1'],
-    ['/Og', '/Oi', '/Os', '/Oy', '/Ob1'],
-    ['/Og', '/Oi', '/Ot', '/Oy', '/Ob1', '/Gs'],
-    ['/Og', '/Oi', '/Os', '/Oy', '/Ob1', '/Gs'],
-    ['/O2', '/Oy'], ['/O1', '/Oy'],
-    ['/Ox', '/Oy'],
-    ['/Og', '/Oy'], ['/Os', '/Oy'], ['/Ot', '/Oy'],
-    ['/Oa', '/Og', '/Oi', '/Ot', '/Oy', '/Ob1'],
-    ['/Ow', '/Og', '/Oi', '/Ot', '/Oy', '/Ob1'],
+CORE_CANDIDATES = [
+    '/Od',
+    '/O1', '/O2', '/Ox',
+    '/Og', '/Og /Os', '/Og /Ot',
+    '/Og /Oi /Ot /Oy /Ob1',
+    '/Og /Oi /Ot /Oy /Ob1 /Gs',
+    '/Og /Oi /Os /Oy /Ob1',
+    '/O2 /Oy', '/O1 /Oy', '/Ox /Oy',
+    '/Oa /Og /Oi /Ot /Oy /Ob1',
+    '/Ow /Og /Oi /Ot /Oy /Ob1',
 ]
+IX_CANDIDATES = ['/Od', '/Od /Gs', '/Og', '/O1', '/O2', '/Zi /Od']
+
+SUMMARY = re.compile(r'Average similarity:\s*([\d.]+)%')
+HUNDRED = re.compile(r'^\s*100%:\s*(\d+)', re.M)
+TOTAL = re.compile(r'^\s*Total compared:\s*(\d+)', re.M)
 
 
-def build(src, flags):
-    os.makedirs(TMP, exist_ok=True)
-    stem = os.path.splitext(os.path.basename(src))[0]
-    asm = os.path.join(TMP, stem + '.asm')
-    for p in (asm, os.path.join(TMP, stem + '.obj')):
-        if os.path.exists(p):
-            os.remove(p)
-    cmd = ['./wibo', 'compilers/msvc420/bin/CL.EXE'] + BASE + flags + [
-        src, f'/Fo{TMP}/{stem}.obj', f'/Fa{asm}']
-    env = dict(os.environ, INCLUDE=r'compilers\msvc420\include')
-    r = subprocess.run(cmd, cwd=ROOT, env=env, capture_output=True, text=True)
-    return (asm if os.path.exists(asm) else None), r
+def run(flags, var, filt):
+    subprocess.run(['make', 'clean'], cwd=ROOT, capture_output=True)
+    build = subprocess.run(['make', 'WC1.EXE', f'{var}={flags}'],
+                           cwd=ROOT, capture_output=True, text=True)
+    if build.returncode != 0:
+        return None, 'BUILD FAILED'
+    cmd = ['make', 'report', f'{var}={flags}']
+    if filt:
+        cmd.append(f'FILTER={filt}')
+    rep = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    out = rep.stdout + rep.stderr
+    m = SUMMARY.search(out)
+    if not m:
+        return None, 'NO REPORT'
+    h = HUNDRED.search(out)
+    t = TOTAL.search(out)
+    return float(m.group(1)), f"{h.group(1) if h else '?'}/{t.group(1) if t else '?'} exact"
 
 
 def main():
-    if len(sys.argv) < 3:
-        sys.exit(__doc__)
-    src, names = sys.argv[1], sys.argv[2:]
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--ix', action='store_true', help='sweep CFLAGS_IX instead of CFLAGS_CORE')
+    ap.add_argument('--filter', default=None, help='restrict the report to matching files')
+    args = ap.parse_args()
 
-    saved_out = cmpfunc.OUT
+    var = 'CFLAGS_IX' if args.ix else 'CFLAGS_CORE'
+    base = '/nologo /c /MTd /I include'
+    cands = IX_CANDIDATES if args.ix else CORE_CANDIDATES
+
     results = []
-    for flags in CANDIDATES:
-        asm, r = build(src, flags)
-        if asm is None:
-            results.append((0.0, flags, 'BUILD FAILED: ' + (r.stdout or r.stderr)[:60]))
-            continue
-        cmpfunc.OUT = TMP
-        scores = []
-        for n in names:
-            orig = cmpfunc.load_original(n)
-            rebuilt, _ = cmpfunc.load_rebuilt(n)
-            if orig is None or rebuilt is None:
-                continue
-            import difflib
-            a = [cmpfunc.norm(x) for x in orig]
-            b = [cmpfunc.norm(x) for x in rebuilt]
-            scores.append(difflib.SequenceMatcher(None, a, b).ratio() * 100)
-        cmpfunc.OUT = saved_out
-        mean = sum(scores) / len(scores) if scores else 0.0
-        detail = ' '.join(f'{n}={s:.0f}%' for n, s in zip(names, scores))
-        results.append((mean, flags, detail))
+    for opt in cands:
+        score, note = run(f'{base} {opt}', var, args.filter)
+        results.append((score if score is not None else -1.0, opt, note))
+        print(f'  {opt:<34} {("%.2f%%" % score) if score is not None else note}', flush=True)
 
-    results.sort(key=lambda x: -x[0])
-    print(f'{"mean":>7}  {"flags":<44} detail')
-    for mean, flags, detail in results:
-        print(f'{mean:6.1f}%  {" ".join(flags):<44} {detail}')
-    print(f'\nbest: {" ".join(results[0][1])}')
+    results.sort(key=lambda r: -r[0])
+    print(f'\n{"mean":>9}  {"flags":<34} detail')
+    for score, opt, note in results:
+        s = f'{score:8.2f}%' if score >= 0 else '   n/a  '
+        print(f'{s}  {opt:<34} {note}')
+    print(f'\nbest {var}: {results[0][1]}')
+    subprocess.run(['make', 'clean'], cwd=ROOT, capture_output=True)
 
 
 if __name__ == '__main__':

@@ -100,10 +100,19 @@ compare against the original.
 
 ### Compiling & Comparing Assembly
 
+    make compare-func FUNC=RunShipAiBehaviorTick
+
+which resolves the export and runs
+
     binary-comp compare --config config/binary-comp.json --target full \
         RunShipAiBehaviorTick code-full/FUN_004075D0.disassembled.txt
 
-This shows compiler errors or the generated instruction diff.
+**binary-comp is the only comparison authority.** Do not write or trust a separate
+similarity script. `make report` scores every annotated function; `make verify` runs the
+expected-zero gates.
+
+If a function has no export yet, add its `/* Function start: 0x... */` header and run
+`make export-asm` (see docs/EXPORT.md).
 
 ### Compilation-unit order
 
@@ -116,6 +125,8 @@ incrementally with `make order` and record findings in `docs/ORDER.md`.
 ## Required Files & Documentation
 
 - `docs/COMPILER.md` — toolchain and flag derivation. Read before touching `CFLAGS`.
+- `docs/PATTERNS.md` — source idioms that decide whether the output matches.
+- `docs/EXPORT.md` — how `code-full/` is produced and what each command needs.
 - `docs/ORDER.md` — known and unknown compilation-unit boundaries.
 - `docs/LABELS.md` — what the two kinds of Ghidra name mean and how much to trust each.
 - `code-full/strings.txt` — address-to-string map. Always check when strings appear.

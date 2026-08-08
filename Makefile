@@ -104,6 +104,8 @@ ORIGINAL_EXE = data/full/WC1.ORI.EXE
 ORIGINAL_SRC ?= ../releases/win32/WC1.EXE
 
 VERIFY_CONFIG = config/binary-comp.json
+CODE_DIR = code-full
+EXPORT_ASM_FLAGS ?=
 BINARY_COMP ?= env PYTHONPATH=binary-comp/src python3 -m binary_comp.cli
 
 VALUE_MIN_SIMILARITY ?= 80
@@ -180,6 +182,12 @@ all: $(TARGET)
 
 build: $(TARGET)
 
+# Naming parity with the sibling project, which has separate full/demo builds.
+# WC1 shipped no demo, so there is only one target here and the `*-demo`
+# counterparts (build-demo, report-demo, seh-demo, compare-demo, run-demo,
+# progress-demo) intentionally do not exist.
+build-full: $(TARGET)
+
 ifeq ($(UNAME_S),Linux)
 WIBO_PRESET = release64-clang
 WIBO_BIN = wibo-src/build/release64-clang/wibo
@@ -241,6 +249,22 @@ GLOBAL_ACCESS_FLAGS ?=
 ORDER_FLAGS ?=
 ANALYZE_FILES ?= all
 
+# binary-comp command coverage (mirrors the sibling project):
+#   calls         -> verify-calls
+#   compare       -> compare-func FUNC=Name
+#   data          -> globals-data, globals-data-verbose, missing-data
+#   exe           -> compare, compare-functions
+#   export-asm    -> export-asm
+#   global-access -> verify-global-access
+#   globals       -> verify-globals, verify-globals-code, globals-missing,
+#                    audit-auto-complete-globals, audit-rebuilt-global-layout
+#   order         -> order
+#   report        -> report
+#   seh           -> seh
+#   triage        -> triage
+#   values        -> verify-values, verify-values-stack-locals
+#   vtables       -> verify-vtables
+
 sort:
 	@python3 bin/sortByAddress.py
 
@@ -249,6 +273,26 @@ progress:
 
 report: $(TARGET) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) report $(BC) $(if $(FILTER),--filter $(FILTER))
+
+# Compare a single rebuilt function against the original.  This is the inner
+# loop while implementing:  make compare-func FUNC=MinShort
+# Exports are named FUN_<ADDRESS>.disassembled.txt (see ExportToCompile.java),
+# so resolve the file from the `Function:` header rather than the symbol name.
+compare-func: $(TARGET) | code-full $(ORIGINAL_EXE)
+	@test -n "$(FUNC)" || (echo "usage: make compare-func FUNC=<FunctionName>" >&2 && exit 1)
+	@f=$$(grep -lE "^Function: $(FUNC)$$" $(CODE_DIR)/*.disassembled.txt 2>/dev/null | head -1); \
+	test -n "$$f" || (echo "no export for $(FUNC) in $(CODE_DIR)/ -- run 'make export-asm'" >&2 && exit 1); \
+	$(BINARY_COMP) compare $(BC) --no-build $(FUNC) "$$f"
+
+# Regenerate code-full/ straight from the original PE with Capstone.  Preferred
+# over scraping Ghidra; bin/exportGhidra.py remains for names Ghidra knows and
+# the PE does not.
+export-asm: | $(ORIGINAL_EXE)
+	@$(BINARY_COMP) export-asm $(BC) $(EXPORT_ASM_FLAGS)
+
+# Split near-miss functions into source-reachable vs allocator churn.
+triage: $(TARGET) | code-full $(ORIGINAL_EXE)
+	@$(BINARY_COMP) triage $(BC) $(if $(FILTER),--filter $(FILTER))
 
 # Original-address compilation-unit ordering and boundary evidence.  This is the
 # main tool for recovering game-core module boundaries, which are still unknown.
@@ -276,6 +320,10 @@ compare: $(TARGET) | $(ORIGINAL_EXE)
 compare-functions: $(TARGET) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) exe $(BC) --functions
 
+compare-full: compare
+
+compare-full-functions: compare-functions
+
 # ---------------------------------------------------------------------------
 # Verification
 # ---------------------------------------------------------------------------
@@ -287,6 +335,7 @@ verify:
 	@$(MAKE) verify-global-access
 	@$(MAKE) verify-values
 	@$(MAKE) verify-values-stack-locals
+	@$(MAKE) verify-vtables
 
 verify-globals: $(TARGET) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) --fail-on-issues --fail-on-warnings
@@ -300,6 +349,22 @@ verify-globals-code: $(TARGET) | code-full $(ORIGINAL_EXE)
 		--max-address $(GLOBALS_MISSING_MAX_ADDRESS)
 
 globals-missing: verify-globals-code
+
+# Compatibility aliases used by the sibling project's notes and scripts.
+globals: globals-data
+
+globals-verbose: globals-data-verbose
+
+audit-auto-complete-globals: $(TARGET) | code-full $(ORIGINAL_EXE)
+	@$(BINARY_COMP) globals $(BC) --show-auto-complete-reviewed
+
+audit-rebuilt-global-layout: $(TARGET) | code-full $(ORIGINAL_EXE)
+	@$(BINARY_COMP) globals $(BC) --check-rebuilt-layout
+
+# WC1's own code is C and has no vtables, but the DirectDraw/DirectSound COM
+# interfaces are dispatched through vtables, so this stays in the checklist.
+verify-vtables: $(TARGET) | code-full $(ORIGINAL_EXE)
+	@$(BINARY_COMP) vtables $(BC)
 
 verify-calls: | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) calls $(BC) $(CALLS_FLAGS) $(if $(FILTER),$(FILTER))
@@ -371,6 +436,14 @@ run-wine-original: wine-check $(ORIGINAL_EXE)
 
 run: run-wine
 
+run-original: run-wine-original
+
+# The sibling project's `debug` target launches DREAMM's debugger; the Win32
+# equivalent here is Wine with its debug channels enabled.
+debug: wine-stage
+	cd "$(WINE_RUN_DIR)" && WINEPREFIX="$(WINEPREFIX)" WINEDEBUG=+relay,+seh \
+		$(WINE) WC1.EXE > debug.log 2>&1
+
 # ---------------------------------------------------------------------------
 # Cleanup and phony declarations
 # ---------------------------------------------------------------------------
@@ -387,7 +460,20 @@ clean-wine:
 	analyze \
 	analyze-clang \
 	analyze-static \
+	audit-auto-complete-globals \
+	audit-rebuilt-global-layout \
 	build \
+	build-full \
+	compare-full \
+	compare-full-functions \
+	compare-func \
+	debug \
+	run-original \
+	export-asm \
+	globals \
+	globals-verbose \
+	triage \
+	verify-vtables \
 	clean \
 	clean-wine \
 	compare \
