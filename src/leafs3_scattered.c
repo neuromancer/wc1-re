@@ -32,7 +32,7 @@ extern void GetShipAiFn7C50(void);                     /* 0x00427C50 */
 extern void UiRoutine05(void);                         /* 0x00429DD0 */
 extern void GetUiFn9DD0(void);                         /* 0x00409DD0 */
 extern void GetUiFn60F0(unsigned char a, int b);       /* 0x004360F0 */
-extern void DoUiFn3500(unsigned int v);                /* 0x00423500 */
+extern void DoUiFn3500(unsigned int v);                /* 0x00403500 */
 extern void LoopInputFn5760(int node);                 /* 0x00435760 */
 extern void WriteDebugString(const char *s);           /* 0x004030D0 */
 extern void GetG005a8760Fn3DB0(const char *fmt, ...);  /* 0x00403DB0 */

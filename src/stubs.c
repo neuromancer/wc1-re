@@ -59,5 +59,6 @@ void PumpMessagesWhileDebugPaused(unsigned int arg) { (void)arg; }
 /* Function start: 0x429DD0 */ /* TODO */ void UiRoutine05(void) {}
 /* Function start: 0x409DD0 */ /* TODO */ void GetUiFn9DD0(void) {}
 /* Function start: 0x4360F0 */ /* TODO */ void GetUiFn60F0(unsigned char a, int b) { (void)a; (void)b; }
-/* Function start: 0x423500 */ /* TODO */ void DoUiFn3500(unsigned int v) { (void)v; }
 /* Function start: 0x435760 */ /* TODO */ void LoopInputFn5760(int n) { (void)n; }
+/* Function start: 0x42F940b */ /* TODO */ void ReleaseTbl005a7f10FnF940(void *p) { (void)p; }
+/* Function start: 0x42E330 */  /* TODO */ void DoLocalFnE330(void) {}
