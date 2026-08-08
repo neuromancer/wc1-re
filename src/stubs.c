@@ -72,3 +72,11 @@ void PumpMessagesWhileDebugPaused(unsigned int arg) { (void)arg; }
 /* Function start: 0x406910 */ /* TODO */ void ShipAiRoutine07(short a, int b) { (void)a; (void)b; }
 /* Function start: 0x402320 */ /* TODO */ void PumpWindowMessages(void) {}
 /* Function start: 0x4359C0 */ /* TODO */ void DispatchTbl0046da90Fn59C0(int a) { (void)a; }
+/* Function start: 0x421A90 */ /* TODO */ void DoLocalFn1A90(void *a, void *b) { (void)a; (void)b; }
+/* Function start: 0x4273C0 */ /* TODO */ void ShowMemoryStatusDebug(void) {}
+/* Function start: 0x428F20 */ /* TODO */ void DoLocalFn8F20(const char *s) { (void)s; }
+/* Function start: 0x428FA0b */ /* TODO */ void HelperOf428F80A(const char *s) { (void)s; }
+/* Function start: 0x428FA0 */ /* TODO */ void ShowOnScreenMessage(short f, short d, const char *fmt, ...) { (void)f; (void)d; (void)fmt; }
+/* Function start: 0x430C00 */ /* TODO */ void CombatRoutine03(int a, short b) { (void)a; (void)b; }
+/* Function start: 0x427370 */ /* TODO */ void exit_squadron(const char *s) { (void)s; }
+char *PTR_s_Never_mind____0046af90[32];
