@@ -15,6 +15,60 @@ IxStream g_streams_00598138[8];
 int      g_nStreamCount_00598130;
 int      g_nStreamsAllocated_00598134;
 
+/* Function start: 0x4451B5 */   /* source lines 26, 27, 28, 32 */
+void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channels)
+{
+    int voice;
+    IxVoice *v;
+
+    if (stream < 0 || stream >= g_nStreamCount_00598130) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 26);
+        ix_log_printf("invalid stream index");
+        exit(-1);
+    }
+    if ((g_streams_00598138[stream].flags & IX_STREAM_ALLOCATED) != 0) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 27);
+        ix_log_printf("stream already allocated!");
+        exit(-1);
+    }
+    if ((g_streams_00598138[stream].flags & IX_STREAM_PLAYING) != 0) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 28);
+        ix_log_printf("stream still playing!");
+        exit(-1);
+    }
+    g_streams_00598138[stream].buffer = new unsigned char[size];
+    if (g_streams_00598138[stream].buffer == 0) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 32);
+        ix_log_printf("failed to allocate stream buffer");
+        exit(-1);
+    }
+    g_streams_00598138[stream].size = size;
+    g_streams_00598138[stream].writePos = 0;
+    g_streams_00598138[stream].playPos = g_streams_00598138[stream].writePos;
+    g_streams_00598138[stream].pending = g_streams_00598138[stream].playPos;
+    InitializeCriticalSection(&g_streams_00598138[stream].cs);
+
+    voice = stream + g_nVoiceCount_00598600;
+    v = &g_voices_005981a8[voice];
+    v->flags = IX_VOICE_ACTIVE | IX_VOICE_FLAG4 | 1;
+    if (bps == 16)
+        v->flags |= IX_VOICE_16BIT;
+    if (channels == 2)
+        v->flags |= IX_VOICE_STEREO;
+    v->cursor = g_streams_00598138[stream].buffer;
+    v->start = v->cursor;
+    v->end = v->cursor + size;
+    v->volume = 0x7fff;
+    v->leftGain = v->volume;
+    v->rightGain = v->volume;
+    v->leftGainHi = (unsigned char)((unsigned short)v->volume >> 8);
+    v->rightGainHi = (unsigned char)((unsigned short)v->volume >> 8);
+    v->field_10 = 0;
+    v->rate = (short)((freq << 8) / IX_MIXER_BASE_RATE);
+    g_nStreamsAllocated_00598134 = g_nStreamsAllocated_00598134 + 1;
+    g_streams_00598138[stream].flags |= IX_STREAM_ALLOCATED;
+}
+
 /* Function start: 0x44546B */   /* source lines 62, 63 */
 void ix_dsps_free(int stream)
 {
@@ -142,4 +196,42 @@ unsigned int ix_dsps_get_flags(int stream)
         exit(-1);
     }
     return g_streams_00598138[stream].flags;
+}
+
+/* Function start: 0x445A6F */   /* source lines 128, 129 */
+int ix_dsps_get_buffer_free(int stream)
+{
+    unsigned int played;
+
+    if (stream < 0 || stream >= g_nStreamCount_00598130) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 128);
+        ix_log_printf("invalid stream index");
+        exit(-1);
+    }
+    if ((g_streams_00598138[stream].flags & IX_STREAM_ALLOCATED) == 0) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 129);
+        ix_log_printf("stream is not ready!");
+        exit(-1);
+    }
+    EnterCriticalSection(&g_streams_00598138[stream].cs);
+    played = g_voices_005981a8[g_nVoiceCount_00598600 + stream].cursor
+           - g_streams_00598138[stream].buffer;
+    if ((int)g_streams_00598138[stream].pending < 0) {
+        g_streams_00598138[stream].pending = 0;
+        g_streams_00598138[stream].playPos = played;
+        LeaveCriticalSection(&g_streams_00598138[stream].cs);
+        return g_streams_00598138[stream].size;
+    }
+    if (g_streams_00598138[stream].playPos < played) {
+        g_streams_00598138[stream].pending =
+            g_streams_00598138[stream].pending - (played - g_streams_00598138[stream].playPos);
+    }
+    else if (g_streams_00598138[stream].playPos != played) {
+        g_streams_00598138[stream].pending =
+            g_streams_00598138[stream].pending
+            - ((g_streams_00598138[stream].size - g_streams_00598138[stream].playPos) + played);
+    }
+    g_streams_00598138[stream].playPos = played;
+    LeaveCriticalSection(&g_streams_00598138[stream].cs);
+    return g_streams_00598138[stream].size - g_streams_00598138[stream].pending;
 }

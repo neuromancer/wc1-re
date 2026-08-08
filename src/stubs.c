@@ -27,3 +27,15 @@ void GetG005a8760Fn3DB0(const char *fmt, ...)
 {
     (void)fmt;
 }
+
+/* Function start: 0x42EF30 */
+/* TODO: PlaySfxWaveFileByNumber -- plays sfx%02i.wav. */
+void PlaySfxWaveFileByNumber(int n, int a, int b) { (void)n; (void)a; (void)b; }
+
+/* Function start: 0x433060 */
+/* TODO: DIBwholePaletteFromTriplets -- 256 packed RGB triplets -> SetEntries. */
+void DIBwholePaletteFromTriplets(unsigned char *palette) { (void)palette; }
+
+/* Function start: 0x42AFC0 */
+/* TODO: SetMultimediaTimerCallback -- timeSetEvent/timeKillEvent wrapper. */
+void SetMultimediaTimerCallback(int period) { (void)period; }

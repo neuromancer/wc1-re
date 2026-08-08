@@ -34,7 +34,9 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
 - DO NOT change calling conventions. The game core is `__cdecl`; a handful of `ix` functions
   are `__thiscall` — leave those implicit, never spell `__thiscall` out.
 - DO NOT add:
-  - inline assembly
+  - inline assembly, EXCEPT where there is strong evidence the original was hand-written
+    assembly or a bare tail-jump thunk (see docs/PATTERNS.md); `__declspec(naked)` plus a
+    single `jmp` is the sanctioned case
   - dummy variables
   - helper functions or wrappers that do not exist in the original binary
   - vtable fields or manual vtable handling

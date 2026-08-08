@@ -129,6 +129,28 @@ fall-through:
 Under /Od the `if` arm is the fall-through and the `else` arm is jumped to, so the order of
 the arms in the source is directly observable in the disassembly.
 
+## Do not trust the operational labels
+
+Three functions scored 0-40% because I implemented what the Ghidra *name* claimed instead of
+what the disassembly showed.  `docs/LABELS.md` warns about exactly this; the warning is real:
+
+| Label | What it actually is |
+|---|---|
+| `ReturnConst3E8000` (0x42FB20) | a bare `JMP 0x4362E0` tail-jump thunk -- Ghidra followed the jump and folded the callee's `return 0x3e8000` into the display |
+| `ReturnConst1v3` (0x422130) | `mov eax,0x59b430 / cmp eax,1 / sbb eax,eax / inc eax` -- the `>= 1` boolean idiom applied to an *address*, which is always non-zero, so Ghidra folded it to `return 1` |
+| `CallThrough433060` (0x434FD0) | a `__stdcall` forwarder that passes its argument through (`ret 4`), not a no-argument call |
+
+All three reached 100% once written from the disassembly.  **Read the export before writing
+the body, every time.**
+
+Tail-jump thunks need `__declspec(naked)` plus inline asm, which is permitted where the
+evidence says the original really is a bare jump:
+
+```c
+unsigned int Target(void);            /* forward declaration required */
+__declspec(naked) void Thunk(void) { __asm { jmp Target } }
+```
+
 ## Reading the comparison
 
 **All comparisons go through binary-comp.** It is the only scorer; do not hand-roll one.
