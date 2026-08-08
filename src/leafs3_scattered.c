@@ -14,7 +14,7 @@ unsigned char  DAT_00469648;
 unsigned char  DAT_00469fb4;
 unsigned char  DAT_0059ab19;
 unsigned char  DAT_0046af60;
-void          *DAT_0046b1a4;
+extern int *DAT_0046b1a4;
 int            DAT_0046da90;
 int            DAT_0046da94;
 unsigned char  DAT_0059ab3c;
@@ -112,7 +112,7 @@ int HelperOf430FC0C(void) { return DAT_0046af60 == 0; }
 /* Function start: 0x434FB0 */
 void GetG0046b1a4Fn4FB0(void)
 {
-    (*(void (**)(void *, int, int))(*(int **)DAT_0046b1a4 + 0x58 / 4))(DAT_0046b1a4, 1, 0);
+    (**(void (**)(void *, int, int))(*DAT_0046b1a4 + 0x58))(DAT_0046b1a4, 1, 0);
 }
 
 /* Function start: 0x435DB0 */

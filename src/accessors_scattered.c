@@ -20,6 +20,7 @@ unsigned int  DAT_005a8964;
 unsigned short DAT_00468660;
 unsigned char DAT_0046af6c;
 unsigned int  DAT_00486074;
+unsigned char DAT_00465074;
 unsigned char DAT_0059b430;
 
 /* Forwarding targets, implemented elsewhere. */

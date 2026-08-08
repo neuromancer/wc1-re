@@ -27,7 +27,7 @@ extern unsigned char  DAT_0059ca94[];
 extern unsigned char  DAT_005a7dca;
 extern unsigned char  DAT_0059a850;
 extern unsigned int   DAT_0059af8c;
-extern void          *DAT_0046b1a4;
+extern int *DAT_0046b1a4;
 
 extern void PlaySfxWaveFileByNumber(int n, int a, int b);
 extern void DoUiFn5590(void);
@@ -137,7 +137,7 @@ void DoSceneFnEEE0(void) { DAT_0046aa30 = 1; DoLocalFnE330(); }
 /* Function start: 0x4331E0 */
 void GetVideoFn31E0(void)
 {
-    (*(void (**)(void *, int, int))(*(int **)DAT_0046b1a4 + 0x58 / 4))(DAT_0046b1a4, 1, 0);
+    (**(void (**)(void *, int, int))(*DAT_0046b1a4 + 0x58))(DAT_0046b1a4, 1, 0);
 }
 
 /* Function start: 0x434FF0 */

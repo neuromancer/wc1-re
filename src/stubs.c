@@ -26,8 +26,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 void PlaySfxWaveFileByNumber(int n, int a, int b) { (void)n; (void)a; (void)b; }
 
 /* Function start: 0x433060 */
-/* TODO: DIBwholePaletteFromTriplets -- 256 packed RGB triplets -> SetEntries. */
-void DIBwholePaletteFromTriplets(unsigned char *palette) { (void)palette; }
+/* TODO */ void DIBwholePaletteFromTriplets(unsigned char *palette) { (void)palette; }
+/* Function start: 0x4331F0 */ /* TODO */ char *DirectDrawResultToText(int hr){(void)hr;return "";}
+/* Function start: 0x432970 */ /* TODO */ void DIBslamReal(void){}
+/* Function start: 0x432410 */ /* TODO */ int DIBcascade(int m,int *e){(void)m;(void)e;return 0;}
+/* Function start: 0x4328A0 */ /* TODO */ void DIBdestroyDIB(void){}
 
 /* Function start: 0x42AFC0 */
 /* TODO: SetMultimediaTimerCallback -- timeSetEvent/timeKillEvent wrapper. */
