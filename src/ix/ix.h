@@ -20,6 +20,8 @@
 #ifndef IX_H
 #define IX_H
 
+#include <windows.h>   /* CRITICAL_SECTION, used by the stream/voice state below */
+
 /* --------------------------------------------------------------------------
  * Diagnostics.  Every ix module reports through this one variadic printer, and
  * the calls come in pairs:
@@ -60,8 +62,7 @@ struct IxVoice {                  /* 32 bytes; offsets confirmed from the access
 /* Master volume and the stereo pan table (two shorts per position). */
 extern unsigned short g_nMasterVolume_0047198c;
 extern short          g_anPanTable_00597d28[];
-struct _RTL_CRITICAL_SECTION;
-extern struct _RTL_CRITICAL_SECTION g_csMixer_005985e8;
+extern CRITICAL_SECTION g_csMixer_005985e8;
 
 #define IX_MIXER_BASE_RATE 22050    /* 0x5622, the divisor in set_frequency */
 
@@ -94,6 +95,29 @@ void ix_dspv_recalc_mix(int voice);                            /* 0x00446EBF */
  * Streams occupy voice slots AFTER the regular voices:
  * voice[voice_count + stream_index].
  * -------------------------------------------------------------------------- */
+enum IxStreamFlags {
+    IX_STREAM_ALLOCATED = 0x01,
+    IX_STREAM_PLAYING   = 0x02,
+    IX_STREAM_LOCKED    = 0x04
+};
+
+struct IxStream {                       /* 0x38 bytes */
+    unsigned int   flags;               /* +0x00 */
+    unsigned char *buffer;              /* +0x04 */
+    unsigned int   size;                /* +0x08 */
+    unsigned int   writePos;            /* +0x0C */
+    unsigned int   playPos;             /* +0x10 */
+    unsigned int   pending;             /* +0x14 */
+    unsigned char *lockPtr;             /* +0x18 */
+    unsigned int   lockLen;             /* +0x1C */
+    CRITICAL_SECTION cs;                /* +0x20, 24 bytes */
+};
+
+extern IxStream g_streams_00598138[];
+extern int      g_nStreamCount_00598130;
+extern int      g_nStreamsAllocated_00598134;
+
+#define IX_DSPS_FILE "D:\\rnd\\prj\\ix\\win95\\dsp\\dsps.cpp"
 void ix_dsps_alloc(int stream, int bytes);       /* 0x004451B5 */
 void ix_dsps_free(int stream);                   /* 0x0044546B */
 void ix_dsps_prepare(int stream);                /* 0x00445582 */

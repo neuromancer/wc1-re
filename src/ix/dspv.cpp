@@ -12,7 +12,6 @@
  *  list below is the original source order of this file.
  */
 #include "ix.h"
-#include <windows.h>
 #include <stdlib.h>
 
 IxVoice        g_voices_005981a8[32];
