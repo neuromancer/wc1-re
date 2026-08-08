@@ -97,3 +97,10 @@ char *PTR_s_MISSILE_LOCKED_004691d4[8];
 /* Function start: 0x419950 */ /* TODO */ void DoLocalFn9950(unsigned int *p,int v){(void)p;(void)v;}
 /* Function start: 0x414BF0 */ /* TODO */ void ReportComponentHit(char a,char b,char c){(void)a;(void)b;(void)c;}
 /* Function start: 0x428280 */ /* TODO */ void GetTbl0059b470Fn8280(short a,int b){(void)a;(void)b;}
+/* Function start: 0x419990 */ /* TODO */ void DoLocalFn9990(int *a,int *b,short c){(void)a;(void)b;(void)c;}
+/* Function start: 0x40AA00 */ /* TODO */ void ScanTbl0059cab0Fn0AA0(short a){(void)a;}
+/* Function start: 0x4148A0 */ /* TODO */ void SetTbl0059dec0Fn48A0(short i,int v){(void)i;(void)v;}
+/* Function start: 0x407060 */ /* TODO */ int ShipAiRoutine18(short s){(void)s;return 0;}
+/* Function start: 0x435090 */ /* TODO */ void DoLocalFn5090(short a,short b,short *p){(void)a;(void)b;(void)p;}
+/* Function start: 0x427440 */ /* TODO */ unsigned int GameNoBodyStubv20(void){return 0;}
+/* Function start: 0x442460 */ /* TODO */ void Streamer_stop(void) {}
