@@ -47,3 +47,17 @@ void SetMultimediaTimerCallback(int period) { (void)period; }
 /* Function start: 0x41CD40 */
 /* TODO: PumpMessagesWhileDebugPaused -- GetMessage/Translate/Dispatch loop. */
 void PumpMessagesWhileDebugPaused(unsigned int arg) { (void)arg; }
+
+/* Forward references still to be implemented; each is a real function. */
+/* Function start: 0x433120 */ /* TODO */ void DIBwholePaletteFromWords(void) {}
+/* Function start: 0x407460 */ /* TODO */ void HelperOf4075A0A(short s) { (void)s; }
+/* Function start: 0x4060B0 */ /* TODO */ void SelectNewShipAiBehavior(short s) { (void)s; }
+/* Function start: 0x402C70 */ /* TODO */ void DoShipAiFn2C70(short a, int b) { (void)a; (void)b; }
+/* Function start: 0x40A360 */ /* TODO */ void DispatchTbl0059d5e0FnA360(short a) { (void)a; }
+/* Function start: 0x421100 */ /* TODO */ void ScanTbl0059cab0Fn1100(short a, int b) { (void)a; (void)b; }
+/* Function start: 0x427C50 */ /* TODO */ void GetShipAiFn7C50(void) {}
+/* Function start: 0x429DD0 */ /* TODO */ void UiRoutine05(void) {}
+/* Function start: 0x409DD0 */ /* TODO */ void GetUiFn9DD0(void) {}
+/* Function start: 0x4360F0 */ /* TODO */ void GetUiFn60F0(unsigned char a, int b) { (void)a; (void)b; }
+/* Function start: 0x423500 */ /* TODO */ void DoUiFn3500(unsigned int v) { (void)v; }
+/* Function start: 0x435760 */ /* TODO */ void LoopInputFn5760(int n) { (void)n; }
