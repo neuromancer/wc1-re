@@ -110,3 +110,106 @@ void DoUiFn5590(void) { DAT_0059a850 = 0; }
 
 /* Function start: 0x4355C0 */
 void SceneNoBodyStub(void) {}
+
+/* ------------------------------------------------------------------------
+ * Second tranche.  Same "not a real compilation unit" caveat applies.
+ * ------------------------------------------------------------------------ */
+
+unsigned short DAT_0046c084;
+unsigned int   DAT_0059af8c;
+short          DAT_0046daa0;
+unsigned char  DAT_005a7c31[2048];
+
+extern void GameNoBodyStubv12(void);
+extern unsigned short ReturnConst1v5(void);
+
+/* Function start: 0x403E40 */
+void UiNoBodyStub(int p)
+{
+    *(unsigned char **)(p + 0x12) = *(unsigned char **)(p + 0xe);
+    **(unsigned char **)(p + 0xe) = 0;
+}
+
+/* Function start: 0x409CF0 */
+void SetUiFn9CF0(void) { DAT_0046c080 = 1; DAT_0046c084 = 0xffff; }
+
+/* Function start: 0x414A10 */
+unsigned short DoCombatFn4A10(unsigned short v) { DAT_005a7dca = (unsigned char)v; return 0; }
+
+/* Function start: 0x416250 */
+short DoLocalFn6250(int p) { return *(short *)(p + 0xc) - *(short *)(p + 8); }
+
+/* Function start: 0x425E20 */
+unsigned int GetUiFn5E20(short i) { return *(unsigned int *)(&DAT_005a7c31[0] + i * 5); }
+
+/* Function start: 0x42C410 */
+void GameNoBodyStubv7(void) {}
+
+/* Function start: 0x42E390 */
+void GameNoBodyStubv8(void) {}
+
+/* Function start: 0x42E3E0 */
+void GameNoBodyStubv9(void) {}
+
+/* Function start: 0x42F940 */
+unsigned short DoLocalFnF940(void) { ReturnConst1v5(); return 1; }
+
+/* Function start: 0x4318F0 */
+void DoLocalFn18F0(void) { GameNoBodyStubv12(); }
+
+/* Function start: 0x434FA0 */
+void UiRoutine08(unsigned int v) { DAT_0059af8c = v; }
+
+/* Function start: 0x434FC0 */
+unsigned int DoLocalFn4FC0(unsigned int v) { return v; }
+
+/* Function start: 0x434FE0 */
+unsigned short DoLocalFn4FE0(unsigned short *p) { return *p; }
+
+/* Function start: 0x435010 */
+void GameNoBodyStubv12(void) {}
+
+/* Function start: 0x435410 */
+unsigned int DoLocalFn5410(unsigned int v) { return v; }
+
+/* Function start: 0x435420 */
+unsigned int DoLocalFn5420(unsigned int v) { return v; }
+
+/* Function start: 0x4360D0 */
+void GetUiFn60D0(void) { DAT_0046daa0 = DAT_0046daa0 + 1; }
+
+/* Function start: 0x4360E0 */
+void GetUiFn60E0(void) { DAT_0046daa0 = DAT_0046daa0 - 1; }
+
+/* Function start: 0x4362A0 */
+void GameNoBodyStubv16(void) {}
+
+/* Function start: 0x4362C0 */
+unsigned short DoLocalFn62C0(unsigned short v) { return v; }
+
+/* Function start: 0x4362D0 */
+void GameNoBodyStubv17(void) {}
+
+/* Function start: 0x4368F0 */
+unsigned short HelperOf4273C0A(void) { return 0x8000; }
+
+/* Function start: 0x436900 */
+void GameNoBodyStubv19(void) {}
+
+/* Function start: 0x436970 */
+unsigned int ReturnConst0v10(void) { return 0; }
+
+/* Function start: 0x4369A0 */
+unsigned short HelperOf41D6C0C(void) { return 0; }
+
+/* Function start: 0x4369B0 */
+unsigned short HelperOf41D6C0D(void) { return 0; }
+
+/* Function start: 0x4369C0 */
+unsigned short ReturnConst0v13(void) { return 0; }
+
+/* Function start: 0x4369D0 */
+void GameNoBodyStubv22(void) {}
+
+/* Function start: 0x441140 */
+void DoLocalFn1140(void) {}
