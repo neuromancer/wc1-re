@@ -33,5 +33,6 @@ extern short g_nFrameSkip_00469fb8;          /* int _FrameSkip = 1  (clamped 1..
 extern unsigned char g_bCurrentKey_0046c014;     /* key code from PollKeyboardState */
 extern unsigned char g_bMessageSpeed_0046af68;   /* cycled (x+1)%5 */
 extern short g_nOriginDevUnlock_00469ff4;        /* argv element == "Origin" */
+extern unsigned long g_dwGameClockBase_005a89a8; /* GetTickCount epoch, randomised at startup */
 
 #endif /* WC1_GLOBALS_H */

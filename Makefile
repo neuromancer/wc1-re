@@ -51,22 +51,36 @@ CFLAGS_COMMON = \
 	/nologo \
 	/c \
 	/MTd \
-	/Og /Oi /Ot /Oy /Ob1 \
-	/Gs \
-	/I include \
-	/I 3rdparty\\dx\\include
+	/I include
 
-# The game core is C (the leaked WINGLEADER main module is a .c file including
-# <game.h>); the ix audio library is C++.  CL picks the language from the file
-# extension, so both use the same flag set.
-CFLAGS = $(CFLAGS_COMMON)
+# IMPORTANT: the two halves of this program were built with DIFFERENT optimizer
+# settings.  This is not a guess -- it is visible in every function:
+#
+#   Game core = OPTIMIZED.  GetShiftKeyState (0x00403060) is four instructions
+#   with no prologue; MinShort (0x0041D0C0) reads its arguments straight off ESP
+#   with no frame pointer; RandomBelowOrEqual (0x00434D50) schedules `POP ESI`
+#   between CDQ and IDIV and tail-duplicates its epilogue.
+#
+#   ix library = UNOPTIMIZED (/Od).  Every single ix function opens with
+#   `PUSH EBP / MOV EBP,ESP / PUSH EBX / PUSH ESI / PUSH EDI` -- saving all three
+#   registers whether or not they are used -- spills intermediates to stack
+#   temporaries such as [EBP-4], and jumps to one shared
+#   `POP EDI / POP ESI / POP EBX / LEAVE / RET` epilogue.
+#
+# Compiling ix with optimization on (or the core with it off) makes matching
+# impossible, so keep these separate.
+CFLAGS_CORE = $(CFLAGS_COMMON) /Og /Oi /Ot /Oy /Ob1 /Gs
+CFLAGS_IX   = $(CFLAGS_COMMON) /Od
+
+# Default for anything not covered by a more specific rule.
+CFLAGS = $(CFLAGS_CORE)
 
 LINKFLAGS = /nologo /SUBSYSTEM:WINDOWS /ENTRY:WinMainCRTStartup /ALIGN:4096
 
 # DDRAW.DLL and DSOUND.DLL are bound statically through the import table, so
-# import libraries are required at link time.  MSVC 4.2 predates them; drop
-# ddraw.lib and dsound.lib from a DirectX 2/3-era SDK into 3rdparty/dx/lib.
-GAME_LIBPATH = $(MSVC_LIB);3rdparty\dx\lib
+# import libraries are required at link time.  The MSVC420 submodule already
+# ships DDRAW.LIB/DSOUND.LIB and DDRAW.H/DSOUND.H, so no extra SDK is needed.
+GAME_LIBPATH = $(MSVC_LIB)
 GAME_LIBS = \
 	ddraw.lib \
 	dsound.lib \
@@ -196,14 +210,22 @@ $(TARGET): $(OBJS) | $(MSVCRT_DLL)
 
 $(OUT_DIR)/%.obj $(OUT_DIR)/%.asm: src/%.c | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(OUT_DIR)/$*)
-	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS) $< \
+	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_CORE) $< \
 		/Fo$(OUT_DIR)/$*.obj \
 		/Fa$(OUT_DIR)/$*.asm \
 		> $(OUT_DIR)/$*.stdout
 
+# ix/ is built unoptimised; see the CFLAGS_IX note above.
+$(OUT_DIR)/ix/%.obj $(OUT_DIR)/ix/%.asm: src/ix/%.cpp | $(WIBO) $(MSVCRT_DLL)
+	@mkdir -p $(OUT_DIR)/ix
+	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_IX) /I src\\ix $< \
+		/Fo$(OUT_DIR)/ix/$*.obj \
+		/Fa$(OUT_DIR)/ix/$*.asm \
+		> $(OUT_DIR)/ix/$*.stdout
+
 $(OUT_DIR)/%.obj $(OUT_DIR)/%.asm: src/%.cpp | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(OUT_DIR)/$*)
-	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS) $< \
+	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_CORE) $< \
 		/Fo$(OUT_DIR)/$*.obj \
 		/Fa$(OUT_DIR)/$*.asm \
 		> $(OUT_DIR)/$*.stdout

@@ -16,3 +16,4 @@ short g_nFrameSkip_00469fb8 = 1;              /* int _FrameSkip = 1; */
 unsigned char g_bCurrentKey_0046c014 = 0;
 unsigned char g_bMessageSpeed_0046af68 = 0;
 short g_nOriginDevUnlock_00469ff4 = 0;
+unsigned long g_dwGameClockBase_005a89a8 = 0;

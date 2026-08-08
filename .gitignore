@@ -12,6 +12,11 @@ out/
 # wibo binary
 wibo
 
+# submodule paths, symlinked to a sibling checkout during local development
+/compilers
+/wibo-src
+/binary-comp
+
 # Ghidra export (large; regenerate from the WC project)
 code-full/
 

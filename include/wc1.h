@@ -33,14 +33,18 @@ typedef unsigned short UINT16;
 typedef unsigned char  UINT8;
 typedef signed char    INT8;
 
-#ifndef BOOLEAN_DEFINED
-#define BOOLEAN_DEFINED
-typedef short BOOLEAN;                 /* `BOOLEAN window_colored = FALSE;` */
-#endif
-
+/*
+ * The DOS source spelled `BOOLEAN window_colored = FALSE;`, but <windows.h>
+ * already provides BOOLEAN (as BYTE) and MSVC 4.2 rejects a redefinition with a
+ * different base type.  The Win32 port therefore has to be using the windows.h
+ * one, so do not redeclare it here.  TRUE/FALSE likewise come from windows.h.
+ */
+#ifdef WC1_ANALYSIS
+typedef unsigned char BOOLEAN;
 #ifndef TRUE
 #define FALSE 0
 #define TRUE  1
+#endif
 #endif
 
 /* --------------------------------------------------------------------------
@@ -67,8 +71,10 @@ typedef enum {
  * -------------------------------------------------------------------------- */
 short MinShort(short a, short b);              /* 0x0041D0C0, 39 callers */
 short MaxShort(short a, short b);              /* 0x0041D0E0, 55 callers */
-unsigned int RandomBelowOrEqual(short n);      /* 0x00434D50, rand() % (n+1) */
-int  RandomInRange(short lo, short hi);        /* 0x00434D20 */
+short RandomBelowOrEqual(short n);             /* 0x00434D50, rand() % (n+1) */
+
+/* __stdcall, not __cdecl: the original ends in `RET 8` (callee cleanup). */
+short __stdcall RandomInRange(short lo, short hi); /* 0x00434D20 */
 
 /* Variadic on-screen message printer used by every status banner. */
 void ShowOnScreenMessage(short flags, short duration, const char *fmt, ...);
