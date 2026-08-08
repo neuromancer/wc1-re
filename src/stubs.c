@@ -85,3 +85,9 @@ char *PTR_s_Never_mind____0046af90[32];
 /* Function start: 0x443020 */ /* TODO */ void SetTbl00486112Fn3020(short a,unsigned short *b){(void)a;(void)b;}
 /* Function start: 0x4272F0 */ /* TODO */ void Helper4272F0(void) {}
 /* Function start: 0x402110 */ /* TODO */ void AbortToDesktop(void) {}
+/* Function start: 0x419210 */ /* TODO */ void GetTbl0059d710Fn9210(short a,int *p){(void)a;(void)p;}
+/* Function start: 0x434F20 */ /* TODO */ long CalcVideoFn4F20(void){return 0;}
+/* Function start: 0x4184C0 */ /* TODO */ void DoLocalFn84C0(int v){(void)v;}
+/* Function start: 0x4117D0 */ /* TODO */ void DispatchTbl0059b9e0Fn17D0(void *a,int b,short c){(void)a;(void)b;(void)c;}
+/* Function start: 0x416260 */ /* TODO */ void DispatchG004691e2Fn6260(char *a,unsigned char b){(void)a;(void)b;}
+char *PTR_s_MISSILE_LOCKED_004691d4[8];
