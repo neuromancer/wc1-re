@@ -68,3 +68,25 @@ void CombatRoutine04(int *p)
 
 /* Function start: 0x4413C0 */
 void DoLocalFn13C0(short a, unsigned short *b) { SetTbl00486112Fn3020(a, b); }
+
+/* NOTE: Ghidra's prototype for 0x00425BB0 is void(void), but the disassembly
+ * pushes an argument at every call site -- it takes a string.  The decompiler's
+ * *signatures* are as untrustworthy as its names when the DB prototype is wrong. */
+extern void Helper4272F0(void);             /* 0x004272F0 */
+extern void DoLocalFn5BB0(const char *s);   /* 0x00425BB0 */
+extern void WriteDebugString(const char *s);
+extern void SetDebugFn5C20(void);           /* 0x00425C20 */
+extern void AbortToDesktop(void);           /* 0x00402110 */
+
+/* Function start: 0x427370 */
+void exit_squadron(const char *msg)
+{
+    Helper4272F0();
+    DoLocalFn5BB0(msg);
+    DoLocalFn5BB0("[SYSTEM]: Exit_squadron\n");
+    WriteDebugString("[SYSTEM] exit_squadron");
+    WriteDebugString(msg);
+    SetDebugFn5C20();
+    AbortToDesktop();
+    exit(0);
+}

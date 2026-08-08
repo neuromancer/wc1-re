@@ -151,6 +151,25 @@ unsigned int Target(void);            /* forward declaration required */
 __declspec(naked) void Thunk(void) { __asm { jmp Target } }
 ```
 
+## The decompiler's *signatures* are as untrustworthy as its names
+
+`exit_squadron` (0x00427370) sat at 63% because Ghidra's decompilation showed
+
+    DoLocalFn5BB0();
+    DoLocalFn5BB0();
+
+with no arguments -- Ghidra's DB prototype for 0x00425BB0 is `void(void)`.  The
+disassembly pushes an argument at every call site:
+
+    push esi                 ; the message
+    call 0x425bb0
+    push 0x46a0a0            ; "[SYSTEM]: Exit_squadron\n"
+    call 0x425bb0
+
+Writing it with the real one-argument signature took it to 100%.  Same rule as the names:
+**the export is the source of truth, the decompilation is a hint.**  When a call in the
+decompilation looks argument-less, check the push sequence before believing it.
+
 ## Reading the comparison
 
 **All comparisons go through binary-comp.** It is the only scorer; do not hand-roll one.

@@ -63,7 +63,8 @@ void GetTbl0059ca94Fn2050(short i, unsigned char bits) { DAT_0059ca94[i] |= bits
 void GameNoBodyStubv3(void) {}
 
 /* Function start: 0x425BB0 */
-void DoLocalFn5BB0(void) {}
+/* TODO: takes a string (see exit_squadron call sites); body not yet recovered. */
+void DoLocalFn5BB0(const char *s) { (void)s; }
 
 /* Function start: 0x425BC0 */
 void GetG004763f0Fn5BC0(void) { PumpMessagesWhileDebugPaused(DAT_004763f0); }
