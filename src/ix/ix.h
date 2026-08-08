@@ -41,22 +41,38 @@ enum IxVoiceFlags {
     IX_VOICE_STEREO   = 0x10    /* set by ix_dspv_set_channels(2) */
 };
 
-struct IxVoice {                /* 32 bytes */
-    unsigned int   flags;       /* +0x00 */
-    unsigned char *cursor;      /* +0x04  current read pointer */
-    unsigned char *start;       /* +0x08  buffer start */
-    unsigned char *end;         /* +0x0C  buffer end */
-    short          field_10;    /* +0x10 */
-    short          rate;        /* +0x12  (freq << 8) / 22050 */
-    short          volume;      /* +0x14 */
-    short          field_16;    /* +0x16 */
-    short          field_18;    /* +0x18 */
-    short          field_1a;    /* +0x1A */
-    short          panAngle;    /* +0x1C  0..0x7F, wraps at +-0x40 */
-    short          panPos;      /* +0x1E  0..0xFF */
+struct IxVoice {                  /* 32 bytes; offsets confirmed from the accessors */
+    unsigned int   flags;         /* +0x00 */
+    unsigned char *cursor;        /* +0x04  current read pointer */
+    unsigned char *start;         /* +0x08  buffer start */
+    unsigned char *end;           /* +0x0C  buffer end */
+    short          field_10;      /* +0x10  not yet identified */
+    short          rate;          /* +0x12  (freq << 8) / 22050 */
+    unsigned short volume;        /* +0x14 */
+    unsigned char  leftGainHi;    /* +0x16  high byte of leftGain */
+    unsigned char  rightGainHi;   /* +0x17  high byte of rightGain */
+    short          leftGain;      /* +0x18 */
+    short          rightGain;     /* +0x1A */
+    short          panAngle;      /* +0x1C  0..0x7F, wraps at +-0x40 */
+    short          panPos;        /* +0x1E  0..0xFF, indexes the pan table */
 };
 
+/* Master volume and the stereo pan table (two shorts per position). */
+extern unsigned short g_nMasterVolume_0047198c;
+extern short          g_anPanTable_00597d28[];
+struct _RTL_CRITICAL_SECTION;
+extern struct _RTL_CRITICAL_SECTION g_csMixer_005985e8;
+
 #define IX_MIXER_BASE_RATE 22050    /* 0x5622, the divisor in set_frequency */
+
+/* Globals keep their original address in the name (see AGENTS.md). */
+extern IxVoice g_voices_005981a8[];
+extern int     g_nVoiceCount_00598600;
+
+/* The ix source tree lived on D: -- each assert site carries its own copy of
+ * this literal (the build did not use /Gf, so identical strings are not
+ * merged; writing it out per site is what matches). */
+#define IX_DSPV_FILE "D:\\rnd\\prj\\ix\\win95\\dsp\\dspv.cpp"
 
 void ix_dspv_set_active(int voice);              /* 0x004467C5  flags |= ACTIVE */
 void ix_dspv_clear_active(int voice);            /* 0x00446829  flags &= ~ACTIVE */
@@ -70,6 +86,7 @@ void ix_dspv_set_pan(int voice, unsigned int a); /* 0x00446B8C */
 void ix_dspv_set_frequency(int voice, unsigned int hz);        /* 0x00446CB1 */
 void ix_dspv_set_bits_per_sample(int voice, int bps);          /* 0x00446D2C  8 or 16 */
 void ix_dspv_set_channels(int voice, int ch);                  /* 0x00446DF5  1 or 2 */
+void ix_dspv_set_flag4(int voice, int on);                     /* 0x00446956 */
 void ix_dspv_recalc_mix(int voice);                            /* 0x00446EBF */
 
 /* --------------------------------------------------------------------------

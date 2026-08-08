@@ -19,3 +19,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     (void)hInstance; (void)hPrevInstance; (void)lpCmdLine; (void)nShowCmd;
     return 0;
 }
+
+/* Function start: 0x403DB0 */
+/* TODO: mono-monitor debug printf in the game core; ix_log_printf calls it.
+   Stubbed so the ix modules link. */
+void GetG005a8760Fn3DB0(const char *fmt, ...)
+{
+    (void)fmt;
+}

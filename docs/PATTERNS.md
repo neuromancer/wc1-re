@@ -75,6 +75,60 @@ The DOS source has `BOOLEAN window_colored = FALSE;`, but `<windows.h>` already 
 `BOOLEAN` as `BYTE` and MSVC 4.2 rejects redefinition with a different base type. The port
 must therefore be using the windows.h one; do not redeclare it.
 
+## /Od idioms in the ix library
+
+### Keep a local struct pointer
+
+The original stores the element address in a stack local and dereferences it, rather than
+re-indexing the array at each use.  Under /Od this is plainly visible as a `[EBP-4]` slot:
+
+    MOV EAX,[EBP+8] / SHL EAX,0x5 / ADD EAX,0x5981a8
+    MOV [EBP-4],EAX          <-- the local
+    MOV EAX,[EBP-4] / MOV EAX,[EAX+0x4]
+    MOV ECX,[EBP-4] / SUB EAX,[ECX+0x8]
+
+```c
+/* 83% */   v_array[voice].cursor = p;  v_array[voice].start = p;
+/* 100% */  IxVoice *v = &v_array[voice];  v->cursor = p;  v->start = p;
+```
+
+Applying this took `ix_dspv_set_buffer` from 83.33% to 100.00%, and `get_position` /
+`set_position` from ~85% to ~97%.
+
+### The bounds-check shape
+
+Every indexed ix entry point opens with the same guard, and writing it as a single `if`
+with `||` reproduces the original's two-test/one-block layout exactly:
+
+```c
+if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, <line>);
+    ix_log_printf("%d Invalid voice index!", voice);
+    exit(-1);
+}
+```
+
+The `<line>` is the real `__LINE__` from the original source, recovered from the assert
+anchors; the module stubs in `src/ix/` carry them.
+
+### `/Oi` is on in ix
+
+`ix_log_printf` inlines `strcpy` as `repne scasb` + `rep movsd`, so the ix module is built
+`/Od /Oi`, not plain `/Od`.
+
+### Branch sense follows the source
+
+`ix_log_printf` sat at 65% until the `if`/`else` arms were swapped to match the original's
+fall-through:
+
+```c
+/* 65% */   if (fmt == 0) strcpy(...); else vsprintf(...);
+/* 89% */   if (fmt != 0) vsprintf(...); else strcpy(...);
+```
+
+Under /Od the `if` arm is the fall-through and the `else` arm is jumped to, so the order of
+the arms in the source is directly observable in the disassembly.
+
 ## Reading the comparison
 
 **All comparisons go through binary-comp.** It is the only scorer; do not hand-roll one.

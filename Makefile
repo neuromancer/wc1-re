@@ -70,7 +70,7 @@ CFLAGS_COMMON = \
 # Compiling ix with optimization on (or the core with it off) makes matching
 # impossible, so keep these separate.
 CFLAGS_CORE = $(CFLAGS_COMMON) /Og /Oi /Ot /Oy /Ob1 /Gs
-CFLAGS_IX   = $(CFLAGS_COMMON) /Od
+CFLAGS_IX   = $(CFLAGS_COMMON) /Od /Oi
 
 # Default for anything not covered by a more specific rule.
 CFLAGS = $(CFLAGS_CORE)
@@ -155,6 +155,7 @@ SRCS_ORDERED_CORE = \
 	src/globals.c
 
 SRCS_ORDERED_IX = \
+	src/ix/ixlog.cpp \
 	src/ix/streamer.cpp \
 	src/ix/thread.cpp \
 	src/ix/dsp.cpp \
