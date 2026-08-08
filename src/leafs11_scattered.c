@@ -2,6 +2,7 @@
  *  Eleventh leaf tranche.  NOT A REAL COMPILATION UNIT (see accessors_scattered.c).
  */
 #include "wc1.h"
+#include <stdio.h>
 
 unsigned char DAT_0059b560[512];
 unsigned char DAT_0059ce80[512];
@@ -88,4 +89,61 @@ void GameNoBodyStubv11(unsigned short a, unsigned short b)
 void DoLocalFn50D0(unsigned int packed, short *p)
 {
     DoLocalFn5090((short)packed, (short)(packed >> 16), p);
+}
+
+/* ---- retiring stubs: implementing previously-stubbed callees ---- */
+
+char DAT_005a8760[512];
+unsigned char DAT_005a7cec;
+unsigned char DAT_005a7ec0;
+
+extern void MonoDebug_print(const char *s);              /* 0x00403DE0 */
+extern void ShipAiRoutine21(short a, int b);
+extern void ShipAiRoutine20(short a, short b);
+extern void ShipAiState29(short a, short b);             /* 0x00406FB0 */
+extern void ShipAiState40(short a, short b);             /* 0x00406D80 */
+extern void DoLocalFn4180(int *p);                       /* 0x00414180 */
+extern void DoLocalFnE3C0(void);
+extern short DAT_0059d52a;
+
+/* Function start: 0x403DB0 */
+void GetG005a8760Fn3DB0(const char *fmt, ...)
+{
+    vsprintf(DAT_005a8760, fmt, (char *)(&fmt + 1));
+    MonoDebug_print(DAT_005a8760);
+}
+
+/* Function start: 0x4060B0 */
+void SelectNewShipAiBehavior(short ship)
+{
+    ShipAiRoutine21(ship, -1);
+    ShipAiRoutine20(ship, -1);
+}
+
+/* Function start: 0x407030 */
+void ShipAiState30(short ship, short target)
+{
+    if (DAT_0059d52a < 0x50) {
+        ShipAiState29(ship, target);
+        return;
+    }
+    ShipAiState40(ship, target);
+}
+
+/* Function start: 0x4141B0 */
+void DoLocalFn41B0(int *p, int v)
+{
+    if (*(int *)((int)p + 0xd) == v)
+        DoLocalFn4180(p);
+}
+
+/* Function start: 0x42E330 */
+void DoLocalFnE330(void) { GetG005a8760Fn3DB0("SetMusicOn %d"); }
+
+/* Function start: 0x42EE80 */
+void SetShipAiFnEE80(void)
+{
+    DoLocalFnE3C0();
+    DAT_005a7cec = 0;
+    DAT_005a7ec0 = 0;
 }
