@@ -14,7 +14,7 @@ extern void GetG0059c490Fn9660(short a, void *p);        /* 0x00419660 */
 extern void DoShipAiFn9810(short a, void *p);            /* 0x00419810 */
 extern void DoLocalFn9950(unsigned int *p, int v);       /* 0x00419950 */
 extern void ReportComponentHit(char a, char b, char c);  /* 0x00414BF0 */
-extern void GetTbl0059b470Fn8280(short a, int b);        /* 0x00428280 */
+extern void GetTbl0059b470Fn8280(short a, short b);      /* 0x00418280 */
 extern void ShipAiRoutine07(short a, int b);
 
 /* Function start: 0x4187E0 */

@@ -84,7 +84,6 @@ char *PTR_s_MISSILE_LOCKED_004691d4[8];
 /* Function start: 0x419810 */ /* TODO */ void DoShipAiFn9810(short a,void *p){(void)a;(void)p;}
 /* Function start: 0x419950 */ /* TODO */ void DoLocalFn9950(unsigned int *p,int v){(void)p;(void)v;}
 /* Function start: 0x414BF0 */ /* TODO */ void ReportComponentHit(char a,char b,char c){(void)a;(void)b;(void)c;}
-/* Function start: 0x428280 */ /* TODO */ void GetTbl0059b470Fn8280(short a,int b){(void)a;(void)b;}
 /* Function start: 0x419990 */ /* TODO */ void DoLocalFn9990(int *a,int *b,short c){(void)a;(void)b;(void)c;}
 /* Function start: 0x40AA00 */ /* TODO */ void ScanTbl0059cab0Fn0AA0(short a){(void)a;}
 /* Function start: 0x4148A0 */ /* TODO */ void SetTbl0059dec0Fn48A0(short i,int v){(void)i;(void)v;}
@@ -112,3 +111,7 @@ short DAT_0059d52a;
 /* Function start: 0x409F80 */ /* TODO */ void DispatchDebugFn9F80(short i){(void)i;}
 /* Function start: 0x40A030 */ /* TODO */ void DispatchTbl0059d400FnA030(short i){(void)i;}
 /* Function start: 0x413C40 */ /* TODO */ void DoLocalFn3C40(void *p){(void)p;}
+/* Function start: 0x427610 */ /* TODO */ void LoopG0059861cFn7610(void){}
+/* Function start: 0x427548 */ /* TODO */ void LoopAudioSoundFn7548(void){}
+/* Function start: 0x4273F3 */ /* TODO */ void GetAudioVoiceFn73F3(void){}
+/* Function start: 0x42B300 */ /* TODO */ void LoopAudioStreamFnB300(void){}
