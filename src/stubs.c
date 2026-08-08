@@ -39,3 +39,11 @@ void DIBwholePaletteFromTriplets(unsigned char *palette) { (void)palette; }
 /* Function start: 0x42AFC0 */
 /* TODO: SetMultimediaTimerCallback -- timeSetEvent/timeKillEvent wrapper. */
 void SetMultimediaTimerCallback(int period) { (void)period; }
+
+/* Function start: 0x42EE80 */
+/* TODO */ void SetShipAiFnEE80(void) {}
+/* Function start: 0x42B640 */
+/* TODO */ void GetSfxFnB640(void) {}
+/* Function start: 0x41CD40 */
+/* TODO: PumpMessagesWhileDebugPaused -- GetMessage/Translate/Dispatch loop. */
+void PumpMessagesWhileDebugPaused(unsigned int arg) { (void)arg; }
