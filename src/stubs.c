@@ -104,9 +104,11 @@ short DAT_0059d52a;
 /* Function start: 0x42A120 */ /* TODO */ short LoopNavFnA120(int a){(void)a;return 0;}
 /* Function start: 0x40BFF0 */ /* TODO */ void ReleaseTbl0046c35fFnBFF0(short a){(void)a;}
 /* Function start: 0x431470 */ /* TODO */ void GetPilotFn1470(void){}
-/* Function start: 0x406160 */ /* TODO */ void SetInputFn6160(void){}
 /* Function start: 0x40E820 */ /* TODO */ void GetTbl0059b320FnE820(short i){(void)i;}
 /* Function start: 0x4142B0 */ /* TODO */ void GetCombatFn42B0(int a,unsigned short b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x41D2E0 */ /* TODO */ void FetchDiskPacketRetrying(short a,int b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x42FAE0 */ /* TODO */ void ReleasePacketHandle(int h){(void)h;}
 /* Function start: 0x41C910 */ /* TODO */ void DebugOverlayThreadProc(int p){(void)p;}
+/* Function start: 0x409F80 */ /* TODO */ void DispatchDebugFn9F80(short i){(void)i;}
+/* Function start: 0x40A030 */ /* TODO */ void DispatchTbl0059d400FnA030(short i){(void)i;}
+/* Function start: 0x413C40 */ /* TODO */ void DoLocalFn3C40(void *p){(void)p;}

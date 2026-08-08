@@ -13,7 +13,7 @@ extern unsigned char DAT_0059d7a0[];
 extern unsigned char DAT_005a7c30[];
 
 extern void DoLocalFn9990(int *a, int *b, short c);
-extern void SetInputFn6160(void);                  /* 0x00406160 family */
+extern void SetInputFn6160(short x, short y);      /* 0x00436160 */
 extern void GetTbl0059b320FnE820(short i);         /* 0x0040E820 */
 extern void ReleaseTbl0046c028Fn9BD0(short i);
 
@@ -30,7 +30,7 @@ void SetInputFn1CE0(short x, short y)
     DAT_0059af72 = y;
     DAT_0059ab10 = x;
     DAT_0059ab12 = y;
-    SetInputFn6160();
+    SetInputFn6160(x, y);
 }
 
 /* Function start: 0x403EE0 */
