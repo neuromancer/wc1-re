@@ -102,9 +102,12 @@ short DAT_0059d52a;
 /* Function start: 0x417260 */ /* TODO */ void DrawCombatFn7260(void){}
 /* Function start: 0x417A00 */ /* TODO */ void CombatRoutine02(short a,int b,unsigned int c,int d,int e){(void)a;(void)b;(void)c;(void)d;(void)e;}
 /* Function start: 0x429E30 */ /* TODO */ short UiRoutine03(void){return 1;}
-/* Function start: 0x41D2E0b */ /* TODO */ void FetchDiskPacketRetrying(short a,int b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x42A120 */ /* TODO */ short LoopNavFnA120(int a){(void)a;return 0;}
 /* Function start: 0x40BFF0 */ /* TODO */ void ReleaseTbl0046c35fFnBFF0(short a){(void)a;}
 /* Function start: 0x431470 */ /* TODO */ void GetPilotFn1470(void){}
 /* Function start: 0x406160 */ /* TODO */ void SetInputFn6160(void){}
 /* Function start: 0x40E820 */ /* TODO */ void GetTbl0059b320FnE820(short i){(void)i;}
+/* Function start: 0x4142B0 */ /* TODO */ void GetCombatFn42B0(int a,unsigned short b,int c){(void)a;(void)b;(void)c;}
+/* Function start: 0x41D2E0 */ /* TODO */ void FetchDiskPacketRetrying(short a,int b,int c){(void)a;(void)b;(void)c;}
+/* Function start: 0x42FAE0 */ /* TODO */ void ReleasePacketHandle(int h){(void)h;}
+/* Function start: 0x41C910 */ /* TODO */ void DebugOverlayThreadProc(int p){(void)p;}
