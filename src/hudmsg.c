@@ -18,8 +18,8 @@ short MeasureMessageWidth(const char *text)
 /* Function start: 0x428F80 */
 void ReportOutOfMemoryAndExit(void)
 {
-    DoLocalFn8F20("ERROR: Out of memory for %s");
-    HelperOf428F80A("You do not have enough memory to run Wing Commander.");
+    ShowModalMessage("ERROR: Out of memory for %s");
+    FatalErrorAndExit("You do not have enough memory to run Wing Commander.");
 }
 
 /* Function start: 0x4290D0 */
@@ -29,29 +29,38 @@ void ShowVersionBanner(void)
 }
 
 /* Function start: 0x429E70 */
-void ComputeArcadeTimeBonus(void) { DAT_005a7c2c = (DAT_00469e34 + 6) * 400; }
+void ComputeArcadeTimeBonus(void)
+{
+    DAT_005a7c2c = (DAT_00469e34 + 6) * 400;
+}
 
 /* Function start: 0x42A0C0 */
 void RefreshCockpitStatus(void)
 {
-    GetShipAiFn7C50();
+    RunSimulationTick();
     if (DAT_00469fb4 < 2)
         DrawStatusBarBackdrop();
-    GetUiFn9DD0();
+    RunFrameUpdate();
 }
 
 /* Function start: 0x42A170 */
 unsigned int ReleaseStaleNavTarget(void)
 {
-    short v = LoopNavFnA120(0);
+    short v = FindNearestNavPoint(0);
 
     if (DAT_0059df60 != v)
-        ReleaseTbl0046c35fFnBFF0(v);
+        EnterNavPoint(v);
     return 0;
 }
 
 /* Function start: 0x42A670 */
-void RedrawCommWindow(void) { GetUiFn60F0(DAT_0059ab19, 0); }
+void RedrawCommWindow(void)
+{
+    FlushPendingScreenText(DAT_0059ab19, 0);
+}
 
 /* Function start: 0x42AFA0 */
-void WaitForDebugStep(void) { while (TakeDebugStepFlag() == 0) ; }
+void WaitForDebugStep(void)
+{
+    while (TakeDebugStepFlag() == 0) ;
+}

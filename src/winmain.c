@@ -7,13 +7,23 @@
 #include "wc1.h"
 
 /* Function start: 0x401020 */
-void RestoreGamePalette(void) { ReleaseDirectDrawPalette(); DIBwholePaletteFromWords(); }
+void RestoreGamePalette(void)
+{
+    ReleaseDirectDrawPalette();
+    DIBwholePaletteFromWords();
+}
 
 /* Function start: 0x401250 */
-unsigned int GetSfxDistanceFromCamera(void) { return abs(0x19 - (int)DAT_00465040); }
+unsigned int GetSfxDistanceFromCamera(void)
+{
+    return abs(0x19 - (int)DAT_00465040);
+}
 
 /* Function start: 0x401270 */
-void PickRandomTauntDelay(void) { MinShort(0x14, (short)RandomBelowOrEqual(7) + 10); }
+void PickRandomTauntDelay(void)
+{
+    MinShort(0x14, (short)RandomBelowOrEqual(7) + 10);
+}
 
 /* Function start: 0x401390 */
 /* Divides in place and returns the quotient: *p keeps only the multiple of n. */
@@ -28,17 +38,20 @@ short SumShortArray(short *p, short n)
 /* Function start: 0x401680 */
 void TransformObjectVector(int p, int *q)
 {
-    DoLocalFn9990((int *)(p + 4), q, *(short *)(p + 0x10) + 0x10cc);
+    ScaleDeltaToRange((int *)(p + 4), q, *(short *)(p + 0x10) + 0x10cc);
 }
 
 /* Function start: 0x4016A0 */
 void TransformObjectVectorAlt(int p, int *q)
 {
-    DoLocalFn9990((int *)(p + 4), q, *(short *)(p + 0x10));
+    ScaleDeltaToRange((int *)(p + 4), q, *(short *)(p + 0x10));
 }
 
 /* Function start: 0x401870 */
-void PlayEngineRumble(void) { DoLocalFn3BA0(0, 0x14, DAT_00465040, 0x10cc, 0xc1c); }
+void PlayEngineRumble(void)
+{
+    InterpolateClamped(0, 0x14, DAT_00465040, 0x10cc, 0xc1c);
+}
 
 /* Function start: 0x401930 */
 void ClearShipMode4(short i)
@@ -66,10 +79,19 @@ void ShowNoticeMessageBox(const char *text)
 }
 
 /* Function start: 0x402520 */
-unsigned int GetWindowHandleWord(void) { return DAT_004650ac; }
+unsigned int GetWindowHandleWord(void)
+{
+    return DAT_004650ac;
+}
 
 /* Function start: 0x402AC0 */
-short GetJoystickButtons(void) { return ((short)DAT_005a898c << 2) | DAT_005a897c; }
+short GetJoystickButtons(void)
+{
+    return ((short)DAT_005a898c << 2) | DAT_005a897c;
+}
 
 /* Function start: 0x402B80 */
-unsigned int GetMouseButtonState(void) { return DAT_005a8a40; }
+unsigned int GetMouseButtonState(void)
+{
+    return DAT_005a8a40;
+}

@@ -300,6 +300,12 @@ ANALYZE_FILES ?= all
 
 sort:
 	@python3 bin/sortByAddress.py
+	@python3 bin/expandOneLiners.py --check
+
+# Rewrite `T f(void) { body; }` onto separate lines.  A body folded onto the
+# signature hides how many statements the original has (AGENTS.md).
+expand-one-liners:
+	@python3 bin/expandOneLiners.py
 
 # Verify every `Function start:` annotation names the function really at that
 # address.  A wrong annotation makes `report` compare against the wrong original.

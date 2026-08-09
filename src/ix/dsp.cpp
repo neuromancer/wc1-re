@@ -20,7 +20,7 @@
 /* TODO: ix_thread_signal_event */
 
 /* Function start: 0x00444B25 */
-/* TODO: TextG00597d10Fn4B25 */
+/* TODO: ix_dsp_open_driver */
 
 /* Function start: 0x00444BFD */
 /* TODO: ReadDAT00598128 */
@@ -29,13 +29,13 @@
 /* TODO: ReadDAT00597d18 */
 
 /* Function start: 0x00444C27 */
-/* TODO: GetG00597d18Fn4C27 */
+/* TODO: ix_dsp_set_config_bit1 */
 
 /* Function start: 0x00444C54 */
-/* TODO: GetG00597d18Fn4C54 */
+/* TODO: ix_dsp_set_config_bit3 */
 
 /* Function start: 0x00444C81 */
-/* TODO: HelperOf447200A */
+/* TODO: ix_dsp_get_voice_count */
 
 /* Function start: 0x00444C96 */   /* source line(s) 176: can't change voice count while voices are in use */
 /* TODO: ix_dsp_set_voice_count */
@@ -50,22 +50,22 @@
 /* TODO: ReadDAT0047198c */
 
 /* Function start: 0x00444DC5 */
-/* TODO: LoopAudioVoiceFn4DC5 */
+/* TODO: ix_dsp_set_master_volume */
 
 /* Function start: 0x00444E52 */
-/* TODO: HelperOf444910A */
+/* TODO: ix_dsp_build_pan_tables */
 
 /* Function start: 0x00444F97 */
 /* TODO: ix_dsp_result_to_text */
 
 /* Function start: 0x00445123 */
-/* TODO: HelperOf44879CA */
+/* TODO: ix_dsp_alloc */
 
 /* Function start: 0x00445140 */
-/* TODO: HelperOf44879CB */
+/* TODO: ix_dsp_copy */
 
 /* Function start: 0x00445164 */
-/* TODO: DoAudioStreamFn5164 */
+/* TODO: ix_dsp_free */
 
 /* Function start: 0x00445190 */
 /* TODO: $E2 */

@@ -17,7 +17,7 @@
 /* TODO: ix_streamer_destroy */
 
 /* Function start: 0x0044291E */
-/* TODO: ForwardIxThreadSignalEvent */
+/* TODO: ix_streamer_wake_thread */
 
 /* Function start: 0x0044293E */   /* source line(s) 117: Can't change dev_mode while stream files are open! */
 /* TODO: ix_streamer_set_dev_mode */
@@ -41,16 +41,16 @@
 /* TODO: ix_streamer_audio_set_flag400 */
 
 /* Function start: 0x0044336B */
-/* TODO: DoAudioStreamFn336B */
+/* TODO: ix_streamer_set_intensity */
 
 /* Function start: 0x004433AC */
 /* TODO: ReadDAT00597c78 */
 
 /* Function start: 0x004433C1 */
-/* TODO: HelperOf4424D0A */
+/* TODO: ix_streamer_set_branch_tag */
 
 /* Function start: 0x00443419 */
-/* TODO: HelperOf442460A */
+/* TODO: ix_streamer_get_branch_tag */
 
 /* Function start: 0x0044342E */   /* source line(s) 342: Stream has no audio */
 /* TODO: ix_streamer_audio_branch_to_tag */
@@ -68,19 +68,21 @@
 /* TODO: ix_streamer_seek_chunk */
 
 /* Function start: 0x004436C0 */
-/* TODO: HelperOf4437E3A */
+/* TODO: ix_streamer_hash_name */
 
 /* Function start: 0x00443755 */
-/* TODO: HelperOf4437E3B */
+/* TODO: ix_streamer_find_entry */
 
 /* Function start: 0x004437E3 */   /* source line(s) 512;526;535;549: open_file failed to allocate memory! | Failed to find_file in stream, %s! | open_file fail */
 /* TODO: ix_streamer_open_file */
 
 /* Function start: 0x00443A5D */
-/* TODO: HelperOf44307AA */
+/* TODO: ix_streamer_release_stream */
 
 /* Function start: 0x00443B10 */
-/* TODO: Win32AudioStreamFn3B10 */
+/* TODO: ix_streamer_thread_proc -- the worker thread main loop:
+ * waits on the wake event, services the audio stream, and drives
+ * ix_dsps_prepare/play/stop from the state word at 0x00597CD0. */
 
 /* Function start: 0x00443CC0 */
 /* TODO: ix_streamer_service_audio */

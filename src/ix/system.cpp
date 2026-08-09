@@ -14,19 +14,19 @@
 /* TODO: ix_system_init */
 
 /* Function start: 0x004472A7 */
-/* TODO: LoopAudioSoundFn72A7 */
+/* TODO: ix_system_service_sounds */
 
 /* Function start: 0x004473F3 */
-/* TODO: GetAudioVoiceFn73F3 */
+/* TODO: ix_system_shutdown */
 
 /* Function start: 0x00447426 */
 /* TODO: ForwardIxThreadSignalEventv1 */
 
 /* Function start: 0x00447446 */
-/* TODO: DoLocalFn7446 */
+/* TODO: ix_system_get_master_volume */
 
 /* Function start: 0x0044745B */
-/* TODO: HelperOf447200B */
+/* TODO: ix_system_set_master_volume */
 
 /* Function start: 0x00447477 */
 /* TODO: ReadDAT00598618 */
@@ -35,22 +35,22 @@
 /* TODO: ix_system_set_voice_count */
 
 /* Function start: 0x004474E3 */
-/* TODO: DoAudioStreamFn74E3 */
+/* TODO: ix_system_new_sample */
 
 /* Function start: 0x00447519 */
-/* TODO: DoAudioStreamFn7519 */
+/* TODO: ix_system_delete_sample */
 
 /* Function start: 0x00447548 */
-/* TODO: LoopAudioSoundFn7548 */
+/* TODO: ix_system_delete_all_samples */
 
 /* Function start: 0x0044758D */
-/* TODO: DoAudioStreamFn758D */
+/* TODO: ix_system_new_sound */
 
 /* Function start: 0x004475C7 */
-/* TODO: DoAudioStreamFn75C7 */
+/* TODO: ix_system_delete_sound */
 
 /* Function start: 0x00447610 */
-/* TODO: LoopG0059861cFn7610 */
+/* TODO: ix_system_delete_all_sounds */
 
 /* Function start: 0x004476B9 */
 /* TODO: AudioSoundRoutine01 */
@@ -59,35 +59,35 @@
 /* TODO: AudioSoundRoutine02 */
 
 /* Function start: 0x00447921 */
-/* TODO: HelperOf4480CFB */
+/* TODO: ix_system_find_highest_waiting */
 
 /* Function start: 0x00447974 */
-/* TODO: LoopLocalFn7974 */
+/* TODO: ix_system_find_lowest_playing */
 
 /* Function start: 0x004479C7 */
-/* TODO: LoopAudioSoundFn79C7 */
+/* TODO: ix_system_find_free_voice */
 
 /* Function start: 0x00447A20 */
-/* TODO: SetAudioVoiceFn7A20 */
+/* TODO: ix_system_sound_init */
 
 /* Function start: 0x00447B17 */
-/* TODO: DoLocalFn7B17 */
+/* TODO: ix_system_sound_construct */
 
 /* Function start: 0x00447B48 */
-/* TODO: DoLocalFn7B48 */
+/* TODO: ix_system_sound_construct_centred */
 
 /* Function start: 0x00447B7A */
-/* TODO: GetAudioVoiceFn7B7A */
+/* TODO: ix_system_sound_unlink */
 
 /* Function start: 0x00447BE7 */
-/* TODO: DoLocalFn7BE7 */
+/* TODO: ix_system_sound_set_volume */
 
 /* Function start: 0x00447C18 */
-/* TODO: GameNoBodyStubv25 */
+/* TODO: ix_system_sound_set_pan */
 
 /* Function start: 0x00447C44 */
-/* TODO: DoLocalFn7C44 */
+/* TODO: ix_system_sound_set_frequency */
 
 /* Function start: 0x00447CAF */
-/* TODO: DoLocalFn7CAF */
+/* TODO: ix_system_sound_set_priority */
 

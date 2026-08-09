@@ -13,7 +13,12 @@ void ClipViewportToScreen(int *p)
 }
 
 /* Function start: 0x441140 */
-void RasterLineHook(void) {}
+void RasterLineHook(void)
+{
+}
 
 /* Function start: 0x4413C0 */
-void SetPaletteEntry(short a, unsigned short *b) { SetPaletteEntryFromWords(a, b); }
+void SetPaletteEntry(short a, unsigned short *b)
+{
+    SetPaletteEntryFromWords(a, b);
+}

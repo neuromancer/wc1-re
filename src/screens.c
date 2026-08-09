@@ -9,13 +9,13 @@
 /* Function start: 0x438B90 */
 unsigned int BeginBriefingScene(void)
 {
-    DAT_00598c18 = GetG0046ad88FnFA90(0x140, 0);
-    DAT_00598af4 = GetG0046ad88FnFA90(0x140, 0);
+    DAT_00598c18 = PushMemoryStackFrameTagged(0x140, 0);
+    DAT_00598af4 = PushMemoryStackFrameTagged(0x140, 0);
     return 0;
 }
 
 /* Function start: 0x439400 */
-void DebugNoBodyStubv1(int p, unsigned short a, unsigned short b,
+void SetViewportRect(int p, unsigned short a, unsigned short b,
                        unsigned short c, unsigned short d)
 {
     *(unsigned short *)(p + 8) = a;

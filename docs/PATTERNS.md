@@ -172,7 +172,7 @@ decompilation looks argument-less, check the push sequence before believing it.
 
 ## Do not infer a stub's address from its name
 
-Operational names encode only the LOW FOUR hex digits: `GetUiFn9DD0` is at
+Operational names encode only the LOW FOUR hex digits: `RunFrameUpdate` is at
 `0x00429DD0`, not `0x00409DD0`.  Filling in the high bits by eye produced **25 wrong
 `Function start:` annotations** before I noticed.
 

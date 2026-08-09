@@ -78,13 +78,22 @@ void DIBunInstall(void)
 }
 
 /* Function start: 0x432960 */
-void DIBslam(void) { DAT_00486518 = 1; }
+void DIBslam(void)
+{
+    DAT_00486518 = 1;
+}
 
 /* Function start: 0x432DE0 */
-unsigned int GetDIBSurfacePitch(void) { return DAT_00476648; }
+unsigned int GetDIBSurfacePitch(void)
+{
+    return DAT_00476648;
+}
 
 /* Function start: 0x432E00 */
-unsigned int GetDIBSurfaceBase(void) { return DAT_00486074; }
+unsigned int GetDIBSurfaceBase(void)
+{
+    return DAT_00486074;
+}
 
 /* Function start: 0x433020 */
 void SetPaletteEntryFromWords(short i, unsigned short *rgb)

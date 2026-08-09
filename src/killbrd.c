@@ -7,13 +7,22 @@
 #include "wc1.h"
 
 /* Function start: 0x43F690 */
-void ClearSaveSlotFlag(void) { DAT_00598aba = 0; }
+void ClearSaveSlotFlag(void)
+{
+    DAT_00598aba = 0;
+}
 
 /* Function start: 0x43F6A0 */
-int IsSaveSlotFree(void) { return DAT_00598aba == 0; }
+int IsSaveSlotFree(void)
+{
+    return DAT_00598aba == 0;
+}
 
 /* Function start: 0x43F720 */
-void ClearLoadSlotFlag(void) { DAT_00598ab0 = 0; }
+void ClearLoadSlotFlag(void)
+{
+    DAT_00598ab0 = 0;
+}
 
 /* Function start: 0x43F730 */
 void SelectSaveSlot(short i)
@@ -32,7 +41,10 @@ void CheckHeapBlockSignature(int p)
 }
 
 /* Function start: 0x4408C0 */
-unsigned int GetHeapBlockSize(int p) { return *(unsigned int *)(p - 4); }
+unsigned int GetHeapBlockSize(int p)
+{
+    return *(unsigned int *)(p - 4);
+}
 
 /* Function start: 0x440BE0 */
 unsigned int SignExtendClipCoord(unsigned short v)

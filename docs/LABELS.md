@@ -54,6 +54,22 @@ What it produced, with the label it replaced:
 | `0x0042E3C0` | `DoLocalFnE3C0` | `FlushSoundEffects` | `"FlushSoundEffects\n"` |
 | `0x0042EF00` | `DoLocalFnEF00` | `SoundFxTick` | `"soundFX"` |
 
+Two other kinds of evidence carried the rest of the renaming:
+
+- **A routine that prints a path names its compilation unit.** `free_viewport`
+  (`0x0040F940`) prints `"free viewport not mcga"`, and `PacketLoad` prints
+  `"Library\Source\Pload.c PacketLoad"`.
+- **The `ix` module map plus the body.** Every `ix` function sits in a known object file
+  (docs/ORDER.md), so its prefix is a fact, not a guess: `ix_streamer_*`, `ix_thread_*`,
+  `ix_dsp_*`, `ix_dsps_*`, `ix_dspv_*`, `ix_system_*`, `ix_sound_*`, `ix_sample_*`. The rest
+  of the name comes from what the body does — `ix_streamer_hash_name` is a case-insensitive
+  rolling hash, `ix_streamer_find_entry` is a binary search over a 16-byte-stride table,
+  `ix_dsp_build_pan_tables` fills both 0x80-entry stereo tables.
+
+Where the body proves *what* but not *why*, the name says exactly what is known and no more:
+`ix_dsp_set_config_bit1` sets bit `0x02` of `DAT_00597D18` and the meaning of that bit is not
+yet established. That is a fact, unlike `GetG00597d18Fn4C27`, and unlike a guess.
+
 **Its one failure mode**: a wrapper that logs on behalf of its callee is misattributed. Always
 read the disassembly before adopting a result.
 

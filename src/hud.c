@@ -7,7 +7,10 @@
 #include "wc1.h"
 
 /* Function start: 0x413D20 */
-int HasFreeMessageSlot(void) { return DAT_00469068 < 8; }
+int HasFreeMessageSlot(void)
+{
+    return DAT_00469068 < 8;
+}
 
 /* Function start: 0x413F70 */
 unsigned int GetSeriesRecordField(char slot, int rec)
@@ -24,7 +27,7 @@ unsigned int GetSeriesRecordField(char slot, int rec)
 void ClearHudMessageIfMatching(int *p, int v)
 {
     if (*(int *)((int)p + 0xd) == v)
-        DoLocalFn4180(p);
+        ClearHudMessageSlot(p);
 }
 
 /* Function start: 0x4141D0 */
@@ -37,7 +40,10 @@ void ClearHudGunReadouts(void)
 }
 
 /* Function start: 0x4142E0 */
-void ShowHudMessageIfCurrent(int v) { ClearHudMessageIfMatching(&DAT_005a7de1, v); }
+void ShowHudMessageIfCurrent(int v)
+{
+    ClearHudMessageIfMatching(&DAT_005a7de1, v);
+}
 
 /* Function start: 0x414410 */
 void *ClearHudTargetVectors(void)
@@ -58,26 +64,42 @@ unsigned short GetSeriesStateWord(short i)
 }
 
 /* Function start: 0x414890 */
-int GetSeriesFlag(short i) { return (char)DAT_0059dec0[i]; }
+int GetSeriesFlag(short i)
+{
+    return (char)DAT_0059dec0[i];
+}
 
 /* Function start: 0x4148E0 */
 void ClearSeriesFlagEntry(short i)
 {
-    DoLocalFn4180((int *)(&DAT_005a7dd0[0] + i * 0x11));
+    ClearHudMessageSlot((int *)(&DAT_005a7dd0[0] + i * 0x11));
     DAT_0059dec0[i] = DAT_0059dec0[i] - 1;
 }
 
 /* Function start: 0x4149C0 */
-void ClearMessageSlot(short i) { DAT_0059ce18[i] = 0; }
+void ClearMessageSlot(short i)
+{
+    DAT_0059ce18[i] = 0;
+}
 
 /* Function start: 0x4149E0 */
-void ClearAutopilotFlag(void) { DAT_005a7dca = 0; }
+void ClearAutopilotFlag(void)
+{
+    DAT_005a7dca = 0;
+}
 
 /* Function start: 0x4149F0 */
-int IsAutopilotEngaged(void) { return 0 < DAT_005a7dca; }
+int IsAutopilotEngaged(void)
+{
+    return 0 < DAT_005a7dca;
+}
 
 /* Function start: 0x414A10 */
-unsigned short SetAutopilotFlag(unsigned short v) { DAT_005a7dca = (unsigned char)v; return 0; }
+unsigned short SetAutopilotFlag(unsigned short v)
+{
+    DAT_005a7dca = (unsigned char)v;
+    return 0;
+}
 
 /* Function start: 0x414A20 */
 void RefreshAutopilotHud(void)
@@ -87,22 +109,39 @@ void RefreshAutopilotHud(void)
 }
 
 /* Function start: 0x414AD0 */
-void PlayTargetLockSfx(void) { PlaySfxWaveFileByNumber(0x18, -1, 0); }
+void PlayTargetLockSfx(void)
+{
+    PlaySfxWaveFileByNumber(0x18, -1, 0);
+}
 
 /* Function start: 0x414AE0 */
-void PlayShieldHitSfx(void) { PlaySfxWaveFileByNumber(0x1f, -1, 0); }
+void PlayShieldHitSfx(void)
+{
+    PlaySfxWaveFileByNumber(0x1f, -1, 0);
+}
 
 /* Function start: 0x415040 */
-void InputFilterHook(void) {}
+void InputFilterHook(void)
+{
+}
 
 /* Function start: 0x415050 */
-int GetNavRecordField50(short i) { return (DAT_0059daca[i * 0x1f] & 4) == 4; }
+int GetNavRecordField50(short i)
+{
+    return (DAT_0059daca[i * 0x1f] & 4) == 4;
+}
 
 /* Function start: 0x415070 */
-int GetNavRecordField70(short i) { return (DAT_0059daca[i * 0x1f] & 1) == 1; }
+int GetNavRecordField70(short i)
+{
+    return (DAT_0059daca[i * 0x1f] & 1) == 1;
+}
 
 /* Function start: 0x415090 */
-int GetNavRecordField90(short i) { return (DAT_0059daca[i * 0x1f] & 2) == 2; }
+int GetNavRecordField90(short i)
+{
+    return (DAT_0059daca[i * 0x1f] & 2) == 2;
+}
 
 /* Function start: 0x4150B0 */
 void SetNavRecordFlags(short i, unsigned char bits)
@@ -114,7 +153,7 @@ void SetNavRecordFlags(short i, unsigned char bits)
 unsigned int GetShipAiScratch(void)
 {
     if (DAT_0059c3f0[0] != 1) {
-        if (ScanTbl0059d100Fn54C0() == 0)
+        if (AnyShipReadyToJump() == 0)
             return 0;
     }
     return 1;
@@ -170,13 +209,16 @@ void SetRectBounds(int p, unsigned short a, unsigned short b,
 }
 
 /* Function start: 0x416250 */
-short GetRectHeight(int p) { return *(short *)(p + 0xc) - *(short *)(p + 8); }
+short GetRectHeight(int p)
+{
+    return *(short *)(p + 0xc) - *(short *)(p + 8);
+}
 
 /* Function start: 0x416460 */
 void ShowHudTextLine(char *s, unsigned char b)
 {
     DAT_00469004 = s;
-    DispatchG004691e2Fn6260(s, b);
+    DrawWrappedCommText(s, b);
 }
 
 /* Function start: 0x416480 */
@@ -184,30 +226,30 @@ void SetHudTextColour(short v)
 {
     if (v != 0)
         EndCommMenu();
-    DispatchG004691e2Fn6260(DAT_00469008, (unsigned char)DAT_004699d8);
+    DrawWrappedCommText(DAT_00469008, (unsigned char)DAT_004699d8);
 }
 
 /* Function start: 0x4168A0 */
 void ReleaseCurrentTargetLock(void)
 {
     if (DAT_00469208 != -1)
-        ReleaseTbl0046c028Fn9BD0(DAT_00469208);
+        DestroyShip(DAT_00469208);
 }
 
 /* Function start: 0x416C90 */
 void DrawHudMessagesIfEnabled(void)
 {
     if (HasFreeMessageSlot() && DAT_00469060 != 0)
-        GetUiFn7760();
+        DrawHudMessageList();
 }
 
 /* Function start: 0x4173C0 */
 void RefreshDamageDisplay(void)
 {
     if (DAT_005a7684 != 0) {
-        SetCombatFn71D0();
+        ComputeStickIndicatorFrame();
         if (DAT_0046900c != DAT_005a7dc8)
-            DrawCombatFn7260();
+            DrawStickIndicator();
     }
 }
 
@@ -216,7 +258,7 @@ void ForceRefreshDamageDisplay(void)
 {
     if (DAT_005a7684 != 0) {
         DAT_0046900c = 0xff;
-        DoLocalFn1A90(&DAT_005a6b60, &DAT_005a7550);
+        CopyViewportContents(&DAT_005a6b60, &DAT_005a7550);
         RefreshDamageDisplay();
     }
 }
@@ -237,4 +279,7 @@ void ShowDamageMessage(short a)
 }
 
 /* Function start: 0x417F00 */
-void PlayMissileLaunchSfx(void) { PlaySfxWaveFileByNumber(0x19, -1, 0); }
+void PlayMissileLaunchSfx(void)
+{
+    PlaySfxWaveFileByNumber(0x19, -1, 0);
+}

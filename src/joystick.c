@@ -7,13 +7,16 @@
 #include "wc1.h"
 
 /* Function start: 0x410AD0 */
-void ApplyPitchFromFloat(void) { DoLocalFn84C0((int)CalcVideoFn4F20()); }
+void ApplyPitchFromFloat(void)
+{
+    FixedToShortSaturating((int)FloatToLongDirect());
+}
 
 /* Function start: 0x4117B0 */
 unsigned int ResetCommTarget(void *p, unsigned int arg)
 {
     DAT_0046c03c = 0xff;
-    DispatchTbl0059b9e0Fn17D0(p, (int)p, (short)arg);
+    DispatchCommMenuCommand(p, (int)p, (short)arg);
     return 0;
 }
 

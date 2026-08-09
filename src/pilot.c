@@ -7,7 +7,9 @@
 #include "wc1.h"
 
 /* Function start: 0x425AF0 */
-void SceneEnterHook(void) {}
+void SceneEnterHook(void)
+{
+}
 
 /* Function start: 0x425B90 */
 void GetMessagePumpInterval(void)
@@ -22,10 +24,16 @@ void GetMessagePumpInterval(void)
 
 /* Function start: 0x425BB0 */
 /* TODO: takes a string (see exit_squadron call sites); body not yet recovered. */
-void SystemDebugPrintf(const char *s) { (void)s; }
+void SystemDebugPrintf(const char *s)
+{
+    (void)s;
+}
 
 /* Function start: 0x425BC0 */
-void PumpMessagesDuringWait(void) { PumpMessagesWhileDebugPaused(DAT_004763f0); }
+void PumpMessagesDuringWait(void)
+{
+    PumpMessagesWhileDebugPaused(DAT_004763f0);
+}
 
 /* Function start: 0x425BD0 */
 unsigned char TakeDebugStepFlag(void)
@@ -37,13 +45,21 @@ unsigned char TakeDebugStepFlag(void)
 }
 
 /* Function start: 0x425BE0 */
-void ResetDiskPromptTimer(void) {}
+void ResetDiskPromptTimer(void)
+{
+}
 
 /* Function start: 0x425C10 */
-void DiskPromptDrawHook(void) {}
+void DiskPromptDrawHook(void)
+{
+}
 
 /* Function start: 0x425C20 */
-void ClearDebugPauseFlags(void) { DAT_0046964c = 0; DAT_00469648 = 0; }
+void ClearDebugPauseFlags(void)
+{
+    DAT_0046964c = 0;
+    DAT_00469648 = 0;
+}
 
 /* Function start: 0x425C30 */
 unsigned int GetDebugKeyState(unsigned int *p)
@@ -52,7 +68,7 @@ unsigned int GetDebugKeyState(unsigned int *p)
 
     if (*(char *)((int)p + 0xd) == -1)
         c = DAT_0046999c;
-    BlitUiFn1AE0((int *)*p, c);
+    PresentViewport((int *)*p, c);
     return 0;
 }
 
@@ -67,7 +83,10 @@ unsigned char *GetHighScoreEntry(short i)
 }
 
 /* Function start: 0x425E20 */
-unsigned int GetHighScoreValue(short i) { return *(unsigned int *)(&DAT_005a7c31[0] + i * 5); }
+unsigned int GetHighScoreValue(short i)
+{
+    return *(unsigned int *)(&DAT_005a7c31[0] + i * 5);
+}
 
 /* Function start: 0x425E30 */
 void SetHighScoreEntry(short i, unsigned char b, unsigned int v)
@@ -89,7 +108,10 @@ void ClearHighScoreTable(short v)
 }
 
 /* Function start: 0x425FE0 */
-int IsHighScoreSlotUsed(short i) { return DAT_005a7c30[i * 5] != 0xff; }
+int IsHighScoreSlotUsed(short i)
+{
+    return DAT_005a7c30[i * 5] != 0xff;
+}
 
 /* Function start: 0x426C50 */
 void LoadSceneBackdrop(char n)

@@ -7,7 +7,11 @@
 #include "wc1.h"
 
 /* Function start: 0x41F5D0 */
-unsigned int ReportShieldHit(void) { ReportComponentHit(3, 1, 3); return 0; }
+unsigned int ReportShieldHit(void)
+{
+    ReportComponentHit(3, 1, 3);
+    return 0;
+}
 
 /* Function start: 0x4208C0 */
 short RandomlyNegate(short v)

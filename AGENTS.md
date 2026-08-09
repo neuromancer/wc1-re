@@ -47,7 +47,10 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
 - In C++ (`src/ix`), do not use `this->`; use the class field name directly.
 - When a funciton is implemented, it should have a good name. No completely generic names are acceptable, so you must investigate globals and such to understand how to name them.
 - When a new .c file is added, it should have a good name. No leafsX.c are accepted.
-- Do NOT put a function in only one line `unsigned short f(void) { return 0; }` 
+- Do NOT put a function in only one line `unsigned short f(void) { return 0; }`. The
+  reconstruction is read side by side with the disassembly, so one source line per statement
+  is what makes the two comparable. `make sort` fails if any remain;
+  `bin/expandOneLiners.py` rewrites them.
 
 ### WC1-specific rules that differ from sibling projects
 

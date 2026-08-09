@@ -7,7 +7,10 @@
 #include "wc1.h"
 
 /* Function start: 0x418130 */
-unsigned short GetMusicDriverPresent(void) { return 1; }
+unsigned short GetMusicDriverPresent(void)
+{
+    return 1;
+}
 
 /* Function start: 0x418280 */
 void AddShipAiTimer(short i, short delta)
@@ -16,10 +19,18 @@ void AddShipAiTimer(short i, short delta)
 }
 
 /* Function start: 0x4184E0 */
-int MinInt(int a, int b) { if (a <= b) b = a; return b; }
+int MinInt(int a, int b)
+{
+    if (a <= b) b = a;
+    return b;
+}
 
 /* Function start: 0x4184F0 */
-int MaxInt(int a, int b) { if (b <= a) b = a; return b; }
+int MaxInt(int a, int b)
+{
+    if (b <= a) b = a;
+    return b;
+}
 
 /* Function start: 0x418500 */
 int AbsInt(int v)
@@ -61,7 +72,12 @@ short WrapDegrees(short degrees)
 }
 
 /* Function start: 0x4185F0 */
-void ZeroVector(unsigned int *p) { p[2] = 0; p[1] = 0; p[0] = 0; }
+void ZeroVector(unsigned int *p)
+{
+    p[2] = 0;
+    p[1] = 0;
+    p[0] = 0;
+}
 
 /* Function start: 0x418600 */
 void ZeroVectorPtr(int *p)
@@ -72,34 +88,46 @@ void ZeroVectorPtr(int *p)
 }
 
 /* Function start: 0x4187E0 */
-void ScaleVectorByZero(short a, int *p) { DoLocalFn8780(0, a, p); }
+void ScaleVectorByZero(short a, int *p)
+{
+    MakeRandomVectorFixed(0, a, p);
+}
 
 /* Function start: 0x419260 */
 short GetShipVectorComponent(short a, short i)
 {
-    return GetTbl0059d710Fn9210(a, &DAT_0059c490[0] + i * 3) - DAT_0059d710[i];
+    return GetHeadingErrorToPoint(a, &DAT_0059c490[0] + i * 3) - DAT_0059d710[i];
 }
 
 /* Function start: 0x419390 */
-void StoreShipVector(short a, int *p) { SetTbl0059d710Fn9290(a, p); }
+void StoreShipVector(short a, int *p)
+{
+    UpdateAimSolution(a, p);
+}
 
 /* Function start: 0x4193B0 */
-void SetShipAiOrder(short a, short b) { ShipAiRoutine04(a, b); }
+void SetShipAiOrder(short a, short b)
+{
+    ShipAiRoutine04(a, b);
+}
 
 /* Function start: 0x4196A0 */
 void ReadShipRotationRow(short a, short i)
 {
-    GetG0059c490Fn9660(a, &DAT_0059c490[0] + i * 3);
+    AimShipAtPoint(a, &DAT_0059c490[0] + i * 3);
 }
 
 /* Function start: 0x419850 */
 void WriteShipRotationRow(short a, short i)
 {
-    DoShipAiFn9810(a, &DAT_0059c490[0] + i * 3);
+    AimShipAtPointOffset90(a, &DAT_0059c490[0] + i * 3);
 }
 
 /* Function start: 0x419970 */
-void SetVectorFixedPoint(unsigned int *p, short v) { DoLocalFn9950(p, (int)v << 8); }
+void SetVectorFixedPoint(unsigned int *p, short v)
+{
+    NormaliseAndScaleVector(p, (int)v << 8);
+}
 
 /* Function start: 0x419B70 */
 short FindShipInMode1(void)

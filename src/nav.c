@@ -7,10 +7,16 @@
 #include "wc1.h"
 
 /* Function start: 0x40D1D0 */
-void ClearNavHazardFlag(void) { DAT_00468710 = 0; }
+void ClearNavHazardFlag(void)
+{
+    DAT_00468710 = 0;
+}
 
 /* Function start: 0x40D240 */
-void ClearNavLegendFlag(void) { DAT_0046870c = 0; }
+void ClearNavLegendFlag(void)
+{
+    DAT_0046870c = 0;
+}
 
 /* Function start: 0x40D8C0 */
 void SetScreenClipRect(unsigned short a, unsigned short b, unsigned short c, unsigned short d)
@@ -23,7 +29,7 @@ void FormatNavCoordinates(unsigned char *out)
 {
     unsigned char tmp[4];
 
-    DoLocalFn3C40(tmp);
+    SplitGameClockToHms(tmp);
     out[1] = tmp[2];
     out[0] = tmp[3];
 }
@@ -48,4 +54,7 @@ void NudgeObjectX(short i, short dx, short dy)
 }
 
 /* Function start: 0x40FA30 */
-unsigned short GetPaletteReadyUnused(void) { return 1; }
+unsigned short GetPaletteReadyUnused(void)
+{
+    return 1;
+}

@@ -19,7 +19,10 @@ unsigned int GetVictoryScreenId(void)
 }
 
 /* Function start: 0x42D870 */
-void CloseDataFileByHandle(unsigned short *p) { CloseDataFile(*p); }
+void CloseDataFileByHandle(unsigned short *p)
+{
+    CloseDataFile(*p);
+}
 
 /* Function start: 0x42DB70 */
 short GetTargetColourIndex(void)
@@ -41,10 +44,16 @@ void LogDisplayMode(void)
 }
 
 /* Function start: 0x42E320 */
-void FadeMusic(void) { SoundDebugPrintf("FadeMusic"); }
+void FadeMusic(void)
+{
+    SoundDebugPrintf("FadeMusic");
+}
 
 /* Function start: 0x42E330 */
-void SetMusicOn(void) { SoundDebugPrintf("SetMusicOn %d"); }
+void SetMusicOn(void)
+{
+    SoundDebugPrintf("SetMusicOn %d");
+}
 
 /* Function start: 0x42E350 */
 void StopMusic(void)
@@ -56,19 +65,34 @@ void StopMusic(void)
 }
 
 /* Function start: 0x42E380 */
-void SetMusBreakpt(void) { SoundDebugPrintf("SetMusBreakpt"); }
+void SetMusBreakpt(void)
+{
+    SoundDebugPrintf("SetMusBreakpt");
+}
 
 /* Function start: 0x42E390 */
-void PaletteFadeHook(void) {}
+void PaletteFadeHook(void)
+{
+}
 
 /* Function start: 0x42E3A0 */
-void FlushSoundEffect(void) { GetSfxFnB640(); SoundDebugPrintf("FlushSoundEffect"); }
+void FlushSoundEffect(void)
+{
+    StopAllSounds();
+    SoundDebugPrintf("FlushSoundEffect");
+}
 
 /* Function start: 0x42E3C0 */
-void FlushSoundEffects(void) { GetSfxFnB640(); SoundDebugPrintf("FlushSoundEffects"); }
+void FlushSoundEffects(void)
+{
+    StopAllSounds();
+    SoundDebugPrintf("FlushSoundEffects");
+}
 
 /* Function start: 0x42E3E0 */
-void SceneLeaveHook(void) {}
+void SceneLeaveHook(void)
+{
+}
 
 /* Function start: 0x42E8B0 */
 void StopMusicUnlessSuppressed(void)
@@ -94,23 +118,42 @@ void ResetSoundState(void)
 }
 
 /* Function start: 0x42EEA0 */
-void ResetSoundStateForScene(void) { ResetSoundState(); DAT_0046aa34 = 0; }
+void ResetSoundStateForScene(void)
+{
+    ResetSoundState();
+    DAT_0046aa34 = 0;
+}
 
 /* Function start: 0x42EEB0 */
-void ResetSoundStateForFlight(void) { ResetSoundState(); DAT_0046aa34 = 1; }
+void ResetSoundStateForFlight(void)
+{
+    ResetSoundState();
+    DAT_0046aa34 = 1;
+}
 
 /* Function start: 0x42EEE0 */
-void EnableMusicForScene(void) { DAT_0046aa30 = 1; SetMusicOn(); }
+void EnableMusicForScene(void)
+{
+    DAT_0046aa30 = 1;
+    SetMusicOn();
+}
 
 /* Function start: 0x42EF00 */
-unsigned int SoundFxTick(void) { WriteDebugString("soundFX"); return 0; }
+unsigned int SoundFxTick(void)
+{
+    WriteDebugString("soundFX");
+    return 0;
+}
 
 /* Function start: 0x42EF10 */
 void FlushSoundEffectsAndLog(void)
 {
-    GetSfxFnB640();
+    StopAllSounds();
     SoundDebugPrintf("FlushSoundEffects");
 }
 
 /* Function start: 0x42EF20 */
-void sound_effect(void) { WriteDebugString("sound_effect"); }
+void sound_effect(void)
+{
+    WriteDebugString("sound_effect");
+}

@@ -14,10 +14,10 @@
 /* TODO: ix_thread_handle_file_chunk */
 
 /* Function start: 0x004441C6 */
-/* TODO: HelperOf443CC0A */
+/* TODO: ix_thread_service_streams */
 
 /* Function start: 0x00444316 */
-/* TODO: HelperOf4445C9A */
+/* TODO: ix_thread_advance_branch */
 
 /* Function start: 0x004445C9 */   /* source line(s) 394: failed to lock stream buffer */
 /* TODO: ix_thread_lock_stream_buffer */
@@ -29,17 +29,17 @@
 /* TODO: ix_streamer_queue_read */
 
 /* Function start: 0x00444809 */
-/* TODO: DoLocalFn4809 */
+/* TODO: ix_thread_set_read_limit */
 
 /* Function start: 0x0044485B */
 /* TODO: begin */
 
 /* Function start: 0x0044487F */
-/* TODO: DoLocalFn487F */
+/* TODO: ix_thread_get_buffer_size */
 
 /* Function start: 0x0044489B */
 /* TODO: ix_thread_wait_event */
 
 /* Function start: 0x004448D9 */
-/* TODO: DoLocalFn48D9 */
+/* TODO: ix_thread_is_playing */
 

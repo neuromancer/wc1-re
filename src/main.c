@@ -21,17 +21,21 @@ unsigned int GetScreenUpdateFlag(void)
     if (IsAutopilotEngaged())
         EndCommMenu();
     if (DAT_005a7510 != 0)
-        ReleaseTbl005a7f10FnF940(&DAT_005a7510);
+        free_viewport(&DAT_005a7510);
     return 0;
 }
 
 /* Function start: 0x427B00 */
-unsigned int DrawStatusBarBackdrop(void) { BlitUiFn1AE0(&DAT_005a7510, DAT_004699d8); return 0; }
+unsigned int DrawStatusBarBackdrop(void)
+{
+    PresentViewport(&DAT_005a7510, DAT_004699d8);
+    return 0;
+}
 
 /* Function start: 0x427BA0 */
 unsigned int ResetScreenClipToFullHeight(void)
 {
-    ReleaseTbl005a7f10FnF940(&DAT_005a76b0);
+    free_viewport(&DAT_005a76b0);
     DAT_005a6baa = 0;
     DAT_005a6bae = 199;
     return 0;
@@ -41,7 +45,7 @@ unsigned int ResetScreenClipToFullHeight(void)
 unsigned int RefreshMemoryStatusOverlay(void)
 {
     ReleaseDirectDrawPalette();
-    DoLocalFn1A90(&DAT_005a76b0, &DAT_005a6ba0);
+    CopyViewportContents(&DAT_005a76b0, &DAT_005a6ba0);
     ShowMemoryStatusDebug();
     return 0;
 }

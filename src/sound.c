@@ -7,7 +7,12 @@
 #include "wc1.h"
 
 /* Function start: 0x42C410 */
-void FxDriverShutdownHook(void) {}
+void FxDriverShutdownHook(void)
+{
+}
 
 /* Function start: 0x42CDA0 */
-unsigned short GetJoystickPresentUnused(void) { return 1; }
+unsigned short GetJoystickPresentUnused(void)
+{
+    return 1;
+}

@@ -9,7 +9,7 @@
 /* Function start: 0x427370 */
 void exit_squadron(const char *msg)
 {
-    Helper4272F0();
+    LogMemoryUsage();
     SystemDebugPrintf(msg);
     SystemDebugPrintf("[SYSTEM]: Exit_squadron\n");
     WriteDebugString("[SYSTEM] exit_squadron");
@@ -24,6 +24,6 @@ unsigned int GetJoystickButtonEdge(unsigned int a, short b)
 {
     (void)a;
     if (b < 0)
-        return GameNoBodyStubv20();
+        return JoystickEdgeHook();
     return 0;
 }

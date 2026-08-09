@@ -31,13 +31,22 @@ unsigned int LeaveWaitCursorScope(void)
 }
 
 /* Function start: 0x421FE0 */
-unsigned int GetFxDriverInitResult(void) { return 0; }
+unsigned int GetFxDriverInitResult(void)
+{
+    return 0;
+}
 
 /* Function start: 0x421FF0 */
-unsigned int GetMessagePumpResult(void) { return 0; }
+unsigned int GetMessagePumpResult(void)
+{
+    return 0;
+}
 
 /* Function start: 0x422000 */
-unsigned int GetFxDriverStatus(void) { return 0; }
+unsigned int GetFxDriverStatus(void)
+{
+    return 0;
+}
 
 /* Function start: 0x422010 */
 int TestShipFlags(short i, unsigned char bits)
@@ -46,10 +55,16 @@ int TestShipFlags(short i, unsigned char bits)
 }
 
 /* Function start: 0x422030 */
-void ClearShipFlags(short i, unsigned char bits) { DAT_0059ca94[i] &= ~bits; }
+void ClearShipFlags(short i, unsigned char bits)
+{
+    DAT_0059ca94[i] &= ~bits;
+}
 
 /* Function start: 0x422050 */
-void SetShipFlags(short i, unsigned char bits) { DAT_0059ca94[i] |= bits; }
+void SetShipFlags(short i, unsigned char bits)
+{
+    DAT_0059ca94[i] |= bits;
+}
 
 /* Function start: 0x4220D0 */
 void ClearShipTimer(short i)
@@ -75,7 +90,10 @@ int ShipAiRoutine16(short ship, unsigned int bits)
  * is the classic `>= 1` boolean idiom applied to the *address* 0x0059B430,
  * which is always non-zero -- hence Ghidra folding it to `return 1`.  Written
  * the way the original was, so the idiom survives. */
-unsigned int HasSpeechBuffer(void) { return (unsigned int)&DAT_0059b430 >= 1; }
+unsigned int HasSpeechBuffer(void)
+{
+    return (unsigned int)&DAT_0059b430 >= 1;
+}
 
 /* Function start: 0x422140 */
 unsigned int SetShipStateBits(short i, unsigned int bits)
@@ -135,10 +153,18 @@ void ShipAiRoutine20(short ship, short state)
 }
 
 /* Function start: 0x422DD0 */
-unsigned int ClearShipAiThrottle(short ship) { ShipAiRoutine07(ship, 0); return 0; }
+unsigned int ClearShipAiThrottle(short ship)
+{
+    ShipAiRoutine07(ship, 0);
+    return 0;
+}
 
 /* Function start: 0x422DF0 */
-unsigned int SetShipAiThrottleHalf(short ship) { ShipAiRoutine07(ship, 0x500); return 0; }
+unsigned int SetShipAiThrottleHalf(short ship)
+{
+    ShipAiRoutine07(ship, 0x500);
+    return 0;
+}
 
 /* Function start: 0x422E50 */
 unsigned int ShipAiRoutine22(short ship)
@@ -179,7 +205,10 @@ unsigned int GetObjectRecordField(short i)
 }
 
 /* Function start: 0x423CD0 */
-void IssueShipAiOrder21(short a) { ScanTbl0059cab0Fn1100(a, 0x21); }
+void IssueShipAiOrder21(short a)
+{
+    FindShipCommEntry(a, 0x21);
+}
 
 /* Function start: 0x424B80 */
 unsigned int GetPilotNameLength(void)
@@ -187,7 +216,7 @@ unsigned int GetPilotNameLength(void)
     short i = 0;
 
     do {
-        ReleaseTbl0046c028Fn9BD0(i);
+        DestroyShip(i);
         i = i + 1;
     } while (i < 0x40);
     return 0;
@@ -201,10 +230,10 @@ unsigned int GetPilotRecordBase(void)
     DAT_00469d5c = 0;
     GetScreenUpdateFlag();
     DAT_0046a004 = 0;
-    ReleaseTbl00469d50Fn4490();
-    ScanTbl0046c028Fn1210();
+    ReleaseSceneActors();
+    ReleaseAllSfxSlots();
     GetPilotNameLength();
-    SetNavFn4BE0();
+    ResetSeriesProgress();
     return 0;
 }
 
@@ -218,7 +247,13 @@ unsigned int ResetSceneFlags(void)
 }
 
 /* Function start: 0x424CE0 */
-unsigned int MouseHide(void) { return 0; }
+unsigned int MouseHide(void)
+{
+    return 0;
+}
 
 /* Function start: 0x424CF0 */
-unsigned int MouseShow(void) { return 0; }
+unsigned int MouseShow(void)
+{
+    return 0;
+}

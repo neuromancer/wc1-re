@@ -10,10 +10,10 @@
 void ServiceAudioStream(void)
 {
     if (DAT_00465058 != 0 && DAT_0046a440 != 0) {
-        LoopG0059861cFn7610();
-        LoopAudioSoundFn7548();
-        GetAudioVoiceFn73F3();
-        LoopAudioStreamFnB300();
+        ix_system_delete_all_sounds();
+        ix_system_delete_all_samples();
+        ix_system_shutdown();
+        FreeWaveTable();
         DAT_0046a440 = 0;
     }
 }

@@ -236,14 +236,14 @@ void GetFixedOneMillionThunkAlt(void);                       /* 0x0042FB30 */
 short StepMenuSelection(short v, int flag);                                 /* 0x00430BC0 */
 int IsCommMenuIdle(void);                                              /* 0x00430CA0 */
 void ShowCommMenuEntry(short i);                                          /* 0x00430D30 */
-void GetG004699a8Fn0D50(unsigned int a, int b);                         /* 0x00430D50 */
+void ShowCommMenuPrompt(unsigned int a, int b);                         /* 0x00430D50 */
 int IsEjectPromptActive(void);                                                /* 0x00430D80 */
 short GetPendingMenuAction(void);                                            /* 0x00430DA0 */
 void SetPendingMenuAction(unsigned char v);                                 /* 0x00430DB0 */
 void RequestEjectPrompt(void);                                               /* 0x00430DC0 */
 int HasNoLockedTarget(void);                                              /* 0x00430E10 */
 int IsWingmanIdle(void);                                              /* 0x00430E30 */
-unsigned short DoLocalFn0E50(void);                                     /* 0x00430E50 */
+unsigned short IsCommMenuAvailable(void);                                     /* 0x00430E50 */
 void RequestCommMenu(unsigned char v);                                       /* 0x00430E70 */
 void EndCommMenu(void);                                              /* 0x004314C0 */
 void ShowCentredPrompt(char *text, unsigned short arg);                       /* 0x004314F0 */
@@ -321,7 +321,7 @@ unsigned short GetShutdownErrorCode(void);                                   /* 
 void VideoReleaseHook(void);                                           /* 0x004369D0 */
 void ExitCleanupHook(void);                                           /* 0x004369E0 */
 unsigned int BeginBriefingScene(void);                                         /* 0x00438B90 */
-void DebugNoBodyStubv1(int p, unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x00439400 */
+void SetViewportRect(int p, unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x00439400 */
 void ClearSaveSlotFlag(void);                                            /* 0x0043F690 */
 int IsSaveSlotFree(void);                                            /* 0x0043F6A0 */
 void ClearLoadSlotFlag(void);                                            /* 0x0043F720 */

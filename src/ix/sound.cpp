@@ -20,17 +20,17 @@
 /* TODO: ix_sound_stop */
 
 /* Function start: 0x0044831A */
-/* TODO: SetTbl00598620Fn831A */
+/* TODO: ix_sound_reprioritise */
 
 /* Function start: 0x00448645 */
-/* TODO: DoLocalFn8645 */
+/* TODO: ix_sound_set_looping */
 
 /* Function start: 0x00448678 */
-/* TODO: HelperOf42B680A */
+/* TODO: ix_sound_is_playing */
 
 /* Function start: 0x004486B0 */
-/* TODO: SetAudioSoundFn86B0 */
+/* TODO: ix_sound_sample_link */
 
 /* Function start: 0x0044870F */
-/* TODO: GetAudioSoundFn870F */
+/* TODO: ix_sound_sample_unlink */
 

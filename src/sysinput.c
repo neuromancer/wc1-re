@@ -25,7 +25,10 @@ int GetControlKeyState(void)
 }
 
 /* Function start: 0x403080 */
-unsigned int GetKeyboardModifiers(void) { return DAT_005a8964; }
+unsigned int GetKeyboardModifiers(void)
+{
+    return DAT_005a8964;
+}
 
 /* Function start: 0x403090 */
 unsigned int GetGameClockTicks(void)
@@ -48,4 +51,7 @@ void WriteDebugString(const char *s)
 /* Function start: 0x4030E0 */
 /* Byte-identical duplicate of SetMousePosition (0x00402E80); both exist because
  * VC++ 4.2's linker did no COMDAT folding. */
-void SetMousePositionDuplicate(int x, int y) { SetCursorPos(x, y); }
+void SetMousePositionDuplicate(int x, int y)
+{
+    SetCursorPos(x, y);
+}

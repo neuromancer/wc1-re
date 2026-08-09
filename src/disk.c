@@ -7,7 +7,10 @@
 #include "wc1.h"
 
 /* Function start: 0x41DA00 */
-unsigned int GetZeroUnused(void) { return 0; }
+unsigned int GetZeroUnused(void)
+{
+    return 0;
+}
 
 /* Function start: 0x41DEB0 */
 void WaitForStreamIdle(void)
@@ -43,4 +46,7 @@ unsigned int ShipAiRoutine08(short ship)
 }
 
 /* Function start: 0x41E7F0 */
-void ShipAiRoutine09(void) { DoLocalFn84C0((int)CalcVideoFn4F20()); }
+void ShipAiRoutine09(void)
+{
+    FixedToShortSaturating((int)FloatToLongDirect());
+}
