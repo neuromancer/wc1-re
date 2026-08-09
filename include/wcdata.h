@@ -320,6 +320,21 @@ typedef struct FixedVector {
     int z;
 } FixedVector;
 
+/* Compact three-axis offset used by the formation tables.  Unlike a
+ * FixedVector, each component is a 16-bit distance. */
+typedef struct ShortVector {
+    short x;
+    short y;
+    short z;
+} ShortVector;
+
+/* Weighted pair in the retail maneuver-selection tables. */
+typedef struct ManeuverChoice {
+    signed char threshold;
+    signed char primary;
+    signed char secondary;
+} ManeuverChoice;
+
 /* Runtime mission-nav record.  The loader expands each 3-byte disk coordinate
  * to a 32-bit fixed-point value, producing the 0x51-byte stride observed at
  * 0x0046C2F0. */

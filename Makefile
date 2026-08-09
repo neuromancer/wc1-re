@@ -221,6 +221,7 @@ SRCS_ORDERED_CORE = \
 	src/screen.c \
 	src/dib.c \
 	src/text.c \
+	src/smart.c \
 	src/mathfp.c \
 	src/strdos.c \
 	src/memstk.c \

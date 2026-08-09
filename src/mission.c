@@ -6,6 +6,22 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x421100 */
+short find_weapon(short obj, enum ObjectType weaponType)
+{
+    short weapon;
+
+    weapon = 0;
+    while (weapon < (signed char)g_aShipWeapons_0059cab0[obj][0]) {
+        if (*(enum ObjectType *)(
+                g_aShipWeapons_0059cab0[obj] + 1 + weapon * 7) ==
+            weaponType)
+            return weapon;
+        weapon++;
+    }
+    return -1;
+}
+
 /* Function start: 0x421350 */
 void fire_afterburner(short obj, short time)
 {
@@ -194,13 +210,36 @@ unsigned int SetShipStateBits(short i, unsigned int bits)
 /* Function start: 0x422160 */
 void ResetShipStateRecord(short i)
 {
-    DAT_0059d2d0[i] = 0;
+    g_asCollisionCountdown_0059d2d0[i] = 0;
     DAT_0059b430[i] = 0;
     DAT_0059cf20[i] = 0xff;
 }
 
+/* Function start: 0x422180 */
+void start_collision_avoidance(short obj, short other)
+{
+    if ((short)(signed char)DAT_0059cf20[obj] != other) {
+        DAT_0059cf20[obj] = (unsigned char)other;
+        steady_object(obj);
+    }
+    g_asCollisionCountdown_0059d2d0[obj] = 3;
+    SetShipStateBits(obj, 1);
+    g_asShipAfterburnerTimer_0059c810[obj] = 0;
+    set_special(obj, SPECIAL_MANEUVER_NONE);
+}
+
+/* Function start: 0x4221E0 */
+void advance_collision_avoidance(short obj)
+{
+    g_asCollisionCountdown_0059d2d0[obj]--;
+    if (g_asCollisionCountdown_0059d2d0[obj] <= 0)
+        ResetShipStateRecord(obj);
+    else
+        SetShipStateBits(obj, 2);
+}
+
 /* Function start: 0x422220 */
-int normal_speed(short obj)
+short normal_speed(short obj)
 {
     if (g_aeSpecialManeuver_0059c3c0[obj] !=
             SPECIAL_MANEUVER_AFTERBURNER &&
@@ -209,15 +248,124 @@ int normal_speed(short obj)
     return 0;
 }
 
+/* Function start: 0x422260 */
+short predict_collision_time(short obj, short other)
+{
+    short collisionRadius;
+    short time;
+    short range;
+    short elapsed;
+    short step;
+    int collisionFound;
+    long distance;
+    long relativeSpeed;
+    FixedVector relativePosition;
+    FixedVector relativeVelocity;
+    FixedVector travel;
+    FixedVector separation;
+
+    collisionRadius = g_asObjectCollisionRadius_0059d710[obj];
+    collisionRadius += g_asObjectCollisionRadius_0059d710[other];
+    collisionRadius += 30;
+    collisionFound = 0;
+    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+                       &g_aShipPosition_0059c490[other],
+                       &relativePosition);
+    distance = ComputeFixedVectorMagnitude(&relativePosition);
+    if (((long)collisionRadius + 1500) * 0x100 < distance)
+        return 0x7fff;
+
+    ComputeVectorDelta(&g_aShipVelocity_0059c010[obj],
+                       &g_aShipVelocity_0059c010[other],
+                       &relativeVelocity);
+    relativeSpeed = ComputeFixedVectorMagnitude(&relativeVelocity);
+    if (relativeSpeed == 0)
+        return 0x7fbc;
+
+    time = FixedToShortSaturating(
+        DivideFixed((int)distance, (int)relativeSpeed));
+    if (time >= 30)
+        return time;
+
+    ScaleFixedVector(&relativeVelocity, (int)time << 8, &travel);
+    AddFixedVectors(&relativePosition, &travel, &separation);
+    range = FixedToShortSaturating(
+        (int)ComputeFixedVectorMagnitude(&separation));
+    if (range > collisionRadius) {
+        if ((collisionRadius * 2 >> 4) > range)
+            return 25;
+        return 32000;
+    }
+
+    elapsed = 0;
+    do {
+        if (elapsed >= time)
+            break;
+        step = MaxShort(1, (short)((time - elapsed) >> 1));
+        elapsed += step;
+        ScaleFixedVector(&relativeVelocity, (int)elapsed << 8, &travel);
+        AddFixedVectors(&relativePosition, &travel, &separation);
+        range = FixedToShortSaturating(
+            (int)ComputeFixedVectorMagnitude(&separation));
+        if (collisionRadius >= range)
+            collisionFound = 1;
+    } while (collisionFound == 0);
+    return elapsed;
+}
+
 /* Function start: 0x422440 */
 void ClearWingmanSlots(void)
 {
     short i = 0;
 
     do {
-        DAT_005a7cc0[i] = 0xffff;
+        g_asCollisionPartner_005a7cc0[i] = -1;
         i = i + 1;
     } while (i < 10);
+}
+
+/* Function start: 0x422460 */
+short collision_distance(short obj, short other)
+{
+    if (g_asCollisionPartner_005a7cc0[obj] == other)
+        return g_asCollisionTime_005a7ca0[obj];
+    if (other < 10 && g_asCollisionPartner_005a7cc0[other] == obj)
+        return g_asCollisionTime_005a7ca0[other];
+    if (g_aeObjectClass_0059d100[other] == OBJECT_CLASS_ASTEROID &&
+        ((short)DAT_0059d9b0[other] == -0x7fff ||
+         (short)DAT_0059d9b0[obj] == -0x7fff))
+        return 0x7fff;
+    return predict_collision_time(obj, other);
+}
+
+/* Function start: 0x4224F0 */
+short find_collision_object(short obj)
+{
+    short candidate;
+    short closestTime;
+    short other;
+    short time;
+
+    candidate = -1;
+    closestTime = 30;
+    other = 0;
+    do {
+        if (other != obj &&
+            g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_ASTEROID &&
+            g_aeObjectClass_0059d100[other] != OBJECT_CLASS_MISSILE) {
+            time = collision_distance(obj, other);
+            if (closestTime > time) {
+                closestTime = time;
+                candidate = other;
+            }
+        }
+        other++;
+    } while (other <= 60);
+    if (candidate != -1) {
+        g_asCollisionPartner_005a7cc0[obj] = candidate;
+        g_asCollisionTime_005a7ca0[obj] = closestTime;
+    }
+    return candidate;
 }
 
 /* Function start: 0x422560 */
@@ -292,9 +440,11 @@ short find_ship_index(short missionShip)
 }
 
 /* Function start: 0x422830 */
-unsigned int no_goal(short ship)
+unsigned char no_goal(short ship)
 {
-    return DAT_0059c310[ship] == 0 && DAT_0059d7a0[ship] == 0 && DAT_0059d630[ship] == 0;
+    return (g_anYawGoal_0059c310[ship] |
+            g_anPitchGoal_0059d7a0[ship] |
+            g_anRollGoal_0059d630[ship]) == 0;
 }
 
 /* Function start: 0x422860 */
@@ -815,9 +965,9 @@ short evaluate_damage(short obj)
 }
 
 /* Function start: 0x423CD0 */
-void IssueShipAiOrder21(short a)
+short find_space_mine(short obj)
 {
-    FindShipCommEntry(a, 0x21);
+    return find_weapon(obj, OBJECT_TYPE_SPACE_MINE);
 }
 
 /* Function start: 0x424B80 */

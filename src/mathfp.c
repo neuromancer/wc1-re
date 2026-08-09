@@ -1,77 +1,13 @@
 /*
  *  Floating-point helpers and the random-number generator.
  *
- *  Address range 0x434900-0x4353ff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: _ftol wrappers and rand()/srand() shims, contiguous and free of globals.
+ *  Address range 0x434cd0-0x4353ff (provisional -- see docs/ORDER.md).
+ *  The preceding smart unit ends at chase_speed (0x434c70).
  */
 #include "wc1.h"
 
-/* Function start: 0x434A80 */
-void intelligence_events(short obj)
-{
-    short target = (short)g_acShipTarget_0059ce60[obj];
-    signed char previousState = DAT_0059d620[obj];
-    int event = -1;
-    int targetGone = 0;
-
-    if (object_requires_evasion(obj) != 0) {
-        event = 6;
-    } else if (unactive(target) != 0) {
-        targetGone = 1;
-    } else if (g_aeSpecialManeuver_0059c3c0[target] ==
-               SPECIAL_MANEUVER_UNKNOWN_9) {
-        event = 8;
-    } else {
-        event = 0;
-        ship_vs_ship(obj, target);
-        if (g_nTargetRange_0059ce10 >= 8001) {
-            event = 2;
-        } else if (g_acShipAiCooldown_0059d680[obj] > 0) {
-            event = 7;
-        } else if (g_nFacingToTarget_0059d920 >= 56 &&
-                   g_nTargetFacing_0059d52a <= -56) {
-            event = 5;
-        } else if (g_nFacingToTarget_0059d920 >= 76 &&
-                   g_nTargetFacing_0059d52a >= 76) {
-            event = 4;
-        } else if (g_nFacingToTarget_0059d920 < -60 &&
-                   g_nTargetFacing_0059d52a > 85 &&
-                   g_nTargetRange_0059ce10 < 7000) {
-            event = 3;
-        } else if (g_anShipSpeed_0059b320[target] < 20) {
-            event = 1;
-        }
-    }
-
-    classify_intelligence_event(obj, event);
-    if (event != -1)
-        event = select_maneuver_for_event(obj, event);
-    if (event == -1 && targetGone) {
-        if (any_enemy(obj, 16000) == 0)
-            reset_objective(obj, OBJECTIVE_NONE);
-        else
-            select_target(obj);
-        reset_intelligence_state(obj);
-    }
-
-    if (g_nYourWingman_0046c04c == obj &&
-        g_aeObjectClass_0059d100[0] == OBJECT_CLASS_SHIP &&
-        ((signed char *)g_aeShipObjective_0059d200)[
-            g_nYourWingman_0046c04c + 0xc0] == -1) {
-        if (previousState < 15 && DAT_0059d620[obj] >= 15) {
-            send_message(obj, 4);
-        } else if (evaluate_damage(0) <= 34 && RandomBelow(1000) <= 3) {
-            if (evaluate_damage(obj) > evaluate_damage(0))
-                send_message(obj, 8);
-            else
-                send_message(obj, 4);
-        }
-    }
-    g_aiIntelligenceEvent_0046d368[obj] = event;
-}
-
 /* Function start: 0x434CD0 */
-unsigned short RandomBelow(short n)
+short RandomBelow(short n)
 {
     return (short)(rand() % (int)n);
 }
@@ -132,6 +68,13 @@ long SinFixed(short degrees)
 long CosFixed(short degrees)
 {
     return (long)cos((double)degrees * WC1_DEG2RAD);
+}
+
+/* Function start: 0x434E90 */
+long ArcCosFixed(int value)
+{
+    return (long)(acos((double)value * 0.00390625f) *
+                  57.295779513082323);
 }
 
 /* Function start: 0x434EC0 */

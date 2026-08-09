@@ -41,6 +41,17 @@ int GetShipAccelerationRate(short ship)
     return acceleration;
 }
 
+/* Function start: 0x4183D0 */
+void position_relative(FixedVector *position, FixedVector direction,
+                       short distance)
+{
+    if (distance != 0) {
+        NormalizeFixedVector(&direction);
+        ScaleFixedVector(&direction, (int)distance << 8, &direction);
+        AddFixedVectors(position, &direction, position);
+    }
+}
+
 /* Function start: 0x4184C0 */
 short FixedToShortSaturating(int value)
 {
@@ -128,7 +139,8 @@ void ZeroVectorPtr(int *p)
 }
 
 /* Function start: 0x418620 */
-void AddFixedVectors(FixedVector *left, FixedVector *right, FixedVector *sum)
+void AddFixedVectors(const FixedVector *left, const FixedVector *right,
+                     FixedVector *sum)
 {
     sum->x = right->x + left->x;
     sum->y = right->y + left->y;
@@ -215,6 +227,26 @@ short NormalizeFixedVector(FixedVector *vector)
     return 0;
 }
 
+/* Function start: 0x418FD0 */
+void copy_frame(short source, short destination)
+{
+    g_aShipRightVector_0059b6e0[destination] =
+        g_aShipRightVector_0059b6e0[source];
+    g_aShipUpVector_0059b9e0[destination] =
+        g_aShipUpVector_0059b9e0[source];
+    g_aShipForwardVector_0059bce0[destination] =
+        g_aShipForwardVector_0059bce0[source];
+}
+
+/* Function start: 0x4190B0 */
+void transform_to_objects_frame(const FixedVector *source,
+                                FixedVector *destination, short obj)
+{
+    destination->x = dot_product(source, &g_aShipRightVector_0059b6e0[obj]);
+    destination->y = dot_product(source, &g_aShipUpVector_0059b9e0[obj]);
+    destination->z = dot_product(source, &g_aShipForwardVector_0059bce0[obj]);
+}
+
 /* Function start: 0x419210 */
 short distance_from_point(short obj, const FixedVector *point)
 {
@@ -223,21 +255,23 @@ short distance_from_point(short obj, const FixedVector *point)
     ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
                        (FixedVector *)point, &g_vToTarget_0059d4d0);
     magnitude = ComputeFixedVectorMagnitude(&g_vToTarget_0059d4d0);
-    return FixedToShortSaturating((int)magnitude) - DAT_0059d710[obj];
+    return FixedToShortSaturating((int)magnitude) -
+           g_asObjectCollisionRadius_0059d710[obj];
 }
 
 /* Function start: 0x419260 */
 short distance_from_object(short obj, short other)
 {
     return distance_from_point(obj, &g_aShipPosition_0059c490[other]) -
-           DAT_0059d710[other];
+           g_asObjectCollisionRadius_0059d710[other];
 }
 
 /* Function start: 0x419290 */
 void get_facing_range_from_point(short obj, const FixedVector *point)
 {
     g_nTargetRange_0059ce10 =
-        distance_from_point(obj, point) - DAT_0059d710[obj];
+        distance_from_point(obj, point) -
+        g_asObjectCollisionRadius_0059d710[obj];
     g_vNormalizedToTarget_005a7db0 = g_vToTarget_0059d4d0;
     NormalizeFixedVector(&g_vNormalizedToTarget_005a7db0);
     g_nFacingToTarget_0059d920 =
@@ -250,7 +284,7 @@ void get_facing_range_from_point(short obj, const FixedVector *point)
 void get_facing_range_from_object(short obj, short other)
 {
     get_facing_range_from_point(obj, &g_aShipPosition_0059c490[other]);
-    g_nTargetRange_0059ce10 -= DAT_0059d710[other];
+    g_nTargetRange_0059ce10 -= g_asObjectCollisionRadius_0059d710[other];
     ZeroVectorPtr((int *)&g_vNormalizedToTarget_005a7db0);
     g_nTargetFacing_0059d52a =
         (short)(((unsigned short)dot_product(
@@ -282,6 +316,24 @@ short facing_to_object(short obj, short other)
         (short)(((unsigned short)dot_product(
             &g_aShipForwardVector_0059bce0[obj], &direction) * 100) >> 8);
     return g_nFacingToTarget_0059d920;
+}
+
+/* Function start: 0x419440 */
+short match_roll_orientation(short obj, short reference)
+{
+    FixedVector roll;
+    short angle;
+
+    roll.x = dot_product(&g_aShipUpVector_0059b9e0[obj],
+                         &g_aShipRightVector_0059b6e0[reference]);
+    roll.y = dot_product(&g_aShipUpVector_0059b9e0[obj],
+                         &g_aShipUpVector_0059b9e0[reference]);
+    roll.z = 0;
+    NormalizeFixedVector(&roll);
+    angle = (short)ArcCosFixed(roll.y);
+    if (roll.x >= 0)
+        angle = 360 - angle;
+    return WrapDegrees(angle);
 }
 
 /* Function start: 0x4194D0 */

@@ -190,6 +190,8 @@ unsigned short GetMusicDriverPresent(void);                                    /
 short get_ship_max_velocity(short obj);                                /* 0x004181C0 */
 void AddShipAiTimer(short i, short delta);                        /* 0x00418280 */
 int GetShipAccelerationRate(short ship);                          /* 0x004182F0 */
+void position_relative(FixedVector *position, FixedVector direction,
+                       short distance);                          /* 0x004183D0 */
 short FixedToShortSaturating(int value);                           /* 0x004184C0 */
 int MinInt(int a, int b);                                        /* 0x004184E0 */
 int MaxInt(int a, int b);                                        /* 0x004184F0 */
@@ -200,7 +202,7 @@ short WrapDegrees(short degrees);                                     /* 0x00418
 int equ_vector(const FixedVector *left, const FixedVector *right);     /* 0x00418590 */
 void zero_vector(FixedVector *vector);                                /* 0x004185F0 */
 void ZeroVectorPtr(int *p);                                             /* 0x00418600 */
-void AddFixedVectors(FixedVector *left, FixedVector *right,
+void AddFixedVectors(const FixedVector *left, const FixedVector *right,
                      FixedVector *sum);                               /* 0x00418620 */
 void SubtractFixedVectors(FixedVector *left, FixedVector *right,
                           FixedVector *difference);                    /* 0x00418650 */
@@ -218,6 +220,10 @@ void FillFixedVectorWithRandomComponents(short limit,
                                          FixedVector *vector);          /* 0x004187E0 */
 int dot_product(const FixedVector *left, const FixedVector *right);    /* 0x004189E0 */
 short NormalizeFixedVector(FixedVector *vector);                      /* 0x00418B10 */
+void copy_frame(short source, short destination);                    /* 0x00418FD0 */
+void transform_to_objects_frame(const FixedVector *source,
+                                FixedVector *destination,
+                                short obj);                           /* 0x004190B0 */
 short distance_from_point(short obj, const FixedVector *point);       /* 0x00419210 */
 short distance_from_object(short obj, short other);                   /* 0x00419260 */
 void get_facing_range_from_point(short obj, const FixedVector *point);/* 0x00419290 */
@@ -225,6 +231,7 @@ void get_facing_range_from_object(short obj, short other);            /* 0x00419
 void ship_vs_point(short obj, const FixedVector *point);              /* 0x00419390 */
 void ship_vs_ship(short obj, short other);                             /* 0x004193B0 */
 short facing_to_object(short obj, short other);                       /* 0x004193D0 */
+short match_roll_orientation(short obj, short reference);             /* 0x00419440 */
 int set_ship_rotation_goals(short obj, short reference,
                             const FixedVector *direction,
                             short *yawGoal, short *pitchGoal);         /* 0x004194D0 */
@@ -264,6 +271,7 @@ int explode(short attacker, short victim);                            /* 0x00420
 void fire_capital_weapon(short obj, short target);                    /* 0x004202D0 */
 int fire_turrets(short obj);                                          /* 0x00420AA0 */
 void fire_afterburner(short obj, short time);                          /* 0x00421350 */
+short find_weapon(short obj, enum ObjectType weaponType);              /* 0x00421100 */
 unsigned int ReportShieldHit(void);                                       /* 0x0041F5D0 */
 short RandomlyNegate(short v);                                           /* 0x004208C0 */
 unsigned int ShipAiRoutine15(short ship);                               /* 0x004213B0 */
@@ -283,13 +291,18 @@ int ShipAiRoutine16(short ship, unsigned int bits);                     /* 0x004
 unsigned int HasSpeechBuffer(void);                                      /* 0x00422130 */
 unsigned int SetShipStateBits(short i, unsigned int bits);               /* 0x00422140 */
 void ResetShipStateRecord(short i);                                     /* 0x00422160 */
-int normal_speed(short obj);                                           /* 0x00422220 */
+void start_collision_avoidance(short obj, short other);                 /* 0x00422180 */
+void advance_collision_avoidance(short obj);                            /* 0x004221E0 */
+short normal_speed(short obj);                                         /* 0x00422220 */
+short predict_collision_time(short obj, short other);                   /* 0x00422260 */
 void ClearWingmanSlots(void);                                       /* 0x00422440 */
+short collision_distance(short obj, short other);                      /* 0x00422460 */
+short find_collision_object(short obj);                                /* 0x004224F0 */
 unsigned int unactive(short ship);                                      /* 0x00422560 */
 void trim_goals(short obj, short amount);                             /* 0x004225C0 */
 int report_kilrathi_rout(short mode);                                 /* 0x00422640 */
 short find_ship_index(short missionShip);                              /* 0x00422710 */
-unsigned int no_goal(short ship);                                       /* 0x00422830 */
+unsigned char no_goal(short ship);                                     /* 0x00422830 */
 int is_enemy_on_tail(short obj, short other);                         /* 0x00422860 */
 short detect_enemy_tail(short obj);                                    /* 0x00422930 */
 int object_requires_evasion(short obj);                               /* 0x004229F0 */
@@ -331,7 +344,7 @@ short InterpolateClamped(short inputMinimum, short inputMaximum,
                          short input, short outputMinimum,
                          short outputMaximum);                        /* 0x00423BA0 */
 short evaluate_damage(short obj);                                       /* 0x00423C00 */
-void IssueShipAiOrder21(short a);                                          /* 0x00423CD0 */
+short find_space_mine(short obj);                                       /* 0x00423CD0 */
 unsigned int GetPilotNameLength(void);                                     /* 0x00424B80 */
 unsigned int GetPilotRecordBase(void);                                  /* 0x00424BA0 */
 unsigned int ResetSceneFlags(void);                                      /* 0x00424C60 */
@@ -463,24 +476,42 @@ void GetPaletteEntryAsWords(short i, unsigned short *rgb);                /* 0x0
 void DIBwholePaletteFromTriplets(unsigned char *palette);             /* 0x00433060 */
 void DIBwholePaletteFromWords(unsigned short *palette);                /* 0x00433120 */
 void DIBwaitForVerticalBlank(void);                                      /* 0x004331E0 */
-void steer_away_from_object(short obj, short other, short amount);    /* 0x00433AC0 */
-int check_turn_delay(short obj);                                      /* 0x00433D90 */
+unsigned int steer_away_from_object(short obj, short other,
+                                    short amount);                    /* 0x00433AC0 */
+void steer_away_from_predicted_object(short obj, short other,
+                                      short predictionTicks,
+                                      short amount);                  /* 0x00433B90 */
+void prevent_collision(short obj);                                    /* 0x00433C80 */
+int handle_collisions(short obj);                                     /* 0x00433D90 */
 int regulate_turn(short obj);                                         /* 0x00433DE0 */
-void select_target(short obj);                                          /* 0x00433E50 */
+unsigned int select_target(short obj);                                  /* 0x00433E50 */
 unsigned int veer_random(short obj, short amount);                      /* 0x00433EC0 */
+unsigned int offset_location(short obj, const ShortVector *offset,
+                             FixedVector *location);                  /* 0x00433F50 */
 unsigned int compute_formation_destination(short leader,
-                                           const FixedVector *offset,
+                                           const ShortVector *offset,
                                            FixedVector *destination); /* 0x00433FF0 */
-unsigned int approach_formation_destination(short obj,
-                                            const FixedVector *destination,
-                                            short leader);            /* 0x00434360 */
+unsigned int control_speed(short obj, unsigned short range,
+                           int desiredSpeed);                         /* 0x00434040 */
+unsigned int chase_location(short obj, const FixedVector *destination,
+                            short reference);                         /* 0x004340F0 */
+unsigned int goto_location(short obj,
+                           const FixedVector *destination);           /* 0x004342C0 */
+unsigned int goto_formation(short obj, const FixedVector *destination,
+                            short leader);                            /* 0x00434360 */
 unsigned int maintain_formation(short obj);                             /* 0x004344E0 */
-unsigned int reset_intelligence_state(short obj);                      /* 0x00434550 */
-int GetShipIfArmorBelow15(short i);                                      /* 0x004345D0 */
-int select_maneuver_for_event(short obj, int event);                   /* 0x00434900 */
-void classify_intelligence_event(short obj, int event);               /* 0x00434980 */
+unsigned int reset_stress(short obj);                                  /* 0x00434550 */
+short stress_morale(short obj);                                        /* 0x004345D0 */
+enum ShipManeuver any_defense(short obj);                              /* 0x004345F0 */
+enum ShipManeuver pick_regular_maneuver(short obj, int event);         /* 0x00434630 */
+enum ShipManeuver pick_from_list(const ManeuverChoice *choice,
+                                 short obj);                           /* 0x00434800 */
+enum ShipManeuver pick_kilrathi_maneuver(short obj, int event);        /* 0x004348A0 */
+unsigned int process_maneuver_node(short obj, int event);              /* 0x00434900 */
+void handle_stress(short obj, int event);                              /* 0x00434980 */
 void intelligence_events(short obj);                                    /* 0x00434A80 */
-unsigned short RandomBelow(short n);                                  /* 0x00434CD0 */
+unsigned int chase_speed(short obj, short range);                      /* 0x00434C70 */
+short RandomBelow(short n);                                           /* 0x00434CD0 */
 void SeedRandomFromClock(void);                                               /* 0x00434CF0 */
 short __stdcall RandomInRange(short lo, short hi);                      /* 0x00434D20 */
 short RandomBelowOrEqual(short n);                                      /* 0x00434D50 */
@@ -488,6 +519,7 @@ long MultiplyFixed(int left, int right);                              /* 0x00434
 long DivideFixed(int numerator, int denominator);                     /* 0x00434DB0 */
 long SinFixed(short degrees);                                    /* 0x00434E00 */
 long CosFixed(short degrees);                                    /* 0x00434E30 */
+long ArcCosFixed(int value);                                      /* 0x00434E90 */
 long FloatToLongPassThrough(void);                                             /* 0x00434EC0 */
 long ComputeFixedVectorMagnitude(const FixedVector *vector);         /* 0x00434F20 */
 void SetTextCursor(unsigned short a, unsigned short b);             /* 0x00434F70 */

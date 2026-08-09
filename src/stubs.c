@@ -35,7 +35,6 @@ void PumpMessagesWhileDebugPaused(unsigned int arg)
 
 /* Forward references still to be implemented; each is a real function. */
 /* Function start: 0x41DAA0 */ /* TODO */ short UiRoutine03(void){return 1;}
-/* Function start: 0x421100 */ /* TODO */ void FindShipCommEntry(short a, int b) { (void)a; (void)b; }
 /* Function start: 0x422780 */ /* TODO */ void ClearShipAiOrders(short s) { (void)s; }
 /* Function start: 0x424490 */ /* TODO */ void ReleaseSceneActors(void){}
 /* Function start: 0x424BE0 */ /* TODO */ void ResetSeriesProgress(void){}

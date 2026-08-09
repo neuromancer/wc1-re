@@ -88,8 +88,16 @@ extern MissionNavPoint g_aMissionNavPoints_0046c2f0[WC1_MISSION_NAV_POINT_COUNT]
 extern int DAT_0046da90;
 extern int DAT_0046da94;
 extern int g_aiIntelligenceEvent_0046d368[512];
-extern signed char g_acPilotAggression_0046d9a0[64];
-extern signed char g_acPilotRecovery_0046d9b8[64];
+extern signed char g_aDefenseManeuversNovice_0046d390[8];
+extern signed char g_aDefenseManeuversVeteran_0046d398[8];
+extern signed char g_aDefenseManeuversElite_0046d3a0[16];
+extern signed char g_aDefenseManeuversAce_0046d3b0[16];
+extern signed char g_aDefenseManeuversBoss_0046d3c0[16];
+extern signed char *g_apDefenseManeuvers_0046d3d0[5];
+extern ManeuverChoice g_aRatedManeuverChoices_0046d3e8[13][9][3];
+extern ManeuverChoice g_aKilrathiManeuverChoices_0046d808[5][9][3];
+extern signed char g_acPilotAggression_0046d9a0[24];
+extern signed char g_acPilotRecovery_0046d9b8[20];
 extern unsigned char *g_pDrawnMouseCursorShape_0046da9c;
 extern int DAT_0046daa0;
 extern int g_bMonoDebugInstalled_00475e70;
@@ -145,6 +153,8 @@ extern short DAT_0059ab34;
 extern int DAT_0059ab4c;
 extern unsigned char DAT_0059ab58;
 extern int g_anShipSpeed_0059b320[64];
+extern FixedVector g_aShipRightVector_0059b6e0[64];
+extern FixedVector g_aShipUpVector_0059b9e0[64];
 extern FixedVector g_aShipForwardVector_0059bce0[64];
 extern int g_nSoundEffectSlotCount_0059bfe0;
 extern unsigned int DAT_0059b430[512];
@@ -161,6 +171,7 @@ extern FixedVector g_aShipPosition_0059c490[512];
 extern unsigned char DAT_0059c810[512];
 extern signed char g_cCurrentNavPointIndex_0059c86c;
 extern unsigned char DAT_0059ca94[256];
+extern unsigned char g_aShipWeapons_0059cab0[16][0x47];
 extern signed char g_acShipRating_0059cd80[16];
 extern short g_nTargetRange_0059ce10;
 extern unsigned int DAT_0059ce18[256];
@@ -172,7 +183,8 @@ extern unsigned char DAT_0059cf20[512];
  * 13 capital_ship. */
 extern enum ObjectClass g_aeObjectClass_0059d100[512];
 extern enum ShipObjective g_aeShipObjective_0059d200[512];
-extern unsigned short DAT_0059d2d0[512];
+extern signed char g_acWingmanMessageState_0059d2c0[16];
+extern short g_asCollisionCountdown_0059d2d0[16];
 extern short g_nPitchInput_0059d3f0;
 extern short g_nYawInput_0059d3f2;
 extern short g_asShipWingLeader_0059d400[64];
@@ -180,10 +192,10 @@ extern unsigned short DAT_0059d500[2048];
 extern char g_acShipSequence_0059d520[512];
 extern short g_nTargetFacing_0059d52a;
 extern enum ShipTactic g_aeShipTactic_0059d5e0[512];
-extern unsigned char DAT_0059d620[512];
+extern signed char g_acShipStress_0059d620[16];
 extern unsigned char DAT_0059d630[512];
 extern enum Side g_aeShipSide_0059d650[512];
-extern short DAT_0059d710[512];
+extern short g_asObjectCollisionRadius_0059d710[64];
 extern unsigned char DAT_0059d7a0[512];
 extern signed char g_abShipNavPointIndex_0059d7c0[512];
 extern unsigned short DAT_0059d9b0[512];
@@ -217,7 +229,8 @@ extern unsigned int DAT_005a77ec;
 extern unsigned int DAT_005a7c2c;
 extern unsigned char DAT_005a7c30[2048];
 extern unsigned char DAT_005a7c31[2048];
-extern unsigned short DAT_005a7cc0[16];
+extern short g_asCollisionPartner_005a7cc0[16];
+extern short g_asCollisionTime_005a7ca0[16];
 extern unsigned char DAT_005a7cec;
 extern unsigned char g_bStickIndicatorFrame_005a7dc8;
 extern unsigned char DAT_005a7dca;
@@ -359,7 +372,7 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
 #define g_vNormalizedToTarget_005a7db0 \
     (*(FixedVector *)((unsigned char *)DAT_005a7dd0 - 0x20))
 #define g_nLastFoundShip_005a7cba \
-    (*(short *)((unsigned char *)DAT_005a7cc0 - 6))
+    (*(short *)((unsigned char *)g_asCollisionPartner_005a7cc0 - 6))
 
 #define g_abFlightPath_0059c000 \
     ((signed char *)((unsigned char *)g_aShipVelocity_0059c010 - 0x10))
@@ -374,7 +387,7 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
 #define g_abObjectField_0059b4a0 \
     ((unsigned char *)g_aeObjectType_0059b560 - 0xc0)
 #define g_aShipFormationOffset_0059b520 \
-    ((FixedVector *)((unsigned char *)g_aeObjectType_0059b560 - 0x40))
+    ((ShortVector *)((unsigned char *)g_aeObjectType_0059b560 - 0x40))
 
 /* Ordered name tables read directly out of the image; see include/wcdata.h.
  * Both are packed variable-length strings, not fixed-stride arrays, so the

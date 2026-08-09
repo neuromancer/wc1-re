@@ -81,15 +81,16 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/music.c` | `0x42d000`–`0x42efff` | 22 | Music state machine and the streaming music script | PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ... |
 | `src/screen.c` | `0x42f000`–`0x431fff` | 28 | Screen scopes, prompts and the comm menu | PushMemoryStackFrame/ShowChoosePrompt/ShowEnemyTargetSelectMenu |
 | `src/dib.c` | `0x432000`–`0x4333ff` | 22 | DirectDraw back end | PROVEN: every routine prints its own name, "DIBinstall", "DIBslamReal", ... |
-| `src/text.c` | `0x433400`–`0x4348ff` | 1 | Text formatting and the DirectDraw error-string table | DirectDrawResultToText holds 122 string references, the largest single block |
-| `src/mathfp.c` | `0x434900`–`0x4353ff` | 19 | Floating-point helpers and the random-number generator | _ftol wrappers and rand()/srand() shims, contiguous and free of globals |
+| `src/text.c` | `0x433400`–`0x433abf` | 0 | Provisional tail of the text/DirectDraw tranche | The following `smart` unit starts exactly at `0x433ac0` |
+| `src/smart.c` | `0x433ac0`–`0x434ccf` | 24 | Collision avoidance, formation flight, stress, and maneuver selection | PROVEN: the Mac `smart` symbol run maps across this block and ends at `chase_speed`; `RandomBelow` starts the following random unit at `0x434cd0` |
+| `src/mathfp.c` | `0x434cd0`–`0x4353ff` | 22 | Floating-point helpers and the random-number generator | Starts at `RandomBelow`, immediately after the Mac `smart` unit's final `chase_speed` symbol |
 | `src/strdos.c` | `0x435400`–`0x4355ff` | 13 | 16-bit DOS C string and memory shims | all __stdcall with short-width arguments, each forwarding to one CRT routine |
 | `src/memstk.c` | `0x435600`–`0x436fff` | 36 | Tracked-allocation scopes and the frame timer | the DAT_0046da90 node list with its DAT_0046daa0 depth counter |
 | `src/screens.c` | `0x437000`–`0x43bfff` | 2 | Full-screen presentation screens | unbroken run of Blit* screens plus ShowGetReady/Victory/GameOver |
 | `src/killbrd.c` | `0x43c000`–`0x440bff` | 7 | Kill board, conversation scenes and save-slot flags | ShowTigersClawKillBoard/RunConversationScene; string band 0x4705DC-0x470668 |
 | `src/gr.c` | `0x440c00`–`0x44274f` | 14 | Rasteriser primitives and screen-space effects | PROVEN by name: shadow_draw, fizzle_fade, snow_viewport |
 
-Three are proven rather than guessed:
+Four are proven rather than guessed:
 
 - **`dib.c`** — every routine prints its own name through `DIBerror`.
 - **`pload.c`** — `PacketLoad` prints `"Library\Source\Pload.c PacketLoad …"`, the only
@@ -97,6 +98,10 @@ Three are proven rather than guessed:
   the game core lived in `Library\Source\` and used short DOS 8.3 filenames, which is why the
   files above are named the way they are.
 - **`music.c`** — the routines name themselves (`StopMusic`, `FadeMusic`, `SetMusicOn`, …).
+- **`smart.c`** — the Super Wing Commander Mac symbols preserve the source-unit name and
+  ordered function run. Win32 expands two collision/formation operations into private
+  helpers and swaps the local placement of `control_speed`/`chase_location`, but the
+  `0x00433AC0` start and `chase_speed`/`RandomBelow` end boundary remain unambiguous.
 
 ### String-literal locality: a boundary tool that is not yet conclusive
 

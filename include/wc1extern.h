@@ -36,7 +36,6 @@ void PumpMessagesWhileDebugPaused(unsigned int arg);              /* 0x0041CD40 
 void ReleaseSceneActors(void);                              /* 0x00424490 */
 void EnterNavPoint(short a);                           /* 0x0040BFF0 */
 void ReportComponentHit(char a, char b, char c);                  /* 0x00414BF0 */
-void FindShipCommEntry(short a, int b);                       /* 0x00421100 */
 void ResetSeriesProgress(void);                                          /* 0x00424BE0 */
 void SetHudMessageText(void *a, unsigned short b, unsigned short c);    /* 0x00436DE0 */
 void ShipAiRoutine02(short a, unsigned int b, int c);             /* 0x00406200-family */

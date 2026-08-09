@@ -84,6 +84,7 @@ Each source is authoritative only within a narrow boundary:
 | [Amiga analysis](../../releases/amiga/AMIGA_ANALYSIS.md) | AI objective, tactic, maneuver, and special-maneuver identifier tables | Win32 addresses and the three Win32-only maneuver slots |
 | [FM Towns symbols](../../releases/fm-towns/FMTOWNS_SYMBOLS.md) | object class/type identifiers and original spellings | Win32 addresses and runtime element widths |
 | [Sega CD symbols](../../releases/segacd/SEGACD_SYMBOLS.md) | full `ObjectType`, `Side`, mission-type, and `Rating` identifiers | Win32 addresses and structure layouts |
+| [Mac symbols](../../releases/mac/MAC_SYMBOLS.md) | compilation-unit names and surviving function names/order, especially the `smart` run | function bodies or exact per-platform ordering; Super Wing Commander is a later code base |
 | [WCMissionTools](../../WCMissionTools) | MODULE/CAMP/BRIEFING record layouts | runtime layout — the on-disk ship record is 42 bytes against the game's 0x36 stride, and the nav record 77 against 0x1F |
 | [WingCommanderArduinoBridge](../../WingCommanderArduinoBridge) | the *order* of fields in the pilot record, since both builds compile the same struct | its addresses, which are DOS-segment relative |
 | [wcdx](../../wcdx) | PE layout notes, and confirmation of which code the port patches | naming — its patches are byte diffs by file offset, with no symbols |
@@ -109,6 +110,46 @@ while `rating[]`, `ship_target[]`, and `ship_seq[]` are byte arrays; `ship_wingl
 
 Everything recovered this way is in [include/wcdata.h](../include/wcdata.h), with each entry
 marked verified or not.
+
+### Mac `smart` unit mapped onto Win32
+
+The Mac release preserves a `smart` compilation unit between the `3d` and `rand` units.
+Retail Win32 has the same semantic run at `0x00433AC0`–`0x00434C70`; its next function,
+`RandomBelow` at `0x00434CD0`, starts the random-number tranche. The Mac names are used only
+after checking each Win32 body. Two Win32-only split helpers and one local function-order swap
+explain why this is a semantic sequence rather than a blind one-for-one positional match.
+
+| Win32 address | Recovered name | Mac evidence |
+|---|---|---|
+| `0x00433AC0` | `steer_away_from_object` | Win32 split helper used by collision prevention |
+| `0x00433B90` | `steer_away_from_predicted_object` | Win32 split helper used by collision prevention |
+| `0x00433C80` | `prevent_collision` | exact Mac symbol |
+| `0x00433D90` | `handle_collisions` | exact Mac symbol |
+| `0x00433DE0` | `regulate_turn` | exact Mac symbol |
+| `0x00433E50` | `select_target` | exact Mac symbol |
+| `0x00433EC0` | `veer_random` | exact Mac symbol |
+| `0x00433F50` | `offset_location` | exact Mac symbol |
+| `0x00433FF0` | `compute_formation_destination` | Win32 split helper for formation offsets |
+| `0x00434040` | `control_speed` | exact Mac symbol; locally precedes `chase_location` in Win32 |
+| `0x004340F0` | `chase_location` | exact Mac symbol |
+| `0x004342C0` | `goto_location` | exact Mac symbol |
+| `0x00434360` | `goto_formation` | exact Mac symbol |
+| `0x004344E0` | `maintain_formation` | exact Mac symbol |
+| `0x00434550` | `reset_stress` | exact Mac symbol |
+| `0x004345D0` | `stress_morale` | exact Mac symbol |
+| `0x004345F0` | `any_defense` | exact Mac symbol |
+| `0x00434630` | `pick_regular_maneuver` | exact Mac symbol |
+| `0x00434800` | `pick_from_list` | exact Mac symbol |
+| `0x004348A0` | `pick_kilrathi_maneuver` | exact Mac symbol |
+| `0x00434900` | `process_maneuver_node` | exact Mac symbol |
+| `0x00434980` | `handle_stress` | exact Mac symbol |
+| `0x00434A80` | `intelligence_events` | exact Mac symbol |
+| `0x00434C70` | `chase_speed` | exact Mac symbol and final `smart` routine |
+
+The associated retail data fixes the types as well: a `ManeuverChoice` is the packed
+three-byte tuple `(threshold, primary, secondary)`, with rated choices at `0x0046D3E8`
+(`13 × 9 × 3`) and Kilrathi choices at `0x0046D808` (`5 × 9 × 3`). Those tables are copied
+byte-for-byte into `src/globals.c`; they are not synthetic defaults.
 
 ## 1. Evidence-named — trust these at their documented confidence
 

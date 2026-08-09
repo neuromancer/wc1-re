@@ -102,7 +102,8 @@ void ShipAiState02(short ship, short target)
         ShipAiRoutine01(ship);
         return;
     }
-    if (DAT_0059d710[target] * 3 < g_nTargetRange_0059ce10) {
+    if (g_asObjectCollisionRadius_0059d710[target] * 3 <
+        g_nTargetRange_0059ce10) {
         veer_random(ship, 8);
         SelectNewShipAiBehavior(ship);
         return;
@@ -127,7 +128,7 @@ void ShipAiState02(short ship, short target)
 /* Function start: 0x407560 */
 void ShipAiState44(short ship)
 {
-    DAT_0059d620[ship] = 0;
+    g_acShipStress_0059d620[ship] = 0;
     SelectNewShipAiBehavior(ship);
 }
 
@@ -168,9 +169,11 @@ void perform_maneuver(short obj)
     ship_vs_ship(obj, target);
     range = g_nTargetRange_0059ce10;
     if (g_nTargetFacing_0059d52a < 0)
-        maneuverWeight = DAT_0059d710[target] + DAT_0059d710[obj] * 4;
+        maneuverWeight = g_asObjectCollisionRadius_0059d710[target] +
+                         g_asObjectCollisionRadius_0059d710[obj] * 4;
     else
-        maneuverWeight = DAT_0059d710[target] + DAT_0059d710[obj] * 6;
+        maneuverWeight = g_asObjectCollisionRadius_0059d710[target] +
+                         g_asObjectCollisionRadius_0059d710[obj] * 6;
     SetShipAiScratchWord((unsigned short)(maneuverWeight >> 1));
 
     if (unactive(target) == 0) {
