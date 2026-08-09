@@ -290,62 +290,83 @@ void prepare_ace(short ace);                                          /* 0x00422
 short signed_random(short range);                                     /* 0x004220F0 */
 int alert_flag(short ship, unsigned int bits);                        /* 0x00422110 */
 unsigned int HasSpeechBuffer(void);                                      /* 0x00422130 */
-unsigned int SetShipStateBits(short i, unsigned int bits);               /* 0x00422140 */
-void ResetShipStateRecord(short i);                                     /* 0x00422160 */
-void start_collision_avoidance(short obj, short other);                 /* 0x00422180 */
-void advance_collision_avoidance(short obj);                            /* 0x004221E0 */
+unsigned int set_alert(short obj, unsigned int bits);                  /* 0x00422140 */
+void clear_alert(short obj);                                          /* 0x00422160 */
+void start_collision_alert(short obj, short other);                   /* 0x00422180 */
+void try2end_collision_alert(short obj);                              /* 0x004221E0 */
 short normal_speed(short obj);                                         /* 0x00422220 */
-short predict_collision_time(short obj, short other);                   /* 0x00422260 */
-void ClearWingmanSlots(void);                                       /* 0x00422440 */
-short collision_distance(short obj, short other);                      /* 0x00422460 */
-short find_collision_object(short obj);                                /* 0x004224F0 */
+short real_crash_time(short obj, short other);                         /* 0x00422260 */
+void clear_crash_cache(void);                                         /* 0x00422440 */
+short crash_time(short obj, short other);                             /* 0x00422460 */
+short detect_collisions(short obj);                                   /* 0x004224F0 */
 unsigned int unactive(short ship);                                      /* 0x00422560 */
+int are_alive(short obj);                                             /* 0x00422590 */
 void trim_goals(short obj, short amount);                             /* 0x004225C0 */
-int report_kilrathi_rout(short mode);                                 /* 0x00422640 */
+int report_kilrathi_rout(int mode);                                   /* 0x00422640 */
 short find_ship_index(short missionShip);                              /* 0x00422710 */
+int try2rout(short obj);                                              /* 0x00422780 */
 unsigned char no_goal(short ship);                                     /* 0x00422830 */
-int is_enemy_on_tail(short obj, short other);                         /* 0x00422860 */
+int being_tailed(short obj, short other);                             /* 0x00422860 */
+int any_enemy_tail(short obj);                                        /* 0x004228A0 */
 short detect_enemy_tail(short obj);                                    /* 0x00422930 */
-int object_requires_evasion(short obj);                               /* 0x004229F0 */
-unsigned int build_formation_member_list(short leader);               /* 0x00422A70 */
-unsigned int get_formation_center(FixedVector *center);               /* 0x00422AC0 */
+int is_ship_tailing_player_target(short obj);                         /* 0x004229B0 */
+int missile_on_tail(short obj);                                       /* 0x004229F0 */
+short select_weighted_value(short *choices);                          /* 0x00422A30 */
+unsigned int build_squad_list(short leader);                          /* 0x00422A70 */
+unsigned int find_squad_center(FixedVector *center);                  /* 0x00422AC0 */
 unsigned int init_formation_burst(short obj);                          /* 0x00422B30 */
 unsigned int reset_mission_type(short obj,
                                 enum ShipMissionType missionType);     /* 0x00422BE0 */
 unsigned int change_mission_type(short obj,
                                  enum ShipMissionType missionType);    /* 0x00422C30 */
 unsigned int reset_objective(short ship, enum ShipObjective objective); /* 0x00422C70 */
+unsigned int alter_objective(short ship, enum ShipObjective objective); /* 0x00422CA0 */
 unsigned int reset_tactic(short ship, enum ShipTactic tactic);          /* 0x00422CD0 */
 unsigned int alter_tactic(short ship, enum ShipTactic tactic);          /* 0x00422D00 */
-void set_maneuver(short ship, enum ShipManeuver maneuver);              /* 0x00422D30 */
-void set_maneuver_range_state(short obj, short maneuver);             /* 0x00422D60 */
+void reset_maneuver(short ship, short maneuver);                      /* 0x00422D30 */
+void try2reset_maneuver(short obj, short maneuver);                    /* 0x00422D60 */
 unsigned int set_special(short ship, enum SpecialManeuver special);     /* 0x00422D90 */
-unsigned int ClearShipAiThrottle(short ship);                                 /* 0x00422DD0 */
-unsigned int approach_half_speed(short obj);                           /* 0x00422DF0 */
+unsigned int approach_zero_speed(short ship);                          /* 0x00422DD0 */
+unsigned int approach_min_speed(short obj);                            /* 0x00422DF0 */
+unsigned int approach_half_speed(short obj);                           /* 0x00422E10 */
 unsigned int approach_cruise_speed(short ship);                         /* 0x00422E50 */
 unsigned int approach_full_speed(short ship);                           /* 0x00422E80 */
 unsigned int approach_ship_speed(short obj, short other);             /* 0x00422EA0 */
-unsigned int IsBehindAndFalling(short ship);                               /* 0x00422F60 */
-short scan_for_enemy(short obj, short range);                           /* 0x00422F80 */
+unsigned int get_front_spot(short obj, unsigned short distance,
+                            FixedVector *point);                       /* 0x00422EC0 */
+unsigned int get_rear_spot(short obj, unsigned short distance,
+                           FixedVector *point);                        /* 0x00422F10 */
+unsigned int close_behind(short range);                               /* 0x00422F60 */
+short scan_for_enemy(short obj, unsigned short range);                  /* 0x00422F80 */
 int any_enemy(short obj, short range);                                  /* 0x00423070 */
+short nearest_enemy_range(short obj);                                 /* 0x004230F0 */
+void fire_when_ready(short obj);                                      /* 0x00423210 */
+unsigned int ships_within_range(short obj, short other, short range); /* 0x00423260 */
 int attacker_in_range(short obj, short range);                          /* 0x004232B0 */
 int in_danger(short obj);                                               /* 0x00423350 */
+unsigned int target_within_range(short obj);                           /* 0x00423400 */
+short build_target_list(short obj, short range);                       /* 0x00423440 */
+int select_safe_target(short obj);                                    /* 0x004234C0 */
 void inherit_leader_mission(short obj);                               /* 0x00423530 */
 void inherit_leader(short obj);                                         /* 0x004235B0 */
-unsigned int GetObjectRecordField(short i);                             /* 0x00423610 */
+unsigned int dead_ship(short missionShip);                            /* 0x00423610 */
 int gone_ship(short missionShip);                                       /* 0x00423640 */
+short skill_rating(short obj);                                        /* 0x00423670 */
+int skill_check(short obj, short difficulty);                         /* 0x004236B0 */
+short find_ships_sphere(short missionShip);                           /* 0x004236F0 */
+int locate_ship(short missionShip, FixedVector *point);               /* 0x00423780 */
 unsigned int get_follow_point(short obj, FixedVector *point);         /* 0x00423820 */
 unsigned int get_first_follow_point(short obj, FixedVector *point);   /* 0x00423930 */
-int ship_can_reach_nav_point(short obj, short navPoint);              /* 0x00423970 */
+int hostile_sphere(short obj, short navPoint);                        /* 0x00423970 */
 int abandoned(short obj, short other);                                  /* 0x004239D0 */
 void engage(short obj, signed char target,
             enum ShipObjective objective);                              /* 0x00423A50 */
 int target_valid(short obj);                                            /* 0x00423AC0 */
-short InterpolateClamped(short inputMinimum, short inputMaximum,
-                         short input, short outputMinimum,
-                         short outputMaximum);                        /* 0x00423BA0 */
+unsigned int triumph(short obj);                                      /* 0x00423B00 */
+short find_ratio(short inputMinimum, short inputMaximum, short input,
+                 short outputMinimum, short outputMaximum);          /* 0x00423BA0 */
 short evaluate_damage(short obj);                                       /* 0x00423C00 */
-short find_space_mine(short obj);                                       /* 0x00423CD0 */
+short mine_available(short obj);                                      /* 0x00423CD0 */
 unsigned int GetPilotNameLength(void);                                     /* 0x00424B80 */
 unsigned int GetPilotRecordBase(void);                                  /* 0x00424BA0 */
 unsigned int ResetSceneFlags(void);                                      /* 0x00424C60 */

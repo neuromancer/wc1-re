@@ -16,7 +16,7 @@ void SetShipAiScratchWord(unsigned short v)
 void SelectNewShipAiBehavior(short ship)
 {
     set_special(ship, SPECIAL_MANEUVER_NONE);
-    set_maneuver(ship, MANEUVER_NONE);
+    reset_maneuver(ship, MANEUVER_NONE);
 }
 
 /* Function start: 0x4060D0 */
@@ -141,7 +141,7 @@ void ShipAiState27(short ship, short target)
 /* Function start: 0x4075A0 */
 void ShipAiState21(short ship)
 {
-    ClearShipAiOrders(ship);
+    try2rout(ship);
 }
 
 /* Function start: 0x4075B0 */
@@ -195,7 +195,7 @@ void perform_maneuver(short obj)
     }
 
     if (range < (short)DAT_00475e78) {
-        set_maneuver_range_state(obj, 2);
+        try2reset_maneuver(obj, 2);
     } else if (g_aeShipManeuver_0059dcb0[obj] == previous &&
                RandomBelowOrEqual(100) <
                    (short)g_bCurrentManeuverReroll_00475e7c) {

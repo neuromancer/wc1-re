@@ -499,7 +499,7 @@ void remove_object(short obj)
         ((signed char *)g_aeShipObjective_0059d200)[obj + 0xc0] = -1;
         g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
         g_aeShipManeuver_0059dcb0[obj] = MANEUVER_NONE;
-        ResetShipStateRecord(obj);
+        clear_alert(obj);
         *(short *)((unsigned char *)&((FixedVector *)
             g_aShipMissionSpot_0059dd10)[10].z + obj * 2) = -1;
     }

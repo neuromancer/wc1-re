@@ -49,6 +49,7 @@ extern unsigned short DAT_004699b0;
 extern unsigned int DAT_004699d8;
 extern unsigned char DAT_00469d5c;
 extern unsigned char *DAT_00469dbc[64];
+extern int g_nTrainSimActive_00469e2c;
 extern unsigned int DAT_00469e34;
 extern unsigned char DAT_00469fb4;
 extern short g_nFrameSkip_00469fb8;
@@ -344,8 +345,8 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
     ((signed char *)((unsigned char *)g_asShipMaximumSpeed_0059c440 + 0x20))
 #define g_asViableTargetDistance_0059c470 \
     ((short *)((unsigned char *)g_asShipMaximumSpeed_0059c440 + 0x30))
-#define g_acShipMissionIndex_0059c830 \
-    ((signed char *)((unsigned char *)DAT_0059c810 + 0x20))
+#define g_asShipMissionIndex_0059c830 \
+    ((short *)((unsigned char *)DAT_0059c810 + 0x20))
 #define g_asShipAfterburnerTimer_0059c810 ((short *)(void *)DAT_0059c810)
 #define g_acShipCommunicator_0059c850 \
     ((signed char *)((unsigned char *)DAT_0059c810 + 0x40))

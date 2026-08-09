@@ -26,7 +26,6 @@ void RunSimulationTick(void);                                       /* 0x00427C5
 void DrawHudMessageList(void);                                           /* 0x00417760 */
 void RunFrameUpdate(void);                                           /* 0x00409DD0 */
 void LogMemoryUsage(void);                                          /* 0x004272F0 */
-void ClearShipAiOrders(short ship);                               /* 0x00407460 */
 short LoadWingCmdrCfgFile(short argc, char **argv);               /* 0x0042C580 */
 void ix_system_delete_all_samples(void);                                  /* 0x00427548 */
 void ix_system_delete_all_sounds(void);                                   /* 0x00427610 family */

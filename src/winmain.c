@@ -76,7 +76,7 @@ void TransformObjectVectorAlt(int p, int *q)
 /* Function start: 0x401870 */
 void PlayEngineRumble(void)
 {
-    InterpolateClamped(0, 0x14, DAT_00465040, 0x10cc, 0xc1c);
+    find_ratio(0, 0x14, DAT_00465040, 0x10cc, 0xc1c);
 }
 
 /* Function start: 0x401930 */

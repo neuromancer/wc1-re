@@ -1,8 +1,10 @@
 /*
- *  Mission setup: FX drivers, palette load, ship state bits.
+ *  Mission setup, collision/alert state, and ship mission logic.
  *
  *  Address range 0x421000-0x424fff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: LoadOriginFxDrivers/EMStartUp; string band 0x469A28-0x469B9C.
+ *  Boundary evidence: exact nested Mac CODE 5 `logic` unit at
+ *  0x422010-0x423cdf; LoadOriginFxDrivers/EMStartUp and string band
+ *  0x469A28-0x469B9C anchor the provisional enclosing file.
  */
 #include "wc1.h"
 
@@ -211,14 +213,14 @@ unsigned int HasSpeechBuffer(void)
 }
 
 /* Function start: 0x422140 */
-unsigned int SetShipStateBits(short i, unsigned int bits)
+unsigned int set_alert(short i, unsigned int bits)
 {
     DAT_0059b430[i] |= bits;
     return bits & 0xffff0000;
 }
 
 /* Function start: 0x422160 */
-void ResetShipStateRecord(short i)
+void clear_alert(short i)
 {
     g_asCollisionCountdown_0059d2d0[i] = 0;
     DAT_0059b430[i] = 0;
@@ -226,26 +228,26 @@ void ResetShipStateRecord(short i)
 }
 
 /* Function start: 0x422180 */
-void start_collision_avoidance(short obj, short other)
+void start_collision_alert(short obj, short other)
 {
     if ((short)(signed char)DAT_0059cf20[obj] != other) {
         DAT_0059cf20[obj] = (unsigned char)other;
         steady_object(obj);
     }
     g_asCollisionCountdown_0059d2d0[obj] = 3;
-    SetShipStateBits(obj, 1);
+    set_alert(obj, 1);
     g_asShipAfterburnerTimer_0059c810[obj] = 0;
     set_special(obj, SPECIAL_MANEUVER_NONE);
 }
 
 /* Function start: 0x4221E0 */
-void advance_collision_avoidance(short obj)
+void try2end_collision_alert(short obj)
 {
     g_asCollisionCountdown_0059d2d0[obj]--;
     if (g_asCollisionCountdown_0059d2d0[obj] <= 0)
-        ResetShipStateRecord(obj);
+        clear_alert(obj);
     else
-        SetShipStateBits(obj, 2);
+        set_alert(obj, 2);
 }
 
 /* Function start: 0x422220 */
@@ -259,7 +261,7 @@ short normal_speed(short obj)
 }
 
 /* Function start: 0x422260 */
-short predict_collision_time(short obj, short other)
+short real_crash_time(short obj, short other)
 {
     short collisionRadius;
     short time;
@@ -324,7 +326,7 @@ short predict_collision_time(short obj, short other)
 }
 
 /* Function start: 0x422440 */
-void ClearWingmanSlots(void)
+void clear_crash_cache(void)
 {
     short i = 0;
 
@@ -335,7 +337,7 @@ void ClearWingmanSlots(void)
 }
 
 /* Function start: 0x422460 */
-short collision_distance(short obj, short other)
+short crash_time(short obj, short other)
 {
     if (g_asCollisionPartner_005a7cc0[obj] == other)
         return g_asCollisionTime_005a7ca0[obj];
@@ -345,11 +347,11 @@ short collision_distance(short obj, short other)
         ((short)DAT_0059d9b0[other] == -0x7fff ||
          (short)DAT_0059d9b0[obj] == -0x7fff))
         return 0x7fff;
-    return predict_collision_time(obj, other);
+    return real_crash_time(obj, other);
 }
 
 /* Function start: 0x4224F0 */
-short find_collision_object(short obj)
+short detect_collisions(short obj)
 {
     short candidate;
     short closestTime;
@@ -363,7 +365,7 @@ short find_collision_object(short obj)
         if (other != obj &&
             g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_ASTEROID &&
             g_aeObjectClass_0059d100[other] != OBJECT_CLASS_MISSILE) {
-            time = collision_distance(obj, other);
+            time = crash_time(obj, other);
             if (closestTime > time) {
                 closestTime = time;
                 candidate = other;
@@ -388,6 +390,15 @@ unsigned int unactive(short ship)
     return 1;
 }
 
+/* Function start: 0x422590 */
+int are_alive(short obj)
+{
+    if (unactive(obj) == 0 &&
+        g_aeShipObjective_0059d200[obj] != OBJECTIVE_WANDER)
+        return 1;
+    return 0;
+}
+
 /* Function start: 0x4225C0 */
 void trim_goals(short obj, short amount)
 {
@@ -395,17 +406,17 @@ void trim_goals(short obj, short amount)
 
     if (goal > amount)
         g_anYawGoal_0059c310[obj] = amount;
-    else if (goal <= -amount && goal != -amount)
+    else if (goal < -amount)
         g_anYawGoal_0059c310[obj] = -amount;
     goal = g_anPitchGoal_0059d7a0[obj];
     if (goal > amount)
         g_anPitchGoal_0059d7a0[obj] = amount;
-    else if (goal <= -amount && goal != -amount)
+    else if (goal < -amount)
         g_anPitchGoal_0059d7a0[obj] = -amount;
 }
 
 /* Function start: 0x422640 */
-int report_kilrathi_rout(short mode)
+int report_kilrathi_rout(int mode)
 {
     short obj;
 
@@ -414,16 +425,26 @@ int report_kilrathi_rout(short mode)
             g_aeSpecialManeuver_0059c3c0[obj] ==
                 SPECIAL_MANEUVER_UNKNOWN_9)
             continue;
-        if (mode == 0 && g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
-            return 1;
-        if (mode == 1 && g_aeShipSide_0059d650[obj] == SIDE_KILRATHI &&
-            g_aeShipMissionType_0059c3f0[obj] != MISSION_TYPE_ROUT &&
-            distance_from_object(0, obj) < 16000)
-            return 1;
-        if (mode == 2 && g_aeShipSide_0059d650[obj] == SIDE_KILRATHI &&
-            (g_aeShipObjective_0059d200[obj] == OBJECTIVE_ENGAGE_ENEMY ||
-             g_aeShipObjective_0059d200[obj] == OBJECTIVE_DESTROY_SHIP))
-            return 1;
+        switch (mode) {
+        case 0:
+            if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
+                return 1;
+            break;
+        case 1:
+            if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI &&
+                g_aeShipMissionType_0059c3f0[obj] != MISSION_TYPE_ROUT &&
+                distance_from_object(0, obj) < 16000)
+                return 1;
+            break;
+        case 2:
+            if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI &&
+                (g_aeShipObjective_0059d200[obj] ==
+                     OBJECTIVE_ENGAGE_ENEMY ||
+                 g_aeShipObjective_0059d200[obj] ==
+                     OBJECTIVE_DESTROY_SHIP))
+                return 1;
+            break;
+        }
     }
     return 0;
 }
@@ -434,19 +455,52 @@ short find_ship_index(short missionShip)
     short obj;
 
     g_nLastFoundShip_005a7cba = -1;
-    if (missionShip == -1)
-        return -1;
-    for (obj = 0; obj < 10; obj++) {
-        if (((g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_SHIP &&
-              g_aeSpecialManeuver_0059c3c0[obj] !=
-                  SPECIAL_MANEUVER_UNKNOWN_9) ||
-             g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_FUTURION) &&
-            g_acShipMissionIndex_0059c830[obj] == missionShip) {
-            g_nLastFoundShip_005a7cba = obj;
-            return obj;
+    if (missionShip != -1) {
+        for (obj = 0; obj < 10; obj++) {
+            if (((g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_SHIP &&
+                  g_aeSpecialManeuver_0059c3c0[obj] !=
+                      SPECIAL_MANEUVER_UNKNOWN_9) ||
+                 g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_FUTURION) &&
+                g_asShipMissionIndex_0059c830[obj] == missionShip) {
+                g_nLastFoundShip_005a7cba = obj;
+                return obj;
+            }
         }
     }
     return -1;
+}
+
+/* Function start: 0x422780 */
+int try2rout(short obj)
+{
+    short canContinue;
+    short other;
+
+    canContinue = 0;
+    if (g_nTrainSimActive_00469e2c != 0) {
+        canContinue = 1;
+    } else {
+        other = 0;
+        do {
+            if (g_aeObjectClass_0059d100[other] ==
+                    OBJECT_CLASS_CAPITAL_SHIP &&
+                g_aeSpecialManeuver_0059c3c0[other] !=
+                    SPECIAL_MANEUVER_UNKNOWN_9 &&
+                g_aeShipSide_0059d650[obj] ==
+                    g_aeShipSide_0059d650[other])
+                canContinue = 1;
+            other++;
+        } while (other < 10);
+    }
+    if (canContinue != 0) {
+        g_acShipStress_0059d620[obj] = 0;
+        SelectNewShipAiBehavior(obj);
+    } else {
+        reset_mission_type(obj, MISSION_TYPE_ROUT);
+        if (obj == g_nYourWingman_0046c04c)
+            send_message(obj, 9);
+    }
+    return canContinue == 0;
 }
 
 /* Function start: 0x422830 */
@@ -458,12 +512,34 @@ unsigned char no_goal(short ship)
 }
 
 /* Function start: 0x422860 */
-int is_enemy_on_tail(short obj, short other)
+int being_tailed(short obj, short other)
 {
     ship_vs_ship(obj, other);
     return g_nFacingToTarget_0059d920 < -60 &&
            g_nTargetFacing_0059d52a > 85 &&
            g_nTargetRange_0059ce10 < 7000;
+}
+
+/* Function start: 0x4228A0 */
+int any_enemy_tail(short obj)
+{
+    short other;
+
+    other = 0;
+    do {
+        if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
+            g_aeSpecialManeuver_0059c3c0[other] !=
+                SPECIAL_MANEUVER_UNKNOWN_9 &&
+            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other] &&
+            g_acShipTarget_0059ce60[other] == obj &&
+            being_tailed(obj, other) != 0) {
+            g_nTargetShip_0059c3b0 = other;
+            return 1;
+        }
+        other++;
+    } while (other < 10);
+    g_nTargetShip_0059c3b0 = -1;
+    return 0;
 }
 
 /* Function start: 0x422930 */
@@ -477,14 +553,24 @@ short detect_enemy_tail(short obj)
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other] &&
             g_acShipTarget_0059ce60[other] == obj &&
-            is_enemy_on_tail(obj, other) != 0)
+            being_tailed(obj, other) != 0)
             return other;
     }
     return -1;
 }
 
+/* Function start: 0x4229B0 */
+int is_ship_tailing_player_target(short obj)
+{
+    short target = (short)g_acShipTarget_0059ce60[0];
+
+    if (unactive(target) == 0 && being_tailed(target, obj) != 0)
+        return 1;
+    return 0;
+}
+
 /* Function start: 0x4229F0 */
-int object_requires_evasion(short obj)
+int missile_on_tail(short obj)
 {
     short other;
 
@@ -496,8 +582,26 @@ int object_requires_evasion(short obj)
     return 0;
 }
 
+/* Function start: 0x422A30 */
+short select_weighted_value(short *choices)
+{
+    short roll;
+
+    roll = (short)RandomBelowOrEqual(100) + 1;
+    roll -= choices[0];
+    while (roll > 0) {
+        if (choices[0] == -1)
+            return -1;
+        choices += 2;
+        roll -= choices[0];
+    }
+    if (choices[0] == -1)
+        return -1;
+    return choices[1];
+}
+
 /* Function start: 0x422A70 */
-unsigned int build_formation_member_list(short leader)
+unsigned int build_squad_list(short leader)
 {
     short obj;
     short index = 1;
@@ -514,16 +618,16 @@ unsigned int build_formation_member_list(short leader)
 }
 
 /* Function start: 0x422AC0 */
-unsigned int get_formation_center(FixedVector *center)
+unsigned int find_squad_center(FixedVector *center)
 {
     short count = 0;
-    signed char member;
 
     zero_vector(center);
-    member = g_acFormationMemberList_0059d490[0];
-    while (member != -1) {
-        AddFixedVectors(center, &g_aShipPosition_0059c490[member], center);
-        member = g_acFormationMemberList_0059d490[++count];
+    while (g_acFormationMemberList_0059d490[count] != -1) {
+        AddFixedVectors(center, &g_aShipPosition_0059c490[
+                            (short)g_acFormationMemberList_0059d490[count]],
+                        center);
+        count++;
     }
     if (count != 0)
         divide_vector(center, (int)count << 8, center);
@@ -538,8 +642,8 @@ unsigned int init_formation_burst(short obj)
     short member;
     short index = 0;
 
-    build_formation_member_list(obj);
-    get_formation_center(&center);
+    build_squad_list(obj);
+    find_squad_center(&center);
     member = g_acFormationMemberList_0059d490[0];
     while (member != -1) {
         destination = &g_aShipDestination_0059d530[member];
@@ -587,10 +691,19 @@ unsigned int reset_objective(short ship, enum ShipObjective objective)
     return 0;
 }
 
+/* Function start: 0x422CA0 */
+unsigned int alter_objective(short ship, enum ShipObjective objective)
+{
+    steady_object(ship);
+    alter_tactic(ship, TACTIC_NONE);
+    g_aeShipObjective_0059d200[ship] = objective;
+    return 0;
+}
+
 /* Function start: 0x422CD0 */
 unsigned int reset_tactic(short ship, enum ShipTactic tactic)
 {
-    set_maneuver(ship, MANEUVER_NONE);
+    reset_maneuver(ship, MANEUVER_NONE);
     g_aeShipTactic_0059d5e0[ship] = tactic;
     g_acShipTarget_0059ce60[ship] = -1;
     return 0;
@@ -599,24 +712,24 @@ unsigned int reset_tactic(short ship, enum ShipTactic tactic)
 /* Function start: 0x422D00 */
 unsigned int alter_tactic(short ship, enum ShipTactic tactic)
 {
-    set_maneuver(ship, MANEUVER_NONE);
+    reset_maneuver(ship, MANEUVER_NONE);
     g_aeShipTactic_0059d5e0[ship] = tactic;
     return 0;
 }
 
 /* Function start: 0x422D30 */
-void set_maneuver(short ship, enum ShipManeuver maneuver)
+void reset_maneuver(short ship, short maneuver)
 {
-    g_aeShipManeuver_0059dcb0[ship] = maneuver;
+    g_aeShipManeuver_0059dcb0[ship] = (enum ShipManeuver)maneuver;
     g_asShipCount_0059c420[ship] = 0;
     g_acShipSequence_0059d520[ship] = 0;
 }
 
 /* Function start: 0x422D60 */
-void set_maneuver_range_state(short obj, short maneuver)
+void try2reset_maneuver(short obj, short maneuver)
 {
     if (g_aeShipManeuver_0059dcb0[obj] != maneuver) {
-        set_maneuver(obj, (enum ShipManeuver)maneuver);
+        reset_maneuver(obj, (enum ShipManeuver)maneuver);
         steady_object(obj);
     }
 }
@@ -637,16 +750,26 @@ checkCancellation:
 }
 
 /* Function start: 0x422DD0 */
-unsigned int ClearShipAiThrottle(short ship)
+unsigned int approach_zero_speed(short ship)
 {
     ApproachShipSpeed(ship, 0);
     return 0;
 }
 
 /* Function start: 0x422DF0 */
-unsigned int approach_half_speed(short obj)
+unsigned int approach_min_speed(short obj)
 {
     ApproachShipSpeed(obj, 0x500);
+    return 0;
+}
+
+/* Function start: 0x422E10 */
+unsigned int approach_half_speed(short obj)
+{
+    short speed = g_aObjectTypeData_0046645c[
+        g_aeObjectType_0059b560[obj]].cruiseVelocity;
+
+    ApproachShipSpeed(obj, (int)(short)(speed & 0xfffe) << 7);
     return 0;
 }
 
@@ -674,42 +797,70 @@ unsigned int approach_ship_speed(short obj, short other)
     return 0;
 }
 
-/* Function start: 0x422F60 */
-unsigned int IsBehindAndFalling(short ship)
+/* Function start: 0x422EC0 */
+unsigned int get_front_spot(short obj, unsigned short distance,
+                            FixedVector *point)
 {
-    if (g_nTargetRange_0059ce10 < ship && g_nTargetFacing_0059d52a < -0x32)
+    ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
+                     (int)distance << 8, point);
+    AddFixedVectors(&g_aShipPosition_0059c490[obj], point, point);
+    return 0;
+}
+
+/* Function start: 0x422F10 */
+unsigned int get_rear_spot(short obj, unsigned short distance,
+                           FixedVector *point)
+{
+    ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
+                     -((int)distance << 8), point);
+    AddFixedVectors(&g_aShipPosition_0059c490[obj], point, point);
+    return 0;
+}
+
+/* Function start: 0x422F60 */
+unsigned int close_behind(short range)
+{
+    if (g_nTargetRange_0059ce10 < range &&
+        g_nTargetFacing_0059d52a < -0x32)
         return 1;
     return 0;
 }
 
 /* Function start: 0x422F80 */
-short scan_for_enemy(short obj, short range)
+short scan_for_enemy(short obj, unsigned short range)
 {
+    short target;
     short other;
     short distance;
 
-    g_nTargetShip_0059c3b0 = -1;
+    target = -1;
     g_nTargetRange_0059ce10 = 0;
     for (other = 0; other < 10; other++) {
         if (g_aeObjectClass_0059d100[other] < OBJECT_CLASS_SHIP ||
             g_aeSpecialManeuver_0059c3c0[other] ==
-                SPECIAL_MANEUVER_UNKNOWN_9 ||
-            g_aeShipSide_0059d650[obj] == g_aeShipSide_0059d650[other])
+                SPECIAL_MANEUVER_UNKNOWN_9)
+            continue;
+        g_nTargetShip_0059c3b0 = target;
+        if (g_aeShipSide_0059d650[obj] == g_aeShipSide_0059d650[other])
             continue;
         distance = distance_from_point(other, &g_aShipPosition_0059c490[obj]);
-        if ((unsigned short)distance < (unsigned short)range &&
-            (g_nTargetShip_0059c3b0 == -1 ||
+        target = g_nTargetShip_0059c3b0;
+        if (distance < range &&
+            (target == -1 ||
              distance < g_nTargetRange_0059ce10)) {
+            target = other;
             g_nTargetRange_0059ce10 = distance;
-            g_nTargetShip_0059c3b0 = other;
         }
     }
-    if (g_nTargetShip_0059c3b0 != -1) {
+    if (target != -1) {
+        g_nTargetShip_0059c3b0 = target;
         get_facing_range_from_object(obj, g_nTargetShip_0059c3b0);
         g_nTargetRange_0059ce10 =
             distance_from_object(obj, g_nTargetShip_0059c3b0);
+        target = g_nTargetShip_0059c3b0;
     }
-    return g_nTargetShip_0059c3b0;
+    g_nTargetShip_0059c3b0 = target;
+    return target;
 }
 
 /* Function start: 0x423070 */
@@ -731,6 +882,48 @@ int any_enemy(short obj, short range)
         }
     }
     return 0;
+}
+
+/* Function start: 0x4230F0 */
+short nearest_enemy_range(short obj)
+{
+    short range;
+    short other;
+
+    g_nTargetShip_0059c3b0 = -1;
+    range = 0x7fff;
+    other = 0;
+    do {
+        if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
+            g_aeSpecialManeuver_0059c3c0[other] !=
+                SPECIAL_MANEUVER_UNKNOWN_9 &&
+            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other])
+            range = MinShort(range, distance_from_object(obj, other));
+        other++;
+    } while (other < 10);
+    return range;
+}
+
+/* Function start: 0x423210 */
+void fire_when_ready(short obj)
+{
+    if (g_nYourWingman_0046c04c == obj &&
+        g_aiPilotLevel_0059cf30[obj] != 11) {
+        ship_vs_ship(obj, 0);
+        if (g_nFacingToTarget_0059d920 > 80)
+            return;
+    }
+    fire_capital_weapon(obj, (short)g_acShipTarget_0059ce60[obj]);
+}
+
+/* Function start: 0x423260 */
+unsigned int ships_within_range(short obj, short other, short range)
+{
+    FixedVector delta;
+
+    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+                       &g_aShipPosition_0059c490[other], &delta);
+    return IsVectorWithinRange(&delta, range);
 }
 
 /* Function start: 0x4232B0 */
@@ -759,25 +952,91 @@ int attacker_in_range(short obj, short range)
 /* Function start: 0x423350 */
 int in_danger(short obj)
 {
+    short target;
     short other;
     unsigned short range;
 
-    g_nTargetShip_0059c3b0 = -1;
+    target = -1;
     for (other = 0; other < 10; other++) {
         if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
             g_aeSpecialManeuver_0059c3c0[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other] &&
-            g_acShipTarget_0059ce60[other] == obj) {
+            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other]) {
+            g_nTargetShip_0059c3b0 = target;
+            if (g_acShipTarget_0059ce60[other] != obj)
+                continue;
             range = (unsigned short)distance_from_object(other, obj);
-            if (g_nTargetShip_0059c3b0 == -1 ||
-                range < (unsigned short)g_nTargetRange_0059ce10) {
-                g_nTargetShip_0059c3b0 = other;
+            target = g_nTargetShip_0059c3b0;
+            if (target == -1 || range < g_nTargetRange_0059ce10) {
+                target = other;
                 g_nTargetRange_0059ce10 = (short)range;
             }
         }
     }
-    return g_nTargetShip_0059c3b0 != -1;
+    g_nTargetShip_0059c3b0 = target;
+    return target != -1;
+}
+
+/* Function start: 0x423400 */
+unsigned int target_within_range(short obj)
+{
+    short target = (short)g_acShipTarget_0059ce60[obj];
+
+    if (unactive(target) != 0)
+        return 0;
+    return ships_within_range(obj, target, 7000);
+}
+
+/* Function start: 0x423440 */
+short build_target_list(short obj, short range)
+{
+    short *targetRanges = (short *)&DAT_0059cf20[0x40];
+    short count;
+    short other;
+    short distance;
+
+    count = 0;
+    other = 0;
+    do {
+        if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
+            g_aeSpecialManeuver_0059c3c0[other] !=
+                SPECIAL_MANEUVER_UNKNOWN_9 &&
+            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other]) {
+            distance = distance_from_object(obj, other);
+            if (distance < range) {
+                g_acFormationMemberList_0059d490[count] =
+                    (signed char)other;
+                targetRanges[count] = distance;
+                count++;
+            }
+        }
+        other++;
+    } while (other < 10);
+    g_acFormationMemberList_0059d490[count] = -1;
+    return count;
+}
+
+/* Function start: 0x4234C0 */
+int select_safe_target(short obj)
+{
+    short target;
+    short index;
+
+    build_target_list(obj, 7000);
+    index = -1;
+    do {
+        index++;
+        target = (short)g_acFormationMemberList_0059d490[index];
+        if (target == -1)
+            break;
+    } while (in_danger(target) != 0);
+    if (target == -1 && index > 0) {
+        index--;
+        target = (short)g_acFormationMemberList_0059d490[
+            (short)RandomBelowOrEqual(index)];
+    }
+    g_nTargetShip_0059c3b0 = target;
+    return target != -1;
 }
 
 /* Function start: 0x423530 */
@@ -814,7 +1073,7 @@ void inherit_leader(short obj)
 }
 
 /* Function start: 0x423610 */
-unsigned int GetObjectRecordField(short i)
+unsigned int dead_ship(short i)
 {
     if (i != -1 && DAT_0046c97a[i * 0x36] != 3)
         return 0;
@@ -828,6 +1087,91 @@ int gone_ship(short missionShip)
         DAT_0046c97a[missionShip * 0x36] != 2)
         return 0;
     return 1;
+}
+
+/* Function start: 0x423670 */
+short skill_rating(short obj)
+{
+    int rating = g_aiPilotLevel_0059cf30[obj];
+
+    if (rating < 5)
+        return MaxShort(2, (short)rating);
+    if (rating == 13)
+        return 5;
+    if (rating < 14)
+        return (short)((rating - 5 >> 1) + 4);
+    return (short)rating - 10;
+}
+
+/* Function start: 0x4236B0 */
+int skill_check(short obj, short difficulty)
+{
+    short roll;
+
+    roll = (short)RandomBelowOrEqual(MinShort(8, difficulty));
+    return roll < skill_rating(obj);
+}
+
+/* Function start: 0x4236F0 */
+short find_ships_sphere(short missionShip)
+{
+    MissionNavPoint *navPoint;
+    short fallback;
+    short navIndex;
+    short shipIndex;
+
+    navIndex = 0;
+    navPoint = g_aMissionNavPoints_0046c2f0;
+    fallback = -1;
+    do {
+        shipIndex = 0;
+        do {
+            if (navPoint->missionShips[shipIndex] == missionShip) {
+                if (navPoint->type == 1)
+                    return navIndex;
+                if (fallback == -1)
+                    fallback = navIndex;
+            }
+            shipIndex++;
+        } while (shipIndex < 10);
+        navIndex++;
+        navPoint++;
+    } while (navIndex < WC1_MISSION_NAV_POINT_COUNT);
+    if (fallback != -1) {
+        navIndex = fallback;
+        if (g_aMissionNavPoints_0046c2f0[navIndex].type > 1)
+            do {
+                navIndex--;
+            } while (g_aMissionNavPoints_0046c2f0[navIndex].type > 1);
+    } else {
+        navIndex = -1;
+    }
+    return navIndex;
+}
+
+/* Function start: 0x423780 */
+int locate_ship(short missionShip, FixedVector *point)
+{
+    short navPoint;
+    short obj;
+
+    obj = find_ship_index(missionShip);
+    if (obj != -1) {
+        *point = g_aShipPosition_0059c490[obj];
+        return 1;
+    }
+    if (dead_ship(missionShip) != 0)
+        return 0;
+    navPoint = find_ships_sphere(missionShip);
+    if (navPoint != -1) {
+        AddFixedVectors(&g_aMissionNavPoints_0046c2f0[navPoint].position,
+                        (FixedVector *)(
+                            &DAT_0046c97a[missionShip * 0x36] - 0x23),
+                        point);
+        return 1;
+    }
+    zero_vector(point);
+    return 0;
 }
 
 /* Function start: 0x423820 */
@@ -844,15 +1188,15 @@ unsigned int get_follow_point(short obj, FixedVector *point)
         return 0;
     }
     pathIndex = (short)g_abShipNavPointIndex_0059d7c0[obj];
-    while (++pathIndex <= 15) {
+    while (++pathIndex < 16) {
         objective = (short)g_abFlightPath_0059c000[pathIndex];
         type = g_aMissionObjectives_0059dac5[objective].type;
-        if (type == 0) {
+        switch (type) {
+        case 0:
             *point = g_aMissionObjectives_0059dac5[objective].position;
             g_abShipNavPointIndex_0059d7c0[obj] = (signed char)pathIndex;
             return 0;
-        }
-        if (type == 1) {
+        case 1:
             missionShip = (short)g_aMissionObjectives_0059dac5[objective].index;
             objective = find_ship_index(missionShip);
             if (objective == -1)
@@ -876,7 +1220,7 @@ unsigned int get_first_follow_point(short obj, FixedVector *point)
 }
 
 /* Function start: 0x423970 */
-int ship_can_reach_nav_point(short obj, short navPoint)
+int hostile_sphere(short obj, short navPoint)
 {
     short index;
     short missionShip;
@@ -903,7 +1247,7 @@ int abandoned(short obj, short other)
         RandomBelowOrEqual(8) == 0) {
         navPoint = FindNearestNavPoint(obj);
         if (g_nCurrentNavPoint_0059df60 != navPoint &&
-            ship_can_reach_nav_point(obj, navPoint) != 0 &&
+            hostile_sphere(obj, navPoint) != 0 &&
             distance_from_object(obj, other) > 10000) {
             explode(-1, obj);
             return 1;
@@ -927,14 +1271,38 @@ void engage(short obj, signed char target, enum ShipObjective objective)
 /* Function start: 0x423AC0 */
 int target_valid(short obj)
 {
-    short target = (short)g_acShipTarget_0059ce60[obj];
+    return unactive((short)g_acShipTarget_0059ce60[obj]) == 0 &&
+           g_aeShipSide_0059d650[
+               (short)g_acShipTarget_0059ce60[obj]] !=
+               g_aeShipSide_0059d650[obj];
+}
 
-    return unactive(target) == 0 &&
-           g_aeShipSide_0059d650[target] != g_aeShipSide_0059d650[obj];
+/* Function start: 0x423B00 */
+unsigned int triumph(short obj)
+{
+    unsigned int result = 0;
+    short objective;
+
+    switch (g_aeShipMissionType_0059c3f0[obj]) {
+    case MISSION_TYPE_PATROL:
+        objective = 0;
+        while (g_abFlightPath_0059c000[objective] != -1 &&
+               (short)GetNavRecordField70(
+                   (short)g_abFlightPath_0059c000[objective]) != 0)
+            objective++;
+        return 1;
+    case MISSION_TYPE_ESCORT:
+    case MISSION_TYPE_DEFEND:
+    case MISSION_TYPE_WINGMAN:
+        return dead_ship(g_anShipMissionShip_0059d4b0[obj]) == 0;
+    case MISSION_TYPE_STRIKE:
+        result = dead_ship(g_anShipMissionShip_0059d4b0[obj]);
+    }
+    return result;
 }
 
 /* Function start: 0x423BA0 */
-short InterpolateClamped(short inputMinimum, short inputMaximum,
+short find_ratio(short inputMinimum, short inputMaximum,
                          short input, short outputMinimum,
                          short outputMaximum)
 {
@@ -968,7 +1336,7 @@ short evaluate_damage(short obj)
 }
 
 /* Function start: 0x423CD0 */
-short find_space_mine(short obj)
+short mine_available(short obj)
 {
     return find_weapon(obj, OBJECT_TYPE_SPACE_MINE);
 }

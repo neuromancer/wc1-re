@@ -84,7 +84,7 @@ Each source is authoritative only within a narrow boundary:
 | [Amiga analysis](../../releases/amiga/AMIGA_ANALYSIS.md) | AI objective, tactic, maneuver, and special-maneuver identifier tables | Win32 addresses and the three Win32-only maneuver slots |
 | [FM Towns symbols](../../releases/fm-towns/FMTOWNS_SYMBOLS.md) | object class/type identifiers and original spellings | Win32 addresses and runtime element widths |
 | [Sega CD symbols](../../releases/segacd/SEGACD_SYMBOLS.md) | full `ObjectType`, `Side`, mission-type, and `Rating` identifiers | Win32 addresses and structure layouts |
-| [Mac symbols](../../releases/mac/MAC_SYMBOLS.md) | compilation-unit names and surviving function names/order, especially the `smart` run | function bodies or exact per-platform ordering; Super Wing Commander is a later code base |
+| [Mac symbols](../../releases/mac/MAC_SYMBOLS.md) | compilation-unit names and surviving function names/order, especially the `smart`, `logic`, `targ`, and `select` runs | function bodies or exact per-platform ordering; Super Wing Commander is a later code base |
 | [WCMissionTools](../../WCMissionTools) | MODULE/CAMP/BRIEFING record layouts | runtime layout — the on-disk ship record is 42 bytes against the game's 0x36 stride, and the nav record 77 against 0x1F |
 | [WingCommanderArduinoBridge](../../WingCommanderArduinoBridge) | the *order* of fields in the pilot record, since both builds compile the same struct | its addresses, which are DOS-segment relative |
 | [wcdx](../../wcdx) | PE layout notes, and confirmation of which code the port patches | naming — its patches are byte diffs by file offset, with no symbols |
@@ -104,7 +104,7 @@ Each source is authoritative only within a narrow boundary:
 
 Disassembly supplies the widths that the old source cannot: `side[]` is also a 32-bit enum,
 while `rating[]`, `ship_target[]`, and `ship_seq[]` are byte arrays; `ship_wingleader[]`,
-`ship_count[]`, and `object_counter[]` use 16-bit elements. The Win32 name block at
+`ship_count[]`, `ship_mission_index[]`, and `object_counter[]` use 16-bit elements. The Win32 name block at
 `0x004684D4` independently preserves `Dilligent` and `Spikeri`, while the ace-name block at
 `0x0046AFD4` corroborates the rating table's tail.
 
@@ -185,11 +185,69 @@ fixing the unit at `0x0042AD00`–`0x0042AF9F`.
 The same bodies identify `0x0046C054` as the selected gun type and `0x0046C058` as the
 selected release-weapon slot. Both globals now have typed reconstruction names.
 
+### Mac `logic` unit mapped onto Win32
+
+CODE 5 ends with a 71-symbol ship-logic run from `ace_status` through `mine_available`.
+Every name below was adopted only after its retail Win32 body was checked. Together they
+fix an exact nested unit at `0x00422010`–`0x00423CDF`; the next Win32 function at
+`0x00423CE0` starts unrelated resource/UI loading. The Mac and Win32 builds are not blindly
+position-matched: Win32 reverses the local placement of `are_alive` and `trim_goals` and
+introduces private helpers between preserved operations.
+
+| Win32 address | Exact Mac name | Win32 address | Exact Mac name |
+|---|---|---|---|
+| `0x00422010` | `ace_status` | `0x00422030` | `unflag_ace` |
+| `0x00422050` | `flag_ace` | `0x00422060` | `kill_ace` |
+| `0x00422090` | `ace_greeting` | `0x004220D0` | `prepare_ace` |
+| `0x004220F0` | `signed_random` | `0x00422110` | `alert_flag` |
+| `0x00422140` | `set_alert` | `0x00422160` | `clear_alert` |
+| `0x00422180` | `start_collision_alert` | `0x004221E0` | `try2end_collision_alert` |
+| `0x00422220` | `normal_speed` | `0x00422260` | `real_crash_time` |
+| `0x00422440` | `clear_crash_cache` | `0x00422460` | `crash_time` |
+| `0x004224F0` | `detect_collisions` | `0x00422560` | `unactive` |
+| `0x004225C0` | `trim_goals` | `0x00422590` | `are_alive` |
+| `0x00422710` | `find_ship_index` | `0x00422780` | `try2rout` |
+| `0x00422830` | `no_goal` | `0x00422860` | `being_tailed` |
+| `0x004228A0` | `any_enemy_tail` | `0x00422930` | `detect_enemy_tail` |
+| `0x004229F0` | `missile_on_tail` | `0x00422A70` | `build_squad_list` |
+| `0x00422AC0` | `find_squad_center` | `0x00422B30` | `init_formation_burst` |
+| `0x00422BE0` | `reset_mission_type` | `0x00422C30` | `change_mission_type` |
+| `0x00422C70` | `reset_objective` | `0x00422CA0` | `alter_objective` |
+| `0x00422CD0` | `reset_tactic` | `0x00422D00` | `alter_tactic` |
+| `0x00422D30` | `reset_maneuver` | `0x00422D60` | `try2reset_maneuver` |
+| `0x00422D90` | `set_special` | `0x00422DD0` | `approach_zero_speed` |
+| `0x00422DF0` | `approach_min_speed` | `0x00422E10` | `approach_half_speed` |
+| `0x00422E50` | `approach_cruise_speed` | `0x00422E80` | `approach_full_speed` |
+| `0x00422EA0` | `approach_ship_speed` | `0x00422EC0` | `get_front_spot` |
+| `0x00422F60` | `close_behind` | `0x00422F80` | `scan_for_enemy` |
+| `0x00423070` | `any_enemy` | `0x00423210` | `fire_when_ready` |
+| `0x004232B0` | `attacker_in_range` | `0x00423350` | `in_danger` |
+| `0x00423440` | `build_target_list` | `0x00423530` | `inherit_leader_mission` |
+| `0x004235B0` | `inherit_leader` | `0x00423610` | `dead_ship` |
+| `0x00423640` | `gone_ship` | `0x00423670` | `skill_rating` |
+| `0x004236B0` | `skill_check` | `0x004236F0` | `find_ships_sphere` |
+| `0x00423780` | `locate_ship` | `0x00423820` | `get_follow_point` |
+| `0x00423930` | `get_first_follow_point` | `0x00423970` | `hostile_sphere` |
+| `0x004239D0` | `abandoned` | `0x00423A50` | `engage` |
+| `0x00423AC0` | `target_valid` | `0x00423B00` | `triumph` |
+| `0x00423BA0` | `find_ratio` | `0x00423C00` | `evaluate_damage` |
+| `0x00423CD0` | `mine_available` | | |
+
+Retail Win32 additionally splits out `HasSpeechBuffer`, `report_kilrathi_rout`,
+`is_ship_tailing_player_target`, `select_weighted_value`, `get_rear_spot`,
+`nearest_enemy_range`, `ships_within_range`, `target_within_range`, and
+`select_safe_target`. Their names describe checked retail behavior rather than claiming a
+Mac symbol match. The comparison also corrected the signatures and data model:
+`build_target_list` returns a 16-bit count, maneuver identifiers are passed to
+`reset_maneuver` as shorts, and `scan_for_enemy` takes an unsigned 16-bit range.
+`MissionNavPoint.type` is a signed byte with ten 16-bit `missionShips` entries at offset
+`+0x3D`, while the runtime ship table at `0x0059C830` holds ten 16-bit mission indices.
+
 The same symbol resource also corroborates nearby helpers after their Win32 bodies are
-checked: `get_ship_slot` and `find_vacant_3d_object` in the preceding `3d` unit; and
-`initialize_object`, `drop_mine`, plus the consecutive `ace_status` through `alert_flag`
-run in CODE 5's `ship` unit. Only reconstructed bodies receive the `wc-implemented` Ghidra
-tag; `initialize_object` and `drop_mine` retain linked TODO stubs until their own unit pass.
+checked: `get_ship_slot` and `find_vacant_3d_object` in the preceding `3d` unit, plus
+`initialize_object` and `drop_mine` in CODE 5's `ship` unit. Only reconstructed bodies
+receive the `wc-implemented` Ghidra tag; `initialize_object` and `drop_mine` retain linked
+TODO stubs until their own unit pass.
 
 ## 1. Evidence-named — trust these at their documented confidence
 
@@ -207,9 +265,9 @@ Derived from something the binary actually states:
 - **Distinctive strings or API usage** — `CalibrateJoystickInteractive`
   ("Move stick to the UPPER LEFT"), `LoadVolumeSettingsFromRegistry`, `ShowDamageReport`.
 - **Recovered source, checked against Win32** — `perform_maneuver`, `ship_intelligence`,
-  `imperial_formation`, `reset_mission_type`, `reset_objective`, `set_maneuver`, and the
-  surrounding AI family listed in [BRAINS.md](BRAINS.md). Ghidra tags these with
-  `wc-evidence-BRAINS-C`.
+  `imperial_formation`, and the surrounding AI family listed in [BRAINS.md](BRAINS.md).
+  Ghidra tags these with `wc-evidence-BRAINS-C`; later Mac symbols supply names such as
+  `reset_mission_type`, `reset_objective`, and `reset_maneuver`.
 - **Bodies that prove the semantics** — `MinShort`, `MaxShort`, `RandomBelowOrEqual`,
   `ReadDAT*`/`StoreDAT*` accessors, `CallThrough*` forwarders, `ReturnConst*`.
 

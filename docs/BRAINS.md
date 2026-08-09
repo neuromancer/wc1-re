@@ -72,7 +72,8 @@ Ghidra.
 | `0x0040B570` | `FF_missile_intelligence` | friend-or-foe target acquisition and homing |
 | `0x0042A950` | `arrive_from_warp` | unwarp, speed restoration, and mission reset |
 
-The source also exposes exact called API names that map to small Win32 helpers:
+The source exposes called API names, while the later Mac symbol map refines a few spellings;
+all entries below are checked against their Win32 bodies:
 
 | Win32 address | Identifier | Status in reconstruction |
 |---|---|---|
@@ -105,7 +106,7 @@ The source also exposes exact called API names that map to small Win32 helpers:
 | `0x00422C70` | `reset_objective` | implemented |
 | `0x00422CD0` | `reset_tactic` | implemented |
 | `0x00422D00` | `alter_tactic` | implemented |
-| `0x00422D30` | `set_maneuver` | inferred API counterpart; implemented body is disassembly-backed |
+| `0x00422D30` | `reset_maneuver` | exact Mac symbol; implemented body is disassembly-backed |
 | `0x00422D90` | `set_special` | implemented |
 | `0x00422E10` | `approach_half_speed` | implemented outside `stubs.c` |
 | `0x00422E50` | `approach_cruise_speed` | implemented |

@@ -44,6 +44,7 @@ unsigned short DAT_004699b0;
 unsigned int DAT_004699d8;
 unsigned char DAT_00469d5c;
 unsigned char *DAT_00469dbc[64];
+int g_nTrainSimActive_00469e2c;
 unsigned int DAT_00469e34;
 unsigned char DAT_00469fb4;
 short g_nFrameSkip_00469fb8 = 1;

@@ -55,7 +55,6 @@ int drop_mine(short obj, short weapon, enum ObjectType type, short lifetime)
     return -1;
 }
 
-/* Function start: 0x422780 */ /* TODO */ void ClearShipAiOrders(short s) { (void)s; }
 /* Function start: 0x424490 */ /* TODO */ void ReleaseSceneActors(void){}
 /* Function start: 0x424BE0 */ /* TODO */ void ResetSeriesProgress(void){}
 /* Function start: 0x4272F0 */ /* TODO */ void LogMemoryUsage(void) {}

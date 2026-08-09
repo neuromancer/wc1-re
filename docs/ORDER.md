@@ -71,7 +71,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/mathutil.c` | `0x41d000`–`0x41d24f` | 3 | Integer min/max used across the game core | MinShort/MaxShort pair, 94 call sites, no other content in the gap |
 | `src/disk.c` | `0x41d250`–`0x41efff` | 6 | Disk data files and packet fetching with retry | OpenDiskDataFile/FetchDiskPacketRetrying/PromptInsertNumberedDisk |
 | `src/damage.c` | `0x41f000`–`0x420fff` | 2 | Ship damage and component repair reporting | ReportShipSystemDamage/ReportComponentRepaired; string band 0x469960-0x469984 |
-| `src/mission.c` | `0x421000`–`0x424fff` | 34 | Mission setup: FX drivers, palette load, ship state bits | LoadOriginFxDrivers/EMStartUp; string band 0x469A28-0x469B9C |
+| `src/mission.c` | `0x421000`–`0x424fff` | 94 | Mission setup plus alert, collision, targeting, and ship-mission logic | Exact nested Mac `logic` unit at `0x422010`–`0x423cdf`; LoadOriginFxDrivers/EMStartUp and string band 0x469A28-0x469B9C anchor the enclosing split |
 | `src/pilot.c` | `0x425000`–`0x426fff` | 15 | Pilot name entry, high scores and inter-scene transitions | EnterPilotNameAndCallsign/ShowTrainSimHighScores; string band 0x469D74-0x469F98 |
 | `src/system.c` | `0x427000`–`0x4274df` | 2 | Process-level services: memory reporting and exit | exit_squadron/ShowMemoryStatusDebug; string band 0x46A064-0x46A10C |
 | `src/main.c` | `0x4274e0`–`0x427fff` | 6 | WINGLEADER main module | main() at 0x004274E0, confirmed against the leaked DOS source screenshot |
@@ -90,7 +90,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/killbrd.c` | `0x43c000`–`0x440bff` | 7 | Kill board, conversation scenes and save-slot flags | ShowTigersClawKillBoard/RunConversationScene; string band 0x4705DC-0x470668 |
 | `src/gr.c` | `0x440c00`–`0x44274f` | 14 | Rasteriser primitives and screen-space effects | PROVEN by name: shadow_draw, fizzle_fade, snow_viewport |
 
-Four whole-file boundaries and two nested source units are proven rather than guessed:
+Four whole-file boundaries and three nested source units are proven rather than guessed:
 
 - **`dib.c`** — every routine prints its own name through `DIBerror`.
 - **`pload.c`** — `PacketLoad` prints `"Library\Source\Pload.c PacketLoad …"`, the only
@@ -110,6 +110,10 @@ Four whole-file boundaries and two nested source units are proven rather than gu
   `select_guns`, `select_new_gun`, and `select_new_release_weapon`. Their checked Win32
   bodies form the same uninterrupted run at `0x0042AD00`–`0x0042AF9F`; the timer/debug
   routine at `0x0042AFA0` starts the following unit.
+- **Mac `logic` unit** — CODE 5 preserves the semantic run from `ace_status` through
+  `mine_available`. Checked Win32 bodies occupy `0x00422010`–`0x00423CDF`; Win32 inserts
+  several private split helpers and swaps the local placement of `are_alive`/`trim_goals`,
+  while `0x00423CE0` begins unrelated resource/UI loading code.
 
 ### String-literal locality: a boundary tool that is not yet conclusive
 

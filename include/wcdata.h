@@ -380,10 +380,11 @@ typedef struct ManeuverChoice {
 #pragma pack(push, 1)
 typedef struct MissionNavPoint {
     char name[0x1e];                 /* +0x00 */
-    unsigned char type;              /* +0x1E: 1 is an active nav point */
+    signed char type;                /* +0x1E: 1 is an active nav point */
     FixedVector position;            /* +0x1F */
     short proximityRadius;           /* +0x2B */
-    unsigned char missionData[0x24]; /* +0x2D */
+    unsigned char field_2d[0x10];    /* +0x2D */
+    short missionShips[10];          /* +0x3D */
 } MissionNavPoint;
 #pragma pack(pop)
 

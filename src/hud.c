@@ -370,7 +370,7 @@ void send_message(short obj, signed char message)
         return;
     if (g_acShipRating_0059cd80[obj] != -1 ||
         g_aeObjectType_0059b560[obj] == OBJECT_TYPE_TIGERS_CLAW ||
-        g_acShipMissionIndex_0059c830[obj] ==
+        g_asShipMissionIndex_0059c830[obj] ==
             g_anShipMissionShip_0059d4b0[0] ||
         g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
         ((signed char *)g_aeShipObjective_0059d200)[obj + 0xc0] = message;

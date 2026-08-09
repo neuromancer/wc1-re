@@ -69,20 +69,20 @@ void prevent_collision(short obj)
 
     other = (short)(signed char)DAT_0059cf20[obj];
     if (other == -1) {
-        ResetShipStateRecord(obj);
+        clear_alert(obj);
         return;
     }
-    collisionTime = collision_distance(obj, other);
+    collisionTime = crash_time(obj, other);
     if (collisionTime >= 30) {
         approach_full_speed(obj);
-        advance_collision_avoidance(obj);
+        try2end_collision_alert(obj);
         return;
     }
     ship_vs_point(obj, &g_aShipPosition_0059c490[other]);
     facing = g_nFacingToTarget_0059d920;
     if (facing > 75) {
         if (g_nTargetFacing_0059d52a < -70)
-            ClearShipAiThrottle(obj);
+            approach_zero_speed(obj);
         else
             approach_full_speed(obj);
     } else if (facing < -70 && normal_speed(obj) != 0) {
@@ -109,9 +109,9 @@ int handle_collisions(short obj)
 {
     short other;
 
-    other = find_collision_object(obj);
+    other = detect_collisions(obj);
     if (other != -1)
-        start_collision_avoidance(obj, other);
+        start_collision_alert(obj, other);
     if (alert_flag(obj, 1) != 0)
         prevent_collision(obj);
     return alert_flag(obj, 1);
@@ -384,11 +384,11 @@ unsigned int reset_stress(short obj)
         }
         if (damage < 75) {
             g_acShipStress_0059d620[obj] =
-                (signed char)InterpolateClamped(30, 74, damage, 29, 15);
+                (signed char)find_ratio(30, 74, damage, 29, 15);
             return 0;
         }
         g_acShipStress_0059d620[obj] =
-            (signed char)InterpolateClamped(75, 100, damage, 14, 0);
+            (signed char)find_ratio(75, 100, damage, 14, 0);
     }
     return 0;
 }
@@ -448,7 +448,7 @@ enum ShipManeuver pick_regular_maneuver(short obj, int event)
     case 2:
         return MANEUVER_TRY2TAIL;
     case 3:
-        if (find_space_mine(obj) != -1 && RandomBelow(100) < 10)
+        if (mine_available(obj) != -1 && RandomBelow(100) < 10)
             return MANEUVER_DROP_A_MINE;
         return any_defense(obj);
     case 4:
@@ -536,7 +536,7 @@ unsigned int process_maneuver_node(short obj, int event)
             obj);
     }
     if (g_aeShipManeuver_0059dcb0[obj] != maneuver)
-        set_maneuver(obj, maneuver);
+        reset_maneuver(obj, maneuver);
     return 0;
 }
 
@@ -599,7 +599,7 @@ void intelligence_events(short obj)
     targetGone = 0;
     target = (short)g_acShipTarget_0059ce60[obj];
     previousStress = (short)g_acShipStress_0059d620[obj];
-    if (object_requires_evasion(obj) != 0) {
+    if (missile_on_tail(obj) != 0) {
         event = 6;
     } else if (unactive(target) != 0) {
         targetGone = 1;
@@ -666,7 +666,7 @@ unsigned int chase_speed(short obj, short range)
         return 0;
     }
     if (range < g_nTargetRange_0059ce10) {
-        ClearShipAiThrottle(obj);
+        approach_zero_speed(obj);
         return 0;
     }
     ApproachShipSpeed(obj,
