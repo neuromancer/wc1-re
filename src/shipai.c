@@ -63,36 +63,121 @@ void ShipAiState25(short ship)
     }
 }
 
+/* Function start: 0x406D20 */
+void Mtail_fire(short ship, short target)
+{
+    if (no_goal(ship) != 0)
+        point_ship_at_object(ship, target);
+    chase_speed(ship,
+        (short)((g_asObjectCollisionRadius_0059d710[target] +
+                 g_asObjectCollisionRadius_0059d710[ship] * 6) >> 1));
+    fire_when_ready(ship, 1);
+}
+
+/* Function start: 0x406D80 */
+void Mzip_past(short ship, short target)
+{
+    if (unactive(target) == 0) {
+        if (close_behind(
+                g_asObjectCollisionRadius_0059d710[target] + 2000) != 0) {
+            Mtail_fire(ship, target);
+            return;
+        }
+        approach_full_speed(ship);
+        if (no_goal(ship) != 0) {
+            if (g_nTargetFacing_0059d52a > 80)
+                point_ship_below_object(ship, target);
+            else
+                point_ship_behind_object(ship, target);
+        }
+    } else {
+        SelectNewShipAiBehavior(ship);
+    }
+}
+
+/* Function start: 0x406FB0 */
+void Mstrafe_enemy(short ship, short target)
+{
+    short aimed;
+
+    approach_cruise_speed(ship);
+    if (abs(g_anPitchGoal_0059d7a0[ship]) != 0 ||
+        abs(g_anYawGoal_0059c310[ship]) != 0)
+        aimed = 0;
+    else
+        aimed = 1;
+    if (aimed != 0) {
+        ship_vs_ship(ship, target);
+        point_ship_at_object(ship, target);
+    }
+    fire_when_ready(ship, aimed == 0);
+}
+
 /* Function start: 0x407030 */
-void ShipAiState30(short ship, short target)
+void Mbest_strafe(short ship, short target)
 {
     if (g_nTargetFacing_0059d52a < 0x50) {
-        ShipAiState29(ship, target);
+        Mstrafe_enemy(ship, target);
         return;
     }
-    ShipAiState40(ship, target);
+    Mzip_past(ship, target);
 }
 
 /* Function start: 0x4070D0 */
-void ShipAiState31(short ship, short target)
+void Mstrafe_n_roll(short ship, short target)
 {
     if (0 < g_asObjectCounter_0059c330[ship]) {
-        DAT_0059d630[ship] = 0x2d;
+        g_anRollGoal_0059d630[ship] = 0x2d;
         return;
     }
-    ShipAiState29(ship, target);
+    Mstrafe_enemy(ship, target);
+}
+
+/* Function start: 0x407270 */
+void general_zig(short ship, unsigned int target, short pitch)
+{
+    short complete = 1;
+
+    (void)target;
+    approach_full_speed(ship);
+    switch (g_acShipSequence_0059d520[ship] % 6) {
+    case 0:
+        g_anYawGoal_0059c310[ship] = -35;
+        g_anPitchGoal_0059d7a0[ship] = pitch;
+        break;
+    case 1:
+    case 4:
+        complete = no_goal(ship);
+        g_asShipCount_0059c420[ship] = 0;
+        break;
+    case 2:
+    case 5:
+        complete = 1;
+        if (++g_asShipCount_0059c420[ship] < 4)
+            complete = 0;
+        break;
+    case 3:
+        pitch = -pitch;
+        g_anYawGoal_0059c310[ship] = 35;
+        g_anPitchGoal_0059d7a0[ship] = pitch;
+        break;
+    }
+    if (g_acShipSequence_0059d520[ship] >= 12)
+        SelectNewShipAiBehavior(ship);
+    if (complete != 0)
+        ShipAiRoutine01(ship);
 }
 
 /* Function start: 0x407350 */
-void ShipAiState24(short ship, unsigned int arg)
+void Mzig_zag(short ship, unsigned int target)
 {
-    ShipAiRoutine02(ship, arg, 0);
+    general_zig(ship, target, 0);
 }
 
 /* Function start: 0x407370 */
-void ShipAiState34(short ship, unsigned int arg)
+void Mzig_zag_pitch(short ship, unsigned int target)
 {
-    ShipAiRoutine02(ship, arg, 0x23);
+    general_zig(ship, target, 0x23);
 }
 
 /* Function start: 0x407450 */
@@ -137,7 +222,7 @@ void ShipAiState44(short ship)
 /* Function start: 0x407580 */
 void ShipAiState27(short ship, short target)
 {
-    ShipAiState30(ship, target);
+    Mbest_strafe(ship, target);
 }
 
 /* Function start: 0x4075A0 */

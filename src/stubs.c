@@ -10,9 +10,6 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x406D80 */ /* TODO */ void ShipAiState40(short a,short b){(void)a;(void)b;}
-/* Function start: 0x406FB0 */ /* TODO */ void ShipAiState29(short a,short b){(void)a;(void)b;}
-/* Function start: 0x407270 */ /* TODO */ void ShipAiRoutine02(short a,unsigned int b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x41C910 */ /* TODO */ void DebugOverlayThreadProc(int p){(void)p;}
 
 /* Forward references still to be implemented; each is a real function. */

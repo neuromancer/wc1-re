@@ -599,6 +599,28 @@ void point_capital_ship_at_object(short obj, short other)
     point_ship(obj, 0, &direction);
 }
 
+/* Function start: 0x419710 */
+void point_ship_behind_object(short obj, short other)
+{
+    FixedVector point = g_aShipPosition_0059c490[other];
+
+    position_relative(&point, g_aShipForwardVector_0059bce0[other],
+                      (short)(-500 -
+                          g_asObjectCollisionRadius_0059d710[other]));
+    point_ship_at_point(obj, &point);
+}
+
+/* Function start: 0x419790 */
+void point_ship_below_object(short obj, short other)
+{
+    FixedVector point = g_aShipPosition_0059c490[other];
+
+    position_relative(&point, g_aShipUpVector_0059b9e0[other],
+                      (short)(g_asObjectCollisionRadius_0059d710[other] +
+                              500));
+    point_ship_at_point(obj, &point);
+}
+
 /* Function start: 0x419810 */
 void point_perpendicular_to_point(short obj, const FixedVector *point)
 {

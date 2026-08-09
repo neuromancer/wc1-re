@@ -83,10 +83,14 @@ void SelectNewShipAiBehavior(short ship);                               /* 0x004
 void ShipAiState42(short ship, short target);                           /* 0x004060D0 */
 void ShipAiRoutine01(short ship);                                       /* 0x004061E0 */
 void ShipAiState25(short ship);                                         /* 0x00406C70 */
-void ShipAiState30(short ship, short target);                           /* 0x00407030 */
-void ShipAiState31(short ship, short target);                           /* 0x004070D0 */
-void ShipAiState24(short ship, unsigned int arg);                       /* 0x00407350 */
-void ShipAiState34(short ship, unsigned int arg);                       /* 0x00407370 */
+void Mtail_fire(short ship, short target);                              /* 0x00406D20 */
+void Mzip_past(short ship, short target);                               /* 0x00406D80 */
+void Mstrafe_enemy(short ship, short target);                           /* 0x00406FB0 */
+void Mbest_strafe(short ship, short target);                            /* 0x00407030 */
+void Mstrafe_n_roll(short ship, short target);                          /* 0x004070D0 */
+void general_zig(short ship, unsigned int target, short pitch);         /* 0x00407270 */
+void Mzig_zag(short ship, unsigned int target);                         /* 0x00407350 */
+void Mzig_zag_pitch(short ship, unsigned int target);                   /* 0x00407370 */
 void ShipAiState02(short ship, short target);                           /* 0x00407450 */
 void ShipAiState44(short ship);                                         /* 0x00407560 */
 void ShipAiState27(short ship, short target);                           /* 0x00407580 */
@@ -347,6 +351,8 @@ void point_ship(short obj, short reference,
 void point_ship_at_point(short obj, const FixedVector *point);        /* 0x00419660 */
 void point_ship_at_object(short obj, short other);                    /* 0x004196A0 */
 void point_capital_ship_at_object(short obj, short other);            /* 0x004196C0 */
+void point_ship_behind_object(short obj, short other);                /* 0x00419710 */
+void point_ship_below_object(short obj, short other);                 /* 0x00419790 */
 void point_perpendicular_to_point(short obj,
                                  const FixedVector *point);           /* 0x00419810 */
 void point_perpendicular(short obj, short other);                     /* 0x00419850 */
@@ -492,7 +498,7 @@ unsigned int close_behind(short range);                               /* 0x00422
 short scan_for_enemy(short obj, unsigned short range);                  /* 0x00422F80 */
 int any_enemy(short obj, short range);                                  /* 0x00423070 */
 short nearest_enemy_range(short obj);                                 /* 0x004230F0 */
-void fire_when_ready(short obj);                                      /* 0x00423210 */
+void fire_when_ready(short obj, short aimed);                         /* 0x00423210 */
 unsigned int ships_within_range(short obj, short other, short range); /* 0x00423260 */
 int attacker_in_range(short obj, short range);                          /* 0x004232B0 */
 int in_danger(short obj);                                               /* 0x00423350 */

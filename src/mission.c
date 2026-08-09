@@ -1139,8 +1139,9 @@ short nearest_enemy_range(short obj)
 }
 
 /* Function start: 0x423210 */
-void fire_when_ready(short obj)
+void fire_when_ready(short obj, short aimed)
 {
+    (void)aimed;
     if (g_nYourWingman_0046c04c == obj &&
         g_aiPilotLevel_0059cf30[obj] != 11) {
         ship_vs_ship(obj, 0);

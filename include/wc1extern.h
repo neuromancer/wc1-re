@@ -19,9 +19,6 @@ short LoadWingCmdrCfgFile(short argc, char **argv);               /* 0x0042C580 
 void ix_system_delete_all_samples(void);                                  /* 0x00427548 */
 void ix_system_delete_all_sounds(void);                                   /* 0x00427610 family */
 void PlaySfxWaveFileByNumber(int n, int a, int b);                
-void ShipAiRoutine02(short a, unsigned int b, int c);             /* 0x00406200-family */
-void ShipAiState29(short a, short b);                             /* 0x00406FB0 */
-void ShipAiState40(short a, short b);                             /* 0x00406D80 */
 void ShowEnemyTargetSelectMenu(void);                             /* 0x00430E90 */
 void Streamer_stop(void);                                         /* 0x00442460 */
 short UiRoutine03(void);                                          /* 0x00429E30 family */
