@@ -75,7 +75,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/pilot.c` | `0x425000`–`0x426fff` | 15 | Pilot name entry, high scores and inter-scene transitions | EnterPilotNameAndCallsign/ShowTrainSimHighScores; string band 0x469D74-0x469F98 |
 | `src/system.c` | `0x427000`–`0x4274df` | 2 | Process-level services: memory reporting and exit | exit_squadron/ShowMemoryStatusDebug; string band 0x46A064-0x46A10C |
 | `src/main.c` | `0x4274e0`–`0x427fff` | 6 | WINGLEADER main module | main() at 0x004274E0, confirmed against the leaked DOS source screenshot |
-| `src/hudmsg.c` | `0x428000`–`0x42afff` | 19 | On-screen messages, debug keys, and targeting/warp cleanup | Exact nested Mac `targ` unit at `0x42a8f0`–`0x42acff`; enclosing split remains provisional |
+| `src/hudmsg.c` | `0x428000`–`0x42afff` | 23 | On-screen messages, debug keys, targeting/warp cleanup, and weapon selection | Exact nested Mac `targ` and `select` units at `0x42a8f0`–`0x42af9f`; enclosing split remains provisional |
 | `src/pload.c` | `0x42b000`–`0x42b3ff` | 4 | Packet loader | PROVEN: PacketLoad prints "Library\\Source\\Pload.c PacketLoad" |
 | `src/sound.c` | `0x42b400`–`0x42cfff` | 6 | Wave playback, volume settings and INSTALL.DAT | playWAVE/PlaySfxWaveByIndex/LoadInstallDat; string band 0x46A46C-0x46A710 |
 | `src/music.c` | `0x42d000`–`0x42efff` | 22 | Music state machine and the streaming music script | PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ... |
@@ -90,7 +90,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/killbrd.c` | `0x43c000`–`0x440bff` | 7 | Kill board, conversation scenes and save-slot flags | ShowTigersClawKillBoard/RunConversationScene; string band 0x4705DC-0x470668 |
 | `src/gr.c` | `0x440c00`–`0x44274f` | 14 | Rasteriser primitives and screen-space effects | PROVEN by name: shadow_draw, fizzle_fade, snow_viewport |
 
-Four whole-file boundaries and one nested source unit are proven rather than guessed:
+Four whole-file boundaries and two nested source units are proven rather than guessed:
 
 - **`dib.c`** — every routine prints its own name through `DIBerror`.
 - **`pload.c`** — `PacketLoad` prints `"Library\Source\Pload.c PacketLoad …"`, the only
@@ -106,6 +106,10 @@ Four whole-file boundaries and one nested source unit are proven rather than gue
   `arrive_from_warp`, `unwarp`, `warp`, `drop_player_mine`, `personality_killed`, and
   `clean_up_cockpit`. Their checked Win32 bodies form the same uninterrupted run at
   `0x0042A8F0`–`0x0042ACFF`; `0x0042AD00` begins the separate weapon-selection run.
+- **Mac `select` unit** — CODE 15 preserves the consecutive symbols `find_next_gun`,
+  `select_guns`, `select_new_gun`, and `select_new_release_weapon`. Their checked Win32
+  bodies form the same uninterrupted run at `0x0042AD00`–`0x0042AF9F`; the timer/debug
+  routine at `0x0042AFA0` starts the following unit.
 
 ### String-literal locality: a boundary tool that is not yet conclusive
 

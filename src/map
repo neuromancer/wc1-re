@@ -877,10 +877,10 @@
 0x0042ABD0 drop_player_mine
 0x0042AC50 personality_killed
 0x0042ACC0 clean_up_cockpit
-0x0042AD00 ScanTbl0059cab0FnAD00
-0x0042ADA0 LoopCombatFnADA0
-0x0042AE10 GetCombatFnAE10
-0x0042AE50 ScanTbl0059cab7FnAE50
+0x0042AD00 find_next_gun
+0x0042ADA0 select_guns
+0x0042AE10 select_new_gun
+0x0042AE50 select_new_release_weapon
 0x0042AFA0 LoopGameFlowFnAFA0
 0x0042AFB0 FrameTimerCallback
 0x0042AFC0 SetMultimediaTimerCallback

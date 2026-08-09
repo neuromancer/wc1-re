@@ -81,6 +81,8 @@ extern short DAT_0046c010;
 extern signed char g_cCurrentObjective_0046c020;
 extern unsigned char DAT_0046c03c;
 extern short g_nYourWingman_0046c04c;
+extern enum ObjectType g_eSelectedGunType_0046c054;
+extern int g_nSelectedReleaseWeaponIndex_0046c058;
 extern unsigned char DAT_0046c060;
 extern short DAT_0046c064;
 extern short DAT_0046c068;

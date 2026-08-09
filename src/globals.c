@@ -80,6 +80,8 @@ short DAT_0046c010;
 signed char g_cCurrentObjective_0046c020;
 unsigned char DAT_0046c03c;
 short g_nYourWingman_0046c04c;
+enum ObjectType g_eSelectedGunType_0046c054;
+int g_nSelectedReleaseWeaponIndex_0046c058;
 unsigned char DAT_0046c060;
 short DAT_0046c064;
 short DAT_0046c068;

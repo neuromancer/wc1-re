@@ -168,6 +168,23 @@ unit at `0x0042ACFF`.
 | `0x0042AC50` | `personality_killed` | records wingman losses or ace kills and adjusts both scores |
 | `0x0042ACC0` | `clean_up_cockpit` | clears player/wingman targets and resets the HUD gun readouts |
 
+### Mac `select` unit mapped onto Win32
+
+CODE 15 preserves a four-symbol source unit named `select`. The same four routines are
+contiguous and in the same order in retail Win32, where their disassembly confirms the
+weapon-selection behavior. The next function, at `0x0042AFA0`, is the timer/debug step,
+fixing the unit at `0x0042AD00`–`0x0042AF9F`.
+
+| Win32 address | Recovered name | Checked behavior |
+|---|---|---|
+| `0x0042AD00` | `find_next_gun` | cycles distinct projectile types and then the all-guns selection |
+| `0x0042ADA0` | `select_guns` | enables projectile hardpoints matching the selected type or all-guns mode |
+| `0x0042AE10` | `select_new_gun` | advances the gun selection and refreshes the weapon display when visible |
+| `0x0042AE50` | `select_new_release_weapon` | selects or cycles distinct non-projectile hardpoints and refreshes the display |
+
+The same bodies identify `0x0046C054` as the selected gun type and `0x0046C058` as the
+selected release-weapon slot. Both globals now have typed reconstruction names.
+
 The same symbol resource also corroborates nearby helpers after their Win32 bodies are
 checked: `get_ship_slot` and `find_vacant_3d_object` in the preceding `3d` unit; and
 `initialize_object`, `drop_mine`, plus the consecutive `ace_status` through `alert_flag`

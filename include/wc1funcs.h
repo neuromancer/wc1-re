@@ -390,6 +390,10 @@ unsigned int warp(short obj);                                         /* 0x0042A
 int drop_player_mine(short obj);                                      /* 0x0042ABD0 */
 unsigned int personality_killed(short personality);                   /* 0x0042AC50 */
 void clean_up_cockpit(void);                                          /* 0x0042ACC0 */
+short find_next_gun(short obj, enum ObjectType currentGun);           /* 0x0042AD00 */
+int select_guns(short obj, short selectedGun);                         /* 0x0042ADA0 */
+unsigned int select_new_gun(void);                                    /* 0x0042AE10 */
+unsigned int select_new_release_weapon(enum ObjectType preferredType); /* 0x0042AE50 */
 void WaitForDebugStep(void);                                          /* 0x0042AFA0 */
 void CALLBACK FrameTimerCallback(UINT timerId, UINT message, DWORD user,
                                  DWORD first, DWORD second);       /* 0x0042AFB0 */

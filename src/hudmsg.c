@@ -4,6 +4,7 @@
  *  Address range 0x428000-0x42afff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: ShowOnScreenMessage and its six callers; string band 0x46A24C-0x46A378.
  *  The Mac CODE 4 `targ` symbols prove the nested 0x42A8F0-0x42ACFF unit.
+ *  The Mac CODE 15 `select` symbols prove the nested 0x42AD00-0x42AF9F unit.
  */
 #include "wc1.h"
 
@@ -222,6 +223,154 @@ void clean_up_cockpit(void)
         reset_objective(wingman, OBJECTIVE_HOLD_FORMATION);
     }
     ClearHudGunReadouts();
+}
+
+/* Function start: 0x42AD00 */
+short find_next_gun(short obj, enum ObjectType currentGun)
+{
+    unsigned char *loadout = g_aShipWeapons_0059cab0[obj];
+    int foundCurrent = 0;
+    short weapon = 0;
+    short firstGun = -1;
+    short weaponCount = (signed char)loadout[0];
+    ShipWeaponSlot *weaponSlot = (ShipWeaponSlot *)&loadout[1];
+
+    if (weaponCount > 0) {
+        do {
+            enum ObjectType type = weaponSlot->type;
+
+            if (g_aObjectTypeData_0046645c[type].objectClass ==
+                    OBJECT_CLASS_PROJECTILE) {
+                if (firstGun == -1)
+                    firstGun = (short)type;
+                if (foundCurrent == 0) {
+                    if (currentGun == type)
+                        foundCurrent = 1;
+                } else if (currentGun != type) {
+                    return (short)type;
+                }
+            }
+            weapon++;
+            weaponSlot++;
+        } while (weapon < weaponCount);
+    }
+    if (foundCurrent != 0 && firstGun != currentGun)
+        firstGun = 0x80;
+    return firstGun;
+}
+
+/* Function start: 0x42ADA0 */
+int select_guns(short obj, short selectedGun)
+{
+    short weaponCount = (signed char)g_aShipWeapons_0059cab0[0][0];
+    int found = 0;
+    ShipWeaponSlot *weaponSlot =
+        (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
+
+    (void)obj;
+    if (weaponCount > 0) {
+        do {
+            if (g_aObjectTypeData_0046645c[weaponSlot->type].objectClass ==
+                    OBJECT_CLASS_PROJECTILE) {
+                if (selectedGun == weaponSlot->type || selectedGun == 0x80) {
+                    weaponSlot->disabled = 0;
+                    found = 1;
+                } else {
+                    weaponSlot->disabled = 1;
+                }
+            }
+            weaponSlot++;
+            weaponCount--;
+        } while (weaponCount != 0);
+    }
+    if (found != 0)
+        return selectedGun;
+    return -1;
+}
+
+/* Function start: 0x42AE10 */
+unsigned int select_new_gun(void)
+{
+    g_eSelectedGunType_0046c054 = (enum ObjectType)select_guns(
+        0, find_next_gun(0, g_eSelectedGunType_0046c054));
+    if ((short)GetSeriesStateWord(0) == 1)
+        ClearMessageSlot(0);
+    return 0;
+}
+
+/* Function start: 0x42AE50 */
+unsigned int select_new_release_weapon(enum ObjectType preferredType)
+{
+    signed char weaponCount;
+    int currentWeapon;
+    signed char firstWeapon;
+    signed char weapon;
+    ShipWeaponSlot *weaponSlots;
+
+    weaponCount = (signed char)g_aShipWeapons_0059cab0[0][0];
+    currentWeapon = g_nSelectedReleaseWeaponIndex_0046c058;
+    weapon = (signed char)(currentWeapon + 1);
+    weaponSlots = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
+
+    if (weaponCount <= weapon)
+        weapon = 0;
+    if (currentWeapon == -1) {
+        if (preferredType != -1) {
+            weapon = 0;
+            if (weaponCount > 0) {
+                do {
+                    if (weaponSlots[weapon].type == preferredType) {
+                        currentWeapon = weapon;
+                        weaponSlots[currentWeapon].disabled = 0;
+                        break;
+                    }
+                    weapon++;
+                } while (weapon <
+                         (signed char)g_aShipWeapons_0059cab0[0][0]);
+            }
+        }
+        g_nSelectedReleaseWeaponIndex_0046c058 = currentWeapon;
+        if (currentWeapon == -1) {
+            weapon = 0;
+            if (weaponCount > 0) {
+                do {
+                    if (g_aObjectTypeData_0046645c[
+                            weaponSlots[weapon].type].objectClass !=
+                            OBJECT_CLASS_PROJECTILE) {
+                        currentWeapon = weapon;
+                        g_nSelectedReleaseWeaponIndex_0046c058 = currentWeapon;
+                        weaponSlots[currentWeapon].disabled = 0;
+                        break;
+                    }
+                    weapon++;
+                } while (weapon < weaponCount);
+            }
+        }
+    } else {
+        firstWeapon = weapon;
+        do {
+            enum ObjectType type;
+
+            if (currentWeapon == weapon)
+                break;
+            type = weaponSlots[weapon].type;
+            if (g_aObjectTypeData_0046645c[type].objectClass !=
+                    OBJECT_CLASS_PROJECTILE &&
+                weaponSlots[currentWeapon].type != type) {
+                weaponSlots[currentWeapon].disabled = 1;
+                currentWeapon = weapon;
+                g_nSelectedReleaseWeaponIndex_0046c058 = currentWeapon;
+                weaponSlots[currentWeapon].disabled = 0;
+                break;
+            }
+            weapon++;
+            if (weaponCount <= weapon)
+                weapon = 0;
+        } while (weapon != firstWeapon);
+    }
+    if ((short)GetSeriesStateWord(0) == 1)
+        ClearMessageSlot(0);
+    return 0;
 }
 
 /* Function start: 0x42AFA0 */
