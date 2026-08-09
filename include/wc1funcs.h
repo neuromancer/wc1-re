@@ -846,7 +846,10 @@ void UpdateStreamerStoppedFlag(void);                                    /* 0x00
 void SetMusicStreamVolume(unsigned short volume);                     /* 0x00442590 */
 int ReadCheaterFlagFromRegistry(void);                                /* 0x00442600 */
 void ix_system_service_sounds(void);                                     /* 0x004472A7 */
+void ix_system_shutdown(void);                                            /* 0x004473F3 */
 void ix_system_set_master_volume(unsigned short volume);              /* 0x0044745B */
+void ix_system_delete_all_samples(void);                                  /* 0x00447548 */
+void ix_system_delete_all_sounds(void);                                   /* 0x00447610 */
 void ix_streamer_set_volume(unsigned short volume);                   /* 0x004435BE */
 
 #endif /* WC1_FUNCS_H */

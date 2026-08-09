@@ -40,6 +40,3 @@ void PlaySfxWaveFileByNumber(int n, int a, int b)
 /* Function start: 0x4331F0 */ /* TODO */ char *DirectDrawResultToText(int hr){(void)hr;return "";}
 /* Function start: 0x4359C0 */ /* TODO */ void DispatchPendingEvents(int a) { (void)a; }
 /* Function start: 0x442460 */ /* TODO */ void Streamer_stop(void) {}
-/* Function start: 0x4473F3 */ /* TODO */ void ix_system_shutdown(void){}
-/* Function start: 0x447548 */ /* TODO */ void ix_system_delete_all_samples(void){}
-/* Function start: 0x447610 */ /* TODO */ void ix_system_delete_all_sounds(void){}

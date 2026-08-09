@@ -13,8 +13,9 @@
  */
 #include "ix.h"
 #include <stdlib.h>
+#include <string.h>
 
-IxVoice        g_voices_005981a8[32];
+IxVoice        g_voices_005981a8[34];
 int            g_nVoiceCount_00598600;
 unsigned short g_nMasterVolume_0047198c;
 short          g_anPanTable_00597d28[512];
@@ -132,28 +133,30 @@ void ix_dspv_set_volume(int voice, short vol)
 /* Function start: 0x446B8C */   /* source line 93 */
 void ix_dspv_set_pan(int voice, unsigned int angle)
 {
+    IxVoice *state;
     short step;
+    short delta;
     short pos;
 
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || g_nVoiceCount_00598600 <= voice) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 93);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    angle &= 0xffff;
-    step = (short)(angle >> 9);
-    pos = step - g_voices_005981a8[voice].panAngle;
-    if (pos > 0x40)
-        pos = pos - 0x80;
-    if (pos < -0x40)
-        pos = pos + 0x80;
-    pos = g_voices_005981a8[voice].panPos + pos;
+    state = &g_voices_005981a8[voice];
+    step = (short)((unsigned short)angle >> 9);
+    delta = step - state->panAngle;
+    if (delta > 0x40)
+        delta = delta - 0x80;
+    if (delta < -0x40)
+        delta = delta + 0x80;
+    pos = state->panPos + delta;
     if (pos < 0)
         pos = pos + 0x100;
-    if (pos > 0xff)
+    if (pos >= 0x100)
         pos = pos - 0x100;
-    g_voices_005981a8[voice].panAngle = step;
-    g_voices_005981a8[voice].panPos = pos;
+    state->panAngle = step;
+    state->panPos = pos;
     ix_dspv_recalc_mix(voice);
 }
 
@@ -209,20 +212,313 @@ void ix_dspv_set_channels(int voice, int channels)
 /* Function start: 0x446EBF */
 void ix_dspv_recalc_mix(int voice)
 {
+    IxVoice *state;
     short pos;
-    unsigned int gain;
+    int gain;
 
-    pos = g_voices_005981a8[voice].panPos;
-    gain = ((unsigned int)g_voices_005981a8[voice].volume
+    state = &g_voices_005981a8[voice];
+    pos = state->panPos;
+    gain = ((unsigned int)state->volume
             * (unsigned int)g_nMasterVolume_0047198c) / 0xffff;
     EnterCriticalSection(&g_csMixer_005985e8);
-    g_voices_005981a8[voice].leftGain =
+    state->leftGain =
         (short)((int)g_anPanTable_00597d28[pos * 2] * gain >> 0x10);
-    g_voices_005981a8[voice].rightGain =
+    state->rightGain =
         (short)((int)g_anPanTable_00597d28[pos * 2 + 1] * gain >> 0x10);
-    g_voices_005981a8[voice].leftGainHi =
-        (unsigned char)((unsigned short)g_voices_005981a8[voice].leftGain >> 8);
-    g_voices_005981a8[voice].rightGainHi =
-        (unsigned char)((unsigned short)g_voices_005981a8[voice].rightGain >> 8);
+    state->leftGainHi = (unsigned char)(state->leftGain >> 8);
+    state->rightGainHi = (unsigned char)(state->rightGain >> 8);
     LeaveCriticalSection(&g_csMixer_005985e8);
+}
+
+/* Function start: 0x00446F74 */
+__declspec(naked) void ix_dspv_mix(void *outputBuffer,
+                                   unsigned int outputBytes)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push eax
+        push ebx
+        push ecx
+        push edx
+        push esi
+        push edi
+        mov eax, 0
+        mov edi, dword ptr [ebp + 8]
+        mov ecx, dword ptr [ebp + 0xc]
+        shr ecx, 2
+        rep stosd
+        mov ebx, offset g_voices_005981a8
+        mov ecx, dword ptr [g_nVoiceCount_00598600]
+        add ecx, dword ptr [g_nStreamCount_00598130]
+
+    voice_loop:
+        mov eax, dword ptr [ebx]
+        test eax, 2
+        jz next_voice
+        push ecx
+        mov edi, dword ptr [ebp + 8]
+        mov ecx, dword ptr [ebp + 0xc]
+        shr ecx, 2
+        mov esi, dword ptr [ebx + 4]
+        test eax, 8
+        jnz mix_16bit
+        test eax, 0x10
+        jnz mix_8bit_stereo
+
+    mix_8bit_mono_sample:
+        mov al, byte ptr [esi]
+        mov dl, al
+        imul byte ptr [ebx + 0x17]
+        rol eax, 0x10
+        mov al, dl
+        imul byte ptr [ebx + 0x16]
+
+    mix_8bit_mono_accumulate:
+        mov edx, dword ptr [edi]
+        add ax, dx
+        jno mix_8bit_mono_left_done
+        jnc mix_8bit_mono_left_positive
+        mov ax, 0x8000
+        jmp mix_8bit_mono_left_done
+
+    mix_8bit_mono_left_positive:
+        mov ax, 0x7fff
+
+    mix_8bit_mono_left_done:
+        ror eax, 0x10
+        ror edx, 0x10
+        add ax, dx
+        jno mix_8bit_mono_right_done
+        jnc mix_8bit_mono_right_positive
+        mov ax, 0x8000
+        jmp mix_8bit_mono_right_done
+
+    mix_8bit_mono_right_positive:
+        mov ax, 0x7fff
+
+    mix_8bit_mono_right_done:
+        rol eax, 0x10
+        mov dword ptr [edi], eax
+        add edi, 4
+        dec ecx
+        jz voice_done
+        mov edx, 0
+        mov dx, word ptr [ebx + 0x10]
+        add dx, word ptr [ebx + 0x12]
+        mov word ptr [ebx + 0x10], dx
+        and word ptr [ebx + 0x10], 0xff
+        shr dx, 8
+        jz mix_8bit_mono_accumulate
+        add esi, edx
+        cmp esi, dword ptr [ebx + 0xc]
+        jl mix_8bit_mono_sample
+        test dword ptr [ebx], 4
+        jz stop_voice
+        mov esi, dword ptr [ebx + 8]
+        jmp mix_8bit_mono_sample
+
+    mix_8bit_stereo:
+        cmp esi, dword ptr [ebx + 0xc]
+        jge mix_8bit_stereo_at_end
+
+    mix_8bit_stereo_sample:
+        mov al, byte ptr [esi + 1]
+        imul byte ptr [ebx + 0x17]
+        rol eax, 0x10
+        mov al, byte ptr [esi]
+        imul byte ptr [ebx + 0x16]
+
+    mix_8bit_stereo_accumulate:
+        mov edx, dword ptr [edi]
+        add ax, dx
+        jno mix_8bit_stereo_left_done
+        jnc mix_8bit_stereo_left_positive
+        mov ax, 0x8000
+        jmp mix_8bit_stereo_left_done
+
+    mix_8bit_stereo_left_positive:
+        mov ax, 0x7fff
+
+    mix_8bit_stereo_left_done:
+        ror eax, 0x10
+        ror edx, 0x10
+        add ax, dx
+        jno mix_8bit_stereo_right_done
+        jnc mix_8bit_stereo_right_positive
+        mov ax, 0x8000
+        jmp mix_8bit_stereo_right_done
+
+    mix_8bit_stereo_right_positive:
+        mov ax, 0x7fff
+
+    mix_8bit_stereo_right_done:
+        rol eax, 0x10
+        mov dword ptr [edi], eax
+        add edi, 4
+        dec ecx
+        jz voice_done
+        mov edx, 0
+        mov dx, word ptr [ebx + 0x10]
+        add dx, word ptr [ebx + 0x12]
+        mov word ptr [ebx + 0x10], dx
+        and word ptr [ebx + 0x10], 0xff
+        shr dx, 8
+        jz mix_8bit_stereo_accumulate
+        shl dx, 1
+        add esi, edx
+        jmp mix_8bit_stereo
+
+    mix_8bit_stereo_at_end:
+        test dword ptr [ebx], 4
+        jz stop_voice
+        mov esi, dword ptr [ebx + 8]
+        jmp mix_8bit_stereo_sample
+
+    mix_16bit:
+        test eax, 0x10
+        jnz mix_16bit_stereo
+
+    mix_16bit_mono:
+        cmp esi, dword ptr [ebx + 0xc]
+        jge mix_16bit_mono_at_end
+
+    mix_16bit_mono_sample:
+        mov ax, word ptr [esi]
+        push ax
+        imul word ptr [ebx + 0x1a]
+        mov ax, dx
+        rol eax, 0x10
+        pop ax
+        imul word ptr [ebx + 0x18]
+        mov ax, dx
+
+    mix_16bit_mono_accumulate:
+        mov edx, dword ptr [edi]
+        add ax, dx
+        jno mix_16bit_mono_left_done
+        jnc mix_16bit_mono_left_positive
+        mov ax, 0x8000
+        jmp mix_16bit_mono_left_done
+
+    mix_16bit_mono_left_positive:
+        mov ax, 0x7fff
+
+    mix_16bit_mono_left_done:
+        ror eax, 0x10
+        ror edx, 0x10
+        add ax, dx
+        jno mix_16bit_mono_right_done
+        jnc mix_16bit_mono_right_positive
+        mov ax, 0x8000
+        jmp mix_16bit_mono_right_done
+
+    mix_16bit_mono_right_positive:
+        mov ax, 0x7fff
+
+    mix_16bit_mono_right_done:
+        rol eax, 0x10
+        mov dword ptr [edi], eax
+        add edi, 4
+        dec ecx
+        jz voice_done
+        mov edx, 0
+        mov dx, word ptr [ebx + 0x10]
+        add dx, word ptr [ebx + 0x12]
+        mov word ptr [ebx + 0x10], dx
+        and word ptr [ebx + 0x10], 0xff
+        shr dx, 8
+        jz mix_16bit_mono_accumulate
+        shl dx, 1
+        add esi, edx
+        jmp mix_16bit_mono
+
+    mix_16bit_mono_at_end:
+        test dword ptr [ebx], 4
+        jz stop_voice
+        mov esi, dword ptr [ebx + 8]
+        jmp mix_16bit_mono_sample
+
+    mix_16bit_stereo:
+        cmp esi, dword ptr [ebx + 0xc]
+        jge mix_16bit_stereo_at_end
+
+    mix_16bit_stereo_sample:
+        mov ax, word ptr [esi + 2]
+        imul word ptr [ebx + 0x1a]
+        mov ax, dx
+        rol eax, 0x10
+        mov ax, word ptr [esi]
+        imul word ptr [ebx + 0x18]
+        mov ax, dx
+
+    mix_16bit_stereo_accumulate:
+        mov edx, dword ptr [edi]
+        add ax, dx
+        jno mix_16bit_stereo_left_done
+        jnc mix_16bit_stereo_left_positive
+        mov ax, 0x8000
+        jmp mix_16bit_stereo_left_done
+
+    mix_16bit_stereo_left_positive:
+        mov ax, 0x7fff
+
+    mix_16bit_stereo_left_done:
+        ror eax, 0x10
+        ror edx, 0x10
+        add ax, dx
+        jno mix_16bit_stereo_right_done
+        jnc mix_16bit_stereo_right_positive
+        mov ax, 0x8000
+        jmp mix_16bit_stereo_right_done
+
+    mix_16bit_stereo_right_positive:
+        mov ax, 0x7fff
+
+    mix_16bit_stereo_right_done:
+        rol eax, 0x10
+        mov dword ptr [edi], eax
+        add edi, 4
+        dec ecx
+        jz voice_done
+        mov edx, 0
+        mov dx, word ptr [ebx + 0x10]
+        add dx, word ptr [ebx + 0x12]
+        mov word ptr [ebx + 0x10], dx
+        and word ptr [ebx + 0x10], 0xff
+        shr dx, 8
+        jz mix_16bit_stereo_accumulate
+        shl dx, 2
+        add esi, edx
+        jmp mix_16bit_stereo
+
+    mix_16bit_stereo_at_end:
+        test dword ptr [ebx], 4
+        jz stop_voice
+        mov esi, dword ptr [ebx + 8]
+        jmp mix_16bit_stereo_sample
+
+    stop_voice:
+        and dword ptr [ebx], 0xfffffffd
+
+    voice_done:
+        mov dword ptr [ebx + 4], esi
+        pop ecx
+
+    next_voice:
+        dec ecx
+        jz mix_done
+        lea ebx, [ebx + 0x20]
+        jmp voice_loop
+
+    mix_done:
+        pop edi
+        pop esi
+        pop edx
+        pop ecx
+        pop ebx
+        pop eax
+        leave
+        ret
+    }
 }

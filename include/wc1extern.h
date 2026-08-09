@@ -12,12 +12,9 @@
 void DebugOverlayThreadProc(int p);                               /* 0x0041C910 */
 char *DirectDrawResultToText(int hr);                             /* 0x004331F0 */
 void DispatchPendingEvents(int a);                            /* 0x004359C0 */
-void ix_system_shutdown(void);                                   /* 0x004273F3 */
 void EndCommSessionWithWingman(void);                                        /* 0x00431470 */
 void StopAllSounds(void);                                          
 short LoadWingCmdrCfgFile(short argc, char **argv);               /* 0x0042C580 */
-void ix_system_delete_all_samples(void);                                  /* 0x00427548 */
-void ix_system_delete_all_sounds(void);                                   /* 0x00427610 family */
 void PlaySfxWaveFileByNumber(int n, int a, int b);                
 void ShowEnemyTargetSelectMenu(void);                             /* 0x00430E90 */
 void Streamer_stop(void);                                         /* 0x00442460 */
