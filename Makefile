@@ -150,9 +150,41 @@ WINE_RUN_DIR = data/full
 # 0x00442750, so game-core module boundaries have to be recovered incrementally
 # with `make order`.  Add files here as boundaries are established; anything not
 # listed is appended automatically so new work still builds.
+# Game-core order below is by ADDRESS, which is the best available proxy for
+# link order until `make order` proves the real boundaries.  Each file states
+# its range and the evidence for it in its header comment.
 SRCS_ORDERED_CORE = \
+	src/winmain.c \
+	src/sysinput.c \
+	src/cdrom.c \
+	src/mono.c \
+	src/shipai.c \
+	src/nav.c \
+	src/joystick.c \
+	src/hud.c \
+	src/geom.c \
+	src/mathutil.c \
+	src/disk.c \
+	src/damage.c \
+	src/mission.c \
+	src/pilot.c \
+	src/system.c \
 	src/main.c \
-	src/globals.c
+	src/hudmsg.c \
+	src/pload.c \
+	src/sound.c \
+	src/music.c \
+	src/screen.c \
+	src/dib.c \
+	src/text.c \
+	src/mathfp.c \
+	src/strdos.c \
+	src/memstk.c \
+	src/screens.c \
+	src/killbrd.c \
+	src/gr.c \
+	src/globals.c \
+	src/stubs.c
 
 SRCS_ORDERED_IX = \
 	src/ix/ixlog.cpp \

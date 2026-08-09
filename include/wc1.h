@@ -23,7 +23,24 @@
 
 #ifndef WC1_ANALYSIS
 #include <windows.h>
+#include <direct.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <io.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #endif
+
+/* Degrees are the angular unit throughout the game core (the constant lives at
+ * DAT_004631b0 in the original); the trig shims convert on the way in. */
+#define WC1_DEG2RAD 0.017453292519943295
+
+/* The DirectDraw back end releases every interface through this one shape. */
+#define COM_RELEASE(p) \
+    do { if ((p) != 0) { (**(void (**)(void *))(*(int *)(p) + 8))(p); (p) = 0; } } while (0)
 
 /* --------------------------------------------------------------------------
  * Original 16-bit-era type spellings.
@@ -69,14 +86,15 @@ typedef enum {
  * Shared utility layer.  These were recovered by ranking the call graph by
  * fan-in; the addresses are the originals.
  * -------------------------------------------------------------------------- */
-short MinShort(short a, short b);              /* 0x0041D0C0, 39 callers */
-short MaxShort(short a, short b);              /* 0x0041D0E0, 55 callers */
-short RandomBelowOrEqual(short n);             /* 0x00434D50, rand() % (n+1) */
-
-/* __stdcall, not __cdecl: the original ends in `RET 8` (callee cleanup). */
-short __stdcall RandomInRange(short lo, short hi); /* 0x00434D20 */
-
-/* Variadic on-screen message printer used by every status banner. */
+/* Variadic printers cannot be generated mechanically, so they live here. */
 void ShowOnScreenMessage(short flags, short duration, const char *fmt, ...);
+void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
+void SystemDebugPrintf(const char *fmt, ...);  /* 0x00425BB0 */
+
+#ifndef WC1_ANALYSIS
+#include "globals.h"
+#include "wc1funcs.h"
+#include "wc1extern.h"
+#endif
 
 #endif /* WC1_H */

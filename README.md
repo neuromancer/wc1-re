@@ -73,12 +73,13 @@ the sibling project that are absent are the `*-demo` ones -- WC1 shipped no demo
 ## Layout
 
 ```
-src/            game core (C).  src/map is the address-sorted function inventory
+src/            game core (C), one file per address range -- see docs/ORDER.md
 src/ix/         ix audio library (C++), one file per original module
-include/        shared headers (wc1.h)
+include/        wc1.h plus the generated globals.h / wc1funcs.h / wc1extern.h
 config/         binary-comp configuration
 docs/           COMPILER.md, PATTERNS.md, EXPORT.md, ORDER.md, LABELS.md
-bin/            showProgress.py, sortByAddress.py, sweepFlags.py
+bin/            showProgress.py, sortByAddress.py, sweepFlags.py,
+                auditAddresses.py, nameOracle.py
 tools/          analyze_clang.sh, analyze_static.sh (analysis-only Clang passes)
 code-full/      Ghidra export (not vendored)
 data/full/      original executable and game data (not vendored)
@@ -111,10 +112,15 @@ from 16-bit DOS C.
 
 ## Status
 
-`make report`: **9 of 10 functions at 100.00%** (the tenth is the deliberate `WinMain`
-stub). Implemented so far: `MinShort`, `MaxShort`, `GetShiftKeyState`, `GetControlKeyState`,
-`GetGameClockTicks`, `WriteDebugString`, `SetMousePosition`, `RandomInRange`,
-`RandomBelowOrEqual`. `src/ix/*.cpp` carry the full per-module function lists (in original source
-order, with recovered assert line numbers) as stubs; `src/main.c` documents `main()` at
-`0x004274E0` but is deliberately not implemented, because writing it before its init callees
-are recovered would mean inventing the call order that the comparison exists to verify.
+**347 of 1,450 developer functions reimplemented (23.9%)** — 325 game core, 22 `ix`.
+Of the 348 written so far, **234 match the original exactly** and 259 are at 90% or better.
+
+Every implemented function carries a real name: the developer's own where the binary states
+one, otherwise a description of what it does. `bin/nameOracle.py` recovers the former from the
+debug build's own diagnostic strings — that is how `FadeMusic`, `SetMusicOn`, `SetMusBreakpt`,
+`FlushSoundEffects` and the `DIB*` family got their names back.
+
+`src/ix/*.cpp` carry the full per-module function lists (in original source order, with
+recovered assert line numbers) as stubs. `src/main.c` documents `main()` at `0x004274E0` but
+deliberately does not implement it: its body *is* the init call order, and writing it before
+the callees are recovered would assert the very thing the comparison exists to check.

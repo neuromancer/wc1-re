@@ -45,6 +45,9 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
 - DO NOT show the final code once you finish.
 - If you are out of ideas, stop. Do not break any rules.
 - In C++ (`src/ix`), do not use `this->`; use the class field name directly.
+- When a funciton is implemented, it should have a good name. No completely generic names are acceptable, so you must investigate globals and such to understand how to name them.
+- When a new .c file is added, it should have a good name. No leafsX.c are accepted.
+- Do NOT put a function in only one line `unsigned short f(void) { return 0; }` 
 
 ### WC1-specific rules that differ from sibling projects
 
@@ -63,6 +66,20 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
   wrong — use `short`, not `int`.
 - Global variables may be renamed from `DAT_x` to `g_<hungarian><Name>_<address>`; the
   address MUST be preserved in the name. Functions must NOT carry the address in their name.
+- **Name every function you implement.** An operational label (`DoLocalFn5450`,
+  `HelperOf430FC0C`, `ReturnConst0v5`) is acceptable only while a function is an unwritten
+  stub. Once written it takes the developer's own name if the binary states one
+  (`bin/nameOracle.py`), otherwise a `<Verb><Object>` description of what it does; empty
+  originals get a `…Hook` suffix. Full policy in docs/LABELS.md.
+- **Files are named for their subsystem, never for a tranche.** Game-core files are short DOS
+  8.3-style names matching the original tree (`Library\Source\Pload.c` is the one leaked
+  path), each covering one address range recorded in docs/ORDER.md. Put a new function in the
+  file whose range contains its address; if none does, extend the nearest range rather than
+  starting a `misc.c`.
+- Declarations are centralised: globals in `include/globals.h` (defined in `src/globals.c`),
+  prototypes for implemented functions in `include/wc1funcs.h`, and prototypes for
+  not-yet-written callees in `include/wc1extern.h`. All three are reached through `wc1.h`, so
+  a `.c` file should contain functions and nothing else.
 
 ### Other important rules
 

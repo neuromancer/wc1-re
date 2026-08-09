@@ -1,63 +1,55 @@
 /*
- *  ============================================================================
- *  |                            WINGLEADER                                    |
- *  |                  The 3D space combat simulator                           |
- *  |                                                                          |
- *  |          A game of interstellar fighter conflict.                        |
- *  |                                                                          |
- *  |          (c)1989,1990 Chris Roberts.  All rights reserved.               |
- *  ============================================================================
+ *  WINGLEADER main module.
  *
- *          **  MAIN GAME C SOURCE MODULE (Main loop etc.)  **
- *
- *  Header reproduced from the leaked DOS-era source of this module.  The DOS
- *  build declared:
- *
- *      char *version = "F3.2";
- *      #include <game.h>
- *      #include <dos.h>
- *      extern unsigned _ovrbuffer = 0x1370;   // was 1020, 1150 worked -KLD
- *      extern void auto_pilot_sequence();
- *
- *  In this Win32 port `_ovrbuffer` is gone (it configured Borland's VROOMM
- *  overlay manager, which has no counterpart here) and the "F3.2" literal is
- *  not present in WC1.EXE -- the port was re-versioned.
- *
- *  Recovered layout of this compilation unit: code roughly 0x00427000-0x0042A800,
- *  statics banded around 0x00469E00-0x0046A400.  See docs/ORDER.md.
+ *  Address range 0x4274e0-0x427fff (provisional -- see docs/ORDER.md).
+ *  Boundary evidence: main() at 0x004274E0, confirmed against the leaked DOS source screenshot.
  */
 #include "wc1.h"
-#include "globals.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <direct.h>
+/*
+ *  main() opens this module.  It is deliberately not written yet: its body is
+ *  the init call order, and inventing that order would assert the very thing
+ *  the comparison exists to check.  Its address annotation is omitted on
+ *  purpose -- binary-comp binds an annotation to the next function definition,
+ *  so an annotation with no function under it silently scores the following
+ *  function against main().  See code-full/FUN_004274E0.disassembled.txt.
+ */
 
-/* ---------------------------------------------------------------------------
- * Not yet implemented -- declared extern so this module links while the rest of
- * the reconstruction catches up.  Do not guess bodies for these (AGENTS.md).
- * --------------------------------------------------------------------------- */
-extern short LoadWingCmdrCfgFile(short argc, char **argv);   /* 0x0042C580 */
-extern void  LoadInstallDat(void);                           /* 0x0042C660 */
-extern void  auto_pilot_sequence(void);                      /* named by the leaked header */
+/* Function start: 0x4279D0 */
+unsigned int GetScreenUpdateFlag(void)
+{
+    if (IsAutopilotEngaged())
+        EndCommMenu();
+    if (DAT_005a7510 != 0)
+        ReleaseTbl005a7f10FnF940(&DAT_005a7510);
+    return 0;
+}
 
-/* ---------------------------------------------------------------------------
- * main()   original address 0x004274E0
- *
- * Confirmed structure from the decompilation:
- *   - runs a short fixed sequence of subsystem init calls
- *   - LoadWingCmdrCfgFile(argc, argv)
- *   - chdir("gamedat"); LoadInstallDat(); chdir("..")
- *   - walks argv, string-comparing each element against "Origin" (7 bytes); a
- *     match sets g_nOriginDevUnlock_00469ff4, which gates the -b/-f/-k/-q
- *     developer switches
- *   - switch on argv[i][0] handling '?', '-', 'A'/'a', 'E'/'e', 'P'/'p', 'R'/'r'
- *   - prints "Bye!" on the way out
- *
- * Left unimplemented on purpose: writing the body before the init callees are
- * recovered would mean inventing call order, and call order is exactly what the
- * comparison is meant to verify.  Implement top-down as those functions land.
- * --------------------------------------------------------------------------- */
+/* Function start: 0x427B00 */
+unsigned int DrawStatusBarBackdrop(void) { BlitUiFn1AE0(&DAT_005a7510, DAT_004699d8); return 0; }
 
-/* Function start: 0x4274E0 */
-/* TODO: implement main(). See code-full/FUN_004274E0.disassembled.txt */
+/* Function start: 0x427BA0 */
+unsigned int ResetScreenClipToFullHeight(void)
+{
+    ReleaseTbl005a7f10FnF940(&DAT_005a76b0);
+    DAT_005a6baa = 0;
+    DAT_005a6bae = 199;
+    return 0;
+}
+
+/* Function start: 0x427C30 */
+unsigned int RefreshMemoryStatusOverlay(void)
+{
+    ReleaseDirectDrawPalette();
+    DoLocalFn1A90(&DAT_005a76b0, &DAT_005a6ba0);
+    ShowMemoryStatusDebug();
+    return 0;
+}
+
+/* Function start: 0x427C80 */
+unsigned int SetDefaultCommDelay(void)
+{
+    if (DAT_0046c03c < 4)
+        DAT_005a7780 = 0x30;
+    return 0;
+}

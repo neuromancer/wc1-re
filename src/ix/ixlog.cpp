@@ -19,7 +19,7 @@
 char g_szLogBuf_005977d0[1024];
 
 /* Mono-monitor debug printer in the game core (C linkage). */
-extern "C" void GetG005a8760Fn3DB0(const char *fmt, ...);   /* 0x00403DB0 */
+extern "C" void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
 
 /* Function start: 0x4426A0 */
 void ix_log_printf(const char *fmt, ...)
@@ -30,7 +30,7 @@ void ix_log_printf(const char *fmt, ...)
         strcpy(g_szLogBuf_005977d0, "(null)");
 
     if (strncmp(g_szLogBuf_005977d0, "sleep_for", 9) != 0) {
-        GetG005a8760Fn3DB0("%s", g_szLogBuf_005977d0);
+        SoundDebugPrintf("%s", g_szLogBuf_005977d0);
         if (_CrtDbgReport(0, 0, 0, 0, "%s", g_szLogBuf_005977d0) == 1)
             _CrtDbgBreak();
     }

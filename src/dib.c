@@ -1,36 +1,32 @@
 /*
- *  DirectDraw video layer -- the DIB* family.
+ *  DirectDraw back end.
  *
- *  LIKELY A REAL COMPILATION UNIT: 0x00432140 - 0x0043324F, 15 contiguous
- *  functions, and most carry their ORIGINAL names (recovered from their own
- *  diagnostic strings, e.g. "DIBcascade   CreatePalette").  This is the first
- *  file here that is probably a genuine module rather than a scratch grouping.
- *
- *  Interfaces are used through raw vtable slots exactly as the original does:
- *  IUnknown::Release is +0x08, IDirectDraw2::RestoreDisplayMode +0x4C,
- *  SetCooperativeLevel +0x50, SetDisplayMode +0x54, WaitForVerticalBlank +0x58.
+ *  Address range 0x432000-0x4333ff (provisional -- see docs/ORDER.md).
+ *  Boundary evidence: PROVEN: every routine prints its own name, "DIBinstall", "DIBslamReal", ....
  */
 #include "wc1.h"
 
-/* COM interface pointers (raw, so the vtable offsets stay visible). */
-int  *DAT_0046b1a4;      /* IDirectDraw2   */
-int  *DAT_0046b1a8;      /* primary surface */
-int  *DAT_0046b1ac;      /* secondary surface */
-int   DAT_0046b1b4;      /* cascade depth */
-char  DAT_00486078[256]; /* error text scratch */
-extern unsigned int DAT_00486074;   /* HWND passed to DIBinstall */
-extern unsigned char DAT_00465074;
+/* Function start: 0x4320E0 */
+void SetFpsCapEnabled(void)
+{
+    long v;
 
-extern char *DirectDrawResultToText(int hr);   /* 0x004331F0 */
-extern void  DoVideoFn2960(void);
-extern void  DIBslamReal(void);                /* 0x00432970 */
-extern int   DIBcascade(int mode, int *err);   /* 0x00432410 */
-extern void  DIBdestroyDIB(void);              /* 0x004328A0 */
+    DAT_0046b1c8 = 1;
+    v = _ftol();
+    DAT_0046b1bc = 0;
+    DAT_0046b1b8 = (int)v;
+}
 
-/* Release through IUnknown vtable slot +0x08, then clear -- the original
- * repeats this inline at every site rather than calling a helper. */
-#define COM_RELEASE(p) \
-    do { if ((p) != 0) { (**(void (**)(void *))(*(int *)(p) + 8))(p); (p) = 0; } } while (0)
+/* Function start: 0x432110 */
+void SetFpsCapDisabled(void)
+{
+    long v;
+
+    DAT_0046b1c8 = 0;
+    v = _ftol();
+    DAT_0046b1bc = 0;
+    DAT_0046b1b8 = (int)v;
+}
 
 /* Function start: 0x432140 */
 void DIBerror(const char *tag, int hr)
@@ -64,12 +60,15 @@ void DIBreInstall(void)
         if (DIBcascade(-2, &err) == 0)
             DIBerror("DIBreInstall   DIBcascade Failure", err);
     }
-    DoVideoFn2960();
+    DIBslam();
     DIBslamReal();
 }
 
 /* Function start: 0x432680 */
-void GetVideoFn2680(void)
+/* Full teardown: destroy the DIB, drop the clipper and palette, restore the
+ * display mode (vtable +0x4c) and release DirectDraw itself (+0x08).
+ * DIBmakeDIB proper is at 0x004326E0 and is not yet reimplemented. */
+void DIBunInstall(void)
 {
     DIBdestroyDIB();
     COM_RELEASE(DAT_0046b1ac);
@@ -78,5 +77,28 @@ void GetVideoFn2680(void)
     (**(void (**)(void *))(*DAT_0046b1a4 + 8))(DAT_0046b1a4);
 }
 
-/* Palette shadow written by the DIBset*Palette family (R at +2, G at +1, B at +0). */
-unsigned char DAT_00486110[1024];
+/* Function start: 0x432960 */
+void DIBslam(void) { DAT_00486518 = 1; }
+
+/* Function start: 0x432DE0 */
+unsigned int GetDIBSurfacePitch(void) { return DAT_00476648; }
+
+/* Function start: 0x432E00 */
+unsigned int GetDIBSurfaceBase(void) { return DAT_00486074; }
+
+/* Function start: 0x433020 */
+void SetPaletteEntryFromWords(short i, unsigned short *rgb)
+{
+    extern unsigned char DAT_00486110[];
+    int k = i * 4;
+
+    rgb[0] = DAT_00486110[k + 2];
+    rgb[1] = DAT_00486110[k + 1];
+    rgb[2] = DAT_00486110[k];
+}
+
+/* Function start: 0x4331E0 */
+void ReleaseDirectDrawPaletteAgain(void)
+{
+    (**(void (**)(void *, int, int))(*DAT_0046b1a4 + 0x58))(DAT_0046b1a4, 1, 0);
+}

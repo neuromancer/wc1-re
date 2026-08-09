@@ -6,6 +6,57 @@ down the wrong path.
 
 The `label_kind` column in `../wc1_function_evidence.csv` separates them.
 
+## 0. Naming policy for this reconstruction
+
+**No reimplemented function keeps an operational label.** Once a function is written, it gets
+a name that says what it does, chosen in this order of preference:
+
+1. **The developer's own name**, when the binary states it. Preserve their spelling and case
+   exactly, including the inconsistent ones: `DIBslamReal`, `playWAVE`, `shadow_draw`,
+   `snow_viewport`, `exit_squadron`, `PacketLoad`, `Streamer_open`, `SetMusBreakpt`.
+   `bin/nameOracle.py` finds these (see below).
+2. **A `<Verb><Object>` description of the observable behaviour**, when 1 is unavailable:
+   `SetTextCursor`, `FreeAllTrackedAllocations`, `DosStrchr`, `ClearWingmanSlots`.
+3. **A `…Hook` name** for functions that are genuinely empty in the original. These are
+   compiled-out DOS-era operations, not stubs on our side; the suffix marks that fact so a
+   future reader does not go looking for a body: `SceneEnterHook`, `TimerResetHook`.
+
+Never allowed in a function name:
+
+- the address (`DoLocalFn5450`) — `bin/auditAddresses.py` enforces the annotation instead;
+- Ghidra's relationship labels (`HelperOf430FC0C`, `CallThrough433060`);
+- a bare `vN` counter (`ReturnConst0v5`) where any distinguishing fact exists.
+
+Globals are the exception: they **must** keep the address, as `g_<hungarian><Name>_<address>`
+or, until identified, `DAT_<address>` (AGENTS.md).
+
+## 0.1 The name oracle
+
+WC1 shipped as a debug build, so its diagnostic printers still carry their format strings, and
+many of those formats are the developer's own name for the routine doing the printing.
+
+    bin/nameOracle.py --top      # rank printers by string-argument call sites
+    bin/nameOracle.py            # dump the six developer-facing ones
+
+It scans `.text` for CALL sites and takes the last string literal pushed before each call,
+never looking back past the start of the enclosing function. Two independent controls confirm
+the method: it re-derives `StopMusic` (`0x0042E350`) and the whole `DIB*` family, both of which
+were already evidence-named by other means.
+
+What it produced, with the label it replaced:
+
+| Address | Was | Is | Printed string |
+|---|---|---|---|
+| `0x0042E320` | `DoUiFnE320` | `FadeMusic` | `"FadeMusic\n"` |
+| `0x0042E330` | `DoLocalFnE330` | `SetMusicOn` | `"SetMusicOn %d\n"` |
+| `0x0042E380` | `DoMusicFnE380` | `SetMusBreakpt` | `"SetMusBreakpt\n"` |
+| `0x0042E3A0` | `DoLocalFnE3A0` | `FlushSoundEffect` | `"FlushSoundEffect\n"` |
+| `0x0042E3C0` | `DoLocalFnE3C0` | `FlushSoundEffects` | `"FlushSoundEffects\n"` |
+| `0x0042EF00` | `DoLocalFnEF00` | `SoundFxTick` | `"soundFX"` |
+
+**Its one failure mode**: a wrapper that logs on behalf of its callee is misattributed. Always
+read the disassembly before adopting a result.
+
 ## 1. Evidence-named — 437 functions — trust these
 
 Derived from something the binary actually states:

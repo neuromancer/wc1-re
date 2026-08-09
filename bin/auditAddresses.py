@@ -42,8 +42,16 @@ def main():
                 if not m:
                     continue
                 addr = int(m.group(1), 16)
-                for j in range(i, min(i + 4, len(lines))):
+                for j in range(i, min(i + 6, len(lines))):
                     seg = lines[j][m.end():] if j == i else lines[j]
+                    # Comments between the marker and the signature routinely
+                    # mention other functions by name -- never read one as the
+                    # annotated function.  Inline /* TODO */ markers sit on the
+                    # same line as the signature, so strip rather than skip.
+                    seg = re.sub(r'^[^\S\n]*\*/', ' ', seg)   # tail of the marker itself
+                    seg = re.sub(r'/\*.*?\*/', ' ', seg)
+                    if not seg.strip() or seg.lstrip().startswith(('/*', '*', '//')):
+                        continue
                     n = re.search(r'\b([A-Za-z_]\w*)\s*\(', seg)
                     if not n or n.group(1) in SKIP:
                         continue
@@ -61,6 +69,19 @@ def main():
                     break
             if changed:
                 open(path, 'w').write('\n'.join(lines))
+
+    # A name may only be used once: two annotations sharing a name means one of
+    # them is describing a function it is not.
+    seen = {}
+    for root, _dirs, files in os.walk(SRC):
+        for fn in sorted(files):
+            if not fn.endswith(('.c', '.cpp')):
+                continue
+            path = os.path.join(root, fn)
+            for i, line in enumerate(open(path).read().split('\n')):
+                m = re.match(r'\s*(?:[\w\*]+\s+)*?(\w+)\s*\(', line)
+                if m and 'Function start' not in line and m.group(1) in byname:
+                    prev = seen.setdefault(m.group(1), (path, i + 1))
 
     if bad == 0:
         print('all Function start annotations match the inventory')

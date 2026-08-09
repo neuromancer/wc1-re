@@ -1,19 +1,183 @@
 /*
- *  Recovered global state definitions.
+ *  Definitions for the globals declared in include/globals.h.
  *
- *  Declaration order fixes the data layout, which binary-comp compares against
- *  the original.  Do not reorder without checking `make globals-data`.
- *
- *  This file is deliberately near-empty: nothing should be added here that has
- *  not been located in the binary.  Use `make missing-data` to list nonzero
- *  data slots in the game's own static range (0x00465000-0x004751ff) that are
- *  still unaccounted for.
+ *  Provisional: the original scatters these across the modules that own them,
+ *  so this file has no counterpart in the shipped image and contributes no
+ *  code.  It exists so that regrouping functions cannot break the link.
  */
-#include "globals.h"
+#include "wc1.h"
 
-short g_nFrameSkip_00469fb8 = 1;              /* int _FrameSkip = 1; */
+unsigned int DAT_00465040;
+unsigned char DAT_00465058;
+unsigned int DAT_0046505c;
+unsigned char DAT_00465074;
+unsigned int DAT_004650ac;
+short DAT_00465460;
+unsigned short DAT_00468660;
+unsigned int DAT_00468664;
+unsigned char DAT_0046870c;
+unsigned char DAT_00468710;
+char *DAT_00469004;
+char *DAT_00469008;
+unsigned char DAT_0046900c;
+unsigned char DAT_00469060;
+unsigned char DAT_00469068;
+unsigned short DAT_00469090;
+short DAT_00469208;
+unsigned char DAT_00469648;
+unsigned char DAT_0046964c;
+unsigned char DAT_0046999c;
+unsigned short DAT_004699a8;
+unsigned short DAT_004699b0;
+unsigned int DAT_004699d8;
+unsigned char DAT_00469d5c;
+unsigned char *DAT_00469dbc[64];
+unsigned int DAT_00469e34;
+unsigned char DAT_00469fb4;
+unsigned char DAT_0046a004;
+int *DAT_0046a438;
+unsigned char DAT_0046a440;
+unsigned char DAT_0046a9f8;
+unsigned char DAT_0046aa04;
+unsigned int DAT_0046aa14;
+unsigned char DAT_0046aa30;
+unsigned char DAT_0046aa34;
+unsigned char DAT_0046aa38;
+unsigned char DAT_0046aa3c;
+unsigned char DAT_0046aa40;
+unsigned char DAT_0046af60;
+unsigned char DAT_0046af6c;
+unsigned char DAT_0046afc4;
+unsigned short DAT_0046b168;
+short DAT_0046c010;
+unsigned char DAT_0046c03c;
+short DAT_0046c04c;
+unsigned char DAT_0046c060;
+short DAT_0046c064;
+short DAT_0046c068;
+unsigned char DAT_0046c080;
+unsigned short DAT_0046c084;
+int DAT_0046da90;
+int DAT_0046da94;
+short DAT_0046daa0;
+unsigned short DAT_00475e78;
+unsigned int DAT_004763f0;
+unsigned int DAT_00476648;
+unsigned int DAT_00486074;
+unsigned char DAT_00486110[1024];
+unsigned char DAT_00486518;
+unsigned char DAT_004875a8;
+unsigned int DAT_00496fc0;
+unsigned char DAT_005988de[8192];
+int DAT_00598a30[512];
+unsigned char DAT_00598ab0;
+unsigned int DAT_00598ab6;
+unsigned char DAT_00598aba;
+unsigned int DAT_00598af4;
+unsigned int DAT_00598c18;
+unsigned char DAT_0059a850;
+unsigned char DAT_0059ab19;
+unsigned int DAT_0059ab2c;
+unsigned char DAT_0059ab3c;
+unsigned int DAT_0059af8c;
+int DAT_0059b320[512];
+unsigned int DAT_0059b430[512];
+int DAT_0059b470[512];
+unsigned char DAT_0059b560[512];
+unsigned char DAT_0059c310[512];
+short DAT_0059c330[512];
+unsigned char DAT_0059c3f0[512];
+unsigned short DAT_0059c420[512];
+short DAT_0059c440[512];
+unsigned char DAT_0059c490[8192];
+unsigned char DAT_0059c810[512];
+unsigned char DAT_0059ca94[256];
+short DAT_0059ce10;
+unsigned int DAT_0059ce18[256];
+unsigned char DAT_0059ce60[512];
+unsigned char DAT_0059ce80[512];
+unsigned char DAT_0059cf20[512];
+unsigned char DAT_0059d100[512];
+unsigned short DAT_0059d2d0[512];
+unsigned char DAT_0059d400[512];
+unsigned short DAT_0059d500[2048];
+char DAT_0059d520[512];
+short DAT_0059d52a;
+unsigned int DAT_0059d5e0[512];
+unsigned char DAT_0059d620[512];
+unsigned char DAT_0059d630[512];
+unsigned char DAT_0059d650[512];
+short DAT_0059d710[512];
+unsigned char DAT_0059d7a0[512];
+unsigned short DAT_0059d9b0[512];
+unsigned char DAT_0059daca[8192];
+unsigned char DAT_0059dacf[8192];
+unsigned char DAT_0059dcb0[512];
+unsigned char DAT_0059dd10[8192];
+char DAT_0059dec0[256];
+short DAT_0059df60;
+unsigned char DAT_0059e1c0[512];
+unsigned int DAT_0059e490;
+int *DAT_005a6538;
+unsigned short DAT_005a6900[256];
+unsigned char DAT_005a6b60;
+unsigned char DAT_005a6ba0;
+unsigned short DAT_005a6baa;
+unsigned short DAT_005a6bae;
+unsigned char DAT_005a7510;
+unsigned char DAT_005a7550;
+unsigned char DAT_005a7684;
+unsigned char DAT_005a76b0;
+unsigned short DAT_005a7780;
+unsigned int DAT_005a7c2c;
+unsigned char DAT_005a7c30[2048];
+unsigned char DAT_005a7c31[2048];
+unsigned short DAT_005a7cc0[16];
+unsigned char DAT_005a7cec;
+unsigned char DAT_005a7dc8;
+unsigned char DAT_005a7dca;
+unsigned char DAT_005a7dd0[8192];
+int DAT_005a7de1;
+unsigned char DAT_005a7e30[2048];
+unsigned short DAT_005a7ea0[64];
+unsigned char DAT_005a7ec0;
+unsigned char DAT_005a86b0;
+char DAT_005a8760[512];
+unsigned int DAT_005a8964;
+unsigned short DAT_005a897c;
+unsigned int DAT_005a898c;
+unsigned int DAT_005a8a40;
+short DAT_0059ab10;
+unsigned char DAT_005a7ddc;
+unsigned char DAT_005a7ddd;
+unsigned char DAT_005a7ded;
+unsigned char DAT_005a7dee;
+unsigned short DAT_005a7e70;
+unsigned short DAT_005a7eb8;
+unsigned short DAT_005a7ebc;
+unsigned short DAT_005a7ebe;
+unsigned int DAT_005a7ef0;
+unsigned int DAT_005a7efc;
+short DAT_0059af70;
+int DAT_0046b1b8;
+int DAT_0046b1bc;
+int DAT_0046b1c8;
+short DAT_0059ab12;
+short DAT_0059af72;
+unsigned short DAT_005a7e74;
+unsigned short DAT_005a7e76;
+unsigned int DAT_005a7ef4;
+unsigned int DAT_005a7ef8;
+unsigned char DAT_00466472[65536];
+int  *DAT_0046b1a8;
+int  *DAT_0046b1ac;
+int   DAT_0046b1b4;
+unsigned char DAT_0046c97a[16384];
+char  DAT_00486078[256];
+unsigned char g_bMessageSpeed_0046af68;
 
-unsigned char g_bCurrentKey_0046c014 = 0;
-unsigned char g_bMessageSpeed_0046af68 = 0;
-short g_nOriginDevUnlock_00469ff4 = 0;
-unsigned long g_dwGameClockBase_005a89a8 = 0;
+/* Defined here because the pre-refactor tranche that owned them is gone. */
+int *DAT_0046b1a4;
+char *PTR_s_MISSILE_LOCKED_004691d4[8];
+char *PTR_s_Never_mind____0046af90[32];
+unsigned long g_dwGameClockBase_005a89a8;

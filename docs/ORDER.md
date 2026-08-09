@@ -41,7 +41,73 @@ line 26 `ix_dsps_alloc`, 62 `ix_dsps_free`, 77 `ix_dsps_prepare`, 87 `ix_dsps_pl
 99 `ix_dsps_stop`, 109 `set_volume`, 122 `get_flags`, 128 `get_buffer_free`, 169 `lock`,
 188 `unlock`.
 
-## Game core — mostly unknown
+## Game core — provisional file split
+
+The game core is now split into subsystem-named files by **address range**, which is the best
+available proxy for link order: address order *is* link order, so a file holding one
+contiguous range is at least shaped like a compilation unit, and every function inside it is
+address-sorted (`make sort`). This replaces the earlier `leafsN_scattered.c` grouping, which
+was by the order things happened to get written and therefore carried no information at all.
+
+**These boundaries are provisional except where the table says PROVEN.** A wrong boundary
+costs a file split or merge later; it does not invalidate the per-function comparison, because
+that is anchored by the `/* Function start: */` annotation, not by the file.
+
+| File | Range | Fns | Contents | Boundary evidence |
+|---|---|---|---|---|
+| `src/winmain.c` | `0x401000`–`0x402dff` | 13 | Win32 shell: window creation, message loop, exit paths | CreateMainWindow/MainWindowProc/AbortToDesktop cluster; string band 0x465048-0x465354 |
+| `src/sysinput.c` | `0x402e00`–`0x4030ff` | 8 | Mouse, keyboard and clock services over the Win32 API | contiguous run of Win32 input/timing wrappers with no string references |
+| `src/cdrom.c` | `0x403100`–`0x4034ff` | 1 | CD-ROM location and disc-swap prompting | LocateStreamsDirOnDisc..PromptInsertCorrectCd; string band 0x46535C-0x4653FC |
+| `src/mono.c` | `0x403500`–`0x403fff` | 6 | MONODEBG.VXD developer console and its printf channels | MonoDebug_install/MonoDebug_print anchor the module; SoundDebugPrintf feeds it |
+| `src/shipai.c` | `0x404000`–`0x40cfff` | 24 | Ship AI: dispatch-table states and the behaviour routines | the 47-slot dispatch table at 0x004656a8 targets this range almost exclusively |
+| `src/nav.c` | `0x40d000`–`0x40ffff` | 7 | Nav map, location readouts and the virtual screen | DrawNav* family; string band 0x4687AC-0x4688F4 |
+| `src/joystick.c` | `0x410000`–`0x412fff` | 3 | Joystick calibration and input dispatch | CalibrateJoystickInteractive; string band 0x468F04-0x468FEC |
+| `src/hud.c` | `0x413000`–`0x417fff` | 37 | Cockpit HUD: weapon, damage, target and message displays | Draw*Panel/Report* family; string band 0x4692B8-0x4693A4 |
+| `src/geom.c` | `0x418000`–`0x41a9ff` | 21 | Vector, angle and fixed-point geometry helpers | 16-bit clamp/sign/wrap leaves with no string or global references |
+| `src/mathutil.c` | `0x41d000`–`0x41d24f` | 3 | Integer min/max used across the game core | MinShort/MaxShort pair, 94 call sites, no other content in the gap |
+| `src/disk.c` | `0x41d250`–`0x41efff` | 5 | Disk data files and packet fetching with retry | OpenDiskDataFile/FetchDiskPacketRetrying/PromptInsertNumberedDisk |
+| `src/damage.c` | `0x41f000`–`0x420fff` | 2 | Ship damage and component repair reporting | ReportShipSystemDamage/ReportComponentRepaired; string band 0x469960-0x469984 |
+| `src/mission.c` | `0x421000`–`0x424fff` | 33 | Mission setup: FX drivers, palette load, ship state bits | LoadOriginFxDrivers/StartExtendedMemoryManager; string band 0x469A28-0x469B9C |
+| `src/pilot.c` | `0x425000`–`0x426fff` | 15 | Pilot name entry, high scores and inter-scene transitions | EnterPilotNameAndCallsign/ShowTrainSimHighScores; string band 0x469D74-0x469F98 |
+| `src/system.c` | `0x427000`–`0x4274df` | 2 | Process-level services: memory reporting and exit | exit_squadron/ShowMemoryStatusDebug; string band 0x46A064-0x46A10C |
+| `src/main.c` | `0x4274e0`–`0x427fff` | 5 | WINGLEADER main module | main() at 0x004274E0, confirmed against the leaked DOS source screenshot |
+| `src/hudmsg.c` | `0x428000`–`0x42afff` | 8 | On-screen message banners and the debug cheat keys | ShowOnScreenMessage and its six callers; string band 0x46A24C-0x46A378 |
+| `src/pload.c` | `0x42b000`–`0x42b3ff` | 2 | Packet loader | PROVEN: PacketLoad prints "Library\\Source\\Pload.c PacketLoad" |
+| `src/sound.c` | `0x42b400`–`0x42cfff` | 2 | Wave playback, volume settings and INSTALL.DAT | playWAVE/PlaySfxWaveByIndex/LoadInstallDat; string band 0x46A46C-0x46A710 |
+| `src/music.c` | `0x42d000`–`0x42efff` | 21 | Music state machine and the streaming music script | PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ... |
+| `src/screen.c` | `0x42f000`–`0x431fff` | 23 | Screen scopes, prompts and the comm menu | PushMemoryStackFrame/ShowChoosePrompt/ShowEnemyTargetSelectMenu |
+| `src/dib.c` | `0x432000`–`0x4333ff` | 11 | DirectDraw back end | PROVEN: every routine prints its own name, "DIBinstall", "DIBslamReal", ... |
+| `src/text.c` | `0x433400`–`0x4348ff` | 1 | Text formatting and the DirectDraw error-string table | DirectDrawResultToText holds 122 string references, the largest single block |
+| `src/mathfp.c` | `0x434900`–`0x4353ff` | 18 | Floating-point helpers and the random-number generator | _ftol wrappers and rand()/srand() shims, contiguous and free of globals |
+| `src/strdos.c` | `0x435400`–`0x4355ff` | 12 | 16-bit DOS C string and memory shims | all __stdcall with short-width arguments, each forwarding to one CRT routine |
+| `src/memstk.c` | `0x435600`–`0x436fff` | 30 | Tracked-allocation scopes and the frame timer | the DAT_0046da90 node list with its DAT_0046daa0 depth counter |
+| `src/screens.c` | `0x437000`–`0x43bfff` | 2 | Full-screen presentation screens | unbroken run of Blit* screens plus ShowGetReady/Victory/GameOver |
+| `src/killbrd.c` | `0x43c000`–`0x440bff` | 7 | Kill board, conversation scenes and save-slot flags | ShowTigersClawKillBoard/RunConversationScene; string band 0x4705DC-0x470668 |
+| `src/gr.c` | `0x440c00`–`0x44274f` | 3 | Rasteriser primitives and screen-space effects | PROVEN by name: shadow_draw, fizzle_fade, snow_viewport |
+
+Three are proven rather than guessed:
+
+- **`dib.c`** — every routine prints its own name through `DIBerror`.
+- **`pload.c`** — `PacketLoad` prints `"Library\Source\Pload.c PacketLoad …"`, the only
+  game-core source path anywhere in the image. It also fixes the original directory layout:
+  the game core lived in `Library\Source\` and used short DOS 8.3 filenames, which is why the
+  files above are named the way they are.
+- **`music.c`** — the routines name themselves (`StopMusic`, `FadeMusic`, `SetMusicOn`, …).
+
+### String-literal locality: a boundary tool that is not yet conclusive
+
+MSVC emits each object file's string literals as one contiguous block and the linker
+concatenates those blocks in link order, so with `/Gf` **off** — which it is here — a
+function's string references must lie inside its own object's block. That makes
+(code address, string address) pairs a boundary detector: the string band should advance
+monotonically with code address, and a band that jumps backwards means the two functions share
+an object.
+
+196 game-core functions reference strings, enough to anchor the clusters used in the table
+above but not enough to fix every boundary. Reproduce with `bin/nameOracle.py --top` for the
+call-site side; the band extraction is the same PE walk.
+
+## Game core — what remains unknown
 
 **No source-file anchors exist below `0x00442750`**, so the module map that worked for `ix`
 cannot be reproduced here. Boundaries must be recovered incrementally with `make order`.

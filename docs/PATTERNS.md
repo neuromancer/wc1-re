@@ -185,6 +185,40 @@ the number looks fine and means nothing.
 
 Run it before trusting a report.
 
+## Prose in a comment can re-create an annotation
+
+binary-comp parses a whole block comment as one node: if the text contains `Function start:`
+*and* a `0x…` literal anywhere in the block, it binds that address to the **next function
+definition** in the file. Writing
+
+```c
+/*
+ *  main() lives at 0x004274E0 ... no `Function start:` marker here, because
+ *  a marker with no function under it scores the following function against main().
+ */
+```
+
+did exactly what it was warning about: `GetScreenUpdateFlag` (`0x004279D0`) was silently
+scored against `main` and dropped to 3.65%. Never put both the phrase and a hex address in
+one comment block. The same rule makes a *dangling* annotation dangerous — an annotation with
+a TODO and no function under it always steals the next function.
+
+## Two names must never share an address, and one name must never span two
+
+`bin/auditAddresses.py` originally only checked that the annotated address existed. That let
+two real bugs through:
+
+- `ForwardSetCursorPos` was annotated `0x00402E80`, which is `SetMousePosition`; the real
+  address is `0x004030E0`. Both are byte-identical `SetCursorPos` wrappers (VC++ 4.2 does no
+  COMDAT folding), so the wrong one still "compared" at 100% and meant nothing.
+- `0x00432680` was named `DIBmakeDIB`, but `DIBmakeDIB` is at `0x004326E0`; `0x00432680` is the
+  teardown, `DIBunInstall`.
+
+The audit now cross-checks the annotated address against the name's address in the inventory,
+so a name borrowed from the wrong function is reported. It also has to skip comments when
+looking for the signature — comments routinely mention other functions by name — while still
+handling `/* Function start: 0x... */ /* TODO */ void f(void){}` all on one line.
+
 ## Reading the comparison
 
 **All comparisons go through binary-comp.** It is the only scorer; do not hand-roll one.
