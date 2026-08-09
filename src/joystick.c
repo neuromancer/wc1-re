@@ -7,9 +7,9 @@
 #include "wc1.h"
 
 /* Function start: 0x410AD0 */
-void ApplyPitchFromFloat(void)
+short GetVectorMagnitude(const FixedVector *vector)
 {
-    FixedToShortSaturating((int)FloatToLongDirect());
+    return FixedToShortSaturating((int)ComputeFixedVectorMagnitude(vector));
 }
 
 /* Function start: 0x4117B0 */
@@ -23,7 +23,7 @@ unsigned int ResetCommTarget(void *p, unsigned int arg)
 /* Function start: 0x412410 */
 unsigned short TickShipAiCountdown(short ship)
 {
-    if (g_asShipSavedSlotState_0059c330[ship] != -1)
-        g_asShipSavedSlotState_0059c330[ship] = g_asShipSavedSlotState_0059c330[ship] - 1;
+    if (g_asObjectCounter_0059c330[ship] != -1)
+        g_asObjectCounter_0059c330[ship] = g_asObjectCounter_0059c330[ship] - 1;
     return ship;
 }

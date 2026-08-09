@@ -73,10 +73,27 @@ unsigned short GetSeriesStateWord(short i)
     return DAT_0059d500[((int)DAT_0059dec0[i] + i * 4) * 2];
 }
 
+/* Function start: 0x414800 */
+void SetSeriesStateWord(short i, int state)
+{
+    if ((short)GetSeriesStateWord(i) != state)
+        ClearHudMessageSlot((int *)(&DAT_005a7dd0[0] + i * 0x11));
+    DAT_0059dec0[i] = 0;
+    *(int *)&DAT_0059d500[i * 8] = state;
+}
+
 /* Function start: 0x414890 */
 int GetSeriesFlag(short i)
 {
     return (char)DAT_0059dec0[i];
+}
+
+/* Function start: 0x4148A0 */
+void PushSeriesStateWord(short i, int state)
+{
+    ClearHudMessageSlot((int *)(&DAT_005a7dd0[0] + i * 0x11));
+    DAT_0059dec0[i] = DAT_0059dec0[i] + 1;
+    *(int *)&DAT_0059d500[((int)DAT_0059dec0[i] + i * 4) * 2] = state;
 }
 
 /* Function start: 0x4148E0 */
@@ -154,19 +171,65 @@ int GetNavRecordField90(short i)
 }
 
 /* Function start: 0x4150B0 */
-void SetNavRecordFlags(short i, unsigned char bits)
+void visit(short i, unsigned char bits)
 {
     DAT_0059daca[i * 0x1f] |= bits;
+}
+
+/* Function start: 0x4153D0 */
+void set_next_destination(void)
+{
+    signed char objective;
+
+    do {
+        g_cCurrentNavPointIndex_0059c86c++;
+        if (g_cCurrentNavPointIndex_0059c86c >=
+            g_cMissionObjectiveCount_0059c46a) {
+            g_cCurrentNavPointIndex_0059c86c = 0;
+            break;
+        }
+        objective = g_abFlightPath_0059c000[
+            g_cCurrentNavPointIndex_0059c86c];
+    } while (objective == -1);
+    g_nCurrentObjective_0046c020 =
+        (short)g_abFlightPath_0059c000[g_cCurrentNavPointIndex_0059c86c];
+}
+
+/* Function start: 0x4154C0 */
+unsigned int CheckForShipQueuedToCurrentNavPoint(void)
+{
+    short ship = 0;
+
+    do {
+        if (g_aeObjectClass_0059d100[ship] >= OBJECT_CLASS_SHIP &&
+            g_aeShipMissionType_0059c3f0[ship] == MISSION_TYPE_COME_HOME &&
+            g_abShipNavPointIndex_0059d7c0[ship] <= g_cCurrentNavPointIndex_0059c86c)
+            return 1;
+        ship = ship + 1;
+    } while (ship < 10);
+    return 0;
 }
 
 /* Function start: 0x415510 */
 unsigned int GetShipAiScratch(void)
 {
-    if (g_abShipQueuedOrder_0059c3f0[0] != 1) {
-        if (AnyShipQueuedToNavigate() == 0)
+    if (g_aeShipMissionType_0059c3f0[0] != MISSION_TYPE_ESCORT) {
+        if (CheckForShipQueuedToCurrentNavPoint() == 0)
             return 0;
     }
     return 1;
+}
+
+/* Function start: 0x415530 */
+void flag_reached(short objective, short reached)
+{
+    int type = *(int *)((unsigned char *)g_abMissionObjectiveType_0059dac5 +
+                        objective * 0x1f);
+
+    if (reached != 0 && type != 1)
+        visit(objective, 1);
+    if (objective == g_nCurrentObjective_0046c020)
+        set_next_destination();
 }
 
 /* Function start: 0x415A70 */
@@ -243,7 +306,7 @@ void SetHudTextColour(short v)
 void ReleaseCurrentTargetLock(void)
 {
     if (DAT_00469208 != -1)
-        DestroyShip(DAT_00469208);
+        remove_object(DAT_00469208);
 }
 
 /* Function start: 0x416C90 */
@@ -253,12 +316,39 @@ void DrawHudMessagesIfEnabled(void)
         DrawHudMessageList();
 }
 
+/* Function start: 0x4171D0 */
+void ComputeStickIndicatorFrame(void)
+{
+    short yaw;
+    short pitch;
+
+    yaw = g_nYawInput_0059d3f2 / 2;
+    pitch = g_nPitchInput_0059d3f0 / 2;
+    if (yaw > 0) {
+        g_bStickIndicatorFrame_005a7dc8 = (unsigned char)MinShort(yaw + 8, 12);
+        return;
+    }
+    if (yaw < 0) {
+        g_bStickIndicatorFrame_005a7dc8 = (unsigned char)MinShort(4 - yaw, 8);
+        return;
+    }
+    if (pitch > 0) {
+        g_bStickIndicatorFrame_005a7dc8 = (unsigned char)MinShort(pitch + 12, 16);
+        return;
+    }
+    if (pitch < 0) {
+        g_bStickIndicatorFrame_005a7dc8 = (unsigned char)MinShort(-pitch, 4);
+        return;
+    }
+    g_bStickIndicatorFrame_005a7dc8 = 0;
+}
+
 /* Function start: 0x4173C0 */
 void RefreshDamageDisplay(void)
 {
     if (DAT_005a7684 != 0) {
         ComputeStickIndicatorFrame();
-        if (DAT_0046900c != DAT_005a7dc8)
+        if (DAT_0046900c != g_bStickIndicatorFrame_005a7dc8)
             DrawStickIndicator();
     }
 }
@@ -271,6 +361,20 @@ void ForceRefreshDamageDisplay(void)
         CopyViewportContents(&DAT_005a6b60, &DAT_005a7550);
         RefreshDamageDisplay();
     }
+}
+
+/* Function start: 0x417420 */
+void send_message(short obj, signed char message)
+{
+    if (obj < 0 || obj >= 10 ||
+        g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_NULL)
+        return;
+    if (g_acShipRating_0059cd80[obj] != -1 ||
+        g_aeObjectType_0059b560[obj] == OBJECT_TYPE_TIGERS_CLAW ||
+        g_acShipMissionIndex_0059c830[obj] ==
+            g_anShipMissionShip_0059d4b0[0] ||
+        g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
+        ((signed char *)g_aeShipObjective_0059d200)[obj + 0xc0] = message;
 }
 
 /* Function start: 0x417610 */

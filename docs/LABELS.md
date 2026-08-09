@@ -73,34 +73,44 @@ yet established. That is a fact, unlike `GetG00597d18Fn4C27`, and unlike a guess
 **Its one failure mode**: a wrapper that logs on behalf of its callee is misattributed. Always
 read the disassembly before adopting a result.
 
-## 0.2 Third-party projects as naming evidence
+## 0.2 External naming evidence
 
-Three community projects in the parent directory carry facts the binary alone does not, and
-each is trustworthy about a different thing:
+The recovered releases and adjacent projects carry facts that the Win32 image alone does not.
+Each source is authoritative only within a narrow boundary:
 
-| Project | Good for | Not usable for |
+| Source | Good for | Not usable for |
 |---|---|---|
-| [WCMissionTools](../../WCMissionTools) | MODULE/CAMP/BRIEFING record layouts and the ShipClass / ShipOrder / Allegiance / Pilot enumerations | runtime layout — the on-disk ship record is 42 bytes against the game's 0x36 stride, and the nav record 77 against 0x1F |
+| [BRAINS.C](../../BRAINS.C) | exact AI function/API names, original state-array names, and mission/objective/tactic control-flow topology | copying bodies or constants wholesale; this is an older demo revision and several branches differ from retail Win32 |
+| [Amiga analysis](../../releases/amiga/AMIGA_ANALYSIS.md) | AI objective, tactic, maneuver, and special-maneuver identifier tables | Win32 addresses and the three Win32-only maneuver slots |
+| [FM Towns symbols](../../releases/fm-towns/FMTOWNS_SYMBOLS.md) | object class/type identifiers and original spellings | Win32 addresses and runtime element widths |
+| [Sega CD symbols](../../releases/segacd/SEGACD_SYMBOLS.md) | full `ObjectType`, `Side`, mission-type, and `Rating` identifiers | Win32 addresses and structure layouts |
+| [WCMissionTools](../../WCMissionTools) | MODULE/CAMP/BRIEFING record layouts | runtime layout — the on-disk ship record is 42 bytes against the game's 0x36 stride, and the nav record 77 against 0x1F |
 | [WingCommanderArduinoBridge](../../WingCommanderArduinoBridge) | the *order* of fields in the pilot record, since both builds compile the same struct | its addresses, which are DOS-segment relative |
 | [wcdx](../../wcdx) | PE layout notes, and confirmation of which code the port patches | naming — its patches are byte diffs by file offset, with no symbols |
 
-**Check them against the image before believing them.** Doing that on `ShipClass` found the
-name table at `0x004684D4` listing all 22 classes in exactly the documented order — and
-correcting two spellings: index 5 is `"Dilligent"` (sic) and index 14 is `"Spikeri"`, the
-developers' own name for the ship the manual calls the Hhriss. The table runs on into weapon
-names at `0x00468598`. Likewise the four Kilrathi ace names really are in the image at
-`0x0046AFD4`, which confirms the ace block's base index of 14.
+**Check every external claim against the Win32 image.** That process corrected the former
+`ShipClass`/`ShipOrder` model. `BRAINS.C` cleanly separates six runtime layers:
 
-`ShipOrder` is corroborated from the other direction: the three order dispatchers
-(`0x00409F80`, `0x0040A030`, `0x0040A360`) all switch on the same dword table with cases
-4, 5, 6, 8, 9 and -1, and -1 is the enum's `Inactive`. That is what identified
-`g_aeShipOrder_0059d200`, and then `g_abShipQueuedOrder_0059c3f0` — written only when the
-live order is `ORDER_JUMP_OUT`, so it is the order to apply once the jump finishes.
+| Address | Original field | Win32 representation |
+|---|---|---|
+| `0x0059B560` | `type[]` | 32-bit `ObjectType` |
+| `0x0059D100` | `class[]` | 32-bit `ObjectClass` |
+| `0x0059C3F0` | `ship_mission_type[]` | 32-bit `ShipMissionType` |
+| `0x0059D200` | `ship_objective[]` | 32-bit `ShipObjective` |
+| `0x0059D5E0` | `ship_tactic[]` | 32-bit `ShipTactic` |
+| `0x0059DCB0` | `maneuver[]` | 32-bit `ShipManeuver` |
+| `0x0059C3C0` | `special_maneuver[]` | 32-bit `SpecialManeuver` |
+
+Disassembly supplies the widths that the old source cannot: `side[]` is also a 32-bit enum,
+while `rating[]`, `ship_target[]`, and `ship_seq[]` are byte arrays; `ship_wingleader[]`,
+`ship_count[]`, and `object_counter[]` use 16-bit elements. The Win32 name block at
+`0x004684D4` independently preserves `Dilligent` and `Spikeri`, while the ace-name block at
+`0x0046AFD4` corroborates the rating table's tail.
 
 Everything recovered this way is in [include/wcdata.h](../include/wcdata.h), with each entry
 marked verified or not.
 
-## 1. Evidence-named — 437 functions — trust these
+## 1. Evidence-named — trust these at their documented confidence
 
 Derived from something the binary actually states:
 
@@ -115,19 +125,24 @@ Derived from something the binary actually states:
   `FORM`/`AIFF` vs `RIFF`/`WAVE` checks named in their own assert text.
 - **Distinctive strings or API usage** — `CalibrateJoystickInteractive`
   ("Move stick to the UPPER LEFT"), `LoadVolumeSettingsFromRegistry`, `ShowDamageReport`.
+- **Recovered source, checked against Win32** — `perform_maneuver`, `ship_intelligence`,
+  `imperial_formation`, `reset_mission_type`, `reset_objective`, `set_maneuver`, and the
+  surrounding AI family listed in [BRAINS.md](BRAINS.md). Ghidra tags these with
+  `wc-evidence-BRAINS-C`.
 - **Bodies that prove the semantics** — `MinShort`, `MaxShort`, `RandomBelowOrEqual`,
   `ReadDAT*`/`StoreDAT*` accessors, `CallThrough*` forwarders, `ReturnConst*`.
 
 Two caveats even here:
 
-- `ShipAiState00`..`ShipAiState44` are **structural**: the number is the dispatch-table index,
-  not a behaviour. 42 distinct handlers fill 47 slots; there is no `ShipAiState01/20/36/45/46`
-  because those ids alias other handlers. See the plate comment on `RunShipAiBehaviorTick`.
+- `ShipAiState00`..`ShipAiState44` remain **structural function labels**: Amiga identifies
+  maneuver ids 0-43, but shared handlers mean an enum identifier is not always a unique
+  function name. There is no `ShipAiState01/20/36/45/46` because those ids alias other
+  handlers. See the plate comment on `perform_maneuver`.
 - `DIBwholePaletteFromTriplets` / `DIBwholePaletteFromWords` — both functions emit an
   identical `"DIBsetWholePalette   SetEntries"` literal, so only one can own the original
   name. They are distinguished by palette element stride (3 vs 6 bytes).
 
-## 2. Operational-signature — 1,013 functions — mechanism only
+## 2. Operational-signature — mechanism only
 
 Form: `<Verb><Object>Fn<addr>`, e.g. `ScanTbl0046C028Fn1210`.
 

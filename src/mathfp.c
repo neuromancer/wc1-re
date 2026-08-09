@@ -6,6 +6,70 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x434A80 */
+void intelligence_events(short obj)
+{
+    short target = (short)g_acShipTarget_0059ce60[obj];
+    signed char previousState = DAT_0059d620[obj];
+    int event = -1;
+    int targetGone = 0;
+
+    if (object_requires_evasion(obj) != 0) {
+        event = 6;
+    } else if (unactive(target) != 0) {
+        targetGone = 1;
+    } else if (g_aeSpecialManeuver_0059c3c0[target] ==
+               SPECIAL_MANEUVER_UNKNOWN_9) {
+        event = 8;
+    } else {
+        event = 0;
+        ship_vs_ship(obj, target);
+        if (g_nTargetRange_0059ce10 >= 8001) {
+            event = 2;
+        } else if (g_acShipAiCooldown_0059d680[obj] > 0) {
+            event = 7;
+        } else if (g_nFacingToTarget_0059d920 >= 56 &&
+                   g_nTargetFacing_0059d52a <= -56) {
+            event = 5;
+        } else if (g_nFacingToTarget_0059d920 >= 76 &&
+                   g_nTargetFacing_0059d52a >= 76) {
+            event = 4;
+        } else if (g_nFacingToTarget_0059d920 < -60 &&
+                   g_nTargetFacing_0059d52a > 85 &&
+                   g_nTargetRange_0059ce10 < 7000) {
+            event = 3;
+        } else if (g_anShipSpeed_0059b320[target] < 20) {
+            event = 1;
+        }
+    }
+
+    classify_intelligence_event(obj, event);
+    if (event != -1)
+        event = select_maneuver_for_event(obj, event);
+    if (event == -1 && targetGone) {
+        if (any_enemy(obj, 16000) == 0)
+            reset_objective(obj, OBJECTIVE_NONE);
+        else
+            select_target(obj);
+        reset_intelligence_state(obj);
+    }
+
+    if (g_nYourWingman_0046c04c == obj &&
+        g_aeObjectClass_0059d100[0] == OBJECT_CLASS_SHIP &&
+        ((signed char *)g_aeShipObjective_0059d200)[
+            g_nYourWingman_0046c04c + 0xc0] == -1) {
+        if (previousState < 15 && DAT_0059d620[obj] >= 15) {
+            send_message(obj, 4);
+        } else if (evaluate_damage(0) <= 34 && RandomBelow(1000) <= 3) {
+            if (evaluate_damage(obj) > evaluate_damage(0))
+                send_message(obj, 8);
+            else
+                send_message(obj, 4);
+        }
+    }
+    g_aiIntelligenceEvent_0046d368[obj] = event;
+}
+
 /* Function start: 0x434CD0 */
 unsigned short RandomBelow(short n)
 {
@@ -37,9 +101,25 @@ short RandomBelowOrEqual(short n)
 }
 
 /* Function start: 0x434D80 */
-long FloatToLong(void)
+long MultiplyFixed(int left, int right)
 {
-    return _ftol();
+    double leftValue = (double)left * (1.0 / 256.0);
+    double rightValue = (double)right * (1.0 / 256.0);
+
+    return (long)(leftValue * rightValue * 256.0);
+}
+
+/* Function start: 0x434DB0 */
+long DivideFixed(int numerator, int denominator)
+{
+    float numeratorValue = (float)((double)numerator * (1.0 / 256.0));
+    float denominatorValue;
+
+    if (denominator != 0)
+        denominatorValue = (float)((double)denominator * (1.0 / 256.0));
+    else
+        denominatorValue = 1.0f;
+    return (long)(numeratorValue / denominatorValue * 256.0);
 }
 
 /* Function start: 0x434E00 */
@@ -58,6 +138,19 @@ long CosFixed(short degrees)
 long FloatToLongPassThrough(void)
 {
     return _ftol();
+}
+
+/* Function start: 0x434F20 */
+long ComputeFixedVectorMagnitude(const FixedVector *vector)
+{
+    double x = (double)vector->x * (1.0 / 256.0);
+    double y = (double)vector->y * (1.0 / 256.0);
+    double z = (double)vector->z * (1.0 / 256.0);
+
+    x *= x;
+    y *= y;
+    z *= z;
+    return (long)(sqrt(x + y + z) * 256.0);
 }
 
 /* Function start: 0x434F70 */

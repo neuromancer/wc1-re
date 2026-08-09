@@ -12,10 +12,33 @@ unsigned short GetMusicDriverPresent(void)
     return 1;
 }
 
+/* Function start: 0x4181C0 */
+short get_ship_max_velocity(short obj)
+{
+    short velocity = *(short *)(g_aObjectTypeData_00466460 +
+        g_aeObjectType_0059b560[obj] * 0x87 + 0x10);
+
+    if (obj < 10 && g_acShipRating_0059cd80[obj] > 8)
+        return velocity + velocity / 3;
+    return velocity;
+}
+
 /* Function start: 0x418280 */
 void AddShipAiTimer(short i, short delta)
 {
     DAT_0059b470[i] = DAT_0059b470[i] - (int)delta;
+}
+
+/* Function start: 0x4182F0 */
+int GetShipAccelerationRate(short ship)
+{
+    int shipIndex = (int)ship;
+    enum ObjectType objectType = g_aeObjectType_0059b560[shipIndex];
+    int acceleration = *(int *)(&DAT_00466472[6] + objectType * 0x87);
+
+    if (ship < 10 && g_acShipRating_0059cd80[shipIndex] > RATING_ACE_ICEMAN)
+        return acceleration + acceleration / 3;
+    return acceleration;
 }
 
 /* Function start: 0x4184C0 */
@@ -81,12 +104,19 @@ short WrapDegrees(short degrees)
     return v;
 }
 
-/* Function start: 0x4185F0 */
-void ZeroVector(unsigned int *p)
+/* Function start: 0x418590 */
+int equ_vector(const FixedVector *left, const FixedVector *right)
 {
-    p[2] = 0;
-    p[1] = 0;
-    p[0] = 0;
+    return left->x == right->x && left->y == right->y &&
+           left->z == right->z;
+}
+
+/* Function start: 0x4185F0 */
+void zero_vector(FixedVector *vector)
+{
+    vector->z = 0;
+    vector->y = 0;
+    vector->x = 0;
 }
 
 /* Function start: 0x418600 */
@@ -97,46 +127,267 @@ void ZeroVectorPtr(int *p)
     p[2] = -p[2];
 }
 
-/* Function start: 0x4187E0 */
-void ScaleVectorByZero(short a, int *p)
+/* Function start: 0x418620 */
+void AddFixedVectors(FixedVector *left, FixedVector *right, FixedVector *sum)
 {
-    MakeRandomVectorFixed(0, a, p);
+    sum->x = right->x + left->x;
+    sum->y = right->y + left->y;
+    sum->z = right->z + left->z;
+}
+
+/* Function start: 0x418650 */
+void SubtractFixedVectors(FixedVector *left, FixedVector *right,
+                          FixedVector *difference)
+{
+    difference->x = left->x - right->x;
+    difference->y = left->y - right->y;
+    difference->z = left->z - right->z;
+}
+
+/* Function start: 0x418680 */
+void ComputeVectorDelta(FixedVector *from, FixedVector *to, FixedVector *delta)
+{
+    delta->x = to->x - from->x;
+    delta->y = to->y - from->y;
+    delta->z = to->z - from->z;
+}
+
+/* Function start: 0x4186B0 */
+void ScaleFixedVector(FixedVector *vector, int scale, FixedVector *result)
+{
+    result->x = MultiplyFixed(vector->x, scale);
+    result->y = MultiplyFixed(vector->y, scale);
+    result->z = MultiplyFixed(vector->z, scale);
+}
+
+/* Function start: 0x418700 */
+void divide_vector(FixedVector *vector, int divisor, FixedVector *result)
+{
+    result->x = DivideFixed(vector->x, divisor);
+    result->y = DivideFixed(vector->y, divisor);
+    result->z = DivideFixed(vector->z, divisor);
+}
+
+/* Function start: 0x418750 */
+short ChooseRandomSignedMagnitude(short minimum, short maximum,
+                                  int allowNegative)
+{
+    short value = RandomInRange(minimum, maximum);
+
+    if (allowNegative != 0 && RandomInRange(0, 1) != 0)
+        value = -value;
+    return value;
+}
+
+/* Function start: 0x418780 */
+void MakeRandomVectorFixed(short minimum, short maximum, FixedVector *vector)
+{
+    vector->x = (int)ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
+    vector->y = (int)ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
+    vector->z = (int)ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
+}
+
+/* Function start: 0x4187E0 */
+void FillFixedVectorWithRandomComponents(short limit, FixedVector *vector)
+{
+    MakeRandomVectorFixed(0, limit, vector);
+}
+
+/* Function start: 0x4189E0 */
+int dot_product(const FixedVector *left, const FixedVector *right)
+{
+    return MultiplyFixed(left->x, right->x) +
+           MultiplyFixed(left->y, right->y) +
+           MultiplyFixed(left->z, right->z);
+}
+
+/* Function start: 0x418B10 */
+short NormalizeFixedVector(FixedVector *vector)
+{
+    int magnitude = ComputeFixedVectorMagnitude(vector);
+
+    if (magnitude != 0) {
+        vector->x = DivideFixed(vector->x, magnitude);
+        vector->y = DivideFixed(vector->y, magnitude);
+        vector->z = DivideFixed(vector->z, magnitude);
+        return 1;
+    }
+    return 0;
+}
+
+/* Function start: 0x419210 */
+short distance_from_point(short obj, const FixedVector *point)
+{
+    long magnitude;
+
+    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+                       (FixedVector *)point, &g_vToTarget_0059d4d0);
+    magnitude = ComputeFixedVectorMagnitude(&g_vToTarget_0059d4d0);
+    return FixedToShortSaturating((int)magnitude) - DAT_0059d710[obj];
 }
 
 /* Function start: 0x419260 */
-short GetShipVectorComponent(short a, short i)
+short distance_from_object(short obj, short other)
 {
-    return GetHeadingErrorToPoint(a, &DAT_0059c490[0] + i * 3) - DAT_0059d710[i];
+    return distance_from_point(obj, &g_aShipPosition_0059c490[other]) -
+           DAT_0059d710[other];
+}
+
+/* Function start: 0x419290 */
+void get_facing_range_from_point(short obj, const FixedVector *point)
+{
+    g_nTargetRange_0059ce10 =
+        distance_from_point(obj, point) - DAT_0059d710[obj];
+    g_vNormalizedToTarget_005a7db0 = g_vToTarget_0059d4d0;
+    NormalizeFixedVector(&g_vNormalizedToTarget_005a7db0);
+    g_nFacingToTarget_0059d920 =
+        (short)(((unsigned short)dot_product(
+            &g_aShipForwardVector_0059bce0[obj],
+            &g_vNormalizedToTarget_005a7db0) * 100) >> 8);
+}
+
+/* Function start: 0x419310 */
+void get_facing_range_from_object(short obj, short other)
+{
+    get_facing_range_from_point(obj, &g_aShipPosition_0059c490[other]);
+    g_nTargetRange_0059ce10 -= DAT_0059d710[other];
+    ZeroVectorPtr((int *)&g_vNormalizedToTarget_005a7db0);
+    g_nTargetFacing_0059d52a =
+        (short)(((unsigned short)dot_product(
+            &g_aShipForwardVector_0059bce0[other],
+            &g_vNormalizedToTarget_005a7db0) * 100) >> 8);
 }
 
 /* Function start: 0x419390 */
-void StoreShipVector(short a, int *p)
+void ship_vs_point(short obj, const FixedVector *point)
 {
-    UpdateAimSolution(a, p);
+    get_facing_range_from_point(obj, point);
 }
 
 /* Function start: 0x4193B0 */
-void SetShipAiOrder(short a, short b)
+void ship_vs_ship(short obj, short other)
 {
-    ShipAiRoutine04(a, b);
+    get_facing_range_from_object(obj, other);
+}
+
+/* Function start: 0x4193D0 */
+short facing_to_object(short obj, short other)
+{
+    FixedVector direction;
+
+    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+                       &g_aShipPosition_0059c490[other], &direction);
+    NormalizeFixedVector(&direction);
+    g_nFacingToTarget_0059d920 =
+        (short)(((unsigned short)dot_product(
+            &g_aShipForwardVector_0059bce0[obj], &direction) * 100) >> 8);
+    return g_nFacingToTarget_0059d920;
+}
+
+/* Function start: 0x4194D0 */
+int set_ship_rotation_goals(short obj, short reference,
+                            const FixedVector *direction,
+                            short *yawGoal, short *pitchGoal)
+{
+    double horizontal;
+    short yaw;
+    short pitch;
+
+    (void)obj;
+    if (ComputeFixedVectorMagnitude(direction) == 0)
+        return 1;
+    horizontal = sqrt((double)direction->x * direction->x +
+                      (double)direction->z * direction->z);
+    yaw = (short)(atan2((double)direction->x,
+                        (double)direction->z) / WC1_DEG2RAD);
+    pitch = (short)(-atan2((double)direction->y,
+                           horizontal) / WC1_DEG2RAD);
+    if (reference == 1) {
+        yaw += reference;
+        pitch += reference;
+    }
+    *yawGoal = WrapDegrees(-yaw);
+    *pitchGoal = WrapDegrees(-pitch);
+    return 0;
+}
+
+/* Function start: 0x419620 */
+void point_ship(short obj, short reference, const FixedVector *direction)
+{
+    set_ship_rotation_goals(obj, reference, direction,
+                            &g_anYawGoal_0059c310[obj],
+                            &g_anPitchGoal_0059d7a0[obj]);
+}
+
+/* Function start: 0x419660 */
+void point_ship_at_point(short obj, const FixedVector *point)
+{
+    FixedVector direction;
+
+    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+                       (FixedVector *)point, &direction);
+    point_ship(obj, 0, &direction);
 }
 
 /* Function start: 0x4196A0 */
-void ReadShipRotationRow(short a, short i)
+void point_ship_at_object(short obj, short other)
 {
-    AimShipAtPoint(a, &DAT_0059c490[0] + i * 3);
+    point_ship_at_point(obj, &g_aShipPosition_0059c490[other]);
+}
+
+/* Function start: 0x4196C0 */
+void point_capital_ship_at_object(short obj, short other)
+{
+    FixedVector direction;
+
+    ComputeVectorDelta(&g_aShipPosition_0059c490[other],
+                       &g_aShipPosition_0059c490[obj], &direction);
+    point_ship(obj, 0, &direction);
+}
+
+/* Function start: 0x419810 */
+void point_perpendicular_to_point(short obj, const FixedVector *point)
+{
+    point_ship_at_point(obj, point);
+    if (g_anYawGoal_0059c310[obj] < 0)
+        g_anYawGoal_0059c310[obj] += 90;
+    else
+        g_anYawGoal_0059c310[obj] -= 90;
 }
 
 /* Function start: 0x419850 */
-void WriteShipRotationRow(short a, short i)
+void point_perpendicular(short obj, short other)
 {
-    AimShipAtPointOffset90(a, &DAT_0059c490[0] + i * 3);
+    point_perpendicular_to_point(obj, &g_aShipPosition_0059c490[other]);
+}
+
+/* Function start: 0x419870 */
+void point_parallel(short obj, short other)
+{
+    if (other != -1)
+        point_ship(obj, 0, &g_aShipForwardVector_0059bce0[other]);
+}
+
+/* Function start: 0x419950 */
+void NormalizeAndScaleVector(FixedVector *vector, int scale)
+{
+    NormalizeFixedVector(vector);
+    ScaleFixedVector(vector, scale, vector);
 }
 
 /* Function start: 0x419970 */
 void SetVectorFixedPoint(unsigned int *p, short v)
 {
-    NormaliseAndScaleVector(p, (int)v << 8);
+    NormalizeAndScaleVector((FixedVector *)p, (int)v << 8);
+}
+
+/* Function start: 0x419990 */
+unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
+{
+    FixedVector delta;
+
+    ComputeVectorDelta(from, to, &delta);
+    return IsVectorWithinRange(&delta, range);
 }
 
 /* Function start: 0x419B70 */
@@ -144,7 +395,7 @@ short FindShipInMode1(void)
 {
     DAT_0046c010 = 1;
     do {
-        if (g_abShipSlotState_0059d100[DAT_0046c010] == 0)
+        if (g_aeObjectClass_0059d100[DAT_0046c010] == OBJECT_CLASS_NULL)
             return DAT_0046c010;
         DAT_0046c010 = DAT_0046c010 + 1;
     } while (DAT_0046c010 < 10);
@@ -158,13 +409,47 @@ short FindShipInMode2(void)
     short i = 10;
 
     do {
-        if (g_abShipSlotState_0059d100[i] == 0) {
+        if (g_aeObjectClass_0059d100[i] == OBJECT_CLASS_NULL) {
             DAT_0059d9b0[i] = 0x8001;
             return i;
         }
         i = i + 1;
     } while (i < 0x3d);
     return -1;
+}
+
+/* Function start: 0x419BD0 */
+void remove_object(short obj)
+{
+    short slot;
+
+    if (obj == -1)
+        return;
+    DAT_0059d9b0[obj] = 0x8001;
+    g_abObjectField_0059b4a0[obj] = 0;
+    if (obj == DAT_00469208)
+        DAT_00469208 = -1;
+    if (obj == g_nYourWingman_0046c04c)
+        g_nYourWingman_0046c04c = -1;
+    for (slot = 0; slot < 20; slot++) {
+        if (g_abSoundEffectShips_0046c028[slot] == obj) {
+            g_abSoundEffectShips_0046c028[slot] = -1;
+            break;
+        }
+    }
+    if (obj < 10) {
+        if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_CAPITAL_SHIP)
+            FreePacketAndClear((int *)&g_aeShipObjective_0059d200[obj + 60]);
+        g_acShipRating_0059cd80[obj] = -1;
+        ((signed char *)g_aeShipObjective_0059d200)[obj + 0xc0] = -1;
+        g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
+        g_aeShipManeuver_0059dcb0[obj] = MANEUVER_NONE;
+        ResetShipStateRecord(obj);
+        *(short *)((unsigned char *)&((FixedVector *)
+            g_aShipMissionSpot_0059dd10)[10].z + obj * 2) = -1;
+    }
+    g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_NULL;
+    g_aeShipObjective_0059d200[obj + 60] = OBJECTIVE_NAV_POINT;
 }
 
 /* Function start: 0x41A0F0 */

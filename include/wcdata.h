@@ -24,93 +24,244 @@
 #define WC1_DATA_H
 
 /* --------------------------------------------------------------------------
- * Ship classes.  VERIFIED: the name table at 0x004684D4 lists these in exactly
- * this order.  Two of the spellings differ from the community documentation and
- * the binary's are used here: index 5 is "Dilligent" (sic) and index 14 is
- * "Spikeri", which is the developers' own name for the ship the manual calls
- * the Hhriss.  The table continues past the ships into weapon names
- * ("Laser cannon", "Neutron gun", "Mass driver" at 0x00468598).
+ * Original object model.  BRAINS.C uses the fields class[] and type[]; the FM
+ * Towns debug table supplies the ObjectClass order, while the Sega CD inspector
+ * preserves the original ObjectType identifiers.  The Win32 type-name strings
+ * at 0x004684D4 corroborate ordinals 0-32 ("Star post" is the display name for
+ * the internal KILRATHI_BASE identifier).
  * -------------------------------------------------------------------------- */
-enum ShipClass {
-    SHIP_HORNET         = 0,
-    SHIP_RAPIER         = 1,
-    SHIP_SCIMITAR       = 2,
-    SHIP_RAPTOR         = 3,
-    SHIP_VENTURE        = 4,
-    SHIP_DILLIGENT      = 5,      /* spelled with two Ls in the binary */
-    SHIP_DRAYMAN        = 6,
-    SHIP_EXETER         = 7,
-    SHIP_TIGERS_CLAW    = 8,
-    SHIP_SALTHI         = 9,
-    SHIP_DRALTHI        = 10,
-    SHIP_KRANT          = 11,
-    SHIP_GRATHA         = 12,
-    SHIP_JALTHI         = 13,
-    SHIP_SPIKERI        = 14,     /* the manual's "Hhriss" */
-    SHIP_DORKIR         = 15,
-    SHIP_LUMBARI        = 16,
-    SHIP_RALARI         = 17,
-    SHIP_FRALTHI        = 18,
-    SHIP_SNAKEIR        = 19,
-    SHIP_SIVAR          = 20,
-    SHIP_STARPOST       = 21,
-    SHIP_ASTEROID_FIELD = 22,
-    SHIP_MINE_FIELD     = 23,
-    SHIP_NONE           = 255
+enum ObjectClass {
+    OBJECT_CLASS_NULL         = 0,
+    OBJECT_CLASS_FUTURION     = 1,
+    OBJECT_CLASS_STAR         = 2,
+    OBJECT_CLASS_PLANET       = 3,
+    OBJECT_CLASS_DUST         = 4,
+    OBJECT_CLASS_EXPLOSION    = 5,
+    OBJECT_CLASS_DEBRIS       = 6,
+    OBJECT_CLASS_FIXED_OBJECT = 7,
+    OBJECT_CLASS_PROJECTILE   = 8,
+    OBJECT_CLASS_ASTEROID     = 9,
+    OBJECT_CLASS_MINE         = 10,
+    OBJECT_CLASS_MISSILE      = 11,
+    OBJECT_CLASS_SHIP         = 12,
+    OBJECT_CLASS_CAPITAL_SHIP = 13
 };
 
-/* --------------------------------------------------------------------------
- * Ship AI orders.  From WCMissionTools, and corroborated here: the three order
- * dispatchers (StepShipOrderState 0x00409F80, StepShipOrderWithLeader
- * 0x0040A030, StepShipOrderForNav 0x0040A360) all switch on the same dword
- * table with cases 4, 5, 6, 8, 9 and -1, and -1 is the enum's Inactive.
- * -------------------------------------------------------------------------- */
-enum ShipOrder {
-    ORDER_ATTACK        = 0,
-    ORDER_PATROL        = 1,
-    ORDER_ATTACK_TARGET = 2,
-    ORDER_ESCORT        = 3,
-    ORDER_FOLLOW        = 4,
-    ORDER_DEFEND        = 5,
-    ORDER_JUMP_OUT      = 6,
-    ORDER_JUMP_IN       = 7,
-    ORDER_GO_HOME       = 8,
-    ORDER_AUTOPILOT     = 9,
-    ORDER_NAVIGATE      = 10,
-    ORDER_INACTIVE      = 255
+enum ObjectType {
+    OBJECT_TYPE_HORNET                    = 0,
+    OBJECT_TYPE_RAPIER                    = 1,
+    OBJECT_TYPE_SCIMITAR                  = 2,
+    OBJECT_TYPE_RAPTOR                    = 3,
+    OBJECT_TYPE_VENTURE                   = 4,
+    OBJECT_TYPE_DILLIGENT                 = 5,  /* original misspelling */
+    OBJECT_TYPE_DRAYMAN                   = 6,
+    OBJECT_TYPE_EXETER                    = 7,
+    OBJECT_TYPE_TIGERS_CLAW               = 8,
+    OBJECT_TYPE_SALTHI                    = 9,
+    OBJECT_TYPE_DRALTHI                   = 10,
+    OBJECT_TYPE_KRANT                     = 11,
+    OBJECT_TYPE_GRATHA                    = 12,
+    OBJECT_TYPE_JALTHI                    = 13,
+    OBJECT_TYPE_SPIKERI                   = 14,
+    OBJECT_TYPE_DORKIR                    = 15,
+    OBJECT_TYPE_LUMBARI                   = 16,
+    OBJECT_TYPE_RALARI                    = 17,
+    OBJECT_TYPE_FRALTHI                   = 18,
+    OBJECT_TYPE_SNAKEIR                   = 19,
+    OBJECT_TYPE_SIVAR                     = 20,
+    OBJECT_TYPE_KILRATHI_BASE             = 21,
+    OBJECT_TYPE_ASTEROID_FIELD            = 22,
+    OBJECT_TYPE_MINE_FIELD                = 23,
+    OBJECT_TYPE_LASER_CANNON              = 24,
+    OBJECT_TYPE_NEUTRON_PARTICLE_GUN      = 25,
+    OBJECT_TYPE_MASS_DRIVER_CANNON        = 26,
+    OBJECT_TYPE_TURRET                    = 27,
+    OBJECT_TYPE_DUMB_FIRE_MISSILE         = 28,
+    OBJECT_TYPE_HEAT_SEEKING_MISSILE      = 29,
+    OBJECT_TYPE_FF_MISSILE                = 30,
+    OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE = 31,
+    OBJECT_TYPE_TORPEDO                   = 32,
+    OBJECT_TYPE_SPACE_MINE                = 33,
+    OBJECT_TYPE_ASTEROID1                 = 34,
+    OBJECT_TYPE_ASTEROID2                 = 35,
+    OBJECT_TYPE_ASTEROID3                 = 36,
+    OBJECT_TYPE_ASTEROID4                 = 37,
+    OBJECT_TYPE_ASTEROID5                 = 38,
+    OBJECT_TYPE_ASTEROID6                 = 39,
+    OBJECT_TYPE_ROCK_CHUNK                = 40,
+    OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK  = 41,
+    OBJECT_TYPE_DEBRIS_SHIP_TUBING        = 42,
+    OBJECT_TYPE_DEBRIS_METAL_SHEET        = 43,
+    OBJECT_TYPE_DEBRIS_WING               = 44,
+    OBJECT_TYPE_DEBRIS_GLASS              = 45,
+    OBJECT_TYPE_DEBRIS_O_RING             = 46,
+    OBJECT_TYPE_DEBRIS_PIPE               = 47,
+    OBJECT_TYPE_EXPLOSION0                = 48,
+    OBJECT_TYPE_EXPLOSION1                = 49,
+    OBJECT_TYPE_EXPLOSION2                = 50,
+    OBJECT_TYPE_LASER_SPARK               = 51,
+    OBJECT_TYPE_RED_SPARK                 = 52,
+    OBJECT_TYPE_BLUE_SPARK                = 53,
+    OBJECT_TYPE_SPARK_TRAIL               = 54,
+    OBJECT_TYPE_THRUSTERS                 = 55,
+    OBJECT_TYPE_EJECTED_PILOT             = 56,
+    OBJECT_TYPE_HYPERSPACE_JUMP_FLASH     = 57,
+    OBJECT_TYPE_TYPES                     = 58, /* original enum terminator */
+    OBJECT_TYPE_COUNT                     = OBJECT_TYPE_TYPES,
+    OBJECT_TYPE_SPACE_DUST                = 59,
+    OBJECT_TYPE_DEBRIS_DUST               = 60
 };
 
-enum Allegiance {
-    ALLEGIANCE_CONFED   = 0,
-    ALLEGIANCE_KILRATHI = 1,
-    ALLEGIANCE_NEUTRAL  = 2
+/* BRAINS.C switch bodies line up exactly with these three Amiga debug tables. */
+enum ShipMissionType {
+    MISSION_TYPE_NONE              = -1,
+    MISSION_TYPE_PATROL            = 0,
+    MISSION_TYPE_ESCORT            = 1,
+    MISSION_TYPE_STRIKE            = 2,
+    MISSION_TYPE_DEFEND            = 3,
+    MISSION_TYPE_WINGMAN           = 4,
+    MISSION_TYPE_ROUT              = 5,
+    MISSION_TYPE_GOTO_WARP         = 6,
+    MISSION_TYPE_WARP_ARRIVE       = 7,
+    MISSION_TYPE_CANNED_SEQUENCE   = 8,
+    MISSION_TYPE_RENDEZVOUS        = 9,
+    MISSION_TYPE_COME_HOME         = 10,
+    MISSION_TYPE_BOGUS_AVOID_CRASH = 11
 };
 
-/* --------------------------------------------------------------------------
- * Pilots.  0-4 are the unnamed difficulty tiers; 5-13 the Confed wingmen;
- * 14-17 the Kilrathi aces.  PARTIALLY VERIFIED: the four ace names really are
- * in the executable, in this order, at 0x0046AFD4 ("Bhurak", "Dakhath",
- * "Khajja", "Bakhtosh") on an 8-byte stride, so the ace block's ordering and
- * base index are confirmed.  The Confed names live in the MODULE files, not in
- * the executable, so 5-13 come from WCMissionTools alone.
- * -------------------------------------------------------------------------- */
-enum PilotId {
-    PILOT_GENERIC_0     = 0,      /* easiest */
-    PILOT_GENERIC_4     = 4,      /* hardest */
-    PILOT_SPIRIT        = 5,
-    PILOT_HUNTER        = 6,
-    PILOT_BOSSMAN       = 7,
-    PILOT_ICEMAN        = 8,
-    PILOT_ANGEL         = 9,
-    PILOT_PALADIN       = 10,
-    PILOT_MANIAC        = 11,
-    PILOT_KNIGHT        = 12,
-    PILOT_BLAIR         = 13,
-    PILOT_ACE_FIRST     = 14,     /* index into g_aszKilrathiAceNames_0046afd4 */
-    PILOT_BHURAK        = 14,
-    PILOT_DAKHATH       = 15,
-    PILOT_KHAJJA        = 16,
-    PILOT_BAKHTOSH      = 17
+enum ShipObjective {
+    OBJECTIVE_NONE            = -1,
+    OBJECTIVE_NAV_POINT       = 0,
+    OBJECTIVE_HOME_BASE       = 1,
+    OBJECTIVE_GUARD           = 2,
+    OBJECTIVE_REACH_SHIP      = 3,
+    OBJECTIVE_DESTROY_SHIP    = 4,
+    OBJECTIVE_WANDER          = 5,
+    OBJECTIVE_ENGAGE_ENEMY    = 6,
+    OBJECTIVE_EVADE_ENEMY     = 7,
+    OBJECTIVE_HOLD_FORMATION  = 8,
+    OBJECTIVE_BREAK_FORMATION = 9
+};
+
+enum ShipTactic {
+    TACTIC_NONE            = -1,
+    TACTIC_CRUISE          = 0,
+    TACTIC_SIT_STILL       = 1,
+    TACTIC_SCOUT_AHEAD     = 2,
+    TACTIC_LAG_BEHIND      = 3,
+    TACTIC_RAM             = 4,
+    TACTIC_AVOID_OBJECT    = 5,
+    TACTIC_WARP_OUT        = 6,
+    TACTIC_WARP_IN         = 7,
+    TACTIC_HEAD_HOME       = 8,
+    TACTIC_CHASE           = 9,
+    TACTIC_LOOK_OUT        = 10,
+    TACTIC_APPROACH_TARGET = 11,
+    TACTIC_TARGETTING      = 12, /* original spelling */
+    TACTIC_SHAKE_ENEMY     = 13,
+    TACTIC_ZIP_AWAY        = 14,
+    TACTIC_RETREAT         = 15,
+    TACTIC_SELF_DEFENSE    = 16,
+    TACTIC_PICK_ATTACK     = 17
+};
+
+/* Side is a 32-bit enum in the Win32 image; do not collapse side[] to bytes. */
+enum Side {
+    SIDE_IMPERIAL = 0,
+    SIDE_KILRATHI = 1,
+    SIDE_NEUTRAL  = 2
+};
+
+/* Sega CD's inspector identifies this as the original Rating enum, not a pilot
+ * id.  The four humorous tail identifiers are source placeholders; Win32 maps
+ * its separate Bhurak/Dakhath/Khajja/Bakhtosh display-name table onto them. */
+enum Rating {
+    RATING_PROVINCIAL = 0,
+    RATING_LINE       = 1,
+    RATING_CRACK      = 2,
+    RATING_ELITE      = 3,
+    RATING_FANATICAL  = 4,
+    RATING_ACE_SPIRIT = 5,
+    RATING_ACE_HUNTER = 6,
+    RATING_ACE_BOSSMAN = 7,
+    RATING_ACE_ICEMAN = 8,
+    RATING_ACE_ANGEL  = 9,
+    RATING_ACE_PALADIN = 10,
+    RATING_ACE_MANIAC = 11,
+    RATING_ACE_KNIGHT = 12,
+    RATING_ACE_PLAYER = 13,
+    RATING_ACE_HEWEY  = 14,
+    RATING_ACE_LEWEY  = 15,
+    RATING_ACE_DEWEY  = 16,
+    RATING_ACE_DAFFY  = 17
+};
+
+/* Amiga's live AI inspector preserves this dispatch-table order.  Win32 has
+ * three additional slots (44-46); their identifiers are not present in any
+ * recovered release, so they remain explicitly unknown. */
+enum ShipManeuver {
+    MANEUVER_NONE             = -1,
+    MANEUVER_WARPING_IN       = 0,
+    MANEUVER_WARPING_OUT      = 1,
+    MANEUVER_VEER_AWAY        = 2,
+    MANEUVER_DRIFT            = 3,
+    MANEUVER_FULL_AHEAD       = 4,
+    MANEUVER_THINKING         = 5,
+    MANEUVER_RAM_MISSILE      = 6,
+    MANEUVER_KICK_STOP        = 7,
+    MANEUVER_TIGHT_LOOP       = 8,
+    MANEUVER_HARD_BRAKE       = 9,
+    MANEUVER_SIT_N_SPIN       = 10,
+    MANEUVER_TURN_N_SPIN      = 11,
+    MANEUVER_BURNOUT          = 12,
+    MANEUVER_WABBLE           = 13,
+    MANEUVER_ROLL_OVER        = 14,
+    MANEUVER_HARD_TURN        = 15,
+    MANEUVER_FISH_HOOK        = 16,
+    MANEUVER_SPLIT_LEFT       = 17,
+    MANEUVER_SIT_N_FIRE       = 18,
+    MANEUVER_KICKIT           = 19,
+    MANEUVER_TURN_N_KICK      = 20,
+    MANEUVER_OUTA_HERE        = 21,
+    MANEUVER_DROP_A_MINE      = 22,
+    MANEUVER_SPLIT_RIGHT      = 23,
+    MANEUVER_ZIG_ZAG          = 24,
+    MANEUVER_GLOAT            = 25,
+    MANEUVER_TAIL_FIRE        = 26,
+    MANEUVER_TARGET_LASER     = 27,
+    MANEUVER_TARGET_MISSILE   = 28,
+    MANEUVER_STRAFE_ENEMY     = 29,
+    MANEUVER_STRAFE_N_ROLL    = 30,
+    MANEUVER_KILL_MISSILE     = 31,
+    MANEUVER_SUICIDE_RUN      = 32,
+    MANEUVER_ZIG_ZAG_PITCH    = 33,
+    MANEUVER_SAFE_BRAKE       = 34,
+    MANEUVER_TURN_N_FIRE      = 35,
+    MANEUVER_GET_DISTANCE     = 36,
+    MANEUVER_CORKSCREW        = 37,
+    MANEUVER_INTERCEPT        = 38,
+    MANEUVER_TRY2TAIL         = 39,
+    MANEUVER_ZIP_PAST         = 40,
+    MANEUVER_BUZZ_DEBRIS      = 41,
+    MANEUVER_LINE_UP_DROP     = 42,
+    MANEUVER_CHILL            = 43,
+    MANEUVER_UNKNOWN_44       = 44,
+    MANEUVER_UNKNOWN_45       = 45,
+    MANEUVER_UNKNOWN_46       = 46
+};
+
+enum SpecialManeuver {
+    SPECIAL_MANEUVER_NONE          = -1,
+    SPECIAL_MANEUVER_NORMAL        = 0,
+    SPECIAL_MANEUVER_AFTERBURNER   = 1,
+    SPECIAL_MANEUVER_BOGUS_LOOP    = 2,
+    SPECIAL_MANEUVER_SUPER_BRAKE   = 3,
+    SPECIAL_MANEUVER_BOGUS_PUSH    = 4,
+    SPECIAL_MANEUVER_KILL_ENGINES  = 5,
+    SPECIAL_MANEUVER_STOP_DRIFT    = 6,
+    SPECIAL_MANEUVER_LOST_CONTROL  = 7,
+    SPECIAL_MANEUVER_BLOWING_UP    = 8,
+    SPECIAL_MANEUVER_UNKNOWN_9     = 9
 };
 
 /* --------------------------------------------------------------------------
@@ -162,6 +313,27 @@ enum CommMenuEntry {
 #define WC1_NAV_RECORD_BYTES   77
 #define WC1_SHIP_RECORD_BYTES  42
 #define WC1_MAP_RECORD_BYTES   64
+
+typedef struct FixedVector {
+    int x;
+    int y;
+    int z;
+} FixedVector;
+
+/* Runtime mission-nav record.  The loader expands each 3-byte disk coordinate
+ * to a 32-bit fixed-point value, producing the 0x51-byte stride observed at
+ * 0x0046C2F0. */
+#pragma pack(push, 1)
+typedef struct MissionNavPoint {
+    char name[0x1e];                 /* +0x00 */
+    unsigned char type;              /* +0x1E: 1 is an active nav point */
+    FixedVector position;            /* +0x1F */
+    short proximityRadius;           /* +0x2B */
+    unsigned char missionData[0x24]; /* +0x2D */
+} MissionNavPoint;
+#pragma pack(pop)
+
+#define WC1_MISSION_NAV_POINT_COUNT 16
 
 /* --------------------------------------------------------------------------
  * Pilot record field order, from the DOS build's live memory layout

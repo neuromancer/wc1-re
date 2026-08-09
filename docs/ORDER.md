@@ -71,7 +71,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/mathutil.c` | `0x41d000`–`0x41d24f` | 3 | Integer min/max used across the game core | MinShort/MaxShort pair, 94 call sites, no other content in the gap |
 | `src/disk.c` | `0x41d250`–`0x41efff` | 6 | Disk data files and packet fetching with retry | OpenDiskDataFile/FetchDiskPacketRetrying/PromptInsertNumberedDisk |
 | `src/damage.c` | `0x41f000`–`0x420fff` | 2 | Ship damage and component repair reporting | ReportShipSystemDamage/ReportComponentRepaired; string band 0x469960-0x469984 |
-| `src/mission.c` | `0x421000`–`0x424fff` | 34 | Mission setup: FX drivers, palette load, ship state bits | LoadOriginFxDrivers/StartExtendedMemoryManager; string band 0x469A28-0x469B9C |
+| `src/mission.c` | `0x421000`–`0x424fff` | 34 | Mission setup: FX drivers, palette load, ship state bits | LoadOriginFxDrivers/EMStartUp; string band 0x469A28-0x469B9C |
 | `src/pilot.c` | `0x425000`–`0x426fff` | 15 | Pilot name entry, high scores and inter-scene transitions | EnterPilotNameAndCallsign/ShowTrainSimHighScores; string band 0x469D74-0x469F98 |
 | `src/system.c` | `0x427000`–`0x4274df` | 2 | Process-level services: memory reporting and exit | exit_squadron/ShowMemoryStatusDebug; string band 0x46A064-0x46A10C |
 | `src/main.c` | `0x4274e0`–`0x427fff` | 6 | WINGLEADER main module | main() at 0x004274E0, confirmed against the leaked DOS source screenshot |
@@ -137,7 +137,7 @@ cannot be reproduced here. Boundaries must be recovered incrementally with `make
 | Range | Subsystem |
 |---|---|
 | `0x00401E30`–`0x00403E30` | Win32 shell: `WinMain`, window creation, wndproc, message pump, CD/disc location, `MonoDebug_*`, joystick, keyboard |
-| `0x00406000`–`0x004075D0` | Ship AI: 42 behaviour handlers + `RunShipAiBehaviorTick` dispatcher |
+| `0x00406000`–`0x004075D0` | Ship AI: 42 behaviour handlers + `perform_maneuver` dispatcher |
 | `0x0041C760`–`0x0041CF00` | Debug overlay console (GDI text, keyboard hook, worker thread) |
 | `0x0041ADA0`–`0x0041BFE0` | Save/load (`SAVEGAME.WLD`) and confirmation prompts |
 | `0x0042B810`–`0x0042B930` | Registry settings (`Software\Origin Systems\WC: Kilrathi Saga`) |

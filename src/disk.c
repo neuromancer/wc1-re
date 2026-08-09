@@ -69,15 +69,45 @@ short FindActiveShipSlot(void)
     short i = 0x22;
 
     do {
-        if (g_abShipSlotState_0059d100[i] == 4)
+        if (g_aeObjectClass_0059d100[i] == OBJECT_CLASS_DUST)
             return i;
         i = i + 1;
     } while (i < 0x2a);
     return -1;
 }
 
+/* Function start: 0x41E710 */
+unsigned int AdjustShipSpeed(short ship, int delta)
+{
+    int maximumSpeed = (int)g_asShipMaximumSpeed_0059c440[ship] << 8;
+
+    g_anShipSpeed_0059b320[ship] += delta;
+    if (maximumSpeed < g_anShipSpeed_0059b320[ship])
+        g_anShipSpeed_0059b320[ship] = maximumSpeed;
+    if (g_anShipSpeed_0059b320[ship] < 0)
+        g_anShipSpeed_0059b320[ship] = 0;
+    return 0;
+}
+
+/* Function start: 0x41E750 */
+unsigned int ApproachShipSpeed(short ship, int targetSpeed)
+{
+    int delta;
+    int acceleration;
+
+    acceleration = GetShipAccelerationRate(ship);
+    delta = targetSpeed - g_anShipSpeed_0059b320[ship];
+
+    if ((short)ShipAiRoutine16(ship, 1))
+        acceleration += acceleration;
+    if ((delta < 0 ? -delta : delta) > acceleration)
+        delta = MultiplyFixed(SignFixed(delta), acceleration);
+    AdjustShipSpeed(ship, delta);
+    return 0;
+}
+
 /* Function start: 0x41E7C0 */
-unsigned int ShipAiRoutine08(short ship)
+unsigned int steady_object(short ship)
 {
     DAT_0059c310[ship] = 0;
     DAT_0059d7a0[ship] = 0;
@@ -86,7 +116,44 @@ unsigned int ShipAiRoutine08(short ship)
 }
 
 /* Function start: 0x41E7F0 */
-void ShipAiRoutine09(void)
+short real_velocity(short obj)
 {
-    FixedToShortSaturating((int)FloatToLongDirect());
+    return FixedToShortSaturating(
+        (int)ComputeFixedVectorMagnitude(&g_aShipVelocity_0059c010[obj]));
+}
+
+/* Function start: 0x41E820 */
+unsigned int fix_velocity(short obj)
+{
+    ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
+                     g_anShipSpeed_0059b320[obj],
+                     &g_aShipVelocity_0059c010[obj]);
+    return 0;
+}
+
+/* Function start: 0x41E860 */
+unsigned int sort_viable_target_list(void)
+{
+    short outer;
+    short inner;
+    short distance;
+    signed char target;
+    short count = (short)g_cViableTargetCount_0046c088;
+
+    for (outer = 0; outer < count - 1; outer++) {
+        for (inner = outer + 1; inner < count; inner++) {
+            if (g_asViableTargetDistance_0059c470[inner] <
+                g_asViableTargetDistance_0059c470[outer]) {
+                distance = g_asViableTargetDistance_0059c470[outer];
+                g_asViableTargetDistance_0059c470[outer] =
+                    g_asViableTargetDistance_0059c470[inner];
+                g_asViableTargetDistance_0059c470[inner] = distance;
+                target = g_acViableTarget_0059c920[outer];
+                g_acViableTarget_0059c920[outer] =
+                    g_acViableTarget_0059c920[inner];
+                g_acViableTarget_0059c920[inner] = target;
+            }
+        }
+    }
+    return 0;
 }

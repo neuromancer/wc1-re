@@ -9,7 +9,7 @@
 /* Function start: 0x42F1F0 */
 int IsShipQueuedOrderDefend(short i)
 {
-    return g_abShipQueuedOrder_0059c3f0[i] == 5;
+    return g_aeShipMissionType_0059c3f0[i] == MISSION_TYPE_ROUT;
 }
 
 /* Function start: 0x42F730 */
@@ -169,13 +169,30 @@ short StepMenuSelection(short v, int flag)
 /* Function start: 0x430CA0 */
 int IsCommMenuIdle(void)
 {
-    return DAT_0046af60 == 0;
+    return g_nCommMenuChoiceCount_0046af60 == 0;
+}
+
+/* Function start: 0x430CB0 */
+void AppendCommMenuChoice(char *text, short command)
+{
+    short index;
+
+    if (g_nCommMenuReuseMode_0046af64 == 1) {
+        index = g_nCommMenuChoiceCount_0046af60;
+        if (g_apszCommMenuChoiceText_0059e4e0[index] != text ||
+            g_abCommMenuChoiceCommand_0059e488[index] != command)
+            g_nCommMenuReuseMode_0046af64 = 0;
+    }
+    index = g_nCommMenuChoiceCount_0046af60;
+    g_apszCommMenuChoiceText_0059e4e0[index] = text;
+    g_nCommMenuChoiceCount_0046af60 = index + 1;
+    g_abCommMenuChoiceCommand_0059e488[index] = (signed char)command;
 }
 
 /* Function start: 0x430D30 */
 void SendCommMenuChoice(short i)
 {
-    CombatRoutine03((int)g_apszCommMenuText_0046af90[i], i);
+    AppendCommMenuChoice(g_apszCommMenuText_0046af90[i], i);
 }
 
 /* Function start: 0x430D50 */
@@ -213,13 +230,13 @@ void RequestEjectPrompt(void)
 /* Function start: 0x430E10 */
 int HasNoLockedTarget(void)
 {
-    return DAT_0046c04c == -1;
+    return g_nYourWingman_0046c04c == -1;
 }
 
 /* Function start: 0x430E30 */
 int IsWingmanIdle(void)
 {
-    return ShipAiRoutine18((short)DAT_0059ce60[0]) == 0;
+    return unactive((short)g_acShipTarget_0059ce60[0]) == 0;
 }
 
 /* Function start: 0x430E50 */

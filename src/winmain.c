@@ -19,7 +19,7 @@ void ReleaseSoundEffectShip(signed char ship)
     short index = ship;
 
     g_aiSoundEffectShipActive_005a66f0[index] = 0;
-    DestroyShip(index);
+    remove_object(index);
     g_nActiveSoundEffectShips_00465044 =
         MaxShort(0, g_nActiveSoundEffectShips_00465044 - 1);
 }
@@ -62,13 +62,15 @@ short SumShortArray(short *p, short n)
 /* Function start: 0x401680 */
 void TransformObjectVector(int p, int *q)
 {
-    ScaleDeltaToRange((int *)(p + 4), q, *(short *)(p + 0x10) + 0x10cc);
+    IsPointWithinRange((FixedVector *)(p + 4), (FixedVector *)q,
+                       *(short *)(p + 0x10) + 0x10cc);
 }
 
 /* Function start: 0x4016A0 */
 void TransformObjectVectorAlt(int p, int *q)
 {
-    ScaleDeltaToRange((int *)(p + 4), q, *(short *)(p + 0x10));
+    IsPointWithinRange((FixedVector *)(p + 4), (FixedVector *)q,
+                       *(short *)(p + 0x10));
 }
 
 /* Function start: 0x401870 */
@@ -80,8 +82,8 @@ void PlayEngineRumble(void)
 /* Function start: 0x401930 */
 void ClearShipSlotState4(short i)
 {
-    if (g_abShipSlotState_0059d100[i] == 4)
-        g_abShipSlotState_0059d100[i] = 0;
+    if (g_aeObjectClass_0059d100[i] == OBJECT_CLASS_DUST)
+        g_aeObjectClass_0059d100[i] = OBJECT_CLASS_NULL;
 }
 
 /* Function start: 0x401CE0 */

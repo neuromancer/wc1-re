@@ -100,7 +100,7 @@ void ResetStringBuilder(int p)
 /* Function start: 0x403EE0 */
 unsigned int GetNavSystemId(short i)
 {
-    if (i != -1 && DAT_0059d400[i] == 0)
+    if (i != -1 && g_asShipWingLeader_0059d400[i] == 0)
         return 1;
     return 0;
 }
@@ -108,6 +108,6 @@ unsigned int GetNavSystemId(short i)
 /* Function start: 0x403F10 */
 void SetNavSystemId(short i, short v)
 {
-    DAT_0059b320[i] = (int)v << 8;
-    ScaleShipVelocity(i);
+    g_anShipSpeed_0059b320[i] = (int)v << 8;
+    fix_velocity(i);
 }

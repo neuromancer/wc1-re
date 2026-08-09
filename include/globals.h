@@ -68,7 +68,8 @@ extern unsigned char DAT_0046aa38;
 extern unsigned char DAT_0046aa3c;
 extern unsigned char DAT_0046aa40;
 extern unsigned char g_abTaggedAllocationPrefix_0046ad88[8];
-extern unsigned char DAT_0046af60;
+extern short g_nCommMenuChoiceCount_0046af60;
+extern short g_nCommMenuReuseMode_0046af64;
 extern unsigned char DAT_0046af6c;
 extern unsigned char DAT_0046afc4;
 extern unsigned short DAT_0046b168;
@@ -77,18 +78,24 @@ extern int *DAT_0046b1a4;
 extern signed char g_abSoundEffectShips_0046c028[0x14];
 extern short DAT_0046c010;
 extern unsigned char DAT_0046c03c;
-extern short DAT_0046c04c;
+extern short g_nYourWingman_0046c04c;
 extern unsigned char DAT_0046c060;
 extern short DAT_0046c064;
 extern short DAT_0046c068;
-extern unsigned char DAT_0046c080;
-extern unsigned short DAT_0046c084;
+extern int g_bEngageAllowed_0046c080;
+extern short g_nAutoEngageTimer_0046c084;
+extern MissionNavPoint g_aMissionNavPoints_0046c2f0[WC1_MISSION_NAV_POINT_COUNT];
 extern int DAT_0046da90;
 extern int DAT_0046da94;
+extern int g_aiIntelligenceEvent_0046d368[512];
+extern signed char g_acPilotAggression_0046d9a0[64];
+extern signed char g_acPilotRecovery_0046d9b8[64];
+extern unsigned char *g_pDrawnMouseCursorShape_0046da9c;
 extern int DAT_0046daa0;
 extern int g_bMonoDebugInstalled_00475e70;
 extern HANDLE g_hMonoDebugDevice_00475e74;
 extern unsigned short DAT_00475e78;
+extern unsigned char g_bCurrentManeuverReroll_00475e7c;
 extern unsigned int DAT_004763f0;
 extern unsigned int DAT_00476640;
 extern unsigned int DAT_00476644;
@@ -114,6 +121,8 @@ extern unsigned char DAT_00598aba;
 extern unsigned int DAT_00598af4;
 extern unsigned int DAT_00598c18;
 extern unsigned char g_aInputEventSlots_00598c40[0x1c00];
+extern int g_nMouseCursorSavedY_0059a840;
+extern int g_nMouseCursorSavedX_0059a844;
 extern int DAT_0059a84c;
 extern int DAT_0059a8e0;
 extern int DAT_0059a8e4;
@@ -121,6 +130,7 @@ extern unsigned char DAT_0059a850;
 extern unsigned char * volatile DAT_0059ab19;
 extern unsigned short DAT_0059ab1d;
 extern Viewport * volatile DAT_0059ab23;
+extern unsigned char g_bMouseCursorShapeChanged_0059ab2b;
 extern void (*DAT_0059ab2c)(void);
 extern unsigned int DAT_0059ab54;
 extern int DAT_0059ab3c;
@@ -134,54 +144,59 @@ extern unsigned int DAT_0059af8c;
 extern short DAT_0059ab34;
 extern int DAT_0059ab4c;
 extern unsigned char DAT_0059ab58;
-extern int DAT_0059b320[512];
+extern int g_anShipSpeed_0059b320[64];
+extern FixedVector g_aShipForwardVector_0059bce0[64];
 extern int g_nSoundEffectSlotCount_0059bfe0;
 extern unsigned int DAT_0059b430[512];
 extern int DAT_0059b470[512];
-extern unsigned char DAT_0059b560[512];
+extern enum ObjectType g_aeObjectType_0059b560[96];
+extern FixedVector g_aShipVelocity_0059c010[512];
 extern unsigned char DAT_0059c310[512];
-extern short g_asShipSavedSlotState_0059c330[512];
-/* Queued ShipOrder, applied once a jump-out completes.  SetShipOrder writes the
- * live order to g_aeShipOrder_0059d200, but 0x00422C30 diverts the write here
- * when the current order is ORDER_JUMP_OUT.  Every observed value (5, 7, 8, 10)
- * is a ShipOrder enumerator. */
-extern unsigned char g_abShipQueuedOrder_0059c3f0[512];
-extern unsigned short DAT_0059c420[512];
-extern short DAT_0059c440[512];
-extern unsigned char DAT_0059c490[8192];
+extern short g_asObjectCounter_0059c330[512];
+extern enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[12];
+extern enum ShipMissionType g_aeShipMissionType_0059c3f0[512];
+extern short g_asShipCount_0059c420[512];
+extern short g_asShipMaximumSpeed_0059c440[24];
+extern FixedVector g_aShipPosition_0059c490[512];
 extern unsigned char DAT_0059c810[512];
+extern signed char g_cCurrentNavPointIndex_0059c86c;
 extern unsigned char DAT_0059ca94[256];
-extern short DAT_0059ce10;
+extern signed char g_acShipRating_0059cd80[16];
+extern short g_nTargetRange_0059ce10;
 extern unsigned int DAT_0059ce18[256];
-extern unsigned char DAT_0059ce60[512];
+extern signed char g_acShipTarget_0059ce60[512];
 extern unsigned char DAT_0059ce80[512];
 extern unsigned char DAT_0059cf20[512];
-/* Per-ship slot state.  0 means the slot is unused (DestroyShip clears it to 0
- * and the allocator scans for 0); GetShipSlotState stashes the old value in
- * g_asShipSavedSlotState_0059c330 before forcing 1.  Values above 0x0B mean the
- * ship has its data loaded, and 0x0D specifically owns a packet that must be
- * freed.  Not the ship class -- see include/wcdata.h. */
-extern unsigned char g_abShipSlotState_0059d100[512];
+/* Original class[] array.  The recovered ObjectClass order explains all of the
+ * observed magic values: 0 null, 1 futurion, 10 mine, 11 missile, 12 ship and
+ * 13 capital_ship. */
+extern enum ObjectClass g_aeObjectClass_0059d100[512];
+extern enum ShipObjective g_aeShipObjective_0059d200[512];
 extern unsigned short DAT_0059d2d0[512];
-extern unsigned char DAT_0059d400[512];
+extern short g_nPitchInput_0059d3f0;
+extern short g_nYawInput_0059d3f2;
+extern short g_asShipWingLeader_0059d400[64];
 extern unsigned short DAT_0059d500[2048];
-extern char DAT_0059d520[512];
-extern short DAT_0059d52a;
-extern unsigned int DAT_0059d5e0[512];
+extern char g_acShipSequence_0059d520[512];
+extern short g_nTargetFacing_0059d52a;
+extern enum ShipTactic g_aeShipTactic_0059d5e0[512];
 extern unsigned char DAT_0059d620[512];
 extern unsigned char DAT_0059d630[512];
-extern unsigned char DAT_0059d650[512];
+extern enum Side g_aeShipSide_0059d650[512];
 extern short DAT_0059d710[512];
 extern unsigned char DAT_0059d7a0[512];
+extern signed char g_abShipNavPointIndex_0059d7c0[512];
 extern unsigned short DAT_0059d9b0[512];
 extern unsigned char DAT_0059daca[8192];
 extern unsigned char DAT_0059dacf[8192];
-extern unsigned char DAT_0059dcb0[512];
-extern unsigned char DAT_0059dd10[8192];
+extern enum ShipManeuver g_aeShipManeuver_0059dcb0[512];
+extern unsigned char g_aShipMissionSpot_0059dd10[8192];
 extern char DAT_0059dec0[256];
-extern short DAT_0059df60;
+extern short g_nCurrentNavPoint_0059df60;
 extern unsigned char DAT_0059e1c0[512];
+extern signed char g_abCommMenuChoiceCommand_0059e488[7];
 extern unsigned int DAT_0059e490;
+extern char *g_apszCommMenuChoiceText_0059e4e0[7];
 extern int g_aiPacketHandles_0059e530[0x1000];
 extern int g_aiPacketHandleOffsets_005a2530[0x1000];
 extern int g_nPacketHandleCount_005a6530;
@@ -204,7 +219,7 @@ extern unsigned char DAT_005a7c30[2048];
 extern unsigned char DAT_005a7c31[2048];
 extern unsigned short DAT_005a7cc0[16];
 extern unsigned char DAT_005a7cec;
-extern unsigned char DAT_005a7dc8;
+extern unsigned char g_bStickIndicatorFrame_005a7dc8;
 extern unsigned char DAT_005a7dca;
 extern unsigned char DAT_005a7dd0[8192];
 extern int DAT_005a7de1;
@@ -218,6 +233,7 @@ extern int DAT_005a7d9c;
 extern unsigned char *DAT_005a7cf0;
 extern unsigned char DAT_005a86b0;
 extern char DAT_005a8760[512];
+extern short DAT_005a8692;
 extern unsigned int DAT_005a8964;
 extern unsigned short DAT_005a897c;
 extern unsigned int DAT_005a898c;
@@ -281,11 +297,89 @@ extern unsigned char DAT_0046c97a[16384];
 extern char  DAT_00486078[256];
 
 extern unsigned char g_bMessageSpeed_0046af68;
+extern unsigned char g_abManeuverRerollChance_00465678[47];
+extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
+
+/*
+ * BRAINS.C names for retail state that is still backed by the provisional
+ * oversized allocations above.  Keep these as aliases until the original
+ * compilation-unit data layout is known; changing the backing allocations
+ * here would move every later synthetic global.
+ */
+#define g_nEnemySighting_00465c7c \
+    (*(short *)((unsigned char *)g_aiPacketReferenceTable_00465c88 - 0x0c))
+#define g_nCurrentWave_0046c01c \
+    (*(short *)((unsigned char *)g_abSoundEffectShips_0046c028 - 0x0c))
+#define g_nCurrentObjective_0046c020 \
+    (*(short *)((unsigned char *)g_abSoundEffectShips_0046c028 - 0x08))
+#define g_cViableTargetCount_0046c088 \
+    (*(signed char *)((unsigned char *)&g_nAutoEngageTimer_0046c084 + 4))
+
+#define g_nTargetShip_0059c3b0 \
+    (*(short *)((unsigned char *)g_aeSpecialManeuver_0059c3c0 - 0x10))
+#define g_anYawGoal_0059c310 ((short *)(void *)DAT_0059c310)
+#define g_asShipDamage_0059c460 \
+    ((signed char *)((unsigned char *)g_asShipMaximumSpeed_0059c440 + 0x20))
+#define g_asViableTargetDistance_0059c470 \
+    ((short *)((unsigned char *)g_asShipMaximumSpeed_0059c440 + 0x30))
+#define g_cMissionObjectiveCount_0059c46a \
+    (*(signed char *)((unsigned char *)g_asShipMaximumSpeed_0059c440 + 0x2a))
+#define g_acShipMissionIndex_0059c830 \
+    ((signed char *)((unsigned char *)DAT_0059c810 + 0x20))
+#define g_asShipAfterburnerTimer_0059c810 ((short *)(void *)DAT_0059c810)
+#define g_acShipCommunicator_0059c850 \
+    ((signed char *)((unsigned char *)DAT_0059c810 + 0x40))
+#define g_acViableTarget_0059c920 \
+    ((signed char *)((unsigned char *)DAT_0059c810 + 0x110))
+#define g_asActionCount_0059c930 \
+    ((short *)((unsigned char *)DAT_0059c810 + 0x120))
+#define g_aiPilotLevel_0059cf30 \
+    ((int *)((unsigned char *)DAT_0059cf20 + 0x10))
+#define g_acTurnRegulator_0059cf10 \
+    ((signed char *)((unsigned char *)DAT_0059cf20 - 0x10))
+
+#define g_anShipMissionShip_0059d4b0 \
+    ((short *)((unsigned char *)DAT_0059d500 - 0x50))
+#define g_vToTarget_0059d4d0 \
+    (*(FixedVector *)((unsigned char *)DAT_0059d500 - 0x30))
+#define g_aShipDestination_0059d530 \
+    ((FixedVector *)((unsigned char *)DAT_0059d500 + 0x30))
+#define g_acFormationMemberList_0059d490 \
+    ((signed char *)((unsigned char *)DAT_0059d500 - 0x70))
+#define g_anRollGoal_0059d630 ((short *)(void *)DAT_0059d630)
+#define g_acShipAiCooldown_0059d680 \
+    ((signed char *)((unsigned char *)g_aeShipSide_0059d650 + 0x30))
+#define g_abShipTurn_0059d860 \
+    ((unsigned char *)DAT_0059d9b0 - 0x150)
+#define g_nFacingToTarget_0059d920 \
+    (*(short *)((unsigned char *)DAT_0059d9b0 - 0x90))
+#define g_anPitchGoal_0059d7a0 ((short *)(void *)DAT_0059d7a0)
+#define g_acTurnInterval_0059d7d0 \
+    ((signed char *)((unsigned char *)g_abShipNavPointIndex_0059d7c0 + 0x10))
+#define g_vNormalizedToTarget_005a7db0 \
+    (*(FixedVector *)((unsigned char *)DAT_005a7dd0 - 0x20))
+#define g_nLastFoundShip_005a7cba \
+    (*(short *)((unsigned char *)DAT_005a7cc0 - 6))
+
+#define g_abFlightPath_0059c000 \
+    ((signed char *)((unsigned char *)g_aShipVelocity_0059c010 - 0x10))
+#define g_abMissionObjectiveType_0059dac5 \
+    ((signed char *)((unsigned char *)DAT_0059daca - 5))
+#define g_abMissionObjectiveIndex_0059dac9 \
+    ((signed char *)((unsigned char *)DAT_0059daca - 1))
+#define g_aMissionObjectivePosition_0059dad3 \
+    ((FixedVector *)((unsigned char *)DAT_0059daca + 9))
+#define g_aObjectTypeData_00466460 \
+    ((unsigned char *)DAT_00466472 - 0x12)
+#define g_abObjectField_0059b4a0 \
+    ((unsigned char *)g_aeObjectType_0059b560 - 0xc0)
+#define g_aShipFormationOffset_0059b520 \
+    ((FixedVector *)((unsigned char *)g_aeObjectType_0059b560 - 0x40))
 
 /* Ordered name tables read directly out of the image; see include/wcdata.h.
  * Both are packed variable-length strings, not fixed-stride arrays, so the
  * game indexes them through a pointer table rather than by multiplication. */
-extern const char g_aszShipClassNames_004684d4[];    /* Hornet .. Star post, then weapons */
+extern const char g_aszObjectTypeDisplayNames_004684d4[]; /* Hornet .. Star post, then weapons */
 extern const char g_aszKilrathiAceNames_0046afd4[];  /* Bhurak, Dakhath, Khajja, Bakhtosh */
 
 #endif /* WC1_GLOBALS_H */

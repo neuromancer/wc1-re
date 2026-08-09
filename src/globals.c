@@ -65,7 +65,8 @@ unsigned char DAT_0046aa40;
 unsigned char g_abTaggedAllocationPrefix_0046ad88[8] = {
     'j', 'e', 'f', 'f', 0, 0, 0, 0
 };
-unsigned char DAT_0046af60;
+short g_nCommMenuChoiceCount_0046af60;
+short g_nCommMenuReuseMode_0046af64;
 unsigned char DAT_0046af6c;
 unsigned char DAT_0046afc4;
 unsigned short DAT_0046b168;
@@ -76,18 +77,24 @@ const GUID g_guidDirectDraw2_00463118 = {
 signed char g_abSoundEffectShips_0046c028[0x14];
 short DAT_0046c010;
 unsigned char DAT_0046c03c;
-short DAT_0046c04c;
+short g_nYourWingman_0046c04c;
 unsigned char DAT_0046c060;
 short DAT_0046c064;
 short DAT_0046c068;
-unsigned char DAT_0046c080;
-unsigned short DAT_0046c084;
+int g_bEngageAllowed_0046c080;
+short g_nAutoEngageTimer_0046c084;
+MissionNavPoint g_aMissionNavPoints_0046c2f0[WC1_MISSION_NAV_POINT_COUNT];
 int DAT_0046da90;
 int DAT_0046da94;
+int g_aiIntelligenceEvent_0046d368[512];
+signed char g_acPilotAggression_0046d9a0[64];
+signed char g_acPilotRecovery_0046d9b8[64];
+unsigned char *g_pDrawnMouseCursorShape_0046da9c;
 int DAT_0046daa0;
 int g_bMonoDebugInstalled_00475e70;
 HANDLE g_hMonoDebugDevice_00475e74;
 unsigned short DAT_00475e78;
+unsigned char g_bCurrentManeuverReroll_00475e7c;
 unsigned int DAT_004763f0;
 unsigned int DAT_00476640;
 unsigned int DAT_00476644;
@@ -113,6 +120,8 @@ unsigned char DAT_00598aba;
 unsigned int DAT_00598af4;
 unsigned int DAT_00598c18;
 unsigned char g_aInputEventSlots_00598c40[0x1c00];
+int g_nMouseCursorSavedY_0059a840;
+int g_nMouseCursorSavedX_0059a844;
 int DAT_0059a84c;
 int DAT_0059a8e0;
 int DAT_0059a8e4;
@@ -120,6 +129,7 @@ unsigned char DAT_0059a850;
 unsigned char * volatile DAT_0059ab19;
 unsigned short DAT_0059ab1d;
 Viewport * volatile DAT_0059ab23;
+unsigned char g_bMouseCursorShapeChanged_0059ab2b;
 void (*DAT_0059ab2c)(void);
 unsigned int DAT_0059ab54;
 int DAT_0059ab3c;
@@ -133,45 +143,56 @@ unsigned int DAT_0059af8c;
 short DAT_0059ab34;
 int DAT_0059ab4c;
 unsigned char DAT_0059ab58;
-int DAT_0059b320[512];
+int g_anShipSpeed_0059b320[64];
+FixedVector g_aShipForwardVector_0059bce0[64];
 int g_nSoundEffectSlotCount_0059bfe0;
 unsigned int DAT_0059b430[512];
 int DAT_0059b470[512];
-unsigned char DAT_0059b560[512];
+enum ObjectType g_aeObjectType_0059b560[96];
+FixedVector g_aShipVelocity_0059c010[512];
 unsigned char DAT_0059c310[512];
-short g_asShipSavedSlotState_0059c330[512];
-unsigned char g_abShipQueuedOrder_0059c3f0[512];
-unsigned short DAT_0059c420[512];
-short DAT_0059c440[512];
-unsigned char DAT_0059c490[8192];
+short g_asObjectCounter_0059c330[512];
+enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[12];
+enum ShipMissionType g_aeShipMissionType_0059c3f0[512];
+short g_asShipCount_0059c420[512];
+short g_asShipMaximumSpeed_0059c440[24];
+FixedVector g_aShipPosition_0059c490[512];
 unsigned char DAT_0059c810[512];
+signed char g_cCurrentNavPointIndex_0059c86c;
 unsigned char DAT_0059ca94[256];
-short DAT_0059ce10;
+signed char g_acShipRating_0059cd80[16];
+short g_nTargetRange_0059ce10;
 unsigned int DAT_0059ce18[256];
-unsigned char DAT_0059ce60[512];
+signed char g_acShipTarget_0059ce60[512];
 unsigned char DAT_0059ce80[512];
 unsigned char DAT_0059cf20[512];
-unsigned char g_abShipSlotState_0059d100[512];
+enum ObjectClass g_aeObjectClass_0059d100[512];
+enum ShipObjective g_aeShipObjective_0059d200[512];
 unsigned short DAT_0059d2d0[512];
-unsigned char DAT_0059d400[512];
+short g_nPitchInput_0059d3f0;
+short g_nYawInput_0059d3f2;
+short g_asShipWingLeader_0059d400[64];
 unsigned short DAT_0059d500[2048];
-char DAT_0059d520[512];
-short DAT_0059d52a;
-unsigned int DAT_0059d5e0[512];
+char g_acShipSequence_0059d520[512];
+short g_nTargetFacing_0059d52a;
+enum ShipTactic g_aeShipTactic_0059d5e0[512];
 unsigned char DAT_0059d620[512];
 unsigned char DAT_0059d630[512];
-unsigned char DAT_0059d650[512];
+enum Side g_aeShipSide_0059d650[512];
 short DAT_0059d710[512];
 unsigned char DAT_0059d7a0[512];
+signed char g_abShipNavPointIndex_0059d7c0[512];
 unsigned short DAT_0059d9b0[512];
 unsigned char DAT_0059daca[8192];
 unsigned char DAT_0059dacf[8192];
-unsigned char DAT_0059dcb0[512];
-unsigned char DAT_0059dd10[8192];
+enum ShipManeuver g_aeShipManeuver_0059dcb0[512];
+unsigned char g_aShipMissionSpot_0059dd10[8192];
 char DAT_0059dec0[256];
-short DAT_0059df60;
+short g_nCurrentNavPoint_0059df60;
 unsigned char DAT_0059e1c0[512];
+signed char g_abCommMenuChoiceCommand_0059e488[7];
 unsigned int DAT_0059e490;
+char *g_apszCommMenuChoiceText_0059e4e0[7];
 int g_aiPacketHandles_0059e530[0x1000];
 int g_aiPacketHandleOffsets_005a2530[0x1000];
 int g_nPacketHandleCount_005a6530;
@@ -192,7 +213,7 @@ unsigned char DAT_005a7c30[2048];
 unsigned char DAT_005a7c31[2048];
 unsigned short DAT_005a7cc0[16];
 unsigned char DAT_005a7cec;
-unsigned char DAT_005a7dc8;
+unsigned char g_bStickIndicatorFrame_005a7dc8;
 unsigned char DAT_005a7dca;
 unsigned char DAT_005a7dd0[8192];
 int DAT_005a7de1;
@@ -206,6 +227,7 @@ int DAT_005a7d9c;
 unsigned char *DAT_005a7cf0;
 unsigned char DAT_005a86b0;
 char DAT_005a8760[512];
+short DAT_005a8692;
 unsigned int DAT_005a8964;
 unsigned short DAT_005a897c;
 unsigned int DAT_005a898c;
@@ -264,6 +286,60 @@ int   DAT_0046b1b4;
 unsigned char DAT_0046c97a[16384];
 char  DAT_00486078[256];
 unsigned char g_bMessageSpeed_0046af68;
+unsigned char g_abManeuverRerollChance_00465678[47] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0
+};
+void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short) = {
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp,
+    (void (*)(short, short))ShipAiStateNoOp
+};
 
 /* Defined here because the pre-refactor tranche that owned them is gone. */
 int *DAT_0046b1a4;
@@ -271,10 +347,9 @@ char *PTR_s_MISSILE_LOCKED_004691d4[8];
 char *g_apszCommMenuText_0046af90[32];
 unsigned long g_dwGameClockBase_005a89a8;
 
-/* Ordered name tables transcribed from the image.  Indices are the ShipClass
- * and PilotId enumerators in include/wcdata.h; the spellings are the game's own
- * ("Dilligent" with two Ls, "Spikeri" for the ship the manual calls Hhriss). */
-const char g_aszShipClassNames_004684d4[] =
+/* Ordered display names transcribed from the image.  The Sega CD inspector
+ * proves that these index ObjectType, not a ship-only class enum. */
+const char g_aszObjectTypeDisplayNames_004684d4[] =
     "Hornet\0" "Rapier\0" "Scimitar\0" "Raptor\0" "Venture\0" "Dilligent\0"
     "Drayman\0" "Exeter\0" "Tiger's Claw\0" "Salthi\0" "Dralthi\0" "Krant\0"
     "Gratha\0" "Jalthi\0" "Spikeri\0" "Dorkir\0" "Lumbari\0" "Ralari\0"

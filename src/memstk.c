@@ -154,6 +154,23 @@ void LeaveAllocationScope(void)
     DAT_0046daa0 = DAT_0046daa0 - 1;
 }
 
+/* Function start: 0x4360F0 */
+void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
+{
+    g_bMouseCursorShapeChanged_0059ab2b = 1;
+    if (DAT_0059ab23 != 0 && DAT_0046daa0 > 0 &&
+        g_pDrawnMouseCursorShape_0046da9c != 0) {
+        RestoreSpriteBackground(DAT_0059ab23, DAT_004865a8,
+                                g_nMouseCursorSavedX_0059a844,
+                                g_nMouseCursorSavedY_0059a840,
+                                g_pDrawnMouseCursorShape_0046da9c,
+                                DAT_0059ab1d);
+        g_pDrawnMouseCursorShape_0046da9c = 0;
+    }
+    DAT_0059ab1d = frame;
+    DAT_0059ab19 = shape;
+}
+
 /* Function start: 0x436160 */
 void SetMouseHomePosition(short x, short y)
 {
@@ -303,4 +320,15 @@ void VideoReleaseHook(void)
 /* Function start: 0x4369E0 */
 void ExitCleanupHook(void)
 {
+}
+
+/* Function start: 0x436A00 */
+unsigned int IsVectorWithinRange(FixedVector *vector, short range)
+{
+    int magnitude = ComputeFixedVectorMagnitude(vector);
+    int fixedRange = abs((int)range << 8);
+
+    if (fixedRange >= magnitude)
+        return 1;
+    return 0;
 }

@@ -97,7 +97,7 @@ src/            game core (C), one file per address range -- see docs/ORDER.md
 src/ix/         ix audio library (C++), one file per original module
 include/        wc1.h plus the generated globals.h / wc1funcs.h / wc1extern.h
 config/         binary-comp configuration
-docs/           COMPILER.md, PATTERNS.md, EXPORT.md, ORDER.md, LABELS.md
+docs/           COMPILER.md, PATTERNS.md, EXPORT.md, ORDER.md, LABELS.md, BRAINS.md
 bin/            showProgress.py, sortByAddress.py, sweepFlags.py,
                 auditAddresses.py, nameOracle.py
 tools/          analyze_clang.sh, analyze_static.sh (analysis-only Clang passes)
@@ -115,19 +115,19 @@ This repository is seeded by the reverse-engineering work in the parent director
 - `../wc1_function_evidence.csv` — all 1,836 functions with module, size, 16-bit-operand
   density, callers, nearest named ancestor, imports, strings and assert anchors.
 
-Three community projects in the parent directory are also used as naming evidence —
-`WCMissionTools` for the data-file record layouts and the ship/order/pilot enumerations,
-`WingCommanderArduinoBridge` for the pilot record's field order, and `wcdx` for PE layout.
-Everything adopted from them is checked against the image first and recorded in
-[`include/wcdata.h`](include/wcdata.h); that check corrected two ship names.
+Recovered Amiga, FM Towns, and Sega CD diagnostics, the old demo's `BRAINS.C`, and three
+community projects in the parent directory provide additional naming evidence. Everything
+adopted from them is checked against the Win32 image first and recorded in
+[`include/wcdata.h`](include/wcdata.h) or [`docs/BRAINS.md`](docs/BRAINS.md).
 
 Two things to read before writing code:
 
 - [`docs/ORDER.md`](docs/ORDER.md) — the `ix` link order is exact; the game-core order is
   **not**, and a wrong boundary invalidates every address after it.
-- [`docs/LABELS.md`](docs/LABELS.md) — only 437 of the 1,451 Ghidra names are evidence-backed.
-  The other 1,014 are `<Verb><Object>Fn<addr>` labels describing *mechanism, not purpose*.
-  Do not treat one as a statement of intent.
+- [`docs/LABELS.md`](docs/LABELS.md) — separates evidence-backed names from
+  `<Verb><Object>Fn<addr>` labels that describe *mechanism, not purpose*.
+- [`docs/BRAINS.md`](docs/BRAINS.md) — maps the recovered 1989/1990 AI source onto the
+  Win32 image and records where that older source is, and is not, authoritative.
 
 ## Rules
 
