@@ -63,7 +63,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/sysinput.c` | `0x402e00`–`0x4030ff` | 8 | Mouse, keyboard and clock services over the Win32 API | contiguous run of Win32 input/timing wrappers with no string references |
 | `src/cdrom.c` | `0x403100`–`0x4034ff` | 5 | CD-ROM location and disc-swap prompting | LocateStreamsDirOnDisc..PromptInsertCorrectCd; string band 0x46535C-0x4653FC |
 | `src/mono.c` | `0x403500`–`0x403fff` | 10 | MONODEBG.VXD developer console and its printf channels | MonoDebug_install/MonoDebug_print anchor the module; SoundDebugPrintf feeds it |
-| `src/shipai.c` | `0x404000`–`0x40cfff` | 24 | Ship AI: dispatch-table states and the behaviour routines | the 47-slot dispatch table at 0x004656a8 targets this range almost exclusively |
+| `src/shipai.c` | `0x404000`–`0x40cfff` | 68 | Ship AI: dispatch-table states and the behaviour routines | Exact nested Mac `brain` unit at `0x409760`–`0x40b66f`; the 47-slot dispatch table at `0x004656a8` anchors the enclosing split |
 | `src/nav.c` | `0x40d000`–`0x40ffff` | 9 | Nav map, location readouts and the virtual screen | DrawNav* family; string band 0x4687AC-0x4688F4 |
 | `src/joystick.c` | `0x410000`–`0x412fff` | 3 | Joystick calibration and input dispatch | CalibrateJoystickInteractive; string band 0x468F04-0x468FEC |
 | `src/hud.c` | `0x413000`–`0x417fff` | 38 | Cockpit HUD: weapon, damage, target and message displays | Draw*Panel/Report* family; string band 0x4692B8-0x4693A4 |
@@ -90,7 +90,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/killbrd.c` | `0x43c000`–`0x440bff` | 7 | Kill board, conversation scenes and save-slot flags | ShowTigersClawKillBoard/RunConversationScene; string band 0x4705DC-0x470668 |
 | `src/gr.c` | `0x440c00`–`0x44274f` | 14 | Rasteriser primitives and screen-space effects | PROVEN by name: shadow_draw, fizzle_fade, snow_viewport |
 
-Four whole-file boundaries and three nested source units are proven rather than guessed:
+Four whole-file boundaries and four nested source units are proven rather than guessed:
 
 - **`dib.c`** — every routine prints its own name through `DIBerror`.
 - **`pload.c`** — `PacketLoad` prints `"Library\Source\Pload.c PacketLoad …"`, the only
@@ -102,6 +102,10 @@ Four whole-file boundaries and three nested source units are proven rather than 
   ordered function run. Win32 expands two collision/formation operations into private
   helpers and swaps the local placement of `control_speed`/`chase_location`, but the
   `0x00433AC0` start and `chase_speed`/`RandomBelow` end boundary remain unambiguous.
+- **Mac `brain` unit** — CODE 2 preserves 45 consecutive symbols from `cruise_home` through
+  `FF_missile_intelligence`. Checked Win32 bodies form the same run at
+  `0x00409760`–`0x0040B66F`; Win32 adds the `BRAINS.C`-named
+  `heat_seeking_missile_intelligence` between `mine_intelligence` and the final Mac symbol.
 - **Mac `targ` unit** — CODE 4 ends with the consecutive symbols `find_objective`,
   `arrive_from_warp`, `unwarp`, `warp`, `drop_player_mine`, `personality_killed`, and
   `clean_up_cockpit`. Their checked Win32 bodies form the same uninterrupted run at

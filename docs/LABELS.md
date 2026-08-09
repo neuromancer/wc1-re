@@ -111,6 +111,41 @@ while `rating[]`, `ship_target[]`, and `ship_seq[]` are byte arrays; `ship_wingl
 Everything recovered this way is in [include/wcdata.h](../include/wcdata.h), with each entry
 marked verified or not.
 
+### Mac `brain` unit mapped onto Win32
+
+CODE 2 preserves 45 consecutive symbols belonging to the `brain` source unit. Their checked
+retail Win32 counterparts form one uninterrupted semantic run at
+`0x00409760`–`0x0040B66F`. The only Win32 insertion is
+`heat_seeking_missile_intelligence`, independently named by `BRAINS.C`; it is not attributed
+to the Mac symbol list.
+
+| Win32 address | Exact name | Win32 address | Exact name |
+|---|---|---|---|
+| `0x00409760` | `cruise_home` | `0x004098C0` | `fail` |
+| `0x004098D0` | `coming_home` | `0x004099C0` | `run_away` |
+| `0x00409AC0` | `check_engage_target` | `0x00409B10` | `check_destroy_target` |
+| `0x00409C20` | `maneuvering` | `0x00409C50` | `formation_burst` |
+| `0x00409CE0` | `disallow_engage` | `0x00409CF0` | `allow_engage` |
+| `0x00409D10` | `try2allow_engage` | `0x00409D60` | `imperial_formation` |
+| `0x00409F00` | `formation_break` | `0x00409F80` | `imperial_wingman` |
+| `0x0040A030` | `kilrathi_wingman` | `0x0040A130` | `wingman_mission` |
+| `0x0040A160` | `dist_from_home` | `0x0040A180` | `scan_and_lock` |
+| `0x0040A1C0` | `patrol_area` | `0x0040A360` | `kilrathi_patrol` |
+| `0x0040A400` | `imperial_wingleader` | `0x0040A410` | `cruise_to_destination` |
+| `0x0040A540` | `prepare_for_jump` | `0x0040A630` | `accelerate_and_jump` |
+| `0x0040A670` | `reach_warp` | `0x0040A710` | `warp_arrival` |
+| `0x0040A740` | `return_to_buddy` | `0x0040A7A0` | `escort_buddy` |
+| `0x0040A7D0` | `escort_mission` | `0x0040A900` | `check_goal` |
+| `0x0040A940` | `streak_toward` | `0x0040A9B0` | `approach_and_engage` |
+| `0x0040AAC0` | `strike_mission` | `0x0040ABB0` | `return_to_master` |
+| `0x0040AC00` | `defend_mission` | `0x0040AD80` | `rendezvous_mission` |
+| `0x0040AE80` | `ship_intelligence` | `0x0040AF70` | `orbit_sphere` |
+| `0x0040B010` | `tanker_intelligence` | `0x0040B0C0` | `destroyer_intelligence` |
+| `0x0040B110` | `stationary_intelligence` | `0x0040B140` | `capital_ship_intelligence` |
+| `0x0040B320` | `futurion_intelligence` | `0x0040B3A0` | `mine_intelligence` |
+| `0x0040B430` | `heat_seeking_missile_intelligence` | | Win32-only `BRAINS.C` helper |
+| `0x0040B570` | `FF_missile_intelligence` | | final exact Mac `brain` symbol |
+
 ### Mac `smart` unit mapped onto Win32
 
 The Mac release preserves a `smart` compilation unit between the `3d` and `rand` units.

@@ -22,6 +22,20 @@ ranges differ, the retail dispatcher contains additional cases, and the demo ret
 test code and source-level mistakes. Reimplementation must therefore follow Win32 instruction
 flow even when the older source looks cleaner.
 
+## Mac `brain` compilation unit
+
+The Macintosh release makes the source boundary much stronger than the recovered demo alone.
+CODE 2 preserves 45 consecutive `brain` symbols from `cruise_home` through
+`FF_missile_intelligence`. After checking each retail body, the same semantic sequence maps
+to Win32 `0x00409760`–`0x0040B66F`. Win32 contains one additional routine in that run:
+`heat_seeking_missile_intelligence` at `0x0040B430`, whose name and role come from
+`BRAINS.C`. It is a retail split/addition, not a guessed Mac positional match.
+
+All 46 Win32 routines in this unit now have source bodies in `src/shipai.c`; none remains in
+`src/stubs.c`. Exact Mac spellings replace the earlier operational or inferred names,
+including `try2allow_engage`, `orbit_sphere`, `tanker_intelligence`,
+`destroyer_intelligence`, and `stationary_intelligence`.
+
 ## High-confidence Win32 function map
 
 The following block is unusually strong: function order, callers, switch values, constants,
@@ -38,6 +52,9 @@ Ghidra.
 | `0x00409B10` | `check_destroy_target` | mission ship, damage, and fallback-target logic |
 | `0x00409C20` | `maneuvering` | stores target, processes events, calls `perform_maneuver` |
 | `0x00409C50` | `formation_burst` | full speed, destination steering, burst counter, engage transition |
+| `0x00409CE0` | `disallow_engage` | clears automatic engagement authorization |
+| `0x00409CF0` | `allow_engage` | authorizes engagement and disables its timer |
+| `0x00409D10` | `try2allow_engage` | pilot-level gate for automatic engagement |
 | `0x00409D60` | `imperial_formation` | wing leader, sighting wave, engage permission, catch-up burn |
 | `0x00409F00` | `formation_break` | `ship_seq[]` staged break followed by engagement |
 | `0x00409F80` | `imperial_wingman` | objective dispatcher for the player's wingman |
@@ -64,7 +81,10 @@ Ghidra.
 | `0x0040AC00` | `defend_mission` | threat scan, drift correction, and defend objective switch |
 | `0x0040AD80` | `rendezvous_mission` | reach-ship objective becomes defend |
 | `0x0040AE80` | `ship_intelligence` | top-level fighter mission-type dispatcher |
-| `0x0040AF70` | `mega_ship` | Ralari/Fralthi sphere patrol and turret behavior |
+| `0x0040AF70` | `orbit_sphere` | keeps capital ships near the current navigation sphere |
+| `0x0040B010` | `tanker_intelligence` | transport evasion, capital fire, and sphere orbit |
+| `0x0040B0C0` | `destroyer_intelligence` | turret fire, speed selection, and sphere orbit |
+| `0x0040B110` | `stationary_intelligence` | base yaw rotation and turret fire |
 | `0x0040B140` | `capital_ship_intelligence` | top-level capital-ship mission/tactic dispatcher |
 | `0x0040B320` | `futurion_intelligence` | restores class from `object_counter[]` when arrival conditions pass |
 | `0x0040B3A0` | `mine_intelligence` | proximity scan and detonation |
@@ -146,6 +166,7 @@ previously been collapsed into “class”, “order”, or “AI state”.
 | `0x0059CD80` | `rating[]` / `g_acShipRating_0059cd80` | `Rating`, 8-bit |
 | `0x0059CE10` | `target_range` / `g_nTargetRange_0059ce10` | signed 16-bit distance |
 | `0x0059CE60` | `ship_target[]` / `g_acShipTarget_0059ce60` | signed 8-bit; `-1` is none |
+| `0x0059CE80` | object yaw rotation / `g_anObjectYawRotation_0059ce80` | 64 signed 16-bit elements |
 | `0x0059D100` | `class[]` / `g_aeObjectClass_0059d100` | `ObjectClass`, 32-bit |
 | `0x0059D200` | `ship_objective[]` / `g_aeShipObjective_0059d200` | `ShipObjective`, 32-bit |
 | `0x0059D400` | `ship_wingleader[]` / `g_asShipWingLeader_0059d400` | signed 16-bit |
@@ -154,6 +175,7 @@ previously been collapsed into “class”, “order”, or “AI state”.
 | `0x0059D52A` | `target_facing` / `g_nTargetFacing_0059d52a` | signed 16-bit facing score |
 | `0x0059D530` | `destination[]` / `g_aShipDestination_0059d530` | 12-byte `FixedVector` |
 | `0x0059D5E0` | `ship_tactic[]` / `g_aeShipTactic_0059d5e0` | `ShipTactic`, 32-bit |
+| `0x0059D610` | `exhaust_hot[]` / `g_abShipExhaustHeat_0059d610` | 16 signed 8-bit heat ratings |
 | `0x0059D630` | `roll_goal[]` / `g_anRollGoal_0059d630` | signed 16-bit |
 | `0x0059D650` | `side[]` / `g_aeShipSide_0059d650` | `Side`, 32-bit |
 | `0x0059D7A0` | `pitch_goal[]` / `g_anPitchGoal_0059d7a0` | signed 16-bit |
@@ -192,7 +214,9 @@ The first implementation tranche now includes every high-confidence top-level ma
 table above, including `imperial_wingman`, `kilrathi_wingman`, `kilrathi_patrol`,
 `mine_intelligence`, both missile-intelligence routines, and `arrive_from_warp`. Their completed
 bodies and the called AI/geometry/mission helpers live in their address-ordered source modules,
-not in `stubs.c`. The post-pass report compares 604 functions: 355 are exact, 415 are at least
-90%, and the whole-image average is 83.91%. A few newly exposed downstream helpers remain
+not in `stubs.c`. In the completed Mac `brain` pass, all 46 retail routines are at least 90%
+similar and 31 are instruction-exact. The full post-pass report compares 655 functions: 417
+are exact, 502 are at least 90%, and the whole-image average is 86.74%. A few newly exposed
+downstream helpers remain
 functional approximations with low similarity; these are candidates for later retail-driven
 tightening rather than hidden link stubs.

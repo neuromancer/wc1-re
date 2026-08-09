@@ -1257,7 +1257,7 @@ int abandoned(short obj, short other)
 }
 
 /* Function start: 0x423A50 */
-void engage(short obj, signed char target, enum ShipObjective objective)
+void engage(short obj, short target, enum ShipObjective objective)
 {
     if (g_aeShipObjective_0059d200[obj] != objective) {
         reset_objective(obj, objective);

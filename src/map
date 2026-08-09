@@ -170,7 +170,7 @@
 0x00409C50 formation_burst
 0x00409CE0 disallow_engage
 0x00409CF0 allow_engage
-0x00409D10 DoUiFn9D10
+0x00409D10 try2allow_engage
 0x00409D60 imperial_formation
 0x00409F00 formation_break
 0x00409F80 imperial_wingman
@@ -197,10 +197,10 @@
 0x0040AC00 defend_mission
 0x0040AD80 rendezvous_mission
 0x0040AE80 ship_intelligence
-0x0040AF70 mega_ship
-0x0040B010 capital_transport_intelligence
-0x0040B0C0 capital_mega_ship_intelligence
-0x0040B110 GetTbl0059b560FnB110
+0x0040AF70 orbit_sphere
+0x0040B010 tanker_intelligence
+0x0040B0C0 destroyer_intelligence
+0x0040B110 stationary_intelligence
 0x0040B140 capital_ship_intelligence
 0x0040B320 futurion_intelligence
 0x0040B3A0 mine_intelligence

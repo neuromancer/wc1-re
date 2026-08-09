@@ -190,7 +190,7 @@ extern short g_nTargetRange_0059ce10;
 extern unsigned int DAT_0059ce18[256];
 extern signed char g_acObjectOwner_0059ce20[64];
 extern signed char g_acShipTarget_0059ce60[512];
-extern unsigned char DAT_0059ce80[512];
+extern short g_anObjectYawRotation_0059ce80[256];
 extern unsigned char DAT_0059cf20[512];
 /* Original class[] array.  The recovered ObjectClass order explains all of the
  * observed magic values: 0 null, 1 futurion, 10 mine, 11 missile, 12 ship and
@@ -206,6 +206,7 @@ extern unsigned short DAT_0059d500[2048];
 extern char g_acShipSequence_0059d520[512];
 extern short g_nTargetFacing_0059d52a;
 extern enum ShipTactic g_aeShipTactic_0059d5e0[512];
+extern signed char g_abShipExhaustHeat_0059d610[16];
 extern signed char g_acShipStress_0059d620[16];
 extern unsigned char DAT_0059d630[512];
 extern enum Side g_aeShipSide_0059d650[512];
