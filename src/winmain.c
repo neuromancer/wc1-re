@@ -54,10 +54,10 @@ void PlayEngineRumble(void)
 }
 
 /* Function start: 0x401930 */
-void ClearShipMode4(short i)
+void ClearShipSlotState4(short i)
 {
-    if (DAT_0059d100[i] == 4)
-        DAT_0059d100[i] = 0;
+    if (g_abShipSlotState_0059d100[i] == 4)
+        g_abShipSlotState_0059d100[i] = 0;
 }
 
 /* Function start: 0x401CE0 */

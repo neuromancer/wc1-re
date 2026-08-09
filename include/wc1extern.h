@@ -80,7 +80,7 @@ void ReportComponentHit(char a, char b, char c);                  /* 0x00414BF0 
 void ReleaseAllSfxSlots(void);                                 /* 0x00401210 */
 void ProcessShipCommQueue(short a);                              /* 0x0040AA0 family */
 void FindShipCommEntry(short a, int b);                       /* 0x00421100 */
-short AnyShipReadyToJump(void);                                /* 0x004154C0 */
+short AnyShipQueuedToNavigate(void);                                /* 0x004154C0 */
 void ComputeStickIndicatorFrame(void);                                       /* 0x004171D0 */
 void SetMultimediaTimerCallback(int period);                      /* 0x0042AFC0 */
 void ResetSeriesProgress(void);                                          /* 0x00424BE0 */
@@ -101,7 +101,7 @@ void Streamer_stop(void);                                         /* 0x00442460 
 short UiRoutine03(void);                                          /* 0x00429E30 family */
 void ValidateViewportBounds(int *a, int *b, unsigned int *c);     /* 0x00440C00 */
 void _free_dbg(void *p, int blockType);                           /* Function start: 0x401250 */
-long _ftol(void);                                                 /* Pointer table of prompt strings indexed by ShowCommMenuEntry. */
+long _ftol(void);                                                 /* Pointer table of prompt strings indexed by SendCommMenuChoice. */
 void auto_pilot_sequence(void);                                   /* named by the leaked header */
 
 #endif /* WC1_EXTERN_H */

@@ -14,7 +14,7 @@ short SumShortArray(short *p, short n);                                 /* 0x004
 void TransformObjectVector(int p, int *q);                                      /* 0x00401680 */
 void TransformObjectVectorAlt(int p, int *q);                                      /* 0x004016A0 */
 void PlayEngineRumble(void);                                                /* 0x00401870 */
-void ClearShipMode4(short i);                                     /* 0x00401930 */
+void ClearShipSlotState4(short i);                                     /* 0x00401930 */
 void WarpMouseTo(short x, short y);                                  /* 0x00401CE0 */
 void ShowNoticeMessageBox(const char *text);                            /* 0x004020E0 */
 unsigned int GetWindowHandleWord(void);                                     /* 0x00402520 */
@@ -54,7 +54,7 @@ void ClearNavSelection(short i);                                     /* 0x0040A1
 void UpdateShipAiVector(short ship);                                       /* 0x0040A160 */
 void RunShipAiDispatch(short a);                                            /* 0x0040A400 */
 void PromoteShipAiState15(short i);                                     /* 0x0040B110 */
-unsigned int GetShipMode(short i);                             /* 0x0040B700 */
+unsigned int GetShipSlotState(short i);                             /* 0x0040B700 */
 void ResetNavCursor(void);                                             /* 0x0040BEA0 */
 unsigned int GetObjectVisible(void);                                        /* 0x0040C350 */
 void SetNavCursorIndex(unsigned short v);                                /* 0x0040CBB0 */
@@ -225,7 +225,7 @@ void EnableMusicForScene(void);                                               /*
 unsigned int SoundFxTick(void);                                       /* 0x0042EF00 */
 void FlushSoundEffectsAndLog(void);                                               /* 0x0042EF10 */
 void sound_effect(void);                                                /* 0x0042EF20 */
-int IsShipDestroyed(short i);                                      /* 0x0042F1F0 */
+int IsShipQueuedOrderDefend(short i);                                      /* 0x0042F1F0 */
 unsigned short GetConversationState(void);                                    /* 0x0042F730 */
 void InitFullScreenViewport(int *vp, short arg);                                    /* 0x0042F7E0 */
 void FrameStartHook(void);                                            /* 0x0042F930 */
@@ -235,8 +235,8 @@ void GetFixedOneMillionThunk(void);                         /* 0x0042FB20 */
 void GetFixedOneMillionThunkAlt(void);                       /* 0x0042FB30 */
 short StepMenuSelection(short v, int flag);                                 /* 0x00430BC0 */
 int IsCommMenuIdle(void);                                              /* 0x00430CA0 */
-void ShowCommMenuEntry(short i);                                          /* 0x00430D30 */
-void ShowCommMenuPrompt(unsigned int a, int b);                         /* 0x00430D50 */
+void SendCommMenuChoice(short i);                                          /* 0x00430D30 */
+void OpenCommMenuForTarget(unsigned int a, int b);                         /* 0x00430D50 */
 int IsEjectPromptActive(void);                                                /* 0x00430D80 */
 short GetPendingMenuAction(void);                                            /* 0x00430DA0 */
 void SetPendingMenuAction(unsigned char v);                                 /* 0x00430DB0 */

@@ -91,8 +91,12 @@ extern unsigned int DAT_0059b430[512];
 extern int DAT_0059b470[512];
 extern unsigned char DAT_0059b560[512];
 extern unsigned char DAT_0059c310[512];
-extern short DAT_0059c330[512];
-extern unsigned char DAT_0059c3f0[512];
+extern short g_asShipSavedSlotState_0059c330[512];
+/* Queued ShipOrder, applied once a jump-out completes.  SetShipOrder writes the
+ * live order to g_aeShipOrder_0059d200, but 0x00422C30 diverts the write here
+ * when the current order is ORDER_JUMP_OUT.  Every observed value (5, 7, 8, 10)
+ * is a ShipOrder enumerator. */
+extern unsigned char g_abShipQueuedOrder_0059c3f0[512];
 extern unsigned short DAT_0059c420[512];
 extern short DAT_0059c440[512];
 extern unsigned char DAT_0059c490[8192];
@@ -103,7 +107,12 @@ extern unsigned int DAT_0059ce18[256];
 extern unsigned char DAT_0059ce60[512];
 extern unsigned char DAT_0059ce80[512];
 extern unsigned char DAT_0059cf20[512];
-extern unsigned char DAT_0059d100[512];
+/* Per-ship slot state.  0 means the slot is unused (DestroyShip clears it to 0
+ * and the allocator scans for 0); GetShipSlotState stashes the old value in
+ * g_asShipSavedSlotState_0059c330 before forcing 1.  Values above 0x0B mean the
+ * ship has its data loaded, and 0x0D specifically owns a packet that must be
+ * freed.  Not the ship class -- see include/wcdata.h. */
+extern unsigned char g_abShipSlotState_0059d100[512];
 extern unsigned short DAT_0059d2d0[512];
 extern unsigned char DAT_0059d400[512];
 extern unsigned short DAT_0059d500[2048];
@@ -154,7 +163,7 @@ extern unsigned short DAT_005a897c;
 extern unsigned int DAT_005a898c;
 extern unsigned int DAT_005a8a40;
 extern char *PTR_s_MISSILE_LOCKED_004691d4[8];
-extern char *PTR_s_Never_mind____0046af90[32];
+extern char *g_apszCommMenuText_0046af90[32];
 extern unsigned long g_dwGameClockBase_005a89a8;
 
 extern short DAT_0059ab10;
@@ -189,5 +198,11 @@ extern unsigned char DAT_0046c97a[16384];
 extern char  DAT_00486078[256];
 
 extern unsigned char g_bMessageSpeed_0046af68;
+
+/* Ordered name tables read directly out of the image; see include/wcdata.h.
+ * Both are packed variable-length strings, not fixed-stride arrays, so the
+ * game indexes them through a pointer table rather than by multiplication. */
+extern const char g_aszShipClassNames_004684d4[];    /* Hornet .. Star post, then weapons */
+extern const char g_aszKilrathiAceNames_0046afd4[];  /* Bhurak, Dakhath, Khajja, Bakhtosh */
 
 #endif /* WC1_GLOBALS_H */

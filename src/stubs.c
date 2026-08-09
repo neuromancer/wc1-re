@@ -41,7 +41,7 @@ short DAT_0059d52a;
 /* Function start: 0x4142B0 */ /* TODO */ void ShowHudMessageUnlessDuplicate(int a,unsigned short b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x4148A0 */ /* TODO */ void PushSeriesStateWord(short i,int v){(void)i;(void)v;}
 /* Function start: 0x414BF0 */ /* TODO */ void ReportComponentHit(char a,char b,char c){(void)a;(void)b;(void)c;}
-/* Function start: 0x4154C0 */ /* TODO */ short AnyShipReadyToJump(void){return 0;}
+/* Function start: 0x4154C0 */ /* TODO */ short AnyShipQueuedToNavigate(void){return 0;}
 /* Function start: 0x416260 */ /* TODO */ void DrawWrappedCommText(char *a,unsigned char b){(void)a;(void)b;}
 char *PTR_s_MISSILE_LOCKED_004691d4[8];
 /* Function start: 0x416DE0 */ /* TODO */ void SetHudMessageText(void *a,unsigned short b,unsigned short c){(void)a;(void)b;(void)c;}
@@ -120,7 +120,6 @@ void PlaySfxWaveFileByNumber(int n, int a, int b)
 /* Function start: 0x42FA90 */ /* TODO */ unsigned int PushMemoryStackFrameTagged(int a,int b){(void)a;(void)b;return 0;}
 /* Function start: 0x42FAE0 */ /* TODO */ void ReleasePacketHandle(int h){(void)h;}
 /* Function start: 0x430CB0 */ /* TODO */ void CombatRoutine03(int a, short b) { (void)a; (void)b; }
-char *PTR_s_Never_mind____0046af90[32];
 /* Function start: 0x431470 */ /* TODO */ void EndCommSessionWithWingman(void){}
 /* Function start: 0x432410 */ /* TODO */ int DIBcascade(int m,int *e){(void)m;(void)e;return 0;}
 /* Function start: 0x4328A0 */ /* TODO */ void DIBdestroyDIB(void){}

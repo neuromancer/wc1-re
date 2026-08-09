@@ -73,6 +73,33 @@ yet established. That is a fact, unlike `GetG00597d18Fn4C27`, and unlike a guess
 **Its one failure mode**: a wrapper that logs on behalf of its callee is misattributed. Always
 read the disassembly before adopting a result.
 
+## 0.2 Third-party projects as naming evidence
+
+Three community projects in the parent directory carry facts the binary alone does not, and
+each is trustworthy about a different thing:
+
+| Project | Good for | Not usable for |
+|---|---|---|
+| [WCMissionTools](../../WCMissionTools) | MODULE/CAMP/BRIEFING record layouts and the ShipClass / ShipOrder / Allegiance / Pilot enumerations | runtime layout — the on-disk ship record is 42 bytes against the game's 0x36 stride, and the nav record 77 against 0x1F |
+| [WingCommanderArduinoBridge](../../WingCommanderArduinoBridge) | the *order* of fields in the pilot record, since both builds compile the same struct | its addresses, which are DOS-segment relative |
+| [wcdx](../../wcdx) | PE layout notes, and confirmation of which code the port patches | naming — its patches are byte diffs by file offset, with no symbols |
+
+**Check them against the image before believing them.** Doing that on `ShipClass` found the
+name table at `0x004684D4` listing all 22 classes in exactly the documented order — and
+correcting two spellings: index 5 is `"Dilligent"` (sic) and index 14 is `"Spikeri"`, the
+developers' own name for the ship the manual calls the Hhriss. The table runs on into weapon
+names at `0x00468598`. Likewise the four Kilrathi ace names really are in the image at
+`0x0046AFD4`, which confirms the ace block's base index of 14.
+
+`ShipOrder` is corroborated from the other direction: the three order dispatchers
+(`0x00409F80`, `0x0040A030`, `0x0040A360`) all switch on the same dword table with cases
+4, 5, 6, 8, 9 and -1, and -1 is the enum's `Inactive`. That is what identified
+`g_aeShipOrder_0059d200`, and then `g_abShipQueuedOrder_0059c3f0` — written only when the
+live order is `ORDER_JUMP_OUT`, so it is the order to apply once the jump finishes.
+
+Everything recovered this way is in [include/wcdata.h](../include/wcdata.h), with each entry
+marked verified or not.
+
 ## 1. Evidence-named — 437 functions — trust these
 
 Derived from something the binary actually states:

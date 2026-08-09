@@ -85,8 +85,8 @@ unsigned int DAT_0059b430[512];
 int DAT_0059b470[512];
 unsigned char DAT_0059b560[512];
 unsigned char DAT_0059c310[512];
-short DAT_0059c330[512];
-unsigned char DAT_0059c3f0[512];
+short g_asShipSavedSlotState_0059c330[512];
+unsigned char g_abShipQueuedOrder_0059c3f0[512];
 unsigned short DAT_0059c420[512];
 short DAT_0059c440[512];
 unsigned char DAT_0059c490[8192];
@@ -97,7 +97,7 @@ unsigned int DAT_0059ce18[256];
 unsigned char DAT_0059ce60[512];
 unsigned char DAT_0059ce80[512];
 unsigned char DAT_0059cf20[512];
-unsigned char DAT_0059d100[512];
+unsigned char g_abShipSlotState_0059d100[512];
 unsigned short DAT_0059d2d0[512];
 unsigned char DAT_0059d400[512];
 unsigned short DAT_0059d500[2048];
@@ -179,5 +179,17 @@ unsigned char g_bMessageSpeed_0046af68;
 /* Defined here because the pre-refactor tranche that owned them is gone. */
 int *DAT_0046b1a4;
 char *PTR_s_MISSILE_LOCKED_004691d4[8];
-char *PTR_s_Never_mind____0046af90[32];
+char *g_apszCommMenuText_0046af90[32];
 unsigned long g_dwGameClockBase_005a89a8;
+
+/* Ordered name tables transcribed from the image.  Indices are the ShipClass
+ * and PilotId enumerators in include/wcdata.h; the spellings are the game's own
+ * ("Dilligent" with two Ls, "Spikeri" for the ship the manual calls Hhriss). */
+const char g_aszShipClassNames_004684d4[] =
+    "Hornet\0" "Rapier\0" "Scimitar\0" "Raptor\0" "Venture\0" "Dilligent\0"
+    "Drayman\0" "Exeter\0" "Tiger's Claw\0" "Salthi\0" "Dralthi\0" "Krant\0"
+    "Gratha\0" "Jalthi\0" "Spikeri\0" "Dorkir\0" "Lumbari\0" "Ralari\0"
+    "Fralthi\0" "Snakeir\0" "Sivar\0" "Star post\0";
+
+const char g_aszKilrathiAceNames_0046afd4[] =
+    "Bhurak\0" "Dakhath\0" "Khajja\0" "Bakhtosh\0";

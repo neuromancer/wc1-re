@@ -112,6 +112,12 @@ This repository is seeded by the reverse-engineering work in the parent director
 - `../wc1_function_evidence.csv` — all 1,836 functions with module, size, 16-bit-operand
   density, callers, nearest named ancestor, imports, strings and assert anchors.
 
+Three community projects in the parent directory are also used as naming evidence —
+`WCMissionTools` for the data-file record layouts and the ship/order/pilot enumerations,
+`WingCommanderArduinoBridge` for the pilot record's field order, and `wcdx` for PE layout.
+Everything adopted from them is checked against the image first and recorded in
+[`include/wcdata.h`](include/wcdata.h); that check corrected two ship names.
+
 Two things to read before writing code:
 
 - [`docs/ORDER.md`](docs/ORDER.md) — the `ix` link order is exact; the game-core order is

@@ -7,9 +7,9 @@
 #include "wc1.h"
 
 /* Function start: 0x42F1F0 */
-int IsShipDestroyed(short i)
+int IsShipQueuedOrderDefend(short i)
 {
-    return DAT_0059c3f0[i] == 5;
+    return g_abShipQueuedOrder_0059c3f0[i] == 5;
 }
 
 /* Function start: 0x42F730 */
@@ -72,13 +72,13 @@ int IsCommMenuIdle(void)
 }
 
 /* Function start: 0x430D30 */
-void ShowCommMenuEntry(short i)
+void SendCommMenuChoice(short i)
 {
-    CombatRoutine03((int)PTR_s_Never_mind____0046af90[i], i);
+    CombatRoutine03((int)g_apszCommMenuText_0046af90[i], i);
 }
 
 /* Function start: 0x430D50 */
-void ShowCommMenuPrompt(unsigned int a, int b)
+void OpenCommMenuForTarget(unsigned int a, int b)
 {
     ShowHudMessageUnlessDuplicate(b, DAT_004699a8, 0xff);
     DAT_0059e490 = a;

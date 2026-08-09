@@ -134,7 +134,7 @@ short FindShipInMode1(void)
 {
     DAT_0046c010 = 1;
     do {
-        if (DAT_0059d100[DAT_0046c010] == 0)
+        if (g_abShipSlotState_0059d100[DAT_0046c010] == 0)
             return DAT_0046c010;
         DAT_0046c010 = DAT_0046c010 + 1;
     } while (DAT_0046c010 < 10);
@@ -148,7 +148,7 @@ short FindShipInMode2(void)
     short i = 10;
 
     do {
-        if (DAT_0059d100[i] == 0) {
+        if (g_abShipSlotState_0059d100[i] == 0) {
             DAT_0059d9b0[i] = 0x8001;
             return i;
         }

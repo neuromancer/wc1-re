@@ -20,9 +20,9 @@ wibo
 # Ghidra export (large; regenerate from the WC project)
 code-full/
 
-# Original binary and game data (never vendored)
-data/full/
-data/*.zip
+# Original binary and game data (never vendored).  The whole tree, not just
+# data/full/: disc images land directly in data/ and one of them is 605 MB.
+data/
 
 # Third-party SDK libs the user must supply
 3rdparty/dx/lib/*.lib

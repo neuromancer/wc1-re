@@ -29,7 +29,7 @@ short FindActiveShipSlot(void)
     short i = 0x22;
 
     do {
-        if (DAT_0059d100[i] == 4)
+        if (g_abShipSlotState_0059d100[i] == 4)
             return i;
         i = i + 1;
     } while (i < 0x2a);

@@ -39,7 +39,7 @@ void ShipAiState30(short ship, short target)
 /* Function start: 0x4070D0 */
 void ShipAiState31(short ship, short target)
 {
-    if (0 < DAT_0059c330[ship]) {
+    if (0 < g_asShipSavedSlotState_0059c330[ship]) {
         DAT_0059d630[ship] = 0x2d;
         return;
     }
@@ -140,14 +140,14 @@ void PromoteShipAiState15(short i)
 }
 
 /* Function start: 0x40B700 */
-unsigned int GetShipMode(short i)
+unsigned int GetShipSlotState(short i)
 {
     unsigned int prev;
 
-    if (DAT_0059c3f0[i] == 7) {
-        prev = DAT_0059d100[i];
-        DAT_0059d100[i] = 1;
-        DAT_0059c330[i] = (short)prev;
+    if (g_abShipQueuedOrder_0059c3f0[i] == 7) {
+        prev = g_abShipSlotState_0059d100[i];
+        g_abShipSlotState_0059d100[i] = 1;
+        g_asShipSavedSlotState_0059c330[i] = (short)prev;
     }
     return 0;
 }

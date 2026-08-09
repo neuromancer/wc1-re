@@ -92,6 +92,7 @@ void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
 void SystemDebugPrintf(const char *fmt, ...);  /* 0x00425BB0 */
 
 #ifndef WC1_ANALYSIS
+#include "wcdata.h"
 #include "globals.h"
 #include "wc1funcs.h"
 #include "wc1extern.h"

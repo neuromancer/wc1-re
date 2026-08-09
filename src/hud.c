@@ -152,8 +152,8 @@ void SetNavRecordFlags(short i, unsigned char bits)
 /* Function start: 0x415510 */
 unsigned int GetShipAiScratch(void)
 {
-    if (DAT_0059c3f0[0] != 1) {
-        if (AnyShipReadyToJump() == 0)
+    if (g_abShipQueuedOrder_0059c3f0[0] != 1) {
+        if (AnyShipQueuedToNavigate() == 0)
             return 0;
     }
     return 1;
