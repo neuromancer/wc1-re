@@ -49,82 +49,176 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            int angle, int scaleX, int scaleY,
                            int flip, int blendMode)
 {
+    unsigned char *frameData;
     unsigned char *commands;
+    unsigned char *bitmap;
     unsigned short rowCode;
     int frameOffset;
+    int firstFrameOffset;
+    int minX;
+    int maxX;
+    int minY;
+    int maxY;
+    int sourceWidth;
+    int sourceHeight;
+    int drawX;
+    int drawY;
+    int remaining;
+    int runLength;
+    int code;
+    int sine;
+    int cosine;
+    int radius;
+    int maximumX;
+    int maximumY;
+    int destinationX;
+    int destinationY;
+    int sourceX;
+    int sourceY;
+    int absoluteScaleX;
+    int absoluteScaleY;
+    unsigned char colour;
 
     if (viewport == 0 || shape == 0 || frame < 0 ||
         viewport->pixels == 0 || viewport->rowOffsets == 0)
         return;
     frameOffset = (short)(frame * 4 + 4);
-    if (frameOffset >= *(unsigned short *)(shape + 4))
+    firstFrameOffset = *(int *)(shape + 4) & 0xffffff;
+    if (frameOffset >= firstFrameOffset)
         return;
-
-    commands = shape + 8 + *(int *)(shape + frameOffset);
+    frameData = shape + (*(int *)(shape + frameOffset) & 0xffffff);
+    commands = frameData + 8;
+    minX = 0x7fff;
+    maxX = -0x7fff;
+    minY = 0x7fff;
+    maxY = -0x7fff;
     rowCode = *(unsigned short *)commands;
     while (rowCode != 0) {
-        int drawX;
-        int drawY;
-        unsigned char *screen;
-
-        drawX = x + *(short *)(commands + 2);
-        drawY = y + *(short *)(commands + 4);
+        drawX = *(short *)(commands + 2);
+        drawY = *(short *)(commands + 4);
         commands += 6;
-        screen = 0;
-        if (drawY >= viewport->top && drawY <= viewport->bottom)
-            screen = viewport->pixels + viewport->rowOffsets[drawY] + drawX;
+        runLength = rowCode >> 1;
+        if (drawX < minX)
+            minX = drawX;
+        if (drawX + runLength - 1 > maxX)
+            maxX = drawX + runLength - 1;
+        if (drawY < minY)
+            minY = drawY;
+        if (drawY > maxY)
+            maxY = drawY;
         if ((rowCode & 1) == 0) {
-            int runLength = rowCode >> 1;
-            int skip = 0;
-            int copyLength = runLength;
-            int endX = drawX + runLength - 1;
-
-            if (drawY >= viewport->top && drawY <= viewport->bottom &&
-                drawX <= viewport->right && endX >= viewport->left) {
-                if (drawX < viewport->left) {
-                    skip = viewport->left - drawX;
-                    copyLength -= skip;
-                }
-                if (endX > viewport->right)
-                    copyLength -= endX - viewport->right;
-                memcpy(screen + skip, commands + skip, copyLength);
-            }
             commands += runLength;
         } else {
-            int remaining = rowCode >> 1;
-
+            remaining = runLength;
             while (remaining != 0) {
-                unsigned char code = *commands;
-                int runLength = code >> 1;
-                int skip = 0;
-                int copyLength = runLength;
-                int endX = drawX + runLength - 1;
-
-                if (drawY >= viewport->top && drawY <= viewport->bottom &&
-                    drawX <= viewport->right && endX >= viewport->left) {
-                    if (drawX < viewport->left) {
-                        skip = viewport->left - drawX;
-                        copyLength -= skip;
-                    }
-                    if (endX > viewport->right)
-                        copyLength -= endX - viewport->right;
-                    if ((code & 1) == 0)
-                        memcpy(screen + skip, commands + 1 + skip, copyLength);
-                    else
-                        memset(screen + skip, commands[1], copyLength);
-                }
+                code = *commands;
+                runLength = code >> 1;
+                if (runLength <= 0)
+                    return;
                 if ((code & 1) == 0)
                     commands += runLength + 1;
                 else
                     commands += 2;
-                drawX += runLength;
-                if (screen != 0)
-                    screen += runLength;
                 remaining -= runLength;
             }
         }
         rowCode = *(unsigned short *)commands;
     }
+    if (maxX < minX || maxY < minY)
+        return;
+    sourceWidth = maxX - minX + 1;
+    sourceHeight = maxY - minY + 1;
+    bitmap = (unsigned char *)malloc(sourceWidth * sourceHeight);
+    if (bitmap == 0)
+        return;
+    memset(bitmap, 0, sourceWidth * sourceHeight);
+
+    commands = frameData + 8;
+    rowCode = *(unsigned short *)commands;
+    while (rowCode != 0) {
+        drawX = *(short *)(commands + 2);
+        drawY = *(short *)(commands + 4);
+        commands += 6;
+        if ((rowCode & 1) == 0) {
+            runLength = rowCode >> 1;
+            memcpy(bitmap + (drawY - minY) * sourceWidth + drawX - minX,
+                   commands, runLength);
+            commands += runLength;
+        } else {
+            remaining = rowCode >> 1;
+            while (remaining != 0) {
+                code = *commands;
+                runLength = code >> 1;
+                if (runLength <= 0) {
+                    free(bitmap);
+                    return;
+                }
+                if ((code & 1) == 0) {
+                    memcpy(bitmap + (drawY - minY) * sourceWidth +
+                               drawX - minX,
+                           commands + 1, runLength);
+                    commands += runLength + 1;
+                } else {
+                    memset(bitmap + (drawY - minY) * sourceWidth +
+                               drawX - minX,
+                           commands[1], runLength);
+                    commands += 2;
+                }
+                drawX += runLength;
+                remaining -= runLength;
+            }
+        }
+        rowCode = *(unsigned short *)commands;
+    }
+
+    if (scaleX == 0)
+        scaleX = 1;
+    if (scaleY == 0)
+        scaleY = 1;
+    absoluteScaleX = AbsInt(scaleX);
+    absoluteScaleY = AbsInt(scaleY);
+    maximumX = MaxInt(AbsInt(minX), AbsInt(maxX));
+    maximumY = MaxInt(AbsInt(minY), AbsInt(maxY));
+    radius = (maximumX * absoluteScaleX +
+              maximumY * absoluteScaleY) / 0x100 + 3;
+    if (radius > (viewport->right - viewport->left + 1) +
+                 (viewport->bottom - viewport->top + 1))
+        radius = (viewport->right - viewport->left + 1) +
+                 (viewport->bottom - viewport->top + 1);
+    sine = (int)SinFixed((short)angle);
+    cosine = (int)CosFixed((short)angle);
+    destinationY = -radius;
+    while (destinationY <= radius) {
+        drawY = y + destinationY;
+        if (drawY >= viewport->top && drawY <= viewport->bottom) {
+            destinationX = -radius;
+            while (destinationX <= radius) {
+                drawX = x + destinationX;
+                if (drawX >= viewport->left && drawX <= viewport->right) {
+                    sourceX = (destinationX * cosine +
+                               destinationY * sine) / scaleX;
+                    sourceY = (-destinationX * sine +
+                               destinationY * cosine) / scaleY;
+                    if ((flip & 0x10) != 0)
+                        sourceX = -sourceX;
+                    if ((flip & 0x20) != 0)
+                        sourceY = -sourceY;
+                    if (sourceX >= minX && sourceX <= maxX &&
+                        sourceY >= minY && sourceY <= maxY) {
+                        colour = bitmap[(sourceY - minY) * sourceWidth +
+                                        sourceX - minX];
+                        if (colour != 0)
+                            viewport->pixels[viewport->rowOffsets[drawY] +
+                                             drawX] = colour;
+                    }
+                }
+                destinationX++;
+            }
+        }
+        destinationY++;
+    }
+    free(bitmap);
+    (void)blendMode;
 }
 
 /* Function start: 0x441140 */
@@ -375,6 +469,79 @@ void ClearViewport(Viewport *viewport, short colour)
         DAT_00486518 = 1;
         DIBslamReal();
     }
+}
+
+/* Function start: 0x442050 */
+int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
+                              unsigned char *shape, short frame,
+                              short angle, short scale, int flip,
+                              short *bounds)
+{
+    short *frameData;
+    unsigned int frameOffset;
+    int rightExtent;
+    int leftExtent;
+    int topExtent;
+    int bottomExtent;
+    int widthExtent;
+    int heightExtent;
+    int sine;
+    int cosine;
+    int transformedHeight;
+    int transformedWidth;
+    short left;
+    short top;
+    short right;
+    short bottom;
+
+    if (shape == 0) {
+        if (viewport->left <= x && x <= viewport->right &&
+            viewport->top <= y && y <= viewport->bottom)
+            return 1;
+        return 0;
+    }
+    CheckHeapBlockSignature((int)shape);
+    frameOffset = (unsigned int)(frame * 4 + 4);
+    if (*(unsigned short *)(shape + 4) < frameOffset)
+        return 0;
+    frameData = (short *)(shape + *(int *)(shape + frameOffset));
+    rightExtent = frameData[0];
+    leftExtent = frameData[1];
+    topExtent = frameData[2];
+    bottomExtent = frameData[3];
+    sine = (int)(SinFixed(angle) * scale) >> 8;
+    cosine = (int)(CosFixed(angle) * scale) >> 8;
+    if (sine == 0)
+        sine = 1;
+    if (cosine == 0)
+        cosine = 1;
+    widthExtent = rightExtent + leftExtent;
+    heightExtent = topExtent + bottomExtent;
+    transformedHeight = cosine * widthExtent + sine * heightExtent;
+    if ((char)transformedHeight != 0)
+        transformedHeight += 0x100;
+    transformedHeight >>= 8;
+    transformedWidth = sine * widthExtent + cosine * heightExtent;
+    if ((char)transformedWidth != 0)
+        transformedWidth += 0x100;
+    transformedWidth >>= 8;
+    top = (short)(y - (cosine * leftExtent >> 8) -
+                  (sine * topExtent >> 8));
+    bottom = (short)(transformedHeight + top);
+    left = (short)(((cosine * topExtent >> 8) -
+                    (sine * leftExtent >> 8) + x) -
+                   ((cosine * heightExtent >> 8) + 1));
+    right = (short)(transformedWidth + left);
+    if (viewport->left <= right && left <= viewport->right &&
+        viewport->top <= bottom && top <= viewport->bottom) {
+        bounds[0] = left;
+        bounds[2] = right;
+        bounds[1] = top;
+        bounds[3] = bottom;
+        return 1;
+    }
+    (void)flip;
+    return 0;
 }
 
 /* Function start: 0x442330 */

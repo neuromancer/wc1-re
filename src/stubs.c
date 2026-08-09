@@ -13,14 +13,10 @@
 /* Function start: 0x406D80 */ /* TODO */ void ShipAiState40(short a,short b){(void)a;(void)b;}
 /* Function start: 0x406FB0 */ /* TODO */ void ShipAiState29(short a,short b){(void)a;(void)b;}
 /* Function start: 0x407270 */ /* TODO */ void ShipAiRoutine02(short a,unsigned int b,int c){(void)a;(void)b;(void)c;}
-/* Function start: 0x40BFF0 */ /* TODO */ void EnterNavPoint(short a){(void)a;}
-/* Function start: 0x4117D0 */ /* TODO */ void DispatchCommMenuCommand(void *a,int b,short c){(void)a;(void)b;(void)c;}
 /* Function start: 0x414180 */ /* TODO */ void ClearHudMessageSlot(int *p){(void)p;}
-short g_nTargetFacing_0059d52a;
 /* Function start: 0x4142B0 */ /* TODO */ void ShowHudMessageUnlessDuplicate(int a,unsigned short b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x414BF0 */ /* TODO */ void ReportComponentHit(char a,char b,char c){(void)a;(void)b;(void)c;}
 /* Function start: 0x416260 */ /* TODO */ void DrawWrappedCommText(char *a,unsigned char b){(void)a;(void)b;}
-char *PTR_s_MISSILE_LOCKED_004691d4[8];
 /* Function start: 0x416DE0 */ /* TODO */ void SetHudMessageText(void *a,unsigned short b,unsigned short c){(void)a;(void)b;(void)c;}
 /* Function start: 0x416E20 */ /* TODO */ void CombatRoutine02(short a,int b,unsigned int c,int d,int e){(void)a;(void)b;(void)c;(void)d;(void)e;}
 /* Function start: 0x417260 */ /* TODO */ void DrawStickIndicator(void){}
@@ -35,15 +31,6 @@ void PumpMessagesWhileDebugPaused(unsigned int arg)
 
 /* Forward references still to be implemented; each is a real function. */
 /* Function start: 0x41DAA0 */ /* TODO */ short UiRoutine03(void){return 1;}
-/* Function start: 0x41E120 */
-/* TODO: initialize_object -- initialize an existing object slot. */
-void initialize_object(short obj, enum ObjectType type, short owner)
-{
-    (void)obj;
-    (void)type;
-    (void)owner;
-}
-
 /* Function start: 0x4212A0 */
 /* TODO: drop_mine -- create a mine at a ship weapon hardpoint. */
 int drop_mine(short obj, short weapon, enum ObjectType type, short lifetime)
@@ -55,15 +42,11 @@ int drop_mine(short obj, short weapon, enum ObjectType type, short lifetime)
     return -1;
 }
 
-/* Function start: 0x424490 */ /* TODO */ void ReleaseSceneActors(void){}
-/* Function start: 0x424BE0 */ /* TODO */ void ResetSeriesProgress(void){}
 /* Function start: 0x4272F0 */ /* TODO */ void LogMemoryUsage(void) {}
 /* Function start: 0x4273C0 */ /* TODO */ void ShowMemoryStatusDebug(void) {}
-/* Function start: 0x427C50 */ /* TODO */ void RunSimulationTick(void) {}
 /* Function start: 0x428EA0 */ /* TODO */ void WaitForKeyAcknowledge(int m){(void)m;}
 /* Function start: 0x428F20 */ /* TODO */ void ShowModalMessage(const char *s) { (void)s; }
 /* Function start: 0x428FA0 */ /* TODO */ void ShowOnScreenMessage(short f, short d, const char *fmt, ...) { (void)f; (void)d; (void)fmt; }
-/* Function start: 0x429DD0 */ /* TODO */ void RunFrameUpdate(void) {}
 /* Function start: 0x42B640 */
 /* TODO */ void StopAllSounds(void) {}
 /* Function start: 0x42EF30 */

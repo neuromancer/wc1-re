@@ -327,26 +327,31 @@ typedef struct FixedVector {
 typedef struct ObjectTypeData {
     enum ObjectClass objectClass;     /* +0x00 */
     short collisionRadius;            /* +0x04 */
-    short field_6;                    /* +0x06 */
-    short field_8;                    /* +0x08 */
-    short field_a;                    /* +0x0A */
-    short field_c;                    /* +0x0C */
-    unsigned char field_e[2];         /* +0x0E */
+    short radarRadius;                /* +0x06 */
+    short scale;                      /* +0x08 */
+    short animationDelay;             /* +0x0A */
+    short lifetime;                   /* +0x0C */
+    short weaponDamage;               /* +0x0E */
     short damageCapacity;             /* +0x10 */
-    unsigned char field_12[2];        /* +0x12 */
+    short fuelCapacity;               /* +0x12 */
     short maximumVelocity;            /* +0x14 */
     short cruiseVelocity;             /* +0x16 */
-    unsigned char field_18[4];        /* +0x18 */
+    unsigned char *animation;         /* +0x18 */
     int acceleration;                 /* +0x1C */
-    unsigned char field_20[0x4f];     /* +0x20 */
-    short field_6f;                   /* +0x6F */
-    short field_71;                   /* +0x71 */
-    short field_73;                   /* +0x73 */
-    short field_75;                   /* +0x75 */
-    short field_77;                   /* +0x77 */
-    short field_79;                   /* +0x79 */
-    int defaultObjective;             /* +0x7B */
-    unsigned char field_7f[8];        /* +0x7F */
+    short pitchRate;                  /* +0x20 */
+    short yawRate;                    /* +0x22 */
+    short rollRate;                   /* +0x24 */
+    short afterburnerVelocity;        /* +0x26 */
+    unsigned char weaponLoadout[0x47];/* +0x28 */
+    short shieldFore;                 /* +0x6F */
+    short shieldAft;                  /* +0x71 */
+    short armorFront;                 /* +0x73 */
+    short armorRear;                  /* +0x75 */
+    short armorLeft;                  /* +0x77 */
+    short armorRight;                 /* +0x79 */
+    unsigned char *shapeSet;          /* +0x7B */
+    unsigned char *shape;             /* +0x7F */
+    const char *displayName;           /* +0x83 */
 } ObjectTypeData;
 #pragma pack(pop)
 
@@ -367,6 +372,26 @@ typedef struct ShortVector {
     short z;
 } ShortVector;
 
+/* Polar form used by the original 3D orientation routines. */
+typedef struct SphericalVector {
+    int radius;
+    short yaw;
+    short pitch;
+} SphericalVector;
+
+/* Runtime asteroid/mine-field descriptor.  The packed 0x16-byte stride is
+ * visible in the Win32 hazard-field scans and agrees with the Mac `hazar`
+ * compilation unit. */
+#pragma pack(push, 1)
+typedef struct HazardField {
+    enum ObjectType type;             /* +0x00 */
+    FixedVector center;                /* +0x04 */
+    short innerRadius;                 /* +0x10 */
+    short outerRadius;                 /* +0x12 */
+    short density;                     /* +0x14 */
+} HazardField;
+#pragma pack(pop)
+
 /* Weighted pair in the retail maneuver-selection tables. */
 typedef struct ManeuverChoice {
     signed char threshold;
@@ -382,10 +407,46 @@ typedef struct MissionNavPoint {
     char name[0x1e];                 /* +0x00 */
     signed char type;                /* +0x1E: 1 is an active nav point */
     FixedVector position;            /* +0x1F */
-    short proximityRadius;           /* +0x2B */
-    unsigned char field_2d[0x10];    /* +0x2D */
+    unsigned short proximityRadius;  /* +0x2B */
+    signed char triggers[4][2];      /* +0x2D: type, target nav point */
+    enum ObjectType preloadObjectTypes[2]; /* +0x35 */
     short missionShips[10];          /* +0x3D */
 } MissionNavPoint;
+#pragma pack(pop)
+
+/* The expanded runtime mission-ship record at 0x0046C948.  The recovered
+ * opening sequence occupies records 32-45 and points directly at its canned
+ * command streams. */
+#pragma pack(push, 1)
+typedef struct MissionShipRecord {
+    enum ObjectType type;             /* +0x00 */
+    enum Side side;                   /* +0x04 */
+    short leader;                     /* +0x08 */
+    enum ShipMissionType missionType; /* +0x0A */
+    signed char navPoint;             /* +0x0E */
+    FixedVector position;             /* +0x0F */
+    short pitch;                      /* +0x1B */
+    short yaw;                        /* +0x1D */
+    short roll;                       /* +0x1F */
+    signed char formationSpot;        /* +0x21 */
+    short speed;                      /* +0x22 */
+    int rating;                       /* +0x24 */
+    const short *cannedSequence;      /* +0x28 */
+    int field_2c;                     /* +0x2C */
+    short field_30;                   /* +0x30 */
+    signed char state;                /* +0x32 */
+    signed char leaderMissionIndex;   /* +0x33 */
+    signed char formationIndex;       /* +0x34 */
+    signed char targetMissionIndex;   /* +0x35 */
+} MissionShipRecord;
+
+/* Four packed resource-cache entries at 0x0059DDF0. */
+typedef struct ObjectResourceSlot {
+    signed char type;                 /* +0x00 */
+    unsigned char *shapeSet;          /* +0x01: archive section 0 */
+    unsigned char *animation;         /* +0x05: archive section 2 */
+    unsigned char *shape;             /* +0x09: archive section 1 */
+} ObjectResourceSlot;
 #pragma pack(pop)
 
 /* Runtime mission-objective records use the 0x1F-byte stride visible in every
@@ -402,7 +463,12 @@ typedef struct MissionObjective {
 } MissionObjective;
 #pragma pack(pop)
 
-#define WC1_MISSION_NAV_POINT_COUNT 16
+#define WC1_SPACE_OBJECT_COUNT 64
+#define WC1_SPACE_LAST_MOVING_OBJECT 60
+#define WC1_EYE_OBJECT 61
+#define WC1_MISSION_SHIP_COUNT 64
+#define WC1_MISSION_NAV_POINT_COUNT 20
+#define WC1_ACTIVE_MISSION_NAV_POINT_COUNT 16
 #define WC1_MISSION_OBJECTIVE_COUNT 16
 
 /* --------------------------------------------------------------------------

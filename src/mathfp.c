@@ -61,13 +61,13 @@ long DivideFixed(int numerator, int denominator)
 /* Function start: 0x434E00 */
 long SinFixed(short degrees)
 {
-    return (long)sin((double)degrees * WC1_DEG2RAD);
+    return (long)(sin((double)degrees * WC1_DEG2RAD) * 256.0);
 }
 
 /* Function start: 0x434E30 */
 long CosFixed(short degrees)
 {
-    return (long)cos((double)degrees * WC1_DEG2RAD);
+    return (long)(cos((double)degrees * WC1_DEG2RAD) * 256.0);
 }
 
 /* Function start: 0x434E90 */
@@ -144,6 +144,27 @@ unsigned short GetFontCharWidth(char i)
 /* Function start: 0x435010 */
 void ReleaseVideoResourcesHook(void)
 {
+}
+
+/* Function start: 0x435020 */
+short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
+                                    unsigned char *shape, short frame)
+{
+    short frameTableOffset;
+    short *frameData;
+
+    frameTableOffset = (short)(frame * 4);
+    if ((int)frameTableOffset < (int)*(unsigned short *)(shape + 4)) {
+        frameTableOffset = (short)(frameTableOffset + 4);
+        frameData = (short *)(shape +
+            *(unsigned short *)(shape + frameTableOffset));
+        bounds[2] = (short)(frameData[0] + x);
+        bounds[0] = (short)(x - frameData[1]);
+        bounds[1] = (short)(y - frameData[2]);
+        bounds[3] = (short)(frameData[3] + y);
+        return -1;
+    }
+    return 0;
 }
 
 /* Function start: 0x435090 */

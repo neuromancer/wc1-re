@@ -30,6 +30,24 @@ void ShowVersionBanner(void)
     ShowOnScreenMessage(1, 9999, "WING COMMANDER VER. %s");
 }
 
+/* Function start: 0x429DD0 */
+unsigned int Draw_3Space_Frame(void)
+{
+    UpdateSpacePaletteFade();
+    DAT_00469fb4--;
+    if (DAT_00469fb4 > 0)
+        return 0;
+    DAT_00469fb4 = g_nFrameSkip_00469fb8;
+    g_nRenderedSpaceFrame_0059d61a++;
+    transform_objects_to_your_view();
+    update_star_field();
+    place_exhaust_on_ships();
+    reposition_fixed_child_objects();
+    sort_object_depth();
+    draw_sorted_objects_to_buffer();
+    return 1;
+}
+
 /* Function start: 0x429E70 */
 void ComputeArcadeTimeBonus(void)
 {
@@ -39,10 +57,10 @@ void ComputeArcadeTimeBonus(void)
 /* Function start: 0x42A0C0 */
 void RefreshCockpitStatus(void)
 {
-    RunSimulationTick();
+    Update_3Space();
     if (DAT_00469fb4 < 2)
-        DrawStatusBarBackdrop();
-    RunFrameUpdate();
+        clear_view_buffer();
+    Draw_3Space_Frame();
 }
 
 /* Function start: 0x42A0E0 */
@@ -67,7 +85,7 @@ short FindNearestNavPoint(short ship)
             return navPointIndex;
         navPointIndex++;
         navPoint++;
-    } while (navPointIndex < WC1_MISSION_NAV_POINT_COUNT);
+    } while (navPointIndex < WC1_ACTIVE_MISSION_NAV_POINT_COUNT);
 
     return g_nCurrentNavPoint_0059df60;
 }

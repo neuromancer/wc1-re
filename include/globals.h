@@ -12,8 +12,8 @@
 #ifndef WC1_GLOBALS_H
 #define WC1_GLOBALS_H
 
-extern unsigned int DAT_00465040;
-extern short g_nActiveSoundEffectShips_00465044;
+extern unsigned int g_nHazardReferenceSpeed_00465040;
+extern short g_nActiveHazards_00465044;
 extern int DAT_00465058;
 extern unsigned int DAT_0046505c;
 extern int DAT_0046506c;
@@ -43,15 +43,22 @@ extern short DAT_00469208;
 extern unsigned char DAT_00469648;
 extern unsigned char DAT_0046964c;
 extern unsigned char DAT_0046999c;
-extern unsigned char g_cViewportClearColour_004699a0;
-extern unsigned short DAT_004699a8;
-extern unsigned short DAT_004699b0;
+extern int g_cViewportClearColour_004699a0;
+extern int DAT_004699a8;
+extern int DAT_004699ac;
+extern int DAT_004699b0;
 extern unsigned int DAT_004699d8;
 extern unsigned char DAT_00469d5c;
-extern unsigned char *DAT_00469dbc[64];
+extern unsigned int DAT_00469dbc;
+extern unsigned short DAT_00469dc0[4];
+extern const char g_szTrainSimTitle_00469dc8[24];
+extern unsigned char *g_apszBuiltInHighScoreNames_00469de0[6];
+extern short DAT_00469df8[26];
+extern const char g_aszBuiltInHighScores_00469e38[48];
 extern int g_nTrainSimActive_00469e2c;
 extern unsigned int DAT_00469e34;
-extern unsigned char DAT_00469fb4;
+extern int g_nCannedSceneMode_00469fac;
+extern short DAT_00469fb4;
 extern short g_nFrameSkip_00469fb8;
 extern short g_nOriginDevUnlock_00469ff4;
 extern int DAT_00469ffc;
@@ -77,10 +84,14 @@ extern unsigned char DAT_0046afc4;
 extern unsigned short DAT_0046b168;
 extern const GUID g_guidDirectDraw2_00463118;
 extern int *DAT_0046b1a4;
-extern signed char g_abSoundEffectShips_0046c028[0x14];
+extern int g_bIntroSecondaryScene_0046c024;
+extern signed char g_abHazardObjects_0046c028[0x14];
 extern short DAT_0046c010;
+extern short g_nEyePitchRate_0046c004;
+extern short g_nEyeYawRate_0046c008;
+extern short g_nEyeRollRate_0046c00c;
 extern signed char g_cCurrentObjective_0046c020;
-extern unsigned char DAT_0046c03c;
+extern int DAT_0046c03c;
 extern short g_nYourWingman_0046c04c;
 extern enum ObjectType g_eSelectedGunType_0046c054;
 extern int g_nSelectedReleaseWeaponIndex_0046c058;
@@ -91,9 +102,28 @@ extern short g_nTargetLockMode_0046c078;
 extern int g_bEngageAllowed_0046c080;
 extern short g_nAutoEngageTimer_0046c084;
 extern MissionNavPoint g_aMissionNavPoints_0046c2f0[WC1_MISSION_NAV_POINT_COUNT];
+extern MissionShipRecord g_aMissionShips_0046c948[WC1_MISSION_SHIP_COUNT];
+extern const short g_asIntroCameraSequence_0046c090[];
+extern const short g_asCannedSequence32_0046c0b8[];
+extern const short g_asCannedSequence33_0046c0d8[];
+extern const short g_asCannedSequence34_0046c0f0[];
+extern const short g_asCannedSequence35_0046c108[];
+extern const short g_asCannedSequence37_0046c190[];
+extern const short g_asCannedSequence38_0046c1b0[];
+extern const short g_asCannedSequence39_0046c1d0[];
+extern const short g_asCannedSequence40_0046c1e0[];
+extern const short g_asCannedSequence41_0046c230[];
+extern const short g_asCannedSequence42_0046c250[];
+extern const short g_asCannedSequence43_0046c270[];
+extern const short g_asCannedSequence44_0046c2a0[];
+extern const short g_asCannedSequence45_0046c2e8[];
+extern const signed char g_acDirectionShapeFrame_0046db28[62];
+extern const signed char g_acDirectionShapeFlip_0046dbe8[62];
+extern const char *g_apszIntroCredits_00468a38[11];
+extern int g_nIntroCreditCount_00468a30;
 extern int DAT_0046da90;
 extern int DAT_0046da94;
-extern int g_aiIntelligenceEvent_0046d368[512];
+extern int g_aiIntelligenceEvent_0046d368[10];
 extern signed char g_aDefenseManeuversNovice_0046d390[8];
 extern signed char g_aDefenseManeuversVeteran_0046d398[8];
 extern signed char g_aDefenseManeuversElite_0046d3a0[16];
@@ -158,11 +188,17 @@ extern unsigned int DAT_0059af8c;
 extern short DAT_0059ab34;
 extern int DAT_0059ab4c;
 extern unsigned char DAT_0059ab58;
+extern int g_anSortedObject_0059aa00[WC1_SPACE_OBJECT_COUNT];
+extern FixedVector g_aObjectViewPosition_0059afa0[WC1_SPACE_OBJECT_COUNT];
+extern short g_anObjectPitchRotation_0059b2a0[WC1_SPACE_OBJECT_COUNT];
 extern int g_anShipSpeed_0059b320[64];
+extern short g_nSpaceFrame_0059b420;
+extern short g_asObjectDistance_0059b4a0[WC1_SPACE_OBJECT_COUNT];
 extern FixedVector g_aShipRightVector_0059b6e0[64];
 extern FixedVector g_aShipUpVector_0059b9e0[64];
 extern FixedVector g_aShipForwardVector_0059bce0[64];
-extern int g_nSoundEffectSlotCount_0059bfe0;
+extern HazardField *g_pActiveHazardField_0059bfe0;
+extern signed char g_cPlayerPowerDamage_0059bff1;
 extern unsigned int DAT_0059b430[512];
 extern int DAT_0059b470[512];
 extern enum ObjectType g_aeObjectType_0059b560[96];
@@ -170,7 +206,7 @@ extern signed char g_abFlightPath_0059c000[WC1_MISSION_OBJECTIVE_COUNT];
 extern FixedVector g_aShipVelocity_0059c010[512];
 extern unsigned char DAT_0059c310[512];
 extern short g_asObjectCounter_0059c330[512];
-extern enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[12];
+extern enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[WC1_SPACE_OBJECT_COUNT];
 extern enum ShipMissionType g_aeShipMissionType_0059c3f0[512];
 extern short g_asShipCount_0059c420[512];
 extern short g_asShipMaximumSpeed_0059c440[24];
@@ -178,6 +214,11 @@ extern signed char g_cMissionObjectiveCount_0059c46a;
 extern FixedVector g_aShipPosition_0059c490[512];
 extern unsigned char DAT_0059c810[512];
 extern signed char g_cCurrentNavPointIndex_0059c86c;
+extern FixedVector g_vStarFieldMotion_0059c860;
+extern short g_asObjectFlip_0059c870[WC1_SPACE_OBJECT_COUNT];
+extern FixedVector g_vPreviousStarFieldMotion_0059c900;
+extern short g_nHazardFieldCount_0059c90c;
+extern short g_asObjectScreenScale_0059c950[WC1_SPACE_OBJECT_COUNT];
 extern signed char g_cCurrentMission_0059ca69;
 extern signed char g_cCurrentSeries_0059ca6a;
 extern int g_aiPersonalityDeathMission_0059ca74[8];
@@ -186,6 +227,7 @@ extern short g_nPromotionScore_0059caa0;
 extern short g_nMissionScore_0059caa2;
 extern unsigned char g_aShipWeapons_0059cab0[16][0x47];
 extern signed char g_acShipRating_0059cd80[16];
+extern short g_asObjectScreenAngle_0059cd90[WC1_SPACE_OBJECT_COUNT];
 extern short g_nTargetRange_0059ce10;
 extern unsigned int DAT_0059ce18[256];
 extern signed char g_acObjectOwner_0059ce20[64];
@@ -196,27 +238,49 @@ extern unsigned char DAT_0059cf20[512];
  * observed magic values: 0 null, 1 futurion, 10 mine, 11 missile, 12 ship and
  * 13 capital_ship. */
 extern enum ObjectClass g_aeObjectClass_0059d100[512];
+extern short g_asPreviousObjectDistance_0059d080[WC1_SPACE_OBJECT_COUNT];
 extern enum ShipObjective g_aeShipObjective_0059d200[512];
+extern short g_asObjectViewFrame_0059d230[WC1_SPACE_OBJECT_COUNT];
 extern signed char g_acWingmanMessageState_0059d2c0[16];
 extern short g_asCollisionCountdown_0059d2d0[16];
+extern unsigned char *g_apObjectShape_0059d2f0[WC1_SPACE_OBJECT_COUNT];
 extern short g_nPitchInput_0059d3f0;
 extern short g_nYawInput_0059d3f2;
 extern short g_asShipWingLeader_0059d400[64];
-extern unsigned short DAT_0059d500[2048];
+extern short g_asShipWeaponEnergy_0059d470[16];
+extern short g_asCannedCommand_0059d4e0[WC1_SPACE_OBJECT_COUNT];
+extern unsigned short DAT_0059d500[16];
 extern char g_acShipSequence_0059d520[512];
 extern short g_nTargetFacing_0059d52a;
 extern enum ShipTactic g_aeShipTactic_0059d5e0[512];
-extern signed char g_abShipExhaustHeat_0059d610[16];
+extern short g_aasShipShield_0059d5b0[12][2];
+extern signed char g_abShipExhaustHeat_0059d610[10];
+extern short g_nRenderedSpaceFrame_0059d61a;
 extern signed char g_acShipStress_0059d620[16];
 extern unsigned char DAT_0059d630[512];
 extern enum Side g_aeShipSide_0059d650[512];
+extern short g_aasShipMaximumShield_0059d6e0[12][2];
 extern short g_asObjectCollisionRadius_0059d710[64];
 extern unsigned char DAT_0059d7a0[512];
 extern signed char g_abShipNavPointIndex_0059d7c0[512];
-extern unsigned short DAT_0059d9b0[512];
+extern short g_anObjectRollRotation_0059d7e0[WC1_SPACE_OBJECT_COUNT];
+extern unsigned char g_abShipTurn_0059d860[WC1_SPACE_OBJECT_COUNT];
+extern short g_nFacingToTarget_0059d920;
+extern short g_asObjectScreenY_0059d930[WC1_SPACE_OBJECT_COUNT];
+extern short g_asObjectScreenX_0059d9b0[WC1_SPACE_OBJECT_COUNT];
+extern signed char g_cHazardViewBand_0059dab0;
+extern HazardField g_aHazardFields_0059d870[7];
 extern MissionObjective g_aMissionObjectives_0059dac5[WC1_MISSION_OBJECTIVE_COUNT];
 extern enum ShipManeuver g_aeShipManeuver_0059dcb0[512];
-extern unsigned char g_aShipMissionSpot_0059dd10[8192];
+extern const short *g_apCannedSequence_0059dce0[WC1_SPACE_OBJECT_COUNT];
+extern unsigned char g_aShipMissionSpot_0059dd10[224];
+extern ObjectResourceSlot g_aObjectResourceSlots_0059ddf0[4];
+extern short g_asObjectScale_0059de40[WC1_SPACE_OBJECT_COUNT];
+extern short g_asObjectAnimationDelay_0059b660[WC1_SPACE_OBJECT_COUNT];
+extern short g_asObjectAnimationIndex_0059da30[WC1_SPACE_OBJECT_COUNT];
+extern short g_nEyeRollGoal_0059c8f0;
+extern short g_nEyeYawGoal_0059c944;
+extern short g_nEyePitchGoal_0059d61c;
 extern char DAT_0059dec0[256];
 extern short g_nCurrentNavPoint_0059df60;
 extern unsigned char DAT_0059e1c0[512];
@@ -229,7 +293,7 @@ extern int g_nPacketHandleCount_005a6530;
 extern int g_aiSoundEffectShipActive_005a66f0[0x40];
 extern int *DAT_005a6538;
 extern int g_nAllocateViewportCalls_005a68ec;
-extern unsigned short DAT_005a6900[256];
+extern short DAT_005a6900[256];
 extern Viewport DAT_005a6b60;
 extern Viewport DAT_005a6ba0;
 #define DAT_005a6baa DAT_005a6ba0.top
@@ -261,6 +325,10 @@ extern unsigned char *DAT_005a7cf0;
 extern unsigned char DAT_005a86b0;
 extern char DAT_005a8760[512];
 extern short DAT_005a8692;
+extern unsigned char *g_pTitleShape_005a7f08;
+extern unsigned char *g_pConstellationShape_005a765c;
+extern const short *g_pViewScript_005a6b58;
+extern unsigned char *g_pIntroFont_005a8960;
 extern unsigned int DAT_005a8964;
 extern unsigned short DAT_005a897c;
 extern unsigned int DAT_005a898c;
@@ -275,8 +343,12 @@ extern int DAT_005a8a3c;
 extern HINSTANCE DAT_005a8a40;
 extern unsigned int DAT_005a8a44;
 extern unsigned short DAT_005a8a50[0x300];
-extern char *PTR_s_MISSILE_LOCKED_004691d4[8];
-extern char *g_apszCommMenuText_0046af90[32];
+extern char *PTR_s_MISSILE_LOCKED_004691d4;
+extern int DAT_004691d8[2];
+extern short DAT_004691e0[10];
+extern char *g_apszCommMenuText_0046af90[13];
+extern const char g_aszCommMenuText_0046aff8[0xe8];
+extern const char g_szMissileLocked_004692a8[16];
 extern unsigned long g_dwGameClockBase_005a89a8;
 
 extern short DAT_0059ab10;
@@ -295,15 +367,19 @@ extern int DAT_0046b1b8;
 extern int DAT_0046b1bc;
 extern int DAT_0046b1c4;
 extern int DAT_0046b1c8;
+extern float g_fSpaceFlightFrameRate_0046b1cc;
+extern float g_fCinematicFrameRate_0046b1d0;
 extern unsigned int g_dwStreamerState_00597cd0;
 extern short DAT_0059a856;
 extern unsigned char DAT_004700c9;
 extern unsigned char DAT_004700ca;
 extern int DAT_004688e0;
+extern short g_nScriptedViewObject_0046a8d0;
+extern int g_bScriptedView_0046a8d4;
 extern int DAT_00469fbc;
 extern int DAT_00469fc0;
 extern int g_bViewportDirty_00469fc4;
-extern int DAT_00469fc8[16];
+extern int DAT_00469fc8[11];
 extern char g_szStreamsPath_00475c18[0x100];
 
 /* Declared as comma-separated lists in the original tranches. */
@@ -315,11 +391,11 @@ extern unsigned int DAT_005a7ef4;
 extern unsigned int DAT_005a7ef8;
 
 extern ObjectTypeData g_aObjectTypeData_0046645c[OBJECT_TYPE_COUNT];
+extern const ShortVector g_aChildOffsets_004682f0[35];
 extern int  *DAT_0046b1a8;
 extern int  *DAT_0046b1ac;
 extern int  *DAT_0046b1b0;
 extern int   DAT_0046b1b4;
-extern unsigned char DAT_0046c97a[16384];
 extern char  DAT_00486078[256];
 
 extern unsigned char g_bMessageSpeed_0046af68;
@@ -335,7 +411,7 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
 #define g_nEnemySighting_00465c7c \
     (*(short *)((unsigned char *)g_aiPacketReferenceTable_00465c88 - 0x0c))
 #define g_nCurrentWave_0046c01c \
-    (*(short *)((unsigned char *)g_abSoundEffectShips_0046c028 - 0x0c))
+    (*(short *)((unsigned char *)g_abHazardObjects_0046c028 - 0x0c))
 #define g_cViableTargetCount_0046c088 \
     (*(signed char *)((unsigned char *)&g_nAutoEngageTimer_0046c084 + 4))
 
@@ -371,10 +447,6 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
 #define g_anRollGoal_0059d630 ((short *)(void *)DAT_0059d630)
 #define g_acShipAiCooldown_0059d680 \
     ((signed char *)((unsigned char *)g_aeShipSide_0059d650 + 0x30))
-#define g_abShipTurn_0059d860 \
-    ((unsigned char *)DAT_0059d9b0 - 0x150)
-#define g_nFacingToTarget_0059d920 \
-    (*(short *)((unsigned char *)DAT_0059d9b0 - 0x90))
 #define g_anPitchGoal_0059d7a0 ((short *)(void *)DAT_0059d7a0)
 #define g_acTurnInterval_0059d7d0 \
     ((signed char *)((unsigned char *)g_abShipNavPointIndex_0059d7c0 + 0x10))

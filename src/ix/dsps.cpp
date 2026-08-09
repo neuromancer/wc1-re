@@ -50,7 +50,7 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
 
     voice = stream + g_nVoiceCount_00598600;
     v = &g_voices_005981a8[voice];
-    v->flags = IX_VOICE_ACTIVE | IX_VOICE_FLAG4 | 1;
+    v->flags = IX_VOICE_FLAG4 | 1;
     if (bps == 16)
         v->flags |= IX_VOICE_16BIT;
     if (channels == 2)

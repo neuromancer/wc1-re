@@ -12,7 +12,7 @@ void SetFpsCapEnabled(void)
     long v;
 
     DAT_0046b1c8 = 1;
-    v = _ftol();
+    v = (long)(1000.0 / g_fSpaceFlightFrameRate_0046b1cc);
     DAT_0046b1bc = 0;
     DAT_0046b1b8 = (int)v;
 }
@@ -23,7 +23,7 @@ void SetFpsCapDisabled(void)
     long v;
 
     DAT_0046b1c8 = 0;
-    v = _ftol();
+    v = (long)(1000.0 / g_fCinematicFrameRate_0046b1d0);
     DAT_0046b1bc = 0;
     DAT_0046b1b8 = (int)v;
 }
@@ -82,18 +82,21 @@ void DIBinstall(HWND window)
     if (result != DD_OK)
         DIBerror("DIBInstall   Unable to acquire DirectDraw2 interface", result);
 
-    result = IDirectDraw2_SetCooperativeLevel(
-        (LPDIRECTDRAW2)DAT_0046b1a4, DAT_00486074,
-        DAT_00465074 == 0 ? 0x17 : 0x13);
+    if (DAT_00465074 != 0)
+        result = IDirectDraw2_SetCooperativeLevel(
+            (LPDIRECTDRAW2)DAT_0046b1a4, DAT_00486074, 0x13);
+    else
+        result = IDirectDraw2_SetCooperativeLevel(
+            (LPDIRECTDRAW2)DAT_0046b1a4, DAT_00486074, 0x17);
     if (result != DD_OK)
         DIBerror("DIBmakeInstall   SetCooperativeLevel", result);
 
-    if (DAT_00465074 != 0) {
+    if (DAT_00465074 == 0) {
+        DAT_0046b1b4 = -1;
+    } else {
         cascadeResult = DIBcascade(-1, 0);
         if (cascadeResult == 0)
             DIBerror("DIBinstall   DIBcascade Failure", result);
-    } else {
-        DAT_0046b1b4 = -1;
     }
 
     DAT_00486074 = window;

@@ -266,7 +266,7 @@ void EndMissileLockWarning(void)
 {
     if (DAT_0046c064 >= 0)
         DAT_0046c060 = 1;
-    ShowHudMessageIfCurrent((int)PTR_s_MISSILE_LOCKED_004691d4[0]);
+    ShowHudMessageIfCurrent((int)PTR_s_MISSILE_LOCKED_004691d4);
     DAT_0046c064 = -1;
 }
 

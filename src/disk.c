@@ -76,6 +76,168 @@ short FindActiveShipSlot(void)
     return -1;
 }
 
+/* Function start: 0x41DFA0 */
+short new_object(enum ObjectType type, signed char owner)
+{
+    short obj = get_ship_slot();
+
+    if (obj != -1) {
+        initialize_object(obj, type, owner);
+        zero_vector(&g_aShipPosition_0059c490[obj]);
+        zero_vector(&g_aShipVelocity_0059c010[obj]);
+        g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
+    }
+    return obj;
+}
+
+/* Function start: 0x41E120 */
+void initialize_object(short obj, enum ObjectType type, short owner)
+{
+    ObjectTypeData *typeData;
+    ObjectTypeData *resourceData;
+    enum ObjectType resourceType;
+
+    if (obj < 0 || obj >= WC1_SPACE_OBJECT_COUNT)
+        return;
+    if (type == OBJECT_TYPE_SPACE_DUST) {
+        g_aeObjectType_0059b560[obj] = type;
+        g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_DUST;
+        g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
+        g_asObjectCounter_0059c330[obj] = 0;
+        g_asObjectViewFrame_0059d230[obj] = 0;
+        g_asObjectFlip_0059c870[obj] = 0;
+        return;
+    }
+    if ((int)type < 0 || type >= OBJECT_TYPE_COUNT)
+        return;
+
+    typeData = &g_aObjectTypeData_0046645c[type];
+    resourceType = type;
+    if (typeData->shapeSet == 0) {
+        switch (resourceType) {
+        case OBJECT_TYPE_ASTEROID2:
+            resourceType = OBJECT_TYPE_ASTEROID1;
+            break;
+        case OBJECT_TYPE_ASTEROID4:
+            resourceType = OBJECT_TYPE_ASTEROID3;
+            break;
+        case OBJECT_TYPE_ASTEROID6:
+            resourceType = OBJECT_TYPE_ASTEROID5;
+            break;
+        case OBJECT_TYPE_DEBRIS_METAL_SHEET:
+            resourceType = OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK;
+            break;
+        case OBJECT_TYPE_DEBRIS_WING:
+            resourceType = OBJECT_TYPE_DEBRIS_PIPE;
+            break;
+        case OBJECT_TYPE_EXPLOSION1:
+        case OBJECT_TYPE_EXPLOSION2:
+            resourceType = OBJECT_TYPE_EXPLOSION0;
+            break;
+        }
+    }
+    resourceData = &g_aObjectTypeData_0046645c[resourceType];
+    type = resourceType;
+    typeData = resourceData;
+
+    g_aeObjectType_0059b560[obj] = type;
+    g_aeObjectClass_0059d100[obj] = typeData->objectClass;
+    g_apObjectShape_0059d2f0[obj] = resourceData->shapeSet;
+    init_ijk(obj);
+    g_asObjectCollisionRadius_0059d710[obj] = typeData->collisionRadius;
+    g_asObjectScale_0059de40[obj] = typeData->scale;
+    g_asObjectScreenScale_0059c950[obj] = typeData->scale;
+    g_asObjectViewFrame_0059d230[obj] = 0;
+    g_asObjectFlip_0059c870[obj] = 0;
+    g_asObjectScreenAngle_0059cd90[obj] = 0;
+    g_asObjectAnimationDelay_0059b660[obj] = 1;
+    g_asObjectAnimationIndex_0059da30[obj] = 0;
+    g_acObjectOwner_0059ce20[obj] = (signed char)owner;
+    g_asObjectCounter_0059c330[obj] = -1;
+    g_acShipTarget_0059ce60[obj] = -1;
+    g_aeSpecialManeuver_0059c3c0[obj] = SPECIAL_MANEUVER_NONE;
+
+    if (typeData->objectClass >= OBJECT_CLASS_SHIP) {
+        g_asShipMaximumSpeed_0059c440[obj] = typeData->maximumVelocity;
+        g_anShipSpeed_0059b320[obj] = 0;
+        if (obj < 12) {
+            g_aasShipShield_0059d5b0[obj][0] = typeData->shieldFore;
+            g_aasShipMaximumShield_0059d6e0[obj][0] = typeData->shieldFore;
+            g_aasShipShield_0059d5b0[obj][1] = typeData->shieldAft;
+            g_aasShipMaximumShield_0059d6e0[obj][1] = typeData->shieldAft;
+        }
+        if (obj < 16)
+            g_asShipWeaponEnergy_0059d470[obj] = 100;
+        g_aeShipManeuver_0059dcb0[obj] = MANEUVER_NONE;
+        g_aeShipTactic_0059d5e0[obj] = TACTIC_SIT_STILL;
+        if (obj < 16)
+            memcpy(g_aShipWeapons_0059cab0[obj],
+                   typeData->weaponLoadout,
+                   sizeof(g_aShipWeapons_0059cab0[obj]));
+    }
+}
+
+/* Function start: 0x41E400 */
+void match_rotation_goal(short *rotation, short *goal,
+                         short totalError, short rate)
+{
+    short step;
+    short value;
+
+    if (totalError != 0) {
+        if (*goal > 180)
+            *goal = *goal - 360;
+        if (*goal < -180)
+            *goal = *goal + 360;
+        step = MaxShort(1, (short)(AbsInt(*rotation - *goal) *
+                                  rate / totalError));
+        if (*goal != *rotation || step < AbsInt(*rotation)) {
+            if (*goal < 1) {
+                value = MaxShort(*goal, (short)-step);
+                value = MaxShort((short)(value - *rotation),
+                                 (short)-step);
+                value = MinShort(value, step);
+                *rotation = value + *rotation;
+            } else {
+                value = MinShort(*goal, step);
+                value = MinShort((short)(value - *rotation), step);
+                value = MaxShort(value, (short)-step);
+                *rotation = value + *rotation;
+            }
+        }
+    }
+    if (*goal != 0) {
+        if (*goal > 0)
+            *goal = MaxShort((short)(*goal - *rotation), 0);
+        else
+            *goal = MinShort((short)(*goal - *rotation), 0);
+    }
+}
+
+/* Function start: 0x41E520 */
+void rotate_object_to_goal(short obj)
+{
+    ObjectTypeData *typeData;
+    short totalError;
+
+    typeData = &g_aObjectTypeData_0046645c[g_aeObjectType_0059b560[obj]];
+    totalError = (short)(AbsInt(g_anObjectPitchRotation_0059b2a0[obj] -
+                               g_anPitchGoal_0059d7a0[obj]) +
+                         AbsInt(g_anObjectYawRotation_0059ce80[obj] -
+                               g_anYawGoal_0059c310[obj]) +
+                         AbsInt(g_anObjectRollRotation_0059d7e0[obj] -
+                               g_anRollGoal_0059d630[obj]));
+    match_rotation_goal(&g_anObjectPitchRotation_0059b2a0[obj],
+                        &g_anPitchGoal_0059d7a0[obj], totalError,
+                        typeData->pitchRate);
+    match_rotation_goal(&g_anObjectYawRotation_0059ce80[obj],
+                        &g_anYawGoal_0059c310[obj], totalError,
+                        typeData->yawRate);
+    match_rotation_goal(&g_anObjectRollRotation_0059d7e0[obj],
+                        &g_anRollGoal_0059d630[obj], totalError,
+                        typeData->rollRate);
+}
+
 /* Function start: 0x41E710 */
 unsigned int AdjustShipSpeed(short ship, int delta)
 {

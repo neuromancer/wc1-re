@@ -25,6 +25,30 @@ short find_weapon(short obj, enum ObjectType weaponType)
     return -1;
 }
 
+/* Function start: 0x421220 */
+int fire_fixed_projectile_weapon(short obj)
+{
+    short weapon;
+    int result = obj;
+
+    weapon = 0;
+    while (weapon < (signed char)g_aShipWeapons_0059cab0[obj][0]) {
+        ShipWeaponSlot *slot =
+            &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
+
+        if (slot->type >= 0 && slot->type < OBJECT_TYPE_COUNT &&
+            g_aObjectTypeData_0046645c[slot->type].objectClass ==
+                OBJECT_CLASS_PROJECTILE &&
+            slot->disabled == 0) {
+            result = fire_weapon(obj, weapon);
+            if (result == -1)
+                return -1;
+        }
+        weapon++;
+    }
+    return result;
+}
+
 /* Function start: 0x421350 */
 void fire_afterburner(short obj, short time)
 {
@@ -39,18 +63,202 @@ void fire_afterburner(short obj, short time)
 }
 
 /* Function start: 0x4213B0 */
-unsigned int ShipAiRoutine15(short ship)
+unsigned int fire_super_brake(short ship)
 {
-    DAT_0059c810[ship] = 10;
+    g_asShipAfterburnerTimer_0059c810[ship] = 10;
     set_special(ship, SPECIAL_MANEUVER_SUPER_BRAKE);
     return 0;
 }
 
-/* Function start: 0x421760 */
-unsigned int FlagShipAiIfPositive(short i)
+/* Function start: 0x4213D0 */
+short flip_angle(short ship, short angle)
 {
-    if (0 < g_anShipSpeed_0059b320[i])
-        AddShipAiTimer(i, 5);
+    if ((g_asObjectFlip_0059c870[ship] & 0x10) != 0)
+        angle = (short)(180 - angle);
+    if ((g_asObjectFlip_0059c870[ship] & 0x20) != 0)
+        angle = (short)-angle;
+    angle = (short)((angle + g_asObjectScreenAngle_0059cd90[ship]) % 360);
+    if (angle < 0)
+        angle = (short)(angle + 360);
+    return angle;
+}
+
+/* Function start: 0x421430 */
+void place_exhaust_on_ships(void)
+{
+    short ship;
+
+    ship = 0;
+    do {
+        if (g_aeObjectClass_0059d100[ship] > OBJECT_CLASS_MINE &&
+            g_anShipSpeed_0059b320[ship] != 0 &&
+            g_aeSpecialManeuver_0059c3c0[ship] !=
+                SPECIAL_MANEUVER_KILL_ENGINES &&
+            g_asObjectScreenX_0059d9b0[ship] != (short)0x8001) {
+            ObjectTypeData *typeData;
+            short *animation;
+            short offset;
+
+            typeData = &g_aObjectTypeData_0046645c[
+                g_aeObjectType_0059b560[ship]];
+            animation = (short *)typeData->animation;
+            if (animation != 0) {
+                offset = animation[g_asObjectViewFrame_0059d230[ship]];
+                if (offset != -1) {
+                    short *exhaust = (short *)((unsigned char *)animation +
+                                               (unsigned short)offset);
+
+                    while (exhaust[0] != -1) {
+                        short object;
+                        short scale;
+
+                        object = find_vacant_3d_object();
+                        if (object == -1)
+                            return;
+                        initialize_object(object, OBJECT_TYPE_THRUSTERS,
+                                          ship);
+                        scale = (short)(exhaust[1] - RandomInRange(0, 32));
+                        if (g_abShipExhaustHeat_0059d610[ship] == 0)
+                            scale = (short)(scale - 32);
+                        g_asObjectScale_0059de40[object] = scale;
+                        g_asObjectDistance_0059b4a0[object] = exhaust[2];
+                        g_asObjectScreenAngle_0059cd90[object] =
+                            flip_angle(ship, exhaust[3]);
+                        g_asObjectFlip_0059c870[object] = 0;
+                        g_asObjectScreenX_0059d9b0[object] = exhaust[4];
+                        g_asObjectScreenY_0059d930[object] = exhaust[5];
+                        if (g_aeSpecialManeuver_0059c3c0[ship] ==
+                                SPECIAL_MANEUVER_AFTERBURNER) {
+                            g_asObjectViewFrame_0059d230[object] =
+                                (short)(exhaust[0] * 3 +
+                                        RandomInRange(0, 2));
+                        } else {
+                            g_asObjectViewFrame_0059d230[object] =
+                                (short)(exhaust[0] * 2 + 12 +
+                                        RandomInRange(0, 1));
+                        }
+                        exhaust += 6;
+                    }
+                }
+            }
+        }
+        ship++;
+    } while (ship < 10);
+}
+
+/* Function start: 0x4215E0 */
+void reposition_fixed_child_objects(void)
+{
+    short object;
+
+    object = 10;
+    do {
+        if (g_aeObjectClass_0059d100[object] ==
+                OBJECT_CLASS_FIXED_OBJECT) {
+            short parent;
+
+            parent = (short)g_acObjectOwner_0059ce20[object];
+            if (g_aeObjectType_0059b560[object] == OBJECT_TYPE_TURRET ||
+                g_aeObjectType_0059b560[object] == OBJECT_TYPE_THRUSTERS) {
+                int right;
+                int up;
+                long sine;
+                long cosine;
+                short parentScale;
+
+                sine = SinFixed(g_asObjectScreenAngle_0059cd90[parent]);
+                cosine = CosFixed(g_asObjectScreenAngle_0059cd90[parent]);
+                parentScale = g_asObjectScreenScale_0059c950[parent];
+                right = (int)g_asObjectScreenX_0059d9b0[object] *
+                        (unsigned short)parentScale;
+                g_asObjectDistance_0059b4a0[object] = (short)(
+                    g_asObjectDistance_0059b4a0[object] +
+                    g_asObjectDistance_0059b4a0[parent]);
+                if ((g_asObjectFlip_0059c870[parent] & 0x10) != 0)
+                    right = -right;
+                up = (int)g_asObjectScreenY_0059d930[object] *
+                     (unsigned short)parentScale;
+                if ((g_asObjectFlip_0059c870[parent] & 0x20) != 0)
+                    up = -up;
+                g_asObjectScreenX_0059d9b0[object] = (short)(
+                    ((MultiplyFixed(right, (int)cosine) -
+                      MultiplyFixed(up, (int)sine)) >> 8) +
+                    g_asObjectScreenX_0059d9b0[parent]);
+                g_asObjectScreenY_0059d930[object] = (short)(
+                    ((MultiplyFixed(up, (int)cosine) +
+                      MultiplyFixed(right, (int)sine)) >> 8) +
+                    g_asObjectScreenY_0059d930[parent]);
+            }
+            g_asObjectScreenScale_0059c950[object] = (short)(
+                (unsigned int)(unsigned short)
+                    g_asObjectScreenScale_0059c950[parent] *
+                (unsigned int)(unsigned short)
+                    g_asObjectScale_0059de40[object] >> 8);
+        }
+        object++;
+    } while (object <= WC1_SPACE_LAST_MOVING_OBJECT);
+}
+
+/* Function start: 0x421760 */
+unsigned int housekeep_power_plant_and_fuel(short ship)
+{
+    if (0 < g_anShipSpeed_0059b320[ship])
+        AddShipAiTimer(ship, 5);
+    return 0;
+}
+
+/* Function start: 0x421780 */
+unsigned int replenish_shields(short ship)
+{
+    signed char shield;
+
+    if (ship == 0 && g_cPlayerPowerDamage_0059bff1 > 0 &&
+        g_nSpaceFrame_0059b420 % (g_cPlayerPowerDamage_0059bff1 + 1) != 0)
+        return 0;
+    shield = 0;
+    do {
+        short current;
+        short maximum;
+
+        current = g_aasShipShield_0059d5b0[ship][shield];
+        maximum = g_aasShipMaximumShield_0059d6e0[ship][shield];
+        if (maximum < current) {
+            g_aasShipShield_0059d5b0[ship][shield] = maximum;
+            current = maximum;
+        }
+        if (current < maximum &&
+            g_nSpaceFrame_0059b420 %
+                g_aObjectTypeData_0046645c[
+                    g_aeObjectType_0059b560[ship]].animationDelay == 0) {
+            g_aasShipShield_0059d5b0[ship][shield] =
+                (short)(current + 1);
+        }
+        shield++;
+    } while (shield < 2);
+    return 0;
+}
+
+/* Function start: 0x421830 */
+unsigned int replenish_weapon_energy_bank(short ship)
+{
+    short energy;
+
+    if (ship == 0 && g_cPlayerPowerDamage_0059bff1 != 0 &&
+        (int)(unsigned short)RandomInRange(0, 4) <
+            g_cPlayerPowerDamage_0059bff1)
+        return 0;
+    energy = g_asShipWeaponEnergy_0059d470[ship];
+    if (energy < 100) {
+        if ((short)(g_aasShipShield_0059d5b0[ship][0] +
+                    g_aasShipShield_0059d5b0[ship][1]) <
+            (short)(g_aasShipMaximumShield_0059d6e0[ship][0] +
+                    g_aasShipMaximumShield_0059d6e0[ship][1])) {
+            energy = (short)(energy + 1);
+        } else {
+            energy = (short)(energy + 2);
+        }
+        g_asShipWeaponEnergy_0059d470[ship] = MinShort(energy, 100);
+    }
     return 0;
 }
 
@@ -344,8 +552,8 @@ short crash_time(short obj, short other)
     if (other < 10 && g_asCollisionPartner_005a7cc0[other] == obj)
         return g_asCollisionTime_005a7ca0[other];
     if (g_aeObjectClass_0059d100[other] == OBJECT_CLASS_ASTEROID &&
-        ((short)DAT_0059d9b0[other] == -0x7fff ||
-         (short)DAT_0059d9b0[obj] == -0x7fff))
+        (g_asObjectScreenX_0059d9b0[other] == -0x7fff ||
+         g_asObjectScreenX_0059d9b0[obj] == -0x7fff))
         return 0x7fff;
     return real_crash_time(obj, other);
 }
@@ -1075,7 +1283,7 @@ void inherit_leader(short obj)
 /* Function start: 0x423610 */
 unsigned int dead_ship(short i)
 {
-    if (i != -1 && DAT_0046c97a[i * 0x36] != 3)
+    if (i != -1 && g_aMissionShips_0046c948[i].state != 3)
         return 0;
     return 1;
 }
@@ -1083,8 +1291,9 @@ unsigned int dead_ship(short i)
 /* Function start: 0x423640 */
 int gone_ship(short missionShip)
 {
-    if (missionShip != -1 && DAT_0046c97a[missionShip * 0x36] != 3 &&
-        DAT_0046c97a[missionShip * 0x36] != 2)
+    if (missionShip != -1 &&
+        g_aMissionShips_0046c948[missionShip].state != 3 &&
+        g_aMissionShips_0046c948[missionShip].state != 2)
         return 0;
     return 1;
 }
@@ -1136,7 +1345,7 @@ short find_ships_sphere(short missionShip)
         } while (shipIndex < 10);
         navIndex++;
         navPoint++;
-    } while (navIndex < WC1_MISSION_NAV_POINT_COUNT);
+    } while (navIndex < WC1_ACTIVE_MISSION_NAV_POINT_COUNT);
     if (fallback != -1) {
         navIndex = fallback;
         if (g_aMissionNavPoints_0046c2f0[navIndex].type > 1)
@@ -1165,8 +1374,7 @@ int locate_ship(short missionShip, FixedVector *point)
     navPoint = find_ships_sphere(missionShip);
     if (navPoint != -1) {
         AddFixedVectors(&g_aMissionNavPoints_0046c2f0[navPoint].position,
-                        (FixedVector *)(
-                            &DAT_0046c97a[missionShip * 0x36] - 0x23),
+                        &g_aMissionShips_0046c948[missionShip].position,
                         point);
         return 1;
     }
@@ -1231,7 +1439,7 @@ int hostile_sphere(short obj, short navPoint)
         missionShip = ships[index];
         if (missionShip != -1 &&
             g_aeShipSide_0059d650[obj] !=
-                *(enum Side *)(&DAT_0046c97a[missionShip * 0x36] - 0x2e))
+                g_aMissionShips_0046c948[missionShip].side)
             return 1;
     }
     return 0;
@@ -1326,13 +1534,13 @@ short evaluate_damage(short obj)
     return (short)((g_asShipDamage_0059c460[obj] * -26) /
                        typeData->damageCapacity +
                    (g_asShipWingLeader_0059d400[obj * 4 + 0x11] * 27) /
-                       typeData->field_75 +
+                       typeData->armorRear +
                    (g_asShipWingLeader_0059d400[obj * 4 + 0x10] * 23) /
-                       typeData->field_73 +
+                       typeData->armorFront +
                    (g_asShipWingLeader_0059d400[obj * 4 + 0x12] * 12) /
-                       typeData->field_77 +
+                       typeData->armorLeft +
                    (g_asShipWingLeader_0059d400[obj * 4 + 0x13] * 12) /
-                       typeData->field_79 + 26);
+                       typeData->armorRight + 26);
 }
 
 /* Function start: 0x423CD0 */
@@ -1341,8 +1549,104 @@ short mine_available(short obj)
     return find_weapon(obj, OBJECT_TYPE_SPACE_MINE);
 }
 
+/* Function start: 0x4243E0 */
+void init_constellation(short scene)
+{
+    (void)scene;
+    if (g_pConstellationShape_005a765c == 0)
+        g_pConstellationShape_005a765c =
+            (unsigned char *)FetchDiskPacketRetrying(12, 0, 0);
+}
+
+/* Function start: 0x424490 */
+void free_constellation(void)
+{
+    FreePacketAndClear((int *)&g_pConstellationShape_005a765c);
+}
+
+/* Function start: 0x424A80 */
+void init_3Space_objects(short scene)
+{
+    short slot;
+
+    if (DAT_00469d5c == 1)
+        return;
+    DAT_00469d5c = 1;
+    remove_all_3d_objects();
+    g_nSpaceFrame_0059b420 = 0;
+    g_nRenderedSpaceFrame_0059d61a = 0;
+    g_bScriptedView_0046a8d4 = 0;
+    DAT_00469208 = -1;
+    slot = 0;
+    do {
+        g_aObjectResourceSlots_0059ddf0[slot].type = -1;
+        g_aObjectResourceSlots_0059ddf0[slot].shapeSet = 0;
+        g_aObjectResourceSlots_0059ddf0[slot].animation = 0;
+        g_aObjectResourceSlots_0059ddf0[slot].shape = 0;
+        slot++;
+    } while (slot < 4);
+    init_constellation(scene);
+    load_common_3Space_objects();
+}
+
+/* Function start: 0x424B00 */
+void load_common_3Space_objects(void)
+{
+    ObjectTypeData *types = g_aObjectTypeData_0046645c;
+
+    types[OBJECT_TYPE_THRUSTERS].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 0, 0);
+    types[OBJECT_TYPE_EXPLOSION0].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 1, 0);
+    types[OBJECT_TYPE_LASER_CANNON].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 6, 0);
+    types[OBJECT_TYPE_MASS_DRIVER_CANNON].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 7, 0);
+    types[OBJECT_TYPE_NEUTRON_PARTICLE_GUN].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 8, 0);
+    types[OBJECT_TYPE_LASER_SPARK].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 9, 0);
+    types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 4, 0);
+    types[OBJECT_TYPE_BLUE_SPARK].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 10, 0);
+    types[OBJECT_TYPE_RED_SPARK].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 11, 0);
+    types[OBJECT_TYPE_SPARK_TRAIL].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 12, 0);
+    types[OBJECT_TYPE_SPACE_MINE].shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(3, 15, 0);
+
+    types[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
+        types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    types[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+        types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    types[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
+        types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    types[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
+        types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    types[OBJECT_TYPE_TURRET].shapeSet =
+        types[OBJECT_TYPE_LASER_CANNON].shapeSet;
+    types[OBJECT_TYPE_TURRET].animation =
+        types[OBJECT_TYPE_LASER_CANNON].animation;
+
+    load_object_resources(OBJECT_TYPE_HEAT_SEEKING_MISSILE, 3);
+    types[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet =
+        types[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
+    types[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation =
+        types[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
+    types[OBJECT_TYPE_FF_MISSILE].shapeSet =
+        types[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
+    types[OBJECT_TYPE_FF_MISSILE].animation =
+        types[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
+    types[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet =
+        types[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
+    types[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation =
+        types[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
+}
+
 /* Function start: 0x424B80 */
-unsigned int GetPilotNameLength(void)
+void remove_all_3d_objects(void)
 {
     short i = 0;
 
@@ -1350,22 +1654,53 @@ unsigned int GetPilotNameLength(void)
         remove_object(i);
         i = i + 1;
     } while (i < 0x40);
-    return 0;
 }
 
 /* Function start: 0x424BA0 */
-unsigned int GetPilotRecordBase(void)
+void free_3Space(void)
 {
     if (DAT_00469d5c == 0)
-        return 0;
+        return;
     DAT_00469d5c = 0;
     GetScreenUpdateFlag();
     DAT_0046a004 = 0;
-    ReleaseSceneActors();
-    ReleaseAllSfxSlots();
-    GetPilotNameLength();
-    ResetSeriesProgress();
-    return 0;
+    free_constellation();
+    remove_all_hazards();
+    remove_all_3d_objects();
+    free_3Space_objects();
+}
+
+/* Function start: 0x424BE0 */
+void free_3Space_objects(void)
+{
+    ObjectTypeData *types = g_aObjectTypeData_0046645c;
+
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_THRUSTERS].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_EXPLOSION0].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_LASER_CANNON].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_MASS_DRIVER_CANNON].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_NEUTRON_PARTICLE_GUN].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_LASER_SPARK].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_BLUE_SPARK].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_RED_SPARK].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_SPARK_TRAIL].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_SPACE_MINE].shapeSet);
+    if (g_aObjectResourceSlots_0059ddf0[3].type != -1)
+        release_object_resources(3);
+
+    types[OBJECT_TYPE_DEBRIS_O_RING].shapeSet = 0;
+    types[OBJECT_TYPE_DEBRIS_GLASS].shapeSet = 0;
+    types[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet = 0;
+    types[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet = 0;
+    types[OBJECT_TYPE_TURRET].shapeSet = 0;
+    types[OBJECT_TYPE_TURRET].animation = 0;
+    types[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet = 0;
+    types[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation = 0;
+    types[OBJECT_TYPE_FF_MISSILE].shapeSet = 0;
+    types[OBJECT_TYPE_FF_MISSILE].animation = 0;
+    types[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet = 0;
+    types[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation = 0;
 }
 
 /* Function start: 0x424C60 */

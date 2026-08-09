@@ -2,6 +2,14 @@
   "build": {
     "jobs": 12
   },
+  "auto_complete_global_effects": {
+    "reviewed": {
+      "full": {
+        "0x004498c0": "MSVC debug CRT ___onexitinit seeds the CRT on-exit table, outside recovered game state.",
+        "0x00455470": "MSVC debug CRT ___initstdio allocates and seeds the CRT stdio table, outside recovered game state."
+      }
+    }
+  },
   "targets": {
     "full": {
       "original_exe": "../data/full/WC1.ORI.EXE",
@@ -15,7 +23,6 @@
       "globals_source": "../src/globals.c",
       "globals_header": "../src/globals.h",
       "code_globals_header": "../code-full/globals.h",
-      "auto_complete": "../src/auto_complete.txt",
       "values": {
         "policy": "checkValuesCapstone.json"
       },

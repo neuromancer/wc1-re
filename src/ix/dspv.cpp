@@ -68,10 +68,10 @@ unsigned int ix_dspv_get_flags(int voice)
 /* No bounds check in the original -- callers are internal. */
 void ix_dspv_set_flag4(int voice, int on)
 {
-    if (on == 0)
-        g_voices_005981a8[voice].flags &= ~IX_VOICE_FLAG4;
-    else
+    if (on != 0)
         g_voices_005981a8[voice].flags |= IX_VOICE_FLAG4;
+    else
+        g_voices_005981a8[voice].flags &= ~IX_VOICE_FLAG4;
 }
 
 /* Function start: 0x44698F */   /* source line 55 */
@@ -140,7 +140,8 @@ void ix_dspv_set_pan(int voice, unsigned int angle)
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    step = (short)((angle & 0xffff) >> 9);
+    angle &= 0xffff;
+    step = (short)(angle >> 9);
     pos = step - g_voices_005981a8[voice].panAngle;
     if (pos > 0x40)
         pos = pos - 0x80;

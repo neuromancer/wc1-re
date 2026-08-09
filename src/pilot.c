@@ -78,7 +78,7 @@ unsigned char *GetHighScoreEntry(short i)
     short k = (short)(char)DAT_005a7c30[i * 5];
 
     if (8 < k)
-        return DAT_00469dbc[k];
+        return g_apszBuiltInHighScoreNames_00469de0[k - 9];
     return &DAT_005988de[0] + k * 0x26;
 }
 

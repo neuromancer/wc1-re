@@ -12,6 +12,143 @@ void CloseDataFile(unsigned int fd)
     DAT_00465460 = (short)_close(fd & 0xffff);
 }
 
+/* Function start: 0x403890 */
+short GetLineLength(const char *text)
+{
+    short width = 0;
+
+    while (*text != 0) {
+        unsigned char c = (unsigned char)*text++;
+        short frame;
+
+        if (c == '\n')
+            break;
+        if (c == ' ') {
+            width = width + 6;
+            continue;
+        }
+        if (c == '.')
+            frame = 58;
+        else if (c == ',')
+            frame = 59;
+        else if (c >= 'A' && c <= 'z')
+            frame = (short)(c - 'A');
+        else
+            continue;
+        width = (short)(width + GetShapeFrameExtent(
+            0, 0, g_pIntroFont_005a8960, frame, 2) + 2);
+    }
+    return width;
+}
+
+/* Function start: 0x403920 */
+void print_subtitle(Viewport *viewport, short colour, const char *text)
+{
+    const char *scan;
+    short lines = 1;
+    short x;
+    short y;
+
+    (void)colour;
+    scan = text;
+    while (*scan != 0) {
+        if (*scan == '\n')
+            lines++;
+        scan++;
+    }
+    y = (short)((128 - lines * 16) / 2);
+    x = (short)((320 - GetLineLength(text)) / 2);
+    while (*text != 0) {
+        unsigned char c = (unsigned char)*text++;
+        short frame;
+
+        if (c == '\n') {
+            y = y + 16;
+            x = (short)((320 - GetLineLength(text)) / 2);
+            continue;
+        }
+        if (c == ' ') {
+            x = x + 6;
+            continue;
+        }
+        if (c == '.')
+            frame = 58;
+        else if (c == ',')
+            frame = 59;
+        else if (c >= 'A' && c <= 'z')
+            frame = (short)(c - 'A');
+        else
+            continue;
+        DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, frame);
+        x = (short)(x + GetShapeFrameExtent(
+            0, 0, g_pIntroFont_005a8960, frame, 2) + 2);
+    }
+}
+
+/* Function start: 0x403A80 */
+int advance_canned_sequence(short obj)
+{
+    const short *command;
+
+    command = g_apCannedSequence_0059dce0[obj];
+    if (command == 0)
+        return 0;
+    g_asCannedCommand_0059d4e0[obj] = *command++;
+    switch (g_asCannedCommand_0059d4e0[obj]) {
+    case 0:
+        g_asActionCount_0059c930[obj] = *command++;
+        break;
+    case 1:
+        g_anYawGoal_0059c310[obj] = *command++;
+        g_anPitchGoal_0059d7a0[obj] = *command++;
+        g_anRollGoal_0059d630[obj] = *command++;
+        g_anShipSpeed_0059b320[obj] = (int)*command++ << 8;
+        break;
+    case 2:
+        explode(-1, obj);
+        break;
+    case 3:
+        fire_fixed_projectile_weapon(obj);
+        break;
+    case 4:
+        g_aeSpecialManeuver_0059c3c0[obj] =
+            SPECIAL_MANEUVER_AFTERBURNER;
+        break;
+    }
+    g_apCannedSequence_0059dce0[obj] = command;
+    return 0;
+}
+
+/* Function start: 0x403B70 */
+void update_canned_sequence(short obj)
+{
+    int velocity;
+    int requested;
+
+    switch (g_asCannedCommand_0059d4e0[obj]) {
+    case 0:
+        g_asActionCount_0059c930[obj]--;
+        if (g_asActionCount_0059c930[obj] == 0)
+            advance_canned_sequence(obj);
+        break;
+    case 1:
+        if (g_anYawGoal_0059c310[obj] == 0 &&
+            g_anPitchGoal_0059d7a0[obj] == 0 &&
+            g_anRollGoal_0059d630[obj] == 0) {
+            requested = g_anShipSpeed_0059b320[obj];
+            velocity = (int)ComputeFixedVectorMagnitude(
+                &g_aShipVelocity_0059c010[0]);
+            if ((velocity > requested - 0x400) < requested + 0x400)
+                advance_canned_sequence(obj);
+        }
+        break;
+    case 3:
+    case 4:
+        advance_canned_sequence(obj);
+        break;
+    }
+}
+
 /* Function start: 0x403C40 */
 void __stdcall SplitGameClockTicks(unsigned char *parts)
 {

@@ -178,20 +178,21 @@ void perform_maneuver(short obj)
                          g_asObjectCollisionRadius_0059d710[obj] * 6;
     SetShipAiScratchWord((unsigned short)(maneuverWeight >> 1));
 
-    if (unactive(target) == 0) {
-        if (g_aeShipManeuver_0059dcb0[obj] > MANEUVER_NONE &&
-            g_aeShipManeuver_0059dcb0[obj] < 47) {
-            g_apShipAiManeuverHandlers_004656a8[
-                g_aeShipManeuver_0059dcb0[obj]](obj, target);
+    if (unactive(target) != 0) {
+        if (g_aeShipManeuver_0059dcb0[obj] == MANEUVER_VEER_AWAY) {
+            ShipAiState02(obj, target);
+        } else if (g_aeShipManeuver_0059dcb0[obj] == MANEUVER_GLOAT) {
+            ((void (__cdecl *)(short, short))ShipAiState25)(obj, target);
+        } else if (g_aeShipManeuver_0059dcb0[obj] ==
+                   MANEUVER_LINE_UP_DROP) {
+            ShipAiState42(obj, target);
         } else {
             SelectNewShipAiBehavior(obj);
         }
-    } else if (g_aeShipManeuver_0059dcb0[obj] == MANEUVER_VEER_AWAY) {
-        ShipAiState02(obj, target);
-    } else if (g_aeShipManeuver_0059dcb0[obj] == MANEUVER_GLOAT) {
-        ShipAiState25(obj);
-    } else if (g_aeShipManeuver_0059dcb0[obj] == MANEUVER_LINE_UP_DROP) {
-        ShipAiState42(obj, target);
+    } else if ((int)g_aeShipManeuver_0059dcb0[obj] >= 0 &&
+               g_aeShipManeuver_0059dcb0[obj] < 47) {
+        g_apShipAiManeuverHandlers_004656a8[
+            g_aeShipManeuver_0059dcb0[obj]](obj, target);
     } else {
         SelectNewShipAiBehavior(obj);
     }
@@ -203,6 +204,17 @@ void perform_maneuver(short obj)
                    (short)g_bCurrentManeuverReroll_00475e7c) {
         SelectNewShipAiBehavior(obj);
     }
+}
+
+/* Function start: 0x407710 */
+short __stdcall GetShapeFrameExtent(short x, short y,
+                                    unsigned char *shape, short frame,
+                                    short extent)
+{
+    short bounds[4];
+
+    GetShapeFrameBounds(bounds, x, y, shape, frame);
+    return bounds[extent];
 }
 
 /* Function start: 0x409760 */
@@ -668,7 +680,7 @@ void cruise_to_destination(short obj)
     } else {
         get_facing_range_from_object(obj,
             (short)g_acShipTarget_0059ce60[obj]);
-        if (g_nFacingToTarget_0059d920 < 66)
+        if (g_nFacingToTarget_0059d920 <= 65)
             approach_full_speed(obj);
         else
             approach_half_speed(obj);
@@ -1331,8 +1343,132 @@ unsigned int GetShipSlotState(short i)
     return 0;
 }
 
+/* Function start: 0x40B990 */
+void release_capital_ship_shapes(enum ObjectType type)
+{
+    short obj;
+
+    if (g_aObjectTypeData_0046645c[type].objectClass !=
+        OBJECT_CLASS_CAPITAL_SHIP)
+        return;
+    obj = 1;
+    do {
+        if (g_aeObjectType_0059b560[obj] == type)
+            g_apObjectShape_0059d2f0[obj] = 0;
+        obj++;
+    } while (obj < 10);
+}
+
+/* Function start: 0x40B9F0 */
+void load_object_resources(enum ObjectType type, short slot)
+{
+    ObjectResourceSlot *resource;
+    ObjectTypeData *typeData;
+    short logicalFile;
+    short asteroidType;
+
+    if ((int)type < 0 || type >= OBJECT_TYPE_COUNT ||
+        slot < 0 || slot >= 4)
+        return;
+    resource = &g_aObjectResourceSlots_0059ddf0[slot];
+    if (resource->shapeSet != 0)
+        return;
+
+    resource->type = (signed char)type;
+    if (type == OBJECT_TYPE_ASTEROID_FIELD) {
+        resource->animation =
+            (unsigned char *)FetchDiskPacketRetrying(3, 13, 0);
+        resource->shapeSet =
+            (unsigned char *)FetchDiskPacketRetrying(3, 16, 0);
+        resource->shape = 0;
+        asteroidType = OBJECT_TYPE_ASTEROID1;
+        do {
+            typeData = &g_aObjectTypeData_0046645c[asteroidType];
+            typeData->objectClass = OBJECT_CLASS_ASTEROID;
+            typeData->collisionRadius = 100;
+            typeData->scale = 640;
+            typeData->shapeSet = resource->shapeSet;
+            asteroidType++;
+        } while (asteroidType <= OBJECT_TYPE_ASTEROID6);
+        return;
+    }
+    if (type == OBJECT_TYPE_MINE_FIELD)
+        return;
+
+    typeData = &g_aObjectTypeData_0046645c[type];
+    logicalFile = (short)type + 22;
+    resource->shapeSet =
+        (unsigned char *)FetchDiskPacketRetrying(logicalFile, 0, 0);
+    resource->animation =
+        (unsigned char *)FetchDiskPacketRetrying(logicalFile, 2, 0);
+    resource->shape =
+        (unsigned char *)FetchDiskPacketRetrying(logicalFile, 1, 0);
+    typeData->shapeSet = resource->shapeSet;
+    typeData->animation = resource->animation;
+    typeData->shape = resource->shape;
+
+    for (asteroidType = 0; asteroidType < WC1_SPACE_OBJECT_COUNT;
+         asteroidType++) {
+        if (g_aeObjectType_0059b560[asteroidType] == type &&
+            g_aeObjectClass_0059d100[asteroidType] >= OBJECT_CLASS_SHIP)
+            g_apObjectShape_0059d2f0[asteroidType] = resource->shapeSet;
+    }
+}
+
+/* Function start: 0x40BC70 */
+void release_object_resources(short slot)
+{
+    ObjectResourceSlot *resource;
+    ObjectTypeData *typeData;
+    enum ObjectType type;
+    short asteroidType;
+
+    if (slot < 0 || slot >= 4)
+        return;
+    resource = &g_aObjectResourceSlots_0059ddf0[slot];
+    type = (enum ObjectType)resource->type;
+    if ((int)type < 0 || type >= OBJECT_TYPE_COUNT)
+        return;
+
+    if (type == OBJECT_TYPE_ASTEROID_FIELD) {
+        FreePacketAndClear((int *)&resource->animation);
+        FreePacketAndClear((int *)&resource->shapeSet);
+        asteroidType = OBJECT_TYPE_ASTEROID1;
+        do {
+            g_aObjectTypeData_0046645c[asteroidType].shapeSet = 0;
+            asteroidType++;
+        } while (asteroidType <= OBJECT_TYPE_ASTEROID6);
+    } else if (type != OBJECT_TYPE_MINE_FIELD) {
+        typeData = &g_aObjectTypeData_0046645c[type];
+        release_capital_ship_shapes(type);
+        FreePacketAndClear((int *)&resource->shapeSet);
+        FreePacketAndClear((int *)&resource->animation);
+        FreePacketAndClear((int *)&resource->shape);
+        typeData->shapeSet = 0;
+        typeData->animation = 0;
+        typeData->shape = 0;
+    }
+    resource->shapeSet = 0;
+    resource->animation = 0;
+    resource->shape = 0;
+    resource->type = -1;
+}
+
+/* Function start: 0x40BE20 */
+void free_nav_object_resources(void)
+{
+    short slot = 0;
+
+    do {
+        if (g_aObjectResourceSlots_0059ddf0[slot].type != -1)
+            release_object_resources(slot);
+        slot++;
+    } while (slot < 3);
+    initialize_view_buffer();
+}
+
 /* Function start: 0x40BEA0 */
-void ResetNavCursor(void)
+void remove_nav_point_objects(void)
 {
     short i = 0;
 
@@ -1340,6 +1476,120 @@ void ResetNavCursor(void)
         remove_object(i);
         i = i + 1;
     } while (i < 10);
+}
+
+/* Function start: 0x40BEC0 */
+short find_free_object_resource_slot(void)
+{
+    short slot = 0;
+
+    do {
+        if (g_aObjectResourceSlots_0059ddf0[slot].type == -1)
+            return slot;
+        slot++;
+    } while (slot < 4);
+    return -1;
+}
+
+/* Function start: 0x40BEF0 */
+int object_resources_loaded(enum ObjectType type)
+{
+    short slot = 0;
+
+    do {
+        if (g_aObjectResourceSlots_0059ddf0[slot].type == (signed char)type)
+            return 1;
+        slot++;
+    } while (slot < 4);
+    return 0;
+}
+
+/* Function start: 0x40BF20 */
+int nav_point_uses_object_type(const MissionNavPoint *navPoint,
+                               enum ObjectType type)
+{
+    short preload;
+
+    if ((int)type < 0)
+        return 0;
+    preload = 0;
+    do {
+        if (navPoint->preloadObjectTypes[preload] == type)
+            return 1;
+        preload++;
+    } while (preload < 2);
+    return 0;
+}
+
+/* Function start: 0x40BF50 */
+void cache_nav_point_resources(MissionNavPoint *navPoint)
+{
+    short slot;
+    short preload;
+    enum ObjectType type;
+
+    slot = 1;
+    do {
+        type = (enum ObjectType)g_aObjectResourceSlots_0059ddf0[slot].type;
+        if ((int)type >= 0 &&
+            !nav_point_uses_object_type(navPoint, type))
+            release_object_resources(slot);
+        slot++;
+    } while (slot < 3);
+
+    preload = 0;
+    do {
+        type = navPoint->preloadObjectTypes[preload];
+        if ((int)type >= 0 && !object_resources_loaded(type)) {
+            slot = find_free_object_resource_slot();
+            if (slot != -1)
+                load_object_resources(type, slot);
+        }
+        preload++;
+    } while (preload < 2);
+    initialize_view_buffer();
+}
+
+/* Function start: 0x40BFF0 */
+void EnterNavPoint(short navPoint)
+{
+    MissionNavPoint *nav;
+    short obj;
+    short entry;
+
+    if (navPoint < 0 || navPoint >= WC1_MISSION_NAV_POINT_COUNT)
+        return;
+    g_nCurrentNavPoint_0059df60 = navPoint;
+    nav = &g_aMissionNavPoints_0046c2f0[navPoint];
+
+    obj = 1;
+    do {
+        if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL)
+            remove_object(obj);
+        obj++;
+    } while (obj < 10);
+    remove_all_hazards();
+    cache_nav_point_resources(nav);
+
+    entry = 0;
+    do {
+        if (nav->missionShips[entry] != -1)
+            spawn_mission_ship(nav->missionShips[entry], navPoint);
+        entry++;
+    } while (entry < 10);
+
+    entry = 0;
+    do {
+        if (nav->triggers[entry][0] != -1) {
+            signed char target = nav->triggers[entry][1];
+
+            if (target >= 0 && target < WC1_MISSION_NAV_POINT_COUNT)
+                g_aMissionNavPoints_0046c2f0[target].type =
+                    nav->triggers[entry][0];
+        }
+        entry++;
+    } while (entry < 4);
+    clean_up_cockpit();
 }
 
 /* Function start: 0x40C350 */
@@ -1357,6 +1607,68 @@ void place_ship_near_player_until_valid(short obj, int minimum,
         g_aShipPosition_0059c490[obj] = g_aShipPosition_0059c490[0];
         g_aShipPosition_0059c490[obj].z += (int)maximum << 8;
     }
+}
+
+/* Function start: 0x40C5E0 */
+void initialize_mission_ship(short obj, short missionShip,
+                             signed char navPoint)
+{
+    MissionShipRecord *record = &g_aMissionShips_0046c948[missionShip];
+    MissionNavPoint *nav = &g_aMissionNavPoints_0046c2f0[record->navPoint];
+
+    g_asShipMissionIndex_0059c830[obj] = missionShip;
+    g_aShipPosition_0059c490[obj].x = nav->position.x + record->position.x;
+    g_aShipPosition_0059c490[obj].y = nav->position.y + record->position.y;
+    g_aShipPosition_0059c490[obj].z = nav->position.z + record->position.z;
+    alter_yaw((short)-record->pitch, obj);
+    alter_pitch((short)-record->yaw, obj);
+    alter_roll(record->roll, obj);
+    g_aeShipSide_0059d650[obj] = record->side;
+    g_anShipSpeed_0059b320[obj] = (int)record->speed << 8;
+    g_aiPilotLevel_0059cf30[obj] = (int)record->cannedSequence;
+    reset_mission_type(obj, record->missionType);
+    g_anShipMissionShip_0059d4b0[obj] = record->targetMissionIndex;
+    g_asShipWingLeader_0059d400[obj] =
+        find_ship_index(record->leaderMissionIndex);
+    zero_vector(&g_aShipVelocity_0059c010[obj]);
+    g_abShipTurn_0059d860[obj] = 0;
+    g_aeSpecialManeuver_0059c3c0[obj] = SPECIAL_MANEUVER_NONE;
+    ((FixedVector *)g_aShipMissionSpot_0059dd10)[obj] = nav->position;
+
+    if (record->missionType == MISSION_TYPE_CANNED_SEQUENCE) {
+        g_apCannedSequence_0059dce0[obj] = record->cannedSequence;
+        g_aiPilotLevel_0059cf30[obj] = 2;
+        advance_canned_sequence(obj);
+    }
+    g_acShipRating_0059cd80[obj] =
+        g_aiPilotLevel_0059cf30[obj] < 5 ? -1 :
+        (signed char)(g_aiPilotLevel_0059cf30[obj] - 5);
+    g_acShipStress_0059d620[obj] = 0;
+    (void)navPoint;
+}
+
+/* Function start: 0x40C800 */
+short spawn_mission_ship(short missionShip, short navPoint)
+{
+    MissionShipRecord *record;
+    short obj;
+
+    if (missionShip < 0 || missionShip >= WC1_MISSION_SHIP_COUNT)
+        return -1;
+    record = &g_aMissionShips_0046c948[missionShip];
+    if (record->type == OBJECT_TYPE_ASTEROID_FIELD ||
+        record->type == OBJECT_TYPE_MINE_FIELD)
+        return -1;
+    obj = find_ship_index(missionShip);
+    if (obj != -1 || record->state != 0)
+        return -1;
+    record->navPoint = (signed char)navPoint;
+    obj = new_object(record->type, -1);
+    if (obj != -1) {
+        initialize_mission_ship(obj, missionShip, (signed char)navPoint);
+        GetShipSlotState(obj);
+    }
+    return obj;
 }
 
 /* Function start: 0x40CBB0 */

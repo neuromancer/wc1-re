@@ -249,6 +249,79 @@ unsigned int GetFixedOneMillionAlt(void)
     return 0x3e8000;
 }
 
+/* Function start: 0x436460 */
+void sort_object_depth(void)
+{
+    unsigned char used[WC1_SPACE_OBJECT_COUNT];
+    unsigned short farthestDistance;
+    short farthestObject;
+    short sorted;
+    short obj;
+
+    memset(used, 0, sizeof(used));
+    sorted = 0;
+    while (sorted < WC1_SPACE_OBJECT_COUNT) {
+        farthestDistance = 0;
+        farthestObject = -1;
+        obj = 0;
+        while (obj < WC1_SPACE_OBJECT_COUNT) {
+            if (used[obj] == 0 &&
+                g_asObjectScreenX_0059d9b0[obj] != (short)0x8001 &&
+                (farthestObject == -1 ||
+                 (unsigned short)g_asObjectDistance_0059b4a0[obj] >
+                     farthestDistance)) {
+                farthestDistance =
+                    (unsigned short)g_asObjectDistance_0059b4a0[obj];
+                farthestObject = obj;
+            }
+            obj++;
+        }
+        g_anSortedObject_0059aa00[sorted] = farthestObject;
+        if (farthestObject == -1)
+            return;
+        used[farthestObject] = 1;
+        sorted++;
+    }
+}
+
+/* Function start: 0x436520 */
+void draw_sorted_objects_to_buffer(void)
+{
+    int obj;
+    short screenX;
+    short screenY;
+    short sorted;
+
+    sorted = 0;
+    while (sorted < WC1_SPACE_OBJECT_COUNT) {
+        obj = g_anSortedObject_0059aa00[sorted];
+        if (obj < 0)
+            return;
+        if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL &&
+            (int)g_aeObjectType_0059b560[obj] >= 0) {
+            screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
+                (DAT_005a7510.left + DAT_005a7510.right + 1) / 2);
+            screenY = (short)(g_asObjectScreenY_0059d930[obj] +
+                (DAT_005a7510.top + DAT_005a7510.bottom + 1) / 2);
+            if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_STAR &&
+                g_aeObjectClass_0059d100[obj] <= OBJECT_CLASS_DUST) {
+                DrawSpriteDefault(&DAT_005a7510, screenX, screenY,
+                                  g_pConstellationShape_005a765c,
+                                  g_asObjectViewFrame_0059d230[obj]);
+            } else if (g_apObjectShape_0059d2f0[obj] != 0) {
+                DrawSpriteTransformed(&DAT_005a7510, screenX, screenY,
+                                      g_apObjectShape_0059d2f0[obj],
+                                      g_asObjectViewFrame_0059d230[obj],
+                                      g_asObjectScreenAngle_0059cd90[obj],
+                                      g_asObjectScreenScale_0059c950[obj],
+                                      g_asObjectScreenScale_0059c950[obj],
+                                      g_asObjectFlip_0059c870[obj], 0);
+            }
+        }
+        sorted++;
+    }
+}
+
 /* Function start: 0x4368C0 */
 void MouseIdleHook(void)
 {

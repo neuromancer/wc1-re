@@ -6,326 +6,6 @@
  */
 #include "wc1.h"
 
-typedef struct IntroArchive {
-    unsigned char *data;
-    unsigned int size;
-    short sectionCount;
-    unsigned char *sections[64];
-    unsigned int sectionSizes[64];
-} IntroArchive;
-
-static const unsigned char g_abIntroFontWidths[60] = {
-    13, 13, 13, 13, 12, 10, 13, 13, 5, 11, 13, 10, 17,
-    13, 13, 13, 13, 13, 13, 13, 13, 13, 17, 13, 13, 11,
-    0, 0, 0, 0, 0, 0,
-    11, 11, 11, 11, 11, 9, 11, 11, 5, 7, 11, 5, 15,
-    11, 11, 11, 11, 9, 10, 7, 11, 11, 15, 11, 11, 13,
-    5, 7
-};
-
-static const char *g_aszIntroCredits[] = {
-    "Design\nby\nChris Roberts",
-    "Software Engineers\nChris Roberts\nKen Demarest III\nPaul C. Isaac\nSteve Muchow\nHerman Miller\nSteve Beeman",
-    "Dogfight Intelligence\nKen Demarest III\n\nDogfight Choreography\nSteve Beeman\nErin Roberts",
-    "3Space System\nby\nChris Roberts\n\nOriginFX Graphic System\nChris Roberts\nJohn Miles",
-    "OriginFX Sound System\nby\nHerman Miller",
-    "Artwork\nDenis Loubet\nGlen Johnson\nDaniel Bourbonnais\nKeith Berdak\nJohn Watson",
-    "Screenplay by Jeff George\n\nAdditional Writing\nSteve Cantrell\nPhilip Brogden",
-    "Soundtrack by\nGeorge A. Sanger and Dave Govett",
-    "Sound Effects by Marc Schaefgen",
-    "Produced by\nChris Roberts and Warren Spector",
-    "Directed by\nChris Roberts"
-};
-
-static unsigned int ReadIntroDword(const unsigned char *p)
-{
-    return (unsigned int)p[0] |
-           (unsigned int)p[1] << 8 |
-           (unsigned int)p[2] << 16 |
-           (unsigned int)p[3] << 24;
-}
-
-static int LoadIntroArchive(const char *name, IntroArchive *archive)
-{
-    FILE *file;
-    long fileSize;
-    unsigned int declaredSize;
-    unsigned int firstOffset;
-    short count;
-    short i;
-
-    memset(archive, 0, sizeof(*archive));
-    file = fopen(name, "rb");
-    if (file == 0)
-        return 0;
-    fseek(file, 0, SEEK_END);
-    fileSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    if (fileSize < 8 || fileSize > 0x1000000L) {
-        fclose(file);
-        return 0;
-    }
-
-    archive->data = (unsigned char *)malloc((unsigned int)fileSize);
-    if (archive->data == 0) {
-        fclose(file);
-        return 0;
-    }
-    if (fread(archive->data, 1, (unsigned int)fileSize, file) !=
-        (unsigned int)fileSize) {
-        fclose(file);
-        free(archive->data);
-        memset(archive, 0, sizeof(*archive));
-        return 0;
-    }
-    fclose(file);
-
-    declaredSize = ReadIntroDword(archive->data);
-    firstOffset = ReadIntroDword(archive->data + 4) & 0xffffff;
-    if (declaredSize > (unsigned int)fileSize || firstOffset < 8 ||
-        (firstOffset & 3) != 0) {
-        free(archive->data);
-        memset(archive, 0, sizeof(*archive));
-        return 0;
-    }
-
-    count = (short)(firstOffset / 4 - 1);
-    if (count < 1 || count > 64) {
-        free(archive->data);
-        memset(archive, 0, sizeof(*archive));
-        return 0;
-    }
-    archive->size = declaredSize;
-    archive->sectionCount = count;
-    i = 0;
-    do {
-        unsigned int start = ReadIntroDword(archive->data + 4 + i * 4) & 0xffffff;
-        unsigned int end;
-
-        if (i + 1 < count)
-            end = ReadIntroDword(archive->data + 8 + i * 4) & 0xffffff;
-        else
-            end = declaredSize;
-        if (start < firstOffset || start > end || end > declaredSize) {
-            free(archive->data);
-            memset(archive, 0, sizeof(*archive));
-            return 0;
-        }
-        archive->sections[i] = archive->data + start;
-        archive->sectionSizes[i] = end - start;
-        i = i + 1;
-    } while (i < count);
-    return 1;
-}
-
-static void UnloadIntroArchive(IntroArchive *archive)
-{
-    if (archive->data != 0)
-        free(archive->data);
-    memset(archive, 0, sizeof(*archive));
-}
-
-static int LoadIntroPalette(unsigned char *palette)
-{
-    FILE *file = fopen("GAME.PAL", "rb");
-    int loaded = 0;
-
-    if (file != 0) {
-        if (fseek(file, 0x30, SEEK_SET) == 0 &&
-            fread(palette, 1, 0x300, file) == 0x300)
-            loaded = 1;
-        fclose(file);
-    }
-    return loaded;
-}
-
-static void SetIntroPaletteLevel(const unsigned char *palette, short level)
-{
-    unsigned char scaled[0x300];
-    short i = 0;
-
-    do {
-        scaled[i] = (unsigned char)((unsigned int)palette[i] * level >> 8);
-        i = i + 1;
-    } while (i < 0x300);
-    DIBwholePaletteFromTriplets(scaled);
-}
-
-static int PresentIntroFrame(unsigned int delay)
-{
-    DWORD until;
-
-    CopyViewportContents(&DAT_005a7510, &DAT_005a6ba0);
-    DIBslamReal();
-    until = timeGetTime() + delay;
-    do {
-        if (PumpWindowMessages() == 0)
-            return 0;
-        if (DAT_0059ab58 != 0 || DAT_005a8964 != 0)
-            return 0;
-        Sleep(1);
-    } while ((long)(until - timeGetTime()) > 0);
-    return 1;
-}
-
-static int FadeIntroPalette(const unsigned char *palette, int fadeIn)
-{
-    short step = 0;
-
-    do {
-        short level = fadeIn ? step * 16 : 0x100 - step * 16;
-
-        SetIntroPaletteLevel(palette, level);
-        if (!PresentIntroFrame(20))
-            return 0;
-        step = step + 1;
-    } while (step < 17);
-    return 1;
-}
-
-static void ClearIntroFrame(void)
-{
-    ClearViewport(&DAT_005a7510, 0);
-}
-
-static void DrawIntroShape(const IntroArchive *archive, short section,
-                           short frame, short x, short y)
-{
-    unsigned char *shape;
-    unsigned short tableEnd;
-
-    if (section < 0 || section >= archive->sectionCount)
-        return;
-    if (archive->sectionSizes[section] < 8)
-        return;
-    shape = archive->sections[section];
-    tableEnd = *(unsigned short *)(shape + 4);
-    if (frame < 0 || frame * 4 + 4 >= tableEnd)
-        return;
-    DrawSpriteDefault(&DAT_005a7510, x, y, shape, frame);
-}
-
-static int IntroTextLineWidth(const char *text)
-{
-    int width = 0;
-
-    while (*text != 0 && *text != '\n') {
-        unsigned char c = (unsigned char)*text++;
-
-        if (c == ' ')
-            width += 6;
-        else if (c == '.')
-            width += g_abIntroFontWidths[58];
-        else if (c == ',')
-            width += g_abIntroFontWidths[59];
-        else if (c >= 'A' && c <= 'z' &&
-                 g_abIntroFontWidths[c - 'A'] != 0)
-            width += g_abIntroFontWidths[c - 'A'];
-        else
-            width += 6;
-    }
-    return width;
-}
-
-static void DrawCenteredIntroText(const IntroArchive *archive, const char *text)
-{
-    const unsigned char *font;
-    const char *p;
-    short lineCount = 1;
-    short y;
-    short x;
-
-    if (archive->sectionCount < 2)
-        return;
-    font = archive->sections[1];
-    p = text;
-    while (*p != 0) {
-        if (*p == '\n')
-            lineCount = lineCount + 1;
-        p = p + 1;
-    }
-    y = (short)((200 - lineCount * 16) / 2);
-    p = text;
-    x = (short)((320 - IntroTextLineWidth(p)) / 2);
-    while (*p != 0) {
-        unsigned char c = (unsigned char)*p++;
-        short frame = -1;
-        short advance = 6;
-
-        if (c == '\n') {
-            y = y + 16;
-            x = (short)((320 - IntroTextLineWidth(p)) / 2);
-            continue;
-        }
-        if (c == '.')
-            frame = 58;
-        else if (c == ',')
-            frame = 59;
-        else if (c >= 'A' && c <= 'z' &&
-                 g_abIntroFontWidths[c - 'A'] != 0)
-            frame = (short)(c - 'A');
-        if (frame >= 0) {
-            advance = g_abIntroFontWidths[frame];
-            DrawSpriteDefault(&DAT_005a7510, x, y,
-                              (unsigned char *)font, frame);
-        }
-        x = x + advance;
-    }
-}
-
-static int StartIntroMusic(char *temporaryName, int *opened)
-{
-    IntroArchive music;
-    char temporaryPath[MAX_PATH];
-    char command[MAX_PATH * 2];
-    FILE *file;
-
-    *opened = 0;
-    temporaryName[0] = 0;
-    if (!LoadIntroArchive("MUSIC.MID", &music))
-        return 0;
-    if (music.sectionCount <= 0x17 ||
-        GetTempPathA(MAX_PATH, temporaryPath) == 0 ||
-        GetTempFileNameA(temporaryPath, "WCI", 0, temporaryName) == 0) {
-        UnloadIntroArchive(&music);
-        return 0;
-    }
-
-    file = fopen(temporaryName, "wb");
-    if (file == 0 ||
-        fwrite(music.sections[0x17], 1, music.sectionSizes[0x17], file) !=
-        music.sectionSizes[0x17]) {
-        if (file != 0)
-            fclose(file);
-        DeleteFileA(temporaryName);
-        temporaryName[0] = 0;
-        UnloadIntroArchive(&music);
-        return 0;
-    }
-    fclose(file);
-    UnloadIntroArchive(&music);
-
-    sprintf(command, "open \"%s\" type sequencer alias WCIntro", temporaryName);
-    if (mciSendStringA(command, 0, 0, 0) != 0) {
-        DeleteFileA(temporaryName);
-        temporaryName[0] = 0;
-        return 0;
-    }
-    *opened = 1;
-    mciSendStringA("play WCIntro from 0", 0, 0, 0);
-    return 1;
-}
-
-static void StopIntroMusic(char *temporaryName, int opened)
-{
-    if (opened) {
-        mciSendStringA("stop WCIntro", 0, 0, 0);
-        mciSendStringA("close WCIntro", 0, 0, 0);
-    }
-    if (temporaryName[0] != 0)
-        DeleteFileA(temporaryName);
-}
-
 /* Function start: 0x40D1D0 */
 void ClearNavHazardFlag(void)
 {
@@ -339,7 +19,8 @@ void ClearNavLegendFlag(void)
 }
 
 /* Function start: 0x40D8C0 */
-void SetScreenClipRect(unsigned short a, unsigned short b, unsigned short c, unsigned short d)
+void SetScreenClipRect(unsigned short a, unsigned short b,
+                       unsigned short c, unsigned short d)
 {
     SetRectBounds((int)&DAT_005a76b0, a, b, c, d);
 }
@@ -420,147 +101,199 @@ unsigned short GetPaletteReadyUnused(void)
     return 1;
 }
 
-/* Function start: 0x40FB70 */
-int RunIntroAndMainMenu(void)
+/* Function start: 0x40FA40 */
+void DrawTitleLogo(short distance, short y)
 {
-    IntroArchive title;
-    unsigned char palette[0x300];
-    char temporaryMidi[MAX_PATH];
-    int midiOpened;
+    short bounds[4];
+    short scale;
+    short centre;
+
+    if (distance <= 10 || g_pTitleShape_005a7f08 == 0)
+        return;
+    scale = (short)(0x1000 / distance);
+    centre = (short)((DAT_005a7510.left + DAT_005a7510.right + 1) / 2);
+    GetTransformedShapeBounds(&DAT_005a7510, centre, y,
+                              g_pTitleShape_005a7f08, 1, 0, scale, 0,
+                              bounds);
+    DrawSpriteTransformed(&DAT_005a7510, (short)(bounds[0] - 1), y,
+                          g_pTitleShape_005a7f08, 0, 0,
+                          scale, scale, 0, 0);
+    DrawSpriteTransformed(&DAT_005a7510, centre, y,
+                          g_pTitleShape_005a7f08, 1, 0,
+                          scale, scale, 0, 0);
+    DrawSpriteTransformed(&DAT_005a7510, bounds[2], y,
+                          g_pTitleShape_005a7f08, 2, 0,
+                          scale, scale, 0, 0);
+}
+
+/* Function start: 0x40FB70 */
+int Title_Sequence(void)
+{
     short frame;
     short credit;
-    int keepPlaying = 1;
+    short titleDistance;
+    short missionShip;
+    int interrupted;
 
-    if (!LoadIntroArchive("TITLE.VGA", &title))
-        FatalErrorAndExit("Unable to load TITLE.VGA");
-    if (title.sectionCount < 18 || !LoadIntroPalette(palette)) {
-        UnloadIntroArchive(&title);
-        FatalErrorAndExit("The intro resources are incomplete");
-    }
-
+    interrupted = 0;
     DAT_0059ab58 = 0;
     DAT_005a8964 = 0;
-    StartIntroMusic(temporaryMidi, &midiOpened);
+    MouseHide();
+    init_3Space_objects(0);
+    initialize_view_buffer();
+    g_pIntroFont_005a8960 =
+        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+    g_nCannedSceneMode_00469fac = 2;
 
-    SetIntroPaletteLevel(palette, 0);
-    ClearIntroFrame();
-    DrawIntroShape(&title, 6, 0, 0, 36);
-    PresentIntroFrame(0);
-    keepPlaying = FadeIntroPalette(palette, 1);
+    while (interrupted == 0) {
+        missionShip = 32;
+        do {
+            g_aMissionShips_0046c948[missionShip].state = 0;
+            missionShip++;
+        } while (missionShip < 46);
+        titleDistance = 200;
+        remove_all_hazards();
+        g_bIntroSecondaryScene_0046c024 = 0;
+        EnterNavPoint(16);
+        g_pTitleShape_005a7f08 =
+            (unsigned char *)FetchDiskPacketRetrying(9, 0, 0);
+        StartMusicTrack(0x17, 2);
+        initialize_scripted_view(g_asIntroCameraSequence_0046c090);
+        DAT_00469fb4 = 1;
 
-    frame = 0;
-    while (keepPlaying && frame < 75) {
-        ClearIntroFrame();
-        DrawIntroShape(&title, 6, 0, 0, 36);
-        if (frame >= 8)
-            DrawIntroShape(&title, 6, 1, 85, 90);
-        if (frame >= 16)
-            DrawIntroShape(&title, 6, 2, 143, 90);
-        if (frame >= 24)
-            DrawIntroShape(&title, 6, 3, 204, 90);
-        keepPlaying = PresentIntroFrame(30);
-        frame = frame + 1;
-    }
-    if (keepPlaying)
-        keepPlaying = FadeIntroPalette(palette, 0);
+        frame = 0;
+        do {
+            Update_3Space();
+            if (Draw_3Space_Frame() != 0) {
+                print_subtitle(&DAT_005a7510, 0x32,
+                    "In the distant future,\nmankind is locked in a deadly war...");
+                dump_buffer_to_screen();
+                DIBslamReal();
+                clear_view_buffer();
+            }
+            if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
+                DAT_005a8964 != 0) {
+                interrupted = 1;
+                break;
+            }
+            frame++;
+        } while (frame < 25);
+        if (interrupted != 0)
+            break;
 
-    if (keepPlaying) {
-        ClearIntroFrame();
-        DrawIntroShape(&title, 6, 0, 0, 36);
-        SetIntroPaletteLevel(palette, 0);
-        keepPlaying = FadeIntroPalette(palette, 1);
-    }
-    frame = 0;
-    while (keepPlaying && frame < 90) {
-        ClearIntroFrame();
-        DrawIntroShape(&title, 6, 0, 0, 36);
-        if (frame >= 6)
-            DrawIntroShape(&title, 0, 0, 104, 60);
-        if (frame >= 14)
-            DrawIntroShape(&title, 0, 1, 160, 60);
-        if (frame >= 22)
-            DrawIntroShape(&title, 0, 2, 216, 60);
-        keepPlaying = PresentIntroFrame(30);
-        frame = frame + 1;
-    }
-    if (keepPlaying)
-        keepPlaying = FadeIntroPalette(palette, 0);
+        frame = 0;
+        do {
+            Update_3Space();
+            if (Draw_3Space_Frame() != 0) {
+                dump_buffer_to_screen();
+                DIBslamReal();
+                clear_view_buffer();
+            }
+            if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
+                DAT_005a8964 != 0) {
+                interrupted = 1;
+                break;
+            }
+            frame++;
+        } while (frame < 110);
+        if (interrupted != 0)
+            break;
 
-    if (keepPlaying) {
-        ClearIntroFrame();
-        DrawIntroShape(&title, 6, 0, 0, 36);
-        DrawIntroShape(&title, 3, 0, 85, 36);
-        SetIntroPaletteLevel(palette, 0);
-        keepPlaying = FadeIntroPalette(palette, 1);
-    }
-    frame = 0;
-    while (keepPlaying && frame < 180) {
-        ClearIntroFrame();
-        DrawIntroShape(&title, 6, 0, 0, 36);
-        DrawIntroShape(&title, 3, 0, 85, 36);
-        if (frame < 110)
-            DrawIntroShape(&title, 2, 0, 190, 100);
-        if (frame >= 35 && frame < 125)
-            DrawIntroShape(&title, 7, (short)((frame / 3) % 13),
-                           (short)(75 + frame / 2), 70);
-        if (frame >= 70 && frame < 145)
-            DrawIntroShape(&title, 8, (short)((frame / 4) % 9), 230, 120);
-        if (frame >= 120 && frame < 141)
-            DrawIntroShape(&title, 16, (short)(frame - 120), 215, 95);
-        if (frame < 80)
-            DrawCenteredIntroText(&title,
-                "In the distant future,\nmankind is locked in a deadly war...");
-        keepPlaying = PresentIntroFrame(30);
-        frame = frame + 1;
-    }
-    if (keepPlaying)
-        keepPlaying = FadeIntroPalette(palette, 0);
+        frame = 0;
+        do {
+            Update_3Space();
+            if (Draw_3Space_Frame() != 0) {
+                DrawTitleLogo(titleDistance,
+                              (short)((DAT_005a7510.top +
+                                       DAT_005a7510.bottom + 1) / 2 - 6));
+                dump_buffer_to_screen();
+                DIBslamReal();
+                clear_view_buffer();
+            }
+            if (titleDistance > 16)
+                titleDistance = titleDistance - 4;
+            if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
+                DAT_005a8964 != 0) {
+                interrupted = 1;
+                break;
+            }
+            frame++;
+        } while (frame < 100);
+        FreePacketAndClear((int *)&g_pTitleShape_005a7f08);
+        if (interrupted != 0)
+            break;
 
-    credit = 0;
-    while (keepPlaying && credit <
-           (short)(sizeof(g_aszIntroCredits) / sizeof(g_aszIntroCredits[0]))) {
-        ClearIntroFrame();
-        DrawIntroShape(&title, 6, 0, 0, 36);
-        DrawCenteredIntroText(&title, g_aszIntroCredits[credit]);
-        SetIntroPaletteLevel(palette, 0);
-        keepPlaying = FadeIntroPalette(palette, 1);
-        if (keepPlaying)
-            keepPlaying = PresentIntroFrame(600);
-        if (keepPlaying)
-            keepPlaying = FadeIntroPalette(palette, 0);
-        credit = credit + 1;
-    }
+        ScaleFixedVector(&g_aShipForwardVector_0059bce0[61], 0x9600,
+                         &g_aShipVelocity_0059c010[61]);
+        EnterNavPoint(17);
+        g_bIntroSecondaryScene_0046c024 = 1;
+        g_anObjectPitchRotation_0059b2a0[0] = 0;
+        g_anObjectYawRotation_0059ce80[0] = 0;
+        g_anObjectRollRotation_0059d7e0[0] = 0;
+        start_hazard_field(0);
 
-    if (keepPlaying) {
-        SetIntroPaletteLevel(palette, 0x100);
-        frame = 17;
-        while (keepPlaying && frame > 0) {
-            ClearIntroFrame();
-            DrawIntroShape(&title, 5, frame, 0, 0);
-            keepPlaying = PresentIntroFrame(55);
-            frame = frame - 1;
+        credit = 0;
+        while (credit < g_nIntroCreditCount_00468a30 && interrupted == 0) {
+            frame = 0;
+            do {
+                Update_3Space();
+                if (Draw_3Space_Frame() != 0) {
+                    print_subtitle(&DAT_005a7510, 0x32,
+                                   g_apszIntroCredits_00468a38[credit]);
+                    dump_buffer_to_screen();
+                    DIBslamReal();
+                    clear_view_buffer();
+                }
+                if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
+                    DAT_005a8964 != 0) {
+                    interrupted = 1;
+                    break;
+                }
+                frame++;
+            } while (frame < 70);
+            frame = 0;
+            while (frame < 40 && interrupted == 0) {
+                Update_3Space();
+                if (Draw_3Space_Frame() != 0) {
+                    dump_buffer_to_screen();
+                    DIBslamReal();
+                    clear_view_buffer();
+                }
+                if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
+                    DAT_005a8964 != 0)
+                    interrupted = 1;
+                frame++;
+            }
+            credit++;
+        }
+        frame = 0;
+        while (frame < 150 && interrupted == 0) {
+            Update_3Space();
+            if (Draw_3Space_Frame() != 0) {
+                dump_buffer_to_screen();
+                DIBslamReal();
+                clear_view_buffer();
+            }
+            if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
+                DAT_005a8964 != 0)
+                interrupted = 1;
+            frame++;
         }
     }
-    if (keepPlaying) {
-        ClearIntroFrame();
-        DrawIntroShape(&title, 5, 0, 0, 0);
-        DrawIntroShape(&title, 0, 0, 104, 55);
-        DrawIntroShape(&title, 0, 1, 160, 55);
-        DrawIntroShape(&title, 0, 2, 216, 55);
-        keepPlaying = PresentIntroFrame(1500);
-    }
-    if (keepPlaying)
-        FadeIntroPalette(palette, 0);
 
-    StopIntroMusic(temporaryMidi, midiOpened);
-    SetIntroPaletteLevel(palette, 0);
-    ClearIntroFrame();
-    PresentIntroFrame(0);
-    UnloadIntroArchive(&title);
-    free_viewport(&DAT_005a7510);
-
-    /* Milestone boundary: the retail function continues into the campaign menu.
-     * Returning here leaves the unfinished game loop unreachable while preserving
-     * the complete startup intro as the executable's first production path. */
+    StopMusicUnlessSuppressed();
+    ResetSoundStateForScene();
+    FreePacketAndClear((int *)&g_pTitleShape_005a7f08);
+    FreePacketAndClear((int *)&g_pIntroFont_005a8960);
+    remove_all_hazards();
+    free_nav_object_resources();
+    free_3Space();
+    g_bIntroSecondaryScene_0046c024 = 0;
+    g_nCannedSceneMode_00469fac = 0;
+    g_bScriptedView_0046a8d4 = 0;
+    clear_view_buffer();
+    dump_buffer_to_screen();
+    DIBslamReal();
+    MouseShow();
     return 0;
 }
