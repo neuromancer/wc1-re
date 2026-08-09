@@ -9,8 +9,8 @@
 /* Function start: 0x438B90 */
 unsigned int BeginBriefingScene(void)
 {
-    DAT_00598c18 = PushMemoryStackFrameTagged(0x140, 0);
-    DAT_00598af4 = PushMemoryStackFrameTagged(0x140, 0);
+    DAT_00598c18 = (unsigned int)AllocateTaggedMemory(0x140, 0);
+    DAT_00598af4 = (unsigned int)AllocateTaggedMemory(0x140, 0);
     return 0;
 }
 

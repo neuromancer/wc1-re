@@ -74,9 +74,9 @@ void SetTextContext(unsigned int v)
 }
 
 /* Function start: 0x434FB0 */
-void ReleaseDirectDrawPalette(void)
+__declspec(naked) void WaitForVerticalBlankThunk(void)
 {
-    (**(void (**)(void *, int, int))(*DAT_0046b1a4 + 0x58))(DAT_0046b1a4, 1, 0);
+    __asm { jmp DIBwaitForVerticalBlank }
 }
 
 /* Function start: 0x434FC0 */
@@ -108,6 +108,15 @@ unsigned short GetFontCharWidth(char i)
 /* Function start: 0x435010 */
 void ReleaseVideoResourcesHook(void)
 {
+}
+
+/* Function start: 0x435090 */
+short __stdcall IsPointInRect(short x, short y, const short *rect)
+{
+    if (rect[0] <= x && x <= rect[2] &&
+        rect[1] <= y && y <= rect[3])
+        return 1;
+    return 0;
 }
 
 /* Function start: 0x4350D0 */

@@ -9,21 +9,28 @@
  *  list below is the original source order of this file.
  */
 #include "ix.h"
+#include <stdlib.h>
 
-/* Function start: 0x00444910 */   /* source line(s) 62: Failed to start mixer */
+unsigned int g_dwDspTick_00598128;
+void (__cdecl *g_pIxFree_00471994)(void *) = free;
+
+/* Original address: 0x00444910 */   /* source line(s) 62: Failed to start mixer */
 /* TODO: ix_dsp_init */
 
-/* Function start: 0x004449CF */
+/* Original address: 0x004449CF */
 /* TODO: ix_thread_shutdown */
 
-/* Function start: 0x00444A62 */
+/* Original address: 0x00444A62 */
 /* TODO: ix_thread_signal_event */
 
-/* Function start: 0x00444B25 */
+/* Original address: 0x00444B25 */
 /* TODO: ix_dsp_open_driver */
 
 /* Function start: 0x00444BFD */
-/* TODO: ReadDAT00598128 */
+unsigned int ix_dsp_get_tick(void)
+{
+    return g_dwDspTick_00598128;
+}
 
 /* Function start: 0x00444C12 */
 /* TODO: ReadDAT00597d18 */
@@ -50,7 +57,18 @@
 /* TODO: ReadDAT0047198c */
 
 /* Function start: 0x00444DC5 */
-/* TODO: ix_dsp_set_master_volume */
+void ix_dsp_set_master_volume(unsigned short volume)
+{
+    int voice;
+
+    g_nMasterVolume_0047198c = volume;
+    if (volume > 0xfffe)
+        g_nMasterVolume_0047198c = 0xffff;
+    for (voice = 0; voice < g_nVoiceCount_00598600; voice++) {
+        if ((g_voices_005981a8[voice].flags & IX_VOICE_ACTIVE) != 0)
+            ix_dspv_recalc_mix(voice);
+    }
+}
 
 /* Function start: 0x00444E52 */
 /* TODO: ix_dsp_build_pan_tables */
@@ -72,4 +90,3 @@
 
 /* Function start: 0x004451A5 */
 /* TODO: $E1 */
-

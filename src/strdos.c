@@ -24,6 +24,12 @@ void DosStrrchr(char *s, short c)
     strrchr(s, (int)c);
 }
 
+/* Function start: 0x435470 */
+char *__stdcall DosStrcpy(char *dst, const char *src)
+{
+    return strcpy(dst, src);
+}
+
 /* Function start: 0x4354D0 */
 short DosStrlen(const char *s)
 {

@@ -15,7 +15,7 @@ against the original at the instruction and data-layout level.
 | Built | 1996-09-24 16:33 UTC |
 | Toolchain | Microsoft Visual C++ **4.20**, static **debug** multithreaded CRT (LIBCMTD) |
 | Language | **C** for the game core, **C++** for the `ix` audio library |
-| Developer functions | ~1,450 (1,326 game core + 124 `ix`); a further 386 are CRT |
+| Developer functions | 1,451 currently identified (1,327 game core + 124 `ix`); a further 386 are CRT |
 
 The shipped retail binary is a debug build — live `assert()`s, the MSVC debug heap, and a
 `\\.\MONODEBG.VXD` developer channel are all present. That is what made the `ix` library's
@@ -125,8 +125,8 @@ Two things to read before writing code:
 
 - [`docs/ORDER.md`](docs/ORDER.md) — the `ix` link order is exact; the game-core order is
   **not**, and a wrong boundary invalidates every address after it.
-- [`docs/LABELS.md`](docs/LABELS.md) — only 437 of the 1,450 Ghidra names are evidence-backed.
-  The other 1,013 are `<Verb><Object>Fn<addr>` labels describing *mechanism, not purpose*.
+- [`docs/LABELS.md`](docs/LABELS.md) — only 437 of the 1,451 Ghidra names are evidence-backed.
+  The other 1,014 are `<Verb><Object>Fn<addr>` labels describing *mechanism, not purpose*.
   Do not treat one as a statement of intent.
 
 ## Rules
@@ -138,8 +138,9 @@ from 16-bit DOS C.
 
 ## Status
 
-**347 of 1,450 developer functions reimplemented (23.9%)** — 325 game core, 22 `ix`.
-Of the 348 written so far, **234 match the original exactly** and 259 are at 90% or better.
+**429 of 1,451 developer functions reimplemented (29.6%)** — 396 game core, 33 `ix`.
+Across the 491 currently comparable definitions, **284 match the original exactly** and 322
+are at 90% or better.
 
 Every implemented function carries a real name: the developer's own where the binary states
 one, otherwise a description of what it does. `bin/nameOracle.py` recovers the former from the
@@ -147,6 +148,7 @@ debug build's own diagnostic strings — that is how `FadeMusic`, `SetMusicOn`, 
 `FlushSoundEffects` and the `DIB*` family got their names back.
 
 `src/ix/*.cpp` carry the full per-module function lists (in original source order, with
-recovered assert line numbers) as stubs. `src/main.c` documents `main()` at `0x004274E0` but
-deliberately does not implement it: its body *is* the init call order, and writing it before
-the callees are recovered would assert the very thing the comparison exists to check.
+recovered assert line numbers) as stubs. The current runnable milestone implements both
+`WinMain` and `main()`, initializes the 320x200 display path, and plays the complete title
+intro from the retail `TITLE.VGA`, `GAME.PAL`, and `MUSIC.MID` assets. It deliberately returns
+before the still-incomplete campaign menu and game loop.

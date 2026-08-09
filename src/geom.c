@@ -18,6 +18,16 @@ void AddShipAiTimer(short i, short delta)
     DAT_0059b470[i] = DAT_0059b470[i] - (int)delta;
 }
 
+/* Function start: 0x4184C0 */
+short FixedToShortSaturating(int value)
+{
+    if (value < -0x7fff00)
+        return -0x7fff;
+    if (value > 0x7fff00)
+        return 0x7fff;
+    return (short)(value >> 8);
+}
+
 /* Function start: 0x4184E0 */
 int MinInt(int a, int b)
 {

@@ -30,6 +30,73 @@ unsigned int LeaveWaitCursorScope(void)
     return 0;
 }
 
+/* Function start: 0x421B10 */
+unsigned int LoadOriginFxDrivers(void)
+{
+    FILE *paletteFile;
+    unsigned char palette[0x300];
+    unsigned short *rowOffsets;
+    short row;
+
+    /* The retail function leaves the process in GAMEDAT after bringing up the
+     * Origin FX drivers.  The intro packet names are relative to that directory. */
+    if (_chdir("gamedat") != 0)
+        FatalErrorAndExit("Unable to enter GAMEDAT");
+
+    if (DAT_005a6ba0.pixels == 0)
+        FatalErrorAndExit("The DirectDraw frame buffer is not available");
+
+    rowOffsets = (unsigned short *)malloc(202 * sizeof(unsigned short));
+    if (rowOffsets == 0)
+        FatalErrorAndExit("Unable to allocate the intro viewport");
+
+    row = 0;
+    do {
+        rowOffsets[row] = (unsigned short)(row * 320);
+        row = row + 1;
+    } while (row < 202);
+
+    DAT_005a6ba0.rowOffsets = rowOffsets;
+    DAT_005a6ba0.left = 0;
+    DAT_005a6ba0.top = 0;
+    DAT_005a6ba0.right = 319;
+    DAT_005a6ba0.bottom = 199;
+    DAT_005a6ba0.allocation = DAT_005a6ba0.pixels;
+    DAT_0059ab23 = &DAT_005a6ba0;
+    DAT_005a6538 = (int *)&DAT_005a6ba0;
+
+    DAT_005a7510.left = 0;
+    DAT_005a7510.top = 0;
+    DAT_005a7510.right = 319;
+    DAT_005a7510.bottom = 199;
+    if (!AllocateViewport(&DAT_005a7510, 0, 0x20))
+        FatalErrorAndExit("Unable to allocate the intro back buffer");
+
+    paletteFile = fopen("GAME.PAL", "rb");
+    if (paletteFile == 0)
+        FatalErrorAndExit("Unable to open GAME.PAL");
+    if (fseek(paletteFile, 0x30, SEEK_SET) != 0 ||
+        fread(palette, 1, sizeof(palette), paletteFile) != sizeof(palette)) {
+        fclose(paletteFile);
+        FatalErrorAndExit("Unable to read GAME.PAL");
+    }
+    fclose(paletteFile);
+
+    row = 0;
+    do {
+        DAT_005a8a50[row] = palette[row];
+        row = row + 1;
+    } while (row < 0x300);
+    DIBwholePaletteFromTriplets(palette);
+
+    memset(DAT_005a6ba0.pixels, 0, 320 * 200);
+    DAT_0046b1b8 = 0;
+    DIBslam();
+    DIBslamReal();
+    g_nFrameSkip_00469fb8 = 1;
+    return 0;
+}
+
 /* Function start: 0x421FE0 */
 unsigned int GetFxDriverInitResult(void)
 {

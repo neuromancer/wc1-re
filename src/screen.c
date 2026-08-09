@@ -20,14 +20,16 @@ unsigned short GetConversationState(void)
 
 /* Function start: 0x42F7E0 */
 /* Initialises a 320x200 viewport record (0x13F == 319, 199) then validates it. */
-void InitFullScreenViewport(int *vp, short arg)
+void InitFullScreenViewport(int *record, short arg)
 {
-    DAT_005a6538 = vp;
-    *(unsigned short *)(vp + 2) = 0;
-    *(unsigned short *)(vp + 3) = 0x13f;
-    *(unsigned short *)((int)vp + 0xe) = 199;
-    *(unsigned short *)((int)vp + 10) = 0;
-    CheckMcgaVideoMode(vp, arg, 0);
+    Viewport *viewport = (Viewport *)record;
+
+    DAT_005a6538 = record;
+    viewport->left = 0;
+    viewport->top = 0;
+    viewport->right = 319;
+    viewport->bottom = 199;
+    AllocateViewport(viewport, arg, 0);
 }
 
 /* Function start: 0x42F930 */
@@ -45,6 +47,105 @@ unsigned short IsSoundHardwarePresent(void)
 /* Function start: 0x42F950 */
 void MessagePumpHook(void)
 {
+}
+
+/* Function start: 0x42F960 */
+int PushMemoryStackFrame(int memory, int offset)
+{
+    int index;
+
+    if (offset != 0) {
+        printf("push %p by %d\n", (void *)memory, offset);
+        if (g_nPacketHandleCount_005a6530 == 0x1000)
+            exit_squadron("qq mem push overflow");
+        index = g_nPacketHandleCount_005a6530;
+        g_aiPacketHandleOffsets_005a2530[index] = offset;
+        if (offset < 0) {
+            memory -= offset;
+            g_aiPacketHandles_0059e530[index] = memory;
+            g_nPacketHandleCount_005a6530 = index + 1;
+            return memory;
+        }
+        memory += offset;
+        g_aiPacketHandles_0059e530[index] = memory;
+        g_nPacketHandleCount_005a6530 = index + 1;
+        return memory;
+    }
+    return memory;
+}
+
+/* Function start: 0x42FA20 */
+int MapPacketHandleToBlock(int handle)
+{
+    int count = g_nPacketHandleCount_005a6530;
+    int bytes = count * 4;
+    int i;
+    int *entry;
+    int offset;
+
+    for (;;) {
+        i = 0;
+        g_nPacketHandleCount_005a6530 = count;
+        if (bytes <= 0)
+            return handle;
+        entry = g_aiPacketHandles_0059e530;
+        while (*entry != handle) {
+            entry = entry + 1;
+            i = i + 1;
+            g_nPacketHandleCount_005a6530 = count;
+            if (i >= count)
+                return handle;
+        }
+        offset = g_aiPacketHandleOffsets_005a2530[i];
+        if (offset < 0)
+            handle = handle + offset;
+        else
+            handle = handle - offset;
+        g_aiPacketHandles_0059e530[i] =
+            *(int *)((unsigned char *)g_aiPacketHandles_0059e530 + bytes - 4);
+        bytes = bytes - 4;
+        count = count - 1;
+        g_aiPacketHandleOffsets_005a2530[i] =
+            *(int *)((unsigned char *)g_aiPacketHandleOffsets_005a2530 + bytes);
+    }
+}
+
+/* Function start: 0x42FA90 */
+void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
+{
+    unsigned int *memory;
+    unsigned short tagged;
+
+    tagged = flags & 0x40;
+    if (tagged != 0)
+        size += 8;
+    memory = (unsigned int *)AllocateGuardedMemory(size);
+    if (tagged != 0) {
+        memcpy(memory, g_abTaggedAllocationPrefix_0046ad88,
+               sizeof(g_abTaggedAllocationPrefix_0046ad88));
+        memory = (unsigned int *)PushMemoryStackFrame((int)memory, -8);
+    }
+    return memory;
+}
+
+/* Function start: 0x42FAE0 */
+void ReleasePacketHandle(int handle)
+{
+    int group = 4;
+    int *entry = g_aiPacketReferenceTable_00465c88;
+
+    do {
+        int i = 0x25;
+
+        do {
+            if (*entry == handle)
+                *entry = 0;
+            entry = entry + 1;
+            i = i - 1;
+        } while (i != 0);
+        group = group - 1;
+    } while (group != 0);
+    FreeGuardedAllocation((void *)MapPacketHandleToBlock(handle));
 }
 
 /* Function start: 0x42FB20 */
@@ -158,4 +259,39 @@ void ShowCentredPrompt(char *text, unsigned short arg)
 void ShutdownVideoHook(void)
 {
     ReleaseVideoResourcesHook();
+}
+
+/* Function start: 0x431F00 */
+void ThrottleFrameAndDrawFps(HDC dc)
+{
+    DWORD now;
+
+    if (DAT_00465070 != 0) {
+        sprintf((char *)DAT_00476620, "%f", DAT_00486510);
+        TextOutA(dc, 0, 0, (char *)DAT_00476620,
+                 strlen((char *)DAT_00476620));
+    }
+
+    if (DAT_0059ab23->pixels == DAT_00476648) {
+        while (timeGetTime() < (DWORD)DAT_0046b1bc) {
+            Sleep(0);
+            RefreshMouseCursorDisplay();
+        }
+    } else {
+        while (timeGetTime() < (DWORD)DAT_0046b1bc)
+            Sleep(0);
+    }
+
+    if (DAT_00465070 != 0) {
+        if (DAT_0046b1c4 != 0) {
+            now = timeGetTime();
+            DAT_00486510 = 1000.0f / ((double)now - DAT_0046b1c4);
+        }
+        DAT_0046b1c4 = timeGetTime();
+        sprintf((char *)DAT_00476620, "%f", DAT_00486510);
+        TextOutA(dc, 0, 0, (char *)DAT_00476620,
+                 strlen((char *)DAT_00476620));
+    }
+
+    DAT_0046b1bc = timeGetTime() + DAT_0046b1b8;
 }

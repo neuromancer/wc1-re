@@ -1,7 +1,7 @@
 # Address-sorted developer functions in WC1.EXE (original addresses).
 # MSVC emits functions in source order, so adjacency here is evidence of
 # shared compilation-unit ownership. Regenerate with: make sort
-# 1450 developer functions; CRT begins at 0x00449100.
+# 1451 developer functions; CRT begins at 0x00449100.
 
 0x00401000 HelperOf4219C0A
 0x00401020 PaletteVideoFn1020
@@ -42,7 +42,7 @@
 0x00402AC0 GetInput
 0x00402AE0 GetJoystickDevCaps
 0x00402B80 ReadDAT005a8a40
-0x00402BB0 ScanTbl005a89acFn2BB0
+0x00402BB0 AllocateGuardedMemory
 0x00402CA0 ReportHeapGuardCorruption
 0x00402D40 LoopWin32Fn2D40
 0x00402DB0 HelperOf42FAE0A
@@ -295,11 +295,11 @@
 0x0040F3F0 GetTbl005a86a8FnF3F0
 0x0040F440 SetG004688e0FnF440
 0x0040F4B0 LoopG005a8114FnF4B0
-0x0040F940 ReleaseTbl005a7f10FnF940
+0x0040F940 free_viewport
 0x0040FA30 ReturnConst1v1
 0x0040FA40 GetUiFnFA40
 0x0040FB10 LoopInputFnFB10
-0x0040FB70 BlitTbl00468a8aFnFB70
+0x0040FB70 RunIntroAndMainMenu
 0x004102B0 CalibrateJoystickInteractive
 0x004106C0 InputRoutine02
 0x00410700 InputRoutine03
@@ -882,6 +882,7 @@
 0x0042AE10 GetCombatFnAE10
 0x0042AE50 ScanTbl0059cab7FnAE50
 0x0042AFA0 LoopGameFlowFnAFA0
+0x0042AFB0 FrameTimerCallback
 0x0042AFC0 SetMultimediaTimerCallback
 0x0042B050 PacketLoad
 0x0042B160 GetAudioStreamFnB160
@@ -930,7 +931,7 @@
 0x0042DEA0 DrawTargetRangeReadout
 0x0042E020 HelperOf42E050A
 0x0042E050 CalcRectangleArea
-0x0042E090 CheckMcgaVideoMode
+0x0042E090 AllocateViewport
 0x0042E1D0 DispatchLocalFnE1D0
 0x0042E320 DoUiFnE320
 0x0042E330 DoLocalFnE330
@@ -978,7 +979,7 @@
 0x0042F960 PushMemoryStackFrame
 0x0042F9E0 LoopInputFnF9E0
 0x0042FA20 MapPacketHandleToBlock
-0x0042FA90 GetG0046ad88FnFA90
+0x0042FA90 AllocateTaggedMemory
 0x0042FAE0 ReleasePacketHandle
 0x0042FB20 ReturnConst3E8000
 0x0042FB30 ReturnConst3E8000v1
@@ -1300,8 +1301,8 @@
 0x00441450 LoopLocalFn1450
 0x00441740 LoopUiFn1740
 0x00441A40 DoLocalFn1A40
-0x00441A90 DoLocalFn1A90
-0x00441AE0 BlitUiFn1AE0
+0x00441A90 CopyViewportContents
+0x00441AE0 ClearViewport
 0x00441B20 GetCombatFn1B20
 0x00441B60 GetCombatFn1B60
 0x00441BA0 CombatRoutine05

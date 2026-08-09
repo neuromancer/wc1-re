@@ -10,6 +10,10 @@
  */
 #include "ix.h"
 
+extern "C" unsigned int g_dwStreamerState_00597cd0 = 0;
+unsigned short g_nStreamerVolume_00470e84;
+CRITICAL_SECTION g_csStreamer_00597ce0;
+
 /* Function start: 0x00442750 */   /* source line(s) 60;63;75: Streamer already inited! | Failed to init DSP | Failed to start streamer_thread! */
 /* TODO: ix_streamer_init */
 
@@ -56,7 +60,17 @@
 /* TODO: ix_streamer_audio_branch_to_tag */
 
 /* Function start: 0x004435BE */
-/* TODO: ix_streamer_set_volume */
+extern "C" void ix_streamer_set_volume(unsigned short volume)
+{
+    g_nStreamerVolume_00470e84 = volume;
+    if (volume > 0xfffe)
+        g_nStreamerVolume_00470e84 = 0xffff;
+    if ((g_dwStreamerState_00597cd0 & 2) != 0) {
+        EnterCriticalSection(&g_csStreamer_00597ce0);
+        ix_dsps_set_volume(0, g_nStreamerVolume_00470e84);
+        LeaveCriticalSection(&g_csStreamer_00597ce0);
+    }
+}
 
 /* Function start: 0x0044363B */
 /* TODO: ReadDAT00470e84 */
@@ -86,4 +100,3 @@
 
 /* Function start: 0x00443CC0 */
 /* TODO: ix_streamer_service_audio */
-

@@ -24,6 +24,6 @@ unsigned int GetJoystickButtonEdge(unsigned int a, short b)
 {
     (void)a;
     if (b < 0)
-        return JoystickEdgeHook();
+        return JoystickEdgeHook(-1);
     return 0;
 }

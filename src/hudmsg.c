@@ -64,3 +64,37 @@ void WaitForDebugStep(void)
 {
     while (TakeDebugStepFlag() == 0) ;
 }
+
+/* Function start: 0x42AFB0 */
+void CALLBACK FrameTimerCallback(UINT timerId, UINT message,
+                                 DWORD user, DWORD first, DWORD second)
+{
+    (void)timerId;
+    (void)message;
+    (void)user;
+    (void)first;
+    (void)second;
+    DAT_0059ab3c = 0;
+}
+
+/* Function start: 0x42AFC0 */
+void SetMultimediaTimerCallback(int period)
+{
+    int milliseconds = period * 1000 / 60;
+
+    if (period == 0) {
+        DAT_0059ab3c = 0;
+        if (DAT_005a77ec != 0) {
+            timeKillEvent(DAT_005a77ec);
+            DAT_005a77ec = 0;
+        }
+    } else {
+        if (DAT_005a77ec != 0) {
+            timeKillEvent(DAT_005a77ec);
+            DAT_005a77ec = 0;
+        }
+        DAT_0059ab3c = 1;
+        DAT_005a77ec = timeSetEvent(milliseconds, milliseconds,
+                                    FrameTimerCallback, 0, 0);
+    }
+}

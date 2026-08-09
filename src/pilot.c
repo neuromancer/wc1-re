@@ -23,10 +23,10 @@ void GetMessagePumpInterval(void)
 }
 
 /* Function start: 0x425BB0 */
-/* TODO: takes a string (see exit_squadron call sites); body not yet recovered. */
-void SystemDebugPrintf(const char *s)
+/* TODO: formatted debug-overlay output body is not yet recovered. */
+void SystemDebugPrintf(const char *format, ...)
 {
-    (void)s;
+    (void)format;
 }
 
 /* Function start: 0x425BC0 */
@@ -68,7 +68,7 @@ unsigned int GetDebugKeyState(unsigned int *p)
 
     if (*(char *)((int)p + 0xd) == -1)
         c = DAT_0046999c;
-    PresentViewport((int *)*p, c);
+    ClearViewport((Viewport *)*p, (unsigned char)c);
     return 0;
 }
 

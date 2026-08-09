@@ -6,6 +6,16 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x413CE0 */
+void FatalErrorAndExit(const char *format, ...)
+{
+    char text[0xfc];
+
+    vsprintf(text, format, (char *)(&format + 1));
+    ClearWaitCursorFlag();
+    exit_squadron(text);
+}
+
 /* Function start: 0x413D20 */
 int HasFreeMessageSlot(void)
 {

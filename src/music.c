@@ -35,12 +35,61 @@ short GetTargetColourIndex(void)
 }
 
 /* Function start: 0x42E020 */
-void LogDisplayMode(void)
+void LogDisplayMode(const char *mode)
 {
-    SystemDebugPrintf(0);
+    SystemDebugPrintf("display_mode == '%s'\n", mode);
     ClearDebugPauseFlags();
     PumpMessagesDuringWait();
     exit(1);
+}
+
+/* Function start: 0x42E090 */
+unsigned short __stdcall AllocateViewport(Viewport *viewport,
+                                          short clearColour, short flags)
+{
+    unsigned short *rowOffsets;
+    unsigned short top;
+    short left;
+    unsigned short width;
+    unsigned short height;
+    unsigned short row;
+    short offset;
+
+    top = (unsigned short)viewport->top;
+    height = (unsigned short)(viewport->bottom - top + 1);
+    left = viewport->left;
+    width = (unsigned short)(viewport->right - left + 1);
+    g_nAllocateViewportCalls_005a68ec++;
+    if (DAT_0046b168 != 0x13)
+        LogDisplayMode("not MCGA");
+    viewport->allocation = (unsigned char *)AllocateTaggedMemory(
+        (unsigned int)width * height, (unsigned short)(flags + 2));
+    g_apViewportAllocations_005a7f10[
+        g_nViewportAllocationCount_005a7f0c++] = viewport->allocation;
+    if (viewport->allocation == 0)
+        return 0;
+    viewport->pixels = viewport->allocation;
+
+    rowOffsets = (unsigned short *)AllocateTaggedMemory(
+        (top + (unsigned int)height) * sizeof(unsigned short) + 4,
+        0);
+    viewport->rowOffsets = rowOffsets;
+    if (rowOffsets == 0) {
+        if (DAT_0046b168 != 0x13)
+            ReleasePacketHandle((int)viewport->allocation);
+        return 0;
+    }
+
+    row = 0;
+    offset = 0;
+    do {
+        rowOffsets[top + row] = (unsigned short)(offset - left);
+        row++;
+        offset = (short)(offset + width);
+    } while ((unsigned int)row < (unsigned int)height + 2);
+    if (clearColour != -1)
+        ClearViewport(viewport, (unsigned char)clearColour);
+    return 1;
 }
 
 /* Function start: 0x42E320 */

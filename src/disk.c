@@ -6,6 +6,46 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x41D2E0 */
+void *FetchDiskPacketRetrying(short logicalFile, short section,
+                              unsigned short flags)
+{
+    const char *filename;
+    void *packet = 0;
+    short retries = 5;
+
+    if (DAT_005a7cf0 == 0 || logicalFile < 0) {
+        DAT_00465460 = 3;
+        return 0;
+    }
+    filename = (const char *)(DAT_005a7cf0 + logicalFile * 16);
+    do {
+        FreePacketAndClear((int *)&packet);
+        packet = PacketLoad(filename, section, 0, flags);
+        retries--;
+    } while (packet == 0 && retries > 0 && DAT_00465460 != 8);
+
+    if (packet == 0 && DAT_00465460 == 4 && DAT_005a7510.pixels != 0) {
+        free_viewport(&DAT_005a7510);
+        do {
+            FreePacketAndClear((int *)&packet);
+            packet = PacketLoad(filename, section, 0, flags);
+            retries--;
+        } while (packet == 0 && retries > 0 && DAT_00465460 != 8);
+        AllocateViewport(&DAT_005a7510, (short)DAT_004699d8, 0x20);
+    }
+    if (packet == 0 && DAT_00465460 == 4 && DAT_005a76b0.pixels != 0) {
+        free_viewport(&DAT_005a76b0);
+        do {
+            FreePacketAndClear((int *)&packet);
+            packet = PacketLoad(filename, section, 0, flags);
+            retries--;
+        } while (packet == 0 && retries > 0 && DAT_00465460 != 8);
+        AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0);
+    }
+    return packet;
+}
+
 /* Function start: 0x41DA00 */
 unsigned int GetZeroUnused(void)
 {

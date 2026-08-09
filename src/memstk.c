@@ -6,6 +6,20 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x435760 */
+void ClearEventSlotByAddress(void *event)
+{
+    int *used = g_aiInputEventSlotUsed_0059ab70;
+    int offset = 0;
+
+    do {
+        if (&g_aInputEventSlots_00598c40[offset] == event)
+            *used = 0;
+        used = used + 1;
+        offset = offset + 0x1c;
+    } while (offset < 0x1c00);
+}
+
 /* Function start: 0x435CC0 */
 void PumpMessagesAndDispatch(int a)
 {
@@ -20,7 +34,7 @@ void FreeAllTrackedAllocations(void)
 
     while (node != 0) {
         int next = *(int *)(node + 0x14);
-        ClearEventSlotByAddress(node);
+        ClearEventSlotByAddress((void *)node);
         node = next;
     }
     DAT_0046da94 = 0;
@@ -32,6 +46,100 @@ unsigned int ResetAllocationDepth(void)
 {
     DAT_0046daa0 = 0;
     return 1;
+}
+
+/* Function start: 0x435E20 */
+void CaptureMouseCursorBackground(void)
+{
+    int x;
+    int y;
+
+    if (DAT_0046daa0 == 0 || DAT_0059ab23 == 0 || DAT_0059ab19 == 0)
+        return;
+
+    CaptureSpriteBackground(DAT_0059ab23, DAT_004865a8,
+                            DAT_0059ab10, DAT_0059ab12,
+                            DAT_0059ab19, DAT_0059ab1d);
+    x = DAT_0059ab10;
+    y = DAT_0059ab12;
+    if (DAT_0059ab5c > x - 16)
+        DAT_0059ab5c = x - 16;
+    DAT_0059a8e4 = x;
+    if (DAT_0059ab44 < x + 16)
+        DAT_0059ab44 = x + 16;
+    if (DAT_0059ab60 > y - 16)
+        DAT_0059ab60 = y - 16;
+    DAT_0059a8e0 = y;
+    if (DAT_0059ab48 < y + 16)
+        DAT_0059ab48 = y + 16;
+    DAT_0059ab40 = 1;
+    DAT_0059a84c = 1;
+}
+
+/* Function start: 0x435EF0 */
+void DrawMouseCursor(void)
+{
+    int x;
+    int y;
+
+    if (DAT_0046daa0 == 0 || DAT_0059ab23 == 0 || DAT_0059ab19 == 0)
+        return;
+
+    DrawSpriteDefault(DAT_0059ab23, DAT_0059ab10, DAT_0059ab12,
+                      DAT_0059ab19, DAT_0059ab1d);
+    x = DAT_0059ab10;
+    if (DAT_0059ab5c > x - 16)
+        DAT_0059ab5c = x - 16;
+    if (DAT_0059ab44 < x + 16)
+        DAT_0059ab44 = x + 16;
+    y = DAT_0059ab12;
+    if (DAT_0059ab60 > y - 16)
+        DAT_0059ab60 = y - 16;
+    if (DAT_0059ab48 < y + 16)
+        DAT_0059ab48 = y + 16;
+    DAT_0059ab40 = 1;
+}
+
+/* Function start: 0x435FA0 */
+void RestoreMouseCursorBackground(void)
+{
+    int x;
+    int y;
+
+    if (DAT_0046daa0 == 0 || DAT_0059ab23 == 0 || DAT_0059ab19 == 0 ||
+        DAT_0059a84c == 0)
+        return;
+
+    RestoreSpriteBackground(DAT_0059ab23, DAT_004865a8,
+                            (short)DAT_0059a8e4, (short)DAT_0059a8e0,
+                            DAT_0059ab19, DAT_0059ab1d);
+    x = DAT_0059a8e4;
+    if (DAT_0059ab5c > x - 16)
+        DAT_0059ab5c = x - 16;
+    if (DAT_0059ab44 < x + 16)
+        DAT_0059ab44 = x + 16;
+    y = DAT_0059a8e0;
+    if (DAT_0059ab60 > y - 16)
+        DAT_0059ab60 = y - 16;
+    if (DAT_0059ab48 < y + 16)
+        DAT_0059ab48 = y + 16;
+    DAT_0059a84c = 0;
+}
+
+/* Function start: 0x436060 */
+void RefreshMouseCursorDisplay(void)
+{
+    DAT_0059ab5c = 319;
+    DAT_0059ab60 = 199;
+    DAT_0059ab44 = 0;
+    DAT_0059ab48 = 0;
+    DAT_0059ab40 = 0;
+    DAT_0059a84c = 0;
+    CaptureMouseCursorBackground();
+    DrawMouseCursor();
+    DIBupdate(DAT_0059ab5c, DAT_0059ab60,
+              DAT_0059ab44, DAT_0059ab48);
+    RestoreMouseCursorBackground();
 }
 
 /* Function start: 0x4360D0 */
@@ -144,6 +252,12 @@ unsigned short GetOriginalFreeMemory(void)
 /* Function start: 0x436900 */
 void StartupHook(void)
 {
+}
+
+/* Function start: 0x436910 */
+unsigned int JoystickEdgeHook(int button)
+{
+    (void)button;
 }
 
 /* Function start: 0x436950 */

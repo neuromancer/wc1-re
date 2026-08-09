@@ -12,11 +12,76 @@ void CloseDataFile(unsigned int fd)
     DAT_00465460 = (short)_close(fd & 0xffff);
 }
 
+/* Function start: 0x403C40 */
+void __stdcall SplitGameClockTicks(unsigned char *parts)
+{
+    int ticks = (int)GetGameClockTicks();
+
+    parts[0] = (unsigned char)(ticks % 60);
+    ticks = ticks / 60;
+    parts[1] = (unsigned char)(ticks % 60);
+    ticks = ticks / 60;
+    parts[2] = (unsigned char)(ticks % 60);
+    ticks = ticks / 60;
+    parts[3] = (unsigned char)(ticks % 24);
+}
+
+/* Function start: 0x403C90 */
+void MonoDebug_install(void)
+{
+    unsigned int version;
+
+    g_hMonoDebugDevice_00475e74 =
+        CreateFileA("\\\\.\\MONODEBG.VXD", 0, 0, 0, CREATE_ALWAYS,
+                    FILE_FLAG_DELETE_ON_CLOSE, 0);
+    if (g_hMonoDebugDevice_00475e74 == INVALID_HANDLE_VALUE)
+        return;
+
+    if (!DeviceIoControl(g_hMonoDebugDevice_00475e74, 1, 0, 0,
+                         &version, sizeof(version), 0, 0)) {
+        CloseHandle(g_hMonoDebugDevice_00475e74);
+        return;
+    }
+    if (version != 0x20004) {
+        CloseHandle(g_hMonoDebugDevice_00475e74);
+        exit_squadron("MonoDebug__install expecting version");
+        return;
+    }
+    if (!DeviceIoControl(g_hMonoDebugDevice_00475e74, 2, 0, 0,
+                         0, 0, 0, 0)) {
+        CloseHandle(g_hMonoDebugDevice_00475e74);
+        exit_squadron("MonoDebug__install init failed");
+        return;
+    }
+    g_bMonoDebugInstalled_00475e70 = 1;
+}
+
+/* Function start: 0x403D60 */
+void MonoDebug_remove(void)
+{
+    if (g_bMonoDebugInstalled_00475e70 != 0) {
+        CloseHandle(g_hMonoDebugDevice_00475e74);
+        g_bMonoDebugInstalled_00475e70 = 0;
+    }
+}
+
 /* Function start: 0x403DB0 */
 void SoundDebugPrintf(const char *fmt, ...)
 {
     vsprintf(DAT_005a8760, fmt, (char *)(&fmt + 1));
     MonoDebug_print(DAT_005a8760);
+}
+
+/* Function start: 0x403DE0 */
+void MonoDebug_print(const char *text)
+{
+    if (g_bMonoDebugInstalled_00475e70 != 0) {
+        if (!DeviceIoControl(g_hMonoDebugDevice_00475e74, 9,
+                             (void *)text, 0xfa0, 0, 0, 0, 0)) {
+            exit_squadron("MonoDebug::print failed (buffer possibly on stack?!)");
+            MonoDebug_remove();
+        }
+    }
 }
 
 /* Function start: 0x403E30 */

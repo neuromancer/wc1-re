@@ -23,6 +23,8 @@
 
 #ifndef WC1_ANALYSIS
 #include <windows.h>
+#include <ddraw.h>
+#include <mmsystem.h>
 #include <direct.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -49,6 +51,37 @@ typedef short          INT16;
 typedef unsigned short UINT16;
 typedef unsigned char  UINT8;
 typedef signed char    INT8;
+
+/* The DOS rasteriser passes this record to every drawing primitive.  Its
+ * offsets are fixed by the accesses in the 0x00440C00-0x00441A8F block. */
+typedef struct Viewport {
+    unsigned char *pixels;          /* +0x00 */
+    unsigned short *rowOffsets;     /* +0x04 */
+    short left;                     /* +0x08 */
+    short top;                      /* +0x0A */
+    short right;                    /* +0x0C */
+    short bottom;                   /* +0x0E */
+    unsigned char *allocation;      /* +0x10 */
+} Viewport;
+
+/* Runtime wave-cache node.  The name pointer and next link are established by
+ * the allocation/free paths at 0x0042B1F0 and 0x0042B300; the sample pointer
+ * at +0x08 is established by playWAVE. */
+typedef struct WaveTableEntry {
+    char *name;
+    int field_4;
+    void *sample;
+    int field_c;
+    struct WaveTableEntry *next;
+} WaveTableEntry;
+
+/* Metadata for allocations surrounded by the 0x400-byte 0xAB guard regions
+ * checked by ReportHeapGuardCorruption. */
+typedef struct GuardedAllocation {
+    void *block;
+    unsigned int size;
+    struct GuardedAllocation *next;
+} GuardedAllocation;
 
 /*
  * The DOS source spelled `BOOLEAN window_colored = FALSE;`, but <windows.h>
