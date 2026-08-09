@@ -169,8 +169,11 @@ DREAMM_STAMP = $(DREAMM_DIR)/.$(DREAMM_ARCHIVE).stamp
 # (LocateStreamsDirOnDisc, FindCdRomDriveByVolumeLabel, PromptInsertCorrectCd),
 # and the streaming music lives there.  Point WC1_ISO at an image or a directory.
 RUN_DIR = data/full
-WC1_ISO ?= $(wildcard data/full/wc1.iso)
-DREAMM_MOUNTS = -mount rw:C=hd $(if $(WC1_ISO),-mount d=$(notdir $(WC1_ISO)))
+# Any disc image dropped in data/ or data/full/ is picked up automatically.
+# The recipes cd into RUN_DIR, so the mount path is made relative to it.
+WC1_ISO ?= $(firstword $(wildcard data/*.iso data/*.ISO data/full/*.iso data/full/*.ISO))
+DREAMM_MOUNTS = -mount rw:C=hd \
+                $(if $(WC1_ISO),-mount d=$(patsubst $(RUN_DIR)/%,%,$(patsubst data/%,../%,$(WC1_ISO))))
 
 # ---------------------------------------------------------------------------
 # Source order
@@ -529,9 +532,20 @@ $(DREAMM_BIN): $(DREAMM_STAMP)
 
 dreamm: $(DREAMM_BIN)
 
-run-check:
-	@test -d "$(RUN_DIR)" || \
-		(echo "Error: expected the installed game at $(RUN_DIR)." >&2 && exit 1)
+# The Kilrathi Saga disc carries a ready-to-run WC1 tree at /WC1 (WC1.EXE,
+# GAMEDAT with the MODULE/CAMP/BRIEFING files, STREAMS, WINGCMDR.CFG).  Extract
+# just that -- 142 MB of the disc's 634 -- rather than asking for a separate
+# install.  bsdtar reads ISO9660 directly and ships with macOS and most Linuxes.
+$(RUN_DIR)/GAMEDAT:
+	@test -n "$(WC1_ISO)" || \
+		(echo "Error: no disc image found. Put the Kilrathi Saga ISO in data/ or set WC1_ISO=." >&2 && exit 1)
+	@command -v bsdtar >/dev/null 2>&1 || \
+		(echo "Error: bsdtar not found; needed to read the ISO." >&2 && exit 1)
+	@echo "Extracting WC1 from $(WC1_ISO)..."
+	@mkdir -p "$(RUN_DIR)"
+	@bsdtar -xf "$(WC1_ISO)" -C "$(RUN_DIR)" --strip-components=1 WC1
+
+run-check: $(RUN_DIR)/GAMEDAT
 	@mkdir -p "$(RUN_DIR)/hd"
 
 run: $(TARGET) run-check | $(DREAMM_BIN)

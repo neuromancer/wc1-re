@@ -79,8 +79,11 @@ the retail binary, and `make debug` launches DREAMM's debugger.
 DirectSound directly and expects a real Windows 95 environment. DREAMM emulates that; Wine
 reimplements those APIs, changing exactly the behaviour this project exists to observe.
 
-Both targets need the installed game under `data/full/` (not vendored). A writable `C:` is
-mounted from `data/full/hd` so saved games persist between runs.
+Put the Kilrathi Saga disc image in `data/` (or set `WC1_ISO=`) and the game installs itself:
+`make run` extracts the disc's `/WC1` tree — `WC1.EXE`, `GAMEDAT`, `STREAMS`, `WINGCMDR.CFG`,
+142 MB of the disc's 634 — into `data/full/`, mounts the image at `D:` for the CD check and
+the streaming music, and mounts `data/full/hd` as a writable `C:` so the registry settings and
+saved games persist between runs.
 
 All comparison and verification goes through **binary-comp**; the Makefile exposes every
 one of its commands (`calls`, `compare`, `data`, `exe`, `export-asm`, `global-access`,
