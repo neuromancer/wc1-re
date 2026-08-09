@@ -36,7 +36,11 @@ Then supply the pieces that cannot be vendored:
    `../releases/win32/WC1.EXE`; override with `ORIGINAL_SRC=/path/to/WC1.EXE`.
 2. **`3rdparty/msvcrt40.dll`** — the MSVC420 submodule ships one that does not work under
    wibo; drop a working copy here.
-3. **`code-full/`** — the original disassembly. `make export-asm` generates it from the PE
+3. **The game disc**, if you want to run it. Point `WC1_ISO` at an image or a directory, or
+   drop it at `data/full/wc1.iso`; the binary really does look for its CD
+   (`FindCdRomDriveByVolumeLabel`, `PromptInsertCorrectCd`) and the streaming music lives
+   there.
+4. **`code-full/`** — the original disassembly. `make export-asm` generates it from the PE
    for whatever is annotated in `src/`; for the full export with recovered names, globals
    and strings, run binary-comp's `ghidra_scripts/ExportToCompile.java` from Ghidra's
    Script Manager. See [`docs/EXPORT.md`](docs/EXPORT.md).
@@ -62,8 +66,21 @@ make order                  # compilation-unit boundary hints
 make verify                 # the primary verification checklist
 make progress               # reimplementation progress
 make sort                   # check source files are address-sorted
-make run-wine               # build and launch under Wine
+make run                    # build and launch in DREAMM
 ```
+
+## Running it
+
+`make run` launches the rebuilt executable in [DREAMM](https://aarongiles.com/dreamm), which
+is downloaded on demand into `.dreamm/` on first use. `make run-original` does the same for
+the retail binary, and `make debug` launches DREAMM's debugger.
+
+**Wine is not used.** The Kilrathi Saga port is a 1996 Win32 binary that drives DirectDraw and
+DirectSound directly and expects a real Windows 95 environment. DREAMM emulates that; Wine
+reimplements those APIs, changing exactly the behaviour this project exists to observe.
+
+Both targets need the installed game under `data/full/` (not vendored). A writable `C:` is
+mounted from `data/full/hd` so saved games persist between runs.
 
 All comparison and verification goes through **binary-comp**; the Makefile exposes every
 one of its commands (`calls`, `compare`, `data`, `exe`, `export-asm`, `global-access`,

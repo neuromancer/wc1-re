@@ -219,6 +219,24 @@ so a name borrowed from the wrong function is reported. It also has to skip comm
 looking for the signature — comments routinely mention other functions by name — while still
 handling `/* Function start: 0x... */ /* TODO */ void f(void){}` all on one line.
 
+## Running it: DREAMM, never Wine
+
+`make run` launches under DREAMM. Wine is not used and should not be reintroduced: the port
+drives DirectDraw and DirectSound directly against a real Windows 95 environment, and Wine's
+reimplementation of those APIs changes the behaviour being observed.
+
+The display mode matters. `DIBcascade` calls `CreatePalette` and `DIBsetPalette`/`DIBramPalette`
+call `SetEntries`, which only succeed against a **palettized** primary surface — so the game
+wants an 8-bit mode, and `DREAMM_PROPS` defaults to `-prop winres=640x480x8`. In 16-bit it
+takes the `DIBerror("DIBmakeDIB   CreatePalette")` path instead.
+
+Two DREAMM details that are easy to get wrong:
+
+- `-launch` must be the **last** option; everything after it is the target's command line.
+- Writes to `C:` are discarded unless a host directory is mounted over it, so `make run`
+  mounts `data/full/hd` read-write. Without it, saved games and the game's own INSTALL.DAT
+  rewrites vanish between runs.
+
 ## Reading the comparison
 
 **All comparisons go through binary-comp.** It is the only scorer; do not hand-roll one.

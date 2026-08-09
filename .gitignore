@@ -29,8 +29,8 @@ data/*.zip
 3rdparty/dx/include/*
 3rdparty/msvcrt40.dll
 
-# Wine
-.wine-wc1/
+# DREAMM runtime (downloaded on demand by `make dreamm`)
+.dreamm/
 
 # Analysis output
 analysis/out/

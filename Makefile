@@ -12,7 +12,7 @@
 # Common entry points:
 #   make                 # build WC1.EXE
 #   make WC1.EXE         # build WC1.EXE
-#   make run-wine        # build and launch under Wine
+#   make run             # build and launch in DREAMM
 #   make report          # per-function similarity report
 #   make order           # compilation-unit boundary hints
 #   make verify          # primary recovery verification checklist
@@ -121,15 +121,56 @@ GLOBALS_MISSING_MIN_ADDRESS = 0x00465000
 GLOBALS_MISSING_MAX_ADDRESS = 0x004751ff
 
 # ---------------------------------------------------------------------------
-# Host platform and Wine runtime
+# Host platform and DREAMM runtime
 # ---------------------------------------------------------------------------
+#
+# DREAMM is the only supported way to run the rebuilt executable.  Wine is not
+# used: the Kilrathi Saga port is a 1996 Win32 binary that drives DirectDraw and
+# DirectSound directly and expects a real Windows 95 environment, which is what
+# DREAMM emulates.  Wine's own reimplementation of those APIs changes exactly
+# the behaviour this project is trying to observe.
+#
+# DREAMM is downloaded on demand into .dreamm/ so the repository does not need
+# to vendor platform-specific runtime binaries.
 
 UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
 
-WINE ?= wine
-WINEPREFIX ?= $(CURDIR)/.wine-wc1
-WINE_RUN_DIR = data/full
+DREAMM_DIR = .dreamm
+DREAMM_VERSION = 4.0x21
+DREAMM_BASE_URL = https://dreamm.aarongiles.com/releases/4.0x
+
+# 8-bit, not 16: the DIB layer creates a DirectDraw palette and pushes entries
+# into it (DIBcascade -> CreatePalette, DIBsetPalette/DIBramPalette ->
+# SetEntries).  Those calls only succeed against a palettized primary surface,
+# so the game expects an 8-bit display mode; in 16-bit it takes the
+# DIBerror("DIBmakeDIB   CreatePalette") path.  Override with DREAMM_PROPS=.
+DREAMM_PROPS ?= -prop winres=640x480x8
+
+ifeq ($(UNAME_S),Darwin)
+DREAMM_ARCHIVE = dreamm-$(DREAMM_VERSION)-macos.dmg
+DREAMM_BIN = $(DREAMM_DIR)/DREAMM.app/Contents/MacOS/dreamm
+else
+ifeq ($(UNAME_M),aarch64)
+DREAMM_ARCHIVE = dreamm-$(DREAMM_VERSION)-linux-arm64.tgz
+else
+DREAMM_ARCHIVE = dreamm-$(DREAMM_VERSION)-linux-x64.tgz
+endif
+DREAMM_BIN = $(DREAMM_DIR)/dreamm
+endif
+DREAMM = $(CURDIR)/$(DREAMM_BIN)
+DREAMM_STAMP = $(DREAMM_DIR)/.$(DREAMM_ARCHIVE).stamp
+
+# The game runs out of the installed data directory.  C: is mounted writable
+# from data/full/hd because DREAMM otherwise discards every write to C:, and the
+# game rewrites INSTALL.DAT and its save slots.
+#
+# The disc is mounted at D: when present: the binary really does look for it
+# (LocateStreamsDirOnDisc, FindCdRomDriveByVolumeLabel, PromptInsertCorrectCd),
+# and the streaming music lives there.  Point WC1_ISO at an image or a directory.
+RUN_DIR = data/full
+WC1_ISO ?= $(wildcard data/full/wc1.iso)
+DREAMM_MOUNTS = -mount rw:C=hd $(if $(WC1_ISO),-mount d=$(notdir $(WC1_ISO)))
 
 # ---------------------------------------------------------------------------
 # Source order
@@ -460,33 +501,51 @@ code-full:
 	@exit 1
 
 # ---------------------------------------------------------------------------
-# Wine launch targets
+# DREAMM launch targets
 # ---------------------------------------------------------------------------
 
-wine-check:
-	@command -v $(WINE) >/dev/null 2>&1 || \
-		(echo "Error: wine not found. Install Wine or set WINE=/path/to/wine." >&2 && exit 1)
-	@test -d "$(WINE_RUN_DIR)" || \
-		(echo "Error: expected installed game data at $(WINE_RUN_DIR)." >&2 && exit 1)
+$(DREAMM_STAMP):
+	@mkdir -p $(DREAMM_DIR)
+	@echo "Downloading DREAMM $(DREAMM_VERSION)..."
+	@curl -L -o $(DREAMM_DIR)/$(DREAMM_ARCHIVE) $(DREAMM_BASE_URL)/$(DREAMM_ARCHIVE)
+ifeq ($(UNAME_S),Darwin)
+	@rm -rf $(DREAMM_DIR)/mnt
+	@hdiutil attach $(DREAMM_DIR)/$(DREAMM_ARCHIVE) -mountpoint $(DREAMM_DIR)/mnt -nobrowse -quiet
+	@rm -rf $(DREAMM_DIR)/DREAMM.app
+	@cp -R $(DREAMM_DIR)/mnt/DREAMM.app $(DREAMM_DIR)/
+	@hdiutil detach $(DREAMM_DIR)/mnt -quiet
+	@xattr -dr com.apple.quarantine $(DREAMM_DIR)/DREAMM.app
+else
+	@rm -rf $(DREAMM_DIR)/dreamm
+	@tar xzf $(DREAMM_DIR)/$(DREAMM_ARCHIVE) -C $(DREAMM_DIR) --strip-components=1
+endif
+	@rm $(DREAMM_DIR)/$(DREAMM_ARCHIVE)
+	@rm -f $(DREAMM_DIR)/.dreamm-*.stamp
+	@touch "$(DREAMM_STAMP)"
 
-wine-stage: $(TARGET) wine-check
-	cp -f $(TARGET) "$(WINE_RUN_DIR)/WC1.EXE"
+$(DREAMM_BIN): $(DREAMM_STAMP)
+	@test -x "$(DREAMM_BIN)" || \
+		(echo "Error: DREAMM did not unpack to $(DREAMM_BIN)." >&2 && exit 1)
 
-run-wine: wine-stage
-	cd "$(WINE_RUN_DIR)" && WINEPREFIX="$(WINEPREFIX)" $(WINE) WC1.EXE
+dreamm: $(DREAMM_BIN)
 
-run-wine-original: wine-check $(ORIGINAL_EXE)
-	cd "$(WINE_RUN_DIR)" && WINEPREFIX="$(WINEPREFIX)" $(WINE) WC1.ORI.EXE
+run-check:
+	@test -d "$(RUN_DIR)" || \
+		(echo "Error: expected the installed game at $(RUN_DIR)." >&2 && exit 1)
+	@mkdir -p "$(RUN_DIR)/hd"
 
-run: run-wine
+run: $(TARGET) run-check | $(DREAMM_BIN)
+	cp -f $(TARGET) "$(RUN_DIR)/WC1.EXE"
+	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -launch WC1.EXE
 
-run-original: run-wine-original
+run-original: run-check $(ORIGINAL_EXE) | $(DREAMM_BIN)
+	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -launch WC1.ORI.EXE
 
-# The sibling project's `debug` target launches DREAMM's debugger; the Win32
-# equivalent here is Wine with its debug channels enabled.
-debug: wine-stage
-	cd "$(WINE_RUN_DIR)" && WINEPREFIX="$(WINEPREFIX)" WINEDEBUG=+relay,+seh \
-		$(WINE) WC1.EXE > debug.log 2>&1
+# DREAMM's own debugger, the same target the sibling project uses.
+debug: $(TARGET) run-check | $(DREAMM_BIN)
+	cp -f $(TARGET) "$(RUN_DIR)/WC1.EXE"
+	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -debug \
+		-launch WC1.EXE > debug.log
 
 # ---------------------------------------------------------------------------
 # Cleanup and phony declarations
@@ -496,8 +555,11 @@ clean:
 	rm -rf $(OUT_DIR)/*.obj $(OUT_DIR)/*.asm $(OUT_DIR)/*.stdout \
 	       $(OUT_DIR)/ix $(TARGET) $(MAPFILE)
 
-clean-wine:
-	rm -f "$(WINE_RUN_DIR)/WC1.EXE"
+clean-run:
+	rm -f "$(RUN_DIR)/WC1.EXE" "$(RUN_DIR)/debug.log"
+
+clean-dreamm:
+	rm -rf $(DREAMM_DIR)
 
 .PHONY: \
 	all \
@@ -520,7 +582,9 @@ clean-wine:
 	triage \
 	verify-vtables \
 	clean \
-	clean-wine \
+	clean-run \
+	clean-dreamm \
+	dreamm \
 	compare \
 	compare-functions \
 	globals-data \
@@ -531,8 +595,7 @@ clean-wine:
 	progress \
 	report \
 	run \
-	run-wine \
-	run-wine-original \
+	run-check \
 	seh \
 	sort \
 	verify \
@@ -542,5 +605,3 @@ clean-wine:
 	verify-globals-code \
 	verify-values \
 	verify-values-stack-locals \
-	wine-check \
-	wine-stage
