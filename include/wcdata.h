@@ -320,6 +320,45 @@ typedef struct FixedVector {
     int z;
 } FixedVector;
 
+/* Runtime object-type records.  The 0x87-byte stride and the named fields are
+ * fixed by accesses throughout the ship/object code; unknown slots retain
+ * offset names until their purpose is established. */
+#pragma pack(push, 1)
+typedef struct ObjectTypeData {
+    enum ObjectClass objectClass;     /* +0x00 */
+    short collisionRadius;            /* +0x04 */
+    short field_6;                    /* +0x06 */
+    short field_8;                    /* +0x08 */
+    short field_a;                    /* +0x0A */
+    short field_c;                    /* +0x0C */
+    unsigned char field_e[2];         /* +0x0E */
+    short damageCapacity;             /* +0x10 */
+    unsigned char field_12[2];        /* +0x12 */
+    short maximumVelocity;            /* +0x14 */
+    short cruiseVelocity;             /* +0x16 */
+    unsigned char field_18[4];        /* +0x18 */
+    int acceleration;                 /* +0x1C */
+    unsigned char field_20[0x4f];     /* +0x20 */
+    short field_6f;                   /* +0x6F */
+    short field_71;                   /* +0x71 */
+    short field_73;                   /* +0x73 */
+    short field_75;                   /* +0x75 */
+    short field_77;                   /* +0x77 */
+    short field_79;                   /* +0x79 */
+    int defaultObjective;             /* +0x7B */
+    unsigned char field_7f[8];        /* +0x7F */
+} ObjectTypeData;
+#pragma pack(pop)
+
+/* Each ship weapon entry is seven packed bytes inside its 0x47-byte loadout. */
+#pragma pack(push, 1)
+typedef struct ShipWeaponSlot {
+    enum ObjectType type;             /* +0x00 */
+    short hardpoint;                  /* +0x04 */
+    signed char disabled;             /* +0x06 */
+} ShipWeaponSlot;
+#pragma pack(pop)
+
 /* Compact three-axis offset used by the formation tables.  Unlike a
  * FixedVector, each component is a 16-bit distance. */
 typedef struct ShortVector {
@@ -348,7 +387,22 @@ typedef struct MissionNavPoint {
 } MissionNavPoint;
 #pragma pack(pop)
 
+/* Runtime mission-objective records use the 0x1F-byte stride visible in every
+ * objective scan.  This is distinct from the larger on-disk nav record. */
+#pragma pack(push, 1)
+typedef struct MissionObjective {
+    int type;                         /* +0x00 */
+    signed char index;                /* +0x04 */
+    unsigned char flags;              /* +0x05 */
+    unsigned char field_6[4];         /* +0x06 */
+    char *name;                       /* +0x0A */
+    FixedVector position;             /* +0x0E */
+    unsigned char field_1a[5];        /* +0x1A */
+} MissionObjective;
+#pragma pack(pop)
+
 #define WC1_MISSION_NAV_POINT_COUNT 16
+#define WC1_MISSION_OBJECTIVE_COUNT 16
 
 /* --------------------------------------------------------------------------
  * Pilot record field order, from the DOS build's live memory layout

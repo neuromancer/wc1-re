@@ -240,7 +240,7 @@ void cruise_home(short obj)
     if (range < 1500) {
         objective = (short)g_abFlightPath_0059c000[
             g_abShipNavPointIndex_0059d7c0[obj]];
-        if (g_abMissionObjectiveType_0059dac5[objective * 0x1f] != 1)
+        if (g_aMissionObjectives_0059dac5[objective].type != 1)
             visit(objective, 1);
         get_follow_point(obj, destination);
     }
@@ -264,7 +264,7 @@ void coming_home(short obj)
         if (g_aeShipSide_0059d650[obj] == SIDE_IMPERIAL &&
             g_aeShipMissionType_0059c3f0[obj] == MISSION_TYPE_ROUT) {
             objective = find_objective(1, -1);
-            *destination = g_aMissionObjectivePosition_0059dad3[objective];
+            *destination = g_aMissionObjectives_0059dac5[objective].position;
         } else {
             get_first_follow_point(obj, destination);
         }
@@ -703,7 +703,7 @@ void prepare_for_jump(short obj)
 
     get_facing_range_from_object(obj, 0);
     if (g_nFacingToTarget_0059d920 > 90 && no_goal(obj) != 0) {
-        g_anYawGoal_0059c310[obj] = RandomCentred(30);
+        g_anYawGoal_0059c310[obj] = signed_random(30);
         return;
     }
     delay = g_aeShipSide_0059d650[obj] == SIDE_KILRATHI ? 270 : 45;
@@ -1060,8 +1060,8 @@ void capital_transport_intelligence(short obj)
     fire_capital_weapon(obj, g_nTargetShip_0059c3b0);
     if (no_goal(obj) != 0) {
         if (RandomBelowOrEqual(4) == 0) {
-            g_anYawGoal_0059c310[obj] = RandomCentred(90);
-            g_anRollGoal_0059d630[obj] = RandomCentred(90);
+            g_anYawGoal_0059c310[obj] = signed_random(90);
+            g_anRollGoal_0059d630[obj] = signed_random(90);
         } else {
             point_capital_ship_at_object(obj, g_nTargetShip_0059c3b0);
         }
@@ -1180,8 +1180,8 @@ void mine_intelligence(short obj)
 
     if (g_asObjectCounter_0059c330[obj] != -1)
         return;
-    detonationRange = *(short *)(g_aObjectTypeData_00466460 +
-        g_aeObjectType_0059b560[obj] * 0x87);
+    detonationRange =
+        g_aObjectTypeData_0046645c[g_aeObjectType_0059b560[obj]].collisionRadius;
     for (other = 0; other < 10; other++) {
         if (other == obj || g_aeObjectClass_0059d100[other] <
                             OBJECT_CLASS_SHIP)

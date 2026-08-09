@@ -112,9 +112,9 @@ int handle_collisions(short obj)
     other = find_collision_object(obj);
     if (other != -1)
         start_collision_avoidance(obj, other);
-    if (ShipAiRoutine16(obj, 1) != 0)
+    if (alert_flag(obj, 1) != 0)
         prevent_collision(obj);
-    return ShipAiRoutine16(obj, 1);
+    return alert_flag(obj, 1);
 }
 
 /* Function start: 0x433DE0 */

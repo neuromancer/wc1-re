@@ -49,5 +49,9 @@ short UiRoutine03(void);                                          /* 0x00429E30 
 void _free_dbg(void *p, int blockType);                           /* Function start: 0x401250 */
 long _ftol(void);                                                 /* Pointer table of prompt strings indexed by SendCommMenuChoice. */
 void auto_pilot_sequence(void);                                   /* named by the leaked header */
+void initialize_object(short obj, enum ObjectType type,
+                       short owner);                              /* 0x0041E120 */
+int drop_mine(short obj, short weapon, enum ObjectType type,
+              short lifetime);                                   /* 0x004212A0 */
 
 #endif /* WC1_EXTERN_H */

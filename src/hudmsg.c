@@ -3,6 +3,7 @@
  *
  *  Address range 0x428000-0x42afff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: ShowOnScreenMessage and its six callers; string band 0x46A24C-0x46A378.
+ *  The Mac CODE 4 `targ` symbols prove the nested 0x42A8F0-0x42ACFF unit.
  */
 #include "wc1.h"
 
@@ -87,19 +88,19 @@ void RedrawCommWindow(void)
 }
 
 /* Function start: 0x42A8F0 */
-short find_objective(short type, short index)
+short find_objective(int type, short index)
 {
     short objective;
 
-    for (objective = 0;
-         objective < (short)g_cMissionObjectiveCount_0059c46a;
-         objective++) {
-        unsigned char *record =
-            (unsigned char *)g_abMissionObjectiveType_0059dac5 +
-            objective * 0x1f;
-        if (*(int *)record == type &&
-            (index == -1 || *(signed char *)(record + 4) == index))
-            return objective;
+    objective = 0;
+    while (objective < (short)g_cMissionObjectiveCount_0059c46a) {
+        if (g_aMissionObjectives_0059dac5[objective].type == type) {
+            if (index == -1)
+                return objective;
+            if (g_aMissionObjectives_0059dac5[objective].index == index)
+                return objective;
+        }
+        objective++;
     }
     return -1;
 }
@@ -110,14 +111,14 @@ void arrive_from_warp(short obj)
     short objective = find_objective(0, g_nCurrentNavPoint_0059df60);
 
     if (objective != -1) {
-        if (g_abMissionObjectiveType_0059dac5[
-                g_abFlightPath_0059c000[objective] * 0x1f] != 1)
+        if (g_aMissionObjectives_0059dac5[
+                g_abFlightPath_0059c000[objective]].type != 1)
             visit(objective, 1);
-        if (g_nCurrentObjective_0046c020 == objective)
+        if (g_cCurrentObjective_0046c020 == objective)
             set_next_destination();
     }
     place_ship_near_player_until_valid(obj, 2000, 5000);
-    finish_warp_arrival(obj);
+    unwarp(obj);
     g_anShipSpeed_0059b320[obj] =
         (int)g_asShipMaximumSpeed_0059c440[obj] << 8;
     fix_velocity(obj);
@@ -128,19 +129,99 @@ void arrive_from_warp(short obj)
 }
 
 /* Function start: 0x42AA10 */
-unsigned int finish_warp_arrival(short obj)
+unsigned int unwarp(short obj)
 {
-    g_aeShipManeuver_0059dcb0[obj] = MANEUVER_NONE;
-    g_asObjectCounter_0059c330[obj] = 6;
+    short effect;
+
+    ClearViewport(&DAT_005a7510, g_cViewportClearColour_004699a0);
+    g_bViewportDirty_00469fc4 = 1;
+    effect = find_vacant_3d_object();
+    if (effect != -1) {
+        initialize_object(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH, obj);
+        g_aShipPosition_0059c490[effect] = g_aShipPosition_0059c490[obj];
+        g_aShipVelocity_0059c010[effect] = g_aShipVelocity_0059c010[obj];
+        g_aeShipManeuver_0059dcb0[obj] = MANEUVER_NONE;
+        g_asObjectCounter_0059c330[obj] = 6;
+        return 0;
+    }
+    g_abShipNavPointIndex_0059d7c0[obj] =
+        (signed char)g_aeObjectType_0059b560[obj];
+    initialize_object(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH, obj);
     return 0;
 }
 
 /* Function start: 0x42AAF0 */
 unsigned int warp(short obj)
 {
-    g_aeShipManeuver_0059dcb0[obj] = MANEUVER_WARPING_OUT;
-    g_asObjectCounter_0059c330[obj] = 6;
+    short effect;
+
+    ClearViewport(&DAT_005a7510, g_cViewportClearColour_004699a0);
+    g_bViewportDirty_00469fc4 = 1;
+    effect = find_vacant_3d_object();
+    if (effect != -1) {
+        initialize_object(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
+                          g_acObjectOwner_0059ce20[obj]);
+        g_aShipPosition_0059c490[effect] = g_aShipPosition_0059c490[obj];
+        g_aShipVelocity_0059c010[effect] = g_aShipVelocity_0059c010[obj];
+        g_aeShipManeuver_0059dcb0[obj] = MANEUVER_WARPING_OUT;
+        g_asObjectCounter_0059c330[obj] = 6;
+        return 0;
+    }
+    initialize_object(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
+                      g_acObjectOwner_0059ce20[obj]);
     return 0;
+}
+
+/* Function start: 0x42ABD0 */
+int drop_player_mine(short obj)
+{
+    short weapon;
+
+    weapon = 0;
+    while (weapon < (signed char)g_aShipWeapons_0059cab0[obj][0]) {
+        ShipWeaponSlot *weaponSlot =
+            &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
+        enum ObjectType type = weaponSlot->type;
+
+        if (g_aObjectTypeData_0046645c[type].objectClass ==
+                OBJECT_CLASS_MINE &&
+            weaponSlot->disabled == 0)
+            return drop_mine(obj, weapon, type, 20);
+        weapon++;
+    }
+    return -1;
+}
+
+/* Function start: 0x42AC50 */
+unsigned int personality_killed(short personality)
+{
+    if (personality < 8) {
+        g_aiPersonalityDeathMission_0059ca74[personality] =
+            (int)g_cCurrentMission_0059ca69 +
+            (int)g_cCurrentSeries_0059ca6a * 4;
+        g_nPromotionScore_0059caa0 =
+            MaxShort(0, g_nPromotionScore_0059caa0 - 1);
+        return 0;
+    }
+    kill_ace(personality - 9);
+    g_nPromotionScore_0059caa0++;
+    g_nMissionScore_0059caa2 += 25;
+    return 0;
+}
+
+/* Function start: 0x42ACC0 */
+void clean_up_cockpit(void)
+{
+    short wingman = g_nYourWingman_0046c04c;
+
+    g_acShipTarget_0059ce60[0] = -1;
+    g_nTargetLockMode_0046c078 = 0;
+    if (wingman != -1) {
+        g_nAutoEngageTimer_0046c084 = -1;
+        g_acShipTarget_0059ce60[wingman] = -1;
+        reset_objective(wingman, OBJECTIVE_HOLD_FORMATION);
+    }
+    ClearHudGunReadouts();
 }
 
 /* Function start: 0x42AFA0 */

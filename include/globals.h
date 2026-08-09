@@ -43,6 +43,7 @@ extern short DAT_00469208;
 extern unsigned char DAT_00469648;
 extern unsigned char DAT_0046964c;
 extern unsigned char DAT_0046999c;
+extern unsigned char g_cViewportClearColour_004699a0;
 extern unsigned short DAT_004699a8;
 extern unsigned short DAT_004699b0;
 extern unsigned int DAT_004699d8;
@@ -77,11 +78,13 @@ extern const GUID g_guidDirectDraw2_00463118;
 extern int *DAT_0046b1a4;
 extern signed char g_abSoundEffectShips_0046c028[0x14];
 extern short DAT_0046c010;
+extern signed char g_cCurrentObjective_0046c020;
 extern unsigned char DAT_0046c03c;
 extern short g_nYourWingman_0046c04c;
 extern unsigned char DAT_0046c060;
 extern short DAT_0046c064;
 extern short DAT_0046c068;
+extern short g_nTargetLockMode_0046c078;
 extern int g_bEngageAllowed_0046c080;
 extern short g_nAutoEngageTimer_0046c084;
 extern MissionNavPoint g_aMissionNavPoints_0046c2f0[WC1_MISSION_NAV_POINT_COUNT];
@@ -160,6 +163,7 @@ extern int g_nSoundEffectSlotCount_0059bfe0;
 extern unsigned int DAT_0059b430[512];
 extern int DAT_0059b470[512];
 extern enum ObjectType g_aeObjectType_0059b560[96];
+extern signed char g_abFlightPath_0059c000[WC1_MISSION_OBJECTIVE_COUNT];
 extern FixedVector g_aShipVelocity_0059c010[512];
 extern unsigned char DAT_0059c310[512];
 extern short g_asObjectCounter_0059c330[512];
@@ -167,14 +171,21 @@ extern enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[12];
 extern enum ShipMissionType g_aeShipMissionType_0059c3f0[512];
 extern short g_asShipCount_0059c420[512];
 extern short g_asShipMaximumSpeed_0059c440[24];
+extern signed char g_cMissionObjectiveCount_0059c46a;
 extern FixedVector g_aShipPosition_0059c490[512];
 extern unsigned char DAT_0059c810[512];
 extern signed char g_cCurrentNavPointIndex_0059c86c;
-extern unsigned char DAT_0059ca94[256];
+extern signed char g_cCurrentMission_0059ca69;
+extern signed char g_cCurrentSeries_0059ca6a;
+extern int g_aiPersonalityDeathMission_0059ca74[8];
+extern unsigned char g_abAceFlags_0059ca94[12];
+extern short g_nPromotionScore_0059caa0;
+extern short g_nMissionScore_0059caa2;
 extern unsigned char g_aShipWeapons_0059cab0[16][0x47];
 extern signed char g_acShipRating_0059cd80[16];
 extern short g_nTargetRange_0059ce10;
 extern unsigned int DAT_0059ce18[256];
+extern signed char g_acObjectOwner_0059ce20[64];
 extern signed char g_acShipTarget_0059ce60[512];
 extern unsigned char DAT_0059ce80[512];
 extern unsigned char DAT_0059cf20[512];
@@ -199,8 +210,7 @@ extern short g_asObjectCollisionRadius_0059d710[64];
 extern unsigned char DAT_0059d7a0[512];
 extern signed char g_abShipNavPointIndex_0059d7c0[512];
 extern unsigned short DAT_0059d9b0[512];
-extern unsigned char DAT_0059daca[8192];
-extern unsigned char DAT_0059dacf[8192];
+extern MissionObjective g_aMissionObjectives_0059dac5[WC1_MISSION_OBJECTIVE_COUNT];
 extern enum ShipManeuver g_aeShipManeuver_0059dcb0[512];
 extern unsigned char g_aShipMissionSpot_0059dd10[8192];
 extern char DAT_0059dec0[256];
@@ -283,13 +293,12 @@ extern int DAT_0046b1c4;
 extern int DAT_0046b1c8;
 extern unsigned int g_dwStreamerState_00597cd0;
 extern short DAT_0059a856;
-extern unsigned char DAT_0059ca69;
-extern unsigned char DAT_0059ca6a;
 extern unsigned char DAT_004700c9;
 extern unsigned char DAT_004700ca;
 extern int DAT_004688e0;
 extern int DAT_00469fbc;
 extern int DAT_00469fc0;
+extern int g_bViewportDirty_00469fc4;
 extern int DAT_00469fc8[16];
 extern char g_szStreamsPath_00475c18[0x100];
 
@@ -301,7 +310,7 @@ extern unsigned short DAT_005a7e76;
 extern unsigned int DAT_005a7ef4;
 extern unsigned int DAT_005a7ef8;
 
-extern unsigned char DAT_00466472[65536];
+extern ObjectTypeData g_aObjectTypeData_0046645c[OBJECT_TYPE_COUNT];
 extern int  *DAT_0046b1a8;
 extern int  *DAT_0046b1ac;
 extern int  *DAT_0046b1b0;
@@ -323,8 +332,6 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
     (*(short *)((unsigned char *)g_aiPacketReferenceTable_00465c88 - 0x0c))
 #define g_nCurrentWave_0046c01c \
     (*(short *)((unsigned char *)g_abSoundEffectShips_0046c028 - 0x0c))
-#define g_nCurrentObjective_0046c020 \
-    (*(short *)((unsigned char *)g_abSoundEffectShips_0046c028 - 0x08))
 #define g_cViableTargetCount_0046c088 \
     (*(signed char *)((unsigned char *)&g_nAutoEngageTimer_0046c084 + 4))
 
@@ -335,8 +342,6 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
     ((signed char *)((unsigned char *)g_asShipMaximumSpeed_0059c440 + 0x20))
 #define g_asViableTargetDistance_0059c470 \
     ((short *)((unsigned char *)g_asShipMaximumSpeed_0059c440 + 0x30))
-#define g_cMissionObjectiveCount_0059c46a \
-    (*(signed char *)((unsigned char *)g_asShipMaximumSpeed_0059c440 + 0x2a))
 #define g_acShipMissionIndex_0059c830 \
     ((signed char *)((unsigned char *)DAT_0059c810 + 0x20))
 #define g_asShipAfterburnerTimer_0059c810 ((short *)(void *)DAT_0059c810)
@@ -374,16 +379,6 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
 #define g_nLastFoundShip_005a7cba \
     (*(short *)((unsigned char *)g_asCollisionPartner_005a7cc0 - 6))
 
-#define g_abFlightPath_0059c000 \
-    ((signed char *)((unsigned char *)g_aShipVelocity_0059c010 - 0x10))
-#define g_abMissionObjectiveType_0059dac5 \
-    ((signed char *)((unsigned char *)DAT_0059daca - 5))
-#define g_abMissionObjectiveIndex_0059dac9 \
-    ((signed char *)((unsigned char *)DAT_0059daca - 1))
-#define g_aMissionObjectivePosition_0059dad3 \
-    ((FixedVector *)((unsigned char *)DAT_0059daca + 9))
-#define g_aObjectTypeData_00466460 \
-    ((unsigned char *)DAT_00466472 - 0x12)
 #define g_abObjectField_0059b4a0 \
     ((unsigned char *)g_aeObjectType_0059b560 - 0xc0)
 #define g_aShipFormationOffset_0059b520 \

@@ -155,25 +155,25 @@ void InputFilterHook(void)
 /* Function start: 0x415050 */
 int GetNavRecordField50(short i)
 {
-    return (DAT_0059daca[i * 0x1f] & 4) == 4;
+    return (g_aMissionObjectives_0059dac5[i].flags & 4) == 4;
 }
 
 /* Function start: 0x415070 */
 int GetNavRecordField70(short i)
 {
-    return (DAT_0059daca[i * 0x1f] & 1) == 1;
+    return (g_aMissionObjectives_0059dac5[i].flags & 1) == 1;
 }
 
 /* Function start: 0x415090 */
 int GetNavRecordField90(short i)
 {
-    return (DAT_0059daca[i * 0x1f] & 2) == 2;
+    return (g_aMissionObjectives_0059dac5[i].flags & 2) == 2;
 }
 
 /* Function start: 0x4150B0 */
 void visit(short i, unsigned char bits)
 {
-    DAT_0059daca[i * 0x1f] |= bits;
+    g_aMissionObjectives_0059dac5[i].flags |= bits;
 }
 
 /* Function start: 0x4153D0 */
@@ -191,8 +191,8 @@ void set_next_destination(void)
         objective = g_abFlightPath_0059c000[
             g_cCurrentNavPointIndex_0059c86c];
     } while (objective == -1);
-    g_nCurrentObjective_0046c020 =
-        (short)g_abFlightPath_0059c000[g_cCurrentNavPointIndex_0059c86c];
+    g_cCurrentObjective_0046c020 =
+        g_abFlightPath_0059c000[g_cCurrentNavPointIndex_0059c86c];
 }
 
 /* Function start: 0x4154C0 */
@@ -223,12 +223,11 @@ unsigned int GetShipAiScratch(void)
 /* Function start: 0x415530 */
 void flag_reached(short objective, short reached)
 {
-    int type = *(int *)((unsigned char *)g_abMissionObjectiveType_0059dac5 +
-                        objective * 0x1f);
+    int type = g_aMissionObjectives_0059dac5[objective].type;
 
     if (reached != 0 && type != 1)
         visit(objective, 1);
-    if (objective == g_nCurrentObjective_0046c020)
+    if (objective == g_cCurrentObjective_0046c020)
         set_next_destination();
 }
 

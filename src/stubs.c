@@ -35,6 +35,26 @@ void PumpMessagesWhileDebugPaused(unsigned int arg)
 
 /* Forward references still to be implemented; each is a real function. */
 /* Function start: 0x41DAA0 */ /* TODO */ short UiRoutine03(void){return 1;}
+/* Function start: 0x41E120 */
+/* TODO: initialize_object -- initialize an existing object slot. */
+void initialize_object(short obj, enum ObjectType type, short owner)
+{
+    (void)obj;
+    (void)type;
+    (void)owner;
+}
+
+/* Function start: 0x4212A0 */
+/* TODO: drop_mine -- create a mine at a ship weapon hardpoint. */
+int drop_mine(short obj, short weapon, enum ObjectType type, short lifetime)
+{
+    (void)obj;
+    (void)weapon;
+    (void)type;
+    (void)lifetime;
+    return -1;
+}
+
 /* Function start: 0x422780 */ /* TODO */ void ClearShipAiOrders(short s) { (void)s; }
 /* Function start: 0x424490 */ /* TODO */ void ReleaseSceneActors(void){}
 /* Function start: 0x424BE0 */ /* TODO */ void ResetSeriesProgress(void){}

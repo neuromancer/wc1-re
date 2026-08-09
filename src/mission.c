@@ -13,9 +13,10 @@ short find_weapon(short obj, enum ObjectType weaponType)
 
     weapon = 0;
     while (weapon < (signed char)g_aShipWeapons_0059cab0[obj][0]) {
-        if (*(enum ObjectType *)(
-                g_aShipWeapons_0059cab0[obj] + 1 + weapon * 7) ==
-            weaponType)
+        ShipWeaponSlot *weaponSlot =
+            &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
+
+        if (weaponSlot->type == weaponType)
             return weapon;
         weapon++;
     }
@@ -145,47 +146,56 @@ unsigned int GetFxDriverStatus(void)
 }
 
 /* Function start: 0x422010 */
-int TestShipFlags(short i, unsigned char bits)
+int ace_status(short ace, unsigned char bits)
 {
-    return (DAT_0059ca94[i] & bits) == bits;
+    return (g_abAceFlags_0059ca94[ace] & bits) == bits;
 }
 
 /* Function start: 0x422030 */
-void ClearShipFlags(short i, unsigned char bits)
+void unflag_ace(short ace, unsigned char bits)
 {
-    DAT_0059ca94[i] &= ~bits;
+    g_abAceFlags_0059ca94[ace] &= ~bits;
 }
 
 /* Function start: 0x422050 */
-void SetShipFlags(short i, unsigned char bits)
+void flag_ace(short ace, unsigned char bits)
 {
-    DAT_0059ca94[i] |= bits;
+    g_abAceFlags_0059ca94[ace] |= bits;
+}
+
+/* Function start: 0x422060 */
+void kill_ace(short ace)
+{
+    if (ace_status(ace, 1) != 0) {
+        unflag_ace(ace, 1);
+        flag_ace(ace, 2);
+    }
 }
 
 /* Function start: 0x422090 */
-void prepare_ace_engagement(short obj)
+void ace_greeting(short obj)
 {
     short ace = (short)g_aiPilotLevel_0059cf30[obj] - 14;
 
-    send_message(obj, (signed char)(TestShipFlags(ace, 4) != 0));
-    SetShipFlags(ace, 8);
+    send_message(obj, (signed char)(ace_status(ace, 4) != 0));
+    flag_ace(ace, 8);
 }
 
 /* Function start: 0x4220D0 */
-void ClearShipTimer(short i)
+void prepare_ace(short ace)
 {
-    ClearShipFlags(i, 0x1a);
-    SetShipFlags(i, 0x20);
+    unflag_ace(ace, 0x1a);
+    flag_ace(ace, 0x20);
 }
 
 /* Function start: 0x4220F0 */
-short RandomCentred(short range)
+short signed_random(short range)
 {
     return (short)RandomBelowOrEqual(range * 2) - range;
 }
 
 /* Function start: 0x422110 */
-int ShipAiRoutine16(short ship, unsigned int bits)
+int alert_flag(short ship, unsigned int bits)
 {
     return (DAT_0059b430[ship] & bits) != 0;
 }
@@ -621,7 +631,7 @@ unsigned int set_special(short ship, enum SpecialManeuver special)
     *currentState = special;
 
 checkCancellation:
-    if (*currentState == SPECIAL_MANEUVER_BLOWING_UP && (short)ShipAiRoutine16(ship, 1))
+    if (*currentState == SPECIAL_MANEUVER_BLOWING_UP && (short)alert_flag(ship, 1))
         *currentState = SPECIAL_MANEUVER_NONE;
     return 0;
 }
@@ -644,8 +654,8 @@ unsigned int approach_half_speed(short obj)
 unsigned int approach_cruise_speed(short ship)
 {
     ApproachShipSpeed(ship,
-        (int)*(short *)(&DAT_00466472[0] +
-                        g_aeObjectType_0059b560[ship] * 0x87) << 8);
+        (int)g_aObjectTypeData_0046645c[
+            g_aeObjectType_0059b560[ship]].cruiseVelocity << 8);
     return 0;
 }
 
@@ -836,17 +846,14 @@ unsigned int get_follow_point(short obj, FixedVector *point)
     pathIndex = (short)g_abShipNavPointIndex_0059d7c0[obj];
     while (++pathIndex <= 15) {
         objective = (short)g_abFlightPath_0059c000[pathIndex];
-        type = *(int *)((unsigned char *)g_abMissionObjectiveType_0059dac5 +
-                        objective * 0x1f);
+        type = g_aMissionObjectives_0059dac5[objective].type;
         if (type == 0) {
-            *point = *(FixedVector *)((unsigned char *)
-                g_abMissionObjectiveType_0059dac5 + objective * 0x1f + 0x0e);
+            *point = g_aMissionObjectives_0059dac5[objective].position;
             g_abShipNavPointIndex_0059d7c0[obj] = (signed char)pathIndex;
             return 0;
         }
         if (type == 1) {
-            missionShip = (short)*(signed char *)((unsigned char *)
-                g_abMissionObjectiveType_0059dac5 + objective * 0x1f + 4);
+            missionShip = (short)g_aMissionObjectives_0059dac5[objective].index;
             objective = find_ship_index(missionShip);
             if (objective == -1)
                 *point = g_aMissionNavPoints_0046c2f0[missionShip].position;
@@ -911,8 +918,8 @@ void engage(short obj, signed char target, enum ShipObjective objective)
     if (g_aeShipObjective_0059d200[obj] != objective) {
         reset_objective(obj, objective);
         if (g_acShipRating_0059cd80[obj] > 8 &&
-            TestShipFlags((short)g_aiPilotLevel_0059cf30[obj] - 14, 8) == 0)
-            prepare_ace_engagement(obj);
+            ace_status((short)g_aiPilotLevel_0059cf30[obj] - 14, 8) == 0)
+            ace_greeting(obj);
     }
     g_acShipTarget_0059ce60[obj] = target;
 }
@@ -943,25 +950,21 @@ short InterpolateClamped(short inputMinimum, short inputMaximum,
 /* Function start: 0x423C00 */
 short evaluate_damage(short obj)
 {
-    int typeOffset = g_aeObjectType_0059b560[obj] * 0x87;
+    ObjectTypeData *typeData =
+        &g_aObjectTypeData_0046645c[g_aeObjectType_0059b560[obj]];
 
     if (g_aeObjectClass_0059d100[obj] < OBJECT_CLASS_SHIP)
         return 100;
     return (short)((g_asShipDamage_0059c460[obj] * -26) /
-                       *(short *)(g_aObjectTypeData_00466460 +
-                                  typeOffset + 0x0c) +
+                       typeData->damageCapacity +
                    (g_asShipWingLeader_0059d400[obj * 4 + 0x11] * 27) /
-                       *(short *)(g_aObjectTypeData_00466460 +
-                                  typeOffset + 0x71) +
+                       typeData->field_75 +
                    (g_asShipWingLeader_0059d400[obj * 4 + 0x10] * 23) /
-                       *(short *)(g_aObjectTypeData_00466460 +
-                                  typeOffset + 0x6f) +
+                       typeData->field_73 +
                    (g_asShipWingLeader_0059d400[obj * 4 + 0x12] * 12) /
-                       *(short *)(g_aObjectTypeData_00466460 +
-                                  typeOffset + 0x73) +
+                       typeData->field_77 +
                    (g_asShipWingLeader_0059d400[obj * 4 + 0x13] * 12) /
-                       *(short *)(g_aObjectTypeData_00466460 +
-                                  typeOffset + 0x75) + 26);
+                       typeData->field_79 + 26);
 }
 
 /* Function start: 0x423CD0 */

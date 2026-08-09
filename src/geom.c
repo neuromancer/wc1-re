@@ -15,8 +15,8 @@ unsigned short GetMusicDriverPresent(void)
 /* Function start: 0x4181C0 */
 short get_ship_max_velocity(short obj)
 {
-    short velocity = *(short *)(g_aObjectTypeData_00466460 +
-        g_aeObjectType_0059b560[obj] * 0x87 + 0x10);
+    short velocity = g_aObjectTypeData_0046645c[
+        g_aeObjectType_0059b560[obj]].maximumVelocity;
 
     if (obj < 10 && g_acShipRating_0059cd80[obj] > 8)
         return velocity + velocity / 3;
@@ -34,7 +34,7 @@ int GetShipAccelerationRate(short ship)
 {
     int shipIndex = (int)ship;
     enum ObjectType objectType = g_aeObjectType_0059b560[shipIndex];
-    int acceleration = *(int *)(&DAT_00466472[6] + objectType * 0x87);
+    int acceleration = g_aObjectTypeData_0046645c[objectType].acceleration;
 
     if (ship < 10 && g_acShipRating_0059cd80[shipIndex] > RATING_ACE_ICEMAN)
         return acceleration + acceleration / 3;
@@ -443,20 +443,23 @@ unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
 }
 
 /* Function start: 0x419B70 */
-short FindShipInMode1(void)
+short get_ship_slot(void)
 {
-    DAT_0046c010 = 1;
+    short slot = 1;
+
     do {
-        if (g_aeObjectClass_0059d100[DAT_0046c010] == OBJECT_CLASS_NULL)
-            return DAT_0046c010;
-        DAT_0046c010 = DAT_0046c010 + 1;
-    } while (DAT_0046c010 < 10);
+        if (g_aeObjectClass_0059d100[slot] == OBJECT_CLASS_NULL) {
+            DAT_0046c010 = slot;
+            return slot;
+        }
+        slot++;
+    } while (slot <= 9);
     DAT_0046c010 = -1;
     return -1;
 }
 
 /* Function start: 0x419BA0 */
-short FindShipInMode2(void)
+short find_vacant_3d_object(void)
 {
     short i = 10;
 
@@ -466,7 +469,7 @@ short FindShipInMode2(void)
             return i;
         }
         i = i + 1;
-    } while (i < 0x3d);
+    } while (i <= 0x3c);
     return -1;
 }
 

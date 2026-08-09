@@ -355,7 +355,7 @@ void CopyViewportContents(Viewport *source, Viewport *destination)
 }
 
 /* Function start: 0x441AE0 */
-void ClearViewport(Viewport *viewport, unsigned char colour)
+void ClearViewport(Viewport *viewport, short colour)
 {
     int width;
     short row;

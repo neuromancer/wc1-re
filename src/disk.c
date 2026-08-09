@@ -98,7 +98,7 @@ unsigned int ApproachShipSpeed(short ship, int targetSpeed)
     acceleration = GetShipAccelerationRate(ship);
     delta = targetSpeed - g_anShipSpeed_0059b320[ship];
 
-    if ((short)ShipAiRoutine16(ship, 1))
+    if ((short)alert_flag(ship, 1))
         acceleration += acceleration;
     if ((delta < 0 ? -delta : delta) > acceleration)
         delta = MultiplyFixed(SignFixed(delta), acceleration);

@@ -248,8 +248,8 @@ void NormalizeAndScaleVector(FixedVector *vector, int scale);         /* 0x00419
 void SetVectorFixedPoint(unsigned int *p, short v);                           /* 0x00419970 */
 unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to,
                                 short range);                          /* 0x00419990 */
-short FindShipInMode1(void);                                      /* 0x00419B70 */
-short FindShipInMode2(void);                                      /* 0x00419BA0 */
+short get_ship_slot(void);                                        /* 0x00419B70 */
+short find_vacant_3d_object(void);                                /* 0x00419BA0 */
 void remove_object(short obj);                                        /* 0x00419BD0 */
 void ClampVectorTo30(short *p);                                           /* 0x0041A0F0 */
 void ClampTo30(short *p);                                           /* 0x0041A110 */
@@ -281,13 +281,14 @@ unsigned int LoadOriginFxDrivers(void);                                 /* 0x004
 unsigned int GetFxDriverInitResult(void);                                      /* 0x00421FE0 */
 unsigned int GetMessagePumpResult(void);                                      /* 0x00421FF0 */
 unsigned int GetFxDriverStatus(void);                                      /* 0x00422000 */
-int TestShipFlags(short i, unsigned char bits);                  /* 0x00422010 */
-void ClearShipFlags(short i, unsigned char bits);                 /* 0x00422030 */
-void SetShipFlags(short i, unsigned char bits);                 /* 0x00422050 */
-void prepare_ace_engagement(short obj);                               /* 0x00422090 */
-void ClearShipTimer(short i);                                            /* 0x004220D0 */
-short RandomCentred(short range);                                       /* 0x004220F0 */
-int ShipAiRoutine16(short ship, unsigned int bits);                     /* 0x00422110 */
+int ace_status(short ace, unsigned char bits);                       /* 0x00422010 */
+void unflag_ace(short ace, unsigned char bits);                       /* 0x00422030 */
+void flag_ace(short ace, unsigned char bits);                         /* 0x00422050 */
+void kill_ace(short ace);                                             /* 0x00422060 */
+void ace_greeting(short obj);                                         /* 0x00422090 */
+void prepare_ace(short ace);                                          /* 0x004220D0 */
+short signed_random(short range);                                     /* 0x004220F0 */
+int alert_flag(short ship, unsigned int bits);                        /* 0x00422110 */
 unsigned int HasSpeechBuffer(void);                                      /* 0x00422130 */
 unsigned int SetShipStateBits(short i, unsigned int bits);               /* 0x00422140 */
 void ResetShipStateRecord(short i);                                     /* 0x00422160 */
@@ -382,10 +383,13 @@ short GetShipDistanceToNavPoint(short ship, MissionNavPoint *navPoint); /* 0x004
 short FindNearestNavPoint(short ship);                               /* 0x0042A120 */
 unsigned int ReleaseStaleNavTarget(void);                                     /* 0x0042A170 */
 void RedrawCommWindow(void);                                       /* 0x0042A670 */
-short find_objective(short type, short index);                       /* 0x0042A8F0 */
+short find_objective(int type, short index);                         /* 0x0042A8F0 */
 void arrive_from_warp(short obj);                                      /* 0x0042A950 */
-unsigned int finish_warp_arrival(short obj);                          /* 0x0042AA10 */
+unsigned int unwarp(short obj);                                       /* 0x0042AA10 */
 unsigned int warp(short obj);                                         /* 0x0042AAF0 */
+int drop_player_mine(short obj);                                      /* 0x0042ABD0 */
+unsigned int personality_killed(short personality);                   /* 0x0042AC50 */
+void clean_up_cockpit(void);                                          /* 0x0042ACC0 */
 void WaitForDebugStep(void);                                          /* 0x0042AFA0 */
 void CALLBACK FrameTimerCallback(UINT timerId, UINT message, DWORD user,
                                  DWORD first, DWORD second);       /* 0x0042AFB0 */
@@ -612,7 +616,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame);                          /* 0x00441740 */
 void CopyViewportContents(Viewport *source, Viewport *destination);    /* 0x00441A90 */
-void ClearViewport(Viewport *viewport, unsigned char colour);          /* 0x00441AE0 */
+void ClearViewport(Viewport *viewport, short colour);                  /* 0x00441AE0 */
 void UpdateStreamerStoppedFlag(void);                                    /* 0x00442330 */
 void SetMusicStreamVolume(unsigned short volume);                     /* 0x00442590 */
 int ReadCheaterFlagFromRegistry(void);                                /* 0x00442600 */

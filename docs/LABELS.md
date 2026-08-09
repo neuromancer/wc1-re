@@ -151,6 +151,29 @@ three-byte tuple `(threshold, primary, secondary)`, with rated choices at `0x004
 (`13 × 9 × 3`) and Kilrathi choices at `0x0046D808` (`5 × 9 × 3`). Those tables are copied
 byte-for-byte into `src/globals.c`; they are not synthetic defaults.
 
+### Mac `targ` unit mapped onto Win32
+
+CODE 4's final source unit is `targ`. Its seven symbols map in the same order onto one
+uninterrupted retail Win32 range, and the disassembly confirms every body. The next Win32
+function at `0x0042AD00` starts the separate weapon-selection sequence, fixing the end of the
+unit at `0x0042ACFF`.
+
+| Win32 address | Recovered name | Checked behavior |
+|---|---|---|
+| `0x0042A8F0` | `find_objective` | scans the packed mission-objective table by type and optional index |
+| `0x0042A950` | `arrive_from_warp` | visits the arrival objective, places the ship, and restores cruise state |
+| `0x0042AA10` | `unwarp` | clears the view and creates the arrival hyperspace flash |
+| `0x0042AAF0` | `warp` | clears the view and creates the departure hyperspace flash |
+| `0x0042ABD0` | `drop_player_mine` | selects the first enabled mine hardpoint and drops it |
+| `0x0042AC50` | `personality_killed` | records wingman losses or ace kills and adjusts both scores |
+| `0x0042ACC0` | `clean_up_cockpit` | clears player/wingman targets and resets the HUD gun readouts |
+
+The same symbol resource also corroborates nearby helpers after their Win32 bodies are
+checked: `get_ship_slot` and `find_vacant_3d_object` in the preceding `3d` unit; and
+`initialize_object`, `drop_mine`, plus the consecutive `ace_status` through `alert_flag`
+run in CODE 5's `ship` unit. Only reconstructed bodies receive the `wc-implemented` Ghidra
+tag; `initialize_object` and `drop_mine` retain linked TODO stubs until their own unit pass.
+
 ## 1. Evidence-named — trust these at their documented confidence
 
 Derived from something the binary actually states:

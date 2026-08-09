@@ -357,7 +357,7 @@ void FormatNavCoordinates(unsigned char *out)
 /* Function start: 0x40DF50 */
 char *GetNavNameSkippingMarker(short i)
 {
-    char *p = *(char **)(&DAT_0059dacf[0] + i * 0x1f);
+    char *p = g_aMissionObjectives_0059dac5[i].name;
 
     if (*p == '?')
         p = p + 1;

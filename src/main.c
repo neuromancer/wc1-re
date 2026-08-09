@@ -30,10 +30,10 @@ int main(short argc, char **argv)
     DAT_0059a856 = 1;
 
     SetFpsCapDisabled();
-    DAT_0059ca6a = 1;
+    g_cCurrentSeries_0059ca6a = 1;
     DAT_0046b168 = 0x13;
     DAT_004700ca = 1;
-    DAT_0059ca69 = 0;
+    g_cCurrentMission_0059ca69 = 0;
     DAT_004700c9 = 0;
     LoadOriginFxDrivers();
     DAT_0046b168 = 0x13;
