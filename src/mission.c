@@ -328,12 +328,38 @@ unsigned int LoadOriginFxDrivers(void)
         row = row + 1;
     } while (row < 0x300);
     DIBwholePaletteFromTriplets(palette);
+    g_dwOriginalFreeMemory_005a7cd8 = GetFixedOneMillionThunkAlt();
+    g_nMemoryConfiguration_005a7cd4 = 0;
+    g_nAvailableGameMemory_005a7ce0 =
+        (int)g_dwOriginalFreeMemory_005a7cd8;
+    InitializeGameTextContexts();
 
     memset(DAT_005a6ba0.pixels, 0, 320 * 200);
     DAT_0046b1b8 = 0;
     DIBslam();
     DIBslamReal();
     g_nFrameSkip_00469fb8 = 1;
+    return 0;
+}
+
+/* Function start: 0x421D80 */
+unsigned int InitializeGameTextContexts(void)
+{
+    g_stModalSourceViewport_005a7670 = DAT_005a6ba0;
+    g_stDefaultTextContext_005a7740.viewport =
+        &g_stModalSourceViewport_005a7670;
+    g_stDefaultTextContext_005a7740.text =
+        g_szDefaultTextBuffer_005a7590;
+    InitializeTextContextFromFont(&g_stDefaultTextContext_005a7740, 1,
+                                  (unsigned char)DAT_004699b4,
+                                  DAT_0046999c);
+    SetTextContext(&g_stDefaultTextContext_005a7740);
+
+    DAT_005a6bc0.viewport = &DAT_005a7510;
+    DAT_005a6bc0.text = g_szDefaultTextBuffer_005a7590;
+    DAT_005a6bc0.alignment = 2;
+    InitializeTextContextFromFont(&DAT_005a6bc0, 1,
+                                  (unsigned char)DAT_004699ac, -1);
     return 0;
 }
 

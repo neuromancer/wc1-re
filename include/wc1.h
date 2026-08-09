@@ -64,6 +64,32 @@ typedef struct Viewport {
     unsigned char *allocation;      /* +0x10 */
 } Viewport;
 
+/* Linear 8-bit raster target and its active clipping rectangle. */
+typedef struct RasterSurface {
+    unsigned char *pixels;
+    int maximumX;
+    int maximumY;
+    int field_C;
+    int field_10;
+} RasterSurface;
+
+typedef struct RasterClip {
+    RasterSurface *surface;
+    int left;
+    int top;
+    int right;
+    int bottom;
+} RasterClip;
+
+/* One scratch glyph bitmap used while drawing the packed game fonts.  The
+ * renderer stores a pointer-to-pointer to this record in TextContext because
+ * the DOS implementation could move the backing allocation. */
+typedef struct FontWorkspace {
+    int width;
+    int height;
+    unsigned char *pixels;
+} FontWorkspace;
+
 /* Packed text renderer state.  The Win32 port retained the DOS byte layout:
  * the draw colour is at +0x0C, the optional text pointer at +0x0E and the
  * horizontal alignment byte at +0x16. */
@@ -76,10 +102,23 @@ typedef struct TextContext {
     unsigned char colour;            /* +0x0C */
     unsigned char backgroundColour;  /* +0x0D */
     char *text;                      /* +0x0E */
-    unsigned char fields_12[4];      /* +0x12 */
+    char *textCursor;                /* +0x12 */
     unsigned char alignment;         /* +0x16 */
-    unsigned char fields_17[4];      /* +0x17 */
+    FontWorkspace **fontWorkspace;   /* +0x17 */
 } TextContext;
+
+/* Saved background and text state for the centred modal message panel.  The
+ * unaligned Viewports are inherited from the packed DOS layout. */
+typedef struct ModalTextPanel {
+    TextContext context;              /* +0x00 */
+    Viewport savedBackground;         /* +0x1B */
+    Viewport viewport;                /* +0x2F */
+    TextContext *previousContext;     /* +0x43 */
+    short left;                       /* +0x47 */
+    short top;                        /* +0x49 */
+    short right;                      /* +0x4B */
+    short bottom;                     /* +0x4D */
+} ModalTextPanel;
 
 /* One flashing cockpit/VDU message.  Two adjacent records begin at
  * 0x005A7DD0; the unaligned text pointer at +0x0D is intentional. */
@@ -150,7 +189,7 @@ typedef enum {
  * fan-in; the addresses are the originals.
  * -------------------------------------------------------------------------- */
 /* Variadic printers cannot be generated mechanically, so they live here. */
-void ShowOnScreenMessage(short flags, short duration, const char *fmt, ...);
+void ShowOnScreenMessage(int flags, short duration, const char *fmt, ...);
 void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
 void SystemDebugPrintf(const char *fmt, ...);  /* 0x00425BB0 */
 

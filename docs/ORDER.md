@@ -67,7 +67,8 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/nav.c` | `0x40d000`–`0x40ffff` | 9 | Nav map, location readouts and the virtual screen | DrawNav* family; string band 0x4687AC-0x4688F4 |
 | `src/joystick.c` | `0x410000`–`0x412fff` | 3 | Joystick calibration and input dispatch | CalibrateJoystickInteractive; string band 0x468F04-0x468FEC |
 | `src/hud.c` | `0x413000`–`0x417fff` | 38 | Cockpit HUD: weapon, damage, target and message displays | Draw*Panel/Report* family; string band 0x4692B8-0x4693A4 |
-| `src/geom.c` | `0x418000`–`0x41a9ff` | 22 | Vector, angle and fixed-point geometry helpers | 16-bit clamp/sign/wrap leaves with no string or global references |
+| `src/geom.c` | `0x418000`–`0x41ad4f` | 77 | Geometry, transforms, and modal text-panel drawing | Geometry helper run followed by the contiguous modal-panel block; save/load starts at 0x41ada0 |
+| `src/debug.c` | `0x41c760`–`0x41cfff` | 1 | Developer overlay message pumping and pause handling | GDI debug console, keyboard hook, and overlay worker cluster immediately before mathutil |
 | `src/mathutil.c` | `0x41d000`–`0x41d24f` | 3 | Integer min/max used across the game core | MinShort/MaxShort pair, 94 call sites, no other content in the gap |
 | `src/disk.c` | `0x41d250`–`0x41efff` | 6 | Disk data files and packet fetching with retry | OpenDiskDataFile/FetchDiskPacketRetrying/PromptInsertNumberedDisk |
 | `src/damage.c` | `0x41f000`–`0x420fff` | 2 | Ship damage and component repair reporting | ReportShipSystemDamage/ReportComponentRepaired; string band 0x469960-0x469984 |

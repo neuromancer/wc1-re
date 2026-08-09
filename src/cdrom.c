@@ -6,6 +6,31 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x403100 */
+FontWorkspace **AllocateFontWorkspace(short fontIndex)
+{
+    FontWorkspace **workspace;
+    FontWorkspace *entry;
+    int offset;
+    int dimension;
+
+    (void)fontIndex;
+    workspace = (FontWorkspace **)malloc(sizeof(*workspace));
+    *workspace = (FontWorkspace *)malloc(sizeof(**workspace));
+    offset = 0;
+    dimension = 5;
+    do {
+        entry = (FontWorkspace *)((unsigned char *)*workspace + offset);
+        offset += sizeof(FontWorkspace);
+        entry->width = dimension;
+        entry->height = dimension;
+        entry->pixels = (unsigned char *)malloc(
+            entry->width * entry->height);
+        memset(entry->pixels, dimension, entry->width * entry->height);
+    } while (offset < (int)sizeof(FontWorkspace));
+    return workspace;
+}
+
 /* Function start: 0x4031C0 */
 char *LocateStreamsDirOnDisc(void)
 {

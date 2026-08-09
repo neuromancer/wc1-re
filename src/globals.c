@@ -45,19 +45,24 @@ unsigned short DAT_00469090 = 0xffff;
 short DAT_00469208 = -1;
 const char g_szComponentHitFormat_004692e0[8] = "%s HIT";
 unsigned char DAT_004693b0;
-unsigned char DAT_00469648;
+unsigned int g_dwModalBoundsTopLeft_00469440 = 0x00280018;
+unsigned int g_dwModalBoundsBottomRight_00469444 = 0x003c0128;
+ModalTextPanel *g_pModalTextPanel_00469448;
+unsigned int DAT_00469648;
 unsigned char DAT_0046964c;
 unsigned char DAT_0046999c;
-int g_cViewportClearColour_004699a0 = 15;
-int DAT_004699a8 = 0x47;
-int DAT_004699ac = 0x50;
-int DAT_004699b0 = 0xaa;
-unsigned int DAT_004699d8 = 0xbf;
+unsigned char g_cViewportClearColour_004699a0 = 15;
+unsigned char DAT_004699a4 = 0x25;
+unsigned char DAT_004699a8 = 0x47;
+unsigned char DAT_004699ac = 0x50;
+unsigned char DAT_004699b0 = 0xaa;
+unsigned char DAT_004699b4 = 0xa6;
+unsigned char DAT_004699d8 = 0xbf;
 unsigned char DAT_00469d5c;
 /* This is four zero bytes, not a pointer table.  The original instruction at
  * 0x425E07 uses 0x469DBC as a compiler-generated biased displacement so that
  * index 9 lands on the real pointer table at 0x469DE0. */
-unsigned int DAT_00469dbc;
+unsigned int g_dwHighScoreNameTableBiasPadding_00469dbc;
 unsigned short DAT_00469dc0[4] = {0x30, 0x1d, 0x110, 0x6d};
 const char g_szTrainSimTitle_00469dc8[24] = "SQUADRON: TRAINSIM";
 unsigned char *g_apszBuiltInHighScoreNames_00469de0[6] = {
@@ -92,11 +97,12 @@ int DAT_00469fc8[11] = {
     0, 40000, 50000, 55000, 60000, 61000,
     61500, 62000, 63000, 63500, 64000
 };
-short g_nOriginDevUnlock_00469ff4;
+int g_nOriginDevUnlock_00469ff4;
 int DAT_00469ffc = 1;
 int DAT_0046a000 = 1;
 unsigned char DAT_0046a004;
 int DAT_0046a008;
+int g_nShowMemoryStatus_0046a00c;
 const char *g_apszComponentNames_0046a778[6] = {
     g_szIonDrive_0046a7c4,
     g_szPowerPlant_0046a7d0,
@@ -621,14 +627,15 @@ unsigned char DAT_00486110[1024];
 float DAT_00486510;
 int DAT_00486518;
 unsigned char DAT_004865a8[0x1000];
-int DAT_004875a8[5];
-unsigned int DAT_00496fc0[5];
+RasterSurface g_stRasterSurface_004875a8;
+RasterClip g_stRasterClip_00496fc0;
 unsigned char DAT_005988de[8192];
 int DAT_00598a30[512];
 unsigned char DAT_00598ab0;
 unsigned int DAT_00598ab6;
 unsigned char DAT_00598aba;
 unsigned int DAT_00598af4;
+char g_szTextScratchBuffer_00598b00[256];
 unsigned int DAT_00598c18;
 unsigned char g_aInputEventSlots_00598c40[0x1c00];
 extern unsigned int g_dwStreamerState_00597cd0;
@@ -755,7 +762,7 @@ ObjectResourceSlot g_aObjectResourceSlots_0059ddf0[4] = {
 short g_asObjectScale_0059de40[WC1_SPACE_OBJECT_COUNT];
 char DAT_0059dec0[256];
 short g_nCurrentNavPoint_0059df60;
-unsigned char DAT_0059e1c0[512];
+char DAT_0059e1c0[512];
 signed char g_abCommMenuChoiceCommand_0059e488[7];
 unsigned int DAT_0059e490;
 char *g_apszCommMenuChoiceText_0059e4e0[7];
@@ -771,22 +778,30 @@ Viewport DAT_005a6b60;
 Viewport DAT_005a6b80;
 Viewport DAT_005a6ba0;
 TextContext DAT_005a6bc0;
+unsigned char *g_apTextFonts_005a6c00[4];
+FontWorkspace **g_apFontWorkspaces_005a6c10[4];
 TextContext DAT_005a74f0;
 Viewport DAT_005a7510;
 Viewport DAT_005a7530;
 Viewport DAT_005a7550;
+char g_szDefaultTextBuffer_005a7590[0xcc];
 unsigned char *g_pConstellationShape_005a765c;
+Viewport g_stModalSourceViewport_005a7670;
 unsigned char *DAT_005a7684;
 Viewport DAT_005a7690;
 Viewport DAT_005a76b0;
 TextContext DAT_005a7700;
+TextContext g_stDefaultTextContext_005a7740;
 unsigned short DAT_005a7780;
 unsigned int DAT_005a77ec;
 unsigned int DAT_005a7c2c;
 unsigned char DAT_005a7c30[2048];
 unsigned char DAT_005a7c31[2048];
 short g_asCollisionTime_005a7ca0[16];
-short g_asCollisionPartner_005a7cc0[16];
+short g_asCollisionPartner_005a7cc0[10];
+int g_nMemoryConfiguration_005a7cd4;
+unsigned int g_dwOriginalFreeMemory_005a7cd8;
+int g_nAvailableGameMemory_005a7ce0;
 unsigned char DAT_005a7cec;
 unsigned char *DAT_005a7cf0;
 int DAT_005a7d9c;

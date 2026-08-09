@@ -228,10 +228,10 @@ void ReadPerformanceCounter(LARGE_INTEGER *p)
 }
 
 /* Function start: 0x403E40 */
-void ResetStringBuilder(int p)
+void __stdcall ResetStringBuilder(TextContext *context)
 {
-    *(unsigned char **)(p + 0x12) = *(unsigned char **)(p + 0xe);
-    **(unsigned char **)(p + 0xe) = 0;
+    context->textCursor = context->text;
+    *context->text = 0;
 }
 
 /* Function start: 0x403EE0 */

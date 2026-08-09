@@ -6,6 +6,124 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x413A10 */
+void EmitTextString(void (__stdcall *writer)(short), const char *text)
+{
+    short character;
+
+    character = (signed char)*text++;
+    while (character != 0) {
+        writer((short)character);
+        character = (signed char)*text++;
+    }
+}
+
+/* Function start: 0x413A40 */
+void FormatTextTokens(void (__stdcall *writer)(short),
+                      const char *format, unsigned long *arguments)
+{
+    short character;
+    char number[64];
+    char *text;
+
+    character = (signed char)*format++;
+    while (character != 0) {
+        if (character != '%') {
+            writer((short)character);
+        } else {
+            character = (signed char)*format++;
+            switch (character) {
+            case 'B':
+                g_pCurrentTextContext_0059af8c->backgroundColour =
+                    (unsigned char)*arguments++;
+                break;
+            case 'D':
+                text = _ltoa((long)*arguments++, number, 10);
+                EmitTextString(writer, text);
+                break;
+            case 'F':
+                g_pCurrentTextContext_0059af8c->colour =
+                    (unsigned char)*arguments++;
+                break;
+            case 'J':
+                g_pCurrentTextContext_0059af8c->alignment =
+                    (unsigned char)*arguments++;
+                break;
+            case 'P':
+                DrawTextString(g_pCurrentTextContext_0059af8c->text);
+                break;
+            case 'U':
+                text = _ultoa(*arguments++, number, 10);
+                EmitTextString(writer, text);
+                break;
+            case 'X':
+                g_pCurrentTextContext_0059af8c->cursorX =
+                    (short)*arguments++;
+                break;
+            case 'Y':
+                g_pCurrentTextContext_0059af8c->cursorY =
+                    (short)*arguments++;
+                break;
+            case 'c':
+                writer((short)*arguments++);
+                break;
+            case 'd':
+                text = _itoa((int)(short)*arguments++, number, 10);
+                EmitTextString(writer, text);
+                break;
+            case 's':
+                text = (char *)*arguments++;
+                EmitTextString(writer, text);
+                break;
+            case 'u':
+                text = _ultoa((unsigned short)*arguments++, number, 10);
+                EmitTextString(writer, text);
+                break;
+            case 'x':
+                text = _ultoa((unsigned short)*arguments++, number, 16);
+                EmitTextString(writer, _strupr(text));
+                break;
+            default:
+                writer((short)character);
+                break;
+            }
+        }
+        character = (signed char)*format++;
+    }
+}
+
+/* Function start: 0x413C40 */
+void DrawFormattedText(const char *format, ...)
+{
+    FormatTextTokens((void (__stdcall *)(short))DrawTextCharacter,
+                     format, (unsigned long *)(&format + 1));
+    if (g_pCurrentTextContext_0059af8c->viewport->pixels ==
+        DAT_005a6ba0.pixels)
+        DIBslam();
+}
+
+/* Function start: 0x413C70 */
+void FormatTextBufferFromStart(const char *format, ...)
+{
+    g_pCurrentTextContext_0059af8c->textCursor =
+        g_pCurrentTextContext_0059af8c->text;
+    FormatTextTokens((void (__stdcall *)(short))AppendTextCharacter,
+                     format, (unsigned long *)(&format + 1));
+    if (g_pCurrentTextContext_0059af8c->viewport->pixels ==
+        DAT_005a6ba0.pixels)
+        DIBslam();
+}
+
+/* Function start: 0x413CB0 */
+void AppendFormattedText(const char *format, ...)
+{
+    FormatTextTokens((void (__stdcall *)(short))AppendTextCharacter,
+                     format, (unsigned long *)(&format + 1));
+    if (g_pCurrentTextContext_0059af8c->viewport->pixels ==
+        DAT_005a6ba0.pixels)
+        DIBslam();
+}
+
 /* Function start: 0x413CE0 */
 void FatalErrorAndExit(const char *format, ...)
 {

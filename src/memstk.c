@@ -27,6 +27,16 @@ void PumpMessagesAndDispatch(int a)
     DispatchPendingEvents(a);
 }
 
+/* Function start: 0x435D80 */
+short __stdcall IsInputEventQueued(short code)
+{
+    int event = DAT_0046da90;
+
+    while (event != 0 && *(short *)event != code)
+        event = *(int *)(event + 0x14);
+    return event != 0;
+}
+
 /* Function start: 0x435DB0 */
 void FreeAllTrackedAllocations(void)
 {

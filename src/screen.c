@@ -151,10 +151,10 @@ void ReleasePacketHandle(int handle)
 /* Function start: 0x42FB20 */
 /* Tail-jump thunk to 0x004362E0, not a constant return -- Ghidra followed the
  * jump and folded the callee's body into the display. */
-__declspec(naked) void GetFixedOneMillionThunk(void) { __asm { jmp GetFixedOneMillion } }
+__declspec(naked) unsigned int GetFixedOneMillionThunk(void) { __asm { jmp GetFixedOneMillion } }
 
 /* Function start: 0x42FB30 */
-__declspec(naked) void GetFixedOneMillionThunkAlt(void) { __asm { jmp GetFixedOneMillionAlt } }
+__declspec(naked) unsigned int GetFixedOneMillionThunkAlt(void) { __asm { jmp GetFixedOneMillionAlt } }
 
 /* Function start: 0x430BC0 */
 short StepMenuSelection(short v, int flag)

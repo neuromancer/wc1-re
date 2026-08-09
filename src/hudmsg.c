@@ -17,11 +17,99 @@ short MeasureMessageWidth(const char *text)
     return (n + 5) * ((char)g_bMessageSpeed_0046af68 + 1);
 }
 
+/* Function start: 0x428EA0 */
+void WaitForKeyAcknowledge(int mode)
+{
+    short acknowledged;
+    char key;
+
+    if (mode != 0) {
+        acknowledged = 0;
+        do {
+            PumpWindowMessages();
+            if (IsInputEventQueued(4) != 0)
+                acknowledged = 1;
+        } while (acknowledged == 0);
+        acknowledged = 0;
+        FreeAllTrackedAllocations();
+        ClearDebugPauseFlags();
+        do {
+            PumpWindowMessages();
+            if (IsInputEventQueued(3) != 0)
+                acknowledged = 1;
+        } while (acknowledged == 0);
+        FreeAllTrackedAllocations();
+        ClearDebugPauseFlags();
+        return;
+    }
+    FreeAllTrackedAllocations();
+    ClearDebugPauseFlags();
+    do {
+        key = PumpMessagesDuringWait();
+    } while (key == 0x19 || key == 0x50 || key == 0x0c);
+    FreeAllTrackedAllocations();
+}
+
+/* Function start: 0x428F20 */
+void ShowModalMessage(const char *format, ...)
+{
+    char text[52];
+
+    vsprintf(text, format, (char *)(&format + 1));
+    if (ShowModalTextPanel(1, text) != 0) {
+        WaitForKeyAcknowledge(0);
+        ReleaseModalTextPanel();
+        return;
+    }
+    SystemDebugPrintf(text);
+    WaitForKeyAcknowledge(0);
+}
+
 /* Function start: 0x428F80 */
 void ReportOutOfMemoryAndExit(void)
 {
     ShowModalMessage("ERROR: Out of memory for %s");
     FatalErrorAndExit("You do not have enough memory to run Wing Commander.");
+}
+
+/* Function start: 0x428FA0 */
+void ShowOnScreenMessage(int flags, short duration,
+                         const char *format, ...)
+{
+    short messageDuration;
+    short modalShown = 0;
+    char text[52];
+
+    vsprintf(text, format, (char *)(&format + 1));
+    FreeAllTrackedAllocations();
+    messageDuration = duration;
+    if (messageDuration == 9999)
+        modalShown = ShowModalTextPanel(1, text);
+    if (modalShown == 0) {
+        if (messageDuration == 0)
+            messageDuration = MeasureMessageWidth(text);
+        SetHudTextColour(1);
+        DosStrcpy(DAT_0059e1c0, text);
+        SetHudMessageText(DAT_0059e1c0,
+                          DAT_004699ac, messageDuration);
+        if (messageDuration == 9999) {
+            ShowHudTextLine(DAT_0059e1c0,
+                            (unsigned short)DAT_004699ac);
+            dump_buffer_to_screen();
+        }
+    }
+    if (messageDuration == 9999) {
+        if (flags != 0)
+            WaitForKeyAcknowledge(1);
+        else
+            WaitForKeyAcknowledge(0);
+    }
+    if (modalShown != 0) {
+        ReleaseModalTextPanel();
+        return;
+    }
+    if (messageDuration == 9999)
+        SetHudMessageText("", DAT_004699ac, 2);
 }
 
 /* Function start: 0x4290D0 */

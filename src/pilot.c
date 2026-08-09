@@ -30,9 +30,9 @@ void SystemDebugPrintf(const char *format, ...)
 }
 
 /* Function start: 0x425BC0 */
-void PumpMessagesDuringWait(void)
+char PumpMessagesDuringWait(void)
 {
-    PumpMessagesWhileDebugPaused(DAT_004763f0);
+    return PumpMessagesWhileDebugPaused(DAT_004763f0);
 }
 
 /* Function start: 0x425BD0 */

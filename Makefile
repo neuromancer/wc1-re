@@ -207,6 +207,7 @@ SRCS_ORDERED_CORE = \
 	src/joystick.c \
 	src/hud.c \
 	src/geom.c \
+	src/debug.c \
 	src/mathutil.c \
 	src/disk.c \
 	src/damage.c \

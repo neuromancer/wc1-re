@@ -14,12 +14,6 @@
 /* Function start: 0x406FB0 */ /* TODO */ void ShipAiState29(short a,short b){(void)a;(void)b;}
 /* Function start: 0x407270 */ /* TODO */ void ShipAiRoutine02(short a,unsigned int b,int c){(void)a;(void)b;(void)c;}
 /* Function start: 0x41C910 */ /* TODO */ void DebugOverlayThreadProc(int p){(void)p;}
-/* Function start: 0x41CD40 */
-/* TODO: PumpMessagesWhileDebugPaused -- GetMessage/Translate/Dispatch loop. */
-void PumpMessagesWhileDebugPaused(unsigned int arg)
-{
-    (void)arg;
-}
 
 /* Forward references still to be implemented; each is a real function. */
 /* Function start: 0x41DAA0 */ /* TODO */ short UiRoutine03(void){return 1;}
@@ -34,11 +28,6 @@ int drop_mine(short obj, short weapon, enum ObjectType type, short lifetime)
     return -1;
 }
 
-/* Function start: 0x4272F0 */ /* TODO */ void LogMemoryUsage(void) {}
-/* Function start: 0x4273C0 */ /* TODO */ void ShowMemoryStatusDebug(void) {}
-/* Function start: 0x428EA0 */ /* TODO */ void WaitForKeyAcknowledge(int m){(void)m;}
-/* Function start: 0x428F20 */ /* TODO */ void ShowModalMessage(const char *s) { (void)s; }
-/* Function start: 0x428FA0 */ /* TODO */ void ShowOnScreenMessage(short f, short d, const char *fmt, ...) { (void)f; (void)d; (void)fmt; }
 /* Function start: 0x42B640 */
 /* TODO */ void StopAllSounds(void) {}
 /* Function start: 0x42EF30 */

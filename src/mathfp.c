@@ -97,14 +97,14 @@ long ComputeFixedVectorMagnitude(const FixedVector *vector)
 }
 
 /* Function start: 0x434F70 */
-void SetTextCursor(unsigned short a, unsigned short b)
+void __stdcall SetTextCursor(unsigned short a, unsigned short b)
 {
     g_pCurrentTextContext_0059af8c->cursorX = (short)a;
     g_pCurrentTextContext_0059af8c->cursorY = (short)b;
 }
 
 /* Function start: 0x434FA0 */
-void SetTextContext(TextContext *context)
+void __stdcall SetTextContext(TextContext *context)
 {
     g_pCurrentTextContext_0059af8c = context;
 }
@@ -286,6 +286,14 @@ void __stdcall DrawTextCharacter(char character)
                       context->font[4 + (int)(signed char)character],
                       context->cursorY);
     }
+}
+
+/* Function start: 0x435310 */
+void __stdcall AppendTextCharacter(char character)
+{
+    *g_pCurrentTextContext_0059af8c->textCursor = character;
+    g_pCurrentTextContext_0059af8c->textCursor++;
+    *g_pCurrentTextContext_0059af8c->textCursor = 0;
 }
 
 /* Function start: 0x4353F0 */

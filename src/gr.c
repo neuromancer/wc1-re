@@ -7,16 +7,16 @@
 #include "wc1.h"
 
 /* Function start: 0x440C00 */
-void ValidateViewportBounds(Viewport *viewport, int *surface,
-                            unsigned int *clip)
+void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
+                            RasterClip *clip)
 {
     int topOffset;
     int nextOffset;
 
     if (viewport == 0 || viewport->pixels == 0 ||
         viewport->rowOffsets == 0) {
-        memset(surface, 0, 5 * sizeof(*surface));
-        memset(clip, 0, 5 * sizeof(*clip));
+        memset(surface, 0, sizeof(*surface));
+        memset(clip, 0, sizeof(*clip));
         return;
     }
     if (viewport == &DAT_005a6ba0)
@@ -25,22 +25,23 @@ void ValidateViewportBounds(Viewport *viewport, int *surface,
         viewport->rowOffsets[viewport->top]);
     nextOffset = (int)SignExtendClipCoord(
         viewport->rowOffsets[viewport->top + 1]);
-    surface[0] = (int)(viewport->pixels + viewport->left + topOffset);
-    surface[1] = nextOffset - topOffset - 1;
-    surface[2] = viewport->bottom - viewport->top;
-    surface[3] = 0;
-    surface[4] = 0;
-    clip[0] = (unsigned int)surface;
-    clip[1] = 0;
-    clip[2] = 0;
-    clip[3] = viewport->right - viewport->left;
-    clip[4] = viewport->bottom - viewport->top;
+    surface->pixels = viewport->pixels + viewport->left + topOffset;
+    surface->maximumX = nextOffset - topOffset - 1;
+    surface->maximumY = viewport->bottom - viewport->top;
+    surface->field_C = 0;
+    surface->field_10 = 0;
+    clip->surface = surface;
+    clip->left = 0;
+    clip->top = 0;
+    clip->right = viewport->right - viewport->left;
+    clip->bottom = viewport->bottom - viewport->top;
 }
 
 /* Function start: 0x440CF0 */
 void ClipViewportToScreen(Viewport *viewport)
 {
-    ValidateViewportBounds(viewport, DAT_004875a8, DAT_00496fc0);
+    ValidateViewportBounds(viewport, &g_stRasterSurface_004875a8,
+                           &g_stRasterClip_00496fc0);
 }
 
 /* Function start: 0x440FE0 */
@@ -545,6 +546,29 @@ void ClearViewport(Viewport *viewport, short colour)
         DAT_00486518 = 1;
         DIBslamReal();
     }
+}
+
+/* Function start: 0x441CF0 */
+void DrawViewportBorder(Viewport *viewport, short left, short top,
+                        short right, short bottom, short colour)
+{
+    ClipViewportToScreen(viewport);
+    DrawClippedLine(&g_stRasterClip_00496fc0,
+                    left - viewport->left, top - viewport->top,
+                    right - viewport->left, top - viewport->top,
+                    0, colour);
+    DrawClippedLine(&g_stRasterClip_00496fc0,
+                    left - viewport->left, bottom - viewport->top,
+                    right - viewport->left, bottom - viewport->top,
+                    0, colour);
+    DrawClippedLine(&g_stRasterClip_00496fc0,
+                    left - viewport->left, top - viewport->top,
+                    left - viewport->left, bottom - viewport->top,
+                    0, colour);
+    DrawClippedLine(&g_stRasterClip_00496fc0,
+                    right - viewport->left, top - viewport->top,
+                    right - viewport->left, bottom - viewport->top,
+                    0, colour);
 }
 
 /* Function start: 0x442050 */

@@ -1,10 +1,29 @@
 /*
  *  Vector, angle and fixed-point geometry helpers.
  *
- *  Address range 0x418000-0x41a9ff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: 16-bit clamp/sign/wrap leaves with no string or global references.
+ *  Address range 0x418000-0x41ad4f (provisional -- see docs/ORDER.md).
+ *  Boundary evidence: geometry helpers followed by the contiguous modal-panel
+ *  drawing block, before the save/load tranche at 0x41ada0.
  */
 #include "wc1.h"
+
+/* Function start: 0x418080 */
+short __stdcall MeasureTextPixelWidthClamped(const char *text)
+{
+    const char *scan = text;
+    short width = 0;
+
+    while (*scan != 0) {
+        width = (short)(width + GetFontCharWidth(*scan++));
+        if (width >= 320)
+            break;
+    }
+    if (*scan != 0) {
+        scan--;
+        width = (short)(width - GetFontCharWidth(*scan));
+    }
+    return width;
+}
 
 /* Function start: 0x418130 */
 unsigned short GetMusicDriverPresent(void)
@@ -929,4 +948,128 @@ void get_right_shape(short obj, const FixedVector *direction)
     if (angle < 0)
         angle += 360;
     g_asObjectScreenAngle_0059cd90[obj] = angle;
+}
+
+/* Function start: 0x41A9D0 */
+short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
+                               unsigned int topLeft,
+                               unsigned int bottomRight,
+                               short clearColour,
+                               unsigned char backgroundColour,
+                               short borderColour)
+{
+    panel->left = (short)topLeft;
+    panel->top = (short)(topLeft >> 16);
+    panel->right = (short)bottomRight;
+    panel->bottom = (short)(bottomRight >> 16);
+    panel->previousContext = g_pCurrentTextContext_0059af8c;
+    g_pCurrentTextContext_0059af8c = &panel->context;
+    panel->context = g_stDefaultTextContext_005a7740;
+    if (fontIndex == -1)
+        fontIndex = 1;
+    InitializeTextContextFromFont(&panel->context, fontIndex,
+                                  (unsigned char)clearColour,
+                                  backgroundColour);
+    panel->viewport = g_stModalSourceViewport_005a7670;
+    panel->savedBackground.left = panel->left;
+    panel->savedBackground.top = panel->top;
+    panel->savedBackground.right = panel->right;
+    panel->savedBackground.bottom = panel->bottom;
+    panel->viewport.left = panel->left;
+    panel->viewport.top = panel->top;
+    panel->viewport.right = panel->right;
+    panel->viewport.bottom = panel->bottom;
+    if (AllocateViewport(&panel->savedBackground, clearColour, 0) == 0)
+        return 0;
+    CopyViewportContents(&panel->viewport, &panel->savedBackground);
+    panel->context.text = g_szTextScratchBuffer_00598b00;
+    panel->context.viewport = &panel->viewport;
+    ResetStringBuilder(&panel->context);
+    GetDebugKeyState((unsigned int *)panel);
+    DrawViewportBorder(&panel->viewport, panel->left, panel->top,
+                       panel->right, panel->bottom, borderColour);
+    return 1;
+}
+
+/* Function start: 0x41AAE0 */
+void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
+                        unsigned char alignment,
+                        const char *format, ...)
+{
+    char text[84];
+
+    vsprintf(text, format, (char *)(&format + 1));
+    SetTextCursor((unsigned short)(panel->left + x),
+                  (unsigned short)(panel->top + y));
+    panel->context.alignment = alignment;
+    strcat(text, "%P");
+    FormatTextBufferFromStart(text);
+}
+
+/* Function start: 0x41AB60 */
+void RestoreModalTextPanel(ModalTextPanel *panel)
+{
+    CopyViewportContents(&panel->savedBackground, &panel->viewport);
+    free_viewport(&panel->savedBackground);
+    g_pCurrentTextContext_0059af8c = panel->previousContext;
+}
+
+/* Function start: 0x41AB90 */
+short ShowModalTextPanel(short fontIndex, const char *format, ...)
+{
+    unsigned int topLeft;
+    unsigned int bottomRight;
+    short halfWidth;
+    char text[52];
+
+    vsprintf(text, format, (char *)(&format + 1));
+    topLeft = g_dwModalBoundsTopLeft_00469440;
+    bottomRight = g_dwModalBoundsBottomRight_00469444;
+    if (g_pModalTextPanel_00469448 == 0) {
+        g_pModalTextPanel_00469448 = (ModalTextPanel *)
+            AllocateTaggedMemory(sizeof(ModalTextPanel), 0);
+    }
+    if (g_pModalTextPanel_00469448 == 0)
+        return 0;
+    if (InitializeModalTextPanel(g_pModalTextPanel_00469448, fontIndex,
+                                 topLeft, bottomRight,
+                                 (short)DAT_0046999c, DAT_0046999c,
+                                 (short)DAT_0046999c) == 0) {
+        ReleasePacketHandle((int)g_pModalTextPanel_00469448);
+        g_pModalTextPanel_00469448 = 0;
+        return 0;
+    }
+    halfWidth = MeasureTextPixelWidthClamped(text);
+    halfWidth = (short)(((int)halfWidth * 8 +
+        (((int)halfWidth * 8 >> 31) & 15)) >> 4);
+    RestoreModalTextPanel(g_pModalTextPanel_00469448);
+    topLeft = (topLeft & 0xffff0000) |
+              (unsigned short)(159 - halfWidth);
+    bottomRight = (bottomRight & 0xffff0000) |
+                  (unsigned short)(161 + halfWidth);
+    if (InitializeModalTextPanel(g_pModalTextPanel_00469448, fontIndex,
+                                 topLeft, bottomRight,
+                                 (short)g_cViewportClearColour_004699a0,
+                                 (unsigned char)DAT_004699a4,
+                                 (short)DAT_004699ac) == 0) {
+        ReleasePacketHandle((int)g_pModalTextPanel_00469448);
+        g_pModalTextPanel_00469448 = 0;
+        return 0;
+    }
+    DrawModalTextPanel(g_pModalTextPanel_00469448, 0, 6, 2, text);
+    DIBslam();
+    DIBslamReal();
+    return 1;
+}
+
+/* Function start: 0x41AD10 */
+void ReleaseModalTextPanel(void)
+{
+    if (g_pModalTextPanel_00469448 != 0) {
+        RestoreModalTextPanel(g_pModalTextPanel_00469448);
+        ReleasePacketHandle((int)g_pModalTextPanel_00469448);
+        g_pModalTextPanel_00469448 = 0;
+        DIBslam();
+        DIBslamReal();
+    }
 }

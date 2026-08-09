@@ -46,6 +46,36 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     return packet;
 }
 
+/* Function start: 0x41D510 */
+unsigned int InitializeTextContextFromFont(TextContext *context,
+                                           short fontIndex,
+                                           unsigned char colour,
+                                           signed char background)
+{
+    int index;
+
+    index = fontIndex;
+    if (g_apTextFonts_005a6c00[index] == 0) {
+        if (index == 1) {
+            g_apTextFonts_005a6c00[index] =
+                (unsigned char *)FetchDiskPacketRetrying(0, (short)index,
+                                                         0x10);
+        } else {
+            g_apTextFonts_005a6c00[index] =
+                (unsigned char *)FetchDiskPacketRetrying(0, (short)index,
+                                                         0);
+        }
+        g_apFontWorkspaces_005a6c10[index] =
+            AllocateFontWorkspace((short)index);
+    }
+    context->font = g_apTextFonts_005a6c00[index];
+    context->colour = colour;
+    context->backgroundColour = (unsigned char)background;
+    context->fontWorkspace = g_apFontWorkspaces_005a6c10[index];
+    SetTextContext(context);
+    return 0;
+}
+
 /* Function start: 0x41D5F0 */
 unsigned int DrawTextAt(TextContext *context, short x, short y,
                         char *text, unsigned char alignment)
