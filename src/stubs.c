@@ -13,14 +13,6 @@
 /* Function start: 0x406D80 */ /* TODO */ void ShipAiState40(short a,short b){(void)a;(void)b;}
 /* Function start: 0x406FB0 */ /* TODO */ void ShipAiState29(short a,short b){(void)a;(void)b;}
 /* Function start: 0x407270 */ /* TODO */ void ShipAiRoutine02(short a,unsigned int b,int c){(void)a;(void)b;(void)c;}
-/* Function start: 0x414180 */ /* TODO */ void ClearHudMessageSlot(int *p){(void)p;}
-/* Function start: 0x4142B0 */ /* TODO */ void ShowHudMessageUnlessDuplicate(int a,unsigned short b,int c){(void)a;(void)b;(void)c;}
-/* Function start: 0x414BF0 */ /* TODO */ void ReportComponentHit(char a,char b,char c){(void)a;(void)b;(void)c;}
-/* Function start: 0x416260 */ /* TODO */ void DrawWrappedCommText(char *a,unsigned char b){(void)a;(void)b;}
-/* Function start: 0x416DE0 */ /* TODO */ void SetHudMessageText(void *a,unsigned short b,unsigned short c){(void)a;(void)b;(void)c;}
-/* Function start: 0x416E20 */ /* TODO */ void CombatRoutine02(short a,int b,unsigned int c,int d,int e){(void)a;(void)b;(void)c;(void)d;(void)e;}
-/* Function start: 0x417260 */ /* TODO */ void DrawStickIndicator(void){}
-/* Function start: 0x417760 */ /* TODO */ void DrawHudMessageList(void) {}
 /* Function start: 0x41C910 */ /* TODO */ void DebugOverlayThreadProc(int p){(void)p;}
 /* Function start: 0x41CD40 */
 /* TODO: PumpMessagesWhileDebugPaused -- GetMessage/Translate/Dispatch loop. */

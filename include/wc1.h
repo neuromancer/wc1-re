@@ -64,6 +64,36 @@ typedef struct Viewport {
     unsigned char *allocation;      /* +0x10 */
 } Viewport;
 
+/* Packed text renderer state.  The Win32 port retained the DOS byte layout:
+ * the draw colour is at +0x0C, the optional text pointer at +0x0E and the
+ * horizontal alignment byte at +0x16. */
+#pragma pack(push, 1)
+typedef struct TextContext {
+    Viewport *viewport;              /* +0x00 */
+    short cursorX;                   /* +0x04 */
+    short cursorY;                   /* +0x06 */
+    unsigned char *font;             /* +0x08 */
+    unsigned char colour;            /* +0x0C */
+    unsigned char backgroundColour;  /* +0x0D */
+    char *text;                      /* +0x0E */
+    unsigned char fields_12[4];      /* +0x12 */
+    unsigned char alignment;         /* +0x16 */
+    unsigned char fields_17[4];      /* +0x17 */
+} TextContext;
+
+/* One flashing cockpit/VDU message.  Two adjacent records begin at
+ * 0x005A7DD0; the unaligned text pointer at +0x0D is intentional. */
+typedef struct HudMessageSlot {
+    TextContext *context;            /* +0x00 */
+    short x;                         /* +0x04 */
+    short y;                         /* +0x06 */
+    unsigned short colour;           /* +0x08 */
+    unsigned short drawColour;       /* +0x0A */
+    signed char flashCount;          /* +0x0C */
+    char *text;                      /* +0x0D */
+} HudMessageSlot;
+#pragma pack(pop)
+
 /* Runtime wave-cache node.  The name pointer and next link are established by
  * the allocation/free paths at 0x0042B1F0 and 0x0042B300; the sample pointer
  * at +0x08 is established by playWAVE. */

@@ -28,14 +28,23 @@ unsigned short DAT_00468660;
 unsigned int DAT_00468664 = 1;
 unsigned char DAT_0046870c;
 unsigned char DAT_00468710;
+int DAT_00468754;
 int DAT_004688e0;
 char *DAT_00469004;
 char *DAT_00469008;
 unsigned char DAT_0046900c = 0xff;
-unsigned char DAT_00469060;
-unsigned char DAT_00469068 = 8;
+const short g_asPilotHandOffsets_00469018[34] = {
+    6, -3, 7, 2, 7, 9, 7, 12, 8, 13, 0, -1, -1, -1,
+    -4, -1, -6, -1, 6, 0, 8, 0, 10, 0, 13, 3, 8, -7,
+    6, -9, 5, -11, 5, -14
+};
+unsigned char *g_pCockpitExplosionBackground_00469060;
+unsigned char *g_pCockpitExplosionShape_00469064;
+short g_nCockpitExplosionFrame_00469068 = 8;
 unsigned short DAT_00469090 = 0xffff;
 short DAT_00469208 = -1;
+const char g_szComponentHitFormat_004692e0[8] = "%s HIT";
+unsigned char DAT_004693b0;
 unsigned char DAT_00469648;
 unsigned char DAT_0046964c;
 unsigned char DAT_0046999c;
@@ -45,6 +54,9 @@ int DAT_004699ac = 0x50;
 int DAT_004699b0 = 0xaa;
 unsigned int DAT_004699d8 = 0xbf;
 unsigned char DAT_00469d5c;
+/* This is four zero bytes, not a pointer table.  The original instruction at
+ * 0x425E07 uses 0x469DBC as a compiler-generated biased displacement so that
+ * index 9 lands on the real pointer table at 0x469DE0. */
 unsigned int DAT_00469dbc;
 unsigned short DAT_00469dc0[4] = {0x30, 0x1d, 0x110, 0x6d};
 const char g_szTrainSimTitle_00469dc8[24] = "SQUADRON: TRAINSIM";
@@ -84,6 +96,15 @@ short g_nOriginDevUnlock_00469ff4;
 int DAT_00469ffc = 1;
 int DAT_0046a000 = 1;
 unsigned char DAT_0046a004;
+int DAT_0046a008;
+const char *g_apszComponentNames_0046a778[6] = {
+    g_szIonDrive_0046a7c4,
+    g_szPowerPlant_0046a7d0,
+    g_szShieldGenerator_0046a7dc,
+    g_szComputerSystem_0046a7ec,
+    g_szIntercomUnit_0046a7fc,
+    g_szTargetTracking_0046a80c
+};
 int *DAT_0046a438;
 unsigned char DAT_0046a440;
 WaveTableEntry *g_pWaveTableHead_0046a444;
@@ -539,6 +560,44 @@ int DAT_0046da90;
 int DAT_0046da94;
 unsigned char *g_pDrawnMouseCursorShape_0046da9c;
 int DAT_0046daa0;
+const short g_asPilotHandOrigins_0046e120[10] = {
+    154, 187, 154, 187, 154, 187, 154, 187, 154, 187
+};
+unsigned char g_abPaletteTranslation_00470678[256] = {
+      0,   1,   2,   3,   4,   5,   6,   7,
+      8,   9,  10,  11,  12,  13,  14,  15,
+     16,  17,  18,  19,  20,  21,  22,  23,
+     24,  25,  26,  27,  28,  29,  30,  31,
+     32,  33,  34,  35,  36,  37,  38,  39,
+     40,  41,  42,  43,  44,  45,  46,  47,
+     48,  49,  50,  51,  52,  53,  54,  55,
+     56,  57,  58,  59,  60,  61,  62,  63,
+     64,  65,  66,  67,  68,  69,  70,  71,
+     72,  73,  74,  75,  76,  77,  78,  79,
+     80,  81,  82,  83,  84,  85,  86,  87,
+     88,  89,  90,  91,  92,  93,  94,  95,
+     96,  97,  98,  99, 100, 101, 102, 103,
+    104, 105, 106, 107, 108, 109, 110, 111,
+    112, 113, 114, 115, 116, 117, 118, 119,
+    120, 121, 122, 123, 124, 125, 126, 127,
+    128, 129, 130, 131, 132, 133, 134, 135,
+    136, 137, 138, 139, 140, 141, 142, 143,
+    144, 145, 146, 147, 148, 149, 150, 151,
+    152, 153, 154, 155, 156, 157, 158, 159,
+    160, 161, 162, 163, 164, 165, 166, 167,
+    168, 169, 170, 171, 172, 173, 174, 175,
+    176, 177, 178, 179, 180, 181, 182, 183,
+    184, 185, 186, 187, 188, 189, 190, 191,
+    192, 193, 194, 195, 196, 197, 198, 199,
+    200, 201, 202, 203, 204, 205, 206, 207,
+    208, 209, 210, 211, 212, 213, 214, 215,
+    216, 217, 218, 219, 220, 221, 222, 223,
+    224, 225, 226, 227, 228, 229, 230, 231,
+    232, 233, 234, 235, 236, 237, 238, 239,
+    240, 241, 242, 243, 244, 245, 246, 247,
+    248, 249, 250, 251, 252, 253, 254, 255
+};
+const char g_szSnowViewport_00470da4[16] = "snow_viewport";
 unsigned char DAT_004700c9;
 unsigned char DAT_004700ca = 1;
 char g_szStreamsPath_00475c18[0x100];
@@ -601,7 +660,7 @@ int DAT_0059ab60;
 int g_aiInputEventSlotUsed_0059ab70[0x100];
 short DAT_0059af70;
 short DAT_0059af72;
-unsigned int DAT_0059af8c;
+TextContext *g_pCurrentTextContext_0059af8c;
 FixedVector g_aObjectViewPosition_0059afa0[WC1_SPACE_OBJECT_COUNT];
 short g_anObjectPitchRotation_0059b2a0[WC1_SPACE_OBJECT_COUNT];
 int g_anShipSpeed_0059b320[64];
@@ -615,7 +674,7 @@ FixedVector g_aShipRightVector_0059b6e0[64];
 FixedVector g_aShipUpVector_0059b9e0[64];
 FixedVector g_aShipForwardVector_0059bce0[64];
 HazardField *g_pActiveHazardField_0059bfe0;
-signed char g_cPlayerPowerDamage_0059bff1;
+signed char g_acPlayerComponentDamage_0059bff0[6];
 signed char g_abFlightPath_0059c000[WC1_MISSION_OBJECTIVE_COUNT];
 FixedVector g_aShipVelocity_0059c010[512];
 unsigned char DAT_0059c310[512];
@@ -684,7 +743,7 @@ short g_nFacingToTarget_0059d920;
 short g_asObjectScreenY_0059d930[WC1_SPACE_OBJECT_COUNT];
 short g_asObjectScreenX_0059d9b0[WC1_SPACE_OBJECT_COUNT];
 short g_asObjectAnimationIndex_0059da30[WC1_SPACE_OBJECT_COUNT];
-signed char g_cHazardViewBand_0059dab0;
+signed char g_cCockpitView_0059dab0;
 MissionObjective g_aMissionObjectives_0059dac5[WC1_MISSION_OBJECTIVE_COUNT];
 enum ShipManeuver g_aeShipManeuver_0059dcb0[512];
 const short *g_apCannedSequence_0059dce0[WC1_SPACE_OBJECT_COUNT];
@@ -709,12 +768,18 @@ int g_nAllocateViewportCalls_005a68ec;
 short DAT_005a6900[256];
 const short *g_pViewScript_005a6b58;
 Viewport DAT_005a6b60;
+Viewport DAT_005a6b80;
 Viewport DAT_005a6ba0;
+TextContext DAT_005a6bc0;
+TextContext DAT_005a74f0;
 Viewport DAT_005a7510;
+Viewport DAT_005a7530;
 Viewport DAT_005a7550;
 unsigned char *g_pConstellationShape_005a765c;
-unsigned char DAT_005a7684;
+unsigned char *DAT_005a7684;
+Viewport DAT_005a7690;
 Viewport DAT_005a76b0;
+TextContext DAT_005a7700;
 unsigned short DAT_005a7780;
 unsigned int DAT_005a77ec;
 unsigned int DAT_005a7c2c;
@@ -727,16 +792,14 @@ unsigned char *DAT_005a7cf0;
 int DAT_005a7d9c;
 unsigned char g_bStickIndicatorFrame_005a7dc8;
 unsigned char DAT_005a7dca;
-unsigned char DAT_005a7dd0[8192];
-unsigned char DAT_005a7ddc;
-unsigned char DAT_005a7ddd;
-int DAT_005a7de1;
-unsigned char DAT_005a7ded;
-unsigned char DAT_005a7dee;
+HudMessageSlot g_aHudMessageSlots_005a7dd0[2];
+char g_szComponentHitMessage_005a7e00[48];
 unsigned char DAT_005a7e30[2048];
 unsigned short DAT_005a7e70;
 unsigned short DAT_005a7e74;
 unsigned short DAT_005a7e76;
+short DAT_005a7e98;
+short DAT_005a7e9a;
 unsigned short DAT_005a7ea0[64];
 unsigned short DAT_005a7eb8;
 unsigned short DAT_005a7ebc;
@@ -746,6 +809,7 @@ unsigned int DAT_005a7ef0;
 unsigned int DAT_005a7ef4;
 unsigned int DAT_005a7ef8;
 unsigned int DAT_005a7efc;
+unsigned short DAT_005a7f00;
 unsigned char *g_pTitleShape_005a7f08;
 int g_nViewportAllocationCount_005a7f0c;
 unsigned char *g_apViewportAllocations_005a7f10[128];
@@ -1192,3 +1256,10 @@ const char g_aszCommMenuText_0046aff8[0xe8] =
     "Request Landing";
 
 const char g_szMissileLocked_004692a8[16] = "MISSILE LOCKED ";
+
+const char g_szIonDrive_0046a7c4[12] = "Ion drive";
+const char g_szPowerPlant_0046a7d0[12] = "Power plant";
+const char g_szShieldGenerator_0046a7dc[16] = "Shield gen'r";
+const char g_szComputerSystem_0046a7ec[16] = "Computer sys";
+const char g_szIntercomUnit_0046a7fc[16] = "InterCom unit";
+const char g_szTargetTracking_0046a80c[16] = "Target track";

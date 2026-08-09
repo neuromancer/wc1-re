@@ -9,19 +9,13 @@
 #ifndef WC1_EXTERN_H
 #define WC1_EXTERN_H
 
-void CombatRoutine02(short a, int b, unsigned int c, int d, int e);/* 0x00417A00 */
 void DebugOverlayThreadProc(int p);                               /* 0x0041C910 */
 char *DirectDrawResultToText(int hr);                             /* 0x004331F0 */
-void DrawWrappedCommText(char *a, unsigned char b);           /* 0x00416260 */
 void DispatchPendingEvents(int a);                            /* 0x004359C0 */
-void ClearHudMessageSlot(int *p);                                       /* 0x00414180 */
 void ShowModalMessage(const char *s);                                /* 0x00428F20 */
-void DrawStickIndicator(void);                                      /* 0x00417260 */
 void ix_system_shutdown(void);                                   /* 0x004273F3 */
-void ShowHudMessageUnlessDuplicate(int a, unsigned short b, int c);             /* 0x004142B0 */
 void EndCommSessionWithWingman(void);                                        /* 0x00431470 */
 void StopAllSounds(void);                                          
-void DrawHudMessageList(void);                                           /* 0x00417760 */
 void LogMemoryUsage(void);                                          /* 0x004272F0 */
 short LoadWingCmdrCfgFile(short argc, char **argv);               /* 0x0042C580 */
 void ix_system_delete_all_samples(void);                                  /* 0x00427548 */
@@ -29,8 +23,6 @@ void ix_system_delete_all_sounds(void);                                   /* 0x0
 void WaitForKeyAcknowledge(int mode);                                   /* 0x00428EA0 */
 void PlaySfxWaveFileByNumber(int n, int a, int b);                
 void PumpMessagesWhileDebugPaused(unsigned int arg);              /* 0x0041CD40 */
-void ReportComponentHit(char a, char b, char c);                  /* 0x00414BF0 */
-void SetHudMessageText(void *a, unsigned short b, unsigned short c);    /* 0x00436DE0 */
 void ShipAiRoutine02(short a, unsigned int b, int c);             /* 0x00406200-family */
 void ShipAiState29(short a, short b);                             /* 0x00406FB0 */
 void ShipAiState40(short a, short b);                             /* 0x00406D80 */

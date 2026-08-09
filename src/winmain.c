@@ -190,11 +190,11 @@ int try_far_spot(FixedVector *spot, short *moving)
     pitch = signed_random(20);
     yaw = signed_random(35);
     *moving = 0;
-    if (DAT_0046c03c == 0 && g_cHazardViewBand_0059dab0 < 4) {
+    if (DAT_0046c03c == 0 && g_cCockpitView_0059dab0 < 4) {
         signed char minimum =
-            g_acHazardPitchRange_00465050[g_cHazardViewBand_0059dab0 * 2];
+            g_acHazardPitchRange_00465050[g_cCockpitView_0059dab0 * 2];
         signed char maximum =
-            g_acHazardPitchRange_00465050[g_cHazardViewBand_0059dab0 * 2 + 1];
+            g_acHazardPitchRange_00465050[g_cCockpitView_0059dab0 * 2 + 1];
 
         if (pitch > minimum && pitch < maximum && AbsInt(yaw) < 19 &&
             (short)RandomBelowOrEqual(100) < 60)

@@ -46,6 +46,25 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     return packet;
 }
 
+/* Function start: 0x41D5F0 */
+unsigned int DrawTextAt(TextContext *context, short x, short y,
+                        char *text, unsigned char alignment)
+{
+    char *savedText = context->text;
+    unsigned char savedAlignment = context->alignment;
+
+    SetTextContext(context);
+    SetTextCursor((unsigned short)x, (unsigned short)y);
+    context->text = text;
+    context->alignment = alignment;
+    DrawTextString(text);
+    context->text = savedText;
+    context->alignment = savedAlignment;
+    if (context->viewport->pixels == DAT_005a6ba0.pixels)
+        DIBslam();
+    return 0;
+}
+
 /* Function start: 0x41DA00 */
 unsigned int GetZeroUnused(void)
 {

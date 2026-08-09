@@ -198,14 +198,14 @@ void SendCommMenuChoice(short i)
 /* Function start: 0x430D50 */
 void OpenCommMenuForTarget(unsigned int a, int b)
 {
-    ShowHudMessageUnlessDuplicate(b, DAT_004699a8, 0xff);
+    CockpitMessage((char *)b, DAT_004699a8, 0xff);
     DAT_0059e490 = a;
 }
 
 /* Function start: 0x430D80 */
 int IsEjectPromptActive(void)
 {
-    return (short)GetSeriesStateWord(1) == 4;
+    return (short)get_mode(1) == 4;
 }
 
 /* Function start: 0x430DA0 */
@@ -223,7 +223,7 @@ void SetPendingMenuAction(unsigned char v)
 /* Function start: 0x430DC0 */
 void RequestEjectPrompt(void)
 {
-    PushSeriesStateWord(1, 4);
+    push_mode(1, 4);
     SetPendingMenuAction(1);
 }
 
@@ -260,7 +260,7 @@ void RequestCommMenu(unsigned char v)
 void EndCommMenu(void)
 {
     ClearAutopilotFlag();
-    if ((short)GetSeriesStateWord(1) == 6)
+    if ((short)get_mode(1) == 6)
         EndCommSessionWithWingman();
     DAT_00469004 = 0;
 }

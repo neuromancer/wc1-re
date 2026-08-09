@@ -192,17 +192,29 @@ void animate_shape(short obj);                                         /* 0x0041
 void animate_object(short obj);                                        /* 0x00412E30 */
 void object_intelligence(short obj);                                   /* 0x00413880 */
 void FatalErrorAndExit(const char *format, ...);                       /* 0x00413CE0 */
-int HasFreeMessageSlot(void);                                              /* 0x00413D20 */
+int IsCockpitExplosionActive(void);                                    /* 0x00413D20 */
 unsigned int GetSeriesRecordField(char slot, int rec);                       /* 0x00413F70 */
-void ClearHudMessageIfMatching(int *p, int v);                                      /* 0x004141B0 */
+short DrawHudMessageSlot(HudMessageSlot *slot);                        /* 0x004140A0 */
+void ClearHudMessageSlot(HudMessageSlot *slot);                        /* 0x00414180 */
+void ClearHudMessageIfMatching(HudMessageSlot *slot, char *text);      /* 0x004141B0 */
 void ClearHudGunReadouts(void);                                             /* 0x004141D0 */
-void ShowHudMessageIfCurrent(int v);                                            /* 0x004142E0 */
+void SetHudMessageSlot(HudMessageSlot *slot, TextContext *context,
+                       short x, short y, char *text,
+                       unsigned short colour,
+                       signed char flashCount);                        /* 0x004141F0 */
+void UpdateMessage(HudMessageSlot *slot);                              /* 0x00414240 */
+void set_global_message(char *text, unsigned short colour,
+                        int flashCount);                               /* 0x00414270 */
+void CockpitMessage(char *text, unsigned short colour,
+                    int flashCount);                                  /* 0x004142B0 */
+void remove_message(char *text);                                      /* 0x004142E0 */
 void *ClearHudTargetVectors(void);                                            /* 0x00414410 */
-unsigned short GetSeriesStateWord(short i);                           /* 0x004147E0 */
-void SetSeriesStateWord(short i, int state);                          /* 0x00414800 */
-int GetSeriesFlag(short i);                                      /* 0x00414890 */
-void PushSeriesStateWord(short i, int state);                         /* 0x004148A0 */
-void ClearSeriesFlagEntry(short i);                                          /* 0x004148E0 */
+unsigned short get_mode(short i);                                     /* 0x004147E0 */
+void set_mode(short i, int state);                                    /* 0x00414800 */
+int GetVduModeStackDepth(short i);                                    /* 0x00414890 */
+void push_mode(short i, int state);                                   /* 0x004148A0 */
+void pop_mode(short i);                                               /* 0x004148E0 */
+void set_new_vdu(short vdu);                                          /* 0x00414910 */
 void ClearMessageSlot(short i);                                          /* 0x004149C0 */
 void ClearAutopilotFlag(void);                                              /* 0x004149E0 */
 int IsAutopilotEngaged(void);                                              /* 0x004149F0 */
@@ -210,6 +222,11 @@ unsigned short SetAutopilotFlag(unsigned short v);                        /* 0x0
 void RefreshAutopilotHud(void);                                             /* 0x00414A20 */
 void PlayTargetLockSfx(void);                                           /* 0x00414AD0 */
 void PlayShieldHitSfx(void);                            /* 0x00414AE0 */
+int malf(char component);                                             /* 0x00414AF0 */
+unsigned short vdu_malf(short vdu, short sound);                       /* 0x00414B20 */
+void ShowComponentHitHudMessage(char *text, unsigned short colour,
+                                signed char flashCount);               /* 0x00414B70 */
+int damage_your_component(char component, char amount, char maximum); /* 0x00414BF0 */
 void InputFilterHook(void);                                            /* 0x00415040 */
 int GetNavRecordField50(short i);                                      /* 0x00415050 */
 int GetNavRecordField70(short i);                                              /* 0x00415070 */
@@ -225,15 +242,22 @@ unsigned int GetHudMessageSlot(unsigned short v);                         /* 0x0
 void EndMissileLockWarning(void);                                             /* 0x00416010 */
 void SetRectBounds(int p, unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x00416220 */
 short GetRectHeight(int p);                                             /* 0x00416250 */
+void print_message_text(char *text, unsigned char colour);             /* 0x00416260 */
 void ShowHudTextLine(char *s, unsigned char b);                          /* 0x00416460 */
 void SetHudTextColour(short v);                                              /* 0x00416480 */
 void ReleaseCurrentTargetLock(void);                                                 /* 0x004168A0 */
-void DrawHudMessagesIfEnabled(void);                                             /* 0x00416C90 */
-void ComputeStickIndicatorFrame(void);                                   /* 0x004171D0 */
-void RefreshDamageDisplay(void);                                             /* 0x004173C0 */
-void ForceRefreshDamageDisplay(void);                                             /* 0x004173F0 */
+void RestoreCockpitExplosionIfVisible(void);                           /* 0x00416C90 */
+void SetHudMessageText(char *text, unsigned short colour,
+                       unsigned short duration);                       /* 0x00416DE0 */
+void malf_noise(short vdu, int effect, unsigned int colour,
+                short sound, short refresh);                           /* 0x00416E20 */
+void determine_pilot_hand(void);                                      /* 0x004171D0 */
+void DrawPilotHandFrame(void);                                       /* 0x00417260 */
+void animate_pilot(void);                                             /* 0x004173C0 */
+void ResetPilotHandAnimation(void);                                   /* 0x004173F0 */
 void send_message(short obj, signed char message);                      /* 0x00417420 */
-void ClearHudTargetBox(void);                                             /* 0x00417610 */
+void clear_cockpit_damage(void);                                      /* 0x00417610 */
+void RestoreCockpitExplosionBackground(void);                         /* 0x00417760 */
 void ShowDamageMessage(short a);                                       /* 0x00417B10 */
 void PlayMissileLaunchSfx(void);                            /* 0x00417F00 */
 unsigned short GetMusicDriverPresent(void);                                    /* 0x00418130 */
@@ -340,6 +364,8 @@ short MaxShort(short a, short b);                                       /* 0x004
 void FreePacketAndClear(int *p);                                        /* 0x0041D100 */
 void *FetchDiskPacketRetrying(short logicalFile, short section,
                               unsigned short flags);                    /* 0x0041D2E0 */
+unsigned int DrawTextAt(TextContext *context, short x, short y,
+                        char *text, unsigned char alignment);           /* 0x0041D5F0 */
 unsigned int GetZeroUnused(void);                                        /* 0x0041DA00 */
 void WaitForStreamIdle(void);                                       /* 0x0041DEB0 */
 short FindActiveShipSlot(void);                                      /* 0x0041DF40 */
@@ -667,7 +693,7 @@ long ArcCosFixed(int value);                                      /* 0x00434E90 
 long FloatToLongPassThrough(void);                                             /* 0x00434EC0 */
 long ComputeFixedVectorMagnitude(const FixedVector *vector);         /* 0x00434F20 */
 void SetTextCursor(unsigned short a, unsigned short b);             /* 0x00434F70 */
-void SetTextContext(unsigned int v);                                       /* 0x00434FA0 */
+void SetTextContext(TextContext *context);                            /* 0x00434FA0 */
 void WaitForVerticalBlankThunk(void);                                  /* 0x00434FB0 */
 unsigned int IdentityHandle(unsigned int v);                             /* 0x00434FC0 */
 void __stdcall SetWholePaletteFromTriplets(unsigned char *palette);               /* 0x00434FD0 */
@@ -678,6 +704,8 @@ short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
                                     unsigned char *shape, short frame); /* 0x00435020 */
 short __stdcall IsPointInRect(short x, short y, const short *rect);       /* 0x00435090 */
 void SplitPackedPoint(unsigned int packed, short *p);                      /* 0x004350D0 */
+void DrawTextString(char *text);                                      /* 0x004350F0 */
+void __stdcall DrawTextCharacter(char character);                    /* 0x00435290 */
 void ResetTextCursor(void);                                           /* 0x004353F0 */
 unsigned int DosFarPtrToNear(unsigned int v);                             /* 0x00435410 */
 unsigned int DosNearPtrToFar(unsigned int v);                             /* 0x00435420 */
@@ -748,7 +776,9 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            unsigned char *shape, int frame,
                            int angle, int scaleX, int scaleY,
                            int flip, int blendMode);                /* 0x00440FE0 */
-void RasterLineHook(void);                                               /* 0x00441140 */
+void RasterLineHook(void *marker);                                    /* 0x00441140 */
+void DrawFontGlyph(char character, TextContext *context, int height,
+                   int width, int y);                                 /* 0x00441150 */
 void __stdcall GetPaletteEntry(short index, unsigned short *rgb);         /* 0x004413C0 */
 void __stdcall SetPaletteEntry(short index, short *rgb);                  /* 0x004413E0 */
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
@@ -765,6 +795,8 @@ int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               unsigned char *shape, short frame,
                               short angle, short scale, int flip,
                               short *bounds);                         /* 0x00442050 */
+void snow_viewport(Viewport *viewport, int effect,
+                   unsigned int colour);                              /* 0x00442300 */
 void UpdateStreamerStoppedFlag(void);                                    /* 0x00442330 */
 void SetMusicStreamVolume(unsigned short volume);                     /* 0x00442590 */
 int ReadCheaterFlagFromRegistry(void);                                /* 0x00442600 */

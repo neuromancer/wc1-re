@@ -17,9 +17,9 @@ void FatalErrorAndExit(const char *format, ...)
 }
 
 /* Function start: 0x413D20 */
-int HasFreeMessageSlot(void)
+int IsCockpitExplosionActive(void)
 {
-    return DAT_00469068 < 8;
+    return g_nCockpitExplosionFrame_00469068 < 8;
 }
 
 /* Function start: 0x413F70 */
@@ -33,11 +33,54 @@ unsigned int GetSeriesRecordField(char slot, int rec)
     return 0;
 }
 
-/* Function start: 0x4141B0 */
-void ClearHudMessageIfMatching(int *p, int v)
+/* Function start: 0x4140A0 */
+short DrawHudMessageSlot(HudMessageSlot *slot)
 {
-    if (*(int *)((int)p + 0xd) == v)
-        ClearHudMessageSlot(p);
+    unsigned char savedColour;
+    unsigned short oldDrawColour;
+    short showingEraseColour;
+
+    if (DAT_0046c03c != 0)
+        return 1;
+
+    oldDrawColour = slot->drawColour;
+    if (((int)DAT_0059ab54 / 40) % 3 == 0)
+        slot->drawColour = DAT_0046999c;
+    else
+        slot->drawColour = slot->colour;
+
+    if (slot->flashCount != -1) {
+        if (slot->drawColour == DAT_0046999c &&
+            oldDrawColour == slot->colour) {
+            slot->flashCount = (signed char)MaxShort(
+                0, (short)(slot->flashCount - 1));
+        }
+        if (slot->flashCount == 0)
+            slot->drawColour = DAT_0046999c;
+    }
+
+    showingEraseColour = slot->drawColour == DAT_0046999c;
+    savedColour = slot->context->colour;
+    slot->context->colour = (unsigned char)slot->drawColour;
+    DrawTextAt(slot->context, slot->x, slot->y, slot->text, 2);
+    slot->context->colour = savedColour;
+    return showingEraseColour;
+}
+
+/* Function start: 0x414180 */
+void ClearHudMessageSlot(HudMessageSlot *slot)
+{
+    slot->flashCount = 0;
+    if (slot->text != 0)
+        DrawHudMessageSlot(slot);
+    slot->text = 0;
+}
+
+/* Function start: 0x4141B0 */
+void ClearHudMessageIfMatching(HudMessageSlot *slot, char *text)
+{
+    if (slot->text == text)
+        ClearHudMessageSlot(slot);
 }
 
 /* Function start: 0x4141D0 */
@@ -49,10 +92,56 @@ void ClearHudGunReadouts(void)
     DAT_005a7ded = 0;
 }
 
-/* Function start: 0x4142E0 */
-void ShowHudMessageIfCurrent(int v)
+/* Function start: 0x4141F0 */
+void SetHudMessageSlot(HudMessageSlot *slot, TextContext *context,
+                       short x, short y, char *text,
+                       unsigned short colour, signed char flashCount)
 {
-    ClearHudMessageIfMatching(&DAT_005a7de1, v);
+    if (slot->text != 0)
+        ClearHudMessageSlot(slot);
+    slot->context = context;
+    slot->x = x;
+    slot->y = y;
+    slot->text = text;
+    slot->colour = colour;
+    slot->drawColour = colour;
+    slot->flashCount = flashCount;
+}
+
+/* Function start: 0x414240 */
+void UpdateMessage(HudMessageSlot *slot)
+{
+    short showingEraseColour;
+
+    if (slot->text != 0) {
+        showingEraseColour = DrawHudMessageSlot(slot);
+        if (slot->flashCount == 0 && showingEraseColour != 0)
+            ClearHudMessageSlot(slot);
+    }
+}
+
+/* Function start: 0x414270 */
+void set_global_message(char *text, unsigned short colour,
+                        int flashCount)
+{
+    SetHudMessageSlot(&DAT_005a7de1, &DAT_005a7700,
+                      DAT_005a7530.left,
+                      (short)(DAT_005a7530.bottom - 6),
+                      text, colour, (signed char)flashCount);
+}
+
+/* Function start: 0x4142B0 */
+void CockpitMessage(char *text, unsigned short colour,
+                    int flashCount)
+{
+    if (text != DAT_005a7dee)
+        set_global_message(text, colour, flashCount);
+}
+
+/* Function start: 0x4142E0 */
+void remove_message(char *text)
+{
+    ClearHudMessageIfMatching(&DAT_005a7de1, text);
 }
 
 /* Function start: 0x414410 */
@@ -68,39 +157,53 @@ void *ClearHudTargetVectors(void)
 }
 
 /* Function start: 0x4147E0 */
-unsigned short GetSeriesStateWord(short i)
+unsigned short get_mode(short i)
 {
     return DAT_0059d500[((int)DAT_0059dec0[i] + i * 4) * 2];
 }
 
 /* Function start: 0x414800 */
-void SetSeriesStateWord(short i, int state)
+void set_mode(short i, int state)
 {
-    if ((short)GetSeriesStateWord(i) != state)
-        ClearHudMessageSlot((int *)(&DAT_005a7dd0[0] + i * 0x11));
+    if ((short)get_mode(i) != state)
+        ClearHudMessageSlot(&DAT_005a7dd0[i]);
     DAT_0059dec0[i] = 0;
     *(int *)&DAT_0059d500[i * 8] = state;
 }
 
 /* Function start: 0x414890 */
-int GetSeriesFlag(short i)
+int GetVduModeStackDepth(short i)
 {
     return (char)DAT_0059dec0[i];
 }
 
 /* Function start: 0x4148A0 */
-void PushSeriesStateWord(short i, int state)
+void push_mode(short i, int state)
 {
-    ClearHudMessageSlot((int *)(&DAT_005a7dd0[0] + i * 0x11));
+    ClearHudMessageSlot(&DAT_005a7dd0[i]);
     DAT_0059dec0[i] = DAT_0059dec0[i] + 1;
     *(int *)&DAT_0059d500[((int)DAT_0059dec0[i] + i * 4) * 2] = state;
 }
 
 /* Function start: 0x4148E0 */
-void ClearSeriesFlagEntry(short i)
+void pop_mode(short i)
 {
-    ClearHudMessageSlot((int *)(&DAT_005a7dd0[0] + i * 0x11));
+    ClearHudMessageSlot(&DAT_005a7dd0[i]);
     DAT_0059dec0[i] = DAT_0059dec0[i] - 1;
+}
+
+/* Function start: 0x414910 */
+void set_new_vdu(short vdu)
+{
+    if ((short)get_mode(vdu) == 0) {
+        malf_noise(vdu, 1, DAT_004699b0, 0x17, 0);
+    } else {
+        if (vdu == 1)
+            ClearViewport(&DAT_005a7530, DAT_0046999c);
+        else
+            ClearViewport(&DAT_005a6b80, DAT_0046999c);
+    }
+    DAT_0059ce18[vdu] = (unsigned int)(short)get_mode(vdu);
 }
 
 /* Function start: 0x4149C0 */
@@ -145,6 +248,60 @@ void PlayTargetLockSfx(void)
 void PlayShieldHitSfx(void)
 {
     PlaySfxWaveFileByNumber(0x1f, -1, 0);
+}
+
+/* Function start: 0x414AF0 */
+int malf(char component)
+{
+    int damage = g_acPlayerComponentDamage_0059bff0[(int)component];
+
+    return (unsigned short)RandomInRange(0, 15) < damage * damage;
+}
+
+/* Function start: 0x414B20 */
+unsigned short vdu_malf(short vdu, short sound)
+{
+    if (DAT_0046c03c == 0)
+        malf_noise(vdu, 1, DAT_004699b0, sound, 0);
+    set_mode(vdu, 0);
+    return 0;
+}
+
+/* Function start: 0x414B70 */
+void ShowComponentHitHudMessage(char *text, unsigned short colour,
+                                signed char flashCount)
+{
+    if (g_nTrainSimActive_00469e2c == 0 && get_mode(0) != 0) {
+        if (DAT_005a7ddd != 0)
+            ClearHudMessageSlot(&DAT_005a7dd0[0]);
+        DosStrcpy(g_szComponentHitMessage_005a7e00, text);
+        SetHudMessageSlot(&DAT_005a7dd0[0], &DAT_005a74f0,
+                          DAT_005a6b80.left,
+                          (short)(DAT_005a6b80.bottom - 6),
+                          g_szComponentHitMessage_005a7e00,
+                          colour, flashCount);
+    }
+}
+
+/* Function start: 0x414BF0 */
+int damage_your_component(char component, char amount, char maximum)
+{
+    int index = (int)component;
+    char text[40];
+
+    g_acPlayerComponentDamage_0059bff0[index] = (signed char)MinShort(
+        (short)(g_acPlayerComponentDamage_0059bff0[index] + amount),
+        (short)maximum);
+    if (malf(component) != 0 && index == 3) {
+        vdu_malf(0, 0x18);
+        vdu_malf(1, 0x18);
+    }
+    if ((short)get_mode(0) == 2 || (short)get_mode(0) == 1) {
+        sprintf(text, g_szComponentHitFormat_004692e0,
+                g_apszComponentNames_0046a778[index]);
+        ShowComponentHitHudMessage(text, (unsigned char)DAT_004699ac, 5);
+    }
+    return g_acPlayerComponentDamage_0059bff0[index];
 }
 
 /* Function start: 0x415040 */
@@ -266,7 +423,7 @@ void EndMissileLockWarning(void)
 {
     if (DAT_0046c064 >= 0)
         DAT_0046c060 = 1;
-    ShowHudMessageIfCurrent((int)PTR_s_MISSILE_LOCKED_004691d4);
+    remove_message(PTR_s_MISSILE_LOCKED_004691d4);
     DAT_0046c064 = -1;
 }
 
@@ -286,11 +443,91 @@ short GetRectHeight(int p)
     return *(short *)(p + 0xc) - *(short *)(p + 8);
 }
 
+/* Function start: 0x416260 */
+void print_message_text(char *text, unsigned char colour)
+{
+    char source[84];
+    char wrapped[84];
+    Viewport viewport;
+    TextContext context;
+    char *input;
+    char *output;
+    short lastSpace = -1;
+    short position = 0;
+    short width;
+    short x;
+    short y;
+    int view;
+
+    if (text == 0)
+        return;
+
+    DosStrcpy(source, text);
+    wrapped[0] = (char)DAT_004693b0;
+    viewport = *DAT_005a6bc0.viewport;
+    context = DAT_005a6bc0;
+    context.viewport = &viewport;
+
+    view = (int)g_cCockpitView_0059dab0;
+    x = DAT_004691e0[view * 2];
+    y = DAT_004691e0[view * 2 + 1];
+    SetRectBounds((int)&viewport, (unsigned short)x, (unsigned short)y,
+                  (unsigned short)(319 - x), (unsigned short)(y + 60));
+    context.colour = colour;
+    context.backgroundColour = 0xff;
+    width = GetRectHeight((int)&viewport);
+
+    input = source;
+    output = wrapped;
+    if (*input != 0) {
+        short charactersPerLine = (short)(width / 6);
+
+        do {
+            *output = *input;
+            if (*input == ' ')
+                lastSpace = position;
+            if ((position + 1) % charactersPerLine == 0) {
+                if (lastSpace == -1) {
+                    output[1] = '\n';
+                    output++;
+                } else {
+                    output[position - lastSpace] = '\n';
+                }
+            }
+            position++;
+            input++;
+            output++;
+        } while (*input != 0);
+    }
+    *output = 0;
+
+    if (DAT_0046a008 != 0) {
+        switch (view) {
+        case 0:
+            y = (short)(y + 10);
+            break;
+        case 1:
+            y = (short)(y + 25);
+            break;
+        case 2:
+            y = (short)(y + 50);
+            break;
+        case 3:
+            break;
+        default:
+            DAT_00469008 = DAT_00469004;
+            return;
+        }
+    }
+    DrawTextAt(&context, x, y, wrapped, 2);
+    DAT_00469008 = DAT_00469004;
+}
+
 /* Function start: 0x416460 */
 void ShowHudTextLine(char *s, unsigned char b)
 {
     DAT_00469004 = s;
-    DrawWrappedCommText(s, b);
+    print_message_text(s, b);
 }
 
 /* Function start: 0x416480 */
@@ -298,7 +535,7 @@ void SetHudTextColour(short v)
 {
     if (v != 0)
         EndCommMenu();
-    DrawWrappedCommText(DAT_00469008, (unsigned char)DAT_004699d8);
+    print_message_text(DAT_00469008, (unsigned char)DAT_004699d8);
 }
 
 /* Function start: 0x4168A0 */
@@ -309,14 +546,42 @@ void ReleaseCurrentTargetLock(void)
 }
 
 /* Function start: 0x416C90 */
-void DrawHudMessagesIfEnabled(void)
+void RestoreCockpitExplosionIfVisible(void)
 {
-    if (HasFreeMessageSlot() && DAT_00469060 != 0)
-        DrawHudMessageList();
+    if (IsCockpitExplosionActive() &&
+        g_pCockpitExplosionBackground_00469060 != 0) {
+        RestoreCockpitExplosionBackground();
+    }
+}
+
+/* Function start: 0x416DE0 */
+void SetHudMessageText(char *text, unsigned short colour,
+                       unsigned short duration)
+{
+    if (DAT_00468754 == 0) {
+        if (IsAutopilotEngaged())
+            SetHudTextColour(1);
+        DAT_005a7f00 = colour;
+        DAT_00469004 = text;
+        SetAutopilotFlag(duration);
+    }
+}
+
+/* Function start: 0x416E20 */
+void malf_noise(short vdu, int effect, unsigned int colour,
+                short sound, short refresh)
+{
+    Viewport *viewport = vdu == 0 ? &DAT_005a6b80 : &DAT_005a7530;
+
+    if (sound != -1)
+        PlaySfxWaveFileByNumber(sound == 0x17 ? 0x16 : sound, -1, 0);
+    snow_viewport(viewport, effect, colour);
+    if (refresh != 0)
+        set_new_vdu(vdu);
 }
 
 /* Function start: 0x4171D0 */
-void ComputeStickIndicatorFrame(void)
+void determine_pilot_hand(void)
 {
     short yaw;
     short pitch;
@@ -342,23 +607,44 @@ void ComputeStickIndicatorFrame(void)
     g_bStickIndicatorFrame_005a7dc8 = 0;
 }
 
+/* Function start: 0x417260 */
+void DrawPilotHandFrame(void)
+{
+    int view = (int)g_cCockpitView_0059dab0;
+    short frame = (short)(signed char)g_bStickIndicatorFrame_005a7dc8;
+    short x = (short)(g_asPilotHandOrigins_0046e120[view * 2] -
+                      DAT_005a6b60.left);
+    short y = (short)(g_asPilotHandOrigins_0046e120[view * 2 + 1] -
+                      DAT_005a6b60.top);
+
+    CopyViewportContents(&DAT_005a7550, &DAT_005a7690);
+    DrawSpriteDefault(&DAT_005a7690, x, y, DAT_005a7684, frame);
+    DrawSpriteDefault(
+        &DAT_005a7690,
+        (short)(x + g_asPilotHandOffsets_00469018[frame * 2]),
+        (short)(y + g_asPilotHandOffsets_00469018[frame * 2 + 1]),
+        DAT_005a7684, 0x11);
+    CopyViewportContents(&DAT_005a7690, &DAT_005a6b60);
+    DAT_0046900c = g_bStickIndicatorFrame_005a7dc8;
+}
+
 /* Function start: 0x4173C0 */
-void RefreshDamageDisplay(void)
+void animate_pilot(void)
 {
     if (DAT_005a7684 != 0) {
-        ComputeStickIndicatorFrame();
+        determine_pilot_hand();
         if (DAT_0046900c != g_bStickIndicatorFrame_005a7dc8)
-            DrawStickIndicator();
+            DrawPilotHandFrame();
     }
 }
 
 /* Function start: 0x4173F0 */
-void ForceRefreshDamageDisplay(void)
+void ResetPilotHandAnimation(void)
 {
     if (DAT_005a7684 != 0) {
         DAT_0046900c = 0xff;
         CopyViewportContents(&DAT_005a6b60, &DAT_005a7550);
-        RefreshDamageDisplay();
+        animate_pilot();
     }
 }
 
@@ -377,7 +663,7 @@ void send_message(short obj, signed char message)
 }
 
 /* Function start: 0x417610 */
-void ClearHudTargetBox(void)
+void clear_cockpit_damage(void)
 {
     DAT_005a7ef0 = 0;
     DAT_005a7ef4 = 0;
@@ -385,10 +671,24 @@ void ClearHudTargetBox(void)
     DAT_005a7efc = 0;
 }
 
+/* Function start: 0x417760 */
+void RestoreCockpitExplosionBackground(void)
+{
+    if (IsCockpitExplosionActive() &&
+        g_pCockpitExplosionShape_00469064 != 0 &&
+        g_pCockpitExplosionBackground_00469060 != 0) {
+        RestoreSpriteBackground(
+            &DAT_005a6ba0, g_pCockpitExplosionBackground_00469060,
+            DAT_005a7e98, DAT_005a7e9a,
+            g_pCockpitExplosionShape_00469064,
+            g_nCockpitExplosionFrame_00469068);
+    }
+}
+
 /* Function start: 0x417B10 */
 void ShowDamageMessage(short a)
 {
-    CombatRoutine02(a, 1, DAT_004699b0, 0x17, 0);
+    malf_noise(a, 1, DAT_004699b0, 0x17, 0);
 }
 
 /* Function start: 0x417F00 */

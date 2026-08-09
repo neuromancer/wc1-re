@@ -311,7 +311,7 @@ unsigned int select_new_gun(void)
 {
     g_eSelectedGunType_0046c054 = (enum ObjectType)select_guns(
         0, find_next_gun(0, g_eSelectedGunType_0046c054));
-    if ((short)GetSeriesStateWord(0) == 1)
+    if ((short)get_mode(0) == 1)
         ClearMessageSlot(0);
     return 0;
 }
@@ -386,7 +386,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
                 weapon = 0;
         } while (weapon != firstWeapon);
     }
-    if ((short)GetSeriesStateWord(0) == 1)
+    if ((short)get_mode(0) == 1)
         ClearMessageSlot(0);
     return 0;
 }

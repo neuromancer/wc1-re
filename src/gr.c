@@ -222,8 +222,84 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
 }
 
 /* Function start: 0x441140 */
-void RasterLineHook(void)
+void RasterLineHook(void *marker)
 {
+    (void)marker;
+}
+
+/* Function start: 0x441150 */
+void DrawFontGlyph(char character, TextContext *context, int height,
+                   int width, int y)
+{
+    Viewport *viewport = context->viewport;
+    unsigned char *font = context->font;
+    unsigned char fontColour = font[2];
+    unsigned char fontBackground = font[3];
+    unsigned char oldColour = g_abPaletteTranslation_00470678[fontColour];
+    unsigned char oldBackground =
+        g_abPaletteTranslation_00470678[fontBackground];
+    short characterIndex = (short)(signed char)character;
+    unsigned char *source;
+    int row;
+
+    g_abPaletteTranslation_00470678[fontColour] = context->colour;
+    g_abPaletteTranslation_00470678[fontBackground] =
+        context->backgroundColour;
+
+    if (characterIndex != 0x81 && characterIndex != 0x84 &&
+        characterIndex != 0x8e && characterIndex != 0x94 &&
+        characterIndex != 0x99 && characterIndex != 0x9a &&
+        characterIndex != 0xe1) {
+        unsigned char *characterData = font + characterIndex;
+        unsigned int bitmapOffset =
+            ((unsigned int)characterData[0x204] << 8) |
+            characterData[0x104];
+
+        source = font + bitmapOffset;
+        row = y;
+        while (height != 0) {
+            unsigned int destinationOffset;
+            unsigned short rowOffset = viewport->rowOffsets[row];
+            unsigned char *destination;
+            int column = width;
+
+            if (viewport->top == row && (rowOffset & 0x8000) != 0)
+                destinationOffset = (unsigned int)(short)context->cursorX;
+            else
+                destinationOffset = (unsigned int)rowOffset +
+                    (unsigned int)(short)context->cursorX;
+            destination = viewport->pixels + destinationOffset;
+
+            if (fontColour == context->colour &&
+                fontBackground == context->backgroundColour) {
+                while (column != 0) {
+                    if (*source != 0xff)
+                        *destination = *source;
+                    source++;
+                    destination++;
+                    column--;
+                }
+            } else {
+                while (column != 0) {
+                    unsigned char colour =
+                        g_abPaletteTranslation_00470678[*source];
+
+                    if (colour != 0xff)
+                        *destination = colour;
+                    source++;
+                    destination++;
+                    column--;
+                }
+            }
+            row++;
+            height--;
+        }
+        context->cursorX = (short)(context->cursorX +
+            font[4 + characterIndex]);
+    }
+
+    g_abPaletteTranslation_00470678[fontColour] = oldColour;
+    g_abPaletteTranslation_00470678[fontBackground] = oldBackground;
 }
 
 /* Function start: 0x4413C0 */
@@ -542,6 +618,16 @@ int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
     }
     (void)flip;
     return 0;
+}
+
+/* Function start: 0x442300 */
+void snow_viewport(Viewport *viewport, int effect, unsigned int colour)
+{
+    (void)effect;
+    (void)colour;
+    if (viewport->pixels == DAT_005a6ba0.pixels)
+        DIBslam();
+    RasterLineHook((void *)g_szSnowViewport_00470da4);
 }
 
 /* Function start: 0x442330 */
