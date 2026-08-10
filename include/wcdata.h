@@ -385,6 +385,22 @@ typedef struct ShortRect {
     short bottom;
 } ShortRect;
 
+/* One selectable title-screen image and its inclusive mouse hit bounds. */
+typedef struct TitleMenuRegion {
+    short frame;
+    short left;
+    short top;
+    short right;
+    short bottom;
+} TitleMenuRegion;
+
+/* One packet-backed pointer slot in a scene resource list. */
+typedef struct PacketResourceDescriptor {
+    unsigned char **resource;
+    short logicalFile;
+    short section;
+} PacketResourceDescriptor;
+
 /* Six packed TrainSim ranking records begin at 0x005A7C30.  The five-byte
  * stride is explicit in every getter, setter, and ranking-table scan. */
 #pragma pack(push, 1)

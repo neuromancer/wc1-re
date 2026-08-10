@@ -27,12 +27,57 @@ const char g_szJoystickDevCapsFailure_004652dc[26] =
 short DAT_00465460;
 short g_nAutopilotFormationShipCount_00465544;
 int g_aiPacketReferenceTable_00465c88[4 * 0x25];
+unsigned char *g_pIntroSceneResource_00467b84;
+unsigned char *g_pIntroSceneResourceMirror_00467c0b;
+unsigned char *g_pIntroBackgroundResource_00467eae;
 unsigned short DAT_00468660;
 unsigned int DAT_00468664 = 1;
 unsigned char DAT_0046870c;
 unsigned char DAT_00468710;
 int DAT_00468754;
 int DAT_004688e0;
+const char *g_pszIntroOpeningText_00468910 =
+    "In the distant future,\n"
+    "mankind is locked in a deadly war...";
+int g_nIntroCreditCount_00468a30 = 11;
+const char *g_apszIntroCredits_00468a38[20] = {
+    "Design\nby\nChris Roberts",
+    "Software Engineers\nChris Roberts\nKen Demarest III\nPaul C. Isaac\nSteve Muchow\nHerman Miller\nSteve Beeman\n",
+    "Dogfight Intelligence\nKen Demarest III\n\nDogfight Choreography\nSteve Beeman\nErin Roberts",
+    "3Space System\nby\nChris Roberts\n\nOriginFX Graphic System\nChris Roberts\nJohn Miles",
+    "OriginFX Sound System\nby\nHerman Miller",
+    "Artwork\nDenis Loubet\nGlen Johnson\nDaniel Bourbonnais\nKeith Berdak\nJohn Watson",
+    "Screenplay by Jeff George\n\nAdditional Writing\nSteve Cantrell\nPhilip Brogden",
+    "Soundtrack by\nGeorge A. Sanger and Dave Govett",
+    "Sound Effects by Marc Schaefgen",
+    "Produced by\nChris Roberts and Warren Spector",
+    "Directed by\nChris Roberts",
+    "Windows 95 Team",
+    "Combat Programmers\n\nJeff Mangler Everett\nJeff jefftep Grills\nChuck Bishop Karpiak\nKris Goblin Pelley",
+    "Sound System\n\nRichard Cupcake Lyle",
+    "Soundtrack Rescored by\n\nI Need Names",
+    "Head Whiner\n\nAnthony Sommers",
+    "Whiners\n\nMonte Mathis\nHal Milton\nDieter Martin",
+    "Richard Zinser\nKanon Lillemon\n",
+    "Special Thanks To\n\nSocks\nand\nCaffeine",
+    0
+};
+
+TitleMenuRegion g_aTitleMenuRegions_00468a88[5] = {
+    { 1, 49, 48, 283, 99 },
+    { 1, 49, 91, 283, 149 },
+    { 1, 49, 134, 283, 149 },
+    { 1, 49, 177, 283, 209 },
+    { -1, 0, 0, 0, 0 }
+};
+
+PacketResourceDescriptor g_aIntroResourceDescriptors_00468ac0[3] = {
+    { &g_pIntroBackgroundResource_00467eae, 3, 2 },
+    { &g_pIntroSceneResource_00467b84, 3, 5 },
+    { 0, 0, 0 }
+};
+
+int g_bTitleMenuSceneInitialized_00468ad8;
 char *DAT_00469004;
 char *DAT_00469008;
 unsigned char DAT_0046900c = 0xff;
@@ -70,6 +115,7 @@ HHOOK g_hDebugKeyboardHook_00469650;
 const char g_szDebugOverlayFontName_00469654[8] = "Courier";
 const char g_szDebugOverlaySpinner_0046965c[5] = "-\\|/";
 const char g_szDebugOverlayNewline_00469664[4] = "\n";
+short g_nKeyboardPointerStep_004696a4 = 4;
 unsigned char DAT_0046999c;
 unsigned char g_cViewportClearColour_004699a0 = 15;
 unsigned char DAT_004699a4 = 0x25;
@@ -78,6 +124,7 @@ unsigned char DAT_004699ac = 0x50;
 unsigned char DAT_004699b0 = 0xaa;
 unsigned char DAT_004699b4 = 0xa6;
 unsigned char DAT_004699d8 = 0xbf;
+unsigned int g_bIntroSceneResourcesActive_00469d48 = 1;
 unsigned char DAT_00469d5c;
 /* This is four zero bytes, not a pointer table.  The original instruction at
  * 0x425E07 uses 0x469DBC as a compiler-generated biased displacement so that
@@ -127,6 +174,7 @@ int DAT_0046a008;
 int g_nShowMemoryStatus_0046a00c;
 short g_nArcadeBonusCountdown_0046a014;
 int g_bMouseCursorVisible_0046a018;
+unsigned char g_bInputPollingGuard_0046a01c;
 const char *g_apszComponentNames_0046a778[6] = {
     g_szIonDrive_0046a7c4,
     g_szPowerPlant_0046a7d0,
@@ -163,6 +211,8 @@ unsigned char DAT_0046afc4 = 0xff;
 short g_nCommSpeakerObject_0046afc8;
 short g_nCommSpeakerRating_0046afcc;
 short g_nCommPortraitIndex_0046afd0 = -1;
+short g_nInputDoubleClickInterval_0046af54 = 1;
+short g_nMenuPointerSpeed_0046af58 = 2;
 unsigned short DAT_0046b168 = 0xffff;
 const GUID g_guidDirectDraw2_00463118 = {
     0xb3a6f3e0, 0x2b43, 0x11cf,
@@ -266,21 +316,6 @@ const signed char g_acDirectionShapeFlip_0046dbe8[62] = {
     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
     0
-};
-
-int g_nIntroCreditCount_00468a30 = 11;
-const char *g_apszIntroCredits_00468a38[11] = {
-    "Design\nby\nChris Roberts",
-    "Software Engineers\nChris Roberts\nKen Demarest III\nPaul C. Isaac\nSteve Muchow\nHerman Miller\nSteve Beeman",
-    "Dogfight Intelligence\nKen Demarest III\n\nDogfight Choreography\nSteve Beeman\nErin Roberts",
-    "3Space System\nby\nChris Roberts\n\nOriginFX Graphic System\nChris Roberts\nJohn Miles",
-    "OriginFX Sound System\nby\nHerman Miller",
-    "Artwork\nDenis Loubet\nGlen Johnson\nDaniel Bourbonnais\nKeith Berdak\nJohn Watson",
-    "Screenplay by Jeff George\n\nAdditional Writing\nSteve Cantrell\nPhilip Brogden",
-    "Soundtrack by\nGeorge A. Sanger and Dave Govett",
-    "Sound Effects by Marc Schaefgen",
-    "Produced by\nChris Roberts and Warren Spector",
-    "Directed by\nChris Roberts"
 };
 
 MissionNavPoint g_aMissionNavPoints_0046c2f0[WC1_MISSION_NAV_POINT_COUNT] = {
@@ -715,6 +750,8 @@ volatile short g_nMouseX_0059ab10;
 volatile short g_nMouseY_0059ab12;
 unsigned char g_bPrimaryMouseButton_0059ab14;
 unsigned char g_bSecondaryMouseButton_0059ab15;
+unsigned char g_bInputReserved_0059ab16;
+unsigned short g_wInputFlags_0059ab17;
 unsigned char * volatile DAT_0059ab19;
 unsigned short DAT_0059ab1d;
 Viewport * volatile DAT_0059ab23;
@@ -733,7 +770,12 @@ int DAT_0059ab60;
 int g_aiInputEventSlotUsed_0059ab70[0x100];
 short g_nHostMouseX_0059af70;
 short g_nHostMouseY_0059af72;
+unsigned char g_bPreviousPrimaryInputButton_0059af74;
+unsigned char g_bPreviousSecondaryInputButton_0059af75;
+unsigned char g_bMenuInputReserved_0059af76;
+unsigned short g_wPreviousMenuInputFlags_0059af77;
 TextContext *g_pCurrentTextContext_0059af8c;
+int g_nInputTickScale_0059af90;
 FixedVector g_aObjectViewPosition_0059afa0[WC1_SPACE_OBJECT_COUNT];
 short g_anObjectPitchRotation_0059b2a0[WC1_SPACE_OBJECT_COUNT];
 int g_anShipSpeed_0059b320[64];
@@ -791,6 +833,8 @@ signed char g_acShipTarget_0059ce60[512];
 short g_anObjectYawRotation_0059ce80[256];
 signed char DAT_0059cf00[WC1_SPACE_OBJECT_COUNT];
 unsigned char DAT_0059cf20[512];
+short g_asObjectDrawY_0059cf80[WC1_SPACE_OBJECT_COUNT];
+short g_asObjectDrawX_0059d000[WC1_SPACE_OBJECT_COUNT];
 short g_asPreviousObjectDistance_0059d080[WC1_SPACE_OBJECT_COUNT];
 enum ObjectClass g_aeObjectClass_0059d100[512];
 enum ShipObjective g_aeShipObjective_0059d200[512];
@@ -847,6 +891,13 @@ char DAT_0059e1c0[512];
 signed char g_abCommMenuChoiceCommand_0059e488[7];
 unsigned int DAT_0059e490;
 char *g_apszCommMenuChoiceText_0059e4e0[7];
+int g_anInputButton2PressTime_0059e500[2];
+short g_asInputButton1DoubleClick_0059e508[2];
+short g_asInputButton1Changed_0059e50c[2];
+short g_asInputButton2Changed_0059e510[2];
+short g_asPreviousInputButtons_0059e514[2];
+int g_anInputButton1PressTime_0059e518[2];
+short g_asInputButton2DoubleClick_0059e520[2];
 int g_aiPacketHandles_0059e530[0x1000];
 int g_aiPacketHandleOffsets_005a2530[0x1000];
 int g_nPacketHandleCount_005a6530;
@@ -887,9 +938,12 @@ short g_asCollisionTime_005a7ca0[16];
 short g_asCollisionPartner_005a7cc0[10];
 int g_nMemoryConfiguration_005a7cd4;
 unsigned int g_dwOriginalFreeMemory_005a7cd8;
+unsigned char *g_pMouseCursorResource_005a7cdc;
 int g_nAvailableGameMemory_005a7ce0;
+int g_nSceneResourceBudget_005a7ce4;
 unsigned char DAT_005a7cec;
 unsigned char *DAT_005a7cf0;
+int g_bPointerMovedByKeyboard_005a7d54;
 int DAT_005a7d9c;
 short g_nReleaseWeaponDisplayX_005a7dbc;
 short g_nReleaseWeaponDisplayY_005a7dbe;
@@ -924,6 +978,23 @@ unsigned char *g_apViewportAllocations_005a7f10[128];
 int g_nFreeViewportCalls_005a8110;
 short g_nMissionMedalScore_005a8116;
 short g_nActiveInputDevice_005a819c;
+int g_nJoystickVerticalDeadZone_005a81a0;
+int g_nJoystickHorizontalDeadZone_005a81a4;
+int g_nJoystickUpScale_005a81a8;
+int g_nJoystickLeftScale_005a81ac;
+int g_nJoystickMaximumX_005a81b0;
+int g_nJoystickMaximumY_005a81b4;
+int g_nJoystickMinimumX_005a81b8;
+int g_nJoystickMinimumY_005a81bc;
+int g_nJoystickRawX_005a81c0;
+int g_nJoystickRawY_005a81c4;
+int g_nJoystickVerticalRange_005a81c8;
+int g_nJoystickHorizontalRange_005a81cc;
+int g_nJoystickRightScale_005a81d0;
+int g_nJoystickDownScale_005a81d4;
+int g_nJoystickCentreY_005a81d8;
+int g_nJoystickCentreX_005a81dc;
+int g_nJoystickFailureValue_005a81e0;
 InputDeviceSample g_aInputDeviceSamples_005a81f0[4];
 short DAT_005a8692;
 short g_nPlayerMissionShipIndex_005a8694;

@@ -126,6 +126,24 @@ void DrawTitleLogo(short distance, short y)
                           scale, scale, 0, 0);
 }
 
+/* Function start: 0x40FB10 */
+void UpdateTitleMenuCursor(void)
+{
+    TitleMenuRegion *region;
+    short frame;
+
+    frame = 0;
+    region = g_aTitleMenuRegions_00468a88;
+    while (region->frame != -1) {
+        if (IsPointInRect(g_nHostMouseX_0059af70,
+                          g_nHostMouseY_0059af72,
+                          &region->left) != 0)
+            frame = region->frame;
+        region++;
+    }
+    SetMouseCursorShape(DAT_0059ab19, frame);
+}
+
 /* Function start: 0x40FB70 */
 int Title_Sequence(void)
 {
@@ -133,167 +151,325 @@ int Title_Sequence(void)
     short credit;
     short titleDistance;
     short missionShip;
-    int interrupted;
+    short menuIndex;
+    int optionCount;
+    short eventType;
+    short menuOptions[4];
+    unsigned char *menuShape;
+    unsigned char *alternateMenuShape;
+    InputEventState event;
+    int activate;
+    signed char state;
+    signed char selectedIndex;
 
-    interrupted = 0;
-    DAT_0059ab58 = 0;
-    DAT_005a8964 = 0;
-    MouseHide();
-    init_3Space_objects(0);
-    initialize_view_buffer();
-    g_pIntroFont_005a8960 =
-        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
-    g_nCannedSceneMode_00469fac = 2;
+    state = 0;
+    if (DAT_0046506c != 0)
+        g_nIntroCreditCount_00468a30 += 9;
+    if (DAT_0059ab58 == 0) {
+        PreloadMusicTrackHook(0x17);
+        SetEventManagerPump(PollJoystickButtonEvents);
+        g_bIntroSceneResourcesActive_00469d48 = 0;
+        init_3Space_objects(0);
+        g_nCannedSceneMode_00469fac = 2;
+        g_pIntroFont_005a8960 =
+            (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+        g_nSceneResourceBudget_005a7ce4 = 0x3e8000;
+        g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
+            g_aIntroResourceDescriptors_00468ac0, 0, 0x3e8000);
+        g_pIntroSceneResourceMirror_00467c0b =
+            g_pIntroSceneResource_00467b84;
+        ClearInputKeyStatePreservingModifiers();
+        FlushInputEvents();
+        DAT_0059ab58 = 0;
 
-    while (interrupted == 0) {
-        missionShip = 32;
-        do {
-            g_aMissionShips_0046c948[missionShip].state = 0;
-            missionShip++;
-        } while (missionShip < 46);
-        titleDistance = 200;
-        remove_all_hazards();
-        g_bIntroSecondaryScene_0046c024 = 0;
-        EnterNavPoint(16);
-        g_pTitleShape_005a7f08 =
-            (unsigned char *)FetchDiskPacketRetrying(9, 0, 0);
-        StartMusicTrack(0x17, 2);
-        initialize_scripted_view(g_asIntroCameraSequence_0046c090);
-        DAT_00469fb4 = 1;
+        while (state == 0) {
+            PumpWindowMessages();
+            missionShip = 32;
+            do {
+                g_aMissionShips_0046c948[missionShip].state = 0;
+                missionShip++;
+            } while (missionShip < 46);
+            titleDistance = 200;
+            remove_all_hazards();
+            g_bIntroSecondaryScene_0046c024 = 0;
+            EnterNavPoint(16);
+            g_pTitleShape_005a7f08 =
+                (unsigned char *)FetchDiskPacketRetrying(9, 0, 0);
+            StartMusicTrack(0x17, 2, 1);
+            initialize_scripted_view(g_asIntroCameraSequence_0046c090);
+            DAT_00469fb4 = 1;
 
-        frame = 0;
-        do {
-            Update_3Space();
-            if (Draw_3Space_Frame() != 0) {
-                print_subtitle(&DAT_005a7510, 0x32,
-                    "In the distant future,\nmankind is locked in a deadly war...");
-                dump_buffer_to_screen();
-                DIBslamReal();
-                clear_view_buffer();
-            }
-            if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
-                DAT_005a8964 != 0) {
-                interrupted = 1;
-                break;
-            }
-            frame++;
-        } while (frame < 25);
-        if (interrupted != 0)
-            break;
-
-        frame = 0;
-        do {
-            Update_3Space();
-            if (Draw_3Space_Frame() != 0) {
-                dump_buffer_to_screen();
-                DIBslamReal();
-                clear_view_buffer();
-            }
-            if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
-                DAT_005a8964 != 0) {
-                interrupted = 1;
-                break;
-            }
-            frame++;
-        } while (frame < 110);
-        if (interrupted != 0)
-            break;
-
-        frame = 0;
-        do {
-            Update_3Space();
-            if (Draw_3Space_Frame() != 0) {
-                DrawTitleLogo(titleDistance,
-                              (short)((DAT_005a7510.top +
-                                       DAT_005a7510.bottom + 1) / 2 - 6));
-                dump_buffer_to_screen();
-                DIBslamReal();
-                clear_view_buffer();
-            }
-            if (titleDistance > 16)
-                titleDistance = titleDistance - 4;
-            if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
-                DAT_005a8964 != 0) {
-                interrupted = 1;
-                break;
-            }
-            frame++;
-        } while (frame < 100);
-        FreePacketAndClear((int *)&g_pTitleShape_005a7f08, 0);
-        if (interrupted != 0)
-            break;
-
-        ScaleFixedVector(&g_aShipForwardVector_0059bce0[61], 0x9600,
-                         &g_aShipVelocity_0059c010[61]);
-        EnterNavPoint(17);
-        g_bIntroSecondaryScene_0046c024 = 1;
-        g_anObjectPitchRotation_0059b2a0[0] = 0;
-        g_anObjectYawRotation_0059ce80[0] = 0;
-        g_anObjectRollRotation_0059d7e0[0] = 0;
-        start_hazard_field(0);
-
-        credit = 0;
-        while (credit < g_nIntroCreditCount_00468a30 && interrupted == 0) {
             frame = 0;
             do {
                 Update_3Space();
                 if (Draw_3Space_Frame() != 0) {
                     print_subtitle(&DAT_005a7510, 0x32,
-                                   g_apszIntroCredits_00468a38[credit]);
+                                   g_pszIntroOpeningText_00468910);
                     dump_buffer_to_screen();
+                    DIBslam();
                     DIBslamReal();
-                    clear_view_buffer();
+                    intro_drawbackgroundships();
+                    if (CheckEscaped() != 0) {
+                        state++;
+                        break;
+                    }
                 }
-                if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
-                    DAT_005a8964 != 0) {
-                    interrupted = 1;
+                frame++;
+            } while (frame < 25);
+            clear_view_buffer();
+            if (state != 0)
+                break;
+
+            frame = 0;
+            do {
+                Update_3Space();
+                RenderSpaceViewFrame();
+                if (CheckEscaped() != 0) {
+                    state++;
                     break;
                 }
                 frame++;
-            } while (frame < 70);
+                DIBslam();
+                DIBslamReal();
+            } while (frame < 110);
+            if (state != 0)
+                break;
+
             frame = 0;
-            while (frame < 40 && interrupted == 0) {
+            do {
                 Update_3Space();
                 if (Draw_3Space_Frame() != 0) {
+                    DrawTitleLogo(titleDistance,
+                                  (short)(g_nViewCenterY_0059a854 - 6));
                     dump_buffer_to_screen();
+                    DIBslam();
                     DIBslamReal();
                     clear_view_buffer();
                 }
-                if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
-                    DAT_005a8964 != 0)
-                    interrupted = 1;
+                if (titleDistance > 16)
+                    titleDistance -= 4;
+                if (CheckEscaped() != 0) {
+                    state++;
+                    break;
+                }
                 frame++;
+            } while (frame < 100);
+            FreePacketAndClear((int *)&g_pTitleShape_005a7f08, 0);
+            if (state != 0)
+                break;
+
+            ScaleFixedVector(&g_aShipForwardVector_0059bce0[61], 0x9600,
+                             &g_aShipVelocity_0059c010[61]);
+            EnterNavPoint(17);
+            g_bIntroSecondaryScene_0046c024 = 1;
+            g_anObjectPitchRotation_0059b2a0[0] = 0;
+            g_anObjectYawRotation_0059ce80[0] = 0;
+            g_anObjectRollRotation_0059d7e0[0] = 0;
+            start_hazard_field(0);
+
+            credit = 0;
+            while (credit < g_nIntroCreditCount_00468a30) {
+                frame = 0;
+                do {
+                    Update_3Space();
+                    if (Draw_3Space_Frame() != 0) {
+                        print_subtitle(&DAT_005a7510, 0x32,
+                            g_apszIntroCredits_00468a38[credit]);
+                        dump_buffer_to_screen();
+                        DIBslam();
+                        DIBslamReal();
+                        clear_view_buffer();
+                    }
+                    if (CheckEscaped() != 0) {
+                        state++;
+                        break;
+                    }
+                    frame++;
+                } while (frame < 70);
+                if (state != 0)
+                    break;
+
+                frame = 0;
+                do {
+                    Update_3Space();
+                    RenderSpaceViewFrame();
+                    DIBslam();
+                    DIBslamReal();
+                    if (CheckEscaped() != 0) {
+                        state++;
+                        break;
+                    }
+                    frame++;
+                } while (frame < 40);
+                credit++;
             }
-            credit++;
-        }
-        frame = 0;
-        while (frame < 150 && interrupted == 0) {
-            Update_3Space();
-            if (Draw_3Space_Frame() != 0) {
-                dump_buffer_to_screen();
+            if (state != 0)
+                break;
+
+            frame = 0;
+            do {
+                Update_3Space();
+                RenderSpaceViewFrame();
+                DIBslam();
                 DIBslamReal();
-                clear_view_buffer();
-            }
-            if (PumpWindowMessages() == 0 || DAT_0059ab58 != 0 ||
-                DAT_005a8964 != 0)
-                interrupted = 1;
-            frame++;
+                if (CheckEscaped() != 0) {
+                    state++;
+                    break;
+                }
+                frame++;
+            } while (frame < 150);
         }
+
+        state = 0;
+        StopMusicUnlessSuppressed();
+        ResetSoundState();
+        ReleasePacketHandle((int)g_pIntroFont_005a8960);
+        ReleasePacketHandle((int)g_pTitleShape_005a7f08);
+        ReleasePacketResourceList(g_aIntroResourceDescriptors_00468ac0, 0);
+        g_pIntroSceneResourceMirror_00467c0b =
+            g_pIntroSceneResource_00467b84;
+        free_nav_object_resources();
+        free_3Space();
+        g_bIntroSecondaryScene_0046c024 = 0;
+        g_nCannedSceneMode_00469fac = 0;
+        g_bScriptedView_0046a8d4 = 0;
+        g_bIntroSceneResourcesActive_00469d48 = 1;
+        ReleaseMusicTrackHook(0x17);
     }
 
-    StopMusicUnlessSuppressed();
-    ResetSoundStateForScene();
-    FreePacketAndClear((int *)&g_pTitleShape_005a7f08, 0);
-    FreePacketAndClear((int *)&g_pIntroFont_005a8960, 0);
-    remove_all_hazards();
-    free_nav_object_resources();
-    free_3Space();
-    g_bIntroSecondaryScene_0046c024 = 0;
-    g_nCannedSceneMode_00469fac = 0;
-    g_bScriptedView_0046a8d4 = 0;
-    clear_view_buffer();
-    dump_buffer_to_screen();
+    DAT_0059ab58 = 0;
+    if (g_bTitleMenuSceneInitialized_00468ad8 == 0) {
+        SceneEnterHook();
+        g_bTitleMenuSceneInitialized_00468ad8 = 1;
+    }
+    menuShape = (unsigned char *)FetchDiskPacketRetrying(9, 4, 0);
+    optionCount = 1;
+    alternateMenuShape =
+        (unsigned char *)FetchDiskPacketRetrying(0x4b, 0, 0);
+    menuOptions[0] = 0;
+    if (AnySavedGames() != 0) {
+        optionCount = 2;
+        menuOptions[1] = 1;
+    }
+    if (optionCount < 4) {
+        short *fillWord;
+        unsigned int fillCount;
+
+        fillWord = &menuOptions[optionCount];
+        fillCount = 4 - optionCount;
+        do {
+            *fillWord++ = -1;
+            fillCount--;
+        } while (fillCount != 0);
+    }
+
+    menuIndex = 0;
+    do {
+        if (menuOptions[menuIndex] == -1) {
+            g_aTitleMenuRegions_00468a88[menuIndex].frame = -1;
+        } else {
+            g_aTitleMenuRegions_00468a88[menuIndex].frame = 1;
+            if (menuOptions[menuIndex] < 3) {
+                GetShapeFrameBounds(
+                    &g_aTitleMenuRegions_00468a88[menuIndex].left,
+                    g_aTitleMenuRegions_00468a88[menuIndex].left,
+                    g_aTitleMenuRegions_00468a88[menuIndex].top,
+                    menuShape, menuOptions[menuIndex]);
+            } else {
+                GetShapeFrameBounds(
+                    &g_aTitleMenuRegions_00468a88[menuIndex].left,
+                    g_aTitleMenuRegions_00468a88[menuIndex].left,
+                    g_aTitleMenuRegions_00468a88[menuIndex].top,
+                    alternateMenuShape, 0);
+            }
+        }
+        menuIndex++;
+    } while (menuIndex < 4);
+
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    menuIndex = 0;
+    do {
+        if (menuOptions[menuIndex] != -1) {
+            if (menuOptions[menuIndex] < 3) {
+                DrawSpriteDefault(&DAT_005a6ba0,
+                    g_aTitleMenuRegions_00468a88[menuIndex].left,
+                    g_aTitleMenuRegions_00468a88[menuIndex].top,
+                    menuShape, menuOptions[menuIndex]);
+            } else {
+                DrawSpriteDefault(&DAT_005a6ba0,
+                    g_aTitleMenuRegions_00468a88[menuIndex].left,
+                    g_aTitleMenuRegions_00468a88[menuIndex].top,
+                    alternateMenuShape, 0);
+            }
+        }
+        menuIndex++;
+    } while (menuIndex < 4);
+    DIBslam();
     DIBslamReal();
-    MouseShow();
-    return 0;
+
+    DAT_0059ab23 = &DAT_005a6ba0;
+    SetEventManagerPump(PollMenuInputDevices);
+    *(short *)&g_aInputDeviceSamples_005a81f0[2].x = 6;
+    WarpMouseTo(160, 100);
+    EnterAllocationScope();
+    g_bInputMode_0059a848 = 1;
+    DAT_0046505c = 0;
+    while (state == 0) {
+        selectedIndex = -1;
+        activate = 0;
+        UpdateTitleMenuCursor();
+        eventType = PollInputEvent(&event, 0xff);
+        if (eventType == 2) {
+            activate = 1;
+        } else if (eventType == 3 || eventType == 5) {
+            ClearInputKeyStatePreservingModifiers();
+            switch ((short)event.value) {
+            case 0x1c:
+            case 0x1f:
+            case 0x2e:
+            case 0x39:
+                if ((short)event.value == 0x1f)
+                    selectedIndex = 0;
+                if ((short)event.value == 0x2e &&
+                    menuOptions[2] != -1)
+                    selectedIndex = 1;
+                if ((short)event.value == 0x32 &&
+                    menuOptions[2] != -1)
+                    selectedIndex = 2;
+                activate = 1;
+                break;
+            case 0x24:
+                CalibrateJoystickInteractive(9, 9, 1, 1);
+                break;
+            default:
+                MoveMenuPointerFromKeyboard(&event);
+                break;
+            }
+        }
+        if (activate != 0) {
+            if (selectedIndex == -1)
+                selectedIndex = FindMenuRegionAtPoint(
+                    event.x, event.y, g_aTitleMenuRegions_00468a88);
+            if (selectedIndex < 0 || selectedIndex > 3)
+                state = 0;
+            else
+                state = (signed char)(menuOptions[selectedIndex] + 1);
+        }
+        DIBslam();
+        DIBslamReal();
+    }
+
+    DAT_0046505c = 1;
+    ClearDebugPauseFlags();
+    ReleasePacketHandle((int)menuShape);
+    ReleasePacketHandle((int)alternateMenuShape);
+    SetEventManagerPump(0);
+    EventManagerHook(0);
+    LeaveAllocationScope();
+    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    DIBslam();
+    DIBslamReal();
+    RestoreGamePalette();
+    return state - 1;
 }

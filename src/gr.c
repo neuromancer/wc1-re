@@ -630,6 +630,17 @@ void DrawSpriteScaled(Viewport *viewport, short x, short y,
                           scale, scale, flip, 0);
 }
 
+/* Function start: 0x442000 */
+void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
+                                 unsigned char *shape, short frame,
+                                 short angle, short scale, short flip,
+                                 unsigned char colour)
+{
+    SetSolidColourTranslation(colour);
+    DrawSpriteTransformed(viewport, x, y, shape, frame, angle,
+                          scale, scale, flip, 1);
+}
+
 /* Function start: 0x442050 */
 int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               unsigned char *shape, short frame,

@@ -8,7 +8,7 @@
 #include "wc1.h"
 
 /* Function start: 0x4320E0 */
-void SetFpsCapEnabled(void)
+void SetSpaceFlightFrameTiming(void)
 {
     long v;
 
@@ -19,7 +19,7 @@ void SetFpsCapEnabled(void)
 }
 
 /* Function start: 0x432110 */
-void SetFpsCapDisabled(void)
+void SetCinematicFrameTiming(void)
 {
     long v;
 

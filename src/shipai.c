@@ -1772,6 +1772,39 @@ short spawn_mission_ship(short missionShip, short navPoint)
     return obj;
 }
 
+/* Function start: 0x40CAA0 */
+short __stdcall SampleBothJoysticks(InputDeviceSample *samples,
+                                    unsigned int fallback)
+{
+    GetJoystickPosition((unsigned int *)&samples[0].x,
+                        (unsigned int *)&samples[0].y,
+                        &samples[0].buttons, 0, fallback);
+    GetJoystickPosition((unsigned int *)&samples[1].x,
+                        (unsigned int *)&samples[1].y,
+                        &samples[1].buttons, 1, fallback);
+    return 1;
+}
+
+/* Function start: 0x40CAE0 */
+int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
+                                   short joystick,
+                                   unsigned int fallback)
+{
+    InputDeviceSample *sample;
+    int result;
+
+    if (joystick < 1)
+        sample = &samples[0];
+    else
+        sample = &samples[1];
+    result = GetJoystickPosition((unsigned int *)&sample->x,
+                                 (unsigned int *)&sample->y,
+                                 &sample->buttons, joystick, fallback);
+    if (result != 0)
+        g_nActiveInputDevice_005a819c = -1;
+    return result;
+}
+
 /* Function start: 0x40CBB0 */
 void SetNavCursorIndex(unsigned short v)
 {

@@ -33,6 +33,22 @@ void SelectSaveSlot(short i)
         DAT_00598aba = (unsigned char)v;
 }
 
+/* Function start: 0x43F7C0 */
+short FindMenuRegionAtPoint(short x, short y,
+                            const TitleMenuRegion *regions)
+{
+    short index;
+
+    index = 0;
+    while (regions->frame != -1) {
+        if (IsPointInRect(x, y, &regions->left) != 0)
+            return index;
+        regions++;
+        index++;
+    }
+    return -1;
+}
+
 /* Function start: 0x4408A0 */
 void CheckHeapBlockSignature(int p)
 {

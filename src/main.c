@@ -29,7 +29,7 @@ int main(short argc, char **argv)
     DAT_0046a9f8 = 4;
     DAT_0059a856 = 1;
 
-    SetFpsCapDisabled();
+    SetCinematicFrameTiming();
     g_cCurrentSeries_0059ca6a = 1;
     DAT_0046b168 = 0x13;
     DAT_004700ca = 1;

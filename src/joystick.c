@@ -6,6 +6,172 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x4102B0 */
+void CalibrateJoystickInteractive(short logicalFile, short section,
+                                   short flags, short mode)
+{
+    InputDeviceSample samples[2];
+    short calibration[6];
+    short device;
+    short shown;
+    int file;
+    int failed;
+
+    (void)logicalFile;
+    (void)section;
+    (void)flags;
+    (void)mode;
+    device = g_nActiveInputDevice_005a819c;
+    if (device == -1)
+        return;
+
+    g_stDefaultTextContext_005a7740.alignment = 2;
+    InitializeTextContextFromFont(&g_stDefaultTextContext_005a7740, 1,
+        g_cViewportClearColour_004699a0, (signed char)DAT_0046999c);
+    shown = ShowModalTextPanel(1,
+        "Turn AUTO FIRE off if present, press a button");
+    if (shown != 0) {
+        DIBslamReal();
+        WaitForJoystickButtonPress();
+        WaitForJoystickButtonRelease();
+        ReleaseModalTextPanel();
+    }
+
+    shown = ShowModalTextPanel(1,
+        "Move stick to the UPPER LEFT, press a button");
+    if (shown != 0) {
+        DIBslamReal();
+        WaitForJoystickButtonPress();
+        SampleJoystickDevice(samples, device, 0x7fff);
+        g_nJoystickMinimumX_005a81b8 = samples[device].x;
+        g_nJoystickMinimumY_005a81bc = samples[device].y;
+        calibration[0] = (short)samples[device].x;
+        calibration[1] = (short)samples[device].y;
+        WaitForJoystickButtonRelease();
+        ReleaseModalTextPanel();
+    }
+
+    shown = ShowModalTextPanel(1,
+        "Move stick to the LOWER RIGHT, press a button");
+    if (shown != 0) {
+        DIBslamReal();
+        WaitForJoystickButtonPress();
+        SampleJoystickDevice(samples, device, 0x7fff);
+        g_nJoystickMaximumX_005a81b0 = samples[device].x;
+        g_nJoystickMaximumY_005a81b4 = samples[device].y;
+        calibration[2] = (short)samples[device].x;
+        calibration[3] = (short)samples[device].y;
+        WaitForJoystickButtonRelease();
+        ReleaseModalTextPanel();
+    }
+
+    shown = ShowModalTextPanel(1,
+        "Center Joystick, press a button");
+    if (shown != 0) {
+        DIBslamReal();
+        WaitForJoystickButtonPress();
+        SampleJoystickDevice(samples, device, 0x7fff);
+        g_nJoystickCentreX_005a81dc = samples[device].x;
+        g_nJoystickCentreY_005a81d8 = samples[device].y;
+        calibration[4] = (short)samples[device].x;
+        calibration[5] = (short)samples[device].y;
+        WaitForJoystickButtonRelease();
+        ReleaseModalTextPanel();
+    }
+
+    if (g_nJoystickHorizontalRange_005a81cc == 0)
+        g_nJoystickHorizontalRange_005a81cc = 9;
+    if (g_nJoystickVerticalRange_005a81c8 == 0)
+        g_nJoystickVerticalRange_005a81c8 = 9;
+    g_nJoystickLeftScale_005a81ac =
+        (g_nJoystickCentreX_005a81dc - g_nJoystickMinimumX_005a81b8) /
+        g_nJoystickHorizontalRange_005a81cc;
+    g_nJoystickRightScale_005a81d0 =
+        (g_nJoystickMaximumX_005a81b0 - g_nJoystickCentreX_005a81dc) /
+        g_nJoystickHorizontalRange_005a81cc;
+    g_nJoystickUpScale_005a81a8 =
+        (g_nJoystickCentreY_005a81d8 - g_nJoystickMinimumY_005a81bc) /
+        g_nJoystickVerticalRange_005a81c8;
+    g_nJoystickDownScale_005a81d4 =
+        (g_nJoystickMaximumY_005a81b4 - g_nJoystickCentreY_005a81d8) /
+        g_nJoystickVerticalRange_005a81c8;
+    if (g_nJoystickLeftScale_005a81ac == 0)
+        g_nJoystickLeftScale_005a81ac = 1;
+    if (g_nJoystickRightScale_005a81d0 == 0)
+        g_nJoystickRightScale_005a81d0 = 1;
+    if (g_nJoystickUpScale_005a81a8 == 0)
+        g_nJoystickUpScale_005a81a8 = 1;
+    if (g_nJoystickDownScale_005a81d4 == 0)
+        g_nJoystickDownScale_005a81d4 = 1;
+
+    g_nJoystickMinimumX_005a81b8 = g_nJoystickCentreX_005a81dc -
+        g_nJoystickLeftScale_005a81ac *
+            g_nJoystickHorizontalRange_005a81cc;
+    g_nJoystickMinimumY_005a81bc = g_nJoystickCentreY_005a81d8 -
+        g_nJoystickUpScale_005a81a8 * g_nJoystickVerticalRange_005a81c8;
+    g_nJoystickMaximumX_005a81b0 = g_nJoystickCentreX_005a81dc +
+        g_nJoystickRightScale_005a81d0 *
+            g_nJoystickHorizontalRange_005a81cc;
+    g_nJoystickMaximumY_005a81b4 = g_nJoystickCentreY_005a81d8 +
+        g_nJoystickDownScale_005a81d4 * g_nJoystickVerticalRange_005a81c8;
+    g_nJoystickFailureValue_005a81e0 = g_nJoystickMaximumX_005a81b0 * 2;
+
+    if (g_nJoystickMaximumX_005a81b0 <= g_nJoystickMinimumX_005a81b8 ||
+        g_nJoystickMaximumY_005a81b4 <= g_nJoystickMinimumY_005a81bc) {
+        shown = ShowModalTextPanel(1,
+            "FAILED! Center Joystick, press a button");
+        if (shown != 0) {
+            DIBslamReal();
+            WaitForJoystickButtonPress();
+            WaitForJoystickButtonRelease();
+            ReleaseModalTextPanel();
+        }
+        _unlink("j.cal");
+        return;
+    }
+
+    file = _open("j.cal", 0x8301, 0x180);
+    if (file == -1)
+        return;
+    failed = _write(file, &device, 2) != 2;
+    if (failed == 0)
+        failed = _write(file, calibration, sizeof(calibration)) !=
+                 sizeof(calibration);
+    _close(file);
+    if (failed != 0)
+        _unlink("j.cal");
+}
+
+/* Function start: 0x4106C0 */
+void WaitForJoystickButtonRelease(void)
+{
+    short device;
+
+    device = g_nActiveInputDevice_005a819c;
+    if (device == -1)
+        return;
+    do {
+        PumpWindowMessages();
+        SampleJoystickDevice(g_aInputDeviceSamples_005a81f0, device, 0);
+    } while (g_nActiveInputDevice_005a819c != -1 &&
+             g_aInputDeviceSamples_005a81f0[device].buttons != 0);
+}
+
+/* Function start: 0x410700 */
+void WaitForJoystickButtonPress(void)
+{
+    short device;
+
+    device = g_nActiveInputDevice_005a819c;
+    if (device == -1)
+        return;
+    do {
+        PumpWindowMessages();
+        SampleJoystickDevice(g_aInputDeviceSamples_005a81f0, device, 0);
+    } while (g_nActiveInputDevice_005a819c != -1 &&
+             g_aInputDeviceSamples_005a81f0[device].buttons == 0);
+}
+
 /* Function start: 0x410A30 */
 void rotate_eye_to_goal(void)
 {

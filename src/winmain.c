@@ -632,6 +632,19 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                                 WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT paint;
+    unsigned int scanCode;
+    unsigned int primaryButton;
+    unsigned int secondaryButton;
+    unsigned short mouseX;
+    unsigned short mouseY;
+    unsigned short eventType;
+    int mouseEvent;
+
+    mouseEvent = 0;
+    primaryButton = (unsigned int)wParam & 1;
+    secondaryButton = ((unsigned int)wParam & 2) >> 1;
+    mouseX = (unsigned short)lParam;
+    mouseY = (unsigned short)((unsigned long)lParam >> 16);
 
     switch (message) {
     case WM_SETFOCUS:
@@ -649,22 +662,79 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         EndPaint(window, &paint);
         break;
     case WM_KEYDOWN:
-        DAT_005a8964 = (unsigned int)wParam;
-        if (wParam == VK_F1)
-            DAT_004650ac = (lParam & 0x40000000) == 0;
-        if (((lParam >> 16) & 0xff) == 1)
+        if (DAT_0046505c != 0)
+            QueueInputEvent(3, 0, 0, (unsigned short)wParam,
+                            0, 0, 0);
+        if (wParam == VK_F1) {
+            DAT_004650ac = 1;
+            if ((lParam & 0x40000000) != 0)
+                DAT_004650ac = 0;
+        }
+        scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
+        if (scanCode == 1)
             DAT_0059ab58 = 1;
+        QueueInputEvent(3, 0, 0, (unsigned short)scanCode,
+                        0, 0, 0);
+        SetInputKeyState((int)scanCode, 1);
         break;
     case WM_KEYUP:
-        DAT_005a8964 = 0;
+        if (DAT_0046505c != 0)
+            QueueInputEvent(4, 0, 0, (unsigned short)wParam,
+                            0, 0, 0);
         if (wParam == VK_F1)
             DAT_004650ac = 0;
+        scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
+        QueueInputEvent(4, 0, 0, (unsigned short)scanCode,
+                        0, 0, 0);
+        SetInputKeyState((int)scanCode, 0);
+        break;
+    case WM_SYSKEYDOWN:
+        DAT_005a8964 = (unsigned int)wParam;
+        break;
+    case WM_SYSKEYUP:
+        DAT_005a8964 = 0;
+        break;
+    case WM_COMMAND:
+        if (((unsigned int)wParam & 0xffff) == 3) {
+            DAT_005a8a3c = 0;
+            PostQuitMessage(0);
+        }
         break;
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_SCREENSAVE ||
             (wParam & 0xfff0) == SC_MONITORPOWER)
             return 0;
         break;
+    case WM_MOUSEMOVE:
+        if (g_bPointerMovedByKeyboard_005a7d54 != 0) {
+            g_bPointerMovedByKeyboard_005a7d54 = 0;
+            break;
+        }
+        eventType = 13;
+        QueueInputEvent(eventType, mouseX, mouseY, 0,
+                        primaryButton, secondaryButton, 0);
+        mouseEvent = 1;
+        break;
+    case WM_LBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+        eventType = 2;
+        QueueInputEvent(eventType, mouseX, mouseY, 0,
+                        primaryButton, secondaryButton, 0);
+        mouseEvent = 1;
+        break;
+    case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+        eventType = 1;
+        QueueInputEvent(eventType, mouseX, mouseY, 0,
+                        primaryButton, secondaryButton, 0);
+        mouseEvent = 1;
+        break;
+    }
+    if (mouseEvent != 0) {
+        g_nHostMouseMessageX_005a8990 = mouseX;
+        g_nHostMouseMessageY_005a8994 = mouseY;
+        g_bHostPrimaryMouseButton_005a8998 = primaryButton;
+        g_bHostSecondaryMouseButton_005a899c = secondaryButton;
     }
     return DefWindowProcA(window, message, wParam, lParam);
 }

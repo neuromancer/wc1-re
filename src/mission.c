@@ -295,6 +295,30 @@ unsigned int EMShutDown(void)
     return 0;
 }
 
+/* Function start: 0x421A60 */
+unsigned int InitializeEventManagerResources(void)
+{
+    g_nInputTickScale_0059af90 = 20;
+    g_pMouseCursorResource_005a7cdc =
+        (unsigned char *)FetchDiskPacketRetrying(14, 0, 0x10);
+    DAT_0059ab19 = g_pMouseCursorResource_005a7cdc;
+    DAT_0059ab1d = 0;
+    DAT_0059ab23 = &DAT_005a6ba0;
+    return 0;
+}
+
+/* Function start: 0x421AB0 */
+unsigned int EMStartUp(void)
+{
+    RegisterEventManagerShutdown((void (*)(void))LogMemoryUsage);
+    if (InitializeEventManager(20, InitializeEventManagerResources, 0) == 0)
+        FatalErrorAndExit("EMStartUp Failed");
+    ConfigureEventManagerPointer(DAT_0059ab19, 0);
+    SetEventManagerPump(PollJoystickButtonEvents);
+    g_aInputDeviceSamples_005a81f0[2].x = 6;
+    return 0;
+}
+
 /* Function start: 0x421B10 */
 unsigned int LoadOriginFxDrivers(void)
 {
@@ -353,6 +377,9 @@ unsigned int LoadOriginFxDrivers(void)
         row = row + 1;
     } while (row < 0x300);
     DIBwholePaletteFromTriplets(palette);
+    g_nInputDoubleClickInterval_0046af54 = 2;
+    g_nJoystickFailureValue_005a81e0 = -1;
+    EMStartUp();
     g_dwOriginalFreeMemory_005a7cd8 = GetFixedOneMillionThunkAlt();
     g_nMemoryConfiguration_005a7cd4 = 0;
     g_nAvailableGameMemory_005a7ce0 =
@@ -1601,6 +1628,35 @@ short mine_available(short obj)
     return find_weapon(obj, OBJECT_TYPE_SPACE_MINE);
 }
 
+/* Function start: 0x423D50 */
+int ReleasePacketResourceList(PacketResourceDescriptor *resources,
+                              short releaseFlags)
+{
+    while (resources->resource != 0) {
+        if (*resources->resource != 0)
+            FreePacketAndClear((int *)resources->resource, releaseFlags);
+        resources++;
+    }
+    return 0;
+}
+
+/* Function start: 0x423D80 */
+int LoadPacketResourceList(PacketResourceDescriptor *resources,
+                           short flags, int availableBytes)
+{
+    while (resources->resource != 0) {
+        if (*resources->resource == 0) {
+            *resources->resource = (unsigned char *)FetchDiskPacketRetrying(
+                resources->logicalFile, resources->section,
+                (unsigned short)flags);
+            if (*resources->resource == 0)
+                return availableBytes;
+        }
+        resources++;
+    }
+    return availableBytes;
+}
+
 /* Function start: 0x4243E0 */
 void init_constellation(short scene)
 {
@@ -1765,13 +1821,15 @@ unsigned int ResetSceneFlags(void)
 }
 
 /* Function start: 0x424CE0 */
-unsigned int MouseHide(void)
+unsigned int PreloadMusicTrackHook(short track)
 {
+    (void)track;
     return 0;
 }
 
 /* Function start: 0x424CF0 */
-unsigned int MouseShow(void)
+unsigned int ReleaseMusicTrackHook(short track)
 {
+    (void)track;
     return 0;
 }

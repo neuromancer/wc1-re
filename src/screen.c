@@ -156,6 +156,184 @@ __declspec(naked) unsigned int GetFixedOneMillionThunk(void) { __asm { jmp GetFi
 /* Function start: 0x42FB30 */
 __declspec(naked) unsigned int GetFixedOneMillionThunkAlt(void) { __asm { jmp GetFixedOneMillionAlt } }
 
+/* Function start: 0x430710 */
+short __stdcall UpdateInputDeviceTransitions(short raw)
+{
+    InputDeviceSample *sample;
+    unsigned int now;
+    unsigned short buttons;
+    unsigned short changed;
+    unsigned short previous;
+    short device;
+    int threshold;
+
+    device = g_nActiveInputDevice_005a819c;
+    if (raw == 0)
+        ReadCalibratedJoystick();
+    else
+        SampleJoystickDevice(&g_aInputDeviceSamples_005a81f0[device],
+                             device, 0);
+
+    sample = &g_aInputDeviceSamples_005a81f0[device];
+    g_asInputButton2DoubleClick_0059e520[device] = 0;
+    g_asInputButton1DoubleClick_0059e508[device] = 0;
+    g_asInputButton2Changed_0059e510[device] = 0;
+    g_asInputButton1Changed_0059e50c[device] = 0;
+    buttons = (unsigned short)sample->buttons;
+    previous = (unsigned short)g_asPreviousInputButtons_0059e514[device];
+    if (buttons != previous) {
+        changed = buttons ^ previous;
+        now = DAT_0059ab54;
+        threshold = g_nInputDoubleClickInterval_0046af54 *
+                    g_nInputTickScale_0059af90;
+        if ((changed & 1) != 0) {
+            g_asInputButton1Changed_0059e50c[device] = 1;
+            if ((buttons & 1) != 0) {
+                if ((int)(now -
+                    g_anInputButton1PressTime_0059e518[device]) <=
+                        threshold)
+                    g_asInputButton1DoubleClick_0059e508[device] = 1;
+                g_anInputButton1PressTime_0059e518[device] = now;
+            }
+        }
+        if ((changed & 2) != 0) {
+            g_asInputButton2Changed_0059e510[device] = 1;
+            if ((buttons & 2) != 0) {
+                if ((int)(now -
+                    g_anInputButton2PressTime_0059e500[device]) <=
+                        threshold)
+                    g_asInputButton2DoubleClick_0059e520[device] = 1;
+                g_anInputButton2PressTime_0059e500[device] = now;
+            }
+        }
+        g_asPreviousInputButtons_0059e514[device] = (short)buttons;
+    }
+    return 1;
+}
+
+/* Function start: 0x430840 */
+void PollJoystickButtonEvents(void)
+{
+    InputDeviceSample *sample;
+    short device;
+    short doubleClick;
+
+    device = g_nActiveInputDevice_005a819c;
+    if (device == -1 || g_bInputPollingGuard_0046a01c != 0)
+        return;
+    g_bInputPollingGuard_0046a01c++;
+    UpdateInputDeviceTransitions(1);
+    sample = &g_aInputDeviceSamples_005a81f0[device];
+    if (g_asInputButton1Changed_0059e50c[device] != 0) {
+        doubleClick = g_asInputButton1DoubleClick_0059e508[device] != 0 ?
+                      3 : 0;
+        QueueInputEventAtCursor(((unsigned short)sample->buttons & 1) + 1,
+                                0, doubleClick);
+    }
+    if (g_asInputButton2Changed_0059e510[device] != 0) {
+        doubleClick = g_asInputButton2DoubleClick_0059e520[device] != 0 ?
+                      3 : 0;
+        QueueInputEventAtCursor(
+            (((unsigned short)sample->buttons >> 1) & 1) + 1,
+            1, doubleClick);
+    }
+    g_bInputPollingGuard_0046a01c--;
+    g_bPreviousPrimaryInputButton_0059af74 =
+        (unsigned char)sample->buttons;
+    g_bPreviousSecondaryInputButton_0059af75 =
+        (unsigned char)sample->buttons;
+}
+
+/* Function start: 0x430920 */
+void PollMenuInputDevices(void)
+{
+    InputDeviceSample *sample;
+    short device;
+    short doubleClick;
+    int buttonChanges;
+
+    buttonChanges = 0;
+    device = g_nActiveInputDevice_005a819c;
+    if (device == -1)
+        return;
+    g_nHostMouseX_0059af70 = g_nMouseX_0059ab10;
+    g_nHostMouseY_0059af72 = g_nMouseY_0059ab12;
+    if (g_bInputPollingGuard_0046a01c != 0)
+        return;
+    g_bInputPollingGuard_0046a01c++;
+    UpdateInputDeviceTransitions(0);
+    sample = &g_aInputDeviceSamples_005a81f0[device];
+
+    if (g_asInputButton1Changed_0059e50c[device] != 0) {
+        g_nHostMouseX_0059af70 +=
+            (short)(sample->x * g_nMenuPointerSpeed_0046af58);
+        g_nHostMouseY_0059af72 +=
+            (short)(sample->y * g_nMenuPointerSpeed_0046af58);
+        doubleClick = g_asInputButton1DoubleClick_0059e508[device] != 0 ?
+                      3 : 0;
+        QueueInputEventAtCursor(((unsigned short)sample->buttons & 1) + 1,
+                                0, doubleClick);
+        buttonChanges = 1;
+    }
+    if (g_asInputButton2Changed_0059e510[device] != 0) {
+        g_nHostMouseX_0059af70 +=
+            (short)(sample->x * g_nMenuPointerSpeed_0046af58);
+        g_nHostMouseY_0059af72 +=
+            (short)(sample->y * g_nMenuPointerSpeed_0046af58);
+        doubleClick = g_asInputButton1DoubleClick_0059e508[device] != 0 ?
+                      3 : 0;
+        QueueInputEventAtCursor(
+            (((unsigned short)sample->buttons >> 1) & 1) + 1,
+            1, doubleClick);
+        buttonChanges++;
+    }
+    if (buttonChanges == 0) {
+        g_nHostMouseX_0059af70 +=
+            (short)(sample->x * g_nMenuPointerSpeed_0046af58);
+        g_nHostMouseY_0059af72 +=
+            (short)(sample->y * g_nMenuPointerSpeed_0046af58);
+        if ((signed char)sample->x != 0 ||
+            (signed char)sample->y != 0) {
+            FlushInputEvents();
+            if (g_nHostMouseX_0059af70 < 0)
+                g_nHostMouseX_0059af70 = 0;
+            else if (g_nHostMouseX_0059af70 > 319)
+                g_nHostMouseX_0059af70 = 319;
+            if (g_nHostMouseY_0059af72 < 0)
+                g_nHostMouseY_0059af72 = 0;
+            else if (g_nHostMouseY_0059af72 > 199)
+                g_nHostMouseY_0059af72 = 199;
+            SetMousePosition(g_nHostMouseX_0059af70,
+                             g_nHostMouseY_0059af72);
+        }
+    }
+
+    g_bPreviousPrimaryInputButton_0059af74 =
+        (unsigned char)sample->buttons;
+    g_bPreviousSecondaryInputButton_0059af75 =
+        (unsigned char)sample->buttons;
+    if (g_nHostMouseX_0059af70 < 0)
+        g_nHostMouseX_0059af70 = 0;
+    else if (g_nHostMouseX_0059af70 > 319)
+        g_nHostMouseX_0059af70 = 319;
+    if (g_nHostMouseY_0059af72 < 0)
+        g_nHostMouseY_0059af72 = 0;
+    else if (g_nHostMouseY_0059af72 > 199)
+        g_nHostMouseY_0059af72 = 199;
+    if (buttonChanges != 0) {
+        LeaveAllocationScope();
+        g_bPrimaryMouseButton_0059ab14 =
+            g_bPreviousPrimaryInputButton_0059af74;
+        g_nMouseX_0059ab10 = g_nHostMouseX_0059af70;
+        g_nMouseY_0059ab12 = g_nHostMouseY_0059af72;
+        g_bSecondaryMouseButton_0059ab15 =
+            g_bPreviousSecondaryInputButton_0059af75;
+        g_wInputFlags_0059ab17 = g_wPreviousMenuInputFlags_0059af77;
+        EnterAllocationScope();
+    }
+    g_bInputPollingGuard_0046a01c--;
+}
+
 /* Function start: 0x430BC0 */
 short StepMenuSelection(short v, int flag)
 {
@@ -299,6 +477,82 @@ void ShowCentredPrompt(char *text, unsigned short arg)
 void ShutdownVideoHook(void)
 {
     ReleaseVideoResourcesHook();
+}
+
+/* Function start: 0x431D20 */
+short ReadCalibratedJoystick(void)
+{
+    InputDeviceSample *sample;
+    int rawX;
+    int rawY;
+    int normalizedX;
+    int normalizedY;
+    short device;
+
+    device = g_nActiveInputDevice_005a819c;
+    if (device == -1)
+        return 0;
+    sample = &g_aInputDeviceSamples_005a81f0[device];
+    if (SampleJoystickDevice(sample, device,
+                             g_nJoystickFailureValue_005a81e0) != 0 ||
+        sample->x == g_nJoystickFailureValue_005a81e0 ||
+        sample->y == g_nJoystickFailureValue_005a81e0) {
+        g_nActiveInputDevice_005a819c = -1;
+        sample->x = 0;
+        sample->y = 0;
+        sample->buttons = 0;
+        return 0;
+    }
+
+    rawX = sample->x;
+    rawY = sample->y;
+    g_nJoystickRawX_005a81c0 = rawX;
+    g_nJoystickRawY_005a81c4 = rawY;
+    if (sample->x < g_nJoystickMinimumX_005a81b8)
+        sample->x = g_nJoystickMinimumX_005a81b8;
+    if (sample->x > g_nJoystickMaximumX_005a81b0)
+        sample->x = g_nJoystickMaximumX_005a81b0;
+    if (sample->y < g_nJoystickMinimumY_005a81bc)
+        sample->y = g_nJoystickMinimumY_005a81bc;
+    if (sample->y > g_nJoystickMaximumY_005a81b4)
+        sample->y = g_nJoystickMaximumY_005a81b4;
+
+    normalizedX = 0;
+    if (sample->x < g_nJoystickCentreX_005a81dc &&
+        g_nJoystickLeftScale_005a81ac != 0) {
+        normalizedX = (g_nJoystickCentreX_005a81dc - sample->x) /
+                      g_nJoystickLeftScale_005a81ac;
+        if (normalizedX > g_nJoystickHorizontalDeadZone_005a81a4)
+            normalizedX = -normalizedX;
+        else
+            normalizedX = 0;
+    } else if (sample->x > g_nJoystickCentreX_005a81dc &&
+               g_nJoystickRightScale_005a81d0 != 0) {
+        normalizedX = (sample->x - g_nJoystickCentreX_005a81dc) /
+                      g_nJoystickRightScale_005a81d0;
+        if (normalizedX <= g_nJoystickHorizontalDeadZone_005a81a4)
+            normalizedX = 0;
+    }
+
+    normalizedY = 0;
+    if (sample->y < g_nJoystickCentreY_005a81d8 &&
+        g_nJoystickUpScale_005a81a8 != 0) {
+        normalizedY = (g_nJoystickCentreY_005a81d8 - sample->y) /
+                      g_nJoystickUpScale_005a81a8;
+        if (normalizedY > g_nJoystickVerticalDeadZone_005a81a0)
+            normalizedY = -normalizedY;
+        else
+            normalizedY = 0;
+    } else if (sample->y > g_nJoystickCentreY_005a81d8 &&
+               g_nJoystickDownScale_005a81d4 != 0) {
+        normalizedY = (sample->y - g_nJoystickCentreY_005a81d8) /
+                      g_nJoystickDownScale_005a81d4;
+        if (normalizedY <= g_nJoystickVerticalDeadZone_005a81a0)
+            normalizedY = 0;
+    }
+    sample->x = (short)normalizedX;
+    sample->y = (short)normalizedY;
+    return 1;
 }
 
 /* Function start: 0x431F00 */

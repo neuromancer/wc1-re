@@ -283,6 +283,51 @@ void RedrawCommWindow(void)
     SetMouseCursorShape(DAT_0059ab19, 0);
 }
 
+/* Function start: 0x42A700 */
+void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
+                                           unsigned short colour,
+                                           short enabled)
+{
+    unsigned short source[256][3];
+    unsigned short palette[256][3];
+    unsigned short target[3];
+    short index;
+    short component;
+    short step;
+
+    (void)viewport;
+    (void)enabled;
+    if (DAT_0046b168 != 0x13)
+        return;
+
+    GetPaletteEntry((short)colour, target);
+    index = 0;
+    do {
+        GetPaletteEntry(index, source[index]);
+        index++;
+    } while (index < 256);
+
+    step = 1;
+    do {
+        index = 0;
+        do {
+            component = 0;
+            do {
+                palette[index][component] = (unsigned short)(
+                    source[index][component] +
+                    ((int)target[component] - source[index][component]) *
+                        step / 4);
+                component++;
+            } while (component < 3);
+            index++;
+        } while (index < 256);
+        DIBwholePaletteFromWords(&palette[0][0]);
+        DIBslam();
+        DIBslamReal();
+        step++;
+    } while (step <= 4);
+}
+
 /* Function start: 0x42A8F0 */
 short find_objective(int type, short index)
 {

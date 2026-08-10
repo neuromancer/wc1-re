@@ -306,9 +306,10 @@ void SceneLeaveHook(void)
 }
 
 /* Function start: 0x42E880 */
-unsigned int StartMusicTrack(short track, short mode)
+unsigned int StartMusicTrack(short track, short mode, short enabled)
 {
     (void)mode;
+    (void)enabled;
     if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
         DAT_0046aa14 = (unsigned short)track;
     return 1;

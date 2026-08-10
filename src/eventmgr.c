@@ -649,6 +649,7 @@ void sort_object_depth(void)
 void draw_sorted_objects_to_buffer(void)
 {
     int obj;
+    unsigned char *shape;
     short screenX;
     short screenY;
     short sorted;
@@ -658,28 +659,72 @@ void draw_sorted_objects_to_buffer(void)
         obj = g_anSortedObject_0059aa00[sorted];
         if (obj < 0)
             return;
-        if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL &&
-            (int)g_aeObjectType_0059b560[obj] >= 0) {
-            screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
-                (DAT_005a7510.left + DAT_005a7510.right + 1) / 2);
-            screenY = (short)(g_asObjectScreenY_0059d930[obj] +
-                (DAT_005a7510.top + DAT_005a7510.bottom + 1) / 2);
-            if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_STAR &&
-                g_aeObjectClass_0059d100[obj] <= OBJECT_CLASS_DUST) {
-                DrawSpriteDefault(&DAT_005a7510, screenX, screenY,
-                                  g_pConstellationShape_005a765c,
-                                  g_asObjectViewFrame_0059d230[obj]);
-            } else if (g_apObjectShape_0059d2f0[obj] != 0) {
-                DrawSpriteTransformed(&DAT_005a7510, screenX, screenY,
-                                      g_apObjectShape_0059d2f0[obj],
-                                      g_asObjectViewFrame_0059d230[obj],
-                                      g_asObjectScreenAngle_0059cd90[obj],
-                                      g_asObjectScreenScale_0059c950[obj],
-                                      g_asObjectScreenScale_0059c950[obj],
-                                      g_asObjectFlip_0059c870[obj], 0);
-            }
+        if ((int)g_aeObjectType_0059b560[obj] < 0)
+            return;
+        if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_NULL) {
+            sorted++;
+            continue;
+        }
+
+        screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
+                          g_nViewCenterX_0059a852);
+        screenY = (short)(g_asObjectScreenY_0059d930[obj] +
+                          g_nViewCenterY_0059a854);
+        g_asObjectDrawX_0059d000[obj] = screenX;
+        g_asObjectDrawY_0059cf80[obj] = screenY;
+        if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_STAR &&
+            g_aeObjectClass_0059d100[obj] <= OBJECT_CLASS_DUST) {
+            if (obj == DAT_00469208)
+                shape = g_apObjectShape_0059d2f0[obj];
+            else
+                shape = g_pConstellationShape_005a765c;
+            DrawSpriteDefault(&DAT_005a7510, screenX, screenY, shape,
+                              g_asObjectViewFrame_0059d230[obj]);
+        } else if (g_apObjectShape_0059d2f0[obj] != 0) {
+            DrawSpriteScaled(&DAT_005a7510, screenX, screenY,
+                             g_apObjectShape_0059d2f0[obj],
+                             g_asObjectViewFrame_0059d230[obj],
+                             g_asObjectScreenAngle_0059cd90[obj],
+                             g_asObjectScreenScale_0059c950[obj],
+                             g_asObjectFlip_0059c870[obj]);
         }
         sorted++;
+    }
+}
+
+/* Function start: 0x436650 */
+void intro_drawbackgroundships(void)
+{
+    unsigned char *shape;
+    short obj;
+
+    obj = 0;
+    while (obj < WC1_SPACE_OBJECT_COUNT) {
+        if ((int)g_aeObjectType_0059b560[obj] < 0)
+            return;
+        if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL) {
+            if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_STAR &&
+                g_aeObjectClass_0059d100[obj] <= OBJECT_CLASS_DUST) {
+                if (obj == DAT_00469208)
+                    shape = g_apObjectShape_0059d2f0[obj];
+                else
+                    shape = g_pConstellationShape_005a765c;
+                DrawSolidColourSprite(&DAT_005a7510,
+                    g_asObjectDrawX_0059d000[obj],
+                    g_asObjectDrawY_0059cf80[obj], shape,
+                    g_asObjectViewFrame_0059d230[obj], DAT_004699d8);
+            } else if (g_apObjectShape_0059d2f0[obj] != 0) {
+                DrawSolidColourSpriteScaled(&DAT_005a7510,
+                    g_asObjectDrawX_0059d000[obj],
+                    g_asObjectDrawY_0059cf80[obj],
+                    g_apObjectShape_0059d2f0[obj],
+                    g_asObjectViewFrame_0059d230[obj],
+                    g_asObjectScreenAngle_0059cd90[obj],
+                    g_asObjectScreenScale_0059c950[obj],
+                    g_asObjectFlip_0059c870[obj], DAT_004699d8);
+            }
+        }
+        obj++;
     }
 }
 

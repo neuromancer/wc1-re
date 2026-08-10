@@ -188,6 +188,11 @@ void initialize_mission_ship(short obj, short missionShip,
                              signed char navPoint);                     /* 0x0040C5E0 */
 unsigned int IsInitialMissionShip(short missionShip);                  /* 0x0040C740 */
 short spawn_mission_ship(short missionShip, short navPoint);            /* 0x0040C800 */
+short __stdcall SampleBothJoysticks(InputDeviceSample *samples,
+                                    unsigned int fallback);             /* 0x0040CAA0 */
+int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
+                                   short joystick,
+                                   unsigned int fallback);              /* 0x0040CAE0 */
 void SetNavCursorIndex(unsigned short v);                                /* 0x0040CBB0 */
 void ObjectDrawHook(short *p);                                          /* 0x0040CBC0 */
 void ClearNavHazardFlag(void);                                           /* 0x0040D1D0 */
@@ -199,7 +204,12 @@ void NudgeObjectX(short i, short dx, short dy);                 /* 0x0040EFE0 */
 void __stdcall free_viewport(Viewport *viewport);                      /* 0x0040F940 */
 unsigned short GetPaletteReadyUnused(void);                                    /* 0x0040FA30 */
 void DrawTitleLogo(short distance, short y);                            /* 0x0040FA40 */
+void UpdateTitleMenuCursor(void);                                      /* 0x0040FB10 */
 int Title_Sequence(void);                                               /* 0x0040FB70 */
+void CalibrateJoystickInteractive(short logicalFile, short section,
+                                   short flags, short mode);            /* 0x004102B0 */
+void WaitForJoystickButtonRelease(void);                               /* 0x004106C0 */
+void WaitForJoystickButtonPress(void);                                 /* 0x00410700 */
 void rotate_eye_to_goal(void);                                         /* 0x00410A30 */
 short GetVectorMagnitude(const FixedVector *vector);                   /* 0x00410AD0 */
 void set_eye_direction_and_position(void);                             /* 0x00410AF0 */
@@ -419,6 +429,7 @@ void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
 void RestoreModalTextPanel(ModalTextPanel *panel);                     /* 0x0041AB60 */
 short ShowModalTextPanel(short fontIndex, const char *format, ...);    /* 0x0041AB90 */
 void ReleaseModalTextPanel(void);                                      /* 0x0041AD10 */
+short AnySavedGames(void);                                             /* 0x0041AD50 */
 DWORD WINAPI DebugOverlayWorkerProc(void *parameter);                  /* 0x0041C960 */
 LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
                                        LPARAM flags);                  /* 0x0041CA60 */
@@ -436,7 +447,9 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
 unsigned int DrawTextAt(TextContext *context, short x, short y,
                         char *text, unsigned char alignment);           /* 0x0041D5F0 */
 unsigned int GetZeroUnused(void);                                        /* 0x0041DA00 */
+short CheckEscaped(void);                                               /* 0x0041DA10 */
 short WaitForInputKey(void);                                         /* 0x0041DAA0 */
+void MoveMenuPointerFromKeyboard(InputEventState *event);               /* 0x0041DC70 */
 void WaitForStreamIdle(void);                                       /* 0x0041DEB0 */
 short initialize_object(short obj, enum ObjectType type,
                         short owner);                                  /* 0x0041DEE0 */
@@ -481,6 +494,8 @@ unsigned int housekeep_power_plant_and_fuel(short ship);                /* 0x004
 unsigned int replenish_shields(short ship);                            /* 0x00421780 */
 unsigned int replenish_weapon_energy_bank(short ship);                 /* 0x00421830 */
 unsigned int EMShutDown(void);                                         /* 0x00421A40 */
+unsigned int InitializeEventManagerResources(void);                    /* 0x00421A60 */
+unsigned int EMStartUp(void);                                          /* 0x00421AB0 */
 unsigned int LoadOriginFxDrivers(void);                                 /* 0x00421B10 */
 unsigned int InitializeGameTextContexts(void);                          /* 0x00421D80 */
 unsigned int GetFxDriverInitResult(void);                                      /* 0x00421FE0 */
@@ -572,6 +587,10 @@ short find_ratio(short inputMinimum, short inputMaximum, short input,
                  short outputMinimum, short outputMaximum);          /* 0x00423BA0 */
 short evaluate_damage(short obj);                                       /* 0x00423C00 */
 short mine_available(short obj);                                      /* 0x00423CD0 */
+int ReleasePacketResourceList(PacketResourceDescriptor *resources,
+                              short releaseFlags);                     /* 0x00423D50 */
+int LoadPacketResourceList(PacketResourceDescriptor *resources,
+                           short flags, int availableBytes);           /* 0x00423D80 */
 void init_constellation(short scene);                                  /* 0x004243E0 */
 void free_constellation(void);                                         /* 0x00424490 */
 void init_3Space_objects(short scene);                                 /* 0x00424A80 */
@@ -580,8 +599,8 @@ void remove_all_3d_objects(void);                                      /* 0x0042
 void free_3Space(void);                                                /* 0x00424BA0 */
 void free_3Space_objects(void);                                        /* 0x00424BE0 */
 unsigned int ResetSceneFlags(void);                                      /* 0x00424C60 */
-unsigned int MouseHide(void);                                      /* 0x00424CE0 */
-unsigned int MouseShow(void);                                      /* 0x00424CF0 */
+unsigned int PreloadMusicTrackHook(short track);                       /* 0x00424CE0 */
+unsigned int ReleaseMusicTrackHook(short track);                       /* 0x00424CF0 */
 void SceneEnterHook(void);                                            /* 0x00425AF0 */
 void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
                                short columns, short rows);             /* 0x00425B00 */
@@ -632,6 +651,9 @@ short GetShipDistanceToNavPoint(short ship, MissionNavPoint *navPoint); /* 0x004
 short FindNearestNavPoint(short ship);                               /* 0x0042A120 */
 unsigned int ReleaseStaleNavTarget(void);                                     /* 0x0042A170 */
 void RedrawCommWindow(void);                                       /* 0x0042A670 */
+void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
+                                           unsigned short colour,
+                                           short enabled);             /* 0x0042A700 */
 short find_objective(int type, short index);                         /* 0x0042A8F0 */
 void arrive_from_warp(short obj);                                      /* 0x0042A950 */
 unsigned int unwarp(short obj);                                       /* 0x0042AA10 */
@@ -685,7 +707,8 @@ void PaletteFadeHook(void);                                            /* 0x0042
 void FlushSoundEffect(void);                                               /* 0x0042E3A0 */
 void FlushSoundEffects(void);                                               /* 0x0042E3C0 */
 void SceneLeaveHook(void);                                            /* 0x0042E3E0 */
-unsigned int StartMusicTrack(short track, short mode);                  /* 0x0042E880 */
+unsigned int StartMusicTrack(short track, short mode,
+                             short enabled);                           /* 0x0042E880 */
 void StopMusicUnlessSuppressed(void);                                        /* 0x0042E8B0 */
 unsigned short GetMusicMode(void);                                /* 0x0042E8D0 */
 void ResetSoundState(void);                                             /* 0x0042EE80 */
@@ -709,6 +732,9 @@ void *AllocateTaggedMemory(unsigned int size, unsigned short flags);   /* 0x0042
 void ReleasePacketHandle(int handle);                                 /* 0x0042FAE0 */
 unsigned int GetFixedOneMillionThunk(void);                  /* 0x0042FB20 */
 unsigned int GetFixedOneMillionThunkAlt(void);               /* 0x0042FB30 */
+short __stdcall UpdateInputDeviceTransitions(short raw);               /* 0x00430710 */
+void PollJoystickButtonEvents(void);                                   /* 0x00430840 */
+void PollMenuInputDevices(void);                                       /* 0x00430920 */
 short StepMenuSelection(short v, int flag);                                 /* 0x00430BC0 */
 int IsCommMenuIdle(void);                                              /* 0x00430CA0 */
 void AppendCommMenuChoice(char *text, short command);                    /* 0x00430CB0 */
@@ -727,9 +753,10 @@ void EndCommSessionWithWingman(void);                                  /* 0x0043
 void EndCommMenu(void);                                              /* 0x004314C0 */
 void ShowCentredPrompt(char *text, unsigned short arg);                       /* 0x004314F0 */
 void ShutdownVideoHook(void);                                               /* 0x004318F0 */
+short ReadCalibratedJoystick(void);                                    /* 0x00431D20 */
 void ThrottleFrameAndDrawFps(HDC dc);                                       /* 0x00431F00 */
-void SetFpsCapEnabled(void);                                             /* 0x004320E0 */
-void SetFpsCapDisabled(void);                                             /* 0x00432110 */
+void SetSpaceFlightFrameTiming(void);                                  /* 0x004320E0 */
+void SetCinematicFrameTiming(void);                                    /* 0x00432110 */
 void DIBerror(const char *tag, int hr);                                 /* 0x00432140 */
 void DIBpositionWindow(void);                                           /* 0x00432230 */
 void DIBreInstall(void);                                                /* 0x004322B0 */
@@ -874,6 +901,7 @@ void ClearInputKeyState(void);                                        /* 0x00436
 void SetInputKeyState(int scanCode, unsigned char pressed);            /* 0x00436420 */
 void sort_object_depth(void);                                          /* 0x00436460 */
 void draw_sorted_objects_to_buffer(void);                              /* 0x00436520 */
+void intro_drawbackgroundships(void);                                  /* 0x00436650 */
 void MouseIdleHook(void);                                           /* 0x004368C0 */
 unsigned short GetNavRangeSentinel(void);                                   /* 0x004368E0 */
 unsigned short GetOriginalFreeMemory(void);                                   /* 0x004368F0 */
@@ -899,6 +927,8 @@ void ClearSaveSlotFlag(void);                                            /* 0x00
 int IsSaveSlotFree(void);                                            /* 0x0043F6A0 */
 void ClearLoadSlotFlag(void);                                            /* 0x0043F720 */
 void SelectSaveSlot(short i);                                        /* 0x0043F730 */
+short FindMenuRegionAtPoint(short x, short y,
+                            const TitleMenuRegion *regions);           /* 0x0043F7C0 */
 void CheckHeapBlockSignature(int p);                                              /* 0x004408A0 */
 unsigned int GetHeapBlockSize(int p);                              /* 0x004408C0 */
 unsigned int SignExtendClipCoord(unsigned short v);                         /* 0x00440BE0 */
@@ -939,6 +969,10 @@ void DrawViewportBorder(Viewport *viewport, short left, short top,
 void DrawSpriteScaled(Viewport *viewport, short x, short y,
                       unsigned char *shape, short frame, short angle,
                       short scale, short flip);                       /* 0x00441FC0 */
+void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
+                                 unsigned char *shape, short frame,
+                                 short angle, short scale, short flip,
+                                 unsigned char colour);                /* 0x00442000 */
 int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               unsigned char *shape, short frame,
                               short angle, short scale, int flip,

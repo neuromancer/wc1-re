@@ -101,6 +101,31 @@ unsigned int GetZeroUnused(void)
     return 0;
 }
 
+/* Function start: 0x41DA10 */
+short CheckEscaped(void)
+{
+    InputEventState event;
+    short escaped;
+
+    PumpWindowMessages();
+    escaped = 0;
+    if (IsInputEventQueued(10) != 0) {
+        PeekInputEvent(&event, 10);
+        escaped = (short)event.value + 1;
+    } else if (IsInputEventQueued(2) != 0) {
+        PeekInputEvent(&event, 2);
+        escaped = (short)event.value + 1;
+    } else if (IsInputEventQueued(3) != 0) {
+        PeekInputEvent(&event, 3);
+        escaped = (short)event.value + 1;
+        while (PollInputEvent(&event, 0xff) != 0)
+            ;
+    }
+    if (escaped != 0)
+        FlushInputEvents();
+    return escaped;
+}
+
 /* Function start: 0x41DAA0 */
 short WaitForInputKey(void)
 {
@@ -141,6 +166,84 @@ short WaitForInputKey(void)
     g_bInputMode_0059a848 = savedMode;
     FlushInputEvents();
     return key;
+}
+
+/* Function start: 0x41DC70 */
+void MoveMenuPointerFromKeyboard(InputEventState *event)
+{
+    short delta;
+    short scanCode;
+    int moved;
+
+    delta = (short)(g_nKeyboardPointerStep_004696a4 * 2);
+    scanCode = (short)event->value;
+    moved = 0;
+    if (scanCode == 0x4c) {
+        if (g_nKeyboardPointerStep_004696a4 == 1)
+            g_nKeyboardPointerStep_004696a4 = 4;
+        else
+            g_nKeyboardPointerStep_004696a4 = 1;
+    } else {
+        switch (scanCode) {
+        case 0x47:
+            g_nMouseY_0059ab12 -= delta;
+            g_nMouseX_0059ab10 -= delta;
+            moved = 1;
+            break;
+        case 0x48:
+            g_nMouseY_0059ab12 -= delta;
+            moved = 1;
+            break;
+        case 0x49:
+            g_nMouseX_0059ab10 += delta;
+            g_nMouseY_0059ab12 -= delta;
+            moved = 1;
+            break;
+        case 0x4b:
+            g_nMouseX_0059ab10 -= delta;
+            moved = 1;
+            break;
+        case 0x4d:
+            g_nMouseX_0059ab10 += delta;
+            moved = 1;
+            break;
+        case 0x4f:
+            g_nMouseX_0059ab10 -= delta;
+            g_nMouseY_0059ab12 += delta;
+            moved = 1;
+            break;
+        case 0x50:
+            g_nMouseY_0059ab12 += delta;
+            moved = 1;
+            break;
+        case 0x51:
+            g_nMouseX_0059ab10 += delta;
+            g_nMouseY_0059ab12 += delta;
+            moved = 1;
+            break;
+        }
+    }
+
+    if (g_nMouseX_0059ab10 < 0)
+        g_nMouseX_0059ab10 = 0;
+    else if (g_nMouseX_0059ab10 > 320)
+        g_nMouseX_0059ab10 = 320;
+    if (g_nMouseY_0059ab12 < 0)
+        g_nMouseY_0059ab12 = 0;
+    else if (g_nMouseY_0059ab12 > 320)
+        g_nMouseY_0059ab12 = 320;
+
+    g_nHostMouseX_0059af70 = g_nMouseX_0059ab10;
+    g_nHostMouseY_0059af72 = g_nMouseY_0059ab12;
+    if (moved != 0) {
+        RetainInputEventsOfType(3);
+        QueueInputEvent(13, (unsigned short)g_nMouseX_0059ab10,
+                        (unsigned short)g_nMouseY_0059ab12,
+                        0, 0, 0, 0);
+        g_bPointerMovedByKeyboard_005a7d54 = 1;
+        SetMousePosition(g_nHostMouseX_0059af70,
+                         g_nHostMouseY_0059af72);
+    }
 }
 
 /* Function start: 0x41DEB0 */
