@@ -708,8 +708,12 @@ void PaletteFadeHook(void);                                            /* 0x0042
 void FlushSoundEffect(void);                                               /* 0x0042E3A0 */
 void FlushSoundEffects(void);                                               /* 0x0042E3C0 */
 void SceneLeaveHook(void);                                            /* 0x0042E3E0 */
-unsigned int StartMusicTrack(short track, short mode,
-                             short enabled);                           /* 0x0042E880 */
+void SelectFlightMusicTrack(int track);                              /* 0x0042E3F0 */
+int MapMusicTrackToStreamerCommand(int track);                       /* 0x0042E520 */
+void ProcessMusicScriptCommand(int track, int command,
+                               int enabled);                         /* 0x0042E6F0 */
+unsigned int StartMusicTrack(int track, int mode,
+                             int enabled);                             /* 0x0042E880 */
 void StopMusicUnlessSuppressed(void);                                        /* 0x0042E8B0 */
 unsigned short GetMusicMode(void);                                /* 0x0042E8D0 */
 void ResetSoundState(void);                                             /* 0x0042EE80 */
@@ -993,8 +997,16 @@ void fizzle_fade(Viewport *source, Viewport *destination,
 void snow_viewport(Viewport *viewport, int effect,
                    unsigned int colour);                              /* 0x00442300 */
 void UpdateStreamerStoppedFlag(void);                                    /* 0x00442330 */
+void InitializeAudioStreamer(HWND window);                            /* 0x00442370 */
+void Streamer_open(const char *streamName);                           /* 0x004423B0 */
+void Streamer_play(void);                                             /* 0x00442430 */
 void Streamer_stop(void);                                                /* 0x00442460 */
+void ClearStreamerTrigger(void);                                      /* 0x004424B0 */
+void Streamer_trigger(int trigger);                                   /* 0x004424D0 */
+void SetStreamerIntensity(unsigned char intensity);                   /* 0x00442520 */
+void ForceStreamerTrigger(int trigger);                               /* 0x00442550 */
 void SetMusicStreamVolume(unsigned short volume);                     /* 0x00442590 */
+void Streamer_close(void);                                            /* 0x004425D0 */
 int ReadCheaterFlagFromRegistry(void);                                /* 0x00442600 */
 void ix_system_service_sounds(void);                                     /* 0x004472A7 */
 void ix_system_shutdown(void);                                            /* 0x004473F3 */
@@ -1005,6 +1017,14 @@ void ix_system_delete_sound(IxSound *sound);                              /* 0x0
 void __fastcall ix_sound_release(IxSound *sound);                    /* 0x0044801E */
 void __fastcall ix_sound_stop(IxSound *sound);                       /* 0x004480CF */
 int __fastcall ix_sound_is_playing(IxSound *sound);                  /* 0x00448678 */
+int ix_streamer_init(void);                                           /* 0x00442750 */
+void ix_streamer_configure(int option, void *value);                  /* 0x0044291E */
+int ix_streamer_open_stream_file(char *path);                         /* 0x004429B6 */
+void ix_streamer_close_stream_file(void);                             /* 0x0044307A */
+void ix_streamer_audio_play(void);                                    /* 0x004431F3 */
+void ix_streamer_set_intensity(unsigned char intensity);              /* 0x0044336B */
+void ix_streamer_set_trigger(char trigger);                           /* 0x004433C1 */
+void ix_streamer_force_trigger(char trigger);                         /* 0x0044342E */
 void ix_streamer_set_volume(unsigned short volume);                   /* 0x004435BE */
 
 #endif /* WC1_FUNCS_H */

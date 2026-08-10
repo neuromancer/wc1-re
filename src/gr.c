@@ -770,6 +770,46 @@ void UpdateStreamerStoppedFlag(void)
         DAT_0046aa04 = (g_dwStreamerState_00597cd0 & 4) == 0;
 }
 
+/* Function start: 0x442370 */
+void InitializeAudioStreamer(HWND window)
+{
+    if (DAT_00465058 != 0) {
+        ix_streamer_configure(3, (void *)1);
+        ix_streamer_configure(0, window);
+        ix_streamer_init();
+        ix_streamer_set_intensity(0x19);
+    }
+}
+
+/* Function start: 0x4423B0 */
+void Streamer_open(const char *streamName)
+{
+    char *streamsDirectory;
+
+    if (DAT_00465058 != 0) {
+        streamsDirectory = LocateStreamsDirOnDisc();
+        if (streamsDirectory == 0) {
+            ShowNoticeMessageBox("Unable to locate streamed music.\n");
+            exit_squadron("");
+        }
+        sprintf(g_szStreamerPath_00597750, "%s%s",
+                streamsDirectory, streamName);
+        SoundDebugPrintf("Streamer_open %s", g_szStreamerPath_00597750);
+        ix_streamer_open_stream_file(g_szStreamerPath_00597750);
+        g_bStreamerAudioPlaying_00597748 = 0;
+    }
+}
+
+/* Function start: 0x442430 */
+void Streamer_play(void)
+{
+    if (DAT_00465058 != 0 && g_bStreamerAudioPlaying_00597748 == 0) {
+        g_bStreamerAudioPlaying_00597748 = 1;
+        SoundDebugPrintf("Streamer_play");
+        ix_streamer_audio_play();
+    }
+}
+
 /* Function start: 0x442460 */
 void Streamer_stop(void)
 {
@@ -780,11 +820,65 @@ void Streamer_stop(void)
     }
 }
 
+/* Function start: 0x4424B0 */
+void ClearStreamerTrigger(void)
+{
+    if (DAT_00465058 != 0)
+        ix_streamer_set_trigger(-1);
+}
+
+/* Function start: 0x4424D0 */
+void Streamer_trigger(int trigger)
+{
+    if (DAT_00465058 != 0) {
+        if (g_bStreamerAudioPlaying_00597748 == 0) {
+            ForceStreamerTrigger(trigger);
+            return;
+        }
+        SoundDebugPrintf("Streamer_trigger %d", trigger);
+        if (trigger >= 0)
+            ix_streamer_set_trigger((char)trigger);
+        if (g_bStreamerAudioPlaying_00597748 == 0)
+            Streamer_play();
+    }
+}
+
+/* Function start: 0x442520 */
+void SetStreamerIntensity(unsigned char intensity)
+{
+    if (DAT_00465058 != 0) {
+        ix_streamer_set_intensity(intensity);
+        if (g_bStreamerAudioPlaying_00597748 == 0)
+            Streamer_play();
+    }
+}
+
+/* Function start: 0x442550 */
+void ForceStreamerTrigger(int trigger)
+{
+    if (DAT_00465058 != 0) {
+        SoundDebugPrintf("FORCE");
+        if (trigger >= 0)
+            ix_streamer_force_trigger((char)trigger);
+        if (g_bStreamerAudioPlaying_00597748 == 0)
+            Streamer_play();
+    }
+}
+
 /* Function start: 0x442590 */
 void SetMusicStreamVolume(unsigned short volume)
 {
     if (DAT_00465058 != 0)
         ix_streamer_set_volume(volume);
+}
+
+/* Function start: 0x4425D0 */
+void Streamer_close(void)
+{
+    if (DAT_00465058 != 0) {
+        SoundDebugPrintf("Streamer_close");
+        ix_streamer_close_stream_file();
+    }
 }
 
 /* Function start: 0x442600 */

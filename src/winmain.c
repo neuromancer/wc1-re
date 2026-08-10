@@ -480,6 +480,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     if (!CreateMainWindow(instance, previous, showCommand))
         return 0;
 
+    InitializeAudioStreamer(DAT_005a89a0);
+
     DAT_00465080 = 0;
     process = GetCurrentProcess();
     MonoDebug_install();
@@ -499,6 +501,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     DAT_005a8a38 = (unsigned int)time(0);
     DestroyWindow(DAT_005a89a0);
     DIBunInstall();
+    Streamer_close();
     CloseHandle(DAT_005a89a4);
     return 1;
 }

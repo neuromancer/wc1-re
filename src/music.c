@@ -309,13 +309,258 @@ void SceneLeaveHook(void)
 {
 }
 
-/* Function start: 0x42E880 */
-unsigned int StartMusicTrack(short track, short mode, short enabled)
+/* Function start: 0x42E3F0 */
+void SelectFlightMusicTrack(int track)
 {
-    (void)mode;
+    const char *streamName;
+    int streamSet;
+
+    switch (track) {
+    case 0:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+    case 27:
+    case 31:
+    case 32:
+        streamSet = 2;
+        break;
+    case 1:
+        streamSet = 2;
+        SoundDebugPrintf("being tailed");
+        break;
+    case 19:
+        SoundDebugPrintf("ofx music");
+        break;
+    case 20:
+    case 21:
+    case 22:
+    case 23:
+    case 24:
+    case 25:
+    case 26:
+    case 30:
+    case 35:
+        streamSet = 0;
+        break;
+    case 28:
+    case 29:
+    case 33:
+    case 34:
+    case 36:
+    case 37:
+    case 38:
+    case 39:
+    case 40:
+        streamSet = 1;
+        break;
+    default:
+        streamSet = -1;
+        break;
+    }
+
+    if (streamSet == g_nMusicStreamSet_0046aa18)
+        return;
+    if (streamSet == -1) {
+        if (g_nMusicStreamSet_0046aa18 >= 0)
+            Streamer_close();
+        return;
+    }
+
+    if (streamSet == 0) {
+        streamName = "preflite.str";
+    } else if (streamSet == 1) {
+        streamName = "posflite.str";
+    } else if (streamSet == 2) {
+        streamName = "mission.str";
+        ClearStreamerTrigger();
+    } else {
+        streamName = 0;
+    }
+
+    if (streamName != 0) {
+        Streamer_open(streamName);
+        g_nMusicStreamSet_0046aa18 = streamSet;
+    } else {
+        Streamer_close();
+        g_nMusicStreamSet_0046aa18 = -1;
+    }
+}
+
+/* Function start: 0x42E520 */
+int MapMusicTrackToStreamerCommand(int track)
+{
+    switch (track) {
+    case 0:
+        return 5;
+    case 1:
+        SoundDebugPrintf("being tailed");
+        return 7;
+    case 2:
+        return 7;
+    case 3:
+        return 8;
+    case 4:
+        return 9;
+    case 5:
+        return 6;
+    case 6:
+        return 15;
+    case 7:
+        return 13;
+    case 8:
+        return 16;
+    case 9:
+        return 14;
+    case 10:
+        return 17;
+    case 11:
+        return 18;
+    case 12:
+        return 10;
+    case 13:
+        return 12;
+    case 14:
+        return 11;
+    case 15:
+        return 4;
+    case 16:
+        return 3;
+    case 17:
+        return 1;
+    case 18:
+        return 2;
+    case 19:
+        SoundDebugPrintf("ofx music");
+        return -1;
+    case 20:
+        return 1;
+    case 21:
+        return 4;
+    case 22:
+        return 3;
+    case 23:
+        return -1;
+    case 24:
+        return 5;
+    case 25:
+        return 6;
+    case 26:
+        return 7;
+    case 27:
+    case 28:
+        return -1;
+    case 29:
+    case 30:
+        return 0;
+    case 31:
+        return 19;
+    case 32:
+        return 20;
+    case 33:
+        return 2;
+    case 34:
+        return 1;
+    case 35:
+        return 2;
+    case 36:
+        return 3;
+    case 37:
+        return 4;
+    case 38:
+        return 5;
+    case 39:
+        return 7;
+    case 40:
+        return 6;
+    default:
+        return -1;
+    }
+}
+
+/* Function start: 0x42E6F0 */
+void ProcessMusicScriptCommand(int track, int command, int enabled)
+{
+    int streamerCommand;
+
     (void)enabled;
+    if (track == -1 || g_bMusicCommandSuppressed_0046a9fc != 0)
+        return;
+    if (command == 4) {
+        SoundDebugPrintf("queue_stop\n");
+        StopMusic();
+        DAT_0046aa14 = 0xffffffff;
+        return;
+    }
+
+    SoundDebugPrintf("track_%02d ", track);
+    if ((DAT_0046aa14 == 25 && track == 25) ||
+        (DAT_0046aa14 == 38 && track == 38) ||
+        (DAT_0046aa14 == 39 && track == 39) ||
+        (DAT_0046aa14 == 40 && track == 40)) {
+        SoundDebugPrintf("skipping for QA\n");
+        return;
+    }
+
+    DAT_0046aa14 = track;
+    SelectFlightMusicTrack(track);
+    if (g_nMusicStreamSet_0046aa18 == 2) {
+        if ((track >= 0 && track <= 5) ||
+            (track >= 12 && track <= 18)) {
+            SoundDebugPrintf("flight_intensity %d ", track);
+            SetStreamerIntensity((unsigned char)track);
+        } else {
+            SoundDebugPrintf("flight_trigger %d ", track);
+            Streamer_trigger(track);
+        }
+        SoundDebugPrintf("\n");
+        return;
+    }
+
+    switch (command) {
+    case 0:
+        SoundDebugPrintf(" queue_start ");
+        streamerCommand = MapMusicTrackToStreamerCommand(track);
+        Streamer_trigger(streamerCommand);
+        break;
+    case 1:
+        SoundDebugPrintf(" queue_break ");
+        streamerCommand = MapMusicTrackToStreamerCommand(track);
+        ForceStreamerTrigger(streamerCommand);
+        break;
+    case 2:
+        SoundDebugPrintf(" queue_switch ");
+        streamerCommand = MapMusicTrackToStreamerCommand(track);
+        Streamer_trigger(streamerCommand);
+        break;
+    case 3:
+        SoundDebugPrintf(" queue_interrupt ");
+        streamerCommand = MapMusicTrackToStreamerCommand(track);
+        ForceStreamerTrigger(streamerCommand);
+        break;
+    }
+    SoundDebugPrintf("\n");
+}
+
+/* Function start: 0x42E880 */
+unsigned int StartMusicTrack(int track, int mode, int enabled)
+{
     if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
-        DAT_0046aa14 = (unsigned short)track;
+        ProcessMusicScriptCommand(track, mode, enabled);
     return 1;
 }
 

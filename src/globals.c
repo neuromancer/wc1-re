@@ -194,8 +194,10 @@ const char g_szPlayWaveOpenError_0046a46c[36] =
 short g_nScriptedViewObject_0046a8d0 = -1;
 int g_bScriptedView_0046a8d4;
 short DAT_0046a9f8;
+int g_bMusicCommandSuppressed_0046a9fc;
 short DAT_0046aa04 = 1;
 unsigned int DAT_0046aa14 = 0xffffffff;
+int g_nMusicStreamSet_0046aa18 = -1;
 unsigned char DAT_0046aa30 = 1;
 unsigned char DAT_0046aa34 = 1;
 unsigned char DAT_0046aa38 = 1;
@@ -734,6 +736,7 @@ RasterClip g_stRasterClip_00496fc0;
 unsigned char g_abSolidColourTranslation_00497648[256];
 extern unsigned int g_dwStreamerState_00597cd0;
 int g_bStreamerAudioPlaying_00597748;
+char g_szStreamerPath_00597750[128];
 unsigned char DAT_005988de[8192];
 int DAT_00598a30[512];
 unsigned char DAT_00598ab0;

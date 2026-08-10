@@ -46,7 +46,7 @@ unsigned int g_nStreamerBranchStackIndex_00470e8c = 0;
 unsigned int g_dwStreamerId_0047117c = 0x4d525453;
 
 /* Function start: 0x00442750 */   /* source line(s) 60;63;75: Streamer already inited! | Failed to init DSP | Failed to start streamer_thread! */
-int ix_streamer_init(void)
+extern "C" int ix_streamer_init(void)
 {
     if ((g_dwStreamerState_00597cd0 & IX_STREAMER_INITIALIZED) != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 60);
@@ -97,7 +97,7 @@ void ix_streamer_destroy(void)
 }
 
 /* Function start: 0x0044291E */
-void ix_streamer_configure(int option, void *value)
+extern "C" void ix_streamer_configure(int option, void *value)
 {
     ix_dsp_configure(option, value);
 }
@@ -118,7 +118,7 @@ void ix_streamer_set_dev_mode(int mode)
 }
 
 /* Function start: 0x004429B6 */   /* source line(s) 129;142;146;150;151;157;168;177;186;195;204;238;240: Streamer not ready to open stream file! | Failed to open stream file. | Streamer failed to */
-int ix_streamer_open_stream_file(char *path)
+extern "C" int ix_streamer_open_stream_file(char *path)
 {
     if ((g_dwStreamerState_00597cd0 & IX_STREAMER_INITIALIZED) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 129);
@@ -292,7 +292,7 @@ int ix_streamer_open_stream_file(char *path)
 }
 
 /* Function start: 0x0044307A */   /* source line(s) 250;251: Streamer not ready to open stream file! | Stream file not open! */
-void ix_streamer_close_stream_file(void)
+extern "C" void ix_streamer_close_stream_file(void)
 {
     IxStreamFile *streamFile;
     IxStreamFile *previous;
@@ -331,7 +331,7 @@ void ix_streamer_close_stream_file(void)
 }
 
 /* Function start: 0x004431F3 */   /* source line(s) 286: Stream has no audio */
-void ix_streamer_audio_play(void)
+extern "C" void ix_streamer_audio_play(void)
 {
     if ((g_dwStreamerState_00597cd0 & IX_STREAMER_HAS_AUDIO) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 286);
@@ -381,7 +381,7 @@ void ix_streamer_audio_reprepare(void)
 }
 
 /* Function start: 0x0044336B */
-void ix_streamer_set_intensity(unsigned char intensity)
+extern "C" void ix_streamer_set_intensity(unsigned char intensity)
 {
     if (intensity >= 0) {
         g_bStreamerIntensity_00597c78 = intensity < 100 ? intensity : 100;
@@ -397,7 +397,7 @@ unsigned char ix_streamer_get_intensity(void)
 }
 
 /* Function start: 0x004433C1 */
-void ix_streamer_set_trigger(char trigger)
+extern "C" void ix_streamer_set_trigger(char trigger)
 {
     if (trigger == -1) {
         g_cStreamerBranchTag_00470e88 = -1;
@@ -418,7 +418,7 @@ char ix_streamer_get_trigger(void)
 }
 
 /* Function start: 0x0044342E */   /* source line(s) 342: Stream has no audio */
-void ix_streamer_force_trigger(char trigger)
+extern "C" void ix_streamer_force_trigger(char trigger)
 {
     unsigned int chunk;
     unsigned int chunkCount;
