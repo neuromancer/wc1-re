@@ -65,3 +65,7 @@ python3 -m pip install "binary-comp[all] @ git+https://github.com/gg-sl-oss/bina
 Only comparison targets such as `make report` and `make verify` require the retail executable
 at `data/full/WC1.ORI.EXE` and the original-code exports in `code-full/`. See
 [`docs/EXPORT.md`](docs/EXPORT.md) for that separate reverse-engineering workflow.
+
+## AI assistance
+
+OpenAI Codex and Anthropic Claude were used during this reconstruction.
