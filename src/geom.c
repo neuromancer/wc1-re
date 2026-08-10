@@ -31,6 +31,32 @@ unsigned short GetMusicDriverPresent(void)
     return 1;
 }
 
+/* Function start: 0x418140 */
+short __stdcall CollectActivePaletteIndices(Viewport *viewport,
+                                             unsigned char *indices,
+                                             short capacity)
+{
+    unsigned char *active;
+    short count;
+    short index;
+
+    count = 0;
+    active = (unsigned char *)AllocateTaggedMemory((unsigned int)capacity, 0);
+    if (active == 0)
+        return 0;
+
+    memset(active, 0, (unsigned int)capacity);
+    MarkActivePaletteEntries(viewport, active);
+    index = 0;
+    while (index < capacity) {
+        if (active[index] != 0)
+            indices[count++] = (unsigned char)index;
+        index++;
+    }
+    ReleasePacketHandle((int)active);
+    return count;
+}
+
 /* Function start: 0x4181C0 */
 short get_ship_max_velocity(short obj)
 {

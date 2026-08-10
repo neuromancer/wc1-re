@@ -374,6 +374,9 @@ void update_cockpit(void);                                           /* 0x00417E
 void PlayMissileLaunchSfx(void);                            /* 0x00417F00 */
 short __stdcall MeasureTextPixelWidthClamped(const char *text);         /* 0x00418080 */
 unsigned short GetMusicDriverPresent(void);                                    /* 0x00418130 */
+short __stdcall CollectActivePaletteIndices(Viewport *viewport,
+                                             unsigned char *indices,
+                                             short capacity);          /* 0x00418140 */
 short get_ship_max_velocity(short obj);                                /* 0x004181C0 */
 short recalc_max_velocity(short ship);                                /* 0x00418210 */
 void drain_fuel(short ship, short amount);                            /* 0x00418280 */
@@ -496,6 +499,9 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...);    /* 0x0041
 void ReleaseModalTextPanel(void);                                      /* 0x0041AD10 */
 short AnySavedGames(void);                                             /* 0x0041AD50 */
 short BarracksScreen(void);                                            /* 0x0041C170 */
+unsigned short __stdcall StepPaletteTransition(short *current,
+                                                const short *target,
+                                                short componentCount); /* 0x0041C510 */
 char *__stdcall DosStrcat(char *destination, const char *source);      /* 0x0041C740 */
 DWORD WINAPI DebugOverlayWorkerProc(void *parameter);                  /* 0x0041C960 */
 LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
@@ -857,7 +863,8 @@ void sound_effect(void);                                                /* 0x004
 void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject,
                              int looping);                            /* 0x0042EF30 */
 int IsShipQueuedOrderDefend(short i);                                      /* 0x0042F1F0 */
-unsigned short GetConversationState(void);                                    /* 0x0042F730 */
+unsigned short __stdcall ShouldSuspendCursorForRect(
+    const ShortRect *bounds);                                           /* 0x0042F730 */
 void InitFullScreenViewport(int *vp, short arg);                                    /* 0x0042F7E0 */
 unsigned int GetPacketSize(const char *filename, short section);       /* 0x0042F810 */
 void FrameStartHook(int mode);                                         /* 0x0042F930 */
@@ -891,6 +898,9 @@ void EndCommMenu(void);                                              /* 0x004314
 void ShowCentredPrompt(char *text, unsigned short arg);                       /* 0x004314F0 */
 void __stdcall ShutdownVideoHook(int mode);                             /* 0x004318F0 */
 short ReadCalibratedJoystick(void);                                    /* 0x00431D20 */
+void __stdcall UnionRectBounds(ShortRect *destination,
+                               const ShortRect *first,
+                               const ShortRect *second);               /* 0x00431EA0 */
 void ThrottleFrameAndDrawFps(HDC dc);                                       /* 0x00431F00 */
 void SetSpaceFlightFrameTiming(void);                                  /* 0x004320E0 */
 void SetCinematicFrameTiming(void);                                    /* 0x00432110 */
@@ -1078,9 +1088,11 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneData,
 void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
                                unsigned short top, unsigned short right,
                                unsigned short bottom);                /* 0x00439400 */
+void __stdcall PanToScreen(Viewport *source, Viewport *destination);    /* 0x00439430 */
 unsigned int ShowGetReadyScreen(void);                                 /* 0x00439840 */
 unsigned int ShowVictoryScreen(void);                                  /* 0x00439910 */
 unsigned int ShowGameOverScreen(void);                                 /* 0x00439A80 */
+int ReadRasterClipPixel(RasterClip *clip, int x, int y);                /* 0x00439D63 */
 unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
                              int mode, int colour);                    /* 0x00439E39 */
 void SetPaletteTranslationTable(const unsigned char *translation);    /* 0x0043AE3F */
@@ -1121,6 +1133,8 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
 void RasterLineHook(void *marker);                                    /* 0x00441140 */
 void DrawFontGlyph(char character, TextContext *context, int height,
                    int width, int y);                                 /* 0x00441150 */
+void __stdcall MarkActivePaletteEntries(Viewport *viewport,
+                                         unsigned char *active);       /* 0x00441370 */
 void __stdcall GetPaletteEntry(short index, unsigned short *rgb);         /* 0x004413C0 */
 void __stdcall SetPaletteEntry(short index, short *rgb);                  /* 0x004413E0 */
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
@@ -1136,6 +1150,7 @@ void DrawSolidColourSprite(Viewport *viewport, short x, short y,
                            unsigned char colour);                    /* 0x00441A40 */
 void CopyViewportContents(Viewport *source, Viewport *destination);    /* 0x00441A90 */
 void ClearViewport(Viewport *viewport, short colour);                  /* 0x00441AE0 */
+int GetViewportPixel(Viewport *viewport, short x, short y);            /* 0x00441B60 */
 void DrawViewportLine(Viewport *viewport, short x1, short y1,
                       short x2, short y2, short colour);             /* 0x00441BA0 */
 void DrawFilledViewportRect(Viewport *viewport, short left, short top,

@@ -449,7 +449,7 @@
 0x00418080 LoopLocalFn8080
 0x004180C0 DoLocalFn80C0
 0x00418130 ReturnConst1v2
-0x00418140 ReleaseLocalFn8140
+0x00418140 CollectActivePaletteIndices
 0x004181C0 get_ship_max_velocity
 0x00418210 recalc_max_velocity
 0x00418280 drain_fuel
@@ -565,7 +565,7 @@
 0x0041C090 GetNavFnC090
 0x0041C140 DoLocalFnC140
 0x0041C170 BarracksScreen
-0x0041C510 ReleaseG005a7d94FnC510
+0x0041C510 StepPaletteTransition
 0x0041C740 DosStrcat
 0x0041C760 DebugOverlayConsole::DebugOverlayConsole
 0x0041C910 DebugOverlayConsole::~DebugOverlayConsole
@@ -976,7 +976,7 @@
 0x0042F2B0 LoopNavFnF2B0
 0x0042F350 DispatchTbl0059c3f0FnF350
 0x0042F3F0 ScanTbl0059ce60FnF3F0
-0x0042F730 ReturnConst0v6
+0x0042F730 ShouldSuspendCursorForRect
 0x0042F740 ScanTbl005a6540FnF740
 0x0042F7E0 DoUiFnF7E0
 0x0042F810 GetPacketSize
@@ -1031,7 +1031,7 @@
 0x00431900 TextTbl0059df80Fn1900
 0x00431A10 LoadJoystickCalibrationFile
 0x00431D20 WcOrphanRoutine431D20
-0x00431EA0 DoLocalFn1EA0
+0x00431EA0 UnionRectBounds
 0x00431F00 TextVideoFn1F00
 0x00432050 ReportSpaceFlightMaxFps
 0x004320E0 HelperOf432050A
@@ -1213,7 +1213,7 @@
 0x00439150 GetTbl0046e222Fn9150
 0x00439220 BlitUiFn9220
 0x00439400 DebugNoBodyStubv1
-0x00439430 BlitUiFn9430
+0x00439430 PanToScreen
 0x00439660 BlitUiFn9660
 0x00439840 ShowGetReadyScreen
 0x00439910 ShowVictoryScreen
@@ -1221,7 +1221,7 @@
 0x00439C3E LoadMcgaDll
 0x00439C69 LoopG0046e69cFn9C69
 0x00439C88 DoLocalFn9C88
-0x00439D63 DoLocalFn9D63
+0x00439D63 ReadRasterClipPixel
 0x00439E39 LoopLocalFn9E39
 0x0043A83B LoopLocalFnA83B
 0x0043A974 LoopLocalFnA974
@@ -1302,7 +1302,7 @@
 0x00440FE0 ValidateFlipTarget
 0x00441140 RasterLineHook
 0x00441150 DrawFontGlyph
-0x00441370 LoopLocalFn1370
+0x00441370 MarkActivePaletteEntries
 0x004413C0 DoLocalFn13C0
 0x004413E0 PaletteLocalFn13E0
 0x00441400 DrawSpriteDefault
@@ -1312,7 +1312,7 @@
 0x00441A90 CopyViewportContents
 0x00441AE0 ClearViewport
 0x00441B20 GetCombatFn1B20
-0x00441B60 GetCombatFn1B60
+0x00441B60 GetViewportPixel
 0x00441BA0 CombatRoutine05
 0x00441BF0 DispatchTriangleRasterizer
 0x00441C70 LoopCombatFn1C70

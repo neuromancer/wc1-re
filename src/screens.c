@@ -429,6 +429,84 @@ void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
     viewport->bottom = (short)bottom;
 }
 
+/* Function start: 0x439430 */
+void __stdcall PanToScreen(Viewport *source, Viewport *destination)
+{
+    unsigned char *indices;
+    unsigned short target[3];
+    short *originalPalette;
+    short *transitionPalette;
+    unsigned int paletteBytes;
+    short activeCount;
+    short index;
+
+    if (DAT_0046b168 == 0x13) {
+        indices = (unsigned char *)AllocateTaggedMemory(256, 0);
+        if (indices == 0)
+            return;
+        memset(indices, 0, 256);
+        activeCount = CollectActivePaletteIndices(source, indices, 256);
+        paletteBytes = (unsigned int)(activeCount * 6);
+        originalPalette =
+            (short *)AllocateTaggedMemory(paletteBytes, 0);
+        transitionPalette =
+            (short *)AllocateTaggedMemory(paletteBytes, 0);
+        if (originalPalette == 0 || transitionPalette == 0) {
+            ReleasePacketHandle((int)indices);
+            if (originalPalette != 0)
+                ReleasePacketHandle((int)originalPalette);
+            if (transitionPalette != 0)
+                ReleasePacketHandle((int)transitionPalette);
+            return;
+        }
+
+        memset(originalPalette, 0, paletteBytes);
+        memset(transitionPalette, 0, paletteBytes);
+        GetPaletteEntry(
+            (short)GetViewportPixel(destination,
+                                    destination->left,
+                                    destination->top),
+            target);
+        index = 0;
+        while (index < activeCount) {
+            GetPaletteEntry(
+                (short)indices[index],
+                (unsigned short *)&originalPalette[index * 3]);
+            CachePaletteEntryFromWords((short)indices[index], target);
+            memcpy(&transitionPalette[index * 3], target, 6);
+            index++;
+        }
+
+        WaitForVerticalBlankThunk();
+        DIBramPalette();
+        CopyViewportContents(source, destination);
+        DIBslam();
+        DIBslamReal();
+
+        while (StepPaletteTransition(
+                   transitionPalette, originalPalette,
+                   (short)(activeCount * 3)) != 0) {
+            index = 0;
+            while (index < activeCount) {
+                CachePaletteEntryFromWords(
+                    (short)indices[index],
+                    (unsigned short *)&transitionPalette[index * 3]);
+                index++;
+            }
+            WaitForVerticalBlankThunk();
+            DIBramPalette();
+        }
+
+        ReleasePacketHandle((int)transitionPalette);
+        ReleasePacketHandle((int)originalPalette);
+        ReleasePacketHandle((int)indices);
+    } else {
+        CopyViewportContents(source, destination);
+    }
+    DIBslam();
+    DIBslamReal();
+}
+
 /* Function start: 0x439840 */
 unsigned int ShowGetReadyScreen(void)
 {
@@ -575,6 +653,122 @@ unsigned int ShowGameOverScreen(void)
     DAT_0059ab58 = 0;
     ReleasePacketHandle((int)g_pIntroFont_005a8960);
     return 0;
+}
+
+/* Function start: 0x439D63 */
+__declspec(naked) int ReadRasterClipPixel(RasterClip *clip, int x, int y)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        add esp, -20h
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        mov esi, dword ptr [ebp + 8]
+        mov ebx, dword ptr [esi]
+        mov eax, dword ptr [ebx + 4]
+        inc eax
+        mov dword ptr [ebp - 18h], eax
+        jle invalid_surface
+        mov eax, dword ptr [ebx + 8]
+        inc eax
+        mov ecx, eax
+        jle invalid_surface
+        mov eax, dword ptr [esi + 4]
+        mov dword ptr [ebp - 1ch], eax
+        cmp eax, 0
+        jg left_clipped
+        mov eax, 0
+left_clipped:
+        mov dword ptr [ebp - 4], eax
+        mov eax, dword ptr [esi + 8]
+        mov dword ptr [ebp - 20h], eax
+        cmp eax, 0
+        jg top_clipped
+        mov eax, 0
+top_clipped:
+        mov dword ptr [ebp - 8], eax
+        mov eax, dword ptr [esi + 0ch]
+        mov edx, dword ptr [ebp - 18h]
+        dec edx
+        cmp eax, edx
+        jl right_clipped
+        mov eax, edx
+right_clipped:
+        mov dword ptr [ebp - 0ch], eax
+        mov eax, dword ptr [esi + 10h]
+        mov edx, ecx
+        dec edx
+        cmp eax, edx
+        jl bottom_clipped
+        mov eax, edx
+bottom_clipped:
+        mov dword ptr [ebp - 10h], eax
+        mov eax, dword ptr [ebp - 0ch]
+        cmp eax, dword ptr [ebp - 4]
+        jl invalid_clip
+        mov eax, dword ptr [ebp - 10h]
+        cmp eax, dword ptr [ebp - 8]
+        jl invalid_clip
+        mov eax, dword ptr [ebx]
+        mov dword ptr [ebp - 14h], eax
+        jmp read_point
+invalid_surface:
+        mov eax, 0ffffffffh
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+invalid_clip:
+        mov eax, 0fffffffeh
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+read_point:
+        mov ecx, dword ptr [ebp + 0ch]
+        mov ebx, dword ptr [ebp + 10h]
+        add ecx, dword ptr [ebp - 1ch]
+        add ebx, dword ptr [ebp - 20h]
+        cmp ecx, dword ptr [ebp - 4]
+        jl point_outside
+        cmp ecx, dword ptr [ebp - 0ch]
+        jg point_outside
+        cmp ebx, dword ptr [ebp - 8]
+        jl point_outside
+        cmp ebx, dword ptr [ebp - 10h]
+        jg point_outside
+        mov eax, ebx
+        imul dword ptr [ebp - 18h]
+        add eax, dword ptr [ebp - 14h]
+        add eax, ecx
+        mov ebx, eax
+        xor eax, eax
+        mov al, byte ptr [ebx]
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+point_outside:
+        mov eax, 0fffffffdh
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+    }
 }
 
 /* Function start: 0x439E39 */

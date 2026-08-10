@@ -515,44 +515,68 @@ void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
                                            unsigned short colour,
                                            short enabled)
 {
-    unsigned short source[256][3];
-    unsigned short palette[256][3];
+    unsigned char *indices;
     unsigned short target[3];
+    short *currentPalette;
+    short *targetPalette;
+    unsigned int paletteBytes;
+    short activeCount;
     short index;
-    short component;
-    short step;
 
-    (void)viewport;
     (void)enabled;
     if (DAT_0046b168 != 0x13)
         return;
 
+    indices = (unsigned char *)AllocateTaggedMemory(256, 0);
+    if (indices == 0)
+        return;
+    memset(indices, 0, 256);
+    activeCount = CollectActivePaletteIndices(viewport, indices, 256);
+    paletteBytes = (unsigned int)(activeCount * 6);
+    currentPalette = (short *)AllocateTaggedMemory(paletteBytes, 0);
+    if (currentPalette == 0) {
+        ReleasePacketHandle((int)indices);
+        return;
+    }
+    memset(currentPalette, 0, paletteBytes);
+    targetPalette = (short *)AllocateTaggedMemory(paletteBytes, 0);
+    if (targetPalette == 0) {
+        ReleasePacketHandle((int)indices);
+        ReleasePacketHandle((int)currentPalette);
+        return;
+    }
+    memset(targetPalette, 0, paletteBytes);
+
     GetPaletteEntry((short)colour, target);
     index = 0;
-    do {
-        GetPaletteEntry(index, source[index]);
+    while (index < activeCount) {
+        GetPaletteEntry((short)indices[index],
+                        (unsigned short *)&currentPalette[index * 3]);
+        memcpy(&targetPalette[index * 3], target, 6);
         index++;
-    } while (index < 256);
+    }
 
-    step = 1;
-    do {
+    while (StepPaletteTransition(
+               currentPalette, targetPalette,
+               (short)(activeCount * 3)) != 0) {
         index = 0;
-        do {
-            component = 0;
-            do {
-                palette[index][component] = (unsigned short)(
-                    source[index][component] +
-                    ((int)target[component] - source[index][component]) *
-                        step / 4);
-                component++;
-            } while (component < 3);
+        while (index < activeCount) {
+            g_abPaletteTriplets_005a77f0[indices[index]][0] =
+                (unsigned char)currentPalette[index * 3];
+            g_abPaletteTriplets_005a77f0[indices[index]][1] =
+                (unsigned char)currentPalette[index * 3 + 1];
+            g_abPaletteTriplets_005a77f0[indices[index]][2] =
+                (unsigned char)currentPalette[index * 3 + 2];
             index++;
-        } while (index < 256);
-        DIBwholePaletteFromWords(&palette[0][0]);
-        DIBslam();
-        DIBslamReal();
-        step++;
-    } while (step <= 4);
+        }
+        SetWholePaletteFromTriplets(&g_abPaletteTriplets_005a77f0[0][0]);
+    }
+
+    ReleasePacketHandle((int)targetPalette);
+    ReleasePacketHandle((int)currentPalette);
+    ReleasePacketHandle((int)indices);
+    DIBslam();
+    DIBslamReal();
 }
 
 /* Function start: 0x42A8F0 */

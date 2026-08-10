@@ -131,25 +131,32 @@ void InitializeRoomViewports(void)
 short RecRoom(void)
 {
     InputEventState event;
-    ShortRect currentBounds;
-    ShortRect dirtyBounds[3];
-    ShortRect previousBounds[3];
-    Viewport dirtyDestination;
-    Viewport dirtySource;
-    signed char characterIds[2];
+    ShortRect firstPilotBounds;
+    ShortRect nextFrameBounds;
+    ShortRect secondPilotBounds;
+    Viewport bottomDestination;
+    Viewport bottomSource;
+    Viewport pilotDestination;
+    Viewport pilotWork;
+    Viewport shotglassDestination;
+    Viewport shotglassWork;
+    signed char animationIds[3];
     signed char *animations[3];
-    unsigned char savedInputMode;
+    unsigned char clicked;
+    unsigned char firstFrame;
     short characterMask;
     short eventType;
     short frame;
     short index;
     short region;
     short result;
-    int firstFrame;
+    int lastChalkboardTick;
     int rosterOffset;
     int personality;
 
     result = 0;
+    lastChalkboardTick = 0;
+    firstFrame = 0;
     characterMask = 0;
     g_apszRecRoomMenuLabels_004704f8[0] =
         g_apszRecRoomBaseLabels_004704e8[0];
@@ -166,281 +173,380 @@ short RecRoom(void)
     g_pRecRoomRoster_005988b8 = (unsigned char *)LoadPacketAllocated(
         g_asCampaignPilotFiles_00469450[g_nCampaignDataSet_005a8118], 2);
 
-    g_apRecRoomCharacterShapes_005988c0[0] =
-        (unsigned char *)FetchDiskPacketRetrying(5, 11, 0);
+    animationIds[0] = (signed char)(RandomInRange(0, 3) + 9);
+    g_apRecRoomCharacterShapes_005988c0[0] = 0;
     g_apRecRoomCharacterShapes_005988c0[1] = 0;
     g_apRecRoomCharacterShapes_005988c0[2] = 0;
-    g_aRecRoomMenuRegions_004704a0[0].left = 94;
-    g_aRecRoomMenuRegions_004704a0[0].top = 59;
-    g_aRecRoomMenuRegions_004704a0[0].right = 94;
-    g_aRecRoomMenuRegions_004704a0[0].bottom = 59;
-    g_aRecRoomMenuRegions_004704a0[1].left = 161;
-    g_aRecRoomMenuRegions_004704a0[1].top = 79;
-    g_aRecRoomMenuRegions_004704a0[1].right = 161;
-    g_aRecRoomMenuRegions_004704a0[1].bottom = 79;
-    g_aRecRoomMenuRegions_004704a0[2].left = 202;
-    g_aRecRoomMenuRegions_004704a0[2].top = 79;
-    g_aRecRoomMenuRegions_004704a0[2].right = 202;
-    g_aRecRoomMenuRegions_004704a0[2].bottom = 79;
+    g_aRecRoomMenuRegions_004704a0[0].left = 400;
+    g_aRecRoomMenuRegions_004704a0[0].top = 400;
+    g_aRecRoomMenuRegions_004704a0[0].right = 401;
+    g_aRecRoomMenuRegions_004704a0[0].bottom = 401;
+    *(ShortRect *)&g_aRecRoomMenuRegions_004704a0[1].left =
+        *(ShortRect *)&g_aRecRoomMenuRegions_004704a0[0].left;
+    *(ShortRect *)&g_aRecRoomMenuRegions_004704a0[2].left =
+        *(ShortRect *)&g_aRecRoomMenuRegions_004704a0[0].left;
+
+    g_apRecRoomCharacterShapes_005988c0[0] =
+        (unsigned char *)FetchDiskPacketRetrying(5, 11, 0);
     GetShapeFrameBounds(&g_aRecRoomMenuRegions_004704a0[0].left,
                         g_aRecRoomCharacterOrigins_00470490[0].x,
                         g_aRecRoomCharacterOrigins_00470490[0].y,
                         g_apRecRoomCharacterShapes_005988c0[0], 0);
 
     rosterOffset = ((int)g_stCampaignState_0059ca50.currentMission +
-                    (int)g_stCampaignState_0059ca50.currentSeries * 4) * 2 - 8;
-    characterIds[0] = (signed char)g_pRecRoomRoster_005988b8[rosterOffset];
-    characterIds[1] = (signed char)g_pRecRoomRoster_005988b8[rosterOffset + 1];
-    index = 0;
-    do {
-        personality = characterIds[index];
-        if (personality >= 0 && personality < 8 &&
-            g_stCampaignState_0059ca50
+                    (int)g_stCampaignState_0059ca50.currentSeries * 4) *
+                       2 - 8;
+    animationIds[1] =
+        (signed char)g_pRecRoomRoster_005988b8[rosterOffset];
+    if (animationIds[1] != -1) {
+        personality = (int)animationIds[1];
+        if (g_stCampaignState_0059ca50
                 .personalityDeathMission[personality] == 0) {
-            g_apRecRoomCharacterShapes_005988c0[index + 1] =
+            g_apRecRoomCharacterShapes_005988c0[1] =
                 (unsigned char *)FetchDiskPacketRetrying(
                     5, (short)(personality + 3), 0);
             GetShapeFrameBounds(
-                &g_aRecRoomMenuRegions_004704a0[index + 1].left,
-                g_aRecRoomCharacterOrigins_00470490[index + 1].x,
-                g_aRecRoomCharacterOrigins_00470490[index + 1].y,
-                g_apRecRoomCharacterShapes_005988c0[index + 1], 0);
-            sprintf(index == 0 ? g_szTalkToFirstPilot_00470570 :
-                                 g_szTalkToSecondPilot_00470588,
-                    index == 0 ? g_szTalkToPilotFormat1_004705ec :
-                                 g_szTalkToPilotFormat2_004705fc,
+                &g_aRecRoomMenuRegions_004704a0[1].left,
+                g_aRecRoomCharacterOrigins_00470490[1].x,
+                g_aRecRoomCharacterOrigins_00470490[1].y,
+                g_apRecRoomCharacterShapes_005988c0[1], 0);
+            sprintf(g_szTalkToFirstPilot_00470570,
+                    g_szTalkToPilotFormat1_004705ec,
                     g_apWingmanPilots_00598a30[personality]->callsign);
-            characterMask |= (short)(2 >> index);
         } else {
-            *(index == 0 ? g_szTalkToFirstPilot_00470570 :
-                           g_szTalkToSecondPilot_00470588) = '\0';
+            sprintf(g_szTalkToFirstPilot_00470570,
+                    g_szTalkToPilotFormat1_004705ec + 12);
         }
-        index++;
-    } while (index < 2);
-    FreePacketAndClear((int *)&g_pRecRoomRoster_005988b8, 0);
+    }
 
+    animationIds[2] =
+        (signed char)g_pRecRoomRoster_005988b8[rosterOffset + 1];
+    if (animationIds[1] != -1) {
+        personality = (int)animationIds[2];
+        if (g_stCampaignState_0059ca50
+                .personalityDeathMission[personality] == 0) {
+            g_apRecRoomCharacterShapes_005988c0[2] =
+                (unsigned char *)FetchDiskPacketRetrying(
+                    5, (short)(personality + 3), 0);
+            GetShapeFrameBounds(
+                &g_aRecRoomMenuRegions_004704a0[2].left,
+                g_aRecRoomCharacterOrigins_00470490[2].x,
+                g_aRecRoomCharacterOrigins_00470490[2].y,
+                g_apRecRoomCharacterShapes_005988c0[2], 0);
+            sprintf(g_szTalkToSecondPilot_00470588,
+                    g_szTalkToPilotFormat2_004705fc,
+                    g_apWingmanPilots_00598a30[personality]->callsign);
+        } else {
+            sprintf(g_szTalkToSecondPilot_00470588,
+                    g_szTalkToPilotFormat2_004705fc + 12);
+        }
+    }
+
+    ReleasePacketHandle((int)g_pRecRoomRoster_005988b8);
+    if (g_apRecRoomCharacterShapes_005988c0[2] != 0)
+        characterMask = 1;
+    if (g_apRecRoomCharacterShapes_005988c0[1] != 0) {
+        characterMask = 2;
+        if (g_apRecRoomCharacterShapes_005988c0[2] != 0)
+            characterMask = 3;
+    }
+
+    SetViewportRect(&DAT_005a76b0, 0, 0, 319, 199);
     InitializeRoomViewports();
-    InitializeRoomMenu(g_aRecRoomMenuRegions_004704a0,
-                       g_apszRecRoomMenuLabels_004704f8,
-                       &g_stRoomScreenViewport_005988a0,
-                       g_szDefaultTextBuffer_005a7590, 2);
-    g_pRecRoomBackgroundShape_00598a50 =
-        (unsigned char *)FetchDiskPacketRetrying(5, 0, 0);
     init_constellation(0);
     g_stConstellationViewport_005a6b40 = DAT_005a76b0;
     SetViewportRect(&g_stConstellationViewport_005a6b40,
                     54, 35, 146, 72);
     InitializeConstellationField(&g_stConstellationViewport_005a6b40,
                                  -1, 6);
-    animations[0] = g_apRecRoomAnimations_00470458[9];
-    animations[1] = characterIds[0] >= 0 && characterIds[0] < 8 ?
-        g_apRecRoomAnimations_00470458[characterIds[0]] : 0;
-    animations[2] = characterIds[1] >= 0 && characterIds[1] < 8 ?
-        g_apRecRoomAnimations_00470458[characterIds[1]] : 0;
-    index = 0;
-    do {
-        previousBounds[index].left =
-            g_aRecRoomMenuRegions_004704a0[index].left;
-        previousBounds[index].top =
-            g_aRecRoomMenuRegions_004704a0[index].top;
-        previousBounds[index].right =
-            g_aRecRoomMenuRegions_004704a0[index].right;
-        previousBounds[index].bottom =
-            g_aRecRoomMenuRegions_004704a0[index].bottom;
-        dirtyBounds[index] = previousBounds[index];
-        index++;
-    } while (index < 3);
-    firstFrame = 1;
 
-    savedInputMode = g_bInputMode_0059a848;
-    g_bInputMode_0059a848 = 1;
+    animations[0] = g_abShotglassIdleAnimation_004703b8;
+    animations[1] =
+        g_apRecRoomAnimations_00470458[(int)animationIds[1]];
+    animations[2] =
+        g_apRecRoomAnimations_00470458[(int)animationIds[2]];
+    InitializeRoomMenu(g_aRecRoomMenuRegions_004704a0,
+                       g_apszRecRoomMenuLabels_004704f8,
+                       &g_stRoomScreenViewport_005988a0,
+                       g_szDefaultTextBuffer_005a7590, 2);
+
+    bottomSource = DAT_005a76b0;
+    SetViewportRect(&bottomSource, 0, 187, 319, 199);
+    bottomDestination = g_stRoomScreenViewport_005988a0;
+    SetViewportRect(&bottomDestination, 0, 187, 319, 199);
+    g_pRecRoomBackgroundShape_00598a50 =
+        (unsigned char *)FetchDiskPacketRetrying(5, 0, 0);
     g_nMenuPointerSpeed_0046af58 = 1;
+    g_bInputMode_0059a848 = 1;
     DAT_0059ab23 = &g_stRoomDisplayViewport_00598a60;
-    EnterAllocationScope();
+
+    pilotWork = DAT_005a76b0;
+    shotglassWork = DAT_005a76b0;
+    pilotDestination = g_stRoomScreenViewport_005988a0;
+    shotglassDestination = g_stRoomScreenViewport_005988a0;
+
+    if (g_apRecRoomCharacterShapes_005988c0[2] != 0) {
+        GetShapeFrameBounds(
+            &secondPilotBounds.left,
+            g_aRecRoomCharacterOrigins_00470490[2].x,
+            g_aRecRoomCharacterOrigins_00470490[2].y,
+            g_apRecRoomCharacterShapes_005988c0[2],
+            (short)*animations[2]);
+    }
+    if (g_apRecRoomCharacterShapes_005988c0[1] != 0) {
+        GetShapeFrameBounds(
+            &firstPilotBounds.left,
+            g_aRecRoomCharacterOrigins_00470490[1].x,
+            g_aRecRoomCharacterOrigins_00470490[1].y,
+            g_apRecRoomCharacterShapes_005988c0[1],
+            (short)*animations[1]);
+        *(ShortRect *)&pilotWork.left = firstPilotBounds;
+        if (g_apRecRoomCharacterShapes_005988c0[2] != 0) {
+            UnionRectBounds((ShortRect *)&pilotWork.left,
+                            &firstPilotBounds, &secondPilotBounds);
+        }
+    } else if (g_apRecRoomCharacterShapes_005988c0[2] != 0) {
+        *(ShortRect *)&pilotWork.left = secondPilotBounds;
+    }
+    if (g_apRecRoomCharacterShapes_005988c0[1] != 0 ||
+        g_apRecRoomCharacterShapes_005988c0[2] != 0) {
+        *(ShortRect *)&pilotDestination.left =
+            *(ShortRect *)&pilotWork.left;
+    }
+
     WarpMouseTo(160, 100);
-    SetFrameTimerPeriodDirect(0);
-    FlushInputEvents();
+    GetShapeFrameBounds(
+        &shotglassWork.left,
+        g_aRecRoomCharacterOrigins_00470490[0].x,
+        g_aRecRoomCharacterOrigins_00470490[0].y,
+        g_apRecRoomCharacterShapes_005988c0[0],
+        (short)*animations[0]);
 
     while (result == 0) {
-        PumpWindowMessages();
-        if (IsFrameTickElapsed() != 0) {
-            DrawConstellationField();
+        if (firstFrame == 0) {
             DrawSpriteDefault(&DAT_005a76b0, 0, 0,
                               g_pRecRoomBackgroundShape_00598a50, 0);
-            if (characterMask != 0)
+            if (characterMask != 0) {
                 DrawSpriteDefault(&DAT_005a76b0, 158, 128,
                                   g_pRecRoomBackgroundShape_00598a50,
                                   characterMask);
+            }
+            SetFrameTimerPeriodDirect(0);
+        }
+
+        if (IsFrameTickElapsed() != 0) {
+            DrawSpriteDefault(&pilotWork, 0, 0,
+                              g_pRecRoomBackgroundShape_00598a50, 0);
             index = 0;
             do {
-                if (g_apRecRoomCharacterShapes_005988c0[index] != 0 &&
-                    animations[index] != 0) {
+                if (g_apRecRoomCharacterShapes_005988c0[index] != 0) {
                     if (*animations[index] == -1) {
                         if (index == 0) {
-                            frame = (short)(RandomInRange(0, 3) + 9);
-                            if (frame == 11 && RandomInRange(0, 3) != 0)
-                                frame = 10;
-                            animations[index] =
-                                g_apRecRoomAnimations_00470458[frame];
-                        } else {
-                            animations[index] =
-                                g_apRecRoomAnimations_00470458[
-                                    characterIds[index - 1]];
+                            animationIds[0] =
+                                (signed char)(RandomInRange(0, 3) + 9);
+                            if (animationIds[0] == 11 &&
+                                RandomInRange(0, 3) != 0)
+                                animationIds[0]--;
+                        }
+                        animations[index] =
+                            g_apRecRoomAnimations_00470458[
+                                (int)animationIds[index]];
+                    }
+
+                    if (index > 0) {
+                        DrawSpriteDefault(
+                            &pilotWork,
+                            g_aRecRoomCharacterOrigins_00470490[index].x,
+                            g_aRecRoomCharacterOrigins_00470490[index].y,
+                            g_apRecRoomCharacterShapes_005988c0[index], 0);
+                        frame = (short)*animations[index]++;
+                        DrawSpriteDefault(
+                            &pilotWork,
+                            g_aRecRoomCharacterOrigins_00470490[index].x,
+                            g_aRecRoomCharacterOrigins_00470490[index].y,
+                            g_apRecRoomCharacterShapes_005988c0[index],
+                            frame);
+                    } else {
+                        UnionRectBounds(
+                            (ShortRect *)&shotglassWork.left,
+                            (ShortRect *)&shotglassWork.left,
+                            (ShortRect *)&g_stConstellationViewport_005a6b40.left);
+                        DrawConstellationField();
+                        DrawSpriteDefault(
+                            &shotglassWork, 0, 0,
+                            g_pRecRoomBackgroundShape_00598a50, 0);
+                        frame = (short)*animations[index]++;
+                        DrawSpriteDefault(
+                            &shotglassWork,
+                            g_aRecRoomCharacterOrigins_00470490[index].x,
+                            g_aRecRoomCharacterOrigins_00470490[index].y,
+                            g_apRecRoomCharacterShapes_005988c0[index],
+                            frame);
+                        GetShapeFrameBounds(
+                            &nextFrameBounds.left,
+                            g_aRecRoomCharacterOrigins_00470490[index].x,
+                            g_aRecRoomCharacterOrigins_00470490[index].y,
+                            g_apRecRoomCharacterShapes_005988c0[index],
+                            (short)*animations[index]);
+                        if (firstFrame != 0) {
+                            *(ShortRect *)&shotglassDestination.left =
+                                *(ShortRect *)&shotglassWork.left;
+                            if (ShouldSuspendCursorForRect(
+                                    &nextFrameBounds) != 0) {
+                                LeaveAllocationScope();
+                                CopyViewportContents(
+                                    &shotglassWork,
+                                    &shotglassDestination);
+                                EnterAllocationScope();
+                            } else {
+                                CopyViewportContents(
+                                    &shotglassWork,
+                                    &shotglassDestination);
+                            }
                         }
                     }
-                    frame = (short)*animations[index];
-                    animations[index]++;
-                    DrawSpriteDefault(
-                        &DAT_005a76b0,
-                        g_aRecRoomCharacterOrigins_00470490[index].x,
-                        g_aRecRoomCharacterOrigins_00470490[index].y,
-                        g_apRecRoomCharacterShapes_005988c0[index], frame);
-                    GetShapeFrameBounds(
-                        &currentBounds.left,
-                        g_aRecRoomCharacterOrigins_00470490[index].x,
-                        g_aRecRoomCharacterOrigins_00470490[index].y,
-                        g_apRecRoomCharacterShapes_005988c0[index], frame);
-                    dirtyBounds[index].left = MinShort(
-                        previousBounds[index].left, currentBounds.left);
-                    dirtyBounds[index].top = MinShort(
-                        previousBounds[index].top, currentBounds.top);
-                    dirtyBounds[index].right = MaxShort(
-                        previousBounds[index].right, currentBounds.right);
-                    dirtyBounds[index].bottom = MaxShort(
-                        previousBounds[index].bottom, currentBounds.bottom);
-                    previousBounds[index] = currentBounds;
                 }
                 index++;
             } while (index < 3);
-            if (firstFrame != 0) {
-                CopyViewportContents(&DAT_005a76b0,
-                                     &g_stRoomScreenViewport_005988a0);
-                firstFrame = 0;
-            } else {
-                dirtySource = DAT_005a76b0;
-                dirtyDestination = g_stRoomScreenViewport_005988a0;
-                SetViewportRect(&dirtySource, 54, 35, 146, 72);
-                SetViewportRect(&dirtyDestination, 54, 35, 146, 72);
-                CopyViewportContents(&dirtySource, &dirtyDestination);
-                index = 0;
-                do {
-                    if (g_apRecRoomCharacterShapes_005988c0[index] != 0) {
-                        dirtySource = DAT_005a76b0;
-                        dirtyDestination =
-                            g_stRoomScreenViewport_005988a0;
-                        SetViewportRect(
-                            &dirtySource,
-                            (unsigned short)dirtyBounds[index].left,
-                            (unsigned short)dirtyBounds[index].top,
-                            (unsigned short)dirtyBounds[index].right,
-                            (unsigned short)dirtyBounds[index].bottom);
-                        SetViewportRect(
-                            &dirtyDestination,
-                            (unsigned short)dirtyBounds[index].left,
-                            (unsigned short)dirtyBounds[index].top,
-                            (unsigned short)dirtyBounds[index].right,
-                            (unsigned short)dirtyBounds[index].bottom);
-                        CopyViewportContents(&dirtySource,
-                                             &dirtyDestination);
-                    }
-                    index++;
-                } while (index < 3);
+
+            if (firstFrame == 0) {
+                firstFrame = 1;
+                if (DAT_00470510 != 0) {
+                    PanToScreen(&DAT_005a76b0,
+                                &g_stRoomScreenViewport_005988a0);
+                    DAT_00470510 = 0;
+                } else {
+                    CopyViewportContents(
+                        &DAT_005a76b0,
+                        &g_stRoomScreenViewport_005988a0);
+                }
+                EnterAllocationScope();
+            } else if (g_apRecRoomCharacterShapes_005988c0[1] != 0 ||
+                       g_apRecRoomCharacterShapes_005988c0[2] != 0) {
+                if (ShouldSuspendCursorForRect(
+                        (ShortRect *)&pilotWork.left) != 0) {
+                    LeaveAllocationScope();
+                    CopyViewportContents(&pilotWork,
+                                         &pilotDestination);
+                    EnterAllocationScope();
+                } else {
+                    CopyViewportContents(&pilotWork,
+                                         &pilotDestination);
+                }
             }
+
+            LeaveAllocationScope();
+            CopyViewportContents(&bottomSource, &bottomDestination);
             RefreshRoomMenuLabel();
+            EnterAllocationScope();
             SetFrameTimerPeriodDirect(9);
         }
 
-        region = -1;
+        clicked = 0;
         eventType = PollInputEvent(&event, 0xff);
-        if (eventType == 13) {
-            UpdateRoomMenuCursor();
-        } else if (eventType == 2 || eventType == 10) {
-            region = FindMenuRegionAtPoint(
-                event.x, event.y, g_aRecRoomMenuRegions_004704a0);
-            if (region == 3) {
-                FlushInputEvents();
-                ShowChalkBoard();
-                SetFrameTimerPeriodDirect(0);
-            } else if (region == 4 || region == 5) {
-                result = region;
-            }
-        } else if (eventType == 3 || eventType == 5) {
+        if (eventType == 3 || eventType == 5) {
             ClearInputKeyStatePreservingModifiers();
             if ((short)event.value == 0x1c ||
                 (short)event.value == 0x39) {
-                region = FindMenuRegionAtPoint(
-                    g_nMouseX_0059ab10, g_nMouseY_0059ab12,
-                    g_aRecRoomMenuRegions_004704a0);
-                if (region == 3) {
-                    FlushInputEvents();
-                    ShowChalkBoard();
-                    SetFrameTimerPeriodDirect(0);
-                } else if (region == 4 || region == 5) {
-                    result = region;
-                }
+                clicked = 1;
             } else {
                 MoveMenuPointerFromKeyboard(&event);
             }
+        } else if (eventType == 2 || eventType == 10) {
+            clicked = 1;
+        } else if (eventType == 13) {
+            UpdateRoomMenuCursor();
         }
-        if (region >= 0 && region < 3 &&
-            g_apRecRoomCharacterShapes_005988c0[region] != 0) {
-            FlushInputEvents();
-            free_constellation();
-            FreePacketAndClear(
-                (int *)&g_pRecRoomBackgroundShape_00598a50, 0);
-            DAT_005a76b0.bottom = 127;
-            DAT_005a6baa = 24;
-            DAT_005a6bae = 151;
-            InitializeConversationText();
-            ClearViewport(&g_stRoomScreenViewport_005988a0,
-                          DAT_0046999c);
-            g_pConversationBackdropShape_00598c04 =
-                (unsigned char *)FetchDiskPacketRetrying(5, 1, 0);
-            SceneDirector(2,
-                          g_apRecRoomSceneData_00598ae0[region],
-                          g_apRecRoomTextData_00598aa0[region]);
-            DAT_0059ab58 = 0;
-            SetEventManagerPump(PollMenuInputDevices);
-            FreePacketAndClear(
-                (int *)&g_pConversationBackdropShape_00598c04, 0);
-            SetFrameTimerPeriodDirect(1);
-            DAT_005a76b0.bottom = 199;
-            DAT_005a6baa = 0;
-            DAT_005a6bae = 199;
-            init_constellation(0);
-            g_stConstellationViewport_005a6b40 = DAT_005a76b0;
-            SetViewportRect(&g_stConstellationViewport_005a6b40,
-                            54, 35, 146, 72);
-            InitializeConstellationField(
-                &g_stConstellationViewport_005a6b40, -1, 6);
-            g_pRecRoomBackgroundShape_00598a50 =
-                (unsigned char *)FetchDiskPacketRetrying(5, 0, 0);
-            ClearViewport(&g_stRoomScreenViewport_005988a0,
-                          DAT_0046999c);
-            firstFrame = 1;
+
+        if (clicked != 0) {
+            region = FindMenuRegionAtPoint(
+                event.x, event.y, g_aRecRoomMenuRegions_004704a0);
+            LeaveAllocationScope();
+            if (region >= 0 && region <= 2) {
+                if (g_apRecRoomCharacterShapes_005988c0[region] != 0) {
+                    free_constellation();
+                    ReleasePacketHandle(
+                        (int)g_pRecRoomBackgroundShape_00598a50);
+                    DAT_005a76b0.bottom = 127;
+                    DAT_005a6ba0.top = 24;
+                    DAT_005a6ba0.bottom = 151;
+                    InitializeConversationText();
+                    ClearViewport(&g_stRoomScreenViewport_005988a0,
+                                  DAT_0046999c);
+                    g_pConversationBackdropShape_00598c04 =
+                        (unsigned char *)FetchDiskPacketRetrying(
+                            5, 1, 0);
+                    SceneDirector(
+                        2,
+                        g_apRecRoomSceneData_00598ae0[region],
+                        g_apRecRoomTextData_00598aa0[region]);
+                    DAT_0059ab58 = 0;
+                    SetEventManagerPump(PollMenuInputDevices);
+                    FreePacketAndClear(
+                        (int *)&g_pConversationBackdropShape_00598c04,
+                        0);
+                    SetFrameTimerPeriodDirect(1);
+                    DAT_005a6ba0.top = 0;
+                    DAT_005a6ba0.bottom = 199;
+                    DAT_005a76b0.bottom = 199;
+                    g_stConstellationViewport_005a6b40 =
+                        DAT_005a76b0;
+                    g_stConstellationViewport_005a6b40.left = 54;
+                    g_stConstellationViewport_005a6b40.top = 35;
+                    g_stConstellationViewport_005a6b40.right = 146;
+                    g_stConstellationViewport_005a6b40.bottom = 72;
+                    init_constellation(0);
+                    InitializeConstellationField(
+                        &g_stConstellationViewport_005a6b40, -1, 6);
+                    g_pRecRoomBackgroundShape_00598a50 =
+                        (unsigned char *)FetchDiskPacketRetrying(
+                            5, 0, 0);
+                    ClearViewport(&g_stRoomScreenViewport_005988a0,
+                                  DAT_0046999c);
+                }
+            } else if (region == 3) {
+                FlushInputEvents();
+                if ((int)(DAT_0059ab54 - lastChalkboardTick) >
+                    g_nInputTickScale_0059af90) {
+                    ShowChalkBoard();
+                    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+                    lastChalkboardTick = (int)DAT_0059ab54;
+                }
+            } else if (region == 4 || region == 5) {
+                result = region;
+            } else {
+                clicked = 0;
+                EnterAllocationScope();
+            }
+
+            g_stRoomMouseViewport_00598a80 = DAT_005a6ba0;
+            DAT_0059ab23 = &g_stRoomMouseViewport_00598a80;
+            g_bInputMode_0059a848 = 1;
+            if (clicked != 0)
+                firstFrame = 0;
         }
+
         ShowMemoryStatusDebug();
         DIBslam();
         DIBslamReal();
     }
 
-    LeaveAllocationScope();
+    g_nMenuPointerSpeed_0046af58 = 2;
     *(short *)&g_aInputDeviceSamples_005a81f0[2].x =
         g_nSavedRoomControllerX_005988b4;
     EventManagerHook(0);
-    SetEventManagerPump(0);
-    index = 0;
-    do {
-        FreePacketAndClear(
-            (int *)&g_apRecRoomCharacterShapes_005988c0[index], 0);
-        index++;
-    } while (index < 3);
-    FreePacketAndClear((int *)&g_pRecRoomBackgroundShape_00598a50, 0);
+    ReleasePacketHandle(
+        (int)g_apRecRoomCharacterShapes_005988c0[0]);
+    ReleasePacketHandle(
+        (int)g_apRecRoomCharacterShapes_005988c0[1]);
+    ReleasePacketHandle(
+        (int)g_apRecRoomCharacterShapes_005988c0[2]);
     free_constellation();
+    ReleasePacketHandle((int)g_pRecRoomBackgroundShape_00598a50);
     ReleaseTextFont(0);
-    FreePacketAndClear((int *)&g_pBriefingPacket_00598aec, 0);
+    ReleasePacketHandle((int)g_pBriefingPacket_00598aec);
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
     free_viewport(&DAT_005a76b0);
-    g_bInputMode_0059a848 = savedInputMode;
     DAT_0059ab58 = 0;
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(30);

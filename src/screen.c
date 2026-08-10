@@ -13,8 +13,9 @@ int IsShipQueuedOrderDefend(short i)
 }
 
 /* Function start: 0x42F730 */
-unsigned short GetConversationState(void)
+unsigned short __stdcall ShouldSuspendCursorForRect(const ShortRect *bounds)
 {
+    (void)bounds;
     return 0;
 }
 
@@ -578,6 +579,21 @@ short ReadCalibratedJoystick(void)
     sample->x = (short)normalizedX;
     sample->y = (short)normalizedY;
     return 1;
+}
+
+/* Function start: 0x431EA0 */
+void __stdcall UnionRectBounds(ShortRect *destination,
+                               const ShortRect *first,
+                               const ShortRect *second)
+{
+    destination->left = first->left < second->left ?
+        first->left : second->left;
+    destination->top = first->top < second->top ?
+        first->top : second->top;
+    destination->right = first->right > second->right ?
+        first->right : second->right;
+    destination->bottom = first->bottom > second->bottom ?
+        first->bottom : second->bottom;
 }
 
 /* Function start: 0x431F00 */

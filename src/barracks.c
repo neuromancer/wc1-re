@@ -117,6 +117,94 @@ short BarracksScreen(void)
     return result;
 }
 
+/* Function start: 0x41C510 */
+unsigned short __stdcall StepPaletteTransition(short *current,
+                                                const short *target,
+                                                short componentCount)
+{
+    unsigned int byteCount;
+    short difference;
+    short index;
+    short previousCountdown;
+
+    if (g_nPaletteTransitionInitialise_00469640 != 0) {
+        byteCount = (unsigned int)(componentCount * 2);
+        g_pPaletteTransitionAccumulator_005a7d94 =
+            (short *)AllocateTaggedMemory(byteCount, 0);
+        g_pPaletteTransitionDelta_005a7d8c =
+            (short *)AllocateTaggedMemory(byteCount, 0);
+        g_pPaletteTransitionDirection_005a7d88 =
+            (short *)AllocateTaggedMemory(byteCount, 0);
+        if (g_pPaletteTransitionAccumulator_005a7d94 == 0 ||
+            g_pPaletteTransitionDelta_005a7d8c == 0 ||
+            g_pPaletteTransitionDirection_005a7d88 == 0) {
+            if (g_pPaletteTransitionAccumulator_005a7d94 != 0)
+                ReleasePacketHandle(
+                    (int)g_pPaletteTransitionAccumulator_005a7d94);
+            if (g_pPaletteTransitionDelta_005a7d8c != 0)
+                ReleasePacketHandle((int)g_pPaletteTransitionDelta_005a7d8c);
+            if (g_pPaletteTransitionDirection_005a7d88 != 0)
+                ReleasePacketHandle(
+                    (int)g_pPaletteTransitionDirection_005a7d88);
+            return 0;
+        }
+
+        g_nPaletteTransitionMaxDelta_005a7d90 = 0;
+        index = 0;
+        while (index < componentCount) {
+            difference = (short)(current[index] - target[index]);
+            if (difference < 0) {
+                difference = (short)-difference;
+                g_pPaletteTransitionDirection_005a7d88[index] = 4;
+            } else {
+                g_pPaletteTransitionDirection_005a7d88[index] = -4;
+            }
+            g_pPaletteTransitionDelta_005a7d8c[index] = difference;
+            if (g_nPaletteTransitionMaxDelta_005a7d90 < difference)
+                g_nPaletteTransitionMaxDelta_005a7d90 = difference;
+            index++;
+        }
+
+        index = 0;
+        while (index < componentCount) {
+            g_pPaletteTransitionAccumulator_005a7d94[index] =
+                (short)(g_nPaletteTransitionMaxDelta_005a7d90 / 4);
+            index++;
+        }
+        g_nPaletteTransitionInitialise_00469640 = 0;
+        g_nPaletteTransitionCountdown_005a7d98 =
+            (short)(g_nPaletteTransitionMaxDelta_005a7d90 / 4);
+    }
+
+    previousCountdown = g_nPaletteTransitionCountdown_005a7d98;
+    g_nPaletteTransitionCountdown_005a7d98--;
+    if (previousCountdown == 0) {
+        ReleasePacketHandle((int)g_pPaletteTransitionAccumulator_005a7d94);
+        ReleasePacketHandle((int)g_pPaletteTransitionDelta_005a7d8c);
+        ReleasePacketHandle((int)g_pPaletteTransitionDirection_005a7d88);
+        g_nPaletteTransitionInitialise_00469640 = 1;
+        return 0;
+    }
+
+    index = 0;
+    while (index < componentCount) {
+        g_pPaletteTransitionAccumulator_005a7d94[index] =
+            (short)(g_pPaletteTransitionAccumulator_005a7d94[index] +
+                    g_pPaletteTransitionDelta_005a7d8c[index]);
+        if (g_pPaletteTransitionAccumulator_005a7d94[index] >
+            g_nPaletteTransitionMaxDelta_005a7d90) {
+            g_pPaletteTransitionAccumulator_005a7d94[index] =
+                (short)(g_pPaletteTransitionAccumulator_005a7d94[index] -
+                        g_nPaletteTransitionMaxDelta_005a7d90);
+            current[index] =
+                (short)(current[index] +
+                        g_pPaletteTransitionDirection_005a7d88[index]);
+        }
+        index++;
+    }
+    return 1;
+}
+
 /* Function start: 0x41C740 */
 char *__stdcall DosStrcat(char *destination, const char *source)
 {

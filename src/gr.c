@@ -321,6 +321,23 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     g_abPaletteTranslation_00470678[fontBackground] = oldBackground;
 }
 
+/* Function start: 0x441370 */
+void __stdcall MarkActivePaletteEntries(Viewport *viewport,
+                                         unsigned char *active)
+{
+    unsigned short rgb[3];
+    short index;
+
+    (void)viewport;
+    index = 0;
+    do {
+        GetPaletteEntry(index, rgb);
+        if (rgb[0] != 0 || rgb[1] != 0 || rgb[2] != 0)
+            active[index] = 1;
+        index++;
+    } while (index < 256);
+}
+
 /* Function start: 0x4413C0 */
 void __stdcall GetPaletteEntry(short index, unsigned short *rgb)
 {
@@ -543,6 +560,15 @@ void ClearViewport(Viewport *viewport, short colour)
         DIBslam();
         DIBslamReal();
     }
+}
+
+/* Function start: 0x441B60 */
+int GetViewportPixel(Viewport *viewport, short x, short y)
+{
+    ClipViewportToScreen(viewport);
+    return ReadRasterClipPixel(&g_stRasterClip_00496fc0,
+                               (int)x - viewport->left,
+                               (int)y - viewport->top);
 }
 
 /* Function start: 0x441BA0 */
