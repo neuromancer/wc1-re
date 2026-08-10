@@ -8,6 +8,8 @@
 #define WC1_FUNCS_H
 
 void RestoreGamePalette(void);                                          /* 0x00401020 */
+short IsObjectVisible(short obj);                                     /* 0x00401040 */
+void SpawnAsteroidFragment(short asteroid, FixedVector direction);    /* 0x004010C0 */
 void remove_hazard(signed char hazard);                               /* 0x004011D0 */
 void remove_all_hazards(void);                                        /* 0x00401210 */
 short difficulty(void);                                               /* 0x00401250 */
@@ -312,14 +314,15 @@ unsigned int start_dust(short obj, FixedVector origin,
 unsigned int generate_stars(void);                                    /* 0x00411FE0 */
 unsigned int update_star_field(void);                                 /* 0x00412100 */
 unsigned short count_down(short obj);                                   /* 0x00412410 */
-void house_keep_objects(void);                                         /* 0x00412430 */
+unsigned int house_keep_objects(void);                                 /* 0x00412430 */
 void update_objects_in_space(void);                                    /* 0x00412820 */
 void rotate_object(short obj);                                         /* 0x00412920 */
-void accelerate_and_move_object(short obj);                            /* 0x004129A0 */
-void animate_shape(short obj);                                         /* 0x00412CD0 */
-void animate_object(short obj);                                        /* 0x00412E30 */
+unsigned int accelerate_and_move_object(short obj);                    /* 0x004129A0 */
+unsigned int animate_shape(short obj);                                 /* 0x00412CD0 */
+unsigned int animate_object(short obj);                                /* 0x00412E30 */
+unsigned int hit_asteroid(short asteroid, short destructionChance);    /* 0x00413030 */
 int object_collision(short obj);                                      /* 0x004130D0 */
-void object_intelligence(short obj);                                   /* 0x00413880 */
+unsigned int object_intelligence(short obj);                           /* 0x00413880 */
 void EmitTextString(void (__stdcall *writer)(short), const char *text); /* 0x00413A10 */
 void FormatTextTokens(void (__stdcall *writer)(short),
                       const char *format, unsigned long *arguments);    /* 0x00413A40 */
@@ -642,7 +645,8 @@ short real_velocity(short obj);                                       /* 0x0041E
 unsigned int fix_velocity(short obj);                                 /* 0x0041E820 */
 unsigned int sort_viable_target_list(void);                           /* 0x0041E860 */
 void send_appropriate_message(short attacker, short victim);         /* 0x0041E900 */
-int inflict_damage(short attacker, short victim, short damage);       /* 0x0041E9B0 */
+int inflict_damage(short attacker, short victim, short damage,
+                   const FixedVector *impactDirection);                /* 0x0041E9B0 */
 short pilot_hit(short obj);                                           /* 0x0041EC60 */
 int onboard_explosion(short obj);                                     /* 0x0041ECE0 */
 void call_enemy(short obj);                                           /* 0x0041EDB0 */

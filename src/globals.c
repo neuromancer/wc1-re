@@ -589,6 +589,7 @@ int g_anVolumeLevels_00469fc8[11] = {
     61500, 62000, 63000, 63500, 64000
 };
 int g_nOriginDevUnlock_00469ff4;
+int g_bPlayerCollisionsEnabled_00469ff8 = 1;
 int DAT_00469ffc = 1;
 int DAT_0046a000 = 1;
 unsigned char DAT_0046a004;
@@ -1813,6 +1814,7 @@ short g_anObjectPitchRotation_0059b2a0[WC1_SPACE_OBJECT_COUNT];
 int g_anShipSpeed_0059b320[64];
 short g_nSpaceFrame_0059b420;
 unsigned int DAT_0059b430[512];
+FixedVector g_vPlayerAcceleration_0059b460;
 int g_anShipFuel_0059b470[512];
 short g_asObjectDistance_0059b4a0[WC1_SPACE_OBJECT_COUNT];
 ShortVector g_aShipFormationOffset_0059b520[10];

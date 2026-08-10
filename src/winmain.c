@@ -13,6 +13,56 @@ void RestoreGamePalette(void)
     DIBwholePaletteFromWords(DAT_005a8a50);
 }
 
+/* Function start: 0x401040 */
+short IsObjectVisible(short obj)
+{
+    short bounds[4];
+    short x;
+    short y;
+    unsigned char *shape;
+
+    x = g_asObjectScreenX_0059d9b0[obj];
+    if (x == (short)0x8001)
+        return 0;
+    x = (short)(x + g_nViewCenterX_0059a852);
+    y = g_asObjectScreenY_0059d930[obj];
+    shape = g_apObjectShape_0059d2f0[obj];
+    y = (short)(y + g_nViewCenterY_0059a854);
+    return GetTransformedShapeBounds(
+        &DAT_005a7510, x, y, shape,
+        g_asObjectViewFrame_0059d230[obj],
+        g_asObjectScreenAngle_0059cd90[obj],
+        g_asObjectScreenScale_0059c950[obj],
+        g_asObjectFlip_0059c870[obj], bounds);
+}
+
+/* Function start: 0x4010C0 */
+void SpawnAsteroidFragment(short asteroid, FixedVector direction)
+{
+    short fragment;
+    short speed;
+
+    fragment = find_vacant_3d_object();
+    if (fragment == -1)
+        return;
+    set_objects_data(fragment, OBJECT_TYPE_ROCK_CHUNK, asteroid);
+    g_asObjectCounter_0059c330[fragment] = 40;
+    g_acObjectOwner_0059ce20[fragment] = (signed char)asteroid;
+    SetVectorFixedPoint((unsigned int *)&direction,
+                        (short)(g_asObjectCollisionRadius_0059d710[asteroid] >> 1));
+    AddFixedVectors(&g_aShipPosition_0059c490[asteroid], &direction,
+                    &g_aShipPosition_0059c490[fragment]);
+    g_aShipForwardVector_0059bce0[fragment] = direction;
+    fix_objects_ijk(fragment);
+    alter_yaw(signed_random(20), fragment);
+    alter_pitch(signed_random(20), fragment);
+    g_aShipVelocity_0059c010[fragment] =
+        g_aShipForwardVector_0059bce0[fragment];
+    speed = (short)(real_velocity(asteroid) + RandomInRange(0, 5));
+    SetVectorFixedPoint(
+        (unsigned int *)&g_aShipVelocity_0059c010[fragment], speed);
+}
+
 /* Pitch windows used by try_far_spot for the four forward view bands. */
 static const signed char g_acHazardPitchRange_00465050[8] = {
     -10, 4, -8, 8, -12, 8, -8, 8

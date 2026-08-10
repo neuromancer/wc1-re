@@ -4,9 +4,9 @@
 # 1451 developer functions; CRT begins at 0x00449100.
 
 0x00401000 HelperOf4219C0A
-0x00401020 PaletteVideoFn1020
-0x00401040 GetTbl0059d9b0Fn1040
-0x004010C0 SetTbl0059bce0Fn10C0
+0x00401020 RestoreGamePalette
+0x00401040 IsObjectVisible
+0x004010C0 SpawnAsteroidFragment
 0x004011D0 SetSfxFn11D0
 0x00401210 ScanTbl0046c028Fn1210
 0x00401250 GetSfxFn1250
@@ -319,8 +319,8 @@
 0x004129A0 accelerate_and_move_object
 0x00412CD0 animate_shape
 0x00412E30 animate_object
-0x00413030 ScanTbl0059c010Fn3030
-0x004130D0 SoundTbl0059ce20Fn30D0
+0x00413030 hit_asteroid
+0x004130D0 object_collision
 0x00413880 object_intelligence
 0x00413A10 LoopLocalFn3A10
 0x00413A40 TextUiFn3A40

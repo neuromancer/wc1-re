@@ -88,92 +88,87 @@ void send_appropriate_message(short attacker, short victim)
 }
 
 /* Function start: 0x41E9B0 */
-int inflict_damage(short attacker, short victim, short damage)
+int inflict_damage(short attacker, short victim, short damage,
+                   const FixedVector *impactDirection)
 {
-    enum ObjectClass objectClass;
-    ObjectTypeData *typeData;
-    short shield;
     short quadrant;
-    short remaining;
+    short destroyed;
     int sideDot;
-    int destroyed;
 
     if ((DAT_00469ffc == 0 && victim == 0) || damage == 0)
-        return 0;
-    if (victim < 0 || victim >= WC1_SPACE_OBJECT_COUNT)
         return 0;
     if (g_aeSpecialManeuver_0059c3c0[victim] ==
             SPECIAL_MANEUVER_UNKNOWN_9)
         return 0;
-    objectClass = g_aeObjectClass_0059d100[victim];
-    if (objectClass < OBJECT_CLASS_MISSILE)
+    if (g_aeObjectClass_0059d100[victim] < OBJECT_CLASS_MISSILE)
         return 0;
 
-    if (objectClass < OBJECT_CLASS_SHIP) {
-        typeData = &g_aObjectTypeData_00466458[
-            g_aeObjectType_0059b560[victim]];
+    if (g_aeObjectClass_0059d100[victim] < OBJECT_CLASS_SHIP) {
         g_asShipAccumulatedDamage_0059dee0[victim] = (short)(
             g_asShipAccumulatedDamage_0059dee0[victim] + damage);
-        if (typeData->damageCapacity != -1 &&
-            g_asShipAccumulatedDamage_0059dee0[victim] >=
-                typeData->damageCapacity)
+        if (g_aObjectTypeData_00466458[
+                g_aeObjectType_0059b560[victim]].damageCapacity == -1)
+            return 0;
+        if (g_aObjectTypeData_00466458[
+                g_aeObjectType_0059b560[victim]].damageCapacity <=
+            g_asShipAccumulatedDamage_0059dee0[victim]) {
             return explode(attacker, victim);
+        }
         return 0;
     }
 
     if (victim == 0)
         TriggerPlayerHitPaletteFlash();
 
-    if (attacker >= 0 && attacker < WC1_SPACE_OBJECT_COUNT &&
+    if (attacker != -1 &&
         g_nYourWingman_0046c04c == victim &&
         g_acObjectOwner_0059ce20[attacker] == 0)
         send_message(victim, 10);
 
-    shield = (short)(dot_product(&g_vCollisionDelta_0059d690,
+    quadrant = (short)(dot_product(impactDirection,
         &g_aShipForwardVector_0059bce0[victim]) > 0);
-    remaining = (short)(damage - g_aasShipShield_0059d5b0[victim][shield]);
-    if (remaining < 1) {
-        g_aasShipShield_0059d5b0[victim][shield] = (short)-remaining;
-        if (attacker >= 0 &&
+    damage = (short)(damage -
+                     g_aasShipShield_0059d5b0[victim][quadrant]);
+    if (damage <= 0) {
+        g_aasShipShield_0059d5b0[victim][quadrant] = (short)-damage;
+        if (attacker != -1 &&
             g_aeObjectClass_0059d100[attacker] == OBJECT_CLASS_PROJECTILE)
             PlaySfxWaveFileByNumber(10, victim, 0);
         return 0;
     }
-    g_aasShipShield_0059d5b0[victim][shield] = 0;
-    if (attacker >= 0 &&
+    g_aasShipShield_0059d5b0[victim][quadrant] = 0;
+    if (attacker != -1 &&
         g_aeObjectClass_0059d100[attacker] == OBJECT_CLASS_PROJECTILE)
         PlaySfxWaveFileByNumber(9, victim, 0);
 
-    quadrant = shield;
-    sideDot = dot_product(&g_vCollisionDelta_0059d690,
+    sideDot = dot_product(impactDirection,
                           &g_aShipRightVector_0059b6e0[victim]);
-    if (sideDot >= 0xb6)
+    if (sideDot > 0xb5)
         quadrant = 3;
     else if (sideDot < -0xb5)
         quadrant = 2;
-    remaining = (short)(remaining -
-                        g_aasShipArmor_0059d420[victim][quadrant]);
-    if (remaining < 1) {
-        g_aasShipArmor_0059d420[victim][quadrant] = (short)-remaining;
+    damage = (short)(damage -
+                     g_aasShipArmor_0059d420[victim][quadrant]);
+    if (damage <= 0) {
+        g_aasShipArmor_0059d420[victim][quadrant] = (short)-damage;
         return 0;
     }
     g_aasShipArmor_0059d420[victim][quadrant] = 0;
 
     if (g_asObjectScreenX_0059d9b0[victim] != (short)0x8001 &&
-        objectClass != OBJECT_CLASS_CAPITAL_SHIP &&
+        g_aeObjectClass_0059d100[victim] != OBJECT_CLASS_CAPITAL_SHIP &&
         (short)RandomBelowOrEqual(1) == 0)
         Create_ship_hit_debris(attacker, 1);
     destroyed = 0;
     if ((short)RandomBelowOrEqual(99) == 0) {
         if (attacker != 0 && attacker != g_nYourWingman_0046c04c &&
-            attacker >= 0 && attacker < WC1_SPACE_OBJECT_COUNT &&
             g_aeObjectClass_0059d100[attacker] == OBJECT_CLASS_SHIP) {
             if (g_aeShipSide_0059d650[attacker] == SIDE_KILRATHI)
                 send_message(attacker, 6);
             destroyed = explode(attacker, victim);
         }
     } else {
-        destroyed = internal_damage(attacker, victim, remaining, quadrant);
+        destroyed = internal_damage(attacker, victim, damage, quadrant);
     }
     if (destroyed == 1)
         send_appropriate_message(attacker, victim);
@@ -802,10 +797,9 @@ int explosion_shock_wave(short obj, short blastDamage)
                 NormalizeFixedVector(&delta);
                 ScaleFixedVector(&delta, (int)damage << 8, &force);
                 apply_force_to_objects_center(&force, other);
-                g_vCollisionDelta_0059d690 = delta;
                 attacker = the_creator(obj);
                 inflict_damage(attacker, other,
-                               MinShort(100, damage));
+                               MinShort(100, damage), &delta);
             }
         }
         other++;
