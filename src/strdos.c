@@ -43,45 +43,47 @@ void DosMemcpy(void *dst, const void *src, size_t n)
 }
 
 /* Function start: 0x435550 */
-unsigned short GetFxDriverCount(void)
+unsigned short GetEventManagerStatus(void)
 {
     return 0;
 }
 
 /* Function start: 0x435560 */
-void InitExtendedMemoryStub(void)
+void __stdcall RegisterEventManagerShutdown(void (*fn)(void))
 {
 }
 
 /* Function start: 0x435570 */
-unsigned int SetWaitCursorAndRun(unsigned int a, void (*fn)(void))
+short __stdcall InitializeEventManager(short period,
+                                       void (*initialize)(void),
+                                       void *configuration)
 {
-    (void)a;
-    DAT_0059a850 = 1;
-    if (fn != 0)
-        (*fn)();
-    return 0;
+    g_nEventManagerActive_0059a850 = 1;
+    if (initialize != 0)
+        initialize();
+    return 1;
 }
 
 /* Function start: 0x435590 */
-void ClearWaitCursorFlag(void)
+void ShutdownEventManager(void)
 {
-    DAT_0059a850 = 0;
+    g_nEventManagerActive_0059a850 = 0;
 }
 
 /* Function start: 0x4355A0 */
-unsigned short GetExtendedMemoryFree(void)
+unsigned short __stdcall ConfigureEventManagerPointer(
+    unsigned char *shape, short frame)
 {
     return 0;
 }
 
 /* Function start: 0x4355C0 */
-void BeginScreenUpdateHook(void)
+void __stdcall EventManagerHook(short mode)
 {
 }
 
 /* Function start: 0x4355D0 */
-void SetScreenUpdateMode(unsigned int v)
+void __stdcall SetEventManagerPump(void (*pump)(void))
 {
-    DAT_0059ab2c = v;
+    DAT_0059ab2c = pump;
 }

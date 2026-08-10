@@ -146,7 +146,7 @@ unsigned int start_dust(short obj, FixedVector origin,
     FixedVector offset;
     short streak;
 
-    initialize_object(obj, OBJECT_TYPE_SPACE_DUST, -1);
+    set_objects_data(obj, OBJECT_TYPE_SPACE_DUST, -1);
     ScaleFixedVector(&g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT],
                      (int)forwardDistance << 8, &offset);
     AddFixedVectors(&origin, &offset, &origin);
@@ -229,7 +229,7 @@ unsigned int update_star_field(void)
             if (g_pActiveHazardField_0059bfe0 == 0) {
                 if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_ASTEROID ||
                     g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_NULL) {
-                    initialize_object(obj, OBJECT_TYPE_SPACE_DUST, -1);
+                    set_objects_data(obj, OBJECT_TYPE_SPACE_DUST, -1);
                     randomChoice = 0;
                 }
             } else if (obj < 42) {
@@ -454,7 +454,7 @@ void accelerate_and_move_object(short obj)
                         g_aeObjectType_0059b560[obj]].maximumVelocity + 20) *
                         0x200,
                     &desired);
-                AddShipAiTimer(obj, 200);
+                drain_fuel(obj, 200);
                 g_abShipExhaustHeat_0059d610[obj] = 3;
             }
         } else if (g_aeSpecialManeuver_0059c3c0[obj] ==
@@ -467,7 +467,7 @@ void accelerate_and_move_object(short obj)
                                  g_anShipSpeed_0059b320[obj], &desired);
             } else {
                 zero_vector(&desired);
-                AddShipAiTimer(obj, 140);
+                drain_fuel(obj, 140);
             }
         } else {
             ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],

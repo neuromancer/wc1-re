@@ -130,7 +130,7 @@ void FatalErrorAndExit(const char *format, ...)
     char text[0xfc];
 
     vsprintf(text, format, (char *)(&format + 1));
-    ClearWaitCursorFlag();
+    ShutdownEventManager();
     exit_squadron(text);
 }
 
@@ -461,6 +461,34 @@ int damage_your_component(char component, char amount, char maximum)
         ShowComponentHitHudMessage(text, (unsigned char)DAT_004699ac, 5);
     }
     return g_acPlayerComponentDamage_0059bff0[index];
+}
+
+/* Function start: 0x414CB0 */
+void RemovePlayerReleaseWeapon(signed char weapon)
+{
+    volatile ShipWeaponSlot *loadout;
+    enum ObjectType preferredType;
+    int hardpoint;
+
+    loadout = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
+    preferredType = loadout[weapon].type;
+    g_eReleaseWeaponDisplayType_005a7dc0 = preferredType;
+    g_cReleaseWeaponDisplayFrame_00469070 =
+        (signed char)(preferredType * 2 - 0x2f);
+    hardpoint = loadout[weapon].hardpoint;
+    g_cReleaseWeaponDisplayTicks_00469074 = 3;
+    g_cReleaseWeaponDisplayState_00469078 = 0;
+    g_nReleaseWeaponDisplayX_005a7dbc =
+        (short)(g_aWeaponDisplayPositions_00468440[hardpoint].x +
+                g_nWeaponDisplayOriginX_005a7788);
+    g_nReleaseWeaponDisplayY_005a7dbe =
+        (short)(g_aWeaponDisplayPositions_00468440[hardpoint].y +
+                g_nWeaponDisplayOriginY_005a778a);
+    if (g_nReleaseWeaponDisplayEnabled_0046906c == 0)
+        g_cReleaseWeaponDisplayFrame_00469070 = -1;
+    remove_weapon(0, weapon);
+    g_nSelectedReleaseWeaponIndex_0046c058 = -1;
+    select_new_release_weapon(preferredType);
 }
 
 /* Function start: 0x415040 */

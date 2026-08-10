@@ -52,6 +52,9 @@ typedef unsigned short UINT16;
 typedef unsigned char  UINT8;
 typedef signed char    INT8;
 
+typedef struct IxSound IxSound;
+typedef struct IxSample IxSample;
+
 /* The DOS rasteriser passes this record to every drawing primitive.  Its
  * offsets are fixed by the accesses in the 0x00440C00-0x00441A8F block. */
 typedef struct Viewport {
@@ -63,6 +66,42 @@ typedef struct Viewport {
     short bottom;                   /* +0x0E */
     unsigned char *allocation;      /* +0x10 */
 } Viewport;
+
+/* The event manager keeps a fixed pool of doubly-linked input records.  The
+ * 0x1C-byte stride is fixed by the allocator at 0x004356E0 and the link
+ * accesses at 0x00435790-0x004359BF. */
+typedef struct InputEvent {
+    short type;                       /* +0x00 */
+    short x;                          /* +0x02 */
+    short y;                          /* +0x04 */
+    short value;                      /* +0x06 */
+    unsigned int modifiers;           /* +0x08 */
+    unsigned int timestamp;           /* +0x0C */
+    short primaryButton;              /* +0x10 */
+    short secondaryButton;            /* +0x12 */
+    struct InputEvent *next;           /* +0x14 */
+    struct InputEvent *previous;       /* +0x18 */
+} InputEvent;
+
+/* Public event records retain the packed layout of the 16-bit event-manager
+ * API.  In particular, both 32-bit fields are intentionally unaligned. */
+#pragma pack(push, 1)
+typedef struct InputEventState {
+    short type;                       /* +0x00 */
+    unsigned int value;               /* +0x02 */
+    unsigned int timestamp;           /* +0x06 */
+    short modifiers;                  /* +0x0A */
+    short x;                          /* +0x0C */
+    short y;                          /* +0x0E */
+} InputEventState;
+#pragma pack(pop)
+
+/* One sampled joystick position and its button mask. */
+typedef struct InputDeviceSample {
+    int x;
+    int y;
+    unsigned int buttons;
+} InputDeviceSample;
 
 /* Linear 8-bit raster target and its active clipping rectangle. */
 typedef struct RasterSurface {

@@ -31,23 +31,23 @@ void WaitForKeyAcknowledge(int mode)
                 acknowledged = 1;
         } while (acknowledged == 0);
         acknowledged = 0;
-        FreeAllTrackedAllocations();
+        FlushInputEvents();
         ClearDebugPauseFlags();
         do {
             PumpWindowMessages();
             if (IsInputEventQueued(3) != 0)
                 acknowledged = 1;
         } while (acknowledged == 0);
-        FreeAllTrackedAllocations();
+        FlushInputEvents();
         ClearDebugPauseFlags();
         return;
     }
-    FreeAllTrackedAllocations();
+    FlushInputEvents();
     ClearDebugPauseFlags();
     do {
         key = PumpMessagesDuringWait();
     } while (key == 0x19 || key == 0x50 || key == 0x0c);
-    FreeAllTrackedAllocations();
+    FlushInputEvents();
 }
 
 /* Function start: 0x428F20 */
@@ -81,7 +81,7 @@ void ShowOnScreenMessage(int flags, short duration,
     char text[52];
 
     vsprintf(text, format, (char *)(&format + 1));
-    FreeAllTrackedAllocations();
+    FlushInputEvents();
     messageDuration = duration;
     if (messageDuration == 9999)
         modalShown = ShowModalTextPanel(1, text);
@@ -333,7 +333,7 @@ unsigned int unwarp(short obj)
     g_bViewportDirty_00469fc4 = 1;
     effect = find_vacant_3d_object();
     if (effect != -1) {
-        initialize_object(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH, obj);
+        set_objects_data(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH, obj);
         g_aShipPosition_0059c490[effect] = g_aShipPosition_0059c490[obj];
         g_aShipVelocity_0059c010[effect] = g_aShipVelocity_0059c010[obj];
         g_aeShipManeuver_0059dcb0[obj] = MANEUVER_NONE;
@@ -342,7 +342,7 @@ unsigned int unwarp(short obj)
     }
     g_abShipNavPointIndex_0059d7c0[obj] =
         (signed char)g_aeObjectType_0059b560[obj];
-    initialize_object(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH, obj);
+    set_objects_data(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH, obj);
     return 0;
 }
 
@@ -355,16 +355,16 @@ unsigned int warp(short obj)
     g_bViewportDirty_00469fc4 = 1;
     effect = find_vacant_3d_object();
     if (effect != -1) {
-        initialize_object(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
-                          g_acObjectOwner_0059ce20[obj]);
+        set_objects_data(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
+                         g_acObjectOwner_0059ce20[obj]);
         g_aShipPosition_0059c490[effect] = g_aShipPosition_0059c490[obj];
         g_aShipVelocity_0059c010[effect] = g_aShipVelocity_0059c010[obj];
         g_aeShipManeuver_0059dcb0[obj] = MANEUVER_WARPING_OUT;
         g_asObjectCounter_0059c330[obj] = 6;
         return 0;
     }
-    initialize_object(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
-                      g_acObjectOwner_0059ce20[obj]);
+    set_objects_data(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
+                     g_acObjectOwner_0059ce20[obj]);
     return 0;
 }
 

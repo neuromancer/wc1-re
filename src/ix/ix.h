@@ -266,9 +266,9 @@ IxSound *ix_system_find_lowest_playing(IxSound *sound,
 int ix_system_find_free_voice(void);             /* 0x004479C7 */
 
 void __fastcall ix_sound_start(IxSound *sound);  /* 0x00447CD8 */
-void __fastcall ix_sound_release(IxSound *sound); /* 0x0044801E */
+extern "C" void __fastcall ix_sound_release(IxSound *sound); /* 0x0044801E */
 void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x00447B7A */
-void __fastcall ix_sound_stop(IxSound *sound);   /* 0x004480CF */
+extern "C" void __fastcall ix_sound_stop(IxSound *sound);   /* 0x004480CF */
 
 /* --------------------------------------------------------------------------
  * Streamer.  Global state word at 0x00597CD0; wake event at 0x00597CD4.
@@ -392,7 +392,7 @@ void ix_streamer_set_dev_mode(int mode);         /* 0x0044293E */
 int  ix_streamer_open_stream_file(char *path);        /* 0x004429B6 */
 void ix_streamer_close_stream_file(void);        /* 0x0044307A */
 void ix_streamer_audio_play(void);               /* 0x004431F3 */
-void ix_streamer_audio_stop(void);               /* 0x00443253 */
+extern "C" void ix_streamer_audio_stop(void);    /* 0x00443253 */
 void ix_streamer_audio_pause(void);              /* 0x004432B6 */
 void ix_streamer_audio_reprepare(void);          /* 0x0044330F */
 void ix_streamer_set_intensity(unsigned char intensity); /* 0x0044336B */

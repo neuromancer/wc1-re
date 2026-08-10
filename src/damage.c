@@ -43,7 +43,7 @@ int Create_ship_hit_debris(short obj)
     debris = find_vacant_3d_object();
     if (debris == -1)
         return 0;
-    initialize_object(debris, OBJECT_TYPE_EXPLOSION2, obj);
+    set_objects_data(debris, OBJECT_TYPE_EXPLOSION2, obj);
     g_asObjectScale_0059de40[debris] <<= 2;
     g_asObjectCounter_0059c330[debris] = 6;
     g_aShipVelocity_0059c010[debris] = g_aShipVelocity_0059c010[obj];
@@ -100,8 +100,8 @@ void Create_explosion_debris(short obj)
         debris = find_vacant_3d_object();
         if (debris == -1)
             break;
-        initialize_object(debris, g_aaeExplosionDebris_004698e0[set][index],
-                          -1);
+        set_objects_data(debris, g_aaeExplosionDebris_004698e0[set][index],
+                         -1);
         g_asObjectCounter_0059c330[debris] = 40;
         FillFixedVectorWithRandomComponents(50, &offset);
         AddFixedVectors(&position, &offset,
@@ -153,7 +153,7 @@ short ShipExplosion(short obj)
         explosion = obj;
     else
         copy_frame(obj, explosion);
-    initialize_object(explosion, OBJECT_TYPE_EXPLOSION1, obj);
+    set_objects_data(explosion, OBJECT_TYPE_EXPLOSION1, obj);
     g_aShipPosition_0059c490[explosion] = position;
     g_aShipVelocity_0059c010[explosion] = velocity;
     g_asObjectScale_0059de40[explosion] = (short)(
@@ -176,7 +176,7 @@ short Explosion(short obj)
         if (g_aeObjectType_0059b560[obj] == OBJECT_TYPE_TURRET ||
             objectClass == OBJECT_CLASS_ASTEROID)
             explosionType = OBJECT_TYPE_EXPLOSION0;
-        initialize_object(obj, explosionType, g_acObjectOwner_0059ce20[obj]);
+        set_objects_data(obj, explosionType, g_acObjectOwner_0059ce20[obj]);
         if (objectClass == OBJECT_CLASS_ASTEROID)
             g_asObjectScale_0059de40[obj] = 0x380;
     } else {
@@ -268,7 +268,7 @@ int fire_weapon(short obj, short weapon)
     projectile = find_vacant_3d_object();
     if (projectile == -1)
         return -1;
-    initialize_object(projectile, weaponType, obj);
+    set_objects_data(projectile, weaponType, obj);
     copy_frame(obj, projectile);
     weaponData = &g_aObjectTypeData_0046645c[weaponType];
     child_object(slot->hardpoint, projectile, obj);

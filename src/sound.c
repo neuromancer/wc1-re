@@ -6,6 +6,20 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x42B640 */
+void stop_all_sounds(void)
+{
+    ix_system_delete_all_sounds();
+    ix_system_delete_all_samples();
+    FreeWaveTable();
+    if (g_pLoopingWaveSound_00476550 != 0) {
+        ix_sound_stop(g_pLoopingWaveSound_00476550);
+        ix_sound_release(g_pLoopingWaveSound_00476550);
+        g_pLoopingWaveSound_00476550 = 0;
+        g_pLoopingWaveSample_0047654c = 0;
+    }
+}
+
 /* Function start: 0x42B7D0 */
 __declspec(naked) void ServiceSoundSystem(void)
 {

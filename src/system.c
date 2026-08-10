@@ -10,7 +10,7 @@
 short LogMemoryUsage(void)
 {
     ((void (__cdecl *)(int, int))ShutdownHook)(0x21, DAT_0059ab4c);
-    LeaveWaitCursorScope();
+    EMShutDown();
     GetMessagePumpResult();
     _chdir("..");
     ((void (__cdecl *)(int))ShutdownVideoHook)(3);

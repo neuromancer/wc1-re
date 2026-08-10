@@ -104,7 +104,7 @@ void init_hazard(short obj, FixedVector position, short moving)
         g_pActiveHazardField_0059bfe0->type == OBJECT_TYPE_ASTEROID_FIELD)
         type = (enum ObjectType)(OBJECT_TYPE_ASTEROID1 +
                                 (short)RandomBelowOrEqual(5));
-    initialize_object(obj, type, -1);
+    set_objects_data(obj, type, -1);
     g_aShipPosition_0059c490[obj] = position;
 
     if (type == OBJECT_TYPE_SPACE_MINE) {
@@ -387,10 +387,10 @@ void check_hazards(void)
 /* Function start: 0x401CE0 */
 void WarpMouseTo(short x, short y)
 {
-    DAT_0059af70 = x;
-    DAT_0059af72 = y;
-    DAT_0059ab10 = x;
-    DAT_0059ab12 = y;
+    g_nHostMouseX_0059af70 = x;
+    g_nHostMouseY_0059af72 = y;
+    g_nMouseX_0059ab10 = x;
+    g_nMouseY_0059ab12 = y;
     SetMouseHomePosition(x, y);
 }
 

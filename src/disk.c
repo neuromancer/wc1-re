@@ -20,7 +20,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     }
     filename = (const char *)(DAT_005a7cf0 + logicalFile * 16);
     do {
-        FreePacketAndClear((int *)&packet);
+        FreePacketAndClear((int *)&packet, flags);
         packet = PacketLoad(filename, section, 0, flags);
         retries--;
     } while (packet == 0 && retries > 0 && DAT_00465460 != 8);
@@ -28,7 +28,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     if (packet == 0 && DAT_00465460 == 4 && DAT_005a7510.pixels != 0) {
         free_viewport(&DAT_005a7510);
         do {
-            FreePacketAndClear((int *)&packet);
+            FreePacketAndClear((int *)&packet, flags);
             packet = PacketLoad(filename, section, 0, flags);
             retries--;
         } while (packet == 0 && retries > 0 && DAT_00465460 != 8);
@@ -37,7 +37,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     if (packet == 0 && DAT_00465460 == 4 && DAT_005a76b0.pixels != 0) {
         free_viewport(&DAT_005a76b0);
         do {
-            FreePacketAndClear((int *)&packet);
+            FreePacketAndClear((int *)&packet, flags);
             packet = PacketLoad(filename, section, 0, flags);
             retries--;
         } while (packet == 0 && retries > 0 && DAT_00465460 != 8);
@@ -101,19 +101,72 @@ unsigned int GetZeroUnused(void)
     return 0;
 }
 
+/* Function start: 0x41DAA0 */
+short WaitForInputKey(void)
+{
+    InputEventState event;
+    unsigned char savedMode;
+    signed char key;
+
+    key = 0;
+    if (g_nEventManagerActive_0059a850 == 0)
+        return (signed char)PumpMessagesDuringWait();
+
+    savedMode = g_bInputMode_0059a848;
+    g_bInputMode_0059a848 = 1;
+    do {
+        switch (PollInputEvent(&event, 0xff)) {
+        case 2:
+        case 10:
+            key = 0x1c;
+            while (PollInputEvent(&event, 0xff) != 0)
+                ;
+            break;
+        case 3:
+        case 5:
+            key = (signed char)event.value;
+            switch (key) {
+            case 0x1d:
+                key = 0;
+                break;
+            default:
+                while (PollInputEvent(&event, 0xff) != 0)
+                    ;
+                break;
+            }
+            break;
+        }
+    } while (key == 0);
+    ClearInputKeyStatePreservingModifiers();
+    g_bInputMode_0059a848 = savedMode;
+    FlushInputEvents();
+    return key;
+}
+
 /* Function start: 0x41DEB0 */
 void WaitForStreamIdle(void)
 {
     unsigned int saved = DAT_0046505c;
 
     DAT_0046505c = 1;
-    while (UiRoutine03() == 0)
+    while (WaitForInputKey() == 0)
         ;
     DAT_0046505c = saved;
 }
 
+/* Function start: 0x41DEE0 */
+short initialize_object(short obj, enum ObjectType type, short owner)
+{
+    if (obj != -1) {
+        set_objects_data(obj, type, owner);
+        zero_vector(&g_aShipPosition_0059c490[obj]);
+        zero_vector(&g_aShipVelocity_0059c010[obj]);
+    }
+    return obj;
+}
+
 /* Function start: 0x41DF40 */
-short FindActiveShipSlot(void)
+short borrow_dust(void)
 {
     short i = 0x22;
 
@@ -125,105 +178,211 @@ short FindActiveShipSlot(void)
     return -1;
 }
 
+/* Function start: 0x41DF70 */
+short new_object(enum ObjectType type, short owner)
+{
+    short obj;
+
+    obj = find_vacant_3d_object();
+    if (obj == -1 && owner == 0)
+        obj = borrow_dust();
+    return initialize_object(obj, type, owner);
+}
+
 /* Function start: 0x41DFA0 */
-short new_object(enum ObjectType type, signed char owner)
+short initialize_ship(enum ObjectType type, short owner)
 {
     short obj = get_ship_slot();
 
     if (obj != -1) {
         initialize_object(obj, type, owner);
-        zero_vector(&g_aShipPosition_0059c490[obj]);
-        zero_vector(&g_aShipVelocity_0059c010[obj]);
         g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
     }
     return obj;
 }
 
+/* Function start: 0x41DFE0 */
+short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
+{
+    enum ObjectClass selectedClass;
+    short selected;
+    short weapon;
+
+    selectedClass = objectClass;
+    selected = 0;
+    weapon = 0;
+    if ((signed char)loadout[0] > 0)
+        do {
+            ShipWeaponSlot *slot;
+
+            if (selected != 0)
+                break;
+            slot = (ShipWeaponSlot *)(loadout + weapon * 7 + 1);
+            if (g_aObjectTypeData_0046645c[slot->type].objectClass ==
+                    selectedClass &&
+                slot->disabled == 0)
+                selected = 1;
+            weapon++;
+        } while ((short)(signed char)loadout[0] > weapon);
+    return selected;
+}
+
+/* Function start: 0x41E040 */
+unsigned int remove_weapon(short obj, short weapon)
+{
+    short ship;
+    short currentWeapon;
+    int weaponOffset;
+    enum ObjectType preferredType;
+    enum ObjectClass objectClass;
+    unsigned char *loadout;
+
+    ship = obj;
+    currentWeapon = weapon;
+    weaponOffset = (int)currentWeapon * sizeof(ShipWeaponSlot);
+    loadout = g_aShipWeapons_0059cab0[ship];
+    preferredType =
+        *(enum ObjectType *)(loadout + weaponOffset + 1);
+    objectClass = g_aObjectTypeData_0046645c[preferredType].objectClass;
+    while (currentWeapon < (signed char)loadout[0] - 1) {
+        unsigned char *entry = loadout + currentWeapon * 7;
+
+        *(int *)(entry + 1) = *(int *)(entry + 8);
+        *(short *)(entry + 5) = *(short *)(entry + 12);
+        entry[7] = entry[14];
+        currentWeapon++;
+    }
+    loadout[(signed char)loadout[0] * 7 + 7] = 1;
+    loadout[0]--;
+    if (ship == 0) {
+        if (any_selected(loadout, objectClass) == 0) {
+            if (objectClass == OBJECT_CLASS_PROJECTILE) {
+                select_new_gun();
+            } else {
+                g_nSelectedReleaseWeaponIndex_0046c058 = -1;
+                select_new_release_weapon(preferredType);
+            }
+        }
+        if ((short)get_mode(0) == 1)
+            ClearMessageSlot(0);
+    }
+    return 0;
+}
+
 /* Function start: 0x41E120 */
-void initialize_object(short obj, enum ObjectType type, short owner)
+void set_objects_data(short obj, enum ObjectType type, short owner)
 {
     ObjectTypeData *typeData;
-    ObjectTypeData *resourceData;
-    enum ObjectType resourceType;
+    unsigned char *loadout;
+    enum ObjectClass objectClass;
+    short value;
+    short zero;
+    short weapon;
 
-    if (obj < 0 || obj >= WC1_SPACE_OBJECT_COUNT)
-        return;
     if (type == OBJECT_TYPE_SPACE_DUST) {
         g_aeObjectType_0059b560[obj] = type;
         g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_DUST;
-        g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
-        g_asObjectCounter_0059c330[obj] = 0;
-        g_asObjectViewFrame_0059d230[obj] = 0;
-        g_asObjectFlip_0059c870[obj] = 0;
         return;
     }
-    if ((int)type < 0 || type >= OBJECT_TYPE_COUNT)
-        return;
-
-    typeData = &g_aObjectTypeData_0046645c[type];
-    resourceType = type;
-    if (typeData->shapeSet == 0) {
-        switch (resourceType) {
+    if (g_aObjectTypeData_0046645c[type].shapeSet == 0) {
+        switch (type) {
         case OBJECT_TYPE_ASTEROID2:
-            resourceType = OBJECT_TYPE_ASTEROID1;
+            type = OBJECT_TYPE_ASTEROID1;
             break;
         case OBJECT_TYPE_ASTEROID4:
-            resourceType = OBJECT_TYPE_ASTEROID3;
+            type = OBJECT_TYPE_ASTEROID3;
             break;
         case OBJECT_TYPE_ASTEROID6:
-            resourceType = OBJECT_TYPE_ASTEROID5;
+            type = OBJECT_TYPE_ASTEROID5;
             break;
         case OBJECT_TYPE_DEBRIS_METAL_SHEET:
-            resourceType = OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK;
+            type = OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK;
             break;
         case OBJECT_TYPE_DEBRIS_WING:
-            resourceType = OBJECT_TYPE_DEBRIS_PIPE;
+            type = OBJECT_TYPE_DEBRIS_PIPE;
             break;
         case OBJECT_TYPE_EXPLOSION1:
         case OBJECT_TYPE_EXPLOSION2:
-            resourceType = OBJECT_TYPE_EXPLOSION0;
+            type = OBJECT_TYPE_EXPLOSION0;
             break;
         }
     }
-    resourceData = &g_aObjectTypeData_0046645c[resourceType];
-    type = resourceType;
-    typeData = resourceData;
-
+    typeData = &g_aObjectTypeData_0046645c[type];
     g_aeObjectType_0059b560[obj] = type;
     g_aeObjectClass_0059d100[obj] = typeData->objectClass;
-    g_apObjectShape_0059d2f0[obj] = resourceData->shapeSet;
+    if (type == OBJECT_TYPE_ROCK_CHUNK)
+        g_apObjectShape_0059d2f0[obj] =
+            g_aObjectTypeData_0046645c[OBJECT_TYPE_ASTEROID1].shapeSet;
+    else
+        g_apObjectShape_0059d2f0[obj] = typeData->shapeSet;
     init_ijk(obj);
     g_asObjectCollisionRadius_0059d710[obj] = typeData->collisionRadius;
+    zero = 0;
+    g_asObjectRadarRadius_0059c790[obj] = typeData->radarRadius;
     g_asObjectScale_0059de40[obj] = typeData->scale;
-    g_asObjectScreenScale_0059c950[obj] = typeData->scale;
-    g_asObjectViewFrame_0059d230[obj] = 0;
-    g_asObjectFlip_0059c870[obj] = 0;
-    g_asObjectScreenAngle_0059cd90[obj] = 0;
+    g_asObjectAfterburnerVelocity_0059c9d0[obj] =
+        typeData->afterburnerVelocity;
+    g_acObjectOwner_0059ce20[obj] = (signed char)owner;
+    DAT_0059dee0[obj] = zero;
+    objectClass = g_aeObjectClass_0059d100[obj];
+    g_asObjectFlip_0059c870[obj] = zero;
+    DAT_0059d6a0[obj] = -1;
+    g_asObjectScreenAngle_0059cd90[obj] = zero;
+
+    if (objectClass >= OBJECT_CLASS_MISSILE) {
+        g_asObjectViewFrame_0059d230[obj] = zero;
+        g_acShipTarget_0059ce60[obj] = -1;
+        if (objectClass >= OBJECT_CLASS_SHIP) {
+            value = typeData->shieldFore;
+            g_aasShipShield_0059d5b0[obj][0] = value;
+            g_aasShipMaximumShield_0059d6e0[obj][0] = value;
+            value = typeData->shieldAft;
+            g_aasShipShield_0059d5b0[obj][1] = value;
+            g_aasShipMaximumShield_0059d6e0[obj][1] = value;
+            g_aasShipArmor_0059d420[obj][0] = typeData->armorFront;
+            g_aasShipArmor_0059d420[obj][2] = typeData->armorLeft;
+            g_aasShipArmor_0059d420[obj][3] = typeData->armorRight;
+            g_aasShipArmor_0059d420[obj][1] = typeData->armorRear;
+            g_anShipFuel_0059b470[obj] = *(int *)&typeData->lifetime;
+            g_acShipIonDriveDamage_0059d4a0[obj] = (signed char)zero;
+            g_acShipDamage_0059c460[obj] = (signed char)zero;
+            recalc_max_velocity(obj);
+            DAT_0059cf00[obj] = 4;
+            loadout = g_aShipWeapons_0059cab0[obj];
+            memcpy(loadout, typeData->weaponLoadout,
+                   sizeof(typeData->weaponLoadout));
+
+            if (obj == 0) {
+                g_nSelectedReleaseWeaponIndex_0046c058 = -1;
+                g_eSelectedGunType_0046c054 = (enum ObjectType)-1;
+                weapon = (short)(signed char)loadout[0];
+                while (weapon-- > 0) {
+                    ShipWeaponSlot *slot;
+
+                    slot = (ShipWeaponSlot *)(loadout + weapon * 7 + 1);
+                    if (slot->disabled == 0) {
+                        if (g_aObjectTypeData_0046645c[
+                                slot->type].objectClass ==
+                                OBJECT_CLASS_PROJECTILE)
+                            g_eSelectedGunType_0046c054 = slot->type;
+                        else
+                            g_nSelectedReleaseWeaponIndex_0046c058 = weapon;
+                    }
+                }
+            }
+            DAT_0059c910[obj] = -1;
+            g_asShipWeaponEnergy_0059d470[obj] = 100;
+        }
+        return;
+    }
+
+    if (typeData->animation == 0) {
+        g_asObjectViewFrame_0059d230[obj] = typeData->yawRate;
+        return;
+    }
     g_asObjectAnimationDelay_0059b660[obj] = 1;
     g_asObjectAnimationIndex_0059da30[obj] = 0;
-    g_acObjectOwner_0059ce20[obj] = (signed char)owner;
-    g_asObjectCounter_0059c330[obj] = -1;
-    g_acShipTarget_0059ce60[obj] = -1;
-    g_aeSpecialManeuver_0059c3c0[obj] = SPECIAL_MANEUVER_NONE;
-
-    if (typeData->objectClass >= OBJECT_CLASS_SHIP) {
-        g_asShipMaximumSpeed_0059c440[obj] = typeData->maximumVelocity;
-        g_anShipSpeed_0059b320[obj] = 0;
-        if (obj < 12) {
-            g_aasShipShield_0059d5b0[obj][0] = typeData->shieldFore;
-            g_aasShipMaximumShield_0059d6e0[obj][0] = typeData->shieldFore;
-            g_aasShipShield_0059d5b0[obj][1] = typeData->shieldAft;
-            g_aasShipMaximumShield_0059d6e0[obj][1] = typeData->shieldAft;
-        }
-        if (obj < 16)
-            g_asShipWeaponEnergy_0059d470[obj] = 100;
-        g_aeShipManeuver_0059dcb0[obj] = MANEUVER_NONE;
-        g_aeShipTactic_0059d5e0[obj] = TACTIC_SIT_STILL;
-        if (obj < 16)
-            memcpy(g_aShipWeapons_0059cab0[obj],
-                   typeData->weaponLoadout,
-                   sizeof(g_aShipWeapons_0059cab0[obj]));
-    }
+    animate_shape(obj);
 }
 
 /* Function start: 0x41E400 */

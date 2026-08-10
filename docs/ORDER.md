@@ -87,7 +87,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/smart.c` | `0x433ac0`–`0x434ccf` | 24 | Collision avoidance, formation flight, stress, and maneuver selection | PROVEN: the Mac `smart` symbol run maps across this block and ends at `chase_speed`; `RandomBelow` starts the following random unit at `0x434cd0` |
 | `src/mathfp.c` | `0x434cd0`–`0x4353ff` | 22 | Floating-point helpers and the random-number generator | Starts at `RandomBelow`, immediately after the Mac `smart` unit's final `chase_speed` symbol |
 | `src/strdos.c` | `0x435400`–`0x4355ff` | 13 | 16-bit DOS C string and memory shims | all __stdcall with short-width arguments, each forwarding to one CRT routine |
-| `src/memstk.c` | `0x435600`–`0x436fff` | 36 | Tracked-allocation scopes and the frame timer | the DAT_0046da90 node list with its DAT_0046daa0 depth counter |
+| `src/eventmgr.c` | `0x4355f0`–`0x436fff` | 53 | Event manager, mouse pointer, keyboard state, and frame timer | FM Towns preserves `source\\eventmgr.c`; Win32 keeps the same queue and input-state layout |
 | `src/screens.c` | `0x437000`–`0x43bfff` | 2 | Full-screen presentation screens | unbroken run of Blit* screens plus ShowGetReady/Victory/GameOver |
 | `src/killbrd.c` | `0x43c000`–`0x440bff` | 7 | Kill board, conversation scenes and save-slot flags | ShowTigersClawKillBoard/RunConversationScene; string band 0x4705DC-0x470668 |
 | `src/gr.c` | `0x440c00`–`0x44274f` | 14 | Rasteriser primitives and screen-space effects | PROVEN by name: shadow_draw, fizzle_fade, snow_viewport |

@@ -344,7 +344,7 @@ void ix_streamer_audio_play(void)
 }
 
 /* Function start: 0x00443253 */   /* source line(s) 295: Stream has no audio */
-void ix_streamer_audio_stop(void)
+extern "C" void ix_streamer_audio_stop(void)
 {
     if ((g_dwStreamerState_00597cd0 & IX_STREAMER_HAS_AUDIO) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 295);

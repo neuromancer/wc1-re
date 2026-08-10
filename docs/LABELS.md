@@ -280,9 +280,8 @@ Mac symbol match. The comparison also corrected the signatures and data model:
 
 The same symbol resource also corroborates nearby helpers after their Win32 bodies are
 checked: `get_ship_slot` and `find_vacant_3d_object` in the preceding `3d` unit, plus
-`initialize_object` and `drop_mine` in CODE 5's `ship` unit. Only reconstructed bodies
-receive the `wc-implemented` Ghidra tag; `initialize_object` and `drop_mine` retain linked
-TODO stubs until their own unit pass.
+`initialize_object` and `drop_mine` in CODE 5's `ship` unit. The latter two now have
+reconstructed bodies and implementation tags rather than linked TODO stubs.
 
 ## 1. Evidence-named — trust these at their documented confidence
 

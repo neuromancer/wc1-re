@@ -42,10 +42,49 @@ short get_ship_max_velocity(short obj)
     return velocity;
 }
 
-/* Function start: 0x418280 */
-void AddShipAiTimer(short i, short delta)
+/* Function start: 0x418210 */
+short recalc_max_velocity(short ship)
 {
-    DAT_0059b470[i] = DAT_0059b470[i] - (int)delta;
+    short oldVelocity;
+    short maximumVelocity;
+
+    oldVelocity = g_asShipMaximumSpeed_0059c440[ship];
+    if (g_anShipFuel_0059b470[ship] <= 0) {
+        g_asShipMaximumSpeed_0059c440[ship] = 5;
+    } else {
+        maximumVelocity = get_ship_max_velocity(ship);
+        g_asShipMaximumSpeed_0059c440[ship] =
+            (short)(((int)maximumVelocity *
+                     (4 - (int)g_acShipIonDriveDamage_0059d4a0[ship])) >> 2);
+    }
+    if (g_asShipMaximumSpeed_0059c440[ship] != oldVelocity)
+        AdjustShipSpeed(ship, 0);
+    return 0;
+}
+
+/* Function start: 0x418280 */
+void drain_fuel(short ship, short amount)
+{
+    g_anShipFuel_0059b470[ship] -= (int)amount;
+    if (g_anShipFuel_0059b470 == 0)
+        recalc_max_velocity(ship);
+}
+
+/* Function start: 0x4182B0 */
+void damage_ion_drive(short ship, short amount, short maximum)
+{
+    volatile signed char *ionDriveDamage;
+    int damage;
+
+    ionDriveDamage = &g_acShipIonDriveDamage_0059d4a0[ship];
+    damage = (int)*ionDriveDamage;
+    damage += amount;
+    if (damage >= maximum)
+        damage = maximum;
+    if (damage <= 0)
+        damage = 0;
+    *ionDriveDamage = (signed char)damage;
+    recalc_max_velocity(ship);
 }
 
 /* Function start: 0x4182F0 */
@@ -756,7 +795,7 @@ void remove_object(short obj)
     }
     if (obj < 10) {
         if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_CAPITAL_SHIP)
-            FreePacketAndClear((int *)&g_aeShipObjective_0059d200[obj + 60]);
+            FreePacketAndClear((int *)&g_aeShipObjective_0059d200[obj + 60], 0);
         g_acShipRating_0059cd80[obj] = -1;
         ((signed char *)g_aeShipObjective_0059d200)[obj + 0xc0] = -1;
         g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;

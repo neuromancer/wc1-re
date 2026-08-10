@@ -289,14 +289,14 @@ void PaletteFadeHook(void)
 /* Function start: 0x42E3A0 */
 void FlushSoundEffect(void)
 {
-    StopAllSounds();
+    stop_all_sounds();
     SoundDebugPrintf("FlushSoundEffect");
 }
 
 /* Function start: 0x42E3C0 */
 void FlushSoundEffects(void)
 {
-    StopAllSounds();
+    stop_all_sounds();
     SoundDebugPrintf("FlushSoundEffects");
 }
 
@@ -368,7 +368,7 @@ unsigned int SoundFxTick(void)
 /* Function start: 0x42EF10 */
 void FlushSoundEffectsAndLog(void)
 {
-    StopAllSounds();
+    stop_all_sounds();
     SoundDebugPrintf("FlushSoundEffects");
 }
 

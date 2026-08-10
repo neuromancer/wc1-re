@@ -99,7 +99,7 @@ void __fastcall ix_sound_start(IxSound *sound)
 }
 
 /* Function start: 0x0044801E */   /* source lines 151, 152 */
-void __fastcall ix_sound_release(IxSound *sound)
+extern "C" void __fastcall ix_sound_release(IxSound *sound)
 {
     if ((sound->flags & IX_SOUND_PLAYING) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_SOUND_FILE, 151);
@@ -116,7 +116,7 @@ void __fastcall ix_sound_release(IxSound *sound)
 }
 
 /* Function start: 0x004480CF */   /* source line(s) 165: can't stop sound that's not playing! */
-void __fastcall ix_sound_stop(IxSound *sound)
+extern "C" void __fastcall ix_sound_stop(IxSound *sound)
 {
     IxSound *replacement;
     int voice;

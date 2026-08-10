@@ -23,7 +23,7 @@ short MaxShort(short a, short b)
 }
 
 /* Function start: 0x41D100 */
-void FreePacketAndClear(int *p)
+void FreePacketAndClear(int *p, int releaseFlags)
 {
     if (*p != 0) {
         ReleasePacketHandle(*p);

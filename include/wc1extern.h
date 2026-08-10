@@ -9,17 +9,9 @@
 #ifndef WC1_EXTERN_H
 #define WC1_EXTERN_H
 
-void DispatchPendingEvents(int a);                            /* 0x004359C0 */
-void EndCommSessionWithWingman(void);                                        /* 0x00431470 */
-void StopAllSounds(void);                                          
 short LoadWingCmdrCfgFile(short argc, char **argv);               /* 0x0042C580 */
 void PlaySfxWaveFileByNumber(int n, int a, int b);                
 void ShowEnemyTargetSelectMenu(void);                             /* 0x00430E90 */
-void Streamer_stop(void);                                         /* 0x00442460 */
-short UiRoutine03(void);                                          /* 0x00429E30 family */
 void _free_dbg(void *p, int blockType);                           /* Function start: 0x401250 */
 long _ftol(void);                                                 /* Pointer table of prompt strings indexed by SendCommMenuChoice. */
-int drop_mine(short obj, short weapon, enum ObjectType type,
-              short lifetime);                                   /* 0x004212A0 */
-
 #endif /* WC1_EXTERN_H */

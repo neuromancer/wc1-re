@@ -364,6 +364,11 @@ typedef struct ShipWeaponSlot {
 } ShipWeaponSlot;
 #pragma pack(pop)
 
+typedef struct ShortPoint {
+    short x;
+    short y;
+} ShortPoint;
+
 /* Compact three-axis offset used by the formation tables.  Unlike a
  * FixedVector, each component is a 16-bit distance. */
 typedef struct ShortVector {

@@ -1,0 +1,768 @@
+/*
+ *  Event manager, mouse pointer, and frame timer.
+ *
+ *  Address range 0x4355f0-0x436fff (provisional -- see docs/ORDER.md).
+ *  The FM Towns executable preserves the original source name
+ *  "source\\eventmgr.c" for this unit.
+ */
+#include "wc1.h"
+
+/* Function start: 0x4355F0 */
+void TranslatePolledInputEvent(unsigned short type, unsigned int value)
+{
+    unsigned int state;
+
+    switch (type) {
+    case 2:
+        state = (value >> 2) |
+                (g_bHostSecondaryMouseButton_005a899c << 1) |
+                g_bHostPrimaryMouseButton_005a8998;
+        QueueInputEvent(type,
+                        (short)g_nHostMouseMessageX_005a8990,
+                        (short)g_nHostMouseMessageY_005a8994,
+                        0,
+                        g_bHostPrimaryMouseButton_005a8998,
+                        g_bHostSecondaryMouseButton_005a899c,
+                        state);
+        return;
+    case 6:
+    {
+        InputDeviceSample *sample =
+            &g_aInputDeviceSamples_005a81f0[g_nActiveInputDevice_005a819c];
+
+        QueueInputEvent(type, (short)sample->x, (short)sample->y,
+                        0, 0, 0, 0);
+        return;
+    }
+    case 13:
+        QueueInputEvent(type,
+                        (short)g_nHostMouseMessageX_005a8990,
+                        (short)g_nHostMouseMessageY_005a8994,
+                        0, 0, 0, 0);
+        return;
+    }
+}
+
+/* Function start: 0x4356A0 */
+void QueueInputEventAtCursor(unsigned int type, short primaryButton,
+                             short secondaryButton)
+{
+    /* Preserve the original 16-bit event ID and sample each volatile axis. */
+    unsigned int eventType = type & 0xffff;
+    int x = g_nMouseX_0059ab10;
+    int y = g_nMouseY_0059ab12;
+
+    QueueInputEvent(eventType, x, y, 0,
+                    primaryButton, secondaryButton, 0);
+}
+
+/* Function start: 0x4356E0 */
+InputEvent *AllocateInputEvent(void)
+{
+    int *used;
+    int index;
+
+    if (g_bInputEventPoolInitialized_0046da98 != 0) {
+        index = 0;
+        used = g_aiInputEventSlotUsed_0059ab70;
+        do {
+            if (*used == 0) {
+                g_aiInputEventSlotUsed_0059ab70[index] = 1;
+                return &g_aInputEventPool_00598c40[index];
+            }
+            used++;
+            index++;
+        } while (used < &g_aiInputEventSlotUsed_0059ab70[0x100]);
+        return 0;
+    }
+    memset(g_aInputEventPool_00598c40, 0,
+           sizeof(g_aInputEventPool_00598c40));
+    memset(g_aiInputEventSlotUsed_0059ab70, 0,
+           sizeof(g_aiInputEventSlotUsed_0059ab70));
+    g_bInputEventPoolInitialized_0046da98 = 1;
+    g_aiInputEventSlotUsed_0059ab70[0] = 1;
+    return &g_aInputEventPool_00598c40[0];
+}
+
+/* Function start: 0x435760 */
+void ReleaseInputEvent(InputEvent *event)
+{
+    int *used = g_aiInputEventSlotUsed_0059ab70;
+    int offset = 0;
+
+    do {
+        if ((unsigned char *)g_aInputEventPool_00598c40 + offset ==
+                (unsigned char *)event)
+            *used = 0;
+        used = used + 1;
+        offset = offset + 0x1c;
+    } while (offset < 0x1c00);
+}
+
+/* Function start: 0x435790 */
+void QueueInputEvent(unsigned short type, unsigned short x,
+                     unsigned short y, unsigned short value,
+                     int primaryButton, int secondaryButton,
+                     unsigned int timestamp)
+{
+    unsigned int modifiers;
+    InputEvent *event;
+
+    modifiers = 0;
+    if (GetShiftKeyState() != 0)
+        modifiers = 0xe0;
+    if (GetControlKeyState() != 0)
+        modifiers |= 0x2000;
+    if (GetKeyboardModifiers() != 0)
+        modifiers |= 0x700;
+    if (primaryButton != 0)
+        modifiers |= 2;
+    if (secondaryButton != 0)
+        modifiers |= 4;
+
+    if (g_pInputEventHead_0046da90 == 0) {
+        g_pInputEventHead_0046da90 = AllocateInputEvent();
+        if (g_pInputEventHead_0046da90 == 0) {
+            ReleaseInputEventQueue();
+            return;
+        }
+        g_pInputEventTail_0046da94 = g_pInputEventHead_0046da90;
+        g_pInputEventHead_0046da90->next = 0;
+        g_pInputEventTail_0046da94->previous = 0;
+    } else {
+        event = AllocateInputEvent();
+        g_pInputEventTail_0046da94->next = event;
+        if (g_pInputEventTail_0046da94->next == 0) {
+            ReleaseInputEventQueue();
+            return;
+        }
+        g_pInputEventTail_0046da94->next->previous =
+            g_pInputEventTail_0046da94;
+        g_pInputEventTail_0046da94 = g_pInputEventTail_0046da94->next;
+        g_pInputEventTail_0046da94->next = 0;
+    }
+    g_pInputEventTail_0046da94->type = type;
+    g_pInputEventTail_0046da94->modifiers = modifiers;
+    g_pInputEventTail_0046da94->x = x;
+    g_pInputEventTail_0046da94->y = y;
+    g_pInputEventTail_0046da94->value = value;
+    g_pInputEventTail_0046da94->primaryButton = (short)primaryButton;
+    g_pInputEventTail_0046da94->secondaryButton = (short)secondaryButton;
+}
+
+/* Function start: 0x4358B0 */
+void ReleaseInputEventQueue(void)
+{
+    InputEvent *event = g_pInputEventHead_0046da90;
+
+    while (event != 0) {
+        InputEvent *next = event->next;
+
+        ReleaseInputEvent(event);
+        event = next;
+    }
+    g_pInputEventTail_0046da94 = 0;
+    g_pInputEventHead_0046da90 = 0;
+}
+
+/* Function start: 0x4358E0 */
+void RetainInputEventsOfType(short type)
+{
+    InputEvent *event = g_pInputEventHead_0046da90;
+
+    while (event != 0) {
+        InputEvent *next = event->next;
+
+        if (event->type != type) {
+            if (event->previous != 0)
+                event->previous->next = next;
+            else
+                g_pInputEventHead_0046da90 = next;
+            if (event->next != 0)
+                event->next->previous = event->previous;
+            else
+                g_pInputEventTail_0046da94 = event->previous;
+            ReleaseInputEvent(event);
+        }
+        event = next;
+    }
+}
+
+/* Function start: 0x435940 */
+void RemoveInputEvent(InputEvent *event)
+{
+    InputEvent *previous = event->previous;
+    InputEvent *next = event->next;
+
+    if (previous != 0) {
+        if (next != 0) {
+            previous->next = next;
+            event->next->previous = event->previous;
+            ReleaseInputEvent(event);
+            return;
+        }
+        previous->next = 0;
+        g_pInputEventTail_0046da94 = event->previous;
+        ReleaseInputEvent(event);
+        return;
+    }
+    if (next != 0) {
+        g_pInputEventHead_0046da90 = next;
+        event->next->previous = 0;
+        ReleaseInputEvent(event);
+        return;
+    }
+    g_pInputEventTail_0046da94 = 0;
+    g_pInputEventHead_0046da90 = 0;
+    ReleaseInputEvent(event);
+}
+
+/* Function start: 0x4359C0 */
+short __stdcall GetNextInputEvent(InputEventState *state)
+{
+    short *eventX;
+    int eventY;
+    int type;
+
+    type = 0;
+    if (g_pInputEventHead_0046da90 != 0) {
+        eventX = &g_pInputEventHead_0046da90->x;
+        eventY = (int)g_pInputEventHead_0046da90->y;
+        if ((int)DAT_0059ab23->left > (int)*eventX)
+            *eventX = DAT_0059ab23->left;
+        else if ((int)DAT_0059ab23->right < (int)*eventX)
+            *eventX = DAT_0059ab23->right;
+        if ((int)DAT_0059ab23->top > eventY)
+            g_pInputEventHead_0046da90->y = DAT_0059ab23->top;
+        else if ((int)DAT_0059ab23->bottom < eventY)
+            g_pInputEventHead_0046da90->y = DAT_0059ab23->bottom;
+
+        state->modifiers =
+            (short)g_pInputEventHead_0046da90->modifiers;
+        switch (g_pInputEventHead_0046da90->type) {
+        case 1:
+            g_nMouseX_0059ab10 = g_pInputEventHead_0046da90->x;
+            g_nMouseY_0059ab12 = g_pInputEventHead_0046da90->y;
+            g_bPrimaryMouseButton_0059ab14 = 0;
+            state->x = g_pInputEventHead_0046da90->x;
+            state->y = g_pInputEventHead_0046da90->y;
+            type = 1;
+            break;
+        case 2:
+            g_nMouseX_0059ab10 = g_pInputEventHead_0046da90->x;
+            g_nMouseY_0059ab12 = g_pInputEventHead_0046da90->y;
+            g_bPrimaryMouseButton_0059ab14 =
+                (unsigned char)g_pInputEventHead_0046da90->primaryButton;
+            g_bSecondaryMouseButton_0059ab15 =
+                (unsigned char)g_pInputEventHead_0046da90->secondaryButton;
+            state->x = g_pInputEventHead_0046da90->x;
+            state->y = g_pInputEventHead_0046da90->y;
+            type = 2;
+            state->value =
+                (int)g_pInputEventHead_0046da90->secondaryButton * 2 |
+                (int)g_pInputEventHead_0046da90->primaryButton;
+            break;
+        case 3:
+            type = 3;
+            state->value = g_pInputEventHead_0046da90->value;
+            state->x = g_nMouseX_0059ab10;
+            state->y = g_nMouseY_0059ab12;
+            break;
+        case 4:
+            type = 4;
+            state->x = g_pInputEventHead_0046da90->value;
+            state->x = g_nMouseX_0059ab10;
+            state->y = g_nMouseY_0059ab12;
+            break;
+        case 5:
+            type = 5;
+            state->x = g_pInputEventHead_0046da90->value;
+            break;
+        case 6:
+            type = 6;
+            state->x = g_pInputEventHead_0046da90->x;
+            state->y = g_pInputEventHead_0046da90->y;
+            break;
+        case 7:
+            type = 7;
+            state->x = g_pInputEventHead_0046da90->x;
+            state->y = g_pInputEventHead_0046da90->y;
+            break;
+        case 8:
+            type = 8;
+            state->x = g_pInputEventHead_0046da90->x;
+            state->y = g_pInputEventHead_0046da90->y;
+            break;
+        case 9:
+            type = 9;
+            state->x = g_pInputEventHead_0046da90->x;
+            state->y = g_pInputEventHead_0046da90->y;
+            break;
+        case 10:
+            type = 10;
+            state->x = g_pInputEventHead_0046da90->x;
+            state->y = g_pInputEventHead_0046da90->y;
+            break;
+        case 13:
+            g_nMouseX_0059ab10 = g_pInputEventHead_0046da90->x;
+            g_nMouseY_0059ab12 = g_pInputEventHead_0046da90->y;
+            state->x = g_pInputEventHead_0046da90->x;
+            state->y = g_pInputEventHead_0046da90->y;
+            type = 13;
+            break;
+        }
+        RemoveInputEvent(g_pInputEventHead_0046da90);
+    }
+    return type;
+}
+
+/* Function start: 0x435CC0 */
+short __stdcall PollInputEvent(InputEventState *event, short filter)
+{
+    PumpWindowMessages();
+    return GetNextInputEvent(event);
+}
+
+/* Function start: 0x435CE0 */
+short __stdcall PeekInputEvent(InputEventState *state, short type)
+{
+    InputEvent *event;
+    int eventType;
+    int modifiers;
+
+    event = g_pInputEventHead_0046da90;
+    modifiers = 0;
+    while (event != 0 && event->type != type)
+        event = event->next;
+    if (event != 0) {
+        state->type = event->type;
+        state->value = event->modifiers;
+        state->timestamp = event->timestamp;
+        eventType = (int)event->type;
+        if (eventType == 2 || eventType == 1)
+            modifiers = 1;
+        modifiers |= ((unsigned short)event->primaryButton < 1 ? 0 : -1) & 2;
+        modifiers |= ((unsigned short)event->secondaryButton < 1 ? 0 : -1) & 4;
+        state->modifiers = (short)modifiers;
+        state->x = event->x;
+        state->y = event->y;
+        return 1;
+    }
+    return 0;
+}
+
+/* Function start: 0x435D80 */
+short __stdcall IsInputEventQueued(short type)
+{
+    InputEvent *event = g_pInputEventHead_0046da90;
+
+    while (event != 0 && event->type != type)
+        event = event->next;
+    return event != 0;
+}
+
+/* Function start: 0x435DB0 */
+void FlushInputEvents(void)
+{
+    ReleaseInputEventQueue();
+}
+
+/* Function start: 0x435DC0 */
+unsigned int ResetAllocationDepth(void)
+{
+    DAT_0046daa0 = 0;
+    return 1;
+}
+
+/* Function start: 0x435E20 */
+void CaptureMouseCursorBackground(void)
+{
+    int x;
+    int y;
+
+    if (DAT_0046daa0 == 0 || DAT_0059ab23 == 0 || DAT_0059ab19 == 0)
+        return;
+
+    CaptureSpriteBackground(DAT_0059ab23, DAT_004865a8,
+                            g_nMouseX_0059ab10, g_nMouseY_0059ab12,
+                            DAT_0059ab19, DAT_0059ab1d);
+    x = g_nMouseX_0059ab10;
+    y = g_nMouseY_0059ab12;
+    if (DAT_0059ab5c > x - 16)
+        DAT_0059ab5c = x - 16;
+    DAT_0059a8e4 = x;
+    if (DAT_0059ab44 < x + 16)
+        DAT_0059ab44 = x + 16;
+    if (DAT_0059ab60 > y - 16)
+        DAT_0059ab60 = y - 16;
+    DAT_0059a8e0 = y;
+    if (DAT_0059ab48 < y + 16)
+        DAT_0059ab48 = y + 16;
+    DAT_0059ab40 = 1;
+    DAT_0059a84c = 1;
+}
+
+/* Function start: 0x435EF0 */
+void DrawMouseCursor(void)
+{
+    int x;
+    int y;
+
+    if (DAT_0046daa0 == 0 || DAT_0059ab23 == 0 || DAT_0059ab19 == 0)
+        return;
+
+    DrawSpriteDefault(DAT_0059ab23, g_nMouseX_0059ab10,
+                      g_nMouseY_0059ab12,
+                      DAT_0059ab19, DAT_0059ab1d);
+    x = g_nMouseX_0059ab10;
+    if (DAT_0059ab5c > x - 16)
+        DAT_0059ab5c = x - 16;
+    if (DAT_0059ab44 < x + 16)
+        DAT_0059ab44 = x + 16;
+    y = g_nMouseY_0059ab12;
+    if (DAT_0059ab60 > y - 16)
+        DAT_0059ab60 = y - 16;
+    if (DAT_0059ab48 < y + 16)
+        DAT_0059ab48 = y + 16;
+    DAT_0059ab40 = 1;
+}
+
+/* Function start: 0x435FA0 */
+void RestoreMouseCursorBackground(void)
+{
+    int x;
+    int y;
+
+    if (DAT_0046daa0 == 0 || DAT_0059ab23 == 0 || DAT_0059ab19 == 0 ||
+        DAT_0059a84c == 0)
+        return;
+
+    RestoreSpriteBackground(DAT_0059ab23, DAT_004865a8,
+                            (short)DAT_0059a8e4, (short)DAT_0059a8e0,
+                            DAT_0059ab19, DAT_0059ab1d);
+    x = DAT_0059a8e4;
+    if (DAT_0059ab5c > x - 16)
+        DAT_0059ab5c = x - 16;
+    if (DAT_0059ab44 < x + 16)
+        DAT_0059ab44 = x + 16;
+    y = DAT_0059a8e0;
+    if (DAT_0059ab60 > y - 16)
+        DAT_0059ab60 = y - 16;
+    if (DAT_0059ab48 < y + 16)
+        DAT_0059ab48 = y + 16;
+    DAT_0059a84c = 0;
+}
+
+/* Function start: 0x436060 */
+void RefreshMouseCursorDisplay(void)
+{
+    DAT_0059ab5c = 319;
+    DAT_0059ab60 = 199;
+    DAT_0059ab44 = 0;
+    DAT_0059ab48 = 0;
+    DAT_0059ab40 = 0;
+    DAT_0059a84c = 0;
+    CaptureMouseCursorBackground();
+    DrawMouseCursor();
+    DIBupdate(DAT_0059ab5c, DAT_0059ab60,
+              DAT_0059ab44, DAT_0059ab48);
+    RestoreMouseCursorBackground();
+}
+
+/* Function start: 0x4360D0 */
+void EnterAllocationScope(void)
+{
+    DAT_0046daa0 = DAT_0046daa0 + 1;
+}
+
+/* Function start: 0x4360E0 */
+void LeaveAllocationScope(void)
+{
+    DAT_0046daa0 = DAT_0046daa0 - 1;
+}
+
+/* Function start: 0x4360F0 */
+void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
+{
+    g_bMouseCursorShapeChanged_0059ab2b = 1;
+    if (DAT_0059ab23 != 0 && DAT_0046daa0 > 0 &&
+        g_pDrawnMouseCursorShape_0046da9c != 0) {
+        RestoreSpriteBackground(DAT_0059ab23, DAT_004865a8,
+                                g_nMouseCursorSavedX_0059a844,
+                                g_nMouseCursorSavedY_0059a840,
+                                g_pDrawnMouseCursorShape_0046da9c,
+                                DAT_0059ab1d);
+        g_pDrawnMouseCursorShape_0046da9c = 0;
+    }
+    DAT_0059ab1d = frame;
+    DAT_0059ab19 = shape;
+}
+
+/* Function start: 0x436160 */
+void SetMouseHomePosition(short x, short y)
+{
+    g_nMouseX_0059ab10 = x;
+    g_nMouseY_0059ab12 = y;
+}
+
+/* Function start: 0x4361E0 */
+void SetFrameTimerPeriod(short period)
+{
+    SetMultimediaTimerCallback((int)period);
+}
+
+/* Function start: 0x4361F0 */
+void SetFrameTimerAndWait(short period)
+{
+    SetFrameTimerPeriod(period);
+    WaitForFrameTick();
+}
+
+/* Function start: 0x436210 */
+void SetFrameTimerPeriodDirect(short p)
+{
+    SetMultimediaTimerCallback((int)p);
+}
+
+/* Function start: 0x436230 */
+void WaitForFrameTick(void)
+{
+    while (DAT_0059ab3c != 0) ;
+}
+
+/* Function start: 0x436240 */
+int IsFrameTickElapsed(void)
+{
+    return DAT_0059ab3c == 0;
+}
+
+/* Function start: 0x436260 */
+unsigned short GetSoundHardwareFlag(void)
+{
+    return 1;
+}
+
+/* Function start: 0x4362A0 */
+void TimerResetHook(void)
+{
+}
+
+/* Function start: 0x4362B0 */
+unsigned int GetVideoReleaseResult(void)
+{
+    return 0;
+}
+
+/* Function start: 0x4362C0 */
+unsigned short IdentityWord(unsigned short v)
+{
+    return v;
+}
+
+/* Function start: 0x4362D0 */
+void TimerStopHook(void)
+{
+}
+
+/* Function start: 0x4362E0 */
+unsigned int GetFixedOneMillion(void)
+{
+    return 0x3e8000;
+}
+
+/* Function start: 0x4362F0 */
+unsigned int GetFixedOneMillionAlt(void)
+{
+    return 0x3e8000;
+}
+
+/* Function start: 0x4363A0 */
+void ClearInputKeyStatePreservingModifiers(void)
+{
+    unsigned int control = g_abInputKeyState_0059a860[0x1d];
+    unsigned int alt = g_abInputKeyState_0059a860[0x38];
+
+    memset(g_abInputKeyState_0059a860, 0,
+           sizeof(g_abInputKeyState_0059a860));
+    g_abInputKeyState_0059a860[0x1d] = control;
+    g_abInputKeyState_0059a860[0x38] = alt;
+    ClearDebugPauseFlags();
+}
+
+/* Function start: 0x4363E0 */
+void ClearInputKeyState(void)
+{
+    memset(g_abInputKeyState_0059a860, 0,
+           sizeof(g_abInputKeyState_0059a860));
+    ClearDebugPauseFlags();
+}
+
+/* Function start: 0x436420 */
+void SetInputKeyState(int scanCode, unsigned char pressed)
+{
+    if (scanCode >= 0 && scanCode < 0x80) {
+        g_abInputKeyState_0059a860[scanCode] = pressed;
+        return;
+    }
+    SystemDebugPrintf("keyboard almost messed up\n");
+    ClearDebugPauseFlags();
+    PumpMessagesDuringWait();
+    exit(1);
+}
+
+/* Function start: 0x436460 */
+void sort_object_depth(void)
+{
+    unsigned char used[WC1_SPACE_OBJECT_COUNT];
+    unsigned short farthestDistance;
+    short farthestObject;
+    short sorted;
+    short obj;
+
+    memset(used, 0, sizeof(used));
+    sorted = 0;
+    while (sorted < WC1_SPACE_OBJECT_COUNT) {
+        farthestDistance = 0;
+        farthestObject = -1;
+        obj = 0;
+        while (obj < WC1_SPACE_OBJECT_COUNT) {
+            if (used[obj] == 0 &&
+                g_asObjectScreenX_0059d9b0[obj] != (short)0x8001 &&
+                (farthestObject == -1 ||
+                 (unsigned short)g_asObjectDistance_0059b4a0[obj] >
+                     farthestDistance)) {
+                farthestDistance =
+                    (unsigned short)g_asObjectDistance_0059b4a0[obj];
+                farthestObject = obj;
+            }
+            obj++;
+        }
+        g_anSortedObject_0059aa00[sorted] = farthestObject;
+        if (farthestObject == -1)
+            return;
+        used[farthestObject] = 1;
+        sorted++;
+    }
+}
+
+/* Function start: 0x436520 */
+void draw_sorted_objects_to_buffer(void)
+{
+    int obj;
+    short screenX;
+    short screenY;
+    short sorted;
+
+    sorted = 0;
+    while (sorted < WC1_SPACE_OBJECT_COUNT) {
+        obj = g_anSortedObject_0059aa00[sorted];
+        if (obj < 0)
+            return;
+        if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL &&
+            (int)g_aeObjectType_0059b560[obj] >= 0) {
+            screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
+                (DAT_005a7510.left + DAT_005a7510.right + 1) / 2);
+            screenY = (short)(g_asObjectScreenY_0059d930[obj] +
+                (DAT_005a7510.top + DAT_005a7510.bottom + 1) / 2);
+            if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_STAR &&
+                g_aeObjectClass_0059d100[obj] <= OBJECT_CLASS_DUST) {
+                DrawSpriteDefault(&DAT_005a7510, screenX, screenY,
+                                  g_pConstellationShape_005a765c,
+                                  g_asObjectViewFrame_0059d230[obj]);
+            } else if (g_apObjectShape_0059d2f0[obj] != 0) {
+                DrawSpriteTransformed(&DAT_005a7510, screenX, screenY,
+                                      g_apObjectShape_0059d2f0[obj],
+                                      g_asObjectViewFrame_0059d230[obj],
+                                      g_asObjectScreenAngle_0059cd90[obj],
+                                      g_asObjectScreenScale_0059c950[obj],
+                                      g_asObjectScreenScale_0059c950[obj],
+                                      g_asObjectFlip_0059c870[obj], 0);
+            }
+        }
+        sorted++;
+    }
+}
+
+/* Function start: 0x4368C0 */
+void MouseIdleHook(void)
+{
+}
+
+/* Function start: 0x4368E0 */
+unsigned short GetNavRangeSentinel(void)
+{
+    return 0x8000;
+}
+
+/* Function start: 0x4368F0 */
+unsigned short GetOriginalFreeMemory(void)
+{
+    return 0x8000;
+}
+
+/* Function start: 0x436900 */
+void StartupHook(void)
+{
+}
+
+/* Function start: 0x436910 */
+unsigned int JoystickEdgeHook(int button)
+{
+    (void)button;
+}
+
+/* Function start: 0x436950 */
+void FreeIfNotNull(void *p)
+{
+    if (p != 0) _free_dbg(p, 1);
+}
+
+/* Function start: 0x436970 */
+unsigned int GetStartupErrorCode(void)
+{
+    return 0;
+}
+
+/* Function start: 0x436980 */
+void ShutdownHook(void)
+{
+}
+
+/* Function start: 0x4369A0 */
+unsigned short GetDiskRetryCount(void)
+{
+    return 0;
+}
+
+/* Function start: 0x4369B0 */
+unsigned short GetDiskChangeCount(void)
+{
+    return 0;
+}
+
+/* Function start: 0x4369C0 */
+unsigned short GetShutdownErrorCode(void)
+{
+    return 0;
+}
+
+/* Function start: 0x4369D0 */
+void VideoReleaseHook(void)
+{
+}
+
+/* Function start: 0x4369E0 */
+void ExitCleanupHook(void)
+{
+}
+
+/* Function start: 0x436A00 */
+unsigned int IsVectorWithinRange(FixedVector *vector, short range)
+{
+    int magnitude = ComputeFixedVectorMagnitude(vector);
+    int fixedRange = abs((int)range << 8);
+
+    if (fixedRange >= magnitude)
+        return 1;
+    return 0;
+}

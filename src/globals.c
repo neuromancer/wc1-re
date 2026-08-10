@@ -42,11 +42,18 @@ const short g_asPilotHandOffsets_00469018[34] = {
 unsigned char *g_pCockpitExplosionBackground_00469060;
 unsigned char * volatile g_pCockpitExplosionShape_00469064;
 volatile short g_nCockpitExplosionFrame_00469068 = 8;
+int g_nReleaseWeaponDisplayEnabled_0046906c;
+volatile signed char g_cReleaseWeaponDisplayFrame_00469070 = -1;
+volatile signed char g_cReleaseWeaponDisplayTicks_00469074;
+volatile signed char g_cReleaseWeaponDisplayState_00469078;
 unsigned short DAT_00469090 = 0xffff;
 short g_nTargetLockMarkerX_004691f4 = -0x7fff;
 ShortRect g_stTargetBracketBounds_004691f8 = {-0x7fff, 0, 0, 0};
 ShortRect g_stPreviousTargetBracketBounds_00469200 = {-0x7fff, 0, 0, 0};
 short DAT_00469208 = -1;
+unsigned char *g_pConfedCommBackground_00469278;
+unsigned char *g_pCommStaticShape_0046927c;
+unsigned char *g_pKilrathiCommBackground_00469280;
 const char g_szComponentHitFormat_004692e0[8] = "%s HIT";
 unsigned char DAT_004693b0;
 const char *g_pGameVersion_004693b4 = g_szGameVersion_004693b8;
@@ -77,12 +84,12 @@ unsigned int g_dwHighScoreNameTableBiasPadding_00469dbc;
 unsigned short DAT_00469dc0[4] = {0x30, 0x1d, 0x110, 0x6d};
 const char g_szTrainSimTitle_00469dc8[24] = "SQUADRON: TRAINSIM";
 unsigned char *g_apszBuiltInHighScoreNames_00469de0[6] = {
-    (unsigned char *)&g_aszBuiltInHighScores_00469e38[0],
-    (unsigned char *)&g_aszBuiltInHighScores_00469e38[8],
-    (unsigned char *)&g_aszBuiltInHighScores_00469e38[16],
-    (unsigned char *)&g_aszBuiltInHighScores_00469e38[24],
-    (unsigned char *)&g_aszBuiltInHighScores_00469e38[32],
-    (unsigned char *)&g_aszBuiltInHighScores_00469e38[40]
+    &g_aszBuiltInHighScores_00469e38[0],
+    &g_aszBuiltInHighScores_00469e38[8],
+    &g_aszBuiltInHighScores_00469e38[16],
+    &g_aszBuiltInHighScores_00469e38[24],
+    &g_aszBuiltInHighScores_00469e38[32],
+    &g_aszBuiltInHighScores_00469e38[40]
 };
 short DAT_00469df8[26] = {
     1, 47, 29, 67, 49, 1, 47, 89, 67, 109,
@@ -92,7 +99,7 @@ short DAT_00469df8[26] = {
 int g_nTrainSimActive_00469e2c;
 short g_nTrainSimMission_00469e30;
 short g_nArcadeWave_00469e34;
-const char g_aszBuiltInHighScores_00469e38[48] =
+unsigned char g_aszBuiltInHighScores_00469e38[48] =
     "BISHOP\0\0"
     "GOBLIN\0\0"
     "JEFFTEP\0"
@@ -147,6 +154,9 @@ short g_nCommMenuChoiceCount_0046af60 = -1;
 short g_nCommMenuReuseMode_0046af64;
 unsigned char DAT_0046af6c = 1;
 unsigned char DAT_0046afc4 = 0xff;
+short g_nCommSpeakerObject_0046afc8;
+short g_nCommSpeakerRating_0046afcc;
+short g_nCommPortraitIndex_0046afd0 = -1;
 unsigned short DAT_0046b168 = 0xffff;
 const GUID g_guidDirectDraw2_00463118 = {
     0xb3a6f3e0, 0x2b43, 0x11cf,
@@ -578,8 +588,9 @@ signed char g_acPilotRecovery_0046d9b8[20] = {
     6, 7, 8, 8, 9, 8, 6, 8, 10, 7,
     8, 9, 7, 0, 7, 7, 8, 8, 0, 0
 };
-int DAT_0046da90;
-int DAT_0046da94;
+InputEvent *g_pInputEventHead_0046da90;
+InputEvent *g_pInputEventTail_0046da94;
+int g_bInputEventPoolInitialized_0046da98;
 unsigned char *g_pDrawnMouseCursorShape_0046da9c;
 int DAT_0046daa0;
 int g_nScreenWidth_0046daa4 = 320;
@@ -636,6 +647,8 @@ unsigned short DAT_00475e78;
 unsigned char g_bCurrentManeuverReroll_00475e7c;
 unsigned char g_abMouseCursorBackground_00475ff0[0x400];
 DebugOverlayConsole *g_pDebugOverlay_004763f0;
+IxSample *g_pLoopingWaveSample_0047654c;
+IxSound *g_pLoopingWaveSound_00476550;
 unsigned char DAT_00476620[32];
 unsigned int DAT_00476640;
 unsigned int DAT_00476644;
@@ -654,6 +667,8 @@ unsigned char DAT_004865a8[0x1000];
 RasterSurface g_stRasterSurface_004875a8;
 RasterClip g_stRasterClip_00496fc0;
 unsigned char g_abSolidColourTranslation_00497648[256];
+extern unsigned int g_dwStreamerState_00597cd0;
+int g_bStreamerAudioPlaying_00597748;
 unsigned char DAT_005988de[8192];
 int DAT_00598a30[512];
 unsigned char DAT_00598ab0;
@@ -662,20 +677,23 @@ unsigned char DAT_00598aba;
 unsigned int DAT_00598af4;
 char g_szTextScratchBuffer_00598b00[256];
 unsigned int DAT_00598c18;
-unsigned char g_aInputEventSlots_00598c40[0x1c00];
-extern unsigned int g_dwStreamerState_00597cd0;
+InputEvent g_aInputEventPool_00598c40[0x100];
 int g_nMouseCursorSavedY_0059a840;
 int g_nMouseCursorSavedX_0059a844;
+unsigned char g_bInputMode_0059a848;
 int DAT_0059a84c;
-unsigned char DAT_0059a850;
+short g_nEventManagerActive_0059a850;
 short g_nViewCenterX_0059a852;
 short g_nViewCenterY_0059a854;
 short DAT_0059a856;
+unsigned char g_abInputKeyState_0059a860[0x80];
 int DAT_0059a8e0;
 int DAT_0059a8e4;
 int g_anSortedObject_0059aa00[WC1_SPACE_OBJECT_COUNT];
-short DAT_0059ab10;
-short DAT_0059ab12;
+volatile short g_nMouseX_0059ab10;
+volatile short g_nMouseY_0059ab12;
+unsigned char g_bPrimaryMouseButton_0059ab14;
+unsigned char g_bSecondaryMouseButton_0059ab15;
 unsigned char * volatile DAT_0059ab19;
 unsigned short DAT_0059ab1d;
 Viewport * volatile DAT_0059ab23;
@@ -692,15 +710,15 @@ unsigned char DAT_0059ab58;
 int DAT_0059ab5c;
 int DAT_0059ab60;
 int g_aiInputEventSlotUsed_0059ab70[0x100];
-short DAT_0059af70;
-short DAT_0059af72;
+short g_nHostMouseX_0059af70;
+short g_nHostMouseY_0059af72;
 TextContext *g_pCurrentTextContext_0059af8c;
 FixedVector g_aObjectViewPosition_0059afa0[WC1_SPACE_OBJECT_COUNT];
 short g_anObjectPitchRotation_0059b2a0[WC1_SPACE_OBJECT_COUNT];
 int g_anShipSpeed_0059b320[64];
 short g_nSpaceFrame_0059b420;
 unsigned int DAT_0059b430[512];
-int DAT_0059b470[512];
+int g_anShipFuel_0059b470[512];
 short g_asObjectDistance_0059b4a0[WC1_SPACE_OBJECT_COUNT];
 ShortVector g_aShipFormationOffset_0059b520[10];
 enum ObjectType g_aeObjectType_0059b560[96];
@@ -717,9 +735,12 @@ short g_asObjectCounter_0059c330[512];
 enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[WC1_SPACE_OBJECT_COUNT];
 enum ShipMissionType g_aeShipMissionType_0059c3f0[512];
 short g_asShipCount_0059c420[512];
-short g_asShipMaximumSpeed_0059c440[24];
+short g_asShipMaximumSpeed_0059c440[16];
+signed char g_acShipDamage_0059c460[10];
 signed char g_cMissionObjectiveCount_0059c46a;
+short g_asViableTargetDistance_0059c470[16];
 FixedVector g_aShipPosition_0059c490[512];
+short g_asObjectRadarRadius_0059c790[WC1_SPACE_OBJECT_COUNT];
 unsigned char DAT_0059c810[512];
 short g_nShipMissionIndices_0059c830[10];
 FixedVector g_vStarFieldMotion_0059c860;
@@ -728,8 +749,10 @@ short g_asObjectFlip_0059c870[WC1_SPACE_OBJECT_COUNT];
 short g_nEyeRollGoal_0059c8f0;
 FixedVector g_vPreviousStarFieldMotion_0059c900;
 short g_nHazardFieldCount_0059c90c;
+signed char DAT_0059c910[WC1_SPACE_OBJECT_COUNT];
 short g_nEyeYawGoal_0059c944;
 short g_asObjectScreenScale_0059c950[WC1_SPACE_OBJECT_COUNT];
+short g_asObjectAfterburnerVelocity_0059c9d0[WC1_SPACE_OBJECT_COUNT];
 signed char g_cCurrentMission_0059ca69;
 signed char g_cCurrentSeries_0059ca6a;
 int g_aiPersonalityDeathMission_0059ca74[8];
@@ -745,6 +768,7 @@ unsigned int DAT_0059ce18[256];
 signed char g_acObjectOwner_0059ce20[64];
 signed char g_acShipTarget_0059ce60[512];
 short g_anObjectYawRotation_0059ce80[256];
+signed char DAT_0059cf00[WC1_SPACE_OBJECT_COUNT];
 unsigned char DAT_0059cf20[512];
 short g_asPreviousObjectDistance_0059d080[WC1_SPACE_OBJECT_COUNT];
 enum ObjectClass g_aeObjectClass_0059d100[512];
@@ -755,8 +779,10 @@ short g_asCollisionCountdown_0059d2d0[16];
 unsigned char *g_apObjectShape_0059d2f0[WC1_SPACE_OBJECT_COUNT];
 short g_nPitchInput_0059d3f0;
 short g_nYawInput_0059d3f2;
-short g_asShipWingLeader_0059d400[64];
+short g_asShipWingLeader_0059d400[16];
+short g_aasShipArmor_0059d420[10][4];
 short g_asShipWeaponEnergy_0059d470[16];
+signed char g_acShipIonDriveDamage_0059d4a0[16];
 short g_asCannedCommand_0059d4e0[WC1_SPACE_OBJECT_COUNT];
 unsigned short DAT_0059d500[16];
 char g_acShipSequence_0059d520[512];
@@ -770,6 +796,7 @@ short g_nEyePitchGoal_0059d61c;
 signed char g_acShipStress_0059d620[16];
 short g_anRollGoal_0059d630[16];
 enum Side g_aeShipSide_0059d650[512];
+signed char DAT_0059d6a0[WC1_SPACE_OBJECT_COUNT];
 short g_aasShipMaximumShield_0059d6e0[12][2];
 short g_asObjectCollisionRadius_0059d710[64];
 short g_anPitchGoal_0059d7a0[16];
@@ -792,7 +819,9 @@ ObjectResourceSlot g_aObjectResourceSlots_0059ddf0[4] = {
 };
 short g_asObjectScale_0059de40[WC1_SPACE_OBJECT_COUNT];
 char DAT_0059dec0[256];
+short DAT_0059dee0[WC1_SPACE_OBJECT_COUNT];
 short g_nCurrentNavPoint_0059df60;
+unsigned char *g_apCommPortraitShapes_0059e180[16];
 char DAT_0059e1c0[512];
 signed char g_abCommMenuChoiceCommand_0059e488[7];
 unsigned int DAT_0059e490;
@@ -825,6 +854,8 @@ Viewport DAT_005a76b0;
 TextContext DAT_005a7700;
 TextContext g_stDefaultTextContext_005a7740;
 unsigned short DAT_005a7780;
+short g_nWeaponDisplayOriginX_005a7788;
+short g_nWeaponDisplayOriginY_005a778a;
 unsigned int DAT_005a77ec;
 int g_nArcadeScore_005a7bc4;
 short g_nArcadeTimeRemaining_005a7c2c;
@@ -839,6 +870,9 @@ int g_nAvailableGameMemory_005a7ce0;
 unsigned char DAT_005a7cec;
 unsigned char *DAT_005a7cf0;
 int DAT_005a7d9c;
+short g_nReleaseWeaponDisplayX_005a7dbc;
+short g_nReleaseWeaponDisplayY_005a7dbe;
+enum ObjectType g_eReleaseWeaponDisplayType_005a7dc0;
 unsigned char g_bStickIndicatorFrame_005a7dc8;
 unsigned char DAT_005a7dca;
 HudMessageSlot g_aHudMessageSlots_005a7dd0[2];
@@ -868,6 +902,8 @@ int g_nViewportAllocationCount_005a7f0c;
 unsigned char *g_apViewportAllocations_005a7f10[128];
 int g_nFreeViewportCalls_005a8110;
 short g_nMissionMedalScore_005a8116;
+short g_nActiveInputDevice_005a819c;
+InputDeviceSample g_aInputDeviceSamples_005a81f0[4];
 short DAT_005a8692;
 short g_nPlayerMissionShipIndex_005a8694;
 short g_nInitialMissionShipIndices_005a8696[8];
@@ -877,6 +913,10 @@ unsigned char *g_pIntroFont_005a8960;
 unsigned int DAT_005a8964;
 unsigned short DAT_005a897c;
 unsigned int DAT_005a898c;
+int g_nHostMouseMessageX_005a8990;
+int g_nHostMouseMessageY_005a8994;
+int g_bHostPrimaryMouseButton_005a8998;
+int g_bHostSecondaryMouseButton_005a899c;
 HWND DAT_005a89a0;
 HANDLE DAT_005a89a4;
 unsigned long g_dwGameClockBase_005a89a8;
@@ -972,6 +1012,11 @@ const ShortVector g_aChildOffsets_004682f0[35] = {
     { 30, 20, -20 }, { 90, 0, 40 }, { 100, 10, -20 },
     { 120, -10, 0 }, { 0, 10, 10 }, { 0, 0, -60 },
     { 0, 0, 500 }, { -200, 0, 250 }
+};
+
+const ShortPoint g_aWeaponDisplayPositions_00468440[10] = {
+    {64, 28}, {8, 28}, {45, 25}, {27, 25}, {36, 23},
+    {20, 32}, {27, 24}, {31, 31}, {36, 22}, {41, 31}
 };
 
 ObjectTypeData g_aObjectTypeData_0046645c[OBJECT_TYPE_COUNT] = {

@@ -720,6 +720,16 @@ void UpdateStreamerStoppedFlag(void)
         DAT_0046aa04 = (g_dwStreamerState_00597cd0 & 4) == 0;
 }
 
+/* Function start: 0x442460 */
+void Streamer_stop(void)
+{
+    if (DAT_00465058 != 0 && g_bStreamerAudioPlaying_00597748 != 0) {
+        SoundDebugPrintf("Streamer_stop");
+        ix_streamer_audio_stop();
+        g_bStreamerAudioPlaying_00597748 = 0;
+    }
+}
+
 /* Function start: 0x442590 */
 void SetMusicStreamVolume(unsigned short volume)
 {

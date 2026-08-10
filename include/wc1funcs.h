@@ -255,6 +255,7 @@ unsigned short vdu_malf(short vdu, short sound);                       /* 0x0041
 void ShowComponentHitHudMessage(char *text, unsigned short colour,
                                 signed char flashCount);               /* 0x00414B70 */
 int damage_your_component(char component, char amount, char maximum); /* 0x00414BF0 */
+void RemovePlayerReleaseWeapon(signed char weapon);                  /* 0x00414CB0 */
 void InputFilterHook(void);                                            /* 0x00415040 */
 short sighted(short objective);                                       /* 0x00415050 */
 short visited(short objective);                                       /* 0x00415070 */
@@ -295,7 +296,10 @@ void PlayMissileLaunchSfx(void);                            /* 0x00417F00 */
 short __stdcall MeasureTextPixelWidthClamped(const char *text);         /* 0x00418080 */
 unsigned short GetMusicDriverPresent(void);                                    /* 0x00418130 */
 short get_ship_max_velocity(short obj);                                /* 0x004181C0 */
-void AddShipAiTimer(short i, short delta);                        /* 0x00418280 */
+short recalc_max_velocity(short ship);                                /* 0x00418210 */
+void drain_fuel(short ship, short amount);                            /* 0x00418280 */
+void damage_ion_drive(short ship, short amount,
+                      short maximum);                                 /* 0x004182B0 */
 int GetShipAccelerationRate(short ship);                          /* 0x004182F0 */
 void point_at(short obj, FixedVector point);                      /* 0x00418330 */
 void look_at(FixedVector point);                                 /* 0x004183A0 */
@@ -415,7 +419,7 @@ void DebugOverlayPrintf(DebugOverlayConsole *console,
                         const char *format, ...);                      /* 0x0041CAB0 */
 short MinShort(short a, short b);                                       /* 0x0041D0C0 */
 short MaxShort(short a, short b);                                       /* 0x0041D0E0 */
-void FreePacketAndClear(int *p);                                        /* 0x0041D100 */
+void FreePacketAndClear(int *p, int releaseFlags);                      /* 0x0041D100 */
 void *FetchDiskPacketRetrying(short logicalFile, short section,
                               unsigned short flags);                    /* 0x0041D2E0 */
 unsigned int InitializeTextContextFromFont(TextContext *context,
@@ -425,11 +429,18 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
 unsigned int DrawTextAt(TextContext *context, short x, short y,
                         char *text, unsigned char alignment);           /* 0x0041D5F0 */
 unsigned int GetZeroUnused(void);                                        /* 0x0041DA00 */
+short WaitForInputKey(void);                                         /* 0x0041DAA0 */
 void WaitForStreamIdle(void);                                       /* 0x0041DEB0 */
-short FindActiveShipSlot(void);                                      /* 0x0041DF40 */
-short new_object(enum ObjectType type, signed char owner);             /* 0x0041DFA0 */
-void initialize_object(short obj, enum ObjectType type,
-                       short owner);                                   /* 0x0041E120 */
+short initialize_object(short obj, enum ObjectType type,
+                        short owner);                                  /* 0x0041DEE0 */
+short borrow_dust(void);                                             /* 0x0041DF40 */
+short new_object(enum ObjectType type, short owner);                 /* 0x0041DF70 */
+short initialize_ship(enum ObjectType type, short owner);            /* 0x0041DFA0 */
+short any_selected(unsigned char *loadout,
+                   enum ObjectClass objectClass);                    /* 0x0041DFE0 */
+unsigned int remove_weapon(short obj, short weapon);                 /* 0x0041E040 */
+void set_objects_data(short obj, enum ObjectType type,
+                      short owner);                                  /* 0x0041E120 */
 void match_rotation_goal(short *rotation, short *goal,
                          short totalError, short rate);                 /* 0x0041E400 */
 void rotate_object_to_goal(short obj);                                  /* 0x0041E520 */
@@ -449,6 +460,8 @@ void fire_capital_weapon(short obj, short target);                    /* 0x00420
 int fire_turrets(short obj);                                          /* 0x00420AA0 */
 int fire_weapon(short obj, short weapon);                              /* 0x00420C20 */
 int fire_fixed_projectile_weapon(short obj);                           /* 0x00421220 */
+int drop_mine(short obj, signed char weapon, enum ObjectType type,
+              short lifetime);                                       /* 0x004212A0 */
 void fire_afterburner(short obj, short time);                          /* 0x00421350 */
 short find_weapon(short obj, enum ObjectType weaponType);              /* 0x00421100 */
 unsigned int ReportShieldHit(void);                                       /* 0x0041F5D0 */
@@ -460,7 +473,7 @@ void reposition_fixed_child_objects(void);                             /* 0x0042
 unsigned int housekeep_power_plant_and_fuel(short ship);                /* 0x00421760 */
 unsigned int replenish_shields(short ship);                            /* 0x00421780 */
 unsigned int replenish_weapon_energy_bank(short ship);                 /* 0x00421830 */
-unsigned int LeaveWaitCursorScope(void);                                         /* 0x00421A40 */
+unsigned int EMShutDown(void);                                         /* 0x00421A40 */
 unsigned int LoadOriginFxDrivers(void);                                 /* 0x00421B10 */
 unsigned int InitializeGameTextContexts(void);                          /* 0x00421D80 */
 unsigned int GetFxDriverInitResult(void);                                      /* 0x00421FE0 */
@@ -632,6 +645,7 @@ void *PacketLoad(const char *filename, short section, void *destination,
 void ServiceAudioStream(void);                                        /* 0x0042B1B0 */
 void FreeWaveTable(void);                                           /* 0x0042B300 */
 int *FindWaveTableEntry(int key);                                      /* 0x0042B3F0 */
+void stop_all_sounds(void);                                         /* 0x0042B640 */
 void ServiceSoundSystem(void);                                         /* 0x0042B7D0 */
 void SetSoundEffectsVolume(int volume);                               /* 0x0042B7E0 */
 void LoadVolumeSettingsFromRegistry(void);                            /* 0x0042B870 */
@@ -691,6 +705,8 @@ int HasNoLockedTarget(void);                                              /* 0x0
 int IsWingmanIdle(void);                                              /* 0x00430E30 */
 unsigned short IsCommMenuAvailable(void);                                     /* 0x00430E50 */
 void RequestCommMenu(unsigned char v);                                       /* 0x00430E70 */
+void FreeCommDisplayResources(void);                                  /* 0x00431410 */
+void EndCommSessionWithWingman(void);                                  /* 0x00431470 */
 void EndCommMenu(void);                                              /* 0x004314C0 */
 void ShowCentredPrompt(char *text, unsigned short arg);                       /* 0x004314F0 */
 void ShutdownVideoHook(void);                                               /* 0x004318F0 */
@@ -787,17 +803,34 @@ void DosStrrchr(char *s, short c);                                  /* 0x0043543
 char *__stdcall DosStrcpy(char *dst, const char *src);               /* 0x00435470 */
 short DosStrlen(const char *s);                                   /* 0x004354D0 */
 void DosMemcpy(void *dst, const void *src, size_t n);               /* 0x004354F0 */
-unsigned short GetFxDriverCount(void);                                    /* 0x00435550 */
-void InitExtendedMemoryStub(void);                                             /* 0x00435560 */
-unsigned int SetWaitCursorAndRun(unsigned int a, void (*fn)(void));      /* 0x00435570 */
-void ClearWaitCursorFlag(void);                                                  /* 0x00435590 */
-unsigned short GetExtendedMemoryFree(void);                                 /* 0x004355A0 */
-void BeginScreenUpdateHook(void);                                             /* 0x004355C0 */
-void SetScreenUpdateMode(unsigned int v);                                /* 0x004355D0 */
-void ClearEventSlotByAddress(void *event);                              /* 0x00435760 */
-void PumpMessagesAndDispatch(int a);                                              /* 0x00435CC0 */
-short __stdcall IsInputEventQueued(short code);                       /* 0x00435D80 */
-void FreeAllTrackedAllocations(void);                                         /* 0x00435DB0 */
+unsigned short GetEventManagerStatus(void);                            /* 0x00435550 */
+void __stdcall RegisterEventManagerShutdown(void (*fn)(void));         /* 0x00435560 */
+short __stdcall InitializeEventManager(short period,
+                                       void (*initialize)(void),
+                                       void *configuration);           /* 0x00435570 */
+void ShutdownEventManager(void);                                      /* 0x00435590 */
+unsigned short __stdcall ConfigureEventManagerPointer(
+    unsigned char *shape, short frame);                               /* 0x004355A0 */
+void __stdcall EventManagerHook(short mode);                           /* 0x004355C0 */
+void __stdcall SetEventManagerPump(void (*pump)(void));                /* 0x004355D0 */
+void TranslatePolledInputEvent(unsigned short type,
+                               unsigned int value);                   /* 0x004355F0 */
+void QueueInputEventAtCursor(unsigned int type, short primaryButton,
+                             short secondaryButton);                   /* 0x004356A0 */
+InputEvent *AllocateInputEvent(void);                                  /* 0x004356E0 */
+void ReleaseInputEvent(InputEvent *event);                             /* 0x00435760 */
+void QueueInputEvent(unsigned short type, unsigned short x,
+                     unsigned short y, unsigned short value,
+                     int primaryButton, int secondaryButton,
+                     unsigned int timestamp);                          /* 0x00435790 */
+void ReleaseInputEventQueue(void);                                    /* 0x004358B0 */
+void RetainInputEventsOfType(short type);                              /* 0x004358E0 */
+void RemoveInputEvent(InputEvent *event);                              /* 0x00435940 */
+short __stdcall GetNextInputEvent(InputEventState *event);             /* 0x004359C0 */
+short __stdcall PollInputEvent(InputEventState *event, short filter);  /* 0x00435CC0 */
+short __stdcall PeekInputEvent(InputEventState *event, short type);    /* 0x00435CE0 */
+short __stdcall IsInputEventQueued(short type);                        /* 0x00435D80 */
+void FlushInputEvents(void);                                          /* 0x00435DB0 */
 unsigned int ResetAllocationDepth(void);                                          /* 0x00435DC0 */
 void CaptureMouseCursorBackground(void);                           /* 0x00435E20 */
 void DrawMouseCursor(void);                                        /* 0x00435EF0 */
@@ -819,6 +852,9 @@ unsigned short IdentityWord(unsigned short v);                         /* 0x0043
 void TimerStopHook(void);                                           /* 0x004362D0 */
 unsigned int GetFixedOneMillion(void);                                 /* 0x004362E0 */
 unsigned int GetFixedOneMillionAlt(void);                                 /* 0x004362F0 */
+void ClearInputKeyStatePreservingModifiers(void);                     /* 0x004363A0 */
+void ClearInputKeyState(void);                                        /* 0x004363E0 */
+void SetInputKeyState(int scanCode, unsigned char pressed);            /* 0x00436420 */
 void sort_object_depth(void);                                          /* 0x00436460 */
 void draw_sorted_objects_to_buffer(void);                              /* 0x00436520 */
 void MouseIdleHook(void);                                           /* 0x004368C0 */
@@ -893,6 +929,7 @@ int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
 void snow_viewport(Viewport *viewport, int effect,
                    unsigned int colour);                              /* 0x00442300 */
 void UpdateStreamerStoppedFlag(void);                                    /* 0x00442330 */
+void Streamer_stop(void);                                                /* 0x00442460 */
 void SetMusicStreamVolume(unsigned short volume);                     /* 0x00442590 */
 int ReadCheaterFlagFromRegistry(void);                                /* 0x00442600 */
 void ix_system_service_sounds(void);                                     /* 0x004472A7 */
@@ -900,6 +937,8 @@ void ix_system_shutdown(void);                                            /* 0x0
 void ix_system_set_master_volume(unsigned short volume);              /* 0x0044745B */
 void ix_system_delete_all_samples(void);                                  /* 0x00447548 */
 void ix_system_delete_all_sounds(void);                                   /* 0x00447610 */
+void __fastcall ix_sound_release(IxSound *sound);                    /* 0x0044801E */
+void __fastcall ix_sound_stop(IxSound *sound);                       /* 0x004480CF */
 void ix_streamer_set_volume(unsigned short volume);                   /* 0x004435BE */
 
 #endif /* WC1_FUNCS_H */

@@ -49,6 +49,31 @@ int fire_fixed_projectile_weapon(short obj)
     return result;
 }
 
+/* Function start: 0x4212A0 */
+int drop_mine(short obj, signed char weapon, enum ObjectType type,
+              short lifetime)
+{
+    ShipWeaponSlot *weaponSlot;
+    short mine;
+
+    mine = new_object(type, obj);
+    if (mine == -1)
+        return -1;
+    copy_frame(obj, mine);
+    weaponSlot =
+        &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
+    child_object(weaponSlot->hardpoint, mine, obj);
+    if (lifetime == -1)
+        lifetime = 20;
+    g_aShipMissionSpot_0059dd10[0xa0 + mine] = (signed char)lifetime;
+    g_asObjectCounter_0059c330[mine] = (short)(signed char)lifetime;
+    if (obj == 0)
+        RemovePlayerReleaseWeapon(weapon);
+    else
+        remove_weapon(obj, weapon);
+    return mine;
+}
+
 /* Function start: 0x421350 */
 void fire_afterburner(short obj, short time)
 {
@@ -115,8 +140,8 @@ void place_exhaust_on_ships(void)
                         object = find_vacant_3d_object();
                         if (object == -1)
                             return;
-                        initialize_object(object, OBJECT_TYPE_THRUSTERS,
-                                          ship);
+                        set_objects_data(object, OBJECT_TYPE_THRUSTERS,
+                                         ship);
                         scale = (short)(exhaust[1] - RandomInRange(0, 32));
                         if (g_abShipExhaustHeat_0059d610[ship] == 0)
                             scale = (short)(scale - 32);
@@ -203,7 +228,7 @@ void reposition_fixed_child_objects(void)
 unsigned int housekeep_power_plant_and_fuel(short ship)
 {
     if (0 < g_anShipSpeed_0059b320[ship])
-        AddShipAiTimer(ship, 5);
+        drain_fuel(ship, 5);
     return 0;
 }
 
@@ -263,10 +288,10 @@ unsigned int replenish_weapon_energy_bank(short ship)
 }
 
 /* Function start: 0x421A40 */
-unsigned int LeaveWaitCursorScope(void)
+unsigned int EMShutDown(void)
 {
-    if (DAT_0059a850 != 0)
-        ClearWaitCursorFlag();
+    if (g_nEventManagerActive_0059a850 != 0)
+        ShutdownEventManager();
     return 0;
 }
 
@@ -1558,15 +1583,15 @@ short evaluate_damage(short obj)
 
     if (g_aeObjectClass_0059d100[obj] < OBJECT_CLASS_SHIP)
         return 100;
-    return (short)((g_asShipDamage_0059c460[obj] * -26) /
+    return (short)((g_acShipDamage_0059c460[obj] * -26) /
                        typeData->damageCapacity +
-                   (g_asShipWingLeader_0059d400[obj * 4 + 0x11] * 27) /
+                   (g_aasShipArmor_0059d420[obj][1] * 27) /
                        typeData->armorRear +
-                   (g_asShipWingLeader_0059d400[obj * 4 + 0x10] * 23) /
+                   (g_aasShipArmor_0059d420[obj][0] * 23) /
                        typeData->armorFront +
-                   (g_asShipWingLeader_0059d400[obj * 4 + 0x12] * 12) /
+                   (g_aasShipArmor_0059d420[obj][2] * 12) /
                        typeData->armorLeft +
-                   (g_asShipWingLeader_0059d400[obj * 4 + 0x13] * 12) /
+                   (g_aasShipArmor_0059d420[obj][3] * 12) /
                        typeData->armorRight + 26);
 }
 
@@ -1588,7 +1613,7 @@ void init_constellation(short scene)
 /* Function start: 0x424490 */
 void free_constellation(void)
 {
-    FreePacketAndClear((int *)&g_pConstellationShape_005a765c);
+    FreePacketAndClear((int *)&g_pConstellationShape_005a765c, 0);
 }
 
 /* Function start: 0x424A80 */
@@ -1702,17 +1727,17 @@ void free_3Space_objects(void)
 {
     ObjectTypeData *types = g_aObjectTypeData_0046645c;
 
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_THRUSTERS].shapeSet);
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_EXPLOSION0].shapeSet);
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_LASER_CANNON].shapeSet);
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_MASS_DRIVER_CANNON].shapeSet);
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_NEUTRON_PARTICLE_GUN].shapeSet);
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_LASER_SPARK].shapeSet);
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet);
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_BLUE_SPARK].shapeSet);
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_RED_SPARK].shapeSet);
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_SPARK_TRAIL].shapeSet);
-    FreePacketAndClear((int *)&types[OBJECT_TYPE_SPACE_MINE].shapeSet);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_THRUSTERS].shapeSet, 0);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_EXPLOSION0].shapeSet, 0);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_LASER_CANNON].shapeSet, 0);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_MASS_DRIVER_CANNON].shapeSet, 0);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_NEUTRON_PARTICLE_GUN].shapeSet, 0);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_LASER_SPARK].shapeSet, 0);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet, 0);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_BLUE_SPARK].shapeSet, 0);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_RED_SPARK].shapeSet, 0);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_SPARK_TRAIL].shapeSet, 0);
+    FreePacketAndClear((int *)&types[OBJECT_TYPE_SPACE_MINE].shapeSet, 0);
     if (g_aObjectResourceSlots_0059ddf0[3].type != -1)
         release_object_resources(3);
 

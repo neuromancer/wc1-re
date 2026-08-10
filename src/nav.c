@@ -219,7 +219,7 @@ int Title_Sequence(void)
             }
             frame++;
         } while (frame < 100);
-        FreePacketAndClear((int *)&g_pTitleShape_005a7f08);
+        FreePacketAndClear((int *)&g_pTitleShape_005a7f08, 0);
         if (interrupted != 0)
             break;
 
@@ -283,8 +283,8 @@ int Title_Sequence(void)
 
     StopMusicUnlessSuppressed();
     ResetSoundStateForScene();
-    FreePacketAndClear((int *)&g_pTitleShape_005a7f08);
-    FreePacketAndClear((int *)&g_pIntroFont_005a8960);
+    FreePacketAndClear((int *)&g_pTitleShape_005a7f08, 0);
+    FreePacketAndClear((int *)&g_pIntroFont_005a8960, 0);
     remove_all_hazards();
     free_nav_object_resources();
     free_3Space();

@@ -1516,8 +1516,8 @@ void release_object_resources(short slot)
         return;
 
     if (type == OBJECT_TYPE_ASTEROID_FIELD) {
-        FreePacketAndClear((int *)&resource->animation);
-        FreePacketAndClear((int *)&resource->shapeSet);
+        FreePacketAndClear((int *)&resource->animation, 0);
+        FreePacketAndClear((int *)&resource->shapeSet, 0);
         asteroidType = OBJECT_TYPE_ASTEROID1;
         do {
             g_aObjectTypeData_0046645c[asteroidType].shapeSet = 0;
@@ -1526,9 +1526,9 @@ void release_object_resources(short slot)
     } else if (type != OBJECT_TYPE_MINE_FIELD) {
         typeData = &g_aObjectTypeData_0046645c[type];
         release_capital_ship_shapes(type);
-        FreePacketAndClear((int *)&resource->shapeSet);
-        FreePacketAndClear((int *)&resource->animation);
-        FreePacketAndClear((int *)&resource->shape);
+        FreePacketAndClear((int *)&resource->shapeSet, 0);
+        FreePacketAndClear((int *)&resource->animation, 0);
+        FreePacketAndClear((int *)&resource->shape, 0);
         typeData->shapeSet = 0;
         typeData->animation = 0;
         typeData->shape = 0;
@@ -1764,7 +1764,7 @@ short spawn_mission_ship(short missionShip, short navPoint)
     if (obj != -1 || record->state != 0)
         return -1;
     record->navPoint = (signed char)navPoint;
-    obj = new_object(record->type, -1);
+    obj = initialize_ship(record->type, -1);
     if (obj != -1) {
         initialize_mission_ship(obj, missionShip, (signed char)navPoint);
         GetShipSlotState(obj);

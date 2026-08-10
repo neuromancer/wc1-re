@@ -256,6 +256,29 @@ void RequestCommMenu(unsigned char v)
     SetPendingMenuAction(2);
 }
 
+/* Function start: 0x431410 */
+void FreeCommDisplayResources(void)
+{
+    FreePacketAndClear((int *)&g_apCommPortraitShapes_0059e180[
+        g_nCommPortraitIndex_0046afd0], 0);
+    FreePacketAndClear((int *)&g_pConfedCommBackground_00469278, 0);
+    FreePacketAndClear((int *)&g_pKilrathiCommBackground_00469280, 0);
+    FreePacketAndClear((int *)&g_pCommStaticShape_0046927c, 0);
+    g_nCommSpeakerRating_0046afcc = -1;
+    g_nCommSpeakerObject_0046afc8 = -1;
+    g_nCommPortraitIndex_0046afd0 = -1;
+}
+
+/* Function start: 0x431470 */
+void EndCommSessionWithWingman(void)
+{
+    if (g_apCommPortraitShapes_0059e180[g_nCommPortraitIndex_0046afd0] != 0)
+        malf_noise(1, 1, 12, 23, 1);
+    FreeCommDisplayResources();
+    if ((short)get_mode(1) == 6)
+        pop_mode(1);
+}
+
 /* Function start: 0x4314C0 */
 void EndCommMenu(void)
 {
