@@ -60,7 +60,11 @@ const char g_szCampaignDateFormat_00465630[12] = "%03d.%03d";
 const char g_szSavedCampaignDateFormat_0046563c[12] = "%03d.%03d";
 const char g_szCampaignTimeFormat_00465648[12] = "%02d:%02d";
 const char g_szConversationTextFormat_00465654[12] = "%X%Y%F%s%P";
+const char g_szBriefingMapTextFormat_00465660[12] = "%X%Y%F%s%P";
+const char g_szCloseLookTextFormat_0046566c[12] = "%X%Y%F%s%P";
+const char g_szFuneralTextFormat_00465c0c[12] = "%X%Y%F%s%P";
 short g_nEnemySighting_00465c7c = 0x7fff;
+short g_nDebriefingPersonality_00465c80;
 int DAT_00465c84;
 int g_aiPacketReferenceTable_00465c88[4 * 0x25];
 const ShortVector g_aaFormationPositions_00465ed8[5][8] = {
@@ -974,6 +978,33 @@ const TalkingHeadOrigin g_aTalkingHeadOrigins_0046e190[11] = {
     {160, 53, 160, 88},
     {257, 257, 257, 0}
 };
+const signed char g_abBriefingSmallCharacterAnimation_0046e1e8[24] = {
+    1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0
+};
+const signed char g_abBriefingLargeCharacterAnimation_0046e200[24] = {
+    0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0
+};
+BriefingCharacterLayout g_aBriefingCharacters_0046e218[8] = {
+    { 60, 123,  10, 95, 176, 1, 0, 2,
+      g_abBriefingSmallCharacterAnimation_0046e1e8, 0},
+    {316, 123, 264, 94, 176, 1, 2, 1,
+      g_abBriefingSmallCharacterAnimation_0046e1e8, 0},
+    {193, 123, 141, 95, 176, 1, 3, 1,
+      g_abBriefingSmallCharacterAnimation_0046e1e8, 0},
+    {250, 124, 199, 93, 176, 1, 4, 1,
+      g_abBriefingSmallCharacterAnimation_0046e1e8, 0},
+    {124, 123,  71, 94, 176, 1, 5, 1,
+      g_abBriefingSmallCharacterAnimation_0046e1e8, 0},
+    {103, 122,  29, 76, 256, 1, 6, 2,
+      g_abBriefingLargeCharacterAnimation_0046e200, 0},
+    {191, 122, 118, 76, 256, 1, 8, 1,
+      g_abBriefingLargeCharacterAnimation_0046e200, 0},
+    {287, 122, 212, 76, 256, 1, 9, 1,
+      g_abBriefingLargeCharacterAnimation_0046e200, 0}
+};
+const short g_asMedalDisplayX_0046e2d0[5] = {191, 199, 207, 216, 228};
 const char *g_apszMedalNames_0046e2e0[5] = {
     g_szBronzeStar_0046e594,
     g_szSilverStar_0046e5a0,
@@ -981,6 +1012,65 @@ const char *g_apszMedalNames_0046e2e0[5] = {
     g_szGoldenSun_0046e5b8,
     g_szTerranMedalOfValor_0046e5c4
 };
+unsigned char *g_pMedalSceneShape_0046e2f4;
+const signed char g_aBriefingPortraitOffsetX_0046e300[8][12] = {
+    {  0,  0, -2, -2, -1, -2, -4, -3, -5, -7, -7, -4},
+    { -1,  0, -2, -3, -3, -4, -3, -4, -6, -8, -7, -6},
+    {  0,  1,  0,  0,  0,  0,  0, -1, -2, -4, -5, -3},
+    {  0, -1, -2, -3, -1, -3, -2, -3, -4, -4, -5, -4},
+    {  2,  0,  0,  0,  0,  0,  0,  0, -2, -3, -4, -2},
+    {  1,  1,  1,  0,  1,  0, -6, -4, -4, -9, -8, -6},
+    { -2, -1, -4, -4, -4, -7, -8, -7, -5, -8, -9, -7},
+    {  0,  0,  0,  0,  0, -3, -3, -7, -5, -7, -8, -7}
+};
+const signed char g_aBriefingPortraitOffsetY_0046e360[8][12] = {
+    { -6, -2, -3, -1, -4,-10,-12,-20,-32,-38,-42,-43},
+    { -5,  0, -4, -4, -7,-12,-16,-23,-32,-37,-42,-42},
+    { -5, -3,  0,  1,  0, -7,-13,-23,-33,-38,-42,-42},
+    { -3, -2, -1,  0, -5,-10,-16,-25,-33,-38,-41,-41},
+    { -6,  0,  2,  0, -6,-11,-18,-25,-33,-39,-42,-42},
+    { -8, -2,  1, -3, -6,-16,-23,-35,-46,-55,-61,-61},
+    { -6, -4, -3, -5, -9,-14,-23,-34,-49,-57,-61,-62},
+    {-10, -5,  0,  0, -3, -7,-24,-32,-47,-55,-59,-60}
+};
+const short g_aBriefingPortraitScale_0046e3c0[8][12] = {
+    {357, 357, 357, 359, 355,   0, 352, 355, 353, 353, 355,   1},
+    {355,   0, 354, 354, 352, 354, 355, 355, 352, 352, 353, 350},
+    {354, 354, 359,   0, 358, 357, 357, 356, 357,   0,   0,   2},
+    {354, 354, 353, 356, 358, 356, 356, 355, 356,   0, 357, 357},
+    {  0,   0,   0,   0, 358,   0, 358,   0,   0,   4,   0, 359},
+    {  0, 358, 358,   0, 357,   0, 350, 354, 357, 354,   0, 358},
+    {356, 356, 352, 354, 352, 349, 350, 352,   0,   0,   0,   0},
+    {  0,   0,   0, 359,   0, 350, 354, 350, 356, 357, 357, 357}
+};
+const int g_aiBriefingLeftPanelVelocity_0046e480[12] = {
+    1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4
+};
+const int g_aiBriefingPodiumVelocity_0046e4b0[12] = {
+    1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6
+};
+const int g_aiBriefingRightPanelVelocity_0046e4e0[12] = {
+    2, 2, 3, 4, 4, 4, 5, 5, 5, 6, 7, 8
+};
+const signed char g_abBriefingPodiumFrames_0046e510[40] = {
+     0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
+    10, 11, 12, 13, 14, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 14, 13, 12, 11, 10,  9,
+     8,  7,  6,  5,  4,  0,  0,  0,  0,  0
+};
+const signed char g_abDebriefingEstablishDeltas_0046e538[48] = {
+    -2, -2, -1, -1,  0,  0,  1,  0,
+     1,  0,  1,  0,  1,  0,  1,  1,
+     1,  1,  1,  1,  1,  1,  1,  1,
+     1,  1,  1,  1,  1,  1,  1,  1,
+     1,  1,  1,  1,  0,  1,  0,  1,
+     0,  1,  0,  1,  0,  0, -1, -1
+};
+short g_nDebriefingLeftX_0046e56c;
+short g_nDebriefingPilotX_0046e570 = 80;
+short g_nDebriefingRightX_0046e574 = 278;
+short g_nDebriefingOfficerX_0046e578 = 200;
+short g_nDebriefingPodiumX_0046e57c = 344;
 short g_nConversationCharacter_0046e580 = -1;
 short g_nTalkingHeadFace_0046e584 = -1;
 short g_nConversationBackdropFrame_0046e588 = -1;
@@ -992,6 +1082,15 @@ const char g_szGoldStar_0046e5ac[12] = "Gold Star";
 const char g_szGoldenSun_0046e5b8[12] = "Golden Sun";
 const char g_szTerranMedalOfValor_0046e5c4[24] =
     "Terran Medal of Valor";
+const char g_szMedalChestTextFormat_0046e610[12] = "%X%Y%F%s%P";
+const char g_szMedalLongShotTextFormat_0046e61c[12] = "%X%Y%F%s%P";
+const char g_szMedalEstablishTextFormat_0046e628[12] = "%X%Y%F%s%P";
+const char g_szPinMedalTextFormat_0046e634[12] = "%X%Y%F%s%P";
+const char g_szEstablishingShotTextFormat_0046e640[12] = "%X%Y%F%s%P";
+const char g_szBriefingReturnTextFormat_0046e64c[12] = "%X%Y%F%s%P";
+const char g_szDismissedTextFormat_0046e658[12] = "%X%Y%F%s%P";
+const char g_szDebriefEstablishTextFormat_0046e664[12] = "%X%Y%F%s%P";
+const char g_szFuneralLongShotTextFormat_0046e670[12] = "%X%Y%F%s%P";
 unsigned char g_abRasterPaletteTranslation_0046ff2c[256];
 const char *g_pszBlankRoomMenuLabel_00470090 =
     g_szBlankRoomMenuLabel_0047052c;
@@ -1360,8 +1459,13 @@ short g_nConversationMedalIndex_00598c08;
 short g_nConversationSceneType_00598c0a;
 unsigned char *g_pTalkingHeadShape_00598c0c;
 short g_nConversationTextColour_00598c10;
+unsigned char *g_pBriefingAnimationShape_00598c14;
 short *g_pFaceAnimationCommands_00598c18;
+unsigned char *g_pBriefingBodyShape_00598c1c;
+unsigned char *g_pMedalSceneData_00598c20;
+unsigned char *g_pBriefingPortraitShape_00598c24;
 unsigned char *g_pDebriefingTextData_00598c28;
+unsigned char *g_pBriefingCloseupShape_00598c2c;
 unsigned char *g_pConversationOverlayShape_00598c30;
 InputEvent g_aInputEventPool_00598c40[0x100];
 int g_nMouseCursorSavedY_0059a840;

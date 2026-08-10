@@ -67,42 +67,36 @@ typedef char MissionShipDisk_size_must_be_0x2a[
 /* Function start: 0x404CD0 */
 unsigned int ParseFaceAnimation(char *text, short *commands)
 {
-    char character;
     char duration[8];
     char *durationCursor;
     short frame;
     short sequenceIndex;
-    char *next;
 
     sequenceIndex = 0;
-    character = *text;
-    while ((frame = (short)character) != 0) {
-        next = text + 1;
+    frame = (short)*text++;
+    while (frame != 0) {
         if (frame == 'R') {
-            commands[0] = -2;
-            commands[1] = sequenceIndex;
+            *commands = -2;
+            commands += 2;
+            commands[-1] = sequenceIndex;
         } else {
             if (frame >= 'A' && frame <= 'F')
                 frame = (short)(frame - 'A' + 10);
             else
                 frame = (short)(frame - '0');
-            commands[0] = frame;
+            *commands = frame;
             durationCursor = duration;
-            character = *next;
-            next = text + 2;
-            while (character != ',') {
-                *durationCursor = character;
-                durationCursor++;
-                character = *next;
-                next++;
+            frame = (short)*text++;
+            while (frame != ',') {
+                *durationCursor++ = (char)frame;
+                frame = (short)*text++;
             }
+            commands += 2;
             sequenceIndex++;
             *durationCursor = '\0';
-            commands[1] = (short)atoi(duration);
+            commands[-1] = (short)atoi(duration);
         }
-        commands += 2;
-        text = next;
-        character = *next;
+        frame = (short)*text++;
     }
     *commands = -1;
     return 0;
@@ -315,31 +309,33 @@ unsigned int LongTalk(unsigned char *talker, char *text,
                       short *mouthCommands, short *faceCommands,
                       short duration)
 {
+    short *faceCursor;
+    short *faceStart;
+    short *mouthCursor;
+    short *mouthStart;
     short faceCountdown;
     short faceFrame;
     short mouthCountdown;
     short mouthFrame;
-    short *faceCursor;
-    short *mouthCursor;
-    short *next;
-    short escaped;
     short waiting;
 
     waiting = 0;
     AddPCName(text);
+    faceCursor = faceCommands;
+    mouthCursor = mouthCommands;
+    faceStart = faceCursor;
+    mouthStart = mouthCursor;
     faceFrame = 0;
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
     mouthFrame = 0;
     faceCountdown = 0;
     mouthCountdown = 0;
-    ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
     FormatTextBufferFromStart(g_szConversationTextFormat_00465654,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_00598b00);
     DAT_00469fb4 = 1;
-    faceCursor = faceCommands;
-    mouthCursor = mouthCommands;
     for (;;) {
         if (*mouthCursor == -1 && *faceCursor == -1) {
             if (waiting != 0) {
@@ -355,35 +351,31 @@ unsigned int LongTalk(unsigned char *talker, char *text,
         if (mouthCountdown-- == 0) {
             if (*mouthCursor != -1)
                 mouthCursor += 2;
-            next = mouthCursor;
-            if (*mouthCursor != -2 && *mouthCursor == -1)
-                next = mouthCommands;
-            if (*mouthCursor == -2 || *mouthCursor != -1) {
-                mouthFrame = *next;
-                mouthCursor = next;
-                mouthCountdown = (short)(next[1] * 2);
-            } else {
+            if (*mouthCursor == -2)
+                mouthCursor = mouthStart;
+            else if (*mouthCursor == -1) {
                 mouthFrame = -1;
                 if (waiting == 0) {
                     waiting = 1;
                     SetFrameTimerPeriodDirect(duration);
                 }
+            } else {
+                mouthFrame = *mouthCursor;
+                mouthCountdown = (short)(mouthCursor[1] * 2);
             }
         }
         if (faceCountdown-- == 0) {
             if (*faceCursor != -1)
                 faceCursor += 2;
-            next = faceCursor;
-            if (*faceCursor != -2 && *faceCursor == -1)
-                next = faceCommands;
-            if (*faceCursor == -2 || *faceCursor != -1) {
-                faceFrame = *next;
+            if (*faceCursor == -2)
+                faceCursor = faceStart;
+            else if (*faceCursor == -1) {
+                faceFrame = -1;
+            } else {
+                faceFrame = *faceCursor;
                 if (faceFrame == 10)
                     faceFrame = -1;
-                faceCursor = next;
-                faceCountdown = (short)(next[1] * 2);
-            } else {
-                faceFrame = -1;
+                faceCountdown = (short)(faceCursor[1] * 2);
             }
         }
         DAT_00469fb4--;
@@ -393,15 +385,14 @@ unsigned int LongTalk(unsigned char *talker, char *text,
             DIBslam();
             DIBslamReal();
         }
-        escaped = CheckEscaped();
-        if (escaped != 0)
+        if (CheckEscaped() != 0)
             break;
         if (waiting != 0 && IsFrameTickElapsed() != 0)
             return 0;
     }
     do {
-        escaped = CheckEscaped();
-    } while (escaped != 0);
+        waiting = CheckEscaped();
+    } while (waiting != 0);
     return 0;
 }
 
@@ -623,5 +614,125 @@ unsigned int LoadMissionData(short series, short mission)
            packet + series * sizeof(g_abSeriesAuxData_005a8240),
            sizeof(g_abSeriesAuxData_005a8240));
     ReleasePacketHandle((int)packet);
+    return 0;
+}
+
+/* Function start: 0x405DE0 */
+unsigned int CloseLook(unsigned char *shape, short shot,
+                       short *animation, char *text, short duration,
+                       short unused)
+{
+    short character;
+    short countdown;
+    short escaped;
+    short finished;
+    short frame;
+    short sceneFrame;
+    short *cursor;
+    short *start;
+
+    (void)unused;
+    finished = 0;
+    sceneFrame = 0;
+    AddPCName(text);
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
+    FormatTextBufferFromStart(g_szCloseLookTextFormat_0046566c,
+                              0, 160,
+                              g_nConversationTextColour_00598c10,
+                              g_szTextScratchBuffer_00598b00);
+    DAT_00469fb4 = 1;
+    cursor = animation;
+    start = animation;
+    if (shot == 2 || shot == 11) {
+        if (*cursor != -1) {
+            countdown = 0;
+            do {
+                if (countdown-- == 0) {
+                    if (*cursor != -1)
+                        cursor += 2;
+                    if (*cursor == -2)
+                        cursor = start;
+                    else if (*cursor == -1) {
+                        frame = -1;
+                        if (finished == 0) {
+                            finished = 1;
+                            SetFrameTimerPeriodDirect(duration);
+                        }
+                    } else {
+                        frame = *cursor;
+                        countdown = (short)(cursor[1] * 2);
+                    }
+                }
+                DAT_00469fb4--;
+                if (DAT_00469fb4 < 1) {
+                    DAT_00469fb4 = g_nFrameSkip_00469fb8;
+                    if (shot == 11) {
+                        DrawDebriefingLongShot();
+                        if (frame > -1)
+                            DrawSpriteDefault(
+                                &DAT_005a76b0,
+                                g_nDebriefingPodiumX_0046e57c, 53,
+                                g_pConversationBackdropShape_00598c04,
+                                (short)(frame + 17));
+                    } else if (frame > -1) {
+                        DrawSpriteDefault(&DAT_005a76b0, 225, 34,
+                                          shape, frame);
+                    }
+                    RefreshMemoryStatusOverlay();
+                    DIBslam();
+                    DIBslamReal();
+                }
+                escaped = CheckEscaped();
+                if (escaped != 0) {
+                    do {
+                        escaped = CheckEscaped();
+                    } while (escaped != 0);
+                    return 0;
+                }
+                if (finished != 0 && IsFrameTickElapsed() != 0)
+                    return 0;
+                DIBslam();
+                DIBslamReal();
+            } while (*cursor != -1);
+        }
+    } else if (shot == 0) {
+        do {
+            DAT_00469fb4--;
+            if (DAT_00469fb4 < 1) {
+                DAT_00469fb4 = g_nFrameSkip_00469fb8;
+                DrawSpriteDefault(
+                    &DAT_005a76b0, 0, 0,
+                    g_pConversationBackdropShape_00598c04, 0);
+                DrawSpriteDefault(&DAT_005a76b0, 241, 60,
+                                  g_pBriefingAnimationShape_00598c14,
+                                  sceneFrame);
+                DrawSpriteDefault(&DAT_005a76b0, 241, 64,
+                                  g_pBriefingAnimationShape_00598c14, 22);
+                character = 0;
+                do {
+                    DrawBriefingCharacter(
+                        character, 0,
+                        g_aBriefingCharacters_0046e218[character]
+                            .animation[sceneFrame],
+                        0, 0);
+                    character++;
+                } while (character < 8);
+                RefreshMemoryStatusOverlay();
+                DIBslam();
+                DIBslamReal();
+            }
+            if (CheckEscaped() != 0)
+                sceneFrame = 20;
+            if (sceneFrame == 20)
+                DAT_00469fb4 = 1;
+            sceneFrame++;
+            DIBslam();
+            DIBslamReal();
+        } while (sceneFrame < 22);
+    }
+    DIBslam();
+    DIBslamReal();
+    WaitForSceneAdvance(duration);
     return 0;
 }

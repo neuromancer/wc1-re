@@ -476,6 +476,22 @@ typedef struct ConversationSceneRecord {
     short faceAnimationOffset;        /* +0x0B */
 } ConversationSceneRecord;
 
+/* One actor in the briefing-room long shot.  The packed 18-byte records at
+ * 0x0046E218 carry both the seated-body origin and the independently scaled
+ * portrait animation used by DrawBriefingCharacter. */
+typedef struct BriefingCharacterLayout {
+    short bodyX;                      /* +0x00 */
+    short bodyY;                      /* +0x02 */
+    short portraitX;                  /* +0x04 */
+    short portraitY;                  /* +0x06 */
+    short scale;                      /* +0x08 */
+    signed char visible;              /* +0x0A */
+    signed char firstPortraitFrame;   /* +0x0B */
+    signed char portraitFrameCount;   /* +0x0C */
+    const signed char *animation;     /* +0x0D */
+    signed char animationPhase;       /* +0x11, mutable scene state */
+} BriefingCharacterLayout;
+
 /* The complete persistent campaign record copied by ResetCampaignData.  The
  * four bytes at +0x44 are the ace-state flags; the following eight bytes are
  * two dates, rather than a single twelve-byte flag array as the old placeholder
@@ -524,6 +540,8 @@ typedef char CampaignState_size_must_be_0x58[
     sizeof(CampaignState) == 0x58 ? 1 : -1];
 typedef char ConversationSceneRecord_size_must_be_0x0d[
     sizeof(ConversationSceneRecord) == 0x0d ? 1 : -1];
+typedef char BriefingCharacterLayout_size_must_be_0x12[
+    sizeof(BriefingCharacterLayout) == 0x12 ? 1 : -1];
 typedef char PacketSectionHandle_size_must_be_0x14[
     sizeof(PacketSectionHandle) == 0x14 ? 1 : -1];
 
