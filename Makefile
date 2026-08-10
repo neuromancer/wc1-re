@@ -106,7 +106,8 @@ ORIGINAL_SRC ?= ../releases/win32/WC1.EXE
 VERIFY_CONFIG = config/binary-comp.json
 CODE_DIR = code-full
 EXPORT_ASM_FLAGS ?=
-BINARY_COMP ?= env PYTHONPATH=binary-comp/src python3 -m binary_comp.cli
+# Optional verification dependency; install with pip as documented in README.md.
+BINARY_COMP ?= binary-comp
 
 VALUE_MIN_SIMILARITY ?= 80
 STACK_LOCAL_VALUE_MIN_SIMILARITY ?= 90

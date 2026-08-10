@@ -42,15 +42,10 @@ source annotation implies. It has no access to the 1,450 names in the Ghidra dat
 
 ## 2. `ExportToCompile.java` — from Ghidra, with names
 
-The canonical exporter ships with binary-comp:
-
-```
-binary-comp/ghidra_scripts/ExportToCompile.java
-```
-
-Run it from Ghidra's **Script Manager** with `WC1.EXE` open (add
-`binary-comp/ghidra_scripts` to the script directories first). It exports, for every
-function:
+The canonical exporter is maintained in binary-comp as
+[`ghidra_scripts/ExportToCompile.java`](https://github.com/gg-sl-oss/binary-comp/blob/main/ghidra_scripts/ExportToCompile.java).
+Download that script, then run it from Ghidra's **Script Manager** with `WC1.EXE` open. It
+exports, for every function:
 
 - `FUN_XXXXXXXX.disassembled.txt` — disassembly, with the Ghidra function name in the header
 - `FUN_XXXXXXXX.decompiled.txt` — decompiler output, used by the call checks

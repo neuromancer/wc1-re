@@ -12,7 +12,8 @@ out/
 # wibo binary
 wibo
 
-# submodule paths, symlinked to a sibling checkout during local development
+# Toolchain paths, symlinked to a sibling checkout during local development.
+# binary-comp is normally installed with pip; ignore an optional local override.
 /compilers
 /wibo-src
 /binary-comp

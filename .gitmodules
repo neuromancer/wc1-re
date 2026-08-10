@@ -4,6 +4,3 @@
 [submodule "wibo-src"]
 	path = wibo-src
 	url = https://github.com/neuromancer/wibo
-[submodule "binary-comp"]
-	path = binary-comp
-	url = https://github.com/gg-sl-oss/binary-comp

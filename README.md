@@ -1,154 +1,71 @@
-# wc1-re
+# Wing Commander source reconstruction
 
-Source reconstruction of **Wing Commander** as shipped in *Wing Commander: The Kilrathi Saga*
-(1996) — the Win32 port of the 1990 DOS original, internally still called **WINGLEADER**.
+This project reconstructs the Win32 version of **Wing Commander** shipped in
+*Wing Commander: The Kilrathi Saga* (1996). The goal is a complete, readable C/C++
+codebase that builds a playable `WC1.EXE` and progressively matches the original binary's
+behaviour and layout.
 
-The goal is a byte-faithful rebuild: the same compiler, the same flags, the same link order, so
-that [`binary-comp`](https://github.com/gg-sl-oss/binary-comp) can check the rebuilt executable
-against the original at the instruction and data-layout level.
-
-## Target
-
-| | |
-|---|---|
-| Executable | `WC1.EXE`, 518,656 bytes, MD5 `b20a68b7e45f837e59f7e31bab2e2020` |
-| Built | 1996-09-24 16:33 UTC |
-| Toolchain | Microsoft Visual C++ **4.20**, static **debug** multithreaded CRT (LIBCMTD) |
-| Language | **C** for the game core, **C++** for the `ix` audio library |
-| Developer functions | 1,451 currently identified (1,327 game core + 124 `ix`); a further 386 are CRT |
-
-The shipped retail binary is a debug build — live `assert()`s, the MSVC debug heap, and a
-`\\.\MONODEBG.VXD` developer channel are all present. That is what made the `ix` library's
-module map exactly recoverable.
-
-See [`docs/COMPILER.md`](docs/COMPILER.md) for how the toolchain and every compiler flag was
-derived from the binary.
-
-## Setup
-
-```sh
-git submodule update --init --recursive     # msvc420, wibo, binary-comp
-```
-
-Then supply the pieces that cannot be vendored:
-
-1. **The original executable.** `make data/full/WC1.ORI.EXE` copies it from
-   `../releases/win32/WC1.EXE`; override with `ORIGINAL_SRC=/path/to/WC1.EXE`.
-2. **`3rdparty/msvcrt40.dll`** — the MSVC420 submodule ships one that does not work under
-   wibo; drop a working copy here.
-3. **The game disc**, if you want to run it. Point `WC1_ISO` at an image or a directory, or
-   drop it at `data/full/wc1.iso`; the binary really does look for its CD
-   (`FindCdRomDriveByVolumeLabel`, `PromptInsertCorrectCd`) and the streaming music lives
-   there.
-4. **`code-full/`** — the original disassembly. `make export-asm` generates it from the PE
-   for whatever is annotated in `src/`; for the full export with recovered names, globals
-   and strings, run binary-comp's `ghidra_scripts/ExportToCompile.java` from Ghidra's
-   Script Manager. See [`docs/EXPORT.md`](docs/EXPORT.md).
-
-`ddraw.lib` / `dsound.lib` and their headers are already inside the MSVC420 submodule, so no
-separate DirectX SDK is needed.
-
-If you already have the sibling project checked out, you can reuse its `binary-comp` instead
-of the submodule:
-
-```sh
-make report BINARY_COMP="env PYTHONPATH=../my-teacher-is-an-alien-re/binary-comp/src python3 -m binary_comp.cli"
-```
-
-## Building
-
-```sh
-make                        # build WC1.EXE
-make export-asm             # (re)generate code-full/ from the original PE
-make compare-func FUNC=X    # compare one function against the original
-make report                 # per-function similarity + summary
-make order                  # compilation-unit boundary hints
-make verify                 # the primary verification checklist
-make progress               # reimplementation progress
-make sort                   # check source files are address-sorted
-make run                    # build and launch in DREAMM
-```
-
-## Running it
-
-`make run` launches the rebuilt executable in [DREAMM](https://aarongiles.com/dreamm), which
-is downloaded on demand into `.dreamm/` on first use. `make run-original` does the same for
-the retail binary, and `make debug` launches DREAMM's debugger.
-
-**Wine is not used.** The Kilrathi Saga port is a 1996 Win32 binary that drives DirectDraw and
-DirectSound directly and expects a real Windows 95 environment. DREAMM emulates that; Wine
-reimplements those APIs, changing exactly the behaviour this project exists to observe.
-
-Put the Kilrathi Saga disc image in `data/` (or set `WC1_ISO=`) and the game installs itself:
-`make run` extracts the disc's `/WC1` tree — `WC1.EXE`, `GAMEDAT`, `STREAMS`, `WINGCMDR.CFG`,
-142 MB of the disc's 634 — into `data/full/`, mounts the image at `D:` for the CD check and
-the streaming music, and mounts `data/full/hd` as a writable `C:` so the registry settings and
-saved games persist between runs.
-
-All comparison and verification goes through **binary-comp**; the Makefile exposes every
-one of its commands (`calls`, `compare`, `data`, `exe`, `export-asm`, `global-access`,
-`globals`, `order`, `report`, `seh`, `triage`, `values`, `vtables`). The only targets from
-the sibling project that are absent are the `*-demo` ones -- WC1 shipped no demo build.
-
-## Layout
-
-```
-src/            game core (C), one file per address range -- see docs/ORDER.md
-src/ix/         ix audio library (C++), one file per original module
-include/        wc1.h plus the generated globals.h / wc1funcs.h / wc1extern.h
-config/         binary-comp configuration
-docs/           COMPILER.md, PATTERNS.md, EXPORT.md, ORDER.md, LABELS.md, BRAINS.md
-bin/            showProgress.py, sortByAddress.py, sweepFlags.py,
-                auditAddresses.py, nameOracle.py
-tools/          analyze_clang.sh, analyze_static.sh (analysis-only Clang passes)
-code-full/      Ghidra export (not vendored)
-data/full/      original executable and game data (not vendored)
-out/            build artifacts (.obj/.asm/.stdout)
-```
-
-## Where the analysis came from
-
-This repository is seeded by the reverse-engineering work in the parent directory:
-
-- `../WC1_ANALYSIS.md` — toolchain evidence, region map, `ix` module layout, the ship-AI
-  dispatch table, the labelling scheme.
-- `../wc1_function_evidence.csv` — all 1,836 functions with module, size, 16-bit-operand
-  density, callers, nearest named ancestor, imports, strings and assert anchors.
-
-Recovered Amiga, FM Towns, and Sega CD diagnostics, the old demo's `BRAINS.C`, and three
-community projects in the parent directory provide additional naming evidence. Everything
-adopted from them is checked against the Win32 image first and recorded in
-[`include/wcdata.h`](include/wcdata.h) or [`docs/BRAINS.md`](docs/BRAINS.md).
-
-Two things to read before writing code:
-
-- [`docs/ORDER.md`](docs/ORDER.md) — the `ix` link order is exact; the game-core order is
-  **not**, and a wrong boundary invalidates every address after it.
-- [`docs/LABELS.md`](docs/LABELS.md) — separates evidence-backed names from
-  `<Verb><Object>Fn<addr>` labels that describe *mechanism, not purpose*.
-- [`docs/BRAINS.md`](docs/BRAINS.md) — maps the recovered 1989/1990 AI source onto the
-  Win32 image and records where that older source is, and is not, authoritative.
-
-## Rules
-
-[`AGENTS.md`](AGENTS.md) holds the reconstruction rules. The important WC1-specific ones:
-`.c` files are correct for the game core, never add C++ exception handling, do not rely on
-identical string literals being pooled, and prefer `short` over `int` — the core was ported
-from 16-bit DOS C.
+The game core is C, the `ix` audio library is C++, and the reconstruction uses Microsoft
+Visual C++ 4.20 to preserve the original code generation.
 
 ## Status
 
-**429 of 1,451 developer functions reimplemented (29.6%)** — 396 game core, 33 `ix`.
-Across the 491 currently comparable definitions, **284 match the original exactly** and 322
-are at 90% or better.
+1,038 of 1,459 identified developer functions are currently reimplemented (71.1%): 914 of
+1,335 game functions and all 124 `ix` audio functions.
 
-Every implemented function carries a real name: the developer's own where the binary states
-one, otherwise a description of what it does. `bin/nameOracle.py` recovers the former from the
-debug build's own diagnostic strings — that is how `FadeMusic`, `SetMusicOn`, `SetMusBreakpt`,
-`FlushSoundEffects` and the `DIB*` family got their names back.
+The reconstructed executable currently boots, plays the intro with music, displays
+the main menu, starts a campaign, and enters the space-flight simulator with its cockpit and
+HUD. Flight gameplay and later campaign flow are still incomplete.
 
-`src/ix/*.cpp` carry the full per-module function lists (in original source order, with
-recovered assert line numbers) as stubs. The current runnable milestone implements both
-`WinMain` and `main()`, initializes the 320x200 display path, and plays the complete title
-intro from the retail `TITLE.VGA`, `GAME.PAL`, and `MUSIC.MID` assets. It deliberately returns
-before the still-incomplete campaign menu and game loop.
+Run `make progress` for the current per-file implementation counts.
+
+## Build
+
+The normal build does **not** require the retail executable, Ghidra, decompiled code,
+`code-full/`, game data, or `binary-comp`.
+
+Required tools and files:
+
+- `make`, CMake, and a C/C++ host compiler;
+- [Microsoft Visual C++ 4.20](https://github.com/itsmattkc/MSVC420) at
+  `compilers/msvc420`;
+- [wibo](https://github.com/neuromancer/wibo) at `wibo-src`;
+- a wibo-compatible `msvcrt40.dll` at `3rdparty/msvcrt40.dll`.
+
+From the repository root:
+
+```sh
+git clone https://github.com/itsmattkc/MSVC420 compilers/msvc420
+git clone https://github.com/neuromancer/wibo wibo-src
+mkdir -p 3rdparty
+cp /path/to/msvcrt40.dll 3rdparty/msvcrt40.dll
+make -j
+```
+
+The resulting executable is `WC1.EXE`. The Makefile builds wibo automatically when needed.
+
+## Run
+
+Running requires `bsdtar` and the original Kilrathi Saga game data. Put a disc image in
+`data/`, or pass its path explicitly:
+
+```sh
+make run WC1_ISO=/path/to/kilrathi-saga.iso
+```
+
+`make run` extracts the WC1 data, replaces the installed executable with the reconstructed
+`WC1.EXE`, downloads [DREAMM](https://aarongiles.com/dreamm) when necessary, and launches the
+game. Use `make debug WC1_ISO=/path/to/kilrathi-saga.iso` to launch DREAMM's debugger.
+
+## Optional binary verification
+
+[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) is an optional analysis tool. It is
+installed with pip and is not a repository submodule or a build dependency:
+
+```sh
+python3 -m pip install "binary-comp[all] @ git+https://github.com/gg-sl-oss/binary-comp.git"
+```
+
+Only comparison targets such as `make report` and `make verify` require the retail executable
+at `data/full/WC1.ORI.EXE` and the original-code exports in `code-full/`. See
+[`docs/EXPORT.md`](docs/EXPORT.md) for that separate reverse-engineering workflow.
