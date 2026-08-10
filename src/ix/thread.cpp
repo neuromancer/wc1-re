@@ -36,9 +36,9 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
     entry = streamFile->entry;
     streamFile->serviceTick = g_dwStreamerThreadTick_00597bd4;
     if ((g_dwStreamerState_00597cd0 & 0x100) != 0) {
-        fseek(streamFile->file, streamFile->position, SEEK_SET);
-        fread(streamFile->destination, 1, streamFile->remaining,
-              streamFile->file);
+        ix_file_seek(streamFile->file, streamFile->position);
+        ix_file_read(streamFile->file, streamFile->destination,
+                     streamFile->remaining);
         EnterCriticalSection(&g_csStreamerFileQueue_00597c98);
         streamFile->flags &= ~IX_STREAM_FILE_READING;
         if (streamFile->previous != 0)
@@ -60,7 +60,8 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
     chunkIndex = entry->firstChunk;
     chunkCount = entry->chunkCount;
     fileChunk = &g_pStreamerFileChunks_00597c90[chunkIndex];
-    packagePosition = (unsigned int)ftell(g_pStreamerPackageFile_00597bdc);
+    packagePosition = (unsigned int)ix_file_tell(
+        g_pStreamerPackageFile_00597bdc);
     while (chunkCount--) {
         if (fileChunk->fileOffset <= streamFile->position &&
             fileChunk->fileEnd > streamFile->position) {
@@ -86,20 +87,18 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
                     exit(-1);
                 }
                 if (fileChunk->packedSize < 0) {
-                    fseek(g_pStreamerPackageFile_00597bdc, *packet,
-                          SEEK_SET);
-                    fread(g_pStreamerCompressedBuffer_00597c68, 1,
-                          -fileChunk->packedSize,
-                          g_pStreamerPackageFile_00597bdc);
+                    ix_file_seek(g_pStreamerPackageFile_00597bdc, *packet);
+                    ix_file_read(g_pStreamerPackageFile_00597bdc,
+                                 g_pStreamerCompressedBuffer_00597c68,
+                                 -fileChunk->packedSize);
                     ix_lzo1x_decompress(g_pStreamerCompressedBuffer_00597c68,
                                         g_pStreamerFileBuffer_00597c74,
                                         chunkBytes);
                 } else {
-                    fseek(g_pStreamerPackageFile_00597bdc, *packet,
-                          SEEK_SET);
-                    fread(g_pStreamerFileBuffer_00597c74, 1,
-                          fileChunk->packedSize,
-                          g_pStreamerPackageFile_00597bdc);
+                    ix_file_seek(g_pStreamerPackageFile_00597bdc, *packet);
+                    ix_file_read(g_pStreamerPackageFile_00597bdc,
+                                 g_pStreamerFileBuffer_00597c74,
+                                 fileChunk->packedSize);
                 }
             }
             source = g_pStreamerFileBuffer_00597c74;
@@ -282,8 +281,9 @@ void ix_thread_lock_stream_buffer(void)
                 ix_log_printf("failed to lock stream buffer");
                 exit(-1);
             }
-            fseek(g_pStreamerPackageFile_00597bdc, fileOffset, SEEK_SET);
-            fread(buffer, 1, lockedBytes, g_pStreamerPackageFile_00597bdc);
+            ix_file_seek(g_pStreamerPackageFile_00597bdc, fileOffset);
+            ix_file_read(g_pStreamerPackageFile_00597bdc, buffer,
+                         lockedBytes);
             remaining = remaining - lockedBytes;
             fileOffset += lockedBytes;
             ix_dsps_unlock(0);

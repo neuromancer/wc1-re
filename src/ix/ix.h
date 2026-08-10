@@ -280,6 +280,21 @@ enum IxStreamFileFlags {
     IX_STREAM_FILE_READING = 0x02
 };
 
+enum IxStreamerFlags {
+    IX_STREAMER_INITIALIZED       = 0x001,
+    IX_STREAMER_FILE_OPEN         = 0x002,
+    IX_STREAMER_AUDIO_PLAYING     = 0x004,
+    IX_STREAMER_AUDIO_PAUSED      = 0x008,
+    IX_STREAMER_THREAD_RUNNING    = 0x010,
+    IX_STREAMER_DSP_PLAYING       = 0x020,
+    IX_STREAMER_DSP_PAUSED        = 0x040,
+    IX_STREAMER_HAS_AUDIO         = 0x080,
+    IX_STREAMER_DEVELOPER_MODE    = 0x100,
+    IX_STREAMER_SHUTDOWN          = 0x200,
+    IX_STREAMER_REPREPARE_AUDIO   = 0x400,
+    IX_STREAMER_END_TRIGGERED     = 0x800
+};
+
 struct IxStreamerHeader {
     unsigned int id;                    /* +0x00 */
     unsigned int version;               /* +0x04 */
@@ -287,9 +302,28 @@ struct IxStreamerHeader {
     unsigned char bitsPerSample;        /* +0x09 */
     unsigned short frequency;           /* +0x0A */
     unsigned int audioBufferSize;       /* +0x0C */
-    unsigned int field_10;              /* +0x10 */
+    unsigned int dspConfigValue;        /* +0x10 */
     unsigned int audioChunkTableOffset; /* +0x14 */
     unsigned int audioChunkCount;       /* +0x18 */
+    unsigned int branchTableOffset;     /* +0x1C */
+    unsigned int branchCount;           /* +0x20 */
+    unsigned int triggerTableOffset;    /* +0x24 */
+    unsigned int triggerCount;          /* +0x28 */
+    unsigned int fileBufferSize;        /* +0x2C */
+    unsigned int fileEntryTableOffset;  /* +0x30 */
+    unsigned int fileEntryCount;        /* +0x34 */
+    unsigned int fileChunkTableOffset;  /* +0x38 */
+    unsigned int fileChunkCount;        /* +0x3C */
+    unsigned int packetTableOffset;     /* +0x40 */
+    unsigned int packetCount;           /* +0x44 */
+    unsigned int reserved_48;           /* +0x48 */
+    unsigned int reserved_4c;           /* +0x4C */
+    unsigned int reserved_50;           /* +0x50 */
+    unsigned int reserved_54;           /* +0x54 */
+    unsigned int reserved_58;           /* +0x58 */
+    unsigned int reserved_5c;           /* +0x5C */
+    unsigned int reserved_60;           /* +0x60 */
+    unsigned int reserved_64;           /* +0x64 */
 };
 
 struct IxStreamerFileEntry {
@@ -353,19 +387,30 @@ struct IxStreamFile {
 
 int  ix_streamer_init(void);                     /* 0x00442750 */
 void ix_streamer_destroy(void);                  /* 0x0044286F */
+void ix_streamer_configure(int option, void *value); /* 0x0044291E */
 void ix_streamer_set_dev_mode(int mode);         /* 0x0044293E */
-int  ix_streamer_open_stream_file(const char *path);  /* 0x004429B6 */
+int  ix_streamer_open_stream_file(char *path);        /* 0x004429B6 */
 void ix_streamer_close_stream_file(void);        /* 0x0044307A */
 void ix_streamer_audio_play(void);               /* 0x004431F3 */
 void ix_streamer_audio_stop(void);               /* 0x00443253 */
 void ix_streamer_audio_pause(void);              /* 0x004432B6 */
-void ix_streamer_audio_set_flag400(void);        /* 0x0044330F */
-void ix_streamer_audio_branch_to_tag(char tag);  /* 0x0044342E  branching music */
+void ix_streamer_audio_reprepare(void);          /* 0x0044330F */
+void ix_streamer_set_intensity(unsigned char intensity); /* 0x0044336B */
+unsigned char ix_streamer_get_intensity(void);   /* 0x004433AC */
+void ix_streamer_set_trigger(char trigger);      /* 0x004433C1 */
+char ix_streamer_get_trigger(void);              /* 0x00443419 */
+void ix_streamer_force_trigger(char trigger);    /* 0x0044342E */
 extern "C" void ix_streamer_set_volume(unsigned short vol); /* 0x004435BE */
+unsigned short ix_streamer_get_volume(void);     /* 0x0044363B */
+unsigned int ix_streamer_get_audio_chunk(void);  /* 0x00443651 */
 void ix_streamer_seek_chunk(unsigned int chunk); /* 0x00443666 */
-void ix_streamer_service_audio(void);            /* 0x00443CC0 */
+unsigned int ix_streamer_hash_name(unsigned char *name); /* 0x004436C0 */
+IxStreamerFileEntry *ix_streamer_find_entry(unsigned int hash); /* 0x00443755 */
+unsigned int ix_streamer_service_audio(void);    /* 0x00443CC0 */
 IxStreamFile *ix_streamer_open_file(unsigned char *name,
                                     unsigned char priority); /* 0x004437E3 */
+void ix_streamer_close_file(IxStreamFile *streamFile); /* 0x00443A5D */
+DWORD WINAPI ix_streamer_thread_proc(void *parameter); /* 0x00443B10 */
 
 void ix_thread_handle_file_chunk(IxStreamFile *streamFile); /* 0x00443DA6 */
 unsigned int ix_thread_service_streams(void);     /* 0x004441C6 */
@@ -375,6 +420,14 @@ unsigned int ix_thread_get_audio_chunk_size(void); /* 0x004446A6 */
 extern "C" void ix_lzo1x_decompress(unsigned char *source,
                                      unsigned char *destination,
                                      unsigned int destinationBytes); /* 0x004614C0 */
+extern "C" FILE *ix_file_open(const char *path,
+                               unsigned char mode); /* 0x00461650 */
+extern "C" void ix_file_close(FILE *file);       /* 0x004616BE */
+extern "C" void ix_file_seek(FILE *file, long position); /* 0x004616DA */
+extern "C" long ix_file_tell(FILE *file);        /* 0x004616FC */
+extern "C" unsigned int ix_file_read(FILE *file, void *destination,
+                                      unsigned int bytes); /* 0x00461718 */
+extern "C" long ix_file_size(FILE *file);        /* 0x00461764 */
 
 extern unsigned int *g_pStreamerPacketOffsets_00597bd0;
 extern unsigned int g_dwStreamerThreadTick_00597bd4;

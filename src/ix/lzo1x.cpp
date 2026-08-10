@@ -5,6 +5,10 @@
  * and EDX and performs overlapping copies with REP MOVS.  Preserve that code
  * directly so packed stream chunks decode exactly as they did originally.
  */
+#include "ix.h"
+#include <string.h>
+
+#pragma function(strcat)
 
 /* Function start: 0x004614C0 */
 extern "C" __declspec(naked) void ix_lzo1x_decompress(
@@ -157,4 +161,56 @@ lzo_finish:
         leave
         ret
     }
+}
+
+/* Function start: 0x00461650 */
+extern "C" FILE *ix_file_open(const char *path, unsigned char mode)
+{
+    char modeString[4];
+
+    modeString[0] = 0;
+    if ((mode & 1) != 0)
+        strcat(modeString, "r");
+    if ((mode & 2) != 0)
+        strcat(modeString, "w");
+    strcat(modeString, "b");
+    return fopen(path, modeString);
+}
+
+/* Function start: 0x004616BE */
+extern "C" void ix_file_close(FILE *file)
+{
+    fclose(file);
+}
+
+/* Function start: 0x004616DA */
+extern "C" void ix_file_seek(FILE *file, long position)
+{
+    fseek(file, position, SEEK_SET);
+}
+
+/* Function start: 0x004616FC */
+extern "C" long ix_file_tell(FILE *file)
+{
+    return ftell(file);
+}
+
+/* Function start: 0x00461718 */
+extern "C" unsigned int ix_file_read(FILE *file, void *destination,
+                                      unsigned int bytes)
+{
+    return fread(destination, 1, bytes, file);
+}
+
+/* Function start: 0x00461764 */
+extern "C" long ix_file_size(FILE *file)
+{
+    long position;
+    long size;
+
+    position = ftell(file);
+    fseek(file, 0, SEEK_END);
+    size = ftell(file);
+    fseek(file, position, SEEK_SET);
+    return size;
 }
