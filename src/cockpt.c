@@ -594,7 +594,7 @@ void ClearAutopilotFlag(void)
 }
 
 /* Function start: 0x4149F0 */
-int IsAutopilotEngaged(void)
+unsigned short IsAutopilotEngaged(void)
 {
     return 0 < DAT_005a7dca;
 }
@@ -602,7 +602,7 @@ int IsAutopilotEngaged(void)
 /* Function start: 0x414A10 */
 unsigned short SetAutopilotFlag(unsigned short v)
 {
-    DAT_005a7dca = (unsigned char)v;
+    DAT_005a7dca = (short)v;
     return 0;
 }
 
@@ -643,7 +643,7 @@ void PlayShieldHitSfx(void)
 }
 
 /* Function start: 0x414AF0 */
-int malf(char component)
+unsigned short malf(char component)
 {
     int damage = g_acPlayerComponentDamage_0059bff0[(int)component];
 
@@ -1011,15 +1011,16 @@ unsigned int DrawCurrentTargetBox(void)
 /* Function start: 0x415FC0 */
 void start_lock(unsigned short v)
 {
-    DAT_0046c060 = 0;
-    DAT_0046c064 = v;
-    DAT_0046c068 = (short)RandomBelowOrEqual(0x167);
+    g_bTargetLockReadoutDirty_0046c060 = 0;
+    g_nTargetLockCountdown_0046c064 = v;
+    g_nTargetLockMarkerAngle_0046c068 =
+        (short)RandomBelowOrEqual(0x167);
 }
 
 /* Function start: 0x415FF0 */
-unsigned int starting_lock(unsigned short v)
+unsigned short starting_lock(unsigned short v)
 {
-    if (DAT_0046c064 == -1) {
+    if (g_nTargetLockCountdown_0046c064 == -1) {
         start_lock(v);
         return 1;
     }
@@ -1029,10 +1030,100 @@ unsigned int starting_lock(unsigned short v)
 /* Function start: 0x416010 */
 void lock_off(void)
 {
-    if (DAT_0046c064 >= 0)
-        DAT_0046c060 = 1;
+    if (g_nTargetLockCountdown_0046c064 >= 0)
+        g_bTargetLockReadoutDirty_0046c060 = 1;
     remove_message(PTR_s_MISSILE_LOCKED_004691d4);
-    DAT_0046c064 = -1;
+    g_nTargetLockCountdown_0046c064 = -1;
+}
+
+/* Function start: 0x416040 */
+short CheckTargetLockMalfunction(void)
+{
+    short countdown;
+
+    if (malf(5) != 0) {
+        countdown = -10;
+        lock_off();
+        countdown = (short)(countdown - RandomBelowOrEqual(30));
+        g_nTargetLockCountdown_0046c064 = countdown;
+        PlaySfxWaveFileByNumber(7, -1, 0);
+        return 1;
+    }
+    return 0;
+}
+
+/* Function start: 0x416090 */
+short decrement_lock_time(short screenX)
+{
+    (void)screenX;
+    if (g_nTargetLockCountdown_0046c064 > 0) {
+        if (malf(5) == 0) {
+            g_nTargetLockCountdown_0046c064--;
+            g_bTargetLockAcquired_0046c074 =
+                g_nTargetLockCountdown_0046c064 == 0;
+            if (g_bTargetLockAcquired_0046c074 != 0) {
+                if (CheckTargetLockMalfunction() == 0)
+                    PlaySfxWaveFileByNumber(0x16, -1, 0);
+                CockpitMessage(PTR_s_MISSILE_LOCKED_004691d4,
+                               DAT_004699ac, 2);
+                return 1;
+            }
+            PlaySfxWaveFileByNumber(0x15, -1, 0);
+        }
+        return 1;
+    }
+    return 0;
+}
+
+/* Function start: 0x416120 */
+void target_locking(signed char target)
+{
+    enum ObjectType weaponType;
+    short x;
+    short y;
+
+    if (target != -1 &&
+        g_aeShipSide_0059d650[(short)target] != g_aeShipSide_0059d650[0] &&
+        g_acPlayerComponentDamage_0059bff0[5] < 4) {
+        x = g_asObjectScreenX_0059d9b0[(short)target];
+        if (x == -0x7fff)
+            return;
+        y = *(volatile short *)&g_asObjectScreenY_0059d930[(short)target];
+        if (g_nTargetLockCountdown_0046c064 < -1) {
+            g_nTargetLockCountdown_0046c064++;
+            return;
+        }
+        if (x * x + y * y > 0xe10) {
+            lock_off();
+            return;
+        }
+        weaponType = *(enum ObjectType *)(
+            &g_aShipWeapons_0059cab0[0][1] +
+            g_nSelectedReleaseWeaponIndex_0046c058 * 7);
+        if (weaponType != OBJECT_TYPE_HEAT_SEEKING_MISSILE) {
+            if (weaponType != OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE) {
+                lock_off();
+                return;
+            }
+            goto image_recognition_lock;
+        }
+
+        get_facing_range_from_object(0, (short)target);
+        if (g_nTargetFacing_0059d52a > -0x41) {
+            lock_off();
+            return;
+        }
+        if (starting_lock(0x12) == 0)
+            decrement_lock_time(x);
+        return;
+
+image_recognition_lock:
+        if (starting_lock(0x20) != 0)
+            return;
+        decrement_lock_time(x);
+        return;
+    }
+    lock_off();
 }
 
 /* Function start: 0x416220 */
@@ -1232,15 +1323,17 @@ void draw_target_box(unsigned short colour, signed char object,
         }
         if (drawLockMarker != 0) {
             if ((int)(short)colour != (int)(unsigned char)DAT_004699d8) {
-                if (DAT_0046c064 > -1) {
-                    DAT_0046c068 = (short)(
-                        DAT_0046c068 +
+                if (g_nTargetLockCountdown_0046c064 > -1) {
+                    g_nTargetLockMarkerAngle_0046c068 = (short)(
+                        g_nTargetLockMarkerAngle_0046c068 +
                         g_anObjectRollRotation_0059d7e0[0] +
                         g_anObjectPitchRotation_0059b2a0[0]);
                     centerX = (short)(centerX +
-                        ((CosFixed(DAT_0046c068) * DAT_0046c064 * 2) >> 8));
+                        ((CosFixed(g_nTargetLockMarkerAngle_0046c068) *
+                          g_nTargetLockCountdown_0046c064 * 2) >> 8));
                     centerY = (short)(centerY +
-                        ((SinFixed(DAT_0046c068) * DAT_0046c064 * 2) >> 8));
+                        ((SinFixed(g_nTargetLockMarkerAngle_0046c068) *
+                          g_nTargetLockCountdown_0046c064 * 2) >> 8));
                     DrawSpriteDefault(&DAT_005a7510, centerX, centerY,
                                       g_pTargetLockShape_005a6bf4, 1);
                     g_nTargetLockMarkerX_004691f4 = centerX;
@@ -1270,6 +1363,84 @@ void remove_nav_pointer(void)
 {
     if (DAT_00469208 != -1)
         remove_object(DAT_00469208);
+}
+
+/* Function start: 0x416AC0 */
+unsigned int overlay_head_up_display(void)
+{
+    target_locking(g_acShipTarget_0059ce60[0]);
+    if (IsAutopilotEngaged() && g_nCommSpeakerObject_0046afc8 != -1) {
+        g_cPreviousTargetObject_005a7df2 =
+            (signed char)g_nCommSpeakerObject_0046afc8;
+        draw_target_box(DAT_004699a8,
+                        g_cPreviousTargetObject_005a7df2,
+                        0, 0, 2,
+                        &g_stPreviousTargetBracketBounds_00469200);
+    }
+    if (g_nTargetLockCountdown_0046c064 == 0) {
+        if ((short)(g_nRenderedSpaceFrame_0059d61a % 2) == 0)
+            g_bTargetBracketVisible_004691d8 ^= 1;
+        if (g_bTargetBracketVisible_004691d8 == 1) {
+            draw_target_box(DAT_004699ac,
+                            g_acShipTarget_0059ce60[0],
+                            g_nTargetLockMode_0046c078,
+                            1, 1,
+                            &g_stTargetBracketBounds_004691f8);
+        }
+    } else {
+        draw_target_box(DAT_004699ac,
+                        g_acShipTarget_0059ce60[0],
+                        g_nTargetLockMode_0046c078,
+                        1, 1,
+                        &g_stTargetBracketBounds_004691f8);
+    }
+
+    if (DAT_0046a008 != 0) {
+        switch (g_cCockpitView_0059dab0) {
+        case 0:
+        case 2:
+            goto centered_sight;
+        case 1:
+            DrawSpriteDefault(&DAT_005a7510,
+                              g_nViewCenterX_0059a852,
+                              (short)(g_nViewCenterY_0059a854 - 1),
+                              g_pTargetLockShape_005a6bf4, 0);
+            break;
+        case 3:
+            DrawSpriteDefault(&DAT_005a7510,
+                              g_nViewCenterX_0059a852,
+                              (short)(g_nViewCenterY_0059a854 + 14),
+                              g_pTargetLockShape_005a6bf4, 0);
+            break;
+        default:
+            goto no_sight;
+        }
+        goto no_sight;
+    }
+centered_sight:
+    DrawSpriteDefault(&DAT_005a7510,
+                      g_nViewCenterX_0059a852,
+                      g_nViewCenterY_0059a854,
+                      g_pTargetLockShape_005a6bf4, 0);
+
+no_sight:
+    DAT_0046c05c = 0;
+    if (DAT_00469004 != 0)
+        ShowHudTextLine(DAT_00469004, (unsigned char)DAT_005a7f00);
+    if (g_bMouseCursorVisible_0046a018 == 1) {
+        g_nSavedMouseCursorX_005a7df8 = g_nMouseX_0059ab10;
+        g_nSavedMouseCursorY_005a7df4 = g_nMouseY_0059ab12;
+        CaptureSpriteBackground(DAT_0059ab23,
+                                g_abMouseCursorBackground_00475ff0,
+                                g_nMouseX_0059ab10,
+                                g_nMouseY_0059ab12,
+                                DAT_0059ab19, DAT_0059ab1d);
+        DrawSpriteDefault(DAT_0059ab23,
+                          g_nMouseX_0059ab10,
+                          g_nMouseY_0059ab12,
+                          DAT_0059ab19, DAT_0059ab1d);
+    }
+    return 0;
 }
 
 /* Function start: 0x416C90 */
@@ -1363,7 +1534,7 @@ void check_target(void)
             SPECIAL_MANEUVER_UNKNOWN_9) {
         g_acShipTarget_0059ce60[0] = -1;
         g_nTargetLockMode_0046c078 = 0;
-        DAT_0046c064 = -1;
+        g_nTargetLockCountdown_0046c064 = -1;
     }
 }
 

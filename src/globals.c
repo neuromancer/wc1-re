@@ -120,6 +120,7 @@ PacketResourceDescriptor g_aIntroResourceDescriptors_00468ac0[3] = {
 };
 
 int g_bTitleMenuSceneInitialized_00468ad8;
+int g_nCapitalShipViewDistance_00468ff4 = 0x7d000;
 unsigned char DAT_00468ff8;
 int g_bAlternateChaseView_00468ffc;
 char *DAT_00469004;
@@ -139,6 +140,12 @@ volatile signed char g_cReleaseWeaponDisplayFrame_00469070 = -1;
 volatile signed char g_cReleaseWeaponDisplayTicks_00469074;
 volatile signed char g_cReleaseWeaponDisplayState_00469078;
 unsigned short DAT_00469090 = 0xffff;
+char *PTR_s_MISSILE_LOCKED_004691d4 = (char *)g_szMissileLocked_004692a8;
+unsigned char g_bTargetBracketVisible_004691d8 = 1;
+unsigned char g_abTargetBracketPadding_004691d9[7];
+short DAT_004691e0[10] = {
+    18, 14, 71, 5, 80, 29, 49, 27, 14, 13
+};
 short g_nTargetLockMarkerX_004691f4 = -0x7fff;
 ShortRect g_stTargetBracketBounds_004691f8 = {-0x7fff, 0, 0, 0};
 ShortRect g_stPreviousTargetBracketBounds_00469200 = {-0x7fff, 0, 0, 0};
@@ -182,6 +189,7 @@ unsigned char DAT_004699a8 = 0x47;
 unsigned char DAT_004699ac = 0x50;
 unsigned char DAT_004699b0 = 0xaa;
 unsigned char DAT_004699b4 = 0xa6;
+unsigned char g_cDefaultTextColour_004699cc = 0xa8;
 unsigned char DAT_004699d8 = 0xbf;
 int g_bGraphicsActive_00469a20;
 PacketResourceDescriptor g_aMissionResourceDescriptors_00469c20[5] = {
@@ -213,11 +221,14 @@ PacketResourceDescriptor g_aCockpitPrimaryResources_00469d08[8] = {
 unsigned int g_bIntroSceneResourcesActive_00469d48 = 1;
 int g_bCockpitResourcesActive_00469d58;
 unsigned char DAT_00469d5c;
+Viewport g_stTrainSimPanelViewport_00469da8;
 /* This is four zero bytes, not a pointer table.  The original instruction at
  * 0x425E07 uses 0x469DBC as a compiler-generated biased displacement so that
  * index 9 lands on the real pointer table at 0x469DE0. */
 unsigned int g_dwHighScoreNameTableBiasPadding_00469dbc;
-unsigned short DAT_00469dc0[4] = {0x30, 0x1d, 0x110, 0x6d};
+const ShortRect g_stTrainSimPanelBounds_00469dc0 = {
+    0x30, 0x1d, 0x110, 0x6d
+};
 const char g_szTrainSimTitle_00469dc8[24] = "SQUADRON: TRAINSIM";
 unsigned char *g_apszBuiltInHighScoreNames_00469de0[6] = {
     &g_aszBuiltInHighScores_00469e38[0],
@@ -242,6 +253,33 @@ unsigned char g_aszBuiltInHighScores_00469e38[48] =
     "MANGLER\0"
     "THE MAN\0"
     "MONGO\0\0\0";
+unsigned int g_dwTrainSimStringPadding_00469e68;
+const char g_szTextFlushToken_00469e6c[4] = "%P";
+const char g_szNewPilotPrompt_00469e70[80] =
+    "CONGRATULATIONS!\n"
+    "YOU HAVE A TOP SCORE!\n"
+    "PLEASE ENTER YOUR\n"
+    "NAME AND CALLSIGN:\n";
+const char g_szDefaultPilotName_00469ec0[8] = "Blair";
+const char g_szPilotNameLabel_00469ec8[12] = "LAST NAME: ";
+const char g_szDefaultCallsign_00469ed4[12] = "Maverick";
+const char g_szCallsignLabel_00469ee0[12] = "CALLSIGN : ";
+const char g_szCheaterCallsign_00469eec[8] = "CHEATER";
+const char g_szHighScoreCongratulations_00469ef4[68] =
+    "*******\n"
+    "CONGRATULATIONS!\n"
+    "YOU HAVE SCORE NUMBER\n"
+    ">>>> %d <<<<\n"
+    "*******";
+const char g_szLowScoreMessage_00469f38[56] =
+    "> SORRY <\n\n"
+    "YOUR SCORE IS ONLY\n"
+    "%ld0\n\n"
+    "PLEASE PLAY AGAIN!";
+const char g_szHighScoresHeading_00469f70[16] = "%JHIGH SCORES%P";
+const char g_szHighScoreNumberFormat_00469f80[8] = "%0ld";
+const char g_szHighScoreRowFormat_00469f88[16] =
+    "%X%Y%d. %s%X%s0";
 int g_nCannedSceneMode_00469fac;
 int g_nArcadeState_00469fb0;
 short DAT_00469fb4 = 1;
@@ -443,10 +481,12 @@ short g_nYourWingman_0046c04c = -1;
 short g_nPlayerCollisionObject_0046c050 = -1;
 enum ObjectType g_eSelectedGunType_0046c054 = (enum ObjectType)-1;
 int g_nSelectedReleaseWeaponIndex_0046c058 = -1;
-unsigned char DAT_0046c060;
-short DAT_0046c064;
-short DAT_0046c068;
+short DAT_0046c05c;
+short g_bTargetLockReadoutDirty_0046c060;
+short g_nTargetLockCountdown_0046c064;
+short g_nTargetLockMarkerAngle_0046c068;
 signed char g_cTargetDisplayObject_0046c06c = -1;
+int g_bTargetLockAcquired_0046c074;
 short g_nTargetLockMode_0046c078;
 int g_bExternalViewSoundEnabled_0046c07c;
 int g_bEngageAllowed_0046c080;
@@ -1264,6 +1304,7 @@ short g_nWeaponDisplayOriginX_005a7788;
 short g_nWeaponDisplayOriginY_005a778a;
 unsigned int DAT_005a77ec;
 int g_nArcadeScore_005a7bc4;
+TextContext g_stTrainSimTextContext_005a7bd0;
 short g_nArcadeTimeRemaining_005a7c2c;
 HighScoreEntry g_aHighScoreEntries_005a7c30[6];
 int g_nArcadeWaveBonus_005a7c50;
@@ -1294,7 +1335,7 @@ short g_nReleaseWeaponDisplayY_005a7dbe;
 enum ObjectType g_eReleaseWeaponDisplayType_005a7dc0;
 unsigned char *DAT_005a7dc4;
 unsigned char g_bStickIndicatorFrame_005a7dc8;
-unsigned char DAT_005a7dca;
+short DAT_005a7dca;
 HudMessageSlot g_aHudMessageSlots_005a7dd0[2];
 signed char g_cPreviousTargetObject_005a7df2;
 int g_nSavedMouseCursorY_005a7df4;
@@ -1771,12 +1812,6 @@ void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short) = {
     /* 46 */ (void (*)(short, short))Mreset
 };
 
-/* Defined here because the pre-refactor tranche that owned them is gone. */
-char *PTR_s_MISSILE_LOCKED_004691d4 = (char *)g_szMissileLocked_004692a8;
-int DAT_004691d8[2] = {1, 0};
-short DAT_004691e0[10] = {
-    18, 14, 71, 5, 80, 29, 49, 27, 14, 13
-};
 char *g_apszCommMenuText_0046af90[13] = {
     (char *)&g_aszCommMenuText_0046aff8[0x00],
     (char *)&g_aszCommMenuText_0046aff8[0x10],

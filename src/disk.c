@@ -457,15 +457,49 @@ void MoveMenuPointerFromKeyboard(InputEventState *event)
     }
 }
 
+/* Function start: 0x41DDF0 */
+void EraseLastTextInputCharacter(void)
+{
+    Viewport clearArea;
+    char *text;
+    short textWidth;
+    short length;
+    short characterWidth;
+
+    text = g_pCurrentTextContext_0059af8c->text;
+    textWidth = MeasureTextPixelWidthClamped(text);
+    length = DosStrlen(text);
+    if (length != 0) {
+        characterWidth = (short)GetFontCharWidth(text[length - 1]);
+        clearArea = *g_pCurrentTextContext_0059af8c->viewport;
+        clearArea.left = (short)(clearArea.left +
+                                 textWidth - characterWidth);
+        clearArea.right = (short)(clearArea.left + characterWidth - 1);
+        clearArea.top = g_pCurrentTextContext_0059af8c->cursorY;
+        clearArea.bottom = (short)(clearArea.top +
+            ReadWord((unsigned short *)
+                g_pCurrentTextContext_0059af8c->font) - 1);
+        LeaveAllocationScope();
+        ClearViewport(&clearArea,
+                      g_pCurrentTextContext_0059af8c->backgroundColour);
+        EnterAllocationScope();
+        g_pCurrentTextContext_0059af8c->cursorX = (short)(
+            g_pCurrentTextContext_0059af8c->cursorX - characterWidth);
+    }
+}
+
 /* Function start: 0x41DEB0 */
-void WaitForStreamIdle(void)
+short WaitForStreamInputKey(void)
 {
     unsigned int saved = DAT_0046505c;
+    short key;
 
     DAT_0046505c = 1;
-    while (WaitForInputKey() == 0)
-        ;
+    do {
+        key = WaitForInputKey();
+    } while (key == 0);
     DAT_0046505c = saved;
+    return key;
 }
 
 /* Function start: 0x41DEE0 */

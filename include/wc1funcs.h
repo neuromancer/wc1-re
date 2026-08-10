@@ -235,7 +235,7 @@ void WaitForJoystickButtonPress(void);                                 /* 0x0041
 unsigned int SetFleetOverviewView(int initializeCockpit);             /* 0x00410740 */
 void rotate_eye_to_goal(void);                                         /* 0x00410A30 */
 short GetVectorMagnitude(const FixedVector *vector);                   /* 0x00410AD0 */
-void set_eye_direction_and_position(void);                             /* 0x00410AF0 */
+unsigned int set_eye_direction_and_position(void);                     /* 0x00410AF0 */
 unsigned int force_view(int view, short obj);                          /* 0x004117B0 */
 unsigned int new_view(int view, short obj);                            /* 0x004117D0 */
 unsigned int start_dust(short obj, FixedVector origin,
@@ -292,13 +292,13 @@ void set_new_vdu(short vdu);                                          /* 0x00414
 short update_vid_disp(short vdu);                                     /* 0x00414980 */
 void ClearMessageSlot(short i);                                          /* 0x004149C0 */
 void ClearAutopilotFlag(void);                                              /* 0x004149E0 */
-int IsAutopilotEngaged(void);                                              /* 0x004149F0 */
+unsigned short IsAutopilotEngaged(void);                               /* 0x004149F0 */
 unsigned short SetAutopilotFlag(unsigned short v);                        /* 0x00414A10 */
 void RefreshAutopilotHud(void);                                             /* 0x00414A20 */
 unsigned int update_digital_readouts(void);                          /* 0x00414A50 */
 void PlayTargetLockSfx(void);                                           /* 0x00414AD0 */
 void PlayShieldHitSfx(void);                            /* 0x00414AE0 */
-int malf(char component);                                             /* 0x00414AF0 */
+unsigned short malf(char component);                                  /* 0x00414AF0 */
 unsigned short vdu_malf(short vdu, short sound);                       /* 0x00414B20 */
 void ShowComponentHitHudMessage(char *text, unsigned short colour,
                                 signed char flashCount);               /* 0x00414B70 */
@@ -322,8 +322,11 @@ void ClearWeaponHardpoints(void);                                            /* 
 void clear_head_up_display(void);                                    /* 0x00415A90 */
 unsigned int DrawCurrentTargetBox(void);                              /* 0x00415CE0 */
 void start_lock(unsigned short v);                                    /* 0x00415FC0 */
-unsigned int starting_lock(unsigned short v);                         /* 0x00415FF0 */
+unsigned short starting_lock(unsigned short v);                       /* 0x00415FF0 */
 void lock_off(void);                                                   /* 0x00416010 */
+short CheckTargetLockMalfunction(void);                               /* 0x00416040 */
+short decrement_lock_time(short screenX);                             /* 0x00416090 */
+void target_locking(signed char target);                              /* 0x00416120 */
 void SetRectBounds(int p, unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x00416220 */
 short GetRectHeight(int p);                                             /* 0x00416250 */
 void print_message_text(char *text, unsigned char colour);             /* 0x00416260 */
@@ -333,6 +336,7 @@ void draw_target_box(unsigned short colour, signed char object,
                      short solid, short drawLockMarker, short padding,
                      ShortRect *savedBounds);                         /* 0x004164B0 */
 void remove_nav_pointer(void);                                        /* 0x004168A0 */
+unsigned int overlay_head_up_display(void);                           /* 0x00416AC0 */
 void RestoreCockpitExplosionIfVisible(void);                           /* 0x00416C90 */
 unsigned int RestoreTransientCockpitGraphics(void);                    /* 0x00416CB0 */
 void SetHudMessageText(char *text, unsigned short colour,
@@ -365,7 +369,7 @@ void damage_ion_drive(short ship, short amount,
                       short maximum);                                 /* 0x004182B0 */
 int GetShipAccelerationRate(short ship);                          /* 0x004182F0 */
 void point_at(short obj, FixedVector point);                      /* 0x00418330 */
-void look_at(FixedVector point);                                 /* 0x004183A0 */
+void look_at(short obj);                                         /* 0x004183A0 */
 void position_relative(FixedVector *position, FixedVector direction,
                        short distance);                          /* 0x004183D0 */
 void position_relative_ijk(FixedVector *position, short obj,
@@ -507,7 +511,8 @@ unsigned int GetZeroUnused(void);                                        /* 0x00
 short CheckEscaped(void);                                               /* 0x0041DA10 */
 short WaitForInputKey(void);                                         /* 0x0041DAA0 */
 void MoveMenuPointerFromKeyboard(InputEventState *event);               /* 0x0041DC70 */
-void WaitForStreamIdle(void);                                       /* 0x0041DEB0 */
+void EraseLastTextInputCharacter(void);                              /* 0x0041DDF0 */
+short WaitForStreamInputKey(void);                                  /* 0x0041DEB0 */
 short initialize_object(short obj, enum ObjectType type,
                         short owner);                                  /* 0x0041DEE0 */
 short borrow_dust(void);                                             /* 0x0041DF40 */
@@ -683,9 +688,24 @@ unsigned int GetDebugKeyState(unsigned int *p);                        /* 0x0042
 unsigned char *GetHighScoreEntry(short i);                           /* 0x00425DF0 */
 unsigned int GetHighScoreValue(short i);                                      /* 0x00425E20 */
 void SetHighScoreEntry(short i, unsigned char b, unsigned int v);    /* 0x00425E30 */
-void ClearHighScoreTable(short v);                                    /* 0x00425ED0 */
+void SortTrainSimHighScores(void);                                   /* 0x00425E50 */
+short FindTrainSimHighScore(short pilot);                             /* 0x00425ED0 */
+short InsertTrainSimHighScore(short pilot, unsigned int score);       /* 0x00425EF0 */
 void InitializeTrainSimHighScores(void);                              /* 0x00425F40 */
 int IsHighScoreSlotUsed(short i);                                      /* 0x00425FE0 */
+void DrawTextInputCursor(char character);                             /* 0x004260E0 */
+void ClearTextInputCharacter(char character);                         /* 0x00426140 */
+void ClearNextTextInputCharacter(char character);                     /* 0x004261D0 */
+short ReadTextInput(char *destination, short maximumLength,
+                    volatile short mode);                            /* 0x00426200 */
+void PromptForPilotField(short x, short y, const char *label,
+                         char *destination, short maximumLength,
+                         const char *defaultText);                    /* 0x00426600 */
+void InitializeTrainSimTextPanel(void);                               /* 0x00426660 */
+void ShowTrainSimTextMessage(const char *message);                    /* 0x00426700 */
+void EnterPilotNameAndCallsign(void);                                 /* 0x00426750 */
+void UpdateTrainSimHighScores(int score);                             /* 0x00426820 */
+void ShowTrainSimHighScores(void);                                    /* 0x004268E0 */
 void LoadSceneBackdrop(char n);                                           /* 0x00426C50 */
 void RunTrainSim(void);                                                /* 0x00427080 */
 short LogMemoryUsage(void);                                               /* 0x004272F0 */

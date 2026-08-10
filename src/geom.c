@@ -111,9 +111,9 @@ void point_at(short obj, FixedVector point)
 }
 
 /* Function start: 0x4183A0 */
-void look_at(FixedVector point)
+void look_at(short obj)
 {
-    point_at(WC1_EYE_OBJECT, point);
+    point_at(WC1_EYE_OBJECT, g_aShipPosition_0059c490[obj]);
 }
 
 /* Function start: 0x4183D0 */

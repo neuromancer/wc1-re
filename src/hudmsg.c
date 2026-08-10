@@ -181,6 +181,8 @@ unsigned int Draw_3Space_Frame(void)
     reposition_fixed_child_objects();
     sort_object_depth();
     draw_sorted_objects_to_buffer();
+    if (DAT_0046c03c == 0)
+        overlay_head_up_display();
     return 1;
 }
 

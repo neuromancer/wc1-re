@@ -91,6 +91,8 @@ void RunTrainSim(void)
     ReleaseMusicTrackHook(20);
     ReleaseMusicTrackHook(21);
     ReleaseMusicTrackHook(22);
+    UpdateTrainSimHighScores(g_nArcadeScore_005a7bc4);
+    ShowTrainSimHighScores();
     g_nTrainSimActive_00469e2c = 0;
 }
 
