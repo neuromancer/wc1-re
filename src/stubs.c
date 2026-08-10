@@ -35,6 +35,5 @@ void PlaySfxWaveFileByNumber(int n, int a, int b)
 }
 
 /* Function start: 0x431470 */ /* TODO */ void EndCommSessionWithWingman(void){}
-/* Function start: 0x4331F0 */ /* TODO */ char *DirectDrawResultToText(int hr){(void)hr;return "";}
 /* Function start: 0x4359C0 */ /* TODO */ void DispatchPendingEvents(int a) { (void)a; }
 /* Function start: 0x442460 */ /* TODO */ void Streamer_stop(void) {}

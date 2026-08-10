@@ -256,10 +256,10 @@ void ShowComponentHitHudMessage(char *text, unsigned short colour,
                                 signed char flashCount);               /* 0x00414B70 */
 int damage_your_component(char component, char amount, char maximum); /* 0x00414BF0 */
 void InputFilterHook(void);                                            /* 0x00415040 */
-int GetNavRecordField50(short i);                                      /* 0x00415050 */
-int GetNavRecordField70(short i);                                              /* 0x00415070 */
-int GetNavRecordField90(short i);                                      /* 0x00415090 */
-void visit(short i, unsigned char bits);                              /* 0x004150B0 */
+short sighted(short objective);                                       /* 0x00415050 */
+short visited(short objective);                                       /* 0x00415070 */
+short achieved(short objective);                                      /* 0x00415090 */
+void flag_objective(short objective, unsigned char flags);            /* 0x004150B0 */
 void set_next_destination(void);                                       /* 0x004153D0 */
 unsigned int CheckForShipQueuedToCurrentNavPoint(void);                   /* 0x004154C0 */
 unsigned int GetShipAiScratch(void);                                     /* 0x00415510 */
@@ -717,6 +717,8 @@ void GetPaletteEntryAsWords(short i, unsigned short *rgb);                /* 0x0
 void DIBwholePaletteFromTriplets(unsigned char *palette);             /* 0x00433060 */
 void DIBwholePaletteFromWords(unsigned short *palette);                /* 0x00433120 */
 void DIBwaitForVerticalBlank(void);                                      /* 0x004331E0 */
+char *DirectDrawResultToText(int result);                              /* 0x004331F0 */
+void show_info_disp(void);                                             /* 0x00433910 */
 unsigned int steer_away_from_object(short obj, short other,
                                     short amount);                    /* 0x00433AC0 */
 void steer_away_from_predicted_object(short obj, short other,

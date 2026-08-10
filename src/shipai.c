@@ -340,7 +340,7 @@ void cruise_home(short obj)
         objective = (short)g_abFlightPath_0059c000[
             g_abShipNavPointIndex_0059d7c0[obj]];
         if (g_aMissionObjectives_0059dac5[objective].type != 1)
-            visit(objective, 1);
+            flag_objective(objective, 1);
         get_follow_point(obj, destination);
     }
 }

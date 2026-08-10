@@ -1522,7 +1522,7 @@ unsigned int triumph(short obj)
     case MISSION_TYPE_PATROL:
         objective = 0;
         while (g_abFlightPath_0059c000[objective] != -1 &&
-               (short)GetNavRecordField70(
+               (short)visited(
                    (short)g_abFlightPath_0059c000[objective]) != 0)
             objective++;
         return 1;

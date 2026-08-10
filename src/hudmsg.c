@@ -309,7 +309,7 @@ void arrive_from_warp(short obj)
     if (objective != -1) {
         if (g_aMissionObjectives_0059dac5[
                 g_abFlightPath_0059c000[objective]].type != 1)
-            visit(objective, 1);
+            flag_objective(objective, 1);
         if (g_cCurrentObjective_0046c020 == objective)
             set_next_destination();
     }

@@ -374,10 +374,10 @@
 0x00414D50 DrawCombatFn4D50
 0x00414EA0 DrawWeaponDisplayPanel
 0x00415040 GameNoBodyStubv2
-0x00415050 GetTbl0059dacaFn5050
-0x00415070 NavRoutine01
-0x00415090 GetTbl0059dacaFn5090
-0x004150B0 visit
+0x00415050 sighted
+0x00415070 visited
+0x00415090 achieved
+0x004150B0 flag_objective
 0x004150D0 DrawCalculatingLabel
 0x00415130 NavRoutine02
 0x00415180 DrawCompNavigationLabel
@@ -1057,7 +1057,7 @@
 0x00433120 DIBwholePaletteFromWords
 0x004331E0 GetVideoFn31E0
 0x004331F0 DirectDrawResultToText
-0x00433910 TextG005a74f0Fn3910
+0x00433910 show_info_disp
 0x00433AC0 steer_away_from_object
 0x00433B90 steer_away_from_predicted_object
 0x00433C80 prevent_collision

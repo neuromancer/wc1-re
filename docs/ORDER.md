@@ -82,8 +82,8 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/sound.c` | `0x42b400`–`0x42cfff` | 6 | Wave playback, volume settings and INSTALL.DAT | playWAVE/PlaySfxWaveByIndex/LoadInstallDat; string band 0x46A46C-0x46A710 |
 | `src/music.c` | `0x42d000`–`0x42efff` | 22 | Music state machine and the streaming music script | PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ... |
 | `src/screen.c` | `0x42f000`–`0x431fff` | 28 | Screen scopes, prompts and the comm menu | PushMemoryStackFrame/ShowChoosePrompt/ShowEnemyTargetSelectMenu |
-| `src/dib.c` | `0x432000`–`0x4333ff` | 22 | DirectDraw back end | PROVEN: every routine prints its own name, "DIBinstall", "DIBslamReal", ... |
-| `src/text.c` | `0x433400`–`0x433abf` | 0 | Provisional tail of the text/DirectDraw tranche | The following `smart` unit starts exactly at `0x433ac0` |
+| `src/dib.c` | `0x432000`–`0x43390f` | 23 | DirectDraw back end | PROVEN: named DirectDraw routines followed by DirectDrawResultToText and its generated switch tables |
+| `src/text.c` | `0x433910`–`0x433abf` | 1 | Cockpit information display | Exact Mac `show_info_disp` name; the following `smart` unit starts at `0x433ac0` |
 | `src/smart.c` | `0x433ac0`–`0x434ccf` | 24 | Collision avoidance, formation flight, stress, and maneuver selection | PROVEN: the Mac `smart` symbol run maps across this block and ends at `chase_speed`; `RandomBelow` starts the following random unit at `0x434cd0` |
 | `src/mathfp.c` | `0x434cd0`–`0x4353ff` | 22 | Floating-point helpers and the random-number generator | Starts at `RandomBelow`, immediately after the Mac `smart` unit's final `chase_speed` symbol |
 | `src/strdos.c` | `0x435400`–`0x4355ff` | 13 | 16-bit DOS C string and memory shims | all __stdcall with short-width arguments, each forwarding to one CRT routine |
@@ -94,7 +94,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 
 Four whole-file boundaries and four nested source units are proven rather than guessed:
 
-- **`dib.c`** — every routine prints its own name through `DIBerror`.
+- **`dib.c`** — the back-end routines identify themselves through `DIBerror`; DirectDrawResultToText occupies the unit tail.
 - **`pload.c`** — `PacketLoad` prints `"Library\Source\Pload.c PacketLoad …"`, the only
   game-core source path anywhere in the image. It also fixes the original directory layout:
   the game core lived in `Library\Source\` and used short DOS 8.3 filenames, which is why the

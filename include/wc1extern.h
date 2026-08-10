@@ -9,7 +9,6 @@
 #ifndef WC1_EXTERN_H
 #define WC1_EXTERN_H
 
-char *DirectDrawResultToText(int hr);                             /* 0x004331F0 */
 void DispatchPendingEvents(int a);                            /* 0x004359C0 */
 void EndCommSessionWithWingman(void);                                        /* 0x00431470 */
 void StopAllSounds(void);                                          
