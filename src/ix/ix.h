@@ -131,7 +131,6 @@ struct IxSound {
     void ix_system_sound_set_priority(unsigned char newBasePriority);
     void ix_sound_reprioritise(void);
     void ix_sound_set_delete_on_stop(int enabled);
-    int ix_sound_is_playing(void);
 };
 
 extern unsigned int g_dwIxSystemFlags_00598608;
@@ -255,7 +254,7 @@ extern "C" IxSample *ix_system_new_sample(void); /* 0x004474E3 */
 extern "C" void ix_system_delete_sample(IxSample *sample); /* 0x00447519 */
 extern "C" void ix_system_delete_all_samples(void); /* 0x00447548 */
 extern "C" IxSound *ix_system_new_sound(IxSample *sample); /* 0x0044758D */
-void ix_system_delete_sound(IxSound *sound);     /* 0x004475C7 */
+extern "C" void ix_system_delete_sound(IxSound *sound); /* 0x004475C7 */
 extern "C" void ix_system_delete_all_sounds(void); /* 0x00447610 */
 int ix_system_release_voice(IxSound *sound);     /* 0x004476B9 */
 void ix_system_assign_voice(IxSound *sound, int voice); /* 0x004476FA */
@@ -269,6 +268,7 @@ void __fastcall ix_sound_start(IxSound *sound);  /* 0x00447CD8 */
 extern "C" void __fastcall ix_sound_release(IxSound *sound); /* 0x0044801E */
 void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x00447B7A */
 extern "C" void __fastcall ix_sound_stop(IxSound *sound);   /* 0x004480CF */
+extern "C" int __fastcall ix_sound_is_playing(IxSound *sound); /* 0x00448678 */
 
 /* --------------------------------------------------------------------------
  * Streamer.  Global state word at 0x00597CD0; wake event at 0x00597CD4.

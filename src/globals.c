@@ -133,10 +133,13 @@ const char *g_apszComponentNames_0046a778[6] = {
     g_szIntercomUnit_0046a7fc,
     g_szTargetTracking_0046a80c
 };
-int *DAT_0046a438;
+ActiveSoundEntry *g_pActiveSoundHead_0046a438;
+ActiveSoundEntry *g_pActiveSoundTail_0046a43c;
 unsigned char DAT_0046a440;
 WaveTableEntry *g_pWaveTableHead_0046a444;
 WaveTableEntry *g_pWaveTableTail_0046a448;
+const char g_szPlayWaveOpenError_0046a46c[36] =
+    "playWAVE Unable to open file '%s'";
 short g_nScriptedViewObject_0046a8d0 = -1;
 int g_bScriptedView_0046a8d4;
 short DAT_0046a9f8;
@@ -147,6 +150,7 @@ unsigned char DAT_0046aa34 = 1;
 unsigned char DAT_0046aa38 = 1;
 unsigned char DAT_0046aa3c;
 unsigned char DAT_0046aa40;
+const char g_szSfxWaveFormat_0046ad2c[12] = "sfx%02i.wav";
 unsigned char g_abTaggedAllocationPrefix_0046ad88[8] = {
     'j', 'e', 'f', 'f', 0, 0, 0, 0
 };
@@ -649,6 +653,7 @@ unsigned char g_abMouseCursorBackground_00475ff0[0x400];
 DebugOverlayConsole *g_pDebugOverlay_004763f0;
 IxSample *g_pLoopingWaveSample_0047654c;
 IxSound *g_pLoopingWaveSound_00476550;
+char g_szSfxWavePath_00476558[0xc8];
 unsigned char DAT_00476620[32];
 unsigned int DAT_00476640;
 unsigned int DAT_00476644;
@@ -830,7 +835,7 @@ int g_aiPacketHandles_0059e530[0x1000];
 int g_aiPacketHandleOffsets_005a2530[0x1000];
 int g_nPacketHandleCount_005a6530;
 int *DAT_005a6538;
-int g_aiSoundEffectShipActive_005a66f0[0x40];
+int g_aiSoundEffectSourceActive_005a66ec[0x41];
 int g_nAllocateViewportCalls_005a68ec;
 short DAT_005a6900[256];
 const short *g_pViewScript_005a6b58;

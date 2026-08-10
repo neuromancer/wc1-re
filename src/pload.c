@@ -111,6 +111,57 @@ void ServiceAudioStream(void)
     }
 }
 
+/* Function start: 0x42B1F0 */
+WaveTableEntry *AllocateWaveTableEntry(void)
+{
+    if (g_pWaveTableHead_0046a444 == 0) {
+        g_pWaveTableHead_0046a444 =
+            (WaveTableEntry *)malloc(sizeof(WaveTableEntry));
+        g_pWaveTableTail_0046a448 = g_pWaveTableHead_0046a444;
+    } else {
+        g_pWaveTableTail_0046a448->next =
+            (WaveTableEntry *)malloc(sizeof(WaveTableEntry));
+        g_pWaveTableTail_0046a448 = g_pWaveTableTail_0046a448->next;
+    }
+    g_pWaveTableTail_0046a448->next = 0;
+    return g_pWaveTableTail_0046a448;
+}
+
+/* Function start: 0x42B240 */
+WaveTableEntry *FindWaveTableEntryByName(const char *name)
+{
+    WaveTableEntry *entry = g_pWaveTableHead_0046a444;
+
+    while (entry != 0) {
+        if (strcmp(entry->name, name) == 0)
+            return entry;
+        entry = entry->next;
+    }
+    return 0;
+}
+
+/* Function start: 0x42B290 */
+void RemoveWaveTableEntry(WaveTableEntry *target)
+{
+    WaveTableEntry *previous = 0;
+    WaveTableEntry *entry = g_pWaveTableHead_0046a444;
+
+    while (entry != 0 && target != entry) {
+        previous = entry;
+        entry = entry->next;
+    }
+    if (entry != 0) {
+        if (previous != 0)
+            previous->next = entry->next;
+        if (g_pWaveTableTail_0046a448 == entry && previous != 0)
+            g_pWaveTableTail_0046a448 = previous;
+        if (g_pWaveTableHead_0046a444 == entry)
+            g_pWaveTableHead_0046a444 = entry->next;
+        free(entry->name);
+        free(entry);
+    }
+}
+
 /* Function start: 0x42B300 */
 void FreeWaveTable(void)
 {
@@ -127,15 +178,53 @@ void FreeWaveTable(void)
     g_pWaveTableHead_0046a444 = 0;
 }
 
-/* Function start: 0x42B3F0 */
-int *FindWaveTableEntry(int key)
+/* Function start: 0x42B340 */
+ActiveSoundEntry *AllocateActiveSoundEntry(void)
 {
-    int *p = DAT_0046a438;
-
-    while (p != 0) {
-        if (*(int *)(*p + 4) == key)
-            return p;
-        p = (int *)p[1];
+    if (g_pActiveSoundHead_0046a438 == 0) {
+        g_pActiveSoundHead_0046a438 =
+            (ActiveSoundEntry *)malloc(sizeof(ActiveSoundEntry));
+        g_pActiveSoundTail_0046a43c = g_pActiveSoundHead_0046a438;
+    } else {
+        g_pActiveSoundTail_0046a43c->next =
+            (ActiveSoundEntry *)malloc(sizeof(ActiveSoundEntry));
+        g_pActiveSoundTail_0046a43c = g_pActiveSoundTail_0046a43c->next;
     }
-    return 0;
+    g_pActiveSoundTail_0046a43c->next = 0;
+    return g_pActiveSoundTail_0046a43c;
+}
+
+/* Function start: 0x42B390 */
+void RemoveActiveSoundEntry(ActiveSoundEntry *target)
+{
+    ActiveSoundEntry *previous = 0;
+    ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
+
+    while (entry != 0 && target != entry) {
+        previous = entry;
+        entry = entry->next;
+    }
+    if (entry != 0) {
+        if (previous != 0)
+            previous->next = entry->next;
+        if (g_pActiveSoundTail_0046a43c == entry && previous != 0)
+            g_pActiveSoundTail_0046a43c = previous;
+        if (g_pActiveSoundHead_0046a438 == entry)
+            g_pActiveSoundHead_0046a438 = entry->next;
+        free(entry);
+    }
+}
+
+/* Function start: 0x42B3F0 */
+ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample)
+{
+    ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
+
+    for (;;) {
+        if (entry == 0)
+            return 0;
+        if (entry->sound->sample == sample)
+            return entry;
+        entry = entry->next;
+    }
 }

@@ -55,6 +55,13 @@ typedef signed char    INT8;
 typedef struct IxSound IxSound;
 typedef struct IxSample IxSample;
 
+/* The game-side sound cache only inspects the leading public fields.  The IX
+ * implementation owns the complete C++ object layout. */
+struct IxSound {
+    unsigned int flags;
+    IxSample *sample;
+};
+
 /* The DOS rasteriser passes this record to every drawing primitive.  Its
  * offsets are fixed by the accesses in the 0x00440C00-0x00441A8F block. */
 typedef struct Viewport {
@@ -178,10 +185,16 @@ typedef struct HudMessageSlot {
 typedef struct WaveTableEntry {
     char *name;
     int field_4;
-    void *sample;
+    IxSample *sample;
     int field_c;
     struct WaveTableEntry *next;
 } WaveTableEntry;
+
+/* One transient IX sound and its link in the game-side active-sound list. */
+typedef struct ActiveSoundEntry {
+    IxSound *sound;
+    struct ActiveSoundEntry *next;
+} ActiveSoundEntry;
 
 /* Metadata for allocations surrounded by the 0x400-byte 0xAB guard regions
  * checked by ReportHeapGuardCorruption. */

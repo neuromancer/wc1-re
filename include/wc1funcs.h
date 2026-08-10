@@ -643,8 +643,16 @@ void SetMultimediaTimerCallback(int period);                       /* 0x0042AFC0
 void *PacketLoad(const char *filename, short section, void *destination,
                  unsigned short flags);                               /* 0x0042B050 */
 void ServiceAudioStream(void);                                        /* 0x0042B1B0 */
+WaveTableEntry *AllocateWaveTableEntry(void);                         /* 0x0042B1F0 */
+WaveTableEntry *FindWaveTableEntryByName(const char *name);           /* 0x0042B240 */
+void RemoveWaveTableEntry(WaveTableEntry *entry);                     /* 0x0042B290 */
 void FreeWaveTable(void);                                           /* 0x0042B300 */
-int *FindWaveTableEntry(int key);                                      /* 0x0042B3F0 */
+ActiveSoundEntry *AllocateActiveSoundEntry(void);                     /* 0x0042B340 */
+void RemoveActiveSoundEntry(ActiveSoundEntry *entry);                 /* 0x0042B390 */
+ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample);    /* 0x0042B3F0 */
+void ReleaseFinishedSoundEntries(void);                              /* 0x0042B410 */
+void StopSoundsUsingWave(const char *name);                          /* 0x0042B450 */
+void playWAVE(unsigned char *filename, int looping, int volume);     /* 0x0042B4A0 */
 void stop_all_sounds(void);                                         /* 0x0042B640 */
 void ServiceSoundSystem(void);                                         /* 0x0042B7D0 */
 void SetSoundEffectsVolume(int volume);                               /* 0x0042B7E0 */
@@ -680,6 +688,8 @@ void EnableMusicForScene(void);                                               /*
 unsigned int SoundFxTick(void);                                       /* 0x0042EF00 */
 void FlushSoundEffectsAndLog(void);                                               /* 0x0042EF10 */
 void sound_effect(void);                                                /* 0x0042EF20 */
+void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject,
+                             int looping);                            /* 0x0042EF30 */
 int IsShipQueuedOrderDefend(short i);                                      /* 0x0042F1F0 */
 unsigned short GetConversationState(void);                                    /* 0x0042F730 */
 void InitFullScreenViewport(int *vp, short arg);                                    /* 0x0042F7E0 */
@@ -937,8 +947,10 @@ void ix_system_shutdown(void);                                            /* 0x0
 void ix_system_set_master_volume(unsigned short volume);              /* 0x0044745B */
 void ix_system_delete_all_samples(void);                                  /* 0x00447548 */
 void ix_system_delete_all_sounds(void);                                   /* 0x00447610 */
+void ix_system_delete_sound(IxSound *sound);                              /* 0x004475C7 */
 void __fastcall ix_sound_release(IxSound *sound);                    /* 0x0044801E */
 void __fastcall ix_sound_stop(IxSound *sound);                       /* 0x004480CF */
+int __fastcall ix_sound_is_playing(IxSound *sound);                  /* 0x00448678 */
 void ix_streamer_set_volume(unsigned short volume);                   /* 0x004435BE */
 
 #endif /* WC1_FUNCS_H */

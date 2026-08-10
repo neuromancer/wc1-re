@@ -6,6 +6,88 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x42B410 */
+void ReleaseFinishedSoundEntries(void)
+{
+    ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
+
+    while (entry != 0) {
+        ActiveSoundEntry *next = entry->next;
+
+        if (ix_sound_is_playing(entry->sound) == 0) {
+            ix_system_delete_sound(entry->sound);
+            RemoveActiveSoundEntry(entry);
+        }
+        entry = next;
+    }
+}
+
+/* Function start: 0x42B450 */
+void StopSoundsUsingWave(const char *name)
+{
+    WaveTableEntry *wave;
+    ActiveSoundEntry *entry;
+
+    if (DAT_00465058 != 0) {
+        wave = FindWaveTableEntryByName(name);
+        if (wave != 0) {
+            for (;;) {
+                entry = FindActiveSoundEntryBySample(wave->sample);
+                if (entry == 0)
+                    break;
+                ix_system_delete_sound(entry->sound);
+                RemoveActiveSoundEntry(entry);
+            }
+        }
+    }
+}
+
+/* Function start: 0x42B4A0 */
+void playWAVE(unsigned char *filename, int looping, int volume)
+{
+    WaveTableEntry *wave;
+    unsigned char *fileData;
+    long fileSize;
+    int file;
+    DWORD flags;
+
+    if (DAT_00465058 == 0)
+        return;
+    ReleaseFinishedSoundEntries();
+    wave = FindWaveTableEntryByName((const char *)filename);
+    if (wave != 0) {
+        flags = SND_ASYNC | SND_FILENAME | SND_NODEFAULT;
+        if (looping != 0)
+            flags |= SND_LOOP;
+        if (volume > 0)
+            PlaySoundA((const char *)filename, 0, flags);
+        return;
+    }
+
+    file = _open((const char *)filename, 0x8000);
+    if (file == -1) {
+        MessageBoxA(0, g_szPlayWaveOpenError_0046a46c,
+                    (const char *)filename, MB_ICONHAND);
+        _exit(1);
+    }
+    fileSize = _filelength(file);
+    fileData = (unsigned char *)malloc((unsigned int)fileSize);
+    _read(file, fileData, (unsigned int)fileSize);
+    _close(file);
+
+    wave = AllocateWaveTableEntry();
+    wave->sample = 0;
+    flags = SND_ASYNC | SND_FILENAME | SND_NODEFAULT;
+    if (looping != 0)
+        flags |= SND_LOOP;
+    if (volume > 0)
+        PlaySoundA((const char *)filename, 0, flags);
+
+    wave->name = (char *)malloc(strlen((const char *)filename) + 1);
+    strcpy(wave->name, (const char *)filename);
+    free(fileData);
+}
+
 /* Function start: 0x42B640 */
 void stop_all_sounds(void)
 {

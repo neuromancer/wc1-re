@@ -10,7 +10,6 @@
 #define WC1_EXTERN_H
 
 short LoadWingCmdrCfgFile(short argc, char **argv);               /* 0x0042C580 */
-void PlaySfxWaveFileByNumber(int n, int a, int b);                
 void ShowEnemyTargetSelectMenu(void);                             /* 0x00430E90 */
 void _free_dbg(void *p, int blockType);                           /* Function start: 0x401250 */
 long _ftol(void);                                                 /* Pointer table of prompt strings indexed by SendCommMenuChoice. */

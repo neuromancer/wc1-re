@@ -377,3 +377,28 @@ void sound_effect(void)
 {
     WriteDebugString("sound_effect");
 }
+
+/* Function start: 0x42EF30 */
+void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
+{
+    FixedVector delta;
+    int distance;
+
+    if (sourceObject != -1) {
+        ComputeVectorDelta(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
+                           &g_aShipPosition_0059c490[sourceObject],
+                           &delta);
+        distance = ComputeFixedVectorMagnitude(&delta);
+        if (distance > 32000)
+            distance = 32000;
+    } else {
+        distance = 32000;
+    }
+    if (distance >= 10) {
+        g_aiSoundEffectSourceActive_005a66ec[sourceObject + 1] = 1;
+        sprintf(g_szSfxWavePath_00476558, g_szSfxWaveFormat_0046ad2c,
+                soundNumber - 1);
+        playWAVE((unsigned char *)g_szSfxWavePath_00476558,
+                 looping, distance);
+    }
+}

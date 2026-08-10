@@ -25,7 +25,7 @@ void remove_hazard(signed char hazard)
 
     if (obj < 0 || obj >= WC1_SPACE_OBJECT_COUNT)
         return;
-    g_aiSoundEffectShipActive_005a66f0[obj] = 0;
+    g_aiSoundEffectSourceActive_005a66ec[obj + 1] = 0;
     remove_object(obj);
     g_nActiveHazards_00465044 =
         MaxShort(0, (short)(g_nActiveHazards_00465044 - 1));

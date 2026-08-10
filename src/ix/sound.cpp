@@ -266,9 +266,9 @@ void IxSound::ix_sound_set_delete_on_stop(int enabled)
 }
 
 /* Function start: 0x00448678 */
-int IxSound::ix_sound_is_playing(void)
+extern "C" int __fastcall ix_sound_is_playing(IxSound *sound)
 {
-    return (flags & IX_SOUND_PLAYING) != 0;
+    return (sound->flags & IX_SOUND_PLAYING) != 0;
 }
 
 /* Function start: 0x004486B0 */

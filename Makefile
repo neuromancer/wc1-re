@@ -230,8 +230,7 @@ SRCS_ORDERED_CORE = \
 	src/screens.c \
 	src/killbrd.c \
 	src/gr.c \
-	src/globals.c \
-	src/stubs.c
+	src/globals.c
 
 SRCS_ORDERED_IX = \
 	src/ix/ixlog.cpp \

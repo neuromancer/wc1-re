@@ -180,7 +180,7 @@ extern "C" IxSound *ix_system_new_sound(IxSample *sample)
 }
 
 /* Function start: 0x004475C7 */
-void ix_system_delete_sound(IxSound *sound)
+extern "C" void ix_system_delete_sound(IxSound *sound)
 {
     if (sound != 0) {
         if ((sound->flags & IX_SOUND_PLAYING) != 0) {
