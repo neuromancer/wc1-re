@@ -135,7 +135,7 @@ void FatalErrorAndExit(const char *format, ...)
 }
 
 /* Function start: 0x413D20 */
-int IsCockpitExplosionActive(void)
+unsigned short IsCockpitExplosionActive(void)
 {
     return g_nCockpitExplosionFrame_00469068 < 8;
 }
@@ -656,6 +656,125 @@ void SetHudTextColour(short v)
     print_message_text(DAT_00469008, (unsigned char)DAT_004699d8);
 }
 
+/* Function start: 0x4164B0 */
+void draw_target_box(unsigned short colour, signed char object,
+                     short solid, short drawLockMarker, short padding,
+                     ShortRect *savedBounds)
+{
+    short centerY;
+    ShortRect bounds;
+    int colourValue;
+    short centerX;
+    short segmentLength;
+    short valid;
+
+    colourValue = (short)colour;
+    if ((int)(unsigned char)DAT_004699d8 == colourValue) {
+        valid = savedBounds->left != -0x7fff;
+        bounds = *savedBounds;
+    } else {
+        if (object == -1) {
+            valid = 0;
+        } else {
+            valid = 1;
+            if (g_asObjectScreenX_0059d9b0[object] == -0x7fff)
+                valid = 0;
+        }
+        if (valid != 0) {
+            centerX = (short)(g_asObjectScreenX_0059d9b0[object] +
+                              g_nViewCenterX_0059a852);
+            centerY = (short)(g_asObjectScreenY_0059d930[object] +
+                              g_nViewCenterY_0059a854);
+            if ((short)GetTransformedShapeBounds(
+                    &DAT_005a7510, centerX, centerY,
+                    g_apObjectShape_0059d2f0[object],
+                    g_asObjectViewFrame_0059d230[object],
+                    g_asObjectScreenAngle_0059cd90[object],
+                    g_asObjectScreenScale_0059c950[object],
+                    g_asObjectFlip_0059c870[object],
+                    (short *)&bounds) != 0) {
+                bounds.left = (short)(bounds.left - padding);
+                bounds.top = (short)(bounds.top - padding);
+                bounds.right = (short)(bounds.right + padding);
+                bounds.bottom = (short)(bounds.bottom + padding);
+            } else {
+                valid = 0;
+            }
+        }
+    }
+    if (valid != 0) {
+        if ((int)(unsigned char)DAT_004699ac == colourValue &&
+            g_aeShipSide_0059d650[object] == g_aeShipSide_0059d650[0]) {
+            colour = (unsigned char)DAT_004699a4;
+        }
+        if (solid != 0) {
+            DrawViewportBorder(&DAT_005a7510, bounds.left, bounds.top,
+                               bounds.right, bounds.bottom, colour);
+        } else {
+            segmentLength =
+                (short)(((int)bounds.right - bounds.left) / 6 + 1);
+            DrawViewportLine(&DAT_005a7510, bounds.left, bounds.top,
+                             (short)(bounds.left + segmentLength), bounds.top,
+                             colour);
+            DrawViewportLine(&DAT_005a7510, bounds.left, bounds.bottom,
+                             (short)(bounds.left + segmentLength), bounds.bottom,
+                             colour);
+            DrawViewportLine(&DAT_005a7510, bounds.right, bounds.top,
+                             (short)(bounds.right - segmentLength), bounds.top,
+                             colour);
+            DrawViewportLine(&DAT_005a7510, bounds.right, bounds.bottom,
+                             (short)(bounds.right - segmentLength), bounds.bottom,
+                             colour);
+            segmentLength =
+                (short)(((int)bounds.bottom - bounds.top) / 6 + 1);
+            DrawViewportLine(&DAT_005a7510, bounds.left, bounds.top,
+                             bounds.left, (short)(bounds.top + segmentLength),
+                             colour);
+            DrawViewportLine(&DAT_005a7510, bounds.left, bounds.bottom,
+                             bounds.left,
+                             (short)(bounds.bottom - segmentLength), colour);
+            DrawViewportLine(&DAT_005a7510, bounds.right, bounds.top,
+                             bounds.right, (short)(bounds.top + segmentLength),
+                             colour);
+            DrawViewportLine(&DAT_005a7510, bounds.right, bounds.bottom,
+                             bounds.right,
+                             (short)(bounds.bottom - segmentLength), colour);
+        }
+        if (drawLockMarker != 0) {
+            if ((int)(short)colour != (int)(unsigned char)DAT_004699d8) {
+                if (DAT_0046c064 > -1) {
+                    DAT_0046c068 = (short)(
+                        DAT_0046c068 +
+                        g_anObjectRollRotation_0059d7e0[0] +
+                        g_anObjectPitchRotation_0059b2a0[0]);
+                    centerX = (short)(centerX +
+                        ((CosFixed(DAT_0046c068) * DAT_0046c064 * 2) >> 8));
+                    centerY = (short)(centerY +
+                        ((SinFixed(DAT_0046c068) * DAT_0046c064 * 2) >> 8));
+                    DrawSpriteDefault(&DAT_005a7510, centerX, centerY,
+                                      g_pTargetLockShape_005a6bf4, 1);
+                    g_nTargetLockMarkerX_004691f4 = centerX;
+                    g_nTargetLockMarkerY_005a7e28 = centerY;
+                }
+            } else if (g_nTargetLockMarkerX_004691f4 != -0x7fff) {
+                DrawSolidColourSprite(&DAT_005a7510,
+                                      g_nTargetLockMarkerX_004691f4,
+                                      g_nTargetLockMarkerY_005a7e28,
+                                      g_pTargetLockShape_005a6bf4, 1,
+                                      DAT_004699d8);
+                g_nTargetLockMarkerX_004691f4 = -0x7fff;
+            }
+        }
+        if ((int)(unsigned char)DAT_004699d8 == (int)(short)colour) {
+            savedBounds->left = -0x7fff;
+        } else {
+            *savedBounds = bounds;
+        }
+    } else {
+        savedBounds->left = -0x7fff;
+    }
+}
+
 /* Function start: 0x4168A0 */
 void ReleaseCurrentTargetLock(void)
 {
@@ -670,6 +789,50 @@ void RestoreCockpitExplosionIfVisible(void)
         g_pCockpitExplosionBackground_00469060 != 0) {
         RestoreCockpitExplosionBackground();
     }
+}
+
+/* Function start: 0x416CB0 */
+unsigned int RestoreTransientCockpitGraphics(void)
+{
+    if (g_bMouseCursorVisible_0046a018 == 1) {
+        RestoreSpriteBackground(DAT_0059ab23,
+                                g_abMouseCursorBackground_00475ff0,
+                                (short)g_nSavedMouseCursorX_005a7df8,
+                                (short)g_nSavedMouseCursorY_005a7df4,
+                                DAT_0059ab19, (short)DAT_0059ab1d);
+    }
+    if (g_cPreviousTargetObject_005a7df2 != -1) {
+        draw_target_box(DAT_004699d8,
+                        g_cPreviousTargetObject_005a7df2,
+                        0, 0, 2,
+                        &g_stPreviousTargetBracketBounds_00469200);
+        g_cPreviousTargetObject_005a7df2 = -1;
+    }
+    draw_target_box(DAT_004699d8, g_acShipTarget_0059ce60[0],
+                    g_nTargetLockMode_0046c078, 1, 1,
+                    &g_stTargetBracketBounds_004691f8);
+    if (DAT_00469008 != DAT_00469004 && DAT_00469008 != 0)
+        SetHudTextColour(0);
+    if (IsCockpitExplosionActive() &&
+        g_pCockpitExplosionBackground_00469060 != 0) {
+        if (DAT_0046a008 == 0) {
+            CaptureSpriteBackground(
+                &DAT_005a6ba0, g_pCockpitExplosionBackground_00469060,
+                g_nCockpitExplosionX_005a7e98,
+                g_nCockpitExplosionY_005a7e9a,
+                g_pCockpitExplosionShape_00469064,
+                g_nCockpitExplosionFrame_00469068);
+        }
+        if (DAT_0046a008 == 0) {
+            DrawSpriteDefault(&DAT_005a6ba0,
+                              g_nCockpitExplosionX_005a7e98,
+                              g_nCockpitExplosionY_005a7e9a,
+                              g_pCockpitExplosionShape_00469064,
+                              g_nCockpitExplosionFrame_00469068);
+        }
+        DAT_0046900c = 0xff;
+    }
+    return 0;
 }
 
 /* Function start: 0x416DE0 */
@@ -797,7 +960,8 @@ void RestoreCockpitExplosionBackground(void)
         g_pCockpitExplosionBackground_00469060 != 0) {
         RestoreSpriteBackground(
             &DAT_005a6ba0, g_pCockpitExplosionBackground_00469060,
-            DAT_005a7e98, DAT_005a7e9a,
+            g_nCockpitExplosionX_005a7e98,
+            g_nCockpitExplosionY_005a7e9a,
             g_pCockpitExplosionShape_00469064,
             g_nCockpitExplosionFrame_00469068);
     }

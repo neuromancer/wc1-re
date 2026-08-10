@@ -87,3 +87,32 @@ unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
     }
     return 1;
 }
+
+/* Function start: 0x43AE3F */
+/* The segment-register setup and fixed-size REP copy identify this as one of
+ * the original hand-written raster support routines. */
+__declspec(naked) void SetPaletteTranslationTable(
+    const unsigned char *translation)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        mov esi, dword ptr [ebp + 8]
+        mov edi, offset g_abRasterPaletteTranslation_0046ff2c
+        mov ecx, 0x40
+        rep movsd
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+    }
+}

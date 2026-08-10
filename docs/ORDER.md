@@ -62,8 +62,9 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/winmain.c` | `0x401000`–`0x402dff` | 25 | Win32 shell: window creation, message loop, exit paths | CreateMainWindow/MainWindowProc/AbortToDesktop cluster; string band 0x465048-0x465354 |
 | `src/sysinput.c` | `0x402e00`–`0x4030ff` | 8 | Mouse, keyboard and clock services over the Win32 API | contiguous run of Win32 input/timing wrappers with no string references |
 | `src/cdrom.c` | `0x403100`–`0x4034ff` | 5 | CD-ROM location and disc-swap prompting | LocateStreamsDirOnDisc..PromptInsertCorrectCd; string band 0x46535C-0x4653FC |
-| `src/mono.c` | `0x403500`–`0x403fff` | 10 | MONODEBG.VXD developer console and its printf channels | MonoDebug_install/MonoDebug_print anchor the module; SoundDebugPrintf feeds it |
-| `src/shipai.c` | `0x404000`–`0x40cfff` | 68 | Ship AI: dispatch-table states and the behaviour routines | Exact nested Mac `brain` unit at `0x409760`–`0x40b66f`; the 47-slot dispatch table at `0x004656a8` anchors the enclosing split |
+| `src/mono.c` | `0x403500`–`0x403e4f` | 20 | Win32 data-file wrappers, scaled interstitial text, canned sequences, and MONODEBG.VXD | MonoDebug_install/MonoDebug_print anchor the final block; the Mac `auto` unit starts at the next function |
+| `src/auto.c` | `0x403e50`–`0x40609f` | 4 | Autopilot travel and interstitial flight sequences | Mac `auto` symbols preserve `visit_the_cinema`, `player_wingman`, `set_speed`, `auto_position`, `auto_pilot_sequence` in exact order; ship AI begins at 0x4060a0 |
+| `src/shipai.c` | `0x4060a0`–`0x40cfff` | 68 | Ship AI: dispatch-table states and the behaviour routines | Exact nested Mac `brain` unit at `0x409760`–`0x40b66f`; the 47-slot dispatch table at `0x004656a8` anchors the enclosing split |
 | `src/nav.c` | `0x40d000`–`0x40ffff` | 9 | Nav map, location readouts and the virtual screen | DrawNav* family; string band 0x4687AC-0x4688F4 |
 | `src/joystick.c` | `0x410000`–`0x412fff` | 3 | Joystick calibration and input dispatch | CalibrateJoystickInteractive; string band 0x468F04-0x468FEC |
 | `src/hud.c` | `0x413000`–`0x417fff` | 38 | Cockpit HUD: weapon, damage, target and message displays | Draw*Panel/Report* family; string band 0x4692B8-0x4693A4 |

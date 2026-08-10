@@ -44,6 +44,14 @@ void ClipViewportToScreen(Viewport *viewport)
                            &g_stRasterClip_00496fc0);
 }
 
+/* Function start: 0x440D10 */
+void SetSolidColourTranslation(unsigned char colour)
+{
+    memset(g_abSolidColourTranslation_00497648, colour, 255);
+    g_abSolidColourTranslation_00497648[255] = 0xff;
+    SetPaletteTranslationTable(g_abSolidColourTranslation_00497648);
+}
+
 /* Function start: 0x440FE0 */
 void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            unsigned char *shape, int frame,
@@ -489,6 +497,16 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
     }
 }
 
+/* Function start: 0x441A40 */
+void DrawSolidColourSprite(Viewport *viewport, short x, short y,
+                           unsigned char *shape, short frame,
+                           unsigned char colour)
+{
+    SetSolidColourTranslation(colour);
+    DrawSpriteTransformed(viewport, x, y, shape, frame, 0,
+                          0x100, 0x100, 0, 1);
+}
+
 /* Function start: 0x441A90 */
 void CopyViewportContents(Viewport *source, Viewport *destination)
 {
@@ -548,6 +566,38 @@ void ClearViewport(Viewport *viewport, short colour)
     }
 }
 
+/* Function start: 0x441BA0 */
+void DrawViewportLine(Viewport *viewport, short x1, short y1,
+                      short x2, short y2, short colour)
+{
+    ClipViewportToScreen(viewport);
+    DrawClippedLine(&g_stRasterClip_00496fc0,
+                    x1 - viewport->left, y1 - viewport->top,
+                    x2 - viewport->left, y2 - viewport->top,
+                    0, colour);
+}
+
+/* Function start: 0x441C70 */
+void DrawFilledViewportRect(Viewport *viewport, short left, short top,
+                            short right, short bottom, short colour)
+{
+    int height;
+    int row;
+
+    height = bottom - top;
+    row = 0;
+    ClipViewportToScreen(viewport);
+    while (row <= height) {
+        DrawClippedLine(&g_stRasterClip_00496fc0,
+                        left - viewport->left,
+                        row + top - viewport->top,
+                        right - viewport->left,
+                        row + top - viewport->top,
+                        0, colour);
+        row++;
+    }
+}
+
 /* Function start: 0x441CF0 */
 void DrawViewportBorder(Viewport *viewport, short left, short top,
                         short right, short bottom, short colour)
@@ -569,6 +619,15 @@ void DrawViewportBorder(Viewport *viewport, short left, short top,
                     right - viewport->left, top - viewport->top,
                     right - viewport->left, bottom - viewport->top,
                     0, colour);
+}
+
+/* Function start: 0x441FC0 */
+void DrawSpriteScaled(Viewport *viewport, short x, short y,
+                      unsigned char *shape, short frame, short angle,
+                      short scale, short flip)
+{
+    DrawSpriteTransformed(viewport, x, y, shape, frame, angle,
+                          scale, scale, flip, 0);
 }
 
 /* Function start: 0x442050 */

@@ -77,7 +77,7 @@ unsigned int GetDebugKeyState(unsigned int *p)
 /* Function start: 0x425DF0 */
 unsigned char *GetHighScoreEntry(short i)
 {
-    short k = (short)(char)DAT_005a7c30[i * 5];
+    short k = (short)g_aHighScoreEntries_005a7c30[i].pilotIndex;
 
     if (8 < k)
         return g_apszBuiltInHighScoreNames_00469de0[k - 9];
@@ -87,14 +87,14 @@ unsigned char *GetHighScoreEntry(short i)
 /* Function start: 0x425E20 */
 unsigned int GetHighScoreValue(short i)
 {
-    return *(unsigned int *)(&DAT_005a7c31[0] + i * 5);
+    return g_aHighScoreEntries_005a7c30[i].score;
 }
 
 /* Function start: 0x425E30 */
 void SetHighScoreEntry(short i, unsigned char b, unsigned int v)
 {
-    DAT_005a7c30[i * 5] = b;
-    *(unsigned int *)(&DAT_005a7c30[1] + i * 5) = v;
+    g_aHighScoreEntries_005a7c30[i].pilotIndex = (signed char)b;
+    g_aHighScoreEntries_005a7c30[i].score = v;
 }
 
 /* Function start: 0x425ED0 */
@@ -103,7 +103,7 @@ void ClearHighScoreTable(short v)
     short i = 5;
 
     do {
-        if ((char)DAT_005a7c30[i * 5] == v)
+        if (g_aHighScoreEntries_005a7c30[i].pilotIndex == v)
             return;
         i = i - 1;
     } while (i != 0);
@@ -112,7 +112,7 @@ void ClearHighScoreTable(short v)
 /* Function start: 0x425FE0 */
 int IsHighScoreSlotUsed(short i)
 {
-    return DAT_005a7c30[i * 5] != 0xff;
+    return g_aHighScoreEntries_005a7c30[i].pilotIndex != -1;
 }
 
 /* Function start: 0x426C50 */

@@ -136,10 +136,99 @@ unsigned int Draw_3Space_Frame(void)
     return 1;
 }
 
+/* Function start: 0x429E30 */
+void ComputeArcadeWaveBonus(void)
+{
+    g_nArcadeWaveBonus_005a7c50 =
+        (g_nArcadeTimeRemaining_005a7c2c *
+             (g_nTrainSimMission_00469e30 + 1) +
+         (g_nTrainSimMission_00469e30 +
+          (g_nArcadeWave_00469e34 * 5 + 5) * 2) * 50) * 2;
+}
+
 /* Function start: 0x429E70 */
 void ComputeArcadeTimeBonus(void)
 {
-    DAT_005a7c2c = (DAT_00469e34 + 6) * 400;
+    g_nArcadeTimeRemaining_005a7c2c =
+        (short)((g_nArcadeWave_00469e34 + 6) * 400);
+}
+
+/* Function start: 0x429E90 */
+void DrawArcadeScorePanel(short x, short y)
+{
+    char score[20];
+
+    sprintf(score, "%0ld", g_nArcadeScore_005a7bc4);
+    DrawFormattedText("%X%YScore: %s0 %XTime: %u %X1 UP",
+                      x, y, score, x + 0x82,
+                      g_nArcadeTimeRemaining_005a7c2c, x + 0xbe);
+}
+
+/* Function start: 0x429EE0 */
+void UpdateArcadeScoreDisplay(void)
+{
+    char bonus[20];
+
+    if (g_nTrainSimActive_00469e2c != 0) {
+        SetTextContext(&DAT_005a6bc0);
+        DrawArcadeScorePanel(10, 10);
+        if (g_nArcadeBonusCountdown_0046a014 < 1) {
+            g_nArcadeScore_005a7bc4++;
+            g_nArcadeTimeRemaining_005a7c2c--;
+            if (g_nArcadeTimeRemaining_005a7c2c < 1) {
+                g_nArcadeState_00469fb0 = 4;
+                return;
+            }
+        } else {
+            sprintf(bonus, "%0ld", g_nArcadeWaveBonus_005a7c50);
+            SetTextCursor((unsigned short)DAT_005a7510.left,
+                          (unsigned short)((DAT_005a7510.top +
+                                            DAT_005a7510.bottom) / 2 - 5));
+            if (g_nCurrentWave_0046c01c != -1) {
+                FormatTextBufferFromStart(
+                    "Wave %d complete.\n\nBonus Points: %s0%P",
+                    g_nArcadeWave_00469e34 + 1, bonus);
+                return;
+            }
+            FormatTextBufferFromStart(
+                "Mission %d complete.\n\nBonus Points: %s0%P",
+                g_nTrainSimMission_00469e30 + 1, bonus);
+        }
+    }
+}
+
+/* Function start: 0x429FC0 */
+unsigned int RenderSpaceViewFrame(void)
+{
+    if (Draw_3Space_Frame() == 0)
+        return 0;
+    RefreshAutopilotHud();
+    UpdateArcadeScoreDisplay();
+    RestoreCockpitExplosionIfVisible();
+    dump_buffer_to_screen();
+    if (DAT_0046c03c == 0)
+        RestoreTransientCockpitGraphics();
+    if (DAT_0046a008 == 0 && g_nTrainSimActive_00469e2c != 0) {
+        DrawFilledViewportRect(&DAT_005a7510, 10, 10,
+                               DAT_005a7510.right, 0x11,
+                               DAT_004699d8);
+        if (g_nArcadeBonusCountdown_0046a014 != 0) {
+            g_nArcadeBonusCountdown_0046a014--;
+            if (g_nArcadeBonusCountdown_0046a014 == 0) {
+                if (ComputeFixedVectorMagnitude(
+                        &g_aShipPosition_0059c490[0]) > 0x271000)
+                    zero_vector(&g_aShipPosition_0059c490[0]);
+                g_nArcadeScore_005a7bc4 += g_nArcadeWaveBonus_005a7c50;
+                if (g_nCurrentWave_0046c01c == -1)
+                    g_nArcadeState_00469fb0 = 1;
+                else
+                    g_nArcadeWave_00469e34++;
+                ClearViewport(&DAT_005a7510, DAT_004699d8);
+            }
+        }
+    }
+    ClearViewport(&DAT_005a7510, DAT_004699d8);
+    return 1;
 }
 
 /* Function start: 0x42A0C0 */

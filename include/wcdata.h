@@ -372,6 +372,23 @@ typedef struct ShortVector {
     short z;
 } ShortVector;
 
+/* Inclusive screen-space bounds used by the cockpit target-box renderer. */
+typedef struct ShortRect {
+    short left;
+    short top;
+    short right;
+    short bottom;
+} ShortRect;
+
+/* Six packed TrainSim ranking records begin at 0x005A7C30.  The five-byte
+ * stride is explicit in every getter, setter, and ranking-table scan. */
+#pragma pack(push, 1)
+typedef struct HighScoreEntry {
+    signed char pilotIndex;
+    unsigned int score;
+} HighScoreEntry;
+#pragma pack(pop)
+
 /* Polar form used by the original 3D orientation routines. */
 typedef struct SphericalVector {
     int radius;

@@ -23,6 +23,7 @@ int DAT_004650a8;
 unsigned int DAT_004650ac;
 GuardedAllocation *g_pGuardedAllocationHead_004650b0;
 short DAT_00465460;
+short g_nAutopilotFormationShipCount_00465544;
 int g_aiPacketReferenceTable_00465c88[4 * 0x25];
 unsigned short DAT_00468660;
 unsigned int DAT_00468664 = 1;
@@ -39,9 +40,12 @@ const short g_asPilotHandOffsets_00469018[34] = {
     6, -9, 5, -11, 5, -14
 };
 unsigned char *g_pCockpitExplosionBackground_00469060;
-unsigned char *g_pCockpitExplosionShape_00469064;
-short g_nCockpitExplosionFrame_00469068 = 8;
+unsigned char * volatile g_pCockpitExplosionShape_00469064;
+volatile short g_nCockpitExplosionFrame_00469068 = 8;
 unsigned short DAT_00469090 = 0xffff;
+short g_nTargetLockMarkerX_004691f4 = -0x7fff;
+ShortRect g_stTargetBracketBounds_004691f8 = {-0x7fff, 0, 0, 0};
+ShortRect g_stPreviousTargetBracketBounds_00469200 = {-0x7fff, 0, 0, 0};
 short DAT_00469208 = -1;
 const char g_szComponentHitFormat_004692e0[8] = "%s HIT";
 unsigned char DAT_004693b0;
@@ -84,7 +88,8 @@ short DAT_00469df8[26] = {
     -1, 0, 0, 0, 0, 0
 };
 int g_nTrainSimActive_00469e2c;
-unsigned int DAT_00469e34;
+short g_nTrainSimMission_00469e30;
+short g_nArcadeWave_00469e34;
 const char g_aszBuiltInHighScores_00469e38[48] =
     "BISHOP\0\0"
     "GOBLIN\0\0"
@@ -93,6 +98,7 @@ const char g_aszBuiltInHighScores_00469e38[48] =
     "THE MAN\0"
     "MONGO\0\0\0";
 int g_nCannedSceneMode_00469fac;
+int g_nArcadeState_00469fb0;
 short DAT_00469fb4 = 1;
 short g_nFrameSkip_00469fb8 = 1;
 int DAT_00469fbc = 0x14;
@@ -108,6 +114,8 @@ int DAT_0046a000 = 1;
 unsigned char DAT_0046a004;
 int DAT_0046a008;
 int g_nShowMemoryStatus_0046a00c;
+short g_nArcadeBonusCountdown_0046a014;
+int g_bMouseCursorVisible_0046a018;
 const char *g_apszComponentNames_0046a778[6] = {
     g_szIonDrive_0046a7c4,
     g_szPowerPlant_0046a7d0,
@@ -154,6 +162,7 @@ int DAT_0046b1c8;
 float g_fSpaceFlightFrameRate_0046b1cc = 20.0f;
 float g_fCinematicFrameRate_0046b1d0 = 16.0f;
 unsigned char g_bCurrentKey_0046c014 = 0x80;
+short g_nCurrentWave_0046c01c = -1;
 int g_bIntroSecondaryScene_0046c024;
 signed char g_abHazardObjects_0046c028[0x14] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -574,6 +583,7 @@ int DAT_0046daa0;
 const short g_asPilotHandOrigins_0046e120[10] = {
     154, 187, 154, 187, 154, 187, 154, 187, 154, 187
 };
+unsigned char g_abRasterPaletteTranslation_0046ff2c[256];
 unsigned char g_abPaletteTranslation_00470678[256] = {
       0,   1,   2,   3,   4,   5,   6,   7,
       8,   9,  10,  11,  12,  13,  14,  15,
@@ -612,10 +622,15 @@ const char g_szSnowViewport_00470da4[16] = "snow_viewport";
 unsigned char DAT_004700c9;
 unsigned char DAT_004700ca = 1;
 char g_szStreamsPath_00475c18[0x100];
+char g_szReadDataFileError_00475d20[0x40];
+char g_szCreateDataFileError_00475d60[0x40];
+char g_szWriteDataFileError_00475da0[0x40];
+char g_szSeekDataFileError_00475de0[0x80];
 int g_bMonoDebugInstalled_00475e70;
 HANDLE g_hMonoDebugDevice_00475e74;
 unsigned short DAT_00475e78;
 unsigned char g_bCurrentManeuverReroll_00475e7c;
+unsigned char g_abMouseCursorBackground_00475ff0[0x400];
 DebugOverlayConsole *g_pDebugOverlay_004763f0;
 unsigned char DAT_00476620[32];
 unsigned int DAT_00476640;
@@ -634,6 +649,7 @@ int DAT_00486518;
 unsigned char DAT_004865a8[0x1000];
 RasterSurface g_stRasterSurface_004875a8;
 RasterClip g_stRasterClip_00496fc0;
+unsigned char g_abSolidColourTranslation_00497648[256];
 unsigned char DAT_005988de[8192];
 int DAT_00598a30[512];
 unsigned char DAT_00598ab0;
@@ -648,6 +664,8 @@ int g_nMouseCursorSavedY_0059a840;
 int g_nMouseCursorSavedX_0059a844;
 int DAT_0059a84c;
 unsigned char DAT_0059a850;
+short g_nViewCenterX_0059a852;
+short g_nViewCenterY_0059a854;
 short DAT_0059a856;
 int DAT_0059a8e0;
 int DAT_0059a8e4;
@@ -680,6 +698,7 @@ short g_nSpaceFrame_0059b420;
 unsigned int DAT_0059b430[512];
 int DAT_0059b470[512];
 short g_asObjectDistance_0059b4a0[WC1_SPACE_OBJECT_COUNT];
+ShortVector g_aShipFormationOffset_0059b520[10];
 enum ObjectType g_aeObjectType_0059b560[96];
 short g_asObjectAnimationDelay_0059b660[WC1_SPACE_OBJECT_COUNT];
 FixedVector g_aShipRightVector_0059b6e0[64];
@@ -783,6 +802,7 @@ Viewport DAT_005a6b60;
 Viewport DAT_005a6b80;
 Viewport DAT_005a6ba0;
 TextContext DAT_005a6bc0;
+unsigned char *g_pTargetLockShape_005a6bf4;
 unsigned char *g_apTextFonts_005a6c00[4];
 FontWorkspace **g_apFontWorkspaces_005a6c10[4];
 TextContext DAT_005a74f0;
@@ -799,9 +819,10 @@ TextContext DAT_005a7700;
 TextContext g_stDefaultTextContext_005a7740;
 unsigned short DAT_005a7780;
 unsigned int DAT_005a77ec;
-unsigned int DAT_005a7c2c;
-unsigned char DAT_005a7c30[2048];
-unsigned char DAT_005a7c31[2048];
+int g_nArcadeScore_005a7bc4;
+short g_nArcadeTimeRemaining_005a7c2c;
+HighScoreEntry g_aHighScoreEntries_005a7c30[6];
+int g_nArcadeWaveBonus_005a7c50;
 short g_asCollisionTime_005a7ca0[16];
 short g_asCollisionPartner_005a7cc0[10];
 int g_nMemoryConfiguration_005a7cd4;
@@ -813,13 +834,17 @@ int DAT_005a7d9c;
 unsigned char g_bStickIndicatorFrame_005a7dc8;
 unsigned char DAT_005a7dca;
 HudMessageSlot g_aHudMessageSlots_005a7dd0[2];
-char g_szComponentHitMessage_005a7e00[48];
+signed char g_cPreviousTargetObject_005a7df2;
+int g_nSavedMouseCursorY_005a7df4;
+int g_nSavedMouseCursorX_005a7df8;
+char g_szComponentHitMessage_005a7e00[40];
+short g_nTargetLockMarkerY_005a7e28;
 unsigned char DAT_005a7e30[2048];
 unsigned short DAT_005a7e70;
 unsigned short DAT_005a7e74;
 unsigned short DAT_005a7e76;
-short DAT_005a7e98;
-short DAT_005a7e9a;
+volatile short g_nCockpitExplosionX_005a7e98;
+volatile short g_nCockpitExplosionY_005a7e9a;
 unsigned short DAT_005a7ea0[64];
 unsigned short DAT_005a7eb8;
 unsigned short DAT_005a7ebc;

@@ -1,7 +1,7 @@
 /*
  *  Ship AI: dispatch-table states and the behaviour routines.
  *
- *  Address range 0x404000-0x40cfff (provisional -- see docs/ORDER.md).
+ *  Address range 0x4060a0-0x40cfff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: the 47-slot dispatch table at 0x004656a8 targets this
  *  range almost exclusively.  The nested Mac brain compilation unit maps
  *  exactly to 0x409760-0x40b66f, with one additional Win32 split helper.

@@ -28,6 +28,7 @@ extern int DAT_004650a8;
 extern unsigned int DAT_004650ac;
 extern GuardedAllocation *g_pGuardedAllocationHead_004650b0;
 extern short DAT_00465460;
+extern short g_nAutopilotFormationShipCount_00465544;
 extern int g_aiPacketReferenceTable_00465c88[4 * 0x25];
 extern unsigned short DAT_00468660;
 extern unsigned int DAT_00468664;
@@ -39,9 +40,12 @@ extern char *DAT_00469008;
 extern unsigned char DAT_0046900c;
 extern const short g_asPilotHandOffsets_00469018[34];
 extern unsigned char *g_pCockpitExplosionBackground_00469060;
-extern unsigned char *g_pCockpitExplosionShape_00469064;
-extern short g_nCockpitExplosionFrame_00469068;
+extern unsigned char * volatile g_pCockpitExplosionShape_00469064;
+extern volatile short g_nCockpitExplosionFrame_00469068;
 extern unsigned short DAT_00469090;
+extern short g_nTargetLockMarkerX_004691f4;
+extern ShortRect g_stTargetBracketBounds_004691f8;
+extern ShortRect g_stPreviousTargetBracketBounds_00469200;
 extern short DAT_00469208;
 extern const char g_szComponentHitFormat_004692e0[8];
 extern unsigned int g_dwModalBoundsTopLeft_00469440;
@@ -71,8 +75,10 @@ extern unsigned char *g_apszBuiltInHighScoreNames_00469de0[6];
 extern short DAT_00469df8[26];
 extern const char g_aszBuiltInHighScores_00469e38[48];
 extern int g_nTrainSimActive_00469e2c;
-extern unsigned int DAT_00469e34;
+extern short g_nTrainSimMission_00469e30;
+extern short g_nArcadeWave_00469e34;
 extern int g_nCannedSceneMode_00469fac;
+extern int g_nArcadeState_00469fb0;
 extern short DAT_00469fb4;
 extern short g_nFrameSkip_00469fb8;
 extern int g_nOriginDevUnlock_00469ff4;
@@ -81,6 +87,8 @@ extern int DAT_0046a000;
 extern unsigned char DAT_0046a004;
 extern int DAT_0046a008;
 extern int g_nShowMemoryStatus_0046a00c;
+extern short g_nArcadeBonusCountdown_0046a014;
+extern int g_bMouseCursorVisible_0046a018;
 extern const char *g_apszComponentNames_0046a778[6];
 extern const char g_szIonDrive_0046a7c4[12];
 extern const char g_szPowerPlant_0046a7d0[12];
@@ -108,6 +116,7 @@ extern unsigned char DAT_0046afc4;
 extern unsigned short DAT_0046b168;
 extern const GUID g_guidDirectDraw2_00463118;
 extern int *DAT_0046b1a4;
+extern short g_nCurrentWave_0046c01c;
 extern int g_bIntroSecondaryScene_0046c024;
 extern signed char g_abHazardObjects_0046c028[0x14];
 extern short DAT_0046c010;
@@ -161,12 +170,18 @@ extern signed char g_acPilotRecovery_0046d9b8[20];
 extern unsigned char *g_pDrawnMouseCursorShape_0046da9c;
 extern int DAT_0046daa0;
 extern const short g_asPilotHandOrigins_0046e120[10];
+extern unsigned char g_abRasterPaletteTranslation_0046ff2c[256];
 extern unsigned char g_abPaletteTranslation_00470678[256];
 extern const char g_szSnowViewport_00470da4[16];
 extern int g_bMonoDebugInstalled_00475e70;
 extern HANDLE g_hMonoDebugDevice_00475e74;
+extern char g_szReadDataFileError_00475d20[0x40];
+extern char g_szCreateDataFileError_00475d60[0x40];
+extern char g_szWriteDataFileError_00475da0[0x40];
+extern char g_szSeekDataFileError_00475de0[0x80];
 extern unsigned short DAT_00475e78;
 extern unsigned char g_bCurrentManeuverReroll_00475e7c;
+extern unsigned char g_abMouseCursorBackground_00475ff0[0x400];
 extern DebugOverlayConsole *g_pDebugOverlay_004763f0;
 extern unsigned int DAT_00476640;
 extern unsigned int DAT_00476644;
@@ -184,6 +199,7 @@ extern int DAT_00486518;
 extern unsigned char DAT_004865a8[0x1000];
 extern RasterSurface g_stRasterSurface_004875a8;
 extern RasterClip g_stRasterClip_00496fc0;
+extern unsigned char g_abSolidColourTranslation_00497648[256];
 extern unsigned char DAT_005988de[8192];
 extern char g_szTextScratchBuffer_00598b00[256];
 extern int DAT_00598a30[512];
@@ -199,6 +215,8 @@ extern int DAT_0059a84c;
 extern int DAT_0059a8e0;
 extern int DAT_0059a8e4;
 extern unsigned char DAT_0059a850;
+extern short g_nViewCenterX_0059a852;
+extern short g_nViewCenterY_0059a854;
 extern unsigned char * volatile DAT_0059ab19;
 extern unsigned short DAT_0059ab1d;
 extern Viewport * volatile DAT_0059ab23;
@@ -329,6 +347,7 @@ extern Viewport DAT_005a6ba0;
 #define DAT_005a6baa DAT_005a6ba0.top
 #define DAT_005a6bae DAT_005a6ba0.bottom
 extern TextContext DAT_005a6bc0;
+extern unsigned char *g_pTargetLockShape_005a6bf4;
 extern unsigned char *g_apTextFonts_005a6c00[4];
 extern FontWorkspace **g_apFontWorkspaces_005a6c10[4];
 extern TextContext DAT_005a74f0;
@@ -344,9 +363,10 @@ extern TextContext DAT_005a7700;
 extern TextContext g_stDefaultTextContext_005a7740;
 extern unsigned short DAT_005a7780;
 extern unsigned int DAT_005a77ec;
-extern unsigned int DAT_005a7c2c;
-extern unsigned char DAT_005a7c30[2048];
-extern unsigned char DAT_005a7c31[2048];
+extern int g_nArcadeScore_005a7bc4;
+extern short g_nArcadeTimeRemaining_005a7c2c;
+extern HighScoreEntry g_aHighScoreEntries_005a7c30[6];
+extern int g_nArcadeWaveBonus_005a7c50;
 extern short g_asCollisionPartner_005a7cc0[10];
 extern short g_asCollisionTime_005a7ca0[16];
 extern int g_nMemoryConfiguration_005a7cd4;
@@ -362,10 +382,14 @@ extern HudMessageSlot g_aHudMessageSlots_005a7dd0[2];
 #define DAT_005a7ddd g_aHudMessageSlots_005a7dd0[0].text
 #define DAT_005a7ded g_aHudMessageSlots_005a7dd0[1].flashCount
 #define DAT_005a7dee g_aHudMessageSlots_005a7dd0[1].text
-extern char g_szComponentHitMessage_005a7e00[48];
+extern signed char g_cPreviousTargetObject_005a7df2;
+extern int g_nSavedMouseCursorY_005a7df4;
+extern int g_nSavedMouseCursorX_005a7df8;
+extern char g_szComponentHitMessage_005a7e00[40];
+extern short g_nTargetLockMarkerY_005a7e28;
 extern unsigned char DAT_005a7e30[2048];
-extern short DAT_005a7e98;
-extern short DAT_005a7e9a;
+extern volatile short g_nCockpitExplosionX_005a7e98;
+extern volatile short g_nCockpitExplosionY_005a7e9a;
 extern unsigned short DAT_005a7ea0[64];
 extern unsigned char DAT_005a7ec0;
 extern unsigned short DAT_005a7f00;
@@ -458,8 +482,6 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
  */
 #define g_nEnemySighting_00465c7c \
     (*(short *)((unsigned char *)g_aiPacketReferenceTable_00465c88 - 0x0c))
-#define g_nCurrentWave_0046c01c \
-    (*(short *)((unsigned char *)g_abHazardObjects_0046c028 - 0x0c))
 #define g_cViableTargetCount_0046c088 \
     (*(signed char *)((unsigned char *)&g_nAutoEngageTimer_0046c084 + 4))
 
@@ -505,8 +527,7 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
 
 #define g_abObjectField_0059b4a0 \
     ((unsigned char *)g_aeObjectType_0059b560 - 0xc0)
-#define g_aShipFormationOffset_0059b520 \
-    ((ShortVector *)((unsigned char *)g_aeObjectType_0059b560 - 0x40))
+extern ShortVector g_aShipFormationOffset_0059b520[10];
 
 /* Ordered name tables read directly out of the image; see include/wcdata.h.
  * Both are packed variable-length strings, not fixed-stride arrays, so the

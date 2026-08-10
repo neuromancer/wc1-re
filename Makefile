@@ -202,6 +202,7 @@ SRCS_ORDERED_CORE = \
 	src/sysinput.c \
 	src/cdrom.c \
 	src/mono.c \
+	src/auto.c \
 	src/shipai.c \
 	src/nav.c \
 	src/joystick.c \

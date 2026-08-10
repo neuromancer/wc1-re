@@ -1,15 +1,150 @@
 /*
- *  MONODEBG.VXD developer console and its printf channels.
+ *  Win32 data-file wrappers, scaled interstitial text, canned sequences,
+ *  and the MONODEBG.VXD developer console.
  *
- *  Address range 0x403500-0x403fff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: MonoDebug_install/MonoDebug_print anchor the module; SoundDebugPrintf feeds it.
+ *  Address range 0x403500-0x403e4f (provisional -- see docs/ORDER.md).
+ *  Boundary evidence: MonoDebug_install/MonoDebug_print anchor the final block;
+ *  the Mac auto unit starts at visit_the_cinema (0x403e50).
  */
 #include "wc1.h"
 
 /* Function start: 0x403500 */
-void CloseDataFile(unsigned int fd)
+void __stdcall CloseDataFile(unsigned int fd)
 {
     DAT_00465460 = (short)_close(fd & 0xffff);
+}
+
+/* Function start: 0x403520 */
+short __stdcall WriteDataFileAtOffset(unsigned int fd, int offset,
+                                      unsigned int length, const void *data)
+{
+    DAT_00465460 = 0;
+    fd &= 0xffff;
+    if (_lseek(fd, offset, SEEK_SET) == -1) {
+        sprintf(g_szWriteDataFileError_00475da0, "!lseek %d\n", offset);
+        DAT_00465460 = (short)errno;
+        return 0;
+    }
+    if (_write(fd, data, length) == -1) {
+        sprintf(g_szWriteDataFileError_00475da0, "!write %d\n", offset);
+        DAT_00465460 = (short)errno;
+        return 0;
+    }
+    return 1;
+}
+
+/* Function start: 0x4035C0 */
+short __stdcall CreateDataFile(const char *path)
+{
+    unsigned short fd;
+
+    fd = (unsigned short)_open(path, 0x8101, 0x180);
+    if ((unsigned int)fd == (unsigned int)-1) {
+        sprintf(g_szCreateDataFileError_00475d60, "!_open '%s'\n", path);
+        DAT_00465460 = (short)errno;
+        fd = 0;
+    }
+    return (short)fd;
+}
+
+/* Function start: 0x403610 */
+int __stdcall ReadDataFileAtOffset(unsigned int fd, int offset,
+                                   unsigned int length, void *data)
+{
+    DAT_00465460 = 0;
+    fd &= 0xffff;
+    if (_lseek(fd, offset, SEEK_SET) == -1) {
+        sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
+        DAT_00465460 = (short)errno;
+        return 0;
+    }
+    if (_read(fd, data, length) == -1) {
+        sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
+        DAT_00465460 = (short)errno;
+        return 0;
+    }
+    return 1;
+}
+
+/* Function start: 0x4036B0 */
+int __stdcall SeekDataFile(unsigned int fd, int offset,
+                           unsigned int origin)
+{
+    int position;
+
+    position = _lseek(fd & 0xffff, offset, origin & 0xffff);
+    if (position == -1) {
+        sprintf(g_szSeekDataFileError_00475de0, "!lseek %d\n", offset);
+        DAT_00465460 = (short)errno;
+    }
+    return position;
+}
+
+/* Function start: 0x403710 */
+int MeasureScaledIntroTextWidth(const char *text, short scale)
+{
+    short bounds[4];
+    short width = 0;
+
+    for (;;) {
+        char c = *text++;
+
+        if (c == 0)
+            break;
+
+        if (c >= 'A' && c <= 'z') {
+            c -= 'A';
+
+            GetTransformedShapeBounds(&DAT_005a7510, 0, 0,
+                                      g_pIntroFont_005a8960, (short)c, 0,
+                                      scale, 0, bounds);
+            width = (short)(width + bounds[2] + 1);
+            width = (short)(width + ((int)scale * 2 >> 8));
+        } else if (c == ' ') {
+            width = (short)(width + ((int)scale * 6 >> 8));
+        } else if (c == '\n') {
+            break;
+        }
+    }
+    return width;
+}
+
+/* Function start: 0x4037A0 */
+int DrawCenteredScaledIntroText(const char *text, short centreX,
+                                short baselineY, short scale)
+{
+    short bounds[4];
+    short x = centreX;
+    short y;
+    short drawScale = scale;
+    int scaled = drawScale;
+
+    x = (short)(x - MeasureScaledIntroTextWidth(text, drawScale) / 2);
+    y = (short)(baselineY - (scaled * 16 >> 9));
+    for (;;) {
+        char c = *text++;
+
+        if (c == 0)
+            break;
+
+        if (c >= 'A' && c <= 'z') {
+            c -= 'A';
+
+            DrawSpriteScaled(&DAT_005a7510, x, y,
+                             g_pIntroFont_005a8960, (short)c, 0,
+                             drawScale, 0);
+            GetTransformedShapeBounds(&DAT_005a7510, 0, 0,
+                                      g_pIntroFont_005a8960, (short)c, 0,
+                                      drawScale, 0, bounds);
+            x = (short)(x + bounds[2] + 1);
+            x = (short)(x + (scaled * 2 >> 8));
+        } else if (c == ' ') {
+            x = (short)(x + (scaled * 6 >> 8));
+        } else if (c == '\n') {
+            break;
+        }
+    }
+    return 0;
 }
 
 /* Function start: 0x403890 */
@@ -232,19 +367,4 @@ void __stdcall ResetStringBuilder(TextContext *context)
 {
     context->textCursor = context->text;
     *context->text = 0;
-}
-
-/* Function start: 0x403EE0 */
-unsigned int GetNavSystemId(short i)
-{
-    if (i != -1 && g_asShipWingLeader_0059d400[i] == 0)
-        return 1;
-    return 0;
-}
-
-/* Function start: 0x403F10 */
-void SetNavSystemId(short i, short v)
-{
-    g_anShipSpeed_0059b320[i] = (int)v << 8;
-    fix_velocity(i);
 }
