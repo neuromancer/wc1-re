@@ -129,6 +129,20 @@ typedef struct RasterClip {
     int bottom;
 } RasterClip;
 
+/* Cached shape frames use the renderer's row-oriented RLE representation.
+ * The four signed bounds are relative to the shape origin; the byte stream
+ * for the first row begins immediately after this 24-byte header. */
+typedef struct RLEFrameHeader {
+    short height;
+    short width;
+    short topExtent;
+    short leftExtent;
+    int left;
+    int top;
+    int right;
+    int bottom;
+} RLEFrameHeader;
+
 /* One scratch glyph bitmap used while drawing the packed game fonts.  The
  * renderer stores a pointer-to-pointer to this record in TextContext because
  * the DOS implementation could move the backing allocation. */

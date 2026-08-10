@@ -1648,6 +1648,233 @@ unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
     return 1;
 }
 
+/* Function start: 0x43A974 */
+int DrawRLEImage(RasterClip *clip, unsigned char *shape, int frame,
+                 int x, int y)
+{
+    RasterSurface *surface;
+    RLEFrameHeader *frameHeader;
+    unsigned char *stream;
+    unsigned char *destination;
+    unsigned char code;
+    unsigned char colour;
+    int stride;
+    int clipLeft;
+    int clipTop;
+    int clipRight;
+    int clipBottom;
+    int imageLeft;
+    int imageTop;
+    int imageRight;
+    int imageBottom;
+    int drawX;
+    int drawY;
+    int runLength;
+    int runLeft;
+    int runRight;
+    int sourceSkip;
+    int copyLength;
+
+    surface = clip->surface;
+    if (surface == 0 || surface->pixels == 0 ||
+        surface->maximumX < 0 || surface->maximumY < 0)
+        return -1;
+    clipLeft = clip->left < 0 ? 0 : clip->left;
+    clipTop = clip->top < 0 ? 0 : clip->top;
+    clipRight = clip->right < surface->maximumX ?
+        clip->right : surface->maximumX;
+    clipBottom = clip->bottom < surface->maximumY ?
+        clip->bottom : surface->maximumY;
+    if (clipRight < clipLeft || clipBottom < clipTop)
+        return -2;
+    if (shape == 0 || frame < 0 || frame >= *(int *)(shape + 4))
+        return -4;
+
+    frameHeader = (RLEFrameHeader *)(shape +
+        *(int *)(shape + 8 + frame * 8));
+    imageLeft = frameHeader->left + x + clip->left;
+    imageTop = frameHeader->top + y + clip->top;
+    imageRight = frameHeader->right + x + clip->left;
+    imageBottom = frameHeader->bottom + y + clip->top;
+    if (imageRight < imageLeft || imageBottom < imageTop)
+        return -4;
+    if (imageRight < clipLeft || clipRight < imageLeft ||
+        imageBottom < clipTop || clipBottom < imageTop)
+        return -3;
+    if (clipLeft <= imageLeft && imageRight <= clipRight &&
+        clipTop <= imageTop && imageBottom <= clipBottom)
+        return DrawRLEImageUnclipped(clip, frameHeader, x, y);
+
+    stride = surface->maximumX + 1;
+    stream = (unsigned char *)frameHeader + sizeof(RLEFrameHeader);
+    drawY = imageTop;
+    while (drawY <= imageBottom) {
+        drawX = imageLeft;
+        for (;;) {
+            code = *stream++;
+            runLength = code >> 1;
+            if ((code & 1) != 0) {
+                if (runLength == 0) {
+                    drawX += *stream++;
+                } else {
+                    runLeft = drawX;
+                    runRight = drawX + runLength - 1;
+                    if (drawY >= clipTop && drawY <= clipBottom &&
+                        runLeft <= clipRight && runRight >= clipLeft) {
+                        sourceSkip = clipLeft > runLeft ?
+                            clipLeft - runLeft : 0;
+                        copyLength = runLength - sourceSkip;
+                        if (runRight > clipRight)
+                            copyLength -= runRight - clipRight;
+                        destination = surface->pixels + drawY * stride +
+                                      runLeft + sourceSkip;
+                        memcpy(destination, stream + sourceSkip,
+                               copyLength);
+                    }
+                    stream += runLength;
+                    drawX += runLength;
+                }
+            } else {
+                if (runLength == 0)
+                    break;
+                colour = *stream++;
+                runLeft = drawX;
+                runRight = drawX + runLength - 1;
+                if (drawY >= clipTop && drawY <= clipBottom &&
+                    runLeft <= clipRight && runRight >= clipLeft) {
+                    sourceSkip = clipLeft > runLeft ?
+                        clipLeft - runLeft : 0;
+                    copyLength = runLength - sourceSkip;
+                    if (runRight > clipRight)
+                        copyLength -= runRight - clipRight;
+                    destination = surface->pixels + drawY * stride +
+                                  runLeft + sourceSkip;
+                    memset(destination, colour, copyLength);
+                }
+                drawX += runLength;
+            }
+        }
+        drawY++;
+    }
+    return 0;
+}
+
+/* Function start: 0x43AD78 */
+/* This is one of the original hand-written raster loops: it establishes ES,
+ * decodes each prepared scan line, and uses REP stores/copies for the runs. */
+#pragma optimize("", off)
+__declspec(naked) int DrawRLEImageUnclipped(
+    RasterClip *clip, RLEFrameHeader *frameHeader, int x, int y)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        mov esi, dword ptr [ebp + 8]
+        mov ebx, dword ptr [esi]
+        mov eax, dword ptr [esi + 4]
+        add dword ptr [ebp + 0x10], eax
+        mov eax, dword ptr [esi + 8]
+        add dword ptr [ebp + 0x14], eax
+        mov eax, dword ptr [ebx + 4]
+        inc eax
+        mov dword ptr [ebp + 0x18], eax
+        jle plain_done
+        mov esi, dword ptr [ebp + 0xc]
+        mov edi, dword ptr [ebx]
+        mov eax, dword ptr [esi + 8]
+        add eax, dword ptr [ebp + 0x10]
+        add edi, eax
+        mov eax, dword ptr [esi + 0xc]
+        mov ebx, eax
+        add eax, dword ptr [ebp + 0x14]
+        mul dword ptr [ebp + 0x18]
+        add edi, eax
+        mov edx, edi
+        mov eax, dword ptr [esi + 0x10]
+        mov eax, dword ptr [esi + 0x14]
+        inc eax
+        sub eax, ebx
+        mov ebx, eax
+        jle plain_done
+        add esi, 0x18
+plain_next_row:
+        mov al, byte ptr [esi]
+        inc esi
+        shr al, 1
+        ja plain_solid
+        jne plain_literal
+        jae plain_row_done
+plain_skip:
+        mov al, byte ptr [esi]
+        inc esi
+        movzx ecx, al
+        add edi, ecx
+        mov al, byte ptr [esi]
+        inc esi
+        shr al, 1
+        ja plain_solid
+        jne plain_literal
+        jb plain_skip
+        jae plain_row_done
+plain_solid:
+        movzx ecx, al
+        mov al, byte ptr [esi]
+        inc esi
+        push ecx
+        and ecx, 3
+        rep stosb
+        mov ah, al
+        rol eax, 8
+        mov al, ah
+        rol eax, 8
+        mov al, ah
+        pop ecx
+        shr ecx, 2
+        rep stosd
+        mov al, byte ptr [esi]
+        inc esi
+        shr al, 1
+        ja plain_solid
+        jae plain_row_done
+        je plain_skip
+plain_literal:
+        movzx ecx, al
+        push ecx
+        and ecx, 3
+        rep movsb
+        pop ecx
+        shr ecx, 2
+        rep movsd
+        mov al, byte ptr [esi]
+        inc esi
+        shr al, 1
+        ja plain_solid
+        jne plain_literal
+        jb plain_skip
+plain_row_done:
+        add edx, dword ptr [ebp + 0x18]
+        mov edi, edx
+        dec ebx
+        jne plain_next_row
+plain_done:
+        xor eax, eax
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+    }
+}
+#pragma optimize("", on)
+
 /* Function start: 0x43AE3F */
 /* The segment-register setup and fixed-size REP copy identify this as one of
  * the original hand-written raster support routines. */
@@ -1675,6 +1902,419 @@ __declspec(naked) void SetPaletteTranslationTable(
         _emit 0xc9
         ret
     }
+}
+
+/* Function start: 0x43AE5E */
+int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
+                      int x, int y)
+{
+    RasterSurface *surface;
+    RLEFrameHeader *frameHeader;
+    unsigned char *stream;
+    unsigned char *destination;
+    unsigned char code;
+    unsigned char colour;
+    int stride;
+    int clipLeft;
+    int clipTop;
+    int clipRight;
+    int clipBottom;
+    int imageLeft;
+    int imageTop;
+    int imageRight;
+    int imageBottom;
+    int drawX;
+    int drawY;
+    int runLength;
+    int runLeft;
+    int runRight;
+    int sourceSkip;
+    int copyLength;
+    int pixel;
+
+    surface = clip->surface;
+    if (surface == 0 || surface->pixels == 0 ||
+        surface->maximumX < 0 || surface->maximumY < 0)
+        return -1;
+    clipLeft = clip->left < 0 ? 0 : clip->left;
+    clipTop = clip->top < 0 ? 0 : clip->top;
+    clipRight = clip->right < surface->maximumX ?
+        clip->right : surface->maximumX;
+    clipBottom = clip->bottom < surface->maximumY ?
+        clip->bottom : surface->maximumY;
+    if (clipRight < clipLeft || clipBottom < clipTop)
+        return -2;
+    if (shape == 0 || frame < 0 || frame >= *(int *)(shape + 4))
+        return -4;
+
+    frameHeader = (RLEFrameHeader *)(shape +
+        *(int *)(shape + 8 + frame * 8));
+    imageLeft = frameHeader->left + x + clip->left;
+    imageTop = frameHeader->top + y + clip->top;
+    imageRight = frameHeader->right + x + clip->left;
+    imageBottom = frameHeader->bottom + y + clip->top;
+    if (imageRight < imageLeft || imageBottom < imageTop)
+        return -4;
+    if (imageRight < clipLeft || clipRight < imageLeft ||
+        imageBottom < clipTop || clipBottom < imageTop)
+        return -3;
+    if (clipLeft <= imageLeft && imageRight <= clipRight &&
+        clipTop <= imageTop && imageBottom <= clipBottom)
+        return DrawRLEImageColorUnclipped(clip, frameHeader, x, y);
+
+    stride = surface->maximumX + 1;
+    stream = (unsigned char *)frameHeader + sizeof(RLEFrameHeader);
+    drawY = imageTop;
+    while (drawY <= imageBottom) {
+        drawX = imageLeft;
+        for (;;) {
+            code = *stream++;
+            runLength = code >> 1;
+            if ((code & 1) != 0) {
+                if (runLength == 0) {
+                    drawX += *stream++;
+                } else {
+                    runLeft = drawX;
+                    runRight = drawX + runLength - 1;
+                    if (drawY >= clipTop && drawY <= clipBottom &&
+                        runLeft <= clipRight && runRight >= clipLeft) {
+                        sourceSkip = clipLeft > runLeft ?
+                            clipLeft - runLeft : 0;
+                        copyLength = runLength - sourceSkip;
+                        if (runRight > clipRight)
+                            copyLength -= runRight - clipRight;
+                        destination = surface->pixels + drawY * stride +
+                                      runLeft + sourceSkip;
+                        pixel = 0;
+                        while (pixel < copyLength) {
+                            destination[pixel] =
+                                g_abRasterPaletteTranslation_0046ff2c[
+                                    stream[sourceSkip + pixel]];
+                            pixel++;
+                        }
+                    }
+                    stream += runLength;
+                    drawX += runLength;
+                }
+            } else {
+                if (runLength == 0)
+                    break;
+                colour = g_abRasterPaletteTranslation_0046ff2c[*stream++];
+                runLeft = drawX;
+                runRight = drawX + runLength - 1;
+                if (drawY >= clipTop && drawY <= clipBottom &&
+                    runLeft <= clipRight && runRight >= clipLeft) {
+                    sourceSkip = clipLeft > runLeft ?
+                        clipLeft - runLeft : 0;
+                    copyLength = runLength - sourceSkip;
+                    if (runRight > clipRight)
+                        copyLength -= runRight - clipRight;
+                    destination = surface->pixels + drawY * stride +
+                                  runLeft + sourceSkip;
+                    memset(destination, colour, copyLength);
+                }
+                drawX += runLength;
+            }
+        }
+        drawY++;
+    }
+    return 0;
+}
+
+/* Function start: 0x43B336 */
+/* Palette-translated counterpart to the original hand-written loop above. */
+#pragma optimize("", off)
+__declspec(naked) int DrawRLEImageColorUnclipped(
+    RasterClip *clip, RLEFrameHeader *frameHeader, int x, int y)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        mov esi, dword ptr [ebp + 8]
+        mov ebx, dword ptr [esi]
+        mov eax, dword ptr [esi + 4]
+        add dword ptr [ebp + 0x10], eax
+        mov eax, dword ptr [esi + 8]
+        add dword ptr [ebp + 0x14], eax
+        mov eax, dword ptr [ebx + 4]
+        inc eax
+        mov dword ptr [ebp + 0x18], eax
+        jle color_done
+        mov esi, dword ptr [ebp + 0xc]
+        mov edi, dword ptr [ebx]
+        mov eax, dword ptr [esi + 8]
+        add eax, dword ptr [ebp + 0x10]
+        add edi, eax
+        mov eax, dword ptr [esi + 0xc]
+        mov ebx, eax
+        add eax, dword ptr [ebp + 0x14]
+        mul dword ptr [ebp + 0x18]
+        add edi, eax
+        mov edx, edi
+        mov eax, dword ptr [esi + 0x10]
+        mov eax, dword ptr [esi + 0x14]
+        inc eax
+        sub eax, ebx
+        mov ebx, eax
+        jle color_done
+        add esi, 0x18
+color_next_row:
+        mov al, byte ptr [esi]
+        inc esi
+        shr al, 1
+        ja color_solid
+        jne color_literal
+        jae color_row_done
+color_skip:
+        mov al, byte ptr [esi]
+        inc esi
+        movzx ecx, al
+        add edi, ecx
+        mov al, byte ptr [esi]
+        inc esi
+        shr al, 1
+        ja color_solid
+        jne color_literal
+        jb color_skip
+        jae color_row_done
+color_solid:
+        movzx ecx, al
+        xor eax, eax
+        mov al, byte ptr [esi]
+        inc esi
+        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        push ecx
+        and ecx, 3
+        rep stosb
+        mov ah, al
+        rol eax, 8
+        mov al, ah
+        rol eax, 8
+        mov al, ah
+        pop ecx
+        shr ecx, 2
+        rep stosd
+        mov al, byte ptr [esi]
+        inc esi
+        shr al, 1
+        ja color_solid
+        jae color_row_done
+        je color_skip
+color_literal:
+        movzx ecx, al
+        xor eax, eax
+        or ecx, ecx
+        je color_literal_done
+        cmp ecx, 4
+        jl color_literal_tail
+color_literal_four:
+        mov al, byte ptr [esi]
+        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi], al
+        mov al, byte ptr [esi + 1]
+        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi + 1], al
+        mov al, byte ptr [esi + 2]
+        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi + 2], al
+        mov al, byte ptr [esi + 3]
+        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi + 3], al
+        add esi, 4
+        add edi, 4
+        sub ecx, 4
+        je color_literal_done
+        cmp ecx, 4
+        jge color_literal_four
+color_literal_tail:
+        mov al, byte ptr [esi]
+        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi], al
+        inc esi
+        inc edi
+        dec ecx
+        jne color_literal_tail
+color_literal_done:
+        mov al, byte ptr [esi]
+        inc esi
+        shr al, 1
+        ja color_solid
+        jne color_literal
+        jb color_skip
+color_row_done:
+        add edx, dword ptr [ebp + 0x18]
+        mov edi, edx
+        dec ebx
+        jne color_next_row
+color_done:
+        xor eax, eax
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+    }
+}
+#pragma optimize("", on)
+
+/* Function start: 0x43B469 */
+int RotateRLEImage(RasterClip *clip, unsigned char *shape, int frame,
+                   int x, int y, unsigned char *scratch,
+                   unsigned int angleTenths, int scaleX, int scaleY,
+                   unsigned int flags)
+{
+    RasterClip sourceClip;
+    RasterSurface sourceSurface;
+    RasterSurface *destinationSurface;
+    unsigned int packedSize;
+    unsigned int packedOrigin;
+    int origin[2];
+    int point[2];
+    int transformed[2];
+    int width;
+    int height;
+    int destinationStride;
+    int clipLeft;
+    int clipTop;
+    int clipRight;
+    int clipBottom;
+    int minimumX;
+    int minimumY;
+    int maximumX;
+    int maximumY;
+    int corner;
+    int destinationX;
+    int destinationY;
+    int deltaX;
+    int deltaY;
+    int sourceX;
+    int sourceY;
+    int sine;
+    int cosine;
+    unsigned char colour;
+    __int64 numerator;
+
+    if (angleTenths == 0 && scaleX == 0x10000 && scaleY == 0x10000) {
+        if ((flags & 1) != 0)
+            return DrawRLEImageColor(clip, shape, frame, x, y);
+        return DrawRLEImage(clip, shape, frame, x, y);
+    }
+    if (shape == 0 || frame < 0 || frame >= *(int *)(shape + 4) ||
+        scratch == 0 || scaleX == 0 || scaleY == 0)
+        return -4;
+
+    packedSize = GetRLEImageSize(shape, frame);
+    width = (short)(packedSize >> 16);
+    height = (short)packedSize;
+    if (width <= 0 || height <= 0 || width * height > 0xfa00)
+        return -4;
+    packedOrigin = GetRLEImageOrigin(shape, frame);
+    origin[0] = -(short)(packedOrigin >> 16);
+    origin[1] = -(short)packedOrigin;
+
+    sourceSurface.pixels = scratch;
+    sourceSurface.maximumX = width - 1;
+    sourceSurface.maximumY = height - 1;
+    sourceSurface.field_C = 0;
+    sourceSurface.field_10 = 0;
+    sourceClip.surface = &sourceSurface;
+    sourceClip.left = 0;
+    sourceClip.top = 0;
+    sourceClip.right = width - 1;
+    sourceClip.bottom = height - 1;
+    if ((flags & 2) == 0) {
+        FillRasterClip(&sourceClip, 0xff);
+        if ((flags & 1) != 0)
+            DrawRLEImageColor(&sourceClip, shape, frame,
+                              origin[0], origin[1]);
+        else
+            DrawRLEImage(&sourceClip, shape, frame,
+                         origin[0], origin[1]);
+    }
+
+    destinationSurface = clip->surface;
+    if (destinationSurface == 0 || destinationSurface->pixels == 0 ||
+        destinationSurface->maximumX < 0 ||
+        destinationSurface->maximumY < 0)
+        return -1;
+    clipLeft = clip->left < 0 ? 0 : clip->left;
+    clipTop = clip->top < 0 ? 0 : clip->top;
+    clipRight = clip->right < destinationSurface->maximumX ?
+        clip->right : destinationSurface->maximumX;
+    clipBottom = clip->bottom < destinationSurface->maximumY ?
+        clip->bottom : destinationSurface->maximumY;
+    if (clipRight < clipLeft || clipBottom < clipTop)
+        return -2;
+
+    minimumX = 0x7fffffff;
+    minimumY = 0x7fffffff;
+    maximumX = -0x7fffffff;
+    maximumY = -0x7fffffff;
+    corner = 0;
+    while (corner < 4) {
+        point[0] = (corner == 1 || corner == 2) ? width - 1 : 0;
+        point[1] = (corner >= 2) ? height - 1 : 0;
+        TransformRLEPoint(point, transformed, origin,
+                          angleTenths, scaleX, scaleY);
+        transformed[0] += x - origin[0];
+        transformed[1] += y - origin[1];
+        if (transformed[0] < minimumX)
+            minimumX = transformed[0];
+        if (transformed[0] > maximumX)
+            maximumX = transformed[0];
+        if (transformed[1] < minimumY)
+            minimumY = transformed[1];
+        if (transformed[1] > maximumY)
+            maximumY = transformed[1];
+        corner++;
+    }
+    if (minimumX < clipLeft)
+        minimumX = clipLeft;
+    if (minimumY < clipTop)
+        minimumY = clipTop;
+    if (maximumX > clipRight)
+        maximumX = clipRight;
+    if (maximumY > clipBottom)
+        maximumY = clipBottom;
+    if (maximumX < minimumX || maximumY < minimumY)
+        return -3;
+
+    sine = (int)SinFixed((short)(angleTenths / 10));
+    cosine = (int)CosFixed((short)(angleTenths / 10));
+    destinationStride = destinationSurface->maximumX + 1;
+    destinationY = minimumY;
+    while (destinationY <= maximumY) {
+        destinationX = minimumX;
+        while (destinationX <= maximumX) {
+            deltaX = destinationX - x;
+            deltaY = destinationY - y;
+            numerator = ((__int64)deltaX * cosine +
+                         (__int64)deltaY * sine) << 8;
+            sourceX = origin[0] + (int)(numerator / scaleX);
+            numerator = ((-(__int64)deltaX * sine +
+                          (__int64)deltaY * cosine) << 8);
+            sourceY = origin[1] + (int)(numerator / scaleY);
+            if (sourceX >= 0 && sourceX < width &&
+                sourceY >= 0 && sourceY < height) {
+                colour = scratch[sourceY * width + sourceX];
+                if (colour != 0xff)
+                    destinationSurface->pixels[
+                        destinationY * destinationStride + destinationX] =
+                            colour;
+            }
+            destinationX++;
+        }
+        destinationY++;
+    }
+    return 0;
 }
 
 /* Function start: 0x43C808 */
@@ -2179,6 +2819,101 @@ blit_no_overlap:
         pop esi
         pop ebx
         _emit 0xc9
+        ret
+    }
+}
+
+/* Function start: 0x43E3B1 */
+void TransformRLEPoint(int *point, int *result, int *origin,
+                       unsigned int angleTenths, int scaleX,
+                       int scaleY)
+{
+    int sine;
+    int cosine;
+    int relativeX;
+    int relativeY;
+    int scaledX;
+    int scaledY;
+    __int64 value;
+
+    sine = (int)SinFixed((short)(angleTenths / 10));
+    cosine = (int)CosFixed((short)(angleTenths / 10));
+    relativeX = point[0] - origin[0];
+    relativeY = point[1] - origin[1];
+    value = (__int64)relativeX * scaleX;
+    scaledX = (int)((value + (value < 0 ? -0x8000 : 0x8000)) >> 16);
+    value = (__int64)relativeY * scaleY;
+    scaledY = (int)((value + (value < 0 ? -0x8000 : 0x8000)) >> 16);
+    value = (__int64)scaledX * cosine - (__int64)scaledY * sine;
+    result[0] = origin[0] +
+        (int)((value + (value < 0 ? -0x80 : 0x80)) >> 8);
+    value = (__int64)scaledY * cosine + (__int64)scaledX * sine;
+    result[1] = origin[1] +
+        (int)((value + (value < 0 ? -0x80 : 0x80)) >> 8);
+}
+
+/* Function start: 0x43EF20 */
+/* The ES save with no C-visible use identifies this pair as hand-written
+ * raster-library accessors, so retain the original instruction sequence. */
+__declspec(naked) unsigned int GetRLEImageSize(unsigned char *shape, int frame)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        mov esi, dword ptr [ebp + 8]
+        add esi, 8
+        mov eax, dword ptr [ebp + 0ch]
+        shl eax, 3
+        add esi, eax
+        mov esi, dword ptr [esi]
+        add esi, dword ptr [ebp + 8]
+        mov eax, dword ptr [esi + 10h]
+        sub eax, dword ptr [esi + 8]
+        inc eax
+        mov ebx, dword ptr [esi + 14h]
+        sub ebx, dword ptr [esi + 0ch]
+        inc ebx
+        shl eax, 10h
+        mov ax, bx
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+    }
+}
+
+/* Function start: 0x43EF54 */
+__declspec(naked) unsigned int GetRLEImageOrigin(unsigned char *shape,
+                                                  int frame)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        mov esi, dword ptr [ebp + 8]
+        add esi, 8
+        mov eax, dword ptr [ebp + 0ch]
+        shl eax, 3
+        add esi, eax
+        mov esi, dword ptr [esi]
+        add esi, dword ptr [ebp + 8]
+        mov eax, dword ptr [esi + 8]
+        shl eax, 10h
+        mov ax, word ptr [esi + 0ch]
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
         ret
     }
 }

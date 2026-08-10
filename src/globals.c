@@ -1366,7 +1366,17 @@ unsigned short g_awAbsoluteSine_00470a48[360] = {
     104, 100,  96,  92,  88,  83,  79,  74,  71,  66,  62,  58,
      53,  49,  45,  40,  36,  31,  27,  22,  18,  13,   9,   4
 };
+const char g_szInvalidShapeAllocation_00470d18[12] = "not jefftep";
 const char g_szBadViewport_00470d24[12] = "bad vport";
+const char g_szShapeRLEVersion_00470d30[8] = "1.00";
+const char g_szShapeRLEOverflow_00470d38[20] = "qq copy overflow";
+const char g_szBadShapeFlip_00470d4c[12] = "bad flip";
+const char g_szCopyLine_00470d58[12] = "__copyline";
+const char g_szWipeLine_00470d64[12] = "__wipeline";
+const char g_szTriangle_00470d70[12] = "triangle";
+const char g_szShadedTriangle_00470d7c[16] = "shaded_triangle";
+const char g_szShadowDraw_00470d8c[12] = "shadow_draw";
+const char g_szFizzleFade_00470d98[12] = "fizzle_fade";
 const char g_szSnowViewport_00470da4[16] = "snow_viewport";
 int g_nInsertKeyState_00475b68;
 int g_nClearedKeyboardState_00475b6c;
@@ -1424,8 +1434,10 @@ float DAT_00486510;
 int DAT_00486518;
 unsigned char DAT_004865a8[0x1000];
 RasterSurface g_stRasterSurface_004875a8;
+unsigned char g_abShapeTransformScratch_004875c0[0xfa00];
 RasterClip g_stRasterClip_00496fc0;
 unsigned char g_abSolidColourTranslation_00497648[256];
+unsigned char g_abShapeRLEScratch_00497748[0x100000];
 extern unsigned int g_dwStreamerState_00597cd0;
 int g_bStreamerAudioPlaying_00597748;
 char g_szStreamerPath_00597750[128];

@@ -60,184 +60,140 @@ void SetSolidColourTranslation(unsigned char colour)
     SetPaletteTranslationTable(g_abSolidColourTranslation_00497648);
 }
 
+/* Function start: 0x440D50 */
+void PrepareShapeRLEData(unsigned char *shape)
+{
+    RLEFrameHeader *frameHeader;
+    unsigned char *bitmap;
+    unsigned char *pixel;
+    unsigned char *output;
+    unsigned char *preparedShape;
+    unsigned int preparedSize;
+    short frameCount;
+    short width;
+    short height;
+    short leftExtent;
+    short topExtent;
+    int frame;
+    int row;
+    int remaining;
+    int runLength;
+
+    CheckHeapBlockSignature(shape);
+    if (GetPreparedShapeData(shape) != 0)
+        return;
+
+    *(int *)g_abShapeRLEScratch_00497748 =
+        *(const int *)g_szShapeRLEVersion_00470d30;
+    frameCount = GetShapeFrameCount(shape);
+    *(int *)(g_abShapeRLEScratch_00497748 + 4) = frameCount;
+    memset(g_abShapeRLEScratch_00497748 + 8, 0,
+           (unsigned int)frameCount * 8);
+    output = g_abShapeRLEScratch_00497748 + 8 + frameCount * 8;
+
+    frame = 0;
+    while (frame < frameCount) {
+        *(int *)(g_abShapeRLEScratch_00497748 + 8 + frame * 8) =
+            (int)(output - g_abShapeRLEScratch_00497748);
+        GetShapeFrameExtents(shape, (short)frame, &width, &height,
+                             &leftExtent, &topExtent);
+        frameHeader = (RLEFrameHeader *)output;
+        frameHeader->height = height;
+        frameHeader->width = width;
+        frameHeader->topExtent = topExtent;
+        frameHeader->leftExtent = leftExtent;
+        frameHeader->left = -leftExtent;
+        frameHeader->top = -topExtent;
+        frameHeader->right = width - leftExtent - 1;
+        frameHeader->bottom = height - topExtent - 1;
+        output += sizeof(RLEFrameHeader);
+
+        bitmap = (unsigned char *)AllocateTaggedMemory(
+            (unsigned int)((int)width * height), 0);
+        memset(bitmap, 0xff, (unsigned int)((int)width * height));
+        DecodeShapeFrame(shape, (short)frame, bitmap, width, height,
+                         leftExtent, topExtent);
+        pixel = bitmap;
+        row = 0;
+        while (row < height) {
+            remaining = width;
+            while (remaining > 0) {
+                if (*pixel == 0xff) {
+                    runLength = 0;
+                    while (remaining > 0 && runLength < 0xff &&
+                           *pixel == 0xff) {
+                        pixel++;
+                        runLength++;
+                        remaining--;
+                    }
+                    *output++ = 1;
+                    *output++ = (unsigned char)runLength;
+                } else {
+                    unsigned char *runCode;
+
+                    runLength = 0;
+                    runCode = output++;
+                    while (remaining > 0 && runLength < 0x7f &&
+                           *pixel != 0xff) {
+                        *output++ = *pixel++;
+                        runLength++;
+                        remaining--;
+                    }
+                    *runCode = (unsigned char)(runLength * 2 + 1);
+                }
+            }
+            *output++ = 0;
+            row++;
+        }
+        ReleasePacketHandle((int)bitmap);
+        frame++;
+    }
+
+    preparedSize = (unsigned int)(output -
+                                  g_abShapeRLEScratch_00497748);
+    if (preparedSize > sizeof(g_abShapeRLEScratch_00497748))
+        exit_squadron(g_szShapeRLEOverflow_00470d38);
+    preparedShape = (unsigned char *)AllocateTaggedMemory(preparedSize, 0);
+    memcpy(preparedShape, g_abShapeRLEScratch_00497748, preparedSize);
+    *(unsigned char **)(shape - 4) = preparedShape;
+}
+
 /* Function start: 0x440FE0 */
 void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            unsigned char *shape, int frame,
                            int angle, int scaleX, int scaleY,
                            int flip, int blendMode)
 {
-    unsigned char *frameData;
-    unsigned char *commands;
-    unsigned char *bitmap;
-    unsigned short rowCode;
-    int frameOffset;
-    int firstFrameOffset;
-    int minX;
-    int maxX;
-    int minY;
-    int maxY;
-    int sourceWidth;
-    int sourceHeight;
-    int drawX;
-    int drawY;
-    int remaining;
-    int runLength;
-    int code;
-    int sine;
-    int cosine;
-    int radius;
-    int maximumX;
-    int maximumY;
-    int destinationX;
-    int destinationY;
-    int sourceX;
-    int sourceY;
-    int absoluteScaleX;
-    int absoluteScaleY;
-    unsigned char colour;
-
-    if (viewport == 0 || shape == 0 || frame < 0 ||
-        viewport->pixels == 0 || viewport->rowOffsets == 0)
-        return;
-    frameOffset = (short)(frame * 4 + 4);
-    firstFrameOffset = *(int *)(shape + 4) & 0xffffff;
-    if (frameOffset >= firstFrameOffset)
-        return;
-    frameData = shape + (*(int *)(shape + frameOffset) & 0xffffff);
-    commands = frameData + 8;
-    minX = 0x7fff;
-    maxX = -0x7fff;
-    minY = 0x7fff;
-    maxY = -0x7fff;
-    rowCode = *(unsigned short *)commands;
-    while (rowCode != 0) {
-        drawX = *(short *)(commands + 2);
-        drawY = *(short *)(commands + 4);
-        commands += 6;
-        runLength = rowCode >> 1;
-        if (drawX < minX)
-            minX = drawX;
-        if (drawX + runLength - 1 > maxX)
-            maxX = drawX + runLength - 1;
-        if (drawY < minY)
-            minY = drawY;
-        if (drawY > maxY)
-            maxY = drawY;
-        if ((rowCode & 1) == 0) {
-            commands += runLength;
+    if (shape != 0 && frame >= 0 && viewport->pixels != 0 &&
+        viewport->rowOffsets != 0 && frame < GetShapeFrameCount(shape)) {
+        PrepareShapeRLEData(shape);
+        ClipViewportToScreen(viewport);
+        if (flip != 0) {
+            if (flip == 0x10) {
+                scaleX = -scaleX;
+            } else if (flip == 0x20) {
+                scaleY = -scaleY;
+            } else if (flip == 0x30) {
+                scaleX = -scaleX;
+                scaleY = -scaleY;
+            } else {
+                exit_squadron(g_szBadShapeFlip_00470d4c);
+            }
+        }
+        if (blendMode != 0) {
+            RotateRLEImage(&g_stRasterClip_00496fc0,
+                           GetPreparedShapeData(shape), frame,
+                           x - viewport->left, y - viewport->top,
+                           g_abShapeTransformScratch_004875c0,
+                           angle * 10, scaleX << 8, scaleY << 8, 1);
         } else {
-            remaining = runLength;
-            while (remaining != 0) {
-                code = *commands;
-                runLength = code >> 1;
-                if (runLength <= 0)
-                    return;
-                if ((code & 1) == 0)
-                    commands += runLength + 1;
-                else
-                    commands += 2;
-                remaining -= runLength;
-            }
+            RotateRLEImage(&g_stRasterClip_00496fc0,
+                           GetPreparedShapeData(shape), frame,
+                           x - viewport->left, y - viewport->top,
+                           g_abShapeTransformScratch_004875c0,
+                           angle * 10, scaleX << 8, scaleY << 8, 0);
         }
-        rowCode = *(unsigned short *)commands;
     }
-    if (maxX < minX || maxY < minY)
-        return;
-    sourceWidth = maxX - minX + 1;
-    sourceHeight = maxY - minY + 1;
-    bitmap = (unsigned char *)malloc(sourceWidth * sourceHeight);
-    if (bitmap == 0)
-        return;
-    memset(bitmap, 0xff, sourceWidth * sourceHeight);
-
-    commands = frameData + 8;
-    rowCode = *(unsigned short *)commands;
-    while (rowCode != 0) {
-        drawX = *(short *)(commands + 2);
-        drawY = *(short *)(commands + 4);
-        commands += 6;
-        if ((rowCode & 1) == 0) {
-            runLength = rowCode >> 1;
-            memcpy(bitmap + (drawY - minY) * sourceWidth + drawX - minX,
-                   commands, runLength);
-            commands += runLength;
-        } else {
-            remaining = rowCode >> 1;
-            while (remaining != 0) {
-                code = *commands;
-                runLength = code >> 1;
-                if (runLength <= 0) {
-                    free(bitmap);
-                    return;
-                }
-                if ((code & 1) == 0) {
-                    memcpy(bitmap + (drawY - minY) * sourceWidth +
-                               drawX - minX,
-                           commands + 1, runLength);
-                    commands += runLength + 1;
-                } else {
-                    memset(bitmap + (drawY - minY) * sourceWidth +
-                               drawX - minX,
-                           commands[1], runLength);
-                    commands += 2;
-                }
-                drawX += runLength;
-                remaining -= runLength;
-            }
-        }
-        rowCode = *(unsigned short *)commands;
-    }
-
-    if (scaleX == 0)
-        scaleX = 1;
-    if (scaleY == 0)
-        scaleY = 1;
-    absoluteScaleX = AbsInt(scaleX);
-    absoluteScaleY = AbsInt(scaleY);
-    maximumX = MaxInt(AbsInt(minX), AbsInt(maxX));
-    maximumY = MaxInt(AbsInt(minY), AbsInt(maxY));
-    radius = (maximumX * absoluteScaleX +
-              maximumY * absoluteScaleY) / 0x100 + 3;
-    if (radius > (viewport->right - viewport->left + 1) +
-                 (viewport->bottom - viewport->top + 1))
-        radius = (viewport->right - viewport->left + 1) +
-                 (viewport->bottom - viewport->top + 1);
-    sine = (int)SinFixed((short)angle);
-    cosine = (int)CosFixed((short)angle);
-    destinationY = -radius;
-    while (destinationY <= radius) {
-        drawY = y + destinationY;
-        if (drawY >= viewport->top && drawY <= viewport->bottom) {
-            destinationX = -radius;
-            while (destinationX <= radius) {
-                drawX = x + destinationX;
-                if (drawX >= viewport->left && drawX <= viewport->right) {
-                    sourceX = (destinationX * cosine +
-                               destinationY * sine) / scaleX;
-                    sourceY = (-destinationX * sine +
-                               destinationY * cosine) / scaleY;
-                    if ((flip & 0x10) != 0)
-                        sourceX = -sourceX;
-                    if ((flip & 0x20) != 0)
-                        sourceY = -sourceY;
-                    if (sourceX >= minX && sourceX <= maxX &&
-                        sourceY >= minY && sourceY <= maxY) {
-                        colour = bitmap[(sourceY - minY) * sourceWidth +
-                                        sourceX - minX];
-                        if (colour != 0xff && blendMode != 0)
-                            colour =
-                                g_abRasterPaletteTranslation_0046ff2c[colour];
-                        if (colour != 0xff)
-                            viewport->pixels[viewport->rowOffsets[drawY] +
-                                             drawX] = colour;
-                    }
-                }
-                destinationX++;
-            }
-        }
-        destinationY++;
-    }
-    free(bitmap);
 }
 
 /* Function start: 0x441140 */
@@ -672,7 +628,7 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
             return 1;
         return 0;
     }
-    CheckHeapBlockSignature((int)shape);
+    CheckHeapBlockSignature(shape);
     frameOffset = frame * 4 + 4;
     if (frameOffset <= (int)*(unsigned short *)(shape + 4)) {
         frameData = (short *)(shape + *(int *)(shape + frameOffset));

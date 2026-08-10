@@ -700,16 +700,160 @@ unsigned int ReadPacketSectionData(PacketSectionHandle *handle,
 }
 
 /* Function start: 0x4408A0 */
-void CheckHeapBlockSignature(int p)
+void CheckHeapBlockSignature(unsigned char *shape)
 {
-    if (*(int *)(p - 8) != 0x6666656a)
-        exit_squadron("not jefftep");
+    if (*(int *)(shape - 8) != 0x6666656a)
+        exit_squadron(g_szInvalidShapeAllocation_00470d18);
 }
 
 /* Function start: 0x4408C0 */
-unsigned int GetHeapBlockSize(int p)
+unsigned char *GetPreparedShapeData(unsigned char *shape)
 {
-    return *(unsigned int *)(p - 4);
+    return *(unsigned char **)(shape - 4);
+}
+
+/* Function start: 0x4408D0 */
+short __stdcall GetShapeFrameCount(unsigned char *shape)
+{
+    CheckHeapBlockSignature(shape);
+    return (short)((*(unsigned short *)(shape + 4) >> 2) - 1);
+}
+
+/* Function start: 0x4408F0 */
+void GetShapeFrameExtents(unsigned char *shape, short frame,
+                          short *width, short *height,
+                          short *leftExtent, short *topExtent)
+{
+    short *frameHeader;
+    int frameOffset;
+    int rightExtent;
+    int left;
+    int top;
+    int bottom;
+
+    frameOffset = (int)(short)(frame * 4 + 4);
+    if (frameOffset < (int)*(unsigned short *)(shape + 4)) {
+        frameHeader = (short *)(shape + *(int *)(shape + frameOffset));
+        rightExtent = *frameHeader++;
+        left = *frameHeader++;
+        top = *frameHeader++;
+        bottom = *frameHeader;
+        *width = (short)(left + rightExtent + 1);
+        *height = (short)(top + bottom + 1);
+        *leftExtent = (short)left;
+        *topExtent = (short)top;
+    }
+}
+
+/* Function start: 0x440960 */
+void DecodeShapeFrame(unsigned char *shape, short frame,
+                      unsigned char *bitmap, int width, short height,
+                      int leftExtent, int topExtent)
+{
+    unsigned char *commands;
+    unsigned char *runData;
+    unsigned char *destination;
+    unsigned char code;
+    unsigned char colour;
+    volatile unsigned short rowCode;
+    unsigned short runLength;
+    unsigned short copyLength;
+    short maximumX;
+    short maximumY;
+    int frameOffset;
+    int x;
+    int y;
+    int runRight;
+    int skip;
+
+    if (shape == 0 || frame < 0)
+        return;
+    frameOffset = (int)(short)(frame * 4 + 4);
+    if (frameOffset >= (int)*(unsigned short *)(shape + 4))
+        return;
+
+    maximumX = (short)(width - 1);
+    commands = shape + *(int *)(shape + frameOffset) + 8;
+    maximumY = (short)(height - 1);
+    rowCode = *(unsigned short *)commands;
+    while (rowCode != 0) {
+        x = leftExtent + *(short *)(commands + 2);
+        y = topExtent + *(short *)(commands + 4);
+        destination = bitmap + y * width + x;
+        commands += 6;
+        if ((rowCode & 1) == 0) {
+            rowCode >>= 1;
+            runLength = rowCode;
+            if (y >= 0 && y <= maximumY) {
+                runRight = x + runLength - 1;
+                if (x <= maximumX && runRight >= 0) {
+                    skip = 0;
+                    copyLength = runLength;
+                    if (x < 0) {
+                        skip = -x;
+                        copyLength = (unsigned short)(copyLength + x);
+                    }
+                    if (maximumX < runRight)
+                        copyLength = (unsigned short)(copyLength -
+                                                     runRight + maximumX);
+                    memcpy(destination + skip, commands + skip,
+                           (short)copyLength);
+                }
+            }
+            commands += runLength;
+        } else {
+            rowCode >>= 1;
+            while (rowCode != 0) {
+                code = *commands;
+                runLength = (unsigned short)(code >> 1);
+                runData = commands + 1;
+                if ((code & 1) == 0) {
+                    if (y >= 0 && y <= maximumY) {
+                        runRight = x + runLength - 1;
+                        if (x <= maximumX && runRight >= 0) {
+                            skip = 0;
+                            copyLength = runLength;
+                            if (x < 0) {
+                                skip = -x;
+                                copyLength =
+                                    (unsigned short)(copyLength + x);
+                            }
+                            if (maximumX < runRight)
+                                copyLength = (unsigned short)(copyLength -
+                                                       runRight + maximumX);
+                            memcpy(destination + skip, runData + skip,
+                                   (short)copyLength);
+                        }
+                    }
+                    commands = runData + runLength;
+                } else {
+                    colour = *runData;
+                    commands += 2;
+                    if (y >= 0 && y <= maximumY) {
+                        runRight = x + runLength - 1;
+                        if (x <= maximumX && runRight >= 0) {
+                            skip = 0;
+                            copyLength = runLength;
+                            if (x < 0) {
+                                skip = -x;
+                                copyLength =
+                                    (unsigned short)(copyLength + x);
+                            }
+                            if (maximumX < runRight)
+                                copyLength = (unsigned short)(copyLength -
+                                                       runRight + maximumX);
+                            memset(destination + skip, colour,
+                                   (short)copyLength);
+                        }
+                    }
+                }
+                x += runLength;
+                destination += runLength;
+                rowCode = (unsigned short)(rowCode - runLength);
+            }
+        }
+        rowCode = *(unsigned short *)commands;
+    }
 }
 
 /* Function start: 0x440BE0 */

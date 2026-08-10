@@ -1120,11 +1120,29 @@ unsigned int ShowGameOverScreen(void);                                 /* 0x0043
 int ReadRasterClipPixel(RasterClip *clip, int x, int y);                /* 0x00439D63 */
 unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
                              int mode, int colour);                    /* 0x00439E39 */
+int DrawRLEImage(RasterClip *clip, unsigned char *shape, int frame,
+                 int x, int y);                                      /* 0x0043A974 */
+int DrawRLEImageUnclipped(RasterClip *clip, RLEFrameHeader *frameHeader,
+                          int x, int y);                              /* 0x0043AD78 */
 void SetPaletteTranslationTable(const unsigned char *translation);    /* 0x0043AE3F */
+int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
+                      int x, int y);                                 /* 0x0043AE5E */
+int DrawRLEImageColorUnclipped(RasterClip *clip,
+                               RLEFrameHeader *frameHeader,
+                               int x, int y);                         /* 0x0043B336 */
+int RotateRLEImage(RasterClip *clip, unsigned char *shape, int frame,
+                   int x, int y, unsigned char *scratch,
+                   unsigned int angleTenths, int scaleX, int scaleY,
+                   unsigned int flags);                              /* 0x0043B469 */
 int FillRasterClip(RasterClip *clip, int colour);                      /* 0x0043C808 */
 int BlitRasterClip(RasterClip *source, int sourceX, int sourceY,
                    RasterClip *destination, int destinationX,
                    int destinationY, unsigned int colour);            /* 0x0043C8E7 */
+void TransformRLEPoint(int *point, int *result, int *origin,
+                       unsigned int angleTenths, int scaleX,
+                       int scaleY);                                   /* 0x0043E3B1 */
+unsigned int GetRLEImageSize(unsigned char *shape, int frame);         /* 0x0043EF20 */
+unsigned int GetRLEImageOrigin(unsigned char *shape, int frame);       /* 0x0043EF54 */
 void CorrectPointers(void);                                            /* 0x0043F640 */
 void ClearRoomMenuLabel(void);                                        /* 0x0043F690 */
 int IsRoomMenuLabelEmpty(void);                                       /* 0x0043F6A0 */
@@ -1144,13 +1162,21 @@ void ResetCampaignData(void);                                         /* 0x00440
 unsigned int ReadPacketSectionData(PacketSectionHandle *handle,
                                    void *destination,
                                    unsigned int length);               /* 0x00440840 */
-void CheckHeapBlockSignature(int p);                                              /* 0x004408A0 */
-unsigned int GetHeapBlockSize(int p);                              /* 0x004408C0 */
+void CheckHeapBlockSignature(unsigned char *shape);                  /* 0x004408A0 */
+unsigned char *GetPreparedShapeData(unsigned char *shape);           /* 0x004408C0 */
+short __stdcall GetShapeFrameCount(unsigned char *shape);            /* 0x004408D0 */
+void GetShapeFrameExtents(unsigned char *shape, short frame,
+                          short *width, short *height,
+                          short *leftExtent, short *topExtent);       /* 0x004408F0 */
+void DecodeShapeFrame(unsigned char *shape, short frame,
+                      unsigned char *bitmap, int width, short height,
+                      int leftExtent, int topExtent);                 /* 0x00440960 */
 unsigned int SignExtendClipCoord(unsigned short v);                         /* 0x00440BE0 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip);                         /* 0x00440C00 */
 void ClipViewportToScreen(Viewport *viewport);                         /* 0x00440CF0 */
 void SetSolidColourTranslation(unsigned char colour);                 /* 0x00440D10 */
+void PrepareShapeRLEData(unsigned char *shape);                        /* 0x00440D50 */
 void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            unsigned char *shape, int frame,
                            int angle, int scaleX, int scaleY,
