@@ -230,6 +230,12 @@ const char g_szCampaignSector_00468718[16] = "Vega XR-231.3";
 const char g_szNavLabelTextFormat_004687ac[12] = "%X%Y%F%s";
 const char g_szNavAsteroids_004687b8[12] = "Asteroids";
 const char g_szNavMines_004687c4[8] = "Mines";
+const char g_szInflightTimeFieldFormat_004687cc[8] = "%02d";
+const char g_szStandardTimeFormat_004687d4[24] =
+    "%X%YStandard time %s";
+const char g_szStandardTimeBlank_004687ec[4] = " ";
+const char g_szInflightTimeSuffixFormat_004687f0[8] = "%02d  ";
+const char g_szStandardTimeColon_004687f8[4] = ":";
 const char g_szNavLegendNewline_004687fc[4] = "\n";
 const char g_szNavMissionFlightPath_00468800[20] = "MISSION FLIGHT PATH";
 const char g_szNavHomeBase_00468814[12] = "HOME BASE";
@@ -245,6 +251,7 @@ const char g_szNavLocationFormat_00468864[48] =
     "%X%Y                         Location: %d.%d.%d";
 const char g_szNavViewportName_00468894[8] = "VSCREEN";
 const char g_szBriefingNavMapTitle_0046889c[20] = "Briefing Nav Map";
+const char g_szConfedNavScan_004688b0[16] = "ConFed Nav Scan";
 int g_bInflightComputerActive_00468754;
 int DAT_004688cc;
 int DAT_004688d0;
@@ -311,6 +318,7 @@ int g_bTitleMenuSceneInitialized_00468ad8;
 int g_nCapitalShipViewDistance_00468ff4 = 0x7d000;
 unsigned char g_bLandingAuthorized_00468ff8;
 int g_bAlternateChaseView_00468ffc;
+const short g_asVduSelectionSound_00469000[2] = { 0x7f, 0 };
 char *DAT_00469004;
 char *DAT_00469008;
 unsigned char DAT_0046900c = 0xff;

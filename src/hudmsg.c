@@ -889,7 +889,7 @@ void UpdateTrainSimMenuCursor(void)
 }
 
 /* Function start: 0x42A670 */
-void RedrawCommWindow(void)
+void ResetMouseCursorFrame(void)
 {
     SetMouseCursorShape(DAT_0059ab19, 0);
 }

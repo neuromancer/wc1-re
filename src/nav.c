@@ -192,6 +192,15 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
                           (short)(size * 2 + 1));
 }
 
+/* Function start: 0x40D640 */
+void DrawNavSquareOutline(Viewport *viewport, short x, short y,
+                          short size, signed char colour)
+{
+    DrawViewportBorder(viewport, (short)(x - size), (short)(y - size),
+                       (short)(x + size), (short)(y + size),
+                       (short)colour);
+}
+
 /* Function start: 0x40D680 */
 void DrawNavSquareMarker(short x, short y, short size,
                          unsigned short colour, short reserve)
@@ -203,10 +212,8 @@ void DrawNavSquareMarker(short x, short y, short size,
         DrawViewportPixel(&DAT_005a76b0, (short)(x + 1),
                           (short)(y + 1), colour);
     } else {
-        DrawViewportBorder(&DAT_005a76b0,
-                           (short)(x - size), (short)(y - size),
-                           (short)(x + size), (short)(y + size),
-                           (short)colour);
+        DrawNavSquareOutline(&DAT_005a76b0, x, y, size,
+                             (signed char)colour);
     }
     if (reserve != 0 && size < 5)
         ReserveNavMapArea((short)(x - size), (short)(y - size),
@@ -214,19 +221,29 @@ void DrawNavSquareMarker(short x, short y, short size,
                           (short)(size * 2 + 1));
 }
 
+/* Function start: 0x40D740 */
+void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
+                            short size, signed char colour)
+{
+    short bottom;
+    short drawColour;
+
+    drawColour = (short)colour;
+    bottom = (short)(y + size);
+    DrawViewportLine(viewport, x, (short)(y - size),
+                     (short)(x + size), bottom, drawColour);
+    DrawViewportLine(viewport, (short)(x + size), bottom,
+                     (short)(x - size), bottom, drawColour);
+    DrawViewportLine(viewport, (short)(x - size), bottom,
+                     x, (short)(y - size), drawColour);
+}
+
 /* Function start: 0x40D7D0 */
 void DrawNavTriangleMarker(short x, short y, short size,
                            unsigned short colour, short reserve)
 {
-    DrawViewportLine(&DAT_005a76b0, x, (short)(y - size),
-                     (short)(x + size), (short)(y + size),
-                     (short)colour);
-    DrawViewportLine(&DAT_005a76b0, (short)(x + size),
-                     (short)(y + size), (short)(x - size),
-                     (short)(y + size), (short)colour);
-    DrawViewportLine(&DAT_005a76b0, (short)(x - size),
-                     (short)(y + size), x, (short)(y - size),
-                     (short)colour);
+    DrawNavTriangleOutline(&DAT_005a76b0, x, y, size,
+                           (signed char)colour);
     if (reserve != 0 && size < 5)
         ReserveNavMapArea((short)(x - size), (short)(y - size),
                           (short)(size * 2 + 1),
@@ -426,6 +443,35 @@ void DrawNavHazardLabels(short showPlayer)
     SetScreenClipRect(0, 0, 259, 155);
 }
 
+/* Function start: 0x40DDA0 */
+void UpdateInflightNavText(short showColon)
+{
+    char time[12];
+    short cursorX;
+
+    SetTextContext(&g_stNavMapTextContext_005a8160);
+    sprintf(time, g_szInflightTimeFieldFormat_004687cc,
+            (int)((signed char *)g_pElapsedCampaignDate_005a86ac)[0]);
+    DrawFormattedText(
+        g_szStandardTimeFormat_004687d4,
+        (int)(short)(g_stNavMapTextContext_005a8160.viewport->left + 150),
+        (int)(short)(g_stNavMapTextContext_005a8160.viewport->top + 140),
+        time);
+    cursorX = g_stNavMapTextContext_005a8160.cursorX;
+    if (showColon == 0) {
+        DrawFormattedText(g_szStandardTimeBlank_004687ec);
+    } else {
+        g_stNavMapTextContext_005a8160.cursorX =
+            (short)(g_stNavMapTextContext_005a8160.cursorX + 4);
+    }
+    sprintf(time, g_szInflightTimeSuffixFormat_004687f0,
+            (int)((signed char *)g_pElapsedCampaignDate_005a86ac)[1]);
+    DrawFormattedText(time);
+    g_stNavMapTextContext_005a8160.cursorX = cursorX;
+    if (showColon != 0)
+        DrawFormattedText(g_szStandardTimeColon_004687f8);
+}
+
 /* Function start: 0x40DE70 */
 void FormatNavCoordinates(unsigned char *out)
 {
@@ -434,6 +480,16 @@ void FormatNavCoordinates(unsigned char *out)
     SplitGameClockTicks(tmp);
     out[1] = tmp[2];
     out[0] = tmp[3];
+}
+
+/* Function start: 0x40DEA0 */
+void DrawSelectedNavLegendEntry(const char *text, short navPoint)
+{
+    if ((short)g_cCurrentNavPointIndex_0059c86c == navPoint) {
+        DrawNavTextLine(0, DAT_004699a8, text);
+        DrawNavTextLine(0, DAT_004699a8,
+                        g_szNavLegendNewline_004687fc);
+    }
 }
 
 /* Function start: 0x40DEE0 */
@@ -448,18 +504,11 @@ void DrawNavMapLegend(void)
         objective++;
     }
     SetTextCursor((unsigned short)DAT_005a76b0.left, 120);
-    if (g_cCurrentNavPointIndex_0059c86c == objective) {
-        DrawNavTextLine(0, DAT_004699a8,
-                        g_szNavMissionFlightPath_00468800);
-        DrawNavTextLine(0, DAT_004699a8,
-                        g_szNavLegendNewline_004687fc);
-    }
-    if (g_cCurrentNavPointIndex_0059c86c ==
-        (short)g_cMissionObjectiveCount_0059c46a - 1) {
-        DrawNavTextLine(0, DAT_004699a8, g_szNavHomeBase_00468814);
-        DrawNavTextLine(0, DAT_004699a8,
-                        g_szNavLegendNewline_004687fc);
-    }
+    DrawSelectedNavLegendEntry(g_szNavMissionFlightPath_00468800,
+                               objective);
+    DrawSelectedNavLegendEntry(
+        g_szNavHomeBase_00468814,
+        (short)((short)g_cMissionObjectiveCount_0059c46a - 1));
 }
 
 /* Function start: 0x40DF50 */
@@ -563,6 +612,220 @@ void BriefingMap_DisplayMap(void)
     ReleaseTextFont(1);
     DAT_005a76b0 = savedViewport;
     AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0);
+}
+
+/* Function start: 0x40E2B0 */
+short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
+{
+    short mapX;
+    short mapY;
+    short oldNavPoint;
+    short selected;
+    short pathIndex;
+    signed char objective;
+
+    oldNavPoint = (short)g_cCurrentNavPointIndex_0059c86c;
+    mouseX = (short)(mouseX - 30);
+    mouseY = (short)(mouseY - 22);
+    pathIndex = 0;
+    selected = 0;
+    objective = g_abFlightPath_0059c000[pathIndex];
+    while (objective != -1) {
+        if (hidden_objective((short)objective) == 0) {
+            nav_getxy(&mapX, &mapY,
+                      g_aMissionObjectives_0059dac5[objective].mapX,
+                      g_aMissionObjectives_0059dac5[objective].mapY);
+            if ((short)(abs((int)mouseX - mapX) +
+                        abs((int)mouseY - mapY)) < 6 ||
+                IsPointInNavMapLabel(
+                    (short)g_awNavObjectiveLabelIndex_005a8130[pathIndex],
+                    mouseX, mouseY) != 0) {
+                selected = 1;
+                set_new_objective(pathIndex);
+                if (pathIndex == oldNavPoint)
+                    return selected;
+            }
+        }
+        pathIndex++;
+        objective = g_abFlightPath_0059c000[pathIndex];
+    }
+    return selected;
+}
+
+/* Function start: 0x40E3C0 */
+void CentreMouseOnCurrentNavObjective(void)
+{
+    short x;
+    short y;
+    signed char objective;
+
+    objective = g_abFlightPath_0059c000[
+        g_cCurrentNavPointIndex_0059c86c];
+    nav_getxy(&x, &y,
+              g_aMissionObjectives_0059dac5[objective].mapX,
+              g_aMissionObjectives_0059dac5[objective].mapY);
+    x = (short)(x + 30);
+    y = (short)(y + 22);
+    LeaveAllocationScope();
+    WarpMouseTo(x, y);
+    EnterAllocationScope();
+}
+
+/* Function start: 0x40E430 */
+void ShowConfedNavScan(void)
+{
+    SetRectBounds((int)&DAT_005a6ba0, 30, 22, 289, 177);
+    LeaveAllocationScope();
+    DrawNavLocationReadout(g_szConfedNavScan_004688b0, 1);
+    EnterAllocationScope();
+    SetRectBounds((int)&DAT_005a6ba0, 0, 0, 319, 199);
+}
+
+/* Function start: 0x40E480 */
+void InflightComputer(void)
+{
+    short savedNavPoint;
+    short done;
+    short hasObjectives;
+    short savedInputMode;
+    short objective;
+    short displayedNavPoint;
+    short eventType;
+    int frame;
+    unsigned char markerColour;
+    unsigned char *background;
+    InputEventState event;
+    Viewport pointerViewport;
+    unsigned int savedInputState[7];
+
+    savedNavPoint = (short)g_cCurrentNavPointIndex_0059c86c;
+    done = 0;
+    hasObjectives = 0;
+    displayedNavPoint = savedNavPoint;
+    g_bInflightComputerActive_00468754 = 1;
+    memcpy(savedInputState, (const void *)&g_nMouseX_0059ab10,
+           sizeof(savedInputState));
+
+    if ((short)IsAutopilotEngaged() != 0)
+        EndCommMenu();
+    GetScreenUpdateFlag();
+    g_cScreenViewportMode_0059a9f2 = -1;
+    background = (unsigned char *)FetchDiskPacketRetrying(8, 1, 0);
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    DrawSpriteDefault(&DAT_005a6ba0, 0, 0, background, 0);
+    ReleasePacketHandle((int)background);
+
+    objective = 0;
+    BriefingMap_LoadShapes();
+    ShowConfedNavScan();
+    if (g_cMissionObjectiveCount_0059c46a > 0) {
+        do {
+            if (hidden_objective(objective) == 0)
+                hasObjectives = 1;
+            objective++;
+        } while (objective <
+                 (short)g_cMissionObjectiveCount_0059c46a);
+    }
+
+    if (hasObjectives == 0) {
+        SetEventManagerPump(PollJoystickButtonEvents);
+        WaitForInputKey();
+        SetFrameTimerAndWait(20);
+        SetEventManagerPump(PollSpaceFlightInput);
+    } else {
+        pointerViewport = DAT_005a6ba0;
+        SetRectBounds((int)&pointerViewport, 32, 24, 182, 159);
+        savedInputMode = (short)(signed char)g_bInputMode_0059a848;
+        DAT_0059ab23 = &pointerViewport;
+        g_bInputMode_0059a848 = 1;
+        SetEventManagerPump(PollMenuInputDevices);
+        EventManagerHook(ResetMouseCursorFrame);
+        *(short *)&g_aInputDeviceSamples_005a81f0[2].x = 6;
+        EnterAllocationScope();
+        CentreMouseOnCurrentNavObjective();
+
+        do {
+            if (displayedNavPoint !=
+                (short)g_cCurrentNavPointIndex_0059c86c) {
+                displayedNavPoint =
+                    (short)g_cCurrentNavPointIndex_0059c86c;
+                PlaySfxWaveFileByNumber(0x19, -1, 0);
+                ShowConfedNavScan();
+            }
+            SetRectBounds((int)&DAT_005a6ba0, 32, 24, 289, 177);
+            SetMouseCursorShape(DAT_0059ab19, 0);
+            FormatNavCoordinates(
+                (unsigned char *)g_pElapsedCampaignDate_005a86ac);
+            g_stNavLabelTextContext_005a8180.viewport = &DAT_005a6ba0;
+            frame = DAT_0059ab54 / 15;
+            markerColour = DAT_004699c0;
+            if (frame % 2 != 0)
+                markerColour = g_cViewportClearColour_004699a0;
+            DrawNavPlayerMarker(markerColour, 0);
+            g_stNavMapTextContext_005a8160.viewport = &DAT_005a6ba0;
+            UpdateInflightNavText((short)((frame / 4) % 2));
+            SetRectBounds((int)&DAT_005a6ba0, 0, 0, 319, 199);
+
+            eventType = PollInputEvent(&event, 0xff);
+            switch (eventType) {
+            case 2:
+            case 10:
+                done = 1;
+                break;
+            case 3:
+            case 5:
+                if ((short)event.value == 0x1c ||
+                    (short)event.value == 0x39) {
+                    done = 1;
+                } else if ((short)event.value == 0x31) {
+                    cycle_next_objective();
+                    CentreMouseOnCurrentNavObjective();
+                } else {
+                    MoveMenuPointerFromKeyboard(&event);
+                }
+                break;
+            }
+            SelectNavObjectiveAtPoint(g_nMouseX_0059ab10,
+                                      g_nMouseY_0059ab12);
+            DIBslam();
+            DIBslamReal();
+        } while (done == 0 && DAT_0059ab58 == 0);
+
+        if (DAT_0059ab58 != 0) {
+            DAT_0059ab58 = 0;
+            g_cCurrentNavPointIndex_0059c86c =
+                (signed char)savedNavPoint;
+            set_new_objective(savedNavPoint);
+        }
+        free_viewport(&DAT_005a76b0);
+        LeaveAllocationScope();
+        EventManagerHook(0);
+        SetEventManagerPump(PollSpaceFlightInput);
+        g_bInputMode_0059a848 = (unsigned char)savedInputMode;
+    }
+
+    ReleasePacketHandle((int)g_pNavMapShape_00468708);
+    SetTextContext(&g_stDefaultTextContext_005a7740);
+    PlaySfxWaveFileByNumber(0x19, -1, 0);
+    memcpy((void *)&g_nMouseX_0059ab10, savedInputState,
+           sizeof(savedInputState));
+    WarpMouseTo(((short *)savedInputState)[0],
+                ((short *)savedInputState)[1]);
+    if (DAT_0046a008 == 0) {
+        force_view(0, 0);
+    } else {
+        GetScreenUpdateFlag();
+        SetViewportRect(&DAT_005a7510, 0, 0,
+                        (unsigned short)(g_nScreenWidth_0046daa4 - 1),
+                        (unsigned short)(g_nScreenHeight_0046daa8 - 1));
+        initialize_view_buffer();
+        force_view(0, 0);
+        DAT_0046a008 = 1;
+        GetScreenUpdateFlag();
+        SetViewportRect(&DAT_005a7510, 0, 0, 319, 199);
+        initialize_view_buffer();
+    }
+    g_bInflightComputerActive_00468754 = 0;
 }
 
 /* Function start: 0x40EFE0 */

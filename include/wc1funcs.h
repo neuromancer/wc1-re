@@ -255,8 +255,12 @@ short IsPointInNavMapLabel(short label, short x, short y);            /* 0x0040D
 void DrawNavMapLabels(void);                                          /* 0x0040D540 */
 void DrawNavRectangleMarker(short x, short y, short size, short shadow,
                             unsigned short colour, short reserve);    /* 0x0040D5A0 */
+void DrawNavSquareOutline(Viewport *viewport, short x, short y,
+                          short size, signed char colour);            /* 0x0040D640 */
 void DrawNavSquareMarker(short x, short y, short size,
                          unsigned short colour, short reserve);       /* 0x0040D680 */
+void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
+                            short size, signed char colour);          /* 0x0040D740 */
 void DrawNavTriangleMarker(short x, short y, short size,
                            unsigned short colour, short reserve);     /* 0x0040D7D0 */
 void DrawNavCrossMarker(short x, short y, short size,
@@ -268,12 +272,18 @@ void DrawNavHazardMarker(FixedVector navPosition, FixedVector offset,
                          const char *text);                           /* 0x0040D8F0 */
 void DrawNavPlayerMarker(unsigned char colour, short reserve);        /* 0x0040D980 */
 void DrawNavHazardLabels(short showPlayer);                            /* 0x0040DA00 */
+void UpdateInflightNavText(short showColon);                          /* 0x0040DDA0 */
 void FormatNavCoordinates(unsigned char *out);                                 /* 0x0040DE70 */
+void DrawSelectedNavLegendEntry(const char *text, short navPoint);    /* 0x0040DEA0 */
 void DrawNavMapLegend(void);                                          /* 0x0040DEE0 */
 char *GetNavNameSkippingMarker(short i);                                         /* 0x0040DF50 */
 void DrawNavLocationReadout(const char *title, short showFlightData); /* 0x0040DF70 */
 void BriefingMap_LoadShapes(void);                                    /* 0x0040E190 */
 void BriefingMap_DisplayMap(void);                                      /* 0x0040E210 */
+short SelectNavObjectiveAtPoint(short mouseX, short mouseY);          /* 0x0040E2B0 */
+void CentreMouseOnCurrentNavObjective(void);                         /* 0x0040E3C0 */
+void ShowConfedNavScan(void);                                        /* 0x0040E430 */
+void InflightComputer(void);                                         /* 0x0040E480 */
 void add_statistics(short pilot, short missions, short kills);         /* 0x0040EFE0 */
 void PostMission(void);                                                 /* 0x0040F010 */
 int FullMissionScore(void);                                             /* 0x0040F190 */
@@ -374,14 +384,20 @@ short sighted(short objective);                                       /* 0x00415
 short visited(short objective);                                       /* 0x00415070 */
 short achieved(short objective);                                      /* 0x00415090 */
 void flag_objective(short objective, unsigned char flags);            /* 0x004150B0 */
+void DrawCalculatingLabel(void);                                      /* 0x004150D0 */
 char *objective_name(short objective);                                /* 0x00415130 */
+void show_navigation_disp(void);                                      /* 0x00415180 */
 short hidden_objective(short objective);                              /* 0x004151F0 */
+int set_new_objective(short pathIndex);                               /* 0x004152C0 */
+short cycle_next_objective(void);                                     /* 0x00415370 */
 void set_next_destination(void);                                       /* 0x004153D0 */
 short LocateMobileObjective(short objective);                         /* 0x00415470 */
 unsigned int someone_coming(void);                                     /* 0x004154C0 */
 unsigned int escorting_a_ship(void);                                   /* 0x00415510 */
 void flag_reached(short objective, short reached);                     /* 0x00415530 */
 void update_objective_location(short objective);                     /* 0x00415770 */
+unsigned int objective_lost(short objective);                         /* 0x00415850 */
+void check_objectives(void);                                          /* 0x004158A0 */
 void rotational_pos_to_scanner_pos(signed char object,
                                    const SphericalVector *position);  /* 0x004158F0 */
 short mobile_objective(short objective);                              /* 0x00415A30 */
@@ -418,6 +434,7 @@ void check_target(void);                                             /* 0x00416F
 void update_missile_warning(void);                                   /* 0x00417190 */
 void determine_pilot_hand(void);                                      /* 0x004171D0 */
 void DrawPilotHandFrame(void);                                       /* 0x00417260 */
+void CopyTrainSimPilotViewToRightVdu(void);                           /* 0x00417320 */
 void animate_pilot(void);                                             /* 0x004173C0 */
 void ResetPilotHandAnimation(void);                                   /* 0x004173F0 */
 void send_message(short obj, signed char message);                      /* 0x00417420 */
@@ -426,11 +443,12 @@ void clear_cockpit_damage(void);                                      /* 0x00417
 void explosion_draw(void);                                           /* 0x00417630 */
 void RestoreCockpitExplosionBackground(void);                         /* 0x00417760 */
 void cockpit_explosion(void);                                        /* 0x004177B0 */
+void vid_transmit(void);                                              /* 0x00417910 */
 void update_dead_disp(short a);                                        /* 0x00417B10 */
 void check_stranded(void);                                           /* 0x00417B30 */
 void update_VDUs(void);                                              /* 0x00417B70 */
 void update_cockpit(void);                                           /* 0x00417E70 */
-void PlayCockpitSelectionSfx(void);                                  /* 0x00417F00 */
+void PlayCockpitSelectionSfx(short selectionSound);                  /* 0x00417F00 */
 void vdu_pop_all(short vdu);                                         /* 0x00417F10 */
 void SelectCockpitVduMode(short vdu, int mode);                       /* 0x00417F60 */
 short __stdcall MeasureTextPixelWidthClamped(const char *text);         /* 0x00418080 */
@@ -893,7 +911,7 @@ short FindNearestNavPoint(short ship);                               /* 0x0042A1
 unsigned int ReleaseStaleNavTarget(void);                                     /* 0x0042A170 */
 int RunSpaceFlight(short entryNavPoint);                               /* 0x0042A190 */
 void UpdateTrainSimMenuCursor(void);                                   /* 0x0042A610 */
-void RedrawCommWindow(void);                                       /* 0x0042A670 */
+void ResetMouseCursorFrame(void);                                  /* 0x0042A670 */
 void UpdateRoomMenuCursor(void);                                   /* 0x0042A680 */
 void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
                                            unsigned short colour,
@@ -935,6 +953,8 @@ void LoadVolumeSettingsFromRegistry(void);                            /* 0x0042B
 void SaveVolumeSettingsToRegistry(void);                               /* 0x0042B930 */
 void FxDriverShutdownHook(void);                                            /* 0x0042C410 */
 unsigned int LoadInstallDat(void);                                     /* 0x0042C660 */
+void show_damage_disp(void);                                           /* 0x0042C800 */
+void UpdateDamageDisplay(void);                                        /* 0x0042C970 */
 unsigned short GetJoystickPresentUnused(void);                                    /* 0x0042CDA0 */
 unsigned int parse_view_script(void);                                  /* 0x0042CDB0 */
 unsigned int update_scripted_view(void);                               /* 0x0042D1C0 */
