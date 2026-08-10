@@ -210,6 +210,7 @@ SRCS_ORDERED_CORE = \
 	src/spc.c \
 	src/cockpt.c \
 	src/geom.c \
+	src/barracks.c \
 	src/debug.cpp \
 	src/mathutil.c \
 	src/disk.c \

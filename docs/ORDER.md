@@ -70,6 +70,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/spc.c` | `0x410000`–`0x412fff` | 19 | Space-object simulation with preceding Win32 input helpers | Mac `spc` run maps `rotate_eye_to_goal`–`object_intelligence` to `0x410a30`–`0x4139ff`; outer split remains provisional |
 | `src/cockpt.c` | `0x413000`–`0x417fff` | 92 | Cockpit HUD: weapon, damage, target, objective, and message displays | Mac `cockpt` symbols identify the surviving functions throughout this range; port-specific split helpers remain interleaved |
 | `src/geom.c` | `0x418000`–`0x41ad4f` | 77 | Geometry, transforms, and modal text-panel drawing | Geometry helper run followed by the contiguous modal-panel block; save/load starts at 0x41ada0 |
+| `src/barracks.c` | `0x41ada0`–`0x41c75f` | 1 | Barracks, campaign save/load room, and its menu | SAVEGAME.WLD helper run ends at BarracksScreen; debug-overlay C++ object begins at 0x41c760 |
 | `src/debug.cpp` | `0x41c760`–`0x41d0bf` | 15 | Win32 developer overlay console, keyboard hook, worker and display modes | PROVEN: constructor/destructor new/delete call sites, ECX member ABI, and the following `MinShort` boundary |
 | `src/mathutil.c` | `0x41d000`–`0x41d24f` | 3 | Integer min/max used across the game core | MinShort/MaxShort pair, 94 call sites, no other content in the gap |
 | `src/disk.c` | `0x41d250`–`0x41efff` | 6 | Disk data files and packet fetching with retry | OpenDiskDataFile/FetchDiskPacketRetrying/PromptInsertNumberedDisk |

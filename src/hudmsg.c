@@ -457,8 +457,8 @@ void UpdateTrainSimMenuCursor(void)
 {
     TitleMenuRegion *region;
     short frame;
-    short mouseX;
     short mouseY;
+    short mouseX;
 
     frame = 0;
     mouseX = g_nMouseX_0059ab10;
@@ -476,6 +476,38 @@ void UpdateTrainSimMenuCursor(void)
 void RedrawCommWindow(void)
 {
     SetMouseCursorShape(DAT_0059ab19, 0);
+}
+
+/* Function start: 0x42A680 */
+void UpdateRoomMenuCursor(void)
+{
+    short mouseX;
+    short mouseY;
+    short state;
+    TitleMenuRegion *region;
+    short index;
+    short frame;
+
+    mouseY = g_nMouseY_0059ab12;
+    mouseX = g_nMouseX_0059ab10;
+    region = g_pRoomMenuRegions_00598ab2;
+    frame = g_nRoomMenuCursorFrame_00598ab0;
+    index = 0;
+    ClearRoomMenuLabel();
+    while (region->frame != -1) {
+        state = IsPointInRect(mouseX, mouseY, &region->left);
+        if (state != 0) {
+            frame = region->frame;
+            if (index >= 20)
+                return;
+            if (index < 0)
+                return;
+            SelectRoomMenuLabel(index);
+        }
+        index++;
+        region++;
+    }
+    SetMouseCursorShape(DAT_0059ab19, frame);
 }
 
 /* Function start: 0x42A700 */

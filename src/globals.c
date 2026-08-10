@@ -7,6 +7,30 @@
  */
 #include "wc1.h"
 
+TitleMenuRegion g_aBarracksMenuRegions_00463008[21] = {
+    { 1, 137, 88, 149, 94 },
+    { 1, 110, 88, 136, 94 },
+    { 1, 172, 88, 184, 94 },
+    { 1, 185, 88, 210, 94 },
+    { 1, 133, 98, 146, 107 },
+    { 1, 100, 98, 132, 107 },
+    { 1, 174, 98, 189, 107 },
+    { 1, 190, 98, 220, 107 },
+    { 1, 124, 114, 142, 128 },
+    { 1, 81, 114, 123, 128 },
+    { 1, 178, 114, 197, 128 },
+    { 1, 198, 114, 238, 128 },
+    { 1, 109, 141, 135, 164 },
+    { 1, 50, 141, 108, 164 },
+    { 1, 185, 141, 213, 164 },
+    { 1, 214, 141, 268, 164 },
+    { 1, 288, 39, 311, 85 },
+    { 1, 9, 33, 39, 95 },
+    { 1, 218, 37, 248, 78 },
+    { 1, 86, 44, 181, 78 },
+    { -1, 0, 0, 0, 0 }
+};
+
 unsigned int g_nHazardReferenceSpeed_00465040;
 short g_nActiveHazards_00465044;
 int DAT_00465058 = 1;
@@ -164,12 +188,32 @@ const char g_szComponentHitFormat_004692e0[8] = "%s HIT";
 unsigned char DAT_004693b0;
 const char *g_pGameVersion_004693b4 = g_szGameVersion_004693b8;
 const char g_szGameVersion_004693b8[9] = "1.03F-95";
+const char *g_apszSaveCampaignMenuLabels_004693e8[2] = {
+    g_szSaveCampaignMenuLabel_00469468,
+    g_szSaveCampaignMenuLabelAlt_00469480
+};
+char *g_apszBarracksMenuLabels_004693f0[20] = {
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    (char *)g_szMissionHangarMenuLabel_00469498,
+    (char *)g_szReturnToBarMenuLabel_004694a8,
+    (char *)g_szQuitGameMenuLabel_004694bc,
+    (char *)g_szViewMedalsMenuLabel_004694d0
+};
 unsigned int g_dwModalBoundsTopLeft_00469440 = 0x00280018;
 unsigned int g_dwModalBoundsBottomRight_00469444 = 0x003c0128;
 ModalTextPanel *g_pModalTextPanel_00469448;
 const short g_asCampaignPilotFiles_00469450[3] = {58, 61, 74};
 const short g_asCampaignBriefingFiles_00469458[3] = {10, 62, 73};
 const short g_asMissionDataFiles_00469460[3] = {15, 52, 72};
+const char g_szSaveCampaignMenuLabel_00469468[24] =
+    "Save this campaign  ";
+const char g_szSaveCampaignMenuLabelAlt_00469480[24] =
+    "Save this campaign  ";
+const char g_szMissionHangarMenuLabel_00469498[16] = "Mission Hangar";
+const char g_szReturnToBarMenuLabel_004694a8[20] = "Return to the Bar";
+const char g_szQuitGameMenuLabel_004694bc[20] = "Quit Wing Commander";
+const char g_szViewMedalsMenuLabel_004694d0[20] = "View your medals";
 int g_nDebugOverlayConsoleCount_00469644;
 DWORD g_dwDebugOverlayKey_00469648;
 DWORD g_dwDebugOverlayKeyLatch_0046964c;
@@ -896,6 +940,15 @@ const short g_asPilotHandOrigins_0046e120[10] = {
 };
 CampaignDate g_stSavedCampaignDate_0046e188 = {20, 340};
 unsigned char g_abRasterPaletteTranslation_0046ff2c[256];
+const char *g_pszBlankRoomMenuLabel_00470090 =
+    g_szBlankRoomMenuLabel_0047052c;
+const char *g_apszPilotRankNames_00470098[5] = {
+    g_szSecondLieutenantRank_00470530,
+    g_szFirstLieutenantRank_00470538,
+    g_szCaptainRank_00470540,
+    g_szMajorRank_00470548,
+    g_szLieutenantColonelRank_00470550
+};
 CampaignState g_stInitialCampaignState_004700b0 = {
     0,
     OBJECT_TYPE_HORNET,
@@ -931,7 +984,136 @@ PilotRecord g_aInitialPilotRecords_00470108[9] = {
     {"KHUMALO",  "KNIGHT",  3, 2, 18, 23, 3},
     {"PELLEY",   "GOBLIN",  0, 0, 0, 0, 0}
 };
+signed char g_abSpiritRecRoomAnimation_00470260[48] = {
+    0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 2, 3, 4, 3, 3, 4,
+    3, 4, 3, 4, 5, 3, 4, 5, 3, 4, 3, 4, 3, 4, 5, 3,
+    2, 2, 2, 3, 2, 2, 2, 1, 1, 1, -1, 0, 0, 0, 0, 0
+};
+signed char g_abHunterRecRoomAnimation_00470290[40] = {
+    0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 2, 2,
+    3, 3, 4, 4, 5, 3, 3, 4, 4, 5, 5, 5, 2, 2, 1, 1,
+    0, 0, -1, 0, 0, 0, 0, 0
+};
+signed char g_abAngelRecRoomAnimation_004702b8[48] = {
+    3, 4, 3, 3, 4, 3, 4, 4, 3, 4, 3, 4, 0, 0, 0, 2,
+    0, 2, 0, 1, 0, 2, 0, 0, 2, 0, 1, 0, 2, 3, 3, 4,
+    3, 4, 4, 5, 5, 5, 5, 5, -1, 0, 0, 0, 0, 0, 0, 0
+};
+signed char g_abKnightRecRoomAnimation_004702e8[40] = {
+    0, 0, 0, 0, 0, 1, 0, 1, 0, 5, 0, 0, 1, 2, 3, 4,
+    4, 3, 2, 2, 2, 3, 4, 4, 5, 5, 0, 0, 1, 0, 1, 2,
+    1, 0, 1, -1, 0, 0, 0, 0
+};
+signed char g_abIcemanRecRoomAnimation_00470310[40] = {
+    0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 3, 3, 3, 3,
+    4, 4, 4, 5, 4, 4, 5, 4, 4, 5, 4, 4, 5, 4, 4, 3,
+    3, 2, 2, 1, 0, 0, -1, 0
+};
+signed char g_abManiacRecRoomAnimation_00470338[24] = {
+    0, 1, 2, 0, 1, 2, 0, 3, 2, 0, 1, 1,
+    0, 4, 2, 0, 1, 2, 0, 5, 5, 5, 5, -1
+};
+signed char g_abPaladinRecRoomAnimation_00470350[56] = {
+    0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 2, 2, 2, 3, 2,
+    2, 3, 2, 3, 2, 3, 2, 4, 4, 2, 3, 2, 3, 2, 3, 2,
+    3, 2, 3, 4, 4, 5, 5, 4, 4, 4, 4, 5, 5, 4, 2, 2,
+    2, -1, 0, 0, 0, 0, 0, 0
+};
+signed char g_abBossmanRecRoomAnimation_00470388[48] = {
+    3, 3, 3, 2, 3, 2, 3, 2, 3, 3, 2, 3, 1, 3, 1, 3,
+    0, 3, 0, 3, 0, 2, 1, 2, 1, 3, 3, 4, 5, 5, 4, 5,
+    4, 5, 1, 3, 1, 3, 1, 3, -1, 0, 0, 0, 0, 0, 0, 0
+};
+signed char g_abShotglassIdleAnimation_004703b8[24] = {
+    0, 0, 0, 0, 0, 1, 1, 0, 0, 2, 2, 0,
+    0, 3, 3, 3, -1, 0, 0, 0, 0, 0, 0, 0
+};
+signed char g_abShotglassGlassAnimation_004703d0[32] = {
+    3, 6, 7, 8, 8, 9, 9, 10, 10, 10, 12, 11, 10, 12, 11, 10,
+    12, 11, 10, 12, 11, 10, 13, 13, 13, 10, 9, 8, 8, 3, 3, -1
+};
+signed char g_abShotglassPourAnimation_004703f0[80] = {
+    3, 3, 6, 6, 7, 8, 8, 14, 15, 15, 16, 17, 18, 18, 18, 18,
+    17, 19, 19, 20, 20, 21, 20, 21, 20, 21, 20, 21, 20, 21, 20, 21,
+    22, 22, 23, 24, 24, 25, 25, 26, 26, 27, 28, 28, 28, 29, 30, 31,
+    31, 31, 31, 31, 32, 32, 31, 31, 31, 33, 33, 32, 34, 34, 35, 35,
+    36, 36, 37, 37, 37, 38, 38, 39, 40, 3, 3, 3, -1, 0, 0, 0
+};
+signed char g_abShotglassWipeAnimation_00470440[24] = {
+    3, 4, 3, 4, 5, 3, 4, 3, 5, 6, 3, 3,
+    3, 3, 4, 3, 4, 3, -1, 0, 0, 0, 0, 0
+};
+signed char *g_apRecRoomAnimations_00470458[14] = {
+    g_abSpiritRecRoomAnimation_00470260,
+    g_abHunterRecRoomAnimation_00470290,
+    g_abBossmanRecRoomAnimation_00470388,
+    g_abIcemanRecRoomAnimation_00470310,
+    g_abAngelRecRoomAnimation_004702b8,
+    g_abPaladinRecRoomAnimation_00470350,
+    g_abManiacRecRoomAnimation_00470338,
+    g_abKnightRecRoomAnimation_004702e8,
+    0,
+    g_abShotglassIdleAnimation_004703b8,
+    g_abShotglassGlassAnimation_004703d0,
+    g_abShotglassPourAnimation_004703f0,
+    g_abShotglassWipeAnimation_00470440,
+    0
+};
+const ShortPoint g_aRecRoomCharacterOrigins_00470490[3] = {
+    {94, 59}, {161, 79}, {202, 79}
+};
+short g_nRecRoomPanelOriginX_0047049c = 158;
+short g_nRecRoomPanelOriginY_0047049e = 28;
+TitleMenuRegion g_aRecRoomMenuRegions_004704a0[7] = {
+    { 1, 94, 59, 130, 95 },
+    { 1, 161, 79, 180, 95 },
+    { 1, 210, 79, 240, 95 },
+    { 1, 180, 50, 250, 75 },
+    { 1, 275, 50, 319, 135 },
+    { 1, 0, 100, 120, 190 },
+    { -1, 0, 0, 0, 0 }
+};
+char *g_apszRecRoomBaseLabels_004704e8[3] = {
+    g_szTalkToShotglass_0047055c,
+    g_szTalkToFirstPilot_00470570,
+    g_szTalkToSecondPilot_00470588
+};
+char *g_apszRecRoomMenuLabels_004704f8[6] = {
+    0, 0, 0,
+    g_szCheckPilotScores_004705a0,
+    g_szEnterBarracks_004705b4,
+    g_szFlyTrainingMission_004705c4
+};
 int DAT_00470510;
+CampaignDate g_stChalkBoardDate_00470514 = {-1, -1};
+short g_asChalkBoardPilotOrder_00470518[9] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8
+};
+const char g_szBlankRoomMenuLabel_0047052c[4] = " ";
+const char g_szSecondLieutenantRank_00470530[8] = "2ND LT.";
+const char g_szFirstLieutenantRank_00470538[8] = "1ST LT.";
+const char g_szCaptainRank_00470540[8] = "CAPTAIN";
+const char g_szMajorRank_00470548[8] = "MAJOR";
+const char g_szLieutenantColonelRank_00470550[12] = "LT. COL.";
+char g_szTalkToShotglass_0047055c[20] = "Talk to SHOTGLASS.";
+char g_szTalkToFirstPilot_00470570[24] = "Talk to ??????????????";
+char g_szTalkToSecondPilot_00470588[24] = "Talk to ??????????????";
+char g_szCheckPilotScores_004705a0[20] = "Check pilot scores";
+char g_szEnterBarracks_004705b4[16] = "Enter barracks";
+char g_szFlyTrainingMission_004705c4[24] = "Fly training mission";
+const char g_szRoomMenuLabelFormat_004705dc[12] = "%X%Y%s%P";
+unsigned int g_dwRoomMenuStringPadding_004705e8;
+const char g_szTalkToPilotFormat1_004705ec[16] = "Talk to %s.";
+const char g_szTalkToPilotFormat2_004705fc[16] = "Talk to %s.";
+const char g_szChalkBoardHeading_0047060c[32] =
+    "%X%YCARRIER - TIGER'S CLAW%P";
+const char g_szChalkBoardPilotHeading_0047062c[12] = "%X%YPILOT";
+const char g_szChalkBoardScoreHeading_00470638[20] =
+    "%X%YSORTIES KILLS";
+const char g_szChalkBoardPilotFormat_0047064c[12] = "%X%Y%s %s";
+const char g_szChalkBoardScoreFormat_00470658[12] = "%X%Y%d%X%d";
+const char g_szKilledInAction_00470664[4] = "KIA";
+const char g_szChalkBoardKiaFormat_00470668[16] = "%X%Y     %s";
 unsigned char g_abPaletteTranslation_00470678[256] = {
       0,   1,   2,   3,   4,   5,   6,   7,
       8,   9,  10,  11,  12,  13,  14,  15,
@@ -1096,16 +1278,25 @@ char g_szStreamerPath_00597750[128];
 int DAT_00598888;
 int DAT_0059888c;
 int DAT_00598890;
+Viewport g_stRoomScreenViewport_005988a0;
+short g_nSavedRoomControllerX_005988b4;
+unsigned char *g_pRecRoomRoster_005988b8;
 unsigned char *g_pMissionCampaignData_005988bc;
+unsigned char *g_apRecRoomCharacterShapes_005988c0[3];
 PilotRecord g_aPilotRecords_005988d0[9];
 unsigned char *g_pPilotCampaignData_00598a28;
 PilotRecord *g_apWingmanPilots_00598a30[8];
+unsigned char *g_pRecRoomBackgroundShape_00598a50;
+Viewport g_stRoomDisplayViewport_00598a60;
+Viewport g_stRoomMouseViewport_00598a80;
 unsigned char *DAT_00598aa0;
 unsigned char *DAT_00598aa4;
 unsigned char *DAT_00598aa8;
-short DAT_00598ab0;
-unsigned int DAT_00598ab6;
-int DAT_00598aba;
+short g_nRoomMenuCursorFrame_00598ab0;
+TitleMenuRegion *g_pRoomMenuRegions_00598ab2;
+char **g_ppszRoomMenuLabels_00598ab6;
+char *g_pszCurrentRoomMenuLabel_00598aba;
+TextContext g_stRoomMenuTextContext_00598abe;
 unsigned char *DAT_00598ae0;
 unsigned char *DAT_00598ae4;
 unsigned char *DAT_00598ae8;

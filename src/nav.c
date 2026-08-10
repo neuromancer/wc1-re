@@ -271,10 +271,13 @@ unsigned int StartNewCampaign(short campaign)
 /* Function start: 0x40F4B0 */
 short GameFlow(void)
 {
+    short roomSelection;
+    short launchMission;
     short savedSeries;
     short savedMission;
     int flightResult;
 
+    launchMission = 0;
     FrameStartHook(0);
     if (DAT_005a8114 != -1) {
         g_stCampaignState_0059ca50.campaignIndex = DAT_005a8114;
@@ -282,20 +285,30 @@ short GameFlow(void)
     }
 
     DAT_0046505c = 0;
-    DAT_004688d4 = 0;
-    DAT_004688e8 = -1;
-    DAT_004688d0 = 0;
-    DAT_004688e4 = -1;
-    DAT_004688cc = 0;
-    DAT_004688d8 = 0;
-    DAT_00470510 = 0;
+    do {
+        roomSelection = 0;
+        DAT_004688d4 = 0;
+        DAT_004688e8 = -1;
+        DAT_004688d0 = 0;
+        DAT_004688e4 = -1;
+        DAT_004688cc = 0;
+        DAT_004688d8 = 0;
+        if (DAT_004688e0 == 0)
+            roomSelection = RecRoom();
+        DAT_00470510 = 0;
+        if (roomSelection == 5) {
+            RunTrainSim();
+        } else {
+            roomSelection = BarracksScreen();
+            DAT_004688e0 = 0;
+            if (roomSelection == 6)
+                return 0;
+            if (roomSelection == 7)
+                launchMission++;
+        }
+        PumpWindowMessages();
+    } while (launchMission == 0);
 
-    /* RecRoom/BarracksScreen and the briefing presentation belong to separate
-     * compilation units that are not reconstructed yet.  Retain the original
-     * campaign state transition and enter the selected mission directly;
-     * init_mission performs the mission-data load used by that path. */
-    DAT_004688e0 = 0;
-    PumpWindowMessages();
     DAT_0046505c = 1;
     init_mission((short)g_stCampaignState_0059ca50.currentSeries,
                  (short)g_stCampaignState_0059ca50.currentMission);

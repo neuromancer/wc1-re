@@ -486,6 +486,7 @@ void RestoreModalTextPanel(ModalTextPanel *panel);                     /* 0x0041
 short ShowModalTextPanel(short fontIndex, const char *format, ...);    /* 0x0041AB90 */
 void ReleaseModalTextPanel(void);                                      /* 0x0041AD10 */
 short AnySavedGames(void);                                             /* 0x0041AD50 */
+short BarracksScreen(void);                                            /* 0x0041C170 */
 DWORD WINAPI DebugOverlayWorkerProc(void *parameter);                  /* 0x0041C960 */
 LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
                                        LPARAM flags);                  /* 0x0041CA60 */
@@ -757,6 +758,7 @@ unsigned int ReleaseStaleNavTarget(void);                                     /*
 int RunSpaceFlight(short entryNavPoint);                               /* 0x0042A190 */
 void UpdateTrainSimMenuCursor(void);                                   /* 0x0042A610 */
 void RedrawCommWindow(void);                                       /* 0x0042A670 */
+void UpdateRoomMenuCursor(void);                                   /* 0x0042A680 */
 void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
                                            unsigned short colour,
                                            short enabled);             /* 0x0042A700 */
@@ -1062,12 +1064,20 @@ int BlitRasterClip(RasterClip *source, int sourceX, int sourceY,
                    RasterClip *destination, int destinationX,
                    int destinationY, unsigned int colour);            /* 0x0043C8E7 */
 void CorrectPointers(void);                                            /* 0x0043F640 */
-void ClearSaveSlotFlag(void);                                            /* 0x0043F690 */
-int IsSaveSlotFree(void);                                            /* 0x0043F6A0 */
-void ClearLoadSlotFlag(void);                                            /* 0x0043F720 */
-void SelectSaveSlot(short i);                                        /* 0x0043F730 */
+void ClearRoomMenuLabel(void);                                        /* 0x0043F690 */
+int IsRoomMenuLabelEmpty(void);                                       /* 0x0043F6A0 */
+void DrawRoomMenuLabel(TextContext *context, char *label);             /* 0x0043F6B0 */
+void RefreshRoomMenuLabel(void);                                      /* 0x0043F6F0 */
+void ClearRoomMenuCursorFrame(void);                                  /* 0x0043F720 */
+void SelectRoomMenuLabel(short i);                                    /* 0x0043F730 */
+void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
+                        Viewport *viewport, char *text,
+                        unsigned char alignment);                     /* 0x0043F750 */
 short FindMenuRegionAtPoint(short x, short y,
                             const TitleMenuRegion *regions);           /* 0x0043F7C0 */
+void InitializeRoomViewports(void);                                   /* 0x0043F810 */
+short RecRoom(void);                                                  /* 0x0043F940 */
+void ShowChalkBoard(void);                                            /* 0x00440510 */
 void ResetCampaignData(void);                                         /* 0x00440800 */
 unsigned int ReadPacketSectionData(PacketSectionHandle *handle,
                                    void *destination,
