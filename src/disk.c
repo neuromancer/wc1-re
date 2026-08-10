@@ -396,6 +396,48 @@ short WaitForInputKey(void)
     return key;
 }
 
+/* Function start: 0x41DBA0 */
+void WaitForSceneAdvance(short duration)
+{
+    InputEventState event;
+    unsigned char savedMode;
+    short eventType;
+    short escaped;
+    int advanced;
+
+    savedMode = g_bInputMode_0059a848;
+    advanced = 0;
+    g_bInputMode_0059a848 = 1;
+    if (duration == -1) {
+        escaped = CheckEscaped();
+        if (escaped == 0)
+            goto wait_for_input;
+        do {
+            escaped = CheckEscaped();
+        } while (escaped != 0);
+        duration = 0;
+    }
+    SetFrameTimerPeriodDirect(duration);
+wait_for_input:
+    while (IsFrameTickElapsed() == 0 && advanced == 0) {
+        eventType = PollInputEvent(&event, 0xff);
+        switch (eventType) {
+        case 2:
+        case 3:
+        case 5:
+        case 10:
+            advanced = 1;
+            g_bInputMode_0059a848 = savedMode;
+            FlushInputEvents();
+            do {
+                eventType = PollInputEvent(&event, 0xff);
+            } while (eventType != 0);
+            ClearInputKeyStatePreservingModifiers();
+            break;
+        }
+    }
+}
+
 /* Function start: 0x41DC70 */
 void MoveMenuPointerFromKeyboard(InputEventState *event)
 {

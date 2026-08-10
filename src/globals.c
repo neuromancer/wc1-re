@@ -50,6 +50,16 @@ const char g_szJoystickDevCapsFailure_004652dc[26] =
     "Joystick: !joyGetDevCaps\n";
 short DAT_00465460;
 short g_nAutopilotFormationShipCount_00465544;
+const short g_asMouthFramesByPhoneme_004655f0[26] = {
+    0, 5, 4, 4, 1, 8, 4, 7, 0, 4, 4, 7, 5,
+    4, 2, 5, 6, 4, 4, 4, 3, 4, 6, 4, 4, 4
+};
+const char g_szConversationIntegerFormat_00465628[4] = "%d";
+const char g_szConversationIntegerFormatAlt_0046562c[4] = "%d";
+const char g_szCampaignDateFormat_00465630[12] = "%03d.%03d";
+const char g_szSavedCampaignDateFormat_0046563c[12] = "%03d.%03d";
+const char g_szCampaignTimeFormat_00465648[12] = "%02d:%02d";
+const char g_szConversationTextFormat_00465654[12] = "%X%Y%F%s%P";
 short g_nEnemySighting_00465c7c = 0x7fff;
 int DAT_00465c84;
 int g_aiPacketReferenceTable_00465c88[4 * 0x25];
@@ -235,6 +245,10 @@ unsigned char DAT_004699b0 = 0xaa;
 unsigned char DAT_004699b4 = 0xa6;
 unsigned char g_cDefaultTextColour_004699cc = 0xa8;
 unsigned char DAT_004699d8 = 0xbf;
+const short g_asConversationTextColours_004699f0[16] = {
+    0x25, 0xb6, 0x9a, 0x50, 0x94, 0x85, 0x27, 0xa6,
+    0xfd, 0x47, 0xaa, 0x0b, 0x09, 0x0d, 0x03, 0x04
+};
 int g_bGraphicsActive_00469a20;
 PacketResourceDescriptor g_aMissionResourceDescriptors_00469c20[5] = {
     { &g_aObjectTypeData_00466458[OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet,
@@ -371,6 +385,13 @@ const char *g_apszComponentNames_0046a778[6] = {
 };
 short g_nScriptedViewObject_0046a8d0 = -1;
 int g_bScriptedView_0046a8d4;
+const short g_asConstellationVelocity_0046a8d8[16] = {
+    8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1
+};
+const short g_asConstellationFrame_0046a8f8[16] = {
+    0, 16, 16, 0, 4, 4, 20, 20, 24, 8, 8, 24, 28, 12, 12, 28
+};
+short g_nConstellationDirection_0046a918 = -1;
 short DAT_0046a9f8;
 int g_bMusicCommandSuppressed_0046a9fc;
 short DAT_0046aa04 = 1;
@@ -939,6 +960,37 @@ const short g_asPilotHandOrigins_0046e120[10] = {
     154, 187, 154, 187, 154, 187, 154, 187, 154, 187
 };
 CampaignDate g_stSavedCampaignDate_0046e188 = {20, 340};
+const TalkingHeadOrigin g_aTalkingHeadOrigins_0046e190[11] = {
+    {161, 60, 161, 90},
+    {161, 60, 161, 87},
+    {160, 60, 159, 90},
+    {161, 60, 161, 90},
+    {161, 60, 161, 90},
+    {161, 60, 161, 90},
+    {161, 60, 161, 90},
+    {161, 60, 161, 90},
+    {161, 60, 161, 90},
+    {160, 53, 160, 88},
+    {257, 257, 257, 0}
+};
+const char *g_apszMedalNames_0046e2e0[5] = {
+    g_szBronzeStar_0046e594,
+    g_szSilverStar_0046e5a0,
+    g_szGoldStar_0046e5ac,
+    g_szGoldenSun_0046e5b8,
+    g_szTerranMedalOfValor_0046e5c4
+};
+short g_nConversationCharacter_0046e580 = -1;
+short g_nTalkingHeadFace_0046e584 = -1;
+short g_nConversationBackdropFrame_0046e588 = -1;
+int g_bConversationConstellation_0046e58c;
+int g_bConversationOverlay_0046e590;
+const char g_szBronzeStar_0046e594[12] = "Bronze Star";
+const char g_szSilverStar_0046e5a0[12] = "Silver Star";
+const char g_szGoldStar_0046e5ac[12] = "Gold Star";
+const char g_szGoldenSun_0046e5b8[12] = "Golden Sun";
+const char g_szTerranMedalOfValor_0046e5c4[24] =
+    "Terran Medal of Valor";
 unsigned char g_abRasterPaletteTranslation_0046ff2c[256];
 const char *g_pszBlankRoomMenuLabel_00470090 =
     g_szBlankRoomMenuLabel_0047052c;
@@ -1289,25 +1341,27 @@ PilotRecord *g_apWingmanPilots_00598a30[8];
 unsigned char *g_pRecRoomBackgroundShape_00598a50;
 Viewport g_stRoomDisplayViewport_00598a60;
 Viewport g_stRoomMouseViewport_00598a80;
-unsigned char *DAT_00598aa0;
-unsigned char *DAT_00598aa4;
-unsigned char *DAT_00598aa8;
+unsigned char *g_apRecRoomTextData_00598aa0[3];
 short g_nRoomMenuCursorFrame_00598ab0;
 TitleMenuRegion *g_pRoomMenuRegions_00598ab2;
 char **g_ppszRoomMenuLabels_00598ab6;
 char *g_pszCurrentRoomMenuLabel_00598aba;
 TextContext g_stRoomMenuTextContext_00598abe;
-unsigned char *DAT_00598ae0;
-unsigned char *DAT_00598ae4;
-unsigned char *DAT_00598ae8;
+unsigned char *g_apRecRoomSceneData_00598ae0[3];
 unsigned char *g_pBriefingPacket_00598aec;
 unsigned char *g_pBriefingTextData_00598af0;
-unsigned int DAT_00598af4;
+short *g_pMouthAnimationCommands_00598af4;
 unsigned char *g_pDebriefingSceneData_00598afc;
 char g_szTextScratchBuffer_00598b00[256];
 unsigned char *g_pBriefingSceneData_00598c00;
-unsigned int DAT_00598c18;
+unsigned char *g_pConversationBackdropShape_00598c04;
+short g_nConversationMedalIndex_00598c08;
+short g_nConversationSceneType_00598c0a;
+unsigned char *g_pTalkingHeadShape_00598c0c;
+short g_nConversationTextColour_00598c10;
+short *g_pFaceAnimationCommands_00598c18;
 unsigned char *g_pDebriefingTextData_00598c28;
+unsigned char *g_pConversationOverlayShape_00598c30;
 InputEvent g_aInputEventPool_00598c40[0x100];
 int g_nMouseCursorSavedY_0059a840;
 int g_nMouseCursorSavedX_0059a844;
@@ -1482,6 +1536,12 @@ int g_aiSoundEffectSourceActive_005a66ec[0x41];
 int g_nAllocateViewportCalls_005a68ec;
 FireworkState g_aFireworks_005a6900[30];
 unsigned char *g_pFireworkShape_005a6a68;
+ConstellationStar g_aConstellationStars_005a6a70[10];
+Viewport *g_pConstellationViewport_005a6aac;
+short g_nConstellationStarCount_005a6ab0;
+ConstellationParticle g_aConstellationParticles_005a6ac0[16];
+Viewport g_stConstellationViewport_005a6b40;
+short g_nConstellationParticleCount_005a6b54;
 const short *g_pViewScript_005a6b58;
 short g_nExternalViewDistance_005a6b5c;
 Viewport DAT_005a6b60;
@@ -1498,6 +1558,7 @@ Viewport DAT_005a7510;
 Viewport DAT_005a7530;
 Viewport DAT_005a7550;
 unsigned char *g_pCockpitWeaponShape_005a7564;
+Viewport g_stConversationTextViewport_005a7570;
 char g_szDefaultTextBuffer_005a7590[0xcc];
 unsigned char *g_pCockpitIndicatorShape_005a7658;
 unsigned char *g_pConstellationShape_005a765c;
@@ -1510,6 +1571,7 @@ unsigned char *g_pCockpitDamageShape_005a76f4;
 TextContext DAT_005a7700;
 TextContext DAT_005a7720;
 TextContext g_stDefaultTextContext_005a7740;
+TextContext g_stConversationTextContext_005a7760;
 unsigned short DAT_005a7780;
 short g_nWeaponDisplayOriginX_005a7788;
 short g_nWeaponDisplayOriginY_005a778a;
@@ -1605,6 +1667,11 @@ short DAT_005a86a6;
 CampaignDate *g_pCurrentCampaignDate_005a86a8;
 CampaignDate *g_pElapsedCampaignDate_005a86ac;
 signed char g_cObjectResourceLogicalFile_005a86b0;
+unsigned char *g_pConversationSpecialShape_005a86ec;
+short g_nTalkingHeadFaceX_005a8754;
+short g_nTalkingHeadFaceY_005a8756;
+short g_nTalkingHeadMouthY_005a8758;
+short g_nTalkingHeadMouthX_005a875a;
 char DAT_005a8760[512];
 unsigned char *g_pIntroFont_005a8960;
 unsigned int DAT_005a8964;

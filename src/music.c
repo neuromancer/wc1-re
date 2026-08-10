@@ -224,6 +224,121 @@ short TheEndFireWorks(Viewport *viewport, short count)
     return emptyCount;
 }
 
+/* Function start: 0x42D390 */
+unsigned int InitializeConstellationField(Viewport *viewport,
+                                          short direction,
+                                          short density)
+{
+    short height;
+    short index;
+    int particleIndex;
+    short randomIndex;
+    short width;
+
+    g_pConstellationViewport_005a6aac = viewport;
+    g_nConstellationDirection_0046a918 = direction;
+    width = (short)(viewport->right - viewport->left);
+    height = (short)(viewport->bottom - viewport->top);
+    g_nConstellationStarCount_005a6ab0 = (short)(density * 10 / 16);
+    g_nConstellationParticleCount_005a6b54 =
+        (short)(density * 16 / 16);
+    index = 0;
+    while (index < g_nConstellationStarCount_005a6ab0) {
+        g_aConstellationStars_005a6a70[index].x =
+            RandomInRange(0, width);
+        g_aConstellationStars_005a6a70[index].y =
+            RandomInRange(0, height);
+        g_aConstellationStars_005a6a70[index].frame =
+            (short)(RandomInRange(0, 5) + 32);
+        index++;
+    }
+    index = 0;
+    while (index < g_nConstellationParticleCount_005a6b54) {
+        randomIndex = RandomInRange(0, 15);
+        particleIndex = index;
+        index++;
+        g_aConstellationParticles_005a6ac0[particleIndex].x =
+            (short)(g_pConstellationViewport_005a6aac->left +
+                    RandomInRange(0, width));
+        g_aConstellationParticles_005a6ac0[particleIndex].y =
+            (short)(g_pConstellationViewport_005a6aac->top +
+                    RandomInRange(0, height));
+        g_aConstellationParticles_005a6ac0[particleIndex].velocity =
+            (short)(g_asConstellationVelocity_0046a8d8[randomIndex] *
+                    g_nConstellationDirection_0046a918);
+        g_aConstellationParticles_005a6ac0[particleIndex].frame =
+            (short)(g_asConstellationFrame_0046a8f8[randomIndex] +
+                    RandomInRange(0, 3));
+    }
+    return 0;
+}
+
+/* Function start: 0x42D500 */
+unsigned int DrawConstellationField(void)
+{
+    ConstellationParticle *particle;
+    short height;
+    short index;
+    short randomIndex;
+    short speed;
+
+    height = (short)(g_pConstellationViewport_005a6aac->bottom -
+                     g_pConstellationViewport_005a6aac->top);
+    ClearViewport(g_pConstellationViewport_005a6aac, DAT_004699d8);
+    index = 0;
+    while (index < g_nConstellationStarCount_005a6ab0) {
+        DrawSpriteDefault(g_pConstellationViewport_005a6aac,
+                          g_aConstellationStars_005a6a70[index].x,
+                          g_aConstellationStars_005a6a70[index].y,
+                          g_pConstellationShape_005a765c,
+                          g_aConstellationStars_005a6a70[index].frame);
+        index++;
+    }
+    index = 0;
+    while (index < g_nConstellationParticleCount_005a6b54) {
+        particle = &g_aConstellationParticles_005a6ac0[index];
+        DrawSpriteDefault(g_pConstellationViewport_005a6aac,
+                          particle->x, particle->y,
+                          g_pConstellationShape_005a765c,
+                          particle->frame);
+        particle->x = (short)(particle->x + particle->velocity);
+        particle->frame = (short)(
+            (particle->frame & 0xfc) + (particle->frame + 1) % 4);
+        if (g_nConstellationDirection_0046a918 < 0) {
+            if (particle->x < g_pConstellationViewport_005a6aac->left) {
+                randomIndex = RandomInRange(0, 15);
+                speed = g_asConstellationVelocity_0046a8d8[randomIndex];
+                particle->x = (short)(
+                    g_pConstellationViewport_005a6aac->right -
+                    RandomInRange(0, speed));
+                particle->y = (short)(
+                    g_pConstellationViewport_005a6aac->top +
+                    RandomInRange(0, height));
+                particle->velocity = (short)-speed;
+                particle->frame = (short)(
+                    g_asConstellationFrame_0046a8f8[randomIndex] +
+                    RandomInRange(0, 3));
+            }
+        } else if (particle->x >
+                   g_pConstellationViewport_005a6aac->right) {
+            randomIndex = RandomInRange(0, 15);
+            speed = g_asConstellationVelocity_0046a8d8[randomIndex];
+            particle->velocity = speed;
+            particle->x = (short)(
+                g_pConstellationViewport_005a6aac->left +
+                RandomInRange(0, speed));
+            particle->y = (short)(
+                g_pConstellationViewport_005a6aac->top +
+                RandomInRange(0, height));
+            particle->frame = (short)(
+                g_asConstellationFrame_0046a8f8[randomIndex] +
+                RandomInRange(0, 3));
+        }
+        index++;
+    }
+    return 0;
+}
+
 /* Function start: 0x42D730 */
 unsigned int OpenPacketSection(const char *filename, short section,
                                PacketSectionHandle *handle)

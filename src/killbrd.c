@@ -131,6 +131,11 @@ void InitializeRoomViewports(void)
 short RecRoom(void)
 {
     InputEventState event;
+    ShortRect currentBounds;
+    ShortRect dirtyBounds[3];
+    ShortRect previousBounds[3];
+    Viewport dirtyDestination;
+    Viewport dirtySource;
     signed char characterIds[2];
     signed char *animations[3];
     unsigned char savedInputMode;
@@ -140,6 +145,7 @@ short RecRoom(void)
     short index;
     short region;
     short result;
+    int firstFrame;
     int rosterOffset;
     int personality;
 
@@ -220,14 +226,35 @@ short RecRoom(void)
                        g_szDefaultTextBuffer_005a7590, 2);
     g_pRecRoomBackgroundShape_00598a50 =
         (unsigned char *)FetchDiskPacketRetrying(5, 0, 0);
+    init_constellation(0);
+    g_stConstellationViewport_005a6b40 = DAT_005a76b0;
+    SetViewportRect(&g_stConstellationViewport_005a6b40,
+                    54, 35, 146, 72);
+    InitializeConstellationField(&g_stConstellationViewport_005a6b40,
+                                 -1, 6);
     animations[0] = g_apRecRoomAnimations_00470458[9];
     animations[1] = characterIds[0] >= 0 && characterIds[0] < 8 ?
         g_apRecRoomAnimations_00470458[characterIds[0]] : 0;
     animations[2] = characterIds[1] >= 0 && characterIds[1] < 8 ?
         g_apRecRoomAnimations_00470458[characterIds[1]] : 0;
+    index = 0;
+    do {
+        previousBounds[index].left =
+            g_aRecRoomMenuRegions_004704a0[index].left;
+        previousBounds[index].top =
+            g_aRecRoomMenuRegions_004704a0[index].top;
+        previousBounds[index].right =
+            g_aRecRoomMenuRegions_004704a0[index].right;
+        previousBounds[index].bottom =
+            g_aRecRoomMenuRegions_004704a0[index].bottom;
+        dirtyBounds[index] = previousBounds[index];
+        index++;
+    } while (index < 3);
+    firstFrame = 1;
 
     savedInputMode = g_bInputMode_0059a848;
     g_bInputMode_0059a848 = 1;
+    g_nMenuPointerSpeed_0046af58 = 1;
     DAT_0059ab23 = &g_stRoomDisplayViewport_00598a60;
     EnterAllocationScope();
     WarpMouseTo(160, 100);
@@ -237,6 +264,7 @@ short RecRoom(void)
     while (result == 0) {
         PumpWindowMessages();
         if (IsFrameTickElapsed() != 0) {
+            DrawConstellationField();
             DrawSpriteDefault(&DAT_005a76b0, 0, 0,
                               g_pRecRoomBackgroundShape_00598a50, 0);
             if (characterMask != 0)
@@ -267,15 +295,62 @@ short RecRoom(void)
                         g_aRecRoomCharacterOrigins_00470490[index].x,
                         g_aRecRoomCharacterOrigins_00470490[index].y,
                         g_apRecRoomCharacterShapes_005988c0[index], frame);
+                    GetShapeFrameBounds(
+                        &currentBounds.left,
+                        g_aRecRoomCharacterOrigins_00470490[index].x,
+                        g_aRecRoomCharacterOrigins_00470490[index].y,
+                        g_apRecRoomCharacterShapes_005988c0[index], frame);
+                    dirtyBounds[index].left = MinShort(
+                        previousBounds[index].left, currentBounds.left);
+                    dirtyBounds[index].top = MinShort(
+                        previousBounds[index].top, currentBounds.top);
+                    dirtyBounds[index].right = MaxShort(
+                        previousBounds[index].right, currentBounds.right);
+                    dirtyBounds[index].bottom = MaxShort(
+                        previousBounds[index].bottom, currentBounds.bottom);
+                    previousBounds[index] = currentBounds;
                 }
                 index++;
             } while (index < 3);
-            CopyViewportContents(&DAT_005a76b0,
-                                 &g_stRoomScreenViewport_005988a0);
+            if (firstFrame != 0) {
+                CopyViewportContents(&DAT_005a76b0,
+                                     &g_stRoomScreenViewport_005988a0);
+                firstFrame = 0;
+            } else {
+                dirtySource = DAT_005a76b0;
+                dirtyDestination = g_stRoomScreenViewport_005988a0;
+                SetViewportRect(&dirtySource, 54, 35, 146, 72);
+                SetViewportRect(&dirtyDestination, 54, 35, 146, 72);
+                CopyViewportContents(&dirtySource, &dirtyDestination);
+                index = 0;
+                do {
+                    if (g_apRecRoomCharacterShapes_005988c0[index] != 0) {
+                        dirtySource = DAT_005a76b0;
+                        dirtyDestination =
+                            g_stRoomScreenViewport_005988a0;
+                        SetViewportRect(
+                            &dirtySource,
+                            (unsigned short)dirtyBounds[index].left,
+                            (unsigned short)dirtyBounds[index].top,
+                            (unsigned short)dirtyBounds[index].right,
+                            (unsigned short)dirtyBounds[index].bottom);
+                        SetViewportRect(
+                            &dirtyDestination,
+                            (unsigned short)dirtyBounds[index].left,
+                            (unsigned short)dirtyBounds[index].top,
+                            (unsigned short)dirtyBounds[index].right,
+                            (unsigned short)dirtyBounds[index].bottom);
+                        CopyViewportContents(&dirtySource,
+                                             &dirtyDestination);
+                    }
+                    index++;
+                } while (index < 3);
+            }
             RefreshRoomMenuLabel();
             SetFrameTimerPeriodDirect(9);
         }
 
+        region = -1;
         eventType = PollInputEvent(&event, 0xff);
         if (eventType == 13) {
             UpdateRoomMenuCursor();
@@ -307,6 +382,43 @@ short RecRoom(void)
                 MoveMenuPointerFromKeyboard(&event);
             }
         }
+        if (region >= 0 && region < 3 &&
+            g_apRecRoomCharacterShapes_005988c0[region] != 0) {
+            FlushInputEvents();
+            free_constellation();
+            FreePacketAndClear(
+                (int *)&g_pRecRoomBackgroundShape_00598a50, 0);
+            DAT_005a76b0.bottom = 127;
+            DAT_005a6baa = 24;
+            DAT_005a6bae = 151;
+            InitializeConversationText();
+            ClearViewport(&g_stRoomScreenViewport_005988a0,
+                          DAT_0046999c);
+            g_pConversationBackdropShape_00598c04 =
+                (unsigned char *)FetchDiskPacketRetrying(5, 1, 0);
+            SceneDirector(2,
+                          g_apRecRoomSceneData_00598ae0[region],
+                          g_apRecRoomTextData_00598aa0[region]);
+            DAT_0059ab58 = 0;
+            SetEventManagerPump(PollMenuInputDevices);
+            FreePacketAndClear(
+                (int *)&g_pConversationBackdropShape_00598c04, 0);
+            SetFrameTimerPeriodDirect(1);
+            DAT_005a76b0.bottom = 199;
+            DAT_005a6baa = 0;
+            DAT_005a6bae = 199;
+            init_constellation(0);
+            g_stConstellationViewport_005a6b40 = DAT_005a76b0;
+            SetViewportRect(&g_stConstellationViewport_005a6b40,
+                            54, 35, 146, 72);
+            InitializeConstellationField(
+                &g_stConstellationViewport_005a6b40, -1, 6);
+            g_pRecRoomBackgroundShape_00598a50 =
+                (unsigned char *)FetchDiskPacketRetrying(5, 0, 0);
+            ClearViewport(&g_stRoomScreenViewport_005988a0,
+                          DAT_0046999c);
+            firstFrame = 1;
+        }
         ShowMemoryStatusDebug();
         DIBslam();
         DIBslamReal();
@@ -324,6 +436,7 @@ short RecRoom(void)
         index++;
     } while (index < 3);
     FreePacketAndClear((int *)&g_pRecRoomBackgroundShape_00598a50, 0);
+    free_constellation();
     ReleaseTextFont(0);
     FreePacketAndClear((int *)&g_pBriefingPacket_00598aec, 0);
     free_viewport(&DAT_005a76b0);

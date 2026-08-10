@@ -100,6 +100,15 @@ unsigned int player_wingman(short obj);                                  /* 0x00
 void set_speed(short obj, short speed);                                  /* 0x00403F10 */
 void auto_position(short obj, short *formationSlot);                     /* 0x00403F40 */
 void auto_pilot_sequence(void);                                          /* 0x00404050 */
+unsigned int ParseFaceAnimation(char *text, short *commands);           /* 0x00404CD0 */
+unsigned int ParseMouthAnimation(char *text, short *commands);          /* 0x00404D70 */
+char *AddPCName(char *text);                                            /* 0x00404E10 */
+unsigned int LoadFace(short face);                                      /* 0x004050B0 */
+unsigned int LongTalk(unsigned char *talker, char *text,
+                      short *mouthCommands, short *faceCommands,
+                      short duration);                                 /* 0x00405290 */
+unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
+                       short faceFrame);                               /* 0x004054B0 */
 unsigned int LoadBriefingData(short series, short mission);             /* 0x00405910 */
 unsigned int LoadMissionData(short series, short mission);              /* 0x004059B0 */
 void SetShipAiScratchWord(unsigned short v);                                 /* 0x004060A0 */
@@ -487,6 +496,7 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...);    /* 0x0041
 void ReleaseModalTextPanel(void);                                      /* 0x0041AD10 */
 short AnySavedGames(void);                                             /* 0x0041AD50 */
 short BarracksScreen(void);                                            /* 0x0041C170 */
+char *__stdcall DosStrcat(char *destination, const char *source);      /* 0x0041C740 */
 DWORD WINAPI DebugOverlayWorkerProc(void *parameter);                  /* 0x0041C960 */
 LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
                                        LPARAM flags);                  /* 0x0041CA60 */
@@ -515,6 +525,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile);             /* 0x004
 unsigned int GetZeroUnused(void);                                        /* 0x0041DA00 */
 short CheckEscaped(void);                                               /* 0x0041DA10 */
 short WaitForInputKey(void);                                         /* 0x0041DAA0 */
+void WaitForSceneAdvance(short duration);                              /* 0x0041DBA0 */
 void MoveMenuPointerFromKeyboard(InputEventState *event);               /* 0x0041DC70 */
 void EraseLastTextInputCharacter(void);                              /* 0x0041DDF0 */
 short WaitForStreamInputKey(void);                                  /* 0x0041DEB0 */
@@ -726,6 +737,7 @@ unsigned int initialize_view_buffer(void);                                /* 0x0
 unsigned int dump_buffer_to_screen(void);                                 /* 0x00427A40 */
 unsigned int clear_view_buffer(void);                                     /* 0x00427B00 */
 unsigned int ResetScreenClipToFullHeight(void);                                         /* 0x00427BA0 */
+unsigned int InitializeConversationText(void);                         /* 0x00427BC0 */
 unsigned int RefreshMemoryStatusOverlay(void);                                         /* 0x00427C30 */
 void Update_3Space(void);                                               /* 0x00427C50 */
 unsigned int UpdateSpacePaletteFade(void);                              /* 0x00427CD0 */
@@ -800,12 +812,16 @@ unsigned short GetJoystickPresentUnused(void);                                  
 unsigned int parse_view_script(void);                                  /* 0x0042CDB0 */
 unsigned int update_scripted_view(void);                               /* 0x0042D1C0 */
 void initialize_scripted_view(const short *script);                    /* 0x0042D230 */
+unsigned int InitializeFireworks(void);                                /* 0x0042D270 */
+short TheEndFireWorks(Viewport *viewport, short count);                /* 0x0042D2A0 */
+unsigned int InitializeConstellationField(Viewport *viewport,
+                                          short direction,
+                                          short density);             /* 0x0042D390 */
+unsigned int DrawConstellationField(void);                             /* 0x0042D500 */
 unsigned int OpenPacketSection(const char *filename, short section,
                                PacketSectionHandle *handle);           /* 0x0042D730 */
 void show_target_disp(void);                                         /* 0x0042DB90 */
 void DrawTargetRangeReadout(void);                                   /* 0x0042DEA0 */
-unsigned int InitializeFireworks(void);                                  /* 0x0042D270 */
-short TheEndFireWorks(Viewport *viewport, short count);                  /* 0x0042D2A0 */
 void CloseDataFileByHandle(unsigned short *p);                                  /* 0x0042D870 */
 short GetTargetColourIndex(void);                                                /* 0x0042DB70 */
 void LogDisplayMode(const char *mode);                                 /* 0x0042E020 */
@@ -1049,7 +1065,16 @@ void __stdcall FillGraphicSuffix(char *path, short number,
                                  short digits);                        /* 0x00436C70 */
 void __stdcall ConvertChar_Int(char *text, short number,
                               short digits);                          /* 0x00436CB0 */
-unsigned int BeginBriefingScene(void);                                         /* 0x00438B90 */
+int no_objectives_achieved(void);                                      /* 0x00438090 */
+short wing_status(short personality);                                  /* 0x004380D0 */
+short int_value(char **text);                                          /* 0x00438110 */
+ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
+                                    ConversationSceneRecord *sceneData,
+                                    unsigned char *textData);          /* 0x00438160 */
+unsigned int TalkerInit(void);                                         /* 0x00438B90 */
+unsigned int FreeTalker(void);                                         /* 0x00438BC0 */
+unsigned int SceneDirector(short sceneType, unsigned char *sceneData,
+                           unsigned char *textData);                    /* 0x00438C00 */
 void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
                                unsigned short top, unsigned short right,
                                unsigned short bottom);                /* 0x00439400 */

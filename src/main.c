@@ -137,6 +137,25 @@ unsigned int ResetScreenClipToFullHeight(void)
     return 0;
 }
 
+/* Function start: 0x427BC0 */
+unsigned int InitializeConversationText(void)
+{
+    g_stConversationTextViewport_005a7570 =
+        g_stModalSourceViewport_005a7670;
+    g_stConversationTextViewport_005a7570.top = 152;
+    g_stConversationTextContext_005a7760.viewport =
+        &g_stConversationTextViewport_005a7570;
+    g_stConversationTextContext_005a7760.text =
+        g_szDefaultTextBuffer_005a7590;
+    g_stConversationTextContext_005a7760.alignment = 2;
+    InitializeTextContextFromFont(&g_stConversationTextContext_005a7760,
+                                  0,
+                                  g_cViewportClearColour_004699a0,
+                                  DAT_0046999c);
+    SetTextContext(&g_stConversationTextContext_005a7760);
+    return 0;
+}
+
 /* Function start: 0x427C30 */
 unsigned int RefreshMemoryStatusOverlay(void)
 {

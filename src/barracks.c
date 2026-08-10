@@ -116,3 +116,13 @@ short BarracksScreen(void)
     ReleaseMusicTrackHook(35);
     return result;
 }
+
+/* Function start: 0x41C740 */
+char *__stdcall DosStrcat(char *destination, const char *source)
+{
+    char *end;
+
+    end = DosStrchr(destination, 0);
+    DosStrcpy(end, source);
+    return destination;
+}

@@ -64,12 +64,416 @@ typedef char MissionObjectiveDisk_size_must_be_0x40[
 typedef char MissionShipDisk_size_must_be_0x2a[
     sizeof(MissionShipDisk) == 0x2a ? 1 : -1];
 
+/* Function start: 0x404CD0 */
+unsigned int ParseFaceAnimation(char *text, short *commands)
+{
+    char character;
+    char duration[8];
+    char *durationCursor;
+    short frame;
+    short sequenceIndex;
+    char *next;
+
+    sequenceIndex = 0;
+    character = *text;
+    while ((frame = (short)character) != 0) {
+        next = text + 1;
+        if (frame == 'R') {
+            commands[0] = -2;
+            commands[1] = sequenceIndex;
+        } else {
+            if (frame >= 'A' && frame <= 'F')
+                frame = (short)(frame - 'A' + 10);
+            else
+                frame = (short)(frame - '0');
+            commands[0] = frame;
+            durationCursor = duration;
+            character = *next;
+            next = text + 2;
+            while (character != ',') {
+                *durationCursor = character;
+                durationCursor++;
+                character = *next;
+                next++;
+            }
+            sequenceIndex++;
+            *durationCursor = '\0';
+            commands[1] = (short)atoi(duration);
+        }
+        commands += 2;
+        text = next;
+        character = *next;
+    }
+    *commands = -1;
+    return 0;
+}
+
+/* Function start: 0x404D70 */
+unsigned int ParseMouthAnimation(char *text, short *commands)
+{
+    char character;
+    char duration[5] = "";
+    short durationLength;
+    short ticks;
+
+    character = *text;
+    for (;;) {
+        if (character == '\0') {
+            *commands = -1;
+            return 0;
+        }
+        text++;
+        if (character == '$') {
+            *commands = 9;
+        } else if (character <= 'z') {
+            if (character < 'a') {
+                character = *text;
+                continue;
+            }
+            *commands = g_asMouthFramesByPhoneme_004655f0[
+                character - 'a'];
+        } else {
+            character = *text;
+            continue;
+        }
+        ticks = 1;
+        durationLength = 0;
+        while (*text <= '9') {
+            character = *text;
+            if (character < '0')
+                break;
+            duration[durationLength] = character;
+            durationLength++;
+            text++;
+            duration[durationLength] = '\0';
+            ticks = (short)atoi(duration);
+            character = *text;
+        }
+        commands[1] = ticks;
+        commands += 2;
+        character = *text;
+    }
+}
+
+/* Function start: 0x404E10 */
+char *AddPCName(char *text)
+{
+    char formatted[12];
+    char *marker;
+    char *output;
+    short length;
+
+    g_szTextScratchBuffer_00598b00[0] = '\0';
+    for (;;) {
+        marker = DosStrchr(text, '$');
+        if (marker == 0) {
+            DosStrcat(g_szTextScratchBuffer_00598b00, text);
+            return g_szTextScratchBuffer_00598b00;
+        }
+        output = DosStrchr(g_szTextScratchBuffer_00598b00, 0);
+        while (text != marker) {
+            *output = *text;
+            output++;
+            text++;
+        }
+        *output = '\0';
+        text = marker + 2;
+        switch (marker[1]) {
+        case 'A':
+            DosStrcat(g_szTextScratchBuffer_00598b00,
+                      g_apszMedalNames_0046e2e0[
+                          g_nConversationMedalIndex_00598c08]);
+            break;
+        case 'C':
+            DosStrcat(g_szTextScratchBuffer_00598b00,
+                      g_stCampaignState_0059ca50.currentPilot->callsign);
+            break;
+        case 'D':
+            sprintf(formatted, g_szCampaignDateFormat_00465630,
+                    g_pCurrentCampaignDate_005a86a8->year,
+                    g_pCurrentCampaignDate_005a86a8->day);
+            DosStrcat(g_szTextScratchBuffer_00598b00, formatted);
+            break;
+        case 'E':
+            sprintf(formatted, g_szSavedCampaignDateFormat_0046563c,
+                    g_stSavedCampaignDate_0046e188.year,
+                    g_stSavedCampaignDate_0046e188.day);
+            DosStrcat(g_szTextScratchBuffer_00598b00, formatted);
+            break;
+        case 'K':
+            sprintf(formatted, g_szConversationIntegerFormat_00465628,
+                    g_nPlayerKillCount_005a7c9c);
+            DosStrcat(g_szTextScratchBuffer_00598b00, formatted);
+            break;
+        case 'L':
+            sprintf(formatted,
+                    g_szConversationIntegerFormatAlt_0046562c,
+                    g_asCollisionTime_005a7ca0[12]);
+            DosStrcat(g_szTextScratchBuffer_00598b00, formatted);
+            break;
+        case 'N':
+        case 'P':
+            DosStrcat(g_szTextScratchBuffer_00598b00,
+                      g_stCampaignState_0059ca50.currentPilot->name);
+            break;
+        case 'R':
+            DosStrcat(g_szTextScratchBuffer_00598b00,
+                      g_apszPilotRankNames_00470098[
+                          g_stCampaignState_0059ca50.currentPilot->rank]);
+            length = DosStrlen(g_szTextScratchBuffer_00598b00);
+            if (length != 0 &&
+                g_szTextScratchBuffer_00598b00[length - 1] == '.' &&
+                *text == '.')
+                g_szTextScratchBuffer_00598b00[length - 1] = '\0';
+            break;
+        case 'S':
+            DosStrcat(g_szTextScratchBuffer_00598b00,
+                      (char *)g_abSeriesAuxData_005a8240);
+            break;
+        case 'T':
+            sprintf(formatted, g_szCampaignTimeFormat_00465648,
+                    (int)((signed char *)g_pElapsedCampaignDate_005a86ac)[0],
+                    (int)((signed char *)g_pElapsedCampaignDate_005a86ac)[1]);
+            DosStrcat(g_szTextScratchBuffer_00598b00, formatted);
+            break;
+        case 'W':
+            DosStrcat(g_szTextScratchBuffer_00598b00,
+                      g_apWingmanPilots_00598a30[*text - '0']->name);
+            text++;
+            break;
+        }
+    }
+}
+
+/* Function start: 0x4050B0 */
+unsigned int LoadFace(short face)
+{
+    const TalkingHeadOrigin *origin;
+
+    switch (g_nConversationCharacter_0046e580) {
+    case 0:
+        g_nConversationBackdropFrame_0046e588 = 4;
+        break;
+    case 1:
+        g_nConversationBackdropFrame_0046e588 = 5;
+        break;
+    case 2:
+        g_nConversationBackdropFrame_0046e588 = 0;
+        init_constellation(0);
+        g_stConstellationViewport_005a6b40 = DAT_005a76b0;
+        g_stConstellationViewport_005a6b40.bottom = 76;
+        InitializeConstellationField(&g_stConstellationViewport_005a6b40,
+                                     -1, 16);
+        g_bConversationConstellation_0046e58c = 1;
+        break;
+    case 3:
+    case 11:
+    case 13:
+        g_nConversationBackdropFrame_0046e588 = 1;
+        break;
+    case 4:
+        g_nConversationBackdropFrame_0046e588 = 2;
+        break;
+    case 8:
+        g_nConversationBackdropFrame_0046e588 = 1;
+        init_constellation(0);
+        InitializeConstellationField(&DAT_005a76b0, -1, 16);
+        g_bConversationConstellation_0046e58c = 1;
+        break;
+    case 9:
+        g_nConversationBackdropFrame_0046e588 = 2;
+        break;
+    case 10:
+    case 12:
+        g_nConversationBackdropFrame_0046e588 = 0;
+        break;
+    default:
+        g_nConversationBackdropFrame_0046e588 = -1;
+        break;
+    }
+    if (face != g_nTalkingHeadFace_0046e584 &&
+        g_pTalkingHeadShape_00598c0c != 0)
+        FreePacketAndClear((int *)&g_pTalkingHeadShape_00598c0c, 0);
+    if (g_pTalkingHeadShape_00598c0c == 0)
+        g_pTalkingHeadShape_00598c0c =
+            (unsigned char *)FetchDiskPacketRetrying(6, face, 0);
+    g_nTalkingHeadFace_0046e584 = face;
+    if (g_pConversationOverlayShape_00598c30 == 0)
+        g_pConversationOverlayShape_00598c30 =
+            (unsigned char *)FetchDiskPacketRetrying(6, 11, 0);
+    origin = &g_aTalkingHeadOrigins_0046e190[face];
+    g_nTalkingHeadFaceX_005a8754 = origin->faceX;
+    g_nTalkingHeadFaceY_005a8756 = origin->faceY;
+    g_nTalkingHeadMouthX_005a875a = origin->mouthX;
+    g_nTalkingHeadMouthY_005a8758 = origin->mouthY;
+    CloseTalk(g_pTalkingHeadShape_00598c0c, -1, -1);
+    return 0;
+}
+
+/* Function start: 0x405290 */
+unsigned int LongTalk(unsigned char *talker, char *text,
+                      short *mouthCommands, short *faceCommands,
+                      short duration)
+{
+    short faceCountdown;
+    short faceFrame;
+    short mouthCountdown;
+    short mouthFrame;
+    short *faceCursor;
+    short *mouthCursor;
+    short *next;
+    short escaped;
+    short waiting;
+
+    waiting = 0;
+    AddPCName(text);
+    faceFrame = 0;
+    mouthFrame = 0;
+    faceCountdown = 0;
+    mouthCountdown = 0;
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
+    FormatTextBufferFromStart(g_szConversationTextFormat_00465654,
+                              0, 160,
+                              g_nConversationTextColour_00598c10,
+                              g_szTextScratchBuffer_00598b00);
+    DAT_00469fb4 = 1;
+    faceCursor = faceCommands;
+    mouthCursor = mouthCommands;
+    for (;;) {
+        if (*mouthCursor == -1 && *faceCursor == -1) {
+            if (waiting != 0) {
+                IsFrameTickElapsed();
+                return 0;
+            }
+            CloseTalk(talker, -1, -1);
+            DIBslam();
+            DIBslamReal();
+            WaitForSceneAdvance(duration);
+            return 0;
+        }
+        if (mouthCountdown-- == 0) {
+            if (*mouthCursor != -1)
+                mouthCursor += 2;
+            next = mouthCursor;
+            if (*mouthCursor != -2 && *mouthCursor == -1)
+                next = mouthCommands;
+            if (*mouthCursor == -2 || *mouthCursor != -1) {
+                mouthFrame = *next;
+                mouthCursor = next;
+                mouthCountdown = (short)(next[1] * 2);
+            } else {
+                mouthFrame = -1;
+                if (waiting == 0) {
+                    waiting = 1;
+                    SetFrameTimerPeriodDirect(duration);
+                }
+            }
+        }
+        if (faceCountdown-- == 0) {
+            if (*faceCursor != -1)
+                faceCursor += 2;
+            next = faceCursor;
+            if (*faceCursor != -2 && *faceCursor == -1)
+                next = faceCommands;
+            if (*faceCursor == -2 || *faceCursor != -1) {
+                faceFrame = *next;
+                if (faceFrame == 10)
+                    faceFrame = -1;
+                faceCursor = next;
+                faceCountdown = (short)(next[1] * 2);
+            } else {
+                faceFrame = -1;
+            }
+        }
+        DAT_00469fb4--;
+        if (DAT_00469fb4 < 1) {
+            DAT_00469fb4 = g_nFrameSkip_00469fb8;
+            CloseTalk(talker, mouthFrame, faceFrame);
+            DIBslam();
+            DIBslamReal();
+        }
+        escaped = CheckEscaped();
+        if (escaped != 0)
+            break;
+        if (waiting != 0 && IsFrameTickElapsed() != 0)
+            return 0;
+    }
+    do {
+        escaped = CheckEscaped();
+    } while (escaped != 0);
+    return 0;
+}
+
+/* Function start: 0x4054B0 */
+unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
+                       short faceFrame)
+{
+    unsigned char clearColour;
+
+    if (g_bConversationConstellation_0046e58c == 1)
+        DrawConstellationField();
+    clearColour = DAT_0046999c;
+    switch (g_nConversationSceneType_00598c0a) {
+    case 0:
+    case 1:
+    case 2:
+    case 4:
+    case 5:
+        if (g_nConversationBackdropFrame_0046e588 != -1) {
+            DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+                              g_pConversationBackdropShape_00598c04,
+                              g_nConversationBackdropFrame_0046e588);
+            break;
+        }
+        ClearViewport(&DAT_005a76b0, clearColour);
+        break;
+    case 3:
+        ClearViewport(&DAT_005a76b0, DAT_004699d8);
+        break;
+    default:
+        ClearViewport(&DAT_005a76b0, clearColour);
+        break;
+    }
+    DrawSpriteDefault(&DAT_005a76b0, 0, 0, talker, 0);
+    if (faceFrame >= 0)
+        DrawSpriteDefault(&DAT_005a76b0,
+                          g_nTalkingHeadFaceX_005a8754,
+                          g_nTalkingHeadFaceY_005a8756,
+                          talker, (short)(faceFrame + 11));
+    if (mouthFrame >= 0)
+        DrawSpriteDefault(&DAT_005a76b0,
+                          g_nTalkingHeadMouthX_005a875a,
+                          g_nTalkingHeadMouthY_005a8758,
+                          talker, (short)(mouthFrame + 1));
+    if (g_bConversationOverlay_0046e590 != 0)
+        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+                          g_pConversationOverlayShape_00598c30,
+                          MinShort(g_nTalkingHeadFace_0046e584, 1));
+    switch (g_nConversationCharacter_0046e580) {
+    case 5:
+        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+                          g_pConversationSpecialShape_005a86ec, 10);
+        RefreshMemoryStatusOverlay();
+        return 0;
+    case 6:
+        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+                          g_pConversationSpecialShape_005a86ec, 10);
+        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+                          g_pConversationSpecialShape_005a86ec, 11);
+        RefreshMemoryStatusOverlay();
+        return 0;
+    }
+    RefreshMemoryStatusOverlay();
+    return 0;
+}
+
 /* Function start: 0x405910 */
 unsigned int LoadBriefingData(short series, short mission)
 {
     g_pBriefingPacket_00598aec = (unsigned char *)FetchDiskPacketRetrying(
         g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
-        mission + series * 4, 0);
+        (short)(mission + series * 4), 0);
     g_pBriefingSceneData_00598c00 = g_pBriefingPacket_00598aec +
         *(unsigned int *)(g_pBriefingPacket_00598aec + 0x00);
     g_pBriefingTextData_00598af0 = g_pBriefingPacket_00598aec +
@@ -78,17 +482,17 @@ unsigned int LoadBriefingData(short series, short mission)
         *(unsigned int *)(g_pBriefingPacket_00598aec + 0x08);
     g_pDebriefingTextData_00598c28 = g_pBriefingPacket_00598aec +
         *(unsigned int *)(g_pBriefingPacket_00598aec + 0x0c);
-    DAT_00598ae0 = g_pBriefingPacket_00598aec +
+    g_apRecRoomSceneData_00598ae0[0] = g_pBriefingPacket_00598aec +
         *(unsigned int *)(g_pBriefingPacket_00598aec + 0x10);
-    DAT_00598aa0 = g_pBriefingPacket_00598aec +
+    g_apRecRoomTextData_00598aa0[0] = g_pBriefingPacket_00598aec +
         *(unsigned int *)(g_pBriefingPacket_00598aec + 0x14);
-    DAT_00598ae8 = g_pBriefingPacket_00598aec +
+    g_apRecRoomSceneData_00598ae0[2] = g_pBriefingPacket_00598aec +
         *(unsigned int *)(g_pBriefingPacket_00598aec + 0x18);
-    DAT_00598aa8 = g_pBriefingPacket_00598aec +
+    g_apRecRoomTextData_00598aa0[2] = g_pBriefingPacket_00598aec +
         *(unsigned int *)(g_pBriefingPacket_00598aec + 0x1c);
-    DAT_00598ae4 = g_pBriefingPacket_00598aec +
+    g_apRecRoomSceneData_00598ae0[1] = g_pBriefingPacket_00598aec +
         *(unsigned int *)(g_pBriefingPacket_00598aec + 0x20);
-    DAT_00598aa4 = g_pBriefingPacket_00598aec +
+    g_apRecRoomTextData_00598aa0[1] = g_pBriefingPacket_00598aec +
         *(unsigned int *)(g_pBriefingPacket_00598aec + 0x24);
     return 0;
 }

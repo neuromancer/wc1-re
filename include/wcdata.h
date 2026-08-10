@@ -463,6 +463,19 @@ typedef struct CampaignDate {
     short year;
 } CampaignDate;
 
+/* One packed command in BRIEFING.000's scene stream.  The Win32 director
+ * advances these records with a 13-byte stride retained from the DOS data. */
+typedef struct ConversationSceneRecord {
+    signed char shot;                 /* +0x00 */
+    signed char textColour;           /* +0x01 */
+    signed char talker;               /* +0x02 */
+    short duration;                   /* +0x03 */
+    short testsOffset;                /* +0x05 */
+    short textOffset;                 /* +0x07 */
+    short mouthAnimationOffset;       /* +0x09 */
+    short faceAnimationOffset;        /* +0x0B */
+} ConversationSceneRecord;
+
 /* The complete persistent campaign record copied by ResetCampaignData.  The
  * four bytes at +0x44 are the ace-state flags; the following eight bytes are
  * two dates, rather than a single twelve-byte flag array as the old placeholder
@@ -509,6 +522,8 @@ typedef char PilotRecord_size_must_be_0x26[
     sizeof(PilotRecord) == 0x26 ? 1 : -1];
 typedef char CampaignState_size_must_be_0x58[
     sizeof(CampaignState) == 0x58 ? 1 : -1];
+typedef char ConversationSceneRecord_size_must_be_0x0d[
+    sizeof(ConversationSceneRecord) == 0x0d ? 1 : -1];
 typedef char PacketSectionHandle_size_must_be_0x14[
     sizeof(PacketSectionHandle) == 0x14 ? 1 : -1];
 
@@ -538,6 +553,37 @@ typedef struct ManeuverChoice {
     signed char primary;
     signed char secondary;
 } ManeuverChoice;
+
+/* Coordinates for the independently animated face and mouth layers in a
+ * talking-head shape packet. */
+typedef struct TalkingHeadOrigin {
+    short faceX;
+    short faceY;
+    short mouthX;
+    short mouthY;
+} TalkingHeadOrigin;
+
+/* The constellation renderer keeps ten static stars and sixteen horizontally
+ * moving particles. */
+typedef struct ConstellationStar {
+    short x;
+    short y;
+    short frame;
+} ConstellationStar;
+
+typedef struct ConstellationParticle {
+    short x;
+    short y;
+    short velocity;
+    short frame;
+} ConstellationParticle;
+
+typedef char TalkingHeadOrigin_size_must_be_0x08[
+    sizeof(TalkingHeadOrigin) == 0x08 ? 1 : -1];
+typedef char ConstellationStar_size_must_be_0x06[
+    sizeof(ConstellationStar) == 0x06 ? 1 : -1];
+typedef char ConstellationParticle_size_must_be_0x08[
+    sizeof(ConstellationParticle) == 0x08 ? 1 : -1];
 
 /* Runtime mission-nav record.  The loader expands each 3-byte disk coordinate
  * to a 32-bit fixed-point value, producing the 0x51-byte stride observed at

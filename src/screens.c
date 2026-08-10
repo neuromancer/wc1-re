@@ -6,11 +6,415 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x438B90 */
-unsigned int BeginBriefingScene(void)
+/* Function start: 0x438090 */
+int no_objectives_achieved(void)
 {
-    DAT_00598c18 = (unsigned int)AllocateTaggedMemory(0x140, 0);
-    DAT_00598af4 = (unsigned int)AllocateTaggedMemory(0x140, 0);
+    short objective;
+
+    objective = 0;
+    while (objective < g_cMissionObjectiveCount_0059c46a) {
+        if (achieved(objective) != 0)
+            break;
+        objective++;
+    }
+    return objective >= g_cMissionObjectiveCount_0059c46a;
+}
+
+/* Function start: 0x4380D0 */
+short wing_status(short personality)
+{
+    int currentMission;
+    int deathMission;
+
+    deathMission =
+        g_stCampaignState_0059ca50.personalityDeathMission[personality];
+    if (deathMission == 0)
+        return 3;
+    currentMission = (int)g_stCampaignState_0059ca50.currentMission +
+        (int)g_stCampaignState_0059ca50.currentSeries * 4;
+    if (currentMission == deathMission)
+        return 1;
+    if (currentMission > deathMission)
+        return 2;
+    return currentMission;
+}
+
+/* Function start: 0x438110 */
+short int_value(char **text)
+{
+    char number[8];
+    char *destination;
+    short character;
+
+    destination = number;
+    character = (short)**text;
+    while (character != ',' && character != ')') {
+        (*text)++;
+        *destination = character;
+        destination++;
+        character = **text;
+    }
+    *destination = '\0';
+    (*text)++;
+    return (short)atoi(number);
+}
+
+/* Function start: 0x438160 */
+ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
+                                    ConversationSceneRecord *sceneData,
+                                    unsigned char *textData)
+{
+    char *test;
+    short first;
+    short second;
+    short testCode;
+
+    test = (char *)textData + record->testsOffset;
+    for (;;) {
+        testCode = (short)*test++;
+        if (testCode == 0)
+            return record;
+        switch (testCode) {
+        case 1:
+            first = int_value(&test);
+            return sceneData + first;
+        case 2:
+            first = int_value(&test);
+            second = int_value(&test);
+            if (g_stCampaignState_0059ca50.missionScore < first)
+                return sceneData + second;
+            break;
+        case 3:
+            first = int_value(&test);
+            second = int_value(&test);
+            if (first <= g_stCampaignState_0059ca50.missionScore)
+                return sceneData + second;
+            break;
+        case 4:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)wing_status(first) != 3)
+                return sceneData + second;
+            break;
+        case 5:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)wing_status(first) == 3)
+                return sceneData + second;
+            break;
+        case 6:
+            first = int_value(&test);
+            if (g_nPlayerKillCount_005a7c9c == 0)
+                return sceneData + first;
+            break;
+        case 7:
+            first = int_value(&test);
+            if (g_nPlayerKillCount_005a7c9c != 0)
+                return sceneData + first;
+            break;
+        case 8:
+            first = int_value(&test);
+            if (g_asCollisionTime_005a7ca0[12] == 0)
+                return sceneData + first;
+            break;
+        case 9:
+            first = int_value(&test);
+            if (g_asCollisionTime_005a7ca0[12] != 0)
+                return sceneData + first;
+            break;
+        case 10:
+            first = int_value(&test);
+            if (DAT_004688cc == 0)
+                return sceneData + first;
+            break;
+        case 11:
+            first = int_value(&test);
+            second = int_value(&test);
+            if (achieved(first) == 0)
+                return sceneData + second;
+            break;
+        case 12:
+            first = int_value(&test);
+            second = int_value(&test);
+            if (achieved(first) != 0)
+                return sceneData + second;
+            break;
+        case 13:
+            first = int_value(&test);
+            if (g_nConversationMedalIndex_00598c08 == 4)
+                return sceneData + first;
+            break;
+        case 14:
+            first = int_value(&test);
+            if (g_nConversationMedalIndex_00598c08 < 3)
+                return sceneData + first;
+            break;
+        case 15:
+            first = int_value(&test);
+            if (g_nConversationMedalIndex_00598c08 == 3)
+                return sceneData + first;
+            break;
+        case 16:
+            first = int_value(&test);
+            if (DAT_004688d0 != 1)
+                return sceneData + first;
+            break;
+        case 17:
+            first = int_value(&test);
+            if (DAT_004688d4 == 0)
+                return sceneData + first;
+            break;
+        case 18:
+            first = int_value(&test);
+            if (DAT_004688d4 == 1 &&
+                g_stCampaignState_0059ca50.elapsedDate.year == 1)
+                return sceneData + first;
+            break;
+        case 19:
+            first = int_value(&test);
+            if (DAT_004688d8 != 1)
+                return sceneData + first;
+            break;
+        case 20:
+            first = int_value(&test);
+            if (g_stCampaignState_0059ca50.playerShipType != 0)
+                return sceneData + first;
+            break;
+        case 21:
+            first = int_value(&test);
+            if (g_stCampaignState_0059ca50.playerShipType != 2)
+                return sceneData + first;
+            break;
+        case 22:
+            first = int_value(&test);
+            if (g_stCampaignState_0059ca50.playerShipType != 3)
+                return sceneData + first;
+            break;
+        case 23:
+            first = int_value(&test);
+            if (g_stCampaignState_0059ca50.playerShipType != 1)
+                return sceneData + first;
+            break;
+        case 24:
+            first = int_value(&test);
+            if (g_stCampaignState_0059ca50.playerShipType != 1 &&
+                g_stCampaignState_0059ca50.playerShipType < DAT_004688dc)
+                return sceneData + first;
+            break;
+        case 25:
+            first = int_value(&test);
+            if (g_stCampaignState_0059ca50.playerShipType == 1 ||
+                g_stCampaignState_0059ca50.playerShipType >= DAT_004688dc)
+                return sceneData + first;
+            break;
+        case 26:
+            first = int_value(&test);
+            if (DAT_004688d4 == 1 &&
+                g_stCampaignState_0059ca50.elapsedDate.year > 1)
+                return sceneData + first;
+            break;
+        case 27:
+            first = int_value(&test);
+            second = int_value(&test);
+            if (sighted(first) != 0)
+                return sceneData + second;
+            break;
+        case 28:
+            first = int_value(&test);
+            second = int_value(&test);
+            if (sighted(first) == 0)
+                return sceneData + second;
+            break;
+        case 29:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)wing_status(first) == 2)
+                return sceneData + second;
+            break;
+        case 30:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)wing_status(first) == 1)
+                return sceneData + second;
+            break;
+        case 31:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)ace_status(first, 1) == 0)
+                return sceneData + second;
+            break;
+        case 32:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)ace_status(first, 1) != 0)
+                return sceneData + second;
+            break;
+        case 33:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)ace_status(first, 2) == 0 &&
+                (short)ace_status(first, 1) == 0)
+                return sceneData + second;
+            break;
+        case 34:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)ace_status(first, 2) != 0)
+                return sceneData + second;
+            break;
+        case 35:
+            first = int_value(&test);
+            if (PlayersMissionScore() == FullMissionScore())
+                return sceneData + first;
+            break;
+        case 36:
+            first = int_value(&test);
+            if (PlayersMissionScore() < FullMissionScore())
+                return sceneData + first;
+            break;
+        case 37:
+            first = int_value(&test);
+            if (no_objectives_achieved() != 0)
+                return sceneData + first;
+            break;
+        case 38:
+            first = int_value(&test);
+            if (no_objectives_achieved() == 0)
+                return sceneData + first;
+            break;
+        }
+    }
+}
+
+/* Function start: 0x438B90 */
+unsigned int TalkerInit(void)
+{
+    g_pFaceAnimationCommands_00598c18 =
+        (short *)AllocateTaggedMemory(0x140, 0);
+    g_pMouthAnimationCommands_00598af4 =
+        (short *)AllocateTaggedMemory(0x140, 0);
+    return 0;
+}
+
+/* Function start: 0x438BC0 */
+unsigned int FreeTalker(void)
+{
+    FreePacketAndClear((int *)&g_pConversationOverlayShape_00598c30, 0);
+    FreePacketAndClear((int *)&g_pTalkingHeadShape_00598c0c, 0);
+    FreePacketAndClear((int *)&g_pMouthAnimationCommands_00598af4, 0);
+    FreePacketAndClear((int *)&g_pFaceAnimationCommands_00598c18, 0);
+    return 0;
+}
+
+/* Function start: 0x438C00 */
+unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
+                           unsigned char *textData)
+{
+    ConversationSceneRecord *record;
+    ConversationSceneRecord *selected;
+    short duration;
+    short previousColour;
+    short previousShot;
+    short shot;
+
+    g_nConversationSceneType_00598c0a = sceneType;
+    previousShot = -2;
+    previousColour = -2;
+    TalkerInit();
+    g_bInputMode_0059a848 = 1;
+    ClearInputKeyState();
+    FlushInputEvents();
+    SetEventManagerPump(PollJoystickButtonEvents);
+    DAT_0059ab58 = 0;
+    record = (ConversationSceneRecord *)sceneBytes;
+    while (DAT_0059ab58 != 1) {
+        shot = (short)record->shot;
+        if (shot == -2)
+            break;
+        if (shot != -1) {
+            if ((shot & 0x40) != 0) {
+                g_bConversationOverlay_0046e590 = 1;
+                shot &= 0x3f;
+            } else {
+                g_bConversationOverlay_0046e590 = 0;
+            }
+        }
+        selected = record;
+        while (selected->testsOffset != 0) {
+            selected = ParseTests(selected,
+                                  (ConversationSceneRecord *)sceneBytes,
+                                  textData);
+            if (selected == record)
+                break;
+            record = selected;
+            shot = (short)record->shot;
+            if (shot == -2)
+                goto scene_complete;
+            if (shot != -1) {
+                if ((shot & 0x40) != 0) {
+                    g_bConversationOverlay_0046e590 = 1;
+                    shot &= 0x3f;
+                } else {
+                    g_bConversationOverlay_0046e590 = 0;
+                }
+            }
+        }
+        if (shot == -1)
+            shot = previousShot;
+        if (selected->talker != -2)
+            g_nConversationCharacter_0046e580 = selected->talker;
+        duration = selected->duration;
+        if (shot >= 12 && shot <= 15 && previousShot != shot) {
+            init_constellation(0);
+            g_stConstellationViewport_005a6b40 = DAT_005a76b0;
+            InitializeConstellationField(&g_stConstellationViewport_005a6b40,
+                                         -1, 16);
+            g_bConversationConstellation_0046e58c = 1;
+            g_nTalkingHeadFace_0046e584 = -1;
+            previousShot = shot;
+        } else if (shot >= 20 && shot <= 30 && previousShot != shot) {
+            LoadFace((short)(shot - 20));
+            previousShot = shot;
+        } else if (shot != previousShot) {
+            g_nTalkingHeadFace_0046e584 = -1;
+            previousShot = shot;
+        }
+        if (selected->textColour != -1 &&
+            previousColour != selected->textColour) {
+            g_nConversationTextColour_00598c10 =
+                g_asConversationTextColours_004699f0[
+                    (unsigned char)selected->textColour];
+            previousColour = selected->textColour;
+        }
+        g_pMouthAnimationCommands_00598af4[0] = -1;
+        if (textData[selected->mouthAnimationOffset] != '\0')
+            ParseMouthAnimation((char *)textData +
+                                    selected->mouthAnimationOffset,
+                                g_pMouthAnimationCommands_00598af4);
+        g_pFaceAnimationCommands_00598c18[0] = -1;
+        if (textData[selected->faceAnimationOffset] != '\0')
+            ParseFaceAnimation((char *)textData +
+                                   selected->faceAnimationOffset,
+                               g_pFaceAnimationCommands_00598c18);
+        FlushInputEvents();
+        if (textData[selected->textOffset] != '\0' &&
+            shot >= 20 && shot <= 30)
+            LongTalk(g_pTalkingHeadShape_00598c0c,
+                     (char *)textData + selected->textOffset,
+                     g_pMouthAnimationCommands_00598af4,
+                     g_pFaceAnimationCommands_00598c18,
+                     duration);
+        record = selected + 1;
+    }
+scene_complete:
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
+    FreeTalker();
+    SetEventManagerPump(0);
+    if (g_bConversationConstellation_0046e58c == 1) {
+        free_constellation();
+        g_bConversationConstellation_0046e58c = 0;
+    }
     return 0;
 }
 
