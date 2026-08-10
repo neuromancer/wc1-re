@@ -99,7 +99,8 @@ unsigned int player_wingman(short obj);                                  /* 0x00
 void set_speed(short obj, short speed);                                  /* 0x00403F10 */
 void auto_position(short obj, short *formationSlot);                     /* 0x00403F40 */
 void auto_pilot_sequence(void);                                          /* 0x00404050 */
-unsigned int LoadMissionDefinition(short series, short mission);         /* 0x004059B0 */
+unsigned int LoadBriefingData(short series, short mission);             /* 0x00405910 */
+unsigned int LoadMissionData(short series, short mission);              /* 0x004059B0 */
 void SetShipAiScratchWord(unsigned short v);                                 /* 0x004060A0 */
 void maneuver_complete(short ship);                                     /* 0x004060B0 */
 void Mline_up_drop(short ship, short target);                            /* 0x004060D0 */

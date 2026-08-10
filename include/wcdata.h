@@ -550,7 +550,7 @@ typedef union MissionShipBehaviour {
 } MissionShipBehaviour;
 
 /* The expanded runtime mission-ship record at 0x0046C948.  The first 32
- * records are overwritten by LoadMissionDefinition; the recovered opening
+ * records are overwritten by LoadMissionData; the recovered opening
  * sequence follows them in records 32-45. */
 #pragma pack(push, 1)
 typedef struct MissionShipRecord {

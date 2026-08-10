@@ -64,7 +64,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/cdrom.c` | `0x403100`–`0x4034ff` | 5 | CD-ROM location and disc-swap prompting | LocateStreamsDirOnDisc..PromptInsertCorrectCd; string band 0x46535C-0x4653FC |
 | `src/mono.c` | `0x403500`–`0x403e4f` | 20 | Win32 data-file wrappers, scaled interstitial text, canned sequences, and MONODEBG.VXD | MonoDebug_install/MonoDebug_print anchor the final block; the Mac `auto` unit starts at the next function |
 | `src/auto.c` | `0x403e50`–`0x40460f` | 5 | Autopilot travel and interstitial flight sequences | Mac `auto` symbols preserve all five functions in exact order; Ghidra shows the next Win32 function is a private palette-file loader |
-| `src/cmpgn.c` | `0x404610`–`0x40609f` | 1 | Campaign mission-packet decoding | Mac segment name `cmpgn`; `LoadMissionDefinition` is the recovered Win32 routine at `0x004059b0` |
+| `src/cmpgn.c` | `0x404610`–`0x40609f` | 2 | Campaign briefing/mission-packet decoding | Mac segment name `cmpgn`; `LoadBriefingData` and `LoadMissionData` are recovered at `0x00405910` and `0x004059b0` |
 | `src/brains.c` | `0x4060a0`–`0x40cfff` | 98 | NPC pilot intelligence with adjacent flight and mission helpers | Exact Mac `brain` unit and surviving `BRAINS.C` map `cruise_home`–`FF_missile_intelligence` to `0x409760`–`0x40b66f`; adjacent `fl`/`miss` boundaries remain provisional |
 | `src/nav.c` | `0x40d000`–`0x40ffff` | 9 | Nav map, location readouts and the virtual screen | DrawNav* family; string band 0x4687AC-0x4688F4 |
 | `src/spc.c` | `0x410000`–`0x412fff` | 19 | Space-object simulation with preceding Win32 input helpers | Mac `spc` run maps `rotate_eye_to_goal`–`object_intelligence` to `0x410a30`–`0x4139ff`; outer split remains provisional |

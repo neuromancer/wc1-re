@@ -1457,7 +1457,7 @@ unsigned int check_futurion(short i)
 /* Function start: 0x40B730 */
 unsigned int init_mission(short series, short mission)
 {
-    LoadMissionDefinition(series, mission);
+    LoadMissionData(series, mission);
     init_3Space_objects(series);
     g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
         g_aMissionResourceDescriptors_00469c20, 0,

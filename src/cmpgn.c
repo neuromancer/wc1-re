@@ -3,7 +3,7 @@
  *
  *  Address range 0x404610-0x40609f (provisional -- see docs/ORDER.md).
  *  Boundary evidence: auto.c ends before 0x00404610 and brains.c begins at
- *  0x004060A0; LoadMissionDefinition is the recovered function at 0x004059B0.
+ *  0x004060A0; LoadMissionData is the recovered function at 0x004059B0.
  */
 #include "wc1.h"
 
@@ -64,8 +64,37 @@ typedef char MissionObjectiveDisk_size_must_be_0x40[
 typedef char MissionShipDisk_size_must_be_0x2a[
     sizeof(MissionShipDisk) == 0x2a ? 1 : -1];
 
+/* Function start: 0x405910 */
+unsigned int LoadBriefingData(short series, short mission)
+{
+    g_pBriefingPacket_00598aec = (unsigned char *)FetchDiskPacketRetrying(
+        g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
+        mission + series * 4, 0);
+    g_pBriefingSceneData_00598c00 = g_pBriefingPacket_00598aec +
+        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x00);
+    g_pBriefingTextData_00598af0 = g_pBriefingPacket_00598aec +
+        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x04);
+    g_pDebriefingSceneData_00598afc = g_pBriefingPacket_00598aec +
+        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x08);
+    g_pDebriefingTextData_00598c28 = g_pBriefingPacket_00598aec +
+        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x0c);
+    DAT_00598ae0 = g_pBriefingPacket_00598aec +
+        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x10);
+    DAT_00598aa0 = g_pBriefingPacket_00598aec +
+        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x14);
+    DAT_00598ae8 = g_pBriefingPacket_00598aec +
+        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x18);
+    DAT_00598aa8 = g_pBriefingPacket_00598aec +
+        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x1c);
+    DAT_00598ae4 = g_pBriefingPacket_00598aec +
+        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x20);
+    DAT_00598aa4 = g_pBriefingPacket_00598aec +
+        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x24);
+    return 0;
+}
+
 /* Function start: 0x4059B0 */
-unsigned int LoadMissionDefinition(short series, short mission)
+unsigned int LoadMissionData(short series, short mission)
 {
     short logicalFile;
     int missionIndex;

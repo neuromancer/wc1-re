@@ -99,14 +99,31 @@ unsigned int ShowVictoryScreen(void)
 /* Function start: 0x439A80 */
 unsigned int ShowGameOverScreen(void)
 {
+    FixedVector cameraOffset;
     short frame;
     short distance;
 
     frame = 0;
-    distance = 700;
     g_pIntroFont_005a8960 =
         (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
-    StartMusicTrack(22, 2, 0);
+    g_cViewObject_0046c000 = (signed char)Explosion(0);
+    DAT_0046c03c = 4;
+    g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] = 100;
+    ScaleFixedVector(
+        &g_aShipForwardVector_0059bce0[g_cViewObject_0046c000],
+        -0x12c00, &cameraOffset);
+    AddFixedVectors(
+        &g_aShipPosition_0059c490[g_cViewObject_0046c000],
+        &cameraOffset, &g_aShipPosition_0059c490[WC1_EYE_OBJECT]);
+    g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT] =
+        g_aShipUpVector_0059b9e0[g_cViewObject_0046c000];
+    g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT] = cameraOffset;
+    fix_objects_ijk(WC1_EYE_OBJECT);
+    zero_vector(&g_aShipVelocity_0059c010[WC1_EYE_OBJECT]);
+    set_eye_direction_and_position();
+    distance = 700;
+    generate_stars();
+    StartMusicTrack(22, 2, 1);
     DAT_0059ab58 = 0;
     DAT_00469fb4 = 1;
     do {
@@ -118,10 +135,10 @@ unsigned int ShowGameOverScreen(void)
                     (short)(0xc800 / (int)distance));
             dump_buffer_to_screen();
         }
-        if (distance > 100)
-            distance = (short)(distance - 10);
         if (DAT_0059ab58 == 1)
             break;
+        if (distance > 100)
+            distance = (short)(distance - 10);
         frame++;
         DIBslam();
         DIBslamReal();
