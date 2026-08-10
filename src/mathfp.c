@@ -70,21 +70,37 @@ long CosFixed(short degrees)
     return (long)(cos((double)degrees * WC1_DEG2RAD) * 256.0);
 }
 
+/* Function start: 0x434E60 */
+long ArcSin(int value)
+{
+    return (long)(asin((double)value * 0.00390625f) *
+                  57.295779513082323);
+}
+
 /* Function start: 0x434E90 */
-long ArcCosFixed(int value)
+long ArcCos(int value)
 {
     return (long)(acos((double)value * 0.00390625f) *
                   57.295779513082323);
 }
 
 /* Function start: 0x434EC0 */
-long FloatToLongPassThrough(void)
+long Magnitude(int value)
 {
-    return _ftol();
+    return (long)(sqrt((double)value * 0.00390625f) * 256.0);
+}
+
+/* Function start: 0x434EE0 */
+long PlanarMagnitude(int x, int y)
+{
+    double scaledX = (double)x * (1.0 / 256.0);
+    double scaledY = (double)y * (1.0 / 256.0);
+
+    return (long)(sqrt(scaledX * scaledX + scaledY * scaledY) * 256.0);
 }
 
 /* Function start: 0x434F20 */
-long ComputeFixedVectorMagnitude(const FixedVector *vector)
+long Vector_magnitude(const FixedVector *vector)
 {
     double x = (double)vector->x * (1.0 / 256.0);
     double y = (double)vector->y * (1.0 / 256.0);

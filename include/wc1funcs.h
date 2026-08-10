@@ -427,10 +427,11 @@ void ship_vs_point(short obj, const FixedVector *point);              /* 0x00419
 void ship_vs_ship(short obj, short other);                             /* 0x004193B0 */
 short facing_to_object(short obj, short other);                       /* 0x004193D0 */
 short match_roll_orientation(short obj, short reference);             /* 0x00419440 */
-int set_ship_rotation_goals(short obj, short reference,
+int set_ship_rotation_goals(short obj, short turnRate,
                             const FixedVector *direction,
+                            short pointingMode,
                             short *yawGoal, short *pitchGoal);         /* 0x004194D0 */
-void point_ship(short obj, short reference,
+void point_ship(short obj, short turnRate,
                 const FixedVector *direction);                        /* 0x00419620 */
 void point_ship_at_point(short obj, const FixedVector *point);        /* 0x00419660 */
 void point_ship_at_object(short obj, short other);                    /* 0x004196A0 */
@@ -700,8 +701,8 @@ void ShowOnScreenMessage(int flags, short duration,
 void ShowVersionBanner(void);                                           /* 0x004290D0 */
 int HandleDebugCheatKeys(void);                                        /* 0x00429160 */
 unsigned int Draw_3Space_Frame(void);                                  /* 0x00429DD0 */
-void ComputeArcadeWaveBonus(void);                                     /* 0x00429E30 */
-void ComputeArcadeTimeBonus(void);                                                 /* 0x00429E70 */
+void GetArcadeBonus(void);                                         /* 0x00429E30 */
+void FigureArcadeTime(void);                                       /* 0x00429E70 */
 void DrawArcadeScorePanel(short x, short y);                            /* 0x00429E90 */
 void UpdateArcadeScoreDisplay(void);                                   /* 0x00429EE0 */
 unsigned int RenderSpaceViewFrame(void);                               /* 0x00429FC0 */
@@ -888,9 +889,11 @@ long MultiplyFixed(int left, int right);                              /* 0x00434
 long DivideFixed(int numerator, int denominator);                     /* 0x00434DB0 */
 long SinFixed(short degrees);                                    /* 0x00434E00 */
 long CosFixed(short degrees);                                    /* 0x00434E30 */
-long ArcCosFixed(int value);                                      /* 0x00434E90 */
-long FloatToLongPassThrough(void);                                             /* 0x00434EC0 */
-long ComputeFixedVectorMagnitude(const FixedVector *vector);         /* 0x00434F20 */
+long ArcSin(int value);                                               /* 0x00434E60 */
+long ArcCos(int value);                                               /* 0x00434E90 */
+long Magnitude(int value);                                           /* 0x00434EC0 */
+long PlanarMagnitude(int x, int y);                                  /* 0x00434EE0 */
+long Vector_magnitude(const FixedVector *vector);                     /* 0x00434F20 */
 void __stdcall SetTextCursor(unsigned short a, unsigned short b);   /* 0x00434F70 */
 void __stdcall SetTextContext(TextContext *context);                  /* 0x00434FA0 */
 void WaitForVerticalBlankThunk(void);                                  /* 0x00434FB0 */

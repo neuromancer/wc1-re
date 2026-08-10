@@ -377,7 +377,7 @@ int fire_weapon(short obj, short weapon)
                 ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
                     &g_aShipPosition_0059c490[
                         g_acShipTarget_0059ce60[projectile]], &vector);
-                range = (int)ComputeFixedVectorMagnitude(&vector);
+                range = (int)Vector_magnitude(&vector);
                 ScaleFixedVector(&g_aShipVelocity_0059c010[
                     g_acShipTarget_0059ce60[projectile]],
                     range / get_ship_max_velocity(projectile), &vector);

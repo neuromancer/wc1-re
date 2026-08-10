@@ -87,7 +87,7 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
 /* Function start: 0x421350 */
 void fire_afterburner(short obj, short time)
 {
-    long velocity = ComputeFixedVectorMagnitude(&g_aShipVelocity_0059c010[obj]);
+    long velocity = Vector_magnitude(&g_aShipVelocity_0059c010[obj]);
 
     if (velocity < get_ship_max_velocity(obj) * 0x500L) {
         set_special(obj, SPECIAL_MANEUVER_AFTERBURNER);
@@ -578,14 +578,14 @@ short real_crash_time(short obj, short other)
     ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
                        &g_aShipPosition_0059c490[other],
                        &relativePosition);
-    distance = ComputeFixedVectorMagnitude(&relativePosition);
+    distance = Vector_magnitude(&relativePosition);
     if (((long)collisionRadius + 1500) * 0x100 < distance)
         return 0x7fff;
 
     ComputeVectorDelta(&g_aShipVelocity_0059c010[obj],
                        &g_aShipVelocity_0059c010[other],
                        &relativeVelocity);
-    relativeSpeed = ComputeFixedVectorMagnitude(&relativeVelocity);
+    relativeSpeed = Vector_magnitude(&relativeVelocity);
     if (relativeSpeed == 0)
         return 0x7fbc;
 
@@ -597,7 +597,7 @@ short real_crash_time(short obj, short other)
     ScaleFixedVector(&relativeVelocity, (int)time << 8, &travel);
     AddFixedVectors(&relativePosition, &travel, &separation);
     range = FixedToShortSaturating(
-        (int)ComputeFixedVectorMagnitude(&separation));
+        (int)Vector_magnitude(&separation));
     if (range > collisionRadius) {
         if ((collisionRadius * 2 >> 4) > range)
             return 25;
@@ -613,7 +613,7 @@ short real_crash_time(short obj, short other)
         ScaleFixedVector(&relativeVelocity, (int)elapsed << 8, &travel);
         AddFixedVectors(&relativePosition, &travel, &separation);
         range = FixedToShortSaturating(
-            (int)ComputeFixedVectorMagnitude(&separation));
+            (int)Vector_magnitude(&separation));
         if (collisionRadius >= range)
             collisionFound = 1;
     } while (collisionFound == 0);

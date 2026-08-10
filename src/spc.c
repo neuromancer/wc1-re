@@ -199,7 +199,7 @@ void rotate_eye_to_goal(void)
 /* Function start: 0x410AD0 */
 short GetVectorMagnitude(const FixedVector *vector)
 {
-    return FixedToShortSaturating((int)ComputeFixedVectorMagnitude(vector));
+    return FixedToShortSaturating((int)Vector_magnitude(vector));
 }
 
 /* Function start: 0x410AF0 */
@@ -674,7 +674,7 @@ void accelerate_and_move_object(short obj)
         }
         ComputeVectorDelta(&g_aShipVelocity_0059c010[obj], &desired,
                            &delta);
-        magnitude = (int)ComputeFixedVectorMagnitude(&delta);
+        magnitude = (int)Vector_magnitude(&delta);
         if (magnitude > 0) {
             acceleration = GetShipAccelerationRate(obj);
             if (alert_flag(obj, 1) != 0 && acceleration < 0x500)

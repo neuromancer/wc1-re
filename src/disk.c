@@ -592,7 +592,7 @@ unsigned int steady_object(short ship)
 short real_velocity(short obj)
 {
     return FixedToShortSaturating(
-        (int)ComputeFixedVectorMagnitude(&g_aShipVelocity_0059c010[obj]));
+        (int)Vector_magnitude(&g_aShipVelocity_0059c010[obj]));
 }
 
 /* Function start: 0x41E820 */

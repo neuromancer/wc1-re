@@ -884,7 +884,7 @@ void ExitCleanupHook(void)
 /* Function start: 0x436A00 */
 unsigned int IsVectorWithinRange(FixedVector *vector, short range)
 {
-    int magnitude = ComputeFixedVectorMagnitude(vector);
+    int magnitude = Vector_magnitude(vector);
     int fixedRange = abs((int)range << 8);
 
     if (fixedRange >= magnitude)

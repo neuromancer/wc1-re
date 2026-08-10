@@ -623,7 +623,7 @@ unsigned int update_digital_readouts(void)
     _itoa((int)(short)((g_anShipSpeed_0059b320[0] >> 8) * 10),
           value, 10);
     DrawCockpitReadout(2, value);
-    velocity = ComputeFixedVectorMagnitude(&g_aShipVelocity_0059c010[0]);
+    velocity = Vector_magnitude(&g_aShipVelocity_0059c010[0]);
     velocity = MultiplyFixed(velocity, 0xa00);
     _itoa((int)(short)((unsigned long)velocity >> 8), value, 10);
     DrawCockpitReadout(3, value);
@@ -937,7 +937,7 @@ void update_objective_location(short objective)
     ComputeVectorDelta(&g_aShipPosition_0059c490[0],
                        &missionObjective->position, &delta);
     range = FixedToShortSaturating(
-        (int)ComputeFixedVectorMagnitude(&delta));
+        (int)Vector_magnitude(&delta));
     if (sighted(objective) == 0 && range < 16000)
         flag_objective(objective, 4);
     reachedRange = (missionObjective->type == 3 ||

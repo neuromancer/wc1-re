@@ -129,7 +129,7 @@ void init_hazard(short obj, FixedVector position, short moving)
         point_at(obj, target);
         ComputeVectorDelta(&position, &target, &offset);
         distance = FixedToShortSaturating(
-            (int)ComputeFixedVectorMagnitude(&offset));
+            (int)Vector_magnitude(&offset));
         travelTime = MaxShort(3,
             (short)(travelTime - RandomBelowOrEqual(5)));
         speed = (short)(distance / travelTime);

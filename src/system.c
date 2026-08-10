@@ -45,7 +45,7 @@ void RunTrainSim(void)
 
     while (g_nTrainSimMission_00469e30 < 4) {
         g_nTrainSimActive_00469e2c = 1;
-        ComputeArcadeTimeBonus();
+        FigureArcadeTime();
         init_mission(0, g_nTrainSimMission_00469e30);
         ShowGetReadyScreen();
 

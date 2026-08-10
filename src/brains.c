@@ -1809,8 +1809,8 @@ void set_up_next_wave(void)
         g_nArcadeBonusCountdown_0046a014 = 60;
         if (g_nCurrentWave_0046c01c != -1)
             g_nArcadeBonusCountdown_0046a014 = 30;
-        ComputeArcadeWaveBonus();
-        ComputeArcadeTimeBonus();
+        GetArcadeBonus();
+        FigureArcadeTime();
     }
 
     previousWave = g_nCurrentWave_0046c01c;

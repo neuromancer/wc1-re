@@ -305,21 +305,18 @@ void random_radial(const FixedVector *center, short radius,
 void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical)
 {
-    FixedVector horizontal;
     int horizontalLength;
 
-    spherical->radius = (int)ComputeFixedVectorMagnitude(rectangular);
+    spherical->radius = (int)Vector_magnitude(rectangular);
     if (spherical->radius == 0)
         return;
-    horizontal.x = rectangular->x;
-    horizontal.y = 0;
-    horizontal.z = rectangular->z;
-    horizontalLength = (int)ComputeFixedVectorMagnitude(&horizontal);
-    spherical->yaw = (short)ArcCosFixed(
+    horizontalLength = (int)PlanarMagnitude(rectangular->x,
+                                            rectangular->z);
+    spherical->yaw = (short)ArcCos(
         DivideFixed(rectangular->z, horizontalLength));
     if (rectangular->x < 0)
         spherical->yaw = -spherical->yaw;
-    spherical->pitch = (short)(ArcCosFixed(
+    spherical->pitch = (short)(ArcCos(
         DivideFixed(rectangular->y, spherical->radius)) - 90);
 }
 
@@ -346,7 +343,7 @@ void vector_cross_product(const FixedVector *left, const FixedVector *right,
 /* Function start: 0x418B10 */
 short NormalizeFixedVector(FixedVector *vector)
 {
-    int magnitude = ComputeFixedVectorMagnitude(vector);
+    int magnitude = Vector_magnitude(vector);
 
     if (magnitude != 0) {
         vector->x = DivideFixed(vector->x, magnitude);
@@ -366,7 +363,7 @@ int vector_length_in_dir(const FixedVector *vector,
 
     normalized = *vector;
     NormalizeFixedVector(&normalized);
-    length = (int)ComputeFixedVectorMagnitude(vector);
+    length = (int)Vector_magnitude(vector);
     return (int)MultiplyFixed(length, dot_product(&normalized, direction));
 }
 
@@ -507,7 +504,7 @@ short distance_between_points(const FixedVector *from,
     long magnitude;
 
     ComputeVectorDelta((FixedVector *)from, (FixedVector *)to, &delta);
-    magnitude = ComputeFixedVectorMagnitude(&delta);
+    magnitude = Vector_magnitude(&delta);
     return FixedToShortSaturating((int)magnitude);
 }
 
@@ -518,7 +515,7 @@ short distance_from_point(short obj, const FixedVector *point)
 
     ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
                        (FixedVector *)point, &g_vToTarget_0059d4d0);
-    magnitude = ComputeFixedVectorMagnitude(&g_vToTarget_0059d4d0);
+    magnitude = Vector_magnitude(&g_vToTarget_0059d4d0);
     return FixedToShortSaturating((int)magnitude) -
            g_asObjectCollisionRadius_0059d710[obj];
 }
@@ -594,43 +591,62 @@ short match_roll_orientation(short obj, short reference)
                          &g_aShipUpVector_0059b9e0[reference]);
     roll.z = 0;
     NormalizeFixedVector(&roll);
-    angle = (short)ArcCosFixed(roll.y);
+    angle = (short)ArcCos(roll.y);
     if (roll.x >= 0)
         angle = 360 - angle;
     return WrapDegrees(angle);
 }
 
 /* Function start: 0x4194D0 */
-int set_ship_rotation_goals(short obj, short reference,
+int set_ship_rotation_goals(short obj, short turnRate,
                             const FixedVector *direction,
+                            short pointingMode,
                             short *yawGoal, short *pitchGoal)
 {
-    double horizontal;
-    short yaw;
-    short pitch;
+    SphericalVector spherical;
+    FixedVector localDirection;
+    int magnitude;
 
-    (void)obj;
-    if (ComputeFixedVectorMagnitude(direction) == 0)
-        return 1;
-    horizontal = sqrt((double)direction->x * direction->x +
-                      (double)direction->z * direction->z);
-    yaw = (short)(atan2((double)direction->x,
-                        (double)direction->z) / WC1_DEG2RAD);
-    pitch = (short)(-atan2((double)direction->y,
-                           horizontal) / WC1_DEG2RAD);
-    if (reference == 1) {
-        yaw += reference;
-        pitch += reference;
+    transform_to_objects_frame(direction, &localDirection, obj);
+    if (pointingMode == 1) {
+        rectangular_to_spherical(&localDirection, &spherical);
+        if (spherical.radius == 0)
+            return 1;
+        if (spherical.yaw <= 0)
+            spherical.yaw = (short)(spherical.yaw + turnRate);
+        else
+            spherical.yaw = (short)(spherical.yaw - turnRate);
+    } else {
+        magnitude = (int)Vector_magnitude(&localDirection);
+        if (magnitude == 0)
+            return 1;
+        spherical.yaw = (short)ArcSin(DivideFixed(
+            localDirection.x,
+            (int)PlanarMagnitude(localDirection.x, localDirection.z)));
+        spherical.pitch = (short)-ArcSin(
+            DivideFixed(localDirection.y, magnitude));
+        if (localDirection.z < 0) {
+            spherical.yaw = (short)-spherical.yaw;
+            if (spherical.pitch <= 0)
+                spherical.pitch = (short)(spherical.pitch - 180);
+            else
+                spherical.pitch = (short)(spherical.pitch + 180);
+        }
+        if (spherical.pitch <= 0)
+            spherical.pitch = (short)(spherical.pitch + turnRate);
+        else
+            spherical.pitch = (short)(spherical.pitch - turnRate);
     }
-    *yawGoal = WrapDegrees(-yaw);
-    *pitchGoal = WrapDegrees(-pitch);
+    *yawGoal = WrapDegrees((short)-spherical.yaw);
+    *pitchGoal = WrapDegrees((short)-spherical.pitch);
     return 0;
 }
 
 /* Function start: 0x419620 */
-void point_ship(short obj, short reference, const FixedVector *direction)
+void point_ship(short obj, short turnRate, const FixedVector *direction)
 {
-    set_ship_rotation_goals(obj, reference, direction,
+    set_ship_rotation_goals(obj, turnRate, direction,
+                            g_acShipPointingMode_0059d790[obj],
                             &g_anYawGoal_0059c310[obj],
                             &g_anPitchGoal_0059d7a0[obj]);
 }
@@ -876,7 +892,7 @@ void transform_objects_to_your_view(void)
                                    &g_aShipPosition_0059c490[obj],
                                    &direction);
             }
-            distance = (int)ComputeFixedVectorMagnitude(&direction);
+            distance = (int)Vector_magnitude(&direction);
             if (distance <
                 g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100)
                 goto next_object;
@@ -964,7 +980,7 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
                                 &g_aShipUpVector_0059b9e0[63]);
     projectedUp.z = 0;
     NormalizeFixedVector(&projectedUp);
-    angle = (short)ArcCosFixed(projectedUp.y);
+    angle = (short)ArcCos(projectedUp.y);
     if (projectedUp.x >= 0)
         angle = 360 - angle;
     g_asObjectScreenAngle_0059cd90[obj] = angle;

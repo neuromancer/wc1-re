@@ -185,7 +185,7 @@ unsigned int Draw_3Space_Frame(void)
 }
 
 /* Function start: 0x429E30 */
-void ComputeArcadeWaveBonus(void)
+void GetArcadeBonus(void)
 {
     g_nArcadeWaveBonus_005a7c50 =
         (g_nArcadeTimeRemaining_005a7c2c *
@@ -195,7 +195,7 @@ void ComputeArcadeWaveBonus(void)
 }
 
 /* Function start: 0x429E70 */
-void ComputeArcadeTimeBonus(void)
+void FigureArcadeTime(void)
 {
     g_nArcadeTimeRemaining_005a7c2c =
         (short)((g_nArcadeWave_00469e34 + 6) * 400);
@@ -263,7 +263,7 @@ unsigned int RenderSpaceViewFrame(void)
         if (g_nArcadeBonusCountdown_0046a014 != 0) {
             g_nArcadeBonusCountdown_0046a014--;
             if (g_nArcadeBonusCountdown_0046a014 == 0) {
-                if (ComputeFixedVectorMagnitude(
+                if (Vector_magnitude(
                         &g_aShipPosition_0059c490[0]) > 0x271000)
                     zero_vector(&g_aShipPosition_0059c490[0]);
                 g_nArcadeScore_005a7bc4 += g_nArcadeWaveBonus_005a7c50;
@@ -295,7 +295,7 @@ short GetShipDistanceToNavPoint(short ship, MissionNavPoint *navPoint)
 
     ComputeVectorDelta(&g_aShipPosition_0059c490[ship],
                        &navPoint->position, &delta);
-    return FixedToShortSaturating((int)ComputeFixedVectorMagnitude(&delta));
+    return FixedToShortSaturating((int)Vector_magnitude(&delta));
 }
 
 /* Function start: 0x42A120 */
@@ -331,7 +331,6 @@ int RunSpaceFlight(short entryNavPoint)
     Viewport *savedViewport;
     signed char savedMode;
     unsigned int frameReady;
-    short objective;
 
     DAT_0046a008 = 0;
     if (g_nTrainSimActive_00469e2c == 0 && DAT_0046507c == 0)
@@ -386,18 +385,51 @@ int RunSpaceFlight(short entryNavPoint)
     frameReady = 1;
 
     while (g_nArcadeState_00469fb0 == 0) {
+        ReadPerformanceCounter(&g_liFlightFrameStart_00476518);
         if (HandleDebugCheatKeys() == -1) {
             g_nArcadeState_00469fb0 = 5;
             break;
         }
-        Update_3Space();
-        frameReady = RenderSpaceViewFrame();
-        update_cockpit();
+        ReadPerformanceCounter(&g_liFlightAfterInput_00476500);
+        if (g_nArcadeState_00469fb0 == 0) {
+            Update_3Space();
+            ReadPerformanceCounter(&g_liFlightAfterSimulation_00476520);
+            frameReady = RenderSpaceViewFrame();
+            ReadPerformanceCounter(&g_liFlightAfterRender_00476540);
+            update_cockpit();
+        } else {
+            g_liFlightAfterRender_00476540 =
+                g_liFlightAfterSimulation_00476520 =
+                    g_liFlightAfterInput_00476500;
+        }
+        ReadPerformanceCounter(&g_liFlightAfterCockpit_00476530);
         if (frameReady != 0) {
             frameReady = 0;
             DIBslam();
             DIBslamReal();
         }
+        ReadPerformanceCounter(&g_liFlightFrameEnd_00476508);
+        g_nFlightPresentTicks_00476510 =
+            (int)(g_liFlightFrameEnd_00476508.LowPart -
+                  g_liFlightAfterCockpit_00476530.LowPart);
+        g_nFlightCockpitTicks_004764fc =
+            (int)(g_liFlightAfterCockpit_00476530.LowPart -
+                  g_liFlightAfterRender_00476540.LowPart);
+        g_nFlightRenderTicks_00476548 =
+            (int)(g_liFlightAfterRender_00476540.LowPart -
+                  g_liFlightAfterSimulation_00476520.LowPart);
+        g_nFlightSimulationTicks_00476528 =
+            (int)(g_liFlightAfterSimulation_00476520.LowPart -
+                  g_liFlightAfterInput_00476500.LowPart);
+        g_nFlightFrameTotalTicks_004764f8 =
+            (int)(g_liFlightFrameEnd_00476508.LowPart -
+                  g_liFlightFrameStart_00476518.LowPart);
+        g_nFlightInputTicks_00476538 =
+            (int)(g_liFlightAfterInput_00476500.LowPart -
+                  g_liFlightFrameStart_00476518.LowPart);
+        DAT_00598888 = 0;
+        DAT_0059888c = 0;
+        DAT_00598890 = 0;
     }
 
     SetCinematicFrameTiming();
@@ -405,11 +437,9 @@ int RunSpaceFlight(short entryNavPoint)
                     (unsigned short)(g_nScreenWidth_0046daa4 - 1),
                     (unsigned short)(g_nScreenHeight_0046daa8 - 1));
     DAT_0046a008 = 0;
-    if (g_nArcadeState_00469fb0 == 1) {
-        objective = find_objective(1, -1);
-        if (objective != -1)
-            flag_objective(objective, 2);
-    }
+    if (g_nArcadeState_00469fb0 == 1)
+        flag_objective(find_objective(1, -1), 2);
+    DAT_0046a008 = 0;
     ResetCockpitPaletteEntries();
     DAT_0059ab23 = savedViewport;
     ReleaseSceneFlags();
