@@ -354,6 +354,14 @@ int dot_product(const FixedVector *left, const FixedVector *right)
            MultiplyFixed(left->z, right->z);
 }
 
+/* Function start: 0x418A30 */
+short vector_angle(FixedVector left, FixedVector right)
+{
+    NormalizeFixedVector(&left);
+    NormalizeFixedVector(&right);
+    return (short)(((short)dot_product(&left, &right) * 100) / 0x100);
+}
+
 /* Function start: 0x418A80 */
 void vector_cross_product(const FixedVector *left, const FixedVector *right,
                           FixedVector *product)

@@ -1006,6 +1006,8 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
     ((short *)((unsigned char *)DAT_0059c810 + 0x120))
 #define g_aiPilotLevel_0059cf30 \
     ((int *)((unsigned char *)DAT_0059cf20 + 0x10))
+#define g_asTargetListRange_0059cf60 \
+    ((short *)(void *)((unsigned char *)DAT_0059cf20 + 0x40))
 #define g_acTurnRegulator_0059cf10 \
     ((signed char *)((unsigned char *)DAT_0059cf20 - 0x10))
 

@@ -1289,7 +1289,6 @@ unsigned int target_within_range(short obj)
 /* Function start: 0x423440 */
 short build_target_list(short obj, short range)
 {
-    short *targetRanges = (short *)&DAT_0059cf20[0x40];
     short count;
     short other;
     short distance;
@@ -1305,7 +1304,7 @@ short build_target_list(short obj, short range)
             if (distance < range) {
                 g_acFormationMemberList_0059d490[count] =
                     (signed char)other;
-                targetRanges[count] = distance;
+                g_asTargetListRange_0059cf60[count] = distance;
                 count++;
             }
         }

@@ -478,6 +478,7 @@ void random_radial(const FixedVector *center, short radius,
 void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical);       /* 0x00418890 */
 int dot_product(const FixedVector *left, const FixedVector *right);    /* 0x004189E0 */
+short vector_angle(FixedVector left, FixedVector right);              /* 0x00418A30 */
 void vector_cross_product(const FixedVector *left,
                           const FixedVector *right,
                           FixedVector *product);                 /* 0x00418A80 */
@@ -639,7 +640,19 @@ short Explosion(short obj);                                          /* 0x0041FC
 short the_creator(short obj);                                        /* 0x0041FEB0 */
 int explosion_shock_wave(short obj, short blastDamage);              /* 0x0041FEE0 */
 int explode(short attacker, short victim);                            /* 0x00420040 */
+int send_at_point(short obj, FixedVector *point, short speed);        /* 0x00420190 */
+short find_child_object(short parent, enum ObjectClass objectClass);  /* 0x004201D0 */
+short find_child_ship(short parent, enum ObjectClass objectClass,
+                      short target);                                  /* 0x00420210 */
+int launch_object(short parent, short child, FixedVector direction,
+                  short speed);                                      /* 0x00420260 */
 void fire(short obj, short target);                                   /* 0x004202D0 */
+short hemisphere(FixedVector *target, FixedVector *parent,
+                 FixedVector *hardpoint);                             /* 0x004207E0 */
+int fire_flack(short owner, short explosion, short range,
+               FixedVector *aim);                                    /* 0x00420840 */
+int rnd_aim(short radius, short speed, short maximum);                /* 0x004208E0 */
+short pop_flack(short obj, short range, FixedVector *hardpoint);      /* 0x00420920 */
 int fire_turrets(short obj);                                          /* 0x00420AA0 */
 int fire_weapon(short obj, short weapon);                              /* 0x00420C20 */
 short fire_fixed_projectile_weapon(short obj);                         /* 0x00421220 */
