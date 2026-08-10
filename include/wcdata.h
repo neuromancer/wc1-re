@@ -378,6 +378,17 @@ typedef struct ShortPoint {
     short y;
 } ShortPoint;
 
+typedef struct CockpitBarDefinition {
+    short direction;
+    short left;
+    short top;
+    short right;
+    short bottom;
+    short length;
+    short filledFrame;
+    short emptyFrame;
+} CockpitBarDefinition;
+
 /* Compact three-axis offset used by the formation tables.  Unlike a
  * FixedVector, each component is a 16-bit distance. */
 typedef struct ShortVector {
@@ -461,9 +472,17 @@ typedef struct MissionNavPoint {
 } MissionNavPoint;
 #pragma pack(pop)
 
-/* The expanded runtime mission-ship record at 0x0046C948.  The recovered
- * opening sequence occupies records 32-45 and points directly at its canned
- * command streams. */
+/* The +0x28 slot has two proven interpretations.  Loaded campaign records use
+ * it as the pilot/personality value, while the built-in opening-sequence
+ * records (32-45) store a pointer to a canned command stream there. */
+typedef union MissionShipBehaviour {
+    const short *cannedSequence;
+    int pilot;
+} MissionShipBehaviour;
+
+/* The expanded runtime mission-ship record at 0x0046C948.  The first 32
+ * records are overwritten by LoadMissionDefinition; the recovered opening
+ * sequence follows them in records 32-45. */
 #pragma pack(push, 1)
 typedef struct MissionShipRecord {
     enum ObjectType type;             /* +0x00 */
@@ -478,14 +497,21 @@ typedef struct MissionShipRecord {
     signed char formationSpot;        /* +0x21 */
     short speed;                      /* +0x22 */
     int rating;                       /* +0x24 */
-    const short *cannedSequence;      /* +0x28 */
-    int field_2c;                     /* +0x2C */
-    short field_30;                   /* +0x30 */
+    MissionShipBehaviour behaviour;  /* +0x28 */
+    short field_2c;                   /* +0x2C */
+    int field_2e;                     /* +0x2E */
     signed char state;                /* +0x32 */
     signed char leaderMissionIndex;   /* +0x33 */
     signed char formationIndex;       /* +0x34 */
     signed char targetMissionIndex;   /* +0x35 */
 } MissionShipRecord;
+
+/* Expanded copy of one 64-byte objective/map record. */
+typedef struct MissionObjectiveSource {
+    int type;                         /* +0x00: sign-extended disk short */
+    short index;                      /* +0x04 */
+    char description[60];             /* +0x06 */
+} MissionObjectiveSource;
 
 /* Four packed resource-cache entries at 0x0059DDF0. */
 typedef struct ObjectResourceSlot {
@@ -503,12 +529,23 @@ typedef struct MissionObjective {
     int type;                         /* +0x00 */
     signed char index;                /* +0x04 */
     unsigned char flags;              /* +0x05 */
-    unsigned char field_6[4];         /* +0x06 */
-    char *name;                       /* +0x0A */
+    const char *displayName;           /* +0x06 */
+    char *name;                       /* +0x0A: mission description */
     FixedVector position;             /* +0x0E */
-    unsigned char field_1a[5];        /* +0x1A */
+    short mapX;                       /* +0x1A */
+    short mapY;                       /* +0x1C */
+    unsigned char field_1e;           /* +0x1E */
 } MissionObjective;
 #pragma pack(pop)
+
+typedef char MissionNavPoint_size_must_be_0x51[
+    sizeof(MissionNavPoint) == 0x51 ? 1 : -1];
+typedef char MissionShipRecord_size_must_be_0x36[
+    sizeof(MissionShipRecord) == 0x36 ? 1 : -1];
+typedef char MissionObjectiveSource_size_must_be_0x42[
+    sizeof(MissionObjectiveSource) == 0x42 ? 1 : -1];
+typedef char MissionObjective_size_must_be_0x1f[
+    sizeof(MissionObjective) == 0x1f ? 1 : -1];
 
 #define WC1_SPACE_OBJECT_COUNT 64
 #define WC1_SPACE_LAST_MOVING_OBJECT 60

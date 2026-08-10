@@ -290,6 +290,17 @@ void FillFixedVectorWithRandomComponents(short limit, FixedVector *vector)
     MakeRandomVectorFixed(0, limit, vector);
 }
 
+/* Function start: 0x418800 */
+void random_radial(const FixedVector *center, short radius,
+                   FixedVector *position)
+{
+    FixedVector offset;
+
+    FillFixedVectorWithRandomComponents(
+        (short)RandomBelowOrEqual(radius), &offset);
+    AddFixedVectors(center, &offset, position);
+}
+
 /* Function start: 0x418890 */
 void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical)

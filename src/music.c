@@ -200,6 +200,64 @@ short GetTargetColourIndex(void)
     return v;
 }
 
+/* Function start: 0x42DB90 */
+void DrawTargetLockDisplay(void)
+{
+    short target;
+    const char *name;
+
+    set_new_vdu(1);
+    DrawTextAt(&DAT_005a7700, DAT_005a7530.left, DAT_005a7530.top,
+               "TARGET DISPLAY", 2);
+    DrawFormattedText(g_nTargetLockMode_0046c078 == 0
+                          ? "AUTO TARGETING\n"
+                          : "LOCKED TARGET\n");
+    target = (short)g_acShipTarget_0059ce60[0];
+    if (target < 0 || target >= WC1_SPACE_OBJECT_COUNT ||
+        g_aeObjectClass_0059d100[target] < OBJECT_CLASS_SHIP ||
+        g_aeSpecialManeuver_0059c3c0[target] ==
+            SPECIAL_MANEUVER_UNKNOWN_9) {
+        target = -1;
+        g_acShipTarget_0059ce60[0] = -1;
+    }
+    g_cTargetDisplayObject_0046c06c = (signed char)target;
+    if (target == -1) {
+        DrawFormattedText("Target: None\n");
+        return;
+    }
+    name = g_aObjectTypeData_00466458[
+        g_aeObjectType_0059b560[target]].displayName;
+    DrawFormattedText("Target: %s\n", name == 0 ? "" : name);
+    if (g_asObjectScreenX_0059d9b0[target] == (short)0x8001)
+        DrawFormattedText("Range: -----\n");
+    else if ((unsigned short)g_asObjectDistance_0059b4a0[target] > 30000)
+        DrawFormattedText("Range: TOO FAR\n");
+    else
+        DrawFormattedText("Range: %u M\n",
+                          (unsigned short)g_asObjectDistance_0059b4a0[target]);
+}
+
+/* Function start: 0x42DEA0 */
+void DrawTargetRangeReadout(void)
+{
+    short target;
+
+    target = (short)g_acShipTarget_0059ce60[0];
+    if (target < 0 || target >= WC1_SPACE_OBJECT_COUNT ||
+        g_aeObjectClass_0059d100[target] < OBJECT_CLASS_SHIP ||
+        g_aeSpecialManeuver_0059c3c0[target] ==
+            SPECIAL_MANEUVER_UNKNOWN_9) {
+        if (g_cTargetDisplayObject_0046c06c != -1) {
+            g_acShipTarget_0059ce60[0] = -1;
+            DrawTargetLockDisplay();
+        }
+        return;
+    }
+    if (g_cTargetDisplayObject_0046c06c != target ||
+        (g_nSpaceFrame_0059b420 & 7) == 0)
+        DrawTargetLockDisplay();
+}
+
 /* Function start: 0x42E020 */
 void LogDisplayMode(const char *mode)
 {

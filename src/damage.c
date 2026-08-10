@@ -62,13 +62,56 @@ unsigned int ReportShieldHit(void)
     return 0;
 }
 
+/* Function start: 0x41F5F0 */
+short ReportComponentRepaired(short component, short minimumDamage)
+{
+    char message[80];
+
+    if ((short)g_acPlayerComponentDamage_0059bff0[component] <=
+        minimumDamage)
+        return 0;
+    g_acPlayerComponentDamage_0059bff0[component]--;
+    sprintf(message, g_szComponentFixedFormat_00469984,
+            g_apszComponentNames_0046a778[component]);
+    ShowComponentHitHudMessage(message, DAT_004699ac, 8);
+    return 1;
+}
+
+/* Function start: 0x41F660 */
+void repair_internal_damage(void)
+{
+    short repair;
+
+    /* The retail Win32 function reads an uninitialised stack word for its
+     * outer component-damage guard.  Attempting the repair is equivalent for
+     * valid undestroyed state; the individual repair paths retain their real
+     * damage thresholds without risking an out-of-bounds array access. */
+    if ((short)RandomBelowOrEqual(500) >= 2)
+        return;
+    repair = (short)RandomBelowOrEqual(2);
+    switch (repair) {
+    case 0:
+        ReportComponentRepaired(2, 1);
+        break;
+    case 1:
+        if (ReportComponentRepaired(0, 2) != 0)
+            damage_ion_drive(0, -1, 3);
+        break;
+    case 2:
+        if (g_aObjectTypeData_00466458[
+                g_aeObjectType_0059b560[0]].damageCapacity - 3 <
+            (short)g_acShipDamage_0059c460[0])
+            g_acShipDamage_0059c460[0]--;
+        break;
+    }
+}
+
 /* Function start: 0x41F7C0 */
 void check_next_wave(void)
 {
     short obj;
 
-    if (g_nCannedSceneMode_00469fac == 2 ||
-        g_nCurrentWave_0046c01c == -1)
+    if (g_nCurrentWave_0046c01c == -1)
         return;
     obj = 0;
     do {
@@ -77,6 +120,7 @@ void check_next_wave(void)
             return;
         obj++;
     } while (obj < 10);
+    set_up_next_wave();
 }
 
 /* Function start: 0x41F800 */
@@ -274,7 +318,8 @@ int fire_weapon(short obj, short weapon)
     copy_frame(obj, projectile);
     projectileSpeed = 10;
     if (weaponClass == OBJECT_CLASS_PROJECTILE) {
-        DAT_0059dee0[projectile] = weaponData->damageCapacity;
+        g_asShipAccumulatedDamage_0059dee0[projectile] =
+            weaponData->damageCapacity;
         projectileSpeed = g_aObjectTypeData_00466458[
             g_aeObjectType_0059b560[projectile]].maximumVelocity;
         g_asShipWeaponEnergy_0059d470[obj] =

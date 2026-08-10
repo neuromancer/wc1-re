@@ -49,6 +49,21 @@ short FindMenuRegionAtPoint(short x, short y,
     return -1;
 }
 
+/* Function start: 0x440800 */
+void ResetCampaignData(void)
+{
+    g_ePlayerShipType_0059ca54 = OBJECT_TYPE_HORNET;
+    g_cCurrentMission_0059ca69 = 0;
+    g_cCurrentSeries_0059ca6a = 1;
+    memset(g_aiPersonalityDeathMission_0059ca74, 0,
+           sizeof(g_aiPersonalityDeathMission_0059ca74));
+    memset(g_abAceFlags_0059ca94, 0, sizeof(g_abAceFlags_0059ca94));
+    g_nPromotionScore_0059caa0 = 0;
+    g_nMissionScore_0059caa2 = 0;
+    g_nSeriesScore_0059caa4 = 0;
+    InitializeTrainSimHighScores();
+}
+
 /* Function start: 0x4408A0 */
 void CheckHeapBlockSignature(int p)
 {

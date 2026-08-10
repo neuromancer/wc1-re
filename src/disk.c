@@ -426,7 +426,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     g_asObjectAfterburnerVelocity_0059c9d0[obj] =
         typeData->afterburnerVelocity;
     g_acObjectOwner_0059ce20[obj] = (signed char)owner;
-    DAT_0059dee0[obj] = zero;
+    g_asShipAccumulatedDamage_0059dee0[obj] = zero;
     objectClass = g_aeObjectClass_0059d100[obj];
     g_asObjectFlip_0059c870[obj] = zero;
     DAT_0059d6a0[obj] = -1;

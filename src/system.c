@@ -6,6 +6,94 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x427080 */
+void RunTrainSim(void)
+{
+    unsigned int savedFrameState;
+    short savedCampaign;
+    short savedDataSet;
+    int result;
+
+    g_nArcadeWave_00469e34 = 0;
+    g_nTrainSimMission_00469e30 = 0;
+    g_bInputMode_0059a848 = 1;
+    SetEventManagerPump(PollMenuInputDevices);
+    g_nArcadeScore_005a7bc4 = 0;
+    g_nArcadeBonusCountdown_0046a014 = 0;
+    g_cCockpitView_0059dab0 = 4;
+    g_cCockpitLogicalFile_005a7c74 = 21;
+
+    if (DAT_004688e0 == 0) {
+        /* The interactive TrainSim selector is a separate UI path.  Campaign
+         * creation enters the simulator directly at mission three. */
+        g_nTrainSimActive_00469e2c = 0;
+        return;
+    }
+
+    g_nArcadeScore_005a7bc4 = 4000;
+    g_nTrainSimMission_00469e30 = 2;
+    g_nCannedSceneMode_00469fac = 0;
+    g_nTrainSimActive_00469e2c = 1;
+    PreloadMusicTrackHook(20);
+    PreloadMusicTrackHook(21);
+    PreloadMusicTrackHook(22);
+    ResetStringBuilder(&DAT_005a6bc0);
+    savedDataSet = g_nCampaignDataSet_005a8118;
+    savedCampaign = g_nCampaignIndex_0059caa6;
+    g_nCampaignIndex_0059caa6 = 0;
+    g_nCampaignDataSet_005a8118 = 0;
+
+    while (g_nTrainSimMission_00469e30 < 4) {
+        g_nTrainSimActive_00469e2c = 1;
+        ComputeArcadeTimeBonus();
+        LoadMissionData(0, g_nTrainSimMission_00469e30);
+        ShowGetReadyScreen();
+
+        g_aasShipShield_0059d5b0[0][0] = 0;
+        g_aasShipShield_0059d5b0[0][1] = 0;
+        g_aasShipMaximumShield_0059d6e0[0][0] = 0;
+        g_aasShipMaximumShield_0059d6e0[0][1] = 0;
+        g_acPlayerComponentDamage_0059bff0[2] = 4;
+        g_nArcadeTimeRemaining_005a7c2c = 100;
+        g_nCurrentWave_0046c01c = 2;
+        g_acShipDamage_0059c460[0] = (signed char)(
+            g_aObjectTypeData_00466458[
+                g_aeObjectType_0059b560[0]].damageCapacity + 1);
+        set_up_next_wave();
+        g_nArcadeTimeRemaining_005a7c2c = 25;
+
+        ClearMessageSlot(0);
+        ClearMessageSlot(1);
+        DIBslam();
+        DIBslamReal();
+        savedFrameState = DAT_0046505c;
+        DAT_0046505c = 1;
+        result = RunSpaceFlight(g_nArcadeWave_00469e34);
+        if (result == 1) {
+            if (g_nTrainSimMission_00469e30 < 3)
+                g_nArcadeWave_00469e34 = 0;
+            else
+                ShowVictoryScreen();
+            g_nTrainSimMission_00469e30++;
+        } else {
+            g_nArcadeState_00469fb0 = 4;
+            ShowGameOverScreen();
+            g_nTrainSimMission_00469e30 = 4;
+        }
+        DAT_0046505c = savedFrameState;
+    }
+
+    g_nCampaignIndex_0059caa6 = savedCampaign;
+    g_nCampaignDataSet_005a8118 = savedDataSet;
+    free_all_slots();
+    ReleaseCockpitResources();
+    free_3Space();
+    ReleaseMusicTrackHook(20);
+    ReleaseMusicTrackHook(21);
+    ReleaseMusicTrackHook(22);
+    g_nTrainSimActive_00469e2c = 0;
+}
+
 /* Function start: 0x4272F0 */
 short LogMemoryUsage(void)
 {

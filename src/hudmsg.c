@@ -118,6 +118,54 @@ void ShowVersionBanner(void)
     ShowOnScreenMessage(1, 9999, "WING COMMANDER VER. %s");
 }
 
+/* Function start: 0x429160 */
+int HandleDebugCheatKeys(void)
+{
+    unsigned char key;
+    int repeated;
+
+    player_input();
+    players_flight_dynamics();
+    key = g_bCurrentKey_0046c014;
+    repeated = (signed char)key == g_cPreviousKey_0046c018;
+
+    switch (key) {
+    case 1:
+        DAT_0059ab58 = 0;
+        if (g_nTrainSimActive_00469e2c != 0)
+            return -1;
+        break;
+    case 0x0c:
+    case 0x4a:
+        AdjustShipSpeed(0, -0x100);
+        break;
+    case 0x0d:
+    case 0x4e:
+        AdjustShipSpeed(0, 0x100);
+        break;
+    case 0x0e:
+        g_anShipSpeed_0059b320[0] = 0;
+        break;
+    case 0x0f:
+    case 0x37:
+        if (g_anShipFuel_0059b470[0] > 0)
+            fire_afterburner(0, 8);
+        break;
+    case 0x1c:
+        if (!repeated && g_nSelectedReleaseWeaponIndex_0046c058 != -1)
+            fire_weapon(0, (short)g_nSelectedReleaseWeaponIndex_0046c058);
+        break;
+    case 0x2b:
+        g_anShipSpeed_0059b320[0] =
+            (int)g_asShipMaximumSpeed_0059c440[0] << 8;
+        break;
+    case 0x39:
+        fire_players_lasers();
+        break;
+    }
+    return 0;
+}
+
 /* Function start: 0x429DD0 */
 unsigned int Draw_3Space_Frame(void)
 {
@@ -232,12 +280,12 @@ unsigned int RenderSpaceViewFrame(void)
 }
 
 /* Function start: 0x42A0C0 */
-void RefreshCockpitStatus(void)
+unsigned int RefreshCockpitStatus(void)
 {
     Update_3Space();
     if (DAT_00469fb4 < 2)
         clear_view_buffer();
-    Draw_3Space_Frame();
+    return Draw_3Space_Frame();
 }
 
 /* Function start: 0x42A0E0 */
@@ -273,8 +321,103 @@ unsigned int ReleaseStaleNavTarget(void)
     short v = FindNearestNavPoint(0);
 
     if (g_nCurrentNavPoint_0059df60 != v)
-        EnterNavPoint(v);
+        set_up_action_sphere(v);
     return 0;
+}
+
+/* Function start: 0x42A190 */
+int RunSpaceFlight(short entryNavPoint)
+{
+    Viewport *savedViewport;
+    signed char savedMode;
+    unsigned int frameReady;
+    short objective;
+
+    DAT_0046a008 = 0;
+    if (g_nTrainSimActive_00469e2c == 0 && DAT_0046507c == 0)
+        DAT_0046a008 = 1;
+    DAT_00469fb4 = 1;
+    g_bInputMode_0059a848 = 1;
+    SetEventManagerPump(PollSpaceFlightInput);
+    savedViewport = (Viewport *)DAT_0059ab23;
+    DAT_0059ab23 = &DAT_005a7510;
+    ResetSceneFlags();
+
+    if (entryNavPoint == -1)
+        entryNavPoint = g_aMissionShips_0046c948[
+            g_nPlayerMissionShipIndex_005a8694].navPoint;
+    set_up_action_sphere(entryNavPoint);
+
+    if (DAT_0046a008 != 0) {
+        GetScreenUpdateFlag();
+        SetViewportRect(&DAT_005a7510, 0, 0,
+                        (unsigned short)(g_nScreenWidth_0046daa4 - 1),
+                        (unsigned short)(g_nScreenHeight_0046daa8 - 1));
+        initialize_view_buffer();
+        new_view(0, 0);
+        GetScreenUpdateFlag();
+        SetViewportRect(&DAT_005a7510, 0, 0, 319, 199);
+        savedMode = g_cScreenViewportMode_0059a9f2;
+        g_cScreenViewportMode_0059a9f2++;
+        initialize_cockpit(savedMode);
+        SetMousePosition(
+            (DAT_005a7510.right - DAT_005a7510.left) / 2 + 1,
+            g_nViewCenterY_0059a854);
+        DAT_0046a02c = 0;
+        g_bMouseCursorVisible_0046a018 = 0;
+        initialize_view_buffer();
+        FlushInputEvents();
+    }
+
+    copy_frame(0, 62);
+    WarpMouseTo((short)((DAT_005a7510.left + DAT_005a7510.right) / 2),
+                (short)((DAT_005a7510.top + DAT_005a7510.bottom) / 2));
+    FlushInputEvents();
+    DAT_0046a02c = 0;
+    g_bMouseCursorVisible_0046a018 = 0;
+    g_nArcadeState_00469fb0 = 0;
+    DIBslam();
+    DIBslamReal();
+    SetSpaceFlightFrameTiming();
+    FlushInputEvents();
+    ClearDebugPauseFlags();
+    g_bMouseCursorVisible_0046a018 = 0;
+    g_bPointerMovedByKeyboard_005a7d54 = 1;
+    frameReady = 1;
+
+    while (g_nArcadeState_00469fb0 == 0) {
+        if (HandleDebugCheatKeys() == -1) {
+            g_nArcadeState_00469fb0 = 5;
+            break;
+        }
+        Update_3Space();
+        frameReady = RenderSpaceViewFrame();
+        update_cockpit();
+        if (frameReady != 0) {
+            frameReady = 0;
+            DIBslam();
+            DIBslamReal();
+        }
+    }
+
+    SetCinematicFrameTiming();
+    SetViewportRect(&DAT_005a7510, 0, 0,
+                    (unsigned short)(g_nScreenWidth_0046daa4 - 1),
+                    (unsigned short)(g_nScreenHeight_0046daa8 - 1));
+    DAT_0046a008 = 0;
+    if (g_nArcadeState_00469fb0 == 1) {
+        objective = find_objective(1, -1);
+        if (objective != -1)
+            flag_objective(objective, 2);
+    }
+    ResetCockpitPaletteEntries();
+    DAT_0059ab23 = savedViewport;
+    ReleaseSceneFlags();
+    SetEventManagerPump(0);
+    g_bMouseCursorVisible_0046a018 = 0;
+    QueueInputEvent(13, 160, 100, 0, 0, 0, 0);
+    SetMouseCursorShape(DAT_0059ab19, 0);
+    return g_nArcadeState_00469fb0;
 }
 
 /* Function start: 0x42A670 */
@@ -358,7 +501,7 @@ void arrive_from_warp(short obj)
         if (g_cCurrentObjective_0046c020 == objective)
             set_next_destination();
     }
-    place_ship_near_player_until_valid(obj, 2000, 5000);
+    approve_xyz(obj, 2000, 5000);
     unwarp(obj);
     g_anShipSpeed_0059b320[obj] =
         (int)g_asShipMaximumSpeed_0059c440[obj] << 8;

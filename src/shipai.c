@@ -1415,6 +1415,29 @@ void FF_missile_intelligence(short obj)
     }
 }
 
+/* Function start: 0x40B670 */
+void ComputeMissionShipPosition(const MissionShipRecord *record,
+                                FixedVector *position)
+{
+    AddFixedVectors(
+        &g_aMissionNavPoints_0046c2f0[record->navPoint].position,
+        &record->position, position);
+}
+
+/* Function start: 0x40B6A0 */
+unsigned int ShouldSpawnMissionShipPilot(int pilot)
+{
+    if (pilot < 5)
+        return 1;
+    if (pilot == 13)
+        return g_nArcadeState_00469fb0 != 4;
+    if (pilot > 4 && pilot < 13)
+        return g_aiPersonalityDeathMission_0059ca74[pilot - 5] == 0;
+    if (pilot > 13 && pilot < 18)
+        return (unsigned int)(short)ace_status((short)(pilot - 14), 1);
+    return 0;
+}
+
 /* Function start: 0x40B700 */
 unsigned int GetShipSlotState(short i)
 {
@@ -1426,6 +1449,83 @@ unsigned int GetShipSlotState(short i)
         g_asObjectCounter_0059c330[i] = (short)prev;
     }
     return 0;
+}
+
+/* Function start: 0x40B730 */
+unsigned int LoadMissionData(short series, short mission)
+{
+    LoadMissionDefinition(series, mission);
+    init_3Space_objects(series);
+    g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
+        g_aMissionResourceDescriptors_00469c20, 0,
+        g_nAvailableGameMemory_005a7ce0);
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
+    prepare_mission();
+    InitializeCockpitResources(
+        (signed char)(series == 0 ? 4 : g_ePlayerShipType_0059ca54));
+    return 0;
+}
+
+/* Function start: 0x40B7A0 */
+void prepare_mission(void)
+{
+    MissionShipRecord *playerRecord;
+    short initial;
+    short missionShip;
+    short object;
+    int pilot;
+
+    g_nMissionScore_0059caa2 = 0;
+    g_asCollisionTime_005a7ca0[10] = 0;
+    g_asCollisionTime_005a7ca0[11] = 0;
+    g_asCollisionTime_005a7ca0[12] = 0;
+    g_nMissionMedalScore_005a8116 = 0;
+    g_nPlayerKillCount_005a7c9c = 0;
+
+    playerRecord =
+        &g_aMissionShips_0046c948[g_nPlayerMissionShipIndex_005a8694];
+    g_ePlayerShipType_0059ca54 = playerRecord->type;
+    load_ship(g_ePlayerShipType_0059ca54, 0);
+    set_objects_data(0, g_ePlayerShipType_0059ca54, -1);
+    playerRecord->navPoint = (signed char)g_nMissionEntryNavPoint_005a8690;
+    if (g_nTrainSimActive_00469e2c == 0 && DAT_0046a010 != -1)
+        playerRecord->navPoint = (signed char)DAT_0046a010;
+    Set_up_ship_info(0, g_nPlayerMissionShipIndex_005a8694, -1);
+
+    memset(g_acPlayerComponentDamage_0059bff0, 0,
+           sizeof(g_acPlayerComponentDamage_0059bff0));
+    DAT_00465c84 = 1;
+    g_nYourWingman_0046c04c = -1;
+    initial = 0;
+    do {
+        missionShip = g_nInitialMissionShipIndices_005a8696[initial];
+        if (missionShip != -1) {
+            pilot = g_aMissionShips_0046c948[missionShip].behaviour.pilot;
+            if (ShouldSpawnMissionShipPilot(pilot) != 0 &&
+                find_ships_sphere(missionShip) == -1) {
+                object = init_ship(
+                    missionShip, g_nMissionEntryNavPoint_005a8690);
+                if (g_nYourWingman_0046c04c == -1 &&
+                    pilot > 4 && pilot < 14)
+                    g_nYourWingman_0046c04c = object;
+            }
+        }
+        initial++;
+    } while (initial < 8);
+    DAT_00465c84 = 0;
+
+    BuildObjectiveList();
+    g_nCarrierMissionShipIndex_005a7e2a = 0;
+    while (g_aMissionShips_0046c948[
+               g_nCarrierMissionShipIndex_005a7e2a].type !=
+               OBJECT_TYPE_TIGERS_CLAW &&
+           g_nCarrierMissionShipIndex_005a7e2a <
+               WC1_MISSION_SHIP_COUNT) {
+        g_nCarrierMissionShipIndex_005a7e2a++;
+    }
+    g_nTargetLockMode_0046c078 = 0;
+    DAT_00468ff8 = 0;
 }
 
 /* Function start: 0x40B990 */
@@ -1445,7 +1545,7 @@ void release_capital_ship_shapes(enum ObjectType type)
 }
 
 /* Function start: 0x40B9F0 */
-void load_object_resources(enum ObjectType type, short slot)
+void load_ship(enum ObjectType type, short slot)
 {
     ObjectResourceSlot *resource;
     ObjectTypeData *typeData;
@@ -1501,7 +1601,7 @@ void load_object_resources(enum ObjectType type, short slot)
 }
 
 /* Function start: 0x40BC70 */
-void release_object_resources(short slot)
+void free_ship(short slot)
 {
     ObjectResourceSlot *resource;
     ObjectTypeData *typeData;
@@ -1540,13 +1640,13 @@ void release_object_resources(short slot)
 }
 
 /* Function start: 0x40BE20 */
-void free_nav_object_resources(void)
+void free_all_slots(void)
 {
     short slot = 0;
 
     do {
         if (g_aObjectResourceSlots_0059ddf0[slot].type != -1)
-            release_object_resources(slot);
+            free_ship(slot);
         slot++;
     } while (slot < 3);
     initialize_view_buffer();
@@ -1564,7 +1664,7 @@ void remove_nav_point_objects(void)
 }
 
 /* Function start: 0x40BEC0 */
-short find_free_object_resource_slot(void)
+short get_shape_slot(void)
 {
     short slot = 0;
 
@@ -1577,7 +1677,7 @@ short find_free_object_resource_slot(void)
 }
 
 /* Function start: 0x40BEF0 */
-int object_resources_loaded(enum ObjectType type)
+int shape_loaded(enum ObjectType type)
 {
     short slot = 0;
 
@@ -1590,8 +1690,7 @@ int object_resources_loaded(enum ObjectType type)
 }
 
 /* Function start: 0x40BF20 */
-int nav_point_uses_object_type(const MissionNavPoint *navPoint,
-                               enum ObjectType type)
+int shape_needed(const MissionNavPoint *navPoint, enum ObjectType type)
 {
     short preload;
 
@@ -1607,7 +1706,7 @@ int nav_point_uses_object_type(const MissionNavPoint *navPoint,
 }
 
 /* Function start: 0x40BF50 */
-void cache_nav_point_resources(MissionNavPoint *navPoint)
+void new_sphere_shapes(MissionNavPoint *navPoint)
 {
     short slot;
     short preload;
@@ -1617,18 +1716,18 @@ void cache_nav_point_resources(MissionNavPoint *navPoint)
     do {
         type = (enum ObjectType)g_aObjectResourceSlots_0059ddf0[slot].type;
         if ((int)type >= 0 &&
-            !nav_point_uses_object_type(navPoint, type))
-            release_object_resources(slot);
+            !shape_needed(navPoint, type))
+            free_ship(slot);
         slot++;
     } while (slot < 3);
 
     preload = 0;
     do {
         type = navPoint->preloadObjectTypes[preload];
-        if ((int)type >= 0 && !object_resources_loaded(type)) {
-            slot = find_free_object_resource_slot();
+        if ((int)type >= 0 && !shape_loaded(type)) {
+            slot = get_shape_slot();
             if (slot != -1)
-                load_object_resources(type, slot);
+                load_ship(type, slot);
         }
         preload++;
     } while (preload < 2);
@@ -1636,7 +1735,7 @@ void cache_nav_point_resources(MissionNavPoint *navPoint)
 }
 
 /* Function start: 0x40BFF0 */
-void EnterNavPoint(short navPoint)
+void set_up_action_sphere(short navPoint)
 {
     MissionNavPoint *nav;
     short obj;
@@ -1654,12 +1753,12 @@ void EnterNavPoint(short navPoint)
         obj++;
     } while (obj < 10);
     remove_all_hazards();
-    cache_nav_point_resources(nav);
+    new_sphere_shapes(nav);
 
     entry = 0;
     do {
         if (nav->missionShips[entry] != -1)
-            spawn_mission_ship(nav->missionShips[entry], navPoint);
+            init_ship(nav->missionShips[entry], navPoint);
         entry++;
     } while (entry < 10);
 
@@ -1678,62 +1777,152 @@ void EnterNavPoint(short navPoint)
 }
 
 /* Function start: 0x40C350 */
-unsigned int GetObjectVisible(void)
+unsigned int room_for_me(void)
 {
     return 1;
 }
 
 /* Function start: 0x40C360 */
-void place_ship_near_player_until_valid(short obj, int minimum,
-                                        short maximum)
+void approve_xyz(short obj, int minimum, short maximum)
 {
     (void)minimum;
-    if (obj != -1) {
-        g_aShipPosition_0059c490[obj] = g_aShipPosition_0059c490[0];
-        g_aShipPosition_0059c490[obj].z += (int)maximum << 8;
+    if (obj == -1 || room_for_me() != 0)
+        return;
+    do {
+        random_radial(&g_aShipPosition_0059c490[0], maximum,
+                      &g_aShipPosition_0059c490[obj]);
+    } while (room_for_me() == 0);
+}
+
+/* Function start: 0x40C3C0 */
+void set_up_next_wave(void)
+{
+    MissionNavPoint *waveNav;
+    short previousWave;
+    short entry;
+    short object;
+
+    if (g_nTrainSimActive_00469e2c != 0) {
+        StartMusicTrack(21, 2, 0);
+        g_nArcadeBonusCountdown_0046a014 = 60;
+        if (g_nCurrentWave_0046c01c != -1)
+            g_nArcadeBonusCountdown_0046a014 = 30;
+        ComputeArcadeWaveBonus();
+        ComputeArcadeTimeBonus();
     }
+
+    previousWave = g_nCurrentWave_0046c01c;
+    if (previousWave == -1 || g_nCannedSceneMode_00469fac != 0)
+        return;
+
+    /* The original indexes through a base biased one MissionNavPoint before
+     * g_aMissionNavPoints.  Preserve that -1 when expressing it as a typed
+     * array index: arcade wave 2 is stored in nav record 1. */
+    waveNav = &g_aMissionNavPoints_0046c2f0[
+        g_nCurrentNavPoint_0059df60 + previousWave - 1];
+    g_nCurrentWave_0046c01c++;
+    if (waveNav->type != (signed char)previousWave) {
+        g_nCurrentWave_0046c01c = -1;
+        return;
+    }
+
+    new_sphere_shapes(waveNav);
+    waveNav->type = -1;
+    entry = 0;
+    do {
+        object = init_ship(
+            waveNav->missionShips[entry], g_nCurrentNavPoint_0059df60);
+        approve_xyz(object, 5000, 10000);
+        entry++;
+    } while (entry < 10);
+}
+
+/* Function start: 0x40C4A0 */
+unsigned int sub_int_vector(const ShortVector *left,
+                            const ShortVector *right,
+                            ShortVector *difference)
+{
+    difference->x = left->x - right->x;
+    difference->y = left->y - right->y;
+    difference->z = left->z - right->z;
+    return 0;
+}
+
+/* Function start: 0x40C4E0 */
+unsigned int set_formation_position(short obj,
+                                    const MissionShipRecord *record)
+{
+    const MissionShipRecord *leaderRecord;
+    short source;
+
+    if (record->formationIndex == -1)
+        return 0;
+
+    source = obj;
+    leaderRecord = record;
+    while (leaderRecord->leaderMissionIndex != -1) {
+        source = find_ship_index(leaderRecord->leaderMissionIndex);
+        leaderRecord = &g_aMissionShips_0046c948[
+            leaderRecord->leaderMissionIndex];
+    }
+
+    sub_int_vector(
+        &g_aaFormationPositions_00465ed8[record->formationIndex]
+                                               [record->formationSpot],
+        &g_aaFormationPositions_00465ed8[leaderRecord->formationIndex]
+                                               [leaderRecord->formationSpot],
+        &g_aShipFormationOffset_0059b520[obj]);
+    if (source == 0 && DAT_00465c84 == 0)
+        return 0;
+
+    copy_frame(source, obj);
+    ComputeMissionShipPosition(leaderRecord,
+                               &g_aShipPosition_0059c490[obj]);
+    offset_location(obj, &g_aShipFormationOffset_0059b520[obj],
+                    &g_aShipPosition_0059c490[obj]);
+    g_anShipSpeed_0059b320[obj] = (int)leaderRecord->speed << 8;
+    return 0;
 }
 
 /* Function start: 0x40C5E0 */
-void initialize_mission_ship(short obj, short missionShip,
-                             signed char navPoint)
+void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
 {
     MissionShipRecord *record = &g_aMissionShips_0046c948[missionShip];
-    MissionNavPoint *nav = &g_aMissionNavPoints_0046c2f0[record->navPoint];
 
+    g_asCapitalShipViewFrame_0059dd90[obj] = -1;
+    g_acWingmanMessageState_0059d2c0[obj] = -1;
+    DAT_0059c910[obj] = -1;
+    g_asActionCount_0059c930[obj] = 0;
+    g_abShipExhaustHeat_0059d610[obj] = 0;
+    g_asShipAccumulatedDamage_0059dee0[obj] = 0;
+    g_acShipDamage_0059c460[obj] = 0;
+    g_asCannedCommand_0059d4e0[obj] = 0;
+    g_acShipIonDriveDamage_0059d4a0[obj] = 0;
+    g_acShipDestroyedWeaponCount_0059de30[obj] = 0;
+    g_acShipCommunicator_0059c850[obj] = 0;
+    g_apCannedSequence_0059dce0[obj] = 0;
+    g_acShipSpawnNavPoint_0059ded0[obj] = navPoint;
     g_nShipMissionIndices_0059c830[obj] = missionShip;
-    g_aShipPosition_0059c490[obj].x = nav->position.x + record->position.x;
-    g_aShipPosition_0059c490[obj].y = nav->position.y + record->position.y;
-    g_aShipPosition_0059c490[obj].z = nav->position.z + record->position.z;
+    g_acShipPointingMode_0059d790[obj] = 1;
+
+    ComputeMissionShipPosition(record, &g_aShipPosition_0059c490[obj]);
     alter_yaw((short)-record->pitch, obj);
     alter_pitch((short)-record->yaw, obj);
     alter_roll(record->roll, obj);
     g_aeShipSide_0059d650[obj] = record->side;
     g_anShipSpeed_0059b320[obj] = (int)record->speed << 8;
-    g_aiPilotLevel_0059cf30[obj] = (int)record->cannedSequence;
+    g_aiPilotLevel_0059cf30[obj] = record->behaviour.pilot;
     reset_mission_type(obj, record->missionType);
     g_anShipMissionShip_0059d4b0[obj] = record->targetMissionIndex;
     g_asShipWingLeader_0059d400[obj] =
         find_ship_index(record->leaderMissionIndex);
+    set_formation_position(obj, record);
     zero_vector(&g_aShipVelocity_0059c010[obj]);
-    g_abShipTurn_0059d860[obj] = 0;
-    g_aeSpecialManeuver_0059c3c0[obj] = SPECIAL_MANEUVER_NONE;
-    ((FixedVector *)g_aShipMissionSpot_0059dd10)[obj] = nav->position;
-
-    if (record->missionType == MISSION_TYPE_CANNED_SEQUENCE) {
-        g_apCannedSequence_0059dce0[obj] = record->cannedSequence;
-        g_aiPilotLevel_0059cf30[obj] = 2;
-        advance_canned_sequence(obj);
-    }
-    g_acShipRating_0059cd80[obj] =
-        g_aiPilotLevel_0059cf30[obj] < 5 ? -1 :
-        (signed char)(g_aiPilotLevel_0059cf30[obj] - 5);
-    g_acShipStress_0059d620[obj] = 0;
-    (void)navPoint;
+    init_intelligence_data(obj);
 }
 
 /* Function start: 0x40C740 */
-unsigned int IsInitialMissionShip(short missionShip)
+unsigned int is_team_member(short missionShip)
 {
     short index;
 
@@ -1748,28 +1937,127 @@ unsigned int IsInitialMissionShip(short missionShip)
     return 0;
 }
 
+/* Function start: 0x40C780 */
+unsigned int find_next_ship_turn_slot(short obj)
+{
+    signed char interval;
+    short other;
+
+    other = 1;
+    g_acTurnRegulator_0059cf10[obj] = 1;
+    interval = (signed char)g_anPilotTurnInterval_00465fc8[
+        g_aiPilotLevel_0059cf30[obj]];
+    g_acTurnInterval_0059d7d0[obj] = interval;
+    do {
+        if (g_aeObjectClass_0059d100[other] == OBJECT_CLASS_SHIP &&
+            other != obj &&
+            g_acTurnRegulator_0059cf10[other] ==
+                g_acTurnRegulator_0059cf10[obj] &&
+            g_acTurnInterval_0059d7d0[other] == interval) {
+            other = 1;
+            g_acTurnRegulator_0059cf10[obj]++;
+            if (interval < g_acTurnRegulator_0059cf10[obj])
+                return 0;
+        }
+        other++;
+    } while (other < 10);
+    return 0;
+}
+
 /* Function start: 0x40C800 */
-short spawn_mission_ship(short missionShip, short navPoint)
+short init_ship(short missionShip, short navPoint)
 {
     MissionShipRecord *record;
+    FixedVector center;
     short obj;
 
-    if (missionShip < 0 || missionShip >= WC1_MISSION_SHIP_COUNT)
+    if (missionShip == -1)
         return -1;
     record = &g_aMissionShips_0046c948[missionShip];
     if (record->type == OBJECT_TYPE_ASTEROID_FIELD ||
-        record->type == OBJECT_TYPE_MINE_FIELD)
+        record->type == OBJECT_TYPE_MINE_FIELD) {
+        AddFixedVectors(&g_aMissionNavPoints_0046c2f0[navPoint].position,
+                        &record->position, &center);
+        add_hazard_field(record->type, center,
+                         (short)(record->speed + 3000),
+                         (short)record->behaviour.pilot);
         return -1;
+    }
     obj = find_ship_index(missionShip);
     if (obj != -1 || record->state != 0)
         return -1;
+    if (record->missionType != MISSION_TYPE_CANNED_SEQUENCE &&
+        ShouldSpawnMissionShipPilot(record->behaviour.pilot) == 0) {
+        if (record->behaviour.pilot < 9)
+            return -1;
+        record->behaviour.pilot = 3;
+    }
     record->navPoint = (signed char)navPoint;
+    if (is_team_member(missionShip) != 0)
+        navPoint = -1;
     obj = initialize_ship(record->type, -1);
     if (obj != -1) {
-        initialize_mission_ship(obj, missionShip, (signed char)navPoint);
+        Set_up_ship_info(obj, missionShip, (signed char)navPoint);
+        find_next_ship_turn_slot(obj);
         GetShipSlotState(obj);
     }
     return obj;
+}
+
+/* Function start: 0x40C950 */
+unsigned int init_intelligence_data(short obj)
+{
+    FixedVector *missionSpot;
+    short missionTarget;
+
+    g_abShipTurn_0059d860[obj] = 0;
+    clear_alert(obj);
+    missionTarget = g_anShipMissionShip_0059d4b0[obj];
+    missionSpot = &((FixedVector *)g_aShipMissionSpot_0059dd10)[obj];
+    g_aeSpecialManeuver_0059c3c0[obj] = SPECIAL_MANEUVER_NONE;
+    *missionSpot = g_aMissionNavPoints_0046c2f0[
+        g_nCurrentNavPoint_0059df60].position;
+
+    switch (g_aeShipMissionType_0059c3f0[obj]) {
+    case MISSION_TYPE_ESCORT:
+    case MISSION_TYPE_STRIKE:
+    case MISSION_TYPE_DEFEND:
+    case MISSION_TYPE_WINGMAN:
+        g_anShipMissionShip_0059d4b0[obj] = missionTarget;
+        break;
+    case MISSION_TYPE_GOTO_WARP:
+        *missionSpot =
+            g_aMissionNavPoints_0046c2f0[missionTarget].position;
+        break;
+    case MISSION_TYPE_WARP_ARRIVE:
+        g_aeShipTactic_0059d5e0[obj] = TACTIC_WARP_IN;
+        g_aeShipManeuver_0059dcb0[obj] = MANEUVER_WARPING_IN;
+        if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
+            break;
+        /* fall through */
+    case MISSION_TYPE_COME_HOME:
+        locate_ship(DAT_005a8692, missionSpot);
+        break;
+    case MISSION_TYPE_CANNED_SEQUENCE:
+        g_apCannedSequence_0059dce0[obj] =
+            g_aMissionShips_0046c948[
+                g_nShipMissionIndices_0059c830[obj]].behaviour.cannedSequence;
+        g_aiPilotLevel_0059cf30[obj] = 2;
+        advance_canned_sequence(obj);
+        break;
+    default:
+        break;
+    }
+
+    if (g_aiPilotLevel_0059cf30[obj] < 5)
+        g_acShipRating_0059cd80[obj] =
+            (signed char)~RATING_PROVINCIAL;
+    else
+        g_acShipRating_0059cd80[obj] =
+            (signed char)(g_aiPilotLevel_0059cf30[obj] -
+                          RATING_ACE_SPIRIT);
+    g_acShipStress_0059d620[obj] = 0;
+    return 0;
 }
 
 /* Function start: 0x40CAA0 */
@@ -1815,4 +2103,89 @@ void SetNavCursorIndex(unsigned short v)
 void ObjectDrawHook(short *p)
 {
     *p = (short)((int)*p / (DAT_00468664 * 100));
+}
+
+/* Function start: 0x40CC30 */
+void UpdateObjectiveMapCoordinates(short *x, short *y,
+                                   int worldX, int worldZ)
+{
+    *x = (short)((unsigned int)(worldX / 100) >> 8);
+    *y = (short)((unsigned int)(worldZ / 100) >> 8);
+    if (DAT_00468660 != 0) {
+        ObjectDrawHook(x);
+        ObjectDrawHook(y);
+    }
+}
+
+/* Function start: 0x40CED0 */
+void BuildObjectiveList(void)
+{
+    MissionObjectiveSource *source;
+    MissionObjective *objective;
+    MissionNavPoint *nav;
+    MissionShipRecord *ship;
+    short flightPathCount;
+    short sourceIndex;
+    short firstDestination;
+
+    SetNavCursorIndex(0);
+    g_cMissionObjectiveCount_0059c46a = 0;
+    flightPathCount = 0;
+    source = g_aMissionObjectiveSources_005a8270;
+    sourceIndex = 0;
+    while (sourceIndex < WC1_MISSION_OBJECTIVE_COUNT &&
+           source->type != -1) {
+        objective = &g_aMissionObjectives_0059dac5[
+            (unsigned char)g_cMissionObjectiveCount_0059c46a];
+        objective->flags = 0;
+        objective->type = source->type;
+        objective->index = (signed char)source->index;
+        objective->name = source->description;
+        objective->displayName = source->description;
+
+        if (source->type == 0 && source->index >= 0 &&
+            source->index < WC1_MISSION_NAV_POINT_COUNT) {
+            nav = &g_aMissionNavPoints_0046c2f0[source->index];
+            objective->position = nav->position;
+            objective->displayName = nav->name;
+            g_abFlightPath_0059c000[flightPathCount++] =
+                g_cMissionObjectiveCount_0059c46a;
+        } else if (source->type > 0 && source->type < 5 &&
+                   source->index >= 0 &&
+                   source->index < WC1_MISSION_SHIP_COUNT) {
+            ship = &g_aMissionShips_0046c948[source->index];
+            ComputeMissionShipPosition(ship, &objective->position);
+            objective->displayName =
+                g_aObjectTypeData_00466458[ship->type].displayName;
+            g_abFlightPath_0059c000[flightPathCount++] =
+                g_cMissionObjectiveCount_0059c46a;
+        } else {
+            zero_vector(&objective->position);
+        }
+        UpdateObjectiveMapCoordinates(
+            &objective->mapX, &objective->mapY,
+            objective->position.x, objective->position.z);
+        objective->field_1e = 0;
+        g_cMissionObjectiveCount_0059c46a++;
+        source++;
+        sourceIndex++;
+    }
+
+    g_abFlightPath_0059c000[flightPathCount] = -1;
+    g_aMissionObjectives_0059dac5[
+        (unsigned char)g_cMissionObjectiveCount_0059c46a].type = -1;
+    g_cCurrentNavPointIndex_0059c86c = 0;
+    g_cCurrentObjective_0046c020 = 0;
+    firstDestination = 0;
+    while (firstDestination < flightPathCount &&
+           visited(g_abFlightPath_0059c000[firstDestination]) != 0)
+        firstDestination++;
+    if (firstDestination < flightPathCount) {
+        g_cCurrentNavPointIndex_0059c86c = (signed char)firstDestination;
+        g_cCurrentObjective_0046c020 =
+            g_abFlightPath_0059c000[firstDestination];
+        g_aeShipObjective_0059d200[0] = (enum ShipObjective)
+            g_aMissionObjectives_0059dac5[
+                g_cCurrentObjective_0046c020].type;
+    }
 }

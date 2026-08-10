@@ -109,6 +109,36 @@ void ClearHighScoreTable(short v)
     } while (i != 0);
 }
 
+/* Function start: 0x425F40 */
+void InitializeTrainSimHighScores(void)
+{
+    short slot;
+    short candidate;
+    short previous;
+    int score;
+
+    slot = 0;
+    score = (short)RandomBelowOrEqual(2000) + 10000;
+    do {
+        do {
+            candidate = (short)RandomInRange(0, 14);
+            if (candidate == 8)
+                candidate = -1;
+            previous = 0;
+            while (candidate != -1 && previous < slot) {
+                if (g_aHighScoreEntries_005a7c30[previous].pilotIndex ==
+                    candidate)
+                    candidate = -1;
+                previous++;
+            }
+        } while (candidate == -1);
+        score -= (short)RandomBelowOrEqual(1500) + 100;
+        SetHighScoreEntry(slot, (unsigned char)candidate, score);
+        slot++;
+    } while (slot < 5);
+    SetHighScoreEntry(5, 8, 0);
+}
+
 /* Function start: 0x425FE0 */
 int IsHighScoreSlotUsed(short i)
 {

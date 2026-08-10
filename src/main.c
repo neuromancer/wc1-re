@@ -9,6 +9,8 @@
 /* Function start: 0x4274E0 */
 int main(short argc, char **argv)
 {
+    int selection;
+
     (void)argc;
     (void)argv;
 
@@ -43,10 +45,24 @@ int main(short argc, char **argv)
     SetMusicStreamVolume((unsigned short)DAT_00469fc8[DAT_00469fc0 / 2]);
 
     DAT_0059ab58 = 0;
-    FrameStartHook();
-    DAT_004688e0 = 1;
-    Title_Sequence();
-    return 0;
+    for (;;) {
+        FrameStartHook();
+        DAT_004688e0 = 1;
+        selection = Title_Sequence();
+        switch (selection) {
+        case 0:
+            StartNewCampaign(0);
+            break;
+        case 2:
+            StartNewCampaign(1);
+            break;
+        case 3:
+            StartNewCampaign(2);
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 /* Function start: 0x4279D0 */
@@ -169,4 +185,288 @@ void house_keep(void)
         g_nTrainSimActive_00469e2c == 0 &&
         (g_nSpaceFrame_0059b420 & 0x1f) == 0)
         ReleaseStaleNavTarget();
+}
+
+/* Function start: 0x427E40 */
+void PollSpaceFlightInput(void)
+{
+    int device;
+    InputDeviceSample *sample;
+
+    if (g_nActiveInputDevice_005a819c == -1 ||
+        g_bInputPollingGuard_0046a01c != 0)
+        return;
+
+    g_bInputPollingGuard_0046a01c = 1;
+    UpdateInputDeviceTransitions(0);
+    device = (int)g_nActiveInputDevice_005a819c;
+    sample = &g_aInputDeviceSamples_005a81f0[device];
+    if (sample->x != 0 || sample->y != 0 || sample->buttons != 0 ||
+        DAT_0046a020 != 0 || DAT_0046a024 != 0 || DAT_0046a028 != 0)
+        TranslatePolledInputEvent(6, 0);
+    DAT_0046a020 = sample->x;
+    DAT_0046a024 = sample->y;
+    DAT_0046a028 = sample->buttons;
+    g_bInputPollingGuard_0046a01c--;
+}
+
+/* Function start: 0x427F20 */
+int process_player_input(void)
+{
+    short keys[3];
+    short *key;
+    int shift;
+    int control;
+    short handled;
+
+    shift = GetShiftKeyState();
+    control = GetControlKeyState();
+    handled = 1;
+    switch ((signed char)g_bCurrentKey_0046c014) {
+    case 0x47:
+        keys[0] = 0x48;
+        keys[1] = 0x4b;
+        keys[2] = -1;
+        break;
+    case 0x49:
+        keys[0] = 0x48;
+        keys[1] = 0x4d;
+        keys[2] = -1;
+        break;
+    case 0x4f:
+        keys[0] = 0x50;
+        keys[1] = 0x4b;
+        keys[2] = -1;
+        break;
+    case 0x51:
+        keys[0] = 0x50;
+        keys[1] = 0x4d;
+        keys[2] = -1;
+        break;
+    default:
+        keys[0] = (short)(signed char)g_bCurrentKey_0046c014;
+        keys[1] = -1;
+        break;
+    }
+
+    key = keys;
+    while (*key != -1) {
+        switch (*key++) {
+        case 0x33:
+        case 0x52:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (g_nRollInput_0059d3f4 > 0)
+                g_nRollInput_0059d3f4 = 0;
+            else
+                g_nRollInput_0059d3f4 =
+                    MaxShort((short)(g_nRollInput_0059d3f4 -
+                                     (shift != 0 ? 9 : 1)), -10);
+            break;
+        case 0x34:
+        case 0x53:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (g_nRollInput_0059d3f4 < 0)
+                g_nRollInput_0059d3f4 = 0;
+            else
+                g_nRollInput_0059d3f4 =
+                    MinShort((short)(g_nRollInput_0059d3f4 +
+                                     (shift != 0 ? 9 : 1)), 10);
+            break;
+        case 0x48:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (control == 0) {
+                if (g_nPitchInput_0059d3f0 < 0)
+                    g_nPitchInput_0059d3f0 = 0;
+                else
+                    g_nPitchInput_0059d3f0 =
+                        MinShort((short)(g_nPitchInput_0059d3f0 +
+                                         (shift != 0 ? 9 : 1)), 10);
+            }
+            break;
+        case 0x4b:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (control == 0) {
+                if (g_nYawInput_0059d3f2 > 0)
+                    g_nYawInput_0059d3f2 = 0;
+                else
+                    g_nYawInput_0059d3f2 =
+                        MaxShort((short)(g_nYawInput_0059d3f2 -
+                                         (shift != 0 ? 9 : 1)), -10);
+            }
+            break;
+        case 0x4c:
+            SetMousePosition(
+                (DAT_005a7510.left + DAT_005a7510.right) / 2,
+                (DAT_005a7510.top + DAT_005a7510.bottom) / 2);
+            g_nRollInput_0059d3f4 = 0;
+            g_nPitchInput_0059d3f0 = 0;
+            g_nYawInput_0059d3f2 = 0;
+            break;
+        case 0x4d:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (control == 0) {
+                if (g_nYawInput_0059d3f2 < 0)
+                    g_nYawInput_0059d3f2 = 0;
+                else
+                    g_nYawInput_0059d3f2 =
+                        MinShort((short)(g_nYawInput_0059d3f2 +
+                                         (shift != 0 ? 9 : 1)), 10);
+            }
+            break;
+        case 0x50:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (control == 0) {
+                if (g_nPitchInput_0059d3f0 > 0)
+                    g_nPitchInput_0059d3f0 = 0;
+                else
+                    g_nPitchInput_0059d3f0 =
+                        MaxShort((short)(g_nPitchInput_0059d3f0 -
+                                         (shift != 0 ? 9 : 1)), -10);
+            }
+            break;
+        default:
+            handled = 0;
+            break;
+        }
+    }
+    return handled;
+}
+
+/* Function start: 0x428480 */
+unsigned int fire_players_lasers(void)
+{
+    if (g_asObjectCounter_0059c330[0] == -1 &&
+        g_asShipWeaponEnergy_0059d470[0] > 0)
+        fire_fixed_projectile_weapon(0);
+    return 0;
+}
+
+/* Function start: 0x4284D0 */
+unsigned int players_flight_dynamics(void)
+{
+    ObjectTypeData *typeData;
+
+    typeData = &g_aObjectTypeData_00466458[g_ePlayerShipType_0059ca54];
+    if (g_aeSpecialManeuver_0059c3c0[0] !=
+            SPECIAL_MANEUVER_BLOWING_UP) {
+        g_anObjectPitchRotation_0059b2a0[0] =
+            (short)((typeData->yawRate * g_nPitchInput_0059d3f0) / 8);
+        g_anObjectYawRotation_0059ce80[0] =
+            (short)-(typeData->pitchRate * g_nYawInput_0059d3f2) / 8;
+        g_anObjectRollRotation_0059d7e0[0] =
+            (short)-(typeData->rollRate * g_nRollInput_0059d3f4) / 8;
+    } else if (g_asObjectCounter_0059c330[0] == -1) {
+        if (AbsInt(g_anObjectYawRotation_0059ce80[0]) <
+                typeData->pitchRate &&
+            AbsInt(g_anObjectPitchRotation_0059b2a0[0]) <
+                typeData->yawRate &&
+            AbsInt(g_anObjectRollRotation_0059d7e0[0]) <
+                typeData->rollRate) {
+            g_aeSpecialManeuver_0059c3c0[0] = SPECIAL_MANEUVER_NONE;
+        } else {
+            g_anObjectYawRotation_0059ce80[0] -= g_nYawInput_0059d3f2;
+            g_anObjectPitchRotation_0059b2a0[0] -= g_nPitchInput_0059d3f0;
+        }
+    }
+    return 0;
+}
+
+/* Function start: 0x4285D0 */
+unsigned int player_input(void)
+{
+    InputEventState event;
+    InputDeviceSample *sample;
+    short eventType;
+    int centreX;
+    int centreY;
+    int halfWidth;
+    int halfHeight;
+    unsigned int key;
+
+    g_cPreviousKey_0046c018 = (signed char)g_bCurrentKey_0046c014;
+    g_bCurrentKey_0046c014 |= 0x80;
+
+    if (g_bMouseCursorVisible_0046a018 == 0) {
+        key = PollKeyboardState();
+        g_bCurrentKey_0046c014 = (unsigned char)key;
+        if (key == 0) {
+            g_nRollInput_0059d3f4 = 0;
+            g_nPitchInput_0059d3f0 = 0;
+            g_nYawInput_0059d3f2 = 0;
+        } else {
+            DAT_0046a02c = 0;
+            process_player_input();
+        }
+    }
+
+    eventType = PollInputEvent(&event, 0xff);
+    while (eventType != 0) {
+        switch (eventType) {
+        case 2:
+            if ((event.value & 1) != 0) {
+                g_bCurrentKey_0046c014 = 0x39;
+                fire_players_lasers();
+            }
+            if ((event.value & 3) == 3)
+                g_bCurrentKey_0046c014 = 0x1c;
+            break;
+        case 3:
+        case 5:
+            g_bCurrentKey_0046c014 = (unsigned char)event.value;
+            DAT_0046a02c = 0;
+            process_player_input();
+            break;
+        case 4:
+            if ((unsigned char)event.value == g_bCurrentKey_0046c014)
+                g_bCurrentKey_0046c014 |= 0x80;
+            break;
+        case 6:
+            if (g_nActiveInputDevice_005a819c != -1) {
+                sample = &g_aInputDeviceSamples_005a81f0[
+                    g_nActiveInputDevice_005a819c];
+                if ((sample->buttons & 1) != 0)
+                    fire_players_lasers();
+                if ((sample->buttons & 3) == 3)
+                    g_bCurrentKey_0046c014 = 0x1c;
+                if ((sample->buttons & 2) != 0 &&
+                    g_aeSpecialManeuver_0059c3c0[0] !=
+                        SPECIAL_MANEUVER_AFTERBURNER) {
+                    g_nRollInput_0059d3f4 = (short)sample->x;
+                    AdjustShipSpeed(0, -(sample->y / 2) * 0x100);
+                } else {
+                    g_nPitchInput_0059d3f0 = (short)-sample->y;
+                    g_nYawInput_0059d3f2 = (short)sample->x;
+                }
+            }
+            break;
+        case 13:
+            g_bMouseCursorVisible_0046a018 = 1;
+            g_nMouseX_0059ab10 = event.x;
+            g_nMouseY_0059ab12 = event.y;
+            centreX = (DAT_005a7510.left + DAT_005a7510.right) / 2;
+            centreY = DAT_0046a008 == 0 ?
+                (DAT_005a7510.top + DAT_005a7510.bottom) / 2 :
+                g_nViewCenterY_0059a854;
+            halfWidth = (DAT_005a7510.right - DAT_005a7510.left) / 2;
+            halfHeight = (DAT_005a7510.bottom - DAT_005a7510.top) / 2;
+            if (halfWidth < 1)
+                halfWidth = 1;
+            if (halfHeight < 1)
+                halfHeight = 1;
+            g_nYawInput_0059d3f2 = (short)MaxInt(-8,
+                MinInt(8, ((int)event.x - centreX) * 8 / halfWidth));
+            g_nPitchInput_0059d3f0 = (short)MaxInt(-8,
+                MinInt(8, ((int)event.y - centreY) * 8 / halfHeight));
+            g_nRollInput_0059d3f4 = 0;
+            break;
+        }
+        eventType = GetNextInputEvent(&event);
+    }
+
+    if (g_bHostPrimaryMouseButton_005a8998 != 0)
+        fire_players_lasers();
+    if (g_bHostPrimaryMouseButton_005a8998 != 0 &&
+        g_bHostSecondaryMouseButton_005a899c != 0)
+        g_bCurrentKey_0046c014 = 0x1c;
+    return 0;
 }

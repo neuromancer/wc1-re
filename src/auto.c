@@ -133,7 +133,7 @@ void auto_pilot_sequence(void)
                 g_aeSpecialManeuver_0059c3c0[ship] !=
                     SPECIAL_MANEUVER_UNKNOWN_9 &&
                 g_aeShipSide_0059d650[ship] == SIDE_IMPERIAL) {
-                if (IsInitialMissionShip(
+                if (is_team_member(
                         g_nShipMissionIndices_0059c830[ship]) != 0) {
                     if (KilrathiShipWithinRange(ship, 10000) == 0) {
                         travelMode[ship] = -1;

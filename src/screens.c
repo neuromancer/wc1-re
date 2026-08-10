@@ -25,6 +25,113 @@ void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
     viewport->bottom = (short)bottom;
 }
 
+/* Function start: 0x439840 */
+unsigned int ShowGetReadyScreen(void)
+{
+    short frame;
+    short distance;
+
+    frame = 0;
+    g_pIntroFont_005a8960 =
+        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+    distance = 400;
+    g_nCannedSceneMode_00469fac = 1;
+    force_view(0, 0);
+    DAT_00469fb4 = 1;
+    DAT_0059ab58 = 0;
+    do {
+        if (RefreshCockpitStatus() != 0) {
+            DrawCenteredScaledIntroText(
+                "Get Ready", g_nViewCenterX_0059a852,
+                g_nViewCenterY_0059a854,
+                (short)(0xc800 / (int)distance));
+            dump_buffer_to_screen();
+        }
+        if (distance > 100)
+            distance = (short)(distance - 10);
+        if (DAT_0059ab58 == 1)
+            break;
+        frame++;
+        DIBslam();
+        DIBslamReal();
+    } while (frame < 40);
+    DAT_0059ab58 = 0;
+    ReleasePacketHandle((int)g_pIntroFont_005a8960);
+    clear_view_buffer();
+    g_nCannedSceneMode_00469fac = 0;
+    ResetSoundState();
+    return 0;
+}
+
+/* Function start: 0x439910 */
+unsigned int ShowVictoryScreen(void)
+{
+    short frame;
+    short distance;
+
+    frame = 0;
+    distance = 500;
+    g_pIntroFont_005a8960 =
+        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+    DAT_0059ab58 = 0;
+    DAT_00469fb4 = 1;
+    do {
+        if (RefreshCockpitStatus() != 0) {
+            DrawCenteredScaledIntroText(
+                "Victory", g_nViewCenterX_0059a852,
+                g_nViewCenterY_0059a854,
+                (short)(0xc800 / (int)distance));
+            dump_buffer_to_screen();
+        }
+        if (distance > 100)
+            distance = (short)(distance - 10);
+        if (DAT_0059ab58 == 1)
+            break;
+        frame++;
+        DIBslam();
+        DIBslamReal();
+    } while (frame < 80);
+    DAT_0059ab58 = 0;
+    ReleasePacketHandle((int)g_pIntroFont_005a8960);
+    return 0;
+}
+
+/* Function start: 0x439A80 */
+unsigned int ShowGameOverScreen(void)
+{
+    short frame;
+    short distance;
+
+    frame = 0;
+    distance = 700;
+    g_pIntroFont_005a8960 =
+        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+    StartMusicTrack(22, 2, 0);
+    DAT_0059ab58 = 0;
+    DAT_00469fb4 = 1;
+    do {
+        if (RefreshCockpitStatus() != 0) {
+            if (frame > 20)
+                DrawCenteredScaledIntroText(
+                    "Game Over", g_nViewCenterX_0059a852,
+                    g_nViewCenterY_0059a854,
+                    (short)(0xc800 / (int)distance));
+            dump_buffer_to_screen();
+        }
+        if (distance > 100)
+            distance = (short)(distance - 10);
+        if (DAT_0059ab58 == 1)
+            break;
+        frame++;
+        DIBslam();
+        DIBslamReal();
+    } while (frame < 80);
+    StopMusicUnlessSuppressed();
+    DAT_0059ab58 = 0;
+    ReleasePacketHandle((int)g_pIntroFont_005a8960);
+    return 0;
+}
+
 /* Function start: 0x439E39 */
 unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
                              int mode, int colour)

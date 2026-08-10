@@ -203,6 +203,7 @@ SRCS_ORDERED_CORE = \
 	src/cdrom.c \
 	src/mono.c \
 	src/auto.c \
+	src/campaign.c \
 	src/shipai.c \
 	src/nav.c \
 	src/joystick.c \

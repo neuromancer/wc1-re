@@ -54,6 +54,20 @@ void NudgeObjectX(short i, short dx, short dy)
     *p = *p + dx;
 }
 
+/* Function start: 0x40F440 */
+unsigned int StartNewCampaign(short campaign)
+{
+    DAT_004688f0 = 1;
+    ResetCampaignData();
+    DAT_004688e0 = 1;
+    RunTrainSim();
+    g_nCampaignIndex_0059caa6 = campaign;
+    g_nCampaignDataSet_005a8118 = campaign;
+    DAT_004688e0 = 0;
+    DAT_005a8114 = -1;
+    return 0;
+}
+
 /* Function start: 0x40F940 */
 void __stdcall free_viewport(Viewport *viewport)
 {
@@ -192,7 +206,7 @@ int Title_Sequence(void)
             titleDistance = 200;
             remove_all_hazards();
             g_bIntroSecondaryScene_0046c024 = 0;
-            EnterNavPoint(16);
+            set_up_action_sphere(16);
             g_pTitleShape_005a7f08 =
                 (unsigned char *)FetchDiskPacketRetrying(9, 0, 0);
             StartMusicTrack(0x17, 2, 1);
@@ -260,7 +274,7 @@ int Title_Sequence(void)
 
             ScaleFixedVector(&g_aShipForwardVector_0059bce0[61], 0x9600,
                              &g_aShipVelocity_0059c010[61]);
-            EnterNavPoint(17);
+            set_up_action_sphere(17);
             g_bIntroSecondaryScene_0046c024 = 1;
             g_anObjectPitchRotation_0059b2a0[0] = 0;
             g_anObjectYawRotation_0059ce80[0] = 0;
@@ -328,7 +342,7 @@ int Title_Sequence(void)
         ReleasePacketResourceList(g_aIntroResourceDescriptors_00468ac0, 0);
         g_pIntroSceneResourceMirror_00467c0b =
             g_pIntroSceneResource_00467b84;
-        free_nav_object_resources();
+        free_all_slots();
         free_3Space();
         g_bIntroSecondaryScene_0046c024 = 0;
         g_nCannedSceneMode_00469fac = 0;

@@ -1636,6 +1636,27 @@ short mine_available(short obj)
     return find_weapon(obj, OBJECT_TYPE_SPACE_MINE);
 }
 
+/* Function start: 0x423CE0 */
+int LoadDataResourceList(PacketResourceDescriptor *resources,
+                         unsigned short flags, short defaultLogicalFile)
+{
+    short logicalFile;
+
+    while (resources->resource != 0) {
+        if (*resources->resource == 0) {
+            logicalFile = resources->logicalFile;
+            if (logicalFile == -1)
+                logicalFile = defaultLogicalFile;
+            *resources->resource = (unsigned char *)FetchDiskPacketRetrying(
+                logicalFile, resources->section, flags);
+            if (*resources->resource == 0)
+                return 0;
+        }
+        resources++;
+    }
+    return 1;
+}
+
 /* Function start: 0x423D50 */
 int ReleasePacketResourceList(PacketResourceDescriptor *resources,
                               short releaseFlags)
@@ -1665,6 +1686,28 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
     return availableBytes;
 }
 
+/* Function start: 0x423E10 */
+unsigned int ResetCockpitPaletteEntries(void)
+{
+    unsigned short black[3];
+    unsigned short viewportColour[3];
+    short index;
+
+    black[0] = 0;
+    black[1] = 0;
+    black[2] = 0;
+    index = 185;
+    do {
+        SetPaletteEntry(index, (short *)black);
+        index++;
+    } while (index < 191);
+    viewportColour[0] = 0;
+    viewportColour[1] = 0;
+    viewportColour[2] = 32;
+    SetPaletteEntry((short)DAT_004699d8, (short *)viewportColour);
+    return 0;
+}
+
 /* Function start: 0x423E90 */
 unsigned int initialize_cockpit(signed char mode)
 {
@@ -1691,9 +1734,73 @@ unsigned int initialize_cockpit(signed char mode)
     DAT_005a6ba0.bottom = 199;
     ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
 
+    g_cCockpitLogicalFile_005a7c74 =
+        (unsigned char)(g_cCockpitView_0059dab0 + 17);
     g_cScreenViewportMode_0059a9f2 = mode;
     viewportMode = mode;
     switch (mode) {
+    case 0:
+        backdrop = g_apCockpitShapes_005a7c80[0];
+        if (backdrop == 0) {
+            backdrop = (unsigned char *)FetchDiskPacketRetrying(
+                (short)g_cCockpitLogicalFile_005a7c74, 0, 0);
+            if (DAT_0046a008 == 0)
+                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+            ReleasePacketHandle((int)backdrop);
+        } else if (DAT_0046a008 == 0) {
+            DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+        }
+        ResetCockpitPaletteEntries();
+        if (DAT_0046a008 == 0)
+            explosion_draw();
+        reset_cockpit();
+        ClearMessageSlot(0);
+        ClearMessageSlot(1);
+        update_VDUs();
+        clear_head_up_display();
+        if (DAT_0046a008 == 0)
+            ResetPilotHandAnimation();
+        viewportMode = 0;
+        break;
+    case 1:
+        backdrop = g_apCockpitShapes_005a7c80[1];
+        if (backdrop == 0) {
+            backdrop = (unsigned char *)FetchDiskPacketRetrying(
+                (short)g_cCockpitLogicalFile_005a7c74, 1, 0);
+            if (DAT_0046a008 == 0)
+                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+            ReleasePacketHandle((int)backdrop);
+        } else if (DAT_0046a008 == 0) {
+            DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+        }
+        viewportMode = 1;
+        break;
+    case 2:
+        backdrop = g_apCockpitShapes_005a7c80[2];
+        if (backdrop == 0) {
+            backdrop = (unsigned char *)FetchDiskPacketRetrying(
+                (short)g_cCockpitLogicalFile_005a7c74, 2, 0);
+            if (DAT_0046a008 == 0)
+                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+            ReleasePacketHandle((int)backdrop);
+        } else if (DAT_0046a008 == 0) {
+            DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+        }
+        viewportMode = 2;
+        break;
+    case 3:
+        backdrop = g_apCockpitShapes_005a7c80[3];
+        if (backdrop == 0) {
+            backdrop = (unsigned char *)FetchDiskPacketRetrying(
+                (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
+            if (DAT_0046a008 == 0)
+                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+            ReleasePacketHandle((int)backdrop);
+        } else if (DAT_0046a008 == 0) {
+            DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+        }
+        viewportMode = 3;
+        break;
     case 4:
         if (g_bIntroSceneResourcesActive_00469d48 == 1) {
             backdrop = g_pCinematicViewBackdrop_005a7c90;
@@ -1723,6 +1830,16 @@ unsigned int initialize_cockpit(signed char mode)
         viewportMode = 5;
         break;
     case 7:
+        backdrop = g_pRearViewBackdrop_005a7c94;
+        if (backdrop == 0) {
+            backdrop = (unsigned char *)FetchDiskPacketRetrying(8, 7, 0);
+            if (DAT_0046a008 == 0)
+                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+            if (backdrop != 0)
+                ReleasePacketHandle((int)backdrop);
+        } else if (DAT_0046a008 == 0) {
+            DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+        }
         viewportMode = 0;
         break;
     }
@@ -1750,6 +1867,143 @@ void init_constellation(short scene)
 void free_constellation(void)
 {
     FreePacketAndClear((int *)&g_pConstellationShape_005a765c, 0);
+}
+
+/* Function start: 0x4244E0 */
+void InitializeCockpitVdus(void)
+{
+    DAT_005a7530 = DAT_005a6ba0;
+    DAT_005a6b80 = DAT_005a6ba0;
+
+    InitializeTextContextFromFont(
+        &DAT_005a74f0, 2, DAT_004699b4, (signed char)DAT_0046999c);
+    DAT_005a74f0.viewport = &DAT_005a6b80;
+    DAT_005a74f0.text = g_szDefaultTextBuffer_005a7590;
+    set_mode(0, 1);
+    DAT_0059ce18[0] = 0;
+
+    InitializeTextContextFromFont(
+        &DAT_005a7700, 2, DAT_004699b4, (signed char)DAT_0046999c);
+    DAT_005a7700.viewport = &DAT_005a7530;
+    DAT_005a7700.text = g_szDefaultTextBuffer_005a7590;
+    set_mode(1, g_nTrainSimActive_00469e2c == 0 ? 5 : 3);
+    DAT_0059ce18[1] = 0;
+}
+
+/* Function start: 0x4245B0 */
+unsigned int InitializeCockpitResources(signed char mode)
+{
+    const short *layout;
+    int modeIndex;
+
+    if (g_bCockpitResourcesActive_00469d58 == 1) {
+        if (mode == g_cCockpitView_0059dab0)
+            return 0;
+        ReleaseCockpitResources();
+    }
+
+    g_bCockpitResourcesActive_00469d58 = 1;
+    g_cCockpitView_0059dab0 = mode;
+    g_cCockpitLogicalFile_005a7c74 = (unsigned char)(mode + 17);
+    clear_cockpit_damage();
+    ClearHudGunReadouts();
+    reset_cockpit();
+    GetScreenUpdateFlag();
+
+    LoadDataResourceList(g_aCockpitPrimaryResources_00469d08, 4,
+                         (short)g_cCockpitLogicalFile_005a7c74);
+    g_pScreenViewportPacket_005a6b94 =
+        (unsigned char *)FetchDiskPacketRetrying(
+            (short)g_cCockpitLogicalFile_005a7c74, 6, 0);
+    DAT_005a6be0 = DAT_005a6ba0;
+    InitializeCockpitVdus();
+
+    InitializeTextContextFromFont(
+        &DAT_005a7720, 2, DAT_004699b4, (signed char)DAT_0046999c);
+    DAT_005a7720.viewport = &DAT_005a6ba0;
+    DAT_005a7720.text = g_szDefaultTextBuffer_005a7590;
+    SetTextContext(&DAT_005a7720);
+
+    modeIndex = (int)mode;
+    if (modeIndex < 0 || modeIndex > 5)
+        modeIndex = 4;
+    layout = g_asCockpitLayout_0046e000;
+    SetTextCursor((unsigned short)layout[4 + modeIndex * 2],
+                  (unsigned short)layout[5 + modeIndex * 2]);
+    GetSeriesRecordField(4, (int)&DAT_005a7720);
+    SetTextCursor((unsigned short)layout[16 + modeIndex * 2],
+                  (unsigned short)layout[17 + modeIndex * 2]);
+    GetSeriesRecordField(5, (int)&DAT_005a7720);
+    SetTextCursor((unsigned short)layout[28 + modeIndex * 2],
+                  (unsigned short)layout[29 + modeIndex * 2]);
+    GetSeriesRecordField(2, (int)&DAT_005a7720);
+    SetTextCursor((unsigned short)layout[40 + modeIndex * 2],
+                  (unsigned short)layout[41 + modeIndex * 2]);
+    GetSeriesRecordField(3, (int)&DAT_005a7720);
+
+    SetViewportRect(&DAT_005a6b80,
+                    (unsigned short)layout[52 + modeIndex * 4],
+                    (unsigned short)layout[53 + modeIndex * 4],
+                    (unsigned short)layout[54 + modeIndex * 4],
+                    (unsigned short)layout[55 + modeIndex * 4]);
+    SetViewportRect(&DAT_005a7530,
+                    (unsigned short)layout[72 + modeIndex * 4],
+                    (unsigned short)layout[73 + modeIndex * 4],
+                    (unsigned short)layout[74 + modeIndex * 4],
+                    (unsigned short)layout[75 + modeIndex * 4]);
+
+    if (DAT_005a7684 != 0) {
+        DAT_005a6b60 = DAT_005a6ba0;
+        SetViewportRect(&DAT_005a6b60,
+                        (unsigned short)layout[124 + modeIndex * 4],
+                        (unsigned short)layout[125 + modeIndex * 4],
+                        (unsigned short)layout[126 + modeIndex * 4],
+                        (unsigned short)layout[127 + modeIndex * 4]);
+        SetViewportRect(&DAT_005a7690, 0, 0,
+            (unsigned short)(layout[126 + modeIndex * 4] -
+                             layout[124 + modeIndex * 4]),
+            (unsigned short)(layout[127 + modeIndex * 4] -
+                             layout[125 + modeIndex * 4]));
+        DAT_005a7550 = DAT_005a7690;
+        AllocateViewport(&DAT_005a7690, DAT_0046999c, 0);
+        AllocateViewport(&DAT_005a7550, DAT_0046999c, 0);
+    }
+
+    LoadDataResourceList(g_aCockpitSecondaryResources_00469ce0, 0,
+                         (short)g_cCockpitLogicalFile_005a7c74);
+    g_nCockpitExplosionFrame_00469068 = 8;
+    DAT_0046af70 = 0;
+    DAT_0046af78 = (unsigned char)(
+        g_nMemoryConfiguration_005a7cd4 == 2 ||
+        g_nSceneResourceBudget_005a7ce4 > 0x59d8);
+    return 0;
+}
+
+/* Function start: 0x4249A0 */
+unsigned int ReleaseCockpitResources(void)
+{
+    if (g_bCockpitResourcesActive_00469d58 == 0)
+        return 0;
+    g_bCockpitResourcesActive_00469d58 = 0;
+    GetScreenUpdateFlag();
+    if (g_pScreenViewportPacket_005a6b94 != 0) {
+        ReleasePacketHandle((int)g_pScreenViewportPacket_005a6b94);
+        g_pScreenViewportPacket_005a6b94 = 0;
+    }
+    if (DAT_005a7684 != 0) {
+        free_viewport(&DAT_005a7690);
+        free_viewport(&DAT_005a7550);
+    }
+    ReleasePacketResourceList(g_aCockpitPrimaryResources_00469d08, 0);
+    ReleasePacketResourceList(g_aCockpitSecondaryResources_00469ce0, 0);
+    FreePacketAndClear((int *)&g_pCockpitPilotShape_0046905c, 0);
+    FreePacketAndClear(
+        (int *)&g_pReleaseWeaponDisplayBackground_0046906c, 0);
+    FreePacketAndClear((int *)&g_pCockpitExplosionBackground_00469060, 0);
+    FreePacketAndClear((int *)&DAT_0046a748, 0);
+    FreeCommDisplayResources();
+    FreePacketAndClear((int *)&DAT_005a7dc4, 0);
+    return 0;
 }
 
 /* Function start: 0x424A80 */
@@ -1819,7 +2073,7 @@ void load_common_3Space_objects(void)
     types[OBJECT_TYPE_TURRET].animation =
         types[OBJECT_TYPE_LASER_CANNON].animation;
 
-    load_object_resources(OBJECT_TYPE_HEAT_SEEKING_MISSILE, 3);
+    load_ship(OBJECT_TYPE_HEAT_SEEKING_MISSILE, 3);
     types[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet =
         types[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
     types[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation =
@@ -1876,7 +2130,7 @@ void free_3Space_objects(void)
     FreePacketAndClear((int *)&types[OBJECT_TYPE_SPARK_TRAIL].shapeSet, 0);
     FreePacketAndClear((int *)&types[OBJECT_TYPE_SPACE_MINE].shapeSet, 0);
     if (g_aObjectResourceSlots_0059ddf0[3].type != -1)
-        release_object_resources(3);
+        free_ship(3);
 
     types[OBJECT_TYPE_DEBRIS_O_RING].shapeSet = 0;
     types[OBJECT_TYPE_DEBRIS_GLASS].shapeSet = 0;
@@ -1898,6 +2152,16 @@ unsigned int ResetSceneFlags(void)
     DAT_0046aa3c = 0;
     DAT_0046aa40 = 1;
     DAT_0046aa38 = 1;
+    return 0;
+}
+
+/* Function start: 0x424C80 */
+unsigned int ReleaseSceneFlags(void)
+{
+    StopMusicUnlessSuppressed();
+    DAT_0046aa40 = 0;
+    DAT_0046aa24 = -1;
+    DAT_0046aa2c = -1;
     return 0;
 }
 

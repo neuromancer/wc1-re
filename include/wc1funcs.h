@@ -99,6 +99,7 @@ unsigned int player_wingman(short obj);                                  /* 0x00
 void set_speed(short obj, short speed);                                  /* 0x00403F10 */
 void auto_position(short obj, short *formationSlot);                     /* 0x00403F40 */
 void auto_pilot_sequence(void);                                          /* 0x00404050 */
+unsigned int LoadMissionDefinition(short series, short mission);         /* 0x004059B0 */
 void SetShipAiScratchWord(unsigned short v);                                 /* 0x004060A0 */
 void SelectNewShipAiBehavior(short ship);                               /* 0x004060B0 */
 void ShipAiState42(short ship, short target);                           /* 0x004060D0 */
@@ -169,25 +170,37 @@ void futurion_intelligence(short obj);                                  /* 0x004
 void mine_intelligence(short obj);                                      /* 0x0040B3A0 */
 void heat_seeking_missile_intelligence(short obj);                      /* 0x0040B430 */
 void FF_missile_intelligence(short obj);                                /* 0x0040B570 */
-unsigned int GetShipSlotState(short i);                             /* 0x0040B700 */
+void ComputeMissionShipPosition(const MissionShipRecord *record,
+                                FixedVector *position);                 /* 0x0040B670 */
+unsigned int ShouldSpawnMissionShipPilot(int pilot);                   /* 0x0040B6A0 */
+unsigned int GetShipSlotState(short i);                                /* 0x0040B700 */
+unsigned int LoadMissionData(short series, short mission);             /* 0x0040B730 */
+void prepare_mission(void);                                            /* 0x0040B7A0 */
 void release_capital_ship_shapes(enum ObjectType type);                /* 0x0040B990 */
-void load_object_resources(enum ObjectType type, short slot);          /* 0x0040B9F0 */
-void release_object_resources(short slot);                              /* 0x0040BC70 */
-void free_nav_object_resources(void);                                  /* 0x0040BE20 */
+void load_ship(enum ObjectType type, short slot);                      /* 0x0040B9F0 */
+void free_ship(short slot);                                            /* 0x0040BC70 */
+void free_all_slots(void);                                             /* 0x0040BE20 */
 void remove_nav_point_objects(void);                                   /* 0x0040BEA0 */
-short find_free_object_resource_slot(void);                             /* 0x0040BEC0 */
-int object_resources_loaded(enum ObjectType type);                      /* 0x0040BEF0 */
-int nav_point_uses_object_type(const MissionNavPoint *navPoint,
-                               enum ObjectType type);                   /* 0x0040BF20 */
-void cache_nav_point_resources(MissionNavPoint *navPoint);              /* 0x0040BF50 */
-void EnterNavPoint(short navPoint);                                     /* 0x0040BFF0 */
-unsigned int GetObjectVisible(void);                                        /* 0x0040C350 */
-void place_ship_near_player_until_valid(short obj, int minimum,
-                                        short maximum);                 /* 0x0040C360 */
-void initialize_mission_ship(short obj, short missionShip,
-                             signed char navPoint);                     /* 0x0040C5E0 */
-unsigned int IsInitialMissionShip(short missionShip);                  /* 0x0040C740 */
-short spawn_mission_ship(short missionShip, short navPoint);            /* 0x0040C800 */
+short get_shape_slot(void);                                            /* 0x0040BEC0 */
+int shape_loaded(enum ObjectType type);                                /* 0x0040BEF0 */
+int shape_needed(const MissionNavPoint *navPoint,
+                 enum ObjectType type);                                /* 0x0040BF20 */
+void new_sphere_shapes(MissionNavPoint *navPoint);                     /* 0x0040BF50 */
+void set_up_action_sphere(short navPoint);                             /* 0x0040BFF0 */
+unsigned int room_for_me(void);                                        /* 0x0040C350 */
+void approve_xyz(short obj, int minimum, short maximum);               /* 0x0040C360 */
+void set_up_next_wave(void);                                           /* 0x0040C3C0 */
+unsigned int sub_int_vector(const ShortVector *left,
+                            const ShortVector *right,
+                            ShortVector *difference);                  /* 0x0040C4A0 */
+unsigned int set_formation_position(short obj,
+                                    const MissionShipRecord *record);  /* 0x0040C4E0 */
+void Set_up_ship_info(short obj, short missionShip,
+                      signed char navPoint);                           /* 0x0040C5E0 */
+unsigned int is_team_member(short missionShip);                        /* 0x0040C740 */
+unsigned int find_next_ship_turn_slot(short obj);                     /* 0x0040C780 */
+short init_ship(short missionShip, short navPoint);                    /* 0x0040C800 */
+unsigned int init_intelligence_data(short obj);                       /* 0x0040C950 */
 short __stdcall SampleBothJoysticks(InputDeviceSample *samples,
                                     unsigned int fallback);             /* 0x0040CAA0 */
 int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
@@ -195,12 +208,16 @@ int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
                                    unsigned int fallback);              /* 0x0040CAE0 */
 void SetNavCursorIndex(unsigned short v);                                /* 0x0040CBB0 */
 void ObjectDrawHook(short *p);                                          /* 0x0040CBC0 */
+void UpdateObjectiveMapCoordinates(short *x, short *y,
+                                   int worldX, int worldZ);             /* 0x0040CC30 */
+void BuildObjectiveList(void);                                         /* 0x0040CED0 */
 void ClearNavHazardFlag(void);                                           /* 0x0040D1D0 */
 void ClearNavLegendFlag(void);                                                 /* 0x0040D240 */
 void SetScreenClipRect(unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x0040D8C0 */
 void FormatNavCoordinates(unsigned char *out);                                 /* 0x0040DE70 */
 char *GetNavNameSkippingMarker(short i);                                         /* 0x0040DF50 */
 void NudgeObjectX(short i, short dx, short dy);                 /* 0x0040EFE0 */
+unsigned int StartNewCampaign(short campaign);                         /* 0x0040F440 */
 void __stdcall free_viewport(Viewport *viewport);                      /* 0x0040F940 */
 unsigned short GetPaletteReadyUnused(void);                                    /* 0x0040FA30 */
 void DrawTitleLogo(short distance, short y);                            /* 0x0040FA40 */
@@ -236,7 +253,9 @@ void FormatTextBufferFromStart(const char *format, ...);                /* 0x004
 void AppendFormattedText(const char *format, ...);                      /* 0x00413CB0 */
 void FatalErrorAndExit(const char *format, ...);                       /* 0x00413CE0 */
 unsigned short IsCockpitExplosionActive(void);                         /* 0x00413D20 */
+void DrawCockpitBar(signed char bar, short percent);                  /* 0x00413DA0 */
 unsigned int GetSeriesRecordField(char slot, int rec);                       /* 0x00413F70 */
+void DrawCockpitReadout(signed char slot, char *text);                /* 0x00413FB0 */
 short DrawHudMessageSlot(HudMessageSlot *slot);                        /* 0x004140A0 */
 void ClearHudMessageSlot(HudMessageSlot *slot);                        /* 0x00414180 */
 void ClearHudMessageIfMatching(HudMessageSlot *slot, char *text);      /* 0x004141B0 */
@@ -253,18 +272,24 @@ void CockpitMessage(char *text, unsigned short colour,
 void remove_message(char *text);                                      /* 0x004142E0 */
 short KilrathiShipWithinRange(short obj, short range);                 /* 0x00414300 */
 short CanEngageAutopilot(short showReason);                            /* 0x00414380 */
-void *ClearHudTargetVectors(void);                                            /* 0x00414410 */
+void *reset_cockpit(void);                                            /* 0x00414410 */
+unsigned int SetCockpitLightBlink(signed char light, short interval); /* 0x00414440 */
+void draw_cockpit_lights(void);                                      /* 0x00414490 */
+void update_lights(void);                                            /* 0x004145B0 */
+void update_bars(void);                                              /* 0x00414690 */
 unsigned short get_mode(short i);                                     /* 0x004147E0 */
 void set_mode(short i, int state);                                    /* 0x00414800 */
 int GetVduModeStackDepth(short i);                                    /* 0x00414890 */
 void push_mode(short i, int state);                                   /* 0x004148A0 */
 void pop_mode(short i);                                               /* 0x004148E0 */
 void set_new_vdu(short vdu);                                          /* 0x00414910 */
+short CheckVduModeChanged(short vdu);                                 /* 0x00414980 */
 void ClearMessageSlot(short i);                                          /* 0x004149C0 */
 void ClearAutopilotFlag(void);                                              /* 0x004149E0 */
 int IsAutopilotEngaged(void);                                              /* 0x004149F0 */
 unsigned short SetAutopilotFlag(unsigned short v);                        /* 0x00414A10 */
 void RefreshAutopilotHud(void);                                             /* 0x00414A20 */
+unsigned int update_digital_readouts(void);                          /* 0x00414A50 */
 void PlayTargetLockSfx(void);                                           /* 0x00414AD0 */
 void PlayShieldHitSfx(void);                            /* 0x00414AE0 */
 int malf(char component);                                             /* 0x00414AF0 */
@@ -273,6 +298,8 @@ void ShowComponentHitHudMessage(char *text, unsigned short colour,
                                 signed char flashCount);               /* 0x00414B70 */
 int damage_your_component(char component, char amount, char maximum); /* 0x00414BF0 */
 void RemovePlayerReleaseWeapon(signed char weapon);                  /* 0x00414CB0 */
+void fire_computer_graphic_missile(void);                            /* 0x00414D50 */
+void DrawWeaponDisplayPanel(void);                                   /* 0x00414EA0 */
 void InputFilterHook(void);                                            /* 0x00415040 */
 short sighted(short objective);                                       /* 0x00415050 */
 short visited(short objective);                                       /* 0x00415070 */
@@ -282,7 +309,10 @@ void set_next_destination(void);                                       /* 0x0041
 unsigned int CheckForShipQueuedToCurrentNavPoint(void);                   /* 0x004154C0 */
 unsigned int GetShipAiScratch(void);                                     /* 0x00415510 */
 void flag_reached(short objective, short reached);                     /* 0x00415530 */
+void update_objective_location(short objective);                     /* 0x00415770 */
 void ClearWeaponHardpoints(void);                                            /* 0x00415A70 */
+void clear_head_up_display(void);                                    /* 0x00415A90 */
+unsigned int overlay_head_up_display(void);                          /* 0x00415CE0 */
 void BeginMissileLockWarning(unsigned short v);                                 /* 0x00415FC0 */
 unsigned int GetHudMessageSlot(unsigned short v);                         /* 0x00415FF0 */
 void EndMissileLockWarning(void);                                             /* 0x00416010 */
@@ -301,14 +331,22 @@ void SetHudMessageText(char *text, unsigned short colour,
                        unsigned short duration);                       /* 0x00416DE0 */
 void malf_noise(short vdu, int effect, unsigned int colour,
                 short sound, short refresh);                           /* 0x00416E20 */
+void check_target(void);                                             /* 0x00416FD0 */
+void update_missile_warning(void);                                   /* 0x00417190 */
 void determine_pilot_hand(void);                                      /* 0x004171D0 */
 void DrawPilotHandFrame(void);                                       /* 0x00417260 */
 void animate_pilot(void);                                             /* 0x004173C0 */
 void ResetPilotHandAnimation(void);                                   /* 0x004173F0 */
 void send_message(short obj, signed char message);                      /* 0x00417420 */
+void npc_communication(void);                                        /* 0x004174F0 */
 void clear_cockpit_damage(void);                                      /* 0x00417610 */
+void explosion_draw(void);                                           /* 0x00417630 */
 void RestoreCockpitExplosionBackground(void);                         /* 0x00417760 */
+void cockpit_explosion(void);                                        /* 0x004177B0 */
 void ShowDamageMessage(short a);                                       /* 0x00417B10 */
+void check_stranded(void);                                           /* 0x00417B30 */
+void update_VDUs(void);                                              /* 0x00417B70 */
+void update_cockpit(void);                                           /* 0x00417E70 */
 void PlayMissileLaunchSfx(void);                            /* 0x00417F00 */
 short __stdcall MeasureTextPixelWidthClamped(const char *text);         /* 0x00418080 */
 unsigned short GetMusicDriverPresent(void);                                    /* 0x00418130 */
@@ -350,6 +388,8 @@ void MakeRandomVectorFixed(short minimum, short maximum,
                            FixedVector *vector);                       /* 0x00418780 */
 void FillFixedVectorWithRandomComponents(short limit,
                                          FixedVector *vector);          /* 0x004187E0 */
+void random_radial(const FixedVector *center, short radius,
+                   FixedVector *position);                           /* 0x00418800 */
 void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical);       /* 0x00418890 */
 int dot_product(const FixedVector *left, const FixedVector *right);    /* 0x004189E0 */
@@ -471,6 +511,8 @@ short real_velocity(short obj);                                       /* 0x0041E
 unsigned int fix_velocity(short obj);                                 /* 0x0041E820 */
 unsigned int sort_viable_target_list(void);                           /* 0x0041E860 */
 int Create_ship_hit_debris(short obj);                                /* 0x0041ECE0 */
+short ReportComponentRepaired(short component, short minimumDamage);  /* 0x0041F5F0 */
+void repair_internal_damage(void);                                   /* 0x0041F660 */
 void check_next_wave(void);                                          /* 0x0041F7C0 */
 void Create_explosion_debris(short obj);                              /* 0x0041F800 */
 short ShipExplosion(short obj);                                      /* 0x0041FBC0 */
@@ -587,19 +629,27 @@ short find_ratio(short inputMinimum, short inputMaximum, short input,
                  short outputMinimum, short outputMaximum);          /* 0x00423BA0 */
 short evaluate_damage(short obj);                                       /* 0x00423C00 */
 short mine_available(short obj);                                      /* 0x00423CD0 */
+int LoadDataResourceList(PacketResourceDescriptor *resources,
+                         unsigned short flags,
+                         short defaultLogicalFile);                    /* 0x00423CE0 */
 int ReleasePacketResourceList(PacketResourceDescriptor *resources,
                               short releaseFlags);                     /* 0x00423D50 */
 int LoadPacketResourceList(PacketResourceDescriptor *resources,
                            short flags, int availableBytes);           /* 0x00423D80 */
+unsigned int ResetCockpitPaletteEntries(void);                         /* 0x00423E10 */
 unsigned int initialize_cockpit(signed char mode);                     /* 0x00423E90 */
 void init_constellation(short scene);                                  /* 0x004243E0 */
 void free_constellation(void);                                         /* 0x00424490 */
+void InitializeCockpitVdus(void);                                      /* 0x004244E0 */
+unsigned int InitializeCockpitResources(signed char mode);             /* 0x004245B0 */
+unsigned int ReleaseCockpitResources(void);                            /* 0x004249A0 */
 void init_3Space_objects(short scene);                                 /* 0x00424A80 */
 void load_common_3Space_objects(void);                                 /* 0x00424B00 */
 void remove_all_3d_objects(void);                                      /* 0x00424B80 */
 void free_3Space(void);                                                /* 0x00424BA0 */
 void free_3Space_objects(void);                                        /* 0x00424BE0 */
 unsigned int ResetSceneFlags(void);                                      /* 0x00424C60 */
+unsigned int ReleaseSceneFlags(void);                                  /* 0x00424C80 */
 unsigned int PreloadMusicTrackHook(short track);                       /* 0x00424CE0 */
 unsigned int ReleaseMusicTrackHook(short track);                       /* 0x00424CF0 */
 void SceneEnterHook(void);                                            /* 0x00425AF0 */
@@ -617,8 +667,10 @@ unsigned char *GetHighScoreEntry(short i);                           /* 0x00425D
 unsigned int GetHighScoreValue(short i);                                      /* 0x00425E20 */
 void SetHighScoreEntry(short i, unsigned char b, unsigned int v);    /* 0x00425E30 */
 void ClearHighScoreTable(short v);                                    /* 0x00425ED0 */
+void InitializeTrainSimHighScores(void);                              /* 0x00425F40 */
 int IsHighScoreSlotUsed(short i);                                      /* 0x00425FE0 */
 void LoadSceneBackdrop(char n);                                           /* 0x00426C50 */
+void RunTrainSim(void);                                                /* 0x00427080 */
 short LogMemoryUsage(void);                                               /* 0x004272F0 */
 unsigned int ShowMemoryStatusDebug(void);                                 /* 0x004273C0 */
 void exit_squadron(const char *msg);                                    /* 0x00427370 */
@@ -634,6 +686,11 @@ void Update_3Space(void);                                               /* 0x004
 unsigned int UpdateSpacePaletteFade(void);                              /* 0x00427CD0 */
 unsigned int SetDefaultCommDelay(void);                                  /* 0x00427C80 */
 void house_keep(void);                                                  /* 0x00427D40 */
+void PollSpaceFlightInput(void);                                       /* 0x00427E40 */
+int process_player_input(void);                                        /* 0x00427F20 */
+unsigned int fire_players_lasers(void);                                /* 0x00428480 */
+unsigned int players_flight_dynamics(void);                            /* 0x004284D0 */
+unsigned int player_input(void);                                       /* 0x004285D0 */
 short MeasureMessageWidth(const char *text);                                /* 0x00428E70 */
 void WaitForKeyAcknowledge(int mode);                                     /* 0x00428EA0 */
 void ShowModalMessage(const char *format, ...);                           /* 0x00428F20 */
@@ -641,16 +698,18 @@ void ReportOutOfMemoryAndExit(void);                                    /* 0x004
 void ShowOnScreenMessage(int flags, short duration,
                          const char *format, ...);                        /* 0x00428FA0 */
 void ShowVersionBanner(void);                                           /* 0x004290D0 */
+int HandleDebugCheatKeys(void);                                        /* 0x00429160 */
 unsigned int Draw_3Space_Frame(void);                                  /* 0x00429DD0 */
 void ComputeArcadeWaveBonus(void);                                     /* 0x00429E30 */
 void ComputeArcadeTimeBonus(void);                                                 /* 0x00429E70 */
 void DrawArcadeScorePanel(short x, short y);                            /* 0x00429E90 */
 void UpdateArcadeScoreDisplay(void);                                   /* 0x00429EE0 */
 unsigned int RenderSpaceViewFrame(void);                               /* 0x00429FC0 */
-void RefreshCockpitStatus(void);                                                 /* 0x0042A0C0 */
+unsigned int RefreshCockpitStatus(void);                                /* 0x0042A0C0 */
 short GetShipDistanceToNavPoint(short ship, MissionNavPoint *navPoint); /* 0x0042A0E0 */
 short FindNearestNavPoint(short ship);                               /* 0x0042A120 */
 unsigned int ReleaseStaleNavTarget(void);                                     /* 0x0042A170 */
+int RunSpaceFlight(short entryNavPoint);                               /* 0x0042A190 */
 void RedrawCommWindow(void);                                       /* 0x0042A670 */
 void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
                                            unsigned short colour,
@@ -693,6 +752,8 @@ unsigned short GetJoystickPresentUnused(void);                                  
 unsigned int parse_view_script(void);                                  /* 0x0042CDB0 */
 unsigned int update_scripted_view(void);                               /* 0x0042D1C0 */
 void initialize_scripted_view(const short *script);                    /* 0x0042D230 */
+void DrawTargetLockDisplay(void);                                    /* 0x0042DB90 */
+void DrawTargetRangeReadout(void);                                   /* 0x0042DEA0 */
 unsigned int GetVictoryScreenId(void);                                     /* 0x0042D270 */
 void CloseDataFileByHandle(unsigned short *p);                                  /* 0x0042D870 */
 short GetTargetColourIndex(void);                                                /* 0x0042DB70 */
@@ -935,6 +996,9 @@ unsigned int BeginBriefingScene(void);                                         /
 void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
                                unsigned short top, unsigned short right,
                                unsigned short bottom);                /* 0x00439400 */
+unsigned int ShowGetReadyScreen(void);                                 /* 0x00439840 */
+unsigned int ShowVictoryScreen(void);                                  /* 0x00439910 */
+unsigned int ShowGameOverScreen(void);                                 /* 0x00439A80 */
 unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
                              int mode, int colour);                    /* 0x00439E39 */
 void SetPaletteTranslationTable(const unsigned char *translation);    /* 0x0043AE3F */
@@ -944,6 +1008,7 @@ void ClearLoadSlotFlag(void);                                            /* 0x00
 void SelectSaveSlot(short i);                                        /* 0x0043F730 */
 short FindMenuRegionAtPoint(short x, short y,
                             const TitleMenuRegion *regions);           /* 0x0043F7C0 */
+void ResetCampaignData(void);                                         /* 0x00440800 */
 void CheckHeapBlockSignature(int p);                                              /* 0x004408A0 */
 unsigned int GetHeapBlockSize(int p);                              /* 0x004408C0 */
 unsigned int SignExtendClipCoord(unsigned short v);                         /* 0x00440BE0 */
