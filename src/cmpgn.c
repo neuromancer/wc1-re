@@ -317,6 +317,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
     short faceFrame;
     short mouthCountdown;
     short mouthFrame;
+    short *next;
     short waiting;
 
     waiting = 0;
@@ -351,32 +352,33 @@ unsigned int LongTalk(unsigned char *talker, char *text,
         if (mouthCountdown-- == 0) {
             if (*mouthCursor != -1)
                 mouthCursor += 2;
-            if (*mouthCursor == -2)
-                mouthCursor = mouthStart;
-            else if (*mouthCursor == -1) {
+            next = mouthStart;
+            if (*mouthCursor == -2 ||
+                (next = mouthCursor, *mouthCursor != -1)) {
+                mouthFrame = *next;
+                mouthCursor = next;
+                mouthCountdown = (short)(next[1] * 2);
+            } else {
                 mouthFrame = -1;
                 if (waiting == 0) {
                     waiting = 1;
                     SetFrameTimerPeriodDirect(duration);
                 }
-            } else {
-                mouthFrame = *mouthCursor;
-                mouthCountdown = (short)(mouthCursor[1] * 2);
             }
         }
         if (faceCountdown-- == 0) {
             if (*faceCursor != -1)
                 faceCursor += 2;
-            if (*faceCursor == -2)
-                faceCursor = faceStart;
-            else if (*faceCursor == -1) {
-                faceFrame = -1;
-            } else {
-                faceFrame = *faceCursor;
+            next = faceStart;
+            if (*faceCursor == -2 ||
+                (next = faceCursor, *faceCursor != -1)) {
+                faceFrame = *next;
                 if (faceFrame == 10)
                     faceFrame = -1;
-                faceCountdown = (short)(faceCursor[1] * 2);
-            }
+                faceCursor = next;
+                faceCountdown = (short)(next[1] * 2);
+            } else
+                faceFrame = -1;
         }
         DAT_00469fb4--;
         if (DAT_00469fb4 < 1) {
@@ -391,8 +393,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
             return 0;
     }
     do {
-        waiting = CheckEscaped();
-    } while (waiting != 0);
+    } while (CheckEscaped() != 0);
     return 0;
 }
 

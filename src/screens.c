@@ -1101,6 +1101,9 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
             case 16:
                 DrawMedalChest(text, duration);
                 break;
+            case 17:
+                funeral_wingman(text, duration);
+                break;
             default:
                 LongTalk(g_pTalkingHeadShape_00598c0c, text,
                          g_pMouthAnimationCommands_00598af4,

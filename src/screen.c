@@ -237,47 +237,53 @@ short __stdcall UpdateInputDeviceTransitions(short raw)
 /* Function start: 0x430840 */
 void PollJoystickButtonEvents(void)
 {
-    InputDeviceSample *sample;
-    short device;
     short doubleClick;
 
-    device = g_nActiveInputDevice_005a819c;
-    if (device == -1 || g_bInputPollingGuard_0046a01c != 0)
+    if (g_nActiveInputDevice_005a819c == -1 ||
+        g_bInputPollingGuard_0046a01c != 0)
         return;
     g_bInputPollingGuard_0046a01c++;
     UpdateInputDeviceTransitions(1);
-    sample = &g_aInputDeviceSamples_005a81f0[device];
-    if (g_asInputButton1Changed_0059e50c[device] != 0) {
-        doubleClick = g_asInputButton1DoubleClick_0059e508[device] != 0 ?
-                      3 : 0;
-        QueueInputEventAtCursor(((unsigned short)sample->buttons & 1) + 1,
-                                0, doubleClick);
-    }
-    if (g_asInputButton2Changed_0059e510[device] != 0) {
-        doubleClick = g_asInputButton2DoubleClick_0059e520[device] != 0 ?
-                      3 : 0;
+    if (g_asInputButton1Changed_0059e50c
+            [g_nActiveInputDevice_005a819c] != 0) {
+        doubleClick = 0;
+        if (g_asInputButton1DoubleClick_0059e508
+                [g_nActiveInputDevice_005a819c] != 0)
+            doubleClick = 3;
         QueueInputEventAtCursor(
-            (((unsigned short)sample->buttons >> 1) & 1) + 1,
+            ((unsigned short)g_aInputDeviceSamples_005a81f0
+                [g_nActiveInputDevice_005a819c].buttons & 1) + 1,
+            0, doubleClick);
+    }
+    if (g_asInputButton2Changed_0059e510
+            [g_nActiveInputDevice_005a819c] != 0) {
+        doubleClick = 0;
+        if (g_asInputButton2DoubleClick_0059e520
+                [g_nActiveInputDevice_005a819c] != 0)
+            doubleClick = 3;
+        QueueInputEventAtCursor(
+            (((unsigned short)g_aInputDeviceSamples_005a81f0
+                [g_nActiveInputDevice_005a819c].buttons >> 1) & 1) + 1,
             1, doubleClick);
     }
     g_bInputPollingGuard_0046a01c--;
     g_bPreviousPrimaryInputButton_0059af74 =
-        (unsigned char)sample->buttons;
+        (unsigned char)g_aInputDeviceSamples_005a81f0
+            [g_nActiveInputDevice_005a819c].buttons;
     g_bPreviousSecondaryInputButton_0059af75 =
-        (unsigned char)sample->buttons;
+        g_bPreviousPrimaryInputButton_0059af74;
 }
 
 /* Function start: 0x430920 */
 void PollMenuInputDevices(void)
 {
-    InputDeviceSample *sample;
-    short device;
-    short doubleClick;
-    int buttonChanges;
+    unsigned char changes;
+    char doubleClick;
+    short movementX;
+    short movementY;
 
-    buttonChanges = 0;
-    device = g_nActiveInputDevice_005a819c;
-    if (device == -1)
+    changes = 0;
+    if (g_nActiveInputDevice_005a819c == -1)
         return;
     g_nHostMouseX_0059af70 = g_nMouseX_0059ab10;
     g_nHostMouseY_0059af72 = g_nMouseY_0059ab12;
@@ -285,46 +291,65 @@ void PollMenuInputDevices(void)
         return;
     g_bInputPollingGuard_0046a01c++;
     UpdateInputDeviceTransitions(0);
-    sample = &g_aInputDeviceSamples_005a81f0[device];
 
-    if (g_asInputButton1Changed_0059e50c[device] != 0) {
+    if (g_asInputButton1Changed_0059e50c
+            [g_nActiveInputDevice_005a819c] != 0) {
         g_nHostMouseX_0059af70 +=
-            (short)(sample->x * g_nMenuPointerSpeed_0046af58);
+            (short)g_aInputDeviceSamples_005a81f0
+                [g_nActiveInputDevice_005a819c].x *
+            g_nMenuPointerSpeed_0046af58;
         g_nHostMouseY_0059af72 +=
-            (short)(sample->y * g_nMenuPointerSpeed_0046af58);
-        doubleClick = g_asInputButton1DoubleClick_0059e508[device] != 0 ?
-                      3 : 0;
-        QueueInputEventAtCursor(((unsigned short)sample->buttons & 1) + 1,
-                                0, doubleClick);
-        buttonChanges = 1;
-    }
-    if (g_asInputButton2Changed_0059e510[device] != 0) {
-        g_nHostMouseX_0059af70 +=
-            (short)(sample->x * g_nMenuPointerSpeed_0046af58);
-        g_nHostMouseY_0059af72 +=
-            (short)(sample->y * g_nMenuPointerSpeed_0046af58);
-        doubleClick = g_asInputButton1DoubleClick_0059e508[device] != 0 ?
-                      3 : 0;
+            (short)g_aInputDeviceSamples_005a81f0
+                [g_nActiveInputDevice_005a819c].y *
+            g_nMenuPointerSpeed_0046af58;
+        if (g_asInputButton1DoubleClick_0059e508
+                [g_nActiveInputDevice_005a819c] != 0)
+            changes = 3;
         QueueInputEventAtCursor(
-            (((unsigned short)sample->buttons >> 1) & 1) + 1,
-            1, doubleClick);
-        buttonChanges++;
+            ((unsigned short)g_aInputDeviceSamples_005a81f0
+                [g_nActiveInputDevice_005a819c].buttons & 1) + 1,
+            0, (short)(signed char)changes);
+        changes = 1;
     }
-    if (buttonChanges == 0) {
+    if (g_asInputButton2Changed_0059e510
+            [g_nActiveInputDevice_005a819c] != 0) {
         g_nHostMouseX_0059af70 +=
-            (short)(sample->x * g_nMenuPointerSpeed_0046af58);
+            (short)g_aInputDeviceSamples_005a81f0
+                [g_nActiveInputDevice_005a819c].x *
+            g_nMenuPointerSpeed_0046af58;
         g_nHostMouseY_0059af72 +=
-            (short)(sample->y * g_nMenuPointerSpeed_0046af58);
-        if ((signed char)sample->x != 0 ||
-            (signed char)sample->y != 0) {
+            (short)g_aInputDeviceSamples_005a81f0
+                [g_nActiveInputDevice_005a819c].y *
+            g_nMenuPointerSpeed_0046af58;
+        doubleClick = 0;
+        if (g_asInputButton1DoubleClick_0059e508
+                [g_nActiveInputDevice_005a819c] != 0)
+            doubleClick = 3;
+        QueueInputEventAtCursor(
+            (((unsigned short)g_aInputDeviceSamples_005a81f0
+                [g_nActiveInputDevice_005a819c].buttons >> 1) & 1) + 1,
+            1, (short)doubleClick);
+        changes++;
+    }
+    if (changes == 0) {
+        movementX = (short)g_aInputDeviceSamples_005a81f0
+            [g_nActiveInputDevice_005a819c].x;
+        movementY = (short)g_aInputDeviceSamples_005a81f0
+            [g_nActiveInputDevice_005a819c].y;
+        g_nHostMouseX_0059af70 +=
+            g_nMenuPointerSpeed_0046af58 * movementX;
+        g_nHostMouseY_0059af72 +=
+            g_nMenuPointerSpeed_0046af58 * movementY;
+        changes = (unsigned char)movementY | (unsigned char)movementX;
+        if (changes != 0) {
             FlushInputEvents();
-            if (g_nHostMouseX_0059af70 < 0)
+            if (g_nHostMouseX_0059af70 <= 0)
                 g_nHostMouseX_0059af70 = 0;
-            else if (g_nHostMouseX_0059af70 > 319)
+            if (g_nHostMouseX_0059af70 >= 319)
                 g_nHostMouseX_0059af70 = 319;
-            if (g_nHostMouseY_0059af72 < 0)
+            if (g_nHostMouseY_0059af72 <= 0)
                 g_nHostMouseY_0059af72 = 0;
-            else if (g_nHostMouseY_0059af72 > 199)
+            if (g_nHostMouseY_0059af72 >= 199)
                 g_nHostMouseY_0059af72 = 199;
             SetMousePosition(g_nHostMouseX_0059af70,
                              g_nHostMouseY_0059af72);
@@ -332,18 +357,19 @@ void PollMenuInputDevices(void)
     }
 
     g_bPreviousPrimaryInputButton_0059af74 =
-        (unsigned char)sample->buttons;
+        (unsigned char)g_aInputDeviceSamples_005a81f0
+            [g_nActiveInputDevice_005a819c].buttons;
     g_bPreviousSecondaryInputButton_0059af75 =
-        (unsigned char)sample->buttons;
-    if (g_nHostMouseX_0059af70 < 0)
+        g_bPreviousPrimaryInputButton_0059af74;
+    if (g_nHostMouseX_0059af70 <= 0)
         g_nHostMouseX_0059af70 = 0;
-    else if (g_nHostMouseX_0059af70 > 319)
+    if (g_nHostMouseX_0059af70 >= 319)
         g_nHostMouseX_0059af70 = 319;
-    if (g_nHostMouseY_0059af72 < 0)
+    if (g_nHostMouseY_0059af72 <= 0)
         g_nHostMouseY_0059af72 = 0;
-    else if (g_nHostMouseY_0059af72 > 199)
+    if (g_nHostMouseY_0059af72 >= 199)
         g_nHostMouseY_0059af72 = 199;
-    if (buttonChanges != 0) {
+    if (changes != 0) {
         LeaveAllocationScope();
         g_bPrimaryMouseButton_0059ab14 =
             g_bPreviousPrimaryInputButton_0059af74;

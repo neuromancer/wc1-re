@@ -441,59 +441,49 @@ wait_for_input:
 /* Function start: 0x41DC70 */
 void MoveMenuPointerFromKeyboard(InputEventState *event)
 {
-    short delta;
-    short scanCode;
+    int delta;
     int moved;
 
-    delta = (short)(g_nKeyboardPointerStep_004696a4 * 2);
-    scanCode = (short)event->value;
+    delta = g_nKeyboardPointerStep_004696a4 * 2;
     moved = 0;
-    if (scanCode == 0x4c) {
+    if ((short)event->value == 0x4c) {
         if (g_nKeyboardPointerStep_004696a4 == 1)
             g_nKeyboardPointerStep_004696a4 = 4;
         else
             g_nKeyboardPointerStep_004696a4 = 1;
     } else {
-        switch (scanCode) {
+        switch ((short)event->value) {
         case 0x47:
             g_nMouseY_0059ab12 -= delta;
+            /* fall through */
+        case 0x4b:
             g_nMouseX_0059ab10 -= delta;
-            moved = 1;
-            break;
-        case 0x48:
-            g_nMouseY_0059ab12 -= delta;
-            moved = 1;
             break;
         case 0x49:
             g_nMouseX_0059ab10 += delta;
+            /* fall through */
+        case 0x48:
             g_nMouseY_0059ab12 -= delta;
-            moved = 1;
-            break;
-        case 0x4b:
-            g_nMouseX_0059ab10 -= delta;
-            moved = 1;
-            break;
-        case 0x4d:
-            g_nMouseX_0059ab10 += delta;
-            moved = 1;
             break;
         case 0x4f:
             g_nMouseX_0059ab10 -= delta;
-            g_nMouseY_0059ab12 += delta;
-            moved = 1;
-            break;
+            /* fall through */
         case 0x50:
             g_nMouseY_0059ab12 += delta;
-            moved = 1;
             break;
         case 0x51:
-            g_nMouseX_0059ab10 += delta;
             g_nMouseY_0059ab12 += delta;
-            moved = 1;
+            /* fall through */
+        case 0x4d:
+            g_nMouseX_0059ab10 += delta;
             break;
+        default:
+            goto clamp_pointer;
         }
+        moved = 1;
     }
 
+clamp_pointer:
     if (g_nMouseX_0059ab10 < 0)
         g_nMouseX_0059ab10 = 0;
     else if (g_nMouseX_0059ab10 > 320)

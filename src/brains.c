@@ -304,6 +304,107 @@ short __stdcall GetShapeFrameExtent(short x, short y,
     return bounds[extent];
 }
 
+/* Function start: 0x408B30 (Mac symbol: funeral_player) */
+unsigned int funeral_player(void)
+{
+    short index;
+    short previousY;
+    unsigned char *shape;
+
+    DAT_00469fb4--;
+    if (DAT_00469fb4 < 1) {
+        DAT_00469fb4 = g_nFrameSkip_00469fb8;
+        DrawConstellationField();
+        g_nFuneralMainScale_005a871c =
+            (short)(0x7000L / g_nFuneralMainDistance_005a8738);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          g_nFuneralBaseX_005a8720,
+                          g_nFuneralBaseY_005a8722,
+                          g_pConversationSpecialShape_005a86ec, 0);
+        DrawSpriteScaled(&DAT_005a76b0,
+                         g_nFuneralCasketX_005a86c8,
+                         g_nFuneralCasketY_005a86ca,
+                         g_pConversationSpecialShape_005a86ec,
+                         8, 0, g_nFuneralMainScale_005a871c, 0);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          g_nFuneralBaseX_005a8720,
+                          g_nFuneralBaseY_005a8722,
+                          g_pConversationSpecialShape_005a86ec, 1);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          g_nFuneralBaseX_005a8720,
+                          g_nFuneralBaseY_005a8722,
+                          g_pConversationSpecialShape_005a86ec,
+                          g_nFuneralGuardFrame_005a873c);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          g_nFuneralBaseX_005a8720,
+                          g_nFuneralBaseY_005a8722,
+                          g_pConversationSpecialShape_005a86ec,
+                          g_nFuneralRifleFrame_005a871e);
+
+        index = 0;
+        g_nFuneralParticleScale_005a8728 =
+            (short)(0x1000L / g_nFuneralParticleDistance_005a8710);
+        shape = g_pConversationSpecialShape_005a86ec;
+        do {
+            if (g_aFuneralParticles_005a86f0[index].x != 0) {
+                DrawSpriteScaled(
+                    &DAT_005a76b0,
+                    g_aFuneralParticles_005a86f0[index].x,
+                    g_aFuneralParticles_005a86f0[index].y,
+                    shape, 9, 0, g_nFuneralParticleScale_005a8728, 0);
+                shape = g_pConversationSpecialShape_005a86ec;
+                g_aFuneralParticles_005a86f0[index].x -= 6;
+                previousY = g_aFuneralParticles_005a86f0[index].y;
+                g_aFuneralParticles_005a86f0[index].y =
+                    (short)(previousY - 6);
+                if (DAT_005a76b0.top >
+                    g_aFuneralParticles_005a86f0[index].y)
+                    g_aFuneralParticles_005a86f0[index].x = 0;
+            }
+            index++;
+        } while (index < 7);
+
+        DrawSpriteDefault(&DAT_005a76b0,
+                          g_nFuneralForegroundX_005a8718,
+                          g_nFuneralForegroundY_005a871a,
+                          shape, 7);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          (short)(g_nFuneralForegroundX_005a8718 + 180),
+                          g_nFuneralForegroundY_005a871a,
+                          g_pConversationSpecialShape_005a86ec, 6);
+        if (g_bFuneralShowTheEnd_00465b54 != 0)
+            print_subtitle(&DAT_005a76b0, 56,
+                           g_szTheEnd_00465c04);
+        RefreshMemoryStatusOverlay();
+        DIBslam();
+        DIBslamReal();
+    }
+    return 0;
+}
+
+/* Function start: 0x408D50 (Mac symbol: funeral_wingman) */
+unsigned int funeral_wingman(char *text, short duration)
+{
+    AddPCName(text);
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
+    FormatTextBufferFromStart(g_szFuneralTextFormat_00465c0c,
+                              0, 160,
+                              g_nConversationTextColour_00598c10,
+                              g_szTextScratchBuffer_00598b00);
+    DAT_00469fb4 = 1;
+    SetFrameTimerPeriodDirect(duration);
+    while ((short)IsFrameTickElapsed() == 0) {
+        PumpWindowMessages();
+        funeral_player();
+        if (DAT_0059ab58 == 1)
+            break;
+        if (CheckEscaped() != 0)
+            break;
+    }
+    return 0;
+}
+
 /* Function start: 0x409760 */
 void cruise_home(short obj)
 {

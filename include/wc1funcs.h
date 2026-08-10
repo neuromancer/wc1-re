@@ -138,6 +138,8 @@ void perform_maneuver(short obj);                                       /* 0x004
 short __stdcall GetShapeFrameExtent(short x, short y,
                                     unsigned char *shape, short frame,
                                     short extent);                       /* 0x00407710 */
+unsigned int funeral_player(void);                                     /* 0x00408B30 */
+unsigned int funeral_wingman(char *text, short duration);              /* 0x00408D50 */
 void cruise_home(short obj);                                            /* 0x00409760 */
 void fail(short obj);                                                   /* 0x004098C0 */
 void coming_home(short obj);                                            /* 0x004098D0 */
