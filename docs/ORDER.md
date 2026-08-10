@@ -64,16 +64,17 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/cdrom.c` | `0x403100`–`0x4034ff` | 5 | CD-ROM location and disc-swap prompting | LocateStreamsDirOnDisc..PromptInsertCorrectCd; string band 0x46535C-0x4653FC |
 | `src/mono.c` | `0x403500`–`0x403e4f` | 20 | Win32 data-file wrappers, scaled interstitial text, canned sequences, and MONODEBG.VXD | MonoDebug_install/MonoDebug_print anchor the final block; the Mac `auto` unit starts at the next function |
 | `src/auto.c` | `0x403e50`–`0x40460f` | 5 | Autopilot travel and interstitial flight sequences | Mac `auto` symbols preserve all five functions in exact order; Ghidra shows the next Win32 function is a private palette-file loader |
-| `src/shipai.c` | `0x4060a0`–`0x40cfff` | 68 | Ship AI: dispatch-table states and the behaviour routines | Exact nested Mac `brain` unit at `0x409760`–`0x40b66f`; the 47-slot dispatch table at `0x004656a8` anchors the enclosing split |
+| `src/cmpgn.c` | `0x404610`–`0x40609f` | 1 | Campaign mission-packet decoding | Mac segment name `cmpgn`; `LoadMissionDefinition` is the recovered Win32 routine at `0x004059b0` |
+| `src/brains.c` | `0x4060a0`–`0x40cfff` | 98 | NPC pilot intelligence with adjacent flight and mission helpers | Exact Mac `brain` unit and surviving `BRAINS.C` map `cruise_home`–`FF_missile_intelligence` to `0x409760`–`0x40b66f`; adjacent `fl`/`miss` boundaries remain provisional |
 | `src/nav.c` | `0x40d000`–`0x40ffff` | 9 | Nav map, location readouts and the virtual screen | DrawNav* family; string band 0x4687AC-0x4688F4 |
-| `src/joystick.c` | `0x410000`–`0x412fff` | 3 | Joystick calibration and input dispatch | CalibrateJoystickInteractive; string band 0x468F04-0x468FEC |
-| `src/hud.c` | `0x413000`–`0x417fff` | 38 | Cockpit HUD: weapon, damage, target and message displays | Draw*Panel/Report* family; string band 0x4692B8-0x4693A4 |
+| `src/spc.c` | `0x410000`–`0x412fff` | 19 | Space-object simulation with preceding Win32 input helpers | Mac `spc` run maps `rotate_eye_to_goal`–`object_intelligence` to `0x410a30`–`0x4139ff`; outer split remains provisional |
+| `src/cockpt.c` | `0x413000`–`0x417fff` | 92 | Cockpit HUD: weapon, damage, target, objective, and message displays | Mac `cockpt` symbols identify the surviving functions throughout this range; port-specific split helpers remain interleaved |
 | `src/geom.c` | `0x418000`–`0x41ad4f` | 77 | Geometry, transforms, and modal text-panel drawing | Geometry helper run followed by the contiguous modal-panel block; save/load starts at 0x41ada0 |
 | `src/debug.cpp` | `0x41c760`–`0x41d0bf` | 15 | Win32 developer overlay console, keyboard hook, worker and display modes | PROVEN: constructor/destructor new/delete call sites, ECX member ABI, and the following `MinShort` boundary |
 | `src/mathutil.c` | `0x41d000`–`0x41d24f` | 3 | Integer min/max used across the game core | MinShort/MaxShort pair, 94 call sites, no other content in the gap |
 | `src/disk.c` | `0x41d250`–`0x41efff` | 6 | Disk data files and packet fetching with retry | OpenDiskDataFile/FetchDiskPacketRetrying/PromptInsertNumberedDisk |
-| `src/damage.c` | `0x41f000`–`0x420fff` | 2 | Ship damage and component repair reporting | ReportShipSystemDamage/ReportComponentRepaired; string band 0x469960-0x469984 |
-| `src/mission.c` | `0x421000`–`0x424fff` | 94 | Mission setup plus alert, collision, targeting, and ship-mission logic | Exact nested Mac `logic` unit at `0x422010`–`0x423cdf`; LoadOriginFxDrivers/EMStartUp and string band 0x469A28-0x469B9C anchor the enclosing split |
+| `src/ship.c` | `0x41f000`–`0x420fff` | 13 | Ship damage, explosions, and weapon logic | Ordered Mac `ship` symbols map across the larger `0x41dee0`–`0x42193f` Win32 run; this file currently owns its central tranche |
+| `src/logic.c` | `0x421000`–`0x424fff` | 118 | Ship mission logic with adjacent Win32 ship and game-mode routines | Exact Mac `logic` unit at `0x422010`–`0x423cdf`; surrounding boundaries remain provisional |
 | `src/pilot.cpp` | `0x425000`–`0x426fff` | 16 | Pilot name entry, high scores, inter-scene transitions, and the debug-console owner | EnterPilotNameAndCallsign/ShowTrainSimHighScores; new/delete console wrapper at 0x425B00; string band 0x469D74-0x469F98 |
 | `src/system.c` | `0x427000`–`0x4274df` | 2 | Process-level services: memory reporting and exit | exit_squadron/ShowMemoryStatusDebug; string band 0x46A064-0x46A10C |
 | `src/main.c` | `0x4274e0`–`0x427fff` | 6 | WINGLEADER main module | main() at 0x004274E0, confirmed against the leaked DOS source screenshot |

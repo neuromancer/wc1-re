@@ -58,7 +58,7 @@ short recalc_max_velocity(short ship)
                      (4 - (int)g_acShipIonDriveDamage_0059d4a0[ship])) >> 2);
     }
     if (g_asShipMaximumSpeed_0059c440[ship] != oldVelocity)
-        AdjustShipSpeed(ship, 0);
+        celerate(ship, 0);
     return 0;
 }
 

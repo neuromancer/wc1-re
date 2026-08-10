@@ -46,7 +46,7 @@ void RunTrainSim(void)
     while (g_nTrainSimMission_00469e30 < 4) {
         g_nTrainSimActive_00469e2c = 1;
         ComputeArcadeTimeBonus();
-        LoadMissionData(0, g_nTrainSimMission_00469e30);
+        init_mission(0, g_nTrainSimMission_00469e30);
         ShowGetReadyScreen();
 
         g_aasShipShield_0059d5b0[0][0] = 0;
@@ -86,7 +86,7 @@ void RunTrainSim(void)
     g_nCampaignIndex_0059caa6 = savedCampaign;
     g_nCampaignDataSet_005a8118 = savedDataSet;
     free_all_slots();
-    ReleaseCockpitResources();
+    free_cockpit();
     free_3Space();
     ReleaseMusicTrackHook(20);
     ReleaseMusicTrackHook(21);

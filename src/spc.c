@@ -1,8 +1,10 @@
 /*
- *  Joystick calibration and input dispatch.
+ *  Space-object simulation (Mac `spc` compilation unit), preceded by the
+ *  Win32 joystick calibration/input helpers in this provisional range.
  *
  *  Address range 0x410000-0x412fff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: CalibrateJoystickInteractive; string band 0x468F04-0x468FEC.
+ *  Boundary evidence: the Mac `spc` symbol run maps rotate_eye_to_goal through
+ *  object_intelligence to 0x410a30-0x4139ff.
  */
 #include "wc1.h"
 

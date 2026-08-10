@@ -1,5 +1,6 @@
 /*
- *  Mission setup, collision/alert state, and ship mission logic.
+ *  Ship mission logic (Mac `logic` compilation unit), with adjacent Win32
+ *  ship and game-mode initialization routines.
  *
  *  Address range 0x421000-0x424fff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: exact nested Mac CODE 5 `logic` unit at
@@ -788,7 +789,7 @@ int try2rout(short obj)
     }
     if (canContinue != 0) {
         g_acShipStress_0059d620[obj] = 0;
-        SelectNewShipAiBehavior(obj);
+        maneuver_complete(obj);
     } else {
         reset_mission_type(obj, MISSION_TYPE_ROUT);
         if (obj == g_nYourWingman_0046c04c)
@@ -1046,14 +1047,14 @@ checkCancellation:
 /* Function start: 0x422DD0 */
 unsigned int approach_zero_speed(short ship)
 {
-    ApproachShipSpeed(ship, 0);
+    approach_speed(ship, 0);
     return 0;
 }
 
 /* Function start: 0x422DF0 */
 unsigned int approach_min_speed(short obj)
 {
-    ApproachShipSpeed(obj, 0x500);
+    approach_speed(obj, 0x500);
     return 0;
 }
 
@@ -1063,14 +1064,14 @@ unsigned int approach_half_speed(short obj)
     short speed = g_aObjectTypeData_00466458[
         g_aeObjectType_0059b560[obj]].cruiseVelocity;
 
-    ApproachShipSpeed(obj, (int)(short)(speed & 0xfffe) << 7);
+    approach_speed(obj, (int)(short)(speed & 0xfffe) << 7);
     return 0;
 }
 
 /* Function start: 0x422E50 */
 unsigned int approach_cruise_speed(short ship)
 {
-    ApproachShipSpeed(ship,
+    approach_speed(ship,
         (int)g_aObjectTypeData_00466458[
             g_aeObjectType_0059b560[ship]].cruiseVelocity << 8);
     return 0;
@@ -1079,7 +1080,7 @@ unsigned int approach_cruise_speed(short ship)
 /* Function start: 0x422E80 */
 unsigned int approach_full_speed(short ship)
 {
-    ApproachShipSpeed(ship,
+    approach_speed(ship,
                       (int)g_asShipMaximumSpeed_0059c440[ship] << 8);
     return 0;
 }
@@ -1087,7 +1088,7 @@ unsigned int approach_full_speed(short ship)
 /* Function start: 0x422EA0 */
 unsigned int approach_ship_speed(short obj, short other)
 {
-    ApproachShipSpeed(obj, g_anShipSpeed_0059b320[other]);
+    approach_speed(obj, g_anShipSpeed_0059b320[other]);
     return 0;
 }
 
@@ -1208,7 +1209,7 @@ void fire_when_ready(short obj, short aimed)
         if (g_nFacingToTarget_0059d920 > 80)
             return;
     }
-    fire_capital_weapon(obj, (short)g_acShipTarget_0059ce60[obj]);
+    fire(obj, (short)g_acShipTarget_0059ce60[obj]);
 }
 
 /* Function start: 0x423260 */
@@ -1870,7 +1871,7 @@ void free_constellation(void)
 }
 
 /* Function start: 0x4244E0 */
-void InitializeCockpitVdus(void)
+void init_vdus(void)
 {
     DAT_005a7530 = DAT_005a6ba0;
     DAT_005a6b80 = DAT_005a6ba0;
@@ -1899,7 +1900,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     if (g_bCockpitResourcesActive_00469d58 == 1) {
         if (mode == g_cCockpitView_0059dab0)
             return 0;
-        ReleaseCockpitResources();
+        free_cockpit();
     }
 
     g_bCockpitResourcesActive_00469d58 = 1;
@@ -1916,7 +1917,7 @@ unsigned int InitializeCockpitResources(signed char mode)
         (unsigned char *)FetchDiskPacketRetrying(
             (short)g_cCockpitLogicalFile_005a7c74, 6, 0);
     DAT_005a6be0 = DAT_005a6ba0;
-    InitializeCockpitVdus();
+    init_vdus();
 
     InitializeTextContextFromFont(
         &DAT_005a7720, 2, DAT_004699b4, (signed char)DAT_0046999c);
@@ -1980,7 +1981,7 @@ unsigned int InitializeCockpitResources(signed char mode)
 }
 
 /* Function start: 0x4249A0 */
-unsigned int ReleaseCockpitResources(void)
+unsigned int free_cockpit(void)
 {
     if (g_bCockpitResourcesActive_00469d58 == 0)
         return 0;

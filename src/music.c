@@ -201,7 +201,7 @@ short GetTargetColourIndex(void)
 }
 
 /* Function start: 0x42DB90 */
-void DrawTargetLockDisplay(void)
+void show_target_disp(void)
 {
     short target;
     const char *name;
@@ -249,13 +249,13 @@ void DrawTargetRangeReadout(void)
             SPECIAL_MANEUVER_UNKNOWN_9) {
         if (g_cTargetDisplayObject_0046c06c != -1) {
             g_acShipTarget_0059ce60[0] = -1;
-            DrawTargetLockDisplay();
+            show_target_disp();
         }
         return;
     }
     if (g_cTargetDisplayObject_0046c06c != target ||
         (g_nSpaceFrame_0059b420 & 7) == 0)
-        DrawTargetLockDisplay();
+        show_target_disp();
 }
 
 /* Function start: 0x42E020 */

@@ -432,7 +432,7 @@ unsigned int player_input(void)
                     g_aeSpecialManeuver_0059c3c0[0] !=
                         SPECIAL_MANEUVER_AFTERBURNER) {
                     g_nRollInput_0059d3f4 = (short)sample->x;
-                    AdjustShipSpeed(0, -(sample->y / 2) * 0x100);
+                    celerate(0, -(sample->y / 2) * 0x100);
                 } else {
                     g_nPitchInput_0059d3f0 = (short)-sample->y;
                     g_nYawInput_0059d3f2 = (short)sample->x;

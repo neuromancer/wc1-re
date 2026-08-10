@@ -216,14 +216,14 @@ unsigned int control_speed(short obj, unsigned short range,
     brakingMargin -=
         AbsInt(desiredSpeed - g_anShipSpeed_0059b320[obj]);
     if (brakingMargin <= 0) {
-        ApproachShipSpeed(obj, desiredSpeed);
+        approach_speed(obj, desiredSpeed);
         return 0;
     }
     if (brakingMargin < 12800) {
-        AdjustShipSpeed(obj, 0x100);
+        celerate(obj, 0x100);
         return 0;
     }
-    AdjustShipSpeed(obj, GetShipAccelerationRate(obj));
+    celerate(obj, GetShipAccelerationRate(obj));
     return 0;
 }
 
@@ -250,7 +250,7 @@ unsigned int chase_location(short obj, const FixedVector *destination,
     forwardFacing = g_nFacingToTarget_0059d920;
     get_facing_range_from_point(obj, destination);
     if (g_nFacingToTarget_0059d920 < 0) {
-        ApproachShipSpeed(obj, 0);
+        approach_speed(obj, 0);
         speed = FixedToShortSaturating(g_anShipSpeed_0059b320[reference]);
         speed = MaxShort(speed, 1);
         if (g_nTargetRange_0059ce10 / speed > 49)
@@ -270,7 +270,7 @@ unsigned int chase_location(short obj, const FixedVector *destination,
         if (forwardFacing > 90) {
             copy_frame(reference, obj);
             steady_object(obj);
-            ApproachShipSpeed(obj, g_anShipSpeed_0059b320[reference]);
+            approach_speed(obj, g_anShipSpeed_0059b320[reference]);
             return 0;
         }
         point_ship(obj, 0, &forwardTravel);
@@ -669,7 +669,7 @@ unsigned int chase_speed(short obj, short range)
         approach_zero_speed(obj);
         return 0;
     }
-    ApproachShipSpeed(obj,
+    approach_speed(obj,
                       g_anShipSpeed_0059b320[
                           (short)g_acShipTarget_0059ce60[obj]]);
     return 0;

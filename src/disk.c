@@ -550,7 +550,7 @@ void rotate_object_to_goal(short obj)
 }
 
 /* Function start: 0x41E710 */
-unsigned int AdjustShipSpeed(short ship, int delta)
+unsigned int celerate(short ship, int delta)
 {
     int maximumSpeed = (int)g_asShipMaximumSpeed_0059c440[ship] << 8;
 
@@ -563,7 +563,7 @@ unsigned int AdjustShipSpeed(short ship, int delta)
 }
 
 /* Function start: 0x41E750 */
-unsigned int ApproachShipSpeed(short ship, int targetSpeed)
+unsigned int approach_speed(short ship, int targetSpeed)
 {
     int delta;
     int acceleration;
@@ -575,7 +575,7 @@ unsigned int ApproachShipSpeed(short ship, int targetSpeed)
         acceleration += acceleration;
     if ((delta < 0 ? -delta : delta) > acceleration)
         delta = MultiplyFixed(SignFixed(delta), acceleration);
-    AdjustShipSpeed(ship, delta);
+    celerate(ship, delta);
     return 0;
 }
 

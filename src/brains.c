@@ -1,10 +1,12 @@
 /*
- *  Ship AI: dispatch-table states and the behaviour routines.
+ *  NPC pilot intelligence (BRAINS.C), with adjacent Win32 flight and mission
+ *  routines whose exact compilation-unit boundaries are still provisional.
  *
  *  Address range 0x4060a0-0x40cfff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: the 47-slot dispatch table at 0x004656a8 targets this
- *  range almost exclusively.  The nested Mac brain compilation unit maps
- *  exactly to 0x409760-0x40b66f, with one additional Win32 split helper.
+ *  Boundary evidence: the surviving WINGLEADER BRAINS.C and the Mac `brain`
+ *  symbol run both map cruise_home through FF_missile_intelligence exactly to
+ *  0x409760-0x40b66f.  The neighboring `fl` and `miss` runs remain in this
+ *  provisional Win32 range until their outer boundaries are proven.
  */
 #include "wc1.h"
 
@@ -15,18 +17,18 @@ void SetShipAiScratchWord(unsigned short v)
 }
 
 /* Function start: 0x4060B0 */
-void SelectNewShipAiBehavior(short ship)
+void maneuver_complete(short ship)
 {
     set_special(ship, SPECIAL_MANEUVER_NONE);
     reset_maneuver(ship, MANEUVER_NONE);
 }
 
 /* Function start: 0x4060D0 */
-void ShipAiState42(short ship, short target)
+void Mline_up_drop(short ship, short target)
 {
     if (g_aeSpecialManeuver_0059c3c0[target] ==
         SPECIAL_MANEUVER_NORMAL) {
-        SelectNewShipAiBehavior(ship);
+        maneuver_complete(ship);
         return;
     }
     if (no_goal(ship) != 0) {
@@ -36,29 +38,29 @@ void ShipAiState42(short ship, short target)
 }
 
 /* Function start: 0x4061E0 */
-void ShipAiRoutine01(short ship)
+void advance(short ship)
 {
     if (g_aeShipManeuver_0059dcb0[ship] != MANEUVER_NONE)
         g_acShipSequence_0059d520[ship] = g_acShipSequence_0059d520[ship] + 1;
 }
 
 /* Function start: 0x406C70 */
-void ShipAiState25(short ship)
+void Mgloat(short ship)
 {
     if (g_acShipSequence_0059d520[ship] == 0) {
         set_special(ship, SPECIAL_MANEUVER_KILL_ENGINES);
-        ShipAiRoutine01(ship);
+        advance(ship);
     } else if (g_acShipSequence_0059d520[ship] == 1) {
         g_anPitchGoal_0059d7a0[ship] = 15;
         if (RandomBelow(100) < 50)
-            ShipAiRoutine01(ship);
+            advance(ship);
     } else {
         g_anPitchGoal_0059d7a0[ship] = -30;
         if (RandomBelow(100) < 50) {
             if (++g_asShipCount_0059c420[ship] < 10)
                 g_acShipSequence_0059d520[ship] = 1;
             else
-                SelectNewShipAiBehavior(ship);
+                maneuver_complete(ship);
         }
     }
 }
@@ -91,7 +93,7 @@ void Mzip_past(short ship, short target)
                 point_ship_behind_object(ship, target);
         }
     } else {
-        SelectNewShipAiBehavior(ship);
+        maneuver_complete(ship);
     }
 }
 
@@ -163,9 +165,9 @@ void general_zig(short ship, unsigned int target, short pitch)
         break;
     }
     if (g_acShipSequence_0059d520[ship] >= 12)
-        SelectNewShipAiBehavior(ship);
+        maneuver_complete(ship);
     if (complete != 0)
-        ShipAiRoutine01(ship);
+        advance(ship);
 }
 
 /* Function start: 0x407350 */
@@ -181,18 +183,18 @@ void Mzig_zag_pitch(short ship, unsigned int target)
 }
 
 /* Function start: 0x407450 */
-void ShipAiState02(short ship, short target)
+void Mveer_away(short ship, short target)
 {
     if (g_acShipSequence_0059d520[ship] == 0) {
         steer_away_from_object(ship, target,
             g_nFacingToTarget_0059d920 < 81 ? 10 : 40);
-        ShipAiRoutine01(ship);
+        advance(ship);
         return;
     }
     if (g_asObjectCollisionRadius_0059d710[target] * 3 <
         g_nTargetRange_0059ce10) {
         veer_random(ship, 8);
-        SelectNewShipAiBehavior(ship);
+        maneuver_complete(ship);
         return;
     }
     if (no_goal(ship) != 0) {
@@ -216,31 +218,31 @@ void ShipAiState02(short ship, short target)
 void ShipAiState44(short ship)
 {
     g_acShipStress_0059d620[ship] = 0;
-    SelectNewShipAiBehavior(ship);
+    maneuver_complete(ship);
 }
 
 /* Function start: 0x407580 */
-void ShipAiState27(short ship, short target)
+void Mtarget_laser(short ship, short target)
 {
     Mbest_strafe(ship, target);
 }
 
 /* Function start: 0x4075A0 */
-void ShipAiState21(short ship)
+void Mrout_me(short ship)
 {
     try2rout(ship);
 }
 
 /* Function start: 0x4075B0 */
 /* Empty in the original: dispatch-table slots 0 and 1 (no-op / invalid state). */
-void ShipAiStateNoOp(void)
+void Mnone(void)
 {
 }
 
 /* Function start: 0x4075C0 */
-void ShipAiState03(short ship)
+void Mreset(short ship)
 {
-    SelectNewShipAiBehavior(ship);
+    maneuver_complete(ship);
 }
 
 /* Function start: 0x4075D0 */
@@ -265,21 +267,21 @@ void perform_maneuver(short obj)
 
     if (unactive(target) != 0) {
         if (g_aeShipManeuver_0059dcb0[obj] == MANEUVER_VEER_AWAY) {
-            ShipAiState02(obj, target);
+            Mveer_away(obj, target);
         } else if (g_aeShipManeuver_0059dcb0[obj] == MANEUVER_GLOAT) {
-            ((void (__cdecl *)(short, short))ShipAiState25)(obj, target);
+            ((void (__cdecl *)(short, short))Mgloat)(obj, target);
         } else if (g_aeShipManeuver_0059dcb0[obj] ==
                    MANEUVER_LINE_UP_DROP) {
-            ShipAiState42(obj, target);
+            Mline_up_drop(obj, target);
         } else {
-            SelectNewShipAiBehavior(obj);
+            maneuver_complete(obj);
         }
     } else if ((int)g_aeShipManeuver_0059dcb0[obj] >= 0 &&
                g_aeShipManeuver_0059dcb0[obj] < 47) {
         g_apShipAiManeuverHandlers_004656a8[
             g_aeShipManeuver_0059dcb0[obj]](obj, target);
     } else {
-        SelectNewShipAiBehavior(obj);
+        maneuver_complete(obj);
     }
 
     if (range < (short)DAT_00475e78) {
@@ -287,7 +289,7 @@ void perform_maneuver(short obj)
     } else if (g_aeShipManeuver_0059dcb0[obj] == previous &&
                RandomBelowOrEqual(100) <
                    (short)g_bCurrentManeuverReroll_00475e7c) {
-        SelectNewShipAiBehavior(obj);
+        maneuver_complete(obj);
     }
 }
 
@@ -1167,7 +1169,7 @@ void tanker_intelligence(short obj)
         approach_full_speed(obj);
         g_acShipTarget_0059ce60[obj] =
             (signed char)g_nTargetShip_0059c3b0;
-        fire_capital_weapon(obj, g_nTargetShip_0059c3b0);
+        fire(obj, g_nTargetShip_0059c3b0);
         if (no_goal(obj) != 0) {
             if (RandomBelowOrEqual(4) == 0) {
                 g_anYawGoal_0059c310[obj] = signed_random(90);
@@ -1416,8 +1418,8 @@ void FF_missile_intelligence(short obj)
 }
 
 /* Function start: 0x40B670 */
-void ComputeMissionShipPosition(const MissionShipRecord *record,
-                                FixedVector *position)
+void set_sphere_point(const MissionShipRecord *record,
+                      FixedVector *position)
 {
     AddFixedVectors(
         &g_aMissionNavPoints_0046c2f0[record->navPoint].position,
@@ -1425,7 +1427,7 @@ void ComputeMissionShipPosition(const MissionShipRecord *record,
 }
 
 /* Function start: 0x40B6A0 */
-unsigned int ShouldSpawnMissionShipPilot(int pilot)
+unsigned int is_alive(int pilot)
 {
     if (pilot < 5)
         return 1;
@@ -1439,7 +1441,7 @@ unsigned int ShouldSpawnMissionShipPilot(int pilot)
 }
 
 /* Function start: 0x40B700 */
-unsigned int GetShipSlotState(short i)
+unsigned int check_futurion(short i)
 {
     unsigned int prev;
 
@@ -1452,7 +1454,7 @@ unsigned int GetShipSlotState(short i)
 }
 
 /* Function start: 0x40B730 */
-unsigned int LoadMissionData(short series, short mission)
+unsigned int init_mission(short series, short mission)
 {
     LoadMissionDefinition(series, mission);
     init_3Space_objects(series);
@@ -1502,7 +1504,7 @@ void prepare_mission(void)
         missionShip = g_nInitialMissionShipIndices_005a8696[initial];
         if (missionShip != -1) {
             pilot = g_aMissionShips_0046c948[missionShip].behaviour.pilot;
-            if (ShouldSpawnMissionShipPilot(pilot) != 0 &&
+            if (is_alive(pilot) != 0 &&
                 find_ships_sphere(missionShip) == -1) {
                 object = init_ship(
                     missionShip, g_nMissionEntryNavPoint_005a8690);
@@ -1515,7 +1517,7 @@ void prepare_mission(void)
     } while (initial < 8);
     DAT_00465c84 = 0;
 
-    BuildObjectiveList();
+    Build_objective_list();
     g_nCarrierMissionShipIndex_005a7e2a = 0;
     while (g_aMissionShips_0046c948[
                g_nCarrierMissionShipIndex_005a7e2a].type !=
@@ -1876,8 +1878,7 @@ unsigned int set_formation_position(short obj,
         return 0;
 
     copy_frame(source, obj);
-    ComputeMissionShipPosition(leaderRecord,
-                               &g_aShipPosition_0059c490[obj]);
+    set_sphere_point(leaderRecord, &g_aShipPosition_0059c490[obj]);
     offset_location(obj, &g_aShipFormationOffset_0059b520[obj],
                     &g_aShipPosition_0059c490[obj]);
     g_anShipSpeed_0059b320[obj] = (int)leaderRecord->speed << 8;
@@ -1905,7 +1906,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     g_nShipMissionIndices_0059c830[obj] = missionShip;
     g_acShipPointingMode_0059d790[obj] = 1;
 
-    ComputeMissionShipPosition(record, &g_aShipPosition_0059c490[obj]);
+    set_sphere_point(record, &g_aShipPosition_0059c490[obj]);
     alter_yaw((short)-record->pitch, obj);
     alter_pitch((short)-record->yaw, obj);
     alter_roll(record->roll, obj);
@@ -1987,7 +1988,7 @@ short init_ship(short missionShip, short navPoint)
     if (obj != -1 || record->state != 0)
         return -1;
     if (record->missionType != MISSION_TYPE_CANNED_SEQUENCE &&
-        ShouldSpawnMissionShipPilot(record->behaviour.pilot) == 0) {
+        is_alive(record->behaviour.pilot) == 0) {
         if (record->behaviour.pilot < 9)
             return -1;
         record->behaviour.pilot = 3;
@@ -1999,7 +2000,7 @@ short init_ship(short missionShip, short navPoint)
     if (obj != -1) {
         Set_up_ship_info(obj, missionShip, (signed char)navPoint);
         find_next_ship_turn_slot(obj);
-        GetShipSlotState(obj);
+        check_futurion(obj);
     }
     return obj;
 }
@@ -2118,7 +2119,7 @@ void UpdateObjectiveMapCoordinates(short *x, short *y,
 }
 
 /* Function start: 0x40CED0 */
-void BuildObjectiveList(void)
+void Build_objective_list(void)
 {
     MissionObjectiveSource *source;
     MissionObjective *objective;
@@ -2154,7 +2155,7 @@ void BuildObjectiveList(void)
                    source->index >= 0 &&
                    source->index < WC1_MISSION_SHIP_COUNT) {
             ship = &g_aMissionShips_0046c948[source->index];
-            ComputeMissionShipPosition(ship, &objective->position);
+            set_sphere_point(ship, &objective->position);
             objective->displayName =
                 g_aObjectTypeData_00466458[ship->type].displayName;
             g_abFlightPath_0059c000[flightPathCount++] =

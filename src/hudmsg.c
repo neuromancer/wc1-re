@@ -137,11 +137,11 @@ int HandleDebugCheatKeys(void)
         break;
     case 0x0c:
     case 0x4a:
-        AdjustShipSpeed(0, -0x100);
+        celerate(0, -0x100);
         break;
     case 0x0d:
     case 0x4e:
-        AdjustShipSpeed(0, 0x100);
+        celerate(0, 0x100);
         break;
     case 0x0e:
         g_anShipSpeed_0059b320[0] = 0;

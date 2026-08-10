@@ -101,10 +101,10 @@ void auto_position(short obj, short *formationSlot);                     /* 0x00
 void auto_pilot_sequence(void);                                          /* 0x00404050 */
 unsigned int LoadMissionDefinition(short series, short mission);         /* 0x004059B0 */
 void SetShipAiScratchWord(unsigned short v);                                 /* 0x004060A0 */
-void SelectNewShipAiBehavior(short ship);                               /* 0x004060B0 */
-void ShipAiState42(short ship, short target);                           /* 0x004060D0 */
-void ShipAiRoutine01(short ship);                                       /* 0x004061E0 */
-void ShipAiState25(short ship);                                         /* 0x00406C70 */
+void maneuver_complete(short ship);                                     /* 0x004060B0 */
+void Mline_up_drop(short ship, short target);                            /* 0x004060D0 */
+void advance(short ship);                                               /* 0x004061E0 */
+void Mgloat(short ship);                                                /* 0x00406C70 */
 void Mtail_fire(short ship, short target);                              /* 0x00406D20 */
 void Mzip_past(short ship, short target);                               /* 0x00406D80 */
 void Mstrafe_enemy(short ship, short target);                           /* 0x00406FB0 */
@@ -113,12 +113,12 @@ void Mstrafe_n_roll(short ship, short target);                          /* 0x004
 void general_zig(short ship, unsigned int target, short pitch);         /* 0x00407270 */
 void Mzig_zag(short ship, unsigned int target);                         /* 0x00407350 */
 void Mzig_zag_pitch(short ship, unsigned int target);                   /* 0x00407370 */
-void ShipAiState02(short ship, short target);                           /* 0x00407450 */
+void Mveer_away(short ship, short target);                              /* 0x00407450 */
 void ShipAiState44(short ship);                                         /* 0x00407560 */
-void ShipAiState27(short ship, short target);                           /* 0x00407580 */
-void ShipAiState21(short ship);                                         /* 0x004075A0 */
-void ShipAiStateNoOp(void);                                               /* 0x004075B0 */
-void ShipAiState03(short ship);                                         /* 0x004075C0 */
+void Mtarget_laser(short ship, short target);                           /* 0x00407580 */
+void Mrout_me(short ship);                                              /* 0x004075A0 */
+void Mnone(void);                                                       /* 0x004075B0 */
+void Mreset(short ship);                                                /* 0x004075C0 */
 void perform_maneuver(short obj);                                       /* 0x004075D0 */
 short __stdcall GetShapeFrameExtent(short x, short y,
                                     unsigned char *shape, short frame,
@@ -170,11 +170,11 @@ void futurion_intelligence(short obj);                                  /* 0x004
 void mine_intelligence(short obj);                                      /* 0x0040B3A0 */
 void heat_seeking_missile_intelligence(short obj);                      /* 0x0040B430 */
 void FF_missile_intelligence(short obj);                                /* 0x0040B570 */
-void ComputeMissionShipPosition(const MissionShipRecord *record,
-                                FixedVector *position);                 /* 0x0040B670 */
-unsigned int ShouldSpawnMissionShipPilot(int pilot);                   /* 0x0040B6A0 */
-unsigned int GetShipSlotState(short i);                                /* 0x0040B700 */
-unsigned int LoadMissionData(short series, short mission);             /* 0x0040B730 */
+void set_sphere_point(const MissionShipRecord *record,
+                      FixedVector *position);                           /* 0x0040B670 */
+unsigned int is_alive(int pilot);                                       /* 0x0040B6A0 */
+unsigned int check_futurion(short i);                                   /* 0x0040B700 */
+unsigned int init_mission(short series, short mission);                 /* 0x0040B730 */
 void prepare_mission(void);                                            /* 0x0040B7A0 */
 void release_capital_ship_shapes(enum ObjectType type);                /* 0x0040B990 */
 void load_ship(enum ObjectType type, short slot);                      /* 0x0040B9F0 */
@@ -210,7 +210,7 @@ void SetNavCursorIndex(unsigned short v);                                /* 0x00
 void ObjectDrawHook(short *p);                                          /* 0x0040CBC0 */
 void UpdateObjectiveMapCoordinates(short *x, short *y,
                                    int worldX, int worldZ);             /* 0x0040CC30 */
-void BuildObjectiveList(void);                                         /* 0x0040CED0 */
+void Build_objective_list(void);                                       /* 0x0040CED0 */
 void ClearNavHazardFlag(void);                                           /* 0x0040D1D0 */
 void ClearNavLegendFlag(void);                                                 /* 0x0040D240 */
 void SetScreenClipRect(unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x0040D8C0 */
@@ -253,7 +253,7 @@ void FormatTextBufferFromStart(const char *format, ...);                /* 0x004
 void AppendFormattedText(const char *format, ...);                      /* 0x00413CB0 */
 void FatalErrorAndExit(const char *format, ...);                       /* 0x00413CE0 */
 unsigned short IsCockpitExplosionActive(void);                         /* 0x00413D20 */
-void DrawCockpitBar(signed char bar, short percent);                  /* 0x00413DA0 */
+void vdu_polygon(signed char bar, short percent);                     /* 0x00413DA0 */
 unsigned int GetSeriesRecordField(char slot, int rec);                       /* 0x00413F70 */
 void DrawCockpitReadout(signed char slot, char *text);                /* 0x00413FB0 */
 short DrawHudMessageSlot(HudMessageSlot *slot);                        /* 0x004140A0 */
@@ -270,8 +270,8 @@ void set_global_message(char *text, unsigned short colour,
 void CockpitMessage(char *text, unsigned short colour,
                     int flashCount);                                  /* 0x004142B0 */
 void remove_message(char *text);                                      /* 0x004142E0 */
-short KilrathiShipWithinRange(short obj, short range);                 /* 0x00414300 */
-short CanEngageAutopilot(short showReason);                            /* 0x00414380 */
+short kilrathi_near(short obj, short range);                           /* 0x00414300 */
+short auto_pilot_valid(short showReason);                              /* 0x00414380 */
 void *reset_cockpit(void);                                            /* 0x00414410 */
 unsigned int SetCockpitLightBlink(signed char light, short interval); /* 0x00414440 */
 void draw_cockpit_lights(void);                                      /* 0x00414490 */
@@ -283,7 +283,7 @@ int GetVduModeStackDepth(short i);                                    /* 0x00414
 void push_mode(short i, int state);                                   /* 0x004148A0 */
 void pop_mode(short i);                                               /* 0x004148E0 */
 void set_new_vdu(short vdu);                                          /* 0x00414910 */
-short CheckVduModeChanged(short vdu);                                 /* 0x00414980 */
+short update_vid_disp(short vdu);                                     /* 0x00414980 */
 void ClearMessageSlot(short i);                                          /* 0x004149C0 */
 void ClearAutopilotFlag(void);                                              /* 0x004149E0 */
 int IsAutopilotEngaged(void);                                              /* 0x004149F0 */
@@ -299,23 +299,23 @@ void ShowComponentHitHudMessage(char *text, unsigned short colour,
 int damage_your_component(char component, char amount, char maximum); /* 0x00414BF0 */
 void RemovePlayerReleaseWeapon(signed char weapon);                  /* 0x00414CB0 */
 void fire_computer_graphic_missile(void);                            /* 0x00414D50 */
-void DrawWeaponDisplayPanel(void);                                   /* 0x00414EA0 */
-void InputFilterHook(void);                                            /* 0x00415040 */
+void show_weapon_disp(void);                                         /* 0x00414EA0 */
+void update_status_text(void);                                        /* 0x00415040 */
 short sighted(short objective);                                       /* 0x00415050 */
 short visited(short objective);                                       /* 0x00415070 */
 short achieved(short objective);                                      /* 0x00415090 */
 void flag_objective(short objective, unsigned char flags);            /* 0x004150B0 */
 void set_next_destination(void);                                       /* 0x004153D0 */
-unsigned int CheckForShipQueuedToCurrentNavPoint(void);                   /* 0x004154C0 */
-unsigned int GetShipAiScratch(void);                                     /* 0x00415510 */
+unsigned int someone_coming(void);                                     /* 0x004154C0 */
+unsigned int escorting_a_ship(void);                                   /* 0x00415510 */
 void flag_reached(short objective, short reached);                     /* 0x00415530 */
 void update_objective_location(short objective);                     /* 0x00415770 */
 void ClearWeaponHardpoints(void);                                            /* 0x00415A70 */
 void clear_head_up_display(void);                                    /* 0x00415A90 */
-unsigned int overlay_head_up_display(void);                          /* 0x00415CE0 */
-void BeginMissileLockWarning(unsigned short v);                                 /* 0x00415FC0 */
-unsigned int GetHudMessageSlot(unsigned short v);                         /* 0x00415FF0 */
-void EndMissileLockWarning(void);                                             /* 0x00416010 */
+unsigned int DrawCurrentTargetBox(void);                              /* 0x00415CE0 */
+void start_lock(unsigned short v);                                    /* 0x00415FC0 */
+unsigned int starting_lock(unsigned short v);                         /* 0x00415FF0 */
+void lock_off(void);                                                   /* 0x00416010 */
 void SetRectBounds(int p, unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x00416220 */
 short GetRectHeight(int p);                                             /* 0x00416250 */
 void print_message_text(char *text, unsigned char colour);             /* 0x00416260 */
@@ -324,7 +324,7 @@ void SetHudTextColour(short v);                                              /* 
 void draw_target_box(unsigned short colour, signed char object,
                      short solid, short drawLockMarker, short padding,
                      ShortRect *savedBounds);                         /* 0x004164B0 */
-void ReleaseCurrentTargetLock(void);                                                 /* 0x004168A0 */
+void remove_nav_pointer(void);                                        /* 0x004168A0 */
 void RestoreCockpitExplosionIfVisible(void);                           /* 0x00416C90 */
 unsigned int RestoreTransientCockpitGraphics(void);                    /* 0x00416CB0 */
 void SetHudMessageText(char *text, unsigned short colour,
@@ -343,7 +343,7 @@ void clear_cockpit_damage(void);                                      /* 0x00417
 void explosion_draw(void);                                           /* 0x00417630 */
 void RestoreCockpitExplosionBackground(void);                         /* 0x00417760 */
 void cockpit_explosion(void);                                        /* 0x004177B0 */
-void ShowDamageMessage(short a);                                       /* 0x00417B10 */
+void update_dead_disp(short a);                                        /* 0x00417B10 */
 void check_stranded(void);                                           /* 0x00417B30 */
 void update_VDUs(void);                                              /* 0x00417B70 */
 void update_cockpit(void);                                           /* 0x00417E70 */
@@ -504,8 +504,8 @@ void set_objects_data(short obj, enum ObjectType type,
 void match_rotation_goal(short *rotation, short *goal,
                          short totalError, short rate);                 /* 0x0041E400 */
 void rotate_object_to_goal(short obj);                                  /* 0x0041E520 */
-unsigned int AdjustShipSpeed(short ship, int delta);              /* 0x0041E710 */
-unsigned int ApproachShipSpeed(short ship, int targetSpeed);      /* 0x0041E750 */
+unsigned int celerate(short ship, int delta);                     /* 0x0041E710 */
+unsigned int approach_speed(short ship, int targetSpeed);         /* 0x0041E750 */
 unsigned int steady_object(short ship);                                 /* 0x0041E7C0 */
 short real_velocity(short obj);                                       /* 0x0041E7F0 */
 unsigned int fix_velocity(short obj);                                 /* 0x0041E820 */
@@ -518,7 +518,7 @@ void Create_explosion_debris(short obj);                              /* 0x0041F
 short ShipExplosion(short obj);                                      /* 0x0041FBC0 */
 short Explosion(short obj);                                          /* 0x0041FCD0 */
 int explode(short attacker, short victim);                            /* 0x00420040 */
-void fire_capital_weapon(short obj, short target);                    /* 0x004202D0 */
+void fire(short obj, short target);                                   /* 0x004202D0 */
 int fire_turrets(short obj);                                          /* 0x00420AA0 */
 int fire_weapon(short obj, short weapon);                              /* 0x00420C20 */
 short fire_fixed_projectile_weapon(short obj);                         /* 0x00421220 */
@@ -526,8 +526,8 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
               short lifetime);                                       /* 0x004212A0 */
 void fire_afterburner(short obj, short time);                          /* 0x00421350 */
 short find_weapon(short obj, enum ObjectType weaponType);              /* 0x00421100 */
-unsigned int ReportShieldHit(void);                                       /* 0x0041F5D0 */
-short RandomlyNegate(short v);                                           /* 0x004208C0 */
+unsigned int check_computer_damage(void);                              /* 0x0041F5D0 */
+short rnd_sign(short v);                                               /* 0x004208C0 */
 unsigned int fire_super_brake(short ship);                              /* 0x004213B0 */
 short flip_angle(short ship, short angle);                              /* 0x004213D0 */
 void place_exhaust_on_ships(void);                                      /* 0x00421430 */
@@ -640,9 +640,9 @@ unsigned int ResetCockpitPaletteEntries(void);                         /* 0x0042
 unsigned int initialize_cockpit(signed char mode);                     /* 0x00423E90 */
 void init_constellation(short scene);                                  /* 0x004243E0 */
 void free_constellation(void);                                         /* 0x00424490 */
-void InitializeCockpitVdus(void);                                      /* 0x004244E0 */
+void init_vdus(void);                                                  /* 0x004244E0 */
 unsigned int InitializeCockpitResources(signed char mode);             /* 0x004245B0 */
-unsigned int ReleaseCockpitResources(void);                            /* 0x004249A0 */
+unsigned int free_cockpit(void);                                       /* 0x004249A0 */
 void init_3Space_objects(short scene);                                 /* 0x00424A80 */
 void load_common_3Space_objects(void);                                 /* 0x00424B00 */
 void remove_all_3d_objects(void);                                      /* 0x00424B80 */
@@ -752,7 +752,7 @@ unsigned short GetJoystickPresentUnused(void);                                  
 unsigned int parse_view_script(void);                                  /* 0x0042CDB0 */
 unsigned int update_scripted_view(void);                               /* 0x0042D1C0 */
 void initialize_scripted_view(const short *script);                    /* 0x0042D230 */
-void DrawTargetLockDisplay(void);                                    /* 0x0042DB90 */
+void show_target_disp(void);                                         /* 0x0042DB90 */
 void DrawTargetRangeReadout(void);                                   /* 0x0042DEA0 */
 unsigned int GetVictoryScreenId(void);                                     /* 0x0042D270 */
 void CloseDataFileByHandle(unsigned short *p);                                  /* 0x0042D870 */

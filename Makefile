@@ -203,17 +203,17 @@ SRCS_ORDERED_CORE = \
 	src/cdrom.c \
 	src/mono.c \
 	src/auto.c \
-	src/campaign.c \
-	src/shipai.c \
+	src/cmpgn.c \
+	src/brains.c \
 	src/nav.c \
-	src/joystick.c \
-	src/hud.c \
+	src/spc.c \
+	src/cockpt.c \
 	src/geom.c \
 	src/debug.cpp \
 	src/mathutil.c \
 	src/disk.c \
-	src/damage.c \
-	src/mission.c \
+	src/ship.c \
+	src/logic.c \
 	src/pilot.cpp \
 	src/system.c \
 	src/main.c \

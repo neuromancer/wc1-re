@@ -1,8 +1,8 @@
 /*
- *  Campaign mission packet decoding.
+ *  Campaign mission packet decoding (`cmpgn` in the Mac segment names).
  *
  *  Address range 0x404610-0x40609f (provisional -- see docs/ORDER.md).
- *  Boundary evidence: auto.c ends before 0x00404610 and shipai.c begins at
+ *  Boundary evidence: auto.c ends before 0x00404610 and brains.c begins at
  *  0x004060A0; LoadMissionDefinition is the recovered function at 0x004059B0.
  */
 #include "wc1.h"

@@ -31,7 +31,7 @@ to Win32 `0x00409760`–`0x0040B66F`. Win32 contains one additional routine in t
 `heat_seeking_missile_intelligence` at `0x0040B430`, whose name and role come from
 `BRAINS.C`. It is a retail split/addition, not a guessed Mac positional match.
 
-All 46 Win32 routines in this unit now have source bodies in `src/shipai.c`; none remains in
+All 46 Win32 routines in this unit now have source bodies in `src/brains.c`; none remains in
 `src/stubs.c`. Exact Mac spellings replace the earlier operational or inferred names,
 including `try2allow_engage`, `orbit_sphere`, `tanker_intelligence`,
 `destroyer_intelligence`, and `stationary_intelligence`.

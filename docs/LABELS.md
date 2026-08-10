@@ -307,10 +307,11 @@ Derived from something the binary actually states:
 
 Two caveats even here:
 
-- `ShipAiState00`..`ShipAiState44` remain **structural function labels**: Amiga identifies
-  maneuver ids 0-43, but shared handlers mean an enum identifier is not always a unique
-  function name. There is no `ShipAiState01/20/36/45/46` because those ids alias other
-  handlers. See the plate comment on `perform_maneuver`.
+- The Mac `fl` symbol run now supplies the original `M*` names for nearly every maneuver
+  handler. `ShipAiState35` and `ShipAiState44` remain **structural function labels** because
+  their Win32 additions have no unambiguous symbol counterpart. Shared handlers also mean a
+  maneuver id is not always a unique function name. See the plate comment on
+  `perform_maneuver`.
 - `DIBwholePaletteFromTriplets` / `DIBwholePaletteFromWords` — both functions emit an
   identical `"DIBsetWholePalette   SetEntries"` literal, so only one can own the original
   name. They are distinguished by palette element stride (3 vs 6 bytes).

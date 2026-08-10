@@ -110,7 +110,7 @@ void auto_pilot_sequence(void)
         g_abFlightPath_0059c000[g_cCurrentNavPointIndex_0059c86c]].position;
     leaveCurrentNavPoint = 1;
 
-    if (CanEngageAutopilot(1) != 0) {
+    if (auto_pilot_valid(1) != 0) {
         if (distance_between_points(
                 &g_aMissionObjectives_0059dac5[
                     g_cCurrentObjective_0046c020].position,
@@ -135,7 +135,7 @@ void auto_pilot_sequence(void)
                 g_aeShipSide_0059d650[ship] == SIDE_IMPERIAL) {
                 if (is_team_member(
                         g_nShipMissionIndices_0059c830[ship]) != 0) {
-                    if (KilrathiShipWithinRange(ship, 10000) == 0) {
+                    if (kilrathi_near(ship, 10000) == 0) {
                         travelMode[ship] = -1;
                         g_aeSpecialManeuver_0059c3c0[ship] =
                             SPECIAL_MANEUVER_NONE;

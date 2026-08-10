@@ -1,8 +1,11 @@
 /*
- *  Cockpit HUD: weapon, damage, target and message displays.
+ *  Cockpit HUD (Mac `cockpt` compilation unit): weapon, damage, target,
+ *  objective, message, and pilot displays.
  *
  *  Address range 0x413000-0x417fff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: Draw*Panel/Report* family; string band 0x4692B8-0x4693A4.
+ *  Boundary evidence: the Mac `cockpt` symbol list identifies the surviving
+ *  functions throughout this Win32 range; port-specific split helpers remain
+ *  interleaved in their original address order.
  */
 #include "wc1.h"
 
@@ -141,7 +144,7 @@ unsigned short IsCockpitExplosionActive(void)
 }
 
 /* Function start: 0x413DA0 */
-void DrawCockpitBar(signed char bar, short percent)
+void vdu_polygon(signed char bar, short percent)
 {
     const CockpitBarDefinition *definition;
     short extent;
@@ -360,7 +363,7 @@ void remove_message(char *text)
 }
 
 /* Function start: 0x414300 */
-short KilrathiShipWithinRange(short obj, short range)
+short kilrathi_near(short obj, short range)
 {
     short ship;
 
@@ -378,7 +381,7 @@ short KilrathiShipWithinRange(short obj, short range)
 }
 
 /* Function start: 0x414380 */
-short CanEngageAutopilot(short showReason)
+short auto_pilot_valid(short showReason)
 {
     char *reason;
 
@@ -390,7 +393,7 @@ short CanEngageAutopilot(short showReason)
             &g_aMissionObjectives_0059dac5[
                 g_cCurrentObjective_0046c020].position) < 8000) {
         reason = "Already Near";
-    } else if (KilrathiShipWithinRange(0, 16000) != 0) {
+    } else if (kilrathi_near(0, 16000) != 0) {
         reason = "Enemy Near";
     } else if (g_pActiveHazardField_0059bfe0 != 0) {
         reason = "Hazard Near";
@@ -469,12 +472,12 @@ void update_lights(void)
         fuelPercent = (short)((g_anShipFuel_0059b470[0] * 100) /
                               fuelCapacity);
     SetCockpitLightBlink(6, fuelPercent);
-    DrawCockpitBar(0, fuelPercent);
-    DrawCockpitBar(1, g_asShipWeaponEnergy_0059d470[0]);
+    vdu_polygon(0, fuelPercent);
+    vdu_polygon(1, g_asShipWeaponEnergy_0059d470[0]);
 
     if (g_nTrainSimActive_00469e2c != 0)
         return;
-    if (CanEngageAutopilot(0) == 0)
+    if (auto_pilot_valid(0) == 0)
         SetCockpitLightBlink(3, 2);
 }
 
@@ -487,16 +490,16 @@ void update_bars(void)
     char value[16];
 
     typeData = &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[0]];
-    DrawCockpitBar(2, typeData->armorFront == 0 ? 0 :
+    vdu_polygon(2, typeData->armorFront == 0 ? 0 :
         (short)((g_aasShipArmor_0059d420[0][0] * 100) /
                 typeData->armorFront));
-    DrawCockpitBar(3, typeData->armorRear == 0 ? 0 :
+    vdu_polygon(3, typeData->armorRear == 0 ? 0 :
         (short)((g_aasShipArmor_0059d420[0][1] * 100) /
                 typeData->armorRear));
-    DrawCockpitBar(4, typeData->armorRight == 0 ? 0 :
+    vdu_polygon(4, typeData->armorRight == 0 ? 0 :
         (short)((g_aasShipArmor_0059d420[0][2] * 100) /
                 typeData->armorRight));
-    DrawCockpitBar(5, typeData->armorLeft == 0 ? 0 :
+    vdu_polygon(5, typeData->armorLeft == 0 ? 0 :
         (short)((g_aasShipArmor_0059d420[0][3] * 100) /
                 typeData->armorLeft));
     forePercent = typeData->shieldFore == 0 ? 0 :
@@ -506,9 +509,9 @@ void update_bars(void)
         (short)((g_aasShipShield_0059d5b0[0][1] * 100) /
                 typeData->shieldAft);
     SetCockpitLightBlink(0, forePercent);
-    DrawCockpitBar(6, forePercent);
+    vdu_polygon(6, forePercent);
     SetCockpitLightBlink(1, aftPercent);
-    DrawCockpitBar(7, aftPercent);
+    vdu_polygon(7, aftPercent);
     _itoa((int)g_aasShipShield_0059d5b0[0][0], value, 10);
     DrawCockpitReadout(4, value);
     _itoa((int)g_aasShipShield_0059d5b0[0][1], value, 10);
@@ -566,7 +569,7 @@ void set_new_vdu(short vdu)
 }
 
 /* Function start: 0x414980 */
-short CheckVduModeChanged(short vdu)
+short update_vid_disp(short vdu)
 {
     short mode;
     int previousMode;
@@ -769,7 +772,7 @@ void fire_computer_graphic_missile(void)
 }
 
 /* Function start: 0x414EA0 */
-void DrawWeaponDisplayPanel(void)
+void show_weapon_disp(void)
 {
     ShipWeaponSlot *weapons;
     const char *releaseName;
@@ -836,7 +839,7 @@ void DrawWeaponDisplayPanel(void)
 }
 
 /* Function start: 0x415040 */
-void InputFilterHook(void)
+void update_status_text(void)
 {
 }
 
@@ -884,7 +887,7 @@ void set_next_destination(void)
 }
 
 /* Function start: 0x4154C0 */
-unsigned int CheckForShipQueuedToCurrentNavPoint(void)
+unsigned int someone_coming(void)
 {
     short ship = 0;
 
@@ -899,10 +902,10 @@ unsigned int CheckForShipQueuedToCurrentNavPoint(void)
 }
 
 /* Function start: 0x415510 */
-unsigned int GetShipAiScratch(void)
+unsigned int escorting_a_ship(void)
 {
     if (g_aeShipMissionType_0059c3f0[0] != MISSION_TYPE_ESCORT) {
-        if (CheckForShipQueuedToCurrentNavPoint() == 0)
+        if (someone_coming() == 0)
             return 0;
     }
     return 1;
@@ -967,7 +970,7 @@ void clear_head_up_display(void)
 }
 
 /* Function start: 0x415CE0 */
-unsigned int overlay_head_up_display(void)
+unsigned int DrawCurrentTargetBox(void)
 {
     signed char target;
 
@@ -983,7 +986,7 @@ unsigned int overlay_head_up_display(void)
 }
 
 /* Function start: 0x415FC0 */
-void BeginMissileLockWarning(unsigned short v)
+void start_lock(unsigned short v)
 {
     DAT_0046c060 = 0;
     DAT_0046c064 = v;
@@ -991,17 +994,17 @@ void BeginMissileLockWarning(unsigned short v)
 }
 
 /* Function start: 0x415FF0 */
-unsigned int GetHudMessageSlot(unsigned short v)
+unsigned int starting_lock(unsigned short v)
 {
     if (DAT_0046c064 == -1) {
-        BeginMissileLockWarning(v);
+        start_lock(v);
         return 1;
     }
     return 0;
 }
 
 /* Function start: 0x416010 */
-void EndMissileLockWarning(void)
+void lock_off(void)
 {
     if (DAT_0046c064 >= 0)
         DAT_0046c060 = 1;
@@ -1240,7 +1243,7 @@ void draw_target_box(unsigned short colour, signed char object,
 }
 
 /* Function start: 0x4168A0 */
-void ReleaseCurrentTargetLock(void)
+void remove_nav_pointer(void)
 {
     if (DAT_00469208 != -1)
         remove_object(DAT_00469208);
@@ -1537,7 +1540,7 @@ void cockpit_explosion(void)
 }
 
 /* Function start: 0x417B10 */
-void ShowDamageMessage(short a)
+void update_dead_disp(short a)
 {
     malf_noise(a, 1, DAT_004699b0, 0x17, 0);
 }
@@ -1563,16 +1566,16 @@ void update_VDUs(void)
     short mode;
 
     SetTextContext(&DAT_005a74f0);
-    changed = CheckVduModeChanged(0);
+    changed = update_vid_disp(0);
     mode = (short)get_mode(0);
     switch (mode) {
     case 0:
-        ShowDamageMessage(0);
+        update_dead_disp(0);
         break;
     case 1:
         if (changed != 0 || DAT_0046a008 != 0)
-            DrawWeaponDisplayPanel();
-        InputFilterHook();
+            show_weapon_disp();
+        update_status_text();
         break;
     case 8:
         show_info_disp();
@@ -1584,15 +1587,15 @@ void update_VDUs(void)
         UpdateMessage(&g_aHudMessageSlots_005a7dd0[0]);
 
     SetTextContext(&DAT_005a7700);
-    changed = CheckVduModeChanged(1);
+    changed = update_vid_disp(1);
     mode = (short)get_mode(1);
     switch (mode) {
     case 0:
-        ShowDamageMessage(1);
+        update_dead_disp(1);
         break;
     case 3:
         if (changed != 0 || DAT_0046a008 != 0)
-            DrawTargetLockDisplay();
+            show_target_disp();
         else
             DrawTargetRangeReadout();
         break;
@@ -1617,7 +1620,7 @@ void update_cockpit(void)
             RestoreCockpitExplosionBackground();
         update_lights();
         update_missile_warning();
-        overlay_head_up_display();
+        DrawCurrentTargetBox();
         update_digital_readouts();
         update_VDUs();
         if (DAT_0046a008 == 0)
