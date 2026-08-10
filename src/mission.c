@@ -387,7 +387,6 @@ unsigned int LoadOriginFxDrivers(void)
     InitializeGameTextContexts();
 
     memset(DAT_005a6ba0.pixels, 0, 320 * 200);
-    DAT_0046b1b8 = 0;
     DIBslam();
     DIBslamReal();
     g_nFrameSkip_00469fb8 = 1;
@@ -1657,6 +1656,78 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
     return availableBytes;
 }
 
+/* Function start: 0x423E90 */
+unsigned int initialize_cockpit(signed char mode)
+{
+    Viewport savedScreen;
+    unsigned char *backdrop;
+    signed char viewportMode;
+    unsigned int result;
+
+    if (IsAutopilotEngaged())
+        EndCommMenu();
+
+    if (DAT_0046a008 == 0 && mode == g_cScreenViewportMode_0059a9f2) {
+        if (DAT_005a7510.pixels == 0)
+            return initialize_view_buffer();
+        ClearViewport(&DAT_005a7510, DAT_004699d8);
+        return 0;
+    }
+
+    GetScreenUpdateFlag();
+    savedScreen = DAT_005a6ba0;
+    DAT_005a6ba0.left = 0;
+    DAT_005a6ba0.top = 0;
+    DAT_005a6ba0.right = 319;
+    DAT_005a6ba0.bottom = 199;
+    ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
+
+    g_cScreenViewportMode_0059a9f2 = mode;
+    viewportMode = mode;
+    switch (mode) {
+    case 4:
+        if (g_bIntroSceneResourcesActive_00469d48 == 1) {
+            backdrop = g_pCinematicViewBackdrop_005a7c90;
+            if (backdrop == 0) {
+                backdrop = (unsigned char *)FetchDiskPacketRetrying(8, 6, 0);
+                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+                if (DAT_0046a008 < 1) {
+                    DIBslam();
+                    DIBslamReal();
+                }
+                if (backdrop != 0)
+                    ReleasePacketHandle((int)backdrop);
+            } else {
+                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+                if (DAT_0046a008 < 1) {
+                    DIBslam();
+                    DIBslamReal();
+                }
+            }
+        }
+        viewportMode = 4;
+        break;
+    case 5:
+        viewportMode = 4;
+        break;
+    case 6:
+        viewportMode = 5;
+        break;
+    case 7:
+        viewportMode = 0;
+        break;
+    }
+
+    set_up_screen_viewport(viewportMode);
+    DAT_0046a004 = 1;
+    SetViewportRect(&DAT_005a7510, 0, 0,
+                    (unsigned short)(g_nScreenWidth_0046daa4 - 1),
+                    (unsigned short)(g_nScreenHeight_0046daa8 - 1));
+    result = initialize_view_buffer();
+    DAT_005a6ba0 = savedScreen;
+    return result;
+}
+
 /* Function start: 0x4243E0 */
 void init_constellation(short scene)
 {
@@ -1684,6 +1755,7 @@ void init_3Space_objects(short scene)
     g_nSpaceFrame_0059b420 = 0;
     g_nRenderedSpaceFrame_0059d61a = 0;
     g_bScriptedView_0046a8d4 = 0;
+    g_cScreenViewportMode_0059a9f2 = -1;
     DAT_00469208 = -1;
     slot = 0;
     do {

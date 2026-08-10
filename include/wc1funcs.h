@@ -591,6 +591,7 @@ int ReleasePacketResourceList(PacketResourceDescriptor *resources,
                               short releaseFlags);                     /* 0x00423D50 */
 int LoadPacketResourceList(PacketResourceDescriptor *resources,
                            short flags, int availableBytes);           /* 0x00423D80 */
+unsigned int initialize_cockpit(signed char mode);                     /* 0x00423E90 */
 void init_constellation(short scene);                                  /* 0x004243E0 */
 void free_constellation(void);                                         /* 0x00424490 */
 void init_3Space_objects(short scene);                                 /* 0x00424A80 */
@@ -902,6 +903,7 @@ void SetInputKeyState(int scanCode, unsigned char pressed);            /* 0x0043
 void sort_object_depth(void);                                          /* 0x00436460 */
 void draw_sorted_objects_to_buffer(void);                              /* 0x00436520 */
 void intro_drawbackgroundships(void);                                  /* 0x00436650 */
+void set_up_screen_viewport(signed char mode);                         /* 0x00436740 */
 void MouseIdleHook(void);                                           /* 0x004368C0 */
 unsigned short GetNavRangeSentinel(void);                                   /* 0x004368E0 */
 unsigned short GetOriginalFreeMemory(void);                                   /* 0x004368F0 */

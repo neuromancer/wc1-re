@@ -728,6 +728,73 @@ void intro_drawbackgroundships(void)
     }
 }
 
+/* Function start: 0x436740 */
+void set_up_screen_viewport(signed char mode)
+{
+    int modeIndex;
+    short viewportHeight;
+    short viewportWidth;
+    const short *viewportGeometry;
+
+    g_cScreenViewportMode_0059a9f2 = mode;
+    modeIndex = (int)mode;
+    if (modeIndex >= 4) {
+        if (modeIndex <= 5)
+            goto static_geometry;
+    }
+
+    g_pScreenViewportGeometry_0059a9f4 =
+        (const short *)(g_pScreenViewportPacket_005a6b94 +
+            *(short *)(g_pScreenViewportPacket_005a6b94 + 2 +
+                       modeIndex * 2));
+    goto geometry_ready;
+
+static_geometry:
+    g_pScreenViewportGeometry_0059a9f4 =
+        g_aScreenViewportGeometry_0046dab8[modeIndex];
+
+geometry_ready:
+
+    if (DAT_0046a008 != 0 && DAT_0046a008 != -2) {
+        viewportWidth = g_pScreenViewportGeometry_0059a9f4[0];
+        viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
+        *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
+        g_nViewCenterX_0059a852 = (short)(viewportWidth / 2);
+        viewportHeight = viewportGeometry[1];
+        g_nViewCenterY_0059a854 = (short)(viewportHeight / 2);
+        *(short *)&g_nScreenHeight_0046daa8 = viewportHeight;
+        g_nViewportOriginX_0059ab52 = viewportGeometry[2];
+        g_nViewportOriginY_0059ab50 = viewportGeometry[3];
+        switch ((int)g_cCockpitView_0059dab0) {
+        case 0:
+            g_nViewportOriginY_0059ab50 += 10;
+            g_nViewCenterY_0059a854 += 10;
+            break;
+        case 1:
+            g_nViewportOriginY_0059ab50 += 25;
+            g_nViewCenterY_0059a854 += 25;
+            break;
+        case 2:
+            g_nViewportOriginY_0059ab50 += 50;
+            g_nViewCenterY_0059a854 += 50;
+            break;
+        }
+        *(short *)&g_nScreenWidth_0046daa4 = 320;
+        *(short *)&g_nScreenHeight_0046daa8 = 200;
+        return;
+    }
+
+    viewportWidth = g_pScreenViewportGeometry_0059a9f4[0];
+    viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
+    *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
+    g_nViewCenterX_0059a852 = (short)(viewportWidth / 2);
+    viewportHeight = viewportGeometry[1];
+    g_nViewCenterY_0059a854 = (short)(viewportHeight / 2);
+    *(short *)&g_nScreenHeight_0046daa8 = viewportHeight;
+    g_nViewportOriginX_0059ab52 = viewportGeometry[2];
+    g_nViewportOriginY_0059ab50 = viewportGeometry[3];
+}
+
 /* Function start: 0x4368C0 */
 void MouseIdleHook(void)
 {

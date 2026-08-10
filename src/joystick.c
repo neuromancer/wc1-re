@@ -244,9 +244,20 @@ unsigned int new_view(int view, int obj)
             MaxShort(10, g_asObjectCollisionRadius_0059d710[obj]);
     switch (view) {
     case 0:
+        initialize_cockpit(0);
         copy_frame(0, WC1_EYE_OBJECT);
         break;
+    case 1:
+        initialize_cockpit(1);
+        break;
+    case 2:
+        initialize_cockpit(2);
+        break;
+    case 3:
+        initialize_cockpit(3);
+        break;
     case 4:
+        initialize_cockpit(4);
         if (g_bScriptedView_0046a8d4 == 0 && obj >= 0) {
             FixedVector offset;
 
@@ -261,11 +272,17 @@ unsigned int new_view(int view, int obj)
             zero_vector(&g_aShipVelocity_0059c010[WC1_EYE_OBJECT]);
         }
         break;
+    case 5:
+    case 6:
+        initialize_cockpit(4);
+        break;
     case 7:
+        initialize_cockpit(4);
         copy_frame(0, WC1_EYE_OBJECT);
         zero_vector(&g_aShipVelocity_0059c010[WC1_EYE_OBJECT]);
         break;
     case 8:
+        initialize_cockpit(4);
         if (obj >= 0) {
             g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT] =
                 g_aShipRightVector_0059b6e0[obj];
@@ -278,8 +295,15 @@ unsigned int new_view(int view, int obj)
             zero_vector(&g_aShipVelocity_0059c010[WC1_EYE_OBJECT]);
         }
         break;
+    case 9:
+        initialize_cockpit(6);
+        break;
+    case 10:
+        initialize_cockpit(7);
+        break;
     case 11:
     case 15:
+        initialize_cockpit(4);
         g_nEyePitchGoal_0059d61c = 0;
         g_nEyeYawGoal_0059c944 = 0;
         g_nEyeRollGoal_0059c8f0 = 0;
@@ -288,11 +312,16 @@ unsigned int new_view(int view, int obj)
         g_nEyeRollRate_0046c00c = 1;
         break;
     case 12:
+        initialize_cockpit(4);
         copy_frame(0, WC1_EYE_OBJECT);
         position_relative_ijk(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
                               0, 0, 0, 0);
         zero_vector(&g_aShipVelocity_0059c010[WC1_EYE_OBJECT]);
         look_at(g_aShipPosition_0059c490[0]);
+        break;
+    case 13:
+    case 14:
+        initialize_cockpit(4);
         break;
     }
     scripted = g_bScriptedView_0046a8d4;

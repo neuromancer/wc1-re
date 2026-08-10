@@ -636,6 +636,14 @@ unsigned char *g_pDrawnMouseCursorShape_0046da9c;
 int DAT_0046daa0;
 int g_nScreenWidth_0046daa4 = 320;
 int g_nScreenHeight_0046daa8 = 200;
+const short g_aScreenViewportGeometry_0046dab8[6][8] = {
+    { 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 320, 128, 0, 24, 0, 24, -24576, -1 },
+    { 320, 200, 0, 0, 0, 0, -1536, -1 }
+};
 const short g_asPilotHandOrigins_0046e120[10] = {
     154, 187, 154, 187, 154, 187, 154, 187, 154, 187
 };
@@ -745,6 +753,8 @@ short DAT_0059a856;
 unsigned char g_abInputKeyState_0059a860[0x80];
 int DAT_0059a8e0;
 int DAT_0059a8e4;
+signed char g_cScreenViewportMode_0059a9f2;
+const short * volatile g_pScreenViewportGeometry_0059a9f4;
 int g_anSortedObject_0059aa00[WC1_SPACE_OBJECT_COUNT];
 volatile short g_nMouseX_0059ab10;
 volatile short g_nMouseY_0059ab12;
@@ -763,6 +773,8 @@ int DAT_0059ab40;
 int DAT_0059ab44;
 int DAT_0059ab48;
 int DAT_0059ab4c;
+short g_nViewportOriginY_0059ab50;
+short g_nViewportOriginX_0059ab52;
 unsigned int DAT_0059ab54;
 unsigned char DAT_0059ab58;
 int DAT_0059ab5c;
@@ -908,6 +920,7 @@ short DAT_005a6900[256];
 const short *g_pViewScript_005a6b58;
 Viewport DAT_005a6b60;
 Viewport DAT_005a6b80;
+unsigned char *g_pScreenViewportPacket_005a6b94;
 Viewport DAT_005a6ba0;
 TextContext DAT_005a6bc0;
 unsigned char *g_pTargetLockShape_005a6bf4;
@@ -933,6 +946,7 @@ int g_nArcadeScore_005a7bc4;
 short g_nArcadeTimeRemaining_005a7c2c;
 HighScoreEntry g_aHighScoreEntries_005a7c30[6];
 int g_nArcadeWaveBonus_005a7c50;
+unsigned char *g_pCinematicViewBackdrop_005a7c90;
 short g_nPlayerKillCount_005a7c9c;
 short g_asCollisionTime_005a7ca0[16];
 short g_asCollisionPartner_005a7cc0[10];
