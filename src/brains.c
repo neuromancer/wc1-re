@@ -1739,24 +1739,45 @@ void new_sphere_shapes(MissionNavPoint *navPoint)
 }
 
 /* Function start: 0x40BFF0 */
-void set_up_action_sphere(short navPoint)
+int set_up_action_sphere(short navPoint)
 {
     MissionNavPoint *nav;
     short obj;
     short entry;
+    short trigger;
+    short objective;
+    signed char triggerType;
 
-    if (navPoint < 0 || navPoint >= WC1_MISSION_NAV_POINT_COUNT)
-        return;
     g_nCurrentNavPoint_0059df60 = navPoint;
     nav = &g_aMissionNavPoints_0046c2f0[navPoint];
+    g_nCurrentWave_0046c01c =
+        (short)((((g_aMissionNavPoints_0046c2f0[navPoint + 1].type == 2) ?
+                  -1 : 0) & 3) - 1);
+    g_nEnemySighting_00465c7c = 0x7fff;
 
     obj = 1;
     do {
-        if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL)
-            remove_object(obj);
+        if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL &&
+            g_acShipSpawnNavPoint_0059ded0[obj] != -1) {
+            if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_SHIP &&
+                g_aeShipMissionType_0059c3f0[obj] == MISSION_TYPE_ROUT) {
+                g_aMissionShips_0046c948[
+                    g_nShipMissionIndices_0059c830[obj]].state = 3;
+            }
+            if (g_aeObjectClass_0059d100[obj] ==
+                OBJECT_CLASS_CAPITAL_SHIP) {
+                FreePacketAndClear(
+                    (int *)&g_apObjectShape_0059d2f0[obj], 0);
+            }
+            if (g_asObjectScreenX_0059d9b0[obj] != -0x7fff)
+                explode(-1, obj);
+            else
+                remove_object(obj);
+        }
         obj++;
     } while (obj < 10);
     remove_all_hazards();
+    g_nHazardFieldCount_0059c90c = 0;
     new_sphere_shapes(nav);
 
     entry = 0;
@@ -1766,18 +1787,25 @@ void set_up_action_sphere(short navPoint)
         entry++;
     } while (entry < 10);
 
-    entry = 0;
+    trigger = 0;
     do {
-        if (nav->triggers[entry][0] != -1) {
-            signed char target = nav->triggers[entry][1];
-
-            if (target >= 0 && target < WC1_MISSION_NAV_POINT_COUNT)
-                g_aMissionNavPoints_0046c2f0[target].type =
-                    nav->triggers[entry][0];
+        triggerType = ((signed char *)nav->triggers)[trigger];
+        if (triggerType != -1) {
+            g_aMissionNavPoints_0046c2f0[
+                ((signed char *)nav->triggers)[trigger + 1]].type =
+                triggerType;
         }
-        entry++;
-    } while (entry < 4);
+        trigger += 2;
+    } while (trigger < 8);
+
+    objective = 0;
+    while (objective < g_cMissionObjectiveCount_0059c46a) {
+        LocateMobileObjective(objective);
+        objective++;
+    }
     clean_up_cockpit();
+    DAT_00468ff8 = 0;
+    return 0;
 }
 
 /* Function start: 0x40C350 */

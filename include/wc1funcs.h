@@ -186,7 +186,7 @@ int shape_loaded(enum ObjectType type);                                /* 0x0040
 int shape_needed(const MissionNavPoint *navPoint,
                  enum ObjectType type);                                /* 0x0040BF20 */
 void new_sphere_shapes(MissionNavPoint *navPoint);                     /* 0x0040BF50 */
-void set_up_action_sphere(short navPoint);                             /* 0x0040BFF0 */
+int set_up_action_sphere(short navPoint);                              /* 0x0040BFF0 */
 unsigned int room_for_me(void);                                        /* 0x0040C350 */
 void approve_xyz(short obj, int minimum, short maximum);               /* 0x0040C360 */
 void set_up_next_wave(void);                                           /* 0x0040C3C0 */
@@ -311,10 +311,12 @@ short visited(short objective);                                       /* 0x00415
 short achieved(short objective);                                      /* 0x00415090 */
 void flag_objective(short objective, unsigned char flags);            /* 0x004150B0 */
 void set_next_destination(void);                                       /* 0x004153D0 */
+short LocateMobileObjective(short objective);                         /* 0x00415470 */
 unsigned int someone_coming(void);                                     /* 0x004154C0 */
 unsigned int escorting_a_ship(void);                                   /* 0x00415510 */
 void flag_reached(short objective, short reached);                     /* 0x00415530 */
 void update_objective_location(short objective);                     /* 0x00415770 */
+short mobile_objective(short objective);                              /* 0x00415A30 */
 void ClearWeaponHardpoints(void);                                            /* 0x00415A70 */
 void clear_head_up_display(void);                                    /* 0x00415A90 */
 unsigned int DrawCurrentTargetBox(void);                              /* 0x00415CE0 */
@@ -1077,10 +1079,10 @@ void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
                                  unsigned char *shape, short frame,
                                  short angle, short scale, short flip,
                                  unsigned char colour);                /* 0x00442000 */
-int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
-                              unsigned char *shape, short frame,
-                              short angle, short scale, int flip,
-                              short *bounds);                         /* 0x00442050 */
+short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
+                                unsigned char *shape, short frame,
+                                short angle, short scale, int flip,
+                                short *bounds);                       /* 0x00442050 */
 void fizzle_fade(Viewport *source, Viewport *destination,
                  const short *geometry);                            /* 0x00442200 */
 void snow_viewport(Viewport *viewport, int effect,

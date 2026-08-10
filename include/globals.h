@@ -30,6 +30,7 @@ extern GuardedAllocation *g_pGuardedAllocationHead_004650b0;
 extern const char g_szJoystickDevCapsFailure_004652dc[26];
 extern short DAT_00465460;
 extern short g_nAutopilotFormationShipCount_00465544;
+extern short g_nEnemySighting_00465c7c;
 extern int g_aiPacketReferenceTable_00465c88[4 * 0x25];
 extern int DAT_00465c84;
 extern const ShortVector g_aaFormationPositions_00465ed8[5][8];
@@ -107,7 +108,7 @@ extern unsigned char DAT_004699b0;
 extern unsigned char DAT_004699b4;
 extern unsigned char DAT_004699d8;
 extern int g_bGraphicsActive_00469a20;
-extern int DAT_00468ff8;
+extern unsigned char DAT_00468ff8;
 extern unsigned char *g_pCockpitPilotShape_0046905c;
 extern unsigned int g_bIntroSceneResourcesActive_00469d48;
 extern unsigned char DAT_00469d5c;
@@ -254,6 +255,8 @@ extern unsigned char g_abRasterPaletteTranslation_0046ff2c[256];
 extern CampaignState g_stInitialCampaignState_004700b0;
 extern PilotRecord g_aInitialPilotRecords_00470108[9];
 extern unsigned char g_abPaletteTranslation_00470678[256];
+extern unsigned short g_awAbsoluteCosine_00470778[360];
+extern unsigned short g_awAbsoluteSine_00470a48[360];
 extern int DAT_00470510;
 extern const char g_szSnowViewport_00470da4[16];
 extern int g_nInsertKeyState_00475b68;
@@ -705,8 +708,6 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
  * compilation-unit data layout is known; changing the backing allocations
  * here would move every later synthetic global.
  */
-#define g_nEnemySighting_00465c7c \
-    (*(short *)((unsigned char *)g_aiPacketReferenceTable_00465c88 - 0x0c))
 #define g_cViableTargetCount_0046c088 \
     (*(signed char *)((unsigned char *)&g_nAutoEngageTimer_0046c084 + 4))
 

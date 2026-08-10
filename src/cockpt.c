@@ -886,6 +886,19 @@ void set_next_destination(void)
         g_abFlightPath_0059c000[g_cCurrentNavPointIndex_0059c86c];
 }
 
+/* Function start: 0x415470 */
+short LocateMobileObjective(short objective)
+{
+    short ship = -1;
+
+    if (mobile_objective(objective) != 0) {
+        ship = locate_ship(
+            g_aMissionObjectives_0059dac5[objective].index,
+            &g_aMissionObjectives_0059dac5[objective].position);
+    }
+    return ship;
+}
+
 /* Function start: 0x4154C0 */
 unsigned int someone_coming(void)
 {
@@ -944,6 +957,16 @@ void update_objective_location(short objective)
                     missionObjective->type == 4) ? 6000 : 1500;
     if (range < reachedRange)
         flag_reached(objective, 0);
+}
+
+/* Function start: 0x415A30 */
+short mobile_objective(short objective)
+{
+    int type = g_aMissionObjectives_0059dac5[objective].type;
+
+    if (type == 1 || type == 3 || type == 4 || type == 2)
+        return 1;
+    return 0;
 }
 
 /* Function start: 0x415A70 */

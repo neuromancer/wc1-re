@@ -385,7 +385,7 @@
 0x004152C0 set_new_objective
 0x00415370 cycle_next_objective
 0x004153D0 set_next_destination
-0x00415470 GetTbl0059dac9Fn5470
+0x00415470 LocateMobileObjective
 0x004154C0 someone_coming
 0x00415510 escorting_a_ship
 0x00415530 flag_reached
@@ -1321,7 +1321,7 @@
 0x00441E70 shadow_draw
 0x00441FC0 DoLocalFn1FC0
 0x00442000 DoLocalFn2000
-0x00442050 GetG00470778Fn2050
+0x00442050 GetTransformedShapeBounds
 0x00442200 fizzle_fade
 0x00442300 snow_viewport
 0x00442330 GetAudioStreamFn2330
