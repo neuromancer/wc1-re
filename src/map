@@ -293,8 +293,8 @@
 0x0040F1E0 PlayersMissionScore
 0x0040F240 UpdateSeries
 0x0040F3F0 MoveNewCampaign
-0x0040F440 SetG004688e0FnF440
-0x0040F4B0 LoopG005a8114FnF4B0
+0x0040F440 StartNewCampaign
+0x0040F4B0 GameFlow
 0x0040F940 free_viewport
 0x0040FA30 ReturnConst1v1
 0x0040FA40 DrawTitleLogo
@@ -541,7 +541,7 @@
 0x0041AB60 DoUiFnAB60
 0x0041AB90 BlitG00469448FnAB90
 0x0041AD10 ReleaseG00469448FnAD10
-0x0041AD50 LoopGameFlowFnAD50
+0x0041AD50 AnySavedGames
 0x0041ADA0 LoadLocalFnADA0
 0x0041B020 LoadLocalFnB020
 0x0041B070 LoopLocalFnB070
@@ -889,7 +889,7 @@
 0x0042ADA0 select_guns
 0x0042AE10 select_new_gun
 0x0042AE50 select_new_release_weapon
-0x0042AFA0 LoopGameFlowFnAFA0
+0x0042AFA0 WaitForDebugStep
 0x0042AFB0 FrameTimerCallback
 0x0042AFC0 SetMultimediaTimerCallback
 0x0042B050 PacketLoad
@@ -1154,8 +1154,8 @@
 0x004361E0 CallThrough42AFC0
 0x004361F0 DoLocalFn61F0
 0x00436210 ForwardSetMultimediaTimerCallbackv1
-0x00436230 LoopGameFlowFn6230
-0x00436240 GetGameFlowFn6240
+0x00436230 WaitForFrameTick
+0x00436240 IsFrameTickElapsed
 0x00436260 ReturnConst1v5
 0x004362A0 GameNoBodyStubv16
 0x004362B0 ReturnConst0v9

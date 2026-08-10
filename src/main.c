@@ -10,6 +10,7 @@
 int main(short argc, char **argv)
 {
     int selection;
+    short gameFlowResult;
 
     (void)argc;
     (void)argv;
@@ -62,6 +63,9 @@ int main(short argc, char **argv)
         default:
             break;
         }
+        gameFlowResult = GameFlow();
+        while (gameFlowResult != 0)
+            gameFlowResult = GameFlow();
     }
 }
 

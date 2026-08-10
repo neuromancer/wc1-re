@@ -268,6 +268,106 @@ unsigned int StartNewCampaign(short campaign)
     return 0;
 }
 
+/* Function start: 0x40F4B0 */
+short GameFlow(void)
+{
+    short savedSeries;
+    short savedMission;
+    int flightResult;
+
+    FrameStartHook(0);
+    if (DAT_005a8114 != -1) {
+        g_stCampaignState_0059ca50.campaignIndex = DAT_005a8114;
+        g_nCampaignDataSet_005a8118 = DAT_005a8114;
+    }
+
+    DAT_0046505c = 0;
+    DAT_004688d4 = 0;
+    DAT_004688e8 = -1;
+    DAT_004688d0 = 0;
+    DAT_004688e4 = -1;
+    DAT_004688cc = 0;
+    DAT_004688d8 = 0;
+    DAT_00470510 = 0;
+
+    /* RecRoom/BarracksScreen and the briefing presentation belong to separate
+     * compilation units that are not reconstructed yet.  Retain the original
+     * campaign state transition and enter the selected mission directly;
+     * init_mission performs the mission-data load used by that path. */
+    DAT_004688e0 = 0;
+    PumpWindowMessages();
+    DAT_0046505c = 1;
+    init_mission((short)g_stCampaignState_0059ca50.currentSeries,
+                 (short)g_stCampaignState_0059ca50.currentMission);
+    flightResult = RunSpaceFlight(-1);
+
+    if (flightResult == 2) {
+        check_stranded();
+        if (g_nArcadeState_00469fb0 == 3) {
+            free_cockpit();
+            free_all_slots();
+            free_3Space();
+            return 0;
+        }
+        g_nArcadeState_00469fb0 = 0;
+        DAT_004688d4 = 1;
+        g_stCampaignState_0059ca50.promotionScore = MaxShort(
+            0, (short)(g_stCampaignState_0059ca50.promotionScore - 1));
+        g_stCampaignState_0059ca50.elapsedDate.year++;
+        if (g_stCampaignState_0059ca50.elapsedDate.year == 1)
+            DAT_004688e4 = 3;
+        DAT_004688cc = 1;
+    } else if (flightResult != 1) {
+        free_cockpit();
+        free_all_slots();
+        free_3Space();
+        DAT_004688f0 = 0;
+        return 0;
+    }
+
+    free_cockpit();
+    g_nArcadeState_00469fb0 = 0;
+    g_nPlayerCollisionObject_0046c050 = -1;
+    free_all_slots();
+    free_3Space();
+
+    PostMission();
+    UpdateSeries();
+    savedSeries = (short)g_stCampaignState_0059ca50.currentSeries;
+    savedMission = (short)g_stCampaignState_0059ca50.currentMission;
+
+    if (DAT_004688d4 == 0) {
+        if ((unsigned short)RandomInRange(0, 5) +
+                g_stCampaignState_0059ca50.promotionScore > 7) {
+            g_stCampaignState_0059ca50.promotionScore = 0;
+            if (g_nCampaignDataSet_005a8118 == 0) {
+                DAT_004688d0 =
+                    g_stCampaignState_0059ca50.currentPilot->rank < 3;
+            } else if (g_nCampaignDataSet_005a8118 > 0) {
+                DAT_004688d0 =
+                    g_stCampaignState_0059ca50.currentPilot->rank < 4;
+            } else {
+                DAT_004688d0 = 0;
+            }
+            DAT_004688cc =
+                DAT_004688cc != 0 || DAT_004688d0 != 0;
+        }
+        if (DAT_004688d0 != 0)
+            g_stCampaignState_0059ca50.currentPilot->rank++;
+    }
+
+    if (savedSeries == -1) {
+        DAT_004688f0 = 0;
+        return 0;
+    }
+
+    g_stCampaignState_0059ca50.currentSeries = (signed char)savedSeries;
+    g_stCampaignState_0059ca50.currentMission = (signed char)savedMission;
+    MoveNewCampaign();
+    DAT_00470510 = 1;
+    return 1;
+}
+
 /* Function start: 0x40F940 */
 void __stdcall free_viewport(Viewport *viewport)
 {
