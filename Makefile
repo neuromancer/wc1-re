@@ -44,9 +44,9 @@ MSVC_LIB = compilers\msvc420\lib
 #   NO /Gf string pooling.  Two byte-identical "DIBsetWholePalette   SetEntries"
 #          literals exist at 0x0046b6e0 and 0x0046b71c, so identical strings
 #          were NOT merged.
-#   NO /GX C++ exception handling.  There is no __CxxFrameHandler and no RTTI
-#          type descriptors (.?AV) anywhere in the image.  SEH in the game code
-#          uses _except_handler3 scope tables, which needs no flag in C.
+#   /GX is off for the core by default.  The one proven exception is pilot.cpp:
+#          its debug-console new expression at 0x425B00 has a C++ unwind map and
+#          jumps to __CxxFrameHandler.  A target-specific flag below reproduces it.
 CFLAGS_COMMON = \
 	/nologo \
 	/c \
@@ -207,12 +207,12 @@ SRCS_ORDERED_CORE = \
 	src/joystick.c \
 	src/hud.c \
 	src/geom.c \
-	src/debug.c \
+	src/debug.cpp \
 	src/mathutil.c \
 	src/disk.c \
 	src/damage.c \
 	src/mission.c \
-	src/pilot.c \
+	src/pilot.cpp \
 	src/system.c \
 	src/main.c \
 	src/hudmsg.c \
@@ -310,9 +310,14 @@ $(OUT_DIR)/ix/%.obj $(OUT_DIR)/ix/%.asm: src/ix/%.cpp | $(WIBO) $(MSVCRT_DLL)
 		/Fa$(OUT_DIR)/ix/$*.asm \
 		> $(OUT_DIR)/ix/$*.stdout
 
+# The console-owner wrapper at 0x425B00 contains compiler-generated C++
+# construction cleanup.  /GX on this unit reproduces it exactly; debug.cpp has
+# no such unwind records and stays on the core defaults.
+$(OUT_DIR)/pilot.obj $(OUT_DIR)/pilot.asm: CFLAGS_CORE_CPP_EXTRA = /GX
+
 $(OUT_DIR)/%.obj $(OUT_DIR)/%.asm: src/%.cpp | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(OUT_DIR)/$*)
-	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_CORE) $< \
+	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_CORE) $(CFLAGS_CORE_CPP_EXTRA) $< \
 		/Fo$(OUT_DIR)/$*.obj \
 		/Fa$(OUT_DIR)/$*.asm \
 		> $(OUT_DIR)/$*.stdout

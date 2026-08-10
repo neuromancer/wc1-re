@@ -68,12 +68,12 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/joystick.c` | `0x410000`–`0x412fff` | 3 | Joystick calibration and input dispatch | CalibrateJoystickInteractive; string band 0x468F04-0x468FEC |
 | `src/hud.c` | `0x413000`–`0x417fff` | 38 | Cockpit HUD: weapon, damage, target and message displays | Draw*Panel/Report* family; string band 0x4692B8-0x4693A4 |
 | `src/geom.c` | `0x418000`–`0x41ad4f` | 77 | Geometry, transforms, and modal text-panel drawing | Geometry helper run followed by the contiguous modal-panel block; save/load starts at 0x41ada0 |
-| `src/debug.c` | `0x41c760`–`0x41cfff` | 1 | Developer overlay message pumping and pause handling | GDI debug console, keyboard hook, and overlay worker cluster immediately before mathutil |
+| `src/debug.cpp` | `0x41c760`–`0x41d0bf` | 15 | Win32 developer overlay console, keyboard hook, worker and display modes | PROVEN: constructor/destructor new/delete call sites, ECX member ABI, and the following `MinShort` boundary |
 | `src/mathutil.c` | `0x41d000`–`0x41d24f` | 3 | Integer min/max used across the game core | MinShort/MaxShort pair, 94 call sites, no other content in the gap |
 | `src/disk.c` | `0x41d250`–`0x41efff` | 6 | Disk data files and packet fetching with retry | OpenDiskDataFile/FetchDiskPacketRetrying/PromptInsertNumberedDisk |
 | `src/damage.c` | `0x41f000`–`0x420fff` | 2 | Ship damage and component repair reporting | ReportShipSystemDamage/ReportComponentRepaired; string band 0x469960-0x469984 |
 | `src/mission.c` | `0x421000`–`0x424fff` | 94 | Mission setup plus alert, collision, targeting, and ship-mission logic | Exact nested Mac `logic` unit at `0x422010`–`0x423cdf`; LoadOriginFxDrivers/EMStartUp and string band 0x469A28-0x469B9C anchor the enclosing split |
-| `src/pilot.c` | `0x425000`–`0x426fff` | 15 | Pilot name entry, high scores and inter-scene transitions | EnterPilotNameAndCallsign/ShowTrainSimHighScores; string band 0x469D74-0x469F98 |
+| `src/pilot.cpp` | `0x425000`–`0x426fff` | 16 | Pilot name entry, high scores, inter-scene transitions, and the debug-console owner | EnterPilotNameAndCallsign/ShowTrainSimHighScores; new/delete console wrapper at 0x425B00; string band 0x469D74-0x469F98 |
 | `src/system.c` | `0x427000`–`0x4274df` | 2 | Process-level services: memory reporting and exit | exit_squadron/ShowMemoryStatusDebug; string band 0x46A064-0x46A10C |
 | `src/main.c` | `0x4274e0`–`0x427fff` | 6 | WINGLEADER main module | main() at 0x004274E0, confirmed against the leaked DOS source screenshot |
 | `src/hudmsg.c` | `0x428000`–`0x42afff` | 23 | On-screen messages, debug keys, targeting/warp cleanup, and weapon selection | Exact nested Mac `targ` and `select` units at `0x42a8f0`–`0x42af9f`; enclosing split remains provisional |

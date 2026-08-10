@@ -385,7 +385,11 @@ void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
 void RestoreModalTextPanel(ModalTextPanel *panel);                     /* 0x0041AB60 */
 short ShowModalTextPanel(short fontIndex, const char *format, ...);    /* 0x0041AB90 */
 void ReleaseModalTextPanel(void);                                      /* 0x0041AD10 */
-char __fastcall PumpMessagesWhileDebugPaused(unsigned int state);      /* 0x0041CD40 */
+DWORD WINAPI DebugOverlayWorkerProc(void *parameter);                  /* 0x0041C960 */
+LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
+                                       LPARAM flags);                  /* 0x0041CA60 */
+void DebugOverlayPrintf(DebugOverlayConsole *console,
+                        const char *format, ...);                      /* 0x0041CAB0 */
 short MinShort(short a, short b);                                       /* 0x0041D0C0 */
 short MaxShort(short a, short b);                                       /* 0x0041D0E0 */
 void FreePacketAndClear(int *p);                                        /* 0x0041D100 */
@@ -536,7 +540,9 @@ unsigned int ResetSceneFlags(void);                                      /* 0x00
 unsigned int MouseHide(void);                                      /* 0x00424CE0 */
 unsigned int MouseShow(void);                                      /* 0x00424CF0 */
 void SceneEnterHook(void);                                            /* 0x00425AF0 */
-void GetMessagePumpInterval(void);                                          /* 0x00425B90 */
+void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
+                               short columns, short rows);             /* 0x00425B00 */
+void DestroyGlobalDebugOverlayConsole(void);                           /* 0x00425B90 */
 void SystemDebugPrintf(const char *format, ...);                           /* 0x00425BB0 */
 char PumpMessagesDuringWait(void);                                        /* 0x00425BC0 */
 unsigned char TakeDebugStepFlag(void);                                     /* 0x00425BD0 */

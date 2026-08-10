@@ -48,12 +48,27 @@ prologue. Typical recovered prologue: `push esi; push edi; mov si, word [esp+0xC
 Two byte-identical `"DIBsetWholePalette   SetEntries"` literals exist, at `0x0046B6E0` and
 `0x0046B71C`, emitted from two different call sites. Identical strings were not merged.
 
-### NO `/GX` — no C++ exception handling
+### `/GX` — off by default, enabled for the console owner
 
-No `__CxxFrameHandler` and no RTTI type descriptors (`.?AV`, `.?AU`) anywhere in the image.
-The SEH that exists is the C `_except_handler3` scope-table form, which needs no flag:
-`entry`'s table is at `0x00463BE0` (`{prev=-1, filter=0x0044E987, handler=0x0044E9A7}`), and a
-game-code example is the `__except` filter at `0x00425B7D` inside the function at `0x00425B00`.
+Most game-core units have no C++ unwind metadata and use no RTTI type descriptors (`.?AV`,
+`.?AU`).  Their SEH is the C `_except_handler3` scope-table form; for example, `entry`'s table
+is at `0x00463BE0` (`{prev=-1, filter=0x0044E987, handler=0x0044E9A7}`).
+
+The wrapper at `0x00425B00` is the one proven exception.  Its handler thunk at `0x00425B73`
+loads the C++ function-info record at `0x00464B48` (magic `0x19930520`) and jumps to
+`__CxxFrameHandler` at `0x0044DA70`; the unwind action at `0x00425B7D` passes the pending
+allocation to `operator delete`.  MSVC 4.20 emits this sequence from the console `new`
+expression only when the owning `pilot.cpp` unit is compiled with `/GX`.  The flag is therefore
+target-specific rather than part of `CFLAGS_CORE`.
+
+### Isolated C++ debug-overlay utility
+
+The game logic remains C, but the Win32 developer-console unit at `0x0041C760`–`0x0041D0BF`
+is a proven C++ exception: `0x00425B00` allocates a 0x45C-byte object with `operator new`,
+passes it in ECX to the constructor at `0x0041C760`, and `0x00425B90` invokes the ECX
+destructor at `0x0041C910` before `operator delete`.  The console's other ECX methods and
+callee-cleanup arguments use the same member-function ABI.  The class has no vtable or RTTI;
+only its owner needs `/GX`, for the constructor-failure cleanup described above.
 
 ### Optimizer set `/Og /Oi /Ot /Ob1` — starting point, NOT yet verified
 

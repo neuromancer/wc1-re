@@ -152,6 +152,52 @@ typedef struct GuardedAllocation {
     struct GuardedAllocation *next;
 } GuardedAllocation;
 
+/* Win32 developer console.  The constructor/destructor and member-call ABI in
+ * the shipped image identify this small utility as C++ even though the game
+ * itself remains C.  The 0x400-byte formatting area fixes the complete 0x45C
+ * object layout used by the 0x0041C760 debug-overlay unit. */
+typedef struct DebugOverlayConsole {
+    int columns;                         /* +0x000 */
+    int rows;                            /* +0x004 */
+    int cursorColumn;                    /* +0x008 */
+    int cursorRow;                       /* +0x00C */
+    HWND window;                         /* +0x010 */
+    char formatBuffer[0x400];            /* +0x014 */
+    char *textBuffer;                    /* +0x414 */
+    unsigned char *dirtyLines;           /* +0x418 */
+    int characterWidth;                  /* +0x41C */
+    int characterHeight;                 /* +0x420 */
+    int busyWait;                        /* +0x424 */
+    int reverseVideo;                    /* +0x428 */
+    COLORREF textColor;                  /* +0x42C */
+    COLORREF backgroundColor;            /* +0x430 */
+    int backgroundMode;                  /* +0x434 */
+    int field_438;                       /* +0x438 */
+    int field_43c;                       /* +0x43C */
+    int field_440;                       /* +0x440 */
+    int field_444;                       /* +0x444 */
+    int field_448;                       /* +0x448 */
+    HANDLE mutex;                        /* +0x44C */
+    int animationState;                  /* +0x450 */
+    int spinnerIndex;                    /* +0x454 */
+    char *spinnerCharacters;             /* +0x458 */
+#ifdef __cplusplus
+    DebugOverlayConsole(HINSTANCE module, HWND targetWindow,
+                        int columnCount, int rowCount, int waitMode);
+    ~DebugOverlayConsole();
+    void Clear(void);
+    void Scroll(void);
+    void DrawPendingLines(void);
+    char WaitForKey(void);
+    void EnableReverseVideo(void);
+    void DisableReverseVideo(void);
+    void SetOverlayTextColor(int red, int green, int blue);
+    void SetOverlayBackgroundColor(int red, int green, int blue);
+    void SetTransparentBackground(void);
+    void SetOpaqueBackground(void);
+#endif
+} DebugOverlayConsole;
+
 /*
  * The DOS source spelled `BOOLEAN window_colored = FALSE;`, but <windows.h>
  * already provides BOOLEAN (as BYTE) and MSVC 4.2 rejects a redefinition with a
@@ -188,6 +234,10 @@ typedef enum {
  * Shared utility layer.  These were recovered by ranking the call graph by
  * fan-in; the addresses are the originals.
  * -------------------------------------------------------------------------- */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Variadic printers cannot be generated mechanically, so they live here. */
 void ShowOnScreenMessage(int flags, short duration, const char *fmt, ...);
 void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
@@ -198,6 +248,10 @@ void SystemDebugPrintf(const char *fmt, ...);  /* 0x00425BB0 */
 #include "globals.h"
 #include "wc1funcs.h"
 #include "wc1extern.h"
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* WC1_H */

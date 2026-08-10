@@ -1,5 +1,6 @@
 /*
- *  Pilot name entry, high scores and inter-scene transitions.
+ *  Pilot name entry, high scores, inter-scene transitions and ownership of
+ *  the Win32 developer overlay console.
  *
  *  Address range 0x425000-0x426fff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: EnterPilotNameAndCallsign/ShowTrainSimHighScores; string band 0x469D74-0x469F98.
@@ -11,37 +12,38 @@ void SceneEnterHook(void)
 {
 }
 
-/* Function start: 0x425B90 */
-void GetMessagePumpInterval(void)
+/* Function start: 0x425B00 */
+void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
+                               short columns, short rows)
 {
-    void *p = (void *)DAT_004763f0;
+    g_pDebugOverlay_004763f0 =
+        new DebugOverlayConsole(module, window, columns, rows, 0);
+}
 
-    if (DAT_004763f0 != 0) {
-        DebugOverlayThreadProc((int)DAT_004763f0);
-        free(p);
-    }
+/* Function start: 0x425B90 */
+void DestroyGlobalDebugOverlayConsole(void)
+{
+    delete g_pDebugOverlay_004763f0;
 }
 
 /* Function start: 0x425BB0 */
-/* TODO: formatted debug-overlay output body is not yet recovered. */
-void SystemDebugPrintf(const char *format, ...)
+void SystemDebugPrintf(const char *, ...)
 {
-    (void)format;
 }
 
 /* Function start: 0x425BC0 */
 char PumpMessagesDuringWait(void)
 {
-    return PumpMessagesWhileDebugPaused(DAT_004763f0);
+    return g_pDebugOverlay_004763f0->WaitForKey();
 }
 
 /* Function start: 0x425BD0 */
 unsigned char TakeDebugStepFlag(void)
 {
-    unsigned char v = DAT_0046964c;
+    unsigned char value = (unsigned char)g_dwDebugOverlayKeyLatch_0046964c;
 
-    DAT_0046964c = 0;
-    return v;
+    g_dwDebugOverlayKeyLatch_0046964c = 0;
+    return value;
 }
 
 /* Function start: 0x425BE0 */
@@ -57,8 +59,8 @@ void DiskPromptDrawHook(void)
 /* Function start: 0x425C20 */
 void ClearDebugPauseFlags(void)
 {
-    DAT_0046964c = 0;
-    DAT_00469648 = 0;
+    g_dwDebugOverlayKeyLatch_0046964c = 0;
+    g_dwDebugOverlayKey_00469648 = 0;
 }
 
 /* Function start: 0x425C30 */

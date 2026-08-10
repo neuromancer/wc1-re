@@ -10,8 +10,6 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x41C910 */ /* TODO */ void DebugOverlayThreadProc(int p){(void)p;}
-
 /* Forward references still to be implemented; each is a real function. */
 /* Function start: 0x41DAA0 */ /* TODO */ short UiRoutine03(void){return 1;}
 /* Function start: 0x4212A0 */
