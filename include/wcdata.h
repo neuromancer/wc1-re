@@ -418,6 +418,18 @@ typedef struct ShortRect {
     short bottom;
 } ShortRect;
 
+#pragma pack(push, 1)
+typedef struct NavMapLabel {
+    short x;
+    short y;
+    unsigned short colour;
+    const char *text;
+} NavMapLabel;
+#pragma pack(pop)
+
+typedef char NavMapLabel_size_must_be_0x0a[
+    sizeof(NavMapLabel) == 0x0a ? 1 : -1];
+
 /* One selectable title-screen image and its inclusive mouse hit bounds. */
 typedef struct TitleMenuRegion {
     short frame;
@@ -492,6 +504,35 @@ typedef struct BriefingCharacterLayout {
     signed char animationPhase;       /* +0x11, mutable scene state */
 } BriefingCharacterLayout;
 
+/* One runtime object in the packet-driven scene-animation interpreter.  The
+ * packet stores a 0x36-byte array for each scene, followed by bytecode streams
+ * that animate position, rotation, scale and frame. */
+typedef struct SceneAnimationObject {
+    short layer;                      /* +0x00: 0 tiles frames horizontally */
+    short scriptOffset;               /* +0x02: offset into definition packet */
+    signed char *scriptStart;         /* +0x04 */
+    signed char *scriptCursor;        /* +0x08 */
+    signed char *repeatCursor;        /* +0x0C */
+    unsigned short goalFlags;         /* +0x10 */
+    short delay;                      /* +0x12 */
+    unsigned char *shape;             /* +0x14 */
+    short x;                          /* +0x18 */
+    short y;                          /* +0x1A */
+    short rotation;                   /* +0x1C */
+    short scale;                      /* +0x1E */
+    short frame;                      /* +0x20 */
+    short deltaX;                     /* +0x22 */
+    short deltaY;                     /* +0x24 */
+    short deltaRotation;              /* +0x26 */
+    short deltaScale;                 /* +0x28 */
+    short deltaFrame;                 /* +0x2A */
+    short goalX;                      /* +0x2C */
+    short goalY;                      /* +0x2E */
+    short goalRotation;               /* +0x30 */
+    short goalScale;                  /* +0x32 */
+    short goalFrame;                  /* +0x34 */
+} SceneAnimationObject;
+
 /* The complete persistent campaign record copied by ResetCampaignData.  The
  * four bytes at +0x44 are the ace-state flags; the following eight bytes are
  * two dates, rather than a single twelve-byte flag array as the old placeholder
@@ -542,6 +583,8 @@ typedef char ConversationSceneRecord_size_must_be_0x0d[
     sizeof(ConversationSceneRecord) == 0x0d ? 1 : -1];
 typedef char BriefingCharacterLayout_size_must_be_0x12[
     sizeof(BriefingCharacterLayout) == 0x12 ? 1 : -1];
+typedef char SceneAnimationObject_size_must_be_0x36[
+    sizeof(SceneAnimationObject) == 0x36 ? 1 : -1];
 typedef char PacketSectionHandle_size_must_be_0x14[
     sizeof(PacketSectionHandle) == 0x14 ? 1 : -1];
 

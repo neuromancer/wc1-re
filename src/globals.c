@@ -223,8 +223,28 @@ unsigned char *g_pIntroSceneResourceMirror_00467c0b;
 unsigned char *g_pIntroBackgroundResource_00467eae;
 unsigned short DAT_00468660;
 unsigned int DAT_00468664 = 1;
-unsigned char DAT_0046870c;
-unsigned char DAT_00468710;
+unsigned char *g_pNavMapShape_00468708;
+unsigned short g_nNavMapLabelCount_0046870c;
+unsigned char g_cNavMapReservedAreaCount_00468710;
+const char g_szCampaignSector_00468718[16] = "Vega XR-231.3";
+const char g_szNavLabelTextFormat_004687ac[12] = "%X%Y%F%s";
+const char g_szNavAsteroids_004687b8[12] = "Asteroids";
+const char g_szNavMines_004687c4[8] = "Mines";
+const char g_szNavLegendNewline_004687fc[4] = "\n";
+const char g_szNavMissionFlightPath_00468800[20] = "MISSION FLIGHT PATH";
+const char g_szNavHomeBase_00468814[12] = "HOME BASE";
+const char g_szNavBlankLine_00468820[4] = "\n";
+const char g_szNavTitleFormat_00468824[8] = "%s\n\n";
+const char g_szNavSectorFormat_0046882c[12] = "Sector: %s\n";
+const char g_szNavSystemFormat_00468838[16] = "System: %s\n\n";
+const char g_szNavMissionFormat_00468848[8] = "* %s *\n";
+const char g_szNavShipFormat_00468850[8] = "* %s *\n";
+const char g_szNavNotesHeading_00468858[8] = "\nNotes\n";
+const char g_szNavNoteFormat_00468860[4] = "%s\n";
+const char g_szNavLocationFormat_00468864[48] =
+    "%X%Y                         Location: %d.%d.%d";
+const char g_szNavViewportName_00468894[8] = "VSCREEN";
+const char g_szBriefingNavMapTitle_0046889c[20] = "Briefing Nav Map";
 int DAT_00468754;
 int DAT_004688cc;
 int DAT_004688d0;
@@ -262,6 +282,8 @@ const char *g_apszIntroCredits_00468a38[20] = {
     "Special Thanks To\n\nSocks\nand\nCaffeine",
     0
 };
+const char g_szNoObjective_0046932c[8] = "NONE";
+const char g_szUnknownObjective_00469334[8] = "UNKNOWN";
 
 TitleMenuRegion g_aTitleMenuRegions_00468a88[5] = {
     { 1, 49, 48, 283, 99 },
@@ -381,8 +403,24 @@ const char g_szDebugOverlayNewline_00469664[4] = "\n";
 char g_szDiskMarkerFile_00469688[9] = "DISK.000";
 short g_nDiskPromptBorderColour_00469694 = 0x50;
 short g_nKeyboardPointerStep_004696a4 = 4;
+const short g_asPlayerDamageSystemTable_00469878[50] = {
+    0, 8, 6, 5, 0, 3, 5, 5, 7, 6,
+    0, 8, 6, 5, 4, 3, 4, 0, 4, 4,
+    1, 2, 5, 2, 7, 3, 4, 7, 5, 1,
+    1, 4, 1, 5, 2, 3, 4, 7, 2, 1,
+    4, 4, 4, 4, 0, 8, 6, 5, 4, 0
+};
+const enum ObjectType g_aeShipHitDebrisTypes_00469950[3] = {
+    OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK,
+    OBJECT_TYPE_DEBRIS_SHIP_TUBING,
+    OBJECT_TYPE_DEBRIS_O_RING
+};
 const signed char g_acGunRefireDelay_0046995c[4] = {6, 10, 4, 0};
+const char g_szWeaponDestroyed_00469960[20] = "Weapon destroyed";
+const char g_szFuelTanksHit_00469974[16] = "Fuel tanks hit";
 const char g_szComponentFixedFormat_00469984[8] = "%s FIXD";
+const char g_szNeedLock_0046998c[12] = "Need Lock";
+short g_bSlowSceneAnimation_00469998;
 unsigned char DAT_0046999c;
 unsigned char g_cViewportClearColour_004699a0 = 15;
 unsigned char DAT_004699a4 = 0x25;
@@ -391,8 +429,12 @@ unsigned char DAT_004699ac = 0x50;
 unsigned char DAT_004699b0 = 0xaa;
 unsigned char DAT_004699b4 = 0xa6;
 unsigned char DAT_004699b8 = 0x85;
+unsigned char DAT_004699bc = 0x27;
 unsigned char DAT_004699c0 = 7;
+unsigned char DAT_004699c4 = 0x0b;
+unsigned char DAT_004699c8 = 0xb6;
 unsigned char g_cDefaultTextColour_004699cc = 0xa8;
+unsigned char DAT_004699d4 = 0xf5;
 unsigned char DAT_004699d8 = 0xbf;
 const short g_asConversationTextColours_004699f0[16] = {
     0x25, 0xb6, 0x9a, 0x50, 0x94, 0x85, 0x27, 0xa6,
@@ -447,6 +489,11 @@ short g_asConstellationObjectIndices_00469d50[4] = {
 };
 int g_bCockpitResourcesActive_00469d58;
 unsigned char DAT_00469d5c;
+const short g_asSceneAnimationLogicalFiles_00469d60[8] = {
+    63, 64, 65, 66, 67, 68, 69, 70
+};
+short g_bSceneAnimationWaitCommand_00469d70;
+const char g_szSceneAnimationTextFormat_00469d74[12] = "%X%Y%F%s%P";
 Viewport g_stTrainSimPanelViewport_00469da8;
 /* This is four zero bytes, not a pointer table.  The original instruction at
  * 0x425E07 uses 0x469DBC as a compiler-generated biased displacement so that
@@ -731,6 +778,7 @@ short g_nTargetLockMode_0046c078;
 int g_bExternalViewSoundEnabled_0046c07c;
 int g_bEngageAllowed_0046c080;
 short g_nAutoEngageTimer_0046c084 = -1;
+signed char g_cViableTargetCount_0046c088;
 const short g_asIntroCameraSequence_0046c090[20] = {
     0, -1000, 0, -4263, 2, 15, 1, 0, 30, 0,
     3, 15, 4, 30, 1, 13, 14, 400, -1, 0
@@ -1562,6 +1610,8 @@ int g_bMonoDebugInstalled_00475e70;
 HANDLE g_hMonoDebugDevice_00475e74;
 unsigned short DAT_00475e78;
 unsigned char g_bCurrentManeuverReroll_00475e7c;
+NavMapLabel g_aNavMapLabels_00475e80[20];
+ShortRect g_aNavMapExclusionRects_00475f48[21];
 unsigned char g_abMouseCursorBackground_00475ff0[0x400];
 DebugOverlayConsole *g_pDebugOverlay_004763f0;
 int g_nFlightFrameTotalTicks_004764f8;
@@ -1726,6 +1776,7 @@ short g_nEyeRollGoal_0059c8f0;
 FixedVector g_vPreviousStarFieldMotion_0059c900;
 short g_nHazardFieldCount_0059c90c;
 signed char DAT_0059c910[WC1_SPACE_OBJECT_COUNT];
+signed char g_acViableTarget_0059c920[16];
 short g_nEyeYawGoal_0059c944;
 short g_asObjectScreenScale_0059c950[WC1_SPACE_OBJECT_COUNT];
 short g_asObjectAfterburnerVelocity_0059c9d0[WC1_SPACE_OBJECT_COUNT];
@@ -1770,7 +1821,8 @@ short g_nEyePitchGoal_0059d61c;
 signed char g_acShipStress_0059d620[16];
 short g_anRollGoal_0059d630[16];
 enum Side g_aeShipSide_0059d650[512];
-signed char DAT_0059d6a0[WC1_SPACE_OBJECT_COUNT];
+FixedVector g_vCollisionDelta_0059d690;
+signed char g_acLastCollisionObject_0059d6a0[WC1_SPACE_OBJECT_COUNT];
 short g_aasShipMaximumShield_0059d6e0[12][2];
 short g_asObjectCollisionRadius_0059d710[64];
 signed char g_acShipPointingMode_0059d790[16];
@@ -1847,13 +1899,14 @@ Viewport g_stModalSourceViewport_005a7670;
 unsigned char *DAT_005a7684;
 Viewport DAT_005a7690;
 Viewport DAT_005a76b0;
-FixedVector g_aPaletteFadeEntries_005a76d0[6];
+short g_aPaletteFadeEntries_005a76d0[6][3];
 unsigned char *g_pCockpitDamageShape_005a76f4;
 TextContext DAT_005a7700;
 TextContext DAT_005a7720;
 TextContext g_stDefaultTextContext_005a7740;
 TextContext g_stConversationTextContext_005a7760;
 unsigned short DAT_005a7780;
+unsigned char DAT_005a7786;
 short g_nWeaponDisplayOriginX_005a7788;
 short g_nWeaponDisplayOriginY_005a778a;
 unsigned int DAT_005a77ec;
@@ -1867,6 +1920,14 @@ TextContext g_stTrainSimHighScoreTextContext_005a7c10;
 short g_nArcadeTimeRemaining_005a7c2c;
 HighScoreEntry g_aHighScoreEntries_005a7c30[6];
 int g_nArcadeWaveBonus_005a7c50;
+unsigned char *g_pSceneAnimationSceneData_005a7c54;
+unsigned char *g_pSceneAnimationPrimaryShape_005a7c58;
+unsigned char *g_pSceneAnimationTextData_005a7c5c;
+unsigned char *g_pSceneAnimationPacket_005a7c60;
+SceneAnimationObject *g_pSceneAnimationObjects_005a7c64;
+short g_nSceneAnimationWaitFrames_005a7c68;
+unsigned char *g_pSceneAnimationDefinitions_005a7c6c;
+unsigned char *g_pSceneAnimationSecondaryShape_005a7c70;
 signed char g_cCockpitLogicalFile_005a7c74;
 unsigned char *g_apCockpitShapes_005a7c80[4];
 unsigned char *g_pCinematicViewBackdrop_005a7c90;
@@ -1928,6 +1989,15 @@ int g_nFreeViewportCalls_005a8110;
 short DAT_005a8114;
 short g_nMissionMedalScore_005a8116;
 short g_nCampaignDataSet_005a8118;
+short g_nNavMapMaximumX_005a812c;
+short g_nNavMapMinimumX_005a812e;
+unsigned short g_awNavObjectiveLabelIndex_005a8130[16];
+short g_nNavMapMaximumY_005a8150;
+short g_nNavMapCentreX_005a8152;
+short g_nNavMapMinimumY_005a8154;
+TextContext g_stNavMapTextContext_005a8160;
+short g_nNavMapCentreY_005a817c;
+TextContext g_stNavLabelTextContext_005a8180;
 short g_nActiveInputDevice_005a819c;
 int g_nJoystickVerticalDeadZone_005a81a0;
 int g_nJoystickHorizontalDeadZone_005a81a4;
@@ -1947,7 +2017,7 @@ int g_nJoystickCentreY_005a81d8;
 int g_nJoystickCentreX_005a81dc;
 int g_nJoystickFailureValue_005a81e0;
 InputDeviceSample g_aInputDeviceSamples_005a81f0[4];
-unsigned char g_abMissionAuxData_005a8218[0x28];
+unsigned char g_abMissionAuxData_005a8210[0x28];
 unsigned char g_abSeriesAuxData_005a8240[0x28];
 MissionObjectiveSource g_aMissionObjectiveSources_005a8270[16];
 short g_nMissionEntryNavPoint_005a8690;

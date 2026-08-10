@@ -460,6 +460,106 @@ unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
     return 0;
 }
 
+/* Function start: 0x405660 */
+unsigned int Briefing(short series, short mission)
+{
+    DAT_0059ab58 = 0;
+    PreloadMusicTrackHook(0x18);
+    PreloadMusicTrackHook(0x19);
+    PreloadMusicTrackHook(0x1a);
+    LoadMissionData(series, mission);
+    LoadBriefingData(series, mission);
+    if (DAT_0059ab58 == 0) {
+        Build_objective_list();
+        LoadBriefingRoom();
+    }
+    DAT_0059ab58 = 0;
+    ReleasePacketHandle((int)g_pBriefingPacket_00598aec);
+    g_pBriefingPacket_00598aec = 0;
+    ReleaseMusicTrackHook(0x18);
+    ReleaseMusicTrackHook(0x19);
+    ReleaseMusicTrackHook(0x1a);
+    return 0;
+}
+
+/* Function start: 0x4056F0 */
+unsigned int DeBriefing(short series, short mission)
+{
+    short fullScore;
+    short playerScore;
+
+    DAT_0059ab58 = 0;
+    fullScore = (short)FullMissionScore();
+    playerScore = (short)PlayersMissionScore();
+    if (fullScore == 0) {
+        PreloadMusicTrackHook(0x21);
+        StartMusicTrack(0x21, 2, 1);
+    } else if ((playerScore * 100) / fullScore > 70) {
+        PreloadMusicTrackHook(0x21);
+        StartMusicTrack(0x21, 2, 1);
+    } else {
+        PreloadMusicTrackHook(0x22);
+        StartMusicTrack(0x22, 2, 1);
+    }
+    LoadMissionData(series, mission);
+    InitializeConversationViewport();
+    InitializeConversationText();
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
+    SetTextContext(&g_stConversationTextContext_005a7760);
+    LoadBriefingData(series, mission);
+    g_pConversationBackdropShape_00598c04 =
+        (unsigned char *)FetchDiskPacketRetrying(4, 6, 0);
+    SceneDirector(1, g_pDebriefingSceneData_00598afc,
+                  g_pDebriefingTextData_00598c28);
+    DIBslam();
+    DIBslamReal();
+    DAT_0059ab58 = 0;
+    ReleasePacketHandle((int)g_pConversationBackdropShape_00598c04);
+    g_pConversationBackdropShape_00598c04 = 0;
+    ReleasePacketHandle((int)g_pBriefingPacket_00598aec);
+    g_pBriefingPacket_00598aec = 0;
+    ReleaseTextFont(0);
+    ResetScreenClipToFullHeight();
+    StopMusicUnlessSuppressed();
+    ReleaseMusicTrackHook(0x21);
+    ReleaseMusicTrackHook(0x22);
+    return 0;
+}
+
+/* Function start: 0x405840 */
+unsigned int Office(void)
+{
+    unsigned char *packet;
+    unsigned char *sceneData;
+    unsigned char *textData;
+
+    DAT_0059ab58 = 0;
+    PreloadMusicTrackHook(0x24);
+    StartMusicTrack(0x24, 2, 1);
+    InitializeConversationViewport();
+    InitializeConversationText();
+    packet = (unsigned char *)FetchDiskPacketRetrying(
+        g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
+        1, 0);
+    sceneData = packet + *(unsigned int *)(packet + 0);
+    textData = packet + *(unsigned int *)(packet + 4);
+    g_pConversationBackdropShape_00598c04 =
+        (unsigned char *)FetchDiskPacketRetrying(4, 7, 0);
+    SceneDirector(4, sceneData, textData);
+    DIBslam();
+    DIBslamReal();
+    DAT_0059ab58 = 0;
+    ReleasePacketHandle((int)g_pConversationBackdropShape_00598c04);
+    g_pConversationBackdropShape_00598c04 = 0;
+    ReleasePacketHandle((int)packet);
+    ReleaseTextFont(0);
+    ResetScreenClipToFullHeight();
+    StopMusicUnlessSuppressed();
+    ReleaseMusicTrackHook(0x24);
+    return 0;
+}
+
 /* Function start: 0x405910 */
 unsigned int LoadBriefingData(short series, short mission)
 {
@@ -603,9 +703,9 @@ unsigned int LoadMissionData(short series, short mission)
     packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 4, 0);
     if (packet == 0)
         return 0;
-    memcpy(g_abMissionAuxData_005a8218,
-           packet + missionIndex * sizeof(g_abMissionAuxData_005a8218),
-           sizeof(g_abMissionAuxData_005a8218));
+    memcpy(g_abMissionAuxData_005a8210,
+           packet + missionIndex * sizeof(g_abMissionAuxData_005a8210),
+           sizeof(g_abMissionAuxData_005a8210));
     ReleasePacketHandle((int)packet);
 
     packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 5, 0);
@@ -615,6 +715,34 @@ unsigned int LoadMissionData(short series, short mission)
            packet + series * sizeof(g_abSeriesAuxData_005a8240),
            sizeof(g_abSeriesAuxData_005a8240));
     ReleasePacketHandle((int)packet);
+    return 0;
+}
+
+/* Function start: 0x405CC0 */
+unsigned int BriefingMap_UpdateMap(char *text, short duration)
+{
+    Viewport savedScreen;
+    Viewport savedVirtualScreen;
+
+    savedScreen = DAT_005a6ba0;
+    savedVirtualScreen = DAT_005a76b0;
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    if (DAT_005a76b0.pixels != 0)
+        ClearViewport(&DAT_005a76b0, DAT_0046999c);
+    AddPCName(text);
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
+    FormatTextBufferFromStart(g_szBriefingMapTextFormat_00465660,
+                              0, 160,
+                              g_nConversationTextColour_00598c10,
+                              g_szTextScratchBuffer_00598b00);
+    DAT_005a6ba0 = savedScreen;
+    DAT_005a76b0 = savedVirtualScreen;
+    BriefingMap_DisplayMap();
+    WaitForSceneAdvance(duration);
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    SetTextContext(&g_stConversationTextContext_005a7760);
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
     return 0;
 }
 
@@ -718,7 +846,7 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                             .animation[sceneFrame],
                         0, 0);
                     character++;
-                } while (character < 8);
+                } while (character < 14);
                 RefreshMemoryStatusOverlay();
                 DIBslam();
                 DIBslamReal();

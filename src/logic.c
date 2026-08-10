@@ -1971,7 +1971,12 @@ void init_vdus(void)
 unsigned int InitializeCockpitResources(signed char mode)
 {
     const short *layout;
+    ShipWeaponSlot *weaponSlot;
+    int backgroundSize;
     int modeIndex;
+    short maximumSize;
+    short frame;
+    short weapon;
 
     if (g_bCockpitResourcesActive_00469d58 == 1) {
         if (mode == g_cCockpitView_0059dab0)
@@ -2048,6 +2053,59 @@ unsigned int InitializeCockpitResources(signed char mode)
 
     LoadShapeSet(g_aCockpitSecondaryResources_00469ce0, 0,
                  (short)g_cCockpitLogicalFile_005a7c74);
+    backgroundSize = MeasureShapeFrameStorage(
+        g_pTargetLockShape_005a6bf4, 2);
+    if (backgroundSize != 0)
+        g_pScannerMarkerBackground_005a7dc4 =
+            (unsigned char *)AllocateTaggedMemory(backgroundSize, 0);
+
+    maximumSize = 0;
+    weapon = 0;
+    while (weapon < (signed char)g_aShipWeapons_0059cab0[0][0]) {
+        weaponSlot = &((ShipWeaponSlot *)
+            &g_aShipWeapons_0059cab0[0][1])[weapon];
+        if (g_aObjectTypeData_00466458[weaponSlot->type].objectClass ==
+                OBJECT_CLASS_MISSILE) {
+            backgroundSize = MeasureShapeFrameStorage(
+                g_pCockpitWeaponShape_005a7564,
+                (short)(weaponSlot->type * 2 - 0x2f));
+            maximumSize = MaxShort(maximumSize, (short)backgroundSize);
+        }
+        weapon++;
+    }
+    if (maximumSize != 0)
+        g_pReleaseWeaponDisplayBackground_0046906c =
+            (unsigned char *)AllocateTaggedMemory(maximumSize, 0);
+
+    g_pCockpitExplosionBackground_00469060 = 0;
+    if (g_pCockpitExplosionShape_00469064 != 0) {
+        maximumSize = 0;
+        frame = 0;
+        do {
+            backgroundSize = MeasureShapeFrameStorage(
+                g_pCockpitExplosionShape_00469064, frame);
+            maximumSize = MaxShort(maximumSize, (short)backgroundSize);
+            frame++;
+        } while (frame < 8);
+        if (maximumSize != 0)
+            g_pCockpitExplosionBackground_00469060 =
+                (unsigned char *)AllocateTaggedMemory(maximumSize, 0);
+    }
+
+    DAT_0046a748 = 0;
+    maximumSize = 0;
+    frame = 0;
+    do {
+        backgroundSize = MeasureShapeFrameStorage(
+            g_pCockpitWeaponShape_005a7564, frame);
+        maximumSize = MaxShort(maximumSize, (short)backgroundSize);
+        frame++;
+    } while (frame < 9);
+    if (maximumSize != 0)
+        DAT_0046a748 =
+            (unsigned char *)AllocateTaggedMemory(maximumSize, 0);
+
+    ResetScannerContacts();
     g_nCockpitExplosionFrame_00469068 = 8;
     DAT_0046af70 = 0;
     DAT_0046af78 = (unsigned char)(
@@ -2226,4 +2284,460 @@ unsigned int ReleaseMusicTrackHook(short track)
 {
     (void)track;
     return 0;
+}
+
+/* Function start: 0x424D00 */
+unsigned int LoadSceneAnimationResources(short scene, short variant)
+{
+    short logicalFile;
+
+    logicalFile = g_asSceneAnimationLogicalFiles_00469d60[scene];
+    g_pSceneAnimationPrimaryShape_005a7c58 =
+        (unsigned char *)FetchDiskPacketRetrying(logicalFile, 0, 0);
+    g_pSceneAnimationDefinitions_005a7c6c =
+        (unsigned char *)FetchDiskPacketRetrying(
+            logicalFile, (short)(variant + 1), 0);
+    g_pSceneAnimationSecondaryShape_005a7c70 =
+        (unsigned char *)FetchDiskPacketRetrying(
+            logicalFile, (short)(variant + 3), 0);
+    g_pSceneAnimationPacket_005a7c60 =
+        (unsigned char *)FetchDiskPacketRetrying(
+            logicalFile, (short)(variant + 5), 0);
+    g_pSceneAnimationSceneData_005a7c54 =
+        g_pSceneAnimationPacket_005a7c60 +
+        *(unsigned int *)(g_pSceneAnimationPacket_005a7c60 + 0);
+    g_pSceneAnimationTextData_005a7c5c =
+        g_pSceneAnimationPacket_005a7c60 +
+        *(unsigned int *)(g_pSceneAnimationPacket_005a7c60 + 4);
+    g_pSceneAnimationObjects_005a7c64 =
+        (SceneAnimationObject *)(g_pSceneAnimationDefinitions_005a7c6c + 2);
+    return (unsigned int)g_pSceneAnimationPacket_005a7c60 & 0xffff0000;
+}
+
+/* Function start: 0x424DA0 */
+void ReleaseSceneAnimationResources(void)
+{
+    ReleasePacketHandle((int)g_pSceneAnimationPrimaryShape_005a7c58);
+    ReleasePacketHandle((int)g_pSceneAnimationPacket_005a7c60);
+    ReleasePacketHandle((int)g_pSceneAnimationSecondaryShape_005a7c70);
+    ReleasePacketHandle((int)g_pSceneAnimationDefinitions_005a7c6c);
+}
+
+/* Function start: 0x424DE0 */
+signed char *__stdcall FindSceneAnimationCommand(
+    signed char *script, signed char command)
+{
+    signed char *next;
+
+    while (*script != 0) {
+        next = script + 1;
+        if (*script == command)
+            return script;
+        switch (*script) {
+        case 'A':
+        case 'L':
+        case 'Q':
+            next++;
+        case 'B':
+        case 'G':
+        case 'J':
+        case 'R':
+        case 'W':
+            next += 2;
+            break;
+        case 'D':
+            while (*next != -1)
+                next++;
+            next++;
+            break;
+        case 'E':
+        case 'P':
+        case 'S':
+            next++;
+            break;
+        case 'X':
+            next = script + 11;
+            break;
+        }
+        script = next;
+    }
+    return 0;
+}
+
+/* Function start: 0x424EA0 */
+short __stdcall SceneAnimationGoalReached(short delta, short current,
+                                          short goal)
+{
+    if (delta < 0) {
+        if (current >= goal)
+            return 1;
+    } else if (delta == 0) {
+        if (current == goal)
+            return 1;
+    } else if (current <= goal) {
+        return 1;
+    }
+    return 0;
+}
+
+/* Function start: 0x424EF0 */
+unsigned int __stdcall UpdateSceneAnimationObject(
+    SceneAnimationObject *object, Viewport *viewport)
+{
+    SceneAnimationObject *source;
+    signed char *commandStart;
+    signed char *cursor;
+    signed char *label;
+    signed char opcode;
+    signed char property;
+    unsigned short complete;
+    unsigned short goalFlags;
+    short delay;
+    short value;
+    short frame;
+    short xOffset;
+    short labelNumber;
+    short objectIndex;
+    short objectCount;
+    short stop;
+
+    complete = 0;
+    delay = object->delay;
+    stop = 0;
+    if (delay == 0)
+        cursor = object->scriptCursor;
+    else
+        cursor = object->repeatCursor;
+
+    while (*cursor != 0 && stop == 0) {
+        opcode = *cursor++;
+        switch (opcode) {
+        case 'A':
+            property = *cursor++;
+            value = *(short *)cursor;
+            cursor += 2;
+            switch (property) {
+            case 'F':
+                object->frame = (short)(object->frame + value);
+                object->deltaFrame = value;
+                break;
+            case 'R':
+                object->rotation = (short)(object->rotation + value);
+                object->deltaRotation = value;
+                if (object->rotation < 0)
+                    object->rotation = (short)(
+                        ((unsigned short)(0x167 - object->rotation) /
+                         0x168) * 0x168 + object->rotation);
+                if (object->rotation > 0x167)
+                    object->rotation = (short)(
+                        (unsigned short)object->rotation % 0x168);
+                break;
+            case 'S':
+                object->scale = (short)(object->scale + value);
+                object->deltaScale = value;
+                if (object->scale < 0x40)
+                    object->scale = 0x40;
+                else if (object->scale > 0x1fff)
+                    object->scale = 0x1fff;
+                break;
+            case 'T':
+                delay = (short)(delay + value);
+                break;
+            case 'X':
+                object->x = (short)(object->x + value);
+                object->deltaX = value;
+                break;
+            case 'Y':
+                object->y = (short)(object->y + value);
+                object->deltaY = value;
+                break;
+            }
+            break;
+
+        case 'B':
+            cursor += 2;
+            break;
+
+        case 'D':
+            commandStart = cursor - 1;
+            object->repeatCursor = commandStart;
+            xOffset = 0;
+            frame = (short)*cursor++;
+            while (frame != -1) {
+                if (object->layer != 2 && DAT_00469fb4 < 1)
+                    DrawSpriteScaled(
+                        viewport, (short)(object->x + xOffset), object->y,
+                        object->shape, frame, object->rotation,
+                        object->scale, object->frame);
+                if (object->layer == 0)
+                    xOffset = (short)(xOffset + 320);
+                frame = (short)*cursor++;
+            }
+            stop = 1;
+            break;
+
+        case 'E':
+            commandStart = cursor - 1;
+            xOffset = 0;
+            complete = 1;
+            frame = (short)*cursor++;
+            while (frame != -1) {
+                if (object->layer != 2 && DAT_00469fb4 < 1)
+                    DrawSpriteScaled(
+                        viewport, (short)(object->x + xOffset), object->y,
+                        object->shape, frame, object->rotation,
+                        object->scale, object->frame);
+                xOffset = (short)(xOffset + 320);
+                frame = (short)*cursor++;
+            }
+            cursor = commandStart;
+            stop = 1;
+            break;
+
+        case 'G':
+        case 'J':
+            if (opcode == 'J')
+                stop = 1;
+            labelNumber = *(short *)cursor;
+            label = object->scriptStart;
+            do {
+                label = FindSceneAnimationCommand(label, 'B');
+                cursor = label + 3;
+                value = *(short *)(label + 1);
+                label = cursor;
+            } while (value != labelNumber);
+            break;
+
+        case 'L':
+            property = *cursor++;
+            value = *(short *)cursor;
+            cursor += 2;
+            switch (property) {
+            case 'F':
+                object->frame = value;
+                break;
+            case 'R':
+                object->rotation = value;
+                if (object->rotation < 0)
+                    object->rotation = (short)(
+                        ((unsigned short)(0x167 - object->rotation) /
+                         0x168) * 0x168 + object->rotation);
+                if (object->rotation > 0x167)
+                    object->rotation = (short)(
+                        (unsigned short)object->rotation % 0x168);
+                break;
+            case 'S':
+                object->scale = value;
+                if (object->scale < 0x40)
+                    object->scale = 0x40;
+                else if (object->scale > 0x1fff)
+                    object->scale = 0x1fff;
+                break;
+            case 'T':
+                delay = value;
+                break;
+            case 'X':
+                object->x = value;
+                break;
+            case 'Y':
+                object->y = value;
+                break;
+            }
+            break;
+
+        case 'P':
+            stop = 1;
+            break;
+
+        case 'Q':
+            property = *cursor++;
+            value = *(short *)cursor;
+            cursor += 2;
+            switch (property) {
+            case 'F':
+                object->goalFlags |= 0x10;
+                object->goalFrame = value;
+                break;
+            case 'R':
+                object->goalFlags |= 1;
+                object->goalRotation = value;
+                break;
+            case 'S':
+                object->goalFlags |= 2;
+                object->goalScale = value;
+                break;
+            case 'X':
+                object->goalFlags |= 4;
+                object->goalX = value;
+                break;
+            case 'Y':
+                object->goalFlags |= 8;
+                object->goalY = value;
+                break;
+            }
+            break;
+
+        case 'R':
+            objectCount = *(short *)g_pSceneAnimationDefinitions_005a7c6c;
+            objectIndex = (short)(objectCount * (short)*cursor++);
+            objectIndex = (short)(objectIndex + (short)*cursor++);
+            source = &g_pSceneAnimationObjects_005a7c64[objectIndex];
+            object->x = source->x;
+            object->y = source->y;
+            object->rotation = source->rotation;
+            object->scale = source->scale;
+            object->frame = source->frame;
+            break;
+
+        case 'W':
+            g_nSceneAnimationWaitFrames_005a7c68 = *(short *)cursor;
+            cursor += 2;
+            g_bSceneAnimationWaitCommand_00469d70 = 1;
+            break;
+
+        case 'X':
+            object->x = *(short *)cursor;
+            cursor += 2;
+            object->y = *(short *)cursor;
+            cursor += 2;
+            object->rotation = *(short *)cursor;
+            cursor += 2;
+            object->scale = *(short *)cursor;
+            cursor += 2;
+            object->frame = *(short *)cursor;
+            cursor += 2;
+            break;
+        }
+    }
+
+    if (object->delay != 0) {
+        object->delay--;
+        return 0;
+    }
+
+    object->scriptCursor = cursor;
+    goalFlags = object->goalFlags;
+    object->delay = delay;
+    if (complete == 0 && goalFlags != 0) {
+        if ((goalFlags & 0x10) != 0)
+            complete = SceneAnimationGoalReached(
+                object->deltaFrame, object->frame, object->goalFrame);
+        if ((goalFlags & 4) != 0)
+            complete |= SceneAnimationGoalReached(
+                object->deltaX, object->x, object->goalX);
+        if ((goalFlags & 8) != 0)
+            complete |= SceneAnimationGoalReached(
+                object->deltaY, object->y, object->goalY);
+        if ((goalFlags & 2) != 0)
+            complete |= SceneAnimationGoalReached(
+                object->deltaScale, object->scale, object->goalScale);
+        if ((goalFlags & 1) != 0)
+            complete |= SceneAnimationGoalReached(
+                object->deltaRotation, object->rotation,
+                object->goalRotation);
+    }
+    return complete;
+}
+
+/* Function start: 0x425500 */
+void PlaySceneAnimation(char *text, short animation, short duration)
+{
+    SceneAnimationObject *object;
+    SceneAnimationObject *objects;
+    unsigned short complete;
+    short objectCount;
+    short remaining;
+
+    g_nSceneAnimationWaitFrames_005a7c68 = -1;
+    complete = 0;
+    g_bSceneAnimationWaitCommand_00469d70 = 0;
+    AddPCName(text);
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
+    FormatTextBufferFromStart(g_szSceneAnimationTextFormat_00469d74,
+                              0, 160,
+                              g_nConversationTextColour_00598c10,
+                              g_szTextScratchBuffer_00598b00);
+
+    objectCount = *(short *)g_pSceneAnimationDefinitions_005a7c6c;
+    objects = g_pSceneAnimationObjects_005a7c64 +
+        (short)(objectCount * animation);
+    remaining = objectCount;
+    object = objects;
+    while (remaining > 0) {
+        if (object->layer == 0)
+            object->shape = g_pSceneAnimationPrimaryShape_005a7c58;
+        else
+            object->shape = g_pSceneAnimationSecondaryShape_005a7c70;
+        object->scriptStart =
+            (signed char *)g_pSceneAnimationDefinitions_005a7c6c +
+            object->scriptOffset;
+        object->scriptCursor = object->scriptStart;
+        object++;
+        remaining--;
+    }
+
+    DAT_00469fb4 = 1;
+    DAT_0059ab58 = 0;
+    ClearInputKeyState();
+    DIBslam();
+    DIBslamReal();
+    for (;;) {
+        do {
+            DAT_00469fb4--;
+            object = objects;
+            remaining = objectCount;
+            while (remaining > 0) {
+                complete |= (unsigned short)
+                    UpdateSceneAnimationObject(object, &DAT_005a76b0);
+                object++;
+                remaining--;
+            }
+            if (g_nSceneAnimationWaitFrames_005a7c68 != -1) {
+                if (g_nSceneAnimationWaitFrames_005a7c68 == 0)
+                    complete++;
+                else
+                    g_nSceneAnimationWaitFrames_005a7c68--;
+            }
+            if (complete == 0) {
+                RefreshMemoryStatusOverlay();
+                DIBslam();
+                DIBslamReal();
+            }
+            if (DAT_00469fb4 == 0) {
+                DAT_00469fb4 = g_nFrameSkip_00469fb8;
+                if (g_bSlowSceneAnimation_00469998 != 0)
+                    DAT_00469fb4++;
+            }
+            if ((complete == 0 && CheckEscaped() != 0) ||
+                DAT_0059ab58 != 0) {
+                if (g_nSceneAnimationWaitFrames_005a7c68 == -1) {
+                    while (complete == 0 &&
+                           g_bSceneAnimationWaitCommand_00469d70 == 0) {
+                        object = objects;
+                        remaining = objectCount;
+                        while (remaining > 0) {
+                            DAT_00469fb4 = 2;
+                            complete |= (unsigned short)
+                                UpdateSceneAnimationObject(
+                                    object, &DAT_005a76b0);
+                            object++;
+                            remaining--;
+                        }
+                    }
+                }
+                g_nSceneAnimationWaitFrames_005a7c68 = 0;
+            }
+        } while (complete == 0);
+
+        if (g_nSceneAnimationWaitFrames_005a7c68 == -1) {
+            SetFrameTimerPeriodDirect((short)(duration / 2));
+            do {
+                if (IsFrameTickElapsed() != 0 || CheckEscaped() != 0)
+                    break;
+            } while (DAT_0059ab58 == 0);
+        }
+        if (complete != 0)
+            return;
+    }
 }

@@ -770,6 +770,33 @@ unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
     return IsVectorWithinRange(&delta, range);
 }
 
+/* Function start: 0x4199C0 */
+short check_for_collision(short obj)
+{
+    short other;
+    short range;
+
+    other = 0;
+    do {
+        if (other != obj &&
+            g_aeObjectClass_0059d100[other] > OBJECT_CLASS_FIXED_OBJECT) {
+            ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+                               &g_aShipPosition_0059c490[other],
+                               &g_vCollisionDelta_0059d690);
+            range = (short)(g_asObjectCollisionRadius_0059d710[obj] +
+                            g_asObjectCollisionRadius_0059d710[other]);
+            if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_SHIP &&
+                g_aeObjectClass_0059d100[other] == OBJECT_CLASS_SHIP)
+                range >>= 1;
+            if (IsVectorWithinRange(&g_vCollisionDelta_0059d690,
+                                    range) != 0)
+                return other;
+        }
+        other++;
+    } while (other <= WC1_SPACE_LAST_MOVING_OBJECT);
+    return -1;
+}
+
 /* Function start: 0x419A70 */
 void position_child(short parent, short hardpoint, FixedVector *position)
 {
@@ -859,6 +886,118 @@ void remove_object(short obj)
     }
     g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_NULL;
     g_aeShipObjective_0059d200[obj + 60] = OBJECTIVE_NAV_POINT;
+}
+
+/* Function start: 0x419CC0 */
+void apply_force_to_objects_center(FixedVector *force, short obj)
+{
+    FixedVector acceleration;
+
+    divide_vector(force,
+                  (unsigned short)g_asObjectRadarRadius_0059c790[obj]
+                      << 8,
+                  &acceleration);
+    AddFixedVectors(&g_aShipVelocity_0059c010[obj], &acceleration,
+                    &g_aShipVelocity_0059c010[obj]);
+}
+
+/* Function start: 0x419D10 */
+void apply_force_to_object(FixedVector *point, FixedVector *force,
+                           short obj)
+{
+    FixedVector localPoint;
+    FixedVector localForce;
+    FixedVector acceleration;
+    int rotationalMass;
+    int mass;
+    int value;
+
+    transform_to_objects_frame(force, &localForce, obj);
+    transform_to_objects_frame(point, &localPoint, obj);
+    rotationalMass = DivideFixed(
+        (unsigned short)g_asObjectAfterburnerVelocity_0059c9d0[obj]
+            << 8,
+        (int)g_asObjectCollisionRadius_0059d710[obj] << 8);
+
+    value = DivideFixed(
+        MultiplyFixed(localPoint.x, localForce.y) -
+            MultiplyFixed(localPoint.y, localForce.x),
+        rotationalMass);
+    g_anObjectRollRotation_0059d7e0[obj] += (short)(value >> 8);
+    value = DivideFixed(
+        MultiplyFixed(localPoint.x, localForce.z) -
+            MultiplyFixed(localPoint.z, localForce.x),
+        rotationalMass);
+    g_anObjectYawRotation_0059ce80[obj] += (short)(value >> 8);
+    value = DivideFixed(
+        MultiplyFixed(localPoint.z, localForce.y) -
+            MultiplyFixed(localPoint.y, localForce.z),
+        rotationalMass);
+    g_anObjectPitchRotation_0059b2a0[obj] += (short)(value >> 8);
+    ClampTo30(&g_anObjectPitchRotation_0059b2a0[obj]);
+    ClampTo30(&g_anObjectYawRotation_0059ce80[obj]);
+    ClampTo30(&g_anObjectRollRotation_0059d7e0[obj]);
+
+    mass = (unsigned short)g_asObjectRadarRadius_0059c790[obj] << 8;
+    acceleration.x = DivideFixed(
+        MultiplyFixed(0x16a -
+            (int)PlanarMagnitude(localForce.y, localForce.z),
+            localForce.x),
+        MultiplyFixed(0x16a, mass));
+    acceleration.y = DivideFixed(
+        MultiplyFixed(0x16a -
+            (int)PlanarMagnitude(localForce.x, localForce.z),
+            localForce.y),
+        MultiplyFixed(0x16a, mass));
+    acceleration.z = DivideFixed(
+        MultiplyFixed(0x16a -
+            (int)PlanarMagnitude(localForce.x, localForce.y),
+            localForce.z),
+        MultiplyFixed(0x16a, mass));
+    AddFixedVectors(&g_aShipVelocity_0059c010[obj], &acceleration,
+                    &g_aShipVelocity_0059c010[obj]);
+    if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_SHIP)
+        check_for_lost_control(obj);
+}
+
+/* Function start: 0x419F70 */
+void rotational_acceleration(FixedVector *point, FixedVector *force,
+                             short obj)
+{
+    FixedVector localPoint;
+    FixedVector localForce;
+    int denominator;
+    int value;
+
+    transform_to_objects_frame(force, &localForce, obj);
+    transform_to_objects_frame(point, &localPoint, obj);
+    denominator = DivideFixed(
+        (unsigned short)g_asObjectAfterburnerVelocity_0059c9d0[obj]
+            << 8,
+        MultiplyFixed(
+            (int)g_asObjectCollisionRadius_0059d710[obj] << 8,
+            0x123c));
+
+    value = DivideFixed(
+        MultiplyFixed(localPoint.x, localForce.y) -
+            MultiplyFixed(localPoint.y, localForce.x),
+        denominator);
+    g_anObjectRollRotation_0059d7e0[obj] += (short)(value >> 8);
+    value = DivideFixed(
+        MultiplyFixed(localPoint.x, localForce.z) -
+            MultiplyFixed(localPoint.z, localForce.x),
+        denominator);
+    g_anObjectYawRotation_0059ce80[obj] += (short)(value >> 8);
+    value = DivideFixed(
+        MultiplyFixed(localPoint.z, localForce.y) -
+            MultiplyFixed(localPoint.y, localForce.z),
+        denominator);
+    g_anObjectPitchRotation_0059b2a0[obj] += (short)(value >> 8);
+    ClampTo30(&g_anObjectPitchRotation_0059b2a0[obj]);
+    ClampTo30(&g_anObjectYawRotation_0059ce80[obj]);
+    ClampTo30(&g_anObjectRollRotation_0059d7e0[obj]);
+    if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_SHIP)
+        check_for_lost_control(obj);
 }
 
 /* Function start: 0x41A0F0 */
@@ -998,8 +1137,8 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
     negate_vector(direction);
     rectangular_to_spherical(direction, &spherical);
     init_ijk(63);
-    alter_yaw(-spherical.yaw, 63);
-    alter_pitch(-spherical.pitch, 63);
+    alter_yaw((short)-spherical.yaw, 63);
+    alter_pitch((short)-spherical.pitch, 63);
     projectedUp.x = dot_product(&g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT],
                                 &g_aShipRightVector_0059b6e0[63]);
     projectedUp.y = dot_product(&g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT],

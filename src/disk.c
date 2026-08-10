@@ -723,7 +723,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     g_asShipAccumulatedDamage_0059dee0[obj] = zero;
     objectClass = g_aeObjectClass_0059d100[obj];
     g_asObjectFlip_0059c870[obj] = zero;
-    DAT_0059d6a0[obj] = -1;
+    g_acLastCollisionObject_0059d6a0[obj] = -1;
     g_asObjectScreenAngle_0059cd90[obj] = zero;
 
     if (objectClass >= OBJECT_CLASS_MISSILE) {

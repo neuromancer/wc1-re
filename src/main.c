@@ -128,6 +128,18 @@ unsigned int clear_view_buffer(void)
     return 0;
 }
 
+/* Function start: 0x427B20 */
+unsigned int InitializeConversationViewport(void)
+{
+    ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
+    DAT_005a6ba0.top = 24;
+    DAT_005a6ba0.bottom = 151;
+    SetViewportRect(&DAT_005a76b0, 0, 0, 319, 127);
+    if (AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0) == 0)
+        ReportOutOfMemoryAndExit();
+    return 0;
+}
+
 /* Function start: 0x427BA0 */
 unsigned int ResetScreenClipToFullHeight(void)
 {
@@ -176,7 +188,7 @@ void Update_3Space(void)
 }
 
 /* Function start: 0x427C80 */
-unsigned int SetDefaultCommDelay(void)
+unsigned int TriggerPlayerHitPaletteFlash(void)
 {
     if (DAT_0046c03c < 4)
         DAT_005a7780 = 0x30;
@@ -230,10 +242,9 @@ unsigned int house_keep(void)
     if (DAT_0046c03c == 0) {
         palette = 0;
         do {
-            FadeFlightPaletteEntry(
-                (short *)&g_aPaletteFadeEntries_005a76d0[palette]);
+            FadeFlightPaletteEntry(g_aPaletteFadeEntries_005a76d0[palette]);
             SetPaletteEntry((short)(palette + 0xb9),
-                            (short *)&g_aPaletteFadeEntries_005a76d0[palette]);
+                            g_aPaletteFadeEntries_005a76d0[palette]);
             palette++;
         } while (palette < 6);
         return 0;
@@ -396,8 +407,12 @@ int process_player_input(void)
 unsigned int fire_players_lasers(void)
 {
     if (g_asObjectCounter_0059c330[0] == -1 &&
-        g_asShipWeaponEnergy_0059d470[0] > 0)
+        g_asShipWeaponEnergy_0059d470[0] > 0) {
         fire_fixed_projectile_weapon(0);
+        if (g_acShipTarget_0059ce60[0] != -1 &&
+            (short)get_mode(1) == 5)
+            SelectCockpitVduMode(1, 3);
+    }
     return 0;
 }
 

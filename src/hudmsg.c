@@ -151,6 +151,10 @@ int HandleDebugCheatKeys(void)
         if (g_anShipFuel_0059b470[0] > 0)
             fire_afterburner(0, 8);
         break;
+    case 0x14:
+        if (!repeated)
+            SelectCockpitVduMode(1, 3);
+        break;
     case 0x1c:
         if (!repeated && g_nSelectedReleaseWeaponIndex_0046c058 != -1)
             fire_weapon(0, (short)g_nSelectedReleaseWeaponIndex_0046c058);

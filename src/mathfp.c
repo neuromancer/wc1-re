@@ -312,6 +312,50 @@ void __stdcall AppendTextCharacter(char character)
     *g_pCurrentTextContext_0059af8c->textCursor = 0;
 }
 
+/* Function start: 0x435340 */
+int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
+{
+    unsigned short *run;
+    unsigned short rowLength;
+    unsigned short count;
+    unsigned char command;
+    int frameTableOffset;
+    int size;
+
+    size = 0;
+    if (shape == 0 || frame < 0)
+        return 0;
+    frameTableOffset = frame * 4 + 4;
+    if (frameTableOffset >= *(unsigned short *)(shape + 4))
+        return 0;
+    run = (unsigned short *)(shape +
+        *(int *)(shape + frameTableOffset) + 8);
+    rowLength = *run;
+    while (rowLength != 0) {
+        run += 3;
+        if ((rowLength & 1) == 0) {
+            count = rowLength >> 1;
+            size += count;
+            run = (unsigned short *)((unsigned char *)run + count);
+        } else {
+            rowLength >>= 1;
+            while (rowLength != 0) {
+                command = *(unsigned char *)run;
+                count = command >> 1;
+                if ((command & 1) == 0)
+                    run = (unsigned short *)((unsigned char *)run +
+                                              count + 1);
+                else
+                    run++;
+                size += count;
+                rowLength = (unsigned short)(rowLength - count);
+            }
+        }
+        rowLength = *run;
+    }
+    return size;
+}
+
 /* Function start: 0x4353F0 */
 void ResetTextCursor(void)
 {

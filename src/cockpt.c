@@ -867,6 +867,47 @@ void flag_objective(short objective, unsigned char flags)
     g_aMissionObjectives_0059dac5[objective].flags |= flags;
 }
 
+/* Function start: 0x415130 */
+char *objective_name(short objective)
+{
+    if (objective >= (short)g_cMissionObjectiveCount_0059c46a)
+        return (char *)g_szNoObjective_0046932c;
+    if (*g_aMissionObjectives_0059dac5[objective].name == '?' &&
+        sighted(objective) == 0)
+        return (char *)g_szUnknownObjective_00469334;
+    return (char *)g_aMissionObjectives_0059dac5[objective].displayName;
+}
+
+/* Function start: 0x4151F0 */
+short hidden_objective(short objective)
+{
+    MissionObjective *missionObjective;
+    MissionShipRecord *missionShip;
+    short hidden;
+    short ship;
+
+    missionObjective = &g_aMissionObjectives_0059dac5[objective];
+    hidden = *missionObjective->displayName == '.' ||
+             *missionObjective->name == '.';
+    if (hidden == 0 && mobile_objective(objective) != 0) {
+        missionShip = &g_aMissionShips_0046c948[
+            (signed char)missionObjective->index];
+        if (missionShip->state != 0)
+            hidden = 1;
+    }
+    if (hidden == 0 && mobile_objective(objective) != 0 &&
+        g_aMissionObjectives_0059dac5[
+            (unsigned char)g_cMissionObjectiveCount_0059c46a].type == 0) {
+        missionShip = &g_aMissionShips_0046c948[
+            (signed char)missionObjective->index];
+        ship = find_ship_index((short)missionObjective->index);
+        if (missionShip->missionType == MISSION_TYPE_WARP_ARRIVE &&
+            ship != -1)
+            hidden = 1;
+    }
+    return hidden;
+}
+
 /* Function start: 0x4153D0 */
 void set_next_destination(void)
 {
@@ -1710,6 +1751,69 @@ void malf_noise(short vdu, int effect, unsigned int colour,
         set_new_vdu(vdu);
 }
 
+/* Function start: 0x416E90 */
+void build_your_target_list(short *hasEnemy)
+{
+    signed char object;
+    signed char targetIndex;
+
+    *hasEnemy = 0;
+    g_cViableTargetCount_0046c088 = 0;
+    object = 1;
+    do {
+        if (g_aeObjectClass_0059d100[(int)object] >= OBJECT_CLASS_SHIP &&
+            g_aeSpecialManeuver_0059c3c0[(int)object] !=
+                SPECIAL_MANEUVER_UNKNOWN_9 &&
+            g_asObjectScreenX_0059d9b0[(int)object] != -0x7fff &&
+            (unsigned short)g_asObjectDistance_0059b4a0[(int)object] <
+                12000) {
+            targetIndex = g_cViableTargetCount_0046c088;
+            g_asViableTargetDistance_0059c470[(int)targetIndex] =
+                g_asObjectDistance_0059b4a0[(int)object];
+            g_acViableTarget_0059c920[(int)targetIndex] = object;
+            g_cViableTargetCount_0046c088++;
+            if (g_aeShipSide_0059d650[(int)object] !=
+                g_aeShipSide_0059d650[0])
+                *hasEnemy = 1;
+        }
+        object++;
+    } while (object < 10);
+    if (g_cViableTargetCount_0046c088 > 1)
+        sort_viable_target_list();
+}
+
+/* Function start: 0x416F30 */
+void cycle_onscreen_targets(void)
+{
+    signed char previousTarget;
+    signed char index;
+    short hasEnemy;
+
+    previousTarget = g_acShipTarget_0059ce60[0];
+    build_your_target_list(&hasEnemy);
+    if (g_cViableTargetCount_0046c088 == 0) {
+        g_acShipTarget_0059ce60[0] = -1;
+    } else {
+        index = 0;
+        while (index < g_cViableTargetCount_0046c088 &&
+               g_acViableTarget_0059c920[(int)index] !=
+                   g_acShipTarget_0059ce60[0])
+            index++;
+        do {
+            index = (signed char)((index + 1) %
+                                  g_cViableTargetCount_0046c088);
+            g_acShipTarget_0059ce60[0] =
+                g_acViableTarget_0059c920[(int)index];
+            if (hasEnemy == 0)
+                break;
+        } while (g_aeShipSide_0059d650[
+                     (int)g_acShipTarget_0059ce60[0]] ==
+                 g_aeShipSide_0059d650[0]);
+    }
+    if (g_acShipTarget_0059ce60[0] != previousTarget)
+        g_nTargetLockCountdown_0046c064 = -1;
+}
+
 /* Function start: 0x416FD0 */
 void check_target(void)
 {
@@ -2018,7 +2122,52 @@ void update_cockpit(void)
 }
 
 /* Function start: 0x417F00 */
-void PlayMissileLaunchSfx(void)
+void PlayCockpitSelectionSfx(void)
 {
     PlaySfxWaveFileByNumber(0x19, -1, 0);
+}
+
+/* Function start: 0x417F10 */
+void vdu_pop_all(short vdu)
+{
+    while ((short)GetVduModeStackDepth(vdu) > 0) {
+        if ((short)get_mode(vdu) == 6)
+            EndCommMenu();
+        else
+            pop_mode(vdu);
+    }
+}
+
+/* Function start: 0x417F60 */
+void SelectCockpitVduMode(short vdu, int mode)
+{
+    if (DAT_0046c03c != 0)
+        return;
+    if ((short)malf(3) != 0 ||
+        (mode == 4 && (short)malf(4) != 0)) {
+        vdu_malf(vdu, 0x17);
+        return;
+    }
+    PlayCockpitSelectionSfx();
+    if ((short)get_mode(vdu) != mode) {
+        vdu_pop_all(vdu);
+        ClearMessageSlot(vdu);
+        set_mode(vdu, mode);
+        update_VDUs();
+        return;
+    }
+    switch (mode) {
+    case 1:
+        if (g_bCurrentKey_0046c014 == 0x22)
+            select_new_gun();
+        else
+            select_new_release_weapon((enum ObjectType)-1);
+        break;
+    case 2:
+        DAT_005a7786 = 0;
+        break;
+    case 3:
+        cycle_onscreen_targets();
+        break;
+    }
 }

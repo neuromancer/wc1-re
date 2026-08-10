@@ -2225,6 +2225,19 @@ int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
     return result;
 }
 
+/* Function start: 0x40CB60 */
+void DrawNavTextLine(unsigned char alignment, unsigned char colour,
+                     const char *format, ...)
+{
+    g_pCurrentTextContext_0059af8c->colour = colour;
+    g_pCurrentTextContext_0059af8c->alignment = alignment;
+    g_pCurrentTextContext_0059af8c->textCursor =
+        g_pCurrentTextContext_0059af8c->text;
+    FormatTextTokens((void (__stdcall *)(short))AppendTextCharacter,
+                     format, (unsigned long *)(&format + 1));
+    DrawTextString(g_pCurrentTextContext_0059af8c->text);
+}
+
 /* Function start: 0x40CBB0 */
 void SetNavCursorIndex(unsigned short v)
 {
@@ -2237,6 +2250,15 @@ void ObjectDrawHook(short *p)
     *p = (short)((int)*p / (DAT_00468664 * 100));
 }
 
+/* Function start: 0x40CBE0 */
+void nav_getxy(short *x, short *y, short mapX, short mapY)
+{
+    *x = (short)(((int)mapX - (int)g_nNavMapCentreX_005a8152) /
+                 (int)DAT_00468664 + 75);
+    *y = (short)(((int)g_nNavMapCentreY_005a817c - (int)mapY) /
+                 (int)DAT_00468664 + 67);
+}
+
 /* Function start: 0x40CC30 */
 void UpdateObjectiveMapCoordinates(short *x, short *y,
                                    int worldX, int worldZ)
@@ -2247,6 +2269,77 @@ void UpdateObjectiveMapCoordinates(short *x, short *y,
         ObjectDrawHook(x);
         ObjectDrawHook(y);
     }
+}
+
+/* Function start: 0x40CC80 */
+void UpdateNavMapBounds(short x, short y)
+{
+    g_nNavMapMinimumX_005a812e =
+        MinShort(g_nNavMapMinimumX_005a812e, x);
+    g_nNavMapMaximumX_005a812c =
+        MaxShort(g_nNavMapMaximumX_005a812c, x);
+    g_nNavMapMinimumY_005a8154 =
+        MinShort(g_nNavMapMinimumY_005a8154, y);
+    g_nNavMapMaximumY_005a8150 =
+        MaxShort(g_nNavMapMaximumY_005a8150, y);
+}
+
+/* Function start: 0x40CCF0 */
+void IncludeNavMapWorldPoint(int worldX, int worldZ)
+{
+    short x;
+    short y;
+
+    UpdateObjectiveMapCoordinates(&x, &y, worldX, worldZ);
+    UpdateNavMapBounds(x, y);
+}
+
+/* Function start: 0x40CD30 */
+void BuildMap(void)
+{
+    MissionObjective *objective;
+    short objectiveIndex;
+    short ship;
+    short halfWidth;
+    short halfHeight;
+
+    SetNavCursorIndex(0);
+    g_nNavMapMinimumX_005a812e = g_aMissionObjectives_0059dac5[0].mapX;
+    g_nNavMapMaximumX_005a812c = g_aMissionObjectives_0059dac5[0].mapX;
+    g_nNavMapMinimumY_005a8154 = g_aMissionObjectives_0059dac5[0].mapY;
+    g_nNavMapMaximumY_005a8150 = g_aMissionObjectives_0059dac5[0].mapY;
+    objectiveIndex = 0;
+    while (objectiveIndex < (short)g_cMissionObjectiveCount_0059c46a) {
+        objective = &g_aMissionObjectives_0059dac5[objectiveIndex];
+        if (mobile_objective(objectiveIndex) != 0) {
+            ship = find_ship_index((short)objective->index);
+            if (ship != -1)
+                objective->position = g_aShipPosition_0059c490[ship];
+        }
+        UpdateObjectiveMapCoordinates(&objective->mapX, &objective->mapY,
+                                      objective->position.x,
+                                      objective->position.z);
+        UpdateNavMapBounds(objective->mapX, objective->mapY);
+        objectiveIndex++;
+    }
+    IncludeNavMapWorldPoint(g_aShipPosition_0059c490[0].x,
+                            g_aShipPosition_0059c490[0].z);
+    halfWidth = (short)((g_nNavMapMaximumX_005a812c -
+                         g_nNavMapMinimumX_005a812e) / 2);
+    g_nNavMapCentreX_005a8152 =
+        (short)(g_nNavMapMinimumX_005a812e + halfWidth);
+    halfHeight = (short)((g_nNavMapMaximumY_005a8150 -
+                          g_nNavMapMinimumY_005a8154) / 2);
+    g_nNavMapCentreY_005a817c =
+        (short)(g_nNavMapMinimumY_005a8154 + halfHeight);
+    DAT_00468664 = (unsigned int)MaxShort(
+        (short)(((g_nNavMapMaximumX_005a812c -
+                  g_nNavMapMinimumX_005a812e) + halfWidth) / 150),
+        (short)((halfHeight + (g_nNavMapMaximumY_005a8150 -
+                              g_nNavMapMinimumY_005a8154)) / 135));
+    if (DAT_00468664 == 0)
+        DAT_00468664 = 100;
+    SetNavCursorIndex(1);
 }
 
 /* Function start: 0x40CED0 */

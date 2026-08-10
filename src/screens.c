@@ -6,6 +6,44 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x436D00 */
+unsigned int LoadBriefingRoom(void)
+{
+    g_pConversationBackdropShape_00598c04 = 0;
+    g_pBriefingAnimationShape_00598c14 = 0;
+    g_pBriefingCloseupShape_00598c2c = 0;
+    g_pBriefingBodyShape_00598c1c = 0;
+    g_pBriefingPortraitShape_00598c24 = 0;
+    InitializeConversationViewport();
+    InitializeConversationText();
+    SetTextContext(&g_stConversationTextContext_005a7760);
+    StartMusicTrack(0x19, 2, 1);
+    g_pConversationBackdropShape_00598c04 =
+        (unsigned char *)FetchDiskPacketRetrying(4, 0, 0);
+    g_pBriefingAnimationShape_00598c14 =
+        (unsigned char *)FetchDiskPacketRetrying(4, 1, 0);
+    g_pBriefingCloseupShape_00598c2c =
+        (unsigned char *)FetchDiskPacketRetrying(4, 3, 0);
+    g_pBriefingBodyShape_00598c1c =
+        (unsigned char *)FetchDiskPacketRetrying(4, 4, 0);
+    g_pBriefingPortraitShape_00598c24 =
+        (unsigned char *)FetchDiskPacketRetrying(4, 5, 0);
+    SceneDirector(0, g_pBriefingSceneData_00598c00,
+                  g_pBriefingTextData_00598af0);
+    FreePacketAndClear((int *)&g_pBriefingPortraitShape_00598c24, 8);
+    FreePacketAndClear((int *)&g_pBriefingBodyShape_00598c1c, 8);
+    FreePacketAndClear((int *)&g_pBriefingCloseupShape_00598c2c, 8);
+    FreePacketAndClear((int *)&g_pBriefingAnimationShape_00598c14, 8);
+    FreePacketAndClear((int *)&g_pConversationBackdropShape_00598c04, 8);
+    ReleaseTextFont(0);
+    ResetScreenClipToFullHeight();
+    if (DAT_0059ab58 != 0) {
+        StopMusicUnlessSuppressed();
+        DAT_0059ab58 = 0;
+    }
+    return 0;
+}
+
 /* Function start: 0x4370D0 */
 unsigned int DrawMedalChest(char *text, short duration)
 {
@@ -913,6 +951,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
     short previousColour;
     short previousShot;
     short shot;
+    short sceneAnimation;
     char *text;
 
     g_nConversationSceneType_00598c0a = sceneType;
@@ -951,6 +990,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         if (selected->talker != -2)
             g_nConversationCharacter_0046e580 = selected->talker;
         duration = selected->duration;
+        sceneAnimation = (short)(shot - 50);
         switch (shot & 0x3f) {
         case 0:
         case 3:
@@ -1074,6 +1114,9 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 previousShot = 4;
                 Dismissed(text, duration);
                 break;
+            case 4:
+                BriefingMap_UpdateMap(text, duration);
+                break;
             case 5:
                 previousShot = 1;
                 ReturnToBriefingLongShot(text, duration);
@@ -1103,6 +1146,9 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 break;
             case 17:
                 funeral_wingman(text, duration);
+                break;
+            case 50:
+                PlaySceneAnimation(text, sceneAnimation, duration);
                 break;
             default:
                 LongTalk(g_pTalkingHeadShape_00598c0c, text,
