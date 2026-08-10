@@ -21,6 +21,7 @@
 #define IX_H
 
 #include <windows.h>   /* CRITICAL_SECTION, used by the stream/voice state below */
+#include <stdio.h>     /* FILE, held by developer-mode stream-file objects */
 
 /* --------------------------------------------------------------------------
  * Diagnostics.  Every ix module reports through this one variadic printer, and
@@ -203,7 +204,8 @@ extern int      g_nStreamCount_00598130;
 extern int      g_nStreamsAllocated_00598134;
 
 #define IX_DSPS_FILE "D:\\rnd\\prj\\ix\\win95\\dsp\\dsps.cpp"
-void ix_dsps_alloc(int stream, int bytes);       /* 0x004451B5 */
+void ix_dsps_alloc(int stream, unsigned int size, int frequency,
+                   int bitsPerSample, int channels); /* 0x004451B5 */
 void ix_dsps_free(int stream);                   /* 0x0044546B */
 void ix_dsps_prepare(int stream);                /* 0x00445582 */
 void ix_dsps_play(int stream);                   /* 0x004456D8 */
@@ -211,7 +213,8 @@ void ix_dsps_stop(int stream);                   /* 0x00445808 */
 void ix_dsps_set_volume(int stream, unsigned int vol);  /* 0x00445906 */
 unsigned int ix_dsps_get_flags(int stream);      /* 0x00445A0B */
 int  ix_dsps_get_buffer_free(int stream);        /* 0x00445A6F */
-void ix_dsps_lock(int stream);                   /* 0x00445CDB */
+void ix_dsps_lock(int stream, unsigned int requestedBytes,
+                  unsigned char **buffer, unsigned int *lockedBytes); /* 0x00445CDB */
 void ix_dsps_unlock(int stream);                 /* 0x00445E3C */
 
 /* --------------------------------------------------------------------------
@@ -272,6 +275,82 @@ void __fastcall ix_sound_stop(IxSound *sound);   /* 0x004480CF */
  *   bit2 0x004 playing      bit3 0x008 paused
  *   bit7 0x080 has audio    bit10 0x400 request flag (meaning TBD)
  * -------------------------------------------------------------------------- */
+enum IxStreamFileFlags {
+    IX_STREAM_FILE_OPEN    = 0x01,
+    IX_STREAM_FILE_READING = 0x02
+};
+
+struct IxStreamerHeader {
+    unsigned int id;                    /* +0x00 */
+    unsigned int version;               /* +0x04 */
+    unsigned char channels;             /* +0x08 */
+    unsigned char bitsPerSample;        /* +0x09 */
+    unsigned short frequency;           /* +0x0A */
+    unsigned int audioBufferSize;       /* +0x0C */
+    unsigned int field_10;              /* +0x10 */
+    unsigned int audioChunkTableOffset; /* +0x14 */
+    unsigned int audioChunkCount;       /* +0x18 */
+};
+
+struct IxStreamerFileEntry {
+    unsigned int nameHash;              /* +0x00 */
+    unsigned int size;                  /* +0x04 */
+    unsigned int chunkCount;            /* +0x08 */
+    unsigned int firstChunk;            /* +0x0C */
+};
+
+struct IxStreamerAudioChunk {
+    unsigned int fileOffset;            /* +0x00 */
+    unsigned int fileEnd;               /* +0x04 */
+    unsigned int triggerCount;          /* +0x08 */
+    unsigned int firstTrigger;          /* +0x0C */
+    unsigned int branchCount;           /* +0x10 */
+    unsigned int firstBranch;           /* +0x14 */
+};
+
+#pragma pack(push, 1)
+struct IxStreamerBranch {
+    unsigned char intensity;            /* +0x00 */
+    unsigned int audioChunk;            /* +0x01 */
+};
+
+struct IxStreamerTrigger {
+    unsigned char tag;                  /* +0x00 */
+    unsigned int audioChunk;            /* +0x01 */
+};
+#pragma pack(pop)
+
+struct IxStreamerFileChunk {
+    int packedSize;                     /* +0x00, negative means compressed */
+    unsigned int fileOffset;            /* +0x04 */
+    unsigned int fileEnd;               /* +0x08 */
+    unsigned int packetCount;           /* +0x0C */
+    unsigned int firstPacket;           /* +0x10 */
+};
+
+struct IxStreamFile {
+    unsigned int flags;                 /* +0x00 */
+    IxStreamerFileEntry *entry;         /* +0x04, packed-stream mode */
+    FILE *file;                         /* +0x08, developer mode */
+    unsigned int size;                  /* +0x0C */
+    unsigned char priority;             /* +0x10 */
+    unsigned int serviceTick;           /* +0x14 */
+    unsigned int position;              /* +0x18 */
+    unsigned int remaining;             /* +0x1C */
+    unsigned char *destination;         /* +0x20 */
+    HANDLE completionEvent;             /* +0x24 */
+    IxStreamFile *previous;             /* +0x28 */
+    IxStreamFile *next;                 /* +0x2C */
+
+    unsigned int ix_stream_file_read(void *destination,
+                                     unsigned int bytes);
+    void ix_stream_file_seek(unsigned int position);
+    unsigned int ix_stream_file_tell(void);
+    unsigned int ix_stream_file_size(void);
+    void ix_stream_file_wait(void);
+    int ix_stream_file_is_reading(void);
+};
+
 int  ix_streamer_init(void);                     /* 0x00442750 */
 void ix_streamer_destroy(void);                  /* 0x0044286F */
 void ix_streamer_set_dev_mode(int mode);         /* 0x0044293E */
@@ -285,13 +364,46 @@ void ix_streamer_audio_branch_to_tag(char tag);  /* 0x0044342E  branching music 
 extern "C" void ix_streamer_set_volume(unsigned short vol); /* 0x004435BE */
 void ix_streamer_seek_chunk(unsigned int chunk); /* 0x00443666 */
 void ix_streamer_service_audio(void);            /* 0x00443CC0 */
-void *ix_streamer_open_file(unsigned char *name, unsigned char mode); /* 0x004437E3 */
+IxStreamFile *ix_streamer_open_file(unsigned char *name,
+                                    unsigned char priority); /* 0x004437E3 */
 
-void ix_thread_handle_file_chunk(void);          /* 0x00443DA6 */
+void ix_thread_handle_file_chunk(IxStreamFile *streamFile); /* 0x00443DA6 */
+unsigned int ix_thread_service_streams(void);     /* 0x004441C6 */
+void ix_thread_advance_audio_chunk(void);         /* 0x00444316 */
 void ix_thread_lock_stream_buffer(void);         /* 0x004445C9 */
-void ix_thread_wait_event(void *h);              /* 0x0044489B */
+unsigned int ix_thread_get_audio_chunk_size(void); /* 0x004446A6 */
+extern "C" void ix_lzo1x_decompress(unsigned char *source,
+                                     unsigned char *destination,
+                                     unsigned int destinationBytes); /* 0x004614C0 */
+
+extern unsigned int *g_pStreamerPacketOffsets_00597bd0;
+extern unsigned int g_dwStreamerThreadTick_00597bd4;
+extern FILE *g_pStreamerPackageFile_00597bdc;
+extern IxStreamFile *g_pStreamerIdleFiles_00597be0;
+extern unsigned int g_adwStreamerBranchStack_00597be8[32];
+extern unsigned char *g_pStreamerCompressedBuffer_00597c68;
+extern IxStreamFile *g_pStreamerReadQueue_00597c6c;
+extern unsigned int g_nStreamerAudioBufferSize_00597c70;
+extern unsigned char *g_pStreamerFileBuffer_00597c74;
+extern unsigned char g_bStreamerIntensity_00597c78;
+extern HANDLE g_hStreamerThread_00597c7c;
+extern IxStreamerFileEntry *g_pStreamerFileEntries_00597c80;
+extern IxStreamerHeader *g_pStreamerHeader_00597c84;
+extern IxStreamerAudioChunk *g_pStreamerAudioChunks_00597c88;
+extern IxStreamerBranch *g_pStreamerBranches_00597c8c;
+extern IxStreamerFileChunk *g_pStreamerFileChunks_00597c90;
+extern CRITICAL_SECTION g_csStreamerFileQueue_00597c98;
+extern CRITICAL_SECTION g_csStreamerThread_00597cb0;
+extern unsigned int g_nStreamerAudioChunk_00597cc8;
+extern DWORD g_dwStreamerThreadId_00597ccc;
 extern "C" unsigned int g_dwStreamerState_00597cd0;
+extern HANDLE g_hStreamerWakeEvent_00597cd4;
+extern unsigned int g_nStreamerFileChunk_00597cd8;
+extern unsigned int g_nStreamerBytesPerSecond_00597cdc;
 extern unsigned short g_nStreamerVolume_00470e84;
+extern char g_cStreamerBranchTag_00470e88;
+extern unsigned int g_nStreamerBranchStackIndex_00470e8c;
 extern CRITICAL_SECTION g_csStreamer_00597ce0;
+extern IxStreamerTrigger *g_pStreamerTriggers_00597cf8;
 
 #endif /* IX_H */

@@ -10,9 +10,36 @@
  */
 #include "ix.h"
 
+unsigned int *g_pStreamerPacketOffsets_00597bd0;
+unsigned int g_dwStreamerThreadTick_00597bd4;
+FILE *g_pStreamerPackageFile_00597bdc;
+IxStreamFile *g_pStreamerIdleFiles_00597be0;
+unsigned int g_adwStreamerBranchStack_00597be8[32];
+unsigned char *g_pStreamerCompressedBuffer_00597c68;
+IxStreamFile *g_pStreamerReadQueue_00597c6c;
+unsigned int g_nStreamerAudioBufferSize_00597c70;
+unsigned char *g_pStreamerFileBuffer_00597c74;
+unsigned char g_bStreamerIntensity_00597c78;
+HANDLE g_hStreamerThread_00597c7c;
+IxStreamerFileEntry *g_pStreamerFileEntries_00597c80;
+IxStreamerHeader *g_pStreamerHeader_00597c84;
+IxStreamerAudioChunk *g_pStreamerAudioChunks_00597c88;
+IxStreamerBranch *g_pStreamerBranches_00597c8c;
+IxStreamerFileChunk *g_pStreamerFileChunks_00597c90;
+CRITICAL_SECTION g_csStreamerFileQueue_00597c98;
+CRITICAL_SECTION g_csStreamerThread_00597cb0;
+unsigned int g_nStreamerAudioChunk_00597cc8;
+DWORD g_dwStreamerThreadId_00597ccc;
 extern "C" unsigned int g_dwStreamerState_00597cd0 = 0;
-unsigned short g_nStreamerVolume_00470e84;
+HANDLE g_hStreamerWakeEvent_00597cd4;
+unsigned int g_nStreamerFileChunk_00597cd8;
+unsigned int g_nStreamerBytesPerSecond_00597cdc;
 CRITICAL_SECTION g_csStreamer_00597ce0;
+IxStreamerTrigger *g_pStreamerTriggers_00597cf8;
+
+unsigned short g_nStreamerVolume_00470e84 = 0xffff;
+char g_cStreamerBranchTag_00470e88 = -1;
+unsigned int g_nStreamerBranchStackIndex_00470e8c = 0;
 
 /* Function start: 0x00442750 */   /* source line(s) 60;63;75: Streamer already inited! | Failed to init DSP | Failed to start streamer_thread! */
 /* TODO: ix_streamer_init */

@@ -235,3 +235,62 @@ int ix_dsps_get_buffer_free(int stream)
     LeaveCriticalSection(&g_streams_00598138[stream].cs);
     return g_streams_00598138[stream].size - g_streams_00598138[stream].pending;
 }
+
+/* Function start: 0x00445CDB */   /* source lines 169, 172, 173 */
+void ix_dsps_lock(int stream, unsigned int requestedBytes,
+                  unsigned char **buffer, unsigned int *lockedBytes)
+{
+    IxStream *s;
+
+    if (stream < 0 || stream >= g_nStreamCount_00598130) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 169);
+        ix_log_printf("invalid stream index");
+        exit(-1);
+    }
+    s = &g_streams_00598138[stream];
+    if ((g_streams_00598138[stream].flags & IX_STREAM_ALLOCATED) == 0) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 172);
+        ix_log_printf("stream is not ready!");
+        exit(-1);
+    }
+    if ((g_streams_00598138[stream].flags & IX_STREAM_LOCKED) != 0) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 173);
+        ix_log_printf("stream is already locked!");
+        exit(-1);
+    }
+    s->lockPtr = s->buffer + s->writePos;
+    if (s->writePos + requestedBytes > s->size)
+        requestedBytes = s->size - s->writePos;
+    s->lockLen = requestedBytes;
+    *buffer = s->lockPtr;
+    *lockedBytes = s->lockLen;
+    g_streams_00598138[stream].flags |= IX_STREAM_LOCKED;
+}
+
+/* Function start: 0x00445E3C */   /* source lines 188, 191, 192 */
+void ix_dsps_unlock(int stream)
+{
+    IxStream *s;
+
+    if (stream < 0 || stream >= g_nStreamCount_00598130) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 188);
+        ix_log_printf("invalid stream index");
+        exit(-1);
+    }
+    s = &g_streams_00598138[stream];
+    if ((s->flags & IX_STREAM_ALLOCATED) == 0) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 191);
+        ix_log_printf("stream is not ready!");
+        exit(-1);
+    }
+    if ((s->flags & IX_STREAM_LOCKED) == 0) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 192);
+        ix_log_printf("stream isn't locked!");
+        exit(-1);
+    }
+    s->writePos += s->lockLen;
+    if (s->writePos >= s->size)
+        s->writePos = s->writePos - s->size;
+    s->pending += s->lockLen;
+    s->flags &= ~IX_STREAM_LOCKED;
+}
