@@ -1026,6 +1026,7 @@ unsigned short g_awAbsoluteSine_00470a48[360] = {
     104, 100,  96,  92,  88,  83,  79,  74,  71,  66,  62,  58,
      53,  49,  45,  40,  36,  31,  27,  22,  18,  13,   9,   4
 };
+const char g_szBadViewport_00470d24[12] = "bad vport";
 const char g_szSnowViewport_00470da4[16] = "snow_viewport";
 int g_nInsertKeyState_00475b68;
 int g_nClearedKeyboardState_00475b6c;
@@ -1318,12 +1319,16 @@ unsigned short DAT_005a7780;
 short g_nWeaponDisplayOriginX_005a7788;
 short g_nWeaponDisplayOriginY_005a778a;
 unsigned int DAT_005a77ec;
+Viewport g_stTrainSimTitleDisplayViewport_005a7b90;
+Viewport g_stTrainSimHighScoreBufferViewport_005a7bb0;
 int g_nArcadeScore_005a7bc4;
 TextContext g_stTrainSimTextContext_005a7bd0;
+Viewport g_stTrainSimHighScoreDisplayViewport_005a7bf0;
+TextContext g_stTrainSimHighScoreTextContext_005a7c10;
 short g_nArcadeTimeRemaining_005a7c2c;
 HighScoreEntry g_aHighScoreEntries_005a7c30[6];
 int g_nArcadeWaveBonus_005a7c50;
-unsigned char g_cCockpitLogicalFile_005a7c74;
+signed char g_cCockpitLogicalFile_005a7c74;
 unsigned char *g_apCockpitShapes_005a7c80[4];
 unsigned char *g_pCinematicViewBackdrop_005a7c90;
 unsigned char *g_pRearViewBackdrop_005a7c94;

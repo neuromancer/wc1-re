@@ -64,14 +64,93 @@ void ClearDebugPauseFlags(void)
 }
 
 /* Function start: 0x425C30 */
-unsigned int GetDebugKeyState(unsigned int *p)
+unsigned short EraseTextContextBackground(TextContext *context)
 {
-    char c = *(char *)((int)p + 0xd);
+    unsigned short colour;
 
-    if (*(char *)((int)p + 0xd) == -1)
-        c = DAT_0046999c;
-    ClearViewport((Viewport *)*p, (unsigned char)c);
+    colour = context->backgroundColour;
+    if (context->backgroundColour == 0xff)
+        colour = DAT_0046999c;
+    ClearViewport(context->viewport, colour);
     return 0;
+}
+
+/* Function start: 0x425C60 */
+int DisplayTrainSimHighScoreTable(short phase)
+{
+    short completed;
+
+    (void)phase;
+    completed = 1;
+    DrawFilledViewportRect(
+        &g_stModalSourceViewport_005a7670,
+        g_stTrainSimPanelBounds_00469dc0.left,
+        g_stTrainSimPanelBounds_00469dc0.top,
+        g_stTrainSimPanelBounds_00469dc0.right,
+        g_stTrainSimPanelBounds_00469dc0.bottom,
+        DAT_0046999c);
+    *(ShortRect *)&g_stTrainSimHighScoreDisplayViewport_005a7bf0.left =
+        g_stTrainSimPanelBounds_00469dc0;
+    CopyViewportContents(
+        &g_stTrainSimHighScoreBufferViewport_005a7bb0,
+        &g_stTrainSimHighScoreDisplayViewport_005a7bf0);
+    SetFrameTimerPeriodDirect(0x2d0);
+    do {
+        if ((short)IsFrameTickElapsed() != 0)
+            break;
+        DIBslam();
+        DIBslamReal();
+        if (CheckEscaped() != 0) {
+            completed = 0;
+            break;
+        }
+    } while (1);
+    return completed;
+}
+
+/* Function start: 0x425D00 */
+int AnimateTrainSimTitle(void)
+{
+    short completed;
+    short y;
+
+    completed = 0;
+    y = 0x6b;
+    DrawFilledViewportRect(
+        &g_stModalSourceViewport_005a7670,
+        g_stTrainSimPanelBounds_00469dc0.left,
+        g_stTrainSimPanelBounds_00469dc0.top,
+        g_stTrainSimPanelBounds_00469dc0.right,
+        g_stTrainSimPanelBounds_00469dc0.bottom,
+        DAT_0046999c);
+    DIBslam();
+    DIBslamReal();
+    y = (short)(y - ReadWord(
+        (unsigned short *)g_stTrainSimTextContext_005a7bd0.font));
+    g_stTrainSimTitleDisplayViewport_005a7b90.top = y;
+    g_stTrainSimTitleDisplayViewport_005a7b90.bottom =
+        (short)(y + ReadWord(
+            (unsigned short *)g_stTrainSimTextContext_005a7bd0.font) + 2);
+    if (CheckEscaped() == 0) {
+        for (;;) {
+            SetFrameTimerPeriodDirect(3);
+            if (g_stTrainSimTitleDisplayViewport_005a7b90.top <=
+                g_stTrainSimPanelBounds_00469dc0.top)
+                break;
+            g_stTrainSimTitleDisplayViewport_005a7b90.top--;
+            g_stTrainSimTitleDisplayViewport_005a7b90.bottom--;
+            CopyViewportContents(
+                &g_stTrainSimPanelViewport_00469da8,
+                &g_stTrainSimTitleDisplayViewport_005a7b90);
+            DIBslam();
+            DIBslamReal();
+            WaitForFrameTick();
+            if (CheckEscaped() != 0)
+                return completed;
+        }
+        completed = 1;
+    }
+    return completed;
 }
 
 /* Function start: 0x425DF0 */
@@ -389,7 +468,7 @@ void InitializeTrainSimTextPanel(void)
                                   (signed char)DAT_0046999c);
     g_stTrainSimTextContext_005a7bd0.viewport =
         &g_stTrainSimPanelViewport_00469da8;
-    GetDebugKeyState((unsigned int *)&g_stTrainSimTextContext_005a7bd0);
+    EraseTextContextBackground(&g_stTrainSimTextContext_005a7bd0);
 }
 
 /* Function start: 0x426700 */
@@ -472,49 +551,115 @@ void UpdateTrainSimHighScores(int score)
 /* Function start: 0x4268E0 */
 void ShowTrainSimHighScores(void)
 {
-    TextContext context;
     unsigned char *backdrop;
-    unsigned char *name;
     char score[20];
-    short row;
+    short titleWidth;
     short lineHeight;
+    short titleLeft;
+    short row;
 
     SetEventManagerPump(PollJoystickButtonEvents);
     ClearViewport(&DAT_005a6ba0, 0);
     backdrop = (unsigned char *)FetchDiskPacketRetrying(
         (short)g_cCockpitLogicalFile_005a7c74, 0, 0);
     DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
-    memset(&context, 0, sizeof(context));
-    context.viewport = &DAT_005a6ba0;
-    context.text = g_szDefaultTextBuffer_005a7590;
-    InitializeTextContextFromFont(&context, 1,
+    InitializeTextContextFromFont(&g_stTrainSimTextContext_005a7bd0, 1,
                                   g_cDefaultTextColour_004699cc,
                                   (signed char)DAT_0046999c);
-    ResetStringBuilder(&context);
-    SetTextContext(&context);
-    lineHeight = (short)(ReadWord((unsigned short *)context.font) + 3);
-    SetTextCursor(160, 30);
-    context.alignment = 2;
-    DrawFormattedText(g_szHighScoresHeading_00469f70);
-    context.alignment = 0;
+    SetTextContext(&g_stTrainSimTextContext_005a7bd0);
+    SetViewportRect(&g_stTrainSimPanelViewport_00469da8,
+                    0, 0, 319, 199);
+    g_stTrainSimTextContext_005a7bd0.text =
+        g_szDefaultTextBuffer_005a7590;
+    ResetStringBuilder(&g_stTrainSimTextContext_005a7bd0);
+    titleWidth = (short)((MeasureTextPixelWidthClamped(
+        g_szTrainSimTitle_00469dc8) & 0xfff8) + 8);
+    g_stTrainSimPanelViewport_00469da8.right = titleWidth;
+    g_stTrainSimPanelViewport_00469da8.bottom =
+        (short)(ReadWord((unsigned short *)
+            g_stTrainSimTextContext_005a7bd0.font) + 2);
+    AllocateViewport(&g_stTrainSimPanelViewport_00469da8,
+                     DAT_0046999c, 0);
+    g_stTrainSimTextContext_005a7bd0.viewport =
+        &g_stTrainSimPanelViewport_00469da8;
+    EraseTextContextBackground(&g_stTrainSimTextContext_005a7bd0);
+    SetTextCursor(0, 1);
+    DrawFormattedText(g_szTrainSimTitle_00469dc8);
+    lineHeight = (short)ReadWord((unsigned short *)
+        g_stTrainSimTextContext_005a7bd0.font);
+
+    g_stTrainSimTitleDisplayViewport_005a7b90 = DAT_005a6ba0;
+    *(ShortRect *)&g_stTrainSimTitleDisplayViewport_005a7b90.left =
+        g_stTrainSimPanelBounds_00469dc0;
+    ClearViewport(&g_stTrainSimTitleDisplayViewport_005a7b90,
+                  DAT_0046999c);
+    titleLeft = (short)((160 - titleWidth / 2) & 0xfffe);
+    g_stTrainSimTitleDisplayViewport_005a7b90.left = titleLeft;
+    g_stTrainSimTitleDisplayViewport_005a7b90.right =
+        (short)(titleLeft + titleWidth);
+    g_stTrainSimTitleDisplayViewport_005a7b90.top =
+        (short)(RandomInRange(0, 0x4e) + 0x1d);
+    g_stTrainSimTitleDisplayViewport_005a7b90.bottom =
+        (short)(g_stTrainSimTitleDisplayViewport_005a7b90.top +
+                lineHeight + 2);
+    if (g_stTrainSimTitleDisplayViewport_005a7b90.bottom >
+        g_stTrainSimPanelBounds_00469dc0.bottom) {
+        g_stTrainSimTitleDisplayViewport_005a7b90.bottom =
+            g_stTrainSimPanelBounds_00469dc0.bottom;
+    }
+
     row = 0;
+    InitializeTextContextFromFont(
+        &g_stTrainSimHighScoreTextContext_005a7c10, 1,
+        g_cDefaultTextColour_004699cc,
+        (signed char)DAT_0046999c);
+    *(ShortRect *)&g_stTrainSimHighScoreBufferViewport_005a7bb0.left =
+        g_stTrainSimPanelBounds_00469dc0;
+    AllocateViewport(&g_stTrainSimHighScoreBufferViewport_005a7bb0,
+                     DAT_0046999c, 0);
+    g_stTrainSimHighScoreDisplayViewport_005a7bf0 = DAT_005a6ba0;
+    lineHeight = (short)(lineHeight + 3);
+    g_stTrainSimHighScoreTextContext_005a7c10.viewport =
+        &g_stTrainSimHighScoreBufferViewport_005a7bb0;
+    g_stTrainSimHighScoreTextContext_005a7c10.text =
+        g_szDefaultTextBuffer_005a7590;
+    *(ShortRect *)&g_stTrainSimHighScoreDisplayViewport_005a7bf0.left =
+        g_stTrainSimPanelBounds_00469dc0;
+    SetTextContext(&g_stTrainSimHighScoreTextContext_005a7c10);
+    ResetStringBuilder(&g_stTrainSimHighScoreTextContext_005a7c10);
+    EraseTextContextBackground(&g_stTrainSimHighScoreTextContext_005a7c10);
+    SetTextCursor(
+        (unsigned short)g_stTrainSimHighScoreBufferViewport_005a7bb0.left,
+        (unsigned short)(
+            g_stTrainSimHighScoreBufferViewport_005a7bb0.top + 1));
+    FormatTextBufferFromStart(g_szHighScoresHeading_00469f70, 2);
+    g_stTrainSimHighScoreTextContext_005a7c10.alignment = 0;
     do {
         if (IsHighScoreSlotUsed(row)) {
+            ResetStringBuilder(&g_stTrainSimHighScoreTextContext_005a7c10);
             sprintf(score, g_szHighScoreNumberFormat_00469f80,
                     GetHighScoreValue(row));
-            name = GetHighScoreEntry(row);
             DrawFormattedText(g_szHighScoreRowFormat_00469f88,
-                              58, (short)(48 + lineHeight * row),
-                              row + 1, name, 208, score);
+                g_stTrainSimHighScoreBufferViewport_005a7bb0.left + 10,
+                lineHeight * (row + 1) +
+                    g_stTrainSimHighScoreBufferViewport_005a7bb0.top + 1,
+                row + 1, GetHighScoreEntry(row),
+                g_stTrainSimHighScoreBufferViewport_005a7bb0.left + 150,
+                score);
         }
         row++;
     } while (row < 6);
     FlushInputEvents();
     DIBslam();
     DIBslamReal();
-    WaitForInputKey();
+    do {
+        if (DisplayTrainSimHighScoreTable(1) == 0)
+            break;
+    } while (AnimateTrainSimTitle() != 0);
+    ReleaseTextFont(1);
+    free_viewport(&g_stTrainSimPanelViewport_00469da8);
+    free_viewport(&g_stTrainSimHighScoreBufferViewport_005a7bb0);
     ReleasePacketHandle((int)backdrop);
-    SetEventManagerPump(PollMenuInputDevices);
 }
 
 /* Function start: 0x426C50 */

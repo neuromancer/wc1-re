@@ -64,6 +64,7 @@ void InitGameClockEpoch(void);                                    /* 0x004030B0 
 void WriteDebugString(const char *s);                                   /* 0x004030D0 */
 void SetMousePositionDuplicate(int x, int y);                                 /* 0x004030E0 */
 FontWorkspace **AllocateFontWorkspace(short fontIndex);                /* 0x00403100 */
+void FreeFontWorkspace(FontWorkspace **workspace);                    /* 0x00403180 */
 char *LocateStreamsDirOnDisc(void);                                  /* 0x004031C0 */
 char FindCdRomDriveByVolumeLabel(const char *label,
                                  const char *directory);              /* 0x00403290 */
@@ -505,6 +506,7 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
                                            short fontIndex,
                                            unsigned char colour,
                                            signed char background);    /* 0x0041D510 */
+unsigned int ReleaseTextFont(short fontIndex);                         /* 0x0041D590 */
 unsigned int DrawTextAt(TextContext *context, short x, short y,
                         char *text, unsigned char alignment);           /* 0x0041D5F0 */
 short OpenDiskDataFile(short logicalFile);                              /* 0x0041D6C0 */
@@ -686,7 +688,9 @@ unsigned char TakeDebugStepFlag(void);                                     /* 0x
 void ResetDiskPromptTimer(void);                                             /* 0x00425BE0 */
 void DiskPromptDrawHook(void);                                             /* 0x00425C10 */
 void ClearDebugPauseFlags(void);                                              /* 0x00425C20 */
-unsigned int GetDebugKeyState(unsigned int *p);                        /* 0x00425C30 */
+unsigned short EraseTextContextBackground(TextContext *context);      /* 0x00425C30 */
+int DisplayTrainSimHighScoreTable(short phase);                       /* 0x00425C60 */
+int AnimateTrainSimTitle(void);                                       /* 0x00425D00 */
 unsigned char *GetHighScoreEntry(short i);                           /* 0x00425DF0 */
 unsigned int GetHighScoreValue(short i);                                      /* 0x00425E20 */
 void SetHighScoreEntry(short i, unsigned char b, unsigned int v);    /* 0x00425E30 */
@@ -1001,7 +1005,7 @@ void SetMouseHomePosition(short x, short y);                                  /*
 void __stdcall ApplyPackedMousePosition(ShortPoint point);             /* 0x00436190 */
 void SetFrameTimerPeriod(short period);                                   /* 0x004361E0 */
 void SetFrameTimerAndWait(short period);                                       /* 0x004361F0 */
-void SetFrameTimerPeriodDirect(short p);                      /* 0x00436210 */
+void __stdcall SetFrameTimerPeriodDirect(short p);                    /* 0x00436210 */
 void WaitForFrameTick(void);                                          /* 0x00436230 */
 int IsFrameTickElapsed(void);                                            /* 0x00436240 */
 unsigned short GetSoundHardwareFlag(void);                                    /* 0x00436260 */
@@ -1048,6 +1052,10 @@ unsigned int ShowGameOverScreen(void);                                 /* 0x0043
 unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
                              int mode, int colour);                    /* 0x00439E39 */
 void SetPaletteTranslationTable(const unsigned char *translation);    /* 0x0043AE3F */
+int FillRasterClip(RasterClip *clip, int colour);                      /* 0x0043C808 */
+int BlitRasterClip(RasterClip *source, int sourceX, int sourceY,
+                   RasterClip *destination, int destinationX,
+                   int destinationY, unsigned int colour);            /* 0x0043C8E7 */
 void CorrectPointers(void);                                            /* 0x0043F640 */
 void ClearSaveSlotFlag(void);                                            /* 0x0043F690 */
 int IsSaveSlotFree(void);                                            /* 0x0043F6A0 */

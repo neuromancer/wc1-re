@@ -150,6 +150,23 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
     return 0;
 }
 
+/* Function start: 0x41D590 */
+unsigned int ReleaseTextFont(short fontIndex)
+{
+    int index;
+
+    if (fontIndex == 1)
+        return 0;
+    index = fontIndex;
+    if (g_apTextFonts_005a6c00[index] != 0) {
+        ReleasePacketHandle((int)g_apTextFonts_005a6c00[index]);
+        g_apTextFonts_005a6c00[index] = 0;
+        FreeFontWorkspace(g_apFontWorkspaces_005a6c10[index]);
+        g_apFontWorkspaces_005a6c10[index] = 0;
+    }
+    return 0;
+}
+
 /* Function start: 0x41D5F0 */
 unsigned int DrawTextAt(TextContext *context, short x, short y,
                         char *text, unsigned char alignment)

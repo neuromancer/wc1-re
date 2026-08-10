@@ -532,7 +532,7 @@ void SetFrameTimerAndWait(short period)
 }
 
 /* Function start: 0x436210 */
-void SetFrameTimerPeriodDirect(short p)
+void __stdcall SetFrameTimerPeriodDirect(short p)
 {
     SetMultimediaTimerCallback((int)p);
 }

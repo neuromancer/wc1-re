@@ -31,6 +31,22 @@ FontWorkspace **AllocateFontWorkspace(short fontIndex)
     return workspace;
 }
 
+/* Function start: 0x403180 */
+void FreeFontWorkspace(FontWorkspace **workspace)
+{
+    FontWorkspace *entry;
+    int offset;
+
+    offset = 0;
+    do {
+        entry = (FontWorkspace *)((unsigned char *)*workspace + offset);
+        offset += sizeof(FontWorkspace);
+        free(entry->pixels);
+    } while (offset < (int)sizeof(FontWorkspace));
+    free(*workspace);
+    free(workspace);
+}
+
 /* Function start: 0x4031C0 */
 char *LocateStreamsDirOnDisc(void)
 {

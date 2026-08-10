@@ -1085,7 +1085,7 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
     panel->context.text = g_szTextScratchBuffer_00598b00;
     panel->context.viewport = &panel->viewport;
     ResetStringBuilder(&panel->context);
-    GetDebugKeyState((unsigned int *)panel);
+    EraseTextContextBackground(&panel->context);
     DrawViewportBorder(&panel->viewport, panel->left, panel->top,
                        panel->right, panel->bottom, borderColour);
     return 1;

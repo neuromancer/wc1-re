@@ -10,23 +10,31 @@
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip)
 {
-    int topOffset;
-    int nextOffset;
+    int allocation;
+    unsigned int topOffset;
+    unsigned int nextOffset;
+    unsigned int rowStrideOffset;
 
-    if (viewport == 0 || viewport->pixels == 0 ||
-        viewport->rowOffsets == 0) {
-        memset(surface, 0, sizeof(*surface));
-        memset(clip, 0, sizeof(*clip));
-        return;
+    if (viewport->pixels != DAT_005a6ba0.pixels) {
+        allocation = 0;
+        while (allocation < g_nViewportAllocationCount_005a7f0c) {
+            if (g_apViewportAllocations_005a7f10[allocation] ==
+                viewport->pixels)
+                break;
+            allocation++;
+        }
+        if (allocation >= g_nViewportAllocationCount_005a7f0c)
+            exit_squadron(g_szBadViewport_00470d24);
     }
-    if (viewport == &DAT_005a6ba0)
-        DAT_00486518 = 1;
-    topOffset = (int)SignExtendClipCoord(
-        viewport->rowOffsets[viewport->top]);
-    nextOffset = (int)SignExtendClipCoord(
+    if (viewport->pixels == DAT_005a6ba0.pixels)
+        DIBslam();
+    topOffset = SignExtendClipCoord(viewport->rowOffsets[viewport->top]);
+    nextOffset = SignExtendClipCoord(
         viewport->rowOffsets[viewport->top + 1]);
+    rowStrideOffset = SignExtendClipCoord(
+        viewport->rowOffsets[viewport->top]);
     surface->pixels = viewport->pixels + viewport->left + topOffset;
-    surface->maximumX = nextOffset - topOffset - 1;
+    surface->maximumX = nextOffset - rowStrideOffset - 1;
     surface->maximumY = viewport->bottom - viewport->top;
     surface->field_C = 0;
     surface->field_10 = 0;
@@ -512,58 +520,27 @@ void DrawSolidColourSprite(Viewport *viewport, short x, short y,
 /* Function start: 0x441A90 */
 void CopyViewportContents(Viewport *source, Viewport *destination)
 {
-    int width;
-    int height;
-    int destinationWidth;
-    int destinationHeight;
-    int row;
+    RasterClip destinationClip;
+    RasterClip sourceClip;
+    RasterSurface destinationSurface;
+    RasterSurface sourceSurface;
 
-    if (source == 0 || destination == 0 || source->pixels == 0 ||
-        destination->pixels == 0 || source->rowOffsets == 0 ||
-        destination->rowOffsets == 0) {
-        return;
-    }
-    width = source->right - source->left + 1;
-    height = source->bottom - source->top + 1;
-    destinationWidth = destination->right - destination->left + 1;
-    destinationHeight = destination->bottom - destination->top + 1;
-    if (destinationWidth < width)
-        width = destinationWidth;
-    if (destinationHeight < height)
-        height = destinationHeight;
-    row = 0;
-    while (row < height) {
-        memcpy(destination->pixels +
-                   destination->rowOffsets[destination->top + row] +
-                   destination->left,
-               source->pixels + source->rowOffsets[source->top + row] +
-                   source->left,
-               width);
-        row++;
-    }
-    if (destination == &DAT_005a6ba0)
-        DAT_00486518 = 1;
+    ValidateViewportBounds(source, &sourceSurface, &sourceClip);
+    ValidateViewportBounds(destination, &destinationSurface,
+                           &destinationClip);
+    BlitRasterClip(&sourceClip, 0, 0, &destinationClip, 0, 0,
+                   0xffffffff);
 }
 
 /* Function start: 0x441AE0 */
 void ClearViewport(Viewport *viewport, short colour)
 {
-    int width;
-    short row;
-
-    if (viewport != 0 && viewport->pixels != 0 &&
-        viewport->rowOffsets != 0) {
-        width = viewport->right - viewport->left + 1;
-        row = viewport->top;
-        while (row <= viewport->bottom) {
-            memset(viewport->pixels + viewport->rowOffsets[row] +
-                       viewport->left,
-                   colour, width);
-            row++;
-        }
+    if (viewport->pixels != 0 && viewport->rowOffsets != 0) {
+        ClipViewportToScreen(viewport);
+        FillRasterClip(&g_stRasterClip_00496fc0, colour);
     }
     if (viewport == &DAT_005a6ba0) {
-        DAT_00486518 = 1;
+        DIBslam();
         DIBslamReal();
     }
 }
