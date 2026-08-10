@@ -71,10 +71,34 @@ unsigned int initialize_view_buffer(void)
 }
 
 /* Function start: 0x427A40 */
-void dump_buffer_to_screen(void)
+unsigned int dump_buffer_to_screen(void)
 {
-    CopyViewportContents(&DAT_005a7510, &DAT_005a6ba0);
+    short bottom;
+
+    if (DAT_0046a008 > 0) {
+        CopyViewportContents(&DAT_005a7510, &DAT_005a6ba0);
+        ShowMemoryStatusDebug();
+        return 0;
+    }
+    switch ((int)g_cScreenViewportMode_0059a9f2) {
+    case 4:
+        bottom = DAT_005a6ba0.bottom;
+        DAT_005a6ba0.top = 24;
+        DAT_005a6ba0.bottom = 152;
+        CopyViewportContents(&DAT_005a7510, &DAT_005a6ba0);
+        DAT_005a6ba0.bottom = bottom;
+        DAT_005a6ba0.top = 0;
+        break;
+    case 5:
+        CopyViewportContents(&DAT_005a7510, &DAT_005a6ba0);
+        break;
+    default:
+        fizzle_fade(&DAT_005a7510, &DAT_005a6ba0,
+                    g_pScreenViewportGeometry_0059a9f4);
+        break;
+    }
     ShowMemoryStatusDebug();
+    return 0;
 }
 
 /* Function start: 0x427B00 */

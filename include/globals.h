@@ -79,6 +79,7 @@ extern const char g_szDebugOverlayFontName_00469654[8];
 extern const char g_szDebugOverlaySpinner_0046965c[5];
 extern const char g_szDebugOverlayNewline_00469664[4];
 extern short g_nKeyboardPointerStep_004696a4;
+extern const signed char g_acGunRefireDelay_0046995c[4];
 extern unsigned char DAT_0046999c;
 extern unsigned char g_cViewportClearColour_004699a0;
 extern unsigned char DAT_004699a4;

@@ -140,7 +140,7 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
     bitmap = (unsigned char *)malloc(sourceWidth * sourceHeight);
     if (bitmap == 0)
         return;
-    memset(bitmap, 0, sourceWidth * sourceHeight);
+    memset(bitmap, 0xff, sourceWidth * sourceHeight);
 
     commands = frameData + 8;
     rowCode = *(unsigned short *)commands;
@@ -216,7 +216,10 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                         sourceY >= minY && sourceY <= maxY) {
                         colour = bitmap[(sourceY - minY) * sourceWidth +
                                         sourceX - minX];
-                        if (colour != 0)
+                        if (colour != 0xff && blendMode != 0)
+                            colour =
+                                g_abRasterPaletteTranslation_0046ff2c[colour];
+                        if (colour != 0xff)
                             viewport->pixels[viewport->rowOffsets[drawY] +
                                              drawX] = colour;
                     }
@@ -227,7 +230,6 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
         destinationY++;
     }
     free(bitmap);
-    (void)blendMode;
 }
 
 /* Function start: 0x441140 */
@@ -712,6 +714,43 @@ int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
     }
     (void)flip;
     return 0;
+}
+
+/* Function start: 0x442200 */
+void fizzle_fade(Viewport *source, Viewport *destination,
+                 const short *geometry)
+{
+    const short *run;
+    unsigned char *sourcePixels;
+    unsigned char *destinationPixels;
+    volatile unsigned int width;
+    short sourceLeft;
+    short sourceTop;
+    short destinationX;
+    short sourceY;
+
+    if (source->pixels != 0 && destination->pixels != 0) {
+        sourceLeft = geometry[2];
+        sourceTop = geometry[3];
+        destinationX = geometry[4];
+        if (destinationX != -1) {
+            run = geometry + 5;
+            do {
+                sourceY = run[0];
+                width = (unsigned short)run[1];
+                sourcePixels = source->pixels +
+                    source->rowOffsets[sourceY - sourceTop] - sourceLeft +
+                    destinationX;
+                destinationPixels = destination->pixels +
+                    destination->rowOffsets[sourceY] + destinationX;
+                memcpy(destinationPixels, sourcePixels, width);
+                destinationX = run[2];
+                run += 3;
+            } while (destinationX != -1);
+        }
+        if (destination->pixels == DAT_005a6ba0.pixels)
+            DIBslam();
+    }
 }
 
 /* Function start: 0x442300 */

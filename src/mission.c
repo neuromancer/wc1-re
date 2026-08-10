@@ -26,27 +26,36 @@ short find_weapon(short obj, enum ObjectType weaponType)
 }
 
 /* Function start: 0x421220 */
-int fire_fixed_projectile_weapon(short obj)
+short fire_fixed_projectile_weapon(short obj)
 {
+    ShipWeaponSlot *slot;
+    int loadoutOffset;
+    short ship;
     short weapon;
-    int result = obj;
+    int result;
 
+    ship = obj;
+    loadoutOffset = ship * sizeof(g_aShipWeapons_0059cab0[0]);
     weapon = 0;
-    while (weapon < (signed char)g_aShipWeapons_0059cab0[obj][0]) {
-        ShipWeaponSlot *slot =
-            &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
-
-        if (slot->type >= 0 && slot->type < OBJECT_TYPE_COUNT &&
-            g_aObjectTypeData_0046645c[slot->type].objectClass ==
+    slot = (ShipWeaponSlot *)((unsigned char *)g_aShipWeapons_0059cab0 +
+                              loadoutOffset + 1);
+    if (*(signed char *)((unsigned char *)g_aShipWeapons_0059cab0 +
+                         loadoutOffset) <= 0)
+        return ship;
+    do {
+        if (g_aObjectTypeData_0046645c[slot->type].objectClass ==
                 OBJECT_CLASS_PROJECTILE &&
             slot->disabled == 0) {
-            result = fire_weapon(obj, weapon);
+            result = fire_weapon(ship, weapon);
             if (result == -1)
                 return -1;
         }
         weapon++;
-    }
-    return result;
+        slot++;
+    } while ((short)*(signed char *)((unsigned char *)g_aShipWeapons_0059cab0 +
+                                     loadoutOffset) > weapon);
+    return *(signed char *)((unsigned char *)g_aShipWeapons_0059cab0 +
+                            loadoutOffset);
 }
 
 /* Function start: 0x4212A0 */

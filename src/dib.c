@@ -10,23 +10,17 @@
 /* Function start: 0x4320E0 */
 void SetSpaceFlightFrameTiming(void)
 {
-    long v;
-
     DAT_0046b1c8 = 1;
-    v = (long)(1000.0 / g_fSpaceFlightFrameRate_0046b1cc);
+    DAT_0046b1b8 = (long)(1000.0 / g_fSpaceFlightFrameRate_0046b1cc);
     DAT_0046b1bc = 0;
-    DAT_0046b1b8 = (int)v;
 }
 
 /* Function start: 0x432110 */
 void SetCinematicFrameTiming(void)
 {
-    long v;
-
     DAT_0046b1c8 = 0;
-    v = (long)(1000.0 / g_fCinematicFrameRate_0046b1d0);
+    DAT_0046b1b8 = (long)(1000.0 / g_fCinematicFrameRate_0046b1d0);
     DAT_0046b1bc = 0;
-    DAT_0046b1b8 = (int)v;
 }
 
 /* Function start: 0x432140 */

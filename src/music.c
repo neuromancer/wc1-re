@@ -136,21 +136,25 @@ unsigned int parse_view_script(void)
 unsigned int update_scripted_view(void)
 {
     short counter;
+    int command;
 
-    counter = g_asObjectCounter_0059c330[61];
-    if (*g_pViewScript_005a6b58 == 13) {
-        if (g_nEyePitchGoal_0059d61c == 0 &&
-            g_nEyeYawGoal_0059c944 == 0 &&
-            g_nEyeRollGoal_0059c8f0 == 0) {
+    command = *g_pViewScript_005a6b58;
+    switch (command) {
+    case 13:
+        if ((g_nEyeYawGoal_0059c944 == g_nEyePitchGoal_0059d61c) !=
+            g_nEyeRollGoal_0059c8f0) {
             g_pViewScript_005a6b58++;
             parse_view_script();
         }
-    } else if (*g_pViewScript_005a6b58 == 14) {
+        break;
+    case 14:
+        counter = g_asObjectCounter_0059c330[61];
         g_asObjectCounter_0059c330[61]--;
         if (counter < 1) {
             g_pViewScript_005a6b58 += 2;
             parse_view_script();
         }
+        break;
     }
     return 0;
 }

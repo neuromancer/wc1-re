@@ -105,7 +105,7 @@ void point_at(short obj, FixedVector point)
     FixedVector direction;
 
     ComputeVectorDelta(&g_aShipPosition_0059c490[obj], &point, &direction);
-    NormalizeFixedVector(&direction);
+    shrink_vector(&direction);
     g_aShipForwardVector_0059bce0[obj] = direction;
     fix_objects_ijk(obj);
 }

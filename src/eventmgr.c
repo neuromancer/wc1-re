@@ -374,6 +374,11 @@ unsigned int ResetAllocationDepth(void)
     return 1;
 }
 
+/* Function start: 0x435DE0 */
+void CheckCursor(void)
+{
+}
+
 /* Function start: 0x435E20 */
 void CaptureMouseCursorBackground(void)
 {
@@ -503,6 +508,14 @@ void SetMouseHomePosition(short x, short y)
 {
     g_nMouseX_0059ab10 = x;
     g_nMouseY_0059ab12 = y;
+}
+
+/* Function start: 0x436190 */
+void __stdcall ApplyPackedMousePosition(ShortPoint point)
+{
+    g_nMouseX_0059ab10 = point.x;
+    g_nMouseY_0059ab12 = point.y;
+    SetMousePositionDuplicate(point.x, point.y);
 }
 
 /* Function start: 0x4361E0 */
@@ -877,4 +890,63 @@ unsigned int IsVectorWithinRange(FixedVector *vector, short range)
     if (fixedRange >= magnitude)
         return 1;
     return 0;
+}
+
+/* Function start: 0x436A30 */
+unsigned int shrink_vector(FixedVector *vector)
+{
+    unsigned int shrinking;
+
+    do {
+        shrinking = shrink(&vector->x);
+        shrinking |= shrink(&vector->y);
+        shrinking |= shrink(&vector->z);
+    } while (shrinking != 0);
+    return 0;
+}
+
+/* Function start: 0x436A70 */
+unsigned int shrink(int *component)
+{
+    int value;
+    unsigned short fraction;
+    unsigned int integerPart;
+    short signedIntegerPart;
+
+    value = *component / 2;
+    *component = value;
+    fraction = (unsigned short)value;
+    integerPart = (unsigned int)value >> 16;
+    signedIntegerPart = (short)integerPart;
+    if (signedIntegerPart == 0)
+        return fraction > 0x0f00;
+    if (signedIntegerPart == -1)
+        return fraction < 0xf100;
+    if (signedIntegerPart != 0)
+        integerPart = 1;
+    return integerPart;
+}
+
+/* Function start: 0x436C70 */
+void __stdcall FillGraphicSuffix(char *path, short number, short digits)
+{
+    char *dot;
+    char *suffix;
+
+    suffix = DosStrchr(path, '.');
+    dot = suffix;
+    suffix++;
+    if (dot == 0)
+        suffix = path;
+    suffix[digits] = '\0';
+    ConvertChar_Int(suffix, number, digits);
+}
+
+/* Function start: 0x436CB0 */
+void __stdcall ConvertChar_Int(char *text, short number, short digits)
+{
+    while (digits--) {
+        text[digits] = (char)(number % 10) + '0';
+        number /= 10;
+    }
 }

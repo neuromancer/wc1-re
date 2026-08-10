@@ -249,50 +249,131 @@ int fire_weapon(short obj, short weapon)
     ObjectTypeData *weaponData;
     enum ObjectType weaponType;
     enum ObjectClass weaponClass;
-    FixedVector convergence;
-    FixedVector forwardVelocity;
+    FixedVector vector;
+    FixedVector cockpitOffset;
+    int range;
     short projectileSpeed;
     short projectile;
 
-    if (obj < 0 || obj >= WC1_SPACE_OBJECT_COUNT ||
-        weapon < 0 || weapon >= (signed char)g_aShipWeapons_0059cab0[obj][0])
-        return -1;
     slot = &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
     weaponType = slot->type;
-    if ((int)weaponType < 0 || weaponType >= OBJECT_TYPE_COUNT)
-        return -1;
     weaponClass = g_aObjectTypeData_0046645c[weaponType].objectClass;
-    if (weaponType == OBJECT_TYPE_TURRET)
+    if (weaponType == OBJECT_TYPE_TURRET) {
+        weaponClass = OBJECT_CLASS_PROJECTILE;
         weaponType = OBJECT_TYPE_LASER_CANNON;
-
-    projectile = find_vacant_3d_object();
+    }
+    if (weaponClass == OBJECT_CLASS_MINE)
+        return drop_mine(obj, (signed char)weapon, weaponType, -1);
+    if (weaponClass == OBJECT_CLASS_MISSILE)
+        projectile = initialize_ship(weaponType, obj);
+    else
+        projectile = new_object(weaponType, obj);
     if (projectile == -1)
-        return -1;
-    set_objects_data(projectile, weaponType, obj);
-    copy_frame(obj, projectile);
+        return projectile;
     weaponData = &g_aObjectTypeData_0046645c[weaponType];
+    copy_frame(obj, projectile);
+    projectileSpeed = 10;
+    if (weaponClass == OBJECT_CLASS_PROJECTILE) {
+        DAT_0059dee0[projectile] = weaponData->damageCapacity;
+        projectileSpeed = g_aObjectTypeData_0046645c[
+            g_aeObjectType_0059b560[projectile]].maximumVelocity;
+        g_asShipWeaponEnergy_0059d470[obj] =
+            (short)(g_asShipWeaponEnergy_0059d470[obj] -
+                    weaponData->animationDelay);
+    }
     child_object(slot->hardpoint, projectile, obj);
     g_asObjectCounter_0059c330[projectile] = weaponData->lifetime;
     vector_component_in_dir(&g_aShipVelocity_0059c010[obj],
                             &g_aShipForwardVector_0059bce0[projectile],
                             &g_aShipVelocity_0059c010[projectile]);
-    projectileSpeed = 10;
     if (weaponClass == OBJECT_CLASS_PROJECTILE) {
-        projectileSpeed = weaponData->maximumVelocity;
         ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
             (int)(short)((weaponData->damageCapacity + 5) *
                          weaponData->maximumVelocity) << 8,
-            &convergence);
-        AddFixedVectors(&g_aShipPosition_0059c490[obj], &convergence,
-                        &convergence);
-        point_at(projectile, convergence);
+            &vector);
+        AddFixedVectors(&g_aShipPosition_0059c490[obj], &vector, &vector);
+        point_at(projectile, vector);
+        if (DAT_0046a008 != 0 && g_cCockpitView_0059dab0 == 3) {
+            ScaleFixedVector(&g_aShipUpVector_0059b9e0[obj], 0x12200,
+                             &cockpitOffset);
+            AddFixedVectors(&cockpitOffset, &vector, &vector);
+            point_at(projectile, vector);
+        }
     }
     ScaleFixedVector(&g_aShipForwardVector_0059bce0[projectile],
-                     (int)projectileSpeed << 8, &forwardVelocity);
-    AddFixedVectors(&g_aShipVelocity_0059c010[projectile], &forwardVelocity,
+                     (int)projectileSpeed << 8, &vector);
+    AddFixedVectors(&vector, &g_aShipVelocity_0059c010[projectile],
                     &g_aShipVelocity_0059c010[projectile]);
-    g_asObjectViewFrame_0059d230[projectile] = 0;
-    if (obj < 10)
+    if (weaponClass == OBJECT_CLASS_MISSILE) {
+        ScaleFixedVector(&g_aShipUpVector_0059b9e0[obj], 0xa00, &vector);
+        AddFixedVectors(&vector, &g_aShipVelocity_0059c010[projectile],
+                        &g_aShipVelocity_0059c010[projectile]);
+        if (obj == 0)
+            RemovePlayerReleaseWeapon((signed char)weapon);
+        else
+            remove_weapon(obj, weapon);
+        g_aShipMissionSpot_0059dd10[0xa0 + projectile] = 20;
+        g_aeSpecialManeuver_0059c3c0[projectile] =
+            SPECIAL_MANEUVER_NONE;
+        g_aeShipManeuver_0059dcb0[projectile] = MANEUVER_NONE;
+        g_aeShipTactic_0059d5e0[projectile] = TACTIC_SIT_STILL;
+        g_asObjectCounter_0059c330[projectile] = 5;
+        switch (weaponType) {
+        case OBJECT_TYPE_DUMB_FIRE_MISSILE:
+            steady_object(projectile);
+            g_asObjectCounter_0059c330[projectile] = 1;
+            g_acShipTarget_0059ce60[projectile] =
+                g_acShipTarget_0059ce60[obj];
+            g_anShipSpeed_0059b320[projectile] =
+                (int)get_ship_max_velocity(projectile) << 8;
+            if (g_acShipTarget_0059ce60[projectile] != -1) {
+                ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+                    &g_aShipPosition_0059c490[
+                        g_acShipTarget_0059ce60[projectile]], &vector);
+                range = (int)ComputeFixedVectorMagnitude(&vector);
+                ScaleFixedVector(&g_aShipVelocity_0059c010[
+                    g_acShipTarget_0059ce60[projectile]],
+                    range / get_ship_max_velocity(projectile), &vector);
+                AddFixedVectors(&g_aShipPosition_0059c490[
+                    g_acShipTarget_0059ce60[projectile]], &vector, &vector);
+                point_at(projectile, vector);
+            }
+            break;
+        case OBJECT_TYPE_HEAT_SEEKING_MISSILE:
+        case OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE:
+            g_acShipTarget_0059ce60[projectile] =
+                g_acShipTarget_0059ce60[obj];
+            break;
+        case OBJECT_TYPE_FF_MISSILE:
+            g_acShipTarget_0059ce60[projectile] = -1;
+            g_asObjectCounter_0059c330[projectile] = 15;
+            break;
+        }
+    }
+    if (obj == 0) {
+        if (weaponClass == OBJECT_CLASS_PROJECTILE) {
+            g_asObjectCounter_0059c330[obj] =
+                g_acGunRefireDelay_0046995c[
+                    weaponType - OBJECT_TYPE_LASER_CANNON];
+        }
+    } else {
         g_asObjectCounter_0059c330[obj] = 12;
+    }
+    switch (weaponType) {
+    case OBJECT_TYPE_LASER_CANNON:
+    case OBJECT_TYPE_NEUTRON_PARTICLE_GUN:
+        PlaySfxWaveFileByNumber(8, projectile, 0);
+        break;
+    case OBJECT_TYPE_MASS_DRIVER_CANNON:
+    case OBJECT_TYPE_TURRET:
+        PlaySfxWaveFileByNumber(5, projectile, 0);
+        break;
+    case OBJECT_TYPE_DUMB_FIRE_MISSILE:
+    case OBJECT_TYPE_HEAT_SEEKING_MISSILE:
+    case OBJECT_TYPE_FF_MISSILE:
+    case OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE:
+        PlaySfxWaveFileByNumber(1, projectile, 0);
+        break;
+    }
     return projectile;
 }

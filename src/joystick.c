@@ -416,13 +416,15 @@ unsigned int update_star_field(void)
                      20 << 8, &g_vStarFieldMotion_0059c860);
     AddFixedVectors(&cameraMotion, &g_vStarFieldMotion_0059c860,
                     &g_vStarFieldMotion_0059c860);
-    zero_vector(&origin);
+    ComputeVectorDelta(&g_vPreviousStarFieldMotion_0059c900,
+                       &g_vStarFieldMotion_0059c860, &origin);
     obj = 34;
     do {
         if (g_asObjectScreenX_0059d9b0[obj] == (short)0x8001) {
             randomChoice = RandomInRange(0, 7);
             if (g_pActiveHazardField_0059bfe0 == 0) {
                 if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_ASTEROID ||
+                    (int)g_aeObjectClass_0059d100[obj] == 0x21 ||
                     g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_NULL) {
                     set_objects_data(obj, OBJECT_TYPE_SPACE_DUST, -1);
                     randomChoice = 0;

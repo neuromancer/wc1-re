@@ -116,6 +116,7 @@ const char g_szDebugOverlayFontName_00469654[8] = "Courier";
 const char g_szDebugOverlaySpinner_0046965c[5] = "-\\|/";
 const char g_szDebugOverlayNewline_00469664[4] = "\n";
 short g_nKeyboardPointerStep_004696a4 = 4;
+const signed char g_acGunRefireDelay_0046995c[4] = {6, 10, 4, 0};
 unsigned char DAT_0046999c;
 unsigned char g_cViewportClearColour_004699a0 = 15;
 unsigned char DAT_004699a4 = 0x25;

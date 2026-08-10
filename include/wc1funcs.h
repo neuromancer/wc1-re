@@ -479,7 +479,7 @@ int explode(short attacker, short victim);                            /* 0x00420
 void fire_capital_weapon(short obj, short target);                    /* 0x004202D0 */
 int fire_turrets(short obj);                                          /* 0x00420AA0 */
 int fire_weapon(short obj, short weapon);                              /* 0x00420C20 */
-int fire_fixed_projectile_weapon(short obj);                           /* 0x00421220 */
+short fire_fixed_projectile_weapon(short obj);                         /* 0x00421220 */
 int drop_mine(short obj, signed char weapon, enum ObjectType type,
               short lifetime);                                       /* 0x004212A0 */
 void fire_afterburner(short obj, short time);                          /* 0x00421350 */
@@ -626,7 +626,7 @@ unsigned int GetJoystickButtonEdge(unsigned int a, short b);                    
 int main(short argc, char **argv);                                      /* 0x004274E0 */
 unsigned int GetScreenUpdateFlag(void);                                         /* 0x004279D0 */
 unsigned int initialize_view_buffer(void);                                /* 0x00427A00 */
-void dump_buffer_to_screen(void);                                         /* 0x00427A40 */
+unsigned int dump_buffer_to_screen(void);                                 /* 0x00427A40 */
 unsigned int clear_view_buffer(void);                                     /* 0x00427B00 */
 unsigned int ResetScreenClipToFullHeight(void);                                         /* 0x00427BA0 */
 unsigned int RefreshMemoryStatusOverlay(void);                                         /* 0x00427C30 */
@@ -844,7 +844,8 @@ void __stdcall AppendTextCharacter(char character);                  /* 0x004353
 void ResetTextCursor(void);                                           /* 0x004353F0 */
 unsigned int DosFarPtrToNear(unsigned int v);                             /* 0x00435410 */
 unsigned int DosNearPtrToFar(unsigned int v);                             /* 0x00435420 */
-void DosStrrchr(char *s, short c);                                  /* 0x00435430 */
+char *__stdcall DosStrrchr(char *s, short c);                       /* 0x00435430 */
+char *__stdcall DosStrchr(char *s, short c);                        /* 0x00435450 */
 char *__stdcall DosStrcpy(char *dst, const char *src);               /* 0x00435470 */
 short DosStrlen(const char *s);                                   /* 0x004354D0 */
 void DosMemcpy(void *dst, const void *src, size_t n);               /* 0x004354F0 */
@@ -877,6 +878,7 @@ short __stdcall PeekInputEvent(InputEventState *event, short type);    /* 0x0043
 short __stdcall IsInputEventQueued(short type);                        /* 0x00435D80 */
 void FlushInputEvents(void);                                          /* 0x00435DB0 */
 unsigned int ResetAllocationDepth(void);                                          /* 0x00435DC0 */
+void CheckCursor(void);                                                /* 0x00435DE0 */
 void CaptureMouseCursorBackground(void);                           /* 0x00435E20 */
 void DrawMouseCursor(void);                                        /* 0x00435EF0 */
 void RestoreMouseCursorBackground(void);                           /* 0x00435FA0 */
@@ -885,6 +887,7 @@ void EnterAllocationScope(void);                                                
 void LeaveAllocationScope(void);                                                 /* 0x004360E0 */
 void __stdcall SetMouseCursorShape(unsigned char *shape, short frame); /* 0x004360F0 */
 void SetMouseHomePosition(short x, short y);                                  /* 0x00436160 */
+void __stdcall ApplyPackedMousePosition(ShortPoint point);             /* 0x00436190 */
 void SetFrameTimerPeriod(short period);                                   /* 0x004361E0 */
 void SetFrameTimerAndWait(short period);                                       /* 0x004361F0 */
 void SetFrameTimerPeriodDirect(short p);                      /* 0x00436210 */
@@ -918,6 +921,12 @@ unsigned short GetShutdownErrorCode(void);                                   /* 
 void VideoReleaseHook(void);                                           /* 0x004369D0 */
 void ExitCleanupHook(void);                                           /* 0x004369E0 */
 unsigned int IsVectorWithinRange(FixedVector *vector, short range);    /* 0x00436A00 */
+unsigned int shrink_vector(FixedVector *vector);                       /* 0x00436A30 */
+unsigned int shrink(int *component);                                   /* 0x00436A70 */
+void __stdcall FillGraphicSuffix(char *path, short number,
+                                 short digits);                        /* 0x00436C70 */
+void __stdcall ConvertChar_Int(char *text, short number,
+                              short digits);                          /* 0x00436CB0 */
 unsigned int BeginBriefingScene(void);                                         /* 0x00438B90 */
 void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
                                unsigned short top, unsigned short right,
@@ -979,6 +988,8 @@ int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               unsigned char *shape, short frame,
                               short angle, short scale, int flip,
                               short *bounds);                         /* 0x00442050 */
+void fizzle_fade(Viewport *source, Viewport *destination,
+                 const short *geometry);                            /* 0x00442200 */
 void snow_viewport(Viewport *viewport, int effect,
                    unsigned int colour);                              /* 0x00442300 */
 void UpdateStreamerStoppedFlag(void);                                    /* 0x00442330 */

@@ -19,9 +19,15 @@ unsigned int DosNearPtrToFar(unsigned int v)
 }
 
 /* Function start: 0x435430 */
-void DosStrrchr(char *s, short c)
+char *__stdcall DosStrrchr(char *s, short c)
 {
-    strrchr(s, (int)c);
+    return strrchr(s, (int)c);
+}
+
+/* Function start: 0x435450 */
+char *__stdcall DosStrchr(char *s, short c)
+{
+    return strchr(s, (int)c);
 }
 
 /* Function start: 0x435470 */
