@@ -20,16 +20,19 @@ void show_info_disp(void)
     DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left, DAT_005a6b80.top,
                " INFO DISPLAY \n", 0);
     DrawFormattedText("Version: %s\n", g_pGameVersion_004693b4);
-    DrawFormattedText("Series %d Misn %d\n", (int)g_cCurrentSeries_0059ca6a,
-                      (int)g_cCurrentMission_0059ca69);
+    DrawFormattedText("Series %d Misn %d\n",
+                      (int)g_stCampaignState_0059ca50.currentSeries,
+                      (int)g_stCampaignState_0059ca50.currentMission);
     DrawFormattedText("PC Kills   =%d\nWing Kills =%d\n",
                       (int)g_nPlayerKillCount_005a7c9c,
                       (int)g_asCollisionTime_005a7ca0[12]);
-    DrawFormattedText("Series Score   =%d\n", (int)g_nSeriesScore_0059caa4);
+    DrawFormattedText("Series Score   =%d\n",
+                      (int)g_stCampaignState_0059ca50.seriesScore);
     DrawFormattedText("Miss Score %d, Medal %d\n",
-                      (int)g_nMissionScore_0059caa2,
+                      (int)g_stCampaignState_0059ca50.missionScore,
                       (int)g_nMissionMedalScore_005a8116);
-    DrawFormattedText("Promotion Score=%d\n", (int)g_nPromotionScore_0059caa0);
+    DrawFormattedText("Promotion Score=%d\n",
+                      (int)g_stCampaignState_0059ca50.promotionScore);
     objective = 0;
     DrawFormattedText("OBJECTIVES\n");
     strcpy(objectiveSummary, "");

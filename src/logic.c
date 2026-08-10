@@ -400,6 +400,8 @@ unsigned int LoadOriginFxDrivers(void)
     DIBslam();
     DIBslamReal();
     g_nFrameSkip_00469fb8 = 1;
+    g_pPilotCampaignData_00598a28 = LoadPacketAllocated(0x3a, 0);
+    g_pMissionCampaignData_005988bc = LoadPacketAllocated(0x3a, 1);
     return 0;
 }
 
@@ -445,19 +447,19 @@ unsigned int GetFxDriverStatus(void)
 /* Function start: 0x422010 */
 int ace_status(short ace, unsigned char bits)
 {
-    return (g_abAceFlags_0059ca94[ace] & bits) == bits;
+    return (g_stCampaignState_0059ca50.aceFlags[ace] & bits) == bits;
 }
 
 /* Function start: 0x422030 */
 void unflag_ace(short ace, unsigned char bits)
 {
-    g_abAceFlags_0059ca94[ace] &= ~bits;
+    g_stCampaignState_0059ca50.aceFlags[ace] &= ~bits;
 }
 
 /* Function start: 0x422050 */
 void flag_ace(short ace, unsigned char bits)
 {
-    g_abAceFlags_0059ca94[ace] |= bits;
+    g_stCampaignState_0059ca50.aceFlags[ace] |= bits;
 }
 
 /* Function start: 0x422060 */

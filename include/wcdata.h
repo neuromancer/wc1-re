@@ -430,6 +430,75 @@ typedef struct HighScoreEntry {
 } HighScoreEntry;
 #pragma pack(pop)
 
+/* Campaign pilot records are copied from the nine-entry template at
+ * 0x00470108 into 0x005988D0.  The high-score code addresses the callsign at
+ * +0x0E, while PostMission updates the mission and kill totals at +0x20 and
+ * +0x22. */
+#pragma pack(push, 1)
+typedef struct PilotRecord {
+    char name[14];                    /* +0x00 */
+    char callsign[14];                /* +0x0E */
+    short portrait;                   /* +0x1C */
+    short rank;                       /* +0x1E */
+    short missions;                   /* +0x20 */
+    short kills;                      /* +0x22 */
+    short personality;                /* +0x24 */
+} PilotRecord;
+
+typedef struct CampaignDate {
+    short day;
+    short year;
+} CampaignDate;
+
+/* The complete persistent campaign record copied by ResetCampaignData.  The
+ * four bytes at +0x44 are the ace-state flags; the following eight bytes are
+ * two dates, rather than a single twelve-byte flag array as the old placeholder
+ * declaration implied. */
+typedef struct CampaignState {
+    PilotRecord *currentPilot;        /* +0x00 */
+    enum ObjectType playerShipType;   /* +0x04 */
+    unsigned char field_08[7];        /* +0x08 */
+    unsigned char firstMissionFlag;   /* +0x0F */
+    unsigned char shipFlown[4];       /* +0x10 */
+    unsigned char fiveKillFlag;       /* +0x14 */
+    unsigned char twentyFiveKillFlag; /* +0x15 */
+    unsigned char fiveMissionFlag;    /* +0x16 */
+    unsigned char tenMissionFlag;     /* +0x17 */
+    unsigned char fifteenMissionFlag; /* +0x18 */
+    signed char currentMission;       /* +0x19 */
+    signed char currentSeries;        /* +0x1A */
+    signed char seriesHistoryCount;   /* +0x1B */
+    signed char seriesHistory[8];     /* +0x1C */
+    int personalityDeathMission[8];   /* +0x24 */
+    unsigned char aceFlags[4];        /* +0x44 */
+    CampaignDate currentDate;         /* +0x48 */
+    CampaignDate elapsedDate;         /* +0x4C */
+    short promotionScore;             /* +0x50 */
+    short missionScore;               /* +0x52 */
+    short seriesScore;                /* +0x54 */
+    short campaignIndex;              /* +0x56 */
+} CampaignState;
+
+/* One open packet section.  OpenPacketSection fills this record and the packet
+ * reader advances position while leaving the containing data file open. */
+typedef struct PacketSectionHandle {
+    short file;
+    short finalSection;
+    short sectionCount;
+    short compression;
+    unsigned int dataOffset;
+    unsigned int position;
+    unsigned int dataSize;
+} PacketSectionHandle;
+#pragma pack(pop)
+
+typedef char PilotRecord_size_must_be_0x26[
+    sizeof(PilotRecord) == 0x26 ? 1 : -1];
+typedef char CampaignState_size_must_be_0x58[
+    sizeof(CampaignState) == 0x58 ? 1 : -1];
+typedef char PacketSectionHandle_size_must_be_0x14[
+    sizeof(PacketSectionHandle) == 0x14 ? 1 : -1];
+
 /* Polar form used by the original 3D orientation routines. */
 typedef struct SphericalVector {
     int radius;

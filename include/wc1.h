@@ -25,6 +25,8 @@
 #include <windows.h>
 #include <ddraw.h>
 #include <mmsystem.h>
+#include <conio.h>
+#include <ctype.h>
 #include <direct.h>
 #include <errno.h>
 #include <fcntl.h>

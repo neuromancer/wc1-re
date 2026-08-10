@@ -216,7 +216,12 @@ void ClearNavLegendFlag(void);                                                 /
 void SetScreenClipRect(unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x0040D8C0 */
 void FormatNavCoordinates(unsigned char *out);                                 /* 0x0040DE70 */
 char *GetNavNameSkippingMarker(short i);                                         /* 0x0040DF50 */
-void NudgeObjectX(short i, short dx, short dy);                 /* 0x0040EFE0 */
+void add_statistics(short pilot, short missions, short kills);         /* 0x0040EFE0 */
+void PostMission(void);                                                 /* 0x0040F010 */
+int FullMissionScore(void);                                             /* 0x0040F190 */
+int PlayersMissionScore(void);                                          /* 0x0040F1E0 */
+unsigned int UpdateSeries(void);                                        /* 0x0040F240 */
+unsigned int MoveNewCampaign(void);                                     /* 0x0040F3F0 */
 unsigned int StartNewCampaign(short campaign);                         /* 0x0040F440 */
 void __stdcall free_viewport(Viewport *viewport);                      /* 0x0040F940 */
 unsigned short GetPaletteReadyUnused(void);                                    /* 0x0040FA30 */
@@ -479,6 +484,12 @@ void DebugOverlayPrintf(DebugOverlayConsole *console,
 short MinShort(short a, short b);                                       /* 0x0041D0C0 */
 short MaxShort(short a, short b);                                       /* 0x0041D0E0 */
 void FreePacketAndClear(int *p, int releaseFlags);                      /* 0x0041D100 */
+void ReportPacketLoadError(void *packet, short logicalFile,
+                           short retry, short section,
+                           const char *sourceTag);                      /* 0x0041D120 */
+void *LoadPacketIntoBuffer(short logicalFile, short section,
+                           void *destination);                         /* 0x0041D200 */
+void *LoadPacketAllocated(short logicalFile, short section);           /* 0x0041D250 */
 void *FetchDiskPacketRetrying(short logicalFile, short section,
                               unsigned short flags);                    /* 0x0041D2E0 */
 unsigned int InitializeTextContextFromFont(TextContext *context,
@@ -487,6 +498,8 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
                                            signed char background);    /* 0x0041D510 */
 unsigned int DrawTextAt(TextContext *context, short x, short y,
                         char *text, unsigned char alignment);           /* 0x0041D5F0 */
+short OpenDiskDataFile(short logicalFile);                              /* 0x0041D6C0 */
+void __stdcall PromptInsertNumberedDisk(short logicalFile);             /* 0x0041D760 */
 unsigned int GetZeroUnused(void);                                        /* 0x0041DA00 */
 short CheckEscaped(void);                                               /* 0x0041DA10 */
 short WaitForInputKey(void);                                         /* 0x0041DAA0 */
@@ -686,7 +699,8 @@ unsigned int RefreshMemoryStatusOverlay(void);                                  
 void Update_3Space(void);                                               /* 0x00427C50 */
 unsigned int UpdateSpacePaletteFade(void);                              /* 0x00427CD0 */
 unsigned int SetDefaultCommDelay(void);                                  /* 0x00427C80 */
-void house_keep(void);                                                  /* 0x00427D40 */
+unsigned int FadeFlightPaletteEntry(short *entry);                      /* 0x00427CA0 */
+unsigned int house_keep(void);                                          /* 0x00427D40 */
 void PollSpaceFlightInput(void);                                       /* 0x00427E40 */
 int process_player_input(void);                                        /* 0x00427F20 */
 unsigned int fire_players_lasers(void);                                /* 0x00428480 */
@@ -753,6 +767,8 @@ unsigned short GetJoystickPresentUnused(void);                                  
 unsigned int parse_view_script(void);                                  /* 0x0042CDB0 */
 unsigned int update_scripted_view(void);                               /* 0x0042D1C0 */
 void initialize_scripted_view(const short *script);                    /* 0x0042D230 */
+unsigned int OpenPacketSection(const char *filename, short section,
+                               PacketSectionHandle *handle);           /* 0x0042D730 */
 void show_target_disp(void);                                         /* 0x0042DB90 */
 void DrawTargetRangeReadout(void);                                   /* 0x0042DEA0 */
 unsigned int GetVictoryScreenId(void);                                     /* 0x0042D270 */
@@ -763,7 +779,7 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
                                           short clearColour,
                                           short flags);                /* 0x0042E090 */
 void FadeMusic(void);                                                  /* 0x0042E320 */
-void SetMusicOn(void);                                               /* 0x0042E330 */
+void SetMusicOn(short enabled);                                         /* 0x0042E330 */
 void StopMusic(void);                                                   /* 0x0042E350 */
 void SetMusBreakpt(void);                                               /* 0x0042E380 */
 void PaletteFadeHook(void);                                            /* 0x0042E390 */
@@ -790,9 +806,10 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject,
 int IsShipQueuedOrderDefend(short i);                                      /* 0x0042F1F0 */
 unsigned short GetConversationState(void);                                    /* 0x0042F730 */
 void InitFullScreenViewport(int *vp, short arg);                                    /* 0x0042F7E0 */
-void FrameStartHook(void);                                            /* 0x0042F930 */
+unsigned int GetPacketSize(const char *filename, short section);       /* 0x0042F810 */
+void FrameStartHook(int mode);                                         /* 0x0042F930 */
 unsigned short IsSoundHardwarePresent(void);                                     /* 0x0042F940 */
-void MessagePumpHook(void);                                           /* 0x0042F950 */
+void MessagePumpHook(int mode);                                        /* 0x0042F950 */
 int PushMemoryStackFrame(int memory, int offset);                       /* 0x0042F960 */
 int MapPacketHandleToBlock(int handle);                               /* 0x0042FA20 */
 void *AllocateTaggedMemory(unsigned int size, unsigned short flags);   /* 0x0042FA90 */
@@ -819,7 +836,7 @@ void FreeCommDisplayResources(void);                                  /* 0x00431
 void EndCommSessionWithWingman(void);                                  /* 0x00431470 */
 void EndCommMenu(void);                                              /* 0x004314C0 */
 void ShowCentredPrompt(char *text, unsigned short arg);                       /* 0x004314F0 */
-void ShutdownVideoHook(void);                                               /* 0x004318F0 */
+void __stdcall ShutdownVideoHook(int mode);                             /* 0x004318F0 */
 short ReadCalibratedJoystick(void);                                    /* 0x00431D20 */
 void ThrottleFrameAndDrawFps(HDC dc);                                       /* 0x00431F00 */
 void SetSpaceFlightFrameTiming(void);                                  /* 0x004320E0 */
@@ -983,8 +1000,8 @@ unsigned int JoystickEdgeHook(int button);                         /* 0x00436910
 void FreeIfNotNull(void *p);                                            /* 0x00436950 */
 unsigned int GetStartupErrorCode(void);                                     /* 0x00436970 */
 void ShutdownHook(void);                                           /* 0x00436980 */
-unsigned short GetDiskRetryCount(void);                                   /* 0x004369A0 */
-unsigned short GetDiskChangeCount(void);                                   /* 0x004369B0 */
+unsigned short __stdcall SelectDiskDriveHook(short drive);             /* 0x004369A0 */
+unsigned short GetCurrentDiskDriveHook(void);                           /* 0x004369B0 */
 unsigned short GetShutdownErrorCode(void);                                   /* 0x004369C0 */
 void VideoReleaseHook(void);                                           /* 0x004369D0 */
 void ExitCleanupHook(void);                                           /* 0x004369E0 */
@@ -1005,6 +1022,7 @@ unsigned int ShowGameOverScreen(void);                                 /* 0x0043
 unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
                              int mode, int colour);                    /* 0x00439E39 */
 void SetPaletteTranslationTable(const unsigned char *translation);    /* 0x0043AE3F */
+void CorrectPointers(void);                                            /* 0x0043F640 */
 void ClearSaveSlotFlag(void);                                            /* 0x0043F690 */
 int IsSaveSlotFree(void);                                            /* 0x0043F6A0 */
 void ClearLoadSlotFlag(void);                                            /* 0x0043F720 */
@@ -1012,6 +1030,9 @@ void SelectSaveSlot(short i);                                        /* 0x0043F7
 short FindMenuRegionAtPoint(short x, short y,
                             const TitleMenuRegion *regions);           /* 0x0043F7C0 */
 void ResetCampaignData(void);                                         /* 0x00440800 */
+unsigned int ReadPacketSectionData(PacketSectionHandle *handle,
+                                   void *destination,
+                                   unsigned int length);               /* 0x00440840 */
 void CheckHeapBlockSignature(int p);                                              /* 0x004408A0 */
 unsigned int GetHeapBlockSize(int p);                              /* 0x004408C0 */
 unsigned int SignExtendClipCoord(unsigned short v);                         /* 0x00440BE0 */

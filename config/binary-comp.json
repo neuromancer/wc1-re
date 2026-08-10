@@ -10,6 +10,19 @@
       }
     }
   },
+  "globals": {
+    "type_sizes": {
+      "CampaignDate": 4,
+      "CampaignState": 88,
+      "PacketSectionHandle": 20,
+      "PilotRecord": 38
+    },
+    "struct_formats": {
+      "CampaignDate": {
+        "format": "<hh"
+      }
+    }
+  },
   "targets": {
     "full": {
       "original_exe": "../data/full/WC1.ORI.EXE",

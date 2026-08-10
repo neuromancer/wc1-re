@@ -6,6 +6,80 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x41D120 */
+void ReportPacketLoadError(void *packet, short logicalFile,
+                           short retry, short section,
+                           const char *sourceTag)
+{
+    short error;
+    unsigned int packetSize;
+    const char *operation;
+
+    error = DAT_00465460;
+    packetSize = (unsigned int)-1;
+    if ((packet == 0 || (error != 0 && error != 8)) &&
+        (packet != 0 || error != 8)) {
+        if (section != -1)
+            packetSize = GetPacketSize(
+                (char *)(DAT_005a7cf0 + logicalFile * 16), section);
+        LogMemoryUsage();
+        operation = "allocating memory";
+        if (packet != 0 && section != -1)
+            operation = "reading from disk";
+        DAT_00465460 = error;
+        sprintf(g_szDefaultTextBuffer_005a7590,
+                "Sorry, an error has occured while %s.\n"
+                "Please note the following information:\n"
+                "%s #%d (ERR %d  PS%ld  LB%ld  FL%d) at %s\n"
+                "Check your configuration.  If this problem persists, please\n"
+                "call Origin Systems' service line.  We are sorry for the inconvenience.",
+                operation,
+                (char *)(DAT_005a7cf0 + logicalFile * 16),
+                (int)section, (int)error, packetSize,
+                GetFixedOneMillionThunkAlt(), (int)retry, sourceTag);
+        FatalErrorAndExit(g_szDefaultTextBuffer_005a7590);
+    }
+}
+
+/* Function start: 0x41D200 */
+void *LoadPacketIntoBuffer(short logicalFile, short section,
+                           void *destination)
+{
+    void *packet;
+
+    PromptInsertNumberedDisk(logicalFile);
+    packet = PacketLoad(
+        (char *)(DAT_005a7cf0 + logicalFile * 16),
+        section, destination, 0);
+    ReportPacketLoadError(destination, logicalFile, 0, section, "RP");
+    return packet;
+}
+
+/* Function start: 0x41D250 */
+void *LoadPacketAllocated(short logicalFile, short section)
+{
+    unsigned int packetSize;
+    void *packet;
+    short retries;
+
+    retries = 5;
+    PromptInsertNumberedDisk(logicalFile);
+    packetSize = GetPacketSize(
+        (char *)(DAT_005a7cf0 + logicalFile * 16), section);
+    packet = AllocateTaggedMemory((unsigned int)(short)packetSize, 0x40);
+    if (packet != 0) {
+        do {
+            retries--;
+            PacketLoad((char *)(DAT_005a7cf0 + logicalFile * 16),
+                       section, packet, 0);
+            if (retries < 1 || DAT_00465460 == 0)
+                break;
+        } while (DAT_00465460 != 8);
+    }
+    ReportPacketLoadError(packet, logicalFile, 0, section, "LPN");
+    return packet;
+}
+
 /* Function start: 0x41D2E0 */
 void *FetchDiskPacketRetrying(short logicalFile, short section,
                               unsigned short flags)
@@ -93,6 +167,143 @@ unsigned int DrawTextAt(TextContext *context, short x, short y,
     if (context->viewport->pixels == DAT_005a6ba0.pixels)
         DIBslam();
     return 0;
+}
+
+/* Function start: 0x41D6C0 */
+short OpenDiskDataFile(short logicalFile)
+{
+    short file;
+
+    FillGraphicSuffix(g_szDiskMarkerFile_00469688,
+                      (unsigned char)DAT_005a7cf0[logicalFile * 16 + 13],
+                      3);
+    file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688);
+    if (file != -1) {
+        CloseDataFile((unsigned short)file);
+        return 1;
+    }
+    if (DAT_0059ab34 != 0)
+        return 1;
+    if (GetCurrentDiskDriveHook() == 'A') {
+        if (_toupper((int)g_cDiskPromptDriveLetter_005a7d21) != 'B')
+            return 0;
+        SelectDiskDriveHook('B');
+    } else {
+        SelectDiskDriveHook('A');
+    }
+    file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688);
+    if (file == -1)
+        return 0;
+    CloseDataFile((unsigned short)file);
+    return 1;
+}
+
+/* Function start: 0x41D760 */
+void __stdcall PromptInsertNumberedDisk(short logicalFile)
+{
+    TextContext *savedTextContext;
+    short backgroundColour;
+    signed char diskReady;
+    signed char savedViewportMode;
+    signed char diskNumber;
+
+    savedViewportMode = 2;
+    diskReady = 0;
+    if (OpenDiskDataFile(logicalFile) != 0)
+        return;
+    if (g_bGraphicsActive_00469a20 == 0) {
+        diskNumber = (signed char)DAT_005a7cf0[logicalFile * 16 + 13];
+        do {
+            DiskPromptDrawHook();
+            ResetDiskPromptTimer();
+            _cprintf("Please Insert Disk %d. Press any key to continue",
+                     (int)diskNumber);
+            WaitForInputKey();
+        } while (OpenDiskDataFile(logicalFile) == 0);
+        return;
+    }
+
+    savedTextContext = g_pCurrentTextContext_0059af8c;
+    SetTextContext(&g_stDiskPromptTextContext_005a7d60);
+    g_stDiskPromptBackgroundViewport_005a7d00.left =
+        (short)g_dwDiskPromptTopLeft_005a7d80;
+    g_stDiskPromptBackgroundViewport_005a7d00.top =
+        (short)(g_dwDiskPromptTopLeft_005a7d80 >> 16);
+    g_stDiskPromptViewport_005a7d40.left =
+        (short)g_dwDiskPromptTopLeft_005a7d80;
+    g_stDiskPromptViewport_005a7d40.top =
+        (short)(g_dwDiskPromptTopLeft_005a7d80 >> 16);
+    g_stDiskPromptBackgroundViewport_005a7d00.right =
+        (short)g_dwDiskPromptBottomRight_005a7d84;
+    g_stDiskPromptBackgroundViewport_005a7d00.bottom =
+        (short)(g_dwDiskPromptBottomRight_005a7d84 >> 16);
+    g_stDiskPromptViewport_005a7d40.right =
+        (short)g_dwDiskPromptBottomRight_005a7d84;
+    g_stDiskPromptViewport_005a7d40.bottom =
+        (short)(g_dwDiskPromptBottomRight_005a7d84 >> 16);
+
+    if (DAT_005a7510.pixels != 0) {
+        g_stDiskPromptBackgroundViewport_005a7d00 = DAT_005a7510;
+        backgroundColour = (unsigned char)DAT_004699d8;
+    } else if (DAT_005a76b0.pixels != 0) {
+        g_stDiskPromptBackgroundViewport_005a7d00 = DAT_005a76b0;
+        backgroundColour = (unsigned char)DAT_0046999c;
+    } else {
+        savedViewportMode = (signed char)AllocateViewport(
+            &g_stDiskPromptBackgroundViewport_005a7d00, -1, 0);
+        backgroundColour = (short)(unsigned int)savedTextContext;
+    }
+
+    g_stDiskPromptBackgroundViewport_005a7d00.left =
+        (short)g_dwDiskPromptTopLeft_005a7d80;
+    g_stDiskPromptBackgroundViewport_005a7d00.top =
+        (short)(g_dwDiskPromptTopLeft_005a7d80 >> 16);
+    g_stDiskPromptBackgroundViewport_005a7d00.right =
+        (short)g_dwDiskPromptBottomRight_005a7d84;
+    g_stDiskPromptBackgroundViewport_005a7d00.bottom =
+        (short)(g_dwDiskPromptBottomRight_005a7d84 >> 16);
+    if (savedViewportMode != 0) {
+        CopyViewportContents(&g_stDiskPromptViewport_005a7d40,
+                             &g_stDiskPromptBackgroundViewport_005a7d00);
+    }
+
+    do {
+        ClearViewport(&g_stDiskPromptViewport_005a7d40,
+                      g_cViewportClearColour_004699a0);
+        SetTextCursor(
+            (unsigned short)(g_stDiskPromptViewport_005a7d40.left + 2),
+            (unsigned short)(g_stDiskPromptViewport_005a7d40.top + 2));
+        DrawViewportBorder(
+            &g_stDiskPromptViewport_005a7d40,
+            g_stDiskPromptViewport_005a7d40.left,
+            g_stDiskPromptViewport_005a7d40.top,
+            g_stDiskPromptViewport_005a7d40.right,
+            g_stDiskPromptViewport_005a7d40.bottom,
+            g_nDiskPromptBorderColour_00469694);
+        FormatTextBufferFromStart(
+            "Please insert disk %d\ninto any drive\nPress any key when ready.",
+            (int)(signed char)DAT_005a7cf0[logicalFile * 16 + 13]);
+        DrawTextString(g_szTextScratchBuffer_00598b00);
+        WaitForInputKey();
+        if (OpenDiskDataFile(logicalFile) != 0)
+            diskReady++;
+        if (savedViewportMode == 0) {
+            ClearViewport(&g_stDiskPromptViewport_005a7d40,
+                          backgroundColour);
+        } else {
+            CopyViewportContents(
+                &g_stDiskPromptBackgroundViewport_005a7d00,
+                &g_stDiskPromptViewport_005a7d40);
+        }
+    } while (diskReady == 0);
+
+    if (savedViewportMode == 1) {
+        free_viewport(&g_stDiskPromptBackgroundViewport_005a7d00);
+    } else if (savedViewportMode == 2) {
+        ClearViewport(&g_stDiskPromptBackgroundViewport_005a7d00,
+                      backgroundColour);
+    }
+    g_pCurrentTextContext_0059af8c = savedTextContext;
 }
 
 /* Function start: 0x41DA00 */

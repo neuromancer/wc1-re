@@ -1434,7 +1434,8 @@ unsigned int is_alive(int pilot)
     if (pilot == 13)
         return g_nArcadeState_00469fb0 != 4;
     if (pilot > 4 && pilot < 13)
-        return g_aiPersonalityDeathMission_0059ca74[pilot - 5] == 0;
+        return g_stCampaignState_0059ca50.personalityDeathMission[
+            pilot - 5] == 0;
     if (pilot > 13 && pilot < 18)
         return (unsigned int)(short)ace_status((short)(pilot - 14), 1);
     return 0;
@@ -1465,7 +1466,8 @@ unsigned int init_mission(short series, short mission)
         g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
     prepare_mission();
     InitializeCockpitResources(
-        (signed char)(series == 0 ? 4 : g_ePlayerShipType_0059ca54));
+        (signed char)(series == 0 ? 4 :
+            g_stCampaignState_0059ca50.playerShipType));
     return 0;
 }
 
@@ -1478,7 +1480,7 @@ void prepare_mission(void)
     short object;
     int pilot;
 
-    g_nMissionScore_0059caa2 = 0;
+    g_stCampaignState_0059ca50.missionScore = 0;
     g_asCollisionTime_005a7ca0[10] = 0;
     g_asCollisionTime_005a7ca0[11] = 0;
     g_asCollisionTime_005a7ca0[12] = 0;
@@ -1487,9 +1489,9 @@ void prepare_mission(void)
 
     playerRecord =
         &g_aMissionShips_0046c948[g_nPlayerMissionShipIndex_005a8694];
-    g_ePlayerShipType_0059ca54 = playerRecord->type;
-    load_ship(g_ePlayerShipType_0059ca54, 0);
-    set_objects_data(0, g_ePlayerShipType_0059ca54, -1);
+    g_stCampaignState_0059ca50.playerShipType = playerRecord->type;
+    load_ship(g_stCampaignState_0059ca50.playerShipType, 0);
+    set_objects_data(0, g_stCampaignState_0059ca50.playerShipType, -1);
     playerRecord->navPoint = (signed char)g_nMissionEntryNavPoint_005a8690;
     if (g_nTrainSimActive_00469e2c == 0 && DAT_0046a010 != -1)
         playerRecord->navPoint = (signed char)DAT_0046a010;

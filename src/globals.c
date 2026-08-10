@@ -67,7 +67,15 @@ unsigned int DAT_00468664 = 1;
 unsigned char DAT_0046870c;
 unsigned char DAT_00468710;
 int DAT_00468754;
+int DAT_004688cc;
+int DAT_004688d0;
+int DAT_004688d4;
+int DAT_004688d8;
+short DAT_004688dc;
 int DAT_004688e0;
+short DAT_004688e4 = -1;
+short DAT_004688e8 = -1;
+unsigned short DAT_004688ec = 1;
 int DAT_004688f0;
 const char *g_pszIntroOpeningText_00468910 =
     "In the distant future,\n"
@@ -160,6 +168,8 @@ HHOOK g_hDebugKeyboardHook_00469650;
 const char g_szDebugOverlayFontName_00469654[8] = "Courier";
 const char g_szDebugOverlaySpinner_0046965c[5] = "-\\|/";
 const char g_szDebugOverlayNewline_00469664[4] = "\n";
+char g_szDiskMarkerFile_00469688[9] = "DISK.000";
+short g_nDiskPromptBorderColour_00469694 = 0x50;
 short g_nKeyboardPointerStep_004696a4 = 4;
 const signed char g_acGunRefireDelay_0046995c[4] = {6, 10, 4, 0};
 const char g_szComponentFixedFormat_00469984[8] = "%s FIXD";
@@ -171,6 +181,7 @@ unsigned char DAT_004699ac = 0x50;
 unsigned char DAT_004699b0 = 0xaa;
 unsigned char DAT_004699b4 = 0xa6;
 unsigned char DAT_004699d8 = 0xbf;
+int g_bGraphicsActive_00469a20;
 PacketResourceDescriptor g_aMissionResourceDescriptors_00469c20[5] = {
     { &g_aObjectTypeData_00466458[OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet,
       3, 14 },
@@ -829,7 +840,44 @@ const short g_aScreenViewportGeometry_0046dab8[6][8] = {
 const short g_asPilotHandOrigins_0046e120[10] = {
     154, 187, 154, 187, 154, 187, 154, 187, 154, 187
 };
+CampaignDate g_stSavedCampaignDate_0046e188 = {20, 340};
 unsigned char g_abRasterPaletteTranslation_0046ff2c[256];
+CampaignState g_stInitialCampaignState_004700b0 = {
+    0,
+    OBJECT_TYPE_HORNET,
+    {0, 0, 0, 0, 0, 1, 1},
+    0,
+    {0, 0, 0, 0},
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 1, 1, 1},
+    {110, 2654},
+    {6, 0},
+    0,
+    0,
+    0,
+    0
+};
+PilotRecord g_aInitialPilotRecords_00470108[9] = {
+    {"TANAKA",   "SPIRIT",  3, 1, 11, 14, 1},
+    {"ST.JOHN",  "HUNTER",  4, 2, 25, 32, 4},
+    {"CHEN",     "BOSSMAN", 1, 3, 35, 37, 2},
+    {"CASEY",    "ICEMAN",  0, 3, 28, 43, 1},
+    {"DEVEREAUX", "ANGEL",   0, 2, 22, 20, 1},
+    {"TAGGART",  "PALADIN", 2, 3, 42, 34, 2},
+    {"MARSHALL", "MANIAC",  4, 0, 5, 6, 1},
+    {"KHUMALO",  "KNIGHT",  3, 2, 18, 23, 3},
+    {"PELLEY",   "GOBLIN",  0, 0, 0, 0, 0}
+};
+int DAT_00470510;
 unsigned char g_abPaletteTranslation_00470678[256] = {
       0,   1,   2,   3,   4,   5,   6,   7,
       8,   9,  10,  11,  12,  13,  14,  15,
@@ -865,8 +913,6 @@ unsigned char g_abPaletteTranslation_00470678[256] = {
     248, 249, 250, 251, 252, 253, 254, 255
 };
 const char g_szSnowViewport_00470da4[16] = "snow_viewport";
-unsigned char DAT_004700c9;
-unsigned char DAT_004700ca = 1;
 int g_nInsertKeyState_00475b68;
 int g_nClearedKeyboardState_00475b6c;
 int g_nOemPeriodKeyState_00475bf0;
@@ -931,11 +977,13 @@ char g_szStreamerPath_00597750[128];
 int DAT_00598888;
 int DAT_0059888c;
 int DAT_00598890;
-unsigned char DAT_005988de[8192];
-int DAT_00598a30[512];
-unsigned char DAT_00598ab0;
+unsigned char *g_pMissionCampaignData_005988bc;
+PilotRecord g_aPilotRecords_005988d0[9];
+unsigned char *g_pPilotCampaignData_00598a28;
+PilotRecord *g_apWingmanPilots_00598a30[8];
+short DAT_00598ab0;
 unsigned int DAT_00598ab6;
-unsigned char DAT_00598aba;
+int DAT_00598aba;
 unsigned int DAT_00598af4;
 char g_szTextScratchBuffer_00598b00[256];
 unsigned int DAT_00598c18;
@@ -1026,15 +1074,7 @@ signed char DAT_0059c910[WC1_SPACE_OBJECT_COUNT];
 short g_nEyeYawGoal_0059c944;
 short g_asObjectScreenScale_0059c950[WC1_SPACE_OBJECT_COUNT];
 short g_asObjectAfterburnerVelocity_0059c9d0[WC1_SPACE_OBJECT_COUNT];
-enum ObjectType g_ePlayerShipType_0059ca54;
-signed char g_cCurrentMission_0059ca69;
-signed char g_cCurrentSeries_0059ca6a;
-int g_aiPersonalityDeathMission_0059ca74[8];
-unsigned char g_abAceFlags_0059ca94[12];
-short g_nPromotionScore_0059caa0;
-short g_nMissionScore_0059caa2;
-short g_nSeriesScore_0059caa4;
-short g_nCampaignIndex_0059caa6;
+CampaignState g_stCampaignState_0059ca50;
 unsigned char g_aShipWeapons_0059cab0[16][0x47];
 signed char g_acShipRating_0059cd80[16];
 short g_asObjectScreenAngle_0059cd90[WC1_SPACE_OBJECT_COUNT];
@@ -1142,6 +1182,7 @@ Viewport g_stModalSourceViewport_005a7670;
 unsigned char *DAT_005a7684;
 Viewport DAT_005a7690;
 Viewport DAT_005a76b0;
+FixedVector g_aPaletteFadeEntries_005a76d0[6];
 unsigned char *g_pCockpitDamageShape_005a76f4;
 TextContext DAT_005a7700;
 TextContext DAT_005a7720;
@@ -1168,7 +1209,13 @@ int g_nAvailableGameMemory_005a7ce0;
 int g_nSceneResourceBudget_005a7ce4;
 unsigned char DAT_005a7cec;
 unsigned char *DAT_005a7cf0;
+Viewport g_stDiskPromptBackgroundViewport_005a7d00;
+char g_cDiskPromptDriveLetter_005a7d21;
+Viewport g_stDiskPromptViewport_005a7d40;
 int g_bPointerMovedByKeyboard_005a7d54;
+TextContext g_stDiskPromptTextContext_005a7d60;
+unsigned int g_dwDiskPromptTopLeft_005a7d80;
+unsigned int g_dwDiskPromptBottomRight_005a7d84;
 int DAT_005a7d9c;
 short g_nReleaseWeaponDisplayX_005a7dbc;
 short g_nReleaseWeaponDisplayY_005a7dbe;
@@ -1226,6 +1273,8 @@ short DAT_005a8692;
 short g_nPlayerMissionShipIndex_005a8694;
 short g_nInitialMissionShipIndices_005a8696[8];
 short DAT_005a86a6;
+CampaignDate *g_pCurrentCampaignDate_005a86a8;
+CampaignDate *g_pElapsedCampaignDate_005a86ac;
 unsigned char DAT_005a86b0;
 char DAT_005a8760[512];
 unsigned char *g_pIntroFont_005a8960;

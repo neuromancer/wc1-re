@@ -32,9 +32,30 @@ void InitFullScreenViewport(int *record, short arg)
     AllocateViewport(viewport, arg, 0);
 }
 
-/* Function start: 0x42F930 */
-void FrameStartHook(void)
+/* Function start: 0x42F810 */
+unsigned int GetPacketSize(const char *filename, short section)
 {
+    PacketSectionHandle handle;
+    unsigned int size;
+
+    size = (unsigned int)-1;
+    if (OpenPacketSection(filename, section, &handle) != 0) {
+        if (handle.compression == 1) {
+            ReadPacketSectionData(&handle, &size, 4);
+            if (DAT_00465460 != 0)
+                size = (unsigned int)-1;
+        } else {
+            size = handle.dataSize;
+        }
+        CloseDataFileByHandle((unsigned short *)&handle);
+    }
+    return size;
+}
+
+/* Function start: 0x42F930 */
+__declspec(naked) void FrameStartHook(int mode)
+{
+    __asm { jmp TimerResetHook }
 }
 
 /* Function start: 0x42F940 */
@@ -45,8 +66,9 @@ unsigned short IsSoundHardwarePresent(void)
 }
 
 /* Function start: 0x42F950 */
-void MessagePumpHook(void)
+__declspec(naked) void MessagePumpHook(int mode)
 {
+    __asm { jmp TimerStopHook }
 }
 
 /* Function start: 0x42F960 */
@@ -474,9 +496,12 @@ void ShowCentredPrompt(char *text, unsigned short arg)
 }
 
 /* Function start: 0x4318F0 */
-void ShutdownVideoHook(void)
+__declspec(naked) void __stdcall ShutdownVideoHook(int mode)
 {
-    ReleaseVideoResourcesHook();
+    __asm {
+        call ReleaseVideoResourcesHook
+        ret 4
+    }
 }
 
 /* Function start: 0x431D20 */

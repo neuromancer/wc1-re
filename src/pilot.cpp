@@ -81,7 +81,7 @@ unsigned char *GetHighScoreEntry(short i)
 
     if (8 < k)
         return g_apszBuiltInHighScoreNames_00469de0[k - 9];
-    return &DAT_005988de[0] + k * 0x26;
+    return (unsigned char *)g_aPilotRecords_005988d0[k].callsign;
 }
 
 /* Function start: 0x425E20 */

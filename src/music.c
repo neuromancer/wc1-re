@@ -184,6 +184,56 @@ unsigned int GetVictoryScreenId(void)
     return 0;
 }
 
+/* Function start: 0x42D730 */
+unsigned int OpenPacketSection(const char *filename, short section,
+                               PacketSectionHandle *handle)
+{
+    unsigned int fileSize;
+    unsigned int directorySize;
+    unsigned int sectionEntry;
+    unsigned int nextEntry;
+    short sectionCount;
+    short file;
+
+    file = OpenDataFileOrDie(filename);
+    if (file != -1 &&
+        ReadDataFileAtOffset(file, 0, 4, &fileSize) != 0 &&
+        ReadDataFileAtOffset(file, 4, 4, &directorySize) != 0) {
+        sectionCount = (short)(directorySize >> 2) - 1;
+        if (section < sectionCount) {
+            if (ReadDataFileAtOffset(file, section * 4 + 4, 4,
+                                     &sectionEntry) != 0) {
+                handle->finalSection = 0;
+                handle->compression =
+                    (short)(unsigned char)(sectionEntry >> 24);
+                sectionEntry &= 0x00ffffff;
+                if (sectionCount - section == 1) {
+                    handle->finalSection = 1;
+                    nextEntry = fileSize;
+                } else {
+                    if (ReadDataFileAtOffset(file, section * 4 + 8, 4,
+                                             &nextEntry) == 0)
+                        goto failed;
+                    nextEntry &= 0x00ffffff;
+                }
+                if (SeekDataFile(file, sectionEntry, 0) != 0) {
+                    handle->file = file;
+                    handle->sectionCount = sectionCount;
+                    handle->dataOffset = sectionEntry;
+                    handle->position = 0;
+                    handle->dataSize = nextEntry - sectionEntry;
+                    return 1;
+                }
+            }
+        } else {
+            DAT_00465460 = 3;
+        }
+    }
+failed:
+    CloseDataFile((unsigned short)file);
+    return 0;
+}
+
 /* Function start: 0x42D870 */
 void CloseDataFileByHandle(unsigned short *p)
 {
@@ -323,9 +373,9 @@ void FadeMusic(void)
 }
 
 /* Function start: 0x42E330 */
-void SetMusicOn(void)
+void SetMusicOn(short enabled)
 {
-    SoundDebugPrintf("SetMusicOn %d");
+    SoundDebugPrintf("SetMusicOn %d", (int)enabled);
 }
 
 /* Function start: 0x42E350 */
@@ -663,7 +713,7 @@ void ResetSoundStateForFlight(void)
 void EnableMusicForScene(void)
 {
     DAT_0046aa30 = 1;
-    SetMusicOn();
+    SetMusicOn(1);
 }
 
 /* Function start: 0x42EF00 */
@@ -674,10 +724,9 @@ unsigned int SoundFxTick(void)
 }
 
 /* Function start: 0x42EF10 */
-void FlushSoundEffectsAndLog(void)
+__declspec(naked) void FlushSoundEffectsAndLog(void)
 {
-    stop_all_sounds();
-    SoundDebugPrintf("FlushSoundEffects");
+    __asm { jmp FlushSoundEffects }
 }
 
 /* Function start: 0x42EF20 */

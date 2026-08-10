@@ -854,13 +854,13 @@ void ShutdownHook(void)
 }
 
 /* Function start: 0x4369A0 */
-unsigned short GetDiskRetryCount(void)
+unsigned short __stdcall SelectDiskDriveHook(short drive)
 {
     return 0;
 }
 
 /* Function start: 0x4369B0 */
-unsigned short GetDiskChangeCount(void)
+unsigned short GetCurrentDiskDriveHook(void)
 {
     return 0;
 }

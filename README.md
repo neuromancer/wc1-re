@@ -10,7 +10,7 @@ Visual C++ 4.20 to preserve the original code generation.
 
 ## Status
 
-1,040 of 1,459 identified developer functions are currently reimplemented (71.3%): 916 of
+1,055 of 1,459 identified developer functions are currently reimplemented (72.3%): 931 of
 1,335 game functions and all 124 `ix` audio functions.
 
 The reconstructed executable currently boots, plays the intro with music, displays

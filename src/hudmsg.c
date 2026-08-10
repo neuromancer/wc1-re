@@ -610,16 +610,16 @@ int drop_player_mine(short obj)
 unsigned int personality_killed(short personality)
 {
     if (personality < 8) {
-        g_aiPersonalityDeathMission_0059ca74[personality] =
-            (int)g_cCurrentMission_0059ca69 +
-            (int)g_cCurrentSeries_0059ca6a * 4;
-        g_nPromotionScore_0059caa0 =
-            MaxShort(0, g_nPromotionScore_0059caa0 - 1);
+        g_stCampaignState_0059ca50.personalityDeathMission[personality] =
+            (int)g_stCampaignState_0059ca50.currentMission +
+            (int)g_stCampaignState_0059ca50.currentSeries * 4;
+        g_stCampaignState_0059ca50.promotionScore = MaxShort(
+            0, g_stCampaignState_0059ca50.promotionScore - 1);
         return 0;
     }
     kill_ace(personality - 9);
-    g_nPromotionScore_0059caa0++;
-    g_nMissionScore_0059caa2 += 25;
+    g_stCampaignState_0059ca50.promotionScore++;
+    g_stCampaignState_0059ca50.missionScore += 25;
     return 0;
 }
 

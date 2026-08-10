@@ -39,8 +39,8 @@ void RunTrainSim(void)
     PreloadMusicTrackHook(22);
     ResetStringBuilder(&DAT_005a6bc0);
     savedDataSet = g_nCampaignDataSet_005a8118;
-    savedCampaign = g_nCampaignIndex_0059caa6;
-    g_nCampaignIndex_0059caa6 = 0;
+    savedCampaign = g_stCampaignState_0059ca50.campaignIndex;
+    g_stCampaignState_0059ca50.campaignIndex = 0;
     g_nCampaignDataSet_005a8118 = 0;
 
     while (g_nTrainSimMission_00469e30 < 4) {
@@ -83,7 +83,7 @@ void RunTrainSim(void)
         DAT_0046505c = savedFrameState;
     }
 
-    g_nCampaignIndex_0059caa6 = savedCampaign;
+    g_stCampaignState_0059ca50.campaignIndex = savedCampaign;
     g_nCampaignDataSet_005a8118 = savedDataSet;
     free_all_slots();
     free_cockpit();
@@ -101,7 +101,7 @@ short LogMemoryUsage(void)
     EMShutDown();
     GetMessagePumpResult();
     _chdir("..");
-    ((void (__cdecl *)(int))ShutdownVideoHook)(3);
+    ShutdownVideoHook(3);
     if (g_nOriginDevUnlock_00469ff4 != 0) {
         SystemDebugPrintf(
             "Original FMem %lu.  Current FMem %lu.  Current NMem %u.\n",
@@ -111,7 +111,7 @@ short LogMemoryUsage(void)
             (unsigned int)(int)(short)GetOriginalFreeMemory());
     }
     MouseIdleHook();
-    ((void (__cdecl *)(int))MessagePumpHook)(8);
+    MessagePumpHook(8);
     return 0;
 }
 

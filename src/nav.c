@@ -46,12 +46,209 @@ char *GetNavNameSkippingMarker(short i)
 }
 
 /* Function start: 0x40EFE0 */
-void NudgeObjectX(short i, short dx, short dy)
+void add_statistics(short pilot, short missions, short kills)
 {
-    short *p = (short *)(DAT_00598a30[i] + 0x20);
+    g_apWingmanPilots_00598a30[pilot]->missions += missions;
+    g_apWingmanPilots_00598a30[pilot]->kills += kills;
+}
 
-    (void)dy;
-    *p = *p + dx;
+/* Function start: 0x40F010 */
+void PostMission(void)
+{
+    short oldKills;
+    short pilot;
+    short missions;
+    short kills;
+
+    oldKills = g_stCampaignState_0059ca50.currentPilot->kills;
+    if (oldKills < 5 && oldKills + g_nPlayerKillCount_005a7c9c > 4)
+        g_stCampaignState_0059ca50.fiveKillFlag = 1;
+    else if (oldKills < 25 &&
+             oldKills + g_nPlayerKillCount_005a7c9c > 24)
+        g_stCampaignState_0059ca50.twentyFiveKillFlag = 1;
+
+    if (g_stCampaignState_0059ca50.shipFlown[
+            g_stCampaignState_0059ca50.playerShipType] == 0)
+        g_stCampaignState_0059ca50.shipFlown[
+            g_stCampaignState_0059ca50.playerShipType] = 1;
+
+    g_stCampaignState_0059ca50.currentPilot->missions++;
+    switch (g_stCampaignState_0059ca50.currentPilot->missions) {
+    case 1:
+        g_stCampaignState_0059ca50.firstMissionFlag = 1;
+        /* The retail switch deliberately falls through. */
+    case 5:
+        g_stCampaignState_0059ca50.fiveMissionFlag = 1;
+        break;
+    case 10:
+        g_stCampaignState_0059ca50.tenMissionFlag = 1;
+        break;
+    case 15:
+        g_stCampaignState_0059ca50.fifteenMissionFlag = 1;
+        break;
+    }
+
+    g_stCampaignState_0059ca50.currentPilot->kills +=
+        g_nPlayerKillCount_005a7c9c;
+    if (oldKills / 5 <
+        g_stCampaignState_0059ca50.currentPilot->kills / 5)
+        g_stCampaignState_0059ca50.promotionScore++;
+
+    pilot = 0;
+    do {
+        if (g_nYourWingman_0046c04c == -1 ||
+            g_acShipRating_0059cd80[g_nYourWingman_0046c04c] != pilot) {
+            if (g_stCampaignState_0059ca50.personalityDeathMission[
+                    pilot] != 0) {
+                pilot++;
+                continue;
+            }
+            missions = (short)RandomInRange(0, 2);
+            if (missions == 0)
+                kills = 0;
+            else
+                kills = (short)RandomInRange(
+                    0, g_nPlayerKillCount_005a7c9c);
+        } else {
+            missions = 1;
+            kills = g_asCollisionTime_005a7ca0[12];
+        }
+        add_statistics(pilot, missions, kills);
+        pilot++;
+    } while (pilot < 8);
+}
+
+/* Function start: 0x40F190 */
+int FullMissionScore(void)
+{
+    signed char *scores;
+    short objective;
+    short score;
+
+    scores = (signed char *)(g_pMissionCampaignData_005988bc +
+        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a +
+        (int)g_stCampaignState_0059ca50.currentMission * 0x14 - 0x4c);
+    score = 0;
+    objective = 0;
+    do {
+        score = (short)(score + scores[objective]);
+        objective++;
+    } while (objective < 16);
+    return score;
+}
+
+/* Function start: 0x40F1E0 */
+int PlayersMissionScore(void)
+{
+    signed char *scores;
+    short objective;
+    short score;
+
+    scores = (signed char *)(g_pMissionCampaignData_005988bc +
+        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a +
+        (int)g_stCampaignState_0059ca50.currentMission * 0x14 - 0x4c);
+    score = 0;
+    objective = 0;
+    do {
+        if (achieved(objective) != 0)
+            score = (short)(score + scores[objective]);
+        objective++;
+    } while (objective < 16);
+    return score;
+}
+
+/* Function start: 0x40F240 */
+unsigned int UpdateSeries(void)
+{
+    unsigned char *seriesData;
+    short *medalData;
+    short fullScore;
+    short playerScore;
+    int failed;
+
+    g_stSavedCampaignDate_0046e188 = *g_pCurrentCampaignDate_005a86a8;
+    seriesData = g_pMissionCampaignData_005988bc +
+        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a - 0x5a;
+    medalData = (short *)(g_pMissionCampaignData_005988bc +
+        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a +
+        (int)g_stCampaignState_0059ca50.currentMission * 0x14 - 0x50);
+
+    fullScore = (short)FullMissionScore();
+    playerScore = (short)PlayersMissionScore();
+    if (playerScore == fullScore)
+        g_stCampaignState_0059ca50.promotionScore++;
+    g_stCampaignState_0059ca50.seriesScore = (short)(
+        g_stCampaignState_0059ca50.seriesScore + playerScore);
+    g_stCampaignState_0059ca50.currentMission++;
+
+    if (g_stCampaignState_0059ca50.currentMission >=
+        (signed char)seriesData[2]) {
+        DAT_004688dc =
+            (short)g_stCampaignState_0059ca50.playerShipType;
+        DAT_004688e8 = (short)(signed char)seriesData[5];
+        g_stCampaignState_0059ca50.seriesHistory[
+            g_stCampaignState_0059ca50.seriesHistoryCount] =
+            g_stCampaignState_0059ca50.currentSeries;
+        g_stCampaignState_0059ca50.seriesHistoryCount++;
+        failed = g_stCampaignState_0059ca50.seriesScore <
+            *(short *)(seriesData + 3);
+        if (failed != 0) {
+            g_stCampaignState_0059ca50.currentSeries =
+                (signed char)seriesData[8];
+            g_stCampaignState_0059ca50.playerShipType =
+                (enum ObjectType)(signed char)seriesData[9];
+        } else {
+            g_stCampaignState_0059ca50.currentSeries =
+                (signed char)seriesData[6];
+            g_stCampaignState_0059ca50.playerShipType =
+                (enum ObjectType)(signed char)seriesData[7];
+        }
+        DAT_004688ec = (unsigned short)failed;
+        if (DAT_004688dc !=
+            (short)g_stCampaignState_0059ca50.playerShipType) {
+            DAT_004688d8 = 1;
+            DAT_004688cc = 1;
+        }
+        g_stCampaignState_0059ca50.seriesScore = 0;
+        g_stCampaignState_0059ca50.currentMission = 0;
+        if ((signed char)g_pMissionCampaignData_005988bc[
+                (int)g_stCampaignState_0059ca50.currentSeries *
+                0x5a + 5] ==
+                DAT_004688e8 &&
+            DAT_004688e8 < 0x40)
+            DAT_004688e8 = -1;
+    }
+
+    if (*(int *)&g_asCollisionTime_005a7ca0[10] != 0)
+        g_nMissionMedalScore_005a8116 =
+            MaxShort(0, (short)(
+                g_stCampaignState_0059ca50.missionScore - 15));
+    if (medalData[1] <= g_nMissionMedalScore_005a8116 &&
+        DAT_004688e4 == -1) {
+        g_stSavedCampaignDate_0046e188 =
+            *g_pCurrentCampaignDate_005a86a8;
+        DAT_004688e4 = medalData[0];
+    }
+    return 0;
+}
+
+/* Function start: 0x40F3F0 */
+unsigned int MoveNewCampaign(void)
+{
+    short days;
+
+    if (g_stCampaignState_0059ca50.currentMission == 0)
+        days = (short)(RandomInRange(0, 1) + 5);
+    else
+        days = (short)RandomInRange(0, 1);
+    g_pCurrentCampaignDate_005a86a8->day =
+        (short)(g_pCurrentCampaignDate_005a86a8->day + days);
+    if (g_pCurrentCampaignDate_005a86a8->day > 365) {
+        g_pCurrentCampaignDate_005a86a8->day =
+            (short)(g_pCurrentCampaignDate_005a86a8->day - 365);
+        g_pCurrentCampaignDate_005a86a8->year++;
+    }
+    return 0;
 }
 
 /* Function start: 0x40F440 */
@@ -61,9 +258,12 @@ unsigned int StartNewCampaign(short campaign)
     ResetCampaignData();
     DAT_004688e0 = 1;
     RunTrainSim();
-    g_nCampaignIndex_0059caa6 = campaign;
+    g_stCampaignState_0059ca50.campaignIndex = campaign;
     g_nCampaignDataSet_005a8118 = campaign;
     DAT_004688e0 = 0;
+    LoadPacketIntoBuffer(g_asCampaignPilotFiles_00469450[campaign], 1,
+                         g_pMissionCampaignData_005988bc);
+    DAT_00470510 = 0;
     DAT_005a8114 = -1;
     return 0;
 }

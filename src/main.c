@@ -23,7 +23,7 @@ int main(short argc, char **argv)
     _chdir("gamedat");
     LoadInstallDat();
     _chdir("..");
-    if (GetDiskChangeCount() > 0x42)
+    if (GetCurrentDiskDriveHook() > 'B')
         DAT_0059ab34 = 1;
 
     SystemDebugPrintf("Loading WING COMMANDER.  Please wait...\n");
@@ -32,11 +32,11 @@ int main(short argc, char **argv)
     DAT_0059a856 = 1;
 
     SetCinematicFrameTiming();
-    g_cCurrentSeries_0059ca6a = 1;
+    g_stCampaignState_0059ca50.currentSeries = 1;
     DAT_0046b168 = 0x13;
-    DAT_004700ca = 1;
-    g_cCurrentMission_0059ca69 = 0;
-    DAT_004700c9 = 0;
+    g_stInitialCampaignState_004700b0.currentSeries = 1;
+    g_stCampaignState_0059ca50.currentMission = 0;
+    g_stInitialCampaignState_004700b0.currentMission = 0;
     LoadOriginFxDrivers();
     DAT_0046b168 = 0x13;
 
@@ -46,7 +46,7 @@ int main(short argc, char **argv)
 
     DAT_0059ab58 = 0;
     for (;;) {
-        FrameStartHook();
+        FrameStartHook(0);
         DAT_004688e0 = 1;
         selection = Title_Sequence();
         switch (selection) {
@@ -160,6 +160,19 @@ unsigned int SetDefaultCommDelay(void)
     return 0;
 }
 
+/* Function start: 0x427CA0 */
+unsigned int FadeFlightPaletteEntry(short *entry)
+{
+    if (entry[0] != 0) {
+        entry[0] = (short)(entry[0] - 4);
+        entry[1] = 0;
+        entry[2] = 0;
+        return 0;
+    }
+    entry[1] = 0;
+    return 0;
+}
+
 /* Function start: 0x427CD0 */
 unsigned int UpdateSpacePaletteFade(void)
 {
@@ -179,12 +192,36 @@ unsigned int UpdateSpacePaletteFade(void)
 }
 
 /* Function start: 0x427D40 */
-void house_keep(void)
+unsigned int house_keep(void)
 {
+    short palette;
+
     if (g_nCannedSceneMode_00469fac == 0 &&
-        g_nTrainSimActive_00469e2c == 0 &&
-        (g_nSpaceFrame_0059b420 & 0x1f) == 0)
-        ReleaseStaleNavTarget();
+        g_nTrainSimActive_00469e2c == 0) {
+        if ((g_nSpaceFrame_0059b420 & 0x1f) == 0)
+            ReleaseStaleNavTarget();
+        if (g_nHazardFieldCount_0059c90c != 0 &&
+            (g_nSpaceFrame_0059b420 & 0xf) == 0)
+            check_hazards();
+    }
+    if (DAT_0046c03c == 0) {
+        palette = 0;
+        do {
+            FadeFlightPaletteEntry(
+                (short *)&g_aPaletteFadeEntries_005a76d0[palette]);
+            SetPaletteEntry((short)(palette + 0xb9),
+                            (short *)&g_aPaletteFadeEntries_005a76d0[palette]);
+            palette++;
+        } while (palette < 6);
+        return 0;
+    }
+    if (DAT_005a7ec0 != 0) {
+        ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
+            DAT_005a7ec0, 1);
+        DAT_005a7ec0 = 0;
+        g_abCockpitLightGoal_005a7eb8[3] = 0;
+    }
+    return 0;
 }
 
 /* Function start: 0x427E40 */
@@ -344,24 +381,30 @@ unsigned int fire_players_lasers(void)
 /* Function start: 0x4284D0 */
 unsigned int players_flight_dynamics(void)
 {
-    ObjectTypeData *typeData;
-
-    typeData = &g_aObjectTypeData_00466458[g_ePlayerShipType_0059ca54];
     if (g_aeSpecialManeuver_0059c3c0[0] !=
             SPECIAL_MANEUVER_BLOWING_UP) {
         g_anObjectPitchRotation_0059b2a0[0] =
-            (short)((typeData->yawRate * g_nPitchInput_0059d3f0) / 8);
+            (short)((g_aObjectTypeData_00466458[
+                g_stCampaignState_0059ca50.playerShipType].yawRate *
+                g_nPitchInput_0059d3f0) / 8);
         g_anObjectYawRotation_0059ce80[0] =
-            (short)-(typeData->pitchRate * g_nYawInput_0059d3f2) / 8;
+            (short)-((g_aObjectTypeData_00466458[
+                g_stCampaignState_0059ca50.playerShipType].pitchRate *
+                g_nYawInput_0059d3f2) / 8);
         g_anObjectRollRotation_0059d7e0[0] =
-            (short)-(typeData->rollRate * g_nRollInput_0059d3f4) / 8;
+            (short)-((g_aObjectTypeData_00466458[
+                g_stCampaignState_0059ca50.playerShipType].rollRate *
+                g_nRollInput_0059d3f4) / 8);
     } else if (g_asObjectCounter_0059c330[0] == -1) {
-        if (AbsInt(g_anObjectYawRotation_0059ce80[0]) <
-                typeData->pitchRate &&
-            AbsInt(g_anObjectPitchRotation_0059b2a0[0]) <
-                typeData->yawRate &&
-            AbsInt(g_anObjectRollRotation_0059d7e0[0]) <
-                typeData->rollRate) {
+        if (g_anObjectYawRotation_0059ce80[0] <
+                g_aObjectTypeData_00466458[
+                    g_stCampaignState_0059ca50.playerShipType].pitchRate &&
+            g_anObjectPitchRotation_0059b2a0[0] <
+                g_aObjectTypeData_00466458[
+                    g_stCampaignState_0059ca50.playerShipType].yawRate &&
+            g_anObjectRollRotation_0059d7e0[0] <
+                g_aObjectTypeData_00466458[
+                    g_stCampaignState_0059ca50.playerShipType].rollRate) {
             g_aeSpecialManeuver_0059c3c0[0] = SPECIAL_MANEUVER_NONE;
         } else {
             g_anObjectYawRotation_0059ce80[0] -= g_nYawInput_0059d3f2;

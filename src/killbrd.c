@@ -6,6 +6,25 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x43F640 */
+void CorrectPointers(void)
+{
+    short pilot;
+
+    pilot = 0;
+    do {
+        g_apWingmanPilots_00598a30[pilot] =
+            &g_aPilotRecords_005988d0[pilot];
+        pilot++;
+    } while (pilot < 8);
+    g_stCampaignState_0059ca50.currentPilot =
+        &g_aPilotRecords_005988d0[8];
+    g_pCurrentCampaignDate_005a86a8 =
+        &g_stCampaignState_0059ca50.currentDate;
+    g_pElapsedCampaignDate_005a86ac =
+        &g_stCampaignState_0059ca50.elapsedDate;
+}
+
 /* Function start: 0x43F690 */
 void ClearSaveSlotFlag(void)
 {
@@ -15,7 +34,7 @@ void ClearSaveSlotFlag(void)
 /* Function start: 0x43F6A0 */
 int IsSaveSlotFree(void)
 {
-    return DAT_00598aba == 0;
+    return DAT_00598aba < 1;
 }
 
 /* Function start: 0x43F720 */
@@ -30,7 +49,7 @@ void SelectSaveSlot(short i)
     int v = *(int *)(DAT_00598ab6 + i * 4);
 
     if (v != 0)
-        DAT_00598aba = (unsigned char)v;
+        DAT_00598aba = v;
 }
 
 /* Function start: 0x43F7C0 */
@@ -52,16 +71,35 @@ short FindMenuRegionAtPoint(short x, short y,
 /* Function start: 0x440800 */
 void ResetCampaignData(void)
 {
-    g_ePlayerShipType_0059ca54 = OBJECT_TYPE_HORNET;
-    g_cCurrentMission_0059ca69 = 0;
-    g_cCurrentSeries_0059ca6a = 1;
-    memset(g_aiPersonalityDeathMission_0059ca74, 0,
-           sizeof(g_aiPersonalityDeathMission_0059ca74));
-    memset(g_abAceFlags_0059ca94, 0, sizeof(g_abAceFlags_0059ca94));
-    g_nPromotionScore_0059caa0 = 0;
-    g_nMissionScore_0059caa2 = 0;
-    g_nSeriesScore_0059caa4 = 0;
+    memcpy(&g_stCampaignState_0059ca50,
+           &g_stInitialCampaignState_004700b0,
+           sizeof(g_stCampaignState_0059ca50));
+    memcpy(g_aPilotRecords_005988d0,
+           g_aInitialPilotRecords_00470108,
+           sizeof(g_aPilotRecords_005988d0));
     InitializeTrainSimHighScores();
+    CorrectPointers();
+}
+
+/* Function start: 0x440840 */
+unsigned int ReadPacketSectionData(PacketSectionHandle *handle,
+                                   void *destination,
+                                   unsigned int length)
+{
+    int offset;
+    int end;
+
+    offset = (int)(handle->dataOffset + handle->position);
+    end = (int)(handle->dataOffset + handle->dataSize);
+    if (destination == 0)
+        return 0;
+    if (end < (int)(offset + length) || length == (unsigned int)-1)
+        length = (unsigned int)(end - offset);
+    if (ReadDataFileAtOffset((unsigned short)handle->file, offset,
+                             length, destination) == 0)
+        return 0;
+    handle->position += length;
+    return 1;
 }
 
 /* Function start: 0x4408A0 */
