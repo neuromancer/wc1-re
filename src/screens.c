@@ -1468,6 +1468,127 @@ unsigned int ShowGameOverScreen(void)
     return 0;
 }
 
+/* Function start: 0x439C88 */
+/* The explicit segment setup and symmetric read primitive at 0x439D63 show
+ * that this raster-library pixel writer was hand-written assembly. */
+__declspec(naked) unsigned int SetRasterClipPixel(
+    RasterClip *clip, int x, int y, int colour)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        add esp, -20h
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        mov esi, dword ptr [ebp + 8]
+        mov ebx, dword ptr [esi]
+        mov eax, dword ptr [ebx + 4]
+        inc eax
+        mov dword ptr [ebp - 18h], eax
+        jle write_invalid_surface
+        mov eax, dword ptr [ebx + 8]
+        inc eax
+        mov ecx, eax
+        jle write_invalid_surface
+        mov eax, dword ptr [esi + 4]
+        mov dword ptr [ebp - 1ch], eax
+        cmp eax, 0
+        jg write_left_clipped
+        mov eax, 0
+write_left_clipped:
+        mov dword ptr [ebp - 4], eax
+        mov eax, dword ptr [esi + 8]
+        mov dword ptr [ebp - 20h], eax
+        cmp eax, 0
+        jg write_top_clipped
+        mov eax, 0
+write_top_clipped:
+        mov dword ptr [ebp - 8], eax
+        mov eax, dword ptr [esi + 0ch]
+        mov edx, dword ptr [ebp - 18h]
+        dec edx
+        cmp eax, edx
+        jl write_right_clipped
+        mov eax, edx
+write_right_clipped:
+        mov dword ptr [ebp - 0ch], eax
+        mov eax, dword ptr [esi + 10h]
+        mov edx, ecx
+        dec edx
+        cmp eax, edx
+        jl write_bottom_clipped
+        mov eax, edx
+write_bottom_clipped:
+        mov dword ptr [ebp - 10h], eax
+        mov eax, dword ptr [ebp - 0ch]
+        cmp eax, dword ptr [ebp - 4]
+        jl write_invalid_clip
+        mov eax, dword ptr [ebp - 10h]
+        cmp eax, dword ptr [ebp - 8]
+        jl write_invalid_clip
+        mov eax, dword ptr [ebx]
+        mov dword ptr [ebp - 14h], eax
+        jmp write_point
+write_invalid_surface:
+        mov eax, 0ffffffffh
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+write_invalid_clip:
+        mov eax, 0fffffffeh
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+write_point:
+        mov ecx, dword ptr [ebp + 0ch]
+        mov ebx, dword ptr [ebp + 10h]
+        add ecx, dword ptr [ebp - 1ch]
+        add ebx, dword ptr [ebp - 20h]
+        cmp ecx, dword ptr [ebp - 4]
+        jl write_point_outside
+        cmp ecx, dword ptr [ebp - 0ch]
+        jg write_point_outside
+        cmp ebx, dword ptr [ebp - 8]
+        jl write_point_outside
+        cmp ebx, dword ptr [ebp - 10h]
+        jg write_point_outside
+        mov eax, ebx
+        imul dword ptr [ebp - 18h]
+        add eax, dword ptr [ebp - 14h]
+        add eax, ecx
+        mov ebx, eax
+        xor eax, eax
+        mov al, byte ptr [ebx]
+        mov dl, byte ptr [ebp + 14h]
+        mov byte ptr [ebx], dl
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+write_point_outside:
+        mov eax, 0fffffffdh
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+    }
+}
+
 /* Function start: 0x439D63 */
 __declspec(naked) int ReadRasterClipPixel(RasterClip *clip, int x, int y)
 {

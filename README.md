@@ -10,19 +10,21 @@ Visual C++ 4.20 to preserve the original code generation.
 
 ## Status
 
-1,151 of 1,459 identified developer functions are currently reimplemented (78.9%):
-1,027 of 1,335 game functions and all 124 `ix` audio functions.
+1,153 of 1,459 identified developer functions are currently reimplemented (79.0%):
+1,029 of 1,335 game functions and all 124 `ix` audio functions.
 
 The reconstructed executable boots, plays the animated intro with music, displays the main
 menu, creates a campaign pilot, and runs the training simulator with its cockpit and HUD. The
 simulator now uses the retail table-driven ownership model for common flight shapes, including
 the original shared missile, turret, and debris resources. Optional constellation background
-objects and their load/free lifecycle are also reconstructed.
+objects and their load/free lifecycle are also reconstructed. Clipped viewport-pixel drawing
+used by HUD overlays is restored, and shape-frame decoding now follows the retail row/run
+control flow more closely.
 
 Completing training reaches the Tiger's Claw rec-room transition, but that room's presentation
 and interactions are still incomplete. Its intended scene includes the bartender, pilots, and
 hotspots for conversation, saving, and bulletin boards. Fixed-region Shotglass and pilot paths,
-menu animation, palette transitions, exact clipped and unclipped RLE rendering, transformed
+menu animation, palette transitions, clipped and unclipped RLE rendering, transformed
 sprite dispatch, and fixed-point transform math are implemented. Packet-driven scenes support
 conditional dialogue, animated faces and mouths, close-ups, briefings, debriefings, medal
 ceremonies, and funeral scenes. The pilot-score chalkboard, barracks, training, and
@@ -42,7 +44,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,156 function similarity scores (91.81% average)</summary>
+<summary>All 1,158 function similarity scores (91.75% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -52,7 +54,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `auto.c` | `auto_position` | `0x403F40` | 92.77% |
 | `auto.c` | `auto_pilot_sequence` | `0x404050` | 96.21% |
 | `barracks.c` | `BarracksScreen` | `0x41C170` | 40.81% |
-| `barracks.c` | `StepPaletteTransition` | `0x41C510` | 93.51% |
+| `barracks.c` | `StepPaletteTransition` | `0x41C510` | 91.56% |
 | `barracks.c` | `DosStrcat` | `0x41C740` | 100.00% |
 | `brains.c` | `SetShipAiScratchWord` | `0x4060A0` | 100.00% |
 | `brains.c` | `maneuver_complete` | `0x4060B0` | 100.00% |
@@ -82,7 +84,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `coming_home` | `0x4098D0` | 100.00% |
 | `brains.c` | `run_away` | `0x4099C0` | 100.00% |
 | `brains.c` | `check_engage_target` | `0x409AC0` | 100.00% |
-| `brains.c` | `check_destroy_target` | `0x409B10` | 98.70% |
+| `brains.c` | `check_destroy_target` | `0x409B10` | 94.81% |
 | `brains.c` | `maneuvering` | `0x409C20` | 100.00% |
 | `brains.c` | `formation_burst` | `0x409C50` | 100.00% |
 | `brains.c` | `disallow_engage` | `0x409CE0` | 100.00% |
@@ -121,8 +123,8 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `capital_ship_intelligence` | `0x40B140` | 100.00% |
 | `brains.c` | `futurion_intelligence` | `0x40B320` | 100.00% |
 | `brains.c` | `mine_intelligence` | `0x40B3A0` | 97.92% |
-| `brains.c` | `heat_seeking_missile_intelligence` | `0x40B430` | 90.82% |
-| `brains.c` | `FF_missile_intelligence` | `0x40B570` | 94.20% |
+| `brains.c` | `heat_seeking_missile_intelligence` | `0x40B430` | 88.78% |
+| `brains.c` | `FF_missile_intelligence` | `0x40B570` | 86.96% |
 | `brains.c` | `set_sphere_point` | `0x40B670` | 100.00% |
 | `brains.c` | `is_alive` | `0x40B6A0` | 85.29% |
 | `brains.c` | `check_futurion` | `0x40B700` | 100.00% |
@@ -171,7 +173,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cmpgn.c` | `LoadMissionData` | `0x4059B0` | 54.87% |
 | `cmpgn.c` | `CloseLook` | `0x405DE0` | 84.92% |
 | `cockpt.c` | `EmitTextString` | `0x413A10` | 94.44% |
-| `cockpt.c` | `FormatTextTokens` | `0x413A40` | 85.19% |
+| `cockpt.c` | `FormatTextTokens` | `0x413A40` | 83.70% |
 | `cockpt.c` | `DrawFormattedText` | `0x413C40` | 100.00% |
 | `cockpt.c` | `FormatTextBufferFromStart` | `0x413C70` | 100.00% |
 | `cockpt.c` | `AppendFormattedText` | `0x413CB0` | 100.00% |
@@ -244,7 +246,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `print_message_text` | `0x416260` | 62.94% |
 | `cockpt.c` | `ShowHudTextLine` | `0x416460` | 100.00% |
 | `cockpt.c` | `SetHudTextColour` | `0x416480` | 70.00% |
-| `cockpt.c` | `draw_target_box` | `0x4164B0` | 91.53% |
+| `cockpt.c` | `draw_target_box` | `0x4164B0` | 89.83% |
 | `cockpt.c` | `remove_nav_pointer` | `0x4168A0` | 100.00% |
 | `cockpt.c` | `overlay_head_up_display` | `0x416AC0` | 95.12% |
 | `cockpt.c` | `RestoreCockpitExplosionIfVisible` | `0x416C90` | 100.00% |
@@ -275,8 +277,8 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `debug.cpp` | `DebugOverlayPrintf` | `0x41CAB0` | 99.08% |
 | `debug.cpp` | `DebugOverlayConsole::Clear` | `0x41CC00` | 100.00% |
 | `debug.cpp` | `DebugOverlayConsole::Scroll` | `0x41CC50` | 100.00% |
-| `debug.cpp` | `DebugOverlayConsole::DrawPendingLines` | `0x41CCC0` | 100.00% |
-| `debug.cpp` | `DebugOverlayConsole::WaitForKey` | `0x41CD40` | 96.83% |
+| `debug.cpp` | `DebugOverlayConsole::DrawPendingLines` | `0x41CCC0` | 95.92% |
+| `debug.cpp` | `DebugOverlayConsole::WaitForKey` | `0x41CD40` | 95.24% |
 | `debug.cpp` | `DebugOverlayConsole::EnableReverseVideo` | `0x41CF00` | 100.00% |
 | `debug.cpp` | `DebugOverlayConsole::DisableReverseVideo` | `0x41CF50` | 100.00% |
 | `debug.cpp` | `DebugOverlayConsole::SetOverlayTextColor` | `0x41CFA0` | 100.00% |
@@ -289,12 +291,12 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `dib.c` | `DIBpositionWindow` | `0x432230` | 62.50% |
 | `dib.c` | `DIBreInstall` | `0x4322B0` | 82.14% |
 | `dib.c` | `DIBinstall` | `0x432310` | 93.33% |
-| `dib.c` | `DIBcascade` | `0x432410` | 96.77% |
+| `dib.c` | `DIBcascade` | `0x432410` | 97.70% |
 | `dib.c` | `DIBunInstall` | `0x432680` | 85.71% |
 | `dib.c` | `DIBmakeDIB` | `0x4326E0` | 95.04% |
 | `dib.c` | `DIBdestroyDIB` | `0x4328A0` | 100.00% |
 | `dib.c` | `DIBslam` | `0x432960` | 100.00% |
-| `dib.c` | `DIBslamReal` | `0x432970` | 100.00% |
+| `dib.c` | `DIBslamReal` | `0x432970` | 99.55% |
 | `dib.c` | `DIBupdate` | `0x432C60` | 84.11% |
 | `dib.c` | `GetDIBPixelBuffer` | `0x432DE0` | 100.00% |
 | `dib.c` | `GetDIBWindowHandle` | `0x432E00` | 100.00% |
@@ -331,12 +333,12 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `disk.c` | `set_objects_data` | `0x41E120` | 93.94% |
 | `disk.c` | `match_rotation_goal` | `0x41E400` | 74.11% |
 | `disk.c` | `rotate_object_to_goal` | `0x41E520` | 44.09% |
-| `disk.c` | `celerate` | `0x41E710` | 94.12% |
+| `disk.c` | `celerate` | `0x41E710` | 100.00% |
 | `disk.c` | `approach_speed` | `0x41E750` | 100.00% |
 | `disk.c` | `steady_object` | `0x41E7C0` | 100.00% |
 | `disk.c` | `real_velocity` | `0x41E7F0` | 100.00% |
 | `disk.c` | `fix_velocity` | `0x41E820` | 100.00% |
-| `disk.c` | `sort_viable_target_list` | `0x41E860` | 65.22% |
+| `disk.c` | `sort_viable_target_list` | `0x41E860` | 63.04% |
 | `eventmgr.c` | `TranslatePolledInputEvent` | `0x4355F0` | 94.64% |
 | `eventmgr.c` | `QueueInputEventAtCursor` | `0x4356A0` | 100.00% |
 | `eventmgr.c` | `AllocateInputEvent` | `0x4356E0` | 100.00% |
@@ -402,9 +404,9 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `GetMusicDriverPresent` | `0x418130` | 100.00% |
 | `geom.c` | `CollectActivePaletteIndices` | `0x418140` | 100.00% |
 | `geom.c` | `get_ship_max_velocity` | `0x4181C0` | 100.00% |
-| `geom.c` | `recalc_max_velocity` | `0x418210` | 94.12% |
+| `geom.c` | `recalc_max_velocity` | `0x418210` | 88.24% |
 | `geom.c` | `drain_fuel` | `0x418280` | 100.00% |
-| `geom.c` | `damage_ion_drive` | `0x4182B0` | 100.00% |
+| `geom.c` | `damage_ion_drive` | `0x4182B0` | 95.00% |
 | `geom.c` | `GetShipAccelerationRate` | `0x4182F0` | 100.00% |
 | `geom.c` | `point_at` | `0x418330` | 100.00% |
 | `geom.c` | `look_at` | `0x4183A0` | 100.00% |
@@ -420,7 +422,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `equ_vector` | `0x418590` | 100.00% |
 | `geom.c` | `zero_vector` | `0x4185F0` | 100.00% |
 | `geom.c` | `negate_vector` | `0x418600` | 100.00% |
-| `geom.c` | `AddFixedVectors` | `0x418620` | 100.00% |
+| `geom.c` | `AddFixedVectors` | `0x418620` | 86.67% |
 | `geom.c` | `SubtractFixedVectors` | `0x418650` | 100.00% |
 | `geom.c` | `ComputeVectorDelta` | `0x418680` | 100.00% |
 | `geom.c` | `ScaleFixedVector` | `0x4186B0` | 100.00% |
@@ -435,9 +437,9 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `NormalizeFixedVector` | `0x418B10` | 100.00% |
 | `geom.c` | `vector_length_in_dir` | `0x418B60` | 76.67% |
 | `geom.c` | `vector_component_in_dir` | `0x418BB0` | 73.33% |
-| `geom.c` | `rotate_about_i` | `0x418BE0` | 78.18% |
-| `geom.c` | `rotate_about_j` | `0x418D00` | 72.97% |
-| `geom.c` | `rotate_about_k` | `0x418E40` | 78.18% |
+| `geom.c` | `rotate_about_i` | `0x418BE0` | 69.09% |
+| `geom.c` | `rotate_about_j` | `0x418D00` | 69.37% |
+| `geom.c` | `rotate_about_k` | `0x418E40` | 69.09% |
 | `geom.c` | `init_ijk` | `0x418F60` | 76.19% |
 | `geom.c` | `copy_frame` | `0x418FD0` | 100.00% |
 | `geom.c` | `fix_objects_ijk` | `0x419050` | 100.00% |
@@ -474,7 +476,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `remove_object` | `0x419BD0` | 96.36% |
 | `geom.c` | `ClampVectorTo30` | `0x41A0F0` | 100.00% |
 | `geom.c` | `ClampTo30` | `0x41A110` | 100.00% |
-| `geom.c` | `transform_objects_to_your_view` | `0x41A1D0` | 72.46% |
+| `geom.c` | `transform_objects_to_your_view` | `0x41A1D0` | 70.53% |
 | `geom.c` | `set_background_objects_rotation` | `0x41A530` | 91.67% |
 | `geom.c` | `get_right_shape` | `0x41A610` | 37.00% |
 | `geom.c` | `InitializeModalTextPanel` | `0x41A9D0` | 77.89% |
@@ -483,7 +485,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `ShowModalTextPanel` | `0x41AB90` | 76.38% |
 | `geom.c` | `ReleaseModalTextPanel` | `0x41AD10` | 100.00% |
 | `geom.c` | `AnySavedGames` | `0x41AD50` | 40.35% |
-| `gr.c` | `ValidateViewportBounds` | `0x440C00` | 96.10% |
+| `gr.c` | `ValidateViewportBounds` | `0x440C00` | 83.75% |
 | `gr.c` | `ClipViewportToScreen` | `0x440CF0` | 100.00% |
 | `gr.c` | `SetSolidColourTranslation` | `0x440D10` | 100.00% |
 | `gr.c` | `PrepareShapeRLEData` | `0x440D50` | 70.05% |
@@ -494,11 +496,12 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `gr.c` | `GetPaletteEntry` | `0x4413C0` | 100.00% |
 | `gr.c` | `SetPaletteEntry` | `0x4413E0` | 100.00% |
 | `gr.c` | `DrawSpriteDefault` | `0x441400` | 100.00% |
-| `gr.c` | `CaptureSpriteBackground` | `0x441450` | 49.09% |
-| `gr.c` | `RestoreSpriteBackground` | `0x441740` | 51.79% |
+| `gr.c` | `CaptureSpriteBackground` | `0x441450` | 50.45% |
+| `gr.c` | `RestoreSpriteBackground` | `0x441740` | 50.45% |
 | `gr.c` | `DrawSolidColourSprite` | `0x441A40` | 100.00% |
 | `gr.c` | `CopyViewportContents` | `0x441A90` | 100.00% |
 | `gr.c` | `ClearViewport` | `0x441AE0` | 100.00% |
+| `gr.c` | `DrawViewportPixel` | `0x441B20` | 100.00% |
 | `gr.c` | `GetViewportPixel` | `0x441B60` | 100.00% |
 | `gr.c` | `DrawViewportLine` | `0x441BA0` | 100.00% |
 | `gr.c` | `DrawFilledViewportRect` | `0x441C70` | 87.50% |
@@ -546,11 +549,11 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `arrive_from_warp` | `0x42A950` | 100.00% |
 | `hudmsg.c` | `unwarp` | `0x42AA10` | 100.00% |
 | `hudmsg.c` | `warp` | `0x42AAF0` | 100.00% |
-| `hudmsg.c` | `drop_player_mine` | `0x42ABD0` | 83.33% |
+| `hudmsg.c` | `drop_player_mine` | `0x42ABD0` | 95.83% |
 | `hudmsg.c` | `personality_killed` | `0x42AC50` | 100.00% |
 | `hudmsg.c` | `clean_up_cockpit` | `0x42ACC0` | 100.00% |
 | `hudmsg.c` | `find_next_gun` | `0x42AD00` | 91.67% |
-| `hudmsg.c` | `select_guns` | `0x42ADA0` | 100.00% |
+| `hudmsg.c` | `select_guns` | `0x42ADA0` | 88.10% |
 | `hudmsg.c` | `select_new_gun` | `0x42AE10` | 100.00% |
 | `hudmsg.c` | `select_new_release_weapon` | `0x42AE50` | 87.88% |
 | `hudmsg.c` | `WaitForDebugStep` | `0x42AFA0` | 100.00% |
@@ -700,15 +703,15 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `killbrd.c` | `FindMenuRegionAtPoint` | `0x43F7C0` | 96.97% |
 | `killbrd.c` | `InitializeRoomViewports` | `0x43F810` | 100.00% |
 | `killbrd.c` | `RecRoom` | `0x43F940` | 85.52% |
-| `killbrd.c` | `ShowChalkBoard` | `0x440510` | 81.42% |
+| `killbrd.c` | `ShowChalkBoard` | `0x440510` | 80.97% |
 | `killbrd.c` | `ResetCampaignData` | `0x440800` | 100.00% |
 | `killbrd.c` | `ReadPacketSectionData` | `0x440840` | 93.18% |
 | `killbrd.c` | `CheckHeapBlockSignature` | `0x4408A0` | 100.00% |
 | `killbrd.c` | `GetPreparedShapeData` | `0x4408C0` | 100.00% |
 | `killbrd.c` | `GetShapeFrameCount` | `0x4408D0` | 100.00% |
 | `killbrd.c` | `GetShapeFrameExtents` | `0x4408F0` | 90.91% |
-| `killbrd.c` | `DecodeShapeFrame` | `0x440960` | 56.12% |
-| `killbrd.c` | `SignExtendClipCoord` | `0x440BE0` | 57.14% |
+| `killbrd.c` | `DecodeShapeFrame` | `0x440960` | 86.73% |
+| `killbrd.c` | `SignExtendClipCoord` | `0x440BE0` | 100.00% |
 | `logic.c` | `find_weapon` | `0x421100` | 96.43% |
 | `logic.c` | `fire_fixed_projectile_weapon` | `0x421220` | 84.00% |
 | `logic.c` | `drop_mine` | `0x4212A0` | 100.00% |
@@ -750,7 +753,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `are_alive` | `0x422590` | 100.00% |
 | `logic.c` | `trim_goals` | `0x4225C0` | 88.24% |
 | `logic.c` | `report_kilrathi_rout` | `0x422640` | 90.28% |
-| `logic.c` | `find_ship_index` | `0x422710` | 93.94% |
+| `logic.c` | `find_ship_index` | `0x422710` | 100.00% |
 | `logic.c` | `try2rout` | `0x422780` | 100.00% |
 | `logic.c` | `no_goal` | `0x422830` | 100.00% |
 | `logic.c` | `being_tailed` | `0x422860` | 100.00% |
@@ -770,7 +773,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `alter_tactic` | `0x422D00` | 100.00% |
 | `logic.c` | `reset_maneuver` | `0x422D30` | 100.00% |
 | `logic.c` | `try2reset_maneuver` | `0x422D60` | 100.00% |
-| `logic.c` | `set_special` | `0x422D90` | 100.00% |
+| `logic.c` | `set_special` | `0x422D90` | 95.65% |
 | `logic.c` | `approach_zero_speed` | `0x422DD0` | 100.00% |
 | `logic.c` | `approach_min_speed` | `0x422DF0` | 100.00% |
 | `logic.c` | `approach_half_speed` | `0x422E10` | 100.00% |
@@ -782,13 +785,13 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `close_behind` | `0x422F60` | 100.00% |
 | `logic.c` | `scan_for_enemy` | `0x422F80` | 82.81% |
 | `logic.c` | `any_enemy` | `0x423070` | 100.00% |
-| `logic.c` | `nearest_enemy_range` | `0x4230F0` | 100.00% |
+| `logic.c` | `nearest_enemy_range` | `0x4230F0` | 94.59% |
 | `logic.c` | `fire_when_ready` | `0x423210` | 100.00% |
 | `logic.c` | `ships_within_range` | `0x423260` | 100.00% |
 | `logic.c` | `attacker_in_range` | `0x4232B0` | 91.67% |
-| `logic.c` | `in_danger` | `0x423350` | 81.25% |
+| `logic.c` | `in_danger` | `0x423350` | 87.50% |
 | `logic.c` | `target_within_range` | `0x423400` | 100.00% |
-| `logic.c` | `build_target_list` | `0x423440` | 97.44% |
+| `logic.c` | `build_target_list` | `0x423440` | 100.00% |
 | `logic.c` | `select_safe_target` | `0x4234C0` | 100.00% |
 | `logic.c` | `inherit_leader_mission` | `0x423530` | 93.10% |
 | `logic.c` | `inherit_leader` | `0x4235B0` | 100.00% |
@@ -796,17 +799,17 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `gone_ship` | `0x423640` | 100.00% |
 | `logic.c` | `skill_rating` | `0x423670` | 95.24% |
 | `logic.c` | `skill_check` | `0x4236B0` | 95.00% |
-| `logic.c` | `find_ships_sphere` | `0x4236F0` | 89.80% |
+| `logic.c` | `find_ships_sphere` | `0x4236F0` | 93.88% |
 | `logic.c` | `locate_ship` | `0x423780` | 100.00% |
 | `logic.c` | `get_follow_point` | `0x423820` | 100.00% |
 | `logic.c` | `get_first_follow_point` | `0x423930` | 92.86% |
-| `logic.c` | `hostile_sphere` | `0x423970` | 100.00% |
+| `logic.c` | `hostile_sphere` | `0x423970` | 89.66% |
 | `logic.c` | `abandoned` | `0x4239D0` | 93.02% |
 | `logic.c` | `engage` | `0x423A50` | 100.00% |
 | `logic.c` | `target_valid` | `0x423AC0` | 100.00% |
 | `logic.c` | `triumph` | `0x423B00` | 100.00% |
 | `logic.c` | `find_ratio` | `0x423BA0` | 100.00% |
-| `logic.c` | `evaluate_damage` | `0x423C00` | 100.00% |
+| `logic.c` | `evaluate_damage` | `0x423C00` | 90.48% |
 | `logic.c` | `mine_available` | `0x423CD0` | 100.00% |
 | `logic.c` | `LoadShapeSet` | `0x423CE0` | 90.91% |
 | `logic.c` | `FreeShapeSet` | `0x423D50` | 95.24% |
@@ -858,8 +861,8 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `mathfp.c` | `ArcSin` | `0x434E60` | 100.00% |
 | `mathfp.c` | `ArcCos` | `0x434E90` | 100.00% |
 | `mathfp.c` | `Magnitude` | `0x434EC0` | 100.00% |
-| `mathfp.c` | `PlanarMagnitude` | `0x434EE0` | 100.00% |
-| `mathfp.c` | `Vector_magnitude` | `0x434F20` | 96.00% |
+| `mathfp.c` | `PlanarMagnitude` | `0x434EE0` | 93.33% |
+| `mathfp.c` | `Vector_magnitude` | `0x434F20` | 87.50% |
 | `mathfp.c` | `SetTextCursor` | `0x434F70` | 100.00% |
 | `mathfp.c` | `SetTextContext` | `0x434FA0` | 100.00% |
 | `mathfp.c` | `WaitForVerticalBlankThunk` | `0x434FB0` | 100.00% |
@@ -871,11 +874,11 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `mathfp.c` | `GetShapeFrameBounds` | `0x435020` | 94.12% |
 | `mathfp.c` | `IsPointInRect` | `0x435090` | 100.00% |
 | `mathfp.c` | `SplitPackedPoint` | `0x4350D0` | 77.78% |
-| `mathfp.c` | `DrawTextString` | `0x4350F0` | 66.15% |
+| `mathfp.c` | `DrawTextString` | `0x4350F0` | 63.08% |
 | `mathfp.c` | `DrawTextCharacter` | `0x435290` | 73.33% |
 | `mathfp.c` | `AppendTextCharacter` | `0x435310` | 100.00% |
 | `mathfp.c` | `ResetTextCursor` | `0x4353F0` | 100.00% |
-| `mathutil.c` | `MinShort` | `0x41D0C0` | 83.33% |
+| `mathutil.c` | `MinShort` | `0x41D0C0` | 100.00% |
 | `mathutil.c` | `MaxShort` | `0x41D0E0` | 100.00% |
 | `mathutil.c` | `FreePacketAndClear` | `0x41D100` | 100.00% |
 | `mono.c` | `CloseDataFile` | `0x403500` | 100.00% |
@@ -887,7 +890,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `mono.c` | `DrawCenteredScaledIntroText` | `0x4037A0` | 91.46% |
 | `mono.c` | `GetLineLength` | `0x403890` | 39.66% |
 | `mono.c` | `print_subtitle` | `0x403920` | 44.70% |
-| `mono.c` | `advance_canned_sequence` | `0x403A80` | 88.41% |
+| `mono.c` | `advance_canned_sequence` | `0x403A80` | 85.51% |
 | `mono.c` | `update_canned_sequence` | `0x403B70` | 86.54% |
 | `mono.c` | `SplitGameClockTicks` | `0x403C40` | 100.00% |
 | `mono.c` | `MonoDebug_install` | `0x403C90` | 100.00% |
@@ -902,15 +905,15 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `music.c` | `InitializeFireworks` | `0x42D270` | 100.00% |
 | `music.c` | `TheEndFireWorks` | `0x42D2A0` | 100.00% |
 | `music.c` | `InitializeConstellationField` | `0x42D390` | 83.51% |
-| `music.c` | `DrawConstellationField` | `0x42D500` | 92.96% |
-| `music.c` | `OpenPacketSection` | `0x42D730` | 67.62% |
+| `music.c` | `DrawConstellationField` | `0x42D500` | 93.66% |
+| `music.c` | `OpenPacketSection` | `0x42D730` | 66.67% |
 | `music.c` | `CloseDataFileByHandle` | `0x42D870` | 83.33% |
 | `music.c` | `GetTargetColourIndex` | `0x42DB70` | 100.00% |
-| `music.c` | `show_target_disp` | `0x42DB90` | 25.56% |
+| `music.c` | `show_target_disp` | `0x42DB90` | 26.01% |
 | `music.c` | `DrawTargetRangeReadout` | `0x42DEA0` | 13.59% |
 | `music.c` | `LogDisplayMode` | `0x42E020` | 100.00% |
 | `music.c` | `AllocateViewport` | `0x42E090` | 84.16% |
-| `music.c` | `AlignSpriteFrameToRectCorner` | `0x42E1D0` | 100.00% |
+| `music.c` | `AlignSpriteFrameToRectCorner` | `0x42E1D0` | 97.65% |
 | `music.c` | `FadeMusic` | `0x42E320` | 100.00% |
 | `music.c` | `SetMusicOn` | `0x42E330` | 100.00% |
 | `music.c` | `StopMusic` | `0x42E350` | 100.00% |
@@ -938,7 +941,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `SetScreenClipRect` | `0x40D8C0` | 100.00% |
 | `nav.c` | `FormatNavCoordinates` | `0x40DE70` | 100.00% |
 | `nav.c` | `GetNavNameSkippingMarker` | `0x40DF50` | 100.00% |
-| `nav.c` | `add_statistics` | `0x40EFE0` | 77.78% |
+| `nav.c` | `add_statistics` | `0x40EFE0` | 100.00% |
 | `nav.c` | `PostMission` | `0x40F010` | 83.17% |
 | `nav.c` | `FullMissionScore` | `0x40F190` | 76.19% |
 | `nav.c` | `PlayersMissionScore` | `0x40F1E0` | 86.67% |
@@ -946,7 +949,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `MoveNewCampaign` | `0x40F3F0` | 76.19% |
 | `nav.c` | `StartNewCampaign` | `0x40F440` | 100.00% |
 | `nav.c` | `GameFlow` | `0x40F4B0` | 44.80% |
-| `nav.c` | `free_viewport` | `0x40F940` | 98.18% |
+| `nav.c` | `free_viewport` | `0x40F940` | 96.36% |
 | `nav.c` | `GetPaletteReadyUnused` | `0x40FA30` | 100.00% |
 | `nav.c` | `DrawTitleLogo` | `0x40FA40` | 68.18% |
 | `nav.c` | `UpdateTitleMenuCursor` | `0x40FB10` | 73.33% |
@@ -969,13 +972,13 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `pilot.cpp` | `SortTrainSimHighScores` | `0x425E50` | 100.00% |
 | `pilot.cpp` | `FindTrainSimHighScore` | `0x425ED0` | 100.00% |
 | `pilot.cpp` | `InsertTrainSimHighScore` | `0x425EF0` | 79.17% |
-| `pilot.cpp` | `InitializeTrainSimHighScores` | `0x425F40` | 88.89% |
+| `pilot.cpp` | `InitializeTrainSimHighScores` | `0x425F40` | 87.04% |
 | `pilot.cpp` | `IsHighScoreSlotUsed` | `0x425FE0` | 100.00% |
 | `pilot.cpp` | `DrawTextInputCursor` | `0x4260E0` | 82.76% |
 | `pilot.cpp` | `ClearTextInputCharacter` | `0x426140` | 95.35% |
 | `pilot.cpp` | `ClearNextTextInputCharacter` | `0x4261D0` | 100.00% |
-| `pilot.cpp` | `ReadTextInput` | `0x426200` | 75.65% |
-| `pilot.cpp` | `PromptForPilotField` | `0x426600` | 100.00% |
+| `pilot.cpp` | `ReadTextInput` | `0x426200` | 76.01% |
+| `pilot.cpp` | `PromptForPilotField` | `0x426600` | 90.32% |
 | `pilot.cpp` | `InitializeTrainSimTextPanel` | `0x426660` | 100.00% |
 | `pilot.cpp` | `ShowTrainSimTextMessage` | `0x426700` | 100.00% |
 | `pilot.cpp` | `EnterPilotNameAndCallsign` | `0x426750` | 100.00% |
@@ -1000,13 +1003,13 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `IsSoundHardwarePresent` | `0x42F940` | 100.00% |
 | `screen.c` | `MessagePumpHook` | `0x42F950` | 100.00% |
 | `screen.c` | `PushMemoryStackFrame` | `0x42F960` | 97.67% |
-| `screen.c` | `MapPacketHandleToBlock` | `0x42FA20` | 97.06% |
+| `screen.c` | `MapPacketHandleToBlock` | `0x42FA20` | 100.00% |
 | `screen.c` | `AllocateTaggedMemory` | `0x42FA90` | 100.00% |
 | `screen.c` | `ReleasePacketHandle` | `0x42FAE0` | 100.00% |
 | `screen.c` | `GetFixedOneMillionThunk` | `0x42FB20` | 100.00% |
 | `screen.c` | `GetFixedOneMillionThunkAlt` | `0x42FB30` | 100.00% |
 | `screen.c` | `UpdateInputDeviceTransitions` | `0x430710` | 77.27% |
-| `screen.c` | `PollJoystickButtonEvents` | `0x430840` | 90.57% |
+| `screen.c` | `PollJoystickButtonEvents` | `0x430840` | 94.34% |
 | `screen.c` | `PollMenuInputDevices` | `0x430920` | 79.52% |
 | `screen.c` | `StepMenuSelection` | `0x430BC0` | 76.92% |
 | `screen.c` | `IsCommMenuIdle` | `0x430CA0` | 100.00% |
@@ -1047,20 +1050,21 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screens.c` | `FreeTalker` | `0x438BC0` | 100.00% |
 | `screens.c` | `SceneDirector` | `0x438C00` | 74.71% |
 | `screens.c` | `DrawPodiumShot` | `0x439070` | 100.00% |
-| `screens.c` | `DrawBriefingCharacter` | `0x439150` | 81.82% |
+| `screens.c` | `DrawBriefingCharacter` | `0x439150` | 100.00% |
 | `screens.c` | `DrawFuneralLongShot` | `0x439220` | 92.05% |
 | `screens.c` | `SetViewportRect` | `0x439400` | 100.00% |
-| `screens.c` | `PanToScreen` | `0x439430` | 98.91% |
+| `screens.c` | `PanToScreen` | `0x439430` | 100.00% |
 | `screens.c` | `ShowGetReadyScreen` | `0x439840` | 96.83% |
 | `screens.c` | `ShowVictoryScreen` | `0x439910` | 97.14% |
 | `screens.c` | `ShowGameOverScreen` | `0x439A80` | 100.00% |
+| `screens.c` | `DrawClippedLine` | `0x439E39` | 11.02% |
 | `screens.c` | `FillRasterClipCheckerboard` | `0x43A83B` | 100.00% |
 | `screens.c` | `DrawRLEImage` | `0x43A974` | 100.00% |
 | `screens.c` | `DrawRLEImageUnclipped` | `0x43AD78` | 100.00% |
 | `screens.c` | `SetPaletteTranslationTable` | `0x43AE3F` | 100.00% |
 | `screens.c` | `DrawRLEImageColor` | `0x43AE5E` | 100.00% |
 | `screens.c` | `DrawRLEImageColorUnclipped` | `0x43B336` | 100.00% |
-| `screens.c` | `RotateRLEImage` | `0x43B469` | 25.28% |
+| `screens.c` | `RotateRLEImage` | `0x43B469` | 25.40% |
 | `screens.c` | `FillRasterClip` | `0x43C808` | 100.00% |
 | `screens.c` | `BlitRasterClip` | `0x43C8E7` | 100.00% |
 | `screens.c` | `GetRLETransformTrig` | `0x43E2D3` | 95.08% |
@@ -1068,12 +1072,12 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screens.c` | `TransformRLEPoint` | `0x43E3B1` | 100.00% |
 | `ship.c` | `Create_ship_hit_debris` | `0x41ECE0` | 55.74% |
 | `ship.c` | `check_computer_damage` | `0x41F5D0` | 100.00% |
-| `ship.c` | `ReportComponentRepaired` | `0x41F5F0` | 70.97% |
+| `ship.c` | `ReportComponentRepaired` | `0x41F5F0` | 61.29% |
 | `ship.c` | `repair_internal_damage` | `0x41F660` | 87.76% |
 | `ship.c` | `check_next_wave` | `0x41F7C0` | 100.00% |
 | `ship.c` | `Create_explosion_debris` | `0x41F800` | 74.32% |
 | `ship.c` | `ShipExplosion` | `0x41FBC0` | 47.37% |
-| `ship.c` | `Explosion` | `0x41FCD0` | 41.54% |
+| `ship.c` | `Explosion` | `0x41FCD0` | 43.08% |
 | `ship.c` | `explode` | `0x420040` | 14.81% |
 | `ship.c` | `fire` | `0x4202D0` | 3.86% |
 | `ship.c` | `rnd_sign` | `0x4208C0` | 100.00% |
@@ -1099,7 +1103,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `smart.c` | `pick_regular_maneuver` | `0x434630` | 98.29% |
 | `smart.c` | `pick_from_list` | `0x434800` | 100.00% |
 | `smart.c` | `pick_kilrathi_maneuver` | `0x4348A0` | 88.89% |
-| `smart.c` | `process_maneuver_node` | `0x434900` | 93.02% |
+| `smart.c` | `process_maneuver_node` | `0x434900` | 97.67% |
 | `smart.c` | `handle_stress` | `0x434980` | 100.00% |
 | `smart.c` | `intelligence_events` | `0x434A80` | 95.10% |
 | `smart.c` | `chase_speed` | `0x434C70` | 92.59% |
@@ -1113,10 +1117,10 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `sound.c` | `FxDriverShutdownHook` | `0x42C410` | 100.00% |
 | `sound.c` | `LoadInstallDat` | `0x42C660` | 52.48% |
 | `sound.c` | `GetJoystickPresentUnused` | `0x42CDA0` | 100.00% |
-| `spc.c` | `CalibrateJoystickInteractive` | `0x4102B0` | 68.20% |
+| `spc.c` | `CalibrateJoystickInteractive` | `0x4102B0` | 69.51% |
 | `spc.c` | `WaitForJoystickButtonRelease` | `0x4106C0` | 50.00% |
 | `spc.c` | `WaitForJoystickButtonPress` | `0x410700` | 50.00% |
-| `spc.c` | `SetFleetOverviewView` | `0x410740` | 80.93% |
+| `spc.c` | `SetFleetOverviewView` | `0x410740` | 81.36% |
 | `spc.c` | `rotate_eye_to_goal` | `0x410A30` | 68.09% |
 | `spc.c` | `GetVectorMagnitude` | `0x410AD0` | 100.00% |
 | `spc.c` | `set_eye_direction_and_position` | `0x410AF0` | 89.68% |
@@ -1126,11 +1130,11 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `spc.c` | `generate_stars` | `0x411FE0` | 86.05% |
 | `spc.c` | `update_star_field` | `0x412100` | 68.04% |
 | `spc.c` | `count_down` | `0x412410` | 100.00% |
-| `spc.c` | `house_keep_objects` | `0x412430` | 31.98% |
+| `spc.c` | `house_keep_objects` | `0x412430` | 31.17% |
 | `spc.c` | `update_objects_in_space` | `0x412820` | 95.00% |
 | `spc.c` | `rotate_object` | `0x412920` | 97.73% |
 | `spc.c` | `accelerate_and_move_object` | `0x4129A0` | 70.21% |
-| `spc.c` | `animate_shape` | `0x412CD0` | 44.23% |
+| `spc.c` | `animate_shape` | `0x412CD0` | 43.27% |
 | `spc.c` | `animate_object` | `0x412E30` | 14.29% |
 | `spc.c` | `object_intelligence` | `0x413880` | 28.46% |
 | `strdos.c` | `DosFarPtrToNear` | `0x435410` | 100.00% |

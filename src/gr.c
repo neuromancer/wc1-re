@@ -518,6 +518,16 @@ void ClearViewport(Viewport *viewport, short colour)
     }
 }
 
+/* Function start: 0x441B20 */
+void DrawViewportPixel(Viewport *viewport, short x, short y,
+                       short colour)
+{
+    ClipViewportToScreen(viewport);
+    SetRasterClipPixel(&g_stRasterClip_00496fc0,
+                       (int)x - viewport->left,
+                       (int)y - viewport->top, colour);
+}
+
 /* Function start: 0x441B60 */
 int GetViewportPixel(Viewport *viewport, short x, short y)
 {

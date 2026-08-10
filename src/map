@@ -1220,7 +1220,7 @@
 0x00439A80 ShowGameOverScreen
 0x00439C3E LoadMcgaDll
 0x00439C69 LoopG0046e69cFn9C69
-0x00439C88 DoLocalFn9C88
+0x00439C88 SetRasterClipPixel
 0x00439D63 ReadRasterClipPixel
 0x00439E39 LoopLocalFn9E39
 0x0043A83B FillRasterClipCheckerboard
@@ -1311,7 +1311,7 @@
 0x00441A40 DoLocalFn1A40
 0x00441A90 CopyViewportContents
 0x00441AE0 ClearViewport
-0x00441B20 GetCombatFn1B20
+0x00441B20 DrawViewportPixel
 0x00441B60 GetViewportPixel
 0x00441BA0 CombatRoutine05
 0x00441BF0 DispatchTriangleRasterizer

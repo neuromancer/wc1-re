@@ -776,38 +776,45 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
     commands = shape + *(int *)(shape + frameOffset) + 8;
     maximumY = (short)(height - 1);
     rowCode = *(unsigned short *)commands;
+    commands += 2;
     while (rowCode != 0) {
-        x = leftExtent + *(short *)(commands + 2);
-        y = topExtent + *(short *)(commands + 4);
+        x = leftExtent + *(short *)commands;
+        y = topExtent + *(short *)(commands + 2);
         destination = bitmap + y * width + x;
-        commands += 6;
-        if ((rowCode & 1) == 0) {
-            rowCode >>= 1;
-            runLength = rowCode;
-            if (y >= 0 && y <= maximumY) {
-                runRight = x + runLength - 1;
-                if (x <= maximumX && runRight >= 0) {
-                    skip = 0;
-                    copyLength = runLength;
-                    if (x < 0) {
-                        skip = -x;
-                        copyLength = (unsigned short)(copyLength + x);
-                    }
-                    if (maximumX < runRight)
-                        copyLength = (unsigned short)(copyLength -
-                                                     runRight + maximumX);
-                    memcpy(destination + skip, commands + skip,
-                           (short)copyLength);
-                }
-            }
-            commands += runLength;
-        } else {
+        commands += 4;
+        if ((rowCode & 1) != 0) {
             rowCode >>= 1;
             while (rowCode != 0) {
                 code = *commands;
-                runLength = (unsigned short)(code >> 1);
-                runData = commands + 1;
-                if ((code & 1) == 0) {
+                commands++;
+                if ((code & 1) != 0) {
+                    code >>= 1;
+                    colour = *commands;
+                    commands++;
+                    runLength = code;
+                    rowCode = (unsigned short)(rowCode - runLength);
+                    if (y >= 0 && y <= maximumY) {
+                        runRight = x + runLength - 1;
+                        if (x <= maximumX && runRight >= 0) {
+                            skip = 0;
+                            copyLength = runLength;
+                            if (x < 0) {
+                                skip = -x;
+                                copyLength =
+                                    (unsigned short)(copyLength + x);
+                            }
+                            if (maximumX < runRight)
+                                copyLength = (unsigned short)(copyLength -
+                                                       runRight + maximumX);
+                            memset(destination + skip, colour,
+                                   (short)copyLength);
+                        }
+                    }
+                } else {
+                    code >>= 1;
+                    runLength = code;
+                    rowCode = (unsigned short)(rowCode - runLength);
+                    runData = commands;
                     if (y >= 0 && y <= maximumY) {
                         runRight = x + runLength - 1;
                         if (x <= maximumX && runRight >= 0) {
@@ -826,40 +833,39 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
                         }
                     }
                     commands = runData + runLength;
-                } else {
-                    colour = *runData;
-                    commands += 2;
-                    if (y >= 0 && y <= maximumY) {
-                        runRight = x + runLength - 1;
-                        if (x <= maximumX && runRight >= 0) {
-                            skip = 0;
-                            copyLength = runLength;
-                            if (x < 0) {
-                                skip = -x;
-                                copyLength =
-                                    (unsigned short)(copyLength + x);
-                            }
-                            if (maximumX < runRight)
-                                copyLength = (unsigned short)(copyLength -
-                                                       runRight + maximumX);
-                            memset(destination + skip, colour,
-                                   (short)copyLength);
-                        }
-                    }
                 }
                 x += runLength;
                 destination += runLength;
-                rowCode = (unsigned short)(rowCode - runLength);
             }
+        } else {
+            rowCode >>= 1;
+            if (y >= 0 && y <= maximumY) {
+                runRight = x + rowCode - 1;
+                if (x <= maximumX && runRight >= 0) {
+                    skip = 0;
+                    copyLength = rowCode;
+                    if (x < 0) {
+                        skip = -x;
+                        copyLength = (unsigned short)(copyLength + x);
+                    }
+                    if (maximumX < runRight)
+                        copyLength = (unsigned short)(copyLength -
+                                                     runRight + maximumX);
+                    memcpy(destination + skip, commands + skip,
+                           (short)copyLength);
+                }
+            }
+            commands += rowCode;
         }
         rowCode = *(unsigned short *)commands;
+        commands += 2;
     }
 }
 
 /* Function start: 0x440BE0 */
-unsigned int SignExtendClipCoord(unsigned short v)
+unsigned int SignExtendClipCoord(volatile int v)
 {
-    if (v < 0xfdc0)
-        return v;
+    if ((unsigned short)v < 0xfdc0)
+        return (unsigned short)v;
     return (int)(short)v;
 }

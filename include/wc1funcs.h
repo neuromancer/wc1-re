@@ -1121,6 +1121,8 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination);    /* 0x004
 unsigned int ShowGetReadyScreen(void);                                 /* 0x00439840 */
 unsigned int ShowVictoryScreen(void);                                  /* 0x00439910 */
 unsigned int ShowGameOverScreen(void);                                 /* 0x00439A80 */
+unsigned int SetRasterClipPixel(RasterClip *clip, int x, int y,
+                                int colour);                           /* 0x00439C88 */
 int ReadRasterClipPixel(RasterClip *clip, int x, int y);                /* 0x00439D63 */
 unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
                              int mode, int colour);                    /* 0x00439E39 */
@@ -1182,7 +1184,7 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
 void DecodeShapeFrame(unsigned char *shape, short frame,
                       unsigned char *bitmap, int width, short height,
                       int leftExtent, int topExtent);                 /* 0x00440960 */
-unsigned int SignExtendClipCoord(unsigned short v);                         /* 0x00440BE0 */
+unsigned int SignExtendClipCoord(volatile int v);                      /* 0x00440BE0 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip);                         /* 0x00440C00 */
 void ClipViewportToScreen(Viewport *viewport);                         /* 0x00440CF0 */
@@ -1212,6 +1214,8 @@ void DrawSolidColourSprite(Viewport *viewport, short x, short y,
                            unsigned char colour);                    /* 0x00441A40 */
 void CopyViewportContents(Viewport *source, Viewport *destination);    /* 0x00441A90 */
 void ClearViewport(Viewport *viewport, short colour);                  /* 0x00441AE0 */
+void DrawViewportPixel(Viewport *viewport, short x, short y,
+                       short colour);                                 /* 0x00441B20 */
 int GetViewportPixel(Viewport *viewport, short x, short y);            /* 0x00441B60 */
 void DrawViewportLine(Viewport *viewport, short x1, short y1,
                       short x2, short y2, short colour);             /* 0x00441BA0 */
