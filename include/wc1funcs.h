@@ -673,6 +673,8 @@ void reposition_fixed_child_objects(void);                             /* 0x0042
 unsigned int housekeep_power_plant_and_fuel(short ship);                /* 0x00421760 */
 unsigned int replenish_shields(short ship);                            /* 0x00421780 */
 unsigned int replenish_weapon_energy_bank(short ship);                 /* 0x00421830 */
+void accelerate(short amount);                                         /* 0x004218D0 */
+void your_afterburner(void);                                            /* 0x00421920 */
 unsigned int EMShutDown(void);                                         /* 0x00421A40 */
 unsigned int InitializeEventManagerResources(void);                    /* 0x00421A60 */
 unsigned int EMStartUp(void);                                          /* 0x00421AB0 */
@@ -858,6 +860,7 @@ unsigned int UpdateSpacePaletteFade(void);                              /* 0x004
 unsigned int TriggerPlayerHitPaletteFlash(void);                      /* 0x00427C80 */
 unsigned int FadeFlightPaletteEntry(short *entry);                      /* 0x00427CA0 */
 unsigned int house_keep(void);                                          /* 0x00427D40 */
+void init_player_input(void);                                           /* 0x00427DF0 */
 void PollSpaceFlightInput(void);                                       /* 0x00427E40 */
 int process_player_input(void);                                        /* 0x00427F20 */
 unsigned int fire_players_lasers(void);                                /* 0x00428480 */
@@ -919,7 +922,10 @@ void playWAVE(unsigned char *filename, int looping, int volume);     /* 0x0042B4
 void stop_all_sounds(void);                                         /* 0x0042B640 */
 void ServiceSoundSystem(void);                                         /* 0x0042B7D0 */
 void SetSoundEffectsVolume(int volume);                               /* 0x0042B7E0 */
+void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
+                        const BYTE *data, DWORD size);                  /* 0x0042B840 */
 void LoadVolumeSettingsFromRegistry(void);                            /* 0x0042B870 */
+void SaveVolumeSettingsToRegistry(void);                               /* 0x0042B930 */
 void FxDriverShutdownHook(void);                                            /* 0x0042C410 */
 unsigned int LoadInstallDat(void);                                     /* 0x0042C660 */
 unsigned short GetJoystickPresentUnused(void);                                    /* 0x0042CDA0 */

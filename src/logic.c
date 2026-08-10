@@ -297,6 +297,51 @@ unsigned int replenish_weapon_energy_bank(short ship)
     return 0;
 }
 
+/* Function start: 0x4218D0 */
+void accelerate(short amount)
+{
+    if ((short)malf(0) != 0) {
+        amount = (short)(amount - 2);
+        if (g_nSpaceFrame_0059b420 % 3 == 0)
+            PlaySfxWaveFileByNumber(3, -1, 0);
+    }
+    celerate(0, (int)amount << 8);
+}
+
+/* Function start: 0x421920 */
+void your_afterburner(void)
+{
+    short time;
+    int frame;
+    int nextSoundFrame;
+
+    if (g_anShipFuel_0059b470[0] <= 0)
+        return;
+    if ((short)malf(0) != 0) {
+        PlaySfxWaveFileByNumber(3, -1, 0);
+        return;
+    }
+    if (g_aeSpecialManeuver_0059c3c0[0] !=
+            SPECIAL_MANEUVER_AFTERBURNER) {
+        time = 8;
+    } else if (g_asShipAfterburnerTimer_0059c810[0] == 0) {
+        time = 8;
+    } else {
+        if (g_asShipAfterburnerTimer_0059c810[0] > 2)
+            return;
+        time = 2;
+    }
+    fire_afterburner(0, time);
+    frame = (int)g_nSpaceFrame_0059b420;
+    nextSoundFrame = frame + 6;
+    if (nextSoundFrame < g_nAfterburnerSoundDeadline_005a7ce8)
+        g_nAfterburnerSoundDeadline_005a7ce8 = 0;
+    if (g_nAfterburnerSoundDeadline_005a7ce8 < frame) {
+        g_nAfterburnerSoundDeadline_005a7ce8 = nextSoundFrame;
+        PlaySfxWaveFileByNumber(12, -1, 0);
+    }
+}
+
 /* Function start: 0x421A40 */
 unsigned int EMShutDown(void)
 {

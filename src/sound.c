@@ -116,6 +116,13 @@ void SetSoundEffectsVolume(int volume)
     SoundDebugPrintf("Setting SFX Volume to %d", volume);
 }
 
+/* Function start: 0x42B840 */
+void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
+                        const BYTE *data, DWORD size)
+{
+    RegSetValueExA(key, name, 0, type, data, size);
+}
+
 /* Function start: 0x42B870 */
 void LoadVolumeSettingsFromRegistry(void)
 {
@@ -127,25 +134,45 @@ void LoadVolumeSettingsFromRegistry(void)
                       "Software\\Origin Systems\\WC: Kilrathi Saga",
                       0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
         type = REG_DWORD;
-        size = sizeof(DAT_00469fc0);
+        size = sizeof(g_nMusicVolumeSetting_00469fc0);
         if (RegQueryValueExA(key, "MusicVolume", 0, &type,
-                             (LPBYTE)&DAT_00469fc0, &size) != ERROR_SUCCESS) {
-            DAT_00469fc0 = 0x14;
+                             (LPBYTE)&g_nMusicVolumeSetting_00469fc0,
+                             &size) != ERROR_SUCCESS) {
+            g_nMusicVolumeSetting_00469fc0 = 0x14;
             RegSetValueExA(key, "MusicVolume", 0, REG_DWORD,
-                           (const BYTE *)&DAT_00469fc0,
-                           sizeof(DAT_00469fc0));
+                           (const BYTE *)&g_nMusicVolumeSetting_00469fc0,
+                           sizeof(g_nMusicVolumeSetting_00469fc0));
         }
         type = REG_DWORD;
-        size = sizeof(DAT_00469fbc);
+        size = sizeof(g_nSfxVolumeSetting_00469fbc);
         if (RegQueryValueExA(key, "SFXVolume", 0, &type,
-                             (LPBYTE)&DAT_00469fbc, &size) != ERROR_SUCCESS) {
-            DAT_00469fbc = 0x14;
+                             (LPBYTE)&g_nSfxVolumeSetting_00469fbc,
+                             &size) != ERROR_SUCCESS) {
+            g_nSfxVolumeSetting_00469fbc = 0x14;
             RegSetValueExA(key, "SFXVolume", 0, REG_DWORD,
-                           (const BYTE *)&DAT_00469fbc,
-                           sizeof(DAT_00469fbc));
+                           (const BYTE *)&g_nSfxVolumeSetting_00469fbc,
+                           sizeof(g_nSfxVolumeSetting_00469fbc));
         }
         RegCloseKey(key);
     }
+}
+
+/* Function start: 0x42B930 */
+void SaveVolumeSettingsToRegistry(void)
+{
+    HKEY key;
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
+                      "Software\\Origin Systems\\WC: Kilrathi Saga",
+                      0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
+        RegistryStoreValue(key, "MusicVolume", REG_DWORD,
+                           (const BYTE *)&g_nMusicVolumeSetting_00469fc0,
+                           sizeof(g_nMusicVolumeSetting_00469fc0));
+        RegistryStoreValue(key, "SFXVolume", REG_DWORD,
+                           (const BYTE *)&g_nSfxVolumeSetting_00469fbc,
+                           sizeof(g_nSfxVolumeSetting_00469fbc));
+    }
+    RegCloseKey(key);
 }
 
 /* Function start: 0x42C410 */

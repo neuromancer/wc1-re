@@ -368,7 +368,7 @@ int RunSpaceFlight(short entryNavPoint)
         SetMousePosition(
             (DAT_005a7510.right - DAT_005a7510.left) / 2 + 1,
             g_nViewCenterY_0059a854);
-        DAT_0046a02c = 0;
+        g_bMouseAfterburnerControl_0046a02c = 0;
         g_bMouseCursorVisible_0046a018 = 0;
         initialize_view_buffer();
         FlushInputEvents();
@@ -378,7 +378,7 @@ int RunSpaceFlight(short entryNavPoint)
     WarpMouseTo((short)((DAT_005a7510.left + DAT_005a7510.right) / 2),
                 (short)((DAT_005a7510.top + DAT_005a7510.bottom) / 2));
     FlushInputEvents();
-    DAT_0046a02c = 0;
+    g_bMouseAfterburnerControl_0046a02c = 0;
     g_bMouseCursorVisible_0046a018 = 0;
     g_nArcadeState_00469fb0 = 0;
     DIBslam();

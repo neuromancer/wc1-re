@@ -222,10 +222,15 @@ extern short DAT_0046a010;
 extern short g_nArcadeBonusCountdown_0046a014;
 extern int g_bMouseCursorVisible_0046a018;
 extern unsigned char g_bInputPollingGuard_0046a01c;
-extern int DAT_0046a020;
-extern int DAT_0046a024;
-extern unsigned int DAT_0046a028;
-extern int DAT_0046a02c;
+extern InputDeviceSample g_stLastPolledFlightInput_0046a020;
+extern int g_bMouseAfterburnerControl_0046a02c;
+extern const short g_asMouseYawThresholds_0046a030[8];
+extern const short g_asMousePitchThresholds_0046a040[8];
+extern unsigned int g_dwLastSecondaryButtonPress_0046a04c;
+extern unsigned char g_bFlightRollLatch_0046a050;
+extern unsigned char g_bAfterburnerButtonLatched_0046a054;
+extern short g_nMouseYawInput_0046a058;
+extern short g_nMousePitchInput_0046a05c;
 extern unsigned char *DAT_0046a748;
 extern const char *g_apszComponentNames_0046a778[6];
 extern const char g_szIonDrive_0046a7c4[12];
@@ -580,6 +585,7 @@ extern short g_nEventManagerActive_0059a850;
 extern short g_nViewCenterX_0059a852;
 extern short g_nViewCenterY_0059a854;
 extern unsigned char g_abInputKeyState_0059a860[0x80];
+extern unsigned short g_wCurrentInputModifiers_0059ab08;
 extern volatile short g_nMouseX_0059ab10;
 extern volatile short g_nMouseY_0059ab12;
 extern unsigned char g_bPrimaryMouseButton_0059ab14;
@@ -632,7 +638,7 @@ extern signed char g_acShipDamage_0059c460[10];
 extern short g_asViableTargetDistance_0059c470[16];
 extern signed char g_cMissionObjectiveCount_0059c46a;
 extern FixedVector g_aShipPosition_0059c490[512];
-extern unsigned char DAT_0059c810[512];
+extern short g_asShipAfterburnerTimer_0059c810[256];
 extern short g_nShipMissionIndices_0059c830[10];
 extern signed char g_cCurrentNavPointIndex_0059c86c;
 extern FixedVector g_vStarFieldMotion_0059c860;
@@ -652,6 +658,9 @@ extern short g_nTargetRange_0059ce10;
 extern unsigned int DAT_0059ce18[256];
 extern signed char g_acObjectOwner_0059ce20[64];
 extern signed char g_acShipTarget_0059ce60[512];
+extern short g_nPreviousPitchInput_0059ce70;
+extern short g_nPreviousYawInput_0059ce72;
+extern short g_nPreviousRollInput_0059ce74;
 extern short g_anObjectYawRotation_0059ce80[256];
 extern unsigned char DAT_0059cf20[512];
 extern signed char DAT_0059cf00[WC1_SPACE_OBJECT_COUNT];
@@ -775,6 +784,11 @@ extern short g_nWeaponDisplayOriginX_005a7788;
 extern short g_nWeaponDisplayOriginY_005a778a;
 extern unsigned int DAT_005a77ec;
 extern unsigned char g_abPaletteTriplets_005a77f0[256][3];
+extern InputDeviceSample g_stPreviousFlightInput_005a7af0;
+extern short g_bMouseButtonEventQueued_005a7afc;
+extern short g_bKeyboardEventQueued_005a7afe;
+extern short g_bMouseMoveEventQueued_005a7b00;
+extern short g_bJoystickEventQueued_005a7b88;
 extern Viewport g_stTrainSimTitleDisplayViewport_005a7b90;
 extern Viewport g_stTrainSimHighScoreBufferViewport_005a7bb0;
 extern int g_nArcadeScore_005a7bc4;
@@ -804,6 +818,7 @@ extern unsigned int g_dwOriginalFreeMemory_005a7cd8;
 extern unsigned char *g_pMouseCursorResource_005a7cdc;
 extern int g_nAvailableGameMemory_005a7ce0;
 extern int g_nSceneResourceBudget_005a7ce4;
+extern int g_nAfterburnerSoundDeadline_005a7ce8;
 extern unsigned char *g_pScannerMarkerBackground_005a7dc4;
 extern unsigned char DAT_005a7cec;
 extern int g_bPointerMovedByKeyboard_005a7d54;
@@ -949,10 +964,10 @@ extern NavMapLabel g_aNavMapLabels_00475e80[20];
 extern ShortRect g_aNavMapExclusionRects_00475f48[21];
 extern short g_nScriptedViewObject_0046a8d0;
 extern int g_bScriptedView_0046a8d4;
-extern int DAT_00469fbc;
-extern int DAT_00469fc0;
+extern int g_nSfxVolumeSetting_00469fbc;
+extern int g_nMusicVolumeSetting_00469fc0;
 extern int g_bViewportDirty_00469fc4;
-extern int DAT_00469fc8[11];
+extern int g_anVolumeLevels_00469fc8[11];
 /* Declared as comma-separated lists in the original tranches. */
 extern short g_nHostMouseY_0059af72;
 
@@ -1015,11 +1030,10 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
  */
 #define g_nTargetShip_0059c3b0 \
     (*(short *)((unsigned char *)g_aeSpecialManeuver_0059c3c0 - 0x10))
-#define g_asShipAfterburnerTimer_0059c810 ((short *)(void *)DAT_0059c810)
 #define g_acShipCommunicator_0059c850 \
-    ((signed char *)((unsigned char *)DAT_0059c810 + 0x40))
+    ((signed char *)((unsigned char *)g_asShipAfterburnerTimer_0059c810 + 0x40))
 #define g_asActionCount_0059c930 \
-    ((short *)((unsigned char *)DAT_0059c810 + 0x120))
+    ((short *)((unsigned char *)g_asShipAfterburnerTimer_0059c810 + 0x120))
 #define g_aiPilotLevel_0059cf30 \
     ((int *)((unsigned char *)DAT_0059cf20 + 0x10))
 #define g_asTargetListRange_0059cf60 \

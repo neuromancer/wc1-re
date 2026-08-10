@@ -561,10 +561,10 @@ int g_nCannedSceneMode_00469fac;
 int g_nArcadeState_00469fb0;
 short DAT_00469fb4 = 1;
 short g_nFrameSkip_00469fb8 = 1;
-int DAT_00469fbc = 0x14;
-int DAT_00469fc0 = 0x14;
+int g_nSfxVolumeSetting_00469fbc = 0x14;
+int g_nMusicVolumeSetting_00469fc0 = 0x14;
 int g_bViewportDirty_00469fc4;
-int DAT_00469fc8[11] = {
+int g_anVolumeLevels_00469fc8[11] = {
     0, 40000, 50000, 55000, 60000, 61000,
     61500, 62000, 63000, 63500, 64000
 };
@@ -578,10 +578,19 @@ short DAT_0046a010 = -1;
 short g_nArcadeBonusCountdown_0046a014;
 int g_bMouseCursorVisible_0046a018;
 unsigned char g_bInputPollingGuard_0046a01c;
-int DAT_0046a020;
-int DAT_0046a024;
-unsigned int DAT_0046a028;
-int DAT_0046a02c;
+InputDeviceSample g_stLastPolledFlightInput_0046a020;
+int g_bMouseAfterburnerControl_0046a02c;
+const short g_asMouseYawThresholds_0046a030[8] = {
+    10, 37, 52, 57, 62, 1070, 0, 0
+};
+const short g_asMousePitchThresholds_0046a040[8] = {
+    5, 18, 27, 35, 38, 1040, 0, 0
+};
+unsigned int g_dwLastSecondaryButtonPress_0046a04c;
+unsigned char g_bFlightRollLatch_0046a050;
+unsigned char g_bAfterburnerButtonLatched_0046a054;
+short g_nMouseYawInput_0046a058;
+short g_nMousePitchInput_0046a05c;
 ActiveSoundEntry *g_pActiveSoundHead_0046a438;
 ActiveSoundEntry *g_pActiveSoundTail_0046a43c;
 unsigned char DAT_0046a440;
@@ -1727,6 +1736,7 @@ int DAT_0059a8e4;
 signed char g_cScreenViewportMode_0059a9f2;
 const short * volatile g_pScreenViewportGeometry_0059a9f4;
 int g_anSortedObject_0059aa00[WC1_SPACE_OBJECT_COUNT];
+unsigned short g_wCurrentInputModifiers_0059ab08;
 volatile short g_nMouseX_0059ab10;
 volatile short g_nMouseY_0059ab12;
 unsigned char g_bPrimaryMouseButton_0059ab14;
@@ -1787,7 +1797,7 @@ signed char g_cMissionObjectiveCount_0059c46a;
 short g_asViableTargetDistance_0059c470[16];
 FixedVector g_aShipPosition_0059c490[512];
 short g_asObjectRadarRadius_0059c790[WC1_SPACE_OBJECT_COUNT];
-unsigned char DAT_0059c810[512];
+short g_asShipAfterburnerTimer_0059c810[256];
 short g_nShipMissionIndices_0059c830[10];
 FixedVector g_vStarFieldMotion_0059c860;
 signed char g_cCurrentNavPointIndex_0059c86c;
@@ -1808,6 +1818,9 @@ short g_nTargetRange_0059ce10;
 unsigned int DAT_0059ce18[256];
 signed char g_acObjectOwner_0059ce20[64];
 signed char g_acShipTarget_0059ce60[512];
+short g_nPreviousPitchInput_0059ce70;
+short g_nPreviousYawInput_0059ce72;
+short g_nPreviousRollInput_0059ce74;
 short g_anObjectYawRotation_0059ce80[256];
 signed char DAT_0059cf00[WC1_SPACE_OBJECT_COUNT];
 unsigned char DAT_0059cf20[512];
@@ -1931,6 +1944,11 @@ short g_nWeaponDisplayOriginX_005a7788;
 short g_nWeaponDisplayOriginY_005a778a;
 unsigned int DAT_005a77ec;
 unsigned char g_abPaletteTriplets_005a77f0[256][3];
+InputDeviceSample g_stPreviousFlightInput_005a7af0;
+short g_bMouseButtonEventQueued_005a7afc;
+short g_bKeyboardEventQueued_005a7afe;
+short g_bMouseMoveEventQueued_005a7b00;
+short g_bJoystickEventQueued_005a7b88;
 Viewport g_stTrainSimTitleDisplayViewport_005a7b90;
 Viewport g_stTrainSimHighScoreBufferViewport_005a7bb0;
 int g_nArcadeScore_005a7bc4;
@@ -1960,6 +1978,7 @@ unsigned int g_dwOriginalFreeMemory_005a7cd8;
 unsigned char *g_pMouseCursorResource_005a7cdc;
 int g_nAvailableGameMemory_005a7ce0;
 int g_nSceneResourceBudget_005a7ce4;
+int g_nAfterburnerSoundDeadline_005a7ce8;
 unsigned char DAT_005a7cec;
 unsigned char *DAT_005a7cf0;
 Viewport g_stDiskPromptBackgroundViewport_005a7d00;
