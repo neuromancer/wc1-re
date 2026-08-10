@@ -281,18 +281,24 @@ $(WIBO):
 	cd wibo-src && cmake --preset $(WIBO_PRESET) && cmake --build --preset $(WIBO_PRESET)
 	ln -sf $(WIBO_BIN) $@
 
-# The MSVC420 submodule ships an msvcrt40.dll that doesn't work with wibo;
-# overwrite it with the vendored copy in 3rdparty/ before invoking CL/LINK.
+# wibo needs this compatible MSVC runtime beside CL.EXE and LINK.EXE. Keep a
+# cached copy outside the submodule, then place it in the toolchain on demand.
+MSVCRT40_URL = https://raw.githubusercontent.com/neuromancer/my-teacher-is-an-alien-re/3d1bfe60522ae05b86bbd2252fd01c8d0a11c3df/3rdparty/msvcrt40.dll
+MSVCRT40_SHA256 = ab55a2de2b6faf3daacd3e69473d385ceaead8033f7c79beb6bbf802f230f030
+MSVCRT_SOURCE = 3rdparty/msvcrt40.dll
 MSVCRT_DLL = compilers/msvc420/bin/msvcrt40.dll
 
-$(MSVCRT_DLL): 3rdparty/msvcrt40.dll
+$(MSVCRT_DLL): $(MSVCRT_SOURCE)
 	cp -f $< $@
 
-3rdparty/msvcrt40.dll:
-	@echo "Error: 3rdparty/msvcrt40.dll missing." >&2
-	@echo "The MSVC420 submodule ships an msvcrt40.dll that does not work under wibo." >&2
-	@echo "Place a working copy at 3rdparty/msvcrt40.dll (see README.md, Setup step 2)." >&2
-	@exit 1
+$(MSVCRT_SOURCE):
+	@mkdir -p $(dir $@)
+	@echo "Downloading wibo-compatible msvcrt40.dll..."
+	@curl -fL --retry 3 -o "$@.tmp" "$(MSVCRT40_URL)"
+	@printf '%s  %s\n' "$(MSVCRT40_SHA256)" "$@.tmp" | \
+		shasum -a 256 -c - >/dev/null || \
+		(rm -f "$@.tmp"; echo "Error: msvcrt40.dll checksum mismatch." >&2; exit 1)
+	@mv "$@.tmp" "$@"
 
 $(TARGET): $(OBJS) | $(MSVCRT_DLL)
 	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(MAPFILE) $^ $(GAME_LIBS) /OUT:$@

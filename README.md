@@ -26,23 +26,18 @@ The normal build does **not** require the retail executable, Ghidra, decompiled 
 
 Required tools and files:
 
-- `make`, CMake, and a C/C++ host compiler;
-- [Microsoft Visual C++ 4.20](https://github.com/itsmattkc/MSVC420) at
-  `compilers/msvc420`;
-- [wibo](https://github.com/neuromancer/wibo) at `wibo-src`;
-- a wibo-compatible `msvcrt40.dll` at `3rdparty/msvcrt40.dll`.
+- `make`, CMake, `curl`, and a C/C++ host compiler;
+- the Microsoft Visual C++ 4.20 and wibo Git submodules.
 
 From the repository root:
 
 ```sh
-git clone https://github.com/itsmattkc/MSVC420 compilers/msvc420
-git clone https://github.com/neuromancer/wibo wibo-src
-mkdir -p 3rdparty
-cp /path/to/msvcrt40.dll 3rdparty/msvcrt40.dll
+git submodule update --init --recursive
 make -j
 ```
 
-The resulting executable is `WC1.EXE`. The Makefile builds wibo automatically when needed.
+The resulting executable is `WC1.EXE`. The Makefile builds wibo and downloads the compatible
+`msvcrt40.dll` automatically when needed.
 
 ## Run
 
