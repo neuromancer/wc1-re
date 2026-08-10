@@ -44,7 +44,7 @@
 0x00402B80 ReadDAT005a8a40
 0x00402BB0 AllocateGuardedMemory
 0x00402CA0 ReportHeapGuardCorruption
-0x00402D40 LoopWin32Fn2D40
+0x00402D40 CheckAllGuardedAllocations
 0x00402DB0 HelperOf42FAE0A
 0x00402E80 SetMousePosition
 0x00402EA0 PollKeyboardState
@@ -793,7 +793,7 @@
 0x00425AF0 GameNoBodyStubv3
 0x00425B00 CreateDebugOverlayConsole
 0x00425B90 DestroyGlobalDebugOverlayConsole
-0x00425BB0 DoLocalFn5BB0
+0x00425BB0 SystemDebugPrintf
 0x00425BC0 GetG004763f0Fn5BC0
 0x00425BD0 GetDebugFn5BD0
 0x00425BE0 HelperOf41D760A

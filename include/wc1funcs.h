@@ -43,12 +43,19 @@ unsigned int PumpWindowMessages(void);                                /* 0x00402
 unsigned int GetF1KeyLatch(void);                                     /* 0x00402520 */
 LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                                 WPARAM wParam, LPARAM lParam);         /* 0x00402530 */
+int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
+                                  unsigned int *buttons, short joystick,
+                                  unsigned int fallback);              /* 0x00402A20 */
 short GetJoystickButtons(void);                                                   /* 0x00402AC0 */
+void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
+                        short *yMin, short *yMax);                    /* 0x00402AE0 */
 HINSTANCE GetApplicationInstance(void);                               /* 0x00402B80 */
 void *AllocateGuardedMemory(unsigned int size);                        /* 0x00402BB0 */
 void ReportHeapGuardCorruption(void *memory, int count, int overrun);     /* 0x00402CA0 */
+void CheckAllGuardedAllocations(void);                                /* 0x00402D40 */
 void FreeGuardedAllocation(void *memory);                                /* 0x00402DB0 */
 void SetMousePosition(int x, int y);                                    /* 0x00402E80 */
+unsigned int PollKeyboardState(void);                                 /* 0x00402EA0 */
 int GetShiftKeyState(void);                                             /* 0x00403060 */
 int GetControlKeyState(void);                                           /* 0x00403070 */
 unsigned int GetKeyboardModifiers(void);                                     /* 0x00403080 */

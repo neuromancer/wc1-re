@@ -311,8 +311,13 @@ void ix_dsp_free(void *memory)
     g_pIxFree_00471994(memory);
 }
 
-/* Original address: 0x00445190 */
-/* TODO: $E2 */
+/* Function start: 0x00445190 */
+void ix_dsp_static_initializer(void)
+{
+    ix_dsp_static_initialization_hook();
+}
 
-/* Original address: 0x004451A5 */
-/* TODO: $E1 */
+/* Function start: 0x004451A5 */
+void ix_dsp_static_initialization_hook(void)
+{
+}

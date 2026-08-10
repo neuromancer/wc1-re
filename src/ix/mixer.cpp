@@ -243,7 +243,12 @@ int ix_mixer_service(void)
 }
 
 /* Function start: 0x004467A0 */
-/* TODO: $E2 */
+void ix_mixer_static_initializer(void)
+{
+    ix_mixer_static_initialization_hook();
+}
 
 /* Function start: 0x004467B5 */
-/* TODO: $E1 */
+void ix_mixer_static_initialization_hook(void)
+{
+}

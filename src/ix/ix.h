@@ -221,6 +221,8 @@ void ix_dsps_unlock(int stream);                 /* 0x00445E3C */
  * -------------------------------------------------------------------------- */
 DWORD WINAPI ix_mixer_thread_proc(void *parameter); /* 0x00445F60 */
 int  ix_mixer_service(void);                     /* 0x004463FC */
+void ix_mixer_static_initializer(void);           /* 0x004467A0 */
+void ix_mixer_static_initialization_hook(void);   /* 0x004467B5 */
 const char *ix_dsp_result_to_text(int hr);       /* 0x00444F97 */
 
 int  ix_dsp_init(void);                          /* 0x00444910 */
@@ -241,6 +243,8 @@ void *ix_dsp_alloc(unsigned int bytes);           /* 0x00445123 */
 void *ix_dsp_copy(void *destination, const void *source,
                   unsigned int bytes);           /* 0x00445140 */
 void ix_dsp_free(void *memory);                  /* 0x00445164 */
+void ix_dsp_static_initializer(void);            /* 0x00445190 */
+void ix_dsp_static_initialization_hook(void);    /* 0x004451A5 */
 
 extern "C" int  ix_system_init(void);            /* 0x00447200 */
 extern "C" void ix_system_service_sounds(void); /* 0x004472A7 */

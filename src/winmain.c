@@ -669,10 +669,66 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     return DefWindowProcA(window, message, wParam, lParam);
 }
 
+/* Function start: 0x402A20 */
+int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
+                                  unsigned int *buttons, short joystick,
+                                  unsigned int fallback)
+{
+    unsigned int device;
+    unsigned int infoIndex;
+    unsigned int buttonState;
+
+    if (joystick != 0) {
+        device = 1;
+        infoIndex = 1;
+    } else {
+        device = 0;
+        infoIndex = 0;
+    }
+    if (joyGetPos(device, &g_aJoystickInfo_005a8970[infoIndex]) ==
+        JOYERR_NOERROR) {
+        *x = g_aJoystickInfo_005a8970[infoIndex].wXpos;
+        *y = g_aJoystickInfo_005a8970[infoIndex].wYpos;
+        buttonState = g_aJoystickInfo_005a8970[infoIndex].wButtons;
+        *buttons = buttonState;
+        if (joystick != 0)
+            *buttons = buttonState >> 2;
+        else
+            *buttons = buttonState & 3;
+        return 0;
+    }
+
+    fallback &= 0xffff;
+    *x = fallback;
+    *y = fallback;
+    *buttons = fallback;
+    return 1;
+}
+
 /* Function start: 0x402AC0 */
 short GetJoystickButtons(void)
 {
-    return ((short)DAT_005a898c << 2) | DAT_005a897c;
+    return ((short)g_aJoystickInfo_005a8970[1].wButtons << 2) |
+           (unsigned short)g_aJoystickInfo_005a8970[0].wButtons;
+}
+
+/* Function start: 0x402AE0 */
+void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
+                        short *yMin, short *yMax)
+{
+    JOYCAPSA caps;
+    unsigned int device = joystick != 0;
+
+    *xMin = *xMax = *yMin = *yMax = 0;
+    if (joyGetDevCapsA(device, &caps, sizeof(caps)) != JOYERR_NOERROR) {
+        SystemDebugPrintf(g_szJoystickDevCapsFailure_004652dc);
+        return;
+    }
+
+    *xMin = (short)caps.wXmin;
+    *xMax = (short)caps.wXmax;
+    *yMin = (short)caps.wYmin;
+    *yMax = (short)caps.wYmax;
 }
 
 /* Function start: 0x402B80 */
@@ -731,6 +787,44 @@ void ReportHeapGuardCorruption(void *memory, int count, int overrun)
                 : (count > 0x40 ? "BAD" : "NAUGHTY"));
     MessageBoxA(0, text, "NOTICE", 0x10);
     exit(0);
+}
+
+/* Function start: 0x402D40 */
+void CheckAllGuardedAllocations(void)
+{
+    GuardedAllocation *allocation = g_pGuardedAllocationHead_004650b0;
+    unsigned int *guard;
+    int prefixCorrupt;
+    int i;
+    int suffixCorrupt;
+
+    while (allocation != 0) {
+        guard = (unsigned int *)allocation->block;
+        prefixCorrupt = 0;
+        i = 0x100;
+        do {
+            if (*guard != 0xabababab)
+                prefixCorrupt = prefixCorrupt + 1;
+            guard = guard + 1;
+            i = i - 1;
+        } while (i != 0);
+        if (prefixCorrupt != 0)
+            ReportHeapGuardCorruption(allocation->block, prefixCorrupt, 0);
+
+        guard = (unsigned int *)((unsigned char *)guard + allocation->size);
+        suffixCorrupt = 0;
+        i = 0x100;
+        do {
+            if (*guard != 0xabababab)
+                suffixCorrupt = suffixCorrupt + 1;
+            guard = guard + 1;
+            i = i - 1;
+        } while (i != 0);
+        if (suffixCorrupt != 0)
+            ReportHeapGuardCorruption(allocation->block, suffixCorrupt, 1);
+
+        allocation = allocation->next;
+    }
 }
 
 /* Function start: 0x402DB0 */
