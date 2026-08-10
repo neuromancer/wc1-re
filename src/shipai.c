@@ -1302,7 +1302,7 @@ void mine_intelligence(short obj)
                             OBJECT_CLASS_SHIP)
             continue;
         distance = distance_from_object(obj, other);
-        if (distance < g_aObjectTypeData_0046645c[
+        if (distance < g_aObjectTypeData_00466458[
                            g_aeObjectType_0059b560[obj]].collisionRadius ||
             (distance < 50 && RandomBelowOrEqual(7) == 0)) {
             explode(obj, obj);
@@ -1433,7 +1433,7 @@ void release_capital_ship_shapes(enum ObjectType type)
 {
     short obj;
 
-    if (g_aObjectTypeData_0046645c[type].objectClass !=
+    if (g_aObjectTypeData_00466458[type].objectClass !=
         OBJECT_CLASS_CAPITAL_SHIP)
         return;
     obj = 1;
@@ -1468,7 +1468,7 @@ void load_object_resources(enum ObjectType type, short slot)
         resource->shape = 0;
         asteroidType = OBJECT_TYPE_ASTEROID1;
         do {
-            typeData = &g_aObjectTypeData_0046645c[asteroidType];
+            typeData = &g_aObjectTypeData_00466458[asteroidType];
             typeData->objectClass = OBJECT_CLASS_ASTEROID;
             typeData->collisionRadius = 100;
             typeData->scale = 640;
@@ -1480,7 +1480,7 @@ void load_object_resources(enum ObjectType type, short slot)
     if (type == OBJECT_TYPE_MINE_FIELD)
         return;
 
-    typeData = &g_aObjectTypeData_0046645c[type];
+    typeData = &g_aObjectTypeData_00466458[type];
     logicalFile = (short)type + 22;
     resource->shapeSet =
         (unsigned char *)FetchDiskPacketRetrying(logicalFile, 0, 0);
@@ -1520,11 +1520,11 @@ void release_object_resources(short slot)
         FreePacketAndClear((int *)&resource->shapeSet, 0);
         asteroidType = OBJECT_TYPE_ASTEROID1;
         do {
-            g_aObjectTypeData_0046645c[asteroidType].shapeSet = 0;
+            g_aObjectTypeData_00466458[asteroidType].shapeSet = 0;
             asteroidType++;
         } while (asteroidType <= OBJECT_TYPE_ASTEROID6);
     } else if (type != OBJECT_TYPE_MINE_FIELD) {
-        typeData = &g_aObjectTypeData_0046645c[type];
+        typeData = &g_aObjectTypeData_00466458[type];
         release_capital_ship_shapes(type);
         FreePacketAndClear((int *)&resource->shapeSet, 0);
         FreePacketAndClear((int *)&resource->animation, 0);

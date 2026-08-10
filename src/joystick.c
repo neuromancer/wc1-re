@@ -647,7 +647,7 @@ void accelerate_and_move_object(short obj)
                                  g_anShipSpeed_0059b320[obj], &desired);
             } else {
                 ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
-                    (g_aObjectTypeData_0046645c[
+                    (g_aObjectTypeData_00466458[
                         g_aeObjectType_0059b560[obj]].maximumVelocity + 20) *
                         0x200,
                     &desired);
@@ -709,7 +709,7 @@ void animate_shape(short obj)
     ObjectTypeData *typeData;
     unsigned short command;
 
-    typeData = &g_aObjectTypeData_0046645c[g_aeObjectType_0059b560[obj]];
+    typeData = &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[obj]];
     if (typeData->animation == 0)
         return;
     if (--g_asObjectAnimationDelay_0059b660[obj] > 0)
@@ -743,7 +743,7 @@ void animate_object(short obj)
 {
     switch (g_aeObjectClass_0059d100[obj]) {
     case OBJECT_CLASS_EXPLOSION:
-        if (g_aObjectTypeData_0046645c[
+        if (g_aObjectTypeData_00466458[
                 g_aeObjectType_0059b560[obj]].animation == 0) {
             g_asObjectScale_0059de40[obj] +=
                 g_asObjectScale_0059de40[obj] >> 3;

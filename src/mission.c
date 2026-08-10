@@ -43,7 +43,7 @@ short fire_fixed_projectile_weapon(short obj)
                          loadoutOffset) <= 0)
         return ship;
     do {
-        if (g_aObjectTypeData_0046645c[slot->type].objectClass ==
+        if (g_aObjectTypeData_00466458[slot->type].objectClass ==
                 OBJECT_CLASS_PROJECTILE &&
             slot->disabled == 0) {
             result = fire_weapon(ship, weapon);
@@ -133,7 +133,7 @@ void place_exhaust_on_ships(void)
             short *animation;
             short offset;
 
-            typeData = &g_aObjectTypeData_0046645c[
+            typeData = &g_aObjectTypeData_00466458[
                 g_aeObjectType_0059b560[ship]];
             animation = (short *)typeData->animation;
             if (animation != 0) {
@@ -262,7 +262,7 @@ unsigned int replenish_shields(short ship)
         }
         if (current < maximum &&
             g_nSpaceFrame_0059b420 %
-                g_aObjectTypeData_0046645c[
+                g_aObjectTypeData_00466458[
                     g_aeObjectType_0059b560[ship]].animationDelay == 0) {
             g_aasShipShield_0059d5b0[ship][shield] =
                 (short)(current + 1);
@@ -1060,7 +1060,7 @@ unsigned int approach_min_speed(short obj)
 /* Function start: 0x422E10 */
 unsigned int approach_half_speed(short obj)
 {
-    short speed = g_aObjectTypeData_0046645c[
+    short speed = g_aObjectTypeData_00466458[
         g_aeObjectType_0059b560[obj]].cruiseVelocity;
 
     ApproachShipSpeed(obj, (int)(short)(speed & 0xfffe) << 7);
@@ -1071,7 +1071,7 @@ unsigned int approach_half_speed(short obj)
 unsigned int approach_cruise_speed(short ship)
 {
     ApproachShipSpeed(ship,
-        (int)g_aObjectTypeData_0046645c[
+        (int)g_aObjectTypeData_00466458[
             g_aeObjectType_0059b560[ship]].cruiseVelocity << 8);
     return 0;
 }
@@ -1614,7 +1614,7 @@ short find_ratio(short inputMinimum, short inputMaximum,
 short evaluate_damage(short obj)
 {
     ObjectTypeData *typeData =
-        &g_aObjectTypeData_0046645c[g_aeObjectType_0059b560[obj]];
+        &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[obj]];
 
     if (g_aeObjectClass_0059d100[obj] < OBJECT_CLASS_SHIP)
         return 100;
@@ -1781,7 +1781,7 @@ void init_3Space_objects(short scene)
 /* Function start: 0x424B00 */
 void load_common_3Space_objects(void)
 {
-    ObjectTypeData *types = g_aObjectTypeData_0046645c;
+    ObjectTypeData *types = g_aObjectTypeData_00466458;
 
     types[OBJECT_TYPE_THRUSTERS].shapeSet =
         (unsigned char *)FetchDiskPacketRetrying(3, 0, 0);
@@ -1862,7 +1862,7 @@ void free_3Space(void)
 /* Function start: 0x424BE0 */
 void free_3Space_objects(void)
 {
-    ObjectTypeData *types = g_aObjectTypeData_0046645c;
+    ObjectTypeData *types = g_aObjectTypeData_00466458;
 
     FreePacketAndClear((int *)&types[OBJECT_TYPE_THRUSTERS].shapeSet, 0);
     FreePacketAndClear((int *)&types[OBJECT_TYPE_EXPLOSION0].shapeSet, 0);

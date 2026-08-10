@@ -34,7 +34,7 @@ unsigned short GetMusicDriverPresent(void)
 /* Function start: 0x4181C0 */
 short get_ship_max_velocity(short obj)
 {
-    short velocity = g_aObjectTypeData_0046645c[
+    short velocity = g_aObjectTypeData_00466458[
         g_aeObjectType_0059b560[obj]].maximumVelocity;
 
     if (obj < 10 && g_acShipRating_0059cd80[obj] > 8)
@@ -92,7 +92,7 @@ int GetShipAccelerationRate(short ship)
 {
     int shipIndex = (int)ship;
     enum ObjectType objectType = g_aeObjectType_0059b560[shipIndex];
-    int acceleration = g_aObjectTypeData_0046645c[objectType].acceleration;
+    int acceleration = g_aObjectTypeData_00466458[objectType].acceleration;
 
     if (ship < 10 && g_acShipRating_0059cd80[shipIndex] > RATING_ACE_ICEMAN)
         return acceleration + acceleration / 3;

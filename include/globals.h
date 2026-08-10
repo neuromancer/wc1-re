@@ -588,7 +588,7 @@ extern int g_nHostMouseMessageY_005a8994;
 extern int g_bHostPrimaryMouseButton_005a8998;
 extern int g_bHostSecondaryMouseButton_005a899c;
 
-extern ObjectTypeData g_aObjectTypeData_0046645c[OBJECT_TYPE_COUNT];
+extern ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT];
 extern const ShortVector g_aChildOffsets_004682f0[35];
 extern const ShortPoint g_aWeaponDisplayPositions_00468440[10];
 extern int  *DAT_0046b1a8;

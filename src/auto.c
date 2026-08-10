@@ -233,10 +233,10 @@ void auto_pilot_sequence(void)
         ship = 0;
         do {
             if (travelMode[ship] != 0 &&
-                g_aObjectTypeData_0046645c[
+                g_aObjectTypeData_00466458[
                     g_aeObjectType_0059b560[ship]].cruiseVelocity <
                     cruiseSpeed)
-                cruiseSpeed = g_aObjectTypeData_0046645c[
+                cruiseSpeed = g_aObjectTypeData_00466458[
                     g_aeObjectType_0059b560[ship]].cruiseVelocity;
             ship++;
         } while (ship < 10);

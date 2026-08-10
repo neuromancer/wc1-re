@@ -321,7 +321,7 @@ short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
             if (selected != 0)
                 break;
             slot = (ShipWeaponSlot *)(loadout + weapon * 7 + 1);
-            if (g_aObjectTypeData_0046645c[slot->type].objectClass ==
+            if (g_aObjectTypeData_00466458[slot->type].objectClass ==
                     selectedClass &&
                 slot->disabled == 0)
                 selected = 1;
@@ -346,7 +346,7 @@ unsigned int remove_weapon(short obj, short weapon)
     loadout = g_aShipWeapons_0059cab0[ship];
     preferredType =
         *(enum ObjectType *)(loadout + weaponOffset + 1);
-    objectClass = g_aObjectTypeData_0046645c[preferredType].objectClass;
+    objectClass = g_aObjectTypeData_00466458[preferredType].objectClass;
     while (currentWeapon < (signed char)loadout[0] - 1) {
         unsigned char *entry = loadout + currentWeapon * 7;
 
@@ -387,7 +387,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
         g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_DUST;
         return;
     }
-    if (g_aObjectTypeData_0046645c[type].shapeSet == 0) {
+    if (g_aObjectTypeData_00466458[type].shapeSet == 0) {
         switch (type) {
         case OBJECT_TYPE_ASTEROID2:
             type = OBJECT_TYPE_ASTEROID1;
@@ -410,12 +410,12 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
             break;
         }
     }
-    typeData = &g_aObjectTypeData_0046645c[type];
+    typeData = &g_aObjectTypeData_00466458[type];
     g_aeObjectType_0059b560[obj] = type;
     g_aeObjectClass_0059d100[obj] = typeData->objectClass;
     if (type == OBJECT_TYPE_ROCK_CHUNK)
         g_apObjectShape_0059d2f0[obj] =
-            g_aObjectTypeData_0046645c[OBJECT_TYPE_ASTEROID1].shapeSet;
+            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID1].shapeSet;
     else
         g_apObjectShape_0059d2f0[obj] = typeData->shapeSet;
     init_ijk(obj);
@@ -464,7 +464,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
 
                     slot = (ShipWeaponSlot *)(loadout + weapon * 7 + 1);
                     if (slot->disabled == 0) {
-                        if (g_aObjectTypeData_0046645c[
+                        if (g_aObjectTypeData_00466458[
                                 slot->type].objectClass ==
                                 OBJECT_CLASS_PROJECTILE)
                             g_eSelectedGunType_0046c054 = slot->type;
@@ -531,7 +531,7 @@ void rotate_object_to_goal(short obj)
     ObjectTypeData *typeData;
     short totalError;
 
-    typeData = &g_aObjectTypeData_0046645c[g_aeObjectType_0059b560[obj]];
+    typeData = &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[obj]];
     totalError = (short)(AbsInt(g_anObjectPitchRotation_0059b2a0[obj] -
                                g_anPitchGoal_0059d7a0[obj]) +
                          AbsInt(g_anObjectYawRotation_0059ce80[obj] -

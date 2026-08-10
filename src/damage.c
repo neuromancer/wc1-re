@@ -190,7 +190,7 @@ short Explosion(short obj)
                 count--;
             } while (count != 0);
             g_asObjectCounter_0059c330[obj] =
-                (short)(g_aObjectTypeData_0046645c[
+                (short)(g_aObjectTypeData_00466458[
                     g_aeObjectType_0059b560[obj]].lifetime / 4 + 8);
         } else {
             explosion = ShipExplosion(obj);
@@ -257,7 +257,7 @@ int fire_weapon(short obj, short weapon)
 
     slot = &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
     weaponType = slot->type;
-    weaponClass = g_aObjectTypeData_0046645c[weaponType].objectClass;
+    weaponClass = g_aObjectTypeData_00466458[weaponType].objectClass;
     if (weaponType == OBJECT_TYPE_TURRET) {
         weaponClass = OBJECT_CLASS_PROJECTILE;
         weaponType = OBJECT_TYPE_LASER_CANNON;
@@ -270,12 +270,12 @@ int fire_weapon(short obj, short weapon)
         projectile = new_object(weaponType, obj);
     if (projectile == -1)
         return projectile;
-    weaponData = &g_aObjectTypeData_0046645c[weaponType];
+    weaponData = &g_aObjectTypeData_00466458[weaponType];
     copy_frame(obj, projectile);
     projectileSpeed = 10;
     if (weaponClass == OBJECT_CLASS_PROJECTILE) {
         DAT_0059dee0[projectile] = weaponData->damageCapacity;
-        projectileSpeed = g_aObjectTypeData_0046645c[
+        projectileSpeed = g_aObjectTypeData_00466458[
             g_aeObjectType_0059b560[projectile]].maximumVelocity;
         g_asShipWeaponEnergy_0059d470[obj] =
             (short)(g_asShipWeaponEnergy_0059d470[obj] -

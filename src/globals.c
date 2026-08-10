@@ -1125,23 +1125,25 @@ const ShortPoint g_aWeaponDisplayPositions_00468440[10] = {
     {20, 32}, {27, 24}, {31, 31}, {36, 22}, {41, 31}
 };
 
-ObjectTypeData g_aObjectTypeData_0046645c[OBJECT_TYPE_COUNT] = {
+ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     /* 0: Hornet */
     {
+        &g_aszObjectTypeDisplayNames_004684d4[0x00],
         OBJECT_CLASS_SHIP, 100, 125, 1024, 5, 3392, 3, 5, 4000,
         42, 30, 0, 819, 8, 9, 8, 900,
         {
             5,
-            24, 0, 0, 0, 0, 0,
+            24, 0, 0, 0, 0, 0, 0,
             24, 0, 0, 0, 1, 0, 0,
             28, 0, 0, 0, 2, 0, 0,
             28, 0, 0, 0, 3, 0, 1,
             29, 0, 0, 0, 4, 0, 1
         },
-        40, 40, 45, 40, 30, 30, 0, 0, "Hornet"
+        40, 40, 45, 40, 30, 30, 0, 0
     },
     /* 1: Rapier */
     {
+        &g_aszObjectTypeDisplayNames_004684d4[0x08],
         OBJECT_CLASS_SHIP, 120, 135, 1024, 3, -12144, 3, 6, 6000,
         45, 25, 0, 1075, 10, 10, 10, 1000,
         {
@@ -1156,10 +1158,11 @@ ObjectTypeData g_aObjectTypeData_0046645c[OBJECT_TYPE_COUNT] = {
             28, 0, 0, 0, 13, 0, 1,
             28, 0, 0, 0, 19, 0, 1
         },
-        80, 75, 60, 55, 50, 50, 0, 0, "Rapier"
+        80, 75, 60, 55, 50, 50, 0, 0
     },
     /* 2: Scimitar */
     {
+        &g_aszObjectTypeDisplayNames_004684d4[0x10],
         OBJECT_CLASS_SHIP, 165, 160, 1152, 6, 17856, 4, 7, 6000,
         36, 15, 0, 614, 6, 6, 7, 1300,
         {
@@ -1172,22 +1175,23 @@ ObjectTypeData g_aObjectTypeData_0046645c[OBJECT_TYPE_COUNT] = {
             29, 0, 0, 0, 8, 0, 1,
             29, 0, 0, 0, 9, 0, 1
         },
-        60, 50, 85, 80, 65, 65, 0, 0, "Scimitar"
+        60, 50, 85, 80, 65, 65, 0, 0
     },
-    { 0 }, /* 3: Raptor */
-    { 0 }, /* 4: Venture */
-    { 0 }, /* 5: Dilligent */
-    { 0 }, /* 6: Drayman */
-    { 0 }, /* 7: Exeter */
-    { 0 }, /* 8: Tiger's Claw */
-    { 0 }, /* 9: Salthi */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x1c] }, /* 3: Raptor */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x24] }, /* 4: Venture */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x2c] }, /* 5: Dilligent */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x38] }, /* 6: Drayman */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x40] }, /* 7: Exeter */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x48] }, /* 8: Tiger's Claw */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x58] }, /* 9: Salthi */
     /* 10: Dralthi */
     {
+        &g_aszObjectTypeDisplayNames_004684d4[0x60],
         OBJECT_CLASS_SHIP, 160, 140, 1024, 6, 3392, 3, 7, 6000,
         40, 23, 0, 768, 10, 14, 10, 1200,
         {
             7,
-            24, 0, 0, 0, 0, 0,
+            24, 0, 0, 0, 0, 0, 0,
             24, 0, 0, 0, 1, 0, 0,
             33, 0, 0, 0, 32, 0, 0,
             33, 0, 0, 0, 32, 0, 1,
@@ -1195,10 +1199,11 @@ ObjectTypeData g_aObjectTypeData_0046645c[OBJECT_TYPE_COUNT] = {
             29, 0, 0, 0, 31, 0, 0,
             29, 0, 0, 0, 31, 0, 1
         },
-        50, 50, 45, 35, 30, 30, 0, 0, "Dralthi"
+        50, 50, 45, 35, 30, 30, 0, 0
     },
     /* 11: Krant */
     {
+        &g_aszObjectTypeDisplayNames_004684d4[0x68],
         OBJECT_CLASS_SHIP, 140, 126, 1024, 5, 3392, 3, 6, 6000,
         36, 20, 0, 716, 7, 10, 7, 1200,
         {
@@ -1210,10 +1215,11 @@ ObjectTypeData g_aObjectTypeData_0046645c[OBJECT_TYPE_COUNT] = {
             29, 0, 0, 0, 31, 0, 1,
             29, 0, 0, 0, 31, 0, 1
         },
-        80, 80, 90, 100, 80, 80, 0, 0, "Krant"
+        80, 80, 90, 100, 80, 80, 0, 0
     },
     /* 12: Gratha */
     {
+        &g_aszObjectTypeDisplayNames_004684d4[0x70],
         OBJECT_CLASS_SHIP, 140, 126, 1024, 4, 3392, 3, 7, 7000,
         32, 20, 0, 614, 6, 6, 14, 1400,
         {
@@ -1229,112 +1235,146 @@ ObjectTypeData g_aObjectTypeData_0046645c[OBJECT_TYPE_COUNT] = {
             33, 0, 0, 0, 32, 0, 1,
             33, 0, 0, 0, 32, 0, 1
         },
-        100, 95, 140, 120, 100, 100, 0, 0, "Gratha"
+        100, 95, 140, 120, 100, 100, 0, 0
     },
-    { 0 }, /* 13: Jalthi */
-    { 0 }, /* 14: Spikeri */
-    { 0 }, /* 15: Dorkir */
-    { 0 }, /* 16: Lumbari */
-    { 0 }, /* 17: Ralari */
-    { 0 }, /* 18: Fralthi */
-    { 0 }, /* 19: Snakeir */
-    { 0 }, /* 20: Sivar */
-    { 0 }, /* 21: Kilrathi base */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x78] }, /* 13: Jalthi */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x80] }, /* 14: Spikeri */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x88] }, /* 15: Dorkir */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x90] }, /* 16: Lumbari */
+    { &g_aszObjectTypeDisplayNames_004684d4[0x98] }, /* 17: Ralari */
+    { &g_aszObjectTypeDisplayNames_004684d4[0xa0] }, /* 18: Fralthi */
+    { &g_aszObjectTypeDisplayNames_004684d4[0xa8] }, /* 19: Snakeir */
+    { &g_aszObjectTypeDisplayNames_004684d4[0xb0] }, /* 20: Sivar */
+    { &g_aszObjectTypeDisplayNames_004684d4[0xb8] }, /* 21: Kilrathi base */
     { 0 }, /* 22: asteroid field */
     { 0 }, /* 23: mine field */
     /* 24: laser cannon bolt */
     {
+        &g_aszObjectTypeDisplayNames_004684d4[0xc4],
         OBJECT_CLASS_PROJECTILE, 10, 0, 512, 7, 30, 0, 25, 0,
         160, 0, 0, 0, 0, 0, 0, 0, { 0 },
-        0, 0, 0, 0, 0, 0, 0, 0, "Laser cannon"
+        0, 0, 0, 0, 0, 0, 0, 0
     },
-    { OBJECT_CLASS_PROJECTILE, 10, 1, 832, 14, 20, 0, 40, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0xd4],
+      OBJECT_CLASS_PROJECTILE, 10, 1, 832, 14, 20, 0, 40, 0,
       140, 0 }, /* 25: neutron particle gun */
-    { OBJECT_CLASS_PROJECTILE, 10, 1, 768, 14, 25, 0, 30, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0xe0],
+      OBJECT_CLASS_PROJECTILE, 10, 1, 768, 14, 25, 0, 30, 0,
       120, 0 }, /* 26: mass driver cannon */
-    { OBJECT_CLASS_PROJECTILE, 10, 0, 512, 7, 30, 0, 25, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0xec],
+      OBJECT_CLASS_PROJECTILE, 10, 0, 512, 7, 30, 0, 25, 0,
       160, 0 }, /* 27: turret bolt; resources alias laser */
-    { OBJECT_CLASS_MISSILE, 10, 10, 512, 0, 180, 20, 20, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0xf0],
+      OBJECT_CLASS_MISSILE, 10, 10, 512, 0, 180, 20, 20, 0,
       80, 60 }, /* 28 */
-    { OBJECT_CLASS_MISSILE, 10, 10, 512, 0, 180, 20, 20, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0xf8],
+      OBJECT_CLASS_MISSILE, 10, 10, 512, 0, 180, 20, 20, 0,
       80, 60 }, /* 29 */
-    { OBJECT_CLASS_MISSILE, 10, 10, 512, 0, 180, 20, 20, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x104],
+      OBJECT_CLASS_MISSILE, 10, 10, 512, 0, 180, 20, 20, 0,
       80, 60 }, /* 30 */
-    { OBJECT_CLASS_MISSILE, 10, 10, 512, 0, 180, 20, 20, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x110],
+      OBJECT_CLASS_MISSILE, 10, 10, 512, 0, 180, 20, 20, 0,
       80, 60 }, /* 31 */
-    { OBJECT_CLASS_MISSILE, 20, 20, 768, 0, 240, 40, 40, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x11c],
+      OBJECT_CLASS_MISSILE, 20, 20, 768, 0, 240, 40, 40, 0,
       60, 40 }, /* 32 */
-    { OBJECT_CLASS_MINE, 20, 5, 768, 110, 120, 4, 100, 10000,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x120],
+      OBJECT_CLASS_MINE, 20, 5, 768, 110, 120, 4, 100, 10000,
       20, 20, (unsigned char *)g_anAnimMine_004662a0,
       0, 0, 2, 2 },
-    { OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x12c],
+      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidForward_004662d8,
       0, 0, 1, 13 },
-    { OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x130],
+      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidShortForward_00466318,
       0, 0, 1, 12 },
-    { OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x134],
+      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidReverse_00466350,
       0, 0, 1, 13 },
-    { OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x138],
+      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidShortReverse_00466390,
       0, 0, 1, 12 },
-    { OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x13c],
+      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidForward_004662d8,
       0, 0, 2, 13 },
-    { OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x140],
+      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidShortForward_00466318,
       0, 0, 2, 12 },
-    { OBJECT_CLASS_DEBRIS, 10, 4, 192, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x144],
+      OBJECT_CLASS_DEBRIS, 10, 4, 192, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidForward_004662d8,
       0, 0, 2, 13 },
-    { OBJECT_CLASS_DEBRIS, 10, 1, 2048, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x148],
+      OBJECT_CLASS_DEBRIS, 10, 1, 2048, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimGirder_00466158,
       0, 0, 2, 5 },
-    { OBJECT_CLASS_DEBRIS, 10, 1, 2048, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x14c],
+      OBJECT_CLASS_DEBRIS, 10, 1, 2048, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimTubing_00466178,
       0, 0, 2, 5 },
-    { OBJECT_CLASS_DEBRIS, 20, 2, 1280, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x150],
+      OBJECT_CLASS_DEBRIS, 20, 2, 1280, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimMetalSheet_00466220,
       0, 0, 1, 11 },
-    { OBJECT_CLASS_DEBRIS, 20, 2, 1280, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x154],
+      OBJECT_CLASS_DEBRIS, 20, 2, 1280, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimWing_00466258,
       0, 0, 1, 15 },
-    { OBJECT_CLASS_DEBRIS, 20, 2, 768, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x158],
+      OBJECT_CLASS_DEBRIS, 20, 2, 768, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimGlass_00466198,
       0, 0, 1, 15 },
-    { OBJECT_CLASS_DEBRIS, 2, 1, 1792, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x15c],
+      OBJECT_CLASS_DEBRIS, 2, 1, 1792, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimORing_004661e0,
       0, 0, 1, 5 },
-    { OBJECT_CLASS_DEBRIS, 6, 1, 1536, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x160],
+      OBJECT_CLASS_DEBRIS, 6, 1, 1536, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimPipe_00466200,
       0, 0, 1, 5 },
-    { OBJECT_CLASS_EXPLOSION, 0, 0, 768, 0, 0, 0, -1, 6000,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x164],
+      OBJECT_CLASS_EXPLOSION, 0, 0, 768, 0, 0, 0, -1, 6000,
       0, 0, (unsigned char *)g_anAnimExplosion0_00466030,
       0, 0, 1, 0 },
-    { OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 6000,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x168],
+      OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 6000,
       0, 0, (unsigned char *)g_anAnimExplosion1_00466060,
       0, 0, 1, 0 },
-    { OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 6000,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x16c],
+      OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 6000,
       0, 0, (unsigned char *)g_anAnimExplosion2_004660b8,
       0, 0, 1, 0 },
-    { OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x170],
+      OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimLaserSpark_004660f0,
       0, 0, 1, 0 },
-    { OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x174],
+      OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimRedSpark_00466128,
       0, 0, 2, 3 },
-    { OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x178],
+      OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimBlueSpark_00466110,
       0, 0, 2, 3 },
-    { OBJECT_CLASS_EXPLOSION, 1, 1, 256, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x17c],
+      OBJECT_CLASS_EXPLOSION, 1, 1, 256, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimSparkTrail_00466140,
       0, 0, 2, 3 },
-    { OBJECT_CLASS_FIXED_OBJECT, 0, 0, 256, 0, 0, 0, -1 },
-    { OBJECT_CLASS_DEBRIS, 6, 1, 512, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x180],
+      OBJECT_CLASS_FIXED_OBJECT, 0, 0, 256, 0, 0, 0, -1 },
+    { &g_aszObjectTypeDisplayNames_004684d4[0x184],
+      OBJECT_CLASS_DEBRIS, 6, 1, 512, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimEjectedPilot_004663c8,
       0, 0, 1, 12 },
-    { OBJECT_CLASS_EXPLOSION, 0, 0, 1024, 0, 0, 0, -1, 0,
+    { &g_aszObjectTypeDisplayNames_004684d4[0x188],
+      OBJECT_CLASS_EXPLOSION, 0, 0, 1024, 0, 0, 0, -1, 0,
       0, 0, 0, 0, 0, 1, 0 }
 };
 unsigned char g_bMessageSpeed_0046af68 = 2;
@@ -1417,7 +1457,7 @@ char *g_apszCommMenuText_0046af90[13] = {
 
 /* Ordered display names transcribed from the image.  The Sega CD inspector
  * proves that these index ObjectType, not a ship-only class enum. */
-const char g_aszObjectTypeDisplayNames_004684d4[196] =
+const char g_aszObjectTypeDisplayNames_004684d4[0x18c] =
     "Hornet\0\0"
     "Rapier\0\0"
     "Scimitar\0\0\0\0"
@@ -1439,7 +1479,15 @@ const char g_aszObjectTypeDisplayNames_004684d4[196] =
     "Fralthi\0"
     "Snakeir\0"
     "Sivar\0\0\0"
-    "Star post\0\0";
+    "Star post\0\0\0"
+    "Laser cannon\0\0\0\0"
+    "Neutron gun\0"
+    "Mass driver\0\0\0\0\0"
+    "Dart DF\0"
+    "Javelin HS\0\0"
+    "Pilum FF\0\0\0\0"
+    "Spiculum IR\0\0\0\0\0"
+    "Porcupine\0\0\0";
 
 const char g_aszKilrathiAceNames_0046afd4[32] =
     "Bhurak\0\0"

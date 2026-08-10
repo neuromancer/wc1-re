@@ -424,7 +424,7 @@ int drop_player_mine(short obj)
             &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
         enum ObjectType type = weaponSlot->type;
 
-        if (g_aObjectTypeData_0046645c[type].objectClass ==
+        if (g_aObjectTypeData_00466458[type].objectClass ==
                 OBJECT_CLASS_MINE &&
             weaponSlot->disabled == 0)
             return drop_mine(obj, weapon, type, 20);
@@ -479,7 +479,7 @@ short find_next_gun(short obj, enum ObjectType currentGun)
         do {
             enum ObjectType type = weaponSlot->type;
 
-            if (g_aObjectTypeData_0046645c[type].objectClass ==
+            if (g_aObjectTypeData_00466458[type].objectClass ==
                     OBJECT_CLASS_PROJECTILE) {
                 if (firstGun == -1)
                     firstGun = (short)type;
@@ -510,7 +510,7 @@ int select_guns(short obj, short selectedGun)
     (void)obj;
     if (weaponCount > 0) {
         do {
-            if (g_aObjectTypeData_0046645c[weaponSlot->type].objectClass ==
+            if (g_aObjectTypeData_00466458[weaponSlot->type].objectClass ==
                     OBJECT_CLASS_PROJECTILE) {
                 if (selectedGun == weaponSlot->type || selectedGun == 0x80) {
                     weaponSlot->disabled = 0;
@@ -574,7 +574,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
             weapon = 0;
             if (weaponCount > 0) {
                 do {
-                    if (g_aObjectTypeData_0046645c[
+                    if (g_aObjectTypeData_00466458[
                             weaponSlots[weapon].type].objectClass !=
                             OBJECT_CLASS_PROJECTILE) {
                         currentWeapon = weapon;
@@ -594,7 +594,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
             if (currentWeapon == weapon)
                 break;
             type = weaponSlots[weapon].type;
-            if (g_aObjectTypeData_0046645c[type].objectClass !=
+            if (g_aObjectTypeData_00466458[type].objectClass !=
                     OBJECT_CLASS_PROJECTILE &&
                 weaponSlots[currentWeapon].type != type) {
                 weaponSlots[currentWeapon].disabled = 1;

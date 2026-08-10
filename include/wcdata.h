@@ -23,6 +23,8 @@
 #ifndef WC1_DATA_H
 #define WC1_DATA_H
 
+#include <stddef.h>
+
 /* --------------------------------------------------------------------------
  * Original object model.  BRAINS.C uses the fields class[] and type[]; the FM
  * Towns debug table supplies the ObjectClass order, while the Sega CD inspector
@@ -325,35 +327,42 @@ typedef struct FixedVector {
  * offset names until their purpose is established. */
 #pragma pack(push, 1)
 typedef struct ObjectTypeData {
-    enum ObjectClass objectClass;     /* +0x00 */
-    short collisionRadius;            /* +0x04 */
-    short radarRadius;                /* +0x06 */
-    short scale;                      /* +0x08 */
-    short animationDelay;             /* +0x0A */
-    short lifetime;                   /* +0x0C */
-    short weaponDamage;               /* +0x0E */
-    short damageCapacity;             /* +0x10 */
-    short fuelCapacity;               /* +0x12 */
-    short maximumVelocity;            /* +0x14 */
-    short cruiseVelocity;             /* +0x16 */
-    unsigned char *animation;         /* +0x18 */
-    int acceleration;                 /* +0x1C */
-    short pitchRate;                  /* +0x20 */
-    short yawRate;                    /* +0x22 */
-    short rollRate;                   /* +0x24 */
-    short afterburnerVelocity;        /* +0x26 */
-    unsigned char weaponLoadout[0x47];/* +0x28 */
-    short shieldFore;                 /* +0x6F */
-    short shieldAft;                  /* +0x71 */
-    short armorFront;                 /* +0x73 */
-    short armorRear;                  /* +0x75 */
-    short armorLeft;                  /* +0x77 */
-    short armorRight;                 /* +0x79 */
-    unsigned char *shapeSet;          /* +0x7B */
-    unsigned char *shape;             /* +0x7F */
-    const char *displayName;           /* +0x83 */
+    const char *displayName;          /* +0x00 */
+    enum ObjectClass objectClass;     /* +0x04 */
+    short collisionRadius;            /* +0x08 */
+    short radarRadius;                /* +0x0A */
+    short scale;                      /* +0x0C */
+    short animationDelay;             /* +0x0E */
+    short lifetime;                   /* +0x10 */
+    short weaponDamage;               /* +0x12 */
+    short damageCapacity;             /* +0x14 */
+    short fuelCapacity;               /* +0x16 */
+    short maximumVelocity;            /* +0x18 */
+    short cruiseVelocity;             /* +0x1A */
+    unsigned char *animation;         /* +0x1C */
+    int acceleration;                 /* +0x20 */
+    short pitchRate;                  /* +0x24 */
+    short yawRate;                    /* +0x26 */
+    short rollRate;                   /* +0x28 */
+    short afterburnerVelocity;        /* +0x2A */
+    unsigned char weaponLoadout[0x47];/* +0x2C */
+    short shieldFore;                 /* +0x73 */
+    short shieldAft;                  /* +0x75 */
+    short armorFront;                 /* +0x77 */
+    short armorRear;                  /* +0x79 */
+    short armorLeft;                  /* +0x7B */
+    short armorRight;                 /* +0x7D */
+    unsigned char *shapeSet;          /* +0x7F */
+    unsigned char *shape;             /* +0x83 */
 } ObjectTypeData;
 #pragma pack(pop)
+
+typedef char ObjectTypeData_size_must_be_0x87[
+    sizeof(ObjectTypeData) == 0x87 ? 1 : -1];
+typedef char ObjectTypeData_objectClass_must_be_at_0x04[
+    offsetof(ObjectTypeData, objectClass) == 0x04 ? 1 : -1];
+typedef char ObjectTypeData_weaponLoadout_must_be_at_0x2c[
+    offsetof(ObjectTypeData, weaponLoadout) == 0x2c ? 1 : -1];
 
 /* Each ship weapon entry is seven packed bytes inside its 0x47-byte loadout. */
 #pragma pack(push, 1)
