@@ -109,6 +109,9 @@ unsigned int LongTalk(unsigned char *talker, char *text,
                       short duration);                                 /* 0x00405290 */
 unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
                        short faceFrame);                               /* 0x004054B0 */
+unsigned int Briefing(short series, short mission);                    /* 0x00405660 */
+unsigned int DeBriefing(short series, short mission);                  /* 0x004056F0 */
+unsigned int Office(void);                                             /* 0x00405840 */
 unsigned int LoadBriefingData(short series, short mission);             /* 0x00405910 */
 unsigned int LoadMissionData(short series, short mission);              /* 0x004059B0 */
 unsigned int UpdateMap(char *text, short duration);                     /* 0x00405CC0 */
@@ -335,10 +338,14 @@ unsigned int someone_coming(void);                                     /* 0x0041
 unsigned int escorting_a_ship(void);                                   /* 0x00415510 */
 void flag_reached(short objective, short reached);                     /* 0x00415530 */
 void update_objective_location(short objective);                     /* 0x00415770 */
+void rotational_pos_to_scanner_pos(signed char object,
+                                   const SphericalVector *position);  /* 0x004158F0 */
 short mobile_objective(short objective);                              /* 0x00415A30 */
-void ClearWeaponHardpoints(void);                                            /* 0x00415A70 */
+void ResetScannerContacts(void);                                     /* 0x00415A70 */
 void clear_head_up_display(void);                                    /* 0x00415A90 */
-unsigned int DrawCurrentTargetBox(void);                              /* 0x00415CE0 */
+unsigned int set_objective_range(short showOnScanner);                /* 0x00415B70 */
+short get_color(short object, unsigned short *colour);                /* 0x00415C00 */
+unsigned int draw_3d_scanner(void);                                   /* 0x00415CE0 */
 void start_lock(unsigned short v);                                    /* 0x00415FC0 */
 unsigned short starting_lock(unsigned short v);                       /* 0x00415FF0 */
 void lock_off(void);                                                   /* 0x00416010 */

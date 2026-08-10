@@ -297,7 +297,29 @@ unsigned char *g_pReleaseWeaponDisplayBackground_0046906c;
 volatile signed char g_cReleaseWeaponDisplayFrame_00469070 = -1;
 volatile signed char g_cReleaseWeaponDisplayTicks_00469074;
 volatile signed char g_cReleaseWeaponDisplayState_00469078;
-unsigned short DAT_00469090 = 0xffff;
+short g_nScannerTargetObject_00469090 = -1;
+const int g_aiScannerGridRows_00469098[79] = {
+    5, 13, 16, -1,
+    5, 13, 16, -1,
+    5, 13, 16, -1,
+    4, 13, 16, -1,
+    4, 12, 16, -1,
+    2, 3, 4, 12, 15, -1,
+    0, 1, 5, 12, 15, -1,
+    6, 11, 15, -1,
+    7, 11, 14, -1,
+    8, 10, 14, -1,
+    9, 13, -1,
+    8, 13, -1,
+    6, 7, 12, -1,
+    4, 5, 11, -1,
+    0, 1, 2, 3, 10, -1,
+    9, -1,
+    7, 8, -1,
+    4, 5, 6, -1,
+    0, 1, 2, 3, -1,
+    -2
+};
 char *PTR_s_MISSILE_LOCKED_004691d4 = (char *)g_szMissileLocked_004692a8;
 unsigned char g_bTargetBracketVisible_004691d8 = 1;
 unsigned char g_abTargetBracketPadding_004691d9[7];
@@ -368,6 +390,8 @@ unsigned char DAT_004699a8 = 0x47;
 unsigned char DAT_004699ac = 0x50;
 unsigned char DAT_004699b0 = 0xaa;
 unsigned char DAT_004699b4 = 0xa6;
+unsigned char DAT_004699b8 = 0x85;
+unsigned char DAT_004699c0 = 7;
 unsigned char g_cDefaultTextColour_004699cc = 0xa8;
 unsigned char DAT_004699d8 = 0xbf;
 const short g_asConversationTextColours_004699f0[16] = {
@@ -1722,6 +1746,7 @@ short g_asPreviousObjectDistance_0059d080[WC1_SPACE_OBJECT_COUNT];
 enum ObjectClass g_aeObjectClass_0059d100[512];
 enum ShipObjective g_aeShipObjective_0059d200[512];
 short g_asObjectViewFrame_0059d230[WC1_SPACE_OBJECT_COUNT];
+int g_nCurrentObjectiveRange_0059d2b0;
 signed char g_acWingmanMessageState_0059d2c0[16];
 short g_asCollisionCountdown_0059d2d0[16];
 unsigned char *g_apObjectShape_0059d2f0[WC1_SPACE_OBJECT_COUNT];
@@ -1872,7 +1897,7 @@ int DAT_005a7d9c;
 short g_nReleaseWeaponDisplayX_005a7dbc;
 short g_nReleaseWeaponDisplayY_005a7dbe;
 enum ObjectType g_eReleaseWeaponDisplayType_005a7dc0;
-unsigned char *DAT_005a7dc4;
+unsigned char *g_pScannerMarkerBackground_005a7dc4;
 unsigned char g_bStickIndicatorFrame_005a7dc8;
 short DAT_005a7dca;
 HudMessageSlot g_aHudMessageSlots_005a7dd0[2];
@@ -1882,13 +1907,17 @@ int g_nSavedMouseCursorX_005a7df8;
 char g_szComponentHitMessage_005a7e00[40];
 short g_nTargetLockMarkerY_005a7e28;
 short g_nCarrierMissionShipIndex_005a7e2a;
-unsigned char DAT_005a7e30[0x40];
+unsigned char DAT_005a7e30[0x3c];
+short g_nScannerCursorX_005a7e6c;
+short g_nScannerCursorY_005a7e6e;
 unsigned char g_abCockpitLightState_005a7e70[7];
+short g_asScannerObjectY_005a7e80[11];
 volatile short g_nCockpitExplosionX_005a7e98;
 volatile short g_nCockpitExplosionY_005a7e9a;
-unsigned short DAT_005a7ea0[64];
+short g_asScannerObjectX_005a7ea0[11];
 unsigned char g_abCockpitLightGoal_005a7eb8[7];
 unsigned char DAT_005a7ec0;
+short g_asScannerBackgroundColour_005a7ed0[10];
 unsigned int g_anCockpitDamageState_005a7ef0[4];
 unsigned short DAT_005a7f00;
 short g_nExternalViewAngle_005a7f06;

@@ -2079,7 +2079,7 @@ unsigned int free_cockpit(void)
     FreePacketAndClear((int *)&g_pCockpitExplosionBackground_00469060, 0);
     FreePacketAndClear((int *)&DAT_0046a748, 0);
     FreeCommDisplayResources();
-    FreePacketAndClear((int *)&DAT_005a7dc4, 0);
+    FreePacketAndClear((int *)&g_pScannerMarkerBackground_005a7dc4, 0);
     return 0;
 }
 
