@@ -796,7 +796,8 @@ unsigned int OpenPacketSection(const char *filename, short section,
                                PacketSectionHandle *handle);           /* 0x0042D730 */
 void show_target_disp(void);                                         /* 0x0042DB90 */
 void DrawTargetRangeReadout(void);                                   /* 0x0042DEA0 */
-unsigned int GetVictoryScreenId(void);                                     /* 0x0042D270 */
+unsigned int InitializeFireworks(void);                                  /* 0x0042D270 */
+short TheEndFireWorks(Viewport *viewport, short count);                  /* 0x0042D2A0 */
 void CloseDataFileByHandle(unsigned short *p);                                  /* 0x0042D870 */
 short GetTargetColourIndex(void);                                                /* 0x0042DB70 */
 void LogDisplayMode(const char *mode);                                 /* 0x0042E020 */

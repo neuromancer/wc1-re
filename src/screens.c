@@ -66,33 +66,57 @@ unsigned int ShowGetReadyScreen(void)
 /* Function start: 0x439910 */
 unsigned int ShowVictoryScreen(void)
 {
-    short frame;
     short distance;
+    short emptyCount;
+    short frame;
+    short index;
 
-    frame = 0;
+    emptyCount = 0;
+    InitializeFireworks();
+    g_pFireworkShape_005a6a68 =
+        (unsigned char *)FetchDiskPacketRetrying(9, 17, 0);
     distance = 500;
     g_pIntroFont_005a8960 =
         (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+    frame = 0;
     DAT_0059ab58 = 0;
     DAT_00469fb4 = 1;
     do {
+        if (RandomBelowOrEqual(7) == 0 && emptyCount != 0) {
+            index = 0;
+            do {
+                if (g_aFireworks_005a6900[index].frame == -1) {
+                    g_aFireworks_005a6900[index].frame = 0;
+                    g_aFireworks_005a6900[index].x =
+                        RandomInRange(0, DAT_005a7510.right);
+                    g_aFireworks_005a6900[index].y =
+                        RandomInRange(0, DAT_005a7510.bottom);
+                    g_aFireworks_005a6900[index].variant =
+                        RandomInRange(0, 2);
+                    break;
+                }
+                index++;
+            } while (index < 30);
+        }
         if (RefreshCockpitStatus() != 0) {
+            emptyCount = TheEndFireWorks(&DAT_005a7510, 30);
             DrawCenteredScaledIntroText(
                 "Victory", g_nViewCenterX_0059a852,
                 g_nViewCenterY_0059a854,
                 (short)(0xc800 / (int)distance));
             dump_buffer_to_screen();
         }
-        if (distance > 100)
-            distance = (short)(distance - 10);
         if (DAT_0059ab58 == 1)
             break;
+        if (distance > 100)
+            distance = (short)(distance - 10);
         frame++;
         DIBslam();
         DIBslamReal();
     } while (frame < 80);
     DAT_0059ab58 = 0;
     ReleasePacketHandle((int)g_pIntroFont_005a8960);
+    ReleasePacketHandle((int)g_pFireworkShape_005a6a68);
     return 0;
 }
 

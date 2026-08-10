@@ -335,6 +335,9 @@ unsigned char DAT_0046aa34 = 1;
 unsigned char DAT_0046aa38 = 1;
 unsigned char DAT_0046aa3c;
 unsigned char DAT_0046aa40;
+const unsigned char g_abFireworkSoundDescriptor_0046ab70[7] = {
+    0x00, 0x80, 0x40, 0x40, 0x3c, 0x00, 0x00
+};
 const char g_szSfxWaveFormat_0046ad2c[12] = "sfx%02i.wav";
 unsigned char g_abTaggedAllocationPrefix_0046ad88[8] = {
     'j', 'e', 'f', 'f', 0, 0, 0, 0
@@ -1281,7 +1284,8 @@ int g_nPacketHandleCount_005a6530;
 int *DAT_005a6538;
 int g_aiSoundEffectSourceActive_005a66ec[0x41];
 int g_nAllocateViewportCalls_005a68ec;
-short DAT_005a6900[256];
+FireworkState g_aFireworks_005a6900[30];
+unsigned char *g_pFireworkShape_005a6a68;
 const short *g_pViewScript_005a6b58;
 short g_nExternalViewDistance_005a6b5c;
 Viewport DAT_005a6b60;

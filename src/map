@@ -927,8 +927,8 @@
 0x0042CDB0 parse_view_script
 0x0042D1C0 update_scripted_view
 0x0042D230 initialize_scripted_view
-0x0042D270 HelperOf439910A
-0x0042D2A0 HelperOf439910B
+0x0042D270 InitializeFireworks
+0x0042D2A0 TheEndFireWorks
 0x0042D390 ScanTbl005a6a70FnD390
 0x0042D500 DrawTbl005a6ac0FnD500
 0x0042D730 OpenPacketSection

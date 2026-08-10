@@ -172,16 +172,56 @@ void initialize_scripted_view(const short *script)
 }
 
 /* Function start: 0x42D270 */
-unsigned int GetVictoryScreenId(void)
+unsigned int InitializeFireworks(void)
 {
     int empty = -1;
     short i = 0;
 
     do {
-        DAT_005a6900[i * 3] = empty;
+        g_aFireworks_005a6900[i].frame = (short)empty;
         i = i + 1;
     } while (i < 0x1e);
     return 0;
+}
+
+/* Function start: 0x42D2A0 */
+short TheEndFireWorks(Viewport *viewport, short count)
+{
+    short index;
+    short emptyCount;
+
+    emptyCount = 0;
+    index = count;
+    while (--index >= 0) {
+        if (g_aFireworks_005a6900[index].frame == -1) {
+            emptyCount++;
+        } else {
+            DrawSpriteDefault(
+                viewport, g_aFireworks_005a6900[index].x,
+                g_aFireworks_005a6900[index].y,
+                g_pFireworkShape_005a6a68,
+                (short)(g_aFireworks_005a6900[index].frame +
+                        g_aFireworks_005a6900[index].variant * 8));
+            if (g_aFireworks_005a6900[index].frame++ == 7) {
+                g_aFireworks_005a6900[index].frame = -1;
+                ((void (__cdecl *)(int, short))FlushSoundEffectsAndLog)(
+                    g_aFireworks_005a6900[index].soundHandle, index);
+            } else if (g_aFireworks_005a6900[index].frame == 1) {
+                g_aFireworks_005a6900[index].soundHandle =
+                    ((unsigned int (__cdecl *)(
+                        const unsigned char *, int, int, short, short,
+                        int))SoundFxTick)(
+                            g_abFireworkSoundDescriptor_0046ab70,
+                            0, 127,
+                            (signed char)(
+                                127 -
+                                (int)g_aFireworks_005a6900[index].x *
+                                    127 / 319),
+                            index, 1);
+            }
+        }
+    }
+    return emptyCount;
 }
 
 /* Function start: 0x42D730 */

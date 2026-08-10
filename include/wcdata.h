@@ -322,6 +322,19 @@ typedef struct FixedVector {
     int z;
 } FixedVector;
 
+/* One of the 30 fireworks animated by TheEndFireWorks.  The 0x0C-byte stride
+ * is explicit in the Win32 accesses at 0x0042D270-0x0042D384. */
+typedef struct FireworkState {
+    short frame;                    /* +0x00: -1 while the slot is free */
+    short x;                        /* +0x02 */
+    short y;                        /* +0x04 */
+    short variant;                  /* +0x06: one of three 8-frame runs */
+    int soundHandle;                /* +0x08 */
+} FireworkState;
+
+typedef char FireworkState_size_must_be_0x0c[
+    sizeof(FireworkState) == 0x0c ? 1 : -1];
+
 /* Runtime object-type records.  The 0x87-byte stride and the named fields are
  * fixed by accesses throughout the ship/object code; unknown slots retain
  * offset names until their purpose is established. */
