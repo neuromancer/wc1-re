@@ -1454,3 +1454,4 @@
 0x0044879C ix_sample_load_aiff
 0x00448C8B ix_sample_load_wav
 0x00449044 ix_sample_load_raw
+0x0044914C ix_sample_convert_from_ieee_extended

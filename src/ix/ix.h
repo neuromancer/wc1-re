@@ -77,10 +77,17 @@ struct IxSample {
 
     void ix_sample_construct(void);
     void ix_sample_destruct(void);
+    int ix_sample_load_aiff(void *data, int bytes);
+    int ix_sample_load_wav(void *data, int bytes);
+    int ix_sample_load_raw(void *data, int bytes, int frequency,
+                           int bitsPerSample, int channels);
+    long ix_sample_convert_from_ieee_extended(unsigned char *bytes);
 };
 
 enum IxSampleFlags {
-    IX_SAMPLE_LOOPING = 0x02
+    IX_SAMPLE_READY   = 0x00000001,
+    IX_SAMPLE_LOOPING = 0x00000002,
+    IX_SAMPLE_LOADING = 0x80000000
 };
 
 enum IxSoundFlags {
@@ -259,10 +266,6 @@ void __fastcall ix_sound_start(IxSound *sound);  /* 0x00447CD8 */
 void __fastcall ix_sound_release(IxSound *sound); /* 0x0044801E */
 void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x00447B7A */
 void __fastcall ix_sound_stop(IxSound *sound);   /* 0x004480CF */
-
-int  ix_sample_load_aiff(void);                  /* 0x0044879C  FORM/AIFF */
-int  ix_sample_load_wav(void);                   /* 0x00448C8B  RIFF/WAVE */
-int  ix_sample_load_raw(void);                   /* 0x00449044 */
 
 /* --------------------------------------------------------------------------
  * Streamer.  Global state word at 0x00597CD0; wake event at 0x00597CD4.
