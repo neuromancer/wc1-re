@@ -679,25 +679,29 @@ short find_ratio(short inputMinimum, short inputMaximum, short input,
                  short outputMinimum, short outputMaximum);          /* 0x00423BA0 */
 short evaluate_damage(short obj);                                       /* 0x00423C00 */
 short mine_available(short obj);                                      /* 0x00423CD0 */
-int LoadDataResourceList(PacketResourceDescriptor *resources,
-                         unsigned short flags,
-                         short defaultLogicalFile);                    /* 0x00423CE0 */
-int ReleasePacketResourceList(PacketResourceDescriptor *resources,
-                              short releaseFlags);                     /* 0x00423D50 */
+int LoadShapeSet(PacketResourceDescriptor *resources,
+                 unsigned short flags,
+                 short defaultLogicalFile);                            /* 0x00423CE0 */
+int FreeShapeSet(PacketResourceDescriptor *resources,
+                 short releaseFlags);                                  /* 0x00423D50 */
 int LoadPacketResourceList(PacketResourceDescriptor *resources,
                            short flags, int availableBytes);           /* 0x00423D80 */
 unsigned int ResetCockpitPaletteEntries(void);                         /* 0x00423E10 */
 unsigned int initialize_cockpit(signed char mode);                     /* 0x00423E90 */
-void init_constellation(short scene);                                  /* 0x004243E0 */
-void free_constellation(void);                                         /* 0x00424490 */
+unsigned int InitializeConstellationObject(
+    const ConstellationObjectDefinition *definition,
+    short object);                                                /* 0x004242D0 */
+unsigned int FreeConstellationObject(short object);               /* 0x004243B0 */
+void init_constellation(short scene);                             /* 0x004243E0 */
+unsigned int free_constellation(void);                            /* 0x00424490 */
 void init_vdus(void);                                                  /* 0x004244E0 */
 unsigned int InitializeCockpitResources(signed char mode);             /* 0x004245B0 */
 unsigned int free_cockpit(void);                                       /* 0x004249A0 */
 void init_3Space_objects(short scene);                                 /* 0x00424A80 */
-void load_common_3Space_objects(void);                                 /* 0x00424B00 */
+unsigned int load_common_3Space_objects(void);                         /* 0x00424B00 */
 void remove_all_3d_objects(void);                                      /* 0x00424B80 */
-void free_3Space(void);                                                /* 0x00424BA0 */
-void free_3Space_objects(void);                                        /* 0x00424BE0 */
+unsigned int free_3Space(void);                                        /* 0x00424BA0 */
+unsigned int free_3Space_objects(void);                                /* 0x00424BE0 */
 unsigned int ResetSceneFlags(void);                                      /* 0x00424C60 */
 unsigned int ReleaseSceneFlags(void);                                  /* 0x00424C80 */
 unsigned int PreloadMusicTrackHook(short track);                       /* 0x00424CE0 */

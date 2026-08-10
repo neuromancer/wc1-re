@@ -375,6 +375,22 @@ const short g_asConversationTextColours_004699f0[16] = {
     0xfd, 0x47, 0xaa, 0x0b, 0x09, 0x0d, 0x03, 0x04
 };
 int g_bGraphicsActive_00469a20;
+PacketResourceDescriptor g_aCommon3SpaceResources_00469bc0[12] = {
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_THRUSTERS].shapeSet, 3, 0 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_EXPLOSION0].shapeSet, 3, 1 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_LASER_CANNON].shapeSet, 3, 6 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_MASS_DRIVER_CANNON].shapeSet,
+      3, 7 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_NEUTRON_PARTICLE_GUN].shapeSet,
+      3, 8 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_LASER_SPARK].shapeSet, 3, 9 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet, 3, 4 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_BLUE_SPARK].shapeSet, 3, 10 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_RED_SPARK].shapeSet, 3, 11 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_SPARK_TRAIL].shapeSet, 3, 12 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_SPACE_MINE].shapeSet, 3, 15 },
+    { 0, 0, 0 }
+};
 PacketResourceDescriptor g_aMissionResourceDescriptors_00469c20[5] = {
     { &g_aObjectTypeData_00466458[OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet,
       3, 14 },
@@ -402,6 +418,9 @@ PacketResourceDescriptor g_aCockpitPrimaryResources_00469d08[8] = {
     { 0, 0, 0 }
 };
 unsigned int g_bIntroSceneResourcesActive_00469d48 = 1;
+short g_asConstellationObjectIndices_00469d50[4] = {
+    -1, -1, -1, -1
+};
 int g_bCockpitResourcesActive_00469d58;
 unsigned char DAT_00469d5c;
 Viewport g_stTrainSimPanelViewport_00469da8;
@@ -1568,7 +1587,7 @@ unsigned char *g_pRecRoomRoster_005988b8;
 unsigned char *g_pMissionCampaignData_005988bc;
 unsigned char *g_apRecRoomCharacterShapes_005988c0[3];
 PilotRecord g_aPilotRecords_005988d0[9];
-unsigned char *g_pPilotCampaignData_00598a28;
+ConstellationObjectDefinition *g_pConstellationDefinitions_00598a28;
 PilotRecord *g_apWingmanPilots_00598a30[8];
 unsigned char *g_pRecRoomBackgroundShape_00598a50;
 Viewport g_stRoomDisplayViewport_00598a60;

@@ -652,7 +652,7 @@ int Title_Sequence(void)
         ResetSoundState();
         ReleasePacketHandle((int)g_pIntroFont_005a8960);
         ReleasePacketHandle((int)g_pTitleShape_005a7f08);
-        ReleasePacketResourceList(g_aIntroResourceDescriptors_00468ac0, 0);
+        FreeShapeSet(g_aIntroResourceDescriptors_00468ac0, 0);
         g_pIntroSceneResourceMirror_00467c0b =
             g_pIntroSceneResource_00467b84;
         free_all_slots();

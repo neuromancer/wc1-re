@@ -596,12 +596,24 @@ typedef struct ConstellationParticle {
     short frame;
 } ConstellationParticle;
 
+/* One of four optional planet sprites placed around a campaign
+ * constellation.  The angles orient a temporary reference frame before the
+ * object is positioned at the fixed constellation radius. */
+typedef struct ConstellationObjectDefinition {
+    short shapePacket;
+    short yaw;
+    short pitch;
+    short roll;
+} ConstellationObjectDefinition;
+
 typedef char TalkingHeadOrigin_size_must_be_0x08[
     sizeof(TalkingHeadOrigin) == 0x08 ? 1 : -1];
 typedef char ConstellationStar_size_must_be_0x06[
     sizeof(ConstellationStar) == 0x06 ? 1 : -1];
 typedef char ConstellationParticle_size_must_be_0x08[
     sizeof(ConstellationParticle) == 0x08 ? 1 : -1];
+typedef char ConstellationObjectDefinition_size_must_be_0x08[
+    sizeof(ConstellationObjectDefinition) == 0x08 ? 1 : -1];
 
 /* Runtime mission-nav record.  The loader expands each 3-byte disk coordinate
  * to a 32-bit fixed-point value, producing the 0x51-byte stride observed at
