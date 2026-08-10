@@ -695,7 +695,7 @@ short find_ship_index(short missionShip)
                   g_aeSpecialManeuver_0059c3c0[obj] !=
                       SPECIAL_MANEUVER_UNKNOWN_9) ||
                  g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_FUTURION) &&
-                g_asShipMissionIndex_0059c830[obj] == missionShip) {
+                g_nShipMissionIndices_0059c830[obj] == missionShip) {
                 g_nLastFoundShip_005a7cba = obj;
                 return obj;
             }

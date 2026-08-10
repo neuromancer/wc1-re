@@ -115,7 +115,7 @@ unsigned int parse_view_script(void)
         case 16:
             obj = 0;
             while (obj < 10) {
-                if (g_asShipMissionIndex_0059c830[obj] ==
+                if (g_nShipMissionIndices_0059c830[obj] ==
                     *g_pViewScript_005a6b58)
                     break;
                 obj++;

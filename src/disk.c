@@ -320,9 +320,9 @@ unsigned int ApproachShipSpeed(short ship, int targetSpeed)
 /* Function start: 0x41E7C0 */
 unsigned int steady_object(short ship)
 {
-    DAT_0059c310[ship] = 0;
-    DAT_0059d7a0[ship] = 0;
-    DAT_0059d630[ship] = 0;
+    g_anYawGoal_0059c310[ship] = 0;
+    g_anPitchGoal_0059d7a0[ship] = 0;
+    g_anRollGoal_0059d630[ship] = 0;
     return 0;
 }
 

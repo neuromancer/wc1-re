@@ -84,7 +84,7 @@
 0x00403EE0 GetTbl0059d400Fn3EE0
 0x00403F10 DoTbl0059b320Fn3F10
 0x00403F40 GetShipAiFn3F40
-0x00404050 ScanTbl0059b320Fn4050
+0x00404050 auto_pilot_sequence
 0x00404610 HelperOf4219C0B
 0x004046A0 ShowViewTemplatesScreen
 0x00404BE0 BlitUiFn4BE0
@@ -232,7 +232,7 @@
 0x0040C4A0 DoLocalFnC4A0
 0x0040C4E0 ScanTbl0046c97bFnC4E0
 0x0040C5E0 initialize_mission_ship
-0x0040C740 ScanTbl005a8696FnC740
+0x0040C740 IsInitialMissionShip
 0x0040C780 ScanTbl0059cf10FnC780
 0x0040C800 spawn_mission_ship
 0x0040C950 DispatchTbl0059d4b0FnC950
@@ -343,8 +343,8 @@
 0x00414270 set_global_message
 0x004142B0 CockpitMessage
 0x004142E0 remove_message
-0x00414300 ScanTbl0059d100Fn4300
-0x00414380 DrawProximityWarningText
+0x00414300 KilrathiShipWithinRange
+0x00414380 CanEngageAutopilot
 0x00414410 SetShipAiFn4410
 0x00414440 GetTbl005a7eb8Fn4440
 0x00414490 DrawTbl005a7eb8Fn4490
@@ -498,7 +498,7 @@
 0x00419110 GetUiFn9110
 0x00419150 GetUiFn9150
 0x00419190 GetUiFn9190
-0x004191D0 DoLocalFn91D0
+0x004191D0 distance_between_points
 0x00419210 distance_from_point
 0x00419260 distance_from_object
 0x00419290 get_facing_range_from_point

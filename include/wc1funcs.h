@@ -91,6 +91,7 @@ void visit_the_cinema(int view, int obj, short frames);                  /* 0x00
 unsigned int player_wingman(short obj);                                  /* 0x00403EE0 */
 void set_speed(short obj, short speed);                                  /* 0x00403F10 */
 void auto_position(short obj, short *formationSlot);                     /* 0x00403F40 */
+void auto_pilot_sequence(void);                                          /* 0x00404050 */
 void SetShipAiScratchWord(unsigned short v);                                 /* 0x004060A0 */
 void SelectNewShipAiBehavior(short ship);                               /* 0x004060B0 */
 void ShipAiState42(short ship, short target);                           /* 0x004060D0 */
@@ -178,6 +179,7 @@ void place_ship_near_player_until_valid(short obj, int minimum,
                                         short maximum);                 /* 0x0040C360 */
 void initialize_mission_ship(short obj, short missionShip,
                              signed char navPoint);                     /* 0x0040C5E0 */
+unsigned int IsInitialMissionShip(short missionShip);                  /* 0x0040C740 */
 short spawn_mission_ship(short missionShip, short navPoint);            /* 0x0040C800 */
 void SetNavCursorIndex(unsigned short v);                                /* 0x0040CBB0 */
 void ObjectDrawHook(short *p);                                          /* 0x0040CBC0 */
@@ -232,6 +234,8 @@ void set_global_message(char *text, unsigned short colour,
 void CockpitMessage(char *text, unsigned short colour,
                     int flashCount);                                  /* 0x004142B0 */
 void remove_message(char *text);                                      /* 0x004142E0 */
+short KilrathiShipWithinRange(short obj, short range);                 /* 0x00414300 */
+short CanEngageAutopilot(short showReason);                            /* 0x00414380 */
 void *ClearHudTargetVectors(void);                                            /* 0x00414410 */
 unsigned short get_mode(short i);                                     /* 0x004147E0 */
 void set_mode(short i, int state);                                    /* 0x00414800 */
@@ -352,6 +356,8 @@ void transform_to_objects_frame(const FixedVector *source,
 void alter_pitch(short angle, short obj);                        /* 0x00419110 */
 void alter_yaw(short angle, short obj);                          /* 0x00419150 */
 void alter_roll(short angle, short obj);                         /* 0x00419190 */
+short distance_between_points(const FixedVector *from,
+                              const FixedVector *to);                  /* 0x004191D0 */
 short distance_from_point(short obj, const FixedVector *point);       /* 0x00419210 */
 short distance_from_object(short obj, short other);                   /* 0x00419260 */
 void get_facing_range_from_point(short obj, const FixedVector *point);/* 0x00419290 */
@@ -828,7 +834,9 @@ void VideoReleaseHook(void);                                           /* 0x0043
 void ExitCleanupHook(void);                                           /* 0x004369E0 */
 unsigned int IsVectorWithinRange(FixedVector *vector, short range);    /* 0x00436A00 */
 unsigned int BeginBriefingScene(void);                                         /* 0x00438B90 */
-void SetViewportRect(int p, unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x00439400 */
+void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
+                               unsigned short top, unsigned short right,
+                               unsigned short bottom);                /* 0x00439400 */
 unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
                              int mode, int colour);                    /* 0x00439E39 */
 void SetPaletteTranslationTable(const unsigned char *translation);    /* 0x0043AE3F */

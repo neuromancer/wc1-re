@@ -156,6 +156,8 @@ extern const char *g_apszIntroCredits_00468a38[11];
 extern int g_nIntroCreditCount_00468a30;
 extern int DAT_0046da90;
 extern int DAT_0046da94;
+extern int g_nScreenWidth_0046daa4;
+extern int g_nScreenHeight_0046daa8;
 extern int g_aiIntelligenceEvent_0046d368[10];
 extern signed char g_aDefenseManeuversNovice_0046d390[8];
 extern signed char g_aDefenseManeuversVeteran_0046d398[8];
@@ -251,7 +253,7 @@ extern int DAT_0059b470[512];
 extern enum ObjectType g_aeObjectType_0059b560[96];
 extern signed char g_abFlightPath_0059c000[WC1_MISSION_OBJECTIVE_COUNT];
 extern FixedVector g_aShipVelocity_0059c010[512];
-extern unsigned char DAT_0059c310[512];
+extern short g_anYawGoal_0059c310[16];
 extern short g_asObjectCounter_0059c330[512];
 extern enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[WC1_SPACE_OBJECT_COUNT];
 extern enum ShipMissionType g_aeShipMissionType_0059c3f0[512];
@@ -260,6 +262,7 @@ extern short g_asShipMaximumSpeed_0059c440[24];
 extern signed char g_cMissionObjectiveCount_0059c46a;
 extern FixedVector g_aShipPosition_0059c490[512];
 extern unsigned char DAT_0059c810[512];
+extern short g_nShipMissionIndices_0059c830[10];
 extern signed char g_cCurrentNavPointIndex_0059c86c;
 extern FixedVector g_vStarFieldMotion_0059c860;
 extern short g_asObjectFlip_0059c870[WC1_SPACE_OBJECT_COUNT];
@@ -299,16 +302,17 @@ extern short g_asCannedCommand_0059d4e0[WC1_SPACE_OBJECT_COUNT];
 extern unsigned short DAT_0059d500[16];
 extern char g_acShipSequence_0059d520[512];
 extern short g_nTargetFacing_0059d52a;
+extern FixedVector g_aShipDestination_0059d530[10];
 extern enum ShipTactic g_aeShipTactic_0059d5e0[512];
 extern short g_aasShipShield_0059d5b0[12][2];
 extern signed char g_abShipExhaustHeat_0059d610[10];
 extern short g_nRenderedSpaceFrame_0059d61a;
 extern signed char g_acShipStress_0059d620[16];
-extern unsigned char DAT_0059d630[512];
+extern short g_anRollGoal_0059d630[16];
 extern enum Side g_aeShipSide_0059d650[512];
 extern short g_aasShipMaximumShield_0059d6e0[12][2];
 extern short g_asObjectCollisionRadius_0059d710[64];
-extern unsigned char DAT_0059d7a0[512];
+extern short g_anPitchGoal_0059d7a0[16];
 extern signed char g_abShipNavPointIndex_0059d7c0[512];
 extern short g_anObjectRollRotation_0059d7e0[WC1_SPACE_OBJECT_COUNT];
 extern unsigned char g_abShipTurn_0059d860[WC1_SPACE_OBJECT_COUNT];
@@ -401,6 +405,8 @@ extern unsigned char *DAT_005a7cf0;
 extern unsigned char DAT_005a86b0;
 extern char DAT_005a8760[512];
 extern short DAT_005a8692;
+extern short g_nPlayerMissionShipIndex_005a8694;
+extern short g_nInitialMissionShipIndices_005a8696[8];
 extern unsigned char *g_pTitleShape_005a7f08;
 extern unsigned char *g_pConstellationShape_005a765c;
 extern const short *g_pViewScript_005a6b58;
@@ -487,13 +493,10 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
 
 #define g_nTargetShip_0059c3b0 \
     (*(short *)((unsigned char *)g_aeSpecialManeuver_0059c3c0 - 0x10))
-#define g_anYawGoal_0059c310 ((short *)(void *)DAT_0059c310)
 #define g_asShipDamage_0059c460 \
     ((signed char *)((unsigned char *)g_asShipMaximumSpeed_0059c440 + 0x20))
 #define g_asViableTargetDistance_0059c470 \
     ((short *)((unsigned char *)g_asShipMaximumSpeed_0059c440 + 0x30))
-#define g_asShipMissionIndex_0059c830 \
-    ((short *)((unsigned char *)DAT_0059c810 + 0x20))
 #define g_asShipAfterburnerTimer_0059c810 ((short *)(void *)DAT_0059c810)
 #define g_acShipCommunicator_0059c850 \
     ((signed char *)((unsigned char *)DAT_0059c810 + 0x40))
@@ -510,14 +513,10 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
     ((short *)((unsigned char *)DAT_0059d500 - 0x50))
 #define g_vToTarget_0059d4d0 \
     (*(FixedVector *)((unsigned char *)DAT_0059d500 - 0x30))
-#define g_aShipDestination_0059d530 \
-    ((FixedVector *)((unsigned char *)DAT_0059d500 + 0x30))
 #define g_acFormationMemberList_0059d490 \
     ((signed char *)((unsigned char *)DAT_0059d500 - 0x70))
-#define g_anRollGoal_0059d630 ((short *)(void *)DAT_0059d630)
 #define g_acShipAiCooldown_0059d680 \
     ((signed char *)((unsigned char *)g_aeShipSide_0059d650 + 0x30))
-#define g_anPitchGoal_0059d7a0 ((short *)(void *)DAT_0059d7a0)
 #define g_acTurnInterval_0059d7d0 \
     ((signed char *)((unsigned char *)g_abShipNavPointIndex_0059d7c0 + 0x10))
 #define g_vNormalizedToTarget_005a7db0 \

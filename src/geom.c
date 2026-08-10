@@ -449,6 +449,18 @@ void alter_roll(short angle, short obj)
     fix_objects_ijk(obj);
 }
 
+/* Function start: 0x4191D0 */
+short distance_between_points(const FixedVector *from,
+                              const FixedVector *to)
+{
+    FixedVector delta;
+    long magnitude;
+
+    ComputeVectorDelta((FixedVector *)from, (FixedVector *)to, &delta);
+    magnitude = ComputeFixedVectorMagnitude(&delta);
+    return FixedToShortSaturating((int)magnitude);
+}
+
 /* Function start: 0x419210 */
 short distance_from_point(short obj, const FixedVector *point)
 {

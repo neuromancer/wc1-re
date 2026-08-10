@@ -15,13 +15,14 @@ unsigned int BeginBriefingScene(void)
 }
 
 /* Function start: 0x439400 */
-void SetViewportRect(int p, unsigned short a, unsigned short b,
-                       unsigned short c, unsigned short d)
+void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
+                               unsigned short top, unsigned short right,
+                               unsigned short bottom)
 {
-    *(unsigned short *)(p + 8) = a;
-    *(unsigned short *)(p + 10) = b;
-    *(unsigned short *)(p + 0xc) = c;
-    *(unsigned short *)(p + 0xe) = d;
+    viewport->left = (short)left;
+    viewport->top = (short)top;
+    viewport->right = (short)right;
+    viewport->bottom = (short)bottom;
 }
 
 /* Function start: 0x439E39 */

@@ -1701,7 +1701,7 @@ void initialize_mission_ship(short obj, short missionShip,
     MissionShipRecord *record = &g_aMissionShips_0046c948[missionShip];
     MissionNavPoint *nav = &g_aMissionNavPoints_0046c2f0[record->navPoint];
 
-    g_asShipMissionIndex_0059c830[obj] = missionShip;
+    g_nShipMissionIndices_0059c830[obj] = missionShip;
     g_aShipPosition_0059c490[obj].x = nav->position.x + record->position.x;
     g_aShipPosition_0059c490[obj].y = nav->position.y + record->position.y;
     g_aShipPosition_0059c490[obj].z = nav->position.z + record->position.z;
@@ -1730,6 +1730,22 @@ void initialize_mission_ship(short obj, short missionShip,
         (signed char)(g_aiPilotLevel_0059cf30[obj] - 5);
     g_acShipStress_0059d620[obj] = 0;
     (void)navPoint;
+}
+
+/* Function start: 0x40C740 */
+unsigned int IsInitialMissionShip(short missionShip)
+{
+    short index;
+
+    if (g_nPlayerMissionShipIndex_005a8694 == missionShip)
+        return 1;
+    index = 0;
+    do {
+        if (g_nInitialMissionShipIndices_005a8696[index] == missionShip)
+            return 1;
+        index++;
+    } while (index < 8);
+    return 0;
 }
 
 /* Function start: 0x40C800 */

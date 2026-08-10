@@ -262,6 +262,47 @@ void remove_message(char *text)
     ClearHudMessageIfMatching(&DAT_005a7de1, text);
 }
 
+/* Function start: 0x414300 */
+short KilrathiShipWithinRange(short obj, short range)
+{
+    short ship;
+
+    ship = 0;
+    do {
+        if (g_aeObjectClass_0059d100[ship] >= OBJECT_CLASS_SHIP &&
+            g_aeShipSide_0059d650[ship] == SIDE_KILRATHI &&
+            IsPointWithinRange(&g_aShipPosition_0059c490[obj],
+                               &g_aShipPosition_0059c490[ship],
+                               range) != 0)
+            return 1;
+        ship++;
+    } while (ship < 10);
+    return 0;
+}
+
+/* Function start: 0x414380 */
+short CanEngageAutopilot(short showReason)
+{
+    char *reason;
+
+    reason = 0;
+    if (g_cMissionObjectiveCount_0059c46a == 0)
+        return 0;
+    if (distance_from_point(
+            0,
+            &g_aMissionObjectives_0059dac5[
+                g_cCurrentObjective_0046c020].position) < 8000) {
+        reason = "Already Near";
+    } else if (KilrathiShipWithinRange(0, 16000) != 0) {
+        reason = "Enemy Near";
+    } else if (g_pActiveHazardField_0059bfe0 != 0) {
+        reason = "Hazard Near";
+    }
+    if (showReason != 0 && reason != 0)
+        set_global_message(reason, DAT_004699a8, 3);
+    return reason == 0;
+}
+
 /* Function start: 0x414410 */
 void *ClearHudTargetVectors(void)
 {
@@ -937,7 +978,7 @@ void send_message(short obj, signed char message)
         return;
     if (g_acShipRating_0059cd80[obj] != -1 ||
         g_aeObjectType_0059b560[obj] == OBJECT_TYPE_TIGERS_CLAW ||
-        g_asShipMissionIndex_0059c830[obj] ==
+        g_nShipMissionIndices_0059c830[obj] ==
             g_anShipMissionShip_0059d4b0[0] ||
         g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
         ((signed char *)g_aeShipObjective_0059d200)[obj + 0xc0] = message;
