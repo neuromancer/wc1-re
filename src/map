@@ -621,7 +621,7 @@
 0x0041E900 send_appropriate_message
 0x0041E9B0 inflict_damage
 0x0041EC60 pilot_hit
-0x0041ECE0 Create_ship_hit_debris
+0x0041ECE0 onboard_explosion
 0x0041EDB0 call_enemy
 0x0041EE20 internal_damage
 0x0041F1A0 revise_shields
@@ -629,7 +629,7 @@
 0x0041F5D0 check_computer_damage
 0x0041F5F0 ReportComponentRepaired
 0x0041F660 repair_internal_damage
-0x0041F700 ScanTbl0059c330FnF700
+0x0041F700 Create_ship_hit_debris
 0x0041F7C0 check_next_wave
 0x0041F800 Create_explosion_debris
 0x0041F9E0 affect_mission_score
@@ -653,12 +653,12 @@
 0x00420AA0 fire_turrets
 0x00420C20 fire_weapon
 0x00421100 find_weapon
-0x00421150 ReportNeedTargetLock
+0x00421150 fire_missile
 0x00421220 fire_fixed_projectile_weapon
 0x004212A0 drop_mine
 0x00421350 fire_afterburner
-0x004213B0 ShipAiRoutine15
-0x004213D0 GetTbl0059c870Fn13D0
+0x004213B0 fire_super_brake
+0x004213D0 flip_angle
 0x00421430 ScanTbl0059d230Fn1430
 0x004215E0 ScanTbl0059d9b0Fn15E0
 0x00421760 GetTbl0059b320Fn1760
@@ -956,7 +956,7 @@
 0x0042E8B0 SoundG0046a9f8FnE8B0
 0x0042E8D0 GetG0046a9f8FnE8D0
 0x0042E900 SoundUiFnE900
-0x0042E9E0 GetTbl0059d650FnE9E0
+0x0042E9E0 new_space_music_changes
 0x0042EAD0 DispatchNavFnEAD0
 0x0042EB60 GetG0046aa3cFnEB60
 0x0042ECB0 SoundTbl0059b4a0FnECB0

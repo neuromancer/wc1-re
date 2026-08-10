@@ -446,6 +446,7 @@ void clear_cockpit_damage(void);                                      /* 0x00417
 void explosion_draw(void);                                           /* 0x00417630 */
 void RestoreCockpitExplosionBackground(void);                         /* 0x00417760 */
 void cockpit_explosion(void);                                        /* 0x004177B0 */
+void place_damage_on_cockpit(short damage);                           /* 0x004178A0 */
 void vid_transmit(void);                                              /* 0x00417910 */
 void update_dead_disp(short a);                                        /* 0x00417B10 */
 void check_stranded(void);                                           /* 0x00417B30 */
@@ -653,14 +654,16 @@ void call_enemy(short obj);                                           /* 0x0041E
 int internal_damage(short attacker, short victim, short damage,
                     short quadrant);                                  /* 0x0041EE20 */
 void revise_shields(short obj);                                       /* 0x0041F1A0 */
-void your_internal_damage(short attacker, short damage,
-                          short quadrant);                            /* 0x0041F220 */
+int your_internal_damage(short attacker, short damage,
+                         short quadrant);                             /* 0x0041F220 */
 short ReportComponentRepaired(short component, short minimumDamage);  /* 0x0041F5F0 */
 void repair_internal_damage(void);                                   /* 0x0041F660 */
 void Create_ship_hit_debris(short obj, short count);                  /* 0x0041F700 */
 void check_next_wave(void);                                          /* 0x0041F7C0 */
-void Create_explosion_debris(short obj);                              /* 0x0041F800 */
+unsigned int Create_explosion_debris(short obj);                      /* 0x0041F800 */
 unsigned int affect_mission_score(short pilot, int event, short amount); /* 0x0041F9E0 */
+unsigned int score_for_kill(short pilot, short victim);               /* 0x0041FA90 */
+unsigned int analyze_kill(short attacker, short victim);              /* 0x0041FB40 */
 short ShipExplosion(short obj);                                      /* 0x0041FBC0 */
 short Explosion(short obj);                                          /* 0x0041FCD0 */
 short the_creator(short obj);                                        /* 0x0041FEB0 */
@@ -681,7 +684,7 @@ int rnd_aim(short radius, short speed, short maximum);                /* 0x00420
 short pop_flack(short obj, short range, FixedVector *hardpoint);      /* 0x00420920 */
 int fire_turrets(short obj);                                          /* 0x00420AA0 */
 int fire_weapon(short obj, short weapon);                              /* 0x00420C20 */
-int fire_players_weapon(short ship);                                  /* 0x00421150 */
+int fire_missile(short ship);                                         /* 0x00421150 */
 short fire_fixed_projectile_weapon(short obj);                         /* 0x00421220 */
 int drop_mine(short obj, signed char weapon, enum ObjectType type,
               short lifetime);                                       /* 0x004212A0 */
@@ -998,6 +1001,7 @@ unsigned int StartMusicTrack(int track, int mode,
                              int enabled);                             /* 0x0042E880 */
 void StopMusicUnlessSuppressed(void);                                        /* 0x0042E8B0 */
 unsigned short GetMusicMode(void);                                /* 0x0042E8D0 */
+void new_space_music_changes(short attacker, short victim);          /* 0x0042E9E0 */
 void ResetSoundState(void);                                             /* 0x0042EE80 */
 void ResetSoundStateForScene(void);                                               /* 0x0042EEA0 */
 void ResetSoundStateForFlight(void);                                               /* 0x0042EEB0 */

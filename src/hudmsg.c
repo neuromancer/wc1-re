@@ -502,7 +502,7 @@ primary_controls_complete:
             }
             if (g_nExternalViewShip_0046c040 == -1) {
                 g_nExternalViewShip_0046c040 =
-                    (short)fire_players_weapon(0);
+                    (short)fire_missile(0);
                 if (g_bMissileCameraEnabled_0046c07c == 1 &&
                     g_nExternalViewShip_0046c040 != -1) {
                     new_view(6, g_nExternalViewShip_0046c040);

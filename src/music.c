@@ -997,6 +997,48 @@ unsigned short GetMusicMode(void)
     return 0;
 }
 
+/* Function start: 0x42E9E0 */
+void new_space_music_changes(short attacker, short victim)
+{
+    enum Side side;
+
+    if (DAT_0046aa40 != 0 && g_nTrainSimActive_00469e2c == 0) {
+        side = g_aeShipSide_0059d650[victim];
+        if (side == SIDE_KILRATHI) {
+            if (report_kilrathi_rout(1) == 0) {
+                StartMusicTrack(10, 1, 0);
+                return;
+            }
+            if (attacker == 0) {
+                if (g_acShipRating_0059cd80[victim] == -1 &&
+                    (short)RandomInRange(0, 3) != 0) {
+                    StartMusicTrack(6, 3, 0);
+                    return;
+                }
+                StartMusicTrack(9, 3, 0);
+                return;
+            }
+        } else {
+            if (g_nYourWingman_0046c04c == victim) {
+                StartMusicTrack(8, 3, 0);
+                return;
+            }
+            if (side == SIDE_IMPERIAL) {
+                if ((g_aeShipMissionType_0059c3f0[0] ==
+                         MISSION_TYPE_DEFEND ||
+                     g_aeShipMissionType_0059c3f0[0] ==
+                         MISSION_TYPE_ESCORT) &&
+                    g_nShipMissionIndices_0059c830[victim] ==
+                        g_anShipMissionShip_0059d4b0[0]) {
+                    StartMusicTrack(11, 3, 0);
+                    return;
+                }
+                StartMusicTrack(7, 3, 0);
+            }
+        }
+    }
+}
+
 /* Function start: 0x42EE80 */
 void ResetSoundState(void)
 {

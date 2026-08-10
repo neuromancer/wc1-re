@@ -1584,6 +1584,7 @@ void prepare_mission(void)
     g_stCampaignState_0059ca50.missionScore = 0;
     g_asCollisionTime_005a7ca0[10] = 0;
     g_asCollisionTime_005a7ca0[11] = 0;
+    g_bPlayerDestroyed_005a7c98 = 0;
     g_asCollisionTime_005a7ca0[12] = 0;
     g_nMissionMedalScore_005a8116 = 0;
     g_nPlayerKillCount_005a7c9c = 0;

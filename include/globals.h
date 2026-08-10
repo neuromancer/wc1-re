@@ -859,6 +859,7 @@ extern signed char g_cCockpitLogicalFile_005a7c74;
 extern unsigned char *g_apCockpitShapes_005a7c80[4];
 extern unsigned char *g_pCinematicViewBackdrop_005a7c90;
 extern unsigned char *g_pRearViewBackdrop_005a7c94;
+extern int g_bPlayerDestroyed_005a7c98;
 extern short g_nPlayerKillCount_005a7c9c;
 extern short g_asCollisionPartner_005a7cc0[10];
 extern short g_asCollisionTime_005a7ca0[16];
@@ -876,6 +877,7 @@ extern short g_nReleaseWeaponDisplayY_005a7dbe;
 extern enum ObjectType g_eReleaseWeaponDisplayType_005a7dc0;
 extern unsigned char g_bStickIndicatorFrame_005a7dc8;
 extern short DAT_005a7dca;
+extern short g_nPendingCockpitDamage_005a7dcc;
 extern HudMessageSlot g_aHudMessageSlots_005a7dd0[2];
 #define DAT_005a7dd0 g_aHudMessageSlots_005a7dd0
 #define DAT_005a7de1 g_aHudMessageSlots_005a7dd0[1]

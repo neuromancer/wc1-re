@@ -27,7 +27,7 @@ short find_weapon(short obj, enum ObjectType weaponType)
 }
 
 /* Function start: 0x421150 */
-int fire_players_weapon(short ship)
+int fire_missile(short ship)
 {
     short weapon;
     ShipWeaponSlot *slot;

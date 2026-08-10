@@ -2224,6 +2224,27 @@ void cockpit_explosion(void)
     DAT_0046900c = 0xff;
 }
 
+/* Function start: 0x4178A0 */
+void place_damage_on_cockpit(short damage)
+{
+    if (DAT_0046c03c == 0 && g_nTrainSimActive_00469e2c == 0 &&
+        g_anCockpitDamageState_005a7ef0[damage] == 0) {
+        g_nPendingCockpitDamage_005a7dcc = damage;
+        g_anCockpitDamageState_005a7ef0[damage] = 1;
+        if (g_pCockpitExplosionShape_00469064 == 0) {
+            explosion_draw();
+            return;
+        }
+        if (IsCockpitExplosionActive() == 0) {
+            g_nCockpitExplosionFrame_00469068 = 0x7fff;
+            *(unsigned int *)(void *)&g_nCockpitExplosionX_005a7e98 =
+                *(const unsigned int *)(const void *)
+                    &g_aaCockpitDamagePositions_00469228[
+                        (signed char)g_cCockpitView_0059dab0][damage];
+        }
+    }
+}
+
 /* Function start: 0x417910 */
 void vid_transmit(void)
 {
