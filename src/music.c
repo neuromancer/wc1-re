@@ -409,58 +409,162 @@ short GetTargetColourIndex(void)
 void show_target_disp(void)
 {
     short target;
-    const char *name;
+    int targetIndex;
+    ObjectTypeData *typeData;
+    enum ObjectType objectType;
+    signed char rating;
+    short x;
+    short y;
+    short frame;
+    short *maximumArmor;
+    short armor;
+    Viewport targetViewport;
 
-    set_new_vdu(1);
     DrawTextAt(&DAT_005a7700, DAT_005a7530.left, DAT_005a7530.top,
-               "TARGET DISPLAY", 2);
-    DrawFormattedText(g_nTargetLockMode_0046c078 == 0
-                          ? "AUTO TARGETING\n"
-                          : "LOCKED TARGET\n");
+               g_szEmptyTargetDisplayText_0046a948, 2);
+    if (g_nTargetLockMode_0046c078 != 0) {
+        DrawFormattedText(g_szTextColourStringColourFormat_0046a960,
+                          (unsigned int)DAT_004699ac,
+                          g_szLockedTarget_0046a94c,
+                          (unsigned int)g_cDefaultTextColour_004699cc);
+    } else {
+        DrawFormattedText(g_szTextColourStringFormat_0046a97c,
+                          (unsigned int)g_cDefaultTextColour_004699cc,
+                          g_szAutoTargetting_0046a968);
+    }
     target = (short)g_acShipTarget_0059ce60[0];
-    if (target < 0 || target >= WC1_SPACE_OBJECT_COUNT ||
-        g_aeObjectClass_0059d100[target] < OBJECT_CLASS_SHIP ||
-        g_aeSpecialManeuver_0059c3c0[target] ==
-            SPECIAL_MANEUVER_UNKNOWN_9) {
+    if (target != -1 &&
+        (g_aeObjectClass_0059d100[target] < OBJECT_CLASS_SHIP ||
+         g_aeSpecialManeuver_0059c3c0[target] ==
+             SPECIAL_MANEUVER_UNKNOWN_9)) {
         target = -1;
         g_acShipTarget_0059ce60[0] = -1;
     }
     g_cTargetDisplayObject_0046c06c = (signed char)target;
+    DrawFormattedText(g_szTargetLabel_0046a984);
     if (target == -1) {
-        DrawFormattedText("Target: None\n");
+        DrawFormattedText(g_szNoTarget_0046a990);
         return;
     }
-    name = g_aObjectTypeData_00466458[
-        g_aeObjectType_0059b560[target]].displayName;
-    DrawFormattedText("Target: %s\n", name == 0 ? "" : name);
-    if (g_asObjectScreenX_0059d9b0[target] == (short)0x8001)
-        DrawFormattedText("Range: -----\n");
-    else if ((unsigned short)g_asObjectDistance_0059b4a0[target] > 30000)
-        DrawFormattedText("Range: TOO FAR\n");
-    else
-        DrawFormattedText("Range: %u M\n",
-                          (unsigned short)g_asObjectDistance_0059b4a0[target]);
+    targetIndex = (int)target;
+    objectType = g_aeObjectType_0059b560[targetIndex];
+    typeData = &g_aObjectTypeData_00466458[objectType];
+    rating = g_acShipRating_0059cd80[targetIndex];
+    if (rating >= 0 && rating <= 7) {
+        DrawFormattedText(
+            g_szWingmanTargetNameFormat_0046a998,
+            g_apWingmanPilots_00598a30[(int)rating]->callsign);
+    } else if (rating >= 9 && rating <= 12) {
+        DrawFormattedText(
+            g_szAceTargetNameFormat_0046a99c,
+            g_apszKilrathiAceNames_0046af80[(int)rating - 9]);
+    } else {
+        DrawFormattedText(g_szShipTargetNameFormat_0046a9a0,
+                          typeData->displayName);
+    }
+    DrawFormattedText(g_szRangeLabel_0046a9a4);
+    InitializeCockpitReadout(1, &DAT_005a7700);
+    if (g_asObjectScreenX_0059d9b0[targetIndex] == (short)0x8001) {
+        g_cTargetDisplayObject_0046c06c = -1;
+        return;
+    }
+
+    x = (short)(DAT_005a7530.left + 0x25);
+    y = (short)(DAT_005a7530.top + 0x26);
+    frame = (short)((3 - MinShort(
+        (short)((g_aasShipShield_0059d5b0[targetIndex][1] * 6) /
+                typeData->shieldAft), 3)) * 2);
+    if (frame < 6)
+        DrawSpriteDefault(&DAT_005a7530, x, y,
+                          g_pCockpitIndicatorShape_005a7658, frame);
+
+    targetViewport = DAT_005a7530;
+    maximumArmor = &typeData->armorFront;
+    armor = 0;
+    do {
+        targetViewport.left =
+            (short)(g_aTargetArmorClipRects_0046a928[armor].left + x);
+        targetViewport.top =
+            (short)(g_aTargetArmorClipRects_0046a928[armor].top + y);
+        targetViewport.right =
+            (short)(g_aTargetArmorClipRects_0046a928[armor].right + x);
+        targetViewport.bottom =
+            (short)(g_aTargetArmorClipRects_0046a928[armor].bottom + y);
+        if (g_aasShipArmor_0059d420[targetIndex][armor] >
+            (short)(maximumArmor[armor] >> 1)) {
+            DrawSpriteDefault(&targetViewport, x, y,
+                              typeData->shape, 0);
+        } else {
+            DrawSpriteDefault(&targetViewport, x, y,
+                              typeData->shape, 1);
+        }
+        armor++;
+    } while (armor < 4);
+
+    DrawSpriteDefault(&DAT_005a7530, x, y, typeData->shape, 2);
+    frame = (short)((3 - MinShort(
+        (short)((g_aasShipShield_0059d5b0[targetIndex][0] * 6) /
+                typeData->shieldFore), 3)) * 2);
+    if (frame < 6)
+        DrawSpriteDefault(&DAT_005a7530, x, y,
+                          g_pCockpitIndicatorShape_005a7658,
+                          (short)(frame + 1));
 }
 
 /* Function start: 0x42DEA0 */
 void DrawTargetRangeReadout(void)
 {
     short target;
+    const char *rangeText;
 
     target = (short)g_acShipTarget_0059ce60[0];
-    if (target < 0 || target >= WC1_SPACE_OBJECT_COUNT ||
-        g_aeObjectClass_0059d100[target] < OBJECT_CLASS_SHIP ||
-        g_aeSpecialManeuver_0059c3c0[target] ==
-            SPECIAL_MANEUVER_UNKNOWN_9) {
-        if (g_cTargetDisplayObject_0046c06c != -1) {
-            g_acShipTarget_0059ce60[0] = -1;
-            show_target_disp();
-        }
+    if (g_aeSpecialManeuver_0059c3c0[target] ==
+        SPECIAL_MANEUVER_UNKNOWN_9) {
+        g_acShipTarget_0059ce60[0] = -1;
+        ClearMessageSlot(1);
         return;
     }
+    if (target != -1 &&
+        g_aeObjectClass_0059d100[target] < OBJECT_CLASS_SHIP) {
+        g_acShipTarget_0059ce60[0] = -1;
+        target = -1;
+    }
     if (g_cTargetDisplayObject_0046c06c != target ||
-        (g_nSpaceFrame_0059b420 & 7) == 0)
+        (short)(g_nRenderedSpaceFrame_0059d61a % 8) == 0) {
+        set_new_vdu(1);
         show_target_disp();
+    }
+    if (target == -1)
+        return;
+
+    if (g_asObjectScreenX_0059d9b0[target] == (short)0x8001) {
+        rangeText = g_szTargetOffscreenRange_0046a9bc;
+    } else if ((unsigned short)g_asObjectDistance_0059b4a0[target] <=
+               30000) {
+        strcat(_itoa((unsigned short)g_asObjectDistance_0059b4a0[target],
+                     g_szTextScratchBuffer_00598b00, 10), " m");
+        goto draw_readout;
+    } else {
+        rangeText = g_szTargetTooFar_0046a9b0;
+    }
+    memcpy(g_szTextScratchBuffer_00598b00, rangeText, 8);
+
+draw_readout:
+    DrawCockpitReadout(1, g_szTextScratchBuffer_00598b00);
+    if (g_nTargetLockCountdown_0046c064 == 0) {
+        if (g_bTargetLockAcquired_0046c074 == 1) {
+            g_bTargetLockAcquired_0046c074 = 0;
+            return;
+        }
+    } else if (g_bTargetLockReadoutDirty_0046c060 != 0) {
+        EraseCockpitReadoutRegion(&DAT_005a7530,
+                                  DAT_005a7530.left,
+                                  (short)(DAT_005a7530.bottom - 6),
+                                  DAT_005a7530.right,
+                                  DAT_005a7530.bottom,
+                                  (short)DAT_0046999c);
+        g_bTargetLockReadoutDirty_0046c060 = 0;
+    }
 }
 
 /* Function start: 0x42E020 */

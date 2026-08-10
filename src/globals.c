@@ -607,6 +607,26 @@ const short g_asConstellationFrame_0046a8f8[16] = {
     0, 16, 16, 0, 4, 4, 20, 20, 24, 8, 8, 24, 28, 12, 12, 28
 };
 short g_nConstellationDirection_0046a918 = -1;
+const ShortRect g_aTargetArmorClipRects_0046a928[4] = {
+    { 12, -20, 29, 20 },
+    { -11, 1, 11, 20 },
+    { -11, -20, 11, 0 },
+    { -29, -20, -12, 20 }
+};
+char g_szEmptyTargetDisplayText_0046a948[4] = "";
+const char g_szLockedTarget_0046a94c[20] = "   LOCKED TARGET";
+const char g_szTextColourStringColourFormat_0046a960[8] = "%F%s%F";
+const char g_szAutoTargetting_0046a968[20] = "  AUTO TARGETTING";
+const char g_szTextColourStringFormat_0046a97c[8] = "%F%s";
+const char g_szTargetLabel_0046a984[12] = "\nTarget:";
+const char g_szNoTarget_0046a990[8] = " None";
+const char g_szWingmanTargetNameFormat_0046a998[4] = " %s";
+const char g_szAceTargetNameFormat_0046a99c[4] = " %s";
+const char g_szShipTargetNameFormat_0046a9a0[4] = " %s";
+const char g_szRangeLabel_0046a9a4[12] = "\nRange : ";
+const char g_szTargetTooFar_0046a9b0[8] = "TOO FAR";
+const char g_szRangeMetresSuffix_0046a9b8[4] = " m";
+const char g_szTargetOffscreenRange_0046a9bc[8] = "----- m";
 short DAT_0046a9f8;
 int g_bMusicCommandSuppressed_0046a9fc;
 short DAT_0046aa04 = 1;
@@ -2466,6 +2486,13 @@ void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short) = {
     /* 44 */ (void (*)(short, short))ShipAiState44,
     /* 45 */ (void (*)(short, short))Mbest_strafe,
     /* 46 */ (void (*)(short, short))Mreset
+};
+
+const char *g_apszKilrathiAceNames_0046af80[4] = {
+    &g_aszKilrathiAceNames_0046afd4[0x00],
+    &g_aszKilrathiAceNames_0046afd4[0x08],
+    &g_aszKilrathiAceNames_0046afd4[0x10],
+    &g_aszKilrathiAceNames_0046afd4[0x18]
 };
 
 char *g_apszCommMenuText_0046af90[13] = {

@@ -143,6 +143,23 @@ unsigned short IsCockpitExplosionActive(void)
     return g_nCockpitExplosionFrame_00469068 < 8;
 }
 
+/* Function start: 0x413D40 */
+void EraseCockpitReadoutRegion(Viewport *viewport, short left,
+                               short top, short right, short bottom,
+                               short colour)
+{
+    Viewport clippedViewport;
+
+    clippedViewport = *viewport;
+    if (right >= left && bottom >= top) {
+        clippedViewport.left = left;
+        clippedViewport.top = top;
+        clippedViewport.right = right;
+        clippedViewport.bottom = bottom;
+        ClearViewport(&clippedViewport, colour);
+    }
+}
+
 /* Function start: 0x413DA0 */
 void vdu_polygon(signed char bar, short percent)
 {
@@ -212,13 +229,15 @@ void vdu_polygon(signed char bar, short percent)
 }
 
 /* Function start: 0x413F70 */
-unsigned int GetSeriesRecordField(char slot, int rec)
+unsigned int InitializeCockpitReadout(signed char slot,
+                                      TextContext *context)
 {
     int k = slot * 10;
 
-    *(int *)(&DAT_005a7e30[0] + k) = rec;
-    *(unsigned short *)(&DAT_005a7e30[4] + k) = *(unsigned short *)(rec + 4);
-    *(unsigned short *)(&DAT_005a7e30[6] + k) = *(unsigned short *)(rec + 6);
+    *(TextContext **)(&DAT_005a7e30[0] + k) = context;
+    *(short *)(&DAT_005a7e30[4] + k) = context->cursorX;
+    *(short *)(&DAT_005a7e30[6] + k) = context->cursorY;
+    *(short *)(&DAT_005a7e30[8] + k) = 0;
     return 0;
 }
 
@@ -637,7 +656,7 @@ void PlayTargetLockSfx(void)
 }
 
 /* Function start: 0x414AE0 */
-void PlayShieldHitSfx(void)
+void malf_sound(void)
 {
     PlaySfxWaveFileByNumber(0x1f, -1, 0);
 }
@@ -1817,15 +1836,65 @@ void cycle_onscreen_targets(void)
 /* Function start: 0x416FD0 */
 void check_target(void)
 {
-    short target;
+    short selectNewTarget;
+    short oldTarget;
+    short targetIndex;
+    short hasEnemy;
 
-    target = (short)g_acShipTarget_0059ce60[0];
-    if (target < 0 || target >= WC1_SPACE_OBJECT_COUNT ||
-        g_aeObjectClass_0059d100[target] < OBJECT_CLASS_SHIP ||
-        g_aeSpecialManeuver_0059c3c0[target] ==
+    selectNewTarget = 1;
+    oldTarget = (short)g_acShipTarget_0059ce60[0];
+    if (oldTarget != -1 &&
+        g_aeSpecialManeuver_0059c3c0[oldTarget] ==
             SPECIAL_MANEUVER_UNKNOWN_9) {
         g_acShipTarget_0059ce60[0] = -1;
+        oldTarget = -1;
+    }
+    if (g_nTargetLockMode_0046c078 != 0 &&
+        (short)(g_nRenderedSpaceFrame_0059d61a % 8) == 0 &&
+        malf(5) != 0) {
         g_nTargetLockMode_0046c078 = 0;
+        malf_sound();
+    }
+    if (oldTarget != -1 &&
+        (g_nTargetLockMode_0046c078 != 0 ||
+         (g_asObjectScreenX_0059d9b0[oldTarget] != (short)0x8001 &&
+          (g_nTargetLockMode_0046c078 != 0 ||
+           g_aeShipSide_0059d650[oldTarget] !=
+               g_aeShipSide_0059d650[0]))))
+        return;
+    if (oldTarget == -1)
+        g_nTargetLockMode_0046c078 = 0;
+
+    build_your_target_list(&hasEnemy);
+    if (g_cViableTargetCount_0046c088 == 0) {
+        if (g_nTargetLockMode_0046c078 != 0)
+            g_acShipTarget_0059ce60[0] = (signed char)oldTarget;
+        else
+            g_acShipTarget_0059ce60[0] = -1;
+    } else {
+        if (hasEnemy == 0 && oldTarget != -1 &&
+            g_aeShipSide_0059d650[oldTarget] ==
+                g_aeShipSide_0059d650[0] &&
+            (g_nTargetLockMode_0046c078 != 0 ||
+             g_asObjectScreenX_0059d9b0[oldTarget] != (short)0x8001)) {
+            selectNewTarget = 0;
+            g_acShipTarget_0059ce60[0] = (signed char)oldTarget;
+        }
+        if (selectNewTarget != 0) {
+            targetIndex = 0;
+            while (targetIndex < g_cViableTargetCount_0046c088 &&
+                   g_aeShipSide_0059d650[
+                       (short)g_acViableTarget_0059c920[targetIndex]] ==
+                       g_aeShipSide_0059d650[0])
+                targetIndex++;
+            g_acShipTarget_0059ce60[0] =
+                g_acViableTarget_0059c920[
+                    targetIndex % (short)g_cViableTargetCount_0046c088];
+        }
+    }
+    if ((short)g_acShipTarget_0059ce60[0] != oldTarget) {
+        if (oldTarget != -1 && g_acShipTarget_0059ce60[0] == -1)
+            g_nTargetLockMode_0046c078 = 0;
         g_nTargetLockCountdown_0046c064 = -1;
     }
 }

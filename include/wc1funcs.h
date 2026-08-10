@@ -319,8 +319,12 @@ void FormatTextBufferFromStart(const char *format, ...);                /* 0x004
 void AppendFormattedText(const char *format, ...);                      /* 0x00413CB0 */
 void FatalErrorAndExit(const char *format, ...);                       /* 0x00413CE0 */
 unsigned short IsCockpitExplosionActive(void);                         /* 0x00413D20 */
+void EraseCockpitReadoutRegion(Viewport *viewport, short left,
+                               short top, short right, short bottom,
+                               short colour);                         /* 0x00413D40 */
 void vdu_polygon(signed char bar, short percent);                     /* 0x00413DA0 */
-unsigned int GetSeriesRecordField(char slot, int rec);                       /* 0x00413F70 */
+unsigned int InitializeCockpitReadout(signed char slot,
+                                      TextContext *context);          /* 0x00413F70 */
 void DrawCockpitReadout(signed char slot, char *text);                /* 0x00413FB0 */
 short DrawHudMessageSlot(HudMessageSlot *slot);                        /* 0x004140A0 */
 void ClearHudMessageSlot(HudMessageSlot *slot);                        /* 0x00414180 */
@@ -357,7 +361,7 @@ unsigned short SetAutopilotFlag(unsigned short v);                        /* 0x0
 void RefreshAutopilotHud(void);                                             /* 0x00414A20 */
 unsigned int update_digital_readouts(void);                          /* 0x00414A50 */
 void PlayTargetLockSfx(void);                                           /* 0x00414AD0 */
-void PlayShieldHitSfx(void);                            /* 0x00414AE0 */
+void malf_sound(void);                                                  /* 0x00414AE0 */
 unsigned short malf(char component);                                  /* 0x00414AF0 */
 unsigned short vdu_malf(short vdu, short sound);                       /* 0x00414B20 */
 void ShowComponentHitHudMessage(char *text, unsigned short colour,

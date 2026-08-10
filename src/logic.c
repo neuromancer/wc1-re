@@ -2011,16 +2011,16 @@ unsigned int InitializeCockpitResources(signed char mode)
     layout = g_asCockpitLayout_0046e000;
     SetTextCursor((unsigned short)layout[4 + modeIndex * 2],
                   (unsigned short)layout[5 + modeIndex * 2]);
-    GetSeriesRecordField(4, (int)&DAT_005a7720);
+    InitializeCockpitReadout(4, &DAT_005a7720);
     SetTextCursor((unsigned short)layout[16 + modeIndex * 2],
                   (unsigned short)layout[17 + modeIndex * 2]);
-    GetSeriesRecordField(5, (int)&DAT_005a7720);
+    InitializeCockpitReadout(5, &DAT_005a7720);
     SetTextCursor((unsigned short)layout[28 + modeIndex * 2],
                   (unsigned short)layout[29 + modeIndex * 2]);
-    GetSeriesRecordField(2, (int)&DAT_005a7720);
+    InitializeCockpitReadout(2, &DAT_005a7720);
     SetTextCursor((unsigned short)layout[40 + modeIndex * 2],
                   (unsigned short)layout[41 + modeIndex * 2]);
-    GetSeriesRecordField(3, (int)&DAT_005a7720);
+    InitializeCockpitReadout(3, &DAT_005a7720);
 
     SetViewportRect(&DAT_005a6b80,
                     (unsigned short)layout[52 + modeIndex * 4],

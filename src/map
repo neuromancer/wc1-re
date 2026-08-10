@@ -329,9 +329,9 @@
 0x00413CB0 GetUiFn3CB0
 0x00413CE0 HelperOf428F80A
 0x00413D20 IsCockpitExplosionActive
-0x00413D40 HelperOf42DEA0A
+0x00413D40 EraseCockpitReadoutRegion
 0x00413DA0 vdu_polygon
-0x00413F70 HelperOf415180A
+0x00413F70 InitializeCockpitReadout
 0x00413FB0 DrawCockpitReadout
 0x00414050 GetUiFn4050
 0x004140A0 DrawHudMessageSlot
@@ -365,7 +365,7 @@
 0x00414A20 GetCombatFn4A20
 0x00414A50 update_digital_readouts
 0x00414AD0 CallThrough42EF30
-0x00414AE0 ForwardPlaySfxWaveFileByNumberv1
+0x00414AE0 malf_sound
 0x00414AF0 malf
 0x00414B20 vdu_malf
 0x00414B70 ShowComponentHitHudMessage
