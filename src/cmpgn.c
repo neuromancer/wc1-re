@@ -613,7 +613,7 @@ unsigned int LoadMissionData(short series, short mission)
         return 0;
     header = (MissionHeaderDisk *)(packet + missionIndex * 0x18);
     g_nMissionEntryNavPoint_005a8690 = header->entryNavPoint;
-    DAT_005a8692 = header->homeMissionShip;
+    g_nHomeMissionShipIndex_005a8692 = header->homeMissionShip;
     g_nPlayerMissionShipIndex_005a8694 = header->playerMissionShip;
     index = 0;
     do {

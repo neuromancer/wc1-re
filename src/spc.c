@@ -9,8 +9,7 @@
 #include "wc1.h"
 
 /* Function start: 0x4102B0 */
-void CalibrateJoystickInteractive(short logicalFile, short section,
-                                   short flags, short mode)
+void CalibrateJoystickInteractive()
 {
     InputDeviceSample samples[2];
     short calibration[6];
@@ -19,10 +18,6 @@ void CalibrateJoystickInteractive(short logicalFile, short section,
     int file;
     int failed;
 
-    (void)logicalFile;
-    (void)section;
-    (void)flags;
-    (void)mode;
     device = g_nActiveInputDevice_005a819c;
     if (device == -1)
         return;

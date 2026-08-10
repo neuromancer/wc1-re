@@ -804,3 +804,99 @@ unsigned int player_input(void)
         g_stLastPolledFlightInput_0046a020;
     return 0;
 }
+
+/* Function start: 0x428C90 */
+unsigned int SelectNextExternalViewObject(void)
+{
+    signed char selected;
+    short object;
+
+    selected = -1;
+    object = (short)g_cViewObject_0046c000;
+    do {
+        object++;
+        if (object > 9)
+            object = 0;
+        g_cViewObject_0046c000 = -1;
+        if (g_aeObjectClass_0059d100[object] >= OBJECT_CLASS_SHIP)
+            selected = (signed char)object;
+        g_cViewObject_0046c000 = selected;
+    } while (selected == -1);
+    return 0;
+}
+
+/* Function start: 0x428CD0 */
+unsigned int SelectPreviousExternalViewObject(void)
+{
+    short object;
+
+    object = (short)g_cViewObject_0046c000;
+    g_cViewObject_0046c000 = -1;
+    do {
+        object--;
+        if (object < 0)
+            object = 9;
+        if (g_aeObjectClass_0059d100[object] >= OBJECT_CLASS_SHIP)
+            g_cViewObject_0046c000 = (signed char)object;
+    } while (g_cViewObject_0046c000 == -1);
+    return 0;
+}
+
+/* Function start: 0x428D10 */
+unsigned int HandleFleetOverviewInput(void)
+{
+    signed char key;
+
+    key = (signed char)g_bCurrentKey_0046c014;
+    if (DAT_0046c03c != 8)
+        return 0;
+
+    g_bCurrentKey_0046c014 = 0;
+    switch (key) {
+    case 0x1c:
+        g_cViewObject_0046c000--;
+        g_bCurrentKey_0046c014 = 0x29;
+        break;
+    case 0x47:
+        g_nCapitalShipViewDistance_00468ff4 -= 0x3200;
+        break;
+    case 0x48:
+        rotate_about_i(-7,
+                       &g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT],
+                       &g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT]);
+        break;
+    case 0x4b:
+        rotate_about_j(7,
+                       &g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT],
+                       &g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT]);
+        break;
+    case 0x4d:
+        rotate_about_j(-7,
+                       &g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT],
+                       &g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT]);
+        break;
+    case 0x4f:
+        g_nCapitalShipViewDistance_00468ff4 += 0x3200;
+        break;
+    case 0x50:
+        rotate_about_i(7,
+                       &g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT],
+                       &g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT]);
+        break;
+    case 0x52:
+        g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT].z = -0x100;
+        g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT].y = 0x100;
+        g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT].x = 0x100;
+        g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT].z = 0;
+        g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT].x = 0;
+        g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT].y = 0;
+        g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT].x = 0;
+        g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT].z = 0;
+        g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT].y = 0;
+        break;
+    default:
+        g_bCurrentKey_0046c014 = (unsigned char)key;
+        break;
+    }
+    return 0;
+}

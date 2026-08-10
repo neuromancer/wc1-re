@@ -626,6 +626,51 @@ void Create_explosion_debris(short obj)
     } while (index < 8);
 }
 
+/* Function start: 0x41F9E0 */
+unsigned int affect_mission_score(short pilot, int event, short amount)
+{
+    switch (event) {
+    case 0:
+        break;
+    case 1:
+        amount = 7;
+        break;
+    case 2:
+        amount = 10;
+        break;
+    case 3:
+    case 4:
+        amount = 15;
+        break;
+    case 5:
+    case 6:
+        amount = 25;
+        break;
+    case 7:
+        amount = 50;
+        break;
+    case 8:
+        amount = 75;
+        break;
+    case 9:
+    case 10:
+    case 11:
+        amount = 25;
+        break;
+    case 12:
+        amount = (short)(amount * 2);
+        break;
+    }
+    g_stCampaignState_0059ca50.missionScore =
+        (short)(g_stCampaignState_0059ca50.missionScore + amount);
+    if (pilot == 0) {
+        g_nMissionMedalScore_005a8116 =
+            (short)(g_nMissionMedalScore_005a8116 + amount);
+        g_nArcadeScore_005a7bc4 += amount * 10;
+    }
+    return 0;
+}
+
 /* Function start: 0x41FBC0 */
 short ShipExplosion(short obj)
 {

@@ -112,60 +112,472 @@ void ShowOnScreenMessage(int flags, short duration,
         SetHudMessageText("", DAT_004699ac, 2);
 }
 
+/* Function start: 0x4290A0 */
+void ShowGamePausedBanner(short showBanner)
+{
+    if (showBanner != 0) {
+        ShowOnScreenMessage(1, 9999, "GAME PAUSED");
+        return;
+    }
+    WaitForKeyAcknowledge(1);
+}
+
 /* Function start: 0x4290D0 */
 void ShowVersionBanner(void)
 {
     ShowOnScreenMessage(1, 9999, "WING COMMANDER VER. %s");
 }
 
-/* Function start: 0x429160 */
-int HandleDebugCheatKeys(void)
+/* Function start: 0x4290F0 */
+void SetMessageDisplaySpeed(void)
 {
-    unsigned char key;
+    g_bMessageSpeed_0046af68 =
+        (unsigned char)(((signed char)g_bMessageSpeed_0046af68 + 1) % 5);
+    ShowOnScreenMessage(0, 0, "MESSAGES SPEED IS NOW %d.",
+                        (signed char)g_bMessageSpeed_0046af68 + 1);
+}
+
+/* Function start: 0x429120 */
+void ReportFramesSkipped(short adjustment)
+{
+    g_nFrameSkip_00469fb8 = MinShort(
+        MaxShort((short)(g_nFrameSkip_00469fb8 + adjustment), 1), 5);
+    ShowOnScreenMessage(0, 0, "%d FRAMES SKIPPED.",
+                        g_nFrameSkip_00469fb8 - 1);
+}
+
+/* Function start: 0x429160 */
+int HandleSpaceFlightControls(void)
+{
+    signed char key;
     int repeated;
+    int control;
 
     player_input();
     players_flight_dynamics();
-    key = g_bCurrentKey_0046c014;
-    repeated = (signed char)key == g_cPreviousKey_0046c018;
+    key = (signed char)g_bCurrentKey_0046c014;
+    repeated = key == g_cPreviousKey_0046c018;
+    control = GetControlKeyState();
+    GetKeyboardModifiers();
+    HandleFleetOverviewInput();
 
+    if (g_nTrainSimActive_00469e2c == 0) {
+        switch (key) {
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+            if (!repeated && (short)get_mode(1) == 4 &&
+                DAT_0046c03c == 0 && key >= 2 &&
+                key <= g_nCommMenuChoiceCount_0046af60 + 2 &&
+                (short)get_mode(1) == 4) {
+                Chosen_communicate_option((short)(key - 2));
+            }
+            break;
+        case 0x12:
+            if (!repeated && control != 0 &&
+                g_cPlayerEjectionDamage_0059bff7 != 4) {
+                if ((short)RandomInRange(
+                        0, g_cPlayerEjectionDamage_0059bff7) == 0)
+                    g_nArcadeState_00469fb0 = 2;
+                else
+                    malf_sound();
+            }
+            break;
+        case 0x1e:
+            if (!repeated) {
+                g_bMouseCursorVisible_0046a018 = 0;
+                if ((short)get_mode(1) != 5)
+                    SelectCockpitVduMode(1, 5);
+                if (DAT_0046a008 == 0) {
+                    auto_pilot_sequence();
+                } else {
+                    GetScreenUpdateFlag();
+                    SetViewportRect(
+                        &DAT_005a7510, 0, 0,
+                        (short)(g_nScreenWidth_0046daa4 - 1),
+                        (short)(g_nScreenHeight_0046daa8 - 1));
+                    initialize_view_buffer();
+                    DAT_0046a008 = -2;
+                    auto_pilot_sequence();
+                    DAT_0046a008 = 1;
+                    GetScreenUpdateFlag();
+                    SetViewportRect(&DAT_005a7510, 0, 0, 319, 199);
+                    initialize_view_buffer();
+                }
+                FlushInputEvents();
+                ClearDebugPauseFlags();
+                g_bMouseCursorVisible_0046a018 = 0;
+                g_bPointerMovedByKeyboard_005a7d54 = 1;
+            }
+            break;
+        case 0x1f:
+            if (control != 0 && !repeated) {
+                if (DAT_0046aa34 == 1)
+                    ResetSoundStateForScene();
+                else
+                    ResetSoundStateForFlight();
+            }
+            break;
+        case 0x23:
+            if (!repeated && g_nYourWingman_0046c04c != -1 &&
+                g_aeShipObjective_0059d200[g_nYourWingman_0046c04c] !=
+                    OBJECTIVE_HOLD_FORMATION) {
+                request(0, g_nYourWingman_0046c04c, 9);
+            }
+            break;
+        case 0x2e:
+            if (!repeated) {
+                if ((short)IsAutopilotEngaged() == 0) {
+                    if ((short)get_mode(1) == 4)
+                        CloseCommChoiceMenu();
+                    else
+                        SelectCockpitVduMode(1, 4);
+                } else {
+                    EndCommMenu();
+                }
+            }
+            break;
+        case 0x2f:
+            if (!repeated && control == 0) {
+                g_bVideoImagesSuppressed_0046af74 =
+                    g_bVideoImagesSuppressed_0046af74 == 0;
+                if (g_bVideoImagesSuppressed_0046af74 != 0)
+                    SetHudMessageText("VIDEO IMAGES SUPRESSED",
+                                      DAT_004699ac, 20);
+                else
+                    SetHudMessageText("VIDEO IMAGES ENABLED",
+                                      DAT_004699b4, 20);
+            }
+            break;
+        case 0x30:
+            if (!repeated && g_nYourWingman_0046c04c != -1 &&
+                g_aeShipObjective_0059d200[g_nYourWingman_0046c04c] ==
+                    OBJECTIVE_HOLD_FORMATION &&
+                any_enemy(0, 14000) != 0) {
+                request(0, g_nYourWingman_0046c04c, 7);
+            }
+            break;
+        case 0x31:
+            if (!repeated)
+                SelectCockpitVduMode(1, 5);
+            init_player_input();
+            break;
+        case 0x32:
+            if (!repeated && control == 0)
+                SetMessageDisplaySpeed();
+            break;
+        case 0x3b:
+            if (GetF1KeyLatch() != 0) {
+                if (g_cScreenViewportMode_0059a9f2 == 0) {
+                    DAT_0046a008 = DAT_0046a008 == 0;
+                    GetScreenUpdateFlag();
+                    if (DAT_0046a008 != 0) {
+                        SetViewportRect(&DAT_005a7510, 0, 0, 319, 199);
+                        initialize_cockpit(
+                            g_cScreenViewportMode_0059a9f2++);
+                        SetMousePosition(
+                            (short)(((int)DAT_005a7510.right -
+                                     (int)DAT_005a7510.left) / 2 + 1),
+                            g_nViewCenterY_0059a854);
+                    } else {
+                        SetViewportRect(
+                            &DAT_005a7510, 0, 0,
+                            (short)(g_nScreenWidth_0046daa4 - 1),
+                            (short)(g_nScreenHeight_0046daa8 - 1));
+                        initialize_cockpit(
+                            g_cScreenViewportMode_0059a9f2++);
+                        SetMousePosition(
+                            (short)(((int)DAT_005a7510.right -
+                                     (int)DAT_005a7510.left) / 2 + 1),
+                            (short)(((int)DAT_005a7510.bottom -
+                                     (int)DAT_005a7510.top) / 2));
+                    }
+                } else {
+                    g_bMouseCursorVisible_0046a018 = 0;
+                    if (DAT_0046a008 == 0) {
+                        new_view(0, 0);
+                    } else {
+                        GetScreenUpdateFlag();
+                        SetViewportRect(
+                            &DAT_005a7510, 0, 0,
+                            (short)(g_nScreenWidth_0046daa4 - 1),
+                            (short)(g_nScreenHeight_0046daa8 - 1));
+                        initialize_view_buffer();
+                        new_view(0, 0);
+                        GetScreenUpdateFlag();
+                        SetViewportRect(&DAT_005a7510, 0, 0, 319, 199);
+                        initialize_view_buffer();
+                    }
+                }
+                FlushInputEvents();
+                ClearDebugPauseFlags();
+                g_bMouseCursorVisible_0046a018 = 0;
+                g_bPointerMovedByKeyboard_005a7d54 = 1;
+            }
+            break;
+        case 0x3c:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (DAT_0046a008 == 0) {
+                new_view(2, 0);
+                break;
+            }
+            GetScreenUpdateFlag();
+            SetViewportRect(&DAT_005a7510, 0, 0,
+                            (short)(g_nScreenWidth_0046daa4 - 1),
+                            (short)(g_nScreenHeight_0046daa8 - 1));
+            initialize_view_buffer();
+            new_view(2, 0);
+            goto restore_normal_viewport;
+        case 0x3d:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (DAT_0046a008 == 0) {
+                new_view(1, 0);
+                break;
+            }
+            GetScreenUpdateFlag();
+            SetViewportRect(&DAT_005a7510, 0, 0,
+                            (short)(g_nScreenWidth_0046daa4 - 1),
+                            (short)(g_nScreenHeight_0046daa8 - 1));
+            initialize_view_buffer();
+            new_view(1, 0);
+            goto restore_normal_viewport;
+        case 0x3e:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (DAT_0046a008 == 0) {
+                new_view(3, 0);
+                break;
+            }
+            GetScreenUpdateFlag();
+            SetViewportRect(&DAT_005a7510, 0, 0,
+                            (short)(g_nScreenWidth_0046daa4 - 1),
+                            (short)(g_nScreenHeight_0046daa8 - 1));
+            initialize_view_buffer();
+            new_view(3, 0);
+            goto restore_normal_viewport;
+        case 0x3f:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (DAT_0046a008 == 0) {
+                new_view(4, 0);
+                break;
+            }
+            GetScreenUpdateFlag();
+            SetViewportRect(&DAT_005a7510, 0, 0,
+                            (short)(g_nScreenWidth_0046daa4 - 1),
+                            (short)(g_nScreenHeight_0046daa8 - 1));
+            initialize_view_buffer();
+            new_view(4, 0);
+            goto restore_normal_viewport;
+        case 0x40:
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (DAT_0046a008 == 0) {
+                new_view(14, 0);
+                break;
+            }
+            GetScreenUpdateFlag();
+            SetViewportRect(&DAT_005a7510, 0, 0,
+                            (short)(g_nScreenWidth_0046daa4 - 1),
+                            (short)(g_nScreenHeight_0046daa8 - 1));
+            initialize_view_buffer();
+            new_view(14, 0);
+            goto restore_normal_viewport;
+        case 0x41:
+            if (g_acShipTarget_0059ce60[0] == -1)
+                break;
+            g_bMouseCursorVisible_0046a018 = 0;
+            if (DAT_0046a008 == 0) {
+                new_view(7, 0);
+                break;
+            }
+            GetScreenUpdateFlag();
+            SetViewportRect(&DAT_005a7510, 0, 0,
+                            (short)(g_nScreenWidth_0046daa4 - 1),
+                            (short)(g_nScreenHeight_0046daa8 - 1));
+            initialize_view_buffer();
+            new_view(7, 0);
+            goto restore_normal_viewport;
+        case 0x42:
+            if (!repeated) {
+                g_bMouseCursorVisible_0046a018 = 0;
+                g_bMissileCameraEnabled_0046c07c ^= 1;
+                if (g_bMissileCameraEnabled_0046c07c != 0)
+                    SetHudMessageText("MISSILE CAMERA ON",
+                                      DAT_004699ac, 20);
+                else
+                    SetHudMessageText("MISSILE CAMERA OFF",
+                                      DAT_004699b4, 20);
+            }
+            break;
+        case 0x43:
+            if (!repeated) {
+                g_bMouseCursorVisible_0046a018 = 0;
+                SelectNextExternalViewObject();
+                if (DAT_0046a008 == 0) {
+                    force_view(4, (short)g_cViewObject_0046c000);
+                    break;
+                }
+                GetScreenUpdateFlag();
+                SetViewportRect(
+                    &DAT_005a7510, 0, 0,
+                    (short)(g_nScreenWidth_0046daa4 - 1),
+                    (short)(g_nScreenHeight_0046daa8 - 1));
+                initialize_view_buffer();
+                force_view(4, (short)g_cViewObject_0046c000);
+                goto restore_normal_viewport;
+            }
+            break;
+        }
+    }
+    goto primary_controls_complete;
+
+restore_normal_viewport:
+    GetScreenUpdateFlag();
+    SetViewportRect(&DAT_005a7510, 0, 0, 319, 199);
+    initialize_view_buffer();
+
+primary_controls_complete:
     switch (key) {
     case 1:
         DAT_0059ab58 = 0;
         if (g_nTrainSimActive_00469e2c != 0)
             return -1;
+        if ((short)get_mode(1) == 4) {
+            CloseCommChoiceMenu();
+            return 0;
+        }
         break;
     case 0x0c:
     case 0x4a:
-        celerate(0, -0x100);
-        break;
+        if (control != 0) {
+            ReportFramesSkipped(-1);
+            return 0;
+        }
+        accelerate(-1);
+        return 0;
     case 0x0d:
     case 0x4e:
-        celerate(0, 0x100);
-        break;
+        if (control != 0) {
+            ReportFramesSkipped(1);
+            return 0;
+        }
+        accelerate(1);
+        return 0;
     case 0x0e:
         g_anShipSpeed_0059b320[0] = 0;
-        break;
+        return 0;
     case 0x0f:
     case 0x37:
-        if (g_anShipFuel_0059b470[0] > 0)
-            fire_afterburner(0, 8);
+        your_afterburner();
+        return 0;
+    case 0x11:
+        if (!repeated) {
+            SelectCockpitVduMode(0, 1);
+            return 0;
+        }
         break;
     case 0x14:
-        if (!repeated)
+        if (!repeated) {
             SelectCockpitVduMode(1, 3);
+            return 0;
+        }
         break;
+    case 0x19:
+        ShowGamePausedBanner((short)(control == 0));
+        SetFrameTimerPeriodDirect(1);
+        return 0;
     case 0x1c:
-        if (!repeated && g_nSelectedReleaseWeaponIndex_0046c058 != -1)
-            fire_weapon(0, (short)g_nSelectedReleaseWeaponIndex_0046c058);
+        if (!repeated && g_nSelectedReleaseWeaponIndex_0046c058 != -1) {
+            ShipWeaponSlot *slot =
+                &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1])[
+                    g_nSelectedReleaseWeaponIndex_0046c058];
+
+            if (slot->type == OBJECT_TYPE_SPACE_MINE) {
+                drop_player_mine(0);
+                return 0;
+            }
+            if (g_nExternalViewShip_0046c040 == -1) {
+                g_nExternalViewShip_0046c040 =
+                    (short)fire_players_weapon(0);
+                if (g_bMissileCameraEnabled_0046c07c == 1 &&
+                    g_nExternalViewShip_0046c040 != -1) {
+                    new_view(6, g_nExternalViewShip_0046c040);
+                    return 0;
+                }
+            }
+        }
+        break;
+    case 0x1f:
+        if (control != 0 && !repeated) {
+            g_nSfxVolumeSetting_00469fbc =
+                g_nSfxVolumeSetting_00469fbc == 0 ? 20 : 0;
+            SetSoundEffectsVolume(
+                g_anVolumeLevels_00469fc8[
+                    g_nSfxVolumeSetting_00469fbc / 2]);
+            ShowOnScreenMessage(0, 0, "SFX VOLUME: %d.",
+                                g_nSfxVolumeSetting_00469fbc / 2);
+            return 0;
+        }
+        break;
+    case 0x20:
+        if (!repeated) {
+            SelectCockpitVduMode(0, 2);
+            return 0;
+        }
+        break;
+    case 0x22:
+        if (!repeated) {
+            SelectCockpitVduMode(0, 1);
+            return 0;
+        }
+        break;
+    case 0x24:
+        if (control != 0) {
+            CalibrateJoystickInteractive();
+            return 0;
+        }
+        break;
+    case 0x26:
+        if (repeated) {
+            init_player_input();
+            return 0;
+        }
+        g_nTargetLockMode_0046c078 =
+            (short)(g_nTargetLockMode_0046c078 == 0);
+        PlaySfxWaveFileByNumber(0x19, -1, 0);
+        if ((short)get_mode(1) == 3) {
+            ClearMessageSlot(1);
+            return 0;
+        }
         break;
     case 0x2b:
-        g_anShipSpeed_0059b320[0] =
-            (int)g_asShipMaximumSpeed_0059c440[0] << 8;
+        accelerate(9000);
+        return 0;
+    case 0x2f:
+        if (!repeated && control != 0) {
+            ShowVersionBanner();
+            return 0;
+        }
+        break;
+    case 0x32:
+        if (!repeated && control != 0) {
+            g_nMusicVolumeSetting_00469fc0 =
+                g_nMusicVolumeSetting_00469fc0 == 0 ? 20 : 0;
+            SetMusicStreamVolume(
+                (unsigned short)g_anVolumeLevels_00469fc8[
+                    g_nMusicVolumeSetting_00469fc0 / 2]);
+            ShowOnScreenMessage(0, 0, "MUSIC VOLUME: %d.",
+                                g_nMusicVolumeSetting_00469fc0 / 2);
+            return 0;
+        }
         break;
     case 0x39:
         fire_players_lasers();
-        break;
+        return 0;
     }
     return 0;
 }
@@ -392,7 +804,7 @@ int RunSpaceFlight(short entryNavPoint)
 
     while (g_nArcadeState_00469fb0 == 0) {
         ReadPerformanceCounter(&g_liFlightFrameStart_00476518);
-        if (HandleDebugCheatKeys() == -1) {
+        if (HandleSpaceFlightControls() == -1) {
             g_nArcadeState_00469fb0 = 5;
             break;
         }

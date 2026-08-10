@@ -1,15 +1,284 @@
 /*
  *  Screen scopes, prompts and the comm menu.
  *
- *  Address range 0x42f000-0x431fff (provisional -- see docs/ORDER.md).
+ *  Address range 0x42efc0-0x431fff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: PushMemoryStackFrame/ShowChoosePrompt/ShowEnemyTargetSelectMenu.
  */
 #include "wc1.h"
 
-/* Function start: 0x42F1F0 */
-int IsShipQueuedOrderDefend(short i)
+/* Function start: 0x42EFC0 */
+void cleanup_objectives(void)
 {
-    return g_aeShipMissionType_0059c3f0[i] == MISSION_TYPE_ROUT;
+    MissionObjective *entry;
+    MissionShipRecord *missionShip;
+    short objective;
+    short home;
+    short proximity;
+    short index;
+    short object;
+
+    objective = 0;
+    home = find_ship_index(g_nHomeMissionShipIndex_005a8692);
+    proximity = g_aMissionNavPoints_0046c2f0[
+        g_nMissionEntryNavPoint_005a8690].proximityRadius;
+    entry = &g_aMissionObjectives_0059dac5[0];
+    while (entry->type != -1) {
+        if (achieved(objective) == 0) {
+            index = (short)entry->index;
+            switch (entry->type) {
+            case 0:
+            case 1:
+            case 3:
+                if (visited(objective) != 0)
+                    flag_objective(objective, 2);
+                break;
+            case 2:
+                missionShip = &g_aMissionShips_0046c948[index];
+                if (missionShip->type == OBJECT_TYPE_DRAYMAN) {
+                    if (missionShip->state == 2) {
+                        flag_objective(objective, 2);
+                        if (missionShip->type == OBJECT_TYPE_HORNET ||
+                            missionShip->type == OBJECT_TYPE_DRAYMAN)
+                            affect_mission_score(0, 5, -1);
+                        else
+                            affect_mission_score(0, 9, -1);
+                    }
+                } else if (missionShip->type == OBJECT_TYPE_EXETER ||
+                           missionShip->type == OBJECT_TYPE_DRALTHI) {
+                    object = find_ship_index(index);
+                    if (object != -1 && home != -1 &&
+                        distance_from_object(object, home) < proximity)
+                        missionShip->state = 1;
+                    if (missionShip->state == 1 && sighted(objective) != 0) {
+                        flag_objective(objective, 2);
+                        if (missionShip->type == OBJECT_TYPE_HORNET ||
+                            missionShip->type == OBJECT_TYPE_DRAYMAN)
+                            affect_mission_score(0, 5, -1);
+                        else
+                            affect_mission_score(0, 9, -1);
+                    }
+                } else if (missionShip->state == 0 &&
+                           sighted(objective) != 0) {
+                    flag_objective(objective, 2);
+                    if (missionShip->type == OBJECT_TYPE_HORNET ||
+                        missionShip->type == OBJECT_TYPE_DRAYMAN)
+                        affect_mission_score(0, 5, -1);
+                    else
+                        affect_mission_score(0, 9, -1);
+                }
+                break;
+            case 4:
+                if (g_aMissionShips_0046c948[index].state == 3)
+                    flag_objective(objective, 2);
+                break;
+            }
+        }
+        objective++;
+        entry++;
+    }
+}
+
+/* Function start: 0x42F1F0 */
+int too_busy(short ship)
+{
+    return g_aeShipMissionType_0059c3f0[ship] == MISSION_TYPE_ROUT;
+}
+
+/* Function start: 0x42F210 */
+void reply(short ship, short accepted)
+{
+    if (accepted == 1) {
+        send_message(ship, 0);
+        return;
+    }
+    send_message(ship, 1);
+}
+
+/* Function start: 0x42F240 */
+int disobey_formation(short ship)
+{
+    if (g_aiPilotLevel_0059cf30[ship] == 10)
+        return any_enemy_tail(0);
+    if (g_aiPilotLevel_0059cf30[ship] == 11)
+        return report_kilrathi_rout(0);
+    return 0;
+}
+
+/* Function start: 0x42F270 */
+int bad_target(short ship, short target)
+{
+    if (target != ship &&
+        g_aeShipSide_0059d650[target] != g_aeShipSide_0059d650[ship] &&
+        too_busy(ship) == 0)
+        return 0;
+    return 1;
+}
+
+/* Function start: 0x42F2B0 */
+short can_land(void)
+{
+    MissionObjective *objective;
+    short result;
+    short index;
+
+    result = 0;
+    if (any_enemy(0, 20000) == 0) {
+        if (evaluate_damage(0) < 50 || g_nPlayerKillCount_005a7c9c > 0 ||
+            g_anShipFuel_0059b470[0] < 1000)
+            result = 1;
+        index = 0;
+        if (g_cMissionObjectiveCount_0059c46a > 0) {
+            do {
+                objective = &g_aMissionObjectives_0059dac5[index];
+                if (objective->type != 1) {
+                    if (achieved(index) == 0) {
+                        if (visited(index) == 0 || objective->type == 2)
+                            goto next_objective;
+                    }
+                    result = 1;
+                }
+next_objective:
+                index++;
+            } while (index < g_cMissionObjectiveCount_0059c46a);
+        }
+    }
+    return result;
+}
+
+/* Function start: 0x42F350 */
+short i_wanna_rout(short ship, int pilot)
+{
+    if (pilot <= 4)
+        return 1;
+    switch (pilot) {
+    case 6:
+        return any_enemy(ship, 5000) == 0;
+    case 7:
+    case 11:
+        return 0;
+    case 8:
+        return g_aeShipMissionType_0059c3f0[ship] ==
+               MISSION_TYPE_CANNED_SEQUENCE;
+    case 9:
+        return (short)triumph(0);
+    case 10:
+        return any_enemy(0, 10000) == 0;
+    }
+    return 1;
+}
+
+/* Function start: 0x42F3F0 */
+void request(short requester, short ship, short command)
+{
+    signed char *requesterTarget;
+    short target;
+    short object;
+
+    requesterTarget = &g_acShipTarget_0059ce60[requester];
+
+retry_request:
+    target = (short)*requesterTarget;
+    switch (command) {
+    case 1:
+        allow_engage();
+        if (bad_target(ship, target) == 0) {
+            engage(ship, target, OBJECTIVE_ENGAGE_ENEMY);
+            reply(ship, 1);
+            return;
+        }
+        reply(ship, 0);
+        return;
+    case 2:
+        target = -1;
+        object = 0;
+        do {
+            if (g_aeObjectClass_0059d100[object] >= OBJECT_CLASS_SHIP &&
+                g_aeSpecialManeuver_0059c3c0[object] !=
+                    SPECIAL_MANEUVER_UNKNOWN_9 &&
+                g_aeShipSide_0059d650[ship] !=
+                    g_aeShipSide_0059d650[object] &&
+                g_acShipTarget_0059ce60[object] == requester) {
+                target = object;
+                break;
+            }
+            object++;
+        } while (object < 10);
+        if (target == -1) {
+            command = 9;
+            goto retry_request;
+        }
+        allow_engage();
+        engage(ship, target, OBJECTIVE_ENGAGE_ENEMY);
+        reply(ship, 1);
+        return;
+    case 3:
+        if (i_wanna_rout(ship, g_aiPilotLevel_0059cf30[ship]) != 0 &&
+            try2rout(ship) != 0) {
+            g_bEngageAllowed_0046c080 = 0;
+            reply(ship, 1);
+            return;
+        }
+        reply(ship, 0);
+        return;
+    case 4:
+    case 5:
+    case 6:
+        if (RandomBelow(100) < 70 ||
+            ((signed char)g_acShipRating_0059cd80[ship] > 8 &&
+             (signed char)g_acShipRating_0059cd80[ship] < 13))
+            send_message(ship, (signed char)(command - 2));
+        if (g_acShipTarget_0059ce60[ship] != requester &&
+            too_busy(ship) == 0) {
+            engage(ship, requester, OBJECTIVE_ENGAGE_ENEMY);
+            return;
+        }
+        break;
+    case 7:
+        allow_engage();
+        if (g_aeShipObjective_0059d200[ship] ==
+                OBJECTIVE_HOLD_FORMATION) {
+            reset_objective(ship, OBJECTIVE_BREAK_FORMATION);
+            reply(ship, 1);
+            return;
+        }
+        reply(ship, 0);
+        return;
+    case 8:
+        disallow_engage();
+        if (disobey_formation(ship) != 0) {
+            alter_objective(ship, OBJECTIVE_BREAK_FORMATION);
+            reply(ship, 0);
+            return;
+        }
+        g_nAutoEngageTimer_0046c084 = -150;
+        reply(ship, 1);
+        return;
+    case 9:
+        disallow_engage();
+        if (disobey_formation(ship) != 0) {
+            reply(ship, 0);
+            return;
+        }
+        reset_objective(ship, OBJECTIVE_HOLD_FORMATION);
+        g_nAutoEngageTimer_0046c084 = -150;
+        reply(ship, 1);
+        return;
+    case 10:
+    case 11:
+        g_bRadioSilence_0046af70 = 0;
+        reply(ship, 1);
+        g_bRadioSilence_0046af70 = command == 10;
+        return;
+    case 12:
+        cleanup_objectives();
+        if (can_land() != 0) {
+            g_bLandingAuthorized_00468ff8 = 1;
+            send_message(ship, 8);
+            return;
+        }
+        send_message(ship, 9);
+        return;
+    }
 }
 
 /* Function start: 0x42F730 */
@@ -393,6 +662,24 @@ short StepMenuSelection(short v, int flag)
     return v;
 }
 
+/* Function start: 0x430C50 */
+void ResetCommMenuChoices(short reuse)
+{
+    short choice;
+
+    choice = 0;
+    if (reuse == 0) {
+        memset(g_abCommMenuChoiceCommand_0059e488, -1,
+               sizeof(g_abCommMenuChoiceCommand_0059e488));
+        do {
+            g_apszCommMenuChoiceText_0059e4e0[choice] = 0;
+            choice++;
+        } while (choice < 7);
+    }
+    g_nCommMenuChoiceCount_0046af60 = 0;
+    g_nCommMenuReuseMode_0046af64 = reuse;
+}
+
 /* Function start: 0x430CA0 */
 int IsCommMenuIdle(void)
 {
@@ -423,14 +710,14 @@ void SendCommMenuChoice(short i)
 }
 
 /* Function start: 0x430D50 */
-void OpenCommMenuForTarget(unsigned int a, int b)
+void OpenCommMenuForTarget(char *heading, char *message)
 {
-    CockpitMessage((char *)b, DAT_004699a8, 0xff);
-    DAT_0059e490 = a;
+    CockpitMessage(message, DAT_004699a8, 0xff);
+    g_pszCommMenuHeading_0059e490 = heading;
 }
 
 /* Function start: 0x430D80 */
-int IsEjectPromptActive(void)
+int IsCommChoiceMenuOpen(void)
 {
     return (short)get_mode(1) == 4;
 }
@@ -448,39 +735,257 @@ void SetPendingMenuAction(unsigned char v)
 }
 
 /* Function start: 0x430DC0 */
-void RequestEjectPrompt(void)
+void OpenCommRecipientMenu(void)
 {
     push_mode(1, 4);
     SetPendingMenuAction(1);
 }
 
+/* Function start: 0x430DE0 */
+void CloseCommChoiceMenu(void)
+{
+    if ((short)get_mode(1) == 4) {
+        pop_mode(1);
+        return;
+    }
+    ShutdownEventManager();
+    exit_squadron("stop");
+}
+
 /* Function start: 0x430E10 */
-int HasNoLockedTarget(void)
+int wingman_dead(void)
 {
     return g_nYourWingman_0046c04c == -1;
 }
 
 /* Function start: 0x430E30 */
-int IsWingmanIdle(void)
+int have_target(void)
 {
     return unactive((short)g_acShipTarget_0059ce60[0]) == 0;
 }
 
 /* Function start: 0x430E50 */
-unsigned short IsCommMenuAvailable(void)
+unsigned short CanOpenCommMenu(void)
 {
-    if (IsWingmanIdle() == 0) {
-        if (HasNoLockedTarget())
+    if (have_target() == 0) {
+        if (wingman_dead())
             return 0;
     }
     return 1;
 }
 
 /* Function start: 0x430E70 */
-void RequestCommMenu(unsigned char v)
+void SelectCommRecipient(signed char recipient)
 {
-    DAT_0046afc4 = v;
+    g_cCommMenuRecipient_0046afc4 = recipient;
     SetPendingMenuAction(2);
+}
+
+/* Function start: 0x430E90 */
+void BuildCommunicationRecipientMenu(void)
+{
+    short target;
+    short command;
+    char *text;
+
+    ResetCommMenuChoices(g_nCommMenuReuseMode_0046af64);
+    OpenCommMenuForTarget("VID-COM SYSTEM\n\nSend message to?\n\n",
+                          "SELECT");
+    if (wingman_dead() != 0) {
+        SelectCommRecipient(g_acShipTarget_0059ce60[0]);
+        return;
+    }
+    if (have_target() == 0 ||
+        g_acShipTarget_0059ce60[0] == g_nYourWingman_0046c04c) {
+        SelectCommRecipient((signed char)g_nYourWingman_0046c04c);
+        return;
+    }
+    AppendCommMenuChoice(
+        g_apWingmanPilots_00598a30[
+            (signed char)g_acShipRating_0059cd80[
+                g_nYourWingman_0046c04c]]->callsign,
+        1);
+    target = (short)g_acShipTarget_0059ce60[0];
+    if (target != -1) {
+        if (g_aeShipSide_0059d650[target] == SIDE_KILRATHI &&
+            g_aeObjectClass_0059d100[target] == OBJECT_CLASS_SHIP) {
+            command = 2;
+            text = "ENEMY TARGET";
+        } else {
+            if (g_aeShipSide_0059d650[target] != SIDE_IMPERIAL ||
+                ((g_aeObjectClass_0059d100[target] != OBJECT_CLASS_SHIP ||
+                  any_enemy(0, 14000) == 0) &&
+                 g_aeObjectType_0059b560[target] !=
+                     OBJECT_TYPE_TIGERS_CLAW)) {
+                goto finish_recipient_menu;
+            }
+            command = 3;
+            text = (char *)g_aObjectTypeData_00466458[
+                g_aeObjectType_0059b560[target]].displayName;
+        }
+        AppendCommMenuChoice(text, command);
+    }
+
+finish_recipient_menu:
+    SendCommMenuChoice(0);
+}
+
+/* Function start: 0x430FC0 */
+void BuildCommunicationCommandMenu(void)
+{
+    signed char rating;
+    char *name;
+
+    ResetCommMenuChoices(g_nCommMenuReuseMode_0046af64);
+    if (g_cCommMenuRecipient_0046afc4 == g_nYourWingman_0046c04c) {
+        if (g_aeShipObjective_0059d200[g_nYourWingman_0046c04c] ==
+                OBJECTIVE_HOLD_FORMATION &&
+            any_enemy(0, 14000) != 0) {
+            SendCommMenuChoice(7);
+        }
+        if (g_nAutoEngageTimer_0046c084 == -1) {
+            if (g_aeShipObjective_0059d200[g_nYourWingman_0046c04c] !=
+                    OBJECTIVE_HOLD_FORMATION)
+                SendCommMenuChoice(9);
+        } else {
+            SendCommMenuChoice(8);
+        }
+        if (g_bRadioSilence_0046af70 == 0)
+            SendCommMenuChoice(10);
+        else
+            SendCommMenuChoice(11);
+    }
+    if (g_aeShipSide_0059d650[g_cCommMenuRecipient_0046afc4] ==
+            g_aeShipSide_0059d650[0]) {
+        if (g_aeObjectType_0059b560[g_cCommMenuRecipient_0046afc4] ==
+                OBJECT_TYPE_TIGERS_CLAW &&
+            g_bLandingAuthorized_00468ff8 == 0) {
+            SendCommMenuChoice(12);
+        }
+        if (have_target() != 0 &&
+            g_aeShipSide_0059d650[g_acShipTarget_0059ce60[0]] ==
+                SIDE_KILRATHI) {
+            SendCommMenuChoice(1);
+        }
+        if (evaluate_damage(0) < 50 && any_enemy(0, 14000) != 0)
+            SendCommMenuChoice(2);
+    }
+    if (g_cCommMenuRecipient_0046afc4 == g_nYourWingman_0046c04c)
+        SendCommMenuChoice(3);
+    if (g_aeShipSide_0059d650[g_cCommMenuRecipient_0046afc4] ==
+            SIDE_KILRATHI) {
+        SendCommMenuChoice(4);
+        SendCommMenuChoice(5);
+        SendCommMenuChoice(6);
+    }
+    if (IsCommMenuIdle() == 0)
+        SendCommMenuChoice(0);
+    else
+        CloseCommChoiceMenu();
+
+    if (IsCommChoiceMenuOpen() != 0) {
+        strcpy(g_szCommMenuHeadingBuffer_0059e4a0,
+               "VID-COM SYSTEM\n\nTo: ");
+        rating = g_acShipRating_0059cd80[g_cCommMenuRecipient_0046afc4];
+        if (rating == -1) {
+            name = (char *)g_aObjectTypeData_00466458[
+                g_aeObjectType_0059b560[
+                    g_cCommMenuRecipient_0046afc4]].displayName;
+        } else if (rating < 8) {
+            name = g_apWingmanPilots_00598a30[rating]->callsign;
+        } else {
+            name = (char *)g_apszKilrathiAceNames_0046af80[rating - 9];
+        }
+        strcat(g_szCommMenuHeadingBuffer_0059e4a0, name);
+        strcat(g_szCommMenuHeadingBuffer_0059e4a0, "\n");
+        OpenCommMenuForTarget(g_szCommMenuHeadingBuffer_0059e4a0,
+                              "CHOOSE");
+    }
+}
+
+/* Function start: 0x431200 */
+void RefreshCommunicationMenu(void)
+{
+    if (IsCommChoiceMenuOpen() != 0) {
+        if (GetPendingMenuAction() == 1)
+            BuildCommunicationRecipientMenu();
+        if (GetPendingMenuAction() == 2)
+            BuildCommunicationCommandMenu();
+        if (g_nCommMenuReuseMode_0046af64 == 0)
+            ClearMessageSlot(1);
+    }
+}
+
+/* Function start: 0x431240 */
+void HandleCommunicationMenuRequest(void)
+{
+    if (IsCommChoiceMenuOpen() != 0)
+        CloseCommChoiceMenu();
+    if ((short)IsAutopilotEngaged() == 0 &&
+        IsCommChoiceMenuOpen() == 0 && CanOpenCommMenu() != 0) {
+        OpenCommRecipientMenu();
+        ResetCommMenuChoices(0);
+        RefreshCommunicationMenu();
+    }
+}
+
+/* Function start: 0x431290 */
+void show_communications_disp(void)
+{
+    signed char choice;
+
+    if (IsCommChoiceMenuOpen() == 0)
+        HandleCommunicationMenuRequest();
+    if (IsCommChoiceMenuOpen() != 0) {
+        set_new_vdu(1);
+        choice = 0;
+        DrawTextAt(&DAT_005a7700, DAT_005a7530.left,
+                   DAT_005a7530.top, g_pszCommMenuHeading_0059e490, 2);
+        if (g_nCommMenuChoiceCount_0046af60 > 0) {
+            do {
+                DrawFormattedText("%d %s", (int)choice + 1,
+                                  g_apszCommMenuChoiceText_0059e4e0[
+                                      (int)choice]);
+                choice++;
+            } while (choice < g_nCommMenuChoiceCount_0046af60);
+        }
+        DrawSpriteDefault(&DAT_005a7530,
+                          (short)(DAT_005a7530.left + 36),
+                          (short)(DAT_005a7530.top + 10),
+                          g_pCommMenuCursorShape_005a7660, 0x19);
+        g_nCommMenuReuseMode_0046af64 = 1;
+    }
+}
+
+/* Function start: 0x431350 */
+unsigned int Chosen_communicate_option(short choice)
+{
+    short action;
+
+    PlaySfxWaveFileByNumber(0x19, -1, 0);
+    action = GetPendingMenuAction();
+    if (action == 0) {
+        CloseCommChoiceMenu();
+        return 0;
+    }
+    if (action == 1) {
+        if (g_abCommMenuChoiceCommand_0059e488[choice] == 0) {
+            CloseCommChoiceMenu();
+            return 0;
+        }
+        if (g_abCommMenuChoiceCommand_0059e488[choice] == 1)
+            SelectCommRecipient((signed char)g_nYourWingman_0046c04c);
+        else
+            SelectCommRecipient(g_acShipTarget_0059ce60[0]);
+        RefreshCommunicationMenu();
+        return 0;
+    }
+    if (action == 2) {
+        CloseCommChoiceMenu();
+        request(0, (short)g_cCommMenuRecipient_0046afc4,
+                (short)g_abCommMenuChoiceCommand_0059e488[choice]);
+    }
+    return 0;
 }
 
 /* Function start: 0x431410 */

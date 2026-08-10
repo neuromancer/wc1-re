@@ -287,8 +287,7 @@ unsigned short GetPaletteReadyUnused(void);                                    /
 void DrawTitleLogo(short distance, short y);                            /* 0x0040FA40 */
 void UpdateTitleMenuCursor(void);                                      /* 0x0040FB10 */
 int Title_Sequence(void);                                               /* 0x0040FB70 */
-void CalibrateJoystickInteractive(short logicalFile, short section,
-                                   short flags, short mode);            /* 0x004102B0 */
+void CalibrateJoystickInteractive();                                  /* 0x004102B0 */
 void WaitForJoystickButtonRelease(void);                               /* 0x004106C0 */
 void WaitForJoystickButtonPress(void);                                 /* 0x00410700 */
 unsigned int SetFleetOverviewView(int initializeCockpit);             /* 0x00410740 */
@@ -639,6 +638,7 @@ void repair_internal_damage(void);                                   /* 0x0041F6
 void Create_ship_hit_debris(short obj, short count);                  /* 0x0041F700 */
 void check_next_wave(void);                                          /* 0x0041F7C0 */
 void Create_explosion_debris(short obj);                              /* 0x0041F800 */
+unsigned int affect_mission_score(short pilot, int event, short amount); /* 0x0041F9E0 */
 short ShipExplosion(short obj);                                      /* 0x0041FBC0 */
 short Explosion(short obj);                                          /* 0x0041FCD0 */
 short the_creator(short obj);                                        /* 0x0041FEB0 */
@@ -659,6 +659,7 @@ int rnd_aim(short radius, short speed, short maximum);                /* 0x00420
 short pop_flack(short obj, short range, FixedVector *hardpoint);      /* 0x00420920 */
 int fire_turrets(short obj);                                          /* 0x00420AA0 */
 int fire_weapon(short obj, short weapon);                              /* 0x00420C20 */
+int fire_players_weapon(short ship);                                  /* 0x00421150 */
 short fire_fixed_projectile_weapon(short obj);                         /* 0x00421220 */
 int drop_mine(short obj, signed char weapon, enum ObjectType type,
               short lifetime);                                       /* 0x004212A0 */
@@ -866,14 +867,20 @@ int process_player_input(void);                                        /* 0x0042
 unsigned int fire_players_lasers(void);                                /* 0x00428480 */
 unsigned int players_flight_dynamics(void);                            /* 0x004284D0 */
 unsigned int player_input(void);                                       /* 0x004285D0 */
+unsigned int SelectNextExternalViewObject(void);                       /* 0x00428C90 */
+unsigned int SelectPreviousExternalViewObject(void);                   /* 0x00428CD0 */
+unsigned int HandleFleetOverviewInput(void);                           /* 0x00428D10 */
 short MeasureMessageWidth(const char *text);                                /* 0x00428E70 */
 void WaitForKeyAcknowledge(int mode);                                     /* 0x00428EA0 */
 void ShowModalMessage(const char *format, ...);                           /* 0x00428F20 */
 void ReportOutOfMemoryAndExit(void);                                    /* 0x00428F80 */
 void ShowOnScreenMessage(int flags, short duration,
                          const char *format, ...);                        /* 0x00428FA0 */
+void ShowGamePausedBanner(short showBanner);                           /* 0x004290A0 */
 void ShowVersionBanner(void);                                           /* 0x004290D0 */
-int HandleDebugCheatKeys(void);                                        /* 0x00429160 */
+void SetMessageDisplaySpeed(void);                                     /* 0x004290F0 */
+void ReportFramesSkipped(short adjustment);                            /* 0x00429120 */
+int HandleSpaceFlightControls(void);                                   /* 0x00429160 */
 unsigned int Draw_3Space_Frame(void);                                  /* 0x00429DD0 */
 void GetArcadeBonus(void);                                         /* 0x00429E30 */
 void FigureArcadeTime(void);                                       /* 0x00429E70 */
@@ -976,7 +983,14 @@ void FlushSoundEffectsAndLog(void);                                             
 void sound_effect(void);                                                /* 0x0042EF20 */
 void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject,
                              int looping);                            /* 0x0042EF30 */
-int IsShipQueuedOrderDefend(short i);                                      /* 0x0042F1F0 */
+void cleanup_objectives(void);                                        /* 0x0042EFC0 */
+int too_busy(short ship);                                             /* 0x0042F1F0 */
+void reply(short ship, short accepted);                               /* 0x0042F210 */
+int disobey_formation(short ship);                                    /* 0x0042F240 */
+int bad_target(short ship, short target);                             /* 0x0042F270 */
+short can_land(void);                                                 /* 0x0042F2B0 */
+short i_wanna_rout(short ship, int pilot);                            /* 0x0042F350 */
+void request(short requester, short ship, short command);             /* 0x0042F3F0 */
 unsigned short __stdcall ShouldSuspendCursorForRect(
     const ShortRect *bounds);                                           /* 0x0042F730 */
 void InitFullScreenViewport(int *vp, short arg);                                    /* 0x0042F7E0 */
@@ -994,18 +1008,26 @@ short __stdcall UpdateInputDeviceTransitions(short raw);               /* 0x0043
 void PollJoystickButtonEvents(void);                                   /* 0x00430840 */
 void PollMenuInputDevices(void);                                       /* 0x00430920 */
 short StepMenuSelection(short v, int flag);                                 /* 0x00430BC0 */
+void ResetCommMenuChoices(short reuse);                               /* 0x00430C50 */
 int IsCommMenuIdle(void);                                              /* 0x00430CA0 */
 void AppendCommMenuChoice(char *text, short command);                    /* 0x00430CB0 */
 void SendCommMenuChoice(short i);                                          /* 0x00430D30 */
-void OpenCommMenuForTarget(unsigned int a, int b);                         /* 0x00430D50 */
-int IsEjectPromptActive(void);                                                /* 0x00430D80 */
+void OpenCommMenuForTarget(char *heading, char *message);              /* 0x00430D50 */
+int IsCommChoiceMenuOpen(void);                                       /* 0x00430D80 */
 short GetPendingMenuAction(void);                                            /* 0x00430DA0 */
 void SetPendingMenuAction(unsigned char v);                                 /* 0x00430DB0 */
-void RequestEjectPrompt(void);                                               /* 0x00430DC0 */
-int HasNoLockedTarget(void);                                              /* 0x00430E10 */
-int IsWingmanIdle(void);                                              /* 0x00430E30 */
-unsigned short IsCommMenuAvailable(void);                                     /* 0x00430E50 */
-void RequestCommMenu(unsigned char v);                                       /* 0x00430E70 */
+void OpenCommRecipientMenu(void);                                     /* 0x00430DC0 */
+void CloseCommChoiceMenu(void);                                       /* 0x00430DE0 */
+int wingman_dead(void);                                               /* 0x00430E10 */
+int have_target(void);                                                /* 0x00430E30 */
+unsigned short CanOpenCommMenu(void);                                 /* 0x00430E50 */
+void SelectCommRecipient(signed char recipient);                      /* 0x00430E70 */
+void BuildCommunicationRecipientMenu(void);                           /* 0x00430E90 */
+void BuildCommunicationCommandMenu(void);                             /* 0x00430FC0 */
+void RefreshCommunicationMenu(void);                                 /* 0x00431200 */
+void HandleCommunicationMenuRequest(void);                            /* 0x00431240 */
+void show_communications_disp(void);                                  /* 0x00431290 */
+unsigned int Chosen_communicate_option(short choice);                 /* 0x00431350 */
 void FreeCommDisplayResources(void);                                  /* 0x00431410 */
 void EndCommSessionWithWingman(void);                                  /* 0x00431470 */
 void EndCommMenu(void);                                              /* 0x004314C0 */

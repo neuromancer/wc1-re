@@ -26,6 +26,42 @@ short find_weapon(short obj, enum ObjectType weaponType)
     return -1;
 }
 
+/* Function start: 0x421150 */
+int fire_players_weapon(short ship)
+{
+    short weapon;
+    ShipWeaponSlot *slot;
+    signed char weaponCount;
+
+    weapon = 0;
+    slot = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[ship][1];
+    weaponCount = (signed char)g_aShipWeapons_0059cab0[ship][0];
+    if (weaponCount > 0) {
+        do {
+            if (g_aObjectTypeData_00466458[slot->type].objectClass ==
+                    OBJECT_CLASS_MISSILE) {
+                if (ship != 0)
+                    return fire_weapon(ship, weapon);
+                if (slot->disabled == 0) {
+                    if ((slot->type == OBJECT_TYPE_HEAT_SEEKING_MISSILE ||
+                         slot->type == OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE) &&
+                        g_nTargetLockCountdown_0046c064 != 0) {
+                        if ((short)get_mode(0) == 1)
+                            ShowComponentHitHudMessage(
+                                (char *)g_szNeedLock_0046998c,
+                                DAT_004699a8, 3);
+                        return -1;
+                    }
+                    return fire_weapon(0, weapon);
+                }
+            }
+            weapon++;
+            slot++;
+        } while (weapon < weaponCount);
+    }
+    return -1;
+}
+
 /* Function start: 0x421220 */
 short fire_fixed_projectile_weapon(short obj)
 {
@@ -2151,7 +2187,7 @@ unsigned int InitializeCockpitResources(signed char mode)
 
     ResetScannerContacts();
     g_nCockpitExplosionFrame_00469068 = 8;
-    DAT_0046af70 = 0;
+    g_bRadioSilence_0046af70 = 0;
     DAT_0046af78 = (unsigned char)(
         g_nMemoryConfiguration_005a7cd4 == 2 ||
         g_nSceneResourceBudget_005a7ce4 > 0x59d8);
@@ -2199,7 +2235,7 @@ void init_3Space_objects(short scene)
     g_nRenderedSpaceFrame_0059d61a = 0;
     g_bScriptedView_0046a8d4 = 0;
     g_nSpaceFrame_0059b420 = 0;
-    g_bExternalViewSoundEnabled_0046c07c = 0;
+    g_bMissileCameraEnabled_0046c07c = 0;
     g_nClosestVisibleObject_0046c048 = -1;
     g_nPlayerCollisionObject_0046c050 = -1;
     slot = 0;

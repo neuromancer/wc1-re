@@ -476,7 +476,7 @@ void coming_home(short obj)
         break;
     case TACTIC_HEAD_HOME:
         if (no_goal(obj) != 0)
-            point_parallel(obj, find_ship_index(DAT_005a8692));
+            point_parallel(obj, find_ship_index(g_nHomeMissionShipIndex_005a8692));
         break;
     default:
         fail(obj);
@@ -1630,7 +1630,7 @@ void prepare_mission(void)
         g_nCarrierMissionShipIndex_005a7e2a++;
     }
     g_nTargetLockMode_0046c078 = 0;
-    DAT_00468ff8 = 0;
+    g_bLandingAuthorized_00468ff8 = 0;
 }
 
 /* Function start: 0x40B990 */
@@ -1905,7 +1905,7 @@ int set_up_action_sphere(short navPoint)
         objective++;
     }
     clean_up_cockpit();
-    DAT_00468ff8 = 0;
+    g_bLandingAuthorized_00468ff8 = 0;
     return 0;
 }
 
@@ -2168,7 +2168,7 @@ unsigned int init_intelligence_data(short obj)
             break;
         /* fall through */
     case MISSION_TYPE_COME_HOME:
-        locate_ship(DAT_005a8692, missionSpot);
+        locate_ship(g_nHomeMissionShipIndex_005a8692, missionSpot);
         break;
     case MISSION_TYPE_CANNED_SEQUENCE:
         g_apCannedSequence_0059dce0[obj] =
