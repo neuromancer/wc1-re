@@ -238,11 +238,14 @@ unsigned char *g_apszBuiltInHighScoreNames_00469de0[6] = {
     &g_aszBuiltInHighScores_00469e38[32],
     &g_aszBuiltInHighScores_00469e38[40]
 };
-short DAT_00469df8[26] = {
-    1, 47, 29, 67, 49, 1, 47, 89, 67, 109,
-    1, 251, 29, 271, 49, 1, 251, 89, 271, 109,
-    -1, 0, 0, 0, 0, 0
+TitleMenuRegion g_aTrainSimMissionRegions_00469df8[5] = {
+    { 1, 47, 29, 67, 49 },
+    { 1, 47, 89, 67, 109 },
+    { 1, 251, 29, 271, 49 },
+    { 1, 251, 89, 271, 109 },
+    { -1, 0, 0, 0, 0 }
 };
+short g_nTrainSimMissionRegionPadding_00469e2a;
 int g_nTrainSimActive_00469e2c;
 short g_nTrainSimMission_00469e30;
 short g_nArcadeWave_00469e34;
@@ -280,6 +283,7 @@ const char g_szHighScoresHeading_00469f70[16] = "%JHIGH SCORES%P";
 const char g_szHighScoreNumberFormat_00469f80[8] = "%0ld";
 const char g_szHighScoreRowFormat_00469f88[16] =
     "%X%Y%d. %s%X%s0";
+const char g_szSelectEnemy_00469f98[16] = "SELECT\nENEMY%P";
 int g_nCannedSceneMode_00469fac;
 int g_nArcadeState_00469fb0;
 short DAT_00469fb4 = 1;
@@ -1409,7 +1413,7 @@ short g_nInitialMissionShipIndices_005a8696[8];
 short DAT_005a86a6;
 CampaignDate *g_pCurrentCampaignDate_005a86a8;
 CampaignDate *g_pElapsedCampaignDate_005a86ac;
-unsigned char DAT_005a86b0;
+signed char g_cObjectResourceLogicalFile_005a86b0;
 char DAT_005a8760[512];
 unsigned char *g_pIntroFont_005a8960;
 unsigned int DAT_005a8964;

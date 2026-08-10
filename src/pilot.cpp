@@ -663,8 +663,152 @@ void ShowTrainSimHighScores(void)
 }
 
 /* Function start: 0x426C50 */
-void LoadSceneBackdrop(char n)
+unsigned char *LoadTrainSimOpponentShape(int opponent)
 {
-    DAT_005a86b0 = n + 0x16;
-    FetchDiskPacketRetrying((short)DAT_005a86b0, 1, 0);
+    g_cObjectResourceLogicalFile_005a86b0 =
+        (signed char)(opponent + 0x16);
+    return (unsigned char *)FetchDiskPacketRetrying(
+        (short)g_cObjectResourceLogicalFile_005a86b0, 1, 0);
+}
+
+/* Function start: 0x426C70 */
+short SelectTrainSimMission(short *mission)
+{
+    InputEventState event;
+    Viewport menuViewport;
+    ShortPoint positions[4];
+    unsigned char *topLeftShape;
+    unsigned char *bottomLeftShape;
+    unsigned char *topRightShape;
+    unsigned char *bottomRightShape;
+    short cancelled;
+    short savedInputMode;
+    short eventType;
+    signed char selection;
+    signed char region;
+    unsigned char activate;
+
+    cancelled = 0;
+    selection = 0;
+    SetTextContext(&g_stTrainSimTextContext_005a7bd0);
+    InitializeTextContextFromFont(
+        &g_stTrainSimTextContext_005a7bd0, 1,
+        g_cDefaultTextColour_004699cc, (signed char)DAT_0046999c);
+    *(ShortRect *)&g_stTrainSimTitleDisplayViewport_005a7b90.left =
+        g_stTrainSimPanelBounds_00469dc0;
+    g_stTrainSimTextContext_005a7bd0.viewport =
+        &g_stTrainSimTitleDisplayViewport_005a7b90;
+    EraseTextContextBackground(&g_stTrainSimTextContext_005a7bd0);
+    SetTextCursor(
+        (unsigned short)g_stTrainSimTitleDisplayViewport_005a7b90.left,
+        (unsigned short)(
+            g_stTrainSimTitleDisplayViewport_005a7b90.top + 30));
+    g_stTrainSimTextContext_005a7bd0.alignment = 2;
+    FormatTextBufferFromStart(g_szSelectEnemy_00469f98);
+
+    menuViewport = DAT_005a6ba0;
+    *(ShortRect *)&menuViewport.left = g_stTrainSimPanelBounds_00469dc0;
+    topLeftShape = LoadTrainSimOpponentShape(9);
+    bottomLeftShape = LoadTrainSimOpponentShape(10);
+    topRightShape = LoadTrainSimOpponentShape(11);
+    bottomRightShape = LoadTrainSimOpponentShape(12);
+
+    AlignSpriteFrameToRectCorner(
+        &g_stTrainSimPanelBounds_00469dc0, &positions[0], 0,
+        topLeftShape, 0);
+    GetShapeFrameBounds(
+        &g_aTrainSimMissionRegions_00469df8[0].left,
+        positions[0].x, positions[0].y, topLeftShape, 0);
+    AlignSpriteFrameToRectCorner(
+        &g_stTrainSimPanelBounds_00469dc0, &positions[1], 2,
+        bottomLeftShape, 0);
+    GetShapeFrameBounds(
+        &g_aTrainSimMissionRegions_00469df8[1].left,
+        positions[1].x, positions[1].y, bottomLeftShape, 0);
+    AlignSpriteFrameToRectCorner(
+        &g_stTrainSimPanelBounds_00469dc0, &positions[2], 1,
+        topRightShape, 0);
+    GetShapeFrameBounds(
+        &g_aTrainSimMissionRegions_00469df8[2].left,
+        positions[2].x, positions[2].y, topRightShape, 0);
+    AlignSpriteFrameToRectCorner(
+        &g_stTrainSimPanelBounds_00469dc0, &positions[3], 3,
+        bottomRightShape, 0);
+    GetShapeFrameBounds(
+        &g_aTrainSimMissionRegions_00469df8[3].left,
+        positions[3].x, positions[3].y, bottomRightShape, 0);
+
+    DrawSpriteDefault(&menuViewport, positions[0].x, positions[0].y,
+                      topLeftShape, 0);
+    DrawSpriteDefault(&menuViewport, positions[0].x, positions[0].y,
+                      topLeftShape, 2);
+    DrawSpriteDefault(&menuViewport, positions[1].x, positions[1].y,
+                      bottomLeftShape, 0);
+    DrawSpriteDefault(&menuViewport, positions[1].x, positions[1].y,
+                      bottomLeftShape, 2);
+    DrawSpriteDefault(&menuViewport, positions[2].x, positions[2].y,
+                      topRightShape, 0);
+    DrawSpriteDefault(&menuViewport, positions[2].x, positions[2].y,
+                      topRightShape, 2);
+    DrawSpriteDefault(&menuViewport, positions[3].x, positions[3].y,
+                      bottomRightShape, 0);
+    DrawSpriteDefault(&menuViewport, positions[3].x, positions[3].y,
+                      bottomRightShape, 2);
+
+    DAT_0059ab23 = &g_stTrainSimTitleDisplayViewport_005a7b90;
+    SetEventManagerPump(PollMenuInputDevices);
+    EventManagerHook(UpdateTrainSimMenuCursor);
+    *(short *)&g_aInputDeviceSamples_005a81f0[2].x = 6;
+    WarpMouseTo(160, 100);
+    EnterAllocationScope();
+    savedInputMode = (signed char)g_bInputMode_0059a848;
+    g_bInputMode_0059a848 = 1;
+
+    do {
+        if (DAT_0059ab58 != 0)
+            break;
+        eventType = PollInputEvent(&event, 0xff);
+        switch (eventType) {
+        case 2:
+select_region:
+            region = (signed char)FindMenuRegionAtPoint(
+                event.x, event.y,
+                g_aTrainSimMissionRegions_00469df8);
+            if (region >= 0 && region < 4)
+                selection = (signed char)(region + 1);
+            break;
+        case 3:
+        case 5:
+            ClearInputKeyStatePreservingModifiers();
+            activate = 0;
+            if ((short)event.value == 0x1c ||
+                (short)event.value == 0x39) {
+                activate = 1;
+            } else {
+                MoveMenuPointerFromKeyboard(&event);
+            }
+            if (activate != 0)
+                goto select_region;
+            break;
+        case 13:
+            UpdateTrainSimMenuCursor();
+            break;
+        }
+        DIBslam();
+        DIBslamReal();
+    } while (selection == 0);
+
+    if (DAT_0059ab58 != 0)
+        cancelled = 1;
+    ReleasePacketHandle((int)topLeftShape);
+    ReleasePacketHandle((int)bottomLeftShape);
+    ReleasePacketHandle((int)topRightShape);
+    ReleasePacketHandle((int)bottomRightShape);
+    g_bInputMode_0059a848 = (unsigned char)savedInputMode;
+    SetEventManagerPump(0);
+    EventManagerHook(0);
+    LeaveAllocationScope();
+    ReleaseTextFont(1);
+    *mission = (short)(selection - 1);
+    return cancelled < 1;
 }

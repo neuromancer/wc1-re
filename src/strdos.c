@@ -84,8 +84,9 @@ unsigned short __stdcall ConfigureEventManagerPointer(
 }
 
 /* Function start: 0x4355C0 */
-void __stdcall EventManagerHook(short mode)
+void __stdcall EventManagerHook(void (*callback)(void))
 {
+    (void)callback;
 }
 
 /* Function start: 0x4355D0 */

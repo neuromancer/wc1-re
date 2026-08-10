@@ -452,6 +452,26 @@ int RunSpaceFlight(short entryNavPoint)
     return g_nArcadeState_00469fb0;
 }
 
+/* Function start: 0x42A610 */
+void UpdateTrainSimMenuCursor(void)
+{
+    TitleMenuRegion *region;
+    short frame;
+    short mouseX;
+    short mouseY;
+
+    frame = 0;
+    mouseX = g_nMouseX_0059ab10;
+    mouseY = g_nMouseY_0059ab12;
+    region = g_aTrainSimMissionRegions_00469df8;
+    while (region->frame != -1) {
+        if (IsPointInRect(mouseX, mouseY, &region->left) != 0)
+            frame = region->frame;
+        region++;
+    }
+    SetMouseCursorShape(DAT_0059ab19, frame);
+}
+
 /* Function start: 0x42A670 */
 void RedrawCommWindow(void)
 {

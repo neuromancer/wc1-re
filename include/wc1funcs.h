@@ -712,7 +712,8 @@ void ShowTrainSimTextMessage(const char *message);                    /* 0x00426
 void EnterPilotNameAndCallsign(void);                                 /* 0x00426750 */
 void UpdateTrainSimHighScores(int score);                             /* 0x00426820 */
 void ShowTrainSimHighScores(void);                                    /* 0x004268E0 */
-void LoadSceneBackdrop(char n);                                           /* 0x00426C50 */
+unsigned char *LoadTrainSimOpponentShape(int opponent);               /* 0x00426C50 */
+short SelectTrainSimMission(short *mission);                           /* 0x00426C70 */
 void RunTrainSim(void);                                                /* 0x00427080 */
 short LogMemoryUsage(void);                                               /* 0x004272F0 */
 unsigned int ShowMemoryStatusDebug(void);                                 /* 0x004273C0 */
@@ -754,6 +755,7 @@ short GetShipDistanceToNavPoint(short ship, MissionNavPoint *navPoint); /* 0x004
 short FindNearestNavPoint(short ship);                               /* 0x0042A120 */
 unsigned int ReleaseStaleNavTarget(void);                                     /* 0x0042A170 */
 int RunSpaceFlight(short entryNavPoint);                               /* 0x0042A190 */
+void UpdateTrainSimMenuCursor(void);                                   /* 0x0042A610 */
 void RedrawCommWindow(void);                                       /* 0x0042A670 */
 void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
                                            unsigned short colour,
@@ -808,6 +810,9 @@ void LogDisplayMode(const char *mode);                                 /* 0x0042
 unsigned short __stdcall AllocateViewport(Viewport *viewport,
                                           short clearColour,
                                           short flags);                /* 0x0042E090 */
+void __stdcall AlignSpriteFrameToRectCorner(
+    const ShortRect *rectangle, ShortPoint *position, short corner,
+    unsigned char *shape, short frame);                                /* 0x0042E1D0 */
 void FadeMusic(void);                                                  /* 0x0042E320 */
 void SetMusicOn(short enabled);                                         /* 0x0042E330 */
 void StopMusic(void);                                                   /* 0x0042E350 */
@@ -972,7 +977,7 @@ short __stdcall InitializeEventManager(short period,
 void ShutdownEventManager(void);                                      /* 0x00435590 */
 unsigned short __stdcall ConfigureEventManagerPointer(
     unsigned char *shape, short frame);                               /* 0x004355A0 */
-void __stdcall EventManagerHook(short mode);                           /* 0x004355C0 */
+void __stdcall EventManagerHook(void (*callback)(void));               /* 0x004355C0 */
 void __stdcall SetEventManagerPump(void (*pump)(void));                /* 0x004355D0 */
 void TranslatePolledInputEvent(unsigned short type,
                                unsigned int value);                   /* 0x004355F0 */

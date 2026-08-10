@@ -75,13 +75,13 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/disk.c` | `0x41d250`–`0x41efff` | 6 | Disk data files and packet fetching with retry | OpenDiskDataFile/FetchDiskPacketRetrying/PromptInsertNumberedDisk |
 | `src/ship.c` | `0x41f000`–`0x420fff` | 13 | Ship damage, explosions, and weapon logic | Ordered Mac `ship` symbols map across the larger `0x41dee0`–`0x42193f` Win32 run; this file currently owns its central tranche |
 | `src/logic.c` | `0x421000`–`0x424fff` | 118 | Ship mission logic with adjacent Win32 ship and game-mode routines | Exact Mac `logic` unit at `0x422010`–`0x423cdf`; surrounding boundaries remain provisional |
-| `src/pilot.cpp` | `0x425000`–`0x426fff` | 16 | Pilot name entry, high scores, inter-scene transitions, and the debug-console owner | EnterPilotNameAndCallsign/ShowTrainSimHighScores; new/delete console wrapper at 0x425B00; string band 0x469D74-0x469F98 |
+| `src/pilot.cpp` | `0x425000`–`0x426fff` | 17 | Pilot name entry, TrainSim high scores/opponent selection, inter-scene transitions, and the debug-console owner | EnterPilotNameAndCallsign/ShowTrainSimHighScores/SelectTrainSimMission; new/delete console wrapper at 0x425B00; string band 0x469D74-0x469F98 |
 | `src/system.c` | `0x427000`–`0x4274df` | 2 | Process-level services: memory reporting and exit | exit_squadron/ShowMemoryStatusDebug; string band 0x46A064-0x46A10C |
 | `src/main.c` | `0x4274e0`–`0x427fff` | 6 | WINGLEADER main module | main() at 0x004274E0, confirmed against the leaked DOS source screenshot |
-| `src/hudmsg.c` | `0x428000`–`0x42afff` | 23 | On-screen messages, debug keys, targeting/warp cleanup, and weapon selection | Exact nested Mac `targ` and `select` units at `0x42a8f0`–`0x42af9f`; enclosing split remains provisional |
+| `src/hudmsg.c` | `0x428000`–`0x42afff` | 24 | On-screen messages, TrainSim menu input, debug keys, targeting/warp cleanup, and weapon selection | Exact nested Mac `targ` and `select` units at `0x42a8f0`–`0x42af9f`; enclosing split remains provisional |
 | `src/pload.c` | `0x42b000`–`0x42b3ff` | 9 | Packet loader and game-side sound-cache lists | PROVEN: PacketLoad prints "Library\\Source\\Pload.c PacketLoad" |
 | `src/sound.c` | `0x42b400`–`0x42cfff` | 10 | Wave playback, volume settings and INSTALL.DAT | playWAVE/PlaySfxWaveByIndex/LoadInstallDat; string band 0x46A46C-0x46A710 |
-| `src/music.c` | `0x42d000`–`0x42efff` | 27 | Music state machine and the streaming music script | PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ... |
+| `src/music.c` | `0x42d000`–`0x42efff` | 28 | Music state machine, streaming music script, and viewport/sprite helpers | PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ... |
 | `src/screen.c` | `0x42f000`–`0x431fff` | 28 | Screen scopes, prompts and the comm menu | PushMemoryStackFrame/ShowChoosePrompt/ShowEnemyTargetSelectMenu |
 | `src/dib.c` | `0x432000`–`0x43390f` | 23 | DirectDraw back end | PROVEN: named DirectDraw routines followed by DirectDrawResultToText and its generated switch tables |
 | `src/text.c` | `0x433910`–`0x433abf` | 1 | Cockpit information display | Exact Mac `show_info_disp` name; the following `smart` unit starts at `0x433ac0` |

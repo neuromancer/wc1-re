@@ -822,8 +822,8 @@
 0x00426750 EnterPilotNameAndCallsign
 0x00426820 UpdateTrainSimHighScores
 0x004268E0 ShowTrainSimHighScores
-0x00426C50 LoadSceneFn6C50
-0x00426C70 BlitUiFn6C70
+0x00426C50 LoadTrainSimOpponentShape
+0x00426C70 SelectTrainSimMission
 0x00427080 RunTrainSim
 0x004272F0 HelperOf402320A
 0x00427370 exit_squadron
@@ -874,7 +874,7 @@
 0x0042A170 GetShipAiFnA170
 0x0042A190 RunSpaceFlight
 0x0042A520 GetShipAiFnA520
-0x0042A610 LoopInputFnA610
+0x0042A610 UpdateTrainSimMenuCursor
 0x0042A670 WcOrphanRoutine42A670
 0x0042A680 LoopInputFnA680
 0x0042A700 UiRoutine07
@@ -940,7 +940,7 @@
 0x0042E020 HelperOf42E050A
 0x0042E050 CalcRectangleArea
 0x0042E090 AllocateViewport
-0x0042E1D0 DispatchLocalFnE1D0
+0x0042E1D0 AlignSpriteFrameToRectCorner
 0x0042E320 DoUiFnE320
 0x0042E330 DoLocalFnE330
 0x0042E350 StopMusic

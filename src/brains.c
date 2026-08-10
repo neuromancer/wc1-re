@@ -1832,7 +1832,6 @@ void set_up_next_wave(void)
     MissionNavPoint *waveNav;
     short previousWave;
     short entry;
-    short object;
 
     if (g_nTrainSimActive_00469e2c != 0) {
         StartMusicTrack(21, 2, 0);
@@ -1843,30 +1842,31 @@ void set_up_next_wave(void)
         FigureArcadeTime();
     }
 
-    previousWave = g_nCurrentWave_0046c01c;
-    if (previousWave == -1 || g_nCannedSceneMode_00469fac != 0)
+    if (g_nCurrentWave_0046c01c == -1 ||
+        g_nCannedSceneMode_00469fac != 0)
         return;
 
     /* The original indexes through a base biased one MissionNavPoint before
      * g_aMissionNavPoints.  Preserve that -1 when expressing it as a typed
      * array index: arcade wave 2 is stored in nav record 1. */
     waveNav = &g_aMissionNavPoints_0046c2f0[
-        g_nCurrentNavPoint_0059df60 + previousWave - 1];
+        g_nCurrentNavPoint_0059df60 + g_nCurrentWave_0046c01c - 1];
+    previousWave = g_nCurrentWave_0046c01c;
     g_nCurrentWave_0046c01c++;
-    if (waveNav->type != (signed char)previousWave) {
-        g_nCurrentWave_0046c01c = -1;
+    if (waveNav->type == (signed char)previousWave) {
+        new_sphere_shapes(waveNav);
+        waveNav->type = -1;
+        entry = 0;
+        do {
+            approve_xyz(
+                init_ship(waveNav->missionShips[entry],
+                          g_nCurrentNavPoint_0059df60),
+                5000, 10000);
+            entry++;
+        } while (entry < 10);
         return;
     }
-
-    new_sphere_shapes(waveNav);
-    waveNav->type = -1;
-    entry = 0;
-    do {
-        object = init_ship(
-            waveNav->missionShips[entry], g_nCurrentNavPoint_0059df60);
-        approve_xyz(object, 5000, 10000);
-        entry++;
-    } while (entry < 10);
+    g_nCurrentWave_0046c01c = -1;
 }
 
 /* Function start: 0x40C4A0 */

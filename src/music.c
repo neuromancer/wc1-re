@@ -406,6 +406,57 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
     return 1;
 }
 
+/* Function start: 0x42E1D0 */
+void __stdcall AlignSpriteFrameToRectCorner(
+    const ShortRect *rectangle, ShortPoint *position, short corner,
+    unsigned char *shape, short frame)
+{
+    ShortRect frameBounds;
+    short x;
+    short y;
+
+    switch (corner) {
+    case 0:
+        x = rectangle->left;
+        y = rectangle->top;
+        break;
+    case 1:
+        x = rectangle->right;
+        y = rectangle->top;
+        break;
+    case 2:
+        x = rectangle->left;
+        y = rectangle->bottom;
+        break;
+    case 3:
+        x = rectangle->right;
+        y = rectangle->bottom;
+        break;
+    }
+
+    GetShapeFrameBounds(&frameBounds.left, x, y, shape, frame);
+    position->x = x;
+    position->y = y;
+    switch (corner) {
+    case 0:
+        position->x = (short)(x * 2 - frameBounds.left);
+        position->y = (short)(y * 2 - frameBounds.top);
+        return;
+    case 1:
+        position->x = (short)(x * 2 - frameBounds.right);
+        position->y = (short)(y * 2 - frameBounds.top);
+        return;
+    case 2:
+        position->x = (short)(x * 2 - frameBounds.left);
+        position->y = (short)(y * 2 - frameBounds.bottom);
+        return;
+    case 3:
+        position->x = (short)(x * 2 - frameBounds.right);
+        position->y = (short)(y * 2 - frameBounds.bottom);
+        return;
+    }
+}
+
 /* Function start: 0x42E320 */
 void FadeMusic(void)
 {
