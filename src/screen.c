@@ -1023,8 +1023,9 @@ void EndCommMenu(void)
 /* Function start: 0x4314F0 */
 void ShowCentredPrompt(char *text, unsigned short arg)
 {
-    DosStrcpy(DAT_0059e1c0, text);
-    SetHudMessageText(DAT_0059e1c0, DAT_004699a8, arg);
+    DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
+    SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
+                      DAT_004699a8, arg);
 }
 
 /* Function start: 0x4318F0 */

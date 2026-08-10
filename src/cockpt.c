@@ -1748,7 +1748,7 @@ unsigned int RestoreTransientCockpitGraphics(void)
 void SetHudMessageText(char *text, unsigned short colour,
                        unsigned short duration)
 {
-    if (DAT_00468754 == 0) {
+    if (g_bInflightComputerActive_00468754 == 0) {
         if (IsAutopilotEngaged())
             SetHudTextColour(1);
         DAT_005a7f00 = colour;
@@ -1949,12 +1949,13 @@ void DrawPilotHandFrame(void)
                       DAT_005a6b60.top);
 
     CopyViewportContents(&DAT_005a7550, &DAT_005a7690);
-    DrawSpriteDefault(&DAT_005a7690, x, y, DAT_005a7684, frame);
+    DrawSpriteDefault(&DAT_005a7690, x, y, g_pPilotHandShape_005a7684,
+                      frame);
     DrawSpriteDefault(
         &DAT_005a7690,
         (short)(x + g_asPilotHandOffsets_00469018[frame * 2]),
         (short)(y + g_asPilotHandOffsets_00469018[frame * 2 + 1]),
-        DAT_005a7684, 0x11);
+        g_pPilotHandShape_005a7684, 0x11);
     CopyViewportContents(&DAT_005a7690, &DAT_005a6b60);
     DAT_0046900c = g_bStickIndicatorFrame_005a7dc8;
 }
@@ -1962,7 +1963,7 @@ void DrawPilotHandFrame(void)
 /* Function start: 0x4173C0 */
 void animate_pilot(void)
 {
-    if (DAT_005a7684 != 0) {
+    if (g_pPilotHandShape_005a7684 != 0) {
         determine_pilot_hand();
         if (DAT_0046900c != g_bStickIndicatorFrame_005a7dc8)
             DrawPilotHandFrame();
@@ -1972,7 +1973,7 @@ void animate_pilot(void)
 /* Function start: 0x4173F0 */
 void ResetPilotHandAnimation(void)
 {
-    if (DAT_005a7684 != 0) {
+    if (g_pPilotHandShape_005a7684 != 0) {
         DAT_0046900c = 0xff;
         CopyViewportContents(&DAT_005a6b60, &DAT_005a7550);
         animate_pilot();
@@ -2233,7 +2234,7 @@ void SelectCockpitVduMode(short vdu, int mode)
             select_new_release_weapon((enum ObjectType)-1);
         break;
     case 2:
-        DAT_005a7786 = 0;
+        g_nDamageDisplayTicks_005a7786 = 0;
         break;
     case 3:
         cycle_onscreen_targets();

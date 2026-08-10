@@ -89,11 +89,11 @@ void ShowOnScreenMessage(int flags, short duration,
         if (messageDuration == 0)
             messageDuration = MeasureMessageWidth(text);
         SetHudTextColour(1);
-        DosStrcpy(DAT_0059e1c0, text);
-        SetHudMessageText(DAT_0059e1c0,
+        DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
+        SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
                           DAT_004699ac, messageDuration);
         if (messageDuration == 9999) {
-            ShowHudTextLine(DAT_0059e1c0,
+            ShowHudTextLine(g_szHudMessageBuffer_0059e1c0,
                             (unsigned short)DAT_004699ac);
             dump_buffer_to_screen();
         }

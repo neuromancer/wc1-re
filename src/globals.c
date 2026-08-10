@@ -245,7 +245,7 @@ const char g_szNavLocationFormat_00468864[48] =
     "%X%Y                         Location: %d.%d.%d";
 const char g_szNavViewportName_00468894[8] = "VSCREEN";
 const char g_szBriefingNavMapTitle_0046889c[20] = "Briefing Nav Map";
-int DAT_00468754;
+int g_bInflightComputerActive_00468754;
 int DAT_004688cc;
 int DAT_004688d0;
 int DAT_004688d4;
@@ -282,8 +282,16 @@ const char *g_apszIntroCredits_00468a38[20] = {
     "Special Thanks To\n\nSocks\nand\nCaffeine",
     0
 };
+const char g_szCalculating_0046931c[12] = "CALCULATING";
+const char g_szRangeKilometresSuffix_00469328[4] = " km";
 const char g_szNoObjective_0046932c[8] = "NONE";
 const char g_szUnknownObjective_00469334[8] = "UNKNOWN";
+const char g_szCompNavigation_0046933c[16] = "COMP NAVIGATION";
+const char g_szDestinationFormat_0046934c[20] =
+    "\n\nDESTINATION\n  %s";
+const char g_szNavigationRangeLabel_00469360[12] = "\n\nRANGE\n  ";
+const char g_szNewObjectivePrompt_0046936c[20] =
+    "\n\n(N)ew Objective";
 
 TitleMenuRegion g_aTitleMenuRegions_00468a88[5] = {
     { 1, 49, 48, 283, 99 },
@@ -320,6 +328,7 @@ volatile signed char g_cReleaseWeaponDisplayFrame_00469070 = -1;
 volatile signed char g_cReleaseWeaponDisplayTicks_00469074;
 volatile signed char g_cReleaseWeaponDisplayState_00469078;
 short g_nScannerTargetObject_00469090 = -1;
+int g_nDisplayedObjectiveRange_00469088 = 40000;
 const int g_aiScannerGridRows_00469098[79] = {
     5, 13, 16, -1,
     5, 13, 16, -1,
@@ -352,6 +361,7 @@ short g_nTargetLockMarkerX_004691f4 = -0x7fff;
 ShortRect g_stTargetBracketBounds_004691f8 = {-0x7fff, 0, 0, 0};
 ShortRect g_stPreviousTargetBracketBounds_00469200 = {-0x7fff, 0, 0, 0};
 short DAT_00469208 = -1;
+Viewport g_stTrainSimVduSource_00469210;
 const ShortPoint g_aaCockpitDamagePositions_00469228[5][4] = {
     {{224, 5}, {132, 96}, {233, 107}, {149, 161}},
     {{177, 6}, {153, 142}, {103, 140}, {55, 183}},
@@ -362,6 +372,8 @@ const ShortPoint g_aaCockpitDamagePositions_00469228[5][4] = {
 unsigned char *g_pConfedCommBackground_00469278;
 unsigned char *g_pCommStaticShape_0046927c;
 unsigned char *g_pKilrathiCommBackground_00469280;
+int g_nCommPortraitFrame_00469284 = -1;
+int g_bForceDamageDisplayRedraw_00469288;
 const char g_szComponentHitFormat_004692e0[8] = "%s HIT";
 unsigned char DAT_004693b0;
 const char *g_pGameVersion_004693b4 = g_szGameVersion_004693b8;
@@ -598,14 +610,31 @@ WaveTableEntry *g_pWaveTableHead_0046a444;
 WaveTableEntry *g_pWaveTableTail_0046a448;
 const char g_szPlayWaveOpenError_0046a46c[36] =
     "playWAVE Unable to open file '%s'";
-unsigned char *DAT_0046a748;
-const char *g_apszComponentNames_0046a778[6] = {
+unsigned char *g_pDamageDisplayBackground_0046a748;
+const ShortPoint g_aDamageDisplayPositions_0046a750[9] = {
+    {36, 37}, {36, 28}, {36, 30}, {36, 23}, {36, 19},
+    {36, 15}, {36, 24}, {36, 16}, {36, 22}
+};
+const char *g_apszComponentNames_0046a778[9] = {
     g_szIonDrive_0046a7c4,
     g_szPowerPlant_0046a7d0,
     g_szShieldGenerator_0046a7dc,
     g_szComputerSystem_0046a7ec,
     g_szIntercomUnit_0046a7fc,
-    g_szTargetTracking_0046a80c
+    g_szTargetTracking_0046a80c,
+    g_szAccelerationAbsorbers_0046a81c,
+    g_szEjectorSystem_0046a82c,
+    g_szRepairSystems_0046a83c
+};
+const unsigned char g_abDamageDisplayFrames_0046a7a0[9] = {
+    21, 22, 23, 24, 25, 26, 27, 28, 29
+};
+const char *g_apszDamageSeverityNames_0046a7b0[5] = {
+    g_szDamageOk_0046a84c,
+    g_szDamageLight_0046a850,
+    g_szDamageModerate_0046a858,
+    g_szDamageHeavy_0046a864,
+    g_szDamageDestroyed_0046a86c
 };
 short g_nScriptedViewObject_0046a8d0 = -1;
 int g_bScriptedView_0046a8d4;
@@ -1658,6 +1687,7 @@ LARGE_INTEGER g_liFlightAfterRender_00476540;
 int g_nFlightRenderTicks_00476548;
 IxSample *g_pLoopingWaveSample_0047654c;
 IxSound *g_pLoopingWaveSound_00476550;
+int g_nDisplayedComponentDamage_00476554;
 char g_szSfxWavePath_00476558[0xc8];
 unsigned char DAT_00476620[32];
 unsigned int DAT_00476640;
@@ -1784,7 +1814,7 @@ FixedVector g_aShipRightVector_0059b6e0[64];
 FixedVector g_aShipUpVector_0059b9e0[64];
 FixedVector g_aShipForwardVector_0059bce0[64];
 HazardField *g_pActiveHazardField_0059bfe0;
-signed char g_acPlayerComponentDamage_0059bff0[8];
+signed char g_acPlayerComponentDamage_0059bff0[9];
 signed char g_abFlightPath_0059c000[WC1_MISSION_OBJECTIVE_COUNT + 1];
 FixedVector g_aShipVelocity_0059c010[512];
 short g_anYawGoal_0059c310[16];
@@ -1884,7 +1914,8 @@ char DAT_0059dec0[256];
 short g_asShipAccumulatedDamage_0059dee0[WC1_SPACE_OBJECT_COUNT];
 short g_nCurrentNavPoint_0059df60;
 unsigned char *g_apCommPortraitShapes_0059e180[16];
-char DAT_0059e1c0[512];
+char g_szHudMessageBuffer_0059e1c0[0x60];
+char *g_aapszPilotSpeech_0059e220[14][11];
 signed char g_abCommMenuChoiceCommand_0059e488[7];
 char *g_pszCommMenuHeading_0059e490;
 char g_szCommMenuHeadingBuffer_0059e4a0[0x40];
@@ -1932,7 +1963,7 @@ unsigned char *g_pCockpitIndicatorShape_005a7658;
 unsigned char *g_pConstellationShape_005a765c;
 unsigned char *g_pCommMenuCursorShape_005a7660;
 Viewport g_stModalSourceViewport_005a7670;
-unsigned char *DAT_005a7684;
+unsigned char *g_pPilotHandShape_005a7684;
 Viewport DAT_005a7690;
 Viewport DAT_005a76b0;
 short g_aPaletteFadeEntries_005a76d0[6][3];
@@ -1942,9 +1973,17 @@ TextContext DAT_005a7720;
 TextContext g_stDefaultTextContext_005a7740;
 TextContext g_stConversationTextContext_005a7760;
 unsigned short DAT_005a7780;
-unsigned char DAT_005a7786;
+short g_nDamageDisplayTicks_005a7786;
 short g_nWeaponDisplayOriginX_005a7788;
 short g_nWeaponDisplayOriginY_005a778a;
+char g_szDamageStatusText_005a7790[0x48];
+short g_nDamageSpriteX_005a77d8;
+short g_nDamageSpriteY_005a77da;
+signed char g_cDamageDisplayComponent_005a77dc;
+signed char g_cDamageDisplayFrame_005a77dd;
+signed char g_cDamagedComponentCount_005a77de;
+int g_nDamageDisplayState_005a77e0;
+int g_nDamageDisplayPhase_005a77e4;
 unsigned int DAT_005a77ec;
 unsigned char g_abPaletteTriplets_005a77f0[256][3];
 InputDeviceSample g_stPreviousFlightInput_005a7af0;
@@ -2596,3 +2635,19 @@ const char g_szShieldGenerator_0046a7dc[16] = "Shield gen'r";
 const char g_szComputerSystem_0046a7ec[16] = "Computer sys";
 const char g_szIntercomUnit_0046a7fc[16] = "InterCom unit";
 const char g_szTargetTracking_0046a80c[16] = "Target track";
+const char g_szAccelerationAbsorbers_0046a81c[16] = "Accel absorbers";
+const char g_szEjectorSystem_0046a82c[16] = "Ejector system";
+const char g_szRepairSystems_0046a83c[16] = "Repair systems";
+const char g_szDamageOk_0046a84c[4] = "Ok";
+const char g_szDamageLight_0046a850[8] = "Light";
+const char g_szDamageModerate_0046a858[12] = "Moderate";
+const char g_szDamageHeavy_0046a864[8] = "Heavy";
+const char g_szDamageDestroyed_0046a86c[12] = "Destroyed";
+const char g_szDamageReport_0046a878[16] = "DAMAGE REPORT";
+const char g_szNoInternalDamage_0046a888[20] =
+    "NO INTERNAL\n\nDAMAGE";
+const char g_szDamagedUnitCountFormat_0046a89c[20] =
+    "%d Unit%c Damaged";
+const char g_szDamageStatusFormat_0046a8b0[16] = "%s\nDamage: %s";
+const char g_szDamageStatusFormatHighRes_0046a8c0[16] =
+    "%s\nDamage: %s";

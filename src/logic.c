@@ -2114,7 +2114,7 @@ unsigned int InitializeCockpitResources(signed char mode)
                     (unsigned short)layout[74 + modeIndex * 4],
                     (unsigned short)layout[75 + modeIndex * 4]);
 
-    if (DAT_005a7684 != 0) {
+    if (g_pPilotHandShape_005a7684 != 0) {
         DAT_005a6b60 = DAT_005a6ba0;
         SetViewportRect(&DAT_005a6b60,
                         (unsigned short)layout[124 + modeIndex * 4],
@@ -2172,7 +2172,7 @@ unsigned int InitializeCockpitResources(signed char mode)
                 (unsigned char *)AllocateTaggedMemory(maximumSize, 0);
     }
 
-    DAT_0046a748 = 0;
+    g_pDamageDisplayBackground_0046a748 = 0;
     maximumSize = 0;
     frame = 0;
     do {
@@ -2182,7 +2182,7 @@ unsigned int InitializeCockpitResources(signed char mode)
         frame++;
     } while (frame < 9);
     if (maximumSize != 0)
-        DAT_0046a748 =
+        g_pDamageDisplayBackground_0046a748 =
             (unsigned char *)AllocateTaggedMemory(maximumSize, 0);
 
     ResetScannerContacts();
@@ -2205,7 +2205,7 @@ unsigned int free_cockpit(void)
         ReleasePacketHandle((int)g_pScreenViewportPacket_005a6b94);
         g_pScreenViewportPacket_005a6b94 = 0;
     }
-    if (DAT_005a7684 != 0) {
+    if (g_pPilotHandShape_005a7684 != 0) {
         free_viewport(&DAT_005a7690);
         free_viewport(&DAT_005a7550);
     }
@@ -2215,7 +2215,7 @@ unsigned int free_cockpit(void)
     FreePacketAndClear(
         (int *)&g_pReleaseWeaponDisplayBackground_0046906c, 0);
     FreePacketAndClear((int *)&g_pCockpitExplosionBackground_00469060, 0);
-    FreePacketAndClear((int *)&DAT_0046a748, 0);
+    FreePacketAndClear((int *)&g_pDamageDisplayBackground_0046a748, 0);
     FreeCommDisplayResources();
     FreePacketAndClear((int *)&g_pScannerMarkerBackground_005a7dc4, 0);
     return 0;
