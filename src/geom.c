@@ -216,11 +216,11 @@ void zero_vector(FixedVector *vector)
 }
 
 /* Function start: 0x418600 */
-void ZeroVectorPtr(int *p)
+void negate_vector(FixedVector *vector)
 {
-    p[0] = -p[0];
-    p[1] = -p[1];
-    p[2] = -p[2];
+    vector->x = -vector->x;
+    vector->y = -vector->y;
+    vector->z = -vector->z;
 }
 
 /* Function start: 0x418620 */
@@ -546,7 +546,7 @@ void get_facing_range_from_object(short obj, short other)
 {
     get_facing_range_from_point(obj, &g_aShipPosition_0059c490[other]);
     g_nTargetRange_0059ce10 -= g_asObjectCollisionRadius_0059d710[other];
-    ZeroVectorPtr((int *)&g_vNormalizedToTarget_005a7db0);
+    negate_vector(&g_vNormalizedToTarget_005a7db0);
     g_nTargetFacing_0059d52a =
         (short)(((unsigned short)dot_product(
             &g_aShipForwardVector_0059bce0[other],
@@ -969,7 +969,7 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
     FixedVector projectedUp;
     short angle;
 
-    ZeroVectorPtr((int *)direction);
+    negate_vector(direction);
     rectangular_to_spherical(direction, &spherical);
     init_ijk(63);
     alter_yaw(-spherical.yaw, 63);
@@ -1003,7 +1003,7 @@ void get_right_shape(short obj, const FixedVector *direction)
     short angle;
 
     toEye = *direction;
-    ZeroVectorPtr((int *)&toEye);
+    negate_vector(&toEye);
     transform_to_objects_frame(&toEye, &objectView, obj);
     rectangular_to_spherical(&objectView, &spherical);
     pitchBand = (short)(spherical.pitch / 30 + 3);

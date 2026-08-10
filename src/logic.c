@@ -2017,18 +2017,18 @@ void init_3Space_objects(short scene)
     if (DAT_00469d5c == 1)
         return;
     DAT_00469d5c = 1;
+    g_cScreenViewportMode_0059a9f2 = -1;
     remove_all_3d_objects();
-    g_nSpaceFrame_0059b420 = 0;
+    g_nExternalViewShip_0046c040 = -1;
     g_nRenderedSpaceFrame_0059d61a = 0;
     g_bScriptedView_0046a8d4 = 0;
-    g_cScreenViewportMode_0059a9f2 = -1;
-    DAT_00469208 = -1;
+    g_nSpaceFrame_0059b420 = 0;
+    g_bExternalViewSoundEnabled_0046c07c = 0;
+    g_nClosestVisibleObject_0046c048 = -1;
+    g_nPlayerCollisionObject_0046c050 = -1;
     slot = 0;
     do {
         g_aObjectResourceSlots_0059ddf0[slot].type = -1;
-        g_aObjectResourceSlots_0059ddf0[slot].shapeSet = 0;
-        g_aObjectResourceSlots_0059ddf0[slot].animation = 0;
-        g_aObjectResourceSlots_0059ddf0[slot].shape = 0;
         slot++;
     } while (slot < 4);
     init_constellation(scene);

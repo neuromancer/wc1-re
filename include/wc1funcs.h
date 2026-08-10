@@ -232,11 +232,12 @@ void CalibrateJoystickInteractive(short logicalFile, short section,
                                    short flags, short mode);            /* 0x004102B0 */
 void WaitForJoystickButtonRelease(void);                               /* 0x004106C0 */
 void WaitForJoystickButtonPress(void);                                 /* 0x00410700 */
+unsigned int SetFleetOverviewView(int initializeCockpit);             /* 0x00410740 */
 void rotate_eye_to_goal(void);                                         /* 0x00410A30 */
 short GetVectorMagnitude(const FixedVector *vector);                   /* 0x00410AD0 */
 void set_eye_direction_and_position(void);                             /* 0x00410AF0 */
-unsigned int force_view(int view, int obj);                            /* 0x004117B0 */
-unsigned int new_view(int view, int obj);                              /* 0x004117D0 */
+unsigned int force_view(int view, short obj);                          /* 0x004117B0 */
+unsigned int new_view(int view, short obj);                            /* 0x004117D0 */
 unsigned int start_dust(short obj, FixedVector origin,
                         short forwardDistance, int rightOffset,
                         int upOffset);                                 /* 0x00411EC0 */
@@ -378,7 +379,7 @@ unsigned int SignFixed(int v);                                      /* 0x0041854
 short WrapDegrees(short degrees);                                     /* 0x00418560 */
 int equ_vector(const FixedVector *left, const FixedVector *right);     /* 0x00418590 */
 void zero_vector(FixedVector *vector);                                /* 0x004185F0 */
-void ZeroVectorPtr(int *p);                                             /* 0x00418600 */
+void negate_vector(FixedVector *vector);                              /* 0x00418600 */
 void AddFixedVectors(const FixedVector *left, const FixedVector *right,
                      FixedVector *sum);                               /* 0x00418620 */
 void SubtractFixedVectors(FixedVector *left, FixedVector *right,

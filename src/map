@@ -303,7 +303,7 @@
 0x004102B0 CalibrateJoystickInteractive
 0x004106C0 InputRoutine02
 0x00410700 InputRoutine03
-0x00410740 LoopUiFn0740
+0x00410740 SetFleetOverviewView
 0x00410A30 rotate_eye_to_goal
 0x00410AD0 DoLocalFn0AD0
 0x00410AF0 set_eye_direction_and_position
@@ -469,7 +469,7 @@
 0x00418590 equ_vector
 0x004185C0 DoLocalFn85C0
 0x004185F0 zero_vector
-0x00418600 DoLocalFn8600
+0x00418600 negate_vector
 0x00418620 DoLocalFn8620
 0x00418650 DoLocalFn8650
 0x00418680 DoLocalFn8680
