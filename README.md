@@ -19,15 +19,17 @@ HUD. Flight gameplay and later campaign flow are still incomplete.
 
 Run `make progress` for the current per-file implementation counts.
 
-## Build
+## Screenshots
 
-The normal build does **not** require the retail executable, Ghidra, decompiled code,
-`code-full/`, game data, or `binary-comp`.
+| Intro space battle | Space-flight simulator |
+| --- | --- |
+| [![Two ships fighting during the intro](screenshots/intro-space-battle.png)](screenshots/intro-space-battle.png) | [![Simulator cockpit and HUD](screenshots/space-flight-simulator.png)](screenshots/space-flight-simulator.png) |
+
+## Build
 
 Required tools and files:
 
-- `make`, CMake, `curl`, and a C/C++ host compiler;
-- the Microsoft Visual C++ 4.20 and wibo Git submodules.
+- `make`, `curl` and `rust`;
 
 From the repository root:
 
@@ -54,8 +56,7 @@ game. Use `make debug WC1_ISO=/path/to/kilrathi-saga.iso` to launch DREAMM's deb
 
 ## Optional binary verification
 
-[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) is an optional analysis tool. It is
-installed with pip and is not a repository submodule or a build dependency:
+[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) is an optional analysis tool. To install it:
 
 ```sh
 python3 -m pip install "binary-comp[all] @ git+https://github.com/gg-sl-oss/binary-comp.git"

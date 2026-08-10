@@ -51,6 +51,8 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
   reconstruction is read side by side with the disassembly, so one source line per statement
   is what makes the two comparable. `make sort` fails if any remain;
   `bin/expandOneLiners.py` rewrites them.
+- DO NOT uses aliases, rename instead. In particular, do not use aliases for globals (#define g_X_Y ((void *)DAT_Y)). Instead rename all of them with a proper type.
+- Do NOT manually replicate thunk functions or other compiler generated glue code (e.g. GetFixedOneMillionThunkAlt(void) { __asm { jmp GetFixedOneMillionAlt }). These need to be produced by the compiler automatically, not forced.
 
 ### WC1-specific rules that differ from sibling projects
 
