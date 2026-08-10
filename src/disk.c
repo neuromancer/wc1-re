@@ -661,7 +661,7 @@ unsigned int remove_weapon(short obj, short weapon)
             }
         }
         if ((short)get_mode(0) == 1)
-            ClearMessageSlot(0);
+            InvalidateVduMode(0);
     }
     return 0;
 }

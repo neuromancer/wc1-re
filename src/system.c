@@ -67,8 +67,8 @@ void RunTrainSim(void)
                 g_nArcadeTimeRemaining_005a7c2c = 25;
             }
 
-            ClearMessageSlot(0);
-            ClearMessageSlot(1);
+            InvalidateVduMode(0);
+            InvalidateVduMode(1);
             DIBslam();
             DIBslamReal();
             savedFrameState = DAT_0046505c;

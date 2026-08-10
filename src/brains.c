@@ -640,7 +640,7 @@ void imperial_formation(short obj)
     } else if (obj == g_nYourWingman_0046c04c &&
                g_nEnemySighting_00465c7c != g_nCurrentWave_0046c01c &&
                any_enemy(obj, 16000) != 0 &&
-               IsAutopilotEngaged() == 0 && DAT_0046c03c == 0) {
+               message_showing() == 0 && DAT_0046c03c == 0) {
         send_message(obj, 2);
         g_nEnemySighting_00465c7c = g_nCurrentWave_0046c01c;
     }

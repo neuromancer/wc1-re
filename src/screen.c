@@ -653,13 +653,30 @@ void PollMenuInputDevices(void)
 }
 
 /* Function start: 0x430BC0 */
-short StepMenuSelection(short v, int flag)
+short get_face(short rating, enum Side side)
 {
-    if (v == -1)
-        return 0xd - (unsigned short)(flag == 0);
-    if (flag == 1)
-        v = v - 1;
-    return v;
+    if (rating == -1)
+        return 12 + (unsigned short)(side != SIDE_IMPERIAL);
+    if (side == SIDE_KILRATHI)
+        rating--;
+    return rating;
+}
+
+/* Function start: 0x430BF0 */
+void LoadCommPortraitShape(short face, signed char alternate)
+{
+    short section;
+
+    if (face >= 0 && face < 8)
+        section = face + 1;
+    else if ((face >= 8 && face <= 11) || face == 13)
+        section = 10;
+    else
+        section = -1;
+    if (section != -1)
+        g_apCommPortraitShapes_0059e180[face] =
+            (unsigned char *)FetchDiskPacketRetrying(11, section,
+                                                     (short)alternate);
 }
 
 /* Function start: 0x430C50 */
@@ -912,7 +929,7 @@ void RefreshCommunicationMenu(void)
         if (GetPendingMenuAction() == 2)
             BuildCommunicationCommandMenu();
         if (g_nCommMenuReuseMode_0046af64 == 0)
-            ClearMessageSlot(1);
+            InvalidateVduMode(1);
     }
 }
 
@@ -921,7 +938,7 @@ void HandleCommunicationMenuRequest(void)
 {
     if (IsCommChoiceMenuOpen() != 0)
         CloseCommChoiceMenu();
-    if ((short)IsAutopilotEngaged() == 0 &&
+    if ((short)message_showing() == 0 &&
         IsCommChoiceMenuOpen() == 0 && CanOpenCommMenu() != 0) {
         OpenCommRecipientMenu();
         ResetCommMenuChoices(0);
@@ -1014,7 +1031,7 @@ void EndCommSessionWithWingman(void)
 /* Function start: 0x4314C0 */
 void EndCommMenu(void)
 {
-    ClearAutopilotFlag();
+    clear_message_time();
     if ((short)get_mode(1) == 6)
         EndCommSessionWithWingman();
     DAT_00469004 = 0;
@@ -1026,6 +1043,143 @@ void ShowCentredPrompt(char *text, unsigned short arg)
     DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
     SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
                       DAT_004699a8, arg);
+}
+
+/* Function start: 0x431520 */
+short LoadCommDisplayResources(short rating, enum Side side)
+{
+    short loaded;
+
+    loaded = 1;
+    if (side == SIDE_IMPERIAL) {
+        if (g_pConfedCommBackground_00469278 == 0)
+            g_pConfedCommBackground_00469278 =
+                (unsigned char *)FetchDiskPacketRetrying(11, 0, 0);
+        loaded = g_pConfedCommBackground_00469278 != 0;
+    } else if (side == SIDE_KILRATHI) {
+        if (g_pKilrathiCommBackground_00469280 == 0)
+            g_pKilrathiCommBackground_00469280 =
+                (unsigned char *)FetchDiskPacketRetrying(11, 9, 0);
+        loaded = g_pKilrathiCommBackground_00469280 != 0;
+    }
+    if (g_pCommStaticShape_0046927c == 0)
+        g_pCommStaticShape_0046927c =
+            (unsigned char *)FetchDiskPacketRetrying(11, 11, 0);
+    if (loaded != 0 && g_pCommStaticShape_0046927c != 0)
+        return 1;
+    return 0;
+}
+
+/* Function start: 0x4315C0 */
+char *ExpandCommMessageTokens(char *text)
+{
+    char *destination;
+    char *marker;
+    short length;
+
+    g_szTextScratchBuffer_00598b00[0] = '\0';
+    for (;;) {
+        marker = DosStrchr(text, '$');
+        if (marker == 0) {
+            DosStrcat(g_szTextScratchBuffer_00598b00, text);
+            return g_szTextScratchBuffer_00598b00;
+        }
+        destination = DosStrchr(g_szTextScratchBuffer_00598b00, '\0');
+        while (marker != text)
+            *destination++ = *text++;
+        *destination = '\0';
+        text = marker + 2;
+        switch (marker[1]) {
+        case 'C':
+            DosStrcat(
+                g_szTextScratchBuffer_00598b00,
+                g_stCampaignState_0059ca50.currentPilot->callsign);
+            break;
+        case 'N':
+        case 'P':
+            DosStrcat(g_szTextScratchBuffer_00598b00,
+                      g_stCampaignState_0059ca50.currentPilot->name);
+            break;
+        case 'R':
+            DosStrcat(g_szTextScratchBuffer_00598b00,
+                      g_apszPilotRankNames_00470098[
+                          g_stCampaignState_0059ca50.currentPilot->rank]);
+            length = DosStrlen(g_szTextScratchBuffer_00598b00);
+            if (g_szTextScratchBuffer_00598b00[length - 1] == '.' &&
+                *text == '.') {
+                length = DosStrlen(g_szTextScratchBuffer_00598b00);
+                g_szTextScratchBuffer_00598b00[length - 1] = '\0';
+            }
+            break;
+        }
+    }
+}
+
+/* Function start: 0x4316E0 */
+void real_vid_transmit(short obj, short message)
+{
+    char text[84];
+    char *expandedText;
+    char *speech;
+    enum Side side;
+    int objectOffset;
+
+    g_nCommSpeakerObject_0046afc8 = obj;
+    g_nCommSpeakerRating_0046afcc =
+        (short)g_acShipRating_0059cd80[obj];
+    side = g_aeShipSide_0059d650[obj];
+    g_nCommPortraitIndex_0046afd0 =
+        get_face(g_nCommSpeakerRating_0046afcc, side);
+    if (g_nCommPortraitIndex_0046afd0 == -1)
+        return;
+    objectOffset = (int)obj * sizeof(enum ObjectType);
+    if (DAT_0046af78 != 0 && g_bVideoImagesSuppressed_0046af74 == 0) {
+        if (g_apCommPortraitShapes_0059e180[
+                g_nCommPortraitIndex_0046afd0] == 0)
+            LoadCommPortraitShape(g_nCommPortraitIndex_0046afd0, 0);
+        if (g_apCommPortraitShapes_0059e180[
+                g_nCommPortraitIndex_0046afd0] != 0 &&
+            LoadCommDisplayResources(g_nCommSpeakerRating_0046afcc,
+                                     side) != 0) {
+            push_mode(1, 6);
+            malf_noise(1, 3, 12, 23, 1);
+            DrawSpriteDefault(
+                &DAT_005a7530, DAT_005a7530.left, DAT_005a7530.top,
+                side == SIDE_IMPERIAL ?
+                    g_pConfedCommBackground_00469278 :
+                    g_pKilrathiCommBackground_00469280,
+                0);
+            DrawSpriteDefault(
+                &DAT_005a7530, DAT_005a7530.left, DAT_005a7530.top,
+                g_apCommPortraitShapes_0059e180[
+                    g_nCommPortraitIndex_0046afd0],
+                0);
+        }
+    }
+    speech = g_aapszPilotSpeech_0059e220[
+        g_nCommPortraitIndex_0046afd0][message];
+    if (g_nCommSpeakerRating_0046afcc >= 0 &&
+        g_nCommSpeakerRating_0046afcc <= 7) {
+        sprintf(text, g_szConfedCommFormat_0046b150,
+                g_apWingmanPilots_00598a30[
+                    g_nCommSpeakerRating_0046afcc]->callsign,
+                speech);
+    } else if (g_nCommSpeakerRating_0046afcc >= 9 &&
+               g_nCommSpeakerRating_0046afcc <= 12) {
+        sprintf(text, g_szKilrathiAceCommFormat_0046b158,
+                g_apszKilrathiAceNames_0046af80[
+                    g_nCommSpeakerRating_0046afcc - 9],
+                speech);
+    } else {
+        sprintf(text, g_szShipCommFormat_0046b160,
+                g_aObjectTypeData_00466458[
+                    *(enum ObjectType *)(void *)
+                        ((unsigned char *)g_aeObjectType_0059b560 +
+                         objectOffset)].displayName,
+                speech);
+    }
+    expandedText = ExpandCommMessageTokens(text);
+    ShowCentredPrompt(expandedText, (unsigned short)MeasureMessageWidth(text));
 }
 
 /* Function start: 0x4318F0 */

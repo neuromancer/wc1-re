@@ -74,7 +74,7 @@ int main(short argc, char **argv)
 /* Function start: 0x4279D0 */
 unsigned int GetScreenUpdateFlag(void)
 {
-    if (IsAutopilotEngaged())
+    if (message_showing())
         EndCommMenu();
     if (DAT_005a7510.pixels != 0)
         free_viewport(&DAT_005a7510);

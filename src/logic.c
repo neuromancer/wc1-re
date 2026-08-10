@@ -1799,7 +1799,7 @@ unsigned int initialize_cockpit(signed char mode)
     signed char viewportMode;
     unsigned int result;
 
-    if (IsAutopilotEngaged())
+    if (message_showing())
         EndCommMenu();
 
     if (DAT_0046a008 == 0 && mode == g_cScreenViewportMode_0059a9f2) {
@@ -1837,8 +1837,8 @@ unsigned int initialize_cockpit(signed char mode)
         if (DAT_0046a008 == 0)
             explosion_draw();
         reset_cockpit();
-        ClearMessageSlot(0);
-        ClearMessageSlot(1);
+        InvalidateVduMode(0);
+        InvalidateVduMode(1);
         update_VDUs();
         clear_head_up_display();
         if (DAT_0046a008 == 0)

@@ -335,6 +335,8 @@ unsigned char *g_pReleaseWeaponDisplayBackground_0046906c;
 volatile signed char g_cReleaseWeaponDisplayFrame_00469070 = -1;
 volatile signed char g_cReleaseWeaponDisplayTicks_00469074;
 volatile signed char g_cReleaseWeaponDisplayState_00469078;
+char *g_pszObjectiveStatusMessage_0046908c =
+    g_szObjectiveStatusMessage_0046928c;
 short g_nScannerTargetObject_00469090 = -1;
 int g_nDisplayedObjectiveRange_00469088 = 40000;
 const int g_aiScannerGridRows_00469098[79] = {
@@ -382,7 +384,16 @@ unsigned char *g_pCommStaticShape_0046927c;
 unsigned char *g_pKilrathiCommBackground_00469280;
 int g_nCommPortraitFrame_00469284 = -1;
 int g_bForceDamageDisplayRedraw_00469288;
+char g_szObjectiveStatusMessage_0046928c[28] =
+    "Wait for ??????????????????";
+const char g_szMissileLocked_004692a8[16] = "MISSILE LOCKED ";
+const char g_szAlreadyNear_004692b8[16] = "Already Near";
+const char g_szEnemyNear_004692c8[12] = "Enemy Near";
+const char g_szHazardNear_004692d4[12] = "Hazard Near";
 const char g_szComponentHitFormat_004692e0[8] = "%s HIT";
+const char g_szAlreadyVisited_00469380[16] = "Already Visited";
+const char g_szObjectiveReached_00469390[20] = "Objective Reached";
+const char g_szWaitForFormat_004693a4[12] = "Wait for %s";
 unsigned char DAT_004693b0;
 const char *g_pGameVersion_004693b4 = g_szGameVersion_004693b8;
 const char g_szGameVersion_004693b8[9] = "1.03F-95";
@@ -705,6 +716,9 @@ signed char g_cCommMenuRecipient_0046afc4 = -1;
 short g_nCommSpeakerObject_0046afc8;
 short g_nCommSpeakerRating_0046afcc;
 short g_nCommPortraitIndex_0046afd0 = -1;
+const char g_szConfedCommFormat_0046b150[8] = "%s: %Fs";
+const char g_szKilrathiAceCommFormat_0046b158[8] = "%s: %Fs";
+const char g_szShipCommFormat_0046b160[8] = "%s: %Fs";
 unsigned short DAT_0046b168 = 0xffff;
 const GUID g_guidDirectDraw2_00463118 = {
     0xb3a6f3e0, 0x2b43, 0x11cf,
@@ -2638,8 +2652,6 @@ const char g_aszCommMenuText_0046aff8[0xe8] =
     "Keep radio silence\0\0"
     "Broadcast freely\0\0\0\0"
     "Request Landing";
-
-const char g_szMissileLocked_004692a8[16] = "MISSILE LOCKED ";
 
 const char g_szIonDrive_0046a7c4[12] = "Ion drive";
 const char g_szPowerPlant_0046a7d0[12] = "Power plant";

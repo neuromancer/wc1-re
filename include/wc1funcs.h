@@ -366,11 +366,11 @@ void push_mode(short i, int state);                                   /* 0x00414
 void pop_mode(short i);                                               /* 0x004148E0 */
 void set_new_vdu(short vdu);                                          /* 0x00414910 */
 short update_vid_disp(short vdu);                                     /* 0x00414980 */
-void ClearMessageSlot(short i);                                          /* 0x004149C0 */
-void ClearAutopilotFlag(void);                                              /* 0x004149E0 */
-unsigned short IsAutopilotEngaged(void);                               /* 0x004149F0 */
-unsigned short SetAutopilotFlag(unsigned short v);                        /* 0x00414A10 */
-void RefreshAutopilotHud(void);                                             /* 0x00414A20 */
+void InvalidateVduMode(short i);                                          /* 0x004149C0 */
+void clear_message_time(void);                                              /* 0x004149E0 */
+unsigned short message_showing(void);                               /* 0x004149F0 */
+unsigned short set_message_time(unsigned short v);                        /* 0x00414A10 */
+void check_message(void);                                             /* 0x00414A20 */
 unsigned int update_digital_readouts(void);                          /* 0x00414A50 */
 void PlayTargetLockSfx(void);                                           /* 0x00414AD0 */
 void malf_sound(void);                                                  /* 0x00414AE0 */
@@ -448,6 +448,7 @@ void RestoreCockpitExplosionBackground(void);                         /* 0x00417
 void cockpit_explosion(void);                                        /* 0x004177B0 */
 void place_damage_on_cockpit(short damage);                           /* 0x004178A0 */
 void vid_transmit(void);                                              /* 0x00417910 */
+void vid_equiv(short obj, short message);                             /* 0x00417AC0 */
 void update_dead_disp(short a);                                        /* 0x00417B10 */
 void check_stranded(void);                                           /* 0x00417B30 */
 void update_VDUs(void);                                              /* 0x00417B70 */
@@ -1035,7 +1036,8 @@ unsigned int GetFixedOneMillionThunkAlt(void);               /* 0x0042FB30 */
 short __stdcall UpdateInputDeviceTransitions(short raw);               /* 0x00430710 */
 void PollJoystickButtonEvents(void);                                   /* 0x00430840 */
 void PollMenuInputDevices(void);                                       /* 0x00430920 */
-short StepMenuSelection(short v, int flag);                                 /* 0x00430BC0 */
+short get_face(short rating, enum Side side);                          /* 0x00430BC0 */
+void LoadCommPortraitShape(short face, signed char alternate);        /* 0x00430BF0 */
 void ResetCommMenuChoices(short reuse);                               /* 0x00430C50 */
 int IsCommMenuIdle(void);                                              /* 0x00430CA0 */
 void AppendCommMenuChoice(char *text, short command);                    /* 0x00430CB0 */
@@ -1060,6 +1062,9 @@ void FreeCommDisplayResources(void);                                  /* 0x00431
 void EndCommSessionWithWingman(void);                                  /* 0x00431470 */
 void EndCommMenu(void);                                              /* 0x004314C0 */
 void ShowCentredPrompt(char *text, unsigned short arg);                       /* 0x004314F0 */
+short LoadCommDisplayResources(short rating, enum Side side);         /* 0x00431520 */
+char *ExpandCommMessageTokens(char *text);                            /* 0x004315C0 */
+void real_vid_transmit(short obj, short message);                     /* 0x004316E0 */
 void __stdcall ShutdownVideoHook(int mode);                             /* 0x004318F0 */
 short ReadCalibratedJoystick(void);                                    /* 0x00431D20 */
 void __stdcall UnionRectBounds(ShortRect *destination,

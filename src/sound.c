@@ -299,7 +299,7 @@ void UpdateDamageDisplay(void)
     if ((short)componentCount !=
         (short)g_cDamagedComponentCount_005a77de) {
         g_cDamagedComponentCount_005a77de = componentCount;
-        ClearMessageSlot(0);
+        InvalidateVduMode(0);
         return;
     }
     g_cDamagedComponentCount_005a77de = componentCount;

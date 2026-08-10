@@ -521,7 +521,7 @@ void DrawTargetRangeReadout(void)
     if (g_aeSpecialManeuver_0059c3c0[target] ==
         SPECIAL_MANEUVER_UNKNOWN_9) {
         g_acShipTarget_0059ce60[0] = -1;
-        ClearMessageSlot(1);
+        InvalidateVduMode(1);
         return;
     }
     if (target != -1 &&

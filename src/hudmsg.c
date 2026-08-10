@@ -233,7 +233,7 @@ int HandleSpaceFlightControls(void)
             break;
         case 0x2e:
             if (!repeated) {
-                if ((short)IsAutopilotEngaged() == 0) {
+                if ((short)message_showing() == 0) {
                     if ((short)get_mode(1) == 4)
                         CloseCommChoiceMenu();
                     else
@@ -550,7 +550,7 @@ primary_controls_complete:
             (short)(g_nTargetLockMode_0046c078 == 0);
         PlaySfxWaveFileByNumber(0x19, -1, 0);
         if ((short)get_mode(1) == 3) {
-            ClearMessageSlot(1);
+            InvalidateVduMode(1);
             return 0;
         }
         break;
@@ -668,7 +668,7 @@ unsigned int RenderSpaceViewFrame(void)
 {
     if (Draw_3Space_Frame() == 0)
         return 0;
-    RefreshAutopilotHud();
+    check_message();
     UpdateArcadeScoreDisplay();
     RestoreCockpitExplosionIfVisible();
     dump_buffer_to_screen();
@@ -1201,7 +1201,7 @@ unsigned int select_new_gun(void)
     g_eSelectedGunType_0046c054 = (enum ObjectType)select_guns(
         0, find_next_gun(0, g_eSelectedGunType_0046c054));
     if ((short)get_mode(0) == 1)
-        ClearMessageSlot(0);
+        InvalidateVduMode(0);
     return 0;
 }
 
@@ -1276,7 +1276,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
         } while (weapon != firstWeapon);
     }
     if ((short)get_mode(0) == 1)
-        ClearMessageSlot(0);
+        InvalidateVduMode(0);
     return 0;
 }
 

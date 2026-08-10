@@ -706,7 +706,7 @@ void InflightComputer(void)
     memcpy(savedInputState, (const void *)&g_nMouseX_0059ab10,
            sizeof(savedInputState));
 
-    if ((short)IsAutopilotEngaged() != 0)
+    if ((short)message_showing() != 0)
         EndCommMenu();
     GetScreenUpdateFlag();
     g_cScreenViewportMode_0059a9f2 = -1;
