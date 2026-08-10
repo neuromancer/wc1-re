@@ -12,6 +12,7 @@
 #ifndef WC1_GLOBALS_H
 #define WC1_GLOBALS_H
 
+extern const int g_anRLEQuarterCosine_0043d4bf[901];
 extern TitleMenuRegion g_aBarracksMenuRegions_00463008[21];
 extern unsigned int g_nHazardReferenceSpeed_00465040;
 extern short g_nActiveHazards_00465044;

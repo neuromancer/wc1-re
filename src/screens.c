@@ -1648,123 +1648,670 @@ unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
     return 1;
 }
 
-/* Function start: 0x43A974 */
-int DrawRLEImage(RasterClip *clip, unsigned char *shape, int frame,
-                 int x, int y)
+/* Function start: 0x43A83B */
+/* Original hand-written alternating-pixel rectangle fill used for
+ * checkerboard shading inside a clipped raster surface. */
+#pragma optimize("", off)
+__declspec(naked) int FillRasterClipCheckerboard(
+    RasterClip *clip, int left, int top, int right, int bottom,
+    unsigned char colour)
 {
-    RasterSurface *surface;
-    RLEFrameHeader *frameHeader;
-    unsigned char *stream;
-    unsigned char *destination;
-    unsigned char code;
-    unsigned char colour;
-    int stride;
-    int clipLeft;
-    int clipTop;
-    int clipRight;
-    int clipBottom;
-    int imageLeft;
-    int imageTop;
-    int imageRight;
-    int imageBottom;
-    int drawX;
-    int drawY;
-    int runLength;
-    int runLeft;
-    int runRight;
-    int sourceSkip;
-    int copyLength;
-
-    surface = clip->surface;
-    if (surface == 0 || surface->pixels == 0 ||
-        surface->maximumX < 0 || surface->maximumY < 0)
-        return -1;
-    clipLeft = clip->left < 0 ? 0 : clip->left;
-    clipTop = clip->top < 0 ? 0 : clip->top;
-    clipRight = clip->right < surface->maximumX ?
-        clip->right : surface->maximumX;
-    clipBottom = clip->bottom < surface->maximumY ?
-        clip->bottom : surface->maximumY;
-    if (clipRight < clipLeft || clipBottom < clipTop)
-        return -2;
-    if (shape == 0 || frame < 0 || frame >= *(int *)(shape + 4))
-        return -4;
-
-    frameHeader = (RLEFrameHeader *)(shape +
-        *(int *)(shape + 8 + frame * 8));
-    imageLeft = frameHeader->left + x + clip->left;
-    imageTop = frameHeader->top + y + clip->top;
-    imageRight = frameHeader->right + x + clip->left;
-    imageBottom = frameHeader->bottom + y + clip->top;
-    if (imageRight < imageLeft || imageBottom < imageTop)
-        return -4;
-    if (imageRight < clipLeft || clipRight < imageLeft ||
-        imageBottom < clipTop || clipBottom < imageTop)
-        return -3;
-    if (clipLeft <= imageLeft && imageRight <= clipRight &&
-        clipTop <= imageTop && imageBottom <= clipBottom)
-        return DrawRLEImageUnclipped(clip, frameHeader, x, y);
-
-    stride = surface->maximumX + 1;
-    stream = (unsigned char *)frameHeader + sizeof(RLEFrameHeader);
-    drawY = imageTop;
-    while (drawY <= imageBottom) {
-        drawX = imageLeft;
-        for (;;) {
-            code = *stream++;
-            runLength = code >> 1;
-            if ((code & 1) != 0) {
-                if (runLength == 0) {
-                    drawX += *stream++;
-                } else {
-                    runLeft = drawX;
-                    runRight = drawX + runLength - 1;
-                    if (drawY >= clipTop && drawY <= clipBottom &&
-                        runLeft <= clipRight && runRight >= clipLeft) {
-                        sourceSkip = clipLeft > runLeft ?
-                            clipLeft - runLeft : 0;
-                        copyLength = runLength - sourceSkip;
-                        if (runRight > clipRight)
-                            copyLength -= runRight - clipRight;
-                        destination = surface->pixels + drawY * stride +
-                                      runLeft + sourceSkip;
-                        memcpy(destination, stream + sourceSkip,
-                               copyLength);
-                    }
-                    stream += runLength;
-                    drawX += runLength;
-                }
-            } else {
-                if (runLength == 0)
-                    break;
-                colour = *stream++;
-                runLeft = drawX;
-                runRight = drawX + runLength - 1;
-                if (drawY >= clipTop && drawY <= clipBottom &&
-                    runLeft <= clipRight && runRight >= clipLeft) {
-                    sourceSkip = clipLeft > runLeft ?
-                        clipLeft - runLeft : 0;
-                    copyLength = runLength - sourceSkip;
-                    if (runRight > clipRight)
-                        copyLength -= runRight - clipRight;
-                    destination = surface->pixels + drawY * stride +
-                                  runLeft + sourceSkip;
-                    memset(destination, colour, copyLength);
-                }
-                drawX += runLength;
-            }
-        }
-        drawY++;
+    __asm {
+        push ebp
+        mov ebp,esp
+        add esp,-0x20
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        mov esi,dword ptr [ebp + 0x8]
+        mov ebx,dword ptr [esi]
+        mov eax,dword ptr [ebx + 0x4]
+        inc eax
+        mov dword ptr [ebp - 0x18],eax
+        jle checker_43a8ba
+        mov eax,dword ptr [ebx + 0x8]
+        inc eax
+        mov ecx,eax
+        jle checker_43a8ba
+        mov eax,dword ptr [esi + 0x4]
+        mov dword ptr [ebp - 0x1c],eax
+        cmp eax,0x0
+        jg checker_43a86e
+        mov eax,0x0
+checker_43a86e:
+        mov dword ptr [ebp - 0x4],eax
+        mov eax,dword ptr [esi + 0x8]
+        mov dword ptr [ebp - 0x20],eax
+        cmp eax,0x0
+        jg checker_43a881
+        mov eax,0x0
+checker_43a881:
+        mov dword ptr [ebp - 0x8],eax
+        mov eax,dword ptr [esi + 0xc]
+        mov edx,dword ptr [ebp - 0x18]
+        dec edx
+        cmp eax,edx
+        jl checker_43a891
+        mov eax,edx
+checker_43a891:
+        mov dword ptr [ebp - 0xc],eax
+        mov eax,dword ptr [esi + 0x10]
+        mov edx,ecx
+        dec edx
+        cmp eax,edx
+        jl checker_43a8a0
+        mov eax,edx
+checker_43a8a0:
+        mov dword ptr [ebp - 0x10],eax
+        mov eax,dword ptr [ebp - 0xc]
+        cmp eax,dword ptr [ebp - 0x4]
+        jl checker_43a8c5
+        mov eax,dword ptr [ebp - 0x10]
+        cmp eax,dword ptr [ebp - 0x8]
+        jl checker_43a8c5
+        mov eax,dword ptr [ebx]
+        mov dword ptr [ebp - 0x14],eax
+        jmp checker_43a8d0
+checker_43a8ba:
+        mov eax,0xffffffff
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+checker_43a8c5:
+        mov eax,0xfffffffe
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+checker_43a8d0:
+        mov eax,dword ptr [ebp - 0x1c]
+        add dword ptr [ebp + 0xc],eax
+        add dword ptr [ebp + 0x14],eax
+        mov eax,dword ptr [ebp - 0x20]
+        add dword ptr [ebp + 0x10],eax
+        add dword ptr [ebp + 0x18],eax
+        mov eax,dword ptr [ebp - 0x4]
+        cmp dword ptr [ebp + 0xc],eax
+        jg checker_43a8ed
+        mov dword ptr [ebp + 0xc],eax
+checker_43a8ed:
+        mov eax,dword ptr [ebp - 0x8]
+        cmp dword ptr [ebp + 0x10],eax
+        jg checker_43a8f8
+        mov dword ptr [ebp + 0x10],eax
+checker_43a8f8:
+        mov eax,dword ptr [ebp - 0xc]
+        cmp dword ptr [ebp + 0x14],eax
+        jl checker_43a903
+        mov dword ptr [ebp + 0x14],eax
+checker_43a903:
+        mov eax,dword ptr [ebp - 0x10]
+        cmp dword ptr [ebp + 0x18],eax
+        jl checker_43a90e
+        mov dword ptr [ebp + 0x18],eax
+checker_43a90e:
+        mov ecx,dword ptr [ebp + 0x14]
+        sub ecx,dword ptr [ebp + 0xc]
+        jl checker_43a969
+        inc ecx
+        mov eax,dword ptr [ebp + 0x10]
+        imul dword ptr [ebp - 0x18]
+        add eax,dword ptr [ebp - 0x14]
+        add eax,dword ptr [ebp + 0xc]
+        mov edi,eax
+        mov edx,dword ptr [ebp + 0x18]
+        sub edx,dword ptr [ebp + 0x10]
+        jl checker_43a969
+        mov eax,dword ptr [ebp + 0x1c]
+        mov esi,edi
+        mov ebx,ecx
+        jmp checker_43a93d
+checker_43a936:
+        add esi,dword ptr [ebp - 0x18]
+        mov edi,esi
+        mov ecx,ebx
+checker_43a93d:
+        push edx
+        and edx,0x1
+        jz checker_43a948
+        pop edx
+        inc edi
+        dec ecx
+        jmp checker_43a949
+checker_43a948:
+        pop edx
+checker_43a949:
+        mov byte ptr [edi],al
+        add edi,0x2
+        sub ecx,0x2
+        jg checker_43a949
+        dec edx
+        jns checker_43a936
+        xor eax,eax
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+checker_43a969:
+        mov eax,0xfffffffc
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
     }
-    return 0;
 }
+#pragma optimize("", on)
+
+/* Function start: 0x43A974 */
+/* The segment setup, outcode construction, and REP run decoders identify
+ * this as an original hand-written clipped raster routine. */
+#pragma optimize("", off)
+__declspec(naked) int DrawRLEImage(RasterClip *clip, unsigned char *shape,
+                                    int frame, int x, int y)
+{
+    __asm {
+        push ebp
+        mov ebp,esp
+        add esp,-0x50
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        mov esi,dword ptr [ebp + 0x8]
+        mov ebx,dword ptr [esi]
+        mov eax,dword ptr [ebx + 0x4]
+        inc eax
+        mov dword ptr [ebp - 0x48],eax
+        jle plain_43a9f3
+        mov eax,dword ptr [ebx + 0x8]
+        inc eax
+        mov ecx,eax
+        jle plain_43a9f3
+        mov eax,dword ptr [esi + 0x4]
+        mov dword ptr [ebp - 0x4c],eax
+        cmp eax,0x0
+        jg plain_43a9a7
+        mov eax,0x0
+plain_43a9a7:
+        mov dword ptr [ebp - 0x34],eax
+        mov eax,dword ptr [esi + 0x8]
+        mov dword ptr [ebp - 0x50],eax
+        cmp eax,0x0
+        jg plain_43a9ba
+        mov eax,0x0
+plain_43a9ba:
+        mov dword ptr [ebp - 0x38],eax
+        mov eax,dword ptr [esi + 0xc]
+        mov edx,dword ptr [ebp - 0x48]
+        dec edx
+        cmp eax,edx
+        jl plain_43a9ca
+        mov eax,edx
+plain_43a9ca:
+        mov dword ptr [ebp - 0x3c],eax
+        mov eax,dword ptr [esi + 0x10]
+        mov edx,ecx
+        dec edx
+        cmp eax,edx
+        jl plain_43a9d9
+        mov eax,edx
+plain_43a9d9:
+        mov dword ptr [ebp - 0x40],eax
+        mov eax,dword ptr [ebp - 0x3c]
+        cmp eax,dword ptr [ebp - 0x34]
+        jl plain_43a9fe
+        mov eax,dword ptr [ebp - 0x40]
+        cmp eax,dword ptr [ebp - 0x38]
+        jl plain_43a9fe
+        mov eax,dword ptr [ebx]
+        mov dword ptr [ebp - 0x44],eax
+        jmp plain_43aa09
+plain_43a9f3:
+        mov eax,0xffffffff
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+plain_43a9fe:
+        mov eax,0xfffffffe
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+plain_43aa09:
+        mov eax,dword ptr [ebp - 0x4c]
+        add dword ptr [ebp + 0x14],eax
+        mov eax,dword ptr [ebp - 0x50]
+        add dword ptr [ebp + 0x18],eax
+        mov esi,dword ptr [ebp + 0x10]
+        shl esi,0x3
+        add esi,0x8
+        add esi,dword ptr [ebp + 0xc]
+        mov esi,dword ptr [esi]
+        add esi,dword ptr [ebp + 0xc]
+        mov dword ptr [ebp - 0x30],esi
+        mov eax,dword ptr [esi + 0x8]
+        add eax,dword ptr [ebp + 0x14]
+        mov dword ptr [ebp - 0xc],eax
+        mov eax,dword ptr [esi + 0xc]
+        add eax,dword ptr [ebp + 0x18]
+        mov dword ptr [ebp - 0x10],eax
+        mov eax,dword ptr [esi + 0x10]
+        add eax,dword ptr [ebp + 0x14]
+        mov dword ptr [ebp - 0x14],eax
+        mov eax,dword ptr [esi + 0x14]
+        add eax,dword ptr [ebp + 0x18]
+        mov dword ptr [ebp - 0x18],eax
+        add esi,0x18
+        mov eax,dword ptr [ebp - 0x14]
+        cmp eax,dword ptr [ebp - 0xc]
+        jl plain_43ad6d
+        mov eax,dword ptr [ebp - 0x18]
+        cmp eax,dword ptr [ebp - 0x10]
+        jl plain_43ad6d
+        xor edx,edx
+        mov eax,dword ptr [ebp - 0xc]
+        sub eax,dword ptr [ebp - 0x34]
+        shl eax,0x1
+        adc dl,dl
+        mov eax,dword ptr [ebp - 0x3c]
+        sub eax,dword ptr [ebp - 0xc]
+        shl eax,0x1
+        adc dl,dl
+        mov eax,dword ptr [ebp - 0x10]
+        sub eax,dword ptr [ebp - 0x38]
+        shl eax,0x1
+        adc dl,dl
+        mov eax,dword ptr [ebp - 0x40]
+        sub eax,dword ptr [ebp - 0x10]
+        shl eax,0x1
+        adc dl,dl
+        mov eax,dword ptr [ebp - 0x14]
+        sub eax,dword ptr [ebp - 0x34]
+        shl eax,0x1
+        adc dh,dh
+        mov eax,dword ptr [ebp - 0x3c]
+        sub eax,dword ptr [ebp - 0x14]
+        shl eax,0x1
+        adc dh,dh
+        mov eax,dword ptr [ebp - 0x18]
+        sub eax,dword ptr [ebp - 0x38]
+        shl eax,0x1
+        adc dh,dh
+        mov eax,dword ptr [ebp - 0x40]
+        sub eax,dword ptr [ebp - 0x18]
+        shl eax,0x1
+        adc dh,dh
+        mov dword ptr [ebp - 0x1c],edx
+        test dh,dl
+        jnz plain_43ad62
+        or dl,dh
+        jnz plain_43aaf4
+        mov esi,dword ptr [ebp + 0x8]
+        mov eax,dword ptr [esi + 0x4]
+        sub dword ptr [ebp + 0x14],eax
+        mov eax,dword ptr [esi + 0x8]
+        sub dword ptr [ebp + 0x18],eax
+        push dword ptr [ebp - 0x48]
+        push dword ptr [ebp + 0x18]
+        push dword ptr [ebp + 0x14]
+        push dword ptr [ebp - 0x30]
+        push dword ptr [ebp + 0x8]
+        call DrawRLEImageUnclipped
+        add esp,0x14
+        jmp plain_43ad5a
+plain_43aaf4:
+        mov eax,dword ptr [ebp - 0x10]
+        imul dword ptr [ebp - 0x48]
+        add eax,dword ptr [ebp - 0x44]
+        add eax,dword ptr [ebp - 0xc]
+        mov edi,eax
+        mov ecx,dword ptr [ebp - 0x10]
+        mov dword ptr [ebp - 0x20],ecx
+        jmp plain_43ab20
+plain_43ab0a:
+        movzx eax,al
+        add esi,eax
+        dec esi
+plain_43ab10:
+        inc esi
+plain_43ab11:
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ab10
+        jnz plain_43ab0a
+        jc plain_43ab10
+        add edi,dword ptr [ebp - 0x48]
+        inc ecx
+plain_43ab20:
+        cmp ecx,dword ptr [ebp - 0x38]
+        jl plain_43ab11
+        mov dword ptr [ebp - 0x24],edi
+        mov dword ptr [ebp - 0x20],ecx
+        mov eax,edi
+        sub eax,dword ptr [ebp - 0xc]
+        add eax,dword ptr [ebp - 0x34]
+        mov dword ptr [ebp - 0x28],eax
+        mov eax,edi
+        sub eax,dword ptr [ebp - 0xc]
+        add eax,dword ptr [ebp - 0x3c]
+        mov dword ptr [ebp - 0x2c],eax
+        jmp plain_43ad4e
+plain_43ab46:
+        mov eax,dword ptr [ebp - 0x20]
+        cmp eax,dword ptr [ebp - 0x40]
+        jg plain_43ad5a
+        mov edi,dword ptr [ebp - 0x24]
+        test dword ptr [ebp - 0x1c],0x8
+        jnz plain_43abd3
+        test dword ptr [ebp - 0x1c],0x400
+        jnz plain_43ac5d
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ab8b
+        jnz plain_43abb4
+        jnc plain_43abce
+plain_43ab76:
+        mov al,byte ptr [esi]
+        inc esi
+        movzx ecx,al
+        add edi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ab8b
+        jnz plain_43abb4
+        jc plain_43ab76
+        jnc plain_43abce
+plain_43ab8b:
+        movzx ecx,al
+plain_43ab8e:
+        mov al,byte ptr [esi]
+        inc esi
+        push ecx
+        and ecx,0x3
+        rep stosb
+        mov ah,al
+        rol eax,0x8
+        mov al,ah
+        rol eax,0x8
+        mov al,ah
+        pop ecx
+        shr ecx,0x2
+        rep stosd
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ab8b
+        jnc plain_43abce
+        jz plain_43ab76
+plain_43abb4:
+        movzx ecx,al
+plain_43abb7:
+        push ecx
+        and ecx,0x3
+        rep movsb
+        pop ecx
+        shr ecx,0x2
+        rep movsd
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ab8b
+        jnz plain_43abb4
+        jc plain_43ab76
+plain_43abce:
+        jmp plain_43ad3f
+plain_43abd3:
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43abf3
+        jnz plain_43ac24
+        jnc plain_43ac58
+plain_43abde:
+        mov al,byte ptr [esi]
+        inc esi
+        movzx ecx,al
+        add edi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43abf3
+        jnz plain_43ac24
+        jc plain_43abde
+        jnc plain_43ac58
+plain_43abf3:
+        movzx ecx,al
+        mov eax,dword ptr [ebp - 0x28]
+        sub eax,edi
+        cmp eax,ecx
+        jge plain_43ac16
+        or eax,eax
+        js plain_43ac07
+        add edi,eax
+        sub ecx,eax
+plain_43ac07:
+        test dword ptr [ebp - 0x1c],0x400
+        jz plain_43ab8e
+        jnz plain_43ac84
+plain_43ac16:
+        add edi,ecx
+        inc esi
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43abf3
+        jnc plain_43ac58
+        jz plain_43abde
+plain_43ac24:
+        movzx ecx,al
+        mov eax,dword ptr [ebp - 0x28]
+        sub eax,edi
+        cmp eax,ecx
+        jge plain_43ac49
+        or eax,eax
+        js plain_43ac3a
+        add edi,eax
+        sub ecx,eax
+        add esi,eax
+plain_43ac3a:
+        test dword ptr [ebp - 0x1c],0x400
+        jz plain_43abb7
+        jnz plain_43acc7
+plain_43ac49:
+        add edi,ecx
+        add esi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43abf3
+        jnz plain_43ac24
+        jc plain_43abde
+plain_43ac58:
+        jmp plain_43ad3f
+plain_43ac5d:
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ac81
+        jnz plain_43acc4
+        jnc plain_43acfa
+plain_43ac6c:
+        mov al,byte ptr [esi]
+        inc esi
+        movzx ecx,al
+        add edi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ac81
+        jnz plain_43acc4
+        jc plain_43ac6c
+        jnc plain_43acfa
+plain_43ac81:
+        movzx ecx,al
+plain_43ac84:
+        cmp edi,dword ptr [ebp - 0x2c]
+        jg plain_43ad1f
+        mov eax,edi
+        add eax,ecx
+        dec eax
+        sub eax,dword ptr [ebp - 0x2c]
+        cdq
+        not edx
+        and edx,eax
+        sub ecx,edx
+        mov al,byte ptr [esi]
+        inc esi
+        push ecx
+        and ecx,0x3
+        rep stosb
+        mov ah,al
+        rol eax,0x8
+        mov al,ah
+        rol eax,0x8
+        mov al,ah
+        pop ecx
+        shr ecx,0x2
+        rep stosd
+        add edi,edx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ac81
+        jnc plain_43acfa
+        jz plain_43ac6c
+plain_43acc4:
+        movzx ecx,al
+plain_43acc7:
+        cmp edi,dword ptr [ebp - 0x2c]
+        jg plain_43ad30
+        mov eax,edi
+        add eax,ecx
+        dec eax
+        sub eax,dword ptr [ebp - 0x2c]
+        cdq
+        not edx
+        and edx,eax
+        sub ecx,edx
+        push ecx
+        and ecx,0x3
+        rep movsb
+        pop ecx
+        shr ecx,0x2
+        rep movsd
+        add edi,edx
+        add esi,edx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ac81
+        jnz plain_43acc4
+        jc plain_43ac6c
+plain_43acfa:
+        jmp plain_43ad3f
+plain_43ad07:
+        mov al,byte ptr [esi]
+        inc esi
+        movzx ecx,al
+        add edi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ad1c
+        jnz plain_43ad2d
+        jc plain_43ad07
+        jnc plain_43ad3f
+plain_43ad1c:
+        movzx ecx,al
+plain_43ad1f:
+        add edi,ecx
+        inc esi
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ad1c
+        jnc plain_43ad3f
+        jz plain_43ad07
+plain_43ad2d:
+        movzx ecx,al
+plain_43ad30:
+        add edi,ecx
+        add esi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja plain_43ad1c
+        jnz plain_43ad2d
+        jc plain_43ad07
+plain_43ad3f:
+        mov eax,dword ptr [ebp - 0x48]
+        add dword ptr [ebp - 0x24],eax
+        add dword ptr [ebp - 0x28],eax
+        add dword ptr [ebp - 0x2c],eax
+        inc dword ptr [ebp - 0x20]
+plain_43ad4e:
+        mov eax,dword ptr [ebp - 0x20]
+        cmp eax,dword ptr [ebp - 0x18]
+        jle plain_43ab46
+plain_43ad5a:
+        xor eax,eax
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+plain_43ad62:
+        mov eax,0xfffffffd
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+plain_43ad6d:
+        mov eax,0xfffffffc
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+    }
+}
+#pragma optimize("", on)
 
 /* Function start: 0x43AD78 */
 /* This is one of the original hand-written raster loops: it establishes ES,
  * decodes each prepared scan line, and uses REP stores/copies for the runs. */
 #pragma optimize("", off)
 __declspec(naked) int DrawRLEImageUnclipped(
-    RasterClip *clip, RLEFrameHeader *frameHeader, int x, int y)
+    RasterClip *clip, RLEFrameHeader *frameHeader, int x, int y,
+    int strideScratch)
 {
     __asm {
         push ebp
@@ -1905,127 +2452,560 @@ __declspec(naked) void SetPaletteTranslationTable(
 }
 
 /* Function start: 0x43AE5E */
-int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
-                      int x, int y)
+/* Palette-translated counterpart to the original hand-written clipped
+ * raster routine above. */
+#pragma optimize("", off)
+__declspec(naked) int DrawRLEImageColor(RasterClip *clip,
+                                         unsigned char *shape,
+                                         int frame, int x, int y)
 {
-    RasterSurface *surface;
-    RLEFrameHeader *frameHeader;
-    unsigned char *stream;
-    unsigned char *destination;
-    unsigned char code;
-    unsigned char colour;
-    int stride;
-    int clipLeft;
-    int clipTop;
-    int clipRight;
-    int clipBottom;
-    int imageLeft;
-    int imageTop;
-    int imageRight;
-    int imageBottom;
-    int drawX;
-    int drawY;
-    int runLength;
-    int runLeft;
-    int runRight;
-    int sourceSkip;
-    int copyLength;
-    int pixel;
-
-    surface = clip->surface;
-    if (surface == 0 || surface->pixels == 0 ||
-        surface->maximumX < 0 || surface->maximumY < 0)
-        return -1;
-    clipLeft = clip->left < 0 ? 0 : clip->left;
-    clipTop = clip->top < 0 ? 0 : clip->top;
-    clipRight = clip->right < surface->maximumX ?
-        clip->right : surface->maximumX;
-    clipBottom = clip->bottom < surface->maximumY ?
-        clip->bottom : surface->maximumY;
-    if (clipRight < clipLeft || clipBottom < clipTop)
-        return -2;
-    if (shape == 0 || frame < 0 || frame >= *(int *)(shape + 4))
-        return -4;
-
-    frameHeader = (RLEFrameHeader *)(shape +
-        *(int *)(shape + 8 + frame * 8));
-    imageLeft = frameHeader->left + x + clip->left;
-    imageTop = frameHeader->top + y + clip->top;
-    imageRight = frameHeader->right + x + clip->left;
-    imageBottom = frameHeader->bottom + y + clip->top;
-    if (imageRight < imageLeft || imageBottom < imageTop)
-        return -4;
-    if (imageRight < clipLeft || clipRight < imageLeft ||
-        imageBottom < clipTop || clipBottom < imageTop)
-        return -3;
-    if (clipLeft <= imageLeft && imageRight <= clipRight &&
-        clipTop <= imageTop && imageBottom <= clipBottom)
-        return DrawRLEImageColorUnclipped(clip, frameHeader, x, y);
-
-    stride = surface->maximumX + 1;
-    stream = (unsigned char *)frameHeader + sizeof(RLEFrameHeader);
-    drawY = imageTop;
-    while (drawY <= imageBottom) {
-        drawX = imageLeft;
-        for (;;) {
-            code = *stream++;
-            runLength = code >> 1;
-            if ((code & 1) != 0) {
-                if (runLength == 0) {
-                    drawX += *stream++;
-                } else {
-                    runLeft = drawX;
-                    runRight = drawX + runLength - 1;
-                    if (drawY >= clipTop && drawY <= clipBottom &&
-                        runLeft <= clipRight && runRight >= clipLeft) {
-                        sourceSkip = clipLeft > runLeft ?
-                            clipLeft - runLeft : 0;
-                        copyLength = runLength - sourceSkip;
-                        if (runRight > clipRight)
-                            copyLength -= runRight - clipRight;
-                        destination = surface->pixels + drawY * stride +
-                                      runLeft + sourceSkip;
-                        pixel = 0;
-                        while (pixel < copyLength) {
-                            destination[pixel] =
-                                g_abRasterPaletteTranslation_0046ff2c[
-                                    stream[sourceSkip + pixel]];
-                            pixel++;
-                        }
-                    }
-                    stream += runLength;
-                    drawX += runLength;
-                }
-            } else {
-                if (runLength == 0)
-                    break;
-                colour = g_abRasterPaletteTranslation_0046ff2c[*stream++];
-                runLeft = drawX;
-                runRight = drawX + runLength - 1;
-                if (drawY >= clipTop && drawY <= clipBottom &&
-                    runLeft <= clipRight && runRight >= clipLeft) {
-                    sourceSkip = clipLeft > runLeft ?
-                        clipLeft - runLeft : 0;
-                    copyLength = runLength - sourceSkip;
-                    if (runRight > clipRight)
-                        copyLength -= runRight - clipRight;
-                    destination = surface->pixels + drawY * stride +
-                                  runLeft + sourceSkip;
-                    memset(destination, colour, copyLength);
-                }
-                drawX += runLength;
-            }
-        }
-        drawY++;
+    __asm {
+        push ebp
+        mov ebp,esp
+        add esp,-0x50
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        mov esi,dword ptr [ebp + 0x8]
+        mov ebx,dword ptr [esi]
+        mov eax,dword ptr [ebx + 0x4]
+        inc eax
+        mov dword ptr [ebp - 0x48],eax
+        jle color_43aedd
+        mov eax,dword ptr [ebx + 0x8]
+        inc eax
+        mov ecx,eax
+        jle color_43aedd
+        mov eax,dword ptr [esi + 0x4]
+        mov dword ptr [ebp - 0x4c],eax
+        cmp eax,0x0
+        jg color_43ae91
+        mov eax,0x0
+color_43ae91:
+        mov dword ptr [ebp - 0x34],eax
+        mov eax,dword ptr [esi + 0x8]
+        mov dword ptr [ebp - 0x50],eax
+        cmp eax,0x0
+        jg color_43aea4
+        mov eax,0x0
+color_43aea4:
+        mov dword ptr [ebp - 0x38],eax
+        mov eax,dword ptr [esi + 0xc]
+        mov edx,dword ptr [ebp - 0x48]
+        dec edx
+        cmp eax,edx
+        jl color_43aeb4
+        mov eax,edx
+color_43aeb4:
+        mov dword ptr [ebp - 0x3c],eax
+        mov eax,dword ptr [esi + 0x10]
+        mov edx,ecx
+        dec edx
+        cmp eax,edx
+        jl color_43aec3
+        mov eax,edx
+color_43aec3:
+        mov dword ptr [ebp - 0x40],eax
+        mov eax,dword ptr [ebp - 0x3c]
+        cmp eax,dword ptr [ebp - 0x34]
+        jl color_43aee8
+        mov eax,dword ptr [ebp - 0x40]
+        cmp eax,dword ptr [ebp - 0x38]
+        jl color_43aee8
+        mov eax,dword ptr [ebx]
+        mov dword ptr [ebp - 0x44],eax
+        jmp color_43aef3
+color_43aedd:
+        mov eax,0xffffffff
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+color_43aee8:
+        mov eax,0xfffffffe
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+color_43aef3:
+        mov eax,dword ptr [ebp - 0x4c]
+        add dword ptr [ebp + 0x14],eax
+        mov eax,dword ptr [ebp - 0x50]
+        add dword ptr [ebp + 0x18],eax
+        mov esi,dword ptr [ebp + 0x10]
+        shl esi,0x3
+        add esi,0x8
+        add esi,dword ptr [ebp + 0xc]
+        mov esi,dword ptr [esi]
+        add esi,dword ptr [ebp + 0xc]
+        mov dword ptr [ebp - 0x30],esi
+        mov eax,dword ptr [esi + 0x8]
+        add eax,dword ptr [ebp + 0x14]
+        mov dword ptr [ebp - 0xc],eax
+        mov eax,dword ptr [esi + 0xc]
+        add eax,dword ptr [ebp + 0x18]
+        mov dword ptr [ebp - 0x10],eax
+        mov eax,dword ptr [esi + 0x10]
+        add eax,dword ptr [ebp + 0x14]
+        mov dword ptr [ebp - 0x14],eax
+        mov eax,dword ptr [esi + 0x14]
+        add eax,dword ptr [ebp + 0x18]
+        mov dword ptr [ebp - 0x18],eax
+        add esi,0x18
+        mov eax,dword ptr [ebp - 0x14]
+        cmp eax,dword ptr [ebp - 0xc]
+        jl color_43b32b
+        mov eax,dword ptr [ebp - 0x18]
+        cmp eax,dword ptr [ebp - 0x10]
+        jl color_43b32b
+        xor edx,edx
+        mov eax,dword ptr [ebp - 0xc]
+        sub eax,dword ptr [ebp - 0x34]
+        shl eax,0x1
+        adc dl,dl
+        mov eax,dword ptr [ebp - 0x3c]
+        sub eax,dword ptr [ebp - 0xc]
+        shl eax,0x1
+        adc dl,dl
+        mov eax,dword ptr [ebp - 0x10]
+        sub eax,dword ptr [ebp - 0x38]
+        shl eax,0x1
+        adc dl,dl
+        mov eax,dword ptr [ebp - 0x40]
+        sub eax,dword ptr [ebp - 0x10]
+        shl eax,0x1
+        adc dl,dl
+        mov eax,dword ptr [ebp - 0x14]
+        sub eax,dword ptr [ebp - 0x34]
+        shl eax,0x1
+        adc dh,dh
+        mov eax,dword ptr [ebp - 0x3c]
+        sub eax,dword ptr [ebp - 0x14]
+        shl eax,0x1
+        adc dh,dh
+        mov eax,dword ptr [ebp - 0x18]
+        sub eax,dword ptr [ebp - 0x38]
+        shl eax,0x1
+        adc dh,dh
+        mov eax,dword ptr [ebp - 0x40]
+        sub eax,dword ptr [ebp - 0x18]
+        shl eax,0x1
+        adc dh,dh
+        mov dword ptr [ebp - 0x1c],edx
+        test dh,dl
+        jnz color_43b320
+        or dl,dh
+        jnz color_43afde
+        mov esi,dword ptr [ebp + 0x8]
+        mov eax,dword ptr [esi + 0x4]
+        sub dword ptr [ebp + 0x14],eax
+        mov eax,dword ptr [esi + 0x8]
+        sub dword ptr [ebp + 0x18],eax
+        push dword ptr [ebp - 0x48]
+        push dword ptr [ebp + 0x18]
+        push dword ptr [ebp + 0x14]
+        push dword ptr [ebp - 0x30]
+        push dword ptr [ebp + 0x8]
+        call DrawRLEImageColorUnclipped
+        add esp,0x14
+        jmp color_43b318
+color_43afde:
+        mov eax,dword ptr [ebp - 0x10]
+        imul dword ptr [ebp - 0x48]
+        add eax,dword ptr [ebp - 0x44]
+        add eax,dword ptr [ebp - 0xc]
+        mov edi,eax
+        mov ecx,dword ptr [ebp - 0x10]
+        mov dword ptr [ebp - 0x20],ecx
+        jmp color_43b00a
+color_43aff4:
+        movzx eax,al
+        add esi,eax
+        dec esi
+color_43affa:
+        inc esi
+color_43affb:
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43affa
+        jnz color_43aff4
+        jc color_43affa
+        add edi,dword ptr [ebp - 0x48]
+        inc ecx
+color_43b00a:
+        cmp ecx,dword ptr [ebp - 0x38]
+        jl color_43affb
+        mov dword ptr [ebp - 0x24],edi
+        mov dword ptr [ebp - 0x20],ecx
+        mov eax,edi
+        sub eax,dword ptr [ebp - 0xc]
+        add eax,dword ptr [ebp - 0x34]
+        mov dword ptr [ebp - 0x28],eax
+        mov eax,edi
+        sub eax,dword ptr [ebp - 0xc]
+        add eax,dword ptr [ebp - 0x3c]
+        mov dword ptr [ebp - 0x2c],eax
+        jmp color_43b30c
+color_43b030:
+        mov eax,dword ptr [ebp - 0x20]
+        cmp eax,dword ptr [ebp - 0x40]
+        jg color_43b318
+        mov edi,dword ptr [ebp - 0x24]
+        test dword ptr [ebp - 0x1c],0x8
+        jnz color_43b125
+        test dword ptr [ebp - 0x1c],0x400
+        jnz color_43b1b3
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b081
+        jnz color_43b0b2
+        jnc color_43b120
+color_43b068:
+        mov al,byte ptr [esi]
+        inc esi
+        movzx ecx,al
+        add edi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b081
+        jnz color_43b0b2
+        jc color_43b068
+        jnc color_43b120
+color_43b081:
+        movzx ecx,al
+color_43b084:
+        xor eax,eax
+        mov al,byte ptr [esi]
+        inc esi
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        push ecx
+        and ecx,0x3
+        rep stosb
+        mov ah,al
+        rol eax,0x8
+        mov al,ah
+        rol eax,0x8
+        mov al,ah
+        pop ecx
+        shr ecx,0x2
+        rep stosd
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b081
+        jnc color_43b120
+        jz color_43b068
+color_43b0b2:
+        movzx ecx,al
+color_43b0b5:
+        xor eax,eax
+        or ecx,ecx
+        jz color_43b10d
+        cmp ecx,0x4
+        jl color_43b0fe
+color_43b0c0:
+        mov al,byte ptr [esi]
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi],al
+        mov al,byte ptr [esi + 0x1]
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi + 0x1],al
+        mov al,byte ptr [esi + 0x2]
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi + 0x2],al
+        mov al,byte ptr [esi + 0x3]
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi + 0x3],al
+        add esi,0x4
+        add edi,0x4
+        sub ecx,0x4
+        jz color_43b10d
+        cmp ecx,0x4
+        jge color_43b0c0
+color_43b0fe:
+        mov al,byte ptr [esi]
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi],al
+        inc esi
+        inc edi
+        dec ecx
+        jnz color_43b0fe
+color_43b10d:
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b081
+        jnz color_43b0b2
+        jc color_43b068
+color_43b120:
+        jmp color_43b2fd
+color_43b125:
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b145
+        jnz color_43b176
+        jnc color_43b1ae
+color_43b130:
+        mov al,byte ptr [esi]
+        inc esi
+        movzx ecx,al
+        add edi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b145
+        jnz color_43b176
+        jc color_43b130
+        jnc color_43b1ae
+color_43b145:
+        movzx ecx,al
+        mov eax,dword ptr [ebp - 0x28]
+        sub eax,edi
+        cmp eax,ecx
+        jge color_43b168
+        or eax,eax
+        js color_43b159
+        add edi,eax
+        sub ecx,eax
+color_43b159:
+        test dword ptr [ebp - 0x1c],0x400
+        jz color_43b084
+        jnz color_43b1de
+color_43b168:
+        add edi,ecx
+        inc esi
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b145
+        jnc color_43b1ae
+        jz color_43b130
+color_43b176:
+        movzx ecx,al
+        mov eax,dword ptr [ebp - 0x28]
+        sub eax,edi
+        cmp eax,ecx
+        jge color_43b19f
+        or eax,eax
+        js color_43b18c
+        add edi,eax
+        sub ecx,eax
+        add esi,eax
+color_43b18c:
+        test dword ptr [ebp - 0x1c],0x400
+        jz color_43b0b5
+        jnz color_43b22d
+color_43b19f:
+        add edi,ecx
+        add esi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b145
+        jnz color_43b176
+        jc color_43b130
+color_43b1ae:
+        jmp color_43b2fd
+color_43b1b3:
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b1db
+        jnz color_43b22a
+        jnc color_43b2b8
+color_43b1c2:
+        mov al,byte ptr [esi]
+        inc esi
+        movzx ecx,al
+        add edi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b1db
+        jnz color_43b22a
+        jc color_43b1c2
+        jnc color_43b2b8
+color_43b1db:
+        movzx ecx,al
+color_43b1de:
+        cmp edi,dword ptr [ebp - 0x2c]
+        jg color_43b2dd
+        mov eax,edi
+        add eax,ecx
+        dec eax
+        sub eax,dword ptr [ebp - 0x2c]
+        cdq
+        not edx
+        and edx,eax
+        sub ecx,edx
+        xor eax,eax
+        mov al,byte ptr [esi]
+        inc esi
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        push ecx
+        and ecx,0x3
+        rep stosb
+        mov ah,al
+        rol eax,0x8
+        mov al,ah
+        rol eax,0x8
+        mov al,ah
+        pop ecx
+        shr ecx,0x2
+        rep stosd
+        add edi,edx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b1db
+        jnc color_43b2b8
+        jz color_43b1c2
+color_43b22a:
+        movzx ecx,al
+color_43b22d:
+        cmp edi,dword ptr [ebp - 0x2c]
+        jg color_43b2ee
+        mov eax,edi
+        add eax,ecx
+        dec eax
+        sub eax,dword ptr [ebp - 0x2c]
+        cdq
+        not edx
+        and edx,eax
+        sub ecx,edx
+        xor eax,eax
+        or ecx,ecx
+        jz color_43b29d
+        cmp ecx,0x4
+        jl color_43b28e
+color_43b250:
+        mov al,byte ptr [esi]
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi],al
+        mov al,byte ptr [esi + 0x1]
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi + 0x1],al
+        mov al,byte ptr [esi + 0x2]
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi + 0x2],al
+        mov al,byte ptr [esi + 0x3]
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi + 0x3],al
+        add esi,0x4
+        add edi,0x4
+        sub ecx,0x4
+        jz color_43b29d
+        cmp ecx,0x4
+        jge color_43b250
+color_43b28e:
+        mov al,byte ptr [esi]
+        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov byte ptr [edi],al
+        inc esi
+        inc edi
+        dec ecx
+        jnz color_43b28e
+color_43b29d:
+        add edi,edx
+        add esi,edx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b1db
+        jnz color_43b22a
+        jc color_43b1c2
+color_43b2b8:
+        jmp color_43b2fd
+color_43b2c5:
+        mov al,byte ptr [esi]
+        inc esi
+        movzx ecx,al
+        add edi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b2da
+        jnz color_43b2eb
+        jc color_43b2c5
+        jnc color_43b2fd
+color_43b2da:
+        movzx ecx,al
+color_43b2dd:
+        add edi,ecx
+        inc esi
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b2da
+        jnc color_43b2fd
+        jz color_43b2c5
+color_43b2eb:
+        movzx ecx,al
+color_43b2ee:
+        add edi,ecx
+        add esi,ecx
+        mov al,byte ptr [esi]
+        inc esi
+        shr al,0x1
+        ja color_43b2da
+        jnz color_43b2eb
+        jc color_43b2c5
+color_43b2fd:
+        mov eax,dword ptr [ebp - 0x48]
+        add dword ptr [ebp - 0x24],eax
+        add dword ptr [ebp - 0x28],eax
+        add dword ptr [ebp - 0x2c],eax
+        inc dword ptr [ebp - 0x20]
+color_43b30c:
+        mov eax,dword ptr [ebp - 0x20]
+        cmp eax,dword ptr [ebp - 0x18]
+        jle color_43b030
+color_43b318:
+        xor eax,eax
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+color_43b320:
+        mov eax,0xfffffffd
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
+color_43b32b:
+        mov eax,0xfffffffc
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0xc9
+        ret
     }
-    return 0;
 }
+#pragma optimize("", on)
 
 /* Function start: 0x43B336 */
 /* Palette-translated counterpart to the original hand-written loop above. */
 #pragma optimize("", off)
 __declspec(naked) int DrawRLEImageColorUnclipped(
-    RasterClip *clip, RLEFrameHeader *frameHeader, int x, int y)
+    RasterClip *clip, RLEFrameHeader *frameHeader, int x, int y,
+    int strideScratch)
 {
     __asm {
         push ebp
@@ -2823,33 +3803,195 @@ blit_no_overlap:
     }
 }
 
-/* Function start: 0x43E3B1 */
-void TransformRLEPoint(int *point, int *result, int *origin,
-                       unsigned int angleTenths, int scaleX,
-                       int scaleY)
+/* Function start: 0x43E2D3 */
+/* Segment preservation and the in-text lookup table identify this as part of
+ * the original hand-written raster assembly. */
+__declspec(naked) void GetRLETransformTrig(int angleTenths, int *cosine,
+                                           int *sine)
 {
-    int sine;
-    int cosine;
-    int relativeX;
-    int relativeY;
-    int scaledX;
-    int scaledY;
-    __int64 value;
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        mov ebx, dword ptr [ebp + 8]
+        and ebx, ebx
+        jns rle_trig_reduce_high
+rle_trig_reduce_low:
+        add ebx, 0e10h
+        js rle_trig_reduce_low
+        jmp rle_trig_reduce_high
+rle_trig_subtract_turn:
+        sub ebx, 0e10h
+rle_trig_reduce_high:
+        cmp ebx, 0e10h
+        jg rle_trig_subtract_turn
+        cmp ebx, 708h
+        ja rle_trig_lower_half
+        cmp ebx, 384h
+        ja rle_trig_second_quadrant
+        shl ebx, 2
+        mov eax, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx]
+        neg ebx
+        mov edx, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx + 0e10h]
+        jmp rle_trig_store
+rle_trig_second_quadrant:
+        neg ebx
+        add ebx, 708h
+        shl ebx, 2
+        mov eax, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx]
+        neg eax
+        neg ebx
+        mov edx, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx + 0e10h]
+        jmp rle_trig_store
+rle_trig_lower_half:
+        neg ebx
+        add ebx, 0e10h
+        cmp ebx, 384h
+        ja rle_trig_fourth_quadrant
+        shl ebx, 2
+        mov eax, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx]
+        neg ebx
+        mov edx, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx + 0e10h]
+        neg edx
+        jmp rle_trig_store
+rle_trig_fourth_quadrant:
+        neg ebx
+        add ebx, 708h
+        shl ebx, 2
+        mov eax, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx]
+        neg eax
+        neg ebx
+        mov edx, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx + 0e10h]
+        neg edx
+rle_trig_store:
+        mov ebx, dword ptr [ebp + 0ch]
+        mov dword ptr [ebx], eax
+        mov ebx, dword ptr [ebp + 10h]
+        mov dword ptr [ebx], edx
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+    }
+}
 
-    sine = (int)SinFixed((short)(angleTenths / 10));
-    cosine = (int)CosFixed((short)(angleTenths / 10));
-    relativeX = point[0] - origin[0];
-    relativeY = point[1] - origin[1];
-    value = (__int64)relativeX * scaleX;
-    scaledX = (int)((value + (value < 0 ? -0x8000 : 0x8000)) >> 16);
-    value = (__int64)relativeY * scaleY;
-    scaledY = (int)((value + (value < 0 ? -0x8000 : 0x8000)) >> 16);
-    value = (__int64)scaledX * cosine - (__int64)scaledY * sine;
-    result[0] = origin[0] +
-        (int)((value + (value < 0 ? -0x80 : 0x80)) >> 8);
-    value = (__int64)scaledY * cosine + (__int64)scaledX * sine;
-    result[1] = origin[1] +
-        (int)((value + (value < 0 ? -0x80 : 0x80)) >> 8);
+/* Function start: 0x43E38B */
+__declspec(naked) void CalculateRoundedRLEFixedProduct(int left, int right,
+                                                       int *result)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        mov eax, dword ptr [ebp + 8]
+        imul dword ptr [ebp + 0ch]
+        add eax, 8000h
+        adc edx, 0
+        mov ax, dx
+        ror eax, 10h
+        mov edi, dword ptr [ebp + 10h]
+        mov dword ptr [edi], eax
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+    }
+}
+
+/* Function start: 0x43E3B1 */
+__declspec(naked) void TransformRLEPoint(int *point, int *result,
+                                         int *origin,
+                                         unsigned int angleTenths,
+                                         int scaleX, int scaleY)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        add esp, -20h
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        lea eax, [ebp - 8]
+        push eax
+        lea eax, [ebp - 4]
+        push eax
+        push dword ptr [ebp + 14h]
+        call GetRLETransformTrig
+        add esp, 0ch
+        mov esi, dword ptr [ebp + 8]
+        mov edi, dword ptr [ebp + 10h]
+        mov eax, dword ptr [esi]
+        sub eax, dword ptr [edi]
+        shl eax, 10h
+        imul dword ptr [ebp + 18h]
+        add eax, 8000h
+        adc edx, 0
+        mov ebx, edx
+        mov eax, ebx
+        imul dword ptr [ebp - 4]
+        add eax, 8000h
+        adc edx, 0
+        mov ax, dx
+        ror eax, 10h
+        mov dword ptr [ebp - 0ch], eax
+        mov eax, ebx
+        imul dword ptr [ebp - 8]
+        add eax, 8000h
+        adc edx, 0
+        mov ax, dx
+        ror eax, 10h
+        mov dword ptr [ebp - 14h], eax
+        mov eax, dword ptr [esi + 4]
+        sub eax, dword ptr [edi + 4]
+        shl eax, 10h
+        imul dword ptr [ebp + 1ch]
+        add eax, 8000h
+        adc edx, 0
+        mov ecx, edx
+        mov eax, ecx
+        imul dword ptr [ebp - 4]
+        add eax, 8000h
+        adc edx, 0
+        mov ax, dx
+        ror eax, 10h
+        mov dword ptr [ebp - 18h], eax
+        mov eax, ecx
+        imul dword ptr [ebp - 8]
+        add eax, 8000h
+        adc edx, 0
+        mov ax, dx
+        ror eax, 10h
+        mov dword ptr [ebp - 10h], eax
+        mov esi, dword ptr [ebp + 0ch]
+        mov edx, dword ptr [ebp - 0ch]
+        sub edx, dword ptr [ebp - 10h]
+        add edx, dword ptr [edi]
+        mov dword ptr [esi], edx
+        mov edx, dword ptr [ebp - 18h]
+        add edx, dword ptr [ebp - 14h]
+        add edx, dword ptr [edi + 4]
+        mov dword ptr [esi + 4], edx
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+    }
 }
 
 /* Function start: 0x43EF20 */

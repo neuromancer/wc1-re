@@ -1120,16 +1120,21 @@ unsigned int ShowGameOverScreen(void);                                 /* 0x0043
 int ReadRasterClipPixel(RasterClip *clip, int x, int y);                /* 0x00439D63 */
 unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
                              int mode, int colour);                    /* 0x00439E39 */
+int FillRasterClipCheckerboard(RasterClip *clip, int left, int top,
+                               int right, int bottom,
+                               unsigned char colour);                 /* 0x0043A83B */
 int DrawRLEImage(RasterClip *clip, unsigned char *shape, int frame,
                  int x, int y);                                      /* 0x0043A974 */
 int DrawRLEImageUnclipped(RasterClip *clip, RLEFrameHeader *frameHeader,
-                          int x, int y);                              /* 0x0043AD78 */
+                          int x, int y,
+                          int strideScratch);                         /* 0x0043AD78 */
 void SetPaletteTranslationTable(const unsigned char *translation);    /* 0x0043AE3F */
 int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
                       int x, int y);                                 /* 0x0043AE5E */
 int DrawRLEImageColorUnclipped(RasterClip *clip,
                                RLEFrameHeader *frameHeader,
-                               int x, int y);                         /* 0x0043B336 */
+                               int x, int y,
+                               int strideScratch);                    /* 0x0043B336 */
 int RotateRLEImage(RasterClip *clip, unsigned char *shape, int frame,
                    int x, int y, unsigned char *scratch,
                    unsigned int angleTenths, int scaleX, int scaleY,
@@ -1138,6 +1143,8 @@ int FillRasterClip(RasterClip *clip, int colour);                      /* 0x0043
 int BlitRasterClip(RasterClip *source, int sourceX, int sourceY,
                    RasterClip *destination, int destinationX,
                    int destinationY, unsigned int colour);            /* 0x0043C8E7 */
+void GetRLETransformTrig(int angleTenths, int *cosine, int *sine);     /* 0x0043E2D3 */
+void CalculateRoundedRLEFixedProduct(int left, int right, int *result); /* 0x0043E38B */
 void TransformRLEPoint(int *point, int *result, int *origin,
                        unsigned int angleTenths, int scaleX,
                        int scaleY);                                   /* 0x0043E3B1 */
