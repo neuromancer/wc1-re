@@ -708,7 +708,7 @@ short g_nInputDoubleClickInterval_0046af54 = 1;
 short g_nMenuPointerSpeed_0046af58 = 2;
 short g_nCommMenuChoiceCount_0046af60 = -1;
 short g_nCommMenuReuseMode_0046af64;
-unsigned char DAT_0046af6c = 1;
+signed char g_cPendingCommMenuAction_0046af6c = 1;
 unsigned char g_bRadioSilence_0046af70;
 unsigned char g_bVideoImagesSuppressed_0046af74;
 unsigned char DAT_0046af78 = 1;

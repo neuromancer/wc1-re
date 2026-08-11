@@ -72,7 +72,7 @@ char FindCdRomDriveByVolumeLabel(const char *label,
                                  const char *directory);              /* 0x00403290 */
 int SetCurrentDirOnDrive(char drive, const char *directory);          /* 0x004033E0 */
 int PromptInsertCorrectCd(void);                                      /* 0x00403450 */
-short OpenDataFileOrDie(const char *path);                                     /* 0x004034D0 */
+short __stdcall OpenDataFileOrDie(const char *path);                           /* 0x004034D0 */
 void __stdcall CloseDataFile(unsigned int fd);                             /* 0x00403500 */
 short __stdcall WriteDataFileAtOffset(unsigned int fd, int offset,
                                       unsigned int length,
@@ -973,11 +973,11 @@ unsigned int InitializeConstellationField(Viewport *viewport,
                                           short direction,
                                           short density);             /* 0x0042D390 */
 unsigned int DrawConstellationField(void);                             /* 0x0042D500 */
-unsigned int OpenPacketSection(const char *filename, short section,
-                               PacketSectionHandle *handle);           /* 0x0042D730 */
+short __stdcall OpenPacketSection(const char *filename, short section,
+                                  PacketSectionHandle *handle);        /* 0x0042D730 */
 void show_target_disp(void);                                         /* 0x0042DB90 */
 void DrawTargetRangeReadout(void);                                   /* 0x0042DEA0 */
-void CloseDataFileByHandle(unsigned short *p);                                  /* 0x0042D870 */
+void __stdcall CloseDataFileByHandle(unsigned short *p);                       /* 0x0042D870 */
 short GetTargetColourIndex(void);                                                /* 0x0042DB70 */
 void LogDisplayMode(const char *mode);                                 /* 0x0042E020 */
 unsigned short __stdcall AllocateViewport(Viewport *viewport,
@@ -1023,7 +1023,8 @@ void request(short requester, short ship, short command);             /* 0x0042F
 unsigned short __stdcall ShouldSuspendCursorForRect(
     const ShortRect *bounds);                                           /* 0x0042F730 */
 void InitFullScreenViewport(int *vp, short arg);                                    /* 0x0042F7E0 */
-unsigned int GetPacketSize(const char *filename, short section);       /* 0x0042F810 */
+unsigned int __stdcall GetPacketSize(const char *filename,
+                                     short section);                  /* 0x0042F810 */
 void FrameStartHook(int mode);                                         /* 0x0042F930 */
 unsigned short IsSoundHardwarePresent(void);                                     /* 0x0042F940 */
 void MessagePumpHook(int mode);                                        /* 0x0042F950 */
@@ -1058,6 +1059,7 @@ void RefreshCommunicationMenu(void);                                 /* 0x004312
 void HandleCommunicationMenuRequest(void);                            /* 0x00431240 */
 void show_communications_disp(void);                                  /* 0x00431290 */
 unsigned int Chosen_communicate_option(short choice);                 /* 0x00431350 */
+void talk_equiv(void);                                                /* 0x00431400 */
 void FreeCommDisplayResources(void);                                  /* 0x00431410 */
 void EndCommSessionWithWingman(void);                                  /* 0x00431470 */
 void EndCommMenu(void);                                              /* 0x004314C0 */
@@ -1334,9 +1336,9 @@ void InitializeRoomViewports(void);                                   /* 0x0043F
 short RecRoom(void);                                                  /* 0x0043F940 */
 void ShowChalkBoard(void);                                            /* 0x00440510 */
 void ResetCampaignData(void);                                         /* 0x00440800 */
-unsigned int ReadPacketSectionData(PacketSectionHandle *handle,
-                                   void *destination,
-                                   unsigned int length);               /* 0x00440840 */
+short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
+                                      void *destination,
+                                      unsigned int length);            /* 0x00440840 */
 void CheckHeapBlockSignature(unsigned char *shape);                  /* 0x004408A0 */
 unsigned char *GetPreparedShapeData(unsigned char *shape);           /* 0x004408C0 */
 short __stdcall GetShapeFrameCount(unsigned char *shape);            /* 0x004408D0 */

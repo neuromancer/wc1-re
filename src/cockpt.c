@@ -2524,7 +2524,7 @@ void update_VDUs(void)
         case 4:
             if (DAT_0046a008 != 0)
                 show_communications_disp();
-            RefreshCommunicationMenu();
+            talk_equiv();
             break;
         case 5:
             if (DAT_0046a008 != 0)
@@ -2629,7 +2629,7 @@ void SelectCockpitVduMode(short vdu, int mode)
         cycle_onscreen_targets();
         break;
     case 4:
-        RefreshCommunicationMenu();
+        talk_equiv();
         break;
     case 5:
         InflightComputer();

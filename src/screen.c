@@ -97,10 +97,12 @@ void reply(short ship, short accepted)
 /* Function start: 0x42F240 */
 int disobey_formation(short ship)
 {
-    if (g_aiPilotLevel_0059cf30[ship] == 10)
+    switch (g_aiPilotLevel_0059cf30[ship]) {
+    case 10:
         return any_enemy_tail(0);
-    if (g_aiPilotLevel_0059cf30[ship] == 11)
+    case 11:
         return report_kilrathi_rout(0);
+    }
     return 0;
 }
 
@@ -303,19 +305,23 @@ void InitFullScreenViewport(int *record, short arg)
 }
 
 /* Function start: 0x42F810 */
-unsigned int GetPacketSize(const char *filename, short section)
+unsigned int __stdcall GetPacketSize(const char *filename, short section)
 {
     PacketSectionHandle handle;
     unsigned int size;
 
     size = (unsigned int)-1;
     if (OpenPacketSection(filename, section, &handle) != 0) {
-        if (handle.compression == 1) {
+        switch (handle.compression) {
+        case 1:
             ReadPacketSectionData(&handle, &size, 4);
             if (DAT_00465460 != 0)
                 size = (unsigned int)-1;
-        } else {
+            break;
+        case 2:
+        default:
             size = handle.dataSize;
+            break;
         }
         CloseDataFileByHandle((unsigned short *)&handle);
     }
@@ -451,13 +457,11 @@ __declspec(naked) unsigned int GetFixedOneMillionThunkAlt(void) { __asm { jmp Ge
 /* Function start: 0x430710 */
 short __stdcall UpdateInputDeviceTransitions(short raw)
 {
-    InputDeviceSample *sample;
     unsigned int now;
     unsigned short buttons;
     unsigned short changed;
     unsigned short previous;
     short device;
-    int threshold;
 
     device = g_nActiveInputDevice_005a819c;
     if (raw == 0)
@@ -466,24 +470,22 @@ short __stdcall UpdateInputDeviceTransitions(short raw)
         SampleJoystickDevice(&g_aInputDeviceSamples_005a81f0[device],
                              device, 0);
 
-    sample = &g_aInputDeviceSamples_005a81f0[device];
     g_asInputButton2DoubleClick_0059e520[device] = 0;
     g_asInputButton1DoubleClick_0059e508[device] = 0;
     g_asInputButton2Changed_0059e510[device] = 0;
     g_asInputButton1Changed_0059e50c[device] = 0;
-    buttons = (unsigned short)sample->buttons;
+    buttons = (unsigned short)g_aInputDeviceSamples_005a81f0[device].buttons;
     previous = (unsigned short)g_asPreviousInputButtons_0059e514[device];
     if (buttons != previous) {
         changed = buttons ^ previous;
         now = DAT_0059ab54;
-        threshold = g_nInputDoubleClickInterval_0046af54 *
-                    g_nInputTickScale_0059af90;
         if ((changed & 1) != 0) {
             g_asInputButton1Changed_0059e50c[device] = 1;
             if ((buttons & 1) != 0) {
                 if ((int)(now -
                     g_anInputButton1PressTime_0059e518[device]) <=
-                        threshold)
+                        g_nInputDoubleClickInterval_0046af54 *
+                        g_nInputTickScale_0059af90)
                     g_asInputButton1DoubleClick_0059e508[device] = 1;
                 g_anInputButton1PressTime_0059e518[device] = now;
             }
@@ -493,7 +495,8 @@ short __stdcall UpdateInputDeviceTransitions(short raw)
             if ((buttons & 2) != 0) {
                 if ((int)(now -
                     g_anInputButton2PressTime_0059e500[device]) <=
-                        threshold)
+                        g_nInputDoubleClickInterval_0046af54 *
+                        g_nInputTickScale_0059af90)
                     g_asInputButton2DoubleClick_0059e520[device] = 1;
                 g_anInputButton2PressTime_0059e500[device] = now;
             }
@@ -550,6 +553,7 @@ void PollMenuInputDevices(void)
     char doubleClick;
     short movementX;
     short movementY;
+    int deviceIndex;
 
     changes = 0;
     if (g_nActiveInputDevice_005a819c == -1)
@@ -561,42 +565,40 @@ void PollMenuInputDevices(void)
     g_bInputPollingGuard_0046a01c++;
     UpdateInputDeviceTransitions(0);
 
-    if (g_asInputButton1Changed_0059e50c
-            [g_nActiveInputDevice_005a819c] != 0) {
+    deviceIndex = (int)g_nActiveInputDevice_005a819c;
+    if (g_asInputButton1Changed_0059e50c[deviceIndex] != 0) {
         g_nHostMouseX_0059af70 +=
             (short)g_aInputDeviceSamples_005a81f0
-                [g_nActiveInputDevice_005a819c].x *
+                [deviceIndex].x *
             g_nMenuPointerSpeed_0046af58;
         g_nHostMouseY_0059af72 +=
             (short)g_aInputDeviceSamples_005a81f0
-                [g_nActiveInputDevice_005a819c].y *
+                [deviceIndex].y *
             g_nMenuPointerSpeed_0046af58;
-        if (g_asInputButton1DoubleClick_0059e508
-                [g_nActiveInputDevice_005a819c] != 0)
+        if (g_asInputButton1DoubleClick_0059e508[deviceIndex] != 0)
             changes = 3;
         QueueInputEventAtCursor(
             ((unsigned short)g_aInputDeviceSamples_005a81f0
-                [g_nActiveInputDevice_005a819c].buttons & 1) + 1,
+                [deviceIndex].buttons & 1) + 1,
             0, (short)(signed char)changes);
         changes = 1;
     }
-    if (g_asInputButton2Changed_0059e510
-            [g_nActiveInputDevice_005a819c] != 0) {
+    deviceIndex = (int)g_nActiveInputDevice_005a819c;
+    if (g_asInputButton2Changed_0059e510[deviceIndex] != 0) {
         g_nHostMouseX_0059af70 +=
             (short)g_aInputDeviceSamples_005a81f0
-                [g_nActiveInputDevice_005a819c].x *
+                [deviceIndex].x *
             g_nMenuPointerSpeed_0046af58;
         g_nHostMouseY_0059af72 +=
             (short)g_aInputDeviceSamples_005a81f0
-                [g_nActiveInputDevice_005a819c].y *
+                [deviceIndex].y *
             g_nMenuPointerSpeed_0046af58;
         doubleClick = 0;
-        if (g_asInputButton1DoubleClick_0059e508
-                [g_nActiveInputDevice_005a819c] != 0)
+        if (g_asInputButton1DoubleClick_0059e508[deviceIndex] != 0)
             doubleClick = 3;
         QueueInputEventAtCursor(
             (((unsigned short)g_aInputDeviceSamples_005a81f0
-                [g_nActiveInputDevice_005a819c].buttons >> 1) & 1) + 1,
+                [deviceIndex].buttons >> 1) & 1) + 1,
             1, (short)doubleClick);
         changes++;
     }
@@ -742,13 +744,13 @@ int IsCommChoiceMenuOpen(void)
 /* Function start: 0x430DA0 */
 short GetPendingMenuAction(void)
 {
-    return (short)DAT_0046af6c;
+    return (short)g_cPendingCommMenuAction_0046af6c;
 }
 
 /* Function start: 0x430DB0 */
 void SetPendingMenuAction(unsigned char v)
 {
-    DAT_0046af6c = v;
+    g_cPendingCommMenuAction_0046af6c = (signed char)v;
 }
 
 /* Function start: 0x430DC0 */
@@ -977,32 +979,40 @@ void show_communications_disp(void)
 /* Function start: 0x431350 */
 unsigned int Chosen_communicate_option(short choice)
 {
-    short action;
+    int action;
 
     PlaySfxWaveFileByNumber(0x19, -1, 0);
     action = GetPendingMenuAction();
-    if (action == 0) {
+    switch (action) {
+    case 0:
         CloseCommChoiceMenu();
         return 0;
-    }
-    if (action == 1) {
+    case 1:
         if (g_abCommMenuChoiceCommand_0059e488[choice] == 0) {
             CloseCommChoiceMenu();
             return 0;
         }
-        if (g_abCommMenuChoiceCommand_0059e488[choice] == 1)
+        if (g_abCommMenuChoiceCommand_0059e488[choice] == 1) {
             SelectCommRecipient((signed char)g_nYourWingman_0046c04c);
-        else
-            SelectCommRecipient(g_acShipTarget_0059ce60[0]);
+            RefreshCommunicationMenu();
+            return 0;
+        }
+        SelectCommRecipient(g_acShipTarget_0059ce60[0]);
         RefreshCommunicationMenu();
         return 0;
-    }
-    if (action == 2) {
+    case 2:
         CloseCommChoiceMenu();
         request(0, (short)g_cCommMenuRecipient_0046afc4,
                 (short)g_abCommMenuChoiceCommand_0059e488[choice]);
+        return 0;
     }
     return 0;
+}
+
+/* Function start: 0x431400 */
+void talk_equiv(void)
+{
+    RefreshCommunicationMenu();
 }
 
 /* Function start: 0x431410 */
@@ -1195,75 +1205,86 @@ __declspec(naked) void __stdcall ShutdownVideoHook(int mode)
 short ReadCalibratedJoystick(void)
 {
     InputDeviceSample *sample;
+    int sampleResult;
     int rawX;
     int rawY;
-    int normalizedX;
-    int normalizedY;
+    int deviceIndex;
+    short normalizedX;
+    short normalizedY;
     short device;
 
     device = g_nActiveInputDevice_005a819c;
     if (device == -1)
         return 0;
-    sample = &g_aInputDeviceSamples_005a81f0[device];
-    if (SampleJoystickDevice(sample, device,
-                             g_nJoystickFailureValue_005a81e0) != 0 ||
-        sample->x == g_nJoystickFailureValue_005a81e0 ||
-        sample->y == g_nJoystickFailureValue_005a81e0) {
+    deviceIndex = (int)device;
+    sample = &g_aInputDeviceSamples_005a81f0[deviceIndex];
+    sampleResult = SampleJoystickDevice(
+        sample, device,
+        g_nJoystickFailureValue_005a81e0);
+    rawX = sample->x;
+    rawY = g_aInputDeviceSamples_005a81f0[deviceIndex].y;
+    if (rawX == g_nJoystickFailureValue_005a81e0 ||
+        rawY == g_nJoystickFailureValue_005a81e0 ||
+        sampleResult != 0) {
         g_nActiveInputDevice_005a819c = -1;
+        g_aInputDeviceSamples_005a81f0[deviceIndex].buttons = 0;
+        g_aInputDeviceSamples_005a81f0[deviceIndex].y = 0;
         sample->x = 0;
-        sample->y = 0;
-        sample->buttons = 0;
         return 0;
     }
 
-    rawX = sample->x;
-    rawY = sample->y;
     g_nJoystickRawX_005a81c0 = rawX;
     g_nJoystickRawY_005a81c4 = rawY;
-    if (sample->x < g_nJoystickMinimumX_005a81b8)
+    if (rawX < g_nJoystickMinimumX_005a81b8)
         sample->x = g_nJoystickMinimumX_005a81b8;
     if (sample->x > g_nJoystickMaximumX_005a81b0)
         sample->x = g_nJoystickMaximumX_005a81b0;
-    if (sample->y < g_nJoystickMinimumY_005a81bc)
-        sample->y = g_nJoystickMinimumY_005a81bc;
-    if (sample->y > g_nJoystickMaximumY_005a81b4)
-        sample->y = g_nJoystickMaximumY_005a81b4;
+    if (g_aInputDeviceSamples_005a81f0[deviceIndex].y <
+        g_nJoystickMinimumY_005a81bc)
+        g_aInputDeviceSamples_005a81f0[deviceIndex].y =
+            g_nJoystickMinimumY_005a81bc;
+    if (g_aInputDeviceSamples_005a81f0[deviceIndex].y >
+        g_nJoystickMaximumY_005a81b4)
+        g_aInputDeviceSamples_005a81f0[deviceIndex].y =
+            g_nJoystickMaximumY_005a81b4;
 
+    normalizedY = 0;
     normalizedX = 0;
-    if (sample->x < g_nJoystickCentreX_005a81dc &&
-        g_nJoystickLeftScale_005a81ac != 0) {
-        normalizedX = (g_nJoystickCentreX_005a81dc - sample->x) /
-                      g_nJoystickLeftScale_005a81ac;
-        if (normalizedX > g_nJoystickHorizontalDeadZone_005a81a4)
-            normalizedX = -normalizedX;
-        else
+    rawX = sample->x;
+    if (g_nJoystickCentreX_005a81dc > rawX) {
+        normalizedX = (short)((g_nJoystickCentreX_005a81dc - rawX) /
+                              g_nJoystickLeftScale_005a81ac);
+        if (g_nJoystickHorizontalDeadZone_005a81a4 < normalizedX) {
+            if (normalizedX != 0)
+                normalizedX = (short)-normalizedX;
+        } else {
             normalizedX = 0;
-    } else if (sample->x > g_nJoystickCentreX_005a81dc &&
-               g_nJoystickRightScale_005a81d0 != 0) {
-        normalizedX = (sample->x - g_nJoystickCentreX_005a81dc) /
-                      g_nJoystickRightScale_005a81d0;
+        }
+    } else if (g_nJoystickCentreX_005a81dc < rawX) {
+        normalizedX = (short)((rawX - g_nJoystickCentreX_005a81dc) /
+                              g_nJoystickRightScale_005a81d0);
         if (normalizedX <= g_nJoystickHorizontalDeadZone_005a81a4)
             normalizedX = 0;
     }
 
-    normalizedY = 0;
-    if (sample->y < g_nJoystickCentreY_005a81d8 &&
-        g_nJoystickUpScale_005a81a8 != 0) {
-        normalizedY = (g_nJoystickCentreY_005a81d8 - sample->y) /
-                      g_nJoystickUpScale_005a81a8;
-        if (normalizedY > g_nJoystickVerticalDeadZone_005a81a0)
-            normalizedY = -normalizedY;
-        else
+    rawY = g_aInputDeviceSamples_005a81f0[deviceIndex].y;
+    if (g_nJoystickCentreY_005a81d8 > rawY) {
+        normalizedY = (short)((g_nJoystickCentreY_005a81d8 - rawY) /
+                              g_nJoystickUpScale_005a81a8);
+        if (g_nJoystickVerticalDeadZone_005a81a0 < normalizedY) {
+            if (normalizedY != 0)
+                normalizedY = (short)-normalizedY;
+        } else {
             normalizedY = 0;
-    } else if (sample->y > g_nJoystickCentreY_005a81d8 &&
-               g_nJoystickDownScale_005a81d4 != 0) {
-        normalizedY = (sample->y - g_nJoystickCentreY_005a81d8) /
-                      g_nJoystickDownScale_005a81d4;
+        }
+    } else if (g_nJoystickCentreY_005a81d8 < rawY) {
+        normalizedY = (short)((rawY - g_nJoystickCentreY_005a81d8) /
+                              g_nJoystickDownScale_005a81d4);
         if (normalizedY <= g_nJoystickVerticalDeadZone_005a81a0)
             normalizedY = 0;
     }
-    sample->x = (short)normalizedX;
-    sample->y = (short)normalizedY;
+    sample->x = (int)normalizedX;
+    g_aInputDeviceSamples_005a81f0[deviceIndex].y = (int)normalizedY;
     return 1;
 }
 

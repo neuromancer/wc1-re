@@ -305,7 +305,7 @@ extern const char g_szSfxWaveFormat_0046ad2c[12];
 extern unsigned char g_abTaggedAllocationPrefix_0046ad88[8];
 extern short g_nCommMenuChoiceCount_0046af60;
 extern short g_nCommMenuReuseMode_0046af64;
-extern unsigned char DAT_0046af6c;
+extern signed char g_cPendingCommMenuAction_0046af6c;
 extern unsigned char g_bRadioSilence_0046af70;
 extern unsigned char g_bVideoImagesSuppressed_0046af74;
 extern unsigned char DAT_0046af78;

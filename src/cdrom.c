@@ -150,7 +150,7 @@ int PromptInsertCorrectCd(void)
 }
 
 /* Function start: 0x4034D0 */
-short OpenDataFileOrDie(const char *path)
+short __stdcall OpenDataFileOrDie(const char *path)
 {
     int fd = _open(path, 0x8002);
 

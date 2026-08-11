@@ -679,9 +679,9 @@ void ResetCampaignData(void)
 }
 
 /* Function start: 0x440840 */
-unsigned int ReadPacketSectionData(PacketSectionHandle *handle,
-                                   void *destination,
-                                   unsigned int length)
+short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
+                                      void *destination,
+                                      unsigned int length)
 {
     int offset;
     int end;

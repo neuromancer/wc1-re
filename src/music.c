@@ -340,49 +340,56 @@ unsigned int DrawConstellationField(void)
 }
 
 /* Function start: 0x42D730 */
-unsigned int OpenPacketSection(const char *filename, short section,
-                               PacketSectionHandle *handle)
+short __stdcall OpenPacketSection(const char *filename, short section,
+                                  PacketSectionHandle *handle)
 {
-    unsigned int fileSize;
-    unsigned int directorySize;
     unsigned int sectionEntry;
+    unsigned int fileSize;
     unsigned int nextEntry;
+    int sectionIndex;
+    unsigned int directorySize;
+    short compression;
     short sectionCount;
     short file;
 
     file = OpenDataFileOrDie(filename);
-    if (file != -1 &&
-        ReadDataFileAtOffset(file, 0, 4, &fileSize) != 0 &&
-        ReadDataFileAtOffset(file, 4, 4, &directorySize) != 0) {
-        sectionCount = (short)(directorySize >> 2) - 1;
-        if (section < sectionCount) {
-            if (ReadDataFileAtOffset(file, section * 4 + 4, 4,
-                                     &sectionEntry) != 0) {
-                handle->finalSection = 0;
-                handle->compression =
-                    (short)(unsigned char)(sectionEntry >> 24);
-                sectionEntry &= 0x00ffffff;
-                if (sectionCount - section == 1) {
-                    handle->finalSection = 1;
-                    nextEntry = fileSize;
-                } else {
-                    if (ReadDataFileAtOffset(file, section * 4 + 8, 4,
-                                             &nextEntry) == 0)
-                        goto failed;
-                    nextEntry &= 0x00ffffff;
-                }
-                if (SeekDataFile(file, sectionEntry, 0) != 0) {
-                    handle->file = file;
-                    handle->sectionCount = sectionCount;
-                    handle->dataOffset = sectionEntry;
-                    handle->position = 0;
-                    handle->dataSize = nextEntry - sectionEntry;
-                    return 1;
-                }
-            }
-        } else {
-            DAT_00465460 = 3;
-        }
+    if (file == -1)
+        goto failed;
+    if (ReadDataFileAtOffset(file, 0, 4, &fileSize) == 0)
+        goto failed;
+    if (ReadDataFileAtOffset(file, 4, 4, &directorySize) == 0)
+        goto failed;
+    sectionCount = (short)(directorySize >> 2) - 1;
+    if (section >= sectionCount) {
+        DAT_00465460 = 3;
+        goto failed;
+    }
+    sectionIndex = (int)section;
+    if (ReadDataFileAtOffset(file, sectionIndex * 4 + 4, 4,
+                             &sectionEntry) == 0)
+        goto failed;
+    handle->finalSection = 0;
+    compression = (short)(sectionEntry >> 24);
+    if (sectionCount - sectionIndex == 1) {
+        handle->finalSection = 1;
+        nextEntry = fileSize;
+        sectionEntry &= 0x00ffffff;
+    } else {
+        sectionEntry &= 0x00ffffff;
+        if (ReadDataFileAtOffset(file, sectionIndex * 4 + 8, 4,
+                                 &nextEntry) == 0)
+            goto failed;
+        nextEntry &= 0x00ffffff;
+    }
+    fileSize = nextEntry - sectionEntry;
+    if (SeekDataFile(file, sectionEntry, 0) != 0) {
+        handle->file = file;
+        handle->dataOffset = sectionEntry;
+        handle->sectionCount = sectionCount;
+        handle->compression = compression;
+        handle->dataSize = fileSize;
+        handle->position = 0;
+        return 1;
     }
 failed:
     CloseDataFile((unsigned short)file);
@@ -390,7 +397,7 @@ failed:
 }
 
 /* Function start: 0x42D870 */
-void CloseDataFileByHandle(unsigned short *p)
+void __stdcall CloseDataFileByHandle(unsigned short *p)
 {
     CloseDataFile(*p);
 }
