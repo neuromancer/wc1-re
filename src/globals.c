@@ -149,7 +149,7 @@ TitleMenuRegion g_aBarracksMenuRegions_00463008[21] = {
     { -1, 0, 0, 0, 0 }
 };
 
-unsigned int g_nHazardReferenceSpeed_00465040;
+short g_nHazardReferenceSpeed_00465040;
 short g_nActiveHazards_00465044;
 int DAT_00465058 = 1;
 unsigned int DAT_0046505c;
@@ -1945,7 +1945,11 @@ signed char g_cCockpitView_0059dab0;
 MissionObjective g_aMissionObjectives_0059dac0[WC1_MISSION_OBJECTIVE_COUNT];
 enum ShipManeuver g_aeShipManeuver_0059dcb0[512];
 const short *g_apCannedSequence_0059dce0[WC1_SPACE_OBJECT_COUNT];
-unsigned char g_aShipMissionSpot_0059dd10[224];
+FixedVector g_aShipMissionSpot_0059dd10[10];
+unsigned char DAT_0059dd88[8];
+short g_asCapitalShipViewFrame_0059dd90[16];
+signed char g_acObjectCollisionGraceTicks_0059ddb0[
+    WC1_SPACE_OBJECT_COUNT];
 ObjectResourceSlot g_aObjectResourceSlots_0059ddf0[4] = {
     { -1, 0, 0, 0 }, { -1, 0, 0, 0 },
     { -1, 0, 0, 0 }, { -1, 0, 0, 0 }

@@ -889,8 +889,7 @@ void remove_object(short obj)
         g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
         g_aeShipManeuver_0059dcb0[obj] = MANEUVER_NONE;
         clear_alert(obj);
-        *(short *)((unsigned char *)&((FixedVector *)
-            g_aShipMissionSpot_0059dd10)[10].z + obj * 2) = -1;
+        g_asCapitalShipViewFrame_0059dd90[obj] = -1;
     }
     g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_NULL;
     g_aeShipObjective_0059d200[obj + 60] = OBJECTIVE_NAV_POINT;

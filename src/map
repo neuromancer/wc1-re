@@ -5,8 +5,8 @@
 
 0x00401000 HelperOf4219C0A
 0x00401020 RestoreGamePalette
-0x00401040 IsObjectVisible
-0x004010C0 SpawnAsteroidFragment
+0x00401040 easy2see
+0x004010C0 make_shard
 0x004011D0 SetSfxFn11D0
 0x00401210 ScanTbl0046c028Fn1210
 0x00401250 GetSfxFn1250

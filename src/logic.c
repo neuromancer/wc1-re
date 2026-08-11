@@ -111,7 +111,8 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
     child_object(weaponSlot->hardpoint, mine, obj);
     if (lifetime == -1)
         lifetime = 20;
-    g_aShipMissionSpot_0059dd10[0xa0 + mine] = (signed char)lifetime;
+    g_acObjectCollisionGraceTicks_0059ddb0[mine] =
+        (signed char)lifetime;
     g_asObjectCounter_0059c330[mine] = (short)(signed char)lifetime;
     if (obj == 0)
         RemovePlayerReleaseWeapon(weapon);
@@ -1430,8 +1431,8 @@ void inherit_leader_mission(short obj)
         g_anShipMissionShip_0059d4b0[obj] =
             g_anShipMissionShip_0059d4b0[leader];
         g_asShipWingLeader_0059d400[obj] = -1;
-        ((FixedVector *)g_aShipMissionSpot_0059dd10)[obj] =
-            ((FixedVector *)g_aShipMissionSpot_0059dd10)[leader];
+        g_aShipMissionSpot_0059dd10[obj] =
+            g_aShipMissionSpot_0059dd10[leader];
     }
 }
 

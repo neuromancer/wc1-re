@@ -1422,7 +1422,7 @@ int fire_weapon(short obj, short weapon)
                 RemovePlayerReleaseWeapon((signed char)weapon);
             else
                 remove_weapon(obj, weapon);
-            g_aShipMissionSpot_0059dd10[0xa0 + projectile] = 20;
+            g_acObjectCollisionGraceTicks_0059ddb0[projectile] = 20;
             g_aeSpecialManeuver_0059c3c0[projectile] =
                 SPECIAL_MANEUVER_NONE;
             g_aeShipManeuver_0059dcb0[projectile] = MANEUVER_NONE;

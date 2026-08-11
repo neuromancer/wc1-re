@@ -14,7 +14,7 @@
 
 extern const int g_anRLEQuarterCosine_0043d4bf[901];
 extern TitleMenuRegion g_aBarracksMenuRegions_00463008[21];
-extern unsigned int g_nHazardReferenceSpeed_00465040;
+extern short g_nHazardReferenceSpeed_00465040;
 extern short g_nActiveHazards_00465044;
 extern int DAT_00465058;
 extern unsigned int DAT_0046505c;
@@ -769,9 +769,11 @@ extern HazardField g_aHazardFields_0059d870[7];
 extern MissionObjective g_aMissionObjectives_0059dac0[WC1_MISSION_OBJECTIVE_COUNT];
 extern enum ShipManeuver g_aeShipManeuver_0059dcb0[512];
 extern const short *g_apCannedSequence_0059dce0[WC1_SPACE_OBJECT_COUNT];
-extern unsigned char g_aShipMissionSpot_0059dd10[224];
-#define g_asCapitalShipViewFrame_0059dd90 \
-    ((short *)(void *)(g_aShipMissionSpot_0059dd10 + 0x80))
+extern FixedVector g_aShipMissionSpot_0059dd10[10];
+extern unsigned char DAT_0059dd88[8];
+extern short g_asCapitalShipViewFrame_0059dd90[16];
+extern signed char g_acObjectCollisionGraceTicks_0059ddb0[
+    WC1_SPACE_OBJECT_COUNT];
 extern ObjectResourceSlot g_aObjectResourceSlots_0059ddf0[4];
 extern signed char g_acShipDestroyedWeaponCount_0059de30[16];
 extern short g_asObjectScale_0059de40[WC1_SPACE_OBJECT_COUNT];

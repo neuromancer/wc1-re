@@ -1003,15 +1003,15 @@ unsigned int house_keep_objects(void)
             }
             break;
         case OBJECT_CLASS_MINE:
-            if ((signed char)g_aShipMissionSpot_0059dd10[0xa0 + obj] > 0)
-                g_aShipMissionSpot_0059dd10[0xa0 + obj]--;
+            if (g_acObjectCollisionGraceTicks_0059ddb0[obj] > 0)
+                g_acObjectCollisionGraceTicks_0059ddb0[obj]--;
             if ((short)count_down(obj) == 0)
                 explode(obj, obj);
             break;
         case OBJECT_CLASS_MISSILE:
             g_abShipExhaustHeat_0059d610[obj] = 0;
-            if ((signed char)g_aShipMissionSpot_0059dd10[0xa0 + obj] > 0)
-                g_aShipMissionSpot_0059dd10[0xa0 + obj]--;
+            if (g_acObjectCollisionGraceTicks_0059ddb0[obj] > 0)
+                g_acObjectCollisionGraceTicks_0059ddb0[obj]--;
             if (g_aeShipTactic_0059d5e0[obj] == TACTIC_SIT_STILL) {
                 if ((short)count_down(obj) <= 0) {
                     g_aeShipTactic_0059d5e0[obj] = TACTIC_RAM;
@@ -1403,13 +1403,12 @@ unsigned int hit_asteroid(short asteroid, short destructionChance)
     if ((short)RandomBelowOrEqual((short)(destructionChance - 1)) == 0) {
         fragments = (short)(RandomBelowOrEqual(1) + 2);
         while (fragments > 0) {
-            SpawnAsteroidFragment(asteroid,
-                                  g_aShipVelocity_0059c010[asteroid]);
+            make_shard(asteroid, g_aShipVelocity_0059c010[asteroid]);
             fragments--;
         }
         explode(-1, asteroid);
     } else if ((short)RandomBelowOrEqual(7) == 0) {
-        SpawnAsteroidFragment(asteroid, g_vCollisionDelta_0059d690);
+        make_shard(asteroid, g_vCollisionDelta_0059d690);
     }
     return 0;
 }
@@ -1512,9 +1511,9 @@ int object_collision(short obj)
 
     case OBJECT_CLASS_MINE:
         if (owner == partner ||
-            (signed char)g_aShipMissionSpot_0059dd10[0xa0 + obj] > 0)
+            g_acObjectCollisionGraceTicks_0059ddb0[obj] > 0)
             return 0;
-        if (IsObjectVisible(obj) == 0 &&
+        if (easy2see(obj) == 0 &&
             (DAT_0046c03c == 0 || partner != 0)) {
             remove_object(obj);
             return 0;
@@ -1524,7 +1523,7 @@ int object_collision(short obj)
 
     case OBJECT_CLASS_MISSILE:
         if (owner != partner ||
-            (signed char)g_aShipMissionSpot_0059dd10[0xa0 + obj] < 1) {
+            g_acObjectCollisionGraceTicks_0059ddb0[obj] < 1) {
             ScaleFixedVector(&g_aShipVelocity_0059c010[obj],
                 (unsigned short)g_asObjectRadarRadius_0059c790[obj]
                     << 8, &force);
@@ -1543,7 +1542,7 @@ int object_collision(short obj)
         if ((partnerClass == OBJECT_CLASS_ASTEROID ||
              (partnerClass == OBJECT_CLASS_MINE &&
               g_acObjectOwner_0059ce20[partner] == -1)) &&
-            IsObjectVisible(partner) == 0 &&
+            easy2see(partner) == 0 &&
             (DAT_0046c03c == 0 || obj != 0)) {
             remove_object(partner);
         }

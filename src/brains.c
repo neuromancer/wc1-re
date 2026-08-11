@@ -1052,8 +1052,7 @@ void cruise_home(short obj)
         point_ship_at_point(obj, destination);
     range = distance_from_point(obj, destination);
 
-    if (equ_vector(destination,
-                   &((FixedVector *)g_aShipMissionSpot_0059dd10)[obj])) {
+    if (equ_vector(destination, &g_aShipMissionSpot_0059dd10[obj])) {
         if (range < 5000) {
             reset_tactic(obj, TACTIC_HEAD_HOME);
             set_special(obj, SPECIAL_MANEUVER_KILL_ENGINES);
@@ -1379,9 +1378,7 @@ void wingman_mission(short obj)
 /* Function start: 0x40A160 */
 short dist_from_home(short obj)
 {
-    return distance_from_point(
-        obj, (FixedVector *)&g_aShipMissionSpot_0059dd10[
-                 (int)obj * sizeof(FixedVector)]);
+    return distance_from_point(obj, &g_aShipMissionSpot_0059dd10[obj]);
 }
 
 /* Function start: 0x40A180 */
@@ -1402,14 +1399,12 @@ void patrol_area(short obj)
     case TACTIC_HEAD_HOME:
         approach_cruise_speed(obj);
         if (scan_and_lock(obj, 14000, TACTIC_APPROACH_TARGET) == 0) {
-            ship_vs_point(obj,
-                &((FixedVector *)g_aShipMissionSpot_0059dd10)[obj]);
+            ship_vs_point(obj, &g_aShipMissionSpot_0059dd10[obj]);
             if (g_nTargetRange_0059ce10 < 3000) {
                 reset_tactic(obj, TACTIC_LOOK_OUT);
                 return;
             }
-            point_ship_at_point(obj,
-                &((FixedVector *)g_aShipMissionSpot_0059dd10)[obj]);
+            point_ship_at_point(obj, &g_aShipMissionSpot_0059dd10[obj]);
             trim_goals(obj, 7);
         }
         break;
@@ -1507,8 +1502,7 @@ void cruise_to_destination(short obj)
         if (g_aeShipSide_0059d650[obj] == SIDE_IMPERIAL)
             flag_reached((short)g_abFlightPath_0059c000[
                 g_abShipNavPointIndex_0059d7c0[obj]], 1);
-        if (equ_vector(destination,
-                       &((FixedVector *)g_aShipMissionSpot_0059dd10)[obj])) {
+        if (equ_vector(destination, &g_aShipMissionSpot_0059dd10[obj])) {
             reset_tactic(obj, TACTIC_SIT_STILL);
             set_special(obj, SPECIAL_MANEUVER_KILL_ENGINES);
         } else {
@@ -2930,7 +2924,7 @@ unsigned int init_intelligence_data(short obj)
     g_abShipTurn_0059d860[obj] = 0;
     clear_alert(obj);
     missionTarget = g_anShipMissionShip_0059d4b0[obj];
-    missionSpot = &((FixedVector *)g_aShipMissionSpot_0059dd10)[obj];
+    missionSpot = &g_aShipMissionSpot_0059dd10[obj];
     g_aeSpecialManeuver_0059c3c0[obj] = SPECIAL_MANEUVER_NONE;
     *missionSpot = g_aMissionNavPoints_0046c2f0[
         g_nCurrentNavPoint_0059df60].position;

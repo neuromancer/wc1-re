@@ -8,14 +8,14 @@
 #define WC1_FUNCS_H
 
 void RestoreGamePalette(void);                                          /* 0x00401020 */
-short IsObjectVisible(short obj);                                     /* 0x00401040 */
-void SpawnAsteroidFragment(short asteroid, FixedVector direction);    /* 0x004010C0 */
+short easy2see(short obj);                                            /* 0x00401040 */
+void make_shard(short asteroid, FixedVector direction);               /* 0x004010C0 */
 void remove_hazard(signed char hazard);                               /* 0x004011D0 */
 void remove_all_hazards(void);                                        /* 0x00401210 */
 short difficulty(void);                                               /* 0x00401250 */
 short asteroid_velocity(void);                                       /* 0x00401270 */
 void skew_randomly(short obj, short allowReverse);                    /* 0x00401290 */
-short align(short *value, short quantum);                             /* 0x00401390 */
+void align(short *value, short quantum);                              /* 0x00401390 */
 void init_hazard(short obj, FixedVector position, short moving);      /* 0x004013B0 */
 int near_field(const HazardField *field, const FixedVector *point);   /* 0x00401680 */
 int within_field(const HazardField *field, const FixedVector *point); /* 0x004016A0 */
