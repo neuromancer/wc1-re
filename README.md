@@ -36,7 +36,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (96.72% average)</summary>
+<summary>All 1,472 function similarity scores (96.74% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -692,7 +692,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `dsp.cpp` | `ix_dsp_get_master_volume` | `0x444DAF` | 100.00% |
 | `dsp.cpp` | `ix_dsp_set_master_volume` | `0x444DC5` | 97.30% |
 | `dsp.cpp` | `ix_dsp_build_pan_tables` | `0x444E52` | 100.00% |
-| `dsp.cpp` | `ix_dsp_result_to_text` | `0x444F97` | 94.94% |
+| `dsp.cpp` | `ix_dsp_result_to_text` | `0x444F97` | 100.00% |
 | `dsp.cpp` | `ix_dsp_alloc` | `0x445123` | 100.00% |
 | `dsp.cpp` | `ix_dsp_copy` | `0x445140` | 100.00% |
 | `dsp.cpp` | `ix_dsp_free` | `0x445164` | 100.00% |
@@ -703,10 +703,10 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `dsps.cpp` | `ix_dsps_prepare` | `0x445582` | 98.95% |
 | `dsps.cpp` | `ix_dsps_play` | `0x4456D8` | 94.19% |
 | `dsps.cpp` | `ix_dsps_stop` | `0x445808` | 98.57% |
-| `dsps.cpp` | `ix_dsps_set_volume` | `0x445906` | 97.44% |
+| `dsps.cpp` | `ix_dsps_set_volume` | `0x445906` | 100.00% |
 | `dsps.cpp` | `ix_dsps_get_flags` | `0x445A0B` | 100.00% |
 | `dsps.cpp` | `ix_dsps_get_buffer_free` | `0x445A6F` | 90.29% |
-| `dsps.cpp` | `ix_dsps_lock` | `0x445CDB` | 99.01% |
+| `dsps.cpp` | `ix_dsps_lock` | `0x445CDB` | 100.00% |
 | `dsps.cpp` | `ix_dsps_unlock` | `0x445E3C` | 100.00% |
 | `dspv.cpp` | `ix_dspv_set_active` | `0x4467C5` | 96.88% |
 | `dspv.cpp` | `ix_dspv_clear_active` | `0x446829` | 96.88% |
@@ -718,7 +718,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `dspv.cpp` | `ix_dspv_set_position` | `0x446AA0` | 100.00% |
 | `dspv.cpp` | `ix_dspv_set_volume` | `0x446B18` | 100.00% |
 | `dspv.cpp` | `ix_dspv_set_pan` | `0x446B8C` | 100.00% |
-| `dspv.cpp` | `ix_dspv_set_frequency` | `0x446CB1` | 92.11% |
+| `dspv.cpp` | `ix_dspv_set_frequency` | `0x446CB1` | 100.00% |
 | `dspv.cpp` | `ix_dspv_set_bits_per_sample` | `0x446D2C` | 100.00% |
 | `dspv.cpp` | `ix_dspv_set_channels` | `0x446DF5` | 98.18% |
 | `dspv.cpp` | `ix_dspv_recalc_mix` | `0x446EBF` | 100.00% |
@@ -751,7 +751,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `streamer.cpp` | `ix_streamer_destroy` | `0x44286F` | 100.00% |
 | `streamer.cpp` | `ix_streamer_configure` | `0x44291E` | 100.00% |
 | `streamer.cpp` | `ix_streamer_set_dev_mode` | `0x44293E` | 100.00% |
-| `streamer.cpp` | `ix_streamer_open_stream_file` | `0x4429B6` | 99.77% |
+| `streamer.cpp` | `ix_streamer_open_stream_file` | `0x4429B6` | 100.00% |
 | `streamer.cpp` | `ix_streamer_close_stream_file` | `0x44307A` | 100.00% |
 | `streamer.cpp` | `ix_streamer_audio_play` | `0x4431F3` | 100.00% |
 | `streamer.cpp` | `ix_streamer_audio_stop` | `0x443253` | 100.00% |
@@ -762,7 +762,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `streamer.cpp` | `ix_streamer_set_trigger` | `0x4433C1` | 100.00% |
 | `streamer.cpp` | `ix_streamer_get_trigger` | `0x443419` | 100.00% |
 | `streamer.cpp` | `ix_streamer_force_trigger` | `0x44342E` | 96.08% |
-| `streamer.cpp` | `ix_streamer_set_volume` | `0x4435BE` | 96.97% |
+| `streamer.cpp` | `ix_streamer_set_volume` | `0x4435BE` | 100.00% |
 | `streamer.cpp` | `ix_streamer_get_volume` | `0x44363B` | 100.00% |
 | `streamer.cpp` | `ix_streamer_get_audio_chunk` | `0x443651` | 100.00% |
 | `streamer.cpp` | `ix_streamer_seek_chunk` | `0x443666` | 100.00% |
@@ -797,7 +797,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `system.cpp` | `ix_sound_unlink_from_free_list` | `0x447B7A` | 100.00% |
 | `system.cpp` | `IxSound::ix_system_sound_set_volume` | `0x447BE7` | 100.00% |
 | `system.cpp` | `IxSound::ix_system_sound_set_pan` | `0x447C18` | 100.00% |
-| `system.cpp` | `IxSound::ix_system_sound_set_frequency` | `0x447C44` | 90.00% |
+| `system.cpp` | `IxSound::ix_system_sound_set_frequency` | `0x447C44` | 100.00% |
 | `system.cpp` | `IxSound::ix_system_sound_set_priority` | `0x447CAF` | 100.00% |
 | `thread.cpp` | `ix_thread_handle_file_chunk` | `0x443DA6` | 99.67% |
 | `thread.cpp` | `ix_thread_service_streams` | `0x4441C6` | 90.91% |

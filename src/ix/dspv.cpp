@@ -163,12 +163,13 @@ void ix_dspv_set_pan(int voice, unsigned int angle)
 /* Function start: 0x446CB1 */   /* source line 131 */
 void ix_dspv_set_frequency(int voice, unsigned int hz)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || g_nVoiceCount_00598600 <= voice) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 131);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005981a8[voice].rate = (short)(((hz & 0xffff) << 8) / IX_MIXER_BASE_RATE);
+    g_voices_005981a8[voice].rate =
+        (short)(((int)(hz & 0xffff) << 8) / IX_MIXER_BASE_RATE);
 }
 
 /* Function start: 0x446D2C */   /* source lines 137, 138 */

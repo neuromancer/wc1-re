@@ -399,10 +399,7 @@ void IxSound::ix_system_sound_set_frequency(int newPitchOffset)
 {
     flags |= IX_SOUND_FREQUENCY_DIRTY;
     if (-(int)(sample->frequency - 1) <= newPitchOffset) {
-        if (newPitchOffset >= 0xac44)
-            pitchOffset = 0xac44;
-        else
-            pitchOffset = newPitchOffset;
+        pitchOffset = newPitchOffset < 0xac44 ? newPitchOffset : 0xac44;
     } else {
         pitchOffset = -(int)(sample->frequency - 1);
     }

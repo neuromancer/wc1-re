@@ -165,7 +165,7 @@ void ix_dsps_stop(int stream)
 }
 
 /* Function start: 0x445906 */   /* source lines 109, 110 */
-void ix_dsps_set_volume(int stream, unsigned int vol)
+void ix_dsps_set_volume(int stream, unsigned short vol)
 {
     IxVoice *v;
 
@@ -180,7 +180,8 @@ void ix_dsps_set_volume(int stream, unsigned int vol)
         exit(-1);
     }
     v = &g_voices_005981a8[g_nVoiceCount_00598600 + stream];
-    v->volume = (unsigned short)(((vol & 0xffff) * 0x7fff) / 0xffff);
+    v->volume =
+        (unsigned short)(((int)(vol & 0xffff) * 0x7fff) / 0xffff);
     v->leftGain = v->volume;
     v->rightGain = v->volume;
     v->leftGainHi = (unsigned char)((unsigned short)v->volume >> 8);

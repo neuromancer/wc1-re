@@ -209,7 +209,7 @@ void ix_dsps_free(int stream);                   /* 0x0044546B */
 void ix_dsps_prepare(int stream);                /* 0x00445582 */
 void ix_dsps_play(int stream);                   /* 0x004456D8 */
 void ix_dsps_stop(int stream);                   /* 0x00445808 */
-void ix_dsps_set_volume(int stream, unsigned int vol);  /* 0x00445906 */
+void ix_dsps_set_volume(int stream, unsigned short vol); /* 0x00445906 */
 unsigned int ix_dsps_get_flags(int stream);      /* 0x00445A0B */
 int  ix_dsps_get_buffer_free(int stream);        /* 0x00445A6F */
 void ix_dsps_lock(int stream, unsigned int requestedBytes,

@@ -286,10 +286,11 @@ const char *ix_dsp_result_to_text(int result)
         return "The DirectSound subsystem couldn't allocate sufficient memory to complete the caller's request.";
     case DSERR_PRIOLEVELNEEDED:
         return "The caller does not have the priority level required for the function to succeed.";
-    case DSERR_UNSUPPORTED:
+    case E_NOINTERFACE:
         return "The requested COM interface is not available.";
+    default:
+        return "Unknow dsound error!";
     }
-    return "Unknow dsound error!";
 }
 
 /* Function start: 0x00445123 */
