@@ -662,9 +662,9 @@ void get_facing_range_from_point(short obj, const FixedVector *point)
     g_vNormalizedToTarget_005a7db0 = g_vToTarget_0059d4d0;
     NormalizeFixedVector(&g_vNormalizedToTarget_005a7db0);
     g_nFacingToTarget_0059d920 =
-        (short)(((unsigned short)dot_product(
-            &g_aShipForwardVector_0059bce0[obj],
-            &g_vNormalizedToTarget_005a7db0) * 100) >> 8);
+        (short)(((short)dot_product(
+            &g_vNormalizedToTarget_005a7db0,
+            &g_aShipForwardVector_0059bce0[obj]) * 100) >> 8);
 }
 
 /* Function start: 0x419310 */

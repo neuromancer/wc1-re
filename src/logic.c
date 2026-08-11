@@ -124,13 +124,17 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
 /* Function start: 0x421350 */
 void fire_afterburner(short obj, short time)
 {
-    long velocity = Vector_magnitude(&g_aShipVelocity_0059c010[obj]);
+    short timer;
+    long velocity;
 
-    if (velocity < get_ship_max_velocity(obj) * 0x500L) {
+    velocity = Vector_magnitude(&g_aShipVelocity_0059c010[obj]);
+    if (get_ship_max_velocity(obj) * 0x500L > velocity) {
         set_special(obj, SPECIAL_MANEUVER_AFTERBURNER);
-        g_asShipAfterburnerTimer_0059c810[obj] =
-            g_aeSpecialManeuver_0059c3c0[obj] ==
-                SPECIAL_MANEUVER_AFTERBURNER ? time : 0;
+        timer = 0;
+        if (g_aeSpecialManeuver_0059c3c0[obj] ==
+            SPECIAL_MANEUVER_AFTERBURNER)
+            timer = time;
+        g_asShipAfterburnerTimer_0059c810[obj] = timer;
     }
 }
 
@@ -920,19 +924,20 @@ int are_alive(short obj)
 }
 
 /* Function start: 0x4225C0 */
-void trim_goals(short obj, short amount)
+int trim_goals(short obj, short amount)
 {
     short goal = g_anYawGoal_0059c310[obj];
 
-    if (goal > amount)
+    if (amount < goal)
         g_anYawGoal_0059c310[obj] = amount;
     else if (goal < -amount)
         g_anYawGoal_0059c310[obj] = -amount;
     goal = g_anPitchGoal_0059d7a0[obj];
-    if (goal > amount)
+    if (amount < goal)
         g_anPitchGoal_0059d7a0[obj] = amount;
     else if (goal < -amount)
         g_anPitchGoal_0059d7a0[obj] = -amount;
+    return 0;
 }
 
 /* Function start: 0x422640 */

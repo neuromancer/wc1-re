@@ -3318,14 +3318,14 @@ void set_sphere_point(const MissionShipRecord *record,
 /* Function start: 0x40B6A0 */
 unsigned int is_alive(int pilot)
 {
-    if (pilot < 5)
+    if (pilot <= 4)
         return 1;
     if (pilot == 13)
         return g_nArcadeState_00469fb0 != 4;
-    if (pilot > 4 && pilot < 13)
+    if (pilot >= 5 && pilot <= 12)
         return g_stCampaignState_0059ca50.personalityDeathMission[
             pilot - 5] == 0;
-    if (pilot > 13 && pilot < 18)
+    if (pilot >= 14 && pilot <= 17)
         return (unsigned int)(short)ace_status((short)(pilot - 14), 1);
     return 0;
 }

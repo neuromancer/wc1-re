@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.46% average)</summary>
+<summary>All 1,472 function similarity scores (97.49% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -181,7 +181,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `heat_seeking_missile_intelligence` | `0x40B430` | 90.82% |
 | `brains.c` | `FF_missile_intelligence` | `0x40B570` | 88.57% |
 | `brains.c` | `set_sphere_point` | `0x40B670` | 100.00% |
-| `brains.c` | `is_alive` | `0x40B6A0` | 85.29% |
+| `brains.c` | `is_alive` | `0x40B6A0` | 100.00% |
 | `brains.c` | `check_futurion` | `0x40B700` | 100.00% |
 | `brains.c` | `init_mission` | `0x40B730` | 96.77% |
 | `brains.c` | `prepare_mission` | `0x40B7A0` | 85.98% |
@@ -315,7 +315,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `check_sighting` | `0x4156D0` | 100.00% |
 | `cockpt.c` | `check_visit` | `0x415720` | 100.00% |
 | `cockpt.c` | `update_objective_location` | `0x415770` | 84.81% |
-| `cockpt.c` | `objective_lost` | `0x415850` | 84.62% |
+| `cockpt.c` | `objective_lost` | `0x415850` | 100.00% |
 | `cockpt.c` | `check_objectives` | `0x4158A0` | 100.00% |
 | `cockpt.c` | `rotational_pos_to_scanner_pos` | `0x4158F0` | 83.33% |
 | `cockpt.c` | `mobile_objective` | `0x415A30` | 100.00% |
@@ -335,7 +335,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `print_message_text` | `0x416260` | 71.33% |
 | `cockpt.c` | `ShowHudTextLine` | `0x416460` | 100.00% |
 | `cockpt.c` | `SetHudTextColour` | `0x416480` | 100.00% |
-| `cockpt.c` | `draw_target_box` | `0x4164B0` | 92.18% |
+| `cockpt.c` | `draw_target_box` | `0x4164B0` | 90.48% |
 | `cockpt.c` | `remove_nav_pointer` | `0x4168A0` | 100.00% |
 | `cockpt.c` | `draw_nav_pointer` | `0x4168C0` | 85.07% |
 | `cockpt.c` | `overlay_head_up_display` | `0x416AC0` | 94.31% |
@@ -558,7 +558,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `distance_between_points` | `0x4191D0` | 100.00% |
 | `geom.c` | `distance_from_point` | `0x419210` | 100.00% |
 | `geom.c` | `distance_from_object` | `0x419260` | 100.00% |
-| `geom.c` | `get_facing_range_from_point` | `0x419290` | 78.38% |
+| `geom.c` | `get_facing_range_from_point` | `0x419290` | 86.49% |
 | `geom.c` | `get_facing_range_from_object` | `0x419310` | 90.62% |
 | `geom.c` | `ship_vs_point` | `0x419390` | 100.00% |
 | `geom.c` | `ship_vs_ship` | `0x4193B0` | 100.00% |
@@ -839,7 +839,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `fire_missile` | `0x421150` | 91.14% |
 | `logic.c` | `fire_fixed_projectile_weapon` | `0x421220` | 84.00% |
 | `logic.c` | `drop_mine` | `0x4212A0` | 100.00% |
-| `logic.c` | `fire_afterburner` | `0x421350` | 80.56% |
+| `logic.c` | `fire_afterburner` | `0x421350` | 93.75% |
 | `logic.c` | `fire_super_brake` | `0x4213B0` | 100.00% |
 | `logic.c` | `flip_angle` | `0x4213D0` | 100.00% |
 | `logic.c` | `place_exhaust_on_ships` | `0x421430` | 76.36% |
@@ -875,14 +875,14 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `start_collision_alert` | `0x422180` | 100.00% |
 | `logic.c` | `try2end_collision_alert` | `0x4221E0` | 100.00% |
 | `logic.c` | `normal_speed` | `0x422220` | 100.00% |
-| `logic.c` | `real_crash_time` | `0x422260` | 94.44% |
+| `logic.c` | `real_crash_time` | `0x422260` | 98.77% |
 | `logic.c` | `clear_crash_cache` | `0x422440` | 100.00% |
 | `logic.c` | `crash_time` | `0x422460` | 100.00% |
 | `logic.c` | `detect_collisions` | `0x4224F0` | 97.44% |
 | `logic.c` | `unactive` | `0x422560` | 100.00% |
 | `logic.c` | `are_alive` | `0x422590` | 100.00% |
-| `logic.c` | `trim_goals` | `0x4225C0` | 88.24% |
-| `logic.c` | `report_kilrathi_rout` | `0x422640` | 97.22% |
+| `logic.c` | `trim_goals` | `0x4225C0` | 94.12% |
+| `logic.c` | `report_kilrathi_rout` | `0x422640` | 100.00% |
 | `logic.c` | `find_ship_index` | `0x422710` | 100.00% |
 | `logic.c` | `try2rout` | `0x422780` | 100.00% |
 | `logic.c` | `no_goal` | `0x422830` | 100.00% |
@@ -921,10 +921,10 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `attacker_in_range` | `0x4232B0` | 91.67% |
 | `logic.c` | `in_danger` | `0x423350` | 100.00% |
 | `logic.c` | `target_within_range` | `0x423400` | 100.00% |
-| `logic.c` | `build_target_list` | `0x423440` | 100.00% |
+| `logic.c` | `build_target_list` | `0x423440` | 97.44% |
 | `logic.c` | `select_safe_target` | `0x4234C0` | 100.00% |
 | `logic.c` | `inherit_leader_mission` | `0x423530` | 93.10% |
-| `logic.c` | `inherit_leader` | `0x4235B0` | 100.00% |
+| `logic.c` | `inherit_leader` | `0x4235B0` | 93.33% |
 | `logic.c` | `dead_ship` | `0x423610` | 100.00% |
 | `logic.c` | `gone_ship` | `0x423640` | 100.00% |
 | `logic.c` | `skill_rating` | `0x423670` | 95.24% |
@@ -933,15 +933,15 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `locate_ship` | `0x423780` | 100.00% |
 | `logic.c` | `get_follow_point` | `0x423820` | 100.00% |
 | `logic.c` | `get_first_follow_point` | `0x423930` | 100.00% |
-| `logic.c` | `hostile_sphere` | `0x423970` | 100.00% |
+| `logic.c` | `hostile_sphere` | `0x423970` | 93.10% |
 | `logic.c` | `abandoned` | `0x4239D0` | 93.02% |
 | `logic.c` | `engage` | `0x423A50` | 100.00% |
 | `logic.c` | `target_valid` | `0x423AC0` | 100.00% |
 | `logic.c` | `triumph` | `0x423B00` | 100.00% |
-| `logic.c` | `find_ratio` | `0x423BA0` | 100.00% |
+| `logic.c` | `find_ratio` | `0x423BA0` | 94.59% |
 | `logic.c` | `evaluate_damage` | `0x423C00` | 90.48% |
 | `logic.c` | `mine_available` | `0x423CD0` | 100.00% |
-| `logic.c` | `LoadShapeSet` | `0x423CE0` | 86.36% |
+| `logic.c` | `LoadShapeSet` | `0x423CE0` | 90.91% |
 | `logic.c` | `FreeShapeSet` | `0x423D50` | 100.00% |
 | `logic.c` | `LoadPacketResourceList` | `0x423D80` | 100.00% |
 | `logic.c` | `ResetCockpitPaletteEntries` | `0x423E10` | 100.00% |

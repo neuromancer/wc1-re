@@ -856,7 +856,7 @@ short crash_time(short obj, short other);                             /* 0x00422
 short detect_collisions(short obj);                                   /* 0x004224F0 */
 unsigned int unactive(short ship);                                      /* 0x00422560 */
 int are_alive(short obj);                                             /* 0x00422590 */
-void trim_goals(short obj, short amount);                             /* 0x004225C0 */
+int trim_goals(short obj, short amount);                              /* 0x004225C0 */
 int report_kilrathi_rout(int mode);                                   /* 0x00422640 */
 short find_ship_index(short missionShip);                              /* 0x00422710 */
 int try2rout(short obj);                                              /* 0x00422780 */
