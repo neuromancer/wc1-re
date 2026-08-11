@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.49% average)</summary>
+<summary>All 1,472 function similarity scores (97.52% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -54,7 +54,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `barracks.c` | `EnsureSaveGameFile` | `0x41B020` | 100.00% |
 | `barracks.c` | `InitializeBarracksAnimation` | `0x41B070` | 100.00% |
 | `barracks.c` | `FreeBarracksMenuLabel` | `0x41B0E0` | 100.00% |
-| `barracks.c` | `SetAwakenBarracksMenuLabel` | `0x41B110` | 89.19% |
+| `barracks.c` | `SetAwakenBarracksMenuLabel` | `0x41B110` | 100.00% |
 | `barracks.c` | `FreeBarracksMenuLabels` | `0x41B180` | 100.00% |
 | `barracks.c` | `SaveGame` | `0x41B1E0` | 95.86% |
 | `barracks.c` | `PromptForTextInput` | `0x41B420` | 85.26% |
@@ -286,7 +286,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `message_showing` | `0x4149F0` | 100.00% |
 | `cockpt.c` | `set_message_time` | `0x414A10` | 100.00% |
 | `cockpt.c` | `check_message` | `0x414A20` | 100.00% |
-| `cockpt.c` | `update_digital_readouts` | `0x414A50` | 88.57% |
+| `cockpt.c` | `update_digital_readouts` | `0x414A50` | 94.29% |
 | `cockpt.c` | `PlayTargetLockSfx` | `0x414AD0` | 100.00% |
 | `cockpt.c` | `malf_sound` | `0x414AE0` | 100.00% |
 | `cockpt.c` | `malf` | `0x414AF0` | 100.00% |
@@ -664,9 +664,9 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `ReleaseStaleNavTarget` | `0x42A170` | 100.00% |
 | `hudmsg.c` | `RunSpaceFlight` | `0x42A190` | 93.78% |
 | `hudmsg.c` | `calculate_damage_level` | `0x42A520` | 100.00% |
-| `hudmsg.c` | `UpdateTrainSimMenuCursor` | `0x42A610` | 86.67% |
+| `hudmsg.c` | `UpdateTrainSimMenuCursor` | `0x42A610` | 100.00% |
 | `hudmsg.c` | `ResetMouseCursorFrame` | `0x42A670` | 100.00% |
-| `hudmsg.c` | `UpdateRoomMenuCursor` | `0x42A680` | 88.64% |
+| `hudmsg.c` | `UpdateRoomMenuCursor` | `0x42A680` | 95.45% |
 | `hudmsg.c` | `FadeViewportPaletteToColour` | `0x42A700` | 96.95% |
 | `hudmsg.c` | `find_objective` | `0x42A8F0` | 100.00% |
 | `hudmsg.c` | `arrive_from_warp` | `0x42A950` | 100.00% |
@@ -675,10 +675,10 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `drop_player_mine` | `0x42ABD0` | 83.33% |
 | `hudmsg.c` | `personality_killed` | `0x42AC50` | 100.00% |
 | `hudmsg.c` | `clean_up_cockpit` | `0x42ACC0` | 100.00% |
-| `hudmsg.c` | `find_next_gun` | `0x42AD00` | 93.33% |
+| `hudmsg.c` | `find_next_gun` | `0x42AD00` | 91.67% |
 | `hudmsg.c` | `select_guns` | `0x42ADA0` | 88.10% |
 | `hudmsg.c` | `select_new_gun` | `0x42AE10` | 100.00% |
-| `hudmsg.c` | `select_new_release_weapon` | `0x42AE50` | 91.92% |
+| `hudmsg.c` | `select_new_release_weapon` | `0x42AE50` | 87.88% |
 | `hudmsg.c` | `WaitForDebugStep` | `0x42AFA0` | 100.00% |
 | `hudmsg.c` | `FrameTimerCallback` | `0x42AFB0` | 100.00% |
 | `hudmsg.c` | `SetMultimediaTimerCallback` | `0x42AFC0` | 100.00% |
@@ -1245,14 +1245,14 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `EndCommSessionWithWingman` | `0x431470` | 100.00% |
 | `screen.c` | `EndCommMenu` | `0x4314C0` | 100.00% |
 | `screen.c` | `ShowCentredPrompt` | `0x4314F0` | 100.00% |
-| `screen.c` | `LoadCommDisplayResources` | `0x431520` | 87.23% |
+| `screen.c` | `LoadCommDisplayResources` | `0x431520` | 100.00% |
 | `screen.c` | `ExpandCommMessageTokens` | `0x4315C0` | 86.49% |
 | `screen.c` | `real_vid_transmit` | `0x4316E0` | 98.53% |
 | `screen.c` | `ShutdownVideoHook` | `0x4318F0` | 100.00% |
 | `screen.c` | `ReserveContiguousPaletteEntries` | `0x431900` | 100.00% |
 | `screen.c` | `ReleaseContiguousPaletteEntries` | `0x431970` | 100.00% |
 | `screen.c` | `PrintPaletteAllocationMap` | `0x4319B0` | 100.00% |
-| `screen.c` | `LoadJoystickCalibrationFile` | `0x431A10` | 92.21% |
+| `screen.c` | `LoadJoystickCalibrationFile` | `0x431A10` | 89.30% |
 | `screen.c` | `ReadCalibratedJoystick` | `0x431D20` | 85.12% |
 | `screen.c` | `UnionRectBounds` | `0x431EA0` | 100.00% |
 | `screen.c` | `ThrottleFrameAndDrawFps` | `0x431F00` | 100.00% |

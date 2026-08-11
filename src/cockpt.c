@@ -776,8 +776,8 @@ unsigned int update_digital_readouts(void)
     DrawCockpitReadout(
         2, _itoa((int)(short)((g_anShipSpeed_0059b320[0] >> 8) * 10),
                  g_szTextScratchBuffer_00598b00, 10));
-    velocity = Vector_magnitude(&g_aShipVelocity_0059c010[0]);
-    velocity = MultiplyFixed(velocity, 0xa00);
+    velocity = MultiplyFixed(
+        Vector_magnitude(&g_aShipVelocity_0059c010[0]), 0xa00);
     DrawCockpitReadout(
         3, _itoa((int)(short)(velocity >> 8),
                  g_szTextScratchBuffer_00598b00, 10));

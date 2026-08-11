@@ -910,17 +910,19 @@ int calculate_damage_level(void)
 /* Function start: 0x42A610 */
 void UpdateTrainSimMenuCursor(void)
 {
-    TitleMenuRegion *region;
-    short frame;
-    short mouseY;
     short mouseX;
+    short mouseY;
+    short state;
+    short frame;
+    TitleMenuRegion *region;
 
     frame = 0;
     mouseX = g_nMouseX_0059ab10;
     mouseY = g_nMouseY_0059ab12;
     region = g_aTrainSimMissionRegions_00469df8;
     while (region->frame != -1) {
-        if (IsPointInRect(mouseX, mouseY, &region->left) != 0)
+        state = IsPointInRect(mouseX, mouseY, &region->left);
+        if (state != 0)
             frame = region->frame;
         region++;
     }
@@ -936,12 +938,12 @@ void ResetMouseCursorFrame(void)
 /* Function start: 0x42A680 */
 void UpdateRoomMenuCursor(void)
 {
-    short mouseX;
     short mouseY;
+    short mouseX;
     short state;
+    short frame;
     TitleMenuRegion *region;
     short index;
-    short frame;
 
     mouseY = g_nMouseY_0059ab12;
     mouseX = g_nMouseX_0059ab10;

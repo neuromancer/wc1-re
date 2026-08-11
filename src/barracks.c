@@ -188,9 +188,9 @@ void SetAwakenBarracksMenuLabel(char **label, int series, int mission,
     FreeBarracksMenuLabel(label);
     sprintf(g_szTextScratchBuffer_00598b00, "Awaken %Fs.", description);
     *label = (char *)AllocateTaggedMemory(
-        strlen(g_szTextScratchBuffer_00598b00) + 1, 0);
+        strlen(g_szTextScratchBuffer_00598b00) + 2, 0);
     DosMemcpy(*label, g_szTextScratchBuffer_00598b00,
-              strlen(g_szTextScratchBuffer_00598b00) + 1);
+              strlen(g_szTextScratchBuffer_00598b00) + 2);
 }
 
 /* Function start: 0x41B180 */

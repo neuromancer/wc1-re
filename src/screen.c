@@ -1584,16 +1584,19 @@ short LoadCommDisplayResources(short rating, enum Side side)
     short loaded;
 
     loaded = 1;
-    if (side == SIDE_IMPERIAL) {
+    switch (side) {
+    case SIDE_IMPERIAL:
         if (g_pConfedCommBackground_00469278 == 0)
             g_pConfedCommBackground_00469278 =
                 (unsigned char *)FetchDiskPacketRetrying(11, 0, 0);
         loaded = g_pConfedCommBackground_00469278 != 0;
-    } else if (side == SIDE_KILRATHI) {
+        break;
+    case SIDE_KILRATHI:
         if (g_pKilrathiCommBackground_00469280 == 0)
             g_pKilrathiCommBackground_00469280 =
                 (unsigned char *)FetchDiskPacketRetrying(11, 9, 0);
         loaded = g_pKilrathiCommBackground_00469280 != 0;
+        break;
     }
     if (g_pCommStaticShape_0046927c == 0)
         g_pCommStaticShape_0046927c =
