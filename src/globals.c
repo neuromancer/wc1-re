@@ -125,6 +125,11 @@ const int g_anRLEQuarterCosine_0043d4bf[901] = {
     458, 343, 229, 114, 0
 };
 
+/* IFF chunk identifiers embedded between the original raster routines. */
+const unsigned char g_abIffBmhdChunkId_0043e778[4] = { 'B', 'M', 'H', 'D' };
+const unsigned char g_abIffCmapChunkId_0043e77c[4] = { 'C', 'M', 'A', 'P' };
+const unsigned char g_abIffBodyChunkId_0043e780[4] = { 'B', 'O', 'D', 'Y' };
+
 TitleMenuRegion g_aBarracksMenuRegions_00463008[21] = {
     { 1, 137, 88, 149, 94 },
     { 1, 110, 88, 136, 94 },

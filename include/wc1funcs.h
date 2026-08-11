@@ -1474,10 +1474,18 @@ void TransformRLEPoint(int *point, int *result, int *origin,
                        int scaleY);                                   /* 0x0043E3B1 */
 unsigned int GetRawImageHeight(unsigned char *shape);                 /* 0x0043E478 */
 unsigned int GetRawFrameWidth(unsigned char *shape, int frame);       /* 0x0043E48B */
+unsigned char *FindIFFChunkData(const char *chunkId,
+                                const unsigned char *iffData);        /* 0x0043E784 */
+void CopyILBMPalette(const unsigned char *iffData,
+                     unsigned char *palette);                         /* 0x0043E98D */
+unsigned int GetILBMImageSize(const unsigned char *iffData);          /* 0x0043E9BE */
 void CopyPCXPaletteFromFileTail(const unsigned char *fileData,
                                 unsigned int fileSize,
                                 unsigned char *palette);              /* 0x0043EA6D */
 unsigned int GetPCXImageSize(const unsigned char *header);            /* 0x0043EA98 */
+void CopyGIFPalette(const unsigned char *gifData,
+                    unsigned char *palette);                          /* 0x0043EE42 */
+unsigned int GetGIFImageSize(const unsigned char *gifData);           /* 0x0043EEA3 */
 unsigned int GetRLEImageSize(unsigned char *shape, int frame);         /* 0x0043EF20 */
 unsigned int GetRLEImageOrigin(unsigned char *shape, int frame);       /* 0x0043EF54 */
 unsigned int GetRLEFrameCount(const unsigned char *shape);            /* 0x0043F05B */

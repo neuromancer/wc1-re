@@ -13,6 +13,9 @@
 #define WC1_GLOBALS_H
 
 extern const int g_anRLEQuarterCosine_0043d4bf[901];
+extern const unsigned char g_abIffBmhdChunkId_0043e778[4];
+extern const unsigned char g_abIffCmapChunkId_0043e77c[4];
+extern const unsigned char g_abIffBodyChunkId_0043e780[4];
 extern TitleMenuRegion g_aBarracksMenuRegions_00463008[21];
 extern short g_nHazardReferenceSpeed_00465040;
 extern short g_nActiveHazards_00465044;

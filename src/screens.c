@@ -4154,6 +4154,41 @@ __declspec(naked) unsigned int GetRawFrameWidth(unsigned char *shape,
     }
 }
 
+/* Function start: 0x43E784 */
+/* The adjacent BMHD/CMAP/BODY identifiers and big-endian chunk length identify
+ * this as the common IFF chunk-data locator. */
+__declspec(naked) unsigned char *FindIFFChunkData(
+    const char *chunkId, const unsigned char *iffData)
+{
+#ifdef _MSC_VER
+#include "screens_find_iff_chunk_data.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43E98D */
+__declspec(naked) void CopyILBMPalette(const unsigned char *iffData,
+                                       unsigned char *palette)
+{
+#ifdef _MSC_VER
+#include "screens_copy_ilbm_palette.inc"
+#else
+    return;
+#endif
+}
+
+/* Function start: 0x43E9BE */
+__declspec(naked) unsigned int GetILBMImageSize(
+    const unsigned char *iffData)
+{
+#ifdef _MSC_VER
+#include "screens_get_ilbm_image_size.inc"
+#else
+    return 0;
+#endif
+}
+
 /* Function start: 0x43EA6D */
 /* A PCX file stores its 256 RGB palette entries in the final 768 bytes;
  * raster palette components are converted from eight to six bits here. */
@@ -4173,6 +4208,30 @@ __declspec(naked) unsigned int GetPCXImageSize(const unsigned char *header)
 {
 #ifdef _MSC_VER
 #include "screens_get_pcx_image_size.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43EE42 */
+/* GIF global and local color tables use the same packed size field; a local
+ * table, when present, replaces the global palette copied first. */
+__declspec(naked) void CopyGIFPalette(const unsigned char *gifData,
+                                      unsigned char *palette)
+{
+#ifdef _MSC_VER
+#include "screens_copy_gif_palette.inc"
+#else
+    return;
+#endif
+}
+
+/* Function start: 0x43EEA3 */
+__declspec(naked) unsigned int GetGIFImageSize(
+    const unsigned char *gifData)
+{
+#ifdef _MSC_VER
+#include "screens_get_gif_image_size.inc"
 #else
     return 0;
 #endif
