@@ -1406,6 +1406,9 @@ const char g_szDismissedTextFormat_0046e658[12] = "%X%Y%F%s%P";
 const char g_szDebriefEstablishTextFormat_0046e664[12] = "%X%Y%F%s%P";
 const char g_szFuneralLongShotTextFormat_0046e670[12] = "%X%Y%F%s%P";
 unsigned char g_abRasterPaletteTranslation_0046ff2c[256];
+RLETransformVertex g_aRLETransformVertices_0047002c[4];
+int g_anRLESourceSteps_0047007c[4];
+int g_nRLETransformWorkspaceReserved_0047008c;
 const char *g_pszBlankRoomMenuLabel_00470090 =
     g_szBlankRoomMenuLabel_0047052c;
 const char *g_apszPilotRankNames_00470098[5] = {

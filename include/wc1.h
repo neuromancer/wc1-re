@@ -129,6 +129,17 @@ typedef struct RasterClip {
     int bottom;
 } RasterClip;
 
+/* One transformed corner used by the hand-written RLE scan converter.  The
+ * third word is deliberately unused; the retail workspace advances through
+ * these records with a 20-byte stride. */
+typedef struct RLETransformVertex {
+    int destinationX;
+    int destinationY;
+    int reserved;
+    int sourceX;
+    int sourceY;
+} RLETransformVertex;
+
 /* Cached shape frames use the renderer's row-oriented RLE representation.
  * The four signed bounds are relative to the shape origin; the byte stream
  * for the first row begins immediately after this 24-byte header. */

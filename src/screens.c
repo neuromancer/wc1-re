@@ -817,6 +817,51 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
             if (achieved(first) != 0)
                 return sceneData + second;
             break;
+        case 27:
+            first = int_value(&test);
+            second = int_value(&test);
+            if (sighted(first) != 0)
+                return sceneData + second;
+            break;
+        case 29:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)wing_status(first) == 2)
+                return sceneData + second;
+            break;
+        case 30:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)wing_status(first) == 1)
+                return sceneData + second;
+            break;
+        case 31:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)ace_status(first, 1) == 0)
+                return sceneData + second;
+            break;
+        case 32:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)ace_status(first, 1) != 0)
+                return sceneData + second;
+            break;
+        case 33:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)ace_status(first, 2) == 0 &&
+                (short)ace_status(first, 1) == 0)
+                return sceneData + second;
+            break;
+        case 34:
+            first = int_value(&test);
+            second = int_value(&test);
+            if ((short)ace_status(first, 2) != 0)
+                return sceneData + second;
+            break;
+        }
+        switch (testCode) {
         case 13:
             first = int_value(&test);
             if (g_nConversationMedalIndex_00598c08 == 4)
@@ -891,53 +936,10 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
                 g_stCampaignState_0059ca50.elapsedDate.year > 1)
                 return sceneData + first;
             break;
-        case 27:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (sighted(first) != 0)
-                return sceneData + second;
-            break;
         case 28:
             first = int_value(&test);
             second = int_value(&test);
             if (sighted(first) == 0)
-                return sceneData + second;
-            break;
-        case 29:
-            first = int_value(&test);
-            second = int_value(&test);
-            if ((short)wing_status(first) == 2)
-                return sceneData + second;
-            break;
-        case 30:
-            first = int_value(&test);
-            second = int_value(&test);
-            if ((short)wing_status(first) == 1)
-                return sceneData + second;
-            break;
-        case 31:
-            first = int_value(&test);
-            second = int_value(&test);
-            if ((short)ace_status(first, 1) == 0)
-                return sceneData + second;
-            break;
-        case 32:
-            first = int_value(&test);
-            second = int_value(&test);
-            if ((short)ace_status(first, 1) != 0)
-                return sceneData + second;
-            break;
-        case 33:
-            first = int_value(&test);
-            second = int_value(&test);
-            if ((short)ace_status(first, 2) == 0 &&
-                (short)ace_status(first, 1) == 0)
-                return sceneData + second;
-            break;
-        case 34:
-            first = int_value(&test);
-            second = int_value(&test);
-            if ((short)ace_status(first, 2) != 0)
                 return sceneData + second;
             break;
         case 35:
@@ -994,7 +996,6 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
     short previousColour;
     short previousShot;
     short shot;
-    short sceneAnimation;
     char *text;
 
     g_nConversationSceneType_00598c0a = sceneType;
@@ -1021,19 +1022,14 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 }
             }
             selected = record;
-            if (record->testsOffset == 0)
-                break;
-            selected = ParseTests(record,
-                                  (ConversationSceneRecord *)sceneBytes,
-                                  textData);
-            if (record == selected)
-                break;
-            record = selected;
-        } while (1);
-        if (selected->talker != -2)
-            g_nConversationCharacter_0046e580 = selected->talker;
-        duration = selected->duration;
-        sceneAnimation = (short)(shot - 50);
+            if (record->testsOffset != 0)
+                record = ParseTests(record,
+                                    (ConversationSceneRecord *)sceneBytes,
+                                    textData);
+        } while (selected != record);
+        if (record->talker != -2)
+            g_nConversationCharacter_0046e580 = record->talker;
+        duration = record->duration;
         switch (shot & 0x3f) {
         case 0:
         case 3:
@@ -1051,22 +1047,20 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
             break;
         case 1:
             if (previousShot != 1) {
-                shot = 1;
+                previousShot = 1;
                 DrawBriefingLongShot();
                 g_nTalkingHeadFace_0046e584 = -1;
-                previousShot = shot;
             }
             break;
         case 2:
             if (previousShot != 2) {
-                shot = 2;
+                previousShot = 2;
                 DrawPodiumShot();
                 g_nTalkingHeadFace_0046e584 = -1;
-                previousShot = shot;
             }
             break;
         case 4:
-            shot = 4;
+            previousShot = 4;
             if (g_nConversationCharacter_0046e580 < 0)
                 g_cCurrentObjective_0046c020 =
                     (signed char)-g_nConversationCharacter_0046e580;
@@ -1074,7 +1068,6 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 g_cCurrentObjective_0046c020 =
                     (signed char)g_nConversationCharacter_0046e580;
             g_nTalkingHeadFace_0046e584 = -1;
-            previousShot = shot;
             break;
         case 12:
         case 13:
@@ -1116,30 +1109,29 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         case 57:
         case 58:
         case 59:
-            shot = 50;
+            previousShot = 50;
             g_nTalkingHeadFace_0046e584 = -1;
-            previousShot = shot;
             break;
         }
-        if (previousColour != (short)selected->textColour &&
-            selected->textColour != -1) {
+        if (previousColour != (short)record->textColour &&
+            record->textColour != -1) {
             g_nConversationTextColour_00598c10 =
                 g_asConversationTextColours_004699f0[
-                    (short)selected->textColour];
-            previousColour = selected->textColour;
+                    (short)record->textColour];
+            previousColour = record->textColour;
         }
         g_pMouthAnimationCommands_00598af4[0] = -1;
-        if (textData[selected->mouthAnimationOffset] != '\0')
+        if (textData[record->mouthAnimationOffset] != '\0')
             ParseMouthAnimation((char *)textData +
-                                    selected->mouthAnimationOffset,
+                                    record->mouthAnimationOffset,
                                 g_pMouthAnimationCommands_00598af4);
         g_pFaceAnimationCommands_00598c18[0] = -1;
-        if (textData[selected->faceAnimationOffset] != '\0')
+        if (textData[record->faceAnimationOffset] != '\0')
             ParseFaceAnimation((char *)textData +
-                               selected->faceAnimationOffset,
+                               record->faceAnimationOffset,
                                g_pFaceAnimationCommands_00598c18);
         FlushInputEvents();
-        text = (char *)textData + selected->textOffset;
+        text = (char *)textData + record->textOffset;
         if (*text != '\0') {
             switch (previousShot) {
             case 0:
@@ -1191,7 +1183,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 funeral_wingman(text, duration);
                 break;
             case 50:
-                PlaySceneAnimation(text, sceneAnimation, duration);
+                PlaySceneAnimation(text, (short)(shot - 50), duration);
                 break;
             default:
                 LongTalk(g_pTalkingHeadShape_00598c0c, text,
@@ -1201,7 +1193,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 break;
             }
         }
-        record = selected + 1;
+        record++;
     } while (DAT_0059ab58 != 1);
 scene_complete:
     ClearViewport(&g_stConversationTextViewport_005a7570,
@@ -1795,68 +1787,21 @@ point_outside:
 }
 
 /* Function start: 0x439E39 */
-unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
-                             int mode, int colour)
+/* The segment setup, fixed-point clipping, and unrolled drawing paths identify
+ * the original as hand-written raster assembly.  Preserve those paths exactly;
+ * mode 0 writes a colour, mode 1 translates through a colour table, and higher
+ * modes call the callback passed in the colour argument. */
+#pragma optimize("", off)
+__declspec(naked) unsigned int DrawClippedLine(
+    RasterClip *clip, int x1, int y1, int x2, int y2, int mode, int colour)
 {
-    RasterSurface *surface;
-    unsigned char *pixel;
-    int stride;
-    int clipLeft;
-    int clipTop;
-    int clipRight;
-    int clipBottom;
-    int deltaX;
-    int deltaY;
-    int stepX;
-    int stepY;
-    int error;
-    int doubled;
-
-    surface = clip->surface;
-    if (surface == 0 || surface->pixels == 0 ||
-        surface->maximumX < 0 || surface->maximumY < 0)
-        return 0xffffffff;
-    clipLeft = clip->left < 0 ? 0 : clip->left;
-    clipTop = clip->top < 0 ? 0 : clip->top;
-    clipRight = clip->right < surface->maximumX ?
-        clip->right : surface->maximumX;
-    clipBottom = clip->bottom < surface->maximumY ?
-        clip->bottom : surface->maximumY;
-    if (clipRight < clipLeft || clipBottom < clipTop)
-        return 0xfffffffe;
-    x1 += clip->left;
-    x2 += clip->left;
-    y1 += clip->top;
-    y2 += clip->top;
-    stride = surface->maximumX + 1;
-    deltaX = AbsInt(x2 - x1);
-    deltaY = AbsInt(y2 - y1);
-    stepX = x1 < x2 ? 1 : -1;
-    stepY = y1 < y2 ? 1 : -1;
-    error = deltaX - deltaY;
-    for (;;) {
-        if (clipLeft <= x1 && x1 <= clipRight &&
-            clipTop <= y1 && y1 <= clipBottom) {
-            pixel = surface->pixels + y1 * stride + x1;
-            if (mode == 0)
-                *pixel = (unsigned char)colour;
-            else if (mode == 1)
-                *pixel = *(unsigned char *)(colour + *pixel);
-        }
-        if (x1 == x2 && y1 == y2)
-            break;
-        doubled = error * 2;
-        if (doubled > -deltaY) {
-            error -= deltaY;
-            x1 += stepX;
-        }
-        if (doubled < deltaX) {
-            error += deltaX;
-            y1 += stepY;
-        }
-    }
-    return 1;
+#ifdef _MSC_VER
+#include "screens_draw_clipped_line.inc"
+#else
+    return 0;
+#endif
 }
+#pragma optimize("", on)
 
 /* Function start: 0x43A83B */
 /* Original hand-written alternating-pixel rectangle fill used for
@@ -3356,156 +3301,22 @@ color_done:
 #pragma optimize("", on)
 
 /* Function start: 0x43B469 */
-int RotateRLEImage(RasterClip *clip, unsigned char *shape, int frame,
-                   int x, int y, unsigned char *scratch,
-                   unsigned int angleTenths, int scaleX, int scaleY,
-                   unsigned int flags)
+/* The retail routine is a hand-written fixed-point scanline texture mapper.
+ * It transforms a four-corner workspace, clips both polygon edges, and walks
+ * the decoded RLE image with direction-specific source increments. */
+#pragma optimize("", off)
+__declspec(naked) int RotateRLEImage(
+    RasterClip *clip, unsigned char *shape, int frame, int x, int y,
+    unsigned char *scratch, unsigned int angleTenths, int scaleX, int scaleY,
+    unsigned int flags)
 {
-    RasterClip sourceClip;
-    RasterSurface sourceSurface;
-    RasterSurface *destinationSurface;
-    unsigned int packedSize;
-    unsigned int packedOrigin;
-    int origin[2];
-    int point[2];
-    int transformed[2];
-    int width;
-    int height;
-    int destinationStride;
-    int clipLeft;
-    int clipTop;
-    int clipRight;
-    int clipBottom;
-    int minimumX;
-    int minimumY;
-    int maximumX;
-    int maximumY;
-    int corner;
-    int destinationX;
-    int destinationY;
-    int deltaX;
-    int deltaY;
-    int sourceX;
-    int sourceY;
-    int sine;
-    int cosine;
-    unsigned char colour;
-    __int64 numerator;
-
-    if (angleTenths == 0 && scaleX == 0x10000 && scaleY == 0x10000) {
-        if ((flags & 1) != 0)
-            return DrawRLEImageColor(clip, shape, frame, x, y);
-        return DrawRLEImage(clip, shape, frame, x, y);
-    }
-    if (shape == 0 || frame < 0 || frame >= *(int *)(shape + 4) ||
-        scratch == 0 || scaleX == 0 || scaleY == 0)
-        return -4;
-
-    packedSize = GetRLEImageSize(shape, frame);
-    width = (short)(packedSize >> 16);
-    height = (short)packedSize;
-    if (width <= 0 || height <= 0 || width * height > 0xfa00)
-        return -4;
-    packedOrigin = GetRLEImageOrigin(shape, frame);
-    origin[0] = -(short)(packedOrigin >> 16);
-    origin[1] = -(short)packedOrigin;
-
-    sourceSurface.pixels = scratch;
-    sourceSurface.maximumX = width - 1;
-    sourceSurface.maximumY = height - 1;
-    sourceSurface.field_C = 0;
-    sourceSurface.field_10 = 0;
-    sourceClip.surface = &sourceSurface;
-    sourceClip.left = 0;
-    sourceClip.top = 0;
-    sourceClip.right = width - 1;
-    sourceClip.bottom = height - 1;
-    if ((flags & 2) == 0) {
-        FillRasterClip(&sourceClip, 0xff);
-        if ((flags & 1) != 0)
-            DrawRLEImageColor(&sourceClip, shape, frame,
-                              origin[0], origin[1]);
-        else
-            DrawRLEImage(&sourceClip, shape, frame,
-                         origin[0], origin[1]);
-    }
-
-    destinationSurface = clip->surface;
-    if (destinationSurface == 0 || destinationSurface->pixels == 0 ||
-        destinationSurface->maximumX < 0 ||
-        destinationSurface->maximumY < 0)
-        return -1;
-    clipLeft = clip->left < 0 ? 0 : clip->left;
-    clipTop = clip->top < 0 ? 0 : clip->top;
-    clipRight = clip->right < destinationSurface->maximumX ?
-        clip->right : destinationSurface->maximumX;
-    clipBottom = clip->bottom < destinationSurface->maximumY ?
-        clip->bottom : destinationSurface->maximumY;
-    if (clipRight < clipLeft || clipBottom < clipTop)
-        return -2;
-
-    minimumX = 0x7fffffff;
-    minimumY = 0x7fffffff;
-    maximumX = -0x7fffffff;
-    maximumY = -0x7fffffff;
-    corner = 0;
-    while (corner < 4) {
-        point[0] = (corner == 1 || corner == 2) ? width - 1 : 0;
-        point[1] = (corner >= 2) ? height - 1 : 0;
-        TransformRLEPoint(point, transformed, origin,
-                          angleTenths, scaleX, scaleY);
-        transformed[0] += x - origin[0];
-        transformed[1] += y - origin[1];
-        if (transformed[0] < minimumX)
-            minimumX = transformed[0];
-        if (transformed[0] > maximumX)
-            maximumX = transformed[0];
-        if (transformed[1] < minimumY)
-            minimumY = transformed[1];
-        if (transformed[1] > maximumY)
-            maximumY = transformed[1];
-        corner++;
-    }
-    if (minimumX < clipLeft)
-        minimumX = clipLeft;
-    if (minimumY < clipTop)
-        minimumY = clipTop;
-    if (maximumX > clipRight)
-        maximumX = clipRight;
-    if (maximumY > clipBottom)
-        maximumY = clipBottom;
-    if (maximumX < minimumX || maximumY < minimumY)
-        return -3;
-
-    sine = (int)SinFixed((short)(angleTenths / 10));
-    cosine = (int)CosFixed((short)(angleTenths / 10));
-    destinationStride = destinationSurface->maximumX + 1;
-    destinationY = minimumY;
-    while (destinationY <= maximumY) {
-        destinationX = minimumX;
-        while (destinationX <= maximumX) {
-            deltaX = destinationX - x;
-            deltaY = destinationY - y;
-            numerator = ((__int64)deltaX * cosine +
-                         (__int64)deltaY * sine) << 8;
-            sourceX = origin[0] + (int)(numerator / scaleX);
-            numerator = ((-(__int64)deltaX * sine +
-                          (__int64)deltaY * cosine) << 8);
-            sourceY = origin[1] + (int)(numerator / scaleY);
-            if (sourceX >= 0 && sourceX < width &&
-                sourceY >= 0 && sourceY < height) {
-                colour = scratch[sourceY * width + sourceX];
-                if (colour != 0xff)
-                    destinationSurface->pixels[
-                        destinationY * destinationStride + destinationX] =
-                            colour;
-            }
-            destinationX++;
-        }
-        destinationY++;
-    }
+#ifdef _MSC_VER
+#include "screens_rotate_rle_image.inc"
+#else
     return 0;
+#endif
 }
+#pragma optimize("", on)
 
 /* Function start: 0x43C808 */
 /* The explicit ES setup and REP stores identify the original as hand-written
