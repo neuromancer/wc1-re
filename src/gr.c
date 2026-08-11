@@ -164,19 +164,6 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            int angle, int scaleX, int scaleY,
                            int flip, int blendMode)
 {
-    FILE *log;
-
-    if (shape != 0 && (unsigned int)shape < 0x100000) {
-        log = fopen("WC1_SHAPE_CRASH.LOG", "a");
-        if (log != 0) {
-            fprintf(log,
-                    "draw: viewport=%p xy=(%d,%d) frame=%d angle=%d "
-                    "scale=(%d,%d) flip=%d blend=%d\n",
-                    viewport, x, y, frame, angle, scaleX, scaleY,
-                    flip, blendMode);
-            fclose(log);
-        }
-    }
     if (shape != 0 && frame >= 0 && viewport->pixels != 0 &&
         viewport->rowOffsets != 0 && frame < GetShapeFrameCount(shape)) {
         PrepareShapeRLEData(shape);
@@ -219,75 +206,75 @@ void RasterLineHook(void *marker)
 void DrawFontGlyph(char character, TextContext *context, int height,
                    int width, int y)
 {
-    Viewport *viewport = context->viewport;
     unsigned char *font = context->font;
+    Viewport *viewport = context->viewport;
+    unsigned char colour = context->colour;
+    unsigned char background = context->backgroundColour;
     unsigned char fontColour = font[2];
     unsigned char fontBackground = font[3];
-    unsigned char oldColour = g_abPaletteTranslation_00470678[fontColour];
-    unsigned char oldBackground =
-        g_abPaletteTranslation_00470678[fontBackground];
-    short characterIndex = (short)(signed char)character;
+    int row = y;
+    unsigned char *characterData;
     unsigned char *source;
-    int row;
+    unsigned char *destination;
+    unsigned char translated;
+    unsigned int bitmapOffset;
+    unsigned int destinationOffset;
+    short characterIndex;
+    int column;
 
-    g_abPaletteTranslation_00470678[fontColour] = context->colour;
-    g_abPaletteTranslation_00470678[fontBackground] =
-        context->backgroundColour;
-
+    g_abPaletteTranslation_00470678[fontColour] = colour;
+    g_abPaletteTranslation_00470678[fontBackground] = background;
+    characterIndex = (short)(signed char)character;
     if (characterIndex != 0x81 && characterIndex != 0x84 &&
         characterIndex != 0x8e && characterIndex != 0x94 &&
         characterIndex != 0x99 && characterIndex != 0x9a &&
         characterIndex != 0xe1) {
-        unsigned char *characterData = font + characterIndex;
-        unsigned int bitmapOffset =
-            ((unsigned int)characterData[0x204] << 8) |
-            characterData[0x104];
-
+        characterData = font + characterIndex;
+        bitmapOffset = ((unsigned int)characterData[0x204] << 8) +
+                       characterData[0x104];
         source = font + bitmapOffset;
-        row = y;
-        while (height != 0) {
-            unsigned int destinationOffset;
-            unsigned short rowOffset = viewport->rowOffsets[row];
-            unsigned char *destination;
-            int column = width;
-
-            if (viewport->top == row && (rowOffset & 0x8000) != 0)
-                destinationOffset = (unsigned int)(short)context->cursorX;
-            else
-                destinationOffset = (unsigned int)rowOffset +
-                    (unsigned int)(short)context->cursorX;
-            destination = viewport->pixels + destinationOffset;
-
-            if (fontColour == context->colour &&
-                fontBackground == context->backgroundColour) {
-                while (column != 0) {
+        if (fontColour == colour && fontBackground == background) {
+            while (height-- != 0) {
+                if (viewport->top == row &&
+                    (viewport->rowOffsets[row] & 0x8000) != 0)
+                    destinationOffset = (unsigned int)context->cursorX;
+                else
+                    destinationOffset = viewport->rowOffsets[row] +
+                                        (unsigned int)context->cursorX;
+                destination = viewport->pixels + destinationOffset;
+                column = width;
+                while (column-- != 0) {
                     if (*source != 0xff)
                         *destination = *source;
                     source++;
                     destination++;
-                    column--;
                 }
-            } else {
-                while (column != 0) {
-                    unsigned char colour =
-                        g_abPaletteTranslation_00470678[*source];
-
-                    if (colour != 0xff)
-                        *destination = colour;
+                row++;
+            }
+        } else {
+            while (height-- != 0) {
+                if (viewport->top == row &&
+                    (viewport->rowOffsets[row] & 0x8000) != 0)
+                    destinationOffset = (unsigned int)context->cursorX;
+                else
+                    destinationOffset = viewport->rowOffsets[row] +
+                                        (unsigned int)context->cursorX;
+                destination = viewport->pixels + destinationOffset;
+                column = width;
+                while (column-- != 0) {
+                    translated = g_abPaletteTranslation_00470678[*source];
+                    if (translated != 0xff)
+                        *destination = translated;
                     source++;
                     destination++;
-                    column--;
                 }
+                row++;
             }
-            row++;
-            height--;
         }
-        context->cursorX = (short)(context->cursorX +
-            font[4 + characterIndex]);
+        context->cursorX += font[4 + characterIndex];
     }
-
-    g_abPaletteTranslation_00470678[fontColour] = oldColour;
-    g_abPaletteTranslation_00470678[fontBackground] = oldBackground;
+    g_abPaletteTranslation_00470678[fontColour] = fontColour;
+    g_abPaletteTranslation_00470678[fontBackground] = fontBackground;
 }
 
 /* Function start: 0x441370 */
@@ -333,80 +320,113 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame)
 {
-    unsigned char *saved = background;
     unsigned char *commands;
-    unsigned short rowCode;
+    unsigned char *saved;
+    unsigned char *screen;
+    unsigned char *pixels;
+    unsigned char code;
+    short left;
+    short top;
+    short right;
+    short bottom;
+    short copyLength;
     int frameOffset;
+    int drawX;
+    int drawY;
+    int endX;
+    int skip;
+    unsigned short count;
+    unsigned short runLength;
 
-    if (background == 0 || shape == 0 || frame < 0)
+    saved = background;
+    if (background == 0)
+        return;
+    if (shape == 0)
+        return;
+    if (frame < 0)
         return;
     frameOffset = (short)(frame * 4 + 4);
-    if (frameOffset >= *(unsigned short *)(shape + 4))
+    if ((int)*(unsigned short *)(shape + 4) <= frameOffset)
         return;
-
-    commands = shape + 8 + *(int *)(shape + frameOffset);
-    rowCode = *(unsigned short *)commands;
-    while (rowCode != 0) {
-        int drawX;
-        int drawY;
-        unsigned char *screen;
-
-        drawX = x + *(short *)(commands + 2);
-        drawY = y + *(short *)(commands + 4);
-        commands += 6;
-        screen = 0;
-        if (drawY >= viewport->top && drawY <= viewport->bottom)
-            screen = viewport->pixels + viewport->rowOffsets[drawY] + drawX;
-        if ((rowCode & 1) == 0) {
-            int runLength = rowCode >> 1;
-            int skip = 0;
-            int copyLength = runLength;
-            int endX = drawX + runLength - 1;
-
-            if (drawY >= viewport->top && drawY <= viewport->bottom &&
-                drawX <= viewport->right && endX >= viewport->left) {
-                if (drawX < viewport->left) {
-                    skip = viewport->left - drawX;
-                    copyLength -= skip;
+    left = viewport->left;
+    right = viewport->right;
+    top = viewport->top;
+    bottom = viewport->bottom;
+    commands = shape + *(int *)(shape + frameOffset) + 8;
+    count = *(unsigned short *)commands;
+    pixels = viewport->pixels;
+    commands += 2;
+    while (count != 0) {
+        drawX = x + *(short *)commands;
+        commands += 2;
+        drawY = y + *(short *)commands;
+        commands += 2;
+        screen = pixels + (viewport->rowOffsets[drawY] + drawX);
+        if ((count & 1) != 0) {
+            count >>= 1;
+            while (count != 0) {
+                code = *commands;
+                commands++;
+                if ((code & 1) != 0) {
+                    runLength = (unsigned short)(code >> 1);
+                    commands++;
+                    count -= runLength;
+                    endX = drawX + runLength - 1;
+                    if (top <= drawY && bottom >= drawY && drawX <= right &&
+                        left <= endX) {
+                        copyLength = (short)runLength;
+                        skip = 0;
+                        if (drawX < left) {
+                            copyLength = copyLength - left + drawX;
+                            skip = left - drawX;
+                        }
+                        if (right < endX)
+                            copyLength = copyLength - endX + right;
+                        memcpy(saved, screen + skip, copyLength);
+                        saved += copyLength;
+                    }
+                } else {
+                    runLength = (unsigned short)(code >> 1);
+                    count -= runLength;
+                    endX = drawX + runLength - 1;
+                    if (top <= drawY && bottom >= drawY && drawX <= right &&
+                        left <= endX) {
+                        copyLength = (short)runLength;
+                        skip = 0;
+                        if (drawX < left) {
+                            copyLength = copyLength - left + drawX;
+                            skip = left - drawX;
+                        }
+                        if (right < endX)
+                            copyLength = copyLength - endX + right;
+                        memcpy(saved, screen + skip, copyLength);
+                        saved += copyLength;
+                    }
+                    commands += runLength;
                 }
-                if (endX > viewport->right)
-                    copyLength -= endX - viewport->right;
+                drawX += runLength;
+                screen += runLength;
+            }
+        } else {
+            count >>= 1;
+            endX = drawX + count - 1;
+            if (top <= drawY && bottom >= drawY && drawX <= right &&
+                left <= endX) {
+                copyLength = (short)count;
+                skip = 0;
+                if (drawX < left) {
+                    copyLength = copyLength - left + drawX;
+                    skip = left - drawX;
+                }
+                if (right < endX)
+                    copyLength = copyLength - endX + right;
                 memcpy(saved, screen + skip, copyLength);
                 saved += copyLength;
             }
-            commands += runLength;
-        } else {
-            int remaining = rowCode >> 1;
-
-            while (remaining != 0) {
-                unsigned char code = *commands;
-                int runLength = code >> 1;
-                int skip = 0;
-                int copyLength = runLength;
-                int endX = drawX + runLength - 1;
-
-                if (drawY >= viewport->top && drawY <= viewport->bottom &&
-                    drawX <= viewport->right && endX >= viewport->left) {
-                    if (drawX < viewport->left) {
-                        skip = viewport->left - drawX;
-                        copyLength -= skip;
-                    }
-                    if (endX > viewport->right)
-                        copyLength -= endX - viewport->right;
-                    memcpy(saved, screen + skip, copyLength);
-                    saved += copyLength;
-                }
-                if ((code & 1) == 0)
-                    commands += runLength + 1;
-                else
-                    commands += 2;
-                drawX += runLength;
-                if (screen != 0)
-                    screen += runLength;
-                remaining -= runLength;
-            }
+            commands += count;
         }
-        rowCode = *(unsigned short *)commands;
+        count = *(unsigned short *)commands;
+        commands += 2;
     }
 }
 
@@ -415,82 +435,116 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame)
 {
-    unsigned char *saved = background;
     unsigned char *commands;
-    unsigned short rowCode;
+    unsigned char *saved;
+    unsigned char *screen;
+    unsigned char *pixels;
+    unsigned char code;
+    short left;
+    short top;
+    short right;
+    short bottom;
+    short copyLength;
     int frameOffset;
+    int drawX;
+    int drawY;
+    int endX;
+    int skip;
+    unsigned short count;
+    unsigned short runLength;
 
-    if (background != 0 && shape != 0 && frame >= 0) {
-        frameOffset = (short)(frame * 4 + 4);
-        if (frameOffset < *(unsigned short *)(shape + 4)) {
-            commands = shape + 8 + *(int *)(shape + frameOffset);
-            rowCode = *(unsigned short *)commands;
-            while (rowCode != 0) {
-                int drawX;
-                int drawY;
-                unsigned char *screen;
-
-                drawX = x + *(short *)(commands + 2);
-                drawY = y + *(short *)(commands + 4);
-                commands += 6;
-                screen = 0;
-                if (drawY >= viewport->top && drawY <= viewport->bottom)
-                    screen = viewport->pixels + viewport->rowOffsets[drawY] + drawX;
-                if ((rowCode & 1) == 0) {
-                    int runLength = rowCode >> 1;
-                    int skip = 0;
-                    int copyLength = runLength;
-                    int endX = drawX + runLength - 1;
-
-                    if (drawY >= viewport->top && drawY <= viewport->bottom &&
-                        drawX <= viewport->right && endX >= viewport->left) {
-                        if (drawX < viewport->left) {
-                            skip = viewport->left - drawX;
-                            copyLength -= skip;
+    saved = background;
+    if (background == 0)
+        return;
+    if (shape == 0)
+        return;
+    if (frame < 0)
+        return;
+    frameOffset = (short)(frame * 4 + 4);
+    if ((int)*(unsigned short *)(shape + 4) <= frameOffset)
+        return;
+    left = viewport->left;
+    right = viewport->right;
+    top = viewport->top;
+    bottom = viewport->bottom;
+    commands = shape + *(int *)(shape + frameOffset) + 8;
+    count = *(unsigned short *)commands;
+    pixels = viewport->pixels;
+    commands += 2;
+    while (count != 0) {
+        drawX = x + *(short *)commands;
+        commands += 2;
+        drawY = y + *(short *)commands;
+        commands += 2;
+        screen = pixels + (viewport->rowOffsets[drawY] + drawX);
+        if ((count & 1) != 0) {
+            count >>= 1;
+            while (count != 0) {
+                code = *commands;
+                commands++;
+                if ((code & 1) != 0) {
+                    runLength = (unsigned short)(code >> 1);
+                    commands++;
+                    count -= runLength;
+                    endX = drawX + runLength - 1;
+                    if (top <= drawY && bottom >= drawY && drawX <= right &&
+                        left <= endX) {
+                        copyLength = (short)runLength;
+                        skip = 0;
+                        if (drawX < left) {
+                            copyLength = copyLength - left + drawX;
+                            skip = left - drawX;
                         }
-                        if (endX > viewport->right)
-                            copyLength -= endX - viewport->right;
+                        if (right < endX)
+                            copyLength = copyLength - endX + right;
+                        memcpy(screen + skip, saved, copyLength);
+                        saved += copyLength;
+                    }
+                } else {
+                    runLength = (unsigned short)(code >> 1);
+                    count -= runLength;
+                    endX = drawX + runLength - 1;
+                    if (top <= drawY && bottom >= drawY && drawX <= right &&
+                        left <= endX) {
+                        copyLength = (short)runLength;
+                        skip = 0;
+                        if (drawX < left) {
+                            copyLength = copyLength - left + drawX;
+                            skip = left - drawX;
+                        }
+                        if (right < endX)
+                            copyLength = copyLength - endX + right;
                         memcpy(screen + skip, saved, copyLength);
                         saved += copyLength;
                     }
                     commands += runLength;
-                } else {
-                    int remaining = rowCode >> 1;
-
-                    while (remaining != 0) {
-                        unsigned char code = *commands;
-                        int runLength = code >> 1;
-                        int skip = 0;
-                        int copyLength = runLength;
-                        int endX = drawX + runLength - 1;
-
-                        if (drawY >= viewport->top && drawY <= viewport->bottom &&
-                            drawX <= viewport->right && endX >= viewport->left) {
-                            if (drawX < viewport->left) {
-                                skip = viewport->left - drawX;
-                                copyLength -= skip;
-                            }
-                            if (endX > viewport->right)
-                                copyLength -= endX - viewport->right;
-                            memcpy(screen + skip, saved, copyLength);
-                            saved += copyLength;
-                        }
-                        if ((code & 1) == 0)
-                            commands += runLength + 1;
-                        else
-                            commands += 2;
-                        drawX += runLength;
-                        if (screen != 0)
-                            screen += runLength;
-                        remaining -= runLength;
-                    }
                 }
-                rowCode = *(unsigned short *)commands;
+                drawX += runLength;
+                screen += runLength;
             }
+        } else {
+            count >>= 1;
+            endX = drawX + count - 1;
+            if (top <= drawY && bottom >= drawY && drawX <= right &&
+                left <= endX) {
+                copyLength = (short)count;
+                skip = 0;
+                if (drawX < left) {
+                    copyLength = copyLength - left + drawX;
+                    skip = left - drawX;
+                }
+                if (right < endX)
+                    copyLength = copyLength - endX + right;
+                memcpy(screen + skip, saved, copyLength);
+                saved += copyLength;
+            }
+            commands += count;
         }
-        if (viewport->pixels == DAT_005a6ba0.pixels)
-            DIBslam();
+        count = *(unsigned short *)commands;
+        commands += 2;
     }
+    if (viewport->pixels == DAT_005a6ba0.pixels)
+        DIBslam();
 }
 
 /* Function start: 0x441A40 */
@@ -655,7 +709,6 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                                 short angle, short scale, int flip,
                                 short *bounds)
 {
-    FILE *log;
     short *frameData;
     int frameOffset;
     int leftExtent;
@@ -675,16 +728,6 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
             viewport->top <= y && y <= viewport->bottom)
             return 1;
         return 0;
-    }
-    if ((unsigned int)shape < 0x100000) {
-        log = fopen("WC1_SHAPE_CRASH.LOG", "a");
-        if (log != 0) {
-            fprintf(log,
-                    "bounds: viewport=%p xy=(%d,%d) frame=%d angle=%d "
-                    "scale=%d flip=%d\n",
-                    viewport, x, y, frame, angle, scale, flip);
-            fclose(log);
-        }
     }
     CheckHeapBlockSignature(shape);
     frameOffset = frame * 4 + 4;

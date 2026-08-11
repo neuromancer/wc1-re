@@ -13,14 +13,16 @@ void CalibrateJoystickInteractive()
 {
     InputDeviceSample samples[2];
     short calibration[6];
-    short device;
     short shown;
     int file;
     int failed;
+    int fontLoaded;
 
-    device = g_nActiveInputDevice_005a819c;
-    if (device == -1)
+    fontLoaded = 0;
+    if (g_nActiveInputDevice_005a819c == -1)
         return;
+    if (g_apTextFonts_005a6c00[1] != 0)
+        fontLoaded = 1;
 
     g_stDefaultTextContext_005a7740.alignment = 2;
     InitializeTextContextFromFont(&g_stDefaultTextContext_005a7740, 1,
@@ -39,11 +41,11 @@ void CalibrateJoystickInteractive()
     if (shown != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, device, 0x7fff);
-        g_nJoystickMinimumX_005a81b8 = samples[device].x;
-        g_nJoystickMinimumY_005a81bc = samples[device].y;
-        calibration[0] = (short)samples[device].x;
-        calibration[1] = (short)samples[device].y;
+        SampleJoystickDevice(samples, g_nActiveInputDevice_005a819c, 0x7fff);
+        g_nJoystickMinimumX_005a81b8 = samples[g_nActiveInputDevice_005a819c].x;
+        g_nJoystickMinimumY_005a81bc = samples[g_nActiveInputDevice_005a819c].y;
+        calibration[0] = (short)samples[g_nActiveInputDevice_005a819c].x;
+        calibration[1] = (short)samples[g_nActiveInputDevice_005a819c].y;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
@@ -53,11 +55,11 @@ void CalibrateJoystickInteractive()
     if (shown != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, device, 0x7fff);
-        g_nJoystickMaximumX_005a81b0 = samples[device].x;
-        g_nJoystickMaximumY_005a81b4 = samples[device].y;
-        calibration[2] = (short)samples[device].x;
-        calibration[3] = (short)samples[device].y;
+        SampleJoystickDevice(samples, g_nActiveInputDevice_005a819c, 0x7fff);
+        g_nJoystickMaximumX_005a81b0 = samples[g_nActiveInputDevice_005a819c].x;
+        g_nJoystickMaximumY_005a81b4 = samples[g_nActiveInputDevice_005a819c].y;
+        calibration[2] = (short)samples[g_nActiveInputDevice_005a819c].x;
+        calibration[3] = (short)samples[g_nActiveInputDevice_005a819c].y;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
@@ -67,14 +69,17 @@ void CalibrateJoystickInteractive()
     if (shown != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, device, 0x7fff);
-        g_nJoystickCentreX_005a81dc = samples[device].x;
-        g_nJoystickCentreY_005a81d8 = samples[device].y;
-        calibration[4] = (short)samples[device].x;
-        calibration[5] = (short)samples[device].y;
+        SampleJoystickDevice(samples, g_nActiveInputDevice_005a819c, 0x7fff);
+        g_nJoystickCentreX_005a81dc = samples[g_nActiveInputDevice_005a819c].x;
+        g_nJoystickCentreY_005a81d8 = samples[g_nActiveInputDevice_005a819c].y;
+        calibration[4] = (short)samples[g_nActiveInputDevice_005a819c].x;
+        calibration[5] = (short)samples[g_nActiveInputDevice_005a819c].y;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
+
+    if (fontLoaded == 0)
+        ReleaseTextFont(1);
 
     if (g_nJoystickHorizontalRange_005a81cc == 0)
         g_nJoystickHorizontalRange_005a81cc = 9;
@@ -130,7 +135,7 @@ void CalibrateJoystickInteractive()
     file = _open("j.cal", 0x8301, 0x180);
     if (file == -1)
         return;
-    failed = _write(file, &device, 2) != 2;
+    failed = _write(file, &g_nActiveInputDevice_005a819c, 2) != 2;
     if (failed == 0)
         failed = _write(file, calibration, sizeof(calibration)) !=
                  sizeof(calibration);
@@ -142,31 +147,25 @@ void CalibrateJoystickInteractive()
 /* Function start: 0x4106C0 */
 void WaitForJoystickButtonRelease(void)
 {
-    short device;
-
-    device = g_nActiveInputDevice_005a819c;
-    if (device == -1)
-        return;
     do {
-        PumpWindowMessages();
-        SampleJoystickDevice(g_aInputDeviceSamples_005a81f0, device, 0);
-    } while (g_nActiveInputDevice_005a819c != -1 &&
-             g_aInputDeviceSamples_005a81f0[device].buttons != 0);
+        SampleJoystickDevice(
+            &g_aInputDeviceSamples_005a81f0[
+                g_nActiveInputDevice_005a819c],
+            g_nActiveInputDevice_005a819c, 0);
+    } while (g_aInputDeviceSamples_005a81f0[
+                 g_nActiveInputDevice_005a819c].buttons != 0);
 }
 
 /* Function start: 0x410700 */
 void WaitForJoystickButtonPress(void)
 {
-    short device;
-
-    device = g_nActiveInputDevice_005a819c;
-    if (device == -1)
-        return;
     do {
-        PumpWindowMessages();
-        SampleJoystickDevice(g_aInputDeviceSamples_005a81f0, device, 0);
-    } while (g_nActiveInputDevice_005a819c != -1 &&
-             g_aInputDeviceSamples_005a81f0[device].buttons == 0);
+        SampleJoystickDevice(
+            &g_aInputDeviceSamples_005a81f0[
+                g_nActiveInputDevice_005a819c],
+            g_nActiveInputDevice_005a819c, 0);
+    } while (g_aInputDeviceSamples_005a81f0[
+                 g_nActiveInputDevice_005a819c].buttons == 0);
 }
 
 /* Function start: 0x410740 */
@@ -876,6 +875,7 @@ unsigned int generate_stars(void)
 /* Function start: 0x412100 */
 unsigned int update_star_field(void)
 {
+    int hazardActive;
     FixedVector cameraMotion;
     FixedVector viewMotion;
     FixedVector origin;
@@ -885,6 +885,7 @@ unsigned int update_star_field(void)
     short jRotation;
     short obj;
 
+    hazardActive = g_pActiveHazardField_0059bfe0 != 0;
     g_vPreviousStarFieldMotion_0059c900 = g_vStarFieldMotion_0059c860;
     ScaleFixedVector(&g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT],
                      200 << 8, &cameraMotion);
@@ -898,7 +899,7 @@ unsigned int update_star_field(void)
     do {
         if (g_asObjectScreenX_0059d9b0[obj] == (short)0x8001) {
             randomChoice = RandomInRange(0, 7);
-            if (g_pActiveHazardField_0059bfe0 == 0) {
+            if (hazardActive == 0) {
                 if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_ASTEROID ||
                     (int)g_aeObjectClass_0059d100[obj] == 0x21 ||
                     g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_NULL) {

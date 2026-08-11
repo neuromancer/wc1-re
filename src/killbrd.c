@@ -86,7 +86,7 @@ void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
     g_stRoomMenuTextContext_00598abe.text = text;
     g_stRoomMenuTextContext_00598abe.textCursor = text;
     g_stRoomMenuTextContext_00598abe.alignment = alignment;
-    *text = (char)g_dwRoomMenuStringPadding_004705e8;
+    *text = g_szEmptyRoomMenuLabel_004705e8[0];
     InitializeTextContextFromFont(&g_stRoomMenuTextContext_00598abe,
                                   0, g_cViewportClearColour_004699a0,
                                   -1);
@@ -701,100 +701,6 @@ short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
 /* Function start: 0x4408A0 */
 void CheckHeapBlockSignature(unsigned char *shape)
 {
-    FILE *log;
-    short object;
-    short slot;
-    int type;
-
-    if ((unsigned int)shape < 0x100000) {
-        log = fopen("WC1_SHAPE_CRASH.LOG", "a");
-        if (log != 0) {
-            fprintf(log,
-                    "shape=%p view=%d viewObject=%d externalObject=%d "
-                    "ejectedObject=%d arcadeState=%d\n",
-                    shape, DAT_0046c03c, (int)g_cViewObject_0046c000,
-                    g_nExternalViewShip_0046c040,
-                    g_nEjectedPilotObject_0046c044,
-                    g_nArcadeState_00469fb0);
-            fprintf(log,
-                    "constellation=%p constellationObject=%d "
-                    "screenPacket=%p\n",
-                    g_pConstellationShape_005a765c, DAT_00469208,
-                    g_pScreenViewportPacket_005a6b94);
-            fprintf(log,
-                    "spaceFrame=%d renderedFrame=%d cannedScene=%d "
-                    "cursorDepth=%d cursor=%p cursorResource=%p "
-                    "cursorFrame=%d drawnCursor=%p\n",
-                    g_nSpaceFrame_0059b420,
-                    g_nRenderedSpaceFrame_0059d61a,
-                    g_nCannedSceneMode_00469fac, DAT_0046daa0,
-                    DAT_0059ab19, g_pMouseCursorResource_005a7cdc,
-                    DAT_0059ab1d, g_pDrawnMouseCursorShape_0046da9c);
-            fprintf(log,
-                    "cinematic=%p rear=%p targetLock=%p "
-                    "cockpitPilot=%p cockpitExplosion=%p "
-                    "cockpitExplosionBackground=%p introFont=%p\n",
-                    g_pCinematicViewBackdrop_005a7c90,
-                    g_pRearViewBackdrop_005a7c94,
-                    g_pTargetLockShape_005a6bf4,
-                    g_pCockpitPilotShape_0046905c,
-                    g_pCockpitExplosionShape_00469064,
-                    g_pCockpitExplosionBackground_00469060,
-                    g_pIntroFont_005a8960);
-
-            object = 0;
-            do {
-                if (object < 10 ||
-                    g_apObjectShape_0059d2f0[object] == shape) {
-                    fprintf(log,
-                            "object[%d]: type=%d class=%d shape=%p "
-                            "frame=%d scale=%d angle=%d flip=%d "
-                            "screen=(%d,%d)\n",
-                            object,
-                            (int)g_aeObjectType_0059b560[object],
-                            (int)g_aeObjectClass_0059d100[object],
-                            g_apObjectShape_0059d2f0[object],
-                            g_asObjectViewFrame_0059d230[object],
-                            g_asObjectScreenScale_0059c950[object],
-                            g_asObjectScreenAngle_0059cd90[object],
-                            g_asObjectFlip_0059c870[object],
-                            g_asObjectScreenX_0059d9b0[object],
-                            g_asObjectScreenY_0059d930[object]);
-                }
-                object++;
-            } while (object < WC1_SPACE_OBJECT_COUNT);
-
-            slot = 0;
-            do {
-                fprintf(log,
-                        "resource[%d]: type=%d shapeSet=%p "
-                        "animation=%p shape=%p\n",
-                        slot,
-                        (int)g_aObjectResourceSlots_0059ddf0[slot].type,
-                        g_aObjectResourceSlots_0059ddf0[slot].shapeSet,
-                        g_aObjectResourceSlots_0059ddf0[slot].animation,
-                        g_aObjectResourceSlots_0059ddf0[slot].shape);
-                slot++;
-            } while (slot < 4);
-
-            type = 0;
-            do {
-                if (g_aObjectTypeData_00466458[type].shapeSet == shape ||
-                    g_aObjectTypeData_00466458[type].shape == shape) {
-                    fprintf(log,
-                            "objectType[%d]: class=%d shapeSet=%p "
-                            "shape=%p\n",
-                            type,
-                            (int)g_aObjectTypeData_00466458[type]
-                                .objectClass,
-                            g_aObjectTypeData_00466458[type].shapeSet,
-                            g_aObjectTypeData_00466458[type].shape);
-                }
-                type++;
-            } while (type < OBJECT_TYPE_COUNT);
-            fclose(log);
-        }
-    }
     if (*(int *)(shape - 8) != 0x6666656a)
         exit_squadron(g_szInvalidShapeAllocation_00470d18);
 }

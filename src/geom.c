@@ -443,46 +443,61 @@ void vector_component_in_dir(const FixedVector *vector,
 /* Function start: 0x418BE0 */
 void rotate_about_i(short angle, FixedVector *j, FixedVector *k)
 {
-    FixedVector oldJ = *j;
-    int sine = (int)SinFixed(angle);
-    int cosine = (int)CosFixed(angle);
+    int cosine;
+    int sine;
+    int old;
 
-    j->x = MultiplyFixed(oldJ.x, cosine) - MultiplyFixed(k->x, sine);
-    k->x = MultiplyFixed(oldJ.x, sine) + MultiplyFixed(k->x, cosine);
-    j->y = MultiplyFixed(oldJ.y, cosine) - MultiplyFixed(k->y, sine);
-    k->y = MultiplyFixed(oldJ.y, sine) + MultiplyFixed(k->y, cosine);
-    j->z = MultiplyFixed(oldJ.z, cosine) - MultiplyFixed(k->z, sine);
-    k->z = MultiplyFixed(oldJ.z, sine) + MultiplyFixed(k->z, cosine);
+    cosine = (int)CosFixed(angle);
+    sine = (int)SinFixed(angle);
+    old = j->x;
+    j->x = MultiplyFixed(old, cosine) - MultiplyFixed(k->x, sine);
+    k->x = MultiplyFixed(old, sine) + MultiplyFixed(k->x, cosine);
+    old = j->y;
+    j->y = MultiplyFixed(old, cosine) - MultiplyFixed(k->y, sine);
+    k->y = MultiplyFixed(old, sine) + MultiplyFixed(k->y, cosine);
+    old = j->z;
+    j->z = MultiplyFixed(old, cosine) - MultiplyFixed(k->z, sine);
+    k->z = MultiplyFixed(old, sine) + MultiplyFixed(k->z, cosine);
 }
 
 /* Function start: 0x418D00 */
 void rotate_about_j(short angle, FixedVector *i, FixedVector *k)
 {
-    FixedVector oldI = *i;
-    int sine = (int)SinFixed(angle);
-    int cosine = (int)CosFixed(angle);
+    int cosine;
+    int sine;
+    int old;
 
-    i->x = MultiplyFixed(k->x, sine) + MultiplyFixed(oldI.x, cosine);
-    k->x = MultiplyFixed(k->x, cosine) - MultiplyFixed(oldI.x, sine);
-    i->y = MultiplyFixed(k->y, sine) + MultiplyFixed(oldI.y, cosine);
-    k->y = MultiplyFixed(k->y, cosine) - MultiplyFixed(oldI.y, sine);
-    i->z = MultiplyFixed(k->z, sine) + MultiplyFixed(oldI.z, cosine);
-    k->z = MultiplyFixed(k->z, cosine) - MultiplyFixed(oldI.z, sine);
+    cosine = (int)CosFixed(angle);
+    sine = (int)SinFixed(angle);
+    old = i->x;
+    i->x = MultiplyFixed(k->x, sine) + MultiplyFixed(old, cosine);
+    k->x = MultiplyFixed(k->x, cosine) - MultiplyFixed(old, sine);
+    old = i->y;
+    i->y = MultiplyFixed(k->y, sine) + MultiplyFixed(old, cosine);
+    k->y = MultiplyFixed(k->y, cosine) - MultiplyFixed(old, sine);
+    old = i->z;
+    i->z = MultiplyFixed(k->z, sine) + MultiplyFixed(old, cosine);
+    k->z = MultiplyFixed(k->z, cosine) - MultiplyFixed(old, sine);
 }
 
 /* Function start: 0x418E40 */
 void rotate_about_k(short angle, FixedVector *i, FixedVector *j)
 {
-    FixedVector oldI = *i;
-    int sine = (int)SinFixed(angle);
-    int cosine = (int)CosFixed(angle);
+    int sine;
+    int cosine;
+    int old;
 
-    i->x = MultiplyFixed(oldI.x, cosine) - MultiplyFixed(j->x, sine);
-    j->x = MultiplyFixed(oldI.x, sine) + MultiplyFixed(j->x, cosine);
-    i->y = MultiplyFixed(oldI.y, cosine) - MultiplyFixed(j->y, sine);
-    j->y = MultiplyFixed(oldI.y, sine) + MultiplyFixed(j->y, cosine);
-    i->z = MultiplyFixed(oldI.z, cosine) - MultiplyFixed(j->z, sine);
-    j->z = MultiplyFixed(oldI.z, sine) + MultiplyFixed(j->z, cosine);
+    cosine = (int)CosFixed(angle);
+    sine = (int)SinFixed(angle);
+    old = i->x;
+    i->x = MultiplyFixed(old, cosine) - MultiplyFixed(j->x, sine);
+    j->x = MultiplyFixed(old, sine) + MultiplyFixed(j->x, cosine);
+    old = i->y;
+    i->y = MultiplyFixed(old, cosine) - MultiplyFixed(j->y, sine);
+    j->y = MultiplyFixed(old, sine) + MultiplyFixed(j->y, cosine);
+    old = i->z;
+    i->z = MultiplyFixed(old, cosine) - MultiplyFixed(j->z, sine);
+    j->z = MultiplyFixed(old, sine) + MultiplyFixed(j->z, cosine);
 }
 
 /* Function start: 0x418F60 */

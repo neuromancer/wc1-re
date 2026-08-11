@@ -87,13 +87,12 @@ InputEvent *AllocateInputEvent(void)
 /* Function start: 0x435760 */
 void ReleaseInputEvent(InputEvent *event)
 {
-    short slot = 0;
+    int slot;
 
-    do {
+    for (slot = 0; slot < 0x100; slot++) {
         if (&g_aInputEventPool_00598c40[slot] == event)
             g_aiInputEventSlotUsed_0059ab70[slot] = 0;
-        slot++;
-    } while (slot < 0x100);
+    }
 }
 
 /* Function start: 0x435790 */
@@ -365,8 +364,10 @@ void FlushInputEvents(void)
 }
 
 /* Function start: 0x435DC0 */
-unsigned int ResetAllocationDepth(void)
+short __stdcall ResetAllocationDepth(int x, int y)
 {
+    (void)x;
+    (void)y;
     DAT_0046daa0 = 0;
     return 1;
 }
@@ -523,7 +524,7 @@ void SetFrameTimerPeriod(short period)
 }
 
 /* Function start: 0x4361F0 */
-void SetFrameTimerAndWait(short period)
+void __stdcall SetFrameTimerAndWait(short period)
 {
     SetFrameTimerPeriod(period);
     WaitForFrameTick();
@@ -624,35 +625,38 @@ void SetInputKeyState(int scanCode, unsigned char pressed)
 /* Function start: 0x436460 */
 void sort_object_depth(void)
 {
-    unsigned char used[WC1_SPACE_OBJECT_COUNT];
-    unsigned short farthestDistance;
-    short farthestObject;
-    short sorted;
-    short obj;
+    int previous;
+    int best;
+    int bestObject;
+    int obj;
+    int sorted;
 
-    memset(used, 0, sizeof(used));
-    sorted = 0;
-    while (sorted < WC1_SPACE_OBJECT_COUNT) {
-        farthestDistance = 0;
-        farthestObject = -1;
-        obj = 0;
-        while (obj < WC1_SPACE_OBJECT_COUNT) {
-            if (used[obj] == 0 &&
-                g_asObjectScreenX_0059d9b0[obj] != (short)0x8001 &&
-                (farthestObject == -1 ||
-                 (unsigned short)g_asObjectDistance_0059b4a0[obj] >
-                     farthestDistance)) {
-                farthestDistance =
-                    (unsigned short)g_asObjectDistance_0059b4a0[obj];
-                farthestObject = obj;
-            }
-            obj++;
+    bestObject = -1;
+    memset(g_anObjectDepthPlaced_0059a8f0, 0,
+           sizeof(g_anObjectDepthPlaced_0059a8f0));
+    previous = -999999999;
+    for (obj = 0; obj < WC1_SPACE_OBJECT_COUNT; obj++) {
+        if (previous < (unsigned short)g_asObjectDistance_0059b4a0[obj]) {
+            previous = (unsigned short)g_asObjectDistance_0059b4a0[obj];
+            bestObject = obj;
         }
-        g_anSortedObject_0059aa00[sorted] = farthestObject;
-        if (farthestObject == -1)
+    }
+    for (sorted = 0; sorted < WC1_SPACE_OBJECT_COUNT; sorted++) {
+        best = -1;
+        g_anSortedObject_0059aa00[sorted] = bestObject;
+        if (bestObject == -1)
             return;
-        used[farthestObject] = 1;
-        sorted++;
+        g_anObjectDepthPlaced_0059a8f0[bestObject] = 1;
+        bestObject = -1;
+        for (obj = 0; obj < WC1_SPACE_OBJECT_COUNT; obj++) {
+            if (g_anObjectDepthPlaced_0059a8f0[obj] == 0 &&
+                g_asObjectScreenX_0059d9b0[obj] != (short)0x8001 &&
+                best < (unsigned short)g_asObjectDistance_0059b4a0[obj] &&
+                previous >= (unsigned short)g_asObjectDistance_0059b4a0[obj]) {
+                bestObject = obj;
+                best = (unsigned short)g_asObjectDistance_0059b4a0[obj];
+            }
+        }
     }
 }
 

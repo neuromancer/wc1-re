@@ -2563,10 +2563,10 @@ unsigned int __stdcall UpdateSceneAnimationObject(
     complete = 0;
     delay = object->delay;
     stop = 0;
-    if (delay == 0)
-        cursor = object->scriptCursor;
-    else
+    if (delay != 0)
         cursor = object->repeatCursor;
+    else
+        cursor = object->scriptCursor;
 
     while (*cursor != 0 && stop == 0) {
         opcode = *cursor++;

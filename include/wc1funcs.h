@@ -86,7 +86,7 @@ int MeasureScaledIntroTextWidth(const char *text, short scale);            /* 0x
 int DrawCenteredScaledIntroText(const char *text, short centreX,
                                 short baselineY, short scale);             /* 0x004037A0 */
 short GetLineLength(const char *text);                                  /* 0x00403890 */
-void print_subtitle(Viewport *viewport, short colour,
+int print_subtitle(Viewport *viewport, short colour,
                     const char *text);                                  /* 0x00403920 */
 int advance_canned_sequence(short obj);                                 /* 0x00403A80 */
 void update_canned_sequence(short obj);                                 /* 0x00403B70 */
@@ -1244,7 +1244,7 @@ void handle_stress(short obj, int event);                              /* 0x0043
 void intelligence_events(short obj);                                    /* 0x00434A80 */
 unsigned int chase_speed(short obj, short range);                      /* 0x00434C70 */
 short RandomBelow(short n);                                           /* 0x00434CD0 */
-void SeedRandomFromClock(void);                                               /* 0x00434CF0 */
+void __stdcall SeedRandomFromClock(void);                                               /* 0x00434CF0 */
 short __stdcall RandomInRange(short lo, short hi);                      /* 0x00434D20 */
 short RandomBelowOrEqual(short n);                                      /* 0x00434D50 */
 long MultiplyFixed(int left, int right);                              /* 0x00434D80 */
@@ -1259,28 +1259,28 @@ long Vector_magnitude(const FixedVector *vector);                     /* 0x00434
 void __stdcall SetTextCursor(unsigned short a, unsigned short b);   /* 0x00434F70 */
 void __stdcall SetTextContext(TextContext *context);                  /* 0x00434FA0 */
 void WaitForVerticalBlankThunk(void);                                  /* 0x00434FB0 */
-unsigned int IdentityHandle(unsigned int v);                             /* 0x00434FC0 */
+unsigned int __stdcall IdentityHandle(unsigned int v);                             /* 0x00434FC0 */
 void __stdcall SetWholePaletteFromTriplets(unsigned char *palette);               /* 0x00434FD0 */
-unsigned short ReadWord(unsigned short *p);                        /* 0x00434FE0 */
-unsigned short GetFontCharWidth(char i);                                     /* 0x00434FF0 */
+unsigned short __stdcall ReadWord(unsigned short *p);                        /* 0x00434FE0 */
+unsigned short __stdcall GetFontCharWidth(char i);                                     /* 0x00434FF0 */
 void ReleaseVideoResourcesHook(void);                                           /* 0x00435010 */
 short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
                                     unsigned char *shape, short frame); /* 0x00435020 */
 short __stdcall IsPointInRect(short x, short y, const short *rect);       /* 0x00435090 */
-void SplitPackedPoint(unsigned int packed, short *p);                      /* 0x004350D0 */
-void DrawTextString(char *text);                                      /* 0x004350F0 */
+void __stdcall SplitPackedPoint(unsigned int packed, short *p);                      /* 0x004350D0 */
+void __stdcall DrawTextString(char *text);                                      /* 0x004350F0 */
 void __stdcall DrawTextCharacter(char character);                    /* 0x00435290 */
 void __stdcall AppendTextCharacter(char character);                  /* 0x00435310 */
 int __stdcall MeasureShapeFrameStorage(unsigned char *shape,
                                        short frame);                   /* 0x00435340 */
 void ResetTextCursor(void);                                           /* 0x004353F0 */
-unsigned int DosFarPtrToNear(unsigned int v);                             /* 0x00435410 */
-unsigned int DosNearPtrToFar(unsigned int v);                             /* 0x00435420 */
+unsigned int __stdcall DosFarPtrToNear(unsigned int v);                             /* 0x00435410 */
+unsigned int __stdcall DosNearPtrToFar(unsigned int v);                             /* 0x00435420 */
 char *__stdcall DosStrrchr(char *s, short c);                       /* 0x00435430 */
 char *__stdcall DosStrchr(char *s, short c);                        /* 0x00435450 */
 char *__stdcall DosStrcpy(char *dst, const char *src);               /* 0x00435470 */
-short DosStrlen(const char *s);                                   /* 0x004354D0 */
-void DosMemcpy(void *dst, const void *src, size_t n);               /* 0x004354F0 */
+short __stdcall DosStrlen(const char *s);                                   /* 0x004354D0 */
+void __stdcall DosMemcpy(void *dst, const void *src, size_t n);               /* 0x004354F0 */
 unsigned short GetEventManagerStatus(void);                            /* 0x00435550 */
 void __stdcall RegisterEventManagerShutdown(void (*fn)(void));         /* 0x00435560 */
 short __stdcall InitializeEventManager(short period,
@@ -1309,7 +1309,7 @@ short __stdcall PollInputEvent(InputEventState *event, short filter);  /* 0x0043
 short __stdcall PeekInputEvent(InputEventState *event, short type);    /* 0x00435CE0 */
 short __stdcall IsInputEventQueued(short type);                        /* 0x00435D80 */
 void FlushInputEvents(void);                                          /* 0x00435DB0 */
-unsigned int ResetAllocationDepth(void);                                          /* 0x00435DC0 */
+short __stdcall ResetAllocationDepth(int x, int y);                                          /* 0x00435DC0 */
 void CheckCursor(void);                                                /* 0x00435DE0 */
 void CaptureMouseCursorBackground(void);                           /* 0x00435E20 */
 void DrawMouseCursor(void);                                        /* 0x00435EF0 */
@@ -1321,7 +1321,7 @@ void __stdcall SetMouseCursorShape(unsigned char *shape, short frame); /* 0x0043
 void __stdcall SetMouseHomePosition(short x, short y);                /* 0x00436160 */
 void __stdcall ApplyPackedMousePosition(ShortPoint point);             /* 0x00436190 */
 void SetFrameTimerPeriod(short period);                                   /* 0x004361E0 */
-void SetFrameTimerAndWait(short period);                                       /* 0x004361F0 */
+void __stdcall SetFrameTimerAndWait(short period);                                       /* 0x004361F0 */
 void __stdcall SetFrameTimerPeriodDirect(short p);                    /* 0x00436210 */
 void WaitForFrameTick(void);                                          /* 0x00436230 */
 int IsFrameTickElapsed(void);                                            /* 0x00436240 */

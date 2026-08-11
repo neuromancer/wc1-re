@@ -1118,12 +1118,14 @@ short GameFlow(void)
     LaunchPlayerShip();
     flightResult = RunSpaceFlight(-1);
 
-    if (flightResult == 1) {
+    switch (flightResult) {
+    case 1:
         free_cockpit();
         g_nArcadeState_00469fb0 = 0;
         g_nPlayerCollisionObject_0046c050 = -1;
         free_3Space();
-    } else if (flightResult == 2) {
+        break;
+    case 2:
         ejection_sequence();
         check_stranded();
         if (g_nArcadeState_00469fb0 == 3)
@@ -1139,21 +1141,21 @@ short GameFlow(void)
         if (g_stCampaignState_0059ca50.elapsedDate.year == 1)
             DAT_004688e4 = 3;
         DAT_004688cc = 1;
-    } else if (flightResult == 3) {
+        break;
+    case 3:
         stranded_sequence();
         free_3Space();
         return 0;
-    } else if (flightResult == 4) {
+    case 4:
         death_sequence();
         free_3Space();
         funeral_sequence(1);
         DAT_004688f0 = 0;
         return 0;
-    } else {
+    default:
         free_cockpit();
         free_all_slots();
         free_3Space();
-        DAT_004688f0 = 0;
         return 0;
     }
 

@@ -655,25 +655,78 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
 /* Function start: 0x402320 */
 unsigned int PumpWindowMessages(void)
 {
+    RECT clip;
     MSG message;
+    int cursorX;
+    int cursorY;
+    int done;
 
     if (DAT_004650a8 != 0)
         return 1;
     DAT_004650a8 = 1;
     if (DAT_0059ab2c != 0)
         DAT_0059ab2c();
-
-    while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE)) {
-        if (message.message == WM_QUIT) {
-            DAT_005a8a3c = 0;
-            break;
+    done = 0;
+    do {
+        if (DAT_00465080 != 0) {
+            if (GetMessageA(&message, 0, 0, 0) != 0) {
+                done = 1;
+                TranslateMessage(&message);
+                DispatchMessageA(&message);
+            } else {
+                LogMemoryUsage();
+                ShutdownGameWindow();
+            }
+            if (IsIconic(DAT_005a89a0) == 0)
+                DAT_00465080 = 0;
+            if (DAT_00465080 == 0) {
+                clip.left = 0;
+                clip.top = 0;
+                clip.right = 320;
+                clip.bottom = 200;
+                ShowCursor(FALSE);
+                SetPriorityClass(GetCurrentProcess(),
+                                 HIGH_PRIORITY_CLASS);
+                SetActiveWindow(DAT_005a89a0);
+                SetForegroundWindow(DAT_005a89a0);
+                DIBreInstall();
+                DIBslam();
+                DIBslamReal();
+                ClipCursor(&clip);
+                SetCursorPos(cursorX, cursorY);
+                init_player_input();
+            }
+        } else {
+            if (PeekMessageA(&message, 0, 0, 0, PM_NOREMOVE) != 0) {
+                if (GetMessageA(&message, 0, 0, 0) != 0) {
+                    done = 0;
+                    TranslateMessage(&message);
+                    DispatchMessageA(&message);
+                } else {
+                    done = 0;
+                    LogMemoryUsage();
+                    ShutdownGameWindow();
+                }
+            } else {
+                done = 1;
+            }
         }
-        TranslateMessage(&message);
-        DispatchMessageA(&message);
-    }
-
-    DAT_004650a8 = 0;
+        if (IsIconic(DAT_005a89a0) != 0) {
+            if (DAT_00465080 == 0) {
+                cursorX = 160;
+                cursorY = 100;
+                ClipCursor(0);
+                ShowCursor(TRUE);
+                SetPriorityClass(GetCurrentProcess(),
+                                 NORMAL_PRIORITY_CLASS);
+            }
+            DAT_00465080 = 1;
+            if (DAT_00465080 != 0)
+                done = 0;
+        }
+    } while (done == 0);
     DAT_0059ab54 = GetTickCount() * 60 / 1000;
+    DAT_004650a8 = 0;
     return DAT_005a8a3c;
 }
 

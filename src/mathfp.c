@@ -13,7 +13,7 @@ short RandomBelow(short n)
 }
 
 /* Function start: 0x434CF0 */
-void SeedRandomFromClock(void)
+void __stdcall SeedRandomFromClock(void)
 {
     srand((unsigned int)time(0));
 }
@@ -132,7 +132,7 @@ void WaitForVerticalBlankThunk(void)
 }
 
 /* Function start: 0x434FC0 */
-unsigned int IdentityHandle(unsigned int v)
+unsigned int __stdcall IdentityHandle(unsigned int v)
 {
     return v;
 }
@@ -146,13 +146,13 @@ void __stdcall SetWholePaletteFromTriplets(unsigned char *palette)
 }
 
 /* Function start: 0x434FE0 */
-unsigned short ReadWord(unsigned short *p)
+unsigned short __stdcall ReadWord(unsigned short *p)
 {
     return *p;
 }
 
 /* Function start: 0x434FF0 */
-unsigned short GetFontCharWidth(char i)
+unsigned short __stdcall GetFontCharWidth(char i)
 {
     return g_pCurrentTextContext_0059af8c->font[4 + (int)i];
 }
@@ -193,13 +193,13 @@ short __stdcall IsPointInRect(short x, short y, const short *rect)
 }
 
 /* Function start: 0x4350D0 */
-void SplitPackedPoint(unsigned int packed, short *p)
+void __stdcall SplitPackedPoint(unsigned int packed, short *p)
 {
     IsPointInRect((short)packed, (short)(packed >> 16), p);
 }
 
 /* Function start: 0x4350F0 */
-void DrawTextString(char *text)
+void __stdcall DrawTextString(char *text)
 {
     TextContext *context = g_pCurrentTextContext_0059af8c;
     char *cursor = text;

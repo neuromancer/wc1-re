@@ -150,76 +150,91 @@ int DrawCenteredScaledIntroText(const char *text, short centreX,
 /* Function start: 0x403890 */
 short GetLineLength(const char *text)
 {
-    short width = 0;
+    short width;
+    char c;
 
-    while (*text != 0) {
-        unsigned char c = (unsigned char)*text++;
-        short frame;
-
-        if (c == '\n')
+    width = 0;
+    for (;;) {
+        c = *text;
+        text++;
+        if (c == 0)
             break;
-        if (c == ' ') {
+        if (c >= 'A' && c <= 'z') {
+            c = (char)(c - 'A');
+            width = width + GetShapeFrameExtent(
+                0, 0, g_pIntroFont_005a8960, c, 2);
+            width = width + 2;
+        } else if (c == '.') {
+            width = width + GetShapeFrameExtent(
+                0, 0, g_pIntroFont_005a8960, 58, 2);
+            width = width + 2;
+        } else if (c == ',') {
+            width = width + GetShapeFrameExtent(
+                0, 0, g_pIntroFont_005a8960, 59, 2);
+            width = width + 2;
+        } else if (c == ' ') {
             width = width + 6;
-            continue;
+        } else if (c == '\n') {
+            break;
         }
-        if (c == '.')
-            frame = 58;
-        else if (c == ',')
-            frame = 59;
-        else if (c >= 'A' && c <= 'z')
-            frame = (short)(c - 'A');
-        else
-            continue;
-        width = (short)(width + GetShapeFrameExtent(
-            0, 0, g_pIntroFont_005a8960, frame, 2) + 2);
     }
     return width;
 }
 
 /* Function start: 0x403920 */
-void print_subtitle(Viewport *viewport, short colour, const char *text)
+int print_subtitle(Viewport *viewport, short colour, const char *text)
 {
     const char *scan;
-    short lines = 1;
+    short lines;
     short x;
     short y;
+    char c;
 
     (void)colour;
+    lines = 1;
     scan = text;
-    while (*scan != 0) {
-        if (*scan == '\n')
+    c = *scan;
+    scan++;
+    while (c != 0) {
+        if (c == '\n')
             lines++;
+        c = *scan;
         scan++;
     }
-    y = (short)((128 - lines * 16) / 2);
-    x = (short)((320 - GetLineLength(text)) / 2);
-    while (*text != 0) {
-        unsigned char c = (unsigned char)*text++;
-        short frame;
-
-        if (c == '\n') {
-            y = y + 16;
-            x = (short)((320 - GetLineLength(text)) / 2);
-            continue;
-        }
-        if (c == ' ') {
+    lines = (short)(lines * 16);
+    y = (short)((128 - lines) / 2);
+    x = (short)((320 - GetLineLength(text)) >> 1);
+    for (;;) {
+        c = *text;
+        text++;
+        if (c == 0)
+            break;
+        if (c >= 'A' && c <= 'z') {
+            c = (char)(c - 'A');
+            DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, c);
+            x = x + GetShapeFrameExtent(
+                0, 0, g_pIntroFont_005a8960, c, 2);
+            x = x + 2;
+        } else if (c == ' ') {
             x = x + 6;
-            continue;
+        } else if (c == '.') {
+            DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, 58);
+            x = x + GetShapeFrameExtent(
+                0, 0, g_pIntroFont_005a8960, 58, 2);
+            x = x + 2;
+        } else if (c == ',') {
+            DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, 59);
+            x = x + GetShapeFrameExtent(
+                0, 0, g_pIntroFont_005a8960, 59, 2);
+            x = x + 2;
+        } else if (c == '\n') {
+            y = y + 16;
+            x = (short)((320 - GetLineLength(text)) >> 1);
         }
-        if (c == '.')
-            frame = 58;
-        else if (c == ',')
-            frame = 59;
-        else if (c >= 'A' && c <= 'z')
-            frame = (short)(c - 'A');
-        else
-            continue;
-        DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, frame);
-        x = (short)(x + GetShapeFrameExtent(
-            0, 0, g_pIntroFont_005a8960, frame, 2) + 2);
     }
     if (viewport->pixels == DAT_005a6ba0.pixels)
         DIBslam();
+    return 0;
 }
 
 /* Function start: 0x403A80 */

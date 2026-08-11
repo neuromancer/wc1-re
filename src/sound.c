@@ -304,57 +304,74 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
 /* Function start: 0x42C660 */
 unsigned int LoadInstallDat(void)
 {
-    FILE *file;
     DiskFileRecord *records;
     DiskFileRecord *record;
-    DiskFileRecord *recordsEnd;
-    DiskFileRecord *table;
-    long size;
-    unsigned short maximumId = 0;
+    DiskFileRecord *entry;
+    unsigned int size;
+    short file;
+    short maximumId;
 
+    maximumId = 0;
     SystemDebugPrintf("Loading INSTALL.DAT\n");
-    file = fopen("install.dat", "rb");
-    if (file == 0)
-        FatalErrorAndExit("Unable to open INSTALL.DAT");
-
-    fseek(file, 0, SEEK_END);
-    size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    records = (DiskFileRecord *)malloc((unsigned int)size);
-    if (records == 0) {
-        fclose(file);
-        FatalErrorAndExit("Unable to allocate INSTALL.DAT table");
+    file = OpenDataFileOrDie("install.dat");
+    if (file == -1) {
+        SystemDebugPrintf("Unable to open INSTALL.DAT\n");
+        SystemDebugPrintf(
+            "[SYSTEM]: Exiting Prematurely (LoadInstallData)\n");
+        ClearDebugPauseFlags();
+        PumpMessagesDuringWait();
+        exit(0);
     }
-    fread(records, 1, (unsigned int)size, file);
-    fclose(file);
+    size = (unsigned int)_filelength(file);
+    records = (DiskFileRecord *)AllocateTaggedMemory(size, 0);
+    if (records == 0) {
+        SystemDebugPrintf("Unable to load INSTALL.DAT\n");
+        SystemDebugPrintf(
+            "[SYSTEM]: Exiting Prematurely (LoadInstallData)\n");
+        ClearDebugPauseFlags();
+        PumpMessagesDuringWait();
+        exit(0);
+    }
+    ReadDataFileAtOffset(file, 0, size, records);
+    CloseDataFile(file);
 
-    recordsEnd = records + size / sizeof(*records);
     record = records;
-    while (record < recordsEnd && record->name[0] != 0) {
-        if (record->logicalFile != 0xff &&
-            maximumId < record->logicalFile)
+    while (record->name[0] != 0) {
+        if (maximumId < record->logicalFile &&
+            record->logicalFile != 0xff)
             maximumId = record->logicalFile;
         record++;
     }
+    maximumId++;
 
-    table = (DiskFileRecord *)malloc(
-        (maximumId + 2) * sizeof(*table));
-    if (table == 0) {
-        free(records);
-        FatalErrorAndExit("Unable to allocate packet-name table");
+    g_pDiskFileRecords_005a7cf0 =
+        (DiskFileRecord *)AllocateTaggedMemory(0x4b0, 0);
+    memset(g_pDiskFileRecords_005a7cf0, 0,
+           (maximumId + 1) * sizeof(DiskFileRecord));
+    if (g_pDiskFileRecords_005a7cf0 == 0) {
+        SystemDebugPrintf("Unable to copy INSTALL.DAT\n");
+        SystemDebugPrintf(
+            "[SYSTEM]: Exiting Prematurely (LoadInstallData)\n");
+        ClearDebugPauseFlags();
+        PumpMessagesDuringWait();
+        exit(0);
     }
-    memset(table, 0, (maximumId + 2) * sizeof(*table));
-    for (record = table; record < table + maximumId + 1; record++)
-        record->name[0] = ' ';
+
+    entry = g_pDiskFileRecords_005a7cf0;
+    while (maximumId > 0) {
+        entry->name[0] = ' ';
+        entry++;
+        maximumId--;
+    }
 
     record = records;
-    while (record < recordsEnd && record->name[0] != 0) {
+    while (record->name[0] != 0) {
         if (record->logicalFile != 0xff)
-            table[record->logicalFile] = *record;
+            g_pDiskFileRecords_005a7cf0[record->logicalFile] = *record;
         record++;
     }
-    free(records);
-    g_pDiskFileRecords_005a7cf0 = table + 1;
+    ReleasePacketHandle((int)records);
+    g_pDiskFileRecords_005a7cf0++;
     return 0;
 }
 

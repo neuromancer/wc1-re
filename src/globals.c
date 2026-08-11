@@ -696,7 +696,7 @@ short g_asConstellationObjectIndices_00469d50[4] = {
     -1, -1, -1, -1
 };
 int g_bCockpitResourcesActive_00469d58;
-unsigned char DAT_00469d5c;
+int DAT_00469d5c;
 const short g_asSceneAnimationLogicalFiles_00469d60[8] = {
     63, 64, 65, 66, 67, 68, 69, 70
 };
@@ -780,7 +780,7 @@ int g_nOriginDevUnlock_00469ff4;
 int g_bPlayerCollisionsEnabled_00469ff8 = 1;
 int DAT_00469ffc = 1;
 int DAT_0046a000 = 1;
-unsigned char DAT_0046a004;
+int DAT_0046a004;
 int DAT_0046a008;
 int g_nShowMemoryStatus_0046a00c;
 short DAT_0046a010 = -1;
@@ -804,7 +804,7 @@ const char g_szSpaceBuffer_0046a1d0[16] = "SPACE BUFFER";
 const char g_szAllocateBufferTag_0046a1e0[4] = "AB";
 ActiveSoundEntry *g_pActiveSoundHead_0046a438;
 ActiveSoundEntry *g_pActiveSoundTail_0046a43c;
-unsigned char DAT_0046a440;
+int DAT_0046a440;
 WaveTableEntry *g_pWaveTableHead_0046a444;
 WaveTableEntry *g_pWaveTableTail_0046a448;
 const char g_szPlayWaveOpenError_0046a46c[36] =
@@ -1485,8 +1485,8 @@ InputEvent *g_pInputEventTail_0046da94;
 int g_bInputEventPoolInitialized_0046da98;
 unsigned char *g_pDrawnMouseCursorShape_0046da9c;
 int DAT_0046daa0;
-int g_nScreenWidth_0046daa4 = 320;
-int g_nScreenHeight_0046daa8 = 200;
+short g_nScreenWidth_0046daa4 = 320;
+short g_nScreenHeight_0046daa8 = 200;
 const ScreenViewportGeometry g_aScreenViewportGeometry_0046dab8[6] = {
     { 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -1790,7 +1790,7 @@ char g_szCheckPilotScores_004705a0[20] = "Check pilot scores";
 char g_szEnterBarracks_004705b4[16] = "Enter barracks";
 char g_szFlyTrainingMission_004705c4[24] = "Fly training mission";
 const char g_szRoomMenuLabelFormat_004705dc[12] = "%X%Y%s%P";
-unsigned int g_dwRoomMenuStringPadding_004705e8;
+const char g_szEmptyRoomMenuLabel_004705e8[4] = "";
 const char g_szTalkToPilotFormat1_004705ec[16] = "Talk to %s.";
 const char g_szTalkToPilotFormat2_004705fc[16] = "Talk to %s.";
 const char g_szChalkBoardHeading_0047060c[32] =
@@ -2031,6 +2031,7 @@ short g_nPacketDecompressSourceFile_0059a858;
 unsigned char g_abInputKeyState_0059a860[0x80];
 int DAT_0059a8e0;
 int DAT_0059a8e4;
+int g_anObjectDepthPlaced_0059a8f0[WC1_SPACE_OBJECT_COUNT];
 signed char g_cScreenViewportMode_0059a9f2;
 const ScreenViewportGeometry * volatile
     g_pScreenViewportGeometry_0059a9f4;
@@ -2054,7 +2055,7 @@ short DAT_0059ab34;
 short g_nPacketDecompressPending_0059ab36;
 unsigned short g_wPacketDecompressInputSize_0059ab38;
 short g_nPacketDecompressWorkspaceSegment_0059ab3a;
-int DAT_0059ab3c;
+volatile int DAT_0059ab3c;
 int DAT_0059ab40;
 int DAT_0059ab44;
 int DAT_0059ab48;
@@ -2318,7 +2319,7 @@ unsigned char *g_pMouseCursorResource_005a7cdc;
 int g_nAvailableGameMemory_005a7ce0;
 int g_nSceneResourceBudget_005a7ce4;
 int g_nAfterburnerSoundDeadline_005a7ce8;
-unsigned char DAT_005a7cec;
+int DAT_005a7cec;
 DiskFileRecord *g_pDiskFileRecords_005a7cf0;
 Viewport g_stDiskPromptBackgroundViewport_005a7d00;
 unsigned char g_abDiskPromptDriveState_005a7d20[2];
