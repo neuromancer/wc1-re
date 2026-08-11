@@ -193,19 +193,14 @@ void DrawNavMapLabels(void)
 void DrawNavRectangleMarker(short x, short y, short size, short shadow,
                             unsigned short colour, short reserve)
 {
-    short height;
-
-    height = (short)((size * 7) / 8);
     if (shadow == 0)
-        DrawFilledViewportRect(g_stNavLabelTextContext_005a8180.viewport,
-                               (short)(x - size), (short)(y - height),
-                               (short)(x + size), (short)(y + height),
-                               (short)colour);
+        DrawViewportEllipse(g_stNavLabelTextContext_005a8180.viewport,
+                            x, y, size, (short)((size * 7) / 8),
+                            (short)colour);
     else
-        DrawViewportBorder(g_stNavLabelTextContext_005a8180.viewport,
-                           (short)(x - size), (short)(y - height),
-                           (short)(x + size), (short)(y + height),
-                           (short)colour);
+        DrawViewportEllipseShadow(
+            g_stNavLabelTextContext_005a8180.viewport,
+            x, y, size, (short)((size * 7) / 8), (short)colour);
     if (reserve != 0 && size < 5)
         ReserveNavMapArea((short)(x - size), (short)(y - size),
                           (short)(size * 2 + 1),
@@ -251,23 +246,17 @@ void DrawNavSquareMarker(short x, short y, short size, short shadow,
 void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
                             short size, signed char colour)
 {
-    short left;
-    short top;
-    short drawColour;
-    short bottom;
-    short right;
+    volatile short bottom;
+    volatile short right;
 
-    left = (short)(x - size);
-    top = (short)(y - size);
-    drawColour = (short)colour;
     bottom = (short)(y + size);
     right = (short)(x + size);
-    DrawViewportLine(viewport, x, top,
-                     right, bottom, drawColour);
+    DrawViewportLine(viewport, x, (short)(y - size),
+                     right, bottom, colour);
     DrawViewportLine(viewport, right, bottom,
-                     left, bottom, drawColour);
-    DrawViewportLine(viewport, left, bottom,
-                     x, top, drawColour);
+                     (short)(x - size), bottom, colour);
+    DrawViewportLine(viewport, (short)(x - size), bottom,
+                     x, (short)(y - size), colour);
 }
 
 /* Function start: 0x40D7D0 */

@@ -3824,6 +3824,22 @@ blit_no_overlap:
     }
 }
 
+/* Function start: 0x43CE80 */
+/* The segment setup, explicit clip arithmetic, and symmetric pixel stores
+ * identify this as the retail hand-written midpoint ellipse rasterizer. */
+#pragma optimize("", off)
+__declspec(naked) unsigned int DrawRasterEllipse(
+    RasterClip *clip, int x, int y, int horizontalRadius,
+    int verticalRadius, int colour)
+{
+#ifdef _MSC_VER
+#include "screens_draw_raster_ellipse.inc"
+#else
+    return 0;
+#endif
+}
+#pragma optimize("", on)
+
 /* Function start: 0x43E2D3 */
 /* Segment preservation and the in-text lookup table identify this as part of
  * the original hand-written raster assembly. */

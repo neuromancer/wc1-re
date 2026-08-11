@@ -1239,7 +1239,7 @@
 0x0043C808 FillRasterClip
 0x0043C8E7 BlitRasterClip
 0x0043CC83 DoLocalFnCC83
-0x0043CE80 HelperOf441E70A
+0x0043CE80 DrawRasterEllipse
 0x0043D1C1 LoopLocalFnD1C1
 0x0043E2D3 GetRLETransformTrig
 0x0043E38B CalculateRoundedRLEFixedProduct
@@ -1318,8 +1318,8 @@
 0x00441BF0 DispatchTriangleRasterizer
 0x00441C70 LoopCombatFn1C70
 0x00441CF0 SetCombatFn1CF0
-0x00441DD0 GetUiFn1DD0
-0x00441E70 shadow_draw
+0x00441DD0 DrawViewportEllipse
+0x00441E70 DrawViewportEllipseShadow
 0x00441FC0 DoLocalFn1FC0
 0x00442000 DoLocalFn2000
 0x00442050 GetTransformedShapeBounds

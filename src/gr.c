@@ -592,6 +592,30 @@ void DrawViewportBorder(Viewport *viewport, short left, short top,
                     0, colour);
 }
 
+/* Function start: 0x441DD0 */
+void DrawViewportEllipse(Viewport *viewport, short x, short y,
+                         short verticalRadius, short horizontalRadius,
+                         short colour)
+{
+    ClipViewportToScreen(viewport);
+    DrawRasterEllipse(&g_stRasterClip_00496fc0, x, y,
+                      horizontalRadius, verticalRadius, colour);
+    if (viewport->pixels == DAT_005a6ba0.pixels)
+        DIBslam();
+}
+
+/* Function start: 0x441E70 */
+void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
+                               short verticalRadius,
+                               short horizontalRadius, short colour)
+{
+    ClipViewportToScreen(viewport);
+    DrawRasterEllipse(&g_stRasterClip_00496fc0, x, y,
+                      horizontalRadius, verticalRadius, colour);
+    if (viewport->pixels == DAT_005a6ba0.pixels)
+        DIBslam();
+}
+
 /* Function start: 0x441FC0 */
 void DrawSpriteScaled(Viewport *viewport, short x, short y,
                       unsigned char *shape, short frame, short angle,

@@ -1387,6 +1387,9 @@ int FillRasterClip(RasterClip *clip, int colour);                      /* 0x0043
 int BlitRasterClip(RasterClip *source, int sourceX, int sourceY,
                    RasterClip *destination, int destinationX,
                    int destinationY, unsigned int colour);            /* 0x0043C8E7 */
+unsigned int DrawRasterEllipse(RasterClip *clip, int x, int y,
+                               int horizontalRadius, int verticalRadius,
+                               int colour);                            /* 0x0043CE80 */
 void GetRLETransformTrig(int angleTenths, int *cosine, int *sine);     /* 0x0043E2D3 */
 void CalculateRoundedRLEFixedProduct(int left, int right, int *result); /* 0x0043E38B */
 void TransformRLEPoint(int *point, int *result, int *origin,
@@ -1463,6 +1466,13 @@ void DrawFilledViewportRect(Viewport *viewport, short left, short top,
 void DrawViewportBorder(Viewport *viewport, short left, short top,
                         short right, short bottom,
                         short colour);                                /* 0x00441CF0 */
+void DrawViewportEllipse(Viewport *viewport, short x, short y,
+                         short verticalRadius, short horizontalRadius,
+                         short colour);                               /* 0x00441DD0 */
+void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
+                               short verticalRadius,
+                               short horizontalRadius,
+                               short colour);                         /* 0x00441E70 */
 void DrawSpriteScaled(Viewport *viewport, short x, short y,
                       unsigned char *shape, short frame, short angle,
                       short scale, short flip);                       /* 0x00441FC0 */
