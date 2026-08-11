@@ -418,6 +418,131 @@ typedef struct ShortRect {
     short bottom;
 } ShortRect;
 
+/* One cockpit scanner's centre and inclusive cursor limits. */
+typedef struct CockpitScannerGeometry {
+    short centerX;
+    short centerY;
+    short minimumX;
+    short minimumY;
+    short maximumX;
+    short maximumY;
+} CockpitScannerGeometry;
+
+/* The 144-word cockpit table at 0x0046E000.  Five ship cockpits use the
+ * viewport/scanner/hand rectangles; the four readout origins also contain a
+ * sixth sentinel entry used by the original table indexing. */
+typedef struct CockpitLayout {
+    short reserved[4];
+    ShortPoint readoutOrigins[4][6];
+    ShortRect leftVduBounds[5];
+    ShortRect rightVduBounds[5];
+    CockpitScannerGeometry scanner[5];
+    short scannerPadding[2];
+    ShortRect pilotHandBounds[5];
+} CockpitLayout;
+
+/* Header shared by the static and packet-backed view geometries.  fadeData is
+ * a variable-length sequence in loaded packets, but four words are sufficient
+ * for each built-in geometry at 0x0046DAB8. */
+typedef struct ScreenViewportGeometry {
+    short width;
+    short height;
+    short originX;
+    short originY;
+    short fadeData[4];
+} ScreenViewportGeometry;
+
+#pragma pack(push, 1)
+/* Packet 6 in each PCSHIP file starts with a count followed by offsets to the
+ * four cockpit view geometries. */
+typedef struct ScreenViewportPacket {
+    unsigned short geometryCount;
+    short geometryOffsets[4];
+} ScreenViewportPacket;
+
+/* INSTALL.DAT uses fixed 16-byte records.  The last byte is the logical-file
+ * id used to build the runtime lookup table. */
+typedef struct DiskFileRecord {
+    char name[13];
+    signed char diskNumber;
+    unsigned char fileClass;
+    unsigned char logicalFile;
+} DiskFileRecord;
+#pragma pack(pop)
+
+/* The leading offsets in every BRIEFING.xxx mission packet. */
+typedef struct BriefingPacketHeader {
+    unsigned int briefingScene;
+    unsigned int briefingText;
+    unsigned int debriefingScene;
+    unsigned int debriefingText;
+    unsigned int recRoomScene0;
+    unsigned int recRoomText0;
+    unsigned int recRoomScene2;
+    unsigned int recRoomText2;
+    unsigned int recRoomScene1;
+    unsigned int recRoomText1;
+} BriefingPacketHeader;
+
+/* Caller-owned storage accepted by DecompressPacketSection. */
+typedef struct PacketDecompressionWorkspace {
+    unsigned char decoder[0x3020];
+    unsigned char input[0x400];
+} PacketDecompressionWorkspace;
+
+/* Typed views over provisional oversized globals.  These preserve the current
+ * backing allocations while giving recovered subregions proper field names. */
+typedef struct ShipTimerStateView {
+    unsigned char beforeCommunicator[0x40];
+    signed char communicator[16];
+    unsigned char beforeActionCount[0xd0];
+    short actionCount[16];
+} ShipTimerStateView;
+
+typedef struct PilotRuntimeStateView {
+    unsigned char unknown[0x10];
+    int pilotLevel[12];
+    short targetListRange[16];
+} PilotRuntimeStateView;
+
+typedef struct ShipSideRuntimeStateView {
+    enum Side side[12];
+    signed char aiCooldown[16];
+} ShipSideRuntimeStateView;
+
+typedef struct ShipNavRuntimeStateView {
+    signed char navPointIndex[16];
+    signed char turnInterval[16];
+} ShipNavRuntimeStateView;
+
+typedef struct ShipSpawnRuntimeStateView {
+    signed char historyIndex[16];
+    signed char spawnNavPoint[16];
+} ShipSpawnRuntimeStateView;
+
+typedef char CockpitLayout_size_must_be_0x120[
+    sizeof(CockpitLayout) == 0x120 ? 1 : -1];
+typedef char ScreenViewportGeometry_size_must_be_0x10[
+    sizeof(ScreenViewportGeometry) == 0x10 ? 1 : -1];
+typedef char DiskFileRecord_size_must_be_0x10[
+    sizeof(DiskFileRecord) == 0x10 ? 1 : -1];
+typedef char BriefingPacketHeader_size_must_be_0x28[
+    sizeof(BriefingPacketHeader) == 0x28 ? 1 : -1];
+typedef char ShipTimerStateView_communicator_must_be_at_0x40[
+    offsetof(ShipTimerStateView, communicator) == 0x40 ? 1 : -1];
+typedef char ShipTimerStateView_actionCount_must_be_at_0x120[
+    offsetof(ShipTimerStateView, actionCount) == 0x120 ? 1 : -1];
+typedef char PilotRuntimeStateView_pilotLevel_must_be_at_0x10[
+    offsetof(PilotRuntimeStateView, pilotLevel) == 0x10 ? 1 : -1];
+typedef char PilotRuntimeStateView_targetListRange_must_be_at_0x40[
+    offsetof(PilotRuntimeStateView, targetListRange) == 0x40 ? 1 : -1];
+typedef char ShipSideRuntimeStateView_aiCooldown_must_be_at_0x30[
+    offsetof(ShipSideRuntimeStateView, aiCooldown) == 0x30 ? 1 : -1];
+typedef char ShipNavRuntimeStateView_turnInterval_must_be_at_0x10[
+    offsetof(ShipNavRuntimeStateView, turnInterval) == 0x10 ? 1 : -1];
+typedef char ShipSpawnRuntimeStateView_spawnNavPoint_must_be_at_0x10[
+    offsetof(ShipSpawnRuntimeStateView, spawnNavPoint) == 0x10 ? 1 : -1];
+
 #pragma pack(push, 1)
 typedef struct NavMapLabel {
     short x;
@@ -545,6 +670,32 @@ typedef struct SceneAnimationObject {
     short goalFrame;                  /* +0x34 */
 } SceneAnimationObject;
 
+/* SCRAMBLE.VGA uses five compact actors while the pilot approaches and
+ * boards the selected fighter.  The two pointers are deliberately unaligned:
+ * the retail Win32 table at 0x004657B0 has a packed 0x18-byte stride. */
+typedef struct ScrambleAnimationActor {
+    short x;                          /* +0x00 */
+    short y;                          /* +0x02 */
+    short deltaX;                     /* +0x04 */
+    short deltaY;                     /* +0x06 */
+    signed char baseFrame;            /* +0x08 */
+    signed char animationFrame;       /* +0x09; -1 disables the script */
+    signed char animationState;       /* +0x0A */
+    const unsigned short *animation;  /* +0x0B */
+    unsigned char *shape;             /* +0x0F */
+    short angle;                      /* +0x13 */
+    short scale;                      /* +0x15 */
+    signed char flip;                 /* +0x17 */
+} ScrambleAnimationActor;
+
+/* Per-fighter decorative sprite positions used by the scramble/landing
+ * renderer.  Each of the four player fighters owns 32 packed entries. */
+typedef struct ScrambleShipDetail {
+    signed char frame;                /* +0x00 */
+    short x;                          /* +0x01 */
+    short y;                          /* +0x03 */
+} ScrambleShipDetail;
+
 enum CampaignBadgeIndex {
     CAMPAIGN_BADGE_FIRST_MISSION = 2,
     CAMPAIGN_BADGE_SHIP_TYPE_BASE = 3,
@@ -625,6 +776,10 @@ typedef char BriefingCharacterLayout_size_must_be_0x12[
     sizeof(BriefingCharacterLayout) == 0x12 ? 1 : -1];
 typedef char SceneAnimationObject_size_must_be_0x36[
     sizeof(SceneAnimationObject) == 0x36 ? 1 : -1];
+typedef char ScrambleAnimationActor_size_must_be_0x18[
+    sizeof(ScrambleAnimationActor) == 0x18 ? 1 : -1];
+typedef char ScrambleShipDetail_size_must_be_0x05[
+    sizeof(ScrambleShipDetail) == 0x05 ? 1 : -1];
 typedef char PacketSectionHandle_size_must_be_0x14[
     sizeof(PacketSectionHandle) == 0x14 ? 1 : -1];
 
@@ -854,6 +1009,7 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #define WC1_SPACE_LAST_MOVING_OBJECT 60
 #define WC1_EYE_OBJECT 61
 #define WC1_MISSION_SHIP_COUNT 64
+#define WC1_ACTIVE_MISSION_SHIP_COUNT 32
 #define WC1_MISSION_NAV_POINT_COUNT 20
 #define WC1_ACTIVE_MISSION_NAV_POINT_COUNT 16
 #define WC1_MISSION_OBJECTIVE_COUNT 16

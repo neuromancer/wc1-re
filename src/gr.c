@@ -715,7 +715,7 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
 
 /* Function start: 0x442200 */
 void fizzle_fade(Viewport *source, Viewport *destination,
-                 const short *geometry)
+                 const ScreenViewportGeometry *geometry)
 {
     const short *run;
     unsigned char *sourcePixels;
@@ -727,11 +727,11 @@ void fizzle_fade(Viewport *source, Viewport *destination,
     short sourceY;
 
     if (source->pixels != 0 && destination->pixels != 0) {
-        sourceLeft = geometry[2];
-        sourceTop = geometry[3];
-        destinationX = geometry[4];
+        sourceLeft = geometry->originX;
+        sourceTop = geometry->originY;
+        destinationX = geometry->fadeData[0];
         if (destinationX != -1) {
-            run = geometry + 5;
+            run = &geometry->fadeData[1];
             do {
                 sourceY = run[0];
                 width = (unsigned short)run[1];

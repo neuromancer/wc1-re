@@ -1033,62 +1033,57 @@ unsigned int house_keep_objects(void)
         case OBJECT_CLASS_SHIP:
         case OBJECT_CLASS_CAPITAL_SHIP:
             g_abShipExhaustHeat_0059d610[obj] = 0;
-            if ((short)count_down(obj) <= 0) {
-                if (g_asObjectCounter_0059c330[obj] == 0 &&
-                    g_aeSpecialManeuver_0059c3c0[obj] ==
-                        SPECIAL_MANEUVER_UNKNOWN_9) {
-                    if (g_nYourWingman_0046c04c != -1 &&
-                        DAT_0059c910[obj] == 0 &&
-                        g_aeShipSide_0059d650[obj] == SIDE_KILRATHI &&
-                        (short)RandomBelowOrEqual(100) < 10) {
-                        send_message(g_nYourWingman_0046c04c, 6);
-                    }
-                    Create_explosion_debris(obj);
-                    break;
-                }
-                if (g_asObjectCounter_0059c330[obj] == 0) {
-                    if (g_aeShipManeuver_0059dcb0[obj] ==
-                            MANEUVER_WARPING_IN) {
-                        if (g_aeShipTactic_0059d5e0[obj] !=
-                                TACTIC_WARP_IN) {
-                            if ((short)g_acObjectOwner_0059ce20[obj] == obj) {
-                                set_objects_data(
-                                    obj,
-                                    (enum ObjectType)
-                                        g_abShipNavPointIndex_0059d7c0[obj],
-                                    -1);
-                                reset_maneuver(obj, -1);
-                            } else {
-                                remove_object(obj);
-                            }
-                        }
-                    } else if (g_aeShipManeuver_0059dcb0[obj] ==
-                                   MANEUVER_WARPING_OUT &&
-                               g_aeShipSide_0059d650[obj] != SIDE_NEUTRAL) {
-                        g_aMissionShips_0046c948[
-                            g_nShipMissionIndices_0059c830[obj]].state = 2;
-                        remove_object(obj);
-                    }
-                }
-            } else if (g_aeSpecialManeuver_0059c3c0[obj] ==
-                           SPECIAL_MANEUVER_UNKNOWN_9 &&
-                       g_aeObjectClass_0059d100[obj] ==
-                           OBJECT_CLASS_CAPITAL_SHIP) {
+            if ((short)count_down(obj) > 0) {
                 if (g_aeShipManeuver_0059dcb0[obj] ==
                         MANEUVER_WARPING_OUT)
                     g_asObjectScale_0059de40[obj] >>= 1;
-                if (g_asObjectCounter_0059c330[obj] == 7) {
-                    ShipExplosion(obj);
-                    explosion_shock_wave(
-                        obj, g_aObjectTypeData_00466458[
-                            g_aeObjectType_0059b560[obj]].fuelCapacity);
-                } else {
-                    while ((unsigned short)RandomInRange(0, 100) < 50)
-                        onboard_explosion(obj);
+                if (g_aeSpecialManeuver_0059c3c0[obj] ==
+                        SPECIAL_MANEUVER_UNKNOWN_9 &&
+                    g_aeObjectClass_0059d100[obj] ==
+                        OBJECT_CLASS_CAPITAL_SHIP) {
+                    if (g_asObjectCounter_0059c330[obj] == 7) {
+                        ShipExplosion(obj);
+                        explosion_shock_wave(
+                            obj, g_aObjectTypeData_00466458[
+                                g_aeObjectType_0059b560[obj]].fuelCapacity);
+                    } else {
+                        while ((unsigned short)RandomInRange(0, 100) < 50)
+                            onboard_explosion(obj);
+                    }
                 }
-            } else if (g_aeShipManeuver_0059dcb0[obj] ==
-                           MANEUVER_WARPING_OUT) {
-                g_asObjectScale_0059de40[obj] >>= 1;
+            } else if (g_asObjectCounter_0059c330[obj] == 0 &&
+                       g_aeSpecialManeuver_0059c3c0[obj] ==
+                           SPECIAL_MANEUVER_UNKNOWN_9) {
+                if (g_nYourWingman_0046c04c != -1 &&
+                    DAT_0059c910[obj] == 0 &&
+                    g_aeShipSide_0059d650[obj] == SIDE_KILRATHI &&
+                    (short)RandomBelowOrEqual(100) < 10) {
+                    send_message(g_nYourWingman_0046c04c, 6);
+                }
+                Create_explosion_debris(obj);
+                break;
+            } else if (g_asObjectCounter_0059c330[obj] == 0) {
+                if (g_aeShipManeuver_0059dcb0[obj] ==
+                        MANEUVER_WARPING_IN) {
+                    if (g_aeShipTactic_0059d5e0[obj] != TACTIC_WARP_IN) {
+                        if ((short)g_acObjectOwner_0059ce20[obj] == obj) {
+                            set_objects_data(
+                                obj,
+                                (enum ObjectType)
+                                    g_abShipNavPointIndex_0059d7c0[obj],
+                                -1);
+                            reset_maneuver(obj, -1);
+                        } else {
+                            remove_object(obj);
+                        }
+                    }
+                } else if (g_aeShipManeuver_0059dcb0[obj] ==
+                               MANEUVER_WARPING_OUT &&
+                           g_aeShipSide_0059d650[obj] != SIDE_NEUTRAL) {
+                    g_aMissionShips_0046c948[
+                        g_nShipMissionIndices_0059c830[obj]].state = 2;
+                    remove_object(obj);
+                }
             }
             if (g_aeObjectType_0059b560[obj] ==
                     OBJECT_TYPE_TIGERS_CLAW &&

@@ -467,7 +467,7 @@ void * __stdcall DecompressPacketSection(
     g_wPacketDecompressInputSize_0059ab38 = 0x400;
     allocationSize = 0x3020;
     g_pPacketDecompressInput_0059ab04 =
-        (unsigned char *)decompressionWorkspace + 0x3020;
+        ((PacketDecompressionWorkspace *)decompressionWorkspace)->input;
     g_pPacketDecompressInput_0059ab04 = (void *)IdentityHandle(
         (unsigned int)g_pPacketDecompressInput_0059ab04);
     largeScratch = (void *)allocationSize;

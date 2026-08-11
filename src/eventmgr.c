@@ -87,16 +87,13 @@ InputEvent *AllocateInputEvent(void)
 /* Function start: 0x435760 */
 void ReleaseInputEvent(InputEvent *event)
 {
-    int *used = g_aiInputEventSlotUsed_0059ab70;
-    int offset = 0;
+    short slot = 0;
 
     do {
-        if ((unsigned char *)g_aInputEventPool_00598c40 + offset ==
-                (unsigned char *)event)
-            *used = 0;
-        used = used + 1;
-        offset = offset + 0x1c;
-    } while (offset < 0x1c00);
+        if (&g_aInputEventPool_00598c40[slot] == event)
+            g_aiInputEventSlotUsed_0059ab70[slot] = 0;
+        slot++;
+    } while (slot < 0x100);
 }
 
 /* Function start: 0x435790 */
@@ -747,7 +744,7 @@ void set_up_screen_viewport(signed char mode)
     int modeIndex;
     short viewportHeight;
     short viewportWidth;
-    const short *viewportGeometry;
+    const ScreenViewportGeometry *viewportGeometry;
 
     g_cScreenViewportMode_0059a9f2 = mode;
     modeIndex = (int)mode;
@@ -757,27 +754,28 @@ void set_up_screen_viewport(signed char mode)
     }
 
     g_pScreenViewportGeometry_0059a9f4 =
-        (const short *)(g_pScreenViewportPacket_005a6b94 +
-            *(short *)(g_pScreenViewportPacket_005a6b94 + 2 +
-                       modeIndex * 2));
+        (const ScreenViewportGeometry *)(
+            (const unsigned char *)g_pScreenViewportPacket_005a6b94 +
+            g_pScreenViewportPacket_005a6b94
+                ->geometryOffsets[modeIndex]);
     goto geometry_ready;
 
 static_geometry:
     g_pScreenViewportGeometry_0059a9f4 =
-        g_aScreenViewportGeometry_0046dab8[modeIndex];
+        &g_aScreenViewportGeometry_0046dab8[modeIndex];
 
 geometry_ready:
 
     if (DAT_0046a008 != 0 && DAT_0046a008 != -2) {
-        viewportWidth = g_pScreenViewportGeometry_0059a9f4[0];
+        viewportWidth = g_pScreenViewportGeometry_0059a9f4->width;
         viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
         *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
         g_nViewCenterX_0059a852 = (short)(viewportWidth / 2);
-        viewportHeight = viewportGeometry[1];
+        viewportHeight = viewportGeometry->height;
         g_nViewCenterY_0059a854 = (short)(viewportHeight / 2);
         *(short *)&g_nScreenHeight_0046daa8 = viewportHeight;
-        g_nViewportOriginX_0059ab52 = viewportGeometry[2];
-        g_nViewportOriginY_0059ab50 = viewportGeometry[3];
+        g_nViewportOriginX_0059ab52 = viewportGeometry->originX;
+        g_nViewportOriginY_0059ab50 = viewportGeometry->originY;
         switch ((int)g_cCockpitView_0059dab0) {
         case 0:
             g_nViewportOriginY_0059ab50 += 10;
@@ -797,15 +795,15 @@ geometry_ready:
         return;
     }
 
-    viewportWidth = g_pScreenViewportGeometry_0059a9f4[0];
+    viewportWidth = g_pScreenViewportGeometry_0059a9f4->width;
     viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
     *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
     g_nViewCenterX_0059a852 = (short)(viewportWidth / 2);
-    viewportHeight = viewportGeometry[1];
+    viewportHeight = viewportGeometry->height;
     g_nViewCenterY_0059a854 = (short)(viewportHeight / 2);
     *(short *)&g_nScreenHeight_0046daa8 = viewportHeight;
-    g_nViewportOriginX_0059ab52 = viewportGeometry[2];
-    g_nViewportOriginY_0059ab50 = viewportGeometry[3];
+    g_nViewportOriginX_0059ab52 = viewportGeometry->originX;
+    g_nViewportOriginY_0059ab50 = viewportGeometry->originY;
 }
 
 /* Function start: 0x4368C0 */

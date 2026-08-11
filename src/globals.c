@@ -196,6 +196,104 @@ const char g_szCampaignTimeFormat_00465648[12] = "%02d:%02d";
 const char g_szConversationTextFormat_00465654[12] = "%X%Y%F%s%P";
 const char g_szBriefingMapTextFormat_00465660[12] = "%X%Y%F%s%P";
 const char g_szCloseLookTextFormat_0046566c[12] = "%X%Y%F%s%P";
+signed char g_cScrambleLeftWalkerFrame_00465768 = 7;
+signed char g_cScrambleRightWalkerFrame_0046576c = 10;
+const signed char g_acScrambleWalkerOverlayFrames_00465770[8] = {
+    3, 4, 5, 3, 4, 6, 6, 3
+};
+short g_nScrambleLeftWalkerX_00465778 = 70;
+short g_nScrambleRightWalkerX_0046577c = 170;
+short g_nScrambleBackgroundX_00465780;
+const unsigned short g_ausScrambleActorAnimationA_00465788[8] = {
+    0, 1, 2, 3, 4, 5, 0x80, 0
+};
+const unsigned short g_ausScrambleActorAnimationB_00465798[11] = {
+    0, 0, 1, 2, 2, 2, 2, 2, 1, 1, 0x80
+};
+ScrambleAnimationActor g_aScrambleAnimationActors_004657b0[5] = {
+    { 0, 0, 0, 0,  2,  0, 0,
+      g_ausScrambleActorAnimationA_00465788, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 10,  0, 0,
+      g_ausScrambleActorAnimationB_00465798, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 13,  0, 0,
+      g_ausScrambleActorAnimationB_00465798, 0, 0, 0, 0 },
+    { 0, 0, 0, 0,  0, -1, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0,  1, -1, 0, 0, 0, 0, 0, 0 }
+};
+const ScrambleShipDetail g_aaScrambleShipDetails_00465828[4][32] = {
+    {
+        {  2,   23,   5 }, {  3, -112,  16 },
+        {  6,  -94, -23 }, {  6,  -26,   5 },
+        {  7,  -58, -11 }, {  7,  -98,   5 },
+        {  7,  -14,  13 }, {  7,   60,   6 },
+        {  7,  149,  24 }, {  9, -112, -24 },
+        {  9,  -99,  -9 }, {  9, -116,  18 },
+        {  9,  -81,  15 }, {  9,  -41,   9 },
+        {  9,  -54,   1 }, {  9,  -12, -14 },
+        {  9,   45,  18 }, {  9,   75,  11 },
+        {  9,  130,  14 }, {  9,  166,  24 },
+        {  0,  -68, -35 }, {  0,  -19,  -9 },
+        {  0,   68,  13 }, {  8,  -76, -18 },
+        {  8,  -33,  -1 }, {  8,   97,  31 },
+        { 10,  -86,  10 }, { 10, -117,  47 },
+        { 10,    9,   0 }, {  1, -111,  52 },
+        {  1,  -50,  15 }, {  1,   75,   5 }
+    },
+    {
+        {  3,  -88,  20 }, {  6,  -57,  29 },
+        {  7, -139,  63 }, {  7,  -72,   5 },
+        {  7,  -14,  28 }, {  9,  -91, -34 },
+        {  9, -113, -14 }, {  9, -132,  33 },
+        {  9,  -95,  34 }, {  9,  -60,  12 },
+        {  9, -155,  52 }, {  9,  -66,  51 },
+        {  9,  -56,  44 }, {  9,   44,  35 },
+        {  9,   57,  25 }, {  9,   59,  -1 },
+        {  9,  123,  41 }, {  9,  148,  30 },
+        {  0, -135,  -2 }, {  0, -100,  59 },
+        {  8,  -40,  11 }, { 10, -157, -19 },
+        { 10,  -77,  35 }, {  6,  248,  17 },
+        {  7,  300,  41 }, {  9,  172,  27 },
+        {  9,  194,  12 }, {  9,  291,  17 },
+        {  9,  290,  35 }, {  0,  233,  20 },
+        {  8,  206,  17 }, { 10,  187,  42 }
+    },
+    {
+        {  3,  -97,  -6 }, {  3,   89,   9 },
+        {  6,  151,  -4 }, {  7,  -91, -39 },
+        {  7,  -78, -16 }, {  7,  -56,  41 },
+        {  7,  124,   1 }, {  7, -118,   0 },
+        {  9, -107, -37 }, {  9, -127,  38 },
+        {  9, -102,  21 }, {  9,  -67,  35 },
+        {  9,  -54, -14 }, {  9,   12,  34 },
+        {  9,   35,  39 }, {  9,   31,  21 },
+        {  9,  130,  35 }, {  9,  185,  10 },
+        {  0,  -42,  -3 }, {  0,   75,  35 },
+        {  0,  177,  42 }, {  8, -126, -39 },
+        { 10,  -16,  37 }, { 10,  148,   5 },
+        {  1,   -3,  45 }, {  6,  160,  38 },
+        {  7,  154,  16 }, {  9,  188,   3 },
+        {  9,  150,  37 }, {  9,  214,  31 },
+        {  9,  302,  16 }, {  8,  200,  15 }
+    },
+    {
+        {  6,  103,  18 }, {  7, -114,   4 },
+        {  7, -142,  39 }, {  7,   48,  23 },
+        {  7,   88,  44 }, {  9,  -67, -30 },
+        {  9, -134, -24 }, {  9,  -82,  -1 },
+        {  9,  -45,  19 }, {  9, -153,  46 },
+        {  9,   -8,  48 }, {  9,   11,  24 },
+        {  9,   64,  27 }, {  9,  141,  38 },
+        {  9,  154,  12 }, {  0, -105, -20 },
+        {  0,   18,  14 }, {  0,  134,  20 },
+        {  8, -153, -11 }, { 10,  -76,  64 },
+        { 10,   33,  18 }, {  1,  -85, -28 },
+        {  1, -154,  14 }, {  1,  148,  21 },
+        {  3,  198,  23 }, {  6,  260,  14 },
+        {  7,  238,  19 }, {  9,  165,  14 },
+        {  9,  221,  22 }, {  0,  246,  16 },
+        {  8,  221,  33 }, {  1,  282,  22 }
+    }
+};
 const ShortPoint g_aFuneralParticleOrigins_00465b18[7] = {
     { 234, 83 }, { 248, 85 }, { 260, 80 }, { 273, 78 },
     { 286, 75 }, { 299, 76 }, { 310, 74 }
@@ -249,6 +347,8 @@ const ShortVector g_aaFormationPositions_00465ed8[5][8] = {
 const int g_anPilotTurnInterval_00465fc8[16] = {
     5, 5, 4, 4, 3, 3, 3, 2, 2, 1, 3, 3, 3, 3, 2, 2
 };
+const char g_szErrorLoadingPilotSpeech_00466010[32] =
+    "Error loading pilot speech";
 unsigned char *g_pIntroSceneResource_00467b84;
 unsigned char *g_pIntroSceneResourceMirror_00467c0b;
 unsigned char *g_pIntroBackgroundResource_00467eae;
@@ -875,19 +975,40 @@ const CockpitBarDefinition g_aaCockpitBars_0046dd88[5][8] = {
         {0, -99, -99, 0, 0, 0, 0, 0}
     }
 };
-const short g_asCockpitLayout_0046e000[144] = {
-    0, 0, 0, 0, 99, 130, 227, 122, 38, 164, 192, 126,
-    -99, -99, 0, 0, 99, 140, 227, 140, 38, 184, 192, 136,
-    -99, -99, 0, 0, 201, 105, 156, 14, 197, 145, 262, 102,
-    219, 115, 0, 0, 112, 105, 156, 19, 105, 145, 38, 102,
-    71, 115, 0, 0, 10, 133, 82, 198, 0, 99, 73, 165,
-    6, 1, 78, 66, 11, 111, 84, 176, 48, 126, 120, 191,
-    236, 133, 309, 198, 246, 97, 319, 165, 241, 1, 313, 66,
-    235, 111, 308, 176, 198, 126, 270, 191, 159, 126, 145, 113,
-    173, 139, 103, 132, 89, 119, 117, 145, 160, 39, 146, 26,
-    174, 52, 159, 129, 145, 116, 173, 142, 159, 130, 145, 117,
-    173, 143, 0, 0, 120, 152, 203, 199, 120, 152, 205, 199,
-    120, 151, 213, 199, 120, 152, 205, 199, 120, 152, 203, 199
+const CockpitLayout g_stCockpitLayout_0046e000 = {
+    {0, 0, 0, 0},
+    {
+        {{99, 130}, {227, 122}, {38, 164}, {192, 126},
+         {-99, -99}, {0, 0}},
+        {{99, 140}, {227, 140}, {38, 184}, {192, 136},
+         {-99, -99}, {0, 0}},
+        {{201, 105}, {156, 14}, {197, 145}, {262, 102},
+         {219, 115}, {0, 0}},
+        {{112, 105}, {156, 19}, {105, 145}, {38, 102},
+         {71, 115}, {0, 0}}
+    },
+    {
+        {10, 133, 82, 198}, {0, 99, 73, 165}, {6, 1, 78, 66},
+        {11, 111, 84, 176}, {48, 126, 120, 191}
+    },
+    {
+        {236, 133, 309, 198}, {246, 97, 319, 165},
+        {241, 1, 313, 66}, {235, 111, 308, 176},
+        {198, 126, 270, 191}
+    },
+    {
+        {159, 126, 145, 113, 173, 139},
+        {103, 132, 89, 119, 117, 145},
+        {160, 39, 146, 26, 174, 52},
+        {159, 129, 145, 116, 173, 142},
+        {159, 130, 145, 117, 173, 143}
+    },
+    {0, 0},
+    {
+        {120, 152, 203, 199}, {120, 152, 205, 199},
+        {120, 151, 213, 199}, {120, 152, 205, 199},
+        {120, 152, 203, 199}
+    }
 };
 unsigned char g_bCurrentKey_0046c014 = 0x80;
 signed char g_cPreviousKey_0046c018 = (signed char)0x80;
@@ -1319,7 +1440,7 @@ unsigned char *g_pDrawnMouseCursorShape_0046da9c;
 int DAT_0046daa0;
 int g_nScreenWidth_0046daa4 = 320;
 int g_nScreenHeight_0046daa8 = 200;
-const short g_aScreenViewportGeometry_0046dab8[6][8] = {
+const ScreenViewportGeometry g_aScreenViewportGeometry_0046dab8[6] = {
     { 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -1864,7 +1985,8 @@ unsigned char g_abInputKeyState_0059a860[0x80];
 int DAT_0059a8e0;
 int DAT_0059a8e4;
 signed char g_cScreenViewportMode_0059a9f2;
-const short * volatile g_pScreenViewportGeometry_0059a9f4;
+const ScreenViewportGeometry * volatile
+    g_pScreenViewportGeometry_0059a9f4;
 int g_anSortedObject_0059aa00[WC1_SPACE_OBJECT_COUNT];
 short g_nPacketDecompressInputPosition_0059ab00;
 void *g_pPacketDecompressInput_0059ab04;
@@ -2058,7 +2180,7 @@ const short *g_pViewScript_005a6b58;
 short g_nExternalViewDistance_005a6b5c;
 Viewport DAT_005a6b60;
 Viewport DAT_005a6b80;
-unsigned char *g_pScreenViewportPacket_005a6b94;
+ScreenViewportPacket *g_pScreenViewportPacket_005a6b94;
 Viewport DAT_005a6ba0;
 TextContext DAT_005a6bc0;
 Viewport DAT_005a6be0;
@@ -2097,6 +2219,7 @@ signed char g_cDamageDisplayFrame_005a77dd;
 signed char g_cDamagedComponentCount_005a77de;
 int g_nDamageDisplayState_005a77e0;
 int g_nDamageDisplayPhase_005a77e4;
+unsigned char *g_pLaunchDoorShape_005a77e8;
 unsigned int DAT_005a77ec;
 unsigned char g_abPaletteTriplets_005a77f0[256][3];
 InputDeviceSample g_stPreviousFlightInput_005a7af0;
@@ -2141,7 +2264,7 @@ int g_nAvailableGameMemory_005a7ce0;
 int g_nSceneResourceBudget_005a7ce4;
 int g_nAfterburnerSoundDeadline_005a7ce8;
 unsigned char DAT_005a7cec;
-unsigned char *DAT_005a7cf0;
+DiskFileRecord *g_pDiskFileRecords_005a7cf0;
 Viewport g_stDiskPromptBackgroundViewport_005a7d00;
 unsigned char g_abDiskPromptDriveState_005a7d20[2];
 Viewport g_stDiskPromptViewport_005a7d40;
@@ -2229,20 +2352,45 @@ short DAT_005a86a6;
 CampaignDate *g_pCurrentCampaignDate_005a86a8;
 CampaignDate *g_pElapsedCampaignDate_005a86ac;
 signed char g_cObjectResourceLogicalFile_005a86b0;
+Viewport *g_pScrambleViewport_005a86b4;
+short g_nScrambleCanopyFrame_005a86b8;
+unsigned char *g_pScrambleDetailShape_005a86bc;
+short g_nScrambleCockpitScale_005a86c0;
+short g_nScrambleCockpitDetailX_005a86c4;
+short g_nScrambleCockpitDetailY_005a86c6;
 short g_nFuneralCasketX_005a86c8;
 short g_nFuneralCasketY_005a86ca;
+short g_nScrambleShipDetailCount_005a86cc;
+signed char g_acScrambleShipDetailIndices_005a86d0[24];
+signed char g_cScrambleWalkTicks_005a86e8;
 unsigned char *g_pConversationSpecialShape_005a86ec;
 ShortPoint g_aFuneralParticles_005a86f0[7];
+unsigned char *g_pScrambleBackgroundShape_005a870c;
 short g_nFuneralParticleDistance_005a8710;
+short g_nScrambleBackgroundY_005a8712;
+short g_nScrambleBackgroundRightX_005a8714;
 short g_nFuneralForegroundX_005a8718;
 short g_nFuneralForegroundY_005a871a;
 short g_nFuneralMainScale_005a871c;
 short g_nFuneralRifleFrame_005a871e;
 short g_nFuneralBaseX_005a8720;
 short g_nFuneralBaseY_005a8722;
+short g_nScrambleShipX_005a8724;
+short g_nScrambleShipY_005a8726;
 short g_nFuneralParticleScale_005a8728;
+unsigned char *g_pScrambleHangarShape_005a872c;
+unsigned char *g_pScrambleCockpitShape_005a8730;
+short g_nScrambleWalkerY_005a8734;
+short g_nScrambleCanopyOffset_005a8736;
 short g_nFuneralMainDistance_005a8738;
+signed char g_bScrambleCanopyClosed_005a873a;
 short g_nFuneralGuardFrame_005a873c;
+short g_nScrambleOverlayX_005a8740;
+short g_nScrambleOverlayY_005a8742;
+unsigned char *g_pScrambleOverlayShape_005a8744;
+signed char g_cScrambleWalkerPair_005a8748;
+unsigned char *g_pScrambleCanopyShape_005a874c;
+unsigned char *g_pScrambleShipShape_005a8750;
 short g_nTalkingHeadFaceX_005a8754;
 short g_nTalkingHeadFaceY_005a8756;
 short g_nTalkingHeadMouthY_005a8758;

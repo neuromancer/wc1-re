@@ -296,7 +296,7 @@ void DrawNavCrossMarker(short x, short y, short size, short shadow,
 void SetScreenClipRect(unsigned short a, unsigned short b,
                        unsigned short c, unsigned short d)
 {
-    SetRectBounds((int)&DAT_005a76b0, a, b, c, d);
+    SetRectBounds(&DAT_005a76b0, a, b, c, d);
 }
 
 /* Function start: 0x40D8F0 */
@@ -674,11 +674,11 @@ void CentreMouseOnCurrentNavObjective(void)
 /* Function start: 0x40E430 */
 void ShowConfedNavScan(void)
 {
-    SetRectBounds((int)&DAT_005a6ba0, 30, 22, 289, 177);
+    SetRectBounds(&DAT_005a6ba0, 30, 22, 289, 177);
     LeaveAllocationScope();
     DrawNavLocationReadout(g_szConfedNavScan_004688b0, 1);
     EnterAllocationScope();
-    SetRectBounds((int)&DAT_005a6ba0, 0, 0, 319, 199);
+    SetRectBounds(&DAT_005a6ba0, 0, 0, 319, 199);
 }
 
 /* Function start: 0x40E480 */
@@ -734,7 +734,7 @@ void InflightComputer(void)
         SetEventManagerPump(get_player_input);
     } else {
         pointerViewport = DAT_005a6ba0;
-        SetRectBounds((int)&pointerViewport, 32, 24, 182, 159);
+        SetRectBounds(&pointerViewport, 32, 24, 182, 159);
         savedInputMode = (short)(signed char)g_bInputMode_0059a848;
         DAT_0059ab23 = &pointerViewport;
         g_bInputMode_0059a848 = 1;
@@ -752,7 +752,7 @@ void InflightComputer(void)
                 PlaySfxWaveFileByNumber(0x19, -1, 0);
                 ShowConfedNavScan();
             }
-            SetRectBounds((int)&DAT_005a6ba0, 32, 24, 289, 177);
+            SetRectBounds(&DAT_005a6ba0, 32, 24, 289, 177);
             SetMouseCursorShape(DAT_0059ab19, 0);
             FormatNavCoordinates(
                 (unsigned char *)g_pElapsedCampaignDate_005a86ac);
@@ -764,7 +764,7 @@ void InflightComputer(void)
             DrawNavPlayerMarker(markerColour, 0);
             g_stNavMapTextContext_005a8160.viewport = &DAT_005a6ba0;
             UpdateInflightNavText((short)((frame / 4) % 2));
-            SetRectBounds((int)&DAT_005a6ba0, 0, 0, 319, 199);
+            SetRectBounds(&DAT_005a6ba0, 0, 0, 319, 199);
 
             eventType = PollInputEvent(&event, 0xff);
             switch (eventType) {
@@ -1108,10 +1108,13 @@ short GameFlow(void)
     g_nDebriefingPersonality_00465c80 = *(short *)(
         g_pMissionCampaignData_005988bc + flownSeries * 0x5a - 0x5a);
     Briefing(flownSeries, flownMission);
+    PlayScrambleHangarScene();
     g_stCampaignState_0059ca50.playerShipType =
         g_aMissionShips_0046c948[
             g_nPlayerMissionShipIndex_005a8694].type;
+    scramble();
     init_mission(flownSeries, flownMission);
+    LaunchPlayerShip();
     flightResult = RunSpaceFlight(-1);
 
     if (flightResult == 1) {

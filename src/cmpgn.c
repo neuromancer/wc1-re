@@ -122,8 +122,9 @@ unsigned int ejection_sequence(void)
     if (DAT_0059ab58 != 1) {
         PromptInsertNumberedDisk(8);
         g_pScreenViewportPacket_005a6b94 =
-            (unsigned char *)AllocateTaggedMemory(
-                GetPacketSize((char *)(DAT_005a7cf0 + 0x80), 8), 0x40);
+            (ScreenViewportPacket *)AllocateTaggedMemory(
+                GetPacketSize(g_pDiskFileRecords_005a7cf0[8].name, 8),
+                0x40);
         if (g_pScreenViewportPacket_005a6b94 == 0)
             ReportOutOfMemoryAndExit(g_szViewTemplates_004655d4);
         else
@@ -734,6 +735,7 @@ unsigned int DeBriefing(short series, short mission)
 /* Function start: 0x405840 */
 unsigned int Office(void)
 {
+    BriefingPacketHeader *header;
     unsigned char *packet;
     unsigned char *sceneData;
     unsigned char *textData;
@@ -746,8 +748,9 @@ unsigned int Office(void)
     packet = (unsigned char *)FetchDiskPacketRetrying(
         g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
         1, 0);
-    sceneData = packet + *(unsigned int *)(packet + 0);
-    textData = packet + *(unsigned int *)(packet + 4);
+    header = (BriefingPacketHeader *)packet;
+    sceneData = packet + header->briefingScene;
+    textData = packet + header->briefingText;
     g_pConversationBackdropShape_00598c04 =
         (unsigned char *)FetchDiskPacketRetrying(4, 7, 0);
     SceneDirector(4, sceneData, textData);
@@ -767,29 +770,32 @@ unsigned int Office(void)
 /* Function start: 0x405910 */
 unsigned int LoadBriefingData(short series, short mission)
 {
+    BriefingPacketHeader *header;
+
     g_pBriefingPacket_00598aec = (unsigned char *)FetchDiskPacketRetrying(
         g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
         (short)(mission + series * 4), 0);
+    header = (BriefingPacketHeader *)g_pBriefingPacket_00598aec;
     g_pBriefingSceneData_00598c00 = g_pBriefingPacket_00598aec +
-        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x00);
+        header->briefingScene;
     g_pBriefingTextData_00598af0 = g_pBriefingPacket_00598aec +
-        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x04);
+        header->briefingText;
     g_pDebriefingSceneData_00598afc = g_pBriefingPacket_00598aec +
-        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x08);
+        header->debriefingScene;
     g_pDebriefingTextData_00598c28 = g_pBriefingPacket_00598aec +
-        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x0c);
+        header->debriefingText;
     g_apRecRoomSceneData_00598ae0[0] = g_pBriefingPacket_00598aec +
-        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x10);
+        header->recRoomScene0;
     g_apRecRoomTextData_00598aa0[0] = g_pBriefingPacket_00598aec +
-        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x14);
+        header->recRoomText0;
     g_apRecRoomSceneData_00598ae0[2] = g_pBriefingPacket_00598aec +
-        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x18);
+        header->recRoomScene2;
     g_apRecRoomTextData_00598aa0[2] = g_pBriefingPacket_00598aec +
-        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x1c);
+        header->recRoomText2;
     g_apRecRoomSceneData_00598ae0[1] = g_pBriefingPacket_00598aec +
-        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x20);
+        header->recRoomScene1;
     g_apRecRoomTextData_00598aa0[1] = g_pBriefingPacket_00598aec +
-        *(unsigned int *)(g_pBriefingPacket_00598aec + 0x24);
+        header->recRoomText1;
     return 0;
 }
 

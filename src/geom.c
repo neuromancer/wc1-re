@@ -915,7 +915,7 @@ void remove_object(short obj)
         if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_CAPITAL_SHIP)
             FreePacketAndClear((int *)&g_aeShipObjective_0059d200[obj + 60], 0);
         g_acShipRating_0059cd80[obj] = -1;
-        ((signed char *)g_aeShipObjective_0059d200)[obj + 0xc0] = -1;
+        g_acWingmanMessageState_0059d2c0[obj] = -1;
         g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
         g_aeShipManeuver_0059dcb0[obj] = MANEUVER_NONE;
         clear_alert(obj);

@@ -21,7 +21,7 @@ void ReportPacketLoadError(void *packet, short logicalFile,
         (packet != 0 || error != 8)) {
         if (section != -1)
             packetSize = GetPacketSize(
-                (char *)(DAT_005a7cf0 + logicalFile * 16), section);
+                g_pDiskFileRecords_005a7cf0[logicalFile].name, section);
         LogMemoryUsage();
         operation = "allocating memory";
         if (packet != 0 && section != -1)
@@ -34,7 +34,7 @@ void ReportPacketLoadError(void *packet, short logicalFile,
                 "Check your configuration.  If this problem persists, please\n"
                 "call Origin Systems' service line.  We are sorry for the inconvenience.",
                 operation,
-                (char *)(DAT_005a7cf0 + logicalFile * 16),
+                g_pDiskFileRecords_005a7cf0[logicalFile].name,
                 (int)section, (int)error, packetSize,
                 GetFixedOneMillionThunkAlt(), (int)retry, sourceTag);
         FatalErrorAndExit(g_szDefaultTextBuffer_005a7590);
@@ -49,7 +49,7 @@ void *LoadPacketIntoBuffer(short logicalFile, short section,
 
     PromptInsertNumberedDisk(logicalFile);
     packet = PacketLoad(
-        (char *)(DAT_005a7cf0 + logicalFile * 16),
+        g_pDiskFileRecords_005a7cf0[logicalFile].name,
         section, destination, 0, 0);
     ReportPacketLoadError(destination, logicalFile, 0, section, "RP");
     return packet;
@@ -65,12 +65,12 @@ void *LoadPacketAllocated(short logicalFile, short section)
     retries = 5;
     PromptInsertNumberedDisk(logicalFile);
     packetSize = GetPacketSize(
-        (char *)(DAT_005a7cf0 + logicalFile * 16), section);
+        g_pDiskFileRecords_005a7cf0[logicalFile].name, section);
     packet = AllocateTaggedMemory((unsigned int)(short)packetSize, 0x40);
     if (packet != 0) {
         do {
             retries--;
-            PacketLoad((char *)(DAT_005a7cf0 + logicalFile * 16),
+            PacketLoad(g_pDiskFileRecords_005a7cf0[logicalFile].name,
                        section, packet, 0, 0);
             if (retries < 1 || g_nPacketError_00465460 == 0)
                 break;
@@ -84,43 +84,67 @@ void *LoadPacketAllocated(short logicalFile, short section)
 void *FetchDiskPacketRetrying(short logicalFile, short section,
                               unsigned short flags)
 {
-    const char *filename;
     void *packet = 0;
     short retries = 5;
+    const char *fileName;
 
-    if (DAT_005a7cf0 == 0 || logicalFile < 0) {
-        g_nPacketError_00465460 = 3;
-        return 0;
+    PromptInsertNumberedDisk(logicalFile);
+    if (flags == 0) {
+        if (GetPacketSize(
+                g_pDiskFileRecords_005a7cf0[logicalFile].name, section) >
+            (int)((unsigned int (__cdecl *)(int))
+                GetFixedOneMillionThunkAlt)(0)) {
+            ReportPacketLoadError(0, logicalFile, 0, section, "LP1");
+        }
     }
-    filename = (const char *)(DAT_005a7cf0 + logicalFile * 16);
+    fileName = g_pDiskFileRecords_005a7cf0[logicalFile].name;
+
     do {
-        FreePacketAndClear((int *)&packet, flags);
-        packet = PacketLoad(filename, section, 0, flags, 0);
         retries--;
-    } while (packet == 0 && retries > 0 && g_nPacketError_00465460 != 8);
+        FreePacketAndClear((int *)&packet, flags);
+        packet = PacketLoad(fileName, section, 0, flags, 0);
+        if (retries < 1 || g_nPacketError_00465460 == 0)
+            break;
+    } while (g_nPacketError_00465460 != 8);
 
-    if (packet == 0 && g_nPacketError_00465460 == 4 &&
-        DAT_005a7510.pixels != 0) {
-        free_viewport(&DAT_005a7510);
-        do {
-            FreePacketAndClear((int *)&packet, flags);
-            packet = PacketLoad(filename, section, 0, flags, 0);
-            retries--;
-        } while (packet == 0 && retries > 0 &&
-                 g_nPacketError_00465460 != 8);
-        AllocateViewport(&DAT_005a7510, (short)DAT_004699d8, 0x20);
+    if (packet == 0) {
+        if (DAT_005a7510.pixels != 0) {
+            free_viewport(&DAT_005a7510);
+            do {
+                retries--;
+                FreePacketAndClear((int *)&packet, flags);
+                packet = PacketLoad(fileName, section, 0, flags, 0);
+                if (retries < 1 || g_nPacketError_00465460 == 0)
+                    break;
+            } while (g_nPacketError_00465460 != 8);
+            if (AllocateViewport(&DAT_005a7510,
+                                 (short)DAT_004699d8, 0x20) == 0) {
+                ReportPacketLoadError(0, logicalFile, flags, flags,
+                                      "LP2");
+            }
+        }
+        if (packet == 0 && DAT_005a76b0.pixels != 0) {
+            free_viewport(&DAT_005a76b0);
+            do {
+                retries--;
+                FreePacketAndClear((int *)&packet, flags);
+                packet = PacketLoad(fileName, section, 0, flags, 0);
+                if (retries < 1 || g_nPacketError_00465460 == 0)
+                    break;
+            } while (g_nPacketError_00465460 != 8);
+            if (AllocateViewport(&DAT_005a76b0,
+                                 (short)DAT_0046999c, 0) == 0) {
+                ReportPacketLoadError(0, logicalFile, flags, section,
+                                      "LP3");
+            }
+        }
     }
-    if (packet == 0 && g_nPacketError_00465460 == 4 &&
-        DAT_005a76b0.pixels != 0) {
-        free_viewport(&DAT_005a76b0);
-        do {
-            FreePacketAndClear((int *)&packet, flags);
-            packet = PacketLoad(filename, section, 0, flags, 0);
-            retries--;
-        } while (packet == 0 && retries > 0 &&
-                 g_nPacketError_00465460 != 8);
-        AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0);
+    if (packet == 0 && (flags & 4) == 0 &&
+        g_nPacketError_00465460 != 0 && g_nPacketError_00465460 != 8) {
+        ReportPacketLoadError(packet, logicalFile, flags, section, "LP4");
     }
+
+    ClearInputKeyStatePreservingModifiers();
     return packet;
 }
 
@@ -196,7 +220,8 @@ short OpenDiskDataFile(short logicalFile)
     short file;
 
     FillGraphicSuffix(g_szDiskMarkerFile_00469688,
-                      (unsigned char)DAT_005a7cf0[logicalFile * 16 + 13],
+                      (unsigned char)
+                          g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber,
                       3);
     file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688);
     if (file != -1) {
@@ -233,7 +258,8 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
     if (OpenDiskDataFile(logicalFile) != 0)
         return;
     if (g_bGraphicsActive_00469a20 == 0) {
-        diskNumber = (signed char)DAT_005a7cf0[logicalFile * 16 + 13];
+        diskNumber =
+            g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber;
         do {
             DiskPromptDrawHook();
             ResetDiskPromptTimer();
@@ -303,7 +329,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
             g_nDiskPromptBorderColour_00469694);
         FormatTextBufferFromStart(
             "Please insert disk %d\ninto any drive\nPress any key when ready.",
-            (int)(signed char)DAT_005a7cf0[logicalFile * 16 + 13]);
+            (int)g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber);
         DrawTextString(g_szTextScratchBuffer_00598b00);
         WaitForInputKey();
         if (OpenDiskDataFile(logicalFile) != 0)

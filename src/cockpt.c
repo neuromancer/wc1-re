@@ -1226,7 +1226,6 @@ void check_objectives(void)
 void rotational_pos_to_scanner_pos(signed char object,
                                    const SphericalVector *position)
 {
-    const short *scanner;
     short horizontal;
 
     horizontal = position->yaw;
@@ -1235,19 +1234,28 @@ void rotational_pos_to_scanner_pos(signed char object,
     else
         horizontal = (short)(horizontal / 6);
 
-    scanner = &g_asCockpitLayout_0046e000[
-        92 + (int)g_cCockpitView_0059dab0 * 6];
-    g_nScannerCursorX_005a7e6c = (short)(scanner[0] + horizontal);
-    g_nScannerCursorY_005a7e6e =
-        (short)(scanner[1] + position->pitch / -3);
+    g_nScannerCursorX_005a7e6c = (short)(
+        g_stCockpitLayout_0046e000.scanner[
+            (int)g_cCockpitView_0059dab0].centerX + horizontal);
+    g_nScannerCursorY_005a7e6e = (short)(
+        g_stCockpitLayout_0046e000.scanner[
+            (int)g_cCockpitView_0059dab0].centerY + position->pitch / -3);
     g_nScannerCursorX_005a7e6c =
-        MinShort(scanner[4], g_nScannerCursorX_005a7e6c);
+        MinShort(g_stCockpitLayout_0046e000.scanner[
+                     (int)g_cCockpitView_0059dab0].maximumX,
+                 g_nScannerCursorX_005a7e6c);
     g_nScannerCursorX_005a7e6c =
-        MaxShort(scanner[2], g_nScannerCursorX_005a7e6c);
+        MaxShort(g_stCockpitLayout_0046e000.scanner[
+                     (int)g_cCockpitView_0059dab0].minimumX,
+                 g_nScannerCursorX_005a7e6c);
     g_nScannerCursorY_005a7e6e =
-        MinShort(scanner[5], g_nScannerCursorY_005a7e6e);
+        MinShort(g_stCockpitLayout_0046e000.scanner[
+                     (int)g_cCockpitView_0059dab0].maximumY,
+                 g_nScannerCursorY_005a7e6e);
     g_nScannerCursorY_005a7e6e =
-        MaxShort(scanner[3], g_nScannerCursorY_005a7e6e);
+        MaxShort(g_stCockpitLayout_0046e000.scanner[
+                     (int)g_cCockpitView_0059dab0].minimumY,
+                 g_nScannerCursorY_005a7e6e);
     g_asScannerObjectX_005a7ea0[(int)object] =
         g_nScannerCursorX_005a7e6c;
     g_asScannerObjectY_005a7e80[(int)object] =
@@ -1369,15 +1377,15 @@ short get_color(short object, unsigned short *colour)
 unsigned int draw_3d_scanner(void)
 {
     const int *grid;
-    const short *scanner;
+    const CockpitScannerGeometry *scanner;
     SphericalVector spherical;
     unsigned short colour;
     short object;
     short row;
 
     if (DAT_0046a008 != 0 && g_aiScannerGridRows_00469098[0] != -2) {
-        scanner = &g_asCockpitLayout_0046e000[
-            92 + (int)g_cCockpitView_0059dab0 * 6];
+        scanner = &g_stCockpitLayout_0046e000.scanner[
+            (int)g_cCockpitView_0059dab0];
         row = 0;
         grid = g_aiScannerGridRows_00469098;
         do {
@@ -1385,20 +1393,21 @@ unsigned int draw_3d_scanner(void)
                 row++;
             } else {
                 DrawViewportPixel(&DAT_005a6ba0,
-                                  (short)(scanner[0] + row),
-                                  (short)(scanner[1] + *grid), 0xaa);
+                                  (short)(scanner->centerX + row),
+                                  (short)(scanner->centerY + *grid), 0xaa);
                 if (*grid != 0)
                     DrawViewportPixel(&DAT_005a6ba0,
-                                      (short)(scanner[0] + row),
-                                      (short)(scanner[1] - *grid), 0xaa);
+                                      (short)(scanner->centerX + row),
+                                      (short)(scanner->centerY - *grid), 0xaa);
                 if (row != 0) {
                     DrawViewportPixel(&DAT_005a6ba0,
-                                      (short)(scanner[0] - row),
-                                      (short)(scanner[1] + *grid), 0xaa);
+                                      (short)(scanner->centerX - row),
+                                      (short)(scanner->centerY + *grid), 0xaa);
                     if (*grid != 0)
                         DrawViewportPixel(&DAT_005a6ba0,
-                                          (short)(scanner[0] - row),
-                                          (short)(scanner[1] - *grid), 0xaa);
+                                          (short)(scanner->centerX - row),
+                                          (short)(scanner->centerY - *grid),
+                                          0xaa);
                 }
             }
             grid++;
@@ -1578,19 +1587,19 @@ image_recognition_lock:
 }
 
 /* Function start: 0x416220 */
-void SetRectBounds(int p, unsigned short a, unsigned short b,
+void SetRectBounds(Viewport *viewport, unsigned short a, unsigned short b,
                    unsigned short c, unsigned short d)
 {
-    *(unsigned short *)(p + 8) = a;
-    *(unsigned short *)(p + 10) = b;
-    *(unsigned short *)(p + 12) = c;
-    *(unsigned short *)(p + 14) = d;
+    viewport->left = (short)a;
+    viewport->top = (short)b;
+    viewport->right = (short)c;
+    viewport->bottom = (short)d;
 }
 
 /* Function start: 0x416250 */
-short GetRectHeight(int p)
+short GetRectHeight(const Viewport *viewport)
 {
-    return *(short *)(p + 0xc) - *(short *)(p + 8);
+    return viewport->right - viewport->left;
 }
 
 /* Function start: 0x416260 */
@@ -1621,11 +1630,11 @@ void print_message_text(char *text, unsigned char colour)
     view = (int)g_cCockpitView_0059dab0;
     x = DAT_004691e0[view * 2];
     y = DAT_004691e0[view * 2 + 1];
-    SetRectBounds((int)&viewport, (unsigned short)x, (unsigned short)y,
+    SetRectBounds(&viewport, (unsigned short)x, (unsigned short)y,
                   (unsigned short)(319 - x), (unsigned short)(y + 60));
     context.colour = colour;
     context.backgroundColour = 0xff;
-    width = GetRectHeight((int)&viewport);
+    width = GetRectHeight(&viewport);
 
     input = source;
     output = wrapped;
@@ -2468,24 +2477,21 @@ void check_stranded(void)
 /* Function start: 0x417B70 */
 void update_VDUs(void)
 {
+    const ShortRect *bounds;
     short changed;
     int view;
 
     SetTextContext(&DAT_005a74f0);
     if (DAT_0046a008 != 0) {
         view = (int)g_cCockpitView_0059dab0;
+        bounds = &g_stCockpitLayout_0046e000.leftVduBounds[view];
         DrawFilledViewportRect(
-            &DAT_005a6ba0,
-            g_asCockpitLayout_0046e000[52 + view * 4],
-            g_asCockpitLayout_0046e000[53 + view * 4],
-            g_asCockpitLayout_0046e000[54 + view * 4],
-            g_asCockpitLayout_0046e000[55 + view * 4], 0);
+            &DAT_005a6ba0, bounds->left, bounds->top,
+            bounds->right, bounds->bottom, 0);
+        bounds = &g_stCockpitLayout_0046e000.rightVduBounds[view];
         DrawFilledViewportRect(
-            &DAT_005a6ba0,
-            g_asCockpitLayout_0046e000[72 + view * 4],
-            g_asCockpitLayout_0046e000[73 + view * 4],
-            g_asCockpitLayout_0046e000[74 + view * 4],
-            g_asCockpitLayout_0046e000[75 + view * 4], 0);
+            &DAT_005a6ba0, bounds->left, bounds->top,
+            bounds->right, bounds->bottom, 0);
     }
     changed = update_vid_disp(0);
     if (changed != 0) {

@@ -175,6 +175,97 @@ void SaveVolumeSettingsToRegistry(void)
     RegCloseKey(key);
 }
 
+/* Function start: 0x42B9A0 */
+void DrawLaunchDoorFrame(short distance)
+{
+    short bounds[4];
+    short scale;
+
+    if (distance > 10) {
+        scale = (short)(0x1a00L / distance);
+        GetTransformedShapeBounds(
+            &DAT_005a7510,
+            (short)((short)g_nScreenWidth_0046daa4 >> 1),
+            (short)((short)g_nScreenHeight_0046daa8 >> 1),
+            g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0, bounds);
+        DrawSpriteScaled(
+            &DAT_005a7510, (short)(bounds[0] - 1),
+            (short)((short)g_nScreenHeight_0046daa8 >> 1),
+            g_pLaunchDoorShape_005a77e8, 0, 0, scale, 0);
+        DrawSpriteScaled(
+            &DAT_005a7510,
+            (short)((short)g_nScreenWidth_0046daa4 >> 1),
+            (short)((short)g_nScreenHeight_0046daa8 >> 1),
+            g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0);
+        DrawSpriteScaled(
+            &DAT_005a7510, bounds[2],
+            (short)((short)g_nScreenHeight_0046daa8 >> 1),
+            g_pLaunchDoorShape_005a77e8, 2, 0, scale, 0);
+    }
+}
+
+/* Function start: 0x42BA90 */
+void LaunchPlayerShip(void)
+{
+    short doorDistances[4];
+    signed char distanceStep;
+    signed char frame;
+    signed char door;
+
+    doorDistances[0] = 50;
+    doorDistances[1] = 40;
+    doorDistances[2] = 30;
+    doorDistances[3] = 20;
+    distanceStep = 1;
+
+    spacetrack(changetrack(), 1, 0);
+    if (DAT_0059ab58 == 0) {
+        g_pLaunchDoorShape_005a77e8 = FetchDiskPacketRetrying(1, 7, 0);
+        g_nCannedSceneMode_00469fac = 1;
+        force_view(0, 0);
+        PlaySfxWaveFileByNumber(20, -1, 0);
+        DAT_00469fb4 = 1;
+        DAT_0059ab58 = 0;
+        frame = 0;
+        do {
+            PumpWindowMessages();
+            if (RefreshCockpitStatus() != 0) {
+                door = 0;
+                do {
+                    DrawLaunchDoorFrame(doorDistances[door]);
+                    doorDistances[door] =
+                        (short)(doorDistances[door] - distanceStep);
+                    door++;
+                } while (door < 4);
+                dump_buffer_to_screen();
+                update_cockpit();
+            }
+            DIBslam();
+            DIBslamReal();
+            if (DAT_0059ab58 == 1)
+                break;
+            if (frame % 5 == 0)
+                distanceStep++;
+            frame++;
+        } while (frame < 25);
+
+        if (DAT_0059ab58 != 0) {
+            StopMusicUnlessSuppressed();
+            spacetrack(changetrack(), 1, 0);
+        }
+        ReleasePacketHandle((int)g_pLaunchDoorShape_005a77e8);
+    } else {
+        force_view(0, 0);
+    }
+
+    DIBslam();
+    DIBslamReal();
+    clear_view_buffer();
+    g_nCannedSceneMode_00469fac = 0;
+    ResetSoundState();
+    DAT_0059ab58 = 0;
+}
+
 /* Function start: 0x42C410 */
 void FxDriverShutdownHook(void)
 {
@@ -214,9 +305,10 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
 unsigned int LoadInstallDat(void)
 {
     FILE *file;
-    unsigned char *records;
-    unsigned char *record;
-    unsigned char *table;
+    DiskFileRecord *records;
+    DiskFileRecord *record;
+    DiskFileRecord *recordsEnd;
+    DiskFileRecord *table;
     long size;
     unsigned short maximumId = 0;
 
@@ -228,7 +320,7 @@ unsigned int LoadInstallDat(void)
     fseek(file, 0, SEEK_END);
     size = ftell(file);
     fseek(file, 0, SEEK_SET);
-    records = (unsigned char *)malloc((unsigned int)size);
+    records = (DiskFileRecord *)malloc((unsigned int)size);
     if (records == 0) {
         fclose(file);
         FatalErrorAndExit("Unable to allocate INSTALL.DAT table");
@@ -236,31 +328,33 @@ unsigned int LoadInstallDat(void)
     fread(records, 1, (unsigned int)size, file);
     fclose(file);
 
+    recordsEnd = records + size / sizeof(*records);
     record = records;
-    while (record < records + size && record[0] != 0) {
-        if (record[15] != 0xff && maximumId < record[15])
-            maximumId = record[15];
-        record += 16;
+    while (record < recordsEnd && record->name[0] != 0) {
+        if (record->logicalFile != 0xff &&
+            maximumId < record->logicalFile)
+            maximumId = record->logicalFile;
+        record++;
     }
 
-    table = (unsigned char *)malloc((maximumId + 2) * 16);
+    table = (DiskFileRecord *)malloc(
+        (maximumId + 2) * sizeof(*table));
     if (table == 0) {
         free(records);
         FatalErrorAndExit("Unable to allocate packet-name table");
     }
-    memset(table, 0, (maximumId + 2) * 16);
-    for (record = table; record < table + (maximumId + 1) * 16;
-         record += 16)
-        record[0] = ' ';
+    memset(table, 0, (maximumId + 2) * sizeof(*table));
+    for (record = table; record < table + maximumId + 1; record++)
+        record->name[0] = ' ';
 
     record = records;
-    while (record < records + size && record[0] != 0) {
-        if (record[15] != 0xff)
-            memcpy(table + record[15] * 16, record, 16);
-        record += 16;
+    while (record < recordsEnd && record->name[0] != 0) {
+        if (record->logicalFile != 0xff)
+            table[record->logicalFile] = *record;
+        record++;
     }
     free(records);
-    DAT_005a7cf0 = table + 16;
+    g_pDiskFileRecords_005a7cf0 = table + 1;
     return 0;
 }
 

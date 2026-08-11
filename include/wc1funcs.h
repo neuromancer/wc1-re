@@ -172,6 +172,16 @@ void perform_maneuver(short obj);                                       /* 0x004
 short __stdcall GetShapeFrameExtent(short x, short y,
                                     unsigned char *shape, short frame,
                                     short extent);                       /* 0x00407710 */
+unsigned int AnimateScrambleWalk(short ticks);                          /* 0x00407750 */
+unsigned int PlayScrambleHangarScene(void);                            /* 0x004079C0 */
+unsigned int DrawScrambleActor(short actorIndex);                      /* 0x00407C90 */
+unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
+                                    short deltaY, unsigned char *shape,
+                                    short scale, short angle,
+                                    signed char flip,
+                                    short actorIndex);                 /* 0x00407D90 */
+unsigned int DrawScrambleFrame(void);                                  /* 0x00407E10 */
+unsigned int scramble(void);                                           /* 0x00408200 */
 unsigned int funeral_player(void);                                     /* 0x00408B30 */
 unsigned int funeral_wingman(char *text, short duration);              /* 0x00408D50 */
 unsigned int funeral_sequence(int playerFuneral);                      /* 0x00408DE0 */
@@ -241,6 +251,9 @@ int shape_needed(const MissionNavPoint *navPoint,
                  enum ObjectType type);                                /* 0x0040BF20 */
 int new_sphere_shapes(MissionNavPoint *navPoint);                      /* 0x0040BF50 */
 int set_up_action_sphere(short navPoint);                              /* 0x0040BFF0 */
+void free_pilot_talk(short personality);                               /* 0x0040C150 */
+void get_pilot_talk(short personality);                                /* 0x0040C1C0 */
+unsigned int init_personalities(void);                                 /* 0x0040C2B0 */
 unsigned int room_for_me(void);                                        /* 0x0040C350 */
 void approve_xyz(short obj, int minimum, short maximum);               /* 0x0040C360 */
 void set_up_next_wave(void);                                           /* 0x0040C3C0 */
@@ -453,8 +466,10 @@ void lock_off(void);                                                   /* 0x0041
 short CheckTargetLockMalfunction(void);                               /* 0x00416040 */
 short decrement_lock_time(short screenX);                             /* 0x00416090 */
 void target_locking(signed char target);                              /* 0x00416120 */
-void SetRectBounds(int p, unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x00416220 */
-short GetRectHeight(int p);                                             /* 0x00416250 */
+void SetRectBounds(Viewport *viewport, unsigned short left,
+                   unsigned short top, unsigned short right,
+                   unsigned short bottom);                           /* 0x00416220 */
+short GetRectHeight(const Viewport *viewport);                        /* 0x00416250 */
 void print_message_text(char *text, unsigned char colour);             /* 0x00416260 */
 void ShowHudTextLine(char *s, unsigned char b);                          /* 0x00416460 */
 void SetHudTextColour(short v);                                              /* 0x00416480 */
@@ -1038,6 +1053,8 @@ void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
                         const BYTE *data, DWORD size);                  /* 0x0042B840 */
 void LoadVolumeSettingsFromRegistry(void);                            /* 0x0042B870 */
 void SaveVolumeSettingsToRegistry(void);                               /* 0x0042B930 */
+void DrawLaunchDoorFrame(short distance);                              /* 0x0042B9A0 */
+void LaunchPlayerShip(void);                                           /* 0x0042BA90 */
 void FxDriverShutdownHook(void);                                            /* 0x0042C410 */
 short LoadWingCmdrCfgFile(short argc, char **argv);                    /* 0x0042C580 */
 unsigned int LoadInstallDat(void);                                     /* 0x0042C660 */
@@ -1502,7 +1519,7 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                                 short angle, short scale, int flip,
                                 short *bounds);                       /* 0x00442050 */
 void fizzle_fade(Viewport *source, Viewport *destination,
-                 const short *geometry);                            /* 0x00442200 */
+                 const ScreenViewportGeometry *geometry);            /* 0x00442200 */
 void snow_viewport(Viewport *viewport, int effect,
                    unsigned int colour);                              /* 0x00442300 */
 void UpdateStreamerStoppedFlag(void);                                    /* 0x00442330 */

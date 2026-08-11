@@ -48,6 +48,16 @@ extern const char g_szCampaignTimeFormat_00465648[12];
 extern const char g_szConversationTextFormat_00465654[12];
 extern const char g_szBriefingMapTextFormat_00465660[12];
 extern const char g_szCloseLookTextFormat_0046566c[12];
+extern signed char g_cScrambleLeftWalkerFrame_00465768;
+extern signed char g_cScrambleRightWalkerFrame_0046576c;
+extern const signed char g_acScrambleWalkerOverlayFrames_00465770[8];
+extern short g_nScrambleLeftWalkerX_00465778;
+extern short g_nScrambleRightWalkerX_0046577c;
+extern short g_nScrambleBackgroundX_00465780;
+extern const unsigned short g_ausScrambleActorAnimationA_00465788[8];
+extern const unsigned short g_ausScrambleActorAnimationB_00465798[11];
+extern ScrambleAnimationActor g_aScrambleAnimationActors_004657b0[5];
+extern const ScrambleShipDetail g_aaScrambleShipDetails_00465828[4][32];
 extern const ShortPoint g_aFuneralParticleOrigins_00465b18[7];
 extern const short g_asFuneralSceneBySeries_00465b36[15];
 extern int g_bFuneralShowTheEnd_00465b54;
@@ -63,6 +73,7 @@ extern int g_aiPacketReferenceTable_00465c88[4][0x25];
 extern int DAT_00465c84;
 extern const ShortVector g_aaFormationPositions_00465ed8[5][8];
 extern const int g_anPilotTurnInterval_00465fc8[16];
+extern const char g_szErrorLoadingPilotSpeech_00466010[32];
 extern unsigned char *g_pIntroSceneResource_00467b84;
 extern unsigned char *g_pIntroSceneResourceMirror_00467c0b;
 extern unsigned char *g_pIntroBackgroundResource_00467eae;
@@ -360,7 +371,7 @@ extern const char g_szTargetTooFar_0046a9b0[8];
 extern const char g_szRangeMetresSuffix_0046a9b8[4];
 extern const char g_szTargetOffscreenRange_0046a9bc[8];
 extern unsigned short DAT_0046b168;
-extern const short g_asCockpitLayout_0046e000[144];
+extern const CockpitLayout g_stCockpitLayout_0046e000;
 extern const short g_aasCockpitLightX_0046dca8[5][7];
 extern const short g_aasCockpitLightY_0046dcf0[5][7];
 extern const signed char g_aacCockpitLightOffFrame_0046dd38[5][7];
@@ -421,7 +432,7 @@ extern InputEvent *g_pInputEventTail_0046da94;
 extern int g_bInputEventPoolInitialized_0046da98;
 extern int g_nScreenWidth_0046daa4;
 extern int g_nScreenHeight_0046daa8;
-extern const short g_aScreenViewportGeometry_0046dab8[6][8];
+extern const ScreenViewportGeometry g_aScreenViewportGeometry_0046dab8[6];
 extern int g_aiIntelligenceEvent_0046d368[10];
 extern signed char g_aDefenseManeuversNovice_0046d390[8];
 extern signed char g_aDefenseManeuversVeteran_0046d398[8];
@@ -658,7 +669,8 @@ extern int DAT_0059a84c;
 extern int DAT_0059a8e0;
 extern int DAT_0059a8e4;
 extern signed char g_cScreenViewportMode_0059a9f2;
-extern const short * volatile g_pScreenViewportGeometry_0059a9f4;
+extern const ScreenViewportGeometry * volatile
+    g_pScreenViewportGeometry_0059a9f4;
 extern short g_nEventManagerActive_0059a850;
 extern short g_nViewCenterX_0059a852;
 extern short g_nViewCenterY_0059a854;
@@ -815,8 +827,10 @@ extern short g_nEyeRollGoal_0059c8f0;
 extern short g_nEyeYawGoal_0059c944;
 extern short g_nEyePitchGoal_0059d61c;
 extern char DAT_0059dec0[256];
+#define g_stShipSpawnRuntimeState_0059dec0 \
+    (*(ShipSpawnRuntimeStateView *)(void *)DAT_0059dec0)
 #define g_acShipSpawnNavPoint_0059ded0 \
-    ((signed char *)(void *)(DAT_0059dec0 + 0x10))
+    (g_stShipSpawnRuntimeState_0059dec0.spawnNavPoint)
 extern short g_nCurrentNavPoint_0059df60;
 extern unsigned char *g_apCommPortraitShapes_0059e180[16];
 extern char g_szHudMessageBuffer_0059e1c0[0x60];
@@ -845,7 +859,7 @@ extern short g_nConstellationParticleCount_005a6b54;
 extern short g_nExternalViewDistance_005a6b5c;
 extern Viewport DAT_005a6b60;
 extern Viewport DAT_005a6b80;
-extern unsigned char *g_pScreenViewportPacket_005a6b94;
+extern ScreenViewportPacket *g_pScreenViewportPacket_005a6b94;
 extern Viewport DAT_005a6ba0;
 extern Viewport DAT_005a6be0;
 #define DAT_005a6baa DAT_005a6ba0.top
@@ -885,6 +899,7 @@ extern signed char g_cDamageDisplayFrame_005a77dd;
 extern signed char g_cDamagedComponentCount_005a77de;
 extern int g_nDamageDisplayState_005a77e0;
 extern int g_nDamageDisplayPhase_005a77e4;
+extern unsigned char *g_pLaunchDoorShape_005a77e8;
 extern unsigned int DAT_005a77ec;
 extern unsigned char g_abPaletteTriplets_005a77f0[256][3];
 extern InputDeviceSample g_stPreviousFlightInput_005a7af0;
@@ -977,7 +992,7 @@ extern TextContext g_stNavMapTextContext_005a8160;
 extern short g_nNavMapCentreY_005a817c;
 extern TextContext g_stNavLabelTextContext_005a8180;
 extern int DAT_005a7d9c;
-extern unsigned char *DAT_005a7cf0;
+extern DiskFileRecord *g_pDiskFileRecords_005a7cf0;
 extern Viewport g_stDiskPromptBackgroundViewport_005a7d00;
 extern unsigned char g_abDiskPromptDriveState_005a7d20[2];
 extern Viewport g_stDiskPromptViewport_005a7d40;
@@ -992,20 +1007,45 @@ extern short g_nPaletteTransitionCountdown_005a7d98;
 extern signed char g_cObjectResourceLogicalFile_005a86b0;
 extern CampaignDate *g_pCurrentCampaignDate_005a86a8;
 extern CampaignDate *g_pElapsedCampaignDate_005a86ac;
+extern Viewport *g_pScrambleViewport_005a86b4;
+extern short g_nScrambleCanopyFrame_005a86b8;
+extern unsigned char *g_pScrambleDetailShape_005a86bc;
+extern short g_nScrambleCockpitScale_005a86c0;
+extern short g_nScrambleCockpitDetailX_005a86c4;
+extern short g_nScrambleCockpitDetailY_005a86c6;
 extern unsigned char *g_pConversationSpecialShape_005a86ec;
 extern short g_nFuneralCasketX_005a86c8;
 extern short g_nFuneralCasketY_005a86ca;
+extern short g_nScrambleShipDetailCount_005a86cc;
+extern signed char g_acScrambleShipDetailIndices_005a86d0[24];
+extern signed char g_cScrambleWalkTicks_005a86e8;
 extern ShortPoint g_aFuneralParticles_005a86f0[7];
+extern unsigned char *g_pScrambleBackgroundShape_005a870c;
 extern short g_nFuneralParticleDistance_005a8710;
+extern short g_nScrambleBackgroundY_005a8712;
+extern short g_nScrambleBackgroundRightX_005a8714;
 extern short g_nFuneralForegroundX_005a8718;
 extern short g_nFuneralForegroundY_005a871a;
 extern short g_nFuneralMainScale_005a871c;
 extern short g_nFuneralRifleFrame_005a871e;
 extern short g_nFuneralBaseX_005a8720;
 extern short g_nFuneralBaseY_005a8722;
+extern short g_nScrambleShipX_005a8724;
+extern short g_nScrambleShipY_005a8726;
 extern short g_nFuneralParticleScale_005a8728;
+extern unsigned char *g_pScrambleHangarShape_005a872c;
+extern unsigned char *g_pScrambleCockpitShape_005a8730;
+extern short g_nScrambleWalkerY_005a8734;
+extern short g_nScrambleCanopyOffset_005a8736;
 extern short g_nFuneralMainDistance_005a8738;
+extern signed char g_bScrambleCanopyClosed_005a873a;
 extern short g_nFuneralGuardFrame_005a873c;
+extern short g_nScrambleOverlayX_005a8740;
+extern short g_nScrambleOverlayY_005a8742;
+extern unsigned char *g_pScrambleOverlayShape_005a8744;
+extern signed char g_cScrambleWalkerPair_005a8748;
+extern unsigned char *g_pScrambleCanopyShape_005a874c;
+extern unsigned char *g_pScrambleShipShape_005a8750;
 extern short g_nTalkingHeadFaceX_005a8754;
 extern short g_nTalkingHeadFaceY_005a8756;
 extern short g_nTalkingHeadMouthY_005a8758;
@@ -1139,14 +1179,18 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
  */
 #define g_nTargetShip_0059c3b0 \
     (*(short *)((unsigned char *)g_aeSpecialManeuver_0059c3c0 - 0x10))
+#define g_stShipTimerState_0059c810 \
+    (*(ShipTimerStateView *)(void *)g_asShipAfterburnerTimer_0059c810)
 #define g_acShipCommunicator_0059c850 \
-    ((signed char *)((unsigned char *)g_asShipAfterburnerTimer_0059c810 + 0x40))
+    (g_stShipTimerState_0059c810.communicator)
 #define g_asActionCount_0059c930 \
-    ((short *)((unsigned char *)g_asShipAfterburnerTimer_0059c810 + 0x120))
+    (g_stShipTimerState_0059c810.actionCount)
+#define g_stPilotRuntimeState_0059cf20 \
+    (*(PilotRuntimeStateView *)(void *)DAT_0059cf20)
 #define g_aiPilotLevel_0059cf30 \
-    ((int *)((unsigned char *)DAT_0059cf20 + 0x10))
+    (g_stPilotRuntimeState_0059cf20.pilotLevel)
 #define g_asTargetListRange_0059cf60 \
-    ((short *)(void *)((unsigned char *)DAT_0059cf20 + 0x40))
+    (g_stPilotRuntimeState_0059cf20.targetListRange)
 #define g_acTurnRegulator_0059cf10 \
     ((signed char *)((unsigned char *)DAT_0059cf20 - 0x10))
 
@@ -1156,10 +1200,14 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
     (*(FixedVector *)((unsigned char *)DAT_0059d500 - 0x30))
 #define g_acFormationMemberList_0059d490 \
     ((signed char *)((unsigned char *)DAT_0059d500 - 0x70))
+#define g_stShipSideRuntimeState_0059d650 \
+    (*(ShipSideRuntimeStateView *)(void *)g_aeShipSide_0059d650)
 #define g_acShipAiCooldown_0059d680 \
-    ((signed char *)((unsigned char *)g_aeShipSide_0059d650 + 0x30))
+    (g_stShipSideRuntimeState_0059d650.aiCooldown)
+#define g_stShipNavRuntimeState_0059d7c0 \
+    (*(ShipNavRuntimeStateView *)(void *)g_abShipNavPointIndex_0059d7c0)
 #define g_acTurnInterval_0059d7d0 \
-    ((signed char *)((unsigned char *)g_abShipNavPointIndex_0059d7c0 + 0x10))
+    (g_stShipNavRuntimeState_0059d7c0.turnInterval)
 #define g_vNormalizedToTarget_005a7db0 \
     (*(FixedVector *)((unsigned char *)DAT_005a7dd0 - 0x20))
 

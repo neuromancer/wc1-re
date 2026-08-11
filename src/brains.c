@@ -927,6 +927,560 @@ short __stdcall GetShapeFrameExtent(short x, short y,
     return bounds[extent];
 }
 
+/* Function start: 0x407750 */
+unsigned int AnimateScrambleWalk(short ticks)
+{
+    signed char elapsed;
+    short walkerY;
+
+    DAT_00469fb4 = 1;
+    elapsed = 0;
+    if (ticks > 0) {
+        do {
+            PumpWindowMessages();
+            DAT_00469fb4--;
+            if (DAT_00469fb4 < 1) {
+                DAT_00469fb4 = g_nFrameSkip_00469fb8;
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  g_nScrambleBackgroundX_00465780, 0,
+                                  g_pScrambleHangarShape_005a872c, 0);
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  (short)(g_nScrambleBackgroundX_00465780 +
+                                          320),
+                                  0, g_pScrambleHangarShape_005a872c, 1);
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  (short)(g_nScrambleBackgroundX_00465780 +
+                                          640),
+                                  0, g_pScrambleHangarShape_005a872c, 0);
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  (short)(g_nScrambleBackgroundX_00465780 +
+                                          960),
+                                  0, g_pScrambleHangarShape_005a872c, 1);
+
+                walkerY = (short)(127 - GetShapeFrameExtent(
+                    0, 0, g_pScrambleHangarShape_005a872c,
+                    g_cScrambleLeftWalkerFrame_00465768, 3));
+                g_nScrambleWalkerY_005a8734 = walkerY;
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  g_nScrambleLeftWalkerX_00465778,
+                                  walkerY,
+                                  g_pScrambleHangarShape_005a872c,
+                                  g_cScrambleLeftWalkerFrame_00465768);
+                DrawSpriteDefault(
+                    &DAT_005a76b0, g_nScrambleLeftWalkerX_00465778,
+                    walkerY, g_pScrambleHangarShape_005a872c,
+                    g_acScrambleWalkerOverlayFrames_00465770[
+                        g_cScrambleWalkerPair_005a8748 * 2]);
+
+                walkerY = (short)(137 - GetShapeFrameExtent(
+                    0, 0, g_pScrambleHangarShape_005a872c,
+                    g_cScrambleRightWalkerFrame_0046576c, 3));
+                g_nScrambleWalkerY_005a8734 = walkerY;
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  g_nScrambleRightWalkerX_0046577c,
+                                  walkerY,
+                                  g_pScrambleHangarShape_005a872c,
+                                  g_cScrambleRightWalkerFrame_0046576c);
+                DrawSpriteDefault(
+                    &DAT_005a76b0, g_nScrambleRightWalkerX_0046577c,
+                    walkerY, g_pScrambleHangarShape_005a872c,
+                    g_acScrambleWalkerOverlayFrames_00465770[
+                        g_cScrambleWalkerPair_005a8748 * 2 + 1]);
+                RefreshMemoryStatusOverlay();
+                DIBslam();
+                DIBslamReal();
+
+                g_cScrambleLeftWalkerFrame_00465768++;
+                if (g_cScrambleLeftWalkerFrame_00465768 > 19)
+                    g_cScrambleLeftWalkerFrame_00465768 = 7;
+                g_cScrambleRightWalkerFrame_0046576c++;
+                if (g_cScrambleRightWalkerFrame_0046576c > 19)
+                    g_cScrambleRightWalkerFrame_0046576c = 7;
+            }
+            g_nScrambleBackgroundX_00465780 =
+                (short)(g_nScrambleBackgroundX_00465780 - 12);
+            g_nScrambleRightWalkerX_0046577c =
+                (short)(g_nScrambleRightWalkerX_0046577c + 3);
+            g_nScrambleLeftWalkerX_00465778 =
+                (short)(g_nScrambleLeftWalkerX_00465778 + 2);
+            if (DAT_0059ab58 == 1)
+                break;
+            elapsed++;
+        } while (elapsed < ticks);
+    }
+    return 0;
+}
+
+/* Function start: 0x4079C0 */
+unsigned int PlayScrambleHangarScene(void)
+{
+    if (g_nMemoryConfiguration_005a7cd4 == 1)
+        SceneLeaveHook();
+    else
+        PreloadMusicTrackHook(0x1b);
+    spacetrack(0x1b, 1, -1);
+
+    InitializeConversationViewport();
+    g_cScrambleLeftWalkerFrame_00465768 = 7;
+    g_nScrambleBackgroundX_00465780 = 0;
+    g_cScrambleRightWalkerFrame_0046576c = 10;
+    g_nScrambleLeftWalkerX_00465778 = 70;
+    g_nScrambleRightWalkerX_0046577c = 170;
+    g_pScrambleHangarShape_005a872c =
+        FetchDiskPacketRetrying(1, 0, 0);
+    g_cScrambleWalkerPair_005a8748 =
+        (signed char)(((unsigned short)rand() + 3) & 3);
+    PlaySfxWaveFileByNumber(14, -1, 0);
+    DAT_0059ab58 = 0;
+
+    AnimateScrambleWalk(24);
+    if (DAT_0059ab58 != 1) {
+        g_cScrambleLeftWalkerFrame_00465768 = 21;
+        g_cScrambleRightWalkerFrame_0046576c = 24;
+        g_nScrambleLeftWalkerX_00465778 = 90;
+        g_nScrambleRightWalkerX_0046577c = 200;
+        g_nScrambleWalkerY_005a8734 = -14;
+        DAT_00469fb4 = 1;
+        g_cScrambleWalkTicks_005a86e8 = 0;
+        do {
+            PumpWindowMessages();
+            DAT_00469fb4--;
+            if (DAT_00469fb4 < 1) {
+                DAT_00469fb4 = g_nFrameSkip_00469fb8;
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  g_nScrambleBackgroundX_00465780, 0,
+                                  g_pScrambleHangarShape_005a872c, 2);
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  (short)(g_nScrambleBackgroundX_00465780 +
+                                          320),
+                                  0, g_pScrambleHangarShape_005a872c, 2);
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  (short)(g_nScrambleBackgroundX_00465780 +
+                                          640),
+                                  0, g_pScrambleHangarShape_005a872c, 2);
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  g_nScrambleLeftWalkerX_00465778,
+                                  g_nScrambleWalkerY_005a8734,
+                                  g_pScrambleHangarShape_005a872c,
+                                  g_cScrambleLeftWalkerFrame_00465768);
+                DrawSpriteDefault(&DAT_005a76b0,
+                                  g_nScrambleRightWalkerX_0046577c,
+                                  g_nScrambleWalkerY_005a8734,
+                                  g_pScrambleHangarShape_005a872c,
+                                  g_cScrambleRightWalkerFrame_0046576c);
+                RefreshMemoryStatusOverlay();
+                DIBslam();
+                DIBslamReal();
+
+                g_cScrambleLeftWalkerFrame_00465768++;
+                if (g_cScrambleLeftWalkerFrame_00465768 > 26)
+                    g_cScrambleLeftWalkerFrame_00465768 = 21;
+                g_cScrambleRightWalkerFrame_0046576c++;
+                if (g_cScrambleRightWalkerFrame_0046576c > 26)
+                    g_cScrambleRightWalkerFrame_0046576c = 21;
+            }
+            g_nScrambleBackgroundX_00465780 =
+                (short)(g_nScrambleBackgroundX_00465780 - 12);
+            g_nScrambleLeftWalkerX_00465778 =
+                (short)(g_nScrambleLeftWalkerX_00465778 + 2);
+            g_nScrambleRightWalkerX_0046577c =
+                (short)(g_nScrambleRightWalkerX_0046577c + 3);
+            if (DAT_0059ab58 == 1)
+                break;
+            g_cScrambleWalkTicks_005a86e8++;
+        } while (g_cScrambleWalkTicks_005a86e8 < 24);
+
+        if (DAT_0059ab58 != 1) {
+            g_cScrambleLeftWalkerFrame_00465768 = 7;
+            g_cScrambleRightWalkerFrame_0046576c = 10;
+            AnimateScrambleWalk(24);
+        }
+    }
+
+    FlushSoundEffectsAndLog();
+    ReleasePacketHandle((int)g_pScrambleHangarShape_005a872c);
+    ResetScreenClipToFullHeight();
+    return 0;
+}
+
+/* Function start: 0x407C90 */
+unsigned int DrawScrambleActor(short actorIndex)
+{
+    signed char animationFrame;
+    signed char frame;
+    unsigned char control;
+    short x;
+    short y;
+
+    frame = 0;
+    animationFrame =
+        g_aScrambleAnimationActors_004657b0[actorIndex].animationFrame;
+    if (animationFrame != -1) {
+        if ((int)g_aScrambleAnimationActors_004657b0[
+                actorIndex].animationState != 0xa000) {
+            animationFrame++;
+            do {
+                frame = (signed char)g_aScrambleAnimationActors_004657b0[
+                    actorIndex].animation[(int)animationFrame];
+                control = (unsigned char)frame & 0xc0;
+                if (control == 0) {
+                    g_aScrambleAnimationActors_004657b0[
+                        actorIndex].animationFrame++;
+                } else if (control == 0x40) {
+                    g_aScrambleAnimationActors_004657b0[
+                        actorIndex].animationState = 0;
+                    animationFrame--;
+                } else if (control == 0x80) {
+                    animationFrame = (signed char)(frame & 0x3f);
+                    g_aScrambleAnimationActors_004657b0[
+                        actorIndex].animationFrame = animationFrame;
+                }
+            } while (control != 0);
+        } else
+            frame = animationFrame;
+    }
+
+    x = (short)(g_aScrambleAnimationActors_004657b0[actorIndex].deltaX +
+                g_aScrambleAnimationActors_004657b0[actorIndex].x);
+    g_aScrambleAnimationActors_004657b0[actorIndex].x = x;
+    y = (short)(g_aScrambleAnimationActors_004657b0[actorIndex].deltaY +
+                g_aScrambleAnimationActors_004657b0[actorIndex].y);
+    g_aScrambleAnimationActors_004657b0[actorIndex].y = y;
+    DrawSpriteScaled(
+        g_pScrambleViewport_005a86b4,
+        (short)(g_nScrambleBackgroundRightX_005a8714 + x),
+        (short)(g_nScrambleBackgroundY_005a8712 + y),
+        g_aScrambleAnimationActors_004657b0[actorIndex].shape,
+        (short)(frame +
+                g_aScrambleAnimationActors_004657b0[actorIndex].baseFrame),
+        g_aScrambleAnimationActors_004657b0[actorIndex].angle,
+        g_aScrambleAnimationActors_004657b0[actorIndex].scale,
+        g_aScrambleAnimationActors_004657b0[actorIndex].flip);
+    return 0;
+}
+
+/* Function start: 0x407D90 */
+unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
+                                    short deltaY, unsigned char *shape,
+                                    short scale, short angle,
+                                    signed char flip, short actorIndex)
+{
+    ScrambleAnimationActor *actor;
+
+    actor = &g_aScrambleAnimationActors_004657b0[actorIndex];
+    actor->x = x;
+    actor->y = y;
+    actor->deltaX = deltaX;
+    actor->deltaY = deltaY;
+    actor->shape = shape;
+    if (actor->animationFrame != -1)
+        actor->animationFrame = 0;
+    actor->scale = scale;
+    actor->angle = angle;
+    actor->flip = flip;
+    return 0;
+}
+
+/* Function start: 0x407E10 */
+unsigned int DrawScrambleFrame(void)
+{
+    short detailIndex;
+    short detailSlot;
+    const ScrambleShipDetail *detail;
+
+    DAT_00469fb4--;
+    if (DAT_00469fb4 > 0)
+        return 0;
+    DAT_00469fb4 = g_nFrameSkip_00469fb8;
+
+    DrawSpriteDefault(&DAT_005a76b0,
+                      (short)(g_nScrambleBackgroundRightX_005a8714 - 1),
+                      g_nScrambleBackgroundY_005a8712,
+                      g_pScrambleBackgroundShape_005a870c, 0);
+    DrawSpriteDefault(&DAT_005a76b0,
+                      g_nScrambleBackgroundRightX_005a8714,
+                      g_nScrambleBackgroundY_005a8712,
+                      g_pScrambleBackgroundShape_005a870c, 1);
+    DrawScrambleActor(0);
+    DrawScrambleActor(3);
+    DrawScrambleActor(4);
+    DrawScrambleActor(2);
+
+    if (g_bScrambleCanopyClosed_005a873a == 0) {
+        DrawSpriteDefault(&DAT_005a76b0,
+                          (short)(g_nScrambleShipX_005a8724 + 40),
+                          (short)(g_nScrambleShipY_005a8726 - 40),
+                          g_pScrambleCanopyShape_005a874c,
+                          g_nScrambleCanopyOffset_005a8736);
+    }
+
+    switch (g_stCampaignState_0059ca50.playerShipType) {
+    case OBJECT_TYPE_HORNET:
+        DrawSpriteDefault(&DAT_005a76b0,
+                          (short)(g_nScrambleShipX_005a8724 + 10),
+                          (short)(g_nScrambleShipY_005a8726 - 25),
+                          g_pScrambleShipShape_005a8750,
+                          g_nScrambleCanopyFrame_005a86b8);
+        DrawSpriteDefault(&DAT_005a76b0, g_nScrambleShipX_005a8724,
+                          g_nScrambleShipY_005a8726,
+                          g_pScrambleCockpitShape_005a8730, 0);
+        DrawSpriteScaled(&DAT_005a76b0,
+                         g_nScrambleCockpitDetailX_005a86c4,
+                         g_nScrambleCockpitDetailY_005a86c6,
+                         g_pScrambleCockpitShape_005a8730, 1, 0,
+                         g_nScrambleCockpitScale_005a86c0, 0);
+        break;
+    case OBJECT_TYPE_RAPIER:
+        DrawSpriteDefault(&DAT_005a76b0,
+                          (short)(g_nScrambleShipX_005a8724 + 10),
+                          (short)(g_nScrambleShipY_005a8726 - 16),
+                          g_pScrambleShipShape_005a8750,
+                          g_nScrambleCanopyFrame_005a86b8);
+        DrawSpriteDefault(&DAT_005a76b0, g_nScrambleShipX_005a8724,
+                          g_nScrambleShipY_005a8726,
+                          g_pScrambleCockpitShape_005a8730, 0);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          (short)(g_nScrambleShipX_005a8724 + 153),
+                          (short)(g_nScrambleShipY_005a8726 + 5),
+                          g_pScrambleCockpitShape_005a8730, 2);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          g_nScrambleCockpitDetailX_005a86c4,
+                          g_nScrambleCockpitDetailY_005a86c6,
+                          g_pScrambleCockpitShape_005a8730, 1);
+        break;
+    case OBJECT_TYPE_SCIMITAR:
+        DrawSpriteDefault(&DAT_005a76b0,
+                          (short)(g_nScrambleShipX_005a8724 + 10),
+                          (short)(g_nScrambleShipY_005a8726 - 15),
+                          g_pScrambleShipShape_005a8750,
+                          g_nScrambleCanopyFrame_005a86b8);
+        DrawSpriteDefault(&DAT_005a76b0, g_nScrambleShipX_005a8724,
+                          g_nScrambleShipY_005a8726,
+                          g_pScrambleCockpitShape_005a8730, 0);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          (short)(g_nScrambleShipX_005a8724 + 148),
+                          g_nScrambleShipY_005a8726,
+                          g_pScrambleCockpitShape_005a8730, 2);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          g_nScrambleCockpitDetailX_005a86c4,
+                          g_nScrambleCockpitDetailY_005a86c6,
+                          g_pScrambleCockpitShape_005a8730, 1);
+        break;
+    case OBJECT_TYPE_RAPTOR:
+        DrawSpriteDefault(&DAT_005a76b0,
+                          (short)(g_nScrambleShipX_005a8724 + 10),
+                          (short)(g_nScrambleShipY_005a8726 - 11),
+                          g_pScrambleShipShape_005a8750,
+                          g_nScrambleCanopyFrame_005a86b8);
+        DrawSpriteDefault(&DAT_005a76b0, g_nScrambleShipX_005a8724,
+                          g_nScrambleShipY_005a8726,
+                          g_pScrambleCockpitShape_005a8730, 0);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          (short)(g_nScrambleShipX_005a8724 + 158),
+                          (short)(g_nScrambleShipY_005a8726 + 6),
+                          g_pScrambleCockpitShape_005a8730, 2);
+        DrawSpriteDefault(&DAT_005a76b0,
+                          g_nScrambleCockpitDetailX_005a86c4,
+                          g_nScrambleCockpitDetailY_005a86c6,
+                          g_pScrambleCockpitShape_005a8730, 1);
+        break;
+    }
+
+    detailIndex = 0;
+    while (detailIndex < g_nScrambleShipDetailCount_005a86cc) {
+        detailSlot = g_acScrambleShipDetailIndices_005a86d0[detailIndex];
+        detail = &g_aaScrambleShipDetails_00465828[
+            g_stCampaignState_0059ca50.playerShipType][detailSlot];
+        DrawSpriteDefault(&DAT_005a76b0,
+                          (short)(g_nScrambleShipX_005a8724 + detail->x),
+                          (short)(g_nScrambleShipY_005a8726 + detail->y),
+                          g_pScrambleDetailShape_005a86bc,
+                          detail->frame);
+        detailIndex++;
+    }
+
+    if (g_bScrambleCanopyClosed_005a873a == 1) {
+        if (g_nScrambleOverlayX_005a8740 != -1000) {
+            DrawSpriteDefault(&DAT_005a76b0,
+                              g_nScrambleOverlayX_005a8740,
+                              g_nScrambleOverlayY_005a8742,
+                              g_pScrambleOverlayShape_005a8744, 0);
+        }
+        DrawSpriteDefault(&DAT_005a76b0, 100, 127,
+                          g_pScrambleCanopyShape_005a874c,
+                          g_nScrambleCanopyOffset_005a8736);
+    }
+    RefreshMemoryStatusOverlay();
+    DIBslam();
+    DIBslamReal();
+    return 0;
+}
+
+/* Function start: 0x408200 (Mac symbol: scramble) */
+unsigned int scramble(void)
+{
+    unsigned char *actorShape;
+    short frame;
+
+    g_nScrambleCanopyOffset_005a8736 = 0;
+    g_nScrambleOverlayX_005a8740 = -1000;
+    g_nScrambleCanopyFrame_005a86b8 = 0;
+    g_nScrambleShipDetailCount_005a86cc = 0;
+    if (DAT_0059ab58 == 0) {
+        InitializeConversationViewport();
+        g_cCockpitLogicalFile_005a7c74 =
+            (signed char)(g_stCampaignState_0059ca50.playerShipType + 17);
+        g_pScrambleCockpitShape_005a8730 = FetchDiskPacketRetrying(
+            g_cCockpitLogicalFile_005a7c74, 8, 0);
+        g_pScrambleBackgroundShape_005a870c =
+            FetchDiskPacketRetrying(1, 1, 0);
+        g_bScrambleCanopyClosed_005a873a = 0;
+        g_pScrambleCanopyShape_005a874c =
+            FetchDiskPacketRetrying(1, 2, 0);
+        g_pScrambleShipShape_005a8750 =
+            FetchDiskPacketRetrying(1, 3, 0);
+        actorShape = FetchDiskPacketRetrying(1, 4, 0);
+        g_nScrambleBackgroundY_005a8712 = 0;
+        g_pScrambleViewport_005a86b4 = &DAT_005a76b0;
+        g_nScrambleBackgroundRightX_005a8714 = 64;
+
+        ConfigureScrambleActor(130, 94, 1, 0, actorShape,
+                               0x100, 0, 0, 0);
+        ConfigureScrambleActor(160, 120, 0, 0, actorShape,
+                               0x100, 0, 0, 2);
+        ConfigureScrambleActor(260, 100, -3, 0, actorShape,
+                               0xff, 0, 0x10, 3);
+        ConfigureScrambleActor(260, 100, -3, 0, actorShape,
+                               0xff, 0, 0x10, 4);
+        PlaySfxWaveFileByNumber(17, -1, 0);
+        DAT_0059ab58 = 0;
+
+        switch (g_stCampaignState_0059ca50.playerShipType) {
+        case OBJECT_TYPE_HORNET:
+            g_nScrambleShipX_005a8724 = -40;
+            g_nScrambleShipY_005a8726 = 96;
+            g_nScrambleCockpitDetailX_005a86c4 = -95;
+            g_nScrambleCockpitDetailY_005a86c6 = 71;
+            g_nScrambleCockpitScale_005a86c0 = 316;
+            break;
+        case OBJECT_TYPE_RAPIER:
+            g_nScrambleShipX_005a8724 = -30;
+            g_nScrambleShipY_005a8726 = 80;
+            g_nScrambleCockpitDetailX_005a86c4 = -15;
+            g_nScrambleCockpitDetailY_005a86c6 = 76;
+            break;
+        case OBJECT_TYPE_SCIMITAR:
+            g_nScrambleShipX_005a8724 = -40;
+            g_nScrambleShipY_005a8726 = 86;
+            g_nScrambleCockpitDetailX_005a86c4 = 4;
+            g_nScrambleCockpitDetailY_005a86c6 = 83;
+            break;
+        case OBJECT_TYPE_RAPTOR:
+            g_nScrambleShipX_005a8724 = -40;
+            g_nScrambleShipY_005a8726 = 80;
+            g_nScrambleCockpitDetailX_005a86c4 = -22;
+            g_nScrambleCockpitDetailY_005a86c6 = 67;
+            break;
+        }
+
+        frame = 0;
+        DAT_00469fb4 = 1;
+        do {
+            PumpWindowMessages();
+            DrawScrambleFrame();
+            g_nScrambleBackgroundRightX_005a8714--;
+            g_nScrambleShipY_005a8726 =
+                (short)(g_nScrambleShipY_005a8726 - 2);
+            g_nScrambleCockpitDetailY_005a86c6 =
+                (short)(g_nScrambleCockpitDetailY_005a86c6 - 2);
+            g_nScrambleShipX_005a8724 =
+                (short)(g_nScrambleShipX_005a8724 + 4);
+            g_nScrambleCockpitDetailX_005a86c4 =
+                (short)(g_nScrambleCockpitDetailX_005a86c4 + 4);
+            if (DAT_0059ab58 == 1)
+                break;
+            frame++;
+        } while (frame < 10);
+
+        if (DAT_0059ab58 != 1) {
+            frame = 0;
+            DAT_00469fb4 = 1;
+            do {
+                PumpWindowMessages();
+                DrawScrambleFrame();
+                g_nScrambleCanopyOffset_005a8736++;
+                g_nScrambleShipX_005a8724 =
+                    (short)(g_nScrambleShipX_005a8724 + 4);
+                g_nScrambleCockpitDetailX_005a86c4 =
+                    (short)(g_nScrambleCockpitDetailX_005a86c4 + 4);
+                g_nScrambleBackgroundRightX_005a8714--;
+                if (g_nScrambleCanopyFrame_005a86b8 < 25)
+                    g_nScrambleCanopyFrame_005a86b8++;
+                if (DAT_0059ab58 == 1)
+                    break;
+                frame++;
+            } while (frame < 27);
+        }
+
+        if (DAT_0059ab58 != 1) {
+            FlushSoundEffectsAndLog();
+            g_nScrambleCanopyOffset_005a8736--;
+            frame = 0;
+            PlaySfxWaveFileByNumber(15, -1, 0);
+            DAT_00469fb4 = 1;
+            do {
+                PumpWindowMessages();
+                if (frame == 22)
+                    DAT_00469fb4 = 1;
+                DrawScrambleFrame();
+                switch (g_stCampaignState_0059ca50.playerShipType) {
+                case OBJECT_TYPE_HORNET:
+                    g_nScrambleCockpitScale_005a86c0 =
+                        (short)(g_nScrambleCockpitScale_005a86c0 + 2);
+                    break;
+                case OBJECT_TYPE_RAPIER:
+                case OBJECT_TYPE_RAPTOR:
+                    g_nScrambleCockpitDetailX_005a86c4 =
+                        (short)(g_nScrambleCockpitDetailX_005a86c4 - 2);
+                    break;
+                case OBJECT_TYPE_SCIMITAR:
+                    if (frame == 21)
+                        g_nScrambleCockpitDetailY_005a86c6++;
+                    else
+                        g_nScrambleCockpitDetailX_005a86c4 =
+                            (short)(g_nScrambleCockpitDetailX_005a86c4 - 2);
+                    break;
+                }
+                if (g_nScrambleCanopyFrame_005a86b8 < 35)
+                    g_nScrambleCanopyFrame_005a86b8++;
+                if (DAT_0059ab58 == 1)
+                    break;
+                frame++;
+            } while (frame < 23);
+
+            FlushSoundEffectsAndLog();
+            PlaySfxWaveFileByNumber(16, -1, 0);
+            if (DAT_0059ab58 != 1)
+                WaitForSceneAdvance(60, 0);
+        }
+
+        DAT_0059ab58 = 0;
+        ReleasePacketHandle((int)g_pScrambleCockpitShape_005a8730);
+        ReleasePacketHandle((int)g_pScrambleBackgroundShape_005a870c);
+        ReleasePacketHandle((int)g_pScrambleCanopyShape_005a874c);
+        ReleasePacketHandle((int)g_pScrambleShipShape_005a8750);
+        ReleasePacketHandle((int)actorShape);
+        FlushSoundEffects();
+        ResetScreenClipToFullHeight();
+    }
+
+    if (g_nMemoryConfiguration_005a7cd4 == 0) {
+        StopMusicUnlessSuppressed();
+        ReleaseMusicTrackHook(0x1b);
+    }
+    return 0;
+}
+
 /* Function start: 0x408B30 (Mac symbol: funeral_player) */
 unsigned int funeral_player(void)
 {
@@ -2160,8 +2714,8 @@ void ship_intelligence(short obj)
         fail(obj);
         break;
     }
-    if (((signed char *)g_aeShipSide_0059d650)[obj + 0x30] > 0)
-        ((signed char *)g_aeShipSide_0059d650)[obj + 0x30]--;
+    if (g_acShipAiCooldown_0059d680[obj] > 0)
+        g_acShipAiCooldown_0059d680[obj]--;
 }
 
 /* Function start: 0x40AF70 */
@@ -2986,6 +3540,88 @@ int set_up_action_sphere(short navPoint)
     }
     clean_up_cockpit();
     g_bLandingAuthorized_00468ff8 = 0;
+    return 0;
+}
+
+/* Function start: 0x40C150 */
+void free_pilot_talk(short personality)
+{
+    short line;
+
+    line = 0;
+    do {
+        if (g_aapszPilotSpeech_0059e220[personality][line] != 0) {
+            FreePacketAndClear(
+                (int *)&g_aapszPilotSpeech_0059e220[personality][line], 0);
+        }
+        if (g_apCommPortraitShapes_0059e180[personality] != 0) {
+            FreePacketAndClear(
+                (int *)&g_apCommPortraitShapes_0059e180[personality], 8);
+        }
+        line++;
+    } while (line < 11);
+}
+
+/* Function start: 0x40C1C0 */
+void get_pilot_talk(short personality)
+{
+    char speech[84];
+    short file;
+    short line;
+    short loaded;
+
+    free_pilot_talk(personality);
+    PromptInsertNumberedDisk(13);
+    file = OpenDataFileOrDie(g_pDiskFileRecords_005a7cf0[13].name);
+    loaded = (short)(file >= 0);
+    line = 0;
+    do {
+        loaded = (short)(loaded &
+            (ReadDataFileAtOffset(
+                (unsigned short)file,
+                (personality * 11 + line) * 80,
+                80, speech) == 1));
+        if (loaded != 0) {
+            g_aapszPilotSpeech_0059e220[personality][line] =
+                (char *)AllocateTaggedMemory(strlen(speech) + 1, 0);
+            DosStrcpy(g_aapszPilotSpeech_0059e220[personality][line], speech);
+        }
+        line++;
+    } while (line < 11);
+
+    CloseDataFile((unsigned short)file);
+    if (loaded == 0)
+        ShowModalMessage(g_szErrorLoadingPilotSpeech_00466010);
+    LoadCommPortraitShape(personality, 4);
+}
+
+/* Function start: 0x40C2B0 */
+unsigned int init_personalities(void)
+{
+    short missionShip;
+    short personality;
+    short face;
+
+    missionShip = 0;
+    do {
+        personality = (short)
+            g_aMissionShips_0046c948[missionShip].behaviour.pilot - 5;
+        if (personality >= 0 && personality < 8) {
+            face = get_face(personality, SIDE_IMPERIAL);
+            get_pilot_talk(face);
+        }
+        if (personality > 8) {
+            face = get_face(personality, SIDE_KILRATHI);
+            get_pilot_talk(face);
+            prepare_ace((short)(personality - 9));
+        }
+        missionShip++;
+    } while (missionShip < WC1_ACTIVE_MISSION_SHIP_COUNT);
+
+    face = get_face(-1, SIDE_KILRATHI);
+    get_pilot_talk(face);
+    face = get_face(-1, SIDE_IMPERIAL);
+    get_pilot_talk(face);
     return 0;
 }
 

@@ -290,14 +290,12 @@ unsigned int PinMedal(char *text, short duration)
 /* Function start: 0x4375C0 */
 unsigned int DrawMedals(void)
 {
-    unsigned char *campaign;
     short badge;
     short medal;
     short rowY;
     short stack;
     short x;
 
-    campaign = (unsigned char *)&g_stCampaignState_0059ca50;
     rowY = 78;
     x = 188;
     DrawSpriteDefault(&DAT_005a76b0, 0, 0,
@@ -315,7 +313,7 @@ unsigned int DrawMedals(void)
                      0, 255, 16);
     badge = 0;
     do {
-        if (campaign[0x0d + badge] != 0) {
+        if (g_stCampaignState_0059ca50.badges[badge] != 0) {
             if (x > 231) {
                 rowY = (short)(rowY + 3);
                 x = 188;
@@ -330,12 +328,13 @@ unsigned int DrawMedals(void)
     rowY = (short)(rowY + 5);
     medal = 0;
     do {
-        if (campaign[8 + medal] != 0) {
+        if (g_stCampaignState_0059ca50.medals[medal] != 0) {
             x = g_asMedalDisplayX_0046e2d0[medal];
             stack = rowY;
             if (medal < 3) {
                 badge = 0;
-                while (badge < (signed char)campaign[8 + medal]) {
+                while (badge < (signed char)
+                                   g_stCampaignState_0059ca50.medals[medal]) {
                     badge++;
                     DrawSpriteDefault(&DAT_005a76b0, x, stack,
                                       g_pMedalSceneShape_0046e2f4,
