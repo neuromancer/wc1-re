@@ -10,16 +10,15 @@
 /* Function start: 0x418080 */
 short __stdcall MeasureTextPixelWidthClamped(const char *text)
 {
-    const char *scan = text;
     short width = 0;
+    const char *scan = text;
 
     while (*scan != 0) {
         width = (short)(width + GetFontCharWidth(*scan++));
         if (width >= 320)
             break;
     }
-    if (*scan != 0) {
-        scan--;
+    if (*scan-- != 0) {
         width = (short)(width - GetFontCharWidth(*scan));
     }
     return width;

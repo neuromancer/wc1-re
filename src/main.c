@@ -942,20 +942,17 @@ unsigned int player_input(void)
 /* Function start: 0x428C90 */
 unsigned int SelectNextExternalViewObject(void)
 {
-    signed char selected;
     short object;
 
-    selected = -1;
     object = (short)g_cViewObject_0046c000;
+    g_cViewObject_0046c000 = -1;
     do {
         object++;
         if (object > 9)
             object = 0;
-        selected = -1;
         if (g_aeObjectClass_0059d100[object] >= OBJECT_CLASS_SHIP)
-            selected = (signed char)object;
-        g_cViewObject_0046c000 = selected;
-    } while (selected == -1);
+            g_cViewObject_0046c000 = (signed char)object;
+    } while (g_cViewObject_0046c000 == -1);
     return 0;
 }
 

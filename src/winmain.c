@@ -418,12 +418,13 @@ void add_hazard_field(enum ObjectType type, FixedVector center,
 
     if (g_nHazardFieldCount_0059c90c >= 7)
         return;
-    field = &g_aHazardFields_0059d870[g_nHazardFieldCount_0059c90c++];
+    field = &g_aHazardFields_0059d870[g_nHazardFieldCount_0059c90c];
     field->type = type;
     field->center = center;
-    field->innerRadius = radius;
     field->outerRadius = radius;
+    field->innerRadius = radius;
     field->density = density;
+    g_nHazardFieldCount_0059c90c++;
 }
 
 /* Function start: 0x401C60 */

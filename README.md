@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.65% average)</summary>
+<summary>All 1,472 function similarity scores (97.67% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -501,7 +501,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `eventmgr.c` | `shrink` | `0x436A70` | 100.00% |
 | `eventmgr.c` | `FillGraphicSuffix` | `0x436C70` | 100.00% |
 | `eventmgr.c` | `ConvertChar_Int` | `0x436CB0` | 100.00% |
-| `geom.c` | `MeasureTextPixelWidthClamped` | `0x418080` | 92.00% |
+| `geom.c` | `MeasureTextPixelWidthClamped` | `0x418080` | 100.00% |
 | `geom.c` | `SeekPacketSection` | `0x4180C0` | 93.33% |
 | `geom.c` | `GetMusicDriverPresent` | `0x418130` | 100.00% |
 | `geom.c` | `CollectActivePaletteIndices` | `0x418140` | 100.00% |
@@ -891,7 +891,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `detect_enemy_tail` | `0x422930` | 100.00% |
 | `logic.c` | `is_ship_tailing_player_target` | `0x4229B0` | 100.00% |
 | `logic.c` | `missile_on_tail` | `0x4229F0` | 100.00% |
-| `logic.c` | `select_weighted_value` | `0x422A30` | 90.91% |
+| `logic.c` | `select_weighted_value` | `0x422A30` | 100.00% |
 | `logic.c` | `build_squad_list` | `0x422A70` | 100.00% |
 | `logic.c` | `find_squad_center` | `0x422AC0` | 100.00% |
 | `logic.c` | `init_formation_burst` | `0x422B30` | 96.49% |
@@ -927,7 +927,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `inherit_leader` | `0x4235B0` | 93.33% |
 | `logic.c` | `dead_ship` | `0x423610` | 100.00% |
 | `logic.c` | `gone_ship` | `0x423640` | 100.00% |
-| `logic.c` | `skill_rating` | `0x423670` | 95.24% |
+| `logic.c` | `skill_rating` | `0x423670` | 100.00% |
 | `logic.c` | `skill_check` | `0x4236B0` | 95.00% |
 | `logic.c` | `find_ships_sphere` | `0x4236F0` | 93.88% |
 | `logic.c` | `locate_ship` | `0x423780` | 100.00% |
@@ -988,7 +988,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `main.c` | `fire_players_lasers` | `0x428480` | 100.00% |
 | `main.c` | `players_flight_dynamics` | `0x4284D0` | 89.23% |
 | `main.c` | `player_input` | `0x4285D0` | 82.20% |
-| `main.c` | `SelectNextExternalViewObject` | `0x428C90` | 94.74% |
+| `main.c` | `SelectNextExternalViewObject` | `0x428C90` | 100.00% |
 | `main.c` | `SelectPreviousExternalViewObject` | `0x428CD0` | 100.00% |
 | `main.c` | `HandleFleetOverviewInput` | `0x428D10` | 94.03% |
 | `mathfp.c` | `RandomBelow` | `0x434CD0` | 100.00% |
@@ -1495,7 +1495,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `winmain.c` | `match_ship_to_eye` | `0x401A60` | 100.00% |
 | `winmain.c` | `update_hazards` | `0x401B30` | 100.00% |
 | `winmain.c` | `start_hazard_field` | `0x401BC0` | 100.00% |
-| `winmain.c` | `add_hazard_field` | `0x401C00` | 92.00% |
+| `winmain.c` | `add_hazard_field` | `0x401C00` | 100.00% |
 | `winmain.c` | `check_hazards` | `0x401C60` | 100.00% |
 | `winmain.c` | `WarpMouseTo` | `0x401CE0` | 100.00% |
 | `winmain.c` | `CheckLauncherAndConfig` | `0x401D10` | 94.44% |

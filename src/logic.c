@@ -1116,7 +1116,7 @@ short select_weighted_value(short *choices)
     roll -= choices[0];
     while (roll > 0) {
         if (choices[0] == -1)
-            return -1;
+            break;
         choices += 2;
         roll -= choices[0];
     }
@@ -1620,7 +1620,7 @@ short skill_rating(short obj)
 {
     int rating = g_aiPilotLevel_0059cf30[obj];
 
-    if (rating < 5)
+    if (rating <= 4)
         return MaxShort(2, (short)rating);
     if (rating == 13)
         return 5;
