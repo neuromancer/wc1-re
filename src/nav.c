@@ -1618,14 +1618,17 @@ void DrawTitleLogo(short distance, short y)
 /* Function start: 0x40FB10 */
 void UpdateTitleMenuCursor(void)
 {
-    TitleMenuRegion *region;
     short frame;
+    short mouseX;
+    short mouseY;
+    TitleMenuRegion *region;
 
     frame = 0;
+    mouseX = g_nHostMouseX_0059af70;
+    mouseY = g_nHostMouseY_0059af72;
     region = g_aTitleMenuRegions_00468a88;
     while (region->frame != -1) {
-        if (IsPointInRect(g_nHostMouseX_0059af70,
-                          g_nHostMouseY_0059af72,
+        if (IsPointInRect(mouseX, mouseY,
                           &region->left) != 0)
             frame = region->frame;
         region++;

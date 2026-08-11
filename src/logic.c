@@ -145,13 +145,17 @@ unsigned int fire_super_brake(short ship)
 /* Function start: 0x4213D0 */
 short flip_angle(short ship, short angle)
 {
-    if ((g_asObjectFlip_0059c870[ship] & 0x10) != 0)
+    short flip;
+
+    flip = g_asObjectFlip_0059c870[ship];
+    if ((flip & 0x10) != 0)
         angle = (short)(180 - angle);
-    if ((g_asObjectFlip_0059c870[ship] & 0x20) != 0)
+    if ((flip & 0x20) != 0)
         angle = (short)-angle;
-    angle = (short)((angle + g_asObjectScreenAngle_0059cd90[ship]) % 360);
+    angle += g_asObjectScreenAngle_0059cd90[ship];
+    angle %= 360;
     if (angle < 0)
-        angle = (short)(angle + 360);
+        angle += 360;
     return angle;
 }
 

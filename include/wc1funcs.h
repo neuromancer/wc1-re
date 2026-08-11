@@ -260,8 +260,8 @@ int set_up_action_sphere(short navPoint);                              /* 0x0040
 void free_pilot_talk(short personality);                               /* 0x0040C150 */
 void get_pilot_talk(short personality);                                /* 0x0040C1C0 */
 unsigned int init_personalities(void);                                 /* 0x0040C2B0 */
-unsigned int room_for_me(void);                                        /* 0x0040C350 */
-void approve_xyz(short obj, int minimum, short maximum);               /* 0x0040C360 */
+unsigned int room_for_me(short obj, short minimum);                    /* 0x0040C350 */
+void approve_xyz(short obj, short minimum, short maximum);             /* 0x0040C360 */
 void set_up_next_wave(void);                                           /* 0x0040C3C0 */
 unsigned int sub_int_vector(const ShortVector *left,
                             const ShortVector *right,

@@ -2769,11 +2769,14 @@ void PlayCockpitSelectionSfx(short selectionSound)
 /* Function start: 0x417F10 */
 void vdu_pop_all(short vdu)
 {
+    int mode;
+
     while ((short)GetVduModeStackDepth(vdu) > 0) {
-        if ((short)get_mode(vdu) == 6)
-            EndCommMenu();
-        else
+        mode = (short)get_mode(vdu);
+        if (mode != 6)
             pop_mode(vdu);
+        else
+            EndCommMenu();
     }
 }
 

@@ -3938,21 +3938,20 @@ unsigned int init_personalities(void)
 }
 
 /* Function start: 0x40C350 */
-unsigned int room_for_me(void)
+unsigned int room_for_me(short obj, short minimum)
 {
     return 1;
 }
 
 /* Function start: 0x40C360 */
-void approve_xyz(short obj, int minimum, short maximum)
+void approve_xyz(short obj, short minimum, short maximum)
 {
-    (void)minimum;
-    if (obj == -1 || room_for_me() != 0)
+    if (obj == -1 || room_for_me(obj, minimum) != 0)
         return;
     do {
         random_radial(&g_aShipPosition_0059c490[0], maximum,
                       &g_aShipPosition_0059c490[obj]);
-    } while (room_for_me() == 0);
+    } while (room_for_me(obj, minimum) == 0);
 }
 
 /* Function start: 0x40C3C0 */
@@ -4240,11 +4239,10 @@ int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
 {
     InputDeviceSample *sample;
     int result;
+    short sampleIndex;
 
-    if (joystick < 1)
-        sample = &samples[0];
-    else
-        sample = &samples[1];
+    sampleIndex = (short)(joystick != 0);
+    sample = &samples[sampleIndex];
     result = GetJoystickPosition((unsigned int *)&sample->x,
                                  (unsigned int *)&sample->y,
                                  &sample->buttons, joystick, fallback);
