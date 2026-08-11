@@ -459,19 +459,18 @@ void AddRandomTrainSimHighScores(void)
 /* Function start: 0x4260E0 */
 void DrawTextInputCursor(char character)
 {
-    unsigned char *colour;
+    unsigned char colour;
     unsigned char savedBackground;
     short savedX;
     char cursor[2];
 
-    savedBackground = g_pCurrentTextContext_0059af8c->backgroundColour;
-    colour = &g_pCurrentTextContext_0059af8c->colour;
     cursor[1] = 0;
     cursor[0] = character;
+    savedBackground = g_pCurrentTextContext_0059af8c->backgroundColour;
+    colour = g_pCurrentTextContext_0059af8c->colour;
     savedX = g_pCurrentTextContext_0059af8c->cursorX;
     g_pCurrentTextContext_0059af8c->cursorX = (short)(savedX + 1);
-    g_pCurrentTextContext_0059af8c->backgroundColour =
-        *colour;
+    g_pCurrentTextContext_0059af8c->backgroundColour = colour;
     DrawFormattedText(cursor);
     g_pCurrentTextContext_0059af8c->backgroundColour = savedBackground;
     g_pCurrentTextContext_0059af8c->cursorX = savedX;

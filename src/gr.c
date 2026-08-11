@@ -624,8 +624,8 @@ void TriangleRasterizerHook(void)
 void DrawFilledViewportRect(Viewport *viewport, short left, short top,
                             short right, short bottom, short colour)
 {
-    int height;
     int row;
+    int height;
 
     height = bottom - top;
     row = 0;

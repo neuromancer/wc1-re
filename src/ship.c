@@ -181,13 +181,13 @@ short pilot_hit(short obj)
 {
     if (DAT_0059cf00[obj] > 0) {
         DAT_0059cf00[obj]--;
-        if (DAT_0059cf00[obj] == 0 && obj == 0) {
-            if (DAT_00469ffc != 0)
-                g_nArcadeState_00469fb0 = 4;
-            return -1;
-        }
-        if (DAT_0059cf00[obj] != 0 && obj != 0 &&
-            skill_check(obj, 9) == 0) {
+        if (DAT_0059cf00[obj] == 0) {
+            if (obj == 0) {
+                if (DAT_00469ffc != 0)
+                    g_nArcadeState_00469fb0 = 4;
+                return -1;
+            }
+        } else if (skill_check(obj, 9) == 0 && obj != 0) {
             g_asObjectCounter_0059c330[obj] =
                 (short)(RandomBelowOrEqual(20) + 30);
             set_special(obj, SPECIAL_MANEUVER_BLOWING_UP);

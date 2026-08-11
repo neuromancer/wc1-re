@@ -1192,9 +1192,9 @@ void LoadCommPortraitShape(short face, signed char alternate)
 {
     short section;
 
-    if (face >= 0 && face < 8)
+    if (face >= 0 && face <= 7)
         section = face + 1;
-    else if ((face >= 8 && face <= 11) || face == 13)
+    else if ((face > 7 && face < 12) || face == 13)
         section = 10;
     else
         section = -1;

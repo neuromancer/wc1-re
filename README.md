@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.52% average)</summary>
+<summary>All 1,472 function similarity scores (97.57% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -619,7 +619,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `gr.c` | `GetViewportPixel` | `0x441B60` | 100.00% |
 | `gr.c` | `DrawViewportLine` | `0x441BA0` | 100.00% |
 | `gr.c` | `TriangleRasterizerHook` | `0x441BF0` | 100.00% |
-| `gr.c` | `DrawFilledViewportRect` | `0x441C70` | 87.50% |
+| `gr.c` | `DrawFilledViewportRect` | `0x441C70` | 89.58% |
 | `gr.c` | `DrawViewportBorder` | `0x441CF0` | 100.00% |
 | `gr.c` | `DrawViewportEllipse` | `0x441DD0` | 100.00% |
 | `gr.c` | `FillViewportEllipse` | `0x441E20` | 100.00% |
@@ -953,7 +953,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `init_vdus` | `0x4244E0` | 100.00% |
 | `logic.c` | `InitializeCockpitResources` | `0x4245B0` | 89.53% |
 | `logic.c` | `free_cockpit` | `0x4249A0` | 98.21% |
-| `logic.c` | `init_3Space_objects` | `0x424A80` | 84.38% |
+| `logic.c` | `init_3Space_objects` | `0x424A80` | 100.00% |
 | `logic.c` | `load_common_3Space_objects` | `0x424B00` | 92.86% |
 | `logic.c` | `remove_all_3d_objects` | `0x424B80` | 100.00% |
 | `logic.c` | `free_3Space` | `0x424BA0` | 100.00% |
@@ -1165,7 +1165,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `pilot.cpp` | `InitializeTrainSimHighScores` | `0x425F40` | 87.04% |
 | `pilot.cpp` | `IsHighScoreSlotUsed` | `0x425FE0` | 100.00% |
 | `pilot.cpp` | `AddRandomTrainSimHighScores` | `0x426000` | 92.21% |
-| `pilot.cpp` | `DrawTextInputCursor` | `0x4260E0` | 82.76% |
+| `pilot.cpp` | `DrawTextInputCursor` | `0x4260E0` | 89.29% |
 | `pilot.cpp` | `ClearTextInputCharacter` | `0x426140` | 100.00% |
 | `pilot.cpp` | `ClearNextTextInputCharacter` | `0x4261D0` | 100.00% |
 | `pilot.cpp` | `ReadTextInput` | `0x426200` | 76.01% |
@@ -1219,7 +1219,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `PollJoystickButtonEvents` | `0x430840` | 90.57% |
 | `screen.c` | `PollMenuInputDevices` | `0x430920` | 80.61% |
 | `screen.c` | `get_face` | `0x430BC0` | 100.00% |
-| `screen.c` | `LoadCommPortraitShape` | `0x430BF0` | 89.29% |
+| `screen.c` | `LoadCommPortraitShape` | `0x430BF0` | 100.00% |
 | `screen.c` | `ResetCommMenuChoices` | `0x430C50` | 100.00% |
 | `screen.c` | `IsCommMenuIdle` | `0x430CA0` | 100.00% |
 | `screen.c` | `AppendCommMenuChoice` | `0x430CB0` | 100.00% |
@@ -1341,16 +1341,16 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `ship.c` | `check_for_lost_control` | `0x41E650` | 86.21% |
 | `ship.c` | `send_appropriate_message` | `0x41E900` | 86.96% |
 | `ship.c` | `inflict_damage` | `0x41E9B0` | 97.30% |
-| `ship.c` | `pilot_hit` | `0x41EC60` | 85.71% |
+| `ship.c` | `pilot_hit` | `0x41EC60` | 100.00% |
 | `ship.c` | `onboard_explosion` | `0x41ECE0` | 81.97% |
-| `ship.c` | `call_enemy` | `0x41EDB0` | 93.55% |
+| `ship.c` | `call_enemy` | `0x41EDB0` | 100.00% |
 | `ship.c` | `internal_damage` | `0x41EE20` | 96.99% |
 | `ship.c` | `revise_shields` | `0x41F1A0` | 96.55% |
 | `ship.c` | `your_internal_damage` | `0x41F220` | 85.26% |
 | `ship.c` | `check_computer_damage` | `0x41F5D0` | 100.00% |
 | `ship.c` | `ReportComponentRepaired` | `0x41F5F0` | 100.00% |
 | `ship.c` | `repair_internal_damage` | `0x41F660` | 87.76% |
-| `ship.c` | `Create_ship_hit_debris` | `0x41F700` | 98.25% |
+| `ship.c` | `Create_ship_hit_debris` | `0x41F700` | 100.00% |
 | `ship.c` | `check_next_wave` | `0x41F7C0` | 100.00% |
 | `ship.c` | `Create_explosion_debris` | `0x41F800` | 89.44% |
 | `ship.c` | `affect_mission_score` | `0x41F9E0` | 88.57% |
@@ -1359,9 +1359,9 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `ship.c` | `ShipExplosion` | `0x41FBC0` | 100.00% |
 | `ship.c` | `Explosion` | `0x41FCD0` | 94.62% |
 | `ship.c` | `the_creator` | `0x41FEB0` | 92.86% |
-| `ship.c` | `explosion_shock_wave` | `0x41FEE0` | 93.91% |
+| `ship.c` | `explosion_shock_wave` | `0x41FEE0` | 92.17% |
 | `ship.c` | `explode` | `0x420040` | 100.00% |
-| `ship.c` | `send_at_point` | `0x420190` | 75.00% |
+| `ship.c` | `send_at_point` | `0x420190` | 100.00% |
 | `ship.c` | `find_child_object` | `0x4201D0` | 100.00% |
 | `ship.c` | `find_child_ship` | `0x420210` | 100.00% |
 | `ship.c` | `launch_object` | `0x420260` | 94.59% |

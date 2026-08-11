@@ -2391,12 +2391,12 @@ unsigned int free_cockpit(void)
 }
 
 /* Function start: 0x424A80 */
-void init_3Space_objects(short scene)
+unsigned int init_3Space_objects(short scene)
 {
     short slot;
 
     if (DAT_00469d5c == 1)
-        return;
+        return 0;
     DAT_00469d5c = 1;
     g_cScreenViewportMode_0059a9f2 = -1;
     remove_all_3d_objects();
@@ -2411,9 +2411,9 @@ void init_3Space_objects(short scene)
     do {
         g_aObjectResourceSlots_0059ddf0[slot].type = -1;
         slot++;
-    } while (slot < 4);
+    } while (slot <= 3);
     init_constellation(scene);
-    load_common_3Space_objects();
+    return load_common_3Space_objects();
 }
 
 /* Function start: 0x424B00 */

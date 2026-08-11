@@ -940,7 +940,7 @@ unsigned int free_constellation(void);                            /* 0x00424490 
 void init_vdus(void);                                                  /* 0x004244E0 */
 unsigned int InitializeCockpitResources(signed char mode);             /* 0x004245B0 */
 unsigned int free_cockpit(void);                                       /* 0x004249A0 */
-void init_3Space_objects(short scene);                                 /* 0x00424A80 */
+unsigned int init_3Space_objects(short scene);                         /* 0x00424A80 */
 unsigned int load_common_3Space_objects(void);                         /* 0x00424B00 */
 unsigned int remove_all_3d_objects(void);                              /* 0x00424B80 */
 unsigned int free_3Space(void);                                        /* 0x00424BA0 */
