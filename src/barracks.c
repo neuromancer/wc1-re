@@ -839,7 +839,7 @@ short BarracksScreen(void)
     result = 0;
     lastMedalsTick = 0;
     PreloadMusicTrackHook(35);
-    StartMusicTrack(35, 2, 1);
+    spacetrack(35, 2, 1);
     InitializeRoomViewports();
     background = (unsigned char *)FetchDiskPacketRetrying(5, 12, 0);
     InitializeRoomMenu(g_aBarracksMenuRegions_00463008,

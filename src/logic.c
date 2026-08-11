@@ -2335,21 +2335,31 @@ unsigned int free_3Space_objects(void)
 }
 
 /* Function start: 0x424C60 */
-unsigned int ResetSceneFlags(void)
+unsigned int init_inflight_music(void)
 {
-    DAT_0046aa3c = 0;
-    DAT_0046aa40 = 1;
-    DAT_0046aa38 = 1;
+    g_nCombatMusicActive_0046aa3c = 0;
+    g_nInFlightMusicActive_0046aa40 = 1;
+    g_nInitialFlightMusicPending_0046aa38 = 1;
     return 0;
 }
 
 /* Function start: 0x424C80 */
-unsigned int ReleaseSceneFlags(void)
+unsigned int free_inflight_music(void)
 {
+    int slot;
+
     StopMusicUnlessSuppressed();
-    DAT_0046aa40 = 0;
-    DAT_0046aa24 = -1;
-    DAT_0046aa2c = -1;
+    g_nInFlightMusicActive_0046aa40 = 0;
+    if (g_nInFlightMusicSlotA_0046aa24 != -1) {
+        slot = g_nInFlightMusicSlotA_0046aa24;
+        g_nInFlightMusicSlotA_0046aa24 = -1;
+        *(int *)(g_abSoundPlaybackSlots_005a67f0 + slot * 6) = 0;
+    }
+    if (g_nInFlightMusicSlotB_0046aa2c != -1) {
+        slot = g_nInFlightMusicSlotB_0046aa2c;
+        g_nInFlightMusicSlotB_0046aa2c = -1;
+        *(int *)(g_abSoundPlaybackSlots_005a67f0 + slot * 6) = 0;
+    }
     return 0;
 }
 
@@ -2408,41 +2418,41 @@ void ReleaseSceneAnimationResources(void)
 signed char *__stdcall FindSceneAnimationCommand(
     signed char *script, signed char command)
 {
-    signed char *next;
+    signed char opcode;
 
     while (*script != 0) {
-        next = script + 1;
-        if (*script == command)
-            return script;
-        switch (*script) {
+        opcode = *script++;
+        if (opcode == command) {
+            script--;
+            break;
+        }
+        switch (opcode) {
         case 'A':
         case 'L':
         case 'Q':
-            next++;
+            script++;
         case 'B':
         case 'G':
         case 'J':
         case 'R':
         case 'W':
-            next += 2;
+            script += 2;
             break;
         case 'D':
-            while (*next != -1)
-                next++;
-            next++;
+            while (*script++ != -1) {
+            }
             break;
         case 'E':
         case 'P':
         case 'S':
-            next++;
+            script++;
             break;
         case 'X':
-            next = script + 11;
+            script += 10;
             break;
         }
-        script = next;
     }
-    return 0;
+    return *script != 0 ? script : 0;
 }
 
 /* Function start: 0x424EA0 */
@@ -2480,7 +2490,7 @@ unsigned int __stdcall UpdateSceneAnimationObject(
     short labelNumber;
     short objectIndex;
     short objectCount;
-    short stop;
+    signed char stop;
 
     complete = 0;
     delay = object->delay;
@@ -2511,7 +2521,9 @@ unsigned int __stdcall UpdateSceneAnimationObject(
                          0x168) * 0x168 + object->rotation);
                 if (object->rotation > 0x167)
                     object->rotation = (short)(
-                        (unsigned short)object->rotation % 0x168);
+                        object->rotation -
+                        ((unsigned short)object->rotation / 0x168) *
+                            0x168);
                 break;
             case 'S':
                 object->scale = (short)(object->scale + value);
@@ -2605,7 +2617,9 @@ unsigned int __stdcall UpdateSceneAnimationObject(
                          0x168) * 0x168 + object->rotation);
                 if (object->rotation > 0x167)
                     object->rotation = (short)(
-                        (unsigned short)object->rotation % 0x168);
+                        object->rotation -
+                        ((unsigned short)object->rotation / 0x168) *
+                            0x168);
                 break;
             case 'S':
                 object->scale = value;

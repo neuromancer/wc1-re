@@ -218,7 +218,7 @@ int HandleSpaceFlightControls(void)
             break;
         case 0x1f:
             if (control != 0 && !repeated) {
-                if (DAT_0046aa34 == 1)
+                if (g_nFlightSoundEffectsEnabled_0046aa34 == 1)
                     ResetSoundStateForScene();
                 else
                     ResetSoundStateForFlight();
@@ -758,7 +758,7 @@ int RunSpaceFlight(short entryNavPoint)
     SetEventManagerPump(get_player_input);
     savedViewport = (Viewport *)DAT_0059ab23;
     DAT_0059ab23 = &DAT_005a7510;
-    ResetSceneFlags();
+    init_inflight_music();
 
     if (entryNavPoint == -1)
         entryNavPoint = g_aMissionShips_0046c948[
@@ -860,7 +860,7 @@ int RunSpaceFlight(short entryNavPoint)
     DAT_0046a008 = 0;
     ResetCockpitPaletteEntries();
     DAT_0059ab23 = savedViewport;
-    ReleaseSceneFlags();
+    free_inflight_music();
     SetEventManagerPump(0);
     g_bMouseCursorVisible_0046a018 = 0;
     QueueInputEvent(13, 160, 100, 0, 0, 0, 0);

@@ -2111,7 +2111,7 @@ void update_missile_warning(void)
     }
     SetCockpitLightBlink(2, 1);
     if (g_nTrainSimActive_00469e2c == 0)
-        StartMusicTrack(3, 1, -1);
+        spacetrack(3, 1, -1);
 }
 
 /* Function start: 0x4171D0 */

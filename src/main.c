@@ -311,6 +311,7 @@ unsigned int Update_3Space(void)
     house_keep_objects();
     update_objects_in_space();
     set_eye_direction_and_position();
+    servicetrack();
     g_nSpaceFrame_0059b420++;
     return 0;
 }

@@ -1043,7 +1043,7 @@ unsigned int funeral_sequence(int playerFuneral)
 
     PreloadMusicTrackHook(0x20);
     g_nFuneralSequenceActive_0046aa10 = 1;
-    StartMusicTrack(0x20, 1, 0);
+    spacetrack(0x20, 1, 0);
     packet = (int *)FetchDiskPacketRetrying(
         g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
         0, 0);
@@ -1275,7 +1275,7 @@ unsigned int funeral_sequence(int playerFuneral)
                                 if (DAT_0059ab58 != 1) {
                                     frame = 0;
                                     DAT_00469fb4 = 1;
-                                    SetMusBreakpt();
+                                    SetMusBreakpt(0, 0);
                                     while (DAT_0059ab58 == 0) {
                                         PumpWindowMessages();
                                         funeral_player();
@@ -1293,7 +1293,7 @@ unsigned int funeral_sequence(int playerFuneral)
                                             g_bFuneralShowTheEnd_00465b54 = 1;
 
                                         if (DAT_0046a9f8 == 0 ||
-                                            DAT_0046aa30 == 0 ||
+                                            g_nWaitForMusicEnabled_0046aa30 == 0 ||
                                             DAT_0046a9f8 == 3) {
                                             if (frame > 160)
                                                 break;
@@ -1325,7 +1325,7 @@ unsigned int funeral_sequence(int playerFuneral)
     FlushInputEvents();
     g_nFuneralSequenceActive_0046aa10 = 0;
     StopMusicUnlessSuppressed();
-    ReleaseSceneFlags();
+    free_inflight_music();
     ReleaseMusicTrackHook(0x20);
     return 0;
 }
@@ -3015,7 +3015,7 @@ void set_up_next_wave(void)
     short entry;
 
     if (g_nTrainSimActive_00469e2c != 0) {
-        StartMusicTrack(21, 2, 0);
+        spacetrack(21, 2, 0);
         g_nArcadeBonusCountdown_0046a014 = 60;
         if (g_nCurrentWave_0046c01c != -1)
             g_nArcadeBonusCountdown_0046a014 = 30;

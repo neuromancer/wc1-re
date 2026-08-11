@@ -1339,7 +1339,7 @@ int Title_Sequence(void)
             set_up_action_sphere(16);
             g_pTitleShape_005a7f08 =
                 (unsigned char *)FetchDiskPacketRetrying(9, 0, 0);
-            StartMusicTrack(0x17, 2, 1);
+            spacetrack(0x17, 2, 1);
             initialize_scripted_view(g_asIntroCameraSequence_0046c090);
             DAT_00469fb4 = 1;
 

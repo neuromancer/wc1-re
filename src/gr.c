@@ -764,7 +764,8 @@ void snow_viewport(Viewport *viewport, int effect, unsigned int colour)
 void UpdateStreamerStoppedFlag(void)
 {
     if (DAT_00465058 != 0)
-        DAT_0046aa04 = (g_dwStreamerState_00597cd0 & 4) == 0;
+    g_nMusicTrackComplete_0046aa04 =
+        (g_dwStreamerState_00597cd0 & 4) == 0;
 }
 
 /* Function start: 0x442370 */

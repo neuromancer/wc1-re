@@ -818,17 +818,20 @@ void SetMusicOn(short enabled)
 }
 
 /* Function start: 0x42E350 */
-void StopMusic(void)
+void StopMusic(int unused)
 {
+    (void)unused;
     SoundDebugPrintf("StopMusic");
-    DAT_0046aa14 = 0xffffffff;
+    g_nCurrentMusicTrack_0046aa14 = -1;
     Streamer_stop();
     SoundDebugPrintf("");
 }
 
 /* Function start: 0x42E380 */
-void SetMusBreakpt(void)
+void SetMusBreakpt(int first, int second)
 {
+    (void)first;
+    (void)second;
     SoundDebugPrintf("SetMusBreakpt");
 }
 
@@ -1049,21 +1052,21 @@ void ProcessMusicScriptCommand(int track, int command, int enabled)
         return;
     if (command == 4) {
         SoundDebugPrintf("queue_stop\n");
-        StopMusic();
-        DAT_0046aa14 = 0xffffffff;
+        StopMusic(0);
+        g_nCurrentMusicTrack_0046aa14 = -1;
         return;
     }
 
     SoundDebugPrintf("track_%02d ", track);
-    if ((DAT_0046aa14 == 25 && track == 25) ||
-        (DAT_0046aa14 == 38 && track == 38) ||
-        (DAT_0046aa14 == 39 && track == 39) ||
-        (DAT_0046aa14 == 40 && track == 40)) {
+    if ((g_nCurrentMusicTrack_0046aa14 == 25 && track == 25) ||
+        (g_nCurrentMusicTrack_0046aa14 == 38 && track == 38) ||
+        (g_nCurrentMusicTrack_0046aa14 == 39 && track == 39) ||
+        (g_nCurrentMusicTrack_0046aa14 == 40 && track == 40)) {
         SoundDebugPrintf("skipping for QA\n");
         return;
     }
 
-    DAT_0046aa14 = track;
+    g_nCurrentMusicTrack_0046aa14 = track;
     SelectFlightMusicTrack(track);
     if (g_nMusicStreamSet_0046aa18 == 2) {
         if ((track >= 0 && track <= 5) ||
@@ -1104,7 +1107,7 @@ void ProcessMusicScriptCommand(int track, int command, int enabled)
 }
 
 /* Function start: 0x42E880 */
-unsigned int StartMusicTrack(int track, int mode, int enabled)
+unsigned int spacetrack(int track, int mode, int enabled)
 {
     if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
         ProcessMusicScriptCommand(track, mode, enabled);
@@ -1115,15 +1118,33 @@ unsigned int StartMusicTrack(int track, int mode, int enabled)
 void StopMusicUnlessSuppressed(void)
 {
     if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
-        StopMusic();
+        StopMusic(0);
 }
 
 /* Function start: 0x42E8D0 */
 unsigned short GetMusicMode(void)
 {
-    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3 && DAT_0046aa04 != 0)
+    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3 &&
+        g_nMusicTrackComplete_0046aa04 != 0)
         return 1;
     return 0;
+}
+
+/* Function start: 0x42E900 */
+void wait_for_end_of_music(void)
+{
+    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3) {
+        if (g_nWaitForMusicEnabled_0046aa30 == 0) {
+            StopMusic(0);
+            return;
+        }
+        SetMusBreakpt(0, 0);
+        do {
+            if (g_nMusicTrackComplete_0046aa04 != 0)
+                return;
+        } while (DAT_0059ab58 == 0 && CheckEscaped() == 0);
+        StopMusic(0);
+    }
 }
 
 /* Function start: 0x42E9E0 */
@@ -1131,25 +1152,26 @@ void new_space_music_changes(short attacker, short victim)
 {
     enum Side side;
 
-    if (DAT_0046aa40 != 0 && g_nTrainSimActive_00469e2c == 0) {
+    if (g_nInFlightMusicActive_0046aa40 != 0 &&
+        g_nTrainSimActive_00469e2c == 0) {
         side = g_aeShipSide_0059d650[victim];
         if (side == SIDE_KILRATHI) {
             if (report_kilrathi_rout(1) == 0) {
-                StartMusicTrack(10, 1, 0);
+                spacetrack(10, 1, 0);
                 return;
             }
             if (attacker == 0) {
                 if (g_acShipRating_0059cd80[victim] == -1 &&
                     (short)RandomInRange(0, 3) != 0) {
-                    StartMusicTrack(6, 3, 0);
+                    spacetrack(6, 3, 0);
                     return;
                 }
-                StartMusicTrack(9, 3, 0);
+                spacetrack(9, 3, 0);
                 return;
             }
         } else {
             if (g_nYourWingman_0046c04c == victim) {
-                StartMusicTrack(8, 3, 0);
+                spacetrack(8, 3, 0);
                 return;
             }
             if (side == SIDE_IMPERIAL) {
@@ -1159,12 +1181,158 @@ void new_space_music_changes(short attacker, short victim)
                          MISSION_TYPE_ESCORT) &&
                     g_nShipMissionIndices_0059c830[victim] ==
                         g_anShipMissionShip_0059d4b0[0]) {
-                    StartMusicTrack(11, 3, 0);
+                    spacetrack(11, 3, 0);
                     return;
                 }
-                StartMusicTrack(7, 3, 0);
+                spacetrack(7, 3, 0);
             }
         }
+    }
+}
+
+/* Function start: 0x42EAD0 */
+int changetrack(void)
+{
+    int track;
+
+    switch (g_aeShipMissionType_0059c3f0[0]) {
+    case MISSION_TYPE_ESCORT:
+        track = 18;
+        break;
+    case MISSION_TYPE_STRIKE:
+        track = 17;
+        break;
+    case MISSION_TYPE_DEFEND:
+    case MISSION_TYPE_RENDEZVOUS:
+        track = 16;
+        break;
+    default:
+        track = 15;
+        break;
+    }
+    if (g_aMissionObjectives_0059dac0[
+            g_cCurrentObjective_0046c020].type == OBJECTIVE_HOME_BASE) {
+        if (triumph(0) != 0) {
+            if (g_aeShipMissionType_0059c3f0[0] == MISSION_TYPE_PATROL)
+                return 13;
+            return 14;
+        }
+        track = 12;
+    }
+    return track;
+}
+
+/* Function start: 0x42EB60 */
+void gametrack(void)
+{
+    int track;
+    short damage;
+
+    track = -1;
+    if (g_nInFlightMusicActive_0046aa40 != 0) {
+        if (g_nTrainSimActive_00469e2c != 0) {
+            if (g_nMusicStreamSet_0046aa18 != 0 ||
+                g_nCurrentMusicTrack_0046aa14 != 20)
+                spacetrack(20, 1, 0);
+            SoundDebugPrintf("%d %d\n", g_nMusicStreamSet_0046aa18,
+                             g_nCurrentMusicTrack_0046aa14);
+            return;
+        }
+        if (g_nCombatMusicActive_0046aa3c != 0) {
+            if ((g_nSpaceFrame_0059b420 & 0xf) == 0 ||
+                g_nMusicTrackComplete_0046aa04 != 0) {
+                if (g_nInitialFlightMusicPending_0046aa38 != 0)
+                    g_nInitialFlightMusicPending_0046aa38 = 0;
+                if (missile_on_tail(0) != 0) {
+                    track = 3;
+                } else if (any_enemy_tail(0) != 0) {
+                    track = 1;
+                } else if (is_ship_tailing_player_target(0) != 0) {
+                    track = 2;
+                } else {
+                    damage = (short)calculate_damage_level();
+                    if (damage < 2)
+                        track = damage == 1 ? 5 : 0;
+                    else
+                        track = 4;
+                }
+                if (report_kilrathi_rout(1) == 0)
+                    g_nCombatMusicActive_0046aa3c = 0;
+            }
+        } else if ((g_nSpaceFrame_0059b420 & 0xf) == 0 ||
+                   g_nMusicTrackComplete_0046aa04 != 0) {
+            track = changetrack();
+            if (report_kilrathi_rout(2) != 0)
+                g_nCombatMusicActive_0046aa3c = 1;
+        }
+        spacetrack(track, 1, 0);
+    }
+}
+
+/* Function start: 0x42ECB0 */
+void servicetrack(void)
+{
+    short object;
+    FixedVector futurePosition;
+    FixedVector travel;
+
+    object = 0;
+    gametrack();
+    if (g_nFlightSoundEffectsEnabled_0046aa34 != 0) {
+        do {
+            if (object == g_nPassingShipSoundObject_0046aa48) {
+                if (g_aeObjectClass_0059d100[object] !=
+                        OBJECT_CLASS_SHIP ||
+                    g_aeObjectClass_0059d100[object] !=
+                        OBJECT_CLASS_CAPITAL_SHIP)
+                    g_nPassingShipSoundObject_0046aa48 = -1;
+            }
+            if (g_aeObjectClass_0059d100[object] ==
+                    OBJECT_CLASS_ASTEROID) {
+                if (g_asObjectDistance_0059b4a0[object] == 0 &&
+                    (unsigned short)
+                        g_asPreviousObjectDistance_0059d080[object] < 50 &&
+                    g_aiSoundEffectSourceActive_005a66ec[object + 1] == 0)
+                    PlaySfxWaveFileByNumber(6, object, 0);
+            } else if (g_aeObjectClass_0059d100[object] >=
+                           OBJECT_CLASS_SHIP &&
+                       g_aeObjectClass_0059d100[object] <=
+                           OBJECT_CLASS_CAPITAL_SHIP &&
+                       g_asObjectScreenX_0059d9b0[object] !=
+                           (short)0x8001 &&
+                       (unsigned short)
+                           g_asObjectDistance_0059b4a0[object] < 0x55a) {
+                if (g_nPassingShipSoundObject_0046aa48 == -1) {
+                    ScaleFixedVector(&g_aShipVelocity_0059c010[object],
+                                     0x1400, &travel);
+                    AddFixedVectors(&g_aShipPosition_0059c490[object],
+                                    &travel, &futurePosition);
+                    ComputeVectorDelta(
+                        &g_aShipPosition_0059c490[WC1_EYE_OBJECT],
+                        &futurePosition, &travel);
+                    ComputeVectorDelta(
+                        &g_aShipPosition_0059c490[WC1_EYE_OBJECT],
+                        &g_aShipPosition_0059c490[object],
+                        &futurePosition);
+                    if (dot_product(&travel, &futurePosition) < 0xdd) {
+                        g_nPassingShipSoundCountdown_0046aa4c = 10;
+                        g_nPassingShipSoundObject_0046aa48 = object;
+                        if (g_nPassingShipSoundCooldown_005a68e8 <
+                            g_nSpaceFrame_0059b420) {
+                            g_nPassingShipSoundCooldown_005a68e8 =
+                                g_nSpaceFrame_0059b420 + 6;
+                            PlaySfxWaveFileByNumber(2, object, 0);
+                        }
+                    }
+                } else if (object ==
+                               g_nPassingShipSoundObject_0046aa48) {
+                    g_nPassingShipSoundCountdown_0046aa4c--;
+                    if (g_nPassingShipSoundCountdown_0046aa4c == 0)
+                        g_nPassingShipSoundObject_0046aa48 = -1;
+                }
+            }
+            object++;
+        } while (object < WC1_SPACE_OBJECT_COUNT);
     }
 }
 
@@ -1180,20 +1348,20 @@ void ResetSoundState(void)
 void ResetSoundStateForScene(void)
 {
     ResetSoundState();
-    DAT_0046aa34 = 0;
+    g_nFlightSoundEffectsEnabled_0046aa34 = 0;
 }
 
 /* Function start: 0x42EEB0 */
 void ResetSoundStateForFlight(void)
 {
     ResetSoundState();
-    DAT_0046aa34 = 1;
+    g_nFlightSoundEffectsEnabled_0046aa34 = 1;
 }
 
 /* Function start: 0x42EEE0 */
 void EnableMusicForScene(void)
 {
-    DAT_0046aa30 = 1;
+    g_nWaitForMusicEnabled_0046aa30 = 1;
     SetMusicOn(1);
 }
 

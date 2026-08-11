@@ -896,8 +896,8 @@ unsigned int load_common_3Space_objects(void);                         /* 0x0042
 void remove_all_3d_objects(void);                                      /* 0x00424B80 */
 unsigned int free_3Space(void);                                        /* 0x00424BA0 */
 unsigned int free_3Space_objects(void);                                /* 0x00424BE0 */
-unsigned int ResetSceneFlags(void);                                      /* 0x00424C60 */
-unsigned int ReleaseSceneFlags(void);                                  /* 0x00424C80 */
+unsigned int init_inflight_music(void);                                /* 0x00424C60 */
+unsigned int free_inflight_music(void);                                /* 0x00424C80 */
 unsigned int PreloadMusicTrackHook(short track);                       /* 0x00424CE0 */
 unsigned int ReleaseMusicTrackHook(short track);                       /* 0x00424CF0 */
 unsigned int LoadSceneAnimationResources(short scene, short variant);  /* 0x00424D00 */
@@ -1071,8 +1071,8 @@ void __stdcall AlignSpriteFrameToRectCorner(
     unsigned char *shape, short frame);                                /* 0x0042E1D0 */
 void FadeMusic(void);                                                  /* 0x0042E320 */
 void SetMusicOn(short enabled);                                         /* 0x0042E330 */
-void StopMusic(void);                                                   /* 0x0042E350 */
-void SetMusBreakpt(void);                                               /* 0x0042E380 */
+void StopMusic(int unused);                                            /* 0x0042E350 */
+void SetMusBreakpt(int first, int second);                             /* 0x0042E380 */
 void PaletteFadeHook(void);                                            /* 0x0042E390 */
 void FlushSoundEffect(void);                                               /* 0x0042E3A0 */
 void FlushSoundEffects(void);                                               /* 0x0042E3C0 */
@@ -1081,11 +1081,15 @@ void SelectFlightMusicTrack(int track);                              /* 0x0042E3
 int MapMusicTrackToStreamerCommand(int track);                       /* 0x0042E520 */
 void ProcessMusicScriptCommand(int track, int command,
                                int enabled);                         /* 0x0042E6F0 */
-unsigned int StartMusicTrack(int track, int mode,
-                             int enabled);                             /* 0x0042E880 */
+unsigned int spacetrack(int track, int mode,
+                        int enabled);                                 /* 0x0042E880 */
 void StopMusicUnlessSuppressed(void);                                        /* 0x0042E8B0 */
 unsigned short GetMusicMode(void);                                /* 0x0042E8D0 */
+void wait_for_end_of_music(void);                                     /* 0x0042E900 */
 void new_space_music_changes(short attacker, short victim);          /* 0x0042E9E0 */
+int changetrack(void);                                                /* 0x0042EAD0 */
+void gametrack(void);                                                 /* 0x0042EB60 */
+void servicetrack(void);                                              /* 0x0042ECB0 */
 void ResetSoundState(void);                                             /* 0x0042EE80 */
 void ResetSoundStateForScene(void);                                               /* 0x0042EEA0 */
 void ResetSoundStateForFlight(void);                                               /* 0x0042EEB0 */

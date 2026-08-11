@@ -80,7 +80,7 @@ unsigned int ejection_sequence(void)
     free_cockpit();
     PreloadMusicTrackHook(0x1f);
     frame = 0;
-    StartMusicTrack(0x1f, 2, 1);
+    spacetrack(0x1f, 2, 1);
     new_view(9, 0);
     background = FetchDiskPacketRetrying(
         (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
@@ -197,7 +197,7 @@ unsigned int ejection_sequence(void)
             initialize_scripted_view(g_asEjectionViewScript_00465570);
             frame = 0;
             DAT_00469fb4 = 1;
-            SetMusBreakpt();
+            SetMusBreakpt(0, 0);
             while (1) {
                 alter_pitch(4, g_nEjectedPilotObject_0046c044);
                 if (RefreshCockpitStatus() != 0)
@@ -697,13 +697,13 @@ unsigned int DeBriefing(short series, short mission)
     playerScore = (short)PlayersMissionScore();
     if (fullScore == 0) {
         PreloadMusicTrackHook(0x21);
-        StartMusicTrack(0x21, 2, 1);
+        spacetrack(0x21, 2, 1);
     } else if ((playerScore * 100) / fullScore > 70) {
         PreloadMusicTrackHook(0x21);
-        StartMusicTrack(0x21, 2, 1);
+        spacetrack(0x21, 2, 1);
     } else {
         PreloadMusicTrackHook(0x22);
-        StartMusicTrack(0x22, 2, 1);
+        spacetrack(0x22, 2, 1);
     }
     LoadMissionData(series, mission);
     InitializeConversationViewport();
@@ -740,7 +740,7 @@ unsigned int Office(void)
 
     DAT_0059ab58 = 0;
     PreloadMusicTrackHook(0x24);
-    StartMusicTrack(0x24, 2, 1);
+    spacetrack(0x24, 2, 1);
     InitializeConversationViewport();
     InitializeConversationText();
     packet = (unsigned char *)FetchDiskPacketRetrying(

@@ -166,7 +166,7 @@ short RecRoom(void)
         g_apszRecRoomBaseLabels_004704e8[2];
 
     PreloadMusicTrackHook(30);
-    StartMusicTrack(30, 2, 1);
+    spacetrack(30, 2, 1);
     FlushInputEvents();
     LoadBriefingData((short)g_stCampaignState_0059ca50.currentSeries,
                      (short)g_stCampaignState_0059ca50.currentMission);

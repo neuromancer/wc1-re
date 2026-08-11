@@ -17,7 +17,7 @@ unsigned int LoadBriefingRoom(void)
     InitializeConversationViewport();
     InitializeConversationText();
     SetTextContext(&g_stConversationTextContext_005a7760);
-    StartMusicTrack(0x19, 2, 1);
+    spacetrack(0x19, 2, 1);
     g_pConversationBackdropShape_00598c04 =
         (unsigned char *)FetchDiskPacketRetrying(4, 0, 0);
     g_pBriefingAnimationShape_00598c14 =
@@ -127,14 +127,14 @@ unsigned int DrawMedalChest(char *text, short duration)
     switch (g_nConversationMedalIndex_00598c08) {
     case 0:
     case 1:
-        StartMusicTrack(39, 1, -1);
+        spacetrack(39, 1, -1);
         break;
     case 2:
     case 4:
-        StartMusicTrack(40, 1, -1);
+        spacetrack(40, 1, -1);
         break;
     case 3:
-        StartMusicTrack(38, 1, -1);
+        spacetrack(38, 1, -1);
         break;
     }
     return 0;
@@ -403,7 +403,7 @@ unsigned int EstablishingShot(char *text, short duration)
         DIBslamReal();
     } while (frame < 22);
     WaitForSceneAdvance(duration, 0);
-    StartMusicTrack(25, 1, -1);
+    spacetrack(25, 1, -1);
     return 0;
 }
 
@@ -442,7 +442,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
     short escaped;
     short frame;
 
-    StartMusicTrack(26, 1, -1);
+    spacetrack(26, 1, -1);
     if (g_pBriefingBodyShape_00598c1c == 0)
         g_pBriefingBodyShape_00598c1c =
             (unsigned char *)FetchDiskPacketRetrying(4, 4, 0);
@@ -1416,7 +1416,7 @@ unsigned int death_sequence(void)
         SceneLeaveHook(0x20);
 
     frame = 0;
-    StartMusicTrack(0x20, 2, 1);
+    spacetrack(0x20, 2, 1);
     deathShape = (unsigned char *)FetchDiskPacketRetrying(2, 0, 0);
     cockpitBackground = (unsigned char *)FetchDiskPacketRetrying(
         (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
@@ -1596,7 +1596,7 @@ unsigned int ShowGameOverScreen(void)
     set_eye_direction_and_position();
     distance = 700;
     generate_stars();
-    StartMusicTrack(22, 2, 1);
+    spacetrack(22, 2, 1);
     DAT_0059ab58 = 0;
     DAT_00469fb4 = 1;
     do {
