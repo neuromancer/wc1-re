@@ -1472,8 +1472,15 @@ void CalculateRoundedRLEFixedProduct(int left, int right, int *result); /* 0x004
 void TransformRLEPoint(int *point, int *result, int *origin,
                        unsigned int angleTenths, int scaleX,
                        int scaleY);                                   /* 0x0043E3B1 */
+unsigned int GetRawImageHeight(unsigned char *shape);                 /* 0x0043E478 */
+unsigned int GetRawFrameWidth(unsigned char *shape, int frame);       /* 0x0043E48B */
+void CopyPCXPaletteFromFileTail(const unsigned char *fileData,
+                                unsigned int fileSize,
+                                unsigned char *palette);              /* 0x0043EA6D */
+unsigned int GetPCXImageSize(const unsigned char *header);            /* 0x0043EA98 */
 unsigned int GetRLEImageSize(unsigned char *shape, int frame);         /* 0x0043EF20 */
 unsigned int GetRLEImageOrigin(unsigned char *shape, int frame);       /* 0x0043EF54 */
+unsigned int GetRLEFrameCount(const unsigned char *shape);            /* 0x0043F05B */
 void CorrectPointers(void);                                            /* 0x0043F640 */
 void ClearRoomMenuLabel(void);                                        /* 0x0043F690 */
 int IsRoomMenuLabelEmpty(void);                                       /* 0x0043F6A0 */

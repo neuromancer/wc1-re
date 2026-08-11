@@ -4103,6 +4103,81 @@ __declspec(naked) void TransformRLEPoint(int *point, int *result,
     }
 }
 
+/* Function start: 0x43E478 */
+/* The preserved segment register identifies this as another handwritten
+ * raster-library accessor.  Offset 8 is the row count used by the raw-frame
+ * blitter below this interface. */
+__declspec(naked) unsigned int GetRawImageHeight(unsigned char *shape)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        mov esi, dword ptr [ebp + 8]
+        mov eax, dword ptr [esi + 8]
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+    }
+}
+
+/* Function start: 0x43E48B */
+__declspec(naked) unsigned int GetRawFrameWidth(unsigned char *shape,
+                                                 int frame)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        mov eax, dword ptr [ebp + 0ch]
+        shl eax, 2
+        add eax, dword ptr [ebp + 8]
+        add eax, 10h
+        mov esi, dword ptr [eax]
+        add esi, dword ptr [ebp + 8]
+        mov eax, dword ptr [esi]
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+    }
+}
+
+/* Function start: 0x43EA6D */
+/* A PCX file stores its 256 RGB palette entries in the final 768 bytes;
+ * raster palette components are converted from eight to six bits here. */
+__declspec(naked) void CopyPCXPaletteFromFileTail(
+    const unsigned char *fileData, unsigned int fileSize,
+    unsigned char *palette)
+{
+#ifdef _MSC_VER
+#include "screens_copy_pcx_palette_from_file_tail.inc"
+#else
+    return;
+#endif
+}
+
+/* Function start: 0x43EA98 */
+__declspec(naked) unsigned int GetPCXImageSize(const unsigned char *header)
+{
+#ifdef _MSC_VER
+#include "screens_get_pcx_image_size.inc"
+#else
+    return 0;
+#endif
+}
+
 /* Function start: 0x43EF20 */
 /* The ES save with no C-visible use identifies this pair as hand-written
  * raster-library accessors, so retain the original instruction sequence. */
@@ -4160,6 +4235,27 @@ __declspec(naked) unsigned int GetRLEImageOrigin(unsigned char *shape,
         mov eax, dword ptr [esi + 8]
         shl eax, 10h
         mov ax, word ptr [esi + 0ch]
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        _emit 0c9h
+        ret
+    }
+}
+
+/* Function start: 0x43F05B */
+__declspec(naked) unsigned int GetRLEFrameCount(const unsigned char *shape)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        mov esi, dword ptr [ebp + 8]
+        mov eax, dword ptr [esi + 4]
         pop es
         pop edi
         pop esi

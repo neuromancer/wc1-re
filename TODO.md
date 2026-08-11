@@ -4,7 +4,7 @@ Audit date: 2026-08-11.
 
 This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
-`src/**/*.c` and `src/**/*.cpp`. It contains **61 functions**: **59 ordinary
+`src/**/*.c` and `src/**/*.cpp`. It contains **56 functions**: **54 ordinary
 candidates** and **2 compiler thunks** which must not be reproduced manually.
 
 The proposed compilation units follow the current source adjacency and
@@ -66,8 +66,6 @@ Ghidra status meanings:
 | `0x0043C62B` | `ScanTbl0046e6edFnC62B` | — | `src/screens.c` | verified |
 | `0x0043CC83` | `DoLocalFnCC83` | — | `src/screens.c` | verified |
 | `0x0043D1C1` | `LoopLocalFnD1C1` | — | `src/screens.c` | verified |
-| `0x0043E478` | `DoLocalFnE478` | — | `src/screens.c` | verified |
-| `0x0043E48B` | `DoLocalFnE48B` | — | `src/screens.c` | verified |
 | `0x0043E4AB` | `LoopLocalFnE4AB` | — | `src/screens.c` | verified |
 | `0x0043E63E` | `LoopLocalFnE63E` | — | `src/screens.c` | verified |
 | `0x0043E675` | `LoopLocalFnE675` | — | `src/screens.c` | verified |
@@ -76,8 +74,6 @@ Ghidra status meanings:
 | `0x0043E98D` | `LoopG0043e77cFnE98D` | — | `src/screens.c` | verified |
 | `0x0043E9BE` | `GetG0043e778FnE9BE` | — | `src/screens.c` | verified |
 | `0x0043E9EB` | `LoopG0046ec15FnE9EB` | — | `src/screens.c` | verified |
-| `0x0043EA6D` | `LoopLocalFnEA6D` | — | `src/screens.c` | verified |
-| `0x0043EA98` | `DoLocalFnEA98` | — | `src/screens.c` | verified |
 | `0x0043EABF` | `LoopLocalFnEABF` | — | `src/screens.c` | verified |
 | `0x0043EB07` | `DoLocalFnEB07` | — | `src/screens.c` | verified |
 | `0x0043EB20` | `DoTbl0046ff15FnEB20` | — | `src/screens.c` | verified |
@@ -91,7 +87,6 @@ Ghidra status meanings:
 | `0x0043EF7E` | `LoopLocalFnEF7E` | — | `src/screens.c` | verified |
 | `0x0043EFC9` | `LoopLocalFnEFC9` | — | `src/screens.c` | verified |
 | `0x0043F011` | `LoopLocalFnF011` | — | `src/screens.c` | verified |
-| `0x0043F05B` | `DoLocalFnF05B` | — | `src/screens.c` | verified |
 | `0x0043F06E` | `LoopLocalFnF06E` | — | `src/screens.c` | verified |
 | `0x0043F0D0` | `LoopLocalFnF0D0` | — | `src/screens.c` | verified |
 | `0x0043F425` | `ScanTbl0046f915FnF425` | — | `src/screens.c` | verified |
@@ -141,7 +136,7 @@ Ghidra status meanings:
   the two newly discovered palette-entry helpers, now exist in `code-full`. Each
   export has the same instruction count and return form as its exact live
   Ghidra function. Existing exports were not rewritten.
-- Thirty confirmed `wc-developer` functions were reconstructed across six
+- Thirty-five confirmed `wc-developer` functions were reconstructed across seven
   tranches after binary-comp comparison:
 
   | Address | Implemented name | Compilation unit | Similarity |
@@ -176,6 +171,11 @@ Ghidra status meanings:
   | `0x00431900` | `ReserveContiguousPaletteEntries` | `src/screen.c` | 100.00% |
   | `0x00431970` | `ReleaseContiguousPaletteEntries` | `src/screen.c` | 100.00% |
   | `0x004319B0` | `PrintPaletteAllocationMap` | `src/screen.c` | 100.00% |
+  | `0x0043E478` | `GetRawImageHeight` | `src/screens.c` | 100.00% |
+  | `0x0043E48B` | `GetRawFrameWidth` | `src/screens.c` | 100.00% |
+  | `0x0043EA6D` | `CopyPCXPaletteFromFileTail` | `src/screens.c` | 100.00% |
+  | `0x0043EA98` | `GetPCXImageSize` | `src/screens.c` | 100.00% |
+  | `0x0043F05B` | `GetRLEFrameCount` | `src/screens.c` | 100.00% |
 
 - Ghidra was synchronized with the reconstructed prototypes and behavior-based
   names, then saved after each tranche.
