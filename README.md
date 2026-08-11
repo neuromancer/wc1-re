@@ -36,7 +36,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (96.74% average)</summary>
+<summary>All 1,472 function similarity scores (96.75% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -698,14 +698,14 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `dsp.cpp` | `ix_dsp_free` | `0x445164` | 100.00% |
 | `dsp.cpp` | `ix_dsp_static_initializer` | `0x445190` | 100.00% |
 | `dsp.cpp` | `ix_dsp_static_initialization_hook` | `0x4451A5` | 100.00% |
-| `dsps.cpp` | `ix_dsps_alloc` | `0x4451B5` | 97.44% |
+| `dsps.cpp` | `ix_dsps_alloc` | `0x4451B5` | 98.46% |
 | `dsps.cpp` | `ix_dsps_free` | `0x44546B` | 100.00% |
 | `dsps.cpp` | `ix_dsps_prepare` | `0x445582` | 98.95% |
-| `dsps.cpp` | `ix_dsps_play` | `0x4456D8` | 94.19% |
+| `dsps.cpp` | `ix_dsps_play` | `0x4456D8` | 98.84% |
 | `dsps.cpp` | `ix_dsps_stop` | `0x445808` | 98.57% |
 | `dsps.cpp` | `ix_dsps_set_volume` | `0x445906` | 100.00% |
 | `dsps.cpp` | `ix_dsps_get_flags` | `0x445A0B` | 100.00% |
-| `dsps.cpp` | `ix_dsps_get_buffer_free` | `0x445A6F` | 90.29% |
+| `dsps.cpp` | `ix_dsps_get_buffer_free` | `0x445A6F` | 93.14% |
 | `dsps.cpp` | `ix_dsps_lock` | `0x445CDB` | 100.00% |
 | `dsps.cpp` | `ix_dsps_unlock` | `0x445E3C` | 100.00% |
 | `dspv.cpp` | `ix_dspv_set_active` | `0x4467C5` | 96.88% |
@@ -725,7 +725,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `dspv.cpp` | `ix_dspv_mix` | `0x446F74` | 100.00% |
 | `ixlog.cpp` | `ix_log_printf` | `0x4426A0` | 89.47% |
 | `lzo1x.cpp` | `ix_lzo1x_decompress` | `0x4614C0` | 100.00% |
-| `lzo1x.cpp` | `ix_file_open` | `0x461650` | 90.48% |
+| `lzo1x.cpp` | `ix_file_open` | `0x461650` | 100.00% |
 | `lzo1x.cpp` | `ix_file_close` | `0x4616BE` | 100.00% |
 | `lzo1x.cpp` | `ix_file_seek` | `0x4616DA` | 100.00% |
 | `lzo1x.cpp` | `ix_file_tell` | `0x4616FC` | 100.00% |
@@ -766,7 +766,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `streamer.cpp` | `ix_streamer_get_volume` | `0x44363B` | 100.00% |
 | `streamer.cpp` | `ix_streamer_get_audio_chunk` | `0x443651` | 100.00% |
 | `streamer.cpp` | `ix_streamer_seek_chunk` | `0x443666` | 100.00% |
-| `streamer.cpp` | `ix_streamer_hash_name` | `0x4436C0` | 95.83% |
+| `streamer.cpp` | `ix_streamer_hash_name` | `0x4436C0` | 100.00% |
 | `streamer.cpp` | `ix_streamer_find_entry` | `0x443755` | 97.83% |
 | `streamer.cpp` | `ix_streamer_open_file` | `0x4437E3` | 100.00% |
 | `streamer.cpp` | `ix_streamer_close_file` | `0x443A5D` | 100.00% |

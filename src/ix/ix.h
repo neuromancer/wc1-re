@@ -425,7 +425,7 @@ extern "C" void ix_lzo1x_decompress(unsigned char *source,
                                      unsigned char *destination,
                                      unsigned int destinationBytes); /* 0x004614C0 */
 extern "C" FILE *ix_file_open(const char *path,
-                               unsigned char mode); /* 0x00461650 */
+                               int mode); /* 0x00461650 */
 extern "C" void ix_file_close(FILE *file);       /* 0x004616BE */
 extern "C" void ix_file_seek(FILE *file, long position); /* 0x004616DA */
 extern "C" long ix_file_tell(FILE *file);        /* 0x004616FC */

@@ -18,7 +18,6 @@ int      g_nStreamsAllocated_00598134;
 /* Function start: 0x4451B5 */   /* source lines 26, 27, 28, 32 */
 void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channels)
 {
-    int voice;
     IxVoice *v;
 
     if (stream < 0 || stream >= g_nStreamCount_00598130) {
@@ -48,8 +47,7 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
     g_streams_00598138[stream].pending = g_streams_00598138[stream].playPos;
     InitializeCriticalSection(&g_streams_00598138[stream].cs);
 
-    voice = stream + g_nVoiceCount_00598600;
-    v = &g_voices_005981a8[voice];
+    v = &g_voices_005981a8[g_nVoiceCount_00598600 + stream];
     v->flags = IX_VOICE_FLAG4 | 1;
     if (bps == 16)
         v->flags |= IX_VOICE_16BIT;
@@ -118,7 +116,7 @@ void ix_dsps_prepare(int stream)
 /* Function start: 0x4456D8 */   /* source lines 87, 88, 89 */
 void ix_dsps_play(int stream)
 {
-    int voice;
+    IxVoice *v;
 
     if (stream < 0 || stream >= g_nStreamCount_00598130) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 87);
@@ -135,10 +133,10 @@ void ix_dsps_play(int stream)
         ix_log_printf("stream is already playing!");
         exit(-1);
     }
-    voice = g_nVoiceCount_00598600 + stream;
-    g_voices_005981a8[voice].cursor = g_streams_00598138[stream].playPos
-                                    + g_streams_00598138[stream].buffer;
-    g_voices_005981a8[voice].flags |= IX_VOICE_ACTIVE;
+    v = &g_voices_005981a8[g_nVoiceCount_00598600 + stream];
+    v->cursor = g_streams_00598138[stream].playPos
+              + g_streams_00598138[stream].buffer;
+    v->flags |= IX_VOICE_ACTIVE;
     g_streams_00598138[stream].flags |= IX_STREAM_PLAYING;
 }
 
@@ -202,6 +200,7 @@ unsigned int ix_dsps_get_flags(int stream)
 /* Function start: 0x445A6F */   /* source lines 128, 129 */
 int ix_dsps_get_buffer_free(int stream)
 {
+    int elapsed;
     unsigned int played;
 
     if (stream < 0 || stream >= g_nStreamCount_00598130) {
@@ -214,6 +213,7 @@ int ix_dsps_get_buffer_free(int stream)
         ix_log_printf("stream is not ready!");
         exit(-1);
     }
+    elapsed = 0;
     EnterCriticalSection(&g_streams_00598138[stream].cs);
     played = g_voices_005981a8[g_nVoiceCount_00598600 + stream].cursor
            - g_streams_00598138[stream].buffer;
@@ -224,13 +224,15 @@ int ix_dsps_get_buffer_free(int stream)
         return g_streams_00598138[stream].size;
     }
     if (g_streams_00598138[stream].playPos < played) {
+        elapsed = played - g_streams_00598138[stream].playPos;
         g_streams_00598138[stream].pending =
-            g_streams_00598138[stream].pending - (played - g_streams_00598138[stream].playPos);
+            g_streams_00598138[stream].pending - elapsed;
     }
     else if (g_streams_00598138[stream].playPos != played) {
+        elapsed = (g_streams_00598138[stream].size
+                   - g_streams_00598138[stream].playPos) + played;
         g_streams_00598138[stream].pending =
-            g_streams_00598138[stream].pending
-            - ((g_streams_00598138[stream].size - g_streams_00598138[stream].playPos) + played);
+            g_streams_00598138[stream].pending - elapsed;
     }
     g_streams_00598138[stream].playPos = played;
     LeaveCriticalSection(&g_streams_00598138[stream].cs);

@@ -523,10 +523,7 @@ unsigned int ix_streamer_hash_name(unsigned char *name)
     if (character >= 'a' && character <= 'z')
         character -= 0x20;
     hash = character << 8;
-    for (;;) {
-        character = *name++;
-        if (character == 0)
-            break;
+    while ((character = *name++) != 0) {
         if (character >= 'a' && character <= 'z')
             character -= 0x20;
         hash += (hash >> 4) * character;

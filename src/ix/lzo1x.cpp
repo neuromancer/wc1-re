@@ -164,7 +164,7 @@ lzo_finish:
 }
 
 /* Function start: 0x00461650 */
-extern "C" FILE *ix_file_open(const char *path, unsigned char mode)
+extern "C" FILE *ix_file_open(const char *path, int mode)
 {
     char modeString[4];
 
