@@ -951,6 +951,196 @@ unsigned short InitializeNearHeap(void)
     return g_nNearHeapActive_004688c0;
 }
 
+/* Function start: 0x40EB70 */
+void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
+{
+    NearHeapBlock *block;
+    NearHeapBlock *lastBlock;
+    int descriptorAddress;
+    int shiftAddress;
+    int allocationAddress;
+    int blockSize;
+    unsigned int allocationFlags;
+    unsigned short alignment;
+
+    if (size <= 0)
+        return 0;
+    allocationFlags = 0x80000000;
+    alignment = flags & 3;
+    if (alignment == 1) {
+        allocationFlags = 0x90000000;
+        size++;
+    } else if (alignment == 2) {
+        allocationFlags = 0xa0000000;
+        size += 0xf;
+    }
+    if ((flags & 0x10) != 0)
+        allocationFlags |= 0x40000000;
+
+    allocationAddress = 0;
+    descriptorAddress =
+        g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c - 8;
+    while (descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124) {
+        block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+        blockSize = block->sizeAndFlags & 0xfffff;
+        if ((block->sizeAndFlags & 0x80000000) != 0)
+            goto next_descriptor_from_end;
+        if ((int)blockSize < size)
+            goto next_descriptor_from_end;
+        if ((int)blockSize > size) {
+            if (g_nNearHeapBase_005a8120 -
+                    g_nNearHeapMaxDescriptors_004688c4 * 8 +
+                    g_nNearHeapSize_005a811c >=
+                g_nNearHeapFirstDescriptor_005a8124) {
+                lastBlock = (NearHeapBlock *)DosNearPtrToFar(
+                    g_nNearHeapBase_005a8120 +
+                    g_nNearHeapSize_005a811c - 8);
+                if ((lastBlock->sizeAndFlags & 0x80000000) == 0) {
+                    blockSize = lastBlock->sizeAndFlags & 0xfffff;
+                    if (lastBlock->address + blockSize ==
+                            g_nNearHeapFirstDescriptor_005a8124 &&
+                        (int)blockSize > 8) {
+                        lastBlock->sizeAndFlags -= 8;
+                        g_nNearHeapMaxDescriptors_004688c4++;
+                    }
+                }
+            }
+
+            if (g_nNearHeapBase_005a8120 -
+                    g_nNearHeapMaxDescriptors_004688c4 * 8 +
+                    g_nNearHeapSize_005a811c >=
+                g_nNearHeapFirstDescriptor_005a8124)
+                goto next_descriptor_from_end;
+
+            g_nNearHeapFirstDescriptor_005a8124 -= 8;
+            shiftAddress = g_nNearHeapFirstDescriptor_005a8124;
+            while (descriptorAddress > shiftAddress) {
+                block = (NearHeapBlock *)DosNearPtrToFar(shiftAddress);
+                block->address = block[1].address;
+                block->sizeAndFlags = block[1].sizeAndFlags;
+                shiftAddress += 8;
+            }
+            descriptorAddress -= 8;
+            block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+            blockSize = block->sizeAndFlags - size;
+            block->sizeAndFlags = blockSize;
+            block[1].address += blockSize & 0xffffff;
+            blockSize = allocationFlags + size;
+            block[1].sizeAndFlags = blockSize;
+            allocationAddress = block[1].address;
+            break;
+        }
+        block->sizeAndFlags |= allocationFlags;
+        allocationAddress = block->address;
+        break;
+next_descriptor_from_end:
+        descriptorAddress -= 8;
+    }
+
+    if (allocationAddress != 0) {
+        if (alignment == 1)
+            allocationAddress = (allocationAddress + 1) & 0xfffffffe;
+        else if (alignment == 2)
+            allocationAddress = (allocationAddress + 0xf) & 0xfffffff0;
+    }
+    return (void *)DosNearPtrToFar(allocationAddress);
+}
+
+/* Function start: 0x40ED30 */
+void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
+{
+    NearHeapBlock *block;
+    NearHeapBlock *lastBlock;
+    int descriptorAddress;
+    int shiftAddress;
+    int allocationAddress;
+    unsigned int blockSize;
+    unsigned int allocationFlags;
+    unsigned short alignment;
+
+    if ((flags & 0x20) != 0)
+        return AllocateNearHeapBlockFromEnd(size, flags);
+    if (size <= 0)
+        return 0;
+    allocationFlags = 0x80000000;
+    alignment = flags & 3;
+    if (alignment == 1) {
+        allocationFlags = 0x90000000;
+        size++;
+    } else if (alignment == 2) {
+        allocationFlags = 0xa0000000;
+        size += 0xf;
+    }
+    if ((flags & 0x10) != 0)
+        allocationFlags |= 0x40000000;
+
+    allocationAddress = 0;
+    descriptorAddress = g_nNearHeapFirstDescriptor_005a8124;
+    while (descriptorAddress <
+           g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c) {
+        block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+        blockSize = block->sizeAndFlags & 0xfffff;
+        if ((block->sizeAndFlags & 0x80000000) != 0)
+            goto next_descriptor;
+        if ((int)blockSize < size)
+            goto next_descriptor;
+        if ((int)blockSize > size) {
+            if (g_nNearHeapBase_005a8120 -
+                    g_nNearHeapMaxDescriptors_004688c4 * 8 +
+                    g_nNearHeapSize_005a811c >=
+                g_nNearHeapFirstDescriptor_005a8124) {
+                lastBlock = (NearHeapBlock *)DosNearPtrToFar(
+                    g_nNearHeapBase_005a8120 +
+                    g_nNearHeapSize_005a811c - 8);
+                if ((lastBlock->sizeAndFlags & 0x80000000) == 0) {
+                    blockSize = lastBlock->sizeAndFlags & 0xfffff;
+                    if (lastBlock->address + blockSize ==
+                            g_nNearHeapFirstDescriptor_005a8124 &&
+                        (int)blockSize > 8) {
+                        lastBlock->sizeAndFlags -= 8;
+                        g_nNearHeapMaxDescriptors_004688c4++;
+                    }
+                }
+            }
+
+            if (g_nNearHeapBase_005a8120 -
+                    g_nNearHeapMaxDescriptors_004688c4 * 8 +
+                    g_nNearHeapSize_005a811c >=
+                g_nNearHeapFirstDescriptor_005a8124)
+                goto next_descriptor;
+
+            g_nNearHeapFirstDescriptor_005a8124 -= 8;
+            shiftAddress = g_nNearHeapFirstDescriptor_005a8124;
+            while (descriptorAddress > shiftAddress) {
+                block = (NearHeapBlock *)DosNearPtrToFar(shiftAddress);
+                block->address = block[1].address;
+                block->sizeAndFlags = block[1].sizeAndFlags;
+                shiftAddress += 8;
+            }
+            descriptorAddress -= 8;
+            block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+            block->sizeAndFlags = allocationFlags + size;
+            block[1].address += size;
+            block[1].sizeAndFlags -= size;
+            allocationAddress = block->address;
+            break;
+        }
+        block->sizeAndFlags |= allocationFlags;
+        allocationAddress = block->address;
+        break;
+next_descriptor:
+        descriptorAddress += 8;
+    }
+
+    if (allocationAddress != 0) {
+        if (alignment == 1)
+            allocationAddress = (allocationAddress + 1) & 0xfffffffe;
+        else if (alignment == 2)
+            allocationAddress = (allocationAddress + 0xf) & 0xfffffff0;
+    }
+    return (void *)DosNearPtrToFar(allocationAddress);
+}
+
 /* Function start: 0x40EFE0 */
 void add_statistics(short pilot, short missions, short kills)
 {

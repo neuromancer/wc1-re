@@ -116,6 +116,13 @@ void SetSoundEffectsVolume(int volume)
     SoundDebugPrintf("Setting SFX Volume to %d", volume);
 }
 
+/* Function start: 0x42B810 */
+LONG RegistryQueryValue(HKEY key, LPCSTR name, DWORD type,
+                        LPBYTE data, DWORD size)
+{
+    return RegQueryValueExA(key, name, 0, &type, data, &size);
+}
+
 /* Function start: 0x42B840 */
 void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
                         const BYTE *data, DWORD size)

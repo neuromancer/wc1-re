@@ -3,7 +3,7 @@
 # shared compilation-unit ownership. Regenerate with: make sort
 # 1451 developer functions; CRT begins at 0x00449100.
 
-0x00401000 HelperOf4219C0A
+0x00401000 SaveGamePalette
 0x00401020 RestoreGamePalette
 0x00401040 easy2see
 0x004010C0 make_shard
@@ -285,8 +285,8 @@
 0x0040E900 ReleaseNearHeapBlock
 0x0040E950 PurgeNearHeapBlocks
 0x0040E9E0 InitializeNearHeap
-0x0040EB70 LoopNavFnEB70
-0x0040ED30 LoopNavFnED30
+0x0040EB70 AllocateNearHeapBlockFromEnd
+0x0040ED30 AllocateNearHeapBlockByFlags
 0x0040EFE0 add_statistics
 0x0040F010 PostMission
 0x0040F190 FullMissionScore
@@ -893,7 +893,7 @@
 0x0042AFB0 FrameTimerCallback
 0x0042AFC0 SetMultimediaTimerCallback
 0x0042B050 PacketLoad
-0x0042B160 GetAudioStreamFnB160
+0x0042B160 InitializeAudioSystem
 0x0042B1B0 GetAudioStreamFnB1B0
 0x0042B1F0 SetAudioStreamFnB1F0
 0x0042B240 LoopAudioStreamFnB240

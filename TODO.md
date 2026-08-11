@@ -4,7 +4,7 @@ Audit date: 2026-08-11.
 
 This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
-`src/**/*.c` and `src/**/*.cpp`. It contains **69 functions**: **67 ordinary
+`src/**/*.c` and `src/**/*.cpp`. It contains **64 functions**: **62 ordinary
 candidates** and **2 compiler thunks** which must not be reproduced manually.
 
 The proposed compilation units follow the current source adjacency and
@@ -35,22 +35,17 @@ Ghidra status meanings:
 
 | Address | Current Ghidra/inventory name | Mac name | Proposed compilation unit | Ghidra status |
 |---|---|---|---|---|
-| `0x00401000` | `HelperOf4219C0A` | — | `src/winmain.c` | verified |
 | `0x00404610` | `HelperOf4219C0B` | — | `src/cmpgn.c` | verified |
 | `0x00408650` | `BlitTbl005a86d0Fn8650` | — | `src/brains.c` | verified |
 | `0x004094E0` | `RunAnimationDemoLoop` | — | `src/brains.c` | verified |
 | `0x0040CB20` | `ThunkForwarder40CB20` | — | `src/brains.c` | verified; exported; compiler thunk—do not hand-write |
-| `0x0040EB70` | `LoopNavFnEB70` | — | `src/nav.c` | verified; exported |
-| `0x0040ED30` | `LoopNavFnED30` | — | `src/nav.c` | verified; exported |
 | `0x004176C0` | `DrawG0046905cFn76C0` | — | `src/cockpt.c` | verified |
 | `0x004219C0` | `LoadGamePaletteFile` | — | `src/logic.c` | verified |
 | `0x00421F50` | `SetNavFn1F50` | — | `src/logic.c` | verified |
 | `0x00425770` | `ShowMeanwhileTransition` | — | `src/pilot.cpp` | verified |
 | `0x004259B0` | `PromptForAnswerText` | — | `src/pilot.cpp` | verified; exported |
 | `0x00426000` | `ScanTbl0059ca74Fn6000` | — | `src/pilot.cpp` | verified |
-| `0x0042B160` | `GetAudioStreamFnB160` | — | `src/pload.c` | verified |
 | `0x0042B680` | `PlaySfxWaveByIndex` | — | `src/sound.c` | verified |
-| `0x0042B810` | `RegistryQueryValue` | — | `src/sound.c` | verified |
 | `0x0042BC00` | `BlitTbl0046a5aeFnBC00` | — | `src/sound.c` | verified |
 | `0x0042C420` | `WaitForAnyKeyPrompt` | — | `src/sound.c` | verified |
 | `0x0042C510` | `LoopUiFnC510` | — | `src/sound.c` | verified |
@@ -130,7 +125,7 @@ Ghidra status meanings:
   `0x0042E050`–`0x0042E085`, respectively. Their prior prototypes, tags, and
   plate comment were restored.
 - Every source annotation now resolves to an exact live Ghidra function entry.
-  Every one of the 69 backlog rows above also resolves to an exact entry and a
+  Every one of the 64 backlog rows above also resolves to an exact entry and a
   non-empty listing. The Ghidra program was saved after verification.
 
 ## Export and implementation progress
@@ -138,8 +133,8 @@ Ghidra status meanings:
 - All 28 assembly snippets that were absent at the start of this audit now
   exist in `code-full`. Each export has the same instruction count and return
   form as its exact live Ghidra function. Existing exports were not rewritten.
-- Twenty confirmed `wc-developer` functions were removed from the backlog
-  across four reconstruction tranches after binary-comp comparison:
+- Twenty-five confirmed `wc-developer` functions were removed from the backlog
+  across five reconstruction tranches after binary-comp comparison:
 
   | Address | Implemented name | Compilation unit | Similarity |
   |---|---|---|---:|
@@ -163,6 +158,11 @@ Ghidra status meanings:
   | `0x0040E950` | `PurgeNearHeapBlocks` | `src/nav.c` | 100.00% |
   | `0x0040E9E0` | `InitializeNearHeap` | `src/nav.c` | 100.00% |
   | `0x0041A130` | `IsPointWithinEyeViewCone` | `src/geom.c` | 98.00% |
+  | `0x00401000` | `SaveGamePalette` | `src/winmain.c` | 100.00% |
+  | `0x0040EB70` | `AllocateNearHeapBlockFromEnd` | `src/nav.c` | 91.54% |
+  | `0x0040ED30` | `AllocateNearHeapBlockByFlags` | `src/nav.c` | 95.04% |
+  | `0x0042B160` | `InitializeAudioSystem` | `src/pload.c` | 100.00% |
+  | `0x0042B810` | `RegistryQueryValue` | `src/sound.c` | 100.00% |
 
 - Ghidra was synchronized with the reconstructed prototypes and behavior-based
   names, then saved after each tranche.

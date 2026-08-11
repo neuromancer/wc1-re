@@ -7,6 +7,7 @@
 #ifndef WC1_FUNCS_H
 #define WC1_FUNCS_H
 
+void SaveGamePalette(void);                                             /* 0x00401000 */
 void RestoreGamePalette(void);                                          /* 0x00401020 */
 short easy2see(short obj);                                            /* 0x00401040 */
 void make_shard(short asteroid, FixedVector direction);               /* 0x004010C0 */
@@ -338,6 +339,8 @@ unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress);   /* 0x0040E8
 int ReleaseNearHeapBlock(int descriptorAddress);                     /* 0x0040E900 */
 void PurgeNearHeapBlocks(unsigned short flags);                       /* 0x0040E950 */
 unsigned short InitializeNearHeap(void);                              /* 0x0040E9E0 */
+void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags);   /* 0x0040EB70 */
+void *AllocateNearHeapBlockByFlags(int size, unsigned short flags);   /* 0x0040ED30 */
 void add_statistics(short pilot, short missions, short kills);         /* 0x0040EFE0 */
 void PostMission(void);                                                 /* 0x0040F010 */
 int FullMissionScore(void);                                             /* 0x0040F190 */
@@ -1061,6 +1064,7 @@ void SetMultimediaTimerCallback(int period);                       /* 0x0042AFC0
 void * __stdcall PacketLoad(const char *filename, short section,
                             void *destination, unsigned short flags,
                             void *decompressionWorkspace);            /* 0x0042B050 */
+void InitializeAudioSystem(HWND window);                              /* 0x0042B160 */
 void ServiceAudioStream(void);                                        /* 0x0042B1B0 */
 WaveTableEntry *AllocateWaveTableEntry(void);                         /* 0x0042B1F0 */
 WaveTableEntry *FindWaveTableEntryByName(const char *name);           /* 0x0042B240 */
@@ -1075,6 +1079,8 @@ void playWAVE(unsigned char *filename, int looping, int volume);     /* 0x0042B4
 void stop_all_sounds(void);                                         /* 0x0042B640 */
 void ServiceSoundSystem(void);                                         /* 0x0042B7D0 */
 void SetSoundEffectsVolume(int volume);                               /* 0x0042B7E0 */
+LONG RegistryQueryValue(HKEY key, LPCSTR name, DWORD type,
+                        LPBYTE data, DWORD size);                     /* 0x0042B810 */
 void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
                         const BYTE *data, DWORD size);                  /* 0x0042B840 */
 void LoadVolumeSettingsFromRegistry(void);                            /* 0x0042B870 */

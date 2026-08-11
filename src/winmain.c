@@ -6,6 +6,21 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x401000 */
+void SaveGamePalette(void)
+{
+    int index;
+    unsigned short *entry;
+
+    index = 0;
+    entry = DAT_005a8a50;
+    do {
+        GetPaletteEntry(index, entry);
+        entry += 3;
+        index++;
+    } while (entry < DAT_005a8a50 + 0x300);
+}
+
 /* Function start: 0x401020 */
 void RestoreGamePalette(void)
 {
