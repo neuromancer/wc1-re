@@ -375,6 +375,31 @@ unsigned char *g_pNavMapShape_00468708;
 unsigned short g_nNavMapLabelCount_0046870c;
 short g_nNavMapReservedAreaCount_00468710;
 const char g_szCampaignSector_00468718[16] = "Vega XR-231.3";
+const char *g_apszShipMissionTypeNames_00468728[12] = {
+    g_szMissionPatrol_00468758,
+    g_szMissionEscort_00468760,
+    g_szMissionStrike_00468768,
+    g_szMissionDefend_00468770,
+    g_szMissionWingman_00468778,
+    g_szMissionFlee_00468780,
+    g_szMissionGotoWarp_00468788,
+    g_szMissionWarpArriveError_00468794,
+    g_szMissionCannedSequenceError_00468798,
+    g_szMissionRendezvous_0046879c,
+    g_szMissionComeHomeError_004687a8,
+    0
+};
+const char g_szMissionPatrol_00468758[8] = "Patrol";
+const char g_szMissionEscort_00468760[8] = "Escort";
+const char g_szMissionStrike_00468768[8] = "Strike";
+const char g_szMissionDefend_00468770[8] = "Defend";
+const char g_szMissionWingman_00468778[8] = "Wingman";
+const char g_szMissionFlee_00468780[8] = "Flee";
+const char g_szMissionGotoWarp_00468788[12] = "Goto Warp";
+const char g_szMissionWarpArriveError_00468794[4] = "err";
+const char g_szMissionCannedSequenceError_00468798[4] = "err";
+const char g_szMissionRendezvous_0046879c[12] = "Rendezvous";
+const char g_szMissionComeHomeError_004687a8[4] = "err";
 const char g_szNavLabelTextFormat_004687ac[12] = "%X%Y%F%s";
 const char g_szNavAsteroids_004687b8[12] = "Asteroids";
 const char g_szNavMines_004687c4[8] = "Mines";
@@ -2207,7 +2232,7 @@ TextContext DAT_005a7700;
 TextContext DAT_005a7720;
 TextContext g_stDefaultTextContext_005a7740;
 TextContext g_stConversationTextContext_005a7760;
-unsigned short DAT_005a7780;
+short DAT_005a7780[3];
 short g_nDamageDisplayTicks_005a7786;
 short g_nWeaponDisplayOriginX_005a7788;
 short g_nWeaponDisplayOriginY_005a778a;

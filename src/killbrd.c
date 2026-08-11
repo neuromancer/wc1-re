@@ -608,8 +608,7 @@ void ShowChalkBoard(void)
         PumpWindowMessages();
         if (PeekInputEvent(&event, 10) != 0 ||
             PeekInputEvent(&event, 2) != 0 ||
-            PeekInputEvent(&event, 3) != 0 ||
-            PeekInputEvent(&event, 5) != 0)
+            PeekInputEvent(&event, 3) != 0)
             done = 1;
 
         DrawSpriteDefault(&g_stModalSourceViewport_005a7670,
@@ -658,7 +657,7 @@ void ShowChalkBoard(void)
     } while (done == 0);
 
     ReleaseTextFont(3);
-    FreePacketAndClear((int *)&background, 0);
+    ReleasePacketHandle((int)background);
     g_pCurrentTextContext_0059af8c = previousContext;
     ClearInputKeyStatePreservingModifiers();
     g_bInputMode_0059a848 = savedInputMode;

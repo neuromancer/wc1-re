@@ -501,10 +501,11 @@ void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
 }
 
 /* Function start: 0x436160 */
-void SetMouseHomePosition(short x, short y)
+void __stdcall SetMouseHomePosition(short x, short y)
 {
     g_nMouseX_0059ab10 = x;
     g_nMouseY_0059ab12 = y;
+    SetMousePositionDuplicate(x, y);
 }
 
 /* Function start: 0x436190 */

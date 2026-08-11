@@ -402,9 +402,10 @@ unsigned int InitializeEventManagerResources(void)
 /* Function start: 0x421AB0 */
 unsigned int EMStartUp(void)
 {
+    PromptInsertNumberedDisk(0);
     RegisterEventManagerShutdown((void (*)(void))LogMemoryUsage);
     if (InitializeEventManager(20, InitializeEventManagerResources, 0) == 0)
-        FatalErrorAndExit("EMStartUp Failed");
+        exit_squadron("EMStartUp Failed");
     ConfigureEventManagerPointer(DAT_0059ab19, 0);
     SetEventManagerPump(PollJoystickButtonEvents);
     g_aInputDeviceSamples_005a81f0[2].x = 6;
@@ -826,6 +827,8 @@ int report_kilrathi_rout(int mode)
             break;
         }
     }
+    if (mode == 1 && g_nCurrentWave_0046c01c != -1)
+        check_next_wave();
     return 0;
 }
 
@@ -1756,13 +1759,24 @@ int FreeShapeSet(PacketResourceDescriptor *resources, short releaseFlags)
 int LoadPacketResourceList(PacketResourceDescriptor *resources,
                            short flags, int availableBytes)
 {
+    int packetSize;
+
     while (resources->resource != 0) {
         if (*resources->resource == 0) {
-            *resources->resource = (unsigned char *)FetchDiskPacketRetrying(
-                resources->logicalFile, resources->section,
-                (unsigned short)flags);
-            if (*resources->resource == 0)
-                return availableBytes;
+            PromptInsertNumberedDisk(resources->logicalFile);
+            packetSize = (int)GetPacketSize(
+                g_pDiskFileRecords_005a7cf0[
+                    resources->logicalFile].name,
+                resources->section);
+            if (packetSize < availableBytes) {
+                *resources->resource =
+                    (unsigned char *)FetchDiskPacketRetrying(
+                        resources->logicalFile, resources->section,
+                        (unsigned short)flags);
+                if (*resources->resource == 0)
+                    return availableBytes;
+                availableBytes -= packetSize;
+            }
         }
         resources++;
     }
@@ -1772,22 +1786,23 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
 /* Function start: 0x423E10 */
 unsigned int ResetCockpitPaletteEntries(void)
 {
-    unsigned short black[3];
-    unsigned short viewportColour[3];
+    short black[3];
     short index;
 
     black[0] = 0;
     black[1] = 0;
     black[2] = 0;
-    index = 185;
+    index = 0;
     do {
-        SetPaletteEntry(index, (short *)black);
+        memcpy(g_aPaletteFadeEntries_005a76d0[index], black,
+               sizeof(black));
+        SetPaletteEntry((short)(index + 185),
+                        g_aPaletteFadeEntries_005a76d0[index]);
         index++;
-    } while (index < 191);
-    viewportColour[0] = 0;
-    viewportColour[1] = 0;
-    viewportColour[2] = 32;
-    SetPaletteEntry((short)DAT_004699d8, (short *)viewportColour);
+    } while (index < 6);
+    memcpy(DAT_005a7780, black, sizeof(black));
+    DAT_005a7780[2] = 32;
+    SetPaletteEntry((short)DAT_004699d8, DAT_005a7780);
     return 0;
 }
 
@@ -2209,11 +2224,14 @@ unsigned int free_cockpit(void)
         ReleasePacketHandle((int)g_pScreenViewportPacket_005a6b94);
         g_pScreenViewportPacket_005a6b94 = 0;
     }
+    ReleaseTextFont(2);
     if (g_pPilotHandShape_005a7684 != 0) {
         free_viewport(&DAT_005a7690);
         free_viewport(&DAT_005a7550);
     }
-    FreeShapeSet(g_aCockpitPrimaryResources_00469d08, 0);
+    g_cCockpitLogicalFile_005a7c74 =
+        (signed char)(g_cCockpitView_0059dab0 + 17);
+    FreeShapeSet(g_aCockpitPrimaryResources_00469d08, 4);
     FreeShapeSet(g_aCockpitSecondaryResources_00469ce0, 0);
     FreePacketAndClear((int *)&g_pCockpitPilotShape_0046905c, 0);
     FreePacketAndClear(
@@ -2221,7 +2239,7 @@ unsigned int free_cockpit(void)
     FreePacketAndClear((int *)&g_pCockpitExplosionBackground_00469060, 0);
     FreePacketAndClear((int *)&g_pDamageDisplayBackground_0046a748, 0);
     FreeCommDisplayResources();
-    FreePacketAndClear((int *)&g_pScannerMarkerBackground_005a7dc4, 0);
+    ReleasePacketHandle((int)g_pScannerMarkerBackground_005a7dc4);
     return 0;
 }
 

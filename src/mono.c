@@ -218,6 +218,8 @@ void print_subtitle(Viewport *viewport, short colour, const char *text)
         x = (short)(x + GetShapeFrameExtent(
             0, 0, g_pIntroFont_005a8960, frame, 2) + 2);
     }
+    if (viewport->pixels == DAT_005a6ba0.pixels)
+        DIBslam();
 }
 
 /* Function start: 0x403A80 */

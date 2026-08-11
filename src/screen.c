@@ -34,7 +34,7 @@ void cleanup_objectives(void)
                 break;
             case 2:
                 missionShip = &g_aMissionShips_0046c948[index];
-                if (missionShip->type == OBJECT_TYPE_DRAYMAN) {
+                if (missionShip->missionType == MISSION_TYPE_GOTO_WARP) {
                     if (missionShip->state == 2) {
                         flag_objective(objective, 2);
                         if (missionShip->type == OBJECT_TYPE_HORNET ||
@@ -43,8 +43,10 @@ void cleanup_objectives(void)
                         else
                             affect_mission_score(0, 9, -1);
                     }
-                } else if (missionShip->type == OBJECT_TYPE_EXETER ||
-                           missionShip->type == OBJECT_TYPE_DRALTHI) {
+                } else if (missionShip->missionType ==
+                               MISSION_TYPE_WARP_ARRIVE ||
+                           missionShip->missionType ==
+                               MISSION_TYPE_COME_HOME) {
                     object = find_ship_index(index);
                     if (object != -1 && home != -1 &&
                         distance_from_object(object, home) < proximity)
@@ -787,7 +789,7 @@ void CloseCommChoiceMenu(void)
         return;
     }
     ShutdownEventManager();
-    exit_squadron("stop");
+    exit_squadron("!stop");
 }
 
 /* Function start: 0x430E10 */

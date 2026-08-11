@@ -438,7 +438,7 @@ void check_hazards(void)
 }
 
 /* Function start: 0x401CE0 */
-void WarpMouseTo(short x, short y)
+void __stdcall WarpMouseTo(short x, short y)
 {
     g_nHostMouseX_0059af70 = x;
     g_nHostMouseY_0059af72 = y;

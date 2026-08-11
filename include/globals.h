@@ -83,6 +83,19 @@ extern const NavMapObjectiveStyle g_aNavMapObjectiveStyles_00468668[10];
 extern unsigned char *g_pNavMapShape_00468708;
 extern unsigned short g_nNavMapLabelCount_0046870c;
 extern short g_nNavMapReservedAreaCount_00468710;
+extern const char g_szCampaignSector_00468718[16];
+extern const char *g_apszShipMissionTypeNames_00468728[12];
+extern const char g_szMissionPatrol_00468758[8];
+extern const char g_szMissionEscort_00468760[8];
+extern const char g_szMissionStrike_00468768[8];
+extern const char g_szMissionDefend_00468770[8];
+extern const char g_szMissionWingman_00468778[8];
+extern const char g_szMissionFlee_00468780[8];
+extern const char g_szMissionGotoWarp_00468788[12];
+extern const char g_szMissionWarpArriveError_00468794[4];
+extern const char g_szMissionCannedSequenceError_00468798[4];
+extern const char g_szMissionRendezvous_0046879c[12];
+extern const char g_szMissionComeHomeError_004687a8[4];
 extern const char g_szNavLabelTextFormat_004687ac[12];
 extern const char g_szNavAsteroids_004687b8[12];
 extern const char g_szNavMines_004687c4[8];
@@ -94,7 +107,6 @@ extern const char g_szStandardTimeColon_004687f8[4];
 extern const char g_szNavLegendNewline_004687fc[4];
 extern const char g_szNavMissionFlightPath_00468800[20];
 extern const char g_szNavHomeBase_00468814[12];
-extern const char g_szCampaignSector_00468718[16];
 extern const char g_szNavBlankLine_00468820[4];
 extern const char g_szNavTitleFormat_00468824[8];
 extern const char g_szNavSectorFormat_0046882c[12];
@@ -887,7 +899,7 @@ extern TextContext DAT_005a7700;
 extern TextContext DAT_005a7720;
 extern TextContext g_stDefaultTextContext_005a7740;
 extern TextContext g_stConversationTextContext_005a7760;
-extern unsigned short DAT_005a7780;
+extern short DAT_005a7780[3];
 extern short g_nDamageDisplayTicks_005a7786;
 extern short g_nWeaponDisplayOriginX_005a7788;
 extern short g_nWeaponDisplayOriginY_005a778a;
@@ -1211,8 +1223,6 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
 #define g_vNormalizedToTarget_005a7db0 \
     (*(FixedVector *)((unsigned char *)DAT_005a7dd0 - 0x20))
 
-#define g_abObjectField_0059b4a0 \
-    ((unsigned char *)g_aeObjectType_0059b560 - 0xc0)
 extern ShortVector g_aShipFormationOffset_0059b520[10];
 
 /* Ordered name tables read directly out of the image; see include/wcdata.h.

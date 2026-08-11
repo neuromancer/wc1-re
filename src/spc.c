@@ -241,8 +241,8 @@ unsigned int SetFleetOverviewView(int initializeCockpit)
 
     cameraDistance = (playerRange >> 3) * 9 + 0x2bc00;
     g_aShipPosition_0059c490[63] = centre;
+    g_aShipRightVector_0059b6e0[63] = orientation;
     g_aShipUpVector_0059b9e0[63] = orientation;
-    g_aShipForwardVector_0059bce0[63] = orientation;
     point_at(63, g_aShipPosition_0059c490[0]);
 
     ScaleFixedVector(&g_aShipRightVector_0059b6e0[63],
@@ -259,8 +259,8 @@ unsigned int SetFleetOverviewView(int initializeCockpit)
 
     g_aShipPosition_0059c490[WC1_EYE_OBJECT] =
         g_aShipPosition_0059c490[63];
+    g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT] = orientation;
     g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT] = orientation;
-    g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT] = orientation;
     if (maximumRange < 0x271000)
         point_at(WC1_EYE_OBJECT, centre);
     else
@@ -839,11 +839,13 @@ unsigned int generate_stars(void)
 {
     FixedVector origin;
     short distance;
-    short pitch;
-    short yaw;
+    short iRotation;
+    short jRotation;
     short obj;
 
-    zero_vector(&origin);
+    origin.x = 0;
+    origin.y = 0;
+    origin.z = 0;
     obj = 34;
     do {
         if (obj < 42) {
@@ -853,17 +855,18 @@ unsigned int generate_stars(void)
                        (int)signed_random(distance) << 8);
         } else {
             g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_STAR;
-            pitch = signed_random(45);
-            yaw = signed_random(45);
+            jRotation = signed_random(45);
+            iRotation = signed_random(45);
             copy_frame(WC1_EYE_OBJECT, 63);
-            alter_yaw(yaw, 63);
-            alter_pitch(pitch, 63);
+            rotate_about_i(iRotation, &g_aShipUpVector_0059b9e0[63],
+                           &g_aShipForwardVector_0059bce0[63]);
+            rotate_about_j(jRotation, &g_aShipRightVector_0059b6e0[63],
+                           &g_aShipForwardVector_0059bce0[63]);
             ScaleFixedVector(&g_aShipForwardVector_0059bce0[63],
                              15000 << 8,
                              &g_aShipPosition_0059c490[obj]);
             g_asObjectViewFrame_0059d230[obj] =
                 (short)(RandomInRange(0, 5) + 32);
-            g_asObjectScreenScale_0059c950[obj] = 0xff;
         }
         obj++;
     } while (obj < 49);
@@ -878,8 +881,8 @@ unsigned int update_star_field(void)
     FixedVector origin;
     short distance;
     short randomChoice;
-    short pitch;
-    short yaw;
+    short iRotation;
+    short jRotation;
     short obj;
 
     g_vPreviousStarFieldMotion_0059c900 = g_vStarFieldMotion_0059c860;
@@ -911,21 +914,23 @@ unsigned int update_star_field(void)
                  g_anObjectPitchRotation_0059b2a0[0] != 0)) {
                 copy_frame(WC1_EYE_OBJECT, 63);
                 if (g_anObjectPitchRotation_0059b2a0[0] != 0) {
-                    pitch = g_anObjectPitchRotation_0059b2a0[0] < 0 ?
+                    jRotation = g_anObjectPitchRotation_0059b2a0[0] < 0 ?
                         -45 : 45;
-                    yaw = signed_random(45);
-                } else {
-                    pitch = signed_random(45);
-                    yaw = 0;
+                    iRotation = signed_random(45);
                 }
                 if (g_anObjectYawRotation_0059ce80[0] != 0 &&
                     (g_anObjectPitchRotation_0059b2a0[0] == 0 ||
                      RandomInRange(0, 1) != 0)) {
-                    yaw = g_anObjectYawRotation_0059ce80[0] < 0 ? -45 : 45;
-                    pitch = signed_random(45);
+                    iRotation = g_anObjectYawRotation_0059ce80[0] < 0 ?
+                        -45 : 45;
+                    jRotation = signed_random(45);
                 }
-                alter_pitch(pitch, 63);
-                alter_yaw(yaw, 63);
+                rotate_about_j(jRotation,
+                               &g_aShipRightVector_0059b6e0[63],
+                               &g_aShipForwardVector_0059bce0[63]);
+                rotate_about_i(iRotation,
+                               &g_aShipUpVector_0059b9e0[63],
+                               &g_aShipForwardVector_0059bce0[63]);
                 ScaleFixedVector(&g_aShipForwardVector_0059bce0[63],
                                  15000 << 8,
                                  &g_aShipPosition_0059c490[obj]);
@@ -1045,7 +1050,8 @@ unsigned int house_keep_objects(void)
                         ShipExplosion(obj);
                         explosion_shock_wave(
                             obj, g_aObjectTypeData_00466458[
-                                g_aeObjectType_0059b560[obj]].fuelCapacity);
+                                g_aeObjectType_0059b560[obj]].
+                                    explosionDamage);
                     } else {
                         while ((unsigned short)RandomInRange(0, 100) < 50)
                             onboard_explosion(obj);

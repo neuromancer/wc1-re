@@ -32,7 +32,7 @@ void start_hazard_field(short region);                               /* 0x00401B
 void add_hazard_field(enum ObjectType type, FixedVector center,
                       short radius, short density);                   /* 0x00401C00 */
 void check_hazards(void);                                            /* 0x00401C60 */
-void WarpMouseTo(short x, short y);                                  /* 0x00401CE0 */
+void __stdcall WarpMouseTo(short x, short y);                        /* 0x00401CE0 */
 void CheckLauncherAndConfig(void);                                   /* 0x00401D10 */
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
                    LPSTR commandLine, int showCommand);               /* 0x00401E30 */
@@ -449,6 +449,8 @@ short LocateMobileObjective(short objective);                         /* 0x00415
 unsigned int someone_coming(void);                                     /* 0x004154C0 */
 unsigned int escorting_a_ship(void);                                   /* 0x00415510 */
 void flag_reached(short objective, short reached);                     /* 0x00415530 */
+void check_sighting(short objective, short range, short object);      /* 0x004156D0 */
+void check_visit(short objective, short range);                       /* 0x00415720 */
 void update_objective_location(short objective);                     /* 0x00415770 */
 unsigned int objective_lost(short objective);                         /* 0x00415850 */
 void check_objectives(void);                                          /* 0x004158A0 */
@@ -477,6 +479,7 @@ void draw_target_box(unsigned short colour, signed char object,
                      short solid, short drawLockMarker, short padding,
                      ShortRect *savedBounds);                         /* 0x004164B0 */
 void remove_nav_pointer(void);                                        /* 0x004168A0 */
+void draw_nav_pointer(void);                                          /* 0x004168C0 */
 unsigned int overlay_head_up_display(void);                           /* 0x00416AC0 */
 void RestoreCockpitExplosionIfVisible(void);                           /* 0x00416C90 */
 unsigned int RestoreTransientCockpitGraphics(void);                    /* 0x00416CB0 */
@@ -1312,7 +1315,7 @@ void RefreshMouseCursorDisplay(void);                              /* 0x00436060
 void EnterAllocationScope(void);                                                 /* 0x004360D0 */
 void LeaveAllocationScope(void);                                                 /* 0x004360E0 */
 void __stdcall SetMouseCursorShape(unsigned char *shape, short frame); /* 0x004360F0 */
-void SetMouseHomePosition(short x, short y);                                  /* 0x00436160 */
+void __stdcall SetMouseHomePosition(short x, short y);                /* 0x00436160 */
 void __stdcall ApplyPackedMousePosition(ShortPoint point);             /* 0x00436190 */
 void SetFrameTimerPeriod(short period);                                   /* 0x004361E0 */
 void SetFrameTimerAndWait(short period);                                       /* 0x004361F0 */

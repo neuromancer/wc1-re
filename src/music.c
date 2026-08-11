@@ -314,9 +314,6 @@ unsigned int DrawConstellationField(void)
                     g_pConstellationViewport_005a6aac->top +
                     RandomInRange(0, height));
                 particle->velocity = (short)-speed;
-                particle->frame = (short)(
-                    g_asConstellationFrame_0046a8f8[randomIndex] +
-                    RandomInRange(0, 3));
             }
         } else if (particle->x >
                    g_pConstellationViewport_005a6aac->right) {

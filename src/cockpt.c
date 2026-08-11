@@ -1113,7 +1113,7 @@ unsigned int escorting_a_ship(void)
 void flag_reached(short objective, short reached)
 {
     char *message;
-    int objectiveOffset;
+    MissionObjective *missionObjective;
     short carrierMissionShip;
     short carrierObject;
     short objectiveType;
@@ -1121,19 +1121,15 @@ void flag_reached(short objective, short reached)
     short advanceDestination;
 
     carrierMissionShip = g_anShipMissionShip_0059d4b0[0];
-    objectiveOffset = (int)objective * sizeof(MissionObjective);
-    objectiveType = *(short *)(void *)
-        ((unsigned char *)g_aMissionObjectives_0059dac0 +
-         objectiveOffset);
+    missionObjective = &g_aMissionObjectives_0059dac0[objective];
+    objectiveType = (short)missionObjective->type;
     carrierObject = find_ship_index(carrierMissionShip);
     markVisited = objective != g_cCurrentObjective_0046c020;
     advanceDestination = 0;
     if (objective == g_cCurrentObjective_0046c020) {
         if (reached == 0 && escorting_a_ship() != 0 &&
             carrierObject != -1 &&
-            *(signed char *)((unsigned char *)
-                g_aMissionObjectives_0059dac0 + objectiveOffset +
-                offsetof(MissionObjective, index)) != carrierMissionShip) {
+            missionObjective->index != carrierMissionShip) {
             if (objectiveType != 1 ||
                 g_aMissionShips_0046c948[carrierMissionShip].state != 1) {
                 sprintf(g_pszObjectiveStatusMessage_0046908c,
@@ -1156,9 +1152,7 @@ void flag_reached(short objective, short reached)
     }
     if (objectiveType != 1 && markVisited != 0) {
         if (visited(objective) == 0 && carrierObject != -1 &&
-            *(signed char *)((unsigned char *)
-                g_aMissionObjectives_0059dac0 + objectiveOffset +
-                offsetof(MissionObjective, index)) == carrierMissionShip &&
+            missionObjective->index == carrierMissionShip &&
             g_aeObjectType_0059b560[carrierObject] !=
                 OBJECT_TYPE_TIGERS_CLAW)
             send_message(carrierObject, 6);
@@ -1168,14 +1162,38 @@ void flag_reached(short objective, short reached)
         set_next_destination();
 }
 
+/* Function start: 0x4156D0 */
+void check_sighting(short objective, short range, short object)
+{
+    if (sighted(objective) == 0 && range < 16000 &&
+        (object == -1 ||
+         g_asObjectScreenX_0059d9b0[object] != (short)0x8001))
+        flag_objective(objective, 4);
+}
+
+/* Function start: 0x415720 */
+void check_visit(short objective, short range)
+{
+    int reachedRange;
+
+    if ((short)g_aMissionObjectives_0059dac0[objective].type == 3 ||
+        (short)g_aMissionObjectives_0059dac0[objective].type == 4)
+        reachedRange = 6000;
+    else
+        reachedRange = 1500;
+    if (range < reachedRange)
+        flag_reached(objective, 0);
+}
+
 /* Function start: 0x415770 */
 void update_objective_location(short objective)
 {
     MissionObjective *missionObjective;
     FixedVector delta;
+    short object;
     short range;
-    short reachedRange;
 
+    object = LocateMobileObjective(objective);
     missionObjective = &g_aMissionObjectives_0059dac0[objective];
     if (sighted(objective) != 0 && visited(objective) != 0 &&
         g_cCurrentObjective_0046c020 != objective)
@@ -1184,12 +1202,14 @@ void update_objective_location(short objective)
                        &missionObjective->position, &delta);
     range = FixedToShortSaturating(
         (int)Vector_magnitude(&delta));
-    if (sighted(objective) == 0 && range < 16000)
-        flag_objective(objective, 4);
-    reachedRange = (missionObjective->type == 3 ||
-                    missionObjective->type == 4) ? 6000 : 1500;
-    if (range < reachedRange)
-        flag_reached(objective, 0);
+    check_sighting(objective, range, object);
+    if (mobile_objective(objective) != 0) {
+        if (object != -1)
+            check_visit(objective, range);
+    } else if (g_aMissionNavPoints_0046c2f0[
+                   missionObjective->index].type >= 1) {
+        check_visit(objective, range);
+    }
 }
 
 /* Function start: 0x415850 */
@@ -1823,6 +1843,71 @@ void remove_nav_pointer(void)
 {
     if (DAT_00469208 != -1)
         remove_object(DAT_00469208);
+}
+
+/* Function start: 0x4168C0 */
+void draw_nav_pointer(void)
+{
+    FixedVector objectivePosition;
+    FixedVector direction;
+    FixedVector viewPosition;
+    int distance;
+    short active;
+    short object;
+
+    if ((short)get_mode(1) == 5 &&
+        g_nCannedSceneMode_00469fac != 4 &&
+        (DAT_0046c03c == 0 || DAT_0046c03c == 4))
+        active = 1;
+    else
+        active = 0;
+    if (active == 0) {
+        remove_nav_pointer();
+        return;
+    }
+    object = DAT_00469208;
+    if (object == -1) {
+        object = find_vacant_3d_object();
+        DAT_00469208 = object;
+        if (object == -1)
+            return;
+        g_asObjectViewFrame_0059d230[object] = 3;
+        g_acObjectOwner_0059ce20[object] = -1;
+        g_asObjectScreenAngle_0059cd90[object] = 0;
+        g_asObjectScreenScale_0059c950[object] = 0x100;
+        g_aeObjectClass_0059d100[object] = OBJECT_CLASS_PLANET;
+        g_apObjectShape_0059d2f0[object] =
+            g_pTargetLockShape_005a6bf4;
+        DAT_00469208 = object;
+        g_asObjectScreenX_0059d9b0[object] = (short)0x8001;
+        g_asObjectDistance_0059b4a0[object] = 0;
+    }
+    objectivePosition = g_aMissionObjectives_0059dac0[
+        (signed char)g_cCurrentObjective_0046c020].position;
+    ComputeVectorDelta(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
+                       &objectivePosition, &direction);
+    distance = (int)Vector_magnitude(&direction);
+    if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >=
+        distance)
+        return;
+    transform_to_objects_frame(&direction, &viewPosition,
+                               WC1_EYE_OBJECT);
+    if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >
+        viewPosition.z)
+        return;
+    if (DivideFixed(viewPosition.z, distance) < 0x94)
+        return;
+    g_asObjectScreenX_0059d9b0[object] = (short)(DivideFixed(
+        (int)MultiplyFixed(
+            ((short)g_nScreenWidth_0046daa4 & ~1) << 7,
+            viewPosition.x),
+        viewPosition.z) >> 8);
+    g_asObjectScreenY_0059d930[object] = (short)(DivideFixed(
+        (int)MultiplyFixed(
+            ((short)g_nScreenWidth_0046daa4 & ~1) << 7,
+            viewPosition.y),
+        viewPosition.z) >> 8);
+    g_asObjectDistance_0059b4a0[object] = 0x4a38;
 }
 
 /* Function start: 0x416AC0 */

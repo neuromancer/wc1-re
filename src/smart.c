@@ -321,7 +321,7 @@ unsigned int goto_formation(short obj, const FixedVector *destination,
     forwardFacing = g_nFacingToTarget_0059d920;
     get_facing_range_from_point(obj, destination);
     if (g_nFacingToTarget_0059d920 < 40) {
-        approach_half_speed(obj);
+        approach_min_speed(obj);
     } else if (g_nTargetRange_0059ce10 > 2000) {
         approach_full_speed(obj);
         if (g_nTargetRange_0059ce10 > 3000 &&

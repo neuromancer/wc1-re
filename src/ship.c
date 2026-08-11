@@ -237,7 +237,7 @@ void call_enemy(short obj)
             g_aeSpecialManeuver_0059c3c0[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other] &&
-            (short)RandomBelowOrEqual(100) < 50)
+            (short)RandomBelow(100) < 50)
             g_acShipTarget_0059ce60[other] = (signed char)obj;
         other++;
     } while (other < 10);
@@ -344,8 +344,8 @@ int internal_damage(short attacker, short victim, short damage,
             if (quadrant == 1) {
                 events--;
                 drain_fuel(victim,
-                           (short)(g_aObjectTypeData_00466458[type].
-                                       fuelCapacity / 4));
+                           (short)(*(int *)&g_aObjectTypeData_00466458[
+                                       type].lifetime / 4));
                 if ((short)RandomBelowOrEqual(1) != 0 ||
                     g_anShipFuel_0059b470[victim] < 0)
                     return explode(attacker, victim);
@@ -483,8 +483,9 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                 }
             break;
         case 7:
-            drain_fuel(0, (short)(g_aObjectTypeData_00466458[playerType].
-                                      fuelCapacity / 4));
+            drain_fuel(0,
+                       (short)(*(int *)&g_aObjectTypeData_00466458[
+                                   playerType].lifetime / 4));
             if ((short)RandomBelowOrEqual(1) != 0 ||
                 g_anShipFuel_0059b470[0] < 0)
                 return explode(attacker, 0);
@@ -859,7 +860,7 @@ message_finished:
     if (objectClass != OBJECT_CLASS_CAPITAL_SHIP)
         explosion_shock_wave(
             obj, g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[obj]].fuelCapacity);
+                g_aeObjectType_0059b560[obj]].explosionDamage);
     if (g_asObjectScreenX_0059d9b0[obj] != (short)0x8001)
         PlaySfxWaveFileByNumber(4, obj, 0);
     return explosion;
@@ -902,7 +903,7 @@ int explosion_shock_wave(short obj, short blastDamage)
                 (short)(distance -
                         g_asObjectCollisionRadius_0059d710[other]));
             damage = 0;
-            if (distance < 1000) {
+            if (distance <= 1000) {
                 if (distance < 501)
                     divisor = find_ratio(0, 500, distance, 8, 25);
                 else if (distance < 751)
@@ -1272,7 +1273,7 @@ short pop_flack(short obj, short range, FixedVector *hardpoint)
             explosion_shock_wave(
                 explosion,
                 g_aObjectTypeData_00466458[
-                    OBJECT_TYPE_TURRET].fuelCapacity);
+                    OBJECT_TYPE_TURRET].explosionDamage);
             return explosion;
         }
         g_aShipPosition_0059c490[explosion] = *hardpoint;

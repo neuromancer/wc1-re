@@ -523,7 +523,7 @@ char *nav_note(short objective)
 /* Function start: 0x40DF70 */
 void DrawNavLocationReadout(const char *title, short showFlightData)
 {
-    enum ObjectType playerShipType;
+    enum ShipMissionType playerMissionType;
 
     ClearViewport(&DAT_005a76b0, DAT_0046999c);
     SetScreenClipRect(155, 2, 259, 155);
@@ -548,11 +548,12 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
     DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
                     g_szNavMissionFormat_00468848,
                     g_abMissionAuxData_005a8210);
-    playerShipType = g_aMissionShips_0046c948[
-        g_nPlayerMissionShipIndex_005a8694].type;
+    playerMissionType = g_aMissionShips_0046c948[
+        g_nPlayerMissionShipIndex_005a8694].missionType;
     DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
                     g_szNavShipFormat_00468850,
-                    g_aObjectTypeData_00466458[playerShipType].displayName);
+                    g_apszShipMissionTypeNames_00468728[
+                        playerMissionType]);
     DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
                     g_szNavNotesHeading_00468858);
     DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
@@ -1255,22 +1256,19 @@ void DrawTitleLogo(short distance, short y)
     short scale;
     short centre;
 
-    if (distance <= 10 || g_pTitleShape_005a7f08 == 0)
+    if (distance <= 10)
         return;
     scale = (short)(0x1000 / distance);
-    centre = (short)((DAT_005a7510.left + DAT_005a7510.right + 1) / 2);
+    centre = (short)(g_nScreenWidth_0046daa4 / 2);
     GetTransformedShapeBounds(&DAT_005a7510, centre, y,
                               g_pTitleShape_005a7f08, 1, 0, scale, 0,
                               bounds);
-    DrawSpriteTransformed(&DAT_005a7510, (short)(bounds[0] - 1), y,
-                          g_pTitleShape_005a7f08, 0, 0,
-                          scale, scale, 0, 0);
-    DrawSpriteTransformed(&DAT_005a7510, centre, y,
-                          g_pTitleShape_005a7f08, 1, 0,
-                          scale, scale, 0, 0);
-    DrawSpriteTransformed(&DAT_005a7510, bounds[2], y,
-                          g_pTitleShape_005a7f08, 2, 0,
-                          scale, scale, 0, 0);
+    DrawSpriteScaled(&DAT_005a7510, (short)(bounds[0] - 1), y,
+                     g_pTitleShape_005a7f08, 0, 0, scale, 0);
+    DrawSpriteScaled(&DAT_005a7510, centre, y,
+                     g_pTitleShape_005a7f08, 1, 0, scale, 0);
+    DrawSpriteScaled(&DAT_005a7510, bounds[2], y,
+                     g_pTitleShape_005a7f08, 2, 0, scale, 0);
 }
 
 /* Function start: 0x40FB10 */

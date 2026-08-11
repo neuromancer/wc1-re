@@ -900,7 +900,7 @@ void remove_object(short obj)
     if (obj == -1)
         return;
     g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
-    g_abObjectField_0059b4a0[obj] = 0;
+    g_asObjectDistance_0059b4a0[obj] = 0;
     if (obj == DAT_00469208)
         DAT_00469208 = -1;
     if (obj == g_nYourWingman_0046c04c)
@@ -1072,10 +1072,11 @@ void transform_objects_to_your_view(void)
     short dustSize;
     short obj;
 
+    g_nClosestVisibleObject_0046c048 = -1;
+    draw_nav_pointer();
     obj = 0;
-    screenWidth = DAT_005a7510.right - DAT_005a7510.left + 1;
+    screenWidth = (short)g_nScreenWidth_0046daa4;
     do {
-        g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
         if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL &&
             g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_FIXED_OBJECT &&
             obj != DAT_00469208) {
@@ -1083,6 +1084,7 @@ void transform_objects_to_your_view(void)
                 g_asObjectDistance_0059b4a0[obj];
             g_asObjectDistance_0059b4a0[obj] = 0;
             if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_FUTURION) {
+                g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
                 obj++;
                 continue;
             }
@@ -1096,20 +1098,28 @@ void transform_objects_to_your_view(void)
             }
             distance = (int)Vector_magnitude(&direction);
             if (distance <
-                g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100)
+                g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
+                g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
                 goto next_object;
+            }
             if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_DUST &&
-                distance > (1400 << 8))
+                distance > (1400 << 8)) {
+                g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
                 goto next_object;
+            }
             transform_to_objects_frame(&direction,
                                        &g_aObjectViewPosition_0059afa0[obj],
                                        WC1_EYE_OBJECT);
             if (g_aObjectViewPosition_0059afa0[obj].z <
-                g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100)
+                g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
+                g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
                 goto next_object;
+            }
             if (DivideFixed(g_aObjectViewPosition_0059afa0[obj].z,
-                            distance) < 0x94)
+                            distance) < 0x94) {
+                g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
                 goto next_object;
+            }
             objectRadius = g_asObjectCollisionRadius_0059d710[obj] * 0x100;
             if (distance <= objectRadius)
                 distance = objectRadius + 1;
@@ -1122,8 +1132,10 @@ void transform_objects_to_your_view(void)
                 if ((unsigned short)g_asObjectScreenScale_0059c950[obj] >
                     0x1fff)
                     g_asObjectScreenScale_0059c950[obj] = 0x2000;
-                if ((unsigned short)g_asObjectScreenScale_0059c950[obj] < 5)
+                if ((unsigned short)g_asObjectScreenScale_0059c950[obj] < 5) {
+                    g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
                     goto next_object;
+                }
             }
             g_asObjectDistance_0059b4a0[obj] = (short)(distance >> 8);
             g_asObjectScreenX_0059d9b0[obj] = (short)(DivideFixed(

@@ -857,18 +857,30 @@ void rotate_object_to_goal(short obj)
     short totalError;
 
     typeData = &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[obj]];
-    totalError = (short)(AbsInt(g_anObjectPitchRotation_0059b2a0[obj] -
-                               g_anPitchGoal_0059d7a0[obj]) +
-                         AbsInt(g_anObjectYawRotation_0059ce80[obj] -
-                               g_anYawGoal_0059c310[obj]) +
-                         AbsInt(g_anObjectRollRotation_0059d7e0[obj] -
-                               g_anRollGoal_0059d630[obj]));
+    if (g_aeSpecialManeuver_0059c3c0[obj] ==
+            SPECIAL_MANEUVER_BLOWING_UP) {
+        if ((short)alert_flag(obj, 1) != 0) {
+            set_special(obj, SPECIAL_MANEUVER_NONE);
+        } else {
+            if (g_asObjectCounter_0059c330[obj] == -1 &&
+                skill_check(obj, 7) != 0)
+                g_aeSpecialManeuver_0059c3c0[obj] =
+                    SPECIAL_MANEUVER_NONE;
+            return;
+        }
+    }
+    totalError = (short)(abs(g_anObjectYawRotation_0059ce80[obj] -
+                            g_anYawGoal_0059c310[obj]) +
+                         abs(g_anObjectPitchRotation_0059b2a0[obj] -
+                             g_anPitchGoal_0059d7a0[obj]) +
+                         abs(g_anObjectRollRotation_0059d7e0[obj] -
+                             g_anRollGoal_0059d630[obj]));
     match_rotation_goal(&g_anObjectPitchRotation_0059b2a0[obj],
                         &g_anPitchGoal_0059d7a0[obj], totalError,
-                        typeData->pitchRate);
+                        typeData->yawRate);
     match_rotation_goal(&g_anObjectYawRotation_0059ce80[obj],
                         &g_anYawGoal_0059c310[obj], totalError,
-                        typeData->yawRate);
+                        typeData->pitchRate);
     match_rotation_goal(&g_anObjectRollRotation_0059d7e0[obj],
                         &g_anRollGoal_0059d630[obj], totalError,
                         typeData->rollRate);

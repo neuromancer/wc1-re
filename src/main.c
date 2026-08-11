@@ -320,7 +320,7 @@ unsigned int Update_3Space(void)
 unsigned int TriggerPlayerHitPaletteFlash(void)
 {
     if (DAT_0046c03c < 4)
-        DAT_005a7780 = 0x30;
+        DAT_005a7780[0] = 0x30;
     return 0;
 }
 
@@ -340,18 +340,18 @@ unsigned int FadeFlightPaletteEntry(short *entry)
 /* Function start: 0x427CD0 */
 unsigned int UpdateSpacePaletteFade(void)
 {
-    if (DAT_005a7780 != 0) {
+    if (DAT_005a7780[0] != 0) {
         switch ((int)(short)DAT_0046b168) {
         case 9:
         case 13:
             ClearViewport(&DAT_005a7510, (short)DAT_004699ac);
             g_bViewportDirty_00469fc4 = 1;
-            DAT_005a7780 = 0;
+            DAT_005a7780[0] = 0;
             break;
         case 0x13:
-            DAT_005a7780 = (unsigned short)(DAT_005a7780 - 4);
+            DAT_005a7780[0] = (short)(DAT_005a7780[0] - 4);
             SetPaletteEntry((short)DAT_004699d8,
-                            (short *)&DAT_005a7780);
+                            DAT_005a7780);
             break;
         }
     }
@@ -567,7 +567,7 @@ int process_player_input(void)
             }
             break;
         case 0x4c:
-            SetMousePosition(
+            WarpMouseTo(
                 (DAT_005a7510.left + DAT_005a7510.right) / 2,
                 (DAT_005a7510.top + DAT_005a7510.bottom) / 2);
             g_nRollInput_0059d3f4 = 0;
@@ -916,7 +916,7 @@ unsigned int player_input(void)
                 g_nYawInput_0059d3f2 = 0;
                 g_nMousePitchInput_0046a05c = 0;
                 g_nPitchInput_0059d3f0 = 0;
-                SetMousePosition(
+                WarpMouseTo(
                     (viewportLeft + DAT_005a7510.right) / 2,
                     (DAT_005a7510.bottom + DAT_005a7510.top) / 2);
             } else {
