@@ -741,6 +741,7 @@ extern signed char g_abFlightPath_0059c000[WC1_MISSION_OBJECTIVE_COUNT + 1];
 extern FixedVector g_aShipVelocity_0059c010[512];
 extern short g_anYawGoal_0059c310[16];
 extern short g_asObjectCounter_0059c330[512];
+extern short g_nTargetShip_0059c3b0;
 extern enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[WC1_SPACE_OBJECT_COUNT];
 extern enum ShipMissionType g_aeShipMissionType_0059c3f0[512];
 extern short g_asShipCount_0059c420[512];
@@ -773,6 +774,7 @@ extern short g_nPreviousPitchInput_0059ce70;
 extern short g_nPreviousYawInput_0059ce72;
 extern short g_nPreviousRollInput_0059ce74;
 extern short g_anObjectYawRotation_0059ce80[256];
+extern signed char g_acTurnRegulator_0059cf10[16];
 extern unsigned char DAT_0059cf20[512];
 extern signed char DAT_0059cf00[WC1_SPACE_OBJECT_COUNT];
 extern short g_asObjectDrawY_0059cf80[WC1_SPACE_OBJECT_COUNT];
@@ -794,6 +796,9 @@ extern short g_nRollInput_0059d3f4;
 extern short g_asShipWingLeader_0059d400[16];
 extern short g_aasShipArmor_0059d420[10][4];
 extern short g_asShipWeaponEnergy_0059d470[16];
+extern signed char g_acFormationMemberList_0059d490[16];
+extern short g_anShipMissionShip_0059d4b0[16];
+extern FixedVector g_vToTarget_0059d4d0;
 extern short g_asCannedCommand_0059d4e0[WC1_SPACE_OBJECT_COUNT];
 extern unsigned short DAT_0059d500[16];
 extern char g_acShipSequence_0059d520[512];
@@ -958,6 +963,7 @@ extern int g_nAfterburnerSoundDeadline_005a7ce8;
 extern unsigned char *g_pScannerMarkerBackground_005a7dc4;
 extern unsigned char DAT_005a7cec;
 extern int g_bPointerMovedByKeyboard_005a7d54;
+extern FixedVector g_vNormalizedToTarget_005a7db0;
 extern short g_nReleaseWeaponDisplayX_005a7dbc;
 extern short g_nReleaseWeaponDisplayY_005a7dbe;
 extern enum ObjectType g_eReleaseWeaponDisplayType_005a7dc0;
@@ -1183,14 +1189,7 @@ extern unsigned char g_bMessageSpeed_0046af68;
 extern unsigned char g_abManeuverRerollChance_00465678[47];
 extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
 
-/*
- * BRAINS.C names for retail state that is still backed by the provisional
- * oversized allocations above.  Keep these as aliases until the original
- * compilation-unit data layout is known; changing the backing allocations
- * here would move every later synthetic global.
- */
-#define g_nTargetShip_0059c3b0 \
-    (*(short *)((unsigned char *)g_aeSpecialManeuver_0059c3c0 - 0x10))
+/* Typed views over provisional oversized allocations. */
 #define g_stShipTimerState_0059c810 \
     (*(ShipTimerStateView *)(void *)g_asShipAfterburnerTimer_0059c810)
 #define g_acShipCommunicator_0059c850 \
@@ -1203,15 +1202,6 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
     (g_stPilotRuntimeState_0059cf20.pilotLevel)
 #define g_asTargetListRange_0059cf60 \
     (g_stPilotRuntimeState_0059cf20.targetListRange)
-#define g_acTurnRegulator_0059cf10 \
-    ((signed char *)((unsigned char *)DAT_0059cf20 - 0x10))
-
-#define g_anShipMissionShip_0059d4b0 \
-    ((short *)((unsigned char *)DAT_0059d500 - 0x50))
-#define g_vToTarget_0059d4d0 \
-    (*(FixedVector *)((unsigned char *)DAT_0059d500 - 0x30))
-#define g_acFormationMemberList_0059d490 \
-    ((signed char *)((unsigned char *)DAT_0059d500 - 0x70))
 #define g_stShipSideRuntimeState_0059d650 \
     (*(ShipSideRuntimeStateView *)(void *)g_aeShipSide_0059d650)
 #define g_acShipAiCooldown_0059d680 \
@@ -1220,8 +1210,6 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
     (*(ShipNavRuntimeStateView *)(void *)g_abShipNavPointIndex_0059d7c0)
 #define g_acTurnInterval_0059d7d0 \
     (g_stShipNavRuntimeState_0059d7c0.turnInterval)
-#define g_vNormalizedToTarget_005a7db0 \
-    (*(FixedVector *)((unsigned char *)DAT_005a7dd0 - 0x20))
 
 extern ShortVector g_aShipFormationOffset_0059b520[10];
 
