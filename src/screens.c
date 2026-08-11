@@ -792,12 +792,12 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
             break;
         case 8:
             first = int_value(&test);
-            if (g_asCollisionTime_005a7ca0[12] == 0)
+            if (g_nWingmanKillCount_005a7cb8 == 0)
                 return sceneData + first;
             break;
         case 9:
             first = int_value(&test);
-            if (g_asCollisionTime_005a7ca0[12] != 0)
+            if (g_nWingmanKillCount_005a7cb8 != 0)
                 return sceneData + first;
             break;
         case 10:

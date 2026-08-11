@@ -902,7 +902,7 @@ void PostMission(void)
                     0, g_nPlayerKillCount_005a7c9c);
         } else {
             missions = 1;
-            kills = g_asCollisionTime_005a7ca0[12];
+            kills = g_nWingmanKillCount_005a7cb8;
         }
         add_statistics(pilot, missions, kills);
         pilot++;
@@ -1010,7 +1010,7 @@ unsigned int UpdateSeries(void)
             DAT_004688e8 = -1;
     }
 
-    if (*(int *)&g_asCollisionTime_005a7ca0[10] != 0)
+    if (g_nWingmanKilledThisMission_005a7cb4 != 0)
         g_nMissionMedalScore_005a8116 =
             MaxShort(0, (short)(
                 g_stCampaignState_0059ca50.missionScore - 15));
@@ -1139,6 +1139,11 @@ short GameFlow(void)
         stranded_sequence();
         free_3Space();
         return 0;
+    } else if (flightResult == 4) {
+        free_3Space();
+        death_sequence(1);
+        DAT_004688f0 = 0;
+        return 0;
     } else {
         free_cockpit();
         free_all_slots();
@@ -1181,6 +1186,8 @@ short GameFlow(void)
         return 0;
     }
 
+    if (g_nWingmanKilledThisMission_005a7cb4 != 0)
+        death_sequence(0);
     if (DAT_004688cc == 1)
         Office();
     g_stCampaignState_0059ca50.currentSeries = (signed char)nextSeries;

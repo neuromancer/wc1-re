@@ -156,9 +156,9 @@
 0x00407E10 BlitTbl005a86d0Fn7E10
 0x00408200 SoundUiFn8200
 0x00408650 BlitTbl005a86d0Fn8650
-0x00408B30 SceneRoutine01
-0x00408D50 LoopUiFn8D50
-0x00408DE0 RunFuneralCeremonyScene
+0x00408B30 funeral_player
+0x00408D50 funeral_wingman
+0x00408DE0 death_sequence
 0x004094E0 RunAnimationDemoLoop
 0x00409760 cruise_home
 0x004098C0 fail

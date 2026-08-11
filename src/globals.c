@@ -196,9 +196,24 @@ const char g_szCampaignTimeFormat_00465648[12] = "%02d:%02d";
 const char g_szConversationTextFormat_00465654[12] = "%X%Y%F%s%P";
 const char g_szBriefingMapTextFormat_00465660[12] = "%X%Y%F%s%P";
 const char g_szCloseLookTextFormat_0046566c[12] = "%X%Y%F%s%P";
+const ShortPoint g_aFuneralParticleOrigins_00465b18[7] = {
+    { 234, 83 }, { 248, 85 }, { 260, 80 }, { 273, 78 },
+    { 286, 75 }, { 299, 76 }, { 310, 74 }
+};
+const short g_asFuneralSceneBySeries_00465b36[15] = {
+    0, 0, 1, 1, 1, 1, 1, 2, 3, 2, 3, 3, 2, 3, 0
+};
 int g_bFuneralShowTheEnd_00465b54;
 const char g_szTheEnd_00465c04[8] = "THE END";
 const char g_szFuneralTextFormat_00465c0c[12] = "%X%Y%F%s%P";
+const char g_szFuneralCompanyCommand_00465c18[20] =
+    "%X%Y%FCompany...%P";
+const char g_szFuneralAttentionCommand_00465c2c[20] =
+    "%X%YAtten-SHUN!%P";
+const char g_szFuneralPrepareArmsCommand_00465c40[20] =
+    "%X%YPrepare arms!%P";
+const char g_szFuneralFireCommand_00465c54[16] =
+    "%X%Y%FFire!%P";
 short g_nEnemySighting_00465c7c = 0x7fff;
 short g_nDebriefingPersonality_00465c80;
 int DAT_00465c84;
@@ -727,15 +742,16 @@ const char g_szTargetOffscreenRange_0046a9bc[8] = "----- m";
 short DAT_0046a9f8;
 int g_bMusicCommandSuppressed_0046a9fc;
 short DAT_0046aa04 = 1;
+short g_nFuneralSequenceActive_0046aa10;
 unsigned int DAT_0046aa14 = 0xffffffff;
 int g_nMusicStreamSet_0046aa18 = -1;
 int DAT_0046aa24 = -1;
 int DAT_0046aa2c = -1;
-unsigned char DAT_0046aa30 = 1;
-unsigned char DAT_0046aa34 = 1;
-unsigned char DAT_0046aa38 = 1;
-unsigned char DAT_0046aa3c;
-unsigned char DAT_0046aa40;
+int DAT_0046aa30 = 1;
+int DAT_0046aa34 = 1;
+int DAT_0046aa38 = 1;
+int DAT_0046aa3c;
+int DAT_0046aa40;
 const unsigned char g_abFireworkSoundDescriptor_0046ab70[7] = {
     0x00, 0x80, 0x40, 0x40, 0x3c, 0x00, 0x00
 };
@@ -2096,7 +2112,10 @@ unsigned char *g_pCinematicViewBackdrop_005a7c90;
 unsigned char *g_pRearViewBackdrop_005a7c94;
 int g_bPlayerDestroyed_005a7c98;
 short g_nPlayerKillCount_005a7c9c;
-short g_asCollisionTime_005a7ca0[16];
+short g_asCollisionTime_005a7ca0[10];
+int g_nWingmanKilledThisMission_005a7cb4;
+short g_nWingmanKillCount_005a7cb8;
+short g_nLastFoundShip_005a7cba;
 short g_asCollisionPartner_005a7cc0[10];
 int g_nMemoryConfiguration_005a7cd4;
 unsigned int g_dwOriginalFreeMemory_005a7cd8;

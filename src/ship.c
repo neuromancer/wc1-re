@@ -753,7 +753,7 @@ unsigned int analyze_kill(short attacker, short victim)
         if (attacker == 0)
             g_nPlayerKillCount_005a7c9c++;
         else if (g_nYourWingman_0046c04c == attacker)
-            g_asCollisionTime_005a7ca0[12]++;
+            g_nWingmanKillCount_005a7cb8++;
     }
     return 0;
 }
@@ -817,7 +817,7 @@ message_finished:
             personality_killed((short)rating);
         if (g_nYourWingman_0046c04c == obj) {
             missionShip = 0;
-            *(int *)(void *)&g_asCollisionTime_005a7ca0[10] = 1;
+            g_nWingmanKilledThisMission_005a7cb4 = 1;
             do {
                 if (g_acShipRating_0059cd80[missionShip] >
                     RATING_ACE_ICEMAN)

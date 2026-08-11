@@ -1028,6 +1028,308 @@ unsigned int funeral_wingman(char *text, short duration)
     return 0;
 }
 
+/* Function start: 0x408DE0 (Mac symbol: death_sequence) */
+unsigned int death_sequence(int playerFuneral)
+{
+    int *packet;
+    unsigned char *sceneData;
+    unsigned char *textData;
+    unsigned char *followupSceneData;
+    unsigned char *followupTextData;
+    short frame;
+    short volley;
+    short particle;
+    short scenePair;
+
+    PreloadMusicTrackHook(0x20);
+    g_nFuneralSequenceActive_0046aa10 = 1;
+    StartMusicTrack(0x20, 1, 0);
+    packet = (int *)FetchDiskPacketRetrying(
+        g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
+        0, 0);
+    g_bFuneralShowTheEnd_00465b54 = 0;
+
+    if (playerFuneral != 0) {
+        scenePair = (short)(
+            g_asFuneralSceneBySeries_00465b36[
+                g_stCampaignState_0059ca50.currentSeries] * 2);
+        followupSceneData = (unsigned char *)packet + packet[0];
+        sceneData = (unsigned char *)packet + packet[scenePair + 2];
+        textData = (unsigned char *)packet + packet[scenePair + 3];
+        followupTextData = (unsigned char *)packet + packet[1];
+        g_pIntroFont_005a8960 =
+            (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+    } else {
+        followupSceneData = (unsigned char *)packet + packet[10];
+        sceneData = (unsigned char *)packet + packet[12];
+        textData = (unsigned char *)packet + packet[13];
+        followupTextData = (unsigned char *)packet + packet[11];
+    }
+
+    InitializeConversationViewport();
+    g_nFuneralCasketX_005a86c8 = 180;
+    g_nFuneralCasketY_005a86ca = 70;
+    g_nFuneralForegroundX_005a8718 = 30;
+    g_nFuneralMainDistance_005a8738 = 112;
+    g_nFuneralParticleDistance_005a8710 = 16;
+    g_nFuneralGuardFrame_005a873c = 2;
+    g_nFuneralRifleFrame_005a871e = 4;
+    g_nFuneralBaseY_005a8722 = 0;
+    g_nFuneralBaseX_005a8720 = 0;
+    g_nFuneralForegroundY_005a871a = 0;
+    particle = 0;
+    do {
+        g_aFuneralParticles_005a86f0[particle].x = 0;
+        particle++;
+    } while (particle < 7);
+
+    frame = 0;
+    InitializeConversationText();
+    init_constellation(0);
+    g_pConversationSpecialShape_005a86ec =
+        (unsigned char *)FetchDiskPacketRetrying(4, 9, 0);
+    ClearViewport(&DAT_005a76b0, DAT_004699d8);
+    InitializeConstellationField(&DAT_005a76b0, -1, 16);
+    DAT_0059ab58 = 0;
+    PumpWindowMessages();
+    SceneDirector(3, sceneData, textData);
+
+    if (DAT_0059ab58 != 1) {
+        ClearViewport(&DAT_005a76b0, DAT_004699d8);
+        ClearViewport(&g_stConversationTextViewport_005a7570,
+                      DAT_0046999c);
+        DAT_00469fb4 = 1;
+        do {
+            PumpWindowMessages();
+            funeral_player();
+            if (DAT_0059ab58 == 1)
+                break;
+            frame++;
+        } while (frame < 10);
+
+        if (DAT_0059ab58 != 1) {
+            frame = 0;
+            FormatTextBufferFromStart(
+                g_szFuneralCompanyCommand_00465c18, 0, 160,
+                DAT_004699a4);
+            DAT_00469fb4 = 1;
+            do {
+                PumpWindowMessages();
+                funeral_player();
+                if (DAT_0059ab58 == 1)
+                    break;
+                frame++;
+            } while (frame < 15);
+            ClearViewport(&g_stConversationTextViewport_005a7570,
+                          DAT_0046999c);
+
+            if (DAT_0059ab58 != 1) {
+                frame = 0;
+                DAT_00469fb4 = 1;
+                FormatTextBufferFromStart(
+                    g_szFuneralAttentionCommand_00465c2c, 0, 160);
+                do {
+                    PumpWindowMessages();
+                    funeral_player();
+                    if (frame == 0)
+                        PlaySfxWaveFileByNumber(0x24, -1, 0);
+                    if (DAT_0059ab58 == 1)
+                        break;
+                    frame++;
+                } while (frame < 10);
+
+                if (DAT_0059ab58 != 1) {
+                    g_nFuneralGuardFrame_005a873c = 3;
+                    frame = 0;
+                    DAT_00469fb4 = 1;
+                    do {
+                        PumpWindowMessages();
+                        funeral_player();
+                        if (DAT_0059ab58 == 1)
+                            break;
+                        frame++;
+                    } while (frame < 10);
+
+                    if (DAT_0059ab58 != 1) {
+                        ClearViewport(
+                            &g_stConversationTextViewport_005a7570,
+                            DAT_0046999c);
+                        frame = 10;
+                        DAT_00469fb4 = 1;
+                        FormatTextBufferFromStart(
+                            g_szFuneralPrepareArmsCommand_00465c40,
+                            0, 160);
+                        do {
+                            PumpWindowMessages();
+                            funeral_player();
+                            frame--;
+                        } while (frame != 0);
+
+                        frame = 0;
+                        g_nFuneralRifleFrame_005a871e = 5;
+                        DAT_00469fb4 = 1;
+                        do {
+                            PumpWindowMessages();
+                            funeral_player();
+                            if (frame == 0)
+                                PlaySfxWaveFileByNumber(0x1f, -1, 0);
+                            if (DAT_0059ab58 == 1)
+                                break;
+                            frame++;
+                        } while (frame < 10);
+
+                        if (DAT_0059ab58 != 1) {
+                            SceneDirector(3, followupSceneData,
+                                          followupTextData);
+                            ClearViewport(&DAT_005a76b0,
+                                          DAT_004699d8);
+
+                            if (DAT_0059ab58 != 1) {
+                                volley = 0;
+                                do {
+                                    ClearViewport(
+                                        &g_stConversationTextViewport_005a7570,
+                                        DAT_0046999c);
+                                    FormatTextBufferFromStart(
+                                        g_szFuneralFireCommand_00465c54,
+                                        0, 160, DAT_004699a4);
+                                    if (volley == 1)
+                                        PlaySfxWaveFileByNumber(
+                                            0x1e, -1, 0);
+
+                                    frame = 0;
+                                    DAT_00469fb4 = 1;
+                                    do {
+                                        PumpWindowMessages();
+                                        funeral_player();
+                                        if (volley > 0) {
+                                            g_nFuneralCasketX_005a86c8--;
+                                            if (g_nFuneralCasketX_005a86c8 %
+                                                    2 == 0)
+                                                g_nFuneralCasketY_005a86ca--;
+                                            g_nFuneralMainDistance_005a8738++;
+                                            if (g_nFuneralCasketX_005a86c8 <
+                                                160) {
+                                                g_nFuneralForegroundX_005a8718 +=
+                                                    2;
+                                                g_nFuneralBaseX_005a8720++;
+                                            }
+                                        }
+                                        if (DAT_0059ab58 == 1)
+                                            break;
+                                        frame++;
+                                    } while (frame < 10);
+
+                                    ClearViewport(
+                                        &g_stConversationTextViewport_005a7570,
+                                        DAT_0046999c);
+                                    if (DAT_0059ab58 == 1)
+                                        break;
+
+                                    g_nFuneralParticleDistance_005a8710 = 16;
+                                    particle = 0;
+                                    do {
+                                        g_aFuneralParticles_005a86f0[particle].x =
+                                            (short)(
+                                                g_aFuneralParticleOrigins_00465b18[
+                                                    particle].x +
+                                                g_nFuneralBaseX_005a8720);
+                                        g_aFuneralParticles_005a86f0[particle].y =
+                                            (short)(
+                                                g_aFuneralParticleOrigins_00465b18[
+                                                    particle].y +
+                                                g_nFuneralBaseY_005a8722);
+                                        particle++;
+                                    } while (particle < 7);
+
+                                    frame = 0;
+                                    PlaySfxWaveFileByNumber(0x1d, -1, 0);
+                                    DAT_00469fb4 = 1;
+                                    do {
+                                        PumpWindowMessages();
+                                        funeral_player();
+                                        if (volley > 0) {
+                                            g_nFuneralCasketX_005a86c8--;
+                                            if (g_nFuneralCasketX_005a86c8 %
+                                                    2 == 0)
+                                                g_nFuneralCasketY_005a86ca--;
+                                            g_nFuneralMainDistance_005a8738++;
+                                            if (g_nFuneralCasketX_005a86c8 <
+                                                160) {
+                                                g_nFuneralForegroundX_005a8718 +=
+                                                    2;
+                                                g_nFuneralBaseX_005a8720++;
+                                            }
+                                        }
+                                        g_nFuneralParticleDistance_005a8710++;
+                                        if (DAT_0059ab58 == 1)
+                                            break;
+                                        frame++;
+                                    } while (frame < 24);
+
+                                    if (DAT_0059ab58 == 1)
+                                        break;
+                                    volley++;
+                                } while (volley < 3);
+
+                                if (DAT_0059ab58 != 1) {
+                                    frame = 0;
+                                    DAT_00469fb4 = 1;
+                                    SetMusBreakpt();
+                                    while (DAT_0059ab58 == 0) {
+                                        PumpWindowMessages();
+                                        funeral_player();
+                                        g_nFuneralCasketX_005a86c8--;
+                                        if (g_nFuneralCasketX_005a86c8 % 2 ==
+                                            0)
+                                            g_nFuneralCasketY_005a86ca--;
+                                        frame++;
+                                        g_nFuneralMainDistance_005a8738++;
+                                        g_nFuneralBaseX_005a8720++;
+                                        g_nFuneralForegroundX_005a8718 += 2;
+                                        g_nFuneralParticleDistance_005a8710++;
+                                        if (frame == 110 &&
+                                            playerFuneral != 0)
+                                            g_bFuneralShowTheEnd_00465b54 = 1;
+
+                                        if (DAT_0046a9f8 == 0 ||
+                                            DAT_0046aa30 == 0 ||
+                                            DAT_0046a9f8 == 3) {
+                                            if (frame > 160)
+                                                break;
+                                        } else if (GetMusicMode() != 0) {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (playerFuneral != 0)
+        FreePacketAndClear((int *)&g_pIntroFont_005a8960, 0);
+    ReleasePacketHandle((int)packet);
+    ReleasePacketHandle((int)g_pConversationSpecialShape_005a86ec);
+    free_constellation();
+    ReleaseTextFont(0);
+    ResetScreenClipToFullHeight();
+    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    RestoreGamePalette();
+    DAT_0059ab58 = 0;
+    ClearInputKeyStatePreservingModifiers();
+    FlushInputEvents();
+    g_nFuneralSequenceActive_0046aa10 = 0;
+    StopMusicUnlessSuppressed();
+    ReleaseSceneFlags();
+    ReleaseMusicTrackHook(0x20);
+    return 0;
+}
+
 /* Function start: 0x409760 */
 void cruise_home(short obj)
 {
@@ -2199,10 +2501,9 @@ void prepare_mission(void)
     int pilot;
 
     g_stCampaignState_0059ca50.missionScore = 0;
-    g_asCollisionTime_005a7ca0[10] = 0;
-    g_asCollisionTime_005a7ca0[11] = 0;
+    g_nWingmanKilledThisMission_005a7cb4 = 0;
     g_bPlayerDestroyed_005a7c98 = 0;
-    g_asCollisionTime_005a7ca0[12] = 0;
+    g_nWingmanKillCount_005a7cb8 = 0;
     g_nMissionMedalScore_005a8116 = 0;
     g_nPlayerKillCount_005a7c9c = 0;
 

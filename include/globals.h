@@ -48,9 +48,15 @@ extern const char g_szCampaignTimeFormat_00465648[12];
 extern const char g_szConversationTextFormat_00465654[12];
 extern const char g_szBriefingMapTextFormat_00465660[12];
 extern const char g_szCloseLookTextFormat_0046566c[12];
+extern const ShortPoint g_aFuneralParticleOrigins_00465b18[7];
+extern const short g_asFuneralSceneBySeries_00465b36[15];
 extern int g_bFuneralShowTheEnd_00465b54;
 extern const char g_szTheEnd_00465c04[8];
 extern const char g_szFuneralTextFormat_00465c0c[12];
+extern const char g_szFuneralCompanyCommand_00465c18[20];
+extern const char g_szFuneralAttentionCommand_00465c2c[20];
+extern const char g_szFuneralPrepareArmsCommand_00465c40[20];
+extern const char g_szFuneralFireCommand_00465c54[16];
 extern short g_nEnemySighting_00465c7c;
 extern short g_nDebriefingPersonality_00465c80;
 extern int g_aiPacketReferenceTable_00465c88[4][0x25];
@@ -302,15 +308,16 @@ extern const char g_szPlayWaveOpenError_0046a46c[36];
 extern short DAT_0046a9f8;
 extern int g_bMusicCommandSuppressed_0046a9fc;
 extern short DAT_0046aa04;
+extern short g_nFuneralSequenceActive_0046aa10;
 extern unsigned int DAT_0046aa14;
 extern int g_nMusicStreamSet_0046aa18;
 extern int DAT_0046aa24;
 extern int DAT_0046aa2c;
-extern unsigned char DAT_0046aa30;
-extern unsigned char DAT_0046aa34;
-extern unsigned char DAT_0046aa38;
-extern unsigned char DAT_0046aa3c;
-extern unsigned char DAT_0046aa40;
+extern int DAT_0046aa30;
+extern int DAT_0046aa34;
+extern int DAT_0046aa38;
+extern int DAT_0046aa3c;
+extern int DAT_0046aa40;
 extern const unsigned char g_abFireworkSoundDescriptor_0046ab70[7];
 extern const char g_szSfxWaveFormat_0046ad2c[12];
 extern unsigned char g_abTaggedAllocationPrefix_0046ad88[8];
@@ -894,7 +901,10 @@ extern unsigned char *g_pRearViewBackdrop_005a7c94;
 extern int g_bPlayerDestroyed_005a7c98;
 extern short g_nPlayerKillCount_005a7c9c;
 extern short g_asCollisionPartner_005a7cc0[10];
-extern short g_asCollisionTime_005a7ca0[16];
+extern short g_asCollisionTime_005a7ca0[10];
+extern int g_nWingmanKilledThisMission_005a7cb4;
+extern short g_nWingmanKillCount_005a7cb8;
+extern short g_nLastFoundShip_005a7cba;
 extern int g_nMemoryConfiguration_005a7cd4;
 extern unsigned int g_dwOriginalFreeMemory_005a7cd8;
 extern unsigned char *g_pMouseCursorResource_005a7cdc;
@@ -1135,8 +1145,6 @@ extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
     ((signed char *)((unsigned char *)g_abShipNavPointIndex_0059d7c0 + 0x10))
 #define g_vNormalizedToTarget_005a7db0 \
     (*(FixedVector *)((unsigned char *)DAT_005a7dd0 - 0x20))
-#define g_nLastFoundShip_005a7cba \
-    (*(short *)((unsigned char *)g_asCollisionPartner_005a7cc0 - 6))
 
 #define g_abObjectField_0059b4a0 \
     ((unsigned char *)g_aeObjectType_0059b560 - 0xc0)

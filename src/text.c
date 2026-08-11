@@ -25,7 +25,7 @@ void show_info_disp(void)
                       (int)g_stCampaignState_0059ca50.currentMission);
     DrawFormattedText("PC Kills   =%d\nWing Kills =%d\n",
                       (int)g_nPlayerKillCount_005a7c9c,
-                      (int)g_asCollisionTime_005a7ca0[12]);
+                      (int)g_nWingmanKillCount_005a7cb8);
     DrawFormattedText("Series Score   =%d\n",
                       (int)g_stCampaignState_0059ca50.seriesScore);
     DrawFormattedText("Miss Score %d, Medal %d\n",

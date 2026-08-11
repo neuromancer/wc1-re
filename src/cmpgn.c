@@ -406,7 +406,7 @@ char *AddPCName(char *text)
         case 'L':
             sprintf(formatted,
                     g_szConversationIntegerFormatAlt_0046562c,
-                    g_asCollisionTime_005a7ca0[12]);
+                    g_nWingmanKillCount_005a7cb8);
             DosStrcat(g_szTextScratchBuffer_00598b00, formatted);
             break;
         case 'N':
