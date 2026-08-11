@@ -65,6 +65,173 @@ typedef char MissionObjectiveDisk_size_must_be_0x40[
 typedef char MissionShipDisk_size_must_be_0x2a[
     sizeof(MissionShipDisk) == 0x2a ? 1 : -1];
 
+/* Function start: 0x4046A0 */
+unsigned int ejection_sequence(void)
+{
+    FixedVector viewOffset;
+    unsigned char *background;
+    unsigned char *ejectionShape;
+    short frame;
+    short y;
+    short descentSpeed;
+    short spriteFrame;
+
+    free_all_slots();
+    free_cockpit();
+    PreloadMusicTrackHook(0x1f);
+    frame = 0;
+    StartMusicTrack(0x1f, 2, 1);
+    new_view(9, 0);
+    background = FetchDiskPacketRetrying(
+        (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
+    ejectionShape = FetchDiskPacketRetrying(2, 1, 0);
+    y = 199;
+    PlaySfxWaveFileByNumber(0x21, -1, 0);
+    DAT_0059ab58 = 0;
+    descentSpeed = 4;
+    DAT_00469fb4 = 1;
+    do {
+        if (RefreshCockpitStatus() != 0) {
+            DrawSpriteDefault(&DAT_005a7510, 0, 0, background, 0);
+            spriteFrame = MinShort(frame, 4);
+            DrawSpriteDefault(
+                &DAT_005a7510, 160, y, ejectionShape,
+                g_asEjectionPrimaryFrames_00465550[spriteFrame]);
+            if (g_asEjectionSecondaryFrames_00465560[spriteFrame] != -1)
+                DrawSpriteDefault(
+                    &DAT_005a7510, 160, y, ejectionShape,
+                    g_asEjectionSecondaryFrames_00465560[spriteFrame]);
+            DrawSpriteDefault(&DAT_005a7510, 160, (short)(y + 1),
+                              ejectionShape, 5);
+            dump_buffer_to_screen();
+        }
+        if (frame > 1) {
+            y = (short)(y - descentSpeed);
+            descentSpeed = MinShort((short)(descentSpeed + 4), 20);
+        }
+        if (DAT_0059ab58 == 1)
+            break;
+        frame++;
+        DIBslam();
+        DIBslamReal();
+    } while (frame < 10);
+
+    ReleasePacketHandle((int)ejectionShape);
+    ReleasePacketHandle((int)background);
+    GetScreenUpdateFlag();
+    if (DAT_0059ab58 != 1) {
+        PromptInsertNumberedDisk(8);
+        g_pScreenViewportPacket_005a6b94 =
+            (unsigned char *)AllocateTaggedMemory(
+                GetPacketSize((char *)(DAT_005a7cf0 + 0x80), 8), 0x40);
+        if (g_pScreenViewportPacket_005a6b94 == 0)
+            ReportOutOfMemoryAndExit(g_szViewTemplates_004655d4);
+        else
+            LoadPacketIntoBuffer(8, 8,
+                                 g_pScreenViewportPacket_005a6b94);
+
+        g_aObjectTypeData_00466458[OBJECT_TYPE_EJECTED_PILOT].shapeSet =
+            FetchDiskPacketRetrying(2, 2, 0);
+        g_nEjectedPilotObject_0046c044 = find_vacant_3d_object();
+        set_objects_data(g_nEjectedPilotObject_0046c044,
+                         OBJECT_TYPE_EJECTED_PILOT, -1);
+        g_asObjectCounter_0059c330[g_nEjectedPilotObject_0046c044] =
+            32000;
+        copy_frame(0, g_nEjectedPilotObject_0046c044);
+        g_aShipPosition_0059c490[g_nEjectedPilotObject_0046c044] =
+            g_aShipPosition_0059c490[0];
+        ScaleFixedVector(
+            &g_aShipUpVector_0059b9e0[g_nEjectedPilotObject_0046c044],
+            -0x500,
+            &g_aShipVelocity_0059c010[g_nEjectedPilotObject_0046c044]);
+        AddFixedVectors(
+            &g_aShipVelocity_0059c010[g_nEjectedPilotObject_0046c044],
+            &g_aShipVelocity_0059c010[0],
+            &g_aShipVelocity_0059c010[g_nEjectedPilotObject_0046c044]);
+        new_view(10, g_nEjectedPilotObject_0046c044);
+
+        background = FetchDiskPacketRetrying(
+            (short)g_cCockpitLogicalFile_005a7c74, 0, 0);
+        ejectionShape = FetchDiskPacketRetrying(
+            (short)g_cCockpitLogicalFile_005a7c74, 5, 0);
+        y = 40;
+        frame = 0;
+        PlaySfxWaveFileByNumber(0x22, -1, 0);
+        DAT_00469fb4 = 1;
+        do {
+            if (RefreshCockpitStatus() != 0) {
+                DrawSpriteDefault(&DAT_005a7510, 0, y,
+                                  background, 0);
+                DrawSpriteDefault(&DAT_005a7510, 0, (short)(y - 1),
+                                  ejectionShape, 0);
+                dump_buffer_to_screen();
+            }
+            if (DAT_0059ab58 == 1)
+                break;
+            y = (short)(y + descentSpeed);
+            DIBslam();
+            frame++;
+            DIBslamReal();
+        } while (frame < 10);
+
+        ReleasePacketHandle((int)ejectionShape);
+        ReleasePacketHandle((int)background);
+        if (DAT_0059ab58 != 1) {
+            load_all_slots();
+            g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT] =
+                g_aShipUpVector_0059b9e0[0];
+            g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT] =
+                g_aShipRightVector_0059b6e0[0];
+            g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT] =
+                g_aShipForwardVector_0059bce0[0];
+            negate_vector(&g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT]);
+            ScaleFixedVector(
+                &g_aShipUpVector_0059b9e0[g_nEjectedPilotObject_0046c044],
+                -0x25800, &viewOffset);
+            AddFixedVectors(
+                &g_aShipPosition_0059c490[g_nEjectedPilotObject_0046c044],
+                &viewOffset,
+                &g_aShipPosition_0059c490[WC1_EYE_OBJECT]);
+            g_nScriptedViewObject_0046a8d0 =
+                g_nEjectedPilotObject_0046c044;
+            initialize_scripted_view(g_asEjectionViewScript_00465570);
+            frame = 0;
+            DAT_00469fb4 = 1;
+            SetMusBreakpt();
+            while (1) {
+                alter_pitch(4, g_nEjectedPilotObject_0046c044);
+                if (RefreshCockpitStatus() != 0)
+                    dump_buffer_to_screen();
+                if (frame == 10) {
+                    Explosion(0);
+                    PlaySfxWaveFileByNumber(4, -1, 0);
+                }
+                frame++;
+                if (frame > 200 || DAT_0059ab58 != 0)
+                    break;
+                DIBslam();
+                DIBslamReal();
+            }
+        }
+    }
+
+    DAT_0059ab58 = 0;
+    g_bScriptedView_0046a8d4 = 0;
+    if (g_pScreenViewportPacket_005a6b94 != 0) {
+        ReleasePacketHandle((int)g_pScreenViewportPacket_005a6b94);
+        g_pScreenViewportPacket_005a6b94 = 0;
+    }
+    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    DIBslam();
+    DIBslamReal();
+    RestoreGamePalette();
+    free_all_slots();
+    StopMusicUnlessSuppressed();
+    ReleaseMusicTrackHook(0x1f);
+    return 0;
+}
+
 /* Function start: 0x404BE0 */
 void stranded_sequence(void)
 {

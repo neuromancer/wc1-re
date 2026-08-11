@@ -66,9 +66,9 @@ void ShowModalMessage(const char *format, ...)
 }
 
 /* Function start: 0x428F80 */
-void ReportOutOfMemoryAndExit(void)
+void ReportOutOfMemoryAndExit(const char *resource)
 {
-    ShowModalMessage("ERROR: Out of memory for %s");
+    ShowModalMessage("ERROR: Out of memory for %s", resource);
     FatalErrorAndExit("You do not have enough memory to run Wing Commander.");
 }
 

@@ -102,6 +102,7 @@ unsigned int player_wingman(short obj);                                  /* 0x00
 void set_speed(short obj, short speed);                                  /* 0x00403F10 */
 void auto_position(short obj, short *formationSlot);                     /* 0x00403F40 */
 void auto_pilot_sequence(void);                                          /* 0x00404050 */
+unsigned int ejection_sequence(void);                                    /* 0x004046A0 */
 void stranded_sequence(void);                                            /* 0x00404BE0 */
 unsigned int ParseFaceAnimation(char *text, short *commands);           /* 0x00404CD0 */
 unsigned int ParseMouthAnimation(char *text, short *commands);          /* 0x00404D70 */
@@ -972,7 +973,7 @@ unsigned int HandleFleetOverviewInput(void);                           /* 0x0042
 short MeasureMessageWidth(const char *text);                                /* 0x00428E70 */
 void WaitForKeyAcknowledge(int mode);                                     /* 0x00428EA0 */
 void ShowModalMessage(const char *format, ...);                           /* 0x00428F20 */
-void ReportOutOfMemoryAndExit(void);                                    /* 0x00428F80 */
+void ReportOutOfMemoryAndExit(const char *resource);                    /* 0x00428F80 */
 void ShowOnScreenMessage(int flags, short duration,
                          const char *format, ...);                        /* 0x00428FA0 */
 void ShowGamePausedBanner(short showBanner);                           /* 0x004290A0 */

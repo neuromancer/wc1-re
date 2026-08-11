@@ -163,7 +163,6 @@ unsigned int update_scripted_view(void)
 void initialize_scripted_view(const short *script)
 {
     g_bScriptedView_0046a8d4 = 1;
-    g_nScriptedViewObject_0046a8d0 = -1;
     zero_vector(&g_aShipVelocity_0059c010[61]);
     init_ijk(61);
     g_pViewScript_005a6b58 = script;

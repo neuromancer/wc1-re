@@ -84,10 +84,10 @@ unsigned int GetScreenUpdateFlag(void)
 /* Function start: 0x427A00 */
 unsigned int initialize_view_buffer(void)
 {
-    if (DAT_005a7510.pixels == 0) {
+    if (DAT_0046a004 != 0 && DAT_005a7510.pixels == 0) {
         if (AllocateViewport(&DAT_005a7510, (short)DAT_004699d8,
                              0x20) == 0)
-            ReportOutOfMemoryAndExit();
+            ReportOutOfMemoryAndExit(g_szSpaceBuffer_0046a1d0);
     }
     return 0;
 }
@@ -136,9 +136,13 @@ unsigned int InitializeConversationViewport(void)
     ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
     DAT_005a6ba0.top = 24;
     DAT_005a6ba0.bottom = 151;
-    SetViewportRect(&DAT_005a76b0, 0, 0, 319, 127);
+    DAT_005a76b0.left = 0;
+    DAT_005a76b0.right = 319;
+    DAT_005a76b0.top = 0;
+    DAT_005a76b0.bottom = 127;
     if (AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0) == 0)
-        ReportOutOfMemoryAndExit();
+        ReportPacketLoadError(0, 0, 0, 0,
+                              g_szAllocateBufferTag_0046a1e0);
     return 0;
 }
 

@@ -168,6 +168,15 @@ const char g_szJoystickDevCapsFailure_004652dc[26] =
     "Joystick: !joyGetDevCaps\n";
 short DAT_00465460;
 short g_nAutopilotFormationShipCount_00465544;
+const short g_asEjectionPrimaryFrames_00465550[8] = {
+    0, 1, 1, 3, 3, 0, 0, 0
+};
+const short g_asEjectionSecondaryFrames_00465560[8] = {
+    -1, -1, 2, -1, 4, 0, 0, 0
+};
+const short g_asEjectionViewScript_00465570[12] = {
+    3, 11, 14, 70, 3, 10, 14, 80, 3, 4, -1, 0
+};
 const char *g_pStrandedMessage_00465588 =
     g_szStrandedMessage_0046558c;
 const char g_szStrandedMessage_0046558c[72] =
@@ -651,6 +660,8 @@ unsigned char g_bFlightRollLatch_0046a050;
 unsigned char g_bAfterburnerButtonLatched_0046a054;
 short g_nMouseYawInput_0046a058;
 short g_nMousePitchInput_0046a05c;
+const char g_szSpaceBuffer_0046a1d0[16] = "SPACE BUFFER";
+const char g_szAllocateBufferTag_0046a1e0[4] = "AB";
 ActiveSoundEntry *g_pActiveSoundHead_0046a438;
 ActiveSoundEntry *g_pActiveSoundTail_0046a43c;
 unsigned char DAT_0046a440;
@@ -873,6 +884,7 @@ signed char g_cCurrentObjective_0046c020 = -1;
 int DAT_0046c03c = -1;
 signed char g_cViewObject_0046c000 = -1;
 short g_nExternalViewShip_0046c040 = -1;
+short g_nEjectedPilotObject_0046c044;
 short g_nClosestVisibleObject_0046c048 = -1;
 short g_nYourWingman_0046c04c = -1;
 short g_nPlayerCollisionObject_0046c050 = -1;

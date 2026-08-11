@@ -585,7 +585,7 @@ void BriefingMap_LoadShapes(void)
         (unsigned char *)FetchDiskPacketRetrying(8, 2, 0);
     SetScreenClipRect(0, 0, 259, 155);
     if (AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0) == 0)
-        ReportOutOfMemoryAndExit();
+        ReportOutOfMemoryAndExit(g_szNavViewportName_00468894);
     objective = 0;
     while (objective < (short)g_cMissionObjectiveCount_0059c46a) {
         LocateMobileObjective(objective);
@@ -1114,14 +1114,19 @@ short GameFlow(void)
     init_mission(flownSeries, flownMission);
     flightResult = RunSpaceFlight(-1);
 
-    if (flightResult == 2) {
+    if (flightResult == 1) {
+        free_cockpit();
+        g_nArcadeState_00469fb0 = 0;
+        g_nPlayerCollisionObject_0046c050 = -1;
+        free_3Space();
+    } else if (flightResult == 2) {
+        ejection_sequence();
         check_stranded();
-        if (g_nArcadeState_00469fb0 == 3) {
-            free_cockpit();
-            free_all_slots();
-            free_3Space();
+        if (g_nArcadeState_00469fb0 == 3)
+            stranded_sequence();
+        free_3Space();
+        if (g_nArcadeState_00469fb0 == 3)
             return 0;
-        }
         g_nArcadeState_00469fb0 = 0;
         DAT_004688d4 = 1;
         g_stCampaignState_0059ca50.promotionScore = MaxShort(
@@ -1130,19 +1135,17 @@ short GameFlow(void)
         if (g_stCampaignState_0059ca50.elapsedDate.year == 1)
             DAT_004688e4 = 3;
         DAT_004688cc = 1;
-    } else if (flightResult != 1) {
+    } else if (flightResult == 3) {
+        stranded_sequence();
+        free_3Space();
+        return 0;
+    } else {
         free_cockpit();
         free_all_slots();
         free_3Space();
         DAT_004688f0 = 0;
         return 0;
     }
-
-    free_cockpit();
-    g_nArcadeState_00469fb0 = 0;
-    g_nPlayerCollisionObject_0046c050 = -1;
-    free_all_slots();
-    free_3Space();
 
     PostMission();
     UpdateSeries();
