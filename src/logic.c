@@ -524,6 +524,8 @@ unsigned int LoadOriginFxDrivers(void)
 /* Function start: 0x421D80 */
 unsigned int InitializeGameTextContexts(void)
 {
+    InitializeDIBScreenViewport(&DAT_005a6ba0,
+                                (unsigned char)DAT_0046999c);
     g_stModalSourceViewport_005a7670 = DAT_005a6ba0;
     g_stDefaultTextContext_005a7740.viewport =
         &g_stModalSourceViewport_005a7670;
@@ -2384,11 +2386,11 @@ void init_3Space_objects(short scene)
 unsigned int load_common_3Space_objects(void)
 {
     ObjectTypeData *types = g_aObjectTypeData_00466458;
-    unsigned char *debrisShapeSet;
     unsigned char *turretShapeSet;
     unsigned char *turretAnimation;
-    unsigned char *missileShapeSet;
+    unsigned char *debrisShapeSet;
     unsigned char *missileAnimation;
+    unsigned char *missileShapeSet;
 
     LoadShapeSet(g_aCommon3SpaceResources_00469bc0, 0, -1);
     debrisShapeSet = types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;

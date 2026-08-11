@@ -74,7 +74,7 @@ char FindCdRomDriveByVolumeLabel(const char *label,
 int SetCurrentDirOnDrive(char drive, const char *directory);          /* 0x004033E0 */
 int PromptInsertCorrectCd(void);                                      /* 0x00403450 */
 short __stdcall OpenDataFileOrDie(const char *path);                           /* 0x004034D0 */
-void __stdcall CloseDataFile(unsigned int fd);                             /* 0x00403500 */
+void __stdcall CloseDataFile(unsigned short fd);                           /* 0x00403500 */
 short __stdcall WriteDataFileAtOffset(unsigned int fd, int offset,
                                       unsigned int length,
                                       const void *data);                    /* 0x00403520 */

@@ -358,11 +358,11 @@ short FindTrainSimHighScore(short pilot)
 /* Function start: 0x425EF0 */
 short InsertTrainSimHighScore(short pilot, unsigned int score)
 {
-    if (FindTrainSimHighScore(pilot) == -1)
-        SetHighScoreEntry(5, (unsigned char)pilot, score);
-    else
+    if (FindTrainSimHighScore(pilot) != -1)
         SetHighScoreEntry(FindTrainSimHighScore(pilot),
                           (unsigned char)pilot, score);
+    else
+        SetHighScoreEntry(5, (unsigned char)pilot, score);
     SortTrainSimHighScores();
     return FindTrainSimHighScore(pilot);
 }
@@ -711,35 +711,33 @@ void UpdateTrainSimHighScores(int score)
 {
     short slot;
     unsigned int previousScore;
-    const char *format;
     char message[100];
 
     slot = FindTrainSimHighScore(8);
-    previousScore = g_aHighScoreEntries_005a7c30[5].score;
-    if (slot != -1)
+    if (slot == -1)
+        previousScore = g_aHighScoreEntries_005a7c30[5].score;
+    else
         previousScore = g_aHighScoreEntries_005a7c30[slot].score;
     slot = -1;
     if ((int)previousScore < score)
         slot = InsertTrainSimHighScore(8, (unsigned int)score);
 
-    if (DAT_004688e0 == 0) {
-        InitializeTrainSimTextPanel();
-        if (slot == -1) {
-            format = g_szLowScoreMessage_00469f38;
-        } else {
-            score = slot + 1;
-            format = g_szHighScoreCongratulations_00469ef4;
-        }
-        sprintf(message, format, score);
-        ShowTrainSimTextMessage(message);
-        SetEventManagerPump(PollJoystickButtonEvents);
-        DIBslam();
-        DIBslamReal();
-        WaitForInputKey();
-        SetEventManagerPump(PollMenuInputDevices);
+    if (DAT_004688e0 != 0) {
+        EnterPilotNameAndCallsign();
         return;
     }
-    EnterPilotNameAndCallsign();
+    InitializeTrainSimTextPanel();
+    if (slot == -1)
+        sprintf(message, g_szLowScoreMessage_00469f38, score);
+    else
+        sprintf(message, g_szHighScoreCongratulations_00469ef4,
+                slot + 1);
+    ShowTrainSimTextMessage(message);
+    SetEventManagerPump(PollJoystickButtonEvents);
+    DIBslam();
+    DIBslamReal();
+    WaitForInputKey();
+    SetEventManagerPump(PollMenuInputDevices);
 }
 
 /* Function start: 0x4268E0 */

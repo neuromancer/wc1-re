@@ -527,18 +527,18 @@ void rotate_about_k(short angle, FixedVector *i, FixedVector *j)
 /* Function start: 0x418F60 */
 void init_ijk(short obj)
 {
-    g_aShipRightVector_0059b6e0[obj].x = 0x100;
-    g_aShipRightVector_0059b6e0[obj].y = 0;
-    g_aShipRightVector_0059b6e0[obj].z = 0;
-    g_aShipUpVector_0059b9e0[obj].x = 0;
+    g_aShipForwardVector_0059bce0[obj].z = 0x100;
     g_aShipUpVector_0059b9e0[obj].y = 0x100;
+    g_aShipRightVector_0059b6e0[obj].x = 0x100;
+    g_aShipForwardVector_0059bce0[obj].y = 0;
     g_aShipUpVector_0059b9e0[obj].z = 0;
     g_aShipForwardVector_0059bce0[obj].x = 0;
-    g_aShipForwardVector_0059bce0[obj].y = 0;
-    g_aShipForwardVector_0059bce0[obj].z = 0x100;
-    g_anObjectPitchRotation_0059b2a0[obj] = 0;
-    g_anObjectYawRotation_0059ce80[obj] = 0;
+    g_aShipUpVector_0059b9e0[obj].x = 0;
+    g_aShipRightVector_0059b6e0[obj].z = 0;
+    g_aShipRightVector_0059b6e0[obj].y = 0;
     g_anObjectRollRotation_0059d7e0[obj] = 0;
+    g_anObjectYawRotation_0059ce80[obj] = 0;
+    g_anObjectPitchRotation_0059b2a0[obj] = 0;
 }
 
 /* Function start: 0x418FD0 */

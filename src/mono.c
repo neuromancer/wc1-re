@@ -9,7 +9,7 @@
 #include "wc1.h"
 
 /* Function start: 0x403500 */
-void __stdcall CloseDataFile(unsigned int fd)
+void __stdcall CloseDataFile(unsigned short fd)
 {
     g_nPacketError_00465460 = (short)_close(fd & 0xffff);
 }

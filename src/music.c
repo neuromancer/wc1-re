@@ -393,9 +393,9 @@ failed:
 }
 
 /* Function start: 0x42D870 */
-void __stdcall CloseDataFileByHandle(unsigned short *p)
+void __stdcall CloseDataFileByHandle(unsigned short *handle)
 {
-    CloseDataFile(*p);
+    CloseDataFile(*handle);
 }
 
 /* Function start: 0x42D880 */

@@ -930,17 +930,15 @@ void flag_objective(short objective, unsigned char flags)
 /* Function start: 0x4150D0 */
 void DrawCalculatingLabel(void)
 {
-    char *text;
-
     if (g_nCurrentObjectiveRange_0059d2b0 <= 0) {
-        text = (char *)g_szCalculating_0046931c;
+        DrawCockpitReadout(0, (char *)g_szCalculating_0046931c);
     } else {
-        text = _ltoa((long)g_nCurrentObjectiveRange_0059d2b0,
-                     g_szTextScratchBuffer_00598b00, 10);
-        strcat(text, g_szRangeKilometresSuffix_00469328);
-        text = g_szTextScratchBuffer_00598b00;
+        strcpy(g_szTextScratchBuffer_00598b00 +
+                   strlen(_ltoa((long)g_nCurrentObjectiveRange_0059d2b0,
+                                g_szTextScratchBuffer_00598b00, 10)),
+               " km");
+        DrawCockpitReadout(0, g_szTextScratchBuffer_00598b00);
     }
-    DrawCockpitReadout(0, text);
     g_nDisplayedObjectiveRange_00469088 =
         g_nCurrentObjectiveRange_0059d2b0;
 }
@@ -1216,17 +1214,19 @@ void update_objective_location(short objective)
 /* Function start: 0x415850 */
 unsigned int objective_lost(short objective)
 {
-    short state;
-    int type;
+    unsigned short state;
 
     state = g_aMissionShips_0046c948[
         g_aMissionObjectives_0059dac0[objective].index].state;
-    type = g_aMissionObjectives_0059dac0[objective].type;
-    if (type >= 2 && type <= 3)
-        return state >= 1;
-    if (type == 4)
-        return state == 3;
-    return 0;
+    switch (g_aMissionObjectives_0059dac0[objective].type) {
+        case 2:
+        case 3:
+            return state >= 1;
+        case 4:
+            return state == 3;
+        default:
+            return 0;
+    }
 }
 
 /* Function start: 0x4158A0 */
@@ -2207,13 +2207,13 @@ void check_target(void)
 /* Function start: 0x417190 */
 void update_missile_warning(void)
 {
-    if (missile_on_tail(0) == 0) {
+    if (missile_on_tail(0) != 0) {
+        SetCockpitLightBlink(2, 1);
+        if (g_nTrainSimActive_00469e2c == 0)
+            spacetrack(3, 1, -1);
+    } else {
         g_abCockpitLightGoal_005a7eb8[2] = 0;
-        return;
     }
-    SetCockpitLightBlink(2, 1);
-    if (g_nTrainSimActive_00469e2c == 0)
-        spacetrack(3, 1, -1);
 }
 
 /* Function start: 0x4171D0 */

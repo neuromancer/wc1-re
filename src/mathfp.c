@@ -293,18 +293,28 @@ void __stdcall DrawTextString(char *text)
 /* Function start: 0x435290 */
 void __stdcall DrawTextCharacter(char character)
 {
-    TextContext *context = g_pCurrentTextContext_0059af8c;
+    TextContext *context;
+    unsigned char *font;
+    short fontHeight;
+    unsigned char glyphWidth;
+    short cursorY;
 
     if (character == '\n') {
-        context->cursorX = context->viewport->left;
-        context->cursorY = (short)(context->cursorY +
-            *(short *)context->font);
+        g_pCurrentTextContext_0059af8c->cursorX =
+            g_pCurrentTextContext_0059af8c->viewport->left;
+        g_pCurrentTextContext_0059af8c->cursorY =
+            (short)(g_pCurrentTextContext_0059af8c->cursorY +
+                    *(short *)g_pCurrentTextContext_0059af8c->font);
     } else if (character == '\r') {
-        context->cursorX = context->viewport->left;
+        g_pCurrentTextContext_0059af8c->cursorX =
+            g_pCurrentTextContext_0059af8c->viewport->left;
     } else if (character != 0) {
-        DrawFontGlyph(character, context, *(short *)context->font,
-                      context->font[4 + (int)(signed char)character],
-                      context->cursorY);
+        font = g_pCurrentTextContext_0059af8c->font;
+        fontHeight = *(short *)font;
+        glyphWidth = font[4 + (int)(signed char)character];
+        context = g_pCurrentTextContext_0059af8c;
+        cursorY = context->cursorY;
+        DrawFontGlyph(character, context, fontHeight, glyphWidth, cursorY);
     }
 }
 
@@ -319,43 +329,49 @@ void __stdcall AppendTextCharacter(char character)
 /* Function start: 0x435340 */
 int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
 {
-    unsigned short *run;
+    unsigned char *run;
     unsigned short rowLength;
-    unsigned short count;
     unsigned char command;
     int frameTableOffset;
     int size;
 
     size = 0;
-    if (shape == 0 || frame < 0)
-        return 0;
-    frameTableOffset = frame * 4 + 4;
-    if (frameTableOffset >= *(unsigned short *)(shape + 4))
-        return 0;
-    run = (unsigned short *)(shape +
-        *(int *)(shape + frameTableOffset) + 8);
-    rowLength = *run;
-    while (rowLength != 0) {
-        run += 3;
-        if ((rowLength & 1) == 0) {
-            count = rowLength >> 1;
-            size += count;
-            run = (unsigned short *)((unsigned char *)run + count);
-        } else {
-            rowLength >>= 1;
+    if (shape != 0 && frame >= 0) {
+        frameTableOffset = frame * 4 + 4;
+        if (frameTableOffset < *(unsigned short *)(shape + 4)) {
+            run = shape + *(int *)(shape + frameTableOffset) + 8;
+            rowLength = *(unsigned short *)run;
+            run += 2;
             while (rowLength != 0) {
-                command = *(unsigned char *)run;
-                count = command >> 1;
-                if ((command & 1) == 0)
-                    run = (unsigned short *)((unsigned char *)run +
-                                              count + 1);
-                else
-                    run++;
-                size += count;
-                rowLength = (unsigned short)(rowLength - count);
+                run += 4;
+                if ((rowLength & 1) != 0) {
+                    rowLength >>= 1;
+                    while (rowLength != 0) {
+                        command = *run;
+                        run++;
+                        if ((command & 1) != 0) {
+                            command >>= 1;
+                            run++;
+                            rowLength =
+                                (unsigned short)(rowLength - command);
+                            size += command;
+                        } else {
+                            command >>= 1;
+                            rowLength =
+                                (unsigned short)(rowLength - command);
+                            size += command;
+                            run += command;
+                        }
+                    }
+                } else {
+                    rowLength >>= 1;
+                    size += rowLength;
+                    run += rowLength;
+                }
+                rowLength = *(unsigned short *)run;
+                run += 2;
             }
         }
-        rowLength = *run;
     }
     return size;
 }

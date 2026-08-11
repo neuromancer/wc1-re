@@ -196,16 +196,20 @@ void SetAwakenBarracksMenuLabel(char **label, int series, int mission,
 /* Function start: 0x41B180 */
 void FreeBarracksMenuLabels(void)
 {
+    const char *saveCampaignLabel;
     short bunk;
 
+    saveCampaignLabel = g_apszSaveCampaignMenuLabels_004693e8[0];
     bunk = 0;
     do {
         if (g_apszBarracksMenuLabels_004693f0[bunk * 2] !=
-            g_apszSaveCampaignMenuLabels_004693e8[0]) {
+            saveCampaignLabel) {
             FreeBarracksMenuLabel(
                 &g_apszBarracksMenuLabels_004693f0[bunk * 2]);
             FreeBarracksMenuLabel(
                 &g_apszBarracksMenuLabels_004693f0[bunk * 2 + 1]);
+            saveCampaignLabel =
+                g_apszSaveCampaignMenuLabels_004693e8[0];
         }
         bunk++;
     } while (bunk < 8);

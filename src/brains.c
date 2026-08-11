@@ -1106,16 +1106,15 @@ unsigned int PlayScrambleHangarScene(void)
 /* Function start: 0x407C90 */
 unsigned int DrawScrambleActor(short actorIndex)
 {
-    signed char animationFrame;
     signed char frame;
-    unsigned char control;
+    int control;
+    signed char animationFrame;
     short x;
     short y;
 
     frame = 0;
-    animationFrame =
-        g_aScrambleAnimationActors_004657b0[actorIndex].animationFrame;
-    if (animationFrame != -1) {
+    if ((animationFrame = g_aScrambleAnimationActors_004657b0[
+             actorIndex].animationFrame) != -1) {
         if ((int)g_aScrambleAnimationActors_004657b0[
                 actorIndex].animationState != 0xa000) {
             animationFrame++;
@@ -1123,17 +1122,21 @@ unsigned int DrawScrambleActor(short actorIndex)
                 frame = (signed char)g_aScrambleAnimationActors_004657b0[
                     actorIndex].animation[(int)animationFrame];
                 control = (unsigned char)frame & 0xc0;
-                if (control == 0) {
-                    g_aScrambleAnimationActors_004657b0[
-                        actorIndex].animationFrame++;
-                } else if (control == 0x40) {
-                    g_aScrambleAnimationActors_004657b0[
-                        actorIndex].animationState = 0;
-                    animationFrame--;
-                } else if (control == 0x80) {
-                    animationFrame = (signed char)(frame & 0x3f);
-                    g_aScrambleAnimationActors_004657b0[
-                        actorIndex].animationFrame = animationFrame;
+                switch (control) {
+                    case 0:
+                        g_aScrambleAnimationActors_004657b0[
+                            actorIndex].animationFrame++;
+                        break;
+                    case 0x40:
+                        g_aScrambleAnimationActors_004657b0[
+                            actorIndex].animationState = 0;
+                        animationFrame--;
+                        break;
+                    case 0x80:
+                        animationFrame = (signed char)(frame & 0x3f);
+                        g_aScrambleAnimationActors_004657b0[
+                            actorIndex].animationFrame = animationFrame;
+                        break;
                 }
             } while (control != 0);
         } else

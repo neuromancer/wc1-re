@@ -261,17 +261,21 @@ short OpenDiskDataFile(short logicalFile)
     if (DAT_0059ab34 != 0)
         return 1;
     if (GetCurrentDiskDriveHook() == 'A') {
-        if (_toupper((int)g_abDiskPromptDriveState_005a7d20[1]) != 'B')
+        if (toupper((int)(signed char)
+                        g_abDiskPromptDriveState_005a7d20[1]) == 'B') {
+            SelectDiskDriveHook('B');
+        } else {
             return 0;
-        SelectDiskDriveHook('B');
+        }
     } else {
         SelectDiskDriveHook('A');
     }
     file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688);
-    if (file == -1)
-        return 0;
-    CloseDataFile((unsigned short)file);
-    return 1;
+    if (file != -1) {
+        CloseDataFile((unsigned short)file);
+        return 1;
+    }
+    return 0;
 }
 
 /* Function start: 0x41D760 */

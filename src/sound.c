@@ -147,32 +147,28 @@ void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
 /* Function start: 0x42B870 */
 void LoadVolumeSettingsFromRegistry(void)
 {
-    HKEY key = 0;
-    DWORD type;
-    DWORD size;
+    HKEY key;
 
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
                       "Software\\Origin Systems\\WC: Kilrathi Saga",
                       0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
-        type = REG_DWORD;
-        size = sizeof(g_nMusicVolumeSetting_00469fc0);
-        if (RegQueryValueExA(key, "MusicVolume", 0, &type,
-                             (LPBYTE)&g_nMusicVolumeSetting_00469fc0,
-                             &size) != ERROR_SUCCESS) {
+        if (RegistryQueryValue(key, "MusicVolume", REG_DWORD,
+                               (LPBYTE)&g_nMusicVolumeSetting_00469fc0,
+                               sizeof(g_nMusicVolumeSetting_00469fc0)) !=
+            ERROR_SUCCESS) {
             g_nMusicVolumeSetting_00469fc0 = 0x14;
-            RegSetValueExA(key, "MusicVolume", 0, REG_DWORD,
-                           (const BYTE *)&g_nMusicVolumeSetting_00469fc0,
-                           sizeof(g_nMusicVolumeSetting_00469fc0));
+            RegistryStoreValue(key, "MusicVolume", REG_DWORD,
+                               (const BYTE *)&g_nMusicVolumeSetting_00469fc0,
+                               sizeof(g_nMusicVolumeSetting_00469fc0));
         }
-        type = REG_DWORD;
-        size = sizeof(g_nSfxVolumeSetting_00469fbc);
-        if (RegQueryValueExA(key, "SFXVolume", 0, &type,
-                             (LPBYTE)&g_nSfxVolumeSetting_00469fbc,
-                             &size) != ERROR_SUCCESS) {
+        if (RegistryQueryValue(key, "SFXVolume", REG_DWORD,
+                               (LPBYTE)&g_nSfxVolumeSetting_00469fbc,
+                               sizeof(g_nSfxVolumeSetting_00469fbc)) !=
+            ERROR_SUCCESS) {
             g_nSfxVolumeSetting_00469fbc = 0x14;
-            RegSetValueExA(key, "SFXVolume", 0, REG_DWORD,
-                           (const BYTE *)&g_nSfxVolumeSetting_00469fbc,
-                           sizeof(g_nSfxVolumeSetting_00469fbc));
+            RegistryStoreValue(key, "SFXVolume", REG_DWORD,
+                               (const BYTE *)&g_nSfxVolumeSetting_00469fbc,
+                               sizeof(g_nSfxVolumeSetting_00469fbc));
         }
         RegCloseKey(key);
     }

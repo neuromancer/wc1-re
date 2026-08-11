@@ -76,13 +76,13 @@ void DIBreInstall(void)
 {
     int err;
 
-    if (DAT_00465074 == 0) {
-        DAT_0046b1b4 = -1;
-    } else {
+    if (DAT_00465074 != 0) {
         IDirectDraw2_SetCooperativeLevel(
             g_pDirectDraw2_0046b1a4, DAT_00486074, 0x13);
         if (DIBcascade(-2, &err) == 0)
             DIBerror("DIBreInstall   DIBcascade Failure", err);
+    } else {
+        DAT_0046b1b4 = -1;
     }
     DIBslam();
     DIBslamReal();
