@@ -615,7 +615,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `ShowVersionBanner` | `0x4290D0` | 75.00% |
 | `hudmsg.c` | `SetMessageDisplaySpeed` | `0x4290F0` | 100.00% |
 | `hudmsg.c` | `ReportFramesSkipped` | `0x429120` | 100.00% |
-| `hudmsg.c` | `HandleSpaceFlightControls` | `0x429160` | 83.22% |
+| `hudmsg.c` | `HandleSpaceFlightControls` | `0x429160` | 83.03% |
 | `hudmsg.c` | `Draw_3Space_Frame` | `0x429DD0` | 100.00% |
 | `hudmsg.c` | `GetArcadeBonus` | `0x429E30` | 100.00% |
 | `hudmsg.c` | `FigureArcadeTime` | `0x429E70` | 100.00% |
@@ -947,7 +947,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `main.c` | `process_player_input` | `0x427F20` | 81.57% |
 | `main.c` | `fire_players_lasers` | `0x428480` | 100.00% |
 | `main.c` | `players_flight_dynamics` | `0x4284D0` | 89.23% |
-| `main.c` | `player_input` | `0x4285D0` | 82.64% |
+| `main.c` | `player_input` | `0x4285D0` | 82.24% |
 | `main.c` | `SelectNextExternalViewObject` | `0x428C90` | 94.74% |
 | `main.c` | `SelectPreviousExternalViewObject` | `0x428CD0` | 100.00% |
 | `main.c` | `HandleFleetOverviewInput` | `0x428D10` | 94.03% |

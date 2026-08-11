@@ -180,7 +180,9 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x12:
-            if (!repeated && control != 0 &&
+            if (!repeated &&
+                (control != 0 ||
+                 (g_wCurrentInputModifiers_0059ab08 & 0x2000) != 0) &&
                 g_cPlayerEjectionDamage_0059bff7 != 4) {
                 if ((short)RandomInRange(
                         0, g_cPlayerEjectionDamage_0059bff7) == 0)

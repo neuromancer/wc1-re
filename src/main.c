@@ -794,6 +794,8 @@ unsigned int player_input(void)
         case 3:
         case 5:
             g_bMouseAfterburnerControl_0046a02c = 0;
+            g_wCurrentInputModifiers_0059ab08 =
+                (unsigned short)event.modifiers;
             g_bCurrentKey_0046c014 = (unsigned char)event.value;
             process_player_input();
             break;
