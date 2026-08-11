@@ -2591,7 +2591,24 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     { &g_aszObjectTypeDisplayNames_004684d4[0x2c] }, /* 5: Dilligent */
     { &g_aszObjectTypeDisplayNames_004684d4[0x38] }, /* 6: Drayman */
     { &g_aszObjectTypeDisplayNames_004684d4[0x40] }, /* 7: Exeter */
-    { &g_aszObjectTypeDisplayNames_004684d4[0x48] }, /* 8: Tiger's Claw */
+    /* 8: Tiger's Claw */
+    {
+        &g_aszObjectTypeDisplayNames_004684d4[0x48],
+        OBJECT_CLASS_CAPITAL_SHIP, 700, 10000, 4096, 1, 3392, 3,
+        560, 30000, 0, 0, 0, 256, 1, 1, 1, 20000,
+        {
+            8,
+            27, 0, 0, 0, 33, 0, 0,
+            27, 0, 0, 0, 34, 0, 0,
+            27, 0, 0, 0, 35, 0, 0,
+            27, 0, 0, 0, 36, 0, 0,
+            27, 0, 0, 0, 37, 0, 0,
+            27, 0, 0, 0, 38, 0, 0,
+            27, 0, 0, 0, 39, 0, 0,
+            27, 0, 0, 0, 40, 0, 0
+        },
+        300, 300, 240, 200, 250, 250, 0, 0
+    },
     { &g_aszObjectTypeDisplayNames_004684d4[0x58] }, /* 9: Salthi */
     /* 10: Dralthi */
     {

@@ -1215,6 +1215,8 @@ void get_right_shape(short obj, const FixedVector *direction)
     short frame;
     short remainder;
     short angle;
+    short slot;
+    enum ObjectType type;
 
     toEye = *direction;
     negate_vector(&toEye);
@@ -1262,6 +1264,38 @@ void get_right_shape(short obj, const FixedVector *direction)
     if (angle < 0)
         angle += 360;
     g_asObjectScreenAngle_0059cd90[obj] = angle;
+
+    if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_CAPITAL_SHIP) {
+        if (g_asCapitalShipViewFrame_0059dd90[obj] == frame)
+            return;
+
+        type = g_aeObjectType_0059b560[obj];
+        slot = 1;
+        while (slot < 3 &&
+               g_aObjectResourceSlots_0059ddf0[slot].type !=
+                   (signed char)type) {
+            slot++;
+        }
+        g_asObjectViewFrame_0059d230[obj] = 0;
+        g_asCapitalShipViewFrame_0059dd90[obj] = frame;
+        if (DAT_005a7510.pixels != 0 &&
+            IdentityWord((unsigned short)g_apObjectShape_0059d2f0[obj]) ==
+                0) {
+            GetScreenUpdateFlag();
+        }
+        if (slot < 3 &&
+            g_aiPacketReferenceTable_00465c88[slot][frame] != 0) {
+            g_apObjectShape_0059d2f0[obj] = (unsigned char *)
+                g_aiPacketReferenceTable_00465c88[slot][frame];
+        } else {
+            if (DAT_005a7510.pixels != 0)
+                GetScreenUpdateFlag();
+            g_apObjectShape_0059d2f0[obj] =
+                (unsigned char *)FetchDiskPacketRetrying(
+                    (short)(type + 22), frame, 0);
+        }
+        initialize_view_buffer();
+    }
 }
 
 /* Function start: 0x41A9D0 */

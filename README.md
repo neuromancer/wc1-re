@@ -559,7 +559,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `ClampTo30` | `0x41A110` | 100.00% |
 | `geom.c` | `transform_objects_to_your_view` | `0x41A1D0` | 83.10% |
 | `geom.c` | `set_background_objects_rotation` | `0x41A530` | 91.67% |
-| `geom.c` | `get_right_shape` | `0x41A610` | 37.00% |
+| `geom.c` | `get_right_shape` | `0x41A610` | 50.55% |
 | `geom.c` | `InitializeModalTextPanel` | `0x41A9D0` | 77.89% |
 | `geom.c` | `DrawModalTextPanel` | `0x41AAE0` | 100.00% |
 | `geom.c` | `RestoreModalTextPanel` | `0x41AB60` | 100.00% |
