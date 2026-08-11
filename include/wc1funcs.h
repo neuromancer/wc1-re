@@ -957,13 +957,13 @@ unsigned int InitializeConversationViewport(void);                     /* 0x0042
 unsigned int ResetScreenClipToFullHeight(void);                                         /* 0x00427BA0 */
 unsigned int InitializeConversationText(void);                         /* 0x00427BC0 */
 unsigned int RefreshMemoryStatusOverlay(void);                                         /* 0x00427C30 */
-void Update_3Space(void);                                               /* 0x00427C50 */
+unsigned int Update_3Space(void);                                       /* 0x00427C50 */
 unsigned int UpdateSpacePaletteFade(void);                              /* 0x00427CD0 */
 unsigned int TriggerPlayerHitPaletteFlash(void);                      /* 0x00427C80 */
 unsigned int FadeFlightPaletteEntry(short *entry);                      /* 0x00427CA0 */
 unsigned int house_keep(void);                                          /* 0x00427D40 */
 void init_player_input(void);                                           /* 0x00427DF0 */
-void PollSpaceFlightInput(void);                                       /* 0x00427E40 */
+void get_player_input(void);                                           /* 0x00427E40 */
 int process_player_input(void);                                        /* 0x00427F20 */
 unsigned int fire_players_lasers(void);                                /* 0x00428480 */
 unsigned int players_flight_dynamics(void);                            /* 0x004284D0 */
@@ -1036,6 +1036,7 @@ void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
 void LoadVolumeSettingsFromRegistry(void);                            /* 0x0042B870 */
 void SaveVolumeSettingsToRegistry(void);                               /* 0x0042B930 */
 void FxDriverShutdownHook(void);                                            /* 0x0042C410 */
+short LoadWingCmdrCfgFile(short argc, char **argv);                    /* 0x0042C580 */
 unsigned int LoadInstallDat(void);                                     /* 0x0042C660 */
 void show_damage_disp(void);                                           /* 0x0042C800 */
 void UpdateDamageDisplay(void);                                        /* 0x0042C970 */
@@ -1307,14 +1308,15 @@ void set_up_screen_viewport(signed char mode);                         /* 0x0043
 void MouseIdleHook(void);                                           /* 0x004368C0 */
 unsigned short GetNavRangeSentinel(void);                                   /* 0x004368E0 */
 unsigned short GetOriginalFreeMemory(void);                                   /* 0x004368F0 */
-void StartupHook(void);                                           /* 0x00436900 */
+void StartupHook(unsigned int (*callback)(unsigned int, short));  /* 0x00436900 */
 unsigned int JoystickEdgeHook(int button);                         /* 0x00436910 */
 void FreeIfNotNull(void *p);                                            /* 0x00436950 */
-unsigned int GetStartupErrorCode(void);                                     /* 0x00436970 */
-void ShutdownHook(void);                                           /* 0x00436980 */
+unsigned int GetStartupErrorCode(int vector);                       /* 0x00436970 */
+void ShutdownHook(int vector, void *handler);                       /* 0x00436980 */
 unsigned short __stdcall SelectDiskDriveHook(short drive);             /* 0x004369A0 */
-unsigned short GetCurrentDiskDriveHook(void);                           /* 0x004369B0 */
-unsigned short GetShutdownErrorCode(void);                                   /* 0x004369C0 */
+short GetCurrentDiskDriveHook(void);                                    /* 0x004369B0 */
+unsigned short __stdcall GetShutdownErrorCode(
+    unsigned char *driveState);                                    /* 0x004369C0 */
 void VideoReleaseHook(void);                                           /* 0x004369D0 */
 void ExitCleanupHook(void);                                           /* 0x004369E0 */
 unsigned int IsVectorWithinRange(FixedVector *vector, short range);    /* 0x00436A00 */

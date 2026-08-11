@@ -105,7 +105,7 @@ void RunTrainSim(void)
 /* Function start: 0x4272F0 */
 short LogMemoryUsage(void)
 {
-    ((void (__cdecl *)(int, int))ShutdownHook)(0x21, DAT_0059ab4c);
+    ShutdownHook(0x21, (void *)DAT_0059ab4c);
     EMShutDown();
     GetMessagePumpResult();
     _chdir("..");

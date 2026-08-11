@@ -826,8 +826,9 @@ unsigned short GetOriginalFreeMemory(void)
 }
 
 /* Function start: 0x436900 */
-void StartupHook(void)
+void StartupHook(unsigned int (*callback)(unsigned int, short))
 {
+    (void)callback;
 }
 
 /* Function start: 0x436910 */
@@ -843,14 +844,17 @@ void FreeIfNotNull(void *p)
 }
 
 /* Function start: 0x436970 */
-unsigned int GetStartupErrorCode(void)
+unsigned int GetStartupErrorCode(int vector)
 {
+    (void)vector;
     return 0;
 }
 
 /* Function start: 0x436980 */
-void ShutdownHook(void)
+void ShutdownHook(int vector, void *handler)
 {
+    (void)vector;
+    (void)handler;
 }
 
 /* Function start: 0x4369A0 */
@@ -860,14 +864,15 @@ unsigned short __stdcall SelectDiskDriveHook(short drive)
 }
 
 /* Function start: 0x4369B0 */
-unsigned short GetCurrentDiskDriveHook(void)
+short GetCurrentDiskDriveHook(void)
 {
     return 0;
 }
 
 /* Function start: 0x4369C0 */
-unsigned short GetShutdownErrorCode(void)
+unsigned short __stdcall GetShutdownErrorCode(unsigned char *driveState)
 {
+    (void)driveState;
     return 0;
 }
 

@@ -202,7 +202,7 @@ short OpenDiskDataFile(short logicalFile)
     if (DAT_0059ab34 != 0)
         return 1;
     if (GetCurrentDiskDriveHook() == 'A') {
-        if (_toupper((int)g_cDiskPromptDriveLetter_005a7d21) != 'B')
+        if (_toupper((int)g_abDiskPromptDriveState_005a7d20[1]) != 'B')
             return 0;
         SelectDiskDriveHook('B');
     } else {

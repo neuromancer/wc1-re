@@ -731,7 +731,7 @@ void InflightComputer(void)
         SetEventManagerPump(PollJoystickButtonEvents);
         WaitForInputKey();
         SetFrameTimerAndWait(20);
-        SetEventManagerPump(PollSpaceFlightInput);
+        SetEventManagerPump(get_player_input);
     } else {
         pointerViewport = DAT_005a6ba0;
         SetRectBounds((int)&pointerViewport, 32, 24, 182, 159);
@@ -800,7 +800,7 @@ void InflightComputer(void)
         free_viewport(&DAT_005a76b0);
         LeaveAllocationScope();
         EventManagerHook(0);
-        SetEventManagerPump(PollSpaceFlightInput);
+        SetEventManagerPump(get_player_input);
         g_bInputMode_0059a848 = (unsigned char)savedInputMode;
     }
 

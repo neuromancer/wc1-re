@@ -9,18 +9,28 @@
 /* Function start: 0x4274E0 */
 int main(short argc, char **argv)
 {
+    char *argument;
+    int animationDemo;
     int selection;
+    int launchMission;
+    short argumentCount;
+    short argumentIndex;
+    short mission;
+    short series;
     short gameFlowResult;
 
-    (void)argc;
-    (void)argv;
+    mission = 0;
+    launchMission = 0;
+    series = 1;
+    animationDemo = 0;
 
-    GetShutdownErrorCode();
+    GetShutdownErrorCode(g_abDiskPromptDriveState_005a7d20);
     ExitCleanupHook();
-    StartupHook();
-    DAT_0059ab4c = GetStartupErrorCode();
-    ShutdownHook();
+    StartupHook(GetJoystickButtonEdge);
+    DAT_0059ab4c = GetStartupErrorCode(0x21);
+    ShutdownHook(0x21, MouseIdleHook);
 
+    argumentCount = LoadWingCmdrCfgFile(argc, argv);
     _chdir("gamedat");
     LoadInstallDat();
     _chdir("..");
@@ -31,21 +41,132 @@ int main(short argc, char **argv)
     DAT_005a7d9c = 1;
     DAT_0046a9f8 = 4;
     DAT_0059a856 = 1;
+    ResetCampaignData();
+
+    argumentIndex = 0;
+    while (argumentIndex < argumentCount) {
+        argument = g_pStartupArguments_005a7b10[argumentIndex];
+        if (strcmp("Origin", argument) == 0)
+            g_nOriginDevUnlock_00469ff4 = 1;
+
+        switch (argument[0]) {
+        case '?':
+            SystemDebugPrintf("Version %s.\n", g_pGameVersion_004693b4);
+        case '-':
+            if (argument[1] == 'm')
+                g_nShowMemoryStatus_0046a00c = 1;
+            if (g_nOriginDevUnlock_00469ff4 != 0) {
+                switch (argument[1]) {
+                case 'b':
+                    DAT_0046a000 = 0;
+                    break;
+                case 'f':
+                    DAT_00465070 = 1;
+                    break;
+                case 'k':
+                    DAT_00469ffc = 0;
+                    break;
+                case 'q':
+                    DAT_00465074 = 0;
+                    break;
+                }
+            }
+            break;
+        case 'A':
+        case 'a':
+            if (argument[1] == 's' || argument[1] == 'S') {
+                DAT_0046a010 = (short)atoi(argument + 2);
+            } else {
+                DAT_0046a9f8 = 2;
+                g_nArcadeStartupParameter_005a7b8a =
+                    (short)atoi(argument + 1);
+            }
+            break;
+        case 'E':
+        case 'e':
+            g_bSlowSceneAnimation_00469998 = 1;
+            break;
+        case 'P':
+        case 'p':
+            DAT_0046a9f8 = 3;
+            break;
+        case 'R':
+        case 'r':
+            DAT_0046a9f8 = 1;
+            break;
+        case 'T':
+        case 't':
+            g_bSlowSceneAnimation_00469998 = 3;
+            break;
+        case 'V':
+        case 'v':
+            g_bSlowSceneAnimation_00469998 = 0;
+            break;
+        case 'Z':
+        case 'z':
+            DAT_005a7d9c = 1;
+            break;
+        case 'l':
+            if (g_nOriginDevUnlock_00469ff4 != 0)
+                launchMission = 1;
+            break;
+        case 'm':
+            if (g_nOriginDevUnlock_00469ff4 != 0)
+                mission = (short)atoi(argument + 1);
+            break;
+        case 's':
+            if (g_nOriginDevUnlock_00469ff4 != 0) {
+                DAT_004688f0 = 1;
+                series = (short)atoi(argument + 1);
+            }
+            break;
+        case 'w':
+            if (g_nOriginDevUnlock_00469ff4 != 0) {
+                animationDemo = 1;
+                mission = (short)atoi(argument + 1);
+            }
+            break;
+        }
+        argumentIndex++;
+    }
 
     SetCinematicFrameTiming();
-    g_stCampaignState_0059ca50.currentSeries = 1;
+    g_stCampaignState_0059ca50.currentSeries = (signed char)series;
     DAT_0046b168 = 0x13;
-    g_stInitialCampaignState_004700b0.currentSeries = 1;
-    g_stCampaignState_0059ca50.currentMission = 0;
-    g_stInitialCampaignState_004700b0.currentMission = 0;
+    g_stInitialCampaignState_004700b0.currentSeries =
+        (signed char)series;
+    g_stCampaignState_0059ca50.currentMission = (signed char)mission;
+    g_stInitialCampaignState_004700b0.currentMission =
+        (signed char)mission;
     LoadOriginFxDrivers();
     DAT_0046b168 = 0x13;
+
+    if (animationDemo == 1) {
+        SystemDebugPrintf(
+            "Pre animation: %lu.\n",
+            ((unsigned int (__cdecl *)(int))
+                GetFixedOneMillionThunkAlt)(0));
+        WaitForKeyAcknowledge(0);
+        /* RunAnimationDemoLoop still depends on unreconstructed scene calls. */
+        SystemDebugPrintf(
+            "Post animation: %lu.\n",
+            ((unsigned int (__cdecl *)(int))
+                GetFixedOneMillionThunkAlt)(0));
+        WaitForKeyAcknowledge(0);
+    }
 
     LoadVolumeSettingsFromRegistry();
     SetSoundEffectsVolume(
         g_anVolumeLevels_00469fc8[g_nSfxVolumeSetting_00469fbc / 2]);
     SetMusicStreamVolume((unsigned short)g_anVolumeLevels_00469fc8[
         g_nMusicVolumeSetting_00469fc0 / 2]);
+
+    if (launchMission != 0) {
+        init_mission(series, mission);
+        RunSpaceFlight(DAT_0046a010);
+        exit_squadron("Bye!");
+        return 0;
+    }
 
     DAT_0059ab58 = 0;
     for (;;) {
@@ -184,13 +305,14 @@ unsigned int RefreshMemoryStatusOverlay(void)
 }
 
 /* Function start: 0x427C50 */
-void Update_3Space(void)
+unsigned int Update_3Space(void)
 {
     house_keep();
     house_keep_objects();
     update_objects_in_space();
     set_eye_direction_and_position();
     g_nSpaceFrame_0059b420++;
+    return 0;
 }
 
 /* Function start: 0x427C80 */
@@ -218,16 +340,19 @@ unsigned int FadeFlightPaletteEntry(short *entry)
 unsigned int UpdateSpacePaletteFade(void)
 {
     if (DAT_005a7780 != 0) {
-        if (DAT_0046b168 == 9 || DAT_0046b168 == 13) {
+        switch ((int)(short)DAT_0046b168) {
+        case 9:
+        case 13:
             ClearViewport(&DAT_005a7510, (short)DAT_004699ac);
             g_bViewportDirty_00469fc4 = 1;
             DAT_005a7780 = 0;
-            return 0;
+            break;
+        case 0x13:
+            DAT_005a7780 = (unsigned short)(DAT_005a7780 - 4);
+            SetPaletteEntry((short)DAT_004699d8,
+                            (short *)&DAT_005a7780);
+            break;
         }
-        if (DAT_0046b168 != 0x13)
-            return 0;
-        DAT_005a7780 = (unsigned short)(DAT_005a7780 - 4);
-        SetPaletteEntry((short)DAT_004699d8, (short *)&DAT_005a7780);
     }
     return 0;
 }
@@ -276,7 +401,7 @@ void init_player_input(void)
 }
 
 /* Function start: 0x427E40 */
-void PollSpaceFlightInput(void)
+void get_player_input(void)
 {
     int device;
     InputDeviceSample *sample;

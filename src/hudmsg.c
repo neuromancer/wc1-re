@@ -755,7 +755,7 @@ int RunSpaceFlight(short entryNavPoint)
         DAT_0046a008 = 1;
     DAT_00469fb4 = 1;
     g_bInputMode_0059a848 = 1;
-    SetEventManagerPump(PollSpaceFlightInput);
+    SetEventManagerPump(get_player_input);
     savedViewport = (Viewport *)DAT_0059ab23;
     DAT_0059ab23 = &DAT_005a7510;
     ResetSceneFlags();

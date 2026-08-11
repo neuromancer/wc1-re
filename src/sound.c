@@ -180,6 +180,36 @@ void FxDriverShutdownHook(void)
 {
 }
 
+/* Function start: 0x42C580 */
+short LoadWingCmdrCfgFile(short argc, char **argv)
+{
+    FILE *file;
+    short argumentCount;
+    char *destination;
+    short argumentIndex;
+
+    argumentIndex = 1;
+    argumentCount = 0;
+    destination = g_szTextScratchBuffer_00598b00;
+    file = fopen("WINGCMDR.CFG", "rt");
+    while (file != 0 &&
+           (short)fscanf(file, "%s", destination) != -1) {
+        g_pStartupArguments_005a7b10[argumentCount++] =
+            destination;
+        destination = strchr(destination, 0) + 1;
+    }
+    if (file != 0)
+        fclose(file);
+
+    while (argc-- != 0) {
+        strcpy(destination, argv[argumentIndex]);
+        g_pStartupArguments_005a7b10[argumentCount++] = destination;
+        argumentIndex++;
+        destination = strchr(destination, 0) + 1;
+    }
+    return (short)(argumentCount - 1);
+}
+
 /* Function start: 0x42C660 */
 unsigned int LoadInstallDat(void)
 {
