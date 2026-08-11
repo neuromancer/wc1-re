@@ -393,11 +393,11 @@ void InitializeTrainSimHighScores(void)
     score = (short)RandomBelowOrEqual(2000) + 10000;
     do {
         do {
-            candidate = (short)RandomInRange(0, 14);
-            if (candidate == 8)
-                candidate = -1;
+            do {
+                candidate = (short)RandomInRange(0, 14);
+            } while (candidate == 8);
             previous = 0;
-            while (candidate != -1 && previous < slot) {
+            while (previous < slot) {
                 if (g_aHighScoreEntries_005a7c30[previous].pilotIndex ==
                     candidate)
                     candidate = -1;
@@ -734,7 +734,7 @@ void UpdateTrainSimHighScores(int score)
     else
         previousScore = g_aHighScoreEntries_005a7c30[slot].score;
     slot = -1;
-    if ((int)previousScore < score)
+    if (score > (int)previousScore)
         slot = InsertTrainSimHighScore(8, (unsigned int)score);
 
     if (DAT_004688e0 != 0) {
@@ -742,11 +742,11 @@ void UpdateTrainSimHighScores(int score)
         return;
     }
     InitializeTrainSimTextPanel();
-    if (slot == -1)
-        sprintf(message, g_szLowScoreMessage_00469f38, score);
-    else
+    if (slot != -1)
         sprintf(message, g_szHighScoreCongratulations_00469ef4,
                 slot + 1);
+    else
+        sprintf(message, g_szLowScoreMessage_00469f38, score);
     ShowTrainSimTextMessage(message);
     SetEventManagerPump(PollJoystickButtonEvents);
     DIBslam();

@@ -46,9 +46,9 @@ unsigned int check_for_lost_control(short obj)
         type = g_aeObjectType_0059b560[obj];
         if (skill_check(
                 obj,
-                (short)((abs(g_anObjectRollRotation_0059d7e0[obj]) +
-                         abs(g_anObjectYawRotation_0059ce80[obj]) +
-                         abs(g_anObjectPitchRotation_0059b2a0[obj])) /
+                (short)((short)(abs(g_anObjectRollRotation_0059d7e0[obj]) +
+                                abs(g_anObjectYawRotation_0059ce80[obj]) +
+                                abs(g_anObjectPitchRotation_0059b2a0[obj])) /
                         (short)(g_aObjectTypeData_00466458[type].rollRate +
                                 g_aObjectTypeData_00466458[type].yawRate +
                                 g_aObjectTypeData_00466458[type].pitchRate))) ==
@@ -623,8 +623,8 @@ unsigned int Create_explosion_debris(short obj)
 {
     FixedVector vector;
     short debris;
-    short set;
     short index;
+    short set;
 
     remove_object(obj);
     index = 0;
@@ -651,7 +651,7 @@ unsigned int Create_explosion_debris(short obj)
     do {
         debris = find_vacant_3d_object();
         if (debris == -1)
-            return 0;
+            break;
         index++;
         FillFixedVectorWithRandomComponents(50, &vector);
         AddFixedVectors(&g_aShipPosition_0059c490[obj], &vector,
@@ -674,44 +674,50 @@ unsigned int Create_explosion_debris(short obj)
 /* Function start: 0x41F9E0 */
 unsigned int affect_mission_score(short pilot, int event, short amount)
 {
+    short score;
+
     switch (event) {
     case 0:
+        score = amount;
         break;
     case 1:
-        amount = 7;
+        score = 7;
         break;
     case 2:
-        amount = 10;
+        score = 10;
         break;
     case 3:
     case 4:
-        amount = 15;
+        score = 15;
         break;
     case 5:
     case 6:
-        amount = 25;
+        score = 25;
         break;
     case 7:
-        amount = 50;
+        score = 50;
         break;
     case 8:
-        amount = 75;
+        score = 75;
         break;
     case 9:
     case 10:
     case 11:
-        amount = 25;
+        score = 25;
         break;
     case 12:
-        amount = (short)(amount * 2);
+        score = (short)(amount * 2);
+        break;
+    default:
+        score = amount;
         break;
     }
     g_stCampaignState_0059ca50.missionScore =
-        (short)(g_stCampaignState_0059ca50.missionScore + amount);
+        (short)(g_stCampaignState_0059ca50.missionScore + score);
     if (pilot == 0) {
         g_nMissionMedalScore_005a8116 =
-            (short)(g_nMissionMedalScore_005a8116 + amount);
-        g_nArcadeScore_005a7bc4 += amount * 10;
+            (short)(g_nMissionMedalScore_005a8116 + score);
+        g_nArcadeScore_005a7bc4 += score * 10;
     }
     return 0;
 }
