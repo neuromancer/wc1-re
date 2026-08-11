@@ -36,7 +36,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (96.75% average)</summary>
+<summary>All 1,472 function similarity scores (96.76% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -761,19 +761,19 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `streamer.cpp` | `ix_streamer_get_intensity` | `0x4433AC` | 100.00% |
 | `streamer.cpp` | `ix_streamer_set_trigger` | `0x4433C1` | 100.00% |
 | `streamer.cpp` | `ix_streamer_get_trigger` | `0x443419` | 100.00% |
-| `streamer.cpp` | `ix_streamer_force_trigger` | `0x44342E` | 96.08% |
+| `streamer.cpp` | `ix_streamer_force_trigger` | `0x44342E` | 100.00% |
 | `streamer.cpp` | `ix_streamer_set_volume` | `0x4435BE` | 100.00% |
 | `streamer.cpp` | `ix_streamer_get_volume` | `0x44363B` | 100.00% |
 | `streamer.cpp` | `ix_streamer_get_audio_chunk` | `0x443651` | 100.00% |
 | `streamer.cpp` | `ix_streamer_seek_chunk` | `0x443666` | 100.00% |
 | `streamer.cpp` | `ix_streamer_hash_name` | `0x4436C0` | 100.00% |
-| `streamer.cpp` | `ix_streamer_find_entry` | `0x443755` | 97.83% |
+| `streamer.cpp` | `ix_streamer_find_entry` | `0x443755` | 100.00% |
 | `streamer.cpp` | `ix_streamer_open_file` | `0x4437E3` | 100.00% |
 | `streamer.cpp` | `ix_streamer_close_file` | `0x443A5D` | 100.00% |
 | `streamer.cpp` | `ix_streamer_thread_proc` | `0x443B10` | 100.00% |
 | `streamer.cpp` | `ix_streamer_service_audio` | `0x443CC0` | 93.94% |
 | `system.cpp` | `ix_system_init` | `0x447200` | 100.00% |
-| `system.cpp` | `ix_system_service_sounds` | `0x4472A7` | 98.98% |
+| `system.cpp` | `ix_system_service_sounds` | `0x4472A7` | 100.00% |
 | `system.cpp` | `ix_system_shutdown` | `0x4473F3` | 100.00% |
 | `system.cpp` | `ix_system_configure` | `0x447426` | 100.00% |
 | `system.cpp` | `ix_system_get_master_volume` | `0x447446` | 100.00% |
@@ -787,11 +787,11 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `system.cpp` | `ix_system_delete_sound` | `0x4475C7` | 100.00% |
 | `system.cpp` | `ix_system_delete_all_sounds` | `0x447610` | 100.00% |
 | `system.cpp` | `ix_system_release_voice` | `0x4476B9` | 100.00% |
-| `system.cpp` | `ix_system_assign_voice` | `0x4476FA` | 99.47% |
+| `system.cpp` | `ix_system_assign_voice` | `0x4476FA` | 100.00% |
 | `system.cpp` | `ix_system_find_highest_waiting` | `0x447921` | 100.00% |
 | `system.cpp` | `ix_system_find_lowest_playing` | `0x447974` | 100.00% |
 | `system.cpp` | `ix_system_find_free_voice` | `0x4479C7` | 100.00% |
-| `system.cpp` | `IxSound::ix_system_sound_init` | `0x447A20` | 97.40% |
+| `system.cpp` | `IxSound::ix_system_sound_init` | `0x447A20` | 100.00% |
 | `system.cpp` | `IxSound::ix_system_sound_construct` | `0x447B17` | 100.00% |
 | `system.cpp` | `IxSound::ix_system_sound_construct_centred` | `0x447B48` | 100.00% |
 | `system.cpp` | `ix_sound_unlink_from_free_list` | `0x447B7A` | 100.00% |

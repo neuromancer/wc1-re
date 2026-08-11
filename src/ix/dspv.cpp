@@ -131,7 +131,7 @@ void ix_dspv_set_volume(int voice, short vol)
 }
 
 /* Function start: 0x446B8C */   /* source line 93 */
-void ix_dspv_set_pan(int voice, unsigned int angle)
+void ix_dspv_set_pan(int voice, unsigned short angle)
 {
     IxVoice *state;
     short step;

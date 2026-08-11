@@ -167,7 +167,7 @@ void ix_dspv_set_buffer(int voice, unsigned char *p, int len); /* 0x0044698F */
 int  ix_dspv_get_position(int voice);            /* 0x00446A2B  cursor - start */
 void ix_dspv_set_position(int voice, int off);   /* 0x00446AA0  cursor = start + off */
 void ix_dspv_set_volume(int voice, short vol);   /* 0x00446B18 */
-void ix_dspv_set_pan(int voice, unsigned int a); /* 0x00446B8C */
+void ix_dspv_set_pan(int voice, unsigned short a); /* 0x00446B8C */
 void ix_dspv_set_frequency(int voice, unsigned int hz);        /* 0x00446CB1 */
 void ix_dspv_set_bits_per_sample(int voice, int bps);          /* 0x00446D2C  8 or 16 */
 void ix_dspv_set_channels(int voice, int ch);                  /* 0x00446DF5  1 or 2 */

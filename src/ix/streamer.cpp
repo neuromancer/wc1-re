@@ -420,10 +420,10 @@ char ix_streamer_get_trigger(void)
 /* Function start: 0x0044342E */   /* source line(s) 342: Stream has no audio */
 extern "C" void ix_streamer_force_trigger(char trigger)
 {
+    unsigned int triggerCount;
     unsigned int chunk;
     unsigned int chunkCount;
     unsigned int triggerIndex;
-    unsigned int triggerCount;
 
     if ((g_dwStreamerState_00597cd0 & IX_STREAMER_HAS_AUDIO) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 342);
@@ -433,15 +433,15 @@ extern "C" void ix_streamer_force_trigger(char trigger)
     chunk = g_nStreamerAudioChunk_00597cc8;
     chunkCount = g_pStreamerHeader_00597c84->audioChunkCount;
     EnterCriticalSection(&g_csStreamer_00597ce0);
-    while (trigger >= 0 && chunkCount--) {
+    while (-1 < trigger && chunkCount--) {
         if (g_pStreamerAudioChunks_00597c88[chunk].triggerCount > 0) {
-            triggerIndex =
-                g_pStreamerAudioChunks_00597c88[chunk].firstTrigger;
             triggerCount =
                 g_pStreamerAudioChunks_00597c88[chunk].triggerCount;
+            triggerIndex =
+                g_pStreamerAudioChunks_00597c88[chunk].firstTrigger;
             while (triggerCount--) {
                 if (g_pStreamerTriggers_00597cf8[triggerIndex].tag ==
-                    (unsigned char)trigger) {
+                    trigger) {
                     g_adwStreamerBranchStack_00597be8[
                         g_nStreamerBranchStackIndex_00470e8c] =
                             g_nStreamerAudioChunk_00597cc8;
@@ -543,8 +543,8 @@ IxStreamerFileEntry *ix_streamer_find_entry(unsigned int hash)
 
     first = 0;
     last = g_pStreamerHeader_00597c84->fileEntryCount;
-    while (first < last) {
-        middle = (last + first) >> 1;
+    while (last > first) {
+        middle = (first + last) >> 1;
         entry = &g_pStreamerFileEntries_00597c80[middle];
         if (entry->nameHash < hash) {
             first = middle + 1;

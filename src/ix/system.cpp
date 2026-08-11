@@ -345,7 +345,7 @@ void IxSound::ix_system_sound_init(IxSample *newSample,
     next = previous;
     stopTime = (unsigned int)-1;
     startTime = stopTime;
-    priority = ((unsigned int)volume << 8) / 0xffff +
+    priority = ((int)volume << 8) / 0xffff +
                (pitchOffset << 8) / 0xac44 + basePriority;
     next = g_pFreeSoundList_0059860c;
     previous = 0;
