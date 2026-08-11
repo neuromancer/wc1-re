@@ -4,8 +4,9 @@ Audit date: 2026-08-11.
 
 This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
-`src/**/*.c` and `src/**/*.cpp`. It contains **23 functions**: **21 ordinary
-candidates** and **2 compiler thunks** which must not be reproduced manually.
+`src/**/*.c` and `src/**/*.cpp`. The ordinary developer-written backlog is now
+complete. The only two inventory entries without source bodies are **compiler
+thunks**, which must not be reproduced manually.
 
 The proposed compilation units follow the current source adjacency and
 `docs/ORDER.md`; boundaries explicitly described as provisional there remain
@@ -16,10 +17,10 @@ provisional here. In particular, the contiguous raster run remains assigned to
 The Mac name column was checked against all 881 MacsBug symbols in
 `../releases/mac/extracted/symbols.json`, including the established ordered
 cross-release mappings in `docs/LABELS.md`. There are **no safe exact Mac-name
-matches in this remaining backlog**. A dash therefore means “no defensible Mac
-counterpart”, not “the original function had no name”. Super Wing Commander is
-a later code base, so positional similarity alone is not enough to assign a
-name.
+matches for the two remaining compiler thunks**. A dash therefore means “no
+defensible Mac counterpart”, not “the original function had no name”. Super
+Wing Commander is a later code base, so positional similarity alone is not
+enough to assign a name.
 
 Ghidra status meanings:
 
@@ -36,35 +37,14 @@ Ghidra status meanings:
 | Address | Current Ghidra/inventory name | Mac name | Proposed compilation unit | Ghidra status |
 |---|---|---|---|---|
 | `0x0040CB20` | `ThunkForwarder40CB20` | — | `src/brains.c` | verified; exported; compiler thunk—do not hand-write |
-| `0x004259B0` | `PromptForAnswerText` | — | `src/pilot.cpp` | verified; exported |
 | `0x00434D10` | `_rand` | — | `src/mathfp.c` | verified; compiler thunk—do not hand-write |
-| `0x00439C0E` | `FUN_00439c0e` | — | `src/screens.c` | new live discovery; verified; exported |
-| `0x00439C3E` | `LoadMcgaDll` | — | `src/screens.c` | verified; exported |
-| `0x00439C69` | `LoopG0046e69cFn9C69` | — | `src/screens.c` | verified |
-| `0x0043C015` | `LoopLocalFnC015` | — | `src/screens.c` | verified |
-| `0x0043C18D` | `LoopG0046e6e5FnC18D` | — | `src/screens.c` | verified |
-| `0x0043C410` | `LoopG0046ff2cFnC410` | — | `src/screens.c` | verified |
-| `0x0043CC83` | `DoLocalFnCC83` | — | `src/screens.c` | verified |
-| `0x0043E63E` | `LoopLocalFnE63E` | — | `src/screens.c` | verified |
-| `0x0043E7C6` | `LoopG0046f915FnE7C6` | — | `src/screens.c` | verified |
-| `0x0043E9EB` | `LoopG0046ec15FnE9EB` | — | `src/screens.c` | verified |
-| `0x0043EC29` | `LoopG0046ff28FnEC29` | — | `src/screens.c` | verified |
-| `0x0043EEDB` | `DoLocalFnEEDB` | — | `src/screens.c` | verified |
-| `0x0043EEFD` | `DoLocalFnEEFD` | — | `src/screens.c` | verified |
-| `0x0043EF7E` | `LoopLocalFnEF7E` | — | `src/screens.c` | verified |
-| `0x0043EFC9` | `LoopLocalFnEFC9` | — | `src/screens.c` | verified |
-| `0x0043F011` | `LoopLocalFnF011` | — | `src/screens.c` | verified |
-| `0x0043F06E` | `LoopLocalFnF06E` | — | `src/screens.c` | verified |
-| `0x0043F0D0` | `LoopLocalFnF0D0` | — | `src/screens.c` | verified |
-| `0x0043F425` | `ScanTbl0046f915FnF425` | — | `src/screens.c` | verified |
-| `0x0043F5A9` | `ScanTbl0046f915FnF5A9` | — | `src/screens.c` | verified |
 
 ## Mac ordering evidence retained for later naming
 
 - `0x00434D10` is in the historical `rand` neighborhood but is a compiler
   jump thunk to the CRT, not a Mac-named game routine.
-- The large `0x00439C0E`–`0x0043F5A9` raster block has no safe mapping to the
-  Mac renderer; that renderer was substantially rewritten.
+- The completed `0x00439C0E`–`0x0043F5A9` raster block has no safe mapping to
+  the Mac renderer; that renderer was substantially rewritten.
 
 ## Ghidra creation and repair audit
 
@@ -94,8 +74,11 @@ Ghidra status meanings:
   sequence does not provide a body or ordering match strong enough to establish
   identity.
 - Every source annotation now resolves to an exact live Ghidra function entry.
-  Every one of the 23 backlog rows above also resolves to an exact entry and a
-  non-empty listing. The Ghidra program was saved after verification.
+  The 21 completed ordinary backlog functions and both remaining compiler
+  thunks resolve to exact entries with non-empty listings. The completed
+  functions have behavior names, reconstructed prototypes, and plate comments
+  recording that they are believed unreachable. The Ghidra program was saved
+  after verification.
 
 ## Export and implementation progress
 
@@ -103,7 +86,7 @@ Ghidra status meanings:
   newly discovered palette-entry helpers, and `FillViewportEllipse` now exist
   in `code-full`. Each export has the same instruction count and return form as
   its exact live Ghidra function. Existing exports were not rewritten.
-- Sixty-nine confirmed `wc-developer` functions were reconstructed across twelve
+- Ninety confirmed `wc-developer` functions were reconstructed across thirteen
   tranches after binary-comp comparison:
 
   | Address | Implemented name | Compilation unit | Similarity |
@@ -177,6 +160,27 @@ Ghidra status meanings:
   | `0x0043D1C1` | `FillRasterEllipse` | `src/screens.c` | 98.31% |
   | `0x0043E4AB` | `BlitRawFrame` | `src/screens.c` | 94.25% |
   | `0x00441E20` | `FillViewportEllipse` | `src/gr.c` | 100.00% |
+  | `0x004259B0` | `PromptForAnswerText` | `src/pilot.cpp` | 94.57% |
+  | `0x00439C0E` | `FillRasterBytes` | `src/screens.c` | 100.00% |
+  | `0x00439C3E` | `CopyRasterDriverName` | `src/screens.c` | 100.00% |
+  | `0x00439C69` | `InstallRasterDriverCallbacks` | `src/screens.c` | 100.00% |
+  | `0x0043C015` | `GetRLEFrameBounds` | `src/screens.c` | 100.00% |
+  | `0x0043C18D` | `EncodeRasterClipToRLEFrame` | `src/screens.c` | 100.00% |
+  | `0x0043C410` | `TranslateRLEFramePalette` | `src/screens.c` | 100.00% |
+  | `0x0043CC83` | `ScrollRasterClipWrapped` | `src/screens.c` | 100.00% |
+  | `0x0043E63E` | `BlitSelectedRawFrames` | `src/screens.c` | 100.00% |
+  | `0x0043E7C6` | `DecodeIFFImage` | `src/screens.c` | 100.00% |
+  | `0x0043E9EB` | `DecodePCXImage` | `src/screens.c` | 100.00% |
+  | `0x0043EC29` | `ExpandGIFLZWImage` | `src/screens.c` | 100.00% |
+  | `0x0043EEDB` | `GetRLEFrameDimensions` | `src/screens.c` | 100.00% |
+  | `0x0043EEFD` | `GetRLEFrameExtents` | `src/screens.c` | 100.00% |
+  | `0x0043EF7E` | `ApplyRLEFramePalette` | `src/screens.c` | 100.00% |
+  | `0x0043EFC9` | `CopyRLEFramePalette` | `src/screens.c` | 100.00% |
+  | `0x0043F011` | `SetRLEFramePalette` | `src/screens.c` | 100.00% |
+  | `0x0043F06E` | `CollectUniqueRLEImageFrames` | `src/screens.c` | 100.00% |
+  | `0x0043F0D0` | `CollectUniqueRLEPaletteFrames` | `src/screens.c` | 100.00% |
+  | `0x0043F425` | `FadeRasterPaletteToPalette` | `src/screens.c` | 100.00% |
+  | `0x0043F5A9` | `CollectRasterClipColours` | `src/screens.c` | 100.00% |
 
 - Ghidra was synchronized with the reconstructed prototypes and behavior-based
   names, then saved after each tranche.
@@ -185,21 +189,30 @@ Ghidra status meanings:
   assembly, strings, globals, and callers.
 - All eight names in the twelfth tranche are behavior-based; none has a safe
   exact Mac counterpart.
+- All 21 names in the thirteenth tranche are behavior-based; none has a safe
+  exact Mac counterpart. Each source body is explicitly marked as believed
+  unreachable because the shipped executable has no known inbound reference.
 - `PlaySnowStaticSound` is the best rule-compliant C fallback. The original
   directly invokes C++ `IxSample` and `IxSound` methods; reproducing those calls
   from the core C unit would require a forbidden wrapper/thunk or changing the
   unit's language. The generic wave path preserves audible looping static, but
   consequently remains below the normal similarity threshold.
 - The post-tranche `make verify` completed successfully. A live Ghidra xref
-  audit found no inbound reference of any kind to the 21 remaining ordinary
-  backlog functions. The only called backlog entry is the CRT `_rand` jump
-  thunk at `0x00434D10`, which remains excluded from manual reconstruction.
+  audit found no inbound reference of any kind to the 21 completed ordinary
+  backlog functions. The only called remaining inventory entry is the CRT
+  `_rand` jump thunk at `0x00434D10`, which remains excluded from manual
+  reconstruction.
 - The five GIF LZW helpers are called internally by the decoder at
   `0x0043EC29`, but that top-level decoder has no inbound code xref, stored
   function pointer, or PE export. The feature is therefore linked raster-library
   functionality rather than a path known to be reached by WC1 game code.
 - `ThunkForwarder40CB20` and `_rand` remain explicitly excluded as
   compiler/linker-generated jump thunks.
+- The startup crash report was confirmed against the original disassembly.
+  `WinMain` now creates the debug overlay console after initializing the game
+  clock, and both normal and early shutdown paths destroy it in the original
+  order. The `-w` animation path now invokes `RunAnimationDemoLoop` with the
+  selected animation number.
 
 The compiler configuration and original executable were not modified, and the
 game was not run. `make compare-func` and `make verify` only rebuilt and linked

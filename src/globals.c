@@ -772,6 +772,8 @@ const short g_asSceneAnimationLogicalFiles_00469d60[8] = {
 short g_bSceneAnimationWaitCommand_00469d70;
 const char g_szSceneAnimationTextFormat_00469d74[12] = "%X%Y%F%s%P";
 const char g_szMeanwhile_00469d80[16] = "Meanwhile...";
+const char g_szEmptyAnswerInput_00469d90[4] = "";
+const char g_szAnswerLabel_00469d94[9] = "Answer: ";
 Viewport g_stTrainSimPanelViewport_00469da8;
 /* This is four zero bytes, not a pointer table.  The original instruction at
  * 0x425E07 uses 0x469DBC as a compiler-generated biased displacement so that
@@ -1769,6 +1771,8 @@ const char g_szBriefingReturnTextFormat_0046e64c[12] = "%X%Y%F%s%P";
 const char g_szDismissedTextFormat_0046e658[12] = "%X%Y%F%s%P";
 const char g_szDebriefEstablishTextFormat_0046e664[12] = "%X%Y%F%s%P";
 const char g_szFuneralLongShotTextFormat_0046e670[12] = "%X%Y%F%s%P";
+void *g_apRasterDriverCallbacks_0046e69c[13];
+char g_szRasterDriverName_0046e6d0[13] = "MCGA.DLL";
 unsigned char *g_pRLEEncodeBuffer_0046e6dd;
 int g_nRLEPendingSkip_0046e6e1;
 unsigned char *g_pRLEScanlineStart_0046e6e5;
@@ -1780,6 +1784,8 @@ int g_nRLEEncodedMinimumY_0046e709;
 int g_nRLEEncodedMaximumX_0046e70d;
 int g_nRLEEncodedMaximumY_0046e711;
 unsigned char g_abRasterDecodeBuffer_0046ec15[0xd00];
+unsigned char g_abRasterPaletteUsageScratch_0046f915[0x300];
+unsigned char g_abRasterFadeAccumulator_0046fc15[0x300];
 const unsigned char g_abGifLZWCodeMasks_0046ff15[9] = {
     0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff
 };

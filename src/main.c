@@ -147,7 +147,7 @@ int main(short argc, char **argv)
             ((unsigned int (__cdecl *)(int))
                 GetFixedOneMillionThunkAlt)(0));
         WaitForKeyAcknowledge(0);
-        /* RunAnimationDemoLoop still depends on unreconstructed scene calls. */
+        RunAnimationDemoLoop((signed char)mission);
         SystemDebugPrintf(
             "Post animation: %lu.\n",
             ((unsigned int (__cdecl *)(int))

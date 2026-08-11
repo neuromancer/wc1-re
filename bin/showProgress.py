@@ -13,7 +13,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'src')
 MAPFILE = os.path.join(ROOT, 'src', 'map')
 
-HEADER = re.compile(r'/\*\s*Function start:\s*0x([0-9A-Fa-f]+)\s*\*/')
+HEADER = re.compile(r'/\*\s*Function start:\s*0x([0-9A-Fa-f]+)\b')
 TODO = re.compile(r'/\*\s*TODO')
 
 IX_LO, CRT_LO = 0x00442750, 0x00449100

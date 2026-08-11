@@ -90,8 +90,8 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/mathfp.c` | `0x434cd0`–`0x4353ff` | 22 | Floating-point helpers and the random-number generator | Starts at `RandomBelow`, immediately after the Mac `smart` unit's final `chase_speed` symbol |
 | `src/strdos.c` | `0x435400`–`0x4355ff` | 13 | 16-bit DOS C string and memory shims | all __stdcall with short-width arguments, each forwarding to one CRT routine |
 | `src/eventmgr.c` | `0x4355f0`–`0x436fff` | 53 | Event manager, mouse pointer, keyboard state, and frame timer | FM Towns preserves `source\\eventmgr.c`; Win32 keeps the same queue and input-state layout |
-| `src/screens.c` | `0x437000`–`0x43cfff` | 4 | Full-screen presentation screens and raster primitives | ShowGetReady/Victory/GameOver plus the adjacent raster support block |
-| `src/killbrd.c` | `0x43d000`–`0x440bff` | 7 | Kill board, conversation scenes and save-slot flags | ShowTigersClawKillBoard/RunConversationScene; string band 0x4705DC-0x470668 |
+| `src/screens.c` | `0x437000`–`0x43f5ff` | 88 | Full-screen presentation screens and raster primitives | ShowGetReady/Victory/GameOver plus the contiguous raster support block through `CollectRasterClipColours`; the next function starts the room/kill-board unit |
+| `src/killbrd.c` | `0x43f600`–`0x440bff` | 20 | Kill board, conversation scenes and save-slot flags | `CorrectPointers` is the first function after the raster block; ShowTigersClawKillBoard/RunConversationScene and string band 0x4705DC-0x470668 anchor the unit |
 | `src/gr.c` | `0x440c00`–`0x44274f` | 14 | Rasteriser primitives and screen-space effects | PROVEN by name: shadow_draw, fizzle_fade, snow_viewport |
 
 Four whole-file boundaries and four nested source units are proven rather than guessed:

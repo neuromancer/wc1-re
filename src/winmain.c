@@ -556,6 +556,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     SetPriorityClass(process, HIGH_PRIORITY_CLASS);
     srand((unsigned int)time(0));
     InitGameClockEpoch();
+    CreateDebugOverlayConsole(instance, DAT_005a89a0, 60, 20);
     DAT_005a8a44 = (unsigned int)time(0);
     ShowCursor(FALSE);
     DAT_0059ab2c = 0;
@@ -567,6 +568,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     ClipCursor(0);
     ShowCursor(TRUE);
     DAT_005a8a38 = (unsigned int)time(0);
+    DestroyGlobalDebugOverlayConsole();
     DestroyWindow(DAT_005a89a0);
     DIBunInstall();
     Streamer_close();
@@ -580,6 +582,7 @@ void ShutdownGameWindow(void)
     DAT_005a8a38 = (unsigned int)time(0);
     ClipCursor(0);
     ShowCursor(TRUE);
+    DestroyGlobalDebugOverlayConsole();
     DestroyWindow(DAT_005a89a0);
     DIBunInstall();
     SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);

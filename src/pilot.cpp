@@ -112,6 +112,40 @@ void LoadAnswerPromptAndResponse(short entry, char *prompt,
     FreePacketAndClear((int *)&packet, 0);
 }
 
+/* Function start: 0x4259B0 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+short PromptForAnswerText(short entry)
+{
+    unsigned int bounds[2];
+    ModalTextPanel panel;
+    short matches;
+
+    ((short *)&bounds[0])[0] = 50;
+    ((short *)&bounds[0])[1] = 50;
+    ((short *)&bounds[1])[0] = 269;
+    ((short *)&bounds[1])[1] = 149;
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    LoadAnswerPromptAndResponse(entry, g_szHudMessageBuffer_0059e1c0,
+                                g_szComponentHitMessage_005a7e00);
+    ApplyAnswerTextCipher(g_szHudMessageBuffer_0059e1c0, 1);
+    InitializeModalTextPanel(&panel, 0, bounds[0], bounds[1],
+                             g_cViewportClearColour_004699a0,
+                             DAT_0046999c, DAT_004699ac);
+    DrawModalTextPanel(&panel, 6, 10, 2,
+                       g_szHudMessageBuffer_0059e1c0);
+    g_szComponentHitMessage_005a7e00[20] =
+        g_szEmptyAnswerInput_00469d90[0];
+    PromptForTextInput(65, 125, (char *)g_szAnswerLabel_00469d94,
+                       &g_szComponentHitMessage_005a7e00[20], 10, 2);
+    RestoreModalTextPanel(&panel);
+    ApplyAnswerTextCipher(&g_szComponentHitMessage_005a7e00[20], -1);
+    matches = (short)(strcmp(&g_szComponentHitMessage_005a7e00[20],
+                             g_szComponentHitMessage_005a7e00) == 0);
+    ReleaseTextFont(0);
+    return matches;
+}
+
 /* Function start: 0x425AF0 */
 void SceneEnterHook(void)
 {

@@ -1677,6 +1677,48 @@ unsigned int ShowGameOverScreen(void)
     return 0;
 }
 
+/* Function start: 0x439C0E */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* The hot-patch entry followed by an unframed REP STOS implementation
+ * identifies this raster-library primitive as hand-written assembly. */
+__declspec(naked) void __stdcall FillRasterBytes(
+    void *destination, unsigned int length, short value)
+{
+#ifdef _MSC_VER
+#include "screens_fill_raster_bytes.inc"
+#else
+    return;
+#endif
+}
+
+/* Function start: 0x439C3E */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the explicit ES setup used by the hand-written driver glue. */
+__declspec(naked) char *CopyRasterDriverName(void *const *callbacks)
+{
+#ifdef _MSC_VER
+#include "screens_copy_raster_driver_name.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x439C69 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the explicit ES setup used by the hand-written driver glue. */
+__declspec(naked) void InstallRasterDriverCallbacks(
+    void *const *callbacks)
+{
+#ifdef _MSC_VER
+#include "screens_install_raster_driver_callbacks.inc"
+#else
+    return;
+#endif
+}
+
 /* Function start: 0x439C88 */
 /* The explicit segment setup and symmetric read primitive at 0x439D63 show
  * that this raster-library pixel writer was hand-written assembly. */
@@ -3446,6 +3488,55 @@ __declspec(naked) int RotateRLEImage(
 }
 #pragma optimize("", on)
 
+/* Function start: 0x43C015 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* The command-stream walk retains the raster library's explicit ES setup. */
+#pragma optimize("", off)
+__declspec(naked) unsigned int GetRLEFrameBounds(
+    unsigned char *shape, int frame, int x, int y, unsigned int flags,
+    int *bounds)
+{
+#ifdef _MSC_VER
+#include "screens_get_rle_frame_bounds.inc"
+#else
+    return 0;
+#endif
+}
+#pragma optimize("", on)
+
+/* Function start: 0x43C18D */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* The paired forward/backward scans and explicit segment state belong to the
+ * hand-written RLE encoder. */
+__declspec(naked) int EncodeRasterClipToRLEFrame(
+    RasterClip *clip, unsigned char transparentColour,
+    int originX, int originY, unsigned char *output)
+{
+#ifdef _MSC_VER
+#include "screens_encode_raster_clip_to_rle_frame.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43C410 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the hand-written RLE command-stream traversal. */
+#pragma optimize("", off)
+__declspec(naked) unsigned int TranslateRLEFramePalette(
+    unsigned char *shape, int frame)
+{
+#ifdef _MSC_VER
+#include "screens_translate_rle_frame_palette.inc"
+#else
+    return 0;
+#endif
+}
+#pragma optimize("", on)
+
 /* Function start: 0x43C4A2 */
 /* The register-paired run classifier and explicit ES setup identify the
  * original scanline encoder as hand-written raster assembly. */
@@ -4310,6 +4401,22 @@ blit_no_overlap:
     }
 }
 
+/* Function start: 0x43CC83 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the raster library's explicit segment setup and wrapped nine-blit
+ * decomposition. */
+__declspec(naked) int ScrollRasterClipWrapped(
+    RasterClip *clip, int deltaX, int deltaY, int mode,
+    unsigned int fillOrScratch)
+{
+#ifdef _MSC_VER
+#include "screens_scroll_raster_clip_wrapped.inc"
+#else
+    return 0;
+#endif
+}
+
 /* Function start: 0x43CE80 */
 /* The segment setup, explicit clip arithmetic, and symmetric pixel stores
  * identify this as the retail hand-written midpoint ellipse rasterizer. */
@@ -5101,6 +5208,21 @@ raw_frame_done:
     }
 }
 
+/* Function start: 0x43E63E */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the segment state used by the adjacent hand-written raw blitters. */
+__declspec(naked) void BlitSelectedRawFrames(
+    RasterClip *clip, int x, int y, unsigned char *shape,
+    const unsigned char *frames, unsigned char *translation)
+{
+#ifdef _MSC_VER
+#include "screens_blit_selected_raw_frames.inc"
+#else
+    return;
+#endif
+}
+
 /* Function start: 0x43E675 */
 /* Shared by the ILBM, PCX, and GIF decoders.  The segment preservation and
  * width-first REP copy identify this as a hand-written scanline blitter. */
@@ -5128,6 +5250,20 @@ __declspec(naked) unsigned char *FindIFFChunkData(
 #endif
 }
 
+/* Function start: 0x43E7C6 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the hand-written ByteRun1 and planar-to-chunky decoder loops. */
+__declspec(naked) unsigned int DecodeIFFImage(
+    RasterClip *clip, const unsigned char *iffData)
+{
+#ifdef _MSC_VER
+#include "screens_decode_iff_image.inc"
+#else
+    return 0;
+#endif
+}
+
 /* Function start: 0x43E98D */
 __declspec(naked) void CopyILBMPalette(const unsigned char *iffData,
                                        unsigned char *palette)
@@ -5145,6 +5281,20 @@ __declspec(naked) unsigned int GetILBMImageSize(
 {
 #ifdef _MSC_VER
 #include "screens_get_ilbm_image_size.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43E9EB */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the hand-written PCX run decoder and its ES scanline writes. */
+__declspec(naked) unsigned int DecodePCXImage(
+    RasterClip *clip, const unsigned char *pcxData)
+{
+#ifdef _MSC_VER
+#include "screens_decode_pcx_image.inc"
 #else
     return 0;
 #endif
@@ -5226,6 +5376,21 @@ __declspec(naked) void EmitGIFDecodedPixel(void)
 #endif
 }
 
+/* Function start: 0x43EC29 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* The decoder uses the register-convention GIF helpers and explicit segment
+ * state of the hand-written raster library. */
+__declspec(naked) unsigned int ExpandGIFLZWImage(
+    RasterClip *clip, const unsigned char *gifData, void *workspace)
+{
+#ifdef _MSC_VER
+#include "screens_expand_gif_lzw_image.inc"
+#else
+    return 0;
+#endif
+}
+
 /* Function start: 0x43EE42 */
 /* GIF global and local color tables use the same packed size field; a local
  * table, when present, replaces the global palette copied first. */
@@ -5245,6 +5410,34 @@ __declspec(naked) unsigned int GetGIFImageSize(
 {
 #ifdef _MSC_VER
 #include "screens_get_gif_image_size.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43EEDB */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Retain the segment-preserving raster-library accessor verbatim. */
+__declspec(naked) unsigned int GetRLEFrameDimensions(
+    unsigned char *shape, int frame)
+{
+#ifdef _MSC_VER
+#include "screens_get_rle_frame_dimensions.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43EEFD */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Retain the segment-preserving raster-library accessor verbatim. */
+__declspec(naked) unsigned int GetRLEFrameExtents(
+    unsigned char *shape, int frame)
+{
+#ifdef _MSC_VER
+#include "screens_get_rle_frame_extents.inc"
 #else
     return 0;
 #endif
@@ -5316,6 +5509,48 @@ __declspec(naked) unsigned int GetRLEImageOrigin(unsigned char *shape,
     }
 }
 
+/* Function start: 0x43EF7E */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the hand-written palette-delta stream traversal. */
+__declspec(naked) void ApplyRLEFramePalette(
+    unsigned char *shape, int frame, unsigned char *palette)
+{
+#ifdef _MSC_VER
+#include "screens_apply_rle_frame_palette.inc"
+#else
+    return;
+#endif
+}
+
+/* Function start: 0x43EFC9 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the hand-written palette-delta stream copy. */
+__declspec(naked) unsigned int CopyRLEFramePalette(
+    unsigned char *shape, int frame, unsigned char *entries)
+{
+#ifdef _MSC_VER
+#include "screens_copy_rle_frame_palette.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43F011 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the hand-written palette-delta stream copy. */
+__declspec(naked) unsigned int SetRLEFramePalette(
+    unsigned char *shape, int frame, const unsigned char *entries)
+{
+#ifdef _MSC_VER
+#include "screens_set_rle_frame_palette.inc"
+#else
+    return 0;
+#endif
+}
+
 /* Function start: 0x43F05B */
 __declspec(naked) unsigned int GetRLEFrameCount(const unsigned char *shape)
 {
@@ -5335,4 +5570,62 @@ __declspec(naked) unsigned int GetRLEFrameCount(const unsigned char *shape)
         _emit 0c9h
         ret
     }
+}
+
+/* Function start: 0x43F06E */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Retain the segment-preserving directory scan from the raster library. */
+__declspec(naked) int CollectUniqueRLEImageFrames(
+    const unsigned char *shape, unsigned int *frames)
+{
+#ifdef _MSC_VER
+#include "screens_collect_unique_rle_image_frames.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43F0D0 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Retain the segment-preserving directory scan from the raster library. */
+__declspec(naked) int CollectUniqueRLEPaletteFrames(
+    const unsigned char *shape, unsigned int *frames)
+{
+#ifdef _MSC_VER
+#include "screens_collect_unique_rle_palette_frames.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43F425 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the callback-driven, fixed-point palette fade implemented by the
+ * hand-written raster library. */
+__declspec(naked) void FadeRasterPaletteToPalette(
+    RasterSurface *surface, const unsigned char *targetPalette,
+    unsigned int duration)
+{
+#ifdef _MSC_VER
+#include "screens_fade_raster_palette_to_palette.inc"
+#else
+    return;
+#endif
+}
+
+/* Function start: 0x43F5A9 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+/* Preserve the segment-based colour-set scan used by the raster library. */
+__declspec(naked) int CollectRasterClipColours(
+    RasterClip *clip, unsigned int *colours)
+{
+#ifdef _MSC_VER
+#include "screens_collect_raster_clip_colours.inc"
+#else
+    return 0;
+#endif
 }
