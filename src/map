@@ -1,7 +1,7 @@
 # Address-sorted developer functions in WC1.EXE (original addresses).
 # MSVC emits functions in source order, so adjacency here is evidence of
 # shared compilation-unit ownership. Regenerate with: make sort
-# 1451 developer functions; CRT begins at 0x00449100.
+# 1453 developer functions; CRT begins at 0x00449100.
 
 0x00401000 SaveGamePalette
 0x00401020 RestoreGamePalette
@@ -918,7 +918,7 @@
 0x0042BC00 BlitTbl0046a5aeFnBC00
 0x0042C410 GameNoBodyStubv7
 0x0042C420 WaitForAnyKeyPrompt
-0x0042C510 LoopUiFnC510
+0x0042C510 RewriteDiskFileGraphicsExtensions
 0x0042C580 LoadWingCmdrCfgFile
 0x0042C660 LoadInstallDat
 0x0042C800 show_damage_disp
@@ -980,7 +980,7 @@
 0x0042F740 ScanTbl005a6540FnF740
 0x0042F7E0 DoUiFnF7E0
 0x0042F810 GetPacketSize
-0x0042F890 LoopNavFnF890
+0x0042F890 GetFreeNearHeapBytes
 0x0042F930 FrameStartHook
 0x0042F940 DoLocalFnF940
 0x0042F950 MessagePumpHook
@@ -1029,7 +1029,9 @@
 0x004315C0 ExpandCommMessageTokens
 0x004316E0 real_vid_transmit
 0x004318F0 ShutdownVideoHook
-0x00431900 TextTbl0059df80Fn1900
+0x00431900 ReserveContiguousPaletteEntries
+0x00431970 ReleaseContiguousPaletteEntries
+0x004319B0 PrintPaletteAllocationMap
 0x00431A10 LoadJoystickCalibrationFile
 0x00431D20 ReadCalibratedJoystick
 0x00431EA0 UnionRectBounds

@@ -4,7 +4,7 @@ Audit date: 2026-08-11.
 
 This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
-`src/**/*.c` and `src/**/*.cpp`. It contains **64 functions**: **62 ordinary
+`src/**/*.c` and `src/**/*.cpp`. It contains **61 functions**: **59 ordinary
 candidates** and **2 compiler thunks** which must not be reproduced manually.
 
 The proposed compilation units follow the current source adjacency and
@@ -48,14 +48,11 @@ Ghidra status meanings:
 | `0x0042B680` | `PlaySfxWaveByIndex` | — | `src/sound.c` | verified |
 | `0x0042BC00` | `BlitTbl0046a5aeFnBC00` | — | `src/sound.c` | verified |
 | `0x0042C420` | `WaitForAnyKeyPrompt` | — | `src/sound.c` | verified |
-| `0x0042C510` | `LoopUiFnC510` | — | `src/sound.c` | verified |
 | `0x0042F740` | `ScanTbl005a6540FnF740` | — | `src/screen.c` | verified |
-| `0x0042F890` | `LoopNavFnF890` | — | `src/screen.c` | verified; exported |
 | `0x0042FB40` | `SetTbl0059cd90FnFB40` | — | `src/screen.c` | verified |
 | `0x0042FC00` | `BlitTbl0059c950FnFC00` | — | `src/screen.c` | verified |
 | `0x00430150` | `BlitTbl0059de40Fn0150` | — | `src/screen.c` | verified |
 | `0x004304F0` | `BlitTbl005a6900Fn04F0` | — | `src/screen.c` | verified |
-| `0x00431900` | `TextTbl0059df80Fn1900` | — | `src/screen.c` | verified; exported |
 | `0x00431A10` | `LoadJoystickCalibrationFile` | — | `src/screen.c` | verified |
 | `0x00434D10` | `_rand` | — | `src/mathfp.c` | verified; compiler thunk—do not hand-write |
 | `0x00436F50` | `LoadTbl0059ca58Fn6F50` | — | `src/screens.c` | verified |
@@ -124,17 +121,28 @@ Ghidra status meanings:
   prefix. They were recreated as bodies `0x0040E950`–`0x0040E9D6` and
   `0x0042E050`–`0x0042E085`, respectively. Their prior prototypes, tags, and
   plate comment were restored.
+- Two aligned routines between the prior `0x00431900` function and
+  `LoadJoystickCalibrationFile` were absent from the live function table.
+  `ReleaseContiguousPaletteEntries` was force-created over
+  `0x00431970`–`0x004319A0`, and `PrintPaletteAllocationMap` over
+  `0x004319B0`–`0x00431A03`. Their listings, calling conventions, prototypes,
+  and expected game-core tags were verified before the program was saved.
+- The Mac `AllocTextLayer` symbol was checked against the newly recovered
+  palette-entry allocation cluster but was not assigned: the later Mac text-layer
+  sequence does not provide a body or ordering match strong enough to establish
+  identity.
 - Every source annotation now resolves to an exact live Ghidra function entry.
-  Every one of the 64 backlog rows above also resolves to an exact entry and a
+  Every one of the 61 backlog rows above also resolves to an exact entry and a
   non-empty listing. The Ghidra program was saved after verification.
 
 ## Export and implementation progress
 
-- All 28 assembly snippets that were absent at the start of this audit now
-  exist in `code-full`. Each export has the same instruction count and return
-  form as its exact live Ghidra function. Existing exports were not rewritten.
-- Twenty-five confirmed `wc-developer` functions were removed from the backlog
-  across five reconstruction tranches after binary-comp comparison:
+- All 28 assembly snippets that were absent at the start of this audit, plus
+  the two newly discovered palette-entry helpers, now exist in `code-full`. Each
+  export has the same instruction count and return form as its exact live
+  Ghidra function. Existing exports were not rewritten.
+- Thirty confirmed `wc-developer` functions were reconstructed across six
+  tranches after binary-comp comparison:
 
   | Address | Implemented name | Compilation unit | Similarity |
   |---|---|---|---:|
@@ -163,6 +171,11 @@ Ghidra status meanings:
   | `0x0040ED30` | `AllocateNearHeapBlockByFlags` | `src/nav.c` | 95.04% |
   | `0x0042B160` | `InitializeAudioSystem` | `src/pload.c` | 100.00% |
   | `0x0042B810` | `RegistryQueryValue` | `src/sound.c` | 100.00% |
+  | `0x0042C510` | `RewriteDiskFileGraphicsExtensions` | `src/sound.c` | 100.00% |
+  | `0x0042F890` | `GetFreeNearHeapBytes` | `src/screen.c` | 90.91% |
+  | `0x00431900` | `ReserveContiguousPaletteEntries` | `src/screen.c` | 100.00% |
+  | `0x00431970` | `ReleaseContiguousPaletteEntries` | `src/screen.c` | 100.00% |
+  | `0x004319B0` | `PrintPaletteAllocationMap` | `src/screen.c` | 100.00% |
 
 - Ghidra was synchronized with the reconstructed prototypes and behavior-based
   names, then saved after each tranche.

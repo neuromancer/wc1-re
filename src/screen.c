@@ -330,6 +330,25 @@ unsigned int __stdcall GetPacketSize(const char *filename, short section)
     return size;
 }
 
+/* Function start: 0x42F890 */
+int GetFreeNearHeapBytes(void)
+{
+    NearHeapBlock *block;
+    int descriptorAddress;
+    int freeBytes;
+
+    freeBytes = 0;
+    descriptorAddress =
+        g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c - 8;
+    while (descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124) {
+        block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+        if ((block->sizeAndFlags & 0x80000000) == 0)
+            freeBytes += block->sizeAndFlags & 0xfffff;
+        descriptorAddress -= 8;
+    }
+    return freeBytes;
+}
+
 /* Function start: 0x42F930 */
 void FrameStartHook(int mode)
 {
@@ -1224,6 +1243,74 @@ void real_vid_transmit(short obj, short message)
 void __stdcall ShutdownVideoHook(int mode)
 {
     ReleaseVideoResourcesHook();
+}
+
+/* Function start: 0x431900 */
+short __stdcall ReserveContiguousPaletteEntries(short entryCount)
+{
+    short entry;
+    short freeEntries;
+    short firstEntry;
+    short fillEntry;
+
+    freeEntries = 0;
+    entry = 0;
+    firstEntry = 0;
+    for (;;) {
+        if (g_awPaletteEntryAllocation_0059df80[entry] != 0) {
+            freeEntries = 0;
+            firstEntry = (short)(entry + 1);
+        } else
+            freeEntries++;
+        if (freeEntries == entryCount)
+            break;
+        entry++;
+        if (entry >= 256)
+            return -1;
+    }
+
+    fillEntry = 0;
+    while (fillEntry < entryCount) {
+        g_awPaletteEntryAllocation_0059df80[firstEntry + fillEntry] =
+            entryCount;
+        fillEntry++;
+    }
+    return firstEntry;
+}
+
+/* Function start: 0x431970 */
+void __stdcall ReleaseContiguousPaletteEntries(short firstEntry)
+{
+    short entry;
+    short entryCount;
+
+    entry = 0;
+    entryCount = g_awPaletteEntryAllocation_0059df80[firstEntry];
+    while (entry < entryCount) {
+        g_awPaletteEntryAllocation_0059df80[firstEntry + entry] = 0;
+        entry++;
+    }
+}
+
+/* Function start: 0x4319B0 */
+void PrintPaletteAllocationMap(void)
+{
+    short index;
+    short row;
+    short column;
+
+    index = 0;
+    row = 4;
+    do {
+        column = 0x40;
+        do {
+            printf("%c", g_awPaletteEntryAllocation_0059df80[index++] < 1 ?
+                   '_' : '.');
+            column--;
+        } while (column != 0);
+        printf("\n");
+        row--;
+    } while (row != 0);
 }
 
 /* Function start: 0x431D20 */

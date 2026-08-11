@@ -2204,6 +2204,7 @@ short g_asObjectScale_0059de40[WC1_SPACE_OBJECT_COUNT];
 char DAT_0059dec0[256];
 short g_asShipAccumulatedDamage_0059dee0[WC1_SPACE_OBJECT_COUNT];
 short g_nCurrentNavPoint_0059df60;
+unsigned short g_awPaletteEntryAllocation_0059df80[256];
 unsigned char *g_apCommPortraitShapes_0059e180[16];
 char g_szHudMessageBuffer_0059e1c0[0x60];
 char *g_aapszPilotSpeech_0059e220[14][11];

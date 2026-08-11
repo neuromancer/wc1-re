@@ -1088,6 +1088,7 @@ void SaveVolumeSettingsToRegistry(void);                               /* 0x0042
 void DrawLaunchDoorFrame(short distance);                              /* 0x0042B9A0 */
 void LaunchPlayerShip(void);                                           /* 0x0042BA90 */
 void FxDriverShutdownHook(void);                                            /* 0x0042C410 */
+unsigned short RewriteDiskFileGraphicsExtensions(short videoMode);    /* 0x0042C510 */
 short LoadWingCmdrCfgFile(short argc, char **argv);                    /* 0x0042C580 */
 unsigned int LoadInstallDat(void);                                     /* 0x0042C660 */
 void show_damage_disp(void);                                           /* 0x0042C800 */
@@ -1162,6 +1163,7 @@ unsigned short __stdcall ShouldSuspendCursorForRect(
 void InitFullScreenViewport(int *vp, short arg);                                    /* 0x0042F7E0 */
 unsigned int __stdcall GetPacketSize(const char *filename,
                                      short section);                  /* 0x0042F810 */
+int GetFreeNearHeapBytes(void);                                       /* 0x0042F890 */
 void FrameStartHook(int mode);                                         /* 0x0042F930 */
 unsigned short IsSoundHardwarePresent(void);                                     /* 0x0042F940 */
 void MessagePumpHook(int mode);                                        /* 0x0042F950 */
@@ -1206,6 +1208,9 @@ short LoadCommDisplayResources(short rating, enum Side side);         /* 0x00431
 char *ExpandCommMessageTokens(char *text);                            /* 0x004315C0 */
 void real_vid_transmit(short obj, short message);                     /* 0x004316E0 */
 void __stdcall ShutdownVideoHook(int mode);                             /* 0x004318F0 */
+short __stdcall ReserveContiguousPaletteEntries(short entryCount);    /* 0x00431900 */
+void __stdcall ReleaseContiguousPaletteEntries(short firstEntry);     /* 0x00431970 */
+void PrintPaletteAllocationMap(void);                                 /* 0x004319B0 */
 short ReadCalibratedJoystick(void);                                    /* 0x00431D20 */
 void __stdcall UnionRectBounds(ShortRect *destination,
                                const ShortRect *first,

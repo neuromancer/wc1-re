@@ -278,6 +278,36 @@ void FxDriverShutdownHook(void)
 {
 }
 
+/* Function start: 0x42C510 */
+unsigned short RewriteDiskFileGraphicsExtensions(short videoMode)
+{
+    DiskFileRecord *record;
+    char *extensionPosition;
+    char extension;
+
+    record = g_pDiskFileRecords_005a7cf0;
+    switch (videoMode) {
+    case 0:
+        extension = 'v';
+        break;
+    case 1:
+        extension = 'e';
+        break;
+    case 3:
+        extension = 't';
+        break;
+    }
+
+    while (record->name[0] != '\0') {
+        extensionPosition = strrchr(record->name, '.');
+        if (extensionPosition++ != 0 &&
+            toupper((int)*extensionPosition) == 'V')
+            *extensionPosition = extension;
+        record++;
+    }
+    return 0;
+}
+
 /* Function start: 0x42C580 */
 short LoadWingCmdrCfgFile(short argc, char **argv)
 {

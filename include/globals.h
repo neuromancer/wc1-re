@@ -858,6 +858,7 @@ extern char DAT_0059dec0[256];
 #define g_acShipSpawnNavPoint_0059ded0 \
     (g_stShipSpawnRuntimeState_0059dec0.spawnNavPoint)
 extern short g_nCurrentNavPoint_0059df60;
+extern unsigned short g_awPaletteEntryAllocation_0059df80[256];
 extern unsigned char *g_apCommPortraitShapes_0059e180[16];
 extern char g_szHudMessageBuffer_0059e1c0[0x60];
 extern char *g_aapszPilotSpeech_0059e220[14][11];
