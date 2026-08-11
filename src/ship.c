@@ -800,7 +800,7 @@ short ShipExplosion(short obj)
     set_objects_data(explosion, OBJECT_TYPE_EXPLOSION1,
                      (short)g_acObjectOwner_0059ce20[explosion]);
     g_asObjectScale_0059de40[explosion] = (short)(
-        (unsigned int)(unsigned short)g_asObjectScale_0059de40[explosion] *
+        (unsigned short)g_asObjectScale_0059de40[explosion] *
         originalScale >> 8);
     return explosion;
 }

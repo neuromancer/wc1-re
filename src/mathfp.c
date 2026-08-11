@@ -96,7 +96,9 @@ long PlanarMagnitude(int x, int y)
     double scaledX = (double)x * (1.0 / 256.0);
     double scaledY = (double)y * (1.0 / 256.0);
 
-    return (long)(sqrt(scaledX * scaledX + scaledY * scaledY) * 256.0);
+    scaledX *= scaledX;
+    scaledY *= scaledY;
+    return (long)(sqrt(scaledX + scaledY) * 256.0);
 }
 
 /* Function start: 0x434F20 */

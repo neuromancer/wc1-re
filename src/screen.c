@@ -1209,10 +1209,10 @@ void ResetCommMenuChoices(short reuse)
 {
     short choice;
 
-    choice = 0;
-    if (!reuse) {
+    if (reuse == 0) {
         memset(g_abCommMenuChoiceCommand_0059e488, -1,
                sizeof(g_abCommMenuChoiceCommand_0059e488));
+        choice = 0;
         do {
             g_apszCommMenuChoiceText_0059e4e0[choice] = 0;
             choice++;

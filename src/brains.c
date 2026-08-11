@@ -3035,7 +3035,7 @@ void ship_intelligence(short obj)
 /* Function start: 0x40AF70 */
 void orbit_sphere(short obj)
 {
-    short radius = g_aMissionNavPoints_0046c2f0[
+    short radius = (short)g_aMissionNavPoints_0046c2f0[
         g_nCurrentNavPoint_0059df60].proximityRadius >> 1;
     FixedVector center =
         g_aMissionNavPoints_0046c2f0[g_nCurrentNavPoint_0059df60].position;

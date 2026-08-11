@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.24% average)</summary>
+<summary>All 1,472 function similarity scores (97.25% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -171,7 +171,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `defend_mission` | `0x40AC00` | 99.29% |
 | `brains.c` | `rendezvous_mission` | `0x40AD80` | 100.00% |
 | `brains.c` | `ship_intelligence` | `0x40AE80` | 100.00% |
-| `brains.c` | `orbit_sphere` | `0x40AF70` | 98.04% |
+| `brains.c` | `orbit_sphere` | `0x40AF70` | 100.00% |
 | `brains.c` | `tanker_intelligence` | `0x40B010` | 100.00% |
 | `brains.c` | `destroyer_intelligence` | `0x40B0C0` | 100.00% |
 | `brains.c` | `stationary_intelligence` | `0x40B110` | 100.00% |
@@ -1002,7 +1002,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `mathfp.c` | `ArcSin` | `0x434E60` | 100.00% |
 | `mathfp.c` | `ArcCos` | `0x434E90` | 100.00% |
 | `mathfp.c` | `Magnitude` | `0x434EC0` | 100.00% |
-| `mathfp.c` | `PlanarMagnitude` | `0x434EE0` | 93.33% |
+| `mathfp.c` | `PlanarMagnitude` | `0x434EE0` | 100.00% |
 | `mathfp.c` | `Vector_magnitude` | `0x434F20` | 100.00% |
 | `mathfp.c` | `SetTextCursor` | `0x434F70` | 100.00% |
 | `mathfp.c` | `SetTextContext` | `0x434FA0` | 100.00% |
@@ -1220,7 +1220,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `PollMenuInputDevices` | `0x430920` | 80.61% |
 | `screen.c` | `get_face` | `0x430BC0` | 100.00% |
 | `screen.c` | `LoadCommPortraitShape` | `0x430BF0` | 89.29% |
-| `screen.c` | `ResetCommMenuChoices` | `0x430C50` | 95.00% |
+| `screen.c` | `ResetCommMenuChoices` | `0x430C50` | 100.00% |
 | `screen.c` | `IsCommMenuIdle` | `0x430CA0` | 100.00% |
 | `screen.c` | `AppendCommMenuChoice` | `0x430CB0` | 100.00% |
 | `screen.c` | `SendCommMenuChoice` | `0x430D30` | 100.00% |
@@ -1356,7 +1356,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `ship.c` | `affect_mission_score` | `0x41F9E0` | 88.57% |
 | `ship.c` | `score_for_kill` | `0x41FA90` | 100.00% |
 | `ship.c` | `analyze_kill` | `0x41FB40` | 100.00% |
-| `ship.c` | `ShipExplosion` | `0x41FBC0` | 98.65% |
+| `ship.c` | `ShipExplosion` | `0x41FBC0` | 100.00% |
 | `ship.c` | `Explosion` | `0x41FCD0` | 94.62% |
 | `ship.c` | `the_creator` | `0x41FEB0` | 92.86% |
 | `ship.c` | `explosion_shock_wave` | `0x41FEE0` | 93.91% |
@@ -1488,7 +1488,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `winmain.c` | `try_far_spot` | `0x4016C0` | 88.72% |
 | `winmain.c` | `rear_sphere` | `0x401870` | 100.00% |
 | `winmain.c` | `ok_hazard_spot` | `0x401890` | 100.00% |
-| `winmain.c` | `make_hazard` | `0x4018D0` | 97.06% |
+| `winmain.c` | `make_hazard` | `0x4018D0` | 100.00% |
 | `winmain.c` | `extra_hazard` | `0x401930` | 100.00% |
 | `winmain.c` | `approach` | `0x401950` | 100.00% |
 | `winmain.c` | `manage_hazard` | `0x4019E0` | 100.00% |
@@ -1514,7 +1514,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `winmain.c` | `GetMainWindowHandle` | `0x402B90` | 100.00% |
 | `winmain.c` | `GetMainWindowDeviceContext` | `0x402BA0` | 100.00% |
 | `winmain.c` | `AllocateGuardedMemory` | `0x402BB0` | 96.67% |
-| `winmain.c` | `ReportHeapGuardCorruption` | `0x402CA0` | 94.87% |
+| `winmain.c` | `ReportHeapGuardCorruption` | `0x402CA0` | 100.00% |
 | `winmain.c` | `CheckAllGuardedAllocations` | `0x402D40` | 100.00% |
 | `winmain.c` | `FreeGuardedAllocation` | `0x402DB0` | 97.47% |
 

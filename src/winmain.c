@@ -314,11 +314,11 @@ short make_hazard(void)
     short moving;
     short obj = find_vacant_3d_object();
 
-    if (obj != -1 && try_far_spot(&spot, &moving) != 0) {
+    if (obj != -1 && (short)try_far_spot(&spot, &moving) != 0) {
         init_hazard(obj, spot, moving);
-        return obj;
-    }
-    return -1;
+    } else
+        obj = -1;
+    return obj;
 }
 
 /* Function start: 0x401930 */
