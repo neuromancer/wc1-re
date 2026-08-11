@@ -891,10 +891,12 @@ message_finished:
 /* Function start: 0x41FEB0 */
 short the_creator(short obj)
 {
-    short owner;
+    signed char owner;
 
-    while (obj != -1) {
-        owner = (short)g_acObjectOwner_0059ce20[obj];
+    for (;;) {
+        if (obj == -1)
+            return -1;
+        owner = g_acObjectOwner_0059ce20[obj];
         if (obj == owner || owner == -1)
             return obj;
         obj = owner;

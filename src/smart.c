@@ -500,12 +500,13 @@ enum ShipManeuver pick_from_list(const ManeuverChoice *choice, short obj)
 /* Function start: 0x4348A0 */
 enum ShipManeuver pick_kilrathi_maneuver(short obj, int event)
 {
+    const ManeuverChoice *choice;
     enum ShipManeuver maneuver;
 
-    maneuver = pick_from_list(
+    choice =
         &g_aKilrathiManeuverChoices_0046d808[
-            g_aiPilotLevel_0059cf30[obj]][event][stress_morale(obj)],
-        obj);
+            g_aiPilotLevel_0059cf30[obj]][event][stress_morale(obj)];
+    maneuver = pick_from_list(choice, obj);
     switch (maneuver) {
     case MANEUVER_UNKNOWN_45:
         return MANEUVER_STRAFE_ENEMY;
@@ -519,6 +520,7 @@ enum ShipManeuver pick_kilrathi_maneuver(short obj, int event)
 /* Function start: 0x434900 */
 unsigned int process_maneuver_node(short obj, int event)
 {
+    const ManeuverChoice *choice;
     short rating;
     short morale;
     enum ShipManeuver maneuver;
@@ -531,9 +533,9 @@ unsigned int process_maneuver_node(short obj, int event)
             maneuver = pick_regular_maneuver(obj, event);
     } else {
         morale = stress_morale(obj);
-        maneuver = pick_from_list(
-            &g_aRatedManeuverChoices_0046d3e8[rating][event][morale],
-            obj);
+        choice =
+            &g_aRatedManeuverChoices_0046d3e8[rating][event][morale];
+        maneuver = pick_from_list(choice, obj);
     }
     if (g_aeShipManeuver_0059dcb0[obj] != maneuver)
         reset_maneuver(obj, (short)maneuver);

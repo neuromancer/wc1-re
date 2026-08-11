@@ -222,7 +222,7 @@ unsigned short EraseTextContextBackground(TextContext *context)
     unsigned short colour;
 
     colour = context->backgroundColour;
-    if (context->backgroundColour == 0xff)
+    if (colour == 0xff)
         colour = DAT_0046999c;
     ClearViewport(context->viewport, colour);
     return 0;

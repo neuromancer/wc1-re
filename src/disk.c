@@ -927,9 +927,11 @@ void rotate_object_to_goal(short obj)
 unsigned int celerate(short ship, int delta)
 {
     int maximumSpeed = (int)g_asShipMaximumSpeed_0059c440[ship] << 8;
+    int speed;
 
-    g_anShipSpeed_0059b320[ship] += delta;
-    if (maximumSpeed < g_anShipSpeed_0059b320[ship])
+    speed = g_anShipSpeed_0059b320[ship] + delta;
+    g_anShipSpeed_0059b320[ship] = speed;
+    if (speed > maximumSpeed)
         g_anShipSpeed_0059b320[ship] = maximumSpeed;
     if (g_anShipSpeed_0059b320[ship] < 0)
         g_anShipSpeed_0059b320[ship] = 0;

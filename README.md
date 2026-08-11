@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.63% average)</summary>
+<summary>All 1,472 function similarity scores (97.65% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -434,7 +434,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `disk.c` | `set_objects_data` | `0x41E120` | 93.94% |
 | `disk.c` | `match_rotation_goal` | `0x41E400` | 98.21% |
 | `disk.c` | `rotate_object_to_goal` | `0x41E520` | 88.17% |
-| `disk.c` | `celerate` | `0x41E710` | 94.12% |
+| `disk.c` | `celerate` | `0x41E710` | 100.00% |
 | `disk.c` | `approach_speed` | `0x41E750` | 100.00% |
 | `disk.c` | `steady_object` | `0x41E7C0` | 100.00% |
 | `disk.c` | `real_velocity` | `0x41E7F0` | 100.00% |
@@ -1153,7 +1153,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `pilot.cpp` | `SetConsoleBackgroundColourHook` | `0x425C00` | 100.00% |
 | `pilot.cpp` | `DiskPromptDrawHook` | `0x425C10` | 100.00% |
 | `pilot.cpp` | `ClearDebugPauseFlags` | `0x425C20` | 100.00% |
-| `pilot.cpp` | `EraseTextContextBackground` | `0x425C30` | 92.31% |
+| `pilot.cpp` | `EraseTextContextBackground` | `0x425C30` | 100.00% |
 | `pilot.cpp` | `DisplayTrainSimHighScoreTable` | `0x425C60` | 100.00% |
 | `pilot.cpp` | `AnimateTrainSimTitle` | `0x425D00` | 96.67% |
 | `pilot.cpp` | `GetHighScoreEntry` | `0x425DF0` | 100.00% |
@@ -1358,7 +1358,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `ship.c` | `analyze_kill` | `0x41FB40` | 100.00% |
 | `ship.c` | `ShipExplosion` | `0x41FBC0` | 100.00% |
 | `ship.c` | `Explosion` | `0x41FCD0` | 94.62% |
-| `ship.c` | `the_creator` | `0x41FEB0` | 92.86% |
+| `ship.c` | `the_creator` | `0x41FEB0` | 100.00% |
 | `ship.c` | `explosion_shock_wave` | `0x41FEE0` | 92.17% |
 | `ship.c` | `explode` | `0x420040` | 100.00% |
 | `ship.c` | `send_at_point` | `0x420190` | 100.00% |
@@ -1371,7 +1371,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `ship.c` | `rnd_sign` | `0x4208C0` | 100.00% |
 | `ship.c` | `rnd_aim` | `0x4208E0` | 100.00% |
 | `ship.c` | `pop_flack` | `0x420920` | 98.33% |
-| `ship.c` | `fire_turrets` | `0x420AA0` | 96.52% |
+| `ship.c` | `fire_turrets` | `0x420AA0` | 97.39% |
 | `ship.c` | `fire_weapon` | `0x420C20` | 94.07% |
 | `smart.c` | `steer_away_from_object` | `0x433AC0` | 100.00% |
 | `smart.c` | `steer_away_from_predicted_object` | `0x433B90` | 100.00% |
@@ -1392,8 +1392,8 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `smart.c` | `any_defense` | `0x4345F0` | 100.00% |
 | `smart.c` | `pick_regular_maneuver` | `0x434630` | 98.29% |
 | `smart.c` | `pick_from_list` | `0x434800` | 100.00% |
-| `smart.c` | `pick_kilrathi_maneuver` | `0x4348A0` | 88.89% |
-| `smart.c` | `process_maneuver_node` | `0x434900` | 97.67% |
+| `smart.c` | `pick_kilrathi_maneuver` | `0x4348A0` | 100.00% |
+| `smart.c` | `process_maneuver_node` | `0x434900` | 100.00% |
 | `smart.c` | `handle_stress` | `0x434980` | 100.00% |
 | `smart.c` | `intelligence_events` | `0x434A80` | 95.10% |
 | `smart.c` | `chase_speed` | `0x434C70` | 100.00% |
