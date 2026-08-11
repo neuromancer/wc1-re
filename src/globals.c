@@ -168,6 +168,13 @@ const char g_szJoystickDevCapsFailure_004652dc[26] =
     "Joystick: !joyGetDevCaps\n";
 short DAT_00465460;
 short g_nAutopilotFormationShipCount_00465544;
+const char *g_pStrandedMessage_00465588 =
+    g_szStrandedMessage_0046558c;
+const char g_szStrandedMessage_0046558c[72] =
+    "\nWith your carrier\ndestroyed, you drift\nendlessly through\n"
+    "the void...";
+const char g_szViewTemplates_004655d4[16] = "View Templates";
+const char g_szStrandedTheEnd_004655e4[12] = "THE END";
 const short g_asMouthFramesByPhoneme_004655f0[26] = {
     0, 5, 4, 4, 1, 8, 4, 7, 0, 4, 4, 7, 5,
     4, 2, 5, 6, 4, 4, 4, 3, 4, 6, 4, 4, 4

@@ -102,6 +102,7 @@ unsigned int player_wingman(short obj);                                  /* 0x00
 void set_speed(short obj, short speed);                                  /* 0x00403F10 */
 void auto_position(short obj, short *formationSlot);                     /* 0x00403F40 */
 void auto_pilot_sequence(void);                                          /* 0x00404050 */
+void stranded_sequence(void);                                            /* 0x00404BE0 */
 unsigned int ParseFaceAnimation(char *text, short *commands);           /* 0x00404CD0 */
 unsigned int ParseMouthAnimation(char *text, short *commands);          /* 0x00404D70 */
 char *AddPCName(char *text);                                            /* 0x00404E10 */

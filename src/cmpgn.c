@@ -65,6 +65,42 @@ typedef char MissionObjectiveDisk_size_must_be_0x40[
 typedef char MissionShipDisk_size_must_be_0x2a[
     sizeof(MissionShipDisk) == 0x2a ? 1 : -1];
 
+/* Function start: 0x404BE0 */
+void stranded_sequence(void)
+{
+    short frame;
+
+    g_nCannedSceneMode_00469fac = 1;
+    free_cockpit();
+    force_view(13, 0);
+    frame = 0;
+    g_pIntroFont_005a8960 = FetchDiskPacketRetrying(9, 1, 0);
+    do {
+        if (RefreshCockpitStatus() != 0) {
+            if (frame >= 300)
+                print_subtitle(&DAT_005a7510, 56,
+                               g_szStrandedTheEnd_004655e4);
+            else if (frame >= 160)
+                print_subtitle(&DAT_005a7510, 50,
+                               g_pStrandedMessage_00465588);
+            dump_buffer_to_screen();
+        }
+        if (DAT_0059ab58 != 0)
+            break;
+        frame++;
+        DIBslam();
+        DIBslamReal();
+    } while (frame < 400);
+    free_all_slots();
+    FreePacketAndClear((int *)&g_pIntroFont_005a8960, 0);
+    DAT_005a6ba0.top = 0;
+    DAT_005a6ba0.bottom = 199;
+    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    RestoreGamePalette();
+    DAT_0059ab58 = 0;
+}
+
 /* Function start: 0x404CD0 */
 unsigned int ParseFaceAnimation(char *text, short *commands)
 {
