@@ -13,68 +13,6 @@ Visual C++ 4.20 to preserve the original code generation.
 1,353 of 1,460 identified developer functions are currently reimplemented (92.7%):
 1,229 of 1,336 game functions and all 124 `ix` audio functions.
 
-The original WINGLEADER `main` path now loads `WINGCMDR.CFG`, merges its options with the
-process arguments, applies the retail startup and developer switches, resets campaign data,
-initializes the selected series and mission, configures audio, supports direct mission launch,
-and enters the persistent title/campaign loop. `main` improved from 28.03% to 81.82% similarity,
-the newly implemented `LoadWingCmdrCfgFile` is 97.40%, and every compared function in
-`main.c` is now at least 80% similar. The developer-only animation-demo option is parsed and
-retains its profiling prompts, but its scene dispatcher still depends on missing scene calls.
-
-The reconstructed executable boots, plays the animated intro with music, displays the main
-menu, creates a campaign pilot, and enters the training simulator. The campaign flow now calls
-the retail briefing before mission initialization and restores the briefing, debriefing, office,
-briefing-map, conditional dialogue, close-up, and packet-driven scene-animation paths.
-
-Space flight includes the cockpit, HUD, crosshair, automatic target selection, `T`-key target
-cycling, scanner contacts, radar marker backing, and the full target VDU with pilot or ace names,
-range, shields, and armor. AI projectile and missile selection, turret and flak fire, projectile
-collision detection, impact forces, ship damage, debris, and explosion shock waves are also
-reimplemented. Cockpit light refresh, armor and shield bars, digital speed and velocity
-readouts, the weapon/loadout VDU, release-weapon animation, damage severity, and the
-critical-damage warning path now follow the retail routines closely. These changes were
-verified statically against the retail call graph and global accesses; neither executable was
-launched during this pass.
-
-The Mac-named in-flight music path now includes `spacetrack`, `changetrack`, `gametrack`,
-`servicetrack`, and `wait_for_end_of_music`. Dynamic threat and damage tracks, TrainSim music,
-asteroid proximity audio, and passing-ship effects are serviced from `Update_3Space`; all newly
-added routines score between 91.30% and 100% similarity.
-
-The core raster path now preserves the retail hand-written clipped-line and midpoint-ellipse
-primitives and rotated RLE scanline texture mapper, including callback/translation drawing
-modes and the fixed-point corner workspace. Conditional scene tests and the packet-driven scene
-director also follow the retail dispatch and shot-state model; every currently compared
-function in `screens.c` is above 80% similarity.
-
-The Mac-named hazard-field block now follows the retail spawn timing, orientation, culling,
-and field-transition logic. Mine and asteroid setup uses the original random routines and enemy
-check, while collision-grace ticks, mission destinations, and capital-ship view frames are kept
-as distinct typed globals. Every compared hazard routine is at least 81.25% similar.
-
-The navigation-map pass now uses the recovered Mac routine names and retail objective-style
-table. Objective construction, map scaling and bounds, label reservation and placement, marker
-drawing, player positioning, and objective-note lookup follow the original control flow. The
-coordinate helpers and ellipse marker chain are exact matches, the triangle marker now follows
-the retail three-line geometry, and every touched navigation-map path is above 80% similarity.
-
-The packet-loading path now follows the retail section-handle, seeking, decompression-workspace,
-allocation, and error-handling flow. `PacketLoad` improved from 26.83% to an exact match, its
-five-argument calling convention is restored at every caller, and the three newly reconstructed
-resource helpers score between 86.36% and 91.93% similarity.
-
-The barracks and inherited `SAVEGAME.WLD` conversion path are now reconstructed, including
-campaign slots and medal viewing. The flight object-resource cache now unloads, restores, and
-evicts ship, capital-ship, missile, asteroid, and mine shapes using the original slot lifecycle.
-The Mac-named ejection, stranded, death, and funeral sequences now follow the retail cockpit
-animation, pilot-object, scripted-camera, destruction, funeral-volley, music, subtitle,
-palette, and resource-lifecycle flow. The death cinematic and funeral ceremony are 97.73% and
-97.03% machine-code similar, respectively. The full player-death path and the wingman-funeral
-branch are connected to campaign flow again. Wingman death and kill tracking also use their
-original distinct globals instead of overlapping the collision-timing array.
-Remaining work is concentrated in low-similarity cockpit, raster, platform, and later
-campaign/gameplay paths.
-
 Run `make progress` for current implementation counts and `make report` for a fresh binary
 comparison.
 
