@@ -333,7 +333,7 @@
 0x00413DA0 vdu_polygon
 0x00413F70 InitializeCockpitReadout
 0x00413FB0 DrawCockpitReadout
-0x00414050 GetUiFn4050
+0x00414050 EraseCockpitReadoutAtPosition
 0x004140A0 DrawHudMessageSlot
 0x00414180 ClearHudMessageSlot
 0x004141B0 ClearHudMessageIfMatching
@@ -352,7 +352,7 @@
 0x00414690 update_bars
 0x004147E0 get_mode
 0x00414800 set_mode
-0x00414850 DoLocalFn4850
+0x00414850 SetVduModeIfChanged
 0x00414890 GetVduModeStackDepth
 0x004148A0 push_mode
 0x004148E0 pop_mode
@@ -873,7 +873,7 @@
 0x0042A120 LoopNavFnA120
 0x0042A170 GetShipAiFnA170
 0x0042A190 RunSpaceFlight
-0x0042A520 GetShipAiFnA520
+0x0042A520 calculate_damage_level
 0x0042A610 UpdateTrainSimMenuCursor
 0x0042A670 ResetMouseCursorFrame
 0x0042A680 UpdateRoomMenuCursor

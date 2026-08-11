@@ -232,42 +232,44 @@ void vdu_polygon(signed char bar, short percent)
 unsigned int InitializeCockpitReadout(signed char slot,
                                       TextContext *context)
 {
-    int k = slot * 10;
-
-    *(TextContext **)(&DAT_005a7e30[0] + k) = context;
-    *(short *)(&DAT_005a7e30[4] + k) = context->cursorX;
-    *(short *)(&DAT_005a7e30[6] + k) = context->cursorY;
-    *(short *)(&DAT_005a7e30[8] + k) = 0;
+    g_aCockpitReadouts_005a7e30[(int)slot].context = context;
+    g_aCockpitReadouts_005a7e30[(int)slot].x = context->cursorX;
+    g_aCockpitReadouts_005a7e30[(int)slot].y = context->cursorY;
+    g_aCockpitReadouts_005a7e30[(int)slot].previousRight = 0;
     return 0;
 }
 
 /* Function start: 0x413FB0 */
 void DrawCockpitReadout(signed char slot, char *text)
 {
-    unsigned char *record;
-    TextContext *context;
-    short x;
-    short y;
-    short previousRight;
-    short height;
+    CockpitReadout *readout;
 
-    record = &DAT_005a7e30[(int)slot * 10];
-    context = *(TextContext **)record;
-    x = *(short *)(record + 4);
-    y = *(short *)(record + 6);
-    if (context == 0 || x == -99)
-        return;
-    previousRight = *(short *)(record + 8);
-    SetTextContext(context);
-    SetTextCursor((unsigned short)x, (unsigned short)y);
-    DrawFormattedText(text);
-    if (previousRight > context->cursorX) {
-        height = context->font == 0 ? 6 : *(short *)context->font;
-        DrawFilledViewportRect(&DAT_005a6ba0, context->cursorX, y,
-                               previousRight,
-                               (short)(y + height - 1), DAT_0046999c);
+    readout = &g_aCockpitReadouts_005a7e30[(int)slot];
+    if (readout->x != -99) {
+        SetTextContext(readout->context);
+        SetTextCursor((unsigned short)readout->x,
+                      (unsigned short)readout->y);
+        DrawFormattedText(text);
+        EraseCockpitReadoutRegion(
+            &DAT_005a6ba0, readout->context->cursorX, readout->y,
+            readout->previousRight,
+            (short)(*(short *)readout->context->font + readout->y - 1),
+            DAT_0046999c);
+        readout->previousRight = readout->context->cursorX;
     }
-    *(short *)(record + 8) = context->cursorX;
+}
+
+/* Function start: 0x414050 */
+void EraseCockpitReadoutAtPosition(signed char slot, short left,
+                                   short top)
+{
+    CockpitReadout *readout;
+
+    readout = &g_aCockpitReadouts_005a7e30[(int)slot];
+    EraseCockpitReadoutRegion(
+        &DAT_005a6ba0, left, top, readout->previousRight,
+        (short)(*(short *)readout->context->font + readout->y),
+        DAT_0046999c);
 }
 
 /* Function start: 0x4140A0 */
@@ -429,15 +431,21 @@ void *reset_cockpit(void)
            sizeof(g_abCockpitLightGoal_005a7eb8));
     memset(g_abCockpitLightState_005a7e70, 0,
            sizeof(g_abCockpitLightState_005a7e70));
-    return g_abCockpitLightGoal_005a7eb8;
+    return g_abCockpitLightState_005a7e70;
 }
 
 /* Function start: 0x414440 */
 unsigned int SetCockpitLightBlink(signed char light, short interval)
 {
     if (interval < 20) {
-        if (interval == 0 || g_nSpaceFrame_0059b420 % interval == 0)
+        if (interval == 0) {
             g_abCockpitLightGoal_005a7eb8[(int)light] ^= 1;
+            return 0;
+        }
+        if (g_nSpaceFrame_0059b420 % interval == 0) {
+            g_abCockpitLightGoal_005a7eb8[(int)light] ^= 1;
+            return 0;
+        }
     } else {
         g_abCockpitLightGoal_005a7eb8[(int)light] = 0;
     }
@@ -447,28 +455,45 @@ unsigned int SetCockpitLightBlink(signed char light, short interval)
 /* Function start: 0x414490 */
 void draw_cockpit_lights(void)
 {
-    int view;
+    int index;
     signed char light;
+    short x;
+    short y;
     short frame;
 
-    view = (int)g_cCockpitView_0059dab0;
-    if (view < 0 || view >= 5)
-        return;
+    if (g_nRenderedSpaceFrame_0059d61a % 4 == 0) {
+        if (auto_pilot_valid(0) != 0)
+            g_abCockpitLightGoal_005a7eb8[4] = 1;
+        else
+            g_abCockpitLightGoal_005a7eb8[4] = 0;
+    }
     light = 0;
     do {
-        if (DAT_0046a008 != 0 ||
-            g_abCockpitLightState_005a7e70[(int)light] !=
+        if (DAT_0046a008 == 0) {
+            if (g_abCockpitLightState_005a7e70[(int)light] !=
                 g_abCockpitLightGoal_005a7eb8[(int)light]) {
-            if (g_aasCockpitLightX_0046dca8[view][(int)light] != -99) {
-                frame = g_abCockpitLightGoal_005a7eb8[(int)light]
-                    ? g_aacCockpitLightOnFrame_0046dd60[view][(int)light]
-                    : g_aacCockpitLightOffFrame_0046dd38[view][(int)light];
-                DrawSpriteDefault(
-                    &DAT_005a6ba0,
-                    g_aasCockpitLightX_0046dca8[view][(int)light],
-                    g_aasCockpitLightY_0046dcf0[view][(int)light],
-                    g_pCockpitDamageShape_005a76f4, frame);
+                index = (int)g_cCockpitView_0059dab0 * 7 + (int)light;
+                x = g_aasCockpitLightX_0046dca8[0][index];
+                y = g_aasCockpitLightY_0046dcf0[0][index];
+                if (g_abCockpitLightGoal_005a7eb8[(int)light] == 1)
+                    frame = g_aacCockpitLightOnFrame_0046dd60[0][index];
+                else
+                    frame = g_aacCockpitLightOffFrame_0046dd38[0][index];
+                DrawSpriteDefault(&DAT_005a6ba0, x, y,
+                                  g_pCockpitDamageShape_005a76f4, frame);
+                g_abCockpitLightState_005a7e70[(int)light] =
+                    g_abCockpitLightGoal_005a7eb8[(int)light];
             }
+        } else {
+            index = (int)g_cCockpitView_0059dab0 * 7 + (int)light;
+            x = g_aasCockpitLightX_0046dca8[0][index];
+            y = g_aasCockpitLightY_0046dcf0[0][index];
+            if (g_abCockpitLightGoal_005a7eb8[(int)light] == 1)
+                frame = g_aacCockpitLightOnFrame_0046dd60[0][index];
+            else
+                frame = g_aacCockpitLightOffFrame_0046dd38[0][index];
+            DrawSpriteDefault(&DAT_005a6ba0, x, y,
+                              g_pCockpitDamageShape_005a76f4, frame);
             g_abCockpitLightState_005a7e70[(int)light] =
                 g_abCockpitLightGoal_005a7eb8[(int)light];
         }
@@ -479,25 +504,31 @@ void draw_cockpit_lights(void)
 /* Function start: 0x4145B0 */
 void update_lights(void)
 {
-    ObjectTypeData *typeData;
-    int fuelCapacity;
     short fuelPercent;
 
-    typeData = &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[0]];
-    fuelCapacity = *(int *)&typeData->lifetime;
-    if (fuelCapacity == 0)
-        fuelPercent = 0;
-    else
-        fuelPercent = (short)((g_anShipFuel_0059b470[0] * 100) /
-                              fuelCapacity);
+    fuelPercent = (short)(
+        (g_anShipFuel_0059b470[0] * 100) /
+        *(int *)&g_aObjectTypeData_00466458[
+            g_aeObjectType_0059b560[0]].lifetime);
     SetCockpitLightBlink(6, fuelPercent);
     vdu_polygon(0, fuelPercent);
     vdu_polygon(1, g_asShipWeaponEnergy_0059d470[0]);
 
-    if (g_nTrainSimActive_00469e2c != 0)
-        return;
-    if (auto_pilot_valid(0) == 0)
-        SetCockpitLightBlink(3, 2);
+    if (g_nTrainSimActive_00469e2c == 0) {
+        if (calculate_damage_level() >= 3 &&
+            (int)g_aasShipShield_0059d5b0[0][1] +
+                (int)g_aasShipShield_0059d5b0[0][0] < 10) {
+            SetCockpitLightBlink(3, 2);
+            if (DAT_005a7ec0 == 0 ||
+                g_nSpaceFrame_0059b420 % 10 == 0)
+                PlaySfxWaveFileByNumber(0x20, -1, 0);
+        } else if (DAT_005a7ec0 != 0) {
+            ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
+                DAT_005a7ec0, 1);
+            DAT_005a7ec0 = 0;
+            g_abCockpitLightGoal_005a7eb8[3] = 0;
+        }
+    }
 }
 
 /* Function start: 0x414690 */
@@ -506,35 +537,34 @@ void update_bars(void)
     ObjectTypeData *typeData;
     short forePercent;
     short aftPercent;
-    char value[16];
 
     typeData = &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[0]];
-    vdu_polygon(2, typeData->armorFront == 0 ? 0 :
+    vdu_polygon(2,
         (short)((g_aasShipArmor_0059d420[0][0] * 100) /
                 typeData->armorFront));
-    vdu_polygon(3, typeData->armorRear == 0 ? 0 :
+    vdu_polygon(3,
         (short)((g_aasShipArmor_0059d420[0][1] * 100) /
                 typeData->armorRear));
-    vdu_polygon(4, typeData->armorRight == 0 ? 0 :
+    vdu_polygon(4,
         (short)((g_aasShipArmor_0059d420[0][2] * 100) /
                 typeData->armorRight));
-    vdu_polygon(5, typeData->armorLeft == 0 ? 0 :
+    vdu_polygon(5,
         (short)((g_aasShipArmor_0059d420[0][3] * 100) /
                 typeData->armorLeft));
-    forePercent = typeData->shieldFore == 0 ? 0 :
-        (short)((g_aasShipShield_0059d5b0[0][0] * 100) /
-                typeData->shieldFore);
-    aftPercent = typeData->shieldAft == 0 ? 0 :
-        (short)((g_aasShipShield_0059d5b0[0][1] * 100) /
-                typeData->shieldAft);
+    forePercent = (short)((g_aasShipShield_0059d5b0[0][0] * 100) /
+                          typeData->shieldFore);
     SetCockpitLightBlink(0, forePercent);
     vdu_polygon(6, forePercent);
+    DrawCockpitReadout(
+        4, _itoa((int)g_aasShipShield_0059d5b0[0][0],
+                 g_szTextScratchBuffer_00598b00, 10));
+    aftPercent = (short)((g_aasShipShield_0059d5b0[0][1] * 100) /
+                         typeData->shieldAft);
     SetCockpitLightBlink(1, aftPercent);
     vdu_polygon(7, aftPercent);
-    _itoa((int)g_aasShipShield_0059d5b0[0][0], value, 10);
-    DrawCockpitReadout(4, value);
-    _itoa((int)g_aasShipShield_0059d5b0[0][1], value, 10);
-    DrawCockpitReadout(5, value);
+    DrawCockpitReadout(
+        5, _itoa((int)g_aasShipShield_0059d5b0[0][1],
+                 g_szTextScratchBuffer_00598b00, 10));
 }
 
 /* Function start: 0x4147E0 */
@@ -550,6 +580,17 @@ void set_mode(short i, int state)
         ClearHudMessageSlot(&DAT_005a7dd0[i]);
     DAT_0059dec0[i] = 0;
     *(int *)&DAT_0059d500[i * 8] = state;
+}
+
+/* Function start: 0x414850 */
+unsigned short SetVduModeIfChanged(short i, int state)
+{
+    short changed;
+
+    changed = (short)get_mode(i) != state;
+    if (changed != 0)
+        set_mode(i, state);
+    return changed;
 }
 
 /* Function start: 0x414890 */

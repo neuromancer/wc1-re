@@ -868,6 +868,40 @@ int RunSpaceFlight(short entryNavPoint)
     return g_nArcadeState_00469fb0;
 }
 
+/* Function start: 0x42A520 */
+int calculate_damage_level(void)
+{
+    ObjectTypeData *typeData;
+    short damage;
+
+    typeData = &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[0]];
+    damage = (short)(((typeData->armorLeft -
+                       g_aasShipArmor_0059d420[0][2]) * 4) /
+                     typeData->armorLeft);
+    damage = (short)(damage +
+        ((typeData->armorRear - g_aasShipArmor_0059d420[0][1]) * 4) /
+            typeData->armorRear);
+    damage = (short)(damage +
+        ((typeData->armorRight - g_aasShipArmor_0059d420[0][3]) * 4) /
+            typeData->armorRight);
+    damage = (short)(damage +
+        ((typeData->armorFront - g_aasShipArmor_0059d420[0][0]) * 4) /
+            typeData->armorFront);
+    damage = (short)(
+        (g_acShipDamage_0059c460[0] * 30) / typeData->damageCapacity +
+        damage * 2);
+    damage = (short)(damage +
+                     g_asShipAccumulatedDamage_0059dee0[0] * 5);
+
+    if (damage < 5)
+        return 0;
+    if (damage < 40)
+        return 1;
+    if (damage < 70)
+        return 2;
+    return 3;
+}
+
 /* Function start: 0x42A610 */
 void UpdateTrainSimMenuCursor(void)
 {

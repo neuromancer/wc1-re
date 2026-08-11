@@ -169,6 +169,15 @@ typedef struct TextContext {
     FontWorkspace **fontWorkspace;   /* +0x17 */
 } TextContext;
 
+/* One of six numeric cockpit readouts.  The packed ten-byte stride is used
+ * directly by the original renderer at 0x00413F70-0x0041409C. */
+typedef struct CockpitReadout {
+    TextContext *context;           /* +0x00 */
+    short x;                        /* +0x04 */
+    short y;                        /* +0x06 */
+    short previousRight;            /* +0x08 */
+} CockpitReadout;
+
 /* Saved background and text state for the centred modal message panel.  The
  * unaligned Viewports are inherited from the packed DOS layout. */
 typedef struct ModalTextPanel {
@@ -194,6 +203,9 @@ typedef struct HudMessageSlot {
     char *text;                      /* +0x0D */
 } HudMessageSlot;
 #pragma pack(pop)
+
+typedef char CockpitReadout_size_must_be_0x0a[
+    sizeof(CockpitReadout) == 0x0a ? 1 : -1];
 
 /* Runtime wave-cache node.  The name pointer and next link are established by
  * the allocation/free paths at 0x0042B1F0 and 0x0042B300; the sample pointer

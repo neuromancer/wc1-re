@@ -367,6 +367,8 @@ void vdu_polygon(signed char bar, short percent);                     /* 0x00413
 unsigned int InitializeCockpitReadout(signed char slot,
                                       TextContext *context);          /* 0x00413F70 */
 void DrawCockpitReadout(signed char slot, char *text);                /* 0x00413FB0 */
+void EraseCockpitReadoutAtPosition(signed char slot, short left,
+                                   short top);                        /* 0x00414050 */
 short DrawHudMessageSlot(HudMessageSlot *slot);                        /* 0x004140A0 */
 void ClearHudMessageSlot(HudMessageSlot *slot);                        /* 0x00414180 */
 void ClearHudMessageIfMatching(HudMessageSlot *slot, char *text);      /* 0x004141B0 */
@@ -390,6 +392,7 @@ void update_lights(void);                                            /* 0x004145
 void update_bars(void);                                              /* 0x00414690 */
 unsigned short get_mode(short i);                                     /* 0x004147E0 */
 void set_mode(short i, int state);                                    /* 0x00414800 */
+unsigned short SetVduModeIfChanged(short i, int state);               /* 0x00414850 */
 int GetVduModeStackDepth(short i);                                    /* 0x00414890 */
 void push_mode(short i, int state);                                   /* 0x004148A0 */
 void pop_mode(short i);                                               /* 0x004148E0 */
@@ -984,6 +987,7 @@ short GetShipDistanceToNavPoint(short ship, MissionNavPoint *navPoint); /* 0x004
 short FindNearestNavPoint(short ship);                               /* 0x0042A120 */
 unsigned int ReleaseStaleNavTarget(void);                                     /* 0x0042A170 */
 int RunSpaceFlight(short entryNavPoint);                               /* 0x0042A190 */
+int calculate_damage_level(void);                                     /* 0x0042A520 */
 void UpdateTrainSimMenuCursor(void);                                   /* 0x0042A610 */
 void ResetMouseCursorFrame(void);                                  /* 0x0042A670 */
 void UpdateRoomMenuCursor(void);                                   /* 0x0042A680 */
