@@ -22,10 +22,11 @@ Space flight includes the cockpit, HUD, crosshair, automatic target selection, `
 cycling, scanner contacts, radar marker backing, and the full target VDU with pilot or ace names,
 range, shields, and armor. AI projectile and missile selection, turret and flak fire, projectile
 collision detection, impact forces, ship damage, debris, and explosion shock waves are also
-reimplemented. Cockpit light refresh, armor and shield bars, numeric readout cleanup, damage
-severity, and the critical-damage warning path now follow the retail routines closely. These
-changes were verified statically against the retail call graph and global accesses; neither
-executable was launched during this pass.
+reimplemented. Cockpit light refresh, armor and shield bars, digital speed and velocity
+readouts, the weapon/loadout VDU, release-weapon animation, damage severity, and the
+critical-damage warning path now follow the retail routines closely. These changes were
+verified statically against the retail call graph and global accesses; neither executable was
+launched during this pass.
 
 The barracks and inherited `SAVEGAME.WLD` conversion path are now reconstructed, including
 campaign slots and medal viewing. The flight object-resource cache now unloads, restores, and
@@ -42,7 +43,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,345 function similarity scores (93.92% average)</summary>
+<summary>All 1,345 function similarity scores (94.02% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -238,7 +239,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `FatalErrorAndExit` | `0x413CE0` | 100.00% |
 | `cockpt.c` | `IsCockpitExplosionActive` | `0x413D20` | 100.00% |
 | `cockpt.c` | `EraseCockpitReadoutRegion` | `0x413D40` | 100.00% |
-| `cockpt.c` | `vdu_polygon` | `0x413DA0` | 62.69% |
+| `cockpt.c` | `vdu_polygon` | `0x413DA0` | 86.89% |
 | `cockpt.c` | `InitializeCockpitReadout` | `0x413F70` | 100.00% |
 | `cockpt.c` | `DrawCockpitReadout` | `0x413FB0` | 100.00% |
 | `cockpt.c` | `EraseCockpitReadoutAtPosition` | `0x414050` | 100.00% |
@@ -265,13 +266,13 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `push_mode` | `0x4148A0` | 100.00% |
 | `cockpt.c` | `pop_mode` | `0x4148E0` | 100.00% |
 | `cockpt.c` | `set_new_vdu` | `0x414910` | 91.18% |
-| `cockpt.c` | `update_vid_disp` | `0x414980` | 60.87% |
+| `cockpt.c` | `update_vid_disp` | `0x414980` | 100.00% |
 | `cockpt.c` | `InvalidateVduMode` | `0x4149C0` | 100.00% |
 | `cockpt.c` | `clear_message_time` | `0x4149E0` | 100.00% |
 | `cockpt.c` | `message_showing` | `0x4149F0` | 100.00% |
 | `cockpt.c` | `set_message_time` | `0x414A10` | 100.00% |
 | `cockpt.c` | `check_message` | `0x414A20` | 80.00% |
-| `cockpt.c` | `update_digital_readouts` | `0x414A50` | 65.85% |
+| `cockpt.c` | `update_digital_readouts` | `0x414A50` | 88.57% |
 | `cockpt.c` | `PlayTargetLockSfx` | `0x414AD0` | 100.00% |
 | `cockpt.c` | `malf_sound` | `0x414AE0` | 100.00% |
 | `cockpt.c` | `malf` | `0x414AF0` | 100.00% |
@@ -279,8 +280,8 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `ShowComponentHitHudMessage` | `0x414B70` | 93.55% |
 | `cockpt.c` | `damage_your_component` | `0x414BF0` | 100.00% |
 | `cockpt.c` | `RemovePlayerReleaseWeapon` | `0x414CB0` | 94.29% |
-| `cockpt.c` | `fire_computer_graphic_missile` | `0x414D50` | 64.37% |
-| `cockpt.c` | `show_weapon_disp` | `0x414EA0` | 59.38% |
+| `cockpt.c` | `fire_computer_graphic_missile` | `0x414D50` | 87.78% |
+| `cockpt.c` | `show_weapon_disp` | `0x414EA0` | 80.56% |
 | `cockpt.c` | `update_status_text` | `0x415040` | 100.00% |
 | `cockpt.c` | `sighted` | `0x415050` | 100.00% |
 | `cockpt.c` | `visited` | `0x415070` | 100.00% |
@@ -306,7 +307,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `clear_head_up_display` | `0x415A90` | 98.15% |
 | `cockpt.c` | `set_objective_range` | `0x415B70` | 100.00% |
 | `cockpt.c` | `get_color` | `0x415C00` | 100.00% |
-| `cockpt.c` | `draw_3d_scanner` | `0x415CE0` | 81.50% |
+| `cockpt.c` | `draw_3d_scanner` | `0x415CE0` | 81.00% |
 | `cockpt.c` | `start_lock` | `0x415FC0` | 100.00% |
 | `cockpt.c` | `starting_lock` | `0x415FF0` | 100.00% |
 | `cockpt.c` | `lock_off` | `0x416010` | 88.89% |
@@ -318,7 +319,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `print_message_text` | `0x416260` | 62.94% |
 | `cockpt.c` | `ShowHudTextLine` | `0x416460` | 100.00% |
 | `cockpt.c` | `SetHudTextColour` | `0x416480` | 70.00% |
-| `cockpt.c` | `draw_target_box` | `0x4164B0` | 94.92% |
+| `cockpt.c` | `draw_target_box` | `0x4164B0` | 91.53% |
 | `cockpt.c` | `remove_nav_pointer` | `0x4168A0` | 100.00% |
 | `cockpt.c` | `overlay_head_up_display` | `0x416AC0` | 95.12% |
 | `cockpt.c` | `RestoreCockpitExplosionIfVisible` | `0x416C90` | 100.00% |
@@ -326,7 +327,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `SetHudMessageText` | `0x416DE0` | 100.00% |
 | `cockpt.c` | `malf_noise` | `0x416E20` | 97.14% |
 | `cockpt.c` | `build_your_target_list` | `0x416E90` | 90.24% |
-| `cockpt.c` | `cycle_onscreen_targets` | `0x416F30` | 91.67% |
+| `cockpt.c` | `cycle_onscreen_targets` | `0x416F30` | 93.75% |
 | `cockpt.c` | `check_target` | `0x416FD0` | 99.08% |
 | `cockpt.c` | `update_missile_warning` | `0x417190` | 73.68% |
 | `cockpt.c` | `determine_pilot_hand` | `0x4171D0` | 100.00% |

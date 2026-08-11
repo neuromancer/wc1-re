@@ -332,9 +332,9 @@ unsigned char *g_pCockpitExplosionBackground_00469060;
 unsigned char * volatile g_pCockpitExplosionShape_00469064;
 volatile short g_nCockpitExplosionFrame_00469068 = 8;
 unsigned char *g_pReleaseWeaponDisplayBackground_0046906c;
-volatile signed char g_cReleaseWeaponDisplayFrame_00469070 = -1;
-volatile signed char g_cReleaseWeaponDisplayTicks_00469074;
-volatile signed char g_cReleaseWeaponDisplayState_00469078;
+signed char g_cReleaseWeaponDisplayFrame_00469070 = -1;
+signed char g_cReleaseWeaponDisplayTicks_00469074;
+signed char g_cReleaseWeaponDisplayState_00469078;
 char *g_pszObjectiveStatusMessage_0046908c =
     g_szObjectiveStatusMessage_0046928c;
 short g_nScannerTargetObject_00469090 = -1;
