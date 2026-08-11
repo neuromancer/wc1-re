@@ -502,6 +502,22 @@ redraw:
     return 1;
 }
 
+/* Function start: 0x4265A0 */
+void ReadRequiredPilotField(short x, short y, const char *label,
+                            char *destination, short maximumLength)
+{
+    short cursorX;
+
+    cursorX = (short)(g_stTrainSimPanelViewport_00469da8.left + x);
+    g_stTrainSimTextContext_005a7bd0.alignment = 0;
+    SetTextCursor((unsigned short)cursorX, (unsigned short)y);
+    DrawFormattedText(label);
+    do {
+        DosStrcpy(destination,
+                  (const char *)&g_dwTrainSimStringPadding_00469e68);
+    } while (ReadTextInput(destination, maximumLength, 0) == 0);
+}
+
 /* Function start: 0x426600 */
 void PromptForPilotField(short x, short y, const char *label,
                          char *destination, short maximumLength,

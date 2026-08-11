@@ -36,6 +36,12 @@ char *__stdcall DosStrcpy(char *dst, const char *src)
     return strcpy(dst, src);
 }
 
+/* Function start: 0x4354A0 */
+char *__stdcall CopyFarString(char *destination, const char *source)
+{
+    return strcpy(destination, source);
+}
+
 /* Function start: 0x4354D0 */
 short __stdcall DosStrlen(const char *s)
 {
@@ -46,6 +52,12 @@ short __stdcall DosStrlen(const char *s)
 void __stdcall DosMemcpy(void *dst, const void *src, size_t n)
 {
     memmove(dst, src, n);
+}
+
+/* Function start: 0x435510 */
+void __stdcall DosMemset(void *destination, unsigned int count, short value)
+{
+    memset(destination, value, (unsigned short)count);
 }
 
 /* Function start: 0x435550 */

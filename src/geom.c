@@ -263,6 +263,12 @@ int equ_vector(const FixedVector *left, const FixedVector *right)
            left->z == right->z;
 }
 
+/* Function start: 0x4185C0 */
+int IsPairEqualityDifferentFromFlag(const unsigned int *values)
+{
+    return ((values[1] == values[0]) == values[2]) == 0;
+}
+
 /* Function start: 0x4185F0 */
 void zero_vector(FixedVector *vector)
 {
@@ -817,6 +823,18 @@ void point_parallel(short obj, short other)
 {
     if (other != -1)
         point_ship(obj, 0, &g_aShipForwardVector_0059bce0[other]);
+}
+
+/* Function start: 0x4198A0 */
+void MoveObjectAlongDirection(short obj, const FixedVector *direction,
+                              short distance)
+{
+    FixedVector offset;
+
+    offset = *direction;
+    SetVectorFixedPoint((unsigned int *)&offset, distance);
+    AddFixedVectors(&g_aShipPosition_0059c490[obj], &offset,
+                    &g_aShipPosition_0059c490[obj]);
 }
 
 /* Function start: 0x419950 */

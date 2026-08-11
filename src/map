@@ -467,7 +467,7 @@
 0x00418540 DoLocalFn8540
 0x00418560 DoLocalFn8560
 0x00418590 equ_vector
-0x004185C0 DoLocalFn85C0
+0x004185C0 IsPairEqualityDifferentFromFlag
 0x004185F0 zero_vector
 0x00418600 negate_vector
 0x00418620 DoLocalFn8620
@@ -517,7 +517,7 @@
 0x00419810 point_perpendicular_to_point
 0x00419850 point_perpendicular
 0x00419870 point_parallel
-0x004198A0 GetG0059c490Fn98A0
+0x004198A0 MoveObjectAlongDirection
 0x00419950 DoLocalFn9950
 0x00419970 DoLocalFn9970
 0x00419990 DoLocalFn9990
@@ -815,7 +815,7 @@
 0x00426140 ClearTextInputCharacter
 0x004261D0 ClearNextTextInputCharacter
 0x00426200 ReadTextInput
-0x004265A0 LoopUiFn65A0
+0x004265A0 ReadRequiredPilotField
 0x00426600 PromptForPilotField
 0x00426660 InitializeTrainSimTextPanel
 0x00426700 ShowTrainSimTextMessage
@@ -1117,10 +1117,10 @@
 0x00435430 DosStrrchr
 0x00435450 DosStrchr
 0x00435470 DosStrcpy
-0x004354A0 LoopLocalFn54A0
+0x004354A0 CopyFarString
 0x004354D0 DosStrlen
 0x004354F0 DosMemcpy
-0x00435510 LoopLocalFn5510
+0x00435510 DosMemset
 0x00435550 GetEventManagerStatus
 0x00435560 RegisterEventManagerShutdown
 0x00435570 InitializeEventManager

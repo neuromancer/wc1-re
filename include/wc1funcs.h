@@ -539,6 +539,7 @@ unsigned short SignShort(short v);                                  /* 0x0041852
 unsigned int SignFixed(int v);                                      /* 0x00418540 */
 short WrapDegrees(short degrees);                                     /* 0x00418560 */
 int equ_vector(const FixedVector *left, const FixedVector *right);     /* 0x00418590 */
+int IsPairEqualityDifferentFromFlag(const unsigned int *values);      /* 0x004185C0 */
 void zero_vector(FixedVector *vector);                                /* 0x004185F0 */
 void negate_vector(FixedVector *vector);                              /* 0x00418600 */
 void AddFixedVectors(const FixedVector *left, const FixedVector *right,
@@ -615,6 +616,8 @@ void point_perpendicular_to_point(short obj,
                                  const FixedVector *point);           /* 0x00419810 */
 void point_perpendicular(short obj, short other);                     /* 0x00419850 */
 void point_parallel(short obj, short other);                           /* 0x00419870 */
+void MoveObjectAlongDirection(short obj, const FixedVector *direction,
+                              short distance);                        /* 0x004198A0 */
 void NormalizeAndScaleVector(FixedVector *vector, int scale);         /* 0x00419950 */
 void SetVectorFixedPoint(unsigned int *p, short v);                           /* 0x00419970 */
 unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to,
@@ -965,6 +968,9 @@ void ClearTextInputCharacter(char character);                         /* 0x00426
 void ClearNextTextInputCharacter(char character);                     /* 0x004261D0 */
 short ReadTextInput(char *destination, short maximumLength,
                     volatile short mode);                            /* 0x00426200 */
+void ReadRequiredPilotField(short x, short y, const char *label,
+                            char *destination,
+                            short maximumLength);                    /* 0x004265A0 */
 void PromptForPilotField(short x, short y, const char *label,
                          char *destination, short maximumLength,
                          const char *defaultText);                    /* 0x00426600 */
@@ -1290,8 +1296,12 @@ unsigned int __stdcall DosNearPtrToFar(unsigned int v);                         
 char *__stdcall DosStrrchr(char *s, short c);                       /* 0x00435430 */
 char *__stdcall DosStrchr(char *s, short c);                        /* 0x00435450 */
 char *__stdcall DosStrcpy(char *dst, const char *src);               /* 0x00435470 */
+char *__stdcall CopyFarString(char *destination,
+                              const char *source);                   /* 0x004354A0 */
 short __stdcall DosStrlen(const char *s);                                   /* 0x004354D0 */
 void __stdcall DosMemcpy(void *dst, const void *src, size_t n);               /* 0x004354F0 */
+void __stdcall DosMemset(void *destination, unsigned int count,
+                         short value);                               /* 0x00435510 */
 unsigned short GetEventManagerStatus(void);                            /* 0x00435550 */
 void __stdcall RegisterEventManagerShutdown(void (*fn)(void));         /* 0x00435560 */
 short __stdcall InitializeEventManager(short period,
