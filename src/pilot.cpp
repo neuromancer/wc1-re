@@ -23,6 +23,48 @@ unsigned int WaitForKeyExceptXOrF12(void)
     return 0;
 }
 
+/* Function start: 0x425770 */
+void ShowMeanwhileTransition(short scene, short variant)
+{
+    int track;
+
+    track = variant + 0x21;
+    PreloadMusicTrackHook((short)track);
+    spacetrack((short)track, 2, 1);
+    InitializeConversationViewport();
+    InitializeConversationText();
+    LoadSceneAnimationResources(scene, variant);
+    ClearViewport(g_stConversationTextContext_005a7760.viewport,
+                  DAT_0046999c);
+    SetTextContext(&g_stConversationTextContext_005a7760);
+    g_pIntroFont_005a8960 =
+        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+    print_subtitle(&DAT_005a76b0, 0x40, g_szMeanwhile_00469d80);
+    PanToScreen(&DAT_005a76b0, &DAT_005a6ba0);
+    FreePacketAndClear((int *)&g_pIntroFont_005a8960, 0);
+    WaitForSceneAdvance(100, 0);
+    ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
+    DIBslam();
+    DIBslamReal();
+    SceneDirector(6, g_pSceneAnimationSceneData_005a7c54,
+                  g_pSceneAnimationTextData_005a7c5c);
+    SaveGamePalette();
+    StopMusic(30);
+    FadeViewportPaletteToColour(&g_stModalSourceViewport_005a7670,
+                                DAT_0046999c, 1);
+    ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
+    DIBslam();
+    DIBslamReal();
+    RestoreGamePalette();
+    DIBslam();
+    DIBslamReal();
+    ReleaseTextFont(0);
+    ResetScreenClipToFullHeight();
+    ReleaseSceneAnimationResources();
+    StopMusicUnlessSuppressed();
+    ReleaseMusicTrackHook((short)track);
+}
+
 /* Function start: 0x4258D0 */
 void ApplyAnswerTextCipher(char *text, signed char direction)
 {
@@ -325,6 +367,45 @@ void InitializeTrainSimHighScores(void)
 int IsHighScoreSlotUsed(short i)
 {
     return g_aHighScoreEntries_005a7c30[i].pilotIndex != -1;
+}
+
+/* Function start: 0x426000 */
+void AddRandomTrainSimHighScores(void)
+{
+    short remaining;
+    short scale;
+    short pilot;
+    short slot;
+    int baseScore;
+    int scoreRange;
+
+    remaining = 3;
+    scale = 1;
+    do {
+        do {
+            pilot = RandomInRange(0, 14);
+        } while (pilot == 8 ||
+                 (pilot < 9 &&
+                  g_stCampaignState_0059ca50
+                          .personalityDeathMission[pilot] != 0) ||
+                 (FindTrainSimHighScore(pilot) == -1 &&
+                  RandomBelow(100) > 20));
+        slot = FindTrainSimHighScore(pilot);
+        if (slot == -1)
+            slot = RandomInRange(0, 5);
+        baseScore = (int)g_aHighScoreEntries_005a7c30[slot].score;
+        scoreRange =
+            (int)g_aHighScoreEntries_005a7c30[0].score - baseScore + 2000;
+        while (scoreRange / scale > 30000)
+            scale = (short)(scale * 2);
+        InsertTrainSimHighScore(
+            pilot,
+            (unsigned int)((int)RandomBelowOrEqual(
+                               (short)(scoreRange / scale)) *
+                               scale +
+                           baseScore + 50));
+        remaining--;
+    } while (remaining != 0);
 }
 
 /* Function start: 0x4260E0 */

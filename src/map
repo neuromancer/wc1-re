@@ -85,7 +85,7 @@
 0x00403F10 DoTbl0059b320Fn3F10
 0x00403F40 GetShipAiFn3F40
 0x00404050 auto_pilot_sequence
-0x00404610 HelperOf4219C0B
+0x00404610 LoadPaletteTripletsFile
 0x004046A0 ejection_sequence
 0x00404BE0 stranded_sequence
 0x00404CD0 ParseFaceAnimation
@@ -674,7 +674,7 @@
 0x00421D80 LoopUiFn1D80
 0x00421E20 SetUiFn1E20
 0x00421EF0 LoopLocalFn1EF0
-0x00421F50 SetNavFn1F50
+0x00421F50 LoadSpaceflightResources
 0x00421FE0 ReturnConst0v1
 0x00421FF0 ReturnConst0v2
 0x00422000 ReturnConst0v3
@@ -810,7 +810,7 @@
 0x00425EF0 InsertTrainSimHighScore
 0x00425F40 InitializeTrainSimHighScores
 0x00425FE0 IsHighScoreSlotUsed
-0x00426000 ScanTbl0059ca74Fn6000
+0x00426000 AddRandomTrainSimHighScores
 0x004260E0 DrawTextInputCursor
 0x00426140 ClearTextInputCharacter
 0x004261D0 ClearNextTextInputCharacter
@@ -917,7 +917,7 @@
 0x0042BA90 LaunchPlayerShip
 0x0042BC00 BlitTbl0046a5aeFnBC00
 0x0042C410 GameNoBodyStubv7
-0x0042C420 WaitForAnyKeyPrompt
+0x0042C420 InitializeDiskPromptTextContext
 0x0042C510 RewriteDiskFileGraphicsExtensions
 0x0042C580 LoadWingCmdrCfgFile
 0x0042C660 LoadInstallDat

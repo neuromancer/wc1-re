@@ -652,9 +652,13 @@ unsigned char DAT_004699c8 = 0xb6;
 unsigned char g_cDefaultTextColour_004699cc = 0xa8;
 unsigned char DAT_004699d4 = 0xf5;
 unsigned char DAT_004699d8 = 0xbf;
-const short g_asConversationTextColours_004699f0[16] = {
+const unsigned char g_abLegacyVideoModeColours_004699e0[14] = {
+    9, 14, 4, 2, 10, 12, 15, 8, 7, 5, 2, 6, 7, 0
+};
+short g_asConversationTextColours_004699f0[24] = {
     0x25, 0xb6, 0x9a, 0x50, 0x94, 0x85, 0x27, 0xa6,
-    0xfd, 0x47, 0xaa, 0x0b, 0x09, 0x0d, 0x03, 0x04
+    0xfd, 0x47, 0xaa, 0x0b, 0x09, 0x0d, 0x03, 0x04,
+    0x0b, 0x0c, 0x01, 0x0a, 0x06, 0x0e, 0x02, 0x07
 };
 int g_bGraphicsActive_00469a20;
 PacketResourceDescriptor g_aCommon3SpaceResources_00469bc0[12] = {
@@ -680,6 +684,27 @@ PacketResourceDescriptor g_aMissionResourceDescriptors_00469c20[5] = {
     { &g_aObjectTypeData_00466458[OBJECT_TYPE_EXPLOSION2].shapeSet, 3, 3 },
     { &g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet,
       3, 5 },
+    { 0, 0, 0 }
+};
+PacketResourceDescriptor g_aCockpitResourceDescriptors_00469c48[19] = {
+    { &g_pTargetLockShape_005a6bf4, 8, 0 },
+    { &g_pPilotHandShape_005a7684, 2, 3 },
+    { &g_pConfedCommBackground_00469278, 11, 0 },
+    { &g_pCommStaticShape_0046927c, 11, 11 },
+    { &g_pKilrathiCommBackground_00469280, 11, 9 },
+    { (unsigned char **)&g_pCockpitExplosionShape_00469064, 8, 5 },
+    { &g_pCockpitIndicatorShape_005a7658, 8, 4 },
+    { &g_pCinematicViewBackdrop_005a7c90, 8, 6 },
+    { &g_pRearViewBackdrop_005a7c94, 8, 7 },
+    { &g_apCommPortraitShapes_0059e180[0], 11, 1 },
+    { &g_apCommPortraitShapes_0059e180[1], 11, 2 },
+    { &g_apCommPortraitShapes_0059e180[2], 11, 3 },
+    { &g_apCommPortraitShapes_0059e180[3], 11, 4 },
+    { &g_apCommPortraitShapes_0059e180[4], 11, 5 },
+    { &g_apCommPortraitShapes_0059e180[5], 11, 6 },
+    { &g_apCommPortraitShapes_0059e180[6], 11, 7 },
+    { &g_apCommPortraitShapes_0059e180[7], 11, 8 },
+    { &g_apCommPortraitShapes_0059e180[8], 11, 10 },
     { 0, 0, 0 }
 };
 PacketResourceDescriptor g_aCockpitSecondaryResources_00469ce0[5] = {
@@ -710,6 +735,7 @@ const short g_asSceneAnimationLogicalFiles_00469d60[8] = {
 };
 short g_bSceneAnimationWaitCommand_00469d70;
 const char g_szSceneAnimationTextFormat_00469d74[12] = "%X%Y%F%s%P";
+const char g_szMeanwhile_00469d80[16] = "Meanwhile...";
 Viewport g_stTrainSimPanelViewport_00469da8;
 /* This is four zero bytes, not a pointer table.  The original instruction at
  * 0x425E07 uses 0x469DBC as a compiler-generated biased displacement so that
@@ -817,6 +843,8 @@ WaveTableEntry *g_pWaveTableHead_0046a444;
 WaveTableEntry *g_pWaveTableTail_0046a448;
 const char g_szPlayWaveOpenError_0046a46c[36] =
     "playWAVE Unable to open file '%s'";
+const char g_szPressAnyKeyWhenReady_0046a5fc[28] =
+    "Press any key when ready";
 unsigned char *g_pDamageDisplayBackground_0046a748;
 const ShortPoint g_aDamageDisplayPositions_0046a750[9] = {
     {36, 37}, {36, 28}, {36, 30}, {36, 23}, {36, 19},

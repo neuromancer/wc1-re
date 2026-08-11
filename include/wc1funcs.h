@@ -103,6 +103,7 @@ unsigned int player_wingman(short obj);                                  /* 0x00
 void set_speed(short obj, short speed);                                  /* 0x00403F10 */
 void auto_position(short obj, short *formationSlot);                     /* 0x00403F40 */
 void auto_pilot_sequence(void);                                          /* 0x00404050 */
+unsigned short __stdcall LoadPaletteTripletsFile(const char *path);     /* 0x00404610 */
 unsigned int ejection_sequence(void);                                    /* 0x004046A0 */
 void stranded_sequence(void);                                            /* 0x00404BE0 */
 unsigned int ParseFaceAnimation(char *text, short *commands);           /* 0x00404CD0 */
@@ -813,6 +814,7 @@ unsigned int replenish_shields(short ship);                            /* 0x0042
 unsigned int replenish_weapon_energy_bank(short ship);                 /* 0x00421830 */
 void accelerate(short amount);                                         /* 0x004218D0 */
 void your_afterburner(void);                                            /* 0x00421920 */
+unsigned int LoadGamePaletteFile(void);                                /* 0x004219C0 */
 unsigned int EMShutDown(void);                                         /* 0x00421A40 */
 unsigned int InitializeEventManagerResources(void);                    /* 0x00421A60 */
 unsigned int EMStartUp(void);                                          /* 0x00421AB0 */
@@ -821,6 +823,7 @@ unsigned int InitializeGameTextContexts(void);                          /* 0x004
 unsigned int initialize_direction_view_frame(short yaw, short pitch,
                                              signed char frame);       /* 0x00421E20 */
 unsigned int initialize_direction_view_frames(void);                    /* 0x00421EF0 */
+unsigned int LoadSpaceflightResources(void);                           /* 0x00421F50 */
 unsigned int GetFxDriverInitResult(void);                                      /* 0x00421FE0 */
 unsigned int GetMessagePumpResult(void);                                      /* 0x00421FF0 */
 unsigned int GetFxDriverStatus(void);                                      /* 0x00422000 */
@@ -947,6 +950,7 @@ unsigned int __stdcall UpdateSceneAnimationObject(
     SceneAnimationObject *object, Viewport *viewport);                 /* 0x00424EF0 */
 void PlaySceneAnimation(char *text, short animation, short duration);  /* 0x00425500 */
 unsigned int WaitForKeyExceptXOrF12(void);                            /* 0x00425730 */
+void ShowMeanwhileTransition(short scene, short variant);             /* 0x00425770 */
 void ApplyAnswerTextCipher(char *text, signed char direction);        /* 0x004258D0 */
 void LoadAnswerPromptAndResponse(short entry, char *prompt,
                                  char *response);                     /* 0x00425910 */
@@ -971,6 +975,7 @@ short FindTrainSimHighScore(short pilot);                             /* 0x00425
 short InsertTrainSimHighScore(short pilot, unsigned int score);       /* 0x00425EF0 */
 void InitializeTrainSimHighScores(void);                              /* 0x00425F40 */
 int IsHighScoreSlotUsed(short i);                                      /* 0x00425FE0 */
+void AddRandomTrainSimHighScores(void);                               /* 0x00426000 */
 void DrawTextInputCursor(char character);                             /* 0x004260E0 */
 void ClearTextInputCharacter(char character);                         /* 0x00426140 */
 void ClearNextTextInputCharacter(char character);                     /* 0x004261D0 */
@@ -1088,6 +1093,7 @@ void SaveVolumeSettingsToRegistry(void);                               /* 0x0042
 void DrawLaunchDoorFrame(short distance);                              /* 0x0042B9A0 */
 void LaunchPlayerShip(void);                                           /* 0x0042BA90 */
 void FxDriverShutdownHook(void);                                            /* 0x0042C410 */
+unsigned short InitializeDiskPromptTextContext(void);                 /* 0x0042C420 */
 unsigned short RewriteDiskFileGraphicsExtensions(short videoMode);    /* 0x0042C510 */
 short LoadWingCmdrCfgFile(short argc, char **argv);                    /* 0x0042C580 */
 unsigned int LoadInstallDat(void);                                     /* 0x0042C660 */

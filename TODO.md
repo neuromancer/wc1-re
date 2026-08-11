@@ -4,7 +4,7 @@ Audit date: 2026-08-11.
 
 This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
-`src/**/*.c` and `src/**/*.cpp`. It contains **45 functions**: **43 ordinary
+`src/**/*.c` and `src/**/*.cpp`. It contains **39 functions**: **37 ordinary
 candidates** and **2 compiler thunks** which must not be reproduced manually.
 
 The proposed compilation units follow the current source adjacency and
@@ -35,19 +35,13 @@ Ghidra status meanings:
 
 | Address | Current Ghidra/inventory name | Mac name | Proposed compilation unit | Ghidra status |
 |---|---|---|---|---|
-| `0x00404610` | `HelperOf4219C0B` | — | `src/cmpgn.c` | verified |
 | `0x00408650` | `BlitTbl005a86d0Fn8650` | — | `src/brains.c` | verified |
 | `0x004094E0` | `RunAnimationDemoLoop` | — | `src/brains.c` | verified |
 | `0x0040CB20` | `ThunkForwarder40CB20` | — | `src/brains.c` | verified; exported; compiler thunk—do not hand-write |
 | `0x004176C0` | `DrawG0046905cFn76C0` | — | `src/cockpt.c` | verified |
-| `0x004219C0` | `LoadGamePaletteFile` | — | `src/logic.c` | verified |
-| `0x00421F50` | `SetNavFn1F50` | — | `src/logic.c` | verified |
-| `0x00425770` | `ShowMeanwhileTransition` | — | `src/pilot.cpp` | verified |
 | `0x004259B0` | `PromptForAnswerText` | — | `src/pilot.cpp` | verified; exported |
-| `0x00426000` | `ScanTbl0059ca74Fn6000` | — | `src/pilot.cpp` | verified |
 | `0x0042B680` | `PlaySfxWaveByIndex` | — | `src/sound.c` | verified |
 | `0x0042BC00` | `BlitTbl0046a5aeFnBC00` | — | `src/sound.c` | verified |
-| `0x0042C420` | `WaitForAnyKeyPrompt` | — | `src/sound.c` | verified |
 | `0x0042F740` | `ScanTbl005a6540FnF740` | — | `src/screen.c` | verified |
 | `0x0042FB40` | `SetTbl0059cd90FnFB40` | — | `src/screen.c` | verified |
 | `0x0042FC00` | `BlitTbl0059c950FnFC00` | — | `src/screen.c` | verified |
@@ -83,8 +77,6 @@ Ghidra status meanings:
 
 ## Mac ordering evidence retained for later naming
 
-- `0x00404610` is a Win32-private loader between the exact survivors
-  `auto_pilot_sequence` and `ejection_sequence`; neither Mac name applies to it.
 - `0x004176C0` is a Win32 split helper between the exact Mac-derived
   `explosion_draw` and `cockpit_explosion` functions in the `cockpt` unit.
 - `0x00434D10` is in the historical `rand` neighborhood but is a compiler
@@ -116,7 +108,7 @@ Ghidra status meanings:
   sequence does not provide a body or ordering match strong enough to establish
   identity.
 - Every source annotation now resolves to an exact live Ghidra function entry.
-  Every one of the 45 backlog rows above also resolves to an exact entry and a
+  Every one of the 39 backlog rows above also resolves to an exact entry and a
   non-empty listing. The Ghidra program was saved after verification.
 
 ## Export and implementation progress
@@ -125,7 +117,7 @@ Ghidra status meanings:
   the two newly discovered palette-entry helpers, now exist in `code-full`. Each
   export has the same instruction count and return form as its exact live
   Ghidra function. Existing exports were not rewritten.
-- Forty-six confirmed `wc-developer` functions were reconstructed across nine
+- Fifty-two confirmed `wc-developer` functions were reconstructed across ten
   tranches after binary-comp comparison:
 
   | Address | Implemented name | Compilation unit | Similarity |
@@ -176,6 +168,12 @@ Ghidra status meanings:
   | `0x0043EB20` | `ReadGIFLZWCode` | `src/screens.c` | 100.00% |
   | `0x0043EB66` | `AppendGIFLZWDictionaryEntry` | `src/screens.c` | 100.00% |
   | `0x0043EBAC` | `EmitGIFDecodedPixel` | `src/screens.c` | 100.00% |
+  | `0x00404610` | `LoadPaletteTripletsFile` | `src/cmpgn.c` | 100.00% |
+  | `0x004219C0` | `LoadGamePaletteFile` | `src/logic.c` | 100.00% |
+  | `0x00421F50` | `LoadSpaceflightResources` | `src/logic.c` | 100.00% |
+  | `0x00425770` | `ShowMeanwhileTransition` | `src/pilot.cpp` | 96.88% |
+  | `0x00426000` | `AddRandomTrainSimHighScores` | `src/pilot.cpp` | 92.21% |
+  | `0x0042C420` | `InitializeDiskPromptTextContext` | `src/sound.c` | 100.00% |
 
 - Ghidra was synchronized with the reconstructed prototypes and behavior-based
   names, then saved after each tranche.

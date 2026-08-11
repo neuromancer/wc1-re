@@ -278,6 +278,47 @@ void FxDriverShutdownHook(void)
 {
 }
 
+/* Function start: 0x42C420 */
+unsigned short InitializeDiskPromptTextContext(void)
+{
+    short textWidth;
+    short textHeight;
+
+    g_nDiskPromptBorderColour_00469694 = 0x50;
+    if (DAT_005a6ba0.pixels == 0)
+        InitializeGameTextContexts();
+    g_stDiskPromptTextContext_005a7d60 = g_stDefaultTextContext_005a7740;
+    g_stDiskPromptTextContext_005a7d60.viewport =
+        &g_stDiskPromptViewport_005a7d40;
+    g_stDiskPromptTextContext_005a7d60.text =
+        g_szTextScratchBuffer_00598b00;
+    g_stDiskPromptTextContext_005a7d60.alignment = 2;
+    g_stDiskPromptViewport_005a7d40 = DAT_005a6ba0;
+    textWidth =
+        (short)(MeasureTextPixelWidthClamped(
+                    g_szPressAnyKeyWhenReady_0046a5fc) +
+                10);
+    textHeight =
+        (short)((ReadWord((unsigned short *)
+                              g_stDiskPromptTextContext_005a7d60.font) +
+                 1) *
+                3);
+    ((short *)&g_dwDiskPromptTopLeft_005a7d80)[1] =
+        (short)(100 - textHeight / 2);
+    ((short *)&g_dwDiskPromptTopLeft_005a7d80)[0] =
+        (short)(160 - textWidth / 2);
+    ((short *)&g_dwDiskPromptBottomRight_005a7d84)[1] =
+        (short)(((short *)&g_dwDiskPromptTopLeft_005a7d80)[1] +
+                textHeight);
+    ((short *)&g_dwDiskPromptBottomRight_005a7d84)[0] =
+        (short)(((short *)&g_dwDiskPromptTopLeft_005a7d80)[0] + textWidth);
+    InitializeTextContextFromFont(&g_stDiskPromptTextContext_005a7d60, 1,
+                                  DAT_0046999c,
+                                  (signed char)g_cViewportClearColour_004699a0);
+    g_bGraphicsActive_00469a20 = 1;
+    return 0;
+}
+
 /* Function start: 0x42C510 */
 unsigned short RewriteDiskFileGraphicsExtensions(short videoMode)
 {

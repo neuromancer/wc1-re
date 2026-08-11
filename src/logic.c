@@ -379,6 +379,37 @@ void your_afterburner(void)
     }
 }
 
+/* Function start: 0x4219C0 */
+unsigned int LoadGamePaletteFile(void)
+{
+    short index;
+
+    PromptInsertNumberedDisk(0);
+    switch ((int)(short)DAT_0046b168) {
+    case 9:
+    case 13:
+        index = 0;
+        do {
+            ((unsigned char *)&DAT_004699a4)[index] =
+                g_abLegacyVideoModeColours_004699e0[index];
+            index++;
+        } while ((unsigned int)(int)index < 14);
+        index = 0;
+        do {
+            g_asConversationTextColours_004699f0[index] =
+                g_asConversationTextColours_004699f0[index + 12];
+            index++;
+        } while ((unsigned int)(int)index < 12);
+        return 0;
+    case 0x13:
+        LoadPaletteTripletsFile("game.pal");
+        ResetCockpitPaletteEntries();
+        SaveGamePalette();
+        return 0;
+    }
+    return 0;
+}
+
 /* Function start: 0x421A40 */
 unsigned int EMShutDown(void)
 {
@@ -554,6 +585,37 @@ unsigned int initialize_direction_view_frames(void)
         pitchBands--;
     } while (pitchBands != 0);
     initialize_direction_view_frame(0, -90, frame);
+    return 0;
+}
+
+/* Function start: 0x421F50 */
+unsigned int LoadSpaceflightResources(void)
+{
+    unsigned char *debrisShapeSet;
+
+    if (DAT_0059a856 == 0)
+        return 0;
+    if (LoadShapeSet(g_aCommon3SpaceResources_00469bc0, 4, -1) == 0)
+        return 0;
+    LoadShapeSet(g_aMissionResourceDescriptors_00469c20, 4, -1);
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
+    debrisShapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
+        debrisShapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+        debrisShapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
+        debrisShapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
+        debrisShapeSet;
+    LoadShapeSet(g_aCockpitResourceDescriptors_00469c48, 4, -1);
+    g_apCommPortraitShapes_0059e180[8] = 0;
+    g_apCommPortraitShapes_0059e180[9] = 0;
+    g_apCommPortraitShapes_0059e180[10] = 0;
+    g_apCommPortraitShapes_0059e180[11] = 0;
+    g_apCommPortraitShapes_0059e180[13] = 0;
     return 0;
 }
 

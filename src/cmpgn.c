@@ -65,6 +65,28 @@ typedef char MissionObjectiveDisk_size_must_be_0x40[
 typedef char MissionShipDisk_size_must_be_0x2a[
     sizeof(MissionShipDisk) == 0x2a ? 1 : -1];
 
+/* Function start: 0x404610 */
+unsigned short __stdcall LoadPaletteTripletsFile(const char *path)
+{
+    unsigned char *palette;
+    FILE *file;
+
+    palette = (unsigned char *)AllocateTaggedMemory(0x300, 0);
+    if (palette == 0)
+        return 0;
+    file = fopen(path, "rb");
+    if (file != 0) {
+        fseek(file, 0x30, SEEK_SET);
+        fread(palette, 0x300, 1, file);
+        SetWholePaletteFromTriplets(palette);
+        fclose(file);
+        ReleasePacketHandle((int)palette);
+        return 1;
+    }
+    ReleasePacketHandle((int)palette);
+    return 0;
+}
+
 /* Function start: 0x4046A0 */
 unsigned int ejection_sequence(void)
 {
