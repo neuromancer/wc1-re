@@ -981,25 +981,40 @@ unsigned int fix_velocity(short obj)
 /* Function start: 0x41E860 */
 unsigned int sort_viable_target_list(void)
 {
-    short outer;
-    short inner;
-    short distance;
+    short nextOuter;
     signed char target;
-    short count = (short)g_cViableTargetCount_0046c088;
+    short distance;
+    short outer;
+    short count;
+    short inner;
 
-    for (outer = 0; outer < count - 1; outer++) {
-        for (inner = outer + 1; inner < count; inner++) {
-            if (g_asViableTargetDistance_0059c470[inner] <
-                g_asViableTargetDistance_0059c470[outer]) {
-                distance = g_asViableTargetDistance_0059c470[outer];
-                g_asViableTargetDistance_0059c470[outer] =
-                    g_asViableTargetDistance_0059c470[inner];
-                g_asViableTargetDistance_0059c470[inner] = distance;
-                target = g_acViableTarget_0059c920[outer];
-                g_acViableTarget_0059c920[outer] =
-                    g_acViableTarget_0059c920[inner];
-                g_acViableTarget_0059c920[inner] = target;
-            }
+    if (g_cViableTargetCount_0046c088 > 1) {
+        count = (short)g_cViableTargetCount_0046c088;
+        outer = 0;
+        if (count - 1 > 0) {
+            do {
+                nextOuter = outer + 1;
+                inner = nextOuter;
+                if (inner < count) {
+                    do {
+                        distance =
+                            g_asViableTargetDistance_0059c470[outer];
+                        if (g_asViableTargetDistance_0059c470[inner] <
+                            distance) {
+                            g_asViableTargetDistance_0059c470[outer] =
+                                g_asViableTargetDistance_0059c470[inner];
+                            target = g_acViableTarget_0059c920[outer];
+                            g_asViableTargetDistance_0059c470[inner] =
+                                distance;
+                            g_acViableTarget_0059c920[outer] =
+                                g_acViableTarget_0059c920[inner];
+                            g_acViableTarget_0059c920[inner] = target;
+                        }
+                        inner++;
+                    } while (inner < count);
+                }
+                outer = nextOuter;
+            } while ((int)outer < count - 1);
         }
     }
     return 0;

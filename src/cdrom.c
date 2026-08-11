@@ -129,9 +129,11 @@ int SetCurrentDirOnDrive(char drive, const char *directory)
     char current[256];
     int result;
 
+    result = 0;
     GetCurrentDirectoryA(0xff, current);
     sprintf(path, "%c:%s", drive, directory);
-    result = SetCurrentDirectoryA(path) != 0;
+    if (SetCurrentDirectoryA(path) != 0)
+        result = 1;
     SetCurrentDirectoryA(current);
     return result;
 }

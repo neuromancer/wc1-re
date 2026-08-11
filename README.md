@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.25% average)</summary>
+<summary>All 1,472 function similarity scores (97.32% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -226,7 +226,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cdrom.c` | `FreeFontWorkspace` | `0x403180` | 95.65% |
 | `cdrom.c` | `LocateStreamsDirOnDisc` | `0x4031C0` | 100.00% |
 | `cdrom.c` | `FindCdRomDriveByVolumeLabel` | `0x403290` | 86.11% |
-| `cdrom.c` | `SetCurrentDirOnDrive` | `0x4033E0` | 81.25% |
+| `cdrom.c` | `SetCurrentDirOnDrive` | `0x4033E0` | 100.00% |
 | `cdrom.c` | `PromptInsertCorrectCd` | `0x403450` | 100.00% |
 | `cdrom.c` | `OpenDataFileOrDie` | `0x4034D0` | 84.62% |
 | `cmpgn.c` | `LoadPaletteTripletsFile` | `0x404610` | 100.00% |
@@ -439,7 +439,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `disk.c` | `steady_object` | `0x41E7C0` | 100.00% |
 | `disk.c` | `real_velocity` | `0x41E7F0` | 100.00% |
 | `disk.c` | `fix_velocity` | `0x41E820` | 100.00% |
-| `disk.c` | `sort_viable_target_list` | `0x41E860` | 65.22% |
+| `disk.c` | `sort_viable_target_list` | `0x41E860` | 93.48% |
 | `eventmgr.c` | `TranslatePolledInputEvent` | `0x4355F0` | 94.64% |
 | `eventmgr.c` | `QueueInputEventAtCursor` | `0x4356A0` | 100.00% |
 | `eventmgr.c` | `AllocateInputEvent` | `0x4356E0` | 100.00% |
@@ -543,7 +543,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `vector_angle` | `0x418A30` | 100.00% |
 | `geom.c` | `vector_cross_product` | `0x418A80` | 100.00% |
 | `geom.c` | `NormalizeFixedVector` | `0x418B10` | 100.00% |
-| `geom.c` | `vector_length_in_dir` | `0x418B60` | 76.67% |
+| `geom.c` | `vector_length_in_dir` | `0x418B60` | 100.00% |
 | `geom.c` | `vector_component_in_dir` | `0x418BB0` | 100.00% |
 | `geom.c` | `rotate_about_i` | `0x418BE0` | 100.00% |
 | `geom.c` | `rotate_about_j` | `0x418D00` | 100.00% |
@@ -596,7 +596,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `InitializeModalTextPanel` | `0x41A9D0` | 77.89% |
 | `geom.c` | `DrawModalTextPanel` | `0x41AAE0` | 100.00% |
 | `geom.c` | `RestoreModalTextPanel` | `0x41AB60` | 100.00% |
-| `geom.c` | `ShowModalTextPanel` | `0x41AB90` | 76.38% |
+| `geom.c` | `ShowModalTextPanel` | `0x41AB90` | 74.80% |
 | `geom.c` | `ReleaseModalTextPanel` | `0x41AD10` | 100.00% |
 | `geom.c` | `AnySavedGames` | `0x41AD50` | 100.00% |
 | `gr.c` | `ValidateViewportBounds` | `0x440C00` | 80.00% |
@@ -1126,10 +1126,10 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `AllocateNearHeapBlockByFlags` | `0x40ED30` | 95.04% |
 | `nav.c` | `add_statistics` | `0x40EFE0` | 100.00% |
 | `nav.c` | `PostMission` | `0x40F010` | 83.17% |
-| `nav.c` | `FullMissionScore` | `0x40F190` | 66.67% |
+| `nav.c` | `FullMissionScore` | `0x40F190` | 80.95% |
 | `nav.c` | `PlayersMissionScore` | `0x40F1E0` | 80.00% |
 | `nav.c` | `UpdateSeries` | `0x40F240` | 90.62% |
-| `nav.c` | `MoveNewCampaign` | `0x40F3F0` | 76.19% |
+| `nav.c` | `MoveNewCampaign` | `0x40F3F0` | 95.24% |
 | `nav.c` | `StartNewCampaign` | `0x40F440` | 100.00% |
 | `nav.c` | `GameFlow` | `0x40F4B0` | 91.23% |
 | `nav.c` | `free_viewport` | `0x40F940` | 96.36% |

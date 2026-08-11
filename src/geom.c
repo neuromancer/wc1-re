@@ -469,12 +469,11 @@ int vector_length_in_dir(const FixedVector *vector,
                          const FixedVector *direction)
 {
     FixedVector normalized;
-    int length;
 
     normalized = *vector;
     NormalizeFixedVector(&normalized);
-    length = (int)Vector_magnitude(vector);
-    return (int)MultiplyFixed(length, dot_product(&normalized, direction));
+    return (int)MultiplyFixed(
+        Vector_magnitude(vector), dot_product(direction, &normalized));
 }
 
 /* Function start: 0x418BB0 */

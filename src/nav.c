@@ -1358,10 +1358,10 @@ int FullMissionScore(void)
     short objective;
     short score;
 
-    scores = (signed char *)(g_pMissionCampaignData_005988bc +
-        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a +
-        (int)g_stCampaignState_0059ca50.currentMission * 0x14 - 0x4c);
     score = 0;
+    scores = (signed char *)(g_pMissionCampaignData_005988bc +
+        (int)g_stCampaignState_0059ca50.currentMission * 0x14 +
+        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a - 0x50);
     objective = 0;
     do {
         score = (short)(score + scores[objective]);
@@ -1378,8 +1378,8 @@ int PlayersMissionScore(void)
     short score;
 
     scores = (signed char *)(g_pMissionCampaignData_005988bc +
-        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a +
-        (int)g_stCampaignState_0059ca50.currentMission * 0x14 - 0x4c);
+        (int)g_stCampaignState_0059ca50.currentMission * 0x14 +
+        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a - 0x50);
     score = 0;
     objective = 0;
     do {
@@ -1470,13 +1470,13 @@ unsigned int MoveNewCampaign(void)
 {
     short days;
 
-    if (g_stCampaignState_0059ca50.currentMission == 0)
-        days = (short)(RandomInRange(0, 1) + 5);
-    else
+    if (g_stCampaignState_0059ca50.currentMission != 0)
         days = (short)RandomInRange(0, 1);
+    else
+        days = (short)(RandomInRange(0, 1) + 5);
     g_pCurrentCampaignDate_005a86a8->day =
         (short)(g_pCurrentCampaignDate_005a86a8->day + days);
-    if (g_pCurrentCampaignDate_005a86a8->day > 365) {
+    if (g_pCurrentCampaignDate_005a86a8->day >= 366) {
         g_pCurrentCampaignDate_005a86a8->day =
             (short)(g_pCurrentCampaignDate_005a86a8->day - 365);
         g_pCurrentCampaignDate_005a86a8->year++;
