@@ -164,6 +164,19 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            int angle, int scaleX, int scaleY,
                            int flip, int blendMode)
 {
+    FILE *log;
+
+    if (shape != 0 && (unsigned int)shape < 0x100000) {
+        log = fopen("WC1_SHAPE_CRASH.LOG", "a");
+        if (log != 0) {
+            fprintf(log,
+                    "draw: viewport=%p xy=(%d,%d) frame=%d angle=%d "
+                    "scale=(%d,%d) flip=%d blend=%d\n",
+                    viewport, x, y, frame, angle, scaleX, scaleY,
+                    flip, blendMode);
+            fclose(log);
+        }
+    }
     if (shape != 0 && frame >= 0 && viewport->pixels != 0 &&
         viewport->rowOffsets != 0 && frame < GetShapeFrameCount(shape)) {
         PrepareShapeRLEData(shape);
@@ -642,6 +655,7 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                                 short angle, short scale, int flip,
                                 short *bounds)
 {
+    FILE *log;
     short *frameData;
     int frameOffset;
     int leftExtent;
@@ -661,6 +675,16 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
             viewport->top <= y && y <= viewport->bottom)
             return 1;
         return 0;
+    }
+    if ((unsigned int)shape < 0x100000) {
+        log = fopen("WC1_SHAPE_CRASH.LOG", "a");
+        if (log != 0) {
+            fprintf(log,
+                    "bounds: viewport=%p xy=(%d,%d) frame=%d angle=%d "
+                    "scale=%d flip=%d\n",
+                    viewport, x, y, frame, angle, scale, flip);
+            fclose(log);
+        }
     }
     CheckHeapBlockSignature(shape);
     frameOffset = frame * 4 + 4;

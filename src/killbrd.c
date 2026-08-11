@@ -721,6 +721,26 @@ void CheckHeapBlockSignature(unsigned char *shape)
                     "screenPacket=%p\n",
                     g_pConstellationShape_005a765c, DAT_00469208,
                     g_pScreenViewportPacket_005a6b94);
+            fprintf(log,
+                    "spaceFrame=%d renderedFrame=%d cannedScene=%d "
+                    "cursorDepth=%d cursor=%p cursorResource=%p "
+                    "cursorFrame=%d drawnCursor=%p\n",
+                    g_nSpaceFrame_0059b420,
+                    g_nRenderedSpaceFrame_0059d61a,
+                    g_nCannedSceneMode_00469fac, DAT_0046daa0,
+                    DAT_0059ab19, g_pMouseCursorResource_005a7cdc,
+                    DAT_0059ab1d, g_pDrawnMouseCursorShape_0046da9c);
+            fprintf(log,
+                    "cinematic=%p rear=%p targetLock=%p "
+                    "cockpitPilot=%p cockpitExplosion=%p "
+                    "cockpitExplosionBackground=%p introFont=%p\n",
+                    g_pCinematicViewBackdrop_005a7c90,
+                    g_pRearViewBackdrop_005a7c94,
+                    g_pTargetLockShape_005a6bf4,
+                    g_pCockpitPilotShape_0046905c,
+                    g_pCockpitExplosionShape_00469064,
+                    g_pCockpitExplosionBackground_00469060,
+                    g_pIntroFont_005a8960);
 
             object = 0;
             do {
