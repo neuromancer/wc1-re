@@ -845,29 +845,37 @@ void PostMission(void)
 
     oldKills = g_stCampaignState_0059ca50.currentPilot->kills;
     if (oldKills < 5 && oldKills + g_nPlayerKillCount_005a7c9c > 4)
-        g_stCampaignState_0059ca50.fiveKillFlag = 1;
+        g_stCampaignState_0059ca50.badges[
+            CAMPAIGN_BADGE_FIVE_KILLS] = 1;
     else if (oldKills < 25 &&
              oldKills + g_nPlayerKillCount_005a7c9c > 24)
-        g_stCampaignState_0059ca50.twentyFiveKillFlag = 1;
+        g_stCampaignState_0059ca50.badges[
+            CAMPAIGN_BADGE_TWENTY_FIVE_KILLS] = 1;
 
-    if (g_stCampaignState_0059ca50.shipFlown[
+    if (g_stCampaignState_0059ca50.badges[
+            CAMPAIGN_BADGE_SHIP_TYPE_BASE +
             g_stCampaignState_0059ca50.playerShipType] == 0)
-        g_stCampaignState_0059ca50.shipFlown[
+        g_stCampaignState_0059ca50.badges[
+            CAMPAIGN_BADGE_SHIP_TYPE_BASE +
             g_stCampaignState_0059ca50.playerShipType] = 1;
 
     g_stCampaignState_0059ca50.currentPilot->missions++;
     switch (g_stCampaignState_0059ca50.currentPilot->missions) {
     case 1:
-        g_stCampaignState_0059ca50.firstMissionFlag = 1;
+        g_stCampaignState_0059ca50.badges[
+            CAMPAIGN_BADGE_FIRST_MISSION] = 1;
         /* The retail switch deliberately falls through. */
     case 5:
-        g_stCampaignState_0059ca50.fiveMissionFlag = 1;
+        g_stCampaignState_0059ca50.badges[
+            CAMPAIGN_BADGE_FIVE_MISSIONS] = 1;
         break;
     case 10:
-        g_stCampaignState_0059ca50.tenMissionFlag = 1;
+        g_stCampaignState_0059ca50.badges[
+            CAMPAIGN_BADGE_TEN_MISSIONS] = 1;
         break;
     case 15:
-        g_stCampaignState_0059ca50.fifteenMissionFlag = 1;
+        g_stCampaignState_0059ca50.badges[
+            CAMPAIGN_BADGE_FIFTEEN_MISSIONS] = 1;
         break;
     }
 

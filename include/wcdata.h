@@ -533,6 +533,16 @@ typedef struct SceneAnimationObject {
     short goalFrame;                  /* +0x34 */
 } SceneAnimationObject;
 
+enum CampaignBadgeIndex {
+    CAMPAIGN_BADGE_FIRST_MISSION = 2,
+    CAMPAIGN_BADGE_SHIP_TYPE_BASE = 3,
+    CAMPAIGN_BADGE_FIVE_KILLS = 7,
+    CAMPAIGN_BADGE_TWENTY_FIVE_KILLS = 8,
+    CAMPAIGN_BADGE_FIVE_MISSIONS = 9,
+    CAMPAIGN_BADGE_TEN_MISSIONS = 10,
+    CAMPAIGN_BADGE_FIFTEEN_MISSIONS = 11
+};
+
 /* The complete persistent campaign record copied by ResetCampaignData.  The
  * four bytes at +0x44 are the ace-state flags; the following eight bytes are
  * two dates, rather than a single twelve-byte flag array as the old placeholder
@@ -540,14 +550,8 @@ typedef struct SceneAnimationObject {
 typedef struct CampaignState {
     PilotRecord *currentPilot;        /* +0x00 */
     enum ObjectType playerShipType;   /* +0x04 */
-    unsigned char field_08[7];        /* +0x08 */
-    unsigned char firstMissionFlag;   /* +0x0F */
-    unsigned char shipFlown[4];       /* +0x10 */
-    unsigned char fiveKillFlag;       /* +0x14 */
-    unsigned char twentyFiveKillFlag; /* +0x15 */
-    unsigned char fiveMissionFlag;    /* +0x16 */
-    unsigned char tenMissionFlag;     /* +0x17 */
-    unsigned char fifteenMissionFlag; /* +0x18 */
+    unsigned char medals[5];          /* +0x08 */
+    unsigned char badges[12];         /* +0x0D */
     signed char currentMission;       /* +0x19 */
     signed char currentSeries;        /* +0x1A */
     signed char seriesHistoryCount;   /* +0x1B */
@@ -568,14 +572,8 @@ typedef struct CampaignState {
 typedef struct SaveGameDiskCampaignState {
     short currentPilot;                /* +0x00 */
     short playerShipType;              /* +0x02 */
-    unsigned char field_08[7];         /* +0x04 */
-    unsigned char firstMissionFlag;    /* +0x0B */
-    unsigned char shipFlown[4];        /* +0x0C */
-    unsigned char fiveKillFlag;        /* +0x10 */
-    unsigned char twentyFiveKillFlag;  /* +0x11 */
-    unsigned char fiveMissionFlag;     /* +0x12 */
-    unsigned char tenMissionFlag;      /* +0x13 */
-    unsigned char fifteenMissionFlag;  /* +0x14 */
+    unsigned char medals[5];           /* +0x04 */
+    unsigned char badges[12];          /* +0x09 */
     signed char currentMission;        /* +0x15 */
     signed char currentSeries;         /* +0x16 */
     signed char seriesHistoryCount;    /* +0x17 */
@@ -785,14 +783,16 @@ typedef struct SaveGameDiskObjective {
 } SaveGameDiskObjective;
 
 typedef struct SaveGameRecord {
-    char description[18];             /* +0x000 */
+    char description[17];             /* +0x000 */
+    unsigned char occupied;           /* +0x011 */
     PilotRecord pilots[9];            /* +0x012 */
     CampaignState campaign;           /* +0x168 */
     MissionObjective objectives[16];  /* +0x1C0 */
 } SaveGameRecord;
 
 typedef struct SaveGameDiskRecord {
-    char description[18];                    /* +0x000 */
+    char description[17];                    /* +0x000 */
+    unsigned char occupied;                  /* +0x011 */
     PilotRecord pilots[9];                   /* +0x012 */
     SaveGameDiskCampaignState campaign;      /* +0x168 */
     SaveGameDiskObjective objectives[16];    /* +0x1AC */
