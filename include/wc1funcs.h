@@ -1474,6 +1474,9 @@ void TransformRLEPoint(int *point, int *result, int *origin,
                        int scaleY);                                   /* 0x0043E3B1 */
 unsigned int GetRawImageHeight(unsigned char *shape);                 /* 0x0043E478 */
 unsigned int GetRawFrameWidth(unsigned char *shape, int frame);       /* 0x0043E48B */
+int BlitRawScanline(RasterClip *clip, int y,
+                    const unsigned char *pixels,
+                    int width);                                      /* 0x0043E675 */
 unsigned char *FindIFFChunkData(const char *chunkId,
                                 const unsigned char *iffData);        /* 0x0043E784 */
 void CopyILBMPalette(const unsigned char *iffData,
@@ -1483,6 +1486,11 @@ void CopyPCXPaletteFromFileTail(const unsigned char *fileData,
                                 unsigned int fileSize,
                                 unsigned char *palette);              /* 0x0043EA6D */
 unsigned int GetPCXImageSize(const unsigned char *header);            /* 0x0043EA98 */
+void ResetGIFLZWDictionary(void);                                     /* 0x0043EABF */
+unsigned int ReadGIFDataSubBlockByte(void);                           /* 0x0043EB07 */
+unsigned int ReadGIFLZWCode(void);                                    /* 0x0043EB20 */
+void AppendGIFLZWDictionaryEntry(void);                               /* 0x0043EB66 */
+void EmitGIFDecodedPixel(void);                                       /* 0x0043EBAC */
 void CopyGIFPalette(const unsigned char *gifData,
                     unsigned char *palette);                          /* 0x0043EE42 */
 unsigned int GetGIFImageSize(const unsigned char *gifData);           /* 0x0043EEA3 */

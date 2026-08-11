@@ -4154,6 +4154,20 @@ __declspec(naked) unsigned int GetRawFrameWidth(unsigned char *shape,
     }
 }
 
+/* Function start: 0x43E675 */
+/* Shared by the ILBM, PCX, and GIF decoders.  The segment preservation and
+ * width-first REP copy identify this as a hand-written scanline blitter. */
+__declspec(naked) int BlitRawScanline(RasterClip *clip, int y,
+                                      const unsigned char *pixels,
+                                      int width)
+{
+#ifdef _MSC_VER
+#include "screens_blit_raw_scanline.inc"
+#else
+    return 0;
+#endif
+}
+
 /* Function start: 0x43E784 */
 /* The adjacent BMHD/CMAP/BODY identifiers and big-endian chunk length identify
  * this as the common IFF chunk-data locator. */
@@ -4210,6 +4224,58 @@ __declspec(naked) unsigned int GetPCXImageSize(const unsigned char *header)
 #include "screens_get_pcx_image_size.inc"
 #else
     return 0;
+#endif
+}
+
+/* Function start: 0x43EABF */
+/* These five helpers form the register-calling-convention core of the GIF LZW
+ * decoder at 0x0043EC29.  EDI holds its workspace throughout the group. */
+__declspec(naked) void ResetGIFLZWDictionary(void)
+{
+#ifdef _MSC_VER
+#include "screens_reset_gif_lzw_dictionary.inc"
+#else
+    return;
+#endif
+}
+
+/* Function start: 0x43EB07 */
+__declspec(naked) unsigned int ReadGIFDataSubBlockByte(void)
+{
+#ifdef _MSC_VER
+#include "screens_read_gif_data_sub_block_byte.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43EB20 */
+__declspec(naked) unsigned int ReadGIFLZWCode(void)
+{
+#ifdef _MSC_VER
+#include "screens_read_gif_lzw_code.inc"
+#else
+    return 0;
+#endif
+}
+
+/* Function start: 0x43EB66 */
+__declspec(naked) void AppendGIFLZWDictionaryEntry(void)
+{
+#ifdef _MSC_VER
+#include "screens_append_gif_lzw_dictionary_entry.inc"
+#else
+    return;
+#endif
+}
+
+/* Function start: 0x43EBAC */
+__declspec(naked) void EmitGIFDecodedPixel(void)
+{
+#ifdef _MSC_VER
+#include "screens_emit_gif_decoded_pixel.inc"
+#else
+    return;
 #endif
 }
 

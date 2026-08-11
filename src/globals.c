@@ -1638,6 +1638,17 @@ const char g_szBriefingReturnTextFormat_0046e64c[12] = "%X%Y%F%s%P";
 const char g_szDismissedTextFormat_0046e658[12] = "%X%Y%F%s%P";
 const char g_szDebriefEstablishTextFormat_0046e664[12] = "%X%Y%F%s%P";
 const char g_szFuneralLongShotTextFormat_0046e670[12] = "%X%Y%F%s%P";
+unsigned char g_abRasterDecodeBuffer_0046ec15[0xd00];
+const unsigned char g_abGifLZWCodeMasks_0046ff15[9] = {
+    0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff
+};
+const unsigned char g_abGifInterlaceRowSteps_0046ff1e[5] = {
+    8, 8, 4, 2, 0
+};
+const unsigned char g_abGifInterlaceRowStarts_0046ff23[5] = {
+    0, 4, 2, 1, 0
+};
+RasterClip *g_pGifRasterTarget_0046ff28;
 unsigned char g_abRasterPaletteTranslation_0046ff2c[256];
 RLETransformVertex g_aRLETransformVertices_0047002c[4];
 int g_anRLESourceSteps_0047007c[4];

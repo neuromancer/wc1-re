@@ -4,7 +4,7 @@ Audit date: 2026-08-11.
 
 This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
-`src/**/*.c` and `src/**/*.cpp`. It contains **51 functions**: **49 ordinary
+`src/**/*.c` and `src/**/*.cpp`. It contains **45 functions**: **43 ordinary
 candidates** and **2 compiler thunks** which must not be reproduced manually.
 
 The proposed compilation units follow the current source adjacency and
@@ -68,14 +68,8 @@ Ghidra status meanings:
 | `0x0043D1C1` | `LoopLocalFnD1C1` | — | `src/screens.c` | verified |
 | `0x0043E4AB` | `LoopLocalFnE4AB` | — | `src/screens.c` | verified |
 | `0x0043E63E` | `LoopLocalFnE63E` | — | `src/screens.c` | verified |
-| `0x0043E675` | `LoopLocalFnE675` | — | `src/screens.c` | verified |
 | `0x0043E7C6` | `LoopG0046f915FnE7C6` | — | `src/screens.c` | verified |
 | `0x0043E9EB` | `LoopG0046ec15FnE9EB` | — | `src/screens.c` | verified |
-| `0x0043EABF` | `LoopLocalFnEABF` | — | `src/screens.c` | verified |
-| `0x0043EB07` | `DoLocalFnEB07` | — | `src/screens.c` | verified |
-| `0x0043EB20` | `DoTbl0046ff15FnEB20` | — | `src/screens.c` | verified |
-| `0x0043EB66` | `DoLocalFnEB66` | — | `src/screens.c` | verified |
-| `0x0043EBAC` | `GetTbl0046ec15FnEBAC` | — | `src/screens.c` | verified |
 | `0x0043EC29` | `LoopG0046ff28FnEC29` | — | `src/screens.c` | verified |
 | `0x0043EEDB` | `DoLocalFnEEDB` | — | `src/screens.c` | verified |
 | `0x0043EEFD` | `DoLocalFnEEFD` | — | `src/screens.c` | verified |
@@ -122,7 +116,7 @@ Ghidra status meanings:
   sequence does not provide a body or ordering match strong enough to establish
   identity.
 - Every source annotation now resolves to an exact live Ghidra function entry.
-  Every one of the 61 backlog rows above also resolves to an exact entry and a
+  Every one of the 45 backlog rows above also resolves to an exact entry and a
   non-empty listing. The Ghidra program was saved after verification.
 
 ## Export and implementation progress
@@ -131,7 +125,7 @@ Ghidra status meanings:
   the two newly discovered palette-entry helpers, now exist in `code-full`. Each
   export has the same instruction count and return form as its exact live
   Ghidra function. Existing exports were not rewritten.
-- Forty confirmed `wc-developer` functions were reconstructed across eight
+- Forty-six confirmed `wc-developer` functions were reconstructed across nine
   tranches after binary-comp comparison:
 
   | Address | Implemented name | Compilation unit | Similarity |
@@ -176,9 +170,19 @@ Ghidra status meanings:
   | `0x0043E9BE` | `GetILBMImageSize` | `src/screens.c` | 100.00% |
   | `0x0043EE42` | `CopyGIFPalette` | `src/screens.c` | 100.00% |
   | `0x0043EEA3` | `GetGIFImageSize` | `src/screens.c` | 100.00% |
+  | `0x0043E675` | `BlitRawScanline` | `src/screens.c` | 100.00% |
+  | `0x0043EABF` | `ResetGIFLZWDictionary` | `src/screens.c` | 100.00% |
+  | `0x0043EB07` | `ReadGIFDataSubBlockByte` | `src/screens.c` | 100.00% |
+  | `0x0043EB20` | `ReadGIFLZWCode` | `src/screens.c` | 100.00% |
+  | `0x0043EB66` | `AppendGIFLZWDictionaryEntry` | `src/screens.c` | 100.00% |
+  | `0x0043EBAC` | `EmitGIFDecodedPixel` | `src/screens.c` | 100.00% |
 
 - Ghidra was synchronized with the reconstructed prototypes and behavior-based
   names, then saved after each tranche.
+- The five GIF LZW helpers are called internally by the decoder at
+  `0x0043EC29`, but that top-level decoder has no inbound code xref, stored
+  function pointer, or PE export. The feature is therefore linked raster-library
+  functionality rather than a path known to be reached by WC1 game code.
 - `ThunkForwarder40CB20` and `_rand` remain explicitly excluded as
   compiler/linker-generated jump thunks.
 
