@@ -221,11 +221,28 @@ const int g_anPilotTurnInterval_00465fc8[16] = {
 unsigned char *g_pIntroSceneResource_00467b84;
 unsigned char *g_pIntroSceneResourceMirror_00467c0b;
 unsigned char *g_pIntroBackgroundResource_00467eae;
-unsigned short DAT_00468660;
-unsigned int DAT_00468664 = 1;
+short g_nNavMapCoordinateScaling_00468660;
+short g_nNavMapScale_00468664 = 1;
+const NavMapObjectiveStyle g_aNavMapObjectiveStyles_00468668[10] = {
+    { 1, 2, &DAT_004699b4, &g_cDefaultTextColour_004699cc,
+      &g_cDefaultTextColour_004699cc },
+    { 3, 2, &DAT_0046999c, &g_cViewportClearColour_004699a0,
+      &g_cDefaultTextColour_004699cc },
+    { 4, 2, &DAT_004699c8, &DAT_004699c8,
+      &g_cDefaultTextColour_004699cc },
+    { 2, 3, &DAT_004699c8, &g_cDefaultTextColour_004699cc,
+      &g_cDefaultTextColour_004699cc },
+    { 2, 3, &DAT_004699ac, &DAT_004699ac,
+      &g_cDefaultTextColour_004699cc },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 }
+};
 unsigned char *g_pNavMapShape_00468708;
 unsigned short g_nNavMapLabelCount_0046870c;
-unsigned char g_cNavMapReservedAreaCount_00468710;
+short g_nNavMapReservedAreaCount_00468710;
 const char g_szCampaignSector_00468718[16] = "Vega XR-231.3";
 const char g_szNavLabelTextFormat_004687ac[12] = "%X%Y%F%s";
 const char g_szNavAsteroids_004687b8[12] = "Asteroids";

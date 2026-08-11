@@ -430,6 +430,18 @@ typedef struct NavMapLabel {
 typedef char NavMapLabel_size_must_be_0x0a[
     sizeof(NavMapLabel) == 0x0a ? 1 : -1];
 
+/* Marker geometry and palette slots for one mission-objective type. */
+typedef struct NavMapObjectiveStyle {
+    short markerType;
+    short markerSize;
+    unsigned char *unvisitedColour;
+    unsigned char *markerColour;
+    unsigned char *labelColour;
+} NavMapObjectiveStyle;
+
+typedef char NavMapObjectiveStyle_size_must_be_0x10[
+    sizeof(NavMapObjectiveStyle) == 0x10 ? 1 : -1];
+
 /* One selectable title-screen image and its inclusive mouse hit bounds. */
 typedef struct TitleMenuRegion {
     short frame;

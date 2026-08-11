@@ -259,14 +259,14 @@ int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
                                    unsigned int fallback);              /* 0x0040CAE0 */
 void DrawNavTextLine(unsigned char alignment, unsigned char colour,
                      const char *format, ...);                         /* 0x0040CB60 */
-void SetNavCursorIndex(unsigned short v);                                /* 0x0040CBB0 */
-void ObjectDrawHook(short *p);                                          /* 0x0040CBC0 */
-void nav_getxy(short *x, short *y, short mapX, short mapY);            /* 0x0040CBE0 */
-void UpdateObjectiveMapCoordinates(short *x, short *y,
-                                   int worldX, int worldZ);             /* 0x0040CC30 */
-void UpdateNavMapBounds(short x, short y);                             /* 0x0040CC80 */
+void SetNavMapCoordinateScaling(short enabled);                       /* 0x0040CBB0 */
+void ScaleNavMapMarkerSize(short *size);                              /* 0x0040CBC0 */
+void ScaleNavMapCoordinates(short *x, short *y,
+                            short mapX, short mapY);                  /* 0x0040CBE0 */
+void nav_getxy(short *x, short *y, int worldX, int worldZ);           /* 0x0040CC30 */
+void CheckPoint(short x, short y);                                    /* 0x0040CC80 */
 void IncludeNavMapWorldPoint(int worldX, int worldZ);                  /* 0x0040CCF0 */
-void BuildMap(void);                                                   /* 0x0040CD30 */
+void SetScale(void);                                                   /* 0x0040CD30 */
 void Build_objective_list(void);                                       /* 0x0040CED0 */
 short NavMapPointInsideReservedArea(short area, short x, short y);    /* 0x0040D090 */
 short NavMapLabelFits(short x, short y, short width, short height);   /* 0x0040D0E0 */
@@ -277,8 +277,8 @@ void ReserveNavMapArea(short x, short y, short width, short height);  /* 0x0040D
 void ResetNavMapLabels(void);                                         /* 0x0040D240 */
 short TryPlaceNavMapLabel(short x, short y, short width,
                           short force);                               /* 0x0040D250 */
-void nav_note(short x, short y, unsigned short colour,
-              const char *text);                                     /* 0x0040D2C0 */
+void PlaceNavMapLabel(short x, short y, unsigned short colour,
+                      const char *text);                             /* 0x0040D2C0 */
 void AddUniqueObjectiveNavLabel(short x, short y,
                                 unsigned short colour, const char *text,
                                 short objective, short missionShip);  /* 0x0040D410 */
@@ -289,25 +289,28 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
 void DrawNavSquareOutline(Viewport *viewport, short x, short y,
                           short size, signed char colour);            /* 0x0040D640 */
 void DrawNavSquareMarker(short x, short y, short size,
-                         unsigned short colour, short reserve);       /* 0x0040D680 */
+                         short shadow, unsigned short colour,
+                         short reserve);                              /* 0x0040D680 */
 void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
                             short size, signed char colour);          /* 0x0040D740 */
 void DrawNavTriangleMarker(short x, short y, short size,
-                           unsigned short colour, short reserve);     /* 0x0040D7D0 */
+                           short shadow, unsigned short colour,
+                           short reserve);                            /* 0x0040D7D0 */
 void DrawNavCrossMarker(short x, short y, short size,
-                        unsigned short colour, short reserve);        /* 0x0040D830 */
+                        short shadow, unsigned short colour,
+                        short reserve);                               /* 0x0040D830 */
 void SetScreenClipRect(unsigned short a, unsigned short b, unsigned short c, unsigned short d);/* 0x0040D8C0 */
 void DrawNavHazardMarker(FixedVector navPosition, FixedVector offset,
                          short size, unsigned short markerColour,
                          unsigned short textColour,
                          const char *text);                           /* 0x0040D8F0 */
 void DrawNavPlayerMarker(unsigned char colour, short reserve);        /* 0x0040D980 */
-void DrawNavHazardLabels(short showPlayer);                            /* 0x0040DA00 */
+void BuildMap(short showPlayer);                                      /* 0x0040DA00 */
 void UpdateInflightNavText(short showColon);                          /* 0x0040DDA0 */
 void FormatNavCoordinates(unsigned char *out);                                 /* 0x0040DE70 */
 void DrawSelectedNavLegendEntry(const char *text, short navPoint);    /* 0x0040DEA0 */
 void DrawNavMapLegend(void);                                          /* 0x0040DEE0 */
-char *GetNavNameSkippingMarker(short i);                                         /* 0x0040DF50 */
+char *nav_note(short objective);                                      /* 0x0040DF50 */
 void DrawNavLocationReadout(const char *title, short showFlightData); /* 0x0040DF70 */
 void BriefingMap_LoadShapes(void);                                    /* 0x0040E190 */
 void BriefingMap_DisplayMap(void);                                      /* 0x0040E210 */

@@ -26,40 +26,52 @@ short NavMapLabelFits(short x, short y, short width, short height)
 short NavMapLabelPositionAvailable(short x, short y,
                                    short width, short height)
 {
+    short available;
     short area;
-    ShortRect *rectangle;
+    short checkX;
+    short checkY;
 
-    if (NavMapLabelFits(x, y, width, height) == 0)
-        return 0;
-    area = 0;
-    while (area < (short)g_cNavMapReservedAreaCount_00468710) {
-        rectangle = &g_aNavMapExclusionRects_00475f48[area];
-        if (x <= rectangle->right && x + width >= rectangle->left &&
-            y <= rectangle->bottom && y + height >= rectangle->top)
-            return 0;
-        area++;
+    available = NavMapLabelFits(x, y, width, height);
+    if (available == 1) {
+        area = 0;
+        while (area < g_nNavMapReservedAreaCount_00468710 &&
+               available != 0) {
+            checkX = x;
+            while (checkX < x + width && available != 0) {
+                checkY = y;
+                while (checkY < y + height && available != 0) {
+                    available = (short)(NavMapPointInsideReservedArea(
+                        area, checkX, checkY) < 1);
+                    checkY++;
+                }
+                checkX++;
+            }
+            area++;
+        }
     }
-    return 1;
+    return available;
 }
 
 /* Function start: 0x40D1D0 */
 void ResetNavMapReservedAreas(void)
 {
-    g_cNavMapReservedAreaCount_00468710 = 0;
+    g_nNavMapReservedAreaCount_00468710 = 0;
 }
 
 /* Function start: 0x40D1E0 */
 void ReserveNavMapArea(short x, short y, short width, short height)
 {
     ShortRect *rectangle;
+    short area;
 
-    rectangle = &g_aNavMapExclusionRects_00475f48[
-        g_cNavMapReservedAreaCount_00468710];
+    area = g_nNavMapReservedAreaCount_00468710;
+    rectangle = &g_aNavMapExclusionRects_00475f48[area];
     rectangle->left = x;
     rectangle->top = y;
     rectangle->right = (short)(x + width);
     rectangle->bottom = (short)(y + height);
-    g_cNavMapReservedAreaCount_00468710++;
+    area++;
+    g_nNavMapReservedAreaCount_00468710 = area;
 }
 
 /* Function start: 0x40D240 */
@@ -71,32 +83,34 @@ void ResetNavMapLabels(void)
 /* Function start: 0x40D250 */
 short TryPlaceNavMapLabel(short x, short y, short width, short force)
 {
-    NavMapLabel *label;
+    short placed;
 
-    if (NavMapLabelPositionAvailable(x, y, width, 6) == 0) {
-        if (force == 0 || NavMapLabelFits(x, y, width, 6) == 0)
-            return 0;
+    placed = 0;
+    if (NavMapLabelPositionAvailable(x, y, width, 6) != 0 ||
+        (force != 0 && NavMapLabelFits(x, y, width, 6) != 0)) {
+        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0046870c].x = x;
+        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0046870c].y = y;
+        placed = 1;
     }
-    label = &g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0046870c];
-    label->x = x;
-    label->y = y;
-    return 1;
+    return placed;
 }
 
 /* Function start: 0x40D2C0 */
-void nav_note(short x, short y, unsigned short colour, const char *text)
+void PlaceNavMapLabel(short x, short y, unsigned short colour,
+                      const char *text)
 {
-    NavMapLabel *label;
     short width;
     short offset;
     short force;
 
-    label = &g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0046870c];
     width = (short)(strlen(text) * 4 + 2);
-    label->colour = colour;
-    label->text = text;
-    offset = 0;
-    for (;;) {
+    g_aNavMapLabels_00475e80[
+        g_nNavMapLabelCount_0046870c].colour = colour;
+    g_aNavMapLabels_00475e80[
+        g_nNavMapLabelCount_0046870c].text = text;
+    offset = -1;
+    do {
+        offset++;
         if (TryPlaceNavMapLabel((short)(x + offset + 4), y,
                                 width, 0) != 0)
             break;
@@ -115,11 +129,11 @@ void nav_note(short x, short y, unsigned short colour, const char *text)
                                 (short)(y - offset - 9),
                                 width, force) != 0)
             break;
-        if (offset == 12)
-            break;
-        offset++;
-    }
-    ReserveNavMapArea(label->x, label->y, width, 6);
+    } while (offset != 12);
+    ReserveNavMapArea(
+        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0046870c].x,
+        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0046870c].y,
+        width, 6);
     g_nNavMapLabelCount_0046870c++;
 }
 
@@ -130,27 +144,33 @@ void AddUniqueObjectiveNavLabel(short x, short y,
 {
     short previous;
 
-    if (missionShip != -1) {
-        previous = 0;
-        while (previous < objective) {
-            if (g_aMissionObjectives_0059dac0[previous].index == missionShip)
-                return;
-            previous++;
-        }
+    if (missionShip == -1) {
+        PlaceNavMapLabel(x, y, colour, text);
+        return;
     }
-    nav_note(x, y, colour, text);
+    previous = 0;
+    while (previous < objective) {
+        if (g_aMissionObjectives_0059dac0[previous].index == missionShip)
+            break;
+        previous++;
+    }
+    if (previous < objective)
+        return;
+    PlaceNavMapLabel(x, y, colour, text);
 }
 
 /* Function start: 0x40D490 */
 short IsPointInNavMapLabel(short labelIndex, short x, short y)
 {
-    NavMapLabel *label;
-    short width;
-
-    label = &g_aNavMapLabels_00475e80[labelIndex];
-    width = (short)(strlen(label->text) * 4);
-    return label->x <= x && x <= label->x + width &&
-           label->y <= y && y <= label->y + 6;
+    if (g_aNavMapLabels_00475e80[labelIndex].x <= x &&
+        (unsigned int)x <=
+            (unsigned int)(g_aNavMapLabels_00475e80[labelIndex].x +
+                           strlen(g_aNavMapLabels_00475e80[
+                               labelIndex].text) * 4) &&
+        g_aNavMapLabels_00475e80[labelIndex].y <= y &&
+        y <= g_aNavMapLabels_00475e80[labelIndex].y + 6)
+        return 1;
+    return 0;
 }
 
 /* Function start: 0x40D540 */
@@ -177,12 +197,12 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
 
     height = (short)((size * 7) / 8);
     if (shadow == 0)
-        DrawFilledViewportRect(&DAT_005a76b0,
+        DrawFilledViewportRect(g_stNavLabelTextContext_005a8180.viewport,
                                (short)(x - size), (short)(y - height),
                                (short)(x + size), (short)(y + height),
                                (short)colour);
     else
-        DrawViewportBorder(&DAT_005a76b0,
+        DrawViewportBorder(g_stNavLabelTextContext_005a8180.viewport,
                            (short)(x - size), (short)(y - height),
                            (short)(x + size), (short)(y + height),
                            (short)colour);
@@ -202,63 +222,77 @@ void DrawNavSquareOutline(Viewport *viewport, short x, short y,
 }
 
 /* Function start: 0x40D680 */
-void DrawNavSquareMarker(short x, short y, short size,
+void DrawNavSquareMarker(short x, short y, short size, short shadow,
                          unsigned short colour, short reserve)
 {
     if (size == 0) {
-        DrawViewportPixel(&DAT_005a76b0, x, y, colour);
-        DrawViewportPixel(&DAT_005a76b0, (short)(x + 1), y, colour);
-        DrawViewportPixel(&DAT_005a76b0, x, (short)(y + 1), colour);
-        DrawViewportPixel(&DAT_005a76b0, (short)(x + 1),
+        DrawViewportPixel(g_stNavLabelTextContext_005a8180.viewport,
+                          x, y, colour);
+        DrawViewportPixel(g_stNavLabelTextContext_005a8180.viewport,
+                          (short)(x + 1), y, colour);
+        DrawViewportPixel(g_stNavLabelTextContext_005a8180.viewport,
+                          x, (short)(y + 1), colour);
+        DrawViewportPixel(g_stNavLabelTextContext_005a8180.viewport,
+                          (short)(x + 1),
                           (short)(y + 1), colour);
     } else {
-        DrawNavSquareOutline(&DAT_005a76b0, x, y, size,
+        DrawNavSquareOutline(g_stNavLabelTextContext_005a8180.viewport,
+                             x, y, size,
                              (signed char)colour);
     }
     if (reserve != 0 && size < 5)
         ReserveNavMapArea((short)(x - size), (short)(y - size),
                           (short)(size * 2 + 1),
                           (short)(size * 2 + 1));
+    (void)shadow;
 }
 
 /* Function start: 0x40D740 */
 void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
                             short size, signed char colour)
 {
-    short bottom;
+    short left;
+    short top;
     short drawColour;
+    short bottom;
+    short right;
 
+    left = (short)(x - size);
+    top = (short)(y - size);
     drawColour = (short)colour;
     bottom = (short)(y + size);
-    DrawViewportLine(viewport, x, (short)(y - size),
-                     (short)(x + size), bottom, drawColour);
-    DrawViewportLine(viewport, (short)(x + size), bottom,
-                     (short)(x - size), bottom, drawColour);
-    DrawViewportLine(viewport, (short)(x - size), bottom,
-                     x, (short)(y - size), drawColour);
+    right = (short)(x + size);
+    DrawViewportLine(viewport, x, top,
+                     right, bottom, drawColour);
+    DrawViewportLine(viewport, right, bottom,
+                     left, bottom, drawColour);
+    DrawViewportLine(viewport, left, bottom,
+                     x, top, drawColour);
 }
 
 /* Function start: 0x40D7D0 */
-void DrawNavTriangleMarker(short x, short y, short size,
+void DrawNavTriangleMarker(short x, short y, short size, short shadow,
                            unsigned short colour, short reserve)
 {
-    DrawNavTriangleOutline(&DAT_005a76b0, x, y, size,
+    DrawNavTriangleOutline(g_stNavLabelTextContext_005a8180.viewport,
+                           x, y, size,
                            (signed char)colour);
     if (reserve != 0 && size < 5)
         ReserveNavMapArea((short)(x - size), (short)(y - size),
                           (short)(size * 2 + 1),
                           (short)(size * 2 + 1));
+    (void)shadow;
 }
 
 /* Function start: 0x40D830 */
-void DrawNavCrossMarker(short x, short y, short size,
+void DrawNavCrossMarker(short x, short y, short size, short shadow,
                         unsigned short colour, short reserve)
 {
-    DrawViewportLine(&DAT_005a76b0,
+    DrawViewportLine(g_stNavLabelTextContext_005a8180.viewport,
                      (short)(x - size), (short)(y - size),
                      (short)(x + size), (short)(y + size),
                      (short)colour);
-    DrawViewportLine(&DAT_005a76b0,
+    DrawViewportLine(g_stNavLabelTextContext_005a8180.viewport,
                      (short)(x - size), (short)(y + size),
                      (short)(x + size), (short)(y - size),
                      (short)colour);
@@ -266,6 +300,7 @@ void DrawNavCrossMarker(short x, short y, short size,
         ReserveNavMapArea((short)(x - size), (short)(y - size),
                           (short)(size * 2 + 1),
                           (short)(size * 2 + 1));
+    (void)shadow;
 }
 
 /* Function start: 0x40D8C0 */
@@ -285,10 +320,10 @@ void DrawNavHazardMarker(FixedVector navPosition, FixedVector offset,
     short y;
 
     AddFixedVectors(&navPosition, &offset, &position);
-    ObjectDrawHook(&size);
-    UpdateObjectiveMapCoordinates(&x, &y, position.x, position.z);
+    ScaleNavMapMarkerSize(&size);
+    nav_getxy(&x, &y, position.x, position.z);
     DrawNavRectangleMarker(x, y, size, 0, markerColour, 1);
-    nav_note(x, y, textColour, text);
+    PlaceNavMapLabel(x, y, textColour, text);
 }
 
 /* Function start: 0x40D980 */
@@ -297,27 +332,23 @@ void DrawNavPlayerMarker(unsigned char colour, short reserve)
     short x;
     short y;
 
-    UpdateObjectiveMapCoordinates(&x, &y,
-                                  g_aShipPosition_0059c490[0].x,
-                                  g_aShipPosition_0059c490[0].z);
+    nav_getxy(&x, &y, g_aShipPosition_0059c490[0].x,
+              g_aShipPosition_0059c490[0].z);
     x = (short)(x + g_stNavLabelTextContext_005a8180.viewport->left);
     y = (short)(y + g_stNavLabelTextContext_005a8180.viewport->top);
     DrawViewportPixel(g_stNavLabelTextContext_005a8180.viewport,
                       x, y, colour);
-    DrawNavSquareMarker(x, y, 0, colour, reserve);
+    DrawNavSquareMarker(x, y, 0, 0, colour, reserve);
 }
 
 /* Function start: 0x40DA00 */
-void DrawNavHazardLabels(short showPlayer)
+void BuildMap(short showPlayer)
 {
     MissionNavPoint *navPoint;
     MissionShipRecord *missionShip;
     MissionObjective *objective;
-    unsigned short unvisitedColour;
-    unsigned short markerColour;
+    const NavMapObjectiveStyle *style;
     unsigned short labelColour;
-    short markerType;
-    short markerSize;
     short missionShipIndex;
     short objectiveIndex;
     short slot;
@@ -335,7 +366,7 @@ void DrawNavHazardLabels(short showPlayer)
     SetTextContext(&g_stNavLabelTextContext_005a8180);
     ResetNavMapLabels();
     ResetNavMapReservedAreas();
-    BuildMap();
+    SetScale();
 
     navPoint = g_aMissionNavPoints_0046c2f0;
     while (navPoint->type != 0) {
@@ -367,61 +398,39 @@ void DrawNavHazardLabels(short showPlayer)
     while (objectiveIndex < (short)g_cMissionObjectiveCount_0059c46a) {
         objective = &g_aMissionObjectives_0059dac0[objectiveIndex];
         if (mobile_objective(objectiveIndex) == 0 ||
-            g_aMissionShips_0046c948[(signed char)objective->index].state != 0 ||
-            achieved(objectiveIndex) == 0) {
-            nav_getxy(&x, &y, objective->mapX, objective->mapY);
+            (g_aMissionShips_0046c948[
+                 (signed char)objective->index].state == 0 &&
+             achieved(objectiveIndex) == 0)) {
+            ScaleNavMapCoordinates(&x, &y,
+                                   objective->mapX, objective->mapY);
             if (hidden_objective(objectiveIndex) == 0) {
-                markerType = 1;
-                markerSize = 2;
-                unvisitedColour = DAT_004699b4;
-                markerColour = g_cDefaultTextColour_004699cc;
-                labelColour = g_cDefaultTextColour_004699cc;
-                switch (objective->type) {
-                case 1:
-                    markerType = 3;
-                    unvisitedColour = DAT_0046999c;
-                    markerColour = g_cViewportClearColour_004699a0;
-                    break;
-                case 2:
-                    markerType = 4;
-                    unvisitedColour = DAT_004699c8;
-                    markerColour = DAT_004699c8;
-                    break;
-                case 3:
-                    markerType = 2;
-                    markerSize = 3;
-                    unvisitedColour = DAT_004699c8;
-                    break;
-                case 4:
-                    markerType = 2;
-                    markerSize = 3;
-                    unvisitedColour = DAT_004699ac;
-                    markerColour = DAT_004699ac;
-                    break;
-                }
+                style = &g_aNavMapObjectiveStyles_00468668[
+                    objective->type];
                 if (visited(objectiveIndex) == 0)
                     DrawViewportPixel(&DAT_005a76b0, x, y,
-                                      unvisitedColour);
-                switch (markerType) {
+                                      *style->unvisitedColour);
+                switch (style->markerType) {
                 case 1:
-                    DrawNavSquareMarker(x, y, markerSize,
-                                        markerColour, 1);
+                    DrawNavSquareMarker(x, y, style->markerSize, 0,
+                                        *style->markerColour, 1);
                     break;
                 case 2:
-                    DrawNavRectangleMarker(x, y, markerSize, 0,
-                                           markerColour, 1);
+                    DrawNavRectangleMarker(x, y, style->markerSize, 0,
+                                           *style->markerColour, 1);
                     break;
                 case 3:
-                    DrawNavTriangleMarker(x, y, markerSize,
-                                          markerColour, 1);
+                    DrawNavTriangleMarker(x, y, style->markerSize, 0,
+                                          *style->markerColour, 1);
                     break;
                 case 4:
-                    DrawNavCrossMarker(x, y, markerSize,
-                                       markerColour, 1);
+                    DrawNavCrossMarker(x, y, style->markerSize, 0,
+                                       *style->markerColour, 1);
                     break;
                 }
                 if (g_cCurrentObjective_0046c020 == objectiveIndex)
                     labelColour = DAT_004699a8;
+                else
+                    labelColour = *style->labelColour;
                 g_awNavObjectiveLabelIndex_005a8130[objectiveIndex] =
                     g_nNavMapLabelCount_0046870c;
                 AddUniqueObjectiveNavLabel(
@@ -433,11 +442,11 @@ void DrawNavHazardLabels(short showPlayer)
     }
     if (showPlayer != 0) {
         DrawNavPlayerMarker(g_cViewportClearColour_004699a0, 1);
-        UpdateObjectiveMapCoordinates(&x, &y,
-                                      g_aShipPosition_0059c490[0].x,
-                                      g_aShipPosition_0059c490[0].z);
-        nav_note(x, y, DAT_004699c4,
-                 g_stCampaignState_0059ca50.currentPilot->callsign);
+        nav_getxy(&x, &y, g_aShipPosition_0059c490[0].x,
+                  g_aShipPosition_0059c490[0].z);
+        PlaceNavMapLabel(
+            x, y, DAT_004699c4,
+            g_stCampaignState_0059ca50.currentPilot->callsign);
     }
     DrawNavMapLabels();
     SetScreenClipRect(0, 0, 259, 155);
@@ -512,13 +521,14 @@ void DrawNavMapLegend(void)
 }
 
 /* Function start: 0x40DF50 */
-char *GetNavNameSkippingMarker(short i)
+char *nav_note(short objective)
 {
-    char *p = g_aMissionObjectives_0059dac0[i].name;
+    char *note;
 
-    if (*p == '?')
-        p = p + 1;
-    return p;
+    note = g_aMissionObjectives_0059dac0[objective].name;
+    if (*note == '?')
+        note++;
+    return note;
 }
 
 /* Function start: 0x40DF70 */
@@ -558,11 +568,10 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
                     g_szNavNotesHeading_00468858);
     DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
                     g_szNavNoteFormat_00468860,
-                    GetNavNameSkippingMarker(
-                        (short)g_cCurrentObjective_0046c020));
+                    nav_note((short)g_cCurrentObjective_0046c020));
     if (showFlightData != 0)
         DrawNavMapLegend();
-    DrawNavHazardLabels(showFlightData);
+    BuildMap(showFlightData);
     if (showFlightData != 0) {
         SetScreenClipRect(0, 0, 259, 155);
         SetTextContext(&g_stNavMapTextContext_005a8160);
@@ -632,9 +641,10 @@ short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
     objective = g_abFlightPath_0059c000[pathIndex];
     while (objective != -1) {
         if (hidden_objective((short)objective) == 0) {
-            nav_getxy(&mapX, &mapY,
-                      g_aMissionObjectives_0059dac0[objective].mapX,
-                      g_aMissionObjectives_0059dac0[objective].mapY);
+            ScaleNavMapCoordinates(
+                &mapX, &mapY,
+                g_aMissionObjectives_0059dac0[objective].mapX,
+                g_aMissionObjectives_0059dac0[objective].mapY);
             if ((short)(abs((int)mouseX - mapX) +
                         abs((int)mouseY - mapY)) < 6 ||
                 IsPointInNavMapLabel(
@@ -661,9 +671,10 @@ void CentreMouseOnCurrentNavObjective(void)
 
     objective = g_abFlightPath_0059c000[
         g_cCurrentNavPointIndex_0059c86c];
-    nav_getxy(&x, &y,
-              g_aMissionObjectives_0059dac0[objective].mapX,
-              g_aMissionObjectives_0059dac0[objective].mapY);
+    ScaleNavMapCoordinates(
+        &x, &y,
+        g_aMissionObjectives_0059dac0[objective].mapX,
+        g_aMissionObjectives_0059dac0[objective].mapY);
     x = (short)(x + 30);
     y = (short)(y + 22);
     LeaveAllocationScope();

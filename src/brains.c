@@ -3018,40 +3018,40 @@ void DrawNavTextLine(unsigned char alignment, unsigned char colour,
 }
 
 /* Function start: 0x40CBB0 */
-void SetNavCursorIndex(unsigned short v)
+void SetNavMapCoordinateScaling(short enabled)
 {
-    DAT_00468660 = v;
+    g_nNavMapCoordinateScaling_00468660 = enabled;
 }
 
 /* Function start: 0x40CBC0 */
-void ObjectDrawHook(short *p)
+void ScaleNavMapMarkerSize(short *size)
 {
-    *p = (short)((int)*p / (DAT_00468664 * 100));
+    *size = (short)((int)*size / (g_nNavMapScale_00468664 * 100));
 }
 
 /* Function start: 0x40CBE0 */
-void nav_getxy(short *x, short *y, short mapX, short mapY)
+void ScaleNavMapCoordinates(short *x, short *y, short mapX, short mapY)
 {
     *x = (short)(((int)mapX - (int)g_nNavMapCentreX_005a8152) /
-                 (int)DAT_00468664 + 75);
+                 (int)g_nNavMapScale_00468664 + 75);
     *y = (short)(((int)g_nNavMapCentreY_005a817c - (int)mapY) /
-                 (int)DAT_00468664 + 67);
+                 (int)g_nNavMapScale_00468664 + 67);
 }
 
 /* Function start: 0x40CC30 */
-void UpdateObjectiveMapCoordinates(short *x, short *y,
-                                   int worldX, int worldZ)
+void nav_getxy(short *x, short *y, int worldX, int worldZ)
 {
-    *x = (short)((unsigned int)(worldX / 100) >> 8);
-    *y = (short)((unsigned int)(worldZ / 100) >> 8);
-    if (DAT_00468660 != 0) {
-        ObjectDrawHook(x);
-        ObjectDrawHook(y);
-    }
+    short mapY;
+
+    *x = (short)((worldX / 100) >> 8);
+    mapY = (short)((worldZ / 100) >> 8);
+    *y = mapY;
+    if (g_nNavMapCoordinateScaling_00468660 != 0)
+        ScaleNavMapCoordinates(x, y, *x, mapY);
 }
 
 /* Function start: 0x40CC80 */
-void UpdateNavMapBounds(short x, short y)
+void CheckPoint(short x, short y)
 {
     g_nNavMapMinimumX_005a812e =
         MinShort(g_nNavMapMinimumX_005a812e, x);
@@ -3069,36 +3069,39 @@ void IncludeNavMapWorldPoint(int worldX, int worldZ)
     short x;
     short y;
 
-    UpdateObjectiveMapCoordinates(&x, &y, worldX, worldZ);
-    UpdateNavMapBounds(x, y);
+    nav_getxy(&x, &y, worldX, worldZ);
+    CheckPoint(x, y);
 }
 
 /* Function start: 0x40CD30 */
-void BuildMap(void)
+void SetScale(void)
 {
-    MissionObjective *objective;
     short objectiveIndex;
     short ship;
     short halfWidth;
     short halfHeight;
 
-    SetNavCursorIndex(0);
+    SetNavMapCoordinateScaling(0);
     g_nNavMapMinimumX_005a812e = g_aMissionObjectives_0059dac0[0].mapX;
     g_nNavMapMaximumX_005a812c = g_aMissionObjectives_0059dac0[0].mapX;
     g_nNavMapMinimumY_005a8154 = g_aMissionObjectives_0059dac0[0].mapY;
     g_nNavMapMaximumY_005a8150 = g_aMissionObjectives_0059dac0[0].mapY;
     objectiveIndex = 0;
     while (objectiveIndex < (short)g_cMissionObjectiveCount_0059c46a) {
-        objective = &g_aMissionObjectives_0059dac0[objectiveIndex];
         if (mobile_objective(objectiveIndex) != 0) {
-            ship = find_ship_index((short)objective->index);
+            ship = find_ship_index((short)
+                g_aMissionObjectives_0059dac0[objectiveIndex].index);
             if (ship != -1)
-                objective->position = g_aShipPosition_0059c490[ship];
+                g_aMissionObjectives_0059dac0[objectiveIndex].position =
+                    g_aShipPosition_0059c490[ship];
         }
-        UpdateObjectiveMapCoordinates(&objective->mapX, &objective->mapY,
-                                      objective->position.x,
-                                      objective->position.z);
-        UpdateNavMapBounds(objective->mapX, objective->mapY);
+        nav_getxy(
+            &g_aMissionObjectives_0059dac0[objectiveIndex].mapX,
+            &g_aMissionObjectives_0059dac0[objectiveIndex].mapY,
+            g_aMissionObjectives_0059dac0[objectiveIndex].position.x,
+            g_aMissionObjectives_0059dac0[objectiveIndex].position.z);
+        CheckPoint(g_aMissionObjectives_0059dac0[objectiveIndex].mapX,
+                   g_aMissionObjectives_0059dac0[objectiveIndex].mapY);
         objectiveIndex++;
     }
     IncludeNavMapWorldPoint(g_aShipPosition_0059c490[0].x,
@@ -3111,68 +3114,70 @@ void BuildMap(void)
                           g_nNavMapMinimumY_005a8154) / 2);
     g_nNavMapCentreY_005a817c =
         (short)(g_nNavMapMinimumY_005a8154 + halfHeight);
-    DAT_00468664 = (unsigned int)MaxShort(
+    g_nNavMapScale_00468664 = MaxShort(
         (short)(((g_nNavMapMaximumX_005a812c -
                   g_nNavMapMinimumX_005a812e) + halfWidth) / 150),
         (short)((halfHeight + (g_nNavMapMaximumY_005a8150 -
                               g_nNavMapMinimumY_005a8154)) / 135));
-    if (DAT_00468664 == 0)
-        DAT_00468664 = 100;
-    SetNavCursorIndex(1);
+    if (g_nNavMapScale_00468664 == 0)
+        g_nNavMapScale_00468664 = 100;
+    SetNavMapCoordinateScaling(1);
 }
 
 /* Function start: 0x40CED0 */
 void Build_objective_list(void)
 {
     MissionObjectiveSource *source;
-    MissionObjective *objective;
-    MissionNavPoint *nav;
     MissionShipRecord *ship;
+    FixedVector position;
+    const char *displayName;
+    int type;
     short flightPathCount;
-    short sourceIndex;
-    short firstDestination;
 
-    SetNavCursorIndex(0);
-    g_cMissionObjectiveCount_0059c46a = 0;
     flightPathCount = 0;
+    SetNavMapCoordinateScaling(0);
+    g_cMissionObjectiveCount_0059c46a = 0;
     source = g_aMissionObjectiveSources_005a8270;
-    sourceIndex = 0;
-    while (sourceIndex < WC1_MISSION_OBJECTIVE_COUNT &&
-           source->type != -1) {
-        objective = &g_aMissionObjectives_0059dac0[
-            (unsigned char)g_cMissionObjectiveCount_0059c46a];
-        objective->flags = 0;
-        objective->type = source->type;
-        objective->index = (signed char)source->index;
-        objective->name = source->description;
-        objective->displayName = source->description;
-
-        if (source->type == 0 && source->index >= 0 &&
-            source->index < WC1_MISSION_NAV_POINT_COUNT) {
-            nav = &g_aMissionNavPoints_0046c2f0[source->index];
-            objective->position = nav->position;
-            objective->displayName = nav->name;
+    type = source->type;
+    while (type != -1) {
+        g_aMissionObjectives_0059dac0[
+            g_cMissionObjectiveCount_0059c46a].flags = 0;
+        if (type == 0) {
+            position = g_aMissionNavPoints_0046c2f0[
+                source->index].position;
+            displayName = g_aMissionNavPoints_0046c2f0[
+                source->index].name;
             g_abFlightPath_0059c000[flightPathCount++] =
                 g_cMissionObjectiveCount_0059c46a;
-        } else if (source->type > 0 && source->type < 5 &&
-                   source->index >= 0 &&
-                   source->index < WC1_MISSION_SHIP_COUNT) {
+        } else if (type >= 1 && type <= 4) {
             ship = &g_aMissionShips_0046c948[source->index];
-            set_sphere_point(ship, &objective->position);
-            objective->displayName =
+            displayName =
                 g_aObjectTypeData_00466458[ship->type].displayName;
+            set_sphere_point(ship, &position);
             g_abFlightPath_0059c000[flightPathCount++] =
                 g_cMissionObjectiveCount_0059c46a;
-        } else {
-            zero_vector(&objective->position);
         }
-        UpdateObjectiveMapCoordinates(
-            &objective->mapX, &objective->mapY,
-            objective->position.x, objective->position.z);
-        objective->flags = 0;
+
+        g_aMissionObjectives_0059dac0[
+            g_cMissionObjectiveCount_0059c46a].type = type;
+        g_aMissionObjectives_0059dac0[
+            g_cMissionObjectiveCount_0059c46a].index =
+                (signed char)source->index;
+        g_aMissionObjectives_0059dac0[
+            g_cMissionObjectiveCount_0059c46a].name = source->description;
+        g_aMissionObjectives_0059dac0[
+            g_cMissionObjectiveCount_0059c46a].position = position;
+        nav_getxy(
+            &g_aMissionObjectives_0059dac0[
+                g_cMissionObjectiveCount_0059c46a].mapX,
+            &g_aMissionObjectives_0059dac0[
+                g_cMissionObjectiveCount_0059c46a].mapY,
+            position.x, position.z);
+        g_aMissionObjectives_0059dac0[
+            g_cMissionObjectiveCount_0059c46a].displayName = displayName;
         g_cMissionObjectiveCount_0059c46a++;
         source++;
-        sourceIndex++;
+        type = source->type;
     }
 
     g_abFlightPath_0059c000[flightPathCount] = -1;
@@ -3180,16 +3185,9 @@ void Build_objective_list(void)
         (unsigned char)g_cMissionObjectiveCount_0059c46a].type = -1;
     g_cCurrentNavPointIndex_0059c86c = 0;
     g_cCurrentObjective_0046c020 = 0;
-    firstDestination = 0;
-    while (firstDestination < flightPathCount &&
-           visited(g_abFlightPath_0059c000[firstDestination]) != 0)
-        firstDestination++;
-    if (firstDestination < flightPathCount) {
-        g_cCurrentNavPointIndex_0059c86c = (signed char)firstDestination;
-        g_cCurrentObjective_0046c020 =
-            g_abFlightPath_0059c000[firstDestination];
-        g_aeShipObjective_0059d200[0] = (enum ShipObjective)
-            g_aMissionObjectives_0059dac0[
-                g_cCurrentObjective_0046c020].type;
+    if (g_cMissionObjectiveCount_0059c46a != 0) {
+        while (set_new_objective(
+                   (short)g_cCurrentNavPointIndex_0059c86c) == 0)
+            g_cCurrentNavPointIndex_0059c86c++;
     }
 }
