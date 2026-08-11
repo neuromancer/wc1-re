@@ -211,12 +211,12 @@
 0x0040B700 check_futurion
 0x0040B730 init_mission
 0x0040B7A0 prepare_mission
-0x0040B940 ReleaseTbl0059d100FnB940
+0x0040B940 release_all_capital_ship_shapes
 0x0040B990 release_capital_ship_shapes
 0x0040B9F0 load_ship
 0x0040BC70 free_ship
 0x0040BE20 free_all_slots
-0x0040BE60 ScanTbl0059ddf0FnBE60
+0x0040BE60 load_all_slots
 0x0040BEA0 remove_nav_point_objects
 0x0040BEC0 get_shape_slot
 0x0040BEF0 shape_loaded

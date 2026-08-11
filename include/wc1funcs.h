@@ -225,16 +225,18 @@ unsigned int is_alive(int pilot);                                       /* 0x004
 unsigned int check_futurion(short i);                                   /* 0x0040B700 */
 unsigned int init_mission(short series, short mission);                 /* 0x0040B730 */
 void prepare_mission(void);                                            /* 0x0040B7A0 */
+int release_all_capital_ship_shapes(void);                             /* 0x0040B940 */
 int release_capital_ship_shapes(enum ObjectType type);                 /* 0x0040B990 */
 int load_ship(enum ObjectType type, short slot);                       /* 0x0040B9F0 */
 int free_ship(short slot);                                             /* 0x0040BC70 */
-void free_all_slots(void);                                             /* 0x0040BE20 */
+int free_all_slots(void);                                              /* 0x0040BE20 */
+int load_all_slots(void);                                              /* 0x0040BE60 */
 void remove_nav_point_objects(void);                                   /* 0x0040BEA0 */
 short get_shape_slot(void);                                            /* 0x0040BEC0 */
 int shape_loaded(enum ObjectType type);                                /* 0x0040BEF0 */
 int shape_needed(const MissionNavPoint *navPoint,
                  enum ObjectType type);                                /* 0x0040BF20 */
-void new_sphere_shapes(MissionNavPoint *navPoint);                     /* 0x0040BF50 */
+int new_sphere_shapes(MissionNavPoint *navPoint);                      /* 0x0040BF50 */
 int set_up_action_sphere(short navPoint);                              /* 0x0040BFF0 */
 unsigned int room_for_me(void);                                        /* 0x0040C350 */
 void approve_xyz(short obj, int minimum, short maximum);               /* 0x0040C360 */

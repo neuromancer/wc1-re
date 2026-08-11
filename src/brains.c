@@ -2257,6 +2257,24 @@ void prepare_mission(void)
     g_bLandingAuthorized_00468ff8 = 0;
 }
 
+/* Function start: 0x40B940 */
+int release_all_capital_ship_shapes(void)
+{
+    short obj;
+
+    obj = 0;
+    do {
+        if (g_aeObjectClass_0059d100[obj] ==
+            OBJECT_CLASS_CAPITAL_SHIP) {
+            FreePacketAndClear(
+                (int *)&g_apObjectShape_0059d2f0[obj], 0);
+            g_asCapitalShipViewFrame_0059dd90[obj] = -1;
+        }
+        obj++;
+    } while (obj < 10);
+    return 0;
+}
+
 /* Function start: 0x40B990 */
 int release_capital_ship_shapes(enum ObjectType type)
 {
@@ -2280,104 +2298,130 @@ int release_capital_ship_shapes(enum ObjectType type)
 /* Function start: 0x40B9F0 */
 int load_ship(enum ObjectType type, short slot)
 {
-    ObjectResourceSlot *resource;
-    ObjectTypeData *typeData;
     short obj;
-    short logicalFile;
     short section;
 
-    if ((int)type == -1)
-        return 0;
-    resource = &g_aObjectResourceSlots_0059ddf0[slot];
-    if (resource->shapeSet != 0)
-        return 0;
-
-    logicalFile = (short)type + 22;
-    g_cObjectResourceLogicalFile_005a86b0 = (signed char)logicalFile;
-    resource->type = (signed char)type;
-    if (type == OBJECT_TYPE_ASTEROID_FIELD) {
-        g_aObjectTypeData_00466458[OBJECT_TYPE_ROCK_CHUNK].shapeSet =
-            (unsigned char *)FetchDiskPacketRetrying(3, 13, 0);
-        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID5].shapeSet =
-            (unsigned char *)FetchDiskPacketRetrying(3, 16, 0);
-        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID3].shapeSet =
-            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID5].shapeSet;
-        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID1].shapeSet =
-            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID5].shapeSet;
-        resource->shapeSet =
-            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID5].shapeSet;
-        if (g_nMemoryConfiguration_005a7cd4 == 2) {
-            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID6].shapeSet =
-                (unsigned char *)FetchDiskPacketRetrying(3, 17, 0);
-            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID4].shapeSet =
-                g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID6]
-                    .shapeSet;
-            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID2].shapeSet =
-                g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID6]
-                    .shapeSet;
-        }
-        obj = 10;
-        do {
-            if (g_aeObjectClass_0059d100[obj] ==
-                OBJECT_CLASS_ASTEROID) {
-                g_apObjectShape_0059d2f0[obj] =
+    if ((int)type != -1) {
+        if (g_aObjectResourceSlots_0059ddf0[slot].shapeSet == 0) {
+            g_aObjectResourceSlots_0059ddf0[slot].type =
+                (signed char)type;
+            g_cObjectResourceLogicalFile_005a86b0 =
+                (signed char)(type + 22);
+            if (type == OBJECT_TYPE_ASTEROID_FIELD) {
+                g_aObjectTypeData_00466458[
+                    OBJECT_TYPE_ROCK_CHUNK].shapeSet =
+                    (unsigned char *)FetchDiskPacketRetrying(3, 13, 0);
+                g_aObjectTypeData_00466458[
+                    OBJECT_TYPE_ASTEROID5].shapeSet =
+                    (unsigned char *)FetchDiskPacketRetrying(3, 16, 0);
+                g_aObjectTypeData_00466458[
+                    OBJECT_TYPE_ASTEROID3].shapeSet =
                     g_aObjectTypeData_00466458[
-                        g_aeObjectType_0059b560[obj]].shapeSet;
+                        OBJECT_TYPE_ASTEROID5].shapeSet;
+                g_aObjectTypeData_00466458[
+                    OBJECT_TYPE_ASTEROID1].shapeSet =
+                    g_aObjectTypeData_00466458[
+                        OBJECT_TYPE_ASTEROID5].shapeSet;
+                g_aObjectResourceSlots_0059ddf0[slot].shapeSet =
+                    g_aObjectTypeData_00466458[
+                        OBJECT_TYPE_ASTEROID5].shapeSet;
+                if (g_nMemoryConfiguration_005a7cd4 == 2) {
+                    g_aObjectTypeData_00466458[
+                        OBJECT_TYPE_ASTEROID6].shapeSet =
+                        (unsigned char *)FetchDiskPacketRetrying(
+                            3, 17, 0);
+                    g_aObjectTypeData_00466458[
+                        OBJECT_TYPE_ASTEROID4].shapeSet =
+                        g_aObjectTypeData_00466458[
+                            OBJECT_TYPE_ASTEROID6].shapeSet;
+                    g_aObjectTypeData_00466458[
+                        OBJECT_TYPE_ASTEROID2].shapeSet =
+                        g_aObjectTypeData_00466458[
+                            OBJECT_TYPE_ASTEROID6].shapeSet;
+                }
+                obj = 10;
+                do {
+                    if (g_aeObjectClass_0059d100[obj] ==
+                        OBJECT_CLASS_ASTEROID) {
+                        g_apObjectShape_0059d2f0[obj] =
+                            g_aObjectTypeData_00466458[
+                                g_aeObjectType_0059b560[obj]].shapeSet;
+                    }
+                    obj++;
+                } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
+                return 0;
             }
-            obj++;
-        } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
-        return 0;
-    }
-    if (type == OBJECT_TYPE_MINE_FIELD)
-        return 0;
+            if (type != OBJECT_TYPE_MINE_FIELD) {
+                if (g_aObjectTypeData_00466458[type].objectClass !=
+                        OBJECT_CLASS_SHIP &&
+                    g_aObjectTypeData_00466458[type].objectClass !=
+                        OBJECT_CLASS_MISSILE) {
+                    if (DAT_0059a856 != 0) {
+                        section = 0;
+                        do {
+                            g_aiPacketReferenceTable_00465c88[slot]
+                                [section] =
+                                (int)FetchDiskPacketRetrying(
+                                    (short)
+                                        g_cObjectResourceLogicalFile_005a86b0,
+                                    section, 4);
+                            if (g_aiPacketReferenceTable_00465c88[slot]
+                                    [section] == 0)
+                                break;
+                            section++;
+                        } while (section < 0x25);
+                    }
+                    g_aObjectResourceSlots_0059ddf0[slot].shape =
+                        (unsigned char *)FetchDiskPacketRetrying(
+                            (short)g_cObjectResourceLogicalFile_005a86b0,
+                            0x25, 0);
+                    g_aObjectTypeData_00466458[type].shape =
+                        g_aObjectResourceSlots_0059ddf0[slot].shape;
+                    obj = 1;
+                    do {
+                        if (g_aeObjectType_0059b560[obj] == type) {
+                            FreePacketAndClear(
+                                (int *)&g_apObjectShape_0059d2f0[obj],
+                                0);
+                            g_asCapitalShipViewFrame_0059dd90[obj] = -1;
+                        }
+                        obj++;
+                    } while (obj < 10);
+                    return 0;
+                }
 
-    typeData = &g_aObjectTypeData_00466458[type];
-    if (typeData->objectClass != OBJECT_CLASS_SHIP &&
-        typeData->objectClass != OBJECT_CLASS_MISSILE) {
-        if (DAT_0059a856 != 0) {
-            section = 0;
-            do {
-                g_aiPacketReferenceTable_00465c88[slot][section] =
-                    (int)FetchDiskPacketRetrying(logicalFile,
-                                                 section, 4);
-                if (g_aiPacketReferenceTable_00465c88[slot]
-                        [section] == 0)
-                    break;
-                section++;
-            } while (section < 0x25);
+                g_aObjectResourceSlots_0059ddf0[slot].shapeSet =
+                    (unsigned char *)FetchDiskPacketRetrying(
+                        (short)g_cObjectResourceLogicalFile_005a86b0,
+                        0, 0);
+                g_aObjectTypeData_00466458[type].shapeSet =
+                    g_aObjectResourceSlots_0059ddf0[slot].shapeSet;
+                g_aObjectResourceSlots_0059ddf0[slot].animation =
+                    (unsigned char *)FetchDiskPacketRetrying(
+                        (short)g_cObjectResourceLogicalFile_005a86b0,
+                        2, 0);
+                g_aObjectTypeData_00466458[type].animation =
+                    g_aObjectResourceSlots_0059ddf0[slot].animation;
+                g_aObjectResourceSlots_0059ddf0[slot].shape =
+                    (unsigned char *)FetchDiskPacketRetrying(
+                        (short)g_cObjectResourceLogicalFile_005a86b0,
+                        1, 0);
+                g_aObjectTypeData_00466458[type].shape =
+                    g_aObjectResourceSlots_0059ddf0[slot].shape;
+                obj = 0;
+                do {
+                    if (g_aeObjectClass_0059d100[obj] >=
+                            OBJECT_CLASS_MISSILE &&
+                        g_aeObjectType_0059b560[obj] == type) {
+                        g_apObjectShape_0059d2f0[obj] =
+                            g_aObjectResourceSlots_0059ddf0[slot]
+                                .shapeSet;
+                    }
+                    obj++;
+                } while (obj < 10);
+            }
         }
-        resource->shape =
-            (unsigned char *)FetchDiskPacketRetrying(logicalFile,
-                                                     0x25, 0);
-        typeData->shape = resource->shape;
-        obj = 1;
-        do {
-            if (g_aeObjectType_0059b560[obj] == type) {
-                FreePacketAndClear(
-                    (int *)&g_apObjectShape_0059d2f0[obj], 0);
-                g_asCapitalShipViewFrame_0059dd90[obj] = -1;
-            }
-            obj++;
-        } while (obj < 10);
-        return 0;
     }
-
-    resource->shapeSet =
-        (unsigned char *)FetchDiskPacketRetrying(logicalFile, 0, 0);
-    typeData->shapeSet = resource->shapeSet;
-    resource->animation =
-        (unsigned char *)FetchDiskPacketRetrying(logicalFile, 2, 0);
-    typeData->animation = resource->animation;
-    resource->shape =
-        (unsigned char *)FetchDiskPacketRetrying(logicalFile, 1, 0);
-    typeData->shape = resource->shape;
-    obj = 0;
-    do {
-        if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_MISSILE &&
-            g_aeObjectType_0059b560[obj] == type)
-            g_apObjectShape_0059d2f0[obj] = resource->shapeSet;
-        obj++;
-    } while (obj < 10);
     return 0;
 }
 
@@ -2455,16 +2499,38 @@ int free_ship(short slot)
 }
 
 /* Function start: 0x40BE20 */
-void free_all_slots(void)
+int free_all_slots(void)
 {
     short slot = 0;
 
+    GetScreenUpdateFlag();
+    release_all_capital_ship_shapes();
     do {
         if (g_aObjectResourceSlots_0059ddf0[slot].type != -1)
             free_ship(slot);
         slot++;
     } while (slot < 3);
     initialize_view_buffer();
+    return 0;
+}
+
+/* Function start: 0x40BE60 */
+int load_all_slots(void)
+{
+    enum ObjectType type;
+    short slot;
+
+    GetScreenUpdateFlag();
+    slot = 0;
+    release_all_capital_ship_shapes();
+    do {
+        type = (enum ObjectType)
+            g_aObjectResourceSlots_0059ddf0[slot].type;
+        if ((int)type != -1)
+            load_ship(type, slot);
+        slot++;
+    } while (slot < 3);
+    return 0;
 }
 
 /* Function start: 0x40BEA0 */
@@ -2497,7 +2563,8 @@ int shape_loaded(enum ObjectType type)
     short slot = 0;
 
     do {
-        if (g_aObjectResourceSlots_0059ddf0[slot].type == (signed char)type)
+        if ((enum ObjectType)
+                g_aObjectResourceSlots_0059ddf0[slot].type == type)
             return 1;
         slot++;
     } while (slot < 4);
@@ -2509,44 +2576,52 @@ int shape_needed(const MissionNavPoint *navPoint, enum ObjectType type)
 {
     short preload;
 
-    if ((int)type < 0)
-        return 0;
-    preload = 0;
-    do {
-        if (navPoint->preloadObjectTypes[preload] == type)
-            return 1;
-        preload++;
-    } while (preload < 2);
+    if (type != (enum ObjectType)-1) {
+        preload = 0;
+        do {
+            if (navPoint->preloadObjectTypes[preload] == type)
+                return 1;
+            preload++;
+        } while (preload < 2);
+    }
     return 0;
 }
 
 /* Function start: 0x40BF50 */
-void new_sphere_shapes(MissionNavPoint *navPoint)
+int new_sphere_shapes(MissionNavPoint *navPoint)
 {
+    ObjectResourceSlot *resource;
     short slot;
     short preload;
     enum ObjectType type;
 
+    GetScreenUpdateFlag();
     slot = 1;
+    release_all_capital_ship_shapes();
     do {
-        type = (enum ObjectType)g_aObjectResourceSlots_0059ddf0[slot].type;
-        if ((int)type >= 0 &&
-            !shape_needed(navPoint, type))
+        resource = &g_aObjectResourceSlots_0059ddf0[slot];
+        if (resource->type != -1 &&
+            !shape_needed(navPoint, (enum ObjectType)resource->type)) {
             free_ship(slot);
+            resource->type = -1;
+        }
         slot++;
     } while (slot < 3);
 
     preload = 0;
     do {
         type = navPoint->preloadObjectTypes[preload];
-        if ((int)type >= 0 && !shape_loaded(type)) {
-            slot = get_shape_slot();
-            if (slot != -1)
-                load_ship(type, slot);
+        if (type != (enum ObjectType)-1) {
+            if (!shape_loaded(type)) {
+                slot = get_shape_slot();
+                if (slot != -1)
+                    load_ship(type, slot);
+            }
         }
         preload++;
     } while (preload < 2);
     initialize_view_buffer();
+    return 0;
 }
 
 /* Function start: 0x40BFF0 */
