@@ -2434,7 +2434,8 @@ void imperial_formation(short obj)
 
     if (g_aeSpecialManeuver_0059c3c0[obj] == SPECIAL_MANEUVER_NONE &&
         distance_from_object(obj, leader) > 9000) {
-        if (facing_to_object(obj, leader) > 85 && real_velocity(obj) < 110) {
+        if (facing_to_object(obj, &g_aShipPosition_0059c490[leader]) > 85 &&
+            real_velocity(obj) < 110) {
             fire_afterburner(obj, 10);
             return;
         }

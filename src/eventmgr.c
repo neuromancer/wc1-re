@@ -626,39 +626,61 @@ void SetInputKeyState(int scanCode, unsigned char pressed)
 /* Function start: 0x436460 */
 void sort_object_depth(void)
 {
+    unsigned int distance;
     int previous;
     int best;
     int bestObject;
     int obj;
+    int screenOffset;
+    int *placed;
+    int *sortedEntry;
     int sorted;
 
+    previous = -999999999;
     bestObject = -1;
     memset(g_anObjectDepthPlaced_0059a8f0, 0,
            sizeof(g_anObjectDepthPlaced_0059a8f0));
-    previous = -999999999;
-    for (obj = 0; obj < WC1_SPACE_OBJECT_COUNT; obj++) {
-        if (previous < (unsigned short)g_asObjectDistance_0059b4a0[obj]) {
-            previous = (unsigned short)g_asObjectDistance_0059b4a0[obj];
+    obj = 0;
+    do {
+        distance = (unsigned short)g_asObjectDistance_0059b4a0[obj];
+        if (previous < (int)distance) {
+            previous = (int)distance;
             bestObject = obj;
         }
-    }
-    for (sorted = 0; sorted < WC1_SPACE_OBJECT_COUNT; sorted++) {
+        obj++;
+    } while (obj < WC1_SPACE_OBJECT_COUNT);
+    sorted = 0;
+    sortedEntry = g_anSortedObject_0059aa00;
+    do {
         best = -1;
-        g_anSortedObject_0059aa00[sorted] = bestObject;
+        *sortedEntry = bestObject;
         if (bestObject == -1)
             return;
+        screenOffset = 0;
+        obj = 0;
         g_anObjectDepthPlaced_0059a8f0[bestObject] = 1;
         bestObject = -1;
-        for (obj = 0; obj < WC1_SPACE_OBJECT_COUNT; obj++) {
-            if (g_anObjectDepthPlaced_0059a8f0[obj] == 0 &&
-                g_asObjectScreenX_0059d9b0[obj] != (short)0x8001 &&
-                best < (unsigned short)g_asObjectDistance_0059b4a0[obj] &&
-                previous >= (unsigned short)g_asObjectDistance_0059b4a0[obj]) {
-                bestObject = obj;
-                best = (unsigned short)g_asObjectDistance_0059b4a0[obj];
+        placed = g_anObjectDepthPlaced_0059a8f0;
+        do {
+            if (*placed == 0 &&
+                *(short *)((unsigned char *)g_asObjectScreenX_0059d9b0 +
+                           screenOffset) != (short)0x8001) {
+                distance = *(unsigned short *)(
+                    (unsigned char *)g_asObjectDistance_0059b4a0 +
+                    screenOffset);
+                if (best < (int)distance && previous >= (int)distance) {
+                    bestObject = obj;
+                    best = (int)distance;
+                }
             }
-        }
-    }
+            screenOffset += sizeof(short);
+            placed++;
+            obj++;
+        } while (placed < g_anObjectDepthPlaced_0059a8f0 +
+                            WC1_SPACE_OBJECT_COUNT);
+        sortedEntry++;
+        sorted++;
+    } while (sorted < WC1_SPACE_OBJECT_COUNT);
 }
 
 /* Function start: 0x436520 */
@@ -712,36 +734,69 @@ void draw_sorted_objects_to_buffer(void)
 void intro_drawbackgroundships(void)
 {
     unsigned char *shape;
-    short obj;
+    int objectClass;
+    int obj;
+    int shortOffset;
+    int dwordOffset;
+    int zero;
 
     obj = 0;
-    while (obj < WC1_SPACE_OBJECT_COUNT) {
-        if ((int)g_aeObjectType_0059b560[obj] < 0)
+    shortOffset = 0;
+    zero = 0;
+    dwordOffset = 0;
+    do {
+        if (*(enum ObjectType *)((unsigned char *)g_aeObjectType_0059b560 +
+                                 dwordOffset) < zero)
             return;
-        if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL) {
-            if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_STAR &&
-                g_aeObjectClass_0059d100[obj] <= OBJECT_CLASS_DUST) {
+        objectClass = *(enum ObjectClass *)(
+            (unsigned char *)g_aeObjectClass_0059d100 + dwordOffset);
+        if (objectClass != OBJECT_CLASS_NULL) {
+            if (objectClass < OBJECT_CLASS_STAR ||
+                objectClass > OBJECT_CLASS_DUST) {
+                shape = *(unsigned char **)(
+                    (unsigned char *)g_apObjectShape_0059d2f0 +
+                    dwordOffset);
+                if (shape != 0) {
+                    DrawSolidColourSpriteScaled(
+                        &DAT_005a7510,
+                        *(short *)((unsigned char *)g_asObjectDrawX_0059d000 +
+                                   shortOffset),
+                        *(short *)((unsigned char *)g_asObjectDrawY_0059cf80 +
+                                   shortOffset),
+                        shape,
+                        *(short *)((unsigned char *)g_asObjectViewFrame_0059d230 +
+                                   shortOffset),
+                        *(short *)((unsigned char *)g_asObjectScreenAngle_0059cd90 +
+                                   shortOffset),
+                        *(short *)((unsigned char *)g_asObjectScreenScale_0059c950 +
+                                   shortOffset),
+                        *(short *)((unsigned char *)g_asObjectFlip_0059c870 +
+                                   shortOffset),
+                        DAT_004699d8);
+                }
+            } else {
                 if (obj == DAT_00469208)
-                    shape = g_apObjectShape_0059d2f0[obj];
+                    shape = *(unsigned char **)(
+                        (unsigned char *)g_apObjectShape_0059d2f0 +
+                        dwordOffset);
                 else
                     shape = g_pConstellationShape_005a765c;
-                DrawSolidColourSprite(&DAT_005a7510,
-                    g_asObjectDrawX_0059d000[obj],
-                    g_asObjectDrawY_0059cf80[obj], shape,
-                    g_asObjectViewFrame_0059d230[obj], DAT_004699d8);
-            } else if (g_apObjectShape_0059d2f0[obj] != 0) {
-                DrawSolidColourSpriteScaled(&DAT_005a7510,
-                    g_asObjectDrawX_0059d000[obj],
-                    g_asObjectDrawY_0059cf80[obj],
-                    g_apObjectShape_0059d2f0[obj],
-                    g_asObjectViewFrame_0059d230[obj],
-                    g_asObjectScreenAngle_0059cd90[obj],
-                    g_asObjectScreenScale_0059c950[obj],
-                    g_asObjectFlip_0059c870[obj], DAT_004699d8);
+                DrawSolidColourSprite(
+                    &DAT_005a7510,
+                    *(short *)((unsigned char *)g_asObjectDrawX_0059d000 +
+                               shortOffset),
+                    *(short *)((unsigned char *)g_asObjectDrawY_0059cf80 +
+                               shortOffset),
+                    shape,
+                    *(short *)((unsigned char *)g_asObjectViewFrame_0059d230 +
+                               shortOffset),
+                    DAT_004699d8);
             }
         }
+        shortOffset += sizeof(short);
+        dwordOffset += sizeof(int);
         obj++;
-    }
+    } while (dwordOffset < WC1_SPACE_OBJECT_COUNT * (int)sizeof(int));
 }
 
 /* Function start: 0x436740 */

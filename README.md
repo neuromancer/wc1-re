@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.32% average)</summary>
+<summary>All 1,472 function similarity scores (97.38% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -145,7 +145,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `disallow_engage` | `0x409CE0` | 100.00% |
 | `brains.c` | `allow_engage` | `0x409CF0` | 100.00% |
 | `brains.c` | `try2allow_engage` | `0x409D10` | 100.00% |
-| `brains.c` | `imperial_formation` | `0x409D60` | 97.56% |
+| `brains.c` | `imperial_formation` | `0x409D60` | 100.00% |
 | `brains.c` | `formation_break` | `0x409F00` | 100.00% |
 | `brains.c` | `imperial_wingman` | `0x409F80` | 100.00% |
 | `brains.c` | `kilrathi_wingman` | `0x40A030` | 100.00% |
@@ -479,9 +479,9 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `eventmgr.c` | `ClearInputKeyStatePreservingModifiers` | `0x4363A0` | 100.00% |
 | `eventmgr.c` | `ClearInputKeyState` | `0x4363E0` | 100.00% |
 | `eventmgr.c` | `SetInputKeyState` | `0x436420` | 100.00% |
-| `eventmgr.c` | `sort_object_depth` | `0x436460` | 86.67% |
+| `eventmgr.c` | `sort_object_depth` | `0x436460` | 98.33% |
 | `eventmgr.c` | `draw_sorted_objects_to_buffer` | `0x436520` | 61.11% |
-| `eventmgr.c` | `intro_drawbackgroundships` | `0x436650` | 61.19% |
+| `eventmgr.c` | `intro_drawbackgroundships` | `0x436650` | 71.64% |
 | `eventmgr.c` | `set_up_screen_viewport` | `0x436740` | 90.12% |
 | `eventmgr.c` | `MouseIdleHook` | `0x4368C0` | 100.00% |
 | `eventmgr.c` | `GetNavRangeSentinel` | `0x4368E0` | 100.00% |
@@ -497,7 +497,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `eventmgr.c` | `VideoReleaseHook` | `0x4369D0` | 100.00% |
 | `eventmgr.c` | `ExitCleanupHook` | `0x4369E0` | 100.00% |
 | `eventmgr.c` | `IsVectorWithinRange` | `0x436A00` | 100.00% |
-| `eventmgr.c` | `shrink_vector` | `0x436A30` | 92.31% |
+| `eventmgr.c` | `shrink_vector` | `0x436A30` | 100.00% |
 | `eventmgr.c` | `shrink` | `0x436A70` | 100.00% |
 | `eventmgr.c` | `FillGraphicSuffix` | `0x436C70` | 100.00% |
 | `eventmgr.c` | `ConvertChar_Int` | `0x436CB0` | 100.00% |
@@ -562,7 +562,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `get_facing_range_from_object` | `0x419310` | 90.62% |
 | `geom.c` | `ship_vs_point` | `0x419390` | 100.00% |
 | `geom.c` | `ship_vs_ship` | `0x4193B0` | 100.00% |
-| `geom.c` | `facing_to_object` | `0x4193D0` | 80.00% |
+| `geom.c` | `facing_to_object` | `0x4193D0` | 100.00% |
 | `geom.c` | `match_roll_orientation` | `0x419440` | 100.00% |
 | `geom.c` | `set_ship_rotation_goals` | `0x4194D0` | 91.09% |
 | `geom.c` | `point_ship` | `0x419620` | 100.00% |
@@ -641,7 +641,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `gr.c` | `ForceStreamerTrigger` | `0x442550` | 100.00% |
 | `gr.c` | `SetMusicStreamVolume` | `0x442590` | 100.00% |
 | `gr.c` | `Streamer_close` | `0x4425D0` | 100.00% |
-| `gr.c` | `ReadCheaterFlagFromRegistry` | `0x442600` | 80.00% |
+| `gr.c` | `ReadCheaterFlagFromRegistry` | `0x442600` | 100.00% |
 | `hudmsg.c` | `MeasureMessageWidth` | `0x428E70` | 92.86% |
 | `hudmsg.c` | `WaitForKeyAcknowledge` | `0x428EA0` | 97.50% |
 | `hudmsg.c` | `ShowModalMessage` | `0x428F20` | 100.00% |
@@ -965,7 +965,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `LoadSceneAnimationResources` | `0x424D00` | 91.84% |
 | `logic.c` | `ReleaseSceneAnimationResources` | `0x424DA0` | 100.00% |
 | `logic.c` | `FindSceneAnimationCommand` | `0x424DE0` | 100.00% |
-| `logic.c` | `SceneAnimationGoalReached` | `0x424EA0` | 80.00% |
+| `logic.c` | `SceneAnimationGoalReached` | `0x424EA0` | 100.00% |
 | `logic.c` | `UpdateSceneAnimationObject` | `0x424EF0` | 80.73% |
 | `logic.c` | `PlaySceneAnimation` | `0x425500` | 91.16% |
 | `main.c` | `main` | `0x4274E0` | 82.95% |

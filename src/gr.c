@@ -974,13 +974,15 @@ void Streamer_close(void)
 int ReadCheaterFlagFromRegistry(void)
 {
     HKEY key;
-    DWORD type = REG_DWORD;
-    DWORD size = sizeof(int);
+    DWORD type;
+    DWORD size;
     int enabled = 0;
 
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
                       "Software\\Origin Systems\\WC: Kilrathi Saga",
                       0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
+        type = REG_DWORD;
+        size = sizeof(int);
         RegQueryValueExA(key, "Cheater", 0, &type,
                          (LPBYTE)&enabled, &size);
         RegCloseKey(key);

@@ -692,16 +692,16 @@ void ship_vs_ship(short obj, short other)
 }
 
 /* Function start: 0x4193D0 */
-short facing_to_object(short obj, short other)
+short facing_to_object(short obj, FixedVector *point)
 {
     FixedVector direction;
 
     ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
-                       &g_aShipPosition_0059c490[other], &direction);
+                       point, &direction);
     NormalizeFixedVector(&direction);
     g_nFacingToTarget_0059d920 =
-        (short)(((unsigned short)dot_product(
-            &g_aShipForwardVector_0059bce0[obj], &direction) * 100) >> 8);
+        (short)(((short)dot_product(
+            &direction, &g_aShipForwardVector_0059bce0[obj]) * 100) >> 8);
     return g_nFacingToTarget_0059d920;
 }
 

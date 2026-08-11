@@ -2624,12 +2624,12 @@ short __stdcall SceneAnimationGoalReached(short delta, short current,
                                           short goal)
 {
     if (delta < 0) {
+        if (current <= goal)
+            return 1;
+    } else if (delta > 0) {
         if (current >= goal)
             return 1;
-    } else if (delta == 0) {
-        if (current == goal)
-            return 1;
-    } else if (current <= goal) {
+    } else if (current == goal) {
         return 1;
     }
     return 0;

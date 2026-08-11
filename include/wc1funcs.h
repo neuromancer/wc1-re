@@ -616,7 +616,7 @@ void get_facing_range_from_point(short obj, const FixedVector *point);/* 0x00419
 void get_facing_range_from_object(short obj, short other);            /* 0x00419310 */
 void ship_vs_point(short obj, const FixedVector *point);              /* 0x00419390 */
 void ship_vs_ship(short obj, short other);                             /* 0x004193B0 */
-short facing_to_object(short obj, short other);                       /* 0x004193D0 */
+short facing_to_object(short obj, FixedVector *point);                /* 0x004193D0 */
 short match_roll_orientation(short obj, short reference);             /* 0x00419440 */
 int set_ship_rotation_goals(short obj, short turnRate,
                             const FixedVector *direction,
