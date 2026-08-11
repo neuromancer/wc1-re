@@ -175,19 +175,27 @@ cannot be reproduced here. Boundaries must be recovered incrementally with `make
 | `0x00434D10`–`0x00435600` | Math/util: `MinShort`, `MaxShort`, `RandomInRange`, `RandomBelowOrEqual`, `__ftol` wrappers |
 | `0x00440500`–`0x00442600` | Rasteriser and screen effects: `shadow_draw`, `fizzle_fade`, `snow_viewport`, triangle/line dispatchers |
 
-### `globals.c` placement is provisional
+### Global ownership recovery is in progress
 
-`src/globals.c` is a synthetic collection module — the original had its globals spread across
-the real compilation units, not gathered in one file. It carries no code, so its position only
-affects **data** layout, but data layout is compared too.
+`src/globals.c` is the shrinking synthetic remainder. The original globals were distributed
+across their real compilation units, and a clean-rebuild experiment confirmed that restoring
+ownership improves comparison: moving the complete nav band raised the full average from
+97.22% to 97.24% and `nav.c` from 94.36% to 94.66%.
 
-It currently links after `main.c` and before the `ix` modules, which matches the broad
-observation that the game's initialised statics (`0x00465000`–`0x00475C00`) sit below the `ix`
-statics (`0x00597CD0`, `0x00598138`, `0x005981A8`). Note that a lot of *game* state also lives
-above `0x00475C00` (e.g. the ship arrays at `0x0059C420`, `0x0059D710`), so game and `ix` data
-are interleaved in that upper region and a single placement cannot satisfy both.
+The following evidence-backed bands have moved so far:
 
-Use `make globals-data` to see the real deltas before moving it.
+| Owner | Original data band | Evidence |
+|---|---|---|
+| `src/nav.c` | `0x00468660`–`0x00468F03` | nav tables, unique nav/title strings and intro-credit literals |
+| `src/spc.c` | `0x00468F04`–`0x00468FFF` | joystick-calibration literals followed by the space-view globals |
+| `src/cockpt.c` | `0x00469000`–`0x004693C7` | Mac `cockpt` run, cockpit tables/strings, and the following barracks boundary |
+
+`bin/collectGlobalDefinitions.py` generates `out/globals-audit.c` from the remaining synthetic
+file and each owner-unit declaration block. This keeps `make verify`, `make globals-data`, and
+global-access analysis union-complete while binary-comp still accepts one definition source.
+
+Use `make globals-data` to see the real deltas before moving another band. Do not move a global
+until both its compilation-unit owner and its declaration order are evidence-backed.
 
 ### Recovering the rest
 

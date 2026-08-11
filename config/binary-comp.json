@@ -33,7 +33,7 @@
       "asm_dir": "../out",
       "map_skip": "src/map",
       "library_ranges": [["0x00449100", "0x00463000"]],
-      "globals_source": "../src/globals.c",
+      "globals_source": "../out/globals-audit.c",
       "globals_header": "../src/globals.h",
       "code_globals_header": "../code-full/globals.h",
       "values": {

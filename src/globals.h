@@ -2,9 +2,9 @@
  *  Recovered global state.
  *
  *  Rule (see AGENTS.md): a renamed global MUST keep its original address in the
- *  name, so a symbol can always be traced back to the binary.  Layout order in
- *  globals.c matters -- the linker emits these in declaration order and
- *  binary-comp compares the resulting data layout against the original.
+ *  name, so a symbol can always be traced back to the binary.  Definitions and
+ *  declaration order belong to their evidence-backed compilation units;
+ *  src/globals.c contains only the ownership still to be recovered.
  */
 #ifndef WC1_GLOBALS_H
 #define WC1_GLOBALS_H

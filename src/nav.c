@@ -6,6 +6,135 @@
  */
 #include "wc1.h"
 
+short g_nNavMapCoordinateScaling_00468660 = 0;
+short g_nNavMapScale_00468664 = 1;
+NavMapObjectiveStyle g_aNavMapObjectiveStyles_00468668[10] = {
+    { 1, 2, &DAT_004699b4, &g_cDefaultTextColour_004699cc,
+      &g_cDefaultTextColour_004699cc },
+    { 3, 2, &DAT_0046999c, &g_cViewportClearColour_004699a0,
+      &g_cDefaultTextColour_004699cc },
+    { 4, 2, &DAT_004699c8, &DAT_004699c8,
+      &g_cDefaultTextColour_004699cc },
+    { 2, 3, &DAT_004699c8, &g_cDefaultTextColour_004699cc,
+      &g_cDefaultTextColour_004699cc },
+    { 2, 3, &DAT_004699ac, &DAT_004699ac,
+      &g_cDefaultTextColour_004699cc },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+unsigned char *g_pNavMapShape_00468708 = 0;
+unsigned short g_nNavMapLabelCount_0046870c = 0;
+short g_nNavMapReservedAreaCount_00468710 = 0;
+char g_szCampaignSector_00468718[16] = "Vega XR-231.3";
+char *g_apszShipMissionTypeNames_00468728[11] = {
+    g_szMissionPatrol_00468758,
+    g_szMissionEscort_00468760,
+    g_szMissionStrike_00468768,
+    g_szMissionDefend_00468770,
+    g_szMissionWingman_00468778,
+    g_szMissionFlee_00468780,
+    g_szMissionGotoWarp_00468788,
+    g_szMissionWarpArriveError_00468794,
+    g_szMissionCannedSequenceError_00468798,
+    g_szMissionRendezvous_0046879c,
+    g_szMissionComeHomeError_004687a8
+};
+int g_bInflightComputerActive_00468754 = 0;
+char g_szMissionPatrol_00468758[8] = "Patrol";
+char g_szMissionEscort_00468760[8] = "Escort";
+char g_szMissionStrike_00468768[8] = "Strike";
+char g_szMissionDefend_00468770[8] = "Defend";
+char g_szMissionWingman_00468778[8] = "Wingman";
+char g_szMissionFlee_00468780[8] = "Flee";
+char g_szMissionGotoWarp_00468788[12] = "Goto Warp";
+char g_szMissionWarpArriveError_00468794[4] = "err";
+char g_szMissionCannedSequenceError_00468798[4] = "err";
+char g_szMissionRendezvous_0046879c[12] = "Rendezvous";
+char g_szMissionComeHomeError_004687a8[4] = "err";
+char g_szNavLabelTextFormat_004687ac[12] = "%X%Y%F%s";
+char g_szNavAsteroids_004687b8[12] = "Asteroids";
+char g_szNavMines_004687c4[8] = "Mines";
+char g_szInflightTimeFieldFormat_004687cc[8] = "%02d";
+char g_szStandardTimeFormat_004687d4[24] =
+    "%X%YStandard time %s";
+char g_szStandardTimeBlank_004687ec[4] = " ";
+char g_szInflightTimeSuffixFormat_004687f0[8] = "%02d  ";
+char g_szStandardTimeColon_004687f8[4] = ":";
+char g_szNavLegendNewline_004687fc[4] = "\n";
+char g_szNavMissionFlightPath_00468800[20] = "MISSION FLIGHT PATH";
+char g_szNavHomeBase_00468814[12] = "HOME BASE";
+char g_szNavBlankLine_00468820[4] = "\n";
+char g_szNavTitleFormat_00468824[8] = "%s\n\n";
+char g_szNavSectorFormat_0046882c[12] = "Sector: %s\n";
+char g_szNavSystemFormat_00468838[16] = "System: %s\n\n";
+char g_szNavMissionFormat_00468848[8] = "* %s *\n";
+char g_szNavShipFormat_00468850[8] = "* %s *\n";
+char g_szNavNotesHeading_00468858[8] = "\nNotes\n";
+char g_szNavNoteFormat_00468860[4] = "%s\n";
+char g_szNavLocationFormat_00468864[48] =
+    "%X%Y                         Location: %d.%d.%d";
+char g_szNavViewportName_00468894[8] = "VSCREEN";
+char g_szBriefingNavMapTitle_0046889c[20] = "Briefing Nav Map";
+char g_szConfedNavScan_004688b0[16] = "ConFed Nav Scan";
+volatile short g_nNearHeapActive_004688c0 = 0;
+volatile short g_nNearHeapMaxDescriptors_004688c4 = 0x80;
+volatile int g_nNearHeapRelocationBytes_004688c8 = 0;
+int DAT_004688cc = 0;
+int DAT_004688d0 = 0;
+int DAT_004688d4 = 0;
+int DAT_004688d8 = 0;
+short DAT_004688dc = 0;
+int DAT_004688e0 = 0;
+short DAT_004688e4 = -1;
+short DAT_004688e8 = -1;
+unsigned short DAT_004688ec = 1;
+int DAT_004688f0 = 0;
+char *g_pszIntroOpeningText_00468910 =
+    "In the distant future,\n"
+    "mankind is locked in a deadly war...";
+int g_nIntroCreditCount_00468a30 = 11;
+char *g_apszIntroCredits_00468a38[20] = {
+    "Design\nby\nChris Roberts",
+    "Software Engineers\nChris Roberts\nKen Demarest III\nPaul C. Isaac\nSteve Muchow\nHerman Miller\nSteve Beeman\n",
+    "Dogfight Intelligence\nKen Demarest III\n\nDogfight Choreography\nSteve Beeman\nErin Roberts",
+    "3Space System\nby\nChris Roberts\n\nOriginFX Graphic System\nChris Roberts\nJohn Miles",
+    "OriginFX Sound System\nby\nHerman Miller",
+    "Artwork\nDenis Loubet\nGlen Johnson\nDaniel Bourbonnais\nKeith Berdak\nJohn Watson",
+    "Screenplay by Jeff George\n\nAdditional Writing\nSteve Cantrell\nPhilip Brogden",
+    "Soundtrack by\nGeorge A. Sanger and Dave Govett",
+    "Sound Effects by Marc Schaefgen",
+    "Produced by\nChris Roberts and Warren Spector",
+    "Directed by\nChris Roberts",
+    "Windows 95 Team",
+    "Combat Programmers\n\nJeff Mangler Everett\nJeff jefftep Grills\nChuck Bishop Karpiak\nKris Goblin Pelley",
+    "Sound System\n\nRichard Cupcake Lyle",
+    "Soundtrack Rescored by\n\nI Need Names",
+    "Head Whiner\n\nAnthony Sommers",
+    "Whiners\n\nMonte Mathis\nHal Milton\nDieter Martin",
+    "Richard Zinser\nKanon Lillemon\n",
+    "Special Thanks To\n\nSocks\nand\nCaffeine",
+    0
+};
+
+TitleMenuRegion g_aTitleMenuRegions_00468a88[5] = {
+    { 1, 49, 48, 283, 99 },
+    { 1, 49, 91, 283, 149 },
+    { 1, 49, 134, 283, 149 },
+    { 1, 49, 177, 283, 209 },
+    { -1, 0, 0, 0, 0 }
+};
+
+PacketResourceDescriptor g_aIntroResourceDescriptors_00468ac0[3] = {
+    { &g_pIntroBackgroundResource_00467eae, 3, 2 },
+    { &g_pIntroSceneResource_00467b84, 3, 5 },
+    { 0, 0, 0 }
+};
+
+int g_bTitleMenuSceneInitialized_00468ad8 = 0;
+
 /* Function start: 0x40D090 */
 short NavMapPointInsideReservedArea(short area, short x, short y)
 {

@@ -121,6 +121,13 @@ VALUES_FLAGS ?=
 GLOBALS_MISSING_MIN_ADDRESS = 0x00465000
 GLOBALS_MISSING_MAX_ADDRESS = 0x004751ff
 
+# Global definitions are migrating back to their original compilation units.
+# binary-comp currently accepts one definition source, so generate a parser-only
+# manifest from globals.c and the declaration block at the top of each owner.
+GLOBALS_DISTRIBUTED_SOURCES = src/nav.c src/spc.c src/cockpt.c
+GLOBALS_DEFINITION_SOURCES = src/globals.c $(GLOBALS_DISTRIBUTED_SOURCES)
+GLOBALS_AUDIT_SOURCE = $(OUT_DIR)/globals-audit.c
+
 # ---------------------------------------------------------------------------
 # Host platform and DREAMM runtime
 # ---------------------------------------------------------------------------
@@ -380,14 +387,18 @@ audit-compiler-glue:
 progress:
 	@python3 bin/showProgress.py
 
-report: $(TARGET) | code-full $(ORIGINAL_EXE)
+$(GLOBALS_AUDIT_SOURCE): bin/collectGlobalDefinitions.py $(GLOBALS_DEFINITION_SOURCES)
+	@python3 bin/collectGlobalDefinitions.py \
+		--output $@ $(GLOBALS_DEFINITION_SOURCES)
+
+report: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) report $(BC) $(if $(FILTER),--filter $(FILTER))
 
 # Compare a single rebuilt function against the original.  This is the inner
 # loop while implementing:  make compare-func FUNC=MinShort
 # Exports are named FUN_<ADDRESS>.disassembled.txt (see ExportToCompile.java),
 # so resolve the file from the `Function:` header rather than the symbol name.
-compare-func: $(TARGET) | code-full $(ORIGINAL_EXE)
+compare-func: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@test -n "$(FUNC)" || (echo "usage: make compare-func FUNC=<FunctionName>" >&2 && exit 1)
 	@f=$$(grep -lE "^Function: $(FUNC)$$" $(CODE_DIR)/*.disassembled.txt 2>/dev/null | head -1); \
 	test -n "$$f" || (echo "no export for $(FUNC) in $(CODE_DIR)/ -- run 'make export-asm'" >&2 && exit 1); \
@@ -411,13 +422,13 @@ order: $(TARGET) | code-full $(ORIGINAL_EXE)
 seh: $(TARGET) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) seh $(BC) --report $(if $(FILTER),--filter $(FILTER)) || true
 
-globals-data: $(TARGET) | $(ORIGINAL_EXE)
+globals-data: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) data $(BC)
 
-globals-data-verbose: $(TARGET) | $(ORIGINAL_EXE)
+globals-data-verbose: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) data $(BC) --verbose
 
-missing-data: | $(ORIGINAL_EXE)
+missing-data: $(GLOBALS_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) data $(BC) \
 		--find-missing \
 		--min-address $(GLOBALS_MISSING_MIN_ADDRESS) \
@@ -447,10 +458,10 @@ verify:
 	@$(MAKE) verify-values-stack-locals
 	@$(MAKE) verify-vtables
 
-verify-globals: $(TARGET) | code-full $(ORIGINAL_EXE)
+verify-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) --fail-on-issues --fail-on-warnings
 
-verify-globals-code: $(TARGET) | code-full $(ORIGINAL_EXE)
+verify-globals-code: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) \
 		--include-code-globals \
 		--fail-on-issues \
@@ -465,11 +476,19 @@ globals: globals-data
 
 globals-verbose: globals-data-verbose
 
-audit-auto-complete-globals: $(TARGET) | code-full $(ORIGINAL_EXE)
+audit-auto-complete-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) --show-auto-complete-reviewed
 
-audit-rebuilt-global-layout: $(TARGET) | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) globals $(BC) --check-rebuilt-layout
+audit-rebuilt-global-layout: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
+	@$(BINARY_COMP) globals $(BC) \
+		--globals-source src/globals.c \
+		--check-rebuilt-layout
+	@set -e; for global_source in $(GLOBALS_DISTRIBUTED_SOURCES); do \
+		$(BINARY_COMP) globals $(BC) \
+			--globals-source $$global_source \
+			--globals-h $$global_source \
+			--check-rebuilt-layout; \
+	done
 
 # WC1's own code is C and has no vtables, but the DirectDraw/DirectSound COM
 # interfaces are dispatched through vtables, so this stays in the checklist.
@@ -479,7 +498,7 @@ verify-vtables: $(TARGET) | code-full $(ORIGINAL_EXE)
 verify-calls: | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) calls $(BC) $(CALLS_FLAGS) $(if $(FILTER),$(FILTER))
 
-verify-global-access: | code-full $(ORIGINAL_EXE)
+verify-global-access: $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) global-access $(BC) $(GLOBAL_ACCESS_FLAGS) $(if $(FILTER),$(FILTER))
 
 verify-values: $(TARGET) | code-full $(ORIGINAL_EXE)

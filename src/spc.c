@@ -8,6 +8,10 @@
  */
 #include "wc1.h"
 
+int g_nCapitalShipViewDistance_00468ff4 = 0x7d000;
+unsigned char g_bLandingAuthorized_00468ff8 = 0;
+int g_bAlternateChaseView_00468ffc = 0;
+
 /* Function start: 0x4102B0 */
 void CalibrateJoystickInteractive()
 {

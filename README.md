@@ -27,6 +27,11 @@ console at the original points in `WinMain`, preventing the null console access
 during key waits. The `-w` animation path invokes `RunAnimationDemoLoop` with
 the selected animation number.
 
+Global ownership recovery is also underway. The nav, space-simulation, and
+cockpit data bands now live in their evidence-backed compilation units instead
+of the synthetic `globals.c`; the verifier generates a union manifest so all
+distributed definitions remain covered by the data and global-access audits.
+
 Run `make progress` for current implementation counts and `make report` for a fresh binary
 comparison.
 
@@ -36,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.22% average)</summary>
+<summary>All 1,472 function similarity scores (97.24% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -1082,15 +1087,15 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `music.c` | `PlaySfxWaveFileByNumber` | `0x42EF30` | 100.00% |
 | `nav.c` | `NavMapPointInsideReservedArea` | `0x40D090` | 100.00% |
 | `nav.c` | `NavMapLabelFits` | `0x40D0E0` | 100.00% |
-| `nav.c` | `NavMapLabelPositionAvailable` | `0x40D120` | 93.85% |
+| `nav.c` | `NavMapLabelPositionAvailable` | `0x40D120` | 95.38% |
 | `nav.c` | `ResetNavMapReservedAreas` | `0x40D1D0` | 100.00% |
 | `nav.c` | `ReserveNavMapArea` | `0x40D1E0` | 100.00% |
 | `nav.c` | `ResetNavMapLabels` | `0x40D240` | 100.00% |
 | `nav.c` | `TryPlaceNavMapLabel` | `0x40D250` | 94.87% |
 | `nav.c` | `PlaceNavMapLabel` | `0x40D2C0` | 93.81% |
 | `nav.c` | `AddUniqueObjectiveNavLabel` | `0x40D410` | 100.00% |
-| `nav.c` | `IsPointInNavMapLabel` | `0x40D490` | 94.87% |
-| `nav.c` | `DrawNavMapLabels` | `0x40D540` | 79.17% |
+| `nav.c` | `IsPointInNavMapLabel` | `0x40D490` | 100.00% |
+| `nav.c` | `DrawNavMapLabels` | `0x40D540` | 83.33% |
 | `nav.c` | `DrawNavRectangleMarker` | `0x40D5A0` | 100.00% |
 | `nav.c` | `DrawNavSquareOutline` | `0x40D640` | 100.00% |
 | `nav.c` | `DrawNavSquareMarker` | `0x40D680` | 89.04% |
@@ -1109,7 +1114,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `DrawNavLocationReadout` | `0x40DF70` | 91.54% |
 | `nav.c` | `BriefingMap_LoadShapes` | `0x40E190` | 100.00% |
 | `nav.c` | `BriefingMap_DisplayMap` | `0x40E210` | 97.56% |
-| `nav.c` | `SelectNavObjectiveAtPoint` | `0x40E2B0` | 95.40% |
+| `nav.c` | `SelectNavObjectiveAtPoint` | `0x40E2B0` | 91.95% |
 | `nav.c` | `CentreMouseOnCurrentNavObjective` | `0x40E3C0` | 100.00% |
 | `nav.c` | `ShowConfedNavScan` | `0x40E430` | 100.00% |
 | `nav.c` | `InflightComputer` | `0x40E480` | 95.32% |
@@ -1117,17 +1122,17 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `ReleaseNearHeapBlock` | `0x40E900` | 96.30% |
 | `nav.c` | `PurgeNearHeapBlocks` | `0x40E950` | 100.00% |
 | `nav.c` | `InitializeNearHeap` | `0x40E9E0` | 100.00% |
-| `nav.c` | `AllocateNearHeapBlockFromEnd` | `0x40EB70` | 93.08% |
-| `nav.c` | `AllocateNearHeapBlockByFlags` | `0x40ED30` | 93.75% |
+| `nav.c` | `AllocateNearHeapBlockFromEnd` | `0x40EB70` | 91.54% |
+| `nav.c` | `AllocateNearHeapBlockByFlags` | `0x40ED30` | 95.04% |
 | `nav.c` | `add_statistics` | `0x40EFE0` | 100.00% |
 | `nav.c` | `PostMission` | `0x40F010` | 83.17% |
-| `nav.c` | `FullMissionScore` | `0x40F190` | 61.90% |
+| `nav.c` | `FullMissionScore` | `0x40F190` | 66.67% |
 | `nav.c` | `PlayersMissionScore` | `0x40F1E0` | 80.00% |
 | `nav.c` | `UpdateSeries` | `0x40F240` | 90.62% |
 | `nav.c` | `MoveNewCampaign` | `0x40F3F0` | 76.19% |
 | `nav.c` | `StartNewCampaign` | `0x40F440` | 100.00% |
 | `nav.c` | `GameFlow` | `0x40F4B0` | 91.23% |
-| `nav.c` | `free_viewport` | `0x40F940` | 92.73% |
+| `nav.c` | `free_viewport` | `0x40F940` | 96.36% |
 | `nav.c` | `GetPaletteReadyUnused` | `0x40FA30` | 100.00% |
 | `nav.c` | `DrawTitleLogo` | `0x40FA40` | 84.72% |
 | `nav.c` | `UpdateTitleMenuCursor` | `0x40FB10` | 100.00% |

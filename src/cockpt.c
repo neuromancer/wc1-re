@@ -9,6 +9,96 @@
  */
 #include "wc1.h"
 
+short g_asVduSelectionSound_00469000[2] = { 0x7f, 0 };
+char *DAT_00469004 = 0;
+char *DAT_00469008 = 0;
+unsigned char DAT_0046900c = 0xff;
+short g_asPilotHandOffsets_00469018[34] = {
+    6, -3, 7, 2, 7, 9, 7, 12, 8, 13, 0, -1, -1, -1,
+    -4, -1, -6, -1, 6, 0, 8, 0, 10, 0, 13, 3, 8, -7,
+    6, -9, 5, -11, 5, -14
+};
+unsigned char *g_pCockpitPilotShape_0046905c = 0;
+unsigned char *g_pCockpitExplosionBackground_00469060 = 0;
+unsigned char * volatile g_pCockpitExplosionShape_00469064 = 0;
+volatile short g_nCockpitExplosionFrame_00469068 = 8;
+unsigned char *g_pReleaseWeaponDisplayBackground_0046906c = 0;
+signed char g_cReleaseWeaponDisplayFrame_00469070 = -1;
+signed char g_cReleaseWeaponDisplayTicks_00469074 = 0;
+signed char g_cReleaseWeaponDisplayState_00469078 = 0;
+int g_nDisplayedObjectiveRange_00469088 = 40000;
+char *g_pszObjectiveStatusMessage_0046908c =
+    g_szObjectiveStatusMessage_0046928c;
+short g_nScannerTargetObject_00469090 = -1;
+int g_aiScannerGridRows_00469098[79] = {
+    5, 13, 16, -1,
+    5, 13, 16, -1,
+    5, 13, 16, -1,
+    4, 13, 16, -1,
+    4, 12, 16, -1,
+    2, 3, 4, 12, 15, -1,
+    0, 1, 5, 12, 15, -1,
+    6, 11, 15, -1,
+    7, 11, 14, -1,
+    8, 10, 14, -1,
+    9, 13, -1,
+    8, 13, -1,
+    6, 7, 12, -1,
+    4, 5, 11, -1,
+    0, 1, 2, 3, 10, -1,
+    9, -1,
+    7, 8, -1,
+    4, 5, 6, -1,
+    0, 1, 2, 3, -1,
+    -2
+};
+char *PTR_s_MISSILE_LOCKED_004691d4 = (char *)g_szMissileLocked_004692a8;
+unsigned char g_bTargetBracketVisible_004691d8 = 1;
+unsigned char g_abTargetBracketPadding_004691d9[7] = {0};
+short DAT_004691e0[10] = {
+    18, 14, 71, 5, 80, 29, 49, 27, 14, 13
+};
+short g_nTargetLockMarkerX_004691f4 = -0x7fff;
+ShortRect g_stTargetBracketBounds_004691f8 = {-0x7fff, 0, 0, 0};
+ShortRect g_stPreviousTargetBracketBounds_00469200 = {-0x7fff, 0, 0, 0};
+short DAT_00469208 = -1;
+Viewport g_stTrainSimVduSource_00469210 = {0};
+ShortPoint g_aaCockpitDamagePositions_00469228[5][4] = {
+    {{224, 5}, {132, 96}, {233, 107}, {149, 161}},
+    {{177, 6}, {153, 142}, {103, 140}, {55, 183}},
+    {{107, 25}, {211, 32}, {21, 178}, {300, 178}},
+    {{74, 10}, {294, 19}, {197, 105}, {105, 134}},
+    {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
+};
+unsigned char *g_pConfedCommBackground_00469278 = 0;
+unsigned char *g_pCommStaticShape_0046927c = 0;
+unsigned char *g_pKilrathiCommBackground_00469280 = 0;
+int g_nCommPortraitFrame_00469284 = -1;
+int g_bForceDamageDisplayRedraw_00469288 = 0;
+char g_szObjectiveStatusMessage_0046928c[28] =
+    "Wait for ??????????????????";
+char g_szMissileLocked_004692a8[16] = "MISSILE LOCKED ";
+char g_szAlreadyNear_004692b8[16] = "Already Near";
+char g_szEnemyNear_004692c8[12] = "Enemy Near";
+char g_szHazardNear_004692d4[12] = "Hazard Near";
+char g_szComponentHitFormat_004692e0[8] = "%s HIT";
+char g_szCalculating_0046931c[12] = "CALCULATING";
+char g_szRangeKilometresSuffix_00469328[4] = " km";
+char g_szNoObjective_0046932c[8] = "NONE";
+char g_szUnknownObjective_00469334[8] = "UNKNOWN";
+char g_szCompNavigation_0046933c[16] = "COMP NAVIGATION";
+char g_szDestinationFormat_0046934c[20] =
+    "\n\nDESTINATION\n  %s";
+char g_szNavigationRangeLabel_00469360[12] = "\n\nRANGE\n  ";
+char g_szNewObjectivePrompt_0046936c[20] =
+    "\n\n(N)ew Objective";
+char g_szAlreadyVisited_00469380[16] = "Already Visited";
+char g_szObjectiveReached_00469390[20] = "Objective Reached";
+char g_szWaitForFormat_004693a4[12] = "Wait for %s";
+unsigned char DAT_004693b0 = 0;
+char *g_pGameVersion_004693b4 = g_szGameVersion_004693b8;
+char g_szGameVersion_004693b8[9] = "1.03F-95";
+
 /* Function start: 0x413A10 */
 void EmitTextString(void (__stdcall *writer)(int), const char *text)
 {
