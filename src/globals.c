@@ -2202,6 +2202,7 @@ unsigned char g_abInputKeyState_0059a860[0x80];
 int DAT_0059a8e0;
 int DAT_0059a8e4;
 int g_anObjectDepthPlaced_0059a8f0[WC1_SPACE_OBJECT_COUNT];
+short DAT_0059a9f0;
 signed char g_cScreenViewportMode_0059a9f2;
 const ScreenViewportGeometry * volatile
     g_pScreenViewportGeometry_0059a9f4;
@@ -2236,6 +2237,7 @@ unsigned int DAT_0059ab54;
 unsigned char DAT_0059ab58;
 int DAT_0059ab5c;
 int DAT_0059ab60;
+short DAT_0059ab64;
 int g_aiInputEventSlotUsed_0059ab70[0x100];
 short g_nHostMouseX_0059af70;
 short g_nHostMouseY_0059af72;

@@ -426,12 +426,13 @@ unsigned int EMShutDown(void)
 }
 
 /* Function start: 0x421A60 */
-unsigned int InitializeEventManagerResources(void)
+unsigned short InitializeEventManagerResources(void)
 {
+    DAT_0059a9f0 = 20;
     g_nInputTickScale_0059af90 = 20;
-    g_pMouseCursorResource_005a7cdc =
+    DAT_0059ab64 = 1;
+    DAT_0059ab19 = g_pMouseCursorResource_005a7cdc =
         (unsigned char *)FetchDiskPacketRetrying(14, 0, 0x10);
-    DAT_0059ab19 = g_pMouseCursorResource_005a7cdc;
     DAT_0059ab1d = 0;
     DAT_0059ab23 = &DAT_005a6ba0;
     return 0;

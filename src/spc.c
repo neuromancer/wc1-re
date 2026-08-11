@@ -1206,8 +1206,8 @@ unsigned int accelerate_and_move_object(short obj)
                 SPECIAL_MANEUVER_KILL_ENGINES &&
             g_aeShipTactic_0059d5e0[obj] != TACTIC_SIT_STILL) {
             zero_vector(&accelerationVector);
-            if (g_aeSpecialManeuver_0059c3c0[obj] ==
-                    SPECIAL_MANEUVER_AFTERBURNER) {
+            switch (g_aeSpecialManeuver_0059c3c0[obj]) {
+            case SPECIAL_MANEUVER_AFTERBURNER:
                 g_asShipAfterburnerTimer_0059c810[obj]--;
                 if (g_asShipAfterburnerTimer_0059c810[obj] == 0) {
                     g_aeSpecialManeuver_0059c3c0[obj] =
@@ -1228,8 +1228,8 @@ unsigned int accelerate_and_move_object(short obj)
                     drain_fuel(obj, 200);
                     g_abShipExhaustHeat_0059d610[obj] = 3;
                 }
-            } else if (g_aeSpecialManeuver_0059c3c0[obj] ==
-                           SPECIAL_MANEUVER_SUPER_BRAKE) {
+                break;
+            case SPECIAL_MANEUVER_SUPER_BRAKE:
                 g_asShipAfterburnerTimer_0059c810[obj]--;
                 if (g_asShipAfterburnerTimer_0059c810[obj] == 0) {
                     g_aeSpecialManeuver_0059c3c0[obj] =
@@ -1240,9 +1240,11 @@ unsigned int accelerate_and_move_object(short obj)
                     zero_vector(&delta);
                     drain_fuel(obj, 140);
                 }
-            } else {
+                break;
+            default:
                 ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
                                  g_anShipSpeed_0059b320[obj], &delta);
+                break;
             }
             ComputeVectorDelta(&g_aShipVelocity_0059c010[obj], &delta,
                                &delta);

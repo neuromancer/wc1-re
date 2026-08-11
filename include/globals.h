@@ -755,6 +755,7 @@ extern int DAT_0059a84c;
 extern int DAT_0059a8e0;
 extern int DAT_0059a8e4;
 extern int g_anObjectDepthPlaced_0059a8f0[WC1_SPACE_OBJECT_COUNT];
+extern short DAT_0059a9f0;
 extern signed char g_cScreenViewportMode_0059a9f2;
 extern const ScreenViewportGeometry * volatile
     g_pScreenViewportGeometry_0059a9f4;
@@ -787,6 +788,7 @@ extern short g_nViewportOriginY_0059ab50;
 extern short g_nViewportOriginX_0059ab52;
 extern int DAT_0059ab5c;
 extern int DAT_0059ab60;
+extern short DAT_0059ab64;
 extern int g_aiInputEventSlotUsed_0059ab70[0x100];
 extern TextContext *g_pCurrentTextContext_0059af8c;
 extern short DAT_0059ab34;

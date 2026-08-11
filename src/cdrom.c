@@ -93,27 +93,39 @@ char FindCdRomDriveByVolumeLabel(const char *label,
     DWORD flags;
     int driveCount = 0;
     int i;
+    int scanDrive;
     char drive;
+    char result;
 
-    for (drive = 'a'; drive <= 'z'; drive++) {
-        sprintf(root, "%c:\\", drive);
+    for (scanDrive = 'a'; scanDrive <= 'z'; scanDrive++) {
+        sprintf(root, "%c:\\", scanDrive);
         if (GetDriveTypeA(root) == DRIVE_CDROM)
-            drives[driveCount++] = drive;
+            drives[driveCount++] = (char)scanDrive;
     }
 
-    for (i = 0; i < driveCount; i++) {
+    result = 0;
+    i = 0;
+    while (i < driveCount) {
         drive = drives[i];
         sprintf(root, "%c:\\", drive);
         volume[0] = '\0';
         GetVolumeInformationA(root, volume, 0xff, &serial,
                               &maximumComponentLength, &flags,
                               filesystem, sizeof(filesystem));
-        if ((memcmp(label, "<anydisc>", 10) == 0 ||
-             strcmp(volume, label) == 0) &&
-            SetCurrentDirOnDrive(drive, directory))
-            return drive;
+        if (memcmp(label, "<anydisc>", 10) == 0) {
+            if (SetCurrentDirOnDrive(drive, directory) != 0) {
+                result = drive;
+                break;
+            }
+        } else if (strcmp(volume, label) == 0) {
+            if (SetCurrentDirOnDrive(drive, directory) != 0) {
+                result = drives[i];
+                break;
+            }
+        }
+        i++;
     }
-    return 0;
+    return result;
 }
 
 /* Function start: 0x4033E0 */

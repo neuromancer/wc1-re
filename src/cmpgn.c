@@ -445,7 +445,8 @@ char *AddPCName(char *text)
             if (length != 0 &&
                 g_szTextScratchBuffer_00598b00[length - 1] == '.' &&
                 *text == '.')
-                g_szTextScratchBuffer_00598b00[length - 1] = '\0';
+                g_szTextScratchBuffer_00598b00[
+                    DosStrlen(g_szTextScratchBuffer_00598b00) - 1] = '\0';
             break;
         case 'S':
             DosStrcat(g_szTextScratchBuffer_00598b00,

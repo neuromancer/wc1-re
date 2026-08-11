@@ -927,7 +927,6 @@ short __stdcall GetShapeFrameExtent(short x, short y,
 unsigned int AnimateScrambleWalk(short ticks)
 {
     signed char elapsed;
-    short walkerY;
 
     DAT_00469fb4 = 1;
     elapsed = 0;
@@ -953,33 +952,35 @@ unsigned int AnimateScrambleWalk(short ticks)
                                           960),
                                   0, g_pScrambleHangarShape_005a872c, 1);
 
-                walkerY = (short)(127 - GetShapeFrameExtent(
-                    0, 0, g_pScrambleHangarShape_005a872c,
-                    g_cScrambleLeftWalkerFrame_00465768, 3));
-                g_nScrambleWalkerY_005a8734 = walkerY;
+                g_nScrambleWalkerY_005a8734 =
+                    (short)(127 - GetShapeFrameExtent(
+                        0, 0, g_pScrambleHangarShape_005a872c,
+                        g_cScrambleLeftWalkerFrame_00465768, 3));
                 DrawSpriteDefault(&DAT_005a76b0,
                                   g_nScrambleLeftWalkerX_00465778,
-                                  walkerY,
+                                  g_nScrambleWalkerY_005a8734,
                                   g_pScrambleHangarShape_005a872c,
                                   g_cScrambleLeftWalkerFrame_00465768);
                 DrawSpriteDefault(
                     &DAT_005a76b0, g_nScrambleLeftWalkerX_00465778,
-                    walkerY, g_pScrambleHangarShape_005a872c,
+                    g_nScrambleWalkerY_005a8734,
+                    g_pScrambleHangarShape_005a872c,
                     g_acScrambleWalkerOverlayFrames_00465770[
                         g_cScrambleWalkerPair_005a8748 * 2]);
 
-                walkerY = (short)(137 - GetShapeFrameExtent(
-                    0, 0, g_pScrambleHangarShape_005a872c,
-                    g_cScrambleRightWalkerFrame_0046576c, 3));
-                g_nScrambleWalkerY_005a8734 = walkerY;
+                g_nScrambleWalkerY_005a8734 =
+                    (short)(137 - GetShapeFrameExtent(
+                        0, 0, g_pScrambleHangarShape_005a872c,
+                        g_cScrambleRightWalkerFrame_0046576c, 3));
                 DrawSpriteDefault(&DAT_005a76b0,
                                   g_nScrambleRightWalkerX_0046577c,
-                                  walkerY,
+                                  g_nScrambleWalkerY_005a8734,
                                   g_pScrambleHangarShape_005a872c,
                                   g_cScrambleRightWalkerFrame_0046576c);
                 DrawSpriteDefault(
                     &DAT_005a76b0, g_nScrambleRightWalkerX_0046577c,
-                    walkerY, g_pScrambleHangarShape_005a872c,
+                    g_nScrambleWalkerY_005a8734,
+                    g_pScrambleHangarShape_005a872c,
                     g_acScrambleWalkerOverlayFrames_00465770[
                         g_cScrambleWalkerPair_005a8748 * 2 + 1]);
                 RefreshMemoryStatusOverlay();

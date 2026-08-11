@@ -825,7 +825,7 @@ void accelerate(short amount);                                         /* 0x0042
 void your_afterburner(void);                                            /* 0x00421920 */
 unsigned int LoadGamePaletteFile(void);                                /* 0x004219C0 */
 unsigned int EMShutDown(void);                                         /* 0x00421A40 */
-unsigned int InitializeEventManagerResources(void);                    /* 0x00421A60 */
+unsigned short InitializeEventManagerResources(void);                  /* 0x00421A60 */
 unsigned int EMStartUp(void);                                          /* 0x00421AB0 */
 unsigned int LoadOriginFxDrivers(void);                                 /* 0x00421B10 */
 unsigned int InitializeGameTextContexts(void);                          /* 0x00421D80 */

@@ -554,7 +554,8 @@ void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
                          &g_aShipPosition_0059c490[*object]);
         g_asObjectViewFrame_0059d230[*object] = frame;
         g_asObjectScreenAngle_0059cd90[*object] = type;
-        g_aeObjectType_0059b560[*object] = (enum ObjectType)type;
+        g_aeObjectType_0059b560[*object] =
+            (enum ObjectType)g_asObjectScreenAngle_0059cd90[*object];
         g_asObjectScreenScale_0059c950[*object] = scale;
         g_apObjectShape_0059d2f0[*object] = shape;
     }
