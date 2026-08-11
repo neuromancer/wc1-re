@@ -51,33 +51,27 @@ void FreeFontWorkspace(FontWorkspace **workspace)
 char *LocateStreamsDirOnDisc(void)
 {
     char current[256];
-    const char *suffix;
-    const char *format;
+    char *result;
     char drive;
 
+    result = g_szStreamsPath_00475c18;
     GetCurrentDirectoryA(0xff, current);
     drive = FindCdRomDriveByVolumeLabel("<anydisc>", "\\wc1\\streams\\");
     if (drive != 0) {
-        sprintf(g_szStreamsPath_00475c18, "%c:%s", drive,
+        sprintf(result, "%c:%s", drive,
                 "\\wc1\\streams\\");
-        return g_szStreamsPath_00475c18;
+        return result;
     }
 
-    if (strstr(current, "gamedat") == 0) {
-        suffix = "streams\\";
-        format = "%s\\%s";
-    } else {
-        suffix = "streams\\";
-        format = "%s\\..\\%s";
-    }
-    sprintf(g_szStreamsPath_00475c18, format, current, suffix);
+    if (strstr(current, "gamedat") != 0)
+        sprintf(result, "%s\\..\\%s", current, "streams\\");
+    else
+        sprintf(result, "%s\\%s", current, "streams\\");
     GetCurrentDirectoryA(0xff, current);
-    if (!SetCurrentDirectoryA(g_szStreamsPath_00475c18)) {
-        SetCurrentDirectoryA(current);
-        return 0;
-    }
+    if (!SetCurrentDirectoryA(result))
+        result = 0;
     SetCurrentDirectoryA(current);
-    return g_szStreamsPath_00475c18;
+    return result;
 }
 
 /* Function start: 0x403290 */

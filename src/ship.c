@@ -387,6 +387,8 @@ int your_internal_damage(short attacker, short damage, short quadrant)
     short events;
     short system;
     signed char severity;
+    signed char component;
+    signed char amount;
     short weaponCount;
 
     attackerClass = g_aeObjectClass_0059d100[attacker];
@@ -417,10 +419,16 @@ int your_internal_damage(short attacker, short damage, short quadrant)
         case 0:
             if (severity < 4)
                 pilot_hit(0);
-            else if (severity < 7)
-                damage_your_component(7, 2, 4);
-            else
-                damage_your_component(6, 4, 4);
+            else {
+                if (severity < 7) {
+                    amount = 2;
+                    component = 7;
+                } else {
+                    amount = 4;
+                    component = 6;
+                }
+                goto damage_component;
+            }
             break;
         case 1:
             if (quadrant == 1) {
@@ -440,9 +448,11 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                 events++;
             break;
         case 3:
-            if (severity > 8)
-                damage_your_component(8, 2, 4);
-            else {
+            if (severity > 8) {
+                amount = 2;
+                component = 8;
+                goto damage_component;
+            } else {
                 damage_your_component(2, 1, 4);
                 revise_shields(0);
             }
@@ -496,15 +506,21 @@ int your_internal_damage(short attacker, short damage, short quadrant)
             if (quadrant != 0) {
                 events++;
             } else {
-                if (severity > 6)
-                    damage_your_component(5, 4, 4);
-                else
+                if (severity > 6) {
+                    amount = 4;
+                    component = 5;
+                    goto damage_component;
+                } else {
                     damage_your_component(4, 2, 3);
-                if (g_acPlayerComponentDamage_0059bff0[4] > 3)
-                    g_acShipCommunicator_0059c850[0] = -1;
+                    if (g_acPlayerComponentDamage_0059bff0[4] > 3)
+                        g_acShipCommunicator_0059c850[0] = -1;
+                }
             }
             break;
         }
+        continue;
+damage_component:
+        damage_your_component(component, amount, 4);
     }
 }
 

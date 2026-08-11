@@ -472,39 +472,41 @@ void CheckLauncherAndConfig(void)
     char option[100];
 
     if (ReadCheaterFlagFromRegistry() != 0) {
-        g_nOriginDevUnlock_00469ff4 = 1;
-        DAT_00469ffc = 0;
-        DAT_0046a000 = 0;
+        *(unsigned char *)&g_nOriginDevUnlock_00469ff4 = 1;
+        *(unsigned char *)&DAT_00469ffc = 0;
+        *(unsigned char *)&DAT_0046a000 = 0;
     }
 
     config = fopen("WINGCMDR.CFG", "rt");
-    if (config == 0)
-        return;
+    if (config != 0) {
+        while (fscanf(config, "%s", option) != EOF) {
+            char command;
 
-    while (fscanf(config, "%s", option) != EOF) {
-        char command = option[0] == '-' ? option[1] : option[0];
-
-        if (memcmp(option, "$#SAGA.EXE", 11) == 0)
-            DAT_0046506c = 1;
-        switch (command) {
-        case 'b':
-            DAT_0046a000 = 0;
-            break;
-        case 'c':
-            DAT_0046507c = 0;
-            break;
-        case 'f':
-            DAT_00465070 = 1;
-            break;
-        case 'k':
-            DAT_00469ffc = 0;
-            break;
-        case 'q':
-            DAT_00465074 = 0;
-            break;
+            if (memcmp(option, "$#SAGA.EXE", 11) == 0)
+                DAT_0046506c = 1;
+            command = option[0] == '-' ? option[1] : option[0];
+            switch (command) {
+            case 'b':
+                *(unsigned char *)&DAT_0046a000 = 0;
+                break;
+            case 'c':
+                DAT_0046507c = 0;
+                break;
+            case 'f':
+                DAT_00465070 = 1;
+                break;
+            case 'k':
+                *(unsigned char *)&DAT_00469ffc = 0;
+                break;
+            case 'q':
+                DAT_00465074 = 0;
+                break;
+            }
+            if (config == 0)
+                return;
         }
+        fclose(config);
     }
-    fclose(config);
 }
 
 /* Function start: 0x401E30 */
@@ -521,8 +523,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
         MessageBoxA(0,
                     "Only one instance of Wing Commander 1 for Windows95 may be running at a time",
                     "ATTENTION", MB_ICONERROR);
-        CloseHandle(DAT_005a89a4);
-        return 0;
+        exit(0);
     }
 
     memset(&memoryStatus, 0, sizeof(memoryStatus));
@@ -532,13 +533,13 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
         MessageBoxA(0,
                     "You must have at leat 8 megs of memory available to play Wing Commander 1 for Windows95",
                     "ATTENTION", MB_ICONERROR);
-        return 0;
+        exit(0);
     }
     if (memoryStatus.dwTotalPageFile < 0x800000) {
         MessageBoxA(0,
                     "You must have at leat 8 megs of virtual memory available to play Wing Commander 1 for Window95",
                     "ATTENTION", MB_ICONERROR);
-        return 0;
+        exit(0);
     }
 
     if (waveOutGetNumDevs() == 0)
@@ -551,27 +552,34 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     if (!CreateMainWindow(instance, previous, showCommand))
         return 0;
 
-    InitializeAudioStreamer(DAT_005a89a0);
-
     DAT_00465080 = 0;
     process = GetCurrentProcess();
     MonoDebug_install();
     SetPriorityClass(process, HIGH_PRIORITY_CLASS);
+    if (DAT_00465058 != 0) {
+        InitializeAudioSystem(DAT_005a89a0);
+        InitializeAudioStreamer(DAT_005a89a0);
+    }
     srand((unsigned int)time(0));
     InitGameClockEpoch();
     CreateDebugOverlayConsole(instance, DAT_005a89a0, 60, 20);
     DAT_005a8a44 = (unsigned int)time(0);
     ShowCursor(FALSE);
     DAT_0059ab2c = 0;
-    SetRect(&clip, 0, 0, 320, 200);
+    clip.left = 0;
+    clip.top = 0;
+    clip.right = 320;
+    clip.bottom = 200;
     ClipCursor(&clip);
 
+    _onexit((_onexit_t)AbortToDesktop);
     main(0, (char **)"Vj");
 
     ClipCursor(0);
     ShowCursor(TRUE);
     DAT_005a8a38 = (unsigned int)time(0);
     DestroyGlobalDebugOverlayConsole();
+    ServiceAudioStream();
     DestroyWindow(DAT_005a89a0);
     DIBunInstall();
     Streamer_close();
@@ -588,7 +596,9 @@ void ShutdownGameWindow(void)
     DestroyGlobalDebugOverlayConsole();
     DestroyWindow(DAT_005a89a0);
     DIBunInstall();
-    SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
+    ClipCursor(0);
+    ShowCursor(TRUE);
+    SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
     CloseHandle(DAT_005a89a4);
     exit(0);
 }
@@ -645,7 +655,7 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
 
     DAT_005a89a0 = CreateWindowExA(0, "Wing Commander", "Wing Commander",
                                    WS_POPUP, 0, 0, 320, 200, 0, 0,
-                                   instance, 0);
+                                   DAT_005a8a40, 0);
     if (DAT_005a89a0 == 0) {
         GetLastError();
         return 0;
@@ -778,18 +788,25 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
 
     switch (message) {
     case WM_SETFOCUS:
+        SignalAudioMixerWakeEvent();
         return 0;
     case WM_CLOSE:
     case WM_DESTROY:
         DAT_005a8a3c = 0;
         ClipCursor(0);
         ShowCursor(TRUE);
-        SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
+        SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
         PostQuitMessage(0);
         break;
+    case WM_QUIT:
+        DAT_005a8a3c = 0;
+        ClipCursor(0);
+        ShowCursor(TRUE);
+        SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
+        break;
     case WM_PAINT:
-        BeginPaint(window, &paint);
-        EndPaint(window, &paint);
+        BeginPaint(DAT_005a89a0, &paint);
+        EndPaint(DAT_005a89a0, &paint);
         break;
     case WM_KEYDOWN:
         if (DAT_0046505c != 0)
@@ -820,6 +837,21 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         break;
     case WM_SYSKEYDOWN:
         DAT_005a8964 = (unsigned int)wParam;
+        if (wParam == 'X' &&
+            ((unsigned long)lParam & 0x20000000) != 0) {
+            PostQuitMessage(0);
+            sprintf(g_szMemoryUsage_005a89b0,
+                    "Current: %i\nMax    : %i\nTotal : %i\n",
+                    g_nGuardedAllocationBytes_00465064,
+                    g_nGuardedAllocationPeakBytes_00465068,
+                    g_nGuardedAllocationTotalBytes_00465060);
+            OutputDebugStringA("Memory Info:\n");
+            OutputDebugStringA(g_szMemoryUsage_005a89b0);
+        } else if (wParam == 'N') {
+            ReportSpaceFlightMaxFps(-0.5f);
+        } else if (wParam == 'M') {
+            ReportSpaceFlightMaxFps(0.5f);
+        }
         break;
     case WM_SYSKEYUP:
         DAT_005a8964 = 0;

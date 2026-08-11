@@ -9,40 +9,37 @@
 /* Function start: 0x42CDB0 */
 unsigned int parse_view_script(void)
 {
-    const short *command;
-    FixedVector direction;
-    FixedVector velocity;
+    FixedVector vector;
     short obj;
+    short command;
 
     if (*g_pViewScript_005a6b58 == 13)
         return 0;
     while (*g_pViewScript_005a6b58 != 14) {
-        command = g_pViewScript_005a6b58++;
-        switch (*command) {
-        case -1:
+        command = *g_pViewScript_005a6b58++;
+        if (command == -1) {
             g_bScriptedView_0046a8d4 = 0;
             g_nScriptedViewObject_0046a8d0 = -1;
             return 0;
+        }
+        switch (command) {
         case 0:
             g_aShipPosition_0059c490[61].x =
-                (int)g_pViewScript_005a6b58[0] << 8;
+                (int)*g_pViewScript_005a6b58++ << 8;
             g_aShipPosition_0059c490[61].y =
-                (int)g_pViewScript_005a6b58[1] << 8;
+                (int)*g_pViewScript_005a6b58++ << 8;
             g_aShipPosition_0059c490[61].z =
-                (int)g_pViewScript_005a6b58[2] << 8;
-            g_pViewScript_005a6b58 += 3;
+                (int)*g_pViewScript_005a6b58++ << 8;
             break;
         case 1:
-            alter_yaw(g_pViewScript_005a6b58[0], 61);
-            alter_pitch(g_pViewScript_005a6b58[1], 61);
-            alter_roll(g_pViewScript_005a6b58[2], 61);
-            g_pViewScript_005a6b58 += 3;
+            alter_yaw(*g_pViewScript_005a6b58++, 61);
+            alter_pitch(*g_pViewScript_005a6b58++, 61);
+            alter_roll(*g_pViewScript_005a6b58++, 61);
             break;
         case 2:
             ScaleFixedVector(&g_aShipForwardVector_0059bce0[61],
-                             (int)*g_pViewScript_005a6b58 << 8,
+                             (int)*g_pViewScript_005a6b58++ << 8,
                              &g_aShipVelocity_0059c010[61]);
-            g_pViewScript_005a6b58++;
             break;
         case 3:
             force_view(*g_pViewScript_005a6b58++,
@@ -50,67 +47,54 @@ unsigned int parse_view_script(void)
             break;
         case 4:
             g_nEyePitchGoal_0059d61c =
-                (short)-g_pViewScript_005a6b58[0];
-            g_nEyePitchRate_0046c004 = g_pViewScript_005a6b58[1];
-            g_pViewScript_005a6b58 += 2;
+                (short)-*g_pViewScript_005a6b58++;
+            g_nEyePitchRate_0046c004 = *g_pViewScript_005a6b58++;
             break;
         case 5:
-            g_nEyePitchGoal_0059d61c = g_pViewScript_005a6b58[0];
-            g_nEyePitchRate_0046c004 = g_pViewScript_005a6b58[1];
-            g_pViewScript_005a6b58 += 2;
+            g_nEyePitchGoal_0059d61c = *g_pViewScript_005a6b58++;
+            g_nEyePitchRate_0046c004 = *g_pViewScript_005a6b58++;
             break;
         case 6:
-            g_nEyeYawGoal_0059c944 = g_pViewScript_005a6b58[0];
-            g_nEyeYawRate_0046c008 = g_pViewScript_005a6b58[1];
-            g_pViewScript_005a6b58 += 2;
+            g_nEyeYawGoal_0059c944 = *g_pViewScript_005a6b58++;
+            g_nEyeYawRate_0046c008 = *g_pViewScript_005a6b58++;
             break;
         case 7:
             g_nEyeYawGoal_0059c944 =
-                (short)-g_pViewScript_005a6b58[0];
-            g_nEyeYawRate_0046c008 = g_pViewScript_005a6b58[1];
-            g_pViewScript_005a6b58 += 2;
+                (short)-*g_pViewScript_005a6b58++;
+            g_nEyeYawRate_0046c008 = *g_pViewScript_005a6b58++;
             break;
         case 8:
-            g_nEyeRollGoal_0059c8f0 = g_pViewScript_005a6b58[0];
-            g_nEyeRollRate_0046c00c = g_pViewScript_005a6b58[1];
-            g_pViewScript_005a6b58 += 2;
+            g_nEyeRollGoal_0059c8f0 = *g_pViewScript_005a6b58++;
+            g_nEyeRollRate_0046c00c = *g_pViewScript_005a6b58++;
             break;
         case 9:
             copy_frame(61, 63);
-            alter_yaw(g_pViewScript_005a6b58[0], 63);
-            alter_pitch(g_pViewScript_005a6b58[1], 63);
-            alter_roll(g_pViewScript_005a6b58[2], 63);
+            alter_yaw(*g_pViewScript_005a6b58++, 63);
+            alter_pitch(*g_pViewScript_005a6b58++, 63);
+            alter_roll(*g_pViewScript_005a6b58++, 63);
             ScaleFixedVector(&g_aShipForwardVector_0059bce0[63],
-                             (int)g_pViewScript_005a6b58[3] << 8,
-                             &velocity);
-            AddFixedVectors(&g_aShipVelocity_0059c010[61], &velocity,
+                             (int)*g_pViewScript_005a6b58++ << 8,
+                             &vector);
+            AddFixedVectors(&g_aShipVelocity_0059c010[61], &vector,
                             &g_aShipVelocity_0059c010[61]);
-            g_pViewScript_005a6b58 += 4;
             break;
         case 10:
-            if (g_nScriptedViewObject_0046a8d0 >= 0)
-                g_aShipVelocity_0059c010[61] =
-                    g_aShipVelocity_0059c010[g_nScriptedViewObject_0046a8d0];
+            g_aShipVelocity_0059c010[61] =
+                g_aShipVelocity_0059c010[g_nScriptedViewObject_0046a8d0];
             break;
         case 11:
-            if (g_nScriptedViewObject_0046a8d0 >= 0)
-                copy_frame(g_nScriptedViewObject_0046a8d0, 61);
+            copy_frame(g_nScriptedViewObject_0046a8d0, 61);
             break;
         case 12:
-            if (g_nScriptedViewObject_0046a8d0 >= 0)
-                g_aShipPosition_0059c490[61] =
-                    g_aShipPosition_0059c490[g_nScriptedViewObject_0046a8d0];
+            g_aShipPosition_0059c490[61] =
+                g_aShipPosition_0059c490[g_nScriptedViewObject_0046a8d0];
             break;
         case 15:
-            if (g_nScriptedViewObject_0046a8d0 >= 0) {
-                ComputeVectorDelta(&g_aShipPosition_0059c490[61],
-                    &g_aShipPosition_0059c490[g_nScriptedViewObject_0046a8d0],
-                    &direction);
-                if (NormalizeFixedVector(&direction) != 0) {
-                    g_aShipForwardVector_0059bce0[61] = direction;
-                    fix_objects_ijk(61);
-                }
-            }
+            ComputeVectorDelta(&g_aShipPosition_0059c490[61],
+                &g_aShipPosition_0059c490[g_nScriptedViewObject_0046a8d0],
+                &vector);
+            g_aShipForwardVector_0059bce0[61] = vector;
+            fix_objects_ijk(61);
             break;
         case 16:
             obj = 0;
@@ -828,7 +812,7 @@ void SetMusicOn(short enabled)
 }
 
 /* Function start: 0x42E350 */
-void StopMusic(int unused)
+void StopMusic(short unused)
 {
     (void)unused;
     SoundDebugPrintf("StopMusic");
@@ -1053,16 +1037,15 @@ int MapMusicTrackToStreamerCommand(int track)
 }
 
 /* Function start: 0x42E6F0 */
-void ProcessMusicScriptCommand(int track, int command, int enabled)
+void ProcessMusicScriptCommand(int track, int command, short enabled)
 {
     int streamerCommand;
 
-    (void)enabled;
     if (track == -1 || g_bMusicCommandSuppressed_0046a9fc != 0)
         return;
     if (command == 4) {
         SoundDebugPrintf("queue_stop\n");
-        StopMusic(0);
+        StopMusic(enabled);
         g_nCurrentMusicTrack_0046aa14 = -1;
         return;
     }
@@ -1087,37 +1070,35 @@ void ProcessMusicScriptCommand(int track, int command, int enabled)
             SoundDebugPrintf("flight_trigger %d ", track);
             Streamer_trigger(track);
         }
-        SoundDebugPrintf("\n");
-        return;
-    }
-
-    switch (command) {
-    case 0:
-        SoundDebugPrintf(" queue_start ");
-        streamerCommand = MapMusicTrackToStreamerCommand(track);
-        Streamer_trigger(streamerCommand);
-        break;
-    case 1:
-        SoundDebugPrintf(" queue_break ");
-        streamerCommand = MapMusicTrackToStreamerCommand(track);
-        ForceStreamerTrigger(streamerCommand);
-        break;
-    case 2:
-        SoundDebugPrintf(" queue_switch ");
-        streamerCommand = MapMusicTrackToStreamerCommand(track);
-        Streamer_trigger(streamerCommand);
-        break;
-    case 3:
-        SoundDebugPrintf(" queue_interrupt ");
-        streamerCommand = MapMusicTrackToStreamerCommand(track);
-        ForceStreamerTrigger(streamerCommand);
-        break;
+    } else {
+        switch (command) {
+        case 0:
+            SoundDebugPrintf(" queue_start ");
+            streamerCommand = MapMusicTrackToStreamerCommand(track);
+            Streamer_trigger(streamerCommand);
+            break;
+        case 1:
+            SoundDebugPrintf(" queue_break ");
+            streamerCommand = MapMusicTrackToStreamerCommand(track);
+            ForceStreamerTrigger(streamerCommand);
+            break;
+        case 2:
+            SoundDebugPrintf(" queue_switch ");
+            streamerCommand = MapMusicTrackToStreamerCommand(track);
+            Streamer_trigger(streamerCommand);
+            break;
+        case 3:
+            SoundDebugPrintf(" queue_interrupt ");
+            streamerCommand = MapMusicTrackToStreamerCommand(track);
+            ForceStreamerTrigger(streamerCommand);
+            break;
+        }
     }
     SoundDebugPrintf("\n");
 }
 
 /* Function start: 0x42E880 */
-unsigned int spacetrack(int track, int mode, int enabled)
+unsigned int spacetrack(int track, int mode, short enabled)
 {
     if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
         ProcessMusicScriptCommand(track, mode, enabled);

@@ -454,78 +454,94 @@ unsigned int EMStartUp(void)
 /* Function start: 0x421B10 */
 unsigned int LoadOriginFxDrivers(void)
 {
-    FILE *paletteFile;
-    unsigned char palette[0x300];
-    unsigned short *rowOffsets;
-    short row;
+    int memoryThreshold;
+    int videoModeMemory;
+    short requestedGraphicsMode;
 
-    /* The retail function leaves the process in GAMEDAT after bringing up the
-     * Origin FX drivers.  The intro packet names are relative to that directory. */
-    if (_chdir("gamedat") != 0)
-        FatalErrorAndExit("Unable to enter GAMEDAT");
-
-    if (DAT_005a6ba0.pixels == 0)
-        FatalErrorAndExit("The DirectDraw frame buffer is not available");
-
-    rowOffsets = (unsigned short *)malloc(202 * sizeof(unsigned short));
-    if (rowOffsets == 0)
-        FatalErrorAndExit("Unable to allocate the intro viewport");
-
-    row = 0;
-    do {
-        rowOffsets[row] = (unsigned short)(row * 320);
-        row = row + 1;
-    } while (row < 202);
-
-    DAT_005a6ba0.rowOffsets = rowOffsets;
-    DAT_005a6ba0.left = 0;
-    DAT_005a6ba0.top = 0;
-    DAT_005a6ba0.right = 319;
-    DAT_005a6ba0.bottom = 199;
-    DAT_005a6ba0.allocation = DAT_005a6ba0.pixels;
-    DAT_0059ab23 = &DAT_005a6ba0;
-    DAT_005a6538 = (int *)&DAT_005a6ba0;
-
-    DAT_005a7510.left = 0;
-    DAT_005a7510.top = 0;
-    DAT_005a7510.right = 319;
-    DAT_005a7510.bottom = 199;
-    if (!AllocateViewport(&DAT_005a7510, 0, 0x20))
-        FatalErrorAndExit("Unable to allocate the intro back buffer");
-
-    paletteFile = fopen("GAME.PAL", "rb");
-    if (paletteFile == 0)
-        FatalErrorAndExit("Unable to open GAME.PAL");
-    if (fseek(paletteFile, 0x30, SEEK_SET) != 0 ||
-        fread(palette, 1, sizeof(palette), paletteFile) != sizeof(palette)) {
-        fclose(paletteFile);
-        FatalErrorAndExit("Unable to read GAME.PAL");
-    }
-    fclose(paletteFile);
-
-    row = 0;
-    do {
-        DAT_005a8a50[row] = palette[row];
-        row = row + 1;
-    } while (row < 0x300);
-    DIBwholePaletteFromTriplets(palette);
+    memoryThreshold = 100000;
+    _chdir("gamedat");
+    g_nNearHeapMaxDescriptors_004688c4 = 0x80;
+    ((unsigned short (__cdecl *)(short))IsSoundHardwarePresent)(8);
+    if (DAT_0059a856 == 0)
+        SystemDebugPrintf("No ");
+    SystemDebugPrintf("Expanded Memory Detected.\n");
+    g_bGraphicsActive_00469a20 = 0;
+    PromptInsertNumberedDisk(0x38);
+    if (((unsigned short (__cdecl *)(short))GetMusicDriverPresent)(
+            g_bSlowSceneAnimation_00469998) == 0)
+        exit_squadron("Failed to load Origin-FX drivers");
+    RewriteDiskFileGraphicsExtensions(g_bSlowSceneAnimation_00469998);
+    LoadJoystickCalibrationFile(9, 9, 1, 1);
     g_nInputDoubleClickInterval_0046af54 = 2;
-    g_nJoystickFailureValue_005a81e0 = -1;
     EMStartUp();
-    g_dwOriginalFreeMemory_005a7cd8 = GetFixedOneMillionThunkAlt();
-    g_nMemoryConfiguration_005a7cd4 = 0;
-    g_nAvailableGameMemory_005a7ce0 =
-        (int)g_dwOriginalFreeMemory_005a7cd8;
-    InitializeGameTextContexts();
+    GetFxDriverInitResult();
+    g_dwOriginalFreeMemory_005a7cd8 =
+        ((unsigned int (__cdecl *)(int))GetFixedOneMillionThunkAlt)(0);
+    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
+        memoryThreshold = 210000;
+    SetFrameTimerPeriodDirect(0x78);
+    if ((int)((unsigned int (__cdecl *)(int))
+            GetFixedOneMillionThunk)(4) > memoryThreshold) {
+        g_nAvailableGameMemory_005a7ce0 =
+            (int)g_dwOriginalFreeMemory_005a7cd8 -
+            g_anExpandedMemoryReservationByVideoMode_00469ab0[
+                g_bSlowSceneAnimation_00469998];
+        if (g_nAvailableGameMemory_005a7ce0 < 0)
+            exit_squadron(
+                "You do not have enough memory to play Wing Commander.\n"
+                "Refer to your reference guide for assistance.");
+        g_nMemoryConfiguration_005a7cd4 = 2;
+        SystemDebugPrintf("Expanded Memory fully used.\n");
+    } else {
+        g_nAvailableGameMemory_005a7ce0 =
+            (int)g_dwOriginalFreeMemory_005a7cd8 -
+            g_anBaseMemoryReservationByVideoMode_00469a90[
+                g_bSlowSceneAnimation_00469998];
+        if (g_nAvailableGameMemory_005a7ce0 < 0)
+            exit_squadron(
+                "You do not have enough memory to play Wing Commander.\n"
+                "Refer to your reference guide for assistance.");
+        g_nMemoryConfiguration_005a7cd4 = 0;
+        if (DAT_0046a9f8 == 1 || DAT_0046a9f8 == 2) {
+            videoModeMemory =
+                g_anFullMusicMemoryReservationByVideoMode_00469aa0[
+                    g_bSlowSceneAnimation_00469998];
+            if ((int)g_dwOriginalFreeMemory_005a7cd8 > videoModeMemory) {
+                g_nMemoryConfiguration_005a7cd4 = 1;
+                g_nAvailableGameMemory_005a7ce0 =
+                    (int)g_dwOriginalFreeMemory_005a7cd8 - videoModeMemory;
+                SystemDebugPrintf("Full");
+            } else {
+                SystemDebugPrintf("Limited");
+            }
+            SystemDebugPrintf(" music will play.");
+        }
+    }
 
-    memset(DAT_005a6ba0.pixels, 0, 320 * 200);
-    DIBslam();
-    DIBslamReal();
+    LoadSpaceflightResources();
+    FxDriverShutdownHook();
+    SetEventManagerPump(PollJoystickButtonEvents);
+    PromptInsertNumberedDisk(0);
+    ShutdownVideoHook(
+        g_acGraphicsModeByAnimationSpeed_0046b178[
+            g_bSlowSceneAnimation_00469998]);
+    requestedGraphicsMode =
+        g_acGraphicsModeByAnimationSpeed_0046b178[
+            g_bSlowSceneAnimation_00469998];
+    if (GetTargetColourIndex() != requestedGraphicsMode)
+        exit_squadron("Requested graphics display mode not available.");
+    LoadGamePaletteFile();
+    InitializeGameTextContexts();
+    InitializeDiskPromptTextContext();
+    GetEventManagerStatus();
     g_nFrameSkip_00469fb8 = 1;
+    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
+        GetFxDriverStatus();
     initialize_direction_view_frames();
     g_pConstellationDefinitions_00598a28 =
         (ConstellationObjectDefinition *)LoadPacketAllocated(0x3a, 0);
     g_pMissionCampaignData_005988bc = LoadPacketAllocated(0x3a, 1);
+    SystemDebugPrintf("\n[SYSTEM] : Exiting initialize()\n");
     return 0;
 }
 

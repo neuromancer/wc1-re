@@ -600,7 +600,9 @@ short ReadTextInput(char *destination, short maximumLength,
                     } else if (mode == 2) {
                         if (key < '0' || key > '9')
                             character = 0;
-                    } else if (isalpha(key)) {
+                    } else if (__mb_cur_max > 1
+                                   ? _isctype(key, _ALPHA)
+                                   : (_pctype[key] & _ALPHA)) {
                         character = (unsigned char)(key | 0x20);
                         if (GetShiftKeyState() != 0)
                             character &= 0xdf;

@@ -847,31 +847,34 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
 }
 
 /* Function start: 0x41E400 */
-void match_rotation_goal(short *rotation, short *goal,
-                         short totalError, short rate)
+unsigned int match_rotation_goal(short *rotation, short *goal,
+                                 short totalError, short rate)
 {
     short step;
-    short value;
 
     if (totalError != 0) {
         if (*goal > 180)
             *goal = *goal - 360;
         if (*goal < -180)
             *goal = *goal + 360;
-        step = MaxShort(1, (short)(AbsInt(*rotation - *goal) *
+        step = MaxShort(1, (short)(abs(*rotation - *goal) *
                                   rate / totalError));
-        if (*goal != *rotation || step < AbsInt(*rotation)) {
+        if (*goal != *rotation || step < abs(*rotation)) {
             if (*goal < 1) {
-                value = MaxShort(*goal, (short)-step);
-                value = MaxShort((short)(value - *rotation),
-                                 (short)-step);
-                value = MinShort(value, step);
-                *rotation = value + *rotation;
+                *rotation = (short)(*rotation +
+                    MinShort(
+                        MaxShort(
+                            (short)(MaxShort(*goal, (short)-step) -
+                                    *rotation),
+                            (short)-step),
+                        step));
             } else {
-                value = MinShort(*goal, step);
-                value = MinShort((short)(value - *rotation), step);
-                value = MaxShort(value, (short)-step);
-                *rotation = value + *rotation;
+                *rotation = (short)(*rotation +
+                    MaxShort(
+                        MinShort(
+                            (short)(MinShort(*goal, step) - *rotation),
+                            step),
+                        (short)-step));
             }
         }
     }
@@ -881,6 +884,7 @@ void match_rotation_goal(short *rotation, short *goal,
         else
             *goal = MinShort((short)(*goal - *rotation), 0);
     }
+    return 0;
 }
 
 /* Function start: 0x41E520 */

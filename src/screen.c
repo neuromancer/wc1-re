@@ -1654,15 +1654,14 @@ void real_vid_transmit(short obj, short message)
     char text[84];
     char *expandedText;
     char *speech;
-    enum Side side;
     int objectOffset;
 
     g_nCommSpeakerObject_0046afc8 = obj;
     g_nCommSpeakerRating_0046afcc =
         (short)g_acShipRating_0059cd80[obj];
-    side = g_aeShipSide_0059d650[obj];
     g_nCommPortraitIndex_0046afd0 =
-        get_face(g_nCommSpeakerRating_0046afcc, side);
+        get_face(g_nCommSpeakerRating_0046afcc,
+                 g_aeShipSide_0059d650[obj]);
     if (g_nCommPortraitIndex_0046afd0 == -1)
         return;
     objectOffset = (int)obj * sizeof(enum ObjectType);
@@ -1673,12 +1672,14 @@ void real_vid_transmit(short obj, short message)
         if (g_apCommPortraitShapes_0059e180[
                 g_nCommPortraitIndex_0046afd0] != 0 &&
             LoadCommDisplayResources(g_nCommSpeakerRating_0046afcc,
-                                     side) != 0) {
+                g_aeShipSide_0059d650[
+                    g_nCommSpeakerObject_0046afc8]) != 0) {
             push_mode(1, 6);
             malf_noise(1, 3, 12, 23, 1);
             DrawSpriteDefault(
                 &DAT_005a7530, DAT_005a7530.left, DAT_005a7530.top,
-                side == SIDE_IMPERIAL ?
+                g_aeShipSide_0059d650[
+                    g_nCommSpeakerObject_0046afc8] == SIDE_IMPERIAL ?
                     g_pConfedCommBackground_00469278 :
                     g_pKilrathiCommBackground_00469280,
                 0);
@@ -1716,7 +1717,7 @@ void real_vid_transmit(short obj, short message)
 }
 
 /* Function start: 0x4318F0 */
-void __stdcall ShutdownVideoHook(int mode)
+void __stdcall ShutdownVideoHook(short mode)
 {
     ReleaseVideoResourcesHook();
 }
@@ -1870,22 +1871,24 @@ void LoadJoystickCalibrationFile(short horizontalRange,
             g_nJoystickCalibrationMaximumY_0059df70 = centreY + 10;
         }
 
+        g_nJoystickLeftScale_005a81ac =
+            g_nJoystickCalibrationMinimumX_0059df68 /
+            (int)horizontalRange;
+        g_nJoystickUpScale_005a81a8 =
+            g_nJoystickCalibrationMinimumY_0059df64 /
+            (int)verticalRange;
+        if (g_nJoystickLeftScale_005a81ac == 0)
+            g_nJoystickLeftScale_005a81ac = 1;
+        if (g_nJoystickUpScale_005a81a8 == 0)
+            g_nJoystickUpScale_005a81a8 = 1;
         g_nJoystickRightScale_005a81d0 =
             g_nJoystickCalibrationMinimumX_0059df68 /
             (int)horizontalRange;
+        if (g_nJoystickRightScale_005a81d0 == 0)
+            g_nJoystickRightScale_005a81d0 = 1;
         g_nJoystickDownScale_005a81d4 =
             g_nJoystickCalibrationMinimumY_0059df64 /
             (int)verticalRange;
-        g_nJoystickLeftScale_005a81ac =
-            g_nJoystickRightScale_005a81d0;
-        if (g_nJoystickRightScale_005a81d0 == 0)
-            g_nJoystickLeftScale_005a81ac = 1;
-        g_nJoystickUpScale_005a81a8 =
-            g_nJoystickDownScale_005a81d4;
-        if (g_nJoystickDownScale_005a81d4 == 0)
-            g_nJoystickUpScale_005a81a8 = 1;
-        if (g_nJoystickRightScale_005a81d0 == 0)
-            g_nJoystickRightScale_005a81d0 = 1;
         if (g_nJoystickDownScale_005a81d4 == 0)
             g_nJoystickDownScale_005a81d4 = 1;
 

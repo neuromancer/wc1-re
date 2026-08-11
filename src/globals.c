@@ -697,6 +697,15 @@ short g_asConversationTextColours_004699f0[24] = {
     0x0b, 0x0c, 0x01, 0x0a, 0x06, 0x0e, 0x02, 0x07
 };
 int g_bGraphicsActive_00469a20;
+const int g_anBaseMemoryReservationByVideoMode_00469a90[4] = {
+    280000, 260000, 280000, 0
+};
+const int g_anFullMusicMemoryReservationByVideoMode_00469aa0[4] = {
+    306000, 286000, 306000, 0
+};
+const int g_anExpandedMemoryReservationByVideoMode_00469ab0[3] = {
+    258000, 238000, 258000
+};
 PacketResourceDescriptor g_aCommon3SpaceResources_00469bc0[12] = {
     { &g_aObjectTypeData_00466458[OBJECT_TYPE_THRUSTERS].shapeSet, 3, 0 },
     { &g_aObjectTypeData_00466458[OBJECT_TYPE_EXPLOSION0].shapeSet, 3, 1 },
@@ -1038,6 +1047,9 @@ const char g_szConfedCommFormat_0046b150[8] = "%s: %Fs";
 const char g_szKilrathiAceCommFormat_0046b158[8] = "%s: %Fs";
 const char g_szShipCommFormat_0046b160[8] = "%s: %Fs";
 unsigned short DAT_0046b168 = 0xffff;
+const signed char g_acGraphicsModeByAnimationSpeed_0046b178[8] = {
+    0x13, 0x0d, 4, 9, 7, 0, 0, 0
+};
 const GUID g_guidDirectDraw2_00463118 = {
     0xb3a6f3e0, 0x2b43, 0x11cf,
     { 0xa2, 0xde, 0x00, 0xaa, 0x00, 0xb9, 0x33, 0x56 }

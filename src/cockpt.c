@@ -1114,24 +1114,22 @@ unsigned int escorting_a_ship(void)
 /* Function start: 0x415530 */
 void flag_reached(short objective, short reached)
 {
-    char *message;
-    MissionObjective *missionObjective;
     short carrierMissionShip;
     short carrierObject;
     short objectiveType;
-    short markVisited;
     short advanceDestination;
+    short markVisited;
 
     carrierMissionShip = g_anShipMissionShip_0059d4b0[0];
-    missionObjective = &g_aMissionObjectives_0059dac0[objective];
-    objectiveType = (short)missionObjective->type;
+    objectiveType = (short)g_aMissionObjectives_0059dac0[objective].type;
     carrierObject = find_ship_index(carrierMissionShip);
     markVisited = objective != g_cCurrentObjective_0046c020;
     advanceDestination = 0;
     if (objective == g_cCurrentObjective_0046c020) {
         if (reached == 0 && escorting_a_ship() != 0 &&
             carrierObject != -1 &&
-            missionObjective->index != carrierMissionShip) {
+            g_aMissionObjectives_0059dac0[objective].index !=
+                g_anShipMissionShip_0059d4b0[0]) {
             if (objectiveType != 1 ||
                 g_aMissionShips_0046c948[carrierMissionShip].state != 1) {
                 sprintf(g_pszObjectiveStatusMessage_0046908c,
@@ -1143,18 +1141,19 @@ void flag_reached(short objective, short reached)
                                DAT_004699a8, 4);
             }
         } else {
-            if (visited(objective) == 0)
-                message = (char *)g_szObjectiveReached_00469390;
-            else
-                message = (char *)g_szAlreadyVisited_00469380;
             advanceDestination = 1;
-            CockpitMessage(message, DAT_004699a8, 4);
-            markVisited = 1;
+            CockpitMessage(
+                visited(objective) != 0
+                    ? (char *)g_szAlreadyVisited_00469380
+                    : (char *)g_szObjectiveReached_00469390,
+                DAT_004699a8, 4);
+            markVisited = advanceDestination;
         }
     }
     if (objectiveType != 1 && markVisited != 0) {
         if (visited(objective) == 0 && carrierObject != -1 &&
-            missionObjective->index == carrierMissionShip &&
+            g_aMissionObjectives_0059dac0[objective].index ==
+                g_anShipMissionShip_0059d4b0[0] &&
             g_aeObjectType_0059b560[carrierObject] !=
                 OBJECT_TYPE_TIGERS_CLAW)
             send_message(carrierObject, 6);

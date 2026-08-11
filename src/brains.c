@@ -3365,7 +3365,6 @@ void prepare_mission(void)
     MissionShipRecord *playerRecord;
     short initial;
     short missionShip;
-    short object;
     int pilot;
 
     g_stCampaignState_0059ca50.missionScore = 0;
@@ -3396,11 +3395,10 @@ void prepare_mission(void)
             pilot = g_aMissionShips_0046c948[missionShip].behaviour.pilot;
             if (is_alive(pilot) != 0 &&
                 find_ships_sphere(missionShip) == -1) {
-                object = init_ship(
-                    missionShip, g_nMissionEntryNavPoint_005a8690);
+                init_ship(missionShip, g_nMissionEntryNavPoint_005a8690);
                 if (g_nYourWingman_0046c04c == -1 &&
                     pilot > 4 && pilot < 14)
-                    g_nYourWingman_0046c04c = object;
+                    g_nYourWingman_0046c04c = DAT_0046c010;
             }
         }
         initial++;
@@ -3408,13 +3406,13 @@ void prepare_mission(void)
     DAT_00465c84 = 0;
 
     Build_objective_list();
-    g_nCarrierMissionShipIndex_005a7e2a = 0;
-    while (g_aMissionShips_0046c948[
-               g_nCarrierMissionShipIndex_005a7e2a].type !=
+    missionShip = 0;
+    g_nCarrierMissionShipIndex_005a7e2a = missionShip;
+    while (g_aMissionShips_0046c948[missionShip].type !=
                OBJECT_TYPE_TIGERS_CLAW &&
-           g_nCarrierMissionShipIndex_005a7e2a <
-               WC1_MISSION_SHIP_COUNT) {
-        g_nCarrierMissionShipIndex_005a7e2a++;
+           missionShip < WC1_MISSION_SHIP_COUNT) {
+        missionShip++;
+        g_nCarrierMissionShipIndex_005a7e2a = missionShip;
     }
     g_nTargetLockMode_0046c078 = 0;
     g_bLandingAuthorized_00468ff8 = 0;

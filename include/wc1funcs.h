@@ -363,7 +363,7 @@ int Title_Sequence(void);                                               /* 0x004
 void CalibrateJoystickInteractive();                                  /* 0x004102B0 */
 void WaitForJoystickButtonRelease(void);                               /* 0x004106C0 */
 void WaitForJoystickButtonPress(void);                                 /* 0x00410700 */
-unsigned int SetFleetOverviewView(int initializeCockpit);             /* 0x00410740 */
+void SetFleetOverviewView(int initializeCockpit);                     /* 0x00410740 */
 void rotate_eye_to_goal(void);                                         /* 0x00410A30 */
 short GetVectorMagnitude(const FixedVector *vector);                   /* 0x00410AD0 */
 unsigned int set_eye_direction_and_position(void);                     /* 0x00410AF0 */
@@ -757,8 +757,8 @@ short any_selected(unsigned char *loadout,
 unsigned int remove_weapon(short obj, short weapon);                 /* 0x0041E040 */
 void set_objects_data(short obj, enum ObjectType type,
                       short owner);                                  /* 0x0041E120 */
-void match_rotation_goal(short *rotation, short *goal,
-                         short totalError, short rate);                 /* 0x0041E400 */
+unsigned int match_rotation_goal(short *rotation, short *goal,
+                                 short totalError, short rate);         /* 0x0041E400 */
 void rotate_object_to_goal(short obj);                                  /* 0x0041E520 */
 unsigned int check_for_lost_control(short obj);                        /* 0x0041E650 */
 unsigned int celerate(short ship, int delta);                     /* 0x0041E710 */
@@ -1142,7 +1142,7 @@ void __stdcall AlignSpriteFrameToRectCorner(
     unsigned char *shape, short frame);                                /* 0x0042E1D0 */
 void FadeMusic(void);                                                  /* 0x0042E320 */
 void SetMusicOn(short enabled);                                         /* 0x0042E330 */
-void StopMusic(int unused);                                            /* 0x0042E350 */
+void StopMusic(short unused);                                          /* 0x0042E350 */
 void SetMusBreakpt(int first, int second);                             /* 0x0042E380 */
 void PaletteFadeHook(void);                                            /* 0x0042E390 */
 void FlushSoundEffect(void);                                               /* 0x0042E3A0 */
@@ -1151,9 +1151,9 @@ void SceneLeaveHook();                                                /* 0x0042E
 void SelectFlightMusicTrack(int track);                              /* 0x0042E3F0 */
 int MapMusicTrackToStreamerCommand(int track);                       /* 0x0042E520 */
 void ProcessMusicScriptCommand(int track, int command,
-                               int enabled);                         /* 0x0042E6F0 */
+                               short enabled);                       /* 0x0042E6F0 */
 unsigned int spacetrack(int track, int mode,
-                        int enabled);                                 /* 0x0042E880 */
+                        short enabled);                               /* 0x0042E880 */
 void StopMusicUnlessSuppressed(void);                                        /* 0x0042E8B0 */
 unsigned short GetMusicMode(void);                                /* 0x0042E8D0 */
 void wait_for_end_of_music(void);                                     /* 0x0042E900 */
@@ -1236,7 +1236,7 @@ void ShowCentredPrompt(char *text, unsigned short arg);                       /*
 short LoadCommDisplayResources(short rating, enum Side side);         /* 0x00431520 */
 char *ExpandCommMessageTokens(char *text);                            /* 0x004315C0 */
 void real_vid_transmit(short obj, short message);                     /* 0x004316E0 */
-void __stdcall ShutdownVideoHook(int mode);                             /* 0x004318F0 */
+void __stdcall ShutdownVideoHook(short mode);                           /* 0x004318F0 */
 short __stdcall ReserveContiguousPaletteEntries(short entryCount);    /* 0x00431900 */
 void __stdcall ReleaseContiguousPaletteEntries(short firstEntry);     /* 0x00431970 */
 void PrintPaletteAllocationMap(void);                                 /* 0x004319B0 */

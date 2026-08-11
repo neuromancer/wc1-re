@@ -126,6 +126,7 @@ void CalibrateJoystickInteractive()
             DIBslamReal();
             WaitForJoystickButtonPress();
             WaitForJoystickButtonRelease();
+            LoadJoystickCalibrationFile(8, 8, 1, 1);
             ReleaseModalTextPanel();
         }
         _unlink("j.cal");
@@ -135,10 +136,19 @@ void CalibrateJoystickInteractive()
     file = _open("j.cal", 0x8301, 0x180);
     if (file == -1)
         return;
-    failed = _write(file, &g_nActiveInputDevice_005a819c, 2) != 2;
+    failed = _write(file, &g_nActiveInputDevice_005a819c, 2) == -1;
     if (failed == 0)
-        failed = _write(file, calibration, sizeof(calibration)) !=
-                 sizeof(calibration);
+        failed = _write(file, &calibration[0], 2) == -1;
+    if (failed == 0)
+        failed = _write(file, &calibration[1], 2) == -1;
+    if (failed == 0)
+        failed = _write(file, &calibration[2], 2) == -1;
+    if (failed == 0)
+        failed = _write(file, &calibration[3], 2) == -1;
+    if (failed == 0)
+        failed = _write(file, &calibration[4], 2) == -1;
+    if (failed == 0)
+        failed = _write(file, &calibration[5], 2) == -1;
     _close(file);
     if (failed != 0)
         _unlink("j.cal");
@@ -169,17 +179,17 @@ void WaitForJoystickButtonPress(void)
 }
 
 /* Function start: 0x410740 */
-unsigned int SetFleetOverviewView(int initializeCockpit)
+void SetFleetOverviewView(int initializeCockpit)
 {
     FixedVector centre;
-    FixedVector offset;
     FixedVector orientation;
+    FixedVector offset;
     int shipCount;
     int maximumRange;
     int playerRange;
     int cameraDistance;
     int range;
-    short object;
+    int object;
 
     orientation.x = 0xff;
     orientation.y = 0xff;
@@ -202,11 +212,7 @@ unsigned int SetFleetOverviewView(int initializeCockpit)
         object++;
     } while (object < 10);
 
-    if (shipCount < 2) {
-        maximumRange = 0x4b000;
-        playerRange = 0x4b000;
-        position_relative_ijk(&centre, 0, 400, 400, 400);
-    } else {
+    if (shipCount > 1) {
         zero_vector(&centre);
         object = 0;
         do {
@@ -236,6 +242,10 @@ unsigned int SetFleetOverviewView(int initializeCockpit)
         } while (object >= 0);
         if (maximumRange <= 0x1f4000)
             playerRange = maximumRange;
+    } else {
+        maximumRange = 0x4b000;
+        playerRange = 0x4b000;
+        position_relative_ijk(&centre, 0, 400, 400, 400);
     }
 
     cameraDistance = (playerRange >> 3) * 9 + 0x2bc00;
@@ -264,7 +274,6 @@ unsigned int SetFleetOverviewView(int initializeCockpit)
         point_at(WC1_EYE_OBJECT, centre);
     else
         point_at(WC1_EYE_OBJECT, g_aShipPosition_0059c490[0]);
-    return 0;
 }
 
 /* Function start: 0x410A30 */
@@ -272,12 +281,12 @@ void rotate_eye_to_goal(void)
 {
     short totalError;
 
-    totalError = (short)(AbsInt(g_anObjectPitchRotation_0059b2a0[61] -
-                               g_nEyePitchGoal_0059d61c) +
-                         AbsInt(g_anObjectYawRotation_0059ce80[61] -
-                               g_nEyeYawGoal_0059c944) +
-                         AbsInt(g_anObjectRollRotation_0059d7e0[61] -
-                               g_nEyeRollGoal_0059c8f0));
+    totalError = (short)(abs(g_anObjectPitchRotation_0059b2a0[61] -
+                            g_nEyePitchGoal_0059d61c) +
+                         abs(g_anObjectYawRotation_0059ce80[61] -
+                            g_nEyeYawGoal_0059c944) +
+                         abs(g_anObjectRollRotation_0059d7e0[61] -
+                            g_nEyeRollGoal_0059c8f0));
     match_rotation_goal(&g_anObjectPitchRotation_0059b2a0[61],
                         &g_nEyePitchGoal_0059d61c, totalError,
                         g_nEyePitchRate_0046c004);
@@ -682,8 +691,12 @@ unsigned int new_view(int view, short obj)
                 g_aShipForwardVector_0059bce0[g_cViewObject_0046c000];
         g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT] =
             g_aShipUpVector_0059b9e0[g_cViewObject_0046c000];
-        if (equ_vector(&direction,
-                       &g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT])) {
+        if (direction.x ==
+                g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT].x &&
+            direction.y ==
+                g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT].y &&
+            direction.z ==
+                g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT].z) {
             g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT] =
                 g_aShipRightVector_0059b6e0[g_cViewObject_0046c000];
         }
