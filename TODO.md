@@ -4,7 +4,7 @@ Audit date: 2026-08-11.
 
 This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
-`src/**/*.c` and `src/**/*.cpp`. It contains **30 functions**: **28 ordinary
+`src/**/*.c` and `src/**/*.cpp`. It contains **23 functions**: **21 ordinary
 candidates** and **2 compiler thunks** which must not be reproduced manually.
 
 The proposed compilation units follow the current source adjacency and
@@ -36,10 +36,7 @@ Ghidra status meanings:
 | Address | Current Ghidra/inventory name | Mac name | Proposed compilation unit | Ghidra status |
 |---|---|---|---|---|
 | `0x0040CB20` | `ThunkForwarder40CB20` | — | `src/brains.c` | verified; exported; compiler thunk—do not hand-write |
-| `0x004176C0` | `DrawG0046905cFn76C0` | — | `src/cockpt.c` | verified |
 | `0x004259B0` | `PromptForAnswerText` | — | `src/pilot.cpp` | verified; exported |
-| `0x0042B680` | `PlaySfxWaveByIndex` | — | `src/sound.c` | verified |
-| `0x0042F740` | `ScanTbl005a6540FnF740` | — | `src/screen.c` | verified |
 | `0x00434D10` | `_rand` | — | `src/mathfp.c` | verified; compiler thunk—do not hand-write |
 | `0x00439C0E` | `FUN_00439c0e` | — | `src/screens.c` | new live discovery; verified; exported |
 | `0x00439C3E` | `LoadMcgaDll` | — | `src/screens.c` | verified; exported |
@@ -47,11 +44,7 @@ Ghidra status meanings:
 | `0x0043C015` | `LoopLocalFnC015` | — | `src/screens.c` | verified |
 | `0x0043C18D` | `LoopG0046e6e5FnC18D` | — | `src/screens.c` | verified |
 | `0x0043C410` | `LoopG0046ff2cFnC410` | — | `src/screens.c` | verified |
-| `0x0043C4A2` | `LoopG0046e6e9FnC4A2` | — | `src/screens.c` | verified |
-| `0x0043C62B` | `ScanTbl0046e6edFnC62B` | — | `src/screens.c` | verified |
 | `0x0043CC83` | `DoLocalFnCC83` | — | `src/screens.c` | verified |
-| `0x0043D1C1` | `LoopLocalFnD1C1` | — | `src/screens.c` | verified |
-| `0x0043E4AB` | `LoopLocalFnE4AB` | — | `src/screens.c` | verified |
 | `0x0043E63E` | `LoopLocalFnE63E` | — | `src/screens.c` | verified |
 | `0x0043E7C6` | `LoopG0046f915FnE7C6` | — | `src/screens.c` | verified |
 | `0x0043E9EB` | `LoopG0046ec15FnE9EB` | — | `src/screens.c` | verified |
@@ -68,8 +61,6 @@ Ghidra status meanings:
 
 ## Mac ordering evidence retained for later naming
 
-- `0x004176C0` is a Win32 split helper between the exact Mac-derived
-  `explosion_draw` and `cockpit_explosion` functions in the `cockpt` unit.
 - `0x00434D10` is in the historical `rand` neighborhood but is a compiler
   jump thunk to the CRT, not a Mac-named game routine.
 - The large `0x00439C0E`–`0x0043F5A9` raster block has no safe mapping to the
@@ -94,21 +85,25 @@ Ghidra status meanings:
   `0x00431970`–`0x004319A0`, and `PrintPaletteAllocationMap` over
   `0x004319B0`–`0x00431A03`. Their listings, calling conventions, prototypes,
   and expected game-core tags were verified before the program was saved.
+- `FillViewportEllipse` was force-created at `0x00441E20` after a call to the
+  raster ellipse filler exposed its previously unrecognized aligned body. Its
+  body `0x00441E20`–`0x00441E69`, six-argument `__cdecl` prototype, and the
+  same game-core/UI/native tags as its adjacent ellipse wrapper were verified.
 - The Mac `AllocTextLayer` symbol was checked against the newly recovered
   palette-entry allocation cluster but was not assigned: the later Mac text-layer
   sequence does not provide a body or ordering match strong enough to establish
   identity.
 - Every source annotation now resolves to an exact live Ghidra function entry.
-  Every one of the 30 backlog rows above also resolves to an exact entry and a
+  Every one of the 23 backlog rows above also resolves to an exact entry and a
   non-empty listing. The Ghidra program was saved after verification.
 
 ## Export and implementation progress
 
-- All 28 assembly snippets that were absent at the start of this audit, plus
-  the two newly discovered palette-entry helpers, now exist in `code-full`. Each
-  export has the same instruction count and return form as its exact live
-  Ghidra function. Existing exports were not rewritten.
-- Sixty-one confirmed `wc-developer` functions were reconstructed across eleven
+- All 28 assembly snippets that were absent at the start of this audit, the two
+  newly discovered palette-entry helpers, and `FillViewportEllipse` now exist
+  in `code-full`. Each export has the same instruction count and return form as
+  its exact live Ghidra function. Existing exports were not rewritten.
+- Sixty-nine confirmed `wc-developer` functions were reconstructed across twelve
   tranches after binary-comp comparison:
 
   | Address | Implemented name | Compilation unit | Similarity |
@@ -174,16 +169,31 @@ Ghidra status meanings:
   | `0x004304F0` | `ShowTheEndScreen` | `src/screen.c` | 91.28% |
   | `0x00431A10` | `LoadJoystickCalibrationFile` | `src/screen.c` | 93.42% |
   | `0x00436F50` | `AwardCampaignMedal` | `src/screens.c` | 99.12% |
+  | `0x004176C0` | `DrawPendingCockpitDamage` | `src/cockpt.c` | 100.00% |
+  | `0x0042B680` | `PlaySnowStaticSound` | `src/sound.c` | 16.67% |
+  | `0x0042F740` | `InitializeDIBScreenViewport` | `src/screen.c` | 97.22% |
+  | `0x0043C4A2` | `EncodeRLEScanline` | `src/screens.c` | 99.28% |
+  | `0x0043C62B` | `EmitRLEScanlineRun` | `src/screens.c` | 98.18% |
+  | `0x0043D1C1` | `FillRasterEllipse` | `src/screens.c` | 98.31% |
+  | `0x0043E4AB` | `BlitRawFrame` | `src/screens.c` | 94.25% |
+  | `0x00441E20` | `FillViewportEllipse` | `src/gr.c` | 100.00% |
 
 - Ghidra was synchronized with the reconstructed prototypes and behavior-based
   names, then saved after each tranche.
 - `landing` is the exact Mac-derived name for `0x00408650`; the other eight
   names in the eleventh tranche are behavior-based names grounded in their
   assembly, strings, globals, and callers.
-- The post-tranche `make verify` call audit leaves seven ordinary backlog
-  functions with direct code xrefs: `0x004176C0`, `0x0042B680`, `0x0042F740`,
-  `0x0043C4A2`, `0x0043C62B`, `0x0043D1C1`, and `0x0043E4AB`. The called CRT
-  `_rand` jump thunk at `0x00434D10` remains excluded from manual reconstruction.
+- All eight names in the twelfth tranche are behavior-based; none has a safe
+  exact Mac counterpart.
+- `PlaySnowStaticSound` is the best rule-compliant C fallback. The original
+  directly invokes C++ `IxSample` and `IxSound` methods; reproducing those calls
+  from the core C unit would require a forbidden wrapper/thunk or changing the
+  unit's language. The generic wave path preserves audible looping static, but
+  consequently remains below the normal similarity threshold.
+- The post-tranche `make verify` completed successfully. A live Ghidra xref
+  audit found no inbound reference of any kind to the 21 remaining ordinary
+  backlog functions. The only called backlog entry is the CRT `_rand` jump
+  thunk at `0x00434D10`, which remains excluded from manual reconstruction.
 - The five GIF LZW helpers are called internally by the decoder at
   `0x0043EC29`, but that top-level decoder has no inbound code xref, stored
   function pointer, or PE export. The feature is therefore linked raster-library

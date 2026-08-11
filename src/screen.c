@@ -292,6 +292,40 @@ unsigned short __stdcall ShouldSuspendCursorForRect(const ShortRect *bounds)
     return 0;
 }
 
+/* Function start: 0x42F740 */
+unsigned short __stdcall InitializeDIBScreenViewport(
+    Viewport *viewport, unsigned short colour)
+{
+    short row;
+    short offset;
+
+    (void)colour;
+    g_nScreenAllocationState_005a66e0 = 0;
+    g_pAllocatedScreenViewport_005a6534 = viewport;
+    g_pAllocatedScreenViewportMirror_005a66e4 = viewport;
+    g_aiSoundEffectSourceActive_005a66ec[0] =
+        (int)&g_nScreenAllocationState_005a66e0;
+    viewport->right = 319;
+    viewport->bottom = 199;
+    viewport->left = 0;
+    viewport->top = 0;
+    if (DAT_0046b168 != 0x13) {
+        SystemDebugPrintf("== BAD alloc_screen == : type: '%d'\n",
+                          (int)(short)DAT_0046b168);
+        _exit(1);
+    }
+    viewport->pixels = GetDIBPixelBuffer();
+    viewport->rowOffsets = g_awScreenRowOffsets_005a6540;
+    row = 0;
+    offset = 0;
+    do {
+        g_awScreenRowOffsets_005a6540[row] = (unsigned short)offset;
+        offset = (short)(offset + 320);
+        row++;
+    } while (row < 202);
+    return 1;
+}
+
 /* Function start: 0x42F7E0 */
 /* Initialises a 320x200 viewport record (0x13F == 319, 199) then validates it. */
 void InitFullScreenViewport(int *record, short arg)

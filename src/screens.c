@@ -3446,6 +3446,364 @@ __declspec(naked) int RotateRLEImage(
 }
 #pragma optimize("", on)
 
+/* Function start: 0x43C4A2 */
+/* The register-paired run classifier and explicit ES setup identify the
+ * original scanline encoder as hand-written raster assembly. */
+__declspec(naked) void EncodeRLEScanline(
+    int pixelCount, unsigned char transparentColour, int sourceX)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        add esp, -4
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        mov esi, dword ptr g_pRLEScanlineStart_0046e6e5
+        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        push dword ptr [ebp + 10h]
+        push 0
+        push 0
+        call EmitRLEScanlineRun
+        add esp, 0ch
+        mov dword ptr [ebp - 4], 5
+        mov ecx, dword ptr [ebp + 8]
+        or ecx, ecx
+        jz encode_finish_line
+        mov al, byte ptr [esi]
+        inc esi
+        dec ecx
+        mov ah, al
+encode_classify:
+        cmp ah, byte ptr [ebp + 0ch]
+        jz encode_transparent_run
+        mov dword ptr [ebp - 4], 1
+        or ecx, ecx
+        jz encode_finish_line
+        mov al, byte ptr [esi]
+        inc esi
+        dec ecx
+        xor al, ah
+        xor ah, al
+        or al, al
+        jz encode_solid_run
+        cmp ah, byte ptr [ebp + 0ch]
+        jnz encode_literal_scan
+        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        push dword ptr [ebp + 10h]
+        push 1
+        push 1
+        call EmitRLEScanlineRun
+        add esp, 0ch
+        jmp encode_transparent_run
+encode_literal_scan:
+        or ecx, ecx
+        jz encode_finish_line
+        mov al, byte ptr [esi]
+        inc esi
+        dec ecx
+        xor al, ah
+        xor ah, al
+        cmp ah, byte ptr [ebp + 0ch]
+        jnz encode_literal_pair
+        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        push dword ptr [ebp + 10h]
+        push 1
+        push 1
+        call EmitRLEScanlineRun
+        add esp, 0ch
+        jmp encode_transparent_run
+encode_literal_pair:
+        or al, al
+        jnz encode_literal_scan
+        or ecx, ecx
+        jz encode_finish_line
+        mov al, byte ptr [esi]
+        inc esi
+        dec ecx
+        xor al, ah
+        xor ah, al
+        cmp ah, byte ptr [ebp + 0ch]
+        jnz encode_literal_triplet
+        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        push dword ptr [ebp + 10h]
+        push 1
+        push 1
+        call EmitRLEScanlineRun
+        add esp, 0ch
+        jmp encode_transparent_run
+encode_literal_triplet:
+        or al, al
+        jnz encode_literal_scan
+        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        push dword ptr [ebp + 10h]
+        push 3
+        push 1
+        call EmitRLEScanlineRun
+        add esp, 0ch
+        mov dword ptr [ebp - 4], 2
+encode_solid_run:
+        or ecx, ecx
+        jz encode_finish_line
+        mov al, byte ptr [esi]
+        inc esi
+        dec ecx
+        xor al, ah
+        jz encode_solid_run
+        xor ah, al
+        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        push dword ptr [ebp + 10h]
+        push 1
+        push 2
+        call EmitRLEScanlineRun
+        add esp, 0ch
+        cmp ah, byte ptr [ebp + 0ch]
+        jnz encode_classify
+        mov dword ptr [ebp - 4], 3
+encode_transparent_run:
+        or ecx, ecx
+        jz encode_finish_line
+        mov al, byte ptr [esi]
+        inc esi
+        dec ecx
+        xor al, ah
+        jz encode_transparent_run
+        xor ah, al
+        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        push dword ptr [ebp + 10h]
+        push 1
+        push 3
+        call EmitRLEScanlineRun
+        add esp, 0ch
+        jmp encode_classify
+encode_finish_line:
+        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        push dword ptr [ebp + 10h]
+        push 0
+        push dword ptr [ebp - 4]
+        call EmitRLEScanlineRun
+        add esp, 0ch
+        push dword ptr [ebp + 10h]
+        push 0
+        push 4
+        call EmitRLEScanlineRun
+        add esp, 0ch
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        leave
+        ret
+    }
+}
+
+/* Function start: 0x43C62B */
+/* Companion command emitter for the hand-written RLE scanline encoder. */
+__declspec(naked) void EmitRLEScanlineRun(
+    int runType, int trailingCount, int sourceX)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        push eax
+        push ecx
+        mov esi, dword ptr g_pRLELiteralStart_0046e6f1
+        mov edi, dword ptr g_pRLEOutputCursor_0046e6ed
+        mov eax, dword ptr [ebp + 8]
+        cmp eax, 2
+        jz emit_solid
+        cmp eax, 1
+        jz emit_literal
+        cmp eax, 3
+        jz emit_defer_skip
+        cmp eax, 4
+        jz emit_end_line
+        cmp eax, 0
+        jnz emit_done
+        xor eax, eax
+        mov dword ptr g_nRLEPendingSkip_0046e6e1, eax
+        mov esi, dword ptr g_pRLEScanCursor_0046e6e9
+        mov dword ptr g_pRLELiteralStart_0046e6f1, esi
+        jmp emit_done
+emit_solid:
+        mov ebx, dword ptr g_nRLEPendingSkip_0046e6e1
+        or ebx, ebx
+        jz emit_solid_bounds
+emit_solid_skip_chunks:
+        mov ecx, ebx
+        cmp ecx, 0ffh
+        jl emit_solid_skip_ready
+        mov ecx, 0ffh
+emit_solid_skip_ready:
+        sub ebx, ecx
+        cmp dword ptr g_pRLEEncodeBuffer_0046e6dd, 0
+        jz emit_solid_skip_advance
+        mov al, 1
+        mov byte ptr [edi], al
+        inc edi
+        mov al, cl
+        mov byte ptr [edi], al
+        inc edi
+        jmp emit_solid_skip_input
+emit_solid_skip_advance:
+        add edi, 2
+emit_solid_skip_input:
+        add esi, ecx
+        or ebx, ebx
+        jnz emit_solid_skip_chunks
+        mov dword ptr g_nRLEPendingSkip_0046e6e1, ebx
+emit_solid_bounds:
+        mov ebx, dword ptr g_pRLEScanCursor_0046e6e9
+        sub ebx, esi
+        sub ebx, dword ptr [ebp + 0ch]
+        mov eax, dword ptr [ebp + 10h]
+        add eax, esi
+        sub eax, dword ptr g_pRLEScanlineStart_0046e6e5
+        cmp eax, dword ptr g_nRLEEncodedMinimumX_0046e705
+        jge emit_solid_maximum
+        mov dword ptr g_nRLEEncodedMinimumX_0046e705, eax
+emit_solid_maximum:
+        add eax, ebx
+        dec eax
+        cmp eax, dword ptr g_nRLEEncodedMaximumX_0046e70d
+        jle emit_solid_chunks
+        mov dword ptr g_nRLEEncodedMaximumX_0046e70d, eax
+        jmp emit_solid_chunks
+emit_solid_next_chunk:
+        mov ecx, ebx
+        cmp ecx, 7fh
+        jl emit_solid_chunk_ready
+        mov ecx, 7fh
+emit_solid_chunk_ready:
+        cmp dword ptr g_pRLEEncodeBuffer_0046e6dd, 0
+        jz emit_solid_chunk_advance
+        mov al, cl
+        add al, al
+        mov byte ptr [edi], al
+        inc edi
+        mov al, byte ptr [esi]
+        mov byte ptr [edi], al
+        inc edi
+        jmp emit_solid_chunk_input
+emit_solid_chunk_advance:
+        add edi, 2
+emit_solid_chunk_input:
+        add esi, ecx
+        sub ebx, ecx
+emit_solid_chunks:
+        or ebx, ebx
+        jnz emit_solid_next_chunk
+        jmp emit_done
+emit_literal:
+        mov ebx, dword ptr g_nRLEPendingSkip_0046e6e1
+        or ebx, ebx
+        jz emit_literal_bounds
+emit_literal_skip_chunks:
+        mov ecx, ebx
+        cmp ecx, 0ffh
+        jl emit_literal_skip_ready
+        mov ecx, 0ffh
+emit_literal_skip_ready:
+        sub ebx, ecx
+        cmp dword ptr g_pRLEEncodeBuffer_0046e6dd, 0
+        jz emit_literal_skip_advance
+        mov al, 1
+        mov byte ptr [edi], al
+        inc edi
+        mov al, cl
+        mov byte ptr [edi], al
+        inc edi
+        jmp emit_literal_skip_input
+emit_literal_skip_advance:
+        add edi, 2
+emit_literal_skip_input:
+        add esi, ecx
+        or ebx, ebx
+        jnz emit_literal_skip_chunks
+        mov dword ptr g_nRLEPendingSkip_0046e6e1, ebx
+emit_literal_bounds:
+        mov ebx, dword ptr g_pRLEScanCursor_0046e6e9
+        sub ebx, esi
+        sub ebx, dword ptr [ebp + 0ch]
+        mov eax, dword ptr [ebp + 10h]
+        add eax, esi
+        sub eax, dword ptr g_pRLEScanlineStart_0046e6e5
+        cmp eax, dword ptr g_nRLEEncodedMinimumX_0046e705
+        jge emit_literal_maximum
+        mov dword ptr g_nRLEEncodedMinimumX_0046e705, eax
+emit_literal_maximum:
+        add eax, ebx
+        dec eax
+        cmp eax, dword ptr g_nRLEEncodedMaximumX_0046e70d
+        jle emit_literal_chunks
+        mov dword ptr g_nRLEEncodedMaximumX_0046e70d, eax
+        jmp emit_literal_chunks
+emit_literal_next_chunk:
+        mov ecx, ebx
+        cmp ecx, 7fh
+        jl emit_literal_chunk_ready
+        mov ecx, 7fh
+emit_literal_chunk_ready:
+        mov edx, ecx
+        mov al, cl
+        add al, al
+        inc al
+        cmp dword ptr g_pRLEEncodeBuffer_0046e6dd, 0
+        jz emit_literal_chunk_advance
+        mov byte ptr [edi], al
+        inc edi
+        rep movsb
+        jmp emit_literal_chunk_input
+emit_literal_chunk_advance:
+        inc edi
+        add esi, ecx
+        add edi, ecx
+emit_literal_chunk_input:
+        sub ebx, edx
+emit_literal_chunks:
+        or ebx, ebx
+        jnz emit_literal_next_chunk
+        jmp emit_done
+emit_defer_skip:
+        mov ebx, dword ptr g_pRLEScanCursor_0046e6e9
+        sub ebx, esi
+        sub ebx, dword ptr [ebp + 0ch]
+        mov dword ptr g_nRLEPendingSkip_0046e6e1, ebx
+        jmp emit_done
+emit_end_line:
+        xor eax, eax
+        cmp dword ptr g_pRLEEncodeBuffer_0046e6dd, 0
+        jz emit_end_advance
+        mov byte ptr [edi], al
+        inc edi
+        jmp emit_done
+emit_end_advance:
+        inc edi
+emit_done:
+        mov dword ptr g_pRLEOutputCursor_0046e6ed, edi
+        mov dword ptr g_pRLELiteralStart_0046e6f1, esi
+        pop ecx
+        pop eax
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        leave
+        ret
+    }
+}
+
 /* Function start: 0x43C808 */
 /* The explicit ES setup and REP stores identify the original as hand-written
  * raster assembly, so preserve that implementation rather than asking the C
@@ -3968,6 +4326,333 @@ __declspec(naked) unsigned int DrawRasterEllipse(
 }
 #pragma optimize("", on)
 
+/* Function start: 0x43D1C1 */
+/* Filled counterpart to the hand-written midpoint ellipse outline routine. */
+__declspec(naked) unsigned int FillRasterEllipse(
+    RasterClip *clip, int x, int y, int horizontalRadius,
+    int verticalRadius, int colour)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        add esp, -54h
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        cmp dword ptr [ebp + 14h], 0
+        jz fill_ellipse_line
+        cmp dword ptr [ebp + 18h], 0
+        jnz fill_ellipse_surface
+fill_ellipse_line:
+        mov eax, dword ptr [ebp + 10h]
+        add eax, dword ptr [ebp + 18h]
+        mov ebx, dword ptr [ebp + 0ch]
+        add ebx, dword ptr [ebp + 14h]
+        mov ecx, dword ptr [ebp + 10h]
+        sub ecx, dword ptr [ebp + 18h]
+        mov edx, dword ptr [ebp + 0ch]
+        sub edx, dword ptr [ebp + 14h]
+        push dword ptr [ebp + 1ch]
+        push 0
+        push eax
+        push ebx
+        push ecx
+        push edx
+        push dword ptr [ebp + 8]
+        call DrawClippedLine
+        add esp, 1ch
+        jmp fill_ellipse_done
+fill_ellipse_surface:
+        mov esi, dword ptr [ebp + 8]
+        mov ebx, dword ptr [esi]
+        mov eax, dword ptr [ebx + 4]
+        inc eax
+        mov dword ptr [ebp - 4ch], eax
+        jle fill_ellipse_invalid_surface
+        mov eax, dword ptr [ebx + 8]
+        inc eax
+        mov ecx, eax
+        jle fill_ellipse_invalid_surface
+        mov eax, dword ptr [esi + 4]
+        mov dword ptr [ebp - 50h], eax
+        cmp eax, 0
+        jg fill_ellipse_left_ready
+        mov eax, 0
+fill_ellipse_left_ready:
+        mov dword ptr [ebp - 38h], eax
+        mov eax, dword ptr [esi + 8]
+        mov dword ptr [ebp - 54h], eax
+        cmp eax, 0
+        jg fill_ellipse_top_ready
+        mov eax, 0
+fill_ellipse_top_ready:
+        mov dword ptr [ebp - 3ch], eax
+        mov eax, dword ptr [esi + 0ch]
+        mov edx, dword ptr [ebp - 4ch]
+        dec edx
+        cmp eax, edx
+        jl fill_ellipse_right_ready
+        mov eax, edx
+fill_ellipse_right_ready:
+        mov dword ptr [ebp - 40h], eax
+        mov eax, dword ptr [esi + 10h]
+        mov edx, ecx
+        dec edx
+        cmp eax, edx
+        jl fill_ellipse_bottom_ready
+        mov eax, edx
+fill_ellipse_bottom_ready:
+        mov dword ptr [ebp - 44h], eax
+        mov eax, dword ptr [ebp - 40h]
+        cmp eax, dword ptr [ebp - 38h]
+        jl fill_ellipse_empty_clip
+        mov eax, dword ptr [ebp - 44h]
+        cmp eax, dword ptr [ebp - 3ch]
+        jl fill_ellipse_empty_clip
+        mov eax, dword ptr [ebx]
+        mov dword ptr [ebp - 48h], eax
+        jmp fill_ellipse_begin
+fill_ellipse_invalid_surface:
+        mov eax, -1
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        leave
+        ret
+fill_ellipse_empty_clip:
+        mov eax, -2
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        leave
+        ret
+fill_ellipse_begin:
+        mov eax, dword ptr [ebp + 1ch]
+        mov ah, al
+        mov dword ptr [ebp + 1ch], eax
+        mov word ptr [ebp + 1eh], ax
+        mov eax, dword ptr [ebp - 50h]
+        add dword ptr [ebp + 0ch], eax
+        mov eax, dword ptr [ebp - 54h]
+        add dword ptr [ebp + 10h], eax
+        mov eax, dword ptr [ebp + 0ch]
+        mov dword ptr [ebp - 4], eax
+        mov eax, dword ptr [ebp + 10h]
+        mov dword ptr [ebp - 8], eax
+        mov dword ptr [ebp - 0ch], 0
+        mov eax, dword ptr [ebp + 18h]
+        mov dword ptr [ebp - 10h], eax
+        mul eax
+        mov dword ptr [ebp - 1ch], eax
+        shl eax, 1
+        mov dword ptr [ebp - 20h], eax
+        mov eax, dword ptr [ebp + 14h]
+        mul eax
+        mov dword ptr [ebp - 14h], eax
+        shl eax, 1
+        mov dword ptr [ebp - 18h], eax
+        mov dword ptr [ebp - 24h], 0
+        mov eax, dword ptr [ebp - 18h]
+        mul dword ptr [ebp + 18h]
+        mov dword ptr [ebp - 28h], eax
+        mov eax, dword ptr [ebp - 14h]
+        shr eax, 2
+        add eax, dword ptr [ebp - 1ch]
+        mov dword ptr [ebp - 2ch], eax
+        mov eax, dword ptr [ebp - 14h]
+        mul dword ptr [ebp + 18h]
+        sub dword ptr [ebp - 2ch], eax
+        mov ebx, dword ptr [ebp + 18h]
+fill_ellipse_region_one_test:
+        mov eax, dword ptr [ebp - 24h]
+        sub eax, dword ptr [ebp - 28h]
+        jns fill_ellipse_region_two_setup
+        mov edi, dword ptr [ebp - 4]
+        add edi, dword ptr [ebp - 0ch]
+        cmp edi, dword ptr [ebp - 38h]
+        jl fill_ellipse_region_one_step
+        cmp edi, dword ptr [ebp - 40h]
+        jl fill_ellipse_region_one_right_ready
+        mov edi, dword ptr [ebp - 40h]
+fill_ellipse_region_one_right_ready:
+        mov dword ptr [ebp - 34h], edi
+        mov edi, dword ptr [ebp - 4]
+        sub edi, dword ptr [ebp - 0ch]
+        cmp edi, dword ptr [ebp - 40h]
+        jg fill_ellipse_region_one_step
+        cmp edi, dword ptr [ebp - 38h]
+        jg fill_ellipse_region_one_left_ready
+        mov edi, dword ptr [ebp - 38h]
+fill_ellipse_region_one_left_ready:
+        mov dword ptr [ebp - 30h], edi
+        mov edx, dword ptr [ebp - 8]
+        add edx, dword ptr [ebp - 10h]
+        cmp edx, dword ptr [ebp - 3ch]
+        jl fill_ellipse_region_one_step
+        cmp edx, dword ptr [ebp - 44h]
+        jg fill_ellipse_region_one_lower
+        mov eax, edx
+        imul dword ptr [ebp - 4ch]
+        add eax, dword ptr [ebp - 48h]
+        add eax, edi
+        mov edi, eax
+        mov ecx, dword ptr [ebp - 34h]
+        sub ecx, dword ptr [ebp - 30h]
+        inc ecx
+        mov eax, dword ptr [ebp + 1ch]
+        mov edx, ecx
+        and edx, 3
+        shr ecx, 2
+        rep stosd
+        mov ecx, edx
+        rep stosb
+fill_ellipse_region_one_lower:
+        mov edi, dword ptr [ebp - 30h]
+        mov edx, dword ptr [ebp - 8]
+        sub edx, dword ptr [ebp - 10h]
+        cmp edx, dword ptr [ebp - 3ch]
+        jl fill_ellipse_region_one_step
+        cmp edx, dword ptr [ebp - 44h]
+        jg fill_ellipse_region_one_step
+        mov eax, edx
+        imul dword ptr [ebp - 4ch]
+        add eax, dword ptr [ebp - 48h]
+        add eax, edi
+        mov edi, eax
+        mov ecx, dword ptr [ebp - 34h]
+        sub ecx, dword ptr [ebp - 30h]
+        inc ecx
+        mov eax, dword ptr [ebp + 1ch]
+        mov edx, ecx
+        and edx, 3
+        shr ecx, 2
+        rep stosd
+        mov ecx, edx
+        rep stosb
+fill_ellipse_region_one_step:
+        cmp dword ptr [ebp - 2ch], 0
+        js fill_ellipse_region_one_advance_x
+        dec dword ptr [ebp - 10h]
+        dec ebx
+        mov eax, dword ptr [ebp - 28h]
+        sub eax, dword ptr [ebp - 18h]
+        mov dword ptr [ebp - 28h], eax
+        sub dword ptr [ebp - 2ch], eax
+fill_ellipse_region_one_advance_x:
+        inc dword ptr [ebp - 0ch]
+        mov eax, dword ptr [ebp - 24h]
+        add eax, dword ptr [ebp - 20h]
+        mov dword ptr [ebp - 24h], eax
+        add eax, dword ptr [ebp - 1ch]
+        add dword ptr [ebp - 2ch], eax
+        jmp fill_ellipse_region_one_test
+fill_ellipse_region_two_setup:
+        mov eax, dword ptr [ebp - 14h]
+        sub eax, dword ptr [ebp - 1ch]
+        mov edx, eax
+        sar eax, 1
+        add eax, edx
+        sub eax, dword ptr [ebp - 24h]
+        sub eax, dword ptr [ebp - 28h]
+        sar eax, 1
+        add dword ptr [ebp - 2ch], eax
+fill_ellipse_region_two:
+        mov edi, dword ptr [ebp - 4]
+        add edi, dword ptr [ebp - 0ch]
+        cmp edi, dword ptr [ebp - 38h]
+        jl fill_ellipse_region_two_step
+        cmp edi, dword ptr [ebp - 40h]
+        jl fill_ellipse_region_two_right_ready
+        mov edi, dword ptr [ebp - 40h]
+fill_ellipse_region_two_right_ready:
+        mov dword ptr [ebp - 34h], edi
+        mov edi, dword ptr [ebp - 4]
+        sub edi, dword ptr [ebp - 0ch]
+        cmp edi, dword ptr [ebp - 40h]
+        jg fill_ellipse_region_two_step
+        cmp edi, dword ptr [ebp - 38h]
+        jg fill_ellipse_region_two_left_ready
+        mov edi, dword ptr [ebp - 38h]
+fill_ellipse_region_two_left_ready:
+        mov dword ptr [ebp - 30h], edi
+        mov edx, dword ptr [ebp - 8]
+        add edx, dword ptr [ebp - 10h]
+        cmp edx, dword ptr [ebp - 3ch]
+        jl fill_ellipse_region_two_step
+        cmp edx, dword ptr [ebp - 44h]
+        jg fill_ellipse_region_two_lower
+        mov eax, edx
+        imul dword ptr [ebp - 4ch]
+        add eax, dword ptr [ebp - 48h]
+        add eax, edi
+        mov edi, eax
+        mov ecx, dword ptr [ebp - 34h]
+        sub ecx, dword ptr [ebp - 30h]
+        inc ecx
+        mov eax, dword ptr [ebp + 1ch]
+        mov edx, ecx
+        and edx, 3
+        shr ecx, 2
+        rep stosd
+        mov ecx, edx
+        rep stosb
+fill_ellipse_region_two_lower:
+        mov edi, dword ptr [ebp - 30h]
+        mov edx, dword ptr [ebp - 8]
+        sub edx, dword ptr [ebp - 10h]
+        cmp edx, dword ptr [ebp - 3ch]
+        jl fill_ellipse_region_two_step
+        cmp edx, dword ptr [ebp - 44h]
+        jg fill_ellipse_region_two_step
+        mov eax, edx
+        imul dword ptr [ebp - 4ch]
+        add eax, dword ptr [ebp - 48h]
+        add eax, edi
+        mov edi, eax
+        mov ecx, dword ptr [ebp - 34h]
+        sub ecx, dword ptr [ebp - 30h]
+        inc ecx
+        mov eax, dword ptr [ebp + 1ch]
+        mov edx, ecx
+        and edx, 3
+        shr ecx, 2
+        rep stosd
+        mov ecx, edx
+        rep stosb
+fill_ellipse_region_two_step:
+        cmp dword ptr [ebp - 2ch], 0
+        jns fill_ellipse_region_two_advance_y
+        inc dword ptr [ebp - 0ch]
+        mov eax, dword ptr [ebp - 24h]
+        add eax, dword ptr [ebp - 20h]
+        mov dword ptr [ebp - 24h], eax
+        add dword ptr [ebp - 2ch], eax
+fill_ellipse_region_two_advance_y:
+        dec dword ptr [ebp - 10h]
+        mov eax, dword ptr [ebp - 28h]
+        sub eax, dword ptr [ebp - 18h]
+        mov dword ptr [ebp - 28h], eax
+        sub eax, dword ptr [ebp - 14h]
+        sub dword ptr [ebp - 2ch], eax
+        dec ebx
+        js fill_ellipse_done
+        jmp fill_ellipse_region_two
+fill_ellipse_done:
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        leave
+        ret
+    }
+}
+
 /* Function start: 0x43E2D3 */
 /* Segment preservation and the in-text lookup table identify this as part of
  * the original hand-written raster assembly. */
@@ -4206,6 +4891,212 @@ __declspec(naked) unsigned int GetRawFrameWidth(unsigned char *shape,
         pop esi
         pop ebx
         _emit 0c9h
+        ret
+    }
+}
+
+/* Function start: 0x43E4AB */
+/* This clipped raw-frame blitter preserves the original hand-written segment
+ * setup, REP copies, and XLAT palette-translation path. */
+__declspec(naked) int BlitRawFrame(
+    RasterClip *clip, int x, int y, unsigned char *shape,
+    int frame, unsigned char *translation)
+{
+    __asm {
+        push ebp
+        mov ebp, esp
+        add esp, -30h
+        push ebx
+        push esi
+        push edi
+        push es
+        cld
+        push ds
+        pop es
+        mov esi, dword ptr [ebp + 8]
+        mov ebx, dword ptr [esi]
+        mov eax, dword ptr [ebx + 4]
+        inc eax
+        mov dword ptr [ebp - 28h], eax
+        jle raw_frame_invalid_surface
+        mov eax, dword ptr [ebx + 8]
+        inc eax
+        mov ecx, eax
+        jle raw_frame_invalid_surface
+        mov eax, dword ptr [esi + 4]
+        mov dword ptr [ebp - 2ch], eax
+        cmp eax, 0
+        jg raw_frame_left_ready
+        mov eax, 0
+raw_frame_left_ready:
+        mov dword ptr [ebp - 14h], eax
+        mov eax, dword ptr [esi + 8]
+        mov dword ptr [ebp - 30h], eax
+        cmp eax, 0
+        jg raw_frame_top_ready
+        mov eax, 0
+raw_frame_top_ready:
+        mov dword ptr [ebp - 18h], eax
+        mov eax, dword ptr [esi + 0ch]
+        mov edx, dword ptr [ebp - 28h]
+        dec edx
+        cmp eax, edx
+        jl raw_frame_right_ready
+        mov eax, edx
+raw_frame_right_ready:
+        mov dword ptr [ebp - 1ch], eax
+        mov eax, dword ptr [esi + 10h]
+        mov edx, ecx
+        dec edx
+        cmp eax, edx
+        jl raw_frame_bottom_ready
+        mov eax, edx
+raw_frame_bottom_ready:
+        mov dword ptr [ebp - 20h], eax
+        mov eax, dword ptr [ebp - 1ch]
+        cmp eax, dword ptr [ebp - 14h]
+        jl raw_frame_empty_clip
+        mov eax, dword ptr [ebp - 20h]
+        cmp eax, dword ptr [ebp - 18h]
+        jl raw_frame_empty_clip
+        mov eax, dword ptr [ebx]
+        mov dword ptr [ebp - 24h], eax
+        jmp raw_frame_begin
+raw_frame_invalid_surface:
+        mov eax, -1
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        leave
+        ret
+raw_frame_empty_clip:
+        mov eax, -2
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        leave
+        ret
+raw_frame_begin:
+        mov eax, dword ptr [ebp - 2ch]
+        add dword ptr [ebp + 0ch], eax
+        mov eax, dword ptr [ebp - 30h]
+        add dword ptr [ebp + 10h], eax
+        mov esi, dword ptr [ebp + 14h]
+        mov edx, dword ptr [esi + 8]
+        mov eax, dword ptr [ebp + 18h]
+        shl eax, 2
+        add eax, dword ptr [ebp + 14h]
+        add eax, 10h
+        mov esi, dword ptr [eax]
+        add esi, dword ptr [ebp + 14h]
+        mov dword ptr [ebp - 8], 0
+        mov ecx, dword ptr [esi]
+        mov dword ptr [ebp - 4], ecx
+        cmp ecx, 0
+        jz raw_frame_done
+        add esi, 4
+        mov edi, dword ptr [ebp + 8]
+        mov eax, dword ptr [ebp - 1ch]
+        inc eax
+        sub eax, ecx
+        sub eax, dword ptr [ebp + 0ch]
+        jns raw_frame_clip_left
+        add ecx, eax
+        jle raw_frame_done
+raw_frame_clip_left:
+        mov eax, dword ptr [ebp + 0ch]
+        sub eax, dword ptr [ebp - 14h]
+        jns raw_frame_clip_bottom
+        add ecx, eax
+        jle raw_frame_done
+        sub esi, eax
+        sub dword ptr [ebp + 0ch], eax
+raw_frame_clip_bottom:
+        mov eax, dword ptr [ebp - 20h]
+        inc eax
+        sub eax, edx
+        sub eax, dword ptr [ebp + 10h]
+        jns raw_frame_clip_top
+        add edx, eax
+        jle raw_frame_done
+raw_frame_clip_top:
+        mov eax, dword ptr [ebp + 10h]
+        sub eax, dword ptr [ebp - 18h]
+        jns raw_frame_position
+        add edx, eax
+        jle raw_frame_done
+        sub dword ptr [ebp + 10h], eax
+        imul eax, dword ptr [ebp - 4]
+        sub esi, eax
+raw_frame_position:
+        mov dword ptr [ebp - 10h], edx
+        mov eax, dword ptr [ebp + 10h]
+        imul dword ptr [ebp - 28h]
+        add eax, dword ptr [ebp - 24h]
+        add eax, dword ptr [ebp + 0ch]
+        mov edi, eax
+        mov dword ptr [ebp - 8], ecx
+        sub dword ptr [ebp - 4], ecx
+        mov eax, dword ptr [ebp - 28h]
+        sub eax, ecx
+        mov dword ptr [ebp - 0ch], eax
+        mov edx, dword ptr [ebp - 10h]
+        cmp dword ptr [ebp + 1ch], 0
+        jnz raw_frame_translate
+raw_frame_copy_row:
+        shr ecx, 1
+        rep movsw
+        adc ecx, 0
+        rep movsb
+        mov ecx, dword ptr [ebp - 8]
+        add esi, dword ptr [ebp - 4]
+        add edi, dword ptr [ebp - 0ch]
+        dec edx
+        jnz raw_frame_copy_row
+        mov eax, dword ptr [ebp - 4]
+        add eax, dword ptr [ebp - 8]
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        leave
+        ret
+raw_frame_translate:
+        jecxz raw_frame_done
+        mov ebx, dword ptr [ebp + 1ch]
+raw_frame_translate_pixel:
+        mov al, byte ptr [esi]
+        xlatb
+        cmp al, 0ffh
+        jz raw_frame_skip_translated
+        mov byte ptr [edi], al
+raw_frame_skip_translated:
+        inc esi
+        inc edi
+        loop raw_frame_translate_pixel
+        mov ecx, dword ptr [ebp - 8]
+        add esi, dword ptr [ebp - 4]
+        add edi, dword ptr [ebp - 0ch]
+        dec edx
+        jnz raw_frame_translate_pixel
+        mov eax, dword ptr [ebp - 4]
+        add eax, dword ptr [ebp - 8]
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        leave
+        ret
+raw_frame_done:
+        mov eax, dword ptr [ebp - 4]
+        add eax, dword ptr [ebp - 8]
+        pop es
+        pop edi
+        pop esi
+        pop ebx
+        leave
         ret
     }
 }

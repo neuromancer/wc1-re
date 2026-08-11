@@ -676,6 +676,18 @@ void DrawViewportEllipse(Viewport *viewport, short x, short y,
         DIBslam();
 }
 
+/* Function start: 0x441E20 */
+void FillViewportEllipse(Viewport *viewport, short x, short y,
+                         short verticalRadius, short horizontalRadius,
+                         short colour)
+{
+    ClipViewportToScreen(viewport);
+    FillRasterEllipse(&g_stRasterClip_00496fc0, x, y,
+                      horizontalRadius, verticalRadius, colour);
+    if (viewport->pixels == DAT_005a6ba0.pixels)
+        DIBslam();
+}
+
 /* Function start: 0x441E70 */
 void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
                                short verticalRadius,

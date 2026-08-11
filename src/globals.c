@@ -1769,6 +1769,16 @@ const char g_szBriefingReturnTextFormat_0046e64c[12] = "%X%Y%F%s%P";
 const char g_szDismissedTextFormat_0046e658[12] = "%X%Y%F%s%P";
 const char g_szDebriefEstablishTextFormat_0046e664[12] = "%X%Y%F%s%P";
 const char g_szFuneralLongShotTextFormat_0046e670[12] = "%X%Y%F%s%P";
+unsigned char *g_pRLEEncodeBuffer_0046e6dd;
+int g_nRLEPendingSkip_0046e6e1;
+unsigned char *g_pRLEScanlineStart_0046e6e5;
+unsigned char *g_pRLEScanCursor_0046e6e9;
+unsigned char *g_pRLEOutputCursor_0046e6ed;
+unsigned char *g_pRLELiteralStart_0046e6f1;
+int g_nRLEEncodedMinimumX_0046e705;
+int g_nRLEEncodedMinimumY_0046e709;
+int g_nRLEEncodedMaximumX_0046e70d;
+int g_nRLEEncodedMaximumY_0046e711;
 unsigned char g_abRasterDecodeBuffer_0046ec15[0xd00];
 const unsigned char g_abGifLZWCodeMasks_0046ff15[9] = {
     0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff
@@ -2374,7 +2384,11 @@ short g_asInputButton2DoubleClick_0059e520[2];
 int g_aiPacketHandles_0059e530[0x1000];
 int g_aiPacketHandleOffsets_005a2530[0x1000];
 int g_nPacketHandleCount_005a6530;
+Viewport *g_pAllocatedScreenViewport_005a6534;
 int *DAT_005a6538;
+unsigned short g_awScreenRowOffsets_005a6540[202];
+int g_nScreenAllocationState_005a66e0;
+Viewport *g_pAllocatedScreenViewportMirror_005a66e4;
 int g_aiSoundEffectSourceActive_005a66ec[0x41];
 unsigned char g_abSoundPlaybackSlots_005a67f0[0xfc];
 int g_nPassingShipSoundCooldown_005a68e8;

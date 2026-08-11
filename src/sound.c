@@ -2,7 +2,7 @@
  *  Wave playback, volume settings and INSTALL.DAT.
  *
  *  Address range 0x42b400-0x42cfff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: playWAVE/PlaySfxWaveByIndex/LoadInstallDat; string band 0x46A46C-0x46A710.
+ *  Boundary evidence: playWAVE/PlaySnowStaticSound/LoadInstallDat; string band 0x46A46C-0x46A710.
  */
 #include "wc1.h"
 
@@ -99,6 +99,20 @@ void stop_all_sounds(void)
         ix_sound_release(g_pLoopingWaveSound_00476550);
         g_pLoopingWaveSound_00476550 = 0;
         g_pLoopingWaveSample_0047654c = 0;
+    }
+}
+
+/* Function start: 0x42B680 */
+void PlaySnowStaticSound(void)
+{
+    if (DAT_00465058 != 0) {
+        ReleaseFinishedSoundEntries();
+        if (g_pLoopingWaveSound_00476550 == 0) {
+            playWAVE((unsigned char *)"sfx22.wav", 1, 50000);
+        } else if (ix_sound_is_playing(
+                       g_pLoopingWaveSound_00476550) == 0) {
+            playWAVE((unsigned char *)"sfx22.wav", 1, 50000);
+        }
     }
 }
 

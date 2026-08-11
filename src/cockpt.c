@@ -2412,6 +2412,31 @@ void explosion_draw(void)
     FreePacketAndClear((int *)&g_pCockpitPilotShape_0046905c, 0);
 }
 
+/* Function start: 0x4176C0 */
+unsigned int DrawPendingCockpitDamage(void)
+{
+    if (g_pCockpitPilotShape_0046905c == 0)
+        g_pCockpitPilotShape_0046905c =
+            (unsigned char *)FetchDiskPacketRetrying(
+                (short)g_cCockpitLogicalFile_005a7c74, 4, 0);
+    DrawSpriteDefault(&DAT_005a6ba0,
+                      g_nCockpitExplosionX_005a7e98,
+                      g_nCockpitExplosionY_005a7e9a,
+                      g_pCockpitPilotShape_0046905c,
+                      g_nPendingCockpitDamage_005a7dcc);
+    if (g_pPilotHandShape_005a7684 != 0) {
+        DrawSpriteDefault(&DAT_005a7550,
+                          (short)(g_nCockpitExplosionX_005a7e98 -
+                                  DAT_005a6b60.left),
+                          (short)(g_nCockpitExplosionY_005a7e9a -
+                                  DAT_005a6b60.top),
+                          g_pCockpitPilotShape_0046905c,
+                          g_nPendingCockpitDamage_005a7dcc);
+    }
+    FreePacketAndClear((int *)&g_pCockpitPilotShape_0046905c, 0);
+    return 0;
+}
+
 /* Function start: 0x417760 */
 void RestoreCockpitExplosionBackground(void)
 {

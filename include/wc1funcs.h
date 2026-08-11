@@ -510,6 +510,7 @@ void send_message(short obj, signed char message);                      /* 0x004
 void npc_communication(void);                                        /* 0x004174F0 */
 void clear_cockpit_damage(void);                                      /* 0x00417610 */
 void explosion_draw(void);                                           /* 0x00417630 */
+unsigned int DrawPendingCockpitDamage(void);                          /* 0x004176C0 */
 void RestoreCockpitExplosionBackground(void);                         /* 0x00417760 */
 void cockpit_explosion(void);                                        /* 0x004177B0 */
 void place_damage_on_cockpit(short damage);                           /* 0x004178A0 */
@@ -1084,6 +1085,7 @@ void ReleaseFinishedSoundEntries(void);                              /* 0x0042B4
 void StopSoundsUsingWave(const char *name);                          /* 0x0042B450 */
 void playWAVE(unsigned char *filename, int looping, int volume);     /* 0x0042B4A0 */
 void stop_all_sounds(void);                                         /* 0x0042B640 */
+void PlaySnowStaticSound(void);                                     /* 0x0042B680 */
 void ServiceSoundSystem(void);                                         /* 0x0042B7D0 */
 void SetSoundEffectsVolume(int volume);                               /* 0x0042B7E0 */
 LONG RegistryQueryValue(HKEY key, LPCSTR name, DWORD type,
@@ -1169,6 +1171,8 @@ short i_wanna_rout(short ship, int pilot);                            /* 0x0042F
 void request(short requester, short ship, short command);             /* 0x0042F3F0 */
 unsigned short __stdcall ShouldSuspendCursorForRect(
     const ShortRect *bounds);                                           /* 0x0042F730 */
+unsigned short __stdcall InitializeDIBScreenViewport(
+    Viewport *viewport, unsigned short colour);                       /* 0x0042F740 */
 void InitFullScreenViewport(int *vp, short arg);                                    /* 0x0042F7E0 */
 unsigned int __stdcall GetPacketSize(const char *filename,
                                      short section);                  /* 0x0042F810 */
@@ -1481,6 +1485,10 @@ int RotateRLEImage(RasterClip *clip, unsigned char *shape, int frame,
                    int x, int y, unsigned char *scratch,
                    unsigned int angleTenths, int scaleX, int scaleY,
                    unsigned int flags);                              /* 0x0043B469 */
+void EncodeRLEScanline(int pixelCount, unsigned char transparentColour,
+                       int sourceX);                                  /* 0x0043C4A2 */
+void EmitRLEScanlineRun(int runType, int trailingCount,
+                        int sourceX);                                 /* 0x0043C62B */
 int FillRasterClip(RasterClip *clip, int colour);                      /* 0x0043C808 */
 int BlitRasterClip(RasterClip *source, int sourceX, int sourceY,
                    RasterClip *destination, int destinationX,
@@ -1488,6 +1496,9 @@ int BlitRasterClip(RasterClip *source, int sourceX, int sourceY,
 unsigned int DrawRasterEllipse(RasterClip *clip, int x, int y,
                                int horizontalRadius, int verticalRadius,
                                int colour);                            /* 0x0043CE80 */
+unsigned int FillRasterEllipse(RasterClip *clip, int x, int y,
+                               int horizontalRadius, int verticalRadius,
+                               int colour);                            /* 0x0043D1C1 */
 void GetRLETransformTrig(int angleTenths, int *cosine, int *sine);     /* 0x0043E2D3 */
 void CalculateRoundedRLEFixedProduct(int left, int right, int *result); /* 0x0043E38B */
 void TransformRLEPoint(int *point, int *result, int *origin,
@@ -1495,6 +1506,8 @@ void TransformRLEPoint(int *point, int *result, int *origin,
                        int scaleY);                                   /* 0x0043E3B1 */
 unsigned int GetRawImageHeight(unsigned char *shape);                 /* 0x0043E478 */
 unsigned int GetRawFrameWidth(unsigned char *shape, int frame);       /* 0x0043E48B */
+int BlitRawFrame(RasterClip *clip, int x, int y, unsigned char *shape,
+                 int frame, unsigned char *translation);              /* 0x0043E4AB */
 int BlitRawScanline(RasterClip *clip, int y,
                     const unsigned char *pixels,
                     int width);                                      /* 0x0043E675 */
@@ -1591,6 +1604,9 @@ void DrawViewportBorder(Viewport *viewport, short left, short top,
 void DrawViewportEllipse(Viewport *viewport, short x, short y,
                          short verticalRadius, short horizontalRadius,
                          short colour);                               /* 0x00441DD0 */
+void FillViewportEllipse(Viewport *viewport, short x, short y,
+                         short verticalRadius, short horizontalRadius,
+                         short colour);                               /* 0x00441E20 */
 void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
                                short verticalRadius,
                                short horizontalRadius,
