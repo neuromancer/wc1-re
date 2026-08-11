@@ -22,7 +22,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,377 function similarity scores (96.07% average)</summary>
+<summary>All 1,377 function similarity scores (96.09% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -309,7 +309,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `target_locking` | `0x416120` | 79.76% |
 | `cockpt.c` | `SetRectBounds` | `0x416220` | 100.00% |
 | `cockpt.c` | `GetRectHeight` | `0x416250` | 100.00% |
-| `cockpt.c` | `print_message_text` | `0x416260` | 67.13% |
+| `cockpt.c` | `print_message_text` | `0x416260` | 71.33% |
 | `cockpt.c` | `ShowHudTextLine` | `0x416460` | 100.00% |
 | `cockpt.c` | `SetHudTextColour` | `0x416480` | 70.00% |
 | `cockpt.c` | `draw_target_box` | `0x4164B0` | 91.53% |
@@ -615,7 +615,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `ShowVersionBanner` | `0x4290D0` | 75.00% |
 | `hudmsg.c` | `SetMessageDisplaySpeed` | `0x4290F0` | 100.00% |
 | `hudmsg.c` | `ReportFramesSkipped` | `0x429120` | 100.00% |
-| `hudmsg.c` | `HandleSpaceFlightControls` | `0x429160` | 83.03% |
+| `hudmsg.c` | `HandleSpaceFlightControls` | `0x429160` | 93.55% |
 | `hudmsg.c` | `Draw_3Space_Frame` | `0x429DD0` | 100.00% |
 | `hudmsg.c` | `GetArcadeBonus` | `0x429E30` | 100.00% |
 | `hudmsg.c` | `FigureArcadeTime` | `0x429E70` | 100.00% |
@@ -631,7 +631,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `UpdateTrainSimMenuCursor` | `0x42A610` | 86.67% |
 | `hudmsg.c` | `ResetMouseCursorFrame` | `0x42A670` | 100.00% |
 | `hudmsg.c` | `UpdateRoomMenuCursor` | `0x42A680` | 88.64% |
-| `hudmsg.c` | `FadeViewportPaletteToColour` | `0x42A700` | 96.95% |
+| `hudmsg.c` | `FadeViewportPaletteToColour` | `0x42A700` | 98.17% |
 | `hudmsg.c` | `find_objective` | `0x42A8F0` | 100.00% |
 | `hudmsg.c` | `arrive_from_warp` | `0x42A950` | 100.00% |
 | `hudmsg.c` | `unwarp` | `0x42AA10` | 100.00% |
@@ -640,7 +640,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `personality_killed` | `0x42AC50` | 100.00% |
 | `hudmsg.c` | `clean_up_cockpit` | `0x42ACC0` | 100.00% |
 | `hudmsg.c` | `find_next_gun` | `0x42AD00` | 91.67% |
-| `hudmsg.c` | `select_guns` | `0x42ADA0` | 100.00% |
+| `hudmsg.c` | `select_guns` | `0x42ADA0` | 90.48% |
 | `hudmsg.c` | `select_new_gun` | `0x42AE10` | 100.00% |
 | `hudmsg.c` | `select_new_release_weapon` | `0x42AE50` | 87.88% |
 | `hudmsg.c` | `WaitForDebugStep` | `0x42AFA0` | 100.00% |
@@ -977,7 +977,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `mathfp.c` | `GetShapeFrameBounds` | `0x435020` | 94.12% |
 | `mathfp.c` | `IsPointInRect` | `0x435090` | 100.00% |
 | `mathfp.c` | `SplitPackedPoint` | `0x4350D0` | 77.78% |
-| `mathfp.c` | `DrawTextString` | `0x4350F0` | 65.38% |
+| `mathfp.c` | `DrawTextString` | `0x4350F0` | 82.35% |
 | `mathfp.c` | `DrawTextCharacter` | `0x435290` | 73.33% |
 | `mathfp.c` | `AppendTextCharacter` | `0x435310` | 100.00% |
 | `mathfp.c` | `MeasureShapeFrameStorage` | `0x435340` | 52.54% |
@@ -1086,8 +1086,8 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `UpdateSeries` | `0x40F240` | 93.68% |
 | `nav.c` | `MoveNewCampaign` | `0x40F3F0` | 76.19% |
 | `nav.c` | `StartNewCampaign` | `0x40F440` | 100.00% |
-| `nav.c` | `GameFlow` | `0x40F4B0` | 72.76% |
-| `nav.c` | `free_viewport` | `0x40F940` | 94.55% |
+| `nav.c` | `GameFlow` | `0x40F4B0` | 77.42% |
+| `nav.c` | `free_viewport` | `0x40F940` | 98.18% |
 | `nav.c` | `GetPaletteReadyUnused` | `0x40FA30` | 100.00% |
 | `nav.c` | `DrawTitleLogo` | `0x40FA40` | 84.72% |
 | `nav.c` | `UpdateTitleMenuCursor` | `0x40FB10` | 73.33% |
@@ -1394,7 +1394,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `winmain.c` | `CreateMainWindow` | `0x402180` | 85.22% |
 | `winmain.c` | `PumpWindowMessages` | `0x402320` | 90.28% |
 | `winmain.c` | `GetF1KeyLatch` | `0x402520` | 100.00% |
-| `winmain.c` | `MainWindowProc` | `0x402530` | 75.90% |
+| `winmain.c` | `MainWindowProc` | `0x402530` | 78.42% |
 | `winmain.c` | `GetJoystickPosition` | `0x402A20` | 100.00% |
 | `winmain.c` | `GetJoystickButtons` | `0x402AC0` | 100.00% |
 | `winmain.c` | `GetJoystickDevCaps` | `0x402AE0` | 100.00% |

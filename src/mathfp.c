@@ -201,57 +201,59 @@ void __stdcall SplitPackedPoint(unsigned int packed, short *p)
 /* Function start: 0x4350F0 */
 void __stdcall DrawTextString(char *text)
 {
-    TextContext *context = g_pCurrentTextContext_0059af8c;
-    char *cursor = text;
+    char *cursor;
+    char *lineStart;
+    char value;
     int lineWidth;
-    int savedX = 0;
-    int wrapped = 0;
-    int finished = 0;
+    int right;
+    int wrapped;
+    int savedX;
+    int finished;
 
+    wrapped = 0;
+    finished = 0;
+    cursor = text;
     for (;;) {
-        char *lineStart;
-        char *scan;
-
-        lineWidth = context->cursorX;
+        lineWidth = g_pCurrentTextContext_0059af8c->cursorX;
         while (*cursor == ' ')
             cursor++;
         lineStart = cursor;
-        scan = cursor;
-
-        if (lineWidth < context->viewport->right) {
+        right = g_pCurrentTextContext_0059af8c->viewport->right;
+        if (lineWidth < right) {
             for (;;) {
-                char *character = scan;
-                signed char value = (signed char)*character;
-
-                scan = character + 1;
+                value = *cursor;
+                cursor++;
                 if (value == '\n' || value == '\r')
                     break;
                 if (value == 0) {
                     finished = 1;
                     break;
                 }
-                lineWidth += context->font[4 + (int)value];
-                if (lineWidth >= context->viewport->right) {
-                    lineWidth -= context->font[4 + (int)value];
-                    scan = character;
+                lineWidth +=
+                    g_pCurrentTextContext_0059af8c->font[4 + value];
+                if (lineWidth >= right) {
+                    cursor--;
                     wrapped = 1;
-                    if (*character != ' ') {
+                    lineWidth -=
+                        g_pCurrentTextContext_0059af8c->font[4 + value];
+                    if (*cursor != ' ') {
+                        if (cursor <= text) {
+                            SystemDebugPrintf(
+                                "FATAL : INVALID STRING '%s'n", text);
+                            ClearDebugPauseFlags();
+                            PumpMessagesDuringWait();
+                            exit(0);
+                        }
                         do {
-                            signed char previous;
-
-                            if (character <= text) {
-                                SystemDebugPrintf(0);
-                                ClearDebugPauseFlags();
-                                PumpMessagesDuringWait();
-                                exit(0);
-                            }
-                            previous = (signed char)*character;
-                            character--;
-                            lineWidth -= context->font[4 + (int)previous];
-                        } while (*character != ' ');
-                        scan = character;
-                        if (character <= text) {
-                            SystemDebugPrintf(0);
+                            value = *cursor;
+                            cursor--;
+                            lineWidth -=
+                                g_pCurrentTextContext_0059af8c
+                                    ->font[4 + value];
+                        } while (*cursor != ' ');
+                        if (cursor <= text) {
+                            SystemDebugPrintf(
+                                "FATAL : INVALID STRING '%s'n", text);
                             ClearDebugPauseFlags();
                             PumpMessagesDuringWait();
                             exit(0);
@@ -262,27 +264,29 @@ void __stdcall DrawTextString(char *text)
             }
         }
 
-        if (context->alignment == 2) {
-            savedX = context->cursorX;
-            context->cursorX = (short)(context->viewport->left +
-                (((context->viewport->right - context->viewport->left) -
-                  lineWidth + 1 + savedX) / 2));
+        if (g_pCurrentTextContext_0059af8c->alignment == 2) {
+            savedX = g_pCurrentTextContext_0059af8c->cursorX;
+            g_pCurrentTextContext_0059af8c->cursorX = (short)(
+                g_pCurrentTextContext_0059af8c->viewport->left +
+                ((g_pCurrentTextContext_0059af8c->viewport->right -
+                  g_pCurrentTextContext_0059af8c->viewport->left) -
+                 lineWidth + savedX + 1) / 2);
         }
-        while (lineStart < scan) {
+        while (lineStart < cursor) {
             DrawTextCharacter(*lineStart);
             lineStart++;
         }
-        if (context->alignment == 2)
-            context->cursorX = (short)savedX;
-        if (wrapped) {
-            context->cursorX = context->viewport->left;
-            context->cursorY = (short)(context->cursorY +
-                *(short *)context->font);
+        if (g_pCurrentTextContext_0059af8c->alignment == 2)
+            g_pCurrentTextContext_0059af8c->cursorX = (short)savedX;
+        if (wrapped != 0) {
+            g_pCurrentTextContext_0059af8c->cursorX =
+                g_pCurrentTextContext_0059af8c->viewport->left;
             wrapped = 0;
+            g_pCurrentTextContext_0059af8c->cursorY +=
+                *(short *)g_pCurrentTextContext_0059af8c->font;
         }
-        if (finished)
+        if (finished != 0)
             return;
-        cursor = scan;
     }
 }
 

@@ -1064,6 +1064,7 @@ unsigned int StartNewCampaign(short campaign)
 short GameFlow(void)
 {
     short roomSelection;
+    int barracksSelection;
     short launchMission;
     short flownSeries;
     short flownMission;
@@ -1093,27 +1094,29 @@ short GameFlow(void)
         if (roomSelection == 5) {
             RunTrainSim();
         } else {
-            roomSelection = BarracksScreen();
+            barracksSelection = BarracksScreen();
             DAT_004688e0 = 0;
-            if (roomSelection == 6)
+            if (barracksSelection == 6)
                 return 0;
-            if (roomSelection == 7)
+            if (barracksSelection == 7)
                 launchMission++;
         }
         PumpWindowMessages();
     } while (launchMission == 0);
 
     DAT_0046505c = 1;
-    flownSeries = (short)g_stCampaignState_0059ca50.currentSeries;
-    flownMission = (short)g_stCampaignState_0059ca50.currentMission;
     g_nDebriefingPersonality_00465c80 = *(short *)(
-        g_pMissionCampaignData_005988bc + flownSeries * 0x5a - 0x5a);
-    Briefing(flownSeries, flownMission);
+        g_pMissionCampaignData_005988bc +
+        (short)g_stCampaignState_0059ca50.currentSeries * 0x5a - 0x5a);
+    Briefing((short)g_stCampaignState_0059ca50.currentSeries,
+             (short)g_stCampaignState_0059ca50.currentMission);
     PlayScrambleHangarScene();
     g_stCampaignState_0059ca50.playerShipType =
         g_aMissionShips_0046c948[
             g_nPlayerMissionShipIndex_005a8694].type;
     scramble();
+    flownSeries = (short)g_stCampaignState_0059ca50.currentSeries;
+    flownMission = (short)g_stCampaignState_0059ca50.currentMission;
     init_mission(flownSeries, flownMission);
     LaunchPlayerShip();
     flightResult = RunSpaceFlight(-1);

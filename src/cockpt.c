@@ -1634,7 +1634,6 @@ void print_message_text(char *text, unsigned char colour)
     short lastSpace = -1;
     short position = 0;
     short width;
-    short x;
     short y;
     int view;
 
@@ -1648,10 +1647,11 @@ void print_message_text(char *text, unsigned char colour)
     context.viewport = &viewport;
 
     view = (int)g_cCockpitView_0059dab0;
-    x = DAT_004691e0[view * 2];
-    y = DAT_004691e0[view * 2 + 1];
-    SetRectBounds(&viewport, (unsigned short)x, (unsigned short)y,
-                  (unsigned short)(319 - x), (unsigned short)(y + 60));
+    SetRectBounds(&viewport,
+                  (unsigned short)DAT_004691e0[view * 2],
+                  (unsigned short)DAT_004691e0[view * 2 + 1],
+                  (unsigned short)(319 - DAT_004691e0[view * 2]),
+                  (unsigned short)(DAT_004691e0[view * 2 + 1] + 60));
     context.colour = colour;
     context.backgroundColour = 0xff;
     width = GetRectHeight(&viewport);
@@ -1683,22 +1683,25 @@ void print_message_text(char *text, unsigned char colour)
     if (DAT_0046a008 != 0) {
         switch (view) {
         case 0:
-            y = (short)(y + 10);
+            y = (short)(DAT_004691e0[view * 2 + 1] + 10);
             break;
         case 1:
-            y = (short)(y + 25);
+            y = (short)(DAT_004691e0[view * 2 + 1] + 25);
             break;
         case 2:
-            y = (short)(y + 50);
+            y = (short)(DAT_004691e0[view * 2 + 1] + 50);
             break;
         case 3:
+            y = DAT_004691e0[view * 2 + 1];
             break;
         default:
             DAT_00469008 = DAT_00469004;
             return;
         }
+    } else {
+        y = DAT_004691e0[view * 2 + 1];
     }
-    DrawTextAt(&context, x, y, wrapped, 2);
+    DrawTextAt(&context, DAT_004691e0[view * 2], y, wrapped, 2);
     DAT_00469008 = DAT_00469004;
 }
 

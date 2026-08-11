@@ -149,20 +149,19 @@ void ReportFramesSkipped(short adjustment)
 /* Function start: 0x429160 */
 int HandleSpaceFlightControls(void)
 {
-    signed char key;
-    int repeated;
+    int notRepeated;
     int control;
 
     player_input();
     players_flight_dynamics();
-    key = (signed char)g_bCurrentKey_0046c014;
-    repeated = key == g_cPreviousKey_0046c018;
+    notRepeated = (signed char)g_bCurrentKey_0046c014 !=
+                  g_cPreviousKey_0046c018;
     control = GetControlKeyState();
     GetKeyboardModifiers();
     HandleFleetOverviewInput();
 
     if (g_nTrainSimActive_00469e2c == 0) {
-        switch (key) {
+        switch ((signed char)g_bCurrentKey_0046c014) {
         case 2:
         case 3:
         case 4:
@@ -172,15 +171,17 @@ int HandleSpaceFlightControls(void)
         case 8:
         case 9:
         case 10:
-            if (!repeated && (short)get_mode(1) == 4 &&
-                DAT_0046c03c == 0 && key >= 2 &&
-                key <= g_nCommMenuChoiceCount_0046af60 + 2 &&
+            if (notRepeated && (short)get_mode(1) == 4 &&
+                DAT_0046c03c == 0 && (signed char)g_bCurrentKey_0046c014 >= 2 &&
+                (signed char)g_bCurrentKey_0046c014 <=
+                    g_nCommMenuChoiceCount_0046af60 + 2 &&
                 (short)get_mode(1) == 4) {
-                Chosen_communicate_option((short)(key - 2));
+                Chosen_communicate_option(
+                    (short)((signed char)g_bCurrentKey_0046c014 - 2));
             }
             break;
         case 0x12:
-            if (!repeated &&
+            if (notRepeated &&
                 (control != 0 ||
                  (g_wCurrentInputModifiers_0059ab08 & 0x2000) != 0) &&
                 g_cPlayerEjectionDamage_0059bff7 != 4) {
@@ -192,7 +193,7 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x1e:
-            if (!repeated) {
+            if (notRepeated) {
                 g_bMouseCursorVisible_0046a018 = 0;
                 if ((short)get_mode(1) != 5)
                     SelectCockpitVduMode(1, 5);
@@ -219,7 +220,7 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x1f:
-            if (control != 0 && !repeated) {
+            if (control != 0 && notRepeated) {
                 if (g_nFlightSoundEffectsEnabled_0046aa34 == 1)
                     ResetSoundStateForScene();
                 else
@@ -227,14 +228,14 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x23:
-            if (!repeated && g_nYourWingman_0046c04c != -1 &&
+            if (notRepeated && g_nYourWingman_0046c04c != -1 &&
                 g_aeShipObjective_0059d200[g_nYourWingman_0046c04c] !=
                     OBJECTIVE_HOLD_FORMATION) {
                 request(0, g_nYourWingman_0046c04c, 9);
             }
             break;
         case 0x2e:
-            if (!repeated) {
+            if (notRepeated) {
                 if ((short)message_showing() == 0) {
                     if ((short)get_mode(1) == 4)
                         CloseCommChoiceMenu();
@@ -246,7 +247,7 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x2f:
-            if (!repeated && control == 0) {
+            if (notRepeated && control == 0) {
                 g_bVideoImagesSuppressed_0046af74 =
                     g_bVideoImagesSuppressed_0046af74 == 0;
                 if (g_bVideoImagesSuppressed_0046af74 != 0)
@@ -258,7 +259,7 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x30:
-            if (!repeated && g_nYourWingman_0046c04c != -1 &&
+            if (notRepeated && g_nYourWingman_0046c04c != -1 &&
                 g_aeShipObjective_0059d200[g_nYourWingman_0046c04c] ==
                     OBJECTIVE_HOLD_FORMATION &&
                 any_enemy(0, 14000) != 0) {
@@ -266,12 +267,12 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x31:
-            if (!repeated)
+            if (notRepeated)
                 SelectCockpitVduMode(1, 5);
             init_player_input();
             break;
         case 0x32:
-            if (!repeated && control == 0)
+            if (notRepeated && control == 0)
                 SetMessageDisplaySpeed();
             break;
         case 0x3b:
@@ -404,7 +405,7 @@ int HandleSpaceFlightControls(void)
             new_view(7, 0);
             goto restore_normal_viewport;
         case 0x42:
-            if (!repeated) {
+            if (notRepeated) {
                 g_bMouseCursorVisible_0046a018 = 0;
                 g_bMissileCameraEnabled_0046c07c ^= 1;
                 if (g_bMissileCameraEnabled_0046c07c != 0)
@@ -416,7 +417,7 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x43:
-            if (!repeated) {
+            if (notRepeated) {
                 g_bMouseCursorVisible_0046a018 = 0;
                 SelectNextExternalViewObject();
                 if (DAT_0046a008 == 0) {
@@ -443,7 +444,7 @@ restore_normal_viewport:
     initialize_view_buffer();
 
 primary_controls_complete:
-    switch (key) {
+    switch ((signed char)g_bCurrentKey_0046c014) {
     case 1:
         DAT_0059ab58 = 0;
         if (g_nTrainSimActive_00469e2c != 0)
@@ -477,13 +478,13 @@ primary_controls_complete:
         your_afterburner();
         return 0;
     case 0x11:
-        if (!repeated) {
+        if (notRepeated) {
             SelectCockpitVduMode(0, 1);
             return 0;
         }
         break;
     case 0x14:
-        if (!repeated) {
+        if (notRepeated) {
             SelectCockpitVduMode(1, 3);
             return 0;
         }
@@ -493,7 +494,7 @@ primary_controls_complete:
         SetFrameTimerPeriodDirect(1);
         return 0;
     case 0x1c:
-        if (!repeated && g_nSelectedReleaseWeaponIndex_0046c058 != -1) {
+        if (notRepeated && g_nSelectedReleaseWeaponIndex_0046c058 != -1) {
             ShipWeaponSlot *slot =
                 &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1])[
                     g_nSelectedReleaseWeaponIndex_0046c058];
@@ -514,7 +515,7 @@ primary_controls_complete:
         }
         break;
     case 0x1f:
-        if (control != 0 && !repeated) {
+        if (control != 0 && notRepeated) {
             g_nSfxVolumeSetting_00469fbc =
                 g_nSfxVolumeSetting_00469fbc == 0 ? 20 : 0;
             SetSoundEffectsVolume(
@@ -526,13 +527,13 @@ primary_controls_complete:
         }
         break;
     case 0x20:
-        if (!repeated) {
+        if (notRepeated) {
             SelectCockpitVduMode(0, 2);
             return 0;
         }
         break;
     case 0x22:
-        if (!repeated) {
+        if (notRepeated) {
             SelectCockpitVduMode(0, 1);
             return 0;
         }
@@ -544,7 +545,7 @@ primary_controls_complete:
         }
         break;
     case 0x26:
-        if (repeated) {
+        if (notRepeated == 0) {
             init_player_input();
             return 0;
         }
@@ -560,13 +561,13 @@ primary_controls_complete:
         accelerate(9000);
         return 0;
     case 0x2f:
-        if (!repeated && control != 0) {
+        if (notRepeated && control != 0) {
             ShowVersionBanner();
             return 0;
         }
         break;
     case 0x32:
-        if (!repeated && control != 0) {
+        if (notRepeated && control != 0) {
             g_nMusicVolumeSetting_00469fc0 =
                 g_nMusicVolumeSetting_00469fc0 == 0 ? 20 : 0;
             SetMusicStreamVolume(
@@ -1206,9 +1207,9 @@ short find_next_gun(short obj, enum ObjectType currentGun)
 int select_guns(short obj, short selectedGun)
 {
     short weaponCount = (signed char)g_aShipWeapons_0059cab0[0][0];
-    int found = 0;
     ShipWeaponSlot *weaponSlot =
         (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
+    int found = 0;
 
     (void)obj;
     if (weaponCount > 0) {

@@ -741,13 +741,13 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                                 WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT paint;
+    int mouseEvent;
     unsigned int scanCode;
     unsigned int primaryButton;
     unsigned int secondaryButton;
-    unsigned short mouseX;
-    unsigned short mouseY;
+    unsigned int mouseX;
+    unsigned int mouseY;
     unsigned short eventType;
-    int mouseEvent;
 
     mouseEvent = 0;
     primaryButton = (unsigned int)wParam & 1;
