@@ -11,23 +11,23 @@
 /* Function start: 0x403500 */
 void __stdcall CloseDataFile(unsigned int fd)
 {
-    DAT_00465460 = (short)_close(fd & 0xffff);
+    g_nPacketError_00465460 = (short)_close(fd & 0xffff);
 }
 
 /* Function start: 0x403520 */
 short __stdcall WriteDataFileAtOffset(unsigned int fd, int offset,
                                       unsigned int length, const void *data)
 {
-    DAT_00465460 = 0;
+    g_nPacketError_00465460 = 0;
     fd &= 0xffff;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
         sprintf(g_szWriteDataFileError_00475da0, "!lseek %d\n", offset);
-        DAT_00465460 = (short)errno;
+        g_nPacketError_00465460 = (short)errno;
         return 0;
     }
     if (_write(fd, data, length) == -1) {
         sprintf(g_szWriteDataFileError_00475da0, "!write %d\n", offset);
-        DAT_00465460 = (short)errno;
+        g_nPacketError_00465460 = (short)errno;
         return 0;
     }
     return 1;
@@ -41,7 +41,7 @@ short __stdcall CreateDataFile(const char *path)
     fd = (unsigned short)_open(path, 0x8101, 0x180);
     if ((unsigned int)fd == (unsigned int)-1) {
         sprintf(g_szCreateDataFileError_00475d60, "!_open '%s'\n", path);
-        DAT_00465460 = (short)errno;
+        g_nPacketError_00465460 = (short)errno;
         fd = 0;
     }
     return (short)fd;
@@ -51,16 +51,16 @@ short __stdcall CreateDataFile(const char *path)
 int __stdcall ReadDataFileAtOffset(unsigned int fd, int offset,
                                    unsigned int length, void *data)
 {
-    DAT_00465460 = 0;
+    g_nPacketError_00465460 = 0;
     fd &= 0xffff;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
         sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
-        DAT_00465460 = (short)errno;
+        g_nPacketError_00465460 = (short)errno;
         return 0;
     }
     if (_read(fd, data, length) == -1) {
         sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
-        DAT_00465460 = (short)errno;
+        g_nPacketError_00465460 = (short)errno;
         return 0;
     }
     return 1;
@@ -75,7 +75,7 @@ int __stdcall SeekDataFile(unsigned int fd, int offset,
     position = _lseek(fd & 0xffff, offset, origin & 0xffff);
     if (position == -1) {
         sprintf(g_szSeekDataFileError_00475de0, "!lseek %d\n", offset);
-        DAT_00465460 = (short)errno;
+        g_nPacketError_00465460 = (short)errno;
     }
     return position;
 }

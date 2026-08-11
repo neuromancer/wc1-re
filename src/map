@@ -447,7 +447,7 @@
 0x00417F10 vdu_pop_all
 0x00417F60 SelectCockpitVduMode
 0x00418080 LoopLocalFn8080
-0x004180C0 DoLocalFn80C0
+0x004180C0 SeekPacketSection
 0x00418130 ReturnConst1v2
 0x00418140 CollectActivePaletteIndices
 0x004181C0 get_ship_max_velocity
@@ -933,7 +933,7 @@
 0x0042D500 DrawConstellationField
 0x0042D730 OpenPacketSection
 0x0042D870 DoLocalFnD870
-0x0042D880 ReleaseUiFnD880
+0x0042D880 DecompressPacketSection
 0x0042DB70 GetUiFnDB70
 0x0042DB90 show_target_disp
 0x0042DEA0 DrawTargetRangeReadout
@@ -985,7 +985,7 @@
 0x0042F940 DoLocalFnF940
 0x0042F950 MessagePumpHook
 0x0042F960 PushMemoryStackFrame
-0x0042F9E0 LoopInputFnF9E0
+0x0042F9E0 IsPushedPacketHandle
 0x0042FA20 MapPacketHandleToBlock
 0x0042FA90 AllocateTaggedMemory
 0x0042FAE0 ReleasePacketHandle

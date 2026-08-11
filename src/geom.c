@@ -25,6 +25,36 @@ short __stdcall MeasureTextPixelWidthClamped(const char *text)
     return width;
 }
 
+/* Function start: 0x4180C0 */
+int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
+                                short origin)
+{
+    int position;
+    int sectionEnd;
+    int result;
+
+    sectionEnd = (int)(handle->dataOffset + handle->dataSize);
+    switch (origin) {
+    case 0:
+        position = (int)handle->dataOffset;
+        break;
+    case 1:
+        position = (int)(handle->dataOffset + handle->position);
+        break;
+    case 2:
+        position = sectionEnd;
+        break;
+    }
+    position += offset;
+    if (position < (int)handle->dataOffset)
+        position = (int)handle->dataOffset;
+    if (position > sectionEnd && handle->finalSection == 0)
+        position = sectionEnd;
+    result = SeekDataFile((unsigned short)handle->file, position, 0);
+    if (result != -1)
+        handle->position = (unsigned int)(result - handle->dataOffset);
+}
+
 /* Function start: 0x418130 */
 unsigned short GetMusicDriverPresent(void)
 {

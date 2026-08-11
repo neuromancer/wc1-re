@@ -360,7 +360,7 @@ short __stdcall OpenPacketSection(const char *filename, short section,
         goto failed;
     sectionCount = (short)(directorySize >> 2) - 1;
     if (section >= sectionCount) {
-        DAT_00465460 = 3;
+        g_nPacketError_00465460 = 3;
         goto failed;
     }
     sectionIndex = (int)section;
@@ -399,6 +399,129 @@ failed:
 void __stdcall CloseDataFileByHandle(unsigned short *p)
 {
     CloseDataFile(*p);
+}
+
+/* Function start: 0x42D880 */
+void * __stdcall DecompressPacketSection(
+    PacketSectionHandle *handle, void *destination, unsigned short flags,
+    void *decompressionWorkspace)
+{
+    unsigned int allocationSize;
+    void *packet;
+    void *alignedWorkspace;
+    void *largeScratch;
+    void *smallScratch;
+    int fallbackAllocations;
+
+    fallbackAllocations = 0;
+    packet = 0;
+    g_pLastPacketAllocation_005a68f0 = 0;
+    if (g_wPacketCompressionFormatFlags_0046a924 == 0) {
+        if (handle->compression != 1) {
+            g_nPacketError_00465460 = 6;
+            return 0;
+        }
+    } else if ((handle->compression & 0xc0) != 0) {
+        g_nPacketError_00465460 = 6;
+        return 0;
+    }
+
+    if (decompressionWorkspace == 0) {
+        if (g_pPacketDecompressionWorkspace_0046a91c != 0) {
+            g_wPacketDecompressionInputSizeOverride_0046a920 = 0;
+            decompressionWorkspace =
+                g_pPacketDecompressionWorkspace_0046a91c;
+        }
+        if (decompressionWorkspace == 0) {
+            largeScratch = AllocateTaggedMemory(0x3020, 0);
+            smallScratch = AllocateTaggedMemory(0x410, 0);
+            if (largeScratch == 0 || smallScratch == 0) {
+                if (largeScratch != 0)
+                    ReleasePacketHandle((int)largeScratch);
+                if (smallScratch != 0)
+                    ReleasePacketHandle((int)smallScratch);
+                fallbackAllocations = 1;
+                largeScratch = AllocateTaggedMemory(0x3000, 0x22);
+                if (largeScratch == 0) {
+                    g_nPacketError_00465460 = 1;
+                    return 0;
+                }
+                smallScratch = AllocateTaggedMemory(0x400, 0x22);
+                if (smallScratch == 0) {
+                    ReleasePacketHandle((int)largeScratch);
+                    g_nPacketError_00465460 = 2;
+                    return 0;
+                }
+            }
+            alignedWorkspace = (void *)IdentityHandle(
+                (unsigned int)largeScratch);
+            g_pPacketDecompressInput_0059ab04 = (void *)IdentityHandle(
+                (unsigned int)smallScratch);
+            g_wPacketDecompressInputSize_0059ab38 = 0x400;
+            goto initializeDecompressor;
+        }
+    }
+
+    alignedWorkspace = (void *)IdentityHandle(
+        (unsigned int)decompressionWorkspace);
+    g_wPacketDecompressInputSize_0059ab38 = 0x400;
+    allocationSize = 0x3020;
+    g_pPacketDecompressInput_0059ab04 =
+        (unsigned char *)decompressionWorkspace + 0x3020;
+    g_pPacketDecompressInput_0059ab04 = (void *)IdentityHandle(
+        (unsigned int)g_pPacketDecompressInput_0059ab04);
+    largeScratch = (void *)allocationSize;
+    smallScratch = (void *)allocationSize;
+    if (g_wPacketDecompressionInputSizeOverride_0046a920 != 0)
+        g_wPacketDecompressInputSize_0059ab38 =
+            g_wPacketDecompressionInputSizeOverride_0046a920;
+
+initializeDecompressor:
+    g_nPacketDecompressSourceFile_0059a858 = handle->file;
+    g_nPacketDecompressInputPosition_0059ab00 = 0;
+    g_nPacketDecompressPending_0059ab36 = 0;
+    g_nPacketDecompressWorkspaceSegment_0059ab3a =
+        (short)(unsigned int)alignedWorkspace;
+    if (alignedWorkspace != 0)
+        g_nPacketDecompressWorkspaceSegment_0059ab3a++;
+
+    if (SeekPacketSection(handle, 0, 0) == -1) {
+        g_nPacketError_00465460 = 5;
+        return 0;
+    }
+    if (destination == 0) {
+        if (ReadPacketSectionData(handle, &allocationSize, 4) != 0) {
+            g_pLastPacketAllocation_005a68f0 = AllocateTaggedMemory(
+                allocationSize, flags);
+            if (g_pLastPacketAllocation_005a68f0 == 0)
+                g_nPacketError_00465460 = 4;
+        }
+    } else {
+        if (SeekPacketSection(handle, 4, 0) == -1) {
+            g_nPacketError_00465460 = 5;
+            return 0;
+        }
+        g_pLastPacketAllocation_005a68f0 = destination;
+    }
+
+    if (g_nPacketError_00465460 == 0) {
+        packet = g_pLastPacketAllocation_005a68f0;
+        if (ReadPacketSectionData(
+                handle, g_pPacketDecompressInput_0059ab04,
+                g_wPacketDecompressInputSize_0059ab38) == 0)
+            packet = 0;
+        g_nPacketDecompressResult_0059ab30 = GetVideoReleaseResult();
+        if (packet != 0)
+            VideoReleaseHook();
+    }
+    if (decompressionWorkspace == 0) {
+        ReleasePacketHandle((int)smallScratch);
+        if (fallbackAllocations != 0)
+            ReleasePacketHandle((int)largeScratch);
+        else
+            ReleasePacketHandle((int)largeScratch);
+    }
+    return packet;
 }
 
 /* Function start: 0x42DB70 */

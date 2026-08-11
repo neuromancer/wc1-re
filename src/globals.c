@@ -166,7 +166,7 @@ unsigned int DAT_004650ac;
 GuardedAllocation *g_pGuardedAllocationHead_004650b0;
 const char g_szJoystickDevCapsFailure_004652dc[26] =
     "Joystick: !joyGetDevCaps\n";
-short DAT_00465460;
+short g_nPacketError_00465460;
 short g_nAutopilotFormationShipCount_00465544;
 const short g_asEjectionPrimaryFrames_00465550[8] = {
     0, 1, 1, 3, 3, 0, 0, 0
@@ -719,6 +719,9 @@ const short g_asConstellationFrame_0046a8f8[16] = {
     0, 16, 16, 0, 4, 4, 20, 20, 24, 8, 8, 24, 28, 12, 12, 28
 };
 short g_nConstellationDirection_0046a918 = -1;
+unsigned char *g_pPacketDecompressionWorkspace_0046a91c;
+unsigned short g_wPacketDecompressionInputSizeOverride_0046a920;
+unsigned short g_wPacketCompressionFormatFlags_0046a924;
 const ShortRect g_aTargetArmorClipRects_0046a928[4] = {
     { 12, -20, 29, 20 },
     { -11, 1, 11, 20 },
@@ -1854,12 +1857,15 @@ short g_nEventManagerActive_0059a850;
 short g_nViewCenterX_0059a852;
 short g_nViewCenterY_0059a854;
 short DAT_0059a856;
+short g_nPacketDecompressSourceFile_0059a858;
 unsigned char g_abInputKeyState_0059a860[0x80];
 int DAT_0059a8e0;
 int DAT_0059a8e4;
 signed char g_cScreenViewportMode_0059a9f2;
 const short * volatile g_pScreenViewportGeometry_0059a9f4;
 int g_anSortedObject_0059aa00[WC1_SPACE_OBJECT_COUNT];
+short g_nPacketDecompressInputPosition_0059ab00;
+void *g_pPacketDecompressInput_0059ab04;
 unsigned short g_wCurrentInputModifiers_0059ab08;
 volatile short g_nMouseX_0059ab10;
 volatile short g_nMouseY_0059ab12;
@@ -1872,7 +1878,11 @@ unsigned short DAT_0059ab1d;
 Viewport * volatile DAT_0059ab23;
 unsigned char g_bMouseCursorShapeChanged_0059ab2b;
 void (*DAT_0059ab2c)(void);
+int g_nPacketDecompressResult_0059ab30;
 short DAT_0059ab34;
+short g_nPacketDecompressPending_0059ab36;
+unsigned short g_wPacketDecompressInputSize_0059ab38;
+short g_nPacketDecompressWorkspaceSegment_0059ab3a;
 int DAT_0059ab3c;
 int DAT_0059ab40;
 int DAT_0059ab44;
@@ -2031,6 +2041,7 @@ int g_nPacketHandleCount_005a6530;
 int *DAT_005a6538;
 int g_aiSoundEffectSourceActive_005a66ec[0x41];
 int g_nAllocateViewportCalls_005a68ec;
+void *g_pLastPacketAllocation_005a68f0;
 FireworkState g_aFireworks_005a6900[30];
 unsigned char *g_pFireworkShape_005a6a68;
 ConstellationStar g_aConstellationStars_005a6a70[10];

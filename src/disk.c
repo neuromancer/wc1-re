@@ -15,7 +15,7 @@ void ReportPacketLoadError(void *packet, short logicalFile,
     unsigned int packetSize;
     const char *operation;
 
-    error = DAT_00465460;
+    error = g_nPacketError_00465460;
     packetSize = (unsigned int)-1;
     if ((packet == 0 || (error != 0 && error != 8)) &&
         (packet != 0 || error != 8)) {
@@ -26,7 +26,7 @@ void ReportPacketLoadError(void *packet, short logicalFile,
         operation = "allocating memory";
         if (packet != 0 && section != -1)
             operation = "reading from disk";
-        DAT_00465460 = error;
+        g_nPacketError_00465460 = error;
         sprintf(g_szDefaultTextBuffer_005a7590,
                 "Sorry, an error has occured while %s.\n"
                 "Please note the following information:\n"
@@ -50,7 +50,7 @@ void *LoadPacketIntoBuffer(short logicalFile, short section,
     PromptInsertNumberedDisk(logicalFile);
     packet = PacketLoad(
         (char *)(DAT_005a7cf0 + logicalFile * 16),
-        section, destination, 0);
+        section, destination, 0, 0);
     ReportPacketLoadError(destination, logicalFile, 0, section, "RP");
     return packet;
 }
@@ -71,10 +71,10 @@ void *LoadPacketAllocated(short logicalFile, short section)
         do {
             retries--;
             PacketLoad((char *)(DAT_005a7cf0 + logicalFile * 16),
-                       section, packet, 0);
-            if (retries < 1 || DAT_00465460 == 0)
+                       section, packet, 0, 0);
+            if (retries < 1 || g_nPacketError_00465460 == 0)
                 break;
-        } while (DAT_00465460 != 8);
+        } while (g_nPacketError_00465460 != 8);
     }
     ReportPacketLoadError(packet, logicalFile, 0, section, "LPN");
     return packet;
@@ -89,32 +89,36 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     short retries = 5;
 
     if (DAT_005a7cf0 == 0 || logicalFile < 0) {
-        DAT_00465460 = 3;
+        g_nPacketError_00465460 = 3;
         return 0;
     }
     filename = (const char *)(DAT_005a7cf0 + logicalFile * 16);
     do {
         FreePacketAndClear((int *)&packet, flags);
-        packet = PacketLoad(filename, section, 0, flags);
+        packet = PacketLoad(filename, section, 0, flags, 0);
         retries--;
-    } while (packet == 0 && retries > 0 && DAT_00465460 != 8);
+    } while (packet == 0 && retries > 0 && g_nPacketError_00465460 != 8);
 
-    if (packet == 0 && DAT_00465460 == 4 && DAT_005a7510.pixels != 0) {
+    if (packet == 0 && g_nPacketError_00465460 == 4 &&
+        DAT_005a7510.pixels != 0) {
         free_viewport(&DAT_005a7510);
         do {
             FreePacketAndClear((int *)&packet, flags);
-            packet = PacketLoad(filename, section, 0, flags);
+            packet = PacketLoad(filename, section, 0, flags, 0);
             retries--;
-        } while (packet == 0 && retries > 0 && DAT_00465460 != 8);
+        } while (packet == 0 && retries > 0 &&
+                 g_nPacketError_00465460 != 8);
         AllocateViewport(&DAT_005a7510, (short)DAT_004699d8, 0x20);
     }
-    if (packet == 0 && DAT_00465460 == 4 && DAT_005a76b0.pixels != 0) {
+    if (packet == 0 && g_nPacketError_00465460 == 4 &&
+        DAT_005a76b0.pixels != 0) {
         free_viewport(&DAT_005a76b0);
         do {
             FreePacketAndClear((int *)&packet, flags);
-            packet = PacketLoad(filename, section, 0, flags);
+            packet = PacketLoad(filename, section, 0, flags, 0);
             retries--;
-        } while (packet == 0 && retries > 0 && DAT_00465460 != 8);
+        } while (packet == 0 && retries > 0 &&
+                 g_nPacketError_00465460 != 8);
         AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0);
     }
     return packet;

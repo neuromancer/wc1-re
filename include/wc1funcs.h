@@ -495,6 +495,8 @@ void PlayCockpitSelectionSfx(short selectionSound);                  /* 0x00417F
 void vdu_pop_all(short vdu);                                         /* 0x00417F10 */
 void SelectCockpitVduMode(short vdu, int mode);                       /* 0x00417F60 */
 short __stdcall MeasureTextPixelWidthClamped(const char *text);         /* 0x00418080 */
+int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
+                                short origin);                         /* 0x004180C0 */
 unsigned short GetMusicDriverPresent(void);                                    /* 0x00418130 */
 short __stdcall CollectActivePaletteIndices(Viewport *viewport,
                                              unsigned char *indices,
@@ -1015,8 +1017,9 @@ void WaitForDebugStep(void);                                          /* 0x0042A
 void CALLBACK FrameTimerCallback(UINT timerId, UINT message, DWORD user,
                                  DWORD first, DWORD second);       /* 0x0042AFB0 */
 void SetMultimediaTimerCallback(int period);                       /* 0x0042AFC0 */
-void *PacketLoad(const char *filename, short section, void *destination,
-                 unsigned short flags);                               /* 0x0042B050 */
+void * __stdcall PacketLoad(const char *filename, short section,
+                            void *destination, unsigned short flags,
+                            void *decompressionWorkspace);            /* 0x0042B050 */
 void ServiceAudioStream(void);                                        /* 0x0042B1B0 */
 WaveTableEntry *AllocateWaveTableEntry(void);                         /* 0x0042B1F0 */
 WaveTableEntry *FindWaveTableEntryByName(const char *name);           /* 0x0042B240 */
@@ -1052,10 +1055,13 @@ unsigned int InitializeConstellationField(Viewport *viewport,
 unsigned int DrawConstellationField(void);                             /* 0x0042D500 */
 short __stdcall OpenPacketSection(const char *filename, short section,
                                   PacketSectionHandle *handle);        /* 0x0042D730 */
+void __stdcall CloseDataFileByHandle(unsigned short *p);                       /* 0x0042D870 */
+void * __stdcall DecompressPacketSection(
+    PacketSectionHandle *handle, void *destination, unsigned short flags,
+    void *decompressionWorkspace);                                    /* 0x0042D880 */
+short GetTargetColourIndex(void);                                                /* 0x0042DB70 */
 void show_target_disp(void);                                         /* 0x0042DB90 */
 void DrawTargetRangeReadout(void);                                   /* 0x0042DEA0 */
-void __stdcall CloseDataFileByHandle(unsigned short *p);                       /* 0x0042D870 */
-short GetTargetColourIndex(void);                                                /* 0x0042DB70 */
 void LogDisplayMode(const char *mode);                                 /* 0x0042E020 */
 unsigned short __stdcall AllocateViewport(Viewport *viewport,
                                           short clearColour,
@@ -1106,6 +1112,7 @@ void FrameStartHook(int mode);                                         /* 0x0042
 unsigned short IsSoundHardwarePresent(void);                                     /* 0x0042F940 */
 void MessagePumpHook(int mode);                                        /* 0x0042F950 */
 int PushMemoryStackFrame(int memory, int offset);                       /* 0x0042F960 */
+int IsPushedPacketHandle(int handle);                                  /* 0x0042F9E0 */
 int MapPacketHandleToBlock(int handle);                               /* 0x0042FA20 */
 void *AllocateTaggedMemory(unsigned int size, unsigned short flags);   /* 0x0042FA90 */
 void ReleasePacketHandle(int handle);                                 /* 0x0042FAE0 */

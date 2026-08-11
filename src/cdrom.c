@@ -154,6 +154,6 @@ short __stdcall OpenDataFileOrDie(const char *path)
 {
     int fd = _open(path, 0x8002);
 
-    DAT_00465460 = (short)errno;
+    g_nPacketError_00465460 = (short)errno;
     return (short)fd;
 }

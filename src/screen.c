@@ -315,7 +315,7 @@ unsigned int __stdcall GetPacketSize(const char *filename, short section)
         switch (handle.compression) {
         case 1:
             ReadPacketSectionData(&handle, &size, 4);
-            if (DAT_00465460 != 0)
+            if (g_nPacketError_00465460 != 0)
                 size = (unsigned int)-1;
             break;
         case 2:
@@ -370,6 +370,25 @@ int PushMemoryStackFrame(int memory, int offset)
         return memory;
     }
     return memory;
+}
+
+/* Function start: 0x42F9E0 */
+int IsPushedPacketHandle(int handle)
+{
+    int index;
+
+    index = 0;
+    if (g_nPacketHandleCount_005a6530 > 0) {
+        do {
+            if (g_aiPacketHandles_0059e530[index] == handle) {
+                if (g_aiPacketHandleOffsets_005a2530[index] < 0)
+                    return 1;
+                return 0;
+            }
+            index++;
+        } while (index < g_nPacketHandleCount_005a6530);
+    }
+    return 0;
 }
 
 /* Function start: 0x42FA20 */
