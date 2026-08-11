@@ -4253,6 +4253,19 @@ int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
     return result;
 }
 
+/* Function start: 0x40CB30 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+void SampleActiveJoystickDevice(void)
+{
+    short device;
+
+    device = g_nActiveInputDevice_005a819c;
+    if (device != -1)
+        SampleJoystickDevice(&g_aInputDeviceSamples_005a81f0[device],
+                             device, 0);
+}
+
 /* Function start: 0x40CB60 */
 void DrawNavTextLine(unsigned char alignment, unsigned char colour,
                      const char *format, ...)

@@ -4,11 +4,14 @@ Audit date: 2026-08-11.
 
 This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
-`src/**/*.c` and `src/**/*.cpp`. The ordinary developer-written backlog is now
-complete. The only two inventory entries without source bodies are **compiler
-thunks**, which must not be reproduced manually. They are recorded as
-autocomplete entries by `bin/showProgress.py`, so the resolved inventory is
-1,465 of 1,465 while the source implementation count remains 1,463.
+`src/**/*.c` and `src/**/*.cpp`. A refreshed Ghidra export exposed seven more
+developer-written routines in gaps that had previously been treated as
+alignment padding; all seven are now reconstructed. The ordinary
+developer-written backlog is complete. The only two inventory entries without
+source bodies are **compiler thunks**, which must not be reproduced manually.
+They are recorded as autocomplete entries by `bin/showProgress.py`, so the
+resolved inventory is 1,472 of 1,472 while the source implementation count is
+1,470.
 
 The proposed compilation units follow the current source adjacency and
 `docs/ORDER.md`; boundaries explicitly described as provisional there remain
@@ -81,15 +84,28 @@ Ghidra status meanings:
   functions have behavior names, reconstructed prototypes, and plate comments
   recording that they are believed unreachable. The Ghidra program was saved
   after verification.
+- The refreshed analyzer also created 19 false function objects beginning on
+  alignment NOPs. Their bodies either flowed into an existing routine or
+  swallowed the first instruction of one of seven real functions. Those false
+  objects were removed and the true entries were force-created at `0x00402B90`,
+  `0x00402BA0`, `0x0040CB30`, `0x00418510`, `0x004189B0`, `0x00425BF0`, and
+  `0x00425C00`. Exact bodies, prototypes, reachability tags, and plate comments
+  were checked before saving and re-exporting the program. The only remaining
+  exported entries absent from `src/map` are the `DirectSoundCreate`,
+  `DirectSoundEnumerateA`, and `DirectDrawCreate` import jump stubs, which are
+  compiler/linker glue outside the developer inventory.
 
 ## Export and implementation progress
 
-- All 28 assembly snippets that were absent at the start of this audit, the two
-  newly discovered palette-entry helpers, and `FillViewportEllipse` now exist
-  in `code-full`. Each export has the same instruction count and return form as
-  its exact live Ghidra function. Existing exports were not rewritten.
-- Ninety confirmed `wc-developer` functions were reconstructed across thirteen
-  tranches after binary-comp comparison:
+- The refreshed Ghidra export regenerated 1,868 internal disassembly and
+  decompiler files together with `globals.h` and `strings.txt`. After repairing
+  its alignment-padding pseudo-functions, `make export-asm` regenerated all
+  1,472 annotated developer-function disassemblies directly from the original
+  PE, using 1,870 verified boundary markers. This keeps the refreshed Ghidra
+  names and analysis metadata while making the comparison bodies linear and
+  assembly-authoritative.
+- Ninety-seven confirmed `wc-developer` functions were reconstructed across
+  fourteen tranches after binary-comp comparison:
 
   | Address | Implemented name | Compilation unit | Similarity |
   |---|---|---|---:|
@@ -183,6 +199,13 @@ Ghidra status meanings:
   | `0x0043F0D0` | `CollectUniqueRLEPaletteFrames` | `src/screens.c` | 100.00% |
   | `0x0043F425` | `FadeRasterPaletteToPalette` | `src/screens.c` | 100.00% |
   | `0x0043F5A9` | `CollectRasterClipColours` | `src/screens.c` | 100.00% |
+  | `0x00402B90` | `GetMainWindowHandle` | `src/winmain.c` | 100.00% |
+  | `0x00402BA0` | `GetMainWindowDeviceContext` | `src/winmain.c` | 100.00% |
+  | `0x0040CB30` | `SampleActiveJoystickDevice` | `src/brains.c` | 100.00% |
+  | `0x00418510` | `intfract_sign` | `src/geom.c` | 100.00% |
+  | `0x004189B0` | `ConvertFixedVectorToShortVector` | `src/geom.c` | 100.00% |
+  | `0x00425BF0` | `SetConsoleTextColourHook` | `src/pilot.cpp` | 100.00% |
+  | `0x00425C00` | `SetConsoleBackgroundColourHook` | `src/pilot.cpp` | 100.00% |
 
 - Ghidra was synchronized with the reconstructed prototypes and behavior-based
   names, then saved after each tranche.
@@ -194,6 +217,10 @@ Ghidra status meanings:
 - All 21 names in the thirteenth tranche are behavior-based; none has a safe
   exact Mac counterpart. Each source body is explicitly marked as believed
   unreachable because the shipped executable has no known inbound reference.
+- `intfract_sign` is the exact Mac symbol for `0x00418510`; the other six names
+  in the fourteenth tranche are conservative behavior names. All seven have no
+  inbound code reference, stored function pointer, PE export, or other Ghidra
+  xref, and their source comments therefore mark them as believed unreachable.
 - `PlaySnowStaticSound` is the best rule-compliant C fallback. The original
   directly invokes C++ `IxSample` and `IxSound` methods; reproducing those calls
   from the core C unit would require a forbidden wrapper/thunk or changing the

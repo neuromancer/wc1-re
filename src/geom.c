@@ -225,6 +225,19 @@ int AbsInt(int v)
     return v;
 }
 
+/* Function start: 0x418510 */
+/* Exact Mac symbol: intfract_sign. No inbound reference is known in the
+ * shipped executable; this routine is believed unreachable. */
+int intfract_sign(int sign, int magnitude)
+{
+    int result;
+
+    result = magnitude;
+    if (sign >= 0)
+        return result;
+    return -result;
+}
+
 /* Function start: 0x418520 */
 unsigned short SignShort(short v)
 {
@@ -396,6 +409,17 @@ void ConvertShortVectorToFixedVector(const ShortVector *source,
     destination->x = (int)source->x << 8;
     destination->y = (int)source->y << 8;
     destination->z = (int)source->z << 8;
+}
+
+/* Function start: 0x4189B0 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+void ConvertFixedVectorToShortVector(const FixedVector *source,
+                                     ShortVector *destination)
+{
+    destination->x = (short)(source->x >> 8);
+    destination->y = (short)(source->y >> 8);
+    destination->z = (short)(source->z >> 8);
 }
 
 /* Function start: 0x4189E0 */

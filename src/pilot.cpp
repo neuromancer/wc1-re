@@ -190,6 +190,20 @@ void ResetDiskPromptTimer(void)
 {
 }
 
+/* Function start: 0x425BF0 */
+/* No inbound reference is known in the shipped executable; this compiled-out
+ * console compatibility routine is believed unreachable. */
+void SetConsoleTextColourHook(void)
+{
+}
+
+/* Function start: 0x425C00 */
+/* No inbound reference is known in the shipped executable; this compiled-out
+ * console compatibility routine is believed unreachable. */
+void SetConsoleBackgroundColourHook(void)
+{
+}
+
 /* Function start: 0x425C10 */
 void DiskPromptDrawHook(void)
 {

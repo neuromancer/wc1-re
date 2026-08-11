@@ -53,6 +53,8 @@ short GetJoystickButtons(void);                                                 
 void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
                         short *yMin, short *yMax);                    /* 0x00402AE0 */
 HINSTANCE GetApplicationInstance(void);                               /* 0x00402B80 */
+HWND GetMainWindowHandle(void);                                       /* 0x00402B90 */
+HDC GetMainWindowDeviceContext(void);                                 /* 0x00402BA0 */
 void *AllocateGuardedMemory(unsigned int size);                        /* 0x00402BB0 */
 void ReportHeapGuardCorruption(void *memory, int count, int overrun);     /* 0x00402CA0 */
 void CheckAllGuardedAllocations(void);                                /* 0x00402D40 */
@@ -277,6 +279,7 @@ short __stdcall SampleBothJoysticks(InputDeviceSample *samples,
 int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
                                    short joystick,
                                    unsigned int fallback);              /* 0x0040CAE0 */
+void SampleActiveJoystickDevice(void);                                 /* 0x0040CB30 */
 void DrawNavTextLine(unsigned char alignment, unsigned char colour,
                      const char *format, ...);                         /* 0x0040CB60 */
 void SetNavMapCoordinateScaling(short enabled);                       /* 0x0040CBB0 */
@@ -546,6 +549,7 @@ short FixedToShortSaturating(int value);                           /* 0x004184C0
 int MinInt(int a, int b);                                        /* 0x004184E0 */
 int MaxInt(int a, int b);                                        /* 0x004184F0 */
 int AbsInt(int v);                                               /* 0x00418500 */
+int intfract_sign(int sign, int magnitude);                       /* 0x00418510 */
 unsigned short SignShort(short v);                                  /* 0x00418520 */
 unsigned int SignFixed(int v);                                      /* 0x00418540 */
 short WrapDegrees(short degrees);                                     /* 0x00418560 */
@@ -576,6 +580,8 @@ void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical);       /* 0x00418890 */
 void ConvertShortVectorToFixedVector(const ShortVector *source,
                                      FixedVector *destination);       /* 0x00418980 */
+void ConvertFixedVectorToShortVector(const FixedVector *source,
+                                     ShortVector *destination);       /* 0x004189B0 */
 int dot_product(const FixedVector *left, const FixedVector *right);    /* 0x004189E0 */
 short vector_angle(FixedVector left, FixedVector right);              /* 0x00418A30 */
 void vector_cross_product(const FixedVector *left,
@@ -966,6 +972,8 @@ void SystemDebugPrintf(const char *format, ...);                           /* 0x
 char PumpMessagesDuringWait(void);                                        /* 0x00425BC0 */
 unsigned char TakeDebugStepFlag(void);                                     /* 0x00425BD0 */
 void ResetDiskPromptTimer(void);                                             /* 0x00425BE0 */
+void SetConsoleTextColourHook(void);                                  /* 0x00425BF0 */
+void SetConsoleBackgroundColourHook(void);                            /* 0x00425C00 */
 void DiskPromptDrawHook(void);                                             /* 0x00425C10 */
 void ClearDebugPauseFlags(void);                                              /* 0x00425C20 */
 unsigned short EraseTextContextBackground(TextContext *context);      /* 0x00425C30 */

@@ -42,6 +42,8 @@
 0x00402AC0 GetInput
 0x00402AE0 GetJoystickDevCaps
 0x00402B80 ReadDAT005a8a40
+0x00402B90 GetMainWindowHandle
+0x00402BA0 GetMainWindowDeviceContext
 0x00402BB0 AllocateGuardedMemory
 0x00402CA0 ReportHeapGuardCorruption
 0x00402D40 CheckAllGuardedAllocations
@@ -239,6 +241,7 @@
 0x0040CAA0 HelperOf431A10A
 0x0040CAE0 InputRoutine01
 0x0040CB20 ThunkForwarder40CB20
+0x0040CB30 SampleActiveJoystickDevice
 0x0040CB60 HelperOf40DF70A
 0x0040CBB0 SetNavMapCoordinateScaling
 0x0040CBC0 ScaleNavMapMarkerSize
@@ -463,6 +466,7 @@
 0x004184E0 DoLocalFn84E0
 0x004184F0 DoLocalFn84F0
 0x00418500 DoLocalFn8500
+0x00418510 intfract_sign
 0x00418520 DoLocalFn8520
 0x00418540 DoLocalFn8540
 0x00418560 DoLocalFn8560
@@ -482,6 +486,7 @@
 0x00418840 MakeRandomNormalizedVector
 0x00418890 DoLocalFn8890
 0x00418980 ConvertShortVectorToFixedVector
+0x004189B0 ConvertFixedVectorToShortVector
 0x004189E0 dot_product
 0x00418A30 vector_angle
 0x00418A80 DoLocalFn8A80
@@ -797,6 +802,8 @@
 0x00425BC0 GetG004763f0Fn5BC0
 0x00425BD0 GetDebugFn5BD0
 0x00425BE0 HelperOf41D760A
+0x00425BF0 SetConsoleTextColourHook
+0x00425C00 SetConsoleBackgroundColourHook
 0x00425C10 HelperOf41D760B
 0x00425C20 SetDebugFn5C20
 0x00425C30 EraseTextContextBackground

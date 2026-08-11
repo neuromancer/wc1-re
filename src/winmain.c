@@ -936,6 +936,22 @@ HINSTANCE GetApplicationInstance(void)
     return DAT_005a8a40;
 }
 
+/* Function start: 0x402B90 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+HWND GetMainWindowHandle(void)
+{
+    return DAT_005a89a0;
+}
+
+/* Function start: 0x402BA0 */
+/* No inbound reference is known in the shipped executable; this routine is
+ * believed unreachable. */
+HDC GetMainWindowDeviceContext(void)
+{
+    return DAT_005a8a30;
+}
+
 /* Function start: 0x402BB0 */
 void *AllocateGuardedMemory(unsigned int size)
 {
