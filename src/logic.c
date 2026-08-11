@@ -1569,14 +1569,14 @@ unsigned int get_follow_point(short obj, FixedVector *point)
     pathIndex = (short)g_abShipNavPointIndex_0059d7c0[obj];
     while (++pathIndex < 16) {
         objective = (short)g_abFlightPath_0059c000[pathIndex];
-        type = g_aMissionObjectives_0059dac5[objective].type;
+        type = g_aMissionObjectives_0059dac0[objective].type;
         switch (type) {
         case 0:
-            *point = g_aMissionObjectives_0059dac5[objective].position;
+            *point = g_aMissionObjectives_0059dac0[objective].position;
             g_abShipNavPointIndex_0059d7c0[obj] = (signed char)pathIndex;
             return 0;
         case 1:
-            missionShip = (short)g_aMissionObjectives_0059dac5[objective].index;
+            missionShip = (short)g_aMissionObjectives_0059dac0[objective].index;
             objective = find_ship_index(missionShip);
             if (objective == -1)
                 *point = g_aMissionNavPoints_0046c2f0[missionShip].position;

@@ -21,7 +21,7 @@ void cleanup_objectives(void)
     home = find_ship_index(g_nHomeMissionShipIndex_005a8692);
     proximity = g_aMissionNavPoints_0046c2f0[
         g_nMissionEntryNavPoint_005a8690].proximityRadius;
-    entry = &g_aMissionObjectives_0059dac5[0];
+    entry = &g_aMissionObjectives_0059dac0[0];
     while (entry->type != -1) {
         if (achieved(objective) == 0) {
             index = (short)entry->index;
@@ -131,7 +131,7 @@ short can_land(void)
         index = 0;
         if (g_cMissionObjectiveCount_0059c46a > 0) {
             do {
-                objective = &g_aMissionObjectives_0059dac5[index];
+                objective = &g_aMissionObjectives_0059dac0[index];
                 if (objective->type != 1) {
                     if (achieved(index) == 0) {
                         if (visited(index) == 0 || objective->type == 2)

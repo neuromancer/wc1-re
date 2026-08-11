@@ -44,6 +44,49 @@ unsigned int LoadBriefingRoom(void)
     return 0;
 }
 
+/* Function start: 0x436E30 */
+unsigned int ViewMedals(void)
+{
+    InputEventState event;
+    unsigned char clicked;
+    unsigned char savedInputMode;
+
+    clicked = 0;
+    g_pMedalSceneShape_0046e2f4 =
+        (unsigned char *)FetchDiskPacketRetrying(4, 8, 0);
+    g_pConversationBackdropShape_00598c04 = 0;
+    InitializeConversationText();
+    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+    savedInputMode = g_bInputMode_0059a848;
+    g_bInputMode_0059a848 = 1;
+    do {
+        PumpWindowMessages();
+        if (PeekInputEvent(&event, 10) != 0 ||
+            PeekInputEvent(&event, 2) != 0 ||
+            PeekInputEvent(&event, 3) != 0)
+            clicked = 1;
+        DrawMedals();
+        AddPCName((char *)g_pszMedalsPilotSummary_0046e2f8);
+        RefreshMemoryStatusOverlay();
+        ClearViewport(&g_stConversationTextViewport_005a7570,
+                      DAT_0046999c);
+        FormatTextBufferFromStart(
+            g_szViewMedalsTextFormat_0046e604, 0, 160,
+            g_cViewportClearColour_004699a0,
+            g_szTextScratchBuffer_00598b00);
+        DIBslam();
+        DIBslamReal();
+        if (clicked != 0) {
+            FreePacketAndClear((int *)&g_pMedalSceneShape_0046e2f4, 8);
+            WaitForInputKey();
+            ClearInputKeyStatePreservingModifiers();
+            g_bInputMode_0059a848 = savedInputMode;
+            FlushInputEvents();
+            return 0;
+        }
+    } while (1);
+}
+
 /* Function start: 0x4370D0 */
 unsigned int DrawMedalChest(char *text, short duration)
 {

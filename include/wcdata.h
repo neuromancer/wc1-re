@@ -562,6 +562,34 @@ typedef struct CampaignState {
     short campaignIndex;              /* +0x56 */
 } CampaignState;
 
+/* SAVEGAME.WLD stores the two leading 32-bit campaign values and the eight
+ * personality-death mission values as signed 16-bit quantities.  The remaining
+ * fields retain their packed runtime order. */
+typedef struct SaveGameDiskCampaignState {
+    short currentPilot;                /* +0x00 */
+    short playerShipType;              /* +0x02 */
+    unsigned char field_08[7];         /* +0x04 */
+    unsigned char firstMissionFlag;    /* +0x0B */
+    unsigned char shipFlown[4];        /* +0x0C */
+    unsigned char fiveKillFlag;        /* +0x10 */
+    unsigned char twentyFiveKillFlag;  /* +0x11 */
+    unsigned char fiveMissionFlag;     /* +0x12 */
+    unsigned char tenMissionFlag;      /* +0x13 */
+    unsigned char fifteenMissionFlag;  /* +0x14 */
+    signed char currentMission;        /* +0x15 */
+    signed char currentSeries;         /* +0x16 */
+    signed char seriesHistoryCount;    /* +0x17 */
+    signed char seriesHistory[8];      /* +0x18 */
+    short personalityDeathMission[8];  /* +0x20 */
+    unsigned char aceFlags[4];         /* +0x30 */
+    CampaignDate currentDate;          /* +0x34 */
+    CampaignDate elapsedDate;          /* +0x38 */
+    short promotionScore;              /* +0x3C */
+    short missionScore;                /* +0x3E */
+    short seriesScore;                 /* +0x40 */
+    short campaignIndex;               /* +0x42 */
+} SaveGameDiskCampaignState;
+
 /* One open packet section.  OpenPacketSection fills this record and the packet
  * reader advances position while leaving the containing data file open. */
 typedef struct PacketSectionHandle {
@@ -579,6 +607,8 @@ typedef char PilotRecord_size_must_be_0x26[
     sizeof(PilotRecord) == 0x26 ? 1 : -1];
 typedef char CampaignState_size_must_be_0x58[
     sizeof(CampaignState) == 0x58 ? 1 : -1];
+typedef char SaveGameDiskCampaignState_size_must_be_0x44[
+    sizeof(SaveGameDiskCampaignState) == 0x44 ? 1 : -1];
 typedef char ConversationSceneRecord_size_must_be_0x0d[
     sizeof(ConversationSceneRecord) == 0x0d ? 1 : -1];
 typedef char BriefingCharacterLayout_size_must_be_0x12[
@@ -725,19 +755,68 @@ typedef struct ObjectResourceSlot {
 #pragma pack(pop)
 
 /* Runtime mission-objective records use the 0x1F-byte stride visible in every
- * objective scan.  This is distinct from the larger on-disk nav record. */
+ * objective scan.  The coordinate pair leads each record at 0x0059DAC0; the
+ * former declaration incorrectly began five bytes later at the type field. */
 #pragma pack(push, 1)
 typedef struct MissionObjective {
-    int type;                         /* +0x00 */
-    signed char index;                /* +0x04 */
-    unsigned char flags;              /* +0x05 */
-    const char *displayName;           /* +0x06 */
-    char *name;                       /* +0x0A: mission description */
-    FixedVector position;             /* +0x0E */
-    short mapX;                       /* +0x1A */
-    short mapY;                       /* +0x1C */
-    unsigned char field_1e;           /* +0x1E */
+    short mapX;                       /* +0x00 */
+    short mapY;                       /* +0x02 */
+    unsigned char field_4;            /* +0x04 */
+    int type;                         /* +0x05 */
+    signed char index;                /* +0x09 */
+    unsigned char flags;              /* +0x0A */
+    const char *displayName;          /* +0x0B */
+    char *name;                       /* +0x0F: mission description */
+    FixedVector position;             /* +0x13 */
 } MissionObjective;
+
+/* One objective in SAVEGAME.WLD.  The runtime integer and two pointer-sized
+ * fields are retained as signed words by the inherited DOS file format. */
+typedef struct SaveGameDiskObjective {
+    short mapX;                       /* +0x00 */
+    short mapY;                       /* +0x02 */
+    unsigned char field_4;            /* +0x04 */
+    short type;                       /* +0x05 */
+    signed char index;                /* +0x07 */
+    unsigned char flags;              /* +0x08 */
+    short displayName;                /* +0x09 */
+    short name;                       /* +0x0B */
+    FixedVector position;             /* +0x0D */
+} SaveGameDiskObjective;
+
+typedef struct SaveGameRecord {
+    char description[18];             /* +0x000 */
+    PilotRecord pilots[9];            /* +0x012 */
+    CampaignState campaign;           /* +0x168 */
+    MissionObjective objectives[16];  /* +0x1C0 */
+} SaveGameRecord;
+
+typedef struct SaveGameDiskRecord {
+    char description[18];                    /* +0x000 */
+    PilotRecord pilots[9];                   /* +0x012 */
+    SaveGameDiskCampaignState campaign;      /* +0x168 */
+    SaveGameDiskObjective objectives[16];    /* +0x1AC */
+} SaveGameDiskRecord;
+
+typedef struct BarracksBunkState {
+    short occupied;                   /* +0x00 */
+    short animationFrame;             /* +0x02 */
+    short animationPeriod;            /* +0x04 */
+    int animationTick;                /* +0x06 */
+} BarracksBunkState;
+
+typedef struct BarracksAnimationState {
+    BarracksBunkState bunks[8];       /* +0x00 */
+    short fallingDelay;               /* +0x50 */
+    int fallingY;                     /* +0x52 */
+    int fallingVelocity;              /* +0x56 */
+    short impactFrame;                /* +0x5A */
+    short blinkDelay;                 /* +0x5C */
+    short eyesOpen;                   /* +0x5E */
+    short animationTick;              /* +0x60 */
+    char *menuLabel;                  /* +0x62 */
+    short field_66;                   /* +0x66 */
+} BarracksAnimationState;
 #pragma pack(pop)
 
 typedef char MissionNavPoint_size_must_be_0x51[
@@ -748,6 +827,16 @@ typedef char MissionObjectiveSource_size_must_be_0x42[
     sizeof(MissionObjectiveSource) == 0x42 ? 1 : -1];
 typedef char MissionObjective_size_must_be_0x1f[
     sizeof(MissionObjective) == 0x1f ? 1 : -1];
+typedef char SaveGameDiskObjective_size_must_be_0x19[
+    sizeof(SaveGameDiskObjective) == 0x19 ? 1 : -1];
+typedef char SaveGameRecord_size_must_be_0x3b0[
+    sizeof(SaveGameRecord) == 0x3b0 ? 1 : -1];
+typedef char SaveGameDiskRecord_size_must_be_0x33c[
+    sizeof(SaveGameDiskRecord) == 0x33c ? 1 : -1];
+typedef char BarracksBunkState_size_must_be_0x0a[
+    sizeof(BarracksBunkState) == 0x0a ? 1 : -1];
+typedef char BarracksAnimationState_size_must_be_0x68[
+    sizeof(BarracksAnimationState) == 0x68 ? 1 : -1];
 
 #define WC1_SPACE_OBJECT_COUNT 64
 #define WC1_SPACE_LAST_MOVING_OBJECT 60

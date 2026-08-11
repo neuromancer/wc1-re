@@ -409,7 +409,7 @@ short auto_pilot_valid(short showReason)
         return 0;
     if (distance_from_point(
             0,
-            &g_aMissionObjectives_0059dac5[
+            &g_aMissionObjectives_0059dac0[
                 g_cCurrentObjective_0046c020].position) < 8000) {
         reason = "Already Near";
     } else if (kilrathi_near(0, 16000) != 0) {
@@ -865,25 +865,25 @@ void update_status_text(void)
 /* Function start: 0x415050 */
 short sighted(short objective)
 {
-    return (g_aMissionObjectives_0059dac5[objective].flags & 4) == 4;
+    return (g_aMissionObjectives_0059dac0[objective].flags & 4) == 4;
 }
 
 /* Function start: 0x415070 */
 short visited(short objective)
 {
-    return (g_aMissionObjectives_0059dac5[objective].flags & 1) == 1;
+    return (g_aMissionObjectives_0059dac0[objective].flags & 1) == 1;
 }
 
 /* Function start: 0x415090 */
 short achieved(short objective)
 {
-    return (g_aMissionObjectives_0059dac5[objective].flags & 2) == 2;
+    return (g_aMissionObjectives_0059dac0[objective].flags & 2) == 2;
 }
 
 /* Function start: 0x4150B0 */
 void flag_objective(short objective, unsigned char flags)
 {
-    g_aMissionObjectives_0059dac5[objective].flags |= flags;
+    g_aMissionObjectives_0059dac0[objective].flags |= flags;
 }
 
 /* Function start: 0x4150D0 */
@@ -909,10 +909,10 @@ char *objective_name(short objective)
 {
     if (objective >= (short)g_cMissionObjectiveCount_0059c46a)
         return (char *)g_szNoObjective_0046932c;
-    if (*g_aMissionObjectives_0059dac5[objective].name == '?' &&
+    if (*g_aMissionObjectives_0059dac0[objective].name == '?' &&
         sighted(objective) == 0)
         return (char *)g_szUnknownObjective_00469334;
-    return (char *)g_aMissionObjectives_0059dac5[objective].displayName;
+    return (char *)g_aMissionObjectives_0059dac0[objective].displayName;
 }
 
 /* Function start: 0x415180 */
@@ -936,7 +936,7 @@ short hidden_objective(short objective)
     short hidden;
     short ship;
 
-    missionObjective = &g_aMissionObjectives_0059dac5[objective];
+    missionObjective = &g_aMissionObjectives_0059dac0[objective];
     hidden = *missionObjective->displayName == '.' ||
              *missionObjective->name == '.';
     if (hidden == 0 && mobile_objective(objective) != 0) {
@@ -946,7 +946,7 @@ short hidden_objective(short objective)
             hidden = 1;
     }
     if (hidden == 0 && mobile_objective(objective) != 0 &&
-        g_aMissionObjectives_0059dac5[
+        g_aMissionObjectives_0059dac0[
             (unsigned char)g_cMissionObjectiveCount_0059c46a].type == 0) {
         missionShip = &g_aMissionShips_0046c948[
             (signed char)missionObjective->index];
@@ -980,7 +980,7 @@ int set_new_objective(short pathIndex)
     g_cCurrentObjective_0046c020 =
         g_abFlightPath_0059c000[g_cCurrentNavPointIndex_0059c86c];
     g_aeShipObjective_0059d200[0] =
-        (enum ShipObjective)g_aMissionObjectives_0059dac5[
+        (enum ShipObjective)g_aMissionObjectives_0059dac0[
             (short)g_cCurrentObjective_0046c020].type;
     set_objective_range(0);
     return 1;
@@ -1038,8 +1038,8 @@ short LocateMobileObjective(short objective)
 
     if (mobile_objective(objective) != 0) {
         ship = locate_ship(
-            g_aMissionObjectives_0059dac5[objective].index,
-            &g_aMissionObjectives_0059dac5[objective].position);
+            g_aMissionObjectives_0059dac0[objective].index,
+            &g_aMissionObjectives_0059dac0[objective].position);
     }
     return ship;
 }
@@ -1083,7 +1083,7 @@ void flag_reached(short objective, short reached)
     carrierMissionShip = g_anShipMissionShip_0059d4b0[0];
     objectiveOffset = (int)objective * sizeof(MissionObjective);
     objectiveType = *(short *)(void *)
-        ((unsigned char *)g_aMissionObjectives_0059dac5 +
+        ((unsigned char *)g_aMissionObjectives_0059dac0 +
          objectiveOffset);
     carrierObject = find_ship_index(carrierMissionShip);
     markVisited = objective != g_cCurrentObjective_0046c020;
@@ -1092,7 +1092,7 @@ void flag_reached(short objective, short reached)
         if (reached == 0 && escorting_a_ship() != 0 &&
             carrierObject != -1 &&
             *(signed char *)((unsigned char *)
-                g_aMissionObjectives_0059dac5 + objectiveOffset +
+                g_aMissionObjectives_0059dac0 + objectiveOffset +
                 offsetof(MissionObjective, index)) != carrierMissionShip) {
             if (objectiveType != 1 ||
                 g_aMissionShips_0046c948[carrierMissionShip].state != 1) {
@@ -1117,7 +1117,7 @@ void flag_reached(short objective, short reached)
     if (objectiveType != 1 && markVisited != 0) {
         if (visited(objective) == 0 && carrierObject != -1 &&
             *(signed char *)((unsigned char *)
-                g_aMissionObjectives_0059dac5 + objectiveOffset +
+                g_aMissionObjectives_0059dac0 + objectiveOffset +
                 offsetof(MissionObjective, index)) == carrierMissionShip &&
             g_aeObjectType_0059b560[carrierObject] !=
                 OBJECT_TYPE_TIGERS_CLAW)
@@ -1136,7 +1136,7 @@ void update_objective_location(short objective)
     short range;
     short reachedRange;
 
-    missionObjective = &g_aMissionObjectives_0059dac5[objective];
+    missionObjective = &g_aMissionObjectives_0059dac0[objective];
     if (sighted(objective) != 0 && visited(objective) != 0 &&
         g_cCurrentObjective_0046c020 != objective)
         return;
@@ -1159,8 +1159,8 @@ unsigned int objective_lost(short objective)
     int type;
 
     state = g_aMissionShips_0046c948[
-        g_aMissionObjectives_0059dac5[objective].index].state;
-    type = g_aMissionObjectives_0059dac5[objective].type;
+        g_aMissionObjectives_0059dac0[objective].index].state;
+    type = g_aMissionObjectives_0059dac0[objective].type;
     if (type >= 2 && type <= 3)
         return state >= 1;
     if (type == 4)
@@ -1217,7 +1217,7 @@ void rotational_pos_to_scanner_pos(signed char object,
 /* Function start: 0x415A30 */
 short mobile_objective(short objective)
 {
-    int type = g_aMissionObjectives_0059dac5[objective].type;
+    int type = g_aMissionObjectives_0059dac0[objective].type;
 
     if (type == 1 || type == 3 || type == 4 || type == 2)
         return 1;
@@ -1280,7 +1280,7 @@ unsigned int set_objective_range(short showOnScanner)
 
     LocateMobileObjective((short)g_cCurrentObjective_0046c020);
     ComputeVectorDelta(&g_aShipPosition_0059c490[0],
-                       &g_aMissionObjectives_0059dac5[
+                       &g_aMissionObjectives_0059dac0[
                            (short)g_cCurrentObjective_0046c020].position,
                        &relative);
     transform_to_objects_frame(&relative, &rotated, 0);

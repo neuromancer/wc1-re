@@ -1350,29 +1350,19 @@ void ReleaseModalTextPanel(void)
 /* Function start: 0x41AD50 */
 short AnySavedGames(void)
 {
-    unsigned char record[0x33c];
-    short file;
+    SaveGameRecord gameRecord;
     short slot;
     short found;
-
-    file = OpenDataFileOrDie("SAVEGAME.WLD");
-    if (file < 0)
-        return 0;
 
     found = 0;
     slot = 0;
     do {
-        memset(record, 0, sizeof(record));
-        if (ReadDataFileAtOffset((unsigned short)file,
-                                 slot * (int)sizeof(record),
-                                 sizeof(record), record) != 0 &&
-            record[0x11] != 0 &&
-            *(short *)(record + 0x1aa) > 0) {
+        if (LoadGame(slot, &gameRecord) != 0) {
             found = 1;
-            DAT_005a7d9c = 1;
+            if (gameRecord.campaign.campaignIndex > 0)
+                DAT_005a7d9c = 1;
         }
         slot++;
     } while (slot < 8);
-    CloseDataFile((unsigned short)file);
     return found;
 }

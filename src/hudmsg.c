@@ -1002,10 +1002,10 @@ short find_objective(int type, short index)
 
     objective = 0;
     while (objective < (short)g_cMissionObjectiveCount_0059c46a) {
-        if (g_aMissionObjectives_0059dac5[objective].type == type) {
+        if (g_aMissionObjectives_0059dac0[objective].type == type) {
             if (index == -1)
                 return objective;
-            if (g_aMissionObjectives_0059dac5[objective].index == index)
+            if (g_aMissionObjectives_0059dac0[objective].index == index)
                 return objective;
         }
         objective++;
@@ -1019,7 +1019,7 @@ void arrive_from_warp(short obj)
     short objective = find_objective(0, g_nCurrentNavPoint_0059df60);
 
     if (objective != -1) {
-        if (g_aMissionObjectives_0059dac5[
+        if (g_aMissionObjectives_0059dac0[
                 g_abFlightPath_0059c000[objective]].type != 1)
             flag_objective(objective, 1);
         if (g_cCurrentObjective_0046c020 == objective)

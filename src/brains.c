@@ -1065,7 +1065,7 @@ void cruise_home(short obj)
     if (range < 1500) {
         objective = (short)g_abFlightPath_0059c000[
             g_abShipNavPointIndex_0059d7c0[obj]];
-        if (g_aMissionObjectives_0059dac5[objective].type != 1)
+        if (g_aMissionObjectives_0059dac0[objective].type != 1)
             flag_objective(objective, 1);
         get_follow_point(obj, destination);
     }
@@ -1089,7 +1089,7 @@ void coming_home(short obj)
             g_aeShipMissionType_0059c3f0[obj] == MISSION_TYPE_ROUT) {
             objective = find_objective(1, -1);
             g_aShipDestination_0059d530[obj] =
-                g_aMissionObjectives_0059dac5[objective].position;
+                g_aMissionObjectives_0059dac0[objective].position;
         } else {
             get_first_follow_point(obj, &g_aShipDestination_0059d530[obj]);
         }
@@ -2928,13 +2928,13 @@ void BuildMap(void)
     short halfHeight;
 
     SetNavCursorIndex(0);
-    g_nNavMapMinimumX_005a812e = g_aMissionObjectives_0059dac5[0].mapX;
-    g_nNavMapMaximumX_005a812c = g_aMissionObjectives_0059dac5[0].mapX;
-    g_nNavMapMinimumY_005a8154 = g_aMissionObjectives_0059dac5[0].mapY;
-    g_nNavMapMaximumY_005a8150 = g_aMissionObjectives_0059dac5[0].mapY;
+    g_nNavMapMinimumX_005a812e = g_aMissionObjectives_0059dac0[0].mapX;
+    g_nNavMapMaximumX_005a812c = g_aMissionObjectives_0059dac0[0].mapX;
+    g_nNavMapMinimumY_005a8154 = g_aMissionObjectives_0059dac0[0].mapY;
+    g_nNavMapMaximumY_005a8150 = g_aMissionObjectives_0059dac0[0].mapY;
     objectiveIndex = 0;
     while (objectiveIndex < (short)g_cMissionObjectiveCount_0059c46a) {
-        objective = &g_aMissionObjectives_0059dac5[objectiveIndex];
+        objective = &g_aMissionObjectives_0059dac0[objectiveIndex];
         if (mobile_objective(objectiveIndex) != 0) {
             ship = find_ship_index((short)objective->index);
             if (ship != -1)
@@ -2984,7 +2984,7 @@ void Build_objective_list(void)
     sourceIndex = 0;
     while (sourceIndex < WC1_MISSION_OBJECTIVE_COUNT &&
            source->type != -1) {
-        objective = &g_aMissionObjectives_0059dac5[
+        objective = &g_aMissionObjectives_0059dac0[
             (unsigned char)g_cMissionObjectiveCount_0059c46a];
         objective->flags = 0;
         objective->type = source->type;
@@ -3014,14 +3014,14 @@ void Build_objective_list(void)
         UpdateObjectiveMapCoordinates(
             &objective->mapX, &objective->mapY,
             objective->position.x, objective->position.z);
-        objective->field_1e = 0;
+        objective->flags = 0;
         g_cMissionObjectiveCount_0059c46a++;
         source++;
         sourceIndex++;
     }
 
     g_abFlightPath_0059c000[flightPathCount] = -1;
-    g_aMissionObjectives_0059dac5[
+    g_aMissionObjectives_0059dac0[
         (unsigned char)g_cMissionObjectiveCount_0059c46a].type = -1;
     g_cCurrentNavPointIndex_0059c86c = 0;
     g_cCurrentObjective_0046c020 = 0;
@@ -3034,7 +3034,7 @@ void Build_objective_list(void)
         g_cCurrentObjective_0046c020 =
             g_abFlightPath_0059c000[firstDestination];
         g_aeShipObjective_0059d200[0] = (enum ShipObjective)
-            g_aMissionObjectives_0059dac5[
+            g_aMissionObjectives_0059dac0[
                 g_cCurrentObjective_0046c020].type;
     }
 }

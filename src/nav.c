@@ -133,7 +133,7 @@ void AddUniqueObjectiveNavLabel(short x, short y,
     if (missionShip != -1) {
         previous = 0;
         while (previous < objective) {
-            if (g_aMissionObjectives_0059dac5[previous].index == missionShip)
+            if (g_aMissionObjectives_0059dac0[previous].index == missionShip)
                 return;
             previous++;
         }
@@ -365,7 +365,7 @@ void DrawNavHazardLabels(short showPlayer)
 
     objectiveIndex = 0;
     while (objectiveIndex < (short)g_cMissionObjectiveCount_0059c46a) {
-        objective = &g_aMissionObjectives_0059dac5[objectiveIndex];
+        objective = &g_aMissionObjectives_0059dac0[objectiveIndex];
         if (mobile_objective(objectiveIndex) == 0 ||
             g_aMissionShips_0046c948[(signed char)objective->index].state != 0 ||
             achieved(objectiveIndex) == 0) {
@@ -514,7 +514,7 @@ void DrawNavMapLegend(void)
 /* Function start: 0x40DF50 */
 char *GetNavNameSkippingMarker(short i)
 {
-    char *p = g_aMissionObjectives_0059dac5[i].name;
+    char *p = g_aMissionObjectives_0059dac0[i].name;
 
     if (*p == '?')
         p = p + 1;
@@ -633,8 +633,8 @@ short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
     while (objective != -1) {
         if (hidden_objective((short)objective) == 0) {
             nav_getxy(&mapX, &mapY,
-                      g_aMissionObjectives_0059dac5[objective].mapX,
-                      g_aMissionObjectives_0059dac5[objective].mapY);
+                      g_aMissionObjectives_0059dac0[objective].mapX,
+                      g_aMissionObjectives_0059dac0[objective].mapY);
             if ((short)(abs((int)mouseX - mapX) +
                         abs((int)mouseY - mapY)) < 6 ||
                 IsPointInNavMapLabel(
@@ -662,8 +662,8 @@ void CentreMouseOnCurrentNavObjective(void)
     objective = g_abFlightPath_0059c000[
         g_cCurrentNavPointIndex_0059c86c];
     nav_getxy(&x, &y,
-              g_aMissionObjectives_0059dac5[objective].mapX,
-              g_aMissionObjectives_0059dac5[objective].mapY);
+              g_aMissionObjectives_0059dac0[objective].mapX,
+              g_aMissionObjectives_0059dac0[objective].mapY);
     x = (short)(x + 30);
     y = (short)(y + 22);
     LeaveAllocationScope();

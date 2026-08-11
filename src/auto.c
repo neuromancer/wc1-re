@@ -106,13 +106,13 @@ void auto_pilot_sequence(void)
 
     savedCannedSceneMode = (short)g_nCannedSceneMode_00469fac;
     formationSlot = 0;
-    destination = g_aMissionObjectives_0059dac5[
+    destination = g_aMissionObjectives_0059dac0[
         g_abFlightPath_0059c000[g_cCurrentNavPointIndex_0059c86c]].position;
     leaveCurrentNavPoint = 1;
 
     if (auto_pilot_valid(1) != 0) {
         if (distance_between_points(
-                &g_aMissionObjectives_0059dac5[
+                &g_aMissionObjectives_0059dac0[
                     g_cCurrentObjective_0046c020].position,
                 &g_aMissionNavPoints_0046c2f0[
                     g_nCurrentNavPoint_0059df60].position) <

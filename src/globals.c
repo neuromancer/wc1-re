@@ -397,6 +397,10 @@ const char g_szWaitForFormat_004693a4[12] = "Wait for %s";
 unsigned char DAT_004693b0;
 const char *g_pGameVersion_004693b4 = g_szGameVersion_004693b8;
 const char g_szGameVersion_004693b8[9] = "1.03F-95";
+const ShortPoint g_aBarracksBunkOrigins_004693c8[8] = {
+    {109, 86}, {170, 86}, {98, 95}, {173, 95},
+    {78, 110}, {176, 110}, {42, 136}, {183, 136}
+};
 const char *g_apszSaveCampaignMenuLabels_004693e8[2] = {
     g_szSaveCampaignMenuLabel_00469468,
     g_szSaveCampaignMenuLabelAlt_00469480
@@ -1318,6 +1322,8 @@ const char *g_apszMedalNames_0046e2e0[5] = {
     g_szTerranMedalOfValor_0046e5c4
 };
 unsigned char *g_pMedalSceneShape_0046e2f4;
+const char *g_pszMedalsPilotSummary_0046e2f8 =
+    g_szMedalsPilotSummary_0046e5dc;
 const signed char g_aBriefingPortraitOffsetX_0046e300[8][12] = {
     {  0,  0, -2, -2, -1, -2, -4, -3, -5, -7, -7, -4},
     { -1,  0, -2, -3, -3, -4, -3, -4, -6, -8, -7, -6},
@@ -1387,6 +1393,9 @@ const char g_szGoldStar_0046e5ac[12] = "Gold Star";
 const char g_szGoldenSun_0046e5b8[12] = "Golden Sun";
 const char g_szTerranMedalOfValor_0046e5c4[24] =
     "Terran Medal of Valor";
+const char g_szMedalsPilotSummary_0046e5dc[40] =
+    "$R $N, aka $C.\n$S system, dateline $D.";
+const char g_szViewMedalsTextFormat_0046e604[12] = "%X%Y%F%s%P";
 const char g_szMedalChestTextFormat_0046e610[12] = "%X%Y%F%s%P";
 const char g_szMedalLongShotTextFormat_0046e61c[12] = "%X%Y%F%s%P";
 const char g_szMedalEstablishTextFormat_0046e628[12] = "%X%Y%F%s%P";
@@ -1936,7 +1945,7 @@ short g_asObjectScreenY_0059d930[WC1_SPACE_OBJECT_COUNT];
 short g_asObjectScreenX_0059d9b0[WC1_SPACE_OBJECT_COUNT];
 short g_asObjectAnimationIndex_0059da30[WC1_SPACE_OBJECT_COUNT];
 signed char g_cCockpitView_0059dab0;
-MissionObjective g_aMissionObjectives_0059dac5[WC1_MISSION_OBJECTIVE_COUNT + 1];
+MissionObjective g_aMissionObjectives_0059dac0[WC1_MISSION_OBJECTIVE_COUNT];
 enum ShipManeuver g_aeShipManeuver_0059dcb0[512];
 const short *g_apCannedSequence_0059dce0[WC1_SPACE_OBJECT_COUNT];
 unsigned char g_aShipMissionSpot_0059dd10[224];
