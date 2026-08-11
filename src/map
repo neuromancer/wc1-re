@@ -158,7 +158,7 @@
 0x00408650 BlitTbl005a86d0Fn8650
 0x00408B30 funeral_player
 0x00408D50 funeral_wingman
-0x00408DE0 death_sequence
+0x00408DE0 funeral_sequence
 0x004094E0 RunAnimationDemoLoop
 0x00409760 cruise_home
 0x004098C0 fail
@@ -1215,7 +1215,7 @@
 0x00439220 BlitUiFn9220
 0x00439400 DebugNoBodyStubv1
 0x00439430 PanToScreen
-0x00439660 BlitUiFn9660
+0x00439660 death_sequence
 0x00439840 ShowGetReadyScreen
 0x00439910 ShowVictoryScreen
 0x00439A80 ShowGameOverScreen

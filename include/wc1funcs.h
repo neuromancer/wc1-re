@@ -174,7 +174,7 @@ short __stdcall GetShapeFrameExtent(short x, short y,
                                     short extent);                       /* 0x00407710 */
 unsigned int funeral_player(void);                                     /* 0x00408B30 */
 unsigned int funeral_wingman(char *text, short duration);              /* 0x00408D50 */
-unsigned int death_sequence(int playerFuneral);                        /* 0x00408DE0 */
+unsigned int funeral_sequence(int playerFuneral);                      /* 0x00408DE0 */
 void cruise_home(short obj);                                            /* 0x00409760 */
 void fail(short obj);                                                   /* 0x004098C0 */
 void coming_home(short obj);                                            /* 0x004098D0 */
@@ -1069,7 +1069,7 @@ void SetMusBreakpt(void);                                               /* 0x004
 void PaletteFadeHook(void);                                            /* 0x0042E390 */
 void FlushSoundEffect(void);                                               /* 0x0042E3A0 */
 void FlushSoundEffects(void);                                               /* 0x0042E3C0 */
-void SceneLeaveHook(void);                                            /* 0x0042E3E0 */
+void SceneLeaveHook();                                                /* 0x0042E3E0 */
 void SelectFlightMusicTrack(int track);                              /* 0x0042E3F0 */
 int MapMusicTrackToStreamerCommand(int track);                       /* 0x0042E520 */
 void ProcessMusicScriptCommand(int track, int command,
@@ -1359,6 +1359,7 @@ void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
                                unsigned short top, unsigned short right,
                                unsigned short bottom);                /* 0x00439400 */
 void __stdcall PanToScreen(Viewport *source, Viewport *destination);    /* 0x00439430 */
+unsigned int death_sequence(void);                                    /* 0x00439660 */
 unsigned int ShowGetReadyScreen(void);                                 /* 0x00439840 */
 unsigned int ShowVictoryScreen(void);                                  /* 0x00439910 */
 unsigned int ShowGameOverScreen(void);                                 /* 0x00439A80 */

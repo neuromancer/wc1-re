@@ -1401,6 +1401,79 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
     DIBslamReal();
 }
 
+/* Function start: 0x439660 (Mac symbol: death_sequence) */
+unsigned int death_sequence(void)
+{
+    unsigned char *deathShape;
+    unsigned char *cockpitBackground;
+    signed char frame;
+
+    g_nCannedSceneMode_00469fac = 1;
+    free_all_slots();
+    free_cockpit();
+    StopMusicUnlessSuppressed();
+    if (g_nMemoryConfiguration_005a7cd4 == 1)
+        SceneLeaveHook(0x20);
+
+    frame = 0;
+    StartMusicTrack(0x20, 2, 1);
+    deathShape = (unsigned char *)FetchDiskPacketRetrying(2, 0, 0);
+    cockpitBackground = (unsigned char *)FetchDiskPacketRetrying(
+        (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
+    PlaySfxWaveFileByNumber(4, -1, 0);
+    new_view(9, 0);
+    DAT_0059ab58 = 0;
+    DAT_00469fb4 = 1;
+    do {
+        if (frame == 7) {
+            ClearViewport(&DAT_005a7510,
+                          g_cViewportClearColour_004699a0);
+        } else {
+            RefreshCockpitStatus();
+            DrawSpriteDefault(&DAT_005a7510, 0, 0,
+                              cockpitBackground, 0);
+        }
+        DrawSpriteDefault(&DAT_005a7510, 160, 199,
+                          deathShape, (short)frame);
+        dump_buffer_to_screen();
+        DIBslam();
+        DIBslamReal();
+        if (DAT_0059ab58 == 1)
+            break;
+        frame++;
+    } while (frame < 8);
+
+    GetScreenUpdateFlag();
+    FreePacketAndClear((int *)&cockpitBackground, 0);
+    FreePacketAndClear((int *)&deathShape, 0);
+    if (DAT_0059ab58 != 1) {
+        frame = 0;
+        load_all_slots();
+        new_view(4, 0);
+        DAT_00469fb4 = 1;
+        do {
+            if (RefreshCockpitStatus() != 0)
+                dump_buffer_to_screen();
+            if (frame == 2)
+                Explosion(0);
+            if (DAT_0059ab58 == 1)
+                break;
+            frame++;
+            DIBslam();
+            DIBslamReal();
+        } while (frame < 60);
+    }
+
+    DAT_0059ab58 = 0;
+    free_all_slots();
+    DAT_005a6ba0.top = 0;
+    DAT_005a6ba0.bottom = 199;
+    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
+    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    RestoreGamePalette();
+    return 0;
+}
+
 /* Function start: 0x439840 */
 unsigned int ShowGetReadyScreen(void)
 {

@@ -1028,8 +1028,8 @@ unsigned int funeral_wingman(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x408DE0 (Mac symbol: death_sequence) */
-unsigned int death_sequence(int playerFuneral)
+/* Function start: 0x408DE0 (Mac symbol: funeral_sequence) */
+unsigned int funeral_sequence(int playerFuneral)
 {
     int *packet;
     unsigned char *sceneData;

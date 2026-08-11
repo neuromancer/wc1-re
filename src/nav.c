@@ -1140,8 +1140,9 @@ short GameFlow(void)
         free_3Space();
         return 0;
     } else if (flightResult == 4) {
+        death_sequence();
         free_3Space();
-        death_sequence(1);
+        funeral_sequence(1);
         DAT_004688f0 = 0;
         return 0;
     } else {
@@ -1187,7 +1188,7 @@ short GameFlow(void)
     }
 
     if (g_nWingmanKilledThisMission_005a7cb4 != 0)
-        death_sequence(0);
+        funeral_sequence(0);
     if (DAT_004688cc == 1)
         Office();
     g_stCampaignState_0059ca50.currentSeries = (signed char)nextSeries;
