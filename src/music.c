@@ -702,6 +702,19 @@ void LogDisplayMode(const char *mode)
     exit(1);
 }
 
+/* Function start: 0x42E050 */
+short __stdcall CalcRectangleArea(const Viewport *viewport)
+{
+    short height;
+    short width;
+
+    if (DAT_0046b168 != 0x13)
+        LogDisplayMode("not MCGA");
+    height = (short)(viewport->bottom - viewport->top + 1);
+    width = (short)(viewport->right - viewport->left + 1);
+    return (short)(height * width);
+}
+
 /* Function start: 0x42E090 */
 unsigned short __stdcall AllocateViewport(Viewport *viewport,
                                           short clearColour, short flags)

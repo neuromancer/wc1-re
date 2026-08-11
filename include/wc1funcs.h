@@ -712,6 +712,8 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
 unsigned int ReleaseTextFont(short fontIndex);                         /* 0x0041D590 */
 unsigned int DrawTextAt(TextContext *context, short x, short y,
                         char *text, unsigned char alignment);           /* 0x0041D5F0 */
+unsigned int SortSignedByteValuesAscending(signed char *values,
+                                           short count);                /* 0x0041D650 */
 short OpenDiskDataFile(short logicalFile);                              /* 0x0041D6C0 */
 void __stdcall PromptInsertNumberedDisk(short logicalFile);             /* 0x0041D760 */
 unsigned int GetZeroUnused(void);                                        /* 0x0041DA00 */
@@ -930,6 +932,7 @@ short __stdcall SceneAnimationGoalReached(short delta, short current,
 unsigned int __stdcall UpdateSceneAnimationObject(
     SceneAnimationObject *object, Viewport *viewport);                 /* 0x00424EF0 */
 void PlaySceneAnimation(char *text, short animation, short duration);  /* 0x00425500 */
+unsigned int WaitForKeyExceptXOrF12(void);                            /* 0x00425730 */
 void SceneEnterHook(void);                                            /* 0x00425AF0 */
 void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
                                short columns, short rows);             /* 0x00425B00 */
@@ -1086,6 +1089,7 @@ short GetTargetColourIndex(void);                                               
 void show_target_disp(void);                                         /* 0x0042DB90 */
 void DrawTargetRangeReadout(void);                                   /* 0x0042DEA0 */
 void LogDisplayMode(const char *mode);                                 /* 0x0042E020 */
+short __stdcall CalcRectangleArea(const Viewport *viewport);           /* 0x0042E050 */
 unsigned short __stdcall AllocateViewport(Viewport *viewport,
                                           short clearColour,
                                           short flags);                /* 0x0042E090 */
@@ -1184,6 +1188,7 @@ void __stdcall UnionRectBounds(ShortRect *destination,
                                const ShortRect *first,
                                const ShortRect *second);               /* 0x00431EA0 */
 void ThrottleFrameAndDrawFps(HDC dc);                                       /* 0x00431F00 */
+void ReportSpaceFlightMaxFps(float adjustment);                      /* 0x00432050 */
 void SetSpaceFlightFrameTiming(void);                                  /* 0x004320E0 */
 void SetCinematicFrameTiming(void);                                    /* 0x00432110 */
 void DIBerror(const char *tag, int hr);                                 /* 0x00432140 */

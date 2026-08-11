@@ -592,7 +592,7 @@
 0x0041D510 InitializeTextContextFromFont
 0x0041D590 ReleaseTextFont
 0x0041D5F0 DrawTextAt
-0x0041D650 LoopLocalFnD650
+0x0041D650 SortSignedByteValuesAscending
 0x0041D6C0 OpenDiskDataFile
 0x0041D760 PromptInsertNumberedDisk
 0x0041DA00 ReturnConst0
@@ -785,7 +785,7 @@
 0x00424EA0 SceneAnimationGoalReached
 0x00424EF0 UpdateSceneAnimationObject
 0x00425500 PlaySceneAnimation
-0x00425730 LoopSceneFn5730
+0x00425730 WaitForKeyExceptXOrF12
 0x00425770 ShowMeanwhileTransition
 0x004258D0 HelperOf4259B0D
 0x00425910 HelperOf4259B0E

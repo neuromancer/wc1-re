@@ -7,6 +7,22 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x425730 */
+unsigned int WaitForKeyExceptXOrF12(void)
+{
+    int key;
+
+    g_bFilteredKeyWaitStarted_00598c34 =
+        g_bFilteredKeyWaitActive_0059a849 = 1;
+    do {
+        key = PumpMessagesDuringWait();
+    } while (key == 'X' || key == VK_F12);
+    g_bFilteredKeyWaitActive_0059a849 = 0;
+    FlushInputEvents();
+    ClearInputKeyState();
+    return 0;
+}
+
 /* Function start: 0x425AF0 */
 void SceneEnterHook(void)
 {

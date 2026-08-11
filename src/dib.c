@@ -7,6 +7,22 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x432050 */
+void ReportSpaceFlightMaxFps(float adjustment)
+{
+    g_fSpaceFlightFrameRate_0046b1cc += adjustment;
+    if (g_fSpaceFlightFrameRate_0046b1cc < 8.0)
+        g_fSpaceFlightFrameRate_0046b1cc = 8.0f;
+    else if (g_fSpaceFlightFrameRate_0046b1cc > 32.0)
+        g_fSpaceFlightFrameRate_0046b1cc = 32.0f;
+    sprintf(g_szSpaceFlightMaxFpsMessage_00486528,
+            "Space Flight Max FPS : %.1f",
+            (double)g_fSpaceFlightFrameRate_0046b1cc);
+    SetHudMessageText(g_szSpaceFlightMaxFpsMessage_00486528, 0x50, 0x14);
+    if (DAT_0046b1c8 == 1)
+        SetSpaceFlightFrameTiming();
+}
+
 /* Function start: 0x4320E0 */
 void SetSpaceFlightFrameTiming(void)
 {

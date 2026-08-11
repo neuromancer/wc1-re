@@ -214,6 +214,36 @@ unsigned int DrawTextAt(TextContext *context, short x, short y,
     return 0;
 }
 
+/* Function start: 0x41D650 */
+unsigned int SortSignedByteValuesAscending(signed char *values,
+                                           short count)
+{
+    signed char value;
+    short next;
+    signed char outer;
+    signed char inner;
+
+    outer = 0;
+    if (0 < count - 1) {
+        do {
+            inner = (signed char)(outer + 1);
+            next = (short)inner;
+            if (next < count) {
+                do {
+                    value = values[outer];
+                    if (values[inner] < value) {
+                        values[outer] = values[inner];
+                        values[inner] = value;
+                    }
+                    inner++;
+                } while ((short)inner < count);
+            }
+            outer++;
+        } while ((int)next < count - 1);
+    }
+    return 0;
+}
+
 /* Function start: 0x41D6C0 */
 short OpenDiskDataFile(short logicalFile)
 {
