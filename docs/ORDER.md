@@ -65,7 +65,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/mono.c` | `0x403500`–`0x403e4f` | 20 | Win32 data-file wrappers, scaled interstitial text, canned sequences, and MONODEBG.VXD | MonoDebug_install/MonoDebug_print anchor the final block; the Mac `auto` unit starts at the next function |
 | `src/auto.c` | `0x403e50`–`0x40460f` | 5 | Autopilot travel and interstitial flight sequences | Mac `auto` symbols preserve all five functions in exact order; Ghidra shows the next Win32 function is a private palette-file loader |
 | `src/cmpgn.c` | `0x404610`–`0x40609f` | 13 | Campaign briefing/mission-packet decoding | Mac CODE 3 preserves the checked `AddPCName`–`CloseLook` scene names, including `LoadBriefingData`, `LoadMissionData`, and `UpdateMap` |
-| `src/brains.c` | `0x4060a0`–`0x40cfff` | 98 | NPC pilot intelligence with adjacent flight and mission helpers | Exact Mac `brain` unit and surviving `BRAINS.C` map `cruise_home`–`FF_missile_intelligence` to `0x409760`–`0x40b66f`; adjacent `fl`/`miss` boundaries remain provisional |
+| `src/brains.c` | `0x4060a0`–`0x40cfff` | 130 | NPC pilot intelligence with adjacent flight and mission helpers | The Mac `fl` names map the maneuver block at `0x4060a0`–`0x4075cf`; the exact Mac `brain` unit and surviving `BRAINS.C` map `cruise_home`–`FF_missile_intelligence` to `0x409760`–`0x40b66f`; outer boundaries remain provisional |
 | `src/nav.c` | `0x40d000`–`0x40ffff` | 9 | Nav map, location readouts and the virtual screen | DrawNav* family; string band 0x4687AC-0x4688F4 |
 | `src/spc.c` | `0x410000`–`0x412fff` | 19 | Space-object simulation with preceding Win32 input helpers | Mac `spc` run maps `rotate_eye_to_goal`–`object_intelligence` to `0x410a30`–`0x4139ff`; outer split remains provisional |
 | `src/cockpt.c` | `0x413000`–`0x417fff` | 92 | Cockpit HUD: weapon, damage, target, objective, and message displays | Mac `cockpt` symbols identify the surviving functions throughout this range; port-specific split helpers remain interleaved |
@@ -110,6 +110,10 @@ Four whole-file boundaries and four nested source units are proven rather than g
   `FF_missile_intelligence`. Checked Win32 bodies form the same run at
   `0x00409760`–`0x0040B66F`; Win32 adds the `BRAINS.C`-named
   `heat_seeking_missile_intelligence` between `mine_intelligence` and the final Mac symbol.
+- **Mac `fl` maneuver unit** — CODE 6 preserves the `M*` combat-handler family and its
+  dispatcher. Retail Win32 reorders several handlers and adds two unnamed states, but checked
+  bodies map the family across `0x004060A0`–`0x004075CF`. The original pointer table at
+  `0x004656A8` fixes all 47 retail dispatch slots independently of the cross-release order.
 - **Mac `targ` unit** — CODE 4 ends with the consecutive symbols `find_objective`,
   `arrive_from_warp`, `unwarp`, `warp`, `drop_player_mine`, `personality_killed`, and
   `clean_up_cockpit`. Their checked Win32 bodies form the same uninterrupted run at

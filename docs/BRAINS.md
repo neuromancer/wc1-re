@@ -36,6 +36,24 @@ All 46 Win32 routines in this unit now have source bodies in `src/brains.c`; non
 including `try2allow_engage`, `orbit_sphere`, `tanker_intelligence`,
 `destroyer_intelligence`, and `stationary_intelligence`.
 
+## Mac `fl` maneuver compilation unit
+
+Mac CODE 6 preserves the original `M*` names for the flight-maneuver family. The Win32 build
+reorders that family, so names were accepted only after matching each retail body rather than
+by positional alignment alone. This recovers handlers including `Mwabble`, `Mfull_ahead`,
+`Mdrop_a_mine`, `Mtight_loop`, `Msit_n_spin`, `Mfish_hook`, `Mtarget_missile`,
+`Mkill_missile`, `Mget_distance`, and `Mcorkscrew`. `ShipAiState35` and `ShipAiState44`
+remain structural names because no cross-release symbol maps to those retail-only bodies
+unambiguously.
+
+The dispatch table at `0x004656A8` is stronger than inferred enum order: its 47 original
+function pointers were read directly from the Win32 executable and restored in
+`g_apShipAiManeuverHandlers_004656a8`. Slots that previously substituted `Mnone` now call
+their reconstructed handlers; only the two original no-op slots still use `Mnone`. The
+current static comparison covers all 47 functions from `SetShipAiScratchWord` through
+`perform_maneuver`: every body is above 80%, 39 are instruction-exact, and the minimum is
+83.51%.
+
 ## High-confidence Win32 function map
 
 The following block is unusually strong: function order, callers, switch values, constants,

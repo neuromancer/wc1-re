@@ -128,6 +128,28 @@ separate Mac `nav` unit and must not be applied here.
 | `0x004059B0` | `LoadMissionData` | `0x00405CC0` | `UpdateMap` |
 | `0x00405DE0` | `CloseLook` | | |
 
+### Mac `fl` maneuver names mapped onto Win32
+
+Mac CODE 6 preserves the flight-handler names, but Win32 reorders the routines substantially.
+Each mapping below was therefore accepted from matching behavior and call structure, not from
+symbol position. The Win32-only `ShipAiState35` at `0x00406200` remains structural.
+
+| Win32 address | Exact Mac name | Win32 address | Exact Mac name |
+|---|---|---|---|
+| `0x00406130` | `Mwabble` | `0x00406310` | `Mfull_ahead` |
+| `0x00406350` | `Mchill` | `0x004063B0` | `Mdrop_a_mine` |
+| `0x00406400` | `Mthink` | `0x00406440` | `Mtight_loop` |
+| `0x004064F0` | `Mhard_break` | `0x004065A0` | `Msit_n_spin` |
+| `0x004067A0` | `Mturn_n_spin` | `0x00406860` | `Mburnout` |
+| `0x004068D0` | `Mkickit` | `0x00406910` | `Mturn_n_kick` |
+| `0x00406990` | `Mroll_over` | `0x004069F0` | `Mhard_turn` |
+| `0x00406A50` | `Mfish_hook` | `0x00406B60` | `Mtry2tail` |
+| `0x00406BD0` | `Msplit_left` | `0x00406C20` | `Msplit_right` |
+| `0x00406E10` | `Mtarget_missile` | `0x00406EC0` | `Mram_missile` |
+| `0x00406F20` | `Mbuzz_debris` | `0x00407060` | `Msit_n_fire` |
+| `0x00407100` | `Mkill_missile` | `0x004071B0` | `Msuicide_run` |
+| `0x004071E0` | `Mget_distance` | `0x00407390` | `Mcorkscrew` |
+
 ### Mac `brain` unit mapped onto Win32
 
 CODE 2 preserves 45 consecutive symbols belonging to the `brain` source unit. Their checked
