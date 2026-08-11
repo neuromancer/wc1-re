@@ -884,10 +884,10 @@ const GUID g_guidDirectDraw2_00463118 = {
     0xb3a6f3e0, 0x2b43, 0x11cf,
     { 0xa2, 0xde, 0x00, 0xaa, 0x00, 0xb9, 0x33, 0x56 }
 };
-int *DAT_0046b1a4;
-int *DAT_0046b1a8;
-int *DAT_0046b1ac;
-int *DAT_0046b1b0;
+LPDIRECTDRAW2 g_pDirectDraw2_0046b1a4;
+LPDIRECTDRAWSURFACE g_pPrimarySurface_0046b1a8;
+LPDIRECTDRAWSURFACE g_pSecondarySurface_0046b1ac;
+LPDIRECTDRAWPALETTE g_pDirectDrawPalette_0046b1b0;
 int DAT_0046b1b4 = -1;
 int DAT_0046b1b8 = 62;
 int DAT_0046b1bc;

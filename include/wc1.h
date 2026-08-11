@@ -42,9 +42,9 @@
  * DAT_004631b0 in the original); the trig shims convert on the way in. */
 #define WC1_DEG2RAD 0.017453292519943295
 
-/* The DirectDraw back end releases every interface through this one shape. */
-#define COM_RELEASE(p) \
-    do { if ((p) != 0) { (**(void (**)(void *))(*(int *)(p) + 8))(p); (p) = 0; } } while (0)
+/* The DirectDraw back end uses this release-and-clear shape for its surfaces. */
+#define COM_RELEASE(surface) \
+    do { if ((surface) != 0) { IDirectDrawSurface_Release(surface); (surface) = 0; } } while (0)
 
 /* --------------------------------------------------------------------------
  * Original 16-bit-era type spellings.

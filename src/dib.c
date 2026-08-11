@@ -26,20 +26,33 @@ void SetCinematicFrameTiming(void)
 /* Function start: 0x432140 */
 void DIBerror(const char *tag, int hr)
 {
+    FILE *errorFile;
     char *text = DirectDrawResultToText(hr);
 
     sprintf(DAT_00486078, "ERROR: %s - (%s)", tag, text);
-    COM_RELEASE(DAT_0046b1ac);
-    COM_RELEASE(DAT_0046b1a8);
+    COM_RELEASE(g_pSecondarySurface_0046b1ac);
+    COM_RELEASE(g_pPrimarySurface_0046b1a8);
+    IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0046b1a4);
+    IDirectDraw2_Release(g_pDirectDraw2_0046b1a4);
+    OutputDebugStringA(DAT_00486078);
+    SetWindowPos(DAT_00486074, HWND_BOTTOM, 0, 0, 320, 200,
+                 SWP_SHOWWINDOW);
+    errorFile = fopen("direct.err", "wt+");
+    fprintf(errorFile, DAT_00486078);
+    fclose(errorFile);
+    MessageBoxA(0, DAT_00486078, "DirectDraw Error", MB_ICONERROR);
+    exit(1);
 }
 
 /* Function start: 0x432230 */
 void DIBpositionWindow(void)
 {
-    COM_RELEASE(DAT_0046b1ac);
-    COM_RELEASE(DAT_0046b1a8);
-    (**(void (**)(void *))(*DAT_0046b1a4 + 0x4c))(DAT_0046b1a4);  /* RestoreDisplayMode */
-    (**(void (**)(void *))(*DAT_0046b1a4 + 8))(DAT_0046b1a4);     /* Release */
+    COM_RELEASE(g_pSecondarySurface_0046b1ac);
+    COM_RELEASE(g_pPrimarySurface_0046b1a8);
+    IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0046b1a4);
+    IDirectDraw2_Release(g_pDirectDraw2_0046b1a4);
+    SetWindowPos(DAT_00486074, HWND_BOTTOM, 0, 0, 320, 200,
+                 SWP_SHOWWINDOW);
 }
 
 /* Function start: 0x4322B0 */
@@ -50,8 +63,8 @@ void DIBreInstall(void)
     if (DAT_00465074 == 0) {
         DAT_0046b1b4 = -1;
     } else {
-        (**(void (__stdcall **)(void *, HWND, int))(*DAT_0046b1a4 + 0x50))
-            (DAT_0046b1a4, DAT_00486074, 0x13);                   /* SetCooperativeLevel */
+        IDirectDraw2_SetCooperativeLevel(
+            g_pDirectDraw2_0046b1a4, DAT_00486074, 0x13);
         if (DIBcascade(-2, &err) == 0)
             DIBerror("DIBreInstall   DIBcascade Failure", err);
     }
@@ -73,16 +86,16 @@ void DIBinstall(HWND window)
 
     result = IDirectDraw_QueryInterface(
         directDraw, &g_guidDirectDraw2_00463118,
-        (void **)&DAT_0046b1a4);
+        (void **)&g_pDirectDraw2_0046b1a4);
     if (result != DD_OK)
         DIBerror("DIBInstall   Unable to acquire DirectDraw2 interface", result);
 
     if (DAT_00465074 != 0)
         result = IDirectDraw2_SetCooperativeLevel(
-            (LPDIRECTDRAW2)DAT_0046b1a4, DAT_00486074, 0x13);
+            g_pDirectDraw2_0046b1a4, DAT_00486074, 0x13);
     else
         result = IDirectDraw2_SetCooperativeLevel(
-            (LPDIRECTDRAW2)DAT_0046b1a4, DAT_00486074, 0x17);
+            g_pDirectDraw2_0046b1a4, DAT_00486074, 0x17);
     if (result != DD_OK)
         DIBerror("DIBmakeInstall   SetCooperativeLevel", result);
 
@@ -119,8 +132,8 @@ int DIBcascade(int mode, int *reportedResult)
 
         switch (DAT_0046b1b4) {
         case 0:
-            result = ((LPDIRECTDRAW2)DAT_0046b1a4)->lpVtbl->SetDisplayMode(
-                (LPDIRECTDRAW2)DAT_0046b1a4, 320, 200, 8, 0, 0);
+            result = g_pDirectDraw2_0046b1a4->lpVtbl->SetDisplayMode(
+                g_pDirectDraw2_0046b1a4, 320, 200, 8, 0, 0);
             if (reportedResult != 0)
                 *reportedResult = result;
             if (result != DD_OK) {
@@ -131,8 +144,8 @@ int DIBcascade(int mode, int *reportedResult)
             modeText = "320x200 achieved...testing\n";
             break;
         case 1:
-            result = ((LPDIRECTDRAW2)DAT_0046b1a4)->lpVtbl->SetDisplayMode(
-                (LPDIRECTDRAW2)DAT_0046b1a4, 640, 400, 8, 0, 0);
+            result = g_pDirectDraw2_0046b1a4->lpVtbl->SetDisplayMode(
+                g_pDirectDraw2_0046b1a4, 640, 400, 8, 0, 0);
             if (reportedResult != 0)
                 *reportedResult = result;
             if (result != DD_OK) {
@@ -143,8 +156,8 @@ int DIBcascade(int mode, int *reportedResult)
             modeText = "640x400 achieved...testing\n";
             break;
         case 2:
-            result = ((LPDIRECTDRAW2)DAT_0046b1a4)->lpVtbl->SetDisplayMode(
-                (LPDIRECTDRAW2)DAT_0046b1a4, 640, 480, 8, 0, 0);
+            result = g_pDirectDraw2_0046b1a4->lpVtbl->SetDisplayMode(
+                g_pDirectDraw2_0046b1a4, 640, 480, 8, 0, 0);
             if (reportedResult != 0)
                 *reportedResult = result;
             if (result != DD_OK) {
@@ -160,9 +173,9 @@ int DIBcascade(int mode, int *reportedResult)
 
         OutputDebugStringA(modeText);
         if (mode == -2) {
-            if (DAT_0046b1ac != 0) {
+            if (g_pSecondarySurface_0046b1ac != 0) {
                 result = IDirectDrawSurface_Restore(
-                    (LPDIRECTDRAWSURFACE)DAT_0046b1ac);
+                    g_pSecondarySurface_0046b1ac);
                 if (reportedResult != 0)
                     *reportedResult = result;
                 if (result != DD_OK)
@@ -171,15 +184,15 @@ int DIBcascade(int mode, int *reportedResult)
             }
 
             result = IDirectDrawSurface_Restore(
-                (LPDIRECTDRAWSURFACE)DAT_0046b1a8);
+                g_pPrimarySurface_0046b1a8);
             if (reportedResult != 0)
                 *reportedResult = result;
             if (result != DD_OK)
                 DIBerror("DIBcascade   Unable to restore surface", result);
 
             result = IDirectDrawSurface_SetPalette(
-                (LPDIRECTDRAWSURFACE)DAT_0046b1a8,
-                (LPDIRECTDRAWPALETTE)DAT_0046b1b0);
+                g_pPrimarySurface_0046b1a8,
+                g_pDirectDrawPalette_0046b1b0);
             if (result != DD_OK)
                 DIBerror("DIBcascade   CreatePalette", result);
             return 1;
@@ -191,52 +204,52 @@ int DIBcascade(int mode, int *reportedResult)
         surface.dwFlags = DDSD_CAPS;
         surface.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
         result = IDirectDraw2_CreateSurface(
-            (LPDIRECTDRAW2)DAT_0046b1a4, &surface,
-            (LPDIRECTDRAWSURFACE *)&DAT_0046b1a8, 0);
+            g_pDirectDraw2_0046b1a4, &surface,
+            &g_pPrimarySurface_0046b1a8, 0);
         if (reportedResult != 0)
             *reportedResult = result;
         if (result != DD_OK) {
             OutputDebugStringA(" failed\n");
             mode = 0;
-            IDirectDraw2_RestoreDisplayMode((LPDIRECTDRAW2)DAT_0046b1a4);
+            IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0046b1a4);
             reportedResult = 0;
             continue;
         }
 
         OutputDebugStringA(" successful\n locking surface:");
         result = IDirectDrawSurface_Lock(
-            (LPDIRECTDRAWSURFACE)DAT_0046b1a8, 0, &surface,
+            g_pPrimarySurface_0046b1a8, 0, &surface,
             DDLOCK_WAIT, 0);
         if (reportedResult != 0)
             *reportedResult = result;
         if (result == DD_OK) {
             IDirectDrawSurface_Unlock(
-                (LPDIRECTDRAWSURFACE)DAT_0046b1a8, surface.lpSurface);
+                g_pPrimarySurface_0046b1a8, surface.lpSurface);
             IDirectDrawSurface_Release(
-                (LPDIRECTDRAWSURFACE)DAT_0046b1a8);
-            DAT_0046b1a8 = 0;
+                g_pPrimarySurface_0046b1a8);
+            g_pPrimarySurface_0046b1a8 = 0;
             OutputDebugStringA(" successful\n");
             return 1;
         }
 
         OutputDebugStringA(" failed\n");
         mode = 0;
-        IDirectDrawSurface_Release((LPDIRECTDRAWSURFACE)DAT_0046b1a8);
+        IDirectDrawSurface_Release(g_pPrimarySurface_0046b1a8);
         reportedResult = 0;
-        IDirectDraw2_RestoreDisplayMode((LPDIRECTDRAW2)DAT_0046b1a4);
+        IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0046b1a4);
     }
 }
 
 /* Function start: 0x432680 */
-/* Full teardown: destroy the DIB, drop the clipper and palette, restore the
- * display mode (vtable +0x4c) and release DirectDraw itself (+0x08). */
+/* Full teardown: destroy the DIB, release its surfaces, restore the display
+ * mode and release DirectDraw itself. */
 void DIBunInstall(void)
 {
     DIBdestroyDIB();
-    COM_RELEASE(DAT_0046b1ac);
-    COM_RELEASE(DAT_0046b1a8);
-    (**(void (**)(void *))(*DAT_0046b1a4 + 0x4c))(DAT_0046b1a4);
-    (**(void (**)(void *))(*DAT_0046b1a4 + 8))(DAT_0046b1a4);
+    COM_RELEASE(g_pSecondarySurface_0046b1ac);
+    COM_RELEASE(g_pPrimarySurface_0046b1a8);
+    IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0046b1a4);
+    IDirectDraw2_Release(g_pDirectDraw2_0046b1a4);
 }
 
 /* Function start: 0x4326E0 */
@@ -252,8 +265,8 @@ void DIBmakeDIB(void)
     surface.dwFlags = DDSD_CAPS;
     surface.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_MODEX;
     result = IDirectDraw2_CreateSurface(
-        (LPDIRECTDRAW2)DAT_0046b1a4, &surface,
-        (LPDIRECTDRAWSURFACE *)&DAT_0046b1a8, 0);
+        g_pDirectDraw2_0046b1a4, &surface,
+        &g_pPrimarySurface_0046b1a8, 0);
     if (result != DD_OK)
         DIBerror("DIBmakeDIB   CreateSurface (primary)", result);
 
@@ -268,14 +281,14 @@ void DIBmakeDIB(void)
     } while (offset < 0x400);
 
     result = IDirectDraw2_CreatePalette(
-        (LPDIRECTDRAW2)DAT_0046b1a4, DDPCAPS_8BIT, entries,
-        (LPDIRECTDRAWPALETTE *)&DAT_0046b1b0, 0);
+        g_pDirectDraw2_0046b1a4, DDPCAPS_8BIT, entries,
+        &g_pDirectDrawPalette_0046b1b0, 0);
     if (result != DD_OK)
         DIBerror("DIBmakeDIB   CreatePalette", result);
 
     result = IDirectDrawSurface_SetPalette(
-        (LPDIRECTDRAWSURFACE)DAT_0046b1a8,
-        (LPDIRECTDRAWPALETTE)DAT_0046b1b0);
+        g_pPrimarySurface_0046b1a8,
+        g_pDirectDrawPalette_0046b1b0);
     if (result != DD_OK)
         DIBerror("DIBmakeDIB   CreatePalette", result);
 
@@ -287,8 +300,8 @@ void DIBmakeDIB(void)
         surface.dwHeight = 200;
         surface.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
         result = IDirectDraw2_CreateSurface(
-            (LPDIRECTDRAW2)DAT_0046b1a4, &surface,
-            (LPDIRECTDRAWSURFACE *)&DAT_0046b1ac, 0);
+            g_pDirectDraw2_0046b1a4, &surface,
+            &g_pSecondarySurface_0046b1ac, 0);
         if (result != DD_OK)
             DIBerror("DIBmakeDIB   CreateSurface (secondary)", result);
     }
@@ -312,18 +325,16 @@ void DIBdestroyDIB(void)
     memcpy(DAT_00476658, (void *)DAT_00476648,
            DAT_0047664c * DAT_00476650);
     if (DAT_0046b1b4 > 0) {
-        result = (**(int (__stdcall **)(void *))(*DAT_0046b1ac + 8))
-            (DAT_0046b1ac);
+        result = IDirectDrawSurface_Release(g_pSecondarySurface_0046b1ac);
         if (result != 0)
             DIBerror("DIBdestroyDIB   secondary->Release", result);
-        DAT_0046b1ac = 0;
+        g_pSecondarySurface_0046b1ac = 0;
     }
-    if (DAT_0046b1a8 != 0) {
-        result = (**(int (__stdcall **)(void *))(*DAT_0046b1a8 + 8))
-            (DAT_0046b1a8);
+    if (g_pPrimarySurface_0046b1a8 != 0) {
+        result = IDirectDrawSurface_Release(g_pPrimarySurface_0046b1a8);
         if (result != 0)
             DIBerror("DIBdestroyDIB   primary->Release", result);
-        DAT_0046b1a8 = 0;
+        g_pPrimarySurface_0046b1a8 = 0;
     }
     if (DAT_00476648 != 0)
         free((void *)DAT_00476648);
@@ -362,35 +373,35 @@ void DIBslamReal(void)
 
         if (DAT_0046b1b4 > 0) {
             result = IDirectDrawSurface_Lock(
-                (LPDIRECTDRAWSURFACE)DAT_0046b1ac,
+                g_pSecondarySurface_0046b1ac,
                 0, &surface, DDLOCK_WAIT, 0);
         } else {
             result = IDirectDrawSurface_Lock(
-                (LPDIRECTDRAWSURFACE)DAT_0046b1a8,
+                g_pPrimarySurface_0046b1a8,
                 0, &surface, DDLOCK_WAIT, 0);
         }
         if (result != DD_OK) {
             if (result == DDERR_SURFACELOST) {
                 if (DAT_0046b1b4 > 0) {
                     result = IDirectDrawSurface_Restore(
-                        (LPDIRECTDRAWSURFACE)DAT_0046b1ac);
+                        g_pSecondarySurface_0046b1ac);
                     if (result != DD_OK)
                         DIBerror("DIBslamReal   Unable to restore surface (secondary)",
                                  result);
                 }
                 result = IDirectDrawSurface_Restore(
-                    (LPDIRECTDRAWSURFACE)DAT_0046b1a8);
+                    g_pPrimarySurface_0046b1a8);
                 if (result != DD_OK)
                     DIBerror("DIBslamReal   Unable to restore surface (primary)",
                              result);
 
                 if (DAT_0046b1b4 > 0) {
                     result = IDirectDrawSurface_Lock(
-                        (LPDIRECTDRAWSURFACE)DAT_0046b1ac,
+                        g_pSecondarySurface_0046b1ac,
                         0, &surface, DDLOCK_WAIT, 0);
                 } else {
                     result = IDirectDrawSurface_Lock(
-                        (LPDIRECTDRAWSURFACE)DAT_0046b1a8,
+                        g_pPrimarySurface_0046b1a8,
                         0, &surface, DDLOCK_WAIT, 0);
                 }
                 if (result != DD_OK)
@@ -398,7 +409,7 @@ void DIBslamReal(void)
                              result);
             } else {
                 IDirectDrawSurface_Unlock(
-                    (LPDIRECTDRAWSURFACE)DAT_0046b1a8, surface.lpSurface);
+                    g_pPrimarySurface_0046b1a8, surface.lpSurface);
                 DIBerror("DIBslamReal   secondary->Lock", result);
             }
         }
@@ -407,7 +418,7 @@ void DIBslamReal(void)
         source = DAT_00476648;
         if (DAT_0046b1b4 <= 0) {
             IDirectDraw2_WaitForVerticalBlank(
-                (LPDIRECTDRAW2)DAT_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
+                g_pDirectDraw2_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
         }
         row = 0;
         if ((int)DAT_00476650 > 0) {
@@ -421,10 +432,10 @@ void DIBslamReal(void)
 
         if (DAT_0046b1b4 > 0) {
             IDirectDrawSurface_Unlock(
-                (LPDIRECTDRAWSURFACE)DAT_0046b1ac, surface.lpSurface);
+                g_pSecondarySurface_0046b1ac, surface.lpSurface);
         } else {
             IDirectDrawSurface_Unlock(
-                (LPDIRECTDRAWSURFACE)DAT_0046b1a8, surface.lpSurface);
+                g_pPrimarySurface_0046b1a8, surface.lpSurface);
         }
 
         if (DAT_0059ab23->pixels == DAT_00476648)
@@ -445,24 +456,24 @@ void DIBslamReal(void)
             }
 
             result = IDirectDrawSurface_Blt(
-                (LPDIRECTDRAWSURFACE)DAT_0046b1a8, &destinationRect,
-                (LPDIRECTDRAWSURFACE)DAT_0046b1ac, &sourceRect,
+                g_pPrimarySurface_0046b1a8, &destinationRect,
+                g_pSecondarySurface_0046b1ac, &sourceRect,
                 DDBLT_WAIT, 0);
             if (result != DD_OK) {
                 if (result == DDERR_SURFACELOST) {
                     result = IDirectDrawSurface_Restore(
-                        (LPDIRECTDRAWSURFACE)DAT_0046b1a8);
+                        g_pPrimarySurface_0046b1a8);
                     if (result != DD_OK)
                         DIBerror("DIBslamReal (BLIT)  Unable to restore surface (primary)",
                                  result);
                     result = IDirectDrawSurface_Restore(
-                        (LPDIRECTDRAWSURFACE)DAT_0046b1ac);
+                        g_pSecondarySurface_0046b1ac);
                     if (result != DD_OK)
                         DIBerror("DIBslamReal (BLIT)  Unable to restore surface (secondary)",
                                  result);
                     result = IDirectDrawSurface_Blt(
-                        (LPDIRECTDRAWSURFACE)DAT_0046b1a8, &destinationRect,
-                        (LPDIRECTDRAWSURFACE)DAT_0046b1ac, &sourceRect,
+                        g_pPrimarySurface_0046b1a8, &destinationRect,
+                        g_pSecondarySurface_0046b1ac, &sourceRect,
                         DDBLT_WAIT, 0);
                     if (result != DD_OK)
                         DIBerror("DIBslamReal (BLIT)  Unable to blit to restored surface (primary)",
@@ -516,11 +527,11 @@ void DIBupdate(int left, int top, int right, int bottom)
     memset(&surface, 0, sizeof(surface));
     surface.dwSize = sizeof(surface);
     result = IDirectDrawSurface_Lock(
-        (LPDIRECTDRAWSURFACE)DAT_0046b1a8, 0, &surface,
+        g_pPrimarySurface_0046b1a8, 0, &surface,
         DDLOCK_WAIT, 0);
     if (result != DD_OK) {
         IDirectDrawSurface_Unlock(
-            (LPDIRECTDRAWSURFACE)DAT_0046b1a8, surface.lpSurface);
+            g_pPrimarySurface_0046b1a8, surface.lpSurface);
         DIBerror("DIBupdate   primary->Lock", result);
     }
 
@@ -528,7 +539,7 @@ void DIBupdate(int left, int top, int right, int bottom)
                 + surface.lPitch * top + left;
     source = DAT_00476648 + DAT_0047664c * top + left;
     IDirectDraw2_WaitForVerticalBlank(
-        (LPDIRECTDRAW2)DAT_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
+        g_pDirectDraw2_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
     while (height > 0) {
         memcpy(destination, source, width);
         destination += surface.lPitch;
@@ -536,7 +547,7 @@ void DIBupdate(int left, int top, int right, int bottom)
         height--;
     }
     IDirectDrawSurface_Unlock(
-        (LPDIRECTDRAWSURFACE)DAT_0046b1a8, surface.lpSurface);
+        g_pPrimarySurface_0046b1a8, surface.lpSurface);
 }
 
 /* Function start: 0x432DE0 */
@@ -586,7 +597,7 @@ void DIBramPalette(void)
     } while (offset < 0x400);
 
     result = IDirectDrawPalette_SetEntries(
-        (LPDIRECTDRAWPALETTE)DAT_0046b1b0, 0, 0, 256,
+        g_pDirectDrawPalette_0046b1b0, 0, 0, 256,
         (LPPALETTEENTRY)entries);
     if (result != DD_OK)
         DIBerror("DIBramPalette   SetEntries", result);
@@ -624,13 +635,13 @@ void DIBsetPalette(short index, short *rgb)
         entry.peGreen = (unsigned char)DAT_005a8a50[wordOffset + 1];
         entry.peFlags = 0;
         result = IDirectDrawPalette_SetEntries(
-            (LPDIRECTDRAWPALETTE)DAT_0046b1b0, 0, paletteIndex, 1, &entry);
+            g_pDirectDrawPalette_0046b1b0, 0, paletteIndex, 1, &entry);
         if (result != DD_OK)
             DIBerror("DIBsetPalette   SetEntries", result);
 
         result = IDirectDrawSurface_SetPalette(
-            (LPDIRECTDRAWSURFACE)DAT_0046b1a8,
-            (LPDIRECTDRAWPALETTE)DAT_0046b1b0);
+            g_pPrimarySurface_0046b1a8,
+            g_pDirectDrawPalette_0046b1b0);
         if (result != DD_OK)
             DIBerror("DIBmakeDIB   CreatePalette", result);
     }
@@ -654,8 +665,8 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
     int offset = 0;
     int error;
 
-    (**(int (__stdcall **)(void *, int, int))(*DAT_0046b1a4 + 0x58))
-        (DAT_0046b1a4, 1, 0);
+    IDirectDraw2_WaitForVerticalBlank(
+        g_pDirectDraw2_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
     do {
         unsigned char value = palette[0];
 
@@ -673,14 +684,14 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
         offset = offset + 4;
     } while (offset < 0x400);
 
-    error = (**(int (__stdcall **)(void *, int, int, int, void *))
-             (*DAT_0046b1b0 + 0x18))
-        (DAT_0046b1b0, 0, 0, 0x100, entries);
+    error = IDirectDrawPalette_SetEntries(
+        g_pDirectDrawPalette_0046b1b0, 0, 0, 0x100,
+        (LPPALETTEENTRY)entries);
     if (error != 0)
         DIBerror("DIBsetWholePalette   SetEntries", error);
 
-    error = (**(int (__stdcall **)(void *, void *))(*DAT_0046b1a8 + 0x7c))
-        (DAT_0046b1a8, DAT_0046b1b0);
+    error = IDirectDrawSurface_SetPalette(
+        g_pPrimarySurface_0046b1a8, g_pDirectDrawPalette_0046b1b0);
     if (error != 0)
         DIBerror("DIBmakeDIB   CreatePalette", error);
 }
@@ -692,8 +703,8 @@ void DIBwholePaletteFromWords(unsigned short *palette)
     int offset = 0;
     int error;
 
-    (**(int (__stdcall **)(void *, int, int))(*DAT_0046b1a4 + 0x58))
-        (DAT_0046b1a4, 1, 0);
+    IDirectDraw2_WaitForVerticalBlank(
+        g_pDirectDraw2_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
     do {
         unsigned char value = *(unsigned char *)palette;
 
@@ -711,14 +722,14 @@ void DIBwholePaletteFromWords(unsigned short *palette)
         offset = offset + 4;
     } while (offset < 0x400);
 
-    error = (**(int (__stdcall **)(void *, int, int, int, void *))
-             (*DAT_0046b1b0 + 0x18))
-        (DAT_0046b1b0, 0, 0, 0x100, entries);
+    error = IDirectDrawPalette_SetEntries(
+        g_pDirectDrawPalette_0046b1b0, 0, 0, 0x100,
+        (LPPALETTEENTRY)entries);
     if (error != 0)
         DIBerror("DIBsetWholePalette   SetEntries", error);
 
-    error = (**(int (__stdcall **)(void *, void *))(*DAT_0046b1a8 + 0x7c))
-        (DAT_0046b1a8, DAT_0046b1b0);
+    error = IDirectDrawSurface_SetPalette(
+        g_pPrimarySurface_0046b1a8, g_pDirectDrawPalette_0046b1b0);
     if (error != 0)
         DIBerror("DIBmakeDIB   CreatePalette", error);
 }
@@ -726,8 +737,8 @@ void DIBwholePaletteFromWords(unsigned short *palette)
 /* Function start: 0x4331E0 */
 void DIBwaitForVerticalBlank(void)
 {
-    (**(void (__stdcall **)(void *, int, int))(*DAT_0046b1a4 + 0x58))
-        (DAT_0046b1a4, 1, 0);
+    IDirectDraw2_WaitForVerticalBlank(
+        g_pDirectDraw2_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
 }
 
 /* Function start: 0x4331F0 */
