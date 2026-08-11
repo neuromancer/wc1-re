@@ -688,7 +688,8 @@ typedef union MissionShipBehaviour {
 typedef struct MissionShipRecord {
     enum ObjectType type;             /* +0x00 */
     enum Side side;                   /* +0x04 */
-    short leader;                     /* +0x08 */
+    signed char leader;               /* +0x08 */
+    signed char field_9;              /* +0x09 */
     enum ShipMissionType missionType; /* +0x0A */
     signed char navPoint;             /* +0x0E */
     FixedVector position;             /* +0x0F */

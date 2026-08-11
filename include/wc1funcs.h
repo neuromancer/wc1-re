@@ -116,7 +116,7 @@ unsigned int DeBriefing(short series, short mission);                  /* 0x0040
 unsigned int Office(void);                                             /* 0x00405840 */
 unsigned int LoadBriefingData(short series, short mission);             /* 0x00405910 */
 unsigned int LoadMissionData(short series, short mission);              /* 0x004059B0 */
-unsigned int BriefingMap_UpdateMap(char *text, short duration);         /* 0x00405CC0 */
+unsigned int UpdateMap(char *text, short duration);                     /* 0x00405CC0 */
 unsigned int CloseLook(unsigned char *shape, short shot,
                        short *animation, char *text, short duration,
                        short unused);                                  /* 0x00405DE0 */
@@ -622,7 +622,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile);             /* 0x004
 unsigned int GetZeroUnused(void);                                        /* 0x0041DA00 */
 short CheckEscaped(void);                                               /* 0x0041DA10 */
 short WaitForInputKey(void);                                         /* 0x0041DAA0 */
-void WaitForSceneAdvance(short duration);                              /* 0x0041DBA0 */
+void WaitForSceneAdvance(short duration, short unused);                /* 0x0041DBA0 */
 void MoveMenuPointerFromKeyboard(InputEventState *event);               /* 0x0041DC70 */
 void EraseLastTextInputCharacter(void);                              /* 0x0041DDF0 */
 short WaitForStreamInputKey(void);                                  /* 0x0041DEB0 */

@@ -99,8 +99,8 @@
 0x00405840 Office
 0x00405910 LoadBriefingData
 0x004059B0 LoadMissionData
-0x00405CC0 LoopUiFn5CC0
-0x00405DE0 BlitUiFn5DE0
+0x00405CC0 UpdateMap
+0x00405DE0 CloseLook
 0x004060A0 HelperOf4075D0A
 0x004060B0 maneuver_complete
 0x004060D0 Mline_up_drop
@@ -1119,7 +1119,7 @@
 0x00435470 DosStrcpy
 0x004354A0 LoopLocalFn54A0
 0x004354D0 DosStrlen
-0x004354F0 DoLocalFn54F0
+0x004354F0 DosMemcpy
 0x00435510 LoopLocalFn5510
 0x00435550 GetEventManagerStatus
 0x00435560 RegisterEventManagerShutdown

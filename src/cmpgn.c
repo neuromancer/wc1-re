@@ -35,7 +35,8 @@ typedef struct MissionObjectiveDisk {
 typedef struct MissionShipDisk {
     short type;
     short side;
-    short leader;
+    signed char leader;
+    signed char field_5;
     short missionType;
     signed char navPoint;
     FixedVector position;
@@ -309,23 +310,18 @@ unsigned int LongTalk(unsigned char *talker, char *text,
                       short *mouthCommands, short *faceCommands,
                       short duration)
 {
-    short *faceCursor;
     short *faceStart;
-    short *mouthCursor;
     short *mouthStart;
     short faceCountdown;
     short faceFrame;
     short mouthCountdown;
     short mouthFrame;
-    short *next;
     short waiting;
 
     waiting = 0;
     AddPCName(text);
-    faceCursor = faceCommands;
-    mouthCursor = mouthCommands;
-    faceStart = faceCursor;
-    mouthStart = mouthCursor;
+    faceStart = faceCommands;
+    mouthStart = mouthCommands;
     faceFrame = 0;
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   DAT_0046999c);
@@ -338,47 +334,52 @@ unsigned int LongTalk(unsigned char *talker, char *text,
                               g_szTextScratchBuffer_00598b00);
     DAT_00469fb4 = 1;
     for (;;) {
-        if (*mouthCursor == -1 && *faceCursor == -1) {
-            if (waiting != 0) {
-                IsFrameTickElapsed();
+        if (*mouthCommands == -1 && *faceCommands == -1) {
+            if (waiting == 0) {
+                CloseTalk(talker, -1, -1);
+                DIBslam();
+                DIBslamReal();
+                WaitForSceneAdvance(duration, 0);
                 return 0;
             }
-            CloseTalk(talker, -1, -1);
-            DIBslam();
-            DIBslamReal();
-            WaitForSceneAdvance(duration);
+            IsFrameTickElapsed();
             return 0;
         }
         if (mouthCountdown-- == 0) {
-            if (*mouthCursor != -1)
-                mouthCursor += 2;
-            next = mouthStart;
-            if (*mouthCursor == -2 ||
-                (next = mouthCursor, *mouthCursor != -1)) {
-                mouthFrame = *next;
-                mouthCursor = next;
-                mouthCountdown = (short)(next[1] * 2);
-            } else {
+            if (*mouthCommands != -1)
+                mouthCommands += 2;
+            switch (*mouthCommands) {
+            case -2:
+                mouthCommands = mouthStart;
+            default:
+                mouthFrame = *mouthCommands;
+                mouthCountdown = (short)(mouthCommands[1] * 2);
+                break;
+            case -1:
                 mouthFrame = -1;
                 if (waiting == 0) {
-                    waiting = 1;
+                    waiting++;
                     SetFrameTimerPeriodDirect(duration);
                 }
+                break;
             }
         }
         if (faceCountdown-- == 0) {
-            if (*faceCursor != -1)
-                faceCursor += 2;
-            next = faceStart;
-            if (*faceCursor == -2 ||
-                (next = faceCursor, *faceCursor != -1)) {
-                faceFrame = *next;
+            if (*faceCommands != -1)
+                faceCommands += 2;
+            switch (*faceCommands) {
+            case -2:
+                faceCommands = faceStart;
+            default:
+                faceFrame = *faceCommands;
                 if (faceFrame == 10)
                     faceFrame = -1;
-                faceCursor = next;
-                faceCountdown = (short)(next[1] * 2);
-            } else
+                faceCountdown = (short)(faceCommands[1] * 2);
+                break;
+            case -1:
                 faceFrame = -1;
+                break;
+            }
         }
         DAT_00469fb4--;
         if (DAT_00469fb4 < 1) {
@@ -389,7 +390,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
         }
         if (CheckEscaped() != 0)
             break;
-        if (waiting != 0 && IsFrameTickElapsed() != 0)
+        if (waiting != 0 && (short)IsFrameTickElapsed() != 0)
             return 0;
     }
     do {
@@ -602,88 +603,87 @@ unsigned int LoadMissionData(short series, short mission)
     MissionNavPoint *nav;
     MissionObjectiveSource *objective;
     MissionShipRecord *ship;
-    short index;
-    short item;
+    short *sourceInitialShip;
+    short *initialShip;
+    int index;
+    int item;
 
     logicalFile = g_asMissionDataFiles_00469460[g_nCampaignDataSet_005a8118];
-    missionIndex = (int)mission + (int)series * 4;
-
     packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 0, 0);
-    if (packet == 0)
-        return 0;
+    missionIndex = (int)mission + (int)series * 4;
     header = (MissionHeaderDisk *)(packet + missionIndex * 0x18);
     g_nMissionEntryNavPoint_005a8690 = header->entryNavPoint;
     g_nHomeMissionShipIndex_005a8692 = header->homeMissionShip;
     g_nPlayerMissionShipIndex_005a8694 = header->playerMissionShip;
-    index = 0;
+    sourceInitialShip = header->initialMissionShips;
+    initialShip = g_nInitialMissionShipIndices_005a8696;
     do {
-        g_nInitialMissionShipIndices_005a8696[index] =
-            header->initialMissionShips[index];
-        index++;
-    } while (index < 8);
+        *initialShip++ = *sourceInitialShip++;
+    } while (initialShip < &g_nInitialMissionShipIndices_005a8696[8]);
     DAT_005a86a6 = header->field_16;
     ReleasePacketHandle((int)packet);
 
     packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 1, 0);
-    if (packet == 0)
-        return 0;
     diskNav = (MissionNavPointDisk *)(packet + missionIndex * 0x4d0);
-    nav = g_aMissionNavPoints_0046c2f0;
     index = 0;
     do {
+        nav = &g_aMissionNavPoints_0046c2f0[index];
         memcpy(nav->name, diskNav->name, sizeof(nav->name));
         nav->type = diskNav->type;
         nav->position = diskNav->position;
         nav->proximityRadius = diskNav->proximityRadius;
-        memcpy(nav->triggers, diskNav->triggers, sizeof(nav->triggers));
+        item = 0;
+        do {
+            ((signed char *)nav->triggers)[item] =
+                ((signed char *)diskNav->triggers)[item];
+            item++;
+        } while (item < 8);
         item = 0;
         do {
             nav->preloadObjectTypes[item] =
                 (enum ObjectType)diskNav->preloadObjectTypes[item];
             item++;
         } while (item < 2);
-        memcpy(nav->missionShips, diskNav->missionShips,
-               sizeof(nav->missionShips));
+        item = 0;
+        do {
+            nav->missionShips[item] = diskNav->missionShips[item];
+            item++;
+        } while (item < 10);
         diskNav++;
-        nav++;
         index++;
     } while (index < WC1_ACTIVE_MISSION_NAV_POINT_COUNT);
     ReleasePacketHandle((int)packet);
 
     packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 2, 0);
-    if (packet == 0)
-        return 0;
     diskObjective =
         (MissionObjectiveDisk *)(packet + missionIndex * 0x400);
-    objective = g_aMissionObjectiveSources_005a8270;
     index = 0;
     do {
+        objective = &g_aMissionObjectiveSources_005a8270[index];
         objective->type = diskObjective->type;
         objective->index = diskObjective->index;
-        memcpy(objective->description, diskObjective->description,
-               sizeof(objective->description));
+        item = 0;
+        do {
+            objective->description[item] = diskObjective->description[item];
+            item++;
+        } while (item < 60);
         diskObjective++;
-        objective++;
         index++;
     } while (index < WC1_MISSION_OBJECTIVE_COUNT);
     ReleasePacketHandle((int)packet);
 
     packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 3, 0);
-    if (packet == 0)
-        return 0;
     diskShip = (MissionShipDisk *)(packet + missionIndex * 0x540);
     ship = g_aMissionShips_0046c948;
-    index = 0;
     do {
         ship->type = (enum ObjectType)diskShip->type;
         ship->side = (enum Side)diskShip->side;
         ship->leader = diskShip->leader;
+        ship->field_9 = diskShip->field_5;
         ship->missionType = (enum ShipMissionType)diskShip->missionType;
         ship->navPoint = diskShip->navPoint;
         ship->position = diskShip->position;
-        ship->pitch = diskShip->pitch;
-        ship->yaw = diskShip->yaw;
-        ship->roll = diskShip->roll;
+        memcpy(&ship->pitch, &diskShip->pitch, 6);
         ship->formationSpot = diskShip->formationSpot;
         ship->speed = diskShip->speed;
         ship->rating = diskShip->rating;
@@ -696,30 +696,25 @@ unsigned int LoadMissionData(short series, short mission)
         ship->targetMissionIndex = diskShip->targetMissionIndex;
         diskShip++;
         ship++;
-        index++;
-    } while (index < 32);
+    } while (ship < &g_aMissionShips_0046c948[32]);
     ReleasePacketHandle((int)packet);
 
     packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 4, 0);
-    if (packet == 0)
-        return 0;
-    memcpy(g_abMissionAuxData_005a8210,
-           packet + missionIndex * sizeof(g_abMissionAuxData_005a8210),
-           sizeof(g_abMissionAuxData_005a8210));
+    DosMemcpy(g_abMissionAuxData_005a8210,
+              packet + missionIndex * sizeof(g_abMissionAuxData_005a8210),
+              sizeof(g_abMissionAuxData_005a8210));
     ReleasePacketHandle((int)packet);
 
     packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 5, 0);
-    if (packet == 0)
-        return 0;
-    memcpy(g_abSeriesAuxData_005a8240,
-           packet + series * sizeof(g_abSeriesAuxData_005a8240),
-           sizeof(g_abSeriesAuxData_005a8240));
+    DosMemcpy(g_abSeriesAuxData_005a8240,
+              packet + series * sizeof(g_abSeriesAuxData_005a8240),
+              sizeof(g_abSeriesAuxData_005a8240));
     ReleasePacketHandle((int)packet);
     return 0;
 }
 
 /* Function start: 0x405CC0 */
-unsigned int BriefingMap_UpdateMap(char *text, short duration)
+unsigned int UpdateMap(char *text, short duration)
 {
     Viewport savedScreen;
     Viewport savedVirtualScreen;
@@ -739,7 +734,7 @@ unsigned int BriefingMap_UpdateMap(char *text, short duration)
     DAT_005a6ba0 = savedScreen;
     DAT_005a76b0 = savedVirtualScreen;
     BriefingMap_DisplayMap();
-    WaitForSceneAdvance(duration);
+    WaitForSceneAdvance(duration, 0);
     ClearViewport(&DAT_005a6ba0, DAT_0046999c);
     SetTextContext(&g_stConversationTextContext_005a7760);
     ClearViewport(&DAT_005a6ba0, DAT_0046999c);
@@ -760,7 +755,6 @@ unsigned int CloseLook(unsigned char *shape, short shot,
     short *cursor;
     short *start;
 
-    (void)unused;
     finished = 0;
     sceneFrame = 0;
     AddPCName(text);
@@ -862,6 +856,6 @@ unsigned int CloseLook(unsigned char *shape, short shot,
     }
     DIBslam();
     DIBslamReal();
-    WaitForSceneAdvance(duration);
+    WaitForSceneAdvance(duration, unused);
     return 0;
 }

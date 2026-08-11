@@ -397,36 +397,37 @@ short WaitForInputKey(void)
 }
 
 /* Function start: 0x41DBA0 */
-void WaitForSceneAdvance(short duration)
+void WaitForSceneAdvance(short duration, short unused)
 {
     InputEventState event;
     unsigned char savedMode;
     short eventType;
     short escaped;
-    int advanced;
+    short advanced;
 
-    savedMode = g_bInputMode_0059a848;
+    (void)unused;
     advanced = 0;
+    savedMode = g_bInputMode_0059a848;
     g_bInputMode_0059a848 = 1;
-    if (duration == -1) {
+    if (duration != -1) {
+        SetFrameTimerPeriodDirect(duration);
+    } else {
         escaped = CheckEscaped();
-        if (escaped == 0)
-            goto wait_for_input;
-        do {
-            escaped = CheckEscaped();
-        } while (escaped != 0);
-        duration = 0;
+        if (escaped != 0) {
+            do {
+                escaped = CheckEscaped();
+            } while (escaped != 0);
+            SetFrameTimerPeriodDirect(0);
+        }
     }
-    SetFrameTimerPeriodDirect(duration);
-wait_for_input:
-    while (IsFrameTickElapsed() == 0 && advanced == 0) {
+    while ((short)IsFrameTickElapsed() == 0 && advanced == 0) {
         eventType = PollInputEvent(&event, 0xff);
         switch (eventType) {
         case 2:
         case 3:
         case 5:
         case 10:
-            advanced = 1;
+            advanced++;
             g_bInputMode_0059a848 = savedMode;
             FlushInputEvents();
             do {

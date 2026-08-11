@@ -111,6 +111,23 @@ while `rating[]`, `ship_target[]`, and `ship_seq[]` are byte arrays; `ship_wingl
 Everything recovered this way is in [include/wcdata.h](../include/wcdata.h), with each entry
 marked verified or not.
 
+### Mac campaign/scene names mapped onto Win32
+
+Mac CODE 3 preserves the campaign and scene routines around `LoadMissionData`.  The checked
+Win32 bodies retain the developer spellings below even though the port reorders `LoadFace`
+ahead of the main scene run and adds two private animation parsers.  In particular,
+`0x00405CC0` is the Mac `UpdateMap` scene command; `BriefingMap_UpdateMap` belongs to the
+separate Mac `nav` unit and must not be applied here.
+
+| Win32 address | Exact Mac name | Win32 address | Exact Mac name |
+|---|---|---|---|
+| `0x00404E10` | `AddPCName` | `0x004050B0` | `LoadFace` |
+| `0x00405290` | `LongTalk` | `0x004054B0` | `CloseTalk` |
+| `0x00405660` | `Briefing` | `0x004056F0` | `DeBriefing` |
+| `0x00405840` | `Office` | `0x00405910` | `LoadBriefingData` |
+| `0x004059B0` | `LoadMissionData` | `0x00405CC0` | `UpdateMap` |
+| `0x00405DE0` | `CloseLook` | | |
+
 ### Mac `brain` unit mapped onto Win32
 
 CODE 2 preserves 45 consecutive symbols belonging to the `brain` source unit. Their checked
