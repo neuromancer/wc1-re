@@ -483,6 +483,7 @@ unsigned int LoadOriginFxDrivers(void)
     DIBslam();
     DIBslamReal();
     g_nFrameSkip_00469fb8 = 1;
+    initialize_direction_view_frames();
     g_pConstellationDefinitions_00598a28 =
         (ConstellationObjectDefinition *)LoadPacketAllocated(0x3a, 0);
     g_pMissionCampaignData_005988bc = LoadPacketAllocated(0x3a, 1);
@@ -507,6 +508,52 @@ unsigned int InitializeGameTextContexts(void)
     DAT_005a6bc0.alignment = 2;
     InitializeTextContextFromFont(&DAT_005a6bc0, 1,
                                   (unsigned char)DAT_004699ac, -1);
+    return 0;
+}
+
+/* Function start: 0x421E20 */
+unsigned int initialize_direction_view_frame(short yaw, short pitch,
+                                             signed char frame)
+{
+    FixedVector right = { 0x100, 0, 0 };
+    FixedVector up = { 0, 0x100, 0 };
+    FixedVector forward = { 0, 0, 0x100 };
+    short index;
+
+    rotate_about_j(yaw, &right, &forward);
+    rotate_about_i(pitch, &up, &forward);
+    index = (short)frame;
+    g_aDirectionViewRightVector_005a6c20[index] = right;
+    g_aDirectionViewUpVector_005a6f10[index] = up;
+    g_aDirectionViewForwardVector_005a7200[index] = forward;
+    return 0;
+}
+
+/* Function start: 0x421EF0 */
+unsigned int initialize_direction_view_frames(void)
+{
+    signed char frame;
+    signed char pitchBands;
+    signed char yawSectors;
+    short pitch;
+    short yaw;
+
+    frame = 1;
+    pitch = 90;
+    initialize_direction_view_frame(0, pitch, 0);
+    pitchBands = 5;
+    do {
+        pitch -= 30;
+        yaw = 0;
+        yawSectors = 12;
+        do {
+            initialize_direction_view_frame(yaw, pitch, frame++);
+            yaw += 30;
+            yawSectors--;
+        } while (yawSectors != 0);
+        pitchBands--;
+    } while (pitchBands != 0);
+    initialize_direction_view_frame(0, -90, frame);
     return 0;
 }
 

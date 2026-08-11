@@ -437,8 +437,10 @@ extern const short g_asCannedSequence42_0046c250[];
 extern const short g_asCannedSequence43_0046c270[];
 extern const short g_asCannedSequence44_0046c2a0[];
 extern const short g_asCannedSequence45_0046c2e8[];
-extern const signed char g_acDirectionShapeFrame_0046db28[62];
-extern const signed char g_acDirectionShapeFlip_0046dbe8[62];
+extern const signed char g_acDirectionShapeFrame_0046db28[
+    WC1_DIRECTION_VIEW_COUNT * WC1_DIRECTION_SHAPE_TABLE_COUNT];
+extern const signed char g_acDirectionShapeFlip_0046dbe8[
+    WC1_DIRECTION_VIEW_COUNT * WC1_DIRECTION_SHAPE_TABLE_COUNT];
 extern InputEvent *g_pInputEventHead_0046da90;
 extern InputEvent *g_pInputEventTail_0046da94;
 extern int g_bInputEventPoolInitialized_0046da98;
@@ -885,6 +887,12 @@ extern TextContext DAT_005a6bc0;
 extern unsigned char *g_pTargetLockShape_005a6bf4;
 extern unsigned char *g_apTextFonts_005a6c00[4];
 extern FontWorkspace **g_apFontWorkspaces_005a6c10[4];
+extern FixedVector g_aDirectionViewRightVector_005a6c20[
+    WC1_DIRECTION_VIEW_COUNT];
+extern FixedVector g_aDirectionViewUpVector_005a6f10[
+    WC1_DIRECTION_VIEW_COUNT];
+extern FixedVector g_aDirectionViewForwardVector_005a7200[
+    WC1_DIRECTION_VIEW_COUNT];
 extern TextContext DAT_005a74f0;
 extern Viewport DAT_005a7510;
 extern Viewport DAT_005a7530;
@@ -1022,6 +1030,7 @@ extern short *g_pPaletteTransitionDelta_005a7d8c;
 extern short g_nPaletteTransitionMaxDelta_005a7d90;
 extern short *g_pPaletteTransitionAccumulator_005a7d94;
 extern short g_nPaletteTransitionCountdown_005a7d98;
+extern signed char g_cCapitalShipLogicalFile_005a7da0;
 extern signed char g_cObjectResourceLogicalFile_005a86b0;
 extern CampaignDate *g_pCurrentCampaignDate_005a86a8;
 extern CampaignDate *g_pElapsedCampaignDate_005a86ac;

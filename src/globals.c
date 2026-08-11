@@ -1118,21 +1118,43 @@ const short g_asCannedSequence44_0046c2a0[] = {
 };
 const short g_asCannedSequence45_0046c2e8[] = { 0, 20, 2, -1 };
 
-const signed char g_acDirectionShapeFrame_0046db28[62] = {
+const signed char g_acDirectionShapeFrame_0046db28[
+    WC1_DIRECTION_VIEW_COUNT * WC1_DIRECTION_SHAPE_TABLE_COUNT] = {
     0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2,
     14, 13, 12, 11, 10, 9, 8, 9, 10, 11, 12, 13,
     15, 16, 17, 18, 19, 20, 21, 20, 19, 18, 17, 16,
     28, 27, 26, 25, 24, 23, 22, 23, 24, 25, 26, 27,
     29, 30, 31, 32, 33, 34, 35, 34, 33, 32, 31, 30,
-    36
+    36,
+    0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2,
+    14, 13, 12, 11, 10, 9, 8, 9, 10, 11, 12, 13,
+    15, 16, 17, 18, 19, 20, 21, 20, 19, 18, 17, 16,
+    14, 13, 12, 11, 10, 9, 8, 9, 10, 11, 12, 13,
+    1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 0,
+    0, 1, 2, 3, 1, 3, 2, 1, 2, 3, 1, 3, 2,
+    4, 5, 6, 4, 6, 5, 4, 5, 6, 4, 6, 5,
+    7, 8, 9, 7, 9, 8, 7, 8, 9, 7, 9, 8,
+    10, 11, 12, 10, 12, 11, 10, 11, 12, 10, 12, 11,
+    13, 14, 15, 13, 15, 14, 13, 14, 15, 13, 15, 14, 16
 };
-const signed char g_acDirectionShapeFlip_0046dbe8[62] = {
+const signed char g_acDirectionShapeFlip_0046dbe8[
+    WC1_DIRECTION_VIEW_COUNT * WC1_DIRECTION_SHAPE_TABLE_COUNT] = {
     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
-    0
+    0,
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3,
+    2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 2,
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0
 };
 
 MissionNavPoint g_aMissionNavPoints_0046c2f0[WC1_MISSION_NAV_POINT_COUNT] = {
@@ -2217,6 +2239,9 @@ Viewport DAT_005a6be0;
 unsigned char *g_pTargetLockShape_005a6bf4;
 unsigned char *g_apTextFonts_005a6c00[4];
 FontWorkspace **g_apFontWorkspaces_005a6c10[4];
+FixedVector g_aDirectionViewRightVector_005a6c20[WC1_DIRECTION_VIEW_COUNT];
+FixedVector g_aDirectionViewUpVector_005a6f10[WC1_DIRECTION_VIEW_COUNT];
+FixedVector g_aDirectionViewForwardVector_005a7200[WC1_DIRECTION_VIEW_COUNT];
 TextContext DAT_005a74f0;
 Viewport DAT_005a7510;
 Viewport DAT_005a7530;
@@ -2308,6 +2333,7 @@ short g_nPaletteTransitionMaxDelta_005a7d90;
 short *g_pPaletteTransitionAccumulator_005a7d94;
 short g_nPaletteTransitionCountdown_005a7d98;
 int DAT_005a7d9c;
+signed char g_cCapitalShipLogicalFile_005a7da0;
 FixedVector g_vNormalizedToTarget_005a7db0;
 short g_nReleaseWeaponDisplayX_005a7dbc;
 short g_nReleaseWeaponDisplayY_005a7dbe;

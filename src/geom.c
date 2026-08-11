@@ -1202,13 +1202,17 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
 }
 
 /* Function start: 0x41A610 */
-void get_right_shape(short obj, const FixedVector *direction)
+void get_right_shape(short obj, FixedVector *direction)
 {
-    FixedVector toEye;
-    FixedVector objectView;
-    FixedVector viewUp;
+    FixedVector right = { 0x100, 0, 0 };
+    FixedVector up = { 0, 0x100, 0 };
+    FixedVector forward = { 0, 0, 0x100 };
+    FixedVector objectForward;
+    FixedVector eyeUp;
+    FixedVector projectedUp;
     SphericalVector spherical;
-    double roll;
+    enum ObjectClass objectClass;
+    enum ObjectType type;
     short pitchBand;
     short yawSector;
     short directionIndex;
@@ -1216,12 +1220,17 @@ void get_right_shape(short obj, const FixedVector *direction)
     short remainder;
     short angle;
     short slot;
-    enum ObjectType type;
 
-    toEye = *direction;
-    negate_vector(&toEye);
-    transform_to_objects_frame(&toEye, &objectView, obj);
-    rectangular_to_spherical(&objectView, &spherical);
+    negate_vector(direction);
+    rectangular_to_spherical(direction, &spherical);
+    rotate_about_j((short)-spherical.yaw, &right, &forward);
+    rotate_about_i((short)-spherical.pitch, &up, &forward);
+    NormalizeFixedVector(&up);
+    NormalizeFixedVector(&forward);
+    transform_to_objects_frame(&forward, &objectForward, obj);
+    transform_to_objects_frame(&g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT],
+                               &eyeUp, obj);
+    rectangular_to_spherical(&objectForward, &spherical);
     pitchBand = (short)(spherical.pitch / 30 + 3);
     remainder = (short)(spherical.pitch % 30);
     if (remainder >= 16) {
@@ -1247,54 +1256,72 @@ void get_right_shape(short obj, const FixedVector *direction)
         directionIndex = 61;
     else
         directionIndex = (short)(pitchBand * 12 + yawSector - 11);
+
+    projectedUp.x = dot_product(
+        &eyeUp, &g_aDirectionViewRightVector_005a6c20[directionIndex]);
+    projectedUp.y = dot_product(
+        &eyeUp, &g_aDirectionViewUpVector_005a6f10[directionIndex]);
+    projectedUp.z = 0;
+    NormalizeFixedVector(&projectedUp);
+    angle = (short)ArcCos(projectedUp.y);
+    if (projectedUp.x >= 0)
+        angle = (short)(360 - angle);
+
+    objectClass = g_aeObjectClass_0059d100[obj];
+    type = g_aeObjectType_0059b560[obj];
+    if (objectClass == OBJECT_CLASS_MISSILE ||
+        type == OBJECT_TYPE_TURRET) {
+        directionIndex += WC1_DIRECTION_VIEW_COUNT;
+    } else if (type == OBJECT_TYPE_KILRATHI_BASE) {
+        directionIndex += WC1_DIRECTION_VIEW_COUNT * 2;
+    }
     frame = g_acDirectionShapeFrame_0046db28[directionIndex];
-    g_asObjectViewFrame_0059d230[obj] = frame;
-    g_asObjectFlip_0059c870[obj] =
-        (short)(g_acDirectionShapeFlip_0046dbe8[directionIndex] << 4);
-    transform_to_objects_frame(&g_aShipUpVector_0059b9e0[obj],
-                               &viewUp, WC1_EYE_OBJECT);
-    roll = atan2((double)viewUp.x, (double)viewUp.y) / WC1_DEG2RAD;
-    angle = (short)-roll;
     if (frame == 0)
         angle += 90;
     if (frame == 36 &&
-        g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_MISSILE)
+        objectClass != OBJECT_CLASS_MISSILE)
         angle -= 90;
+    g_asObjectFlip_0059c870[obj] =
+        (short)(g_acDirectionShapeFlip_0046dbe8[directionIndex] << 4);
     angle %= 360;
     if (angle < 0)
         angle += 360;
     g_asObjectScreenAngle_0059cd90[obj] = angle;
 
-    if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_CAPITAL_SHIP) {
-        if (g_asCapitalShipViewFrame_0059dd90[obj] == frame)
-            return;
-
-        type = g_aeObjectType_0059b560[obj];
-        slot = 1;
-        while (slot < 3 &&
-               g_aObjectResourceSlots_0059ddf0[slot].type !=
-                   (signed char)type) {
-            slot++;
-        }
-        g_asObjectViewFrame_0059d230[obj] = 0;
-        g_asCapitalShipViewFrame_0059dd90[obj] = frame;
-        if (DAT_005a7510.pixels != 0 &&
-            IdentityWord((unsigned short)g_apObjectShape_0059d2f0[obj]) ==
-                0) {
-            GetScreenUpdateFlag();
-        }
-        if (slot < 3 &&
-            g_aiPacketReferenceTable_00465c88[slot][frame] != 0) {
-            g_apObjectShape_0059d2f0[obj] = (unsigned char *)
-                g_aiPacketReferenceTable_00465c88[slot][frame];
-        } else {
-            if (DAT_005a7510.pixels != 0)
+    if (objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
+        if (g_asCapitalShipViewFrame_0059dd90[obj] != frame) {
+            slot = 1;
+            do {
+                if (g_aObjectResourceSlots_0059ddf0[slot].type ==
+                    (signed char)type) {
+                    break;
+                }
+                slot++;
+            } while (slot < 3);
+            g_asObjectViewFrame_0059d230[obj] = 0;
+            g_asCapitalShipViewFrame_0059dd90[obj] = frame;
+            if (DAT_005a7510.pixels != 0 &&
+                IdentityWord(
+                    (unsigned short)g_apObjectShape_0059d2f0[obj]) == 0) {
                 GetScreenUpdateFlag();
-            g_apObjectShape_0059d2f0[obj] =
-                (unsigned char *)FetchDiskPacketRetrying(
-                    (short)(type + 22), frame, 0);
+            }
+            if (g_aiPacketReferenceTable_00465c88[slot][frame] != 0) {
+                g_apObjectShape_0059d2f0[obj] = (unsigned char *)
+                    g_aiPacketReferenceTable_00465c88[slot][frame];
+            } else {
+                if (DAT_005a7510.pixels != 0)
+                    GetScreenUpdateFlag();
+                g_cCapitalShipLogicalFile_005a7da0 =
+                    (signed char)(type + 22);
+                g_apObjectShape_0059d2f0[obj] =
+                    (unsigned char *)FetchDiskPacketRetrying(
+                        (short)g_cCapitalShipLogicalFile_005a7da0,
+                        g_asCapitalShipViewFrame_0059dd90[obj], 0);
+            }
+            initialize_view_buffer();
         }
-        initialize_view_buffer();
+    } else {
+        g_asObjectViewFrame_0059d230[obj] = frame;
     }
 }
 

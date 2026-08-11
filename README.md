@@ -10,8 +10,8 @@ Visual C++ 4.20 to preserve the original code generation.
 
 ## Status
 
-1,366 of 1,460 identified developer functions are currently reimplemented (93.6%):
-1,242 of 1,336 game functions and all 124 `ix` audio functions.
+1,368 of 1,460 identified developer functions are currently reimplemented (93.7%):
+1,244 of 1,336 game functions and all 124 `ix` audio functions.
 
 Run `make progress` for current implementation counts and `make report` for a fresh binary
 comparison.
@@ -22,7 +22,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,375 function similarity scores (95.39% average)</summary>
+<summary>All 1,377 function similarity scores (95.42% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -559,7 +559,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `ClampTo30` | `0x41A110` | 100.00% |
 | `geom.c` | `transform_objects_to_your_view` | `0x41A1D0` | 83.10% |
 | `geom.c` | `set_background_objects_rotation` | `0x41A530` | 91.67% |
-| `geom.c` | `get_right_shape` | `0x41A610` | 50.55% |
+| `geom.c` | `get_right_shape` | `0x41A610` | 87.55% |
 | `geom.c` | `InitializeModalTextPanel` | `0x41A9D0` | 77.89% |
 | `geom.c` | `DrawModalTextPanel` | `0x41AAE0` | 100.00% |
 | `geom.c` | `RestoreModalTextPanel` | `0x41AB60` | 100.00% |
@@ -818,6 +818,8 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `EMStartUp` | `0x421AB0` | 100.00% |
 | `logic.c` | `LoadOriginFxDrivers` | `0x421B10` | 41.38% |
 | `logic.c` | `InitializeGameTextContexts` | `0x421D80` | 88.89% |
+| `logic.c` | `initialize_direction_view_frame` | `0x421E20` | 100.00% |
+| `logic.c` | `initialize_direction_view_frames` | `0x421EF0` | 100.00% |
 | `logic.c` | `GetFxDriverInitResult` | `0x421FE0` | 100.00% |
 | `logic.c` | `GetMessagePumpResult` | `0x421FF0` | 100.00% |
 | `logic.c` | `GetFxDriverStatus` | `0x422000` | 100.00% |
