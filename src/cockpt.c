@@ -970,27 +970,30 @@ void show_navigation_disp(void)
 /* Function start: 0x4151F0 */
 short hidden_objective(short objective)
 {
-    MissionObjective *missionObjective;
-    MissionShipRecord *missionShip;
+    short nameHidden;
     short hidden;
     short ship;
 
-    missionObjective = &g_aMissionObjectives_0059dac0[objective];
-    hidden = *missionObjective->displayName == '.' ||
-             *missionObjective->name == '.';
-    if (hidden == 0 && mobile_objective(objective) != 0) {
-        missionShip = &g_aMissionShips_0046c948[
-            (signed char)missionObjective->index];
-        if (missionShip->state != 0)
-            hidden = 1;
-    }
+    nameHidden =
+        *g_aMissionObjectives_0059dac0[objective].displayName == '.' ||
+        *g_aMissionObjectives_0059dac0[objective].name == '.';
+    if (nameHidden != 0 ||
+        (mobile_objective(objective) != 0 &&
+         g_aMissionShips_0046c948[
+             (signed char)g_aMissionObjectives_0059dac0[
+                 objective].index].state != 0))
+        hidden = 1;
+    else
+        hidden = 0;
     if (hidden == 0 && mobile_objective(objective) != 0 &&
         g_aMissionObjectives_0059dac0[
-            (unsigned char)g_cMissionObjectiveCount_0059c46a].type == 0) {
-        missionShip = &g_aMissionShips_0046c948[
-            (signed char)missionObjective->index];
-        ship = find_ship_index((short)missionObjective->index);
-        if (missionShip->missionType == MISSION_TYPE_WARP_ARRIVE &&
+            g_cMissionObjectiveCount_0059c46a].type == 0) {
+        ship = find_ship_index(
+            (short)g_aMissionObjectives_0059dac0[objective].index);
+        if (g_aMissionShips_0046c948[
+                (signed char)g_aMissionObjectives_0059dac0[
+                    objective].index].missionType ==
+                MISSION_TYPE_WARP_ARRIVE &&
             ship != -1)
             hidden = 1;
     }
@@ -2088,7 +2091,7 @@ void build_your_target_list(short *hasEnemy)
         if (g_aeObjectClass_0059d100[(int)object] >= OBJECT_CLASS_SHIP &&
             g_aeSpecialManeuver_0059c3c0[(int)object] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_asObjectScreenX_0059d9b0[(int)object] != -0x7fff &&
+            g_asObjectScreenX_0059d9b0[(int)object] != (short)0x8001 &&
             (unsigned short)g_asObjectDistance_0059b4a0[(int)object] <
                 12000) {
             targetIndex = g_cViableTargetCount_0046c088;
@@ -2101,7 +2104,7 @@ void build_your_target_list(short *hasEnemy)
                 *hasEnemy = 1;
         }
         object++;
-    } while (object < 10);
+    } while (object <= 9);
     if (g_cViableTargetCount_0046c088 > 1)
         sort_viable_target_list();
 }
@@ -2225,19 +2228,23 @@ void determine_pilot_hand(void)
     yaw = g_nYawInput_0059d3f2 / 2;
     pitch = g_nPitchInput_0059d3f0 / 2;
     if (yaw > 0) {
-        g_bStickIndicatorFrame_005a7dc8 = (unsigned char)MinShort(yaw + 8, 12);
+        g_bStickIndicatorFrame_005a7dc8 =
+            (unsigned char)MinShort((short)(yaw + 8), 12);
         return;
     }
     if (yaw < 0) {
-        g_bStickIndicatorFrame_005a7dc8 = (unsigned char)MinShort(4 - yaw, 8);
+        g_bStickIndicatorFrame_005a7dc8 =
+            (unsigned char)MinShort((short)(4 - yaw), 8);
         return;
     }
     if (pitch > 0) {
-        g_bStickIndicatorFrame_005a7dc8 = (unsigned char)MinShort(pitch + 12, 16);
+        g_bStickIndicatorFrame_005a7dc8 =
+            (unsigned char)MinShort((short)(pitch + 12), 16);
         return;
     }
     if (pitch < 0) {
-        g_bStickIndicatorFrame_005a7dc8 = (unsigned char)MinShort(-pitch, 4);
+        g_bStickIndicatorFrame_005a7dc8 =
+            (unsigned char)MinShort((short)-pitch, 4);
         return;
     }
     g_bStickIndicatorFrame_005a7dc8 = 0;

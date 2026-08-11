@@ -368,13 +368,13 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
         WaitForInputKey();
         if (OpenDiskDataFile(logicalFile) != 0)
             diskReady++;
-        if (savedViewportMode == 0) {
-            ClearViewport(&g_stDiskPromptViewport_005a7d40,
-                          backgroundColour);
-        } else {
+        if (savedViewportMode != 0) {
             CopyViewportContents(
                 &g_stDiskPromptBackgroundViewport_005a7d00,
                 &g_stDiskPromptViewport_005a7d40);
+        } else {
+            ClearViewport(&g_stDiskPromptViewport_005a7d40,
+                          backgroundColour);
         }
     } while (diskReady == 0);
 

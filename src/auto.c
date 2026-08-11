@@ -22,6 +22,8 @@ void visit_the_cinema(int view, int obj, short frames)
     g_nOriginDevUnlock_00469ff4 = 1;
     DAT_00469ffc = 0;
     DAT_0046a000 = 0;
+    /* The retail call converts both int parameters implicitly.  Making the
+     * narrowing explicit changes the register setup and loses an exact match. */
     force_view(view, obj);
     while (frames-- > 0) {
         Update_3Space();

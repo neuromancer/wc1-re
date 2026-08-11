@@ -12,7 +12,7 @@
 /* Message dwell time: grows with text length, scaled by the speed setting. */
 short MeasureMessageWidth(const char *text)
 {
-    short n = MinShort(5, DosStrlen(text) >> 1);
+    short n = MinShort(5, (short)(DosStrlen(text) >> 1));
 
     n = (short)((n + 5) * ((char)g_bMessageSpeed_0046af68 + 1));
     return n;
@@ -1133,7 +1133,7 @@ int drop_player_mine(short obj)
         if (g_aObjectTypeData_00466458[type].objectClass ==
                 OBJECT_CLASS_MINE &&
             weaponSlot->disabled == 0)
-            return drop_mine(obj, weapon, type, 20);
+            return drop_mine(obj, (signed char)weapon, type, 20);
         weapon++;
     }
     return -1;
@@ -1147,10 +1147,10 @@ unsigned int personality_killed(short personality)
             (int)g_stCampaignState_0059ca50.currentMission +
             (int)g_stCampaignState_0059ca50.currentSeries * 4;
         g_stCampaignState_0059ca50.promotionScore = MaxShort(
-            0, g_stCampaignState_0059ca50.promotionScore - 1);
+            0, (short)(g_stCampaignState_0059ca50.promotionScore - 1));
         return 0;
     }
-    kill_ace(personality - 9);
+    kill_ace((short)(personality - 9));
     g_stCampaignState_0059ca50.promotionScore++;
     g_stCampaignState_0059ca50.missionScore += 25;
     return 0;

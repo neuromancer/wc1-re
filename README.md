@@ -36,7 +36,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (96.76% average)</summary>
+<summary>All 1,472 function similarity scores (96.79% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -61,7 +61,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `barracks.c` | `GetBunkInfo` | `0x41BB20` | 100.00% |
 | `barracks.c` | `DrawBarracksBunks` | `0x41BBD0` | 86.57% |
 | `barracks.c` | `DrawBarracksStaticDetails` | `0x41BC90` | 100.00% |
-| `barracks.c` | `AnimateBarracks` | `0x41BCE0` | 97.33% |
+| `barracks.c` | `AnimateBarracks` | `0x41BCE0` | 97.86% |
 | `barracks.c` | `ConfirmQuitWingCommander` | `0x41BF10` | 91.30% |
 | `barracks.c` | `ConfirmAwakenAfterBadData` | `0x41BF60` | 94.74% |
 | `barracks.c` | `ConfirmReplaceFaultyData` | `0x41BFE0` | 96.00% |
@@ -299,7 +299,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `DrawCalculatingLabel` | `0x4150D0` | 100.00% |
 | `cockpt.c` | `objective_name` | `0x415130` | 100.00% |
 | `cockpt.c` | `show_navigation_disp` | `0x415180` | 100.00% |
-| `cockpt.c` | `hidden_objective` | `0x4151F0` | 78.69% |
+| `cockpt.c` | `hidden_objective` | `0x4151F0` | 100.00% |
 | `cockpt.c` | `set_new_objective` | `0x4152C0` | 100.00% |
 | `cockpt.c` | `cycle_next_objective` | `0x415370` | 100.00% |
 | `cockpt.c` | `set_next_destination` | `0x4153D0` | 100.00% |
@@ -338,7 +338,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `RestoreTransientCockpitGraphics` | `0x416CB0` | 95.29% |
 | `cockpt.c` | `SetHudMessageText` | `0x416DE0` | 100.00% |
 | `cockpt.c` | `malf_noise` | `0x416E20` | 100.00% |
-| `cockpt.c` | `build_your_target_list` | `0x416E90` | 90.24% |
+| `cockpt.c` | `build_your_target_list` | `0x416E90` | 92.68% |
 | `cockpt.c` | `cycle_onscreen_targets` | `0x416F30` | 93.75% |
 | `cockpt.c` | `check_target` | `0x416FD0` | 99.08% |
 | `cockpt.c` | `update_missile_warning` | `0x417190` | 100.00% |
@@ -412,7 +412,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `disk.c` | `DrawTextAt` | `0x41D5F0` | 100.00% |
 | `disk.c` | `SortSignedByteValuesAscending` | `0x41D650` | 95.35% |
 | `disk.c` | `OpenDiskDataFile` | `0x41D6C0` | 100.00% |
-| `disk.c` | `PromptInsertNumberedDisk` | `0x41D760` | 89.16% |
+| `disk.c` | `PromptInsertNumberedDisk` | `0x41D760` | 89.76% |
 | `disk.c` | `GetZeroUnused` | `0x41DA00` | 100.00% |
 | `disk.c` | `CheckEscaped` | `0x41DA10` | 100.00% |
 | `disk.c` | `WaitForInputKey` | `0x41DAA0` | 90.91% |
@@ -1213,7 +1213,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `UpdateInputDeviceTransitions` | `0x430710` | 90.91% |
 | `screen.c` | `PollJoystickButtonEvents` | `0x430840` | 94.34% |
 | `screen.c` | `PollMenuInputDevices` | `0x430920` | 80.72% |
-| `screen.c` | `get_face` | `0x430BC0` | 91.67% |
+| `screen.c` | `get_face` | `0x430BC0` | 100.00% |
 | `screen.c` | `LoadCommPortraitShape` | `0x430BF0` | 89.29% |
 | `screen.c` | `ResetCommMenuChoices` | `0x430C50` | 95.00% |
 | `screen.c` | `IsCommMenuIdle` | `0x430CA0` | 100.00% |
@@ -1230,7 +1230,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `CanOpenCommMenu` | `0x430E50` | 100.00% |
 | `screen.c` | `SelectCommRecipient` | `0x430E70` | 100.00% |
 | `screen.c` | `BuildCommunicationRecipientMenu` | `0x430E90` | 92.31% |
-| `screen.c` | `BuildCommunicationCommandMenu` | `0x430FC0` | 92.86% |
+| `screen.c` | `BuildCommunicationCommandMenu` | `0x430FC0` | 93.51% |
 | `screen.c` | `RefreshCommunicationMenu` | `0x431200` | 100.00% |
 | `screen.c` | `HandleCommunicationMenuRequest` | `0x431240` | 100.00% |
 | `screen.c` | `show_communications_disp` | `0x431290` | 96.08% |
@@ -1253,7 +1253,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `ThrottleFrameAndDrawFps` | `0x431F00` | 100.00% |
 | `screens.c` | `LoadBriefingRoom` | `0x436D00` | 100.00% |
 | `screens.c` | `ViewMedals` | `0x436E30` | 100.00% |
-| `screens.c` | `AwardCampaignMedal` | `0x436F50` | 99.12% |
+| `screens.c` | `AwardCampaignMedal` | `0x436F50` | 100.00% |
 | `screens.c` | `DrawMedalChest` | `0x4370D0` | 98.18% |
 | `screens.c` | `DrawMedalLongShot` | `0x437250` | 92.31% |
 | `screens.c` | `MedalEstablish` | `0x4373E0` | 87.88% |
@@ -1354,7 +1354,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `ship.c` | `ShipExplosion` | `0x41FBC0` | 98.65% |
 | `ship.c` | `Explosion` | `0x41FCD0` | 94.62% |
 | `ship.c` | `the_creator` | `0x41FEB0` | 92.86% |
-| `ship.c` | `explosion_shock_wave` | `0x41FEE0` | 80.87% |
+| `ship.c` | `explosion_shock_wave` | `0x41FEE0` | 93.91% |
 | `ship.c` | `explode` | `0x420040` | 100.00% |
 | `ship.c` | `send_at_point` | `0x420190` | 100.00% |
 | `ship.c` | `find_child_object` | `0x4201D0` | 100.00% |

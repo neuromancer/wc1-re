@@ -685,7 +685,7 @@ void prepare_ace(short ace)
 /* Function start: 0x4220F0 */
 short signed_random(short range)
 {
-    return (short)RandomBelowOrEqual(range * 2) - range;
+    return (short)RandomBelowOrEqual((short)(range * 2)) - range;
 }
 
 /* Function start: 0x422110 */
@@ -1223,7 +1223,7 @@ void reset_maneuver(short ship, short maneuver)
 void try2reset_maneuver(short obj, short maneuver)
 {
     if (g_aeShipManeuver_0059dcb0[obj] != maneuver) {
-        reset_maneuver(obj, (enum ShipManeuver)maneuver);
+        reset_maneuver(obj, maneuver);
         steady_object(obj);
     }
 }
@@ -1756,7 +1756,8 @@ void engage(short obj, short target, enum ShipObjective objective)
     if (g_aeShipObjective_0059d200[obj] != objective) {
         reset_objective(obj, objective);
         if (g_acShipRating_0059cd80[obj] > 8 &&
-            ace_status((short)g_aiPilotLevel_0059cf30[obj] - 14, 8) == 0)
+            ace_status(
+                (short)((short)g_aiPilotLevel_0059cf30[obj] - 14), 8) == 0)
             ace_greeting(obj);
     }
     g_acShipTarget_0059ce60[obj] = target;

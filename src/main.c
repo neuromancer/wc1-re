@@ -436,6 +436,8 @@ void get_player_input(void)
 }
 
 /* Function start: 0x427F20 */
+/* The two volume-adjustment exits deliberately use bare returns.  Retail
+ * preserves the value left in EAX by ShowOnScreenMessage on those paths. */
 int process_player_input(void)
 {
     short keys[4];
@@ -568,8 +570,8 @@ int process_player_input(void)
             break;
         case 0x4c:
             WarpMouseTo(
-                (DAT_005a7510.left + DAT_005a7510.right) / 2,
-                (DAT_005a7510.top + DAT_005a7510.bottom) / 2);
+                (short)((DAT_005a7510.left + DAT_005a7510.right) / 2),
+                (short)((DAT_005a7510.top + DAT_005a7510.bottom) / 2));
             g_nRollInput_0059d3f4 = 0;
             g_nPitchInput_0059d3f0 = 0;
             g_nYawInput_0059d3f2 = 0;
@@ -919,8 +921,8 @@ unsigned int player_input(void)
                 g_nMousePitchInput_0046a05c = 0;
                 g_nPitchInput_0059d3f0 = 0;
                 WarpMouseTo(
-                    (viewportLeft + DAT_005a7510.right) / 2,
-                    (DAT_005a7510.bottom + DAT_005a7510.top) / 2);
+                    (short)((viewportLeft + DAT_005a7510.right) / 2),
+                    (short)((DAT_005a7510.bottom + DAT_005a7510.top) / 2));
             } else {
                 g_nRollInput_0059d3f4 = 0;
                 g_nMouseYawInput_0046a058 = yawInput;

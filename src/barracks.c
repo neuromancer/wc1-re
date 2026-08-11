@@ -712,7 +712,8 @@ void AnimateBarracks(Viewport *viewport, unsigned char *shape,
     if (state->blinkDelay != 0) {
         state->eyesOpen = (short)(state->eyesOpen == 0);
         state->blinkDelay--;
-        if (state->blinkDelay == 0 && RandomInRange(0, 100) < 90)
+        if (state->blinkDelay == 0 &&
+            (unsigned short)RandomInRange(0, 100) < 90)
             state->eyesOpen = 1;
     } else if (RandomInRange(0, 70) == 0) {
         state->blinkDelay = (short)(RandomInRange(0, 15) + 2);

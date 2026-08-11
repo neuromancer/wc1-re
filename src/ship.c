@@ -902,14 +902,16 @@ int explosion_shock_wave(short obj, short blastDamage)
             distance = MaxShort(0,
                 (short)(distance -
                         g_asObjectCollisionRadius_0059d710[other]));
-            damage = 0;
-            if (distance <= 1000) {
-                if (distance < 501)
-                    divisor = find_ratio(0, 500, distance, 8, 25);
-                else if (distance < 751)
-                    divisor = 30;
-                else
+            if (distance > 1000) {
+                damage = 0;
+            } else {
+                if (distance > 750) {
                     divisor = 40;
+                } else {
+                    divisor = 30;
+                    if (distance <= 500)
+                        divisor = find_ratio(0, 500, distance, 8, 25);
+                }
                 damage = (short)((blastDamage / divisor) / divisor);
                 if (other == 0)
                     damage = MaxShort(1,

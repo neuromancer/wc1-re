@@ -92,7 +92,8 @@ unsigned int AwardCampaignMedal(short medal)
 {
     int *packet;
 
-    if (medal == 3 && g_stCampaignState_0059ca50.medals[3] > 0)
+    if (medal == 3 &&
+        (signed char)g_stCampaignState_0059ca50.medals[3] > 0)
         return 0;
 
     PreloadMusicTrackHook(0x25);

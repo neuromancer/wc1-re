@@ -533,8 +533,8 @@ void Mtail_fire(short ship, short target)
 void Mzip_past(short ship, short target)
 {
     if (unactive(target) == 0) {
-        if (close_behind(
-                g_asObjectCollisionRadius_0059d710[target] + 2000) != 0) {
+        if (close_behind((short)(
+                g_asObjectCollisionRadius_0059d710[target] + 2000)) != 0) {
             Mtail_fire(ship, target);
             return;
         }
@@ -634,7 +634,7 @@ void Mstrafe_enemy(short ship, short target)
         ship_vs_ship(ship, target);
         point_ship_at_object(ship, target);
     }
-    fire_when_ready(ship, aimed == 0);
+    fire_when_ready(ship, (short)(aimed == 0));
 }
 
 /* Function start: 0x407030 */

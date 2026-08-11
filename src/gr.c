@@ -287,7 +287,7 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
     (void)viewport;
     index = 0;
     do {
-        GetPaletteEntry(index, rgb);
+        GetPaletteEntry((short)index, rgb);
         if (rgb[0] != 0 || rgb[1] != 0 || rgb[2] != 0)
             active[index] = 1;
         index++;

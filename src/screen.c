@@ -121,7 +121,7 @@ int bad_target(short ship, short target)
 /* Function start: 0x42F2B0 */
 short can_land(void)
 {
-    MissionObjective *objective;
+    int *objectiveType;
     short result;
     short index;
 
@@ -133,10 +133,11 @@ short can_land(void)
         index = 0;
         if (g_cMissionObjectiveCount_0059c46a > 0) {
             do {
-                objective = &g_aMissionObjectives_0059dac0[index];
-                if (objective->type != 1) {
+                objectiveType =
+                    &g_aMissionObjectives_0059dac0[index].type;
+                if (*objectiveType != 1) {
                     if (achieved(index) == 0) {
-                        if (visited(index) == 0 || objective->type == 2)
+                        if (visited(index) == 0 || *objectiveType == 2)
                             goto next_objective;
                     }
                     result = 1;
@@ -1176,10 +1177,10 @@ void PollMenuInputDevices(void)
 }
 
 /* Function start: 0x430BC0 */
-short get_face(short rating, enum Side side)
+short get_face(short rating, unsigned int side)
 {
     if (rating == -1)
-        return 12 + (unsigned short)(side != SIDE_IMPERIAL);
+        return 13 + (side < SIDE_KILRATHI ? -1 : 0);
     if (side == SIDE_KILRATHI)
         rating--;
     return rating;
@@ -1252,7 +1253,7 @@ void SendCommMenuChoice(short i)
 /* Function start: 0x430D50 */
 void OpenCommMenuForTarget(char *heading, char *message)
 {
-    CockpitMessage(message, DAT_004699a8, 0xff);
+    CockpitMessage(message, DAT_004699a8, -1);
     g_pszCommMenuHeading_0059e490 = heading;
 }
 
@@ -1390,10 +1391,10 @@ void BuildCommunicationCommandMenu(void)
         } else {
             SendCommMenuChoice(8);
         }
-        if (g_bRadioSilence_0046af70 == 0)
-            SendCommMenuChoice(10);
-        else
+        if (g_bRadioSilence_0046af70 != 0)
             SendCommMenuChoice(11);
+        else
+            SendCommMenuChoice(10);
     }
     if (g_aeShipSide_0059d650[g_cCommMenuRecipient_0046afc4] ==
             g_aeShipSide_0059d650[0]) {

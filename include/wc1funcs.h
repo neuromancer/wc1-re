@@ -1206,7 +1206,7 @@ unsigned int ShowTheEndScreen(short enableFireworks);                 /* 0x00430
 short __stdcall UpdateInputDeviceTransitions(short raw);               /* 0x00430710 */
 void PollJoystickButtonEvents(void);                                   /* 0x00430840 */
 void PollMenuInputDevices(void);                                       /* 0x00430920 */
-short get_face(short rating, enum Side side);                          /* 0x00430BC0 */
+short get_face(short rating, unsigned int side);                      /* 0x00430BC0 */
 void LoadCommPortraitShape(short face, signed char alternate);        /* 0x00430BF0 */
 void ResetCommMenuChoices(short reuse);                               /* 0x00430C50 */
 int IsCommMenuIdle(void);                                              /* 0x00430CA0 */

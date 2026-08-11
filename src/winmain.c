@@ -15,7 +15,7 @@ void SaveGamePalette(void)
     index = 0;
     entry = DAT_005a8a50;
     do {
-        GetPaletteEntry(index, entry);
+        GetPaletteEntry((short)index, entry);
         entry += 3;
         index++;
     } while (entry < DAT_005a8a50 + 0x300);
@@ -118,7 +118,7 @@ short difficulty(void)
 /* Function start: 0x401270 */
 short asteroid_velocity(void)
 {
-    return MinShort(20, (short)RandomBelowOrEqual(7) + 10);
+    return MinShort(20, (short)(RandomBelowOrEqual(7) + 10));
 }
 
 /* Function start: 0x401290 */
@@ -303,7 +303,8 @@ int ok_hazard_spot(short obj)
     if (g_asObjectScreenX_0059d9b0[obj] == (short)0x8001)
         range = rear_sphere();
     return IsPointWithinRange(&g_aShipPosition_0059c490[0],
-                              &g_aShipPosition_0059c490[obj], range);
+                              &g_aShipPosition_0059c490[obj],
+                              (short)range);
 }
 
 /* Function start: 0x4018D0 */
@@ -840,21 +841,24 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             break;
         }
         eventType = 13;
-        QueueInputEvent(eventType, mouseX, mouseY, 0,
+        QueueInputEvent(eventType, (unsigned short)mouseX,
+                        (unsigned short)mouseY, 0,
                         primaryButton, secondaryButton, 0);
         mouseEvent = 1;
         break;
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
         eventType = 2;
-        QueueInputEvent(eventType, mouseX, mouseY, 0,
+        QueueInputEvent(eventType, (unsigned short)mouseX,
+                        (unsigned short)mouseY, 0,
                         primaryButton, secondaryButton, 0);
         mouseEvent = 1;
         break;
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
         eventType = 1;
-        QueueInputEvent(eventType, mouseX, mouseY, 0,
+        QueueInputEvent(eventType, (unsigned short)mouseX,
+                        (unsigned short)mouseY, 0,
                         primaryButton, secondaryButton, 0);
         mouseEvent = 1;
         break;

@@ -536,7 +536,7 @@ unsigned int process_maneuver_node(short obj, int event)
             obj);
     }
     if (g_aeShipManeuver_0059dcb0[obj] != maneuver)
-        reset_maneuver(obj, maneuver);
+        reset_maneuver(obj, (short)maneuver);
     return 0;
 }
 
@@ -575,7 +575,8 @@ void handle_stress(short obj, int event)
     } else if (damage < 75) {
         g_acShipStress_0059d620[obj] =
             (signed char)MinShort(
-                (short)g_acShipStress_0059d620[obj] + aggression, 28);
+                (short)((short)g_acShipStress_0059d620[obj] + aggression),
+                28);
     } else {
         g_acShipStress_0059d620[obj] =
             (signed char)MinShort(g_acShipStress_0059d620[obj], 7);

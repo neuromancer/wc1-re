@@ -75,6 +75,7 @@ DebugOverlayConsole::~DebugOverlayConsole()
 extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
 {
     DebugOverlayConsole *console;
+    /* Retail compares against this stack slot before its first assignment. */
     DWORD timer;
     DWORD waitResult;
     HDC deviceContext;

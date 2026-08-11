@@ -52,7 +52,8 @@ void QueueInputEventAtCursor(unsigned int type, short primaryButton,
     int x = g_nMouseX_0059ab10;
     int y = g_nMouseY_0059ab12;
 
-    QueueInputEvent(eventType, x, y, 0,
+    QueueInputEvent((unsigned short)eventType, (unsigned short)x,
+                    (unsigned short)y, 0,
                     primaryButton, secondaryButton, 0);
 }
 
@@ -491,10 +492,10 @@ void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
     if (DAT_0059ab23 != 0 && DAT_0046daa0 > 0 &&
         g_pDrawnMouseCursorShape_0046da9c != 0) {
         RestoreSpriteBackground(DAT_0059ab23, DAT_004865a8,
-                                g_nMouseCursorSavedX_0059a844,
-                                g_nMouseCursorSavedY_0059a840,
+                                (short)g_nMouseCursorSavedX_0059a844,
+                                (short)g_nMouseCursorSavedY_0059a840,
                                 g_pDrawnMouseCursorShape_0046da9c,
-                                DAT_0059ab1d);
+                                (short)DAT_0059ab1d);
         g_pDrawnMouseCursorShape_0046da9c = 0;
     }
     DAT_0059ab1d = frame;
