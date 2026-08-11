@@ -1408,9 +1408,13 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 
 ## Screenshots
 
-| Intro space battle | Space-flight simulator |
+| Mission briefing | Tiger's Claw hangar |
 | --- | --- |
-| [![Two ships fighting during the intro](screenshots/intro-space-battle.png)](screenshots/intro-space-battle.png) | [![Simulator cockpit and HUD](screenshots/space-flight-simulator.png)](screenshots/space-flight-simulator.png) |
+| [![Mission briefing and flight path aboard the Tiger's Claw](screenshots/mission-briefing.png)](screenshots/mission-briefing.png) | [![Fighter parked in the Tiger's Claw hangar](screenshots/tigers-claw-hangar.png)](screenshots/tigers-claw-hangar.png) |
+
+| Title sequence | Cockpit combat |
+| --- | --- |
+| [![Wing Commander title screen](screenshots/title-screen.png)](screenshots/title-screen.png) | [![Cockpit combat targeting a Dralthi](screenshots/cockpit-combat.png)](screenshots/cockpit-combat.png) |
 
 ## Build
 
