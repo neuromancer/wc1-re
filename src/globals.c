@@ -1487,8 +1487,8 @@ const TalkingHeadOrigin g_aTalkingHeadOrigins_0046e190[11] = {
     {161, 60, 161, 90},
     {161, 60, 161, 90},
     {161, 60, 161, 90},
+    {161, 60, 161, 90},
     {160, 53, 160, 88},
-    {257, 257, 257, 0}
 };
 const signed char g_abBriefingSmallCharacterAnimation_0046e1e8[24] = {
     1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
