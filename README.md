@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.38% average)</summary>
+<summary>All 1,472 function similarity scores (97.46% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -207,7 +207,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `set_formation_position` | `0x40C4E0` | 90.91% |
 | `brains.c` | `Set_up_ship_info` | `0x40C5E0` | 84.27% |
 | `brains.c` | `is_team_member` | `0x40C740` | 100.00% |
-| `brains.c` | `find_next_ship_turn_slot` | `0x40C780` | 78.57% |
+| `brains.c` | `find_next_ship_turn_slot` | `0x40C780` | 91.67% |
 | `brains.c` | `init_ship` | `0x40C800` | 90.98% |
 | `brains.c` | `init_intelligence_data` | `0x40C950` | 84.62% |
 | `brains.c` | `SampleBothJoysticks` | `0x40CAA0` | 100.00% |
@@ -220,7 +220,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `nav_getxy` | `0x40CC30` | 100.00% |
 | `brains.c` | `CheckPoint` | `0x40CC80` | 100.00% |
 | `brains.c` | `IncludeNavMapWorldPoint` | `0x40CCF0` | 100.00% |
-| `brains.c` | `SetScale` | `0x40CD30` | 87.29% |
+| `brains.c` | `SetScale` | `0x40CD30` | 89.08% |
 | `brains.c` | `Build_objective_list` | `0x40CED0` | 85.04% |
 | `cdrom.c` | `AllocateFontWorkspace` | `0x403100` | 80.00% |
 | `cdrom.c` | `FreeFontWorkspace` | `0x403180` | 95.65% |
@@ -228,7 +228,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cdrom.c` | `FindCdRomDriveByVolumeLabel` | `0x403290` | 86.11% |
 | `cdrom.c` | `SetCurrentDirOnDrive` | `0x4033E0` | 100.00% |
 | `cdrom.c` | `PromptInsertCorrectCd` | `0x403450` | 100.00% |
-| `cdrom.c` | `OpenDataFileOrDie` | `0x4034D0` | 84.62% |
+| `cdrom.c` | `OpenDataFileOrDie` | `0x4034D0` | 100.00% |
 | `cmpgn.c` | `LoadPaletteTripletsFile` | `0x404610` | 100.00% |
 | `cmpgn.c` | `ejection_sequence` | `0x4046A0` | 96.75% |
 | `cmpgn.c` | `stranded_sequence` | `0x404BE0` | 96.72% |
@@ -480,7 +480,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `eventmgr.c` | `ClearInputKeyState` | `0x4363E0` | 100.00% |
 | `eventmgr.c` | `SetInputKeyState` | `0x436420` | 100.00% |
 | `eventmgr.c` | `sort_object_depth` | `0x436460` | 98.33% |
-| `eventmgr.c` | `draw_sorted_objects_to_buffer` | `0x436520` | 61.11% |
+| `eventmgr.c` | `draw_sorted_objects_to_buffer` | `0x436520` | 91.67% |
 | `eventmgr.c` | `intro_drawbackgroundships` | `0x436650` | 71.64% |
 | `eventmgr.c` | `set_up_screen_viewport` | `0x436740` | 90.12% |
 | `eventmgr.c` | `MouseIdleHook` | `0x4368C0` | 100.00% |
@@ -1095,7 +1095,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `PlaceNavMapLabel` | `0x40D2C0` | 93.81% |
 | `nav.c` | `AddUniqueObjectiveNavLabel` | `0x40D410` | 100.00% |
 | `nav.c` | `IsPointInNavMapLabel` | `0x40D490` | 100.00% |
-| `nav.c` | `DrawNavMapLabels` | `0x40D540` | 83.33% |
+| `nav.c` | `DrawNavMapLabels` | `0x40D540` | 100.00% |
 | `nav.c` | `DrawNavRectangleMarker` | `0x40D5A0` | 100.00% |
 | `nav.c` | `DrawNavSquareOutline` | `0x40D640` | 100.00% |
 | `nav.c` | `DrawNavSquareMarker` | `0x40D680` | 89.04% |
@@ -1108,10 +1108,10 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `BuildMap` | `0x40DA00` | 90.51% |
 | `nav.c` | `UpdateInflightNavText` | `0x40DDA0` | 100.00% |
 | `nav.c` | `FormatNavCoordinates` | `0x40DE70` | 100.00% |
-| `nav.c` | `DrawSelectedNavLegendEntry` | `0x40DEA0` | 88.24% |
+| `nav.c` | `DrawSelectedNavLegendEntry` | `0x40DEA0` | 100.00% |
 | `nav.c` | `DrawNavMapLegend` | `0x40DEE0` | 100.00% |
 | `nav.c` | `nav_note` | `0x40DF50` | 100.00% |
-| `nav.c` | `DrawNavLocationReadout` | `0x40DF70` | 91.54% |
+| `nav.c` | `DrawNavLocationReadout` | `0x40DF70` | 100.00% |
 | `nav.c` | `BriefingMap_LoadShapes` | `0x40E190` | 100.00% |
 | `nav.c` | `BriefingMap_DisplayMap` | `0x40E210` | 97.56% |
 | `nav.c` | `SelectNavObjectiveAtPoint` | `0x40E2B0` | 91.95% |
@@ -1494,7 +1494,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `winmain.c` | `manage_hazard` | `0x4019E0` | 100.00% |
 | `winmain.c` | `match_ship_to_eye` | `0x401A60` | 100.00% |
 | `winmain.c` | `update_hazards` | `0x401B30` | 100.00% |
-| `winmain.c` | `start_hazard_field` | `0x401BC0` | 88.24% |
+| `winmain.c` | `start_hazard_field` | `0x401BC0` | 100.00% |
 | `winmain.c` | `add_hazard_field` | `0x401C00` | 92.00% |
 | `winmain.c` | `check_hazards` | `0x401C60` | 100.00% |
 | `winmain.c` | `WarpMouseTo` | `0x401CE0` | 100.00% |

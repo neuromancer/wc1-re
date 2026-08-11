@@ -613,8 +613,8 @@ void FormatNavCoordinates(unsigned char *out)
 void DrawSelectedNavLegendEntry(const char *text, short navPoint)
 {
     if ((short)g_cCurrentNavPointIndex_0059c86c == navPoint) {
-        DrawNavTextLine(0, DAT_004699a8, text);
-        DrawNavTextLine(0, DAT_004699a8,
+        DrawNavTextLine(0, (unsigned short)DAT_004699a8, text);
+        DrawNavTextLine(0, (unsigned short)DAT_004699a8,
                         g_szNavLegendNewline_004687fc);
     }
 }

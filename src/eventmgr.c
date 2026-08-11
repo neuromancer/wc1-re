@@ -686,48 +686,63 @@ void sort_object_depth(void)
 /* Function start: 0x436520 */
 void draw_sorted_objects_to_buffer(void)
 {
+    int *sortedEntry;
     int obj;
+    int objectClass;
     unsigned char *shape;
     short screenX;
     short screenY;
-    short sorted;
+    int specialObject;
 
-    sorted = 0;
-    while (sorted < WC1_SPACE_OBJECT_COUNT) {
-        obj = g_anSortedObject_0059aa00[sorted];
+    sortedEntry = g_anSortedObject_0059aa00;
+    do {
+        obj = *sortedEntry;
         if (obj < 0)
             return;
         if ((int)g_aeObjectType_0059b560[obj] < 0)
             return;
-        if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_NULL) {
-            sorted++;
-            continue;
-        }
-
-        screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
-                          g_nViewCenterX_0059a852);
-        screenY = (short)(g_asObjectScreenY_0059d930[obj] +
-                          g_nViewCenterY_0059a854);
-        g_asObjectDrawX_0059d000[obj] = screenX;
-        g_asObjectDrawY_0059cf80[obj] = screenY;
-        if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_STAR &&
-            g_aeObjectClass_0059d100[obj] <= OBJECT_CLASS_DUST) {
-            if (obj == DAT_00469208)
+        objectClass = g_aeObjectClass_0059d100[obj];
+        if (objectClass != OBJECT_CLASS_NULL) {
+            switch (objectClass) {
+            default:
+                screenY = g_asObjectScreenY_0059d930[obj];
+                screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
+                                  g_nViewCenterX_0059a852);
                 shape = g_apObjectShape_0059d2f0[obj];
-            else
-                shape = g_pConstellationShape_005a765c;
-            DrawSpriteDefault(&DAT_005a7510, screenX, screenY, shape,
-                              g_asObjectViewFrame_0059d230[obj]);
-        } else if (g_apObjectShape_0059d2f0[obj] != 0) {
-            DrawSpriteScaled(&DAT_005a7510, screenX, screenY,
-                             g_apObjectShape_0059d2f0[obj],
-                             g_asObjectViewFrame_0059d230[obj],
-                             g_asObjectScreenAngle_0059cd90[obj],
-                             g_asObjectScreenScale_0059c950[obj],
-                             g_asObjectFlip_0059c870[obj]);
+                g_asObjectDrawX_0059d000[obj] = screenX;
+                screenY = (short)(screenY + g_nViewCenterY_0059a854);
+                g_asObjectDrawY_0059cf80[obj] = screenY;
+                if (shape != 0) {
+                    DrawSpriteScaled(
+                        &DAT_005a7510, screenX, screenY, shape,
+                        g_asObjectViewFrame_0059d230[obj],
+                        g_asObjectScreenAngle_0059cd90[obj],
+                        g_asObjectScreenScale_0059c950[obj],
+                        g_asObjectFlip_0059c870[obj]);
+                }
+                break;
+            case OBJECT_CLASS_STAR:
+            case OBJECT_CLASS_PLANET:
+            case OBJECT_CLASS_DUST:
+                specialObject = (int)DAT_00469208;
+                screenY = g_asObjectScreenY_0059d930[obj];
+                screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
+                                  g_nViewCenterX_0059a852);
+                g_asObjectDrawX_0059d000[obj] = screenX;
+                screenY = (short)(screenY + g_nViewCenterY_0059a854);
+                g_asObjectDrawY_0059cf80[obj] = screenY;
+                if (specialObject == obj)
+                    shape = g_apObjectShape_0059d2f0[obj];
+                else
+                    shape = g_pConstellationShape_005a765c;
+                DrawSpriteDefault(&DAT_005a7510, screenX, screenY, shape,
+                                  g_asObjectViewFrame_0059d230[obj]);
+                break;
+            }
         }
-        sorted++;
-    }
+        sortedEntry++;
+    } while (sortedEntry < g_anSortedObject_0059aa00 +
+                           WC1_SPACE_OBJECT_COUNT);
 }
 
 /* Function start: 0x436650 */

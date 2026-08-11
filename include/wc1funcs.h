@@ -280,7 +280,7 @@ int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
                                    short joystick,
                                    unsigned int fallback);              /* 0x0040CAE0 */
 void SampleActiveJoystickDevice(void);                                 /* 0x0040CB30 */
-void DrawNavTextLine(unsigned char alignment, unsigned char colour,
+void DrawNavTextLine(unsigned char alignment, unsigned short colour,
                      const char *format, ...);                         /* 0x0040CB60 */
 void SetNavMapCoordinateScaling(short enabled);                       /* 0x0040CBB0 */
 void ScaleNavMapMarkerSize(short *size);                              /* 0x0040CBC0 */

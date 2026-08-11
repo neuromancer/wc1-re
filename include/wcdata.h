@@ -570,7 +570,7 @@ typedef char ShipSpawnRuntimeStateView_spawnNavPoint_must_be_at_0x10[
 typedef struct NavMapLabel {
     short x;
     short y;
-    unsigned short colour;
+    short colour;
     const char *text;
 } NavMapLabel;
 #pragma pack(pop)

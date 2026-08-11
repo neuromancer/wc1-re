@@ -4101,26 +4101,28 @@ unsigned int is_team_member(short missionShip)
 unsigned int find_next_ship_turn_slot(short obj)
 {
     signed char interval;
+    int objIndex;
     short other;
 
-    other = 1;
-    g_acTurnRegulator_0059cf10[obj] = 1;
+    objIndex = (int)obj;
+    g_acTurnRegulator_0059cf10[objIndex] = 1;
     interval = (signed char)g_anPilotTurnInterval_00465fc8[
-        g_aiPilotLevel_0059cf30[obj]];
-    g_acTurnInterval_0059d7d0[obj] = interval;
+        g_aiPilotLevel_0059cf30[objIndex]];
+    g_acTurnInterval_0059d7d0[objIndex] = interval;
+    other = 1;
     do {
         if (g_aeObjectClass_0059d100[other] == OBJECT_CLASS_SHIP &&
             other != obj &&
             g_acTurnRegulator_0059cf10[other] ==
-                g_acTurnRegulator_0059cf10[obj] &&
+                g_acTurnRegulator_0059cf10[objIndex] &&
             g_acTurnInterval_0059d7d0[other] == interval) {
             other = 1;
-            g_acTurnRegulator_0059cf10[obj]++;
-            if (interval < g_acTurnRegulator_0059cf10[obj])
-                return 0;
+            g_acTurnRegulator_0059cf10[objIndex]++;
+            if (interval < g_acTurnRegulator_0059cf10[objIndex])
+                break;
         }
         other++;
-    } while (other < 10);
+    } while (other <= 9);
     return 0;
 }
 
@@ -4266,7 +4268,7 @@ void SampleActiveJoystickDevice(void)
 }
 
 /* Function start: 0x40CB60 */
-void DrawNavTextLine(unsigned char alignment, unsigned char colour,
+void DrawNavTextLine(unsigned char alignment, unsigned short colour,
                      const char *format, ...)
 {
     g_pCurrentTextContext_0059af8c->colour = colour;

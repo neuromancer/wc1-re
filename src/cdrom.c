@@ -160,8 +160,8 @@ int PromptInsertCorrectCd(void)
 /* Function start: 0x4034D0 */
 short __stdcall OpenDataFileOrDie(const char *path)
 {
-    int fd = _open(path, 0x8002);
+    short fd = (short)_open(path, 0x8002);
 
     g_nPacketError_00465460 = (short)errno;
-    return (short)fd;
+    return fd;
 }

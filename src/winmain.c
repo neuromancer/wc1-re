@@ -407,8 +407,7 @@ void start_hazard_field(short region)
     slot = 1;
     do {
         g_abHazardObjects_0046c028[slot] = (signed char)make_hazard();
-        slot++;
-    } while (slot < 4);
+    } while (slot++ < 3);
 }
 
 /* Function start: 0x401C00 */
