@@ -14,7 +14,8 @@ short MeasureMessageWidth(const char *text)
 {
     short n = MinShort(5, DosStrlen(text) >> 1);
 
-    return (n + 5) * ((char)g_bMessageSpeed_0046af68 + 1);
+    n = (short)((n + 5) * ((char)g_bMessageSpeed_0046af68 + 1));
+    return n;
 }
 
 /* Function start: 0x428EA0 */
@@ -125,7 +126,8 @@ void ShowGamePausedBanner(short showBanner)
 /* Function start: 0x4290D0 */
 void ShowVersionBanner(void)
 {
-    ShowOnScreenMessage(1, 9999, "WING COMMANDER VER. %s");
+    ShowOnScreenMessage(1, 9999, "WING COMMANDER VER. %s",
+                        g_pGameVersion_004693b4);
 }
 
 /* Function start: 0x4290F0 */
@@ -704,7 +706,7 @@ unsigned int RenderSpaceViewFrame(void)
 unsigned int RefreshCockpitStatus(void)
 {
     Update_3Space();
-    if (DAT_00469fb4 < 2)
+    if (DAT_00469fb4 <= 1)
         clear_view_buffer();
     return Draw_3Space_Frame();
 }

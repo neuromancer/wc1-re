@@ -319,7 +319,7 @@ unsigned int Update_3Space(void)
 /* Function start: 0x427C80 */
 unsigned int TriggerPlayerHitPaletteFlash(void)
 {
-    if (DAT_0046c03c < 4)
+    if (DAT_0046c03c <= 3)
         DAT_005a7780[0] = 0x30;
     return 0;
 }
@@ -949,7 +949,7 @@ unsigned int SelectNextExternalViewObject(void)
         object++;
         if (object > 9)
             object = 0;
-        g_cViewObject_0046c000 = -1;
+        selected = -1;
         if (g_aeObjectClass_0059d100[object] >= OBJECT_CLASS_SHIP)
             selected = (signed char)object;
         g_cViewObject_0046c000 = selected;

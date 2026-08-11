@@ -4258,7 +4258,7 @@ void DrawNavTextLine(unsigned char alignment, unsigned char colour,
     g_pCurrentTextContext_0059af8c->alignment = alignment;
     g_pCurrentTextContext_0059af8c->textCursor =
         g_pCurrentTextContext_0059af8c->text;
-    FormatTextTokens((void (__stdcall *)(short))AppendTextCharacter,
+    FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
                      format, (unsigned long *)(&format + 1));
     DrawTextString(g_pCurrentTextContext_0059af8c->text);
 }

@@ -10,7 +10,7 @@
 #include "wc1.h"
 
 /* Function start: 0x413A10 */
-void EmitTextString(void (__stdcall *writer)(short), const char *text)
+void EmitTextString(void (__stdcall *writer)(int), const char *text)
 {
     short character;
 
@@ -22,7 +22,7 @@ void EmitTextString(void (__stdcall *writer)(short), const char *text)
 }
 
 /* Function start: 0x413A40 */
-void FormatTextTokens(void (__stdcall *writer)(short),
+void FormatTextTokens(void (__stdcall *writer)(int),
                       const char *format, unsigned long *arguments)
 {
     short character;
@@ -98,7 +98,7 @@ void FormatTextTokens(void (__stdcall *writer)(short),
 /* Function start: 0x413C40 */
 void DrawFormattedText(const char *format, ...)
 {
-    FormatTextTokens((void (__stdcall *)(short))DrawTextCharacter,
+    FormatTextTokens((void (__stdcall *)(int))DrawTextCharacter,
                      format, (unsigned long *)(&format + 1));
     if (g_pCurrentTextContext_0059af8c->viewport->pixels ==
         DAT_005a6ba0.pixels)
@@ -110,7 +110,7 @@ void FormatTextBufferFromStart(const char *format, ...)
 {
     g_pCurrentTextContext_0059af8c->textCursor =
         g_pCurrentTextContext_0059af8c->text;
-    FormatTextTokens((void (__stdcall *)(short))AppendTextCharacter,
+    FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
                      format, (unsigned long *)(&format + 1));
     if (g_pCurrentTextContext_0059af8c->viewport->pixels ==
         DAT_005a6ba0.pixels)
@@ -120,7 +120,7 @@ void FormatTextBufferFromStart(const char *format, ...)
 /* Function start: 0x413CB0 */
 void AppendFormattedText(const char *format, ...)
 {
-    FormatTextTokens((void (__stdcall *)(short))AppendTextCharacter,
+    FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
                      format, (unsigned long *)(&format + 1));
     if (g_pCurrentTextContext_0059af8c->viewport->pixels ==
         DAT_005a6ba0.pixels)
@@ -672,7 +672,8 @@ unsigned short set_message_time(unsigned short v)
 /* Function start: 0x414A20 */
 void check_message(void)
 {
-    if (message_showing() && (DAT_005a7dca = DAT_005a7dca - 1, DAT_005a7dca < 1))
+    if (message_showing() &&
+        (DAT_005a7dca = DAT_005a7dca - 1, DAT_005a7dca <= 0))
         EndCommMenu();
 }
 
@@ -1510,7 +1511,7 @@ unsigned short starting_lock(unsigned short v)
 /* Function start: 0x416010 */
 void lock_off(void)
 {
-    if (g_nTargetLockCountdown_0046c064 >= 0)
+    if (g_nTargetLockCountdown_0046c064 > -1)
         g_bTargetLockReadoutDirty_0046c060 = 1;
     remove_message(PTR_s_MISSILE_LOCKED_004691d4);
     g_nTargetLockCountdown_0046c064 = -1;
@@ -1623,7 +1624,7 @@ short GetRectHeight(const Viewport *viewport)
 }
 
 /* Function start: 0x416260 */
-void print_message_text(char *text, unsigned char colour)
+void print_message_text(char *text, unsigned short colour)
 {
     char source[84];
     char wrapped[84];
@@ -1706,7 +1707,7 @@ void print_message_text(char *text, unsigned char colour)
 }
 
 /* Function start: 0x416460 */
-void ShowHudTextLine(char *s, unsigned char b)
+void ShowHudTextLine(char *s, unsigned short b)
 {
     DAT_00469004 = s;
     print_message_text(s, b);
@@ -2058,13 +2059,17 @@ void SetHudMessageText(char *text, unsigned short colour,
 }
 
 /* Function start: 0x416E20 */
-void malf_noise(short vdu, int effect, unsigned int colour,
+void malf_noise(short vdu, int effect, unsigned short colour,
                 short sound, short refresh)
 {
     Viewport *viewport = vdu == 0 ? &DAT_005a6b80 : &DAT_005a7530;
 
-    if (sound != -1)
-        PlaySfxWaveFileByNumber(sound == 0x17 ? 0x16 : sound, -1, 0);
+    if (sound != -1) {
+        if (sound == 0x17)
+            PlaySnowStaticSound();
+        else
+            PlaySfxWaveFileByNumber(sound, -1, 0);
+    }
     snow_viewport(viewport, effect, colour);
     if (refresh != 0)
         set_new_vdu(vdu);

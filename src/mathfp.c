@@ -193,9 +193,9 @@ short __stdcall IsPointInRect(short x, short y, const short *rect)
 }
 
 /* Function start: 0x4350D0 */
-void __stdcall SplitPackedPoint(unsigned int packed, short *p)
+void __stdcall SplitPackedPoint(ShortPoint point, short *p)
 {
-    IsPointInRect((short)packed, (short)(packed >> 16), p);
+    IsPointInRect(point.x, point.y, p);
 }
 
 /* Function start: 0x4350F0 */

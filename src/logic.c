@@ -703,10 +703,10 @@ unsigned int HasSpeechBuffer(void)
 }
 
 /* Function start: 0x422140 */
-unsigned int set_alert(short i, unsigned int bits)
+unsigned short set_alert(short i, unsigned int bits)
 {
     DAT_0059b430[i] |= bits;
-    return bits & 0xffff0000;
+    return 0;
 }
 
 /* Function start: 0x422160 */
@@ -1602,7 +1602,7 @@ int skill_check(short obj, short difficulty)
     short roll;
 
     roll = (short)RandomBelowOrEqual(MinShort(8, difficulty));
-    return roll < skill_rating(obj);
+    return skill_rating(obj) > roll;
 }
 
 /* Function start: 0x4236F0 */
@@ -1708,7 +1708,8 @@ unsigned int get_first_follow_point(short obj, FixedVector *point)
     if (g_aeShipSide_0059d650[obj] == SIDE_IMPERIAL)
         g_abShipNavPointIndex_0059d7c0[obj] =
             g_cCurrentNavPointIndex_0059c86c - 1;
-    return get_follow_point(obj, point);
+    get_follow_point(obj, point);
+    return 0;
 }
 
 /* Function start: 0x423970 */
@@ -1854,7 +1855,8 @@ int LoadShapeSet(PacketResourceDescriptor *resources,
 }
 
 /* Function start: 0x423D50 */
-int FreeShapeSet(PacketResourceDescriptor *resources, short releaseFlags)
+int FreeShapeSet(PacketResourceDescriptor *resources,
+                 unsigned short releaseFlags)
 {
     while (resources->resource != 0) {
         if (*resources->resource != 0)
@@ -2412,7 +2414,7 @@ unsigned int load_common_3Space_objects(void)
 }
 
 /* Function start: 0x424B80 */
-void remove_all_3d_objects(void)
+unsigned int remove_all_3d_objects(void)
 {
     short i = 0;
 
@@ -2420,6 +2422,7 @@ void remove_all_3d_objects(void)
         remove_object(i);
         i = i + 1;
     } while (i < 0x40);
+    return 0;
 }
 
 /* Function start: 0x424BA0 */

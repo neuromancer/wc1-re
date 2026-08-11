@@ -298,7 +298,7 @@ short rear_sphere(void)
 /* Function start: 0x401890 */
 int ok_hazard_spot(short obj)
 {
-    short range = 4300;
+    int range = 4300;
 
     if (g_asObjectScreenX_0059d9b0[obj] == (short)0x8001)
         range = rear_sphere();
@@ -455,11 +455,13 @@ void check_hazards(void)
 /* Function start: 0x401CE0 */
 void __stdcall WarpMouseTo(short x, short y)
 {
+    __asm cli
     g_nHostMouseX_0059af70 = x;
     g_nHostMouseY_0059af72 = y;
     g_nMouseX_0059ab10 = x;
     g_nMouseY_0059ab12 = y;
     SetMouseHomePosition(x, y);
+    __asm sti
 }
 
 /* Function start: 0x401D10 */

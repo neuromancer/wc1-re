@@ -320,7 +320,7 @@ unsigned short __stdcall InitializeDIBScreenViewport(
     offset = 0;
     do {
         g_awScreenRowOffsets_005a6540[row] = (unsigned short)offset;
-        offset = (short)(offset + 320);
+        offset = (short)((int)offset + 320);
         row++;
     } while (row < 202);
     return 1;
@@ -355,6 +355,8 @@ unsigned int __stdcall GetPacketSize(const char *filename, short section)
                 size = (unsigned int)-1;
             break;
         case 2:
+            size = handle.dataSize;
+            break;
         default:
             size = handle.dataSize;
             break;
@@ -1206,7 +1208,7 @@ void ResetCommMenuChoices(short reuse)
     short choice;
 
     choice = 0;
-    if (reuse == 0) {
+    if (!reuse) {
         memset(g_abCommMenuChoiceCommand_0059e488, -1,
                sizeof(g_abCommMenuChoiceCommand_0059e488));
         do {
@@ -1297,7 +1299,7 @@ int wingman_dead(void)
 }
 
 /* Function start: 0x430E30 */
-int have_target(void)
+short have_target(void)
 {
     return unactive((short)g_acShipTarget_0059ce60[0]) == 0;
 }

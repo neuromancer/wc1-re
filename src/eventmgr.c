@@ -843,7 +843,8 @@ unsigned int JoystickEdgeHook(int button)
 /* Function start: 0x436950 */
 void FreeIfNotNull(void *p)
 {
-    if (p != 0) _free_dbg(p, 1);
+    if (p != 0)
+        free(p);
 }
 
 /* Function start: 0x436970 */

@@ -6,7 +6,9 @@ This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
 `src/**/*.c` and `src/**/*.cpp`. The ordinary developer-written backlog is now
 complete. The only two inventory entries without source bodies are **compiler
-thunks**, which must not be reproduced manually.
+thunks**, which must not be reproduced manually. They are recorded as
+autocomplete entries by `bin/showProgress.py`, so the resolved inventory is
+1,465 of 1,465 while the source implementation count remains 1,463.
 
 The proposed compilation units follow the current source adjacency and
 `docs/ORDER.md`; boundaries explicitly described as provisional there remain
@@ -36,8 +38,8 @@ Ghidra status meanings:
 
 | Address | Current Ghidra/inventory name | Mac name | Proposed compilation unit | Ghidra status |
 |---|---|---|---|---|
-| `0x0040CB20` | `ThunkForwarder40CB20` | — | `src/brains.c` | verified; exported; compiler thunk—do not hand-write |
-| `0x00434D10` | `_rand` | — | `src/mathfp.c` | verified; compiler thunk—do not hand-write |
+| `0x0040CB20` | `ThunkForwarder40CB20` | — | `src/brains.c` | verified; exported; autocomplete linker thunk—do not hand-write |
+| `0x00434D10` | `_rand` | — | `src/mathfp.c` | verified; autocomplete compiler thunk—do not hand-write |
 
 ## Mac ordering evidence retained for later naming
 
@@ -206,7 +208,7 @@ Ghidra status meanings:
   `0x0043EC29`, but that top-level decoder has no inbound code xref, stored
   function pointer, or PE export. The feature is therefore linked raster-library
   functionality rather than a path known to be reached by WC1 game code.
-- `ThunkForwarder40CB20` and `_rand` remain explicitly excluded as
+- `ThunkForwarder40CB20` and `_rand` are explicitly marked autocomplete as
   compiler/linker-generated jump thunks.
 - The startup crash report was confirmed against the original disassembly.
   `WinMain` now creates the debug overlay console after initializing the game

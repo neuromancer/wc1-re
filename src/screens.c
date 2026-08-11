@@ -765,7 +765,7 @@ short wing_status(short personality)
         return 3;
     currentMission = (int)g_stCampaignState_0059ca50.currentMission +
         (int)g_stCampaignState_0059ca50.currentSeries * 4;
-    if (currentMission == deathMission)
+    if (deathMission == currentMission)
         return 1;
     if (currentMission > deathMission)
         return 2;

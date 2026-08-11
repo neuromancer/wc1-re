@@ -238,9 +238,7 @@ unsigned int SignFixed(int v)
 {
     if (v < 0)
         return 0xffffff00;
-    if (v < 1)
-        return 0;
-    return 0x100;
+    return v > 0 ? 0x100 : 0;
 }
 
 /* Function start: 0x418560 */
@@ -460,8 +458,10 @@ void vector_component_in_dir(const FixedVector *vector,
                              const FixedVector *direction,
                              FixedVector *component)
 {
-    ScaleFixedVector((FixedVector *)direction,
-                     vector_length_in_dir(vector, direction), component);
+    int length;
+
+    length = vector_length_in_dir(vector, direction);
+    ScaleFixedVector((FixedVector *)direction, length, component);
 }
 
 /* Function start: 0x418BE0 */

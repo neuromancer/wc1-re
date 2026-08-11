@@ -374,15 +374,15 @@ unsigned int update_star_field(void);                                 /* 0x00412
 unsigned short count_down(short obj);                                   /* 0x00412410 */
 unsigned int house_keep_objects(void);                                 /* 0x00412430 */
 void update_objects_in_space(void);                                    /* 0x00412820 */
-void rotate_object(short obj);                                         /* 0x00412920 */
+unsigned int rotate_object(short obj);                                 /* 0x00412920 */
 unsigned int accelerate_and_move_object(short obj);                    /* 0x004129A0 */
 unsigned int animate_shape(short obj);                                 /* 0x00412CD0 */
 unsigned int animate_object(short obj);                                /* 0x00412E30 */
 unsigned int hit_asteroid(short asteroid, short destructionChance);    /* 0x00413030 */
 int object_collision(short obj);                                      /* 0x004130D0 */
 unsigned int object_intelligence(short obj);                           /* 0x00413880 */
-void EmitTextString(void (__stdcall *writer)(short), const char *text); /* 0x00413A10 */
-void FormatTextTokens(void (__stdcall *writer)(short),
+void EmitTextString(void (__stdcall *writer)(int), const char *text);   /* 0x00413A10 */
+void FormatTextTokens(void (__stdcall *writer)(int),
                       const char *format, unsigned long *arguments);    /* 0x00413A40 */
 void DrawFormattedText(const char *format, ...);                        /* 0x00413C40 */
 void FormatTextBufferFromStart(const char *format, ...);                /* 0x00413C70 */
@@ -482,8 +482,8 @@ void SetRectBounds(Viewport *viewport, unsigned short left,
                    unsigned short top, unsigned short right,
                    unsigned short bottom);                           /* 0x00416220 */
 short GetRectHeight(const Viewport *viewport);                        /* 0x00416250 */
-void print_message_text(char *text, unsigned char colour);             /* 0x00416260 */
-void ShowHudTextLine(char *s, unsigned char b);                          /* 0x00416460 */
+void print_message_text(char *text, unsigned short colour);            /* 0x00416260 */
+void ShowHudTextLine(char *s, unsigned short b);                       /* 0x00416460 */
 void SetHudTextColour(short v);                                              /* 0x00416480 */
 void draw_target_box(unsigned short colour, signed char object,
                      short solid, short drawLockMarker, short padding,
@@ -495,7 +495,7 @@ void RestoreCockpitExplosionIfVisible(void);                           /* 0x0041
 unsigned int RestoreTransientCockpitGraphics(void);                    /* 0x00416CB0 */
 void SetHudMessageText(char *text, unsigned short colour,
                        unsigned short duration);                       /* 0x00416DE0 */
-void malf_noise(short vdu, int effect, unsigned int colour,
+void malf_noise(short vdu, int effect, unsigned short colour,
                 short sound, short refresh);                           /* 0x00416E20 */
 void build_your_target_list(short *hasEnemy);                         /* 0x00416E90 */
 void cycle_onscreen_targets(void);                                    /* 0x00416F30 */
@@ -714,7 +714,7 @@ void DebugOverlayPrintf(DebugOverlayConsole *console,
                         const char *format, ...);                      /* 0x0041CAB0 */
 short MinShort(short a, short b);                                       /* 0x0041D0C0 */
 short MaxShort(short a, short b);                                       /* 0x0041D0E0 */
-void FreePacketAndClear(int *p, int releaseFlags);                      /* 0x0041D100 */
+void FreePacketAndClear(int *p, unsigned short releaseFlags);          /* 0x0041D100 */
 void ReportPacketLoadError(void *packet, short logicalFile,
                            short retry, short section,
                            const char *sourceTag);                      /* 0x0041D120 */
@@ -839,7 +839,7 @@ void prepare_ace(short ace);                                          /* 0x00422
 short signed_random(short range);                                     /* 0x004220F0 */
 int alert_flag(short ship, unsigned int bits);                        /* 0x00422110 */
 unsigned int HasSpeechBuffer(void);                                      /* 0x00422130 */
-unsigned int set_alert(short obj, unsigned int bits);                  /* 0x00422140 */
+unsigned short set_alert(short obj, unsigned int bits);                /* 0x00422140 */
 void clear_alert(short obj);                                          /* 0x00422160 */
 void start_collision_alert(short obj, short other);                   /* 0x00422180 */
 void try2end_collision_alert(short obj);                              /* 0x004221E0 */
@@ -920,7 +920,7 @@ int LoadShapeSet(PacketResourceDescriptor *resources,
                  unsigned short flags,
                  short defaultLogicalFile);                            /* 0x00423CE0 */
 int FreeShapeSet(PacketResourceDescriptor *resources,
-                 short releaseFlags);                                  /* 0x00423D50 */
+                 unsigned short releaseFlags);                         /* 0x00423D50 */
 int LoadPacketResourceList(PacketResourceDescriptor *resources,
                            short flags, int availableBytes);           /* 0x00423D80 */
 unsigned int ResetCockpitPaletteEntries(void);                         /* 0x00423E10 */
@@ -936,7 +936,7 @@ unsigned int InitializeCockpitResources(signed char mode);             /* 0x0042
 unsigned int free_cockpit(void);                                       /* 0x004249A0 */
 void init_3Space_objects(short scene);                                 /* 0x00424A80 */
 unsigned int load_common_3Space_objects(void);                         /* 0x00424B00 */
-void remove_all_3d_objects(void);                                      /* 0x00424B80 */
+unsigned int remove_all_3d_objects(void);                              /* 0x00424B80 */
 unsigned int free_3Space(void);                                        /* 0x00424BA0 */
 unsigned int free_3Space_objects(void);                                /* 0x00424BE0 */
 unsigned int init_inflight_music(void);                                /* 0x00424C60 */
@@ -1211,7 +1211,7 @@ void SetPendingMenuAction(unsigned char v);                                 /* 0
 void OpenCommRecipientMenu(void);                                     /* 0x00430DC0 */
 void CloseCommChoiceMenu(void);                                       /* 0x00430DE0 */
 int wingman_dead(void);                                               /* 0x00430E10 */
-int have_target(void);                                                /* 0x00430E30 */
+short have_target(void);                                              /* 0x00430E30 */
 unsigned short CanOpenCommMenu(void);                                 /* 0x00430E50 */
 void SelectCommRecipient(signed char recipient);                      /* 0x00430E70 */
 void BuildCommunicationRecipientMenu(void);                           /* 0x00430E90 */
@@ -1325,7 +1325,7 @@ void ReleaseVideoResourcesHook(void);                                           
 short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
                                     unsigned char *shape, short frame); /* 0x00435020 */
 short __stdcall IsPointInRect(short x, short y, const short *rect);       /* 0x00435090 */
-void __stdcall SplitPackedPoint(unsigned int packed, short *p);                      /* 0x004350D0 */
+void __stdcall SplitPackedPoint(ShortPoint point, short *p);             /* 0x004350D0 */
 void __stdcall DrawTextString(char *text);                                      /* 0x004350F0 */
 void __stdcall DrawTextCharacter(char character);                    /* 0x00435290 */
 void __stdcall AppendTextCharacter(char character);                  /* 0x00435310 */
@@ -1672,7 +1672,7 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
 void fizzle_fade(Viewport *source, Viewport *destination,
                  const ScreenViewportGeometry *geometry);            /* 0x00442200 */
 void snow_viewport(Viewport *viewport, int effect,
-                   unsigned int colour);                              /* 0x00442300 */
+                   unsigned short colour);                            /* 0x00442300 */
 void UpdateStreamerStoppedFlag(void);                                    /* 0x00442330 */
 void SignalAudioMixerWakeEvent(void);                                 /* 0x00442350 */
 void InitializeAudioStreamer(HWND window);                            /* 0x00442370 */

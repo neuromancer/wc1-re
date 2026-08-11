@@ -282,7 +282,7 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
                                          unsigned char *active)
 {
     unsigned short rgb[3];
-    short index;
+    int index;
 
     (void)viewport;
     index = 0;
@@ -835,7 +835,7 @@ void fizzle_fade(Viewport *source, Viewport *destination,
 }
 
 /* Function start: 0x442300 */
-void snow_viewport(Viewport *viewport, int effect, unsigned int colour)
+void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 {
     (void)effect;
     (void)colour;

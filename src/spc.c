@@ -611,7 +611,8 @@ unsigned int set_eye_direction_and_position(void)
 unsigned int force_view(int view, short obj)
 {
     DAT_0046c03c = -1;
-    return new_view(view, obj);
+    new_view(view, obj);
+    return 0;
 }
 
 /* Function start: 0x4117D0 */
@@ -1162,7 +1163,7 @@ void update_objects_in_space(void)
 }
 
 /* Function start: 0x412920 */
-void rotate_object(short obj)
+unsigned int rotate_object(short obj)
 {
     if (g_anObjectPitchRotation_0059b2a0[obj] != 0) {
         alter_pitch(g_anObjectPitchRotation_0059b2a0[obj], obj);
@@ -1176,6 +1177,7 @@ void rotate_object(short obj)
         alter_roll(g_anObjectRollRotation_0059d7e0[obj], obj);
         ClampVectorTo30(&g_anObjectRollRotation_0059d7e0[obj]);
     }
+    return 0;
 }
 
 /* Function start: 0x4129A0 */
