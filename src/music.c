@@ -1370,9 +1370,9 @@ unsigned int SoundFxTick(void)
 }
 
 /* Function start: 0x42EF10 */
-__declspec(naked) void FlushSoundEffectsAndLog(void)
+void FlushSoundEffectsAndLog(void)
 {
-    __asm { jmp FlushSoundEffects }
+    FlushSoundEffects();
 }
 
 /* Function start: 0x42EF20 */

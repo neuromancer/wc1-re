@@ -103,9 +103,9 @@ void stop_all_sounds(void)
 }
 
 /* Function start: 0x42B7D0 */
-__declspec(naked) void ServiceSoundSystem(void)
+void ServiceSoundSystem(void)
 {
-    __asm { jmp ix_system_service_sounds }
+    ix_system_service_sounds();
 }
 
 /* Function start: 0x42B7E0 */

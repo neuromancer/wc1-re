@@ -372,6 +372,11 @@ expand-one-liners:
 audit-addresses:
 	@python3 bin/auditAddresses.py
 
+# Compiler-generated tail calls and calling-convention adapters must come from
+# ordinary C source, never from hand-written jump/call assembly.
+audit-compiler-glue:
+	@python3 bin/auditCompilerGlue.py
+
 progress:
 	@python3 bin/showProgress.py
 
@@ -433,6 +438,7 @@ compare-full-functions: compare-functions
 # ---------------------------------------------------------------------------
 
 verify:
+	@$(MAKE) audit-compiler-glue
 	@$(MAKE) verify-globals
 	@$(MAKE) verify-globals-code
 	@$(MAKE) verify-calls
@@ -597,6 +603,7 @@ clean-dreamm:
 	analyze-clang \
 	analyze-static \
 	audit-addresses \
+	audit-compiler-glue \
 	audit-auto-complete-globals \
 	audit-rebuilt-global-layout \
 	build \

@@ -22,7 +22,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,374 function similarity scores (95.39% average)</summary>
+<summary>All 1,375 function similarity scores (95.39% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -1185,6 +1185,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `LoadCommDisplayResources` | `0x431520` | 87.23% |
 | `screen.c` | `ExpandCommMessageTokens` | `0x4315C0` | 85.14% |
 | `screen.c` | `real_vid_transmit` | `0x4316E0` | 91.18% |
+| `screen.c` | `ShutdownVideoHook` | `0x4318F0` | 100.00% |
 | `screen.c` | `ReadCalibratedJoystick` | `0x431D20` | 86.78% |
 | `screen.c` | `UnionRectBounds` | `0x431EA0` | 100.00% |
 | `screen.c` | `ThrottleFrameAndDrawFps` | `0x431F00` | 100.00% |

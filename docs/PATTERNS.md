@@ -143,13 +143,19 @@ what the disassembly showed.  `docs/LABELS.md` warns about exactly this; the war
 All three reached 100% once written from the disassembly.  **Read the export before writing
 the body, every time.**
 
-Tail-jump thunks need `__declspec(naked)` plus inline asm, which is permitted where the
-evidence says the original really is a bare jump:
+Do not force a bare tail jump with `__declspec(naked)` or inline assembly. Express the
+forwarding operation in C and let the optimized compiler emit the thunk:
 
 ```c
 unsigned int Target(void);            /* forward declaration required */
-__declspec(naked) void Thunk(void) { __asm { jmp Target } }
+unsigned int ForwardToTarget(void)
+{
+    return Target();
+}
 ```
+
+`make audit-compiler-glue` rejects hand-written single-jump and call/return wrappers. Inline
+assembly remains appropriate only where the original routine itself was hand-written assembly.
 
 ## The decompiler's *signatures* are as untrustworthy as its names
 

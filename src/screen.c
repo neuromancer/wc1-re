@@ -331,9 +331,9 @@ unsigned int __stdcall GetPacketSize(const char *filename, short section)
 }
 
 /* Function start: 0x42F930 */
-__declspec(naked) void FrameStartHook(int mode)
+void FrameStartHook(int mode)
 {
-    __asm { jmp TimerResetHook }
+    TimerResetHook();
 }
 
 /* Function start: 0x42F940 */
@@ -344,9 +344,9 @@ unsigned short IsSoundHardwarePresent(void)
 }
 
 /* Function start: 0x42F950 */
-__declspec(naked) void MessagePumpHook(int mode)
+void MessagePumpHook(int mode)
 {
-    __asm { jmp TimerStopHook }
+    TimerStopHook();
 }
 
 /* Function start: 0x42F960 */
@@ -469,11 +469,18 @@ void ReleasePacketHandle(int handle)
 
 /* Function start: 0x42FB20 */
 /* Tail-jump thunk to 0x004362E0, not a constant return -- Ghidra followed the
- * jump and folded the callee's body into the display. */
-__declspec(naked) unsigned int GetFixedOneMillionThunk(void) { __asm { jmp GetFixedOneMillion } }
+ * jump and folded the callee's body into the display.  The optimized compiler
+ * emits the tail jump from this forwarding return. */
+unsigned int GetFixedOneMillionThunk(void)
+{
+    return GetFixedOneMillion();
+}
 
 /* Function start: 0x42FB30 */
-__declspec(naked) unsigned int GetFixedOneMillionThunkAlt(void) { __asm { jmp GetFixedOneMillionAlt } }
+unsigned int GetFixedOneMillionThunkAlt(void)
+{
+    return GetFixedOneMillionAlt();
+}
 
 /* Function start: 0x430710 */
 short __stdcall UpdateInputDeviceTransitions(short raw)
@@ -1214,12 +1221,9 @@ void real_vid_transmit(short obj, short message)
 }
 
 /* Function start: 0x4318F0 */
-__declspec(naked) void __stdcall ShutdownVideoHook(int mode)
+void __stdcall ShutdownVideoHook(int mode)
 {
-    __asm {
-        call ReleaseVideoResourcesHook
-        ret 4
-    }
+    ReleaseVideoResourcesHook();
 }
 
 /* Function start: 0x431D20 */

@@ -126,9 +126,9 @@ void __stdcall SetTextContext(TextContext *context)
 }
 
 /* Function start: 0x434FB0 */
-__declspec(naked) void WaitForVerticalBlankThunk(void)
+void WaitForVerticalBlankThunk(void)
 {
-    __asm { jmp DIBwaitForVerticalBlank }
+    DIBwaitForVerticalBlank();
 }
 
 /* Function start: 0x434FC0 */
