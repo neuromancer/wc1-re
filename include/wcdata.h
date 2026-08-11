@@ -322,6 +322,13 @@ typedef struct FixedVector {
     int z;
 } FixedVector;
 
+/* Descriptor used by the legacy near-memory allocator.  Descriptors grow
+ * downward from the end of the managed region. */
+typedef struct NearHeapBlock {
+    int address;
+    unsigned int sizeAndFlags;
+} NearHeapBlock;
+
 /* One of the 30 fireworks animated by TheEndFireWorks.  The 0x0C-byte stride
  * is explicit in the Win32 accesses at 0x0042D270-0x0042D384. */
 typedef struct FireworkState {

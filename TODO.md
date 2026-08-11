@@ -4,7 +4,7 @@ Audit date: 2026-08-11.
 
 This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
-`src/**/*.c` and `src/**/*.cpp`. It contains **74 functions**: **72 ordinary
+`src/**/*.c` and `src/**/*.cpp`. It contains **69 functions**: **67 ordinary
 candidates** and **2 compiler thunks** which must not be reproduced manually.
 
 The proposed compilation units follow the current source adjacency and
@@ -40,14 +40,9 @@ Ghidra status meanings:
 | `0x00408650` | `BlitTbl005a86d0Fn8650` | — | `src/brains.c` | verified |
 | `0x004094E0` | `RunAnimationDemoLoop` | — | `src/brains.c` | verified |
 | `0x0040CB20` | `ThunkForwarder40CB20` | — | `src/brains.c` | verified; exported; compiler thunk—do not hand-write |
-| `0x0040E890` | `LoopNavFnE890` | — | `src/nav.c` | verified; exported |
-| `0x0040E900` | `GetNavFnE900` | — | `src/nav.c` | verified; exported |
-| `0x0040E950` | `LoopNavFnE950` | — | `src/nav.c` | recreated, verified, and exported |
-| `0x0040E9E0` | `GetNavFnE9E0` | — | `src/nav.c` | verified; exported |
 | `0x0040EB70` | `LoopNavFnEB70` | — | `src/nav.c` | verified; exported |
 | `0x0040ED30` | `LoopNavFnED30` | — | `src/nav.c` | verified; exported |
 | `0x004176C0` | `DrawG0046905cFn76C0` | — | `src/cockpt.c` | verified |
-| `0x0041A130` | `SetUiFnA130` | — | `src/geom.c` | verified; exported |
 | `0x004219C0` | `LoadGamePaletteFile` | — | `src/logic.c` | verified |
 | `0x00421F50` | `SetNavFn1F50` | — | `src/logic.c` | verified |
 | `0x00425770` | `ShowMeanwhileTransition` | — | `src/pilot.cpp` | verified |
@@ -116,9 +111,6 @@ Ghidra status meanings:
   `auto_pilot_sequence` and `ejection_sequence`; neither Mac name applies to it.
 - `0x004176C0` is a Win32 split helper between the exact Mac-derived
   `explosion_draw` and `cockpit_explosion` functions in the `cockpt` unit.
-- The one remaining `src/geom.c` gap lies in the Mac CODE 4 `3d` run, but
-  lacks a safe one-to-one body match. `0x0041A130` lies between
-  `clip_rotation` and `transform_objects_to_your_view`.
 - `0x00434D10` is in the historical `rand` neighborhood but is a compiler
   jump thunk to the CRT, not a Mac-named game routine.
 - The large `0x00439C0E`–`0x0043F5A9` raster block has no safe mapping to the
@@ -138,7 +130,7 @@ Ghidra status meanings:
   `0x0042E050`–`0x0042E085`, respectively. Their prior prototypes, tags, and
   plate comment were restored.
 - Every source annotation now resolves to an exact live Ghidra function entry.
-  Every one of the 74 backlog rows above also resolves to an exact entry and a
+  Every one of the 69 backlog rows above also resolves to an exact entry and a
   non-empty listing. The Ghidra program was saved after verification.
 
 ## Export and implementation progress
@@ -146,8 +138,8 @@ Ghidra status meanings:
 - All 28 assembly snippets that were absent at the start of this audit now
   exist in `code-full`. Each export has the same instruction count and return
   form as its exact live Ghidra function. Existing exports were not rewritten.
-- Fifteen confirmed `wc-developer` functions were removed from the backlog
-  across three reconstruction tranches after binary-comp comparison:
+- Twenty confirmed `wc-developer` functions were removed from the backlog
+  across four reconstruction tranches after binary-comp comparison:
 
   | Address | Implemented name | Compilation unit | Similarity |
   |---|---|---|---:|
@@ -166,6 +158,11 @@ Ghidra status meanings:
   | `0x004265A0` | `ReadRequiredPilotField` | `src/pilot.cpp` | 100.00% |
   | `0x004354A0` | `CopyFarString` | `src/strdos.c` | 100.00% |
   | `0x00435510` | `DosMemset` | `src/strdos.c` | 100.00% |
+  | `0x0040E890` | `MergeAdjacentNearHeapBlocks` | `src/nav.c` | 100.00% |
+  | `0x0040E900` | `ReleaseNearHeapBlock` | `src/nav.c` | 96.30% |
+  | `0x0040E950` | `PurgeNearHeapBlocks` | `src/nav.c` | 100.00% |
+  | `0x0040E9E0` | `InitializeNearHeap` | `src/nav.c` | 100.00% |
+  | `0x0041A130` | `IsPointWithinEyeViewCone` | `src/geom.c` | 98.00% |
 
 - Ghidra was synchronized with the reconstructed prototypes and behavior-based
   names, then saved after each tranche.

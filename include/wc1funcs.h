@@ -334,6 +334,10 @@ short SelectNavObjectiveAtPoint(short mouseX, short mouseY);          /* 0x0040E
 void CentreMouseOnCurrentNavObjective(void);                         /* 0x0040E3C0 */
 void ShowConfedNavScan(void);                                        /* 0x0040E430 */
 void InflightComputer(void);                                         /* 0x0040E480 */
+unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress);   /* 0x0040E890 */
+int ReleaseNearHeapBlock(int descriptorAddress);                     /* 0x0040E900 */
+void PurgeNearHeapBlocks(unsigned short flags);                       /* 0x0040E950 */
+unsigned short InitializeNearHeap(void);                              /* 0x0040E9E0 */
 void add_statistics(short pilot, short missions, short kills);         /* 0x0040EFE0 */
 void PostMission(void);                                                 /* 0x0040F010 */
 int FullMissionScore(void);                                             /* 0x0040F190 */
@@ -636,6 +640,7 @@ void rotational_acceleration(FixedVector *point, FixedVector *force,
                              short obj);                              /* 0x00419F70 */
 void ClampVectorTo30(short *p);                                           /* 0x0041A0F0 */
 void ClampTo30(short *p);                                           /* 0x0041A110 */
+unsigned short IsPointWithinEyeViewCone(const FixedVector *point);   /* 0x0041A130 */
 void transform_objects_to_your_view(void);                             /* 0x0041A1D0 */
 void set_background_objects_rotation(short obj,
                                      FixedVector *direction);    /* 0x0041A530 */

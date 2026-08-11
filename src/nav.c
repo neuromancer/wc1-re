@@ -829,6 +829,128 @@ void InflightComputer(void)
     g_bInflightComputerActive_00468754 = 0;
 }
 
+/* Function start: 0x40E890 */
+unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress)
+{
+    NearHeapBlock *block;
+
+    block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+    if ((block->sizeAndFlags & 0x80000000) == 0 &&
+        (block[1].sizeAndFlags & 0x80000000) == 0 &&
+        block->address + (block->sizeAndFlags & 0xfffff) ==
+            block[1].address) {
+        block[1].address = block->address;
+        block[1].sizeAndFlags += block->sizeAndFlags & 0xfffff;
+        while (descriptorAddress > g_nNearHeapFirstDescriptor_005a8124) {
+            descriptorAddress -= 8;
+            block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+            block[1].address = block->address;
+            block[1].sizeAndFlags = block->sizeAndFlags;
+        }
+        g_nNearHeapFirstDescriptor_005a8124 += 8;
+        return 1;
+    }
+    return 0;
+}
+
+/* Function start: 0x40E900 */
+int ReleaseNearHeapBlock(int descriptorAddress)
+{
+    NearHeapBlock *block;
+    int nextDescriptorAddress;
+
+    block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+    block->sizeAndFlags &= 0x7fffffff;
+    nextDescriptorAddress = descriptorAddress + 8;
+    if (nextDescriptorAddress <
+            g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c &&
+        MergeAdjacentNearHeapBlocks(descriptorAddress) != 0)
+        descriptorAddress = nextDescriptorAddress;
+    if (descriptorAddress > g_nNearHeapFirstDescriptor_005a8124)
+        MergeAdjacentNearHeapBlocks(descriptorAddress - 8);
+    return descriptorAddress;
+}
+
+/* Function start: 0x40E950 */
+void PurgeNearHeapBlocks(unsigned short flags)
+{
+    NearHeapBlock *block;
+    int descriptorAddress;
+    int descriptorBytes;
+
+    if (g_nNearHeapActive_004688c0 != 0) {
+        if ((flags & 0x10) != 0) {
+            descriptorAddress = g_nNearHeapBase_005a8120;
+            descriptorAddress += g_nNearHeapSize_005a811c;
+            descriptorAddress -= 8;
+            g_nNearHeapFirstDescriptor_005a8124 = descriptorAddress;
+            block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+            block->address = g_nNearHeapBase_005a8120;
+            descriptorBytes = g_nNearHeapMaxDescriptors_004688c4 * 8;
+            block->sizeAndFlags =
+                g_nNearHeapSize_005a811c - descriptorBytes;
+            return;
+        }
+        descriptorAddress = g_nNearHeapBase_005a8120 +
+                            g_nNearHeapSize_005a811c - 8;
+        while (descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124) {
+            block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+            if ((block->sizeAndFlags & 0x40000000) == 0)
+                descriptorAddress = ReleaseNearHeapBlock(descriptorAddress);
+            descriptorAddress -= 8;
+        }
+    }
+}
+
+/* Function start: 0x40E9E0 */
+unsigned short InitializeNearHeap(void)
+{
+    short initialSize;
+    int adjustedSize;
+
+    if (g_nNearHeapActive_004688c0 == 0) {
+        initialSize = (short)GetNavRangeSentinel();
+        g_pNearHeapAllocation_005a8128 = 0;
+        g_nNearHeapSize_005a811c = initialSize;
+        if (g_nNearHeapMaxDescriptors_004688c4 * 8 <
+            g_nNearHeapSize_005a811c) {
+            g_pNearHeapAllocation_005a8128 =
+                AllocateTaggedMemory(g_nNearHeapSize_005a811c, 0);
+            if (g_pNearHeapAllocation_005a8128 != 0) {
+                g_nNearHeapActive_004688c0++;
+                g_nNearHeapBase_005a8120 = DosFarPtrToNear(
+                    (unsigned int)g_pNearHeapAllocation_005a8128);
+                if (*(unsigned short *)0x00400013 == 0x270) {
+                    g_nNearHeapRelocationBytes_004688c8 =
+                        0x9c000 - g_nNearHeapSize_005a811c -
+                        g_nNearHeapBase_005a8120;
+                    adjustedSize =
+                        0x98000 - g_nNearHeapRelocationBytes_004688c8;
+                    adjustedSize -= g_nNearHeapBase_005a8120;
+                    g_nNearHeapSize_005a811c = adjustedSize;
+                    if (g_nNearHeapMaxDescriptors_004688c4 * 8 <
+                        g_nNearHeapSize_005a811c) {
+                        DosMemcpy(
+                            (void *)DosNearPtrToFar(
+                                g_nNearHeapBase_005a8120 +
+                                g_nNearHeapSize_005a811c),
+                            (void *)DosNearPtrToFar(
+                                0x9c000 -
+                                g_nNearHeapRelocationBytes_004688c8),
+                            g_nNearHeapRelocationBytes_004688c8);
+                    } else {
+                        FreeIfNotNull(g_pNearHeapAllocation_005a8128);
+                        g_nNearHeapActive_004688c0 = 0;
+                    }
+                }
+                if (g_nNearHeapActive_004688c0 != 0)
+                    PurgeNearHeapBlocks(0x10);
+            }
+        }
+    }
+    return g_nNearHeapActive_004688c0;
+}
+
 /* Function start: 0x40EFE0 */
 void add_statistics(short pilot, short missions, short kills)
 {

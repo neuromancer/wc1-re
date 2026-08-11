@@ -281,10 +281,10 @@
 0x0040E3C0 CentreMouseOnCurrentNavObjective
 0x0040E430 ShowConfedNavScan
 0x0040E480 InflightComputer
-0x0040E890 LoopNavFnE890
-0x0040E900 GetNavFnE900
-0x0040E950 LoopNavFnE950
-0x0040E9E0 GetNavFnE9E0
+0x0040E890 MergeAdjacentNearHeapBlocks
+0x0040E900 ReleaseNearHeapBlock
+0x0040E950 PurgeNearHeapBlocks
+0x0040E9E0 InitializeNearHeap
 0x0040EB70 LoopNavFnEB70
 0x0040ED30 LoopNavFnED30
 0x0040EFE0 add_statistics
@@ -532,7 +532,7 @@
 0x00419F70 GetTbl0059d7e0Fn9F70
 0x0041A0F0 DoLocalFnA0F0
 0x0041A110 DoLocalFnA110
-0x0041A130 SetUiFnA130
+0x0041A130 IsPointWithinEyeViewCone
 0x0041A1D0 transform_objects_to_your_view
 0x0041A530 SetTbl0059cd90FnA530
 0x0041A610 LoadTbl0059dd90FnA610

@@ -1112,6 +1112,33 @@ void ClampTo30(short *p)
         *p = -0x1e;
 }
 
+/* Function start: 0x41A130 */
+unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
+{
+    FixedVector direction;
+    FixedVector viewPosition;
+    int distance;
+    long projection;
+    unsigned short visible;
+
+    ComputeVectorDelta(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
+                       (FixedVector *)point, &direction);
+    distance = (int)Vector_magnitude(&direction);
+    if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >
+        distance)
+        return 0;
+    transform_to_objects_frame(&direction, &viewPosition,
+                               WC1_EYE_OBJECT);
+    if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >
+        viewPosition.z)
+        return 0;
+    projection = DivideFixed(viewPosition.z, distance);
+    visible = 0;
+    if (projection >= 0x94)
+        visible = 1;
+    return visible;
+}
+
 /* Function start: 0x41A1D0 */
 void transform_objects_to_your_view(void)
 {
