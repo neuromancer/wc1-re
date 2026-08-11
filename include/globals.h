@@ -46,7 +46,7 @@ extern const char g_szTheEnd_00465c04[8];
 extern const char g_szFuneralTextFormat_00465c0c[12];
 extern short g_nEnemySighting_00465c7c;
 extern short g_nDebriefingPersonality_00465c80;
-extern int g_aiPacketReferenceTable_00465c88[4 * 0x25];
+extern int g_aiPacketReferenceTable_00465c88[4][0x25];
 extern int DAT_00465c84;
 extern const ShortVector g_aaFormationPositions_00465ed8[5][8];
 extern const int g_anPilotTurnInterval_00465fc8[16];

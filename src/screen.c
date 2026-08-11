@@ -430,7 +430,7 @@ void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
 void ReleasePacketHandle(int handle)
 {
     int group = 4;
-    int *entry = g_aiPacketReferenceTable_00465c88;
+    int *entry = &g_aiPacketReferenceTable_00465c88[0][0];
 
     do {
         int i = 0x25;

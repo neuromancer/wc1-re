@@ -2258,114 +2258,200 @@ void prepare_mission(void)
 }
 
 /* Function start: 0x40B990 */
-void release_capital_ship_shapes(enum ObjectType type)
+int release_capital_ship_shapes(enum ObjectType type)
 {
     short obj;
 
-    if (g_aObjectTypeData_00466458[type].objectClass !=
-        OBJECT_CLASS_CAPITAL_SHIP)
-        return;
-    obj = 1;
-    do {
-        if (g_aeObjectType_0059b560[obj] == type)
-            g_apObjectShape_0059d2f0[obj] = 0;
-        obj++;
-    } while (obj < 10);
+    if (g_aObjectTypeData_00466458[type].objectClass ==
+        OBJECT_CLASS_CAPITAL_SHIP) {
+        obj = 1;
+        do {
+            if (g_aeObjectType_0059b560[obj] == type) {
+                FreePacketAndClear(
+                    (int *)&g_apObjectShape_0059d2f0[obj], 0);
+                g_asCapitalShipViewFrame_0059dd90[obj] = -1;
+            }
+            obj++;
+        } while (obj < 10);
+    }
+    return 0;
 }
 
 /* Function start: 0x40B9F0 */
-void load_ship(enum ObjectType type, short slot)
+int load_ship(enum ObjectType type, short slot)
 {
     ObjectResourceSlot *resource;
     ObjectTypeData *typeData;
+    short obj;
     short logicalFile;
-    short asteroidType;
+    short section;
 
-    if ((int)type < 0 || type >= OBJECT_TYPE_COUNT ||
-        slot < 0 || slot >= 4)
-        return;
+    if ((int)type == -1)
+        return 0;
     resource = &g_aObjectResourceSlots_0059ddf0[slot];
     if (resource->shapeSet != 0)
-        return;
+        return 0;
 
+    logicalFile = (short)type + 22;
+    g_cObjectResourceLogicalFile_005a86b0 = (signed char)logicalFile;
     resource->type = (signed char)type;
     if (type == OBJECT_TYPE_ASTEROID_FIELD) {
-        resource->animation =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_ROCK_CHUNK].shapeSet =
             (unsigned char *)FetchDiskPacketRetrying(3, 13, 0);
-        resource->shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID5].shapeSet =
             (unsigned char *)FetchDiskPacketRetrying(3, 16, 0);
-        resource->shape = 0;
-        asteroidType = OBJECT_TYPE_ASTEROID1;
+        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID3].shapeSet =
+            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID5].shapeSet;
+        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID1].shapeSet =
+            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID5].shapeSet;
+        resource->shapeSet =
+            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID5].shapeSet;
+        if (g_nMemoryConfiguration_005a7cd4 == 2) {
+            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID6].shapeSet =
+                (unsigned char *)FetchDiskPacketRetrying(3, 17, 0);
+            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID4].shapeSet =
+                g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID6]
+                    .shapeSet;
+            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID2].shapeSet =
+                g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID6]
+                    .shapeSet;
+        }
+        obj = 10;
         do {
-            typeData = &g_aObjectTypeData_00466458[asteroidType];
-            typeData->objectClass = OBJECT_CLASS_ASTEROID;
-            typeData->collisionRadius = 100;
-            typeData->scale = 640;
-            typeData->shapeSet = resource->shapeSet;
-            asteroidType++;
-        } while (asteroidType <= OBJECT_TYPE_ASTEROID6);
-        return;
+            if (g_aeObjectClass_0059d100[obj] ==
+                OBJECT_CLASS_ASTEROID) {
+                g_apObjectShape_0059d2f0[obj] =
+                    g_aObjectTypeData_00466458[
+                        g_aeObjectType_0059b560[obj]].shapeSet;
+            }
+            obj++;
+        } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
+        return 0;
     }
     if (type == OBJECT_TYPE_MINE_FIELD)
-        return;
+        return 0;
 
     typeData = &g_aObjectTypeData_00466458[type];
-    logicalFile = (short)type + 22;
+    if (typeData->objectClass != OBJECT_CLASS_SHIP &&
+        typeData->objectClass != OBJECT_CLASS_MISSILE) {
+        if (DAT_0059a856 != 0) {
+            section = 0;
+            do {
+                g_aiPacketReferenceTable_00465c88[slot][section] =
+                    (int)FetchDiskPacketRetrying(logicalFile,
+                                                 section, 4);
+                if (g_aiPacketReferenceTable_00465c88[slot]
+                        [section] == 0)
+                    break;
+                section++;
+            } while (section < 0x25);
+        }
+        resource->shape =
+            (unsigned char *)FetchDiskPacketRetrying(logicalFile,
+                                                     0x25, 0);
+        typeData->shape = resource->shape;
+        obj = 1;
+        do {
+            if (g_aeObjectType_0059b560[obj] == type) {
+                FreePacketAndClear(
+                    (int *)&g_apObjectShape_0059d2f0[obj], 0);
+                g_asCapitalShipViewFrame_0059dd90[obj] = -1;
+            }
+            obj++;
+        } while (obj < 10);
+        return 0;
+    }
+
     resource->shapeSet =
         (unsigned char *)FetchDiskPacketRetrying(logicalFile, 0, 0);
+    typeData->shapeSet = resource->shapeSet;
     resource->animation =
         (unsigned char *)FetchDiskPacketRetrying(logicalFile, 2, 0);
+    typeData->animation = resource->animation;
     resource->shape =
         (unsigned char *)FetchDiskPacketRetrying(logicalFile, 1, 0);
-    typeData->shapeSet = resource->shapeSet;
-    typeData->animation = resource->animation;
     typeData->shape = resource->shape;
-
-    for (asteroidType = 0; asteroidType < WC1_SPACE_OBJECT_COUNT;
-         asteroidType++) {
-        if (g_aeObjectType_0059b560[asteroidType] == type &&
-            g_aeObjectClass_0059d100[asteroidType] >= OBJECT_CLASS_SHIP)
-            g_apObjectShape_0059d2f0[asteroidType] = resource->shapeSet;
-    }
+    obj = 0;
+    do {
+        if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_MISSILE &&
+            g_aeObjectType_0059b560[obj] == type)
+            g_apObjectShape_0059d2f0[obj] = resource->shapeSet;
+        obj++;
+    } while (obj < 10);
+    return 0;
 }
 
 /* Function start: 0x40BC70 */
-void free_ship(short slot)
+int free_ship(short slot)
 {
     ObjectResourceSlot *resource;
     ObjectTypeData *typeData;
     enum ObjectType type;
-    short asteroidType;
+    short obj;
+    short section;
 
-    if (slot < 0 || slot >= 4)
-        return;
     resource = &g_aObjectResourceSlots_0059ddf0[slot];
     type = (enum ObjectType)resource->type;
-    if ((int)type < 0 || type >= OBJECT_TYPE_COUNT)
-        return;
+    typeData = &g_aObjectTypeData_00466458[type];
 
-    if (type == OBJECT_TYPE_ASTEROID_FIELD) {
-        FreePacketAndClear((int *)&resource->animation, 0);
-        FreePacketAndClear((int *)&resource->shapeSet, 0);
-        asteroidType = OBJECT_TYPE_ASTEROID1;
-        do {
-            g_aObjectTypeData_00466458[asteroidType].shapeSet = 0;
-            asteroidType++;
-        } while (asteroidType <= OBJECT_TYPE_ASTEROID6);
-    } else if (type != OBJECT_TYPE_MINE_FIELD) {
-        typeData = &g_aObjectTypeData_00466458[type];
+    if (typeData->objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
         release_capital_ship_shapes(type);
-        FreePacketAndClear((int *)&resource->shapeSet, 0);
-        FreePacketAndClear((int *)&resource->animation, 0);
+        if (DAT_0059a856 != 0) {
+            section = 0;
+            do {
+                FreePacketAndClear(
+                    &g_aiPacketReferenceTable_00465c88[slot][section],
+                    4);
+                section++;
+            } while (section < 0x25);
+        }
         FreePacketAndClear((int *)&resource->shape, 0);
-        typeData->shapeSet = 0;
-        typeData->animation = 0;
         typeData->shape = 0;
     }
-    resource->shapeSet = 0;
-    resource->animation = 0;
-    resource->shape = 0;
-    resource->type = -1;
+    if (resource->shapeSet == 0)
+        return 0;
+
+    FreePacketAndClear((int *)&resource->shapeSet, 0);
+    if (type == OBJECT_TYPE_ASTEROID_FIELD) {
+        FreePacketAndClear(
+            (int *)&g_aObjectTypeData_00466458[
+                OBJECT_TYPE_ROCK_CHUNK].shapeSet, 0);
+        FreePacketAndClear(
+            (int *)&g_aObjectTypeData_00466458[
+                OBJECT_TYPE_ASTEROID2].shapeSet, 0);
+        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID6].shapeSet = 0;
+        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID5].shapeSet = 0;
+        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID4].shapeSet = 0;
+        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID3].shapeSet = 0;
+        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID1].shapeSet = 0;
+        obj = 10;
+        do {
+            if (g_aeObjectType_0059b560[obj] == OBJECT_TYPE_ROCK_CHUNK)
+                remove_object(obj);
+            else if (g_aeObjectClass_0059d100[obj] ==
+                     OBJECT_CLASS_ASTEROID)
+                g_apObjectShape_0059d2f0[obj] = 0;
+            obj++;
+        } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
+        return 0;
+    }
+
+    if (type != OBJECT_TYPE_MINE_FIELD) {
+        typeData->shapeSet = 0;
+        FreePacketAndClear((int *)&resource->animation, 0);
+        typeData->animation = 0;
+        FreePacketAndClear((int *)&resource->shape, 0);
+        typeData->shape = 0;
+        obj = 0;
+        do {
+            if (g_aeObjectClass_0059d100[obj] >=
+                    OBJECT_CLASS_MISSILE &&
+                g_aeObjectType_0059b560[obj] == type)
+                g_apObjectShape_0059d2f0[obj] = 0;
+            obj++;
+        } while (obj < 10);
+    }
+    return 0;
 }
 
 /* Function start: 0x40BE20 */

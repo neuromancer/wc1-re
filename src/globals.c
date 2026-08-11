@@ -186,7 +186,7 @@ const char g_szFuneralTextFormat_00465c0c[12] = "%X%Y%F%s%P";
 short g_nEnemySighting_00465c7c = 0x7fff;
 short g_nDebriefingPersonality_00465c80;
 int DAT_00465c84;
-int g_aiPacketReferenceTable_00465c88[4 * 0x25];
+int g_aiPacketReferenceTable_00465c88[4][0x25];
 const ShortVector g_aaFormationPositions_00465ed8[5][8] = {
     {
         { 0, 0, 0 }, { -750, 0, 0 }, { 750, 0, 0 }, { 0, 0, -750 },

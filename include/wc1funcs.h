@@ -225,9 +225,9 @@ unsigned int is_alive(int pilot);                                       /* 0x004
 unsigned int check_futurion(short i);                                   /* 0x0040B700 */
 unsigned int init_mission(short series, short mission);                 /* 0x0040B730 */
 void prepare_mission(void);                                            /* 0x0040B7A0 */
-void release_capital_ship_shapes(enum ObjectType type);                /* 0x0040B990 */
-void load_ship(enum ObjectType type, short slot);                      /* 0x0040B9F0 */
-void free_ship(short slot);                                            /* 0x0040BC70 */
+int release_capital_ship_shapes(enum ObjectType type);                 /* 0x0040B990 */
+int load_ship(enum ObjectType type, short slot);                       /* 0x0040B9F0 */
+int free_ship(short slot);                                             /* 0x0040BC70 */
 void free_all_slots(void);                                             /* 0x0040BE20 */
 void remove_nav_point_objects(void);                                   /* 0x0040BEA0 */
 short get_shape_slot(void);                                            /* 0x0040BEC0 */
