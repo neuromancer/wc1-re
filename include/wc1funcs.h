@@ -92,7 +92,7 @@ short GetLineLength(const char *text);                                  /* 0x004
 int print_subtitle(Viewport *viewport, short colour,
                     const char *text);                                  /* 0x00403920 */
 int advance_canned_sequence(short obj);                                 /* 0x00403A80 */
-void update_canned_sequence(short obj);                                 /* 0x00403B70 */
+unsigned int update_canned_sequence(short obj);                        /* 0x00403B70 */
 void __stdcall SplitGameClockTicks(unsigned char *parts);                  /* 0x00403C40 */
 void MonoDebug_install(void);                                           /* 0x00403C90 */
 void MonoDebug_remove(void);                                            /* 0x00403D60 */

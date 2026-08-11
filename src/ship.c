@@ -64,21 +64,21 @@ unsigned int check_for_lost_control(short obj)
 /* Function start: 0x41E900 */
 void send_appropriate_message(short attacker, short victim)
 {
-    short owner;
-
     if (g_aeObjectClass_0059d100[attacker] >= OBJECT_CLASS_SHIP) {
-        owner = (short)g_acObjectOwner_0059ce20[attacker];
         if (g_nYourWingman_0046c04c != -1 &&
-            owner == g_nYourWingman_0046c04c &&
+            (short)g_acObjectOwner_0059ce20[attacker] ==
+                g_nYourWingman_0046c04c &&
             g_nYourWingman_0046c04c != attacker &&
             g_aeShipSide_0059d650[victim] == SIDE_KILRATHI) {
             if ((short)RandomBelowOrEqual(100) < 50 &&
                 g_aeSpecialManeuver_0059c3c0[attacker] !=
                     SPECIAL_MANEUVER_UNKNOWN_9)
                 send_message(g_nYourWingman_0046c04c, 5);
-        } else if (g_aeShipSide_0059d650[owner] == SIDE_KILRATHI &&
+        } else if (g_aeShipSide_0059d650[
+                       (short)g_acObjectOwner_0059ce20[attacker]] ==
+                       SIDE_KILRATHI &&
                    g_nYourWingman_0046c04c == victim) {
-            send_message(owner, 5);
+            send_message((short)g_acObjectOwner_0059ce20[attacker], 5);
         }
     }
 }

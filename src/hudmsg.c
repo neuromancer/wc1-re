@@ -1125,12 +1125,20 @@ unsigned int warp(short obj)
 int drop_player_mine(short obj)
 {
     short weapon;
+    signed char weaponCount;
+    int loadoutOffset;
+    ShipWeaponSlot *weaponSlot;
+    enum ObjectType type;
 
     weapon = 0;
-    while (weapon < (signed char)g_aShipWeapons_0059cab0[obj][0]) {
-        ShipWeaponSlot *weaponSlot =
-            &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
-        enum ObjectType type = weaponSlot->type;
+    loadoutOffset = (int)obj * sizeof(g_aShipWeapons_0059cab0[0]);
+    weaponCount = *(signed char *)
+        ((unsigned char *)g_aShipWeapons_0059cab0 + loadoutOffset);
+    while (weaponCount > weapon) {
+        weaponSlot = (ShipWeaponSlot *)
+            ((unsigned char *)g_aShipWeapons_0059cab0 + loadoutOffset + 1) +
+            weapon;
+        type = weaponSlot->type;
 
         if (g_aObjectTypeData_00466458[type].objectClass ==
                 OBJECT_CLASS_MINE &&
@@ -1210,10 +1218,10 @@ short find_next_gun(short obj, enum ObjectType currentGun)
 /* Function start: 0x42ADA0 */
 int select_guns(short obj, short selectedGun)
 {
-    short weaponCount = (signed char)g_aShipWeapons_0059cab0[0][0];
+    int found = 0;
     ShipWeaponSlot *weaponSlot =
         (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
-    int found = 0;
+    short weaponCount = (signed char)g_aShipWeapons_0059cab0[0][0];
 
     (void)obj;
     if (weaponCount > 0) {

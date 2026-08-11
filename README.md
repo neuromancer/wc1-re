@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.57% average)</summary>
+<summary>All 1,472 function similarity scores (97.59% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -672,11 +672,11 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `arrive_from_warp` | `0x42A950` | 100.00% |
 | `hudmsg.c` | `unwarp` | `0x42AA10` | 100.00% |
 | `hudmsg.c` | `warp` | `0x42AAF0` | 100.00% |
-| `hudmsg.c` | `drop_player_mine` | `0x42ABD0` | 83.33% |
+| `hudmsg.c` | `drop_player_mine` | `0x42ABD0` | 95.83% |
 | `hudmsg.c` | `personality_killed` | `0x42AC50` | 100.00% |
 | `hudmsg.c` | `clean_up_cockpit` | `0x42ACC0` | 100.00% |
 | `hudmsg.c` | `find_next_gun` | `0x42AD00` | 91.67% |
-| `hudmsg.c` | `select_guns` | `0x42ADA0` | 88.10% |
+| `hudmsg.c` | `select_guns` | `0x42ADA0` | 83.33% |
 | `hudmsg.c` | `select_new_gun` | `0x42AE10` | 100.00% |
 | `hudmsg.c` | `select_new_release_weapon` | `0x42AE50` | 87.88% |
 | `hudmsg.c` | `WaitForDebugStep` | `0x42AFA0` | 100.00% |
@@ -845,7 +845,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `place_exhaust_on_ships` | `0x421430` | 76.36% |
 | `logic.c` | `reposition_fixed_child_objects` | `0x4215E0` | 76.24% |
 | `logic.c` | `housekeep_power_plant_and_fuel` | `0x421760` | 100.00% |
-| `logic.c` | `replenish_shields` | `0x421780` | 88.89% |
+| `logic.c` | `replenish_shields` | `0x421780` | 100.00% |
 | `logic.c` | `replenish_weapon_energy_bank` | `0x421830` | 100.00% |
 | `logic.c` | `accelerate` | `0x4218D0` | 100.00% |
 | `logic.c` | `your_afterburner` | `0x421920` | 100.00% |
@@ -1033,7 +1033,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `mono.c` | `GetLineLength` | `0x403890` | 100.00% |
 | `mono.c` | `print_subtitle` | `0x403920` | 84.09% |
 | `mono.c` | `advance_canned_sequence` | `0x403A80` | 85.51% |
-| `mono.c` | `update_canned_sequence` | `0x403B70` | 86.54% |
+| `mono.c` | `update_canned_sequence` | `0x403B70` | 92.31% |
 | `mono.c` | `SplitGameClockTicks` | `0x403C40` | 100.00% |
 | `mono.c` | `MonoDebug_install` | `0x403C90` | 100.00% |
 | `mono.c` | `MonoDebug_remove` | `0x403D60` | 100.00% |
@@ -1339,18 +1339,18 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screens.c` | `FadeRasterPaletteToPalette` | `0x43F425` | 100.00% |
 | `screens.c` | `CollectRasterClipColours` | `0x43F5A9` | 100.00% |
 | `ship.c` | `check_for_lost_control` | `0x41E650` | 86.21% |
-| `ship.c` | `send_appropriate_message` | `0x41E900` | 86.96% |
+| `ship.c` | `send_appropriate_message` | `0x41E900` | 100.00% |
 | `ship.c` | `inflict_damage` | `0x41E9B0` | 97.30% |
 | `ship.c` | `pilot_hit` | `0x41EC60` | 100.00% |
 | `ship.c` | `onboard_explosion` | `0x41ECE0` | 81.97% |
-| `ship.c` | `call_enemy` | `0x41EDB0` | 100.00% |
+| `ship.c` | `call_enemy` | `0x41EDB0` | 93.55% |
 | `ship.c` | `internal_damage` | `0x41EE20` | 96.99% |
 | `ship.c` | `revise_shields` | `0x41F1A0` | 96.55% |
 | `ship.c` | `your_internal_damage` | `0x41F220` | 85.26% |
 | `ship.c` | `check_computer_damage` | `0x41F5D0` | 100.00% |
 | `ship.c` | `ReportComponentRepaired` | `0x41F5F0` | 100.00% |
 | `ship.c` | `repair_internal_damage` | `0x41F660` | 87.76% |
-| `ship.c` | `Create_ship_hit_debris` | `0x41F700` | 100.00% |
+| `ship.c` | `Create_ship_hit_debris` | `0x41F700` | 98.25% |
 | `ship.c` | `check_next_wave` | `0x41F7C0` | 100.00% |
 | `ship.c` | `Create_explosion_debris` | `0x41F800` | 89.44% |
 | `ship.c` | `affect_mission_score` | `0x41F9E0` | 88.57% |
@@ -1359,7 +1359,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `ship.c` | `ShipExplosion` | `0x41FBC0` | 100.00% |
 | `ship.c` | `Explosion` | `0x41FCD0` | 94.62% |
 | `ship.c` | `the_creator` | `0x41FEB0` | 92.86% |
-| `ship.c` | `explosion_shock_wave` | `0x41FEE0` | 92.17% |
+| `ship.c` | `explosion_shock_wave` | `0x41FEE0` | 93.91% |
 | `ship.c` | `explode` | `0x420040` | 100.00% |
 | `ship.c` | `send_at_point` | `0x420190` | 100.00% |
 | `ship.c` | `find_child_object` | `0x4201D0` | 100.00% |

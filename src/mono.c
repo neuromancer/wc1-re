@@ -272,7 +272,7 @@ int advance_canned_sequence(short obj)
 }
 
 /* Function start: 0x403B70 */
-void update_canned_sequence(short obj)
+unsigned int update_canned_sequence(short obj)
 {
     int velocity;
     int requested;
@@ -299,6 +299,7 @@ void update_canned_sequence(short obj)
         advance_canned_sequence(obj);
         break;
     }
+    return 0;
 }
 
 /* Function start: 0x403C40 */

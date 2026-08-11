@@ -297,15 +297,13 @@ unsigned int replenish_shields(short ship)
         return 0;
     shield = 0;
     do {
-        short current;
         short maximum;
+        short current;
 
-        current = g_aasShipShield_0059d5b0[ship][shield];
         maximum = g_aasShipMaximumShield_0059d6e0[ship][shield];
-        if (maximum < current) {
+        if (g_aasShipShield_0059d5b0[ship][shield] > maximum)
             g_aasShipShield_0059d5b0[ship][shield] = maximum;
-            current = maximum;
-        }
+        current = g_aasShipShield_0059d5b0[ship][shield];
         if (current < maximum &&
             g_nSpaceFrame_0059b420 %
                 g_aObjectTypeData_00466458[
@@ -314,7 +312,7 @@ unsigned int replenish_shields(short ship)
                 (short)(current + 1);
         }
         shield++;
-    } while (shield < 2);
+    } while (shield <= 1);
     return 0;
 }
 
