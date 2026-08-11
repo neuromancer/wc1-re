@@ -342,6 +342,22 @@ typedef struct FireworkState {
 typedef char FireworkState_size_must_be_0x0c[
     sizeof(FireworkState) == 0x0c ? 1 : -1];
 
+/* One of the paired projectiles crossing the campaign-victory scene. */
+#pragma pack(push, 2)
+typedef struct CampaignVictoryProjectile {
+    int x;                           /* +0x00 */
+    int y;                           /* +0x04 */
+    int depth;                       /* +0x08 */
+    short screenX;                   /* +0x0C */
+    short screenY;                   /* +0x0E */
+    short flip;                      /* +0x10 */
+    int scale;                       /* +0x12: -1 while inactive */
+} CampaignVictoryProjectile;
+#pragma pack(pop)
+
+typedef char CampaignVictoryProjectile_size_must_be_0x16[
+    sizeof(CampaignVictoryProjectile) == 0x16 ? 1 : -1];
+
 /* Runtime object-type records.  The 0x87-byte stride and the named fields are
  * fixed by accesses throughout the ship/object code; unknown slots retain
  * offset names until their purpose is established. */

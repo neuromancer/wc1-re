@@ -1481,6 +1481,196 @@ unsigned int scramble(void)
     return 0;
 }
 
+/* Function start: 0x408650 (Mac symbol: landing) */
+unsigned int landing(signed char damageLevel)
+{
+    unsigned char *actorShape;
+    const signed char *canopyFrames;
+    short frame;
+    signed char detail;
+    signed char prior;
+    int damageOffset;
+
+    PreloadMusicTrackHook(0x1d);
+    spacetrack(0x1d, 2, 1);
+    SetEventManagerPump(PollJoystickButtonEvents);
+    InitializeConversationViewport();
+    damageOffset = (int)damageLevel * 4;
+    g_nScrambleShipDetailCount_005a86cc =
+        (short)g_anLandingDamageDetailCounts_00465aa8[damageLevel];
+    frame = 0;
+    while (frame < g_nScrambleShipDetailCount_005a86cc) {
+        do {
+            detail = (signed char)RandomInRange(0, 31);
+            for (prior = 0; prior < frame; prior++) {
+                if (g_acScrambleShipDetailIndices_005a86d0[prior] ==
+                    detail)
+                    break;
+            }
+        } while (prior < frame);
+        g_acScrambleShipDetailIndices_005a86d0[frame] = detail;
+        frame++;
+    }
+
+    g_cCockpitLogicalFile_005a7c74 =
+        (signed char)(g_stCampaignState_0059ca50.playerShipType + 17);
+    g_pScrambleCockpitShape_005a8730 =
+        (unsigned char *)FetchDiskPacketRetrying(
+            g_cCockpitLogicalFile_005a7c74, 8, 0);
+    g_pScrambleBackgroundShape_005a870c =
+        (unsigned char *)FetchDiskPacketRetrying(1, 1, 0);
+    g_pScrambleShipShape_005a8750 =
+        (unsigned char *)FetchDiskPacketRetrying(1, 3, 0);
+    actorShape = (unsigned char *)FetchDiskPacketRetrying(1, 4, 0);
+    g_pScrambleDetailShape_005a86bc =
+        (unsigned char *)FetchDiskPacketRetrying(1, 9, 0);
+    g_pScrambleOverlayShape_005a8744 =
+        (unsigned char *)FetchDiskPacketRetrying(1, 5, 0);
+    g_bScrambleCanopyClosed_005a873a = 1;
+    g_pScrambleCanopyShape_005a874c =
+        (unsigned char *)FetchDiskPacketRetrying(1, 6, 0);
+    InitializeConversationText();
+    g_nScrambleBackgroundY_005a8712 = 0;
+    g_pScrambleViewport_005a86b4 = &DAT_005a76b0;
+    g_nScrambleBackgroundRightX_005a8714 = 32;
+    ConfigureScrambleActor(140, 88, 2, 0, actorShape,
+                           0x80, 0, 0, 3);
+    ConfigureScrambleActor(139, 88, 2, 0, actorShape,
+                           0x80, 0, 0, 4);
+    ConfigureScrambleActor(240, 94, -1, 0, actorShape,
+                           0x100, 0, 0x10, 0);
+    ConfigureScrambleActor(160, 120, 0, 0, actorShape,
+                           0x100, 0, 0, 2);
+    g_nScrambleCanopyOffset_005a8736 = 0;
+    g_nScrambleCanopyFrame_005a86b8 = 34;
+    g_nScrambleOverlayX_005a8740 = -1000;
+
+    switch (g_stCampaignState_0059ca50.playerShipType) {
+    case OBJECT_TYPE_HORNET:
+        g_nScrambleShipX_005a8724 = 124;
+        g_nScrambleShipY_005a8726 = 140;
+        g_nScrambleCockpitDetailX_005a86c4 = 69;
+        g_nScrambleCockpitDetailY_005a86c6 = 115;
+        g_nScrambleCockpitScale_005a86c0 = 360;
+        break;
+    case OBJECT_TYPE_RAPIER:
+        g_nScrambleShipX_005a8724 = 124;
+        g_nScrambleShipY_005a8726 = 130;
+        g_nScrambleCockpitDetailX_005a86c4 = 94;
+        g_nScrambleCockpitDetailY_005a86c6 = 125;
+        break;
+    case OBJECT_TYPE_SCIMITAR:
+        g_nScrambleShipY_005a8726 = 134;
+        g_nScrambleCockpitDetailY_005a86c6 = 132;
+        g_nScrambleShipX_005a8724 = 124;
+        g_nScrambleCockpitDetailX_005a86c4 = 124;
+        break;
+    case OBJECT_TYPE_RAPTOR:
+        g_nScrambleShipX_005a8724 = 124;
+        g_nScrambleShipY_005a8726 = 126;
+        g_nScrambleCockpitDetailX_005a86c4 = 96;
+        g_nScrambleCockpitDetailY_005a86c6 = 113;
+        break;
+    }
+
+    frame = 0;
+    DAT_0059ab58 = 0;
+    PlaySfxWaveFileByNumber(17, -1, 0);
+    DAT_00469fb4 = 1;
+    do {
+        PumpWindowMessages();
+        DrawScrambleFrame();
+        g_nScrambleShipY_005a8726 =
+            (short)(g_nScrambleShipY_005a8726 - 2);
+        g_nScrambleCockpitDetailY_005a86c6 =
+            (short)(g_nScrambleCockpitDetailY_005a86c6 - 2);
+        if (DAT_0059ab58 == 1)
+            break;
+        frame++;
+    } while (frame < 30);
+
+    ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
+        damageOffset, 0);
+    if (DAT_0059ab58 != 1) {
+        g_nScrambleOverlayX_005a8740 =
+            (short)(g_nScrambleShipX_005a8724 + 180);
+        canopyFrames = *(const signed char **)
+            ((unsigned char *)g_apLandingCanopyFrames_00465b08 +
+             damageOffset);
+        g_nScrambleOverlayY_005a8742 =
+            (short)(g_nScrambleShipY_005a8726 + 50);
+        frame = 0;
+        PlaySfxWaveFileByNumber(15, -1, 0);
+        DAT_00469fb4 = 1;
+        do {
+            PumpWindowMessages();
+            if (g_nRenderedSpaceFrame_0059d61a == 29)
+                DAT_00469fb4 = 1;
+            DrawScrambleFrame();
+            g_nScrambleOverlayY_005a8742--;
+            g_nScrambleOverlayX_005a8740 =
+                (short)(g_nScrambleOverlayX_005a8740 - 4);
+            switch (g_stCampaignState_0059ca50.playerShipType) {
+            case OBJECT_TYPE_HORNET:
+                g_nScrambleCockpitScale_005a86c0 =
+                    (short)(g_nScrambleCockpitScale_005a86c0 - 2);
+                break;
+            case OBJECT_TYPE_RAPIER:
+            case OBJECT_TYPE_RAPTOR:
+                g_nScrambleCockpitDetailX_005a86c4 =
+                    (short)(g_nScrambleCockpitDetailX_005a86c4 + 2);
+                break;
+            case OBJECT_TYPE_SCIMITAR:
+                if (frame == 0)
+                    g_nScrambleCockpitDetailY_005a86c6--;
+                else
+                    g_nScrambleCockpitDetailX_005a86c4 =
+                        (short)(g_nScrambleCockpitDetailX_005a86c4 + 2);
+                break;
+            }
+            if (frame > 6 && *canopyFrames != 0x40) {
+                g_nScrambleCanopyOffset_005a8736 = *canopyFrames;
+                canopyFrames++;
+            }
+            if (DAT_0059ab58 == 1)
+                break;
+            frame++;
+        } while (frame < 30);
+
+        ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
+            damageOffset, 0);
+        if (DAT_0059ab58 != 1) {
+            ClearViewport(&g_stConversationTextViewport_005a7570,
+                          DAT_0046999c);
+            FormatTextBufferFromStart(
+                g_szLandingCommentFormat_00465bf8, 0, 160,
+                DAT_004699a4,
+                *(const char **)
+                    ((unsigned char *)g_apszLandingDamageComments_00465ab8 +
+                     damageOffset));
+            DIBslam();
+            DIBslamReal();
+            ReleaseTextFont(0);
+            WaitForSceneAdvance(300, 0);
+        }
+    }
+
+    DAT_0059ab58 = 0;
+    ReleasePacketHandle((int)g_pScrambleCockpitShape_005a8730);
+    ReleasePacketHandle((int)g_pScrambleBackgroundShape_005a870c);
+    ReleasePacketHandle((int)g_pScrambleShipShape_005a8750);
+    ReleasePacketHandle((int)actorShape);
+    ReleasePacketHandle((int)g_pScrambleDetailShape_005a86bc);
+    ReleasePacketHandle((int)g_pScrambleOverlayShape_005a8744);
+    ReleasePacketHandle((int)g_pScrambleCanopyShape_005a874c);
+    ResetScreenClipToFullHeight();
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
+    StopMusicUnlessSuppressed();
+    ReleaseMusicTrackHook(0x1d);
+    return 0;
+}
+
 /* Function start: 0x408B30 (Mac symbol: funeral_player) */
 unsigned int funeral_player(void)
 {
@@ -1881,6 +2071,125 @@ unsigned int funeral_sequence(int playerFuneral)
     StopMusicUnlessSuppressed();
     free_inflight_music();
     ReleaseMusicTrackHook(0x20);
+    return 0;
+}
+
+/* Function start: 0x4094E0 */
+unsigned int RunAnimationDemoLoop(signed char animation)
+{
+    switch (animation) {
+    case 0:
+        init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
+        InitializeCockpitResources(0);
+        death_sequence();
+        WaitForInputKey();
+        break;
+    case 1:
+        init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
+        InitializeCockpitResources(0);
+        LaunchPlayerShip();
+        WaitForInputKey();
+        break;
+    case 2:
+        Briefing((short)g_stCampaignState_0059ca50.currentSeries,
+                 (short)g_stCampaignState_0059ca50.currentMission);
+        break;
+    case 3:
+        PlayScrambleHangarScene();
+        break;
+    case 4:
+        scramble();
+        WaitForInputKey();
+        break;
+    case 5:
+        init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
+        ShowCarrierLaunchSequence(1);
+        free_constellation();
+        free_3Space();
+        WaitForInputKey();
+        break;
+    case 6:
+        landing(3);
+        WaitForInputKey();
+        break;
+    case 7:
+        Title_Sequence();
+        break;
+    case 8:
+        RecRoom();
+        break;
+    case 10:
+        DeBriefing((short)g_stCampaignState_0059ca50.currentSeries,
+                   (short)g_stCampaignState_0059ca50.currentMission);
+        break;
+    case 11:
+        funeral_sequence(1);
+        break;
+    case 12:
+        AwardCampaignMedal(g_nConversationMedalIndex_00598c08);
+        break;
+    case 13:
+        BarracksScreen();
+        break;
+    }
+
+    switch (animation) {
+    case 14:
+        landing((signed char)(animation - 14));
+        WaitForInputKey();
+        break;
+    case 15:
+        Office();
+        break;
+    case 16:
+        ShowCampaignVictorySequence();
+        break;
+    case 17:
+        ShowTigerClawEscapeScene();
+        break;
+    case 18:
+        ShowMeanwhileTransition(0, 0);
+        WaitForInputKey();
+        ShowMeanwhileTransition(0, 1);
+        WaitForInputKey();
+        break;
+    case 19:
+        ShowMeanwhileTransition(1, 0);
+        WaitForInputKey();
+        ShowMeanwhileTransition(1, 1);
+        WaitForInputKey();
+        break;
+    case 20:
+        ShowMeanwhileTransition(2, 0);
+        WaitForInputKey();
+        ShowMeanwhileTransition(2, 1);
+        WaitForInputKey();
+        break;
+    case 21:
+        ShowMeanwhileTransition(3, 0);
+        WaitForInputKey();
+        ShowMeanwhileTransition(3, 1);
+        WaitForInputKey();
+        break;
+    case 22:
+        funeral_sequence(0);
+        break;
+    case 23:
+        ShowMeanwhileTransition(4, 1);
+        WaitForInputKey();
+        break;
+    case 24:
+        ShowMeanwhileTransition(5, 0);
+        WaitForInputKey();
+        ShowMeanwhileTransition(5, 1);
+        WaitForInputKey();
+        break;
+    case 25:
+        ShowMeanwhileTransition(6, 0);
+        WaitForInputKey();
+        break;
+    }
+    exit_squadron("Animation demo over.");
     return 0;
 }
 

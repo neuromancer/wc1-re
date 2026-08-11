@@ -299,6 +299,33 @@ const ScrambleShipDetail g_aaScrambleShipDetails_00465828[4][32] = {
         {  8,  221,  33 }, {  1,  282,  22 }
     }
 };
+const int g_anLandingDamageDetailCounts_00465aa8[4] = {
+    0, 8, 16, 24
+};
+const char *g_apszLandingDamageComments_00465ab8[4] = {
+    g_szLandingCleanComment_00465b58,
+    g_szLandingLightDamageComment_00465b78,
+    g_szLandingHeavyDamageComment_00465ba8,
+    g_szLandingSurvivalComment_00465bcc
+};
+const signed char g_acLandingCanopyFramesHeavy_00465ac8[24] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10,
+    10, 10, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0x40
+};
+const signed char g_acLandingCanopyFramesLight_00465ae0[24] = {
+    0, 1, 2, 3, 11, 12, 13, 14, 14, 14, 14, 14,
+    14, 14, 13, 12, 11, 3, 2, 1, 0, 0x40, 0, 0
+};
+const signed char g_acLandingCanopyFramesModerate_00465af8[16] = {
+    0, 15, 16, 17, 18, 19, 19, 18,
+    17, 16, 15, 0, 0x40, 0, 0, 0
+};
+const signed char *g_apLandingCanopyFrames_00465b08[4] = {
+    g_acLandingCanopyFramesLight_00465ae0,
+    g_acLandingCanopyFramesModerate_00465af8,
+    g_acLandingCanopyFramesHeavy_00465ac8,
+    g_acLandingCanopyFramesHeavy_00465ac8
+};
 const ShortPoint g_aFuneralParticleOrigins_00465b18[7] = {
     { 234, 83 }, { 248, 85 }, { 260, 80 }, { 273, 78 },
     { 286, 75 }, { 299, 76 }, { 310, 74 }
@@ -307,6 +334,15 @@ const short g_asFuneralSceneBySeries_00465b36[15] = {
     0, 0, 1, 1, 1, 1, 1, 2, 3, 2, 3, 3, 2, 3, 0
 };
 int g_bFuneralShowTheEnd_00465b54;
+const char g_szLandingCleanComment_00465b58[32] =
+    "You got away pretty clean, sir!";
+const char g_szLandingLightDamageComment_00465b78[48] =
+    "Looks like it got a little hot out there, sir!";
+const char g_szLandingHeavyDamageComment_00465ba8[36] =
+    "You sure got yourself shot up, sir!";
+const char g_szLandingSurvivalComment_00465bcc[44] =
+    "Glad to see you made it back alive, sir.";
+const char g_szLandingCommentFormat_00465bf8[12] = "%X%Y%F%s%P";
 const char g_szTheEnd_00465c04[8] = "THE END";
 const char g_szFuneralTextFormat_00465c0c[12] = "%X%Y%F%s%P";
 const char g_szFuneralCompanyCommand_00465c18[20] =
@@ -843,6 +879,29 @@ WaveTableEntry *g_pWaveTableHead_0046a444;
 WaveTableEntry *g_pWaveTableTail_0046a448;
 const char g_szPlayWaveOpenError_0046a46c[36] =
     "playWAVE Unable to open file '%s'";
+const short g_asCarrierLaunchApproachDeltaX_0046a550[24] = {
+    -1, -1, -1, -2, -2, -2, -2, -3,
+    -3, -3, -3, -3, -2, -2, -2, -2,
+    -1, -1, -1, -1, -1, 0, 0, 0
+};
+const signed char g_acCarrierLaunchApproachFrames_0046a580[24] = {
+    36, 32, 32, 32, 32, 32, 32, 32,
+    25, 25, 25, 25, 25, 25, 25, 25,
+    18, 18, 18, 18, 18, 18, 18, 18
+};
+const ShortPoint g_aCarrierLaunchFighterPath_0046a598[9] = {
+    { -2, 1 }, { -1, 1 }, { -1, 1 },
+    { -1, 0 }, { -1, 1 }, { -1, 0 },
+    { -1, 1 }, { -1, 0 }, { 0, 0 }
+};
+const short g_asCarrierLaunchFighterDeltaY_0046a5bc[16] = {
+    0, 0, 3, 3, 3, 2, 2, 2,
+    2, 2, 1, 1, 1, 1, 1, 1
+};
+const short g_asCarrierLaunchViewData_0046a5dc[16] = {
+    0, 0, 12, 11,
+    1, 90, 90, 0, 9, -90, 0, 0, 20, 3, 15, -1
+};
 const char g_szPressAnyKeyWhenReady_0046a5fc[28] =
     "Press any key when ready";
 unsigned char *g_pDamageDisplayBackground_0046a748;
@@ -925,6 +984,42 @@ const char g_szSfxWaveFormat_0046ad2c[12] = "sfx%02i.wav";
 unsigned char g_abTaggedAllocationPrefix_0046ad88[8] = {
     'j', 'e', 'f', 'f', 0, 0, 0, 0
 };
+const char *g_apszCampaignVictoryText_0046ad90[4] = {
+    g_szCampaignVictoryOpening_0046add0,
+    g_szCampaignVictoryAttack_0046ae14,
+    g_szCampaignVictoryConclusion_0046ae40,
+    0
+};
+const char *g_pszTigerClawEscapeOpening_0046ada0 =
+    g_szTigerClawEscapeOpening_0046ae74;
+const char *g_pszTigerClawEscapeJump_0046ada4 =
+    g_szTigerClawEscapeJump_0046aeb4;
+const char *g_pszTigerClawEscapeClosing_0046ada8 =
+    g_szTigerClawEscapeClosing_0046aee4;
+const ShortVector g_aCampaignVictoryProjectileOrigins_0046adb0[4] = {
+    { -55, 42, 0 }, { -68, 46, 0 },
+    { 60, 42, 16 }, { 73, 46, 16 }
+};
+const char *g_pszTheEnd_0046adc8 = g_szTheEnd_0046af10;
+const char *g_pszForNow_0046adcc = g_szForNow_0046af18;
+const char g_szCampaignVictoryOpening_0046add0[68] =
+    "Destroying the remains of the Kilrathi naval power in the sector...";
+const char g_szCampaignVictoryAttack_0046ae14[44] =
+    "The Tiger's Claw closes in for the kill...";
+const char g_szCampaignVictoryConclusion_0046ae40[52] =
+    "And the last Kilrathi planet in the sector falls!";
+const char g_szTigerClawEscapeOpening_0046ae74[64] =
+    "Fleeing from the overwelming Kilrathi forces in the sector...";
+const char g_szTigerClawEscapeJump_0046aeb4[48] =
+    "The Tiger's Claw manages to jump out. Barely.";
+const char g_szTigerClawEscapeClosing_0046aee4[44] =
+    "There'll be other sectors, other battles...";
+const char g_szTheEnd_0046af10[8] = "The End";
+const char g_szForNow_0046af18[12] = "For Now...";
+const char g_szCampaignVictoryTextFormat_0046af24[12] = "%X%Y%s%P";
+const char g_szTigerClawEscapeOpeningFormat_0046af30[12] = "%X%Y%s%P";
+const char g_szTigerClawEscapeJumpFormat_0046af3c[12] = "%X%Y%s%P";
+const char g_szTigerClawEscapeClosingFormat_0046af48[12] = "%X%Y%s%P";
 short g_nInputDoubleClickInterval_0046af54 = 1;
 short g_nMenuPointerSpeed_0046af58 = 2;
 short g_nCommMenuChoiceCount_0046af60 = -1;
@@ -1124,6 +1219,11 @@ const short g_asCannedSequence35_0046c108[42] = {
     1, 0, 0, 180, 40, 1, 0, 0, 180, 40,
     1, 0, -30, 60, 40, 0, 400, -1
 };
+const short g_asCampaignVictoryViewScript_0046c160[24] = {
+    16, 38, 0, 1200, 0, 1600, 1, 180,
+    0, 0, 15, 3, 4, 14, 100, 2,
+    15, 3, 15, 14, 120, -1, 0, 0
+};
 const short g_asCannedSequence37_0046c190[] = {
     0, 100, 1, 0, 30, 0, 50, 0, 20, 2, 0, 400, -1
 };
@@ -1140,6 +1240,9 @@ const short g_asCannedSequence40_0046c1e0[] = {
     3, 1, 0, 0, 90, 60, 3, 1, 0, 0, 90, 60, -1
 };
 const short g_asCannedSequence41_0046c230[3] = { 0, 400, -1 };
+const short g_asTigerClawEscapeViewScript_0046c238[12] = {
+    0, 0, 0, 0, 2, 15, 3, 15, 14, 400, -1, 0
+};
 const short g_asCannedSequence42_0046c250[] = {
     0, 120, 1, 0, 0, 180, 50, 3, 1, 0, 0, 180, 50, 3, -1
 };
@@ -2050,6 +2153,7 @@ unsigned char *g_apRecRoomSceneData_00598ae0[3];
 unsigned char *g_pBriefingPacket_00598aec;
 unsigned char *g_pBriefingTextData_00598af0;
 short *g_pMouthAnimationCommands_00598af4;
+unsigned char *g_pMedalTextData_00598af8;
 unsigned char *g_pDebriefingSceneData_00598afc;
 char g_szTextScratchBuffer_00598b00[256];
 unsigned char *g_pBriefingSceneData_00598c00;
@@ -2248,6 +2352,10 @@ short g_asObjectScale_0059de40[WC1_SPACE_OBJECT_COUNT];
 char DAT_0059dec0[256];
 short g_asShipAccumulatedDamage_0059dee0[WC1_SPACE_OBJECT_COUNT];
 short g_nCurrentNavPoint_0059df60;
+int g_nJoystickCalibrationMinimumY_0059df64;
+int g_nJoystickCalibrationMinimumX_0059df68;
+int g_nJoystickCalibrationMaximumX_0059df6c;
+int g_nJoystickCalibrationMaximumY_0059df70;
 unsigned short g_awPaletteEntryAllocation_0059df80[256];
 unsigned char *g_apCommPortraitShapes_0059e180[16];
 char g_szHudMessageBuffer_0059e1c0[0x60];

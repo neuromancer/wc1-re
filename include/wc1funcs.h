@@ -184,9 +184,11 @@ unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
                                     short actorIndex);                 /* 0x00407D90 */
 unsigned int DrawScrambleFrame(void);                                  /* 0x00407E10 */
 unsigned int scramble(void);                                           /* 0x00408200 */
+unsigned int landing(signed char damageLevel);                         /* 0x00408650 */
 unsigned int funeral_player(void);                                     /* 0x00408B30 */
 unsigned int funeral_wingman(char *text, short duration);              /* 0x00408D50 */
 unsigned int funeral_sequence(int playerFuneral);                      /* 0x00408DE0 */
+unsigned int RunAnimationDemoLoop(signed char animation);             /* 0x004094E0 */
 void cruise_home(short obj);                                            /* 0x00409760 */
 void fail(short obj);                                                   /* 0x004098C0 */
 void coming_home(short obj);                                            /* 0x004098D0 */
@@ -1092,6 +1094,7 @@ void LoadVolumeSettingsFromRegistry(void);                            /* 0x0042B
 void SaveVolumeSettingsToRegistry(void);                               /* 0x0042B930 */
 void DrawLaunchDoorFrame(short distance);                              /* 0x0042B9A0 */
 void LaunchPlayerShip(void);                                           /* 0x0042BA90 */
+unsigned int ShowCarrierLaunchSequence(signed char sceneObject);       /* 0x0042BC00 */
 void FxDriverShutdownHook(void);                                            /* 0x0042C410 */
 unsigned short InitializeDiskPromptTextContext(void);                 /* 0x0042C420 */
 unsigned short RewriteDiskFileGraphicsExtensions(short videoMode);    /* 0x0042C510 */
@@ -1180,6 +1183,13 @@ void *AllocateTaggedMemory(unsigned int size, unsigned short flags);   /* 0x0042
 void ReleasePacketHandle(int handle);                                 /* 0x0042FAE0 */
 unsigned int GetFixedOneMillionThunk(void);                  /* 0x0042FB20 */
 unsigned int GetFixedOneMillionThunkAlt(void);               /* 0x0042FB30 */
+void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
+                             short distance, unsigned char *shape,
+                             short frame, short type,
+                             short scale);                         /* 0x0042FB40 */
+unsigned int ShowCampaignVictorySequence(void);                    /* 0x0042FC00 */
+unsigned int ShowTigerClawEscapeScene(void);                          /* 0x00430150 */
+unsigned int ShowTheEndScreen(short enableFireworks);                 /* 0x004304F0 */
 short __stdcall UpdateInputDeviceTransitions(short raw);               /* 0x00430710 */
 void PollJoystickButtonEvents(void);                                   /* 0x00430840 */
 void PollMenuInputDevices(void);                                       /* 0x00430920 */
@@ -1217,6 +1227,10 @@ void __stdcall ShutdownVideoHook(int mode);                             /* 0x004
 short __stdcall ReserveContiguousPaletteEntries(short entryCount);    /* 0x00431900 */
 void __stdcall ReleaseContiguousPaletteEntries(short firstEntry);     /* 0x00431970 */
 void PrintPaletteAllocationMap(void);                                 /* 0x004319B0 */
+void LoadJoystickCalibrationFile(short horizontalRange,
+                                 short verticalRange,
+                                 short horizontalDeadZone,
+                                 short verticalDeadZone);              /* 0x00431A10 */
 short ReadCalibratedJoystick(void);                                    /* 0x00431D20 */
 void __stdcall UnionRectBounds(ShortRect *destination,
                                const ShortRect *first,
@@ -1405,6 +1419,7 @@ void __stdcall ConvertChar_Int(char *text, short number,
                               short digits);                          /* 0x00436CB0 */
 unsigned int LoadBriefingRoom(void);                                  /* 0x00436D00 */
 unsigned int ViewMedals(void);                                        /* 0x00436E30 */
+unsigned int AwardCampaignMedal(short medal);                         /* 0x00436F50 */
 int no_objectives_achieved(void);                                      /* 0x00438090 */
 short wing_status(short personality);                                  /* 0x004380D0 */
 short int_value(char **text);                                          /* 0x00438110 */

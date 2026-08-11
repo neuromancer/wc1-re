@@ -155,7 +155,7 @@
 0x00407D90 ConfigureScrambleActor
 0x00407E10 DrawScrambleFrame
 0x00408200 scramble
-0x00408650 BlitTbl005a86d0Fn8650
+0x00408650 landing
 0x00408B30 funeral_player
 0x00408D50 funeral_wingman
 0x00408DE0 funeral_sequence
@@ -915,7 +915,7 @@
 0x0042B930 SaveVolumeSettingsToRegistry
 0x0042B9A0 DrawLaunchDoorFrame
 0x0042BA90 LaunchPlayerShip
-0x0042BC00 BlitTbl0046a5aeFnBC00
+0x0042BC00 ShowCarrierLaunchSequence
 0x0042C410 GameNoBodyStubv7
 0x0042C420 InitializeDiskPromptTextContext
 0x0042C510 RewriteDiskFileGraphicsExtensions
@@ -991,10 +991,10 @@
 0x0042FAE0 ReleasePacketHandle
 0x0042FB20 ReturnConst3E8000
 0x0042FB30 ReturnConst3E8000v1
-0x0042FB40 SetTbl0059cd90FnFB40
-0x0042FC00 BlitTbl0059c950FnFC00
-0x00430150 BlitTbl0059de40Fn0150
-0x004304F0 BlitTbl005a6900Fn04F0
+0x0042FB40 CreateCannedSceneObject
+0x0042FC00 ShowCampaignVictorySequence
+0x00430150 ShowTigerClawEscapeScene
+0x004304F0 ShowTheEndScreen
 0x00430710 UpdateInputDeviceTransitions
 0x00430840 PollJoystickButtonEvents
 0x00430920 PollMenuInputDevices
@@ -1193,7 +1193,7 @@
 0x00436CB0 ConvertChar_Int
 0x00436D00 LoadBriefingRoom
 0x00436E30 BlitUiFn6E30
-0x00436F50 LoadTbl0059ca58Fn6F50
+0x00436F50 AwardCampaignMedal
 0x004370D0 BlitUiFn70D0
 0x00437250 BlitUiFn7250
 0x004373E0 BlitUiFn73E0

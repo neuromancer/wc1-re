@@ -501,6 +501,444 @@ unsigned int GetFixedOneMillionThunkAlt(void)
     return GetFixedOneMillionAlt();
 }
 
+/* Function start: 0x42FB40 */
+void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
+                             short distance, unsigned char *shape,
+                             short frame, short type, short scale)
+{
+    (void)unusedPitch;
+    *object = find_vacant_3d_object();
+    if (*object != -1) {
+        g_aeObjectClass_0059d100[*object] = OBJECT_CLASS_PLANET;
+        init_ijk(63);
+        alter_yaw(yaw, 63);
+        ScaleFixedVector(&g_aShipForwardVector_0059bce0[63],
+                         (int)distance << 8,
+                         &g_aShipPosition_0059c490[*object]);
+        g_asObjectViewFrame_0059d230[*object] = frame;
+        g_asObjectScreenAngle_0059cd90[*object] = type;
+        g_aeObjectType_0059b560[*object] = (enum ObjectType)type;
+        g_asObjectScreenScale_0059c950[*object] = scale;
+        g_apObjectShape_0059d2f0[*object] = shape;
+    }
+}
+
+/* Function start: 0x42FC00 */
+unsigned int ShowCampaignVictorySequence(void)
+{
+    CampaignVictoryProjectile projectiles[16];
+    unsigned char *planetShape;
+    unsigned char *projectileShape;
+    const ShortVector *origin;
+    CampaignVictoryProjectile *projectile;
+    short planetObject;
+    short spawnCountdown;
+    short vacant[2];
+    short vacantCount;
+    short textIndex;
+    short slot;
+    volatile short frame;
+    short animationFrame;
+    short elapsed;
+    int planetScale;
+    int verticalOffset;
+    int planetDepth;
+
+    PreloadMusicTrackHook(0x21);
+    spacetrack(0x21, 2, 1);
+    InitializeConversationText();
+    init_3Space_objects(0);
+    g_nCannedSceneMode_00469fac = 2;
+    g_bIntroSceneResourcesActive_00469d48 = 0;
+    set_up_action_sphere(0x12);
+    planetShape =
+        (unsigned char *)FetchDiskPacketRetrying(9, 3, 0);
+    projectileShape =
+        (unsigned char *)FetchDiskPacketRetrying(9, 2, 0);
+    CreateCannedSceneObject(&planetObject, -4, 0, 30000,
+                            planetShape, 0, 0, 0x50);
+    g_nScriptedViewObject_0046a8d0 = 1;
+    initialize_scripted_view(g_asCampaignVictoryViewScript_0046c160);
+    slot = 16;
+    projectile = projectiles;
+    do {
+        projectile->scale = -1;
+        projectile++;
+        slot--;
+    } while (slot != 0);
+
+    planetDepth = -1500;
+    frame = 0;
+    DAT_0059ab58 = 0;
+    verticalOffset = -70000;
+    DAT_00469fb4 = 1;
+    do {
+        if (frame == 0)
+            textIndex = 0;
+        else if (frame == 100)
+            textIndex = 1;
+        else if (frame == 180)
+            textIndex = 2;
+        else
+            textIndex = -1;
+        if (textIndex != -1) {
+            ClearViewport(&g_stConversationTextViewport_005a7570,
+                          DAT_0046999c);
+            SetTextContext(&g_stConversationTextContext_005a7760);
+            FormatTextBufferFromStart(
+                g_szCampaignVictoryTextFormat_0046af24, 0, 160,
+                g_apszCampaignVictoryText_0046ad90[textIndex]);
+        }
+
+        Update_3Space();
+        if (Draw_3Space_Frame() != 0) {
+            if (frame > 90)
+                g_asObjectScreenScale_0059c950[planetObject]++;
+            if (g_asObjectCollisionRadius_0059d710[61] < planetDepth) {
+                slot = 0;
+                projectile = projectiles;
+                do {
+                    if (projectile->scale != -1 &&
+                        g_asObjectCollisionRadius_0059d710[61] <
+                            projectile->depth) {
+                        projectile->screenX =
+                            (short)(projectile->x / projectile->depth);
+                        projectile->screenY =
+                            (short)(projectile->y / projectile->depth);
+                        projectile->scale = 0x10000L / projectile->depth;
+                        if (projectile->scale < 16) {
+                            projectile->scale = -1;
+                        } else {
+                            DrawSpriteScaled(
+                                &DAT_005a7510,
+                                (short)(projectile->screenX +
+                                        g_nViewCenterX_0059a852),
+                                (short)(projectile->screenY +
+                                        g_nViewCenterY_0059a854),
+                                projectileShape, 1, 0,
+                                (short)projectile->scale,
+                                projectile->flip);
+                            projectile->depth += 100;
+                            projectile->y += 4000;
+                        }
+                    }
+                    projectile++;
+                    slot++;
+                } while (slot < 16);
+
+                if (frame < 170 && --spawnCountdown < 1) {
+                    vacantCount = 0;
+                    slot = 0;
+                    projectile = projectiles;
+                    do {
+                        if (projectile->scale == -1) {
+                            vacant[vacantCount] = slot;
+                            vacantCount++;
+                            if (vacantCount == 2)
+                                break;
+                        }
+                        slot++;
+                        projectile++;
+                    } while (slot < 16);
+
+                    if (vacantCount > 1) {
+                        origin =
+                            &g_aCampaignVictoryProjectileOrigins_0046adb0[
+                                (short)RandomBelowOrEqual(3)];
+                        projectile = &projectiles[vacant[0]];
+                        projectile->depth = planetDepth;
+                        projectile->x =
+                            ((origin->x * planetScale) >> 8) * planetDepth;
+                        projectile->y =
+                            ((origin->y * planetScale) >> 8) *
+                                projectile->depth + verticalOffset;
+                        projectile->scale = 0x100;
+                        projectile->flip = origin->z;
+                        projectile->depth += 40;
+
+                        projectile = &projectiles[vacant[1]];
+                        projectile->depth = planetDepth;
+                        projectile->x =
+                            (((origin->x - 4) * planetScale) >> 8) *
+                                planetDepth;
+                        projectile->y =
+                            ((origin->y * planetScale) >> 8) *
+                                projectile->depth + verticalOffset;
+                        projectile->scale = 0x100;
+                        projectile->flip = origin->z;
+                        projectile->depth += 40;
+                    }
+                    spawnCountdown = 8;
+                }
+
+                planetScale = 0x40000L / planetDepth;
+                DrawSpriteScaled(
+                    &DAT_005a7510, g_nViewCenterX_0059a852,
+                    (short)(g_nViewCenterY_0059a854 +
+                            verticalOffset / planetDepth),
+                    planetShape, 0, 0, (short)planetScale, 0);
+                verticalOffset += 200;
+            }
+            dump_buffer_to_screen();
+            clear_view_buffer();
+            DIBslam();
+            DIBslamReal();
+        }
+        planetDepth += 15;
+        if (DAT_0059ab58 == 1)
+            break;
+        DIBslam();
+        DIBslamReal();
+        frame++;
+    } while (frame < 250);
+
+    ReleasePacketHandle((int)projectileShape);
+    ReleasePacketHandle((int)planetShape);
+    free_all_slots();
+    ReleaseTextFont(0);
+    free_3Space();
+    if (DAT_0059ab58 != 1) {
+        planetShape =
+            (unsigned char *)FetchDiskPacketRetrying(9, 5, 0);
+        animationFrame = 1;
+        ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+        WaitForVerticalBlankThunk();
+        DrawSpriteDefault(&DAT_005a6ba0, 0, 0, planetShape, 0);
+        elapsed = 0;
+        WaitForSceneAdvance(14, 0);
+        do {
+            SetFrameTimerPeriodDirect(8);
+            DrawSpriteDefault(&DAT_005a6ba0, 0, 0, planetShape,
+                              animationFrame++);
+            if (animationFrame > 17)
+                animationFrame = 12;
+            while ((short)IsFrameTickElapsed() == 0) {
+                if (DAT_0059ab58 != 0 || CheckEscaped() != 0) {
+                    elapsed = 1000;
+                    break;
+                }
+            }
+            elapsed++;
+            DIBslam();
+            DIBslamReal();
+        } while (elapsed < 40);
+        ReleasePacketHandle((int)planetShape);
+        FadeViewportPaletteToColour(&g_stModalSourceViewport_005a7670,
+                                    DAT_0046999c, 1);
+        ClearViewport(&g_stModalSourceViewport_005a7670,
+                      DAT_0046999c);
+        DIBslam();
+        DIBslamReal();
+        RestoreGamePalette();
+    }
+
+    DAT_0059ab58 = 0;
+    StopMusicUnlessSuppressed();
+    ReleaseMusicTrackHook(0x21);
+    g_bScriptedView_0046a8d4 = 0;
+    g_bIntroSceneResourcesActive_00469d48 = 1;
+    g_nCannedSceneMode_00469fac = 0;
+    FadeViewportPaletteToColour(&g_stModalSourceViewport_005a7670,
+                                DAT_0046999c, 1);
+    ClearViewport(&g_stModalSourceViewport_005a7670,
+                  DAT_0046999c);
+    DIBslam();
+    DIBslamReal();
+    RestoreGamePalette();
+    return 0;
+}
+
+/* Function start: 0x430150 */
+unsigned int ShowTigerClawEscapeScene(void)
+{
+    unsigned char *escapeShape;
+    FixedVector jumpOffset;
+    short approachStep;
+    short frame;
+    short effect;
+    int depth;
+    int verticalOffset;
+
+    approachStep = 15;
+    PreloadMusicTrackHook(0x22);
+    spacetrack(0x22, 2, 1);
+    init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
+    g_nCannedSceneMode_00469fac = 2;
+    g_bIntroSceneResourcesActive_00469d48 = 0;
+    InitializeConversationText();
+    set_up_action_sphere(0x13);
+    escapeShape =
+        (unsigned char *)FetchDiskPacketRetrying(9, 2, 0);
+    if (g_aObjectTypeData_00466458[
+            OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet == 0) {
+        g_aObjectTypeData_00466458[
+            OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet =
+                (unsigned char *)FetchDiskPacketRetrying(3, 14, 0);
+    }
+    g_nScriptedViewObject_0046a8d0 = 1;
+    initialize_scripted_view(g_asTigerClawEscapeViewScript_0046c238);
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
+    SetTextContext(&g_stConversationTextContext_005a7760);
+    FormatTextBufferFromStart(
+        g_szTigerClawEscapeOpeningFormat_0046af30, 0, 160,
+        g_pszTigerClawEscapeOpening_0046ada0);
+    DAT_00469fb4 = 1;
+    DAT_0059ab58 = 0;
+    depth = -1000;
+    verticalOffset = -70000;
+    frame = 0;
+    do {
+        Update_3Space();
+        if (Draw_3Space_Frame() != 0) {
+            if (g_asObjectCollisionRadius_0059d710[61] < depth &&
+                frame < 198) {
+                DrawSpriteScaled(
+                    &DAT_005a7510, g_nViewCenterX_0059a852,
+                    (short)(g_nViewCenterY_0059a854 +
+                            verticalOffset / depth),
+                    escapeShape, 0, 0, (short)(0x40000L / depth), 0);
+            }
+            dump_buffer_to_screen();
+            clear_view_buffer();
+        }
+        if (g_asObjectCollisionRadius_0059d710[61] < depth)
+            verticalOffset += 400;
+        depth += approachStep;
+        if (frame > 170)
+            approachStep = (short)(approachStep + 10);
+
+        switch (frame) {
+        case 150:
+            ClearViewport(&g_stConversationTextViewport_005a7570,
+                          DAT_0046999c);
+            SetTextContext(&g_stConversationTextContext_005a7760);
+            FormatTextBufferFromStart(
+                g_szTigerClawEscapeJumpFormat_0046af3c, 0, 160,
+                g_pszTigerClawEscapeJump_0046ada4);
+            break;
+        case 190:
+            effect = find_vacant_3d_object();
+            if (effect != -1) {
+                set_objects_data(effect,
+                                 OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
+                                 -1);
+                ScaleFixedVector(&g_aShipForwardVector_0059bce0[61],
+                                 0x271000, &jumpOffset);
+                g_asObjectScale_0059de40[effect] =
+                    (short)(g_asObjectScale_0059de40[effect] << 2);
+                zero_vector(&g_aShipVelocity_0059c010[effect]);
+                AddFixedVectors(&g_aShipPosition_0059c490[61],
+                                &jumpOffset,
+                                &g_aShipPosition_0059c490[effect]);
+            }
+            break;
+        case 198:
+            ClearViewport(&DAT_005a7510,
+                          g_cViewportClearColour_004699a0);
+            g_bViewportDirty_00469fc4 = 1;
+            break;
+        case 210:
+            ClearViewport(&g_stConversationTextViewport_005a7570,
+                          DAT_0046999c);
+            SetTextContext(&g_stConversationTextContext_005a7760);
+            FormatTextBufferFromStart(
+                g_szTigerClawEscapeClosingFormat_0046af48, 0, 160,
+                g_pszTigerClawEscapeClosing_0046ada8);
+            break;
+        }
+        if (DAT_0059ab58 == 1)
+            break;
+        frame++;
+        DIBslam();
+        DIBslamReal();
+    } while (frame < 260);
+
+    ReleasePacketHandle((int)g_aObjectTypeData_00466458[
+        OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet);
+    g_aObjectTypeData_00466458[
+        OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet = 0;
+    ReleasePacketHandle((int)escapeShape);
+    free_all_slots();
+    ReleaseTextFont(0);
+    free_3Space();
+    ClearViewport(&g_stConversationTextViewport_005a7570,
+                  DAT_0046999c);
+    StopMusicUnlessSuppressed();
+    ReleaseMusicTrackHook(0x22);
+    g_bScriptedView_0046a8d4 = 0;
+    g_nCannedSceneMode_00469fac = 0;
+    g_bIntroSceneResourcesActive_00469d48 = 1;
+    return 0;
+}
+
+/* Function start: 0x4304F0 */
+unsigned int ShowTheEndScreen(short enableFireworks)
+{
+    FireworkState *firework;
+    short activeFireworks;
+    short frame;
+    short slot;
+
+    SetEventManagerPump(get_player_input);
+    PreloadMusicTrackHook(0x17);
+    spacetrack(0x17, 2, 1);
+    InitializeConversationViewport();
+    ViewMedals();
+    ReleaseTextFont(0);
+    ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
+    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+    InitializeFireworks();
+    g_pFireworkShape_005a6a68 =
+        (unsigned char *)FetchDiskPacketRetrying(9, 0x11, 0);
+    g_pIntroFont_005a8960 =
+        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+    print_subtitle(&DAT_005a76b0, 0x3a, g_pszTheEnd_0046adc8);
+    PanToScreen(&DAT_005a76b0, &DAT_005a6ba0);
+    DAT_0059ab58 = 0;
+    DAT_00469fb4 = 1;
+    activeFireworks = 0;
+    frame = 0;
+    do {
+        ClearViewport(&DAT_005a76b0, DAT_0046999c);
+        if (enableFireworks != 0 && activeFireworks != 0 &&
+            (RandomBelowOrEqual(100) < 40 || frame > 280)) {
+            slot = 0;
+            do {
+                firework = &g_aFireworks_005a6900[slot];
+                if (firework->frame == -1) {
+                    firework->frame = 0;
+                    firework->x = RandomInRange(0, DAT_005a7510.right);
+                    firework->y = RandomInRange(0, DAT_005a7510.bottom);
+                    firework->variant = RandomInRange(0, 2);
+                    break;
+                }
+                slot++;
+            } while (slot < 30);
+        }
+        activeFireworks = TheEndFireWorks(&DAT_005a76b0, 30);
+        if (frame < 160) {
+            print_subtitle(&DAT_005a76b0, 0x3a,
+                           g_pszTheEnd_0046adc8);
+        } else if (frame > 190) {
+            StopMusic((short)(320 - frame));
+            print_subtitle(&DAT_005a76b0, 0x3a,
+                           g_pszForNow_0046adcc);
+        }
+        frame++;
+        RefreshMemoryStatusOverlay();
+        DIBslam();
+        DIBslamReal();
+    } while (frame < 320);
+
+    ReleasePacketHandle((int)g_pFireworkShape_005a6a68);
+    ReleasePacketHandle((int)g_pIntroFont_005a8960);
+    ResetScreenClipToFullHeight();
+    StopMusicUnlessSuppressed();
+    ReleaseMusicTrackHook(0x17);
+    return 0;
+}
+
 /* Function start: 0x430710 */
 short __stdcall UpdateInputDeviceTransitions(short raw)
 {
@@ -1311,6 +1749,122 @@ void PrintPaletteAllocationMap(void)
         printf("\n");
         row--;
     } while (row != 0);
+}
+
+/* Function start: 0x431A10 */
+void LoadJoystickCalibrationFile(short horizontalRange,
+                                 short verticalRange,
+                                 short horizontalDeadZone,
+                                 short verticalDeadZone)
+{
+    unsigned short storedCentreX;
+    unsigned short storedCentreY;
+    unsigned short minimumX;
+    unsigned short maximumX;
+    unsigned short maximumY;
+    unsigned short minimumY;
+    short activeDevice;
+    InputDeviceSample samples[2];
+    int file;
+    int failed;
+    int centreX;
+    int centreY;
+
+    activeDevice = -1;
+    failed = 1;
+    if (horizontalRange == 0)
+        horizontalRange += (short)failed;
+    if (verticalRange == 0)
+        verticalRange++;
+    g_nJoystickFailureValue_005a81e0 = -1;
+    SampleBothJoysticks(samples, 0xffff);
+    if (samples[0].x != -1 && samples[0].y != -1)
+        activeDevice = 0;
+    else if (samples[1].x != -1 && samples[1].y != -1)
+        activeDevice = 1;
+
+    if (activeDevice != -1) {
+        file = _open("j.cal", 0x8000);
+        if (file != -1) {
+            failed = _read(file, &activeDevice, 2) <= 0;
+            if (failed == 0)
+                failed = _read(file, &minimumX, 2) <= 0;
+            if (failed == 0)
+                failed = _read(file, &minimumY, 2) <= 0;
+            if (failed == 0)
+                failed = _read(file, &maximumX, 2) <= 0;
+            if (failed == 0)
+                failed = _read(file, &maximumY, 2) <= 0;
+            if (failed == 0)
+                failed = _read(file, &storedCentreX, 2) <= 0;
+            if (failed == 0)
+                failed = _read(file, &storedCentreY, 2) <= 0;
+            g_nJoystickCentreX_005a81dc = (unsigned int)storedCentreX;
+            g_nJoystickCentreY_005a81d8 = (unsigned int)storedCentreY;
+            _close(file);
+            if (failed != 0)
+                _unlink("j.cal");
+        }
+
+        if (failed != 0) {
+            GetJoystickDevCaps(activeDevice,
+                               (short *)&minimumX,
+                               (short *)&maximumX,
+                               (short *)&minimumY,
+                               (short *)&maximumY);
+            centreX = ((int)minimumX + (int)maximumX) / 2;
+            centreY = ((int)maximumY + (int)minimumY) / 2;
+        } else {
+            centreX = g_nJoystickCentreX_005a81dc;
+            centreY = g_nJoystickCentreY_005a81d8;
+        }
+
+        g_nJoystickCalibrationMinimumX_0059df68 = centreX;
+        g_nJoystickCalibrationMaximumX_0059df6c = centreX;
+        if (centreX > 10) {
+            g_nJoystickCalibrationMinimumX_0059df68 = centreX - 10;
+            g_nJoystickCalibrationMaximumX_0059df6c = centreX + 10;
+        }
+        g_nJoystickCalibrationMinimumY_0059df64 = centreY;
+        g_nJoystickCalibrationMaximumY_0059df70 = centreY;
+        if (centreY > 10) {
+            g_nJoystickCalibrationMinimumY_0059df64 = centreY - 10;
+            g_nJoystickCalibrationMaximumY_0059df70 = centreY + 10;
+        }
+
+        g_nJoystickRightScale_005a81d0 =
+            g_nJoystickCalibrationMinimumX_0059df68 /
+            (int)horizontalRange;
+        g_nJoystickDownScale_005a81d4 =
+            g_nJoystickCalibrationMinimumY_0059df64 /
+            (int)verticalRange;
+        g_nJoystickLeftScale_005a81ac =
+            g_nJoystickRightScale_005a81d0;
+        if (g_nJoystickRightScale_005a81d0 == 0)
+            g_nJoystickLeftScale_005a81ac = 1;
+        g_nJoystickUpScale_005a81a8 =
+            g_nJoystickDownScale_005a81d4;
+        if (g_nJoystickDownScale_005a81d4 == 0)
+            g_nJoystickUpScale_005a81a8 = 1;
+        if (g_nJoystickRightScale_005a81d0 == 0)
+            g_nJoystickRightScale_005a81d0 = 1;
+        if (g_nJoystickDownScale_005a81d4 == 0)
+            g_nJoystickDownScale_005a81d4 = 1;
+
+        g_nJoystickCentreX_005a81dc = centreX;
+        g_nJoystickCentreY_005a81d8 = centreY;
+        g_nJoystickMinimumX_005a81b8 =
+            centreX - horizontalRange * g_nJoystickLeftScale_005a81ac;
+        g_nJoystickMinimumY_005a81bc =
+            centreY - verticalRange * g_nJoystickUpScale_005a81a8;
+        g_nJoystickMaximumX_005a81b0 =
+            horizontalRange * g_nJoystickLeftScale_005a81ac + centreX;
+        g_nJoystickMaximumY_005a81b4 =
+            verticalRange * g_nJoystickUpScale_005a81a8 + centreY;
+        g_nJoystickHorizontalDeadZone_005a81a4 = horizontalDeadZone;
+        g_nJoystickVerticalDeadZone_005a81a0 = verticalDeadZone;
+    }
+    g_nActiveInputDevice_005a819c = activeDevice;
 }
 
 /* Function start: 0x431D20 */

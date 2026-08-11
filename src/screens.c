@@ -87,6 +87,62 @@ unsigned int ViewMedals(void)
     } while (1);
 }
 
+/* Function start: 0x436F50 */
+unsigned int AwardCampaignMedal(short medal)
+{
+    int *packet;
+
+    if (medal == 3 && g_stCampaignState_0059ca50.medals[3] > 0)
+        return 0;
+
+    PreloadMusicTrackHook(0x25);
+    PreloadMusicTrackHook(0x26);
+    PreloadMusicTrackHook(0x27);
+    PreloadMusicTrackHook(0x28);
+
+    switch (medal) {
+    case 0:
+    case 1:
+        spacetrack(0x27, 1, -1);
+        break;
+    case 2:
+    case 4:
+        spacetrack(0x28, 1, -1);
+        break;
+    case 3:
+        spacetrack(0x26, 1, -1);
+        break;
+    }
+
+    packet = (int *)FetchDiskPacketRetrying(
+        g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
+        2, 0);
+    g_pMedalSceneData_00598c20 = (unsigned char *)packet + packet[0];
+    g_pMedalTextData_00598af8 = (unsigned char *)packet + packet[1];
+    InitializeConversationViewport();
+    InitializeConversationText();
+    g_pMedalSceneShape_0046e2f4 =
+        (unsigned char *)FetchDiskPacketRetrying(4, 8, 0);
+    g_pConversationBackdropShape_00598c04 =
+        (unsigned char *)FetchDiskPacketRetrying(4, 10, 0);
+    g_nConversationMedalIndex_00598c08 = medal;
+    g_stCampaignState_0059ca50.medals[medal]++;
+    SceneDirector(5, g_pMedalSceneData_00598c20,
+                  g_pMedalTextData_00598af8);
+    DAT_0059ab58 = 0;
+    FreePacketAndClear((int *)&g_pConversationBackdropShape_00598c04, 8);
+    FreePacketAndClear((int *)&g_pMedalSceneShape_0046e2f4, 8);
+    ReleasePacketHandle((int)packet);
+    StopMusicUnlessSuppressed();
+    ReleaseTextFont(0);
+    ResetScreenClipToFullHeight();
+    ReleaseMusicTrackHook(0x25);
+    ReleaseMusicTrackHook(0x26);
+    ReleaseMusicTrackHook(0x27);
+    ReleaseMusicTrackHook(0x28);
+    return 0;
+}
+
 /* Function start: 0x4370D0 */
 unsigned int DrawMedalChest(char *text, short duration)
 {
