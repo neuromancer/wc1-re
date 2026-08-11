@@ -559,8 +559,11 @@ void FillFixedVectorWithRandomComponents(short limit,
                                          FixedVector *vector);          /* 0x004187E0 */
 void random_radial(const FixedVector *center, short radius,
                    FixedVector *position);                           /* 0x00418800 */
+void MakeRandomNormalizedVector(FixedVector *vector);                 /* 0x00418840 */
 void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical);       /* 0x00418890 */
+void ConvertShortVectorToFixedVector(const ShortVector *source,
+                                     FixedVector *destination);       /* 0x00418980 */
 int dot_product(const FixedVector *left, const FixedVector *right);    /* 0x004189E0 */
 short vector_angle(FixedVector left, FixedVector right);              /* 0x00418A30 */
 void vector_cross_product(const FixedVector *left,
@@ -933,6 +936,9 @@ unsigned int __stdcall UpdateSceneAnimationObject(
     SceneAnimationObject *object, Viewport *viewport);                 /* 0x00424EF0 */
 void PlaySceneAnimation(char *text, short animation, short duration);  /* 0x00425500 */
 unsigned int WaitForKeyExceptXOrF12(void);                            /* 0x00425730 */
+void ApplyAnswerTextCipher(char *text, signed char direction);        /* 0x004258D0 */
+void LoadAnswerPromptAndResponse(short entry, char *prompt,
+                                 char *response);                     /* 0x00425910 */
 void SceneEnterHook(void);                                            /* 0x00425AF0 */
 void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
                                short columns, short rows);             /* 0x00425B00 */
@@ -1505,6 +1511,7 @@ void DrawViewportPixel(Viewport *viewport, short x, short y,
 int GetViewportPixel(Viewport *viewport, short x, short y);            /* 0x00441B60 */
 void DrawViewportLine(Viewport *viewport, short x1, short y1,
                       short x2, short y2, short colour);             /* 0x00441BA0 */
+void TriangleRasterizerHook(void);                                    /* 0x00441BF0 */
 void DrawFilledViewportRect(Viewport *viewport, short left, short top,
                             short right, short bottom,
                             short colour);                           /* 0x00441C70 */
@@ -1534,6 +1541,7 @@ void fizzle_fade(Viewport *source, Viewport *destination,
 void snow_viewport(Viewport *viewport, int effect,
                    unsigned int colour);                              /* 0x00442300 */
 void UpdateStreamerStoppedFlag(void);                                    /* 0x00442330 */
+void SignalAudioMixerWakeEvent(void);                                 /* 0x00442350 */
 void InitializeAudioStreamer(HWND window);                            /* 0x00442370 */
 void Streamer_open(const char *streamName);                           /* 0x004423B0 */
 void Streamer_play(void);                                             /* 0x00442430 */

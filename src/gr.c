@@ -615,6 +615,11 @@ void DrawViewportLine(Viewport *viewport, short x1, short y1,
                     0, colour);
 }
 
+/* Function start: 0x441BF0 */
+void TriangleRasterizerHook(void)
+{
+}
+
 /* Function start: 0x441C70 */
 void DrawFilledViewportRect(Viewport *viewport, short left, short top,
                             short right, short bottom, short colour)
@@ -833,6 +838,13 @@ void UpdateStreamerStoppedFlag(void)
     if (DAT_00465058 != 0)
     g_nMusicTrackComplete_0046aa04 =
         (g_dwStreamerState_00597cd0 & 4) == 0;
+}
+
+/* Function start: 0x442350 */
+void SignalAudioMixerWakeEvent(void)
+{
+    if (DAT_00465058 != 0)
+        ix_streamer_configure(2, 0);
 }
 
 /* Function start: 0x442370 */

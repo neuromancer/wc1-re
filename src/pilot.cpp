@@ -23,6 +23,53 @@ unsigned int WaitForKeyExceptXOrF12(void)
     return 0;
 }
 
+/* Function start: 0x4258D0 */
+void ApplyAnswerTextCipher(char *text, signed char direction)
+{
+    short position;
+
+    position = 0;
+    while (*text != '\0') {
+        position++;
+        *text += (signed char)((position % 30) - 38) * direction;
+        text++;
+    }
+}
+
+/* Function start: 0x425910 */
+void LoadAnswerPromptAndResponse(short entry, char *prompt,
+                                 char *response)
+{
+    char *promptLine;
+    char *scan;
+    char *responseLine;
+    short line;
+    char *packet;
+
+    packet = 0;
+    PromptInsertNumberedDisk(0x3c);
+    line = 0;
+    packet = (char *)FetchDiskPacketRetrying(0x3c, 0, 0);
+    promptLine = packet;
+    scan = packet;
+    responseLine = packet;
+    do {
+        if (entry * 2 - line == 0)
+            promptLine = scan;
+        if (entry * 2 - line == -1)
+            responseLine = scan;
+        while (*scan != '\n')
+            scan++;
+        scan[-1] = '\0';
+        *scan = '\0';
+        line++;
+        scan++;
+    } while (line < 20);
+    DosStrcpy(prompt, promptLine);
+    DosStrcpy(response, responseLine);
+    FreePacketAndClear((int *)&packet, 0);
+}
+
 /* Function start: 0x425AF0 */
 void SceneEnterHook(void)
 {

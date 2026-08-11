@@ -357,6 +357,15 @@ void random_radial(const FixedVector *center, short radius,
     AddFixedVectors(center, &offset, position);
 }
 
+/* Function start: 0x418840 */
+void MakeRandomNormalizedVector(FixedVector *vector)
+{
+    vector->x = (unsigned short)RandomInRange(0x40, 0xff);
+    vector->y = (unsigned short)RandomInRange(0x40, 0xff);
+    vector->z = (unsigned short)RandomInRange(0x40, 0xff);
+    NormalizeFixedVector(vector);
+}
+
 /* Function start: 0x418890 */
 void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical)
@@ -374,6 +383,15 @@ void rectangular_to_spherical(const FixedVector *rectangular,
         spherical->yaw = -spherical->yaw;
     spherical->pitch = (short)(ArcCos(
         DivideFixed(rectangular->y, spherical->radius)) - 90);
+}
+
+/* Function start: 0x418980 */
+void ConvertShortVectorToFixedVector(const ShortVector *source,
+                                     FixedVector *destination)
+{
+    destination->x = (int)source->x << 8;
+    destination->y = (int)source->y << 8;
+    destination->z = (int)source->z << 8;
 }
 
 /* Function start: 0x4189E0 */

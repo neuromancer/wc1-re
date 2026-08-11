@@ -479,9 +479,9 @@
 0x00418780 DoLocalFn8780
 0x004187E0 DoLocalFn87E0
 0x00418800 random_radial
-0x00418840 DoLocalFn8840
+0x00418840 MakeRandomNormalizedVector
 0x00418890 DoLocalFn8890
-0x00418980 DoLocalFn8980
+0x00418980 ConvertShortVectorToFixedVector
 0x004189E0 dot_product
 0x00418A30 vector_angle
 0x00418A80 DoLocalFn8A80
@@ -787,8 +787,8 @@
 0x00425500 PlaySceneAnimation
 0x00425730 WaitForKeyExceptXOrF12
 0x00425770 ShowMeanwhileTransition
-0x004258D0 HelperOf4259B0D
-0x00425910 HelperOf4259B0E
+0x004258D0 ApplyAnswerTextCipher
+0x00425910 LoadAnswerPromptAndResponse
 0x004259B0 PromptForAnswerText
 0x00425AF0 GameNoBodyStubv3
 0x00425B00 CreateDebugOverlayConsole
@@ -1315,7 +1315,7 @@
 0x00441B20 DrawViewportPixel
 0x00441B60 GetViewportPixel
 0x00441BA0 CombatRoutine05
-0x00441BF0 DispatchTriangleRasterizer
+0x00441BF0 TriangleRasterizerHook
 0x00441C70 LoopCombatFn1C70
 0x00441CF0 SetCombatFn1CF0
 0x00441DD0 DrawViewportEllipse
@@ -1326,7 +1326,7 @@
 0x00442200 fizzle_fade
 0x00442300 snow_viewport
 0x00442330 GetAudioStreamFn2330
-0x00442350 HelperOf402530C
+0x00442350 SignalAudioMixerWakeEvent
 0x00442370 GetAudioStreamFn2370
 0x004423B0 Streamer_open
 0x00442430 Streamer_play

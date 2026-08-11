@@ -4,7 +4,7 @@ Audit date: 2026-08-11.
 
 This is the source-reconstruction backlog obtained by comparing the live Ghidra
 program `WC1%2FWC1.EXE` with every `/* Function start: 0x... */` annotation in
-`src/**/*.c` and `src/**/*.cpp`. It contains **85 functions**: **83 ordinary
+`src/**/*.c` and `src/**/*.cpp`. It contains **79 functions**: **77 ordinary
 candidates** and **2 compiler thunks** which must not be reproduced manually.
 
 The proposed compilation units follow the current source adjacency and
@@ -48,15 +48,11 @@ Ghidra status meanings:
 | `0x0040ED30` | `LoopNavFnED30` | — | `src/nav.c` | verified; exported |
 | `0x004176C0` | `DrawG0046905cFn76C0` | — | `src/cockpt.c` | verified |
 | `0x004185C0` | `DoLocalFn85C0` | — | `src/geom.c` | verified; exported |
-| `0x00418840` | `DoLocalFn8840` | — | `src/geom.c` | verified; exported |
-| `0x00418980` | `DoLocalFn8980` | — | `src/geom.c` | verified; exported |
 | `0x004198A0` | `GetG0059c490Fn98A0` | — | `src/geom.c` | verified; exported |
 | `0x0041A130` | `SetUiFnA130` | — | `src/geom.c` | verified; exported |
 | `0x004219C0` | `LoadGamePaletteFile` | — | `src/logic.c` | verified |
 | `0x00421F50` | `SetNavFn1F50` | — | `src/logic.c` | verified |
 | `0x00425770` | `ShowMeanwhileTransition` | — | `src/pilot.cpp` | verified |
-| `0x004258D0` | `HelperOf4259B0D` | — | `src/pilot.cpp` | verified; exported |
-| `0x00425910` | `HelperOf4259B0E` | — | `src/pilot.cpp` | verified; exported |
 | `0x004259B0` | `PromptForAnswerText` | — | `src/pilot.cpp` | verified; exported |
 | `0x00426000` | `ScanTbl0059ca74Fn6000` | — | `src/pilot.cpp` | verified |
 | `0x004265A0` | `LoopUiFn65A0` | — | `src/pilot.cpp` | verified; exported |
@@ -118,8 +114,6 @@ Ghidra status meanings:
 | `0x0043F0D0` | `LoopLocalFnF0D0` | — | `src/screens.c` | verified |
 | `0x0043F425` | `ScanTbl0046f915FnF425` | — | `src/screens.c` | verified |
 | `0x0043F5A9` | `ScanTbl0046f915FnF5A9` | — | `src/screens.c` | verified |
-| `0x00441BF0` | `DispatchTriangleRasterizer` | — | `src/gr.c` | verified as a one-instruction `RET` hook; exported |
-| `0x00442350` | `HelperOf402530C` | — | `src/gr.c` | verified; exported |
 
 ## Mac ordering evidence retained for later naming
 
@@ -127,13 +121,11 @@ Ghidra status meanings:
   `auto_pilot_sequence` and `ejection_sequence`; neither Mac name applies to it.
 - `0x004176C0` is a Win32 split helper between the exact Mac-derived
   `explosion_draw` and `cockpit_explosion` functions in the `cockpt` unit.
-- The five `src/geom.c` gaps lie in the Mac CODE 4 `3d` run, but each is an
-  insertion or otherwise lacks a safe one-to-one body match. In particular,
-  `0x004185C0` lies between `equ_vector` and `zero_vector`, `0x00418840`
-  between `random_radial` and `rectangular_to_spherical`, `0x00418980`
-  between `rectangular_to_spherical` and `vector_dot_product`, and
-  `0x0041A130` between `clip_rotation` and
-  `transform_objects_to_your_view`.
+- The three remaining `src/geom.c` gaps lie in the Mac CODE 4 `3d` run, but
+  each is an insertion or otherwise lacks a safe one-to-one body match.
+  `0x004185C0` lies between `equ_vector` and `zero_vector`, `0x004198A0`
+  lacks a safe body correspondence within the run, and `0x0041A130` lies
+  between `clip_rotation` and `transform_objects_to_your_view`.
 - `0x00434D10` is in the historical `rand` neighborhood but is a compiler
   jump thunk to the CRT, not a Mac-named game routine.
 - The large `0x00439C0E`–`0x0043F5A9` raster block has no safe mapping to the
@@ -153,16 +145,16 @@ Ghidra status meanings:
   `0x0042E050`–`0x0042E085`, respectively. Their prior prototypes, tags, and
   plate comment were restored.
 - Every source annotation now resolves to an exact live Ghidra function entry.
-  Every one of the 85 backlog rows above also resolves to an exact entry and a
+  Every one of the 79 backlog rows above also resolves to an exact entry and a
   non-empty listing. The Ghidra program was saved after verification.
 
-## Export and initial implementation progress
+## Export and implementation progress
 
 - All 28 assembly snippets that were absent at the start of this audit now
   exist in `code-full`. Each export has the same instruction count and return
   form as its exact live Ghidra function. Existing exports were not rewritten.
-- Four confirmed `wc-developer` functions were removed from the backlog after
-  reconstruction and binary-comp comparison:
+- Ten confirmed `wc-developer` functions were removed from the backlog across
+  two reconstruction tranches after binary-comp comparison:
 
   | Address | Implemented name | Compilation unit | Similarity |
   |---|---|---|---:|
@@ -170,12 +162,18 @@ Ghidra status meanings:
   | `0x00425730` | `WaitForKeyExceptXOrF12` | `src/pilot.cpp` | 100.00% |
   | `0x0042E050` | `CalcRectangleArea` | `src/music.c` | 100.00% |
   | `0x00432050` | `ReportSpaceFlightMaxFps` | `src/dib.c` | 100.00% |
+  | `0x00418840` | `MakeRandomNormalizedVector` | `src/geom.c` | 100.00% |
+  | `0x00418980` | `ConvertShortVectorToFixedVector` | `src/geom.c` | 100.00% |
+  | `0x004258D0` | `ApplyAnswerTextCipher` | `src/pilot.cpp` | 100.00% |
+  | `0x00425910` | `LoadAnswerPromptAndResponse` | `src/pilot.cpp` | 89.83% |
+  | `0x00441BF0` | `TriangleRasterizerHook` | `src/gr.c` | 100.00% |
+  | `0x00442350` | `SignalAudioMixerWakeEvent` | `src/gr.c` | 100.00% |
 
-- Ghidra was synchronized with the two new behavior-based names and all four
-  reconstructed prototypes, then saved.
+- Ghidra was synchronized with the reconstructed prototypes and behavior-based
+  names, then saved after each tranche.
 - `ThunkForwarder40CB20` and `_rand` remain explicitly excluded as
   compiler/linker-generated jump thunks.
 
 The compiler configuration and original executable were not modified, and the
-game was not run. `make compare-func` only rebuilt and linked the reconstruction
-for the four assembly comparisons above.
+game was not run. `make compare-func` and `make verify` only rebuilt and linked
+the reconstruction for comparison and repository audits.
