@@ -94,8 +94,8 @@ void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
 }
 
 /* Function start: 0x43F7C0 */
-short FindMenuRegionAtPoint(short x, short y,
-                            const TitleMenuRegion *regions)
+int FindMenuRegionAtPoint(short x, short y,
+                          const TitleMenuRegion *regions)
 {
     short index;
 

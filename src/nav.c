@@ -169,8 +169,8 @@ short NavMapLabelPositionAvailable(short x, short y,
             while (checkX < x + width && available != 0) {
                 checkY = y;
                 while (checkY < y + height && available != 0) {
-                    available = (short)(NavMapPointInsideReservedArea(
-                        area, checkX, checkY) < 1);
+                    available = (short)((unsigned short)
+                        NavMapPointInsideReservedArea(area, checkX, checkY) == 0);
                     checkY++;
                 }
                 checkX++;
@@ -375,16 +375,11 @@ void DrawNavSquareMarker(short x, short y, short size, short shadow,
 void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
                             short size, signed char colour)
 {
-    volatile short bottom;
-    volatile short right;
-
-    bottom = (short)(y + size);
-    right = (short)(x + size);
     DrawViewportLine(viewport, x, (short)(y - size),
-                     right, bottom, colour);
-    DrawViewportLine(viewport, right, bottom,
-                     (short)(x - size), bottom, colour);
-    DrawViewportLine(viewport, (short)(x - size), bottom,
+                     (short)(x + size), (short)(y + size), colour);
+    DrawViewportLine(viewport, (short)(x + size), (short)(y + size),
+                     (short)(x - size), (short)(y + size), colour);
+    DrawViewportLine(viewport, (short)(x - size), (short)(y + size),
                      x, (short)(y - size), colour);
 }
 
@@ -433,19 +428,18 @@ void DrawNavHazardMarker(FixedVector navPosition, FixedVector offset,
                          short size, unsigned short markerColour,
                          unsigned short textColour, const char *text)
 {
-    FixedVector position;
     short x;
     short y;
 
-    AddFixedVectors(&navPosition, &offset, &position);
+    AddFixedVectors(&navPosition, &offset, &navPosition);
     ScaleNavMapMarkerSize(&size);
-    nav_getxy(&x, &y, position.x, position.z);
+    nav_getxy(&x, &y, navPosition.x, navPosition.z);
     DrawNavRectangleMarker(x, y, size, 0, markerColour, 1);
     PlaceNavMapLabel(x, y, textColour, text);
 }
 
 /* Function start: 0x40D980 */
-void DrawNavPlayerMarker(unsigned char colour, short reserve)
+void DrawNavPlayerMarker(short colour, short reserve)
 {
     short x;
     short y;

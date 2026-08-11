@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.67% average)</summary>
+<summary>All 1,472 function similarity scores (97.69% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -823,7 +823,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `killbrd.c` | `ClearRoomMenuCursorFrame` | `0x43F720` | 100.00% |
 | `killbrd.c` | `SelectRoomMenuLabel` | `0x43F730` | 100.00% |
 | `killbrd.c` | `InitializeRoomMenu` | `0x43F750` | 100.00% |
-| `killbrd.c` | `FindMenuRegionAtPoint` | `0x43F7C0` | 96.97% |
+| `killbrd.c` | `FindMenuRegionAtPoint` | `0x43F7C0` | 100.00% |
 | `killbrd.c` | `InitializeRoomViewports` | `0x43F810` | 100.00% |
 | `killbrd.c` | `RecRoom` | `0x43F940` | 85.91% |
 | `killbrd.c` | `ShowChalkBoard` | `0x440510` | 84.47% |
@@ -1087,7 +1087,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `music.c` | `PlaySfxWaveFileByNumber` | `0x42EF30` | 100.00% |
 | `nav.c` | `NavMapPointInsideReservedArea` | `0x40D090` | 100.00% |
 | `nav.c` | `NavMapLabelFits` | `0x40D0E0` | 100.00% |
-| `nav.c` | `NavMapLabelPositionAvailable` | `0x40D120` | 95.38% |
+| `nav.c` | `NavMapLabelPositionAvailable` | `0x40D120` | 100.00% |
 | `nav.c` | `ResetNavMapReservedAreas` | `0x40D1D0` | 100.00% |
 | `nav.c` | `ReserveNavMapArea` | `0x40D1E0` | 100.00% |
 | `nav.c` | `ResetNavMapLabels` | `0x40D240` | 100.00% |
@@ -1099,13 +1099,13 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `DrawNavRectangleMarker` | `0x40D5A0` | 100.00% |
 | `nav.c` | `DrawNavSquareOutline` | `0x40D640` | 100.00% |
 | `nav.c` | `DrawNavSquareMarker` | `0x40D680` | 89.04% |
-| `nav.c` | `DrawNavTriangleOutline` | `0x40D740` | 80.36% |
+| `nav.c` | `DrawNavTriangleOutline` | `0x40D740` | 100.00% |
 | `nav.c` | `DrawNavTriangleMarker` | `0x40D7D0` | 100.00% |
 | `nav.c` | `DrawNavCrossMarker` | `0x40D830` | 100.00% |
 | `nav.c` | `SetScreenClipRect` | `0x40D8C0` | 100.00% |
-| `nav.c` | `DrawNavHazardMarker` | `0x40D8F0` | 95.65% |
-| `nav.c` | `DrawNavPlayerMarker` | `0x40D980` | 92.68% |
-| `nav.c` | `BuildMap` | `0x40DA00` | 90.51% |
+| `nav.c` | `DrawNavHazardMarker` | `0x40D8F0` | 100.00% |
+| `nav.c` | `DrawNavPlayerMarker` | `0x40D980` | 100.00% |
+| `nav.c` | `BuildMap` | `0x40DA00` | 91.24% |
 | `nav.c` | `UpdateInflightNavText` | `0x40DDA0` | 100.00% |
 | `nav.c` | `FormatNavCoordinates` | `0x40DE70` | 100.00% |
 | `nav.c` | `DrawSelectedNavLegendEntry` | `0x40DEA0` | 100.00% |
@@ -1114,7 +1114,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `DrawNavLocationReadout` | `0x40DF70` | 100.00% |
 | `nav.c` | `BriefingMap_LoadShapes` | `0x40E190` | 100.00% |
 | `nav.c` | `BriefingMap_DisplayMap` | `0x40E210` | 97.56% |
-| `nav.c` | `SelectNavObjectiveAtPoint` | `0x40E2B0` | 91.95% |
+| `nav.c` | `SelectNavObjectiveAtPoint` | `0x40E2B0` | 95.40% |
 | `nav.c` | `CentreMouseOnCurrentNavObjective` | `0x40E3C0` | 100.00% |
 | `nav.c` | `ShowConfedNavScan` | `0x40E430` | 100.00% |
 | `nav.c` | `InflightComputer` | `0x40E480` | 95.32% |
@@ -1122,9 +1122,9 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `ReleaseNearHeapBlock` | `0x40E900` | 96.30% |
 | `nav.c` | `PurgeNearHeapBlocks` | `0x40E950` | 100.00% |
 | `nav.c` | `InitializeNearHeap` | `0x40E9E0` | 100.00% |
-| `nav.c` | `AllocateNearHeapBlockFromEnd` | `0x40EB70` | 91.54% |
-| `nav.c` | `AllocateNearHeapBlockByFlags` | `0x40ED30` | 95.04% |
-| `nav.c` | `add_statistics` | `0x40EFE0` | 100.00% |
+| `nav.c` | `AllocateNearHeapBlockFromEnd` | `0x40EB70` | 93.08% |
+| `nav.c` | `AllocateNearHeapBlockByFlags` | `0x40ED30` | 95.74% |
+| `nav.c` | `add_statistics` | `0x40EFE0` | 77.78% |
 | `nav.c` | `PostMission` | `0x40F010` | 83.17% |
 | `nav.c` | `FullMissionScore` | `0x40F190` | 80.95% |
 | `nav.c` | `PlayersMissionScore` | `0x40F1E0` | 80.00% |

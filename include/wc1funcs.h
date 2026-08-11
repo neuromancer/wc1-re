@@ -327,7 +327,7 @@ void DrawNavHazardMarker(FixedVector navPosition, FixedVector offset,
                          short size, unsigned short markerColour,
                          unsigned short textColour,
                          const char *text);                           /* 0x0040D8F0 */
-void DrawNavPlayerMarker(unsigned char colour, short reserve);        /* 0x0040D980 */
+void DrawNavPlayerMarker(short colour, short reserve);                /* 0x0040D980 */
 void BuildMap(short showPlayer);                                      /* 0x0040DA00 */
 void UpdateInflightNavText(short showColon);                          /* 0x0040DDA0 */
 void FormatNavCoordinates(unsigned char *out);                                 /* 0x0040DE70 */
@@ -1596,8 +1596,8 @@ void SelectRoomMenuLabel(short i);                                    /* 0x0043F
 void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
                         Viewport *viewport, char *text,
                         unsigned char alignment);                     /* 0x0043F750 */
-short FindMenuRegionAtPoint(short x, short y,
-                            const TitleMenuRegion *regions);           /* 0x0043F7C0 */
+int FindMenuRegionAtPoint(short x, short y,
+                          const TitleMenuRegion *regions);             /* 0x0043F7C0 */
 void InitializeRoomViewports(void);                                   /* 0x0043F810 */
 short RecRoom(void);                                                  /* 0x0043F940 */
 void ShowChalkBoard(void);                                            /* 0x00440510 */
