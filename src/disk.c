@@ -442,14 +442,13 @@ short WaitForInputKey(void)
         case 3:
         case 5:
             key = (signed char)event.value;
-            switch (key) {
-            case 0x1d:
+            if (key == 0x1d) {
                 key = 0;
-                break;
-            default:
-                while (PollInputEvent(&event, 0xff) != 0)
-                    ;
-                break;
+            } else {
+                if (PollInputEvent(&event, 0xff) != 0) {
+                    do {
+                    } while (PollInputEvent(&event, 0xff) != 0);
+                }
             }
             break;
         }

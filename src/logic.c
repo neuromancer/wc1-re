@@ -314,6 +314,8 @@ unsigned int replenish_shields(short ship)
 unsigned int replenish_weapon_energy_bank(short ship)
 {
     short energy;
+    short shieldEnergy;
+    short maximumShield;
 
     if (ship == 0 && g_cPlayerPowerDamage_0059bff1 != 0 &&
         (int)(unsigned short)RandomInRange(0, 4) <
@@ -321,15 +323,20 @@ unsigned int replenish_weapon_energy_bank(short ship)
         return 0;
     energy = g_asShipWeaponEnergy_0059d470[ship];
     if (energy < 100) {
-        if ((short)(g_aasShipShield_0059d5b0[ship][0] +
-                    g_aasShipShield_0059d5b0[ship][1]) <
-            (short)(g_aasShipMaximumShield_0059d6e0[ship][0] +
-                    g_aasShipMaximumShield_0059d6e0[ship][1])) {
-            energy = (short)(energy + 1);
+        shieldEnergy = g_aasShipShield_0059d5b0[ship][1];
+        maximumShield = g_aasShipMaximumShield_0059d6e0[ship][1];
+        shieldEnergy =
+            (short)(shieldEnergy + g_aasShipShield_0059d5b0[ship][0]);
+        maximumShield =
+            (short)(maximumShield +
+                    g_aasShipMaximumShield_0059d6e0[ship][0]);
+        if (shieldEnergy < maximumShield) {
+            g_asShipWeaponEnergy_0059d470[ship] =
+                MinShort((short)(energy + 1), 100);
         } else {
-            energy = (short)(energy + 2);
+            g_asShipWeaponEnergy_0059d470[ship] =
+                MinShort((short)(energy + 2), 100);
         }
-        g_asShipWeaponEnergy_0059d470[ship] = MinShort(energy, 100);
     }
     return 0;
 }

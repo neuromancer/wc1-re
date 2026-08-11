@@ -817,20 +817,16 @@ void Mveer_away(short ship, short target)
         return;
     }
     if (no_goal(ship) != 0) {
-        if (g_nFacingToTarget_0059d920 <= 80) {
-            if (g_nFacingToTarget_0059d920 < -65 ||
-                (short)RandomBelowOrEqual(100) < 4)
-                veer_random(ship, 16);
-        } else {
+        if (g_nFacingToTarget_0059d920 > 80) {
             steer_away_from_object(ship, target, 40);
+        } else if (g_nFacingToTarget_0059d920 < -65 ||
+                   (short)RandomBelowOrEqual(100) < 4) {
+            veer_random(ship, 16);
         }
     }
     if ((short)DAT_00475e78 < g_nTargetRange_0059ce10 &&
-        (short)RandomBelowOrEqual(100) >= 10) {
-        approach_full_speed(ship);
-        return;
-    }
-    if (normal_speed(ship) != 0) {
+        (short)RandomBelowOrEqual(100) < 10 &&
+        normal_speed(ship) != 0) {
         fire_afterburner(ship, 10);
         return;
     }
@@ -2990,7 +2986,12 @@ void ship_intelligence(short obj)
         return;
     switch (g_aeShipMissionType_0059c3f0[obj]) {
     case MISSION_TYPE_PATROL:
-        kilrathi_patrol(obj);
+        /* The retail source tests the array address rather than this ship's
+         * side, leaving the Imperial arm present but unreachable. */
+        if (g_aeShipSide_0059d650 == 0)
+            imperial_wingleader(obj);
+        else
+            kilrathi_patrol(obj);
         break;
     case MISSION_TYPE_ESCORT:
         escort_mission(obj);

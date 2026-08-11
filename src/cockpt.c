@@ -2467,31 +2467,35 @@ void RestoreCockpitExplosionBackground(void)
 /* Function start: 0x4177B0 */
 void cockpit_explosion(void)
 {
+    short frame;
+
     if (g_nCockpitExplosionFrame_00469068 == 0x7fff)
         g_nCockpitExplosionFrame_00469068 = 0;
-    if (!IsCockpitExplosionActive()) {
-        FreePacketAndClear((int *)&g_pCockpitExplosionShape_00469064, 0);
+    if (IsCockpitExplosionActive()) {
+        frame = g_nCockpitExplosionFrame_00469068;
+        if (frame == 0)
+            PlaySfxWaveFileByNumber(0x1b, -1, 0);
+        if (++g_nCockpitExplosionFrame_00469068 == 3)
+            DrawPendingCockpitDamage();
+        if (IsCockpitExplosionActive() &&
+            g_pCockpitExplosionShape_00469064 != 0 &&
+            g_pCockpitExplosionBackground_00469060 != 0) {
+            CaptureSpriteBackground(
+                &DAT_005a6ba0, g_pCockpitExplosionBackground_00469060,
+                g_nCockpitExplosionX_005a7e98,
+                g_nCockpitExplosionY_005a7e9a,
+                g_pCockpitExplosionShape_00469064,
+                g_nCockpitExplosionFrame_00469068);
+            DrawSpriteDefault(&DAT_005a6ba0,
+                              g_nCockpitExplosionX_005a7e98,
+                              g_nCockpitExplosionY_005a7e9a,
+                              g_pCockpitExplosionShape_00469064,
+                              g_nCockpitExplosionFrame_00469068);
+            DAT_0046900c = 0xff;
+        }
         return;
     }
-    if (g_nCockpitExplosionFrame_00469068 == 0)
-        PlaySfxWaveFileByNumber(0x1b, -1, 0);
-    g_nCockpitExplosionFrame_00469068++;
-    if (!IsCockpitExplosionActive() ||
-        g_pCockpitExplosionShape_00469064 == 0 ||
-        g_pCockpitExplosionBackground_00469060 == 0)
-        return;
-    CaptureSpriteBackground(
-        &DAT_005a6ba0, g_pCockpitExplosionBackground_00469060,
-        g_nCockpitExplosionX_005a7e98,
-        g_nCockpitExplosionY_005a7e9a,
-        g_pCockpitExplosionShape_00469064,
-        g_nCockpitExplosionFrame_00469068);
-    DrawSpriteDefault(&DAT_005a6ba0,
-                      g_nCockpitExplosionX_005a7e98,
-                      g_nCockpitExplosionY_005a7e9a,
-                      g_pCockpitExplosionShape_00469064,
-                      g_nCockpitExplosionFrame_00469068);
-    DAT_0046900c = 0xff;
+    FreePacketAndClear((int *)&g_pCockpitExplosionShape_00469064, 0);
 }
 
 /* Function start: 0x4178A0 */
@@ -2602,21 +2606,32 @@ void check_stranded(void)
 /* Function start: 0x417B70 */
 void update_VDUs(void)
 {
-    const ShortRect *bounds;
     short changed;
-    int view;
 
     SetTextContext(&DAT_005a74f0);
     if (DAT_0046a008 != 0) {
-        view = (int)g_cCockpitView_0059dab0;
-        bounds = &g_stCockpitLayout_0046e000.leftVduBounds[view];
         DrawFilledViewportRect(
-            &DAT_005a6ba0, bounds->left, bounds->top,
-            bounds->right, bounds->bottom, 0);
-        bounds = &g_stCockpitLayout_0046e000.rightVduBounds[view];
+            &DAT_005a6ba0,
+            g_stCockpitLayout_0046e000.leftVduBounds[
+                (int)g_cCockpitView_0059dab0].left,
+            g_stCockpitLayout_0046e000.leftVduBounds[
+                (int)g_cCockpitView_0059dab0].top,
+            g_stCockpitLayout_0046e000.leftVduBounds[
+                (int)g_cCockpitView_0059dab0].right,
+            g_stCockpitLayout_0046e000.leftVduBounds[
+                (int)g_cCockpitView_0059dab0].bottom,
+            0);
         DrawFilledViewportRect(
-            &DAT_005a6ba0, bounds->left, bounds->top,
-            bounds->right, bounds->bottom, 0);
+            &DAT_005a6ba0,
+            g_stCockpitLayout_0046e000.rightVduBounds[
+                (int)g_cCockpitView_0059dab0].left,
+            g_stCockpitLayout_0046e000.rightVduBounds[
+                (int)g_cCockpitView_0059dab0].top,
+            g_stCockpitLayout_0046e000.rightVduBounds[
+                (int)g_cCockpitView_0059dab0].right,
+            g_stCockpitLayout_0046e000.rightVduBounds[
+                (int)g_cCockpitView_0059dab0].bottom,
+            0);
     }
     changed = update_vid_disp(0);
     if (changed != 0) {
