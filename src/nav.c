@@ -1436,9 +1436,13 @@ short GameFlow(void)
     switch (flightResult) {
     case 1:
         free_cockpit();
+        ShowCarrierLaunchSequence(
+            (signed char)g_nPlayerCollisionObject_0046c050);
         g_nArcadeState_00469fb0 = 0;
         g_nPlayerCollisionObject_0046c050 = -1;
         free_3Space();
+        flightResult = calculate_damage_level();
+        landing((signed char)flightResult);
         break;
     case 2:
         ejection_sequence();
@@ -1504,6 +1508,22 @@ short GameFlow(void)
         g_stCampaignState_0059ca50.currentPilot->rank++;
 
     if (nextSeries == -1) {
+        if (DAT_004688e4 != -1)
+            AwardCampaignMedal(DAT_004688e4);
+
+        if (DAT_004688e8 == -1) {
+            flightResult = 0;
+        } else if (DAT_004688e8 == 0x40) {
+            ShowCampaignVictorySequence();
+            flightResult = 1;
+        } else if (DAT_004688e8 == 0x41) {
+            ShowTigerClawEscapeScene();
+            flightResult = 0;
+        } else {
+            ShowMeanwhileTransition(DAT_004688e8, (short)DAT_004688ec);
+            flightResult = DAT_004688ec >= 1;
+        }
+        ShowTheEndScreen((short)flightResult);
         DAT_004688f0 = 0;
         return 0;
     }
@@ -1512,9 +1532,16 @@ short GameFlow(void)
         funeral_sequence(0);
     if (DAT_004688cc == 1)
         Office();
+    if (DAT_004688e4 != -1) {
+        AwardCampaignMedal(DAT_004688e4);
+        DAT_004688e4 = -1;
+    }
+    if (DAT_004688e8 != -1)
+        ShowMeanwhileTransition(DAT_004688e8, (short)DAT_004688ec);
     g_stCampaignState_0059ca50.currentSeries = (signed char)nextSeries;
     g_stCampaignState_0059ca50.currentMission = (signed char)nextMission;
     MoveNewCampaign();
+    AddRandomTrainSimHighScores();
     DAT_00470510 = 1;
     return 1;
 }

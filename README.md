@@ -1126,8 +1126,8 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `UpdateSeries` | `0x40F240` | 93.68% |
 | `nav.c` | `MoveNewCampaign` | `0x40F3F0` | 76.19% |
 | `nav.c` | `StartNewCampaign` | `0x40F440` | 100.00% |
-| `nav.c` | `GameFlow` | `0x40F4B0` | 77.42% |
-| `nav.c` | `free_viewport` | `0x40F940` | 98.18% |
+| `nav.c` | `GameFlow` | `0x40F4B0` | 91.23% |
+| `nav.c` | `free_viewport` | `0x40F940` | 96.36% |
 | `nav.c` | `GetPaletteReadyUnused` | `0x40FA30` | 100.00% |
 | `nav.c` | `DrawTitleLogo` | `0x40FA40` | 84.72% |
 | `nav.c` | `UpdateTitleMenuCursor` | `0x40FB10` | 73.33% |
