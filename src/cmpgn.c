@@ -101,14 +101,14 @@ unsigned int ejection_sequence(void)
     free_all_slots();
     free_cockpit();
     PreloadMusicTrackHook(0x1f);
-    frame = 0;
     spacetrack(0x1f, 2, 1);
+    frame = 0;
     new_view(9, 0);
     background = FetchDiskPacketRetrying(
         (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
     ejectionShape = FetchDiskPacketRetrying(2, 1, 0);
-    y = 199;
     PlaySfxWaveFileByNumber(0x21, -1, 0);
+    y = 199;
     DAT_0059ab58 = 0;
     descentSpeed = 4;
     DAT_00469fb4 = 1;
@@ -263,8 +263,8 @@ void stranded_sequence(void)
     g_nCannedSceneMode_00469fac = 1;
     free_cockpit();
     force_view(13, 0);
-    frame = 0;
     g_pIntroFont_005a8960 = FetchDiskPacketRetrying(9, 1, 0);
+    frame = 0;
     do {
         if (RefreshCockpitStatus() != 0) {
             if (frame >= 300)
@@ -318,10 +318,10 @@ unsigned int ParseFaceAnimation(char *text, short *commands)
                 *durationCursor++ = (char)frame;
                 frame = (short)*text++;
             }
+            *durationCursor = '\0';
+            commands[1] = (short)atoi(duration);
             commands += 2;
             sequenceIndex++;
-            *durationCursor = '\0';
-            commands[-1] = (short)atoi(duration);
         }
         frame = (short)*text++;
     }
@@ -337,24 +337,13 @@ unsigned int ParseMouthAnimation(char *text, short *commands)
     short durationLength;
     short ticks;
 
-    character = *text;
-    for (;;) {
-        if (character == '\0') {
-            *commands = -1;
-            return 0;
-        }
-        text++;
+    while ((character = *text++) != '\0') {
         if (character == '$') {
             *commands = 9;
-        } else if (character <= 'z') {
-            if (character < 'a') {
-                character = *text;
-                continue;
-            }
+        } else if (character <= 'z' && character >= 'a') {
             *commands = g_asMouthFramesByPhoneme_004655f0[
                 character - 'a'];
         } else {
-            character = *text;
             continue;
         }
         ticks = 1;
@@ -372,8 +361,9 @@ unsigned int ParseMouthAnimation(char *text, short *commands)
         }
         commands[1] = ticks;
         commands += 2;
-        character = *text;
     }
+    *commands = -1;
+    return 0;
 }
 
 /* Function start: 0x404E10 */
@@ -393,13 +383,11 @@ char *AddPCName(char *text)
         }
         output = DosStrchr(g_szTextScratchBuffer_00598b00, 0);
         while (text != marker) {
-            *output = *text;
-            output++;
-            text++;
+            *output++ = *text++;
         }
         *output = '\0';
-        text = marker + 2;
-        switch (marker[1]) {
+        marker++;
+        switch (*marker++) {
         case 'A':
             DosStrcat(g_szTextScratchBuffer_00598b00,
                       g_apszMedalNames_0046e2e0[
@@ -442,9 +430,8 @@ char *AddPCName(char *text)
                       g_apszPilotRankNames_00470098[
                           g_stCampaignState_0059ca50.currentPilot->rank]);
             length = DosStrlen(g_szTextScratchBuffer_00598b00);
-            if (length != 0 &&
-                g_szTextScratchBuffer_00598b00[length - 1] == '.' &&
-                *text == '.')
+            if (g_szTextScratchBuffer_00598b00[length - 1] == '.' &&
+                *marker == '.')
                 g_szTextScratchBuffer_00598b00[
                     DosStrlen(g_szTextScratchBuffer_00598b00) - 1] = '\0';
             break;
@@ -460,18 +447,16 @@ char *AddPCName(char *text)
             break;
         case 'W':
             DosStrcat(g_szTextScratchBuffer_00598b00,
-                      g_apWingmanPilots_00598a30[*text - '0']->name);
-            text++;
+                      g_apWingmanPilots_00598a30[*marker++ - '0']->name);
             break;
         }
+        text = marker;
     }
 }
 
 /* Function start: 0x4050B0 */
 unsigned int LoadFace(short face)
 {
-    const TalkingHeadOrigin *origin;
-
     switch (g_nConversationCharacter_0046e580) {
     case 0:
         g_nConversationBackdropFrame_0046e588 = 4;
@@ -487,11 +472,6 @@ unsigned int LoadFace(short face)
         InitializeConstellationField(&g_stConstellationViewport_005a6b40,
                                      -1, 16);
         g_bConversationConstellation_0046e58c = 1;
-        break;
-    case 3:
-    case 11:
-    case 13:
-        g_nConversationBackdropFrame_0046e588 = 1;
         break;
     case 4:
         g_nConversationBackdropFrame_0046e588 = 2;
@@ -509,6 +489,11 @@ unsigned int LoadFace(short face)
     case 12:
         g_nConversationBackdropFrame_0046e588 = 0;
         break;
+    case 3:
+    case 11:
+    case 13:
+        g_nConversationBackdropFrame_0046e588 = 1;
+        break;
     default:
         g_nConversationBackdropFrame_0046e588 = -1;
         break;
@@ -523,11 +508,14 @@ unsigned int LoadFace(short face)
     if (g_pConversationOverlayShape_00598c30 == 0)
         g_pConversationOverlayShape_00598c30 =
             (unsigned char *)FetchDiskPacketRetrying(6, 11, 0);
-    origin = &g_aTalkingHeadOrigins_0046e190[face];
-    g_nTalkingHeadFaceX_005a8754 = origin->faceX;
-    g_nTalkingHeadFaceY_005a8756 = origin->faceY;
-    g_nTalkingHeadMouthX_005a875a = origin->mouthX;
-    g_nTalkingHeadMouthY_005a8758 = origin->mouthY;
+    g_nTalkingHeadFaceX_005a8754 =
+        g_aTalkingHeadOrigins_0046e190[face].faceX;
+    g_nTalkingHeadFaceY_005a8756 =
+        g_aTalkingHeadOrigins_0046e190[face].faceY;
+    g_nTalkingHeadMouthX_005a875a =
+        g_aTalkingHeadOrigins_0046e190[face].mouthX;
+    g_nTalkingHeadMouthY_005a8758 =
+        g_aTalkingHeadOrigins_0046e190[face].mouthY;
     CloseTalk(g_pTalkingHeadShape_00598c0c, -1, -1);
     return 0;
 }
@@ -629,11 +617,8 @@ unsigned int LongTalk(unsigned char *talker, char *text,
 unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
                        short faceFrame)
 {
-    unsigned char clearColour;
-
     if (g_bConversationConstellation_0046e58c == 1)
         DrawConstellationField();
-    clearColour = DAT_0046999c;
     switch (g_nConversationSceneType_00598c0a) {
     case 0:
     case 1:
@@ -646,22 +631,22 @@ unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
                               g_nConversationBackdropFrame_0046e588);
             break;
         }
-        ClearViewport(&DAT_005a76b0, clearColour);
+        ClearViewport(&DAT_005a76b0, DAT_0046999c);
         break;
     case 3:
         ClearViewport(&DAT_005a76b0, DAT_004699d8);
         break;
     default:
-        ClearViewport(&DAT_005a76b0, clearColour);
+        ClearViewport(&DAT_005a76b0, DAT_0046999c);
         break;
     }
     DrawSpriteDefault(&DAT_005a76b0, 0, 0, talker, 0);
-    if (faceFrame >= 0)
+    if (faceFrame > -1)
         DrawSpriteDefault(&DAT_005a76b0,
                           g_nTalkingHeadFaceX_005a8754,
                           g_nTalkingHeadFaceY_005a8756,
                           talker, (short)(faceFrame + 11));
-    if (mouthFrame >= 0)
+    if (mouthFrame > -1)
         DrawSpriteDefault(&DAT_005a76b0,
                           g_nTalkingHeadMouthX_005a875a,
                           g_nTalkingHeadMouthY_005a8758,
@@ -703,7 +688,6 @@ unsigned int Briefing(short series, short mission)
     }
     DAT_0059ab58 = 0;
     ReleasePacketHandle((int)g_pBriefingPacket_00598aec);
-    g_pBriefingPacket_00598aec = 0;
     ReleaseMusicTrackHook(0x18);
     ReleaseMusicTrackHook(0x19);
     ReleaseMusicTrackHook(0x1a);
@@ -732,7 +716,7 @@ unsigned int DeBriefing(short series, short mission)
     LoadMissionData(series, mission);
     InitializeConversationViewport();
     InitializeConversationText();
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(g_stConversationTextContext_005a7760.viewport,
                   DAT_0046999c);
     SetTextContext(&g_stConversationTextContext_005a7760);
     LoadBriefingData(series, mission);
@@ -746,7 +730,6 @@ unsigned int DeBriefing(short series, short mission)
     ReleasePacketHandle((int)g_pConversationBackdropShape_00598c04);
     g_pConversationBackdropShape_00598c04 = 0;
     ReleasePacketHandle((int)g_pBriefingPacket_00598aec);
-    g_pBriefingPacket_00598aec = 0;
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
     StopMusicUnlessSuppressed();
@@ -832,8 +815,6 @@ unsigned int LoadMissionData(short series, short mission)
     MissionNavPointDisk *diskNav;
     MissionObjectiveDisk *diskObjective;
     MissionShipDisk *diskShip;
-    MissionNavPoint *nav;
-    MissionObjectiveSource *objective;
     MissionShipRecord *ship;
     short *sourceInitialShip;
     short *initialShip;
@@ -859,26 +840,29 @@ unsigned int LoadMissionData(short series, short mission)
     diskNav = (MissionNavPointDisk *)(packet + missionIndex * 0x4d0);
     index = 0;
     do {
-        nav = &g_aMissionNavPoints_0046c2f0[index];
-        memcpy(nav->name, diskNav->name, sizeof(nav->name));
-        nav->type = diskNav->type;
-        nav->position = diskNav->position;
-        nav->proximityRadius = diskNav->proximityRadius;
+        memcpy(g_aMissionNavPoints_0046c2f0[index].name,
+               diskNav->name,
+               sizeof(g_aMissionNavPoints_0046c2f0[index].name));
+        g_aMissionNavPoints_0046c2f0[index].type = diskNav->type;
+        g_aMissionNavPoints_0046c2f0[index].position = diskNav->position;
+        g_aMissionNavPoints_0046c2f0[index].proximityRadius =
+            diskNav->proximityRadius;
         item = 0;
         do {
-            ((signed char *)nav->triggers)[item] =
+            ((signed char *)g_aMissionNavPoints_0046c2f0[index].triggers)[item] =
                 ((signed char *)diskNav->triggers)[item];
             item++;
         } while (item < 8);
         item = 0;
         do {
-            nav->preloadObjectTypes[item] =
+            g_aMissionNavPoints_0046c2f0[index].preloadObjectTypes[item] =
                 (enum ObjectType)diskNav->preloadObjectTypes[item];
             item++;
         } while (item < 2);
         item = 0;
         do {
-            nav->missionShips[item] = diskNav->missionShips[item];
+            g_aMissionNavPoints_0046c2f0[index].missionShips[item] =
+                diskNav->missionShips[item];
             item++;
         } while (item < 10);
         diskNav++;
@@ -891,12 +875,14 @@ unsigned int LoadMissionData(short series, short mission)
         (MissionObjectiveDisk *)(packet + missionIndex * 0x400);
     index = 0;
     do {
-        objective = &g_aMissionObjectiveSources_005a8270[index];
-        objective->type = diskObjective->type;
-        objective->index = diskObjective->index;
+        g_aMissionObjectiveSources_005a8270[index].type =
+            diskObjective->type;
+        g_aMissionObjectiveSources_005a8270[index].index =
+            diskObjective->index;
         item = 0;
         do {
-            objective->description[item] = diskObjective->description[item];
+            g_aMissionObjectiveSources_005a8270[index].description[item] =
+                diskObjective->description[item];
             item++;
         } while (item < 60);
         diskObjective++;

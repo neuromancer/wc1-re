@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (98.29% average)</summary>
+<summary>All 1,472 function similarity scores (98.34% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -225,24 +225,24 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cdrom.c` | `AllocateFontWorkspace` | `0x403100` | 91.11% |
 | `cdrom.c` | `FreeFontWorkspace` | `0x403180` | 100.00% |
 | `cdrom.c` | `LocateStreamsDirOnDisc` | `0x4031C0` | 100.00% |
-| `cdrom.c` | `FindCdRomDriveByVolumeLabel` | `0x403290` | 86.11% |
+| `cdrom.c` | `FindCdRomDriveByVolumeLabel` | `0x403290` | 100.00% |
 | `cdrom.c` | `SetCurrentDirOnDrive` | `0x4033E0` | 100.00% |
 | `cdrom.c` | `PromptInsertCorrectCd` | `0x403450` | 100.00% |
 | `cdrom.c` | `OpenDataFileOrDie` | `0x4034D0` | 100.00% |
 | `cmpgn.c` | `LoadPaletteTripletsFile` | `0x404610` | 100.00% |
-| `cmpgn.c` | `ejection_sequence` | `0x4046A0` | 96.75% |
-| `cmpgn.c` | `stranded_sequence` | `0x404BE0` | 96.72% |
-| `cmpgn.c` | `ParseFaceAnimation` | `0x404CD0` | 92.73% |
-| `cmpgn.c` | `ParseMouthAnimation` | `0x404D70` | 86.21% |
-| `cmpgn.c` | `AddPCName` | `0x404E10` | 86.47% |
-| `cmpgn.c` | `LoadFace` | `0x4050B0` | 92.55% |
+| `cmpgn.c` | `ejection_sequence` | `0x4046A0` | 97.83% |
+| `cmpgn.c` | `stranded_sequence` | `0x404BE0` | 100.00% |
+| `cmpgn.c` | `ParseFaceAnimation` | `0x404CD0` | 100.00% |
+| `cmpgn.c` | `ParseMouthAnimation` | `0x404D70` | 100.00% |
+| `cmpgn.c` | `AddPCName` | `0x404E10` | 100.00% |
+| `cmpgn.c` | `LoadFace` | `0x4050B0` | 94.68% |
 | `cmpgn.c` | `LongTalk` | `0x405290` | 98.72% |
-| `cmpgn.c` | `CloseTalk` | `0x4054B0` | 95.83% |
-| `cmpgn.c` | `Briefing` | `0x405660` | 97.78% |
-| `cmpgn.c` | `DeBriefing` | `0x4056F0` | 97.06% |
+| `cmpgn.c` | `CloseTalk` | `0x4054B0` | 100.00% |
+| `cmpgn.c` | `Briefing` | `0x405660` | 100.00% |
+| `cmpgn.c` | `DeBriefing` | `0x4056F0` | 100.00% |
 | `cmpgn.c` | `Office` | `0x405840` | 100.00% |
 | `cmpgn.c` | `LoadBriefingData` | `0x405910` | 100.00% |
-| `cmpgn.c` | `LoadMissionData` | `0x4059B0` | 94.44% |
+| `cmpgn.c` | `LoadMissionData` | `0x4059B0` | 95.73% |
 | `cmpgn.c` | `UpdateMap` | `0x405CC0` | 100.00% |
 | `cmpgn.c` | `CloseLook` | `0x405DE0` | 86.00% |
 | `cockpt.c` | `EmitTextString` | `0x413A10` | 100.00% |
