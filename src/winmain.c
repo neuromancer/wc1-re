@@ -244,29 +244,33 @@ int near_field(const HazardField *field, const FixedVector *point)
 }
 
 /* Function start: 0x4016A0 */
-int within_field(const HazardField *field, const FixedVector *point)
+short within_field(const HazardField *field, const FixedVector *point)
 {
     return IsPointWithinRange((FixedVector *)&field->center,
                               (FixedVector *)point, field->innerRadius);
 }
 
 /* Function start: 0x4016C0 */
-int try_far_spot(FixedVector *spot, short *moving)
+short try_far_spot(FixedVector *spot, short *moving)
 {
-    short pitch;
     short yaw;
+    short pitch;
+    unsigned short outsideRange;
 
     copy_frame(0, 63);
     g_aShipPosition_0059c490[63] = g_aShipPosition_0059c490[0];
     pitch = signed_random(20);
     yaw = signed_random(35);
-    if (DAT_0046c03c == 0 && g_cCockpitView_0059dab0 < 4) {
-        signed char minimum =
-            g_acHazardPitchRange_00465050[g_cCockpitView_0059dab0 * 2];
-        signed char maximum =
-            g_acHazardPitchRange_00465050[g_cCockpitView_0059dab0 * 2 + 1];
+    if (DAT_0046c03c == 0 && g_cCockpitView_0059dab0 <= 3) {
+        signed char minimum;
+        signed char maximum;
 
-        if (pitch > minimum && pitch < maximum && abs(yaw) < 19 &&
+        minimum = g_acHazardPitchRange_00465050[
+            g_cCockpitView_0059dab0 * 2];
+        if (pitch > minimum &&
+            pitch < (maximum = g_acHazardPitchRange_00465050[
+                         g_cCockpitView_0059dab0 * 2 + 1]) &&
+            abs(yaw) < 19 &&
             RandomBelow(100) < 60)
             *moving = 1;
         else
@@ -287,9 +291,10 @@ int try_far_spot(FixedVector *spot, short *moving)
     rotate_about_i(pitch, &g_aShipUpVector_0059b9e0[63],
                    &g_aShipForwardVector_0059bce0[63]);
     position_relative_ijk(spot, 63, 0, 0, 3050);
-    if (IsPointWithinRange(&g_aShipPosition_0059c490[0], spot, 3000) != 0)
-        return 0;
-    return within_field(g_pActiveHazardField_0059bfe0, spot) != 0;
+    outsideRange = !(unsigned short)IsPointWithinRange(
+        &g_aShipPosition_0059c490[0], spot, 3000);
+    return outsideRange != 0 &&
+           within_field(g_pActiveHazardField_0059bfe0, spot) != 0;
 }
 
 /* Function start: 0x401870 */

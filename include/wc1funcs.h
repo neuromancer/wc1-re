@@ -19,8 +19,8 @@ void skew_randomly(short obj, short allowReverse);                    /* 0x00401
 void align(short *value, short quantum);                              /* 0x00401390 */
 void init_hazard(short obj, FixedVector position, short moving);      /* 0x004013B0 */
 int near_field(const HazardField *field, const FixedVector *point);   /* 0x00401680 */
-int within_field(const HazardField *field, const FixedVector *point); /* 0x004016A0 */
-int try_far_spot(FixedVector *spot, short *moving);                   /* 0x004016C0 */
+short within_field(const HazardField *field, const FixedVector *point); /* 0x004016A0 */
+short try_far_spot(FixedVector *spot, short *moving);                 /* 0x004016C0 */
 short rear_sphere(void);                                              /* 0x00401870 */
 int ok_hazard_spot(short obj);                                        /* 0x00401890 */
 short make_hazard(void);                                              /* 0x004018D0 */
@@ -949,7 +949,7 @@ unsigned int init_inflight_music(void);                                /* 0x0042
 unsigned int free_inflight_music(void);                                /* 0x00424C80 */
 unsigned int PreloadMusicTrackHook(short track);                       /* 0x00424CE0 */
 unsigned int ReleaseMusicTrackHook(short track);                       /* 0x00424CF0 */
-unsigned int LoadSceneAnimationResources(short scene, short variant);  /* 0x00424D00 */
+unsigned short LoadSceneAnimationResources(short scene, short variant); /* 0x00424D00 */
 void ReleaseSceneAnimationResources(void);                             /* 0x00424DA0 */
 signed char *__stdcall FindSceneAnimationCommand(
     signed char *script, signed char command);                         /* 0x00424DE0 */
@@ -987,7 +987,7 @@ void SortTrainSimHighScores(void);                                   /* 0x00425E
 short FindTrainSimHighScore(short pilot);                             /* 0x00425ED0 */
 short InsertTrainSimHighScore(short pilot, unsigned int score);       /* 0x00425EF0 */
 void InitializeTrainSimHighScores(void);                              /* 0x00425F40 */
-int IsHighScoreSlotUsed(short i);                                      /* 0x00425FE0 */
+short IsHighScoreSlotUsed(short i);                                    /* 0x00425FE0 */
 void AddRandomTrainSimHighScores(void);                               /* 0x00426000 */
 void DrawTextInputCursor(char character);                             /* 0x004260E0 */
 void ClearTextInputCharacter(char character);                         /* 0x00426140 */
@@ -1111,7 +1111,7 @@ void FxDriverShutdownHook(void);                                            /* 0
 unsigned short InitializeDiskPromptTextContext(void);                 /* 0x0042C420 */
 unsigned short RewriteDiskFileGraphicsExtensions(short videoMode);    /* 0x0042C510 */
 short LoadWingCmdrCfgFile(short argc, char **argv);                    /* 0x0042C580 */
-unsigned int LoadInstallDat(void);                                     /* 0x0042C660 */
+unsigned short LoadInstallDat(void);                                   /* 0x0042C660 */
 void show_damage_disp(void);                                           /* 0x0042C800 */
 void UpdateDamageDisplay(void);                                        /* 0x0042C970 */
 unsigned short GetJoystickPresentUnused(void);                                    /* 0x0042CDA0 */

@@ -2546,8 +2546,9 @@ unsigned int ReleaseMusicTrackHook(short track)
 }
 
 /* Function start: 0x424D00 */
-unsigned int LoadSceneAnimationResources(short scene, short variant)
+unsigned short LoadSceneAnimationResources(short scene, short variant)
 {
+    unsigned char *packet;
     short logicalFile;
 
     logicalFile = g_asSceneAnimationLogicalFiles_00469d60[scene];
@@ -2559,18 +2560,16 @@ unsigned int LoadSceneAnimationResources(short scene, short variant)
     g_pSceneAnimationSecondaryShape_005a7c70 =
         (unsigned char *)FetchDiskPacketRetrying(
             logicalFile, (short)(variant + 3), 0);
-    g_pSceneAnimationPacket_005a7c60 =
-        (unsigned char *)FetchDiskPacketRetrying(
-            logicalFile, (short)(variant + 5), 0);
+    packet = (unsigned char *)FetchDiskPacketRetrying(
+        logicalFile, (short)(variant + 5), 0);
+    g_pSceneAnimationPacket_005a7c60 = packet;
     g_pSceneAnimationSceneData_005a7c54 =
-        g_pSceneAnimationPacket_005a7c60 +
-        *(unsigned int *)(g_pSceneAnimationPacket_005a7c60 + 0);
+        packet + *(unsigned int *)(packet + 0);
     g_pSceneAnimationTextData_005a7c5c =
-        g_pSceneAnimationPacket_005a7c60 +
-        *(unsigned int *)(g_pSceneAnimationPacket_005a7c60 + 4);
+        packet + *(unsigned int *)(packet + 4);
     g_pSceneAnimationObjects_005a7c64 =
         (SceneAnimationObject *)(g_pSceneAnimationDefinitions_005a7c6c + 2);
-    return (unsigned int)g_pSceneAnimationPacket_005a7c60 & 0xffff0000;
+    return 0;
 }
 
 /* Function start: 0x424DA0 */

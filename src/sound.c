@@ -665,7 +665,7 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
 }
 
 /* Function start: 0x42C660 */
-unsigned int LoadInstallDat(void)
+unsigned short LoadInstallDat(void)
 {
     DiskFileRecord *records;
     DiskFileRecord *record;

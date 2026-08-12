@@ -936,18 +936,18 @@ void ResetMouseCursorFrame(void)
 /* Function start: 0x42A680 */
 void UpdateRoomMenuCursor(void)
 {
-    short mouseY;
     short mouseX;
+    short mouseY;
     short state;
     short frame;
     TitleMenuRegion *region;
     short index;
 
-    mouseY = g_nMouseY_0059ab12;
     mouseX = g_nMouseX_0059ab10;
-    region = g_pRoomMenuRegions_00598ab2;
     frame = g_nRoomMenuCursorFrame_00598ab0;
     index = 0;
+    region = g_pRoomMenuRegions_00598ab2;
+    mouseY = g_nMouseY_0059ab12;
     ClearRoomMenuLabel();
     while (region->frame != -1) {
         state = IsPointInRect(mouseX, mouseY, &region->left);

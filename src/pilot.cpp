@@ -412,7 +412,7 @@ void InitializeTrainSimHighScores(void)
 }
 
 /* Function start: 0x425FE0 */
-int IsHighScoreSlotUsed(short i)
+short IsHighScoreSlotUsed(short i)
 {
     return g_aHighScoreEntries_005a7c30[i].pilotIndex != -1;
 }
@@ -806,10 +806,8 @@ void ShowTrainSimHighScores(void)
     g_stTrainSimTitleDisplayViewport_005a7b90.bottom =
         (short)(g_stTrainSimTitleDisplayViewport_005a7b90.top +
                 lineHeight + 2);
-    if (g_stTrainSimTitleDisplayViewport_005a7b90.bottom >
-        g_stTrainSimPanelBounds_00469dc0.bottom) {
-        g_stTrainSimTitleDisplayViewport_005a7b90.bottom =
-            g_stTrainSimPanelBounds_00469dc0.bottom;
+    if (g_stTrainSimTitleDisplayViewport_005a7b90.bottom > 109) {
+        g_stTrainSimTitleDisplayViewport_005a7b90.bottom = 109;
     }
 
     row = 0;

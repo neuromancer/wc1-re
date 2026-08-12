@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (98.34% average)</summary>
+<summary>All 1,472 function similarity scores (98.36% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -666,7 +666,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `calculate_damage_level` | `0x42A520` | 100.00% |
 | `hudmsg.c` | `UpdateTrainSimMenuCursor` | `0x42A610` | 100.00% |
 | `hudmsg.c` | `ResetMouseCursorFrame` | `0x42A670` | 100.00% |
-| `hudmsg.c` | `UpdateRoomMenuCursor` | `0x42A680` | 95.45% |
+| `hudmsg.c` | `UpdateRoomMenuCursor` | `0x42A680` | 100.00% |
 | `hudmsg.c` | `FadeViewportPaletteToColour` | `0x42A700` | 96.95% |
 | `hudmsg.c` | `find_objective` | `0x42A8F0` | 100.00% |
 | `hudmsg.c` | `arrive_from_warp` | `0x42A950` | 100.00% |
@@ -962,7 +962,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `free_inflight_music` | `0x424C80` | 100.00% |
 | `logic.c` | `PreloadMusicTrackHook` | `0x424CE0` | 100.00% |
 | `logic.c` | `ReleaseMusicTrackHook` | `0x424CF0` | 100.00% |
-| `logic.c` | `LoadSceneAnimationResources` | `0x424D00` | 91.84% |
+| `logic.c` | `LoadSceneAnimationResources` | `0x424D00` | 100.00% |
 | `logic.c` | `ReleaseSceneAnimationResources` | `0x424DA0` | 100.00% |
 | `logic.c` | `FindSceneAnimationCommand` | `0x424DE0` | 100.00% |
 | `logic.c` | `SceneAnimationGoalReached` | `0x424EA0` | 100.00% |
@@ -1175,7 +1175,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `pilot.cpp` | `ShowTrainSimTextMessage` | `0x426700` | 100.00% |
 | `pilot.cpp` | `EnterPilotNameAndCallsign` | `0x426750` | 100.00% |
 | `pilot.cpp` | `UpdateTrainSimHighScores` | `0x426820` | 98.31% |
-| `pilot.cpp` | `ShowTrainSimHighScores` | `0x4268E0` | 97.12% |
+| `pilot.cpp` | `ShowTrainSimHighScores` | `0x4268E0` | 97.58% |
 | `pilot.cpp` | `LoadTrainSimOpponentShape` | `0x426C50` | 100.00% |
 | `pilot.cpp` | `SelectTrainSimMission` | `0x426C70` | 89.44% |
 | `pload.c` | `PacketLoad` | `0x42B050` | 100.00% |
@@ -1415,7 +1415,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `sound.c` | `InitializeDiskPromptTextContext` | `0x42C420` | 100.00% |
 | `sound.c` | `RewriteDiskFileGraphicsExtensions` | `0x42C510` | 100.00% |
 | `sound.c` | `LoadWingCmdrCfgFile` | `0x42C580` | 100.00% |
-| `sound.c` | `LoadInstallDat` | `0x42C660` | 98.50% |
+| `sound.c` | `LoadInstallDat` | `0x42C660` | 100.00% |
 | `sound.c` | `show_damage_disp` | `0x42C800` | 90.82% |
 | `sound.c` | `UpdateDamageDisplay` | `0x42C970` | 92.22% |
 | `sound.c` | `GetJoystickPresentUnused` | `0x42CDA0` | 100.00% |
@@ -1485,7 +1485,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `winmain.c` | `init_hazard` | `0x4013B0` | 96.31% |
 | `winmain.c` | `near_field` | `0x401680` | 100.00% |
 | `winmain.c` | `within_field` | `0x4016A0` | 100.00% |
-| `winmain.c` | `try_far_spot` | `0x4016C0` | 88.72% |
+| `winmain.c` | `try_far_spot` | `0x4016C0` | 100.00% |
 | `winmain.c` | `rear_sphere` | `0x401870` | 100.00% |
 | `winmain.c` | `ok_hazard_spot` | `0x401890` | 100.00% |
 | `winmain.c` | `make_hazard` | `0x4018D0` | 100.00% |
