@@ -20,6 +20,7 @@ endif()
 
 add_library(wc1-sdl-host STATIC
     src/sdl/compat.c
+    src/sdl/input.c
 )
 target_compile_definitions(wc1-sdl-host PUBLIC
     WC1_SDL=1
@@ -52,6 +53,7 @@ add_library(wc1-sdl-gameplay OBJECT
     src/smart.c
     src/spc.c
     src/strdos.c
+    src/sysinput.c
     src/system.c
     src/text.c
 )
@@ -94,7 +96,15 @@ target_link_libraries(wc1-sdl-crt-compat PRIVATE
     wc1-sdl-host
 )
 
+add_executable(wc1-sdl-input-compat
+    tests/sdl_input_compat.c
+)
+target_link_libraries(wc1-sdl-input-compat PRIVATE
+    wc1-sdl-host
+)
+
 enable_testing()
 add_test(NAME sdl-compat-smoke COMMAND wc1-sdl-compat-smoke)
 add_test(NAME sdl-ix-compat-smoke COMMAND wc1-sdl-ix-compat-smoke)
 add_test(NAME sdl-crt-compat COMMAND wc1-sdl-crt-compat)
+add_test(NAME sdl-input-compat COMMAND wc1-sdl-input-compat)

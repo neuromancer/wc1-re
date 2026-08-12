@@ -73,6 +73,34 @@ typedef struct Wc1SdlDirectDraw2 *LPDIRECTDRAW2;
 typedef struct Wc1SdlDirectDrawSurface *LPDIRECTDRAWSURFACE;
 typedef struct Wc1SdlDirectDrawPalette *LPDIRECTDRAWPALETTE;
 
+DWORD Wc1SdlGetTicks(void);
+int Wc1SdlGetAsyncKeyState(int virtualKey);
+void Wc1SdlOutputDebugString(const char *text);
+int Wc1SdlSetCursorPosition(int x, int y);
+void Wc1SdlSleep(DWORD milliseconds);
+
+#define GetTickCount Wc1SdlGetTicks
+#define GetAsyncKeyState Wc1SdlGetAsyncKeyState
+#define OutputDebugString Wc1SdlOutputDebugString
+#define OutputDebugStringA Wc1SdlOutputDebugString
+#define SetCursorPos Wc1SdlSetCursorPosition
+#define Sleep Wc1SdlSleep
+#define timeGetTime Wc1SdlGetTicks
+
+#define VK_CLEAR 0x0c
+#define VK_SHIFT 0x10
+#define VK_CONTROL 0x11
+#define VK_PRIOR 0x21
+#define VK_NEXT 0x22
+#define VK_END 0x23
+#define VK_HOME 0x24
+#define VK_LEFT 0x25
+#define VK_UP 0x26
+#define VK_RIGHT 0x27
+#define VK_DOWN 0x28
+#define VK_INSERT 0x2d
+#define VK_DELETE 0x2e
+
 #ifndef _WIN32
 int Wc1SdlOpen(const char *path, int flags, ...);
 long Wc1SdlFileLength(int file);
