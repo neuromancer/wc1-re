@@ -31,7 +31,11 @@ int main(int argumentCount, char **arguments)
     DIBinstall((HWND)window);
     DAT_005a89a0 = (HWND)window;
     Wc1SdlStartEventPump();
-    if (!checkOnly) {
+    if (checkOnly) {
+        g_acShipTarget_0059ce60[0] = 0;
+        g_aeShipManeuver_0059dcb0[0] = MANEUVER_NONE;
+        perform_maneuver(0);
+    } else {
         MonoDebug_install();
         InitializeAudioSystem((HWND)window);
         InitializeAudioStreamer((HWND)window);

@@ -873,8 +873,18 @@ void perform_maneuver(short obj)
     short range;
     int maneuverWeight;
 
-    g_bCurrentManeuverReroll_00475e7c =
-        g_abManeuverRerollChance_00465678[previous];
+#ifdef WC1_SDL
+    /* The original performs this lookup before validating the maneuver.
+       MANEUVER_NONE reads the zero alignment byte at 0x00465677, immediately
+       before the table.  Other invalid values are reset before the result is
+       used.  Preserve those results without an invalid C array access. */
+    if (previous < MANEUVER_WARPING_IN ||
+        previous > MANEUVER_UNKNOWN_46)
+        g_bCurrentManeuverReroll_00475e7c = 0;
+    else
+#endif
+        g_bCurrentManeuverReroll_00475e7c =
+            g_abManeuverRerollChance_00465678[previous];
     ship_vs_ship(obj, target);
     range = g_nTargetRange_0059ce10;
     if (g_nTargetFacing_0059d52a < 0)
