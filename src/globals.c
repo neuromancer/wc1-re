@@ -2611,7 +2611,19 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
         },
         300, 300, 240, 200, 250, 250, 0, 0
     },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x58] }, /* 9: Salthi */
+    /* 9: Salthi */
+    {
+        &g_aszObjectTypeDisplayNames_004684d4[0x58],
+        OBJECT_CLASS_SHIP, 120, 120, 1024, 10, 3392, 3, 5, 4000,
+        48, 30, 0, 972, 14, 12, 22, 1000,
+        {
+            3,
+            24, 0, 0, 0, 0, 0, 0,
+            24, 0, 0, 0, 1, 0, 0,
+            28, 0, 0, 0, 31, 0, 1
+        },
+        35, 35, 30, 20, 15, 15, 0, 0
+    },
     /* 10: Dralthi */
     {
         &g_aszObjectTypeDisplayNames_004684d4[0x60],
