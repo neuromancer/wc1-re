@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (98.12% average)</summary>
+<summary>All 1,472 function similarity scores (98.16% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -676,7 +676,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `personality_killed` | `0x42AC50` | 100.00% |
 | `hudmsg.c` | `clean_up_cockpit` | `0x42ACC0` | 100.00% |
 | `hudmsg.c` | `find_next_gun` | `0x42AD00` | 91.67% |
-| `hudmsg.c` | `select_guns` | `0x42ADA0` | 88.10% |
+| `hudmsg.c` | `select_guns` | `0x42ADA0` | 100.00% |
 | `hudmsg.c` | `select_new_gun` | `0x42AE10` | 100.00% |
 | `hudmsg.c` | `select_new_release_weapon` | `0x42AE50` | 87.88% |
 | `hudmsg.c` | `WaitForDebugStep` | `0x42AFA0` | 100.00% |
@@ -954,10 +954,10 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `InitializeCockpitResources` | `0x4245B0` | 89.53% |
 | `logic.c` | `free_cockpit` | `0x4249A0` | 100.00% |
 | `logic.c` | `init_3Space_objects` | `0x424A80` | 100.00% |
-| `logic.c` | `load_common_3Space_objects` | `0x424B00` | 92.86% |
+| `logic.c` | `load_common_3Space_objects` | `0x424B00` | 100.00% |
 | `logic.c` | `remove_all_3d_objects` | `0x424B80` | 100.00% |
 | `logic.c` | `free_3Space` | `0x424BA0` | 100.00% |
-| `logic.c` | `free_3Space_objects` | `0x424BE0` | 90.62% |
+| `logic.c` | `free_3Space_objects` | `0x424BE0` | 100.00% |
 | `logic.c` | `init_inflight_music` | `0x424C60` | 100.00% |
 | `logic.c` | `free_inflight_music` | `0x424C80` | 100.00% |
 | `logic.c` | `PreloadMusicTrackHook` | `0x424CE0` | 100.00% |
@@ -1025,7 +1025,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `mathutil.c` | `FreePacketAndClear` | `0x41D100` | 100.00% |
 | `mono.c` | `CloseDataFile` | `0x403500` | 100.00% |
 | `mono.c` | `WriteDataFileAtOffset` | `0x403520` | 100.00% |
-| `mono.c` | `CreateDataFile` | `0x4035C0` | 90.48% |
+| `mono.c` | `CreateDataFile` | `0x4035C0` | 100.00% |
 | `mono.c` | `ReadDataFileAtOffset` | `0x403610` | 100.00% |
 | `mono.c` | `SeekDataFile` | `0x4036B0` | 100.00% |
 | `mono.c` | `MeasureScaledIntroTextWidth` | `0x403710` | 100.00% |
@@ -1349,8 +1349,8 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `ship.c` | `your_internal_damage` | `0x41F220` | 85.26% |
 | `ship.c` | `check_computer_damage` | `0x41F5D0` | 100.00% |
 | `ship.c` | `ReportComponentRepaired` | `0x41F5F0` | 100.00% |
-| `ship.c` | `repair_internal_damage` | `0x41F660` | 87.76% |
-| `ship.c` | `Create_ship_hit_debris` | `0x41F700` | 96.49% |
+| `ship.c` | `repair_internal_damage` | `0x41F660` | 100.00% |
+| `ship.c` | `Create_ship_hit_debris` | `0x41F700` | 98.25% |
 | `ship.c` | `check_next_wave` | `0x41F7C0` | 100.00% |
 | `ship.c` | `Create_explosion_debris` | `0x41F800` | 94.07% |
 | `ship.c` | `affect_mission_score` | `0x41F9E0` | 100.00% |

@@ -42,7 +42,7 @@ short __stdcall CreateDataFile(const char *path)
     if ((unsigned int)fd == (unsigned int)-1) {
         sprintf(g_szCreateDataFileError_00475d60, "!_open '%s'\n", path);
         g_nPacketError_00465460 = (short)errno;
-        fd = 0;
+        return 0;
     }
     return (short)fd;
 }

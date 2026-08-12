@@ -1216,12 +1216,14 @@ short find_next_gun(short obj, enum ObjectType currentGun)
 /* Function start: 0x42ADA0 */
 int select_guns(short obj, short selectedGun)
 {
-    int found = 0;
-    ShipWeaponSlot *weaponSlot =
-        (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
-    short weaponCount = (signed char)g_aShipWeapons_0059cab0[0][0];
+    short weaponCount;
+    int found;
+    ShipWeaponSlot *weaponSlot;
 
     (void)obj;
+    weaponCount = (signed char)g_aShipWeapons_0059cab0[0][0];
+    found = 0;
+    weaponSlot = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
     if (weaponCount > 0) {
         do {
             if (g_aObjectTypeData_00466458[weaponSlot->type].objectClass ==

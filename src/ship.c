@@ -552,11 +552,10 @@ short ReportComponentRepaired(short component, short minimumDamage)
 void repair_internal_damage(void)
 {
     short repair;
+    short component;
 
-    /* The retail Win32 function reads an uninitialised stack word for its
-     * outer component-damage guard.  Attempting the repair is equivalent for
-     * valid undestroyed state; the individual repair paths retain their real
-     * damage thresholds without risking an out-of-bounds array access. */
+    if ((short)g_acPlayerComponentDamage_0059bff0[component] >= 4)
+        return;
     if ((short)RandomBelowOrEqual(500) >= 2)
         return;
     repair = (short)RandomBelowOrEqual(2);

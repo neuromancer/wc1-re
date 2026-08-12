@@ -2420,33 +2420,33 @@ unsigned int init_3Space_objects(short scene)
 /* Function start: 0x424B00 */
 unsigned int load_common_3Space_objects(void)
 {
-    ObjectTypeData *types = g_aObjectTypeData_00466458;
-    unsigned char *turretShapeSet;
-    unsigned char *turretAnimation;
-    unsigned char *debrisShapeSet;
-    unsigned char *missileAnimation;
-    unsigned char *missileShapeSet;
-
     LoadShapeSet(g_aCommon3SpaceResources_00469bc0, 0, -1);
-    debrisShapeSet = types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    turretShapeSet = types[OBJECT_TYPE_LASER_CANNON].shapeSet;
-    types[OBJECT_TYPE_DEBRIS_O_RING].shapeSet = debrisShapeSet;
-    turretAnimation = types[OBJECT_TYPE_LASER_CANNON].animation;
-    types[OBJECT_TYPE_DEBRIS_GLASS].shapeSet = debrisShapeSet;
-    types[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet = debrisShapeSet;
-    types[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet = debrisShapeSet;
-    types[OBJECT_TYPE_TURRET].shapeSet = turretShapeSet;
-    types[OBJECT_TYPE_TURRET].animation = turretAnimation;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_TURRET].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_LASER_CANNON].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_TURRET].animation =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_LASER_CANNON].animation;
 
     load_ship(OBJECT_TYPE_HEAT_SEEKING_MISSILE, 3);
-    missileShapeSet = types[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
-    missileAnimation = types[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
-    types[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet = missileShapeSet;
-    types[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet = missileShapeSet;
-    types[OBJECT_TYPE_FF_MISSILE].shapeSet = missileShapeSet;
-    types[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation = missileAnimation;
-    types[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation = missileAnimation;
-    types[OBJECT_TYPE_FF_MISSILE].animation = missileAnimation;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_FF_MISSILE].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_FF_MISSILE].animation =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
     return 0;
 }
 
@@ -2480,27 +2480,25 @@ unsigned int free_3Space(void)
 /* Function start: 0x424BE0 */
 unsigned int free_3Space_objects(void)
 {
-    ObjectTypeData *types = g_aObjectTypeData_00466458;
-
     FreeShapeSet(g_aCommon3SpaceResources_00469bc0, 0);
     FreeShapeSet(g_aMissionResourceDescriptors_00469c20, 0);
     free_ship(3);
-    types[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet = 0;
-    types[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet = 0;
-    types[OBJECT_TYPE_FF_MISSILE].shapeSet = 0;
-    types[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation = 0;
-    types[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation = 0;
-    types[OBJECT_TYPE_FF_MISSILE].animation = 0;
-    types[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
-        types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    types[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
-        types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    types[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
-        types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    types[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
-        types[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    types[OBJECT_TYPE_DEBRIS_WING].shapeSet =
-        types[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet = 0;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet = 0;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_FF_MISSILE].shapeSet = 0;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation = 0;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation = 0;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_FF_MISSILE].animation = 0;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
     return 0;
 }
 
