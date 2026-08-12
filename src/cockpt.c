@@ -1347,13 +1347,14 @@ void rotational_pos_to_scanner_pos(signed char object,
 
     horizontal = position->yaw;
     if (abs((int)horizontal) < 45)
-        horizontal = (short)(horizontal / 4);
+        g_nScannerCursorX_005a7e6c = (short)(
+            g_stCockpitLayout_0046e000.scanner[
+                (int)g_cCockpitView_0059dab0].centerX + horizontal / 4);
     else
-        horizontal = (short)(horizontal / 6);
+        g_nScannerCursorX_005a7e6c = (short)(
+            g_stCockpitLayout_0046e000.scanner[
+                (int)g_cCockpitView_0059dab0].centerX + horizontal / 6);
 
-    g_nScannerCursorX_005a7e6c = (short)(
-        g_stCockpitLayout_0046e000.scanner[
-            (int)g_cCockpitView_0059dab0].centerX + horizontal);
     g_nScannerCursorY_005a7e6e = (short)(
         g_stCockpitLayout_0046e000.scanner[
             (int)g_cCockpitView_0059dab0].centerY + position->pitch / -3);

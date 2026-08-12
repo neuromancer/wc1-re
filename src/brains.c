@@ -411,10 +411,9 @@ void Mhard_turn(short ship)
 /* Function start: 0x406A50 */
 void Mfish_hook(short ship, short target)
 {
-    short advanceSequence;
+    short advanceSequence = 1;
 
     (void)target;
-    advanceSequence = 1;
     switch (g_acShipSequence_0059d520[ship]) {
     case 0:
         g_anYawGoal_0059c310[ship] =
@@ -431,10 +430,10 @@ void Mfish_hook(short ship, short target)
             (short)RandomBelowOrEqual(2) * 90 - 45;
         break;
     case 3:
-        if (g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[ship]].cruiseVelocity <
-            real_velocity(ship))
-            advanceSequence = 0;
+        advanceSequence =
+            g_aObjectTypeData_00466458[
+                g_aeObjectType_0059b560[ship]].cruiseVelocity >=
+            real_velocity(ship);
         break;
     case 4:
         advanceSequence = no_goal(ship);
@@ -744,9 +743,7 @@ void general_zig(short ship, unsigned int target, short pitch)
         break;
     case 2:
     case 5:
-        complete = 1;
-        if (++g_asShipCount_0059c420[ship] < 4)
-            complete = 0;
+        complete = ++g_asShipCount_0059c420[ship] >= 4;
         break;
     case 3:
         pitch = -pitch;

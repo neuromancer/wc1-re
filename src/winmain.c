@@ -148,7 +148,11 @@ void skew_randomly(short obj, short allowReverse)
 /* Function start: 0x401390 */
 void align(short *value, short quantum)
 {
-    *value -= *value % quantum;
+    short current;
+
+    current = *value;
+    current = (short)(current - current % quantum);
+    *value = current;
 }
 
 /* Function start: 0x4013B0 */

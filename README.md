@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.98% average)</summary>
+<summary>All 1,472 function similarity scores (98.02% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -94,7 +94,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `Mturn_n_kick` | `0x406910` | 100.00% |
 | `brains.c` | `Mroll_over` | `0x406990` | 100.00% |
 | `brains.c` | `Mhard_turn` | `0x4069F0` | 100.00% |
-| `brains.c` | `Mfish_hook` | `0x406A50` | 98.67% |
+| `brains.c` | `Mfish_hook` | `0x406A50` | 100.00% |
 | `brains.c` | `Mtry2tail` | `0x406B60` | 100.00% |
 | `brains.c` | `Msplit_left` | `0x406BD0` | 100.00% |
 | `brains.c` | `Msplit_right` | `0x406C20` | 100.00% |
@@ -111,7 +111,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `Mkill_missile` | `0x407100` | 100.00% |
 | `brains.c` | `Msuicide_run` | `0x4071B0` | 100.00% |
 | `brains.c` | `Mget_distance` | `0x4071E0` | 100.00% |
-| `brains.c` | `general_zig` | `0x407270` | 98.18% |
+| `brains.c` | `general_zig` | `0x407270` | 100.00% |
 | `brains.c` | `Mzig_zag` | `0x407350` | 100.00% |
 | `brains.c` | `Mzig_zag_pitch` | `0x407370` | 100.00% |
 | `brains.c` | `Mcorkscrew` | `0x407390` | 100.00% |
@@ -168,7 +168,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `approach_and_engage` | `0x40A9B0` | 99.01% |
 | `brains.c` | `strike_mission` | `0x40AAC0` | 100.00% |
 | `brains.c` | `return_to_master` | `0x40ABB0` | 100.00% |
-| `brains.c` | `defend_mission` | `0x40AC00` | 99.29% |
+| `brains.c` | `defend_mission` | `0x40AC00` | 97.14% |
 | `brains.c` | `rendezvous_mission` | `0x40AD80` | 100.00% |
 | `brains.c` | `ship_intelligence` | `0x40AE80` | 100.00% |
 | `brains.c` | `orbit_sphere` | `0x40AF70` | 100.00% |
@@ -207,7 +207,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `set_formation_position` | `0x40C4E0` | 90.91% |
 | `brains.c` | `Set_up_ship_info` | `0x40C5E0` | 84.27% |
 | `brains.c` | `is_team_member` | `0x40C740` | 100.00% |
-| `brains.c` | `find_next_ship_turn_slot` | `0x40C780` | 94.44% |
+| `brains.c` | `find_next_ship_turn_slot` | `0x40C780` | 91.67% |
 | `brains.c` | `init_ship` | `0x40C800` | 90.98% |
 | `brains.c` | `init_intelligence_data` | `0x40C950` | 84.62% |
 | `brains.c` | `SampleBothJoysticks` | `0x40CAA0` | 100.00% |
@@ -317,7 +317,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `update_objective_location` | `0x415770` | 84.81% |
 | `cockpt.c` | `objective_lost` | `0x415850` | 100.00% |
 | `cockpt.c` | `check_objectives` | `0x4158A0` | 100.00% |
-| `cockpt.c` | `rotational_pos_to_scanner_pos` | `0x4158F0` | 83.33% |
+| `cockpt.c` | `rotational_pos_to_scanner_pos` | `0x4158F0` | 100.00% |
 | `cockpt.c` | `mobile_objective` | `0x415A30` | 100.00% |
 | `cockpt.c` | `ResetScannerContacts` | `0x415A70` | 100.00% |
 | `cockpt.c` | `clear_head_up_display` | `0x415A90` | 100.00% |
@@ -1427,7 +1427,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `spc.c` | `GetVectorMagnitude` | `0x410AD0` | 100.00% |
 | `spc.c` | `set_eye_direction_and_position` | `0x410AF0` | 89.68% |
 | `spc.c` | `force_view` | `0x4117B0` | 100.00% |
-| `spc.c` | `new_view` | `0x4117D0` | 98.87% |
+| `spc.c` | `new_view` | `0x4117D0` | 100.00% |
 | `spc.c` | `start_dust` | `0x411EC0` | 93.41% |
 | `spc.c` | `generate_stars` | `0x411FE0` | 100.00% |
 | `spc.c` | `update_star_field` | `0x412100` | 91.32% |
@@ -1439,7 +1439,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `spc.c` | `animate_shape` | `0x412CD0` | 81.73% |
 | `spc.c` | `animate_object` | `0x412E30` | 100.00% |
 | `spc.c` | `hit_asteroid` | `0x413030` | 100.00% |
-| `spc.c` | `object_collision` | `0x4130D0` | 82.21% |
+| `spc.c` | `object_collision` | `0x4130D0` | 82.54% |
 | `spc.c` | `object_intelligence` | `0x413880` | 95.12% |
 | `strdos.c` | `DosFarPtrToNear` | `0x435410` | 100.00% |
 | `strdos.c` | `DosNearPtrToFar` | `0x435420` | 100.00% |
@@ -1481,7 +1481,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `winmain.c` | `difficulty` | `0x401250` | 100.00% |
 | `winmain.c` | `asteroid_velocity` | `0x401270` | 100.00% |
 | `winmain.c` | `skew_randomly` | `0x401290` | 100.00% |
-| `winmain.c` | `align` | `0x401390` | 66.67% |
+| `winmain.c` | `align` | `0x401390` | 100.00% |
 | `winmain.c` | `init_hazard` | `0x4013B0` | 96.31% |
 | `winmain.c` | `near_field` | `0x401680` | 100.00% |
 | `winmain.c` | `within_field` | `0x4016A0` | 100.00% |
@@ -1496,7 +1496,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `winmain.c` | `update_hazards` | `0x401B30` | 100.00% |
 | `winmain.c` | `start_hazard_field` | `0x401BC0` | 100.00% |
 | `winmain.c` | `add_hazard_field` | `0x401C00` | 100.00% |
-| `winmain.c` | `check_hazards` | `0x401C60` | 97.78% |
+| `winmain.c` | `check_hazards` | `0x401C60` | 100.00% |
 | `winmain.c` | `WarpMouseTo` | `0x401CE0` | 100.00% |
 | `winmain.c` | `CheckLauncherAndConfig` | `0x401D10` | 94.44% |
 | `winmain.c` | `WinMain` | `0x401E30` | 98.78% |
