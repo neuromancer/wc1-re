@@ -77,13 +77,13 @@ int SetCurrentDirOnDrive(char drive, const char *directory);          /* 0x00403
 int PromptInsertCorrectCd(void);                                      /* 0x00403450 */
 short __stdcall OpenDataFileOrDie(const char *path);                           /* 0x004034D0 */
 void __stdcall CloseDataFile(unsigned short fd);                           /* 0x00403500 */
-short __stdcall WriteDataFileAtOffset(unsigned int fd, int offset,
+short __stdcall WriteDataFileAtOffset(unsigned short fd, int offset,
                                       unsigned int length,
                                       const void *data);                    /* 0x00403520 */
 short __stdcall CreateDataFile(const char *path);                          /* 0x004035C0 */
-int __stdcall ReadDataFileAtOffset(unsigned int fd, int offset,
+int __stdcall ReadDataFileAtOffset(unsigned short fd, int offset,
                                    unsigned int length, void *data);        /* 0x00403610 */
-int __stdcall SeekDataFile(unsigned int fd, int offset,
+int __stdcall SeekDataFile(unsigned short fd, int offset,
                            unsigned int origin);                            /* 0x004036B0 */
 int MeasureScaledIntroTextWidth(const char *text, short scale);            /* 0x00403710 */
 int DrawCenteredScaledIntroText(const char *text, short centreX,

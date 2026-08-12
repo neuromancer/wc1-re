@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (98.21% average)</summary>
+<summary>All 1,472 function similarity scores (98.23% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -50,17 +50,17 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `auto.c` | `set_speed` | `0x403F10` | 100.00% |
 | `auto.c` | `auto_position` | `0x403F40` | 92.77% |
 | `auto.c` | `auto_pilot_sequence` | `0x404050` | 96.91% |
-| `barracks.c` | `CreateEmptySaveGameFile` | `0x41ADA0` | 89.74% |
+| `barracks.c` | `CreateEmptySaveGameFile` | `0x41ADA0` | 91.50% |
 | `barracks.c` | `EnsureSaveGameFile` | `0x41B020` | 100.00% |
 | `barracks.c` | `InitializeBarracksAnimation` | `0x41B070` | 100.00% |
 | `barracks.c` | `FreeBarracksMenuLabel` | `0x41B0E0` | 100.00% |
 | `barracks.c` | `SetAwakenBarracksMenuLabel` | `0x41B110` | 100.00% |
 | `barracks.c` | `FreeBarracksMenuLabels` | `0x41B180` | 100.00% |
-| `barracks.c` | `SaveGame` | `0x41B1E0` | 95.86% |
+| `barracks.c` | `SaveGame` | `0x41B1E0` | 96.55% |
 | `barracks.c` | `PromptForTextInput` | `0x41B420` | 85.26% |
 | `barracks.c` | `WarnLoadGameFirst` | `0x41B550` | 100.00% |
 | `barracks.c` | `SaveGameWithNamePrompt` | `0x41B5C0` | 100.00% |
-| `barracks.c` | `LoadGame` | `0x41B710` | 86.75% |
+| `barracks.c` | `LoadGame` | `0x41B710` | 87.27% |
 | `barracks.c` | `LoadGameFromSlot` | `0x41B980` | 97.65% |
 | `barracks.c` | `SetBunkMenuLabel` | `0x41BAD0` | 100.00% |
 | `barracks.c` | `GetBunkInfo` | `0x41BB20` | 100.00% |
@@ -198,7 +198,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `new_sphere_shapes` | `0x40BF50` | 100.00% |
 | `brains.c` | `set_up_action_sphere` | `0x40BFF0` | 100.00% |
 | `brains.c` | `free_pilot_talk` | `0x40C150` | 100.00% |
-| `brains.c` | `get_pilot_talk` | `0x40C1C0` | 91.57% |
+| `brains.c` | `get_pilot_talk` | `0x40C1C0` | 95.00% |
 | `brains.c` | `init_personalities` | `0x40C2B0` | 100.00% |
 | `brains.c` | `room_for_me` | `0x40C350` | 100.00% |
 | `brains.c` | `approve_xyz` | `0x40C360` | 100.00% |
@@ -502,7 +502,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `eventmgr.c` | `FillGraphicSuffix` | `0x436C70` | 100.00% |
 | `eventmgr.c` | `ConvertChar_Int` | `0x436CB0` | 100.00% |
 | `geom.c` | `MeasureTextPixelWidthClamped` | `0x418080` | 100.00% |
-| `geom.c` | `SeekPacketSection` | `0x4180C0` | 91.11% |
+| `geom.c` | `SeekPacketSection` | `0x4180C0` | 97.73% |
 | `geom.c` | `GetMusicDriverPresent` | `0x418130` | 100.00% |
 | `geom.c` | `CollectActivePaletteIndices` | `0x418140` | 100.00% |
 | `geom.c` | `get_ship_max_velocity` | `0x4181C0` | 100.00% |
@@ -828,7 +828,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `killbrd.c` | `RecRoom` | `0x43F940` | 85.91% |
 | `killbrd.c` | `ShowChalkBoard` | `0x440510` | 84.02% |
 | `killbrd.c` | `ResetCampaignData` | `0x440800` | 100.00% |
-| `killbrd.c` | `ReadPacketSectionData` | `0x440840` | 93.18% |
+| `killbrd.c` | `ReadPacketSectionData` | `0x440840` | 100.00% |
 | `killbrd.c` | `CheckHeapBlockSignature` | `0x4408A0` | 100.00% |
 | `killbrd.c` | `GetPreparedShapeData` | `0x4408C0` | 100.00% |
 | `killbrd.c` | `GetShapeFrameCount` | `0x4408D0` | 100.00% |
@@ -1048,7 +1048,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `music.c` | `TheEndFireWorks` | `0x42D2A0` | 100.00% |
 | `music.c` | `InitializeConstellationField` | `0x42D390` | 84.54% |
 | `music.c` | `DrawConstellationField` | `0x42D500` | 86.96% |
-| `music.c` | `OpenPacketSection` | `0x42D730` | 86.92% |
+| `music.c` | `OpenPacketSection` | `0x42D730` | 93.33% |
 | `music.c` | `CloseDataFileByHandle` | `0x42D870` | 100.00% |
 | `music.c` | `DecompressPacketSection` | `0x42D880` | 93.69% |
 | `music.c` | `GetTargetColourIndex` | `0x42DB70` | 100.00% |
@@ -1415,7 +1415,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `sound.c` | `InitializeDiskPromptTextContext` | `0x42C420` | 100.00% |
 | `sound.c` | `RewriteDiskFileGraphicsExtensions` | `0x42C510` | 100.00% |
 | `sound.c` | `LoadWingCmdrCfgFile` | `0x42C580` | 100.00% |
-| `sound.c` | `LoadInstallDat` | `0x42C660` | 95.62% |
+| `sound.c` | `LoadInstallDat` | `0x42C660` | 98.50% |
 | `sound.c` | `show_damage_disp` | `0x42C800` | 90.82% |
 | `sound.c` | `UpdateDamageDisplay` | `0x42C970` | 92.22% |
 | `sound.c` | `GetJoystickPresentUnused` | `0x42CDA0` | 100.00% |

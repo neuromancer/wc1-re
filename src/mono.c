@@ -15,11 +15,10 @@ void __stdcall CloseDataFile(unsigned short fd)
 }
 
 /* Function start: 0x403520 */
-short __stdcall WriteDataFileAtOffset(unsigned int fd, int offset,
+short __stdcall WriteDataFileAtOffset(unsigned short fd, int offset,
                                       unsigned int length, const void *data)
 {
     g_nPacketError_00465460 = 0;
-    fd &= 0xffff;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
         sprintf(g_szWriteDataFileError_00475da0, "!lseek %d\n", offset);
         g_nPacketError_00465460 = (short)errno;
@@ -48,11 +47,10 @@ short __stdcall CreateDataFile(const char *path)
 }
 
 /* Function start: 0x403610 */
-int __stdcall ReadDataFileAtOffset(unsigned int fd, int offset,
+int __stdcall ReadDataFileAtOffset(unsigned short fd, int offset,
                                    unsigned int length, void *data)
 {
     g_nPacketError_00465460 = 0;
-    fd &= 0xffff;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
         sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
         g_nPacketError_00465460 = (short)errno;
@@ -67,12 +65,12 @@ int __stdcall ReadDataFileAtOffset(unsigned int fd, int offset,
 }
 
 /* Function start: 0x4036B0 */
-int __stdcall SeekDataFile(unsigned int fd, int offset,
+int __stdcall SeekDataFile(unsigned short fd, int offset,
                            unsigned int origin)
 {
     int position;
 
-    position = _lseek(fd & 0xffff, offset, origin & 0xffff);
+    position = _lseek(fd, offset, origin & 0xffff);
     if (position == -1) {
         sprintf(g_szSeekDataFileError_00475de0, "!lseek %d\n", offset);
         g_nPacketError_00465460 = (short)errno;
