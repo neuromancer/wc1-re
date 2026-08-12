@@ -4107,11 +4107,11 @@ unsigned int find_next_ship_turn_slot(short obj)
     short other;
 
     objIndex = (int)obj;
+    other = 1;
     g_acTurnRegulator_0059cf10[objIndex] = 1;
     interval = (signed char)g_anPilotTurnInterval_00465fc8[
         g_aiPilotLevel_0059cf30[objIndex]];
     g_acTurnInterval_0059d7d0[objIndex] = interval;
-    other = 1;
     do {
         if (g_aeObjectClass_0059d100[other] == OBJECT_CLASS_SHIP &&
             other != obj &&
@@ -4343,8 +4343,10 @@ void SetScale(void)
 {
     short objectiveIndex;
     short ship;
-    short halfWidth;
     short halfHeight;
+    short halfWidth;
+    short height;
+    short width;
 
     SetNavMapCoordinateScaling(0);
     g_nNavMapMinimumX_005a812e = g_aMissionObjectives_0059dac0[0].mapX;
@@ -4371,19 +4373,19 @@ void SetScale(void)
     }
     IncludeNavMapWorldPoint(g_aShipPosition_0059c490[0].x,
                             g_aShipPosition_0059c490[0].z);
-    halfWidth = (short)((g_nNavMapMaximumX_005a812c -
-                         g_nNavMapMinimumX_005a812e) / 2);
+    width = (short)(g_nNavMapMaximumX_005a812c -
+                    g_nNavMapMinimumX_005a812e);
+    height = (short)(g_nNavMapMaximumY_005a8150 -
+                     g_nNavMapMinimumY_005a8154);
+    halfWidth = (short)(width / 2);
     g_nNavMapCentreX_005a8152 =
         (short)(g_nNavMapMinimumX_005a812e + halfWidth);
-    halfHeight = (short)((g_nNavMapMaximumY_005a8150 -
-                          g_nNavMapMinimumY_005a8154) / 2);
+    halfHeight = (short)(height / 2);
     g_nNavMapCentreY_005a817c =
         (short)(g_nNavMapMinimumY_005a8154 + halfHeight);
     g_nNavMapScale_00468664 = MaxShort(
-        (short)(((g_nNavMapMaximumX_005a812c -
-                  g_nNavMapMinimumX_005a812e) + halfWidth) / 150),
-        (short)((halfHeight + (g_nNavMapMaximumY_005a8150 -
-                              g_nNavMapMinimumY_005a8154)) / 135));
+        (short)((width + halfWidth) / 150),
+        (short)((halfHeight + height) / 135));
     if (g_nNavMapScale_00468664 == 0)
         g_nNavMapScale_00468664 = 100;
     SetNavMapCoordinateScaling(1);

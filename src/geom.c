@@ -491,9 +491,9 @@ void vector_component_in_dir(const FixedVector *vector,
 /* Function start: 0x418BE0 */
 void rotate_about_i(short angle, FixedVector *j, FixedVector *k)
 {
+    int old;
     int cosine;
     int sine;
-    int old;
 
     cosine = (int)CosFixed(angle);
     sine = (int)SinFixed(angle);
@@ -531,9 +531,9 @@ void rotate_about_j(short angle, FixedVector *i, FixedVector *k)
 /* Function start: 0x418E40 */
 void rotate_about_k(short angle, FixedVector *i, FixedVector *j)
 {
-    int sine;
-    int cosine;
     int old;
+    int cosine;
+    int sine;
 
     cosine = (int)CosFixed(angle);
     sine = (int)SinFixed(angle);

@@ -2887,6 +2887,8 @@ void vdu_pop_all(short vdu)
 /* Function start: 0x417F60 */
 void SelectCockpitVduMode(short vdu, int mode)
 {
+    short changed;
+
     if (DAT_0046c03c != 0)
         return;
     if ((short)malf(3) != 0 ||
@@ -2895,15 +2897,16 @@ void SelectCockpitVduMode(short vdu, int mode)
         return;
     }
     PlayCockpitSelectionSfx(g_asVduSelectionSound_00469000[vdu]);
-    if ((short)get_mode(vdu) != mode) {
+    changed = (short)get_mode(vdu) != mode;
+    if (changed != 0) {
         vdu_pop_all(vdu);
         InvalidateVduMode(vdu);
-        if (mode == 4) {
-            show_communications_disp();
+        if (mode != 4) {
+            set_mode(vdu, mode);
             update_VDUs();
             return;
         }
-        set_mode(vdu, mode);
+        show_communications_disp();
         update_VDUs();
         return;
     }

@@ -10,8 +10,8 @@ Visual C++ 4.20 to preserve the original code generation.
 
 ## Status
 
-All 1,465 identified functions are now accounted for: 1,463 have source
-implementations (1,339 game functions and all 124 `ix` audio functions), while
+All 1,472 identified functions are now accounted for: 1,470 have source
+implementations (1,346 game functions and all 124 `ix` audio functions), while
 the remaining two are compiler/linker-generated jump thunks. `make progress`
 marks those two entries as autocomplete because they must be emitted naturally
 by the toolchain rather than reproduced by hand.
@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.93% average)</summary>
+<summary>All 1,472 function similarity scores (97.98% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -207,7 +207,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `set_formation_position` | `0x40C4E0` | 90.91% |
 | `brains.c` | `Set_up_ship_info` | `0x40C5E0` | 84.27% |
 | `brains.c` | `is_team_member` | `0x40C740` | 100.00% |
-| `brains.c` | `find_next_ship_turn_slot` | `0x40C780` | 86.11% |
+| `brains.c` | `find_next_ship_turn_slot` | `0x40C780` | 94.44% |
 | `brains.c` | `init_ship` | `0x40C800` | 90.98% |
 | `brains.c` | `init_intelligence_data` | `0x40C950` | 84.62% |
 | `brains.c` | `SampleBothJoysticks` | `0x40CAA0` | 100.00% |
@@ -220,7 +220,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `brains.c` | `nav_getxy` | `0x40CC30` | 100.00% |
 | `brains.c` | `CheckPoint` | `0x40CC80` | 100.00% |
 | `brains.c` | `IncludeNavMapWorldPoint` | `0x40CCF0` | 100.00% |
-| `brains.c` | `SetScale` | `0x40CD30` | 87.29% |
+| `brains.c` | `SetScale` | `0x40CD30` | 100.00% |
 | `brains.c` | `Build_objective_list` | `0x40CED0` | 85.04% |
 | `cdrom.c` | `AllocateFontWorkspace` | `0x403100` | 91.11% |
 | `cdrom.c` | `FreeFontWorkspace` | `0x403180` | 100.00% |
@@ -368,7 +368,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `update_cockpit` | `0x417E70` | 100.00% |
 | `cockpt.c` | `PlayCockpitSelectionSfx` | `0x417F00` | 100.00% |
 | `cockpt.c` | `vdu_pop_all` | `0x417F10` | 100.00% |
-| `cockpt.c` | `SelectCockpitVduMode` | `0x417F60` | 89.25% |
+| `cockpt.c` | `SelectCockpitVduMode` | `0x417F60` | 100.00% |
 | `debug.cpp` | `DebugOverlayConsole::DebugOverlayConsole` | `0x41C760` | 100.00% |
 | `debug.cpp` | `DebugOverlayConsole::~DebugOverlayConsole` | `0x41C910` | 100.00% |
 | `debug.cpp` | `DebugOverlayWorkerProc` | `0x41C960` | 90.67% |
@@ -545,9 +545,9 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `NormalizeFixedVector` | `0x418B10` | 100.00% |
 | `geom.c` | `vector_length_in_dir` | `0x418B60` | 100.00% |
 | `geom.c` | `vector_component_in_dir` | `0x418BB0` | 100.00% |
-| `geom.c` | `rotate_about_i` | `0x418BE0` | 80.56% |
+| `geom.c` | `rotate_about_i` | `0x418BE0` | 100.00% |
 | `geom.c` | `rotate_about_j` | `0x418D00` | 100.00% |
-| `geom.c` | `rotate_about_k` | `0x418E40` | 80.56% |
+| `geom.c` | `rotate_about_k` | `0x418E40` | 100.00% |
 | `geom.c` | `init_ijk` | `0x418F60` | 100.00% |
 | `geom.c` | `copy_frame` | `0x418FD0` | 100.00% |
 | `geom.c` | `fix_objects_ijk` | `0x419050` | 100.00% |
