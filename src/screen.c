@@ -200,6 +200,7 @@ retry_request:
         reply(ship, 0);
         return;
     case 2:
+        allow_engage();
         target = -1;
         object = 0;
         do {
@@ -218,7 +219,6 @@ retry_request:
             command = 9;
             goto retry_request;
         }
-        allow_engage();
         engage(ship, target, OBJECTIVE_ENGAGE_ENEMY);
         reply(ship, 1);
         return;
@@ -1491,7 +1491,7 @@ void show_communications_disp(void)
                    DAT_005a7530.top, g_pszCommMenuHeading_0059e490, 2);
         if (g_nCommMenuChoiceCount_0046af60 > 0) {
             do {
-                DrawFormattedText("%d %s", (int)choice + 1,
+                DrawFormattedText("\n%d %s", (int)choice + 1,
                                   g_apszCommMenuChoiceText_0059e4e0[
                                       (int)choice]);
                 choice++;
