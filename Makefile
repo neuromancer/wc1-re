@@ -320,12 +320,20 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/input.c
 MODERN_GAME_HOST_SRCS = \
 	src/sdl/debug.c \
-	src/sdl/events.c
+	src/sdl/dib.c \
+	src/sdl/events.c \
+	src/sdl/video.c
 MODERN_LAUNCHER_SRC = src/sdl/launcher.c
 
 MODERN_GAMEPLAY_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAMEPLAY_SRCS))
 MODERN_BASE_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_BASE_HOST_SRCS))
 MODERN_GAME_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_SRCS))
+MODERN_EVENT_HOST_OBJS = \
+	$(MODERN_OUT_DIR)/obj/sdl/debug.o \
+	$(MODERN_OUT_DIR)/obj/sdl/events.o
+MODERN_VIDEO_HOST_OBJS = \
+	$(MODERN_OUT_DIR)/obj/sdl/dib.o \
+	$(MODERN_OUT_DIR)/obj/sdl/video.o
 MODERN_LAUNCHER_OBJ = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_LAUNCHER_SRC))
 MODERN_INPUT_CORE_OBJS = \
 	$(MODERN_OUT_DIR)/obj/eventmgr.o \
@@ -334,10 +342,12 @@ MODERN_INPUT_CORE_OBJS = \
 MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat sdl_input_compat
 MODERN_BASE_C_TEST_BINS = $(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))
 MODERN_EVENT_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_event_compat
+MODERN_VIDEO_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_video_compat
 MODERN_CXX_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke
 MODERN_TEST_BINS = \
 	$(MODERN_BASE_C_TEST_BINS) \
 	$(MODERN_EVENT_TEST_BIN) \
+	$(MODERN_VIDEO_TEST_BIN) \
 	$(MODERN_CXX_TEST_BIN)
 MODERN_DEPFILES = \
 	$(MODERN_GAMEPLAY_OBJS:.o=.d) \
@@ -346,6 +356,7 @@ MODERN_DEPFILES = \
 	$(MODERN_LAUNCHER_OBJ:.o=.d) \
 	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))) \
 	$(MODERN_EVENT_TEST_BIN).d \
+	$(MODERN_VIDEO_TEST_BIN).d \
 	$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.d
 
 # ---------------------------------------------------------------------------
@@ -412,8 +423,16 @@ $(MODERN_BASE_C_TEST_BINS): $(MODERN_OUT_DIR)/tests/%: \
 $(MODERN_EVENT_TEST_BIN): \
 		$(MODERN_OUT_DIR)/tests/sdl_event_compat.o \
 		$(MODERN_BASE_HOST_OBJS) \
-		$(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_EVENT_HOST_OBJS) \
 		$(MODERN_INPUT_CORE_OBJS)
+	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+$(MODERN_VIDEO_TEST_BIN): \
+		$(MODERN_OUT_DIR)/tests/sdl_video_compat.o \
+		$(MODERN_VIDEO_HOST_OBJS) \
+		$(MODERN_OUT_DIR)/obj/globals.o
 	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$^ $(MODERN_SDL_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@

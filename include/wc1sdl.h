@@ -76,10 +76,15 @@ typedef struct Wc1SdlDirectDrawPalette *LPDIRECTDRAWPALETTE;
 DWORD Wc1SdlGetTicks(void);
 int Wc1SdlGetAsyncKeyState(int virtualKey);
 void Wc1SdlOutputDebugString(const char *text);
+int Wc1SdlInitializeVideo(SDL_Window *window);
+int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
+                              const unsigned char *palette);
 int Wc1SdlSetCursorPosition(int x, int y);
 void Wc1SdlSleep(DWORD milliseconds);
 void Wc1SdlStartEventPump(void);
+void Wc1SdlShutdownVideo(void);
 int Wc1SdlTranslateScanCode(SDL_Scancode scanCode);
+void Wc1SdlWaitForVerticalBlank(void);
 
 #define GetTickCount Wc1SdlGetTicks
 #define GetAsyncKeyState Wc1SdlGetAsyncKeyState

@@ -5,7 +5,6 @@
 
 int main(int argumentCount, char **arguments)
 {
-    SDL_Renderer *renderer;
     SDL_Window *window;
     Uint32 windowFlags;
     int checkOnly;
@@ -29,23 +28,8 @@ int main(int argumentCount, char **arguments)
         return 1;
     }
 
-    renderer = SDL_CreateRenderer(window, -1,
-                                  checkOnly ? SDL_RENDERER_SOFTWARE
-                                            : SDL_RENDERER_ACCELERATED |
-                                                  SDL_RENDERER_PRESENTVSYNC);
-    if (renderer == 0 && !checkOnly)
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-    if (renderer == 0) {
-        fprintf(stderr, "SDL renderer creation failed: %s\n", SDL_GetError());
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return 1;
-    }
-
-    SDL_SetRenderDrawColor(renderer, 4, 10, 24, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
-
+    DIBinstall((HWND)window);
+    DIBslamReal();
     Wc1SdlStartEventPump();
     running = !checkOnly;
     while (running) {
@@ -53,7 +37,7 @@ int main(int argumentCount, char **arguments)
         SDL_Delay(1);
     }
 
-    SDL_DestroyRenderer(renderer);
+    DIBunInstall();
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
