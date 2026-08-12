@@ -815,7 +815,7 @@ unsigned short vdu_malf(short vdu, short sound)
 
 /* Function start: 0x414B70 */
 void ShowComponentHitHudMessage(char *text, unsigned short colour,
-                                signed char flashCount)
+                                short flashCount)
 {
     if (g_nTrainSimActive_00469e2c == 0 && get_mode(0) != 0) {
         if (DAT_005a7ddd != 0)
@@ -825,7 +825,7 @@ void ShowComponentHitHudMessage(char *text, unsigned short colour,
                           DAT_005a6b80.left,
                           (short)(DAT_005a6b80.bottom - 6),
                           g_szComponentHitMessage_005a7e00,
-                          colour, flashCount);
+                          colour, (signed char)flashCount);
     }
 }
 

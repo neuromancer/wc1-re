@@ -723,9 +723,9 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
                           short *width, short *height,
                           short *leftExtent, short *topExtent)
 {
+    int rightExtent;
     short *frameHeader;
     int frameOffset;
-    int rightExtent;
     int left;
     int top;
     int bottom;
@@ -862,7 +862,7 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
 }
 
 /* Function start: 0x440BE0 */
-unsigned int SignExtendClipCoord(volatile int v)
+unsigned int SignExtendClipCoord(volatile short v)
 {
     if ((unsigned short)v < 0xfdc0)
         return (unsigned short)v;

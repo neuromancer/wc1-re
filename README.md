@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (98.18% average)</summary>
+<summary>All 1,472 function similarity scores (98.21% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -49,7 +49,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `auto.c` | `player_wingman` | `0x403EE0` | 100.00% |
 | `auto.c` | `set_speed` | `0x403F10` | 100.00% |
 | `auto.c` | `auto_position` | `0x403F40` | 92.77% |
-| `auto.c` | `auto_pilot_sequence` | `0x404050` | 96.21% |
+| `auto.c` | `auto_pilot_sequence` | `0x404050` | 96.91% |
 | `barracks.c` | `CreateEmptySaveGameFile` | `0x41ADA0` | 89.74% |
 | `barracks.c` | `EnsureSaveGameFile` | `0x41B020` | 100.00% |
 | `barracks.c` | `InitializeBarracksAnimation` | `0x41B070` | 100.00% |
@@ -77,7 +77,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `barracks.c` | `DosStrcat` | `0x41C740` | 100.00% |
 | `brains.c` | `SetShipAiScratchWord` | `0x4060A0` | 100.00% |
 | `brains.c` | `maneuver_complete` | `0x4060B0` | 100.00% |
-| `brains.c` | `Mline_up_drop` | `0x4060D0` | 90.62% |
+| `brains.c` | `Mline_up_drop` | `0x4060D0` | 100.00% |
 | `brains.c` | `Mwabble` | `0x406130` | 100.00% |
 | `brains.c` | `advance` | `0x4061E0` | 100.00% |
 | `brains.c` | `ShipAiState35` | `0x406200` | 100.00% |
@@ -291,7 +291,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `malf_sound` | `0x414AE0` | 100.00% |
 | `cockpt.c` | `malf` | `0x414AF0` | 100.00% |
 | `cockpt.c` | `vdu_malf` | `0x414B20` | 100.00% |
-| `cockpt.c` | `ShowComponentHitHudMessage` | `0x414B70` | 93.55% |
+| `cockpt.c` | `ShowComponentHitHudMessage` | `0x414B70` | 100.00% |
 | `cockpt.c` | `damage_your_component` | `0x414BF0` | 100.00% |
 | `cockpt.c` | `RemovePlayerReleaseWeapon` | `0x414CB0` | 100.00% |
 | `cockpt.c` | `fire_computer_graphic_missile` | `0x414D50` | 87.91% |
@@ -559,7 +559,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `distance_from_point` | `0x419210` | 100.00% |
 | `geom.c` | `distance_from_object` | `0x419260` | 100.00% |
 | `geom.c` | `get_facing_range_from_point` | `0x419290` | 86.49% |
-| `geom.c` | `get_facing_range_from_object` | `0x419310` | 90.62% |
+| `geom.c` | `get_facing_range_from_object` | `0x419310` | 93.75% |
 | `geom.c` | `ship_vs_point` | `0x419390` | 100.00% |
 | `geom.c` | `ship_vs_ship` | `0x4193B0` | 100.00% |
 | `geom.c` | `facing_to_object` | `0x4193D0` | 100.00% |
@@ -599,7 +599,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `ShowModalTextPanel` | `0x41AB90` | 90.76% |
 | `geom.c` | `ReleaseModalTextPanel` | `0x41AD10` | 100.00% |
 | `geom.c` | `AnySavedGames` | `0x41AD50` | 100.00% |
-| `gr.c` | `ValidateViewportBounds` | `0x440C00` | 80.00% |
+| `gr.c` | `ValidateViewportBounds` | `0x440C00` | 96.10% |
 | `gr.c` | `ClipViewportToScreen` | `0x440CF0` | 100.00% |
 | `gr.c` | `SetSolidColourTranslation` | `0x440D10` | 100.00% |
 | `gr.c` | `PrepareShapeRLEData` | `0x440D50` | 82.03% |
@@ -660,7 +660,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `hudmsg.c` | `RenderSpaceViewFrame` | `0x429FC0` | 100.00% |
 | `hudmsg.c` | `RefreshCockpitStatus` | `0x42A0C0` | 100.00% |
 | `hudmsg.c` | `GetShipDistanceToNavPoint` | `0x42A0E0` | 100.00% |
-| `hudmsg.c` | `FindNearestNavPoint` | `0x42A120` | 91.43% |
+| `hudmsg.c` | `FindNearestNavPoint` | `0x42A120` | 100.00% |
 | `hudmsg.c` | `ReleaseStaleNavTarget` | `0x42A170` | 100.00% |
 | `hudmsg.c` | `RunSpaceFlight` | `0x42A190` | 93.78% |
 | `hudmsg.c` | `calculate_damage_level` | `0x42A520` | 100.00% |
@@ -832,7 +832,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `killbrd.c` | `CheckHeapBlockSignature` | `0x4408A0` | 100.00% |
 | `killbrd.c` | `GetPreparedShapeData` | `0x4408C0` | 100.00% |
 | `killbrd.c` | `GetShapeFrameCount` | `0x4408D0` | 100.00% |
-| `killbrd.c` | `GetShapeFrameExtents` | `0x4408F0` | 90.91% |
+| `killbrd.c` | `GetShapeFrameExtents` | `0x4408F0` | 100.00% |
 | `killbrd.c` | `DecodeShapeFrame` | `0x440960` | 83.16% |
 | `killbrd.c` | `SignExtendClipCoord` | `0x440BE0` | 100.00% |
 | `logic.c` | `find_weapon` | `0x421100` | 96.43% |

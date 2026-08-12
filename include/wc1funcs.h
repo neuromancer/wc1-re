@@ -441,7 +441,7 @@ void malf_sound(void);                                                  /* 0x004
 unsigned short malf(char component);                                  /* 0x00414AF0 */
 unsigned short vdu_malf(short vdu, short sound);                       /* 0x00414B20 */
 void ShowComponentHitHudMessage(char *text, unsigned short colour,
-                                signed char flashCount);               /* 0x00414B70 */
+                                short flashCount);                     /* 0x00414B70 */
 int damage_your_component(char component, char amount, char maximum); /* 0x00414BF0 */
 void RemovePlayerReleaseWeapon(signed char weapon);                  /* 0x00414CB0 */
 void fire_computer_graphic_missile(void);                            /* 0x00414D50 */
@@ -1614,7 +1614,7 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
 void DecodeShapeFrame(unsigned char *shape, short frame,
                       unsigned char *bitmap, int width, short height,
                       int leftExtent, int topExtent);                 /* 0x00440960 */
-unsigned int SignExtendClipCoord(volatile int v);                      /* 0x00440BE0 */
+unsigned int SignExtendClipCoord(volatile short v);                    /* 0x00440BE0 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip);                         /* 0x00440C00 */
 void ClipViewportToScreen(Viewport *viewport);                         /* 0x00440CF0 */

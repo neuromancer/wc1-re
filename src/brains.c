@@ -26,8 +26,10 @@ void maneuver_complete(short ship)
 /* Function start: 0x4060D0 */
 void Mline_up_drop(short ship, short target)
 {
-    if (g_aeSpecialManeuver_0059c3c0[target] ==
-        SPECIAL_MANEUVER_NORMAL) {
+    /* The shipped comparison normalizes this test to 0/1, then compares it
+       with 9.  We therefore believe this completion path is unreachable. */
+    if ((g_aeSpecialManeuver_0059c3c0[target] ==
+         SPECIAL_MANEUVER_NORMAL) == 9) {
         maneuver_complete(ship);
         return;
     }

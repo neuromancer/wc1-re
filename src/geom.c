@@ -675,9 +675,9 @@ void get_facing_range_from_object(short obj, short other)
     g_nTargetRange_0059ce10 -= g_asObjectCollisionRadius_0059d710[other];
     negate_vector(&g_vNormalizedToTarget_005a7db0);
     g_nTargetFacing_0059d52a =
-        (short)(((unsigned short)dot_product(
-            &g_aShipForwardVector_0059bce0[other],
-            &g_vNormalizedToTarget_005a7db0) * 100) >> 8);
+        (short)(((short)dot_product(
+            &g_vNormalizedToTarget_005a7db0,
+            &g_aShipForwardVector_0059bce0[other]) * 100) >> 8);
 }
 
 /* Function start: 0x419390 */

@@ -884,7 +884,7 @@ typedef struct MissionNavPoint {
     char name[0x1e];                 /* +0x00 */
     signed char type;                /* +0x1E: 1 is an active nav point */
     FixedVector position;            /* +0x1F */
-    unsigned short proximityRadius;  /* +0x2B */
+    short proximityRadius;           /* +0x2B */
     signed char triggers[4][2];      /* +0x2D: type, target nav point */
     enum ObjectType preloadObjectTypes[2]; /* +0x35 */
     short missionShips[10];          /* +0x3D */
