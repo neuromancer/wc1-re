@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (98.16% average)</summary>
+<summary>All 1,472 function similarity scores (98.18% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -293,7 +293,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `vdu_malf` | `0x414B20` | 100.00% |
 | `cockpt.c` | `ShowComponentHitHudMessage` | `0x414B70` | 93.55% |
 | `cockpt.c` | `damage_your_component` | `0x414BF0` | 100.00% |
-| `cockpt.c` | `RemovePlayerReleaseWeapon` | `0x414CB0` | 94.29% |
+| `cockpt.c` | `RemovePlayerReleaseWeapon` | `0x414CB0` | 100.00% |
 | `cockpt.c` | `fire_computer_graphic_missile` | `0x414D50` | 87.91% |
 | `cockpt.c` | `show_weapon_disp` | `0x414EA0` | 86.92% |
 | `cockpt.c` | `update_status_text` | `0x415040` | 100.00% |
@@ -429,7 +429,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `disk.c` | `borrow_dust` | `0x41DF40` | 100.00% |
 | `disk.c` | `new_object` | `0x41DF70` | 100.00% |
 | `disk.c` | `initialize_ship` | `0x41DFA0` | 100.00% |
-| `disk.c` | `any_selected` | `0x41DFE0` | 94.29% |
+| `disk.c` | `any_selected` | `0x41DFE0` | 97.14% |
 | `disk.c` | `remove_weapon` | `0x41E040` | 90.79% |
 | `disk.c` | `set_objects_data` | `0x41E120` | 93.94% |
 | `disk.c` | `match_rotation_goal` | `0x41E400` | 98.21% |
@@ -446,7 +446,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `eventmgr.c` | `ReleaseInputEvent` | `0x435760` | 100.00% |
 | `eventmgr.c` | `QueueInputEvent` | `0x435790` | 100.00% |
 | `eventmgr.c` | `ReleaseInputEventQueue` | `0x4358B0` | 100.00% |
-| `eventmgr.c` | `RetainInputEventsOfType` | `0x4358E0` | 93.94% |
+| `eventmgr.c` | `RetainInputEventsOfType` | `0x4358E0` | 100.00% |
 | `eventmgr.c` | `RemoveInputEvent` | `0x435940` | 100.00% |
 | `eventmgr.c` | `GetNextInputEvent` | `0x4359C0` | 91.07% |
 | `eventmgr.c` | `PollInputEvent` | `0x435CC0` | 100.00% |
@@ -1361,7 +1361,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `ship.c` | `the_creator` | `0x41FEB0` | 100.00% |
 | `ship.c` | `explosion_shock_wave` | `0x41FEE0` | 93.91% |
 | `ship.c` | `explode` | `0x420040` | 100.00% |
-| `ship.c` | `send_at_point` | `0x420190` | 85.00% |
+| `ship.c` | `send_at_point` | `0x420190` | 100.00% |
 | `ship.c` | `find_child_object` | `0x4201D0` | 100.00% |
 | `ship.c` | `find_child_ship` | `0x420210` | 100.00% |
 | `ship.c` | `launch_object` | `0x420260` | 100.00% |
@@ -1500,7 +1500,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `winmain.c` | `WarpMouseTo` | `0x401CE0` | 100.00% |
 | `winmain.c` | `CheckLauncherAndConfig` | `0x401D10` | 94.44% |
 | `winmain.c` | `WinMain` | `0x401E30` | 98.78% |
-| `winmain.c` | `ShutdownGameWindow` | `0x402070` | 94.12% |
+| `winmain.c` | `ShutdownGameWindow` | `0x402070` | 100.00% |
 | `winmain.c` | `ShowNoticeMessageBox` | `0x4020E0` | 100.00% |
 | `winmain.c` | `AbortToDesktop` | `0x402110` | 100.00% |
 | `winmain.c` | `CreateMainWindow` | `0x402180` | 94.55% |
@@ -1514,7 +1514,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `winmain.c` | `GetMainWindowHandle` | `0x402B90` | 100.00% |
 | `winmain.c` | `GetMainWindowDeviceContext` | `0x402BA0` | 100.00% |
 | `winmain.c` | `AllocateGuardedMemory` | `0x402BB0` | 96.67% |
-| `winmain.c` | `ReportHeapGuardCorruption` | `0x402CA0` | 100.00% |
+| `winmain.c` | `ReportHeapGuardCorruption` | `0x402CA0` | 94.87% |
 | `winmain.c` | `CheckAllGuardedAllocations` | `0x402D40` | 100.00% |
 | `winmain.c` | `FreeGuardedAllocation` | `0x402DB0` | 97.47% |
 

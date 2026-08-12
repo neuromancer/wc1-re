@@ -1358,7 +1358,7 @@ int FullMissionScore(void)
         (int)g_stCampaignState_0059ca50.currentSeries * 0x5a - 0x50);
     objective = 0;
     do {
-        score = (short)(score + scores[objective]);
+        score = (short)(score + scores[objective + 4]);
         objective++;
     } while (objective < 16);
     return score;

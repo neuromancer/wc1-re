@@ -602,7 +602,12 @@ void ShutdownGameWindow(void)
     DIBunInstall();
     ClipCursor(0);
     ShowCursor(TRUE);
-    SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
+    {
+        HANDLE process;
+
+        process = GetCurrentProcess();
+        SetPriorityClass(process, IDLE_PRIORITY_CLASS);
+    }
     CloseHandle(DAT_005a89a4);
     exit(0);
 }

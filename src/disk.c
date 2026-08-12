@@ -671,16 +671,15 @@ short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
     selectedClass = objectClass;
     selected = 0;
     weapon = 0;
-    if ((signed char)loadout[0] > 0)
+    if ((signed char)loadout[0] > (signed char)selected)
         do {
-            ShipWeaponSlot *slot;
-
             if (selected != 0)
                 break;
-            slot = (ShipWeaponSlot *)(loadout + weapon * 7 + 1);
-            if (g_aObjectTypeData_00466458[slot->type].objectClass ==
+            if (g_aObjectTypeData_00466458[
+                    ((ShipWeaponSlot *)(loadout + weapon * 7 + 1))->type]
+                    .objectClass ==
                     selectedClass &&
-                slot->disabled == 0)
+                ((ShipWeaponSlot *)(loadout + weapon * 7 + 1))->disabled == 0)
                 selected = 1;
             weapon++;
         } while ((short)(signed char)loadout[0] > weapon);

@@ -1011,12 +1011,10 @@ int explode(short attacker, short victim)
 /* Function start: 0x420190 */
 int send_at_point(short obj, FixedVector *point, short speed)
 {
-    int objectIndex = obj;
-    FixedVector *position = &g_aShipPosition_0059c490[objectIndex];
-    FixedVector *velocity = &g_aShipVelocity_0059c010[objectIndex];
-
-    ComputeVectorDelta(position, point, velocity);
-    SetVectorFixedPoint((unsigned int *)velocity, speed);
+    ComputeVectorDelta(&g_aShipPosition_0059c490[obj], point,
+                       &g_aShipVelocity_0059c010[obj]);
+    SetVectorFixedPoint((unsigned int *)&g_aShipVelocity_0059c010[obj],
+                        speed);
     return 0;
 }
 

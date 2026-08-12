@@ -163,7 +163,7 @@ void ReleaseInputEventQueue(void)
 }
 
 /* Function start: 0x4358E0 */
-void RetainInputEventsOfType(short type)
+void RetainInputEventsOfType(int type)
 {
     InputEvent *event = g_pInputEventHead_0046da90;
 

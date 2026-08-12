@@ -1372,7 +1372,7 @@ void QueueInputEvent(unsigned short type, unsigned short x,
                      int primaryButton, int secondaryButton,
                      unsigned int timestamp);                          /* 0x00435790 */
 void ReleaseInputEventQueue(void);                                    /* 0x004358B0 */
-void RetainInputEventsOfType(short type);                              /* 0x004358E0 */
+void RetainInputEventsOfType(int type);                                /* 0x004358E0 */
 void RemoveInputEvent(InputEvent *event);                              /* 0x00435940 */
 short __stdcall GetNextInputEvent(InputEventState *event);             /* 0x004359C0 */
 short __stdcall PollInputEvent(InputEventState *event, short filter);  /* 0x00435CC0 */

@@ -863,14 +863,14 @@ void RemovePlayerReleaseWeapon(signed char weapon)
     g_cReleaseWeaponDisplayFrame_00469070 =
         (signed char)(preferredType * 2 - 0x2f);
     hardpoint = loadout[weapon].hardpoint;
-    g_cReleaseWeaponDisplayTicks_00469074 = 3;
-    g_cReleaseWeaponDisplayState_00469078 = 0;
     g_nReleaseWeaponDisplayX_005a7dbc =
         (short)(g_aWeaponDisplayPositions_00468440[hardpoint].x +
                 g_nWeaponDisplayOriginX_005a7788);
     g_nReleaseWeaponDisplayY_005a7dbe =
         (short)(g_aWeaponDisplayPositions_00468440[hardpoint].y +
                 g_nWeaponDisplayOriginY_005a778a);
+    g_cReleaseWeaponDisplayTicks_00469074 = 3;
+    g_cReleaseWeaponDisplayState_00469078 = 0;
     if (g_pReleaseWeaponDisplayBackground_0046906c == 0)
         g_cReleaseWeaponDisplayFrame_00469070 = -1;
     remove_weapon(0, weapon);
