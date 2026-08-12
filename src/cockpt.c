@@ -349,7 +349,11 @@ void EraseCockpitReadoutRegion(Viewport *viewport, short left,
 /* Function start: 0x413DA0 */
 void vdu_polygon(signed char bar, short percent)
 {
+#ifdef WC1_SDL
+    const CockpitBarDefinition *definition;
+#else
     int index;
+#endif
     short direction;
     short left;
     short top;
@@ -361,23 +365,45 @@ void vdu_polygon(signed char bar, short percent)
     signed char emptyFrame;
     signed char swapFrame;
 
+#ifdef WC1_SDL
+    definition = &g_aaCockpitBars_0046dd88[
+        (int)g_cCockpitView_0059dab0][(int)bar];
+    length = definition->length;
+#else
     index = (int)bar + (int)g_cCockpitView_0059dab0 * 8;
     length = g_aaCockpitBars_0046dd88[0][index].length;
+#endif
     extent = (short)(((int)percent * (int)length) / 100);
+#ifdef WC1_SDL
+    left = definition->left;
+#else
     left = g_aaCockpitBars_0046dd88[0][index].left;
+#endif
     DAT_005a6be0.left = left;
     if (left != -99) {
+#ifdef WC1_SDL
+        right = definition->right;
+        top = definition->top;
+        bottom = definition->bottom;
+#else
         right = g_aaCockpitBars_0046dd88[0][index].right;
         top = g_aaCockpitBars_0046dd88[0][index].top;
         bottom = g_aaCockpitBars_0046dd88[0][index].bottom;
+#endif
         DAT_005a6be0.right = right;
         DAT_005a6be0.top = top;
         DAT_005a6be0.bottom = bottom;
+#ifdef WC1_SDL
+        emptyFrame = (signed char)definition->emptyFrame;
+        filledFrame = (signed char)definition->filledFrame;
+        direction = definition->direction;
+#else
         emptyFrame = (signed char)
             g_aaCockpitBars_0046dd88[0][index].emptyFrame;
         filledFrame = (signed char)
             g_aaCockpitBars_0046dd88[0][index].filledFrame;
         direction = g_aaCockpitBars_0046dd88[0][index].direction;
+#endif
 
         if (direction < 2) {
             if (direction == 1) {
@@ -646,7 +672,6 @@ unsigned int SetCockpitLightBlink(signed char light, short interval)
 /* Function start: 0x414490 */
 void draw_cockpit_lights(void)
 {
-    int index;
     signed char light;
     short x;
     short y;
@@ -663,26 +688,32 @@ void draw_cockpit_lights(void)
         if (DAT_0046a008 == 0) {
             if (g_abCockpitLightState_005a7e70[(int)light] !=
                 g_abCockpitLightGoal_005a7eb8[(int)light]) {
-                index = (int)g_cCockpitView_0059dab0 * 7 + (int)light;
-                x = g_aasCockpitLightX_0046dca8[0][index];
-                y = g_aasCockpitLightY_0046dcf0[0][index];
+                x = g_aasCockpitLightX_0046dca8[
+                    (int)g_cCockpitView_0059dab0][(int)light];
+                y = g_aasCockpitLightY_0046dcf0[
+                    (int)g_cCockpitView_0059dab0][(int)light];
                 if (g_abCockpitLightGoal_005a7eb8[(int)light] == 1)
-                    frame = g_aacCockpitLightOnFrame_0046dd60[0][index];
+                    frame = g_aacCockpitLightOnFrame_0046dd60[
+                        (int)g_cCockpitView_0059dab0][(int)light];
                 else
-                    frame = g_aacCockpitLightOffFrame_0046dd38[0][index];
+                    frame = g_aacCockpitLightOffFrame_0046dd38[
+                        (int)g_cCockpitView_0059dab0][(int)light];
                 DrawSpriteDefault(&DAT_005a6ba0, x, y,
                                   g_pCockpitDamageShape_005a76f4, frame);
                 g_abCockpitLightState_005a7e70[(int)light] =
                     g_abCockpitLightGoal_005a7eb8[(int)light];
             }
         } else {
-            index = (int)g_cCockpitView_0059dab0 * 7 + (int)light;
-            x = g_aasCockpitLightX_0046dca8[0][index];
-            y = g_aasCockpitLightY_0046dcf0[0][index];
+            x = g_aasCockpitLightX_0046dca8[
+                (int)g_cCockpitView_0059dab0][(int)light];
+            y = g_aasCockpitLightY_0046dcf0[
+                (int)g_cCockpitView_0059dab0][(int)light];
             if (g_abCockpitLightGoal_005a7eb8[(int)light] == 1)
-                frame = g_aacCockpitLightOnFrame_0046dd60[0][index];
+                frame = g_aacCockpitLightOnFrame_0046dd60[
+                    (int)g_cCockpitView_0059dab0][(int)light];
             else
-                frame = g_aacCockpitLightOffFrame_0046dd38[0][index];
+                frame = g_aacCockpitLightOffFrame_0046dd38[
+                    (int)g_cCockpitView_0059dab0][(int)light];
             DrawSpriteDefault(&DAT_005a6ba0, x, y,
                               g_pCockpitDamageShape_005a76f4, frame);
             g_abCockpitLightState_005a7e70[(int)light] =

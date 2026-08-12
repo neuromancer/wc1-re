@@ -57,6 +57,20 @@ int main(int argumentCount, char **arguments)
         stop_all_sounds();
         if (g_pSnowStaticSound_00476550 != 0)
             return 1;
+
+        g_cCockpitView_0059dab0 = 4;
+        vdu_polygon(2, 50);
+        if (DAT_005a6be0.left != -99)
+            return 1;
+
+        g_anShipMissionShip_0059d4b0[1] = -1;
+        g_aeShipObjective_0059d200[1] = OBJECTIVE_HOME_BASE;
+        strike_mission(1);
+        if (g_aeShipMissionType_0059c3f0[1] != MISSION_TYPE_ROUT)
+            return 1;
+
+        g_nCommPortraitIndex_0046afd0 = -1;
+        FreeCommDisplayResources();
     } else {
         MonoDebug_install();
         InitializeAudioSystem((HWND)window);

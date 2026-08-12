@@ -2881,8 +2881,15 @@ void strike_mission(short obj)
 {
     short goal = find_ship_index(g_anShipMissionShip_0059d4b0[obj]);
 
+#ifdef WC1_SDL
+    /* The original source indexes class[-1] here.  In the Win32 layout that
+       aliases the last two previous-distance words; the intended no-goal
+       branch is check_goal. */
+    if (goal == -1)
+#else
     if (goal == -1 &&
         g_aeObjectClass_0059d100[goal] != OBJECT_CLASS_FUTURION)
+#endif
         check_goal(obj);
     switch (g_aeShipObjective_0059d200[obj]) {
     case OBJECTIVE_HOME_BASE:

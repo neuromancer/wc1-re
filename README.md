@@ -255,7 +255,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `FatalErrorAndExit` | `0x413CE0` | 100.00% |
 | `cockpt.c` | `IsCockpitExplosionActive` | `0x413D20` | 100.00% |
 | `cockpt.c` | `EraseCockpitReadoutRegion` | `0x413D40` | 100.00% |
-| `cockpt.c` | `vdu_polygon` | `0x413DA0` | 90.16% |
+| `cockpt.c` | `vdu_polygon` | `0x413DA0` | 90.98% |
 | `cockpt.c` | `InitializeCockpitReadout` | `0x413F70` | 100.00% |
 | `cockpt.c` | `DrawCockpitReadout` | `0x413FB0` | 100.00% |
 | `cockpt.c` | `EraseCockpitReadoutAtPosition` | `0x414050` | 100.00% |
@@ -272,7 +272,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `auto_pilot_valid` | `0x414380` | 100.00% |
 | `cockpt.c` | `reset_cockpit` | `0x414410` | 100.00% |
 | `cockpt.c` | `SetCockpitLightBlink` | `0x414440` | 100.00% |
-| `cockpt.c` | `draw_cockpit_lights` | `0x414490` | 96.10% |
+| `cockpt.c` | `draw_cockpit_lights` | `0x414490` | 100.00% |
 | `cockpt.c` | `update_lights` | `0x4145B0` | 100.00% |
 | `cockpt.c` | `update_bars` | `0x414690` | 100.00% |
 | `cockpt.c` | `get_mode` | `0x4147E0` | 100.00% |

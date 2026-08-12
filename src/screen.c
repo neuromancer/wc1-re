@@ -1571,6 +1571,11 @@ void talk_equiv(void)
 /* Function start: 0x431410 */
 void FreeCommDisplayResources(void)
 {
+#ifdef WC1_SDL
+    /* The original indexes the portrait table with its -1 inactive sentinel,
+       aliasing the final two palette-allocation words at 0x0059E17C. */
+    if (g_nCommPortraitIndex_0046afd0 != -1)
+#endif
     FreePacketAndClear(&g_apCommPortraitShapes_0059e180[
         g_nCommPortraitIndex_0046afd0], 0);
     FreePacketAndClear(&g_pConfedCommBackground_00469278, 0);
@@ -1584,7 +1589,12 @@ void FreeCommDisplayResources(void)
 /* Function start: 0x431470 */
 void EndCommSessionWithWingman(void)
 {
-    if (g_apCommPortraitShapes_0059e180[g_nCommPortraitIndex_0046afd0] != 0)
+#ifdef WC1_SDL
+    if (g_nCommPortraitIndex_0046afd0 != -1 &&
+#else
+    if (
+#endif
+        g_apCommPortraitShapes_0059e180[g_nCommPortraitIndex_0046afd0] != 0)
         malf_noise(1, 1, 12, 23, 1);
     FreeCommDisplayResources();
     if (get_mode(1) == 6)
