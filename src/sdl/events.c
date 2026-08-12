@@ -294,8 +294,11 @@ void Wc1SdlPumpEvents(void)
                    event.type == SDL_MOUSEBUTTONDOWN ||
                    event.type == SDL_MOUSEBUTTONUP) {
             SDL_Window *window;
+            SDL_Renderer *renderer;
             Uint32 buttons;
             int height;
+            int logicalHeight;
+            int logicalWidth;
             int mouseX;
             int mouseY;
             int width;
@@ -318,14 +321,22 @@ void Wc1SdlPumpEvents(void)
                 else
                     buttons &= ~SDL_BUTTON(event.button.button);
             }
-            width = 320;
-            height = 200;
-            if (window != 0)
-                SDL_GetWindowSize(window, &width, &height);
-            if (width > 0)
-                mouseX = mouseX * 320 / width;
-            if (height > 0)
-                mouseY = mouseY * 200 / height;
+            renderer = window != 0 ? SDL_GetRenderer(window) : 0;
+            logicalWidth = 0;
+            logicalHeight = 0;
+            if (renderer != 0)
+                SDL_RenderGetLogicalSize(renderer, &logicalWidth,
+                                         &logicalHeight);
+            if (logicalWidth == 0 || logicalHeight == 0) {
+                width = 320;
+                height = 200;
+                if (window != 0)
+                    SDL_GetWindowSize(window, &width, &height);
+                if (width > 0)
+                    mouseX = mouseX * 320 / width;
+                if (height > 0)
+                    mouseY = mouseY * 200 / height;
+            }
             if (mouseX < 0)
                 mouseX = 0;
             else if (mouseX > 319)

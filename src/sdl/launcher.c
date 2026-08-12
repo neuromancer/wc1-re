@@ -40,7 +40,11 @@ int main(int argumentCount, char **arguments)
         CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
         DAT_005a8a44 = (unsigned int)time(0);
         DAT_0059ab2c = 0;
+        SDL_SetWindowMouseGrab(window, SDL_TRUE);
+        SDL_ShowCursor(SDL_DISABLE);
         Wc1GameMain((short)(argumentCount - 1), arguments);
+        SDL_SetWindowMouseGrab(window, SDL_FALSE);
+        SDL_ShowCursor(SDL_ENABLE);
         DestroyGlobalDebugOverlayConsole();
         if ((g_dwStreamerState_00597cd0 & 1) != 0)
             ix_streamer_destroy();

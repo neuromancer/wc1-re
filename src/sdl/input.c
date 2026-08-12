@@ -162,8 +162,11 @@ void Wc1SdlOutputDebugString(const char *text)
 
 int Wc1SdlSetCursorPosition(int x, int y)
 {
+    SDL_Renderer *renderer;
     SDL_Window *window;
     int height;
+    int windowX;
+    int windowY;
     int width;
 
     window = SDL_GetKeyboardFocus();
@@ -171,8 +174,16 @@ int Wc1SdlSetCursorPosition(int x, int y)
         window = SDL_GetMouseFocus();
     if (window == 0)
         return FALSE;
-    SDL_GetWindowSize(window, &width, &height);
-    SDL_WarpMouseInWindow(window, x * width / 320, y * height / 200);
+    renderer = SDL_GetRenderer(window);
+    if (renderer != 0) {
+        SDL_RenderLogicalToWindow(renderer, (float)x, (float)y,
+                                  &windowX, &windowY);
+    } else {
+        SDL_GetWindowSize(window, &width, &height);
+        windowX = x * width / 320;
+        windowY = y * height / 200;
+    }
+    SDL_WarpMouseInWindow(window, windowX, windowY);
     return TRUE;
 }
 

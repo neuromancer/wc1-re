@@ -12,11 +12,13 @@ int main(void)
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0)
         return 1;
     window =
-        SDL_CreateWindow("WC1 input test", 0, 0, 640, 400, SDL_WINDOW_HIDDEN);
+        SDL_CreateWindow("WC1 input test", 0, 0, 800, 400, SDL_WINDOW_HIDDEN);
     if (window == 0) {
         SDL_Quit();
         return 1;
     }
+    if (Wc1SdlInitializeVideo(window) == 0)
+        return 1;
     memset(&viewport, 0, sizeof(viewport));
     viewport.right = 319;
     viewport.bottom = 199;
@@ -45,14 +47,23 @@ int main(void)
     if (g_dwDebugOverlayKey_00469648 != 'A')
         return 1;
 
+    FlushInputEvents();
+    SDL_FlushEvent(SDL_MOUSEMOTION);
     memset(&event, 0, sizeof(event));
     event.type = SDL_MOUSEMOTION;
     event.motion.windowID = SDL_GetWindowID(window);
-    event.motion.x = 320;
+    event.motion.x = 400;
     event.motion.y = 200;
     if (SDL_PushEvent(&event) != 1 || PumpWindowMessages() == 0)
         return 1;
     if (GetNextInputEvent(&input) != 13 || input.x != 160 || input.y != 100)
+        return 1;
+
+    event.motion.x = 80;
+    event.motion.y = 0;
+    if (SDL_PushEvent(&event) != 1 || PumpWindowMessages() == 0)
+        return 1;
+    if (GetNextInputEvent(&input) != 13 || input.x != 0 || input.y != 0)
         return 1;
 
     memset(&event, 0, sizeof(event));
@@ -61,6 +72,7 @@ int main(void)
         return 1;
 
     FlushInputEvents();
+    Wc1SdlShutdownVideo();
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;

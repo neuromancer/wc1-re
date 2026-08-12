@@ -373,7 +373,8 @@ MODERN_IX_OBJS = \
 MODERN_BASE_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_BASE_HOST_SRCS))
 MODERN_GAME_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_SRCS))
 MODERN_EVENT_HOST_OBJS = \
-	$(MODERN_OUT_DIR)/obj/sdl/events.o
+	$(MODERN_OUT_DIR)/obj/sdl/events.o \
+	$(MODERN_OUT_DIR)/obj/sdl/video.o
 MODERN_VIDEO_HOST_OBJS = \
 	$(MODERN_OUT_DIR)/obj/dib.o \
 	$(MODERN_OUT_DIR)/obj/sdl/video.o
