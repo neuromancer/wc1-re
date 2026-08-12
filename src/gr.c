@@ -68,8 +68,9 @@ void PrepareShapeRLEData(unsigned char *shape)
     unsigned char *pixel;
     unsigned char *output;
     unsigned char *preparedShape;
-    unsigned int preparedSize;
-    short frameCount;
+    int *frameOffset;
+    int preparedSize;
+    int frameCount;
     short width;
     short height;
     short leftExtent;
@@ -78,6 +79,10 @@ void PrepareShapeRLEData(unsigned char *shape)
     int row;
     int remaining;
     int runLength;
+    int frameLeft;
+    int frameTop;
+    int frameRight;
+    int frameBottom;
 
     CheckHeapBlockSignature(shape);
     if (GetPreparedShapeData(shape) != 0)
@@ -85,16 +90,17 @@ void PrepareShapeRLEData(unsigned char *shape)
 
     *(int *)g_abShapeRLEScratch_00497748 =
         *(const int *)g_szShapeRLEVersion_00470d30;
-    frameCount = GetShapeFrameCount(shape);
+    frameCount = (short)GetShapeFrameCount(shape);
     *(int *)(g_abShapeRLEScratch_00497748 + 4) = frameCount;
     memset(g_abShapeRLEScratch_00497748 + 8, 0,
-           (unsigned int)frameCount * 8);
-    output = g_abShapeRLEScratch_00497748 + 8 + frameCount * 8;
+           (unsigned int)(frameCount << 3));
+    frameOffset = (int *)(g_abShapeRLEScratch_00497748 + 8);
+    output = g_abShapeRLEScratch_00497748 + 8 + (frameCount << 3);
 
     frame = 0;
     while (frame < frameCount) {
-        *(int *)(g_abShapeRLEScratch_00497748 + 8 + frame * 8) =
-            (int)(output - g_abShapeRLEScratch_00497748);
+        *frameOffset = (int)(output - g_abShapeRLEScratch_00497748);
+        frameOffset += 2;
         GetShapeFrameExtents(shape, (short)frame, &width, &height,
                              &leftExtent, &topExtent);
         frameHeader = (RLEFrameHeader *)output;
@@ -102,44 +108,50 @@ void PrepareShapeRLEData(unsigned char *shape)
         frameHeader->width = width;
         frameHeader->topExtent = topExtent;
         frameHeader->leftExtent = leftExtent;
-        frameHeader->left = -leftExtent;
-        frameHeader->top = -topExtent;
-        frameHeader->right = width - leftExtent - 1;
-        frameHeader->bottom = height - topExtent - 1;
+        frameLeft = -leftExtent;
+        frameTop = -topExtent;
+        frameRight = width - leftExtent - 1;
+        frameBottom = height - topExtent - 1;
+        frameHeader->left = frameLeft;
+        frameHeader->top = frameTop;
+        frameHeader->right = frameRight;
+        frameHeader->bottom = frameBottom;
         output += sizeof(RLEFrameHeader);
 
         bitmap = (unsigned char *)AllocateTaggedMemory(
             (unsigned int)((int)width * height), 0);
+        pixel = bitmap;
         memset(bitmap, 0xff, (unsigned int)((int)width * height));
         DecodeShapeFrame(shape, (short)frame, bitmap, width, height,
                          leftExtent, topExtent);
-        pixel = bitmap;
         row = 0;
         while (row < height) {
             remaining = width;
             while (remaining > 0) {
-                if (*pixel == 0xff) {
-                    runLength = 0;
-                    while (remaining > 0 && runLength < 0xff &&
-                           *pixel == 0xff) {
-                        pixel++;
-                        runLength++;
-                        remaining--;
-                    }
-                    *output++ = 1;
-                    *output++ = (unsigned char)runLength;
-                } else {
+                if (*pixel != 0xff) {
                     unsigned char *runCode;
 
                     runLength = 0;
                     runCode = output++;
                     while (remaining > 0 && runLength < 0x7f &&
                            *pixel != 0xff) {
-                        *output++ = *pixel++;
+                        *output = *pixel;
                         runLength++;
                         remaining--;
+                        output++;
+                        pixel++;
                     }
                     *runCode = (unsigned char)(runLength * 2 + 1);
+                } else {
+                    runLength = 0;
+                    while (remaining > 0 && runLength < 0xff &&
+                           *pixel == 0xff) {
+                        runLength++;
+                        remaining--;
+                        pixel++;
+                    }
+                    *output++ = 1;
+                    *output++ = (unsigned char)runLength;
                 }
             }
             *output++ = 0;
@@ -149,9 +161,8 @@ void PrepareShapeRLEData(unsigned char *shape)
         frame++;
     }
 
-    preparedSize = (unsigned int)(output -
-                                  g_abShapeRLEScratch_00497748);
-    if (preparedSize > sizeof(g_abShapeRLEScratch_00497748))
+    preparedSize = (int)(output - g_abShapeRLEScratch_00497748);
+    if (preparedSize > (int)sizeof(g_abShapeRLEScratch_00497748))
         exit_squadron(g_szShapeRLEOverflow_00470d38);
     preparedShape = (unsigned char *)AllocateTaggedMemory(preparedSize, 0);
     memcpy(preparedShape, g_abShapeRLEScratch_00497748, preparedSize);

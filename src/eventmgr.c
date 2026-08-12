@@ -751,8 +751,8 @@ void intro_drawbackgroundships(void)
     unsigned char *shape;
     int objectClass;
     int obj;
-    int shortOffset;
     int dwordOffset;
+    int shortOffset;
     int zero;
 
     obj = 0;
@@ -766,8 +766,8 @@ void intro_drawbackgroundships(void)
         objectClass = *(enum ObjectClass *)(
             (unsigned char *)g_aeObjectClass_0059d100 + dwordOffset);
         if (objectClass != OBJECT_CLASS_NULL) {
-            if (objectClass < OBJECT_CLASS_STAR ||
-                objectClass > OBJECT_CLASS_DUST) {
+            switch (objectClass) {
+            default:
                 shape = *(unsigned char **)(
                     (unsigned char *)g_apObjectShape_0059d2f0 +
                     dwordOffset);
@@ -789,7 +789,10 @@ void intro_drawbackgroundships(void)
                                    shortOffset),
                         DAT_004699d8);
                 }
-            } else {
+                break;
+            case OBJECT_CLASS_STAR:
+            case OBJECT_CLASS_PLANET:
+            case OBJECT_CLASS_DUST:
                 if (obj == DAT_00469208)
                     shape = *(unsigned char **)(
                         (unsigned char *)g_apObjectShape_0059d2f0 +
@@ -806,6 +809,7 @@ void intro_drawbackgroundships(void)
                     *(short *)((unsigned char *)g_asObjectViewFrame_0059d230 +
                                shortOffset),
                     DAT_004699d8);
+                break;
             }
         }
         shortOffset += sizeof(short);

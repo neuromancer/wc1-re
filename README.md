@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (98.02% average)</summary>
+<summary>All 1,472 function similarity scores (98.05% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -481,7 +481,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `eventmgr.c` | `SetInputKeyState` | `0x436420` | 100.00% |
 | `eventmgr.c` | `sort_object_depth` | `0x436460` | 98.33% |
 | `eventmgr.c` | `draw_sorted_objects_to_buffer` | `0x436520` | 91.67% |
-| `eventmgr.c` | `intro_drawbackgroundships` | `0x436650` | 71.64% |
+| `eventmgr.c` | `intro_drawbackgroundships` | `0x436650` | 82.09% |
 | `eventmgr.c` | `set_up_screen_viewport` | `0x436740` | 90.12% |
 | `eventmgr.c` | `MouseIdleHook` | `0x4368C0` | 100.00% |
 | `eventmgr.c` | `GetNavRangeSentinel` | `0x4368E0` | 100.00% |
@@ -593,7 +593,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `transform_objects_to_your_view` | `0x41A1D0` | 83.57% |
 | `geom.c` | `set_background_objects_rotation` | `0x41A530` | 91.67% |
 | `geom.c` | `get_right_shape` | `0x41A610` | 87.55% |
-| `geom.c` | `InitializeModalTextPanel` | `0x41A9D0` | 77.89% |
+| `geom.c` | `InitializeModalTextPanel` | `0x41A9D0` | 92.63% |
 | `geom.c` | `DrawModalTextPanel` | `0x41AAE0` | 100.00% |
 | `geom.c` | `RestoreModalTextPanel` | `0x41AB60` | 100.00% |
 | `geom.c` | `ShowModalTextPanel` | `0x41AB90` | 76.38% |
@@ -602,16 +602,16 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `gr.c` | `ValidateViewportBounds` | `0x440C00` | 80.00% |
 | `gr.c` | `ClipViewportToScreen` | `0x440CF0` | 100.00% |
 | `gr.c` | `SetSolidColourTranslation` | `0x440D10` | 100.00% |
-| `gr.c` | `PrepareShapeRLEData` | `0x440D50` | 70.05% |
+| `gr.c` | `PrepareShapeRLEData` | `0x440D50` | 82.03% |
 | `gr.c` | `DrawSpriteTransformed` | `0x440FE0` | 98.31% |
 | `gr.c` | `RasterLineHook` | `0x441140` | 100.00% |
-| `gr.c` | `DrawFontGlyph` | `0x441150` | 83.54% |
+| `gr.c` | `DrawFontGlyph` | `0x441150` | 85.80% |
 | `gr.c` | `MarkActivePaletteEntries` | `0x441370` | 100.00% |
 | `gr.c` | `GetPaletteEntry` | `0x4413C0` | 100.00% |
 | `gr.c` | `SetPaletteEntry` | `0x4413E0` | 100.00% |
 | `gr.c` | `DrawSpriteDefault` | `0x441400` | 100.00% |
-| `gr.c` | `CaptureSpriteBackground` | `0x441450` | 79.09% |
-| `gr.c` | `RestoreSpriteBackground` | `0x441740` | 76.79% |
+| `gr.c` | `CaptureSpriteBackground` | `0x441450` | 78.18% |
+| `gr.c` | `RestoreSpriteBackground` | `0x441740` | 80.36% |
 | `gr.c` | `DrawSolidColourSprite` | `0x441A40` | 100.00% |
 | `gr.c` | `CopyViewportContents` | `0x441A90` | 100.00% |
 | `gr.c` | `ClearViewport` | `0x441AE0` | 100.00% |
@@ -626,7 +626,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `gr.c` | `DrawViewportEllipseShadow` | `0x441E70` | 100.00% |
 | `gr.c` | `DrawSpriteScaled` | `0x441FC0` | 100.00% |
 | `gr.c` | `DrawSolidColourSpriteScaled` | `0x442000` | 100.00% |
-| `gr.c` | `GetTransformedShapeBounds` | `0x442050` | 78.52% |
+| `gr.c` | `GetTransformedShapeBounds` | `0x442050` | 74.50% |
 | `gr.c` | `fizzle_fade` | `0x442200` | 82.35% |
 | `gr.c` | `snow_viewport` | `0x442300` | 100.00% |
 | `gr.c` | `UpdateStreamerStoppedFlag` | `0x442330` | 100.00% |
@@ -1168,7 +1168,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `pilot.cpp` | `DrawTextInputCursor` | `0x4260E0` | 89.29% |
 | `pilot.cpp` | `ClearTextInputCharacter` | `0x426140` | 100.00% |
 | `pilot.cpp` | `ClearNextTextInputCharacter` | `0x4261D0` | 100.00% |
-| `pilot.cpp` | `ReadTextInput` | `0x426200` | 75.65% |
+| `pilot.cpp` | `ReadTextInput` | `0x426200` | 79.04% |
 | `pilot.cpp` | `ReadRequiredPilotField` | `0x4265A0` | 100.00% |
 | `pilot.cpp` | `PromptForPilotField` | `0x426600` | 100.00% |
 | `pilot.cpp` | `InitializeTrainSimTextPanel` | `0x426660` | 100.00% |

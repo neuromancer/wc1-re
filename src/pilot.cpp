@@ -525,25 +525,26 @@ short ReadTextInput(char *destination, short maximumLength,
     char input[40];
 
     savedBackground = g_pCurrentTextContext_0059af8c->backgroundColour;
+    accepted = 0;
     if (savedBackground == 0xff) {
         g_pCurrentTextContext_0059af8c->backgroundColour = DAT_0046999c;
     }
     savedViewport = g_pCurrentTextContext_0059af8c->viewport;
     savedText = g_pCurrentTextContext_0059af8c->text;
+    g_pCurrentTextContext_0059af8c->text = input;
     savedX = g_pCurrentTextContext_0059af8c->cursorX;
     savedY = g_pCurrentTextContext_0059af8c->cursorY;
     inputViewport = *savedViewport;
     g_pCurrentTextContext_0059af8c->viewport = &inputViewport;
-    g_pCurrentTextContext_0059af8c->text = input;
     DosStrcpy(input, destination);
     inputLength = DosStrlen(input);
 
     inputViewport.left = savedX;
     inputViewport.top = savedY;
-    inputViewport.right = (short)(inputViewport.left +
-        MeasureTextPixelWidthClamped(input));
     inputViewport.bottom = (short)(inputViewport.top +
         ReadWord((unsigned short *)g_pCurrentTextContext_0059af8c->font));
+    inputViewport.right = (short)(inputViewport.left +
+        MeasureTextPixelWidthClamped(input));
     ClearViewport(&inputViewport,
                   g_pCurrentTextContext_0059af8c->backgroundColour);
     inputViewport.right = savedViewport->right;
@@ -552,7 +553,6 @@ short ReadTextInput(char *destination, short maximumLength,
 
     savedFrameState = DAT_0046505c;
     DAT_0046505c = 0;
-    accepted = 0;
     do {
         handled = 0;
         do {

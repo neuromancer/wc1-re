@@ -1372,13 +1372,13 @@ int PlayersMissionScore(void)
     short score;
 
     scores = (signed char *)(g_pMissionCampaignData_005988bc +
-        (int)g_stCampaignState_0059ca50.currentMission * 0x14 +
-        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a - 0x50);
+        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a +
+        (int)g_stCampaignState_0059ca50.currentMission * 0x14 - 0x50);
     score = 0;
     objective = 0;
     do {
         if (achieved(objective) != 0)
-            score = (short)(score + scores[objective]);
+            score = (short)(score + scores[objective + 4]);
         objective++;
     } while (objective < 16);
     return score;

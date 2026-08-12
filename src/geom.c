@@ -1444,10 +1444,8 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
                                unsigned char backgroundColour,
                                short borderColour)
 {
-    panel->left = (short)topLeft;
-    panel->top = (short)(topLeft >> 16);
-    panel->right = (short)bottomRight;
-    panel->bottom = (short)(bottomRight >> 16);
+    memcpy(&panel->left, &topLeft, sizeof(topLeft));
+    memcpy(&panel->right, &bottomRight, sizeof(bottomRight));
     panel->previousContext = g_pCurrentTextContext_0059af8c;
     g_pCurrentTextContext_0059af8c = &panel->context;
     panel->context = g_stDefaultTextContext_005a7740;
@@ -1457,14 +1455,10 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
                                   (unsigned char)clearColour,
                                   backgroundColour);
     panel->viewport = g_stModalSourceViewport_005a7670;
-    panel->savedBackground.left = panel->left;
-    panel->savedBackground.top = panel->top;
-    panel->savedBackground.right = panel->right;
-    panel->savedBackground.bottom = panel->bottom;
-    panel->viewport.left = panel->left;
-    panel->viewport.top = panel->top;
-    panel->viewport.right = panel->right;
-    panel->viewport.bottom = panel->bottom;
+    memcpy(&panel->savedBackground.left, &panel->left,
+           sizeof(topLeft) + sizeof(bottomRight));
+    memcpy(&panel->viewport.left, &panel->left,
+           sizeof(topLeft) + sizeof(bottomRight));
     if (AllocateViewport(&panel->savedBackground, clearColour, 0) == 0)
         return 0;
     CopyViewportContents(&panel->viewport, &panel->savedBackground);
