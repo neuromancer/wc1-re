@@ -203,12 +203,12 @@ const char g_szBriefingMapTextFormat_00465660[12] = "%X%Y%F%s%P";
 const char g_szCloseLookTextFormat_0046566c[12] = "%X%Y%F%s%P";
 signed char g_cScrambleLeftWalkerFrame_00465768 = 7;
 signed char g_cScrambleRightWalkerFrame_0046576c = 10;
-const signed char g_acScrambleWalkerOverlayFrames_00465770[8] = {
+signed char g_acScrambleWalkerOverlayFrames_00465770[8] = {
     3, 4, 5, 3, 4, 6, 6, 3
 };
 short g_nScrambleLeftWalkerX_00465778 = 70;
 short g_nScrambleRightWalkerX_0046577c = 170;
-short g_nScrambleBackgroundX_00465780;
+short g_nScrambleBackgroundX_00465780 = 0;
 const unsigned short g_ausScrambleActorAnimationA_00465788[8] = {
     0, 1, 2, 3, 4, 5, 0x80, 0
 };
@@ -1890,7 +1890,7 @@ char g_szWriteDataFileError_00475da0[0x40];
 char g_szSeekDataFileError_00475de0[0x80];
 int g_bMonoDebugInstalled_00475e70;
 HANDLE g_hMonoDebugDevice_00475e74;
-unsigned short DAT_00475e78;
+short DAT_00475e78;
 unsigned char g_bCurrentManeuverReroll_00475e7c;
 NavMapLabel g_aNavMapLabels_00475e80[20];
 ShortRect g_aNavMapExclusionRects_00475f48[21];

@@ -418,7 +418,6 @@ enum ShipManeuver pick_regular_maneuver(short obj, int event)
 {
     short reroll;
     short morale;
-    short roll;
 
     reroll = RandomBelowOrEqual(100) < 3 ||
              g_aeShipManeuver_0059dcb0[obj] == MANEUVER_NONE;
@@ -437,8 +436,8 @@ enum ShipManeuver pick_regular_maneuver(short obj, int event)
                 (short)g_acShipTarget_0059ce60[obj]] ==
             OBJECT_CLASS_CAPITAL_SHIP)
             return MANEUVER_STRAFE_ENEMY;
-        roll = RandomBelow(100);
-        if (roll < g_aiPilotLevel_0059cf30[obj] * 5 + 60)
+        if ((short)RandomBelow(100) <
+            g_aiPilotLevel_0059cf30[obj] * 5 + 60)
             return MANEUVER_ZIP_PAST;
         return any_defense(obj);
     case 2:

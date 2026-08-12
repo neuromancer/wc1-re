@@ -426,11 +426,11 @@ unsigned int EstablishingShot(char *text, short duration)
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   DAT_0046999c);
-    frame = 0;
     FormatTextBufferFromStart(g_szEstablishingShotTextFormat_0046e640,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_00598b00);
+    frame = 0;
     FlushInputEvents();
     do {
         DrawSpriteDefault(&DAT_005a76b0, 0, 0,

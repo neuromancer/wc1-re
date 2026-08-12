@@ -186,7 +186,7 @@ void IxSound::ix_sound_reprioritise(void)
     IxSound *playingSound;
     int reassignedVoice;
 
-    newPriority = ((unsigned int)volume << 8) / 0xffff +
+    newPriority = (volume << 8) / 0xffff +
                   (pitchOffset << 8) / 0xac44 + basePriority;
     if ((flags & IX_SOUND_HAS_VOICE) != 0) {
         if (priority > newPriority) {

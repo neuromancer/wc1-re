@@ -823,8 +823,8 @@ void Mveer_away(short ship, short target)
             veer_random(ship, 16);
         }
     }
-    if ((short)DAT_00475e78 < g_nTargetRange_0059ce10 &&
-        (short)RandomBelowOrEqual(100) < 10 &&
+    if ((DAT_00475e78 >= g_nTargetRange_0059ce10 ||
+         (short)RandomBelowOrEqual(100) < 10) &&
         normal_speed(ship) != 0) {
         fire_afterburner(ship, 10);
         return;
@@ -902,7 +902,7 @@ void perform_maneuver(short obj)
         maneuver_complete(obj);
     }
 
-    if (range < (short)DAT_00475e78) {
+    if (range < DAT_00475e78) {
         try2reset_maneuver(obj, 2);
     } else if (g_aeShipManeuver_0059dcb0[obj] == previous &&
                RandomBelowOrEqual(100) <

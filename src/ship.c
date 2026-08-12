@@ -1294,8 +1294,8 @@ short pop_flack(short obj, short range, FixedVector *hardpoint)
         AddFixedVectors(&g_aShipPosition_0059c490[target], &randomAim,
                         &aimPoint);
         chance = (short)RandomBelowOrEqual(100);
-        if ((g_asObjectCounter_0059c330[obj] != -1 || chance > 39) &&
-            chance > 7) {
+        if ((g_asObjectCounter_0059c330[obj] != -1 || chance >= 40) &&
+            chance >= 8) {
             g_aShipPosition_0059c490[explosion] = aimPoint;
             explosion_shock_wave(
                 explosion,

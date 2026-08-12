@@ -747,7 +747,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `sound.cpp` | `ix_sound_start` | `0x447CD8` | 100.00% |
 | `sound.cpp` | `ix_sound_release` | `0x44801E` | 100.00% |
 | `sound.cpp` | `ix_sound_stop` | `0x4480CF` | 100.00% |
-| `sound.cpp` | `IxSound::ix_sound_reprioritise` | `0x44831A` | 99.12% |
+| `sound.cpp` | `IxSound::ix_sound_reprioritise` | `0x44831A` | 100.00% |
 | `sound.cpp` | `IxSound::ix_sound_set_delete_on_stop` | `0x448645` | 100.00% |
 | `sound.cpp` | `ix_sound_is_playing` | `0x448678` | 100.00% |
 | `sound.cpp` | `IxSample::ix_sample_construct` | `0x4486B0` | 100.00% |
@@ -1264,7 +1264,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screens.c` | `MedalEstablish` | `0x4373E0` | 87.88% |
 | `screens.c` | `PinMedal` | `0x4374B0` | 100.00% |
 | `screens.c` | `DrawMedals` | `0x4375C0` | 97.62% |
-| `screens.c` | `EstablishingShot` | `0x437770` | 98.11% |
+| `screens.c` | `EstablishingShot` | `0x437770` | 100.00% |
 | `screens.c` | `DrawBriefingLongShot` | `0x4378D0` | 100.00% |
 | `screens.c` | `ReturnToBriefingLongShot` | `0x437980` | 90.13% |
 | `screens.c` | `Dismissed` | `0x437B80` | 94.12% |
@@ -1370,7 +1370,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `ship.c` | `fire_flack` | `0x420840` | 100.00% |
 | `ship.c` | `rnd_sign` | `0x4208C0` | 100.00% |
 | `ship.c` | `rnd_aim` | `0x4208E0` | 100.00% |
-| `ship.c` | `pop_flack` | `0x420920` | 98.33% |
+| `ship.c` | `pop_flack` | `0x420920` | 100.00% |
 | `ship.c` | `fire_turrets` | `0x420AA0` | 96.52% |
 | `ship.c` | `fire_weapon` | `0x420C20` | 94.07% |
 | `smart.c` | `steer_away_from_object` | `0x433AC0` | 100.00% |
@@ -1390,7 +1390,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `smart.c` | `reset_stress` | `0x434550` | 100.00% |
 | `smart.c` | `stress_morale` | `0x4345D0` | 100.00% |
 | `smart.c` | `any_defense` | `0x4345F0` | 100.00% |
-| `smart.c` | `pick_regular_maneuver` | `0x434630` | 98.29% |
+| `smart.c` | `pick_regular_maneuver` | `0x434630` | 100.00% |
 | `smart.c` | `pick_from_list` | `0x434800` | 100.00% |
 | `smart.c` | `pick_kilrathi_maneuver` | `0x4348A0` | 100.00% |
 | `smart.c` | `process_maneuver_node` | `0x434900` | 100.00% |
