@@ -268,7 +268,7 @@ IxSound *ix_system_find_lowest_playing(IxSound *sound,
                                        unsigned int maximumPriority); /* 0x00447974 */
 int ix_system_find_free_voice(void);             /* 0x004479C7 */
 
-void __fastcall ix_sound_start(IxSound *sound);  /* 0x00447CD8 */
+extern "C" void __fastcall ix_sound_start(IxSound *sound); /* 0x00447CD8 */
 extern "C" void __fastcall ix_sound_release(IxSound *sound); /* 0x0044801E */
 void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x00447B7A */
 extern "C" void __fastcall ix_sound_stop(IxSound *sound);   /* 0x004480CF */

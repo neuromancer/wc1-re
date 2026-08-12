@@ -5,8 +5,10 @@ This project reconstructs the Win32 version of **Wing Commander** shipped in
 codebase that builds a playable `WC1.EXE` and progressively matches the original binary's
 behaviour and layout.
 
-The game core is C, the `ix` audio library is C++, and the reconstruction uses Microsoft
-Visual C++ 4.20 to preserve the original code generation.
+The game core is C and the `ix` audio library is C++. One game-side wave unit retains its
+original `.c` filename but is compiled as C++ because its assembly directly invokes `ix`
+member functions. The reconstruction uses Microsoft Visual C++ 4.20 to preserve the
+original code generation.
 
 ## Status
 
@@ -1399,9 +1401,9 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `smart.c` | `chase_speed` | `0x434C70` | 92.59% |
 | `sound.c` | `ReleaseFinishedSoundEntries` | `0x42B410` | 100.00% |
 | `sound.c` | `StopSoundsUsingWave` | `0x42B450` | 100.00% |
-| `sound.c` | `playWAVE` | `0x42B4A0` | 63.40% |
+| `sound.c` | `playWAVE` | `0x42B4A0` | 100.00% |
 | `sound.c` | `stop_all_sounds` | `0x42B640` | 100.00% |
-| `sound.c` | `PlaySnowStaticSound` | `0x42B680` | 16.67% |
+| `sound.c` | `PlaySnowStaticSound` | `0x42B680` | 100.00% |
 | `sound.c` | `ServiceSoundSystem` | `0x42B7D0` | 100.00% |
 | `sound.c` | `SetSoundEffectsVolume` | `0x42B7E0` | 100.00% |
 | `sound.c` | `RegistryQueryValue` | `0x42B810` | 100.00% |
@@ -1410,14 +1412,14 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `sound.c` | `SaveVolumeSettingsToRegistry` | `0x42B930` | 100.00% |
 | `sound.c` | `DrawLaunchDoorFrame` | `0x42B9A0` | 100.00% |
 | `sound.c` | `LaunchPlayerShip` | `0x42BA90` | 100.00% |
-| `sound.c` | `ShowCarrierLaunchSequence` | `0x42BC00` | 92.69% |
+| `sound.c` | `ShowCarrierLaunchSequence` | `0x42BC00` | 93.27% |
 | `sound.c` | `FxDriverShutdownHook` | `0x42C410` | 100.00% |
 | `sound.c` | `InitializeDiskPromptTextContext` | `0x42C420` | 100.00% |
 | `sound.c` | `RewriteDiskFileGraphicsExtensions` | `0x42C510` | 100.00% |
 | `sound.c` | `LoadWingCmdrCfgFile` | `0x42C580` | 100.00% |
 | `sound.c` | `LoadInstallDat` | `0x42C660` | 100.00% |
-| `sound.c` | `show_damage_disp` | `0x42C800` | 90.82% |
-| `sound.c` | `UpdateDamageDisplay` | `0x42C970` | 92.22% |
+| `sound.c` | `show_damage_disp` | `0x42C800` | 95.92% |
+| `sound.c` | `UpdateDamageDisplay` | `0x42C970` | 92.96% |
 | `sound.c` | `GetJoystickPresentUnused` | `0x42CDA0` | 100.00% |
 | `spc.c` | `CalibrateJoystickInteractive` | `0x4102B0` | 93.51% |
 | `spc.c` | `WaitForJoystickButtonRelease` | `0x4106C0` | 100.00% |

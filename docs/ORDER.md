@@ -81,7 +81,7 @@ that is anchored by the `/* Function start: */` annotation, not by the file.
 | `src/main.c` | `0x4274e0`–`0x427fff` | 6 | WINGLEADER main module | main() at 0x004274E0, confirmed against the leaked DOS source screenshot |
 | `src/hudmsg.c` | `0x428000`–`0x42afff` | 24 | On-screen messages, TrainSim menu input, debug keys, targeting/warp cleanup, and weapon selection | Exact nested Mac `targ` and `select` units at `0x42a8f0`–`0x42af9f`; enclosing split remains provisional |
 | `src/pload.c` | `0x42b000`–`0x42b3ff` | 9 | Packet loader and game-side sound-cache lists | PROVEN: PacketLoad prints "Library\\Source\\Pload.c PacketLoad" |
-| `src/sound.c` | `0x42b400`–`0x42cfff` | 10 | Wave playback, volume settings and INSTALL.DAT | playWAVE/PlaySfxWaveByIndex/LoadInstallDat; string band 0x46A46C-0x46A710 |
+| `src/sound.c` | `0x42b400`–`0x42cfff` | 10 | Wave playback, volume settings and INSTALL.DAT | playWAVE/PlaySfxWaveByIndex/LoadInstallDat; direct IX member calls prove `/TP` despite the retained `.c` name; string band 0x46A46C-0x46A710 |
 | `src/music.c` | `0x42d000`–`0x42efff` | 28 | Music state machine, streaming music script, and viewport/sprite helpers | PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ... |
 | `src/screen.c` | `0x42f000`–`0x431fff` | 28 | Screen scopes, prompts and the comm menu | PushMemoryStackFrame/ShowChoosePrompt/ShowEnemyTargetSelectMenu |
 | `src/dib.c` | `0x432000`–`0x43390f` | 23 | DirectDraw back end | PROVEN: named DirectDraw routines followed by DirectDrawResultToText and its generated switch tables |

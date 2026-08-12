@@ -1171,7 +1171,12 @@ void EnableMusicForScene(void);                                               /*
 unsigned int SoundFxTick(void);                                       /* 0x0042EF00 */
 void FlushSoundEffectsAndLog(void);                                               /* 0x0042EF10 */
 void sound_effect(void);                                                /* 0x0042EF20 */
+#ifdef __cplusplus
+void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject,
+                             int looping);                            /* 0x0042EF30 */
+#else
 void PlaySfxWaveFileByNumber();                                      /* 0x0042EF30 */
+#endif
 void cleanup_objectives(void);                                        /* 0x0042EFC0 */
 int too_busy(short ship);                                             /* 0x0042F1F0 */
 void reply(short ship, short accepted);                               /* 0x0042F210 */
@@ -1701,9 +1706,12 @@ int ReadCheaterFlagFromRegistry(void);                                /* 0x00442
 void ix_system_service_sounds(void);                                     /* 0x004472A7 */
 void ix_system_shutdown(void);                                            /* 0x004473F3 */
 void ix_system_set_master_volume(unsigned short volume);              /* 0x0044745B */
+IxSample *ix_system_new_sample(void);                                  /* 0x004474E3 */
 void ix_system_delete_all_samples(void);                                  /* 0x00447548 */
+IxSound *ix_system_new_sound(IxSample *sample);                        /* 0x0044758D */
 void ix_system_delete_all_sounds(void);                                   /* 0x00447610 */
 void ix_system_delete_sound(IxSound *sound);                              /* 0x004475C7 */
+void __fastcall ix_sound_start(IxSound *sound);                       /* 0x00447CD8 */
 void __fastcall ix_sound_release(IxSound *sound);                    /* 0x0044801E */
 void __fastcall ix_sound_stop(IxSound *sound);                       /* 0x004480CF */
 int __fastcall ix_sound_is_playing(IxSound *sound);                  /* 0x00448678 */

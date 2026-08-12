@@ -311,6 +311,16 @@ $(MSVCRT_SOURCE):
 $(TARGET): $(OBJS) | $(MSVCRT_DLL)
 	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(MAPFILE) $^ $(GAME_LIBS) /OUT:$@
 
+# The game-side wave module calls directly into IxSample and IxSound member
+# functions.  Those ECX-based calls at 0x42B4A0 and 0x42B680 prove this one
+# source unit was compiled as C++ while retaining its original .c filename.
+$(OUT_DIR)/sound.obj $(OUT_DIR)/sound.asm: src/sound.c | $(WIBO) $(MSVCRT_DLL)
+	@mkdir -p $(dir $(OUT_DIR)/sound)
+	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_CORE) /TP $< \
+		/Fo$(OUT_DIR)/sound.obj \
+		/Fa$(OUT_DIR)/sound.asm \
+		> $(OUT_DIR)/sound.stdout
+
 $(OUT_DIR)/%.obj $(OUT_DIR)/%.asm: src/%.c | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(OUT_DIR)/$*)
 	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_CORE) $< \

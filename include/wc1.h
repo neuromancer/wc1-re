@@ -57,11 +57,23 @@ typedef signed char    INT8;
 typedef struct IxSound IxSound;
 typedef struct IxSample IxSample;
 
-/* The game-side sound cache only inspects the leading public fields.  The IX
- * implementation owns the complete C++ object layout. */
+/* The game-side wave unit inspects the leading public fields and invokes the
+ * selected methods declared here.  The IX implementation owns the complete
+ * C++ object layout. */
+struct IxSample {
+    unsigned int flags;
+#ifdef __cplusplus
+    int ix_sample_load_wav(void *data, int bytes);
+#endif
+};
+
 struct IxSound {
     unsigned int flags;
     IxSample *sample;
+#ifdef __cplusplus
+    void ix_system_sound_set_volume(unsigned short volume);
+    void ix_sound_set_delete_on_stop(int enabled);
+#endif
 };
 
 /* The DOS rasteriser passes this record to every drawing primitive.  Its

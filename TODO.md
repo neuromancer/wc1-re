@@ -163,7 +163,7 @@ Ghidra status meanings:
   | `0x0042C420` | `InitializeDiskPromptTextContext` | `src/sound.c` | 100.00% |
   | `0x00408650` | `landing` | `src/brains.c` | 94.95% |
   | `0x004094E0` | `RunAnimationDemoLoop` | `src/brains.c` | 100.00% |
-  | `0x0042BC00` | `ShowCarrierLaunchSequence` | `src/sound.c` | 93.08% |
+  | `0x0042BC00` | `ShowCarrierLaunchSequence` | `src/sound.c` | 93.27% |
   | `0x0042FB40` | `CreateCannedSceneObject` | `src/screen.c` | 95.35% |
   | `0x0042FC00` | `ShowCampaignVictorySequence` | `src/screen.c` | 92.35% |
   | `0x00430150` | `ShowTigerClawEscapeScene` | `src/screen.c` | 93.98% |
@@ -171,7 +171,7 @@ Ghidra status meanings:
   | `0x00431A10` | `LoadJoystickCalibrationFile` | `src/screen.c` | 93.42% |
   | `0x00436F50` | `AwardCampaignMedal` | `src/screens.c` | 99.12% |
   | `0x004176C0` | `DrawPendingCockpitDamage` | `src/cockpt.c` | 100.00% |
-  | `0x0042B680` | `PlaySnowStaticSound` | `src/sound.c` | 16.67% |
+  | `0x0042B680` | `PlaySnowStaticSound` | `src/sound.c` | 100.00% |
   | `0x0042F740` | `InitializeDIBScreenViewport` | `src/screen.c` | 97.22% |
   | `0x0043C4A2` | `EncodeRLEScanline` | `src/screens.c` | 99.28% |
   | `0x0043C62B` | `EmitRLEScanlineRun` | `src/screens.c` | 98.18% |
@@ -221,11 +221,9 @@ Ghidra status meanings:
   in the fourteenth tranche are conservative behavior names. All seven have no
   inbound code reference, stored function pointer, PE export, or other Ghidra
   xref, and their source comments therefore mark them as believed unreachable.
-- `PlaySnowStaticSound` is the best rule-compliant C fallback. The original
-  directly invokes C++ `IxSample` and `IxSound` methods; reproducing those calls
-  from the core C unit would require a forbidden wrapper/thunk or changing the
-  unit's language. The generic wave path preserves audible looping static, but
-  consequently remains below the normal similarity threshold.
+- `playWAVE` and `PlaySnowStaticSound` directly invoke the original C++
+  `IxSample` and `IxSound` methods. Their ECX-based call sites prove that this
+  game-side wave unit was compiled as C++ despite retaining its `.c` filename.
 - The post-tranche `make verify` completed successfully. A live Ghidra xref
   audit found no inbound reference of any kind to the 21 completed ordinary
   backlog functions. The only called remaining inventory entry is the CRT

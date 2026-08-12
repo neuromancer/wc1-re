@@ -13,7 +13,7 @@
 #define IX_SOUND_FILE "D:\\Rnd\\prj\\ix\\src\\sound\\sound.cpp"
 
 /* Function start: 0x00447CD8 */   /* source line 103 */
-void __fastcall ix_sound_start(IxSound *sound)
+extern "C" void __fastcall ix_sound_start(IxSound *sound)
 {
     int voice;
     IxSound *lowestPlaying;

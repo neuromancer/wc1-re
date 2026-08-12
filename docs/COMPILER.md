@@ -70,6 +70,15 @@ destructor at `0x0041C910` before `operator delete`.  The console's other ECX me
 callee-cleanup arguments use the same member-function ABI.  The class has no vtable or RTTI;
 only its owner needs `/GX`, for the constructor-failure cleanup described above.
 
+### Game-side wave unit compiled as C++
+
+The source unit retained as `src/sound.c` is a second, narrower language exception. Its
+game-facing functions keep C linkage, but `playWAVE` (`0x0042B4A0`) and
+`PlaySnowStaticSound` (`0x0042B680`) load an `IxSample` or `IxSound` into ECX and call the
+library's C++ member functions directly. A C compilation cannot emit those implicit-this
+calls without non-original glue. Compiling this unit with `/TP` reproduces both functions at
+100.00% similarity while retaining the core optimizer flags and keeping `/GX` disabled.
+
 ### Optimizer set `/Og /Oi /Ot /Ob1` — starting point, NOT yet verified
 
 Carried over from the sibling MSVC 4.20 project as a plausible baseline. These still need
