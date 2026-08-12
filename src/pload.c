@@ -170,10 +170,10 @@ ActiveSoundEntry *AllocateActiveSoundEntry(void)
 /* Function start: 0x42B390 */
 void RemoveActiveSoundEntry(ActiveSoundEntry *target)
 {
-    ActiveSoundEntry *previous = 0;
     ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
+    ActiveSoundEntry *previous = 0;
 
-    while (entry != 0 && target != entry) {
+    while (entry != 0 && entry != target) {
         previous = entry;
         entry = entry->next;
     }

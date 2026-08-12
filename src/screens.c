@@ -3688,7 +3688,7 @@ encode_finish_line:
         pop edi
         pop esi
         pop ebx
-        leave
+        _emit 0c9h
         ret
     }
 }

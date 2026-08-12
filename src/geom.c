@@ -77,10 +77,12 @@ short __stdcall CollectActivePaletteIndices(Viewport *viewport,
     memset(active, 0, (unsigned int)capacity);
     MarkActivePaletteEntries(viewport, active);
     index = 0;
-    while (index < capacity) {
-        if (active[index] != 0)
-            indices[count++] = (unsigned char)index;
-        index++;
+    if (capacity > 0) {
+        do {
+            if (active[index] != 0)
+                indices[count++] = (unsigned char)index;
+            index++;
+        } while (index < capacity);
     }
     ReleasePacketHandle((int)active);
     return count;

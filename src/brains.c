@@ -533,8 +533,8 @@ void Mtail_fire(short ship, short target)
 void Mzip_past(short ship, short target)
 {
     if (unactive(target) == 0) {
-        if (close_behind((short)(
-                g_asObjectCollisionRadius_0059d710[target] + 2000)) != 0) {
+        if (close_behind(
+                g_asObjectCollisionRadius_0059d710[target] + 2000) != 0) {
             Mtail_fire(ship, target);
             return;
         }
@@ -2863,7 +2863,7 @@ void strike_mission(short obj)
     short goal = find_ship_index(g_anShipMissionShip_0059d4b0[obj]);
 
     if (goal == -1 &&
-        g_aeObjectClass_0059d100[-1] != OBJECT_CLASS_FUTURION)
+        g_aeObjectClass_0059d100[goal] != OBJECT_CLASS_FUTURION)
         check_goal(obj);
     switch (g_aeShipObjective_0059d200[obj]) {
     case OBJECTIVE_HOME_BASE:
@@ -3188,7 +3188,7 @@ void mine_intelligence(short obj)
 
     if (g_asObjectCounter_0059c330[obj] != -1)
         return;
-    for (other = 0; other < 10; other++) {
+    for (other = 0; other <= 9; other++) {
         if (other == obj || g_aeObjectClass_0059d100[other] <
                             OBJECT_CLASS_SHIP)
             continue;

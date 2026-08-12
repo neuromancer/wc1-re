@@ -379,16 +379,12 @@ unsigned int reset_stress(short obj)
             damage = evaluate_damage(obj);
         if (damage < 30) {
             damage = 30;
-            g_acShipStress_0059d620[obj] = (signed char)damage;
-            return 0;
+        } else if (damage < 75) {
+            damage = find_ratio(30, 74, damage, 29, 15);
+        } else {
+            damage = find_ratio(75, 100, damage, 14, 0);
         }
-        if (damage < 75) {
-            g_acShipStress_0059d620[obj] =
-                (signed char)find_ratio(30, 74, damage, 29, 15);
-            return 0;
-        }
-        g_acShipStress_0059d620[obj] =
-            (signed char)find_ratio(75, 100, damage, 14, 0);
+        g_acShipStress_0059d620[obj] = (signed char)damage;
     }
     return 0;
 }
@@ -664,11 +660,13 @@ void intelligence_events(short obj)
 /* Function start: 0x434C70 */
 unsigned int chase_speed(short obj, short range)
 {
-    if (range > g_nTargetRange_0059ce10) {
+    short targetRange = g_nTargetRange_0059ce10;
+
+    if (range < targetRange) {
         approach_full_speed(obj);
         return 0;
     }
-    if (range < g_nTargetRange_0059ce10) {
+    if (range > targetRange) {
         approach_zero_speed(obj);
         return 0;
     }

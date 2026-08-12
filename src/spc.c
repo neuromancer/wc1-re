@@ -1132,7 +1132,7 @@ unsigned int house_keep_objects(void)
 }
 
 /* Function start: 0x412820 */
-void update_objects_in_space(void)
+unsigned int update_objects_in_space(void)
 {
     short obj;
 
@@ -1143,9 +1143,9 @@ void update_objects_in_space(void)
             futurion_intelligence(obj);
         } else if (g_aeObjectClass_0059d100[obj] > OBJECT_CLASS_PLANET) {
             animate_object(obj);
-            object_collision(obj);
             if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL &&
                 g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_PROJECTILE) {
+                object_collision(obj);
                 rotate_object(obj);
                 if (obj >= 10 ||
                     g_aeSpecialManeuver_0059c3c0[obj] !=
@@ -1178,6 +1178,7 @@ void update_objects_in_space(void)
         }
         obj++;
     } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
+    return 0;
 }
 
 /* Function start: 0x412920 */
@@ -1408,12 +1409,13 @@ unsigned int animate_object(short obj)
         zero_vector(&g_aShipVelocity_0059c010[effect]);
         set_objects_data(
             effect,
-            (enum ObjectType)(RandomInRange(0, 2) + OBJECT_TYPE_RED_SPARK),
+            (enum ObjectType)((unsigned short)RandomInRange(0, 2) +
+                              OBJECT_TYPE_RED_SPARK),
             obj);
         g_asObjectScale_0059de40[effect] =
             g_asObjectScale_0059de40[obj];
         if ((short)RandomInRange(0, 3) == 0)
-            PlaySfxWaveFileByNumber(7, obj, 0);
+            PlaySfxWaveFileByNumber(7, obj, 0, 0);
         break;
     }
     return 0;

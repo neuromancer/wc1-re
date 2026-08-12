@@ -376,7 +376,7 @@ unsigned int generate_stars(void);                                    /* 0x00411
 unsigned int update_star_field(void);                                 /* 0x00412100 */
 unsigned short count_down(short obj);                                   /* 0x00412410 */
 unsigned int house_keep_objects(void);                                 /* 0x00412430 */
-void update_objects_in_space(void);                                    /* 0x00412820 */
+unsigned int update_objects_in_space(void);                            /* 0x00412820 */
 unsigned int rotate_object(short obj);                                 /* 0x00412920 */
 unsigned int accelerate_and_move_object(short obj);                    /* 0x004129A0 */
 unsigned int animate_shape(short obj);                                 /* 0x00412CD0 */
@@ -860,7 +860,7 @@ int trim_goals(short obj, short amount);                              /* 0x00422
 int report_kilrathi_rout(int mode);                                   /* 0x00422640 */
 short find_ship_index(short missionShip);                              /* 0x00422710 */
 int try2rout(short obj);                                              /* 0x00422780 */
-unsigned char no_goal(short ship);                                     /* 0x00422830 */
+signed char no_goal(short ship);                                       /* 0x00422830 */
 int being_tailed(short obj, short other);                             /* 0x00422860 */
 int any_enemy_tail(short obj);                                        /* 0x004228A0 */
 short detect_enemy_tail(short obj);                                    /* 0x00422930 */
@@ -891,7 +891,7 @@ unsigned int get_front_spot(short obj, unsigned short distance,
                             FixedVector *point);                       /* 0x00422EC0 */
 unsigned int get_rear_spot(short obj, unsigned short distance,
                            FixedVector *point);                        /* 0x00422F10 */
-unsigned int close_behind(short range);                               /* 0x00422F60 */
+unsigned int close_behind();                                          /* 0x00422F60 */
 short scan_for_enemy(short obj, unsigned short range);                  /* 0x00422F80 */
 int any_enemy(short obj, short range);                                  /* 0x00423070 */
 short nearest_enemy_range(short obj);                                 /* 0x004230F0 */
@@ -940,7 +940,7 @@ unsigned int free_constellation(void);                            /* 0x00424490 
 void init_vdus(void);                                                  /* 0x004244E0 */
 unsigned int InitializeCockpitResources(signed char mode);             /* 0x004245B0 */
 unsigned int free_cockpit(void);                                       /* 0x004249A0 */
-unsigned int init_3Space_objects(short scene);                         /* 0x00424A80 */
+unsigned int init_3Space_objects();                                    /* 0x00424A80 */
 unsigned int load_common_3Space_objects(void);                         /* 0x00424B00 */
 unsigned int remove_all_3d_objects(void);                              /* 0x00424B80 */
 unsigned int free_3Space(void);                                        /* 0x00424BA0 */
@@ -1168,8 +1168,7 @@ void EnableMusicForScene(void);                                               /*
 unsigned int SoundFxTick(void);                                       /* 0x0042EF00 */
 void FlushSoundEffectsAndLog(void);                                               /* 0x0042EF10 */
 void sound_effect(void);                                                /* 0x0042EF20 */
-void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject,
-                             int looping);                            /* 0x0042EF30 */
+void PlaySfxWaveFileByNumber();                                      /* 0x0042EF30 */
 void cleanup_objectives(void);                                        /* 0x0042EFC0 */
 int too_busy(short ship);                                             /* 0x0042F1F0 */
 void reply(short ship, short accepted);                               /* 0x0042F210 */
@@ -1221,7 +1220,7 @@ void CloseCommChoiceMenu(void);                                       /* 0x00430
 int wingman_dead(void);                                               /* 0x00430E10 */
 short have_target(void);                                              /* 0x00430E30 */
 unsigned short CanOpenCommMenu(void);                                 /* 0x00430E50 */
-void SelectCommRecipient(signed char recipient);                      /* 0x00430E70 */
+void SelectCommRecipient(short recipient);                            /* 0x00430E70 */
 void BuildCommunicationRecipientMenu(void);                           /* 0x00430E90 */
 void BuildCommunicationCommandMenu(void);                             /* 0x00430FC0 */
 void RefreshCommunicationMenu(void);                                 /* 0x00431200 */

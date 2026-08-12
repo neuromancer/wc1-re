@@ -72,7 +72,7 @@ void *LoadPacketAllocated(short logicalFile, short section)
             retries--;
             PacketLoad(g_pDiskFileRecords_005a7cf0[logicalFile].name,
                        section, packet, 0, 0);
-            if (retries < 1 || g_nPacketError_00465460 == 0)
+            if (retries <= 0 || g_nPacketError_00465460 == 0)
                 break;
         } while (g_nPacketError_00465460 != 8);
     }
@@ -158,13 +158,13 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
 
     index = fontIndex;
     if (g_apTextFonts_005a6c00[index] == 0) {
-        if (index == 1) {
+        if (fontIndex == 1) {
             g_apTextFonts_005a6c00[index] =
-                (unsigned char *)FetchDiskPacketRetrying(0, (short)index,
+                (unsigned char *)FetchDiskPacketRetrying(0, fontIndex,
                                                          0x10);
         } else {
             g_apTextFonts_005a6c00[index] =
-                (unsigned char *)FetchDiskPacketRetrying(0, (short)index,
+                (unsigned char *)FetchDiskPacketRetrying(0, fontIndex,
                                                          0);
         }
         g_apFontWorkspaces_005a6c10[index] =

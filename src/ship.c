@@ -368,10 +368,11 @@ void revise_shields(short obj)
 {
     short maximum;
 
-    maximum = MaxShort(0, (short)(g_aasShipMaximumShield_0059d6e0[obj][0] -
-        (g_aObjectTypeData_00466458[
-            g_aeObjectType_0059b560[obj]].shieldFore >> 2)));
-    g_aasShipMaximumShield_0059d6e0[obj][0] = maximum;
+    g_aasShipMaximumShield_0059d6e0[obj][0] =
+        MaxShort(0, (short)(g_aasShipMaximumShield_0059d6e0[obj][0] -
+            (g_aObjectTypeData_00466458[
+                g_aeObjectType_0059b560[obj]].shieldFore >> 2)));
+    maximum = g_aasShipMaximumShield_0059d6e0[obj][0];
     g_aasShipMaximumShield_0059d6e0[obj][1] =
         MaxShort(0, (short)(maximum -
             (g_aObjectTypeData_00466458[
@@ -1055,14 +1056,12 @@ short find_child_ship(short parent, enum ObjectClass objectClass,
 int launch_object(short parent, short child, FixedVector direction,
                   short speed)
 {
-    FixedVector launchVelocity;
-
     NormalizeFixedVector(&direction);
     vector_component_in_dir(&g_aShipVelocity_0059c010[parent],
                             &direction,
                             &g_aShipVelocity_0059c010[child]);
-    ScaleFixedVector(&direction, (int)speed << 8, &launchVelocity);
-    AddFixedVectors(&launchVelocity, &g_aShipVelocity_0059c010[child],
+    ScaleFixedVector(&direction, (int)speed << 8, &direction);
+    AddFixedVectors(&direction, &g_aShipVelocity_0059c010[child],
                     &g_aShipVelocity_0059c010[child]);
     return 0;
 }

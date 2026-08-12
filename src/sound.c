@@ -645,14 +645,15 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
     argumentCount = 0;
     destination = g_szTextScratchBuffer_00598b00;
     file = fopen("WINGCMDR.CFG", "rt");
-    while (file != 0 &&
-           (short)fscanf(file, "%s", destination) != -1) {
+    while (file != 0) {
+        if ((short)fscanf(file, "%s", destination) == -1) {
+            fclose(file);
+            break;
+        }
         g_pStartupArguments_005a7b10[argumentCount++] =
             destination;
         destination = strchr(destination, 0) + 1;
     }
-    if (file != 0)
-        fclose(file);
 
     while (argc-- != 0) {
         strcpy(destination, argv[argumentIndex]);

@@ -34,14 +34,12 @@ FontWorkspace **AllocateFontWorkspace(short fontIndex)
 /* Function start: 0x403180 */
 void FreeFontWorkspace(FontWorkspace **workspace)
 {
-    FontWorkspace *entry;
     int offset;
 
     offset = 0;
     do {
-        entry = (FontWorkspace *)((unsigned char *)*workspace + offset);
+        free(((FontWorkspace *)((unsigned char *)*workspace + offset))->pixels);
         offset += sizeof(FontWorkspace);
-        free(entry->pixels);
     } while (offset < (int)sizeof(FontWorkspace));
     free(*workspace);
     free(workspace);

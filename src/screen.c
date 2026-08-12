@@ -1317,7 +1317,7 @@ unsigned short CanOpenCommMenu(void)
 }
 
 /* Function start: 0x430E70 */
-void SelectCommRecipient(signed char recipient)
+void SelectCommRecipient(short recipient)
 {
     g_cCommMenuRecipient_0046afc4 = recipient;
     SetPendingMenuAction(2);
@@ -1339,7 +1339,7 @@ void BuildCommunicationRecipientMenu(void)
     }
     if (have_target() == 0 ||
         g_acShipTarget_0059ce60[0] == g_nYourWingman_0046c04c) {
-        SelectCommRecipient((signed char)g_nYourWingman_0046c04c);
+        SelectCommRecipient(g_nYourWingman_0046c04c);
         return;
     }
     AppendCommMenuChoice(
@@ -1516,7 +1516,7 @@ unsigned int Chosen_communicate_option(short choice)
             return 0;
         }
         if (g_abCommMenuChoiceCommand_0059e488[choice] == 1) {
-            SelectCommRecipient((signed char)g_nYourWingman_0046c04c);
+            SelectCommRecipient(g_nYourWingman_0046c04c);
             RefreshCommunicationMenu();
             return 0;
         }

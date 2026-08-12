@@ -12,17 +12,15 @@
 /* Message dwell time: grows with text length, scaled by the speed setting. */
 short MeasureMessageWidth(const char *text)
 {
-    short n = MinShort(5, (short)(DosStrlen(text) >> 1));
-
-    n = (short)((n + 5) * ((char)g_bMessageSpeed_0046af68 + 1));
-    return n;
+    return (short)((MinShort(5, (short)(DosStrlen(text) >> 1)) + 5) *
+                   ((char)g_bMessageSpeed_0046af68 + 1));
 }
 
 /* Function start: 0x428EA0 */
 void WaitForKeyAcknowledge(int mode)
 {
-    short acknowledged;
-    char key;
+    int acknowledged;
+    int key;
 
     if (mode != 0) {
         acknowledged = 0;

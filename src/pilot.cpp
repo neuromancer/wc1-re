@@ -30,7 +30,7 @@ void ShowMeanwhileTransition(short scene, short variant)
 
     track = variant + 0x21;
     PreloadMusicTrackHook((short)track);
-    spacetrack((short)track, 2, 1);
+    spacetrack(track, 2, 1);
     InitializeConversationViewport();
     InitializeConversationText();
     LoadSceneAnimationResources(scene, variant);

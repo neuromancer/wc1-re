@@ -598,8 +598,8 @@ unsigned int initialize_direction_view_frames(void)
     signed char frame;
     signed char pitchBands;
     signed char yawSectors;
-    short pitch;
     short yaw;
+    short pitch;
 
     frame = 1;
     pitch = 90;
@@ -1029,7 +1029,7 @@ int try2rout(short obj)
 }
 
 /* Function start: 0x422830 */
-unsigned char no_goal(short ship)
+signed char no_goal(short ship)
 {
     return (g_anYawGoal_0059c310[ship] |
             g_anPitchGoal_0059d7a0[ship] |
@@ -1262,14 +1262,16 @@ void try2reset_maneuver(short obj, short maneuver)
 /* Function start: 0x422D90 */
 unsigned int set_special(short ship, enum SpecialManeuver special)
 {
-    enum SpecialManeuver *currentState = &g_aeSpecialManeuver_0059c3c0[ship];
+    enum SpecialManeuver *currentState;
+    enum SpecialManeuver current;
 
-    if (*currentState >= SPECIAL_MANEUVER_LOST_CONTROL && *currentState >= special)
-        goto checkCancellation;
-    *currentState = special;
+    currentState = &g_aeSpecialManeuver_0059c3c0[ship];
+    current = *currentState;
+    if (current < SPECIAL_MANEUVER_LOST_CONTROL || special > current)
+        *currentState = special;
 
-checkCancellation:
-    if (*currentState == SPECIAL_MANEUVER_BLOWING_UP && (short)alert_flag(ship, 1))
+    if (*currentState == SPECIAL_MANEUVER_BLOWING_UP &&
+        (short)alert_flag(ship, 1))
         *currentState = SPECIAL_MANEUVER_NONE;
     return 0;
 }
@@ -2385,7 +2387,6 @@ unsigned int free_cockpit(void)
     FreePacketAndClear((int *)&g_pDamageDisplayBackground_0046a748, 0);
     FreeCommDisplayResources();
     ReleasePacketHandle((int)g_pScannerMarkerBackground_005a7dc4);
-    return 0;
 }
 
 /* Function start: 0x424A80 */

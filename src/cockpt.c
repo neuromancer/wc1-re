@@ -1410,7 +1410,8 @@ void clear_head_up_display(void)
                           g_asScannerObjectX_005a7ea0[object],
                           g_asScannerObjectY_005a7e80[object],
                           g_asScannerBackgroundColour_005a7ed0[object]);
-        g_asScannerObjectX_005a7ea0[object] = 0;
+        g_asScannerObjectX_005a7ea0[
+            g_nScannerTargetObject_00469090] = 0;
     }
     if (g_asScannerObjectX_005a7ea0[10] != 0) {
         RestoreSpriteBackground(&DAT_005a6ba0,
