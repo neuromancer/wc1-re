@@ -11,6 +11,8 @@
 int g_nCapitalShipViewDistance_00468ff4 = 0x7d000;
 unsigned char g_bLandingAuthorized_00468ff8 = 0;
 int g_bAlternateChaseView_00468ffc = 0;
+extern short g_nStarFieldJRotation_005a7f02;
+extern short g_nStarFieldIRotation_005a7f04;
 
 /* Function start: 0x4102B0 */
 void CalibrateJoystickInteractive()

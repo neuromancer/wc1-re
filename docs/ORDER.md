@@ -182,6 +182,13 @@ across their real compilation units, and a clean-rebuild experiment confirmed th
 ownership improves comparison: moving the complete nav band raised the full average from
 97.22% to 97.24% and `nav.c` from 94.36% to 94.66%.
 
+Declaration visibility is independently observable with this compiler. Starting from clean
+commit `9d5fb58`, removing the two `spc.c`-private star-rotation declarations from the shared
+header raised the full average from 97.84% to 97.86%, increased exact matches from 1,102 to
+1,111, and reduced sub-90 functions from 111 to 110. Shared declarations therefore stay in
+`include/globals.h`, while globals referenced by only one compilation unit are declared in
+that unit even when their definition must remain in `src/globals.c` pending ownership proof.
+
 The following evidence-backed bands have moved so far:
 
 | Owner | Original data band | Evidence |

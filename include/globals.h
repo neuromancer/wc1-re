@@ -1089,8 +1089,6 @@ extern short g_asScannerObjectX_005a7ea0[11];
 extern short g_asScannerBackgroundColour_005a7ed0[10];
 extern int DAT_005a7ec0;
 extern unsigned short DAT_005a7f00;
-extern short g_nStarFieldJRotation_005a7f02;
-extern short g_nStarFieldIRotation_005a7f04;
 extern short g_nExternalViewAngle_005a7f06;
 extern int g_nViewportAllocationCount_005a7f0c;
 extern unsigned char *g_apViewportAllocations_005a7f10[128];

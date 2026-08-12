@@ -80,10 +80,12 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
   path), each covering one address range recorded in docs/ORDER.md. Put a new function in the
   file whose range contains its address; if none does, extend the nearest range rather than
   starting a `misc.c`.
-- Declarations are centralised: globals are declared in `include/globals.h`, while each
-  definition belongs in its evidence-backed original compilation unit and declaration order;
-  prototypes for implemented functions are in `include/wc1funcs.h`, and prototypes for
-  not-yet-written callees are in `include/wc1extern.h`. All three headers are reached through
+- Global visibility follows the original compilation units: globals referenced by multiple
+  units are declared in `include/globals.h`, while compilation-unit-private globals are
+  declared only in that unit. Definitions belong in their evidence-backed original unit and
+  declaration order; until ownership is proven, storage may remain in `src/globals.c`.
+  Prototypes for implemented functions are in `include/wc1funcs.h`, and prototypes for
+  not-yet-written callees are in `include/wc1extern.h`; all three headers are reached through
   `wc1.h`.
 
 ### Other important rules
