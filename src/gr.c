@@ -200,13 +200,13 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            GetPreparedShapeData(shape), frame,
                            x - viewport->left, y - viewport->top,
                            g_abShapeTransformScratch_004875c0,
-                           angle * 10, scaleX << 8, scaleY << 8, 1);
+                           angle * 10, scaleX * 256, scaleY * 256, 1);
         } else {
             RotateRLEImage(&g_stRasterClip_00496fc0,
                            GetPreparedShapeData(shape), frame,
                            x - viewport->left, y - viewport->top,
                            g_abShapeTransformScratch_004875c0,
-                           angle * 10, scaleX << 8, scaleY << 8, 0);
+                           angle * 10, scaleX * 256, scaleY * 256, 0);
         }
     }
 }

@@ -701,14 +701,19 @@ unsigned int remove_weapon(short obj, short weapon)
     weaponOffset = (int)currentWeapon * sizeof(ShipWeaponSlot);
     loadout = g_aShipWeapons_0059cab0[ship];
     preferredType =
-        *(enum ObjectType *)(loadout + weaponOffset + 1);
+        ((ShipWeaponSlot *)(loadout + weaponOffset + 1))->type;
     objectClass = g_aObjectTypeData_00466458[preferredType].objectClass;
     while (currentWeapon < (signed char)loadout[0] - 1) {
         unsigned char *entry = loadout + currentWeapon * 7;
 
+#ifdef WC1_SDL
+        /* The seven-byte records are intentionally unaligned. */
+        memcpy(entry + 1, entry + 8, sizeof(ShipWeaponSlot));
+#else
         *(int *)(entry + 1) = *(int *)(entry + 8);
         *(short *)(entry + 5) = *(short *)(entry + 12);
         entry[7] = entry[14];
+#endif
         currentWeapon++;
     }
     loadout[(signed char)loadout[0] * 7 + 7] = 1;

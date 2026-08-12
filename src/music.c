@@ -646,7 +646,14 @@ void DrawTargetRangeReadout(void)
     const char *rangeText;
 
     target = g_acShipTarget_0059ce60[0];
-    if (g_aeSpecialManeuver_0059c3c0[target] ==
+#ifdef WC1_SDL
+    /* The original tests the table before the -1 sentinel.  At target -1 it
+       reads the zero-filled gap at 0x0059c3bc, so the comparison is false. */
+    if (target != -1 &&
+#else
+    if (
+#endif
+        g_aeSpecialManeuver_0059c3c0[target] ==
         SPECIAL_MANEUVER_UNKNOWN_9) {
         g_acShipTarget_0059ce60[0] = -1;
         InvalidateVduMode(1);

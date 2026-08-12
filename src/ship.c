@@ -74,7 +74,14 @@ void send_appropriate_message(short attacker, short victim)
                 g_aeSpecialManeuver_0059c3c0[attacker] !=
                     SPECIAL_MANEUVER_UNKNOWN_9)
                 send_message(g_nYourWingman_0046c04c, 5);
-        } else if (g_aeShipSide_0059d650[
+#ifdef WC1_SDL
+        /* An unowned ship has owner -1.  The original indexes side[-1], which
+           aliases the final roll-goal words and normally compares false. */
+        } else if (g_acObjectOwner_0059ce20[attacker] != -1 &&
+#else
+        } else if (
+#endif
+                   g_aeShipSide_0059d650[
                        (short)g_acObjectOwner_0059ce20[attacker]] ==
                        SIDE_KILRATHI &&
                    g_nYourWingman_0046c04c == victim) {

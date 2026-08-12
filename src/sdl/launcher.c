@@ -32,6 +32,21 @@ int main(int argumentCount, char **arguments)
     DAT_005a89a0 = (HWND)window;
     Wc1SdlStartEventPump();
     if (checkOnly) {
+        g_aShipWeapons_0059cab0[1][0] = 2;
+        remove_weapon(1, 0);
+        if (g_aShipWeapons_0059cab0[1][0] != 1)
+            return 1;
+
+        g_acShipTarget_0059ce60[0] = -1;
+        g_cTargetDisplayObject_0046c06c = -1;
+        g_nRenderedSpaceFrame_0059d61a = 1;
+        DrawTargetRangeReadout();
+
+        g_aeObjectClass_0059d100[1] = OBJECT_CLASS_SHIP;
+        g_acObjectOwner_0059ce20[1] = -1;
+        g_nYourWingman_0046c04c = -1;
+        send_appropriate_message(1, 0);
+
         g_acShipTarget_0059ce60[0] = 0;
         g_aeShipManeuver_0059dcb0[0] = MANEUVER_NONE;
         perform_maneuver(0);

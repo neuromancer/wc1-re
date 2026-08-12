@@ -1647,7 +1647,7 @@ int object_collision(short obj)
             partnerMass = (unsigned short)
                 g_asObjectRadarRadius_0059c790[partner];
             totalMass = objectMass + partnerMass;
-            responseScale = ((objectMass - partnerMass) << 8) /
+            responseScale = ((objectMass - partnerMass) * 256) /
                             totalMass;
             responseScale = MaxInt(0x40, responseScale);
             responseScale = MinInt(responseScale, 0x400);
