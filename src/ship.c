@@ -875,6 +875,31 @@ short Explosion(short obj)
 
     objectClass = g_aeObjectClass_0059d100[obj];
     explosion = obj;
+#ifdef WC1_SDL
+    if (g_nTrainSimActive_00469e2c != 0 && obj >= 0 && obj < 10 &&
+        g_aeShipSide_0059d650[obj] == SIDE_KILRATHI) {
+        printf("[trainsim-wave] explosion started: slot=%d mission=%d "
+               "class=%d type=%d pilot=%d special=%d counter=%d "
+               "speed=%d maximum=%d position=%d,%d,%d "
+               "velocity=%d,%d,%d\n",
+               (int)obj,
+               (int)g_nShipMissionIndices_0059c830[obj],
+               (int)objectClass,
+               (int)g_aeObjectType_0059b560[obj],
+               g_aiPilotLevel_0059cf30[obj],
+               (int)g_aeSpecialManeuver_0059c3c0[obj],
+               (int)g_asObjectCounter_0059c330[obj],
+               g_anShipSpeed_0059b320[obj],
+               (int)g_asShipMaximumSpeed_0059c440[obj],
+               g_aShipPosition_0059c490[obj].x,
+               g_aShipPosition_0059c490[obj].y,
+               g_aShipPosition_0059c490[obj].z,
+               g_aShipVelocity_0059c010[obj].x,
+               g_aShipVelocity_0059c010[obj].y,
+               g_aShipVelocity_0059c010[obj].z);
+        fflush(stdout);
+    }
+#endif
     if (objectClass >= OBJECT_CLASS_SHIP) {
         missionShip = -1;
         if (objectClass == OBJECT_CLASS_CAPITAL_SHIP)

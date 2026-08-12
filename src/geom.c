@@ -116,6 +116,26 @@ short recalc_max_velocity(short ship)
     }
     if (g_asShipMaximumSpeed_0059c440[ship] != oldVelocity)
         celerate(ship, 0);
+#ifdef WC1_SDL
+    if (g_nTrainSimActive_00469e2c != 0 && ship > 0 && ship < 10 &&
+        g_aeObjectClass_0059d100[ship] == OBJECT_CLASS_SHIP &&
+        g_asShipMaximumSpeed_0059c440[ship] != oldVelocity) {
+        printf("[trainsim-wave] maximum-speed transition: slot=%d "
+               "side=%d type=%d pilot=%d old=%d new=%d "
+               "type-maximum=%d fuel=%d ion-damage=%d speed=%d\n",
+               (int)ship,
+               (int)g_aeShipSide_0059d650[ship],
+               (int)g_aeObjectType_0059b560[ship],
+               g_aiPilotLevel_0059cf30[ship],
+               (int)oldVelocity,
+               (int)g_asShipMaximumSpeed_0059c440[ship],
+               (int)get_ship_max_velocity(ship),
+               g_anShipFuel_0059b470[ship],
+               (int)g_acShipIonDriveDamage_0059d4a0[ship],
+               g_anShipSpeed_0059b320[ship]);
+        fflush(stdout);
+    }
+#endif
     return 0;
 }
 
@@ -1004,6 +1024,40 @@ void remove_object(short obj)
 
     if (obj == -1)
         return;
+#ifdef WC1_SDL
+    if (g_nTrainSimActive_00469e2c != 0 && obj >= 0 && obj < 10) {
+        printf("[trainsim-wave] remove object: slot=%d class=%d side=%d "
+               "type=%d mission=%d pilot=%d mission-type=%d "
+               "objective=%d target=%d tactic=%d maneuver=%d stress=%d "
+               "special=%d counter=%d range=%d speed=%d maximum=%d "
+               "afterburner=%d position=%d,%d,%d "
+               "velocity=%d,%d,%d\n",
+               (int)obj, (int)g_aeObjectClass_0059d100[obj],
+               (int)g_aeShipSide_0059d650[obj],
+               (int)g_aeObjectType_0059b560[obj],
+               (int)g_nShipMissionIndices_0059c830[obj],
+               g_aiPilotLevel_0059cf30[obj],
+               (int)g_aeShipMissionType_0059c3f0[obj],
+               (int)g_aeShipObjective_0059d200[obj],
+               (int)g_acShipTarget_0059ce60[obj],
+               (int)g_aeShipTactic_0059d5e0[obj],
+               (int)g_aeShipManeuver_0059dcb0[obj],
+               (int)g_acShipStress_0059d620[obj],
+               (int)g_aeSpecialManeuver_0059c3c0[obj],
+               (int)g_asObjectCounter_0059c330[obj],
+               (int)g_asObjectDistance_0059b4a0[obj],
+               g_anShipSpeed_0059b320[obj],
+               (int)g_asShipMaximumSpeed_0059c440[obj],
+               (int)g_asShipAfterburnerTimer_0059c810[obj],
+               g_aShipPosition_0059c490[obj].x,
+               g_aShipPosition_0059c490[obj].y,
+               g_aShipPosition_0059c490[obj].z,
+               g_aShipVelocity_0059c010[obj].x,
+               g_aShipVelocity_0059c010[obj].y,
+               g_aShipVelocity_0059c010[obj].z);
+        fflush(stdout);
+    }
+#endif
     g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
     g_asObjectDistance_0059b4a0[obj] = 0;
     if (obj == DAT_00469208)
