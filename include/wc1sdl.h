@@ -78,6 +78,8 @@ int Wc1SdlGetAsyncKeyState(int virtualKey);
 void Wc1SdlOutputDebugString(const char *text);
 int Wc1SdlSetCursorPosition(int x, int y);
 void Wc1SdlSleep(DWORD milliseconds);
+void Wc1SdlStartEventPump(void);
+int Wc1SdlTranslateScanCode(SDL_Scancode scanCode);
 
 #define GetTickCount Wc1SdlGetTicks
 #define GetAsyncKeyState Wc1SdlGetAsyncKeyState
@@ -90,6 +92,8 @@ void Wc1SdlSleep(DWORD milliseconds);
 #define VK_CLEAR 0x0c
 #define VK_SHIFT 0x10
 #define VK_CONTROL 0x11
+#define VK_F1 0x70
+#define VK_F12 0x7b
 #define VK_PRIOR 0x21
 #define VK_NEXT 0x22
 #define VK_END 0x23

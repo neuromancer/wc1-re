@@ -118,6 +118,12 @@ MODERN_CPPFLAGS = -DWC1_SDL=1 -Iinclude $(MODERN_SDL_CFLAGS)
 MODERN_CFLAGS ?= -std=c11
 MODERN_CXXFLAGS ?= -std=c++11
 MODERN_DEPFLAGS = -MMD -MP
+MODERN_SECTION_FLAGS = -ffunction-sections -fdata-sections
+override MODERN_SANITIZER_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
+MODERN_DEAD_STRIP_DARWIN = -Wl,-dead_strip
+MODERN_DEAD_STRIP_OTHER = -Wl,--gc-sections
+MODERN_DEAD_STRIP_FLAGS = $(if $(filter Darwin,$(UNAME_S)),\
+	$(MODERN_DEAD_STRIP_DARWIN),$(MODERN_DEAD_STRIP_OTHER))
 
 # Where the retail executable lives.  `make data/full/WC1.ORI.EXE` copies it out
 # of the sibling analysis tree so this repo never has to vendor the binary.
@@ -309,23 +315,37 @@ MODERN_GAMEPLAY_SRCS = \
 	src/system.c \
 	src/text.c
 
-MODERN_HOST_SRCS = \
+MODERN_BASE_HOST_SRCS = \
 	src/sdl/compat.c \
 	src/sdl/input.c
+MODERN_GAME_HOST_SRCS = \
+	src/sdl/debug.c \
+	src/sdl/events.c
 MODERN_LAUNCHER_SRC = src/sdl/launcher.c
 
 MODERN_GAMEPLAY_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAMEPLAY_SRCS))
-MODERN_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_HOST_SRCS))
+MODERN_BASE_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_BASE_HOST_SRCS))
+MODERN_GAME_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_SRCS))
 MODERN_LAUNCHER_OBJ = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_LAUNCHER_SRC))
-MODERN_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat sdl_input_compat
-MODERN_C_TEST_BINS = $(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_C_TEST_NAMES))
+MODERN_INPUT_CORE_OBJS = \
+	$(MODERN_OUT_DIR)/obj/eventmgr.o \
+	$(MODERN_OUT_DIR)/obj/globals.o \
+	$(MODERN_OUT_DIR)/obj/sysinput.o
+MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat sdl_input_compat
+MODERN_BASE_C_TEST_BINS = $(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))
+MODERN_EVENT_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_event_compat
 MODERN_CXX_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke
-MODERN_TEST_BINS = $(MODERN_C_TEST_BINS) $(MODERN_CXX_TEST_BIN)
+MODERN_TEST_BINS = \
+	$(MODERN_BASE_C_TEST_BINS) \
+	$(MODERN_EVENT_TEST_BIN) \
+	$(MODERN_CXX_TEST_BIN)
 MODERN_DEPFILES = \
 	$(MODERN_GAMEPLAY_OBJS:.o=.d) \
-	$(MODERN_HOST_OBJS:.o=.d) \
+	$(MODERN_BASE_HOST_OBJS:.o=.d) \
+	$(MODERN_GAME_HOST_OBJS:.o=.d) \
 	$(MODERN_LAUNCHER_OBJ:.o=.d) \
-	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_C_TEST_NAMES))) \
+	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))) \
+	$(MODERN_EVENT_TEST_BIN).d \
 	$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.d
 
 # ---------------------------------------------------------------------------
@@ -356,30 +376,51 @@ modern-check-deps:
 
 $(MODERN_OUT_DIR)/obj/%.o: src/%.c | modern-check-deps
 	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_DEPFLAGS) -c $< -o $@
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) \
+		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$(MODERN_DEPFLAGS) -c $< -o $@
 
 $(MODERN_OUT_DIR)/tests/%.o: tests/%.c | modern-check-deps
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_TEST_CPPFLAGS) $(MODERN_CFLAGS) \
+		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
 $(MODERN_OUT_DIR)/tests/%.o: tests/%.cpp | modern-check-deps
 	@mkdir -p $(dir $@)
 	$(MODERN_CXX) $(MODERN_CPPFLAGS) -Isrc/ix $(MODERN_CXXFLAGS) \
+		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
 $(MODERN_OUT_DIR)/tests/sdl_compat_smoke.o: MODERN_TEST_CPPFLAGS = -DWC1_ANALYSIS=1
 
-$(MODERN_TARGET): $(MODERN_LAUNCHER_OBJ) $(MODERN_HOST_OBJS)
+$(MODERN_TARGET): \
+		$(MODERN_LAUNCHER_OBJ) \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_INPUT_CORE_OBJS)
 	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CFLAGS) $^ $(MODERN_SDL_LIBS) -o $@
+	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
-$(MODERN_C_TEST_BINS): $(MODERN_OUT_DIR)/tests/%: \
-		$(MODERN_OUT_DIR)/tests/%.o $(MODERN_HOST_OBJS)
-	$(MODERN_CC) $(MODERN_CFLAGS) $^ $(MODERN_SDL_LIBS) -o $@
+$(MODERN_BASE_C_TEST_BINS): $(MODERN_OUT_DIR)/tests/%: \
+		$(MODERN_OUT_DIR)/tests/%.o $(MODERN_BASE_HOST_OBJS)
+	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) -o $@
 
-$(MODERN_CXX_TEST_BIN): $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.o $(MODERN_HOST_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $^ $(MODERN_SDL_LIBS) -o $@
+$(MODERN_EVENT_TEST_BIN): \
+		$(MODERN_OUT_DIR)/tests/sdl_event_compat.o \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_INPUT_CORE_OBJS)
+	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+$(MODERN_CXX_TEST_BIN): $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.o $(MODERN_BASE_HOST_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) -o $@
 
 modern-test: modern
 	@set -e; for test_bin in $(MODERN_TEST_BINS); do \

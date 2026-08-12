@@ -25,6 +25,9 @@ branch of every condition remains the assembly-comparison authority.
   priority, and mixing code remains shared wherever possible.
 - A native build must not become an input to reconstruction reports.  Native
   objects and generated files live under `out-modern/`.
+- Every native object, executable, and test is built with AddressSanitizer and
+  UndefinedBehaviorSanitizer.  Sanitizers are mandatory in the Makefile rather
+  than an optional build configuration.
 
 ## Platform boundary inventory
 
@@ -51,8 +54,8 @@ Each checked step is committed and pushed independently.
    package.  `make modern` builds it and `make run-modern` launches the current
    native executable from the external game-data directory.
    At this checkpoint the executable validates SDL window creation and event
-   handling; it does not enter the recovered game loop yet.  Escape or a window
-   close event exits it.
+   handling; it does not enter the recovered game loop yet.  A window close
+   event exits it, while Escape remains available to the game input queue.
 2. [ ] **Native source compile.** Bring the shared game sources through a complete
    modern C/C++ compile by isolating MSVC-only syntax and supplying portable
    implementations for proven hand-written assembly routines.  Add compile and
@@ -62,6 +65,10 @@ Each checked step is committed and pushed independently.
 3. [ ] **Window and input.** Implement SDL startup/shutdown, event pumping, scan-code
    translation, mouse capture/warping, controller discovery, and focus/quit
    handling through the existing game APIs.
+   Keyboard and mouse events now retain the original PC scan codes and flow
+   through `QueueInputEvent`, `SetInputKeyState`, and the recovered event pool.
+   Window close/quit handling and 320x200 mouse scaling are covered by a
+   headless SDL test; focus transitions and controllers remain.
 4. [ ] **Video and timing.** Implement the indexed framebuffer, palette upload,
    scaling/fullscreen presentation, vertical-update behavior, monotonic clock,
    and timer callbacks.
