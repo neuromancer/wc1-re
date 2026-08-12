@@ -298,7 +298,7 @@ unsigned short __stdcall InitializeDIBScreenViewport(
     Viewport *viewport, unsigned short colour)
 {
     short row;
-    short offset;
+    int offset;
 
     (void)colour;
     g_nScreenAllocationState_005a66e0 = 0;
@@ -321,7 +321,7 @@ unsigned short __stdcall InitializeDIBScreenViewport(
     offset = 0;
     do {
         g_awScreenRowOffsets_005a6540[row] = (unsigned short)offset;
-        offset = (short)((int)offset + 320);
+        offset = (short)offset + 320;
         row++;
     } while (row < 202);
     return 1;

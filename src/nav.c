@@ -26,7 +26,7 @@ NavMapObjectiveStyle g_aNavMapObjectiveStyles_00468668[10] = {
     { 0, 0, 0, 0, 0 }
 };
 unsigned char *g_pNavMapShape_00468708 = 0;
-unsigned short g_nNavMapLabelCount_0046870c = 0;
+short g_nNavMapLabelCount_0046870c = 0;
 short g_nNavMapReservedAreaCount_00468710 = 0;
 char g_szCampaignSector_00468718[16] = "Vega XR-231.3";
 char *g_apszShipMissionTypeNames_00468728[11] = {
@@ -347,7 +347,7 @@ void DrawNavSquareOutline(Viewport *viewport, short x, short y,
 
 /* Function start: 0x40D680 */
 void DrawNavSquareMarker(short x, short y, short size, short shadow,
-                         unsigned short colour, short reserve)
+                         short colour, short reserve)
 {
     if (size == 0) {
         DrawViewportPixel(g_stNavLabelTextContext_005a8180.viewport,

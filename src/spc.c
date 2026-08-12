@@ -281,7 +281,7 @@ void SetFleetOverviewView(int initializeCockpit)
 }
 
 /* Function start: 0x410A30 */
-void rotate_eye_to_goal(void)
+unsigned int rotate_eye_to_goal(void)
 {
     short totalError;
 
@@ -300,6 +300,7 @@ void rotate_eye_to_goal(void)
     match_rotation_goal(&g_anObjectRollRotation_0059d7e0[61],
                         &g_nEyeRollGoal_0059c8f0, totalError,
                         g_nEyeRollRate_0046c00c);
+    return 0;
 }
 
 /* Function start: 0x410AD0 */

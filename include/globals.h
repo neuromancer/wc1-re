@@ -95,7 +95,7 @@ extern short g_nNavMapCoordinateScaling_00468660;
 extern short g_nNavMapScale_00468664;
 extern NavMapObjectiveStyle g_aNavMapObjectiveStyles_00468668[10];
 extern unsigned char *g_pNavMapShape_00468708;
-extern unsigned short g_nNavMapLabelCount_0046870c;
+extern short g_nNavMapLabelCount_0046870c;
 extern short g_nNavMapReservedAreaCount_00468710;
 extern char g_szCampaignSector_00468718[16];
 extern char *g_apszShipMissionTypeNames_00468728[11];

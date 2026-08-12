@@ -312,7 +312,7 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
 void DrawNavSquareOutline(Viewport *viewport, short x, short y,
                           short size, signed char colour);            /* 0x0040D640 */
 void DrawNavSquareMarker(short x, short y, short size,
-                         short shadow, unsigned short colour,
+                         short shadow, short colour,
                          short reserve);                              /* 0x0040D680 */
 void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
                             short size, signed char colour);          /* 0x0040D740 */
@@ -364,7 +364,7 @@ void CalibrateJoystickInteractive();                                  /* 0x00410
 void WaitForJoystickButtonRelease(void);                               /* 0x004106C0 */
 void WaitForJoystickButtonPress(void);                                 /* 0x00410700 */
 void SetFleetOverviewView(int initializeCockpit);                     /* 0x00410740 */
-void rotate_eye_to_goal(void);                                         /* 0x00410A30 */
+unsigned int rotate_eye_to_goal(void);                                 /* 0x00410A30 */
 short GetVectorMagnitude(const FixedVector *vector);                   /* 0x00410AD0 */
 unsigned int set_eye_direction_and_position(void);                     /* 0x00410AF0 */
 unsigned int force_view(int view, short obj);                          /* 0x004117B0 */

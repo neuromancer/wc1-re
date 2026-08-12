@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (97.69% average)</summary>
+<summary>All 1,472 function similarity scores (97.71% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -1091,14 +1091,14 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `ResetNavMapReservedAreas` | `0x40D1D0` | 100.00% |
 | `nav.c` | `ReserveNavMapArea` | `0x40D1E0` | 100.00% |
 | `nav.c` | `ResetNavMapLabels` | `0x40D240` | 100.00% |
-| `nav.c` | `TryPlaceNavMapLabel` | `0x40D250` | 94.87% |
-| `nav.c` | `PlaceNavMapLabel` | `0x40D2C0` | 93.81% |
+| `nav.c` | `TryPlaceNavMapLabel` | `0x40D250` | 100.00% |
+| `nav.c` | `PlaceNavMapLabel` | `0x40D2C0` | 100.00% |
 | `nav.c` | `AddUniqueObjectiveNavLabel` | `0x40D410` | 100.00% |
 | `nav.c` | `IsPointInNavMapLabel` | `0x40D490` | 100.00% |
 | `nav.c` | `DrawNavMapLabels` | `0x40D540` | 100.00% |
 | `nav.c` | `DrawNavRectangleMarker` | `0x40D5A0` | 100.00% |
 | `nav.c` | `DrawNavSquareOutline` | `0x40D640` | 100.00% |
-| `nav.c` | `DrawNavSquareMarker` | `0x40D680` | 89.04% |
+| `nav.c` | `DrawNavSquareMarker` | `0x40D680` | 100.00% |
 | `nav.c` | `DrawNavTriangleOutline` | `0x40D740` | 100.00% |
 | `nav.c` | `DrawNavTriangleMarker` | `0x40D7D0` | 100.00% |
 | `nav.c` | `DrawNavCrossMarker` | `0x40D830` | 100.00% |
@@ -1197,7 +1197,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `i_wanna_rout` | `0x42F350` | 100.00% |
 | `screen.c` | `request` | `0x42F3F0` | 93.49% |
 | `screen.c` | `ShouldSuspendCursorForRect` | `0x42F730` | 100.00% |
-| `screen.c` | `InitializeDIBScreenViewport` | `0x42F740` | 97.22% |
+| `screen.c` | `InitializeDIBScreenViewport` | `0x42F740` | 100.00% |
 | `screen.c` | `InitFullScreenViewport` | `0x42F7E0` | 100.00% |
 | `screen.c` | `GetPacketSize` | `0x42F810` | 100.00% |
 | `screen.c` | `GetFreeNearHeapBytes` | `0x42F890` | 90.91% |
@@ -1423,7 +1423,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `spc.c` | `WaitForJoystickButtonRelease` | `0x4106C0` | 100.00% |
 | `spc.c` | `WaitForJoystickButtonPress` | `0x410700` | 100.00% |
 | `spc.c` | `SetFleetOverviewView` | `0x410740` | 99.56% |
-| `spc.c` | `rotate_eye_to_goal` | `0x410A30` | 97.87% |
+| `spc.c` | `rotate_eye_to_goal` | `0x410A30` | 100.00% |
 | `spc.c` | `GetVectorMagnitude` | `0x410AD0` | 100.00% |
 | `spc.c` | `set_eye_direction_and_position` | `0x410AF0` | 89.68% |
 | `spc.c` | `force_view` | `0x4117B0` | 100.00% |
