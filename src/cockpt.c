@@ -933,8 +933,9 @@ void show_weapon_disp(void)
     const char *gunName;
     signed char count;
 
-    weapons = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
-    selectedWeapon = &weapons[g_nSelectedReleaseWeaponIndex_0046c058];
+    selectedWeapon =
+        &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1])[
+            g_nSelectedReleaseWeaponIndex_0046c058];
     set_new_vdu(0);
     DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left, DAT_005a6b80.top,
                "WEAPON DISPLAY", 2);
@@ -969,6 +970,7 @@ void show_weapon_disp(void)
     DrawSpriteDefault(&DAT_005a6b80, g_nWeaponDisplayOriginX_005a7788,
                       g_nWeaponDisplayOriginY_005a778a,
                       g_pCockpitWeaponShape_005a7564, 0);
+    weapons = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
     count = 0;
     if ((signed char)g_aShipWeapons_0059cab0[0][0] > 0)
         do {

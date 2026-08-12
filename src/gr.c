@@ -283,9 +283,9 @@ void DrawFontGlyph(char character, TextContext *context, int height,
             }
         }
         context->cursorX += font[4 + characterIndex];
+        g_abPaletteTranslation_00470678[fontColour] = fontColour;
+        g_abPaletteTranslation_00470678[fontBackground] = fontBackground;
     }
-    g_abPaletteTranslation_00470678[fontColour] = fontColour;
-    g_abPaletteTranslation_00470678[fontBackground] = fontBackground;
 }
 
 /* Function start: 0x441370 */
@@ -815,29 +815,28 @@ void fizzle_fade(Viewport *source, Viewport *destination,
     const short *run;
     unsigned char *sourcePixels;
     unsigned char *destinationPixels;
-    volatile unsigned int width;
+    unsigned short width;
     short sourceLeft;
     short sourceTop;
     short destinationX;
     short sourceY;
 
     if (source->pixels != 0 && destination->pixels != 0) {
-        sourceLeft = geometry->originX;
-        sourceTop = geometry->originY;
-        destinationX = geometry->fadeData[0];
+        run = &geometry->originX;
+        sourceLeft = *run++;
+        sourceTop = *run++;
+        destinationX = *run++;
         if (destinationX != -1) {
-            run = &geometry->fadeData[1];
             do {
-                sourceY = run[0];
-                width = (unsigned short)run[1];
+                sourceY = *run++;
+                width = (unsigned short)*run++;
                 sourcePixels = source->pixels +
                     source->rowOffsets[sourceY - sourceTop] - sourceLeft +
                     destinationX;
                 destinationPixels = destination->pixels +
                     destination->rowOffsets[sourceY] + destinationX;
                 memcpy(destinationPixels, sourcePixels, width);
-                destinationX = run[2];
-                run += 3;
+                destinationX = *run++;
             } while (destinationX != -1);
         }
         if (destination->pixels == DAT_005a6ba0.pixels)

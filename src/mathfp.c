@@ -297,9 +297,9 @@ void __stdcall DrawTextCharacter(char character)
 {
     TextContext *context;
     unsigned char *font;
-    short fontHeight;
-    unsigned char glyphWidth;
-    short cursorY;
+    int fontHeight;
+    unsigned int glyphWidth;
+    int cursorY;
 
     if (character == '\n') {
         g_pCurrentTextContext_0059af8c->cursorX =

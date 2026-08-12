@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (98.08% average)</summary>
+<summary>All 1,472 function similarity scores (98.12% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -295,7 +295,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `damage_your_component` | `0x414BF0` | 100.00% |
 | `cockpt.c` | `RemovePlayerReleaseWeapon` | `0x414CB0` | 94.29% |
 | `cockpt.c` | `fire_computer_graphic_missile` | `0x414D50` | 87.91% |
-| `cockpt.c` | `show_weapon_disp` | `0x414EA0` | 80.56% |
+| `cockpt.c` | `show_weapon_disp` | `0x414EA0` | 86.92% |
 | `cockpt.c` | `update_status_text` | `0x415040` | 100.00% |
 | `cockpt.c` | `sighted` | `0x415050` | 100.00% |
 | `cockpt.c` | `visited` | `0x415070` | 100.00% |
@@ -605,7 +605,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `gr.c` | `PrepareShapeRLEData` | `0x440D50` | 82.03% |
 | `gr.c` | `DrawSpriteTransformed` | `0x440FE0` | 98.31% |
 | `gr.c` | `RasterLineHook` | `0x441140` | 100.00% |
-| `gr.c` | `DrawFontGlyph` | `0x441150` | 85.80% |
+| `gr.c` | `DrawFontGlyph` | `0x441150` | 87.04% |
 | `gr.c` | `MarkActivePaletteEntries` | `0x441370` | 100.00% |
 | `gr.c` | `GetPaletteEntry` | `0x4413C0` | 100.00% |
 | `gr.c` | `SetPaletteEntry` | `0x4413E0` | 100.00% |
@@ -627,7 +627,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `gr.c` | `DrawSpriteScaled` | `0x441FC0` | 100.00% |
 | `gr.c` | `DrawSolidColourSpriteScaled` | `0x442000` | 100.00% |
 | `gr.c` | `GetTransformedShapeBounds` | `0x442050` | 74.50% |
-| `gr.c` | `fizzle_fade` | `0x442200` | 82.35% |
+| `gr.c` | `fizzle_fade` | `0x442200` | 100.00% |
 | `gr.c` | `snow_viewport` | `0x442300` | 100.00% |
 | `gr.c` | `UpdateStreamerStoppedFlag` | `0x442330` | 100.00% |
 | `gr.c` | `SignalAudioMixerWakeEvent` | `0x442350` | 100.00% |
@@ -1016,7 +1016,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `mathfp.c` | `IsPointInRect` | `0x435090` | 100.00% |
 | `mathfp.c` | `SplitPackedPoint` | `0x4350D0` | 100.00% |
 | `mathfp.c` | `DrawTextString` | `0x4350F0` | 80.88% |
-| `mathfp.c` | `DrawTextCharacter` | `0x435290` | 82.22% |
+| `mathfp.c` | `DrawTextCharacter` | `0x435290` | 100.00% |
 | `mathfp.c` | `AppendTextCharacter` | `0x435310` | 100.00% |
 | `mathfp.c` | `MeasureShapeFrameStorage` | `0x435340` | 100.00% |
 | `mathfp.c` | `ResetTextCursor` | `0x4353F0` | 100.00% |
@@ -1165,7 +1165,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `pilot.cpp` | `InitializeTrainSimHighScores` | `0x425F40` | 100.00% |
 | `pilot.cpp` | `IsHighScoreSlotUsed` | `0x425FE0` | 100.00% |
 | `pilot.cpp` | `AddRandomTrainSimHighScores` | `0x426000` | 92.21% |
-| `pilot.cpp` | `DrawTextInputCursor` | `0x4260E0` | 89.29% |
+| `pilot.cpp` | `DrawTextInputCursor` | `0x4260E0` | 100.00% |
 | `pilot.cpp` | `ClearTextInputCharacter` | `0x426140` | 100.00% |
 | `pilot.cpp` | `ClearNextTextInputCharacter` | `0x4261D0` | 100.00% |
 | `pilot.cpp` | `ReadTextInput` | `0x426200` | 79.04% |
