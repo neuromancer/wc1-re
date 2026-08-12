@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (98.23% average)</summary>
+<summary>All 1,472 function similarity scores (98.29% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -64,12 +64,12 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `barracks.c` | `LoadGameFromSlot` | `0x41B980` | 97.65% |
 | `barracks.c` | `SetBunkMenuLabel` | `0x41BAD0` | 100.00% |
 | `barracks.c` | `GetBunkInfo` | `0x41BB20` | 100.00% |
-| `barracks.c` | `DrawBarracksBunks` | `0x41BBD0` | 85.07% |
+| `barracks.c` | `DrawBarracksBunks` | `0x41BBD0` | 89.55% |
 | `barracks.c` | `DrawBarracksStaticDetails` | `0x41BC90` | 100.00% |
 | `barracks.c` | `AnimateBarracks` | `0x41BCE0` | 97.86% |
-| `barracks.c` | `ConfirmQuitWingCommander` | `0x41BF10` | 91.30% |
-| `barracks.c` | `ConfirmAwakenAfterBadData` | `0x41BF60` | 94.74% |
-| `barracks.c` | `ConfirmReplaceFaultyData` | `0x41BFE0` | 96.00% |
+| `barracks.c` | `ConfirmQuitWingCommander` | `0x41BF10` | 100.00% |
+| `barracks.c` | `ConfirmAwakenAfterBadData` | `0x41BF60` | 100.00% |
+| `barracks.c` | `ConfirmReplaceFaultyData` | `0x41BFE0` | 100.00% |
 | `barracks.c` | `HandleBarracksBunkSelection` | `0x41C090` | 100.00% |
 | `barracks.c` | `UpdateBarracksScreen` | `0x41C140` | 100.00% |
 | `barracks.c` | `BarracksScreen` | `0x41C170` | 84.35% |
@@ -314,7 +314,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `flag_reached` | `0x415530` | 85.84% |
 | `cockpt.c` | `check_sighting` | `0x4156D0` | 100.00% |
 | `cockpt.c` | `check_visit` | `0x415720` | 100.00% |
-| `cockpt.c` | `update_objective_location` | `0x415770` | 84.81% |
+| `cockpt.c` | `update_objective_location` | `0x415770` | 100.00% |
 | `cockpt.c` | `objective_lost` | `0x415850` | 100.00% |
 | `cockpt.c` | `check_objectives` | `0x4158A0` | 100.00% |
 | `cockpt.c` | `rotational_pos_to_scanner_pos` | `0x4158F0` | 100.00% |
@@ -536,7 +536,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `FillFixedVectorWithRandomComponents` | `0x4187E0` | 100.00% |
 | `geom.c` | `random_radial` | `0x418800` | 100.00% |
 | `geom.c` | `MakeRandomNormalizedVector` | `0x418840` | 100.00% |
-| `geom.c` | `rectangular_to_spherical` | `0x418890` | 93.18% |
+| `geom.c` | `rectangular_to_spherical` | `0x418890` | 100.00% |
 | `geom.c` | `ConvertShortVectorToFixedVector` | `0x418980` | 100.00% |
 | `geom.c` | `ConvertFixedVectorToShortVector` | `0x4189B0` | 100.00% |
 | `geom.c` | `dot_product` | `0x4189E0` | 100.00% |
@@ -590,7 +590,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `ClampVectorTo30` | `0x41A0F0` | 100.00% |
 | `geom.c` | `ClampTo30` | `0x41A110` | 100.00% |
 | `geom.c` | `IsPointWithinEyeViewCone` | `0x41A130` | 98.00% |
-| `geom.c` | `transform_objects_to_your_view` | `0x41A1D0` | 83.57% |
+| `geom.c` | `transform_objects_to_your_view` | `0x41A1D0` | 93.72% |
 | `geom.c` | `set_background_objects_rotation` | `0x41A530` | 91.67% |
 | `geom.c` | `get_right_shape` | `0x41A610` | 87.55% |
 | `geom.c` | `InitializeModalTextPanel` | `0x41A9D0` | 92.63% |
@@ -915,7 +915,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `logic.c` | `close_behind` | `0x422F60` | 88.89% |
 | `logic.c` | `scan_for_enemy` | `0x422F80` | 84.38% |
 | `logic.c` | `any_enemy` | `0x423070` | 97.62% |
-| `logic.c` | `nearest_enemy_range` | `0x4230F0` | 94.59% |
+| `logic.c` | `nearest_enemy_range` | `0x4230F0` | 100.00% |
 | `logic.c` | `fire_when_ready` | `0x423210` | 100.00% |
 | `logic.c` | `ships_within_range` | `0x423260` | 100.00% |
 | `logic.c` | `attacker_in_range` | `0x4232B0` | 91.67% |
@@ -1066,7 +1066,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `music.c` | `FlushSoundEffect` | `0x42E3A0` | 100.00% |
 | `music.c` | `FlushSoundEffects` | `0x42E3C0` | 100.00% |
 | `music.c` | `SceneLeaveHook` | `0x42E3E0` | 100.00% |
-| `music.c` | `SelectFlightMusicTrack` | `0x42E3F0` | 85.29% |
+| `music.c` | `SelectFlightMusicTrack` | `0x42E3F0` | 100.00% |
 | `music.c` | `MapMusicTrackToStreamerCommand` | `0x42E520` | 93.48% |
 | `music.c` | `ProcessMusicScriptCommand` | `0x42E6F0` | 95.80% |
 | `music.c` | `spacetrack` | `0x42E880` | 100.00% |
@@ -1134,7 +1134,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `nav.c` | `GameFlow` | `0x40F4B0` | 91.23% |
 | `nav.c` | `free_viewport` | `0x40F940` | 96.36% |
 | `nav.c` | `GetPaletteReadyUnused` | `0x40FA30` | 100.00% |
-| `nav.c` | `DrawTitleLogo` | `0x40FA40` | 84.72% |
+| `nav.c` | `DrawTitleLogo` | `0x40FA40` | 100.00% |
 | `nav.c` | `UpdateTitleMenuCursor` | `0x40FB10` | 100.00% |
 | `nav.c` | `Title_Sequence` | `0x40FB70` | 90.25% |
 | `pilot.cpp` | `WaitForKeyExceptXOrF12` | `0x425730` | 100.00% |

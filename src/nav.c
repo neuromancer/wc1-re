@@ -1721,18 +1721,18 @@ void DrawTitleLogo(short distance, short y)
 {
     short bounds[4];
     short scale;
-    short centre;
 
     if (distance <= 10)
         return;
     scale = (short)(0x1000 / distance);
-    centre = (short)(g_nScreenWidth_0046daa4 / 2);
-    GetTransformedShapeBounds(&DAT_005a7510, centre, y,
+    GetTransformedShapeBounds(&DAT_005a7510,
+                              (short)(g_nScreenWidth_0046daa4 >> 1), y,
                               g_pTitleShape_005a7f08, 1, 0, scale, 0,
                               bounds);
     DrawSpriteScaled(&DAT_005a7510, (short)(bounds[0] - 1), y,
                      g_pTitleShape_005a7f08, 0, 0, scale, 0);
-    DrawSpriteScaled(&DAT_005a7510, centre, y,
+    DrawSpriteScaled(&DAT_005a7510,
+                     (short)(g_nScreenWidth_0046daa4 >> 1), y,
                      g_pTitleShape_005a7f08, 1, 0, scale, 0);
     DrawSpriteScaled(&DAT_005a7510, bounds[2], y,
                      g_pTitleShape_005a7f08, 2, 0, scale, 0);

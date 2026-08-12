@@ -1417,8 +1417,8 @@ int any_enemy(short obj, short range)
 /* Function start: 0x4230F0 */
 short nearest_enemy_range(short obj)
 {
-    short range;
     short other;
+    short range;
 
     g_nTargetShip_0059c3b0 = -1;
     range = 0x7fff;

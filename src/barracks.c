@@ -613,8 +613,8 @@ void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
     short bunk;
     short frame;
 
-    bunk = 0;
     DrawSpriteDefault(viewport, 0, 0, shape, 0);
+    bunk = 0;
     do {
         frame = 10;
         if (state->bunks[bunk].occupied != 0) {
@@ -738,7 +738,8 @@ int ConfirmQuitWingCommander(void)
     LeaveAllocationScope();
     confirmed = 0;
     if (ShowModalTextPanel(0, "Quit Wing Commander? (Y/N)") != 0) {
-        confirmed = (short)(toupper((int)WaitForStreamInputKey()) == 'Y');
+        confirmed = (short)((short)toupper(
+            (int)WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
     EnterAllocationScope();
@@ -757,7 +758,8 @@ int ConfirmAwakenAfterBadData(short slot)
     LeaveAllocationScope();
     if (ShowModalTextPanel(0, "Awaken %s? (Y/N)",
                            gameRecord.description) != 0) {
-        confirmed = (short)(toupper((int)WaitForStreamInputKey()) == 'Y');
+        confirmed = (short)((short)toupper(
+            (int)WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
     EnterAllocationScope();
@@ -780,7 +782,8 @@ int ConfirmReplaceFaultyData(short slot)
     LeaveAllocationScope();
     if (ShowModalTextPanel(0, "Replace %s? (Y/N)",
                            gameRecord.description) != 0) {
-        confirmed = (short)(toupper((int)WaitForStreamInputKey()) == 'Y');
+        confirmed = (short)((short)toupper(
+            (int)WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
     EnterAllocationScope();

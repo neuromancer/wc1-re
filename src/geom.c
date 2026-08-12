@@ -389,14 +389,15 @@ void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical)
 {
     int horizontalLength;
+    int z;
 
     spherical->radius = (int)Vector_magnitude(rectangular);
     if (spherical->radius == 0)
         return;
-    horizontalLength = (int)PlanarMagnitude(rectangular->x,
-                                            rectangular->z);
+    z = rectangular->z;
+    horizontalLength = (int)PlanarMagnitude(rectangular->x, z);
     spherical->yaw = (short)ArcCos(
-        DivideFixed(rectangular->z, horizontalLength));
+        DivideFixed(z, horizontalLength));
     if (rectangular->x < 0)
         spherical->yaw = -spherical->yaw;
     spherical->pitch = (short)(ArcCos(
@@ -1177,89 +1178,102 @@ void transform_objects_to_your_view(void)
 {
     FixedVector direction;
     int distance;
+    int objectIndex;
     int objectRadius;
     int scaleFactor;
-    int screenWidth;
     short dustSize;
     short obj;
 
     g_nClosestVisibleObject_0046c048 = -1;
     draw_nav_pointer();
     obj = 0;
-    screenWidth = (short)g_nScreenWidth_0046daa4;
     do {
-        if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_NULL &&
-            g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_FIXED_OBJECT &&
+        objectIndex = (int)obj;
+        if (g_aeObjectClass_0059d100[objectIndex] != OBJECT_CLASS_NULL &&
+            g_aeObjectClass_0059d100[objectIndex] !=
+                OBJECT_CLASS_FIXED_OBJECT &&
             obj != DAT_00469208) {
-            g_asPreviousObjectDistance_0059d080[obj] =
-                g_asObjectDistance_0059b4a0[obj];
-            g_asObjectDistance_0059b4a0[obj] = 0;
-            if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_FUTURION) {
-                g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
+            g_asPreviousObjectDistance_0059d080[objectIndex] =
+                g_asObjectDistance_0059b4a0[objectIndex];
+            g_asObjectDistance_0059b4a0[objectIndex] = 0;
+            if (g_aeObjectClass_0059d100[objectIndex] ==
+                OBJECT_CLASS_FUTURION) {
+                g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
                 obj++;
                 continue;
             }
-            if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_PLANET ||
-                g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_STAR) {
-                direction = g_aShipPosition_0059c490[obj];
+            if (g_aeObjectClass_0059d100[objectIndex] ==
+                    OBJECT_CLASS_PLANET ||
+                g_aeObjectClass_0059d100[objectIndex] == OBJECT_CLASS_STAR) {
+                direction = g_aShipPosition_0059c490[objectIndex];
             } else {
                 ComputeVectorDelta(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
-                                   &g_aShipPosition_0059c490[obj],
+                                   &g_aShipPosition_0059c490[objectIndex],
                                    &direction);
             }
             distance = (int)Vector_magnitude(&direction);
             if (distance <
                 g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
-                g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
+                g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
                 goto next_object;
             }
-            if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_DUST &&
+            if (g_aeObjectClass_0059d100[objectIndex] == OBJECT_CLASS_DUST &&
                 distance > (1400 << 8)) {
-                g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
+                g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
                 goto next_object;
             }
             transform_to_objects_frame(&direction,
-                                       &g_aObjectViewPosition_0059afa0[obj],
+                                       &g_aObjectViewPosition_0059afa0[
+                                           objectIndex],
                                        WC1_EYE_OBJECT);
-            if (g_aObjectViewPosition_0059afa0[obj].z <
+            if (g_aObjectViewPosition_0059afa0[objectIndex].z <
                 g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
-                g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
+                g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
                 goto next_object;
             }
-            if (DivideFixed(g_aObjectViewPosition_0059afa0[obj].z,
+            if (DivideFixed(g_aObjectViewPosition_0059afa0[objectIndex].z,
                             distance) < 0x94) {
-                g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
+                g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
                 goto next_object;
             }
-            objectRadius = g_asObjectCollisionRadius_0059d710[obj] * 0x100;
+            objectRadius =
+                g_asObjectCollisionRadius_0059d710[objectIndex] * 0x100;
             if (distance <= objectRadius)
                 distance = objectRadius + 1;
-            if (g_aeObjectClass_0059d100[obj] > OBJECT_CLASS_DUST) {
+            if (g_aeObjectClass_0059d100[objectIndex] > OBJECT_CLASS_DUST) {
                 scaleFactor = (int)DivideFixed(
-                    (screenWidth & ~1) << 15, distance - objectRadius);
-                g_asObjectScreenScale_0059c950[obj] = (short)(
-                    MultiplyFixed((unsigned short)g_asObjectScale_0059de40[obj],
+                    (short)(g_nScreenWidth_0046daa4 & ~1) << 15,
+                    distance - objectRadius);
+                g_asObjectScreenScale_0059c950[objectIndex] = (short)(
+                    MultiplyFixed((unsigned short)
+                                      g_asObjectScale_0059de40[objectIndex],
                                   scaleFactor) >> 8);
-                if ((unsigned short)g_asObjectScreenScale_0059c950[obj] >
+                if ((unsigned short)g_asObjectScreenScale_0059c950[
+                        objectIndex] >
                     0x1fff)
-                    g_asObjectScreenScale_0059c950[obj] = 0x2000;
-                if ((unsigned short)g_asObjectScreenScale_0059c950[obj] < 5) {
-                    g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
+                    g_asObjectScreenScale_0059c950[objectIndex] = 0x2000;
+                if ((unsigned short)g_asObjectScreenScale_0059c950[
+                        objectIndex] < 5) {
+                    g_asObjectScreenX_0059d9b0[objectIndex] =
+                        (short)0x8001;
                     goto next_object;
                 }
             }
-            g_asObjectDistance_0059b4a0[obj] = (short)(distance >> 8);
-            g_asObjectScreenX_0059d9b0[obj] = (short)(DivideFixed(
-                (int)MultiplyFixed((screenWidth & ~1) << 7,
-                                   g_aObjectViewPosition_0059afa0[obj].x),
-                g_aObjectViewPosition_0059afa0[obj].z) >> 8);
-            g_asObjectScreenY_0059d930[obj] = (short)(DivideFixed(
-                (int)MultiplyFixed((screenWidth & ~1) << 7,
-                                   g_aObjectViewPosition_0059afa0[obj].y),
-                g_aObjectViewPosition_0059afa0[obj].z) >> 8);
-            switch (g_aeObjectClass_0059d100[obj]) {
+            g_asObjectDistance_0059b4a0[objectIndex] =
+                (short)(distance >> 8);
+            g_asObjectScreenX_0059d9b0[objectIndex] = (short)(DivideFixed(
+                (int)MultiplyFixed(
+                    (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
+                    g_aObjectViewPosition_0059afa0[objectIndex].x),
+                g_aObjectViewPosition_0059afa0[objectIndex].z) >> 8);
+            g_asObjectScreenY_0059d930[objectIndex] = (short)(DivideFixed(
+                (int)MultiplyFixed(
+                    (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
+                    g_aObjectViewPosition_0059afa0[objectIndex].y),
+                g_aObjectViewPosition_0059afa0[objectIndex].z) >> 8);
+            switch (g_aeObjectClass_0059d100[objectIndex]) {
             case OBJECT_CLASS_PLANET:
-                if (g_asObjectScreenScale_0059c950[obj] == 0xff)
+                if (g_asObjectScreenScale_0059c950[objectIndex] == 0xff)
                     set_background_objects_rotation(obj, &direction);
                 break;
             case OBJECT_CLASS_DUST:
@@ -1269,10 +1283,11 @@ void transform_objects_to_your_view(void)
                         distance)) >> 8);
                 if (dustSize > 3)
                     dustSize = 3;
-                g_asObjectViewFrame_0059d230[obj] =
-                    (short)(((g_asObjectCounter_0059c330[obj] +
+                g_asObjectViewFrame_0059d230[objectIndex] =
+                    (short)(((g_asObjectCounter_0059c330[objectIndex] +
                               g_nSpaceFrame_0059b420) & 3) +
-                            (g_asObjectScreenAngle_0059cd90[obj] & 0x10) +
+                            (g_asObjectScreenAngle_0059cd90[objectIndex] &
+                             0x10) +
                             (3 - dustSize) * 4);
                 break;
             case OBJECT_CLASS_MISSILE:

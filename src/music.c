@@ -884,8 +884,8 @@ void SelectFlightMusicTrack(int track)
         streamSet = 2;
         break;
     case 1:
-        streamSet = 2;
         SoundDebugPrintf("being tailed");
+        streamSet = 2;
         break;
     case 19:
         SoundDebugPrintf("ofx music");
@@ -925,15 +925,20 @@ void SelectFlightMusicTrack(int track)
         return;
     }
 
-    if (streamSet == 0) {
+    switch (streamSet) {
+    case 0:
         streamName = "preflite.str";
-    } else if (streamSet == 1) {
+        break;
+    case 1:
         streamName = "posflite.str";
-    } else if (streamSet == 2) {
+        break;
+    case 2:
         streamName = "mission.str";
         ClearStreamerTrigger();
-    } else {
+        break;
+    default:
         streamName = 0;
+        break;
     }
 
     if (streamName != 0) {

@@ -1281,18 +1281,17 @@ void check_visit(short objective, short range)
 /* Function start: 0x415770 */
 void update_objective_location(short objective)
 {
-    MissionObjective *missionObjective;
     FixedVector delta;
     short object;
     short range;
 
     object = LocateMobileObjective(objective);
-    missionObjective = &g_aMissionObjectives_0059dac0[objective];
     if (sighted(objective) != 0 && visited(objective) != 0 &&
         g_cCurrentObjective_0046c020 != objective)
         return;
     ComputeVectorDelta(&g_aShipPosition_0059c490[0],
-                       &missionObjective->position, &delta);
+                       &g_aMissionObjectives_0059dac0[objective].position,
+                       &delta);
     range = FixedToShortSaturating(
         (int)Vector_magnitude(&delta));
     check_sighting(objective, range, object);
@@ -1300,7 +1299,7 @@ void update_objective_location(short objective)
         if (object != -1)
             check_visit(objective, range);
     } else if (g_aMissionNavPoints_0046c2f0[
-                   missionObjective->index].type >= 1) {
+                   g_aMissionObjectives_0059dac0[objective].index].type >= 1) {
         check_visit(objective, range);
     }
 }
@@ -1660,8 +1659,8 @@ short decrement_lock_time(short screenX)
 void target_locking(signed char target)
 {
     enum ObjectType weaponType;
-    short y;
     short x;
+    short y;
 
     if (target != -1 &&
         g_aeShipSide_0059d650[(short)target] != g_aeShipSide_0059d650[0] &&
