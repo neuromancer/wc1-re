@@ -7,15 +7,15 @@
 #include "wc1.h"
 
 /* Function start: 0x435410 */
-unsigned int __stdcall DosFarPtrToNear(unsigned int v)
+unsigned int __stdcall DosFarPtrToNear(void *v)
 {
-    return v;
+    return (unsigned int)v;
 }
 
 /* Function start: 0x435420 */
-unsigned int __stdcall DosNearPtrToFar(unsigned int v)
+void *__stdcall DosNearPtrToFar(unsigned int v)
 {
-    return v;
+    return (void *)v;
 }
 
 /* Function start: 0x435430 */
@@ -25,7 +25,7 @@ char *__stdcall DosStrrchr(char *s, short c)
 }
 
 /* Function start: 0x435450 */
-char *__stdcall DosStrchr(char *s, short c)
+char *__stdcall DosStrchr(const char *s, short c)
 {
     return strchr(s, (int)c);
 }

@@ -90,7 +90,7 @@ void PrepareShapeRLEData(unsigned char *shape)
 
     *(int *)g_abShapeRLEScratch_00497748 =
         *(const int *)g_szShapeRLEVersion_00470d30;
-    frameCount = (short)GetShapeFrameCount(shape);
+    frameCount = GetShapeFrameCount(shape);
     *(int *)(g_abShapeRLEScratch_00497748 + 4) = frameCount;
     memset(g_abShapeRLEScratch_00497748 + 8, 0,
            (unsigned int)(frameCount << 3));
@@ -118,7 +118,7 @@ void PrepareShapeRLEData(unsigned char *shape)
         frameHeader->bottom = frameBottom;
         output += sizeof(RLEFrameHeader);
 
-        bitmap = (unsigned char *)AllocateTaggedMemory(
+        bitmap = AllocateTaggedMemory(
             (unsigned int)((int)width * height), 0);
         pixel = bitmap;
         memset(bitmap, 0xff, (unsigned int)((int)width * height));
@@ -157,14 +157,14 @@ void PrepareShapeRLEData(unsigned char *shape)
             *output++ = 0;
             row++;
         }
-        ReleasePacketHandle((int)bitmap);
+        ReleasePacketHandle(bitmap);
         frame++;
     }
 
     preparedSize = (int)(output - g_abShapeRLEScratch_00497748);
     if (preparedSize > (int)sizeof(g_abShapeRLEScratch_00497748))
         exit_squadron(g_szShapeRLEOverflow_00470d38);
-    preparedShape = (unsigned char *)AllocateTaggedMemory(preparedSize, 0);
+    preparedShape = AllocateTaggedMemory(preparedSize, 0);
     memcpy(preparedShape, g_abShapeRLEScratch_00497748, preparedSize);
     *(unsigned char **)(shape - 4) = preparedShape;
 }
@@ -208,7 +208,7 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
 }
 
 /* Function start: 0x441140 */
-void RasterLineHook(void *marker)
+void RasterLineHook(const void *marker)
 {
     (void)marker;
 }
@@ -851,7 +851,7 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
     (void)colour;
     if (viewport->pixels == DAT_005a6ba0.pixels)
         DIBslam();
-    RasterLineHook((void *)g_szSnowViewport_00470da4);
+    RasterLineHook(g_szSnowViewport_00470da4);
 }
 
 /* Function start: 0x442330 */

@@ -706,7 +706,7 @@ void BriefingMap_LoadShapes(void)
     short objective;
 
     g_pNavMapShape_00468708 =
-        (unsigned char *)FetchDiskPacketRetrying(8, 2, 0);
+        FetchDiskPacketRetrying(8, 2, 0);
     SetScreenClipRect(0, 0, 259, 155);
     if (AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0) == 0)
         ReportOutOfMemoryAndExit(g_szNavViewportName_00468894);
@@ -728,7 +728,7 @@ void BriefingMap_DisplayMap(void)
     DAT_005a6ba0.top = 4;
     DrawNavLocationReadout(g_szBriefingNavMapTitle_0046889c, 0);
     free_viewport(&DAT_005a76b0);
-    ReleasePacketHandle((int)g_pNavMapShape_00468708);
+    ReleasePacketHandle(g_pNavMapShape_00468708);
     g_pNavMapShape_00468708 = 0;
     ReleaseTextFont(2);
     ReleaseTextFont(1);
@@ -830,14 +830,14 @@ void InflightComputer(void)
     memcpy(savedInputState, (const void *)&g_nMouseX_0059ab10,
            sizeof(savedInputState));
 
-    if ((short)message_showing() != 0)
+    if (message_showing() != 0)
         EndCommMenu();
     GetScreenUpdateFlag();
     g_cScreenViewportMode_0059a9f2 = -1;
-    background = (unsigned char *)FetchDiskPacketRetrying(8, 1, 0);
+    background = FetchDiskPacketRetrying(8, 1, 0);
     ClearViewport(&DAT_005a6ba0, DAT_0046999c);
     DrawSpriteDefault(&DAT_005a6ba0, 0, 0, background, 0);
-    ReleasePacketHandle((int)background);
+    ReleasePacketHandle(background);
 
     objective = 0;
     BriefingMap_LoadShapes();
@@ -928,7 +928,7 @@ void InflightComputer(void)
         g_bInputMode_0059a848 = (unsigned char)savedInputMode;
     }
 
-    ReleasePacketHandle((int)g_pNavMapShape_00468708);
+    ReleasePacketHandle(g_pNavMapShape_00468708);
     SetTextContext(&g_stDefaultTextContext_005a7740);
     PlaySfxWaveFileByNumber(0x19, -1, 0);
     memcpy((void *)&g_nMouseX_0059ab10, savedInputState,
@@ -957,7 +957,7 @@ unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress)
 {
     NearHeapBlock *block;
 
-    block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+    block = DosNearPtrToFar(descriptorAddress);
     if ((block->sizeAndFlags & 0x80000000) == 0 &&
         (block[1].sizeAndFlags & 0x80000000) == 0 &&
         block->address + (block->sizeAndFlags & 0xfffff) ==
@@ -966,7 +966,7 @@ unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress)
         block[1].sizeAndFlags += block->sizeAndFlags & 0xfffff;
         while (descriptorAddress > g_nNearHeapFirstDescriptor_005a8124) {
             descriptorAddress -= 8;
-            block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+            block = DosNearPtrToFar(descriptorAddress);
             block[1].address = block->address;
             block[1].sizeAndFlags = block->sizeAndFlags;
         }
@@ -982,7 +982,7 @@ int ReleaseNearHeapBlock(int descriptorAddress)
     NearHeapBlock *block;
     int nextDescriptorAddress;
 
-    block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+    block = DosNearPtrToFar(descriptorAddress);
     block->sizeAndFlags &= 0x7fffffff;
     nextDescriptorAddress = descriptorAddress + 8;
     if (nextDescriptorAddress <
@@ -1007,7 +1007,7 @@ void PurgeNearHeapBlocks(unsigned short flags)
             descriptorAddress += g_nNearHeapSize_005a811c;
             descriptorAddress -= 8;
             g_nNearHeapFirstDescriptor_005a8124 = descriptorAddress;
-            block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+            block = DosNearPtrToFar(descriptorAddress);
             block->address = g_nNearHeapBase_005a8120;
             descriptorBytes = g_nNearHeapMaxDescriptors_004688c4 * 8;
             block->sizeAndFlags =
@@ -1017,7 +1017,7 @@ void PurgeNearHeapBlocks(unsigned short flags)
         descriptorAddress = g_nNearHeapBase_005a8120 +
                             g_nNearHeapSize_005a811c - 8;
         while (descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124) {
-            block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+            block = DosNearPtrToFar(descriptorAddress);
             if ((block->sizeAndFlags & 0x40000000) == 0)
                 descriptorAddress = ReleaseNearHeapBlock(descriptorAddress);
             descriptorAddress -= 8;
@@ -1041,8 +1041,8 @@ unsigned short InitializeNearHeap(void)
                 AllocateTaggedMemory(g_nNearHeapSize_005a811c, 0);
             if (g_pNearHeapAllocation_005a8128 != 0) {
                 g_nNearHeapActive_004688c0++;
-                g_nNearHeapBase_005a8120 = DosFarPtrToNear(
-                    (unsigned int)g_pNearHeapAllocation_005a8128);
+                g_nNearHeapBase_005a8120 =
+                    DosFarPtrToNear(g_pNearHeapAllocation_005a8128);
                 if (*(unsigned short *)0x00400013 == 0x270) {
                     g_nNearHeapRelocationBytes_004688c8 =
                         0x9c000 - g_nNearHeapSize_005a811c -
@@ -1054,10 +1054,10 @@ unsigned short InitializeNearHeap(void)
                     if (g_nNearHeapMaxDescriptors_004688c4 * 8 <
                         g_nNearHeapSize_005a811c) {
                         DosMemcpy(
-                            (void *)DosNearPtrToFar(
+                            DosNearPtrToFar(
                                 g_nNearHeapBase_005a8120 +
                                 g_nNearHeapSize_005a811c),
-                            (void *)DosNearPtrToFar(
+                            DosNearPtrToFar(
                                 0x9c000 -
                                 g_nNearHeapRelocationBytes_004688c8),
                             g_nNearHeapRelocationBytes_004688c8);
@@ -1104,7 +1104,7 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
     descriptorAddress =
         g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c - 8;
     while (descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124) {
-        block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+        block = DosNearPtrToFar(descriptorAddress);
         blockSize = block->sizeAndFlags & 0xfffff;
         if ((block->sizeAndFlags & 0x80000000) != 0)
             goto next_descriptor_from_end;
@@ -1115,7 +1115,7 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
                     g_nNearHeapMaxDescriptors_004688c4 * 8 +
                     g_nNearHeapSize_005a811c >=
                 g_nNearHeapFirstDescriptor_005a8124) {
-                lastBlock = (NearHeapBlock *)DosNearPtrToFar(
+                lastBlock = DosNearPtrToFar(
                     g_nNearHeapBase_005a8120 +
                     g_nNearHeapSize_005a811c - 8);
                 if ((lastBlock->sizeAndFlags & 0x80000000) == 0) {
@@ -1138,13 +1138,13 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
             g_nNearHeapFirstDescriptor_005a8124 -= 8;
             shiftAddress = g_nNearHeapFirstDescriptor_005a8124;
             while (descriptorAddress > shiftAddress) {
-                block = (NearHeapBlock *)DosNearPtrToFar(shiftAddress);
+                block = DosNearPtrToFar(shiftAddress);
                 block->address = block[1].address;
                 block->sizeAndFlags = block[1].sizeAndFlags;
                 shiftAddress += 8;
             }
             descriptorAddress -= 8;
-            block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+            block = DosNearPtrToFar(descriptorAddress);
             blockSize = block->sizeAndFlags - size;
             block->sizeAndFlags = blockSize;
             block[1].address += blockSize & 0xffffff;
@@ -1166,7 +1166,7 @@ next_descriptor_from_end:
         else if (alignment == 2)
             allocationAddress = (allocationAddress + 0xf) & 0xfffffff0;
     }
-    return (void *)DosNearPtrToFar(allocationAddress);
+    return DosNearPtrToFar(allocationAddress);
 }
 
 /* Function start: 0x40ED30 */
@@ -1201,7 +1201,7 @@ void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
     descriptorAddress = g_nNearHeapFirstDescriptor_005a8124;
     while (descriptorAddress <
            g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c) {
-        block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+        block = DosNearPtrToFar(descriptorAddress);
         blockSize = block->sizeAndFlags & 0xfffff;
         if ((block->sizeAndFlags & 0x80000000) != 0)
             goto next_descriptor;
@@ -1212,7 +1212,7 @@ void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
                     g_nNearHeapMaxDescriptors_004688c4 * 8 +
                     g_nNearHeapSize_005a811c >=
                 g_nNearHeapFirstDescriptor_005a8124) {
-                lastBlock = (NearHeapBlock *)DosNearPtrToFar(
+                lastBlock = DosNearPtrToFar(
                     g_nNearHeapBase_005a8120 +
                     g_nNearHeapSize_005a811c - 8);
                 if ((lastBlock->sizeAndFlags & 0x80000000) == 0) {
@@ -1235,13 +1235,13 @@ void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
             g_nNearHeapFirstDescriptor_005a8124 -= 8;
             shiftAddress = g_nNearHeapFirstDescriptor_005a8124;
             while (descriptorAddress > shiftAddress) {
-                block = (NearHeapBlock *)DosNearPtrToFar(shiftAddress);
+                block = DosNearPtrToFar(shiftAddress);
                 block->address = block[1].address;
                 block->sizeAndFlags = block[1].sizeAndFlags;
                 shiftAddress += 8;
             }
             descriptorAddress -= 8;
-            block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+            block = DosNearPtrToFar(descriptorAddress);
             block->sizeAndFlags = allocationFlags + size;
             block[1].address += size;
             block[1].sizeAndFlags -= size;
@@ -1261,7 +1261,7 @@ next_descriptor:
         else if (alignment == 2)
             allocationAddress = (allocationAddress + 0xf) & 0xfffffff0;
     }
-    return (void *)DosNearPtrToFar(allocationAddress);
+    return DosNearPtrToFar(allocationAddress);
 }
 
 /* Function start: 0x40EFE0 */
@@ -1330,11 +1330,11 @@ void PostMission(void)
                 pilot++;
                 continue;
             }
-            missions = (short)RandomInRange(0, 2);
+            missions = RandomInRange(0, 2);
             if (missions == 0)
                 kills = 0;
             else
-                kills = (short)RandomInRange(
+                kills = RandomInRange(
                     0, g_nPlayerKillCount_005a7c9c);
         } else {
             missions = 1;
@@ -1465,7 +1465,7 @@ unsigned int MoveNewCampaign(void)
     short days;
 
     if (g_stCampaignState_0059ca50.currentMission != 0)
-        days = (short)RandomInRange(0, 1);
+        days = RandomInRange(0, 1);
     else
         days = (short)(RandomInRange(0, 1) + 5);
     g_pCurrentCampaignDate_005a86a8->day =
@@ -1691,12 +1691,12 @@ void __stdcall free_viewport(Viewport *viewport)
             i++;
         }
         if (viewport->rowOffsets != 0) {
-            ReleasePacketHandle((int)viewport->rowOffsets);
+            ReleasePacketHandle(viewport->rowOffsets);
             viewport->rowOffsets = 0;
         }
         if (DAT_0046b168 != 0x13)
             printf("free_viewport not mcga\n");
-        ReleasePacketHandle((int)allocation);
+        ReleasePacketHandle(allocation);
         viewport->pixels = 0;
         viewport->allocation = 0;
         if (DAT_005a6ba0.pixels == allocation)
@@ -1787,7 +1787,7 @@ int Title_Sequence(void)
         init_3Space_objects(0);
         g_nCannedSceneMode_00469fac = 2;
         g_pIntroFont_005a8960 =
-            (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+            FetchDiskPacketRetrying(9, 1, 0);
         g_nSceneResourceBudget_005a7ce4 = 0x3e8000;
         g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
             g_aIntroResourceDescriptors_00468ac0, 0, 0x3e8000);
@@ -1809,7 +1809,7 @@ int Title_Sequence(void)
             g_bIntroSecondaryScene_0046c024 = 0;
             set_up_action_sphere(16);
             g_pTitleShape_005a7f08 =
-                (unsigned char *)FetchDiskPacketRetrying(9, 0, 0);
+                FetchDiskPacketRetrying(9, 0, 0);
             spacetrack(0x17, 2, 1);
             initialize_scripted_view(g_asIntroCameraSequence_0046c090);
             DAT_00469fb4 = 1;
@@ -1869,7 +1869,7 @@ int Title_Sequence(void)
                 }
                 frame++;
             } while (frame < 100);
-            FreePacketAndClear((int *)&g_pTitleShape_005a7f08, 0);
+            FreePacketAndClear(&g_pTitleShape_005a7f08, 0);
             if (state != 0)
                 break;
 
@@ -1938,8 +1938,8 @@ int Title_Sequence(void)
         state = 0;
         StopMusicUnlessSuppressed();
         ResetSoundState();
-        ReleasePacketHandle((int)g_pIntroFont_005a8960);
-        ReleasePacketHandle((int)g_pTitleShape_005a7f08);
+        ReleasePacketHandle(g_pIntroFont_005a8960);
+        ReleasePacketHandle(g_pTitleShape_005a7f08);
         FreeShapeSet(g_aIntroResourceDescriptors_00468ac0, 0);
         g_pIntroSceneResourceMirror_00467c0b =
             g_pIntroSceneResource_00467b84;
@@ -1957,10 +1957,10 @@ int Title_Sequence(void)
         SceneEnterHook();
         g_bTitleMenuSceneInitialized_00468ad8 = 1;
     }
-    menuShape = (unsigned char *)FetchDiskPacketRetrying(9, 4, 0);
+    menuShape = FetchDiskPacketRetrying(9, 4, 0);
     optionCount = 1;
     alternateMenuShape =
-        (unsigned char *)FetchDiskPacketRetrying(0x4b, 0, 0);
+        FetchDiskPacketRetrying(0x4b, 0, 0);
     menuOptions[0] = 0;
     if (AnySavedGames() != 0) {
         optionCount = 2;
@@ -2076,8 +2076,8 @@ int Title_Sequence(void)
 
     DAT_0046505c = 1;
     ClearDebugPauseFlags();
-    ReleasePacketHandle((int)menuShape);
-    ReleasePacketHandle((int)alternateMenuShape);
+    ReleasePacketHandle(menuShape);
+    ReleasePacketHandle(alternateMenuShape);
     SetEventManagerPump(0);
     EventManagerHook(0);
     LeaveAllocationScope();

@@ -715,7 +715,7 @@ void EnterPilotNameAndCallsign(void)
         memcpy(g_stCampaignState_0059ca50.currentPilot->callsign,
                g_szCheaterCallsign_00469eec, 8);
     }
-    ReleasePacketHandle((int)backdrop);
+    ReleasePacketHandle(backdrop);
 }
 
 /* Function start: 0x426820 */
@@ -861,7 +861,7 @@ void ShowTrainSimHighScores(void)
     ReleaseTextFont(1);
     free_viewport(&g_stTrainSimPanelViewport_00469da8);
     free_viewport(&g_stTrainSimHighScoreBufferViewport_005a7bb0);
-    ReleasePacketHandle((int)backdrop);
+    ReleasePacketHandle(backdrop);
 }
 
 /* Function start: 0x426C50 */
@@ -1002,10 +1002,10 @@ select_region:
 
     if (DAT_0059ab58 != 0)
         cancelled = 1;
-    ReleasePacketHandle((int)topLeftShape);
-    ReleasePacketHandle((int)bottomLeftShape);
-    ReleasePacketHandle((int)topRightShape);
-    ReleasePacketHandle((int)bottomRightShape);
+    ReleasePacketHandle(topLeftShape);
+    ReleasePacketHandle(bottomLeftShape);
+    ReleasePacketHandle(topRightShape);
+    ReleasePacketHandle(bottomRightShape);
     g_bInputMode_0059a848 = (unsigned char)savedInputMode;
     SetEventManagerPump(0);
     EventManagerHook(0);

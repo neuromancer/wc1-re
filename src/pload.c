@@ -23,9 +23,9 @@ void * __stdcall PacketLoad(const char *filename, short section,
             if (handle.dataSize == 0) {
                 g_nPacketError_00465460 = 8;
             } else {
-                packet = (unsigned char *)destination;
+                packet = destination;
                 if (packet == 0) {
-                    packet = (unsigned char *)AllocateTaggedMemory(
+                    packet = AllocateTaggedMemory(
                         handle.dataSize,
                         (unsigned short)(flags | 0x40));
                     g_pLastPacketAllocation_005a68f0 = packet;
@@ -33,7 +33,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
                         g_nPacketError_00465460 = 4;
                 }
                 if (packet != 0) {
-                    if (IsPushedPacketHandle((int)packet) == 0)
+                    if (IsPushedPacketHandle(packet) == 0)
                         exit_squadron(
                             "qq PacketLoad with non-pushed dest");
                     if (ReadPacketSectionData(
@@ -51,7 +51,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
             ClearDebugPauseFlags();
             PumpMessagesDuringWait();
             _exit(0);
-            packet = (unsigned char *)DecompressPacketSection(
+            packet = DecompressPacketSection(
                 &handle, destination, flags, decompressionWorkspace);
             break;
         }
@@ -89,11 +89,11 @@ WaveTableEntry *AllocateWaveTableEntry(void)
 {
     if (g_pWaveTableHead_0046a444 == 0) {
         g_pWaveTableHead_0046a444 =
-            (WaveTableEntry *)malloc(sizeof(WaveTableEntry));
+            malloc(sizeof(WaveTableEntry));
         g_pWaveTableTail_0046a448 = g_pWaveTableHead_0046a444;
     } else {
         g_pWaveTableTail_0046a448->next =
-            (WaveTableEntry *)malloc(sizeof(WaveTableEntry));
+            malloc(sizeof(WaveTableEntry));
         g_pWaveTableTail_0046a448 = g_pWaveTableTail_0046a448->next;
     }
     g_pWaveTableTail_0046a448->next = 0;
@@ -156,11 +156,11 @@ ActiveSoundEntry *AllocateActiveSoundEntry(void)
 {
     if (g_pActiveSoundHead_0046a438 == 0) {
         g_pActiveSoundHead_0046a438 =
-            (ActiveSoundEntry *)malloc(sizeof(ActiveSoundEntry));
+            malloc(sizeof(ActiveSoundEntry));
         g_pActiveSoundTail_0046a43c = g_pActiveSoundHead_0046a438;
     } else {
         g_pActiveSoundTail_0046a43c->next =
-            (ActiveSoundEntry *)malloc(sizeof(ActiveSoundEntry));
+            malloc(sizeof(ActiveSoundEntry));
         g_pActiveSoundTail_0046a43c = g_pActiveSoundTail_0046a43c->next;
     }
     g_pActiveSoundTail_0046a43c->next = 0;

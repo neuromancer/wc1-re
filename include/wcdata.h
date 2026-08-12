@@ -1004,7 +1004,7 @@ typedef struct BarracksAnimationState {
     short blinkDelay;                 /* +0x5C */
     short eyesOpen;                   /* +0x5E */
     short animationTick;              /* +0x60 */
-    char *menuLabel;                  /* +0x62 */
+    const char *menuLabel;            /* +0x62 */
     short field_66;                   /* +0x66 */
 } BarracksAnimationState;
 #pragma pack(pop)

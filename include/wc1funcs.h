@@ -110,7 +110,7 @@ unsigned int ejection_sequence(void);                                    /* 0x00
 void stranded_sequence(void);                                            /* 0x00404BE0 */
 unsigned int ParseFaceAnimation(char *text, short *commands);           /* 0x00404CD0 */
 unsigned int ParseMouthAnimation(char *text, short *commands);          /* 0x00404D70 */
-char *AddPCName(char *text);                                            /* 0x00404E10 */
+char *AddPCName(const char *text);                                      /* 0x00404E10 */
 unsigned int LoadFace(short face);                                      /* 0x004050B0 */
 unsigned int LongTalk(unsigned char *talker, char *text,
                       short *mouthCommands, short *faceCommands,
@@ -374,7 +374,7 @@ unsigned int start_dust(short obj, FixedVector origin,
                         int upOffset);                                 /* 0x00411EC0 */
 unsigned int generate_stars(void);                                    /* 0x00411FE0 */
 unsigned int update_star_field(void);                                 /* 0x00412100 */
-unsigned short count_down(short obj);                                   /* 0x00412410 */
+short count_down(short obj);                                          /* 0x00412410 */
 unsigned int house_keep_objects(void);                                 /* 0x00412430 */
 unsigned int update_objects_in_space(void);                            /* 0x00412820 */
 unsigned int rotate_object(short obj);                                 /* 0x00412920 */
@@ -398,23 +398,24 @@ void EraseCockpitReadoutRegion(Viewport *viewport, short left,
 void vdu_polygon(signed char bar, short percent);                     /* 0x00413DA0 */
 unsigned int InitializeCockpitReadout(signed char slot,
                                       TextContext *context);          /* 0x00413F70 */
-void DrawCockpitReadout(signed char slot, char *text);                /* 0x00413FB0 */
+void DrawCockpitReadout(signed char slot, const char *text);          /* 0x00413FB0 */
 void EraseCockpitReadoutAtPosition(signed char slot, short left,
                                    short top);                        /* 0x00414050 */
 short DrawHudMessageSlot(HudMessageSlot *slot);                        /* 0x004140A0 */
 void ClearHudMessageSlot(HudMessageSlot *slot);                        /* 0x00414180 */
-void ClearHudMessageIfMatching(HudMessageSlot *slot, char *text);      /* 0x004141B0 */
+void ClearHudMessageIfMatching(HudMessageSlot *slot,
+                               const char *text);                     /* 0x004141B0 */
 void ClearHudGunReadouts(void);                                             /* 0x004141D0 */
 void SetHudMessageSlot(HudMessageSlot *slot, TextContext *context,
-                       short x, short y, char *text,
+                       short x, short y, const char *text,
                        unsigned short colour,
                        signed char flashCount);                        /* 0x004141F0 */
 void UpdateMessage(HudMessageSlot *slot);                              /* 0x00414240 */
-void set_global_message(char *text, unsigned short colour,
+void set_global_message(const char *text, unsigned short colour,
                         int flashCount);                               /* 0x00414270 */
-void CockpitMessage(char *text, unsigned short colour,
+void CockpitMessage(const char *text, unsigned short colour,
                     int flashCount);                                  /* 0x004142B0 */
-void remove_message(char *text);                                      /* 0x004142E0 */
+void remove_message(const char *text);                                /* 0x004142E0 */
 short kilrathi_near(short obj, short range);                           /* 0x00414300 */
 short auto_pilot_valid(short showReason);                              /* 0x00414380 */
 void *reset_cockpit(void);                                            /* 0x00414410 */
@@ -422,7 +423,7 @@ unsigned int SetCockpitLightBlink(signed char light, short interval); /* 0x00414
 void draw_cockpit_lights(void);                                      /* 0x00414490 */
 void update_lights(void);                                            /* 0x004145B0 */
 void update_bars(void);                                              /* 0x00414690 */
-unsigned short get_mode(short i);                                     /* 0x004147E0 */
+short get_mode(short i);                                              /* 0x004147E0 */
 void set_mode(short i, int state);                                    /* 0x00414800 */
 unsigned short SetVduModeIfChanged(short i, int state);               /* 0x00414850 */
 int GetVduModeStackDepth(short i);                                    /* 0x00414890 */
@@ -432,15 +433,15 @@ void set_new_vdu(short vdu);                                          /* 0x00414
 short update_vid_disp(short vdu);                                     /* 0x00414980 */
 void InvalidateVduMode(short i);                                          /* 0x004149C0 */
 void clear_message_time(void);                                              /* 0x004149E0 */
-unsigned short message_showing(void);                               /* 0x004149F0 */
+short message_showing(void);                                          /* 0x004149F0 */
 unsigned short set_message_time(unsigned short v);                        /* 0x00414A10 */
 void check_message(void);                                             /* 0x00414A20 */
 unsigned int update_digital_readouts(void);                          /* 0x00414A50 */
 void PlayTargetLockSfx(void);                                           /* 0x00414AD0 */
 void malf_sound(void);                                                  /* 0x00414AE0 */
-unsigned short malf(char component);                                  /* 0x00414AF0 */
+short malf(char component);                                           /* 0x00414AF0 */
 unsigned short vdu_malf(short vdu, short sound);                       /* 0x00414B20 */
-void ShowComponentHitHudMessage(char *text, unsigned short colour,
+void ShowComponentHitHudMessage(const char *text, unsigned short colour,
                                 short flashCount);                     /* 0x00414B70 */
 int damage_your_component(char component, char amount, char maximum); /* 0x00414BF0 */
 void RemovePlayerReleaseWeapon(signed char weapon);                  /* 0x00414CB0 */
@@ -452,7 +453,7 @@ short visited(short objective);                                       /* 0x00415
 short achieved(short objective);                                      /* 0x00415090 */
 void flag_objective(short objective, unsigned char flags);            /* 0x004150B0 */
 void DrawCalculatingLabel(void);                                      /* 0x004150D0 */
-char *objective_name(short objective);                                /* 0x00415130 */
+const char *objective_name(short objective);                          /* 0x00415130 */
 void show_navigation_disp(void);                                      /* 0x00415180 */
 short hidden_objective(short objective);                              /* 0x004151F0 */
 int set_new_objective(short pathIndex);                               /* 0x004152C0 */
@@ -679,7 +680,7 @@ void SetAwakenBarracksMenuLabel(char **label, int series, int mission,
                                 char *description);                    /* 0x0041B110 */
 void FreeBarracksMenuLabels(void);                                     /* 0x0041B180 */
 short SaveGame(short slot, SaveGameRecord *gameRecord);                /* 0x0041B1E0 */
-short PromptForTextInput(short x, short y, char *prompt,
+short PromptForTextInput(short x, short y, const char *prompt,
                          char *destination, short maximumLength,
                          short inputMode);                             /* 0x0041B420 */
 int WarnLoadGameFirst(void);                                           /* 0x0041B550 */
@@ -720,7 +721,7 @@ void DebugOverlayPrintf(DebugOverlayConsole *console,
                         const char *format, ...);                      /* 0x0041CAB0 */
 short MinShort(short a, short b);                                       /* 0x0041D0C0 */
 short MaxShort(short a, short b);                                       /* 0x0041D0E0 */
-void FreePacketAndClear(int *p, unsigned short releaseFlags);          /* 0x0041D100 */
+void FreePacketAndClear(void *slot, unsigned short releaseFlags);      /* 0x0041D100 */
 void ReportPacketLoadError(void *packet, short logicalFile,
                            short retry, short section,
                            const char *sourceTag);                      /* 0x0041D120 */
@@ -735,7 +736,8 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
                                            signed char background);    /* 0x0041D510 */
 unsigned int ReleaseTextFont(short fontIndex);                         /* 0x0041D590 */
 unsigned int DrawTextAt(TextContext *context, short x, short y,
-                        char *text, unsigned char alignment);           /* 0x0041D5F0 */
+                        const char *text,
+                        unsigned char alignment);                     /* 0x0041D5F0 */
 unsigned int SortSignedByteValuesAscending(signed char *values,
                                            short count);                /* 0x0041D650 */
 short OpenDiskDataFile(short logicalFile);                              /* 0x0041D6C0 */
@@ -836,7 +838,7 @@ unsigned int LoadSpaceflightResources(void);                           /* 0x0042
 unsigned int GetFxDriverInitResult(void);                                      /* 0x00421FE0 */
 unsigned int GetMessagePumpResult(void);                                      /* 0x00421FF0 */
 unsigned int GetFxDriverStatus(void);                                      /* 0x00422000 */
-int ace_status(short ace, unsigned char bits);                       /* 0x00422010 */
+short ace_status(short ace, unsigned char bits);                     /* 0x00422010 */
 void unflag_ace(short ace, unsigned char bits);                       /* 0x00422030 */
 void flag_ace(short ace, unsigned char bits);                         /* 0x00422050 */
 void kill_ace(short ace);                                             /* 0x00422060 */
@@ -1093,7 +1095,7 @@ void RemoveActiveSoundEntry(ActiveSoundEntry *entry);                 /* 0x0042B
 ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample);    /* 0x0042B3F0 */
 void ReleaseFinishedSoundEntries(void);                              /* 0x0042B410 */
 void StopSoundsUsingWave(const char *name);                          /* 0x0042B450 */
-void playWAVE(unsigned char *filename, int looping, int volume);     /* 0x0042B4A0 */
+void playWAVE(const char *filename, int looping, int volume);         /* 0x0042B4A0 */
 void stop_all_sounds(void);                                         /* 0x0042B640 */
 void PlaySnowStaticSound(void);                                     /* 0x0042B680 */
 void ServiceSoundSystem(void);                                         /* 0x0042B7D0 */
@@ -1189,11 +1191,11 @@ int GetFreeNearHeapBytes(void);                                       /* 0x0042F
 void FrameStartHook(int mode);                                         /* 0x0042F930 */
 unsigned short IsSoundHardwarePresent(void);                                     /* 0x0042F940 */
 void MessagePumpHook(int mode);                                        /* 0x0042F950 */
-int PushMemoryStackFrame(int memory, int offset);                       /* 0x0042F960 */
-int IsPushedPacketHandle(int handle);                                  /* 0x0042F9E0 */
-int MapPacketHandleToBlock(int handle);                               /* 0x0042FA20 */
+void *PushMemoryStackFrame(void *memory, int offset);                   /* 0x0042F960 */
+int IsPushedPacketHandle(void *handle);                                /* 0x0042F9E0 */
+void *MapPacketHandleToBlock(void *handle);                            /* 0x0042FA20 */
 void *AllocateTaggedMemory(unsigned int size, unsigned short flags);   /* 0x0042FA90 */
-void ReleasePacketHandle(int handle);                                 /* 0x0042FAE0 */
+void ReleasePacketHandle(void *handle);                               /* 0x0042FAE0 */
 unsigned int GetFixedOneMillionThunk(void);                  /* 0x0042FB20 */
 unsigned int GetFixedOneMillionThunkAlt(void);               /* 0x0042FB30 */
 void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
@@ -1210,9 +1212,10 @@ short get_face(short rating, unsigned int side);                      /* 0x00430
 void LoadCommPortraitShape(short face, signed char alternate);        /* 0x00430BF0 */
 void ResetCommMenuChoices(short reuse);                               /* 0x00430C50 */
 int IsCommMenuIdle(void);                                              /* 0x00430CA0 */
-void AppendCommMenuChoice(char *text, short command);                    /* 0x00430CB0 */
+void AppendCommMenuChoice(const char *text, short command);            /* 0x00430CB0 */
 void SendCommMenuChoice(short i);                                          /* 0x00430D30 */
-void OpenCommMenuForTarget(char *heading, char *message);              /* 0x00430D50 */
+void OpenCommMenuForTarget(const char *heading,
+                           const char *message);                       /* 0x00430D50 */
 int IsCommChoiceMenuOpen(void);                                       /* 0x00430D80 */
 short GetPendingMenuAction(void);                                            /* 0x00430DA0 */
 void SetPendingMenuAction(unsigned char v);                                 /* 0x00430DB0 */
@@ -1234,7 +1237,7 @@ void EndCommSessionWithWingman(void);                                  /* 0x0043
 void EndCommMenu(void);                                              /* 0x004314C0 */
 void ShowCentredPrompt(char *text, unsigned short arg);                       /* 0x004314F0 */
 short LoadCommDisplayResources(short rating, enum Side side);         /* 0x00431520 */
-char *ExpandCommMessageTokens(char *text);                            /* 0x004315C0 */
+char *ExpandCommMessageTokens(const char *text);                      /* 0x004315C0 */
 void real_vid_transmit(short obj, short message);                     /* 0x004316E0 */
 void __stdcall ShutdownVideoHook(short mode);                           /* 0x004318F0 */
 short __stdcall ReserveContiguousPaletteEntries(short entryCount);    /* 0x00431900 */
@@ -1325,7 +1328,7 @@ long Vector_magnitude(const FixedVector *vector);                     /* 0x00434
 void __stdcall SetTextCursor(unsigned short a, unsigned short b);   /* 0x00434F70 */
 void __stdcall SetTextContext(TextContext *context);                  /* 0x00434FA0 */
 void WaitForVerticalBlankThunk(void);                                  /* 0x00434FB0 */
-unsigned int __stdcall IdentityHandle(unsigned int v);                             /* 0x00434FC0 */
+void *__stdcall IdentityHandle(void *v);                               /* 0x00434FC0 */
 void __stdcall SetWholePaletteFromTriplets(unsigned char *palette);               /* 0x00434FD0 */
 unsigned short __stdcall ReadWord(unsigned short *p);                        /* 0x00434FE0 */
 unsigned short __stdcall GetFontCharWidth(char i);                                     /* 0x00434FF0 */
@@ -1334,16 +1337,16 @@ short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
                                     unsigned char *shape, short frame); /* 0x00435020 */
 short __stdcall IsPointInRect(short x, short y, const short *rect);       /* 0x00435090 */
 void __stdcall SplitPackedPoint(ShortPoint point, short *p);             /* 0x004350D0 */
-void __stdcall DrawTextString(char *text);                                      /* 0x004350F0 */
+void __stdcall DrawTextString(const char *text);                       /* 0x004350F0 */
 void __stdcall DrawTextCharacter(char character);                    /* 0x00435290 */
 void __stdcall AppendTextCharacter(char character);                  /* 0x00435310 */
 int __stdcall MeasureShapeFrameStorage(unsigned char *shape,
                                        short frame);                   /* 0x00435340 */
 void ResetTextCursor(void);                                           /* 0x004353F0 */
-unsigned int __stdcall DosFarPtrToNear(unsigned int v);                             /* 0x00435410 */
-unsigned int __stdcall DosNearPtrToFar(unsigned int v);                             /* 0x00435420 */
+unsigned int __stdcall DosFarPtrToNear(void *v);                       /* 0x00435410 */
+void *__stdcall DosNearPtrToFar(unsigned int v);                       /* 0x00435420 */
 char *__stdcall DosStrrchr(char *s, short c);                       /* 0x00435430 */
-char *__stdcall DosStrchr(char *s, short c);                        /* 0x00435450 */
+char *__stdcall DosStrchr(const char *s, short c);                  /* 0x00435450 */
 char *__stdcall DosStrcpy(char *dst, const char *src);               /* 0x00435470 */
 char *__stdcall CopyFarString(char *destination,
                               const char *source);                   /* 0x004354A0 */
@@ -1589,7 +1592,8 @@ int CollectRasterClipColours(RasterClip *clip,
 void CorrectPointers(void);                                            /* 0x0043F640 */
 void ClearRoomMenuLabel(void);                                        /* 0x0043F690 */
 int IsRoomMenuLabelEmpty(void);                                       /* 0x0043F6A0 */
-void DrawRoomMenuLabel(TextContext *context, char *label);             /* 0x0043F6B0 */
+void DrawRoomMenuLabel(TextContext *context,
+                       const char *label);                            /* 0x0043F6B0 */
 void RefreshRoomMenuLabel(void);                                      /* 0x0043F6F0 */
 void ClearRoomMenuCursorFrame(void);                                  /* 0x0043F720 */
 void SelectRoomMenuLabel(short i);                                    /* 0x0043F730 */
@@ -1624,7 +1628,7 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            unsigned char *shape, int frame,
                            int angle, int scaleX, int scaleY,
                            int flip, int blendMode);                /* 0x00440FE0 */
-void RasterLineHook(void *marker);                                    /* 0x00441140 */
+void RasterLineHook(const void *marker);                              /* 0x00441140 */
 void DrawFontGlyph(char character, TextContext *context, int height,
                    int width, int y);                                 /* 0x00441150 */
 void __stdcall MarkActivePaletteEntries(Viewport *viewport,

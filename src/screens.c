@@ -19,22 +19,22 @@ unsigned int LoadBriefingRoom(void)
     SetTextContext(&g_stConversationTextContext_005a7760);
     spacetrack(0x19, 2, 1);
     g_pConversationBackdropShape_00598c04 =
-        (unsigned char *)FetchDiskPacketRetrying(4, 0, 0);
+        FetchDiskPacketRetrying(4, 0, 0);
     g_pBriefingAnimationShape_00598c14 =
-        (unsigned char *)FetchDiskPacketRetrying(4, 1, 0);
+        FetchDiskPacketRetrying(4, 1, 0);
     g_pBriefingCloseupShape_00598c2c =
-        (unsigned char *)FetchDiskPacketRetrying(4, 3, 0);
+        FetchDiskPacketRetrying(4, 3, 0);
     g_pBriefingBodyShape_00598c1c =
-        (unsigned char *)FetchDiskPacketRetrying(4, 4, 0);
+        FetchDiskPacketRetrying(4, 4, 0);
     g_pBriefingPortraitShape_00598c24 =
-        (unsigned char *)FetchDiskPacketRetrying(4, 5, 0);
+        FetchDiskPacketRetrying(4, 5, 0);
     SceneDirector(0, g_pBriefingSceneData_00598c00,
                   g_pBriefingTextData_00598af0);
-    FreePacketAndClear((int *)&g_pBriefingPortraitShape_00598c24, 8);
-    FreePacketAndClear((int *)&g_pBriefingBodyShape_00598c1c, 8);
-    FreePacketAndClear((int *)&g_pBriefingCloseupShape_00598c2c, 8);
-    FreePacketAndClear((int *)&g_pBriefingAnimationShape_00598c14, 8);
-    FreePacketAndClear((int *)&g_pConversationBackdropShape_00598c04, 8);
+    FreePacketAndClear(&g_pBriefingPortraitShape_00598c24, 8);
+    FreePacketAndClear(&g_pBriefingBodyShape_00598c1c, 8);
+    FreePacketAndClear(&g_pBriefingCloseupShape_00598c2c, 8);
+    FreePacketAndClear(&g_pBriefingAnimationShape_00598c14, 8);
+    FreePacketAndClear(&g_pConversationBackdropShape_00598c04, 8);
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
     if (DAT_0059ab58 != 0) {
@@ -53,7 +53,7 @@ unsigned int ViewMedals(void)
 
     clicked = 0;
     g_pMedalSceneShape_0046e2f4 =
-        (unsigned char *)FetchDiskPacketRetrying(4, 8, 0);
+        FetchDiskPacketRetrying(4, 8, 0);
     g_pConversationBackdropShape_00598c04 = 0;
     InitializeConversationText();
     ClearViewport(&DAT_005a76b0, DAT_0046999c);
@@ -66,7 +66,7 @@ unsigned int ViewMedals(void)
             PeekInputEvent(&event, 3) != 0)
             clicked = 1;
         DrawMedals();
-        AddPCName((char *)g_pszMedalsPilotSummary_0046e2f8);
+        AddPCName(g_pszMedalsPilotSummary_0046e2f8);
         RefreshMemoryStatusOverlay();
         ClearViewport(&g_stConversationTextViewport_005a7570,
                       DAT_0046999c);
@@ -77,7 +77,7 @@ unsigned int ViewMedals(void)
         DIBslam();
         DIBslamReal();
         if (clicked != 0) {
-            FreePacketAndClear((int *)&g_pMedalSceneShape_0046e2f4, 8);
+            FreePacketAndClear(&g_pMedalSceneShape_0046e2f4, 8);
             WaitForInputKey();
             ClearInputKeyStatePreservingModifiers();
             g_bInputMode_0059a848 = savedInputMode;
@@ -115,7 +115,7 @@ unsigned int AwardCampaignMedal(short medal)
         break;
     }
 
-    packet = (int *)FetchDiskPacketRetrying(
+    packet = FetchDiskPacketRetrying(
         g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
         2, 0);
     g_pMedalSceneData_00598c20 = (unsigned char *)packet + packet[0];
@@ -123,17 +123,17 @@ unsigned int AwardCampaignMedal(short medal)
     InitializeConversationViewport();
     InitializeConversationText();
     g_pMedalSceneShape_0046e2f4 =
-        (unsigned char *)FetchDiskPacketRetrying(4, 8, 0);
+        FetchDiskPacketRetrying(4, 8, 0);
     g_pConversationBackdropShape_00598c04 =
-        (unsigned char *)FetchDiskPacketRetrying(4, 10, 0);
+        FetchDiskPacketRetrying(4, 10, 0);
     g_nConversationMedalIndex_00598c08 = medal;
     g_stCampaignState_0059ca50.medals[medal]++;
     SceneDirector(5, g_pMedalSceneData_00598c20,
                   g_pMedalTextData_00598af8);
     DAT_0059ab58 = 0;
-    FreePacketAndClear((int *)&g_pConversationBackdropShape_00598c04, 8);
-    FreePacketAndClear((int *)&g_pMedalSceneShape_0046e2f4, 8);
-    ReleasePacketHandle((int)packet);
+    FreePacketAndClear(&g_pConversationBackdropShape_00598c04, 8);
+    FreePacketAndClear(&g_pMedalSceneShape_0046e2f4, 8);
+    ReleasePacketHandle(packet);
     StopMusicUnlessSuppressed();
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
@@ -419,10 +419,10 @@ unsigned int EstablishingShot(char *text, short duration)
 
     if (g_pBriefingBodyShape_00598c1c == 0)
         g_pBriefingBodyShape_00598c1c =
-            (unsigned char *)FetchDiskPacketRetrying(4, 4, 0);
+            FetchDiskPacketRetrying(4, 4, 0);
     if (g_pBriefingPortraitShape_00598c24 == 0)
         g_pBriefingPortraitShape_00598c24 =
-            (unsigned char *)FetchDiskPacketRetrying(4, 5, 0);
+            FetchDiskPacketRetrying(4, 5, 0);
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   DAT_0046999c);
@@ -470,10 +470,10 @@ unsigned int DrawBriefingLongShot(void)
 
     if (g_pBriefingBodyShape_00598c1c == 0)
         g_pBriefingBodyShape_00598c1c =
-            (unsigned char *)FetchDiskPacketRetrying(4, 4, 0);
+            FetchDiskPacketRetrying(4, 4, 0);
     if (g_pBriefingPortraitShape_00598c24 == 0)
         g_pBriefingPortraitShape_00598c24 =
-            (unsigned char *)FetchDiskPacketRetrying(4, 5, 0);
+            FetchDiskPacketRetrying(4, 5, 0);
     DrawSpriteDefault(&DAT_005a76b0, 0, 0,
                       g_pConversationBackdropShape_00598c04, 0);
     DrawSpriteDefault(&DAT_005a76b0, 241, 60,
@@ -501,10 +501,10 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
     spacetrack(26, 1, -1);
     if (g_pBriefingBodyShape_00598c1c == 0)
         g_pBriefingBodyShape_00598c1c =
-            (unsigned char *)FetchDiskPacketRetrying(4, 4, 0);
+            FetchDiskPacketRetrying(4, 4, 0);
     if (g_pBriefingPortraitShape_00598c24 == 0)
         g_pBriefingPortraitShape_00598c24 =
-            (unsigned char *)FetchDiskPacketRetrying(4, 5, 0);
+            FetchDiskPacketRetrying(4, 5, 0);
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   DAT_0046999c);
@@ -529,7 +529,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
         do {
             layout = &g_aBriefingCharacters_0046e218[character];
             if (active[character] == 0 &&
-                (short)RandomBelowOrEqual(5) == 0)
+                RandomBelowOrEqual(5) == 0)
                 active[character] = 1;
             DrawBriefingCharacter(
                 character, layout->animationPhase, 0,
@@ -577,11 +577,11 @@ unsigned int Dismissed(char *text, short duration)
     leftX = -96;
     podiumX = 240;
     if (g_pTalkingHeadShape_00598c0c != 0)
-        FreePacketAndClear((int *)&g_pTalkingHeadShape_00598c0c, 0);
+        FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
     if (g_pBriefingBodyShape_00598c1c != 0)
-        FreePacketAndClear((int *)&g_pBriefingBodyShape_00598c1c, 0);
+        FreePacketAndClear(&g_pBriefingBodyShape_00598c1c, 0);
     if (g_pBriefingPortraitShape_00598c24 != 0)
-        FreePacketAndClear((int *)&g_pBriefingPortraitShape_00598c24, 0);
+        FreePacketAndClear(&g_pBriefingPortraitShape_00598c24, 0);
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   DAT_0046999c);
@@ -591,7 +591,7 @@ unsigned int Dismissed(char *text, short duration)
                               g_szTextScratchBuffer_00598b00);
     frame = 0;
     g_pTalkingHeadShape_00598c0c =
-        (unsigned char *)FetchDiskPacketRetrying(4, 2, 0);
+        FetchDiskPacketRetrying(4, 2, 0);
     DAT_00469fb4 = 1;
     do {
         if (CheckEscaped() != 0) {
@@ -637,7 +637,7 @@ unsigned int Dismissed(char *text, short duration)
         DIBslamReal();
     } while (frame < 32);
     WaitForSceneAdvance(duration, 0);
-    FreePacketAndClear((int *)&g_pTalkingHeadShape_00598c0c, 0);
+    FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
     SetTextContext(&g_stConversationTextContext_005a7760);
     return 0;
 }
@@ -827,13 +827,13 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
         case 4:
             first = int_value(&test);
             second = int_value(&test);
-            if ((short)wing_status(first) != 3)
+            if (wing_status(first) != 3)
                 return sceneData + second;
             break;
         case 5:
             first = int_value(&test);
             second = int_value(&test);
-            if ((short)wing_status(first) == 3)
+            if (wing_status(first) == 3)
                 return sceneData + second;
             break;
         case 6:
@@ -882,38 +882,38 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
         case 29:
             first = int_value(&test);
             second = int_value(&test);
-            if ((short)wing_status(first) == 2)
+            if (wing_status(first) == 2)
                 return sceneData + second;
             break;
         case 30:
             first = int_value(&test);
             second = int_value(&test);
-            if ((short)wing_status(first) == 1)
+            if (wing_status(first) == 1)
                 return sceneData + second;
             break;
         case 31:
             first = int_value(&test);
             second = int_value(&test);
-            if ((short)ace_status(first, 1) == 0)
+            if (ace_status(first, 1) == 0)
                 return sceneData + second;
             break;
         case 32:
             first = int_value(&test);
             second = int_value(&test);
-            if ((short)ace_status(first, 1) != 0)
+            if (ace_status(first, 1) != 0)
                 return sceneData + second;
             break;
         case 33:
             first = int_value(&test);
             second = int_value(&test);
-            if ((short)ace_status(first, 2) == 0 &&
-                (short)ace_status(first, 1) == 0)
+            if (ace_status(first, 2) == 0 &&
+                ace_status(first, 1) == 0)
                 return sceneData + second;
             break;
         case 34:
             first = int_value(&test);
             second = int_value(&test);
-            if ((short)ace_status(first, 2) != 0)
+            if (ace_status(first, 2) != 0)
                 return sceneData + second;
             break;
         }
@@ -1026,19 +1026,19 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
 unsigned int TalkerInit(void)
 {
     g_pFaceAnimationCommands_00598c18 =
-        (short *)AllocateTaggedMemory(0x140, 0);
+        AllocateTaggedMemory(0x140, 0);
     g_pMouthAnimationCommands_00598af4 =
-        (short *)AllocateTaggedMemory(0x140, 0);
+        AllocateTaggedMemory(0x140, 0);
     return 0;
 }
 
 /* Function start: 0x438BC0 */
 unsigned int FreeTalker(void)
 {
-    FreePacketAndClear((int *)&g_pConversationOverlayShape_00598c30, 0);
-    FreePacketAndClear((int *)&g_pTalkingHeadShape_00598c0c, 0);
-    FreePacketAndClear((int *)&g_pMouthAnimationCommands_00598af4, 0);
-    FreePacketAndClear((int *)&g_pFaceAnimationCommands_00598c18, 0);
+    FreePacketAndClear(&g_pConversationOverlayShape_00598c30, 0);
+    FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
+    FreePacketAndClear(&g_pMouthAnimationCommands_00598af4, 0);
+    FreePacketAndClear(&g_pFaceAnimationCommands_00598c18, 0);
     return 0;
 }
 
@@ -1267,13 +1267,13 @@ scene_complete:
 unsigned int DrawPodiumShot(void)
 {
     if (g_pTalkingHeadShape_00598c0c != 0)
-        FreePacketAndClear((int *)&g_pTalkingHeadShape_00598c0c, 0);
+        FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
     if (g_pBriefingBodyShape_00598c1c != 0)
-        FreePacketAndClear((int *)&g_pBriefingBodyShape_00598c1c, 0);
+        FreePacketAndClear(&g_pBriefingBodyShape_00598c1c, 0);
     if (g_pBriefingPortraitShape_00598c24 != 0)
-        FreePacketAndClear((int *)&g_pBriefingPortraitShape_00598c24, 0);
+        FreePacketAndClear(&g_pBriefingPortraitShape_00598c24, 0);
     g_pTalkingHeadShape_00598c0c =
-        (unsigned char *)FetchDiskPacketRetrying(4, 2, 0);
+        FetchDiskPacketRetrying(4, 2, 0);
     DrawSpriteDefault(&DAT_005a76b0, -96, 0,
                       g_pConversationBackdropShape_00598c04, 1);
     DrawSpriteDefault(&DAT_005a76b0, 224, 0,
@@ -1283,7 +1283,7 @@ unsigned int DrawPodiumShot(void)
     DrawSpriteDefault(&DAT_005a76b0, 252, 127,
                       g_pConversationBackdropShape_00598c04, 3);
     RefreshMemoryStatusOverlay();
-    FreePacketAndClear((int *)&g_pTalkingHeadShape_00598c0c, 0);
+    FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
     return 0;
 }
 
@@ -1391,22 +1391,22 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
     short index;
 
     if (DAT_0046b168 == 0x13) {
-        indices = (unsigned char *)AllocateTaggedMemory(256, 0);
+        indices = AllocateTaggedMemory(256, 0);
         if (indices == 0)
             return;
         memset(indices, 0, 256);
         activeCount = CollectActivePaletteIndices(source, indices, 256);
         paletteBytes = (unsigned int)(activeCount * 6);
         originalPalette =
-            (short *)AllocateTaggedMemory(paletteBytes, 0);
+            AllocateTaggedMemory(paletteBytes, 0);
         transitionPalette =
-            (short *)AllocateTaggedMemory(paletteBytes, 0);
+            AllocateTaggedMemory(paletteBytes, 0);
         if (originalPalette == 0 || transitionPalette == 0) {
-            ReleasePacketHandle((int)indices);
+            ReleasePacketHandle(indices);
             if (originalPalette != 0)
-                ReleasePacketHandle((int)originalPalette);
+                ReleasePacketHandle(originalPalette);
             if (transitionPalette != 0)
-                ReleasePacketHandle((int)transitionPalette);
+                ReleasePacketHandle(transitionPalette);
             return;
         }
 
@@ -1447,9 +1447,9 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
             DIBramPalette();
         }
 
-        ReleasePacketHandle((int)transitionPalette);
-        ReleasePacketHandle((int)originalPalette);
-        ReleasePacketHandle((int)indices);
+        ReleasePacketHandle(transitionPalette);
+        ReleasePacketHandle(originalPalette);
+        ReleasePacketHandle(indices);
     } else {
         CopyViewportContents(source, destination);
     }
@@ -1473,8 +1473,8 @@ unsigned int death_sequence(void)
 
     frame = 0;
     spacetrack(0x20, 2, 1);
-    deathShape = (unsigned char *)FetchDiskPacketRetrying(2, 0, 0);
-    cockpitBackground = (unsigned char *)FetchDiskPacketRetrying(
+    deathShape = FetchDiskPacketRetrying(2, 0, 0);
+    cockpitBackground = FetchDiskPacketRetrying(
         (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
     PlaySfxWaveFileByNumber(4, -1, 0);
     new_view(9, 0);
@@ -1500,8 +1500,8 @@ unsigned int death_sequence(void)
     } while (frame < 8);
 
     GetScreenUpdateFlag();
-    FreePacketAndClear((int *)&cockpitBackground, 0);
-    FreePacketAndClear((int *)&deathShape, 0);
+    FreePacketAndClear(&cockpitBackground, 0);
+    FreePacketAndClear(&deathShape, 0);
     if (DAT_0059ab58 != 1) {
         frame = 0;
         load_all_slots();
@@ -1538,7 +1538,7 @@ unsigned int ShowGetReadyScreen(void)
 
     frame = 0;
     g_pIntroFont_005a8960 =
-        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+        FetchDiskPacketRetrying(9, 1, 0);
     distance = 400;
     g_nCannedSceneMode_00469fac = 1;
     force_view(0, 0);
@@ -1561,7 +1561,7 @@ unsigned int ShowGetReadyScreen(void)
         DIBslamReal();
     } while (frame < 40);
     DAT_0059ab58 = 0;
-    ReleasePacketHandle((int)g_pIntroFont_005a8960);
+    ReleasePacketHandle(g_pIntroFont_005a8960);
     clear_view_buffer();
     g_nCannedSceneMode_00469fac = 0;
     ResetSoundState();
@@ -1579,10 +1579,10 @@ unsigned int ShowVictoryScreen(void)
     emptyCount = 0;
     InitializeFireworks();
     g_pFireworkShape_005a6a68 =
-        (unsigned char *)FetchDiskPacketRetrying(9, 17, 0);
+        FetchDiskPacketRetrying(9, 17, 0);
     distance = 500;
     g_pIntroFont_005a8960 =
-        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+        FetchDiskPacketRetrying(9, 1, 0);
     frame = 0;
     DAT_0059ab58 = 0;
     DAT_00469fb4 = 1;
@@ -1620,8 +1620,8 @@ unsigned int ShowVictoryScreen(void)
         DIBslamReal();
     } while (frame < 80);
     DAT_0059ab58 = 0;
-    ReleasePacketHandle((int)g_pIntroFont_005a8960);
-    ReleasePacketHandle((int)g_pFireworkShape_005a6a68);
+    ReleasePacketHandle(g_pIntroFont_005a8960);
+    ReleasePacketHandle(g_pFireworkShape_005a6a68);
     return 0;
 }
 
@@ -1634,7 +1634,7 @@ unsigned int ShowGameOverScreen(void)
 
     frame = 0;
     g_pIntroFont_005a8960 =
-        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+        FetchDiskPacketRetrying(9, 1, 0);
     g_cViewObject_0046c000 = (signed char)Explosion(0);
     DAT_0046c03c = 4;
     g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] = 100;
@@ -1674,7 +1674,7 @@ unsigned int ShowGameOverScreen(void)
     } while (frame < 80);
     StopMusicUnlessSuppressed();
     DAT_0059ab58 = 0;
-    ReleasePacketHandle((int)g_pIntroFont_005a8960);
+    ReleasePacketHandle(g_pIntroFont_005a8960);
     return 0;
 }
 

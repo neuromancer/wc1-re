@@ -17,7 +17,7 @@ FontWorkspace **AllocateFontWorkspace(short fontIndex)
     workspace = (FontWorkspace **)malloc(sizeof(*workspace));
     offset = 0;
     dimension = 5;
-    *workspace = (FontWorkspace *)malloc(sizeof(**workspace));
+    *workspace = malloc(sizeof(**workspace));
     do {
         offset += sizeof(FontWorkspace);
         ((FontWorkspace *)((unsigned char *)*workspace + offset -
@@ -26,7 +26,7 @@ FontWorkspace **AllocateFontWorkspace(short fontIndex)
                            sizeof(FontWorkspace)))->height = dimension;
         ((FontWorkspace *)((unsigned char *)*workspace + offset -
                            sizeof(FontWorkspace)))->pixels =
-            (unsigned char *)malloc((*workspace)->width *
+            malloc((*workspace)->width *
                                     (*workspace)->height);
         memset(((FontWorkspace *)((unsigned char *)*workspace + offset -
                                   sizeof(FontWorkspace)))->pixels,

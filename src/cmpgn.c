@@ -71,7 +71,7 @@ unsigned short __stdcall LoadPaletteTripletsFile(const char *path)
     unsigned char *palette;
     FILE *file;
 
-    palette = (unsigned char *)AllocateTaggedMemory(0x300, 0);
+    palette = AllocateTaggedMemory(0x300, 0);
     if (palette == 0)
         return 0;
     file = fopen(path, "rb");
@@ -80,10 +80,10 @@ unsigned short __stdcall LoadPaletteTripletsFile(const char *path)
         fread(palette, 0x300, 1, file);
         SetWholePaletteFromTriplets(palette);
         fclose(file);
-        ReleasePacketHandle((int)palette);
+        ReleasePacketHandle(palette);
         return 1;
     }
-    ReleasePacketHandle((int)palette);
+    ReleasePacketHandle(palette);
     return 0;
 }
 
@@ -138,13 +138,13 @@ unsigned int ejection_sequence(void)
         DIBslamReal();
     } while (frame < 10);
 
-    ReleasePacketHandle((int)ejectionShape);
-    ReleasePacketHandle((int)background);
+    ReleasePacketHandle(ejectionShape);
+    ReleasePacketHandle(background);
     GetScreenUpdateFlag();
     if (DAT_0059ab58 != 1) {
         PromptInsertNumberedDisk(8);
         g_pScreenViewportPacket_005a6b94 =
-            (ScreenViewportPacket *)AllocateTaggedMemory(
+            AllocateTaggedMemory(
                 GetPacketSize(g_pDiskFileRecords_005a7cf0[8].name, 8),
                 0x40);
         if (g_pScreenViewportPacket_005a6b94 == 0)
@@ -197,8 +197,8 @@ unsigned int ejection_sequence(void)
             DIBslamReal();
         } while (frame < 10);
 
-        ReleasePacketHandle((int)ejectionShape);
-        ReleasePacketHandle((int)background);
+        ReleasePacketHandle(ejectionShape);
+        ReleasePacketHandle(background);
         if (DAT_0059ab58 != 1) {
             load_all_slots();
             g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT] =
@@ -241,7 +241,7 @@ unsigned int ejection_sequence(void)
     DAT_0059ab58 = 0;
     g_bScriptedView_0046a8d4 = 0;
     if (g_pScreenViewportPacket_005a6b94 != 0) {
-        ReleasePacketHandle((int)g_pScreenViewportPacket_005a6b94);
+        ReleasePacketHandle(g_pScreenViewportPacket_005a6b94);
         g_pScreenViewportPacket_005a6b94 = 0;
     }
     FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
@@ -282,7 +282,7 @@ void stranded_sequence(void)
         DIBslamReal();
     } while (frame < 400);
     free_all_slots();
-    FreePacketAndClear((int *)&g_pIntroFont_005a8960, 0);
+    FreePacketAndClear(&g_pIntroFont_005a8960, 0);
     DAT_005a6ba0.top = 0;
     DAT_005a6ba0.bottom = 199;
     FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
@@ -367,10 +367,10 @@ unsigned int ParseMouthAnimation(char *text, short *commands)
 }
 
 /* Function start: 0x404E10 */
-char *AddPCName(char *text)
+char *AddPCName(const char *text)
 {
     char formatted[12];
-    char *marker;
+    const char *marker;
     char *output;
     short length;
 
@@ -500,14 +500,14 @@ unsigned int LoadFace(short face)
     }
     if (face != g_nTalkingHeadFace_0046e584 &&
         g_pTalkingHeadShape_00598c0c != 0)
-        FreePacketAndClear((int *)&g_pTalkingHeadShape_00598c0c, 0);
+        FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
     if (g_pTalkingHeadShape_00598c0c == 0)
         g_pTalkingHeadShape_00598c0c =
-            (unsigned char *)FetchDiskPacketRetrying(6, face, 0);
+            FetchDiskPacketRetrying(6, face, 0);
     g_nTalkingHeadFace_0046e584 = face;
     if (g_pConversationOverlayShape_00598c30 == 0)
         g_pConversationOverlayShape_00598c30 =
-            (unsigned char *)FetchDiskPacketRetrying(6, 11, 0);
+            FetchDiskPacketRetrying(6, 11, 0);
     g_nTalkingHeadFaceX_005a8754 =
         g_aTalkingHeadOrigins_0046e190[face].faceX;
     g_nTalkingHeadFaceY_005a8756 =
@@ -687,7 +687,7 @@ unsigned int Briefing(short series, short mission)
         LoadBriefingRoom();
     }
     DAT_0059ab58 = 0;
-    ReleasePacketHandle((int)g_pBriefingPacket_00598aec);
+    ReleasePacketHandle(g_pBriefingPacket_00598aec);
     ReleaseMusicTrackHook(0x18);
     ReleaseMusicTrackHook(0x19);
     ReleaseMusicTrackHook(0x1a);
@@ -721,15 +721,15 @@ unsigned int DeBriefing(short series, short mission)
     SetTextContext(&g_stConversationTextContext_005a7760);
     LoadBriefingData(series, mission);
     g_pConversationBackdropShape_00598c04 =
-        (unsigned char *)FetchDiskPacketRetrying(4, 6, 0);
+        FetchDiskPacketRetrying(4, 6, 0);
     SceneDirector(1, g_pDebriefingSceneData_00598afc,
                   g_pDebriefingTextData_00598c28);
     DIBslam();
     DIBslamReal();
     DAT_0059ab58 = 0;
-    ReleasePacketHandle((int)g_pConversationBackdropShape_00598c04);
+    ReleasePacketHandle(g_pConversationBackdropShape_00598c04);
     g_pConversationBackdropShape_00598c04 = 0;
-    ReleasePacketHandle((int)g_pBriefingPacket_00598aec);
+    ReleasePacketHandle(g_pBriefingPacket_00598aec);
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
     StopMusicUnlessSuppressed();
@@ -751,21 +751,21 @@ unsigned int Office(void)
     spacetrack(0x24, 2, 1);
     InitializeConversationViewport();
     InitializeConversationText();
-    packet = (unsigned char *)FetchDiskPacketRetrying(
+    packet = FetchDiskPacketRetrying(
         g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
         1, 0);
     header = (BriefingPacketHeader *)packet;
     sceneData = packet + header->briefingScene;
     textData = packet + header->briefingText;
     g_pConversationBackdropShape_00598c04 =
-        (unsigned char *)FetchDiskPacketRetrying(4, 7, 0);
+        FetchDiskPacketRetrying(4, 7, 0);
     SceneDirector(4, sceneData, textData);
     DIBslam();
     DIBslamReal();
     DAT_0059ab58 = 0;
-    ReleasePacketHandle((int)g_pConversationBackdropShape_00598c04);
+    ReleasePacketHandle(g_pConversationBackdropShape_00598c04);
     g_pConversationBackdropShape_00598c04 = 0;
-    ReleasePacketHandle((int)packet);
+    ReleasePacketHandle(packet);
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
     StopMusicUnlessSuppressed();
@@ -778,7 +778,7 @@ unsigned int LoadBriefingData(short series, short mission)
 {
     BriefingPacketHeader *header;
 
-    g_pBriefingPacket_00598aec = (unsigned char *)FetchDiskPacketRetrying(
+    g_pBriefingPacket_00598aec = FetchDiskPacketRetrying(
         g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
         (short)(mission + series * 4), 0);
     header = (BriefingPacketHeader *)g_pBriefingPacket_00598aec;
@@ -822,7 +822,7 @@ unsigned int LoadMissionData(short series, short mission)
     int item;
 
     logicalFile = g_asMissionDataFiles_00469460[g_nCampaignDataSet_005a8118];
-    packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 0, 0);
+    packet = FetchDiskPacketRetrying(logicalFile, 0, 0);
     missionIndex = (int)mission + (int)series * 4;
     header = (MissionHeaderDisk *)(packet + missionIndex * 0x18);
     g_nMissionEntryNavPoint_005a8690 = header->entryNavPoint;
@@ -834,9 +834,9 @@ unsigned int LoadMissionData(short series, short mission)
         *initialShip++ = *sourceInitialShip++;
     } while (initialShip < &g_nInitialMissionShipIndices_005a8696[8]);
     DAT_005a86a6 = header->field_16;
-    ReleasePacketHandle((int)packet);
+    ReleasePacketHandle(packet);
 
-    packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 1, 0);
+    packet = FetchDiskPacketRetrying(logicalFile, 1, 0);
     diskNav = (MissionNavPointDisk *)(packet + missionIndex * 0x4d0);
     index = 0;
     do {
@@ -868,9 +868,9 @@ unsigned int LoadMissionData(short series, short mission)
         diskNav++;
         index++;
     } while (index < WC1_ACTIVE_MISSION_NAV_POINT_COUNT);
-    ReleasePacketHandle((int)packet);
+    ReleasePacketHandle(packet);
 
-    packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 2, 0);
+    packet = FetchDiskPacketRetrying(logicalFile, 2, 0);
     diskObjective =
         (MissionObjectiveDisk *)(packet + missionIndex * 0x400);
     index = 0;
@@ -888,9 +888,9 @@ unsigned int LoadMissionData(short series, short mission)
         diskObjective++;
         index++;
     } while (index < WC1_MISSION_OBJECTIVE_COUNT);
-    ReleasePacketHandle((int)packet);
+    ReleasePacketHandle(packet);
 
-    packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 3, 0);
+    packet = FetchDiskPacketRetrying(logicalFile, 3, 0);
     diskShip = (MissionShipDisk *)(packet + missionIndex * 0x540);
     ship = g_aMissionShips_0046c948;
     do {
@@ -915,19 +915,19 @@ unsigned int LoadMissionData(short series, short mission)
         diskShip++;
         ship++;
     } while (ship < &g_aMissionShips_0046c948[32]);
-    ReleasePacketHandle((int)packet);
+    ReleasePacketHandle(packet);
 
-    packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 4, 0);
+    packet = FetchDiskPacketRetrying(logicalFile, 4, 0);
     DosMemcpy(g_abMissionAuxData_005a8210,
               packet + missionIndex * sizeof(g_abMissionAuxData_005a8210),
               sizeof(g_abMissionAuxData_005a8210));
-    ReleasePacketHandle((int)packet);
+    ReleasePacketHandle(packet);
 
-    packet = (unsigned char *)FetchDiskPacketRetrying(logicalFile, 5, 0);
+    packet = FetchDiskPacketRetrying(logicalFile, 5, 0);
     DosMemcpy(g_abSeriesAuxData_005a8240,
               packet + series * sizeof(g_abSeriesAuxData_005a8240),
               sizeof(g_abSeriesAuxData_005a8240));
-    ReleasePacketHandle((int)packet);
+    ReleasePacketHandle(packet);
     return 0;
 }
 

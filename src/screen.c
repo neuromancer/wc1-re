@@ -384,7 +384,7 @@ int GetFreeNearHeapBytes(void)
     descriptorAddress =
         g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c - 8;
     while (descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124) {
-        block = (NearHeapBlock *)DosNearPtrToFar(descriptorAddress);
+        block = DosNearPtrToFar(descriptorAddress);
         if ((block->sizeAndFlags & 0x80000000) == 0)
             freeBytes += block->sizeAndFlags & 0xfffff;
         descriptorAddress -= 8;
@@ -412,24 +412,24 @@ void MessagePumpHook(int mode)
 }
 
 /* Function start: 0x42F960 */
-int PushMemoryStackFrame(int memory, int offset)
+void *PushMemoryStackFrame(void *memory, int offset)
 {
     int index;
 
     if (offset != 0) {
-        printf("push %p by %d\n", (void *)memory, offset);
+        printf("push %p by %d\n", memory, offset);
         if (g_nPacketHandleCount_005a6530 == 0x1000)
             exit_squadron("qq mem push overflow");
         index = g_nPacketHandleCount_005a6530;
         g_aiPacketHandleOffsets_005a2530[index] = offset;
         if (offset < 0) {
-            memory -= offset;
-            g_aiPacketHandles_0059e530[index] = memory;
+            memory = (unsigned char *)memory - offset;
+            g_apPacketHandles_0059e530[index] = memory;
             g_nPacketHandleCount_005a6530 = index + 1;
             return memory;
         }
-        memory += offset;
-        g_aiPacketHandles_0059e530[index] = memory;
+        memory = (unsigned char *)memory + offset;
+        g_apPacketHandles_0059e530[index] = memory;
         g_nPacketHandleCount_005a6530 = index + 1;
         return memory;
     }
@@ -437,14 +437,14 @@ int PushMemoryStackFrame(int memory, int offset)
 }
 
 /* Function start: 0x42F9E0 */
-int IsPushedPacketHandle(int handle)
+int IsPushedPacketHandle(void *handle)
 {
     int index;
 
     index = 0;
     if (g_nPacketHandleCount_005a6530 > 0) {
         do {
-            if (g_aiPacketHandles_0059e530[index] == handle) {
+            if (g_apPacketHandles_0059e530[index] == handle) {
                 if (g_aiPacketHandleOffsets_005a2530[index] < 0)
                     return 1;
                 return 0;
@@ -456,12 +456,12 @@ int IsPushedPacketHandle(int handle)
 }
 
 /* Function start: 0x42FA20 */
-int MapPacketHandleToBlock(int handle)
+void *MapPacketHandleToBlock(void *handle)
 {
     int count = g_nPacketHandleCount_005a6530;
     int bytes = count * 4;
     int i;
-    int *entry;
+    void **entry;
     int offset;
 
     for (;;) {
@@ -469,7 +469,7 @@ int MapPacketHandleToBlock(int handle)
         g_nPacketHandleCount_005a6530 = count;
         if (bytes <= 0)
             return handle;
-        entry = g_aiPacketHandles_0059e530;
+        entry = g_apPacketHandles_0059e530;
         while (*entry != handle) {
             entry = entry + 1;
             i = i + 1;
@@ -479,11 +479,11 @@ int MapPacketHandleToBlock(int handle)
         }
         offset = g_aiPacketHandleOffsets_005a2530[i];
         if (offset < 0)
-            handle = handle + offset;
+            handle = (unsigned char *)handle + offset;
         else
-            handle = handle - offset;
-        g_aiPacketHandles_0059e530[i] =
-            *(int *)((unsigned char *)g_aiPacketHandles_0059e530 + bytes - 4);
+            handle = (unsigned char *)handle - offset;
+        g_apPacketHandles_0059e530[i] =
+            *(void **)((unsigned char *)g_apPacketHandles_0059e530 + bytes - 4);
         bytes = bytes - 4;
         count = count - 1;
         g_aiPacketHandleOffsets_005a2530[i] =
@@ -500,20 +500,20 @@ void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
     tagged = flags & 0x40;
     if (tagged != 0)
         size += 8;
-    memory = (unsigned int *)AllocateGuardedMemory(size);
+    memory = AllocateGuardedMemory(size);
     if (tagged != 0) {
         memcpy(memory, g_abTaggedAllocationPrefix_0046ad88,
                sizeof(g_abTaggedAllocationPrefix_0046ad88));
-        memory = (unsigned int *)PushMemoryStackFrame((int)memory, -8);
+        memory = PushMemoryStackFrame(memory, -8);
     }
     return memory;
 }
 
 /* Function start: 0x42FAE0 */
-void ReleasePacketHandle(int handle)
+void ReleasePacketHandle(void *handle)
 {
     int group = 4;
-    int *entry = &g_aiPacketReferenceTable_00465c88[0][0];
+    void **entry = &g_aapPacketReferences_00465c88[0][0];
 
     do {
         int i = 0x25;
@@ -526,7 +526,7 @@ void ReleasePacketHandle(int handle)
         } while (i != 0);
         group = group - 1;
     } while (group != 0);
-    FreeGuardedAllocation((void *)MapPacketHandleToBlock(handle));
+    FreeGuardedAllocation(MapPacketHandleToBlock(handle));
 }
 
 /* Function start: 0x42FB20 */
@@ -596,9 +596,9 @@ unsigned int ShowCampaignVictorySequence(void)
     g_bIntroSceneResourcesActive_00469d48 = 0;
     set_up_action_sphere(0x12);
     planetShape =
-        (unsigned char *)FetchDiskPacketRetrying(9, 3, 0);
+        FetchDiskPacketRetrying(9, 3, 0);
     projectileShape =
-        (unsigned char *)FetchDiskPacketRetrying(9, 2, 0);
+        FetchDiskPacketRetrying(9, 2, 0);
     CreateCannedSceneObject(&planetObject, -4, 0, 30000,
                             planetShape, 0, 0, 0x50);
     g_nScriptedViewObject_0046a8d0 = 1;
@@ -688,7 +688,7 @@ unsigned int ShowCampaignVictorySequence(void)
                     if (vacantCount > 1) {
                         origin =
                             &g_aCampaignVictoryProjectileOrigins_0046adb0[
-                                (short)RandomBelowOrEqual(3)];
+                                RandomBelowOrEqual(3)];
                         projectile = &projectiles[vacant[0]];
                         projectile->depth = planetDepth;
                         projectile->x =
@@ -736,14 +736,14 @@ unsigned int ShowCampaignVictorySequence(void)
         frame++;
     } while (frame < 250);
 
-    ReleasePacketHandle((int)projectileShape);
-    ReleasePacketHandle((int)planetShape);
+    ReleasePacketHandle(projectileShape);
+    ReleasePacketHandle(planetShape);
     free_all_slots();
     ReleaseTextFont(0);
     free_3Space();
     if (DAT_0059ab58 != 1) {
         planetShape =
-            (unsigned char *)FetchDiskPacketRetrying(9, 5, 0);
+            FetchDiskPacketRetrying(9, 5, 0);
         animationFrame = 1;
         ClearViewport(&DAT_005a6ba0, DAT_0046999c);
         WaitForVerticalBlankThunk();
@@ -766,7 +766,7 @@ unsigned int ShowCampaignVictorySequence(void)
             DIBslam();
             DIBslamReal();
         } while (elapsed < 40);
-        ReleasePacketHandle((int)planetShape);
+        ReleasePacketHandle(planetShape);
         FadeViewportPaletteToColour(&g_stModalSourceViewport_005a7670,
                                     DAT_0046999c, 1);
         ClearViewport(&g_stModalSourceViewport_005a7670,
@@ -812,12 +812,12 @@ unsigned int ShowTigerClawEscapeScene(void)
     InitializeConversationText();
     set_up_action_sphere(0x13);
     escapeShape =
-        (unsigned char *)FetchDiskPacketRetrying(9, 2, 0);
+        FetchDiskPacketRetrying(9, 2, 0);
     if (g_aObjectTypeData_00466458[
             OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet == 0) {
         g_aObjectTypeData_00466458[
             OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet =
-                (unsigned char *)FetchDiskPacketRetrying(3, 14, 0);
+                FetchDiskPacketRetrying(3, 14, 0);
     }
     g_nScriptedViewObject_0046a8d0 = 1;
     initialize_scripted_view(g_asTigerClawEscapeViewScript_0046c238);
@@ -898,11 +898,11 @@ unsigned int ShowTigerClawEscapeScene(void)
         DIBslamReal();
     } while (frame < 260);
 
-    ReleasePacketHandle((int)g_aObjectTypeData_00466458[
+    ReleasePacketHandle(g_aObjectTypeData_00466458[
         OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet);
     g_aObjectTypeData_00466458[
         OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet = 0;
-    ReleasePacketHandle((int)escapeShape);
+    ReleasePacketHandle(escapeShape);
     free_all_slots();
     ReleaseTextFont(0);
     free_3Space();
@@ -934,9 +934,9 @@ unsigned int ShowTheEndScreen(short enableFireworks)
     ClearViewport(&DAT_005a76b0, DAT_0046999c);
     InitializeFireworks();
     g_pFireworkShape_005a6a68 =
-        (unsigned char *)FetchDiskPacketRetrying(9, 0x11, 0);
+        FetchDiskPacketRetrying(9, 0x11, 0);
     g_pIntroFont_005a8960 =
-        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+        FetchDiskPacketRetrying(9, 1, 0);
     print_subtitle(&DAT_005a76b0, 0x3a, g_pszTheEnd_0046adc8);
     PanToScreen(&DAT_005a76b0, &DAT_005a6ba0);
     DAT_0059ab58 = 0;
@@ -975,8 +975,8 @@ unsigned int ShowTheEndScreen(short enableFireworks)
         DIBslamReal();
     } while (frame < 320);
 
-    ReleasePacketHandle((int)g_pFireworkShape_005a6a68);
-    ReleasePacketHandle((int)g_pIntroFont_005a8960);
+    ReleasePacketHandle(g_pFireworkShape_005a6a68);
+    ReleasePacketHandle(g_pIntroFont_005a8960);
     ResetScreenClipToFullHeight();
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x17);
@@ -1206,7 +1206,7 @@ void LoadCommPortraitShape(short face, signed char alternate)
         section = -1;
     if (section != -1)
         g_apCommPortraitShapes_0059e180[face] =
-            (unsigned char *)FetchDiskPacketRetrying(11, section,
+            FetchDiskPacketRetrying(11, section,
                                                      (short)alternate);
 }
 
@@ -1235,7 +1235,7 @@ int IsCommMenuIdle(void)
 }
 
 /* Function start: 0x430CB0 */
-void AppendCommMenuChoice(char *text, short command)
+void AppendCommMenuChoice(const char *text, short command)
 {
     short index;
 
@@ -1258,7 +1258,7 @@ void SendCommMenuChoice(short i)
 }
 
 /* Function start: 0x430D50 */
-void OpenCommMenuForTarget(char *heading, char *message)
+void OpenCommMenuForTarget(const char *heading, const char *message)
 {
     CockpitMessage(message, DAT_004699a8, -1);
     g_pszCommMenuHeading_0059e490 = heading;
@@ -1267,7 +1267,7 @@ void OpenCommMenuForTarget(char *heading, char *message)
 /* Function start: 0x430D80 */
 int IsCommChoiceMenuOpen(void)
 {
-    return (short)get_mode(1) == 4;
+    return get_mode(1) == 4;
 }
 
 /* Function start: 0x430DA0 */
@@ -1292,7 +1292,7 @@ void OpenCommRecipientMenu(void)
 /* Function start: 0x430DE0 */
 void CloseCommChoiceMenu(void)
 {
-    if ((short)get_mode(1) == 4) {
+    if (get_mode(1) == 4) {
         pop_mode(1);
         return;
     }
@@ -1309,7 +1309,7 @@ int wingman_dead(void)
 /* Function start: 0x430E30 */
 short have_target(void)
 {
-    return unactive((short)g_acShipTarget_0059ce60[0]) == 0;
+    return unactive(g_acShipTarget_0059ce60[0]) == 0;
 }
 
 /* Function start: 0x430E50 */
@@ -1334,7 +1334,7 @@ void BuildCommunicationRecipientMenu(void)
 {
     short target;
     short command;
-    char *text;
+    const char *text;
 
     ResetCommMenuChoices(g_nCommMenuReuseMode_0046af64);
     OpenCommMenuForTarget("VID-COM SYSTEM\n\nSend message to?\n\n",
@@ -1353,7 +1353,7 @@ void BuildCommunicationRecipientMenu(void)
             (signed char)g_acShipRating_0059cd80[
                 g_nYourWingman_0046c04c]]->callsign,
         1);
-    target = (short)g_acShipTarget_0059ce60[0];
+    target = g_acShipTarget_0059ce60[0];
     if (target != -1) {
         if (g_aeShipSide_0059d650[target] == SIDE_KILRATHI &&
             g_aeObjectClass_0059d100[target] == OBJECT_CLASS_SHIP) {
@@ -1368,7 +1368,7 @@ void BuildCommunicationRecipientMenu(void)
                 goto finish_recipient_menu;
             }
             command = 3;
-            text = (char *)g_aObjectTypeData_00466458[
+            text = g_aObjectTypeData_00466458[
                 g_aeObjectType_0059b560[target]].displayName;
         }
         AppendCommMenuChoice(text, command);
@@ -1382,7 +1382,7 @@ finish_recipient_menu:
 void BuildCommunicationCommandMenu(void)
 {
     signed char rating;
-    char *name;
+    const char *name;
 
     ResetCommMenuChoices(g_nCommMenuReuseMode_0046af64);
     if (g_cCommMenuRecipient_0046afc4 == g_nYourWingman_0046c04c) {
@@ -1436,13 +1436,13 @@ void BuildCommunicationCommandMenu(void)
                "VID-COM SYSTEM\n\nTo: ");
         rating = g_acShipRating_0059cd80[g_cCommMenuRecipient_0046afc4];
         if (rating == -1) {
-            name = (char *)g_aObjectTypeData_00466458[
+            name = g_aObjectTypeData_00466458[
                 g_aeObjectType_0059b560[
                     g_cCommMenuRecipient_0046afc4]].displayName;
         } else if (rating < 8) {
             name = g_apWingmanPilots_00598a30[rating]->callsign;
         } else {
-            name = (char *)g_apszKilrathiAceNames_0046af80[rating - 9];
+            name = g_apszKilrathiAceNames_0046af80[rating - 9];
         }
         strcat(g_szCommMenuHeadingBuffer_0059e4a0, name);
         strcat(g_szCommMenuHeadingBuffer_0059e4a0, "\n");
@@ -1469,7 +1469,7 @@ void HandleCommunicationMenuRequest(void)
 {
     if (IsCommChoiceMenuOpen() != 0)
         CloseCommChoiceMenu();
-    if ((short)message_showing() == 0 &&
+    if (message_showing() == 0 &&
         IsCommChoiceMenuOpen() == 0 && CanOpenCommMenu() != 0) {
         OpenCommRecipientMenu();
         ResetCommMenuChoices(0);
@@ -1547,11 +1547,11 @@ void talk_equiv(void)
 /* Function start: 0x431410 */
 void FreeCommDisplayResources(void)
 {
-    FreePacketAndClear((int *)&g_apCommPortraitShapes_0059e180[
+    FreePacketAndClear(&g_apCommPortraitShapes_0059e180[
         g_nCommPortraitIndex_0046afd0], 0);
-    FreePacketAndClear((int *)&g_pConfedCommBackground_00469278, 0);
-    FreePacketAndClear((int *)&g_pKilrathiCommBackground_00469280, 0);
-    FreePacketAndClear((int *)&g_pCommStaticShape_0046927c, 0);
+    FreePacketAndClear(&g_pConfedCommBackground_00469278, 0);
+    FreePacketAndClear(&g_pKilrathiCommBackground_00469280, 0);
+    FreePacketAndClear(&g_pCommStaticShape_0046927c, 0);
     g_nCommSpeakerRating_0046afcc = -1;
     g_nCommSpeakerObject_0046afc8 = -1;
     g_nCommPortraitIndex_0046afd0 = -1;
@@ -1563,7 +1563,7 @@ void EndCommSessionWithWingman(void)
     if (g_apCommPortraitShapes_0059e180[g_nCommPortraitIndex_0046afd0] != 0)
         malf_noise(1, 1, 12, 23, 1);
     FreeCommDisplayResources();
-    if ((short)get_mode(1) == 6)
+    if (get_mode(1) == 6)
         pop_mode(1);
 }
 
@@ -1571,7 +1571,7 @@ void EndCommSessionWithWingman(void)
 void EndCommMenu(void)
 {
     clear_message_time();
-    if ((short)get_mode(1) == 6)
+    if (get_mode(1) == 6)
         EndCommSessionWithWingman();
     DAT_00469004 = 0;
 }
@@ -1594,29 +1594,29 @@ short LoadCommDisplayResources(short rating, enum Side side)
     case SIDE_IMPERIAL:
         if (g_pConfedCommBackground_00469278 == 0)
             g_pConfedCommBackground_00469278 =
-                (unsigned char *)FetchDiskPacketRetrying(11, 0, 0);
+                FetchDiskPacketRetrying(11, 0, 0);
         loaded = g_pConfedCommBackground_00469278 != 0;
         break;
     case SIDE_KILRATHI:
         if (g_pKilrathiCommBackground_00469280 == 0)
             g_pKilrathiCommBackground_00469280 =
-                (unsigned char *)FetchDiskPacketRetrying(11, 9, 0);
+                FetchDiskPacketRetrying(11, 9, 0);
         loaded = g_pKilrathiCommBackground_00469280 != 0;
         break;
     }
     if (g_pCommStaticShape_0046927c == 0)
         g_pCommStaticShape_0046927c =
-            (unsigned char *)FetchDiskPacketRetrying(11, 11, 0);
+            FetchDiskPacketRetrying(11, 11, 0);
     if (loaded != 0 && g_pCommStaticShape_0046927c != 0)
         return 1;
     return 0;
 }
 
 /* Function start: 0x4315C0 */
-char *ExpandCommMessageTokens(char *text)
+char *ExpandCommMessageTokens(const char *text)
 {
     char *destination;
-    char *marker;
+    const char *marker;
     short length;
 
     g_szTextScratchBuffer_00598b00[0] = '\0';

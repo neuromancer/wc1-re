@@ -211,7 +211,7 @@ typedef struct HudMessageSlot {
     short colour;                    /* +0x08 */
     short drawColour;                /* +0x0A */
     signed char flashCount;          /* +0x0C */
-    char *text;                      /* +0x0D */
+    const char *text;                /* +0x0D */
 } HudMessageSlot;
 #pragma pack(pop)
 

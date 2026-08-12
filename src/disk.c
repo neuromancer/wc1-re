@@ -100,7 +100,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
 
     do {
         retries--;
-        FreePacketAndClear((int *)&packet, flags);
+        FreePacketAndClear(&packet, flags);
         packet = PacketLoad(fileName, section, 0, flags, 0);
         if (retries < 1 || g_nPacketError_00465460 == 0)
             break;
@@ -111,7 +111,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
             free_viewport(&DAT_005a7510);
             do {
                 retries--;
-                FreePacketAndClear((int *)&packet, flags);
+                FreePacketAndClear(&packet, flags);
                 packet = PacketLoad(fileName, section, 0, flags, 0);
                 if (retries < 1 || g_nPacketError_00465460 == 0)
                     break;
@@ -126,7 +126,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
             free_viewport(&DAT_005a76b0);
             do {
                 retries--;
-                FreePacketAndClear((int *)&packet, flags);
+                FreePacketAndClear(&packet, flags);
                 packet = PacketLoad(fileName, section, 0, flags, 0);
                 if (retries < 1 || g_nPacketError_00465460 == 0)
                     break;
@@ -159,11 +159,11 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
     if (g_apTextFonts_005a6c00[index] == 0) {
         if (fontIndex == 1) {
             g_apTextFonts_005a6c00[index] =
-                (unsigned char *)FetchDiskPacketRetrying(0, fontIndex,
+                FetchDiskPacketRetrying(0, fontIndex,
                                                          0x10);
         } else {
             g_apTextFonts_005a6c00[index] =
-                (unsigned char *)FetchDiskPacketRetrying(0, fontIndex,
+                FetchDiskPacketRetrying(0, fontIndex,
                                                          0);
         }
         g_apFontWorkspaces_005a6c10[index] =
@@ -186,7 +186,7 @@ unsigned int ReleaseTextFont(short fontIndex)
         return 0;
     index = fontIndex;
     if (g_apTextFonts_005a6c00[index] != 0) {
-        ReleasePacketHandle((int)g_apTextFonts_005a6c00[index]);
+        ReleasePacketHandle(g_apTextFonts_005a6c00[index]);
         g_apTextFonts_005a6c00[index] = 0;
         FreeFontWorkspace(g_apFontWorkspaces_005a6c10[index]);
         g_apFontWorkspaces_005a6c10[index] = 0;
@@ -196,14 +196,14 @@ unsigned int ReleaseTextFont(short fontIndex)
 
 /* Function start: 0x41D5F0 */
 unsigned int DrawTextAt(TextContext *context, short x, short y,
-                        char *text, unsigned char alignment)
+                        const char *text, unsigned char alignment)
 {
     char *savedText = context->text;
     unsigned char savedAlignment = context->alignment;
 
     SetTextContext(context);
     SetTextCursor((unsigned short)x, (unsigned short)y);
-    context->text = text;
+    context->text = (char *)text;
     context->alignment = alignment;
     DrawTextString(text);
     context->text = savedText;
@@ -722,7 +722,7 @@ unsigned int remove_weapon(short obj, short weapon)
                 select_new_release_weapon(preferredType);
             }
         }
-        if ((short)get_mode(0) == 1)
+        if (get_mode(0) == 1)
             InvalidateVduMode(0);
     }
     return 0;
@@ -966,7 +966,7 @@ unsigned int steady_object(short ship)
 short real_velocity(short obj)
 {
     return FixedToShortSaturating(
-        (int)Vector_magnitude(&g_aShipVelocity_0059c010[obj]));
+        Vector_magnitude(&g_aShipVelocity_0059c010[obj]));
 }
 
 /* Function start: 0x41E820 */

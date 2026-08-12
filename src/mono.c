@@ -286,7 +286,7 @@ unsigned int update_canned_sequence(short obj)
             g_anPitchGoal_0059d7a0[obj] == 0 &&
             g_anRollGoal_0059d630[obj] == 0) {
             requested = g_anShipSpeed_0059b320[obj];
-            velocity = (int)Vector_magnitude(
+            velocity = Vector_magnitude(
                 &g_aShipVelocity_0059c010[0]);
             if ((velocity > requested - 0x400) < requested + 0x400)
                 advance_canned_sequence(obj);

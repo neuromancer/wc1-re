@@ -70,7 +70,7 @@ short __stdcall CollectActivePaletteIndices(Viewport *viewport,
     short index;
 
     count = 0;
-    active = (unsigned char *)AllocateTaggedMemory((unsigned int)capacity, 0);
+    active = AllocateTaggedMemory((unsigned int)capacity, 0);
     if (active == 0)
         return 0;
 
@@ -84,7 +84,7 @@ short __stdcall CollectActivePaletteIndices(Viewport *viewport,
             index++;
         } while (index < capacity);
     }
-    ReleasePacketHandle((int)active);
+    ReleasePacketHandle(active);
     return count;
 }
 
@@ -353,9 +353,9 @@ short ChooseRandomSignedMagnitude(short minimum, short maximum,
 /* Function start: 0x418780 */
 void MakeRandomVectorFixed(short minimum, short maximum, FixedVector *vector)
 {
-    vector->x = (int)ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
-    vector->y = (int)ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
-    vector->z = (int)ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
+    vector->x = ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
+    vector->y = ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
+    vector->z = ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
 }
 
 /* Function start: 0x4187E0 */
@@ -371,7 +371,7 @@ void random_radial(const FixedVector *center, short radius,
     FixedVector offset;
 
     FillFixedVectorWithRandomComponents(
-        (short)RandomBelowOrEqual(radius), &offset);
+        RandomBelowOrEqual(radius), &offset);
     AddFixedVectors(center, &offset, position);
 }
 
@@ -391,11 +391,11 @@ void rectangular_to_spherical(const FixedVector *rectangular,
     int horizontalLength;
     int z;
 
-    spherical->radius = (int)Vector_magnitude(rectangular);
+    spherical->radius = Vector_magnitude(rectangular);
     if (spherical->radius == 0)
         return;
     z = rectangular->z;
-    horizontalLength = (int)PlanarMagnitude(rectangular->x, z);
+    horizontalLength = PlanarMagnitude(rectangular->x, z);
     spherical->yaw = (short)ArcCos(
         DivideFixed(z, horizontalLength));
     if (rectangular->x < 0)
@@ -474,7 +474,7 @@ int vector_length_in_dir(const FixedVector *vector,
 
     normalized = *vector;
     NormalizeFixedVector(&normalized);
-    return (int)MultiplyFixed(
+    return MultiplyFixed(
         Vector_magnitude(vector), dot_product(direction, &normalized));
 }
 
@@ -496,8 +496,8 @@ void rotate_about_i(short angle, FixedVector *j, FixedVector *k)
     int cosine;
     int sine;
 
-    cosine = (int)CosFixed(angle);
-    sine = (int)SinFixed(angle);
+    cosine = CosFixed(angle);
+    sine = SinFixed(angle);
     old = j->x;
     j->x = MultiplyFixed(old, cosine) - MultiplyFixed(k->x, sine);
     k->x = MultiplyFixed(old, sine) + MultiplyFixed(k->x, cosine);
@@ -516,8 +516,8 @@ void rotate_about_j(short angle, FixedVector *i, FixedVector *k)
     int sine;
     int old;
 
-    cosine = (int)CosFixed(angle);
-    sine = (int)SinFixed(angle);
+    cosine = CosFixed(angle);
+    sine = SinFixed(angle);
     old = i->x;
     i->x = MultiplyFixed(k->x, sine) + MultiplyFixed(old, cosine);
     k->x = MultiplyFixed(k->x, cosine) - MultiplyFixed(old, sine);
@@ -536,8 +536,8 @@ void rotate_about_k(short angle, FixedVector *i, FixedVector *j)
     int cosine;
     int sine;
 
-    cosine = (int)CosFixed(angle);
-    sine = (int)SinFixed(angle);
+    cosine = CosFixed(angle);
+    sine = SinFixed(angle);
     old = i->x;
     i->x = MultiplyFixed(old, cosine) - MultiplyFixed(j->x, sine);
     j->x = MultiplyFixed(old, sine) + MultiplyFixed(j->x, cosine);
@@ -745,12 +745,12 @@ int set_ship_rotation_goals(short obj, short turnRate,
         else
             spherical.yaw = (short)(spherical.yaw - turnRate);
     } else {
-        magnitude = (int)Vector_magnitude(&localDirection);
+        magnitude = Vector_magnitude(&localDirection);
         if (magnitude == 0)
             return 1;
         spherical.yaw = (short)ArcSin(DivideFixed(
             localDirection.x,
-            (int)PlanarMagnitude(localDirection.x, localDirection.z)));
+            PlanarMagnitude(localDirection.x, localDirection.z)));
         spherical.pitch = (short)-ArcSin(
             DivideFixed(localDirection.y, magnitude));
         if (localDirection.z < 0) {
@@ -998,7 +998,7 @@ void remove_object(short obj)
     }
     if (obj < 10) {
         if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_CAPITAL_SHIP)
-            FreePacketAndClear((int *)&g_aeShipObjective_0059d200[obj + 60], 0);
+            FreePacketAndClear(&g_aeShipObjective_0059d200[obj + 60], 0);
         g_acShipRating_0059cd80[obj] = -1;
         g_acWingmanMessageState_0059d2c0[obj] = -1;
         g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
@@ -1063,17 +1063,17 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
     mass = (unsigned short)g_asObjectRadarRadius_0059c790[obj] << 8;
     acceleration.x = DivideFixed(
         MultiplyFixed(0x16a -
-            (int)PlanarMagnitude(localForce.y, localForce.z),
+            PlanarMagnitude(localForce.y, localForce.z),
             localForce.x),
         MultiplyFixed(0x16a, mass));
     acceleration.y = DivideFixed(
         MultiplyFixed(0x16a -
-            (int)PlanarMagnitude(localForce.x, localForce.z),
+            PlanarMagnitude(localForce.x, localForce.z),
             localForce.y),
         MultiplyFixed(0x16a, mass));
     acceleration.z = DivideFixed(
         MultiplyFixed(0x16a -
-            (int)PlanarMagnitude(localForce.x, localForce.y),
+            PlanarMagnitude(localForce.x, localForce.y),
             localForce.z),
         MultiplyFixed(0x16a, mass));
     AddFixedVectors(&g_aShipVelocity_0059c010[obj], &acceleration,
@@ -1157,7 +1157,7 @@ unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
 
     ComputeVectorDelta(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
                        (FixedVector *)point, &direction);
-    distance = (int)Vector_magnitude(&direction);
+    distance = Vector_magnitude(&direction);
     if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >
         distance)
         return 0;
@@ -1211,7 +1211,7 @@ void transform_objects_to_your_view(void)
                                    &g_aShipPosition_0059c490[objectIndex],
                                    &direction);
             }
-            distance = (int)Vector_magnitude(&direction);
+            distance = Vector_magnitude(&direction);
             if (distance <
                 g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
                 g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
@@ -1241,7 +1241,7 @@ void transform_objects_to_your_view(void)
             if (distance <= objectRadius)
                 distance = objectRadius + 1;
             if (g_aeObjectClass_0059d100[objectIndex] > OBJECT_CLASS_DUST) {
-                scaleFactor = (int)DivideFixed(
+                scaleFactor = DivideFixed(
                     (short)(g_nScreenWidth_0046daa4 & ~1) << 15,
                     distance - objectRadius);
                 g_asObjectScreenScale_0059c950[objectIndex] = (short)(
@@ -1262,12 +1262,12 @@ void transform_objects_to_your_view(void)
             g_asObjectDistance_0059b4a0[objectIndex] =
                 (short)(distance >> 8);
             g_asObjectScreenX_0059d9b0[objectIndex] = (short)(DivideFixed(
-                (int)MultiplyFixed(
+                MultiplyFixed(
                     (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
                     g_aObjectViewPosition_0059afa0[objectIndex].x),
                 g_aObjectViewPosition_0059afa0[objectIndex].z) >> 8);
             g_asObjectScreenY_0059d930[objectIndex] = (short)(DivideFixed(
-                (int)MultiplyFixed(
+                MultiplyFixed(
                     (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
                     g_aObjectViewPosition_0059afa0[objectIndex].y),
                 g_aObjectViewPosition_0059afa0[objectIndex].z) >> 8);
@@ -1278,7 +1278,7 @@ void transform_objects_to_your_view(void)
                 break;
             case OBJECT_CLASS_DUST:
                 dustSize = (short)(MultiplyFixed(
-                    0x900, (int)DivideFixed(
+                    0x900, DivideFixed(
                         g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] << 8,
                         distance)) >> 8);
                 if (dustSize > 3)
@@ -1431,16 +1431,16 @@ void get_right_shape(short obj, FixedVector *direction)
                     (unsigned short)g_apObjectShape_0059d2f0[obj]) == 0) {
                 GetScreenUpdateFlag();
             }
-            if (g_aiPacketReferenceTable_00465c88[slot][frame] != 0) {
-                g_apObjectShape_0059d2f0[obj] = (unsigned char *)
-                    g_aiPacketReferenceTable_00465c88[slot][frame];
+            if (g_aapPacketReferences_00465c88[slot][frame] != 0) {
+                g_apObjectShape_0059d2f0[obj] =
+                    g_aapPacketReferences_00465c88[slot][frame];
             } else {
                 if (DAT_005a7510.pixels != 0)
                     GetScreenUpdateFlag();
                 g_cCapitalShipLogicalFile_005a7da0 =
                     (signed char)(type + 22);
                 g_apObjectShape_0059d2f0[obj] =
-                    (unsigned char *)FetchDiskPacketRetrying(
+                    FetchDiskPacketRetrying(
                         (short)g_cCapitalShipLogicalFile_005a7da0,
                         g_asCapitalShipViewFrame_0059dd90[obj], 0);
             }
@@ -1521,8 +1521,7 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
     topLeft = g_dwModalBoundsTopLeft_00469440;
     bottomRight = g_dwModalBoundsBottomRight_00469444;
     if (g_pModalTextPanel_00469448 == 0) {
-        g_pModalTextPanel_00469448 = (ModalTextPanel *)
-            AllocateTaggedMemory(sizeof(ModalTextPanel), 0);
+        g_pModalTextPanel_00469448 = AllocateTaggedMemory(sizeof(ModalTextPanel), 0);
     }
     if (g_pModalTextPanel_00469448 == 0)
         return 0;
@@ -1530,7 +1529,7 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
                                  topLeft, bottomRight,
                                  DAT_0046999c, DAT_0046999c,
                                  DAT_0046999c) == 0) {
-        ReleasePacketHandle((int)g_pModalTextPanel_00469448);
+        ReleasePacketHandle(g_pModalTextPanel_00469448);
         g_pModalTextPanel_00469448 = 0;
         return 0;
     }
@@ -1544,7 +1543,7 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
                                  topLeft, bottomRight,
                                  g_cViewportClearColour_004699a0,
                                  DAT_004699a4, DAT_004699ac) == 0) {
-        ReleasePacketHandle((int)g_pModalTextPanel_00469448);
+        ReleasePacketHandle(g_pModalTextPanel_00469448);
         g_pModalTextPanel_00469448 = 0;
         return 0;
     }
@@ -1559,7 +1558,7 @@ void ReleaseModalTextPanel(void)
 {
     if (g_pModalTextPanel_00469448 != 0) {
         RestoreModalTextPanel(g_pModalTextPanel_00469448);
-        ReleasePacketHandle((int)g_pModalTextPanel_00469448);
+        ReleasePacketHandle(g_pModalTextPanel_00469448);
         g_pModalTextPanel_00469448 = 0;
         DIBslam();
         DIBslamReal();

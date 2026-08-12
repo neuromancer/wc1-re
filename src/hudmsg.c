@@ -171,11 +171,11 @@ int HandleSpaceFlightControls(void)
         case 8:
         case 9:
         case 10:
-            if (notRepeated && (short)get_mode(1) == 4 &&
+            if (notRepeated && get_mode(1) == 4 &&
                 DAT_0046c03c == 0 && (signed char)g_bCurrentKey_0046c014 >= 2 &&
                 (signed char)g_bCurrentKey_0046c014 <=
                     g_nCommMenuChoiceCount_0046af60 + 2 &&
-                (short)get_mode(1) == 4) {
+                get_mode(1) == 4) {
                 Chosen_communicate_option(
                     (short)((signed char)g_bCurrentKey_0046c014 - 2));
             }
@@ -185,7 +185,7 @@ int HandleSpaceFlightControls(void)
                 (control != 0 ||
                  (g_wCurrentInputModifiers_0059ab08 & 0x2000) != 0) &&
                 g_cPlayerEjectionDamage_0059bff7 != 4) {
-                if ((short)RandomInRange(
+                if (RandomInRange(
                         0, g_cPlayerEjectionDamage_0059bff7) == 0)
                     g_nArcadeState_00469fb0 = 2;
                 else
@@ -195,7 +195,7 @@ int HandleSpaceFlightControls(void)
         case 0x1e:
             if (notRepeated) {
                 g_bMouseCursorVisible_0046a018 = 0;
-                if ((short)get_mode(1) != 5)
+                if (get_mode(1) != 5)
                     SelectCockpitVduMode(1, 5);
                 if (DAT_0046a008 == 0) {
                     auto_pilot_sequence();
@@ -236,8 +236,8 @@ int HandleSpaceFlightControls(void)
             break;
         case 0x2e:
             if (notRepeated) {
-                if ((short)message_showing() == 0) {
-                    if ((short)get_mode(1) == 4)
+                if (message_showing() == 0) {
+                    if (get_mode(1) == 4)
                         CloseCommChoiceMenu();
                     else
                         SelectCockpitVduMode(1, 4);
@@ -449,7 +449,7 @@ primary_controls_complete:
         DAT_0059ab58 = 0;
         if (g_nTrainSimActive_00469e2c != 0)
             return -1;
-        if ((short)get_mode(1) == 4) {
+        if (get_mode(1) == 4) {
             CloseCommChoiceMenu();
             return 0;
         }
@@ -552,7 +552,7 @@ primary_controls_complete:
         g_nTargetLockMode_0046c078 =
             (short)(g_nTargetLockMode_0046c078 == 0);
         PlaySfxWaveFileByNumber(0x19, -1, 0);
-        if ((short)get_mode(1) == 3) {
+        if (get_mode(1) == 3) {
             InvalidateVduMode(1);
             return 0;
         }
@@ -716,7 +716,7 @@ short GetShipDistanceToNavPoint(short ship, MissionNavPoint *navPoint)
 
     ComputeVectorDelta(&g_aShipPosition_0059c490[ship],
                        &navPoint->position, &delta);
-    return FixedToShortSaturating((int)Vector_magnitude(&delta));
+    return FixedToShortSaturating(Vector_magnitude(&delta));
 }
 
 /* Function start: 0x42A120 */
@@ -982,22 +982,22 @@ void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
     if (DAT_0046b168 != 0x13)
         return;
 
-    indices = (unsigned char *)AllocateTaggedMemory(256, 0);
+    indices = AllocateTaggedMemory(256, 0);
     if (indices == 0)
         return;
     memset(indices, 0, 256);
     activeCount = CollectActivePaletteIndices(viewport, indices, 256);
     paletteBytes = (unsigned int)(activeCount * 6);
-    currentPalette = (short *)AllocateTaggedMemory(paletteBytes, 0);
+    currentPalette = AllocateTaggedMemory(paletteBytes, 0);
     if (currentPalette == 0) {
-        ReleasePacketHandle((int)indices);
+        ReleasePacketHandle(indices);
         return;
     }
     memset(currentPalette, 0, paletteBytes);
-    targetPalette = (short *)AllocateTaggedMemory(paletteBytes, 0);
+    targetPalette = AllocateTaggedMemory(paletteBytes, 0);
     if (targetPalette == 0) {
-        ReleasePacketHandle((int)indices);
-        ReleasePacketHandle((int)currentPalette);
+        ReleasePacketHandle(indices);
+        ReleasePacketHandle(currentPalette);
         return;
     }
     memset(targetPalette, 0, paletteBytes);
@@ -1027,9 +1027,9 @@ void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
         SetWholePaletteFromTriplets(&g_abPaletteTriplets_005a77f0[0][0]);
     }
 
-    ReleasePacketHandle((int)targetPalette);
-    ReleasePacketHandle((int)currentPalette);
-    ReleasePacketHandle((int)indices);
+    ReleasePacketHandle(targetPalette);
+    ReleasePacketHandle(currentPalette);
+    ReleasePacketHandle(indices);
     DIBslam();
     DIBslamReal();
 }
@@ -1249,7 +1249,7 @@ unsigned int select_new_gun(void)
 {
     g_eSelectedGunType_0046c054 = (enum ObjectType)select_guns(
         0, find_next_gun(0, g_eSelectedGunType_0046c054));
-    if ((short)get_mode(0) == 1)
+    if (get_mode(0) == 1)
         InvalidateVduMode(0);
     return 0;
 }
@@ -1324,7 +1324,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
                 weapon = 0;
         } while (weapon != firstWeapon);
     }
-    if ((short)get_mode(0) == 1)
+    if (get_mode(0) == 1)
         InvalidateVduMode(0);
     return 0;
 }

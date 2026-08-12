@@ -38,7 +38,7 @@ int IsRoomMenuLabelEmpty(void)
 }
 
 /* Function start: 0x43F6B0 */
-void DrawRoomMenuLabel(TextContext *context, char *label)
+void DrawRoomMenuLabel(TextContext *context, const char *label)
 {
     DosStrcpy(g_szTextScratchBuffer_00598b00, label);
     SetTextContext(context);
@@ -52,7 +52,7 @@ void RefreshRoomMenuLabel(void)
 {
     if (IsRoomMenuLabelEmpty())
         g_pszCurrentRoomMenuLabel_00598aba =
-            (char *)g_pszBlankRoomMenuLabel_00470090;
+            g_pszBlankRoomMenuLabel_00470090;
     DrawRoomMenuLabel(&g_stRoomMenuTextContext_00598abe,
                       g_pszCurrentRoomMenuLabel_00598aba);
 }
@@ -66,7 +66,7 @@ void ClearRoomMenuCursorFrame(void)
 /* Function start: 0x43F730 */
 void SelectRoomMenuLabel(short i)
 {
-    char *label;
+    const char *label;
 
     label = g_ppszRoomMenuLabels_00598ab6[i];
     if (label != 0)
@@ -81,7 +81,7 @@ void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
     g_pRoomMenuRegions_00598ab2 = regions;
     g_ppszRoomMenuLabels_00598ab6 = labels;
     g_pszCurrentRoomMenuLabel_00598aba =
-        (char *)g_pszBlankRoomMenuLabel_00470090;
+        g_pszBlankRoomMenuLabel_00470090;
     g_stRoomMenuTextContext_00598abe.viewport = viewport;
     g_stRoomMenuTextContext_00598abe.text = text;
     g_stRoomMenuTextContext_00598abe.textCursor = text;
@@ -170,7 +170,7 @@ short RecRoom(void)
     FlushInputEvents();
     LoadBriefingData((short)g_stCampaignState_0059ca50.currentSeries,
                      (short)g_stCampaignState_0059ca50.currentMission);
-    g_pRecRoomRoster_005988b8 = (unsigned char *)LoadPacketAllocated(
+    g_pRecRoomRoster_005988b8 = LoadPacketAllocated(
         g_asCampaignPilotFiles_00469450[g_nCampaignDataSet_005a8118], 2);
 
     animationIds[0] = (signed char)(RandomInRange(0, 3) + 9);
@@ -187,7 +187,7 @@ short RecRoom(void)
         *(ShortRect *)&g_aRecRoomMenuRegions_004704a0[0].left;
 
     g_apRecRoomCharacterShapes_005988c0[0] =
-        (unsigned char *)FetchDiskPacketRetrying(5, 11, 0);
+        FetchDiskPacketRetrying(5, 11, 0);
     GetShapeFrameBounds(&g_aRecRoomMenuRegions_004704a0[0].left,
                         g_aRecRoomCharacterOrigins_00470490[0].x,
                         g_aRecRoomCharacterOrigins_00470490[0].y,
@@ -203,7 +203,7 @@ short RecRoom(void)
         if (g_stCampaignState_0059ca50
                 .personalityDeathMission[personality] == 0) {
             g_apRecRoomCharacterShapes_005988c0[1] =
-                (unsigned char *)FetchDiskPacketRetrying(
+                FetchDiskPacketRetrying(
                     5, (short)(personality + 3), 0);
             GetShapeFrameBounds(
                 &g_aRecRoomMenuRegions_004704a0[1].left,
@@ -226,7 +226,7 @@ short RecRoom(void)
         if (g_stCampaignState_0059ca50
                 .personalityDeathMission[personality] == 0) {
             g_apRecRoomCharacterShapes_005988c0[2] =
-                (unsigned char *)FetchDiskPacketRetrying(
+                FetchDiskPacketRetrying(
                     5, (short)(personality + 3), 0);
             GetShapeFrameBounds(
                 &g_aRecRoomMenuRegions_004704a0[2].left,
@@ -242,7 +242,7 @@ short RecRoom(void)
         }
     }
 
-    ReleasePacketHandle((int)g_pRecRoomRoster_005988b8);
+    ReleasePacketHandle(g_pRecRoomRoster_005988b8);
     if (g_apRecRoomCharacterShapes_005988c0[2] != 0)
         characterMask = 1;
     if (g_apRecRoomCharacterShapes_005988c0[1] != 0) {
@@ -275,7 +275,7 @@ short RecRoom(void)
     bottomDestination = g_stRoomScreenViewport_005988a0;
     SetViewportRect(&bottomDestination, 0, 187, 319, 199);
     g_pRecRoomBackgroundShape_00598a50 =
-        (unsigned char *)FetchDiskPacketRetrying(5, 0, 0);
+        FetchDiskPacketRetrying(5, 0, 0);
     g_nMenuPointerSpeed_0046af58 = 1;
     g_bInputMode_0059a848 = 1;
     DAT_0059ab23 = &g_stRoomDisplayViewport_00598a60;
@@ -465,8 +465,7 @@ short RecRoom(void)
             if (region >= 0 && region <= 2) {
                 if (g_apRecRoomCharacterShapes_005988c0[region] != 0) {
                     free_constellation();
-                    ReleasePacketHandle(
-                        (int)g_pRecRoomBackgroundShape_00598a50);
+                    ReleasePacketHandle(g_pRecRoomBackgroundShape_00598a50);
                     DAT_005a76b0.bottom = 127;
                     DAT_005a6ba0.top = 24;
                     DAT_005a6ba0.bottom = 151;
@@ -474,7 +473,7 @@ short RecRoom(void)
                     ClearViewport(&g_stRoomScreenViewport_005988a0,
                                   DAT_0046999c);
                     g_pConversationBackdropShape_00598c04 =
-                        (unsigned char *)FetchDiskPacketRetrying(
+                        FetchDiskPacketRetrying(
                             5, 1, 0);
                     SceneDirector(
                         2,
@@ -483,8 +482,7 @@ short RecRoom(void)
                     DAT_0059ab58 = 0;
                     SetEventManagerPump(PollMenuInputDevices);
                     FreePacketAndClear(
-                        (int *)&g_pConversationBackdropShape_00598c04,
-                        0);
+                        &g_pConversationBackdropShape_00598c04, 0);
                     SetFrameTimerPeriodDirect(1);
                     DAT_005a6ba0.top = 0;
                     DAT_005a6ba0.bottom = 199;
@@ -499,7 +497,7 @@ short RecRoom(void)
                     InitializeConstellationField(
                         &g_stConstellationViewport_005a6b40, -1, 6);
                     g_pRecRoomBackgroundShape_00598a50 =
-                        (unsigned char *)FetchDiskPacketRetrying(
+                        FetchDiskPacketRetrying(
                             5, 0, 0);
                     ClearViewport(&g_stRoomScreenViewport_005988a0,
                                   DAT_0046999c);
@@ -535,16 +533,13 @@ short RecRoom(void)
     *(short *)&g_aInputDeviceSamples_005a81f0[2].x =
         g_nSavedRoomControllerX_005988b4;
     EventManagerHook(0);
-    ReleasePacketHandle(
-        (int)g_apRecRoomCharacterShapes_005988c0[0]);
-    ReleasePacketHandle(
-        (int)g_apRecRoomCharacterShapes_005988c0[1]);
-    ReleasePacketHandle(
-        (int)g_apRecRoomCharacterShapes_005988c0[2]);
+    ReleasePacketHandle(g_apRecRoomCharacterShapes_005988c0[0]);
+    ReleasePacketHandle(g_apRecRoomCharacterShapes_005988c0[1]);
+    ReleasePacketHandle(g_apRecRoomCharacterShapes_005988c0[2]);
     free_constellation();
-    ReleasePacketHandle((int)g_pRecRoomBackgroundShape_00598a50);
+    ReleasePacketHandle(g_pRecRoomBackgroundShape_00598a50);
     ReleaseTextFont(0);
-    ReleasePacketHandle((int)g_pBriefingPacket_00598aec);
+    ReleasePacketHandle(g_pBriefingPacket_00598aec);
     ClearViewport(&DAT_005a6ba0, DAT_0046999c);
     free_viewport(&DAT_005a76b0);
     DAT_0059ab58 = 0;
@@ -593,7 +588,7 @@ void ShowChalkBoard(void)
 
     memset(&context, 0, sizeof(context));
     g_stChalkBoardDate_00470514 = *g_pCurrentCampaignDate_005a86a8;
-    background = (unsigned char *)FetchDiskPacketRetrying(5, 2, 0);
+    background = FetchDiskPacketRetrying(5, 2, 0);
     previousContext = g_pCurrentTextContext_0059af8c;
     g_stModalSourceViewport_005a7670 = DAT_005a6ba0;
     context.viewport = &g_stModalSourceViewport_005a7670;
@@ -657,7 +652,7 @@ void ShowChalkBoard(void)
     } while (done == 0);
 
     ReleaseTextFont(3);
-    ReleasePacketHandle((int)background);
+    ReleasePacketHandle(background);
     g_pCurrentTextContext_0059af8c = previousContext;
     ClearInputKeyStatePreservingModifiers();
     g_bInputMode_0059a848 = savedInputMode;

@@ -46,9 +46,9 @@ int fire_missile(short ship)
                     if ((slot->type == OBJECT_TYPE_HEAT_SEEKING_MISSILE ||
                          slot->type == OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE) &&
                         g_nTargetLockCountdown_0046c064 != 0) {
-                        if ((short)get_mode(0) == 1)
+                        if (get_mode(0) == 1)
                             ShowComponentHitHudMessage(
-                                (char *)g_szNeedLock_0046998c,
+                                g_szNeedLock_0046998c,
                                 DAT_004699a8, 3);
                         return -1;
                     }
@@ -190,7 +190,7 @@ unsigned int place_exhaust_on_ships(void)
                                          ship);
                         frame = *animation++;
                         scale = *animation++;
-                        scale -= (short)RandomInRange(0, 32);
+                        scale -= RandomInRange(0, 32);
                         if (g_abShipExhaustHeat_0059d610[shipIndex] == 0)
                             scale = (short)(scale - 32);
                         g_asObjectScale_0059de40[object] = scale;
@@ -353,7 +353,7 @@ unsigned int replenish_weapon_energy_bank(short ship)
 /* Function start: 0x4218D0 */
 void accelerate(short amount)
 {
-    if ((short)malf(0) != 0) {
+    if (malf(0) != 0) {
         amount = (short)(amount - 2);
         if (g_nSpaceFrame_0059b420 % 3 == 0)
             PlaySfxWaveFileByNumber(3, -1, 0);
@@ -370,7 +370,7 @@ void your_afterburner(void)
 
     if (g_anShipFuel_0059b470[0] <= 0)
         return;
-    if ((short)malf(0) != 0) {
+    if (malf(0) != 0) {
         PlaySfxWaveFileByNumber(3, -1, 0);
         return;
     }
@@ -441,7 +441,7 @@ unsigned short InitializeEventManagerResources(void)
     g_nInputTickScale_0059af90 = 20;
     DAT_0059ab64 = 1;
     DAT_0059ab19 = g_pMouseCursorResource_005a7cdc =
-        (unsigned char *)FetchDiskPacketRetrying(14, 0, 0x10);
+        FetchDiskPacketRetrying(14, 0, 0x10);
     DAT_0059ab1d = 0;
     DAT_0059ab23 = &DAT_005a6ba0;
     return 0;
@@ -548,7 +548,7 @@ unsigned int LoadOriginFxDrivers(void)
         GetFxDriverStatus();
     initialize_direction_view_frames();
     g_pConstellationDefinitions_00598a28 =
-        (ConstellationObjectDefinition *)LoadPacketAllocated(0x3a, 0);
+        LoadPacketAllocated(0x3a, 0);
     g_pMissionCampaignData_005988bc = LoadPacketAllocated(0x3a, 1);
     SystemDebugPrintf("\n[SYSTEM] : Exiting initialize()\n");
     return 0;
@@ -673,7 +673,7 @@ unsigned int GetFxDriverStatus(void)
 }
 
 /* Function start: 0x422010 */
-int ace_status(short ace, unsigned char bits)
+short ace_status(short ace, unsigned char bits)
 {
     return (g_stCampaignState_0059ca50.aceFlags[ace] & bits) == bits;
 }
@@ -718,7 +718,7 @@ void prepare_ace(short ace)
 /* Function start: 0x4220F0 */
 short signed_random(short range)
 {
-    return (short)RandomBelowOrEqual((short)(range * 2)) - range;
+    return RandomBelowOrEqual((short)(range * 2)) - range;
 }
 
 /* Function start: 0x422110 */
@@ -827,7 +827,7 @@ short real_crash_time(short obj, short other)
     ScaleFixedVector(&relativeVelocity, (int)time << 8, &travel);
     AddFixedVectors(&relativePosition, &travel, &separation);
     range = FixedToShortSaturating(
-        (int)Vector_magnitude(&separation));
+        Vector_magnitude(&separation));
     if (range > collisionRadius) {
         if ((collisionRadius * 2 >> 4) > range)
             return 25;
@@ -843,7 +843,7 @@ short real_crash_time(short obj, short other)
         ScaleFixedVector(&relativeVelocity, (int)elapsed << 8, &travel);
         AddFixedVectors(&relativePosition, &travel, &separation);
         range = FixedToShortSaturating(
-            (int)Vector_magnitude(&separation));
+            Vector_magnitude(&separation));
         if (collisionRadius >= range)
             collisionFound = 1;
     } while (collisionFound == 0);
@@ -1090,7 +1090,7 @@ short detect_enemy_tail(short obj)
 /* Function start: 0x4229B0 */
 int is_ship_tailing_player_target(short obj)
 {
-    short target = (short)g_acShipTarget_0059ce60[0];
+    short target = g_acShipTarget_0059ce60[0];
 
     if (unactive(target) == 0 && being_tailed(target, obj) != 0)
         return 1;
@@ -1115,7 +1115,7 @@ short select_weighted_value(short *choices)
 {
     short roll;
 
-    roll = (short)RandomBelowOrEqual(100) + 1;
+    roll = RandomBelowOrEqual(100) + 1;
     roll -= choices[0];
     while (roll > 0) {
         if (choices[0] == -1)
@@ -1444,7 +1444,7 @@ void fire_when_ready(short obj, short aimed)
         if (g_nFacingToTarget_0059d920 > 80)
             return;
     }
-    fire(obj, (short)g_acShipTarget_0059ce60[obj]);
+    fire(obj, g_acShipTarget_0059ce60[obj]);
 }
 
 /* Function start: 0x423260 */
@@ -1511,7 +1511,7 @@ int in_danger(short obj)
 /* Function start: 0x423400 */
 unsigned int target_within_range(short obj)
 {
-    short target = (short)g_acShipTarget_0059ce60[obj];
+    short target = g_acShipTarget_0059ce60[obj];
 
     if (unactive(target) != 0)
         return 0;
@@ -1563,7 +1563,7 @@ int select_safe_target(short obj)
     if (target == -1 && index > 0) {
         index--;
         target = (short)g_acFormationMemberList_0059d490[
-            (short)RandomBelowOrEqual(index)];
+            RandomBelowOrEqual(index)];
     }
     g_nTargetShip_0059c3b0 = target;
     return target != -1;
@@ -1639,7 +1639,7 @@ int skill_check(short obj, short difficulty)
 {
     short roll;
 
-    roll = (short)RandomBelowOrEqual(MinShort(8, difficulty));
+    roll = RandomBelowOrEqual(MinShort(8, difficulty));
     return skill_rating(obj) > roll;
 }
 
@@ -1802,9 +1802,9 @@ void engage(short obj, short target, enum ShipObjective objective)
 /* Function start: 0x423AC0 */
 int target_valid(short obj)
 {
-    return unactive((short)g_acShipTarget_0059ce60[obj]) == 0 &&
+    return unactive(g_acShipTarget_0059ce60[obj]) == 0 &&
            g_aeShipSide_0059d650[
-               (short)g_acShipTarget_0059ce60[obj]] !=
+               g_acShipTarget_0059ce60[obj]] !=
                g_aeShipSide_0059d650[obj];
 }
 
@@ -1818,7 +1818,7 @@ unsigned int triumph(short obj)
     case MISSION_TYPE_PATROL:
         objective = 0;
         while (g_abFlightPath_0059c000[objective] != -1 &&
-               (short)visited(
+               visited(
                    (short)g_abFlightPath_0059c000[objective]) != 0)
             objective++;
         return 1;
@@ -1883,7 +1883,7 @@ int LoadShapeSet(PacketResourceDescriptor *resources,
             logicalFile = resources->logicalFile;
             if (logicalFile == -1)
                 logicalFile = defaultLogicalFile;
-            *resources->resource = (unsigned char *)FetchDiskPacketRetrying(
+            *resources->resource = FetchDiskPacketRetrying(
                 logicalFile, resources->section, flags);
             if (*resources->resource == 0)
                 return 0;
@@ -1899,7 +1899,7 @@ int FreeShapeSet(PacketResourceDescriptor *resources,
 {
     while (resources->resource != 0) {
         if (*resources->resource != 0)
-            FreePacketAndClear((int *)resources->resource, releaseFlags);
+            FreePacketAndClear(resources->resource, releaseFlags);
         resources++;
     }
     return 0;
@@ -1920,7 +1920,7 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
                 resources->section);
             if (packetSize < availableBytes) {
                 *resources->resource =
-                    (unsigned char *)FetchDiskPacketRetrying(
+                    FetchDiskPacketRetrying(
                         resources->logicalFile, resources->section,
                         (unsigned short)flags);
                 if (*resources->resource == 0)
@@ -1992,11 +1992,11 @@ unsigned int initialize_cockpit(signed char mode)
                 DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
                                   g_apCockpitShapes_005a7c80[0], 0);
         } else {
-            backdrop = (unsigned char *)FetchDiskPacketRetrying(
+            backdrop = FetchDiskPacketRetrying(
                 (short)g_cCockpitLogicalFile_005a7c74, 0, 0);
             if (DAT_0046a008 == 0)
                 DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
-            ReleasePacketHandle((int)backdrop);
+            ReleasePacketHandle(backdrop);
         }
         ResetCockpitPaletteEntries();
         if (DAT_0046a008 == 0)
@@ -2016,11 +2016,11 @@ unsigned int initialize_cockpit(signed char mode)
                 DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
                                   g_apCockpitShapes_005a7c80[1], 0);
         } else {
-            backdrop = (unsigned char *)FetchDiskPacketRetrying(
+            backdrop = FetchDiskPacketRetrying(
                 (short)g_cCockpitLogicalFile_005a7c74, 1, 0);
             if (DAT_0046a008 == 0)
                 DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
-            ReleasePacketHandle((int)backdrop);
+            ReleasePacketHandle(backdrop);
         }
         set_up_screen_viewport(1);
         break;
@@ -2030,11 +2030,11 @@ unsigned int initialize_cockpit(signed char mode)
                 DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
                                   g_apCockpitShapes_005a7c80[2], 0);
         } else {
-            backdrop = (unsigned char *)FetchDiskPacketRetrying(
+            backdrop = FetchDiskPacketRetrying(
                 (short)g_cCockpitLogicalFile_005a7c74, 2, 0);
             if (DAT_0046a008 == 0)
                 DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
-            ReleasePacketHandle((int)backdrop);
+            ReleasePacketHandle(backdrop);
         }
         set_up_screen_viewport(2);
         break;
@@ -2044,11 +2044,11 @@ unsigned int initialize_cockpit(signed char mode)
                 DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
                                   g_apCockpitShapes_005a7c80[3], 0);
         } else {
-            backdrop = (unsigned char *)FetchDiskPacketRetrying(
+            backdrop = FetchDiskPacketRetrying(
                 (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
             if (DAT_0046a008 == 0)
                 DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
-            ReleasePacketHandle((int)backdrop);
+            ReleasePacketHandle(backdrop);
         }
         set_up_screen_viewport(3);
         break;
@@ -2062,14 +2062,14 @@ unsigned int initialize_cockpit(signed char mode)
                     DIBslamReal();
                 }
             } else {
-                backdrop = (unsigned char *)FetchDiskPacketRetrying(8, 6, 0);
+                backdrop = FetchDiskPacketRetrying(8, 6, 0);
                 if (backdrop != 0) {
                     DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
                     if (DAT_0046a008 < 1) {
                         DIBslam();
                         DIBslamReal();
                     }
-                    ReleasePacketHandle((int)backdrop);
+                    ReleasePacketHandle(backdrop);
                 }
             }
         }
@@ -2087,11 +2087,11 @@ unsigned int initialize_cockpit(signed char mode)
                 DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
                                   g_pRearViewBackdrop_005a7c94, 0);
         } else {
-            backdrop = (unsigned char *)FetchDiskPacketRetrying(8, 7, 0);
+            backdrop = FetchDiskPacketRetrying(8, 7, 0);
             if (DAT_0046a008 == 0)
                 DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
             if (backdrop != 0)
-                ReleasePacketHandle((int)backdrop);
+                ReleasePacketHandle(backdrop);
         }
         set_up_screen_viewport(0);
         break;
@@ -2125,7 +2125,7 @@ unsigned int InitializeConstellationObject(
     g_asObjectViewFrame_0059d230[object] = 0;
     g_aeObjectType_0059b560[object] = OBJECT_TYPE_HORNET;
     g_apObjectShape_0059d2f0[object] =
-        (unsigned char *)FetchDiskPacketRetrying(
+        FetchDiskPacketRetrying(
             12, (short)(definition->shapePacket + 1), 0);
     return 0;
 }
@@ -2133,7 +2133,7 @@ unsigned int InitializeConstellationObject(
 /* Function start: 0x4243B0 */
 unsigned int FreeConstellationObject(short object)
 {
-    FreePacketAndClear((int *)&g_apObjectShape_0059d2f0[object], 0);
+    FreePacketAndClear(&g_apObjectShape_0059d2f0[object], 0);
     remove_object(object);
     return 0;
 }
@@ -2150,7 +2150,7 @@ unsigned int init_constellation(short scene)
 
     scene--;
     g_pConstellationShape_005a765c =
-        (unsigned char *)FetchDiskPacketRetrying(12, 0, 0);
+        FetchDiskPacketRetrying(12, 0, 0);
     if (g_nTrainSimActive_00469e2c != 0 || scene < 0)
         return;
 
@@ -2182,7 +2182,7 @@ unsigned int free_constellation(void)
     short slot;
 
     slot = 0;
-    FreePacketAndClear((int *)&g_pConstellationShape_005a765c, 0);
+    FreePacketAndClear(&g_pConstellationShape_005a765c, 0);
     do {
         object = g_asConstellationObjectIndices_00469d50[slot];
         if (object != -1) {
@@ -2245,7 +2245,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     LoadShapeSet(g_aCockpitPrimaryResources_00469d08, 4,
                  (short)g_cCockpitLogicalFile_005a7c74);
     g_pScreenViewportPacket_005a6b94 =
-        (ScreenViewportPacket *)LoadPacketAllocated(
+        LoadPacketAllocated(
             (short)g_cCockpitLogicalFile_005a7c74, 6);
     DAT_005a6be0 = DAT_005a6ba0;
     init_vdus();
@@ -2300,7 +2300,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     backgroundSize = MeasureShapeFrameStorage(
         g_pTargetLockShape_005a6bf4, 2);
     g_pScannerMarkerBackground_005a7dc4 =
-        (unsigned char *)AllocateTaggedMemory(backgroundSize, 0);
+        AllocateTaggedMemory(backgroundSize, 0);
 
     g_pReleaseWeaponDisplayBackground_0046906c = 0;
     maximumSize = 0;
@@ -2319,7 +2319,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     }
     if (maximumSize != 0)
         g_pReleaseWeaponDisplayBackground_0046906c =
-            (unsigned char *)AllocateTaggedMemory(maximumSize, 0);
+            AllocateTaggedMemory(maximumSize, 0);
 
     g_pCockpitExplosionBackground_00469060 = 0;
     if (g_pCockpitExplosionShape_00469064 != 0) {
@@ -2333,7 +2333,7 @@ unsigned int InitializeCockpitResources(signed char mode)
         } while (frame < 8);
         if (maximumSize != 0)
             g_pCockpitExplosionBackground_00469060 =
-                (unsigned char *)AllocateTaggedMemory(maximumSize, 0);
+                AllocateTaggedMemory(maximumSize, 0);
     }
 
     g_pDamageDisplayBackground_0046a748 = 0;
@@ -2347,7 +2347,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     } while (frame < 9);
     if (maximumSize != 0)
         g_pDamageDisplayBackground_0046a748 =
-            (unsigned char *)AllocateTaggedMemory(maximumSize, 0);
+            AllocateTaggedMemory(maximumSize, 0);
 
     ResetScannerContacts();
     result = init_personalities();
@@ -2370,7 +2370,7 @@ unsigned int free_cockpit(void)
     g_bCockpitResourcesActive_00469d58 = 0;
     GetScreenUpdateFlag();
     if (g_pScreenViewportPacket_005a6b94 != 0) {
-        ReleasePacketHandle((int)g_pScreenViewportPacket_005a6b94);
+        ReleasePacketHandle(g_pScreenViewportPacket_005a6b94);
         g_pScreenViewportPacket_005a6b94 = 0;
     }
     ReleaseTextFont(2);
@@ -2382,13 +2382,12 @@ unsigned int free_cockpit(void)
         (signed char)(g_cCockpitView_0059dab0 + 17);
     FreeShapeSet(g_aCockpitPrimaryResources_00469d08, 4);
     FreeShapeSet(g_aCockpitSecondaryResources_00469ce0, 0);
-    FreePacketAndClear((int *)&g_pCockpitPilotShape_0046905c, 0);
-    FreePacketAndClear(
-        (int *)&g_pReleaseWeaponDisplayBackground_0046906c, 0);
-    FreePacketAndClear((int *)&g_pCockpitExplosionBackground_00469060, 0);
-    FreePacketAndClear((int *)&g_pDamageDisplayBackground_0046a748, 0);
+    FreePacketAndClear(&g_pCockpitPilotShape_0046905c, 0);
+    FreePacketAndClear(&g_pReleaseWeaponDisplayBackground_0046906c, 0);
+    FreePacketAndClear(&g_pCockpitExplosionBackground_00469060, 0);
+    FreePacketAndClear(&g_pDamageDisplayBackground_0046a748, 0);
     FreeCommDisplayResources();
-    ReleasePacketHandle((int)g_pScannerMarkerBackground_005a7dc4);
+    ReleasePacketHandle(g_pScannerMarkerBackground_005a7dc4);
 }
 
 /* Function start: 0x424A80 */
@@ -2553,14 +2552,14 @@ unsigned short LoadSceneAnimationResources(short scene, short variant)
 
     logicalFile = g_asSceneAnimationLogicalFiles_00469d60[scene];
     g_pSceneAnimationPrimaryShape_005a7c58 =
-        (unsigned char *)FetchDiskPacketRetrying(logicalFile, 0, 0);
+        FetchDiskPacketRetrying(logicalFile, 0, 0);
     g_pSceneAnimationDefinitions_005a7c6c =
-        (unsigned char *)FetchDiskPacketRetrying(
+        FetchDiskPacketRetrying(
             logicalFile, (short)(variant + 1), 0);
     g_pSceneAnimationSecondaryShape_005a7c70 =
-        (unsigned char *)FetchDiskPacketRetrying(
+        FetchDiskPacketRetrying(
             logicalFile, (short)(variant + 3), 0);
-    packet = (unsigned char *)FetchDiskPacketRetrying(
+    packet = FetchDiskPacketRetrying(
         logicalFile, (short)(variant + 5), 0);
     g_pSceneAnimationPacket_005a7c60 = packet;
     g_pSceneAnimationSceneData_005a7c54 =
@@ -2575,10 +2574,10 @@ unsigned short LoadSceneAnimationResources(short scene, short variant)
 /* Function start: 0x424DA0 */
 void ReleaseSceneAnimationResources(void)
 {
-    ReleasePacketHandle((int)g_pSceneAnimationPrimaryShape_005a7c58);
-    ReleasePacketHandle((int)g_pSceneAnimationPacket_005a7c60);
-    ReleasePacketHandle((int)g_pSceneAnimationSecondaryShape_005a7c70);
-    ReleasePacketHandle((int)g_pSceneAnimationDefinitions_005a7c6c);
+    ReleasePacketHandle(g_pSceneAnimationPrimaryShape_005a7c58);
+    ReleasePacketHandle(g_pSceneAnimationPacket_005a7c60);
+    ReleasePacketHandle(g_pSceneAnimationSecondaryShape_005a7c70);
+    ReleasePacketHandle(g_pSceneAnimationDefinitions_005a7c6c);
 }
 
 /* Function start: 0x424DE0 */

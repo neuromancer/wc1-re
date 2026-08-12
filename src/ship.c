@@ -70,7 +70,7 @@ void send_appropriate_message(short attacker, short victim)
                 g_nYourWingman_0046c04c &&
             g_nYourWingman_0046c04c != attacker &&
             g_aeShipSide_0059d650[victim] == SIDE_KILRATHI) {
-            if ((short)RandomBelowOrEqual(100) < 50 &&
+            if (RandomBelowOrEqual(100) < 50 &&
                 g_aeSpecialManeuver_0059c3c0[attacker] !=
                     SPECIAL_MANEUVER_UNKNOWN_9)
                 send_message(g_nYourWingman_0046c04c, 5);
@@ -144,9 +144,9 @@ int inflict_damage(short attacker, short victim, short damage,
                         (short)0x8001 &&
                     g_aeObjectClass_0059d100[victim] !=
                         OBJECT_CLASS_CAPITAL_SHIP &&
-                    (short)RandomBelowOrEqual(1) == 0)
+                    RandomBelowOrEqual(1) == 0)
                     Create_ship_hit_debris(attacker, 1);
-                if ((short)RandomBelowOrEqual(99) == 0) {
+                if (RandomBelowOrEqual(99) == 0) {
                     if (attacker != 0 &&
                         attacker != g_nYourWingman_0046c04c &&
                         g_aeObjectClass_0059d100[attacker] ==
@@ -237,8 +237,8 @@ void call_enemy(short obj)
             g_aeSpecialManeuver_0059c3c0[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other] &&
-            (short)RandomBelow(100) < 50)
-            g_acShipTarget_0059ce60[other] = (signed char)obj;
+            RandomBelow(100) < 50)
+            g_acShipTarget_0059ce60[other] = obj;
         other++;
     } while (other < 10);
 }
@@ -269,7 +269,7 @@ int internal_damage(short attacker, short victim, short damage,
             events = MaxShort(1, (short)(damage / 10));
             g_asShipAccumulatedDamage_0059dee0[victim] = (short)(
                 g_asShipAccumulatedDamage_0059dee0[victim] + events);
-            if ((short)RandomBelowOrEqual(1000) < 35 && attacker != 0)
+            if (RandomBelowOrEqual(1000) < 35 && attacker != 0)
                 send_message(victim, 4);
         }
         if (g_asShipAccumulatedDamage_0059dee0[victim] >=
@@ -281,7 +281,7 @@ int internal_damage(short attacker, short victim, short damage,
 
     if (g_acShipRating_0059cd80[victim] != -1) {
         events = MaxShort(1, (short)(damage / 40));
-        events = MinShort((short)RandomInRange(3, 4), events);
+        events = MinShort(RandomInRange(3, 4), events);
     } else {
         events = MaxShort(1, (short)(damage / 6));
     }
@@ -292,7 +292,7 @@ int internal_damage(short attacker, short victim, short damage,
         if (events == 1 && g_acShipRating_0059cd80[victim] != -1)
             system = 4;
         else
-            system = (short)RandomBelowOrEqual(9);
+            system = RandomBelowOrEqual(9);
         switch (system) {
         case 0:
             events--;
@@ -328,7 +328,7 @@ int internal_damage(short attacker, short victim, short damage,
                 if (weaponCount > 0) {
                     events--;
                     remove_weapon(victim,
-                        (short)RandomBelowOrEqual(
+                        RandomBelowOrEqual(
                             (short)(weaponCount - 1)));
                 }
             }
@@ -346,7 +346,7 @@ int internal_damage(short attacker, short victim, short damage,
                 drain_fuel(victim,
                            (short)(*(int *)&g_aObjectTypeData_00466458[
                                        type].lifetime / 4));
-                if ((short)RandomBelowOrEqual(1) != 0 ||
+                if (RandomBelowOrEqual(1) != 0 ||
                     g_anShipFuel_0059b470[victim] < 0)
                     return explode(attacker, victim);
             }
@@ -409,13 +409,13 @@ int your_internal_damage(short attacker, short damage, short quadrant)
     g_asShipAccumulatedDamage_0059dee0[0] = (short)(
         g_asShipAccumulatedDamage_0059dee0[0] + events);
     if (events > 1)
-        place_damage_on_cockpit((short)RandomBelowOrEqual(3));
+        place_damage_on_cockpit(RandomBelowOrEqual(3));
 
     while (events > 0) {
         events--;
         system = *(const signed char *)(const void *)
             &g_asPlayerDamageSystemTable_00469878[
-                tableGroup * 10 + (short)RandomBelowOrEqual(9)];
+                tableGroup * 10 + RandomBelowOrEqual(9)];
         switch (system) {
         case 0:
             if (severity < 4)
@@ -440,7 +440,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
             break;
         case 2:
             if (quadrant == 1) {
-                if ((short)RandomBelowOrEqual(3) == 0) {
+                if (RandomBelowOrEqual(3) == 0) {
                     return explode(attacker, 0);
                 }
                 if (damage_your_component(1, 1, 4) == 4)
@@ -477,10 +477,10 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                 weaponCount = (short)(signed char)g_aShipWeapons_0059cab0[0][0];
                 if (weaponCount > 0) {
                     remove_weapon(0,
-                        (short)RandomBelowOrEqual(
+                        RandomBelowOrEqual(
                             (short)(weaponCount - 1)));
                     ShowComponentHitHudMessage(
-                        (char *)g_szWeaponDestroyed_00469960,
+                        g_szWeaponDestroyed_00469960,
                         DAT_004699ac, 8);
                 }
             }
@@ -497,10 +497,10 @@ int your_internal_damage(short attacker, short damage, short quadrant)
             drain_fuel(0,
                        (short)(*(int *)&g_aObjectTypeData_00466458[
                                    playerType].lifetime / 4));
-            if ((short)RandomBelowOrEqual(1) != 0 ||
+            if (RandomBelowOrEqual(1) != 0 ||
                 g_anShipFuel_0059b470[0] < 0)
                 return explode(attacker, 0);
-            ShowComponentHitHudMessage((char *)g_szFuelTanksHit_00469974,
+            ShowComponentHitHudMessage(g_szFuelTanksHit_00469974,
                                        DAT_004699ac, 8);
             break;
         case 8:
@@ -556,9 +556,9 @@ void repair_internal_damage(void)
 
     if ((short)g_acPlayerComponentDamage_0059bff0[component] >= 4)
         return;
-    if ((short)RandomBelowOrEqual(500) >= 2)
+    if (RandomBelowOrEqual(500) >= 2)
         return;
-    repair = (short)RandomBelowOrEqual(2);
+    repair = RandomBelowOrEqual(2);
     switch (repair) {
     case 0:
         ReportComponentRepaired(2, 1);
@@ -590,7 +590,7 @@ void Create_ship_hit_debris(short obj, short count)
             return;
         set_objects_data(debris,
             g_aeShipHitDebrisTypes_00469950[
-                (short)RandomBelowOrEqual(2)], -1);
+                RandomBelowOrEqual(2)], -1);
         g_asObjectCounter_0059c330[debris] = 40;
         FillFixedVectorWithRandomComponents(10, &offset);
         AddFixedVectors(&g_aShipPosition_0059c490[obj], &offset,
@@ -792,7 +792,7 @@ short ShipExplosion(short obj)
     if (explosion == -1) {
         if (g_aeObjectClass_0059d100[obj] ==
             OBJECT_CLASS_CAPITAL_SHIP)
-            FreePacketAndClear((int *)&g_apObjectShape_0059d2f0[obj], 0);
+            FreePacketAndClear(&g_apObjectShape_0059d2f0[obj], 0);
         g_asCapitalShipViewFrame_0059dd90[obj] = -1;
         explosion = obj;
     } else {
@@ -830,7 +830,7 @@ short Explosion(short obj)
             if (g_acShipRating_0059cd80[obj] == -1 &&
                 (missionShip == -1 ||
                  g_anShipMissionShip_0059d4b0[obj] != missionShip) &&
-                (short)RandomBelow(100) > 2)
+                RandomBelow(100) > 2)
                 goto message_finished;
             send_message(obj, 7);
         }
@@ -922,7 +922,7 @@ int explosion_shock_wave(short obj, short blastDamage)
             ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
                                &g_aShipPosition_0059c490[other], &delta);
             distance = FixedToShortSaturating(
-                (int)Vector_magnitude(&delta));
+                Vector_magnitude(&delta));
             distance = MaxShort(0,
                 (short)(distance -
                         g_asObjectCollisionRadius_0059d710[other]));
@@ -964,7 +964,7 @@ int explode(short attacker, short victim)
         if (g_acShipRating_0059cd80[victim] != -1 &&
             g_acShipRating_0059cd80[victim] != RATING_ACE_ICEMAN) {
             if (g_acShipRating_0059cd80[victim] > RATING_ACE_ICEMAN) {
-                if ((short)ace_status(
+                if (ace_status(
                         (short)(g_acShipRating_0059cd80[victim] -
                                 RATING_ACE_ANGEL),
                                       0x20) != 0) {
@@ -979,9 +979,9 @@ int explode(short attacker, short victim)
                     send_message(victim, 6);
                     return 0;
                 }
-                if ((short)RandomBelowOrEqual(1) == 0)
+                if (RandomBelowOrEqual(1) == 0)
                     return 0;
-            } else if ((short)RandomBelowOrEqual(1) == 0)
+            } else if (RandomBelowOrEqual(1) == 0)
                 return 0;
         }
     }
@@ -1044,7 +1044,7 @@ short find_child_ship(short parent, enum ObjectClass objectClass,
         if ((short)g_acObjectOwner_0059ce20[obj] == parent &&
             g_aeObjectClass_0059d100[obj] == objectClass &&
             (target == -1 ||
-             (short)g_acShipTarget_0059ce60[obj] == target))
+             g_acShipTarget_0059ce60[obj] == target))
             return obj;
         obj++;
     } while (obj < 10);
@@ -1095,8 +1095,8 @@ void fire(short obj, short target)
     range = g_nTargetRange_0059ce10;
     closingSpeed = (short)(((g_anShipSpeed_0059b320[target] *
                              (int)g_nTargetFacing_0059d52a) / 100) >> 8);
-    fireMissile = (short)RandomBelowOrEqual(19) == 0 &&
-                  (short)RandomBelowOrEqual(7000) > range;
+    fireMissile = RandomBelowOrEqual(19) == 0 &&
+                  RandomBelowOrEqual(7000) > range;
     if (fireMissile &&
         find_child_ship(obj, OBJECT_CLASS_MISSILE, target) != -1)
         fireMissile = 0;
@@ -1243,7 +1243,7 @@ int fire_flack(short owner, short explosion, short range,
         g_aObjectTypeData_00466458[OBJECT_TYPE_TURRET].maximumVelocity;
     set_objects_data(explosion, OBJECT_TYPE_TURRET, owner);
     lifetime = (short)(range / projectileVelocity -
-                       (short)RandomBelowOrEqual(8) - 5);
+                       RandomBelowOrEqual(8) - 5);
     lifetime = MaxShort(5, lifetime);
     lifetime = MinShort(27, lifetime);
     g_asObjectCounter_0059c330[explosion] = lifetime;
@@ -1254,7 +1254,7 @@ int fire_flack(short owner, short explosion, short range,
 /* Function start: 0x4208C0 */
 short rnd_sign(short v)
 {
-    if ((short)RandomBelowOrEqual(1) != 0)
+    if (RandomBelowOrEqual(1) != 0)
         return v;
     return -v;
 }
@@ -1265,8 +1265,8 @@ int rnd_aim(short radius, short speed, short maximum)
     short aim;
 
     aim = MinShort(maximum,
-                   (short)((short)RandomBelowOrEqual(radius) + speed));
-    return (int)rnd_sign(aim) << 8;
+                   (short)(RandomBelowOrEqual(radius) + speed));
+    return rnd_sign(aim) << 8;
 }
 
 /* Function start: 0x420920 */
@@ -1280,7 +1280,7 @@ short pop_flack(short obj, short range, FixedVector *hardpoint)
     short targetSpeed;
     short chance;
 
-    target = (short)g_acShipTarget_0059ce60[obj];
+    target = g_acShipTarget_0059ce60[obj];
     explosion = new_object(OBJECT_TYPE_EXPLOSION0, obj);
     if (explosion != -1) {
         aimRadius = MaxShort(400, (short)(range >> 2));
@@ -1290,7 +1290,7 @@ short pop_flack(short obj, short range, FixedVector *hardpoint)
         randomAim.z = rnd_aim(aimRadius, targetSpeed, 1500);
         AddFixedVectors(&g_aShipPosition_0059c490[target], &randomAim,
                         &aimPoint);
-        chance = (short)RandomBelowOrEqual(100);
+        chance = RandomBelowOrEqual(100);
         if ((g_asObjectCounter_0059c330[obj] != -1 || chance >= 40) &&
             chance >= 8) {
             g_aShipPosition_0059c490[explosion] = aimPoint;
@@ -1331,9 +1331,9 @@ int fire_turrets(short obj)
     weapon = 0;
     while (weapon < *(signed char *)((unsigned char *)
                g_aShipWeapons_0059cab0 + loadoutOffset)) {
-        if ((short)RandomBelowOrEqual(2) == 0) {
+        if (RandomBelowOrEqual(2) == 0) {
             position_child(obj, slot->hardpoint, &hardpoint);
-            startTarget = (short)RandomBelowOrEqual(lastTarget);
+            startTarget = RandomBelowOrEqual(lastTarget);
             targetIndex = startTarget;
             do {
                 target = (short)g_acFormationMemberList_0059d490[
@@ -1343,7 +1343,7 @@ int fire_turrets(short obj)
                     &g_aShipPosition_0059c490[obj], &hardpoint);
                 if (slot->type != OBJECT_TYPE_TURRET) {
                     if (targetHemisphere > 50 &&
-                        (short)RandomBelowOrEqual(14) == 0) {
+                        RandomBelowOrEqual(14) == 0) {
                         g_acShipTarget_0059ce60[obj] =
                             (signed char)target;
                         fire_weapon(obj, weapon);
@@ -1351,7 +1351,7 @@ int fire_turrets(short obj)
                     break;
                 }
                 if (targetHemisphere >= 25) {
-                    g_acShipTarget_0059ce60[obj] = (signed char)target;
+                    g_acShipTarget_0059ce60[obj] = target;
                     pop_flack(obj,
                               g_asTargetListRange_0059cf60[targetIndex],
                               &hardpoint);
@@ -1460,12 +1460,12 @@ int fire_weapon(short obj, short weapon)
                 g_acShipTarget_0059ce60[projectile] =
                     g_acShipTarget_0059ce60[obj];
                 g_anShipSpeed_0059b320[projectile] =
-                    (int)get_ship_max_velocity(projectile) << 8;
+                    get_ship_max_velocity(projectile) << 8;
                 if (g_acShipTarget_0059ce60[projectile] != -1) {
                     ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
                         &g_aShipPosition_0059c490[
                             g_acShipTarget_0059ce60[projectile]], &vector);
-                    range = (int)Vector_magnitude(&vector);
+                    range = Vector_magnitude(&vector);
                     ScaleFixedVector(&g_aShipVelocity_0059c010[
                         g_acShipTarget_0059ce60[projectile]],
                         range / get_ship_max_velocity(projectile), &vector);

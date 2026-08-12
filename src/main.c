@@ -645,7 +645,7 @@ unsigned int fire_players_lasers(void)
         g_asShipWeaponEnergy_0059d470[0] > 0) {
         fire_fixed_projectile_weapon(0);
         if (g_acShipTarget_0059ce60[0] != -1 &&
-            (short)get_mode(1) == 5)
+            get_mode(1) == 5)
             SelectCockpitVduMode(1, 3);
     }
     return 0;

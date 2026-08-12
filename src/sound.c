@@ -43,7 +43,7 @@ void StopSoundsUsingWave(const char *name)
 }
 
 /* Function start: 0x42B4A0 */
-void playWAVE(unsigned char *filename, int looping, int volume)
+void playWAVE(const char *filename, int looping, int volume)
 {
     WaveTableEntry *wave;
     unsigned char *fileData;
@@ -54,24 +54,24 @@ void playWAVE(unsigned char *filename, int looping, int volume)
     if (DAT_00465058 == 0)
         return;
     ReleaseFinishedSoundEntries();
-    wave = FindWaveTableEntryByName((const char *)filename);
+    wave = FindWaveTableEntryByName(filename);
     if (wave != 0) {
         flags = SND_ASYNC | SND_FILENAME | SND_NODEFAULT;
         if (looping != 0)
             flags |= SND_LOOP;
         if (volume > 0)
-            PlaySoundA((const char *)filename, 0, flags);
+            PlaySoundA(filename, 0, flags);
         return;
     }
 
-    file = _open((const char *)filename, 0x8000);
+    file = _open(filename, 0x8000);
     if (file == -1) {
         MessageBoxA(0, g_szPlayWaveOpenError_0046a46c,
-                    (const char *)filename, MB_ICONHAND);
+                    filename, MB_ICONHAND);
         _exit(1);
     }
     fileSize = _filelength(file);
-    fileData = (unsigned char *)malloc((unsigned int)fileSize);
+    fileData = malloc((unsigned int)fileSize);
     _read(file, fileData, (unsigned int)fileSize);
     _close(file);
 
@@ -81,10 +81,10 @@ void playWAVE(unsigned char *filename, int looping, int volume)
     if (looping != 0)
         flags |= SND_LOOP;
     if (volume > 0)
-        PlaySoundA((const char *)filename, 0, flags);
+        PlaySoundA(filename, 0, flags);
 
-    wave->name = (char *)malloc(strlen((const char *)filename) + 1);
-    strcpy(wave->name, (const char *)filename);
+    wave->name = malloc(strlen(filename) + 1);
+    strcpy(wave->name, filename);
     free(fileData);
 }
 
@@ -108,10 +108,10 @@ void PlaySnowStaticSound(void)
     if (DAT_00465058 != 0) {
         ReleaseFinishedSoundEntries();
         if (g_pLoopingWaveSound_00476550 == 0) {
-            playWAVE((unsigned char *)"sfx22.wav", 1, 50000);
+            playWAVE("sfx22.wav", 1, 50000);
         } else if (ix_sound_is_playing(
                        g_pLoopingWaveSound_00476550) == 0) {
-            playWAVE((unsigned char *)"sfx22.wav", 1, 50000);
+            playWAVE("sfx22.wav", 1, 50000);
         }
     }
 }
@@ -270,7 +270,7 @@ void LaunchPlayerShip(void)
             StopMusicUnlessSuppressed();
             spacetrack(changetrack(), 1, 0);
         }
-        ReleasePacketHandle((int)g_pLaunchDoorShape_005a77e8);
+        ReleasePacketHandle(g_pLaunchDoorShape_005a77e8);
     } else {
         force_view(0, 0);
     }
@@ -309,9 +309,9 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     PreloadMusicTrackHook(0x1c);
     spacetrack(0x1c, 2, 1);
     carrierShape =
-        (unsigned char *)FetchDiskPacketRetrying(1, 8, 0);
+        FetchDiskPacketRetrying(1, 8, 0);
     actorShape =
-        (unsigned char *)FetchDiskPacketRetrying(1, 4, 0);
+        FetchDiskPacketRetrying(1, 4, 0);
     g_pScrambleViewport_005a86b4 = &DAT_005a7510;
     object = (short)sceneObject;
     fighterShape = g_aObjectTypeData_00466458[
@@ -550,8 +550,8 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x1c);
     free_ship(0);
-    ReleasePacketHandle((int)carrierShape);
-    ReleasePacketHandle((int)actorShape);
+    ReleasePacketHandle(carrierShape);
+    ReleasePacketHandle(actorShape);
     g_bScriptedView_0046a8d4 = 0;
     g_bIntroSceneResourcesActive_00469d48 = 1;
     return 0;
@@ -686,7 +686,7 @@ unsigned short LoadInstallDat(void)
         exit(0);
     }
     size = (unsigned int)_filelength(file);
-    records = (DiskFileRecord *)AllocateTaggedMemory(size, 0);
+    records = AllocateTaggedMemory(size, 0);
     if (records == 0) {
         SystemDebugPrintf("Unable to load INSTALL.DAT\n");
         SystemDebugPrintf(
@@ -708,7 +708,7 @@ unsigned short LoadInstallDat(void)
     maximumId++;
 
     g_pDiskFileRecords_005a7cf0 =
-        (DiskFileRecord *)AllocateTaggedMemory(0x4b0, 0);
+        AllocateTaggedMemory(0x4b0, 0);
     memset(g_pDiskFileRecords_005a7cf0, 0,
            (maximumId + 1) * sizeof(DiskFileRecord));
     if (g_pDiskFileRecords_005a7cf0 == 0) {
@@ -733,7 +733,7 @@ unsigned short LoadInstallDat(void)
             g_pDiskFileRecords_005a7cf0[record->logicalFile] = *record;
         record++;
     }
-    ReleasePacketHandle((int)records);
+    ReleasePacketHandle(records);
     g_pDiskFileRecords_005a7cf0++;
     return 0;
 }
@@ -755,7 +755,7 @@ void show_damage_disp(void)
 
     set_new_vdu(0);
     DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left, DAT_005a6b80.top,
-               (char *)g_szDamageReport_0046a878, 2);
+               g_szDamageReport_0046a878, 2);
     DrawViewportLine(&DAT_005a6b80,
                      (short)(DAT_005a6b80.left + 2),
                      (short)(DAT_005a6b80.top + 6),
@@ -764,7 +764,7 @@ void show_damage_disp(void)
     if (g_cDamagedComponentCount_005a77de == 0) {
         DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left,
                    (short)(DAT_005a6b80.top + 20),
-                   (char *)g_szNoInternalDamage_0046a888, 2);
+                   g_szNoInternalDamage_0046a888, 2);
         return;
     }
 

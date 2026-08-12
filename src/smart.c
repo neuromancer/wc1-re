@@ -433,10 +433,10 @@ enum ShipManeuver pick_regular_maneuver(short obj, int event)
     switch (event) {
     case 0:
         if (g_aeObjectClass_0059d100[
-                (short)g_acShipTarget_0059ce60[obj]] ==
+                g_acShipTarget_0059ce60[obj]] ==
             OBJECT_CLASS_CAPITAL_SHIP)
             return MANEUVER_STRAFE_ENEMY;
-        if ((short)RandomBelow(100) <
+        if (RandomBelow(100) <
             g_aiPilotLevel_0059cf30[obj] * 5 + 60)
             return MANEUVER_ZIP_PAST;
         return any_defense(obj);
@@ -595,14 +595,14 @@ void intelligence_events(short obj)
 
     event = -1;
     targetGone = 0;
-    target = (short)g_acShipTarget_0059ce60[obj];
+    target = g_acShipTarget_0059ce60[obj];
     previousStress = (short)g_acShipStress_0059d620[obj];
     if (missile_on_tail(obj) != 0) {
         event = 6;
     } else if (unactive(target) != 0) {
         targetGone = 1;
     } else if (g_aeSpecialManeuver_0059c3c0[
-                   (short)g_acShipTarget_0059ce60[obj]] ==
+                   g_acShipTarget_0059ce60[obj]] ==
                SPECIAL_MANEUVER_UNKNOWN_9) {
         event = 8;
     } else {
@@ -671,6 +671,6 @@ unsigned int chase_speed(short obj, short range)
     }
     approach_speed(obj,
                       g_anShipSpeed_0059b320[
-                          (short)g_acShipTarget_0059ce60[obj]]);
+                          g_acShipTarget_0059ce60[obj]]);
     return 0;
 }

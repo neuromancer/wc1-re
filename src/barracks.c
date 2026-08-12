@@ -154,7 +154,7 @@ void InitializeBarracksAnimation(BarracksAnimationState *state)
     bunk = 0;
     do {
         state->bunks[bunk].animationFrame =
-            (short)RandomInRange(0, 13);
+            RandomInRange(0, 13);
         state->bunks[bunk].animationPeriod =
             (short)(RandomInRange(0, 12) + 13);
         state->bunks[bunk].animationTick = 0;
@@ -176,7 +176,7 @@ void FreeBarracksMenuLabel(char **label)
     if (*label != 0 &&
         *label != g_apszSaveCampaignMenuLabels_004693e8[0] &&
         *label != g_apszSaveCampaignMenuLabels_004693e8[1]) {
-        ReleasePacketHandle((int)*label);
+        ReleasePacketHandle(*label);
         *label = 0;
     }
 }
@@ -187,7 +187,7 @@ void SetAwakenBarracksMenuLabel(char **label, int series, int mission,
 {
     FreeBarracksMenuLabel(label);
     sprintf(g_szTextScratchBuffer_00598b00, "Awaken %Fs.", description);
-    *label = (char *)AllocateTaggedMemory(
+    *label = AllocateTaggedMemory(
         strlen(g_szTextScratchBuffer_00598b00) + 2, 0);
     DosMemcpy(*label, g_szTextScratchBuffer_00598b00,
               strlen(g_szTextScratchBuffer_00598b00) + 2);
@@ -316,7 +316,7 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
 }
 
 /* Function start: 0x41B420 */
-short PromptForTextInput(short x, short y, char *prompt,
+short PromptForTextInput(short x, short y, const char *prompt,
                          char *destination, short maximumLength,
                          short inputMode)
 {
@@ -739,7 +739,7 @@ int ConfirmQuitWingCommander(void)
     confirmed = 0;
     if (ShowModalTextPanel(0, "Quit Wing Commander? (Y/N)") != 0) {
         confirmed = (short)((short)toupper(
-            (int)WaitForStreamInputKey()) == 'Y');
+            WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
     EnterAllocationScope();
@@ -759,7 +759,7 @@ int ConfirmAwakenAfterBadData(short slot)
     if (ShowModalTextPanel(0, "Awaken %s? (Y/N)",
                            gameRecord.description) != 0) {
         confirmed = (short)((short)toupper(
-            (int)WaitForStreamInputKey()) == 'Y');
+            WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
     EnterAllocationScope();
@@ -783,7 +783,7 @@ int ConfirmReplaceFaultyData(short slot)
     if (ShowModalTextPanel(0, "Replace %s? (Y/N)",
                            gameRecord.description) != 0) {
         confirmed = (short)((short)toupper(
-            (int)WaitForStreamInputKey()) == 'Y');
+            WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
     EnterAllocationScope();
@@ -849,7 +849,7 @@ short BarracksScreen(void)
     PreloadMusicTrackHook(35);
     spacetrack(35, 2, 1);
     InitializeRoomViewports();
-    background = (unsigned char *)FetchDiskPacketRetrying(5, 12, 0);
+    background = FetchDiskPacketRetrying(5, 12, 0);
     InitializeRoomMenu(g_aBarracksMenuRegions_00463008,
                        g_apszBarracksMenuLabels_004693f0,
                        &g_stRoomScreenViewport_005988a0,
@@ -958,7 +958,7 @@ short BarracksScreen(void)
         g_nSavedRoomControllerX_005988b4;
     EventManagerHook(0);
     FreeBarracksMenuLabels();
-    ReleasePacketHandle((int)background);
+    ReleasePacketHandle(background);
     ReleaseTextFont(0);
     free_viewport(&DAT_005a76b0);
     StopMusicUnlessSuppressed();
@@ -979,22 +979,20 @@ unsigned short __stdcall StepPaletteTransition(short *current,
     if (g_nPaletteTransitionInitialise_00469640 != 0) {
         byteCount = (unsigned int)(componentCount * 2);
         g_pPaletteTransitionAccumulator_005a7d94 =
-            (short *)AllocateTaggedMemory(byteCount, 0);
+            AllocateTaggedMemory(byteCount, 0);
         g_pPaletteTransitionDelta_005a7d8c =
-            (short *)AllocateTaggedMemory(byteCount, 0);
+            AllocateTaggedMemory(byteCount, 0);
         g_pPaletteTransitionDirection_005a7d88 =
-            (short *)AllocateTaggedMemory(byteCount, 0);
+            AllocateTaggedMemory(byteCount, 0);
         if (g_pPaletteTransitionAccumulator_005a7d94 == 0 ||
             g_pPaletteTransitionDelta_005a7d8c == 0 ||
             g_pPaletteTransitionDirection_005a7d88 == 0) {
             if (g_pPaletteTransitionAccumulator_005a7d94 != 0)
-                ReleasePacketHandle(
-                    (int)g_pPaletteTransitionAccumulator_005a7d94);
+                ReleasePacketHandle(g_pPaletteTransitionAccumulator_005a7d94);
             if (g_pPaletteTransitionDelta_005a7d8c != 0)
-                ReleasePacketHandle((int)g_pPaletteTransitionDelta_005a7d8c);
+                ReleasePacketHandle(g_pPaletteTransitionDelta_005a7d8c);
             if (g_pPaletteTransitionDirection_005a7d88 != 0)
-                ReleasePacketHandle(
-                    (int)g_pPaletteTransitionDirection_005a7d88);
+                ReleasePacketHandle(g_pPaletteTransitionDirection_005a7d88);
             return 0;
         }
 
@@ -1028,9 +1026,9 @@ unsigned short __stdcall StepPaletteTransition(short *current,
     previousCountdown = g_nPaletteTransitionCountdown_005a7d98;
     g_nPaletteTransitionCountdown_005a7d98--;
     if (previousCountdown == 0) {
-        ReleasePacketHandle((int)g_pPaletteTransitionAccumulator_005a7d94);
-        ReleasePacketHandle((int)g_pPaletteTransitionDelta_005a7d8c);
-        ReleasePacketHandle((int)g_pPaletteTransitionDirection_005a7d88);
+        ReleasePacketHandle(g_pPaletteTransitionAccumulator_005a7d94);
+        ReleasePacketHandle(g_pPaletteTransitionDelta_005a7d8c);
+        ReleasePacketHandle(g_pPaletteTransitionDirection_005a7d88);
         g_nPaletteTransitionInitialise_00469640 = 1;
         return 0;
     }

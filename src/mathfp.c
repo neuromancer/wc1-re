@@ -134,7 +134,7 @@ void WaitForVerticalBlankThunk(void)
 }
 
 /* Function start: 0x434FC0 */
-unsigned int __stdcall IdentityHandle(unsigned int v)
+void *__stdcall IdentityHandle(void *v)
 {
     return v;
 }
@@ -201,10 +201,10 @@ void __stdcall SplitPackedPoint(ShortPoint point, short *p)
 }
 
 /* Function start: 0x4350F0 */
-void __stdcall DrawTextString(char *text)
+void __stdcall DrawTextString(const char *text)
 {
-    char *cursor;
-    char *lineStart;
+    const char *cursor;
+    const char *lineStart;
     char value;
     int lineWidth;
     int right;

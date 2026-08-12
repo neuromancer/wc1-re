@@ -168,7 +168,7 @@ void init_hazard(short obj, FixedVector position, short moving)
     type = OBJECT_TYPE_SPACE_MINE;
     if (g_pActiveHazardField_0059bfe0->type == OBJECT_TYPE_ASTEROID_FIELD)
         type = (enum ObjectType)(OBJECT_TYPE_ASTEROID1 +
-                                (short)RandomBelowOrEqual(5));
+                                RandomBelowOrEqual(5));
     set_objects_data(obj, type, -1);
     g_aShipPosition_0059c490[obj] = position;
 
@@ -219,7 +219,7 @@ void init_hazard(short obj, FixedVector position, short moving)
         if (type == OBJECT_TYPE_ASTEROID_FIELD)
             separation = 1500;
         else
-            separation = (int)(short)RandomBelowOrEqual(1000) << 8;
+            separation = RandomBelowOrEqual(1000) << 8;
         ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
                          separation, &vector);
         SubtractFixedVectors(&g_aShipPosition_0059c490[obj], &vector,
@@ -323,7 +323,7 @@ short make_hazard(void)
     short moving;
     short obj = find_vacant_3d_object();
 
-    if (obj != -1 && (short)try_far_spot(&spot, &moving) != 0) {
+    if (obj != -1 && try_far_spot(&spot, &moving) != 0) {
         init_hazard(obj, spot, moving);
     } else
         obj = -1;
@@ -401,7 +401,7 @@ void update_hazards(void)
         slot++;
     } while (slot < 20);
     if (emptySlot != -1 &&
-        (short)RandomBelowOrEqual(215) <
+        RandomBelowOrEqual(215) <
             (short)g_nHazardReferenceSpeed_00465040 + 30)
         g_abHazardObjects_0046c028[emptySlot] = (signed char)make_hazard();
 }
@@ -1009,11 +1009,11 @@ void *AllocateGuardedMemory(unsigned int size)
 
     if (g_pGuardedAllocationHead_004650b0 == 0) {
         allocation =
-            (GuardedAllocation *)malloc(sizeof(GuardedAllocation));
+            malloc(sizeof(GuardedAllocation));
         g_pGuardedAllocationHead_004650b0 = allocation;
     } else {
         g_pGuardedAllocationTail_005a89ac->next =
-            (GuardedAllocation *)malloc(sizeof(GuardedAllocation));
+            malloc(sizeof(GuardedAllocation));
         allocation = g_pGuardedAllocationTail_005a89ac->next;
     }
     g_pGuardedAllocationTail_005a89ac = allocation;

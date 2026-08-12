@@ -418,9 +418,9 @@ void * __stdcall DecompressPacketSection(
             smallScratch = AllocateTaggedMemory(0x410, 0);
             if (largeScratch == 0 || smallScratch == 0) {
                 if (largeScratch != 0)
-                    ReleasePacketHandle((int)largeScratch);
+                    ReleasePacketHandle(largeScratch);
                 if (smallScratch != 0)
-                    ReleasePacketHandle((int)smallScratch);
+                    ReleasePacketHandle(smallScratch);
                 fallbackAllocations = 1;
                 largeScratch = AllocateTaggedMemory(0x3000, 0x22);
                 if (largeScratch == 0) {
@@ -429,28 +429,25 @@ void * __stdcall DecompressPacketSection(
                 }
                 smallScratch = AllocateTaggedMemory(0x400, 0x22);
                 if (smallScratch == 0) {
-                    ReleasePacketHandle((int)largeScratch);
+                    ReleasePacketHandle(largeScratch);
                     g_nPacketError_00465460 = 2;
                     return 0;
                 }
             }
-            alignedWorkspace = (void *)IdentityHandle(
-                (unsigned int)largeScratch);
-            g_pPacketDecompressInput_0059ab04 = (void *)IdentityHandle(
-                (unsigned int)smallScratch);
+            alignedWorkspace = IdentityHandle(largeScratch);
+            g_pPacketDecompressInput_0059ab04 = IdentityHandle(smallScratch);
             g_wPacketDecompressInputSize_0059ab38 = 0x400;
             goto initializeDecompressor;
         }
     }
 
-    alignedWorkspace = (void *)IdentityHandle(
-        (unsigned int)decompressionWorkspace);
+    alignedWorkspace = IdentityHandle(decompressionWorkspace);
     g_wPacketDecompressInputSize_0059ab38 = 0x400;
     allocationSize = 0x3020;
     g_pPacketDecompressInput_0059ab04 =
         ((PacketDecompressionWorkspace *)decompressionWorkspace)->input;
-    g_pPacketDecompressInput_0059ab04 = (void *)IdentityHandle(
-        (unsigned int)g_pPacketDecompressInput_0059ab04);
+    g_pPacketDecompressInput_0059ab04 =
+        IdentityHandle(g_pPacketDecompressInput_0059ab04);
     largeScratch = (void *)allocationSize;
     smallScratch = (void *)allocationSize;
     if (g_wPacketDecompressionInputSizeOverride_0046a920 != 0)
@@ -496,11 +493,11 @@ initializeDecompressor:
             VideoReleaseHook();
     }
     if (decompressionWorkspace == 0) {
-        ReleasePacketHandle((int)smallScratch);
+        ReleasePacketHandle(smallScratch);
         if (fallbackAllocations != 0)
-            ReleasePacketHandle((int)largeScratch);
+            ReleasePacketHandle(largeScratch);
         else
-            ReleasePacketHandle((int)largeScratch);
+            ReleasePacketHandle(largeScratch);
     }
     return packet;
 }
@@ -542,7 +539,7 @@ void show_target_disp(void)
                           (unsigned int)g_cDefaultTextColour_004699cc,
                           g_szAutoTargetting_0046a968);
     }
-    target = (short)g_acShipTarget_0059ce60[0];
+    target = g_acShipTarget_0059ce60[0];
     if (target != -1 &&
         (g_aeObjectClass_0059d100[target] < OBJECT_CLASS_SHIP ||
          g_aeSpecialManeuver_0059c3c0[target] ==
@@ -627,7 +624,7 @@ void DrawTargetRangeReadout(void)
     short target;
     const char *rangeText;
 
-    target = (short)g_acShipTarget_0059ce60[0];
+    target = g_acShipTarget_0059ce60[0];
     if (g_aeSpecialManeuver_0059c3c0[target] ==
         SPECIAL_MANEUVER_UNKNOWN_9) {
         g_acShipTarget_0059ce60[0] = -1;
@@ -718,7 +715,7 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
     g_nAllocateViewportCalls_005a68ec++;
     if (DAT_0046b168 != 0x13)
         LogDisplayMode("not MCGA");
-    viewport->allocation = (unsigned char *)AllocateTaggedMemory(
+    viewport->allocation = AllocateTaggedMemory(
         (unsigned int)width * height, (unsigned short)(flags + 2));
     g_apViewportAllocations_005a7f10[
         g_nViewportAllocationCount_005a7f0c++] = viewport->allocation;
@@ -726,13 +723,13 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
         return 0;
     viewport->pixels = viewport->allocation;
 
-    rowOffsets = (unsigned short *)AllocateTaggedMemory(
+    rowOffsets = AllocateTaggedMemory(
         (top + (unsigned int)height) * sizeof(unsigned short) + 4,
         0);
     viewport->rowOffsets = rowOffsets;
     if (rowOffsets == 0) {
         if (DAT_0046b168 != 0x13)
-            ReleasePacketHandle((int)viewport->allocation);
+            ReleasePacketHandle(viewport->allocation);
         return 0;
     }
 
@@ -1158,7 +1155,7 @@ void new_space_music_changes(short attacker, short victim)
             }
             if (attacker == 0) {
                 if (g_acShipRating_0059cd80[victim] == -1 &&
-                    (short)RandomInRange(0, 3) != 0) {
+                    RandomInRange(0, 3) != 0) {
                     spacetrack(6, 3, 0);
                     return;
                 }
@@ -1400,7 +1397,6 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
         g_aiSoundEffectSourceActive_005a66ec[sourceObject + 1] = 1;
         sprintf(g_szSfxWavePath_00476558, g_szSfxWaveFormat_0046ad2c,
                 soundNumber - 1);
-        playWAVE((unsigned char *)g_szSfxWavePath_00476558,
-                 looping, distance);
+        playWAVE(g_szSfxWavePath_00476558, looping, distance);
     }
 }

@@ -356,7 +356,7 @@ const char g_szFuneralFireCommand_00465c54[16] =
 short g_nEnemySighting_00465c7c = 0x7fff;
 short g_nDebriefingPersonality_00465c80;
 int DAT_00465c84;
-int g_aiPacketReferenceTable_00465c88[4][0x25];
+void *g_aapPacketReferences_00465c88[4][0x25];
 const ShortVector g_aaFormationPositions_00465ed8[5][8] = {
     {
         { 0, 0, 0 }, { -750, 0, 0 }, { 750, 0, 0 }, { 0, 0, -750 },
@@ -1954,7 +1954,7 @@ unsigned char *g_apRecRoomTextData_00598aa0[3];
 short g_nRoomMenuCursorFrame_00598ab0;
 TitleMenuRegion *g_pRoomMenuRegions_00598ab2;
 char **g_ppszRoomMenuLabels_00598ab6;
-char *g_pszCurrentRoomMenuLabel_00598aba;
+const char *g_pszCurrentRoomMenuLabel_00598aba;
 TextContext g_stRoomMenuTextContext_00598abe;
 unsigned char *g_apRecRoomSceneData_00598ae0[3];
 unsigned char *g_pBriefingPacket_00598aec;
@@ -2137,7 +2137,7 @@ signed char g_acShipPointingMode_0059d790[16];
 short g_anPitchGoal_0059d7a0[16];
 signed char g_abShipNavPointIndex_0059d7c0[512];
 short g_anObjectRollRotation_0059d7e0[WC1_SPACE_OBJECT_COUNT];
-unsigned char g_abShipTurn_0059d860[WC1_SPACE_OBJECT_COUNT];
+signed char g_abShipTurn_0059d860[WC1_SPACE_OBJECT_COUNT];
 HazardField g_aHazardFields_0059d870[7];
 short g_nFacingToTarget_0059d920;
 short g_asObjectScreenY_0059d930[WC1_SPACE_OBJECT_COUNT];
@@ -2170,9 +2170,9 @@ unsigned char *g_apCommPortraitShapes_0059e180[16];
 char g_szHudMessageBuffer_0059e1c0[0x60];
 char *g_aapszPilotSpeech_0059e220[14][11];
 signed char g_abCommMenuChoiceCommand_0059e488[7];
-char *g_pszCommMenuHeading_0059e490;
+const char *g_pszCommMenuHeading_0059e490;
 char g_szCommMenuHeadingBuffer_0059e4a0[0x40];
-char *g_apszCommMenuChoiceText_0059e4e0[7];
+const char *g_apszCommMenuChoiceText_0059e4e0[7];
 int g_anInputButton2PressTime_0059e500[2];
 short g_asInputButton1DoubleClick_0059e508[2];
 short g_asInputButton1Changed_0059e50c[2];
@@ -2180,7 +2180,7 @@ short g_asInputButton2Changed_0059e510[2];
 short g_asPreviousInputButtons_0059e514[2];
 int g_anInputButton1PressTime_0059e518[2];
 short g_asInputButton2DoubleClick_0059e520[2];
-int g_aiPacketHandles_0059e530[0x1000];
+void *g_apPacketHandles_0059e530[0x1000];
 int g_aiPacketHandleOffsets_005a2530[0x1000];
 int g_nPacketHandleCount_005a6530;
 Viewport *g_pAllocatedScreenViewport_005a6534;
@@ -2877,20 +2877,20 @@ const char *g_apszKilrathiAceNames_0046af80[4] = {
     &g_aszKilrathiAceNames_0046afd4[0x18]
 };
 
-char *g_apszCommMenuText_0046af90[13] = {
-    (char *)&g_aszCommMenuText_0046aff8[0x00],
-    (char *)&g_aszCommMenuText_0046aff8[0x10],
-    (char *)&g_aszCommMenuText_0046aff8[0x24],
-    (char *)&g_aszCommMenuText_0046aff8[0x38],
-    (char *)&g_aszCommMenuText_0046aff8[0x48],
-    (char *)&g_aszCommMenuText_0046aff8[0x58],
-    (char *)&g_aszCommMenuText_0046aff8[0x64],
-    (char *)&g_aszCommMenuText_0046aff8[0x78],
-    (char *)&g_aszCommMenuText_0046aff8[0x8c],
-    (char *)&g_aszCommMenuText_0046aff8[0x9c],
-    (char *)&g_aszCommMenuText_0046aff8[0xb0],
-    (char *)&g_aszCommMenuText_0046aff8[0xc4],
-    (char *)&g_aszCommMenuText_0046aff8[0xd8]
+const char *g_apszCommMenuText_0046af90[13] = {
+    &g_aszCommMenuText_0046aff8[0x00],
+    &g_aszCommMenuText_0046aff8[0x10],
+    &g_aszCommMenuText_0046aff8[0x24],
+    &g_aszCommMenuText_0046aff8[0x38],
+    &g_aszCommMenuText_0046aff8[0x48],
+    &g_aszCommMenuText_0046aff8[0x58],
+    &g_aszCommMenuText_0046aff8[0x64],
+    &g_aszCommMenuText_0046aff8[0x78],
+    &g_aszCommMenuText_0046aff8[0x8c],
+    &g_aszCommMenuText_0046aff8[0x9c],
+    &g_aszCommMenuText_0046aff8[0xb0],
+    &g_aszCommMenuText_0046aff8[0xc4],
+    &g_aszCommMenuText_0046aff8[0xd8]
 };
 
 /* Ordered display names transcribed from the image.  The Sega CD inspector

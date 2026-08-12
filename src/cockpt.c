@@ -52,7 +52,7 @@ int g_aiScannerGridRows_00469098[79] = {
     0, 1, 2, 3, -1,
     -2
 };
-char *PTR_s_MISSILE_LOCKED_004691d4 = (char *)g_szMissileLocked_004692a8;
+const char *PTR_s_MISSILE_LOCKED_004691d4 = g_szMissileLocked_004692a8;
 unsigned char g_bTargetBracketVisible_004691d8 = 1;
 unsigned char g_abTargetBracketPadding_004691d9[7] = {0};
 short DAT_004691e0[10] = {
@@ -335,7 +335,7 @@ unsigned int InitializeCockpitReadout(signed char slot,
 }
 
 /* Function start: 0x413FB0 */
-void DrawCockpitReadout(signed char slot, char *text)
+void DrawCockpitReadout(signed char slot, const char *text)
 {
     CockpitReadout *readout;
 
@@ -411,7 +411,7 @@ void ClearHudMessageSlot(HudMessageSlot *slot)
 }
 
 /* Function start: 0x4141B0 */
-void ClearHudMessageIfMatching(HudMessageSlot *slot, char *text)
+void ClearHudMessageIfMatching(HudMessageSlot *slot, const char *text)
 {
     if (slot->text == text)
         ClearHudMessageSlot(slot);
@@ -428,7 +428,7 @@ void ClearHudGunReadouts(void)
 
 /* Function start: 0x4141F0 */
 void SetHudMessageSlot(HudMessageSlot *slot, TextContext *context,
-                       short x, short y, char *text,
+                       short x, short y, const char *text,
                        unsigned short colour, signed char flashCount)
 {
     if (slot->text != 0)
@@ -455,7 +455,7 @@ void UpdateMessage(HudMessageSlot *slot)
 }
 
 /* Function start: 0x414270 */
-void set_global_message(char *text, unsigned short colour,
+void set_global_message(const char *text, unsigned short colour,
                         int flashCount)
 {
     SetHudMessageSlot(&DAT_005a7de1, &DAT_005a7700,
@@ -465,7 +465,7 @@ void set_global_message(char *text, unsigned short colour,
 }
 
 /* Function start: 0x4142B0 */
-void CockpitMessage(char *text, unsigned short colour,
+void CockpitMessage(const char *text, unsigned short colour,
                     int flashCount)
 {
     if (text != DAT_005a7dee)
@@ -473,7 +473,7 @@ void CockpitMessage(char *text, unsigned short colour,
 }
 
 /* Function start: 0x4142E0 */
-void remove_message(char *text)
+void remove_message(const char *text)
 {
     ClearHudMessageIfMatching(&DAT_005a7de1, text);
 }
@@ -499,7 +499,7 @@ short kilrathi_near(short obj, short range)
 /* Function start: 0x414380 */
 short auto_pilot_valid(short showReason)
 {
-    char *reason;
+    const char *reason;
 
     reason = 0;
     if (g_cMissionObjectiveCount_0059c46a == 0)
@@ -663,7 +663,7 @@ void update_bars(void)
 }
 
 /* Function start: 0x4147E0 */
-unsigned short get_mode(short i)
+short get_mode(short i)
 {
     return DAT_0059d500[((int)DAT_0059dec0[i] + i * 4) * 2];
 }
@@ -671,7 +671,7 @@ unsigned short get_mode(short i)
 /* Function start: 0x414800 */
 void set_mode(short i, int state)
 {
-    if ((short)get_mode(i) != state)
+    if (get_mode(i) != state)
         ClearHudMessageSlot(&DAT_005a7dd0[i]);
     DAT_0059dec0[i] = 0;
     *(int *)&DAT_0059d500[i * 8] = state;
@@ -682,7 +682,7 @@ unsigned short SetVduModeIfChanged(short i, int state)
 {
     short changed;
 
-    changed = (short)get_mode(i) != state;
+    changed = get_mode(i) != state;
     if (changed != 0)
         set_mode(i, state);
     return changed;
@@ -712,7 +712,7 @@ void pop_mode(short i)
 /* Function start: 0x414910 */
 void set_new_vdu(short vdu)
 {
-    if ((short)get_mode(vdu) == 0) {
+    if (get_mode(vdu) == 0) {
         malf_noise(vdu, 1, DAT_004699b0, 0x17, 0);
     } else {
         if (vdu == 1)
@@ -720,7 +720,7 @@ void set_new_vdu(short vdu)
         else
             ClearViewport(&DAT_005a6b80, DAT_0046999c);
     }
-    DAT_0059ce18[vdu] = (unsigned int)(short)get_mode(vdu);
+    DAT_0059ce18[vdu] = (unsigned int)get_mode(vdu);
 }
 
 /* Function start: 0x414980 */
@@ -728,7 +728,7 @@ short update_vid_disp(short vdu)
 {
     short changed;
 
-    changed = (short)get_mode(vdu) != (int)DAT_0059ce18[vdu];
+    changed = get_mode(vdu) != (int)DAT_0059ce18[vdu];
     if (changed != 0)
         set_new_vdu(vdu);
     return changed;
@@ -747,7 +747,7 @@ void clear_message_time(void)
 }
 
 /* Function start: 0x4149F0 */
-unsigned short message_showing(void)
+short message_showing(void)
 {
     return 0 < DAT_005a7dca;
 }
@@ -797,7 +797,7 @@ void malf_sound(void)
 }
 
 /* Function start: 0x414AF0 */
-unsigned short malf(char component)
+short malf(char component)
 {
     int damage = g_acPlayerComponentDamage_0059bff0[(int)component];
 
@@ -814,7 +814,7 @@ unsigned short vdu_malf(short vdu, short sound)
 }
 
 /* Function start: 0x414B70 */
-void ShowComponentHitHudMessage(char *text, unsigned short colour,
+void ShowComponentHitHudMessage(const char *text, unsigned short colour,
                                 short flashCount)
 {
     if (g_nTrainSimActive_00469e2c == 0 && get_mode(0) != 0) {
@@ -842,7 +842,7 @@ int damage_your_component(char component, char amount, char maximum)
         vdu_malf(0, 0x18);
         vdu_malf(1, 0x18);
     }
-    if ((short)get_mode(0) == 2 || (short)get_mode(0) == 1) {
+    if (get_mode(0) == 2 || get_mode(0) == 1) {
         sprintf(text, g_szComponentHitFormat_004692e0,
                 g_apszComponentNames_0046a778[index]);
         ShowComponentHitHudMessage(text, (unsigned char)DAT_004699ac, 5);
@@ -885,7 +885,7 @@ void fire_computer_graphic_missile(void)
 
     if (g_cReleaseWeaponDisplayFrame_00469070 == -1)
         return;
-    visible = DAT_0046c03c == 0 && (short)get_mode(0) == 1;
+    visible = DAT_0046c03c == 0 && get_mode(0) == 1;
     if (g_cReleaseWeaponDisplayState_00469078 != 0) {
         RestoreSpriteBackground(
             &DAT_005a6b80, g_pReleaseWeaponDisplayBackground_0046906c,
@@ -1023,7 +1023,7 @@ void flag_objective(short objective, unsigned char flags)
 void DrawCalculatingLabel(void)
 {
     if (g_nCurrentObjectiveRange_0059d2b0 <= 0) {
-        DrawCockpitReadout(0, (char *)g_szCalculating_0046931c);
+        DrawCockpitReadout(0, g_szCalculating_0046931c);
     } else {
         strcpy(g_szTextScratchBuffer_00598b00 +
                    strlen(_ltoa((long)g_nCurrentObjectiveRange_0059d2b0,
@@ -1036,21 +1036,21 @@ void DrawCalculatingLabel(void)
 }
 
 /* Function start: 0x415130 */
-char *objective_name(short objective)
+const char *objective_name(short objective)
 {
     if (objective >= (short)g_cMissionObjectiveCount_0059c46a)
-        return (char *)g_szNoObjective_0046932c;
+        return g_szNoObjective_0046932c;
     if (*g_aMissionObjectives_0059dac0[objective].name == '?' &&
         sighted(objective) == 0)
-        return (char *)g_szUnknownObjective_00469334;
-    return (char *)g_aMissionObjectives_0059dac0[objective].displayName;
+        return g_szUnknownObjective_00469334;
+    return g_aMissionObjectives_0059dac0[objective].displayName;
 }
 
 /* Function start: 0x415180 */
 void show_navigation_disp(void)
 {
     DrawTextAt(&DAT_005a7700, DAT_005a7530.left, DAT_005a7530.top,
-               (char *)g_szCompNavigation_0046933c, 2);
+               g_szCompNavigation_0046933c, 2);
     DrawFormattedText(g_szDestinationFormat_0046934c,
                       objective_name((short)g_cCurrentObjective_0046c020));
     DrawFormattedText(g_szNavigationRangeLabel_00469360);
@@ -1293,7 +1293,7 @@ void update_objective_location(short objective)
                        &g_aMissionObjectives_0059dac0[objective].position,
                        &delta);
     range = FixedToShortSaturating(
-        (int)Vector_magnitude(&delta));
+        Vector_magnitude(&delta));
     check_sighting(objective, range, object);
     if (mobile_objective(objective) != 0) {
         if (object != -1)
@@ -1563,7 +1563,7 @@ unsigned int draw_3d_scanner(void)
         object++;
     } while (object < 10);
 
-    if ((short)get_mode(1) == 5) {
+    if (get_mode(1) == 5) {
         set_objective_range(1);
         CaptureSpriteBackground(&DAT_005a6ba0,
                                 g_pScannerMarkerBackground_005a7dc4,
@@ -1594,7 +1594,7 @@ void start_lock(unsigned short v)
     g_bTargetLockReadoutDirty_0046c060 = 0;
     g_nTargetLockCountdown_0046c064 = v;
     g_nTargetLockMarkerAngle_0046c068 =
-        (short)RandomBelowOrEqual(0x167);
+        RandomBelowOrEqual(0x167);
 }
 
 /* Function start: 0x415FF0 */
@@ -1973,7 +1973,7 @@ void draw_nav_pointer(void)
     short active;
     short object;
 
-    if ((short)get_mode(1) == 5 &&
+    if (get_mode(1) == 5 &&
         g_nCannedSceneMode_00469fac != 4 &&
         (DAT_0046c03c == 0 || DAT_0046c03c == 4))
         active = 1;
@@ -2004,7 +2004,7 @@ void draw_nav_pointer(void)
         (signed char)g_cCurrentObjective_0046c020].position;
     ComputeVectorDelta(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
                        &objectivePosition, &direction);
-    distance = (int)Vector_magnitude(&direction);
+    distance = Vector_magnitude(&direction);
     if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >=
         distance)
         return;
@@ -2016,12 +2016,12 @@ void draw_nav_pointer(void)
     if (DivideFixed(viewPosition.z, distance) < 0x94)
         return;
     g_asObjectScreenX_0059d9b0[object] = (short)(DivideFixed(
-        (int)MultiplyFixed(
+        MultiplyFixed(
             ((short)g_nScreenWidth_0046daa4 & ~1) << 7,
             viewPosition.x),
         viewPosition.z) >> 8);
     g_asObjectScreenY_0059d930[object] = (short)(DivideFixed(
-        (int)MultiplyFixed(
+        MultiplyFixed(
             ((short)g_nScreenWidth_0046daa4 & ~1) << 7,
             viewPosition.y),
         viewPosition.z) >> 8);
@@ -2245,7 +2245,7 @@ void cycle_onscreen_targets(void)
             if (hasEnemy == 0)
                 break;
         } while (g_aeShipSide_0059d650[
-                     (int)g_acShipTarget_0059ce60[0]] ==
+                     g_acShipTarget_0059ce60[0]] ==
                  g_aeShipSide_0059d650[0]);
     }
     if (g_acShipTarget_0059ce60[0] != previousTarget)
@@ -2261,7 +2261,7 @@ void check_target(void)
     short hasEnemy;
 
     selectNewTarget = 1;
-    oldTarget = (short)g_acShipTarget_0059ce60[0];
+    oldTarget = g_acShipTarget_0059ce60[0];
     if (oldTarget != -1 &&
         g_aeSpecialManeuver_0059c3c0[oldTarget] ==
             SPECIAL_MANEUVER_UNKNOWN_9) {
@@ -2287,7 +2287,7 @@ void check_target(void)
     build_your_target_list(&hasEnemy);
     if (g_cViableTargetCount_0046c088 == 0) {
         if (g_nTargetLockMode_0046c078 != 0)
-            g_acShipTarget_0059ce60[0] = (signed char)oldTarget;
+            g_acShipTarget_0059ce60[0] = oldTarget;
         else
             g_acShipTarget_0059ce60[0] = -1;
     } else {
@@ -2297,7 +2297,7 @@ void check_target(void)
             (g_nTargetLockMode_0046c078 != 0 ||
              g_asObjectScreenX_0059d9b0[oldTarget] != (short)0x8001)) {
             selectNewTarget = 0;
-            g_acShipTarget_0059ce60[0] = (signed char)oldTarget;
+            g_acShipTarget_0059ce60[0] = oldTarget;
         }
         if (selectNewTarget != 0) {
             targetIndex = 0;
@@ -2311,7 +2311,7 @@ void check_target(void)
                     targetIndex % (short)g_cViableTargetCount_0046c088];
         }
     }
-    if ((short)g_acShipTarget_0059ce60[0] != oldTarget) {
+    if (g_acShipTarget_0059ce60[0] != oldTarget) {
         if (oldTarget != -1 && g_acShipTarget_0059ce60[0] == -1)
             g_nTargetLockMode_0046c078 = 0;
         g_nTargetLockCountdown_0046c064 = -1;
@@ -2464,7 +2464,7 @@ void npc_communication(void)
 
     if (g_nCannedSceneMode_00469fac == 0 &&
         g_nTrainSimActive_00469e2c == 0) {
-        messageActive = (short)message_showing();
+        messageActive = message_showing();
         obj = 1;
         while (messageActive == 0 && obj < 10) {
             if (g_aeObjectClass_0059d100[(short)obj] >=
@@ -2474,10 +2474,10 @@ void npc_communication(void)
                 vid_equiv((short)obj, (short)message);
                 g_acWingmanMessageState_0059d2c0[(short)obj] = -1;
             }
-            messageActive = (short)message_showing();
+            messageActive = message_showing();
             obj++;
         }
-        if ((short)RandomBelowOrEqual(5000) > 4998 &&
+        if (RandomBelowOrEqual(5000) > 4998 &&
             g_nCommSpeakerObject_0046afc8 == -1) {
             obj = 1;
             while (obj < 10) {
@@ -2489,7 +2489,7 @@ void npc_communication(void)
                      g_aeShipObjective_0059d200[(short)obj] ==
                          OBJECTIVE_DESTROY_SHIP) &&
                     (g_acShipRating_0059cd80[(short)obj] != -1 ||
-                     (short)RandomBelowOrEqual(100) < 20)) {
+                     RandomBelowOrEqual(100) < 20)) {
                     g_acWingmanMessageState_0059d2c0[(short)obj] =
                         (signed char)(RandomBelowOrEqual(2) + 2);
                     return;
@@ -2516,7 +2516,7 @@ void explosion_draw(void)
 
     if (g_pCockpitPilotShape_0046905c == 0)
         g_pCockpitPilotShape_0046905c =
-            (unsigned char *)FetchDiskPacketRetrying(
+            FetchDiskPacketRetrying(
                 (short)g_cCockpitLogicalFile_005a7c74, 4, 0);
     damage = 0;
     do {
@@ -2531,7 +2531,7 @@ void explosion_draw(void)
         }
         damage++;
     } while (damage < 4);
-    FreePacketAndClear((int *)&g_pCockpitPilotShape_0046905c, 0);
+    FreePacketAndClear(&g_pCockpitPilotShape_0046905c, 0);
 }
 
 /* Function start: 0x4176C0 */
@@ -2539,7 +2539,7 @@ unsigned int DrawPendingCockpitDamage(void)
 {
     if (g_pCockpitPilotShape_0046905c == 0)
         g_pCockpitPilotShape_0046905c =
-            (unsigned char *)FetchDiskPacketRetrying(
+            FetchDiskPacketRetrying(
                 (short)g_cCockpitLogicalFile_005a7c74, 4, 0);
     DrawSpriteDefault(&DAT_005a6ba0,
                       g_nCockpitExplosionX_005a7e98,
@@ -2555,7 +2555,7 @@ unsigned int DrawPendingCockpitDamage(void)
                           g_pCockpitPilotShape_0046905c,
                           g_nPendingCockpitDamage_005a7dcc);
     }
-    FreePacketAndClear((int *)&g_pCockpitPilotShape_0046905c, 0);
+    FreePacketAndClear(&g_pCockpitPilotShape_0046905c, 0);
     return 0;
 }
 
@@ -2605,7 +2605,7 @@ void cockpit_explosion(void)
         }
         return;
     }
-    FreePacketAndClear((int *)&g_pCockpitExplosionShape_00469064, 0);
+    FreePacketAndClear(&g_pCockpitExplosionShape_00469064, 0);
 }
 
 /* Function start: 0x4178A0 */
@@ -2686,10 +2686,10 @@ void vid_transmit(void)
 /* Function start: 0x417AC0 */
 void vid_equiv(short obj, short message)
 {
-    if ((short)get_mode(1) != 4 &&
+    if (get_mode(1) != 4 &&
         g_nTrainSimActive_00469e2c == 0 &&
         g_nCannedSceneMode_00469fac == 0 && DAT_0046c03c == 0 &&
-        (short)message_showing() == 0)
+        message_showing() == 0)
         real_vid_transmit(obj, message);
 }
 
@@ -2741,7 +2741,7 @@ void update_VDUs(void)
     }
     changed = update_vid_disp(0);
     if (changed != 0) {
-        switch ((short)get_mode(0)) {
+        switch (get_mode(0)) {
         case 0:
             update_dead_disp(0);
             break;
@@ -2756,7 +2756,7 @@ void update_VDUs(void)
             break;
         }
     } else {
-        switch ((short)get_mode(0)) {
+        switch (get_mode(0)) {
         case 0:
             update_dead_disp(0);
             break;
@@ -2778,7 +2778,7 @@ void update_VDUs(void)
             break;
         }
     }
-    if ((short)get_mode(0) == 0)
+    if (get_mode(0) == 0)
         g_aHudMessageSlots_005a7dd0[0].text = 0;
     else
         UpdateMessage(&g_aHudMessageSlots_005a7dd0[0]);
@@ -2786,7 +2786,7 @@ void update_VDUs(void)
     SetTextContext(&DAT_005a7700);
     changed = update_vid_disp(1);
     if (changed != 0) {
-        switch ((short)get_mode(1)) {
+        switch (get_mode(1)) {
         case 0:
             update_dead_disp(1);
             break;
@@ -2804,7 +2804,7 @@ void update_VDUs(void)
             break;
         }
     } else {
-        switch ((short)get_mode(1)) {
+        switch (get_mode(1)) {
         case 0:
             update_dead_disp(1);
             break;
@@ -2828,7 +2828,7 @@ void update_VDUs(void)
             break;
         }
     }
-    if ((short)get_mode(1) == 6 || (short)get_mode(1) == 0)
+    if (get_mode(1) == 6 || get_mode(1) == 0)
         g_aHudMessageSlots_005a7dd0[1].text = 0;
     else
         UpdateMessage(&g_aHudMessageSlots_005a7dd0[1]);
@@ -2879,7 +2879,7 @@ void vdu_pop_all(short vdu)
     int mode;
 
     while ((short)GetVduModeStackDepth(vdu) > 0) {
-        mode = (short)get_mode(vdu);
+        mode = get_mode(vdu);
         if (mode != 6)
             pop_mode(vdu);
         else
@@ -2894,13 +2894,13 @@ void SelectCockpitVduMode(short vdu, int mode)
 
     if (DAT_0046c03c != 0)
         return;
-    if ((short)malf(3) != 0 ||
-        (mode == 4 && (short)malf(4) != 0)) {
+    if (malf(3) != 0 ||
+        (mode == 4 && malf(4) != 0)) {
         vdu_malf(vdu, 0x17);
         return;
     }
     PlayCockpitSelectionSfx(g_asVduSelectionSound_00469000[vdu]);
-    changed = (short)get_mode(vdu) != mode;
+    changed = get_mode(vdu) != mode;
     if (changed != 0) {
         vdu_pop_all(vdu);
         InvalidateVduMode(vdu);

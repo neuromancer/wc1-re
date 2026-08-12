@@ -338,7 +338,7 @@ void DIBdestroyDIB(void)
 {
     int result;
 
-    memcpy(DAT_00476658, (void *)DAT_00476648,
+    memcpy(DAT_00476658, DAT_00476648,
            DAT_0047664c * DAT_00476650);
     if (DAT_0046b1b4 > 0) {
         result = IDirectDrawSurface_Release(g_pSecondarySurface_0046b1ac);
@@ -353,7 +353,7 @@ void DIBdestroyDIB(void)
         g_pPrimarySurface_0046b1a8 = 0;
     }
     if (DAT_00476648 != 0)
-        free((void *)DAT_00476648);
+        free(DAT_00476648);
     DAT_00476640 = 0;
     DAT_00476644 = 0;
     DAT_00476648 = 0;
@@ -430,7 +430,7 @@ void DIBslamReal(void)
             }
         }
 
-        destination = (unsigned char *)surface.lpSurface;
+        destination = surface.lpSurface;
         source = DAT_00476648;
         if (DAT_0046b1b4 <= 0) {
             IDirectDraw2_WaitForVerticalBlank(

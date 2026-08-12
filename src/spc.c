@@ -238,7 +238,7 @@ void SetFleetOverviewView(int initializeCockpit)
                 ComputeVectorDelta(&centre,
                                    &g_aShipPosition_0059c490[object],
                                    &offset);
-                range = (int)Vector_magnitude(&offset);
+                range = Vector_magnitude(&offset);
                 if (maximumRange < range)
                     maximumRange = range;
                 if (object == 0)
@@ -308,7 +308,7 @@ unsigned int rotate_eye_to_goal(void)
 /* Function start: 0x410AD0 */
 short GetVectorMagnitude(const FixedVector *vector)
 {
-    return FixedToShortSaturating((int)Vector_magnitude(vector));
+    return FixedToShortSaturating(Vector_magnitude(vector));
 }
 
 /* Function start: 0x410AF0 */
@@ -418,7 +418,7 @@ unsigned int set_eye_direction_and_position(void)
         ComputeVectorDelta(
             &g_aShipPosition_0059c490[WC1_EYE_OBJECT],
             &g_aShipPosition_0059c490[g_cViewObject_0046c000], &vector);
-        magnitude = (int)Vector_magnitude(&vector);
+        magnitude = Vector_magnitude(&vector);
         if (magnitude < 0x7d001) {
             g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT] = vector;
             fix_objects_ijk(WC1_EYE_OBJECT);
@@ -481,7 +481,7 @@ unsigned int set_eye_direction_and_position(void)
                 &vector);
             if (g_aeShipTactic_0059d5e0[g_nExternalViewShip_0046c040] !=
                 TACTIC_CRUISE) {
-                magnitude = (int)Vector_magnitude(&vector);
+                magnitude = Vector_magnitude(&vector);
                 if (magnitude < 0xfa01) {
                     adjustment = vector;
                     NormalizeFixedVector(&adjustment);
@@ -515,7 +515,7 @@ unsigned int set_eye_direction_and_position(void)
             ComputeVectorDelta(
                 &g_aShipPosition_0059c490[WC1_EYE_OBJECT],
                 &g_aShipPosition_0059c490[
-                    (short)g_acShipTarget_0059ce60[0]],
+                    g_acShipTarget_0059ce60[0]],
                 &vector);
             NormalizeFixedVector(&vector);
             g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT] = vector;
@@ -577,7 +577,7 @@ unsigned int set_eye_direction_and_position(void)
         ComputeVectorDelta(
             &g_aShipPosition_0059c490[WC1_EYE_OBJECT],
             &g_aShipPosition_0059c490[g_cViewObject_0046c000], &vector);
-        magnitude = (int)Vector_magnitude(&vector);
+        magnitude = Vector_magnitude(&vector);
         if (magnitude < 0x25800) {
             adjustment = vector;
             NormalizeFixedVector(&adjustment);
@@ -868,8 +868,8 @@ unsigned int generate_stars(void)
         if (obj < 42) {
             distance = RandomInRange(0, 1400);
             start_dust(obj, origin, distance,
-                       (int)signed_random(distance) << 8,
-                       (int)signed_random(distance) << 8);
+                       signed_random(distance) << 8,
+                       signed_random(distance) << 8);
         } else {
             g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_STAR;
             g_nStarFieldIRotation_005a7f04 = signed_random(45);
@@ -1006,11 +1006,11 @@ unsigned int update_star_field(void)
 }
 
 /* Function start: 0x412410 */
-unsigned short count_down(short obj)
+short count_down(short obj)
 {
     if (g_asObjectCounter_0059c330[obj] != -1)
         g_asObjectCounter_0059c330[obj]--;
-    return (unsigned short)g_asObjectCounter_0059c330[obj];
+    return g_asObjectCounter_0059c330[obj];
 }
 
 /* Function start: 0x412430 */
@@ -1024,12 +1024,12 @@ unsigned int house_keep_objects(void)
         switch (g_aeObjectClass_0059d100[obj]) {
         case OBJECT_CLASS_DUST:
             if (g_aeObjectType_0059b560[obj] == OBJECT_TYPE_DEBRIS_DUST &&
-                (short)count_down(obj) == -1 &&
+                count_down(obj) == -1 &&
                 g_asObjectScreenX_0059d9b0[obj] == (short)0x8001)
                 remove_object(obj);
             break;
         case OBJECT_CLASS_DEBRIS:
-            if ((short)count_down(obj) == -1)
+            if (count_down(obj) == -1)
                 remove_object(obj);
             break;
         case OBJECT_CLASS_FIXED_OBJECT:
@@ -1038,7 +1038,7 @@ unsigned int house_keep_objects(void)
                 remove_object(obj);
             break;
         case OBJECT_CLASS_PROJECTILE:
-            if ((short)count_down(obj) == 0) {
+            if (count_down(obj) == 0) {
                 if (g_aeObjectType_0059b560[obj] == OBJECT_TYPE_TURRET)
                     explode((short)g_acObjectOwner_0059ce20[obj], obj);
                 else
@@ -1048,7 +1048,7 @@ unsigned int house_keep_objects(void)
         case OBJECT_CLASS_MINE:
             if (g_acObjectCollisionGraceTicks_0059ddb0[obj] > 0)
                 g_acObjectCollisionGraceTicks_0059ddb0[obj]--;
-            if ((short)count_down(obj) == 0)
+            if (count_down(obj) == 0)
                 explode(obj, obj);
             break;
         case OBJECT_CLASS_MISSILE:
@@ -1056,7 +1056,7 @@ unsigned int house_keep_objects(void)
             if (g_acObjectCollisionGraceTicks_0059ddb0[obj] > 0)
                 g_acObjectCollisionGraceTicks_0059ddb0[obj]--;
             if (g_aeShipTactic_0059d5e0[obj] == TACTIC_SIT_STILL) {
-                if ((short)count_down(obj) <= 0) {
+                if (count_down(obj) <= 0) {
                     g_aeShipTactic_0059d5e0[obj] = TACTIC_RAM;
                     g_asObjectCounter_0059c330[obj] =
                         g_aObjectTypeData_00466458[
@@ -1069,14 +1069,14 @@ unsigned int house_keep_objects(void)
                             &g_aShipVelocity_0059c010[obj]);
                     }
                 }
-            } else if ((short)count_down(obj) <= 0) {
+            } else if (count_down(obj) <= 0) {
                 explode(obj, obj);
             }
             break;
         case OBJECT_CLASS_SHIP:
         case OBJECT_CLASS_CAPITAL_SHIP:
             g_abShipExhaustHeat_0059d610[obj] = 0;
-            if ((short)count_down(obj) > 0) {
+            if (count_down(obj) > 0) {
                 if (g_aeShipManeuver_0059dcb0[obj] ==
                         MANEUVER_WARPING_OUT)
                     g_asObjectScale_0059de40[obj] >>= 1;
@@ -1101,7 +1101,7 @@ unsigned int house_keep_objects(void)
                 if (g_nYourWingman_0046c04c != -1 &&
                     DAT_0059c910[obj] == 0 &&
                     g_aeShipSide_0059d650[obj] == SIDE_KILRATHI &&
-                    (short)RandomBelowOrEqual(100) < 10) {
+                    RandomBelowOrEqual(100) < 10) {
                     send_message(g_nYourWingman_0046c04c, 6);
                 }
                 Create_explosion_debris(obj);
@@ -1229,7 +1229,7 @@ unsigned int accelerate_and_move_object(short obj)
         if (g_aeSpecialManeuver_0059c3c0[obj] ==
                 SPECIAL_MANEUVER_KILL_ENGINES) {
             g_abShipExhaustHeat_0059d610[obj] = 0;
-            if ((short)RandomBelowOrEqual(100) < 10)
+            if (RandomBelowOrEqual(100) < 10)
                 set_special(obj, SPECIAL_MANEUVER_NONE);
         } else if (g_aeSpecialManeuver_0059c3c0[obj] ==
                        SPECIAL_MANEUVER_STOP_DRIFT) {
@@ -1285,7 +1285,7 @@ unsigned int accelerate_and_move_object(short obj)
             }
             ComputeVectorDelta(&g_aShipVelocity_0059c010[obj], &delta,
                                &delta);
-            magnitude = (int)Vector_magnitude(&delta);
+            magnitude = Vector_magnitude(&delta);
             if (magnitude > 0) {
                 acceleration = GetShipAccelerationRate(obj);
                 if (alert_flag(obj, 1) != 0 && acceleration < 0x500)
@@ -1296,16 +1296,16 @@ unsigned int accelerate_and_move_object(short obj)
                         SPECIAL_MANEUVER_SUPER_BRAKE) {
                     acceleration *= 2;
                 }
-                acceleration = (int)MultiplyFixed(
+                acceleration = MultiplyFixed(
                     acceleration,
-                    (int)DivideFixed(
+                    DivideFixed(
                         dot_product(
                             &delta,
                             &g_aShipForwardVector_0059bce0[obj]),
                         magnitude) + 0x200);
                 ScaleFixedVector(
                     &delta,
-                    MinInt((int)DivideFixed(acceleration >> 1, magnitude),
+                    MinInt(DivideFixed(acceleration >> 1, magnitude),
                            0x100),
                     &accelerationVector);
                 if (g_aeSpecialManeuver_0059c3c0[obj] !=
@@ -1432,7 +1432,7 @@ unsigned int animate_object(short obj)
             obj);
         g_asObjectScale_0059de40[effect] =
             g_asObjectScale_0059de40[obj];
-        if ((short)RandomInRange(0, 3) == 0)
+        if (RandomInRange(0, 3) == 0)
             PlaySfxWaveFileByNumber(7, obj, 0, 0);
         break;
     }
@@ -1444,14 +1444,14 @@ unsigned int hit_asteroid(short asteroid, short destructionChance)
 {
     short fragments;
 
-    if ((short)RandomBelowOrEqual((short)(destructionChance - 1)) == 0) {
+    if (RandomBelowOrEqual((short)(destructionChance - 1)) == 0) {
         fragments = (short)(RandomBelowOrEqual(1) + 2);
         while (fragments > 0) {
             make_shard(asteroid, g_aShipVelocity_0059c010[asteroid]);
             fragments--;
         }
         explode(-1, asteroid);
-    } else if ((short)RandomBelowOrEqual(7) == 0) {
+    } else if (RandomBelowOrEqual(7) == 0) {
         make_shard(asteroid, g_vCollisionDelta_0059d690);
     }
     return 0;
@@ -1601,10 +1601,10 @@ int object_collision(short obj)
             g_acLastCollisionObject_0059d6a0[partner] =
                 (signed char)obj;
 
-            separationScale = (int)DivideFixed(
+            separationScale = DivideFixed(
                 (g_asObjectCollisionRadius_0059d710[obj] +
                  g_asObjectCollisionRadius_0059d710[partner]) << 8,
-                (int)Vector_magnitude(&g_vCollisionDelta_0059d690));
+                Vector_magnitude(&g_vCollisionDelta_0059d690));
             separationScale = MinInt(separationScale, 0x7d000);
             ScaleFixedVector(&g_vCollisionDelta_0059d690,
                              separationScale, &separation);
@@ -1636,9 +1636,9 @@ int object_collision(short obj)
             responseScale = MinInt(responseScale, 0x400);
             ScaleFixedVector(&componentDelta, responseScale, &impulse);
             AddFixedVectors(&impulse, &partnerComponent, &impulse);
-            forceMagnitude = (int)MultiplyFixed(
+            forceMagnitude = MultiplyFixed(
                 objectMass * 0x600,
-                (int)Vector_magnitude(&impulse)) + 0xa00;
+                Vector_magnitude(&impulse)) + 0xa00;
             AddFixedVectors(&impulse, &g_aShipVelocity_0059c010[obj],
                             &g_aShipVelocity_0059c010[obj]);
 
@@ -1711,7 +1711,7 @@ unsigned int object_intelligence(short obj)
         }
         if (g_acShipTarget_0059ce60[obj] != -1) {
             get_facing_range_from_object(
-                obj, (short)g_acShipTarget_0059ce60[obj]);
+                obj, g_acShipTarget_0059ce60[obj]);
         }
         switch (g_aeObjectType_0059b560[obj]) {
         case OBJECT_TYPE_DUMB_FIRE_MISSILE:
