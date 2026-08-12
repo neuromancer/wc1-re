@@ -52,6 +52,8 @@ Each checked step is committed and pushed independently.
    modern C/C++ compile by isolating MSVC-only syntax and supplying portable
    implementations for proven hand-written assembly routines.  Add compile and
    link checks that cannot affect `WC1.EXE`.
+   The platform-neutral tranche currently compiles 20 recovered C units; the
+   remaining units are grouped behind host, video, and audio boundaries.
 3. [ ] **Window and input.** Implement SDL startup/shutdown, event pumping, scan-code
    translation, mouse capture/warping, controller discovery, and focus/quit
    handling through the existing game APIs.

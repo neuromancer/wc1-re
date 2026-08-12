@@ -7,7 +7,11 @@
 #include "wc1.h"
 
 /* Function start: 0x4274E0 */
+#ifdef WC1_SDL
+int Wc1GameMain(short argc, char **argv)
+#else
 int main(short argc, char **argv)
+#endif
 {
     char *argument;
     int animationDemo;

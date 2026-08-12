@@ -9,6 +9,14 @@
 #include <SDL.h>
 #include <stdint.h>
 
+#ifdef _WIN32
+#include <direct.h>
+#include <io.h>
+#else
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
 /* Keep the widths of Win32 scalar types even on LP64 hosts. */
 typedef uint8_t BYTE;
 typedef uint8_t BOOLEAN;
@@ -64,6 +72,29 @@ typedef struct CRITICAL_SECTION {
 typedef struct Wc1SdlDirectDraw2 *LPDIRECTDRAW2;
 typedef struct Wc1SdlDirectDrawSurface *LPDIRECTDRAWSURFACE;
 typedef struct Wc1SdlDirectDrawPalette *LPDIRECTDRAWPALETTE;
+
+#ifndef _WIN32
+int Wc1SdlOpen(const char *path, int flags, ...);
+long Wc1SdlFileLength(int file);
+char *Wc1SdlItoa(int value, char *text, int radix);
+char *Wc1SdlLtoa(long value, char *text, int radix);
+char *Wc1SdlUltoa(unsigned long value, char *text, int radix);
+char *Wc1SdlStrupr(char *text);
+
+#define _open Wc1SdlOpen
+#define _close close
+#define _read read
+#define _write write
+#define _lseek lseek
+#define _filelength Wc1SdlFileLength
+#define _unlink unlink
+#define _chdir chdir
+#define _cprintf printf
+#define _itoa Wc1SdlItoa
+#define _ltoa Wc1SdlLtoa
+#define _ultoa Wc1SdlUltoa
+#define _strupr Wc1SdlStrupr
+#endif
 
 #ifndef __cdecl
 #define __cdecl

@@ -393,12 +393,14 @@ typedef struct ObjectTypeData {
 } ObjectTypeData;
 #pragma pack(pop)
 
+#ifndef WC1_SDL
 typedef char ObjectTypeData_size_must_be_0x87[
     sizeof(ObjectTypeData) == 0x87 ? 1 : -1];
 typedef char ObjectTypeData_objectClass_must_be_at_0x04[
     offsetof(ObjectTypeData, objectClass) == 0x04 ? 1 : -1];
 typedef char ObjectTypeData_weaponLoadout_must_be_at_0x2c[
     offsetof(ObjectTypeData, weaponLoadout) == 0x2c ? 1 : -1];
+#endif
 
 /* Each ship weapon entry is seven packed bytes inside its 0x47-byte loadout. */
 #pragma pack(push, 1)
@@ -530,8 +532,10 @@ typedef struct NavMapLabel {
 } NavMapLabel;
 #pragma pack(pop)
 
+#ifndef WC1_SDL
 typedef char NavMapLabel_size_must_be_0x0a[
     sizeof(NavMapLabel) == 0x0a ? 1 : -1];
+#endif
 
 /* Marker geometry and palette slots for one mission-objective type. */
 typedef struct NavMapObjectiveStyle {
@@ -542,8 +546,10 @@ typedef struct NavMapObjectiveStyle {
     unsigned char *labelColour;
 } NavMapObjectiveStyle;
 
+#ifndef WC1_SDL
 typedef char NavMapObjectiveStyle_size_must_be_0x10[
     sizeof(NavMapObjectiveStyle) == 0x10 ? 1 : -1];
+#endif
 
 /* One selectable title-screen image and its inclusive mouse hit bounds. */
 typedef struct TitleMenuRegion {
@@ -744,18 +750,22 @@ typedef struct PacketSectionHandle {
 
 typedef char PilotRecord_size_must_be_0x26[
     sizeof(PilotRecord) == 0x26 ? 1 : -1];
+#ifndef WC1_SDL
 typedef char CampaignState_size_must_be_0x58[
     sizeof(CampaignState) == 0x58 ? 1 : -1];
+#endif
 typedef char SaveGameDiskCampaignState_size_must_be_0x44[
     sizeof(SaveGameDiskCampaignState) == 0x44 ? 1 : -1];
 typedef char ConversationSceneRecord_size_must_be_0x0d[
     sizeof(ConversationSceneRecord) == 0x0d ? 1 : -1];
+#ifndef WC1_SDL
 typedef char BriefingCharacterLayout_size_must_be_0x12[
     sizeof(BriefingCharacterLayout) == 0x12 ? 1 : -1];
 typedef char SceneAnimationObject_size_must_be_0x36[
     sizeof(SceneAnimationObject) == 0x36 ? 1 : -1];
 typedef char ScrambleAnimationActor_size_must_be_0x18[
     sizeof(ScrambleAnimationActor) == 0x18 ? 1 : -1];
+#endif
 typedef char ScrambleShipDetail_size_must_be_0x05[
     sizeof(ScrambleShipDetail) == 0x05 ? 1 : -1];
 typedef char PacketSectionHandle_size_must_be_0x14[
@@ -966,22 +976,30 @@ typedef struct BarracksAnimationState {
 
 typedef char MissionNavPoint_size_must_be_0x51[
     sizeof(MissionNavPoint) == 0x51 ? 1 : -1];
+#ifndef WC1_SDL
 typedef char MissionShipRecord_size_must_be_0x36[
     sizeof(MissionShipRecord) == 0x36 ? 1 : -1];
+#endif
 typedef char MissionObjectiveSource_size_must_be_0x42[
     sizeof(MissionObjectiveSource) == 0x42 ? 1 : -1];
+#ifndef WC1_SDL
 typedef char MissionObjective_size_must_be_0x1f[
     sizeof(MissionObjective) == 0x1f ? 1 : -1];
+#endif
 typedef char SaveGameDiskObjective_size_must_be_0x19[
     sizeof(SaveGameDiskObjective) == 0x19 ? 1 : -1];
+#ifndef WC1_SDL
 typedef char SaveGameRecord_size_must_be_0x3b0[
     sizeof(SaveGameRecord) == 0x3b0 ? 1 : -1];
+#endif
 typedef char SaveGameDiskRecord_size_must_be_0x33c[
     sizeof(SaveGameDiskRecord) == 0x33c ? 1 : -1];
 typedef char BarracksBunkState_size_must_be_0x0a[
     sizeof(BarracksBunkState) == 0x0a ? 1 : -1];
+#ifndef WC1_SDL
 typedef char BarracksAnimationState_size_must_be_0x68[
     sizeof(BarracksAnimationState) == 0x68 ? 1 : -1];
+#endif
 
 #define WC1_SPACE_OBJECT_COUNT 64
 #define WC1_SPACE_LAST_MOVING_OBJECT 60

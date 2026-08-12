@@ -1014,7 +1014,11 @@ short LogMemoryUsage(void);                                               /* 0x0
 unsigned int ShowMemoryStatusDebug(void);                                 /* 0x004273C0 */
 void exit_squadron(const char *msg);                                    /* 0x00427370 */
 unsigned int GetJoystickButtonEdge(unsigned int a, short b);                    /* 0x004274C0 */
+#ifdef WC1_SDL
+int Wc1GameMain(short argc, char **argv);
+#else
 int main(short argc, char **argv);                                      /* 0x004274E0 */
+#endif
 unsigned int GetScreenUpdateFlag(void);                                         /* 0x004279D0 */
 unsigned int initialize_view_buffer(void);                                /* 0x00427A00 */
 unsigned int dump_buffer_to_screen(void);                                 /* 0x00427A40 */
