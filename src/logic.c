@@ -159,119 +159,127 @@ short flip_angle(short ship, short angle)
 }
 
 /* Function start: 0x421430 */
-void place_exhaust_on_ships(void)
+unsigned int place_exhaust_on_ships(void)
 {
+    int shipIndex;
+    short *animation;
+    short frame;
+    short scale;
+    short object;
     short ship;
 
     ship = 0;
     do {
-        if (g_aeObjectClass_0059d100[ship] > OBJECT_CLASS_MINE &&
-            g_anShipSpeed_0059b320[ship] != 0 &&
-            g_aeSpecialManeuver_0059c3c0[ship] !=
+        shipIndex = (int)ship;
+        if (g_aeObjectClass_0059d100[shipIndex] >= OBJECT_CLASS_MISSILE &&
+            g_anShipSpeed_0059b320[shipIndex] != 0 &&
+            g_aeSpecialManeuver_0059c3c0[shipIndex] !=
                 SPECIAL_MANEUVER_KILL_ENGINES &&
-            g_asObjectScreenX_0059d9b0[ship] != (short)0x8001) {
-            ObjectTypeData *typeData;
-            short *animation;
-            short offset;
-
-            typeData = &g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[ship]];
-            animation = (short *)typeData->animation;
+            g_asObjectScreenX_0059d9b0[shipIndex] != (short)0x8001) {
+            animation = (short *)g_aObjectTypeData_00466458[
+                g_aeObjectType_0059b560[shipIndex]].animation;
             if (animation != 0) {
-                offset = animation[g_asObjectViewFrame_0059d230[ship]];
-                if (offset != -1) {
-                    short *exhaust = (short *)((unsigned char *)animation +
-                                               (unsigned short)offset);
-
-                    while (exhaust[0] != -1) {
-                        short object;
-                        short scale;
-
+                object = animation[g_asObjectViewFrame_0059d230[shipIndex]];
+                if (object != -1) {
+                    animation = (short *)((unsigned char *)animation + object);
+                    while (*animation != -1) {
                         object = find_vacant_3d_object();
                         if (object == -1)
-                            return;
+                            return 0;
                         set_objects_data(object, OBJECT_TYPE_THRUSTERS,
                                          ship);
-                        scale = (short)(exhaust[1] - RandomInRange(0, 32));
-                        if (g_abShipExhaustHeat_0059d610[ship] == 0)
+                        frame = *animation++;
+                        scale = *animation++;
+                        scale -= (short)RandomInRange(0, 32);
+                        if (g_abShipExhaustHeat_0059d610[shipIndex] == 0)
                             scale = (short)(scale - 32);
                         g_asObjectScale_0059de40[object] = scale;
-                        g_asObjectDistance_0059b4a0[object] = exhaust[2];
+                        g_asObjectDistance_0059b4a0[object] = *animation++;
                         g_asObjectScreenAngle_0059cd90[object] =
-                            flip_angle(ship, exhaust[3]);
+                            flip_angle(ship, *animation++);
                         g_asObjectFlip_0059c870[object] = 0;
-                        g_asObjectScreenX_0059d9b0[object] = exhaust[4];
-                        g_asObjectScreenY_0059d930[object] = exhaust[5];
-                        if (g_aeSpecialManeuver_0059c3c0[ship] ==
+                        g_asObjectScreenX_0059d9b0[object] = *animation++;
+                        g_asObjectScreenY_0059d930[object] = *animation++;
+                        if (g_aeSpecialManeuver_0059c3c0[shipIndex] ==
                                 SPECIAL_MANEUVER_AFTERBURNER) {
                             g_asObjectViewFrame_0059d230[object] =
-                                (short)(exhaust[0] * 3 +
+                                (short)(frame * 3 +
                                         RandomInRange(0, 2));
                         } else {
                             g_asObjectViewFrame_0059d230[object] =
-                                (short)(exhaust[0] * 2 + 12 +
+                                (short)(frame * 2 + 12 +
                                         RandomInRange(0, 1));
                         }
-                        exhaust += 6;
                     }
                 }
             }
         }
         ship++;
     } while (ship < 10);
+    /* The original leaves EAX incidental after scanning every ship. */
 }
 
 /* Function start: 0x4215E0 */
-void reposition_fixed_child_objects(void)
+unsigned int reposition_fixed_child_objects(void)
 {
+    int objectIndex;
+    int parentIndex;
+    int right;
+    int up;
+    long sine;
+    long cosine;
+    short parentScale;
+    short angle;
+    short parent;
     short object;
 
     object = 10;
     do {
-        if (g_aeObjectClass_0059d100[object] ==
+        objectIndex = (int)object;
+        if (g_aeObjectClass_0059d100[objectIndex] ==
                 OBJECT_CLASS_FIXED_OBJECT) {
-            short parent;
-
-            parent = (short)g_acObjectOwner_0059ce20[object];
-            if (g_aeObjectType_0059b560[object] == OBJECT_TYPE_TURRET ||
-                g_aeObjectType_0059b560[object] == OBJECT_TYPE_THRUSTERS) {
-                int right;
-                int up;
-                long sine;
-                long cosine;
-                short parentScale;
-
-                sine = SinFixed(g_asObjectScreenAngle_0059cd90[parent]);
-                cosine = CosFixed(g_asObjectScreenAngle_0059cd90[parent]);
-                parentScale = g_asObjectScreenScale_0059c950[parent];
-                right = (int)g_asObjectScreenX_0059d9b0[object] *
+            parent = (short)g_acObjectOwner_0059ce20[objectIndex];
+            if (g_aeObjectType_0059b560[objectIndex] ==
+                    OBJECT_TYPE_TURRET ||
+                g_aeObjectType_0059b560[objectIndex] ==
+                    OBJECT_TYPE_THRUSTERS) {
+                parentIndex = (int)parent;
+                angle = g_asObjectScreenAngle_0059cd90[parentIndex];
+                sine = SinFixed(angle);
+                cosine = CosFixed(angle);
+                parentScale =
+                    g_asObjectScreenScale_0059c950[parentIndex];
+                right = (int)g_asObjectScreenX_0059d9b0[objectIndex] *
                         (unsigned short)parentScale;
-                g_asObjectDistance_0059b4a0[object] = (short)(
-                    g_asObjectDistance_0059b4a0[object] +
-                    g_asObjectDistance_0059b4a0[parent]);
-                if ((g_asObjectFlip_0059c870[parent] & 0x10) != 0)
+                g_asObjectDistance_0059b4a0[objectIndex] +=
+                    g_asObjectDistance_0059b4a0[parentIndex];
+                if ((g_asObjectFlip_0059c870[parentIndex] & 0x10) != 0)
                     right = -right;
-                up = (int)g_asObjectScreenY_0059d930[object] *
+                up = (int)g_asObjectScreenY_0059d930[objectIndex] *
                      (unsigned short)parentScale;
-                if ((g_asObjectFlip_0059c870[parent] & 0x20) != 0)
+                if ((g_asObjectFlip_0059c870[parentIndex] & 0x20) != 0)
                     up = -up;
-                g_asObjectScreenX_0059d9b0[object] = (short)(
-                    ((MultiplyFixed(right, (int)cosine) -
-                      MultiplyFixed(up, (int)sine)) >> 8) +
-                    g_asObjectScreenX_0059d9b0[parent]);
-                g_asObjectScreenY_0059d930[object] = (short)(
-                    ((MultiplyFixed(up, (int)cosine) +
-                      MultiplyFixed(right, (int)sine)) >> 8) +
-                    g_asObjectScreenY_0059d930[parent]);
+                g_asObjectScreenX_0059d9b0[objectIndex] = (short)(
+                    (MultiplyFixed(right, (int)cosine) -
+                     MultiplyFixed(up, (int)sine)) >> 8);
+                g_asObjectScreenY_0059d930[objectIndex] = (short)(
+                    (MultiplyFixed(up, (int)cosine) +
+                     MultiplyFixed(right, (int)sine)) >> 8);
+                g_asObjectScreenX_0059d9b0[objectIndex] +=
+                    g_asObjectScreenX_0059d9b0[parentIndex];
+                g_asObjectScreenY_0059d930[objectIndex] +=
+                    g_asObjectScreenY_0059d930[parentIndex];
             }
-            g_asObjectScreenScale_0059c950[object] = (short)(
-                (unsigned int)(unsigned short)
-                    g_asObjectScreenScale_0059c950[parent] *
-                (unsigned int)(unsigned short)
-                    g_asObjectScale_0059de40[object] >> 8);
+            parentIndex = (int)parent;
+            g_asObjectScreenScale_0059c950[objectIndex] = (short)(
+                (unsigned short)
+                    g_asObjectScreenScale_0059c950[parentIndex] *
+                (unsigned short)
+                    g_asObjectScale_0059de40[objectIndex] >> 8);
         }
         object++;
     } while (object <= WC1_SPACE_LAST_MOVING_OBJECT);
+    return 0;
 }
 
 /* Function start: 0x421760 */

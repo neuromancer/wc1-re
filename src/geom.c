@@ -886,26 +886,35 @@ unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
 /* Function start: 0x4199C0 */
 short check_for_collision(short obj)
 {
+    FixedVector *objectPosition;
+    FixedVector *position;
+    int objectIndex;
     short other;
     short range;
 
+    objectIndex = (int)obj;
+    objectPosition = &g_aShipPosition_0059c490[objectIndex];
     other = 0;
+    position = g_aShipPosition_0059c490;
     do {
         if (other != obj &&
-            g_aeObjectClass_0059d100[other] > OBJECT_CLASS_FIXED_OBJECT) {
-            ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
-                               &g_aShipPosition_0059c490[other],
+            g_aeObjectClass_0059d100[(int)other] >=
+                OBJECT_CLASS_PROJECTILE) {
+            ComputeVectorDelta(objectPosition, position,
                                &g_vCollisionDelta_0059d690);
-            range = (short)(g_asObjectCollisionRadius_0059d710[obj] +
-                            g_asObjectCollisionRadius_0059d710[other]);
-            if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_SHIP &&
-                g_aeObjectClass_0059d100[other] == OBJECT_CLASS_SHIP)
+            range = (short)(
+                g_asObjectCollisionRadius_0059d710[(int)other] +
+                g_asObjectCollisionRadius_0059d710[objectIndex]);
+            if (g_aeObjectClass_0059d100[(int)other] ==
+                    OBJECT_CLASS_SHIP &&
+                g_aeObjectClass_0059d100[objectIndex] == OBJECT_CLASS_SHIP)
                 range >>= 1;
             if (IsVectorWithinRange(&g_vCollisionDelta_0059d690,
                                     range) != 0)
                 return other;
         }
         other++;
+        position++;
     } while (other <= WC1_SPACE_LAST_MOVING_OBJECT);
     return -1;
 }

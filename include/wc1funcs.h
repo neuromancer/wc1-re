@@ -816,8 +816,8 @@ unsigned int check_computer_damage(void);                              /* 0x0041
 short rnd_sign(short v);                                               /* 0x004208C0 */
 unsigned int fire_super_brake(short ship);                              /* 0x004213B0 */
 short flip_angle(short ship, short angle);                              /* 0x004213D0 */
-void place_exhaust_on_ships(void);                                      /* 0x00421430 */
-void reposition_fixed_child_objects(void);                             /* 0x004215E0 */
+unsigned int place_exhaust_on_ships(void);                              /* 0x00421430 */
+unsigned int reposition_fixed_child_objects(void);                     /* 0x004215E0 */
 unsigned int housekeep_power_plant_and_fuel(short ship);                /* 0x00421760 */
 unsigned int replenish_shields(short ship);                            /* 0x00421780 */
 unsigned int replenish_weapon_energy_bank(short ship);                 /* 0x00421830 */

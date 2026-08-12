@@ -1306,12 +1306,14 @@ void update_objective_location(short objective)
 /* Function start: 0x415850 */
 unsigned int objective_lost(short objective)
 {
-    int objectiveType;
+    int objectiveIndex;
     unsigned short state;
+    int objectiveType;
 
+    objectiveIndex = (int)objective;
     state = g_aMissionShips_0046c948[
-        g_aMissionObjectives_0059dac0[objective].index].state;
-    objectiveType = g_aMissionObjectives_0059dac0[objective].type;
+        g_aMissionObjectives_0059dac0[objectiveIndex].index].state;
+    objectiveType = g_aMissionObjectives_0059dac0[objectiveIndex].type;
     switch (objectiveType) {
         case 2:
         case 3:
