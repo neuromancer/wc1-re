@@ -258,16 +258,25 @@ void Wc1SdlPumpEvents(void)
 
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
-            DAT_005a8a3c = 0;
+            ShutdownGameWindow();
+            return;
         } else if (event.type == SDL_WINDOWEVENT) {
-            if (event.window.event == SDL_WINDOWEVENT_CLOSE)
-                DAT_005a8a3c = 0;
+            if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
+                ShutdownGameWindow();
+                return;
+            }
         } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
             int pressed;
             int scanCode;
             int virtualKey;
 
             pressed = event.type == SDL_KEYDOWN;
+            if (pressed && event.key.repeat == 0 &&
+                event.key.keysym.sym == SDLK_q &&
+                (event.key.keysym.mod & KMOD_GUI) != 0) {
+                ShutdownGameWindow();
+                return;
+            }
             scanCode = Wc1SdlTranslateScanCode(event.key.keysym.scancode);
             virtualKey = Wc1SdlTranslateVirtualKey(event.key.keysym.sym);
             if ((event.key.keysym.mod & KMOD_ALT) != 0 ||

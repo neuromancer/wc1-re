@@ -67,13 +67,14 @@ int main(void)
         return 1;
 
     memset(&event, 0, sizeof(event));
-    event.type = SDL_QUIT;
-    if (SDL_PushEvent(&event) != 1 || PumpWindowMessages() != 0)
+    event.type = SDL_KEYDOWN;
+    event.key.windowID = SDL_GetWindowID(window);
+    event.key.keysym.scancode = SDL_SCANCODE_Q;
+    event.key.keysym.sym = SDLK_q;
+    event.key.keysym.mod = KMOD_GUI;
+    DAT_005a89a0 = (HWND)window;
+    if (SDL_PushEvent(&event) != 1)
         return 1;
-
-    FlushInputEvents();
-    Wc1SdlShutdownVideo();
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    return 0;
+    PumpWindowMessages();
+    return 1;
 }
