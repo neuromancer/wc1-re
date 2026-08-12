@@ -807,7 +807,7 @@ short pop_flack(short obj, short range, FixedVector *hardpoint);      /* 0x00420
 int fire_turrets(short obj);                                          /* 0x00420AA0 */
 int fire_weapon(short obj, short weapon);                              /* 0x00420C20 */
 int fire_missile(short ship);                                         /* 0x00421150 */
-short fire_fixed_projectile_weapon(short obj);                         /* 0x00421220 */
+int fire_fixed_projectile_weapon(short obj);                           /* 0x00421220 */
 int drop_mine(short obj, signed char weapon, enum ObjectType type,
               short lifetime);                                       /* 0x004212A0 */
 void fire_afterburner(short obj, short time);                          /* 0x00421350 */
@@ -935,7 +935,7 @@ unsigned int InitializeConstellationObject(
     const ConstellationObjectDefinition *definition,
     short object);                                                /* 0x004242D0 */
 unsigned int FreeConstellationObject(short object);               /* 0x004243B0 */
-void init_constellation(short scene);                             /* 0x004243E0 */
+unsigned int init_constellation(short scene);                     /* 0x004243E0 */
 unsigned int free_constellation(void);                            /* 0x00424490 */
 void init_vdus(void);                                                  /* 0x004244E0 */
 unsigned int InitializeCockpitResources(signed char mode);             /* 0x004245B0 */
@@ -981,7 +981,8 @@ int DisplayTrainSimHighScoreTable(short phase);                       /* 0x00425
 int AnimateTrainSimTitle(void);                                       /* 0x00425D00 */
 unsigned char *GetHighScoreEntry(short i);                           /* 0x00425DF0 */
 unsigned int GetHighScoreValue(short i);                                      /* 0x00425E20 */
-void SetHighScoreEntry(short i, unsigned char b, unsigned int v);    /* 0x00425E30 */
+unsigned int SetHighScoreEntry(short i, unsigned char b,
+                               unsigned int v);                       /* 0x00425E30 */
 void SortTrainSimHighScores(void);                                   /* 0x00425E50 */
 short FindTrainSimHighScore(short pilot);                             /* 0x00425ED0 */
 short InsertTrainSimHighScore(short pilot, unsigned int score);       /* 0x00425EF0 */

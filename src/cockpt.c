@@ -371,7 +371,7 @@ void EraseCockpitReadoutAtPosition(signed char slot, short left,
 short DrawHudMessageSlot(HudMessageSlot *slot)
 {
     unsigned char savedColour;
-    unsigned short oldDrawColour;
+    short oldDrawColour;
     short showingEraseColour;
 
     if (DAT_0046c03c != 0)
@@ -1721,17 +1721,16 @@ short GetRectHeight(const Viewport *viewport)
 /* Function start: 0x416260 */
 void print_message_text(char *text, unsigned short colour)
 {
-    char source[84];
-    char wrapped[84];
-    Viewport viewport;
     TextContext context;
+    Viewport viewport;
+    char wrapped[84];
+    char source[84];
     char *input;
     char *output;
+    int charactersPerLine;
     short lastSpace = -1;
-    short position = 0;
+    short position;
     short width;
-    short y;
-    int view;
 
     if (text == 0)
         return;
@@ -1742,21 +1741,25 @@ void print_message_text(char *text, unsigned short colour)
     context = DAT_005a6bc0;
     context.viewport = &viewport;
 
-    view = (int)g_cCockpitView_0059dab0;
     SetRectBounds(&viewport,
-                  (unsigned short)DAT_004691e0[view * 2],
-                  (unsigned short)DAT_004691e0[view * 2 + 1],
-                  (unsigned short)(319 - DAT_004691e0[view * 2]),
-                  (unsigned short)(DAT_004691e0[view * 2 + 1] + 60));
-    context.colour = colour;
+                  (unsigned short)DAT_004691e0[
+                      (int)g_cCockpitView_0059dab0 * 2],
+                  (unsigned short)DAT_004691e0[
+                      (int)g_cCockpitView_0059dab0 * 2 + 1],
+                  (unsigned short)(
+                      319 - DAT_004691e0[
+                                (int)g_cCockpitView_0059dab0 * 2]),
+                  (unsigned short)(
+                      DAT_004691e0[
+                          (int)g_cCockpitView_0059dab0 * 2 + 1] + 60));
     context.backgroundColour = 0xff;
-    width = GetRectHeight(&viewport);
-
+    context.colour = colour;
     input = source;
     output = wrapped;
+    width = GetRectHeight(&viewport);
+    charactersPerLine = (short)(width / 6);
+    position = 0;
     if (*input != 0) {
-        short charactersPerLine = (short)(width / 6);
-
         do {
             *output = *input;
             if (*input == ' ')
@@ -1776,28 +1779,40 @@ void print_message_text(char *text, unsigned short colour)
     }
     *output = 0;
 
-    if (DAT_0046a008 != 0) {
-        switch (view) {
-        case 0:
-            y = (short)(DAT_004691e0[view * 2 + 1] + 10);
-            break;
-        case 1:
-            y = (short)(DAT_004691e0[view * 2 + 1] + 25);
-            break;
-        case 2:
-            y = (short)(DAT_004691e0[view * 2 + 1] + 50);
-            break;
-        case 3:
-            y = DAT_004691e0[view * 2 + 1];
-            break;
-        default:
-            DAT_00469008 = DAT_00469004;
-            return;
+    {
+        int view;
+
+        view = (int)g_cCockpitView_0059dab0;
+        if (DAT_0046a008 != 0) {
+            switch (view) {
+            case 0:
+                DrawTextAt(&context, DAT_004691e0[view * 2],
+                           (short)(DAT_004691e0[view * 2 + 1] + 10),
+                           wrapped, 2);
+                break;
+            case 1:
+                DrawTextAt(&context, DAT_004691e0[view * 2],
+                           (short)(DAT_004691e0[view * 2 + 1] + 25),
+                           wrapped, 2);
+                break;
+            case 2:
+                DrawTextAt(&context, DAT_004691e0[view * 2],
+                           (short)(DAT_004691e0[view * 2 + 1] + 50),
+                           wrapped, 2);
+                break;
+            case 3:
+                DrawTextAt(&context, DAT_004691e0[view * 2],
+                           DAT_004691e0[view * 2 + 1], wrapped, 2);
+                break;
+            default:
+                goto message_finished;
+            }
+        } else {
+            DrawTextAt(&context, DAT_004691e0[view * 2],
+                       DAT_004691e0[view * 2 + 1], wrapped, 2);
         }
-    } else {
-        y = DAT_004691e0[view * 2 + 1];
     }
-    DrawTextAt(&context, DAT_004691e0[view * 2], y, wrapped, 2);
+message_finished:
     DAT_00469008 = DAT_00469004;
 }
 
@@ -2493,26 +2508,24 @@ void clear_cockpit_damage(void)
 void explosion_draw(void)
 {
     short damage;
-    int view;
 
     if (g_pCockpitPilotShape_0046905c == 0)
         g_pCockpitPilotShape_0046905c =
             (unsigned char *)FetchDiskPacketRetrying(
                 (short)g_cCockpitLogicalFile_005a7c74, 4, 0);
-    view = (int)g_cCockpitView_0059dab0;
-    if (view >= 0 && view < 5 && g_pCockpitPilotShape_0046905c != 0) {
-        damage = 0;
-        do {
-            if (g_anCockpitDamageState_005a7ef0[damage] == 1) {
-                DrawSpriteDefault(
-                    &DAT_005a6ba0,
-                    g_aaCockpitDamagePositions_00469228[view][damage].x,
-                    g_aaCockpitDamagePositions_00469228[view][damage].y,
-                    g_pCockpitPilotShape_0046905c, damage);
-            }
-            damage++;
-        } while (damage < 4);
-    }
+    damage = 0;
+    do {
+        if (g_anCockpitDamageState_005a7ef0[damage] == 1) {
+            DrawSpriteDefault(
+                &DAT_005a6ba0,
+                g_aaCockpitDamagePositions_00469228[
+                    (int)g_cCockpitView_0059dab0][damage].x,
+                g_aaCockpitDamagePositions_00469228[
+                    (int)g_cCockpitView_0059dab0][damage].y,
+                g_pCockpitPilotShape_0046905c, damage);
+        }
+        damage++;
+    } while (damage < 4);
     FreePacketAndClear((int *)&g_pCockpitPilotShape_0046905c, 0);
 }
 
@@ -2684,13 +2697,9 @@ void update_dead_disp(short a)
 /* Function start: 0x417B30 */
 void check_stranded(void)
 {
-    int carrier;
-
-    if (g_nTrainSimActive_00469e2c != 0)
-        return;
-    carrier = (int)g_nCarrierMissionShipIndex_005a7e2a;
-    if (carrier >= 0 && carrier < WC1_MISSION_SHIP_COUNT &&
-        g_aMissionShips_0046c948[carrier].state == 3 &&
+    if (g_nTrainSimActive_00469e2c == 0 &&
+        g_aMissionShips_0046c948[
+            g_nCarrierMissionShipIndex_005a7e2a].state == 3 &&
         any_enemy(0, 30000) == 0)
         g_nArcadeState_00469fb0 = 3;
 }

@@ -323,10 +323,10 @@ unsigned int GetHighScoreValue(short i)
 }
 
 /* Function start: 0x425E30 */
-void SetHighScoreEntry(short i, unsigned char b, unsigned int v)
+unsigned int SetHighScoreEntry(short i, unsigned char b, unsigned int v)
 {
     g_aHighScoreEntries_005a7c30[i].pilotIndex = (signed char)b;
-    g_aHighScoreEntries_005a7c30[i].score = v;
+    return g_aHighScoreEntries_005a7c30[i].score = v;
 }
 
 /* Function start: 0x425E50 */

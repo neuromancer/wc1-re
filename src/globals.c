@@ -2335,6 +2335,8 @@ int DAT_005a7ec0;
 short g_asScannerBackgroundColour_005a7ed0[10];
 unsigned int g_anCockpitDamageState_005a7ef0[4];
 unsigned short DAT_005a7f00;
+short g_nStarFieldJRotation_005a7f02;
+short g_nStarFieldIRotation_005a7f04;
 short g_nExternalViewAngle_005a7f06;
 unsigned char *g_pTitleShape_005a7f08;
 int g_nViewportAllocationCount_005a7f0c;

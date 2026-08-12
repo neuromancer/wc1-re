@@ -10,23 +10,27 @@
 FontWorkspace **AllocateFontWorkspace(short fontIndex)
 {
     FontWorkspace **workspace;
-    FontWorkspace *entry;
     int offset;
     int dimension;
 
     (void)fontIndex;
     workspace = (FontWorkspace **)malloc(sizeof(*workspace));
-    *workspace = (FontWorkspace *)malloc(sizeof(**workspace));
     offset = 0;
     dimension = 5;
+    *workspace = (FontWorkspace *)malloc(sizeof(**workspace));
     do {
-        entry = (FontWorkspace *)((unsigned char *)*workspace + offset);
         offset += sizeof(FontWorkspace);
-        entry->width = dimension;
-        entry->height = dimension;
-        entry->pixels = (unsigned char *)malloc(
-            entry->width * entry->height);
-        memset(entry->pixels, dimension, entry->width * entry->height);
+        ((FontWorkspace *)((unsigned char *)*workspace + offset -
+                           sizeof(FontWorkspace)))->width = dimension;
+        ((FontWorkspace *)((unsigned char *)*workspace + offset -
+                           sizeof(FontWorkspace)))->height = dimension;
+        ((FontWorkspace *)((unsigned char *)*workspace + offset -
+                           sizeof(FontWorkspace)))->pixels =
+            (unsigned char *)malloc((*workspace)->width *
+                                    (*workspace)->height);
+        memset(((FontWorkspace *)((unsigned char *)*workspace + offset -
+                                  sizeof(FontWorkspace)))->pixels,
+               dimension, (*workspace)->width * (*workspace)->height);
     } while (offset < (int)sizeof(FontWorkspace));
     return workspace;
 }

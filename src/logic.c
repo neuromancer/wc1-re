@@ -63,36 +63,31 @@ int fire_missile(short ship)
 }
 
 /* Function start: 0x421220 */
-short fire_fixed_projectile_weapon(short obj)
+int fire_fixed_projectile_weapon(short obj)
 {
-    ShipWeaponSlot *slot;
     int loadoutOffset;
-    short ship;
     short weapon;
-    int result;
+    ShipWeaponSlot *slot;
 
-    ship = obj;
-    loadoutOffset = ship * sizeof(g_aShipWeapons_0059cab0[0]);
+    loadoutOffset = obj * sizeof(g_aShipWeapons_0059cab0[0]);
     weapon = 0;
     slot = (ShipWeaponSlot *)((unsigned char *)g_aShipWeapons_0059cab0 +
                               loadoutOffset + 1);
     if (*(signed char *)((unsigned char *)g_aShipWeapons_0059cab0 +
                          loadoutOffset) <= 0)
-        return ship;
+        return;
     do {
         if (g_aObjectTypeData_00466458[slot->type].objectClass ==
                 OBJECT_CLASS_PROJECTILE &&
             slot->disabled == 0) {
-            result = fire_weapon(ship, weapon);
-            if (result == -1)
+            if (fire_weapon(obj, weapon) == -1)
                 return -1;
         }
         weapon++;
         slot++;
     } while ((short)*(signed char *)((unsigned char *)g_aShipWeapons_0059cab0 +
                                      loadoutOffset) > weapon);
-    return *(signed char *)((unsigned char *)g_aShipWeapons_0059cab0 +
-                            loadoutOffset);
+    /* The original leaves EAX incidental on successful and empty paths. */
 }
 
 /* Function start: 0x4212A0 */
@@ -2136,41 +2131,40 @@ unsigned int FreeConstellationObject(short object)
 }
 
 /* Function start: 0x4243E0 */
-void init_constellation(short scene)
+unsigned int init_constellation(short scene)
 {
-    short constellation;
-    short object;
     short slot;
+    short object;
     int definitionBase;
 
-    if (g_pConstellationShape_005a765c == 0)
-        goto load_constellation;
-    return;
+    if (g_pConstellationShape_005a765c != 0)
+        return 0;
 
-load_constellation:
-    constellation = scene;
-    constellation--;
+    scene--;
     g_pConstellationShape_005a765c =
         (unsigned char *)FetchDiskPacketRetrying(12, 0, 0);
-    if (g_nTrainSimActive_00469e2c != 0 || constellation < 0)
+    if (g_nTrainSimActive_00469e2c != 0 || scene < 0)
         return;
 
-    definitionBase = (int)constellation * 4;
+    definitionBase = (int)scene * 4;
     slot = 0;
     do {
         if (g_pConstellationDefinitions_00598a28[
-                definitionBase + slot].shapePacket != -1 &&
-            (object = find_vacant_3d_object()) != -1) {
-            InitializeConstellationObject(
-                &g_pConstellationDefinitions_00598a28[
-                    definitionBase + slot],
-                object);
+                definitionBase + slot].shapePacket != -1) {
+            object = find_vacant_3d_object();
+            if (object != -1) {
+                InitializeConstellationObject(
+                    &g_pConstellationDefinitions_00598a28[
+                        definitionBase + slot],
+                    object);
+            }
             g_asConstellationObjectIndices_00469d50[slot] = object;
         } else {
             g_asConstellationObjectIndices_00469d50[slot] = -1;
         }
         slot++;
     } while (slot < 4);
+    /* The successful path returns the last expression left in EAX. */
 }
 
 /* Function start: 0x424490 */

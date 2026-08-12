@@ -292,15 +292,17 @@ void Mturn_n_spin(short ship, short target)
         veer_random(ship, 90);
         break;
     case 1:
-        if (++g_asShipCount_0059c420[ship] < 3)
+        ++g_asShipCount_0059c420[ship];
+        advanceSequence = 1;
+        if (g_asShipCount_0059c420[ship] <= 2)
             advanceSequence = 0;
         break;
     case 2:
-        if (g_nTargetFacing_0059d52a <= 80) {
+        advanceSequence = g_nTargetFacing_0059d52a <= 80;
+        if (advanceSequence != 0) {
             set_special(ship, SPECIAL_MANEUVER_KILL_ENGINES);
             point_ship_at_object(ship, target);
         } else {
-            advanceSequence = 0;
             maneuver_complete(ship);
         }
         break;

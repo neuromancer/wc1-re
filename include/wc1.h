@@ -208,8 +208,8 @@ typedef struct HudMessageSlot {
     TextContext *context;            /* +0x00 */
     short x;                         /* +0x04 */
     short y;                         /* +0x06 */
-    unsigned short colour;           /* +0x08 */
-    unsigned short drawColour;       /* +0x0A */
+    short colour;                    /* +0x08 */
+    short drawColour;                /* +0x0A */
     signed char flashCount;          /* +0x0C */
     char *text;                      /* +0x0D */
 } HudMessageSlot;
