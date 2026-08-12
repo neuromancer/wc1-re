@@ -9,7 +9,9 @@
  *  list below is the original source order of this file.
  */
 #include "ix.h"
+#ifndef WC1_SDL
 #include <dsound.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -34,6 +36,22 @@ BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
 /* Function start: 0x00445F60 */   /* source lines 46, 50, 60, 63, 81, 84, 96 */
 DWORD WINAPI ix_mixer_thread_proc(void *parameter)
 {
+#ifdef WC1_SDL
+    (void)parameter;
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+    if (!Wc1SdlStartAudio(ix_dspv_mix, &g_csMixer_005985e8,
+                          &g_dwDspTick_00598128)) {
+        ix_log_printf("Fatal [%s - %d]:\n", IX_MIXER_FILE, 50);
+        ix_log_printf("Failed to init SDL audio: %s", SDL_GetError());
+        exit(-1);
+    }
+    while ((g_dwDspFlags_00597d18 & 4) != 0) {
+        WaitForSingleObject(g_hMixerWakeEvent_00597d08, INFINITE);
+        ResetEvent(g_hMixerWakeEvent_00597d08);
+    }
+    Wc1SdlStopAudio();
+    return 0;
+#else
     DSCAPS driverCaps;
     PCMWAVEFORMAT format;
     DSBUFFERDESC bufferDescription;
@@ -153,11 +171,15 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
         g_pDirectSound_00597d10 = 0;
     }
     return 0;
+#endif
 }
 
 /* Function start: 0x004463FC */   /* source line(s) 150;157;161;176;186;196: Failed to Lock, %s | Failed to Unlock, %s | Failed to Play, %s | Failed to get current pos */
 int ix_mixer_service(void)
 {
+#ifdef WC1_SDL
+    return 0;
+#else
     DWORD delay;
     HRESULT result;
     void *firstBuffer;
@@ -240,6 +262,7 @@ int ix_mixer_service(void)
         result = DS_OK;
     }
     return 0;
+#endif
 }
 
 /* Function start: 0x004467A0 */

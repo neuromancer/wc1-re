@@ -1372,6 +1372,9 @@ int fire_turrets(short obj)
 int fire_weapon(short obj, short weapon)
 {
     ObjectTypeData *weaponData;
+#ifdef WC1_SDL
+    ShipWeaponSlot *weaponSlot;
+#endif
     enum ObjectType weaponType;
     enum ObjectClass weaponClass;
     FixedVector vector;
@@ -1385,8 +1388,14 @@ int fire_weapon(short obj, short weapon)
     projectileSpeed = 10;
     weaponOffset = (int)obj * sizeof(g_aShipWeapons_0059cab0[0]) +
                    (int)weapon * sizeof(ShipWeaponSlot);
+#ifdef WC1_SDL
+    weaponSlot = (ShipWeaponSlot *)((unsigned char *)g_aShipWeapons_0059cab0 +
+                                   weaponOffset + 1);
+    weaponType = weaponSlot->type;
+#else
     weaponType = *(enum ObjectType *)(void *)
         ((unsigned char *)g_aShipWeapons_0059cab0 + weaponOffset + 1);
+#endif
     weaponClass = g_aObjectTypeData_00466458[weaponType].objectClass;
     if (weaponType == OBJECT_TYPE_TURRET) {
         weaponClass = OBJECT_CLASS_PROJECTILE;
@@ -1410,10 +1419,14 @@ int fire_weapon(short obj, short weapon)
                 (short)(g_asShipWeaponEnergy_0059d470[obj] -
                         weaponData->animationDelay);
         }
+#ifdef WC1_SDL
+        child_object(weaponSlot->hardpoint, projectile, obj);
+#else
         child_object(*(short *)(void *)
                          ((unsigned char *)g_aShipWeapons_0059cab0 +
                           weaponOffset + 5),
                      projectile, obj);
+#endif
         g_asObjectCounter_0059c330[projectile] =
             g_aObjectTypeData_00466458[weaponType].lifetime;
         vector_component_in_dir(&g_aShipVelocity_0059c010[obj],

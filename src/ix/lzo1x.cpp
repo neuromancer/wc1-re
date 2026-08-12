@@ -6,11 +6,35 @@
  * directly so packed stream chunks decode exactly as they did originally.
  */
 #include "ix.h"
+#include <stdlib.h>
 #include <string.h>
+#ifdef WC1_SDL
+#include <limits.h>
+#include <lzo1x.h>
+#endif
 
 #pragma function(strcat)
 
 /* Function start: 0x004614C0 */
+#ifdef WC1_SDL
+extern "C" void ix_lzo1x_decompress(
+    unsigned char *source, unsigned char *destination,
+    unsigned int destinationBytes, unsigned int sourceBytes)
+{
+    lzo_uint decodedBytes;
+    int result;
+
+    decodedBytes = 0;
+    result = lzo1x_decompress_safe(source, sourceBytes, destination,
+                                   &decodedBytes, 0);
+    if (result != LZO_E_OK || decodedBytes != destinationBytes) {
+        ix_log_printf("Fatal: LZO stream decode failed (%d, %u/%u)",
+                      result, (unsigned int)decodedBytes,
+                      destinationBytes);
+        exit(-1);
+    }
+}
+#else
 extern "C" __declspec(naked) void ix_lzo1x_decompress(
     unsigned char *source, unsigned char *destination,
     unsigned int destinationBytes)
@@ -162,11 +186,15 @@ lzo_finish:
         ret
     }
 }
+#endif
 
 /* Function start: 0x00461650 */
 extern "C" FILE *ix_file_open(const char *path, int mode)
 {
     char modeString[4];
+#ifdef WC1_SDL
+    char resolvedPath[PATH_MAX];
+#endif
 
     modeString[0] = 0;
     if ((mode & 1) != 0)
@@ -174,7 +202,13 @@ extern "C" FILE *ix_file_open(const char *path, int mode)
     if ((mode & 2) != 0)
         strcat(modeString, "w");
     strcat(modeString, "b");
+#ifdef WC1_SDL
+    if (!Wc1SdlResolvePath(path, resolvedPath, sizeof(resolvedPath)))
+        return 0;
+    return fopen(resolvedPath, modeString);
+#else
     return fopen(path, modeString);
+#endif
 }
 
 /* Function start: 0x004616BE */

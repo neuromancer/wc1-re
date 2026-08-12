@@ -113,7 +113,11 @@ void EmitTextString(void (__stdcall *writer)(int), const char *text)
 
 /* Function start: 0x413A40 */
 void FormatTextTokens(void (__stdcall *writer)(int),
+#ifdef WC1_SDL
+                      const char *format, va_list *arguments)
+#else
                       const char *format, unsigned long *arguments)
+#endif
 {
     short character;
     char number[64];
@@ -127,53 +131,108 @@ void FormatTextTokens(void (__stdcall *writer)(int),
             character = (signed char)*format++;
             switch (character) {
             case 'B':
+#ifdef WC1_SDL
+                g_pCurrentTextContext_0059af8c->backgroundColour =
+                    (unsigned char)va_arg(*arguments, int);
+#else
                 g_pCurrentTextContext_0059af8c->backgroundColour =
                     (unsigned char)*arguments++;
+#endif
                 break;
             case 'D':
+#ifdef WC1_SDL
+                text = _ltoa(va_arg(*arguments, long), number, 10);
+#else
                 text = _ltoa((long)*arguments++, number, 10);
+#endif
                 EmitTextString(writer, text);
                 break;
             case 'F':
+#ifdef WC1_SDL
+                g_pCurrentTextContext_0059af8c->colour =
+                    (unsigned char)va_arg(*arguments, int);
+#else
                 g_pCurrentTextContext_0059af8c->colour =
                     (unsigned char)*arguments++;
+#endif
                 break;
             case 'J':
+#ifdef WC1_SDL
+                g_pCurrentTextContext_0059af8c->alignment =
+                    (unsigned char)va_arg(*arguments, int);
+#else
                 g_pCurrentTextContext_0059af8c->alignment =
                     (unsigned char)*arguments++;
+#endif
                 break;
             case 'P':
                 DrawTextString(g_pCurrentTextContext_0059af8c->text);
                 break;
             case 'U':
+#ifdef WC1_SDL
+                text = _ultoa(va_arg(*arguments, unsigned long), number, 10);
+#else
                 text = _ultoa(*arguments++, number, 10);
+#endif
                 EmitTextString(writer, text);
                 break;
             case 'X':
+#ifdef WC1_SDL
+                g_pCurrentTextContext_0059af8c->cursorX =
+                    (short)va_arg(*arguments, int);
+#else
                 g_pCurrentTextContext_0059af8c->cursorX =
                     (short)*arguments++;
+#endif
                 break;
             case 'Y':
+#ifdef WC1_SDL
+                g_pCurrentTextContext_0059af8c->cursorY =
+                    (short)va_arg(*arguments, int);
+#else
                 g_pCurrentTextContext_0059af8c->cursorY =
                     (short)*arguments++;
+#endif
                 break;
             case 'c':
+#ifdef WC1_SDL
+                writer((short)va_arg(*arguments, int));
+#else
                 writer((short)*arguments++);
+#endif
                 break;
             case 'd':
+#ifdef WC1_SDL
+                text = _itoa((short)va_arg(*arguments, int), number, 10);
+#else
                 text = _itoa((int)(short)*arguments++, number, 10);
+#endif
                 EmitTextString(writer, text);
                 break;
             case 's':
+#ifdef WC1_SDL
+                text = va_arg(*arguments, char *);
+#else
                 text = (char *)*arguments++;
+#endif
                 EmitTextString(writer, text);
                 break;
             case 'u':
+#ifdef WC1_SDL
+                text = _ultoa((unsigned short)va_arg(*arguments, unsigned int),
+                              number, 10);
+#else
                 text = _ultoa((unsigned short)*arguments++, number, 10);
+#endif
                 EmitTextString(writer, text);
                 break;
             case 'x':
+#ifdef WC1_SDL
+                text = _ultoa((unsigned short)va_arg(*arguments, unsigned int),
+                              number, 16);
+#else
                 text = _ultoa((unsigned short)*arguments++, number, 16);
+#endif
                 EmitTextString(writer, _strupr(text));
                 break;
             default:
@@ -188,8 +247,17 @@ void FormatTextTokens(void (__stdcall *writer)(int),
 /* Function start: 0x413C40 */
 void DrawFormattedText(const char *format, ...)
 {
+#ifdef WC1_SDL
+    va_list arguments;
+
+    va_start(arguments, format);
+    FormatTextTokens((void (__stdcall *)(int))DrawTextCharacter,
+                     format, &arguments);
+    va_end(arguments);
+#else
     FormatTextTokens((void (__stdcall *)(int))DrawTextCharacter,
                      format, (unsigned long *)(&format + 1));
+#endif
     if (g_pCurrentTextContext_0059af8c->viewport->pixels ==
         DAT_005a6ba0.pixels)
         DIBslam();
@@ -200,8 +268,19 @@ void FormatTextBufferFromStart(const char *format, ...)
 {
     g_pCurrentTextContext_0059af8c->textCursor =
         g_pCurrentTextContext_0059af8c->text;
+#ifdef WC1_SDL
+    {
+        va_list arguments;
+
+        va_start(arguments, format);
+        FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
+                         format, &arguments);
+        va_end(arguments);
+    }
+#else
     FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
                      format, (unsigned long *)(&format + 1));
+#endif
     if (g_pCurrentTextContext_0059af8c->viewport->pixels ==
         DAT_005a6ba0.pixels)
         DIBslam();
@@ -210,8 +289,17 @@ void FormatTextBufferFromStart(const char *format, ...)
 /* Function start: 0x413CB0 */
 void AppendFormattedText(const char *format, ...)
 {
+#ifdef WC1_SDL
+    va_list arguments;
+
+    va_start(arguments, format);
+    FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
+                     format, &arguments);
+    va_end(arguments);
+#else
     FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
                      format, (unsigned long *)(&format + 1));
+#endif
     if (g_pCurrentTextContext_0059af8c->viewport->pixels ==
         DAT_005a6ba0.pixels)
         DIBslam();
@@ -222,7 +310,15 @@ void FatalErrorAndExit(const char *format, ...)
 {
     char text[0xfc];
 
+#ifdef WC1_SDL
+    va_list arguments;
+
+    va_start(arguments, format);
+    vsprintf(text, format, arguments);
+    va_end(arguments);
+#else
     vsprintf(text, format, (char *)(&format + 1));
+#endif
     ShutdownEventManager();
     exit_squadron(text);
 }

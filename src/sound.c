@@ -669,9 +669,17 @@ unsigned short RewriteDiskFileGraphicsExtensions(short videoMode)
 
     while (record->name[0] != '\0') {
         extensionPosition = strrchr(record->name, '.');
+#ifdef WC1_SDL
+        if (extensionPosition != 0) {
+            extensionPosition++;
+            if (toupper((int)*extensionPosition) == 'V')
+                *extensionPosition = extension;
+        }
+#else
         if (extensionPosition++ != 0 &&
             toupper((int)*extensionPosition) == 'V')
             *extensionPosition = extension;
+#endif
         record++;
     }
     return 0;

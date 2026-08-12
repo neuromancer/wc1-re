@@ -482,8 +482,13 @@ void *MapPacketHandleToBlock(void *handle)
             handle = (unsigned char *)handle + offset;
         else
             handle = (unsigned char *)handle - offset;
+#ifdef WC1_SDL
+        g_apPacketHandles_0059e530[i] =
+            g_apPacketHandles_0059e530[count - 1];
+#else
         g_apPacketHandles_0059e530[i] =
             *(void **)((unsigned char *)g_apPacketHandles_0059e530 + bytes - 4);
+#endif
         bytes = bytes - 4;
         count = count - 1;
         g_aiPacketHandleOffsets_005a2530[i] =
@@ -498,13 +503,27 @@ void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
     unsigned short tagged;
 
     tagged = flags & 0x40;
+#ifdef WC1_SDL
+    if (tagged != 0)
+        size += 8 + sizeof(unsigned char *);
+#else
     if (tagged != 0)
         size += 8;
+#endif
     memory = AllocateGuardedMemory(size);
     if (tagged != 0) {
+#ifdef WC1_SDL
+        *(unsigned char **)memory = 0;
+        memcpy((unsigned char *)memory + sizeof(unsigned char *),
+               g_abTaggedAllocationPrefix_0046ad88,
+               sizeof(g_abTaggedAllocationPrefix_0046ad88));
+        memory = PushMemoryStackFrame(
+            memory, -(int)(8 + sizeof(unsigned char *)));
+#else
         memcpy(memory, g_abTaggedAllocationPrefix_0046ad88,
                sizeof(g_abTaggedAllocationPrefix_0046ad88));
         memory = PushMemoryStackFrame(memory, -8);
+#endif
     }
     return memory;
 }

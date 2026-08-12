@@ -394,7 +394,11 @@ struct IxStreamFile {
 };
 
 extern "C" int ix_streamer_init(void);           /* 0x00442750 */
+#ifdef WC1_SDL
+extern "C" void ix_streamer_destroy(void);       /* 0x0044286F */
+#else
 void ix_streamer_destroy(void);                  /* 0x0044286F */
+#endif
 extern "C" void ix_streamer_configure(int option, void *value); /* 0x0044291E */
 void ix_streamer_set_dev_mode(int mode);         /* 0x0044293E */
 extern "C" int ix_streamer_open_stream_file(char *path); /* 0x004429B6 */
@@ -425,9 +429,15 @@ unsigned int ix_thread_service_streams(void);     /* 0x004441C6 */
 void ix_thread_advance_audio_chunk(void);         /* 0x00444316 */
 void ix_thread_lock_stream_buffer(void);         /* 0x004445C9 */
 unsigned int ix_thread_get_audio_chunk_size(void); /* 0x004446A6 */
+#ifdef WC1_SDL
+extern "C" void ix_lzo1x_decompress(
+    unsigned char *source, unsigned char *destination,
+    unsigned int destinationBytes, unsigned int sourceBytes); /* 0x004614C0 */
+#else
 extern "C" void ix_lzo1x_decompress(unsigned char *source,
                                      unsigned char *destination,
                                      unsigned int destinationBytes); /* 0x004614C0 */
+#endif
 extern "C" FILE *ix_file_open(const char *path,
                                int mode); /* 0x00461650 */
 extern "C" void ix_file_close(FILE *file);       /* 0x004616BE */

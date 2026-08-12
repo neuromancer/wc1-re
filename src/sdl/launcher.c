@@ -8,10 +8,10 @@ int main(int argumentCount, char **arguments)
     SDL_Window *window;
     Uint32 windowFlags;
     int checkOnly;
-    int running;
 
     checkOnly = argumentCount == 2 && strcmp(arguments[1], "--check") == 0;
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER |
+                 SDL_INIT_JOYSTICK) != 0) {
         fprintf(stderr, "SDL initialization failed: %s\n", SDL_GetError());
         return 1;
     }
@@ -29,15 +29,26 @@ int main(int argumentCount, char **arguments)
     }
 
     DIBinstall((HWND)window);
-    DIBslamReal();
+    DAT_005a89a0 = (HWND)window;
     Wc1SdlStartEventPump();
-    running = !checkOnly;
-    while (running) {
-        running = PumpWindowMessages() != 0;
-        SDL_Delay(1);
+    if (!checkOnly) {
+        MonoDebug_install();
+        InitializeAudioSystem((HWND)window);
+        InitializeAudioStreamer((HWND)window);
+        srand((unsigned int)time(0));
+        InitGameClockEpoch();
+        CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
+        DAT_005a8a44 = (unsigned int)time(0);
+        DAT_0059ab2c = 0;
+        Wc1GameMain((short)(argumentCount - 1), arguments);
+        DestroyGlobalDebugOverlayConsole();
+        if ((g_dwStreamerState_00597cd0 & 1) != 0)
+            ix_streamer_destroy();
+        ServiceAudioStream();
     }
 
     DIBunInstall();
+    Wc1SdlShutdownJoysticks();
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;

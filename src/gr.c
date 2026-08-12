@@ -11,9 +11,9 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip)
 {
     int allocation;
-    unsigned int topOffset;
-    unsigned int nextOffset;
-    unsigned int rowStrideOffset;
+    int topOffset;
+    int nextOffset;
+    int rowStrideOffset;
 
     if (viewport->pixels != DAT_005a6ba0.pixels) {
         allocation = 0;
@@ -166,7 +166,11 @@ void PrepareShapeRLEData(unsigned char *shape)
         exit_squadron(g_szShapeRLEOverflow_00470d38);
     preparedShape = AllocateTaggedMemory(preparedSize, 0);
     memcpy(preparedShape, g_abShapeRLEScratch_00497748, preparedSize);
+#ifdef WC1_SDL
+    *(unsigned char **)(shape - 8 - sizeof(unsigned char *)) = preparedShape;
+#else
     *(unsigned char **)(shape - 4) = preparedShape;
+#endif
 }
 
 /* Function start: 0x440FE0 */
@@ -348,6 +352,9 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
     int skip;
     unsigned short count;
     unsigned short runLength;
+#ifdef WC1_SDL
+    short coordinate;
+#endif
 
     saved = background;
     if (background == 0)
@@ -364,14 +371,27 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
     top = viewport->top;
     bottom = viewport->bottom;
     commands = shape + *(int *)(shape + frameOffset) + 8;
+#ifdef WC1_SDL
+    memcpy(&count, commands, sizeof(count));
+#else
     count = *(unsigned short *)commands;
+#endif
     pixels = viewport->pixels;
     commands += 2;
     while (count != 0) {
+#ifdef WC1_SDL
+        memcpy(&coordinate, commands, sizeof(coordinate));
+        drawX = x + coordinate;
+        commands += 2;
+        memcpy(&coordinate, commands, sizeof(coordinate));
+        drawY = y + coordinate;
+        commands += 2;
+#else
         drawX = x + *(short *)commands;
         commands += 2;
         drawY = y + *(short *)commands;
         commands += 2;
+#endif
         screen = pixels + (viewport->rowOffsets[drawY] + drawX);
         if ((count & 1) != 0) {
             count >>= 1;
@@ -436,7 +456,11 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
             }
             commands += count;
         }
+#ifdef WC1_SDL
+        memcpy(&count, commands, sizeof(count));
+#else
         count = *(unsigned short *)commands;
+#endif
         commands += 2;
     }
 }
@@ -463,6 +487,9 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
     int skip;
     unsigned short count;
     unsigned short runLength;
+#ifdef WC1_SDL
+    short coordinate;
+#endif
 
     saved = background;
     if (background == 0)
@@ -479,14 +506,27 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
     top = viewport->top;
     bottom = viewport->bottom;
     commands = shape + *(int *)(shape + frameOffset) + 8;
+#ifdef WC1_SDL
+    memcpy(&count, commands, sizeof(count));
+#else
     count = *(unsigned short *)commands;
+#endif
     pixels = viewport->pixels;
     commands += 2;
     while (count != 0) {
+#ifdef WC1_SDL
+        memcpy(&coordinate, commands, sizeof(coordinate));
+        drawX = x + coordinate;
+        commands += 2;
+        memcpy(&coordinate, commands, sizeof(coordinate));
+        drawY = y + coordinate;
+        commands += 2;
+#else
         drawX = x + *(short *)commands;
         commands += 2;
         drawY = y + *(short *)commands;
         commands += 2;
+#endif
         screen = pixels + (viewport->rowOffsets[drawY] + drawX);
         if ((count & 1) != 0) {
             count >>= 1;
@@ -551,7 +591,11 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
             }
             commands += count;
         }
+#ifdef WC1_SDL
+        memcpy(&count, commands, sizeof(count));
+#else
         count = *(unsigned short *)commands;
+#endif
         commands += 2;
     }
     if (viewport->pixels == DAT_005a6ba0.pixels)

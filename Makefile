@@ -114,13 +114,18 @@ MODERN_SDL_CFLAGS = $(shell \
 MODERN_SDL_LIBS = $(shell \
 	$(MODERN_SDL2_CONFIG) --libs 2>/dev/null || \
 	pkg-config --libs sdl2 2>/dev/null)
-MODERN_CPPFLAGS = -DWC1_SDL=1 -Iinclude $(MODERN_SDL_CFLAGS)
-MODERN_CFLAGS ?= -std=c11
+MODERN_LZO_CFLAGS = $(shell pkg-config --cflags lzo2 2>/dev/null)
+MODERN_LZO_INCLUDEDIR = $(shell pkg-config --variable=includedir lzo2 2>/dev/null)
+MODERN_LZO_LIBS = $(shell pkg-config --libs lzo2 2>/dev/null)
+MODERN_CPPFLAGS = -DWC1_SDL=1 -Iinclude $(MODERN_SDL_CFLAGS) \
+	$(MODERN_LZO_CFLAGS) $(addprefix -I,$(MODERN_LZO_INCLUDEDIR))
+MODERN_CFLAGS ?= -std=c11 -Wno-return-mismatch \
+	-Wno-error=incompatible-function-pointer-types
 MODERN_CXXFLAGS ?= -std=c++11
 MODERN_DEPFLAGS = -MMD -MP
 MODERN_SECTION_FLAGS = -ffunction-sections -fdata-sections
 override MODERN_SANITIZER_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
-MODERN_DEAD_STRIP_DARWIN = -Wl,-dead_strip
+MODERN_DEAD_STRIP_DARWIN = -Wl,-dead_strip -Wl,-no_fixup_chains
 MODERN_DEAD_STRIP_OTHER = -Wl,--gc-sections
 MODERN_DEAD_STRIP_FLAGS = $(if $(filter Darwin,$(UNAME_S)),\
 	$(MODERN_DEAD_STRIP_DARWIN),$(MODERN_DEAD_STRIP_OTHER))
@@ -296,43 +301,81 @@ MODERN_GAMEPLAY_SRCS = \
 	src/auto.c \
 	src/barracks.c \
 	src/brains.c \
+	src/cdrom.c \
 	src/cmpgn.c \
 	src/cockpt.c \
+	src/dib.c \
 	src/disk.c \
 	src/eventmgr.c \
 	src/geom.c \
+	src/gr.c \
 	src/globals.c \
+	src/hudmsg.c \
 	src/killbrd.c \
+	src/logic.c \
+	src/main.c \
 	src/mathfp.c \
 	src/mathutil.c \
+	src/mono.c \
 	src/music.c \
 	src/nav.c \
+	src/pload.c \
+	src/screen.c \
+	src/screens.c \
 	src/ship.c \
 	src/smart.c \
 	src/spc.c \
 	src/strdos.c \
 	src/sysinput.c \
 	src/system.c \
-	src/text.c
+	src/text.c \
+	src/winmain.c
+
+MODERN_GAMEPLAY_CXX_SRCS = \
+	src/debug.cpp \
+	src/pilot.cpp
+
+MODERN_GAMEPLAY_CXX_C_SRCS = \
+	src/sound.c
+
+MODERN_IX_SRCS = \
+	src/ix/ixlog.cpp \
+	src/ix/streamer.cpp \
+	src/ix/thread.cpp \
+	src/ix/dsp.cpp \
+	src/ix/dsps.cpp \
+	src/ix/mixer.cpp \
+	src/ix/dspv.cpp \
+	src/ix/system.cpp \
+	src/ix/sound.cpp \
+	src/ix/sample.cpp \
+	src/ix/lzo1x.cpp
 
 MODERN_BASE_HOST_SRCS = \
 	src/sdl/compat.c \
-	src/sdl/input.c
+	src/sdl/input.c \
+	src/sdl/registry.c \
+	src/sdl/thread.c \
+	src/sdl/timer.c
 MODERN_GAME_HOST_SRCS = \
-	src/sdl/debug.c \
-	src/sdl/dib.c \
+	src/sdl/audio.c \
 	src/sdl/events.c \
+	src/sdl/joystick.c \
 	src/sdl/video.c
 MODERN_LAUNCHER_SRC = src/sdl/launcher.c
 
-MODERN_GAMEPLAY_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAMEPLAY_SRCS))
+MODERN_GAMEPLAY_OBJS = \
+	$(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAMEPLAY_SRCS)) \
+	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAMEPLAY_CXX_SRCS)) \
+	$(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAMEPLAY_CXX_C_SRCS))
+MODERN_IX_OBJS = \
+	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_IX_SRCS))
 MODERN_BASE_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_BASE_HOST_SRCS))
 MODERN_GAME_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_SRCS))
 MODERN_EVENT_HOST_OBJS = \
-	$(MODERN_OUT_DIR)/obj/sdl/debug.o \
 	$(MODERN_OUT_DIR)/obj/sdl/events.o
 MODERN_VIDEO_HOST_OBJS = \
-	$(MODERN_OUT_DIR)/obj/sdl/dib.o \
+	$(MODERN_OUT_DIR)/obj/dib.o \
 	$(MODERN_OUT_DIR)/obj/sdl/video.o
 MODERN_LAUNCHER_OBJ = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_LAUNCHER_SRC))
 MODERN_INPUT_CORE_OBJS = \
@@ -351,12 +394,14 @@ MODERN_TEST_BINS = \
 	$(MODERN_CXX_TEST_BIN)
 MODERN_DEPFILES = \
 	$(MODERN_GAMEPLAY_OBJS:.o=.d) \
+	$(MODERN_IX_OBJS:.o=.d) \
 	$(MODERN_BASE_HOST_OBJS:.o=.d) \
 	$(MODERN_GAME_HOST_OBJS:.o=.d) \
 	$(MODERN_LAUNCHER_OBJ:.o=.d) \
 	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))) \
 	$(MODERN_EVENT_TEST_BIN).d \
 	$(MODERN_VIDEO_TEST_BIN).d \
+	$(MODERN_OUT_DIR)/tests/sdl_video_dependencies.d \
 	$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.d
 
 # ---------------------------------------------------------------------------
@@ -379,9 +424,10 @@ modern: $(MODERN_GAMEPLAY_OBJS) $(MODERN_TARGET) $(MODERN_TEST_BINS)
 
 modern-check-deps:
 	@if test -z "$(strip $(MODERN_SDL_CFLAGS))" || \
-	   test -z "$(strip $(MODERN_SDL_LIBS))"; then \
+	   test -z "$(strip $(MODERN_SDL_LIBS))" || \
+	   test -z "$(strip $(MODERN_LZO_LIBS))"; then \
 		echo "SDL2 development files were not found." >&2; \
-		echo "Install SDL2, or set MODERN_SDL_CFLAGS and MODERN_SDL_LIBS." >&2; \
+		echo "Install SDL2 and LZO2 development files." >&2; \
 		exit 1; \
 	fi
 
@@ -390,6 +436,18 @@ $(MODERN_OUT_DIR)/obj/%.o: src/%.c | modern-check-deps
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) \
 		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/obj/%.o: src/%.cpp | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CXX) $(MODERN_CPPFLAGS) -Isrc/ix $(MODERN_CXXFLAGS) \
+		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/obj/sound.o: src/sound.c | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CXX) $(MODERN_CPPFLAGS) -Isrc/ix $(MODERN_CXXFLAGS) \
+		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$(MODERN_DEPFLAGS) -x c++ -c $< -o $@
 
 $(MODERN_OUT_DIR)/tests/%.o: tests/%.c | modern-check-deps
 	@mkdir -p $(dir $@)
@@ -409,10 +467,11 @@ $(MODERN_TARGET): \
 		$(MODERN_LAUNCHER_OBJ) \
 		$(MODERN_BASE_HOST_OBJS) \
 		$(MODERN_GAME_HOST_OBJS) \
-		$(MODERN_INPUT_CORE_OBJS)
+		$(MODERN_GAMEPLAY_OBJS) \
+		$(MODERN_IX_OBJS)
 	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$^ $(MODERN_SDL_LIBS) \
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
 $(MODERN_BASE_C_TEST_BINS): $(MODERN_OUT_DIR)/tests/%: \
@@ -424,14 +483,20 @@ $(MODERN_EVENT_TEST_BIN): \
 		$(MODERN_OUT_DIR)/tests/sdl_event_compat.o \
 		$(MODERN_BASE_HOST_OBJS) \
 		$(MODERN_EVENT_HOST_OBJS) \
-		$(MODERN_INPUT_CORE_OBJS)
-	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$(MODERN_INPUT_CORE_OBJS) \
+		$(MODERN_OUT_DIR)/obj/debug.o \
+		$(MODERN_OUT_DIR)/obj/pilot.o \
+		$(MODERN_OUT_DIR)/obj/winmain.o
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$^ $(MODERN_SDL_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
 $(MODERN_VIDEO_TEST_BIN): \
 		$(MODERN_OUT_DIR)/tests/sdl_video_compat.o \
+		$(MODERN_OUT_DIR)/tests/sdl_video_dependencies.o \
 		$(MODERN_VIDEO_HOST_OBJS) \
+		$(MODERN_OUT_DIR)/obj/sdl/compat.o \
+		$(MODERN_OUT_DIR)/obj/sdl/input.o \
 		$(MODERN_OUT_DIR)/obj/globals.o
 	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$^ $(MODERN_SDL_LIBS) \

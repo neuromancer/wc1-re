@@ -54,7 +54,15 @@ void ShowModalMessage(const char *format, ...)
 {
     char text[52];
 
+#ifdef WC1_SDL
+    va_list arguments;
+
+    va_start(arguments, format);
+    vsprintf(text, format, arguments);
+    va_end(arguments);
+#else
     vsprintf(text, format, (char *)(&format + 1));
+#endif
     if (ShowModalTextPanel(1, text) != 0) {
         WaitForKeyAcknowledge(0);
         ReleaseModalTextPanel();
@@ -79,7 +87,15 @@ void ShowOnScreenMessage(int flags, short duration,
     short modalShown = 0;
     char text[52];
 
+#ifdef WC1_SDL
+    va_list arguments;
+
+    va_start(arguments, format);
+    vsprintf(text, format, arguments);
+    va_end(arguments);
+#else
     vsprintf(text, format, (char *)(&format + 1));
+#endif
     FlushInputEvents();
     messageDuration = duration;
     if (messageDuration == 9999)

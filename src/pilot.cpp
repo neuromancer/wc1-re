@@ -163,11 +163,23 @@ void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
 void DestroyGlobalDebugOverlayConsole(void)
 {
     delete g_pDebugOverlay_004763f0;
+#ifdef WC1_SDL
+    g_pDebugOverlay_004763f0 = 0;
+#endif
 }
 
 /* Function start: 0x425BB0 */
-void SystemDebugPrintf(const char *, ...)
+void SystemDebugPrintf(const char *format, ...)
 {
+#ifdef WC1_SDL
+    va_list arguments;
+
+    va_start(arguments, format);
+    vfprintf(stderr, format, arguments);
+    va_end(arguments);
+#else
+    (void)format;
+#endif
 }
 
 /* Function start: 0x425BC0 */
@@ -596,9 +608,14 @@ short ReadTextInput(char *destination, short maximumLength,
                     } else if (mode == 2) {
                         if (key < '0' || key > '9')
                             character = 0;
-                    } else if (__mb_cur_max > 1
-                                   ? _isctype(key, _ALPHA)
-                                   : (_pctype[key] & _ALPHA)) {
+                    }
+#ifdef WC1_SDL
+                    else if (isalpha((unsigned char)key)) {
+#else
+                    else if (__mb_cur_max > 1
+                                 ? _isctype(key, _ALPHA)
+                                 : (_pctype[key] & _ALPHA)) {
+#endif
                         character = (unsigned char)(key | 0x20);
                         if (GetShiftKeyState() != 0)
                             character &= 0xdf;

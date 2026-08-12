@@ -18,8 +18,10 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
                                          int rowCount,
                                          int waitMode)
 {
+#ifndef WC1_SDL
     TEXTMETRICA metrics;
     HDC deviceContext;
+#endif
 
     busyWait = waitMode;
     g_nDebugOverlayConsoleCount_00469644++;
@@ -33,13 +35,20 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     memset(textBuffer, ' ', rows * columns);
     memset(dirtyLines, 1, rows);
 
+#ifdef WC1_SDL
+    (void)module;
+    characterWidth = 8;
+    characterHeight = 10;
+#else
     deviceContext = GetDC(window);
     SelectObject(deviceContext,
                  CreateFontA(10, 10, 0, 0, 400, 0, 0, 0, 0, 2, 0, 0,
                              0x30, g_szDebugOverlayFontName_00469654));
+#endif
     backgroundColor = 0;
     textColor = 0xffffff;
     backgroundMode = OPAQUE;
+#ifndef WC1_SDL
     GetTextMetricsA(deviceContext, &metrics);
     SetTextColor(deviceContext, 0xffffff);
     SetBkColor(deviceContext, 0);
@@ -52,8 +61,13 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
             SetWindowsHookExA(WH_KEYBOARD, (HOOKPROC)DebugKeyboardHookProc,
                               module, 0);
     }
+#endif
     reverseVideo = 0;
+#ifdef WC1_SDL
+    mutex = 0;
+#else
     mutex = CreateMutexA(0, FALSE, 0);
+#endif
     spinnerIndex = 0;
     animationState = 1;
     spinnerCharacters = (char *)malloc(5);
@@ -64,8 +78,12 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
 DebugOverlayConsole::~DebugOverlayConsole()
 {
     animationState = 2;
+#ifdef WC1_SDL
+    g_nDebugOverlayConsoleCount_00469644--;
+#else
     if (--g_nDebugOverlayConsoleCount_00469644 == 0)
         UnhookWindowsHookEx(g_hDebugKeyboardHook_00469650);
+#endif
     free(textBuffer);
     free(dirtyLines);
     free(spinnerCharacters);
@@ -75,12 +93,19 @@ DebugOverlayConsole::~DebugOverlayConsole()
 extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
 {
     DebugOverlayConsole *console;
+#ifndef WC1_SDL
     /* Retail compares against this stack slot before its first assignment. */
     DWORD timer;
     DWORD waitResult;
     HDC deviceContext;
+#endif
 
     console = (DebugOverlayConsole *)parameter;
+#ifdef WC1_SDL
+    while (console->animationState != 2)
+        SDL_Delay(10);
+    return 0;
+#else
     while (console->animationState != 2) {
         if (timeGetTime() > timer + 500) {
             waitResult = WaitForSingleObject(console->mutex, 500);
@@ -109,12 +134,21 @@ extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
     }
     ExitThread(0);
     return 0;
+#endif
 }
 
 /* Function start: 0x41CA60 */
 extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
                                                     LPARAM flags)
 {
+#ifdef WC1_SDL
+    (void)code;
+    if ((flags & 0x40000000) != 0) {
+        g_dwDebugOverlayKey_00469648 = (DWORD)key;
+        g_dwDebugOverlayKeyLatch_0046964c = (DWORD)key;
+    }
+    return 0;
+#else
     if (code < 0)
         return CallNextHookEx(g_hDebugKeyboardHook_00469650,
                               code, key, flags);
@@ -124,6 +158,7 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
     }
     return CallNextHookEx(g_hDebugKeyboardHook_00469650,
                           code, key, flags);
+#endif
 }
 
 /* Function start: 0x41CAB0 */
@@ -160,7 +195,11 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
         } else {
             switch (character) {
             case '\a':
+#ifdef WC1_SDL
+                fputc('\a', stderr);
+#else
                 Beep(0, 0);
+#endif
                 break;
             case '\b':
                 console->cursorColumn--;
@@ -209,6 +248,7 @@ void DebugOverlayConsole::Scroll(void)
 /* Function start: 0x41CCC0 */
 void DebugOverlayConsole::DrawPendingLines(void)
 {
+#ifndef WC1_SDL
     HDC deviceContext;
     int row;
 
@@ -222,12 +262,27 @@ void DebugOverlayConsole::DrawPendingLines(void)
         row++;
     }
     ReleaseDC(window, deviceContext);
+#endif
     memset(dirtyLines, 0, rows);
 }
 
 /* Function start: 0x41CD40 */
 char DebugOverlayConsole::WaitForKey(void)
 {
+#ifdef WC1_SDL
+    char key;
+
+    while (g_dwDebugOverlayKey_00469648 == 0 &&
+           PumpWindowMessages() != 0) {
+        if (busyWait == 0)
+            SDL_Delay(1);
+    }
+    if (g_dwDebugOverlayKey_00469648 == 0)
+        return 0x1b;
+    key = (char)g_dwDebugOverlayKey_00469648;
+    g_dwDebugOverlayKey_00469648 = 0;
+    return key;
+#else
     RECT clip;
     MSG message;
     HANDLE process;
@@ -301,77 +356,106 @@ char DebugOverlayConsole::WaitForKey(void)
         g_dwDebugOverlayKey_00469648 = 0;
         return key;
     }
+#endif
 }
 
 /* Function start: 0x41CF00 */
 void DebugOverlayConsole::EnableReverseVideo(void)
 {
+#ifndef WC1_SDL
     HDC deviceContext;
+#endif
 
     if (reverseVideo == 0) {
+#ifndef WC1_SDL
         deviceContext = GetDC(window);
         SetBkColor(deviceContext, textColor);
         SetTextColor(deviceContext, backgroundColor);
+#endif
         reverseVideo = 1;
+#ifndef WC1_SDL
         ReleaseDC(window, deviceContext);
+#endif
     }
 }
 
 /* Function start: 0x41CF50 */
 void DebugOverlayConsole::DisableReverseVideo(void)
 {
+#ifndef WC1_SDL
     HDC deviceContext;
+#endif
 
     if (reverseVideo != 0) {
+#ifndef WC1_SDL
         deviceContext = GetDC(window);
         SetTextColor(deviceContext, textColor);
         SetBkColor(deviceContext, backgroundColor);
+#endif
         reverseVideo = 0;
+#ifndef WC1_SDL
         ReleaseDC(window, deviceContext);
+#endif
     }
 }
 
 /* Function start: 0x41CFA0 */
 void DebugOverlayConsole::SetOverlayTextColor(int red, int green, int blue)
 {
+#ifndef WC1_SDL
     HDC deviceContext;
 
     deviceContext = GetDC(window);
+#endif
     textColor = red + (blue * 0x100 + green) * 0x100;
+#ifndef WC1_SDL
     SetTextColor(deviceContext, textColor);
     ReleaseDC(window, deviceContext);
+#endif
 }
 
 /* Function start: 0x41CFF0 */
 void DebugOverlayConsole::SetOverlayBackgroundColor(int red, int green,
                                                     int blue)
 {
+#ifndef WC1_SDL
     HDC deviceContext;
 
     deviceContext = GetDC(window);
+#endif
     backgroundColor = red + (blue * 0x100 + green) * 0x100;
+#ifndef WC1_SDL
     SetBkColor(deviceContext, backgroundColor);
     ReleaseDC(window, deviceContext);
+#endif
 }
 
 /* Function start: 0x41D040 */
 void DebugOverlayConsole::SetTransparentBackground(void)
 {
+#ifndef WC1_SDL
     HDC deviceContext;
+#endif
 
     backgroundMode = TRANSPARENT;
+#ifndef WC1_SDL
     deviceContext = GetDC(window);
     SetBkMode(deviceContext, backgroundMode);
     ReleaseDC(window, deviceContext);
+#endif
 }
 
 /* Function start: 0x41D080 */
 void DebugOverlayConsole::SetOpaqueBackground(void)
 {
+#ifndef WC1_SDL
     HDC deviceContext;
+#endif
 
     backgroundMode = OPAQUE;
+#ifndef WC1_SDL
     deviceContext = GetDC(window);
     SetBkMode(deviceContext, backgroundMode);
     ReleaseDC(window, deviceContext);
+#endif
 }

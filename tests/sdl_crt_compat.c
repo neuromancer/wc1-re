@@ -1,6 +1,7 @@
 #include "wc1sdl.h"
 
 #include <string.h>
+#include <sys/stat.h>
 
 int main(void)
 {
@@ -27,6 +28,13 @@ int main(void)
     if (_filelength(file) != sizeof(payload))
         failed = 1;
     if (_close(file) != 0)
+        failed = 1;
+    if (chmod(path, S_IRUSR) != 0)
+        failed = 1;
+    file = _open(path, 0x8002);
+    if (file == -1)
+        failed = 1;
+    else if (_close(file) != 0)
         failed = 1;
     if (_unlink(path) != 0)
         failed = 1;

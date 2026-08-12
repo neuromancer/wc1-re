@@ -385,8 +385,13 @@ unsigned int hit_asteroid(short asteroid, short destructionChance);    /* 0x0041
 int object_collision(short obj);                                      /* 0x004130D0 */
 unsigned int object_intelligence(short obj);                           /* 0x00413880 */
 void EmitTextString(void (__stdcall *writer)(int), const char *text);   /* 0x00413A10 */
+#ifdef WC1_SDL
+void FormatTextTokens(void (__stdcall *writer)(int),
+                      const char *format, va_list *arguments);         /* 0x00413A40 */
+#else
 void FormatTextTokens(void (__stdcall *writer)(int),
                       const char *format, unsigned long *arguments);    /* 0x00413A40 */
+#endif
 void DrawFormattedText(const char *format, ...);                        /* 0x00413C40 */
 void FormatTextBufferFromStart(const char *format, ...);                /* 0x00413C70 */
 void AppendFormattedText(const char *format, ...);                      /* 0x00413CB0 */
@@ -893,7 +898,11 @@ unsigned int get_front_spot(short obj, unsigned short distance,
                             FixedVector *point);                       /* 0x00422EC0 */
 unsigned int get_rear_spot(short obj, unsigned short distance,
                            FixedVector *point);                        /* 0x00422F10 */
+#ifdef WC1_SDL
+unsigned int close_behind(short range);
+#else
 unsigned int close_behind();                                          /* 0x00422F60 */
+#endif
 short scan_for_enemy(short obj, unsigned short range);                  /* 0x00422F80 */
 int any_enemy(short obj, short range);                                  /* 0x00423070 */
 short nearest_enemy_range(short obj);                                 /* 0x004230F0 */
@@ -942,7 +951,11 @@ unsigned int free_constellation(void);                            /* 0x00424490 
 void init_vdus(void);                                                  /* 0x004244E0 */
 unsigned int InitializeCockpitResources(signed char mode);             /* 0x004245B0 */
 unsigned int free_cockpit(void);                                       /* 0x004249A0 */
+#ifdef WC1_SDL
+unsigned int init_3Space_objects(short scene);
+#else
 unsigned int init_3Space_objects();                                    /* 0x00424A80 */
+#endif
 unsigned int load_common_3Space_objects(void);                         /* 0x00424B00 */
 unsigned int remove_all_3d_objects(void);                              /* 0x00424B80 */
 unsigned int free_3Space(void);                                        /* 0x00424BA0 */
@@ -1627,7 +1640,7 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
 void DecodeShapeFrame(unsigned char *shape, short frame,
                       unsigned char *bitmap, int width, short height,
                       int leftExtent, int topExtent);                 /* 0x00440960 */
-unsigned int SignExtendClipCoord(volatile short v);                    /* 0x00440BE0 */
+int SignExtendClipCoord(volatile short v);                             /* 0x00440BE0 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip);                         /* 0x00440C00 */
 void ClipViewportToScreen(Viewport *viewport);                         /* 0x00440CF0 */
@@ -1707,9 +1720,12 @@ void ForceStreamerTrigger(int trigger);                               /* 0x00442
 void SetMusicStreamVolume(unsigned short volume);                     /* 0x00442590 */
 void Streamer_close(void);                                            /* 0x004425D0 */
 int ReadCheaterFlagFromRegistry(void);                                /* 0x00442600 */
+int ix_system_init(void);                                              /* 0x00447200 */
 void ix_system_service_sounds(void);                                     /* 0x004472A7 */
 void ix_system_shutdown(void);                                            /* 0x004473F3 */
+void ix_system_configure(int option, void *value);                     /* 0x00447426 */
 void ix_system_set_master_volume(unsigned short volume);              /* 0x0044745B */
+void ix_system_set_voice_count(int voiceCount);                        /* 0x0044748C */
 IxSample *ix_system_new_sample(void);                                  /* 0x004474E3 */
 void ix_system_delete_all_samples(void);                                  /* 0x00447548 */
 IxSound *ix_system_new_sound(IxSample *sample);                        /* 0x0044758D */
@@ -1720,10 +1736,12 @@ void __fastcall ix_sound_release(IxSound *sound);                    /* 0x004480
 void __fastcall ix_sound_stop(IxSound *sound);                       /* 0x004480CF */
 int __fastcall ix_sound_is_playing(IxSound *sound);                  /* 0x00448678 */
 int ix_streamer_init(void);                                           /* 0x00442750 */
+void ix_streamer_destroy(void);                                      /* 0x0044286F */
 void ix_streamer_configure(int option, void *value);                  /* 0x0044291E */
 int ix_streamer_open_stream_file(char *path);                         /* 0x004429B6 */
 void ix_streamer_close_stream_file(void);                             /* 0x0044307A */
 void ix_streamer_audio_play(void);                                    /* 0x004431F3 */
+void ix_streamer_audio_stop(void);                                    /* 0x00443253 */
 void ix_streamer_set_intensity(unsigned char intensity);              /* 0x0044336B */
 void ix_streamer_set_trigger(char trigger);                           /* 0x004433C1 */
 void ix_streamer_force_trigger(char trigger);                         /* 0x0044342E */

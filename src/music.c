@@ -24,12 +24,21 @@ unsigned int parse_view_script(void)
         }
         switch (command) {
         case 0:
+#ifdef WC1_SDL
+            g_aShipPosition_0059c490[61].x =
+                (int)*g_pViewScript_005a6b58++ * 0x100;
+            g_aShipPosition_0059c490[61].y =
+                (int)*g_pViewScript_005a6b58++ * 0x100;
+            g_aShipPosition_0059c490[61].z =
+                (int)*g_pViewScript_005a6b58++ * 0x100;
+#else
             g_aShipPosition_0059c490[61].x =
                 (int)*g_pViewScript_005a6b58++ << 8;
             g_aShipPosition_0059c490[61].y =
                 (int)*g_pViewScript_005a6b58++ << 8;
             g_aShipPosition_0059c490[61].z =
                 (int)*g_pViewScript_005a6b58++ << 8;
+#endif
             break;
         case 1:
             alter_yaw(*g_pViewScript_005a6b58++, 61);
@@ -37,9 +46,15 @@ unsigned int parse_view_script(void)
             alter_roll(*g_pViewScript_005a6b58++, 61);
             break;
         case 2:
+#ifdef WC1_SDL
+            ScaleFixedVector(&g_aShipForwardVector_0059bce0[61],
+                             (int)*g_pViewScript_005a6b58++ * 0x100,
+                             &g_aShipVelocity_0059c010[61]);
+#else
             ScaleFixedVector(&g_aShipForwardVector_0059bce0[61],
                              (int)*g_pViewScript_005a6b58++ << 8,
                              &g_aShipVelocity_0059c010[61]);
+#endif
             break;
         case 3:
             force_view(*g_pViewScript_005a6b58++,
@@ -72,9 +87,15 @@ unsigned int parse_view_script(void)
             alter_yaw(*g_pViewScript_005a6b58++, 63);
             alter_pitch(*g_pViewScript_005a6b58++, 63);
             alter_roll(*g_pViewScript_005a6b58++, 63);
+#ifdef WC1_SDL
+            ScaleFixedVector(&g_aShipForwardVector_0059bce0[63],
+                             (int)*g_pViewScript_005a6b58++ * 0x100,
+                             &vector);
+#else
             ScaleFixedVector(&g_aShipForwardVector_0059bce0[63],
                              (int)*g_pViewScript_005a6b58++ << 8,
                              &vector);
+#endif
             AddFixedVectors(&g_aShipVelocity_0059c010[61], &vector,
                             &g_aShipVelocity_0059c010[61]);
             break;

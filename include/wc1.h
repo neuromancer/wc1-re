@@ -38,6 +38,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -195,7 +196,11 @@ typedef struct RLEFrameHeader {
     int top;
     int right;
     int bottom;
-} RLEFrameHeader;
+}
+#ifdef WC1_SDL
+__attribute__((packed))
+#endif
+RLEFrameHeader;
 
 /* One scratch glyph bitmap used while drawing the packed game fonts.  The
  * renderer stores a pointer-to-pointer to this record in TextContext because

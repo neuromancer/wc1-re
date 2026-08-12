@@ -179,7 +179,11 @@ void position_relative(FixedVector *position, FixedVector direction,
 {
     if (distance != 0) {
         NormalizeFixedVector(&direction);
+#ifdef WC1_SDL
+        ScaleFixedVector(&direction, (int)distance * 0x100, &direction);
+#else
         ScaleFixedVector(&direction, (int)distance << 8, &direction);
+#endif
         AddFixedVectors(position, &direction, position);
     }
 }
@@ -353,9 +357,15 @@ short ChooseRandomSignedMagnitude(short minimum, short maximum,
 /* Function start: 0x418780 */
 void MakeRandomVectorFixed(short minimum, short maximum, FixedVector *vector)
 {
+#ifdef WC1_SDL
+    vector->x = ChooseRandomSignedMagnitude(minimum, maximum, 1) * 0x100;
+    vector->y = ChooseRandomSignedMagnitude(minimum, maximum, 1) * 0x100;
+    vector->z = ChooseRandomSignedMagnitude(minimum, maximum, 1) * 0x100;
+#else
     vector->x = ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
     vector->y = ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
     vector->z = ChooseRandomSignedMagnitude(minimum, maximum, 1) << 8;
+#endif
 }
 
 /* Function start: 0x4187E0 */
@@ -408,9 +418,15 @@ void rectangular_to_spherical(const FixedVector *rectangular,
 void ConvertShortVectorToFixedVector(const ShortVector *source,
                                      FixedVector *destination)
 {
+#ifdef WC1_SDL
+    destination->x = (int)source->x * 0x100;
+    destination->y = (int)source->y * 0x100;
+    destination->z = (int)source->z * 0x100;
+#else
     destination->x = (int)source->x << 8;
     destination->y = (int)source->y << 8;
     destination->z = (int)source->z << 8;
+#endif
 }
 
 /* Function start: 0x4189B0 */
@@ -872,7 +888,11 @@ void NormalizeAndScaleVector(FixedVector *vector, int scale)
 /* Function start: 0x419970 */
 void SetVectorFixedPoint(unsigned int *p, short v)
 {
+#ifdef WC1_SDL
+    NormalizeAndScaleVector((FixedVector *)p, (int)v * 0x100);
+#else
     NormalizeAndScaleVector((FixedVector *)p, (int)v << 8);
+#endif
 }
 
 /* Function start: 0x419990 */
@@ -998,7 +1018,7 @@ void remove_object(short obj)
     }
     if (obj < 10) {
         if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_CAPITAL_SHIP)
-            FreePacketAndClear(&g_aeShipObjective_0059d200[obj + 60], 0);
+            FreePacketAndClear(&g_apObjectShape_0059d2f0[obj], 0);
         g_acShipRating_0059cd80[obj] = -1;
         g_acWingmanMessageState_0059d2c0[obj] = -1;
         g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
@@ -1007,7 +1027,7 @@ void remove_object(short obj)
         g_asCapitalShipViewFrame_0059dd90[obj] = -1;
     }
     g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_NULL;
-    g_aeShipObjective_0059d200[obj + 60] = OBJECTIVE_NAV_POINT;
+    g_apObjectShape_0059d2f0[obj] = 0;
 }
 
 /* Function start: 0x419CC0 */
@@ -1493,7 +1513,15 @@ void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
 {
     char text[84];
 
+#ifdef WC1_SDL
+    va_list arguments;
+
+    va_start(arguments, format);
+    vsprintf(text, format, arguments);
+    va_end(arguments);
+#else
     vsprintf(text, format, (char *)(&format + 1));
+#endif
     SetTextCursor((unsigned short)(panel->left + x),
                   (unsigned short)(panel->top + y));
     panel->context.alignment = alignment;
@@ -1517,7 +1545,15 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
     short halfWidth;
     char text[52];
 
+#ifdef WC1_SDL
+    va_list arguments;
+
+    va_start(arguments, format);
+    vsprintf(text, format, arguments);
+    va_end(arguments);
+#else
     vsprintf(text, format, (char *)(&format + 1));
+#endif
     topLeft = g_dwModalBoundsTopLeft_00469440;
     bottomRight = g_dwModalBoundsBottomRight_00469444;
     if (g_pModalTextPanel_00469448 == 0) {

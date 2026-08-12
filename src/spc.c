@@ -676,7 +676,11 @@ unsigned int new_view(int view, short obj)
             ScaleFixedVector(
                              &g_aShipForwardVector_0059bce0[
                                  g_cViewObject_0046c000],
+#ifdef WC1_SDL
+                             -1200 * 0x100, &vector);
+#else
                              -1200 << 8, &vector);
+#endif
             AddFixedVectors(
                             &g_aShipPosition_0059c490[
                                 g_cViewObject_0046c000],
@@ -867,9 +871,15 @@ unsigned int generate_stars(void)
     do {
         if (obj < 42) {
             distance = RandomInRange(0, 1400);
+#ifdef WC1_SDL
+            start_dust(obj, origin, distance,
+                       signed_random(distance) * 0x100,
+                       signed_random(distance) * 0x100);
+#else
             start_dust(obj, origin, distance,
                        signed_random(distance) << 8,
                        signed_random(distance) << 8);
+#endif
         } else {
             g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_STAR;
             g_nStarFieldIRotation_005a7f04 = signed_random(45);
@@ -991,9 +1001,16 @@ unsigned int update_star_field(void)
                 rightRandom = signed_random((short)(distance >> 1));
                 upRandom = signed_random((short)(distance >> 1));
                 shift = (unsigned char)(viewMotion.z <= 0 ? 9 : 8);
+#ifdef WC1_SDL
+                rightOffset =
+                    viewMotion.x + (int)rightRandom * (1 << shift);
+                upOffset =
+                    viewMotion.y + (int)upRandom * (1 << shift);
+#else
                 rightOffset =
                     viewMotion.x + ((int)rightRandom << shift);
                 upOffset = viewMotion.y + ((int)upRandom << shift);
+#endif
                 start_dust(obj, origin, distance, rightOffset, upOffset);
                 break;
             }

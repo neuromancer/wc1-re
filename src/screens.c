@@ -1678,6 +1678,8 @@ unsigned int ShowGameOverScreen(void)
     return 0;
 }
 
+#ifndef WC1_SDL
+
 /* Function start: 0x439C0E */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
@@ -5630,3 +5632,7 @@ __declspec(naked) int CollectRasterClipColours(
     return 0;
 #endif
 }
+
+#else
+#include "screens_portable.inc"
+#endif /* !WC1_SDL */

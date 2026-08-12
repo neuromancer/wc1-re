@@ -26,6 +26,9 @@
 #define IX_UNSIGNED_TO_DOUBLE(value) \
     ((double)(long)((value) - 2147483647L - 1) + 2147483648.0)
 
+#ifdef WC1_SDL
+#pragma pack(push, 1)
+#endif
 struct IxSampleChunk {
     unsigned int id;
     unsigned int size;
@@ -52,6 +55,9 @@ struct IxWaveFormat {
     unsigned short blockAlignment;
     unsigned short bitsPerSample;
 };
+#ifdef WC1_SDL
+#pragma pack(pop)
+#endif
 
 /* Function start: 0x0044879C */   /* source line(s) 166;169;170;193;195;197: sample already ready! | FORM id not found! | AIFF id not found! | Unsupported number of ch */
 int IxSample::ix_sample_load_aiff(void *data, int bytes)
@@ -126,7 +132,11 @@ int IxSample::ix_sample_load_aiff(void *data, int bytes)
             loopStart = IX_SWAP_DWORD(marker->position);
             marker = (IxAiffMarker *)((unsigned char *)marker +
                                       marker->nameLength + sizeof(IxAiffMarker));
+#ifdef WC1_SDL
+            while (((uintptr_t)marker & 1) != 0)
+#else
             while (((unsigned int)marker & 1) != 0)
+#endif
                 marker = (IxAiffMarker *)((unsigned char *)marker + 1);
             loopEnd = IX_SWAP_DWORD(marker->position);
             flags |= IX_SAMPLE_LOOPING;

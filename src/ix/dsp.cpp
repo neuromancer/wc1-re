@@ -9,7 +9,9 @@
  *  list below is the original source order of this file.
  */
 #include "ix.h"
+#ifndef WC1_SDL
 #include <dsound.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -27,7 +29,12 @@ LPDIRECTSOUNDBUFFER g_pMixerBuffer_00597d20;
 unsigned int g_dwDspTick_00598128;
 LPDIRECTSOUNDBUFFER g_pPrimarySoundBuffer_0059812c;
 int g_nVoicesAllocated_00598604;
+#ifdef WC1_SDL
+void *(__cdecl *g_pIxMalloc_00471990)(unsigned int) =
+    (void *(__cdecl *)(unsigned int))malloc;
+#else
 void *(__cdecl *g_pIxMalloc_00471990)(unsigned int) = malloc;
+#endif
 void (__cdecl *g_pIxFree_00471994)(void *) = free;
 
 /* Function start: 0x00444910 */   /* source line 62 */
@@ -40,6 +47,9 @@ int ix_dsp_init(void)
         InitializeCriticalSection(&g_csMixer_005985e8);
         g_hMixerWakeEvent_00597d08 = CreateEventA(0, TRUE, FALSE, 0);
         ix_dsp_build_pan_tables();
+#ifdef WC1_SDL
+        g_dwDspFlags_00597d18 |= 4;
+#endif
         g_hMixerThread_00597d00 = CreateThread(
             0, 0x1000, ix_mixer_thread_proc, 0, 0,
             &g_dwMixerThreadId_00597d1c);
@@ -57,6 +67,15 @@ int ix_dsp_init(void)
 void ix_dsp_shutdown(void)
 {
     if ((g_dwDspFlags_00597d18 & 1) != 0) {
+#ifdef WC1_SDL
+        if (g_hMixerThread_00597d00 != 0) {
+            g_dwDspFlags_00597d18 &= ~4U;
+            SetEvent(g_hMixerWakeEvent_00597d08);
+            WaitForSingleObject(g_hMixerThread_00597d00, INFINITE);
+            CloseHandle(g_hMixerThread_00597d00);
+            g_hMixerThread_00597d00 = 0;
+        }
+#else
         if ((g_dwDspFlags_00597d18 & 4) != 0) {
             g_dwDspFlags_00597d18 &= ~4U;
             SetEvent(g_hMixerWakeEvent_00597d08);
@@ -66,6 +85,7 @@ void ix_dsp_shutdown(void)
             g_pDirectSound_00597d10->Release();
             g_pDirectSound_00597d10 = 0;
         }
+#endif
         DeleteCriticalSection(&g_csMixer_005985e8);
         CloseHandle(g_hMixerWakeEvent_00597d08);
         g_dwDspFlags_00597d18 &= 0x7ffffffe;
@@ -105,6 +125,13 @@ void ix_dsp_configure(int option, void *value)
 BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
                                  LPSTR module, LPVOID context)
 {
+#ifdef WC1_SDL
+    (void)guid;
+    (void)description;
+    (void)module;
+    (void)context;
+    return TRUE;
+#else
     HRESULT result;
 
     if (g_pDirectSound_00597d10 != 0) {
@@ -127,6 +154,7 @@ BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
         }
     }
     return TRUE;
+#endif
 }
 
 /* Function start: 0x00444BFD */
@@ -261,6 +289,10 @@ void ix_dsp_build_pan_tables(void)
 /* Function start: 0x00444F97 */
 const char *ix_dsp_result_to_text(int result)
 {
+#ifdef WC1_SDL
+    (void)result;
+    return SDL_GetError();
+#else
     switch (result) {
     case DS_OK:
         return "The function succeeded.";
@@ -291,6 +323,7 @@ const char *ix_dsp_result_to_text(int result)
     default:
         return "Unknow dsound error!";
     }
+#endif
 }
 
 /* Function start: 0x00445123 */

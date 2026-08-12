@@ -10,9 +10,14 @@
  *      ix_log_printf("human readable message");
  */
 #include "ix.h"
+#ifdef WC1_SDL
+#include <stdarg.h>
+#endif
 #include <stdio.h>
 #include <string.h>
+#ifndef WC1_SDL
 #include <crtdbg.h>
+#endif
 
 
 /* Formatting scratch buffer. */
@@ -24,14 +29,27 @@ extern "C" void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
 /* Function start: 0x4426A0 */
 void ix_log_printf(const char *fmt, ...)
 {
-    if (fmt != 0)
+    if (fmt != 0) {
+#ifdef WC1_SDL
+        va_list arguments;
+
+        va_start(arguments, fmt);
+        vsprintf(g_szLogBuf_005977d0, fmt, arguments);
+        va_end(arguments);
+#else
         vsprintf(g_szLogBuf_005977d0, fmt, (char *)(&fmt + 1));
-    else
+#endif
+    } else {
         strcpy(g_szLogBuf_005977d0, "(null)");
+    }
 
     if (strncmp(g_szLogBuf_005977d0, "sleep_for", 9) != 0) {
         SoundDebugPrintf("%s", g_szLogBuf_005977d0);
+#ifdef WC1_SDL
+        Wc1SdlOutputDebugString(g_szLogBuf_005977d0);
+#else
         if (_CrtDbgReport(0, 0, 0, 0, "%s", g_szLogBuf_005977d0) == 1)
             _CrtDbgBreak();
+#endif
     }
 }

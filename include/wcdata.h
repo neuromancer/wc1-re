@@ -320,7 +320,11 @@ typedef struct FixedVector {
     int x;
     int y;
     int z;
-} FixedVector;
+}
+#ifdef WC1_SDL
+__attribute__((packed))
+#endif
+FixedVector;
 
 /* Descriptor used by the legacy near-memory allocator.  Descriptors grow
  * downward from the end of the managed region. */
@@ -561,8 +565,16 @@ typedef struct TitleMenuRegion {
 } TitleMenuRegion;
 
 /* One packet-backed pointer slot in a scene resource list. */
+#ifdef WC1_SDL
+typedef unsigned char *Wc1PackedResourcePointer
+    __attribute__((aligned(1)));
+#endif
 typedef struct PacketResourceDescriptor {
+#ifdef WC1_SDL
+    Wc1PackedResourcePointer *resource;
+#else
     unsigned char **resource;
+#endif
     short logicalFile;
     short section;
 } PacketResourceDescriptor;

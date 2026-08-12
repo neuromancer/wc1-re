@@ -169,13 +169,23 @@ short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
                                     unsigned char *shape, short frame)
 {
     short frameTableOffset;
+#ifdef WC1_SDL
+    short frameData[4];
+#else
     short *frameData;
+#endif
 
     frameTableOffset = (short)(frame * 4);
     if ((int)frameTableOffset < (int)*(unsigned short *)(shape + 4)) {
         frameTableOffset = (short)(frameTableOffset + 4);
+#ifdef WC1_SDL
+        memcpy(frameData,
+               shape + *(unsigned short *)(shape + frameTableOffset),
+               sizeof(frameData));
+#else
         frameData = (short *)(shape +
             *(unsigned short *)(shape + frameTableOffset));
+#endif
         bounds[2] = (short)(frameData[0] + x);
         bounds[0] = (short)(x - frameData[1]);
         bounds[1] = (short)(y - frameData[2]);

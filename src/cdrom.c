@@ -65,7 +65,12 @@ char *LocateStreamsDirOnDisc(void)
         return result;
     }
 
+#ifdef WC1_SDL
+    if (strstr(current, "gamedat") != 0 ||
+        strstr(current, "GAMEDAT") != 0)
+#else
     if (strstr(current, "gamedat") != 0)
+#endif
         sprintf(result, "%s\\..\\%s", current, "streams\\");
     else
         sprintf(result, "%s\\%s", current, "streams\\");

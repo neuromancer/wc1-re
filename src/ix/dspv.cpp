@@ -232,6 +232,104 @@ void ix_dspv_recalc_mix(int voice)
 }
 
 /* Function start: 0x00446F74 */
+#ifdef WC1_SDL
+void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
+{
+    short *output;
+    unsigned int frameCount;
+    int voice;
+
+    memset(outputBuffer, 0, outputBytes);
+    output = (short *)outputBuffer;
+    frameCount = outputBytes / 4;
+    voice = 0;
+    while (voice < g_nVoiceCount_00598600 + g_nStreamCount_00598130) {
+        IxVoice *state;
+
+        state = &g_voices_005981a8[voice];
+        if ((state->flags & IX_VOICE_ACTIVE) != 0) {
+            unsigned char *cursor;
+            unsigned int frame;
+
+            cursor = state->cursor;
+            frame = 0;
+            while (frame < frameCount) {
+                int left;
+                int right;
+                int mixed;
+                unsigned int bytesPerFrame;
+                unsigned short phase;
+                unsigned int advance;
+
+                bytesPerFrame = (state->flags & IX_VOICE_16BIT) != 0 ? 2 : 1;
+                if ((state->flags & IX_VOICE_STEREO) != 0)
+                    bytesPerFrame *= 2;
+                if (cursor >= state->end) {
+                    if ((state->flags & IX_VOICE_FLAG4) == 0) {
+                        state->flags &= ~IX_VOICE_ACTIVE;
+                        break;
+                    }
+                    cursor = state->start;
+                }
+                if ((state->flags & IX_VOICE_16BIT) != 0) {
+                    short sampleLeft;
+                    short sampleRight;
+
+                    memcpy(&sampleLeft, cursor, sizeof(sampleLeft));
+                    if ((state->flags & IX_VOICE_STEREO) != 0)
+                        memcpy(&sampleRight, cursor + 2, sizeof(sampleRight));
+                    else
+                        sampleRight = sampleLeft;
+                    left = ((int)sampleLeft * state->leftGain) >> 16;
+                    right = ((int)sampleRight * state->rightGain) >> 16;
+                } else {
+                    signed char sampleLeft;
+                    signed char sampleRight;
+
+                    sampleLeft = *(signed char *)cursor;
+                    if ((state->flags & IX_VOICE_STEREO) != 0)
+                        sampleRight = *(signed char *)(cursor + 1);
+                    else
+                        sampleRight = sampleLeft;
+                    left = sampleLeft * (signed char)state->leftGainHi;
+                    right = sampleRight * (signed char)state->rightGainHi;
+                }
+                mixed = output[frame * 2] + left;
+                if (mixed > 0x7fff)
+                    mixed = 0x7fff;
+                else if (mixed < -0x8000)
+                    mixed = -0x8000;
+                output[frame * 2] = (short)mixed;
+                mixed = output[frame * 2 + 1] + right;
+                if (mixed > 0x7fff)
+                    mixed = 0x7fff;
+                else if (mixed < -0x8000)
+                    mixed = -0x8000;
+                output[frame * 2 + 1] = (short)mixed;
+                frame++;
+                if (frame == frameCount)
+                    break;
+                phase = (unsigned short)state->field_10 +
+                        (unsigned short)state->rate;
+                state->field_10 = (short)(phase & 0xff);
+                advance = phase >> 8;
+                if (advance != 0) {
+                    cursor += advance * bytesPerFrame;
+                    if (cursor >= state->end) {
+                        if ((state->flags & IX_VOICE_FLAG4) == 0) {
+                            state->flags &= ~IX_VOICE_ACTIVE;
+                            break;
+                        }
+                        cursor = state->start;
+                    }
+                }
+            }
+            state->cursor = cursor;
+        }
+        voice++;
+    }
+}
+#else
 __declspec(naked) void ix_dspv_mix(void *outputBuffer,
                                    unsigned int outputBytes)
 {
@@ -523,3 +621,4 @@ __declspec(naked) void ix_dspv_mix(void *outputBuffer,
         ret
     }
 }
+#endif

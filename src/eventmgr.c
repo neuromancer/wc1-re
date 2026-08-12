@@ -783,9 +783,13 @@ void intro_drawbackgroundships(void)
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             default:
+#ifdef WC1_SDL
+                shape = g_apObjectShape_0059d2f0[obj];
+#else
                 shape = *(unsigned char **)(
                     (unsigned char *)g_apObjectShape_0059d2f0 +
                     dwordOffset);
+#endif
                 if (shape != 0) {
                     DrawSolidColourSpriteScaled(
                         &DAT_005a7510,
@@ -809,9 +813,13 @@ void intro_drawbackgroundships(void)
             case OBJECT_CLASS_PLANET:
             case OBJECT_CLASS_DUST:
                 if (obj == DAT_00469208)
+#ifdef WC1_SDL
+                    shape = g_apObjectShape_0059d2f0[obj];
+#else
                     shape = *(unsigned char **)(
                         (unsigned char *)g_apObjectShape_0059d2f0 +
                         dwordOffset);
+#endif
                 else
                     shape = g_pConstellationShape_005a765c;
                 DrawSolidColourSprite(

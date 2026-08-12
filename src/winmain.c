@@ -465,13 +465,17 @@ void check_hazards(void)
 /* Function start: 0x401CE0 */
 void __stdcall WarpMouseTo(short x, short y)
 {
+#ifndef WC1_SDL
     __asm cli
+#endif
     g_stHostMouseState_0059af70.x = x;
     g_stHostMouseState_0059af70.y = y;
     g_stMouseCursorState_0059ab10.x = x;
     g_stMouseCursorState_0059ab10.y = y;
     SetMouseHomePosition(x, y);
+#ifndef WC1_SDL
     __asm sti
+#endif
 }
 
 /* Function start: 0x401D10 */
@@ -517,6 +521,8 @@ void CheckLauncherAndConfig(void)
         fclose(config);
     }
 }
+
+#ifndef WC1_SDL
 
 /* Function start: 0x401E30 */
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
@@ -596,10 +602,30 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     return 1;
 }
 
+#endif
+
 /* Function start: 0x402070 */
 void ShutdownGameWindow(void)
 {
     DAT_005a8a38 = (unsigned int)time(0);
+#ifdef WC1_SDL
+    {
+        SDL_Window *window;
+
+        DAT_005a8a3c = 0;
+        if ((g_dwStreamerState_00597cd0 & 1) != 0)
+            ix_streamer_destroy();
+        ServiceAudioStream();
+        DestroyGlobalDebugOverlayConsole();
+        window = (SDL_Window *)DAT_005a89a0;
+        DIBunInstall();
+        Wc1SdlShutdownJoysticks();
+        if (window != 0)
+            SDL_DestroyWindow(window);
+        DAT_005a89a0 = 0;
+        SDL_Quit();
+    }
+#else
     ClipCursor(0);
     ShowCursor(TRUE);
     DestroyGlobalDebugOverlayConsole();
@@ -614,6 +640,7 @@ void ShutdownGameWindow(void)
         SetPriorityClass(process, IDLE_PRIORITY_CLASS);
     }
     CloseHandle(DAT_005a89a4);
+#endif
     exit(0);
 }
 
@@ -628,12 +655,14 @@ void ShowNoticeMessageBox(const char *text)
 /* Function start: 0x402110 */
 unsigned int AbortToDesktop(void)
 {
+#ifndef WC1_SDL
     HANDLE process;
 
     ClipCursor(0);
     ShowCursor(TRUE);
     process = GetCurrentProcess();
     SetPriorityClass(process, IDLE_PRIORITY_CLASS);
+#endif
     sprintf(g_szMemoryUsage_005a89b0,
             "Current: %i\nMax    : %i\nTotal : %i\n",
             g_nGuardedAllocationBytes_00465064,
@@ -641,9 +670,13 @@ unsigned int AbortToDesktop(void)
             g_nGuardedAllocationTotalBytes_00465060);
     OutputDebugStringA("Memory Info:\n");
     OutputDebugStringA(g_szMemoryUsage_005a89b0);
+#ifndef WC1_SDL
     CloseHandle(DAT_005a89a4);
+#endif
     return 0;
 }
+
+#ifndef WC1_SDL
 
 /* Function start: 0x402180 */
 int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
@@ -697,20 +730,27 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
     return 1;
 }
 
+#endif
+
 /* Function start: 0x402320 */
 unsigned int PumpWindowMessages(void)
 {
+#ifndef WC1_SDL
     RECT clip;
     MSG message;
     int cursorX;
     int cursorY;
     int done;
+#endif
 
     if (DAT_004650a8 != 0)
         return 1;
     DAT_004650a8 = 1;
     if (DAT_0059ab2c != 0)
         DAT_0059ab2c();
+#ifdef WC1_SDL
+    Wc1SdlPumpEvents();
+#else
     done = 0;
     do {
         if (DAT_00465080 != 0) {
@@ -770,6 +810,7 @@ unsigned int PumpWindowMessages(void)
                 done = 0;
         }
     } while (done == 0);
+#endif
     DAT_0059ab54 = GetTickCount() * 60 / 1000;
     DAT_004650a8 = 0;
     return DAT_005a8a3c;
@@ -780,6 +821,8 @@ unsigned int GetF1KeyLatch(void)
 {
     return DAT_004650ac;
 }
+
+#ifndef WC1_SDL
 
 /* Function start: 0x402530 */
 LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
@@ -918,6 +961,8 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     return DefWindowProcA(window, message, wParam, lParam);
 }
 
+#endif
+
 /* Function start: 0x402A20 */
 int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
                                   unsigned int *buttons, short joystick,
@@ -934,8 +979,13 @@ int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
         device = 0;
         infoIndex = 0;
     }
+#ifdef WC1_SDL
+    if (Wc1SdlReadJoystick(
+            device, &g_aJoystickInfo_005a8970[infoIndex]) != FALSE) {
+#else
     if (joyGetPos(device, &g_aJoystickInfo_005a8970[infoIndex]) ==
         JOYERR_NOERROR) {
+#endif
         *x = g_aJoystickInfo_005a8970[infoIndex].wXpos;
         *y = g_aJoystickInfo_005a8970[infoIndex].wYpos;
         buttonState = g_aJoystickInfo_005a8970[infoIndex].wButtons;
@@ -947,7 +997,14 @@ int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
         return 0;
     }
 
+#ifdef WC1_SDL
+    if ((fallback & 0xffff) == 0xffff)
+        fallback = (unsigned int)-1;
+    else
+        fallback &= 0xffff;
+#else
     fallback &= 0xffff;
+#endif
     *x = fallback;
     *y = fallback;
     *buttons = fallback;
@@ -965,19 +1022,38 @@ short GetJoystickButtons(void)
 void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
                         short *yMin, short *yMax)
 {
+#ifdef WC1_SDL
+    unsigned int hostXMin;
+    unsigned int hostXMax;
+    unsigned int hostYMin;
+    unsigned int hostYMax;
+#else
     JOYCAPSA caps;
+#endif
     unsigned int device = joystick != 0;
 
     *xMin = *xMax = *yMin = *yMax = 0;
+#ifdef WC1_SDL
+    if (Wc1SdlReadJoystickAxisRange(
+            device, &hostXMin, &hostXMax, &hostYMin, &hostYMax) == FALSE) {
+#else
     if (joyGetDevCapsA(device, &caps, sizeof(caps)) != JOYERR_NOERROR) {
+#endif
         SystemDebugPrintf(g_szJoystickDevCapsFailure_004652dc);
         return;
     }
 
+#ifdef WC1_SDL
+    *xMin = (short)hostXMin;
+    *xMax = (short)hostXMax;
+    *yMin = (short)hostYMin;
+    *yMax = (short)hostYMax;
+#else
     *xMin = (short)caps.wXmin;
     *xMax = (short)caps.wXmax;
     *yMin = (short)caps.wYmin;
     *yMax = (short)caps.wYmax;
+#endif
 }
 
 /* Function start: 0x402B80 */
@@ -1058,31 +1134,58 @@ void ReportHeapGuardCorruption(void *memory, int count, int overrun)
 void CheckAllGuardedAllocations(void)
 {
     GuardedAllocation *allocation = g_pGuardedAllocationHead_004650b0;
+#ifdef WC1_SDL
+    unsigned char *guard;
+    unsigned int guardValue;
+#else
     unsigned int *guard;
+#endif
     int prefixCorrupt;
     int i;
     int suffixCorrupt;
 
     while (allocation != 0) {
+#ifdef WC1_SDL
+        guard = (unsigned char *)allocation->block;
+#else
         guard = (unsigned int *)allocation->block;
+#endif
         prefixCorrupt = 0;
         i = 0x100;
         do {
+#ifdef WC1_SDL
+            memcpy(&guardValue, guard, sizeof(guardValue));
+            if (guardValue != 0xabababab)
+                prefixCorrupt = prefixCorrupt + 1;
+            guard += sizeof(guardValue);
+#else
             if (*guard != 0xabababab)
                 prefixCorrupt = prefixCorrupt + 1;
             guard = guard + 1;
+#endif
             i = i - 1;
         } while (i != 0);
         if (prefixCorrupt != 0)
             ReportHeapGuardCorruption(allocation->block, prefixCorrupt, 0);
 
+#ifdef WC1_SDL
+        guard += allocation->size;
+#else
         guard = (unsigned int *)((unsigned char *)guard + allocation->size);
+#endif
         suffixCorrupt = 0;
         i = 0x100;
         do {
+#ifdef WC1_SDL
+            memcpy(&guardValue, guard, sizeof(guardValue));
+            if (guardValue != 0xabababab)
+                suffixCorrupt = suffixCorrupt + 1;
+            guard += sizeof(guardValue);
+#else
             if (*guard != 0xabababab)
                 suffixCorrupt = suffixCorrupt + 1;
             guard = guard + 1;
+#endif
             i = i - 1;
         } while (i != 0);
         if (suffixCorrupt != 0)
@@ -1097,12 +1200,21 @@ void FreeGuardedAllocation(void *memory)
 {
     GuardedAllocation *allocation = g_pGuardedAllocationHead_004650b0;
     GuardedAllocation *previous = 0;
+#ifdef WC1_SDL
+    unsigned char *guard;
+    unsigned int guardValue;
+#else
     unsigned int *guard;
+#endif
     void *block = (unsigned char *)memory - 0x400;
     int corrupt;
     int i;
 
+#ifdef WC1_SDL
+    guard = (unsigned char *)block;
+#else
     guard = (unsigned int *)block;
+#endif
     if (allocation == 0)
         return;
     while (allocation->block != block) {
@@ -1115,21 +1227,39 @@ void FreeGuardedAllocation(void *memory)
     corrupt = 0;
     i = 0x100;
     do {
+#ifdef WC1_SDL
+        memcpy(&guardValue, guard, sizeof(guardValue));
+        if (guardValue != 0xabababab)
+            corrupt = corrupt + 1;
+        guard += sizeof(guardValue);
+#else
         if (*guard != 0xabababab)
             corrupt = corrupt + 1;
         guard = guard + 1;
+#endif
         i = i - 1;
     } while (i != 0);
     if (corrupt != 0)
         ReportHeapGuardCorruption(memory, corrupt, 0);
 
     corrupt = 0;
+#ifdef WC1_SDL
+    guard = (unsigned char *)memory + allocation->size;
+#else
     guard = (unsigned int *)((unsigned char *)memory + allocation->size);
+#endif
     i = 0x100;
     do {
+#ifdef WC1_SDL
+        memcpy(&guardValue, guard, sizeof(guardValue));
+        if (guardValue != 0xabababab)
+            corrupt = corrupt + 1;
+        guard += sizeof(guardValue);
+#else
         if (*guard != 0xabababab)
             corrupt = corrupt + 1;
         guard = guard + 1;
+#endif
         i = i - 1;
     } while (i != 0);
     if (corrupt != 0)

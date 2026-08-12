@@ -703,7 +703,11 @@ void CheckHeapBlockSignature(unsigned char *shape)
 /* Function start: 0x4408C0 */
 unsigned char *GetPreparedShapeData(unsigned char *shape)
 {
+#ifdef WC1_SDL
+    return *(unsigned char **)(shape - 8 - sizeof(unsigned char *));
+#else
     return *(unsigned char **)(shape - 4);
+#endif
 }
 
 /* Function start: 0x4408D0 */
@@ -719,19 +723,33 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
                           short *leftExtent, short *topExtent)
 {
     int rightExtent;
+#ifndef WC1_SDL
     short *frameHeader;
+#endif
     int frameOffset;
     int left;
     int top;
     int bottom;
+#ifdef WC1_SDL
+    short frameExtents[4];
+#endif
 
     frameOffset = (int)(short)(frame * 4 + 4);
     if (frameOffset < (int)*(unsigned short *)(shape + 4)) {
+#ifdef WC1_SDL
+        memcpy(frameExtents, shape + *(int *)(shape + frameOffset),
+               sizeof(frameExtents));
+        rightExtent = frameExtents[0];
+        left = frameExtents[1];
+        top = frameExtents[2];
+        bottom = frameExtents[3];
+#else
         frameHeader = (short *)(shape + *(int *)(shape + frameOffset));
         rightExtent = *frameHeader++;
         left = *frameHeader++;
         top = *frameHeader++;
         bottom = *frameHeader;
+#endif
         *width = (short)(left + rightExtent + 1);
         *height = (short)(top + bottom + 1);
         *leftExtent = (short)left;
@@ -759,6 +777,9 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
     int y;
     int runRight;
     int skip;
+#ifdef WC1_SDL
+    short coordinate;
+#endif
 
     if (shape == 0 || frame < 0)
         return;
@@ -769,11 +790,22 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
     maximumX = (short)(width - 1);
     commands = shape + *(int *)(shape + frameOffset) + 8;
     maximumY = (short)(height - 1);
+#ifdef WC1_SDL
+    memcpy((void *)&rowCode, commands, sizeof(rowCode));
+#else
     rowCode = *(unsigned short *)commands;
+#endif
     commands += 2;
     while (rowCode != 0) {
+#ifdef WC1_SDL
+        memcpy(&coordinate, commands, sizeof(coordinate));
+        x = leftExtent + coordinate;
+        memcpy(&coordinate, commands + 2, sizeof(coordinate));
+        y = topExtent + coordinate;
+#else
         x = leftExtent + *(short *)commands;
         y = topExtent + *(short *)(commands + 2);
+#endif
         destination = bitmap + y * width + x;
         commands += 4;
         if ((rowCode & 1) != 0) {
@@ -851,13 +883,17 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
             }
             commands += rowCode;
         }
+#ifdef WC1_SDL
+        memcpy((void *)&rowCode, commands, sizeof(rowCode));
+#else
         rowCode = *(unsigned short *)commands;
+#endif
         commands += 2;
     }
 }
 
 /* Function start: 0x440BE0 */
-unsigned int SignExtendClipCoord(volatile short v)
+int SignExtendClipCoord(volatile short v)
 {
     if ((unsigned short)v < 0xfdc0)
         return (unsigned short)v;

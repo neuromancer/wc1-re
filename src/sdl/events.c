@@ -252,15 +252,10 @@ void Wc1SdlStartEventPump(void)
     DAT_005a8a3c = 1;
 }
 
-unsigned int PumpWindowMessages(void)
+void Wc1SdlPumpEvents(void)
 {
     SDL_Event event;
 
-    if (DAT_004650a8 != 0)
-        return 1;
-    DAT_004650a8 = 1;
-    if (DAT_0059ab2c != 0)
-        DAT_0059ab2c();
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             DAT_005a8a3c = 0;
@@ -361,7 +356,4 @@ unsigned int PumpWindowMessages(void)
             g_bHostSecondaryMouseButton_005a899c = secondaryButton;
         }
     }
-    DAT_0059ab54 = GetTickCount() * 60 / 1000;
-    DAT_004650a8 = 0;
-    return (unsigned int)DAT_005a8a3c;
 }
