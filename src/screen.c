@@ -1087,8 +1087,8 @@ void PollMenuInputDevices(void)
     changes = 0;
     if (g_nActiveInputDevice_005a819c == -1)
         return;
-    g_nHostMouseX_0059af70 = g_nMouseX_0059ab10;
-    g_nHostMouseY_0059af72 = g_nMouseY_0059ab12;
+    g_nHostMouseX_0059af70 = g_stMouseCursorState_0059ab10.x;
+    g_nHostMouseY_0059af72 = g_stMouseCursorState_0059ab10.y;
     if (g_bInputPollingGuard_0046a01c != 0)
         return;
     g_bInputPollingGuard_0046a01c++;
@@ -1171,13 +1171,13 @@ void PollMenuInputDevices(void)
         g_nHostMouseY_0059af72 = 199;
     if (changes != 0) {
         LeaveAllocationScope();
-        g_bPrimaryMouseButton_0059ab14 =
+        g_stMouseCursorState_0059ab10.primaryButton =
             g_bPreviousPrimaryInputButton_0059af74;
-        g_nMouseX_0059ab10 = g_nHostMouseX_0059af70;
-        g_nMouseY_0059ab12 = g_nHostMouseY_0059af72;
-        g_bSecondaryMouseButton_0059ab15 =
+        g_stMouseCursorState_0059ab10.x = g_nHostMouseX_0059af70;
+        g_stMouseCursorState_0059ab10.y = g_nHostMouseY_0059af72;
+        g_stMouseCursorState_0059ab10.secondaryButton =
             g_bPreviousSecondaryInputButton_0059af75;
-        g_wInputFlags_0059ab17 = g_wPreviousMenuInputFlags_0059af77;
+        g_stMouseCursorState_0059ab10.flags = g_wPreviousMenuInputFlags_0059af77;
         EnterAllocationScope();
     }
     g_bInputPollingGuard_0046a01c--;
@@ -2030,7 +2030,7 @@ void ThrottleFrameAndDrawFps(HDC dc)
                  strlen((char *)DAT_00476620));
     }
 
-    if (DAT_0059ab23->pixels == DAT_00476648) {
+    if (g_stMouseCursorState_0059ab10.viewport->pixels == DAT_00476648) {
         while (timeGetTime() < (DWORD)DAT_0046b1bc) {
             Sleep(0);
             RefreshMouseCursorDisplay();

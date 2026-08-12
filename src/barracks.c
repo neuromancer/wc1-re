@@ -858,7 +858,7 @@ short BarracksScreen(void)
     InitializeBarracksAnimation(&animation);
     GetBunkInfo(&animation);
     DrawBarracksBunks(&DAT_005a76b0, background, &animation);
-    DAT_0059ab23 = &g_stRoomScreenViewport_005988a0;
+    g_stMouseCursorState_0059ab10.viewport = &g_stRoomScreenViewport_005988a0;
     WarpMouseTo(160, 100);
     EnterAllocationScope();
     SetFrameTimerPeriodDirect(0);

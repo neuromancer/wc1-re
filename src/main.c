@@ -859,7 +859,7 @@ unsigned int player_input(void)
                 afterburnerControl = 0;
             if (g_bMouseCursorVisible_0046a018 == 0) {
                 g_bMouseCursorVisible_0046a018 = 1;
-                DAT_0059ab1d = 2;
+                g_stMouseCursorState_0059ab10.frame = 2;
             }
             if (DAT_0046a008 == 0) {
                 horizontal = (short)(event.x +
@@ -875,8 +875,8 @@ unsigned int player_input(void)
                     (DAT_005a7510.left - DAT_005a7510.right) / 2 + 1);
                 vertical = (short)(event.y - g_nViewCenterY_0059a854);
             }
-            g_nMouseX_0059ab10 = event.x;
-            g_nMouseY_0059ab12 = event.y;
+            g_stMouseCursorState_0059ab10.x = event.x;
+            g_stMouseCursorState_0059ab10.y = event.y;
             yawInput = 0;
             while (g_asMouseYawThresholds_0046a030[yawInput] <=
                     abs((int)horizontal))

@@ -468,8 +468,8 @@ void __stdcall WarpMouseTo(short x, short y)
     __asm cli
     g_nHostMouseX_0059af70 = x;
     g_nHostMouseY_0059af72 = y;
-    g_nMouseX_0059ab10 = x;
-    g_nMouseY_0059ab12 = y;
+    g_stMouseCursorState_0059ab10.x = x;
+    g_stMouseCursorState_0059ab10.y = y;
     SetMouseHomePosition(x, y);
     __asm sti
 }

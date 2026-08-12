@@ -278,7 +278,7 @@ short RecRoom(void)
         FetchDiskPacketRetrying(5, 0, 0);
     g_nMenuPointerSpeed_0046af58 = 1;
     g_bInputMode_0059a848 = 1;
-    DAT_0059ab23 = &g_stRoomDisplayViewport_00598a60;
+    g_stMouseCursorState_0059ab10.viewport = &g_stRoomDisplayViewport_00598a60;
 
     pilotWork = DAT_005a76b0;
     shotglassWork = DAT_005a76b0;
@@ -518,7 +518,7 @@ short RecRoom(void)
             }
 
             g_stRoomMouseViewport_00598a80 = DAT_005a6ba0;
-            DAT_0059ab23 = &g_stRoomMouseViewport_00598a80;
+            g_stMouseCursorState_0059ab10.viewport = &g_stRoomMouseViewport_00598a80;
             g_bInputMode_0059a848 = 1;
             if (clicked != 0)
                 firstFrame = 0;

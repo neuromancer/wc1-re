@@ -88,6 +88,29 @@ typedef struct Viewport {
     unsigned char *allocation;      /* +0x10 */
 } Viewport;
 
+/* The event manager snapshots these 28 bytes with seven MOVSD operations.
+ * The unaligned pointer fields and reserved spans are fixed by the original
+ * addresses at 0x0059AB10-0x0059AB2B. */
+#pragma pack(push, 1)
+typedef struct MouseCursorState {
+    volatile short x;                    /* +0x00 */
+    volatile short y;                    /* +0x02 */
+    unsigned char primaryButton;         /* +0x04 */
+    unsigned char secondaryButton;       /* +0x05 */
+    unsigned char reserved;              /* +0x06 */
+    unsigned short flags;                /* +0x07 */
+    unsigned char * volatile shape;      /* +0x09 */
+    unsigned short frame;                /* +0x0D */
+    unsigned int reservedAfterFrame;     /* +0x0F */
+    Viewport * volatile viewport;        /* +0x13 */
+    unsigned int reservedAfterViewport;  /* +0x17 */
+    unsigned char shapeChanged;          /* +0x1B */
+} MouseCursorState;
+#pragma pack(pop)
+
+typedef char MouseCursorState_size_must_be_0x1c[
+    sizeof(MouseCursorState) == 0x1c ? 1 : -1];
+
 /* The event manager keeps a fixed pool of doubly-linked input records.  The
  * 0x1C-byte stride is fixed by the allocator at 0x004356E0 and the link
  * accesses at 0x00435790-0x004359BF. */

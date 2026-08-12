@@ -440,10 +440,10 @@ unsigned short InitializeEventManagerResources(void)
     DAT_0059a9f0 = 20;
     g_nInputTickScale_0059af90 = 20;
     DAT_0059ab64 = 1;
-    DAT_0059ab19 = g_pMouseCursorResource_005a7cdc =
+    g_stMouseCursorState_0059ab10.shape = g_pMouseCursorResource_005a7cdc =
         FetchDiskPacketRetrying(14, 0, 0x10);
-    DAT_0059ab1d = 0;
-    DAT_0059ab23 = &DAT_005a6ba0;
+    g_stMouseCursorState_0059ab10.frame = 0;
+    g_stMouseCursorState_0059ab10.viewport = &DAT_005a6ba0;
     return 0;
 }
 
@@ -454,7 +454,7 @@ unsigned int EMStartUp(void)
     RegisterEventManagerShutdown((void (*)(void))LogMemoryUsage);
     if (InitializeEventManager(20, InitializeEventManagerResources, 0) == 0)
         exit_squadron("EMStartUp Failed");
-    ConfigureEventManagerPointer(DAT_0059ab19, 0);
+    ConfigureEventManagerPointer(g_stMouseCursorState_0059ab10.shape, 0);
     SetEventManagerPump(PollJoystickButtonEvents);
     g_aInputDeviceSamples_005a81f0[2].x = 6;
     return 0;

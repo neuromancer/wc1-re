@@ -957,7 +957,7 @@ short SelectTrainSimMission(short *mission)
     DrawSpriteDefault(&menuViewport, positions[3].x, positions[3].y,
                       bottomRightShape, 2);
 
-    DAT_0059ab23 = &g_stTrainSimTitleDisplayViewport_005a7b90;
+    g_stMouseCursorState_0059ab10.viewport = &g_stTrainSimTitleDisplayViewport_005a7b90;
     SetEventManagerPump(PollMenuInputDevices);
     EventManagerHook(UpdateTrainSimMenuCursor);
     *(short *)&g_aInputDeviceSamples_005a81f0[2].x = 6;

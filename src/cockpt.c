@@ -2091,17 +2091,19 @@ no_sight:
     if (DAT_00469004 != 0)
         ShowHudTextLine(DAT_00469004, (unsigned char)DAT_005a7f00);
     if (g_bMouseCursorVisible_0046a018 == 1) {
-        g_nSavedMouseCursorX_005a7df8 = g_nMouseX_0059ab10;
-        g_nSavedMouseCursorY_005a7df4 = g_nMouseY_0059ab12;
-        CaptureSpriteBackground(DAT_0059ab23,
+        g_nSavedMouseCursorX_005a7df8 = g_stMouseCursorState_0059ab10.x;
+        g_nSavedMouseCursorY_005a7df4 = g_stMouseCursorState_0059ab10.y;
+        CaptureSpriteBackground(g_stMouseCursorState_0059ab10.viewport,
                                 g_abMouseCursorBackground_00475ff0,
-                                g_nMouseX_0059ab10,
-                                g_nMouseY_0059ab12,
-                                DAT_0059ab19, DAT_0059ab1d);
-        DrawSpriteDefault(DAT_0059ab23,
-                          g_nMouseX_0059ab10,
-                          g_nMouseY_0059ab12,
-                          DAT_0059ab19, DAT_0059ab1d);
+                                g_stMouseCursorState_0059ab10.x,
+                                g_stMouseCursorState_0059ab10.y,
+                                g_stMouseCursorState_0059ab10.shape,
+                                g_stMouseCursorState_0059ab10.frame);
+        DrawSpriteDefault(g_stMouseCursorState_0059ab10.viewport,
+                          g_stMouseCursorState_0059ab10.x,
+                          g_stMouseCursorState_0059ab10.y,
+                          g_stMouseCursorState_0059ab10.shape,
+                          g_stMouseCursorState_0059ab10.frame);
     }
     return 0;
 }
@@ -2119,11 +2121,12 @@ void RestoreCockpitExplosionIfVisible(void)
 unsigned int RestoreTransientCockpitGraphics(void)
 {
     if (g_bMouseCursorVisible_0046a018 == 1) {
-        RestoreSpriteBackground(DAT_0059ab23,
+        RestoreSpriteBackground(g_stMouseCursorState_0059ab10.viewport,
                                 g_abMouseCursorBackground_00475ff0,
                                 (short)g_nSavedMouseCursorX_005a7df8,
                                 (short)g_nSavedMouseCursorY_005a7df4,
-                                DAT_0059ab19, (short)DAT_0059ab1d);
+                                g_stMouseCursorState_0059ab10.shape,
+                                (short)g_stMouseCursorState_0059ab10.frame);
     }
     if (g_cPreviousTargetObject_005a7df2 != -1) {
         draw_target_box(DAT_004699d8,

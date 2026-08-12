@@ -759,8 +759,8 @@ int RunSpaceFlight(short entryNavPoint)
     DAT_00469fb4 = 1;
     g_bInputMode_0059a848 = 1;
     SetEventManagerPump(get_player_input);
-    savedViewport = (Viewport *)DAT_0059ab23;
-    DAT_0059ab23 = &DAT_005a7510;
+    savedViewport = (Viewport *)g_stMouseCursorState_0059ab10.viewport;
+    g_stMouseCursorState_0059ab10.viewport = &DAT_005a7510;
     init_inflight_music();
 
     if (entryNavPoint == -1)
@@ -862,12 +862,12 @@ int RunSpaceFlight(short entryNavPoint)
         flag_objective(find_objective(1, -1), 2);
     DAT_0046a008 = 0;
     ResetCockpitPaletteEntries();
-    DAT_0059ab23 = savedViewport;
+    g_stMouseCursorState_0059ab10.viewport = savedViewport;
     free_inflight_music();
     SetEventManagerPump(0);
     g_bMouseCursorVisible_0046a018 = 0;
     QueueInputEvent(13, 160, 100, 0, 0, 0, 0);
-    SetMouseCursorShape(DAT_0059ab19, 0);
+    SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, 0);
     return g_nArcadeState_00469fb0;
 }
 
@@ -915,8 +915,8 @@ void UpdateTrainSimMenuCursor(void)
     TitleMenuRegion *region;
 
     frame = 0;
-    mouseX = g_nMouseX_0059ab10;
-    mouseY = g_nMouseY_0059ab12;
+    mouseX = g_stMouseCursorState_0059ab10.x;
+    mouseY = g_stMouseCursorState_0059ab10.y;
     region = g_aTrainSimMissionRegions_00469df8;
     while (region->frame != -1) {
         state = IsPointInRect(mouseX, mouseY, &region->left);
@@ -924,13 +924,13 @@ void UpdateTrainSimMenuCursor(void)
             frame = region->frame;
         region++;
     }
-    SetMouseCursorShape(DAT_0059ab19, frame);
+    SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
 }
 
 /* Function start: 0x42A670 */
 void ResetMouseCursorFrame(void)
 {
-    SetMouseCursorShape(DAT_0059ab19, 0);
+    SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, 0);
 }
 
 /* Function start: 0x42A680 */
@@ -943,11 +943,11 @@ void UpdateRoomMenuCursor(void)
     TitleMenuRegion *region;
     short index;
 
-    mouseX = g_nMouseX_0059ab10;
+    mouseX = g_stMouseCursorState_0059ab10.x;
     frame = g_nRoomMenuCursorFrame_00598ab0;
     index = 0;
     region = g_pRoomMenuRegions_00598ab2;
-    mouseY = g_nMouseY_0059ab12;
+    mouseY = g_stMouseCursorState_0059ab10.y;
     ClearRoomMenuLabel();
     while (region->frame != -1) {
         state = IsPointInRect(mouseX, mouseY, &region->left);
@@ -962,7 +962,7 @@ void UpdateRoomMenuCursor(void)
         index++;
         region++;
     }
-    SetMouseCursorShape(DAT_0059ab19, frame);
+    SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
 }
 
 /* Function start: 0x42A700 */

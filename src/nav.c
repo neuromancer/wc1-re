@@ -827,7 +827,7 @@ void InflightComputer(void)
     hasObjectives = 0;
     displayedNavPoint = savedNavPoint;
     g_bInflightComputerActive_00468754 = 1;
-    memcpy(savedInputState, (const void *)&g_nMouseX_0059ab10,
+    memcpy(savedInputState, (const void *)&g_stMouseCursorState_0059ab10,
            sizeof(savedInputState));
 
     if (message_showing() != 0)
@@ -860,7 +860,7 @@ void InflightComputer(void)
         pointerViewport = DAT_005a6ba0;
         SetRectBounds(&pointerViewport, 32, 24, 182, 159);
         savedInputMode = (short)(signed char)g_bInputMode_0059a848;
-        DAT_0059ab23 = &pointerViewport;
+        g_stMouseCursorState_0059ab10.viewport = &pointerViewport;
         g_bInputMode_0059a848 = 1;
         SetEventManagerPump(PollMenuInputDevices);
         EventManagerHook(ResetMouseCursorFrame);
@@ -877,7 +877,7 @@ void InflightComputer(void)
                 ShowConfedNavScan();
             }
             SetRectBounds(&DAT_005a6ba0, 32, 24, 289, 177);
-            SetMouseCursorShape(DAT_0059ab19, 0);
+            SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, 0);
             FormatNavCoordinates(
                 (unsigned char *)g_pElapsedCampaignDate_005a86ac);
             g_stNavLabelTextContext_005a8180.viewport = &DAT_005a6ba0;
@@ -909,8 +909,8 @@ void InflightComputer(void)
                 }
                 break;
             }
-            SelectNavObjectiveAtPoint(g_nMouseX_0059ab10,
-                                      g_nMouseY_0059ab12);
+            SelectNavObjectiveAtPoint(g_stMouseCursorState_0059ab10.x,
+                                      g_stMouseCursorState_0059ab10.y);
             DIBslam();
             DIBslamReal();
         } while (done == 0 && DAT_0059ab58 == 0);
@@ -931,7 +931,7 @@ void InflightComputer(void)
     ReleasePacketHandle(g_pNavMapShape_00468708);
     SetTextContext(&g_stDefaultTextContext_005a7740);
     PlaySfxWaveFileByNumber(0x19, -1, 0);
-    memcpy((void *)&g_nMouseX_0059ab10, savedInputState,
+    memcpy((void *)&g_stMouseCursorState_0059ab10, savedInputState,
            sizeof(savedInputState));
     WarpMouseTo(((short *)savedInputState)[0],
                 ((short *)savedInputState)[1]);
@@ -1756,7 +1756,7 @@ void UpdateTitleMenuCursor(void)
             frame = region->frame;
         region++;
     }
-    SetMouseCursorShape(DAT_0059ab19, frame);
+    SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
 }
 
 /* Function start: 0x40FB70 */
@@ -2022,7 +2022,7 @@ int Title_Sequence(void)
     DIBslam();
     DIBslamReal();
 
-    DAT_0059ab23 = &DAT_005a6ba0;
+    g_stMouseCursorState_0059ab10.viewport = &DAT_005a6ba0;
     SetEventManagerPump(PollMenuInputDevices);
     *(short *)&g_aInputDeviceSamples_005a81f0[2].x = 6;
     WarpMouseTo(160, 100);

@@ -382,7 +382,7 @@ void DIBslamReal(void)
         memset(&surface, 0, sizeof(surface));
         surface.dwSize = sizeof(surface);
 
-        if (DAT_0059ab23->pixels == DAT_00476648) {
+        if (g_stMouseCursorState_0059ab10.viewport->pixels == DAT_00476648) {
             CaptureMouseCursorBackground();
             DrawMouseCursor();
         }
@@ -454,7 +454,7 @@ void DIBslamReal(void)
                 g_pPrimarySurface_0046b1a8, surface.lpSurface);
         }
 
-        if (DAT_0059ab23->pixels == DAT_00476648)
+        if (g_stMouseCursorState_0059ab10.viewport->pixels == DAT_00476648)
             RestoreMouseCursorBackground();
 
         if (DAT_0046b1b4 > 0) {

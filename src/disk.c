@@ -517,28 +517,28 @@ void MoveMenuPointerFromKeyboard(InputEventState *event)
     } else {
         switch ((short)event->value) {
         case 0x47:
-            g_nMouseY_0059ab12 -= delta;
+            g_stMouseCursorState_0059ab10.y -= delta;
             /* fall through */
         case 0x4b:
-            g_nMouseX_0059ab10 -= delta;
+            g_stMouseCursorState_0059ab10.x -= delta;
             break;
         case 0x49:
-            g_nMouseX_0059ab10 += delta;
+            g_stMouseCursorState_0059ab10.x += delta;
             /* fall through */
         case 0x48:
-            g_nMouseY_0059ab12 -= delta;
+            g_stMouseCursorState_0059ab10.y -= delta;
             break;
         case 0x4f:
-            g_nMouseX_0059ab10 -= delta;
+            g_stMouseCursorState_0059ab10.x -= delta;
             /* fall through */
         case 0x50:
-            g_nMouseY_0059ab12 += delta;
+            g_stMouseCursorState_0059ab10.y += delta;
             break;
         case 0x51:
-            g_nMouseY_0059ab12 += delta;
+            g_stMouseCursorState_0059ab10.y += delta;
             /* fall through */
         case 0x4d:
-            g_nMouseX_0059ab10 += delta;
+            g_stMouseCursorState_0059ab10.x += delta;
             break;
         default:
             goto clamp_pointer;
@@ -547,21 +547,21 @@ void MoveMenuPointerFromKeyboard(InputEventState *event)
     }
 
 clamp_pointer:
-    if (g_nMouseX_0059ab10 < 0)
-        g_nMouseX_0059ab10 = 0;
-    else if (g_nMouseX_0059ab10 > 320)
-        g_nMouseX_0059ab10 = 320;
-    if (g_nMouseY_0059ab12 < 0)
-        g_nMouseY_0059ab12 = 0;
-    else if (g_nMouseY_0059ab12 > 320)
-        g_nMouseY_0059ab12 = 320;
+    if (g_stMouseCursorState_0059ab10.x < 0)
+        g_stMouseCursorState_0059ab10.x = 0;
+    else if (g_stMouseCursorState_0059ab10.x > 320)
+        g_stMouseCursorState_0059ab10.x = 320;
+    if (g_stMouseCursorState_0059ab10.y < 0)
+        g_stMouseCursorState_0059ab10.y = 0;
+    else if (g_stMouseCursorState_0059ab10.y > 320)
+        g_stMouseCursorState_0059ab10.y = 320;
 
-    g_nHostMouseX_0059af70 = g_nMouseX_0059ab10;
-    g_nHostMouseY_0059af72 = g_nMouseY_0059ab12;
+    g_nHostMouseX_0059af70 = g_stMouseCursorState_0059ab10.x;
+    g_nHostMouseY_0059af72 = g_stMouseCursorState_0059ab10.y;
     if (moved != 0) {
         RetainInputEventsOfType(3);
-        QueueInputEvent(13, (unsigned short)g_nMouseX_0059ab10,
-                        (unsigned short)g_nMouseY_0059ab12,
+        QueueInputEvent(13, (unsigned short)g_stMouseCursorState_0059ab10.x,
+                        (unsigned short)g_stMouseCursorState_0059ab10.y,
                         0, 0, 0, 0);
         g_bPointerMovedByKeyboard_005a7d54 = 1;
         SetMousePosition(g_nHostMouseX_0059af70,

@@ -49,8 +49,8 @@ void QueueInputEventAtCursor(unsigned int type, short primaryButton,
 {
     /* Preserve the original 16-bit event ID and sample each volatile axis. */
     unsigned int eventType = type & 0xffff;
-    int x = g_nMouseX_0059ab10;
-    int y = g_nMouseY_0059ab12;
+    int x = g_stMouseCursorState_0059ab10.x;
+    int y = g_stMouseCursorState_0059ab10.y;
 
     QueueInputEvent((unsigned short)eventType, (unsigned short)x,
                     (unsigned short)y, 0,
@@ -225,32 +225,34 @@ short __stdcall GetNextInputEvent(InputEventState *state)
     if (g_pInputEventHead_0046da90 != 0) {
         eventX = &g_pInputEventHead_0046da90->x;
         eventY = (int)g_pInputEventHead_0046da90->y;
-        if ((int)DAT_0059ab23->left > (int)*eventX)
-            *eventX = DAT_0059ab23->left;
-        else if ((int)DAT_0059ab23->right < (int)*eventX)
-            *eventX = DAT_0059ab23->right;
-        if ((int)DAT_0059ab23->top > eventY)
-            g_pInputEventHead_0046da90->y = DAT_0059ab23->top;
-        else if ((int)DAT_0059ab23->bottom < eventY)
-            g_pInputEventHead_0046da90->y = DAT_0059ab23->bottom;
+        if ((int)g_stMouseCursorState_0059ab10.viewport->left > (int)*eventX)
+            *eventX = g_stMouseCursorState_0059ab10.viewport->left;
+        else if ((int)g_stMouseCursorState_0059ab10.viewport->right < (int)*eventX)
+            *eventX = g_stMouseCursorState_0059ab10.viewport->right;
+        if ((int)g_stMouseCursorState_0059ab10.viewport->top > eventY)
+            g_pInputEventHead_0046da90->y = g_stMouseCursorState_0059ab10.viewport->top;
+        else if ((int)g_stMouseCursorState_0059ab10.viewport->bottom <
+                 eventY)
+            g_pInputEventHead_0046da90->y =
+                g_stMouseCursorState_0059ab10.viewport->bottom;
 
         state->modifiers =
             (short)g_pInputEventHead_0046da90->modifiers;
         switch (g_pInputEventHead_0046da90->type) {
         case 1:
-            g_nMouseX_0059ab10 = g_pInputEventHead_0046da90->x;
-            g_nMouseY_0059ab12 = g_pInputEventHead_0046da90->y;
-            g_bPrimaryMouseButton_0059ab14 = 0;
+            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0046da90->x;
+            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0046da90->y;
+            g_stMouseCursorState_0059ab10.primaryButton = 0;
             state->x = g_pInputEventHead_0046da90->x;
             state->y = g_pInputEventHead_0046da90->y;
             type = 1;
             break;
         case 2:
-            g_nMouseX_0059ab10 = g_pInputEventHead_0046da90->x;
-            g_nMouseY_0059ab12 = g_pInputEventHead_0046da90->y;
-            g_bPrimaryMouseButton_0059ab14 =
+            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0046da90->x;
+            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0046da90->y;
+            g_stMouseCursorState_0059ab10.primaryButton =
                 (unsigned char)g_pInputEventHead_0046da90->primaryButton;
-            g_bSecondaryMouseButton_0059ab15 =
+            g_stMouseCursorState_0059ab10.secondaryButton =
                 (unsigned char)g_pInputEventHead_0046da90->secondaryButton;
             state->x = g_pInputEventHead_0046da90->x;
             state->y = g_pInputEventHead_0046da90->y;
@@ -262,14 +264,14 @@ short __stdcall GetNextInputEvent(InputEventState *state)
         case 3:
             type = 3;
             state->value = g_pInputEventHead_0046da90->value;
-            state->x = g_nMouseX_0059ab10;
-            state->y = g_nMouseY_0059ab12;
+            state->x = g_stMouseCursorState_0059ab10.x;
+            state->y = g_stMouseCursorState_0059ab10.y;
             break;
         case 4:
             type = 4;
             state->x = g_pInputEventHead_0046da90->value;
-            state->x = g_nMouseX_0059ab10;
-            state->y = g_nMouseY_0059ab12;
+            state->x = g_stMouseCursorState_0059ab10.x;
+            state->y = g_stMouseCursorState_0059ab10.y;
             break;
         case 5:
             type = 5;
@@ -301,8 +303,8 @@ short __stdcall GetNextInputEvent(InputEventState *state)
             state->y = g_pInputEventHead_0046da90->y;
             break;
         case 13:
-            g_nMouseX_0059ab10 = g_pInputEventHead_0046da90->x;
-            g_nMouseY_0059ab12 = g_pInputEventHead_0046da90->y;
+            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0046da90->x;
+            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0046da90->y;
             state->x = g_pInputEventHead_0046da90->x;
             state->y = g_pInputEventHead_0046da90->y;
             type = 13;
@@ -384,14 +386,19 @@ void CaptureMouseCursorBackground(void)
     int x;
     int y;
 
-    if (DAT_0046daa0 == 0 || DAT_0059ab23 == 0 || DAT_0059ab19 == 0)
+    if (DAT_0046daa0 == 0 ||
+        g_stMouseCursorState_0059ab10.viewport == 0 ||
+        g_stMouseCursorState_0059ab10.shape == 0)
         return;
 
-    CaptureSpriteBackground(DAT_0059ab23, DAT_004865a8,
-                            g_nMouseX_0059ab10, g_nMouseY_0059ab12,
-                            DAT_0059ab19, DAT_0059ab1d);
-    x = g_nMouseX_0059ab10;
-    y = g_nMouseY_0059ab12;
+    CaptureSpriteBackground(g_stMouseCursorState_0059ab10.viewport,
+                            DAT_004865a8,
+                            g_stMouseCursorState_0059ab10.x,
+                            g_stMouseCursorState_0059ab10.y,
+                            g_stMouseCursorState_0059ab10.shape,
+                            g_stMouseCursorState_0059ab10.frame);
+    x = g_stMouseCursorState_0059ab10.x;
+    y = g_stMouseCursorState_0059ab10.y;
     if (DAT_0059ab5c > x - 16)
         DAT_0059ab5c = x - 16;
     DAT_0059a8e4 = x;
@@ -412,18 +419,22 @@ void DrawMouseCursor(void)
     int x;
     int y;
 
-    if (DAT_0046daa0 == 0 || DAT_0059ab23 == 0 || DAT_0059ab19 == 0)
+    if (DAT_0046daa0 == 0 ||
+        g_stMouseCursorState_0059ab10.viewport == 0 ||
+        g_stMouseCursorState_0059ab10.shape == 0)
         return;
 
-    DrawSpriteDefault(DAT_0059ab23, g_nMouseX_0059ab10,
-                      g_nMouseY_0059ab12,
-                      DAT_0059ab19, DAT_0059ab1d);
-    x = g_nMouseX_0059ab10;
+    DrawSpriteDefault(g_stMouseCursorState_0059ab10.viewport,
+                      g_stMouseCursorState_0059ab10.x,
+                      g_stMouseCursorState_0059ab10.y,
+                      g_stMouseCursorState_0059ab10.shape,
+                      g_stMouseCursorState_0059ab10.frame);
+    x = g_stMouseCursorState_0059ab10.x;
     if (DAT_0059ab5c > x - 16)
         DAT_0059ab5c = x - 16;
     if (DAT_0059ab44 < x + 16)
         DAT_0059ab44 = x + 16;
-    y = g_nMouseY_0059ab12;
+    y = g_stMouseCursorState_0059ab10.y;
     if (DAT_0059ab60 > y - 16)
         DAT_0059ab60 = y - 16;
     if (DAT_0059ab48 < y + 16)
@@ -437,13 +448,17 @@ void RestoreMouseCursorBackground(void)
     int x;
     int y;
 
-    if (DAT_0046daa0 == 0 || DAT_0059ab23 == 0 || DAT_0059ab19 == 0 ||
+    if (DAT_0046daa0 == 0 ||
+        g_stMouseCursorState_0059ab10.viewport == 0 ||
+        g_stMouseCursorState_0059ab10.shape == 0 ||
         DAT_0059a84c == 0)
         return;
 
-    RestoreSpriteBackground(DAT_0059ab23, DAT_004865a8,
+    RestoreSpriteBackground(g_stMouseCursorState_0059ab10.viewport,
+                            DAT_004865a8,
                             (short)DAT_0059a8e4, (short)DAT_0059a8e0,
-                            DAT_0059ab19, DAT_0059ab1d);
+                            g_stMouseCursorState_0059ab10.shape,
+                            g_stMouseCursorState_0059ab10.frame);
     x = DAT_0059a8e4;
     if (DAT_0059ab5c > x - 16)
         DAT_0059ab5c = x - 16;
@@ -488,33 +503,33 @@ void LeaveAllocationScope(void)
 /* Function start: 0x4360F0 */
 void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
 {
-    g_bMouseCursorShapeChanged_0059ab2b = 1;
-    if (DAT_0059ab23 != 0 && DAT_0046daa0 > 0 &&
+    g_stMouseCursorState_0059ab10.shapeChanged = 1;
+    if (g_stMouseCursorState_0059ab10.viewport != 0 && DAT_0046daa0 > 0 &&
         g_pDrawnMouseCursorShape_0046da9c != 0) {
-        RestoreSpriteBackground(DAT_0059ab23, DAT_004865a8,
+        RestoreSpriteBackground(g_stMouseCursorState_0059ab10.viewport, DAT_004865a8,
                                 (short)g_nMouseCursorSavedX_0059a844,
                                 (short)g_nMouseCursorSavedY_0059a840,
                                 g_pDrawnMouseCursorShape_0046da9c,
-                                (short)DAT_0059ab1d);
+                                (short)g_stMouseCursorState_0059ab10.frame);
         g_pDrawnMouseCursorShape_0046da9c = 0;
     }
-    DAT_0059ab1d = frame;
-    DAT_0059ab19 = shape;
+    g_stMouseCursorState_0059ab10.frame = frame;
+    g_stMouseCursorState_0059ab10.shape = shape;
 }
 
 /* Function start: 0x436160 */
 void __stdcall SetMouseHomePosition(short x, short y)
 {
-    g_nMouseX_0059ab10 = x;
-    g_nMouseY_0059ab12 = y;
+    g_stMouseCursorState_0059ab10.x = x;
+    g_stMouseCursorState_0059ab10.y = y;
     SetMousePositionDuplicate(x, y);
 }
 
 /* Function start: 0x436190 */
 void __stdcall ApplyPackedMousePosition(ShortPoint point)
 {
-    g_nMouseX_0059ab10 = point.x;
-    g_nMouseY_0059ab12 = point.y;
+    g_stMouseCursorState_0059ab10.x = point.x;
+    g_stMouseCursorState_0059ab10.y = point.y;
     SetMousePositionDuplicate(point.x, point.y);
 }
 
