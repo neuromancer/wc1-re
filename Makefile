@@ -97,6 +97,7 @@ GAME_LIBS = \
 TARGET = WC1.EXE
 MAPFILE = WC1.map
 OUT_DIR = out
+SDL_OUT_DIR = out-sdl
 
 # Where the retail executable lives.  `make data/full/WC1.ORI.EXE` copies it out
 # of the sibling analysis tree so this repo never has to vendor the binary.
@@ -276,6 +277,17 @@ build: $(TARGET)
 # counterparts (build-demo, report-demo, seh-demo, compare-demo, run-demo,
 # progress-demo) intentionally do not exist.
 build-full: $(TARGET)
+
+# The native port is deliberately configured in a separate build tree.  It
+# must never supply objects to the assembly-comparison target above.
+sdl-configure:
+	cmake -S . -B $(SDL_OUT_DIR)
+
+sdl: sdl-configure
+	cmake --build $(SDL_OUT_DIR)
+
+sdl-test: sdl
+	ctest --test-dir $(SDL_OUT_DIR) --output-on-failure
 
 ifeq ($(UNAME_S),Linux)
 WIBO_PRESET = release64-clang
@@ -628,6 +640,9 @@ clean-run:
 clean-dreamm:
 	rm -rf $(DREAMM_DIR)
 
+clean-sdl:
+	rm -rf $(SDL_OUT_DIR)
+
 .PHONY: \
 	all \
 	analyze \
@@ -639,6 +654,7 @@ clean-dreamm:
 	audit-rebuilt-global-layout \
 	build \
 	build-full \
+	clean-sdl \
 	compare-full \
 	compare-full-functions \
 	compare-func \
@@ -664,6 +680,9 @@ clean-dreamm:
 	report \
 	run \
 	run-check \
+	sdl \
+	sdl-configure \
+	sdl-test \
 	seh \
 	sort \
 	verify \

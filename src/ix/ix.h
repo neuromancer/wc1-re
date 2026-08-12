@@ -20,7 +20,11 @@
 #ifndef IX_H
 #define IX_H
 
+#ifdef WC1_SDL
+#include "wc1sdl.h"
+#else
 #include <windows.h>   /* CRITICAL_SECTION, used by the stream/voice state below */
+#endif
 #include <stdio.h>     /* FILE, held by developer-mode stream-file objects */
 
 /* --------------------------------------------------------------------------

@@ -45,24 +45,24 @@ branch of every condition remains the assembly-comparison authority.
 
 Each checked step is committed and pushed independently.
 
-1. **Build boundary and host types.** Add a separate native build, define
+1. [x] **Build boundary and host types.** Add a separate native build, define
    `WC1_SDL`, introduce fixed-width Win32-compatible declarations, and compile a
    platform smoke target against the installed SDL2 development package.
-2. **Native source compile.** Bring the shared game sources through a complete
+2. [ ] **Native source compile.** Bring the shared game sources through a complete
    modern C/C++ compile by isolating MSVC-only syntax and supplying portable
    implementations for proven hand-written assembly routines.  Add compile and
    link checks that cannot affect `WC1.EXE`.
-3. **Window and input.** Implement SDL startup/shutdown, event pumping, scan-code
+3. [ ] **Window and input.** Implement SDL startup/shutdown, event pumping, scan-code
    translation, mouse capture/warping, controller discovery, and focus/quit
    handling through the existing game APIs.
-4. **Video and timing.** Implement the indexed framebuffer, palette upload,
+4. [ ] **Video and timing.** Implement the indexed framebuffer, palette upload,
    scaling/fullscreen presentation, vertical-update behavior, monotonic clock,
    and timer callbacks.
-5. **Audio and streaming.** Replace DirectSound voices and Win32 synchronization
+5. [ ] **Audio and streaming.** Replace DirectSound voices and Win32 synchronization
    with an SDL audio backend while retaining `ix` sound/stream state machines.
-6. **Host services and data paths.** Port preferences, debug output, CD/data
+6. [ ] **Host services and data paths.** Port preferences, debug output, CD/data
    discovery, save paths, and remaining CRT/Win32 compatibility calls.
-7. **End-to-end verification.** On each supported host, configure, compile, link,
+7. [ ] **End-to-end verification.** On each supported host, configure, compile, link,
    start from the game data directory, and exercise startup/input/video/audio.
    Also run `make verify` to prove the reference build is unchanged.
 

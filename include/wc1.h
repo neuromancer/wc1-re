@@ -21,16 +21,22 @@
 #ifndef WC1_H
 #define WC1_H
 
+#ifdef WC1_SDL
+#include "wc1sdl.h"
+#endif
+
 #ifndef WC1_ANALYSIS
+#ifndef WC1_SDL
 #include <windows.h>
 #include <ddraw.h>
 #include <mmsystem.h>
 #include <conio.h>
-#include <ctype.h>
 #include <direct.h>
+#include <io.h>
+#endif
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <io.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -108,8 +114,10 @@ typedef struct MouseCursorState {
 } MouseCursorState;
 #pragma pack(pop)
 
+#ifndef WC1_SDL
 typedef char MouseCursorState_size_must_be_0x1c[
     sizeof(MouseCursorState) == 0x1c ? 1 : -1];
+#endif
 
 /* The event manager keeps a fixed pool of doubly-linked input records.  The
  * 0x1C-byte stride is fixed by the allocator at 0x004356E0 and the link
@@ -250,8 +258,10 @@ typedef struct HudMessageSlot {
 } HudMessageSlot;
 #pragma pack(pop)
 
+#ifndef WC1_SDL
 typedef char CockpitReadout_size_must_be_0x0a[
     sizeof(CockpitReadout) == 0x0a ? 1 : -1];
+#endif
 
 /* Runtime wave-cache node.  The name pointer and next link are established by
  * the allocation/free paths at 0x0042B1F0 and 0x0042B300; the sample pointer
@@ -330,7 +340,7 @@ typedef struct DebugOverlayConsole {
  * different base type.  The Win32 port therefore has to be using the windows.h
  * one, so do not redeclare it here.  TRUE/FALSE likewise come from windows.h.
  */
-#ifdef WC1_ANALYSIS
+#if defined(WC1_ANALYSIS) && !defined(WC1_SDL)
 typedef unsigned char BOOLEAN;
 #ifndef TRUE
 #define FALSE 0
