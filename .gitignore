@@ -1,6 +1,6 @@
 # Build artifacts
 out/
-out-sdl/
+out-modern/
 *.obj
 *.asm
 *.map

@@ -24,7 +24,7 @@ branch of every condition remains the assembly-comparison authority.
   DirectSound device/voice backend while the original sample, stream, sound,
   priority, and mixing code remains shared wherever possible.
 - A native build must not become an input to reconstruction reports.  Native
-  objects and generated files live under `out-sdl/`.
+  objects and generated files live under `out-modern/`.
 
 ## Platform boundary inventory
 
@@ -45,9 +45,14 @@ branch of every condition remains the assembly-comparison authority.
 
 Each checked step is committed and pushed independently.
 
-1. [x] **Build boundary and host types.** Add a separate native build, define
-   `WC1_SDL`, introduce fixed-width Win32-compatible declarations, and compile a
-   platform smoke target against the installed SDL2 development package.
+1. [x] **Build boundary and host types.** Add a separate Make-based native build,
+   define `WC1_SDL`, introduce fixed-width Win32-compatible declarations, and
+   compile platform smoke targets against the installed SDL2 development
+   package.  `make modern` builds it and `make run-modern` launches the current
+   native executable from the external game-data directory.
+   At this checkpoint the executable validates SDL window creation and event
+   handling; it does not enter the recovered game loop yet.  Escape or a window
+   close event exits it.
 2. [ ] **Native source compile.** Bring the shared game sources through a complete
    modern C/C++ compile by isolating MSVC-only syntax and supplying portable
    implementations for proven hand-written assembly routines.  Add compile and
@@ -74,7 +79,7 @@ Every port commit must pass the narrowest applicable native build/test.  Any
 commit that touches a recovered source or shared header must additionally pass
 `make verify`.  Before declaring the port complete:
 
-- the native executable configures, builds, and links with SDL2 on at least
+- the native executable builds and links with SDL2 on at least
   macOS and Linux-compatible toolchains;
 - it finds an external Kilrathi Saga WC1 data tree without copying game data
   into the repository;

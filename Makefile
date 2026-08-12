@@ -97,7 +97,27 @@ GAME_LIBS = \
 TARGET = WC1.EXE
 MAPFILE = WC1.map
 OUT_DIR = out
-SDL_OUT_DIR = out-sdl
+
+# The native build uses the host compiler and never contributes objects to the
+# MSVC 4.20 reference executable.
+MODERN_OUT_DIR = out-modern
+MODERN_TARGET = $(MODERN_OUT_DIR)/wc1-modern
+MODERN_RUN_DIR ?= data/full
+MODERN_ARGS ?=
+
+MODERN_CC ?= cc
+MODERN_CXX ?= c++
+MODERN_SDL2_CONFIG ?= sdl2-config
+MODERN_SDL_CFLAGS = $(shell \
+	$(MODERN_SDL2_CONFIG) --cflags 2>/dev/null || \
+	pkg-config --cflags sdl2 2>/dev/null)
+MODERN_SDL_LIBS = $(shell \
+	$(MODERN_SDL2_CONFIG) --libs 2>/dev/null || \
+	pkg-config --libs sdl2 2>/dev/null)
+MODERN_CPPFLAGS = -DWC1_SDL=1 -Iinclude $(MODERN_SDL_CFLAGS)
+MODERN_CFLAGS ?= -std=c11
+MODERN_CXXFLAGS ?= -std=c++11
+MODERN_DEPFLAGS = -MMD -MP
 
 # Where the retail executable lives.  `make data/full/WC1.ORI.EXE` copies it out
 # of the sibling analysis tree so this repo never has to vendor the binary.
@@ -264,6 +284,50 @@ SRCS = $(filter $(ALL_SRCS), $(SRCS_ORDERED)) \
 OBJS = $(patsubst src/%,$(OUT_DIR)/%, \
          $(patsubst %.c,%.obj, $(patsubst %.cpp,%.obj, $(SRCS))))
 
+# Platform-neutral recovered units.  This list grows as each Win32 boundary is
+# isolated; keeping it explicit makes native compile progress measurable.
+MODERN_GAMEPLAY_SRCS = \
+	src/auto.c \
+	src/barracks.c \
+	src/brains.c \
+	src/cmpgn.c \
+	src/cockpt.c \
+	src/disk.c \
+	src/eventmgr.c \
+	src/geom.c \
+	src/globals.c \
+	src/killbrd.c \
+	src/mathfp.c \
+	src/mathutil.c \
+	src/music.c \
+	src/nav.c \
+	src/ship.c \
+	src/smart.c \
+	src/spc.c \
+	src/strdos.c \
+	src/sysinput.c \
+	src/system.c \
+	src/text.c
+
+MODERN_HOST_SRCS = \
+	src/sdl/compat.c \
+	src/sdl/input.c
+MODERN_LAUNCHER_SRC = src/sdl/launcher.c
+
+MODERN_GAMEPLAY_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAMEPLAY_SRCS))
+MODERN_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_HOST_SRCS))
+MODERN_LAUNCHER_OBJ = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_LAUNCHER_SRC))
+MODERN_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat sdl_input_compat
+MODERN_C_TEST_BINS = $(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_C_TEST_NAMES))
+MODERN_CXX_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke
+MODERN_TEST_BINS = $(MODERN_C_TEST_BINS) $(MODERN_CXX_TEST_BIN)
+MODERN_DEPFILES = \
+	$(MODERN_GAMEPLAY_OBJS:.o=.d) \
+	$(MODERN_HOST_OBJS:.o=.d) \
+	$(MODERN_LAUNCHER_OBJ:.o=.d) \
+	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_C_TEST_NAMES))) \
+	$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.d
+
 # ---------------------------------------------------------------------------
 # Build targets and tool bootstrap
 # ---------------------------------------------------------------------------
@@ -278,16 +342,65 @@ build: $(TARGET)
 # progress-demo) intentionally do not exist.
 build-full: $(TARGET)
 
-# The native port is deliberately configured in a separate build tree.  It
-# must never supply objects to the assembly-comparison target above.
-sdl-configure:
-	cmake -S . -B $(SDL_OUT_DIR)
+# The native port is deliberately built in a separate output tree.  It must
+# never supply objects to the assembly-comparison target above.
+modern: $(MODERN_GAMEPLAY_OBJS) $(MODERN_TARGET) $(MODERN_TEST_BINS)
 
-sdl: sdl-configure
-	cmake --build $(SDL_OUT_DIR)
+modern-check-deps:
+	@if test -z "$(strip $(MODERN_SDL_CFLAGS))" || \
+	   test -z "$(strip $(MODERN_SDL_LIBS))"; then \
+		echo "SDL2 development files were not found." >&2; \
+		echo "Install SDL2, or set MODERN_SDL_CFLAGS and MODERN_SDL_LIBS." >&2; \
+		exit 1; \
+	fi
 
-sdl-test: sdl
-	ctest --test-dir $(SDL_OUT_DIR) --output-on-failure
+$(MODERN_OUT_DIR)/obj/%.o: src/%.c | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/tests/%.o: tests/%.c | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_TEST_CPPFLAGS) $(MODERN_CFLAGS) \
+		$(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/tests/%.o: tests/%.cpp | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CXX) $(MODERN_CPPFLAGS) -Isrc/ix $(MODERN_CXXFLAGS) \
+		$(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/tests/sdl_compat_smoke.o: MODERN_TEST_CPPFLAGS = -DWC1_ANALYSIS=1
+
+$(MODERN_TARGET): $(MODERN_LAUNCHER_OBJ) $(MODERN_HOST_OBJS)
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CFLAGS) $^ $(MODERN_SDL_LIBS) -o $@
+
+$(MODERN_C_TEST_BINS): $(MODERN_OUT_DIR)/tests/%: \
+		$(MODERN_OUT_DIR)/tests/%.o $(MODERN_HOST_OBJS)
+	$(MODERN_CC) $(MODERN_CFLAGS) $^ $(MODERN_SDL_LIBS) -o $@
+
+$(MODERN_CXX_TEST_BIN): $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.o $(MODERN_HOST_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $^ $(MODERN_SDL_LIBS) -o $@
+
+modern-test: modern
+	@set -e; for test_bin in $(MODERN_TEST_BINS); do \
+		echo "Running $$test_bin"; \
+		SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "$$test_bin"; \
+	done
+	@echo "Running $(MODERN_TARGET) --check"
+	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy $(MODERN_TARGET) --check
+
+run-modern: modern
+	@case "$(MODERN_RUN_DIR)" in \
+		/*) modern_run_dir="$(MODERN_RUN_DIR)" ;; \
+		*) modern_run_dir="$(CURDIR)/$(MODERN_RUN_DIR)" ;; \
+	esac; \
+	test -d "$$modern_run_dir" || { \
+		echo "Modern run directory does not exist: $$modern_run_dir" >&2; \
+		exit 1; \
+	}; \
+	cd "$$modern_run_dir" && "$(CURDIR)/$(MODERN_TARGET)" $(MODERN_ARGS)
+
+-include $(MODERN_DEPFILES)
 
 ifeq ($(UNAME_S),Linux)
 WIBO_PRESET = release64-clang
@@ -640,8 +753,8 @@ clean-run:
 clean-dreamm:
 	rm -rf $(DREAMM_DIR)
 
-clean-sdl:
-	rm -rf $(SDL_OUT_DIR)
+clean-modern:
+	rm -rf $(MODERN_OUT_DIR)
 
 .PHONY: \
 	all \
@@ -654,7 +767,7 @@ clean-sdl:
 	audit-rebuilt-global-layout \
 	build \
 	build-full \
-	clean-sdl \
+	clean-modern \
 	compare-full \
 	compare-full-functions \
 	compare-func \
@@ -675,14 +788,15 @@ clean-sdl:
 	globals-data-verbose \
 	globals-missing \
 	missing-data \
+	modern \
+	modern-check-deps \
+	modern-test \
 	order \
 	progress \
 	report \
 	run \
 	run-check \
-	sdl \
-	sdl-configure \
-	sdl-test \
+	run-modern \
 	seh \
 	sort \
 	verify \
