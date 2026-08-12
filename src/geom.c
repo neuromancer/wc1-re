@@ -1513,8 +1513,8 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
         return 0;
     if (InitializeModalTextPanel(g_pModalTextPanel_00469448, fontIndex,
                                  topLeft, bottomRight,
-                                 (short)DAT_0046999c, DAT_0046999c,
-                                 (short)DAT_0046999c) == 0) {
+                                 DAT_0046999c, DAT_0046999c,
+                                 DAT_0046999c) == 0) {
         ReleasePacketHandle((int)g_pModalTextPanel_00469448);
         g_pModalTextPanel_00469448 = 0;
         return 0;
@@ -1523,15 +1523,12 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
     halfWidth = (short)(((int)halfWidth * 8 +
         (((int)halfWidth * 8 >> 31) & 15)) >> 4);
     RestoreModalTextPanel(g_pModalTextPanel_00469448);
-    topLeft = (topLeft & 0xffff0000) |
-              (unsigned short)(159 - halfWidth);
-    bottomRight = (bottomRight & 0xffff0000) |
-                  (unsigned short)(161 + halfWidth);
+    *(short *)&topLeft = (short)(159 - halfWidth);
+    *(short *)&bottomRight = (short)(161 + halfWidth);
     if (InitializeModalTextPanel(g_pModalTextPanel_00469448, fontIndex,
                                  topLeft, bottomRight,
-                                 (short)g_cViewportClearColour_004699a0,
-                                 (unsigned char)DAT_004699a4,
-                                 (short)DAT_004699ac) == 0) {
+                                 g_cViewportClearColour_004699a0,
+                                 DAT_004699a4, DAT_004699ac) == 0) {
         ReleasePacketHandle((int)g_pModalTextPanel_00469448);
         g_pModalTextPanel_00469448 = 0;
         return 0;

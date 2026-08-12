@@ -1658,8 +1658,8 @@ short decrement_lock_time(short screenX)
 void target_locking(signed char target)
 {
     enum ObjectType weaponType;
-    short x;
     short y;
+    short x;
 
     if (target != -1 &&
         g_aeShipSide_0059d650[(short)target] != g_aeShipSide_0059d650[0] &&
@@ -1667,7 +1667,7 @@ void target_locking(signed char target)
         x = g_asObjectScreenX_0059d9b0[(short)target];
         if (x == -0x7fff)
             return;
-        y = *(volatile short *)&g_asObjectScreenY_0059d930[(short)target];
+        y = g_asObjectScreenY_0059d930[(short)target];
         if (g_nTargetLockCountdown_0046c064 < -1) {
             g_nTargetLockCountdown_0046c064++;
             return;
@@ -2364,7 +2364,6 @@ void determine_pilot_hand(void)
 void DrawPilotHandFrame(void)
 {
     int view = (int)g_cCockpitView_0059dab0;
-    short frame = (short)(signed char)g_bStickIndicatorFrame_005a7dc8;
     short x = (short)(g_asPilotHandOrigins_0046e120[view * 2] -
                       DAT_005a6b60.left);
     short y = (short)(g_asPilotHandOrigins_0046e120[view * 2 + 1] -
@@ -2372,11 +2371,13 @@ void DrawPilotHandFrame(void)
 
     CopyViewportContents(&DAT_005a7550, &DAT_005a7690);
     DrawSpriteDefault(&DAT_005a7690, x, y, g_pPilotHandShape_005a7684,
-                      frame);
+                      (short)(signed char)g_bStickIndicatorFrame_005a7dc8);
     DrawSpriteDefault(
         &DAT_005a7690,
-        (short)(x + g_asPilotHandOffsets_00469018[frame * 2]),
-        (short)(y + g_asPilotHandOffsets_00469018[frame * 2 + 1]),
+        (short)(x + g_asPilotHandOffsets_00469018[
+            (signed char)g_bStickIndicatorFrame_005a7dc8 * 2]),
+        (short)(y + g_asPilotHandOffsets_00469018[
+            (signed char)g_bStickIndicatorFrame_005a7dc8 * 2 + 1]),
         g_pPilotHandShape_005a7684, 0x11);
     CopyViewportContents(&DAT_005a7690, &DAT_005a6b60);
     DAT_0046900c = g_bStickIndicatorFrame_005a7dc8;

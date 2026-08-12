@@ -41,7 +41,7 @@ The table below contains every function compared by `make report`. These scores 
 machine-code similarity to the retail executable; they are not a gameplay-completeness score.
 
 <details>
-<summary>All 1,472 function similarity scores (98.05% average)</summary>
+<summary>All 1,472 function similarity scores (98.08% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -329,7 +329,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `lock_off` | `0x416010` | 100.00% |
 | `cockpt.c` | `CheckTargetLockMalfunction` | `0x416040` | 100.00% |
 | `cockpt.c` | `decrement_lock_time` | `0x416090` | 100.00% |
-| `cockpt.c` | `target_locking` | `0x416120` | 79.76% |
+| `cockpt.c` | `target_locking` | `0x416120` | 86.84% |
 | `cockpt.c` | `SetRectBounds` | `0x416220` | 100.00% |
 | `cockpt.c` | `GetRectHeight` | `0x416250` | 100.00% |
 | `cockpt.c` | `print_message_text` | `0x416260` | 79.73% |
@@ -348,7 +348,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `cockpt.c` | `check_target` | `0x416FD0` | 99.08% |
 | `cockpt.c` | `update_missile_warning` | `0x417190` | 100.00% |
 | `cockpt.c` | `determine_pilot_hand` | `0x4171D0` | 100.00% |
-| `cockpt.c` | `DrawPilotHandFrame` | `0x417260` | 80.43% |
+| `cockpt.c` | `DrawPilotHandFrame` | `0x417260` | 100.00% |
 | `cockpt.c` | `CopyTrainSimPilotViewToRightVdu` | `0x417320` | 100.00% |
 | `cockpt.c` | `animate_pilot` | `0x4173C0` | 100.00% |
 | `cockpt.c` | `ResetPilotHandAnimation` | `0x4173F0` | 100.00% |
@@ -408,7 +408,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `dib.c` | `DIBwholePaletteFromWords` | `0x433120` | 100.00% |
 | `dib.c` | `DIBwaitForVerticalBlank` | `0x4331E0` | 100.00% |
 | `dib.c` | `DirectDrawResultToText` | `0x4331F0` | 100.00% |
-| `disk.c` | `ReportPacketLoadError` | `0x41D120` | 80.28% |
+| `disk.c` | `ReportPacketLoadError` | `0x41D120` | 81.69% |
 | `disk.c` | `LoadPacketIntoBuffer` | `0x41D200` | 100.00% |
 | `disk.c` | `LoadPacketAllocated` | `0x41D250` | 100.00% |
 | `disk.c` | `FetchDiskPacketRetrying` | `0x41D2E0` | 88.64% |
@@ -596,7 +596,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `geom.c` | `InitializeModalTextPanel` | `0x41A9D0` | 92.63% |
 | `geom.c` | `DrawModalTextPanel` | `0x41AAE0` | 100.00% |
 | `geom.c` | `RestoreModalTextPanel` | `0x41AB60` | 100.00% |
-| `geom.c` | `ShowModalTextPanel` | `0x41AB90` | 76.38% |
+| `geom.c` | `ShowModalTextPanel` | `0x41AB90` | 90.76% |
 | `geom.c` | `ReleaseModalTextPanel` | `0x41AD10` | 100.00% |
 | `geom.c` | `AnySavedGames` | `0x41AD50` | 100.00% |
 | `gr.c` | `ValidateViewportBounds` | `0x440C00` | 80.00% |
@@ -1188,7 +1188,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `pload.c` | `AllocateActiveSoundEntry` | `0x42B340` | 100.00% |
 | `pload.c` | `RemoveActiveSoundEntry` | `0x42B390` | 100.00% |
 | `pload.c` | `FindActiveSoundEntryBySample` | `0x42B3F0` | 100.00% |
-| `screen.c` | `cleanup_objectives` | `0x42EFC0` | 80.12% |
+| `screen.c` | `cleanup_objectives` | `0x42EFC0` | 88.20% |
 | `screen.c` | `too_busy` | `0x42F1F0` | 100.00% |
 | `screen.c` | `reply` | `0x42F210` | 100.00% |
 | `screen.c` | `disobey_formation` | `0x42F240` | 100.00% |
@@ -1217,7 +1217,7 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `ShowTheEndScreen` | `0x4304F0` | 91.95% |
 | `screen.c` | `UpdateInputDeviceTransitions` | `0x430710` | 90.91% |
 | `screen.c` | `PollJoystickButtonEvents` | `0x430840` | 94.34% |
-| `screen.c` | `PollMenuInputDevices` | `0x430920` | 80.00% |
+| `screen.c` | `PollMenuInputDevices` | `0x430920` | 80.61% |
 | `screen.c` | `get_face` | `0x430BC0` | 100.00% |
 | `screen.c` | `LoadCommPortraitShape` | `0x430BF0` | 100.00% |
 | `screen.c` | `ResetCommMenuChoices` | `0x430C50` | 100.00% |
@@ -1250,9 +1250,9 @@ machine-code similarity to the retail executable; they are not a gameplay-comple
 | `screen.c` | `real_vid_transmit` | `0x4316E0` | 98.53% |
 | `screen.c` | `ShutdownVideoHook` | `0x4318F0` | 100.00% |
 | `screen.c` | `ReserveContiguousPaletteEntries` | `0x431900` | 97.44% |
-| `screen.c` | `ReleaseContiguousPaletteEntries` | `0x431970` | 94.12% |
+| `screen.c` | `ReleaseContiguousPaletteEntries` | `0x431970` | 100.00% |
 | `screen.c` | `PrintPaletteAllocationMap` | `0x4319B0` | 100.00% |
-| `screen.c` | `LoadJoystickCalibrationFile` | `0x431A10` | 92.21% |
+| `screen.c` | `LoadJoystickCalibrationFile` | `0x431A10` | 89.30% |
 | `screen.c` | `ReadCalibratedJoystick` | `0x431D20` | 85.12% |
 | `screen.c` | `UnionRectBounds` | `0x431EA0` | 100.00% |
 | `screen.c` | `ThrottleFrameAndDrawFps` | `0x431F00` | 100.00% |

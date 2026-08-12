@@ -16,7 +16,6 @@ void ReportPacketLoadError(void *packet, short logicalFile,
     const char *operation;
 
     error = g_nPacketError_00465460;
-    packetSize = (unsigned int)-1;
     if ((packet == 0 || (error != 0 && error != 8)) &&
         (packet != 0 || error != 8)) {
         if (section != -1)

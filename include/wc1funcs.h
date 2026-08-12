@@ -1673,10 +1673,10 @@ void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
                                  unsigned char *shape, short frame,
                                  short angle, short scale, short flip,
                                  unsigned char colour);                /* 0x00442000 */
-short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
-                                unsigned char *shape, short frame,
-                                short angle, short scale, int flip,
-                                short *bounds);                       /* 0x00442050 */
+int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
+                              unsigned char *shape, short frame,
+                              short angle, short scale, int flip,
+                              short *bounds);                         /* 0x00442050 */
 void fizzle_fade(Viewport *source, Viewport *destination,
                  const ScreenViewportGeometry *geometry);            /* 0x00442200 */
 void snow_viewport(Viewport *viewport, int effect,
