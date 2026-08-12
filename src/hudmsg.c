@@ -708,6 +708,14 @@ unsigned int RenderSpaceViewFrame(void)
                     g_nArcadeState_00469fb0 = 1;
                 else
                     g_nArcadeWave_00469e34++;
+#ifdef WC1_SDL
+                printf("[trainsim-wave] bonus countdown complete: "
+                       "current-wave=%d arcade-wave=%d state=%d\n",
+                       (int)g_nCurrentWave_0046c01c,
+                       (int)g_nArcadeWave_00469e34,
+                       g_nArcadeState_00469fb0);
+                fflush(stdout);
+#endif
                 ClearViewport(&DAT_005a7510, DAT_004699d8);
             }
         }

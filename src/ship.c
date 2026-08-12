@@ -613,15 +613,48 @@ void check_next_wave(void)
 {
     short obj;
 
-    if (g_nCurrentWave_0046c01c == -1)
+    if (g_nCurrentWave_0046c01c == -1) {
+#ifdef WC1_SDL
+        if (g_nTrainSimActive_00469e2c != 0) {
+            printf("[trainsim-wave] detector ignored: current-wave=-1\n");
+            fflush(stdout);
+        }
+#endif
         return;
+    }
+#ifdef WC1_SDL
+    if (g_nTrainSimActive_00469e2c != 0) {
+        printf("[trainsim-wave] detector scan: current-wave=%d nav=%d\n",
+               (int)g_nCurrentWave_0046c01c,
+               (int)g_nCurrentNavPoint_0059df60);
+        fflush(stdout);
+    }
+#endif
     obj = 0;
     do {
         if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_SHIP &&
-            g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
+            g_aeShipSide_0059d650[obj] == SIDE_KILRATHI) {
+#ifdef WC1_SDL
+            if (g_nTrainSimActive_00469e2c != 0) {
+                printf("[trainsim-wave] detector blocked: slot=%d "
+                       "type=%d mission=%d special=%d counter=%d\n",
+                       (int)obj, (int)g_aeObjectType_0059b560[obj],
+                       (int)g_nShipMissionIndices_0059c830[obj],
+                       (int)g_aeSpecialManeuver_0059c3c0[obj],
+                       (int)g_asObjectCounter_0059c330[obj]);
+                fflush(stdout);
+            }
+#endif
             return;
+        }
         obj++;
     } while (obj < 10);
+#ifdef WC1_SDL
+    if (g_nTrainSimActive_00469e2c != 0) {
+        printf("[trainsim-wave] detector clear: advancing wave\n");
+        fflush(stdout);
+    }
+#endif
     set_up_next_wave();
 }
 
@@ -633,6 +666,19 @@ unsigned int Create_explosion_debris(short obj)
     short index;
     short set;
 
+#ifdef WC1_SDL
+    if (g_nTrainSimActive_00469e2c != 0) {
+        printf("[trainsim-wave] final removal path: slot=%d class=%d "
+               "side=%d type=%d mission=%d special=%d counter=%d\n",
+               (int)obj, (int)g_aeObjectClass_0059d100[obj],
+               (int)g_aeShipSide_0059d650[obj],
+               (int)g_aeObjectType_0059b560[obj],
+               (int)g_nShipMissionIndices_0059c830[obj],
+               (int)g_aeSpecialManeuver_0059c3c0[obj],
+               (int)g_asObjectCounter_0059c330[obj]);
+        fflush(stdout);
+    }
+#endif
     remove_object(obj);
     index = 0;
     check_next_wave();
