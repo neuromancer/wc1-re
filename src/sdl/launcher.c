@@ -47,9 +47,16 @@ int main(int argumentCount, char **arguments)
         g_nYourWingman_0046c04c = -1;
         send_appropriate_message(1, 0);
 
-        g_acShipTarget_0059ce60[0] = 0;
+        g_acShipTarget_0059ce60[0] = -1;
         g_aeShipManeuver_0059dcb0[0] = MANEUVER_NONE;
         perform_maneuver(0);
+
+        g_pSnowStaticSound_00476550 = ix_system_new_sound(0);
+        if (g_pSnowStaticSound_00476550 == 0)
+            return 1;
+        stop_all_sounds();
+        if (g_pSnowStaticSound_00476550 != 0)
+            return 1;
     } else {
         MonoDebug_install();
         InitializeAudioSystem((HWND)window);

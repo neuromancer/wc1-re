@@ -885,6 +885,15 @@ void perform_maneuver(short obj)
 #endif
         g_bCurrentManeuverReroll_00475e7c =
             g_abManeuverRerollChance_00465678[previous];
+#ifdef WC1_SDL
+    /* The original reaches the same completion path only after calculating
+       geometry for target -1.  Those reads alias the globals immediately
+       before three object tables in the Win32 image. */
+    if (target == -1) {
+        maneuver_complete(obj);
+        return;
+    }
+#endif
     ship_vs_ship(obj, target);
     range = g_nTargetRange_0059ce10;
     if (g_nTargetFacing_0059d52a < 0)

@@ -110,8 +110,12 @@ void stop_all_sounds(void)
     ix_system_delete_all_samples();
     FreeWaveTable();
     if (g_pSnowStaticSound_00476550 != 0) {
+        /* The bulk delete already stops, unlinks, and frees every IxSound.
+           The original's following calls therefore use a stale pointer. */
+#ifndef WC1_SDL
         ix_sound_stop(g_pSnowStaticSound_00476550);
         ix_sound_release(g_pSnowStaticSound_00476550);
+#endif
         g_pSnowStaticSound_00476550 = 0;
         g_pSnowStaticWave_0047654c = 0;
     }
