@@ -397,9 +397,11 @@ audit-compiler-glue:
 progress:
 	@python3 bin/showProgress.py
 
-$(GLOBALS_AUDIT_SOURCE): bin/collectGlobalDefinitions.py $(GLOBALS_DEFINITION_SOURCES)
+$(GLOBALS_AUDIT_SOURCE): bin/collectGlobalDefinitions.py include/wcdata.h $(GLOBALS_DEFINITION_SOURCES)
 	@python3 bin/collectGlobalDefinitions.py \
-		--output $@ $(GLOBALS_DEFINITION_SOURCES)
+		--output $@ \
+		--constants-header include/wcdata.h \
+		$(GLOBALS_DEFINITION_SOURCES)
 
 report: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) report $(BC) $(if $(FILTER),--filter $(FILTER))

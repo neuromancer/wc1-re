@@ -184,9 +184,9 @@ int HandleSpaceFlightControls(void)
             if (notRepeated &&
                 (control != 0 ||
                  (g_wCurrentInputModifiers_0059ab08 & 0x2000) != 0) &&
-                g_cPlayerEjectionDamage_0059bff7 != 4) {
+                g_acPlayerComponentDamage_0059bff0[7] != 4) {
                 if (RandomInRange(
-                        0, g_cPlayerEjectionDamage_0059bff7) == 0)
+                        0, g_acPlayerComponentDamage_0059bff0[7]) == 0)
                     g_nArcadeState_00469fb0 = 2;
                 else
                     malf_sound();

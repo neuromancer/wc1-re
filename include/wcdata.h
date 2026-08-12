@@ -513,36 +513,6 @@ typedef struct PacketDecompressionWorkspace {
     unsigned char input[0x400];
 } PacketDecompressionWorkspace;
 
-/* Typed views over provisional oversized globals.  These preserve the current
- * backing allocations while giving recovered subregions proper field names. */
-typedef struct ShipTimerStateView {
-    unsigned char beforeCommunicator[0x40];
-    signed char communicator[16];
-    unsigned char beforeActionCount[0xd0];
-    short actionCount[16];
-} ShipTimerStateView;
-
-typedef struct PilotRuntimeStateView {
-    unsigned char unknown[0x10];
-    int pilotLevel[12];
-    short targetListRange[16];
-} PilotRuntimeStateView;
-
-typedef struct ShipSideRuntimeStateView {
-    enum Side side[12];
-    signed char aiCooldown[16];
-} ShipSideRuntimeStateView;
-
-typedef struct ShipNavRuntimeStateView {
-    signed char navPointIndex[16];
-    signed char turnInterval[16];
-} ShipNavRuntimeStateView;
-
-typedef struct ShipSpawnRuntimeStateView {
-    signed char historyIndex[16];
-    signed char spawnNavPoint[16];
-} ShipSpawnRuntimeStateView;
-
 typedef char CockpitLayout_size_must_be_0x120[
     sizeof(CockpitLayout) == 0x120 ? 1 : -1];
 typedef char ScreenViewportGeometry_size_must_be_0x10[
@@ -551,21 +521,6 @@ typedef char DiskFileRecord_size_must_be_0x10[
     sizeof(DiskFileRecord) == 0x10 ? 1 : -1];
 typedef char BriefingPacketHeader_size_must_be_0x28[
     sizeof(BriefingPacketHeader) == 0x28 ? 1 : -1];
-typedef char ShipTimerStateView_communicator_must_be_at_0x40[
-    offsetof(ShipTimerStateView, communicator) == 0x40 ? 1 : -1];
-typedef char ShipTimerStateView_actionCount_must_be_at_0x120[
-    offsetof(ShipTimerStateView, actionCount) == 0x120 ? 1 : -1];
-typedef char PilotRuntimeStateView_pilotLevel_must_be_at_0x10[
-    offsetof(PilotRuntimeStateView, pilotLevel) == 0x10 ? 1 : -1];
-typedef char PilotRuntimeStateView_targetListRange_must_be_at_0x40[
-    offsetof(PilotRuntimeStateView, targetListRange) == 0x40 ? 1 : -1];
-typedef char ShipSideRuntimeStateView_aiCooldown_must_be_at_0x30[
-    offsetof(ShipSideRuntimeStateView, aiCooldown) == 0x30 ? 1 : -1];
-typedef char ShipNavRuntimeStateView_turnInterval_must_be_at_0x10[
-    offsetof(ShipNavRuntimeStateView, turnInterval) == 0x10 ? 1 : -1];
-typedef char ShipSpawnRuntimeStateView_spawnNavPoint_must_be_at_0x10[
-    offsetof(ShipSpawnRuntimeStateView, spawnNavPoint) == 0x10 ? 1 : -1];
-
 #pragma pack(push, 1)
 typedef struct NavMapLabel {
     short x;

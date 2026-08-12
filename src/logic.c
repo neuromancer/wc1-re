@@ -295,8 +295,9 @@ unsigned int replenish_shields(short ship)
 {
     signed char shield;
 
-    if (ship == 0 && g_cPlayerPowerDamage_0059bff1 > 0 &&
-        g_nSpaceFrame_0059b420 % (g_cPlayerPowerDamage_0059bff1 + 1) != 0)
+    if (ship == 0 && g_acPlayerComponentDamage_0059bff0[1] > 0 &&
+        g_nSpaceFrame_0059b420 %
+            (g_acPlayerComponentDamage_0059bff0[1] + 1) != 0)
         return 0;
     shield = 0;
     do {
@@ -326,9 +327,9 @@ unsigned int replenish_weapon_energy_bank(short ship)
     short shieldEnergy;
     short maximumShield;
 
-    if (ship == 0 && g_cPlayerPowerDamage_0059bff1 != 0 &&
+    if (ship == 0 && g_acPlayerComponentDamage_0059bff0[1] != 0 &&
         (int)(unsigned short)RandomInRange(0, 4) <
-            g_cPlayerPowerDamage_0059bff1)
+            g_acPlayerComponentDamage_0059bff0[1])
         return 0;
     energy = g_asShipWeaponEnergy_0059d470[ship];
     if (energy < 100) {

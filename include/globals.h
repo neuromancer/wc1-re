@@ -88,9 +88,6 @@ extern int DAT_00465c84;
 extern const ShortVector g_aaFormationPositions_00465ed8[5][8];
 extern const int g_anPilotTurnInterval_00465fc8[16];
 extern const char g_szErrorLoadingPilotSpeech_00466010[32];
-extern unsigned char *g_pIntroSceneResource_00467b84;
-extern unsigned char *g_pIntroSceneResourceMirror_00467c0b;
-extern unsigned char *g_pIntroBackgroundResource_00467eae;
 extern short g_nNavMapCoordinateScaling_00468660;
 extern short g_nNavMapScale_00468664;
 extern NavMapObjectiveStyle g_aNavMapObjectiveStyles_00468668[10];
@@ -245,6 +242,7 @@ extern unsigned char DAT_004699c0;
 extern unsigned char DAT_004699c4;
 extern unsigned char DAT_004699c8;
 extern unsigned char g_cDefaultTextColour_004699cc;
+extern unsigned char DAT_004699d0;
 extern unsigned char DAT_004699d4;
 extern unsigned char DAT_004699d8;
 extern const unsigned char g_abLegacyVideoModeColours_004699e0[14];
@@ -273,12 +271,10 @@ extern const char g_szMeanwhile_00469d80[16];
 extern const char g_szEmptyAnswerInput_00469d90[4];
 extern const char g_szAnswerLabel_00469d94[9];
 extern Viewport g_stTrainSimPanelViewport_00469da8;
-extern unsigned int g_dwHighScoreNameTableBiasPadding_00469dbc;
 extern const ShortRect g_stTrainSimPanelBounds_00469dc0;
 extern const char g_szTrainSimTitle_00469dc8[24];
 extern unsigned char *g_apszBuiltInHighScoreNames_00469de0[6];
 extern TitleMenuRegion g_aTrainSimMissionRegions_00469df8[5];
-extern short g_nTrainSimMissionRegionPadding_00469e2a;
 extern unsigned char g_aszBuiltInHighScores_00469e38[48];
 extern unsigned int g_dwTrainSimStringPadding_00469e68;
 extern const char g_szTextFlushToken_00469e6c[4];
@@ -314,8 +310,8 @@ extern int g_bMouseCursorVisible_0046a018;
 extern unsigned char g_bInputPollingGuard_0046a01c;
 extern InputDeviceSample g_stLastPolledFlightInput_0046a020;
 extern int g_bMouseAfterburnerControl_0046a02c;
-extern const short g_asMouseYawThresholds_0046a030[8];
-extern const short g_asMousePitchThresholds_0046a040[8];
+extern const short g_asMouseYawThresholds_0046a030[6];
+extern const short g_asMousePitchThresholds_0046a040[6];
 extern unsigned int g_dwLastSecondaryButtonPress_0046a04c;
 extern unsigned char g_bFlightRollLatch_0046a050;
 extern unsigned char g_bAfterburnerButtonLatched_0046a054;
@@ -579,7 +575,6 @@ extern RasterClip *g_pGifRasterTarget_0046ff28;
 extern unsigned char g_abRasterPaletteTranslation_0046ff2c[256];
 extern RLETransformVertex g_aRLETransformVertices_0047002c[4];
 extern int g_anRLESourceSteps_0047007c[4];
-extern int g_nRLETransformWorkspaceReserved_0047008c;
 extern const char *g_pszBlankRoomMenuLabel_00470090;
 extern const char *g_apszPilotRankNames_00470098[5];
 extern CampaignState g_stInitialCampaignState_004700b0;
@@ -804,59 +799,61 @@ extern FixedVector g_aShipUpVector_0059b9e0[64];
 extern FixedVector g_aShipForwardVector_0059bce0[64];
 extern HazardField *g_pActiveHazardField_0059bfe0;
 extern signed char g_acPlayerComponentDamage_0059bff0[9];
-#define g_cPlayerPowerDamage_0059bff1 g_acPlayerComponentDamage_0059bff0[1]
-#define g_cPlayerEjectionDamage_0059bff7 g_acPlayerComponentDamage_0059bff0[7]
-extern unsigned int DAT_0059b430[512];
-extern int g_anShipFuel_0059b470[512];
-extern enum ObjectType g_aeObjectType_0059b560[96];
-extern signed char g_abFlightPath_0059c000[WC1_MISSION_OBJECTIVE_COUNT + 1];
-extern FixedVector g_aShipVelocity_0059c010[512];
+extern unsigned int DAT_0059b430[12];
+extern int g_anShipFuel_0059b470[12];
+extern enum ObjectType g_aeObjectType_0059b560[WC1_SPACE_OBJECT_COUNT];
+extern signed char g_abFlightPath_0059c000[WC1_MISSION_OBJECTIVE_COUNT];
+extern FixedVector g_aShipVelocity_0059c010[WC1_SPACE_OBJECT_COUNT];
 extern short g_anYawGoal_0059c310[16];
-extern short g_asObjectCounter_0059c330[512];
+extern short g_asObjectCounter_0059c330[WC1_SPACE_OBJECT_COUNT];
 extern short g_nTargetShip_0059c3b0;
-extern enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[WC1_SPACE_OBJECT_COUNT];
-extern enum ShipMissionType g_aeShipMissionType_0059c3f0[512];
-extern short g_asShipCount_0059c420[512];
+extern enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[12];
+extern enum ShipMissionType g_aeShipMissionType_0059c3f0[12];
+extern short g_asShipCount_0059c420[16];
 extern short g_asShipMaximumSpeed_0059c440[16];
 extern signed char g_acShipDamage_0059c460[10];
 extern short g_asViableTargetDistance_0059c470[16];
 extern signed char g_cMissionObjectiveCount_0059c46a;
-extern FixedVector g_aShipPosition_0059c490[512];
-extern short g_asShipAfterburnerTimer_0059c810[256];
+extern FixedVector g_aShipPosition_0059c490[WC1_SPACE_OBJECT_COUNT];
+extern short g_asShipAfterburnerTimer_0059c810[16];
 extern short g_nShipMissionIndices_0059c830[10];
+extern signed char g_acShipCommunicator_0059c850[16];
 extern signed char g_cCurrentNavPointIndex_0059c86c;
 extern FixedVector g_vStarFieldMotion_0059c860;
 extern short g_asObjectFlip_0059c870[WC1_SPACE_OBJECT_COUNT];
-extern signed char DAT_0059c910[WC1_SPACE_OBJECT_COUNT];
+extern signed char DAT_0059c910[16];
 extern signed char g_acViableTarget_0059c920[16];
+extern short g_asActionCount_0059c930[10];
 extern FixedVector g_vPreviousStarFieldMotion_0059c900;
 extern short g_nHazardFieldCount_0059c90c;
 extern short g_asObjectRadarRadius_0059c790[WC1_SPACE_OBJECT_COUNT];
 extern short g_asObjectAfterburnerVelocity_0059c9d0[WC1_SPACE_OBJECT_COUNT];
 extern short g_asObjectScreenScale_0059c950[WC1_SPACE_OBJECT_COUNT];
 extern CampaignState g_stCampaignState_0059ca50;
-extern unsigned char g_aShipWeapons_0059cab0[16][0x47];
+extern unsigned char g_aShipWeapons_0059cab0[10][0x47];
 extern signed char g_acShipRating_0059cd80[16];
 extern short g_asObjectScreenAngle_0059cd90[WC1_SPACE_OBJECT_COUNT];
 extern short g_nTargetRange_0059ce10;
-extern unsigned int DAT_0059ce18[256];
+extern unsigned int DAT_0059ce18[2];
 extern signed char g_acObjectOwner_0059ce20[64];
-extern signed char g_acShipTarget_0059ce60[512];
+extern signed char g_acShipTarget_0059ce60[16];
 extern short g_nPreviousPitchInput_0059ce70;
 extern short g_nPreviousYawInput_0059ce72;
 extern short g_nPreviousRollInput_0059ce74;
-extern short g_anObjectYawRotation_0059ce80[256];
+extern short g_anObjectYawRotation_0059ce80[WC1_SPACE_OBJECT_COUNT];
 extern signed char g_acTurnRegulator_0059cf10[16];
-extern unsigned char DAT_0059cf20[512];
-extern signed char DAT_0059cf00[WC1_SPACE_OBJECT_COUNT];
+extern unsigned char DAT_0059cf20[0x10];
+extern int g_aiPilotLevel_0059cf30[12];
+extern short g_asTargetListRange_0059cf60[16];
+extern signed char DAT_0059cf00[16];
 extern short g_asObjectDrawY_0059cf80[WC1_SPACE_OBJECT_COUNT];
 extern short g_asObjectDrawX_0059d000[WC1_SPACE_OBJECT_COUNT];
 /* Original class[] array.  The recovered ObjectClass order explains all of the
  * observed magic values: 0 null, 1 futurion, 10 mine, 11 missile, 12 ship and
  * 13 capital_ship. */
-extern enum ObjectClass g_aeObjectClass_0059d100[512];
+extern enum ObjectClass g_aeObjectClass_0059d100[WC1_SPACE_OBJECT_COUNT];
 extern short g_asPreviousObjectDistance_0059d080[WC1_SPACE_OBJECT_COUNT];
-extern enum ShipObjective g_aeShipObjective_0059d200[512];
+extern enum ShipObjective g_aeShipObjective_0059d200[12];
 extern short g_asObjectViewFrame_0059d230[WC1_SPACE_OBJECT_COUNT];
 extern int g_nCurrentObjectiveRange_0059d2b0;
 extern signed char g_acWingmanMessageState_0059d2c0[16];
@@ -871,37 +868,38 @@ extern short g_asShipWeaponEnergy_0059d470[16];
 extern signed char g_acFormationMemberList_0059d490[16];
 extern short g_anShipMissionShip_0059d4b0[16];
 extern FixedVector g_vToTarget_0059d4d0;
-extern short g_asCannedCommand_0059d4e0[WC1_SPACE_OBJECT_COUNT];
+extern short g_asCannedCommand_0059d4e0[16];
 extern unsigned short DAT_0059d500[16];
-extern char g_acShipSequence_0059d520[512];
+extern char g_acShipSequence_0059d520[10];
 extern short g_nTargetFacing_0059d52a;
 extern FixedVector g_aShipDestination_0059d530[10];
-extern enum ShipTactic g_aeShipTactic_0059d5e0[512];
+extern enum ShipTactic g_aeShipTactic_0059d5e0[12];
 extern short g_aasShipShield_0059d5b0[12][2];
 extern signed char g_abShipExhaustHeat_0059d610[10];
 extern short g_nRenderedSpaceFrame_0059d61a;
 extern signed char g_acShipStress_0059d620[16];
 extern short g_anRollGoal_0059d630[16];
-extern enum Side g_aeShipSide_0059d650[512];
+extern enum Side g_aeShipSide_0059d650[12];
+extern signed char g_acShipAiCooldown_0059d680[16];
 extern FixedVector g_vCollisionDelta_0059d690;
 extern signed char g_acLastCollisionObject_0059d6a0[WC1_SPACE_OBJECT_COUNT];
 extern short g_aasShipMaximumShield_0059d6e0[12][2];
 extern short g_asObjectCollisionRadius_0059d710[64];
 extern signed char g_acShipPointingMode_0059d790[16];
 extern short g_anPitchGoal_0059d7a0[16];
-extern signed char g_abShipNavPointIndex_0059d7c0[512];
+extern signed char g_abShipNavPointIndex_0059d7c0[16];
+extern signed char g_acTurnInterval_0059d7d0[16];
 extern short g_anObjectRollRotation_0059d7e0[WC1_SPACE_OBJECT_COUNT];
-extern signed char g_abShipTurn_0059d860[WC1_SPACE_OBJECT_COUNT];
+extern signed char g_abShipTurn_0059d860[16];
 extern short g_nFacingToTarget_0059d920;
 extern short g_asObjectScreenY_0059d930[WC1_SPACE_OBJECT_COUNT];
 extern short g_asObjectScreenX_0059d9b0[WC1_SPACE_OBJECT_COUNT];
 extern signed char g_cCockpitView_0059dab0;
 extern HazardField g_aHazardFields_0059d870[7];
 extern MissionObjective g_aMissionObjectives_0059dac0[WC1_MISSION_OBJECTIVE_COUNT];
-extern enum ShipManeuver g_aeShipManeuver_0059dcb0[512];
-extern const short *g_apCannedSequence_0059dce0[WC1_SPACE_OBJECT_COUNT];
+extern enum ShipManeuver g_aeShipManeuver_0059dcb0[12];
+extern const short *g_apCannedSequence_0059dce0[12];
 extern FixedVector g_aShipMissionSpot_0059dd10[10];
-extern unsigned char DAT_0059dd88[8];
 extern short g_asCapitalShipViewFrame_0059dd90[16];
 extern signed char g_acObjectCollisionGraceTicks_0059ddb0[
     WC1_SPACE_OBJECT_COUNT];
@@ -915,11 +913,8 @@ extern short g_asObjectAnimationIndex_0059da30[WC1_SPACE_OBJECT_COUNT];
 extern short g_nEyeRollGoal_0059c8f0;
 extern short g_nEyeYawGoal_0059c944;
 extern short g_nEyePitchGoal_0059d61c;
-extern char DAT_0059dec0[256];
-#define g_stShipSpawnRuntimeState_0059dec0 \
-    (*(ShipSpawnRuntimeStateView *)(void *)DAT_0059dec0)
-#define g_acShipSpawnNavPoint_0059ded0 \
-    (g_stShipSpawnRuntimeState_0059dec0.spawnNavPoint)
+extern signed char g_acVduModeStackDepth_0059dec0[16];
+extern signed char g_acShipSpawnNavPoint_0059ded0[16];
 extern short g_nCurrentNavPoint_0059df60;
 extern int g_nJoystickCalibrationMinimumY_0059df64;
 extern int g_nJoystickCalibrationMinimumX_0059df68;
@@ -941,7 +936,7 @@ extern unsigned short g_awScreenRowOffsets_005a6540[202];
 extern int g_nScreenAllocationState_005a66e0;
 extern Viewport *g_pAllocatedScreenViewportMirror_005a66e4;
 extern int g_aiSoundEffectSourceActive_005a66ec[0x41];
-extern unsigned char g_abSoundPlaybackSlots_005a67f0[0xfc];
+extern unsigned char g_abSoundPlaybackSlots_005a67f0[0xf8];
 extern int g_nPassingShipSoundCooldown_005a68e8;
 extern int *DAT_005a6538;
 extern int g_nAllocateViewportCalls_005a68ec;
@@ -960,8 +955,6 @@ extern Viewport DAT_005a6b80;
 extern ScreenViewportPacket *g_pScreenViewportPacket_005a6b94;
 extern Viewport DAT_005a6ba0;
 extern Viewport DAT_005a6be0;
-#define DAT_005a6baa DAT_005a6ba0.top
-#define DAT_005a6bae DAT_005a6ba0.bottom
 extern TextContext DAT_005a6bc0;
 extern unsigned char *g_pTargetLockShape_005a6bf4;
 extern unsigned char *g_apTextFonts_005a6c00[4];
@@ -978,7 +971,7 @@ extern Viewport DAT_005a7530;
 extern Viewport DAT_005a7550;
 extern unsigned char *g_pCockpitWeaponShape_005a7564;
 extern Viewport g_stConversationTextViewport_005a7570;
-extern char g_szDefaultTextBuffer_005a7590[0xcc];
+extern char g_szDefaultTextBuffer_005a7590[0xc8];
 extern Viewport g_stModalSourceViewport_005a7670;
 extern unsigned char *g_pCockpitIndicatorShape_005a7658;
 extern unsigned char *g_pCommMenuCursorShape_005a7660;
@@ -996,8 +989,7 @@ extern short g_nDamageDisplayTicks_005a7786;
 extern short g_nWeaponDisplayOriginX_005a7788;
 extern short g_nWeaponDisplayOriginY_005a778a;
 extern char g_szDamageStatusText_005a7790[0x48];
-extern short g_nDamageSpriteX_005a77d8;
-extern short g_nDamageSpriteY_005a77da;
+extern ShortPoint g_stDamageSpritePosition_005a77d8;
 extern signed char g_cDamageDisplayComponent_005a77dc;
 extern signed char g_cDamageDisplayFrame_005a77dd;
 extern signed char g_cDamagedComponentCount_005a77de;
@@ -1058,12 +1050,6 @@ extern unsigned char g_bStickIndicatorFrame_005a7dc8;
 extern short DAT_005a7dca;
 extern short g_nPendingCockpitDamage_005a7dcc;
 extern HudMessageSlot g_aHudMessageSlots_005a7dd0[2];
-#define DAT_005a7dd0 g_aHudMessageSlots_005a7dd0
-#define DAT_005a7de1 g_aHudMessageSlots_005a7dd0[1]
-#define DAT_005a7ddc g_aHudMessageSlots_005a7dd0[0].flashCount
-#define DAT_005a7ddd g_aHudMessageSlots_005a7dd0[0].text
-#define DAT_005a7ded g_aHudMessageSlots_005a7dd0[1].flashCount
-#define DAT_005a7dee g_aHudMessageSlots_005a7dd0[1].text
 extern signed char g_cPreviousTargetObject_005a7df2;
 extern int g_nSavedMouseCursorY_005a7df4;
 extern int g_nSavedMouseCursorX_005a7df8;
@@ -1074,8 +1060,7 @@ extern CockpitReadout g_aCockpitReadouts_005a7e30[6];
 extern short g_nScannerCursorX_005a7e6c;
 extern short g_nScannerCursorY_005a7e6e;
 extern short g_asScannerObjectY_005a7e80[11];
-extern volatile short g_nCockpitExplosionX_005a7e98;
-extern volatile short g_nCockpitExplosionY_005a7e9a;
+extern volatile ShortPoint g_stCockpitExplosionPosition_005a7e98;
 extern short g_asScannerObjectX_005a7ea0[11];
 extern short g_asScannerBackgroundColour_005a7ed0[10];
 extern int DAT_005a7ec0;
@@ -1198,18 +1183,8 @@ extern unsigned long g_dwGameClockBase_005a89a8;
 
 extern unsigned char g_abCockpitLightState_005a7e70[7];
 extern unsigned char g_abCockpitLightGoal_005a7eb8[7];
-#define DAT_005a7e70 g_abCockpitLightState_005a7e70[0]
-#define DAT_005a7e74 g_abCockpitLightState_005a7e70[4]
-#define DAT_005a7e76 g_abCockpitLightState_005a7e70[6]
-#define DAT_005a7eb8 g_abCockpitLightGoal_005a7eb8[0]
-#define DAT_005a7ebc g_abCockpitLightGoal_005a7eb8[4]
-#define DAT_005a7ebe g_abCockpitLightGoal_005a7eb8[6]
 extern unsigned int g_anCockpitDamageState_005a7ef0[4];
-#define DAT_005a7ef0 g_anCockpitDamageState_005a7ef0[0]
-#define DAT_005a7ef4 g_anCockpitDamageState_005a7ef0[1]
-#define DAT_005a7ef8 g_anCockpitDamageState_005a7ef0[2]
-#define DAT_005a7efc g_anCockpitDamageState_005a7ef0[3]
-extern short g_nHostMouseX_0059af70;
+extern MouseCursorState g_stHostMouseState_0059af70;
 extern int DAT_0046b1b8;
 extern int DAT_0046b1bc;
 extern int DAT_0046b1c4;
@@ -1227,13 +1202,6 @@ extern int g_nSfxVolumeSetting_00469fbc;
 extern int g_nMusicVolumeSetting_00469fc0;
 extern int g_bViewportDirty_00469fc4;
 extern int g_anVolumeLevels_00469fc8[11];
-/* Declared as comma-separated lists in the original tranches. */
-extern short g_nHostMouseY_0059af72;
-
-extern unsigned char g_bPreviousPrimaryInputButton_0059af74;
-extern unsigned char g_bPreviousSecondaryInputButton_0059af75;
-extern unsigned char g_bMenuInputReserved_0059af76;
-extern unsigned short g_wPreviousMenuInputFlags_0059af77;
 extern int g_nInputTickScale_0059af90;
 extern short g_asInputButton1DoubleClick_0059e508[2];
 extern short g_asInputButton1Changed_0059e50c[2];
@@ -1275,33 +1243,11 @@ extern LPDIRECTDRAWSURFACE g_pPrimarySurface_0046b1a8;
 extern LPDIRECTDRAWSURFACE g_pSecondarySurface_0046b1ac;
 extern LPDIRECTDRAWPALETTE g_pDirectDrawPalette_0046b1b0;
 extern int   DAT_0046b1b4;
-extern char  DAT_00486078[256];
+extern char  DAT_00486078[0x98];
 
 extern unsigned char g_bMessageSpeed_0046af68;
 extern unsigned char g_abManeuverRerollChance_00465678[47];
 extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
-
-/* Typed views over provisional oversized allocations. */
-#define g_stShipTimerState_0059c810 \
-    (*(ShipTimerStateView *)(void *)g_asShipAfterburnerTimer_0059c810)
-#define g_acShipCommunicator_0059c850 \
-    (g_stShipTimerState_0059c810.communicator)
-#define g_asActionCount_0059c930 \
-    (g_stShipTimerState_0059c810.actionCount)
-#define g_stPilotRuntimeState_0059cf20 \
-    (*(PilotRuntimeStateView *)(void *)DAT_0059cf20)
-#define g_aiPilotLevel_0059cf30 \
-    (g_stPilotRuntimeState_0059cf20.pilotLevel)
-#define g_asTargetListRange_0059cf60 \
-    (g_stPilotRuntimeState_0059cf20.targetListRange)
-#define g_stShipSideRuntimeState_0059d650 \
-    (*(ShipSideRuntimeStateView *)(void *)g_aeShipSide_0059d650)
-#define g_acShipAiCooldown_0059d680 \
-    (g_stShipSideRuntimeState_0059d650.aiCooldown)
-#define g_stShipNavRuntimeState_0059d7c0 \
-    (*(ShipNavRuntimeStateView *)(void *)g_abShipNavPointIndex_0059d7c0)
-#define g_acTurnInterval_0059d7d0 \
-    (g_stShipNavRuntimeState_0059d7c0.turnInterval)
 
 extern ShortVector g_aShipFormationOffset_0059b520[10];
 

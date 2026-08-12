@@ -887,37 +887,37 @@ void UpdateDamageDisplay(void)
             g_cDamageDisplayFrame_005a77dd =
                 (signed char)g_abDamageDisplayFrames_0046a7a0[
                     g_cDamageDisplayComponent_005a77dc];
-            g_nDamageSpriteX_005a77d8 =
+            g_stDamageSpritePosition_005a77d8 =
                 g_aDamageDisplayPositions_0046a750[
-                    g_cDamageDisplayComponent_005a77dc].x;
-            g_nDamageSpriteY_005a77da =
-                g_aDamageDisplayPositions_0046a750[
-                    g_cDamageDisplayComponent_005a77dc].y;
-            g_nDamageSpriteX_005a77d8 =
-                (short)(g_nDamageSpriteX_005a77d8 +
+                    g_cDamageDisplayComponent_005a77dc];
+            g_stDamageSpritePosition_005a77d8.x =
+                (short)(g_stDamageSpritePosition_005a77d8.x +
                         g_nWeaponDisplayOriginX_005a7788);
-            g_nDamageSpriteY_005a77da =
-                (short)(g_nDamageSpriteY_005a77da +
+            g_stDamageSpritePosition_005a77d8.y =
+                (short)(g_stDamageSpritePosition_005a77d8.y +
                         g_nWeaponDisplayOriginY_005a778a);
             CaptureSpriteBackground(
                 &DAT_005a6b80, g_pDamageDisplayBackground_0046a748,
-                g_nDamageSpriteX_005a77d8, g_nDamageSpriteY_005a77da,
+                g_stDamageSpritePosition_005a77d8.x,
+                g_stDamageSpritePosition_005a77d8.y,
                 g_pCockpitWeaponShape_005a7564,
                 (short)g_cDamageDisplayFrame_005a77dd);
             DrawViewportLine(
                 &DAT_005a6b80, (short)(DAT_005a6b80.left + 36),
                 (short)(DAT_005a6b80.top + 22),
-                g_nDamageSpriteX_005a77d8, g_nDamageSpriteY_005a77da,
+                g_stDamageSpritePosition_005a77d8.x,
+                g_stDamageSpritePosition_005a77d8.y,
                 0xa9);
             DrawSpriteDefault(
-                &DAT_005a6b80, g_nDamageSpriteX_005a77d8,
-                g_nDamageSpriteY_005a77da,
+                &DAT_005a6b80, g_stDamageSpritePosition_005a77d8.x,
+                g_stDamageSpritePosition_005a77d8.y,
                 g_pCockpitWeaponShape_005a7564,
                 (short)g_cDamageDisplayFrame_005a77dd);
         } else {
             RestoreSpriteBackground(
                 &DAT_005a6b80, g_pDamageDisplayBackground_0046a748,
-                g_nDamageSpriteX_005a77d8, g_nDamageSpriteY_005a77da,
+                g_stDamageSpritePosition_005a77d8.x,
+                g_stDamageSpritePosition_005a77d8.y,
                 g_pCockpitWeaponShape_005a7564,
                 (short)g_cDamageDisplayFrame_005a77dd);
             DAT_005a74f0.colour = DAT_0046999c;
@@ -928,7 +928,8 @@ void UpdateDamageDisplay(void)
             DrawViewportLine(
                 &DAT_005a6b80, (short)(DAT_005a6b80.left + 36),
                 (short)(DAT_005a6b80.top + 22),
-                g_nDamageSpriteX_005a77d8, g_nDamageSpriteY_005a77da,
+                g_stDamageSpritePosition_005a77d8.x,
+                g_stDamageSpritePosition_005a77d8.y,
                 DAT_0046999c);
             g_nDamageDisplayTicks_005a7786 = 2;
         }
@@ -970,30 +971,29 @@ void UpdateDamageDisplay(void)
     g_cDamageDisplayFrame_005a77dd =
         (signed char)g_abDamageDisplayFrames_0046a7a0[
             g_cDamageDisplayComponent_005a77dc];
-    g_nDamageSpriteX_005a77d8 =
+    g_stDamageSpritePosition_005a77d8 =
         g_aDamageDisplayPositions_0046a750[
-            g_cDamageDisplayComponent_005a77dc].x;
-    g_nDamageSpriteY_005a77da =
-        g_aDamageDisplayPositions_0046a750[
-            g_cDamageDisplayComponent_005a77dc].y;
-    g_nDamageSpriteX_005a77d8 =
-        (short)(g_nDamageSpriteX_005a77d8 +
+            g_cDamageDisplayComponent_005a77dc];
+    g_stDamageSpritePosition_005a77d8.x =
+        (short)(g_stDamageSpritePosition_005a77d8.x +
                 g_nWeaponDisplayOriginX_005a7788);
-    g_nDamageSpriteY_005a77da =
-        (short)(g_nDamageSpriteY_005a77da +
+    g_stDamageSpritePosition_005a77d8.y =
+        (short)(g_stDamageSpritePosition_005a77d8.y +
                 g_nWeaponDisplayOriginY_005a778a);
     CaptureSpriteBackground(
         &DAT_005a6b80, g_pDamageDisplayBackground_0046a748,
-        g_nDamageSpriteX_005a77d8, g_nDamageSpriteY_005a77da,
+        g_stDamageSpritePosition_005a77d8.x,
+        g_stDamageSpritePosition_005a77d8.y,
         g_pCockpitWeaponShape_005a7564,
         (short)g_cDamageDisplayFrame_005a77dd);
     DrawViewportLine(&DAT_005a6b80,
                      (short)(DAT_005a6b80.left + 36),
                      (short)(DAT_005a6b80.top + 22),
-                     g_nDamageSpriteX_005a77d8,
-                     g_nDamageSpriteY_005a77da, 0xa9);
-    DrawSpriteDefault(&DAT_005a6b80, g_nDamageSpriteX_005a77d8,
-                      g_nDamageSpriteY_005a77da,
+                     g_stDamageSpritePosition_005a77d8.x,
+                     g_stDamageSpritePosition_005a77d8.y, 0xa9);
+    DrawSpriteDefault(&DAT_005a6b80,
+                      g_stDamageSpritePosition_005a77d8.x,
+                      g_stDamageSpritePosition_005a77d8.y,
                       g_pCockpitWeaponShape_005a7564,
                       (short)g_cDamageDisplayFrame_005a77dd);
 }

@@ -14,8 +14,19 @@
     "type_sizes": {
       "CampaignDate": 4,
       "CampaignState": 88,
+      "BriefingCharacterLayout": 18,
+      "ManeuverChoice": 3,
+      "ObjectResourceSlot": 13,
+      "ObjectTypeData": 135,
+      "PacketResourceDescriptor": 8,
       "PacketSectionHandle": 20,
-      "PilotRecord": 38
+      "PilotRecord": 38,
+      "Viewport": 20
+    },
+    "reviewed_layout_issues": {
+      "full": {
+        "ORIGINAL_INDEXED_GLOBAL_ESCAPE:0x004699a4": "LoadGamePaletteFile intentionally copies the 14-byte legacy colour map across the four-byte-aligned colour globals beginning here; the rebuilt globals retain the same declaration order and spacing."
+      }
     },
     "struct_formats": {
       "CampaignDate": {

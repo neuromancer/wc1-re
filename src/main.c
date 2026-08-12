@@ -271,8 +271,8 @@ unsigned int InitializeConversationViewport(void)
 unsigned int ResetScreenClipToFullHeight(void)
 {
     free_viewport(&DAT_005a76b0);
-    DAT_005a6baa = 0;
-    DAT_005a6bae = 199;
+    DAT_005a6ba0.top = 0;
+    DAT_005a6ba0.bottom = 199;
     return 0;
 }
 

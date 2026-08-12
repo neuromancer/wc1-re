@@ -466,8 +466,8 @@ void check_hazards(void)
 void __stdcall WarpMouseTo(short x, short y)
 {
     __asm cli
-    g_nHostMouseX_0059af70 = x;
-    g_nHostMouseY_0059af72 = y;
+    g_stHostMouseState_0059af70.x = x;
+    g_stHostMouseState_0059af70.y = y;
     g_stMouseCursorState_0059ab10.x = x;
     g_stMouseCursorState_0059ab10.y = y;
     SetMouseHomePosition(x, y);

@@ -420,10 +420,10 @@ void ClearHudMessageIfMatching(HudMessageSlot *slot, const char *text)
 /* Function start: 0x4141D0 */
 void ClearHudGunReadouts(void)
 {
-    DAT_005a7ddd = 0;
-    DAT_005a7ddc = 0;
-    DAT_005a7dee = 0;
-    DAT_005a7ded = 0;
+    g_aHudMessageSlots_005a7dd0[0].text = 0;
+    g_aHudMessageSlots_005a7dd0[0].flashCount = 0;
+    g_aHudMessageSlots_005a7dd0[1].text = 0;
+    g_aHudMessageSlots_005a7dd0[1].flashCount = 0;
 }
 
 /* Function start: 0x4141F0 */
@@ -458,7 +458,7 @@ void UpdateMessage(HudMessageSlot *slot)
 void set_global_message(const char *text, unsigned short colour,
                         int flashCount)
 {
-    SetHudMessageSlot(&DAT_005a7de1, &DAT_005a7700,
+    SetHudMessageSlot(&g_aHudMessageSlots_005a7dd0[1], &DAT_005a7700,
                       DAT_005a7530.left,
                       (short)(DAT_005a7530.bottom - 6),
                       text, colour, (signed char)flashCount);
@@ -468,14 +468,14 @@ void set_global_message(const char *text, unsigned short colour,
 void CockpitMessage(const char *text, unsigned short colour,
                     int flashCount)
 {
-    if (text != DAT_005a7dee)
+    if (text != g_aHudMessageSlots_005a7dd0[1].text)
         set_global_message(text, colour, flashCount);
 }
 
 /* Function start: 0x4142E0 */
 void remove_message(const char *text)
 {
-    ClearHudMessageIfMatching(&DAT_005a7de1, text);
+    ClearHudMessageIfMatching(&g_aHudMessageSlots_005a7dd0[1], text);
 }
 
 /* Function start: 0x414300 */
@@ -665,15 +665,16 @@ void update_bars(void)
 /* Function start: 0x4147E0 */
 short get_mode(short i)
 {
-    return DAT_0059d500[((int)DAT_0059dec0[i] + i * 4) * 2];
+    return DAT_0059d500[
+        ((int)g_acVduModeStackDepth_0059dec0[i] + i * 4) * 2];
 }
 
 /* Function start: 0x414800 */
 void set_mode(short i, int state)
 {
     if (get_mode(i) != state)
-        ClearHudMessageSlot(&DAT_005a7dd0[i]);
-    DAT_0059dec0[i] = 0;
+        ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[i]);
+    g_acVduModeStackDepth_0059dec0[i] = 0;
     *(int *)&DAT_0059d500[i * 8] = state;
 }
 
@@ -691,22 +692,23 @@ unsigned short SetVduModeIfChanged(short i, int state)
 /* Function start: 0x414890 */
 int GetVduModeStackDepth(short i)
 {
-    return (char)DAT_0059dec0[i];
+    return g_acVduModeStackDepth_0059dec0[i];
 }
 
 /* Function start: 0x4148A0 */
 void push_mode(short i, int state)
 {
-    ClearHudMessageSlot(&DAT_005a7dd0[i]);
-    DAT_0059dec0[i] = DAT_0059dec0[i] + 1;
-    *(int *)&DAT_0059d500[((int)DAT_0059dec0[i] + i * 4) * 2] = state;
+    ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[i]);
+    g_acVduModeStackDepth_0059dec0[i]++;
+    *(int *)&DAT_0059d500[
+        ((int)g_acVduModeStackDepth_0059dec0[i] + i * 4) * 2] = state;
 }
 
 /* Function start: 0x4148E0 */
 void pop_mode(short i)
 {
-    ClearHudMessageSlot(&DAT_005a7dd0[i]);
-    DAT_0059dec0[i] = DAT_0059dec0[i] - 1;
+    ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[i]);
+    g_acVduModeStackDepth_0059dec0[i]--;
 }
 
 /* Function start: 0x414910 */
@@ -818,10 +820,10 @@ void ShowComponentHitHudMessage(const char *text, unsigned short colour,
                                 short flashCount)
 {
     if (g_nTrainSimActive_00469e2c == 0 && get_mode(0) != 0) {
-        if (DAT_005a7ddd != 0)
-            ClearHudMessageSlot(&DAT_005a7dd0[0]);
+        if (g_aHudMessageSlots_005a7dd0[0].text != 0)
+            ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[0]);
         DosStrcpy(g_szComponentHitMessage_005a7e00, text);
-        SetHudMessageSlot(&DAT_005a7dd0[0], &DAT_005a74f0,
+        SetHudMessageSlot(&g_aHudMessageSlots_005a7dd0[0], &DAT_005a74f0,
                           DAT_005a6b80.left,
                           (short)(DAT_005a6b80.bottom - 6),
                           g_szComponentHitMessage_005a7e00,
@@ -2145,15 +2147,15 @@ unsigned int RestoreTransientCockpitGraphics(void)
         if (DAT_0046a008 == 0) {
             CaptureSpriteBackground(
                 &DAT_005a6ba0, g_pCockpitExplosionBackground_00469060,
-                g_nCockpitExplosionX_005a7e98,
-                g_nCockpitExplosionY_005a7e9a,
+                g_stCockpitExplosionPosition_005a7e98.x,
+                g_stCockpitExplosionPosition_005a7e98.y,
                 g_pCockpitExplosionShape_00469064,
                 g_nCockpitExplosionFrame_00469068);
         }
         if (DAT_0046a008 == 0) {
             DrawSpriteDefault(&DAT_005a6ba0,
-                              g_nCockpitExplosionX_005a7e98,
-                              g_nCockpitExplosionY_005a7e9a,
+                              g_stCockpitExplosionPosition_005a7e98.x,
+                              g_stCockpitExplosionPosition_005a7e98.y,
                               g_pCockpitExplosionShape_00469064,
                               g_nCockpitExplosionFrame_00469068);
         }
@@ -2545,15 +2547,15 @@ unsigned int DrawPendingCockpitDamage(void)
             FetchDiskPacketRetrying(
                 (short)g_cCockpitLogicalFile_005a7c74, 4, 0);
     DrawSpriteDefault(&DAT_005a6ba0,
-                      g_nCockpitExplosionX_005a7e98,
-                      g_nCockpitExplosionY_005a7e9a,
+                      g_stCockpitExplosionPosition_005a7e98.x,
+                      g_stCockpitExplosionPosition_005a7e98.y,
                       g_pCockpitPilotShape_0046905c,
                       g_nPendingCockpitDamage_005a7dcc);
     if (g_pPilotHandShape_005a7684 != 0) {
         DrawSpriteDefault(&DAT_005a7550,
-                          (short)(g_nCockpitExplosionX_005a7e98 -
+                          (short)(g_stCockpitExplosionPosition_005a7e98.x -
                                   DAT_005a6b60.left),
-                          (short)(g_nCockpitExplosionY_005a7e9a -
+                          (short)(g_stCockpitExplosionPosition_005a7e98.y -
                                   DAT_005a6b60.top),
                           g_pCockpitPilotShape_0046905c,
                           g_nPendingCockpitDamage_005a7dcc);
@@ -2570,8 +2572,8 @@ void RestoreCockpitExplosionBackground(void)
         g_pCockpitExplosionBackground_00469060 != 0) {
         RestoreSpriteBackground(
             &DAT_005a6ba0, g_pCockpitExplosionBackground_00469060,
-            g_nCockpitExplosionX_005a7e98,
-            g_nCockpitExplosionY_005a7e9a,
+            g_stCockpitExplosionPosition_005a7e98.x,
+            g_stCockpitExplosionPosition_005a7e98.y,
             g_pCockpitExplosionShape_00469064,
             g_nCockpitExplosionFrame_00469068);
     }
@@ -2595,13 +2597,13 @@ void cockpit_explosion(void)
             g_pCockpitExplosionBackground_00469060 != 0) {
             CaptureSpriteBackground(
                 &DAT_005a6ba0, g_pCockpitExplosionBackground_00469060,
-                g_nCockpitExplosionX_005a7e98,
-                g_nCockpitExplosionY_005a7e9a,
+                g_stCockpitExplosionPosition_005a7e98.x,
+                g_stCockpitExplosionPosition_005a7e98.y,
                 g_pCockpitExplosionShape_00469064,
                 g_nCockpitExplosionFrame_00469068);
             DrawSpriteDefault(&DAT_005a6ba0,
-                              g_nCockpitExplosionX_005a7e98,
-                              g_nCockpitExplosionY_005a7e9a,
+                              g_stCockpitExplosionPosition_005a7e98.x,
+                              g_stCockpitExplosionPosition_005a7e98.y,
                               g_pCockpitExplosionShape_00469064,
                               g_nCockpitExplosionFrame_00469068);
             DAT_0046900c = 0xff;
@@ -2624,10 +2626,9 @@ void place_damage_on_cockpit(short damage)
         }
         if (IsCockpitExplosionActive() == 0) {
             g_nCockpitExplosionFrame_00469068 = 0x7fff;
-            *(unsigned int *)(void *)&g_nCockpitExplosionX_005a7e98 =
-                *(const unsigned int *)(const void *)
-                    &g_aaCockpitDamagePositions_00469228[
-                        (signed char)g_cCockpitView_0059dab0][damage];
+            g_stCockpitExplosionPosition_005a7e98 =
+                g_aaCockpitDamagePositions_00469228[
+                    (signed char)g_cCockpitView_0059dab0][damage];
         }
     }
 }

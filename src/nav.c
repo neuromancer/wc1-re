@@ -128,8 +128,10 @@ TitleMenuRegion g_aTitleMenuRegions_00468a88[5] = {
 };
 
 PacketResourceDescriptor g_aIntroResourceDescriptors_00468ac0[3] = {
-    { &g_pIntroBackgroundResource_00467eae, 3, 2 },
-    { &g_pIntroSceneResource_00467b84, 3, 5 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_EXPLOSION1].shapeSet,
+      3, 2 },
+    { &g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet,
+      3, 5 },
     { 0, 0, 0 }
 };
 
@@ -1747,8 +1749,8 @@ void UpdateTitleMenuCursor(void)
     TitleMenuRegion *region;
 
     frame = 0;
-    mouseX = g_nHostMouseX_0059af70;
-    mouseY = g_nHostMouseY_0059af72;
+    mouseX = g_stHostMouseState_0059af70.x;
+    mouseY = g_stHostMouseState_0059af70.y;
     region = g_aTitleMenuRegions_00468a88;
     while (region->frame != -1) {
         if (IsPointInRect(mouseX, mouseY,
@@ -1791,8 +1793,9 @@ int Title_Sequence(void)
         g_nSceneResourceBudget_005a7ce4 = 0x3e8000;
         g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
             g_aIntroResourceDescriptors_00468ac0, 0, 0x3e8000);
-        g_pIntroSceneResourceMirror_00467c0b =
-            g_pIntroSceneResource_00467b84;
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+            g_aObjectTypeData_00466458[
+                OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
         ClearInputKeyStatePreservingModifiers();
         FlushInputEvents();
         DAT_0059ab58 = 0;
@@ -1941,8 +1944,9 @@ int Title_Sequence(void)
         ReleasePacketHandle(g_pIntroFont_005a8960);
         ReleasePacketHandle(g_pTitleShape_005a7f08);
         FreeShapeSet(g_aIntroResourceDescriptors_00468ac0, 0);
-        g_pIntroSceneResourceMirror_00467c0b =
-            g_pIntroSceneResource_00467b84;
+        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+            g_aObjectTypeData_00466458[
+                OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
         free_all_slots();
         free_3Space();
         g_bIntroSecondaryScene_0046c024 = 0;

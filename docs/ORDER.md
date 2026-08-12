@@ -198,8 +198,10 @@ The following evidence-backed bands have moved so far:
 | `src/cockpt.c` | `0x00469000`–`0x004693C7` | Mac `cockpt` run, cockpit tables/strings, and the following barracks boundary |
 
 `bin/collectGlobalDefinitions.py` generates `out/globals-audit.c` from the remaining synthetic
-file and each owner-unit declaration block. This keeps `make verify`, `make globals-data`, and
-global-access analysis union-complete while binary-comp still accepts one definition source.
+file and each owner-unit declaration block. It also resolves array dimensions declared with
+WC1 constants into numeric dimensions for binary-comp's raw-data parser. This keeps `make
+verify`, `make globals-data`, and global-access analysis union-complete while binary-comp still
+accepts one definition source.
 
 Use `make globals-data` to see the real deltas before moving another band. Do not move a global
 until both its compilation-unit owner and its declaration order are evidence-backed.

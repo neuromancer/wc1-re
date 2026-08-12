@@ -556,16 +556,16 @@ clamp_pointer:
     else if (g_stMouseCursorState_0059ab10.y > 320)
         g_stMouseCursorState_0059ab10.y = 320;
 
-    g_nHostMouseX_0059af70 = g_stMouseCursorState_0059ab10.x;
-    g_nHostMouseY_0059af72 = g_stMouseCursorState_0059ab10.y;
+    g_stHostMouseState_0059af70.x = g_stMouseCursorState_0059ab10.x;
+    g_stHostMouseState_0059af70.y = g_stMouseCursorState_0059ab10.y;
     if (moved != 0) {
         RetainInputEventsOfType(3);
         QueueInputEvent(13, (unsigned short)g_stMouseCursorState_0059ab10.x,
                         (unsigned short)g_stMouseCursorState_0059ab10.y,
                         0, 0, 0, 0);
         g_bPointerMovedByKeyboard_005a7d54 = 1;
-        SetMousePosition(g_nHostMouseX_0059af70,
-                         g_nHostMouseY_0059af72);
+        SetMousePosition(g_stHostMouseState_0059af70.x,
+                         g_stHostMouseState_0059af70.y);
     }
 }
 
