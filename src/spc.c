@@ -1558,15 +1558,17 @@ int object_collision(short obj)
             g_aShipVelocity_0059c010[partner];
         if (partnerClass == OBJECT_CLASS_ASTEROID)
             hit_asteroid(partner, 3);
-        break;
+        return 0;
 
     case OBJECT_CLASS_ASTEROID:
         if (g_aeObjectClass_0059d100[partner] ==
                 OBJECT_CLASS_ASTEROID) {
-            if (g_asObjectScreenX_0059d9b0[obj] == (short)0x8001)
+            if (g_asObjectScreenX_0059d9b0[obj] == (short)0x8001) {
                 remove_object(obj);
-            else
-                hit_asteroid(obj, 0);
+                return 0;
+            }
+            hit_asteroid(obj, 0);
+            return 0;
         }
         break;
 
