@@ -165,6 +165,8 @@ void Wc1SdlWaitForVerticalBlank(void);
 #define Sleep Wc1SdlSleep
 #define timeGetTime Wc1SdlGetTicks
 
+int Wc1SdlChangeDirectory(const char *path);
+
 #define VK_CLEAR 0x0c
 #define VK_SHIFT 0x10
 #define VK_CONTROL 0x11
@@ -182,7 +184,6 @@ void Wc1SdlWaitForVerticalBlank(void);
 #define VK_DELETE 0x2e
 
 #ifndef _WIN32
-int Wc1SdlChangeDirectory(const char *path);
 int Wc1SdlOpen(const char *path, int flags, ...);
 int Wc1SdlResolvePath(const char *path, char *resolved,
                       unsigned long resolvedSize);

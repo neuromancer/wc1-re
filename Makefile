@@ -502,13 +502,12 @@ $(MODERN_EVENT_TEST_BIN): \
 
 $(MODERN_VIDEO_TEST_BIN): \
 		$(MODERN_OUT_DIR)/tests/sdl_video_compat.o \
-		$(MODERN_OUT_DIR)/tests/sdl_video_dependencies.o \
-		$(MODERN_VIDEO_HOST_OBJS) \
-		$(MODERN_OUT_DIR)/obj/sdl/compat.o \
-		$(MODERN_OUT_DIR)/obj/sdl/input.o \
-		$(MODERN_OUT_DIR)/obj/globals.o
-	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$^ $(MODERN_SDL_LIBS) \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) \
+		$(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
 $(MODERN_CXX_TEST_BIN): $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.o $(MODERN_BASE_HOST_OBJS)

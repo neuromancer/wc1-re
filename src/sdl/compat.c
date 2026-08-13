@@ -199,4 +199,11 @@ char *Wc1SdlStrupr(char *text)
     return text;
 }
 
+#else
+
+int Wc1SdlChangeDirectory(const char *path)
+{
+    return _chdir(path);
+}
+
 #endif
