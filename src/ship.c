@@ -954,7 +954,7 @@ message_finished:
             explosionType = OBJECT_TYPE_EXPLOSION0;
         set_objects_data(obj, explosionType,
                          g_acObjectOwner_0059ce20[obj]);
-        if (objectClass == OBJECT_CLASS_ASTEROID)
+        if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_ASTEROID)
             g_asObjectScale_0059de40[obj] = 0x380;
     }
     if (objectClass != OBJECT_CLASS_CAPITAL_SHIP)
