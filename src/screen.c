@@ -1737,23 +1737,47 @@ void real_vid_transmit(short obj, short message)
         g_nCommPortraitIndex_0046afd0][message];
     if (g_nCommSpeakerRating_0046afcc >= 0 &&
         g_nCommSpeakerRating_0046afcc <= 7) {
+#ifdef WC1_SDL
+        /* MSVC 4.20 accepts %Fs as its legacy far-string conversion. */
+        sprintf(text, "%s: %s",
+                g_apWingmanPilots_00598a30[
+                    g_nCommSpeakerRating_0046afcc]->callsign,
+                speech);
+#else
         sprintf(text, g_szConfedCommFormat_0046b150,
                 g_apWingmanPilots_00598a30[
                     g_nCommSpeakerRating_0046afcc]->callsign,
                 speech);
+#endif
     } else if (g_nCommSpeakerRating_0046afcc >= 9 &&
                g_nCommSpeakerRating_0046afcc <= 12) {
+#ifdef WC1_SDL
+        sprintf(text, "%s: %s",
+                g_apszKilrathiAceNames_0046af80[
+                    g_nCommSpeakerRating_0046afcc - 9],
+                speech);
+#else
         sprintf(text, g_szKilrathiAceCommFormat_0046b158,
                 g_apszKilrathiAceNames_0046af80[
                     g_nCommSpeakerRating_0046afcc - 9],
                 speech);
+#endif
     } else {
+#ifdef WC1_SDL
+        sprintf(text, "%s: %s",
+                g_aObjectTypeData_00466458[
+                    *(enum ObjectType *)(void *)
+                        ((unsigned char *)g_aeObjectType_0059b560 +
+                         objectOffset)].displayName,
+                speech);
+#else
         sprintf(text, g_szShipCommFormat_0046b160,
                 g_aObjectTypeData_00466458[
                     *(enum ObjectType *)(void *)
                         ((unsigned char *)g_aeObjectType_0059b560 +
                          objectOffset)].displayName,
                 speech);
+#endif
     }
     expandedText = ExpandCommMessageTokens(text);
     ShowCentredPrompt(expandedText, (unsigned short)MeasureMessageWidth(text));

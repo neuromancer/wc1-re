@@ -186,7 +186,12 @@ void SetAwakenBarracksMenuLabel(char **label, int series, int mission,
                                 char *description)
 {
     FreeBarracksMenuLabel(label);
+#ifdef WC1_SDL
+    /* MSVC 4.20 accepts %Fs as its legacy far-string conversion. */
+    sprintf(g_szTextScratchBuffer_00598b00, "Awaken %s.", description);
+#else
     sprintf(g_szTextScratchBuffer_00598b00, "Awaken %Fs.", description);
+#endif
     *label = AllocateTaggedMemory(
         strlen(g_szTextScratchBuffer_00598b00) + 2, 0);
     DosMemcpy(*label, g_szTextScratchBuffer_00598b00,
