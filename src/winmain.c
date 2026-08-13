@@ -483,6 +483,9 @@ void CheckLauncherAndConfig(void)
 {
     FILE *config;
     char option[100];
+#ifdef WC1_SDL
+    char resolvedPath[PATH_MAX];
+#endif
 
     if (ReadCheaterFlagFromRegistry() != 0) {
         *(unsigned char *)&g_nOriginDevUnlock_00469ff4 = 1;
@@ -490,7 +493,15 @@ void CheckLauncherAndConfig(void)
         *(unsigned char *)&DAT_0046a000 = 0;
     }
 
+#ifdef WC1_SDL
+    if (Wc1SdlResolvePath("WINGCMDR.CFG", resolvedPath,
+                          sizeof(resolvedPath)))
+        config = fopen(resolvedPath, "rt");
+    else
+        config = 0;
+#else
     config = fopen("WINGCMDR.CFG", "rt");
+#endif
     if (config != 0) {
         while (fscanf(config, "%s", option) != EOF) {
             char command;

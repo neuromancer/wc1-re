@@ -696,11 +696,22 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
     short argumentCount;
     char *destination;
     short argumentIndex;
+#ifdef WC1_SDL
+    char resolvedPath[PATH_MAX];
+#endif
 
     argumentIndex = 1;
     argumentCount = 0;
     destination = g_szTextScratchBuffer_00598b00;
+#ifdef WC1_SDL
+    if (Wc1SdlResolvePath("WINGCMDR.CFG", resolvedPath,
+                          sizeof(resolvedPath)))
+        file = fopen(resolvedPath, "rt");
+    else
+        file = 0;
+#else
     file = fopen("WINGCMDR.CFG", "rt");
+#endif
     while (file != 0) {
         if ((short)fscanf(file, "%s", destination) == -1) {
             fclose(file);

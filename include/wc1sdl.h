@@ -7,6 +7,7 @@
 #endif
 
 #include <SDL.h>
+#include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
 

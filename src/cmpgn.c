@@ -70,11 +70,21 @@ unsigned short __stdcall LoadPaletteTripletsFile(const char *path)
 {
     unsigned char *palette;
     FILE *file;
+#ifdef WC1_SDL
+    char resolvedPath[PATH_MAX];
+#endif
 
     palette = AllocateTaggedMemory(0x300, 0);
     if (palette == 0)
         return 0;
+#ifdef WC1_SDL
+    if (Wc1SdlResolvePath(path, resolvedPath, sizeof(resolvedPath)))
+        file = fopen(resolvedPath, "rb");
+    else
+        file = 0;
+#else
     file = fopen(path, "rb");
+#endif
     if (file != 0) {
         fseek(file, 0x30, SEEK_SET);
         fread(palette, 0x300, 1, file);
