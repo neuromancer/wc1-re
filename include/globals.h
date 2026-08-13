@@ -1236,8 +1236,8 @@ extern int g_bHostPrimaryMouseButton_005a8998;
 extern int g_bHostSecondaryMouseButton_005a899c;
 
 extern ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT];
-extern const ShortVector g_aChildOffsets_004682f0[35];
-extern const ShortPoint g_aWeaponDisplayPositions_00468440[10];
+extern const ShortVector g_aChildOffsets_004682f0[56];
+extern const ShortPoint g_aWeaponDisplayPositions_00468440[32];
 extern const ShortPoint g_aWeaponDisplayOrigins_004684c0[5];
 extern LPDIRECTDRAWSURFACE g_pPrimarySurface_0046b1a8;
 extern LPDIRECTDRAWSURFACE g_pSecondarySurface_0046b1ac;
