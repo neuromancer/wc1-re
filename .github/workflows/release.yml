@@ -1,0 +1,214 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  metadata:
+    runs-on: ubuntu-24.04
+    outputs:
+      publish: ${{ steps.release.outputs.publish }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - id: release
+        name: Validate release ref
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          if [[ "$EVENT_NAME" == push && "$REF_TYPE" == tag ]]; then
+            if [[ ! "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Release tags must match vMAJOR.MINOR.PATCH: $REF_NAME" >&2
+              exit 1
+            fi
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "version=$REF_NAME" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "version=ci-${RUN_NUMBER}-${RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-win32-reference:
+    needs: metadata
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out source and toolchains
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          submodules: recursive
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            build-essential ca-certificates clang cmake curl file \
+            libdigest-sha-perl make ninja-build zip
+      - name: Build reconstructed Win32 executable
+        run: make -j2 WC1.EXE
+      - name: Validate reconstructed executable
+        run: |
+          test -s WC1.EXE
+          file WC1.EXE | grep -q "PE32 executable"
+      - name: Package reconstructed executable
+        run: packaging/package-reference.sh "${{ needs.metadata.outputs.version }}"
+      - name: Upload reconstructed executable
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-win32-reference
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  build-modern-unix:
+    needs: metadata
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            platform: linux
+            architecture: x86_64
+          - runner: macos-15-intel
+            platform: macos
+            architecture: x86_64
+          - runner: macos-15
+            platform: macos
+            architecture: arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    env:
+      MODERN_CC: clang
+      MODERN_CXX: clang++
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install Linux dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            clang file liblzo2-dev libsdl2-dev make patchelf pkg-config zip
+      - name: Install macOS dependencies
+        if: matrix.platform == 'macos'
+        run: brew install lzo pkg-config sdl2
+      - name: Build sanitizer-enabled SDL2 port
+        run: make -j2 modern
+      - name: Validate native architecture
+        run: |
+          test -s out-modern/wc1-modern
+          file out-modern/wc1-modern
+          test "$(uname -m)" = "${{ matrix.architecture }}"
+      - name: Package SDL2 port
+        run: >-
+          packaging/package-modern.sh
+          "${{ needs.metadata.outputs.version }}"
+          "${{ matrix.platform }}"
+          "${{ matrix.architecture }}"
+          out-modern/wc1-modern
+      - name: Upload SDL2 port
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-${{ matrix.platform }}-${{ matrix.architecture }}
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  build-modern-windows:
+    needs: metadata
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install MSYS2 Clang and dependencies
+        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+        with:
+          msystem: CLANG64
+          update: true
+          install: >-
+            make
+            zip
+            mingw-w64-clang-x86_64-clang
+            mingw-w64-clang-x86_64-lld
+            mingw-w64-clang-x86_64-lzo2
+            mingw-w64-clang-x86_64-ntldd
+            mingw-w64-clang-x86_64-pkgconf
+            mingw-w64-clang-x86_64-SDL2
+      - name: Build sanitizer-enabled SDL2 port
+        shell: msys2 {0}
+        run: make -j2 modern MODERN_CC=clang MODERN_CXX=clang++
+      - name: Validate Windows executable
+        shell: msys2 {0}
+        run: test -s out-modern/wc1-modern.exe
+      - name: Package SDL2 port
+        shell: msys2 {0}
+        run: >-
+          packaging/package-modern.sh
+          "${{ needs.metadata.outputs.version }}"
+          windows
+          x86_64
+          out-modern/wc1-modern.exe
+      - name: Upload SDL2 port
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-windows-x86_64
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    if: needs.metadata.outputs.publish == 'true'
+    needs:
+      - metadata
+      - build-win32-reference
+      - build-modern-unix
+      - build-modern-windows
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Download release archives
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: release-*
+          path: release-assets
+          merge-multiple: true
+      - name: Generate checksums
+        working-directory: release-assets
+        run: |
+          test "$(find . -maxdepth 1 -name '*.zip' | wc -l)" -eq 5
+          sha256sum -- *.zip | sort -k2 > SHA256SUMS
+      - name: Publish GitHub Release
+        working-directory: release-assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.metadata.outputs.version }}
+        run: >-
+          gh release create "$RELEASE_TAG"
+          ./*.zip
+          ./SHA256SUMS
+          --verify-tag
+          --generate-notes
+          --title "Wing Commander source reconstruction $RELEASE_TAG"

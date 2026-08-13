@@ -98,10 +98,18 @@ TARGET = WC1.EXE
 MAPFILE = WC1.map
 OUT_DIR = out
 
+UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+
+MODERN_EXE_SUFFIX :=
+ifneq (,$(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)))
+MODERN_EXE_SUFFIX := .exe
+endif
+
 # The native build uses the host compiler and never contributes objects to the
 # MSVC 4.20 reference executable.
 MODERN_OUT_DIR = out-modern
-MODERN_TARGET = $(MODERN_OUT_DIR)/wc1-modern
+MODERN_TARGET = $(MODERN_OUT_DIR)/wc1-modern$(MODERN_EXE_SUFFIX)
 MODERN_RUN_DIR ?= data/full
 MODERN_ARGS ?=
 SERIES ?= 1
@@ -176,9 +184,6 @@ GLOBALS_AUDIT_SOURCE = $(OUT_DIR)/globals-audit.c
 #
 # DREAMM is downloaded on demand into .dreamm/ so the repository does not need
 # to vendor platform-specific runtime binaries.
-
-UNAME_S := $(shell uname -s)
-UNAME_M := $(shell uname -m)
 
 DREAMM_DIR = .dreamm
 DREAMM_VERSION = 4.0x47
@@ -388,10 +393,11 @@ MODERN_INPUT_CORE_OBJS = \
 	$(MODERN_OUT_DIR)/obj/globals.o \
 	$(MODERN_OUT_DIR)/obj/sysinput.o
 MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat sdl_input_compat
-MODERN_BASE_C_TEST_BINS = $(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))
-MODERN_EVENT_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_event_compat
-MODERN_VIDEO_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_video_compat
-MODERN_CXX_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke
+MODERN_BASE_C_TEST_BINS = $(addsuffix $(MODERN_EXE_SUFFIX),\
+	$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES)))
+MODERN_EVENT_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_event_compat$(MODERN_EXE_SUFFIX)
+MODERN_VIDEO_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_video_compat$(MODERN_EXE_SUFFIX)
+MODERN_CXX_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke$(MODERN_EXE_SUFFIX)
 MODERN_TEST_BINS = \
 	$(MODERN_BASE_C_TEST_BINS) \
 	$(MODERN_EVENT_TEST_BIN) \
@@ -404,8 +410,8 @@ MODERN_DEPFILES = \
 	$(MODERN_GAME_HOST_OBJS:.o=.d) \
 	$(MODERN_LAUNCHER_OBJ:.o=.d) \
 	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))) \
-	$(MODERN_EVENT_TEST_BIN).d \
-	$(MODERN_VIDEO_TEST_BIN).d \
+	$(MODERN_OUT_DIR)/tests/sdl_event_compat.d \
+	$(MODERN_OUT_DIR)/tests/sdl_video_compat.d \
 	$(MODERN_OUT_DIR)/tests/sdl_video_dependencies.d \
 	$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.d
 
@@ -479,7 +485,7 @@ $(MODERN_TARGET): \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
-$(MODERN_BASE_C_TEST_BINS): $(MODERN_OUT_DIR)/tests/%: \
+$(MODERN_BASE_C_TEST_BINS): $(MODERN_OUT_DIR)/tests/%$(MODERN_EXE_SUFFIX): \
 		$(MODERN_OUT_DIR)/tests/%.o $(MODERN_BASE_HOST_OBJS)
 	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$^ $(MODERN_SDL_LIBS) -o $@

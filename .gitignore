@@ -1,6 +1,7 @@
 # Build artifacts
 out/
 out-modern/
+dist/
 *.obj
 *.asm
 *.map
