@@ -131,7 +131,7 @@ MODERN_LZO_INCLUDEDIR = $(shell pkg-config --variable=includedir lzo2 2>/dev/nul
 MODERN_LZO_LIBS = $(shell pkg-config --libs lzo2 2>/dev/null)
 MODERN_CPPFLAGS = -DWC1_SDL=1 -Iinclude $(MODERN_SDL_CFLAGS) \
 	$(MODERN_LZO_CFLAGS) $(addprefix -I,$(MODERN_LZO_INCLUDEDIR))
-MODERN_CFLAGS ?= -std=c11 -Wno-return-mismatch \
+MODERN_CFLAGS ?= -std=c11 -Wno-return-type \
 	-Wno-error=incompatible-function-pointer-types
 MODERN_CXXFLAGS ?= -std=c++11
 MODERN_DEPFLAGS = -MMD -MP

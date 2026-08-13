@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #ifdef _WIN32
+#include <conio.h>
 #include <direct.h>
 #include <io.h>
 #else

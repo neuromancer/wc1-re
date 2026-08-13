@@ -57,7 +57,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
             build-essential ca-certificates clang cmake curl file \
-            libdigest-sha-perl make ninja-build zip
+            libclang-dev libdigest-sha-perl make ninja-build zip
       - name: Build reconstructed Win32 executable
         run: make -j2 WC1.EXE
       - name: Validate reconstructed executable
