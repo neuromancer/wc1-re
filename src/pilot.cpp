@@ -977,7 +977,7 @@ short SelectTrainSimMission(short *mission)
     g_stMouseCursorState_0059ab10.viewport = &g_stTrainSimTitleDisplayViewport_005a7b90;
     SetEventManagerPump(PollMenuInputDevices);
     EventManagerHook(UpdateTrainSimMenuCursor);
-    *(short *)&g_aInputDeviceSamples_005a81f0[2].x = 6;
+    g_nMenuInputRepeatDelay_005a8208 = 6;
     WarpMouseTo(160, 100);
     EnterAllocationScope();
     savedInputMode = (signed char)g_bInputMode_0059a848;

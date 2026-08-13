@@ -160,7 +160,7 @@ GLOBALS_MISSING_MAX_ADDRESS = 0x004751ff
 # Global definitions are migrating back to their original compilation units.
 # binary-comp currently accepts one definition source, so generate a parser-only
 # manifest from globals.c and the declaration block at the top of each owner.
-GLOBALS_DISTRIBUTED_SOURCES = src/nav.c src/spc.c src/cockpt.c
+GLOBALS_DISTRIBUTED_SOURCES = src/nav.c src/spc.c src/cockpt.c src/ship.c
 GLOBALS_DEFINITION_SOURCES = src/globals.c $(GLOBALS_DISTRIBUTED_SOURCES)
 GLOBALS_AUDIT_SOURCE = $(OUT_DIR)/globals-audit.c
 
@@ -724,7 +724,9 @@ compare-full-functions: compare-functions
 verify:
 	@$(MAKE) audit-compiler-glue
 	@$(MAKE) verify-globals
+	@$(MAKE) verify-globals-data
 	@$(MAKE) verify-globals-code
+	@$(MAKE) audit-rebuilt-global-layout
 	@$(MAKE) verify-calls
 	@$(MAKE) verify-global-access
 	@$(MAKE) verify-values
@@ -733,6 +735,18 @@ verify:
 
 verify-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) --fail-on-issues --fail-on-warnings
+
+# The source-level globals audit cannot serialize every nested or symbolic
+# initializer.  Compare the linked bytes too, but keep the normal verify output
+# to the actionable mismatches and summary.
+verify-globals-data: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | $(ORIGINAL_EXE)
+	@audit_output=$$(mktemp "$${TMPDIR:-/tmp}/wc1-globals-data.XXXXXX"); \
+		trap 'rm -f "$$audit_output"' 0 1 2 15; \
+		status=0; \
+		$(BINARY_COMP) data $(BC) > "$$audit_output" || status=$$?; \
+		awk '/ MISMATCH / || / not in rebuilt map/ || /^Summary:/' \
+			"$$audit_output"; \
+		exit $$status
 
 verify-globals-code: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) \
@@ -755,12 +769,16 @@ audit-auto-complete-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORI
 audit-rebuilt-global-layout: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) \
 		--globals-source src/globals.c \
-		--check-rebuilt-layout
+		--check-rebuilt-layout \
+		--no-address-warnings \
+		--fail-on-issues
 	@set -e; for global_source in $(GLOBALS_DISTRIBUTED_SOURCES); do \
 		$(BINARY_COMP) globals $(BC) \
 			--globals-source $$global_source \
 			--globals-h $$global_source \
-			--check-rebuilt-layout; \
+			--check-rebuilt-layout \
+			--no-address-warnings \
+			--fail-on-issues; \
 	done
 
 # WC1's own code is C and has no vtables, but the DirectDraw/DirectSound COM
@@ -940,6 +958,7 @@ clean-modern:
 	verify-calls \
 	verify-global-access \
 	verify-globals \
+	verify-globals-data \
 	verify-globals-code \
 	verify-values \
 	verify-values-stack-locals \

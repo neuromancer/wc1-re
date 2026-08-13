@@ -457,7 +457,7 @@ unsigned int EMStartUp(void)
         exit_squadron("EMStartUp Failed");
     ConfigureEventManagerPointer(g_stMouseCursorState_0059ab10.shape, 0);
     SetEventManagerPump(PollJoystickButtonEvents);
-    g_aInputDeviceSamples_005a81f0[2].x = 6;
+    g_nMenuInputRepeatDelay_005a8208 = 6;
     return 0;
 }
 
@@ -2256,7 +2256,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     DAT_005a7720.viewport = &DAT_005a6ba0;
     SetTextContext(&DAT_005a7720);
 
-    layout = &g_stCockpitLayout_0046e000;
+    layout = &g_stCockpitLayout_0046e008;
     origin = &layout->readoutOrigins[0][(int)g_cCockpitView_0059dab0];
     SetTextCursor((unsigned short)origin->x, (unsigned short)origin->y);
     InitializeCockpitReadout(4, &DAT_005a7720);

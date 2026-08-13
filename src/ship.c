@@ -992,9 +992,20 @@ int explode(short attacker, short victim)
                 return 0;
         }
     }
+#ifdef WC1_SDL
+    /* Special-maneuver state exists only for the twelve ship slots.  The
+       original evaluates this lookup before rejecting non-ship objects, so
+       exploding a projectile in a later object slot reads the following
+       ship-mission table. */
+    if (victim >= 0 && victim < 12 &&
+        g_aeSpecialManeuver_0059c3c0[victim] ==
+            SPECIAL_MANEUVER_UNKNOWN_9 &&
+        g_aeObjectClass_0059d100[victim] >= OBJECT_CLASS_SHIP)
+#else
     if (g_aeSpecialManeuver_0059c3c0[victim] ==
             SPECIAL_MANEUVER_UNKNOWN_9 &&
         g_aeObjectClass_0059d100[victim] >= OBJECT_CLASS_SHIP)
+#endif
         return 0;
 
     if (victim == 0) {

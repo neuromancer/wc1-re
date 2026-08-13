@@ -864,10 +864,10 @@ short BarracksScreen(void)
     SetFrameTimerPeriodDirect(0);
     FlushInputEvents();
     g_nSavedRoomControllerX_005988b4 =
-        *(short *)&g_aInputDeviceSamples_005a81f0[2].x;
+        g_nMenuInputRepeatDelay_005a8208;
     g_bInputMode_0059a848 = 1;
     g_nMenuPointerSpeed_0046af58 = 1;
-    *(short *)&g_aInputDeviceSamples_005a81f0[2].x = 2;
+    g_nMenuInputRepeatDelay_005a8208 = 2;
 
     while (result == 0) {
         if (IsFrameTickElapsed() != 0) {
@@ -954,7 +954,7 @@ short BarracksScreen(void)
 
     LeaveAllocationScope();
     g_nMenuPointerSpeed_0046af58 = 2;
-    *(short *)&g_aInputDeviceSamples_005a81f0[2].x =
+    g_nMenuInputRepeatDelay_005a8208 =
         g_nSavedRoomControllerX_005988b4;
     EventManagerHook(0);
     FreeBarracksMenuLabels();

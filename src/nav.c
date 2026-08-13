@@ -866,7 +866,7 @@ void InflightComputer(void)
         g_bInputMode_0059a848 = 1;
         SetEventManagerPump(PollMenuInputDevices);
         EventManagerHook(ResetMouseCursorFrame);
-        *(short *)&g_aInputDeviceSamples_005a81f0[2].x = 6;
+        g_nMenuInputRepeatDelay_005a8208 = 6;
         EnterAllocationScope();
         CentreMouseOnCurrentNavObjective();
 
@@ -2028,7 +2028,7 @@ int Title_Sequence(void)
 
     g_stMouseCursorState_0059ab10.viewport = &DAT_005a6ba0;
     SetEventManagerPump(PollMenuInputDevices);
-    *(short *)&g_aInputDeviceSamples_005a81f0[2].x = 6;
+    g_nMenuInputRepeatDelay_005a8208 = 6;
     WarpMouseTo(160, 100);
     EnterAllocationScope();
     g_bInputMode_0059a848 = 1;

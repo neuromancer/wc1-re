@@ -1478,30 +1478,30 @@ void rotational_pos_to_scanner_pos(signed char object,
     horizontal = position->yaw;
     if (abs((int)horizontal) < 45)
         g_nScannerCursorX_005a7e6c = (short)(
-            g_stCockpitLayout_0046e000.scanner[
+            g_stCockpitLayout_0046e008.scanner[
                 (int)g_cCockpitView_0059dab0].centerX + horizontal / 4);
     else
         g_nScannerCursorX_005a7e6c = (short)(
-            g_stCockpitLayout_0046e000.scanner[
+            g_stCockpitLayout_0046e008.scanner[
                 (int)g_cCockpitView_0059dab0].centerX + horizontal / 6);
 
     g_nScannerCursorY_005a7e6e = (short)(
-        g_stCockpitLayout_0046e000.scanner[
+        g_stCockpitLayout_0046e008.scanner[
             (int)g_cCockpitView_0059dab0].centerY + position->pitch / -3);
     g_nScannerCursorX_005a7e6c =
-        MinShort(g_stCockpitLayout_0046e000.scanner[
+        MinShort(g_stCockpitLayout_0046e008.scanner[
                      (int)g_cCockpitView_0059dab0].maximumX,
                  g_nScannerCursorX_005a7e6c);
     g_nScannerCursorX_005a7e6c =
-        MaxShort(g_stCockpitLayout_0046e000.scanner[
+        MaxShort(g_stCockpitLayout_0046e008.scanner[
                      (int)g_cCockpitView_0059dab0].minimumX,
                  g_nScannerCursorX_005a7e6c);
     g_nScannerCursorY_005a7e6e =
-        MinShort(g_stCockpitLayout_0046e000.scanner[
+        MinShort(g_stCockpitLayout_0046e008.scanner[
                      (int)g_cCockpitView_0059dab0].maximumY,
                  g_nScannerCursorY_005a7e6e);
     g_nScannerCursorY_005a7e6e =
-        MaxShort(g_stCockpitLayout_0046e000.scanner[
+        MaxShort(g_stCockpitLayout_0046e008.scanner[
                      (int)g_cCockpitView_0059dab0].minimumY,
                  g_nScannerCursorY_005a7e6e);
     g_asScannerObjectX_005a7ea0[(int)object] =
@@ -1633,7 +1633,7 @@ unsigned int draw_3d_scanner(void)
     short row;
 
     if (DAT_0046a008 != 0 && g_aiScannerGridRows_00469098[0] != -2) {
-        scanner = &g_stCockpitLayout_0046e000.scanner[
+        scanner = &g_stCockpitLayout_0046e008.scanner[
             (int)g_cCockpitView_0059dab0];
         row = 0;
         grid = g_aiScannerGridRows_00469098;
@@ -2849,24 +2849,24 @@ void update_VDUs(void)
     if (DAT_0046a008 != 0) {
         DrawFilledViewportRect(
             &DAT_005a6ba0,
-            g_stCockpitLayout_0046e000.leftVduBounds[
+            g_stCockpitLayout_0046e008.leftVduBounds[
                 (int)g_cCockpitView_0059dab0].left,
-            g_stCockpitLayout_0046e000.leftVduBounds[
+            g_stCockpitLayout_0046e008.leftVduBounds[
                 (int)g_cCockpitView_0059dab0].top,
-            g_stCockpitLayout_0046e000.leftVduBounds[
+            g_stCockpitLayout_0046e008.leftVduBounds[
                 (int)g_cCockpitView_0059dab0].right,
-            g_stCockpitLayout_0046e000.leftVduBounds[
+            g_stCockpitLayout_0046e008.leftVduBounds[
                 (int)g_cCockpitView_0059dab0].bottom,
             0);
         DrawFilledViewportRect(
             &DAT_005a6ba0,
-            g_stCockpitLayout_0046e000.rightVduBounds[
+            g_stCockpitLayout_0046e008.rightVduBounds[
                 (int)g_cCockpitView_0059dab0].left,
-            g_stCockpitLayout_0046e000.rightVduBounds[
+            g_stCockpitLayout_0046e008.rightVduBounds[
                 (int)g_cCockpitView_0059dab0].top,
-            g_stCockpitLayout_0046e000.rightVduBounds[
+            g_stCockpitLayout_0046e008.rightVduBounds[
                 (int)g_cCockpitView_0059dab0].right,
-            g_stCockpitLayout_0046e000.rightVduBounds[
+            g_stCockpitLayout_0046e008.rightVduBounds[
                 (int)g_cCockpitView_0059dab0].bottom,
             0);
     }

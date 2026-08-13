@@ -457,11 +457,10 @@ typedef struct CockpitScannerGeometry {
     short maximumY;
 } CockpitScannerGeometry;
 
-/* The 144-word cockpit table at 0x0046E000.  Five ship cockpits use the
+/* The 140-word cockpit table at 0x0046E008.  Five ship cockpits use the
  * viewport/scanner/hand rectangles; the four readout origins also contain a
  * sixth sentinel entry used by the original table indexing. */
 typedef struct CockpitLayout {
-    short reserved[4];
     ShortPoint readoutOrigins[4][6];
     ShortRect leftVduBounds[5];
     ShortRect rightVduBounds[5];
@@ -519,8 +518,8 @@ typedef struct PacketDecompressionWorkspace {
     unsigned char input[0x400];
 } PacketDecompressionWorkspace;
 
-typedef char CockpitLayout_size_must_be_0x120[
-    sizeof(CockpitLayout) == 0x120 ? 1 : -1];
+typedef char CockpitLayout_size_must_be_0x118[
+    sizeof(CockpitLayout) == 0x118 ? 1 : -1];
 typedef char ScreenViewportGeometry_size_must_be_0x10[
     sizeof(ScreenViewportGeometry) == 0x10 ? 1 : -1];
 typedef char DiskFileRecord_size_must_be_0x10[
@@ -1018,7 +1017,8 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #define WC1_EYE_OBJECT 61
 #define WC1_DIRECTION_VIEW_COUNT 62
 #define WC1_DIRECTION_SHAPE_TABLE_COUNT 3
-#define WC1_MISSION_SHIP_COUNT 64
+#define WC1_MISSION_SHIP_STORAGE_COUNT 48
+#define WC1_MISSION_SHIP_SCAN_LIMIT 64
 #define WC1_ACTIVE_MISSION_SHIP_COUNT 32
 #define WC1_MISSION_NAV_POINT_COUNT 20
 #define WC1_ACTIVE_MISSION_NAV_POINT_COUNT 16

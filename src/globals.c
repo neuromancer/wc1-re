@@ -385,8 +385,8 @@ const ShortVector g_aaFormationPositions_00465ed8[5][8] = {
         { 0, 500, -500 }, { 0, 500, -1250 }
     }
 };
-const int g_anPilotTurnInterval_00465fc8[16] = {
-    5, 5, 4, 4, 3, 3, 3, 2, 2, 1, 3, 3, 3, 3, 2, 2
+const int g_anPilotTurnInterval_00465fc8[18] = {
+    5, 5, 4, 4, 3, 3, 3, 2, 2, 1, 3, 3, 3, 3, 2, 2, 2, 1
 };
 const char g_szErrorLoadingPilotSpeech_00466010[32] =
     "Error loading pilot speech";
@@ -917,8 +917,7 @@ const CockpitBarDefinition g_aaCockpitBars_0046dd88[5][8] = {
         {0, -99, -99, 0, 0, 0, 0, 0}
     }
 };
-const CockpitLayout g_stCockpitLayout_0046e000 = {
-    {0, 0, 0, 0},
+const CockpitLayout g_stCockpitLayout_0046e008 = {
     {
         {{99, 130}, {227, 122}, {38, 164}, {192, 126},
          {-99, -99}, {0, 0}},
@@ -1087,31 +1086,32 @@ MissionNavPoint g_aMissionNavPoints_0046c2f0[WC1_MISSION_NAV_POINT_COUNT] = {
     { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 },
     {
         "", 1, { 0, 0, 0 }, 50000,
-        { { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 } },
+        { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
         { OBJECT_TYPE_DRALTHI, OBJECT_TYPE_HORNET },
         { 32, 33, 34, 35, -1, -1, -1, -1, -1, -1 }
     },
     {
         "", 1, { 0, 0, 0 }, 50000,
-        { { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 } },
+        { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
         { OBJECT_TYPE_ASTEROID_FIELD, (enum ObjectType)-1 },
         { 36, -1, -1, -1, -1, -1, -1, -1, -1, -1 }
     },
     {
         "", 1, { 0, 0, 0 }, 50000,
-        { { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 } },
+        { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
         { OBJECT_TYPE_GRATHA, OBJECT_TYPE_RAPIER },
         { 37, 38, 39, 40, 41, -1, -1, -1, -1, -1 }
     },
     {
         "", 1, { 0, 0, 0 }, 50000,
-        { { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 } },
+        { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
         { OBJECT_TYPE_KRANT, OBJECT_TYPE_SCIMITAR },
         { 42, 43, 44, 45, -1, -1, -1, -1, -1, -1 }
     }
 };
 
-MissionShipRecord g_aMissionShips_0046c948[WC1_MISSION_SHIP_COUNT] = {
+MissionShipRecord
+    g_aMissionShips_0046c948[WC1_MISSION_SHIP_STORAGE_COUNT] = {
     { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 },
     { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 },
     { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 },
@@ -2355,7 +2355,8 @@ int g_nJoystickDownScale_005a81d4;
 int g_nJoystickCentreY_005a81d8;
 int g_nJoystickCentreX_005a81dc;
 int g_nJoystickFailureValue_005a81e0;
-InputDeviceSample g_aInputDeviceSamples_005a81f0[4];
+InputDeviceSample g_aInputDeviceSamples_005a81f0[2];
+short g_nMenuInputRepeatDelay_005a8208;
 unsigned char g_abMissionAuxData_005a8210[0x28];
 unsigned char g_abSeriesAuxData_005a8240[0x28];
 MissionObjectiveSource g_aMissionObjectiveSources_005a8270[16];

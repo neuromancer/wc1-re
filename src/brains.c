@@ -3438,17 +3438,16 @@ void prepare_mission(void)
     missionShip = 0;
     g_nCarrierMissionShipIndex_005a7e2a = missionShip;
 #ifdef WC1_SDL
-    /* The original tests the limit after reading each record.  If no carrier
-     * exists, it increments to 64 and reads one record beyond the declared
-     * table before leaving the index at 64.  Preserve that result without the
-     * invalid read in the sanitizer-enabled port. */
-    while (missionShip < WC1_MISSION_SHIP_COUNT &&
+    /* The original scans to 64 even though the initialized table ends after
+     * record 47.  Valid missions place the carrier in the loaded first 32;
+     * stop at the proven storage boundary in the sanitizer-enabled port. */
+    while (missionShip < WC1_MISSION_SHIP_STORAGE_COUNT &&
            g_aMissionShips_0046c948[missionShip].type !=
                OBJECT_TYPE_TIGERS_CLAW) {
 #else
     while (g_aMissionShips_0046c948[missionShip].type !=
                OBJECT_TYPE_TIGERS_CLAW &&
-           missionShip < WC1_MISSION_SHIP_COUNT) {
+           missionShip < WC1_MISSION_SHIP_SCAN_LIMIT) {
 #endif
         missionShip++;
         g_nCarrierMissionShipIndex_005a7e2a = missionShip;

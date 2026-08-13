@@ -123,8 +123,8 @@ void InitializeRoomViewports(void)
     SetEventManagerPump(PollMenuInputDevices);
     EventManagerHook(UpdateRoomMenuCursor);
     g_nSavedRoomControllerX_005988b4 =
-        (short)g_aInputDeviceSamples_005a81f0[2].x;
-    *(short *)&g_aInputDeviceSamples_005a81f0[2].x = 6;
+        g_nMenuInputRepeatDelay_005a8208;
+    g_nMenuInputRepeatDelay_005a8208 = 6;
 }
 
 /* Function start: 0x43F940 */
@@ -530,7 +530,7 @@ short RecRoom(void)
     }
 
     g_nMenuPointerSpeed_0046af58 = 2;
-    *(short *)&g_aInputDeviceSamples_005a81f0[2].x =
+    g_nMenuInputRepeatDelay_005a8208 =
         g_nSavedRoomControllerX_005988b4;
     EventManagerHook(0);
     ReleasePacketHandle(g_apRecRoomCharacterShapes_005988c0[0]);
