@@ -12,7 +12,7 @@ _Static_assert(sizeof(LARGE_INTEGER) == 8,
 _Static_assert(sizeof(JOYINFO) == 16,
                "JOYINFO must retain its Win32 layout");
 
-int main(void)
+int main(int argumentCount, char **arguments)
 {
     SDL_version compiled;
     SDL_version linked;

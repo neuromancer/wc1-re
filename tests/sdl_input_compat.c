@@ -1,6 +1,6 @@
 #include "wc1sdl.h"
 
-int main(void)
+int main(int argumentCount, char **arguments)
 {
     DWORD elapsed;
     DWORD start;

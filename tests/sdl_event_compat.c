@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-int main(void)
+int main(int argumentCount, char **arguments)
 {
     InputEventState input;
     SDL_Event event;

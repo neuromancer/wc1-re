@@ -3,7 +3,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-int main(void)
+int main(int argumentCount, char **arguments)
 {
     static const char payload[] = "Wing Commander";
     const char *path;

@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-int main(void)
+int main(int argumentCount, char **arguments)
 {
     unsigned char tripletPalette[256 * 3];
     unsigned char *pixels;

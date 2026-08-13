@@ -1,5 +1,7 @@
 #include "wc1sdl.h"
 
+#include <string.h>
+
 #ifndef _WIN32
 
 #include <ctype.h>
@@ -204,6 +206,20 @@ char *Wc1SdlStrupr(char *text)
 int Wc1SdlChangeDirectory(const char *path)
 {
     return _chdir(path);
+}
+
+int Wc1SdlResolvePath(const char *path, char *resolved,
+                      unsigned long resolvedSize)
+{
+    size_t pathLength;
+
+    if (path == 0 || resolved == 0 || resolvedSize == 0)
+        return 0;
+    pathLength = strlen(path);
+    if (pathLength + 1 > resolvedSize)
+        return 0;
+    memcpy(resolved, path, pathLength + 1);
+    return 1;
 }
 
 #endif

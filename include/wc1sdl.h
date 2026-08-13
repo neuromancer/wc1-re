@@ -166,6 +166,8 @@ void Wc1SdlWaitForVerticalBlank(void);
 #define timeGetTime Wc1SdlGetTicks
 
 int Wc1SdlChangeDirectory(const char *path);
+int Wc1SdlResolvePath(const char *path, char *resolved,
+                      unsigned long resolvedSize);
 
 #define VK_CLEAR 0x0c
 #define VK_SHIFT 0x10
@@ -185,8 +187,6 @@ int Wc1SdlChangeDirectory(const char *path);
 
 #ifndef _WIN32
 int Wc1SdlOpen(const char *path, int flags, ...);
-int Wc1SdlResolvePath(const char *path, char *resolved,
-                      unsigned long resolvedSize);
 long Wc1SdlFileLength(int file);
 char *Wc1SdlItoa(int value, char *text, int radix);
 char *Wc1SdlLtoa(long value, char *text, int radix);
