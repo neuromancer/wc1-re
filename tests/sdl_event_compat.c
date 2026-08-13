@@ -8,6 +8,7 @@ int main(int argumentCount, char **arguments)
     SDL_Event event;
     SDL_Window *window;
     Viewport viewport;
+    int index;
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0)
         return 1;
@@ -64,6 +65,23 @@ int main(int argumentCount, char **arguments)
     if (SDL_PushEvent(&event) != 1 || PumpWindowMessages() == 0)
         return 1;
     if (GetNextInputEvent(&input) != 13 || input.x != 0 || input.y != 0)
+        return 1;
+
+    FlushInputEvents();
+    SDL_FlushEvent(SDL_MOUSEMOTION);
+    index = 0;
+    while (index < 300) {
+        event.motion.x = index == 299 ? 400 : 80;
+        event.motion.y = index == 299 ? 200 : 0;
+        if (SDL_PushEvent(&event) != 1)
+            return 1;
+        index++;
+    }
+    if (PumpWindowMessages() == 0)
+        return 1;
+    if (GetNextInputEvent(&input) != 13 || input.x != 160 || input.y != 100)
+        return 1;
+    if (GetNextInputEvent(&input) != 0)
         return 1;
 
     memset(&event, 0, sizeof(event));

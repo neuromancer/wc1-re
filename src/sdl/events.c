@@ -247,6 +247,28 @@ int Wc1SdlTranslateScanCode(SDL_Scancode scanCode)
     }
 }
 
+static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
+                                   int primaryButton,
+                                   int secondaryButton)
+{
+    InputEvent *queued;
+
+    queued = g_pInputEventTail_0046da94;
+    if (queued != 0 && queued->type == 13) {
+        queued->x = (short)x;
+        queued->y = (short)y;
+        queued->primaryButton = (short)primaryButton;
+        queued->secondaryButton = (short)secondaryButton;
+        queued->modifiers &= ~6U;
+        if (primaryButton != 0)
+            queued->modifiers |= 2;
+        if (secondaryButton != 0)
+            queued->modifiers |= 4;
+        return;
+    }
+    QueueInputEvent(13, x, y, 0, primaryButton, secondaryButton, 0);
+}
+
 void Wc1SdlStartEventPump(void)
 {
     DAT_005a8a3c = 1;
@@ -363,9 +385,9 @@ void Wc1SdlPumpEvents(void)
                     g_bPointerMovedByKeyboard_005a7d54 = 0;
                     continue;
                 }
-                QueueInputEvent(13, (unsigned short)mouseX,
-                                (unsigned short)mouseY, 0, primaryButton,
-                                secondaryButton, 0);
+                Wc1SdlQueueMouseMotion(
+                    (unsigned short)mouseX, (unsigned short)mouseY,
+                    primaryButton, secondaryButton);
             } else {
                 QueueInputEvent(event.type == SDL_MOUSEBUTTONDOWN ? 2 : 1,
                                 (unsigned short)mouseX, (unsigned short)mouseY,
