@@ -11,7 +11,9 @@ int main(int argumentCount, char **arguments)
     char command;
     int argumentIndex;
     int checkOnly;
+    int gameResult;
 
+    gameResult = 0;
     checkOnly = argumentCount == 2 && strcmp(arguments[1], "--check") == 0;
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER |
                  SDL_INIT_JOYSTICK) != 0) {
@@ -110,7 +112,7 @@ int main(int argumentCount, char **arguments)
         DAT_0059ab2c = 0;
         SDL_SetWindowMouseGrab(window, SDL_TRUE);
         SDL_ShowCursor(SDL_DISABLE);
-        Wc1GameMain((short)(argumentCount - 1), arguments);
+        gameResult = Wc1GameMain((short)(argumentCount - 1), arguments);
         SDL_SetWindowMouseGrab(window, SDL_FALSE);
         SDL_ShowCursor(SDL_ENABLE);
         DestroyGlobalDebugOverlayConsole();
@@ -123,5 +125,5 @@ int main(int argumentCount, char **arguments)
     Wc1SdlShutdownJoysticks();
     SDL_DestroyWindow(window);
     SDL_Quit();
-    return 0;
+    return gameResult;
 }

@@ -824,7 +824,23 @@ unsigned int LoadMissionData(short series, short mission)
     logicalFile = g_asMissionDataFiles_00469460[g_nCampaignDataSet_005a8118];
     packet = FetchDiskPacketRetrying(logicalFile, 0, 0);
     missionIndex = (int)mission + (int)series * 4;
+#ifdef WC1_SDL
+    /* The original developer path assumes an occupied one-of-64 header.  An
+     * empty header marks its player ship as -1, which cannot be represented
+     * as a valid access to the 32 mission records loaded below. */
+    if (missionIndex < 0 || missionIndex >= 64) {
+        ReleasePacketHandle(packet);
+        return 1;
+    }
+#endif
     header = (MissionHeaderDisk *)(packet + missionIndex * 0x18);
+#ifdef WC1_SDL
+    if (header->playerMissionShip < 0 ||
+        header->playerMissionShip >= WC1_ACTIVE_MISSION_SHIP_COUNT) {
+        ReleasePacketHandle(packet);
+        return 1;
+    }
+#endif
     g_nMissionEntryNavPoint_005a8690 = header->entryNavPoint;
     g_nHomeMissionShipIndex_005a8692 = header->homeMissionShip;
     g_nPlayerMissionShipIndex_005a8694 = header->playerMissionShip;

@@ -166,7 +166,16 @@ int main(short argc, char **argv)
         g_nMusicVolumeSetting_00469fc0 / 2]);
 
     if (launchMission != 0) {
+#ifdef WC1_SDL
+        if (init_mission(series, mission) != 0) {
+            fprintf(stderr,
+                    "Mission SERIES=%d MISSION=%d is absent or invalid.\n",
+                    (int)series, (int)mission);
+            return 1;
+        }
+#else
         init_mission(series, mission);
+#endif
 #ifdef WC1_SDL
         /* Use the normal campaign setup unless cockpitless mode was requested. */
         if (DAT_0046507c != 0)

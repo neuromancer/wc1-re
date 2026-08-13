@@ -179,9 +179,9 @@ The playable Vega-campaign pairs recorded in `CAMP.000` are series 1 with
 missions 0-1, series 2-11 with missions 0-2, and series 12-13 with missions
 0-3. This original developer path uses the default campaign data set
 (`MODULE.000`); no original startup token selects `MODULE.001` or
-`MODULE.002`. The Make target rejects unoccupied mission slots before launch;
-the original developer path does not validate them and reads a `-1` player-ship
-index from an empty mission header.
+`MODULE.002`. The modern executable reports and rejects an unoccupied mission
+slot after reading its header. The original developer path does not validate
+it and reads a `-1` player-ship index from an empty mission header.
 
 The optional `NAV` value supplies the original `asN` starting-action-sphere
 override. Additional original flags may be provided through `MISSION_FLAGS`:

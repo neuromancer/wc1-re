@@ -534,30 +534,7 @@ run-modern: modern
 # The option loader exposes one fewer token than it reads, so retain a sentinel.
 run-modern-mission: MODERN_ARGS = Origin s$(SERIES) m$(MISSION) \
 	$(if $(strip $(NAV)),as$(NAV)) l $(MISSION_FLAGS) ignored
-run-modern-mission: validate-modern-mission
-	@$(MAKE) --no-print-directory run-modern MODERN_ARGS="$(MODERN_ARGS)"
-
-validate-modern-mission:
-	@series='$(SERIES)'; mission='$(MISSION)'; \
-	case "$$series" in \
-		1) max_mission=1 ;; \
-		2|3|4|5|6|7|8|9|10|11) max_mission=2 ;; \
-		12|13) max_mission=3 ;; \
-		*) \
-			echo "Series $$series is absent from the supported MODULE.000 campaign range (1-13)." >&2; \
-			exit 2 ;; \
-	esac; \
-	case "$$mission" in \
-		0|1|2|3) ;; \
-		*) \
-			echo "Mission $$mission is not a valid zero-based MODULE.000 mission number (0-3)." >&2; \
-			exit 2 ;; \
-	esac; \
-	if test "$$mission" -gt "$$max_mission"; then \
-		echo "Mission slot SERIES=$$series MISSION=$$mission is absent from MODULE.000." >&2; \
-		echo "Valid slots: 1:0-1, 2-11:0-2, 12-13:0-3." >&2; \
-		exit 2; \
-	fi
+run-modern-mission: run-modern
 
 -include $(MODERN_DEPFILES)
 
@@ -957,7 +934,6 @@ clean-modern:
 	run-check \
 	run-modern \
 	run-modern-mission \
-	validate-modern-mission \
 	seh \
 	sort \
 	verify \
