@@ -62,7 +62,7 @@ Other parsing details:
 | --- | --- |
 | `Origin` | Enables developer options appearing later in the file. It also causes newly created or loaded pilots to receive the callsign `CHEATER`. It does not itself enable invulnerability or disabled collisions unless the registry `Cheater` flag was what enabled it. |
 | `b` or `-b` | Disables the central collision handler whenever object 0, the player, is either participant. Most player collision detection and response is therefore suppressed. This is separate from special-purpose logic such as carrier landing. |
-| `c` or `-c` | Clears the startup flag that otherwise assumes the normal preflight scenes established the flight display. This makes `RunSpaceFlight` allocate its view buffer and initialize the cockpit itself, and is required with direct `l` launch. |
+| `c` or `-c` | Selects the full-screen, cockpitless flight display. `RunSpaceFlight` allocates a full-screen view buffer and initializes only the HUD/VDU elements; the cockpit artwork is intentionally not drawn. |
 | `f` or `-f` | Draws a floating-point frame-rate counter at the top-left of the screen. |
 | `k` or `-k` | Makes the player ship invulnerable by returning immediately from damage processing when the victim is object 0. |
 | `q` or `-q` | Bypasses the explicit DirectDraw display-mode cascade and renders through the primary surface path. Normally the game tries 320x200, 640x400, and then 640x480. This is not a normal windowed-mode switch. |
@@ -164,9 +164,11 @@ credits after the original credit list.
 The SDL launcher applies the original first-stage launcher options to host
 arguments, then passes them to the recovered main module. This makes the
 retained developer options available without editing `WINGCMDR.CFG`. The
-`run-modern-mission` target supplies the exact original token sequence,
-including the `c` needed to initialize the flight viewport and the
-otherwise-required ignored final token:
+`run-modern-mission` target selects the original direct mission path and, in
+the modern build only, runs the same `LaunchPlayerShip` setup used by normal
+campaign flight before entering `RunSpaceFlight`. This initializes the full
+cockpit while continuing to use the shared original game routines. The target
+also supplies the otherwise-required ignored final token:
 
 ```sh
 make run-modern-mission SERIES=1 MISSION=0
@@ -191,8 +193,11 @@ This target starts interactive spaceflight; it does not run an automated game
 test. The more general spelling remains available as:
 
 ```sh
-make run-modern MODERN_ARGS='c Origin s1 m0 l ignored'
+make run-modern MODERN_ARGS='Origin s1 m0 l ignored'
 ```
+
+Adding `c` to that general form retains the original developer path's
+cockpitless full-screen display and skips the modern normal-launch prelude.
 
 There is no fully unattended combat-demo or recorded-input mode in this
 executable. The title menu has no attract-mode timeout, direct mission launch
@@ -217,14 +222,20 @@ smoke test, again requiring the initial key:
 Origin w9 ignored
 ```
 
-For a manual flight test that bypasses all menus, use a valid series and mission
-with `l`; adding `k`, `b`, and `f` makes repeated renderer/flight testing easier:
+For a manual flight test of the original executable that bypasses all menus,
+use a valid series and mission with `l`; adding `k`, `b`, and `f` makes repeated
+renderer/flight testing easier:
 
 ```text
 c Origin s1 m0 l k b f ignored
 ```
 
-That path is not automatic: it enters live spaceflight and continues to call
-the normal player-input and flight-dynamics routines until the flight ends.
-External window/input automation could supply the one key needed by `w3` or
-`w9`, but the executable has no option that removes this initial key gate.
+The original direct branch does not call `LaunchPlayerShip`, so `c` is needed
+to initialize a visible full-screen flight view and the result is intentionally
+cockpitless. Omitting `c` leaves the original direct path without the display
+setup normally performed during launch. The modern target above fills that gap
+with the shared normal launch routine. Neither path is automatic: live
+spaceflight continues to call the normal player-input and flight-dynamics
+routines until the flight ends. External window/input automation could supply
+the one key needed by `w3` or `w9`, but the executable has no option that
+removes this initial key gate.

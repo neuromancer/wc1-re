@@ -529,10 +529,10 @@ run-modern: modern
 	cd "$$modern_run_dir" && "$(CURDIR)/$(MODERN_TARGET)" $(MODERN_ARGS)
 
 # The original startup has a hidden direct-flight path selected by the ordered
-# tokens "c Origin sN mN l".  The first token requests flight-view/cockpit
-# initialization normally established by the preflight scenes.  The option
-# loader exposes one fewer token than it reads, so retain an ignored sentinel.
-run-modern-mission: MODERN_ARGS = c Origin s$(SERIES) m$(MISSION) \
+# tokens "Origin sN mN l".  The modern build supplies the normal shared
+# LaunchPlayerShip setup before entering flight so the cockpit is initialized.
+# The option loader exposes one fewer token than it reads, so retain a sentinel.
+run-modern-mission: MODERN_ARGS = Origin s$(SERIES) m$(MISSION) \
 	$(if $(strip $(NAV)),as$(NAV)) l $(MISSION_FLAGS) ignored
 run-modern-mission: run-modern
 

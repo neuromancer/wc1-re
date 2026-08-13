@@ -167,6 +167,11 @@ int main(short argc, char **argv)
 
     if (launchMission != 0) {
         init_mission(series, mission);
+#ifdef WC1_SDL
+        /* Use the normal campaign setup unless cockpitless mode was requested. */
+        if (DAT_0046507c != 0)
+            LaunchPlayerShip();
+#endif
         RunSpaceFlight(DAT_0046a010);
         exit_squadron("Bye!");
         return 0;
