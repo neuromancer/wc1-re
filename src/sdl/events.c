@@ -256,6 +256,7 @@ void Wc1SdlPumpEvents(void)
 {
     SDL_Event event;
 
+    Wc1SdlServiceDosAdlibMusic();
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             ShutdownGameWindow();

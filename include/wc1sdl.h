@@ -54,6 +54,7 @@ typedef DWORD (*LPTHREAD_START_ROUTINE)(LPVOID);
 typedef void (*Wc1SdlAudioMixer)(void *, unsigned int);
 
 struct DiskFileRecord;
+typedef struct Wc1SdlOriginFxPlayer Wc1SdlOriginFxPlayer;
 
 typedef struct GUID {
     uint32_t Data1;
@@ -165,6 +166,23 @@ int Wc1SdlDecompressOriginLzw(const unsigned char *source,
                               unsigned char *destination,
                               size_t destinationSize,
                               size_t *writtenSize);
+int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
+                                     size_t archiveSize,
+                                     unsigned int sectionIndex,
+                                     unsigned char **section,
+                                     size_t *sectionSize);
+Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxPlayer(
+    const unsigned char *midi, size_t midiSize,
+    const unsigned char *timbres, size_t timbreSize);
+void Wc1SdlDestroyOriginFxPlayer(Wc1SdlOriginFxPlayer *player);
+int Wc1SdlOriginFxPlayerFinished(const Wc1SdlOriginFxPlayer *player);
+void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
+                                short *samples,
+                                unsigned int frameCount,
+                                unsigned int gain);
+int Wc1SdlInitializeDosAdlibMusic(void);
+void Wc1SdlServiceDosAdlibMusic(void);
+void Wc1SdlShutdownDosAdlibMusic(void);
 void Wc1SdlCompleteDosInstallTable(struct DiskFileRecord *records);
 
 #define GetTickCount Wc1SdlGetTicks

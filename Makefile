@@ -371,7 +371,12 @@ MODERN_GAME_HOST_SRCS = \
 	src/sdl/audio.c \
 	src/sdl/events.c \
 	src/sdl/joystick.c \
+	src/sdl/music.c \
 	src/sdl/video.c
+MODERN_GAME_HOST_CXX_SRCS = \
+	src/sdl/originfx.cpp
+MODERN_YMFM_SRCS = \
+	third_party/ymfm/ymfm_opl.cpp
 MODERN_LAUNCHER_SRC = src/sdl/launcher.c
 
 MODERN_GAMEPLAY_OBJS = \
@@ -381,7 +386,11 @@ MODERN_GAMEPLAY_OBJS = \
 MODERN_IX_OBJS = \
 	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_IX_SRCS))
 MODERN_BASE_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_BASE_HOST_SRCS))
-MODERN_GAME_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_SRCS))
+MODERN_YMFM_OBJS = $(patsubst %.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_YMFM_SRCS))
+MODERN_GAME_HOST_OBJS = \
+	$(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_SRCS)) \
+	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_CXX_SRCS)) \
+	$(MODERN_YMFM_OBJS)
 MODERN_EVENT_HOST_OBJS = \
 	$(MODERN_OUT_DIR)/obj/sdl/events.o \
 	$(MODERN_OUT_DIR)/obj/sdl/video.o
@@ -400,11 +409,13 @@ MODERN_BASE_C_TEST_BINS = $(addsuffix $(MODERN_EXE_SUFFIX),\
 MODERN_EVENT_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_event_compat$(MODERN_EXE_SUFFIX)
 MODERN_VIDEO_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_video_compat$(MODERN_EXE_SUFFIX)
 MODERN_CXX_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke$(MODERN_EXE_SUFFIX)
+MODERN_ADLIB_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_dos_adlib$(MODERN_EXE_SUFFIX)
 MODERN_TEST_BINS = \
 	$(MODERN_BASE_C_TEST_BINS) \
 	$(MODERN_EVENT_TEST_BIN) \
 	$(MODERN_VIDEO_TEST_BIN) \
-	$(MODERN_CXX_TEST_BIN)
+	$(MODERN_CXX_TEST_BIN) \
+	$(MODERN_ADLIB_TEST_BIN)
 MODERN_DEPFILES = \
 	$(MODERN_GAMEPLAY_OBJS:.o=.d) \
 	$(MODERN_IX_OBJS:.o=.d) \
@@ -415,7 +426,8 @@ MODERN_DEPFILES = \
 	$(MODERN_OUT_DIR)/tests/sdl_event_compat.d \
 	$(MODERN_OUT_DIR)/tests/sdl_video_compat.d \
 	$(MODERN_OUT_DIR)/tests/sdl_video_dependencies.d \
-	$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.d
+	$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.d \
+	$(MODERN_OUT_DIR)/tests/sdl_dos_adlib.d
 
 # ---------------------------------------------------------------------------
 # Build targets and tool bootstrap
@@ -453,6 +465,20 @@ $(MODERN_OUT_DIR)/obj/%.o: src/%.c | modern-check-deps
 $(MODERN_OUT_DIR)/obj/%.o: src/%.cpp | modern-check-deps
 	@mkdir -p $(dir $@)
 	$(MODERN_CXX) $(MODERN_CPPFLAGS) -Isrc/ix $(MODERN_CXXFLAGS) \
+		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/obj/sdl/originfx.o: src/sdl/originfx.cpp | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CXX) $(MODERN_CPPFLAGS) -Ithird_party/ymfm \
+		$(MODERN_CXXFLAGS) -std=c++14 \
+		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/obj/third_party/ymfm/%.o: third_party/ymfm/%.cpp | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CXX) $(MODERN_CPPFLAGS) -Ithird_party/ymfm \
+		$(MODERN_CXXFLAGS) -std=c++14 \
 		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
@@ -516,6 +542,14 @@ $(MODERN_CXX_TEST_BIN): $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.o $(MODERN_B
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$^ $(MODERN_SDL_LIBS) -o $@
 
+$(MODERN_ADLIB_TEST_BIN): \
+		$(MODERN_OUT_DIR)/tests/sdl_dos_adlib.o \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_OUT_DIR)/obj/sdl/originfx.o \
+		$(MODERN_YMFM_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) $(MODERN_DEAD_STRIP_FLAGS) -o $@
+
 modern-test: modern
 	@set -e; for test_bin in $(MODERN_TEST_BINS); do \
 		echo "Running $$test_bin"; \
@@ -535,8 +569,9 @@ run-modern: modern
 	}; \
 	cd "$$modern_run_dir" && "$(CURDIR)/$(MODERN_TARGET)" $(MODERN_ARGS)
 
-# The SDL2 host recognizes the compressed resources in an installed DOS copy.
-# DOS music and digital sound effects remain unavailable.
+# The SDL2 host recognizes the compressed resources in an installed DOS copy
+# and plays MUSIC.MID through an embedded YM3812 emulator. Digital sound
+# effects remain unavailable.
 run-modern-dos: MODERN_RUN_DIR = data/dos
 run-modern-dos: run-modern
 

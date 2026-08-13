@@ -42,6 +42,7 @@ cp LICENSE "$stage_dir/LICENSE.txt"
 cp packaging/README-modern.txt "$stage_dir/README.txt"
 cp packaging/THIRD-PARTY-NOTICES.txt \
     "$stage_dir/THIRD-PARTY-NOTICES.txt"
+cp third_party/ymfm/LICENSE "$stage_dir/YMFM-LICENSE.txt"
 
 if test "$platform" = windows; then
     executable="$stage_dir/wc1-modern.exe"

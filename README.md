@@ -1561,8 +1561,11 @@ DOS release from `data/dos`, run:
 make run-modern-dos
 ```
 
-The DOS path supports the original compressed packet resources. DOS music and
-digital sound effects are not implemented yet.
+The DOS path supports the original compressed packet resources and plays the
+original `MUSIC.MID` tracks through an embedded YM3812 (AdLib) emulator using
+the instruments from `WINGLDR.TIM`. No external MIDI synthesizer or sound bank
+is required. The OriginFX sequencer is intentionally pragmatic rather than
+cycle-accurate; DOS digital sound effects are not implemented yet.
 
 ## Run
 

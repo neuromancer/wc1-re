@@ -1,6 +1,7 @@
 #include "wc1.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef struct TestBitWriter {
@@ -106,6 +107,40 @@ static int CheckCodeWidthGrowth(void)
         memcmp(output, expected, sizeof(output)) == 0;
 }
 
+static int CheckPacketSections(void)
+{
+    const unsigned char archive[23] = {
+        0x17, 0x00, 0x00, 0x00,
+        0x0c, 0x00, 0x00, 0x00,
+        0x0e, 0x00, 0x00, 0x01,
+        'X', 'Y',
+        0x02, 0x00, 0x00, 0x00,
+        0x00, 0x83, 0x08, 0x09, 0x08
+    };
+    unsigned char *section;
+    size_t sectionSize;
+
+    section = 0;
+    sectionSize = 0;
+    if (!Wc1SdlExtractOriginPacketSection(
+            archive, sizeof(archive), 0, &section, &sectionSize) ||
+        sectionSize != 2 || memcmp(section, "XY", 2) != 0) {
+        free(section);
+        return 0;
+    }
+    free(section);
+    section = 0;
+    if (!Wc1SdlExtractOriginPacketSection(
+            archive, sizeof(archive), 1, &section, &sectionSize) ||
+        sectionSize != 2 || memcmp(section, "AB", 2) != 0) {
+        free(section);
+        return 0;
+    }
+    free(section);
+    return !Wc1SdlExtractOriginPacketSection(
+        archive, sizeof(archive), 2, &section, &sectionSize);
+}
+
 static int CheckDosInstallCompletion(void)
 {
     DiskFileRecord records[77];
@@ -131,6 +166,10 @@ int main(void)
     }
     if (!CheckCodeWidthGrowth()) {
         fprintf(stderr, "Origin LZW width-growth test failed\n");
+        return 1;
+    }
+    if (!CheckPacketSections()) {
+        fprintf(stderr, "Origin packet-section test failed\n");
         return 1;
     }
     if (!CheckDosInstallCompletion()) {

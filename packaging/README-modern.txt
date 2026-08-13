@@ -10,8 +10,10 @@ an installed Kilrathi Saga or DOS WC1 directory, then start wc1-modern
 (wc1-modern.exe on Windows) from that directory. Keep the bundled runtime
 libraries beside the executable.
 
-The DOS data path supports the original compressed packet resources. DOS music
-and digital sound effects are not implemented yet.
+The DOS data path supports the original compressed packet resources and plays
+MUSIC.MID through an embedded YM3812 (AdLib) emulator using WINGLDR.TIM. No
+external MIDI synthesizer or sound bank is required. The OriginFX sequencer is
+not cycle-accurate. DOS digital sound effects are not implemented yet.
 
 The macOS archives are ad-hoc signed, not notarized with an Apple developer
 certificate. macOS may therefore require the usual confirmation for software

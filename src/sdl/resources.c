@@ -9,6 +9,8 @@
 #define ORIGIN_LZW_STOP_CODE 0x101
 #define ORIGIN_LZW_FIRST_CODE 0x102
 #define ORIGIN_LZW_MAX_CODE_COUNT 0x1000
+#define ORIGIN_PACKET_OFFSET_MASK 0x00ffffffU
+#define ORIGIN_PACKET_MAX_SECTION_SIZE (16U * 1024U * 1024U)
 
 typedef struct Wc1SdlOriginLzwEntry {
     uint16_t prefix;
@@ -22,6 +24,14 @@ typedef struct Wc1SdlOriginLzwBitReader {
 } Wc1SdlOriginLzwBitReader;
 
 static int g_nWc1SdlDosData = -1;
+
+static uint32_t Wc1SdlReadLittleEndian32(const unsigned char *bytes)
+{
+    return (uint32_t)bytes[0] |
+        ((uint32_t)bytes[1] << 8) |
+        ((uint32_t)bytes[2] << 16) |
+        ((uint32_t)bytes[3] << 24);
+}
 
 static int Wc1SdlReadOriginLzwCode(Wc1SdlOriginLzwBitReader *reader,
                                    unsigned int width,
@@ -166,6 +176,89 @@ int Wc1SdlDecompressOriginLzw(const unsigned char *source,
             previousCode = code;
         }
     }
+}
+
+int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
+                                     size_t archiveSize,
+                                     unsigned int sectionIndex,
+                                     unsigned char **section,
+                                     size_t *sectionSize)
+{
+    unsigned char *output;
+    size_t writtenSize;
+    uint32_t declaredFileSize;
+    uint32_t directorySize;
+    uint32_t entry;
+    uint32_t nextEntry;
+    uint32_t outputSize;
+    uint32_t sectionCount;
+    uint32_t sectionOffset;
+    uint32_t sectionEnd;
+    unsigned int compression;
+
+    if (section == 0 || sectionSize == 0)
+        return 0;
+    *section = 0;
+    *sectionSize = 0;
+    if (archive == 0 || archiveSize < 8)
+        return 0;
+
+    declaredFileSize = Wc1SdlReadLittleEndian32(archive);
+    entry = Wc1SdlReadLittleEndian32(archive + 4);
+    directorySize = entry & ORIGIN_PACKET_OFFSET_MASK;
+    if (declaredFileSize > archiveSize || directorySize < 8 ||
+        directorySize > declaredFileSize || (directorySize & 3U) != 0)
+        return 0;
+    sectionCount = (directorySize >> 2) - 1;
+    if (sectionIndex >= sectionCount)
+        return 0;
+
+    entry = Wc1SdlReadLittleEndian32(
+        archive + 4 + sectionIndex * 4);
+    compression = entry >> 24;
+    sectionOffset = entry & ORIGIN_PACKET_OFFSET_MASK;
+    if (sectionIndex + 1 == sectionCount) {
+        sectionEnd = declaredFileSize;
+    } else {
+        nextEntry = Wc1SdlReadLittleEndian32(
+            archive + 8 + sectionIndex * 4);
+        sectionEnd = nextEntry & ORIGIN_PACKET_OFFSET_MASK;
+    }
+    if (sectionOffset < directorySize || sectionEnd <= sectionOffset ||
+        sectionEnd > declaredFileSize)
+        return 0;
+
+    if (compression == 0) {
+        outputSize = sectionEnd - sectionOffset;
+        if (outputSize > ORIGIN_PACKET_MAX_SECTION_SIZE)
+            return 0;
+        output = (unsigned char *)malloc(outputSize != 0 ? outputSize : 1);
+        if (output == 0)
+            return 0;
+        memcpy(output, archive + sectionOffset, outputSize);
+        *section = output;
+        *sectionSize = outputSize;
+        return 1;
+    }
+    if (compression != 1 || sectionEnd - sectionOffset < 4)
+        return 0;
+
+    outputSize = Wc1SdlReadLittleEndian32(archive + sectionOffset);
+    if (outputSize == 0 || outputSize > ORIGIN_PACKET_MAX_SECTION_SIZE)
+        return 0;
+    output = (unsigned char *)malloc(outputSize);
+    if (output == 0)
+        return 0;
+    if (!Wc1SdlDecompressOriginLzw(
+            archive + sectionOffset + 4,
+            sectionEnd - sectionOffset - 4,
+            output, outputSize, &writtenSize)) {
+        free(output);
+        return 0;
+    }
+    *section = output;
+    *sectionSize = writtenSize;
+    return 1;
 }
 
 int Wc1SdlUsingDosData(void)

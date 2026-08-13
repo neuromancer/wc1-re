@@ -1,0 +1,5 @@
+YMFM is vendored from https://github.com/aaronsgiles/ymfm at commit
+81aec25ccbb98f4873a255f7551ac4dadac59b4a.
+
+Only the files needed to build the YM3812 implementation are included. The
+sources are unmodified and remain under the BSD-3-Clause license in LICENSE.

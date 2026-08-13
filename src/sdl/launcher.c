@@ -81,8 +81,12 @@ int main(int argumentCount, char **arguments)
         if (Wc1SdlUsingDosData()) {
             /* DOS audio drivers cannot be used by the native SDL2 host. */
             DAT_00465058 = 0;
-            fprintf(stderr,
-                    "DOS music and sound effects are not yet available.\n");
+            if (!Wc1SdlInitializeDosAdlibMusic())
+                fprintf(stderr,
+                        "DOS audio is unavailable.\n");
+            else
+                fprintf(stderr,
+                        "DOS digital sound effects are not yet available.\n");
         }
         for (argumentIndex = 1; argumentIndex < argumentCount;
              argumentIndex++) {
@@ -125,6 +129,7 @@ int main(int argumentCount, char **arguments)
         if ((g_dwStreamerState_00597cd0 & 1) != 0)
             ix_streamer_destroy();
         ServiceAudioStream();
+        Wc1SdlShutdownDosAdlibMusic();
     }
 
     DIBunInstall();

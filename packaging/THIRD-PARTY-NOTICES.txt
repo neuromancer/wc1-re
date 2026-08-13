@@ -9,6 +9,8 @@ The SDL2 release archives may include runtime libraries from:
   https://llvm.org/
 - GCC runtime libraries on Linux, under GPL-3.0-or-later WITH
   GCC-exception-3.1: https://gcc.gnu.org/
+- YMFM, under the BSD-3-Clause license:
+  https://github.com/aaronsgiles/ymfm
 
 The exact set is platform-dependent. System libraries supplied by Windows,
 macOS, or the Linux distribution are not copied into these archives.
