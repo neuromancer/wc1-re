@@ -54,6 +54,55 @@ static int CheckSpriteCaptureClipping(void)
     return background[0] == pixels[0];
 }
 
+static int CheckSpriteRestoreClipping(void)
+{
+    unsigned int shapeStorage[8];
+    unsigned char *shape;
+    unsigned char pixels[8];
+    unsigned char background[4];
+    unsigned char expected[8];
+    unsigned short rowOffsets[2];
+    Viewport viewport;
+
+    memset(shapeStorage, 0, sizeof(shapeStorage));
+    shape = (unsigned char *)shapeStorage;
+    shape[4] = 8;
+    shape[16] = 4;
+    shape[22] = 1;
+    shape[23] = 2;
+
+    memset(pixels, 0x2a, sizeof(pixels));
+    memcpy(expected, pixels, sizeof(expected));
+    memset(background, 0x6b, sizeof(background));
+    rowOffsets[0] = 0;
+    rowOffsets[1] = 4;
+    viewport.pixels = pixels;
+    viewport.rowOffsets = rowOffsets;
+    viewport.left = 0;
+    viewport.top = 0;
+    viewport.right = 3;
+    viewport.bottom = 1;
+    viewport.allocation = pixels;
+
+    shape[20] = 2;
+    RestoreSpriteBackground(&viewport, background, 0, 0, shape, 0);
+    if (memcmp(pixels, expected, sizeof(pixels)) != 0)
+        return 0;
+
+    shape[20] = 0xff;
+    shape[21] = 0xff;
+    RestoreSpriteBackground(&viewport, background, 0, 0, shape, 0);
+    if (memcmp(pixels, expected, sizeof(pixels)) != 0)
+        return 0;
+
+    shape[18] = 0xff;
+    shape[19] = 0xff;
+    shape[20] = 0;
+    shape[21] = 0;
+    RestoreSpriteBackground(&viewport, background, 0, 0, shape, 0);
+    return pixels[0] == background[0];
+}
+
 int main(int argumentCount, char **arguments)
 {
     unsigned char tripletPalette[256 * 3];
@@ -66,6 +115,8 @@ int main(int argumentCount, char **arguments)
         GetFixedOneMillionThunk(4) != 0x3e8000)
         return 1;
     if (!CheckSpriteCaptureClipping())
+        return 1;
+    if (!CheckSpriteRestoreClipping())
         return 1;
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0)
         return 1;

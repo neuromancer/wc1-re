@@ -96,6 +96,8 @@ typedef struct Viewport {
 } Viewport;
 
 #ifdef WC1_SDL
+/* The original rasterisers form this pointer before applying their vertical
+ * clip. Avoid an otherwise unused out-of-range table read under sanitizers. */
 #define WC1_SPRITE_ROW_OFFSET(viewport, row) \
     ((row) < (viewport)->top || (row) > (viewport)->bottom \
          ? 0 \
