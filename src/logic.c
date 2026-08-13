@@ -130,30 +130,6 @@ void fire_afterburner(short obj, short time)
             SPECIAL_MANEUVER_AFTERBURNER)
             timer = time;
         g_asShipAfterburnerTimer_0059c810[obj] = timer;
-#ifdef WC1_SDL
-        if (g_nTrainSimActive_00469e2c != 0 && obj > 0 && obj < 10 &&
-            g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_SHIP &&
-            g_aeShipSide_0059d650[obj] == SIDE_KILRATHI) {
-            printf("[trainsim-wave] afterburner request: slot=%d mission=%d "
-                   "pilot=%d requested-time=%d timer=%d special=%d "
-                   "magnitude=%ld speed=%d maximum=%d "
-                   "afterburner-velocity=%d position=%d,%d,%d\n",
-                   (int)obj,
-                   (int)g_nShipMissionIndices_0059c830[obj],
-                   g_aiPilotLevel_0059cf30[obj],
-                   (int)time,
-                   (int)g_asShipAfterburnerTimer_0059c810[obj],
-                   (int)g_aeSpecialManeuver_0059c3c0[obj],
-                   velocity,
-                   g_anShipSpeed_0059b320[obj],
-                   (int)g_asShipMaximumSpeed_0059c440[obj],
-                   (int)g_asObjectAfterburnerVelocity_0059c9d0[obj],
-                   g_aShipPosition_0059c490[obj].x,
-                   g_aShipPosition_0059c490[obj].y,
-                   g_aShipPosition_0059c490[obj].z);
-            fflush(stdout);
-        }
-#endif
     }
 }
 
@@ -1031,22 +1007,6 @@ int try2rout(short obj)
 
     canContinue = 0;
     if (g_nTrainSimActive_00469e2c != 0) {
-#ifdef WC1_SDL
-        printf("[trainsim-wave] rout cancelled: slot=%d mission=%d "
-               "pilot=%d stress=%d maneuver=%d target=%d range=%d "
-               "speed=%d maximum=%d afterburner=%d\n",
-               (int)obj,
-               (int)g_nShipMissionIndices_0059c830[obj],
-               g_aiPilotLevel_0059cf30[obj],
-               (int)g_acShipStress_0059d620[obj],
-               (int)g_aeShipManeuver_0059dcb0[obj],
-               (int)g_acShipTarget_0059ce60[obj],
-               (int)g_asObjectDistance_0059b4a0[obj],
-               g_anShipSpeed_0059b320[obj],
-               (int)g_asShipMaximumSpeed_0059c440[obj],
-               (int)g_asShipAfterburnerTimer_0059c810[obj]);
-        fflush(stdout);
-#endif
         canContinue = 1;
     } else {
         other = 0;
@@ -1232,44 +1192,11 @@ unsigned int init_formation_burst(short obj)
 unsigned int reset_mission_type(short obj,
                                 enum ShipMissionType missionType)
 {
-#ifdef WC1_SDL
-    enum ShipMissionType previousMissionType;
-
-    previousMissionType = g_aeShipMissionType_0059c3f0[obj];
-#endif
     if (missionType == MISSION_TYPE_ROUT &&
         g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
         report_kilrathi_rout(1);
     reset_objective(obj, OBJECTIVE_NONE);
     g_aeShipMissionType_0059c3f0[obj] = missionType;
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0 && obj >= 0 && obj < 10 &&
-        g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_SHIP &&
-        g_aeShipSide_0059d650[obj] == SIDE_KILRATHI &&
-        previousMissionType != missionType) {
-        printf("[trainsim-wave] mission transition: slot=%d mission=%d "
-               "pilot=%d old=%d new=%d objective=%d target=%d "
-               "maneuver=%d special=%d counter=%d range=%d "
-               "speed=%d maximum=%d position=%d,%d,%d\n",
-               (int)obj,
-               (int)g_nShipMissionIndices_0059c830[obj],
-               g_aiPilotLevel_0059cf30[obj],
-               (int)previousMissionType,
-               (int)missionType,
-               (int)g_aeShipObjective_0059d200[obj],
-               (int)g_acShipTarget_0059ce60[obj],
-               (int)g_aeShipManeuver_0059dcb0[obj],
-               (int)g_aeSpecialManeuver_0059c3c0[obj],
-               (int)g_asObjectCounter_0059c330[obj],
-               (int)g_asObjectDistance_0059b4a0[obj],
-               g_anShipSpeed_0059b320[obj],
-               (int)g_asShipMaximumSpeed_0059c440[obj],
-               g_aShipPosition_0059c490[obj].x,
-               g_aShipPosition_0059c490[obj].y,
-               g_aShipPosition_0059c490[obj].z);
-        fflush(stdout);
-    }
-#endif
     return 0;
 }
 
@@ -1322,49 +1249,9 @@ unsigned int alter_tactic(short ship, enum ShipTactic tactic)
 /* Function start: 0x422D30 */
 void reset_maneuver(short ship, short maneuver)
 {
-#ifdef WC1_SDL
-    enum ShipManeuver previousManeuver;
-
-    previousManeuver = g_aeShipManeuver_0059dcb0[ship];
-#endif
     g_aeShipManeuver_0059dcb0[ship] = (enum ShipManeuver)maneuver;
     g_asShipCount_0059c420[ship] = 0;
     g_acShipSequence_0059d520[ship] = 0;
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0 && ship >= 0 && ship < 10 &&
-        g_aeObjectClass_0059d100[ship] == OBJECT_CLASS_SHIP &&
-        g_aeShipSide_0059d650[ship] == SIDE_KILRATHI &&
-        previousManeuver != maneuver) {
-        printf("[trainsim-wave] maneuver transition: slot=%d mission=%d "
-               "pilot=%d old=%d new=%d mission-type=%d objective=%d "
-               "target=%d tactic=%d stress=%d special=%d counter=%d "
-               "range=%d speed=%d maximum=%d afterburner=%d "
-               "position=%d,%d,%d velocity=%d,%d,%d\n",
-               (int)ship,
-               (int)g_nShipMissionIndices_0059c830[ship],
-               g_aiPilotLevel_0059cf30[ship],
-               (int)previousManeuver,
-               (int)maneuver,
-               (int)g_aeShipMissionType_0059c3f0[ship],
-               (int)g_aeShipObjective_0059d200[ship],
-               (int)g_acShipTarget_0059ce60[ship],
-               (int)g_aeShipTactic_0059d5e0[ship],
-               (int)g_acShipStress_0059d620[ship],
-               (int)g_aeSpecialManeuver_0059c3c0[ship],
-               (int)g_asObjectCounter_0059c330[ship],
-               (int)g_asObjectDistance_0059b4a0[ship],
-               g_anShipSpeed_0059b320[ship],
-               (int)g_asShipMaximumSpeed_0059c440[ship],
-               (int)g_asShipAfterburnerTimer_0059c810[ship],
-               g_aShipPosition_0059c490[ship].x,
-               g_aShipPosition_0059c490[ship].y,
-               g_aShipPosition_0059c490[ship].z,
-               g_aShipVelocity_0059c010[ship].x,
-               g_aShipVelocity_0059c010[ship].y,
-               g_aShipVelocity_0059c010[ship].z);
-        fflush(stdout);
-    }
-#endif
 }
 
 /* Function start: 0x422D60 */
@@ -1390,37 +1277,6 @@ unsigned int set_special(short ship, enum SpecialManeuver special)
     if (*currentState == SPECIAL_MANEUVER_BLOWING_UP &&
         (short)alert_flag(ship, 1))
         *currentState = SPECIAL_MANEUVER_NONE;
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0 && ship >= 0 && ship < 10 &&
-        g_aeObjectClass_0059d100[ship] == OBJECT_CLASS_SHIP &&
-        g_aeShipSide_0059d650[ship] == SIDE_KILRATHI &&
-        (current != *currentState || current != special)) {
-        printf("[trainsim-wave] special transition: slot=%d mission=%d "
-               "pilot=%d old=%d requested=%d final=%d counter=%d "
-               "maneuver=%d range=%d speed=%d maximum=%d "
-               "afterburner=%d position=%d,%d,%d "
-               "velocity=%d,%d,%d\n",
-               (int)ship,
-               (int)g_nShipMissionIndices_0059c830[ship],
-               g_aiPilotLevel_0059cf30[ship],
-               (int)current,
-               (int)special,
-               (int)*currentState,
-               (int)g_asObjectCounter_0059c330[ship],
-               (int)g_aeShipManeuver_0059dcb0[ship],
-               (int)g_asObjectDistance_0059b4a0[ship],
-               g_anShipSpeed_0059b320[ship],
-               (int)g_asShipMaximumSpeed_0059c440[ship],
-               (int)g_asShipAfterburnerTimer_0059c810[ship],
-               g_aShipPosition_0059c490[ship].x,
-               g_aShipPosition_0059c490[ship].y,
-               g_aShipPosition_0059c490[ship].z,
-               g_aShipVelocity_0059c010[ship].x,
-               g_aShipVelocity_0059c010[ship].y,
-               g_aShipVelocity_0059c010[ship].z);
-        fflush(stdout);
-    }
-#endif
     return 0;
 }
 

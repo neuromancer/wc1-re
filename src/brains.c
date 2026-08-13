@@ -3787,25 +3787,6 @@ int new_sphere_shapes(MissionNavPoint *navPoint)
     enum ObjectType type;
 
     GetScreenUpdateFlag();
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0) {
-        printf("[trainsim-wave] resources before: "
-               "slot1={type=%d shapes=%p anim=%p shape=%p} "
-               "slot2={type=%d shapes=%p anim=%p shape=%p}\n",
-               (int)g_aObjectResourceSlots_0059ddf0[1].type,
-               (void *)g_aObjectResourceSlots_0059ddf0[1].shapeSet,
-               (void *)g_aObjectResourceSlots_0059ddf0[1].animation,
-               (void *)g_aObjectResourceSlots_0059ddf0[1].shape,
-               (int)g_aObjectResourceSlots_0059ddf0[2].type,
-               (void *)g_aObjectResourceSlots_0059ddf0[2].shapeSet,
-               (void *)g_aObjectResourceSlots_0059ddf0[2].animation,
-               (void *)g_aObjectResourceSlots_0059ddf0[2].shape);
-        printf("[trainsim-wave] requested preloads: %d, %d\n",
-               (int)navPoint->preloadObjectTypes[0],
-               (int)navPoint->preloadObjectTypes[1]);
-        fflush(stdout);
-    }
-#endif
     slot = 1;
     release_all_capital_ship_shapes();
     do {
@@ -3826,15 +3807,6 @@ int new_sphere_shapes(MissionNavPoint *navPoint)
                 slot = get_shape_slot();
                 if (slot != -1)
                     load_ship(type, slot);
-#ifdef WC1_SDL
-                if (g_nTrainSimActive_00469e2c != 0) {
-                    printf("[trainsim-wave] resource load: "
-                           "type=%d slot=%d type-shapes=%p\n",
-                           (int)type, (int)slot,
-                           (void *)g_aObjectTypeData_00466458[type].shapeSet);
-                    fflush(stdout);
-                }
-#endif
             }
         }
         preload++;
@@ -3858,22 +3830,6 @@ int set_up_action_sphere(short navPoint)
     g_nCurrentWave_0046c01c =
         (short)((((g_aMissionNavPoints_0046c2f0[navPoint + 1].type == 2) ?
                   -1 : 0) & 3) - 1);
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0) {
-        printf("[trainsim-wave] action sphere: nav=%d type=%d "
-               "next-type=%d current-wave=%d ships="
-               "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-               (int)navPoint, (int)nav->type,
-               (int)g_aMissionNavPoints_0046c2f0[navPoint + 1].type,
-               (int)g_nCurrentWave_0046c01c,
-               (int)nav->missionShips[0], (int)nav->missionShips[1],
-               (int)nav->missionShips[2], (int)nav->missionShips[3],
-               (int)nav->missionShips[4], (int)nav->missionShips[5],
-               (int)nav->missionShips[6], (int)nav->missionShips[7],
-               (int)nav->missionShips[8], (int)nav->missionShips[9]);
-        fflush(stdout);
-    }
-#endif
     g_nEnemySighting_00465c7c = 0x7fff;
 
     obj = 1;
@@ -4034,17 +3990,6 @@ void set_up_next_wave(void)
     short previousWave;
     short entry;
 
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0) {
-        printf("[trainsim-wave] advance requested: current-wave=%d "
-               "current-nav=%d canned=%d arcade-wave=%d\n",
-               (int)g_nCurrentWave_0046c01c,
-               (int)g_nCurrentNavPoint_0059df60,
-               g_nCannedSceneMode_00469fac,
-               (int)g_nArcadeWave_00469e34);
-        fflush(stdout);
-    }
-#endif
     if (g_nTrainSimActive_00469e2c != 0) {
         spacetrack(21, 2, 0);
         g_nArcadeBonusCountdown_0046a014 = 60;
@@ -4055,18 +4000,8 @@ void set_up_next_wave(void)
     }
 
     if (g_nCurrentWave_0046c01c == -1 ||
-        g_nCannedSceneMode_00469fac != 0) {
-#ifdef WC1_SDL
-        if (g_nTrainSimActive_00469e2c != 0) {
-            printf("[trainsim-wave] advance stopped: current-wave=%d "
-                   "canned=%d\n",
-                   (int)g_nCurrentWave_0046c01c,
-                   g_nCannedSceneMode_00469fac);
-            fflush(stdout);
-        }
-#endif
+        g_nCannedSceneMode_00469fac != 0)
         return;
-    }
 
     /* The original indexes through a base biased one MissionNavPoint before
      * g_aMissionNavPoints.  Preserve that -1 when expressing it as a typed
@@ -4074,25 +4009,6 @@ void set_up_next_wave(void)
     waveNav = &g_aMissionNavPoints_0046c2f0[
         g_nCurrentNavPoint_0059df60 + g_nCurrentWave_0046c01c - 1];
     previousWave = g_nCurrentWave_0046c01c;
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0) {
-        printf("[trainsim-wave] selected record: index=%d type=%d "
-               "expected=%d ships=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-               (int)(g_nCurrentNavPoint_0059df60 + previousWave - 1),
-               (int)waveNav->type, (int)previousWave,
-               (int)waveNav->missionShips[0],
-               (int)waveNav->missionShips[1],
-               (int)waveNav->missionShips[2],
-               (int)waveNav->missionShips[3],
-               (int)waveNav->missionShips[4],
-               (int)waveNav->missionShips[5],
-               (int)waveNav->missionShips[6],
-               (int)waveNav->missionShips[7],
-               (int)waveNav->missionShips[8],
-               (int)waveNav->missionShips[9]);
-        fflush(stdout);
-    }
-#endif
     g_nCurrentWave_0046c01c++;
     if (waveNav->type == (signed char)previousWave) {
         new_sphere_shapes(waveNav);
@@ -4105,25 +4021,8 @@ void set_up_next_wave(void)
                 5000, 10000);
             entry++;
         } while (entry < 10);
-#ifdef WC1_SDL
-        if (g_nTrainSimActive_00469e2c != 0) {
-            printf("[trainsim-wave] spawn pass complete: "
-                   "current-wave=%d bonus-countdown=%d\n",
-                   (int)g_nCurrentWave_0046c01c,
-                   (int)g_nArcadeBonusCountdown_0046a014);
-            fflush(stdout);
-        }
-#endif
         return;
     }
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0) {
-        printf("[trainsim-wave] record mismatch: type=%d expected=%d; "
-               "mission complete\n",
-               (int)waveNav->type, (int)previousWave);
-        fflush(stdout);
-    }
-#endif
     g_nCurrentWave_0046c01c = -1;
 }
 
@@ -4265,21 +4164,6 @@ short init_ship(short missionShip, short navPoint)
     if (missionShip == -1)
         return -1;
     record = &g_aMissionShips_0046c948[missionShip];
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0) {
-        printf("[trainsim-wave] init ship: mission=%d type=%d side=%d "
-               "state=%d pilot=%d mission-type=%d leader=%d "
-               "formation=%d/%d target=%d\n",
-               (int)missionShip, (int)record->type, (int)record->side,
-               (int)record->state, record->behaviour.pilot,
-               (int)record->missionType,
-               (int)record->leaderMissionIndex,
-               (int)record->formationIndex,
-               (int)record->formationSpot,
-               (int)record->targetMissionIndex);
-        fflush(stdout);
-    }
-#endif
     if (record->type == OBJECT_TYPE_ASTEROID_FIELD ||
         record->type == OBJECT_TYPE_MINE_FIELD) {
         AddFixedVectors(&g_aMissionNavPoints_0046c2f0[navPoint].position,
@@ -4290,30 +4174,12 @@ short init_ship(short missionShip, short navPoint)
         return -1;
     }
     obj = find_ship_index(missionShip);
-    if (obj != -1 || record->state != 0) {
-#ifdef WC1_SDL
-        if (g_nTrainSimActive_00469e2c != 0) {
-            printf("[trainsim-wave] init skipped: mission=%d "
-                   "existing-slot=%d state=%d\n",
-                   (int)missionShip, (int)obj, (int)record->state);
-            fflush(stdout);
-        }
-#endif
+    if (obj != -1 || record->state != 0)
         return -1;
-    }
     if (record->missionType != MISSION_TYPE_CANNED_SEQUENCE &&
         is_alive(record->behaviour.pilot) == 0) {
-        if (record->behaviour.pilot < 9) {
-#ifdef WC1_SDL
-            if (g_nTrainSimActive_00469e2c != 0) {
-                printf("[trainsim-wave] init skipped: mission=%d "
-                       "pilot=%d is not alive\n",
-                       (int)missionShip, record->behaviour.pilot);
-                fflush(stdout);
-            }
-#endif
+        if (record->behaviour.pilot < 9)
             return -1;
-        }
         record->behaviour.pilot = 3;
     }
     record->navPoint = navPoint;
@@ -4325,32 +4191,6 @@ short init_ship(short missionShip, short navPoint)
         find_next_ship_turn_slot(obj);
         check_futurion(obj);
     }
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0) {
-        printf("[trainsim-wave] init result: mission=%d slot=%d "
-               "class=%d side=%d object-shapes=%p type-shapes=%p\n",
-               (int)missionShip, (int)obj,
-               obj == -1 ? -1 : (int)g_aeObjectClass_0059d100[obj],
-               obj == -1 ? -1 : (int)g_aeShipSide_0059d650[obj],
-               obj == -1 ? 0 : (void *)g_apObjectShape_0059d2f0[obj],
-               (void *)g_aObjectTypeData_00466458[record->type].shapeSet);
-        if (obj == -1) {
-            printf("[trainsim-wave] ship slots: "
-                   "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-                   (int)g_aeObjectClass_0059d100[0],
-                   (int)g_aeObjectClass_0059d100[1],
-                   (int)g_aeObjectClass_0059d100[2],
-                   (int)g_aeObjectClass_0059d100[3],
-                   (int)g_aeObjectClass_0059d100[4],
-                   (int)g_aeObjectClass_0059d100[5],
-                   (int)g_aeObjectClass_0059d100[6],
-                   (int)g_aeObjectClass_0059d100[7],
-                   (int)g_aeObjectClass_0059d100[8],
-                   (int)g_aeObjectClass_0059d100[9]);
-        }
-        fflush(stdout);
-    }
-#endif
     return obj;
 }
 

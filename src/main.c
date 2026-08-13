@@ -311,73 +311,9 @@ unsigned int RefreshMemoryStatusOverlay(void)
 /* Function start: 0x427C50 */
 unsigned int Update_3Space(void)
 {
-#ifdef WC1_SDL
-    short obj;
-    short enemyCount;
-#endif
-
     house_keep();
     house_keep_objects();
     update_objects_in_space();
-#ifdef WC1_SDL
-    if (g_nTrainSimActive_00469e2c != 0 &&
-        (unsigned short)g_nSpaceFrame_0059b420 % 60 == 0) {
-        enemyCount = 0;
-        printf("[trainsim-wave] live state: frame=%u wave=%d nav=%d\n",
-               (unsigned int)(unsigned short)g_nSpaceFrame_0059b420,
-               (int)g_nCurrentWave_0046c01c,
-               (int)g_nCurrentNavPoint_0059df60);
-        for (obj = 0; obj < 10; obj++) {
-            if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_SHIP &&
-                g_aeShipSide_0059d650[obj] == SIDE_KILRATHI) {
-                enemyCount++;
-                printf("[trainsim-wave] live enemy: slot=%d mission=%d "
-                       "type=%d pilot=%d mission-type=%d objective=%d "
-                       "target=%d tactic=%d maneuver=%d stress=%d "
-                       "special=%d counter=%d screen-x=%d range=%d "
-                       "speed=%d maximum=%d afterburner=%d fuel=%d "
-                       "damage=%d accumulated=%d "
-                       "shield=%d,%d armor=%d,%d,%d,%d "
-                       "position=%d,%d,%d velocity=%d,%d,%d\n",
-                       (int)obj,
-                       (int)g_nShipMissionIndices_0059c830[obj],
-                       (int)g_aeObjectType_0059b560[obj],
-                       g_aiPilotLevel_0059cf30[obj],
-                       (int)g_aeShipMissionType_0059c3f0[obj],
-                       (int)g_aeShipObjective_0059d200[obj],
-                       (int)g_acShipTarget_0059ce60[obj],
-                       (int)g_aeShipTactic_0059d5e0[obj],
-                       (int)g_aeShipManeuver_0059dcb0[obj],
-                       (int)g_acShipStress_0059d620[obj],
-                       (int)g_aeSpecialManeuver_0059c3c0[obj],
-                       (int)g_asObjectCounter_0059c330[obj],
-                       (int)g_asObjectScreenX_0059d9b0[obj],
-                       (int)g_asObjectDistance_0059b4a0[obj],
-                       g_anShipSpeed_0059b320[obj],
-                       (int)g_asShipMaximumSpeed_0059c440[obj],
-                       (int)g_asShipAfterburnerTimer_0059c810[obj],
-                       g_anShipFuel_0059b470[obj],
-                       (int)g_acShipDamage_0059c460[obj],
-                       (int)g_asShipAccumulatedDamage_0059dee0[obj],
-                       (int)g_aasShipShield_0059d5b0[obj][0],
-                       (int)g_aasShipShield_0059d5b0[obj][1],
-                       (int)g_aasShipArmor_0059d420[obj][0],
-                       (int)g_aasShipArmor_0059d420[obj][1],
-                       (int)g_aasShipArmor_0059d420[obj][2],
-                       (int)g_aasShipArmor_0059d420[obj][3],
-                       g_aShipPosition_0059c490[obj].x,
-                       g_aShipPosition_0059c490[obj].y,
-                       g_aShipPosition_0059c490[obj].z,
-                       g_aShipVelocity_0059c010[obj].x,
-                       g_aShipVelocity_0059c010[obj].y,
-                       g_aShipVelocity_0059c010[obj].z);
-            }
-        }
-        printf("[trainsim-wave] live enemy count: %d\n",
-               (int)enemyCount);
-        fflush(stdout);
-    }
-#endif
     set_eye_direction_and_position();
     servicetrack();
     g_nSpaceFrame_0059b420++;
