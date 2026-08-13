@@ -11,9 +11,38 @@
 
 #define WC1_ORIGINFX_OUTPUT_RATE 22050U
 #define WC1_ORIGINFX_OPL_CLOCK 3579545U
+#define WC1_ORIGINFX_SERVICE_RATE 60U
 #define WC1_ORIGINFX_VOICE_COUNT 9
-#define WC1_ORIGINFX_MIDI_CHANNEL_COUNT 16
+#define WC1_ORIGINFX_CHANNEL_COUNT 26
+#define WC1_ORIGINFX_PERCUSSION_NOTE_COUNT 77
 #define WC1_ORIGINFX_TIMBRE_SIZE 48U
+
+/* WC.EXE 2231:7967 and 2231:79b4 translate MIDI channel 10 into
+ * OriginFX's percussion pseudo-channels and their fixed pitches. */
+static const unsigned char g_abWc1OriginFxPercussionChannels[
+    WC1_ORIGINFX_PERCUSSION_NOTE_COUNT] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 10, 10, 18, 11, 0, 12, 13, 17, 13, 16, 13, 14, 13,
+    13, 15, 13, 19, 0, 0, 0, 0, 21, 0, 0, 0, 26, 26, 25, 20,
+    20, 0, 0, 21, 21, 22, 23, 0, 0, 24, 0, 20, 0
+};
+
+static const unsigned char g_abWc1OriginFxPercussionPitches[
+    WC1_ORIGINFX_PERCUSSION_NOTE_COUNT] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 48, 48, 48, 48, 0, 48, 42, 71, 42, 71, 47, 71, 47,
+    52, 79, 52, 77, 0, 0, 0, 0, 71, 0, 0, 0, 72, 79, 79, 64,
+    58, 0, 0, 89, 84, 48, 72, 0, 0, 36, 0, 96, 0
+};
+
+/* WC.EXE 19c5:1682-174a selects these timbres for channels 10-26 when
+ * STRAX.DRV's AdLib output is initialized. */
+static const unsigned char g_abWc1OriginFxPercussionPrograms[17] = {
+    0x80, 0x72, 0x83, 0x71, 0x86, 0x87, 0x85, 0x84, 0x81,
+    0x88, 0x8d, 0x8f, 0x90, 0x91, 0x93, 0x8c, 0x8b
+};
 
 enum Wc1OriginFxEventType {
     WC1_ORIGINFX_CHANNEL_EVENT,
@@ -33,8 +62,10 @@ typedef struct Wc1OriginFxEvent {
 
 typedef struct Wc1OriginFxChannel {
     unsigned short pitchBend;
+    unsigned short volume;
+    unsigned short modulationDepth;
     unsigned char program;
-    unsigned char volume;
+    unsigned char modulationRate;
 } Wc1OriginFxChannel;
 
 typedef struct Wc1OriginFxVoice {
@@ -44,6 +75,10 @@ typedef struct Wc1OriginFxVoice {
     unsigned char note;
     unsigned char velocity;
     unsigned char frequencyHigh;
+    unsigned char envelopeState;
+    unsigned char modulationPhase;
+    int envelopePitch;
+    int modulationPitch;
     int active;
 } Wc1OriginFxVoice;
 
@@ -63,10 +98,11 @@ struct Wc1SdlOriginFxPlayer {
     uint64_t currentFrame;
     uint64_t nextVoiceAge;
     uint64_t nativeSampleAccumulator;
+    uint64_t serviceAccumulator;
     uint32_t nativeSampleRate;
     int32_t lastNativeSample;
     int finished;
-    Wc1OriginFxChannel channels[WC1_ORIGINFX_MIDI_CHANNEL_COUNT];
+    Wc1OriginFxChannel channels[WC1_ORIGINFX_CHANNEL_COUNT];
     Wc1OriginFxVoice voices[WC1_ORIGINFX_VOICE_COUNT];
 
     Wc1SdlOriginFxPlayer() :
@@ -81,6 +117,7 @@ struct Wc1SdlOriginFxPlayer {
         currentFrame(0),
         nextVoiceAge(1),
         nativeSampleAccumulator(0),
+        serviceAccumulator(0),
         nativeSampleRate(oplChip.sample_rate(WC1_ORIGINFX_OPL_CLOCK)),
         lastNativeSample(0),
         finished(0)
@@ -443,23 +480,82 @@ static const unsigned char *Wc1OriginFxFindTimbre(
     return player->timbres + 1;
 }
 
-static unsigned int Wc1OriginFxCalculateTotalLevel(
+static const unsigned char *Wc1OriginFxNextTimbre(
+    const Wc1SdlOriginFxPlayer *player, const unsigned char *timbre)
+{
+    size_t offset;
+
+    if (timbre[38] == 0)
+        return 0;
+    offset = (size_t)(timbre - player->timbres);
+    if (offset > player->timbreSize ||
+        player->timbreSize - offset < WC1_ORIGINFX_TIMBRE_SIZE * 2U)
+        return 0;
+    return timbre + WC1_ORIGINFX_TIMBRE_SIZE;
+}
+
+static int Wc1OriginFxArithmeticShiftRight(int value,
+                                           unsigned int count)
+{
+    uint64_t roundedMagnitude;
+    unsigned int magnitude;
+
+    if (count == 0)
+        return value;
+    if (count >= sizeof(value) * 8U)
+        return value < 0 ? -1 : 0;
+    if (value >= 0)
+        return value >> count;
+    magnitude = (unsigned int)(-(value + 1)) + 1U;
+    roundedMagnitude = (uint64_t)magnitude +
+        ((UINT64_C(1) << count) - 1U);
+    return -(int)(roundedMagnitude >> count);
+}
+
+static unsigned int Wc1OriginFxClampTotalLevel(
+    unsigned int registerValue, int totalLevel)
+{
+    if (totalLevel < 0)
+        totalLevel = 0;
+    else if (totalLevel > 0x3f)
+        totalLevel = 0x3f;
+    return (registerValue & 0xc0U) | (unsigned int)totalLevel;
+}
+
+static unsigned int Wc1OriginFxCalculateVelocityLevel(
+    unsigned int registerValue, unsigned int sensitivity,
+    unsigned int velocity)
+{
+    int attenuation;
+    int totalLevel;
+
+    if (sensitivity == 0)
+        return registerValue;
+    if (sensitivity > 7)
+        sensitivity = 7;
+    attenuation = Wc1OriginFxArithmeticShiftRight(
+        63 - (int)velocity, 7 - sensitivity);
+    totalLevel = (int)(registerValue & 0x3fU) + attenuation;
+    return Wc1OriginFxClampTotalLevel(registerValue, totalLevel);
+}
+
+static unsigned int Wc1OriginFxCalculateCarrierLevel(
     unsigned int registerValue, unsigned int sensitivity,
     unsigned int velocity, unsigned int volume)
 {
-    unsigned int attenuation;
-    unsigned int totalLevel;
-    unsigned int velocity63;
+    int attenuation;
+    int totalLevel;
 
+    if (sensitivity == 0 && volume >= 0x100U)
+        return registerValue;
     if (sensitivity > 7)
         sensitivity = 7;
-    velocity63 = velocity >> 1;
-    attenuation = (63 - velocity63) >> (7 - sensitivity);
-    attenuation += (127 - volume + 1) >> 1;
-    totalLevel = (registerValue & 0x3fU) + attenuation;
-    if (totalLevel > 0x3fU)
-        totalLevel = 0x3fU;
-    return (registerValue & 0xc0U) | totalLevel;
+    attenuation = Wc1OriginFxArithmeticShiftRight(
+        63 - (int)velocity, 7 - sensitivity);
+    totalLevel = (int)(registerValue & 0x3fU) + attenuation;
+    totalLevel = 63 - Wc1OriginFxArithmeticShiftRight(
+        (int)volume * (63 - totalLevel), 8);
+    return Wc1OriginFxClampTotalLevel(registerValue, totalLevel);
 }
 
 static void Wc1OriginFxWriteVoiceLevels(Wc1SdlOriginFxPlayer *player,
@@ -479,13 +575,13 @@ static void Wc1OriginFxWriteVoiceLevels(Wc1SdlOriginFxPlayer *player,
     channel = &player->channels[voice->channel];
     timbre = voice->timbre;
     Wc1OriginFxWriteRegister(
-        player, 0x40 + modulatorOffsets[voiceIndex],
-        Wc1OriginFxCalculateTotalLevel(
-            timbre[1], timbre[12], voice->velocity, channel->volume));
-    Wc1OriginFxWriteRegister(
         player, 0x40 + carrierOffsets[voiceIndex],
-        Wc1OriginFxCalculateTotalLevel(
-            timbre[6], timbre[13], voice->velocity, channel->volume));
+        Wc1OriginFxCalculateCarrierLevel(
+            timbre[6], timbre[12], voice->velocity, channel->volume));
+    Wc1OriginFxWriteRegister(
+        player, 0x40 + modulatorOffsets[voiceIndex],
+        Wc1OriginFxCalculateVelocityLevel(
+            timbre[1], timbre[13], voice->velocity));
 }
 
 static void Wc1OriginFxWriteVoiceFrequency(Wc1SdlOriginFxPlayer *player,
@@ -505,14 +601,32 @@ static void Wc1OriginFxWriteVoiceFrequency(Wc1SdlOriginFxPlayer *player,
     int block;
     int frequency;
     int bend;
+    int keyPitch;
+    int keyTracking;
+    unsigned int trackingShift;
+    const unsigned char *channelTimbre;
 
     voice = &player->voices[voiceIndex];
     channel = &player->channels[voice->channel];
     bend = (int)channel->pitchBend - 0x2000;
-    pitch = (int)voice->note * 256 +
-        Wc1OriginFxReadLittleEndian16(voice->timbre + 18) +
+    keyPitch = ((int)voice->note - 60) * 256;
+    keyTracking = (signed char)voice->timbre[39];
+    if (keyTracking < 0) {
+        keyPitch = -keyPitch;
+        trackingShift = (unsigned int)(unsigned char)~keyTracking;
+    } else {
+        trackingShift = (unsigned int)keyTracking;
+    }
+    keyPitch = Wc1OriginFxArithmeticShiftRight(
+        keyPitch, trackingShift) + 60 * 256;
+    channelTimbre = Wc1OriginFxFindTimbre(
+        player, channel->program);
+    pitch = keyPitch +
+        voice->envelopePitch +
         Wc1OriginFxReadLittleEndian16(voice->timbre + 36) +
-        bend * voice->timbre[14] / 256;
+        voice->modulationPitch +
+        Wc1OriginFxArithmeticShiftRight(
+            bend * channelTimbre[14], 8);
     note = pitch / 256;
     fraction = pitch % 256;
     if (fraction < 0) {
@@ -559,6 +673,8 @@ static void Wc1OriginFxProgramVoice(Wc1SdlOriginFxPlayer *player,
     Wc1OriginFxWriteRegister(
         player, 0x20 + modulatorOffsets[voiceIndex], timbre[0]);
     Wc1OriginFxWriteRegister(
+        player, 0x40 + modulatorOffsets[voiceIndex], timbre[1]);
+    Wc1OriginFxWriteRegister(
         player, 0x60 + modulatorOffsets[voiceIndex], timbre[2]);
     Wc1OriginFxWriteRegister(
         player, 0x80 + modulatorOffsets[voiceIndex], timbre[3]);
@@ -566,6 +682,8 @@ static void Wc1OriginFxProgramVoice(Wc1SdlOriginFxPlayer *player,
         player, 0xe0 + modulatorOffsets[voiceIndex], timbre[4]);
     Wc1OriginFxWriteRegister(
         player, 0x20 + carrierOffsets[voiceIndex], timbre[5]);
+    Wc1OriginFxWriteRegister(
+        player, 0x40 + carrierOffsets[voiceIndex], timbre[6]);
     Wc1OriginFxWriteRegister(
         player, 0x60 + carrierOffsets[voiceIndex], timbre[7]);
     Wc1OriginFxWriteRegister(
@@ -578,20 +696,59 @@ static void Wc1OriginFxProgramVoice(Wc1SdlOriginFxPlayer *player,
 
 static unsigned int Wc1OriginFxChooseVoice(Wc1SdlOriginFxPlayer *player)
 {
+    unsigned int oldestFreeVoice;
     unsigned int oldestVoice;
     unsigned int voiceIndex;
 
+    oldestFreeVoice = WC1_ORIGINFX_VOICE_COUNT;
     oldestVoice = 0;
     voiceIndex = 0;
     while (voiceIndex < WC1_ORIGINFX_VOICE_COUNT) {
-        if (player->voices[voiceIndex].active == 0)
-            return voiceIndex;
-        if (player->voices[voiceIndex].age <
-            player->voices[oldestVoice].age)
+        if (player->voices[voiceIndex].active == 0) {
+            if (oldestFreeVoice == WC1_ORIGINFX_VOICE_COUNT ||
+                player->voices[voiceIndex].age <
+                    player->voices[oldestFreeVoice].age)
+                oldestFreeVoice = voiceIndex;
+        } else if (player->voices[voiceIndex].age <
+                   player->voices[oldestVoice].age ||
+                   player->voices[oldestVoice].active == 0) {
             oldestVoice = voiceIndex;
+        }
         voiceIndex++;
     }
+    if (oldestFreeVoice != WC1_ORIGINFX_VOICE_COUNT)
+        return oldestFreeVoice;
     return oldestVoice;
+}
+
+static void Wc1OriginFxStartTimbre(Wc1SdlOriginFxPlayer *player,
+                                   unsigned int channelIndex,
+                                   unsigned int note,
+                                   unsigned int velocity,
+                                   const unsigned char *timbre)
+{
+    Wc1OriginFxVoice *voice;
+    unsigned int voiceIndex;
+
+    voiceIndex = Wc1OriginFxChooseVoice(player);
+    voice = &player->voices[voiceIndex];
+    if (voice->active != 0) {
+        Wc1OriginFxWriteRegister(player, 0xa0 + voiceIndex, 0);
+        Wc1OriginFxWriteRegister(player, 0xb0 + voiceIndex, 0);
+    }
+    voice->timbre = timbre;
+    voice->age = player->nextVoiceAge++;
+    voice->channel = (unsigned char)channelIndex;
+    voice->note = (unsigned char)note;
+    voice->velocity = (unsigned char)velocity;
+    voice->envelopeState = 2;
+    voice->modulationPhase = 0;
+    voice->envelopePitch =
+        Wc1OriginFxReadLittleEndian16(timbre + 18);
+    voice->modulationPitch = 0;
+    voice->active = 1;
+    Wc1OriginFxProgramVoice(player, voiceIndex);
+    Wc1OriginFxWriteVoiceFrequency(player, voiceIndex, 1);
 }
 
 static void Wc1OriginFxNoteOn(Wc1SdlOriginFxPlayer *player,
@@ -599,28 +756,21 @@ static void Wc1OriginFxNoteOn(Wc1SdlOriginFxPlayer *player,
                               unsigned int note,
                               unsigned int velocity)
 {
-    Wc1OriginFxVoice *voice;
-    unsigned int voiceIndex;
+    const unsigned char *timbre;
 
-    voiceIndex = Wc1OriginFxChooseVoice(player);
-    voice = &player->voices[voiceIndex];
-    if (voice->active != 0)
-        Wc1OriginFxWriteRegister(
-            player, 0xb0 + voiceIndex, voice->frequencyHigh);
-    voice->timbre = Wc1OriginFxFindTimbre(
+    timbre = Wc1OriginFxFindTimbre(
         player, player->channels[channelIndex].program);
-    voice->age = player->nextVoiceAge++;
-    voice->channel = (unsigned char)channelIndex;
-    voice->note = (unsigned char)note;
-    voice->velocity = (unsigned char)velocity;
-    voice->active = 1;
-    Wc1OriginFxProgramVoice(player, voiceIndex);
-    Wc1OriginFxWriteVoiceFrequency(player, voiceIndex, 1);
+    while (timbre != 0) {
+        Wc1OriginFxStartTimbre(
+            player, channelIndex, note, velocity, timbre);
+        timbre = Wc1OriginFxNextTimbre(player, timbre);
+    }
 }
 
-static void Wc1OriginFxNoteOff(Wc1SdlOriginFxPlayer *player,
-                               unsigned int channelIndex,
-                               unsigned int note)
+static void Wc1OriginFxStopTimbre(Wc1SdlOriginFxPlayer *player,
+                                  unsigned int channelIndex,
+                                  unsigned int note,
+                                  const unsigned char *timbre)
 {
     unsigned int voiceIndex;
 
@@ -628,13 +778,32 @@ static void Wc1OriginFxNoteOff(Wc1SdlOriginFxPlayer *player,
     while (voiceIndex < WC1_ORIGINFX_VOICE_COUNT) {
         if (player->voices[voiceIndex].active != 0 &&
             player->voices[voiceIndex].channel == channelIndex &&
-            player->voices[voiceIndex].note == note) {
+            player->voices[voiceIndex].note == note &&
+            player->voices[voiceIndex].timbre == timbre) {
             Wc1OriginFxWriteRegister(
                 player, 0xb0 + voiceIndex,
                 player->voices[voiceIndex].frequencyHigh);
             player->voices[voiceIndex].active = 0;
+            player->voices[voiceIndex].envelopeState = 0;
+            player->voices[voiceIndex].age = player->nextVoiceAge++;
+            return;
         }
         voiceIndex++;
+    }
+}
+
+static void Wc1OriginFxNoteOff(Wc1SdlOriginFxPlayer *player,
+                               unsigned int channelIndex,
+                               unsigned int note)
+{
+    const unsigned char *timbre;
+
+    timbre = Wc1OriginFxFindTimbre(
+        player, player->channels[channelIndex].program);
+    while (timbre != 0) {
+        Wc1OriginFxStopTimbre(
+            player, channelIndex, note, timbre);
+        timbre = Wc1OriginFxNextTimbre(player, timbre);
     }
 }
 
@@ -652,6 +821,8 @@ static void Wc1OriginFxAllNotesOff(Wc1SdlOriginFxPlayer *player,
                 player, 0xb0 + voiceIndex,
                 player->voices[voiceIndex].frequencyHigh);
             player->voices[voiceIndex].active = 0;
+            player->voices[voiceIndex].envelopeState = 0;
+            player->voices[voiceIndex].age = player->nextVoiceAge++;
         }
         voiceIndex++;
     }
@@ -676,43 +847,209 @@ static void Wc1OriginFxUpdateChannelVoices(
     }
 }
 
+static void Wc1OriginFxSetProgram(Wc1SdlOriginFxPlayer *player,
+                                  unsigned int channelIndex,
+                                  unsigned int program)
+{
+    Wc1OriginFxChannel *channel;
+    const unsigned char *timbre;
+    unsigned int voiceIndex;
+
+    Wc1OriginFxAllNotesOff(player, (int)channelIndex);
+    voiceIndex = 0;
+    while (voiceIndex < WC1_ORIGINFX_VOICE_COUNT) {
+        if (player->voices[voiceIndex].timbre != 0 &&
+            player->voices[voiceIndex].channel == channelIndex) {
+            player->voices[voiceIndex].timbre = 0;
+            player->voices[voiceIndex].channel = 0xff;
+        }
+        voiceIndex++;
+    }
+    channel = &player->channels[channelIndex];
+    channel->program = (unsigned char)program;
+    timbre = Wc1OriginFxFindTimbre(player, program);
+    channel->modulationRate = timbre[16];
+    channel->modulationDepth = timbre[17];
+}
+
+static void Wc1OriginFxService(Wc1SdlOriginFxPlayer *player)
+{
+    static const unsigned char envelopeTargetOffsets[5] = {
+        32, 0, 20, 24, 28
+    };
+    static const unsigned char envelopeRateOffsets[5] = {
+        34, 0, 22, 26, 30
+    };
+    Wc1OriginFxVoice *voice;
+    Wc1OriginFxChannel *channel;
+    const unsigned char *timbre;
+    unsigned int voiceIndex;
+    unsigned int state;
+    unsigned int rate;
+    unsigned int phase;
+    int target;
+    int distance;
+    int triangle;
+    int changed;
+
+    voiceIndex = 0;
+    while (voiceIndex < WC1_ORIGINFX_VOICE_COUNT) {
+        voice = &player->voices[voiceIndex];
+        timbre = voice->timbre;
+        if (timbre == 0 || voice->channel >= WC1_ORIGINFX_CHANNEL_COUNT) {
+            voiceIndex++;
+            continue;
+        }
+        changed = 0;
+        state = voice->envelopeState;
+        if (state < sizeof(envelopeTargetOffsets) &&
+            envelopeTargetOffsets[state] != 0) {
+            target = Wc1OriginFxReadLittleEndian16(
+                timbre + envelopeTargetOffsets[state]);
+            rate = (unsigned int)(uint16_t)
+                Wc1OriginFxReadLittleEndian16(
+                    timbre + envelopeRateOffsets[state]);
+            distance = target - voice->envelopePitch;
+            if (distance < 0)
+                distance = -distance;
+            if ((unsigned int)distance < rate) {
+                voice->envelopePitch = target;
+                voice->envelopeState++;
+            } else if (voice->envelopePitch < target) {
+                voice->envelopePitch += (int)rate;
+            } else {
+                voice->envelopePitch -= (int)rate;
+            }
+            changed = 1;
+        }
+
+        channel = &player->channels[voice->channel];
+        if (channel->modulationRate != 0) {
+            phase = (voice->modulationPhase +
+                     channel->modulationRate) & 0xffU;
+            voice->modulationPhase = (unsigned char)phase;
+            triangle = phase < 0x80U ? (int)phase : (int)phase - 0x100;
+            if (triangle > 63 || triangle < -64) {
+                phase = (0x80U - phase) & 0xffU;
+                triangle = phase < 0x80U
+                    ? (int)phase : (int)phase - 0x100;
+            }
+            voice->modulationPitch = Wc1OriginFxArithmeticShiftRight(
+                (int)channel->modulationDepth * triangle, 4);
+            changed = 1;
+        }
+        if (changed != 0)
+            Wc1OriginFxWriteVoiceFrequency(
+                player, voiceIndex, voice->envelopeState > 1);
+        voiceIndex++;
+    }
+}
+
+static void Wc1OriginFxAdvanceService(Wc1SdlOriginFxPlayer *player)
+{
+    player->serviceAccumulator += WC1_ORIGINFX_SERVICE_RATE;
+    while (player->serviceAccumulator >= WC1_ORIGINFX_OUTPUT_RATE) {
+        player->serviceAccumulator -= WC1_ORIGINFX_OUTPUT_RATE;
+        Wc1OriginFxService(player);
+    }
+}
+
+static int Wc1OriginFxMapPercussionNote(unsigned int note,
+                                        unsigned int *channelIndex,
+                                        unsigned int *mappedNote)
+{
+    unsigned int channel;
+
+    if (note >= WC1_ORIGINFX_PERCUSSION_NOTE_COUNT)
+        return 0;
+    channel = g_abWc1OriginFxPercussionChannels[note];
+    if (channel == 0)
+        return 0;
+    *channelIndex = channel - 1;
+    *mappedNote = g_abWc1OriginFxPercussionPitches[note];
+    return 1;
+}
+
+static void Wc1OriginFxApplyControlChange(
+    Wc1SdlOriginFxPlayer *player, unsigned int channelIndex,
+    unsigned int controller, unsigned int value)
+{
+    Wc1OriginFxChannel *channel;
+    const unsigned char *timbre;
+
+    channel = &player->channels[channelIndex];
+    if (controller == 1) {
+        timbre = Wc1OriginFxFindTimbre(player, channel->program);
+        channel->modulationDepth = (unsigned short)(
+            ((unsigned int)timbre[15] * value >> 7) + timbre[17]);
+    } else if (controller == 7) {
+        channel->volume = (unsigned short)(value + 0x80U);
+    } else if (controller == 120 || controller == 123) {
+        Wc1OriginFxAllNotesOff(player, (int)channelIndex);
+    } else if (controller == 121) {
+        timbre = Wc1OriginFxFindTimbre(player, channel->program);
+        channel->modulationDepth = timbre[17];
+        channel->volume = 0xff;
+        channel->pitchBend = 0x2000;
+        Wc1OriginFxUpdateChannelVoices(
+            player, channelIndex, 1, 0);
+    }
+}
+
+static void Wc1OriginFxControlChange(Wc1SdlOriginFxPlayer *player,
+                                     unsigned int channelIndex,
+                                     unsigned int controller,
+                                     unsigned int value)
+{
+    unsigned int percussionChannel;
+
+    if (channelIndex == 9) {
+        percussionChannel = 10;
+        while (percussionChannel < WC1_ORIGINFX_CHANNEL_COUNT) {
+            Wc1OriginFxApplyControlChange(
+                player, percussionChannel, controller, value);
+            percussionChannel++;
+        }
+    }
+    Wc1OriginFxApplyControlChange(
+        player, channelIndex, controller, value);
+}
+
 static void Wc1OriginFxDispatchEvent(Wc1SdlOriginFxPlayer *player,
                                      const Wc1OriginFxEvent *event)
 {
     Wc1OriginFxChannel *channel;
     unsigned int channelIndex;
     unsigned int command;
+    unsigned int note;
 
     channelIndex = event->status & 0x0fU;
     command = event->status & 0xf0U;
     channel = &player->channels[channelIndex];
     switch (command) {
     case 0x80:
-        Wc1OriginFxNoteOff(player, channelIndex, event->data1);
+        note = event->data1;
+        if (channelIndex != 9 || Wc1OriginFxMapPercussionNote(
+                note, &channelIndex, &note))
+            Wc1OriginFxNoteOff(player, channelIndex, note);
         break;
     case 0x90:
-        if (event->data2 == 0)
-            Wc1OriginFxNoteOff(player, channelIndex, event->data1);
-        else
-            Wc1OriginFxNoteOn(
-                player, channelIndex, event->data1, event->data2);
-        break;
-    case 0xb0:
-        if (event->data1 == 7) {
-            channel->volume = event->data2;
-            Wc1OriginFxUpdateChannelVoices(
-                player, channelIndex, 0, 1);
-        } else if (event->data1 == 120 || event->data1 == 123) {
-            Wc1OriginFxAllNotesOff(player, (int)channelIndex);
-        } else if (event->data1 == 121) {
-            channel->volume = 127;
-            channel->pitchBend = 0x2000;
-            Wc1OriginFxUpdateChannelVoices(
-                player, channelIndex, 1, 1);
+        note = event->data1;
+        if (channelIndex != 9 || Wc1OriginFxMapPercussionNote(
+                note, &channelIndex, &note)) {
+            if (event->data2 == 0)
+                Wc1OriginFxNoteOff(player, channelIndex, note);
+            else
+                Wc1OriginFxNoteOn(
+                    player, channelIndex, note, event->data2);
         }
         break;
+    case 0xb0:
+        Wc1OriginFxControlChange(
+            player, channelIndex, event->data1, event->data2);
+        break;
     case 0xc0:
-        channel->program = event->data1;
+        Wc1OriginFxSetProgram(player, channelIndex, event->data1);
         break;
     case 0xe0:
         channel->pitchBend = (unsigned short)(
@@ -776,6 +1113,8 @@ Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxPlayer(
 {
     Wc1SdlOriginFxPlayer *player;
     unsigned int channelIndex;
+    unsigned int percussionIndex;
+    unsigned char defaultProgram;
 
     player = new (std::nothrow) Wc1SdlOriginFxPlayer;
     if (player == 0)
@@ -786,11 +1125,22 @@ Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxPlayer(
         delete player;
         return 0;
     }
+    defaultProgram = player->timbres[1 + 47];
     channelIndex = 0;
-    while (channelIndex < WC1_ORIGINFX_MIDI_CHANNEL_COUNT) {
+    while (channelIndex < WC1_ORIGINFX_CHANNEL_COUNT) {
         player->channels[channelIndex].pitchBend = 0x2000;
-        player->channels[channelIndex].volume = 127;
+        player->channels[channelIndex].volume = 0xff;
+        Wc1OriginFxSetProgram(player, channelIndex, defaultProgram);
         channelIndex++;
+    }
+    percussionIndex = 0;
+    while (percussionIndex <
+           sizeof(g_abWc1OriginFxPercussionPrograms) /
+               sizeof(g_abWc1OriginFxPercussionPrograms[0])) {
+        Wc1OriginFxSetProgram(
+            player, 9 + percussionIndex,
+            g_abWc1OriginFxPercussionPrograms[percussionIndex]);
+        percussionIndex++;
     }
     Wc1OriginFxResetOpl(player);
     return player;
@@ -833,6 +1183,7 @@ void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
                    (size_t)(frameCount - frame) * sizeof(short) * 2);
             return;
         }
+        Wc1OriginFxAdvanceService(player);
         generated = Wc1OriginFxGenerateOutputSample(player);
         output = Wc1OriginFxScaleOutputSample(generated, gain);
         samples[frame * 2] = output;
