@@ -177,7 +177,7 @@ UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
 
 DREAMM_DIR = .dreamm
-DREAMM_VERSION = 4.0x21
+DREAMM_VERSION = 4.0x47
 DREAMM_BASE_URL = https://dreamm.aarongiles.com/releases/4.0x
 
 # 8-bit, not 16: the DIB layer creates a DirectDraw palette and pushes entries
