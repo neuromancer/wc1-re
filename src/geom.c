@@ -1137,17 +1137,17 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
     mass = (unsigned short)g_asObjectRadarRadius_0059c790[obj] << 8;
     acceleration.x = DivideFixed(
         MultiplyFixed(0x16a -
-            PlanarMagnitude(localForce.y, localForce.z),
+            PlanarMagnitude(localPoint.y, localPoint.z),
             localForce.x),
         MultiplyFixed(0x16a, mass));
     acceleration.y = DivideFixed(
         MultiplyFixed(0x16a -
-            PlanarMagnitude(localForce.x, localForce.z),
+            PlanarMagnitude(localPoint.x, localPoint.z),
             localForce.y),
         MultiplyFixed(0x16a, mass));
     acceleration.z = DivideFixed(
         MultiplyFixed(0x16a -
-            PlanarMagnitude(localForce.x, localForce.y),
+            PlanarMagnitude(localPoint.x, localPoint.y),
             localForce.z),
         MultiplyFixed(0x16a, mass));
     AddFixedVectors(&g_aShipVelocity_0059c010[obj], &acceleration,
