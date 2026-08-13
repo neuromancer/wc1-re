@@ -1218,8 +1218,8 @@ int IsPushedPacketHandle(void *handle);                                /* 0x0042
 void *MapPacketHandleToBlock(void *handle);                            /* 0x0042FA20 */
 void *AllocateTaggedMemory(unsigned int size, unsigned short flags);   /* 0x0042FA90 */
 void ReleasePacketHandle(void *handle);                               /* 0x0042FAE0 */
-unsigned int GetFixedOneMillionThunk(void);                  /* 0x0042FB20 */
-unsigned int GetFixedOneMillionThunkAlt(void);               /* 0x0042FB30 */
+unsigned int GetFixedOneMillionThunk(short memoryType);                /* 0x0042FB20 */
+unsigned int GetFixedOneMillionThunkAlt(short memoryType);             /* 0x0042FB30 */
 void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
                              short distance, unsigned char *shape,
                              short frame, short type,
@@ -1426,7 +1426,7 @@ unsigned int GetVideoReleaseResult(void);                                      /
 unsigned short IdentityWord(unsigned short v);                         /* 0x004362C0 */
 void TimerStopHook(void);                                           /* 0x004362D0 */
 unsigned int GetFixedOneMillion(void);                                 /* 0x004362E0 */
-unsigned int GetFixedOneMillionAlt(void);                                 /* 0x004362F0 */
+unsigned int GetFixedOneMillionAlt(void);                              /* 0x004362F0 */
 void ClearInputKeyStatePreservingModifiers(void);                     /* 0x004363A0 */
 void ClearInputKeyState(void);                                        /* 0x004363E0 */
 void SetInputKeyState(int scanCode, unsigned char pressed);            /* 0x00436420 */

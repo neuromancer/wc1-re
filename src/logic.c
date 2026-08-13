@@ -485,13 +485,11 @@ unsigned int LoadOriginFxDrivers(void)
     g_nInputDoubleClickInterval_0046af54 = 2;
     EMStartUp();
     GetFxDriverInitResult();
-    g_dwOriginalFreeMemory_005a7cd8 =
-        ((unsigned int (__cdecl *)(int))GetFixedOneMillionThunkAlt)(0);
+    g_dwOriginalFreeMemory_005a7cd8 = GetFixedOneMillionThunkAlt(0);
     if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
         memoryThreshold = 210000;
     SetFrameTimerPeriodDirect(0x78);
-    if ((int)((unsigned int (__cdecl *)(int))
-            GetFixedOneMillionThunk)(4) > memoryThreshold) {
+    if ((int)GetFixedOneMillionThunk(4) > memoryThreshold) {
         g_nAvailableGameMemory_005a7ce0 =
             (int)g_dwOriginalFreeMemory_005a7cd8 -
             g_anExpandedMemoryReservationByVideoMode_00469ab0[

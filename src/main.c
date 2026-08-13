@@ -38,6 +38,10 @@ int main(short argc, char **argv)
     _chdir("gamedat");
     LoadInstallDat();
     _chdir("..");
+#ifdef WC1_SDL
+    if (Wc1SdlUsingDosData())
+        DAT_0059ab34 = 1;
+#endif
     if (GetCurrentDiskDriveHook() > 'B')
         DAT_0059ab34 = 1;
 
@@ -146,16 +150,12 @@ int main(short argc, char **argv)
     DAT_0046b168 = 0x13;
 
     if (animationDemo == 1) {
-        SystemDebugPrintf(
-            "Pre animation: %lu.\n",
-            ((unsigned int (__cdecl *)(int))
-                GetFixedOneMillionThunkAlt)(0));
+        SystemDebugPrintf("Pre animation: %lu.\n",
+                          GetFixedOneMillionThunkAlt(0));
         WaitForKeyAcknowledge(0);
         RunAnimationDemoLoop((signed char)mission);
-        SystemDebugPrintf(
-            "Post animation: %lu.\n",
-            ((unsigned int (__cdecl *)(int))
-                GetFixedOneMillionThunkAlt)(0));
+        SystemDebugPrintf("Post animation: %lu.\n",
+                          GetFixedOneMillionThunkAlt(0));
         WaitForKeyAcknowledge(0);
     }
 

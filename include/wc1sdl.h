@@ -53,6 +53,8 @@ typedef void (*LPTIMECALLBACK)(UINT, UINT, DWORD, DWORD, DWORD);
 typedef DWORD (*LPTHREAD_START_ROUTINE)(LPVOID);
 typedef void (*Wc1SdlAudioMixer)(void *, unsigned int);
 
+struct DiskFileRecord;
+
 typedef struct GUID {
     uint32_t Data1;
     uint16_t Data2;
@@ -157,6 +159,13 @@ void Wc1SdlShutdownJoysticks(void);
 void Wc1SdlShutdownVideo(void);
 int Wc1SdlTranslateScanCode(SDL_Scancode scanCode);
 void Wc1SdlWaitForVerticalBlank(void);
+int Wc1SdlUsingDosData(void);
+int Wc1SdlDecompressOriginLzw(const unsigned char *source,
+                              size_t sourceSize,
+                              unsigned char *destination,
+                              size_t destinationSize,
+                              size_t *writtenSize);
+void Wc1SdlCompleteDosInstallTable(struct DiskFileRecord *records);
 
 #define GetTickCount Wc1SdlGetTicks
 #define GetAsyncKeyState Wc1SdlGetAsyncKeyState

@@ -35,7 +35,7 @@ void ReportPacketLoadError(void *packet, short logicalFile,
                 operation,
                 g_pDiskFileRecords_005a7cf0[logicalFile].name,
                 (int)section, (int)error, packetSize,
-                GetFixedOneMillionThunkAlt(), (int)retry, sourceTag);
+                GetFixedOneMillionThunkAlt(retry), (int)retry, sourceTag);
         FatalErrorAndExit(g_szDefaultTextBuffer_005a7590);
     }
 }
@@ -91,8 +91,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     if (flags == 0) {
         if (GetPacketSize(
                 g_pDiskFileRecords_005a7cf0[logicalFile].name, section) >
-            (int)((unsigned int (__cdecl *)(int))
-                GetFixedOneMillionThunkAlt)(0)) {
+            (int)GetFixedOneMillionThunkAlt(0)) {
             ReportPacketLoadError(0, logicalFile, 0, section, "LP1");
         }
     }

@@ -552,14 +552,16 @@ void ReleasePacketHandle(void *handle)
 /* Tail-jump thunk to 0x004362E0, not a constant return -- Ghidra followed the
  * jump and folded the callee's body into the display.  The optimized compiler
  * emits the tail jump from this forwarding return. */
-unsigned int GetFixedOneMillionThunk(void)
+unsigned int GetFixedOneMillionThunk(short memoryType)
 {
+    (void)memoryType;
     return GetFixedOneMillion();
 }
 
 /* Function start: 0x42FB30 */
-unsigned int GetFixedOneMillionThunkAlt(void)
+unsigned int GetFixedOneMillionThunkAlt(short memoryType)
 {
+    (void)memoryType;
     return GetFixedOneMillionAlt();
 }
 

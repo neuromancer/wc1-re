@@ -95,6 +95,15 @@ typedef struct Viewport {
     unsigned char *allocation;      /* +0x10 */
 } Viewport;
 
+#ifdef WC1_SDL
+#define WC1_SPRITE_ROW_OFFSET(viewport, row) \
+    ((row) < (viewport)->top || (row) > (viewport)->bottom \
+         ? 0 \
+         : (viewport)->rowOffsets[row])
+#else
+#define WC1_SPRITE_ROW_OFFSET(viewport, row) viewport->rowOffsets[row]
+#endif
+
 /* The event manager snapshots these 28 bytes with seven MOVSD operations.
  * The unaligned pointer fields and reserved spans are fixed by the original
  * addresses at 0x0059AB10-0x0059AB2B. */

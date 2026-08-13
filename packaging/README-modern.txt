@@ -6,9 +6,12 @@ and UndefinedBehaviorSanitizer are always enabled, including in releases, so a
 detected memory error deliberately terminates the program with a diagnostic.
 
 No copyrighted game data is included. Extract every file in this archive into
-an installed Kilrathi Saga WC1 directory containing the gamedat and streams
-directories, then start wc1-modern (wc1-modern.exe on Windows) from that
-directory. Keep the bundled runtime libraries beside the executable.
+an installed Kilrathi Saga or DOS WC1 directory, then start wc1-modern
+(wc1-modern.exe on Windows) from that directory. Keep the bundled runtime
+libraries beside the executable.
+
+The DOS data path supports the original compressed packet resources. DOS music
+and digital sound effects are not implemented yet.
 
 The macOS archives are ad-hoc signed, not notarized with an Apple developer
 certificate. macOS may therefore require the usual confirmation for software

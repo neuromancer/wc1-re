@@ -363,6 +363,7 @@ MODERN_IX_SRCS = \
 MODERN_BASE_HOST_SRCS = \
 	src/sdl/compat.c \
 	src/sdl/input.c \
+	src/sdl/resources.c \
 	src/sdl/registry.c \
 	src/sdl/thread.c \
 	src/sdl/timer.c
@@ -392,7 +393,8 @@ MODERN_INPUT_CORE_OBJS = \
 	$(MODERN_OUT_DIR)/obj/eventmgr.o \
 	$(MODERN_OUT_DIR)/obj/globals.o \
 	$(MODERN_OUT_DIR)/obj/sysinput.o
-MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat sdl_input_compat
+MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat \
+	sdl_dos_resources sdl_input_compat
 MODERN_BASE_C_TEST_BINS = $(addsuffix $(MODERN_EXE_SUFFIX),\
 	$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES)))
 MODERN_EVENT_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_event_compat$(MODERN_EXE_SUFFIX)
@@ -437,7 +439,7 @@ modern-check-deps:
 	@if test -z "$(strip $(MODERN_SDL_CFLAGS))" || \
 	   test -z "$(strip $(MODERN_SDL_LIBS))" || \
 	   test -z "$(strip $(MODERN_LZO_LIBS))"; then \
-		echo "SDL2 development files were not found." >&2; \
+		echo "SDL2 or LZO2 development files were not found." >&2; \
 		echo "Install SDL2 and LZO2 development files." >&2; \
 		exit 1; \
 	fi
@@ -532,6 +534,11 @@ run-modern: modern
 		exit 1; \
 	}; \
 	cd "$$modern_run_dir" && "$(CURDIR)/$(MODERN_TARGET)" $(MODERN_ARGS)
+
+# The SDL2 host recognizes the compressed resources in an installed DOS copy.
+# DOS music and digital sound effects remain unavailable.
+run-modern-dos: MODERN_RUN_DIR = data/dos
+run-modern-dos: run-modern
 
 # The original startup has a hidden direct-flight path selected by the ordered
 # tokens "Origin sN mN l".  The modern build supplies the normal shared
@@ -956,6 +963,7 @@ clean-modern:
 	run \
 	run-check \
 	run-modern \
+	run-modern-dos \
 	run-modern-mission \
 	seh \
 	sort \

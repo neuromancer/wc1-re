@@ -78,6 +78,12 @@ int main(int argumentCount, char **arguments)
         FreeCommDisplayResources();
     } else {
         CheckLauncherAndConfig();
+        if (Wc1SdlUsingDosData()) {
+            /* DOS audio drivers cannot be used by the native SDL2 host. */
+            DAT_00465058 = 0;
+            fprintf(stderr,
+                    "DOS music and sound effects are not yet available.\n");
+        }
         for (argumentIndex = 1; argumentIndex < argumentCount;
              argumentIndex++) {
             argument = arguments[argumentIndex];

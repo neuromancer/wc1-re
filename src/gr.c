@@ -392,7 +392,7 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
         drawY = y + *(short *)commands;
         commands += 2;
 #endif
-        screen = pixels + (viewport->rowOffsets[drawY] + drawX);
+        screen = pixels + (WC1_SPRITE_ROW_OFFSET(viewport, drawY) + drawX);
         if ((count & 1) != 0) {
             count >>= 1;
             while (count != 0) {

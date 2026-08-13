@@ -43,6 +43,61 @@ void * __stdcall PacketLoad(const char *filename, short section,
             }
             break;
         case 1:
+#ifdef WC1_SDL
+        {
+            unsigned char sizeBytes[4];
+            unsigned char *compressedData;
+            unsigned int compressedSize;
+            unsigned int outputSize;
+            size_t writtenSize;
+            int allocatedPacket;
+
+            if (handle.dataSize < 4 ||
+                ReadDataFileAtOffset((unsigned short)handle.file,
+                                     (int)handle.dataOffset, 4,
+                                     sizeBytes) == 0) {
+                g_nPacketError_00465460 = 6;
+                break;
+            }
+            outputSize = (unsigned int)sizeBytes[0] |
+                ((unsigned int)sizeBytes[1] << 8) |
+                ((unsigned int)sizeBytes[2] << 16) |
+                ((unsigned int)sizeBytes[3] << 24);
+            compressedSize = handle.dataSize - 4;
+            compressedData = (unsigned char *)malloc(
+                compressedSize != 0 ? compressedSize : 1);
+            if (compressedData == 0) {
+                g_nPacketError_00465460 = 1;
+                break;
+            }
+            handle.position = 4;
+            if (ReadPacketSectionData(&handle, compressedData,
+                                      compressedSize) == 0) {
+                free(compressedData);
+                packet = 0;
+                break;
+            }
+
+            allocatedPacket = destination == 0;
+            packet = destination;
+            if (packet == 0)
+                packet = AllocateTaggedMemory(outputSize, flags);
+            g_pLastPacketAllocation_005a68f0 = packet;
+            if (packet == 0) {
+                g_nPacketError_00465460 = 4;
+            } else if (!Wc1SdlDecompressOriginLzw(
+                           compressedData, compressedSize, packet,
+                           outputSize, &writtenSize)) {
+                if (allocatedPacket != 0)
+                    ReleasePacketHandle(packet);
+                packet = 0;
+                g_pLastPacketAllocation_005a68f0 = 0;
+                g_nPacketError_00465460 = 6;
+            }
+            free(compressedData);
+            break;
+        }
+#else
             SystemDebugPrintf(
                 "[SYSTEM] : ERROR\n"
                 "Library\\Source\\Pload.c PacketLoad  Compressed data in '%s'\n",
@@ -54,6 +109,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
             packet = DecompressPacketSection(
                 &handle, destination, flags, decompressionWorkspace);
             break;
+#endif
         }
         CloseDataFileByHandle((unsigned short *)&handle);
     }

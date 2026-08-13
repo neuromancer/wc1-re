@@ -114,8 +114,7 @@ short LogMemoryUsage(void)
         SystemDebugPrintf(
             "Original FMem %lu.  Current FMem %lu.  Current NMem %u.\n",
             g_dwOriginalFreeMemory_005a7cd8,
-            ((unsigned int (__cdecl *)(int))
-                GetFixedOneMillionThunkAlt)(0),
+            GetFixedOneMillionThunkAlt(0),
             (unsigned int)(int)(short)GetOriginalFreeMemory());
     }
     MouseIdleHook();
@@ -153,9 +152,7 @@ unsigned int ShowMemoryStatusDebug(void)
         SetTextContext(&g_stDefaultTextContext_005a7740);
         DrawFormattedText("%X%YCurrent NMem %d.",
                           0, 176, (int)(short)GetOriginalFreeMemory());
-        sprintf(value, "%ld",
-                ((unsigned int (__cdecl *)(int))
-                    GetFixedOneMillionThunkAlt)(0));
+        sprintf(value, "%ld", GetFixedOneMillionThunkAlt(0));
         DrawFormattedText("%X%YCurrent FMem %s.", 0, 184, value);
         sprintf(value, "%ld", g_dwOriginalFreeMemory_005a7cd8);
         DrawFormattedText("%X%YOriginal FMem %s.", 0, 0, value);

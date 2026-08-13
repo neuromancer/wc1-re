@@ -203,8 +203,7 @@ void SetFleetOverviewView(int initializeCockpit)
     shipCount = 0;
     if (initializeCockpit != 0) {
         GetScreenUpdateFlag();
-        if ((int)((unsigned int (__cdecl *)(int))
-                GetFixedOneMillionThunkAlt)(0) < 66000)
+        if ((int)GetFixedOneMillionThunkAlt(0) < 66000)
             initialize_cockpit(4);
         else
             initialize_cockpit(6);

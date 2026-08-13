@@ -774,10 +774,19 @@ unsigned short LoadInstallDat(void)
     }
     maximumId++;
 
+#ifdef WC1_SDL
+    g_pDiskFileRecords_005a7cf0 =
+        (DiskFileRecord *)AllocateTaggedMemory(
+            sizeof(DiskFileRecord) * 78, 0);
+    if (g_pDiskFileRecords_005a7cf0 != 0)
+        memset(g_pDiskFileRecords_005a7cf0, 0,
+               sizeof(DiskFileRecord) * 78);
+#else
     g_pDiskFileRecords_005a7cf0 =
         (DiskFileRecord *)AllocateTaggedMemory(0x4b0, 0);
     memset(g_pDiskFileRecords_005a7cf0, 0,
            (maximumId + 1) * sizeof(DiskFileRecord));
+#endif
     if (g_pDiskFileRecords_005a7cf0 == 0) {
         SystemDebugPrintf("Unable to copy INSTALL.DAT\n");
         SystemDebugPrintf(
@@ -802,6 +811,10 @@ unsigned short LoadInstallDat(void)
     }
     ReleasePacketHandle(records);
     g_pDiskFileRecords_005a7cf0++;
+#ifdef WC1_SDL
+    if (Wc1SdlUsingDosData())
+        Wc1SdlCompleteDosInstallTable(g_pDiskFileRecords_005a7cf0);
+#endif
     return 0;
 }
 

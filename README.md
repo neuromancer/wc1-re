@@ -1548,6 +1548,22 @@ make -j
 The resulting executable is `WC1.EXE`. The Makefile builds wibo and downloads the compatible
 `msvcrt40.dll` automatically when needed.
 
+The native SDL2 port additionally requires SDL2 and LZO2 development files:
+
+```sh
+make -j modern
+```
+
+`make run-modern` uses Kilrathi Saga data from `data/full`. To use an installed
+DOS release from `data/dos`, run:
+
+```sh
+make run-modern-dos
+```
+
+The DOS path supports the original compressed packet resources. DOS music and
+digital sound effects are not implemented yet.
+
 ## Run
 
 Running requires `bsdtar` and the original Kilrathi Saga game data. Put a disc image in
