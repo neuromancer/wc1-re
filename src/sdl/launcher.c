@@ -7,6 +7,9 @@ int main(int argumentCount, char **arguments)
 {
     SDL_Window *window;
     Uint32 windowFlags;
+    const char *argument;
+    char command;
+    int argumentIndex;
     int checkOnly;
 
     checkOnly = argumentCount == 2 && strcmp(arguments[1], "--check") == 0;
@@ -72,6 +75,31 @@ int main(int argumentCount, char **arguments)
         g_nCommPortraitIndex_0046afd0 = -1;
         FreeCommDisplayResources();
     } else {
+        CheckLauncherAndConfig();
+        for (argumentIndex = 1; argumentIndex < argumentCount;
+             argumentIndex++) {
+            argument = arguments[argumentIndex];
+            if (strcmp(argument, "$#SAGA.EXE") == 0)
+                DAT_0046506c = 1;
+            command = argument[0] == '-' ? argument[1] : argument[0];
+            switch (command) {
+            case 'b':
+                *(unsigned char *)&DAT_0046a000 = 0;
+                break;
+            case 'c':
+                DAT_0046507c = 0;
+                break;
+            case 'f':
+                DAT_00465070 = 1;
+                break;
+            case 'k':
+                *(unsigned char *)&DAT_00469ffc = 0;
+                break;
+            case 'q':
+                DAT_00465074 = 0;
+                break;
+            }
+        }
         MonoDebug_install();
         InitializeAudioSystem((HWND)window);
         InitializeAudioStreamer((HWND)window);

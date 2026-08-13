@@ -62,7 +62,7 @@ Other parsing details:
 | --- | --- |
 | `Origin` | Enables developer options appearing later in the file. It also causes newly created or loaded pilots to receive the callsign `CHEATER`. It does not itself enable invulnerability or disabled collisions unless the registry `Cheater` flag was what enabled it. |
 | `b` or `-b` | Disables the central collision handler whenever object 0, the player, is either participant. Most player collision detection and response is therefore suppressed. This is separate from special-purpose logic such as carrier landing. |
-| `c` or `-c` | Begins ordinary spaceflight in the full-screen/cockpitless view. Cockpit artwork is suppressed, while HUD and VDU elements remain available. |
+| `c` or `-c` | Clears the startup flag that otherwise assumes the normal preflight scenes established the flight display. This makes `RunSpaceFlight` allocate its view buffer and initialize the cockpit itself, and is required with direct `l` launch. |
 | `f` or `-f` | Draws a floating-point frame-rate counter at the top-left of the screen. |
 | `k` or `-k` | Makes the player ship invulnerable by returning immediately from damage processing when the victim is object 0. |
 | `q` or `-q` | Bypasses the explicit DirectDraw display-mode cascade and renders through the primary surface path. Normally the game tries 320x200, 640x400, and then 640x480. This is not a normal windowed-mode switch. |
@@ -159,6 +159,41 @@ credits after the original credit list.
 
 ## Practical automated-test paths
 
+### Modern-port direct mission launch
+
+The SDL launcher applies the original first-stage launcher options to host
+arguments, then passes them to the recovered main module. This makes the
+retained developer options available without editing `WINGCMDR.CFG`. The
+`run-modern-mission` target supplies the exact original token sequence,
+including the `c` needed to initialize the flight viewport and the
+otherwise-required ignored final token:
+
+```sh
+make run-modern-mission SERIES=1 MISSION=0
+```
+
+`SERIES` uses the game's one-based series numbers and `MISSION` is zero-based.
+The playable Vega-campaign pairs recorded in `CAMP.000` are series 1 with
+missions 0-1, series 2-11 with missions 0-2, and series 12-13 with missions
+0-3. This original developer path uses the default campaign data set
+(`MODULE.000`); no original startup token selects `MODULE.001` or
+`MODULE.002`.
+
+The optional `NAV` value supplies the original `asN` starting-action-sphere
+override. Additional original flags may be provided through `MISSION_FLAGS`:
+
+```sh
+make run-modern-mission SERIES=1 MISSION=0 NAV=2 \
+    MISSION_FLAGS='k b f'
+```
+
+This target starts interactive spaceflight; it does not run an automated game
+test. The more general spelling remains available as:
+
+```sh
+make run-modern MODERN_ARGS='c Origin s1 m0 l ignored'
+```
+
 There is no fully unattended combat-demo or recorded-input mode in this
 executable. The title menu has no attract-mode timeout, direct mission launch
 still processes player controls, and no startup option transfers the player
@@ -186,7 +221,7 @@ For a manual flight test that bypasses all menus, use a valid series and mission
 with `l`; adding `k`, `b`, and `f` makes repeated renderer/flight testing easier:
 
 ```text
-Origin s1 m0 l k b f ignored
+c Origin s1 m0 l k b f ignored
 ```
 
 That path is not automatic: it enters live spaceflight and continues to call

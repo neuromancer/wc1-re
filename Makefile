@@ -104,6 +104,10 @@ MODERN_OUT_DIR = out-modern
 MODERN_TARGET = $(MODERN_OUT_DIR)/wc1-modern
 MODERN_RUN_DIR ?= data/full
 MODERN_ARGS ?=
+SERIES ?= 1
+MISSION ?= 0
+NAV ?=
+MISSION_FLAGS ?=
 
 MODERN_CC ?= cc
 MODERN_CXX ?= c++
@@ -524,6 +528,14 @@ run-modern: modern
 	}; \
 	cd "$$modern_run_dir" && "$(CURDIR)/$(MODERN_TARGET)" $(MODERN_ARGS)
 
+# The original startup has a hidden direct-flight path selected by the ordered
+# tokens "c Origin sN mN l".  The first token requests flight-view/cockpit
+# initialization normally established by the preflight scenes.  The option
+# loader exposes one fewer token than it reads, so retain an ignored sentinel.
+run-modern-mission: MODERN_ARGS = c Origin s$(SERIES) m$(MISSION) \
+	$(if $(strip $(NAV)),as$(NAV)) l $(MISSION_FLAGS) ignored
+run-modern-mission: run-modern
+
 -include $(MODERN_DEPFILES)
 
 ifeq ($(UNAME_S),Linux)
@@ -921,6 +933,7 @@ clean-modern:
 	run \
 	run-check \
 	run-modern \
+	run-modern-mission \
 	seh \
 	sort \
 	verify \
