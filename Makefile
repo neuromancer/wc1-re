@@ -455,7 +455,7 @@ build-full: $(TARGET)
 
 # The native port is deliberately built in a separate output tree.  It must
 # never supply objects to the assembly-comparison target above.
-modern: $(MODERN_GAMEPLAY_OBJS) $(MODERN_TARGET) $(MODERN_TEST_BINS)
+modern: $(MODERN_TARGET)
 
 modern-check-deps:
 	@if test -z "$(strip $(MODERN_SDL_CFLAGS))" || \
@@ -588,6 +588,10 @@ $(MODERN_ADLIB_TEST_BIN): \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_DEAD_STRIP_FLAGS) -o $@
 
 modern-test: modern
+	@echo "Running $(MODERN_TARGET) --check"
+	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy $(MODERN_TARGET) --check
+
+modern-test-full: $(MODERN_TARGET) $(MODERN_TEST_BINS)
 	@set -e; for test_bin in $(MODERN_HEADLESS_TEST_BINS); do \
 		echo "Running $$test_bin"; \
 		SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "$$test_bin"; \
@@ -1037,6 +1041,7 @@ clean-modern:
 	modern \
 	modern-check-deps \
 	modern-test \
+	modern-test-full \
 	order \
 	progress \
 	report \

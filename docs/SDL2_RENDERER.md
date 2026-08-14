@@ -78,14 +78,18 @@ buffer, while its unrotated fast path has no such limit.
 
 ## Verification
 
-Run the complete SDL2 suite with:
+Run the renderer and the other standalone SDL2 regressions with:
 
 ```sh
-make modern-test
+make modern-test-full
 ```
 
-The suite keeps the existing headless indexed-renderer tests separate from
+The exhaustive suite keeps the headless indexed-renderer tests separate from
 `tests/sdl_gl_renderer.c`. The OpenGL test exercises transforms, ordering,
 palette-index fidelity, viewport masks, the original rotation limit, and
 letterboxed input mapping. It reports a skip when no real OpenGL display is
 available; an available display must pass the test.
+
+Routine builds do not compile these standalone test executables. `make
+modern-test` runs only the native executable's integrated sanitizer smoke check;
+use the exhaustive target when changing an SDL2 subsystem.
