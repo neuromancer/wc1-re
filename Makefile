@@ -413,12 +413,14 @@ MODERN_BASE_C_TEST_BINS = $(addsuffix $(MODERN_EXE_SUFFIX),\
 MODERN_EVENT_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_event_compat$(MODERN_EXE_SUFFIX)
 MODERN_VIDEO_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_video_compat$(MODERN_EXE_SUFFIX)
 MODERN_GL_VIDEO_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_gl_renderer$(MODERN_EXE_SUFFIX)
+MODERN_RUNTIME_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_runtime_safety$(MODERN_EXE_SUFFIX)
 MODERN_CXX_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke$(MODERN_EXE_SUFFIX)
 MODERN_ADLIB_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_dos_adlib$(MODERN_EXE_SUFFIX)
 MODERN_HEADLESS_TEST_BINS = \
 	$(MODERN_BASE_C_TEST_BINS) \
 	$(MODERN_EVENT_TEST_BIN) \
 	$(MODERN_VIDEO_TEST_BIN) \
+	$(MODERN_RUNTIME_TEST_BIN) \
 	$(MODERN_CXX_TEST_BIN) \
 	$(MODERN_ADLIB_TEST_BIN)
 MODERN_TEST_BINS = $(MODERN_HEADLESS_TEST_BINS) $(MODERN_GL_VIDEO_TEST_BIN)
@@ -431,6 +433,7 @@ MODERN_DEPFILES = \
 	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))) \
 	$(MODERN_OUT_DIR)/tests/sdl_event_compat.d \
 	$(MODERN_OUT_DIR)/tests/sdl_gl_renderer.d \
+	$(MODERN_OUT_DIR)/tests/sdl_runtime_safety.d \
 	$(MODERN_OUT_DIR)/tests/sdl_video_compat.d \
 	$(MODERN_OUT_DIR)/tests/sdl_video_dependencies.d \
 	$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.d \
@@ -548,6 +551,16 @@ $(MODERN_VIDEO_TEST_BIN): \
 
 $(MODERN_GL_VIDEO_TEST_BIN): \
 		$(MODERN_OUT_DIR)/tests/sdl_gl_renderer.o \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) \
+		$(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+$(MODERN_RUNTIME_TEST_BIN): \
+		$(MODERN_OUT_DIR)/tests/sdl_runtime_safety.o \
 		$(MODERN_BASE_HOST_OBJS) \
 		$(MODERN_GAME_HOST_OBJS) \
 		$(MODERN_GAMEPLAY_OBJS) \

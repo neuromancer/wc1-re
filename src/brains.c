@@ -908,7 +908,11 @@ void perform_maneuver(short obj)
         if (g_aeShipManeuver_0059dcb0[obj] == MANEUVER_VEER_AWAY) {
             Mveer_away(obj, target);
         } else if (g_aeShipManeuver_0059dcb0[obj] == MANEUVER_GLOAT) {
+#ifdef WC1_SDL
+            Mgloat(obj);
+#else
             ((void (__cdecl *)(short, short))Mgloat)(obj, target);
+#endif
         } else if (g_aeShipManeuver_0059dcb0[obj] ==
                    MANEUVER_LINE_UP_DROP) {
             Mline_up_drop(obj, target);
@@ -917,8 +921,86 @@ void perform_maneuver(short obj)
         }
     } else if (g_aeShipManeuver_0059dcb0[obj] >= 0 &&
                g_aeShipManeuver_0059dcb0[obj] < 47) {
+#ifdef WC1_SDL
+        /* The original x86 dispatcher pushes both values for every handler.
+           Several handlers consume only the ship, and two consume an unsigned
+           target.  Call those through their real C types in the native port. */
+        switch (g_aeShipManeuver_0059dcb0[obj]) {
+        case MANEUVER_WARPING_IN:
+        case MANEUVER_WARPING_OUT:
+            Mnone();
+            break;
+        case MANEUVER_DRIFT:
+        case MANEUVER_UNKNOWN_46:
+            Mreset(obj);
+            break;
+        case MANEUVER_FULL_AHEAD:
+            Mfull_ahead(obj);
+            break;
+        case MANEUVER_THINKING:
+            Mthink(obj);
+            break;
+        case MANEUVER_KICK_STOP:
+        case MANEUVER_TURN_N_KICK:
+            Mturn_n_kick(obj);
+            break;
+        case MANEUVER_TIGHT_LOOP:
+            Mtight_loop(obj);
+            break;
+        case MANEUVER_HARD_BRAKE:
+            Mhard_break(obj);
+            break;
+        case MANEUVER_WABBLE:
+            Mwabble(obj);
+            break;
+        case MANEUVER_ROLL_OVER:
+            Mroll_over(obj);
+            break;
+        case MANEUVER_HARD_TURN:
+            Mhard_turn(obj);
+            break;
+        case MANEUVER_SPLIT_LEFT:
+            Msplit_left(obj);
+            break;
+        case MANEUVER_KICKIT:
+            Mkickit(obj);
+            break;
+        case MANEUVER_OUTA_HERE:
+            Mrout_me(obj);
+            break;
+        case MANEUVER_DROP_A_MINE:
+            Mdrop_a_mine(obj);
+            break;
+        case MANEUVER_SPLIT_RIGHT:
+            Msplit_right(obj);
+            break;
+        case MANEUVER_ZIG_ZAG:
+            Mzig_zag(obj, (unsigned int)target);
+            break;
+        case MANEUVER_GLOAT:
+            Mgloat(obj);
+            break;
+        case MANEUVER_SAFE_BRAKE:
+            Mzig_zag_pitch(obj, (unsigned int)target);
+            break;
+        case MANEUVER_INTERCEPT:
+            Mcorkscrew(obj);
+            break;
+        case MANEUVER_BUZZ_DEBRIS:
+            Mbuzz_debris(obj);
+            break;
+        case MANEUVER_UNKNOWN_44:
+            ShipAiState44(obj);
+            break;
+        default:
+            g_apShipAiManeuverHandlers_004656a8[
+                g_aeShipManeuver_0059dcb0[obj]](obj, target);
+            break;
+        }
+#else
         g_apShipAiManeuverHandlers_004656a8[
             g_aeShipManeuver_0059dcb0[obj]](obj, target);
+#endif
     } else {
         maneuver_complete(obj);
     }

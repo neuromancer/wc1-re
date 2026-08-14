@@ -1806,6 +1806,15 @@ void target_locking(signed char target)
             lock_off();
             return;
         }
+#ifdef WC1_SDL
+        /* With the -1 sentinel, the original reads the zero-filled word at
+           0x0059CAAA just before the weapon table and then turns locking off.
+           Native globals have sanitizer redzones, so make that result explicit. */
+        if (g_nSelectedReleaseWeaponIndex_0046c058 == -1) {
+            lock_off();
+            return;
+        }
+#endif
         weaponType = *(enum ObjectType *)(
             &g_aShipWeapons_0059cab0[0][1] +
             g_nSelectedReleaseWeaponIndex_0046c058 * 7);
