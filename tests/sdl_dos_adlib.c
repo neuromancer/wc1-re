@@ -272,7 +272,7 @@ static int CheckRetailDosSongs(void)
     return result;
 }
 
-int main(void)
+int main(int argumentCount, char **arguments)
 {
     if (!CheckSyntheticSong()) {
         fprintf(stderr, "Synthetic OriginFX/AdLib song test failed\n");

@@ -158,7 +158,7 @@ static int CheckDosInstallCompletion(void)
         records[76].name[0] == '\0';
 }
 
-int main(void)
+int main(int argumentCount, char **arguments)
 {
     if (!CheckShortStreams()) {
         fprintf(stderr, "Origin LZW short-stream test failed\n");
