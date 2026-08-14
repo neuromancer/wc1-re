@@ -34,5 +34,10 @@ int main(void)
     if (g_aeShipManeuver_0059dcb0[ship] != MANEUVER_NONE)
         return 1;
 
+    DAT_005a7cec = 1;
+    Wc1SdlStopDosSoundEffects();
+    if (DAT_005a7cec != 0)
+        return 1;
+
     return 0;
 }

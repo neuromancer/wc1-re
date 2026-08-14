@@ -176,6 +176,51 @@ static int CheckSyntheticSoundEffects(void)
     return result && heardOutput;
 }
 
+static int CheckHeldSoundEffectFlush(void)
+{
+    unsigned char timbres[1 + 14 * 48];
+    short samples[1024 * 2];
+    Wc1SdlOriginFxPlayer *player;
+    unsigned long long activeEnergy;
+    unsigned long long flushedEnergy;
+    unsigned int elapsed;
+    int result;
+
+    memset(timbres, 0, sizeof(timbres));
+    timbres[0] = 14;
+    BuildAudibleTimbre(timbres + 1 + 13 * 48, 13);
+    player = Wc1SdlCreateOriginFxSoundPlayer(
+        timbres, sizeof(timbres));
+    if (player == 0)
+        return 0;
+    result = Wc1SdlPlayOriginFxSoundEffect(
+        player, 12, 127, 64, -1, 0);
+    activeEnergy = 0;
+    elapsed = 0;
+    while (elapsed < 44100 && result) {
+        memset(samples, 0, sizeof(samples));
+        Wc1SdlMixOriginFxSoundEffects(
+            player, samples, 1024, 0x7fff);
+        elapsed += 1024;
+        if (elapsed >= 44100)
+            activeEnergy = SumAbsoluteSamples(samples, 0, 1024);
+    }
+    Wc1SdlStopOriginFxSoundEffects(player);
+    flushedEnergy = 0;
+    elapsed = 0;
+    while (elapsed < 44100 && result) {
+        memset(samples, 0, sizeof(samples));
+        Wc1SdlMixOriginFxSoundEffects(
+            player, samples, 1024, 0x7fff);
+        elapsed += 1024;
+        if (elapsed >= 44100)
+            flushedEnergy = SumAbsoluteSamples(samples, 0, 1024);
+    }
+    Wc1SdlDestroyOriginFxPlayer(player);
+    return result && activeEnergy != 0 &&
+        flushedEnergy * 100 < activeEnergy;
+}
+
 static int CheckInvalidInputs(void)
 {
     const unsigned char invalidMidi[4] = { 'N', 'O', 'P', 'E' };
@@ -564,6 +609,10 @@ int main(int argumentCount, char **arguments)
     }
     if (!CheckSyntheticSoundEffects()) {
         fprintf(stderr, "Synthetic OriginFX sound-effect test failed\n");
+        return 1;
+    }
+    if (!CheckHeldSoundEffectFlush()) {
+        fprintf(stderr, "Held OriginFX sound-effect flush test failed\n");
         return 1;
     }
     if (!CheckOriginalPercussionMapping()) {

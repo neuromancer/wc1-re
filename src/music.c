@@ -1429,8 +1429,11 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
                 volume = 0;
         }
         if (volume >= 10 && Wc1SdlPlayDosSoundEffect(
-                soundNumber, volume, 64, sourceObject, looping))
+                soundNumber, volume, 64, sourceObject, looping)) {
             g_aiSoundEffectSourceActive_005a66ec[sourceObject + 1] = 1;
+            if (sourceObject == -1)
+                DAT_005a7cec = soundNumber == 12;
+        }
         return;
     }
 #endif

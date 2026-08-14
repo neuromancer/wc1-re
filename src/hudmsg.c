@@ -878,6 +878,8 @@ int RunSpaceFlight(short entryNavPoint)
 
 #ifdef WC1_SDL
     Wc1SdlCancelSpaceFrame();
+    if (Wc1SdlUsingDosData())
+        Wc1SdlStopDosSoundEffects();
 #endif
     SetCinematicFrameTiming();
     SetViewportRect(&DAT_005a7510, 0, 0,
