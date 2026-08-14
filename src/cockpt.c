@@ -1060,6 +1060,7 @@ void show_weapon_disp(void)
     ShipWeaponSlot *selectedWeapon;
     const char *releaseName;
     const char *gunName;
+    enum ObjectType selectedGunType;
     signed char count;
 
     selectedWeapon =
@@ -1077,16 +1078,22 @@ void show_weapon_disp(void)
     if (g_nSelectedReleaseWeaponIndex_0046c058 != -1)
         releaseName = g_aObjectTypeData_00466458[
             selectedWeapon->type].displayName;
+    selectedGunType = g_eSelectedGunType_0046c054;
     gunName = "";
-    if (g_eSelectedGunType_0046c054 == (enum ObjectType)-1)
+    switch ((int)selectedGunType) {
+    case -1:
         gunName = "";
-    else if ((int)g_eSelectedGunType_0046c054 == 0x80)
+        break;
+    case 0x80:
         gunName = "Full Guns";
-    else
+        break;
+    default:
         gunName = g_aObjectTypeData_00466458[
-            g_eSelectedGunType_0046c054].displayName;
-    DrawFormattedText("Weapon: %s\n", releaseName);
-    DrawFormattedText("Gun: %s\n", gunName);
+            selectedGunType].displayName;
+        break;
+    }
+    DrawFormattedText("\nWeapon: %s", releaseName);
+    DrawFormattedText("\nGun: %s", gunName);
 
     g_nWeaponDisplayOriginX_005a7788 =
         (short)(DAT_005a6b80.left +
