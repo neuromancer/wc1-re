@@ -1,4 +1,4 @@
-# Wing Commander source reconstruction
+# Wing Commander source reconstruction and SDL2 port
 
 This project reconstructs the Win32 version of **Wing Commander** shipped in
 *Wing Commander: The Kilrathi Saga* (1996). The goal is a complete, readable C/C++
@@ -10,29 +10,14 @@ original `.c` filename but is compiled as C++ because its assembly directly invo
 member functions. The reconstruction uses Microsoft Visual C++ 4.20 to preserve the
 original code generation.
 
+A native SDL2 port is also available for Windows, Linux, and macOS. It uses
+Kilrathi Saga data and has partial support for the original DOS game data.
+
 ## Status
 
 All 1,472 identified functions are now accounted for: 1,470 have source
 implementations (1,346 game functions and all 124 `ix` audio functions), while
-the remaining two are compiler/linker-generated jump thunks. `make progress`
-marks those two entries as autocomplete because they must be emitted naturally
-by the toolchain rather than reproduced by hand.
-
-The latest completion pass reconstructed 21 dormant developer routines: the
-answer-prompt routine and 20 raster/image-library functions covering raw, RLE,
-IFF, PCX, GIF/LZW, palette, and wrapped-scroll operations. No inbound reference
-is known for these routines in the shipped executable, so each source body is
-explicitly marked as believed unreachable.
-
-The reconstructed startup now also creates and destroys the debug overlay
-console at the original points in `WinMain`, preventing the null console access
-during key waits. The `-w` animation path invokes `RunAnimationDemoLoop` with
-the selected animation number.
-
-Global ownership recovery is also underway. The nav, space-simulation, and
-cockpit data bands now live in their evidence-backed compilation units instead
-of the synthetic `globals.c`; the verifier generates a union manifest so all
-distributed definitions remain covered by the data and global-access audits.
+the remaining two are compiler/linker-generated jump thunks.
 
 Run `make progress` for current implementation counts and `make report` for a fresh binary
 comparison.
@@ -1554,20 +1539,44 @@ The native SDL2 port additionally requires SDL2 and LZO2 development files:
 make -j modern
 ```
 
-`make run-modern` uses Kilrathi Saga data from `data/full`. To use an installed
-DOS release from `data/dos`, run:
+## Run
+
+No copyrighted game data is included. You need an installed copy of Wing
+Commander from Kilrathi Saga or the original DOS release.
+
+### Prebuilt SDL2 port
+
+Download the archive for your platform from the
+[Releases](https://github.com/neuromancer/wc1-re/releases) page. Extract every
+file in the archive into the installed WC1 directory containing `GAMEDAT` and
+keep the bundled runtime libraries beside the executable. Launch the game from
+that directory:
+
+```sh
+# macOS or Linux
+cd /path/to/WC1
+./wc1-modern
+```
+
+```powershell
+# Windows PowerShell
+cd C:\path\to\WC1
+.\wc1-modern.exe
+```
+
+DOS game-data support is partial: compressed packet resources and AdLib music
+work, but DOS digital sound effects are not implemented yet.
+
+### Makefile shortcuts
+
+`make run-modern` runs the SDL2 port with Kilrathi Saga data from `data/full`.
+To use an installed DOS release from `data/dos`, run:
 
 ```sh
 make run-modern-dos
 ```
 
-The DOS path supports the original compressed packet resources and plays the
-original `MUSIC.MID` tracks through an embedded YM3812 (AdLib) emulator using
-the instruments from `WINGLDR.TIM`. No external MIDI synthesizer or sound bank
-is required. The OriginFX sequencer is intentionally pragmatic rather than
-cycle-accurate; DOS digital sound effects are not implemented yet.
-
-## Run
+### Reconstructed Win32 build
 
 Running requires `bsdtar` and the original Kilrathi Saga game data. Put a disc image in
 `data/`, or pass its path explicitly:
@@ -1579,6 +1588,14 @@ make run WC1_ISO=/path/to/kilrathi-saga.iso
 `make run` extracts the WC1 data, replaces the installed executable with the reconstructed
 `WC1.EXE`, downloads [DREAMM](https://aarongiles.com/dreamm) when necessary, and launches the
 game. Use `make debug WC1_ISO=/path/to/kilrathi-saga.iso` to launch DREAMM's debugger.
+
+## SDL2 port keys
+
+| Shortcut | Action |
+| --- | --- |
+| `Cmd+Enter` (macOS) | Toggle fullscreen |
+| `Alt+Enter` (Windows and Linux) | Toggle fullscreen |
+| `Cmd+Q` (macOS) | Quit the game |
 
 ## Optional binary verification
 
