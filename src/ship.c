@@ -559,18 +559,32 @@ short ReportComponentRepaired(short component, short minimumDamage)
 void repair_internal_damage(void)
 {
     short repair;
+#ifndef WC1_SDL
     short component;
+#endif
 
+#ifndef WC1_SDL
     if ((short)g_acPlayerComponentDamage_0059bff0[component] >= 4)
         return;
+#endif
     if (RandomBelowOrEqual(500) >= 2)
         return;
     repair = RandomBelowOrEqual(2);
     switch (repair) {
     case 0:
+#ifdef WC1_SDL
+        /* The Mac body guards the selected component in each repair case.
+           Retail Win32 instead reads an uninitialized component above. */
+        if (g_acPlayerComponentDamage_0059bff0[2] >= 4)
+            break;
+#endif
         ReportComponentRepaired(2, 1);
         break;
     case 1:
+#ifdef WC1_SDL
+        if (g_acPlayerComponentDamage_0059bff0[0] >= 4)
+            break;
+#endif
         if (ReportComponentRepaired(0, 2) != 0)
             damage_ion_drive(0, -1, 3);
         break;
