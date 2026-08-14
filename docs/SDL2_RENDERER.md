@@ -17,9 +17,11 @@ not create an OpenGL context.
 ## Rendering model
 
 The game continues to produce an indexed 320x200 frame. While a space frame is
-being drawn, the SDL2 integration records the ordered object sprites instead
-of asking the original software rasterizer to transform them. The OpenGL
-backend then:
+being drawn, the SDL2 integration records the complete ordered object layer
+instead of asking the original software rasterizer to transform it. This
+includes stars, planets, dust, debris, explosions, fixed objects, projectiles,
+asteroids, mines, missiles, fighters, capital ships, the title-sequence logo,
+and the launch-bay doors. The OpenGL backend then:
 
 1. uploads the completed indexed base frame and current palette;
 2. draws the base frame with nearest-neighbour sampling;
@@ -67,10 +69,9 @@ with the displayed game area.
 
 ## Compatibility
 
-The enhanced path requires an OpenGL 3.2 core-profile context. It currently
-enhances only objects that pass through the space-object draw list; all other
-game screens retain the indexed renderer's appearance. The option is
-experimental and remains disabled unless `--enhanced` is supplied.
+The enhanced path requires an OpenGL 3.2 core-profile context. Other game
+screens retain the indexed renderer's appearance. The option is experimental
+and remains disabled unless `--enhanced` is supplied.
 
 The implementation preserves the original rotated-sprite size limit: the
 software transform rejects frames larger than its `0xfa00`-byte scratch

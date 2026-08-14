@@ -41,6 +41,34 @@ static int CheckSharpBilinearSprite(Viewport *viewport, unsigned char *pixels)
     return result;
 }
 
+static int CheckCompleteSpaceLayerCapacity(Viewport *viewport)
+{
+    unsigned char *shape;
+    unsigned short value;
+    int sprite;
+    int result;
+
+    shape = AllocateTaggedMemory(32, 0x40);
+    if (shape == 0)
+        return 0;
+    memset(shape, 0, 32);
+    *(int *)(shape + 4) = 8;
+    value = 2;
+    memcpy(shape + 16, &value, sizeof(value));
+    shape[22] = 1;
+    Wc1SdlBeginSpaceFrame(0, 5, 1, 0);
+    result = 1;
+    sprite = 0;
+    while (sprite < WC1_SPACE_OBJECT_COUNT + 12 && result) {
+        result = Wc1SdlRecordSpaceSprite(
+            viewport, 160, 100, shape, 0, 0, 0x100, 0);
+        sprite++;
+    }
+    Wc1SdlCancelSpaceFrame();
+    ReleasePacketHandle(shape);
+    return result;
+}
+
 static void WriteShapeWord(unsigned char **output, short value)
 {
     memcpy(*output, &value, sizeof(value));
@@ -688,6 +716,10 @@ static int CheckLetterboxedInputMapping(SDL_Window *window)
 
 static int RunGlRendererChecks(Viewport *viewport, unsigned char *pixels)
 {
+    if (!CheckCompleteSpaceLayerCapacity(viewport)) {
+        fprintf(stderr, "GL complete-space-layer capacity test failed.\n");
+        return 0;
+    }
     if (!CheckSharpBilinearSprite(viewport, pixels)) {
         fprintf(stderr, "GL sprite recording test failed.\n");
         return 0;

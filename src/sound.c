@@ -255,15 +255,34 @@ void DrawLaunchDoorFrame(short distance)
             (short)((short)g_nScreenWidth_0046daa4 >> 1),
             (short)((short)g_nScreenHeight_0046daa8 >> 1),
             g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0, bounds);
+#ifdef WC1_SDL
+        if (!Wc1SdlRecordSpaceSprite(
+                &DAT_005a7510, (short)(bounds[0] - 1),
+                (short)((short)g_nScreenHeight_0046daa8 >> 1),
+                g_pLaunchDoorShape_005a77e8, 0, 0, scale, 0))
+#endif
         DrawSpriteScaled(
             &DAT_005a7510, (short)(bounds[0] - 1),
             (short)((short)g_nScreenHeight_0046daa8 >> 1),
             g_pLaunchDoorShape_005a77e8, 0, 0, scale, 0);
+#ifdef WC1_SDL
+        if (!Wc1SdlRecordSpaceSprite(
+                &DAT_005a7510,
+                (short)((short)g_nScreenWidth_0046daa4 >> 1),
+                (short)((short)g_nScreenHeight_0046daa8 >> 1),
+                g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0))
+#endif
         DrawSpriteScaled(
             &DAT_005a7510,
             (short)((short)g_nScreenWidth_0046daa4 >> 1),
             (short)((short)g_nScreenHeight_0046daa8 >> 1),
             g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0);
+#ifdef WC1_SDL
+        if (!Wc1SdlRecordSpaceSprite(
+                &DAT_005a7510, bounds[2],
+                (short)((short)g_nScreenHeight_0046daa8 >> 1),
+                g_pLaunchDoorShape_005a77e8, 2, 0, scale, 0))
+#endif
         DrawSpriteScaled(
             &DAT_005a7510, bounds[2],
             (short)((short)g_nScreenHeight_0046daa8 >> 1),
@@ -431,6 +450,13 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                 (short)(g_nScrambleBackgroundY_005a8712 -
                         g_nViewCenterY_0059a854);
             sort_object_depth();
+#ifdef WC1_SDL
+            Wc1SdlBeginSpaceFrame(
+                g_pScreenViewportGeometry_0059a9f4,
+                (int)g_cScreenViewportMode_0059a9f2,
+                DAT_0046a008 > 0,
+                (unsigned char)DAT_004699d8);
+#endif
             draw_sorted_objects_to_buffer();
             dump_buffer_to_screen();
         }

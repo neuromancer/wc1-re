@@ -1731,13 +1731,29 @@ void DrawTitleLogo(short distance, short y)
                               (short)(g_nScreenWidth_0046daa4 >> 1), y,
                               g_pTitleShape_005a7f08, 1, 0, scale, 0,
                               bounds);
-    DrawSpriteScaled(&DAT_005a7510, (short)(bounds[0] - 1), y,
-                     g_pTitleShape_005a7f08, 0, 0, scale, 0);
-    DrawSpriteScaled(&DAT_005a7510,
-                     (short)(g_nScreenWidth_0046daa4 >> 1), y,
-                     g_pTitleShape_005a7f08, 1, 0, scale, 0);
-    DrawSpriteScaled(&DAT_005a7510, bounds[2], y,
-                     g_pTitleShape_005a7f08, 2, 0, scale, 0);
+#ifdef WC1_SDL
+    if (!Wc1SdlRecordSpaceSprite(
+            &DAT_005a7510, (short)(bounds[0] - 1), y,
+            g_pTitleShape_005a7f08, 0, 0, scale, 0))
+#endif
+        DrawSpriteScaled(&DAT_005a7510, (short)(bounds[0] - 1), y,
+                         g_pTitleShape_005a7f08, 0, 0, scale, 0);
+#ifdef WC1_SDL
+    if (!Wc1SdlRecordSpaceSprite(
+            &DAT_005a7510,
+            (short)(g_nScreenWidth_0046daa4 >> 1), y,
+            g_pTitleShape_005a7f08, 1, 0, scale, 0))
+#endif
+        DrawSpriteScaled(&DAT_005a7510,
+                         (short)(g_nScreenWidth_0046daa4 >> 1), y,
+                         g_pTitleShape_005a7f08, 1, 0, scale, 0);
+#ifdef WC1_SDL
+    if (!Wc1SdlRecordSpaceSprite(
+            &DAT_005a7510, bounds[2], y,
+            g_pTitleShape_005a7f08, 2, 0, scale, 0))
+#endif
+        DrawSpriteScaled(&DAT_005a7510, bounds[2], y,
+                         g_pTitleShape_005a7f08, 2, 0, scale, 0);
 }
 
 /* Function start: 0x40FB10 */

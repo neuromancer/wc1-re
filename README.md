@@ -1571,8 +1571,9 @@ data and behavior may remain unsupported.
 ### Experimental SDL2 renderer
 
 Pass `--enhanced` to use the optional OpenGL sharp-bilinear renderer. It draws
-space objects at output resolution while keeping the original indexed artwork,
-palette effects, cockpit, and HUD. The normal renderer remains the default.
+all space objects, the animated intro logo, and the launch-bay doors at output
+resolution while keeping the original indexed artwork, palette effects,
+cockpit, and HUD. The normal renderer remains the default.
 
 ```sh
 ./wc1-modern --enhanced

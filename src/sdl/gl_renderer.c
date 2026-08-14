@@ -162,6 +162,10 @@ typedef enum Wc1GlFrameState {
     WC1_GL_FRAME_COMPLETE
 } Wc1GlFrameState;
 
+/* A full world-object list may be followed by four three-part launch doors.
+   The title logo uses only three additional entries. */
+#define WC1_GL_RECORDED_SPRITE_CAPACITY (WC1_SPACE_OBJECT_COUNT + 12)
+
 static const GLchar g_vertexShaderSource[] =
     "#version 150\n"
     "in vec2 a_position;\n"
@@ -282,7 +286,7 @@ typedef struct Wc1GlRenderer {
     unsigned char spaceFrameBase[WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT];
     unsigned char presentedFrame[WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT];
     unsigned char presentedPalette[256 * 4];
-    Wc1GlSprite recordedSprites[WC1_SPACE_OBJECT_COUNT];
+    Wc1GlSprite recordedSprites[WC1_GL_RECORDED_SPRITE_CAPACITY];
 } Wc1GlRenderer;
 
 static Wc1GlRenderer g_renderer;
@@ -297,7 +301,7 @@ static void ReleaseSpriteStorage(void)
     unsigned int index;
 
     index = 0;
-    while (index < WC1_SPACE_OBJECT_COUNT) {
+    while (index < WC1_GL_RECORDED_SPRITE_CAPACITY) {
         free(g_renderer.recordedSprites[index].pixels);
         g_renderer.recordedSprites[index].pixels = 0;
         g_renderer.recordedSprites[index].capacity = 0;
@@ -912,7 +916,7 @@ int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, short x,
         return 0;
     if (frame >= GetShapeFrameCount(shape))
         return 0;
-    if (g_renderer.spriteCount >= WC1_SPACE_OBJECT_COUNT)
+    if (g_renderer.spriteCount >= WC1_GL_RECORDED_SPRITE_CAPACITY)
         return 0;
     width = 0;
     height = 0;
