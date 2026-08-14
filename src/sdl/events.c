@@ -287,8 +287,24 @@ void Wc1SdlPumpEvents(void)
             if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
                 ShutdownGameWindow();
                 return;
+            } else if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
+                       event.window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED) {
+                SDL_Window *window;
+
+                window = SDL_GetWindowFromID(event.window.windowID);
+                if (window != 0 && SDL_GetWindowMouseGrab(window)) {
+                    SDL_SetWindowMouseGrab(window, SDL_FALSE);
+                    SDL_SetWindowMouseGrab(window, SDL_TRUE);
+                }
             }
         } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+            SDL_Window *window;
+            SDL_bool mouseGrabbed;
+            Uint32 fullscreenFlags;
+            Uint32 windowFlags;
+            int enterPressed;
+            int fullscreenModifierPressed;
+            int fullscreenShortcut;
             int pressed;
             int scanCode;
             int virtualKey;
@@ -299,6 +315,53 @@ void Wc1SdlPumpEvents(void)
                 (event.key.keysym.mod & KMOD_GUI) != 0) {
                 ShutdownGameWindow();
                 return;
+            }
+            enterPressed =
+                event.key.keysym.sym == SDLK_RETURN ||
+                event.key.keysym.sym == SDLK_KP_ENTER ||
+                event.key.keysym.scancode == SDL_SCANCODE_RETURN ||
+                event.key.keysym.scancode == SDL_SCANCODE_KP_ENTER;
+#ifdef __APPLE__
+            fullscreenModifierPressed =
+                (event.key.keysym.mod & KMOD_GUI) != 0 ||
+                (SDL_GetModState() & KMOD_GUI) != 0;
+#else
+            fullscreenModifierPressed =
+                (event.key.keysym.mod & KMOD_ALT) != 0 ||
+                (SDL_GetModState() & KMOD_ALT) != 0 ||
+                g_abInputKeyState_0059a860[0x38] != 0;
+#endif
+            fullscreenShortcut =
+                enterPressed && fullscreenModifierPressed;
+            if (fullscreenShortcut) {
+                if (pressed && event.key.repeat == 0) {
+                    window = SDL_GetWindowFromID(event.key.windowID);
+                    if (window == 0)
+                        window = SDL_GetKeyboardFocus();
+                    if (window == 0)
+                        window = (SDL_Window *)DAT_00486074;
+                    if (window == 0)
+                        window = (SDL_Window *)DAT_005a89a0;
+                    if (window != 0) {
+                        windowFlags = SDL_GetWindowFlags(window);
+                        fullscreenFlags =
+                            (windowFlags & SDL_WINDOW_FULLSCREEN) != 0
+                                ? 0
+                                : SDL_WINDOW_FULLSCREEN_DESKTOP;
+                        mouseGrabbed = SDL_GetWindowMouseGrab(window);
+                        if (mouseGrabbed)
+                            SDL_SetWindowMouseGrab(window, SDL_FALSE);
+                        if (SDL_SetWindowFullscreen(window,
+                                                    fullscreenFlags) != 0) {
+                            fprintf(stderr,
+                                    "Unable to toggle fullscreen: %s\n",
+                                    SDL_GetError());
+                        }
+                        if (mouseGrabbed)
+                            SDL_SetWindowMouseGrab(window, SDL_TRUE);
+                    }
+                }
+                continue;
             }
             scanCode = Wc1SdlTranslateScanCode(event.key.keysym.scancode);
             virtualKey = Wc1SdlTranslateVirtualKey(event.key.keysym.sym);
@@ -328,9 +391,9 @@ void Wc1SdlPumpEvents(void)
             SDL_Window *window;
             SDL_Renderer *renderer;
             Uint32 buttons;
+            float logicalMouseX;
+            float logicalMouseY;
             int height;
-            int logicalHeight;
-            int logicalWidth;
             int mouseX;
             int mouseY;
             int width;
@@ -340,26 +403,21 @@ void Wc1SdlPumpEvents(void)
             window = SDL_GetWindowFromID(event.type == SDL_MOUSEMOTION
                                              ? event.motion.windowID
                                              : event.button.windowID);
-            if (event.type == SDL_MOUSEMOTION) {
-                mouseX = event.motion.x;
-                mouseY = event.motion.y;
-                buttons = event.motion.state;
-            } else {
-                mouseX = event.button.x;
-                mouseY = event.button.y;
-                buttons = SDL_GetMouseState(0, 0);
+            buttons = SDL_GetMouseState(&mouseX, &mouseY);
+            if (event.type != SDL_MOUSEMOTION) {
                 if (event.type == SDL_MOUSEBUTTONDOWN)
                     buttons |= SDL_BUTTON(event.button.button);
                 else
                     buttons &= ~SDL_BUTTON(event.button.button);
             }
             renderer = window != 0 ? SDL_GetRenderer(window) : 0;
-            logicalWidth = 0;
-            logicalHeight = 0;
-            if (renderer != 0)
-                SDL_RenderGetLogicalSize(renderer, &logicalWidth,
-                                         &logicalHeight);
-            if (logicalWidth == 0 || logicalHeight == 0) {
+            if (renderer != 0) {
+                SDL_RenderWindowToLogical(renderer, mouseX, mouseY,
+                                          &logicalMouseX,
+                                          &logicalMouseY);
+                mouseX = (int)logicalMouseX;
+                mouseY = (int)logicalMouseY;
+            } else {
                 width = 320;
                 height = 200;
                 if (window != 0)
