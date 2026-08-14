@@ -1,9 +1,9 @@
 Wing Commander SDL2 port
 ========================
 
-This archive contains the work-in-progress native SDL2 port. AddressSanitizer
-and UndefinedBehaviorSanitizer are always enabled, including in releases, so a
-detected memory error deliberately terminates the program with a diagnostic.
+This archive contains the work-in-progress native SDL2 port. Release binaries
+are optimized and do not include the AddressSanitizer or
+UndefinedBehaviorSanitizer instrumentation used by development builds.
 
 No copyrighted game data is included. Extract every file in this archive into
 an installed Kilrathi Saga or DOS WC1 directory, then start wc1-modern

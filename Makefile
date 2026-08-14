@@ -136,7 +136,13 @@ MODERN_CFLAGS ?= -O2 -std=c11 -Wno-return-type -Wno-return-mismatch \
 MODERN_CXXFLAGS ?= -O2 -std=c++11
 MODERN_DEPFLAGS = -MMD -MP
 MODERN_SECTION_FLAGS = -ffunction-sections -fdata-sections
+# Developer and test builds retain runtime diagnostics.  Tagged release jobs
+# explicitly select the optimized, uninstrumented host build.
+ifeq ($(MODERN_RELEASE),1)
+override MODERN_SANITIZER_FLAGS =
+else
 override MODERN_SANITIZER_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
+endif
 MODERN_DEAD_STRIP_DARWIN = -Wl,-dead_strip -Wl,-no_fixup_chains
 MODERN_DEAD_STRIP_OTHER = -Wl,--gc-sections
 MODERN_DEAD_STRIP_FLAGS = $(if $(filter Darwin,$(UNAME_S)),\

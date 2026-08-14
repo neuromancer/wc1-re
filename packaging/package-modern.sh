@@ -58,8 +58,7 @@ if test "$platform" = linux; then
             continue
         fi
         case "$name" in
-            libSDL2*.so*|liblzo2*.so*|libasan*.so*|libubsan*.so*|\
-            libclang_rt.asan*.so*|libstdc++.so*|libgcc_s.so*)
+            libSDL2*.so*|liblzo2*.so*|libstdc++.so*|libgcc_s.so*)
                 cp -L "$path" "$stage_dir/$name"
                 ;;
         esac
@@ -74,7 +73,7 @@ elif test "$platform" = macos; then
     while read -r dependency; do
         name=$(basename "$dependency")
         case "$name" in
-            libSDL2*.dylib|liblzo2*.dylib|libclang_rt.asan*.dylib)
+            libSDL2*.dylib|liblzo2*.dylib)
                 source=$dependency
                 case "$source" in
                     @rpath/*) source="$runtime_dir/$name" ;;
@@ -92,7 +91,6 @@ elif test "$platform" = macos; then
 
     compgen -G "$stage_dir/libSDL2*.dylib" >/dev/null
     compgen -G "$stage_dir/liblzo2*.dylib" >/dev/null
-    compgen -G "$stage_dir/libclang_rt.asan*.dylib" >/dev/null
     codesign --force --sign - "$executable"
 else
     : "${MINGW_PREFIX:?MINGW_PREFIX is required for Windows packaging}"
@@ -111,7 +109,6 @@ else
 
     test -f "$stage_dir/SDL2.dll"
     test -f "$stage_dir/liblzo2-2.dll"
-    compgen -G "$stage_dir/*asan*.dll" >/dev/null
 fi
 
 (

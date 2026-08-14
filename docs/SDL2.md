@@ -17,9 +17,10 @@ reference build or its binary comparisons.
 - Native objects live under `out-modern/` and never enter `WC1.EXE` or
   `binary-comp` comparisons.
 
-The native build is compiled with AddressSanitizer and
+Normal native development builds are compiled with AddressSanitizer and
 UndefinedBehaviorSanitizer. A sanitizer report is a port bug, even when the
-original executable happened to tolerate the same memory access.
+original executable happened to tolerate the same memory access. Release
+archives use `MODERN_RELEASE=1` to omit sanitizer instrumentation.
 
 ## Game data and audio
 

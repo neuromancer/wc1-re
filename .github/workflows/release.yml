@@ -109,13 +109,26 @@ jobs:
       - name: Install macOS dependencies
         if: matrix.platform == 'macos'
         run: brew install lzo pkg-config sdl2
-      - name: Build sanitizer-enabled SDL2 port
-        run: make -j2 modern
-      - name: Validate native architecture
+      - name: Build SDL2 release port
+        run: make -j2 modern MODERN_RELEASE=1
+      - name: Validate native release binary
         run: |
           test -s out-modern/wc1-modern
           file out-modern/wc1-modern
           test "$(uname -m)" = "${{ matrix.architecture }}"
+          if nm -u out-modern/wc1-modern | grep -Eiq '__asan_|__ubsan_'; then
+            echo "Release binary contains sanitizer instrumentation." >&2
+            exit 1
+          fi
+          if [[ "${{ matrix.platform }}" == linux ]]; then
+            dependencies=$(ldd out-modern/wc1-modern)
+          else
+            dependencies=$(otool -L out-modern/wc1-modern)
+          fi
+          if grep -Eiq 'asan|ubsan' <<< "$dependencies"; then
+            echo "Release binary links a sanitizer runtime." >&2
+            exit 1
+          fi
       - name: Package SDL2 port
         run: >-
           packaging/package-modern.sh
@@ -155,12 +168,23 @@ jobs:
             mingw-w64-clang-x86_64-ntldd
             mingw-w64-clang-x86_64-pkgconf
             mingw-w64-clang-x86_64-SDL2
-      - name: Build sanitizer-enabled SDL2 port
+      - name: Build SDL2 release port
         shell: msys2 {0}
-        run: make -j2 modern MODERN_CC=clang MODERN_CXX=clang++
+        run: >-
+          make -j2 modern MODERN_RELEASE=1
+          MODERN_CC=clang MODERN_CXX=clang++
       - name: Validate Windows executable
         shell: msys2 {0}
-        run: test -s out-modern/wc1-modern.exe
+        run: |
+          test -s out-modern/wc1-modern.exe
+          if llvm-nm -u out-modern/wc1-modern.exe | grep -Eiq '__asan_|__ubsan_'; then
+            echo "Release binary contains sanitizer instrumentation." >&2
+            exit 1
+          fi
+          if ntldd -R out-modern/wc1-modern.exe | grep -Eiq 'asan|ubsan'; then
+            echo "Release binary links a sanitizer runtime." >&2
+            exit 1
+          fi
       - name: Package SDL2 port
         shell: msys2 {0}
         run: >-

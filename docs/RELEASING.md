@@ -25,5 +25,7 @@ existing tag, generates release notes, attaches SHA-256 checksums, and uploads:
 - the SDL2 port for macOS arm64.
 
 No retail executable, disc image, installed game data, save file, or local
-configuration is included. The SDL2 archives retain the project's mandatory
-AddressSanitizer and UndefinedBehaviorSanitizer instrumentation.
+configuration is included. SDL2 development builds retain the project's
+AddressSanitizer and UndefinedBehaviorSanitizer instrumentation; release jobs
+use `MODERN_RELEASE=1` and verify that published binaries do not contain or
+link sanitizer runtimes.
