@@ -1,6 +1,6 @@
 #include "wc1.h"
 
-int main(void)
+int main(int argumentCount, char **arguments)
 {
     short ship = 1;
     short target = 2;

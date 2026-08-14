@@ -720,7 +720,7 @@ static int RunGlRendererChecks(Viewport *viewport, unsigned char *pixels)
     return 1;
 }
 
-int main(void)
+int main(int argumentCount, char **arguments)
 {
     unsigned char *pixels;
     short colour[3];
