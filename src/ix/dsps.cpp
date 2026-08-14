@@ -83,7 +83,7 @@ void ix_dsps_free(int stream)
     if ((g_streams_00598138[stream].flags & IX_STREAM_PLAYING) != 0)
         ix_dsps_stop(stream);
     DeleteCriticalSection(&g_streams_00598138[stream].cs);
-    delete g_streams_00598138[stream].buffer;
+    delete[] g_streams_00598138[stream].buffer;
     g_nStreamsAllocated_00598134 = g_nStreamsAllocated_00598134 - 1;
     g_streams_00598138[stream].flags &= ~IX_STREAM_ALLOCATED;
 }

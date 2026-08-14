@@ -55,7 +55,7 @@ int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
 }
 
 /* Function start: 0x418130 */
-unsigned short GetMusicDriverPresent(void)
+unsigned short GetMusicDriverPresent(short mode)
 {
     return 1;
 }

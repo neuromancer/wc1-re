@@ -535,7 +535,7 @@ void SelectCockpitVduMode(short vdu, int mode);                       /* 0x00417
 short __stdcall MeasureTextPixelWidthClamped(const char *text);         /* 0x00418080 */
 int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
                                 short origin);                         /* 0x004180C0 */
-unsigned short GetMusicDriverPresent(void);                                    /* 0x00418130 */
+unsigned short GetMusicDriverPresent(short mode);                              /* 0x00418130 */
 short __stdcall CollectActivePaletteIndices(Viewport *viewport,
                                              unsigned char *indices,
                                              short capacity);          /* 0x00418140 */
@@ -1211,7 +1211,7 @@ unsigned int __stdcall GetPacketSize(const char *filename,
                                      short section);                  /* 0x0042F810 */
 int GetFreeNearHeapBytes(void);                                       /* 0x0042F890 */
 void FrameStartHook(int mode);                                         /* 0x0042F930 */
-unsigned short IsSoundHardwarePresent(void);                                     /* 0x0042F940 */
+unsigned short IsSoundHardwarePresent(short device);                           /* 0x0042F940 */
 void MessagePumpHook(int mode);                                        /* 0x0042F950 */
 void *PushMemoryStackFrame(void *memory, int offset);                   /* 0x0042F960 */
 int IsPushedPacketHandle(void *handle);                                /* 0x0042F9E0 */
@@ -1379,7 +1379,7 @@ void __stdcall DosMemset(void *destination, unsigned int count,
 unsigned short GetEventManagerStatus(void);                            /* 0x00435550 */
 void __stdcall RegisterEventManagerShutdown(void (*fn)(void));         /* 0x00435560 */
 short __stdcall InitializeEventManager(short period,
-                                       void (*initialize)(void),
+                                       unsigned short (*initialize)(void),
                                        void *configuration);           /* 0x00435570 */
 void ShutdownEventManager(void);                                      /* 0x00435590 */
 unsigned short __stdcall ConfigureEventManagerPointer(

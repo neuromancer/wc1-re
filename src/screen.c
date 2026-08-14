@@ -399,7 +399,7 @@ void FrameStartHook(int mode)
 }
 
 /* Function start: 0x42F940 */
-unsigned short IsSoundHardwarePresent(void)
+unsigned short IsSoundHardwarePresent(short device)
 {
     GetSoundHardwareFlag();
     return 1;

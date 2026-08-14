@@ -73,7 +73,7 @@ void __stdcall RegisterEventManagerShutdown(void (*fn)(void))
 
 /* Function start: 0x435570 */
 short __stdcall InitializeEventManager(short period,
-                                       void (*initialize)(void),
+                                       unsigned short (*initialize)(void),
                                        void *configuration)
 {
     g_nEventManagerActive_0059a850 = 1;

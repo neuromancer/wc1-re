@@ -471,14 +471,13 @@ unsigned int LoadOriginFxDrivers(void)
     memoryThreshold = 100000;
     _chdir("gamedat");
     g_nNearHeapMaxDescriptors_004688c4 = 0x80;
-    ((unsigned short (__cdecl *)(short))IsSoundHardwarePresent)(8);
+    IsSoundHardwarePresent(8);
     if (DAT_0059a856 == 0)
         SystemDebugPrintf("No ");
     SystemDebugPrintf("Expanded Memory Detected.\n");
     g_bGraphicsActive_00469a20 = 0;
     PromptInsertNumberedDisk(0x38);
-    if (((unsigned short (__cdecl *)(short))GetMusicDriverPresent)(
-            g_bSlowSceneAnimation_00469998) == 0)
+    if (GetMusicDriverPresent(g_bSlowSceneAnimation_00469998) == 0)
         exit_squadron("Failed to load Origin-FX drivers");
     RewriteDiskFileGraphicsExtensions(g_bSlowSceneAnimation_00469998);
     LoadJoystickCalibrationFile(9, 9, 1, 1);
