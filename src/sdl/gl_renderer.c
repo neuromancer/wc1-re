@@ -59,6 +59,7 @@ typedef void (APIENTRY *Wc1GlGetShaderInfoLogProc)(GLuint shader,
                                                   GLchar *log);
 typedef void (APIENTRY *Wc1GlGetShaderivProc)(GLuint shader, GLenum name,
                                              GLint *value);
+typedef void (APIENTRY *Wc1GlGetIntegervProc)(GLenum name, GLint *value);
 typedef GLint (APIENTRY *Wc1GlGetUniformLocationProc)(GLuint program,
                                                      const GLchar *name);
 typedef void (APIENTRY *Wc1GlLinkProgramProc)(GLuint program);
@@ -71,13 +72,19 @@ typedef void (APIENTRY *Wc1GlTexImage2DProc)(GLenum target, GLint level,
                                             GLsizei width, GLsizei height,
                                             GLint border, GLenum format,
                                             GLenum type, const void *pixels);
+typedef void (APIENTRY *Wc1GlTexImage3DProc)(GLenum target, GLint level,
+                                            GLint internalFormat,
+                                            GLsizei width, GLsizei height,
+                                            GLsizei depth, GLint border,
+                                            GLenum format, GLenum type,
+                                            const void *pixels);
 typedef void (APIENTRY *Wc1GlTexParameteriProc)(GLenum target, GLenum name,
                                                GLint value);
-typedef void (APIENTRY *Wc1GlUniform1fProc)(GLint location, GLfloat value);
+typedef void (APIENTRY *Wc1GlTexSubImage3DProc)(
+    GLenum target, GLint level, GLint xOffset, GLint yOffset, GLint zOffset,
+    GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type,
+    const void *pixels);
 typedef void (APIENTRY *Wc1GlUniform1iProc)(GLint location, GLint value);
-typedef void (APIENTRY *Wc1GlUniform4fProc)(GLint location, GLfloat first,
-                                           GLfloat second, GLfloat third,
-                                           GLfloat fourth);
 typedef void (APIENTRY *Wc1GlUseProgramProc)(GLuint program);
 typedef void (APIENTRY *Wc1GlVertexAttribPointerProc)(GLuint index, GLint size,
                                                      GLenum type,
@@ -117,15 +124,16 @@ typedef struct Wc1GlFunctions {
     Wc1GlGetProgramivProc GetProgramiv;
     Wc1GlGetShaderInfoLogProc GetShaderInfoLog;
     Wc1GlGetShaderivProc GetShaderiv;
+    Wc1GlGetIntegervProc GetIntegerv;
     Wc1GlGetUniformLocationProc GetUniformLocation;
     Wc1GlLinkProgramProc LinkProgram;
     Wc1GlPixelStoreiProc PixelStorei;
     Wc1GlShaderSourceProc ShaderSource;
     Wc1GlTexImage2DProc TexImage2D;
+    Wc1GlTexImage3DProc TexImage3D;
     Wc1GlTexParameteriProc TexParameteri;
-    Wc1GlUniform1fProc Uniform1f;
+    Wc1GlTexSubImage3DProc TexSubImage3D;
     Wc1GlUniform1iProc Uniform1i;
-    Wc1GlUniform4fProc Uniform4f;
     Wc1GlUseProgramProc UseProgram;
     Wc1GlVertexAttribPointerProc VertexAttribPointer;
     Wc1GlViewportProc Viewport;
@@ -136,15 +144,34 @@ typedef struct Wc1GlVertex {
     float y;
     float u;
     float v;
+    float atlasLeft;
+    float atlasTop;
+    float atlasWidth;
+    float atlasHeight;
+    float clipLeft;
+    float clipTop;
+    float clipRight;
+    float clipBottom;
+    float magnification;
+    float atlasLayer;
 } Wc1GlVertex;
 
-typedef struct Wc1GlSprite {
-    unsigned char *pixels;
-    size_t capacity;
+typedef struct Wc1GlCachedFrame {
+    unsigned char *shape;
+    int dataOffset;
     int width;
     int height;
+    unsigned short shapeTableEnd;
     short leftExtent;
     short topExtent;
+    short frame;
+    short atlasLayer;
+    short atlasLeft;
+    short atlasTop;
+} Wc1GlCachedFrame;
+
+typedef struct Wc1GlSprite {
+    const Wc1GlCachedFrame *cachedFrame;
     short x;
     short y;
     short angle;
@@ -156,6 +183,12 @@ typedef struct Wc1GlSprite {
     short clipBottom;
 } Wc1GlSprite;
 
+typedef struct Wc1GlAtlasLayer {
+    int nextX;
+    int nextY;
+    int rowHeight;
+} Wc1GlAtlasLayer;
+
 typedef enum Wc1GlFrameState {
     WC1_GL_FRAME_IDLE,
     WC1_GL_FRAME_RECORDING,
@@ -165,13 +198,24 @@ typedef enum Wc1GlFrameState {
 /* A full world-object list may be followed by four three-part launch doors.
    The title logo uses only three additional entries. */
 #define WC1_GL_RECORDED_SPRITE_CAPACITY (WC1_SPACE_OBJECT_COUNT + 12)
+#define WC1_GL_SPRITE_VERTEX_COUNT (WC1_GL_RECORDED_SPRITE_CAPACITY * 6)
+#define WC1_GL_SPRITE_ATLAS_MAX_SIZE 2048
+#define WC1_GL_SPRITE_ATLAS_LAYER_CAPACITY 4
+#define WC1_GL_SPRITE_ATLAS_PADDING 1
+#define WC1_GL_CACHED_FRAME_CAPACITY 2048
 
 static const GLchar g_vertexShaderSource[] =
     "#version 150\n"
     "in vec2 a_position;\n"
     "in vec2 a_texCoord;\n"
+    "in vec4 a_atlasRect;\n"
+    "in vec4 a_clip;\n"
+    "in vec2 a_spriteInfo;\n"
     "out vec2 v_texCoord;\n"
     "out vec2 v_screen;\n"
+    "flat out vec4 v_atlasRect;\n"
+    "flat out vec4 v_clip;\n"
+    "flat out vec2 v_spriteInfo;\n"
     "void main()\n"
     "{\n"
     "    vec2 position;\n"
@@ -180,6 +224,9 @@ static const GLchar g_vertexShaderSource[] =
     "    gl_Position = vec4(position, 0.0, 1.0);\n"
     "    v_texCoord = a_texCoord;\n"
     "    v_screen = a_position;\n"
+    "    v_atlasRect = a_atlasRect;\n"
+    "    v_clip = a_clip;\n"
+    "    v_spriteInfo = a_spriteInfo;\n"
     "}\n";
 
 static const GLchar g_baseFragmentShaderSource[] =
@@ -200,24 +247,28 @@ static const GLchar g_baseFragmentShaderSource[] =
 
 static const GLchar g_spriteFragmentShaderSource[] =
     "#version 150\n"
-    "uniform sampler2D u_indices;\n"
+    "uniform sampler2DArray u_indices;\n"
     "uniform sampler2D u_palette;\n"
     "uniform sampler2D u_baseIndices;\n"
     "uniform sampler2D u_viewMask;\n"
-    "uniform float u_magnification;\n"
     "uniform int u_clearIndex;\n"
-    "uniform vec4 u_clip;\n"
     "in vec2 v_texCoord;\n"
     "in vec2 v_screen;\n"
+    "flat in vec4 v_atlasRect;\n"
+    "flat in vec4 v_clip;\n"
+    "flat in vec2 v_spriteInfo;\n"
     "out vec4 outputColour;\n"
     "vec4 indexedColour(ivec2 point)\n"
     "{\n"
-    "    ivec2 size = textureSize(u_indices, 0);\n"
+    "    ivec4 atlasRect = ivec4(v_atlasRect);\n"
+    "    ivec2 size = atlasRect.zw;\n"
     "    if (point.x < 0 || point.y < 0 ||\n"
     "        point.x >= size.x || point.y >= size.y)\n"
     "        return vec4(0.0);\n"
     "    int index = int(floor(\n"
-    "        texelFetch(u_indices, point, 0).r * 255.0 + 0.5));\n"
+    "        texelFetch(u_indices,\n"
+    "                   ivec3(atlasRect.xy + point, int(v_spriteInfo.y)),\n"
+    "                   0).r * 255.0 + 0.5));\n"
     "    if (index == 255)\n"
     "        return vec4(0.0);\n"
     "    vec4 colour = texelFetch(u_palette, ivec2(index, 0), 0);\n"
@@ -225,8 +276,8 @@ static const GLchar g_spriteFragmentShaderSource[] =
     "}\n"
     "void main()\n"
     "{\n"
-    "    if (v_screen.x < u_clip.x || v_screen.y < u_clip.y ||\n"
-    "        v_screen.x > u_clip.z || v_screen.y > u_clip.w)\n"
+    "    if (v_screen.x < v_clip.x || v_screen.y < v_clip.y ||\n"
+    "        v_screen.x > v_clip.z || v_screen.y > v_clip.w)\n"
     "        discard;\n"
     "    ivec2 logical = ivec2(floor(v_screen + vec2(0.5)));\n"
     "    if (logical.x < 0 || logical.y < 0 ||\n"
@@ -238,11 +289,11 @@ static const GLchar g_spriteFragmentShaderSource[] =
     "        texelFetch(u_baseIndices, logical, 0).r * 255.0 + 0.5));\n"
     "    if (baseIndex != u_clearIndex)\n"
     "        discard;\n"
-    "    ivec2 size = textureSize(u_indices, 0);\n"
+    "    vec2 size = v_atlasRect.zw;\n"
     "    vec2 source = v_texCoord * vec2(size) - vec2(0.5);\n"
     "    ivec2 first = ivec2(floor(source));\n"
     "    vec2 fraction = fract(source);\n"
-    "    float band = min(1.0, 1.0 / max(u_magnification, 0.0001));\n"
+    "    float band = min(1.0, 1.0 / max(v_spriteInfo.x, 0.0001));\n"
     "    fraction = clamp(\n"
     "        (fraction - vec2(0.5)) / band + vec2(0.5), 0.0, 1.0);\n"
     "    vec4 top = mix(indexedColour(first),\n"
@@ -265,28 +316,35 @@ typedef struct Wc1GlRenderer {
     GLuint baseTexture;
     GLuint paletteTexture;
     GLuint maskTexture;
-    GLuint spriteTexture;
+    GLuint spriteAtlasTexture;
     GLint baseIndicesUniform;
     GLint basePaletteUniform;
     GLint spriteIndicesUniform;
     GLint spritePaletteUniform;
     GLint spriteBaseUniform;
     GLint spriteMaskUniform;
-    GLint spriteMagnificationUniform;
     GLint spriteClearUniform;
-    GLint spriteClipUniform;
     Wc1GlFrameState frameState;
     int hasLayerSnapshot;
     int hasLastFrame;
     int spaceLayerOffsetX;
     int spaceLayerOffsetY;
+    int spriteAtlasSize;
+    int spriteAtlasLayerCount;
+    int atlasResetPending;
+    int useSoftwareForRestOfFrame;
     unsigned char spaceClearColour;
     unsigned int spriteCount;
+    unsigned char *decodeScratch;
+    size_t decodeScratchCapacity;
+    Wc1GlAtlasLayer atlasLayers[WC1_GL_SPRITE_ATLAS_LAYER_CAPACITY];
     unsigned char viewMask[WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT];
     unsigned char spaceFrameBase[WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT];
     unsigned char presentedFrame[WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT];
     unsigned char presentedPalette[256 * 4];
+    Wc1GlCachedFrame cachedFrames[WC1_GL_CACHED_FRAME_CAPACITY];
     Wc1GlSprite recordedSprites[WC1_GL_RECORDED_SPRITE_CAPACITY];
+    Wc1GlVertex spriteVertices[WC1_GL_SPRITE_VERTEX_COUNT];
 } Wc1GlRenderer;
 
 static Wc1GlRenderer g_renderer;
@@ -296,18 +354,20 @@ static void ResetRecordedSprites(void)
     g_renderer.spriteCount = 0;
 }
 
-static void ReleaseSpriteStorage(void)
+static void ResetSpriteAtlasCache(void)
 {
-    unsigned int index;
+    memset(g_renderer.atlasLayers, 0, sizeof(g_renderer.atlasLayers));
+    memset(g_renderer.cachedFrames, 0, sizeof(g_renderer.cachedFrames));
+    g_renderer.atlasResetPending = 0;
+}
 
-    index = 0;
-    while (index < WC1_GL_RECORDED_SPRITE_CAPACITY) {
-        free(g_renderer.recordedSprites[index].pixels);
-        g_renderer.recordedSprites[index].pixels = 0;
-        g_renderer.recordedSprites[index].capacity = 0;
-        index++;
-    }
-    g_renderer.spriteCount = 0;
+static void ReleaseRendererStorage(void)
+{
+    free(g_renderer.decodeScratch);
+    g_renderer.decodeScratch = 0;
+    g_renderer.decodeScratchCapacity = 0;
+    ResetRecordedSprites();
+    ResetSpriteAtlasCache();
 }
 
 static void CopyBaseWithoutMouse(unsigned char *destination,
@@ -387,6 +447,7 @@ static int LoadGlFunctions(void)
     WC1_LOAD_GL_FUNCTION(GetShaderInfoLog, Wc1GlGetShaderInfoLogProc,
                          "glGetShaderInfoLog");
     WC1_LOAD_GL_FUNCTION(GetShaderiv, Wc1GlGetShaderivProc, "glGetShaderiv");
+    WC1_LOAD_GL_FUNCTION(GetIntegerv, Wc1GlGetIntegervProc, "glGetIntegerv");
     WC1_LOAD_GL_FUNCTION(GetUniformLocation, Wc1GlGetUniformLocationProc,
                          "glGetUniformLocation");
     WC1_LOAD_GL_FUNCTION(LinkProgram, Wc1GlLinkProgramProc, "glLinkProgram");
@@ -394,11 +455,12 @@ static int LoadGlFunctions(void)
     WC1_LOAD_GL_FUNCTION(ShaderSource, Wc1GlShaderSourceProc,
                          "glShaderSource");
     WC1_LOAD_GL_FUNCTION(TexImage2D, Wc1GlTexImage2DProc, "glTexImage2D");
+    WC1_LOAD_GL_FUNCTION(TexImage3D, Wc1GlTexImage3DProc, "glTexImage3D");
     WC1_LOAD_GL_FUNCTION(TexParameteri, Wc1GlTexParameteriProc,
                          "glTexParameteri");
-    WC1_LOAD_GL_FUNCTION(Uniform1f, Wc1GlUniform1fProc, "glUniform1f");
+    WC1_LOAD_GL_FUNCTION(TexSubImage3D, Wc1GlTexSubImage3DProc,
+                         "glTexSubImage3D");
     WC1_LOAD_GL_FUNCTION(Uniform1i, Wc1GlUniform1iProc, "glUniform1i");
-    WC1_LOAD_GL_FUNCTION(Uniform4f, Wc1GlUniform4fProc, "glUniform4f");
     WC1_LOAD_GL_FUNCTION(UseProgram, Wc1GlUseProgramProc, "glUseProgram");
     WC1_LOAD_GL_FUNCTION(VertexAttribPointer, Wc1GlVertexAttribPointerProc,
                          "glVertexAttribPointer");
@@ -454,6 +516,9 @@ static GLuint LinkGlProgram(const GLchar *fragmentSource)
         g_renderer.gl.AttachShader(program, fragmentShader);
         g_renderer.gl.BindAttribLocation(program, 0, "a_position");
         g_renderer.gl.BindAttribLocation(program, 1, "a_texCoord");
+        g_renderer.gl.BindAttribLocation(program, 2, "a_atlasRect");
+        g_renderer.gl.BindAttribLocation(program, 3, "a_clip");
+        g_renderer.gl.BindAttribLocation(program, 4, "a_spriteInfo");
         g_renderer.gl.LinkProgram(program);
         g_renderer.gl.GetProgramiv(program, GL_LINK_STATUS, &status);
         if (status == GL_FALSE) {
@@ -485,37 +550,27 @@ static int LoadGlUniformLocations(void)
         g_renderer.spriteProgram, "u_baseIndices");
     g_renderer.spriteMaskUniform = g_renderer.gl.GetUniformLocation(
         g_renderer.spriteProgram, "u_viewMask");
-    g_renderer.spriteMagnificationUniform = g_renderer.gl.GetUniformLocation(
-        g_renderer.spriteProgram, "u_magnification");
     g_renderer.spriteClearUniform = g_renderer.gl.GetUniformLocation(
         g_renderer.spriteProgram, "u_clearIndex");
-    g_renderer.spriteClipUniform =
-        g_renderer.gl.GetUniformLocation(g_renderer.spriteProgram, "u_clip");
     if (g_renderer.baseIndicesUniform < 0 ||
         g_renderer.basePaletteUniform < 0 ||
         g_renderer.spriteIndicesUniform < 0 ||
         g_renderer.spritePaletteUniform < 0 ||
         g_renderer.spriteBaseUniform < 0 || g_renderer.spriteMaskUniform < 0 ||
-        g_renderer.spriteMagnificationUniform < 0 ||
-        g_renderer.spriteClearUniform < 0 ||
-        g_renderer.spriteClipUniform < 0) {
+        g_renderer.spriteClearUniform < 0) {
         fprintf(stderr, "OpenGL renderer uniforms are unavailable.\n");
         return 0;
     }
     return 1;
 }
 
-static void ConfigureGlTexture(GLuint texture)
+static void ConfigureGlTexture(GLenum target, GLuint texture)
 {
-    g_renderer.gl.BindTexture(GL_TEXTURE_2D, texture);
-    g_renderer.gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                                GL_NEAREST);
-    g_renderer.gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                                GL_NEAREST);
-    g_renderer.gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                                GL_CLAMP_TO_EDGE);
-    g_renderer.gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                                GL_CLAMP_TO_EDGE);
+    g_renderer.gl.BindTexture(target, texture);
+    g_renderer.gl.TexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    g_renderer.gl.TexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    g_renderer.gl.TexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    g_renderer.gl.TexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 static void UploadIndexTexture(GLuint texture, int width, int height,
@@ -524,6 +579,161 @@ static void UploadIndexTexture(GLuint texture, int width, int height,
     g_renderer.gl.BindTexture(GL_TEXTURE_2D, texture);
     g_renderer.gl.TexImage2D(GL_TEXTURE_2D, 0, GL_R8, width, height, 0, GL_RED,
                              GL_UNSIGNED_BYTE, pixels);
+}
+
+static unsigned int GetCachedFrameHash(const unsigned char *shape, short frame,
+                                       int dataOffset)
+{
+    uintptr_t pointerHash;
+    unsigned int hash;
+
+    pointerHash = (uintptr_t)shape;
+    hash = (unsigned int)(pointerHash ^ (pointerHash >> 16));
+    hash ^= (unsigned int)(unsigned short)frame * 0x9e3779b1U;
+    hash ^= (unsigned int)dataOffset * 0x85ebca6bU;
+    hash ^= hash >> 16;
+    return hash & (WC1_GL_CACHED_FRAME_CAPACITY - 1);
+}
+
+static Wc1GlCachedFrame *FindCachedFrameSlot(
+    unsigned char *shape, short frame, int dataOffset,
+    unsigned short shapeTableEnd, int width, int height, short leftExtent,
+    short topExtent, int *cacheHit)
+{
+    Wc1GlCachedFrame *cachedFrame;
+    unsigned int slot;
+    unsigned int probe;
+
+    slot = GetCachedFrameHash(shape, frame, dataOffset);
+    probe = 0;
+    while (probe < WC1_GL_CACHED_FRAME_CAPACITY) {
+        cachedFrame = &g_renderer.cachedFrames[slot];
+        if (cachedFrame->shape == 0) {
+            *cacheHit = 0;
+            return cachedFrame;
+        }
+        if (cachedFrame->shape == shape && cachedFrame->frame == frame &&
+            cachedFrame->dataOffset == dataOffset &&
+            cachedFrame->shapeTableEnd == shapeTableEnd) {
+            *cacheHit = cachedFrame->width == width &&
+                        cachedFrame->height == height &&
+                        cachedFrame->leftExtent == leftExtent &&
+                        cachedFrame->topExtent == topExtent;
+            return cachedFrame;
+        }
+        slot = (slot + 1) & (WC1_GL_CACHED_FRAME_CAPACITY - 1);
+        probe++;
+    }
+    return 0;
+}
+
+static int ReserveSpriteAtlasRect(int width, int height, short *atlasLayer,
+                                  short *atlasLeft, short *atlasTop)
+{
+    Wc1GlAtlasLayer *layer;
+    int packedWidth;
+    int packedHeight;
+    int x;
+    int y;
+    int layerIndex;
+
+    packedWidth = width + WC1_GL_SPRITE_ATLAS_PADDING * 2;
+    packedHeight = height + WC1_GL_SPRITE_ATLAS_PADDING * 2;
+    if (packedWidth > g_renderer.spriteAtlasSize ||
+        packedHeight > g_renderer.spriteAtlasSize)
+        return 0;
+    layerIndex = 0;
+    while (layerIndex < g_renderer.spriteAtlasLayerCount) {
+        layer = &g_renderer.atlasLayers[layerIndex];
+        x = layer->nextX;
+        y = layer->nextY;
+        if (x + packedWidth > g_renderer.spriteAtlasSize) {
+            x = 0;
+            y += layer->rowHeight;
+        }
+        if (y + packedHeight <= g_renderer.spriteAtlasSize) {
+            *atlasLayer = (short)layerIndex;
+            *atlasLeft = (short)(x + WC1_GL_SPRITE_ATLAS_PADDING);
+            *atlasTop = (short)(y + WC1_GL_SPRITE_ATLAS_PADDING);
+            layer->nextX = x + packedWidth;
+            layer->nextY = y;
+            if (x == 0)
+                layer->rowHeight = packedHeight;
+            else if (packedHeight > layer->rowHeight)
+                layer->rowHeight = packedHeight;
+            return 1;
+        }
+        layerIndex++;
+    }
+    return 0;
+}
+
+static const Wc1GlCachedFrame *CacheShapeFrame(
+    unsigned char *shape, short frame, int dataOffset,
+    unsigned short shapeTableEnd, int width, int height, short leftExtent,
+    short topExtent, size_t pixelCount)
+{
+    Wc1GlCachedFrame *cachedFrame;
+    unsigned char *resizedScratch;
+    short atlasLayer;
+    short atlasLeft;
+    short atlasTop;
+    int packedWidth;
+    int packedHeight;
+    int cacheHit;
+
+    cacheHit = 0;
+    cachedFrame = FindCachedFrameSlot(
+        shape, frame, dataOffset, shapeTableEnd, width, height, leftExtent,
+        topExtent, &cacheHit);
+    if (cachedFrame == 0) {
+        g_renderer.atlasResetPending = 1;
+        return 0;
+    }
+    if (cacheHit)
+        return cachedFrame;
+
+    packedWidth = width + WC1_GL_SPRITE_ATLAS_PADDING * 2;
+    packedHeight = height + WC1_GL_SPRITE_ATLAS_PADDING * 2;
+    if (packedWidth > g_renderer.spriteAtlasSize ||
+        packedHeight > g_renderer.spriteAtlasSize)
+        return 0;
+    if (g_renderer.decodeScratchCapacity < pixelCount) {
+        resizedScratch =
+            (unsigned char *)realloc(g_renderer.decodeScratch, pixelCount);
+        if (resizedScratch == 0)
+            return 0;
+        g_renderer.decodeScratch = resizedScratch;
+        g_renderer.decodeScratchCapacity = pixelCount;
+    }
+    if (!ReserveSpriteAtlasRect(width, height, &atlasLayer, &atlasLeft,
+                                &atlasTop)) {
+        g_renderer.atlasResetPending = 1;
+        return 0;
+    }
+
+    memset(g_renderer.decodeScratch, 0xff, pixelCount);
+    DecodeShapeFrame(shape, frame, g_renderer.decodeScratch, width, height,
+                     leftExtent, topExtent);
+    g_renderer.gl.ActiveTexture(GL_TEXTURE0);
+    g_renderer.gl.BindTexture(GL_TEXTURE_2D_ARRAY,
+                              g_renderer.spriteAtlasTexture);
+    g_renderer.gl.TexSubImage3D(
+        GL_TEXTURE_2D_ARRAY, 0, atlasLeft, atlasTop, atlasLayer, width, height,
+        1, GL_RED, GL_UNSIGNED_BYTE, g_renderer.decodeScratch);
+
+    cachedFrame->shape = shape;
+    cachedFrame->dataOffset = dataOffset;
+    cachedFrame->width = width;
+    cachedFrame->height = height;
+    cachedFrame->shapeTableEnd = shapeTableEnd;
+    cachedFrame->leftExtent = leftExtent;
+    cachedFrame->topExtent = topExtent;
+    cachedFrame->frame = frame;
+    cachedFrame->atlasLayer = atlasLayer;
+    cachedFrame->atlasLeft = atlasLeft;
+    cachedFrame->atlasTop = atlasTop;
+    return cachedFrame;
 }
 
 static void UploadPaletteTexture(const unsigned char *palette)
@@ -554,10 +764,15 @@ static void DrawGlQuad(const Wc1GlVertex *vertices)
 
 static void DrawBaseFrame(void)
 {
-    const Wc1GlVertex vertices[4] = {{-0.5f, -0.5f, 0.0f, 0.0f},
-                                     {-0.5f, 199.5f, 0.0f, 1.0f},
-                                     {319.5f, -0.5f, 1.0f, 0.0f},
-                                     {319.5f, 199.5f, 1.0f, 1.0f}};
+    const Wc1GlVertex vertices[4] = {
+        {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 0.0f},
+        {-0.5f, 199.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 0.0f},
+        {319.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 0.0f},
+        {319.5f, 199.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 0.0f}};
 
     g_renderer.gl.Disable(GL_BLEND);
     g_renderer.gl.UseProgram(g_renderer.baseProgram);
@@ -584,9 +799,34 @@ static void TransformSpriteVertex(Wc1GlVertex *vertex, float sourceX,
     vertex->v = textureY;
 }
 
-static void DrawRecordedSprite(const Wc1GlSprite *sprite, float outputScale)
+static void SetSpriteVertexMetadata(Wc1GlVertex *vertex,
+                                    const Wc1GlSprite *sprite,
+                                    float outputScale)
 {
-    Wc1GlVertex vertices[4];
+    const Wc1GlCachedFrame *cachedFrame;
+
+    cachedFrame = sprite->cachedFrame;
+    vertex->atlasLeft = (float)cachedFrame->atlasLeft;
+    vertex->atlasTop = (float)cachedFrame->atlasTop;
+    vertex->atlasWidth = (float)cachedFrame->width;
+    vertex->atlasHeight = (float)cachedFrame->height;
+    vertex->clipLeft = (float)sprite->clipLeft - 0.5f;
+    vertex->clipTop = (float)sprite->clipTop - 0.5f;
+    vertex->clipRight = (float)sprite->clipRight + 0.5f;
+    vertex->clipBottom = (float)sprite->clipBottom + 0.5f;
+    vertex->magnification =
+        outputScale *
+        (sprite->scale < 0 ? -(float)sprite->scale : (float)sprite->scale) /
+        256.0f;
+    vertex->atlasLayer = (float)cachedFrame->atlasLayer;
+}
+
+static void BuildRecordedSpriteVertices(const Wc1GlSprite *sprite,
+                                        float outputScale,
+                                        Wc1GlVertex *vertices)
+{
+    const Wc1GlCachedFrame *cachedFrame;
+    Wc1GlVertex corners[4];
     float left;
     float top;
     float right;
@@ -597,7 +837,9 @@ static void DrawRecordedSprite(const Wc1GlSprite *sprite, float outputScale)
     float sine;
     int fixedCosine;
     int fixedSine;
+    int corner;
 
+    cachedFrame = sprite->cachedFrame;
     GetRLETransformTrig((int)sprite->angle * 10, &fixedCosine, &fixedSine);
     cosine = (float)fixedCosine / 65536.0f;
     sine = (float)fixedSine / 65536.0f;
@@ -607,36 +849,33 @@ static void DrawRecordedSprite(const Wc1GlSprite *sprite, float outputScale)
         scaleX = -scaleX;
     if ((sprite->flip & 0x20) != 0)
         scaleY = -scaleY;
-    left = -(float)sprite->leftExtent - 0.5f;
-    top = -(float)sprite->topExtent - 0.5f;
-    right = left + sprite->width;
-    bottom = top + sprite->height;
-    TransformSpriteVertex(&vertices[0], left, top, 0.0f, 0.0f,
+    left = -(float)cachedFrame->leftExtent - 0.5f;
+    top = -(float)cachedFrame->topExtent - 0.5f;
+    right = left + cachedFrame->width;
+    bottom = top + cachedFrame->height;
+    TransformSpriteVertex(&corners[0], left, top, 0.0f, 0.0f,
                           (float)sprite->x, (float)sprite->y, cosine, sine,
                           scaleX, scaleY);
-    TransformSpriteVertex(&vertices[1], left, bottom, 0.0f, 1.0f,
+    TransformSpriteVertex(&corners[1], left, bottom, 0.0f, 1.0f,
                           (float)sprite->x, (float)sprite->y, cosine, sine,
                           scaleX, scaleY);
-    TransformSpriteVertex(&vertices[2], right, top, 1.0f, 0.0f,
+    TransformSpriteVertex(&corners[2], right, top, 1.0f, 0.0f,
                           (float)sprite->x, (float)sprite->y, cosine, sine,
                           scaleX, scaleY);
-    TransformSpriteVertex(&vertices[3], right, bottom, 1.0f, 1.0f,
+    TransformSpriteVertex(&corners[3], right, bottom, 1.0f, 1.0f,
                           (float)sprite->x, (float)sprite->y, cosine, sine,
                           scaleX, scaleY);
-
-    g_renderer.gl.ActiveTexture(GL_TEXTURE0);
-    UploadIndexTexture(g_renderer.spriteTexture, sprite->width, sprite->height,
-                       sprite->pixels);
-    g_renderer.gl.Uniform1f(g_renderer.spriteMagnificationUniform,
-                            outputScale *
-                                (sprite->scale < 0 ? -(float)sprite->scale
-                                                   : (float)sprite->scale) /
-                                256.0f);
-    g_renderer.gl.Uniform4f(
-        g_renderer.spriteClipUniform, (float)sprite->clipLeft - 0.5f,
-        (float)sprite->clipTop - 0.5f, (float)sprite->clipRight + 0.5f,
-        (float)sprite->clipBottom + 0.5f);
-    DrawGlQuad(vertices);
+    corner = 0;
+    while (corner < 4) {
+        SetSpriteVertexMetadata(&corners[corner], sprite, outputScale);
+        corner++;
+    }
+    vertices[0] = corners[0];
+    vertices[1] = corners[1];
+    vertices[2] = corners[2];
+    vertices[3] = corners[2];
+    vertices[4] = corners[1];
+    vertices[5] = corners[3];
 }
 
 static void DrawRecordedSprites(float outputScale)
@@ -648,6 +887,9 @@ static void DrawRecordedSprites(float outputScale)
     g_renderer.gl.Enable(GL_BLEND);
     g_renderer.gl.BlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     g_renderer.gl.UseProgram(g_renderer.spriteProgram);
+    g_renderer.gl.ActiveTexture(GL_TEXTURE0);
+    g_renderer.gl.BindTexture(GL_TEXTURE_2D_ARRAY,
+                              g_renderer.spriteAtlasTexture);
     g_renderer.gl.ActiveTexture(GL_TEXTURE1);
     g_renderer.gl.BindTexture(GL_TEXTURE_2D, g_renderer.paletteTexture);
     g_renderer.gl.ActiveTexture(GL_TEXTURE2);
@@ -662,9 +904,18 @@ static void DrawRecordedSprites(float outputScale)
                             g_renderer.spaceClearColour);
     index = 0;
     while (index < g_renderer.spriteCount) {
-        DrawRecordedSprite(&g_renderer.recordedSprites[index], outputScale);
+        BuildRecordedSpriteVertices(
+            &g_renderer.recordedSprites[index], outputScale,
+            &g_renderer.spriteVertices[index * 6]);
         index++;
     }
+    g_renderer.gl.BindBuffer(GL_ARRAY_BUFFER, g_renderer.vertexBuffer);
+    g_renderer.gl.BufferData(
+        GL_ARRAY_BUFFER,
+        (GLsizeiptr)(sizeof(Wc1GlVertex) * g_renderer.spriteCount * 6),
+        g_renderer.spriteVertices, GL_STREAM_DRAW);
+    g_renderer.gl.DrawArrays(GL_TRIANGLES, 0,
+                             (GLsizei)(g_renderer.spriteCount * 6));
     g_renderer.gl.Disable(GL_BLEND);
 }
 
@@ -759,6 +1010,8 @@ static void BuildSpaceViewMask(const ScreenViewportGeometry *geometry,
 int Wc1SdlGlRendererInitialize(SDL_Window *window)
 {
     GLuint textures[4] = {0, 0, 0, 0};
+    GLint maxArrayTextureLayers;
+    GLint maxTextureSize;
 
     if (window == 0)
         return 0;
@@ -775,6 +1028,24 @@ int Wc1SdlGlRendererInitialize(SDL_Window *window)
         Wc1SdlGlRendererShutdown();
         return 0;
     }
+    maxTextureSize = 0;
+    maxArrayTextureLayers = 0;
+    g_renderer.gl.GetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+    g_renderer.gl.GetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,
+                              &maxArrayTextureLayers);
+    if (maxTextureSize < 1 || maxArrayTextureLayers < 1) {
+        fprintf(stderr, "OpenGL texture arrays are unavailable.\n");
+        Wc1SdlGlRendererShutdown();
+        return 0;
+    }
+    g_renderer.spriteAtlasSize =
+        maxTextureSize < WC1_GL_SPRITE_ATLAS_MAX_SIZE
+            ? maxTextureSize
+            : WC1_GL_SPRITE_ATLAS_MAX_SIZE;
+    g_renderer.spriteAtlasLayerCount =
+        maxArrayTextureLayers < WC1_GL_SPRITE_ATLAS_LAYER_CAPACITY
+            ? maxArrayTextureLayers
+            : WC1_GL_SPRITE_ATLAS_LAYER_CAPACITY;
     g_renderer.baseProgram = LinkGlProgram(g_baseFragmentShaderSource);
     g_renderer.spriteProgram = LinkGlProgram(g_spriteFragmentShaderSource);
     if (g_renderer.baseProgram == 0 || g_renderer.spriteProgram == 0) {
@@ -797,23 +1068,42 @@ int Wc1SdlGlRendererInitialize(SDL_Window *window)
     g_renderer.gl.EnableVertexAttribArray(1);
     g_renderer.gl.VertexAttribPointer(
         1, 2, GL_FLOAT, GL_FALSE, sizeof(Wc1GlVertex),
-        (const void *)(uintptr_t)(sizeof(float) * 2));
+        (const void *)(uintptr_t)offsetof(Wc1GlVertex, u));
+    g_renderer.gl.EnableVertexAttribArray(2);
+    g_renderer.gl.VertexAttribPointer(
+        2, 4, GL_FLOAT, GL_FALSE, sizeof(Wc1GlVertex),
+        (const void *)(uintptr_t)offsetof(Wc1GlVertex, atlasLeft));
+    g_renderer.gl.EnableVertexAttribArray(3);
+    g_renderer.gl.VertexAttribPointer(
+        3, 4, GL_FLOAT, GL_FALSE, sizeof(Wc1GlVertex),
+        (const void *)(uintptr_t)offsetof(Wc1GlVertex, clipLeft));
+    g_renderer.gl.EnableVertexAttribArray(4);
+    g_renderer.gl.VertexAttribPointer(
+        4, 2, GL_FLOAT, GL_FALSE, sizeof(Wc1GlVertex),
+        (const void *)(uintptr_t)offsetof(Wc1GlVertex, magnification));
 
     g_renderer.gl.GenTextures(4, textures);
     g_renderer.baseTexture = textures[0];
     g_renderer.paletteTexture = textures[1];
     g_renderer.maskTexture = textures[2];
-    g_renderer.spriteTexture = textures[3];
+    g_renderer.spriteAtlasTexture = textures[3];
     if (g_renderer.baseTexture == 0 || g_renderer.paletteTexture == 0 ||
-        g_renderer.maskTexture == 0 || g_renderer.spriteTexture == 0) {
+        g_renderer.maskTexture == 0 ||
+        g_renderer.spriteAtlasTexture == 0) {
         fprintf(stderr, "OpenGL renderer texture creation failed.\n");
         Wc1SdlGlRendererShutdown();
         return 0;
     }
-    ConfigureGlTexture(g_renderer.baseTexture);
-    ConfigureGlTexture(g_renderer.paletteTexture);
-    ConfigureGlTexture(g_renderer.maskTexture);
-    ConfigureGlTexture(g_renderer.spriteTexture);
+    ConfigureGlTexture(GL_TEXTURE_2D, g_renderer.baseTexture);
+    ConfigureGlTexture(GL_TEXTURE_2D, g_renderer.paletteTexture);
+    ConfigureGlTexture(GL_TEXTURE_2D, g_renderer.maskTexture);
+    ConfigureGlTexture(GL_TEXTURE_2D_ARRAY,
+                       g_renderer.spriteAtlasTexture);
+    g_renderer.gl.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    g_renderer.gl.TexImage3D(
+        GL_TEXTURE_2D_ARRAY, 0, GL_R8, g_renderer.spriteAtlasSize,
+        g_renderer.spriteAtlasSize, g_renderer.spriteAtlasLayerCount, 0,
+        GL_RED, GL_UNSIGNED_BYTE, 0);
 
     if (!LoadGlUniformLocations()) {
         Wc1SdlGlRendererShutdown();
@@ -830,7 +1120,7 @@ void Wc1SdlGlRendererShutdown(void)
     GLuint textures[4];
     int canDeleteResources;
 
-    ReleaseSpriteStorage();
+    ReleaseRendererStorage();
     canDeleteResources =
         g_renderer.context != 0 && g_renderer.window != 0 &&
         SDL_GL_MakeCurrent(g_renderer.window, g_renderer.context) == 0;
@@ -838,7 +1128,7 @@ void Wc1SdlGlRendererShutdown(void)
         textures[0] = g_renderer.baseTexture;
         textures[1] = g_renderer.paletteTexture;
         textures[2] = g_renderer.maskTexture;
-        textures[3] = g_renderer.spriteTexture;
+        textures[3] = g_renderer.spriteAtlasTexture;
         g_renderer.gl.DeleteTextures(4, textures);
     }
     if (canDeleteResources && g_renderer.gl.DeleteBuffers != 0 &&
@@ -865,6 +1155,9 @@ void Wc1SdlGlRendererBeginSpaceFrame(const ScreenViewportGeometry *geometry,
                                      unsigned char spaceClearColour)
 {
     ResetRecordedSprites();
+    if (g_renderer.atlasResetPending)
+        ResetSpriteAtlasCache();
+    g_renderer.useSoftwareForRestOfFrame = 0;
     g_renderer.hasLayerSnapshot = 0;
     g_renderer.frameState =
         g_renderer.context != 0 ? WC1_GL_FRAME_RECORDING : WC1_GL_FRAME_IDLE;
@@ -889,10 +1182,12 @@ void Wc1SdlGlRendererCompleteSpaceFrame(void)
 void Wc1SdlGlRendererCancelSpaceFrame(void)
 {
     ResetRecordedSprites();
+    ResetSpriteAtlasCache();
     g_renderer.frameState = WC1_GL_FRAME_IDLE;
     g_renderer.hasLayerSnapshot = 0;
     g_renderer.spaceLayerOffsetX = 0;
     g_renderer.spaceLayerOffsetY = 0;
+    g_renderer.useSoftwareForRestOfFrame = 0;
 }
 
 int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, short x,
@@ -900,14 +1195,19 @@ int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, short x,
                                       short frame, short angle, short scale,
                                       short flip)
 {
+    const Wc1GlCachedFrame *cachedFrame;
     Wc1GlSprite *sprite;
     size_t pixelCount;
+    int dataOffset;
+    int frameTableOffset;
+    unsigned short shapeTableEnd;
     short width;
     short height;
     short leftExtent;
     short topExtent;
 
-    if (g_renderer.frameState != WC1_GL_FRAME_RECORDING)
+    if (g_renderer.frameState != WC1_GL_FRAME_RECORDING ||
+        g_renderer.useSoftwareForRestOfFrame)
         return 0;
     if (shape == 0 || frame < 0 || scale == 0 || viewport == 0 ||
         viewport->pixels == 0 || viewport->rowOffsets == 0)
@@ -934,23 +1234,20 @@ int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, short x,
        instead of drawing what the original never shows. */
     if (pixelCount > 0xfa00 && !(angle == 0 && scale == 0x100 && flip == 0))
         return 0;
-    sprite = &g_renderer.recordedSprites[g_renderer.spriteCount];
-    if (sprite->capacity < pixelCount) {
-        unsigned char *resizedPixels;
-
-        resizedPixels = (unsigned char *)realloc(sprite->pixels, pixelCount);
-        if (resizedPixels == 0)
-            return 0;
-        sprite->pixels = resizedPixels;
-        sprite->capacity = pixelCount;
+    frameTableOffset = frame * 4 + 4;
+    memcpy(&shapeTableEnd, shape + 4, sizeof(shapeTableEnd));
+    memcpy(&dataOffset, shape + frameTableOffset, sizeof(dataOffset));
+    cachedFrame = CacheShapeFrame(
+        shape, frame, dataOffset, shapeTableEnd, width, height, leftExtent,
+        topExtent, pixelCount);
+    if (cachedFrame == 0) {
+        /* Once one object falls back into the indexed base, later objects must
+           follow it there so painter ordering remains exact. */
+        g_renderer.useSoftwareForRestOfFrame = 1;
+        return 0;
     }
-    memset(sprite->pixels, 0xff, pixelCount);
-    DecodeShapeFrame(shape, frame, sprite->pixels, width, height, leftExtent,
-                     topExtent);
-    sprite->width = width;
-    sprite->height = height;
-    sprite->leftExtent = leftExtent;
-    sprite->topExtent = topExtent;
+    sprite = &g_renderer.recordedSprites[g_renderer.spriteCount];
+    sprite->cachedFrame = cachedFrame;
     sprite->x = (short)(x + g_renderer.spaceLayerOffsetX);
     sprite->y = (short)(y + g_renderer.spaceLayerOffsetY);
     sprite->angle = angle;
