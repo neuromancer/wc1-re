@@ -2,6 +2,9 @@
 
 #include "video_internal.h"
 
+#if defined(_WIN32) && !defined(APIENTRY)
+#define APIENTRY __stdcall
+#endif
 #include <SDL_opengl.h>
 
 #include <string.h>
