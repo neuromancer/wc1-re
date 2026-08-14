@@ -1,273 +1,131 @@
 # Matching patterns
 
-Things learned by actually matching functions. Each entry is a case where the obvious
-source form compiles to *almost* the right code, and the fix is not a compiler flag.
+The original disassembly and extracted strings are authoritative. Decompiled
+code, Ghidra signatures, operational labels, and source from another release
+are hints that must be checked against the instructions.
 
-## The two halves use different optimizer settings
+Use `binary-comp` for every similarity decision. Do not substitute a separate
+scorer.
 
-Established before writing any code, from the shape of the original functions:
+## Compilation profiles
 
-- **Game core: optimized.** `GetShiftKeyState` (`0x00403060`) is four instructions with no
-  prologue. `MinShort` (`0x0041D0C0`) reads arguments straight off `ESP`.
-  `RandomBelowOrEqual` (`0x00434D50`) schedules `POP ESI` between `CDQ` and `IDIV` and
-  tail-duplicates its epilogue.
-- **`ix` library: `/Od`.** Every `ix` function opens
-  `PUSH EBP / MOV EBP,ESP / PUSH EBX / PUSH ESI / PUSH EDI` — saving all three registers
-  whether used or not — spills to stack temporaries like `[EBP-4]`, and jumps to one shared
-  `POP EDI / POP ESI / POP EBX / LEAVE / RET` epilogue.
+The two main code groups use visibly different compiler settings:
 
-`CFLAGS_CORE` and `CFLAGS_IX` in the Makefile keep these apart.
+- The game core is optimized with the `CFLAGS_CORE` profile. Functions commonly
+  omit frame pointers, schedule registers across expressions, and duplicate
+  short epilogues.
+- The `ix` library uses `/Od /Oi`. Its functions preserve EBP, EBX, ESI, and
+  EDI, expose stack locals directly, and share one epilogue.
 
-A flag sweep (`bin/sweepFlags.py`) over `MinShort`/`MaxShort` showed the whole `/O2` family
-(`/O2`, `/Ox`, `/Og /Oi /Ot /Oy /Ob1`, ±`/Gs`) plateaus at the same result, while every
-`/Os` (favour size) variant is dramatically worse. So the optimizer *family* is settled;
-residual differences are source-level.
+Do not tune a single function by changing a compilation-unit profile unless
+the surrounding original functions prove that the unit used different flags.
+The evidence for the current flags is in [COMPILER.md](COMPILER.md).
 
-## Early return vs assign-then-return
+## Types and calling conventions
 
-`MinShort` originally ends with the one-byte-shorter 32-bit move:
+The core descends from 16-bit DOS C. A large amount of state and many
+intermediate values are `short`, even though the Win32 compiler's `int` is 32
+bits. A 32-bit operation where the original uses an operand-size prefix usually
+means the declaration is too wide.
 
-    MOV EAX,ECX        ; original
-    mov ax, cx         ; what we first produced
+Check each function's terminating instruction and every call site:
 
-No flag changes this. The difference is the source idiom:
+- bare `RET` normally indicates `__cdecl`;
+- `RET n` indicates callee cleanup such as `__stdcall`;
+- C++ `ix` methods receive the implicit object in ECX; and
+- loads, sign extension, and how the caller consumes EAX determine the return
+  width more reliably than the decompiler.
 
-```c
-/* emits  mov ax, cx  -- WRONG */
-short MinShort(short a, short b) { if (b <= a) a = b; return a; }
+Do not copy a Ghidra prototype without checking the pushes before each call.
+Several recovered calls were initially wrong because the decompiler omitted
+arguments after learning an incorrect callee signature.
 
-/* emits  mov eax, ecx  -- matches */
-short MinShort(short a, short b) { if (a < b) return a; return b; }
+`BOOLEAN` is supplied by the Win32 headers. Do not redeclare it from the DOS
+source with a different underlying type.
+
+## Source shape affects generated code
+
+Equivalent C can produce different instruction order. Match the original
+control-flow shape rather than merely its result.
+
+### Returns and branches
+
+An early return may produce a full-register move where assigning to a local and
+returning once produces a 16-bit move. Likewise, swapping `if` and `else` arms
+changes fall-through direction, especially in `/Od` `ix` code. Follow the
+original jumps and epilogue placement.
+
+### Locals in `/Od` code
+
+When the original stores an array element address in a stack slot, declare the
+corresponding local pointer and reuse it. Re-indexing the array at every access
+is behaviorally equivalent but does not reproduce the unoptimized instruction
+stream. Preserve local declaration order when stack layout is visible.
+
+### Strings and library calls
+
+Identical string literals were not pooled. Write the literal at each original
+use site instead of introducing an alias. Use the matching standard function
+when the binary calls or inlines `strcpy`, `memcpy`, or another CRT routine.
+
+### High-level data access
+
+Use typed structure fields and arrays. If a field's purpose is unknown, retain
+an offset-based field name until evidence supports a better one. Raw pointer
+arithmetic often hides a wrong width and makes comparison harder.
+
+## Analysis traps
+
+### Operational labels are not intent
+
+A label such as `ReturnConst...`, `CallThrough...`, or `ScanTbl...` describes
+what an earlier analysis observed. It may reflect decompiler folding or an
+incorrect signature. Read the exported instructions before writing the body,
+then apply [the naming policy](LABELS.md).
+
+### Function annotations must be exact
+
+Operational labels may contain only the low four address digits. Never infer a
+full address from the name. A wrong `/* Function start: 0x... */` annotation can
+compare a function against an unrelated original and still produce a plausible
+score.
+
+Do not place both the phrase `Function start:` and a hexadecimal address in a
+prose comment. The exporter can bind that comment to the next definition.
+Every real annotation must immediately precede its function.
+
+Run:
+
+```sh
+make audit-addresses
 ```
 
-With two `return` statements the compiler moves the whole register (the upper half is
-already garbage from a 16-bit load and the result is only read as `short`). With
-assign-then-return it keeps everything 16-bit.
+### Compiler-generated glue
 
-**Rule of thumb: prefer early return when the original ends in a 32-bit `mov` between
-registers that were loaded 16-bit.**
+Do not hand-write jump thunks, import stubs, vtable dispatch, exception tables,
+or other compiler/linker glue. Express a real forwarding operation in ordinary
+C and let the compiler emit the tail jump. `make audit-compiler-glue` rejects
+manual replicas.
 
-## Calling conventions are not uniform
+Do not add C++ exception handling or spell out `__thiscall`. Inline assembly is
+allowed only when the original routine itself is strongly evidenced as
+hand-written assembly.
 
-`RandomInRange` (`0x00434D20`) ends in `RET 0x8` — callee cleanup — so it is `__stdcall`,
-while its neighbour `RandomBelowOrEqual` (`0x00434D50`) ends in a bare `RET` and is
-`__cdecl`. Both live in the same address neighbourhood.
+## Comparison workflow
 
-Always check the terminating `RET` before writing the prototype. `RET n` ⇒ `__stdcall`
-(MSVC emits the same code for `__pascal`), bare `RET` ⇒ `__cdecl`.
-
-## Return width decides whether a sign-extension appears
-
-`RandomInRange` originally finishes:
-
-    MOV DI,word ptr [ESP + 0xc]     ; 16-bit load, upper half of EDI is garbage
-    ...
-    LEA EAX,[EDI + EDX*0x1]         ; uses the full EDI anyway
-
-Declaring it `int` made us emit `movsx eax, di; add eax, edx` — correct C, wrong code.
-Declaring it `short` reproduces the `LEA`: the upper garbage does not matter because only
-`AX` is read. If the original uses a value in a 32-bit operation right after loading it
-16-bit, the return/expression type is probably 16-bit.
-
-## `BOOLEAN` collides with windows.h
-
-The DOS source has `BOOLEAN window_colored = FALSE;`, but `<windows.h>` already defines
-`BOOLEAN` as `BYTE` and MSVC 4.2 rejects redefinition with a different base type. The port
-must therefore be using the windows.h one; do not redeclare it.
-
-## /Od idioms in the ix library
-
-### Keep a local struct pointer
-
-The original stores the element address in a stack local and dereferences it, rather than
-re-indexing the array at each use.  Under /Od this is plainly visible as a `[EBP-4]` slot:
-
-    MOV EAX,[EBP+8] / SHL EAX,0x5 / ADD EAX,0x5981a8
-    MOV [EBP-4],EAX          <-- the local
-    MOV EAX,[EBP-4] / MOV EAX,[EAX+0x4]
-    MOV ECX,[EBP-4] / SUB EAX,[ECX+0x8]
-
-```c
-/* 83% */   v_array[voice].cursor = p;  v_array[voice].start = p;
-/* 100% */  IxVoice *v = &v_array[voice];  v->cursor = p;  v->start = p;
+```sh
+make compare-func FUNC=FunctionName
+make report FILTER=source_name
+make verify
 ```
 
-Applying this took `ix_dspv_set_buffer` from 83.33% to 100.00%, and `get_position` /
-`set_position` from ~85% to ~97%.
+`compare-func` is the normal edit loop. Stop once the function is at least 90%
+similar unless a clear, evidence-backed improvement remains. `make verify`
+runs the repository-wide expected-zero gates. Export requirements are listed in
+[EXPORT.md](EXPORT.md).
 
-### The bounds-check shape
-
-Every indexed ix entry point opens with the same guard, and writing it as a single `if`
-with `||` reproduces the original's two-test/one-block layout exactly:
-
-```c
-if (voice < 0 || voice >= g_nVoiceCount_00598600) {
-    ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, <line>);
-    ix_log_printf("%d Invalid voice index!", voice);
-    exit(-1);
-}
-```
-
-The `<line>` is the real `__LINE__` from the original source, recovered from the assert
-anchors; the module stubs in `src/ix/` carry them.
-
-### `/Oi` is on in ix
-
-`ix_log_printf` inlines `strcpy` as `repne scasb` + `rep movsd`, so the ix module is built
-`/Od /Oi`, not plain `/Od`.
-
-### Branch sense follows the source
-
-`ix_log_printf` sat at 65% until the `if`/`else` arms were swapped to match the original's
-fall-through:
-
-```c
-/* 65% */   if (fmt == 0) strcpy(...); else vsprintf(...);
-/* 89% */   if (fmt != 0) vsprintf(...); else strcpy(...);
-```
-
-Under /Od the `if` arm is the fall-through and the `else` arm is jumped to, so the order of
-the arms in the source is directly observable in the disassembly.
-
-## Do not trust the operational labels
-
-Three functions scored 0-40% because I implemented what the Ghidra *name* claimed instead of
-what the disassembly showed.  `docs/LABELS.md` warns about exactly this; the warning is real:
-
-| Label | What it actually is |
-|---|---|
-| `ReturnConst3E8000` (0x42FB20) | a bare `JMP 0x4362E0` tail-jump thunk -- Ghidra followed the jump and folded the callee's `return 0x3e8000` into the display |
-| `ReturnConst1v3` (0x422130) | `mov eax,0x59b430 / cmp eax,1 / sbb eax,eax / inc eax` -- the `>= 1` boolean idiom applied to an *address*, which is always non-zero, so Ghidra folded it to `return 1` |
-| `CallThrough433060` (0x434FD0) | a `__stdcall` forwarder that passes its argument through (`ret 4`), not a no-argument call |
-
-All three reached 100% once written from the disassembly.  **Read the export before writing
-the body, every time.**
-
-Do not force a bare tail jump with `__declspec(naked)` or inline assembly. Express the
-forwarding operation in C and let the optimized compiler emit the thunk:
-
-```c
-unsigned int Target(void);            /* forward declaration required */
-unsigned int ForwardToTarget(void)
-{
-    return Target();
-}
-```
-
-`make audit-compiler-glue` rejects hand-written single-jump and call/return wrappers. Inline
-assembly remains appropriate only where the original routine itself was hand-written assembly.
-
-## The decompiler's *signatures* are as untrustworthy as its names
-
-`exit_squadron` (0x00427370) sat at 63% because Ghidra's decompilation showed
-
-    DoLocalFn5BB0();
-    DoLocalFn5BB0();
-
-with no arguments -- Ghidra's DB prototype for 0x00425BB0 is `void(void)`.  The
-disassembly pushes an argument at every call site:
-
-    push esi                 ; the message
-    call 0x425bb0
-    push 0x46a0a0            ; "[SYSTEM]: Exit_squadron\n"
-    call 0x425bb0
-
-Writing it with the real one-argument signature took it to 100%.  Same rule as the names:
-**the export is the source of truth, the decompilation is a hint.**  When a call in the
-decompilation looks argument-less, check the push sequence before believing it.
-
-## Do not infer a stub's address from its name
-
-Operational names encode only the LOW FOUR hex digits: `RunFrameUpdate` is at
-`0x00429DD0`, not `0x00409DD0`.  Filling in the high bits by eye produced **25 wrong
-`Function start:` annotations** before I noticed.
-
-A wrong annotation is worse than none: `make export-asm` exports whatever original lives
-at that address, and `make report` then scores your function against an unrelated one, so
-the number looks fine and means nothing.
-
-    make audit-addresses          # check every annotation against the inventory
-    bin/auditAddresses.py --fix   # rewrite them to the real addresses
-
-Run it before trusting a report.
-
-## Prose in a comment can re-create an annotation
-
-binary-comp parses a whole block comment as one node: if the text contains `Function start:`
-*and* a `0x…` literal anywhere in the block, it binds that address to the **next function
-definition** in the file. Writing
-
-```c
-/*
- *  main() lives at 0x004274E0 ... no `Function start:` marker here, because
- *  a marker with no function under it scores the following function against main().
- */
-```
-
-did exactly what it was warning about: `GetScreenUpdateFlag` (`0x004279D0`) was silently
-scored against `main` and dropped to 3.65%. Never put both the phrase and a hex address in
-one comment block. The same rule makes a *dangling* annotation dangerous — an annotation with
-a TODO and no function under it always steals the next function.
-
-## Two names must never share an address, and one name must never span two
-
-`bin/auditAddresses.py` originally only checked that the annotated address existed. That let
-two real bugs through:
-
-- `ForwardSetCursorPos` was annotated `0x00402E80`, which is `SetMousePosition`; the real
-  address is `0x004030E0`. Both are byte-identical `SetCursorPos` wrappers (VC++ 4.2 does no
-  COMDAT folding), so the wrong one still "compared" at 100% and meant nothing.
-- `0x00432680` was named `DIBmakeDIB`, but `DIBmakeDIB` is at `0x004326E0`; `0x00432680` is the
-  teardown, `DIBunInstall`.
-
-The audit now cross-checks the annotated address against the name's address in the inventory,
-so a name borrowed from the wrong function is reported. It also has to skip comments when
-looking for the signature — comments routinely mention other functions by name — while still
-handling `/* Function start: 0x... */ /* TODO */ void f(void){}` all on one line.
-
-## Running it: DREAMM, never Wine
-
-`make run` launches under DREAMM. Wine is not used and should not be reintroduced: the port
-drives DirectDraw and DirectSound directly against a real Windows 95 environment, and Wine's
-reimplementation of those APIs changes the behaviour being observed.
-
-The display mode matters. `DIBcascade` calls `CreatePalette` and `DIBsetPalette`/`DIBramPalette`
-call `SetEntries`, which only succeed against a **palettized** primary surface — so the game
-wants an 8-bit mode, and `DREAMM_PROPS` defaults to `-prop winres=640x480x8`. In 16-bit it
-takes the `DIBerror("DIBmakeDIB   CreatePalette")` path instead.
-
-Two DREAMM details that are easy to get wrong:
-
-- `-launch` must be the **last** option; everything after it is the target's command line.
-- Writes to `C:` are discarded unless a host directory is mounted over it, so `make run`
-  mounts `data/full/hd` read-write. Without it, saved games and the game's own INSTALL.DAT
-  rewrites vanish between runs.
-
-## Reading the comparison
-
-**All comparisons go through binary-comp.** It is the only scorer; do not hand-roll one.
-
-    make compare-func FUNC=MinShort    # one function, instruction-by-instruction
-    make report                        # every annotated function + summary
-    make report FILTER=mathutil        # restrict to matching files
-    make order                         # compilation-unit boundary evidence
-    make verify                        # the full expected-zero gate list
-
-`compare-func` prints the two instruction streams side by side with the original's
-addresses on the right, then a similarity percentage.
-
-Both `compare-func` and `report` require:
-
-- `code-full/FUN_<addr>.disassembled.txt` for the function -- `make export-asm` generates
-  these from the PE using the `/* Function start: 0x... */` annotations in `src/`
-  (see docs/EXPORT.md);
-- a **linked** `WC1.EXE` and `WC1.map`, which is why `src/stubs.c` provides a `WinMain`
-  stub. Nothing can be compared until the project links.
-
-`bin/sweepFlags.py` drives builds across flag combinations and scores each one with
-`make report`, so flag calibration uses the same authority as everything else.
-
-## Current state
-
-    make report
-    ... 9 of 10 at 100.00%; WinMain is a deliberate stub at 1.22%
+Run the reconstructed Win32 executable through DREAMM, not Wine. DREAMM
+provides the Windows 95 DirectDraw and DirectSound behavior being reconstructed;
+Wine substitutes different host implementations. The default DREAMM settings
+use an 8-bit palettized display because the original DirectDraw palette path
+depends on it.

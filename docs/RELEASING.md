@@ -11,7 +11,7 @@ the selected ref is a tag.
 To publish a release, create and push a strict `vMAJOR.MINOR.PATCH` tag:
 
 ```sh
-git tag -a v0.1.0 -m "Wing Commander reconstruction v0.1.0"
+git tag -a v0.1.0 -m "v0.1.0"
 git push origin v0.1.0
 ```
 
