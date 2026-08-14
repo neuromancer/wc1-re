@@ -32,9 +32,6 @@ data/
 # DREAMM runtime (downloaded on demand by `make dreamm`)
 .dreamm/
 
-# Analysis output
-analysis/out/
-
 # Python
 __pycache__/
 *.py[codz]

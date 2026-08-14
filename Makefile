@@ -714,7 +714,6 @@ BC = --config $(VERIFY_CONFIG) --target full
 CALLS_FLAGS ?=
 GLOBAL_ACCESS_FLAGS ?=
 ORDER_FLAGS ?=
-ANALYZE_FILES ?= all
 
 # binary-comp command coverage (mirrors the sibling project):
 #   calls         -> verify-calls
@@ -899,20 +898,6 @@ verify-values-stack-locals: $(TARGET) | code-full $(ORIGINAL_EXE)
 		$(VALUES_FLAGS)
 
 # ---------------------------------------------------------------------------
-# Analysis-only Clang diagnostics
-# ---------------------------------------------------------------------------
-
-analyze:
-	@$(MAKE) analyze-clang ANALYZE_FILES="$(ANALYZE_FILES)"
-	@$(MAKE) analyze-static ANALYZE_FILES="$(ANALYZE_FILES)"
-
-analyze-clang:
-	@tools/analyze_clang.sh $(ANALYZE_FILES)
-
-analyze-static:
-	@tools/analyze_static.sh $(ANALYZE_FILES)
-
-# ---------------------------------------------------------------------------
 # Original binary and Ghidra export
 # ---------------------------------------------------------------------------
 
@@ -1008,9 +993,6 @@ clean-modern:
 
 .PHONY: \
 	all \
-	analyze \
-	analyze-clang \
-	analyze-static \
 	audit-addresses \
 	audit-compiler-glue \
 	audit-auto-complete-globals \

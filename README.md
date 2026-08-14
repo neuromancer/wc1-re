@@ -1615,6 +1615,9 @@ game. Use `make debug WC1_ISO=/path/to/kilrathi-saga.iso` to launch DREAMM's deb
 | `Alt+Enter` (Windows and Linux) | Toggle fullscreen |
 | `Cmd+Q` (macOS) | Quit the game |
 
+During spaceflight, scroll the mouse wheel up or down to increase or decrease
+speed.
+
 ## Optional binary verification
 
 [`binary-comp`](https://github.com/gg-sl-oss/binary-comp) is an optional analysis tool. To install it:

@@ -387,6 +387,22 @@ void Wc1SdlPumpEvents(void)
                 g_dwDebugOverlayKey_00469648 = (DWORD)virtualKey;
                 g_dwDebugOverlayKeyLatch_0046964c = (DWORD)virtualKey;
             }
+        } else if (event.type == SDL_MOUSEWHEEL) {
+            int scanCode;
+            int wheelY;
+
+            wheelY = event.wheel.y;
+            if (event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
+                wheelY = -wheelY;
+            if (wheelY == 0)
+                continue;
+            scanCode = wheelY > 0 ? 0x0d : 0x0c;
+            /* player_input samples one transition before consuming the
+               remaining queue, so lead with the release for this impulse. */
+            QueueInputEvent(4, 0, 0, (unsigned short)scanCode,
+                            0, 0, 0);
+            QueueInputEvent(3, 0, 0, (unsigned short)scanCode,
+                            0, 0, 0);
         } else if (event.type == SDL_MOUSEMOTION ||
                    event.type == SDL_MOUSEBUTTONDOWN ||
                    event.type == SDL_MOUSEBUTTONUP) {
