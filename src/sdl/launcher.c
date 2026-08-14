@@ -1,5 +1,7 @@
 #include "wc1.h"
 
+#include "video_internal.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -12,8 +14,26 @@ int main(int argumentCount, char **arguments)
     int argumentIndex;
     int checkOnly;
     int gameResult;
+    int outputArgumentIndex;
+    int useEnhancedRenderer;
 
     gameResult = 0;
+    outputArgumentIndex = 1;
+    useEnhancedRenderer = 0;
+    for (argumentIndex = 1; argumentIndex < argumentCount;
+         argumentIndex++) {
+        if (strcmp(arguments[argumentIndex], "--enhanced") == 0) {
+            useEnhancedRenderer = 1;
+        } else {
+            arguments[outputArgumentIndex++] = arguments[argumentIndex];
+        }
+    }
+    argumentCount = outputArgumentIndex;
+    arguments[argumentCount] = 0;
+    if (useEnhancedRenderer) {
+        Wc1SdlSetVideoBackend(
+            WC1_SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR);
+    }
     checkOnly = argumentCount == 2 && strcmp(arguments[1], "--check") == 0;
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER |
                  SDL_INIT_JOYSTICK) != 0) {
@@ -22,6 +42,12 @@ int main(int argumentCount, char **arguments)
     }
 
     windowFlags = SDL_WINDOW_RESIZABLE;
+    if (!Wc1SdlConfigureVideoWindow(&windowFlags)) {
+        fprintf(stderr, "SDL video configuration failed: %s\n",
+                SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
     if (checkOnly)
         windowFlags |= SDL_WINDOW_HIDDEN;
     window =
@@ -32,6 +58,10 @@ int main(int argumentCount, char **arguments)
         SDL_Quit();
         return 1;
     }
+    if (useEnhancedRenderer)
+        fprintf(stderr,
+                "Experimental enhanced rendering enabled "
+                "(GL sharp bilinear).\n");
 
     DIBinstall((HWND)window);
     DAT_005a89a0 = (HWND)window;

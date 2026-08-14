@@ -1,5 +1,7 @@
 #include "wc1sdl.h"
 
+#include "video_internal.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -162,27 +164,18 @@ void Wc1SdlOutputDebugString(const char *text)
 
 int Wc1SdlSetCursorPosition(int x, int y)
 {
-    SDL_Renderer *renderer;
     SDL_Window *window;
-    int height;
     int windowX;
     int windowY;
-    int width;
 
     window = SDL_GetKeyboardFocus();
     if (window == 0)
         window = SDL_GetMouseFocus();
     if (window == 0)
         return FALSE;
-    renderer = SDL_GetRenderer(window);
-    if (renderer != 0) {
-        SDL_RenderLogicalToWindow(renderer, (float)x, (float)y,
-                                  &windowX, &windowY);
-    } else {
-        SDL_GetWindowSize(window, &width, &height);
-        windowX = x * width / 320;
-        windowY = y * height / 200;
-    }
+    if (!Wc1SdlMapLogicalToWindow(
+            window, x, y, &windowX, &windowY))
+        return FALSE;
     SDL_WarpMouseInWindow(window, windowX, windowY);
     return TRUE;
 }

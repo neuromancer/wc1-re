@@ -615,6 +615,13 @@ unsigned int Draw_3Space_Frame(void)
     place_exhaust_on_ships();
     reposition_fixed_child_objects();
     sort_object_depth();
+#ifdef WC1_SDL
+    Wc1SdlBeginSpaceFrame(
+        g_pScreenViewportGeometry_0059a9f4,
+        (int)g_cScreenViewportMode_0059a9f2,
+        DAT_0046a008 > 0,
+        (unsigned char)DAT_004699d8);
+#endif
     draw_sorted_objects_to_buffer();
     if (DAT_0046c03c == 0)
         overlay_head_up_display();
@@ -869,6 +876,9 @@ int RunSpaceFlight(short entryNavPoint)
         DAT_00598890 = 0;
     }
 
+#ifdef WC1_SDL
+    Wc1SdlCancelSpaceFrame();
+#endif
     SetCinematicFrameTiming();
     SetViewportRect(&DAT_005a7510, 0, 0,
                     (unsigned short)(g_nScreenWidth_0046daa4 - 1),

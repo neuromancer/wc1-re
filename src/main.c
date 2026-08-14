@@ -236,6 +236,9 @@ unsigned int dump_buffer_to_screen(void)
 {
     short bottom;
 
+#ifdef WC1_SDL
+    Wc1SdlCompleteSpaceFrame();
+#endif
     if (DAT_0046a008 > 0) {
         CopyViewportContents(&DAT_005a7510, &DAT_005a6ba0);
         ShowMemoryStatusDebug();

@@ -366,10 +366,12 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/resources.c \
 	src/sdl/registry.c \
 	src/sdl/thread.c \
-	src/sdl/timer.c
+	src/sdl/timer.c \
+	src/sdl/video_state.c
 MODERN_GAME_HOST_SRCS = \
 	src/sdl/audio.c \
 	src/sdl/events.c \
+	src/sdl/gl_renderer.c \
 	src/sdl/joystick.c \
 	src/sdl/music.c \
 	src/sdl/video.c
@@ -410,14 +412,16 @@ MODERN_BASE_C_TEST_BINS = $(addsuffix $(MODERN_EXE_SUFFIX),\
 	$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES)))
 MODERN_EVENT_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_event_compat$(MODERN_EXE_SUFFIX)
 MODERN_VIDEO_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_video_compat$(MODERN_EXE_SUFFIX)
+MODERN_GL_VIDEO_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_gl_renderer$(MODERN_EXE_SUFFIX)
 MODERN_CXX_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke$(MODERN_EXE_SUFFIX)
 MODERN_ADLIB_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_dos_adlib$(MODERN_EXE_SUFFIX)
-MODERN_TEST_BINS = \
+MODERN_HEADLESS_TEST_BINS = \
 	$(MODERN_BASE_C_TEST_BINS) \
 	$(MODERN_EVENT_TEST_BIN) \
 	$(MODERN_VIDEO_TEST_BIN) \
 	$(MODERN_CXX_TEST_BIN) \
 	$(MODERN_ADLIB_TEST_BIN)
+MODERN_TEST_BINS = $(MODERN_HEADLESS_TEST_BINS) $(MODERN_GL_VIDEO_TEST_BIN)
 MODERN_DEPFILES = \
 	$(MODERN_GAMEPLAY_OBJS:.o=.d) \
 	$(MODERN_IX_OBJS:.o=.d) \
@@ -426,6 +430,7 @@ MODERN_DEPFILES = \
 	$(MODERN_LAUNCHER_OBJ:.o=.d) \
 	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))) \
 	$(MODERN_OUT_DIR)/tests/sdl_event_compat.d \
+	$(MODERN_OUT_DIR)/tests/sdl_gl_renderer.d \
 	$(MODERN_OUT_DIR)/tests/sdl_video_compat.d \
 	$(MODERN_OUT_DIR)/tests/sdl_video_dependencies.d \
 	$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.d \
@@ -503,6 +508,7 @@ $(MODERN_OUT_DIR)/tests/%.o: tests/%.cpp | modern-check-deps
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
 $(MODERN_OUT_DIR)/tests/sdl_compat_smoke.o: MODERN_TEST_CPPFLAGS = -DWC1_ANALYSIS=1
+$(MODERN_OUT_DIR)/tests/sdl_gl_renderer.o: MODERN_TEST_CPPFLAGS = -Isrc/sdl
 
 $(MODERN_TARGET): \
 		$(MODERN_LAUNCHER_OBJ) \
@@ -540,6 +546,16 @@ $(MODERN_VIDEO_TEST_BIN): \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
+$(MODERN_GL_VIDEO_TEST_BIN): \
+		$(MODERN_OUT_DIR)/tests/sdl_gl_renderer.o \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) \
+		$(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
 $(MODERN_CXX_TEST_BIN): \
 		$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.o \
 		$(MODERN_BASE_HOST_OBJS) \
@@ -559,10 +575,18 @@ $(MODERN_ADLIB_TEST_BIN): \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_DEAD_STRIP_FLAGS) -o $@
 
 modern-test: modern
-	@set -e; for test_bin in $(MODERN_TEST_BINS); do \
+	@set -e; for test_bin in $(MODERN_HEADLESS_TEST_BINS); do \
 		echo "Running $$test_bin"; \
 		SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "$$test_bin"; \
 	done
+	@echo "Running $(MODERN_GL_VIDEO_TEST_BIN)"
+	@SDL_AUDIODRIVER=dummy $(MODERN_GL_VIDEO_TEST_BIN); \
+	status=$$?; \
+	if test $$status -eq 77; then \
+		echo "GL renderer test skipped: no OpenGL display"; \
+	elif test $$status -ne 0; then \
+		exit $$status; \
+	fi
 	@echo "Running $(MODERN_TARGET) --check"
 	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy $(MODERN_TARGET) --check
 

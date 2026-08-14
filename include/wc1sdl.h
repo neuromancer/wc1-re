@@ -54,6 +54,8 @@ typedef DWORD (*LPTHREAD_START_ROUTINE)(LPVOID);
 typedef void (*Wc1SdlAudioMixer)(void *, unsigned int);
 
 struct DiskFileRecord;
+struct ScreenViewportGeometry;
+struct Viewport;
 typedef struct Wc1SdlOriginFxPlayer Wc1SdlOriginFxPlayer;
 
 typedef struct GUID {
@@ -147,6 +149,15 @@ void Wc1SdlPumpEvents(void);
 int Wc1SdlInitializeVideo(SDL_Window *window);
 int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
                               const unsigned char *palette);
+void Wc1SdlBeginSpaceFrame(
+    const struct ScreenViewportGeometry *geometry, int viewportMode,
+    int fullViewportCopy, unsigned char clearColour);
+void Wc1SdlCompleteSpaceFrame(void);
+void Wc1SdlCancelSpaceFrame(void);
+int Wc1SdlRecordSpaceSprite(
+    const struct Viewport *viewport, short x, short y,
+    unsigned char *shape, short frame, short angle, short scale,
+    short flip);
 int Wc1SdlSetCursorPosition(int x, int y);
 BOOL Wc1SdlReadJoystick(unsigned int device, JOYINFO *information);
 BOOL Wc1SdlReadJoystickAxisRange(unsigned int device,

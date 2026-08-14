@@ -1,5 +1,7 @@
 #include "wc1.h"
 
+#include "video_internal.h"
+
 static int Wc1SdlTranslateVirtualKey(SDL_Keycode key)
 {
     if (key >= SDLK_a && key <= SDLK_z)
@@ -389,14 +391,9 @@ void Wc1SdlPumpEvents(void)
                    event.type == SDL_MOUSEBUTTONDOWN ||
                    event.type == SDL_MOUSEBUTTONUP) {
             SDL_Window *window;
-            SDL_Renderer *renderer;
             Uint32 buttons;
-            float logicalMouseX;
-            float logicalMouseY;
-            int height;
             int mouseX;
             int mouseY;
-            int width;
             int primaryButton;
             int secondaryButton;
 
@@ -410,23 +407,8 @@ void Wc1SdlPumpEvents(void)
                 else
                     buttons &= ~SDL_BUTTON(event.button.button);
             }
-            renderer = window != 0 ? SDL_GetRenderer(window) : 0;
-            if (renderer != 0) {
-                SDL_RenderWindowToLogical(renderer, mouseX, mouseY,
-                                          &logicalMouseX,
-                                          &logicalMouseY);
-                mouseX = (int)logicalMouseX;
-                mouseY = (int)logicalMouseY;
-            } else {
-                width = 320;
-                height = 200;
-                if (window != 0)
-                    SDL_GetWindowSize(window, &width, &height);
-                if (width > 0)
-                    mouseX = mouseX * 320 / width;
-                if (height > 0)
-                    mouseY = mouseY * 200 / height;
-            }
+            Wc1SdlMapWindowToLogical(
+                window, mouseX, mouseY, &mouseX, &mouseY);
             if (mouseX < 0)
                 mouseX = 0;
             else if (mouseX > 319)

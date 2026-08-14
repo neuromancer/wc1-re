@@ -1568,6 +1568,18 @@ DOS game-data support is partial: compressed packet resources, OriginFX/AdLib
 music, and the original synthesized sound effects work; other DOS-specific
 data and behavior may remain unsupported.
 
+### Experimental SDL2 renderer
+
+Pass `--enhanced` to use the optional OpenGL sharp-bilinear renderer. It draws
+space objects at output resolution while keeping the original indexed artwork,
+palette effects, cockpit, and HUD. The normal renderer remains the default.
+
+```sh
+./wc1-modern --enhanced
+```
+
+See [the renderer notes](docs/SDL2_RENDERER.md) for its scope and requirements.
+
 ### Makefile shortcuts
 
 `make run-modern` runs the SDL2 port with Kilrathi Saga data from `data/full`.

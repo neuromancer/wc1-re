@@ -728,6 +728,14 @@ void draw_sorted_objects_to_buffer(void)
                 screenY = (short)(screenY + g_nViewCenterY_0059a854);
                 g_asObjectDrawY_0059cf80[obj] = screenY;
                 if (shape != 0) {
+#ifdef WC1_SDL
+                    if (!Wc1SdlRecordSpaceSprite(
+                            &DAT_005a7510, screenX, screenY, shape,
+                            g_asObjectViewFrame_0059d230[obj],
+                            g_asObjectScreenAngle_0059cd90[obj],
+                            g_asObjectScreenScale_0059c950[obj],
+                            g_asObjectFlip_0059c870[obj]))
+#endif
                     DrawSpriteScaled(
                         &DAT_005a7510, screenX, screenY, shape,
                         g_asObjectViewFrame_0059d230[obj],
@@ -750,6 +758,11 @@ void draw_sorted_objects_to_buffer(void)
                     shape = g_apObjectShape_0059d2f0[obj];
                 else
                     shape = g_pConstellationShape_005a765c;
+#ifdef WC1_SDL
+                if (!Wc1SdlRecordSpaceSprite(
+                        &DAT_005a7510, screenX, screenY, shape,
+                        g_asObjectViewFrame_0059d230[obj], 0, 0x100, 0))
+#endif
                 DrawSpriteDefault(&DAT_005a7510, screenX, screenY, shape,
                                   g_asObjectViewFrame_0059d230[obj]);
                 break;
