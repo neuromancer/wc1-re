@@ -753,9 +753,10 @@ void DIBsetPalette(short index, short *rgb)
         DAT_00486110[cacheOffset + 3] = 1;
         DAT_005a8a50[wordOffset + 2] = (unsigned char)value;
 
-#ifdef WC1_SDL
-        DIBramPalette();
-#else
+        /* WC1_SDL consumes this cache on the next normal frame submission.
+           A DirectDraw palette entry update did not blit or wait for vertical
+           blank, so flight fades must not submit additional SDL frames. */
+#ifndef WC1_SDL
         entry.peBlue = (unsigned char)value;
         entry.peRed = (unsigned char)DAT_005a8a50[wordOffset];
         entry.peGreen = (unsigned char)DAT_005a8a50[wordOffset + 1];
