@@ -376,7 +376,9 @@ MODERN_GAME_HOST_SRCS = \
 MODERN_GAME_HOST_CXX_SRCS = \
 	src/sdl/originfx.cpp
 MODERN_YMFM_SRCS = \
-	third_party/ymfm/ymfm_opl.cpp
+	third_party/ymfm/ymfm_adpcm.cpp \
+	third_party/ymfm/ymfm_opl.cpp \
+	third_party/ymfm/ymfm_pcm.cpp
 MODERN_LAUNCHER_SRC = src/sdl/launcher.c
 
 MODERN_GAMEPLAY_OBJS = \
