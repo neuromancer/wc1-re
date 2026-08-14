@@ -211,4 +211,4 @@ jobs:
           ./SHA256SUMS
           --verify-tag
           --generate-notes
-          --title "Wing Commander source reconstruction $RELEASE_TAG"
+          --title "$RELEASE_TAG"

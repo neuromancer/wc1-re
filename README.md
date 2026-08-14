@@ -1578,6 +1578,10 @@ palette effects, cockpit, and HUD. The normal renderer remains the default.
 ./wc1-modern --enhanced
 ```
 
+| Output-resolution ships | Cockpit combat |
+| --- | --- |
+| [![Enhanced SDL2 renderer showing two ships at output resolution](screenshots/enhanced-space-objects.webp)](screenshots/enhanced-space-objects.webp) | [![Enhanced SDL2 renderer during cockpit combat with a Kilrathi transmission](screenshots/enhanced-cockpit-combat.webp)](screenshots/enhanced-cockpit-combat.webp) |
+
 See [the renderer notes](docs/SDL2_RENDERER.md) for its scope and requirements.
 
 ### Makefile shortcuts
