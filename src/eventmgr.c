@@ -708,6 +708,12 @@ void draw_sorted_objects_to_buffer(void)
     short screenX;
     short screenY;
     int specialObject;
+#ifdef WC1_SDL
+    float enhancedScreenX;
+    float enhancedScreenY;
+    short projectedScreenX;
+    short projectedScreenY;
+#endif
 
     sortedEntry = g_anSortedObject_0059aa00;
     do {
@@ -717,6 +723,40 @@ void draw_sorted_objects_to_buffer(void)
         if ((int)g_aeObjectType_0059b560[obj] < 0)
             return;
         objectClass = g_aeObjectClass_0059d100[obj];
+#ifdef WC1_SDL
+        enhancedScreenX = (float)(short)(
+            g_asObjectScreenX_0059d9b0[obj] + g_nViewCenterX_0059a852);
+        enhancedScreenY = (float)(short)(
+            g_asObjectScreenY_0059d930[obj] + g_nViewCenterY_0059a854);
+        if (objectClass != OBJECT_CLASS_NULL &&
+            objectClass != OBJECT_CLASS_FIXED_OBJECT &&
+            obj != DAT_00469208 &&
+            g_aObjectViewPosition_0059afa0[obj].z != 0) {
+            projectedScreenX = (short)(DivideFixed(
+                MultiplyFixed(
+                    (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
+                    g_aObjectViewPosition_0059afa0[obj].x),
+                g_aObjectViewPosition_0059afa0[obj].z) >> 8);
+            projectedScreenY = (short)(DivideFixed(
+                MultiplyFixed(
+                    (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
+                    g_aObjectViewPosition_0059afa0[obj].y),
+                g_aObjectViewPosition_0059afa0[obj].z) >> 8);
+            if (projectedScreenX == g_asObjectScreenX_0059d9b0[obj] &&
+                projectedScreenY == g_asObjectScreenY_0059d930[obj]) {
+                enhancedScreenX =
+                    (float)g_nViewCenterX_0059a852 +
+                    (float)(((double)(g_nScreenWidth_0046daa4 & ~1) * 0.5 *
+                             g_aObjectViewPosition_0059afa0[obj].x) /
+                            g_aObjectViewPosition_0059afa0[obj].z);
+                enhancedScreenY =
+                    (float)g_nViewCenterY_0059a854 +
+                    (float)(((double)(g_nScreenWidth_0046daa4 & ~1) * 0.5 *
+                             g_aObjectViewPosition_0059afa0[obj].y) /
+                            g_aObjectViewPosition_0059afa0[obj].z);
+            }
+        }
+#endif
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             default:
@@ -730,7 +770,8 @@ void draw_sorted_objects_to_buffer(void)
                 if (shape != 0) {
 #ifdef WC1_SDL
                     if (!Wc1SdlRecordSpaceSprite(
-                            &DAT_005a7510, screenX, screenY, shape,
+                            &DAT_005a7510, enhancedScreenX, enhancedScreenY,
+                            shape,
                             g_asObjectViewFrame_0059d230[obj],
                             g_asObjectScreenAngle_0059cd90[obj],
                             g_asObjectScreenScale_0059c950[obj],
@@ -760,7 +801,7 @@ void draw_sorted_objects_to_buffer(void)
                     shape = g_pConstellationShape_005a765c;
 #ifdef WC1_SDL
                 if (!Wc1SdlRecordSpaceSprite(
-                        &DAT_005a7510, screenX, screenY, shape,
+                        &DAT_005a7510, enhancedScreenX, enhancedScreenY, shape,
                         g_asObjectViewFrame_0059d230[obj], 0, 0x100, 0))
 #endif
                 DrawSpriteDefault(&DAT_005a7510, screenX, screenY, shape,

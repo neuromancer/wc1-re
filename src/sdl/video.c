@@ -131,7 +131,7 @@ void Wc1SdlCancelSpaceFrame(void)
 }
 
 int Wc1SdlRecordSpaceSprite(
-    const struct Viewport *viewport, short x, short y,
+    const struct Viewport *viewport, float x, float y,
     unsigned char *shape, short frame, short angle, short scale,
     short flip)
 {

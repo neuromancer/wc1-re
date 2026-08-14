@@ -32,8 +32,8 @@ void Wc1SdlGlRendererBeginSpaceFrame(
     int fullViewportCopy, unsigned char clearColour);
 void Wc1SdlGlRendererCompleteSpaceFrame(void);
 void Wc1SdlGlRendererCancelSpaceFrame(void);
-int Wc1SdlGlRendererRecordSpaceSprite(const struct Viewport *viewport, short x,
-                                      short y, unsigned char *shape,
+int Wc1SdlGlRendererRecordSpaceSprite(const struct Viewport *viewport, float x,
+                                      float y, unsigned char *shape,
                                       short frame, short angle, short scale,
                                       short flip);
 

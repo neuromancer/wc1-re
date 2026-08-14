@@ -172,8 +172,8 @@ typedef struct Wc1GlCachedFrame {
 
 typedef struct Wc1GlSprite {
     const Wc1GlCachedFrame *cachedFrame;
-    short x;
-    short y;
+    float x;
+    float y;
     short angle;
     short scale;
     short flip;
@@ -1190,8 +1190,8 @@ void Wc1SdlGlRendererCancelSpaceFrame(void)
     g_renderer.useSoftwareForRestOfFrame = 0;
 }
 
-int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, short x,
-                                      short y, unsigned char *shape,
+int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
+                                      float y, unsigned char *shape,
                                       short frame, short angle, short scale,
                                       short flip)
 {
@@ -1248,8 +1248,8 @@ int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, short x,
     }
     sprite = &g_renderer.recordedSprites[g_renderer.spriteCount];
     sprite->cachedFrame = cachedFrame;
-    sprite->x = (short)(x + g_renderer.spaceLayerOffsetX);
-    sprite->y = (short)(y + g_renderer.spaceLayerOffsetY);
+    sprite->x = x + (float)g_renderer.spaceLayerOffsetX;
+    sprite->y = y + (float)g_renderer.spaceLayerOffsetY;
     sprite->angle = angle;
     sprite->scale = scale;
     sprite->flip = flip;
