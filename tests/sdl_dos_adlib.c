@@ -30,6 +30,58 @@ static void BuildTestTimbre(unsigned char *timbres)
     BuildAudibleTimbre(timbres + 1, 0);
 }
 
+static unsigned int CountMidpointCrossings(
+    const short *samples, unsigned int firstFrame,
+    unsigned int frameCount)
+{
+    short minimum;
+    short maximum;
+    int midpoint;
+    unsigned int crossings;
+    unsigned int frame;
+
+    minimum = samples[firstFrame * 2];
+    maximum = minimum;
+    frame = 1;
+    while (frame < frameCount) {
+        if (samples[(firstFrame + frame) * 2] < minimum)
+            minimum = samples[(firstFrame + frame) * 2];
+        if (samples[(firstFrame + frame) * 2] > maximum)
+            maximum = samples[(firstFrame + frame) * 2];
+        frame++;
+    }
+    midpoint = ((int)minimum + maximum) / 2;
+    crossings = 0;
+    frame = 1;
+    while (frame < frameCount) {
+        if (samples[(firstFrame + frame - 1) * 2] <= midpoint &&
+            samples[(firstFrame + frame) * 2] > midpoint)
+            crossings++;
+        frame++;
+    }
+    return crossings;
+}
+
+static unsigned long long SumAbsoluteSamples(
+    const short *samples, unsigned int firstFrame,
+    unsigned int frameCount)
+{
+    unsigned long long total;
+    int sample;
+    unsigned int frame;
+
+    total = 0;
+    frame = 0;
+    while (frame < frameCount) {
+        sample = samples[(firstFrame + frame) * 2];
+        if (sample < 0)
+            sample = -sample;
+        total += (unsigned int)sample;
+        frame++;
+    }
+    return total;
+}
+
 static int CheckSyntheticSong(void)
 {
     const unsigned char midi[37] = {
@@ -71,6 +123,57 @@ static int CheckSyntheticSong(void)
         heardOutput = 0;
     Wc1SdlDestroyOriginFxPlayer(player);
     return heardOutput;
+}
+
+static int CheckSyntheticSoundEffects(void)
+{
+    unsigned char timbres[49];
+    short samples[4096 * 2];
+    Wc1SdlOriginFxPlayer *player;
+    unsigned int frame;
+    unsigned int effect;
+    int heardOutput;
+    int result;
+
+    BuildTestTimbre(timbres);
+    player = Wc1SdlCreateOriginFxSoundPlayer(
+        timbres, sizeof(timbres));
+    if (player == 0)
+        return 0;
+    result =
+        !Wc1SdlPlayOriginFxSoundEffect(player, 0, 127, 64, 1, 0) &&
+        !Wc1SdlPlayOriginFxSoundEffect(player, 37, 127, 64, 1, 0) &&
+        Wc1SdlPlayOriginFxSoundEffect(player, 1, 127, 64, 1, 0);
+    memset(samples, 0, sizeof(samples));
+    Wc1SdlMixOriginFxSoundEffects(
+        player, samples, 4096, 0x7fff);
+    heardOutput = 0;
+    frame = 0;
+    while (frame < 4096) {
+        if (samples[frame * 2] != samples[frame * 2 + 1])
+            result = 0;
+        if (samples[frame * 2] != 0)
+            heardOutput = 1;
+        frame++;
+    }
+
+    Wc1SdlStopOriginFxSoundEffects(player);
+    effect = 0;
+    while (effect < 8) {
+        if (!Wc1SdlPlayOriginFxSoundEffect(
+                player, 1, 127, 64, (int)effect, 10))
+            result = 0;
+        effect++;
+    }
+    if (Wc1SdlPlayOriginFxSoundEffect(
+            player, 1, 127, 64, 100, 9))
+        result = 0;
+    if (!Wc1SdlPlayOriginFxSoundEffect(
+            player, 1, 127, 64, 0, 0))
+        result = 0;
+    Wc1SdlStopOriginFxSoundEffects(player);
+    Wc1SdlDestroyOriginFxPlayer(player);
+    return result && heardOutput;
 }
 
 static int CheckInvalidInputs(void)
@@ -208,6 +311,183 @@ static int CheckOriginalPitchModulation(void)
     return result && heardPlain && heardModulated;
 }
 
+static int CheckOriginalPitchEnvelope(void)
+{
+    const unsigned char midi[38] = {
+        'M', 'T', 'h', 'd',
+        0x00, 0x00, 0x00, 0x06,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x60,
+        'M', 'T', 'r', 'k',
+        0x00, 0x00, 0x00, 0x10,
+        0x00, 0xc0, 0x00,
+        0x00, 0x90, 0x3c, 0x7f,
+        0x83, 0x00, 0x80, 0x3c, 0x00,
+        0x00, 0xff, 0x2f, 0x00
+    };
+    unsigned char timbres[49];
+    short samples[14000 * 2];
+    Wc1SdlOriginFxPlayer *player;
+    unsigned int earlyCrossings;
+    unsigned int lateCrossings;
+
+    BuildTestTimbre(timbres);
+    timbres[1 + 1] = 0x3f;
+    timbres[1 + 6] = 0;
+    /* STRAX.DRV stores each envelope stage as rate followed by target. */
+    timbres[1 + 20] = 64;
+    timbres[1 + 21] = 0;
+    timbres[1 + 22] = 0;
+    timbres[1 + 23] = 0xf0;
+    player = Wc1SdlCreateOriginFxPlayer(
+        midi, sizeof(midi), timbres, sizeof(timbres));
+    if (player == 0)
+        return 0;
+    Wc1SdlRenderOriginFxPlayer(
+        player, samples, 14000, 0x7fff);
+    earlyCrossings = CountMidpointCrossings(samples, 1000, 2000);
+    lateCrossings = CountMidpointCrossings(samples, 10000, 2000);
+    Wc1SdlDestroyOriginFxPlayer(player);
+    return earlyCrossings > 10 && lateCrossings > 10 &&
+        lateCrossings * 4 < earlyCrossings * 3;
+}
+
+static int CheckOriginalRhythmRelease(void)
+{
+    unsigned char timbres[97];
+    short recoveredSamples[1024 * 2];
+    short rhythmSamples[1024 * 2];
+    short discardedSamples[4096 * 2];
+    Wc1SdlOriginFxPlayer *recoveredPlayer;
+    Wc1SdlOriginFxPlayer *rhythmPlayer;
+    unsigned long long recoveredEnergy;
+    unsigned long long rhythmEnergy;
+    unsigned int effect;
+    unsigned int elapsed;
+    unsigned int frameCount;
+    int result;
+
+    memset(timbres, 0, sizeof(timbres));
+    timbres[0] = 2;
+    BuildAudibleTimbre(timbres + 1, 0);
+    BuildAudibleTimbre(timbres + 49, 44);
+    timbres[49 + 1] = 0x3f;
+    timbres[49 + 6] = 0x3f;
+    timbres[49 + 11] = 6;
+    recoveredPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+        timbres, sizeof(timbres));
+    rhythmPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+        timbres, sizeof(timbres));
+    if (recoveredPlayer == 0 || rhythmPlayer == 0) {
+        Wc1SdlDestroyOriginFxPlayer(recoveredPlayer);
+        Wc1SdlDestroyOriginFxPlayer(rhythmPlayer);
+        return 0;
+    }
+
+    result = Wc1SdlPlayOriginFxSoundEffect(
+        recoveredPlayer, 23, 127, 64, 100, 0);
+    memset(discardedSamples, 0, sizeof(discardedSamples));
+    Wc1SdlMixOriginFxSoundEffects(
+        recoveredPlayer, discardedSamples, 4096, 0x1000);
+
+    result = result && Wc1SdlPlayOriginFxSoundEffect(
+        rhythmPlayer, 23, 127, 64, 100, 0);
+    elapsed = 0;
+    while (elapsed < 4096 && result) {
+        frameCount = 4096 - elapsed;
+        if (frameCount > 1000)
+            frameCount = 1000;
+        memset(discardedSamples, 0,
+               (size_t)frameCount * sizeof(short) * 2);
+        Wc1SdlMixOriginFxSoundEffects(
+            rhythmPlayer, discardedSamples, frameCount, 0x1000);
+        elapsed += frameCount;
+        if (elapsed < 4096)
+            result = Wc1SdlPlayOriginFxSoundEffect(
+                rhythmPlayer, 23, 127, 64, 100, 0);
+    }
+
+    effect = 0;
+    while (effect < 8 && result) {
+        result = Wc1SdlPlayOriginFxSoundEffect(
+            recoveredPlayer, 1, 127, 64, (int)effect, 0);
+        effect++;
+    }
+    effect = 0;
+    while (effect < 6 && result) {
+        result = Wc1SdlPlayOriginFxSoundEffect(
+            rhythmPlayer, 1, 127, 64, (int)effect, 0);
+        effect++;
+    }
+    memset(recoveredSamples, 0, sizeof(recoveredSamples));
+    memset(rhythmSamples, 0, sizeof(rhythmSamples));
+    Wc1SdlMixOriginFxSoundEffects(
+        recoveredPlayer, recoveredSamples, 1024, 0x1000);
+    Wc1SdlMixOriginFxSoundEffects(
+        rhythmPlayer, rhythmSamples, 1024, 0x1000);
+    recoveredEnergy = SumAbsoluteSamples(
+        recoveredSamples, 128, 896);
+    rhythmEnergy = SumAbsoluteSamples(
+        rhythmSamples, 128, 896);
+    Wc1SdlStopOriginFxSoundEffects(recoveredPlayer);
+    Wc1SdlStopOriginFxSoundEffects(rhythmPlayer);
+    Wc1SdlDestroyOriginFxPlayer(recoveredPlayer);
+    Wc1SdlDestroyOriginFxPlayer(rhythmPlayer);
+    return result && recoveredEnergy != 0 && rhythmEnergy != 0 &&
+        recoveredEnergy * 100 > rhythmEnergy * 115;
+}
+
+static int CheckRetailDosSoundEffects(void)
+{
+    unsigned char *timbreArchive;
+    unsigned char *timbres;
+    short samples[512 * 2];
+    Wc1SdlOriginFxPlayer *player;
+    size_t timbreArchiveSize;
+    size_t timbreSize;
+    unsigned int soundNumber;
+    unsigned int sampleIndex;
+    int heardOutput;
+    int result;
+
+    timbreArchive = (unsigned char *)SDL_LoadFile(
+        "data/dos/GAMEDAT/WINGLDR.TIM", &timbreArchiveSize);
+    if (timbreArchive == 0)
+        return 1;
+    timbres = 0;
+    result = Wc1SdlExtractOriginPacketSection(
+        timbreArchive, timbreArchiveSize, 1, &timbres, &timbreSize);
+    SDL_free(timbreArchive);
+    if (!result)
+        return 0;
+    player = Wc1SdlCreateOriginFxSoundPlayer(timbres, timbreSize);
+    free(timbres);
+    if (player == 0)
+        return 0;
+    soundNumber = 1;
+    while (soundNumber <= 36 && result) {
+        Wc1SdlStopOriginFxSoundEffects(player);
+        result = Wc1SdlPlayOriginFxSoundEffect(
+            player, soundNumber, 127, 64,
+            (int)soundNumber, 0);
+        memset(samples, 0, sizeof(samples));
+        Wc1SdlMixOriginFxSoundEffects(
+            player, samples, 512, 0x7fff);
+        heardOutput = 0;
+        sampleIndex = 0;
+        while (sampleIndex < sizeof(samples) / sizeof(samples[0])) {
+            if (samples[sampleIndex] != 0)
+                heardOutput = 1;
+            sampleIndex++;
+        }
+        if (!heardOutput)
+            result = 0;
+        soundNumber++;
+    }
+    Wc1SdlStopOriginFxSoundEffects(player);
+    Wc1SdlDestroyOriginFxPlayer(player);
+    return result;
+}
+
 static int CheckRetailDosSongs(void)
 {
     unsigned char *musicArchive;
@@ -282,12 +562,28 @@ int main(int argumentCount, char **arguments)
         fprintf(stderr, "Invalid OriginFX input test failed\n");
         return 1;
     }
+    if (!CheckSyntheticSoundEffects()) {
+        fprintf(stderr, "Synthetic OriginFX sound-effect test failed\n");
+        return 1;
+    }
     if (!CheckOriginalPercussionMapping()) {
         fprintf(stderr, "Original OriginFX percussion mapping test failed\n");
         return 1;
     }
     if (!CheckOriginalPitchModulation()) {
         fprintf(stderr, "Original OriginFX pitch modulation test failed\n");
+        return 1;
+    }
+    if (!CheckOriginalPitchEnvelope()) {
+        fprintf(stderr, "Original OriginFX pitch envelope test failed\n");
+        return 1;
+    }
+    if (!CheckOriginalRhythmRelease()) {
+        fprintf(stderr, "Original OriginFX rhythm release test failed\n");
+        return 1;
+    }
+    if (!CheckRetailDosSoundEffects()) {
+        fprintf(stderr, "Retail DOS OriginFX sound-effect test failed\n");
         return 1;
     }
     if (!CheckRetailDosSongs()) {

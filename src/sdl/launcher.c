@@ -84,9 +84,6 @@ int main(int argumentCount, char **arguments)
             if (!Wc1SdlInitializeDosAdlibMusic())
                 fprintf(stderr,
                         "DOS audio is unavailable.\n");
-            else
-                fprintf(stderr,
-                        "DOS digital sound effects are not yet available.\n");
         }
         for (argumentIndex = 1; argumentIndex < argumentCount;
              argumentIndex++) {

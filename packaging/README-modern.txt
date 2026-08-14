@@ -11,9 +11,9 @@ an installed Kilrathi Saga or DOS WC1 directory, then start wc1-modern
 libraries beside the executable.
 
 The DOS data path supports the original compressed packet resources and plays
-MUSIC.MID through an embedded YM3812 (AdLib) emulator using WINGLDR.TIM. No
-external MIDI synthesizer or sound bank is required. The OriginFX sequencer is
-not cycle-accurate. DOS digital sound effects are not implemented yet.
+OriginFX music and synthesized sound effects through an embedded YM3812
+(AdLib) emulator using MUSIC.MID and WINGLDR.TIM. No external MIDI synthesizer
+or sound bank is required. DOS game-data support remains partial.
 
 The macOS archives are ad-hoc signed, not notarized with an Apple developer
 certificate. macOS may therefore require the usual confirmation for software

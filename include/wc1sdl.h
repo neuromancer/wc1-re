@@ -174,14 +174,26 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
 Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxPlayer(
     const unsigned char *midi, size_t midiSize,
     const unsigned char *timbres, size_t timbreSize);
+Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxSoundPlayer(
+    const unsigned char *timbres, size_t timbreSize);
 void Wc1SdlDestroyOriginFxPlayer(Wc1SdlOriginFxPlayer *player);
 int Wc1SdlOriginFxPlayerFinished(const Wc1SdlOriginFxPlayer *player);
+int Wc1SdlPlayOriginFxSoundEffect(
+    Wc1SdlOriginFxPlayer *player, unsigned int soundNumber,
+    int volume, int pan, int tag, int priority);
+void Wc1SdlStopOriginFxSoundEffects(Wc1SdlOriginFxPlayer *player);
+void Wc1SdlMixOriginFxSoundEffects(
+    Wc1SdlOriginFxPlayer *player, short *samples,
+    unsigned int frameCount, unsigned int gain);
 void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
                                 short *samples,
                                 unsigned int frameCount,
                                 unsigned int gain);
 int Wc1SdlInitializeDosAdlibMusic(void);
+int Wc1SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
+                             int tag, int priority);
 void Wc1SdlServiceDosAdlibMusic(void);
+void Wc1SdlStopDosSoundEffects(void);
 void Wc1SdlShutdownDosAdlibMusic(void);
 void Wc1SdlCompleteDosInstallTable(struct DiskFileRecord *records);
 

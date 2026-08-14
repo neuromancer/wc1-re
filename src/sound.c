@@ -106,6 +106,9 @@ void playWAVE(const char *filename, int looping, int volume)
 /* Function start: 0x42B640 */
 void stop_all_sounds(void)
 {
+#ifdef WC1_SDL
+    Wc1SdlStopDosSoundEffects();
+#endif
     ix_system_delete_all_sounds();
     ix_system_delete_all_samples();
     FreeWaveTable();

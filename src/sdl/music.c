@@ -1,4 +1,4 @@
-/* SDL2-only AdLib playback for the music resources shipped by WC1 DOS. */
+/* SDL2-only OriginFX/AdLib playback for the audio shipped by WC1 DOS. */
 #include "wc1.h"
 
 #include <stdio.h>
@@ -13,11 +13,15 @@ static SDL_mutex *g_pWc1SdlDosMusicMutex;
 static unsigned char *g_pWc1SdlDosMusicArchive;
 static unsigned char *g_pWc1SdlDosAdlibTimbres;
 static Wc1SdlOriginFxPlayer *g_pWc1SdlOriginFxPlayer;
+static Wc1SdlOriginFxPlayer *g_pWc1SdlOriginFxSoundPlayer;
 static size_t g_nWc1SdlDosMusicArchiveSize;
 static size_t g_nWc1SdlDosAdlibTimbreSize;
 static unsigned int g_nWc1SdlDosMusicGain;
+static unsigned int g_nWc1SdlDosSoundGain;
+static unsigned int g_nWc1SdlDosRapidFireTag;
 static int g_nWc1SdlActiveMusicTrack = -1;
 static int g_nWc1SdlMusicVolumeSetting = -1;
+static int g_nWc1SdlSoundVolumeSetting = -1;
 static int g_bWc1SdlDosMusicAudioCriticalSectionInitialized;
 static int g_bWc1SdlDosMusicInitialized;
 
@@ -50,11 +54,16 @@ static void Wc1SdlMixDosAdlibMusic(void *stream, unsigned int byteCount)
     if (g_pWc1SdlDosMusicMutex == 0)
         return;
     SDL_LockMutex(g_pWc1SdlDosMusicMutex);
+    frameCount = byteCount / (sizeof(short) * 2U);
     if (g_pWc1SdlOriginFxPlayer != 0) {
-        frameCount = byteCount / (sizeof(short) * 2U);
         Wc1SdlRenderOriginFxPlayer(
             g_pWc1SdlOriginFxPlayer, (short *)stream,
             frameCount, g_nWc1SdlDosMusicGain);
+    }
+    if (g_pWc1SdlOriginFxSoundPlayer != 0) {
+        Wc1SdlMixOriginFxSoundEffects(
+            g_pWc1SdlOriginFxSoundPlayer, (short *)stream,
+            frameCount, g_nWc1SdlDosSoundGain);
     }
     SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
 }
@@ -72,21 +81,42 @@ static void Wc1SdlUpdateDosAdlibMusicVolume(void)
     int tableIndex;
 
     if (g_nWc1SdlMusicVolumeSetting ==
-        g_nMusicVolumeSetting_00469fc0)
+            g_nMusicVolumeSetting_00469fc0 &&
+        g_nWc1SdlSoundVolumeSetting ==
+            g_nSfxVolumeSetting_00469fbc)
         return;
-    g_nWc1SdlMusicVolumeSetting = g_nMusicVolumeSetting_00469fc0;
-    tableIndex = g_nWc1SdlMusicVolumeSetting / 2;
-    if (tableIndex < 0)
-        tableIndex = 0;
-    else if (tableIndex > 10)
-        tableIndex = 10;
-    level = g_anVolumeLevels_00469fc8[tableIndex];
-    if (level < 0)
-        level = 0;
-    else if (level > 64000)
-        level = 64000;
-    g_nWc1SdlDosMusicGain =
-        (unsigned int)((long)level * 0x7fffL / 64000L);
+    if (g_nWc1SdlMusicVolumeSetting !=
+        g_nMusicVolumeSetting_00469fc0) {
+        g_nWc1SdlMusicVolumeSetting = g_nMusicVolumeSetting_00469fc0;
+        tableIndex = g_nWc1SdlMusicVolumeSetting / 2;
+        if (tableIndex < 0)
+            tableIndex = 0;
+        else if (tableIndex > 10)
+            tableIndex = 10;
+        level = g_anVolumeLevels_00469fc8[tableIndex];
+        if (level < 0)
+            level = 0;
+        else if (level > 64000)
+            level = 64000;
+        g_nWc1SdlDosMusicGain =
+            (unsigned int)((long)level * 0x7fffL / 64000L);
+    }
+    if (g_nWc1SdlSoundVolumeSetting !=
+        g_nSfxVolumeSetting_00469fbc) {
+        g_nWc1SdlSoundVolumeSetting = g_nSfxVolumeSetting_00469fbc;
+        tableIndex = g_nWc1SdlSoundVolumeSetting / 2;
+        if (tableIndex < 0)
+            tableIndex = 0;
+        else if (tableIndex > 10)
+            tableIndex = 10;
+        level = g_anVolumeLevels_00469fc8[tableIndex];
+        if (level < 0)
+            level = 0;
+        else if (level > 64000)
+            level = 64000;
+        g_nWc1SdlDosSoundGain =
+            (unsigned int)((long)level * 0x7fffL / 64000L);
+    }
 }
 
 int Wc1SdlInitializeDosAdlibMusic(void)
@@ -127,6 +157,14 @@ int Wc1SdlInitializeDosAdlibMusic(void)
     }
     SDL_free(timbreArchive);
 
+    g_pWc1SdlOriginFxSoundPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+        g_pWc1SdlDosAdlibTimbres,
+        g_nWc1SdlDosAdlibTimbreSize);
+    if (g_pWc1SdlOriginFxSoundPlayer == 0) {
+        fprintf(stderr, "Unable to initialize DOS AdLib sound effects.\n");
+        goto failed;
+    }
+
     g_pWc1SdlDosMusicMutex = SDL_CreateMutex();
     if (g_pWc1SdlDosMusicMutex == 0)
         goto failed;
@@ -140,12 +178,43 @@ int Wc1SdlInitializeDosAdlibMusic(void)
             &g_stWc1SdlDosMusicAudioCriticalSection,
             &g_nWc1SdlDosMusicAudioTick))
         goto failed;
-    fprintf(stderr, "DOS AdLib music enabled.\n");
+    fprintf(stderr, "DOS OriginFX/AdLib audio enabled.\n");
     return 1;
 
 failed:
     Wc1SdlShutdownDosAdlibMusic();
     return 0;
+}
+
+int Wc1SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
+                             int tag, int priority)
+{
+    int result;
+
+    if (g_bWc1SdlDosMusicInitialized == 0 ||
+        g_pWc1SdlDosMusicMutex == 0 ||
+        g_pWc1SdlOriginFxSoundPlayer == 0)
+        return 0;
+    SDL_LockMutex(g_pWc1SdlDosMusicMutex);
+    if (soundNumber == 8) {
+        tag = 64 + (int)(g_nWc1SdlDosRapidFireTag & 1U);
+        g_nWc1SdlDosRapidFireTag++;
+    }
+    result = Wc1SdlPlayOriginFxSoundEffect(
+        g_pWc1SdlOriginFxSoundPlayer,
+        (unsigned int)soundNumber, volume, pan, tag, priority);
+    SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
+    return result;
+}
+
+void Wc1SdlStopDosSoundEffects(void)
+{
+    if (g_pWc1SdlDosMusicMutex == 0 ||
+        g_pWc1SdlOriginFxSoundPlayer == 0)
+        return;
+    SDL_LockMutex(g_pWc1SdlDosMusicMutex);
+    Wc1SdlStopOriginFxSoundEffects(g_pWc1SdlOriginFxSoundPlayer);
+    SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
 }
 
 void Wc1SdlServiceDosAdlibMusic(void)
@@ -225,6 +294,9 @@ void Wc1SdlShutdownDosAdlibMusic(void)
     if (g_pWc1SdlDosMusicMutex != 0)
         SDL_LockMutex(g_pWc1SdlDosMusicMutex);
     Wc1SdlDeleteDosAdlibTrack();
+    Wc1SdlStopOriginFxSoundEffects(g_pWc1SdlOriginFxSoundPlayer);
+    Wc1SdlDestroyOriginFxPlayer(g_pWc1SdlOriginFxSoundPlayer);
+    g_pWc1SdlOriginFxSoundPlayer = 0;
     if (g_pWc1SdlDosMusicMutex != 0)
         SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
     if (g_pWc1SdlDosMusicMutex != 0) {
@@ -243,6 +315,10 @@ void Wc1SdlShutdownDosAdlibMusic(void)
     g_nWc1SdlDosMusicArchiveSize = 0;
     g_nWc1SdlDosAdlibTimbreSize = 0;
     g_nWc1SdlMusicVolumeSetting = -1;
+    g_nWc1SdlSoundVolumeSetting = -1;
+    g_nWc1SdlDosMusicGain = 0;
+    g_nWc1SdlDosSoundGain = 0;
+    g_nWc1SdlDosRapidFireTag = 0;
     g_nWc1SdlDosMusicAudioTick = 0;
     g_bWc1SdlDosMusicInitialized = 0;
 }

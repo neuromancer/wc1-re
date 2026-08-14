@@ -1564,8 +1564,9 @@ cd C:\path\to\WC1
 .\wc1-modern.exe
 ```
 
-DOS game-data support is partial: compressed packet resources and AdLib music
-work, but DOS digital sound effects are not implemented yet.
+DOS game-data support is partial: compressed packet resources, OriginFX/AdLib
+music, and the original synthesized sound effects work; other DOS-specific
+data and behavior may remain unsupported.
 
 ### Makefile shortcuts
 

@@ -44,6 +44,31 @@ branch of every condition remains the assembly-comparison authority.
 | Debug/host services | `src/mono.c`, `src/debug.cpp`, message boxes | stderr/log files and SDL message boxes |
 | MSVC x86 assembly | `src/screens.c`, `src/ix/lzo1x.cpp`, isolated core sites | Portable C/C++ alternatives selected only for `WC1_SDL` |
 
+## DOS OriginFX sound effects
+
+The DOS release does not use sampled WAV or VOC files for its game sound
+effects. Ghidra analysis of `WC.EXE` shows a table of 36 eight-byte OriginFX
+records at `2231:051e`. The game-facing routine at `16ac:07f2` selects one of
+those records, attenuates it by source distance, and submits it to the
+OriginFX player at `19c5:04f3` with a source tag and priority.
+
+The timer service at `19c5:0396` interprets the record flags at 60 Hz: `0x02`
+glides the pitch toward the target note, `0x04` holds the note, and `0x08`
+restarts it. OriginFX limits effects to eight logical channels (MIDI channels
+2-9) and replaces the oldest channel whose priority permits replacement. The
+SDL2 host reproduces that contract, uses the original `WINGLDR.TIM`
+instruments, and mixes the synthesized output with DOS music in the existing
+SDL audio callback.
+
+The AdLib section of `STRAX.DRV` provides the register-level behavior. Its
+service routine at `0000:0d49` treats each TIM pitch-envelope stage as a
+16-bit rate followed by a signed 16-bit target. Instrument byte 11 selects
+hardware rhythm mode: values 6-10 map to bass drum, snare, tom, cymbal, and
+hi-hat and use the operator and `0xbd` bit tables at `0000:01dc-020e`. The SDL
+renderer follows those layouts, including STRAX's fixed channel 7/8 drum
+frequencies, its six-voice limit while rhythm mode is active, and its return
+to nine melodic voices when the last rhythm sound channel is released.
+
 ## Delivery steps
 
 Each checked step is committed and pushed independently.

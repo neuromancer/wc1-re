@@ -1411,6 +1411,30 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
     FixedVector delta;
     int distance;
 
+#ifdef WC1_SDL
+    if (Wc1SdlUsingDosData()) {
+        int volume;
+
+        volume = 127;
+        if (sourceObject != -1) {
+            if (sourceObject < 0 ||
+                sourceObject >= WC1_SPACE_OBJECT_COUNT)
+                return;
+            ComputeVectorDelta(
+                &g_aShipPosition_0059c490[WC1_EYE_OBJECT],
+                &g_aShipPosition_0059c490[sourceObject], &delta);
+            distance = (int)((Vector_magnitude(&delta) / 500L) >> 8);
+            volume -= distance;
+            if (volume < 0)
+                volume = 0;
+        }
+        if (volume >= 10 && Wc1SdlPlayDosSoundEffect(
+                soundNumber, volume, 64, sourceObject, looping))
+            g_aiSoundEffectSourceActive_005a66ec[sourceObject + 1] = 1;
+        return;
+    }
+#endif
+
     if (sourceObject != -1) {
         ComputeVectorDelta(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
                            &g_aShipPosition_0059c490[sourceObject],

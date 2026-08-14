@@ -572,8 +572,8 @@ run-modern: modern
 	cd "$$modern_run_dir" && "$(CURDIR)/$(MODERN_TARGET)" $(MODERN_ARGS)
 
 # The SDL2 host recognizes the compressed resources in an installed DOS copy
-# and plays MUSIC.MID through an embedded YM3812 emulator. Digital sound
-# effects remain unavailable.
+# and plays its OriginFX music and synthesized effects through an embedded
+# YM3812 emulator.
 run-modern-dos: MODERN_RUN_DIR = data/dos
 run-modern-dos: run-modern
 
