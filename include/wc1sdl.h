@@ -216,13 +216,18 @@ void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
                                 short *samples,
                                 unsigned int frameCount,
                                 unsigned int gain);
-int Wc1SdlInitializeDosAdlibMusic(void);
-int Wc1SdlGetDosMusicSequencePosition(void);
+void Wc1SdlMixOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
+                             short *samples,
+                             unsigned int frameCount,
+                             unsigned int gain);
+int Wc1SdlInitializeOriginFxAudio(int useStandaloneAudio);
+int Wc1SdlGetOriginFxMusicSequencePosition(void);
+void Wc1SdlMixOriginFxMusic(short *samples, unsigned int frameCount);
 int Wc1SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
                              int tag, int priority);
-void Wc1SdlServiceDosAdlibMusic(void);
+void Wc1SdlServiceOriginFxMusic(void);
 void Wc1SdlStopDosSoundEffects(void);
-void Wc1SdlShutdownDosAdlibMusic(void);
+void Wc1SdlShutdownOriginFxAudio(void);
 void Wc1SdlCompleteDosInstallTable(struct DiskFileRecord *records);
 
 #define GetTickCount Wc1SdlGetTicks

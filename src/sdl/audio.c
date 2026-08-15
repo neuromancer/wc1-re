@@ -10,6 +10,9 @@ static void Wc1SdlAudioCallback(void *userData, Uint8 *stream, int bytes)
     (void)userData;
     EnterCriticalSection(g_pAudioCriticalSection);
     g_pAudioMixer(stream, (unsigned int)bytes);
+    Wc1SdlMixOriginFxMusic(
+        (short *)stream,
+        (unsigned int)bytes / (sizeof(short) * 2U));
     if (g_pAudioTick != 0)
         *g_pAudioTick = *g_pAudioTick + 1;
     LeaveCriticalSection(g_pAudioCriticalSection);

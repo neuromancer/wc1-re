@@ -468,7 +468,7 @@ void Wc1SdlPumpEvents(void)
 {
     SDL_Event event;
 
-    Wc1SdlServiceDosAdlibMusic();
+    Wc1SdlServiceOriginFxMusic();
     while (SDL_PollEvent(&event)) {
         Wc1SdlLogJoystickEvent(&event);
         switch (event.type) {

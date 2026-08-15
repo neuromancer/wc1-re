@@ -287,14 +287,13 @@ void Wc1SdlPlayDosStartupIntro(void)
     ClearInputKeyStatePreservingModifiers();
     FlushInputEvents();
     previousMusicTrack = g_nCurrentMusicTrack_0046aa14;
-    introMusic = Wc1SdlUsingDosData() &&
-                 DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3;
+    introMusic = DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3;
     if (introMusic) {
         g_nCurrentMusicTrack_0046aa14 = 19;
-        Wc1SdlServiceDosAdlibMusic();
+        Wc1SdlServiceOriginFxMusic();
     }
     synchronizedMusic = introMusic &&
-        Wc1SdlGetDosMusicSequencePosition() >= 0;
+        Wc1SdlGetOriginFxMusicSequencePosition() >= 0;
 
     running = Wc1SdlDrawDosIntroOrchestra(
         &introViewport, titleSections, planetShape, 0);
@@ -302,7 +301,7 @@ void Wc1SdlPlayDosStartupIntro(void)
         actorDirection = 1;
         actorFrame = 0;
         actorMinimumFrame = 0;
-        musicPosition = Wc1SdlGetDosMusicSequencePosition();
+        musicPosition = Wc1SdlGetOriginFxMusicSequencePosition();
         while (running && musicPosition >= 0 && musicPosition < 1) {
             running = Wc1SdlDrawDosIntroOrchestra(
                 &introViewport, titleSections, planetShape, actorFrame);
@@ -320,7 +319,7 @@ void Wc1SdlPlayDosStartupIntro(void)
                     actorDirection = 1;
                 }
             }
-            musicPosition = Wc1SdlGetDosMusicSequencePosition();
+            musicPosition = Wc1SdlGetOriginFxMusicSequencePosition();
         }
         if (musicPosition < 0)
             synchronizedMusic = 0;
@@ -353,13 +352,13 @@ void Wc1SdlPlayDosStartupIntro(void)
         cueFrame++;
     }
     if (running && synchronizedMusic) {
-        musicPosition = Wc1SdlGetDosMusicSequencePosition();
+        musicPosition = Wc1SdlGetOriginFxMusicSequencePosition();
         while (running && musicPosition >= 0 && musicPosition < 2) {
             if (CheckEscaped() != 0) {
                 running = 0;
             } else {
                 Wc1SdlSleep(1);
-                musicPosition = Wc1SdlGetDosMusicSequencePosition();
+                musicPosition = Wc1SdlGetOriginFxMusicSequencePosition();
             }
         }
         if (musicPosition < 0) {
@@ -390,13 +389,13 @@ void Wc1SdlPlayDosStartupIntro(void)
         distance -= 100;
     }
     if (running && synchronizedMusic) {
-        musicPosition = Wc1SdlGetDosMusicSequencePosition();
+        musicPosition = Wc1SdlGetOriginFxMusicSequencePosition();
         while (running && musicPosition >= 0 && musicPosition < 3) {
             if (CheckEscaped() != 0) {
                 running = 0;
             } else {
                 Wc1SdlSleep(1);
-                musicPosition = Wc1SdlGetDosMusicSequencePosition();
+                musicPosition = Wc1SdlGetOriginFxMusicSequencePosition();
             }
         }
         if (musicPosition < 0)
@@ -408,7 +407,7 @@ void Wc1SdlPlayDosStartupIntro(void)
     finishingFireworks = 0;
     while (running) {
         musicPosition = synchronizedMusic
-            ? Wc1SdlGetDosMusicSequencePosition() : -1;
+            ? Wc1SdlGetOriginFxMusicSequencePosition() : -1;
         if (synchronizedMusic && musicPosition < 0)
             synchronizedMusic = 0;
         if (!finishingFireworks) {
@@ -424,7 +423,7 @@ void Wc1SdlPlayDosStartupIntro(void)
             fireworks, logoY);
         fireworkFrame++;
         if (synchronizedMusic) {
-            musicPosition = Wc1SdlGetDosMusicSequencePosition();
+            musicPosition = Wc1SdlGetOriginFxMusicSequencePosition();
             if (musicPosition >= 5)
                 finishingFireworks = 1;
         } else if (fireworkFrame > 10) {
@@ -464,7 +463,7 @@ void Wc1SdlPlayDosStartupIntro(void)
 
     if (introMusic) {
         g_nCurrentMusicTrack_0046aa14 = previousMusicTrack;
-        Wc1SdlServiceDosAdlibMusic();
+        Wc1SdlServiceOriginFxMusic();
     }
     ClearViewport(&DAT_005a6ba0, (unsigned char)DAT_0046999c);
     free_viewport(&introViewport);

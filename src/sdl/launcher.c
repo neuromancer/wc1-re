@@ -129,6 +129,7 @@ int main(int argumentCount, char **arguments)
     int checkOnly;
     int gameResult;
     int useEnhancedRenderer;
+    int usingDosData;
 
     if (!Wc1SdlParsePortArguments(&argumentCount, arguments,
                                    &useEnhancedRenderer))
@@ -173,12 +174,21 @@ int main(int argumentCount, char **arguments)
         gameResult = Wc1SdlRunRuntimeChecks();
     } else {
         CheckLauncherAndConfig();
-        if (Wc1SdlUsingDosData()) {
+        usingDosData = Wc1SdlUsingDosData();
+        if (usingDosData) {
             /* DOS audio drivers cannot be used by the native SDL2 host. */
             DAT_00465058 = 0;
-            if (!Wc1SdlInitializeDosAdlibMusic())
-                fprintf(stderr,
-                        "DOS audio is unavailable.\n");
+        }
+        if (usingDosData || useEnhancedRenderer) {
+            if (!Wc1SdlInitializeOriginFxAudio(usingDosData)) {
+                if (usingDosData) {
+                    fprintf(stderr,
+                            "DOS audio is unavailable.\n");
+                } else {
+                    fprintf(stderr,
+                            "OriginFX intro music is unavailable.\n");
+                }
+            }
         }
         Wc1SdlApplyLegacyArguments(argumentCount, arguments);
         MonoDebug_install();
@@ -198,7 +208,7 @@ int main(int argumentCount, char **arguments)
         if ((g_dwStreamerState_00597cd0 & 1) != 0)
             ix_streamer_destroy();
         ServiceAudioStream();
-        Wc1SdlShutdownDosAdlibMusic();
+        Wc1SdlShutdownOriginFxAudio();
     }
 
     DIBunInstall();

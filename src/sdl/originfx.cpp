@@ -1726,16 +1726,23 @@ void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
                                 unsigned int frameCount,
                                 unsigned int gain)
 {
+    if (samples == 0)
+        return;
+    memset(samples, 0, (size_t)frameCount * sizeof(short) * 2);
+    Wc1SdlMixOriginFxPlayer(player, samples, frameCount, gain);
+}
+
+void Wc1SdlMixOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
+                             short *samples,
+                             unsigned int frameCount,
+                             unsigned int gain)
+{
     int32_t generated;
     short output;
     unsigned int frame;
 
-    if (samples == 0)
+    if (samples == 0 || player == 0 || player->finished != 0)
         return;
-    if (player == 0 || player->finished != 0) {
-        memset(samples, 0, (size_t)frameCount * sizeof(short) * 2);
-        return;
-    }
 
     frame = 0;
     while (frame < frameCount) {
@@ -1744,15 +1751,15 @@ void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
             player->currentFrame >= player->endFrame) {
             Wc1OriginFxAllNotesOff(player, -1);
             player->finished = 1;
-            memset(samples + frame * 2, 0,
-                   (size_t)(frameCount - frame) * sizeof(short) * 2);
             return;
         }
         Wc1OriginFxAdvanceService(player);
         generated = Wc1OriginFxGenerateOutputSample(player);
         output = Wc1OriginFxScaleOutputSample(generated, gain);
-        samples[frame * 2] = output;
-        samples[frame * 2 + 1] = output;
+        samples[frame * 2] = Wc1OriginFxMixOutputSample(
+            samples[frame * 2], output);
+        samples[frame * 2 + 1] = Wc1OriginFxMixOutputSample(
+            samples[frame * 2 + 1], output);
         player->currentFrame++;
         frame++;
     }

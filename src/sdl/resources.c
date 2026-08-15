@@ -1,4 +1,4 @@
-/* SDL2-only support for the compressed resource containers shipped by WC1 DOS. */
+/* SDL2-only support for the Origin packet containers used by WC1 data. */
 #include "wc1.h"
 
 #include <stdint.h>
@@ -228,7 +228,9 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
         sectionEnd > declaredFileSize)
         return 0;
 
-    if (compression == 0) {
+    /* PacketLoad treats compression 1 as LZW and every other value as raw.
+     * Kilrathi Saga MUSIC.MID uses 0xe0 for its uncompressed MIDI sections. */
+    if (compression != 1) {
         outputSize = sectionEnd - sectionOffset;
         if (outputSize > ORIGIN_PACKET_MAX_SECTION_SIZE)
             return 0;
@@ -240,7 +242,7 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
         *sectionSize = outputSize;
         return 1;
     }
-    if (compression != 1 || sectionEnd - sectionOffset < 4)
+    if (sectionEnd - sectionOffset < 4)
         return 0;
 
     outputSize = Wc1SdlReadLittleEndian32(archive + sectionOffset);

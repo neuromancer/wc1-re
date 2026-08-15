@@ -1,4 +1,4 @@
-/* SDL2-only OriginFX/AdLib playback for the audio shipped by WC1 DOS. */
+/* SDL2-only OriginFX/AdLib playback for WC1 DOS and Kilrathi Saga data. */
 #include "wc1.h"
 
 #include <stdio.h>
@@ -23,6 +23,8 @@ static int g_nWc1SdlMusicVolumeSetting = -1;
 static int g_nWc1SdlSoundVolumeSetting = -1;
 static int g_bWc1SdlDosMusicAudioCriticalSectionInitialized;
 static int g_bWc1SdlDosMusicInitialized;
+static int g_bWc1SdlOriginFxOwnsAudioDevice;
+static int g_bWc1SdlOriginFxServicesAllTracks;
 
 static unsigned char *Wc1SdlLoadDosMusicFile(
     const char *const *candidates, unsigned int candidateCount,
@@ -111,7 +113,7 @@ static void Wc1SdlUpdateDosAdlibMusicVolume(void)
     }
 }
 
-int Wc1SdlInitializeDosAdlibMusic(void)
+int Wc1SdlInitializeOriginFxAudio(int useStandaloneAudio)
 {
     const char *musicCandidates[2] = {
         "GAMEDAT/MUSIC.MID",
@@ -129,13 +131,13 @@ int Wc1SdlInitializeDosAdlibMusic(void)
     g_pWc1SdlDosMusicArchive = Wc1SdlLoadDosMusicFile(
         musicCandidates, 2, &g_nWc1SdlDosMusicArchiveSize);
     if (g_pWc1SdlDosMusicArchive == 0) {
-        fprintf(stderr, "Unable to load DOS GAMEDAT/MUSIC.MID.\n");
+        fprintf(stderr, "Unable to load GAMEDAT/MUSIC.MID.\n");
         return 0;
     }
     timbreArchive = Wc1SdlLoadDosMusicFile(
         timbreCandidates, 2, &timbreArchiveSize);
     if (timbreArchive == 0) {
-        fprintf(stderr, "Unable to load DOS GAMEDAT/WINGLDR.TIM.\n");
+        fprintf(stderr, "Unable to load GAMEDAT/WINGLDR.TIM.\n");
         goto failed;
     }
     if (!Wc1SdlExtractOriginPacketSection(
@@ -144,36 +146,47 @@ int Wc1SdlInitializeDosAdlibMusic(void)
             &g_pWc1SdlDosAdlibTimbres,
             &g_nWc1SdlDosAdlibTimbreSize)) {
         SDL_free(timbreArchive);
-        fprintf(stderr, "Unable to decode DOS AdLib timbres.\n");
+        fprintf(stderr, "Unable to decode OriginFX AdLib timbres.\n");
         goto failed;
     }
     SDL_free(timbreArchive);
 
-    g_pWc1SdlOriginFxSoundPlayer = Wc1SdlCreateOriginFxSoundPlayer(
-        g_pWc1SdlDosAdlibTimbres,
-        g_nWc1SdlDosAdlibTimbreSize);
-    if (g_pWc1SdlOriginFxSoundPlayer == 0) {
-        fprintf(stderr, "Unable to initialize DOS AdLib sound effects.\n");
-        goto failed;
+    if (useStandaloneAudio != 0) {
+        g_pWc1SdlOriginFxSoundPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+            g_pWc1SdlDosAdlibTimbres,
+            g_nWc1SdlDosAdlibTimbreSize);
+        if (g_pWc1SdlOriginFxSoundPlayer == 0) {
+            fprintf(stderr,
+                    "Unable to initialize DOS AdLib sound effects.\n");
+            goto failed;
+        }
     }
 
     g_pWc1SdlDosMusicMutex = SDL_CreateMutex();
     if (g_pWc1SdlDosMusicMutex == 0)
         goto failed;
-    InitializeCriticalSection(
-        &g_stWc1SdlDosMusicAudioCriticalSection);
-    g_bWc1SdlDosMusicAudioCriticalSectionInitialized = 1;
+    if (useStandaloneAudio != 0) {
+        InitializeCriticalSection(
+            &g_stWc1SdlDosMusicAudioCriticalSection);
+        g_bWc1SdlDosMusicAudioCriticalSectionInitialized = 1;
+    }
     g_bWc1SdlDosMusicInitialized = 1;
+    g_bWc1SdlOriginFxServicesAllTracks = useStandaloneAudio != 0;
     Wc1SdlUpdateDosAdlibMusicVolume();
-    if (!Wc1SdlStartAudio(
-            Wc1SdlMixDosAdlibMusic,
-            &g_stWc1SdlDosMusicAudioCriticalSection, 0))
-        goto failed;
-    fprintf(stderr, "DOS OriginFX/AdLib audio enabled.\n");
+    if (useStandaloneAudio != 0) {
+        if (!Wc1SdlStartAudio(
+                Wc1SdlMixDosAdlibMusic,
+                &g_stWc1SdlDosMusicAudioCriticalSection, 0))
+            goto failed;
+        g_bWc1SdlOriginFxOwnsAudioDevice = 1;
+        fprintf(stderr, "DOS OriginFX/AdLib audio enabled.\n");
+    } else {
+        fprintf(stderr, "OriginFX intro music enabled.\n");
+    }
     return 1;
 
 failed:
-    Wc1SdlShutdownDosAdlibMusic();
+    Wc1SdlShutdownOriginFxAudio();
     return 0;
 }
 
@@ -209,7 +222,22 @@ void Wc1SdlStopDosSoundEffects(void)
     SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
 }
 
-int Wc1SdlGetDosMusicSequencePosition(void)
+void Wc1SdlMixOriginFxMusic(short *samples, unsigned int frameCount)
+{
+    if (g_bWc1SdlDosMusicInitialized == 0 ||
+        g_bWc1SdlOriginFxOwnsAudioDevice != 0 ||
+        g_pWc1SdlDosMusicMutex == 0 || samples == 0)
+        return;
+    SDL_LockMutex(g_pWc1SdlDosMusicMutex);
+    if (g_pWc1SdlOriginFxPlayer != 0) {
+        Wc1SdlMixOriginFxPlayer(
+            g_pWc1SdlOriginFxPlayer, samples,
+            frameCount, g_nWc1SdlDosMusicGain);
+    }
+    SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
+}
+
+int Wc1SdlGetOriginFxMusicSequencePosition(void)
 {
     int position;
 
@@ -227,7 +255,7 @@ int Wc1SdlGetDosMusicSequencePosition(void)
     return position;
 }
 
-void Wc1SdlServiceDosAdlibMusic(void)
+void Wc1SdlServiceOriginFxMusic(void)
 {
     Wc1SdlOriginFxPlayer *player;
     unsigned char *midi;
@@ -239,6 +267,13 @@ void Wc1SdlServiceDosAdlibMusic(void)
         return;
     SDL_LockMutex(g_pWc1SdlDosMusicMutex);
     Wc1SdlUpdateDosAdlibMusicVolume();
+    desiredTrack = g_nCurrentMusicTrack_0046aa14;
+    if (g_bWc1SdlOriginFxServicesAllTracks == 0 &&
+        desiredTrack != 19) {
+        Wc1SdlDeleteDosAdlibTrack();
+        SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
+        return;
+    }
     if (g_pWc1SdlOriginFxPlayer != 0 &&
         Wc1SdlOriginFxPlayerFinished(g_pWc1SdlOriginFxPlayer)) {
         finishedTrack = g_nWc1SdlActiveMusicTrack;
@@ -266,7 +301,7 @@ void Wc1SdlServiceDosAdlibMusic(void)
             g_pWc1SdlDosMusicArchive,
             g_nWc1SdlDosMusicArchiveSize,
             (unsigned int)desiredTrack, &midi, &midiSize)) {
-        fprintf(stderr, "Unable to decode DOS music track %d.\n",
+        fprintf(stderr, "Unable to decode OriginFX music track %d.\n",
                 desiredTrack);
         g_nCurrentMusicTrack_0046aa14 = -1;
         g_nMusicTrackComplete_0046aa04 = 1;
@@ -277,7 +312,7 @@ void Wc1SdlServiceDosAdlibMusic(void)
         g_nWc1SdlDosAdlibTimbreSize);
     free(midi);
     if (player == 0) {
-        fprintf(stderr, "Unable to parse DOS music track %d.\n",
+        fprintf(stderr, "Unable to parse OriginFX music track %d.\n",
                 desiredTrack);
         g_nCurrentMusicTrack_0046aa14 = -1;
         g_nMusicTrackComplete_0046aa04 = 1;
@@ -297,9 +332,9 @@ void Wc1SdlServiceDosAdlibMusic(void)
     SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
 }
 
-void Wc1SdlShutdownDosAdlibMusic(void)
+void Wc1SdlShutdownOriginFxAudio(void)
 {
-    if (g_bWc1SdlDosMusicInitialized != 0)
+    if (g_bWc1SdlOriginFxOwnsAudioDevice != 0)
         Wc1SdlStopAudio();
     if (g_pWc1SdlDosMusicMutex != 0)
         SDL_LockMutex(g_pWc1SdlDosMusicMutex);
@@ -329,5 +364,7 @@ void Wc1SdlShutdownDosAdlibMusic(void)
     g_nWc1SdlDosMusicGain = 0;
     g_nWc1SdlDosSoundGain = 0;
     g_nWc1SdlDosRapidFireTag = 0;
+    g_bWc1SdlOriginFxOwnsAudioDevice = 0;
+    g_bWc1SdlOriginFxServicesAllTracks = 0;
     g_bWc1SdlDosMusicInitialized = 0;
 }
