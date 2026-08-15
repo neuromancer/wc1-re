@@ -786,7 +786,11 @@ void draw_sorted_objects_to_buffer(void)
                 }
                 break;
             case OBJECT_CLASS_STAR:
+#ifdef WC1_SDL
+                /* WCDX fix: planets use the per-object scaled path above. */
+#else
             case OBJECT_CLASS_PLANET:
+#endif
             case OBJECT_CLASS_DUST:
                 specialObject = (int)DAT_00469208;
                 screenY = g_asObjectScreenY_0059d930[obj];
@@ -864,7 +868,11 @@ void intro_drawbackgroundships(void)
                 }
                 break;
             case OBJECT_CLASS_STAR:
+#ifdef WC1_SDL
+                /* Erase planets with the same scaled geometry used to draw. */
+#else
             case OBJECT_CLASS_PLANET:
+#endif
             case OBJECT_CLASS_DUST:
                 if (obj == DAT_00469208)
 #ifdef WC1_SDL
