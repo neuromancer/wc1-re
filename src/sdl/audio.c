@@ -10,7 +10,8 @@ static void Wc1SdlAudioCallback(void *userData, Uint8 *stream, int bytes)
     (void)userData;
     EnterCriticalSection(g_pAudioCriticalSection);
     g_pAudioMixer(stream, (unsigned int)bytes);
-    *g_pAudioTick = *g_pAudioTick + 1;
+    if (g_pAudioTick != 0)
+        *g_pAudioTick = *g_pAudioTick + 1;
     LeaveCriticalSection(g_pAudioCriticalSection);
 }
 
@@ -19,10 +20,11 @@ int Wc1SdlStartAudio(Wc1SdlAudioMixer mixer,
                      unsigned int *tick)
 {
     SDL_AudioSpec desired;
-    SDL_AudioSpec obtained;
 
     if (g_wAudioDevice != 0)
         return TRUE;
+    if (mixer == 0 || criticalSection == 0 || criticalSection->mutex == 0)
+        return FALSE;
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
         return FALSE;
     SDL_zero(desired);
@@ -34,7 +36,7 @@ int Wc1SdlStartAudio(Wc1SdlAudioMixer mixer,
     g_pAudioMixer = mixer;
     g_pAudioCriticalSection = criticalSection;
     g_pAudioTick = tick;
-    g_wAudioDevice = SDL_OpenAudioDevice(0, 0, &desired, &obtained, 0);
+    g_wAudioDevice = SDL_OpenAudioDevice(0, 0, &desired, 0, 0);
     if (g_wAudioDevice == 0) {
         g_pAudioMixer = 0;
         g_pAudioCriticalSection = 0;

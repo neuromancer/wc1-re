@@ -17,7 +17,12 @@ DWORD RegOpenKeyExA(HKEY root, const char *subkey, DWORD options,
     char *directory;
     unsigned char *contents;
     size_t contentsSize;
+    size_t pathSize;
 
+    (void)root;
+    (void)subkey;
+    (void)options;
+    (void)access;
     key = (Wc1SdlRegistryKey *)SDL_calloc(1, sizeof(*key));
     if (key == 0)
         return ERROR_FILE_NOT_FOUND;
@@ -26,13 +31,14 @@ DWORD RegOpenKeyExA(HKEY root, const char *subkey, DWORD options,
         SDL_free(key);
         return ERROR_FILE_NOT_FOUND;
     }
-    key->path = (char *)SDL_malloc(strlen(directory) + 20);
+    pathSize = strlen(directory) + sizeof("wc1-modern.cfg");
+    key->path = (char *)SDL_malloc(pathSize);
     if (key->path == 0) {
         SDL_free(directory);
         SDL_free(key);
         return ERROR_FILE_NOT_FOUND;
     }
-    sprintf(key->path, "%swc1-modern.cfg", directory);
+    SDL_snprintf(key->path, pathSize, "%swc1-modern.cfg", directory);
     SDL_free(directory);
     contents = (unsigned char *)SDL_LoadFile(key->path, &contentsSize);
     if (contents != 0) {
@@ -63,6 +69,7 @@ DWORD RegQueryValueExA(HKEY handle, const char *name, DWORD *reserved,
     DWORD value;
     int present;
 
+    (void)reserved;
     key = (Wc1SdlRegistryKey *)handle;
     present = 0;
     value = 0;
@@ -94,6 +101,7 @@ DWORD RegSetValueExA(HKEY handle, const char *name, DWORD reserved,
     char contents[128];
     int length;
 
+    (void)reserved;
     if (type != REG_DWORD || size < sizeof(value))
         return ERROR_FILE_NOT_FOUND;
     key = (Wc1SdlRegistryKey *)handle;

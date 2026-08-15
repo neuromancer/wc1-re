@@ -375,7 +375,7 @@ static void CopyBaseWithoutMouse(unsigned char *destination,
 {
     Viewport viewport;
 
-    memcpy(destination, pixels, WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT);
+    memcpy(destination, pixels, sizeof(g_renderer.spaceFrameBase));
     if (DAT_0059a84c == 0 || g_stMouseCursorState_0059ab10.viewport == 0 ||
         g_stMouseCursorState_0059ab10.shape == 0 ||
         g_stMouseCursorState_0059ab10.viewport->pixels != pixels)
@@ -389,16 +389,27 @@ static void CopyBaseWithoutMouse(unsigned char *destination,
                             (short)g_stMouseCursorState_0059ab10.frame);
 }
 
+static void *LoadGlFunction(const char *name, int *functionsAvailable)
+{
+    void *function;
+
+    if (!*functionsAvailable)
+        return 0;
+    function = SDL_GL_GetProcAddress(name);
+    if (function == 0) {
+        fprintf(stderr, "OpenGL function %s is unavailable.\n", name);
+        *functionsAvailable = 0;
+    }
+    return function;
+}
+
 static int LoadGlFunctions(void)
 {
-#define WC1_LOAD_GL_FUNCTION(member, type, name)                              \
-    do {                                                                      \
-        g_renderer.gl.member = (type)SDL_GL_GetProcAddress(name);             \
-        if (g_renderer.gl.member == 0) {                                      \
-            fprintf(stderr, "OpenGL function %s is unavailable.\n", name);    \
-            return 0;                                                         \
-        }                                                                     \
-    } while (0)
+    int functionsAvailable;
+
+    functionsAvailable = 1;
+#define WC1_LOAD_GL_FUNCTION(member, type, name) \
+    g_renderer.gl.member = (type)LoadGlFunction(name, &functionsAvailable)
 
     WC1_LOAD_GL_FUNCTION(ActiveTexture, Wc1GlActiveTextureProc,
                          "glActiveTexture");
@@ -466,7 +477,20 @@ static int LoadGlFunctions(void)
                          "glVertexAttribPointer");
     WC1_LOAD_GL_FUNCTION(Viewport, Wc1GlViewportProc, "glViewport");
 #undef WC1_LOAD_GL_FUNCTION
-    return 1;
+    return functionsAvailable;
+}
+
+static void TerminateGlInfoLog(GLchar *log, size_t logSize, GLsizei length)
+{
+    size_t end;
+
+    if (length <= 0)
+        end = 0;
+    else if ((size_t)length < logSize)
+        end = (size_t)length;
+    else
+        end = logSize - 1;
+    log[end] = 0;
 }
 
 static GLuint CompileGlShader(GLenum type, const GLchar *source)
@@ -485,7 +509,7 @@ static GLuint CompileGlShader(GLenum type, const GLchar *source)
     if (status == GL_FALSE) {
         length = 0;
         g_renderer.gl.GetShaderInfoLog(shader, sizeof(log) - 1, &length, log);
-        log[length < (GLsizei)sizeof(log) ? length : sizeof(log) - 1] = 0;
+        TerminateGlInfoLog(log, sizeof(log), length);
         fprintf(stderr, "Sharp-bilinear shader compilation failed: %s\n", log);
         g_renderer.gl.DeleteShader(shader);
         return 0;
@@ -525,7 +549,7 @@ static GLuint LinkGlProgram(const GLchar *fragmentSource)
             length = 0;
             g_renderer.gl.GetProgramInfoLog(program, sizeof(log) - 1, &length,
                                             log);
-            log[length < (GLsizei)sizeof(log) ? length : sizeof(log) - 1] = 0;
+            TerminateGlInfoLog(log, sizeof(log), length);
             fprintf(stderr, "Sharp-bilinear shader link failed: %s\n", log);
             g_renderer.gl.DeleteProgram(program);
             program = 0;
@@ -657,9 +681,7 @@ static int ReserveSpriteAtlasRect(int width, int height, short *atlasLayer,
             *atlasTop = (short)(y + WC1_GL_SPRITE_ATLAS_PADDING);
             layer->nextX = x + packedWidth;
             layer->nextY = y;
-            if (x == 0)
-                layer->rowHeight = packedHeight;
-            else if (packedHeight > layer->rowHeight)
+            if (x == 0 || packedHeight > layer->rowHeight)
                 layer->rowHeight = packedHeight;
             return 1;
         }
@@ -713,8 +735,8 @@ static const Wc1GlCachedFrame *CacheShapeFrame(
     }
 
     memset(g_renderer.decodeScratch, 0xff, pixelCount);
-    DecodeShapeFrame(shape, frame, g_renderer.decodeScratch, width, height,
-                     leftExtent, topExtent);
+    DecodeShapeFrame(shape, frame, g_renderer.decodeScratch, width,
+                     (short)height, leftExtent, topExtent);
     g_renderer.gl.ActiveTexture(GL_TEXTURE0);
     g_renderer.gl.BindTexture(GL_TEXTURE_2D_ARRAY,
                               g_renderer.spriteAtlasTexture);
@@ -851,8 +873,8 @@ static void BuildRecordedSpriteVertices(const Wc1GlSprite *sprite,
         scaleY = -scaleY;
     left = -(float)cachedFrame->leftExtent - 0.5f;
     top = -(float)cachedFrame->topExtent - 0.5f;
-    right = left + cachedFrame->width;
-    bottom = top + cachedFrame->height;
+    right = left + (float)cachedFrame->width;
+    bottom = top + (float)cachedFrame->height;
     TransformSpriteVertex(&corners[0], left, top, 0.0f, 0.0f,
                           (float)sprite->x, (float)sprite->y, cosine, sine,
                           scaleX, scaleY);
@@ -906,13 +928,14 @@ static void DrawRecordedSprites(float outputScale)
     while (index < g_renderer.spriteCount) {
         BuildRecordedSpriteVertices(
             &g_renderer.recordedSprites[index], outputScale,
-            &g_renderer.spriteVertices[index * 6]);
+            &g_renderer.spriteVertices[(size_t)index * 6U]);
         index++;
     }
     g_renderer.gl.BindBuffer(GL_ARRAY_BUFFER, g_renderer.vertexBuffer);
     g_renderer.gl.BufferData(
         GL_ARRAY_BUFFER,
-        (GLsizeiptr)(sizeof(Wc1GlVertex) * g_renderer.spriteCount * 6),
+        (GLsizeiptr)(sizeof(Wc1GlVertex) *
+                     (size_t)g_renderer.spriteCount * 6U),
         g_renderer.spriteVertices, GL_STREAM_DRAW);
     g_renderer.gl.DrawArrays(GL_TRIANGLES, 0,
                              (GLsizei)(g_renderer.spriteCount * 6));
@@ -974,7 +997,9 @@ static void BuildSpaceViewMask(const ScreenViewportGeometry *geometry,
         memset(g_renderer.viewMask, 0xff, sizeof(g_renderer.viewMask));
         return;
     }
-    run = geometry->fadeData;
+    /* Packet-backed geometries extend the four-word built-in tail. */
+    run = (const short *)((const unsigned char *)geometry +
+                          offsetof(ScreenViewportGeometry, fadeData));
     runCount = 0;
     while (*run != -1 && runCount < 2048) {
         int x;

@@ -8,7 +8,6 @@
 #define WC1_SDL_ADLIB_TIMBRE_SECTION 1
 
 static CRITICAL_SECTION g_stWc1SdlDosMusicAudioCriticalSection;
-static unsigned int g_nWc1SdlDosMusicAudioTick;
 static SDL_mutex *g_pWc1SdlDosMusicMutex;
 static unsigned char *g_pWc1SdlDosMusicArchive;
 static unsigned char *g_pWc1SdlDosAdlibTimbres;
@@ -75,47 +74,40 @@ static void Wc1SdlDeleteDosAdlibTrack(void)
     g_nWc1SdlActiveMusicTrack = -1;
 }
 
-static void Wc1SdlUpdateDosAdlibMusicVolume(void)
+static unsigned int Wc1SdlCalculateDosAudioGain(int volumeSetting)
 {
     int level;
     int tableIndex;
 
-    if (g_nWc1SdlMusicVolumeSetting ==
-            g_nMusicVolumeSetting_00469fc0 &&
-        g_nWc1SdlSoundVolumeSetting ==
-            g_nSfxVolumeSetting_00469fbc)
+    tableIndex = volumeSetting / 2;
+    if (tableIndex < 0)
+        tableIndex = 0;
+    else if (tableIndex > 10)
+        tableIndex = 10;
+    level = g_anVolumeLevels_00469fc8[tableIndex];
+    if (level < 0)
+        level = 0;
+    else if (level > 64000)
+        level = 64000;
+    return (unsigned int)((long)level * 0x7fffL / 64000L);
+}
+
+static void Wc1SdlUpdateDosAdlibMusicVolume(void)
+{
+    if (g_nWc1SdlMusicVolumeSetting == g_nMusicVolumeSetting_00469fc0 &&
+        g_nWc1SdlSoundVolumeSetting == g_nSfxVolumeSetting_00469fbc)
         return;
     if (g_nWc1SdlMusicVolumeSetting !=
         g_nMusicVolumeSetting_00469fc0) {
         g_nWc1SdlMusicVolumeSetting = g_nMusicVolumeSetting_00469fc0;
-        tableIndex = g_nWc1SdlMusicVolumeSetting / 2;
-        if (tableIndex < 0)
-            tableIndex = 0;
-        else if (tableIndex > 10)
-            tableIndex = 10;
-        level = g_anVolumeLevels_00469fc8[tableIndex];
-        if (level < 0)
-            level = 0;
-        else if (level > 64000)
-            level = 64000;
         g_nWc1SdlDosMusicGain =
-            (unsigned int)((long)level * 0x7fffL / 64000L);
+            Wc1SdlCalculateDosAudioGain(g_nWc1SdlMusicVolumeSetting);
     }
     if (g_nWc1SdlSoundVolumeSetting !=
         g_nSfxVolumeSetting_00469fbc) {
         g_nWc1SdlSoundVolumeSetting = g_nSfxVolumeSetting_00469fbc;
-        tableIndex = g_nWc1SdlSoundVolumeSetting / 2;
-        if (tableIndex < 0)
-            tableIndex = 0;
-        else if (tableIndex > 10)
-            tableIndex = 10;
-        level = g_anVolumeLevels_00469fc8[tableIndex];
-        if (level < 0)
-            level = 0;
-        else if (level > 64000)
-            level = 64000;
         g_nWc1SdlDosSoundGain =
-            (unsigned int)((long)level * 0x7fffL / 64000L);
+            Wc1SdlCalculateDosAudioGain(g_nWc1SdlSoundVolumeSetting);
     }
 }
 
@@ -175,8 +167,7 @@ int Wc1SdlInitializeDosAdlibMusic(void)
     Wc1SdlUpdateDosAdlibMusicVolume();
     if (!Wc1SdlStartAudio(
             Wc1SdlMixDosAdlibMusic,
-            &g_stWc1SdlDosMusicAudioCriticalSection,
-            &g_nWc1SdlDosMusicAudioTick))
+            &g_stWc1SdlDosMusicAudioCriticalSection, 0))
         goto failed;
     fprintf(stderr, "DOS OriginFX/AdLib audio enabled.\n");
     return 1;
@@ -320,6 +311,5 @@ void Wc1SdlShutdownDosAdlibMusic(void)
     g_nWc1SdlDosMusicGain = 0;
     g_nWc1SdlDosSoundGain = 0;
     g_nWc1SdlDosRapidFireTag = 0;
-    g_nWc1SdlDosMusicAudioTick = 0;
     g_bWc1SdlDosMusicInitialized = 0;
 }

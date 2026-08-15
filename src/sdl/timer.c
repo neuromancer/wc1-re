@@ -49,6 +49,7 @@ UINT timeSetEvent(UINT delay, UINT resolution, LPTIMECALLBACK callback,
 {
     UINT index;
 
+    (void)resolution;
     index = 0;
     while (index < 16 && g_aSdlTimers[index].sdlTimer != 0)
         index++;

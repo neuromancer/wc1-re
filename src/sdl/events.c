@@ -5,9 +5,9 @@
 static int Wc1SdlTranslateVirtualKey(SDL_Keycode key)
 {
     if (key >= SDLK_a && key <= SDLK_z)
-        return (int)(key - SDLK_a + 'A');
+        return key - SDLK_a + 'A';
     if (key >= SDLK_F1 && key <= SDLK_F12)
-        return (int)(key - SDLK_F1 + VK_F1);
+        return key - SDLK_F1 + VK_F1;
     switch (key) {
     case SDLK_RETURN:
     case SDLK_KP_ENTER:
@@ -271,6 +271,194 @@ static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
     QueueInputEvent(13, x, y, 0, primaryButton, secondaryButton, 0);
 }
 
+static int Wc1SdlHandleWindowEvent(const SDL_WindowEvent *event)
+{
+    SDL_Window *window;
+
+    if (event->event == SDL_WINDOWEVENT_CLOSE) {
+        ShutdownGameWindow();
+        return 1;
+    }
+    if (event->event != SDL_WINDOWEVENT_SIZE_CHANGED &&
+        event->event != SDL_WINDOWEVENT_DISPLAY_CHANGED)
+        return 0;
+    window = SDL_GetWindowFromID(event->windowID);
+    if (window != 0 && SDL_GetWindowMouseGrab(window)) {
+        SDL_SetWindowMouseGrab(window, SDL_FALSE);
+        SDL_SetWindowMouseGrab(window, SDL_TRUE);
+    }
+    return 0;
+}
+
+static SDL_Window *Wc1SdlGetFullscreenWindow(Uint32 windowId)
+{
+    SDL_Window *window;
+
+    window = SDL_GetWindowFromID(windowId);
+    if (window == 0)
+        window = SDL_GetKeyboardFocus();
+    if (window == 0)
+        window = (SDL_Window *)DAT_00486074;
+    if (window == 0)
+        window = (SDL_Window *)DAT_005a89a0;
+    return window;
+}
+
+static int Wc1SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
+{
+    int enterPressed;
+    int modifierPressed;
+
+    enterPressed = event->keysym.sym == SDLK_RETURN ||
+        event->keysym.sym == SDLK_KP_ENTER ||
+        event->keysym.scancode == SDL_SCANCODE_RETURN ||
+        event->keysym.scancode == SDL_SCANCODE_KP_ENTER;
+#ifdef __APPLE__
+    modifierPressed = (event->keysym.mod & KMOD_GUI) != 0 ||
+        (SDL_GetModState() & KMOD_GUI) != 0;
+#else
+    modifierPressed = (event->keysym.mod & KMOD_ALT) != 0 ||
+        (SDL_GetModState() & KMOD_ALT) != 0 ||
+        g_abInputKeyState_0059a860[0x38] != 0;
+#endif
+    return enterPressed && modifierPressed;
+}
+
+static void Wc1SdlToggleFullscreen(Uint32 windowId)
+{
+    SDL_Window *window;
+    SDL_bool mouseGrabbed;
+    Uint32 fullscreenFlags;
+    Uint32 windowFlags;
+
+    window = Wc1SdlGetFullscreenWindow(windowId);
+    if (window == 0)
+        return;
+    windowFlags = SDL_GetWindowFlags(window);
+    fullscreenFlags = (windowFlags & SDL_WINDOW_FULLSCREEN) != 0
+        ? 0
+        : SDL_WINDOW_FULLSCREEN_DESKTOP;
+    mouseGrabbed = SDL_GetWindowMouseGrab(window);
+    if (mouseGrabbed)
+        SDL_SetWindowMouseGrab(window, SDL_FALSE);
+    if (SDL_SetWindowFullscreen(window, fullscreenFlags) != 0) {
+        fprintf(stderr, "Unable to toggle fullscreen: %s\n",
+                SDL_GetError());
+    }
+    if (mouseGrabbed)
+        SDL_SetWindowMouseGrab(window, SDL_TRUE);
+}
+
+static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
+{
+    int pressed;
+    int scanCode;
+    int virtualKey;
+
+    pressed = event->type == SDL_KEYDOWN;
+    if (pressed && event->repeat == 0 && event->keysym.sym == SDLK_q &&
+        (event->keysym.mod & KMOD_GUI) != 0) {
+        ShutdownGameWindow();
+        return 1;
+    }
+    if (Wc1SdlIsFullscreenShortcut(event)) {
+        if (pressed && event->repeat == 0)
+            Wc1SdlToggleFullscreen(event->windowID);
+        return 0;
+    }
+    scanCode = Wc1SdlTranslateScanCode(event->keysym.scancode);
+    virtualKey = Wc1SdlTranslateVirtualKey(event->keysym.sym);
+    if ((event->keysym.mod & KMOD_ALT) != 0 ||
+        event->keysym.scancode == SDL_SCANCODE_LALT ||
+        event->keysym.scancode == SDL_SCANCODE_RALT)
+        DAT_005a8964 = pressed ? (unsigned int)virtualKey : 0;
+    if (event->keysym.scancode == SDL_SCANCODE_F1)
+        DAT_004650ac = pressed && event->repeat == 0;
+    if (pressed && scanCode == 1)
+        DAT_0059ab58 = 1;
+    if (scanCode != 0) {
+        if (DAT_0046505c != 0) {
+            QueueInputEvent(pressed ? 3 : 4, 0, 0,
+                            (unsigned short)virtualKey, 0, 0, 0);
+        }
+        QueueInputEvent(pressed ? 3 : 4, 0, 0,
+                        (unsigned short)scanCode, 0, 0, 0);
+        SetInputKeyState(scanCode, (unsigned char)pressed);
+    }
+    if (!pressed) {
+        g_dwDebugOverlayKey_00469648 = (DWORD)virtualKey;
+        g_dwDebugOverlayKeyLatch_0046964c = (DWORD)virtualKey;
+    }
+    return 0;
+}
+
+static void Wc1SdlHandleMouseWheelEvent(const SDL_MouseWheelEvent *event)
+{
+    int scanCode;
+    int wheelY;
+
+    wheelY = event->y;
+    if (event->direction == SDL_MOUSEWHEEL_FLIPPED)
+        wheelY = -wheelY;
+    if (wheelY == 0)
+        return;
+    scanCode = wheelY > 0 ? 0x0d : 0x0c;
+    /* player_input samples one transition before consuming the remaining
+       queue, so lead with the release for this impulse. */
+    QueueInputEvent(4, 0, 0, (unsigned short)scanCode, 0, 0, 0);
+    QueueInputEvent(3, 0, 0, (unsigned short)scanCode, 0, 0, 0);
+}
+
+static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
+{
+    SDL_Window *window;
+    Uint32 buttons;
+    int mouseX;
+    int mouseY;
+    int primaryButton;
+    int secondaryButton;
+
+    window = SDL_GetWindowFromID(event->type == SDL_MOUSEMOTION
+                                     ? event->motion.windowID
+                                     : event->button.windowID);
+    buttons = SDL_GetMouseState(&mouseX, &mouseY);
+    if (event->type != SDL_MOUSEMOTION) {
+        if (event->type == SDL_MOUSEBUTTONDOWN)
+            buttons |= SDL_BUTTON(event->button.button);
+        else
+            buttons &= ~(Uint32)SDL_BUTTON(event->button.button);
+    }
+    Wc1SdlMapWindowToLogical(window, mouseX, mouseY, &mouseX, &mouseY);
+    if (mouseX < 0)
+        mouseX = 0;
+    else if (mouseX > 319)
+        mouseX = 319;
+    if (mouseY < 0)
+        mouseY = 0;
+    else if (mouseY > 199)
+        mouseY = 199;
+    primaryButton = (buttons & SDL_BUTTON_LMASK) != 0;
+    secondaryButton = (buttons & SDL_BUTTON_RMASK) != 0;
+
+    if (event->type == SDL_MOUSEMOTION) {
+        if (g_bPointerMovedByKeyboard_005a7d54 != 0) {
+            g_bPointerMovedByKeyboard_005a7d54 = 0;
+            return;
+        }
+        Wc1SdlQueueMouseMotion((unsigned short)mouseX,
+                               (unsigned short)mouseY,
+                               primaryButton, secondaryButton);
+    } else {
+        QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 2 : 1,
+                        (unsigned short)mouseX, (unsigned short)mouseY,
+                        0, primaryButton, secondaryButton, 0);
+    }
+    g_nHostMouseMessageX_005a8990 = mouseX;
+    g_nHostMouseMessageY_005a8994 = mouseY;
+    g_bHostPrimaryMouseButton_005a8998 = primaryButton;
+    g_bHostSecondaryMouseButton_005a899c = secondaryButton;
+}
+
 void Wc1SdlStartEventPump(void)
 {
     DAT_005a8a3c = 1;
@@ -282,177 +470,29 @@ void Wc1SdlPumpEvents(void)
 
     Wc1SdlServiceDosAdlibMusic();
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
+        switch (event.type) {
+        case SDL_QUIT:
             ShutdownGameWindow();
             return;
-        } else if (event.type == SDL_WINDOWEVENT) {
-            if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
-                ShutdownGameWindow();
+        case SDL_WINDOWEVENT:
+            if (Wc1SdlHandleWindowEvent(&event.window))
                 return;
-            } else if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
-                       event.window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED) {
-                SDL_Window *window;
-
-                window = SDL_GetWindowFromID(event.window.windowID);
-                if (window != 0 && SDL_GetWindowMouseGrab(window)) {
-                    SDL_SetWindowMouseGrab(window, SDL_FALSE);
-                    SDL_SetWindowMouseGrab(window, SDL_TRUE);
-                }
-            }
-        } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-            SDL_Window *window;
-            SDL_bool mouseGrabbed;
-            Uint32 fullscreenFlags;
-            Uint32 windowFlags;
-            int enterPressed;
-            int fullscreenModifierPressed;
-            int fullscreenShortcut;
-            int pressed;
-            int scanCode;
-            int virtualKey;
-
-            pressed = event.type == SDL_KEYDOWN;
-            if (pressed && event.key.repeat == 0 &&
-                event.key.keysym.sym == SDLK_q &&
-                (event.key.keysym.mod & KMOD_GUI) != 0) {
-                ShutdownGameWindow();
+            break;
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            if (Wc1SdlHandleKeyboardEvent(&event.key))
                 return;
-            }
-            enterPressed =
-                event.key.keysym.sym == SDLK_RETURN ||
-                event.key.keysym.sym == SDLK_KP_ENTER ||
-                event.key.keysym.scancode == SDL_SCANCODE_RETURN ||
-                event.key.keysym.scancode == SDL_SCANCODE_KP_ENTER;
-#ifdef __APPLE__
-            fullscreenModifierPressed =
-                (event.key.keysym.mod & KMOD_GUI) != 0 ||
-                (SDL_GetModState() & KMOD_GUI) != 0;
-#else
-            fullscreenModifierPressed =
-                (event.key.keysym.mod & KMOD_ALT) != 0 ||
-                (SDL_GetModState() & KMOD_ALT) != 0 ||
-                g_abInputKeyState_0059a860[0x38] != 0;
-#endif
-            fullscreenShortcut =
-                enterPressed && fullscreenModifierPressed;
-            if (fullscreenShortcut) {
-                if (pressed && event.key.repeat == 0) {
-                    window = SDL_GetWindowFromID(event.key.windowID);
-                    if (window == 0)
-                        window = SDL_GetKeyboardFocus();
-                    if (window == 0)
-                        window = (SDL_Window *)DAT_00486074;
-                    if (window == 0)
-                        window = (SDL_Window *)DAT_005a89a0;
-                    if (window != 0) {
-                        windowFlags = SDL_GetWindowFlags(window);
-                        fullscreenFlags =
-                            (windowFlags & SDL_WINDOW_FULLSCREEN) != 0
-                                ? 0
-                                : SDL_WINDOW_FULLSCREEN_DESKTOP;
-                        mouseGrabbed = SDL_GetWindowMouseGrab(window);
-                        if (mouseGrabbed)
-                            SDL_SetWindowMouseGrab(window, SDL_FALSE);
-                        if (SDL_SetWindowFullscreen(window,
-                                                    fullscreenFlags) != 0) {
-                            fprintf(stderr,
-                                    "Unable to toggle fullscreen: %s\n",
-                                    SDL_GetError());
-                        }
-                        if (mouseGrabbed)
-                            SDL_SetWindowMouseGrab(window, SDL_TRUE);
-                    }
-                }
-                continue;
-            }
-            scanCode = Wc1SdlTranslateScanCode(event.key.keysym.scancode);
-            virtualKey = Wc1SdlTranslateVirtualKey(event.key.keysym.sym);
-            if ((event.key.keysym.mod & KMOD_ALT) != 0 ||
-                event.key.keysym.scancode == SDL_SCANCODE_LALT ||
-                event.key.keysym.scancode == SDL_SCANCODE_RALT)
-                DAT_005a8964 = pressed ? (unsigned int)virtualKey : 0;
-            if (event.key.keysym.scancode == SDL_SCANCODE_F1)
-                DAT_004650ac = pressed && event.key.repeat == 0;
-            if (pressed && scanCode == 1)
-                DAT_0059ab58 = 1;
-            if (scanCode != 0) {
-                if (DAT_0046505c != 0)
-                    QueueInputEvent(pressed ? 3 : 4, 0, 0,
-                                    (unsigned short)virtualKey, 0, 0, 0);
-                QueueInputEvent(pressed ? 3 : 4, 0, 0, (unsigned short)scanCode,
-                                0, 0, 0);
-                SetInputKeyState(scanCode, (unsigned char)pressed);
-            }
-            if (!pressed) {
-                g_dwDebugOverlayKey_00469648 = (DWORD)virtualKey;
-                g_dwDebugOverlayKeyLatch_0046964c = (DWORD)virtualKey;
-            }
-        } else if (event.type == SDL_MOUSEWHEEL) {
-            int scanCode;
-            int wheelY;
-
-            wheelY = event.wheel.y;
-            if (event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
-                wheelY = -wheelY;
-            if (wheelY == 0)
-                continue;
-            scanCode = wheelY > 0 ? 0x0d : 0x0c;
-            /* player_input samples one transition before consuming the
-               remaining queue, so lead with the release for this impulse. */
-            QueueInputEvent(4, 0, 0, (unsigned short)scanCode,
-                            0, 0, 0);
-            QueueInputEvent(3, 0, 0, (unsigned short)scanCode,
-                            0, 0, 0);
-        } else if (event.type == SDL_MOUSEMOTION ||
-                   event.type == SDL_MOUSEBUTTONDOWN ||
-                   event.type == SDL_MOUSEBUTTONUP) {
-            SDL_Window *window;
-            Uint32 buttons;
-            int mouseX;
-            int mouseY;
-            int primaryButton;
-            int secondaryButton;
-
-            window = SDL_GetWindowFromID(event.type == SDL_MOUSEMOTION
-                                             ? event.motion.windowID
-                                             : event.button.windowID);
-            buttons = SDL_GetMouseState(&mouseX, &mouseY);
-            if (event.type != SDL_MOUSEMOTION) {
-                if (event.type == SDL_MOUSEBUTTONDOWN)
-                    buttons |= SDL_BUTTON(event.button.button);
-                else
-                    buttons &= ~SDL_BUTTON(event.button.button);
-            }
-            Wc1SdlMapWindowToLogical(
-                window, mouseX, mouseY, &mouseX, &mouseY);
-            if (mouseX < 0)
-                mouseX = 0;
-            else if (mouseX > 319)
-                mouseX = 319;
-            if (mouseY < 0)
-                mouseY = 0;
-            else if (mouseY > 199)
-                mouseY = 199;
-            primaryButton = (buttons & SDL_BUTTON_LMASK) != 0;
-            secondaryButton = (buttons & SDL_BUTTON_RMASK) != 0;
-
-            if (event.type == SDL_MOUSEMOTION) {
-                if (g_bPointerMovedByKeyboard_005a7d54 != 0) {
-                    g_bPointerMovedByKeyboard_005a7d54 = 0;
-                    continue;
-                }
-                Wc1SdlQueueMouseMotion(
-                    (unsigned short)mouseX, (unsigned short)mouseY,
-                    primaryButton, secondaryButton);
-            } else {
-                QueueInputEvent(event.type == SDL_MOUSEBUTTONDOWN ? 2 : 1,
-                                (unsigned short)mouseX, (unsigned short)mouseY,
-                                0, primaryButton, secondaryButton, 0);
-            }
-            g_nHostMouseMessageX_005a8990 = mouseX;
-            g_nHostMouseMessageY_005a8994 = mouseY;
-            g_bHostPrimaryMouseButton_005a8998 = primaryButton;
-            g_bHostSecondaryMouseButton_005a899c = secondaryButton;
+            break;
+        case SDL_MOUSEWHEEL:
+            Wc1SdlHandleMouseWheelEvent(&event.wheel);
+            break;
+        case SDL_MOUSEMOTION:
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            Wc1SdlHandleMouseEvent(&event);
+            break;
+        default:
+            break;
         }
     }
 }

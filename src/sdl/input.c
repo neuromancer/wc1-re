@@ -9,6 +9,13 @@ HANDLE CreateFileA(const char *path, DWORD desiredAccess, DWORD shareMode,
                    LPVOID security, DWORD creationDisposition,
                    DWORD flags, HANDLE templateFile)
 {
+    (void)path;
+    (void)desiredAccess;
+    (void)shareMode;
+    (void)security;
+    (void)creationDisposition;
+    (void)flags;
+    (void)templateFile;
     return INVALID_HANDLE_VALUE;
 }
 
@@ -16,6 +23,13 @@ BOOL DeviceIoControl(HANDLE device, DWORD controlCode, LPVOID input,
                      DWORD inputBytes, LPVOID output, DWORD outputBytes,
                      DWORD *returnedBytes, LPVOID overlapped)
 {
+    (void)device;
+    (void)controlCode;
+    (void)input;
+    (void)inputBytes;
+    (void)output;
+    (void)outputBytes;
+    (void)overlapped;
     if (returnedBytes != 0)
         *returnedBytes = 0;
     return FALSE;
@@ -23,13 +37,14 @@ BOOL DeviceIoControl(HANDLE device, DWORD controlCode, LPVOID input,
 
 DWORD GetCurrentDirectoryA(DWORD size, char *path)
 {
-    if (getcwd(path, size) == 0)
+    if (path == 0 || size == 0 || getcwd(path, size) == 0)
         return 0;
     return (DWORD)strlen(path);
 }
 
 UINT GetDriveTypeA(const char *root)
 {
+    (void)root;
     return 0;
 }
 
@@ -38,6 +53,14 @@ BOOL GetVolumeInformationA(const char *root, char *volume,
                            DWORD *maximumComponentLength, DWORD *flags,
                            char *filesystem, DWORD filesystemSize)
 {
+    (void)root;
+    (void)volume;
+    (void)volumeSize;
+    (void)serial;
+    (void)maximumComponentLength;
+    (void)flags;
+    (void)filesystem;
+    (void)filesystemSize;
     return FALSE;
 }
 
@@ -66,6 +89,11 @@ BOOL SetCurrentDirectoryA(const char *path)
 
 BOOL TextOutA(HDC dc, int x, int y, const char *text, int length)
 {
+    (void)dc;
+    (void)x;
+    (void)y;
+    (void)text;
+    (void)length;
     return TRUE;
 }
 

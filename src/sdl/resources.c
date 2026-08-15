@@ -214,14 +214,14 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
         return 0;
 
     entry = Wc1SdlReadLittleEndian32(
-        archive + 4 + sectionIndex * 4);
+        archive + ((size_t)sectionIndex + 1U) * 4U);
     compression = entry >> 24;
     sectionOffset = entry & ORIGIN_PACKET_OFFSET_MASK;
     if (sectionIndex + 1 == sectionCount) {
         sectionEnd = declaredFileSize;
     } else {
         nextEntry = Wc1SdlReadLittleEndian32(
-            archive + 8 + sectionIndex * 4);
+            archive + ((size_t)sectionIndex + 2U) * 4U);
         sectionEnd = nextEntry & ORIGIN_PACKET_OFFSET_MASK;
     }
     if (sectionOffset < directorySize || sectionEnd <= sectionOffset ||

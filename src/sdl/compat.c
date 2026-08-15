@@ -9,10 +9,50 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
 #include <strings.h>
 #include <sys/stat.h>
+
+static int Wc1SdlAppendPathComponent(char *path, size_t pathSize,
+                                     const char *component)
+{
+    size_t componentLength;
+    size_t pathLength;
+    int needsSeparator;
+
+    pathLength = strlen(path);
+    componentLength = strlen(component);
+    needsSeparator = pathLength != 1 || path[0] != '/';
+    if (pathLength + (size_t)needsSeparator + componentLength + 1 > pathSize)
+        return 0;
+    if (needsSeparator)
+        path[pathLength++] = '/';
+    memcpy(path + pathLength, component, componentLength + 1);
+    return 1;
+}
+
+static int Wc1SdlAppendResolvedComponent(char *path, size_t pathSize,
+                                         const char *component)
+{
+    DIR *directory;
+    struct dirent *entry;
+    int result;
+
+    if (strcmp(component, ".") == 0 || strcmp(component, "..") == 0)
+        return Wc1SdlAppendPathComponent(path, pathSize, component);
+    directory = opendir(path);
+    if (directory == 0)
+        return Wc1SdlAppendPathComponent(path, pathSize, component);
+    while ((entry = readdir(directory)) != 0) {
+        if (strcasecmp(entry->d_name, component) == 0) {
+            result = Wc1SdlAppendPathComponent(path, pathSize,
+                                               entry->d_name);
+            closedir(directory);
+            return result;
+        }
+    }
+    closedir(directory);
+    return Wc1SdlAppendPathComponent(path, pathSize, component);
+}
 
 int Wc1SdlResolvePath(const char *path, char *resolved,
                       unsigned long resolvedSize)
@@ -21,7 +61,8 @@ int Wc1SdlResolvePath(const char *path, char *resolved,
     char normalized[PATH_MAX];
     char prefix[PATH_MAX];
     const char *cursor;
-    unsigned long pathLength;
+    char *separator;
+    size_t pathLength;
 
     if (path == 0 || resolved == 0 || resolvedSize == 0)
         return 0;
@@ -29,9 +70,11 @@ int Wc1SdlResolvePath(const char *path, char *resolved,
     if (pathLength >= sizeof(normalized))
         return 0;
     memcpy(normalized, path, pathLength + 1);
-    for (char *separator = normalized; *separator != '\0'; separator++) {
+    separator = normalized;
+    while (*separator != '\0') {
         if (*separator == '\\')
             *separator = '/';
+        separator++;
     }
     if (normalized[0] == '/')
         strcpy(prefix, "/");
@@ -42,62 +85,26 @@ int Wc1SdlResolvePath(const char *path, char *resolved,
         cursor++;
     while (*cursor != '\0') {
         const char *end;
-        const char *selected;
-        DIR *directory;
-        struct dirent *entry;
-        unsigned long componentLength;
-        unsigned long prefixLength;
+        size_t componentLength;
 
         end = cursor;
         while (*end != '\0' && *end != '/')
             end++;
-        componentLength = (unsigned long)(end - cursor);
+        componentLength = (size_t)(end - cursor);
         if (componentLength >= sizeof(component))
             return 0;
         memcpy(component, cursor, componentLength);
         component[componentLength] = '\0';
-        selected = component;
-        if (strcmp(component, ".") != 0 && strcmp(component, "..") != 0) {
-            directory = opendir(prefix);
-            if (directory != 0) {
-                while ((entry = readdir(directory)) != 0) {
-                    if (strcasecmp(entry->d_name, component) == 0) {
-                        selected = entry->d_name;
-                        break;
-                    }
-                }
-                prefixLength = strlen(prefix);
-                if (prefixLength + strlen(selected) + 2 > sizeof(prefix)) {
-                    closedir(directory);
-                    return 0;
-                }
-                if (prefixLength != 1 || prefix[0] != '/')
-                    strcat(prefix, "/");
-                strcat(prefix, selected);
-                closedir(directory);
-            } else {
-                prefixLength = strlen(prefix);
-                if (prefixLength + componentLength + 2 > sizeof(prefix))
-                    return 0;
-                if (prefixLength != 1 || prefix[0] != '/')
-                    strcat(prefix, "/");
-                strcat(prefix, component);
-            }
-        } else {
-            prefixLength = strlen(prefix);
-            if (prefixLength + componentLength + 2 > sizeof(prefix))
-                return 0;
-            if (prefixLength != 1 || prefix[0] != '/')
-                strcat(prefix, "/");
-            strcat(prefix, component);
-        }
+        if (!Wc1SdlAppendResolvedComponent(prefix, sizeof(prefix), component))
+            return 0;
         cursor = end;
         while (*cursor == '/')
             cursor++;
     }
-    if (strlen(prefix) + 1 > resolvedSize)
+    pathLength = strlen(prefix);
+    if (pathLength + 1 > resolvedSize)
         return 0;
-    strcpy(resolved, prefix);
+    memcpy(resolved, prefix, pathLength + 1);
     return 1;
 }
 
@@ -162,6 +169,18 @@ long Wc1SdlFileLength(int file)
     return (long)status.st_size;
 }
 
+static char *Wc1SdlLowercaseDigits(char *text)
+{
+    char *cursor;
+
+    cursor = text;
+    while (*cursor != '\0') {
+        *cursor = (char)tolower((unsigned char)*cursor);
+        cursor++;
+    }
+    return text;
+}
+
 char *Wc1SdlItoa(int value, char *text, int radix)
 {
     return Wc1SdlLtoa((long)value, text, radix);
@@ -170,22 +189,21 @@ char *Wc1SdlItoa(int value, char *text, int radix)
 char *Wc1SdlLtoa(long value, char *text, int radix)
 {
     if (radix == 10)
-        sprintf(text, "%ld", value);
+        return SDL_ltoa(value, text, radix);
     else if (radix == 16)
-        sprintf(text, "%lx", (unsigned long)value);
-    else
-        text[0] = '\0';
+        return Wc1SdlLowercaseDigits(
+            SDL_ultoa((unsigned long)value, text, radix));
+    text[0] = '\0';
     return text;
 }
 
 char *Wc1SdlUltoa(unsigned long value, char *text, int radix)
 {
     if (radix == 10)
-        sprintf(text, "%lu", value);
+        return SDL_ultoa(value, text, radix);
     else if (radix == 16)
-        sprintf(text, "%lx", value);
-    else
-        text[0] = '\0';
+        return Wc1SdlLowercaseDigits(SDL_ultoa(value, text, radix));
+    text[0] = '\0';
     return text;
 }
 
