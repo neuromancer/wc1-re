@@ -376,6 +376,7 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/video_state.c
 MODERN_GAME_HOST_SRCS = \
 	src/sdl/audio.c \
+	src/sdl/dos_intro.c \
 	src/sdl/events.c \
 	src/sdl/gl_renderer.c \
 	src/sdl/joystick.c \

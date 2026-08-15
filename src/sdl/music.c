@@ -209,6 +209,24 @@ void Wc1SdlStopDosSoundEffects(void)
     SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
 }
 
+int Wc1SdlGetDosMusicSequencePosition(void)
+{
+    int position;
+
+    if (g_bWc1SdlDosMusicInitialized == 0 ||
+        g_pWc1SdlDosMusicMutex == 0)
+        return -1;
+    SDL_LockMutex(g_pWc1SdlDosMusicMutex);
+    if (g_pWc1SdlOriginFxPlayer == 0) {
+        position = -1;
+    } else {
+        position = (int)Wc1SdlOriginFxPlayerSequencePosition(
+            g_pWc1SdlOriginFxPlayer);
+    }
+    SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
+    return position;
+}
+
 void Wc1SdlServiceDosAdlibMusic(void)
 {
     Wc1SdlOriginFxPlayer *player;

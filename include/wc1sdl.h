@@ -185,6 +185,7 @@ void Wc1SdlShutdownVideo(void);
 int Wc1SdlTranslateScanCode(SDL_Scancode scanCode);
 void Wc1SdlWaitForVerticalBlank(void);
 int Wc1SdlUsingDosData(void);
+void Wc1SdlPlayDosStartupIntro(void);
 int Wc1SdlDecompressOriginLzw(const unsigned char *source,
                               size_t sourceSize,
                               unsigned char *destination,
@@ -202,6 +203,8 @@ Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxSoundPlayer(
     const unsigned char *timbres, size_t timbreSize);
 void Wc1SdlDestroyOriginFxPlayer(Wc1SdlOriginFxPlayer *player);
 int Wc1SdlOriginFxPlayerFinished(const Wc1SdlOriginFxPlayer *player);
+unsigned int Wc1SdlOriginFxPlayerSequencePosition(
+    const Wc1SdlOriginFxPlayer *player);
 int Wc1SdlPlayOriginFxSoundEffect(
     Wc1SdlOriginFxPlayer *player, unsigned int soundNumber,
     int volume, int pan, int tag, int priority);
@@ -214,6 +217,7 @@ void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
                                 unsigned int frameCount,
                                 unsigned int gain);
 int Wc1SdlInitializeDosAdlibMusic(void);
+int Wc1SdlGetDosMusicSequencePosition(void);
 int Wc1SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
                              int tag, int priority);
 void Wc1SdlServiceDosAdlibMusic(void);

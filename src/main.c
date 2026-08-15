@@ -186,6 +186,9 @@ int main(short argc, char **argv)
         return 0;
     }
 
+#ifdef WC1_SDL
+    Wc1SdlPlayDosStartupIntro();
+#endif
     DAT_0059ab58 = 0;
     for (;;) {
         FrameStartHook(0);

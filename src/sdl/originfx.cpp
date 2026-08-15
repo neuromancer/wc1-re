@@ -111,7 +111,8 @@ static const unsigned char g_abWc1OriginFxPercussionPrograms[17] = {
 
 enum Wc1OriginFxEventType {
     WC1_ORIGINFX_CHANNEL_EVENT,
-    WC1_ORIGINFX_TEMPO_EVENT
+    WC1_ORIGINFX_TEMPO_EVENT,
+    WC1_ORIGINFX_SEQUENCE_EVENT
 };
 
 typedef struct Wc1OriginFxEvent {
@@ -179,6 +180,7 @@ struct Wc1SdlOriginFxPlayer {
     uint64_t nativeSampleAccumulator;
     uint64_t serviceAccumulator;
     uint32_t nativeSampleRate;
+    unsigned int sequencePosition;
     int32_t lastNativeSample;
     unsigned char melodicVoiceCount;
     unsigned char rhythmRegister;
@@ -202,6 +204,7 @@ struct Wc1SdlOriginFxPlayer {
         nativeSampleAccumulator(0),
         serviceAccumulator(0),
         nativeSampleRate(oplChip.sample_rate(WC1_ORIGINFX_OPL_CLOCK)),
+        sequencePosition(0),
         lastNativeSample(0),
         melodicVoiceCount(WC1_ORIGINFX_MELODIC_VOICE_COUNT),
         rhythmRegister(0),
@@ -344,10 +347,19 @@ static int Wc1OriginFxParseTrack(Wc1SdlOriginFxPlayer *player,
         if (status == 0xfeU) {
             if ((size_t)(end - cursor) < 2)
                 return 0;
-            cursor++;
+            subtype = *cursor++;
             eventLength = *cursor++;
             if ((size_t)(end - cursor) < eventLength)
                 return 0;
+            if (subtype == 3U && eventLength != 0) {
+                memset(&event, 0, sizeof(event));
+                event.tick = tick;
+                event.order = (*eventOrder)++;
+                event.type = WC1_ORIGINFX_SEQUENCE_EVENT;
+                event.data1 = cursor[0];
+                if (!Wc1OriginFxAppendEvent(player, &event))
+                    return 0;
+            }
             cursor += eventLength;
             continue;
         }
@@ -417,7 +429,7 @@ static int Wc1OriginFxLoadMidi(Wc1SdlOriginFxPlayer *player,
     const unsigned char *cursor;
     const unsigned char *track;
     size_t headerSize;
-    size_t channelEventCount;
+    size_t playbackEventCount;
     uint64_t maximumTick;
     uint64_t previousTick;
     uint32_t eventOrder;
@@ -472,7 +484,7 @@ static int Wc1OriginFxLoadMidi(Wc1SdlOriginFxPlayer *player,
     exactFrame = 0;
     previousTick = 0;
     tempo = 500000;
-    channelEventCount = 0;
+    playbackEventCount = 0;
     index = 0;
     while (index < player->eventCount) {
         exactFrame +=
@@ -485,14 +497,14 @@ static int Wc1OriginFxLoadMidi(Wc1SdlOriginFxPlayer *player,
         } else {
             player->events[index].frame =
                 (uint64_t)(exactFrame + 0.5L);
-            player->events[channelEventCount++] = player->events[index];
+            player->events[playbackEventCount++] = player->events[index];
         }
         index++;
     }
     exactFrame += (long double)(maximumTick - previousTick) *
         WC1_ORIGINFX_OUTPUT_RATE * tempo /
         ((long double)division * 1000000.0L);
-    player->eventCount = channelEventCount;
+    player->eventCount = playbackEventCount;
     player->endFrame = (uint64_t)(exactFrame + 0.5L);
     if (player->eventCount != 0 &&
         player->endFrame <= player->events[player->eventCount - 1].frame)
@@ -1422,6 +1434,10 @@ static void Wc1OriginFxDispatchEvent(Wc1SdlOriginFxPlayer *player,
     unsigned int command;
     unsigned int note;
 
+    if (event->type == WC1_ORIGINFX_SEQUENCE_EVENT) {
+        player->sequencePosition = event->data1;
+        return;
+    }
     channelIndex = event->status & 0x0fU;
     command = event->status & 0xf0U;
     channel = &player->channels[channelIndex];
@@ -1695,6 +1711,14 @@ void Wc1SdlDestroyOriginFxPlayer(Wc1SdlOriginFxPlayer *player)
 int Wc1SdlOriginFxPlayerFinished(const Wc1SdlOriginFxPlayer *player)
 {
     return player == 0 || player->finished != 0;
+}
+
+unsigned int Wc1SdlOriginFxPlayerSequencePosition(
+    const Wc1SdlOriginFxPlayer *player)
+{
+    if (player == 0)
+        return 0;
+    return player->sequencePosition;
 }
 
 void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
