@@ -89,8 +89,24 @@ axis, button, and hat event to the terminal.
 
 Gamepad Start pauses and resumes during spaceflight, Back acts as Escape, and
 the Y face button answers Yes at `Y/N` prompts. Mapped SDL controllers use
-their named buttons; the raw 12-button fallback uses buttons 9 and 10 for Back
-and Start respectively.
+their named buttons. Both WCAT-style modes also provide these spaceflight
+bindings:
+
+| Control | Action |
+| --- | --- |
+| LB | Cycle guns |
+| RB | Cycle missiles and other release weapons |
+| LT or left-stick click | Navigation display; press again to open the map |
+| RT or right-stick click | Autopilot |
+| D-pad Up / Down | Full speed / stop |
+| D-pad Left / Right | Communications / target lock |
+
+While the communications list is open, D-pad Up/Down moves the highlighted
+choice, Right selects it, and Left closes the list. The flight sticks and
+A/B/X/Y actions remain active while choosing a response.
+
+The raw 12-button fallback uses buttons 5/6 for LB/RB, 7/8 for LT/RT, 9/10
+for Back/Start, 11/12 for the stick clicks, and the first hat for the D-pad.
 
 ## Development commands
 

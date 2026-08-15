@@ -1507,6 +1507,10 @@ void HandleCommunicationMenuRequest(void)
 void show_communications_disp(void)
 {
     signed char choice;
+#ifdef WC1_SDL
+    int selectedChoice;
+    unsigned char normalColour;
+#endif
 
     if (IsCommChoiceMenuOpen() == 0)
         HandleCommunicationMenuRequest();
@@ -1515,11 +1519,22 @@ void show_communications_disp(void)
         choice = 0;
         DrawTextAt(&DAT_005a7700, DAT_005a7530.left,
                    DAT_005a7530.top, g_pszCommMenuHeading_0059e490, 2);
+#ifdef WC1_SDL
+        selectedChoice = Wc1SdlGetCommunicationMenuSelection();
+        normalColour = DAT_005a7700.colour;
+#endif
         if (g_nCommMenuChoiceCount_0046af60 > 0) {
             do {
+#ifdef WC1_SDL
+                if ((int)choice == selectedChoice)
+                    DAT_005a7700.colour = DAT_004699a8;
+#endif
                 DrawFormattedText("\n%d %s", (int)choice + 1,
                                   g_apszCommMenuChoiceText_0059e4e0[
                                       (int)choice]);
+#ifdef WC1_SDL
+                DAT_005a7700.colour = normalColour;
+#endif
                 choice++;
             } while (choice < g_nCommMenuChoiceCount_0046af60);
         }

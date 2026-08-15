@@ -1559,6 +1559,13 @@ Two WCAT-style layouts are also available:
 | `--joystick-mode=4button-2axis` | Buttons 1–4: fire, missile, afterburner, roll/throttle modifier |
 | `--joystick-mode=4button-4axis` | Buttons 1–4: fire, missile, afterburner, cycle target; extra axes control roll and throttle |
 
+In either WCAT-style mode, LB/RB cycle guns and missiles, LT/RT or the
+left/right stick clicks open navigation/map and engage autopilot, and the
+D-pad provides full speed, stop, communications, and target lock.
+
+With communications open, D-pad Up/Down moves the highlighted choice, Right
+selects it, and Left closes the list. Flight and weapon controls remain active.
+
 The four-axis mode defaults to `--joystick-axes=twin-stick-roll`. Additional
 twin-stick, HOTAS, throttle, and rudder layouts are described in
 [the SDL2 port documentation](docs/SDL2.md#joystick-input).

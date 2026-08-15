@@ -4,6 +4,7 @@ typedef struct Wc1SdlJoystickDevice {
     SDL_GameController *controller;
     SDL_Joystick *joystick;
     SDL_JoystickID instanceId;
+    Uint8 hatState;
 } Wc1SdlJoystickDevice;
 
 typedef enum Wc1SdlJoystickMode {
@@ -27,8 +28,18 @@ typedef enum Wc1SdlJoystickButton {
     WC1_SDL_JOYSTICK_BUTTON_B,
     WC1_SDL_JOYSTICK_BUTTON_X,
     WC1_SDL_JOYSTICK_BUTTON_Y,
+    WC1_SDL_JOYSTICK_BUTTON_LEFT_SHOULDER,
+    WC1_SDL_JOYSTICK_BUTTON_RIGHT_SHOULDER,
+    WC1_SDL_JOYSTICK_BUTTON_LEFT_TRIGGER,
+    WC1_SDL_JOYSTICK_BUTTON_RIGHT_TRIGGER,
     WC1_SDL_JOYSTICK_BUTTON_BACK = 8,
-    WC1_SDL_JOYSTICK_BUTTON_START
+    WC1_SDL_JOYSTICK_BUTTON_START,
+    WC1_SDL_JOYSTICK_BUTTON_LEFT_STICK,
+    WC1_SDL_JOYSTICK_BUTTON_RIGHT_STICK,
+    WC1_SDL_JOYSTICK_BUTTON_DPAD_UP,
+    WC1_SDL_JOYSTICK_BUTTON_DPAD_DOWN,
+    WC1_SDL_JOYSTICK_BUTTON_DPAD_LEFT,
+    WC1_SDL_JOYSTICK_BUTTON_DPAD_RIGHT
 } Wc1SdlJoystickButton;
 
 static Wc1SdlJoystickDevice g_aWc1SdlJoystickDevices[2];
@@ -36,6 +47,7 @@ static int g_bWc1SdlJoystickDebug;
 static int g_bWc1SdlJoystickInputStarted;
 static int g_bWc1SdlJoystickSpaceflightActive;
 static int g_bWc1SdlTwoAxisModifierActive;
+static int g_nWc1SdlCommunicationMenuSelection;
 static Wc1SdlJoystickMode g_eWc1SdlJoystickMode;
 static Wc1SdlJoystickAxesMode g_eWc1SdlJoystickAxesMode;
 
@@ -139,6 +151,7 @@ static void Wc1SdlCloseJoystick(Wc1SdlJoystickDevice *device)
     device->controller = 0;
     device->joystick = 0;
     device->instanceId = -1;
+    device->hatState = SDL_HAT_CENTERED;
 }
 
 static int Wc1SdlFindJoystick(SDL_JoystickID instanceId)
@@ -203,6 +216,7 @@ static void Wc1SdlOpenJoystick(int deviceIndex)
     device->controller = controller;
     device->joystick = joystick;
     device->instanceId = SDL_JoystickInstanceID(joystick);
+    device->hatState = SDL_HAT_CENTERED;
     if (g_bWc1SdlJoystickDebug) {
         const char *name = SDL_JoystickName(joystick);
 
@@ -518,20 +532,148 @@ static int Wc1SdlControllerButtonIndex(int button)
 {
     switch ((SDL_GameControllerButton)button) {
     case SDL_CONTROLLER_BUTTON_A:
-        return 0;
+        return WC1_SDL_JOYSTICK_BUTTON_A;
     case SDL_CONTROLLER_BUTTON_B:
-        return 1;
+        return WC1_SDL_JOYSTICK_BUTTON_B;
     case SDL_CONTROLLER_BUTTON_X:
-        return 2;
+        return WC1_SDL_JOYSTICK_BUTTON_X;
     case SDL_CONTROLLER_BUTTON_Y:
         return WC1_SDL_JOYSTICK_BUTTON_Y;
+    case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+        return WC1_SDL_JOYSTICK_BUTTON_LEFT_SHOULDER;
+    case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+        return WC1_SDL_JOYSTICK_BUTTON_RIGHT_SHOULDER;
     case SDL_CONTROLLER_BUTTON_BACK:
         return WC1_SDL_JOYSTICK_BUTTON_BACK;
     case SDL_CONTROLLER_BUTTON_START:
         return WC1_SDL_JOYSTICK_BUTTON_START;
+    case SDL_CONTROLLER_BUTTON_LEFTSTICK:
+        return WC1_SDL_JOYSTICK_BUTTON_LEFT_STICK;
+    case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
+        return WC1_SDL_JOYSTICK_BUTTON_RIGHT_STICK;
+    case SDL_CONTROLLER_BUTTON_DPAD_UP:
+        return WC1_SDL_JOYSTICK_BUTTON_DPAD_UP;
+    case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+        return WC1_SDL_JOYSTICK_BUTTON_DPAD_DOWN;
+    case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+        return WC1_SDL_JOYSTICK_BUTTON_DPAD_LEFT;
+    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+        return WC1_SDL_JOYSTICK_BUTTON_DPAD_RIGHT;
     default:
         return -1;
     }
+}
+
+static void Wc1SdlQueueScanCodePress(unsigned short scanCode)
+{
+    /* player_input samples one transition before consuming the remaining
+       queue, so lead with the release for this impulse. */
+    QueueInputEvent(4, 0, 0, scanCode, 0, 0, 0);
+    QueueInputEvent(3, 0, 0, scanCode, 0, 0, 0);
+}
+
+int Wc1SdlGetCommunicationMenuSelection(void)
+{
+    if (g_nCommMenuChoiceCount_0046af60 <= 0) {
+        g_nWc1SdlCommunicationMenuSelection = 0;
+        return -1;
+    }
+    if (g_nCommMenuReuseMode_0046af64 == 0 ||
+        g_nWc1SdlCommunicationMenuSelection >=
+            g_nCommMenuChoiceCount_0046af60)
+        g_nWc1SdlCommunicationMenuSelection = 0;
+    return g_nWc1SdlCommunicationMenuSelection;
+}
+
+static int Wc1SdlHandleCommunicationDpad(int button)
+{
+    int selection;
+
+    if (get_mode(1) != 4)
+        return 0;
+    selection = Wc1SdlGetCommunicationMenuSelection();
+    switch ((Wc1SdlJoystickButton)button) {
+    case WC1_SDL_JOYSTICK_BUTTON_DPAD_UP:
+        if (selection != -1) {
+            if (selection == 0)
+                selection = g_nCommMenuChoiceCount_0046af60;
+            g_nWc1SdlCommunicationMenuSelection = selection - 1;
+            InvalidateVduMode(1);
+        }
+        return 1;
+    case WC1_SDL_JOYSTICK_BUTTON_DPAD_DOWN:
+        if (selection != -1) {
+            selection++;
+            if (selection >= g_nCommMenuChoiceCount_0046af60)
+                selection = 0;
+            g_nWc1SdlCommunicationMenuSelection = selection;
+            InvalidateVduMode(1);
+        }
+        return 1;
+    case WC1_SDL_JOYSTICK_BUTTON_DPAD_LEFT:
+        Wc1SdlQueueScanCodePress(0x01);
+        return 1;
+    case WC1_SDL_JOYSTICK_BUTTON_DPAD_RIGHT:
+        if (selection != -1)
+            Wc1SdlQueueScanCodePress(
+                (unsigned short)(selection + 2));
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static unsigned short Wc1SdlFlightScanCodeForButton(int button)
+{
+    switch ((Wc1SdlJoystickButton)button) {
+    case WC1_SDL_JOYSTICK_BUTTON_B:
+        return 0x1c;
+    case WC1_SDL_JOYSTICK_BUTTON_Y:
+        if (g_eWc1SdlJoystickMode ==
+                WC1_SDL_JOYSTICK_FOUR_BUTTON_FOUR_AXIS)
+            return 0x14;
+        break;
+    case WC1_SDL_JOYSTICK_BUTTON_LEFT_SHOULDER:
+        return 0x22;
+    case WC1_SDL_JOYSTICK_BUTTON_RIGHT_SHOULDER:
+        return 0x11;
+    case WC1_SDL_JOYSTICK_BUTTON_LEFT_TRIGGER:
+    case WC1_SDL_JOYSTICK_BUTTON_LEFT_STICK:
+        return 0x31;
+    case WC1_SDL_JOYSTICK_BUTTON_RIGHT_TRIGGER:
+    case WC1_SDL_JOYSTICK_BUTTON_RIGHT_STICK:
+        return 0x1e;
+    case WC1_SDL_JOYSTICK_BUTTON_DPAD_UP:
+        return 0x2b;
+    case WC1_SDL_JOYSTICK_BUTTON_DPAD_DOWN:
+        return 0x0e;
+    case WC1_SDL_JOYSTICK_BUTTON_DPAD_LEFT:
+        return 0x2e;
+    case WC1_SDL_JOYSTICK_BUTTON_DPAD_RIGHT:
+        return 0x26;
+    default:
+        break;
+    }
+    return 0;
+}
+
+static int Wc1SdlControllerMapsRawButton(
+    const Wc1SdlJoystickDevice *device, int rawButton)
+{
+    SDL_GameControllerButtonBind binding;
+    int controllerButton;
+
+    controllerButton = 0;
+    while (controllerButton < SDL_CONTROLLER_BUTTON_MAX) {
+        binding = SDL_GameControllerGetBindForButton(
+            device->controller,
+            (SDL_GameControllerButton)controllerButton);
+        if (binding.bindType == SDL_CONTROLLER_BINDTYPE_BUTTON &&
+            binding.value.button == rawButton)
+            return 1;
+        controllerButton++;
+    }
+    return 0;
 }
 
 void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
@@ -548,10 +690,14 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     if (slot == -1 || slot != (int)g_nActiveInputDevice_005a819c)
         return;
     device = &g_aWc1SdlJoystickDevices[slot];
-    if ((device->controller != 0) != controllerEvent)
-        return;
-    if (controllerEvent)
+    if (controllerEvent) {
+        if (device->controller == 0)
+            return;
         button = Wc1SdlControllerButtonIndex(button);
+    } else if (device->controller != 0 &&
+               Wc1SdlControllerMapsRawButton(device, button)) {
+        return;
+    }
 
     spaceflightActive = g_bWc1SdlJoystickSpaceflightActive &&
         DAT_0059ab2c == get_player_input &&
@@ -566,8 +712,8 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
         return;
     }
     if (button == WC1_SDL_JOYSTICK_BUTTON_START) {
-        if (spaceflightActive)
-            QueueInputEvent(eventType, 0, 0, 0x19, 0, 0, 0);
+        if (spaceflightActive && pressed)
+            Wc1SdlQueueScanCodePress(0x19);
         return;
     }
     if (!pressed)
@@ -582,15 +728,48 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
         g_eWc1SdlJoystickMode == WC1_SDL_JOYSTICK_ORIGINAL)
         return;
 
-    if (button == WC1_SDL_JOYSTICK_BUTTON_B)
-        scanCode = 0x1c;
-    else if (button == WC1_SDL_JOYSTICK_BUTTON_Y &&
-             g_eWc1SdlJoystickMode ==
-                 WC1_SDL_JOYSTICK_FOUR_BUTTON_FOUR_AXIS)
-        scanCode = 0x14;
-    else
+    if (Wc1SdlHandleCommunicationDpad(button))
         return;
-    QueueInputEvent(3, 0, 0, scanCode, 0, 0, 0);
+    scanCode = Wc1SdlFlightScanCodeForButton(button);
+    if (scanCode == 0)
+        return;
+    if (g_bWc1SdlJoystickDebug) {
+        printf("SDL joystick action button %d -> scan 0x%02x\n",
+               button, (unsigned int)scanCode);
+        fflush(stdout);
+    }
+    Wc1SdlQueueScanCodePress(scanCode);
+}
+
+void Wc1SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,
+                                  Uint8 hat, Uint8 value)
+{
+    Wc1SdlJoystickDevice *device;
+    Uint8 pressed;
+    int slot;
+
+    slot = Wc1SdlFindJoystick(instanceId);
+    if (slot == -1 || slot != (int)g_nActiveInputDevice_005a819c ||
+        hat != 0)
+        return;
+    device = &g_aWc1SdlJoystickDevices[slot];
+    if (device->controller != 0)
+        return;
+
+    pressed = (Uint8)(value & ~device->hatState);
+    device->hatState = value;
+    if ((pressed & SDL_HAT_UP) != 0)
+        Wc1SdlHandleJoystickButtonEvent(
+            instanceId, WC1_SDL_JOYSTICK_BUTTON_DPAD_UP, 1, 0);
+    else if ((pressed & SDL_HAT_DOWN) != 0)
+        Wc1SdlHandleJoystickButtonEvent(
+            instanceId, WC1_SDL_JOYSTICK_BUTTON_DPAD_DOWN, 1, 0);
+    else if ((pressed & SDL_HAT_LEFT) != 0)
+        Wc1SdlHandleJoystickButtonEvent(
+            instanceId, WC1_SDL_JOYSTICK_BUTTON_DPAD_LEFT, 1, 0);
+    else if ((pressed & SDL_HAT_RIGHT) != 0)
+        Wc1SdlHandleJoystickButtonEvent(
+            instanceId, WC1_SDL_JOYSTICK_BUTTON_DPAD_RIGHT, 1, 0);
 }
 
 BOOL Wc1SdlReadJoystickAxisRange(unsigned int deviceIndex,
@@ -639,4 +818,5 @@ void Wc1SdlShutdownJoysticks(void)
     g_bWc1SdlJoystickInputStarted = 0;
     g_bWc1SdlJoystickSpaceflightActive = 0;
     g_bWc1SdlTwoAxisModifierActive = 0;
+    g_nWc1SdlCommunicationMenuSelection = 0;
 }

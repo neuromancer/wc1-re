@@ -513,6 +513,11 @@ void Wc1SdlPumpEvents(void)
                                                  SDL_JOYBUTTONDOWN,
                                              0);
             break;
+        case SDL_JOYHATMOTION:
+            Wc1SdlHandleJoystickHatEvent(event.jhat.which,
+                                         event.jhat.hat,
+                                         event.jhat.value);
+            break;
         default:
             break;
         }
