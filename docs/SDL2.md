@@ -46,6 +46,52 @@ enhanced renderer cannot record an object, that object also falls back to the
 software path. Renderer-specific OpenGL state stays in `src/sdl/`; recovered
 game files expose only narrow `WC1_SDL` hooks.
 
+## Joystick input
+
+The default `--joystick-mode=original` mode preserves the original X/Y and
+two-button controls. SDL's mapped controller interface supplies the left stick
+and A/B buttons on recognized gamepads. Other devices use their first two axes
+and buttons. Device removal and reconnection are handled without restarting the
+port.
+
+The optional WCAT-style modes give each action its own button. On mapped
+gamepads, buttons 1–4 are A/B/X/Y:
+
+| Mode | Buttons 1–4 |
+| --- | --- |
+| `--joystick-mode=4button-2axis` | Fire, missile, afterburner, roll/throttle modifier |
+| `--joystick-mode=4button-4axis` | Fire, missile, afterburner, cycle target |
+
+The four-axis mode reads the mapped right stick, raw axes 3/4, or the X/Y axes
+of a second joystick. Its default axis layout is `twin-stick-roll`; select a
+different layout with `--joystick-axes=<layout>`:
+
+| Layout | Horizontal and extra axes |
+| --- | --- |
+| `twin-stick-roll` | Primary X yaws; extra X rolls; extra Y is relative throttle |
+| `twin-stick-yaw` | Primary X rolls; extra X yaws; extra Y is relative throttle |
+| `hotas-yaw` | Primary X rolls; rudder yaws; final axis is linear throttle |
+| `hotas-roll` | Primary X yaws; rudder rolls; final axis is linear throttle |
+| `linear-throttle` | Primary X yaws; third axis is linear throttle; keyboard controls roll |
+| `rudder-yaw` | Primary X rolls; third axis yaws |
+| `rudder-roll` | Primary X yaws; third axis rolls |
+
+Primary Y always controls pitch. Directional extra axes use a 25-percent
+deadzone. For example:
+
+```sh
+./wc1-modern --joystick-mode=4button-4axis \
+  --joystick-axes=hotas-yaw
+```
+
+Add `--joystick-debug` to print the detected device type and each joystick
+axis, button, and hat event to the terminal.
+
+Gamepad Start pauses and resumes during spaceflight, Back acts as Escape, and
+the Y face button answers Yes at `Y/N` prompts. Mapped SDL controllers use
+their named buttons; the raw 12-button fallback uses buttons 9 and 10 for Back
+and Start respectively.
+
 ## Development commands
 
 ```sh

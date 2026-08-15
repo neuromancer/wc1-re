@@ -126,6 +126,8 @@ void Wc1SdlCompleteSpaceFrame(void)
 
 void Wc1SdlCancelSpaceFrame(void)
 {
+    /* RunSpaceFlight calls this when the spaceflight session ends. */
+    Wc1SdlEndJoystickSpaceflight();
     if (Wc1SdlUsingGlRenderer())
         Wc1SdlGlRendererCancelSpaceFrame();
 }

@@ -5,25 +5,42 @@
 #include <stdio.h>
 #include <string.h>
 
-static int Wc1SdlParsePortArguments(int *argumentCount, char **arguments)
+static int Wc1SdlParsePortArguments(int *argumentCount, char **arguments,
+                                    int *useEnhancedRenderer)
 {
+    char *argument;
     int argumentIndex;
     int outputArgumentIndex;
-    int useEnhancedRenderer;
 
     outputArgumentIndex = 1;
-    useEnhancedRenderer = 0;
+    *useEnhancedRenderer = 0;
     argumentIndex = 1;
     while (argumentIndex < *argumentCount) {
-        if (strcmp(arguments[argumentIndex], "--enhanced") == 0)
-            useEnhancedRenderer = 1;
-        else
-            arguments[outputArgumentIndex++] = arguments[argumentIndex];
+        argument = arguments[argumentIndex];
+        if (strcmp(argument, "--enhanced") == 0) {
+            *useEnhancedRenderer = 1;
+        } else if (strcmp(argument, "--joystick-debug") == 0) {
+            Wc1SdlEnableJoystickDebug();
+        } else if (strncmp(argument, "--joystick-mode=", 16) == 0) {
+            if (!Wc1SdlSetJoystickMode(argument + 16)) {
+                fprintf(stderr, "Unknown joystick mode: %s\n",
+                        argument + 16);
+                return 0;
+            }
+        } else if (strncmp(argument, "--joystick-axes=", 16) == 0) {
+            if (!Wc1SdlSetJoystickAxesMode(argument + 16)) {
+                fprintf(stderr, "Unknown joystick axes mode: %s\n",
+                        argument + 16);
+                return 0;
+            }
+        } else {
+            arguments[outputArgumentIndex++] = argument;
+        }
         argumentIndex++;
     }
     *argumentCount = outputArgumentIndex;
     arguments[outputArgumentIndex] = 0;
-    return useEnhancedRenderer;
+    return 1;
 }
 
 static void Wc1SdlApplyLegacyArguments(int argumentCount, char **arguments)
@@ -113,14 +130,16 @@ int main(int argumentCount, char **arguments)
     int gameResult;
     int useEnhancedRenderer;
 
-    useEnhancedRenderer = Wc1SdlParsePortArguments(&argumentCount, arguments);
+    if (!Wc1SdlParsePortArguments(&argumentCount, arguments,
+                                   &useEnhancedRenderer))
+        return 1;
     if (useEnhancedRenderer) {
         Wc1SdlSetVideoBackend(
             WC1_SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR);
     }
     checkOnly = argumentCount == 2 && strcmp(arguments[1], "--check") == 0;
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER |
-                 SDL_INIT_JOYSTICK) != 0) {
+                 SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0) {
         fprintf(stderr, "SDL initialization failed: %s\n", SDL_GetError());
         return 1;
     }

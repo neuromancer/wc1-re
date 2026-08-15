@@ -955,6 +955,9 @@ unsigned int player_input(void)
         }
     }
 
+#ifdef WC1_SDL
+    Wc1SdlApplyJoystickFlightControls();
+#endif
     g_stPreviousFlightInput_005a7af0 =
         g_stLastPolledFlightInput_0046a020;
     return 0;

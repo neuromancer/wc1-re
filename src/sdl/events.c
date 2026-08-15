@@ -470,6 +470,7 @@ void Wc1SdlPumpEvents(void)
 
     Wc1SdlServiceDosAdlibMusic();
     while (SDL_PollEvent(&event)) {
+        Wc1SdlLogJoystickEvent(&event);
         switch (event.type) {
         case SDL_QUIT:
             ShutdownGameWindow();
@@ -490,6 +491,27 @@ void Wc1SdlPumpEvents(void)
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
             Wc1SdlHandleMouseEvent(&event);
+            break;
+        case SDL_JOYDEVICEADDED:
+        case SDL_JOYDEVICEREMOVED:
+            Wc1SdlHandleJoystickDeviceEvent(event.type,
+                                             event.jdevice.which);
+            break;
+        case SDL_CONTROLLERBUTTONDOWN:
+        case SDL_CONTROLLERBUTTONUP:
+            Wc1SdlHandleJoystickButtonEvent(event.cbutton.which,
+                                             event.cbutton.button,
+                                             event.type ==
+                                                 SDL_CONTROLLERBUTTONDOWN,
+                                             1);
+            break;
+        case SDL_JOYBUTTONDOWN:
+        case SDL_JOYBUTTONUP:
+            Wc1SdlHandleJoystickButtonEvent(event.jbutton.which,
+                                             event.jbutton.button,
+                                             event.type ==
+                                                 SDL_JOYBUTTONDOWN,
+                                             0);
             break;
         default:
             break;

@@ -1543,9 +1543,25 @@ cockpit, and HUD. The original software renderer remains the default.
 | `Cmd+Enter` (macOS) | Toggle fullscreen |
 | `Alt+Enter` (Windows and Linux) | Toggle fullscreen |
 | `Cmd+Q` (macOS) | Quit the game |
+| Gamepad Start (spaceflight) | Pause or resume |
+| Gamepad Back | Escape/back |
+| Gamepad Y (`Y/N` prompts) | Confirm Yes |
 
 During spaceflight, scroll the mouse wheel up or down to increase or decrease
 speed.
+
+SDL game-controller mappings are used automatically. The default
+`--joystick-mode=original` keeps the original two-axis, two-button controls.
+Two WCAT-style layouts are also available:
+
+| Option | Spaceflight controls |
+| --- | --- |
+| `--joystick-mode=4button-2axis` | Buttons 1–4: fire, missile, afterburner, roll/throttle modifier |
+| `--joystick-mode=4button-4axis` | Buttons 1–4: fire, missile, afterburner, cycle target; extra axes control roll and throttle |
+
+The four-axis mode defaults to `--joystick-axes=twin-stick-roll`. Additional
+twin-stick, HOTAS, throttle, and rudder layouts are described in
+[the SDL2 port documentation](docs/SDL2.md#joystick-input).
 
 ## Build from source
 
@@ -1620,7 +1636,11 @@ Special thanks to:
 - [Electronic Arts](https://www.ea.com/) for publishing *Wing Commander: The
   Kilrathi Saga*;
 - [GOG](https://www.gog.com/en/game/wing_commander_1_2) for keeping *Wing
-  Commander 1 + 2* readily available; and
+  Commander 1 + 2* readily available;
+- AllTinker for the [W.C.A.T. overhaul](https://alltinker.itch.io/wcat), whose
+  fixes and analysis of the DOS release have been valuable references;
+- the [WCDX project](https://github.com/Bekenn/wcdx) for its pioneering
+  compatibility work on the *Kilrathi Saga* release; and
 - Aaron Giles for the [DREAMM emulator](https://dreamm.aarongiles.com/), used
   to run and study the original release, and
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's

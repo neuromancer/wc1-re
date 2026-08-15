@@ -165,6 +165,16 @@ BOOL Wc1SdlReadJoystickAxisRange(unsigned int device,
                                  unsigned int *xMaximum,
                                  unsigned int *yMinimum,
                                  unsigned int *yMaximum);
+int Wc1SdlSetJoystickMode(const char *name);
+int Wc1SdlSetJoystickAxesMode(const char *name);
+void Wc1SdlEnableJoystickDebug(void);
+void Wc1SdlLogJoystickEvent(const SDL_Event *event);
+void Wc1SdlApplyJoystickFlightControls(void);
+void Wc1SdlEndJoystickSpaceflight(void);
+void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
+                                      int button, int pressed,
+                                      int controllerEvent);
+void Wc1SdlHandleJoystickDeviceEvent(Uint32 type, Sint32 which);
 void Wc1SdlSleep(DWORD milliseconds);
 void Wc1SdlStartEventPump(void);
 void Wc1SdlShutdownJoysticks(void);
