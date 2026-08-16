@@ -608,8 +608,7 @@ void show_target_disp(void)
 
     targetViewport = DAT_005a7530;
     maximumArmor = &typeData->armorFront;
-    armor = 0;
-    do {
+    for (armor = 0; armor < 4; armor++) {
         targetViewport.left =
             (short)(g_aTargetArmorClipRects_0046a928[armor].left + x);
         targetViewport.top =
@@ -626,8 +625,7 @@ void show_target_disp(void)
             DrawSpriteDefault(&targetViewport, x, y,
                               typeData->shape, 1);
         }
-        armor++;
-    } while (armor < 4);
+    }
 
     DrawSpriteDefault(&DAT_005a7530, x, y, typeData->shape, 2);
     frame = (short)((3 - MinShort(
@@ -1297,10 +1295,9 @@ void servicetrack(void)
     FixedVector futurePosition;
     FixedVector travel;
 
-    object = 0;
     gametrack();
     if (g_nFlightSoundEffectsEnabled_0046aa34 != 0) {
-        do {
+        for (object = 0; object < WC1_SPACE_OBJECT_COUNT; object++) {
             if (object == g_nPassingShipSoundObject_0046aa48) {
                 if (g_aeObjectClass_0059d100[object] !=
                         OBJECT_CLASS_SHIP ||
@@ -1352,8 +1349,7 @@ void servicetrack(void)
                         g_nPassingShipSoundObject_0046aa48 = -1;
                 }
             }
-            object++;
-        } while (object < WC1_SPACE_OBJECT_COUNT);
+        }
     }
 }
 

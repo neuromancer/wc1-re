@@ -855,12 +855,10 @@ void show_damage_disp(void)
 
     g_nDamageDisplayState_005a77e0 = 0;
     g_cDamagedComponentCount_005a77de = 0;
-    component = 0;
-    do {
+    for (component = 0; component < 9; component++) {
         if (g_acPlayerComponentDamage_0059bff0[component] >= 1)
             g_cDamagedComponentCount_005a77de++;
-        component++;
-    } while (component < 9);
+    }
 
     set_new_vdu(0);
     DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left, DAT_005a6b80.top,
@@ -902,12 +900,10 @@ void UpdateDamageDisplay(void)
     signed char damage;
 
     componentCount = 0;
-    component = 0;
-    do {
+    for (component = 0; component < 9; component++) {
         if (g_acPlayerComponentDamage_0059bff0[component] >= 1)
             componentCount++;
-        component++;
-    } while (component < 9);
+    }
 
     if ((short)componentCount !=
         (short)g_cDamagedComponentCount_005a77de) {

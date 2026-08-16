@@ -36,7 +36,7 @@ void show_info_disp(void)
     objective = 0;
     DrawFormattedText("OBJECTIVES\n");
     strcpy(objectiveSummary, "");
-    do {
+    for (; objective < 16; objective++) {
         marker = " ";
         if (objective < g_cMissionObjectiveCount_0059c46a) {
             sprintf(objectiveMarker, "%c", objective % 10 + '1');
@@ -49,7 +49,6 @@ void show_info_disp(void)
                 marker = "A";
         }
         strcat(objectiveSummary, marker);
-        objective++;
-    } while (objective < 16);
+    }
     DrawFormattedText("%s\n", objectiveSummary);
 }

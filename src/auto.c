@@ -126,8 +126,7 @@ void auto_pilot_sequence(void)
         ResetSoundState();
         g_nAutopilotFormationShipCount_00465544 = 0;
 
-        ship = 0;
-        do {
+        for (ship = 0; ship < 10; ship++) {
             travelMode[ship] = 0;
             g_anShipSpeed_0059b320[ship] = 0;
             zero_vector(&g_aShipVelocity_0059c010[ship]);
@@ -155,8 +154,7 @@ void auto_pilot_sequence(void)
                     remove_object(ship);
                 }
             }
-            ship++;
-        } while (ship < 10);
+        }
 
         initialDistance = distance_from_point(0, &destination);
         point_at(0, destination);
@@ -164,8 +162,7 @@ void auto_pilot_sequence(void)
         travelMode[0] = 1;
         formationSlot = 0;
 
-        ship = 0;
-        do {
+        for (ship = 0; ship < 10; ship++) {
             if (travelMode[ship] == -1 && ship != 0) {
                 if (distance_from_object(ship, 0) > 20000) {
                     if (player_wingman(ship) != 0)
@@ -196,8 +193,7 @@ void auto_pilot_sequence(void)
                         g_aShipVelocity_0059c010[0];
                 }
             }
-            ship++;
-        } while (ship < 10);
+        }
 
         g_nCannedSceneMode_00469fac = 4;
         visit_the_cinema(12, 0, 120);
@@ -213,14 +209,12 @@ void auto_pilot_sequence(void)
 
             nearestShipRange = 0x7fff;
             destinationRange = distance_from_point(0, &destination);
-            other = 0;
-            do {
+            for (other = 0; other < 10; other++) {
                 if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
                     travelMode[other] == 0)
                     nearestShipRange = MinShort(
                         nearestShipRange, distance_from_object(0, other));
-                other++;
-            } while (other < 10);
+            }
 
             if ((unsigned short)destinationRange < 1000 ||
                 g_pActiveHazardField_0059bfe0 != 0 ||
@@ -232,20 +226,17 @@ void auto_pilot_sequence(void)
         SubtractFixedVectors(&g_aShipPosition_0059c490[0], &travelStep,
                              &g_aShipPosition_0059c490[0]);
         cruiseSpeed = g_asShipMaximumSpeed_0059c440[0];
-        ship = 0;
-        do {
+        for (ship = 0; ship < 10; ship++) {
             if (travelMode[ship] != 0 &&
                 g_aObjectTypeData_00466458[
                     g_aeObjectType_0059b560[ship]].cruiseVelocity <
                     cruiseSpeed)
                 cruiseSpeed = g_aObjectTypeData_00466458[
                     g_aeObjectType_0059b560[ship]].cruiseVelocity;
-            ship++;
-        } while (ship < 10);
+        }
 
         formationSlot = 0;
-        ship = 0;
-        do {
+        for (ship = 0; ship < 10; ship++) {
             if (travelMode[ship] != 0) {
                 set_speed(ship, cruiseSpeed);
                 if (ship != 0 && travelMode[ship] >= 1) {
@@ -265,8 +256,7 @@ void auto_pilot_sequence(void)
                     }
                 }
             }
-            ship++;
-        } while (ship < 10);
+        }
 
         Update_3Space();
         if (DAT_0046a008 == 0) {

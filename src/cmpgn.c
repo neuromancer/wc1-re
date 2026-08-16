@@ -856,16 +856,18 @@ unsigned int LoadMissionData(short series, short mission)
     g_nPlayerMissionShipIndex_005a8694 = header->playerMissionShip;
     sourceInitialShip = header->initialMissionShips;
     initialShip = g_nInitialMissionShipIndices_005a8696;
-    do {
-        *initialShip++ = *sourceInitialShip++;
-    } while (initialShip < &g_nInitialMissionShipIndices_005a8696[8]);
+    for (; initialShip < &g_nInitialMissionShipIndices_005a8696[8];
+         initialShip++, sourceInitialShip++) {
+        *initialShip = *sourceInitialShip;
+    }
     DAT_005a86a6 = header->field_16;
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(logicalFile, 1, 0);
     diskNav = (MissionNavPointDisk *)(packet + missionIndex * 0x4d0);
-    index = 0;
-    do {
+    for (index = 0;
+         index < WC1_ACTIVE_MISSION_NAV_POINT_COUNT;
+         diskNav++, index++) {
         memcpy(g_aMissionNavPoints_0046c2f0[index].name,
                diskNav->name,
                sizeof(g_aMissionNavPoints_0046c2f0[index].name));
@@ -873,53 +875,42 @@ unsigned int LoadMissionData(short series, short mission)
         g_aMissionNavPoints_0046c2f0[index].position = diskNav->position;
         g_aMissionNavPoints_0046c2f0[index].proximityRadius =
             diskNav->proximityRadius;
-        item = 0;
-        do {
+        for (item = 0; item < 8; item++) {
             ((signed char *)g_aMissionNavPoints_0046c2f0[index].triggers)[item] =
                 ((signed char *)diskNav->triggers)[item];
-            item++;
-        } while (item < 8);
-        item = 0;
-        do {
+        }
+        for (item = 0; item < 2; item++) {
             g_aMissionNavPoints_0046c2f0[index].preloadObjectTypes[item] =
                 (enum ObjectType)diskNav->preloadObjectTypes[item];
-            item++;
-        } while (item < 2);
-        item = 0;
-        do {
+        }
+        for (item = 0; item < 10; item++) {
             g_aMissionNavPoints_0046c2f0[index].missionShips[item] =
                 diskNav->missionShips[item];
-            item++;
-        } while (item < 10);
-        diskNav++;
-        index++;
-    } while (index < WC1_ACTIVE_MISSION_NAV_POINT_COUNT);
+        }
+    }
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(logicalFile, 2, 0);
     diskObjective =
         (MissionObjectiveDisk *)(packet + missionIndex * 0x400);
-    index = 0;
-    do {
+    for (index = 0; index < WC1_MISSION_OBJECTIVE_COUNT;
+         diskObjective++, index++) {
         g_aMissionObjectiveSources_005a8270[index].type =
             diskObjective->type;
         g_aMissionObjectiveSources_005a8270[index].index =
             diskObjective->index;
-        item = 0;
-        do {
+        for (item = 0; item < 60; item++) {
             g_aMissionObjectiveSources_005a8270[index].description[item] =
                 diskObjective->description[item];
-            item++;
-        } while (item < 60);
-        diskObjective++;
-        index++;
-    } while (index < WC1_MISSION_OBJECTIVE_COUNT);
+        }
+    }
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(logicalFile, 3, 0);
     diskShip = (MissionShipDisk *)(packet + missionIndex * 0x540);
     ship = g_aMissionShips_0046c948;
-    do {
+    for (; ship < &g_aMissionShips_0046c948[32];
+         diskShip++, ship++) {
         ship->type = (enum ObjectType)diskShip->type;
         ship->side = (enum Side)diskShip->side;
         ship->leader = diskShip->leader;
@@ -938,9 +929,7 @@ unsigned int LoadMissionData(short series, short mission)
         ship->leaderMissionIndex = diskShip->leaderMissionIndex;
         ship->formationIndex = diskShip->formationIndex;
         ship->targetMissionIndex = diskShip->targetMissionIndex;
-        diskShip++;
-        ship++;
-    } while (ship < &g_aMissionShips_0046c948[32]);
+    }
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(logicalFile, 4, 0);
