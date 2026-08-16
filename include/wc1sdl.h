@@ -154,6 +154,8 @@ void Wc1SdlBeginSpaceFrame(
     int fullViewportCopy, unsigned char clearColour);
 void Wc1SdlCompleteSpaceFrame(void);
 void Wc1SdlCancelSpaceFrame(void);
+void Wc1SdlSetThrusterScreenPosition(short object, float x, float y);
+void Wc1SdlGetThrusterScreenPosition(short object, float *x, float *y);
 int Wc1SdlRecordSpaceSprite(
     const struct Viewport *viewport, float x, float y,
     unsigned char *shape, short frame, short angle, short scale,

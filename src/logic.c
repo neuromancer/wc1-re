@@ -230,6 +230,16 @@ unsigned int reposition_fixed_child_objects(void)
     short angle;
     short parent;
     short object;
+#ifdef WC1_SDL
+    int fixedCosine;
+    int fixedSine;
+    float attachmentRight;
+    float attachmentUp;
+    float cosineFloat;
+    float parentScreenX;
+    float parentScreenY;
+    float sineFloat;
+#endif
 
     object = 10;
     do {
@@ -267,6 +277,36 @@ unsigned int reposition_fixed_child_objects(void)
                     g_asObjectScreenX_0059d9b0[parentIndex];
                 g_asObjectScreenY_0059d930[objectIndex] +=
                     g_asObjectScreenY_0059d930[parentIndex];
+#ifdef WC1_SDL
+                if (g_aeObjectType_0059b560[objectIndex] ==
+                        OBJECT_TYPE_THRUSTERS) {
+                    /* Match the anchor to the enhanced parent transform. */
+                    parentScreenX =
+                        (float)g_nViewCenterX_0059a852 +
+                        (float)(((double)(g_nScreenWidth_0046daa4 & ~1) *
+                                 0.5 *
+                                 g_aObjectViewPosition_0059afa0[parentIndex].x) /
+                                g_aObjectViewPosition_0059afa0[parentIndex].z);
+                    parentScreenY =
+                        (float)g_nViewCenterY_0059a854 +
+                        (float)(((double)(g_nScreenWidth_0046daa4 & ~1) *
+                                 0.5 *
+                                 g_aObjectViewPosition_0059afa0[parentIndex].y) /
+                                g_aObjectViewPosition_0059afa0[parentIndex].z);
+                    GetRLETransformTrig((int)angle * 10,
+                                        &fixedCosine, &fixedSine);
+                    cosineFloat = (float)fixedCosine / 65536.0f;
+                    sineFloat = (float)fixedSine / 65536.0f;
+                    attachmentRight = (float)right / 256.0f;
+                    attachmentUp = (float)up / 256.0f;
+                    Wc1SdlSetThrusterScreenPosition(
+                        object,
+                        parentScreenX + attachmentRight * cosineFloat -
+                            attachmentUp * sineFloat,
+                        parentScreenY + attachmentRight * sineFloat +
+                            attachmentUp * cosineFloat);
+                }
+#endif
             }
             parentIndex = (int)parent;
             g_asObjectScreenScale_0059c950[objectIndex] = (short)(

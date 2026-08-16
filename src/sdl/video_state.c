@@ -1,6 +1,21 @@
 #include "video_internal.h"
+#include "wcdata.h"
 
 static Wc1SdlVideoBackend g_videoBackend;
+static float g_afThrusterScreenX[WC1_SPACE_OBJECT_COUNT];
+static float g_afThrusterScreenY[WC1_SPACE_OBJECT_COUNT];
+
+void Wc1SdlSetThrusterScreenPosition(short object, float x, float y)
+{
+    g_afThrusterScreenX[object] = x;
+    g_afThrusterScreenY[object] = y;
+}
+
+void Wc1SdlGetThrusterScreenPosition(short object, float *x, float *y)
+{
+    *x = g_afThrusterScreenX[object];
+    *y = g_afThrusterScreenY[object];
+}
 
 void Wc1SdlSetVideoBackend(Wc1SdlVideoBackend backend)
 {

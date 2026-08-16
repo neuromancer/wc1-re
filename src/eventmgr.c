@@ -750,6 +750,10 @@ void draw_sorted_objects_to_buffer(void)
                              g_aObjectViewPosition_0059afa0[obj].y) /
                             g_aObjectViewPosition_0059afa0[obj].z);
             }
+        } else if (objectClass == OBJECT_CLASS_FIXED_OBJECT &&
+                   g_aeObjectType_0059b560[obj] == OBJECT_TYPE_THRUSTERS) {
+            Wc1SdlGetThrusterScreenPosition(
+                (short)obj, &enhancedScreenX, &enhancedScreenY);
         }
 #endif
         if (objectClass != OBJECT_CLASS_NULL) {
