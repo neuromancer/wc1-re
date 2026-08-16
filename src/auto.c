@@ -16,10 +16,10 @@ void visit_the_cinema(int view, int obj, short frames)
     int savedInputFlag;
     int savedKeyboardFlag;
 
-    savedOriginUnlock = g_nOriginDevUnlock_00469ff4;
+    savedOriginUnlock = g_nOriginDevUnlock_0049d774;
     savedInputFlag = DAT_00469ffc;
     savedKeyboardFlag = DAT_0046a000;
-    g_nOriginDevUnlock_00469ff4 = 1;
+    g_nOriginDevUnlock_0049d774 = 1;
     DAT_00469ffc = 0;
     DAT_0046a000 = 0;
     /* The retail call converts both int parameters implicitly.  Making the
@@ -31,7 +31,7 @@ void visit_the_cinema(int view, int obj, short frames)
         DIBslam();
         DIBslamReal();
     }
-    g_nOriginDevUnlock_00469ff4 = savedOriginUnlock;
+    g_nOriginDevUnlock_0049d774 = savedOriginUnlock;
     DAT_00469ffc = savedInputFlag;
     DAT_0046a000 = savedKeyboardFlag;
 }
@@ -228,11 +228,11 @@ void auto_pilot_sequence(void)
         cruiseSpeed = g_asShipMaximumSpeed_0059c440[0];
         for (ship = 0; ship < 10; ship++) {
             if (travelMode[ship] != 0 &&
-                g_aObjectTypeData_00466458[
-                    g_aeObjectType_0059b560[ship]].cruiseVelocity <
+                g_aObjectTypeData_00496d30[
+                    g_acObjectType_00493980[ship]].cruiseVelocity <
                     cruiseSpeed)
-                cruiseSpeed = g_aObjectTypeData_00466458[
-                    g_aeObjectType_0059b560[ship]].cruiseVelocity;
+                cruiseSpeed = g_aObjectTypeData_00496d30[
+                    g_acObjectType_00493980[ship]].cruiseVelocity;
         }
 
         formationSlot = 0;

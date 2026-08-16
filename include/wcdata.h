@@ -362,58 +362,66 @@ typedef struct CampaignVictoryProjectile {
 typedef char CampaignVictoryProjectile_size_must_be_0x16[
     sizeof(CampaignVictoryProjectile) == 0x16 ? 1 : -1];
 
-/* Runtime object-type records.  The 0x87-byte stride and the named fields are
- * fixed by accesses throughout the ship/object code; unknown slots retain
+/* WC2 runtime object-type records.  The 0xF3-byte stride and the named fields
+ * are fixed by accesses throughout the ship/object code; unknown slots retain
  * offset names until their purpose is established. */
 #pragma pack(push, 1)
 typedef struct ObjectTypeData {
-    const char *displayName;          /* +0x00 */
-    enum ObjectClass objectClass;     /* +0x04 */
-    short collisionRadius;            /* +0x08 */
-    short radarRadius;                /* +0x0A */
-    short scale;                      /* +0x0C */
-    short animationDelay;             /* +0x0E */
-    short lifetime;                   /* +0x10 */
-    short weaponDamage;               /* +0x12 */
-    short damageCapacity;             /* +0x14 */
-    short explosionDamage;            /* +0x16 */
-    short maximumVelocity;            /* +0x18 */
-    short cruiseVelocity;             /* +0x1A */
-    unsigned char *animation;         /* +0x1C */
-    int acceleration;                 /* +0x20 */
-    short pitchRate;                  /* +0x24 */
-    short yawRate;                    /* +0x26 */
-    short rollRate;                   /* +0x28 */
-    short afterburnerVelocity;        /* +0x2A */
-    unsigned char weaponLoadout[0x47];/* +0x2C */
-    short shieldFore;                 /* +0x73 */
-    short shieldAft;                  /* +0x75 */
-    short armorFront;                 /* +0x77 */
-    short armorRear;                  /* +0x79 */
-    short armorLeft;                  /* +0x7B */
-    short armorRight;                 /* +0x7D */
-    unsigned char *shapeSet;          /* +0x7F */
-    unsigned char *shape;             /* +0x83 */
+    char displayName[20];              /* +0x00 */
+    short objectClass;                 /* +0x14 */
+    short field_16;                    /* +0x16 */
+    short field_18;                    /* +0x18 */
+    short collisionRadius;             /* +0x1A */
+    short radarRadius;                 /* +0x1C */
+    short scale;                       /* +0x1E */
+    short animationDelay;              /* +0x20 */
+    short lifetime;                    /* +0x22 */
+    short weaponDamage;                /* +0x24 */
+    short damageCapacity;              /* +0x26 */
+    short explosionDamage;             /* +0x28 */
+    short maximumVelocity;             /* +0x2A */
+    short cruiseVelocity;              /* +0x2C */
+    unsigned char *animation;          /* +0x2E */
+    int acceleration;                  /* +0x32 */
+    short pitchRate;                   /* +0x36 */
+    short yawRate;                     /* +0x38 */
+    short rollRate;                    /* +0x3A */
+    short afterburnerVelocity;         /* +0x3C */
+    unsigned char weaponLoadout[0xA1]; /* +0x3E */
+    short shieldFore;                  /* +0xDF */
+    short shieldAft;                   /* +0xE1 */
+    short armorFront;                  /* +0xE3 */
+    short armorRear;                   /* +0xE5 */
+    short armorLeft;                   /* +0xE7 */
+    short armorRight;                  /* +0xE9 */
+    unsigned char *shapeSet;           /* +0xEB */
+    unsigned char *shape;              /* +0xEF */
 } ObjectTypeData;
 #pragma pack(pop)
 
 #ifndef WC1_SDL
-typedef char ObjectTypeData_size_must_be_0x87[
-    sizeof(ObjectTypeData) == 0x87 ? 1 : -1];
-typedef char ObjectTypeData_objectClass_must_be_at_0x04[
-    offsetof(ObjectTypeData, objectClass) == 0x04 ? 1 : -1];
-typedef char ObjectTypeData_weaponLoadout_must_be_at_0x2c[
-    offsetof(ObjectTypeData, weaponLoadout) == 0x2c ? 1 : -1];
+typedef char ObjectTypeData_size_must_be_0xf3[
+    sizeof(ObjectTypeData) == 0xf3 ? 1 : -1];
+typedef char ObjectTypeData_objectClass_must_be_at_0x14[
+    offsetof(ObjectTypeData, objectClass) == 0x14 ? 1 : -1];
+typedef char ObjectTypeData_weaponLoadout_must_be_at_0x3e[
+    offsetof(ObjectTypeData, weaponLoadout) == 0x3e ? 1 : -1];
 #endif
 
-/* Each ship weapon entry is seven packed bytes inside its 0x47-byte loadout. */
+/* WC2 stores sixteen ten-byte weapon entries after a signed count byte. */
 #pragma pack(push, 1)
 typedef struct ShipWeaponSlot {
-    enum ObjectType type;             /* +0x00 */
-    short hardpoint;                  /* +0x04 */
-    signed char disabled;             /* +0x06 */
+    short type;                        /* +0x00: spawned object type */
+    short hardpoint;                   /* +0x02 */
+    short field_4;                     /* +0x04 */
+    short field_6;                     /* +0x06 */
+    signed char disabled;              /* +0x08 */
+    signed char weaponType;            /* +0x09: object-data index */
 } ShipWeaponSlot;
 #pragma pack(pop)
+
+typedef char ShipWeaponSlot_size_must_be_0x0a[
+    sizeof(ShipWeaponSlot) == 0x0a ? 1 : -1];
 
 typedef struct ShortPoint {
     short x;

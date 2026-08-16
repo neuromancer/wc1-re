@@ -21,7 +21,7 @@ void SaveGamePalette(void)
     } while (entry < DAT_005a8a50 + 0x300);
 }
 
-/* Function start: 0x464021 */
+/* Function start: WC2_UNMAPPED */
 void RestoreGamePalette(void)
 {
     WaitForVerticalBlankThunk();
@@ -87,7 +87,7 @@ static const signed char g_acHazardPitchRange_00465050[8] = {
     -10, 4, -8, 8, -12, 8, -8, 8
 };
 
-/* Function start: 0x457587 */
+/* Function start: 0x417838 */
 void remove_hazard(signed char hazard)
 {
     g_aiSoundEffectSourceActive_005a66ec[(short)hazard + 1] = 0;
@@ -96,7 +96,7 @@ void remove_hazard(signed char hazard)
         MaxShort(0, (short)(g_nActiveHazards_00465044 - 1));
 }
 
-/* Function start: 0x4576AB */
+/* Function start: 0x41787A */
 void remove_all_hazards(void)
 {
     short slot = 0;
@@ -109,7 +109,7 @@ void remove_all_hazards(void)
     g_pActiveHazardField_0059bfe0 = 0;
 }
 
-/* Function start: 0x417AD7 */
+/* Function start: 0x4178E5 */
 short difficulty(void)
 {
     return (short)(abs(25 - (int)g_nHazardReferenceSpeed_00465040) * 2);
@@ -145,7 +145,7 @@ void skew_randomly(short obj, short allowReverse)
         negate_vector(&g_aShipForwardVector_0059bce0[obj]);
 }
 
-/* Function start: 0x433AB0 */
+/* Function start: 0x417AD7 */
 void align(short *value, short quantum)
 {
     short current;
@@ -235,7 +235,7 @@ void init_hazard(short obj, FixedVector position, short moving)
     g_acObjectCollisionGraceTicks_0059ddb0[obj] = 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x417EA4 */
 int near_field(const HazardField *field, const FixedVector *point)
 {
     return IsPointWithinRange((FixedVector *)&field->center,
@@ -243,7 +243,7 @@ int near_field(const HazardField *field, const FixedVector *point)
                               (short)(field->innerRadius + 4300));
 }
 
-/* Function start: 0x440831 */
+/* Function start: 0x417ED4 */
 short within_field(const HazardField *field, const FixedVector *point)
 {
     return IsPointWithinRange((FixedVector *)&field->center,
@@ -304,7 +304,7 @@ short rear_sphere(void)
                       4300, 3100);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4181A2 */
 int ok_hazard_spot(short obj)
 {
     int range = 4300;
@@ -316,7 +316,7 @@ int ok_hazard_spot(short obj)
                               (short)range);
 }
 
-/* Function start: 0x464C4B */
+/* Function start: 0x41820B */
 short make_hazard(void)
 {
     FixedVector spot;
@@ -330,7 +330,7 @@ short make_hazard(void)
     return obj;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x418288 */
 void extra_hazard(short obj)
 {
     if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_DUST)
@@ -361,14 +361,14 @@ void manage_hazard(short obj, short slot)
         remove_hazard((signed char)obj);
         return;
     }
-    if (g_aeObjectType_0059b560[obj] == OBJECT_TYPE_SPACE_MINE &&
+    if (g_acObjectType_00493980[obj] == OBJECT_TYPE_SPACE_MINE &&
         g_asObjectScreenX_0059d9b0[obj] != (short)0x8001 &&
         (unsigned short)g_asObjectDistance_0059b4a0[obj] > 1500 &&
         real_velocity(obj) < 20)
         approach(obj);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x418426 */
 void match_ship_to_eye(void)
 {
     g_aShipPosition_0059c490[0] = g_aShipPosition_0059c490[61];
@@ -406,7 +406,7 @@ void update_hazards(void)
         g_abHazardObjects_0046c028[emptySlot] = (signed char)make_hazard();
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4185CC */
 void start_hazard_field(short region)
 {
     short slot;
@@ -419,7 +419,7 @@ void start_hazard_field(short region)
     } while (slot++ < 3);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x418626 */
 void add_hazard_field(enum ObjectType type, FixedVector center,
                       short radius, short density)
 {
@@ -436,7 +436,7 @@ void add_hazard_field(enum ObjectType type, FixedVector center,
     g_nHazardFieldCount_0059c90c++;
 }
 
-/* Function start: 0x41787A */
+/* Function start: 0x4186A4 */
 void check_hazards(void)
 {
     HazardField *field;
@@ -488,7 +488,7 @@ void CheckLauncherAndConfig(void)
 #endif
 
     if (ReadCheaterFlagFromRegistry() != 0) {
-        *(unsigned char *)&g_nOriginDevUnlock_00469ff4 = 1;
+        *(unsigned char *)&g_nOriginDevUnlock_0049d774 = 1;
         *(unsigned char *)&DAT_00469ffc = 0;
         *(unsigned char *)&DAT_0046a000 = 0;
     }
@@ -827,7 +827,7 @@ unsigned int PumpWindowMessages(void)
     return DAT_005a8a3c;
 }
 
-/* Function start: 0x473CBA */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetF1KeyLatch(void)
 {
     return DAT_004650ac;
@@ -974,7 +974,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
 
 #endif
 
-/* Function start: 0x416690 */
+/* Function start: 0x4551E7 */
 int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
                                   unsigned int *buttons, short joystick,
                                   unsigned int fallback)
@@ -1022,7 +1022,7 @@ int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
     return 1;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x455346 */
 short GetJoystickButtons(void)
 {
     return ((short)g_aJoystickInfo_005a8970[1].wButtons << 2) |

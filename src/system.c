@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x410715 */
+/* Function start: WC2_UNMAPPED */
 void RunTrainSim(void)
 {
     unsigned int savedFrameState;
@@ -53,16 +53,16 @@ void RunTrainSim(void)
             ShowGetReadyScreen();
 
             if (DAT_004688e0 != 0) {
-                g_aasShipShield_0059d5b0[0][0] = 0;
-                g_aasShipMaximumShield_0059d6e0[0][0] = 0;
-                g_acPlayerComponentDamage_0059bff0[2] = 4;
-                g_aasShipShield_0059d5b0[0][1] = 0;
-                g_aasShipMaximumShield_0059d6e0[0][1] = 0;
+                g_aasShipShield_00495518[0][0] = 0;
+                g_aasShipMaximumShield_004954f0[0][0] = 0;
+                g_acPlayerComponentDamage_00493470[2] = 4;
+                g_aasShipShield_00495518[0][1] = 0;
+                g_aasShipMaximumShield_004954f0[0][1] = 0;
                 g_nArcadeTimeRemaining_005a7c2c = 100;
                 g_nCurrentWave_0046c01c = 2;
                 g_acShipDamage_0059c460[0] = (signed char)(
-                    g_aObjectTypeData_00466458[
-                        g_aeObjectType_0059b560[0]].damageCapacity + 1);
+                    g_aObjectTypeData_00496d30[
+                        g_acObjectType_00493980[0]].damageCapacity + 1);
                 set_up_next_wave();
                 g_nArcadeTimeRemaining_005a7c2c = 25;
             }
@@ -110,7 +110,7 @@ short LogMemoryUsage(void)
     GetMessagePumpResult();
     _chdir("..");
     ShutdownVideoHook(3);
-    if (g_nOriginDevUnlock_00469ff4 != 0) {
+    if (g_nOriginDevUnlock_0049d774 != 0) {
         SystemDebugPrintf(
             "Original FMem %lu.  Current FMem %lu.  Current NMem %u.\n",
             g_dwOriginalFreeMemory_005a7cd8,
@@ -142,9 +142,9 @@ unsigned int ShowMemoryStatusDebug(void)
     TextContext *previousContext;
     char value[60];
 
-    previousContext = g_pCurrentTextContext_0059af8c;
+    previousContext = g_pCurrentTextContext_005c8d1c;
     savedContext = g_stDefaultTextContext_005a7740;
-    if (g_nShowMemoryStatus_0046a00c != 0) {
+    if (g_nShowMemoryStatus_0049d784 != 0) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005a7740, 1,
             (unsigned char)g_cViewportClearColour_004699a0,
@@ -158,11 +158,11 @@ unsigned int ShowMemoryStatusDebug(void)
         DrawFormattedText("%X%YOriginal FMem %s.", 0, 0, value);
         g_stDefaultTextContext_005a7740 = savedContext;
     }
-    g_pCurrentTextContext_0059af8c = previousContext;
+    g_pCurrentTextContext_005c8d1c = previousContext;
     return 0;
 }
 
-/* Function start: 0x43CBD3 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetJoystickButtonEdge(unsigned int a, short b)
 {
     (void)a;

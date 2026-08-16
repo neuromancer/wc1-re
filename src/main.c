@@ -56,15 +56,15 @@ int main(short argc, char **argv)
          argumentIndex++) {
         argument = g_pStartupArguments_005a7b10[argumentIndex];
         if (strcmp("Origin", argument) == 0)
-            g_nOriginDevUnlock_00469ff4 = 1;
+            g_nOriginDevUnlock_0049d774 = 1;
 
         switch (argument[0]) {
         case '?':
             SystemDebugPrintf("Version %s.\n", g_pGameVersion_004693b4);
         case '-':
             if (argument[1] == 'm')
-                g_nShowMemoryStatus_0046a00c = 1;
-            if (g_nOriginDevUnlock_00469ff4 != 0) {
+                g_nShowMemoryStatus_0049d784 = 1;
+            if (g_nOriginDevUnlock_0049d774 != 0) {
                 switch (argument[1]) {
                 case 'b':
                     DAT_0046a000 = 0;
@@ -116,21 +116,21 @@ int main(short argc, char **argv)
             DAT_005a7d9c = 1;
             break;
         case 'l':
-            if (g_nOriginDevUnlock_00469ff4 != 0)
+            if (g_nOriginDevUnlock_0049d774 != 0)
                 launchMission = 1;
             break;
         case 'm':
-            if (g_nOriginDevUnlock_00469ff4 != 0)
+            if (g_nOriginDevUnlock_0049d774 != 0)
                 mission = (short)atoi(argument + 1);
             break;
         case 's':
-            if (g_nOriginDevUnlock_00469ff4 != 0) {
+            if (g_nOriginDevUnlock_0049d774 != 0) {
                 DAT_004688f0 = 1;
                 series = (short)atoi(argument + 1);
             }
             break;
         case 'w':
-            if (g_nOriginDevUnlock_00469ff4 != 0) {
+            if (g_nOriginDevUnlock_0049d774 != 0) {
                 animationDemo = 1;
                 mission = (short)atoi(argument + 1);
             }
@@ -213,7 +213,7 @@ int main(short argc, char **argv)
     }
 }
 
-/* Function start: 0x43D7F2 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetScreenUpdateFlag(void)
 {
     if (message_showing())
@@ -319,13 +319,15 @@ unsigned int InitializeConversationText(void)
     return 0;
 }
 
-/* Function start: 0x40963B */
-unsigned int RefreshMemoryStatusOverlay(void)
+/* Function start: 0x465EA9 */
+void RefreshMemoryStatusOverlay(void)
 {
     WaitForVerticalBlankThunk();
     CopyViewportContents(&DAT_005a76b0, &DAT_005a6ba0);
-    ShowMemoryStatusDebug();
-    return 0;
+    DIBslam();
+    DIBslamReal();
+    if (g_nShowMemoryStatus_0049d784 != 0)
+        ShowMemoryStatusDebug();
 }
 
 /* Function start: 0x465EE9 */
@@ -336,7 +338,7 @@ unsigned int Update_3Space(void)
     update_objects_in_space();
     set_eye_direction_and_position();
     servicetrack();
-    g_nSpaceFrame_0059b420++;
+    g_nSpaceFrame_00493134++;
     return 0;
 }
 
@@ -348,7 +350,7 @@ unsigned int TriggerPlayerHitPaletteFlash(void)
     return 0;
 }
 
-/* Function start: 0x418288 */
+/* Function start: 0x465F5B */
 unsigned int FadeFlightPaletteEntry(short *entry)
 {
     if (entry[0] != 0) {
@@ -382,17 +384,17 @@ unsigned int UpdateSpacePaletteFade(void)
     return 0;
 }
 
-/* Function start: 0x4186A4 */
+/* Function start: 0x46604F */
 unsigned int house_keep(void)
 {
     short palette;
 
     if (g_nCannedSceneMode_00469fac == 0 &&
         g_nTrainSimActive_00469e2c == 0) {
-        if ((g_nSpaceFrame_0059b420 & 0x1f) == 0)
+        if ((g_nSpaceFrame_00493134 & 0x1f) == 0)
             ReleaseStaleNavTarget();
         if (g_nHazardFieldCount_0059c90c != 0 &&
-            (g_nSpaceFrame_0059b420 & 0xf) == 0)
+            (g_nSpaceFrame_00493134 & 0xf) == 0)
             check_hazards();
     }
     if (DAT_0046c03c == 0) {
@@ -425,7 +427,7 @@ void init_player_input(void)
     g_bPointerMovedByKeyboard_005a7d54 = 1;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4661C2 */
 void get_player_input(void)
 {
     int device;
@@ -683,7 +685,7 @@ unsigned int players_flight_dynamics(void)
     if (g_aeSpecialManeuver_0059c3c0[0] ==
             SPECIAL_MANEUVER_BLOWING_UP) {
         if (g_asObjectCounter_0059c330[0] == -1) {
-            typeData = &g_aObjectTypeData_00466458[
+            typeData = &g_aObjectTypeData_00496d30[
                 g_stCampaignState_0059ca50.playerShipType];
             if (g_anObjectYawRotation_0059ce80[0] < typeData->pitchRate &&
                 g_anObjectPitchRotation_0059b2a0[0] < typeData->yawRate &&
@@ -697,7 +699,7 @@ unsigned int players_flight_dynamics(void)
         return 0;
     }
 
-    typeData = &g_aObjectTypeData_00466458[
+    typeData = &g_aObjectTypeData_00496d30[
         g_stCampaignState_0059ca50.playerShipType];
     g_anObjectPitchRotation_0059b2a0[0] =
         (short)((typeData->yawRate * g_nPitchInput_0059d3f0) / 8);

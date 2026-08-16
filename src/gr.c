@@ -45,7 +45,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
     clip->bottom = viewport->bottom - viewport->top;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x425B9E */
 void ClipViewportToScreen(Viewport *viewport)
 {
     ValidateViewportBounds(viewport, &g_stRasterSurface_004875a8,
@@ -284,7 +284,7 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x426694 */
 void __stdcall MarkActivePaletteEntries(Viewport *viewport,
                                          unsigned char *active)
 {
@@ -301,7 +301,7 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
     } while (index < 256);
 }
 
-/* Function start: 0x461D68 */
+/* Function start: 0x4266B1 */
 void __stdcall GetPaletteEntry(short index, unsigned short *rgb)
 {
     GetPaletteEntryAsWords(index, rgb);
@@ -651,7 +651,7 @@ int GetViewportPixel(Viewport *viewport, short x, short y)
                                (int)y - viewport->top);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x42722E */
 void DrawViewportLine(Viewport *viewport, short x1, short y1,
                       short x2, short y2, short colour)
 {
@@ -662,12 +662,12 @@ void DrawViewportLine(Viewport *viewport, short x1, short y1,
                     0, colour);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4272A5 */
 void TriangleRasterizerHook(void)
 {
 }
 
-/* Function start: 0x42722E */
+/* Function start: 0x427E1B */
 void DrawFilledViewportRect(Viewport *viewport, short left, short top,
                             short right, short bottom, short colour)
 {
@@ -745,7 +745,7 @@ void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
         DIBslam();
 }
 
-/* Function start: 0x440549 */
+/* Function start: WC2_UNMAPPED */
 void DrawSpriteScaled(Viewport *viewport, short x, short y,
                       unsigned char *shape, short frame, short angle,
                       short scale, short flip)
@@ -888,7 +888,7 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
     RasterLineHook(g_szSnowViewport_00470da4);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x428979 */
 void UpdateStreamerStoppedFlag(void)
 {
     if (DAT_00465058 != 0)
@@ -943,7 +943,7 @@ void Streamer_play(void)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x428A6D */
 void Streamer_stop(void)
 {
     if (DAT_00465058 != 0 && g_bStreamerAudioPlaying_00597748 != 0) {
@@ -960,7 +960,7 @@ void ClearStreamerTrigger(void)
         ix_streamer_set_trigger(-1);
 }
 
-/* Function start: 0x424113 */
+/* Function start: 0x428B3C */
 void Streamer_trigger(int trigger)
 {
     if (DAT_00465058 != 0) {
@@ -976,7 +976,7 @@ void Streamer_trigger(int trigger)
     }
 }
 
-/* Function start: 0x443631 */
+/* Function start: 0x428BAD */
 void SetStreamerIntensity(unsigned char intensity)
 {
     if (DAT_00465058 != 0) {

@@ -265,7 +265,7 @@ void IxSound::ix_sound_set_delete_on_stop(int enabled)
         flags &= ~IX_SOUND_DELETE_ON_STOP;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x46B0F8 */
 extern "C" int __fastcall ix_sound_is_playing(IxSound *sound)
 {
     return (sound->flags & IX_SOUND_PLAYING) != 0;

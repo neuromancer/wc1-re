@@ -128,9 +128,9 @@ TitleMenuRegion g_aTitleMenuRegions_00468a88[5] = {
 };
 
 PacketResourceDescriptor g_aIntroResourceDescriptors_00468ac0[3] = {
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_EXPLOSION1].shapeSet,
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_EXPLOSION1].shapeSet,
       3, 2 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet,
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet,
       3, 5 },
     { 0, 0, 0 }
 };
@@ -183,13 +183,13 @@ short NavMapLabelPositionAvailable(short x, short y,
     return available;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x450329 */
 void ResetNavMapReservedAreas(void)
 {
     g_nNavMapReservedAreaCount_00468710 = 0;
 }
 
-/* Function start: 0x43A29E */
+/* Function start: 0x45033D */
 void ReserveNavMapArea(short x, short y, short width, short height)
 {
     ShortRect *rectangle;
@@ -205,7 +205,7 @@ void ReserveNavMapArea(short x, short y, short width, short height)
     g_nNavMapReservedAreaCount_00468710 = area;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4503A7 */
 void ResetNavMapLabels(void)
 {
     g_nNavMapLabelCount_0046870c = 0;
@@ -338,7 +338,7 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
                           (short)(size * 2 + 1));
 }
 
-/* Function start: 0x43C570 */
+/* Function start: 0x4509C9 */
 void DrawNavSquareOutline(Viewport *viewport, short x, short y,
                           short size, signed char colour)
 {
@@ -373,7 +373,7 @@ void DrawNavSquareMarker(short x, short y, short size, short shadow,
     (void)shadow;
 }
 
-/* Function start: 0x450E98 */
+/* Function start: 0x450B03 */
 void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
                             short size, signed char colour)
 {
@@ -440,7 +440,7 @@ void DrawNavHazardMarker(FixedVector navPosition, FixedVector offset,
     PlaceNavMapLabel(x, y, textColour, text);
 }
 
-/* Function start: 0x450F1E */
+/* Function start: 0x450E98 */
 void DrawNavPlayerMarker(short colour, short reserve)
 {
     short x;
@@ -603,7 +603,7 @@ void FormatNavCoordinates(unsigned char *out)
     out[0] = tmp[3];
 }
 
-/* Function start: 0x418D14 */
+/* Function start: 0x451673 */
 void DrawSelectedNavLegendEntry(const char *text, short navPoint)
 {
     if ((short)g_cCurrentNavPointIndex_0059c86c == navPoint) {
@@ -1485,7 +1485,7 @@ unsigned int MoveNewCampaign(void)
     return 0;
 }
 
-/* Function start: 0x4407DA */
+/* Function start: WC2_UNMAPPED */
 unsigned int StartNewCampaign(short campaign)
 {
     DAT_004688f0 = 1;
@@ -1782,7 +1782,7 @@ void UpdateTitleMenuCursor(void)
     SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
 }
 
-/* Function start: 0x42F1FD */
+/* Function start: WC2_UNMAPPED */
 int Title_Sequence(void)
 {
     short frame;
@@ -1814,8 +1814,8 @@ int Title_Sequence(void)
         g_nSceneResourceBudget_005a7ce4 = 0x3e8000;
         g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
             g_aIntroResourceDescriptors_00468ac0, 0, 0x3e8000);
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_WING].shapeSet =
-            g_aObjectTypeData_00466458[
+        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+            g_aObjectTypeData_00496d30[
                 OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
         ClearInputKeyStatePreservingModifiers();
         FlushInputEvents();
@@ -1964,8 +1964,8 @@ int Title_Sequence(void)
         ReleasePacketHandle(g_pIntroFont_005a8960);
         ReleasePacketHandle(g_pTitleShape_005a7f08);
         FreeShapeSet(g_aIntroResourceDescriptors_00468ac0, 0);
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_WING].shapeSet =
-            g_aObjectTypeData_00466458[
+        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+            g_aObjectTypeData_00496d30[
                 OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
         free_all_slots();
         free_3Space();

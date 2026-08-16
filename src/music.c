@@ -137,7 +137,7 @@ unsigned int parse_view_script(void)
     return 0;
 }
 
-/* Function start: 0x4394A0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int update_scripted_view(void)
 {
     short counter;
@@ -403,7 +403,7 @@ void __stdcall CloseDataFileByHandle(unsigned short *handle)
     CloseDataFile(*handle);
 }
 
-/* Function start: 0x445AAC */
+/* Function start: WC2_UNMAPPED */
 void * __stdcall DecompressPacketSection(
     PacketSectionHandle *handle, void *destination, unsigned short flags,
     void *decompressionWorkspace)
@@ -575,8 +575,8 @@ void show_target_disp(void)
         return;
     }
     targetIndex = (int)target;
-    objectType = g_aeObjectType_0059b560[targetIndex];
-    typeData = &g_aObjectTypeData_00466458[objectType];
+    objectType = g_acObjectType_00493980[targetIndex];
+    typeData = &g_aObjectTypeData_00496d30[objectType];
     rating = g_acShipRating_0059cd80[targetIndex];
     if (rating >= 0 && rating <= 7) {
         DrawFormattedText(
@@ -600,7 +600,7 @@ void show_target_disp(void)
     x = (short)(DAT_005a7530.left + 0x25);
     y = (short)(DAT_005a7530.top + 0x26);
     frame = (short)((3 - MinShort(
-        (short)((g_aasShipShield_0059d5b0[targetIndex][1] * 6) /
+        (short)((g_aasShipShield_00495518[targetIndex][1] * 6) /
                 typeData->shieldAft), 3)) * 2);
     if (frame < 6)
         DrawSpriteDefault(&DAT_005a7530, x, y,
@@ -629,7 +629,7 @@ void show_target_disp(void)
 
     DrawSpriteDefault(&DAT_005a7530, x, y, typeData->shape, 2);
     frame = (short)((3 - MinShort(
-        (short)((g_aasShipShield_0059d5b0[targetIndex][0] * 6) /
+        (short)((g_aasShipShield_00495518[targetIndex][0] * 6) /
                 typeData->shieldFore), 3)) * 2);
     if (frame < 6)
         DrawSpriteDefault(&DAT_005a7530, x, y,
@@ -1258,7 +1258,7 @@ void gametrack(void)
             return;
         }
         if (g_nCombatMusicActive_0046aa3c != 0) {
-            if ((g_nSpaceFrame_0059b420 & 0xf) == 0 ||
+            if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
                 g_nMusicTrackComplete_0046aa04 != 0) {
                 if (g_nInitialFlightMusicPending_0046aa38 != 0)
                     g_nInitialFlightMusicPending_0046aa38 = 0;
@@ -1278,7 +1278,7 @@ void gametrack(void)
                 if (report_kilrathi_rout(1) == 0)
                     g_nCombatMusicActive_0046aa3c = 0;
             }
-        } else if ((g_nSpaceFrame_0059b420 & 0xf) == 0 ||
+        } else if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
                    g_nMusicTrackComplete_0046aa04 != 0) {
             track = changetrack();
             if (report_kilrathi_rout(2) != 0)
@@ -1336,9 +1336,9 @@ void servicetrack(void)
                         g_nPassingShipSoundCountdown_0046aa4c = 10;
                         g_nPassingShipSoundObject_0046aa48 = object;
                         if (g_nPassingShipSoundCooldown_005a68e8 <
-                            g_nSpaceFrame_0059b420) {
+                            g_nSpaceFrame_00493134) {
                             g_nPassingShipSoundCooldown_005a68e8 =
-                                g_nSpaceFrame_0059b420 + 6;
+                                g_nSpaceFrame_00493134 + 6;
                             PlaySfxWaveFileByNumber(2, object, 0);
                         }
                     }
@@ -1361,7 +1361,7 @@ void ResetSoundState(void)
     DAT_005a7ec0 = 0;
 }
 
-/* Function start: 0x4732E0 */
+/* Function start: WC2_UNMAPPED */
 void ResetSoundStateForScene(void)
 {
     ResetSoundState();

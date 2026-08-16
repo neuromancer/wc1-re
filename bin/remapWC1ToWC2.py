@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import csv
 import difflib
+import io
 import re
 import sys
 from dataclasses import dataclass
@@ -26,6 +27,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_MAP = ROOT / "ghidra_scripts" / "wc1_wc2_name_map.tsv"
+DEFAULT_MANIFEST = ROOT / "reports" / "wc2-address-remap.tsv"
 SOURCE_ROOT = ROOT / "src"
 METADATA_HEADERS = (
     ROOT / "include" / "wc1.h",
@@ -44,6 +46,7 @@ HEADER_RE = re.compile(
 ADDRESS_COMMENT_RE = re.compile(
     r"/\*\s*(?:"
     r"(?P<raw>0x[0-9A-Fa-f]+)"
+    r"|(?P<unmapped>WC2\s+unmapped)"
     r"|WC2\s+(?P<wc2>0x[0-9A-Fa-f]+|unmapped);\s*"
     r"WC1\s+0x(?P<original>[0-9A-Fa-f]+)"
     r")\s*\*/"
@@ -81,6 +84,14 @@ class Marker:
     mapping_name: str
     evidence: str
     review_flags: str
+
+
+@dataclass(frozen=True)
+class Provenance:
+    by_destination: dict[int, int]
+    by_symbol: dict[tuple[str, str], int]
+    by_name: dict[str, int]
+    wc2_only_by_symbol: dict[tuple[str, str], int]
 
 
 def parse_address(text: str) -> int:
@@ -130,6 +141,63 @@ def load_map(path: Path) -> dict[int, Mapping]:
     return result
 
 
+def load_provenance(path: Path) -> Provenance:
+    """Load WC1 origins retained outside the converted source tree.
+
+    A destination lookup handles already-mapped functions.  The path/name
+    lookup is needed for WC2_UNMAPPED functions that acquire a mapping during
+    a later review pass.
+    """
+    if not path.is_file():
+        raise SystemExit(f"error: provenance manifest not found: {path}")
+
+    with path.open(newline="", encoding="utf-8") as stream:
+        reader = csv.DictReader(stream, delimiter="\t")
+        required = {"source_file", "wc1_address", "wc2_address", "source_name"}
+        if reader.fieldnames is None or not required.issubset(reader.fieldnames):
+            raise SystemExit("error: unexpected WC2 remap manifest schema")
+
+        by_destination: dict[int, int] = {}
+        wc2_only_by_symbol: dict[tuple[str, str], int] = {}
+        symbols: dict[tuple[str, str], set[int]] = {}
+        names: dict[str, set[int]] = {}
+        for row in reader:
+            key = (row["source_file"], row["source_name"])
+            if not row["wc1_address"]:
+                if row["wc2_address"] and row.get("status") == "wc2-only":
+                    wc2_only_by_symbol[key] = parse_address(row["wc2_address"])
+                continue
+            source = parse_address(row["wc1_address"])
+            if row["wc2_address"]:
+                destination = parse_address(row["wc2_address"])
+                previous = by_destination.setdefault(destination, source)
+                if previous != source:
+                    raise SystemExit(
+                        "error: conflicting provenance for WC2 destination "
+                        f"{format_address(destination)}"
+                    )
+            symbols.setdefault(key, set()).add(source)
+            if row["source_name"]:
+                names.setdefault(row["source_name"], set()).add(source)
+
+    by_symbol = {
+        key: next(iter(sources))
+        for key, sources in symbols.items()
+        if len(sources) == 1 and key[1]
+    }
+    by_name = {
+        name: next(iter(sources))
+        for name, sources in names.items()
+        if len(sources) == 1
+    }
+    return Provenance(
+        by_destination=by_destination,
+        by_symbol=by_symbol,
+        by_name=by_name,
+        wc2_only_by_symbol=wc2_only_by_symbol,
+    )
+
+
 def source_files() -> list[Path]:
     return sorted(
         path
@@ -142,11 +210,14 @@ def original_address(
     match: re.Match[str],
     destinations: dict[int, Mapping],
     from_wc1: bool,
+    provenance_source: int | None = None,
 ) -> int | None:
     original = match.group("original")
     if original is not None:
         return parse_address(original)
     active = match.group("active")
+    if not from_wc1 and provenance_source is not None:
+        return provenance_source
     if active == "WC2_UNMAPPED":
         return None
     address = parse_address(active)
@@ -173,6 +244,7 @@ def rewrite_source(
     path: Path,
     mappings: dict[int, Mapping],
     from_wc1: bool,
+    provenance: Provenance | None,
 ) -> tuple[str, list[Marker]]:
     old_text = path.read_text(encoding="utf-8")
     lines = old_text.splitlines(keepends=True)
@@ -188,7 +260,46 @@ def rewrite_source(
             rewritten.append(line)
             continue
 
-        source = original_address(match, destinations, from_wc1)
+        source_name = find_source_name(lines, line_number)
+        symbol_key = (str(path.relative_to(ROOT)), source_name)
+        wc2_only_destination = None
+        if provenance is not None:
+            wc2_only_destination = provenance.wc2_only_by_symbol.get(symbol_key)
+        if wc2_only_destination is not None:
+            active = format_address(wc2_only_destination)
+            replacement = (
+                f"{match.group('indent')}/* Function start: {active}"
+                f"{match.group('inside')} */"
+                f"{match.group('tail')}{ending}"
+            )
+            rewritten.append(replacement)
+            markers.append(
+                Marker(
+                    path=path,
+                    line=line_number,
+                    source=None,
+                    destination=wc2_only_destination,
+                    source_name=source_name,
+                    mapping_name=source_name,
+                    evidence="WC2-only",
+                    review_flags="",
+                )
+            )
+            continue
+
+        provenance_source = None
+        if provenance is not None:
+            provenance_source = provenance.by_symbol.get(
+                symbol_key
+            )
+            active = match.group("active")
+            if provenance_source is None and active != "WC2_UNMAPPED":
+                provenance_source = provenance.by_destination.get(
+                    parse_address(active)
+                )
+        source = original_address(
+            match, destinations, from_wc1, provenance_source
+        )
         mapping = None if source is None else mappings.get(source)
         if mapping is None:
             active = "WC2_UNMAPPED"
@@ -215,7 +326,7 @@ def rewrite_source(
                 line=line_number,
                 source=source,
                 destination=destination,
-                source_name=find_source_name(lines, line_number),
+                source_name=source_name,
                 mapping_name=mapping_name,
                 evidence=evidence,
                 review_flags=review_flags,
@@ -225,24 +336,53 @@ def rewrite_source(
     return "".join(rewritten), markers
 
 
+def find_header_function_name(text: str, comment_start: int) -> str:
+    statement_end = text.rfind(";", 0, comment_start)
+    if statement_end < 0:
+        statement_end = comment_start
+    previous_semicolon = text.rfind(";", 0, statement_end)
+    previous_open_brace = text.rfind("{", 0, statement_end)
+    previous_close_brace = text.rfind("}", 0, statement_end)
+    statement_start = max(
+        previous_semicolon, previous_open_brace, previous_close_brace
+    )
+    statement = text[statement_start + 1 : statement_end]
+    statement = re.sub(r"/\*.*?\*/", " ", statement, flags=re.DOTALL)
+    statement = re.sub(r"//[^\n]*", " ", statement)
+    for function_match in FUNCTION_NAME_RE.finditer(statement):
+        name = re.sub(r"\s+", " ", function_match.group(1))
+        if name not in FUNCTION_NAME_SKIP:
+            return name
+    return ""
+
+
 def rewrite_metadata_header(
     path: Path,
     mappings: dict[int, Mapping],
     from_wc1: bool,
+    provenance: Provenance | None,
 ) -> str:
     old_text = path.read_text(encoding="utf-8")
+    destinations = {mapping.destination: mapping for mapping in mappings.values()}
 
     def replacement(match: re.Match[str]) -> str:
         if match.group("original") is not None:
             source = parse_address(match.group("original"))
-        else:
+        elif from_wc1 and match.group("raw") is not None:
             address = parse_address(match.group("raw"))
-            # The converted branch stores only WC2 addresses. Raw comments are
-            # therefore already final, including external CRT functions that
-            # are outside the developer-name transfer map.
-            if not from_wc1:
-                return f"/* {format_address(address)} */"
             source = address
+        elif provenance is not None:
+            name = find_header_function_name(old_text, match.start())
+            source = provenance.by_name.get(name)
+            if source is None:
+                raw = match.group("raw")
+                if raw is not None:
+                    address = parse_address(raw)
+                    if address in destinations:
+                        return f"/* {format_address(address)} */"
+                return match.group(0)
+        else:
+            return match.group(0)
         mapping = mappings.get(source)
         if mapping is None:
             return "/* WC2 unmapped */"
@@ -254,18 +394,23 @@ def rewrite_metadata_header(
 def compute_changes(
     mappings: dict[int, Mapping],
     from_wc1: bool = False,
+    provenance: Provenance | None = None,
 ) -> tuple[dict[Path, str], list[Marker]]:
     changes: dict[Path, str] = {}
     markers: list[Marker] = []
 
     for path in source_files():
-        new_text, file_markers = rewrite_source(path, mappings, from_wc1)
+        new_text, file_markers = rewrite_source(
+            path, mappings, from_wc1, provenance
+        )
         markers.extend(file_markers)
         if new_text != path.read_text(encoding="utf-8"):
             changes[path] = new_text
 
     for path in METADATA_HEADERS:
-        new_text = rewrite_metadata_header(path, mappings, from_wc1)
+        new_text = rewrite_metadata_header(
+            path, mappings, from_wc1, provenance
+        )
         if new_text != path.read_text(encoding="utf-8"):
             changes[path] = new_text
 
@@ -312,8 +457,9 @@ def print_summary(markers: list[Marker], mappings: dict[int, Mapping]) -> None:
         print(f"mapped_percent={mapped / len(markers) * 100:.2f}")
 
 
-def print_manifest(markers: list[Marker]) -> None:
-    writer = csv.writer(sys.stdout, delimiter="\t", lineterminator="\n")
+def render_manifest(markers: list[Marker]) -> str:
+    stream = io.StringIO()
+    writer = csv.writer(stream, delimiter="\t", lineterminator="\n")
     writer.writerow(
         (
             "source_file",
@@ -338,14 +484,24 @@ def print_manifest(markers: list[Marker]) -> None:
                 marker.mapping_name,
                 marker.evidence,
                 marker.review_flags,
-                "unmapped" if marker.destination is None else "mapped",
+                (
+                    "unmapped"
+                    if marker.destination is None
+                    else "wc2-only"
+                    if marker.source is None
+                    else "mapped"
+                ),
             )
         )
+    return stream.getvalue()
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--map", type=Path, default=DEFAULT_MAP)
+    parser.add_argument(
+        "--provenance-manifest", type=Path, default=DEFAULT_MANIFEST
+    )
     parser.add_argument(
         "--from-wc1",
         action="store_true",
@@ -356,10 +512,16 @@ def main() -> int:
     action.add_argument("--check", action="store_true")
     action.add_argument("--summary", action="store_true")
     action.add_argument("--manifest", action="store_true")
+    action.add_argument("--manifest-patch", action="store_true")
     args = parser.parse_args()
 
     mappings = load_map(args.map.resolve())
-    changes, markers = compute_changes(mappings, from_wc1=args.from_wc1)
+    provenance = None
+    if not args.from_wc1:
+        provenance = load_provenance(args.provenance_manifest.resolve())
+    changes, markers = compute_changes(
+        mappings, from_wc1=args.from_wc1, provenance=provenance
+    )
 
     if args.patch:
         if not changes:
@@ -380,14 +542,19 @@ def main() -> int:
         print_summary(markers, mappings)
         print(f"files_requiring_remap={len(changes)}")
         return 0
-    if args.manifest:
-        if any(marker.source is None for marker in markers):
+    if args.manifest or args.manifest_patch:
+        if any(
+            marker.source is None and marker.destination is None
+            for marker in markers
+        ):
             raise SystemExit(
-                "error: converted source no longer carries unresolved WC1 "
-                "addresses; use reports/wc2-address-remap.tsv, or run "
-                "--manifest --from-wc1 on the predecessor tree"
+                "error: one or more source markers lack WC1 provenance"
             )
-        print_manifest(markers)
+        manifest = render_manifest(markers)
+        if args.manifest_patch:
+            emit_patch({args.provenance_manifest.resolve(): manifest})
+        else:
+            sys.stdout.write(manifest)
         return 0
     return 2
 

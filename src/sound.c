@@ -166,7 +166,7 @@ void PlaySnowStaticSound(void)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x42476B */
 void ServiceSoundSystem(void)
 {
     ix_system_service_sounds();
@@ -384,7 +384,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         (unsigned char *)FetchDiskPacketRetrying(1, 4, 0);
     g_pScrambleViewport_005a86b4 = &DAT_005a7510;
     object = (short)sceneObject;
-    fighterShape = g_aObjectTypeData_00466458[
+    fighterShape = g_aObjectTypeData_00496d30[
         g_stCampaignState_0059ca50.playerShipType].shapeSet;
     fighterScreenY = 64;
     fighterScreenX = 20;
@@ -461,7 +461,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             dump_buffer_to_screen();
         }
         fighterScreenX = (short)(fighterScreenX + 2);
-        g_nSpaceFrame_0059b420++;
+        g_nSpaceFrame_00493134++;
         g_nScrambleBackgroundRightX_005a8714 =
             (short)(g_nScrambleBackgroundRightX_005a8714 - 2);
         approachDistance = (short)(approachDistance + 2);
@@ -856,7 +856,7 @@ void show_damage_disp(void)
     g_nDamageDisplayState_005a77e0 = 0;
     g_cDamagedComponentCount_005a77de = 0;
     for (component = 0; component < 9; component++) {
-        if (g_acPlayerComponentDamage_0059bff0[component] >= 1)
+        if (g_acPlayerComponentDamage_00493470[component] >= 1)
             g_cDamagedComponentCount_005a77de++;
     }
 
@@ -901,7 +901,7 @@ void UpdateDamageDisplay(void)
 
     componentCount = 0;
     for (component = 0; component < 9; component++) {
-        if (g_acPlayerComponentDamage_0059bff0[component] >= 1)
+        if (g_acPlayerComponentDamage_00493470[component] >= 1)
             componentCount++;
     }
 
@@ -927,7 +927,7 @@ void UpdateDamageDisplay(void)
                 component++;
                 if (component >= 9)
                     component = 0;
-                damage = g_acPlayerComponentDamage_0059bff0[component];
+                damage = g_acPlayerComponentDamage_00493470[component];
                 g_nDisplayedComponentDamage_00476554 = (int)damage;
                 if (g_nDisplayedComponentDamage_00476554 >= 1) {
                     g_cDamageDisplayComponent_005a77dc = component;
@@ -1009,7 +1009,7 @@ void UpdateDamageDisplay(void)
             if (component >= 9)
                 component = 0;
             g_nDisplayedComponentDamage_00476554 =
-                (int)g_acPlayerComponentDamage_0059bff0[component];
+                (int)g_acPlayerComponentDamage_00493470[component];
             if (g_nDisplayedComponentDamage_00476554 >= 1) {
                 g_cDamageDisplayComponent_005a77dc = component;
                 return;

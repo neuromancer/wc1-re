@@ -229,7 +229,7 @@ extern "C" long ix_file_tell(FILE *file)
     return ftell(file);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x48C4E8 */
 extern "C" unsigned int ix_file_read(FILE *file, void *destination,
                                       unsigned int bytes)
 {

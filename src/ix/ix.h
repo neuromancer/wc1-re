@@ -276,7 +276,7 @@ extern "C" void __fastcall ix_sound_start(IxSound *sound); /* 0x46A758 */
 extern "C" void __fastcall ix_sound_release(IxSound *sound); /* 0x46AA9E */
 void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x46A5FA */
 extern "C" void __fastcall ix_sound_stop(IxSound *sound);   /* 0x46AB4F */
-extern "C" int __fastcall ix_sound_is_playing(IxSound *sound); /* WC2 unmapped */
+extern "C" int __fastcall ix_sound_is_playing(IxSound *sound); /* 0x46B0F8 */
 
 /* --------------------------------------------------------------------------
  * Streamer.  Global state word at 0x00597CD0; wake event at 0x00597CD4.
@@ -444,7 +444,7 @@ extern "C" void ix_file_close(FILE *file);       /* 0x48C48E */
 extern "C" void ix_file_seek(FILE *file, long position); /* 0x48C4AA */
 extern "C" long ix_file_tell(FILE *file);        /* 0x48C4CC */
 extern "C" unsigned int ix_file_read(FILE *file, void *destination,
-                                      unsigned int bytes); /* WC2 unmapped */
+                                      unsigned int bytes); /* 0x48C4E8 */
 extern "C" long ix_file_size(FILE *file);        /* 0x48C534 */
 
 extern unsigned int *g_pStreamerPacketOffsets_00597bd0;

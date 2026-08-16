@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x46F3D0 */
+/* Function start: WC2_UNMAPPED */
 short MinShort(short a, short b)
 {
     if (a < b)

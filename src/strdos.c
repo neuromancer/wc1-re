@@ -30,7 +30,7 @@ char *__stdcall DosStrchr(const char *s, short c)
     return strchr(s, (int)c);
 }
 
-/* Function start: 0x42476B */
+/* Function start: WC2_UNMAPPED */
 char *__stdcall DosStrcpy(char *dst, const char *src)
 {
     return strcpy(dst, src);

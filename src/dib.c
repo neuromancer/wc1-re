@@ -23,7 +23,7 @@ void ReportSpaceFlightMaxFps(float adjustment)
         SetSpaceFlightFrameTiming();
 }
 
-/* Function start: 0x45CF3B */
+/* Function start: 0x45CF7F */
 void SetSpaceFlightFrameTiming(void)
 {
     DAT_0046b1c8 = 1;
@@ -31,7 +31,7 @@ void SetSpaceFlightFrameTiming(void)
     DAT_0046b1bc = 0;
 }
 
-/* Function start: 0x45CF7F */
+/* Function start: 0x45CFC3 */
 void SetCinematicFrameTiming(void)
 {
     DAT_0046b1c8 = 0;
@@ -294,7 +294,7 @@ int DIBcascade(int mode, int *reportedResult)
 #endif
 }
 
-/* Function start: 0x428A6D */
+/* Function start: 0x45D78C */
 /* Full teardown: destroy the DIB, release its surfaces, restore the display
  * mode and release DirectDraw itself. */
 void DIBunInstall(void)
@@ -424,7 +424,7 @@ void DIBdestroyDIB(void)
 #endif
 }
 
-/* Function start: 0x45DB8C */
+/* Function start: 0x45DC19 */
 void DIBslam(void)
 {
     DAT_00486518 = 1;
@@ -671,13 +671,13 @@ unsigned char *GetDIBPixelBuffer(void)
     return DAT_00476648;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x45E2C5 */
 HWND GetDIBWindowHandle(void)
 {
     return DAT_00486074;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x45E2DA */
 void CachePaletteEntryFromWords(short index, unsigned short *rgb)
 {
     int cacheOffset = index * 4;
@@ -775,7 +775,7 @@ void DIBsetPalette(short index, short *rgb)
     }
 }
 
-/* Function start: 0x45E9C5 */
+/* Function start: 0x45E61C */
 void GetPaletteEntryAsWords(short i, unsigned short *rgb)
 {
     extern unsigned char DAT_00486110[];
@@ -894,7 +894,7 @@ void DIBwholePaletteFromWords(unsigned short *palette)
 #endif
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x45E9C5 */
 void DIBwaitForVerticalBlank(void)
 {
 #ifdef WC1_SDL

@@ -124,7 +124,7 @@ int bad_target(short ship, short target)
     return 1;
 }
 
-/* Function start: 0x41F337 */
+/* Function start: WC2_UNMAPPED */
 short can_land(void)
 {
     int *objectiveType;
@@ -156,7 +156,7 @@ next_objective:
     return result;
 }
 
-/* Function start: 0x41693A */
+/* Function start: WC2_UNMAPPED */
 short i_wanna_rout(short ship, int pilot)
 {
     if (pilot <= 4)
@@ -406,7 +406,7 @@ unsigned short IsSoundHardwarePresent(short device)
     return 1;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x458E39 */
 void MessagePumpHook(int mode)
 {
     TimerStopHook();
@@ -456,7 +456,7 @@ int IsPushedPacketHandle(void *handle)
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x458F5A */
 void *MapPacketHandleToBlock(void *handle)
 {
     int count = g_nPacketHandleCount_005a6530;
@@ -529,7 +529,7 @@ void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
     return memory;
 }
 
-/* Function start: 0x428B3C */
+/* Function start: 0x459082 */
 void ReleasePacketHandle(void *handle)
 {
     int group = 4;
@@ -549,7 +549,7 @@ void ReleasePacketHandle(void *handle)
     FreeGuardedAllocation(MapPacketHandleToBlock(handle));
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x459134 */
 /* Tail-jump thunk to 0x004362E0, not a constant return -- Ghidra followed the
  * jump and folded the callee's body into the display.  The optimized compiler
  * emits the tail jump from this forwarding return. */
@@ -582,14 +582,14 @@ void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
                          &g_aShipPosition_0059c490[*object]);
         g_asObjectViewFrame_0059d230[*object] = frame;
         g_asObjectScreenAngle_0059cd90[*object] = type;
-        g_aeObjectType_0059b560[*object] =
+        g_acObjectType_00493980[*object] =
             (enum ObjectType)g_asObjectScreenAngle_0059cd90[*object];
         g_asObjectScreenScale_0059c950[*object] = scale;
         g_apObjectShape_0059d2f0[*object] = shape;
     }
 }
 
-/* Function start: 0x433C84 */
+/* Function start: WC2_UNMAPPED */
 unsigned int ShowCampaignVictorySequence(void)
 {
     CampaignVictoryProjectile projectiles[16];
@@ -814,7 +814,7 @@ unsigned int ShowCampaignVictorySequence(void)
     return 0;
 }
 
-/* Function start: 0x446823 */
+/* Function start: WC2_UNMAPPED */
 unsigned int ShowTigerClawEscapeScene(void)
 {
     unsigned char *escapeShape;
@@ -835,9 +835,9 @@ unsigned int ShowTigerClawEscapeScene(void)
     set_up_action_sphere(0x13);
     escapeShape =
         FetchDiskPacketRetrying(9, 2, 0);
-    if (g_aObjectTypeData_00466458[
+    if (g_aObjectTypeData_00496d30[
             OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet == 0) {
-        g_aObjectTypeData_00466458[
+        g_aObjectTypeData_00496d30[
             OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet =
                 FetchDiskPacketRetrying(3, 14, 0);
     }
@@ -920,9 +920,9 @@ unsigned int ShowTigerClawEscapeScene(void)
         DIBslamReal();
     } while (frame < 260);
 
-    ReleasePacketHandle(g_aObjectTypeData_00466458[
+    ReleasePacketHandle(g_aObjectTypeData_00496d30[
         OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet);
-    g_aObjectTypeData_00466458[
+    g_aObjectTypeData_00496d30[
         OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet = 0;
     ReleasePacketHandle(escapeShape);
     free_all_slots();
@@ -1237,7 +1237,7 @@ void LoadCommPortraitShape(short face, signed char alternate)
                                                      (short)alternate);
 }
 
-/* Function start: 0x438CEB */
+/* Function start: WC2_UNMAPPED */
 void ResetCommMenuChoices(short reuse)
 {
     short choice;
@@ -1261,7 +1261,7 @@ int IsCommMenuIdle(void)
     return g_nCommMenuChoiceCount_0046af60 == 0;
 }
 
-/* Function start: 0x40A981 */
+/* Function start: 0x4473FC */
 void AppendCommMenuChoice(const char *text, short command)
 {
     short index;
@@ -1278,7 +1278,7 @@ void AppendCommMenuChoice(const char *text, short command)
     g_abCommMenuChoiceCommand_0059e488[index] = (signed char)command;
 }
 
-/* Function start: 0x447369 */
+/* Function start: 0x447479 */
 void SendCommMenuChoice(short i)
 {
     AppendCommMenuChoice(g_apszCommMenuText_0046af90[i], i);
@@ -1291,7 +1291,7 @@ void OpenCommMenuForTarget(const char *heading, const char *message)
     g_pszCommMenuHeading_0059e490 = heading;
 }
 
-/* Function start: 0x4534FC */
+/* Function start: 0x4474F4 */
 int IsCommChoiceMenuOpen(void)
 {
     return get_mode(1) == 4;
@@ -1316,7 +1316,7 @@ void OpenCommRecipientMenu(void)
     SetPendingMenuAction(1);
 }
 
-/* Function start: 0x4474F4 */
+/* Function start: 0x447544 */
 void CloseCommChoiceMenu(void)
 {
     if (get_mode(1) == 4) {
@@ -1333,7 +1333,7 @@ int wingman_dead(void)
     return g_nYourWingman_0046c04c == -1;
 }
 
-/* Function start: 0x447479 */
+/* Function start: 0x44759B */
 short have_target(void)
 {
     return unactive(g_acShipTarget_0059ce60[0]) == 0;
@@ -1349,7 +1349,7 @@ unsigned short CanOpenCommMenu(void)
     return 1;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x44760F */
 void SelectCommRecipient(short recipient)
 {
     g_cCommMenuRecipient_0046afc4 = recipient;
@@ -1390,13 +1390,13 @@ void BuildCommunicationRecipientMenu(void)
             if (g_aeShipSide_0059d650[target] != SIDE_IMPERIAL ||
                 ((g_aeObjectClass_0059d100[target] != OBJECT_CLASS_SHIP ||
                   any_enemy(0, 14000) == 0) &&
-                 g_aeObjectType_0059b560[target] !=
+                 g_acObjectType_00493980[target] !=
                      OBJECT_TYPE_TIGERS_CLAW)) {
                 goto finish_recipient_menu;
             }
             command = 3;
-            text = g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[target]].displayName;
+            text = g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[target]].displayName;
         }
         AppendCommMenuChoice(text, command);
     }
@@ -1432,7 +1432,7 @@ void BuildCommunicationCommandMenu(void)
     }
     if (g_aeShipSide_0059d650[g_cCommMenuRecipient_0046afc4] ==
             g_aeShipSide_0059d650[0]) {
-        if (g_aeObjectType_0059b560[g_cCommMenuRecipient_0046afc4] ==
+        if (g_acObjectType_00493980[g_cCommMenuRecipient_0046afc4] ==
                 OBJECT_TYPE_TIGERS_CLAW &&
             g_bLandingAuthorized_00468ff8 == 0) {
             SendCommMenuChoice(12);
@@ -1463,8 +1463,8 @@ void BuildCommunicationCommandMenu(void)
                "VID-COM SYSTEM\n\nTo: ");
         rating = g_acShipRating_0059cd80[g_cCommMenuRecipient_0046afc4];
         if (rating == -1) {
-            name = g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[
+            name = g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[
                     g_cCommMenuRecipient_0046afc4]].displayName;
         } else if (rating < 8) {
             name = g_apWingmanPilots_00598a30[rating]->callsign;
@@ -1580,13 +1580,13 @@ unsigned int Chosen_communicate_option(short choice)
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x448008 */
 void talk_equiv(void)
 {
     RefreshCommunicationMenu();
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x44804A */
 void FreeCommDisplayResources(void)
 {
 #ifdef WC1_SDL
@@ -1783,16 +1783,16 @@ void real_vid_transmit(short obj, short message)
     } else {
 #ifdef WC1_SDL
         sprintf(text, "%s: %s",
-                g_aObjectTypeData_00466458[
+                g_aObjectTypeData_00496d30[
                     *(enum ObjectType *)(void *)
-                        ((unsigned char *)g_aeObjectType_0059b560 +
+                        ((unsigned char *)g_acObjectType_00493980 +
                          objectOffset)].displayName,
                 speech);
 #else
         sprintf(text, g_szShipCommFormat_0046b160,
-                g_aObjectTypeData_00466458[
+                g_aObjectTypeData_00496d30[
                     *(enum ObjectType *)(void *)
-                        ((unsigned char *)g_aeObjectType_0059b560 +
+                        ((unsigned char *)g_acObjectType_00493980 +
                          objectOffset)].displayName,
                 speech);
 #endif
@@ -1801,7 +1801,7 @@ void real_vid_transmit(short obj, short message)
     ShowCentredPrompt(expandedText, (unsigned short)MeasureMessageWidth(text));
 }
 
-/* Function start: 0x458E39 */
+/* Function start: WC2_UNMAPPED */
 void __stdcall ShutdownVideoHook(short mode)
 {
     ReleaseVideoResourcesHook();

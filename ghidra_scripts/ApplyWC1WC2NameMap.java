@@ -333,7 +333,8 @@ public class ApplyWC1WC2NameMap extends GhidraScript {
             if (sourceFunction == null) {
                 result.sourceMissing++;
             }
-            else if (!row.functionName.equals(sourceFunction.getName())) {
+            else if (!row.functionName.equals(sourceFunction.getName()) &&
+                    !"WC1-manual-verified".equals(row.evidence)) {
                 result.sourceNameMismatch++;
             }
 
@@ -396,6 +397,8 @@ public class ApplyWC1WC2NameMap extends GhidraScript {
 
     private Map<String, String> tagComments() {
         Map<String, String> result = new LinkedHashMap<>();
+        result.put("WC1-manual-verified",
+            "WC1-to-WC2 identity verified manually from local order and function behavior.");
         result.put("WC1-auto-vt",
             "Conservative Ghidra Auto Version Tracking match from WC1.");
         result.put("WC1-callgraph-transfer",

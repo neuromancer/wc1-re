@@ -11,7 +11,14 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
-from remapWC1ToWC2 import DEFAULT_MAP, ROOT, compute_changes, load_map
+from remapWC1ToWC2 import (
+    DEFAULT_MANIFEST,
+    DEFAULT_MAP,
+    ROOT,
+    compute_changes,
+    load_map,
+    load_provenance,
+)
 
 
 SECTION_RE = re.compile(r"^=== (.+) ===$")
@@ -103,6 +110,9 @@ def main() -> int:
     )
     parser.add_argument("--map", type=Path, default=DEFAULT_MAP)
     parser.add_argument(
+        "--provenance-manifest", type=Path, default=DEFAULT_MANIFEST
+    )
+    parser.add_argument(
         "--rows-tsv",
         type=Path,
         help="write every compared function as a review-friendly TSV",
@@ -110,7 +120,8 @@ def main() -> int:
     args = parser.parse_args()
 
     mappings = load_map(args.map.resolve())
-    _changes, markers = compute_changes(mappings)
+    provenance = load_provenance(args.provenance_manifest.resolve())
+    _changes, markers = compute_changes(mappings, provenance=provenance)
     rows, summary = parse_report(args.report)
     baseline = None
     if args.baseline is not None:
@@ -166,7 +177,7 @@ def main() -> int:
                         marker.path.relative_to(ROOT),
                         marker.source_name,
                         marker.mapping_name,
-                        f"{marker.source:08X}",
+                        "" if marker.source is None else f"{marker.source:08X}",
                         f"{row.address:08X}",
                         marker.evidence,
                         marker.review_flags,

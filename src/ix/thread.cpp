@@ -352,7 +352,7 @@ void IxStreamFile::ix_stream_file_seek(unsigned int newPosition)
         position = 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x46DE5B */
 unsigned int IxStreamFile::ix_stream_file_tell(void)
 {
     ix_stream_file_wait();
@@ -374,7 +374,7 @@ void IxStreamFile::ix_stream_file_wait(void)
     }
 }
 
-/* Function start: 0x46B0F8 */
+/* Function start: WC2_UNMAPPED */
 int IxStreamFile::ix_stream_file_is_reading(void)
 {
     if ((flags & IX_STREAM_FILE_READING) != 0)

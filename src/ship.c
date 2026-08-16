@@ -36,22 +36,22 @@ static const enum ObjectType g_aaeExplosionDebris_004698e0[4][7] = {
     }
 };
 
-/* Function start: 0x42B15A */
+/* Function start: WC2_UNMAPPED */
 unsigned int check_for_lost_control(short obj)
 {
     enum ObjectType type;
 
     if (obj != 0 && g_aeSpecialManeuver_0059c3c0[obj] !=
                         SPECIAL_MANEUVER_UNKNOWN_9) {
-        type = g_aeObjectType_0059b560[obj];
+        type = g_acObjectType_00493980[obj];
         if (skill_check(
                 obj,
                 (short)((short)(abs(g_anObjectRollRotation_0059d7e0[obj]) +
                                 abs(g_anObjectYawRotation_0059ce80[obj]) +
                                 abs(g_anObjectPitchRotation_0059b2a0[obj])) /
-                        (short)(g_aObjectTypeData_00466458[type].rollRate +
-                                g_aObjectTypeData_00466458[type].yawRate +
-                                g_aObjectTypeData_00466458[type].pitchRate))) ==
+                        (short)(g_aObjectTypeData_00496d30[type].rollRate +
+                                g_aObjectTypeData_00496d30[type].yawRate +
+                                g_aObjectTypeData_00496d30[type].pitchRate))) ==
             0) {
             set_special(obj, SPECIAL_MANEUVER_BLOWING_UP);
             g_asObjectCounter_0059c330[obj] =
@@ -109,11 +109,11 @@ int inflict_damage(short attacker, short victim, short damage,
     if (g_aeObjectClass_0059d100[victim] < OBJECT_CLASS_SHIP) {
         g_asShipAccumulatedDamage_0059dee0[victim] = (short)(
             g_asShipAccumulatedDamage_0059dee0[victim] + damage);
-        if (g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[victim]].damageCapacity == -1)
+        if (g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[victim]].damageCapacity == -1)
             return 0;
-        if (g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[victim]].damageCapacity <=
+        if (g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[victim]].damageCapacity <=
             g_asShipAccumulatedDamage_0059dee0[victim])
             return explode(attacker, victim);
     } else {
@@ -132,9 +132,9 @@ int inflict_damage(short attacker, short victim, short damage,
         quadrant = (short)(dot_product(impactDirection,
             &g_aShipForwardVector_0059bce0[victim]) > 0);
         damage = (short)(damage -
-                         g_aasShipShield_0059d5b0[victim][quadrant]);
+                         g_aasShipShield_00495518[victim][quadrant]);
         if (damage > 0) {
-            g_aasShipShield_0059d5b0[victim][quadrant] = 0;
+            g_aasShipShield_00495518[victim][quadrant] = 0;
             if (attacker != -1 &&
                 g_aeObjectClass_0059d100[attacker] ==
                     OBJECT_CLASS_PROJECTILE)
@@ -177,7 +177,7 @@ int inflict_damage(short attacker, short victim, short damage,
             }
             g_aasShipArmor_0059d420[victim][quadrant] = (short)-damage;
         } else {
-            g_aasShipShield_0059d5b0[victim][quadrant] = (short)-damage;
+            g_aasShipShield_00495518[victim][quadrant] = (short)-damage;
             if (attacker != -1 &&
                 g_aeObjectClass_0059d100[attacker] ==
                     OBJECT_CLASS_PROJECTILE)
@@ -265,8 +265,8 @@ int internal_damage(short attacker, short victim, short damage,
 
     if (victim == 0)
         return your_internal_damage(attacker, damage, quadrant);
-    type = g_aeObjectType_0059b560[victim];
-    damageCapacity = g_aObjectTypeData_00466458[type].damageCapacity;
+    type = g_acObjectType_00493980[victim];
+    damageCapacity = g_aObjectTypeData_00496d30[type].damageCapacity;
     if (g_aeObjectClass_0059d100[victim] == OBJECT_CLASS_CAPITAL_SHIP) {
         if (g_aeShipSide_0059d650[victim] == SIDE_KILRATHI) {
             events = MaxShort(1, (short)(damage >> 3));
@@ -319,10 +319,10 @@ int internal_damage(short attacker, short victim, short damage,
                 return explode(attacker, victim);
             break;
         case 3:
-            g_aasShipShield_0059d5b0[victim][0] = 0;
-            g_aasShipShield_0059d5b0[victim][1] = 0;
-            g_aasShipMaximumShield_0059d6e0[victim][0] = 0;
-            g_aasShipMaximumShield_0059d6e0[victim][1] = 0;
+            g_aasShipShield_00495518[victim][0] = 0;
+            g_aasShipShield_00495518[victim][1] = 0;
+            g_aasShipMaximumShield_004954f0[victim][0] = 0;
+            g_aasShipMaximumShield_004954f0[victim][1] = 0;
             break;
         case 4:
             events--;
@@ -354,7 +354,7 @@ int internal_damage(short attacker, short victim, short damage,
             if (quadrant == 1) {
                 events--;
                 drain_fuel(victim,
-                           (short)(*(int *)&g_aObjectTypeData_00466458[
+                           (short)(*(int *)&g_aObjectTypeData_00496d30[
                                        type].lifetime / 4));
                 if (RandomBelowOrEqual(1) != 0 ||
                     g_anShipFuel_0059b470[victim] < 0)
@@ -378,15 +378,15 @@ void revise_shields(short obj)
 {
     short maximum;
 
-    g_aasShipMaximumShield_0059d6e0[obj][0] =
-        MaxShort(0, (short)(g_aasShipMaximumShield_0059d6e0[obj][0] -
-            (g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[obj]].shieldFore >> 2)));
-    maximum = g_aasShipMaximumShield_0059d6e0[obj][0];
-    g_aasShipMaximumShield_0059d6e0[obj][1] =
+    g_aasShipMaximumShield_004954f0[obj][0] =
+        MaxShort(0, (short)(g_aasShipMaximumShield_004954f0[obj][0] -
+            (g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[obj]].shieldFore >> 2)));
+    maximum = g_aasShipMaximumShield_004954f0[obj][0];
+    g_aasShipMaximumShield_004954f0[obj][1] =
         MaxShort(0, (short)(maximum -
-            (g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[obj]].shieldAft >> 2)));
+            (g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[obj]].shieldAft >> 2)));
 }
 
 /* Function start: 0x413099 */
@@ -414,7 +414,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
         tableGroup = (short)((quadrant == 1 ? 2 : 0) + 1);
         events = MaxShort(1, (short)(damage >> 5));
     }
-    playerType = g_aeObjectType_0059b560[0];
+    playerType = g_acObjectType_00493980[0];
     severity = (signed char)RandomBelowOrEqual(10);
     g_asShipAccumulatedDamage_0059dee0[0] = (short)(
         g_asShipAccumulatedDamage_0059dee0[0] + events);
@@ -475,7 +475,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                 if (events > 0)
                     events--;
             } else if ((short)g_acShipDamage_0059c460[0] >
-                       g_aObjectTypeData_00466458[playerType].
+                       g_aObjectTypeData_00496d30[playerType].
                            damageCapacity) {
                 return explode(attacker, 0);
             }
@@ -505,7 +505,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
             break;
         case 7:
             drain_fuel(0,
-                       (short)(*(int *)&g_aObjectTypeData_00466458[
+                       (short)(*(int *)&g_aObjectTypeData_00496d30[
                                    playerType].lifetime / 4));
             if (RandomBelowOrEqual(1) != 0 ||
                 g_anShipFuel_0059b470[0] < 0)
@@ -523,7 +523,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                     goto damage_component;
                 } else {
                     damage_your_component(4, 2, 3);
-                    if (g_acPlayerComponentDamage_0059bff0[4] > 3)
+                    if (g_acPlayerComponentDamage_00493470[4] > 3)
                         g_acShipCommunicator_0059c850[0] = -1;
                 }
             }
@@ -548,8 +548,8 @@ short ReportComponentRepaired(short component, short minimumDamage)
     char message[80];
 
     if (minimumDamage <
-        (short)g_acPlayerComponentDamage_0059bff0[component]) {
-        g_acPlayerComponentDamage_0059bff0[component]--;
+        (short)g_acPlayerComponentDamage_00493470[component]) {
+        g_acPlayerComponentDamage_00493470[component]--;
         sprintf(message, g_szComponentFixedFormat_00469984,
                 g_apszComponentNames_0046a778[component]);
         ShowComponentHitHudMessage(message, DAT_004699ac, 8);
@@ -567,7 +567,7 @@ void repair_internal_damage(void)
 #endif
 
 #ifndef WC1_SDL
-    if ((short)g_acPlayerComponentDamage_0059bff0[component] >= 4)
+    if ((short)g_acPlayerComponentDamage_00493470[component] >= 4)
         return;
 #endif
     if (RandomBelowOrEqual(500) >= 2)
@@ -578,22 +578,22 @@ void repair_internal_damage(void)
 #ifdef WC1_SDL
         /* The Mac body guards the selected component in each repair case.
            Retail Win32 instead reads an uninitialized component above. */
-        if (g_acPlayerComponentDamage_0059bff0[2] >= 4)
+        if (g_acPlayerComponentDamage_00493470[2] >= 4)
             break;
 #endif
         ReportComponentRepaired(2, 1);
         break;
     case 1:
 #ifdef WC1_SDL
-        if (g_acPlayerComponentDamage_0059bff0[0] >= 4)
+        if (g_acPlayerComponentDamage_00493470[0] >= 4)
             break;
 #endif
         if (ReportComponentRepaired(0, 2) != 0)
             damage_ion_drive(0, -1, 3);
         break;
     case 2:
-        if (g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[0]].damageCapacity - 3 <
+        if (g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[0]].damageCapacity - 3 <
             (short)g_acShipDamage_0059c460[0])
             g_acShipDamage_0059c460[0]--;
         break;
@@ -689,7 +689,7 @@ unsigned int Create_explosion_debris(short obj)
             (short)(RandomBelowOrEqual(3) + 0x10);
         g_asObjectCounter_0059c330[debris] = 40;
         g_aeObjectClass_0059d100[debris] = OBJECT_CLASS_DUST;
-        g_aeObjectType_0059b560[debris] = OBJECT_TYPE_DEBRIS_DUST;
+        g_acObjectType_00493980[debris] = OBJECT_TYPE_DEBRIS_DUST;
     }
     return 0;
 }
@@ -751,7 +751,7 @@ unsigned int score_for_kill(short pilot, short victim)
     int event;
 
     if (g_aeShipSide_0059d650[victim] == SIDE_KILRATHI) {
-        switch (g_aeObjectType_0059b560[victim]) {
+        switch (g_acObjectType_00493980[victim]) {
         case OBJECT_TYPE_SALTHI:
             event = 1;
             break;
@@ -883,14 +883,14 @@ short Explosion(short obj)
                 onboard_explosion(obj);
             }
             g_asObjectCounter_0059c330[obj] =
-                (short)(g_aObjectTypeData_00466458[
-                    g_aeObjectType_0059b560[obj]].damageCapacity >> 2) + 8;
+                (short)(g_aObjectTypeData_00496d30[
+                    g_acObjectType_00493980[obj]].damageCapacity >> 2) + 8;
         } else {
             explosion = ShipExplosion(obj);
         }
     } else {
         explosionType = OBJECT_TYPE_EXPLOSION2;
-        if (g_aeObjectType_0059b560[obj] == OBJECT_TYPE_TURRET ||
+        if (g_acObjectType_00493980[obj] == OBJECT_TYPE_TURRET ||
             objectClass == OBJECT_CLASS_ASTEROID)
             explosionType = OBJECT_TYPE_EXPLOSION0;
         set_objects_data(obj, explosionType,
@@ -900,8 +900,8 @@ short Explosion(short obj)
     }
     if (objectClass != OBJECT_CLASS_CAPITAL_SHIP)
         explosion_shock_wave(
-            obj, g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[obj]].explosionDamage);
+            obj, g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[obj]].explosionDamage);
     if (g_asObjectScreenX_0059d9b0[obj] != (short)0x8001)
         PlaySfxWaveFileByNumber(4, obj, 0);
     return explosion;
@@ -1062,6 +1062,14 @@ short find_child_object(short parent, enum ObjectClass objectClass)
     return -1;
 }
 
+/* Function start: 0x410161 */
+short IsCapitalShipObject(short obj)
+{
+    if (g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_CAPITAL_SHIP)
+        return 1;
+    return 0;
+}
+
 /* Function start: 0x414CA9 */
 short find_child_ship(short parent, enum ObjectClass objectClass,
                       short target)
@@ -1142,7 +1150,7 @@ void fire(short obj, short target)
             g_aShipWeapons_0059cab0 + loadoutOffset +
             weapon * sizeof(ShipWeaponSlot) + 1);
         weaponType = slot->type;
-        weaponData = &g_aObjectTypeData_00466458[weaponType];
+        weaponData = &g_aObjectTypeData_00496d30[weaponType];
         weaponVelocity = weaponData->maximumVelocity;
         if (closingSpeed < 0)
             weaponVelocity = (short)(weaponVelocity + closingSpeed / 100);
@@ -1269,7 +1277,7 @@ int fire_flack(short owner, short explosion, short range,
     short lifetime;
 
     projectileVelocity =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_TURRET].maximumVelocity;
+        g_aObjectTypeData_00496d30[OBJECT_TYPE_TURRET].maximumVelocity;
     set_objects_data(explosion, OBJECT_TYPE_TURRET, owner);
     lifetime = (short)(range / projectileVelocity -
                        RandomBelowOrEqual(8) - 5);
@@ -1325,7 +1333,7 @@ short pop_flack(short obj, short range, FixedVector *hardpoint)
             g_aShipPosition_0059c490[explosion] = aimPoint;
             explosion_shock_wave(
                 explosion,
-                g_aObjectTypeData_00466458[
+                g_aObjectTypeData_00496d30[
                     OBJECT_TYPE_TURRET].explosionDamage);
             return explosion;
         }
@@ -1397,7 +1405,7 @@ int fire_turrets(short obj)
 }
 
 /* Function start: 0x415E2C */
-int fire_weapon(short obj, short weapon)
+short fire_weapon(short obj, short weapon)
 {
     ObjectTypeData *weaponData;
 #ifdef WC1_SDL
@@ -1424,7 +1432,7 @@ int fire_weapon(short obj, short weapon)
     weaponType = *(enum ObjectType *)(void *)
         ((unsigned char *)g_aShipWeapons_0059cab0 + weaponOffset + 1);
 #endif
-    weaponClass = g_aObjectTypeData_00466458[weaponType].objectClass;
+    weaponClass = g_aObjectTypeData_00496d30[weaponType].objectClass;
     if (weaponType == OBJECT_TYPE_TURRET) {
         weaponClass = OBJECT_CLASS_PROJECTILE;
         weaponType = OBJECT_TYPE_LASER_CANNON;
@@ -1436,13 +1444,13 @@ int fire_weapon(short obj, short weapon)
     else
         projectile = new_object(weaponType, obj);
     if (projectile != -1) {
-        weaponData = &g_aObjectTypeData_00466458[weaponType];
+        weaponData = &g_aObjectTypeData_00496d30[weaponType];
         copy_frame(obj, projectile);
         if (weaponClass == OBJECT_CLASS_PROJECTILE) {
             g_asShipAccumulatedDamage_0059dee0[projectile] =
                 weaponData->damageCapacity;
-            projectileSpeed = g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[projectile]].maximumVelocity;
+            projectileSpeed = g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[projectile]].maximumVelocity;
             g_asShipWeaponEnergy_0059d470[obj] =
                 (short)(g_asShipWeaponEnergy_0059d470[obj] -
                         weaponData->animationDelay);
@@ -1456,7 +1464,7 @@ int fire_weapon(short obj, short weapon)
                      projectile, obj);
 #endif
         g_asObjectCounter_0059c330[projectile] =
-            g_aObjectTypeData_00466458[weaponType].lifetime;
+            g_aObjectTypeData_00496d30[weaponType].lifetime;
         vector_component_in_dir(&g_aShipVelocity_0059c010[obj],
                                 &g_aShipForwardVector_0059bce0[projectile],
                                 &g_aShipVelocity_0059c010[projectile]);

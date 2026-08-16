@@ -156,7 +156,7 @@ WaveTableEntry *AllocateWaveTableEntry(void)
     return g_pWaveTableTail_0046a448;
 }
 
-/* Function start: 0x424A00 */
+/* Function start: 0x423DBB */
 WaveTableEntry *FindWaveTableEntryByName(const char *name)
 {
     WaveTableEntry *entry = g_pWaveTableHead_0046a444;
@@ -169,7 +169,7 @@ WaveTableEntry *FindWaveTableEntryByName(const char *name)
     return 0;
 }
 
-/* Function start: 0x42DD9F */
+/* Function start: 0x423E12 */
 void RemoveWaveTableEntry(WaveTableEntry *target)
 {
     WaveTableEntry *previous = 0;
@@ -244,7 +244,7 @@ void RemoveActiveSoundEntry(ActiveSoundEntry *target)
     }
 }
 
-/* Function start: 0x461D29 */
+/* Function start: WC2_UNMAPPED */
 ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample)
 {
     ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;

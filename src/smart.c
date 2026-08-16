@@ -104,7 +104,7 @@ void prevent_collision(short obj)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x41E860 */
 int handle_collisions(short obj)
 {
     short other;
@@ -174,7 +174,7 @@ unsigned int veer_random(short obj, short amount)
     return 0;
 }
 
-/* Function start: 0x40A774 */
+/* Function start: 0x41EBC1 */
 unsigned int offset_location(short obj, const ShortVector *offset,
                              FixedVector *location)
 {
@@ -352,7 +352,7 @@ unsigned int goto_formation(short obj, const FixedVector *destination,
     return 0;
 }
 
-/* Function start: 0x40BD0E */
+/* Function start: 0x41F2C5 */
 unsigned int maintain_formation(short obj)
 {
     short leader;
@@ -367,7 +367,7 @@ unsigned int maintain_formation(short obj)
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x41F337 */
 unsigned int reset_stress(short obj)
 {
     short damage;
@@ -512,7 +512,7 @@ enum ShipManeuver pick_kilrathi_maneuver(short obj, int event)
     }
 }
 
-/* Function start: 0x41E860 */
+/* Function start: WC2_UNMAPPED */
 unsigned int process_maneuver_node(short obj, int event)
 {
     const ManeuverChoice *choice;

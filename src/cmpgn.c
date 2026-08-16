@@ -163,7 +163,7 @@ unsigned int ejection_sequence(void)
             LoadPacketIntoBuffer(8, 8,
                                  g_pScreenViewportPacket_005a6b94);
 
-        g_aObjectTypeData_00466458[OBJECT_TYPE_EJECTED_PILOT].shapeSet =
+        g_aObjectTypeData_00496d30[OBJECT_TYPE_EJECTED_PILOT].shapeSet =
             FetchDiskPacketRetrying(2, 2, 0);
         g_nEjectedPilotObject_0046c044 = find_vacant_3d_object();
         set_objects_data(g_nEjectedPilotObject_0046c044,
@@ -339,7 +339,7 @@ unsigned int ParseFaceAnimation(char *text, short *commands)
     return 0;
 }
 
-/* Function start: 0x42ABCE */
+/* Function start: WC2_UNMAPPED */
 unsigned int ParseMouthAnimation(char *text, short *commands)
 {
     char character;
@@ -376,7 +376,7 @@ unsigned int ParseMouthAnimation(char *text, short *commands)
     return 0;
 }
 
-/* Function start: 0x452930 */
+/* Function start: WC2_UNMAPPED */
 char *AddPCName(const char *text)
 {
     char formatted[12];
@@ -683,7 +683,7 @@ unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
     return 0;
 }
 
-/* Function start: 0x4416D5 */
+/* Function start: WC2_UNMAPPED */
 unsigned int Briefing(short series, short mission)
 {
     DAT_0059ab58 = 0;
@@ -783,7 +783,7 @@ unsigned int Office(void)
     return 0;
 }
 
-/* Function start: 0x40C1DA */
+/* Function start: WC2_UNMAPPED */
 unsigned int LoadBriefingData(short series, short mission)
 {
     BriefingPacketHeader *header;
@@ -815,7 +815,7 @@ unsigned int LoadBriefingData(short series, short mission)
     return 0;
 }
 
-/* Function start: 0x4156A7 */
+/* Function start: WC2_UNMAPPED */
 unsigned int LoadMissionData(short series, short mission)
 {
     short logicalFile;

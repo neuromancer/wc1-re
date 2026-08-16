@@ -484,27 +484,27 @@ const int g_anExpandedMemoryReservationByVideoMode_00469ab0[3] = {
     258000, 238000, 258000
 };
 PacketResourceDescriptor g_aCommon3SpaceResources_00469bc0[12] = {
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_THRUSTERS].shapeSet, 3, 0 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_EXPLOSION0].shapeSet, 3, 1 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_LASER_CANNON].shapeSet, 3, 6 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_MASS_DRIVER_CANNON].shapeSet,
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_THRUSTERS].shapeSet, 3, 0 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_EXPLOSION0].shapeSet, 3, 1 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_LASER_CANNON].shapeSet, 3, 6 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_MASS_DRIVER_CANNON].shapeSet,
       3, 7 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_NEUTRON_PARTICLE_GUN].shapeSet,
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_NEUTRON_PARTICLE_GUN].shapeSet,
       3, 8 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_LASER_SPARK].shapeSet, 3, 9 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet, 3, 4 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_BLUE_SPARK].shapeSet, 3, 10 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_RED_SPARK].shapeSet, 3, 11 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_SPARK_TRAIL].shapeSet, 3, 12 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_SPACE_MINE].shapeSet, 3, 15 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_LASER_SPARK].shapeSet, 3, 9 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet, 3, 4 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_BLUE_SPARK].shapeSet, 3, 10 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_RED_SPARK].shapeSet, 3, 11 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_SPARK_TRAIL].shapeSet, 3, 12 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_SPACE_MINE].shapeSet, 3, 15 },
     { 0, 0, 0 }
 };
 PacketResourceDescriptor g_aMissionResourceDescriptors_00469c20[5] = {
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet,
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet,
       3, 14 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_EXPLOSION1].shapeSet, 3, 2 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_EXPLOSION2].shapeSet, 3, 3 },
-    { &g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet,
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_EXPLOSION1].shapeSet, 3, 2 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_EXPLOSION2].shapeSet, 3, 3 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet,
       3, 5 },
     { 0, 0, 0 }
 };
@@ -629,13 +629,15 @@ int g_anVolumeLevels_00469fc8[11] = {
     0, 40000, 50000, 55000, 60000, 61000,
     61500, 62000, 63000, 63500, 64000
 };
-int g_nOriginDevUnlock_00469ff4;
+short g_nOriginDevUnlock_0049d774;
 int g_bPlayerCollisionsEnabled_00469ff8 = 1;
 int DAT_00469ffc = 1;
 int DAT_0046a000 = 1;
 int DAT_0046a004;
 int DAT_0046a008;
-int g_nShowMemoryStatus_0046a00c;
+short g_nShowMemoryStatus_0049d784;
+int g_anShipWeaponFiringState_00496020[10];
+short g_asShipWeaponCooldown_00496048[10];
 short DAT_0046a010 = -1;
 short g_nArcadeBonusCountdown_0046a014;
 int g_bMouseCursorVisible_0046a018;
@@ -2014,30 +2016,30 @@ int DAT_0059ab60;
 short DAT_0059ab64;
 int g_aiInputEventSlotUsed_0059ab70[0x100];
 MouseCursorState g_stHostMouseState_0059af70;
-TextContext *g_pCurrentTextContext_0059af8c;
+TextContext *g_pCurrentTextContext_005c8d1c;
 int g_nInputTickScale_0059af90;
 FixedVector g_aObjectViewPosition_0059afa0[WC1_SPACE_OBJECT_COUNT];
 short g_anObjectPitchRotation_0059b2a0[WC1_SPACE_OBJECT_COUNT];
 int g_anShipSpeed_0059b320[64];
-short g_nSpaceFrame_0059b420;
+short g_nSpaceFrame_00493134;
 unsigned int DAT_0059b430[12];
 FixedVector g_vPlayerAcceleration_0059b460;
 int g_anShipFuel_0059b470[12];
 short g_asObjectDistance_0059b4a0[WC1_SPACE_OBJECT_COUNT];
 ShortVector g_aShipFormationOffset_0059b520[10];
-enum ObjectType g_aeObjectType_0059b560[WC1_SPACE_OBJECT_COUNT];
+signed char g_acObjectType_00493980[WC1_SPACE_OBJECT_COUNT];
 short g_asObjectAnimationDelay_0059b660[WC1_SPACE_OBJECT_COUNT];
 FixedVector g_aShipRightVector_0059b6e0[64];
 FixedVector g_aShipUpVector_0059b9e0[64];
 FixedVector g_aShipForwardVector_0059bce0[64];
 HazardField *g_pActiveHazardField_0059bfe0;
-signed char g_acPlayerComponentDamage_0059bff0[9];
+signed char g_acPlayerComponentDamage_00493470[9];
 signed char g_abFlightPath_0059c000[WC1_MISSION_OBJECTIVE_COUNT];
 FixedVector g_aShipVelocity_0059c010[WC1_SPACE_OBJECT_COUNT];
 short g_anYawGoal_0059c310[16];
 short g_asObjectCounter_0059c330[WC1_SPACE_OBJECT_COUNT];
 short g_nTargetShip_0059c3b0;
-enum SpecialManeuver g_aeSpecialManeuver_0059c3c0[12];
+short g_aeSpecialManeuver_0059c3c0[12];
 enum ShipMissionType g_aeShipMissionType_0059c3f0[12];
 short g_asShipCount_0059c420[16];
 short g_asShipMaximumSpeed_0059c440[16];
@@ -2062,7 +2064,7 @@ short g_nEyeYawGoal_0059c944;
 short g_asObjectScreenScale_0059c950[WC1_SPACE_OBJECT_COUNT];
 short g_asObjectAfterburnerVelocity_0059c9d0[WC1_SPACE_OBJECT_COUNT];
 CampaignState g_stCampaignState_0059ca50;
-unsigned char g_aShipWeapons_0059cab0[10][0x47];
+unsigned char g_aShipWeapons_0059cab0[10][0xA1];
 signed char g_acShipRating_0059cd80[16];
 short g_asObjectScreenAngle_0059cd90[WC1_SPACE_OBJECT_COUNT];
 short g_nTargetRange_0059ce10;
@@ -2081,7 +2083,7 @@ short g_asTargetListRange_0059cf60[16];
 short g_asObjectDrawY_0059cf80[WC1_SPACE_OBJECT_COUNT];
 short g_asObjectDrawX_0059d000[WC1_SPACE_OBJECT_COUNT];
 short g_asPreviousObjectDistance_0059d080[WC1_SPACE_OBJECT_COUNT];
-enum ObjectClass g_aeObjectClass_0059d100[WC1_SPACE_OBJECT_COUNT];
+short g_aeObjectClass_0059d100[WC1_SPACE_OBJECT_COUNT];
 enum ShipObjective g_aeShipObjective_0059d200[12];
 short g_asObjectViewFrame_0059d230[WC1_SPACE_OBJECT_COUNT];
 int g_nCurrentObjectiveRange_0059d2b0;
@@ -2103,7 +2105,7 @@ unsigned short DAT_0059d500[16];
 char g_acShipSequence_0059d520[10];
 short g_nTargetFacing_0059d52a;
 FixedVector g_aShipDestination_0059d530[10];
-short g_aasShipShield_0059d5b0[12][2];
+short g_aasShipShield_00495518[10][2];
 enum ShipTactic g_aeShipTactic_0059d5e0[12];
 signed char g_abShipExhaustHeat_0059d610[10];
 short g_nRenderedSpaceFrame_0059d61a;
@@ -2114,7 +2116,7 @@ enum Side g_aeShipSide_0059d650[12];
 signed char g_acShipAiCooldown_0059d680[16];
 FixedVector g_vCollisionDelta_0059d690;
 signed char g_acLastCollisionObject_0059d6a0[WC1_SPACE_OBJECT_COUNT];
-short g_aasShipMaximumShield_0059d6e0[12][2];
+short g_aasShipMaximumShield_004954f0[10][2];
 short g_asObjectCollisionRadius_0059d710[64];
 signed char g_acShipPointingMode_0059d790[16];
 short g_anPitchGoal_0059d7a0[16];
@@ -2542,11 +2544,11 @@ const ShortPoint g_aWeaponDisplayOrigins_004684c0[5] = {
     {0, 16}, {0, 16}, {0, 16}, {0, 16}, {0, 16}
 };
 
-ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
+ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_TYPE_COUNT] = {
     /* 0: Hornet */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x00],
-        OBJECT_CLASS_SHIP, 100, 125, 1024, 5, 3392, 3, 5, 4000,
+        "Hornet",
+        OBJECT_CLASS_SHIP, 0, 0, 100, 125, 1024, 5, 3392, 3, 5, 4000,
         42, 30, 0, 819, 8, 9, 8, 900,
         {
             5,
@@ -2560,8 +2562,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 1: Rapier */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x08],
-        OBJECT_CLASS_SHIP, 120, 135, 1024, 3, -12144, 3, 6, 6000,
+        "Rapier",
+        OBJECT_CLASS_SHIP, 0, 0, 120, 135, 1024, 3, -12144, 3, 6, 6000,
         45, 25, 0, 1075, 10, 10, 10, 1000,
         {
             9,
@@ -2579,8 +2581,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 2: Scimitar */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x10],
-        OBJECT_CLASS_SHIP, 165, 160, 1152, 6, 17856, 4, 7, 6000,
+        "Scimitar",
+        OBJECT_CLASS_SHIP, 0, 0, 165, 160, 1152, 6, 17856, 4, 7, 6000,
         36, 15, 0, 614, 6, 6, 7, 1300,
         {
             7,
@@ -2596,8 +2598,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 3: Raptor */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x1c],
-        OBJECT_CLASS_SHIP, 180, 200, 1152, 3, -27680, 4, 8, 8000,
+        "Raptor",
+        OBJECT_CLASS_SHIP, 0, 0, 180, 200, 1152, 3, -27680, 4, 8, 8000,
         40, 25, 0, 588, 6, 5, 6, 2000,
         {
             10,
@@ -2616,8 +2618,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 4: Venture */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x24],
-        OBJECT_CLASS_CAPITAL_SHIP, 240, 400, 1024, 5, 3392, 3, 70,
+        "Venture",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 240, 400, 1024, 5, 3392, 3, 70,
         20000, 25, 10, 0, 256, 3, 3, 3, 4000,
         {
             2,
@@ -2628,8 +2630,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 5: Dilligent */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x2c],
-        OBJECT_CLASS_CAPITAL_SHIP, 240, 400, 1024, 4, 3392, 3, 60,
+        "Dilligent",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 240, 400, 1024, 4, 3392, 3, 60,
         20000, 15, 10, 0, 128, 2, 2, 2, 10000,
         {
             1,
@@ -2639,8 +2641,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 6: Drayman */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x38],
-        OBJECT_CLASS_CAPITAL_SHIP, 240, 400, 1024, 4, 3392, 3, 60,
+        "Drayman",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 240, 400, 1024, 4, 3392, 3, 60,
         10000, 15, 10, 0, 128, 2, 2, 2, 20000,
         {
             1,
@@ -2650,8 +2652,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 7: Exeter */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x40],
-        OBJECT_CLASS_CAPITAL_SHIP, 500, 5000, 2048, 2, 3392, 3, 200,
+        "Exeter",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 500, 5000, 2048, 2, 3392, 3, 200,
         30000, 20, 15, 0, 256, 2, 2, 2, 20000,
         {
             5,
@@ -2665,8 +2667,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 8: Tiger's Claw */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x48],
-        OBJECT_CLASS_CAPITAL_SHIP, 700, 10000, 4096, 1, 3392, 3,
+        "Tiger's Claw",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 700, 10000, 4096, 1, 3392, 3,
         560, 30000, 0, 0, 0, 256, 1, 1, 1, 20000,
         {
             8,
@@ -2683,8 +2685,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 9: Salthi */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x58],
-        OBJECT_CLASS_SHIP, 120, 120, 1024, 10, 3392, 3, 5, 4000,
+        "Salthi",
+        OBJECT_CLASS_SHIP, 0, 0, 120, 120, 1024, 10, 3392, 3, 5, 4000,
         48, 30, 0, 972, 14, 12, 22, 1000,
         {
             3,
@@ -2696,8 +2698,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 10: Dralthi */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x60],
-        OBJECT_CLASS_SHIP, 160, 140, 1024, 6, 3392, 3, 7, 6000,
+        "Dralthi",
+        OBJECT_CLASS_SHIP, 0, 0, 160, 140, 1024, 6, 3392, 3, 7, 6000,
         40, 23, 0, 768, 10, 14, 10, 1200,
         {
             7,
@@ -2713,8 +2715,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 11: Krant */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x68],
-        OBJECT_CLASS_SHIP, 140, 126, 1024, 5, 3392, 3, 6, 6000,
+        "Krant",
+        OBJECT_CLASS_SHIP, 0, 0, 140, 126, 1024, 5, 3392, 3, 6, 6000,
         36, 20, 0, 716, 7, 10, 7, 1200,
         {
             6,
@@ -2729,8 +2731,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 12: Gratha */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x70],
-        OBJECT_CLASS_SHIP, 140, 126, 1024, 4, 3392, 3, 7, 7000,
+        "Gratha",
+        OBJECT_CLASS_SHIP, 0, 0, 140, 126, 1024, 4, 3392, 3, 7, 7000,
         32, 20, 0, 614, 6, 6, 14, 1400,
         {
             10,
@@ -2749,8 +2751,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 13: Jalthi */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x78],
-        OBJECT_CLASS_SHIP, 160, 180, 1024, 7, 3392, 3, 7, 8000,
+        "Jalthi",
+        OBJECT_CLASS_SHIP, 0, 0, 160, 180, 1024, 7, 3392, 3, 7, 8000,
         28, 20, 0, 512, 5, 5, 5, 1600,
         {
             8,
@@ -2767,16 +2769,16 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 14: Spikeri */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x80],
-        OBJECT_CLASS_CAPITAL_SHIP, 200, 200, 1536, 4, 3392, 3, 45,
+        "Spikeri",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 200, 200, 1536, 4, 3392, 3, 45,
         12000, 15, 10, 0, 460, 4, 4, 4, 4000,
         { 0 },
         70, 70, 80, 80, 60, 60, 0, 0
     },
     /* 15: Dorkir */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x88],
-        OBJECT_CLASS_CAPITAL_SHIP, 260, 400, 2048, 5, 3392, 3, 35,
+        "Dorkir",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 260, 400, 2048, 5, 3392, 3, 35,
         24000, 15, 10, 0, 204, 2, 2, 2, 5000,
         {
             4,
@@ -2789,8 +2791,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 16: Lumbari */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x90],
-        OBJECT_CLASS_CAPITAL_SHIP, 260, 400, 2048, 5, 3392, 3, 35,
+        "Lumbari",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 260, 400, 2048, 5, 3392, 3, 35,
         16000, 15, 10, 0, 204, 2, 2, 2, 5000,
         {
             4,
@@ -2803,8 +2805,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 17: Ralari */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0x98],
-        OBJECT_CLASS_CAPITAL_SHIP, 325, 3000, 4096, 3, 3392, 3, 90,
+        "Ralari",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 325, 3000, 4096, 3, 3392, 3, 90,
         20000, 15, 10, 0, 256, 2, 2, 2, 18000,
         {
             7,
@@ -2820,8 +2822,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 18: Fralthi */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0xa0],
-        OBJECT_CLASS_CAPITAL_SHIP, 450, 10000, 4096, 2, 3392, 3, 110,
+        "Fralthi",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 450, 10000, 4096, 2, 3392, 3, 110,
         30000, 15, 10, 0, 256, 2, 2, 2, 10000,
         {
             8,
@@ -2838,16 +2840,16 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 19: Snakeir */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0xa8],
-        OBJECT_CLASS_CAPITAL_SHIP, 600, 10000, 2048, 1, 3392, 3, 320,
+        "Snakeir",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 600, 10000, 2048, 1, 3392, 3, 320,
         30000, 15, 10, 0, 204, 1, 1, 1, 10000,
         { 0 },
         70, 70, 80, 80, 60, 60, 0, 0
     },
     /* 20: Sivar */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0xb0],
-        OBJECT_CLASS_CAPITAL_SHIP, 400, 12000, 4096, 1, 3392, 3, 200,
+        "Sivar",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 400, 12000, 4096, 1, 3392, 3, 200,
         32000, 20, 15, 0, 179, 1, 1, 1, 15000,
         {
             8,
@@ -2864,8 +2866,8 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     },
     /* 21: Kilrathi base */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0xb8],
-        OBJECT_CLASS_CAPITAL_SHIP, 400, 20000, 2048, 4, 3392, 3, 120,
+        "Star post",
+        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 400, 20000, 2048, 4, 3392, 3, 120,
         32000, 0, 0, 0, 0, 0, 0, 0, 10000,
         {
             8,
@@ -2884,131 +2886,131 @@ ObjectTypeData g_aObjectTypeData_00466458[OBJECT_TYPE_COUNT] = {
     { 0 }, /* 23: mine field */
     /* 24: laser cannon bolt */
     {
-        &g_aszObjectTypeDisplayNames_004684d4[0xc4],
-        OBJECT_CLASS_PROJECTILE, 10, 0, 512, 7, 30, 0, 25, 0,
+        "Laser cannon",
+        OBJECT_CLASS_PROJECTILE, 0, 0, 10, 0, 512, 7, 30, 0, 25, 0,
         160, 0, 0, 0, 0, 0, 0, 0, { 0 },
         0, 0, 0, 0, 0, 0, 0, 0
     },
-    { &g_aszObjectTypeDisplayNames_004684d4[0xd4],
-      OBJECT_CLASS_PROJECTILE, 10, 1, 832, 14, 20, 0, 40, 0,
+    { "Neutron gun",
+      OBJECT_CLASS_PROJECTILE, 0, 0, 10, 1, 832, 14, 20, 0, 40, 0,
       140, 0 }, /* 25: neutron particle gun */
-    { &g_aszObjectTypeDisplayNames_004684d4[0xe0],
-      OBJECT_CLASS_PROJECTILE, 10, 0, 512, 9, 25, 0, 30, 0,
+    { "Mass driver",
+      OBJECT_CLASS_PROJECTILE, 0, 0, 10, 0, 512, 9, 25, 0, 30, 0,
       120, 0 }, /* 26: mass driver cannon */
-    { &g_aszObjectTypeDisplayNames_004684d4[0xec],
-      OBJECT_CLASS_PROJECTILE, 15, 0, 832, 15, 40, 0, 50, 1000,
+    { "",
+      OBJECT_CLASS_PROJECTILE, 0, 0, 15, 0, 832, 15, 40, 0, 50, 1000,
       150, 0 }, /* 27: turret bolt; resources alias laser */
-    { &g_aszObjectTypeDisplayNames_004684d4[0xf0],
-      OBJECT_CLASS_MISSILE, 20, 5, 768, 500, 120, 0, 4, 14500,
+    { "Dart DF",
+      OBJECT_CLASS_MISSILE, 0, 0, 20, 5, 768, 500, 120, 0, 4, 14500,
       130, 0, 0, 1433, 15, 15, 15, 100 }, /* 28 */
-    { &g_aszObjectTypeDisplayNames_004684d4[0xf8],
-      OBJECT_CLASS_MISSILE, 20, 5, 768, 400, 140, 0, 4, 13500,
+    { "Javelin HS",
+      OBJECT_CLASS_MISSILE, 0, 0, 20, 5, 768, 400, 140, 0, 4, 13500,
       110, 0, 0, 1689, 11, 11, 11, 100 }, /* 29 */
-    { &g_aszObjectTypeDisplayNames_004684d4[0x104],
-      OBJECT_CLASS_MISSILE, 20, 5, 768, 400, 160, 0, 4, 10500,
+    { "Pilum FF",
+      OBJECT_CLASS_MISSILE, 0, 0, 20, 5, 768, 400, 160, 0, 4, 10500,
       90, 0, 0, 1689, 11, 11, 11, 100 }, /* 30 */
-    { &g_aszObjectTypeDisplayNames_004684d4[0x110],
-      OBJECT_CLASS_MISSILE, 20, 5, 768, 400, 110, 0, 4, 11500,
+    { "Spiculum IR",
+      OBJECT_CLASS_MISSILE, 0, 0, 20, 5, 768, 400, 110, 0, 4, 11500,
       110, 0, 0, 1689, 11, 11, 11, 100 }, /* 31 */
-    { &g_aszObjectTypeDisplayNames_004684d4[0x11c],
-      OBJECT_CLASS_MISSILE, 25, 10, 768, 400, 200, 0, 4, 30000,
+    { "",
+      OBJECT_CLASS_MISSILE, 0, 0, 25, 10, 768, 400, 200, 0, 4, 30000,
       50, 0, 0, 1280, 10, 10, 10, 100 }, /* 32 */
-    { &g_aszObjectTypeDisplayNames_004684d4[0x120],
-      OBJECT_CLASS_MINE, 20, 5, 768, 110, 120, 0, 4, 10000,
+    { "Porcupine",
+      OBJECT_CLASS_MINE, 0, 0, 20, 5, 768, 110, 120, 0, 4, 10000,
       20, 20, (unsigned char *)g_anAnimMine_004662a0,
       0, 0, 2, 2 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x12c],
-      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { "",
+      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidForward_004662d8,
       0, 0, 1, 13 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x130],
-      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { "",
+      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidShortForward_00466318,
       0, 0, 1, 12 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x134],
-      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { "",
+      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidReverse_00466350,
       0, 0, 1, 13 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x138],
-      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { "",
+      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidShortReverse_00466390,
       0, 0, 1, 12 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x13c],
-      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { "",
+      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidForward_004662d8,
       0, 0, 2, 13 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x140],
-      OBJECT_CLASS_ASTEROID, 100, 300, 640, 0, 0, 0, -1, 0,
+    { "",
+      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidShortForward_00466318,
       0, 0, 2, 12 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x144],
-      OBJECT_CLASS_DEBRIS, 10, 4, 192, 0, 0, 0, -1, 0,
+    { "",
+      OBJECT_CLASS_DEBRIS, 0, 0, 10, 4, 192, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidForward_004662d8,
       0, 0, 2, 13 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x148],
-      OBJECT_CLASS_DEBRIS, 10, 1, 2048, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_DEBRIS, 0, 0, 10, 1, 2048, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimGirder_00466158,
       0, 0, 2, 5 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x14c],
-      OBJECT_CLASS_DEBRIS, 10, 1, 2048, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_DEBRIS, 0, 0, 10, 1, 2048, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimTubing_00466178,
       0, 0, 2, 5 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x150],
-      OBJECT_CLASS_DEBRIS, 20, 2, 1280, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_DEBRIS, 0, 0, 20, 2, 1280, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimMetalSheet_00466220,
       0, 0, 1, 11 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x154],
-      OBJECT_CLASS_DEBRIS, 20, 2, 1280, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_DEBRIS, 0, 0, 20, 2, 1280, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimWing_00466258,
       0, 0, 1, 15 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x158],
-      OBJECT_CLASS_DEBRIS, 20, 2, 768, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_DEBRIS, 0, 0, 20, 2, 768, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimGlass_00466198,
       0, 0, 1, 15 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x15c],
-      OBJECT_CLASS_DEBRIS, 2, 1, 1792, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_DEBRIS, 0, 0, 2, 1, 1792, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimORing_004661e0,
       0, 0, 1, 5 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x160],
-      OBJECT_CLASS_DEBRIS, 6, 1, 1536, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_DEBRIS, 0, 0, 6, 1, 1536, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimPipe_00466200,
       0, 0, 1, 5 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x164],
-      OBJECT_CLASS_EXPLOSION, 0, 0, 768, 0, 0, 0, -1, 6000,
+    { "",
+      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 768, 0, 0, 0, -1, 6000,
       0, 0, (unsigned char *)g_anAnimExplosion0_00466030,
       0, 0, 1, 0 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x168],
-      OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 6000,
+    { "",
+      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, -1, 6000,
       0, 0, (unsigned char *)g_anAnimExplosion1_00466060,
       0, 0, 1, 0 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x16c],
-      OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, -1, 6000,
+    { "",
+      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, -1, 6000,
       0, 0, (unsigned char *)g_anAnimExplosion2_004660b8,
       0, 0, 1, 0 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x170],
-      OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimLaserSpark_004660f0,
       0, 0, 1, 0 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x174],
-      OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimRedSpark_00466128,
       0, 0, 2, 3 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x178],
-      OBJECT_CLASS_EXPLOSION, 0, 0, 256, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimBlueSpark_00466110,
       0, 0, 2, 3 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x17c],
-      OBJECT_CLASS_EXPLOSION, 1, 1, 256, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_EXPLOSION, 0, 0, 1, 1, 256, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimSparkTrail_00466140,
       0, 0, 2, 3 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x180],
-      OBJECT_CLASS_FIXED_OBJECT, 0, 0, 256, 0, 0, 0, 0 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x184],
-      OBJECT_CLASS_DEBRIS, 6, 1, 512, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_FIXED_OBJECT, 0, 0, 0, 0, 256, 0, 0, 0, 0 },
+    { "",
+      OBJECT_CLASS_DEBRIS, 0, 0, 6, 1, 512, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimEjectedPilot_004663c8,
       0, 0, 1, 12 },
-    { &g_aszObjectTypeDisplayNames_004684d4[0x188],
-      OBJECT_CLASS_EXPLOSION, 0, 0, 1024, 0, 0, 0, 0, 0,
+    { "",
+      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 1024, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimHyperspaceJumpFlash_00466400,
       0, 0, 1, 0 }
 };

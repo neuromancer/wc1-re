@@ -7,7 +7,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x40230E */
+/* Function start: WC2_UNMAPPED */
 void CreateEmptySaveGameFile(void)
 {
     SaveGameDiskRecord diskRecord;
@@ -119,7 +119,7 @@ void CreateEmptySaveGameFile(void)
     }
 }
 
-/* Function start: 0x446E9D */
+/* Function start: WC2_UNMAPPED */
 void EnsureSaveGameFile(void)
 {
     short file;
@@ -212,7 +212,7 @@ void FreeBarracksMenuLabels(void)
     g_pszCurrentRoomMenuLabel_00598aba = 0;
 }
 
-/* Function start: 0x402385 */
+/* Function start: WC2_UNMAPPED */
 short SaveGame(short slot, SaveGameRecord *gameRecord)
 {
     SaveGameDiskRecord diskRecord;
@@ -404,7 +404,7 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
     }
 }
 
-/* Function start: 0x446F14 */
+/* Function start: WC2_UNMAPPED */
 int LoadGame(short slot, SaveGameRecord *gameRecord)
 {
     SaveGameDiskRecord diskRecord;
@@ -505,7 +505,7 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     return 0;
 }
 
-/* Function start: 0x434ACE */
+/* Function start: WC2_UNMAPPED */
 void LoadGameFromSlot(short slot, CampaignState *campaign,
                       PilotRecord *pilots,
                       MissionObjective *objectives)
@@ -537,7 +537,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
         ReleaseModalTextPanel();
         if (loaded == 0) {
             ShowModalMessage("Error: Game %d not loaded.", (int)slot);
-        } else if (g_nOriginDevUnlock_00469ff4 != 0) {
+        } else if (g_nOriginDevUnlock_0049d774 != 0) {
             memcpy(campaign->currentPilot->callsign, "CHEATER", 8);
         }
     }

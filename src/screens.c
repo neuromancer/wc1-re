@@ -87,7 +87,7 @@ unsigned int ViewMedals(void)
     } while (1);
 }
 
-/* Function start: 0x44BEE5 */
+/* Function start: WC2_UNMAPPED */
 unsigned int AwardCampaignMedal(short medal)
 {
     int *packet;
@@ -343,7 +343,7 @@ unsigned int PinMedal(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x452AC8 */
+/* Function start: WC2_UNMAPPED */
 unsigned int DrawMedals(void)
 {
     short badge;
@@ -727,7 +727,7 @@ unsigned int DebriefingEstablishingShot(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x4296E2 */
+/* Function start: WC2_UNMAPPED */
 int no_objectives_achieved(void)
 {
     short objective;
@@ -741,7 +741,7 @@ int no_objectives_achieved(void)
     return objective >= g_cMissionObjectiveCount_0059c46a;
 }
 
-/* Function start: 0x42B0B7 */
+/* Function start: WC2_UNMAPPED */
 short wing_status(short personality)
 {
     int currentMission;
@@ -1605,7 +1605,7 @@ unsigned int ShowVictoryScreen(void)
     return 0;
 }
 
-/* Function start: 0x45F7EC */
+/* Function start: WC2_UNMAPPED */
 unsigned int ShowGameOverScreen(void)
 {
     FixedVector cameraOffset;

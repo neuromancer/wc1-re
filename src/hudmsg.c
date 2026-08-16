@@ -200,9 +200,9 @@ int HandleSpaceFlightControls(void)
             if (notRepeated &&
                 (control != 0 ||
                  (g_wCurrentInputModifiers_0059ab08 & 0x2000) != 0) &&
-                g_acPlayerComponentDamage_0059bff0[7] != 4) {
+                g_acPlayerComponentDamage_00493470[7] != 4) {
                 if (RandomInRange(
-                        0, g_acPlayerComponentDamage_0059bff0[7]) == 0)
+                        0, g_acPlayerComponentDamage_00493470[7]) == 0)
                     g_nArcadeState_00469fb0 = 2;
                 else
                     malf_sound();
@@ -656,7 +656,7 @@ void DrawArcadeScorePanel(short x, short y)
                       g_nArcadeTimeRemaining_005a7c2c, x + 0xbe);
 }
 
-/* Function start: 0x435064 */
+/* Function start: WC2_UNMAPPED */
 void UpdateArcadeScoreDisplay(void)
 {
     char bonus[20];
@@ -905,7 +905,7 @@ int calculate_damage_level(void)
     ObjectTypeData *typeData;
     short damage;
 
-    typeData = &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[0]];
+    typeData = &g_aObjectTypeData_00496d30[g_acObjectType_00493980[0]];
     damage = (short)(((typeData->armorLeft -
                        g_aasShipArmor_0059d420[0][2]) * 4) /
                      typeData->armorLeft);
@@ -961,7 +961,7 @@ void ResetMouseCursorFrame(void)
     SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, 0);
 }
 
-/* Function start: 0x440F01 */
+/* Function start: WC2_UNMAPPED */
 void UpdateRoomMenuCursor(void)
 {
     short mouseX;
@@ -1116,7 +1116,7 @@ unsigned int unwarp(short obj)
         return 0;
     }
     g_abShipNavPointIndex_0059d7c0[obj] =
-        (signed char)g_aeObjectType_0059b560[obj];
+        (signed char)g_acObjectType_00493980[obj];
     set_objects_data(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH, obj);
     return 0;
 }
@@ -1162,7 +1162,7 @@ int drop_player_mine(short obj)
             weapon;
         type = weaponSlot->type;
 
-        if (g_aObjectTypeData_00466458[type].objectClass ==
+        if (g_aObjectTypeData_00496d30[type].objectClass ==
                 OBJECT_CLASS_MINE &&
             weaponSlot->disabled == 0)
             return drop_mine(obj, (signed char)weapon, type, 20);
@@ -1187,7 +1187,7 @@ unsigned int personality_killed(short personality)
     return 0;
 }
 
-/* Function start: 0x440490 */
+/* Function start: WC2_UNMAPPED */
 void clean_up_cockpit(void)
 {
     short wingman = g_nYourWingman_0046c04c;
@@ -1216,7 +1216,7 @@ short find_next_gun(short obj, enum ObjectType currentGun)
         do {
             enum ObjectType type = weaponSlot->type;
 
-            if (g_aObjectTypeData_00466458[type].objectClass ==
+            if (g_aObjectTypeData_00496d30[type].objectClass ==
                     OBJECT_CLASS_PROJECTILE) {
                 if (firstGun == -1)
                     firstGun = (short)type;
@@ -1249,7 +1249,7 @@ int select_guns(short obj, short selectedGun)
     weaponSlot = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
     if (weaponCount > 0) {
         do {
-            if (g_aObjectTypeData_00466458[weaponSlot->type].objectClass ==
+            if (g_aObjectTypeData_00496d30[weaponSlot->type].objectClass ==
                     OBJECT_CLASS_PROJECTILE) {
                 if (selectedGun == weaponSlot->type || selectedGun == 0x80) {
                     weaponSlot->disabled = 0;
@@ -1313,7 +1313,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
             weapon = 0;
             if (weaponCount > 0) {
                 for (; weapon < weaponCount; weapon++) {
-                    if (g_aObjectTypeData_00466458[
+                    if (g_aObjectTypeData_00496d30[
                             weaponSlots[weapon].type].objectClass !=
                             OBJECT_CLASS_PROJECTILE) {
                         currentWeapon = weapon;
@@ -1332,7 +1332,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
             if (currentWeapon == weapon)
                 break;
             type = weaponSlots[weapon].type;
-            if (g_aObjectTypeData_00466458[type].objectClass !=
+            if (g_aObjectTypeData_00496d30[type].objectClass !=
                     OBJECT_CLASS_PROJECTILE &&
                 weaponSlots[currentWeapon].type != type) {
                 weaponSlots[currentWeapon].disabled = 1;

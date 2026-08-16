@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x47EA00 */
+/* Function start: WC2_UNMAPPED */
 void CorrectPointers(void)
 {
     short pilot;
@@ -583,7 +583,7 @@ void ShowChalkBoard(void)
     memset(&context, 0, sizeof(context));
     g_stChalkBoardDate_00470514 = *g_pCurrentCampaignDate_005a86a8;
     background = FetchDiskPacketRetrying(5, 2, 0);
-    previousContext = g_pCurrentTextContext_0059af8c;
+    previousContext = g_pCurrentTextContext_005c8d1c;
     g_stModalSourceViewport_005a7670 = DAT_005a6ba0;
     context.viewport = &g_stModalSourceViewport_005a7670;
     context.text = g_szDefaultTextBuffer_005a7590;
@@ -645,7 +645,7 @@ void ShowChalkBoard(void)
 
     ReleaseTextFont(3);
     ReleasePacketHandle(background);
-    g_pCurrentTextContext_0059af8c = previousContext;
+    g_pCurrentTextContext_005c8d1c = previousContext;
     ClearInputKeyStatePreservingModifiers();
     g_bInputMode_0059a848 = savedInputMode;
     FlushInputEvents();

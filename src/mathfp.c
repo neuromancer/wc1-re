@@ -90,7 +90,7 @@ long Magnitude(int value)
     return (long)(sqrt((double)value * 0.00390625f) * 256.0);
 }
 
-/* Function start: 0x45CCC5 */
+/* Function start: 0x461C06 */
 long PlanarMagnitude(int x, int y)
 {
     double scaledX = (double)x * (1.0 / 256.0);
@@ -114,26 +114,30 @@ long Vector_magnitude(const FixedVector *vector)
     return (long)(sqrt(x + y + z) * 256.0);
 }
 
-/* Function start: 0x488B20 */
-void __stdcall SetTextCursor(unsigned short a, unsigned short b)
+/* Function start: 0x461D02 */
+void SetTextCursor(unsigned short a, unsigned short b)
 {
-    g_pCurrentTextContext_0059af8c->cursorX = (short)a;
-    g_pCurrentTextContext_0059af8c->cursorY = (short)b;
+    g_pCurrentTextContext_005c8d1c->cursorX = (short)a;
+    g_pCurrentTextContext_005c8d1c->cursorY = (short)b;
 }
 
-/* Function start: 0x40F882 */
-void __stdcall SetTextContext(TextContext *context)
+/* Function start: 0x461D29 */
+void SetTextContext(TextContext *context)
 {
-    g_pCurrentTextContext_0059af8c = context;
+    g_pCurrentTextContext_005c8d1c = context;
+    if (g_pCurrentTextContext_005c8d1c != NULL &&
+        g_pCurrentTextContext_005c8d1c->text != NULL)
+        *g_pCurrentTextContext_005c8d1c->text = 0;
+    return;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x461D68 */
 void WaitForVerticalBlankThunk(void)
 {
     DIBwaitForVerticalBlank();
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x461D7D */
 void *__stdcall IdentityHandle(void *v)
 {
     return v;
@@ -156,7 +160,7 @@ unsigned short __stdcall ReadWord(unsigned short *p)
 /* Function start: 0x461DBD */
 unsigned short __stdcall GetFontCharWidth(char i)
 {
-    return g_pCurrentTextContext_0059af8c->font[4 + (int)i];
+    return g_pCurrentTextContext_005c8d1c->font[4 + (int)i];
 }
 
 /* Function start: 0x4641A0 */
@@ -226,11 +230,11 @@ void __stdcall DrawTextString(const char *text)
     finished = 0;
     cursor = text;
     for (;;) {
-        lineWidth = g_pCurrentTextContext_0059af8c->cursorX;
+        lineWidth = g_pCurrentTextContext_005c8d1c->cursorX;
         while (*cursor == ' ')
             cursor++;
         lineStart = cursor;
-        right = g_pCurrentTextContext_0059af8c->viewport->right;
+        right = g_pCurrentTextContext_005c8d1c->viewport->right;
         if (lineWidth < right) {
             for (;;) {
                 value = *cursor;
@@ -242,12 +246,12 @@ void __stdcall DrawTextString(const char *text)
                     break;
                 }
                 lineWidth +=
-                    g_pCurrentTextContext_0059af8c->font[4 + value];
+                    g_pCurrentTextContext_005c8d1c->font[4 + value];
                 if (lineWidth >= right) {
                     cursor--;
                     wrapped = 1;
                     lineWidth -=
-                        g_pCurrentTextContext_0059af8c->font[4 + value];
+                        g_pCurrentTextContext_005c8d1c->font[4 + value];
                     if (*cursor != ' ') {
                         if (cursor <= text) {
                             SystemDebugPrintf(
@@ -260,7 +264,7 @@ void __stdcall DrawTextString(const char *text)
                             value = *cursor;
                             cursor--;
                             lineWidth -=
-                                g_pCurrentTextContext_0059af8c
+                                g_pCurrentTextContext_005c8d1c
                                     ->font[4 + value];
                         } while (*cursor != ' ');
                         if (cursor <= text) {
@@ -276,26 +280,26 @@ void __stdcall DrawTextString(const char *text)
             }
         }
 
-        if (g_pCurrentTextContext_0059af8c->alignment == 2) {
-            savedX = g_pCurrentTextContext_0059af8c->cursorX;
-            g_pCurrentTextContext_0059af8c->cursorX = (short)(
-                g_pCurrentTextContext_0059af8c->viewport->left +
-                ((g_pCurrentTextContext_0059af8c->viewport->right -
-                  g_pCurrentTextContext_0059af8c->viewport->left) -
+        if (g_pCurrentTextContext_005c8d1c->alignment == 2) {
+            savedX = g_pCurrentTextContext_005c8d1c->cursorX;
+            g_pCurrentTextContext_005c8d1c->cursorX = (short)(
+                g_pCurrentTextContext_005c8d1c->viewport->left +
+                ((g_pCurrentTextContext_005c8d1c->viewport->right -
+                  g_pCurrentTextContext_005c8d1c->viewport->left) -
                  lineWidth + savedX + 1) / 2);
         }
         while (lineStart < cursor) {
             DrawTextCharacter(*lineStart);
             lineStart++;
         }
-        if (g_pCurrentTextContext_0059af8c->alignment == 2)
-            g_pCurrentTextContext_0059af8c->cursorX = (short)savedX;
+        if (g_pCurrentTextContext_005c8d1c->alignment == 2)
+            g_pCurrentTextContext_005c8d1c->cursorX = (short)savedX;
         if (wrapped != 0) {
-            g_pCurrentTextContext_0059af8c->cursorX =
-                g_pCurrentTextContext_0059af8c->viewport->left;
+            g_pCurrentTextContext_005c8d1c->cursorX =
+                g_pCurrentTextContext_005c8d1c->viewport->left;
             wrapped = 0;
-            g_pCurrentTextContext_0059af8c->cursorY +=
-                *(short *)g_pCurrentTextContext_0059af8c->font;
+            g_pCurrentTextContext_005c8d1c->cursorY +=
+                *(short *)g_pCurrentTextContext_005c8d1c->font;
         }
         if (finished != 0)
             return;
@@ -312,19 +316,19 @@ void __stdcall DrawTextCharacter(char character)
     int cursorY;
 
     if (character == '\n') {
-        g_pCurrentTextContext_0059af8c->cursorX =
-            g_pCurrentTextContext_0059af8c->viewport->left;
-        g_pCurrentTextContext_0059af8c->cursorY =
-            (short)(g_pCurrentTextContext_0059af8c->cursorY +
-                    *(short *)g_pCurrentTextContext_0059af8c->font);
+        g_pCurrentTextContext_005c8d1c->cursorX =
+            g_pCurrentTextContext_005c8d1c->viewport->left;
+        g_pCurrentTextContext_005c8d1c->cursorY =
+            (short)(g_pCurrentTextContext_005c8d1c->cursorY +
+                    *(short *)g_pCurrentTextContext_005c8d1c->font);
     } else if (character == '\r') {
-        g_pCurrentTextContext_0059af8c->cursorX =
-            g_pCurrentTextContext_0059af8c->viewport->left;
+        g_pCurrentTextContext_005c8d1c->cursorX =
+            g_pCurrentTextContext_005c8d1c->viewport->left;
     } else if (character != 0) {
-        font = g_pCurrentTextContext_0059af8c->font;
+        font = g_pCurrentTextContext_005c8d1c->font;
         fontHeight = *(short *)font;
         glyphWidth = font[4 + (int)(signed char)character];
-        context = g_pCurrentTextContext_0059af8c;
+        context = g_pCurrentTextContext_005c8d1c;
         cursorY = context->cursorY;
         DrawFontGlyph(character, context, fontHeight, glyphWidth, cursorY);
     }
@@ -333,12 +337,12 @@ void __stdcall DrawTextCharacter(char character)
 /* Function start: WC2_UNMAPPED */
 void __stdcall AppendTextCharacter(char character)
 {
-    *g_pCurrentTextContext_0059af8c->textCursor = character;
-    g_pCurrentTextContext_0059af8c->textCursor++;
-    *g_pCurrentTextContext_0059af8c->textCursor = 0;
+    *g_pCurrentTextContext_005c8d1c->textCursor = character;
+    g_pCurrentTextContext_005c8d1c->textCursor++;
+    *g_pCurrentTextContext_005c8d1c->textCursor = 0;
 }
 
-/* Function start: 0x417124 */
+/* Function start: WC2_UNMAPPED */
 int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
 {
     unsigned char *run;
@@ -391,6 +395,6 @@ int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
 /* Function start: WC2_UNMAPPED */
 void ResetTextCursor(void)
 {
-    g_pCurrentTextContext_0059af8c->cursorX = 0;
-    g_pCurrentTextContext_0059af8c->cursorY = 0;
+    g_pCurrentTextContext_005c8d1c->cursorX = 0;
+    g_pCurrentTextContext_005c8d1c->cursorY = 0;
 }

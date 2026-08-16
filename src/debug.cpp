@@ -399,7 +399,7 @@ void DebugOverlayConsole::DisableReverseVideo(void)
     }
 }
 
-/* Function start: 0x40AD89 */
+/* Function start: 0x45B654 */
 void DebugOverlayConsole::SetOverlayTextColor(int red, int green, int blue)
 {
 #ifndef WC1_SDL
@@ -445,7 +445,7 @@ void DebugOverlayConsole::SetTransparentBackground(void)
 #endif
 }
 
-/* Function start: 0x44FAEF */
+/* Function start: WC2_UNMAPPED */
 void DebugOverlayConsole::SetOpaqueBackground(void)
 {
 #ifndef WC1_SDL

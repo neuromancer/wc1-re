@@ -162,7 +162,7 @@ void ReleaseInputEventQueue(void)
     g_pInputEventHead_0046da90 = 0;
 }
 
-/* Function start: 0x458F5A */
+/* Function start: WC2_UNMAPPED */
 void RetainInputEventsOfType(int type)
 {
     InputEvent *event = g_pInputEventHead_0046da90;
@@ -322,7 +322,7 @@ short __stdcall PollInputEvent(InputEventState *event, short filter)
     return GetNextInputEvent(event);
 }
 
-/* Function start: 0x43AFD3 */
+/* Function start: WC2_UNMAPPED */
 short __stdcall PeekInputEvent(InputEventState *state, short type)
 {
     InputEvent *event;
@@ -488,7 +488,7 @@ void RefreshMouseCursorDisplay(void)
     RestoreMouseCursorBackground();
 }
 
-/* Function start: 0x463BA1 */
+/* Function start: 0x46396C */
 void EnterAllocationScope(void)
 {
     DAT_0046daa0 = DAT_0046daa0 + 1;
@@ -500,7 +500,7 @@ void LeaveAllocationScope(void)
     DAT_0046daa0 = DAT_0046daa0 - 1;
 }
 
-/* Function start: 0x4379F0 */
+/* Function start: 0x463EEE */
 void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
 {
     g_stMouseCursorState_0059ab10.shapeChanged = 1;
@@ -525,7 +525,7 @@ void __stdcall SetMouseHomePosition(short x, short y)
     SetMousePositionDuplicate(x, y);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x463FAA */
 void __stdcall ApplyPackedMousePosition(ShortPoint point)
 {
     g_stMouseCursorState_0059ab10.x = point.x;
@@ -539,7 +539,7 @@ void SetFrameTimerPeriod(short period)
     SetMultimediaTimerCallback((int)period);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464021 */
 void __stdcall SetFrameTimerAndWait(short period)
 {
     SetFrameTimerPeriod(period);
@@ -552,30 +552,30 @@ void __stdcall SetFrameTimerPeriodDirect(short p)
     SetMultimediaTimerCallback((int)p);
 }
 
-/* Function start: 0x484453 */
+/* Function start: 0x464055 */
 void WaitForFrameTick(void)
 {
     while (DAT_0059ab3c != 0) ;
 }
 
-/* Function start: 0x44A03C */
+/* Function start: 0x464072 */
 int IsFrameTickElapsed(void)
 {
     return DAT_0059ab3c == 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464141 */
 unsigned short GetSoundHardwareFlag(void)
 {
     return 1;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x46416A */
 void TimerResetHook(void)
 {
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x46417A */
 unsigned int GetVideoReleaseResult(void)
 {
     return 0;
@@ -715,7 +715,7 @@ void draw_sorted_objects_to_buffer(void)
         obj = *sortedEntry;
         if (obj < 0)
             return;
-        if ((int)g_aeObjectType_0059b560[obj] < 0)
+        if ((int)g_acObjectType_00493980[obj] < 0)
             return;
         objectClass = g_aeObjectClass_0059d100[obj];
 #ifdef WC1_SDL
@@ -751,7 +751,7 @@ void draw_sorted_objects_to_buffer(void)
                             g_aObjectViewPosition_0059afa0[obj].z);
             }
         } else if (objectClass == OBJECT_CLASS_FIXED_OBJECT &&
-                   g_aeObjectType_0059b560[obj] == OBJECT_TYPE_THRUSTERS) {
+                   g_acObjectType_00493980[obj] == OBJECT_TYPE_THRUSTERS) {
             Wc1SdlGetThrusterScreenPosition(
                 (short)obj, &enhancedScreenX, &enhancedScreenY);
         }
@@ -835,7 +835,7 @@ void intro_drawbackgroundships(void)
          shortOffset += sizeof(short),
          dwordOffset += sizeof(int),
          obj++) {
-        if (*(enum ObjectType *)((unsigned char *)g_aeObjectType_0059b560 +
+        if (*(enum ObjectType *)((unsigned char *)g_acObjectType_00493980 +
                                  dwordOffset) < zero)
             return;
         objectClass = *(enum ObjectClass *)(
@@ -1060,7 +1060,7 @@ unsigned int IsVectorWithinRange(FixedVector *vector, short range)
     return 0;
 }
 
-/* Function start: 0x419C10 */
+/* Function start: WC2_UNMAPPED */
 unsigned int shrink_vector(FixedVector *vector)
 {
     unsigned int shrinking;
@@ -1073,7 +1073,7 @@ unsigned int shrink_vector(FixedVector *vector)
     return 0;
 }
 
-/* Function start: 0x47AF60 */
+/* Function start: WC2_UNMAPPED */
 unsigned int shrink(int *component)
 {
     int value;

@@ -176,7 +176,7 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
     return 0;
 }
 
-/* Function start: 0x459082 */
+/* Function start: WC2_UNMAPPED */
 unsigned int ReleaseTextFont(short fontIndex)
 {
     int index;
@@ -212,7 +212,7 @@ unsigned int DrawTextAt(TextContext *context, short x, short y,
     return 0;
 }
 
-/* Function start: 0x410680 */
+/* Function start: WC2_UNMAPPED */
 unsigned int SortSignedByteValuesAscending(signed char *values,
                                            short count)
 {
@@ -276,7 +276,7 @@ short OpenDiskDataFile(short logicalFile)
     return 0;
 }
 
-/* Function start: 0x437A44 */
+/* Function start: WC2_UNMAPPED */
 void __stdcall PromptInsertNumberedDisk(short logicalFile)
 {
     TextContext *savedTextContext;
@@ -302,7 +302,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
         return;
     }
 
-    savedTextContext = g_pCurrentTextContext_0059af8c;
+    savedTextContext = g_pCurrentTextContext_005c8d1c;
     SetTextContext(&g_stDiskPromptTextContext_005a7d60);
     g_stDiskPromptBackgroundViewport_005a7d00.left =
         (short)g_dwDiskPromptTopLeft_005a7d80;
@@ -382,7 +382,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
         ClearViewport(&g_stDiskPromptBackgroundViewport_005a7d00,
                       backgroundColour);
     }
-    g_pCurrentTextContext_0059af8c = savedTextContext;
+    g_pCurrentTextContext_005c8d1c = savedTextContext;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -391,7 +391,7 @@ unsigned int GetZeroUnused(void)
     return 0;
 }
 
-/* Function start: 0x43D81F */
+/* Function start: WC2_UNMAPPED */
 short CheckEscaped(void)
 {
     InputEventState event;
@@ -577,25 +577,25 @@ void EraseLastTextInputCharacter(void)
     short length;
     short characterWidth;
 
-    text = g_pCurrentTextContext_0059af8c->text;
+    text = g_pCurrentTextContext_005c8d1c->text;
     textWidth = MeasureTextPixelWidthClamped(text);
     length = DosStrlen(text);
     if (length != 0) {
         characterWidth = (short)GetFontCharWidth(text[length - 1]);
-        clearArea = *g_pCurrentTextContext_0059af8c->viewport;
+        clearArea = *g_pCurrentTextContext_005c8d1c->viewport;
         clearArea.left = (short)(clearArea.left +
                                  textWidth - characterWidth);
         clearArea.right = (short)(clearArea.left + characterWidth - 1);
-        clearArea.top = g_pCurrentTextContext_0059af8c->cursorY;
+        clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
         clearArea.bottom = (short)(clearArea.top +
             ReadWord((unsigned short *)
-                g_pCurrentTextContext_0059af8c->font) - 1);
+                g_pCurrentTextContext_005c8d1c->font) - 1);
         LeaveAllocationScope();
         ClearViewport(&clearArea,
-                      g_pCurrentTextContext_0059af8c->backgroundColour);
+                      g_pCurrentTextContext_005c8d1c->backgroundColour);
         EnterAllocationScope();
-        g_pCurrentTextContext_0059af8c->cursorX = (short)(
-            g_pCurrentTextContext_0059af8c->cursorX - characterWidth);
+        g_pCurrentTextContext_005c8d1c->cursorX = (short)(
+            g_pCurrentTextContext_005c8d1c->cursorX - characterWidth);
     }
 }
 
@@ -660,7 +660,7 @@ short initialize_ship(enum ObjectType type, short owner)
     return obj;
 }
 
-/* Function start: 0x452D66 */
+/* Function start: 0x410680 */
 short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
 {
     enum ObjectClass selectedClass;
@@ -674,7 +674,7 @@ short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
         for (; (short)(signed char)loadout[0] > weapon; weapon++) {
             if (selected != 0)
                 break;
-            if (g_aObjectTypeData_00466458[
+            if (g_aObjectTypeData_00496d30[
                     ((ShipWeaponSlot *)(loadout + weapon * 7 + 1))->type]
                     .objectClass ==
                     selectedClass &&
@@ -684,7 +684,7 @@ short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
     return selected;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x410715 */
 unsigned int remove_weapon(short obj, short weapon)
 {
     short ship;
@@ -700,7 +700,7 @@ unsigned int remove_weapon(short obj, short weapon)
     loadout = g_aShipWeapons_0059cab0[ship];
     preferredType =
         ((ShipWeaponSlot *)(loadout + weaponOffset + 1))->type;
-    objectClass = g_aObjectTypeData_00466458[preferredType].objectClass;
+    objectClass = g_aObjectTypeData_00496d30[preferredType].objectClass;
     for (; currentWeapon < (signed char)loadout[0] - 1;
          currentWeapon++) {
         unsigned char *entry = loadout + currentWeapon * 7;
@@ -742,11 +742,11 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     short weapon;
 
     if (type == OBJECT_TYPE_SPACE_DUST) {
-        g_aeObjectType_0059b560[obj] = type;
+        g_acObjectType_00493980[obj] = type;
         g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_DUST;
         return;
     }
-    if (g_aObjectTypeData_00466458[type].shapeSet == 0) {
+    if (g_aObjectTypeData_00496d30[type].shapeSet == 0) {
         switch (type) {
         case OBJECT_TYPE_ASTEROID2:
             type = OBJECT_TYPE_ASTEROID1;
@@ -769,12 +769,12 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
             break;
         }
     }
-    typeData = &g_aObjectTypeData_00466458[type];
-    g_aeObjectType_0059b560[obj] = type;
+    typeData = &g_aObjectTypeData_00496d30[type];
+    g_acObjectType_00493980[obj] = type;
     g_aeObjectClass_0059d100[obj] = typeData->objectClass;
     if (type == OBJECT_TYPE_ROCK_CHUNK)
         g_apObjectShape_0059d2f0[obj] =
-            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID1].shapeSet;
+            g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID1].shapeSet;
     else
         g_apObjectShape_0059d2f0[obj] = typeData->shapeSet;
     init_ijk(obj);
@@ -796,11 +796,11 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
         g_acShipTarget_0059ce60[obj] = -1;
         if (objectClass >= OBJECT_CLASS_SHIP) {
             value = typeData->shieldFore;
-            g_aasShipShield_0059d5b0[obj][0] = value;
-            g_aasShipMaximumShield_0059d6e0[obj][0] = value;
+            g_aasShipShield_00495518[obj][0] = value;
+            g_aasShipMaximumShield_004954f0[obj][0] = value;
             value = typeData->shieldAft;
-            g_aasShipShield_0059d5b0[obj][1] = value;
-            g_aasShipMaximumShield_0059d6e0[obj][1] = value;
+            g_aasShipShield_00495518[obj][1] = value;
+            g_aasShipMaximumShield_004954f0[obj][1] = value;
             g_aasShipArmor_0059d420[obj][0] = typeData->armorFront;
             g_aasShipArmor_0059d420[obj][2] = typeData->armorLeft;
             g_aasShipArmor_0059d420[obj][3] = typeData->armorRight;
@@ -823,7 +823,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
 
                     slot = (ShipWeaponSlot *)(loadout + weapon * 7 + 1);
                     if (slot->disabled == 0) {
-                        if (g_aObjectTypeData_00466458[
+                        if (g_aObjectTypeData_00496d30[
                                 slot->type].objectClass ==
                                 OBJECT_CLASS_PROJECTILE)
                             g_eSelectedGunType_0046c054 = slot->type;
@@ -894,7 +894,7 @@ void rotate_object_to_goal(short obj)
     ObjectTypeData *typeData;
     short totalError;
 
-    typeData = &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[obj]];
+    typeData = &g_aObjectTypeData_00496d30[g_acObjectType_00493980[obj]];
     if (g_aeSpecialManeuver_0059c3c0[obj] ==
             SPECIAL_MANEUVER_BLOWING_UP) {
         if ((short)alert_flag(obj, 1) != 0) {
@@ -956,7 +956,7 @@ unsigned int approach_speed(short ship, int targetSpeed)
     return 0;
 }
 
-/* Function start: 0x4728E0 */
+/* Function start: 0x4118A9 */
 unsigned int steady_object(short ship)
 {
     g_anYawGoal_0059c310[ship] = 0;

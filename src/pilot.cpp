@@ -228,7 +228,7 @@ void ClearDebugPauseFlags(void)
     g_dwDebugOverlayKey_00469648 = 0;
 }
 
-/* Function start: 0x43E472 */
+/* Function start: WC2_UNMAPPED */
 unsigned short EraseTextContextBackground(TextContext *context)
 {
     unsigned short colour;
@@ -273,7 +273,7 @@ int DisplayTrainSimHighScoreTable(short phase)
     return completed;
 }
 
-/* Function start: 0x4595AA */
+/* Function start: WC2_UNMAPPED */
 int AnimateTrainSimTitle(void)
 {
     short completed;
@@ -468,21 +468,21 @@ void AddRandomTrainSimHighScores(void)
     } while (remaining != 0);
 }
 
-/* Function start: 0x439369 */
+/* Function start: WC2_UNMAPPED */
 void DrawTextInputCursor(char character)
 {
     unsigned char savedBackground =
-        g_pCurrentTextContext_0059af8c->backgroundColour;
-    unsigned char colour = g_pCurrentTextContext_0059af8c->colour;
+        g_pCurrentTextContext_005c8d1c->backgroundColour;
+    unsigned char colour = g_pCurrentTextContext_005c8d1c->colour;
     short savedX;
     char cursor[2] = { character, 0 };
 
-    savedX = g_pCurrentTextContext_0059af8c->cursorX;
-    g_pCurrentTextContext_0059af8c->cursorX = (short)(savedX + 1);
-    g_pCurrentTextContext_0059af8c->backgroundColour = colour;
+    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
+    g_pCurrentTextContext_005c8d1c->cursorX = (short)(savedX + 1);
+    g_pCurrentTextContext_005c8d1c->backgroundColour = colour;
     DrawFormattedText(cursor);
-    g_pCurrentTextContext_0059af8c->backgroundColour = savedBackground;
-    g_pCurrentTextContext_0059af8c->cursorX = savedX;
+    g_pCurrentTextContext_005c8d1c->backgroundColour = savedBackground;
+    g_pCurrentTextContext_005c8d1c->cursorX = savedX;
 }
 
 /* Function start: 0x459348 */
@@ -492,27 +492,27 @@ void ClearTextInputCharacter(char character)
     short characterWidth;
 
     characterWidth = (short)GetFontCharWidth(character);
-    clearArea = *g_pCurrentTextContext_0059af8c->viewport;
-    clearArea.left = g_pCurrentTextContext_0059af8c->cursorX;
+    clearArea = *g_pCurrentTextContext_005c8d1c->viewport;
+    clearArea.left = g_pCurrentTextContext_005c8d1c->cursorX;
     clearArea.right = (short)(clearArea.left + characterWidth - 1);
-    clearArea.top = g_pCurrentTextContext_0059af8c->cursorY;
+    clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
     clearArea.bottom = (short)(clearArea.top +
-        ReadWord((unsigned short *)g_pCurrentTextContext_0059af8c->font) - 1);
+        ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font) - 1);
     LeaveAllocationScope();
     ClearViewport(&clearArea,
-                  g_pCurrentTextContext_0059af8c->backgroundColour);
+                  g_pCurrentTextContext_005c8d1c->backgroundColour);
     EnterAllocationScope();
 }
 
-/* Function start: 0x442421 */
+/* Function start: WC2_UNMAPPED */
 void ClearNextTextInputCharacter(char character)
 {
     short savedX;
 
-    savedX = g_pCurrentTextContext_0059af8c->cursorX;
-    g_pCurrentTextContext_0059af8c->cursorX++;
+    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
+    g_pCurrentTextContext_005c8d1c->cursorX++;
     ClearTextInputCharacter(character);
-    g_pCurrentTextContext_0059af8c->cursorX = savedX;
+    g_pCurrentTextContext_005c8d1c->cursorX = savedX;
 }
 
 /* Function start: 0x4597E3 */
@@ -533,29 +533,29 @@ short ReadTextInput(char *destination, short maximumLength,
     unsigned char character;
     char input[40];
 
-    savedBackground = g_pCurrentTextContext_0059af8c->backgroundColour;
+    savedBackground = g_pCurrentTextContext_005c8d1c->backgroundColour;
     accepted = 0;
     if (savedBackground == 0xff) {
-        g_pCurrentTextContext_0059af8c->backgroundColour = DAT_0046999c;
+        g_pCurrentTextContext_005c8d1c->backgroundColour = DAT_0046999c;
     }
-    savedViewport = g_pCurrentTextContext_0059af8c->viewport;
-    savedText = g_pCurrentTextContext_0059af8c->text;
-    g_pCurrentTextContext_0059af8c->text = input;
-    savedX = g_pCurrentTextContext_0059af8c->cursorX;
-    savedY = g_pCurrentTextContext_0059af8c->cursorY;
+    savedViewport = g_pCurrentTextContext_005c8d1c->viewport;
+    savedText = g_pCurrentTextContext_005c8d1c->text;
+    g_pCurrentTextContext_005c8d1c->text = input;
+    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
+    savedY = g_pCurrentTextContext_005c8d1c->cursorY;
     inputViewport = *savedViewport;
-    g_pCurrentTextContext_0059af8c->viewport = &inputViewport;
+    g_pCurrentTextContext_005c8d1c->viewport = &inputViewport;
     DosStrcpy(input, destination);
     inputLength = DosStrlen(input);
 
     inputViewport.left = savedX;
     inputViewport.top = savedY;
     inputViewport.bottom = (short)(inputViewport.top +
-        ReadWord((unsigned short *)g_pCurrentTextContext_0059af8c->font));
+        ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font));
     inputViewport.right = (short)(inputViewport.left +
         MeasureTextPixelWidthClamped(input));
     ClearViewport(&inputViewport,
-                  g_pCurrentTextContext_0059af8c->backgroundColour);
+                  g_pCurrentTextContext_005c8d1c->backgroundColour);
     inputViewport.right = savedViewport->right;
     DrawFormattedText(input);
     DrawTextInputCursor(' ');
@@ -580,14 +580,14 @@ short ReadTextInput(char *destination, short maximumLength,
                 inputViewport.top = savedY;
                 inputViewport.bottom = (short)(inputViewport.top +
                     ReadWord((unsigned short *)
-                        g_pCurrentTextContext_0059af8c->font));
+                        g_pCurrentTextContext_005c8d1c->font));
                 inputViewport.right = (short)(inputViewport.left +
                     MeasureTextPixelWidthClamped(input));
                 ClearViewport(&inputViewport,
-                              g_pCurrentTextContext_0059af8c->backgroundColour);
-                g_pCurrentTextContext_0059af8c->cursorX = savedX;
-                g_pCurrentTextContext_0059af8c->text = savedText;
-                g_pCurrentTextContext_0059af8c->viewport = savedViewport;
+                              g_pCurrentTextContext_005c8d1c->backgroundColour);
+                g_pCurrentTextContext_005c8d1c->cursorX = savedX;
+                g_pCurrentTextContext_005c8d1c->text = savedText;
+                g_pCurrentTextContext_005c8d1c->viewport = savedViewport;
                 return 0;
             } else if (key == 8 && inputLength != 0) {
                 inputLength--;
@@ -640,9 +640,9 @@ redraw:
 
     DAT_0046505c = savedFrameState;
     DosStrcpy(destination, input);
-    g_pCurrentTextContext_0059af8c->text = savedText;
-    g_pCurrentTextContext_0059af8c->viewport = savedViewport;
-    g_pCurrentTextContext_0059af8c->backgroundColour = savedBackground;
+    g_pCurrentTextContext_005c8d1c->text = savedText;
+    g_pCurrentTextContext_005c8d1c->viewport = savedViewport;
+    g_pCurrentTextContext_005c8d1c->backgroundColour = savedBackground;
     return 1;
 }
 
@@ -728,7 +728,7 @@ void EnterPilotNameAndCallsign(void)
                         g_szCallsignLabel_00469ee0,
                         g_stCampaignState_0059ca50.currentPilot->callsign,
                         13, g_szDefaultCallsign_00469ed4);
-    if (g_nOriginDevUnlock_00469ff4 != 0) {
+    if (g_nOriginDevUnlock_0049d774 != 0) {
         memcpy(g_stCampaignState_0059ca50.currentPilot->callsign,
                g_szCheaterCallsign_00469eec, 8);
     }

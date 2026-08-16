@@ -10,6 +10,21 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x440490 */
+void HandleUnsupportedManeuver(short maneuver, short ship, short target)
+{
+    if (g_nOriginDevUnlock_0049d774 != 0)
+        printf("Maneuver error %d", maneuver);
+    Mzip_past(ship, target);
+}
+
+/* Function start: 0x440549 */
+void ResetShipWeaponFireState(short ship)
+{
+    g_anShipWeaponFiringState_00496020[ship] = 0;
+    g_asShipWeaponCooldown_00496048[ship] = 40;
+}
+
 /* Function start: 0x440606 */
 void SetShipAiScratchWord(unsigned short v)
 {
@@ -67,16 +82,21 @@ void Mwabble(short ship)
     }
 }
 
-/* Function start: 0x439559 */
+/* Function start: 0x4407B0 */
 void advance(short ship)
 {
     if (g_aeShipManeuver_0059dcb0[ship] != MANEUVER_NONE)
         g_acShipSequence_0059d520[ship] = g_acShipSequence_0059d520[ship] + 1;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4407DA */
 void ShipAiState35(short ship, short target)
 {
+    HandleUnsupportedManeuver(1, ship, target);
+
+#if 0
+    /* Retained WC1 implementation.  WC2 replaced maneuver 35 with the
+       unsupported-maneuver diagnostic above. */
     (void)target;
 
     switch (g_acShipSequence_0059d520[ship]) {
@@ -109,9 +129,10 @@ void ShipAiState35(short ship, short target)
             maneuver_complete(ship);
         break;
     }
+#endif
 }
 
-/* Function start: 0x44151B */
+/* Function start: 0x4407F7 */
 void Mfull_ahead(short ship)
 {
     short count;
@@ -123,7 +144,7 @@ void Mfull_ahead(short ship)
         maneuver_complete(ship);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x440814 */
 void Mchill(short ship, short target)
 {
     FixedVector destination;
@@ -134,7 +155,7 @@ void Mchill(short ship, short target)
         reset_maneuver(ship, g_acShipSequence_0059d520[ship]);
 }
 
-/* Function start: 0x441837 */
+/* Function start: 0x440831 */
 void Mdrop_a_mine(short ship)
 {
     short weapon;
@@ -148,7 +169,7 @@ void Mdrop_a_mine(short ship)
     maneuver_complete(ship);
 }
 
-/* Function start: 0x433E8C */
+/* Function start: 0x44084E */
 void Mthink(short ship)
 {
     approach_cruise_speed(ship);
@@ -340,7 +361,7 @@ void Mburnout(short ship, short target)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x440F01 */
 void Mkickit(short ship)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -356,7 +377,7 @@ void Mkickit(short ship)
     }
 }
 
-/* Function start: 0x44145A */
+/* Function start: 0x440F76 */
 void Mturn_n_kick(short ship)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -379,7 +400,7 @@ void Mturn_n_kick(short ship)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4410C0 */
 void Mroll_over(short ship)
 {
     if (g_acShipSequence_0059d520[ship] == 0) {
@@ -433,8 +454,8 @@ void Mfish_hook(short ship, short target)
         break;
     case 3:
         advanceSequence =
-            g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[ship]].cruiseVelocity >=
+            g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[ship]].cruiseVelocity >=
             real_velocity(ship);
         break;
     case 4:
@@ -452,7 +473,7 @@ void Mfish_hook(short ship, short target)
         advance(ship);
 }
 
-/* Function start: 0x4410C0 */
+/* Function start: 0x441379 */
 void Mtry2tail(short ship, short target)
 {
     if (unactive(target) == 0) {
@@ -466,7 +487,7 @@ void Mtry2tail(short ship, short target)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x44145A */
 void Msplit_left(short ship)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -481,7 +502,7 @@ void Msplit_left(short ship)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x44151B */
 void Msplit_right(short ship)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -521,7 +542,7 @@ void Mgloat(short ship)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4416D5 */
 void Mtail_fire(short ship, short target)
 {
     if (no_goal(ship) != 0)
@@ -532,7 +553,7 @@ void Mtail_fire(short ship, short target)
     fire_when_ready(ship, 1);
 }
 
-/* Function start: 0x4418B2 */
+/* Function start: 0x441742 */
 void Mzip_past(short ship, short target)
 {
     if (unactive(target) == 0) {
@@ -622,7 +643,7 @@ void Mbuzz_debris(short ship)
     }
 }
 
-/* Function start: 0x45BF30 */
+/* Function start: 0x441AFC */
 void Mstrafe_enemy(short ship, short target)
 {
     short aimed;
@@ -841,19 +862,19 @@ void ShipAiState44(short ship)
     maneuver_complete(ship);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x442404 */
 void Mtarget_laser(short ship, short target)
 {
     Mbest_strafe(ship, target);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x442421 */
 void Mrout_me(short ship)
 {
     try2rout(ship);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4424C2 */
 /* Empty in the original: dispatch-table slots 0 and 1 (no-op / invalid state). */
 void Mnone(void)
 {
@@ -1283,7 +1304,7 @@ unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
     return 0;
 }
 
-/* Function start: 0x42C7BC */
+/* Function start: WC2_UNMAPPED */
 unsigned int DrawScrambleFrame(void)
 {
     short detailIndex;
@@ -1418,7 +1439,7 @@ unsigned int DrawScrambleFrame(void)
     return 0;
 }
 
-/* Function start: 0x429423 (Mac symbol: scramble) */
+/* Function start: WC2_UNMAPPED (Mac symbol: scramble) */
 unsigned int scramble(void)
 {
     unsigned char *actorShape;
@@ -2322,7 +2343,7 @@ void fail(short obj)
     reset_objective(obj, OBJECTIVE_NONE);
 }
 
-/* Function start: 0x43A8EA */
+/* Function start: WC2_UNMAPPED */
 void coming_home(short obj)
 {
     short objective;
@@ -2612,7 +2633,7 @@ void kilrathi_wingman(short obj)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x443631 */
 void wingman_mission(short obj)
 {
     if (g_aeShipSide_0059d650[obj] == SIDE_IMPERIAL) {
@@ -2686,7 +2707,7 @@ void patrol_area(short obj)
     }
 }
 
-/* Function start: 0x442455 */
+/* Function start: 0x443930 */
 void kilrathi_patrol(short obj)
 {
     switch (g_aeShipObjective_0059d200[obj]) {
@@ -2785,7 +2806,7 @@ void prepare_for_jump(short obj)
     }
 }
 
-/* Function start: 0x42D4C1 */
+/* Function start: 0x443D6E */
 void accelerate_and_jump(short obj)
 {
     approach_full_speed(obj);
@@ -2937,7 +2958,7 @@ void approach_and_engage(short obj, short goal)
     }
 }
 
-/* Function start: 0x4429C0 */
+/* Function start: 0x444420 */
 void strike_mission(short obj)
 {
     short goal = find_ship_index(g_anShipMissionShip_0059d4b0[obj]);
@@ -3172,16 +3193,16 @@ void destroyer_intelligence(short obj)
     orbit_sphere(obj);
 }
 
-/* Function start: 0x42A876 */
+/* Function start: 0x444EA7 */
 void stationary_intelligence(short obj)
 {
-    if (g_aeObjectType_0059b560[obj] == OBJECT_TYPE_KILRATHI_BASE) {
+    if (g_acObjectType_00493980[obj] == OBJECT_TYPE_KILRATHI_BASE) {
         g_anObjectYawRotation_0059ce80[obj] = 4;
         fire_turrets(obj);
     }
 }
 
-/* Function start: 0x441742 */
+/* Function start: 0x445AAC */
 void capital_ship_intelligence(short obj)
 {
     enum ObjectType type;
@@ -3208,7 +3229,7 @@ void capital_ship_intelligence(short obj)
         break;
     }
 
-    type = g_aeObjectType_0059b560[obj];
+    type = g_acObjectType_00493980[obj];
     if (type == OBJECT_TYPE_DORKIR || type == OBJECT_TYPE_LUMBARI) {
         tanker_intelligence(obj);
         return;
@@ -3279,8 +3300,8 @@ void mine_intelligence(short obj)
                             OBJECT_CLASS_SHIP)
             continue;
         distance = distance_from_object(obj, other);
-        if (distance < g_aObjectTypeData_00466458[
-                           g_aeObjectType_0059b560[obj]].collisionRadius ||
+        if (distance < g_aObjectTypeData_00496d30[
+                           g_acObjectType_00493980[obj]].collisionRadius ||
             (distance < 50 && RandomBelowOrEqual(7) == 0)) {
             explode(obj, obj);
             return;
@@ -3438,8 +3459,8 @@ unsigned int init_mission(short series, short mission)
     g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
         g_aMissionResourceDescriptors_00469c20, 0,
         g_nAvailableGameMemory_005a7ce0);
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_WING].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
+    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
     prepare_mission();
     InitializeCockpitResources(
         (signed char)(series == 0 ? 4 :
@@ -3472,8 +3493,8 @@ void prepare_mission(void)
         playerRecord->navPoint = DAT_0046a010;
     Set_up_ship_info(0, g_nPlayerMissionShipIndex_005a8694, -1);
 
-    memset(g_acPlayerComponentDamage_0059bff0, 0,
-           sizeof(g_acPlayerComponentDamage_0059bff0));
+    memset(g_acPlayerComponentDamage_00493470, 0,
+           sizeof(g_acPlayerComponentDamage_00493470));
     DAT_00465c84 = 1;
     g_nYourWingman_0046c04c = -1;
     initial = 0;
@@ -3537,11 +3558,11 @@ int release_capital_ship_shapes(enum ObjectType type)
 {
     short obj;
 
-    if (g_aObjectTypeData_00466458[type].objectClass ==
+    if (g_aObjectTypeData_00496d30[type].objectClass ==
         OBJECT_CLASS_CAPITAL_SHIP) {
         obj = 1;
         do {
-            if (g_aeObjectType_0059b560[obj] == type) {
+            if (g_acObjectType_00493980[obj] == type) {
                 FreePacketAndClear(&g_apObjectShape_0059d2f0[obj], 0);
                 g_asCapitalShipViewFrame_0059dd90[obj] = -1;
             }
@@ -3551,7 +3572,7 @@ int release_capital_ship_shapes(enum ObjectType type)
     return 0;
 }
 
-/* Function start: 0x444420 */
+/* Function start: WC2_UNMAPPED */
 int load_ship(enum ObjectType type, short slot)
 {
     short obj;
@@ -3563,35 +3584,35 @@ int load_ship(enum ObjectType type, short slot)
             g_cObjectResourceLogicalFile_005a86b0 =
                 (signed char)(type + 22);
             if (type == OBJECT_TYPE_ASTEROID_FIELD) {
-                g_aObjectTypeData_00466458[
+                g_aObjectTypeData_00496d30[
                     OBJECT_TYPE_ROCK_CHUNK].shapeSet =
                     FetchDiskPacketRetrying(3, 13, 0);
-                g_aObjectTypeData_00466458[
+                g_aObjectTypeData_00496d30[
                     OBJECT_TYPE_ASTEROID5].shapeSet =
                     FetchDiskPacketRetrying(3, 16, 0);
-                g_aObjectTypeData_00466458[
+                g_aObjectTypeData_00496d30[
                     OBJECT_TYPE_ASTEROID3].shapeSet =
-                    g_aObjectTypeData_00466458[
+                    g_aObjectTypeData_00496d30[
                         OBJECT_TYPE_ASTEROID5].shapeSet;
-                g_aObjectTypeData_00466458[
+                g_aObjectTypeData_00496d30[
                     OBJECT_TYPE_ASTEROID1].shapeSet =
-                    g_aObjectTypeData_00466458[
+                    g_aObjectTypeData_00496d30[
                         OBJECT_TYPE_ASTEROID5].shapeSet;
                 g_aObjectResourceSlots_0059ddf0[slot].shapeSet =
-                    g_aObjectTypeData_00466458[
+                    g_aObjectTypeData_00496d30[
                         OBJECT_TYPE_ASTEROID5].shapeSet;
                 if (g_nMemoryConfiguration_005a7cd4 == 2) {
-                    g_aObjectTypeData_00466458[
+                    g_aObjectTypeData_00496d30[
                         OBJECT_TYPE_ASTEROID6].shapeSet =
                         FetchDiskPacketRetrying(
                             3, 17, 0);
-                    g_aObjectTypeData_00466458[
+                    g_aObjectTypeData_00496d30[
                         OBJECT_TYPE_ASTEROID4].shapeSet =
-                        g_aObjectTypeData_00466458[
+                        g_aObjectTypeData_00496d30[
                             OBJECT_TYPE_ASTEROID6].shapeSet;
-                    g_aObjectTypeData_00466458[
+                    g_aObjectTypeData_00496d30[
                         OBJECT_TYPE_ASTEROID2].shapeSet =
-                        g_aObjectTypeData_00466458[
+                        g_aObjectTypeData_00496d30[
                             OBJECT_TYPE_ASTEROID6].shapeSet;
                 }
                 obj = 10;
@@ -3599,17 +3620,17 @@ int load_ship(enum ObjectType type, short slot)
                     if (g_aeObjectClass_0059d100[obj] ==
                         OBJECT_CLASS_ASTEROID) {
                         g_apObjectShape_0059d2f0[obj] =
-                            g_aObjectTypeData_00466458[
-                                g_aeObjectType_0059b560[obj]].shapeSet;
+                            g_aObjectTypeData_00496d30[
+                                g_acObjectType_00493980[obj]].shapeSet;
                     }
                     obj++;
                 } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
                 return 0;
             }
             if (type != OBJECT_TYPE_MINE_FIELD) {
-                if (g_aObjectTypeData_00466458[type].objectClass !=
+                if (g_aObjectTypeData_00496d30[type].objectClass !=
                         OBJECT_CLASS_SHIP &&
-                    g_aObjectTypeData_00466458[type].objectClass !=
+                    g_aObjectTypeData_00496d30[type].objectClass !=
                         OBJECT_CLASS_MISSILE) {
                     if (DAT_0059a856 != 0) {
                         section = 0;
@@ -3630,11 +3651,11 @@ int load_ship(enum ObjectType type, short slot)
                         FetchDiskPacketRetrying(
                             (short)g_cObjectResourceLogicalFile_005a86b0,
                             0x25, 0);
-                    g_aObjectTypeData_00466458[type].shape =
+                    g_aObjectTypeData_00496d30[type].shape =
                         g_aObjectResourceSlots_0059ddf0[slot].shape;
                     obj = 1;
                     do {
-                        if (g_aeObjectType_0059b560[obj] == type) {
+                        if (g_acObjectType_00493980[obj] == type) {
                             FreePacketAndClear(
                                 &g_apObjectShape_0059d2f0[obj], 0);
                             g_asCapitalShipViewFrame_0059dd90[obj] = -1;
@@ -3648,25 +3669,25 @@ int load_ship(enum ObjectType type, short slot)
                     FetchDiskPacketRetrying(
                         (short)g_cObjectResourceLogicalFile_005a86b0,
                         0, 0);
-                g_aObjectTypeData_00466458[type].shapeSet =
+                g_aObjectTypeData_00496d30[type].shapeSet =
                     g_aObjectResourceSlots_0059ddf0[slot].shapeSet;
                 g_aObjectResourceSlots_0059ddf0[slot].animation =
                     FetchDiskPacketRetrying(
                         (short)g_cObjectResourceLogicalFile_005a86b0,
                         2, 0);
-                g_aObjectTypeData_00466458[type].animation =
+                g_aObjectTypeData_00496d30[type].animation =
                     g_aObjectResourceSlots_0059ddf0[slot].animation;
                 g_aObjectResourceSlots_0059ddf0[slot].shape =
                     FetchDiskPacketRetrying(
                         (short)g_cObjectResourceLogicalFile_005a86b0,
                         1, 0);
-                g_aObjectTypeData_00466458[type].shape =
+                g_aObjectTypeData_00496d30[type].shape =
                     g_aObjectResourceSlots_0059ddf0[slot].shape;
                 obj = 0;
                 do {
                     if (g_aeObjectClass_0059d100[obj] >=
                             OBJECT_CLASS_MISSILE &&
-                        g_aeObjectType_0059b560[obj] == type) {
+                        g_acObjectType_00493980[obj] == type) {
                         g_apObjectShape_0059d2f0[obj] =
                             g_aObjectResourceSlots_0059ddf0[slot]
                                 .shapeSet;
@@ -3679,7 +3700,7 @@ int load_ship(enum ObjectType type, short slot)
     return 0;
 }
 
-/* Function start: 0x44BA73 */
+/* Function start: WC2_UNMAPPED */
 int free_ship(short slot)
 {
     ObjectResourceSlot *resource;
@@ -3690,7 +3711,7 @@ int free_ship(short slot)
 
     resource = &g_aObjectResourceSlots_0059ddf0[slot];
     type = (enum ObjectType)resource->type;
-    typeData = &g_aObjectTypeData_00466458[type];
+    typeData = &g_aObjectTypeData_00496d30[type];
 
     if (typeData->objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
         release_capital_ship_shapes(type);
@@ -3712,19 +3733,19 @@ int free_ship(short slot)
     FreePacketAndClear(&resource->shapeSet, 0);
     if (type == OBJECT_TYPE_ASTEROID_FIELD) {
         FreePacketAndClear(
-            &g_aObjectTypeData_00466458[OBJECT_TYPE_ROCK_CHUNK].shapeSet,
+            &g_aObjectTypeData_00496d30[OBJECT_TYPE_ROCK_CHUNK].shapeSet,
             0);
         FreePacketAndClear(
-            &g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID2].shapeSet,
+            &g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID2].shapeSet,
             0);
-        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID6].shapeSet = 0;
-        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID5].shapeSet = 0;
-        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID4].shapeSet = 0;
-        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID3].shapeSet = 0;
-        g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID1].shapeSet = 0;
+        g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID6].shapeSet = 0;
+        g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID5].shapeSet = 0;
+        g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID4].shapeSet = 0;
+        g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID3].shapeSet = 0;
+        g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID1].shapeSet = 0;
         obj = 10;
         do {
-            if (g_aeObjectType_0059b560[obj] == OBJECT_TYPE_ROCK_CHUNK)
+            if (g_acObjectType_00493980[obj] == OBJECT_TYPE_ROCK_CHUNK)
                 remove_object(obj);
             else if (g_aeObjectClass_0059d100[obj] ==
                      OBJECT_CLASS_ASTEROID)
@@ -3744,7 +3765,7 @@ int free_ship(short slot)
         do {
             if (g_aeObjectClass_0059d100[obj] >=
                     OBJECT_CLASS_MISSILE &&
-                g_aeObjectType_0059b560[obj] == type)
+                g_acObjectType_00493980[obj] == type)
                 g_apObjectShape_0059d2f0[obj] = 0;
             obj++;
         } while (obj < 10);
@@ -3798,7 +3819,7 @@ void remove_nav_point_objects(void)
     } while (i < 10);
 }
 
-/* Function start: 0x43B258 */
+/* Function start: WC2_UNMAPPED */
 short get_shape_slot(void)
 {
     short slot = 0;
@@ -3811,7 +3832,7 @@ short get_shape_slot(void)
     return -1;
 }
 
-/* Function start: 0x43A1EB */
+/* Function start: WC2_UNMAPPED */
 int shape_loaded(enum ObjectType type)
 {
     short slot = 0;
@@ -3825,7 +3846,7 @@ int shape_loaded(enum ObjectType type)
     return 0;
 }
 
-/* Function start: 0x43A251 */
+/* Function start: WC2_UNMAPPED */
 int shape_needed(const MissionNavPoint *navPoint, enum ObjectType type)
 {
     short preload;
@@ -3878,7 +3899,7 @@ int new_sphere_shapes(MissionNavPoint *navPoint)
     return 0;
 }
 
-/* Function start: 0x440F76 */
+/* Function start: WC2_UNMAPPED */
 int set_up_action_sphere(short navPoint)
 {
     MissionNavPoint *nav;
@@ -4171,7 +4192,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     init_intelligence_data(obj);
 }
 
-/* Function start: 0x4380FD */
+/* Function start: WC2_UNMAPPED */
 unsigned int is_team_member(short missionShip)
 {
     short index;
@@ -4187,7 +4208,7 @@ unsigned int is_team_member(short missionShip)
     return 0;
 }
 
-/* Function start: 0x43AA3F */
+/* Function start: WC2_UNMAPPED */
 unsigned int find_next_ship_turn_slot(short obj)
 {
     signed char interval;
@@ -4325,7 +4346,7 @@ short __stdcall SampleBothJoysticks(InputDeviceSample *samples,
     return 1;
 }
 
-/* Function start: 0x4388F5 */
+/* Function start: WC2_UNMAPPED */
 int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
                                    short joystick,
                                    unsigned int fallback)
@@ -4361,10 +4382,10 @@ void SampleActiveJoystickDevice(void)
 void DrawNavTextLine(unsigned char alignment, unsigned short colour,
                      const char *format, ...)
 {
-    g_pCurrentTextContext_0059af8c->colour = colour;
-    g_pCurrentTextContext_0059af8c->alignment = alignment;
-    g_pCurrentTextContext_0059af8c->textCursor =
-        g_pCurrentTextContext_0059af8c->text;
+    g_pCurrentTextContext_005c8d1c->colour = colour;
+    g_pCurrentTextContext_005c8d1c->alignment = alignment;
+    g_pCurrentTextContext_005c8d1c->textCursor =
+        g_pCurrentTextContext_005c8d1c->text;
 #ifdef WC1_SDL
     {
         va_list arguments;
@@ -4378,7 +4399,7 @@ void DrawNavTextLine(unsigned char alignment, unsigned short colour,
     FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
                      format, (unsigned long *)(&format + 1));
 #endif
-    DrawTextString(g_pCurrentTextContext_0059af8c->text);
+    DrawTextString(g_pCurrentTextContext_005c8d1c->text);
 }
 
 /* Function start: 0x44FADA */
@@ -4387,7 +4408,7 @@ void SetNavMapCoordinateScaling(short enabled)
     g_nNavMapCoordinateScaling_00468660 = enabled;
 }
 
-/* Function start: 0x44760F */
+/* Function start: 0x44FAEF */
 void ScaleNavMapMarkerSize(short *size)
 {
     *size = (short)(*size / (g_nNavMapScale_00468664 * 100));
@@ -4518,7 +4539,7 @@ void Build_objective_list(void)
         } else if (type >= 1 && type <= 4) {
             ship = &g_aMissionShips_0046c948[source->index];
             displayName =
-                g_aObjectTypeData_00466458[ship->type].displayName;
+                g_aObjectTypeData_00496d30[ship->type].displayName;
             set_sphere_point(ship, &position);
             g_abFlightPath_0059c000[flightPathCount++] =
                 g_cMissionObjectiveCount_0059c46a;

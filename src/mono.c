@@ -78,7 +78,7 @@ int __stdcall SeekDataFile(unsigned short fd, int offset,
     return position;
 }
 
-/* Function start: 0x41687F */
+/* Function start: WC2_UNMAPPED */
 int MeasureScaledIntroTextWidth(const char *text, short scale)
 {
     short bounds[4];
@@ -145,7 +145,7 @@ int DrawCenteredScaledIntroText(const char *text, short centreX,
     return 0;
 }
 
-/* Function start: 0x42C0A2 */
+/* Function start: WC2_UNMAPPED */
 short GetLineLength(const char *text)
 {
     short width;
@@ -269,7 +269,7 @@ int advance_canned_sequence(short obj)
     return 0;
 }
 
-/* Function start: 0x438711 */
+/* Function start: WC2_UNMAPPED */
 unsigned int update_canned_sequence(short obj)
 {
     int velocity;
