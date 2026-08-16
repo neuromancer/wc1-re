@@ -635,8 +635,7 @@ void AnimateBarracks(Viewport *viewport, unsigned char *shape,
     short frame;
 
     frameTick = (int)DAT_0059ab54 / 3;
-    bunk = 0;
-    do {
+    for (bunk = 0; bunk < 8; bunk++) {
         frame = 11;
         bunkState = &state->bunks[bunk];
         if (bunkState->occupied != 0) {
@@ -656,8 +655,7 @@ void AnimateBarracks(Viewport *viewport, unsigned char *shape,
                           (short)((bunk % 2) * 14 + 148),
                           (short)((bunk / 2) * 5 + 166),
                           shape, frame);
-        bunk++;
-    } while (bunk < 8);
+    }
 
     if ((int)state->animationTick != frameTick) {
         state->animationTick = (short)frameTick;

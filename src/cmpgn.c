@@ -1064,7 +1064,7 @@ unsigned int CloseLook(unsigned char *shape, short shot,
             } while (*cursor != -1);
         }
     } else if (shot == 0) {
-        do {
+        for (; sceneFrame < 22; sceneFrame++) {
             DAT_00469fb4--;
             if (DAT_00469fb4 < 1) {
                 DAT_00469fb4 = g_nFrameSkip_00469fb8;
@@ -1076,15 +1076,13 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                                   sceneFrame);
                 DrawSpriteDefault(&DAT_005a76b0, 241, 64,
                                   g_pBriefingAnimationShape_00598c14, 22);
-                character = 0;
-                do {
+                for (character = 0; character < 14; character++) {
                     DrawBriefingCharacter(
                         character, 0,
                         g_aBriefingCharacters_0046e218[character]
                             .animation[sceneFrame],
                         0, 0);
-                    character++;
-                } while (character < 14);
+                }
                 RefreshMemoryStatusOverlay();
                 DIBslam();
                 DIBslamReal();
@@ -1093,10 +1091,9 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                 sceneFrame = 20;
             if (sceneFrame == 20)
                 DAT_00469fb4 = 1;
-            sceneFrame++;
             DIBslam();
             DIBslamReal();
-        } while (sceneFrame < 22);
+        }
     }
     DIBslam();
     DIBslamReal();

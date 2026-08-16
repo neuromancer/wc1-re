@@ -4000,7 +4000,7 @@ void get_pilot_talk(short personality)
     file = OpenDataFileOrDie(g_pDiskFileRecords_005a7cf0[13].name);
     loaded = (short)(file >= 0);
     line = 0;
-    do {
+    for (; line < 11; line++) {
         loaded = (short)(loaded &
             (ReadDataFileAtOffset(
                 (unsigned short)file,
@@ -4011,8 +4011,7 @@ void get_pilot_talk(short personality)
                 AllocateTaggedMemory(strlen(speech) + 1, 0);
             DosStrcpy(g_aapszPilotSpeech_0059e220[personality][line], speech);
         }
-        line++;
-    } while (line < 11);
+    }
 
     CloseDataFile((unsigned short)file);
     if (loaded == 0)
@@ -4527,7 +4526,7 @@ void Build_objective_list(void)
     g_cMissionObjectiveCount_0059c46a = 0;
     source = g_aMissionObjectiveSources_005a8270;
     type = source->type;
-    while (type != -1) {
+    for (; type != -1; source++, type = source->type) {
         g_aMissionObjectives_0059dac0[
             g_cMissionObjectiveCount_0059c46a].flags = 0;
         if (type == 0) {
@@ -4563,8 +4562,6 @@ void Build_objective_list(void)
         g_aMissionObjectives_0059dac0[
             g_cMissionObjectiveCount_0059c46a].displayName = displayName;
         g_cMissionObjectiveCount_0059c46a++;
-        source++;
-        type = source->type;
     }
 
     g_abFlightPath_0059c000[flightPathCount] = -1;

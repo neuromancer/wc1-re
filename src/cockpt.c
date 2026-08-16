@@ -1907,7 +1907,7 @@ void print_message_text(char *text, unsigned short colour)
     charactersPerLine = (short)(width / 6);
     position = 0;
     if (*input != 0) {
-        do {
+        for (; *input != 0; position++, input++, output++) {
             *output = *input;
             if (*input == ' ')
                 lastSpace = position;
@@ -1919,10 +1919,7 @@ void print_message_text(char *text, unsigned short colour)
                     output[position - lastSpace] = '\n';
                 }
             }
-            position++;
-            input++;
-            output++;
-        } while (*input != 0);
+        }
     }
     *output = 0;
 
@@ -1952,14 +1949,13 @@ void print_message_text(char *text, unsigned short colour)
                            DAT_004691e0[view * 2 + 1], wrapped, 2);
                 break;
             default:
-                goto message_finished;
+                break;
             }
         } else {
             DrawTextAt(&context, DAT_004691e0[view * 2],
                        DAT_004691e0[view * 2 + 1], wrapped, 2);
         }
     }
-message_finished:
     DAT_00469008 = DAT_00469004;
 }
 

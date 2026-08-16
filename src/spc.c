@@ -929,8 +929,7 @@ unsigned int update_star_field(void)
                     &g_vStarFieldMotion_0059c860);
     ComputeVectorDelta(&g_vPreviousStarFieldMotion_0059c900,
                        &g_vStarFieldMotion_0059c860, &origin);
-    obj = 34;
-    do {
+    for (obj = 34; obj < 49; obj++) {
         objectIndex = (int)obj;
         objectOffset = objectIndex * sizeof(short);
         if (*(short *)((unsigned char *)g_asObjectScreenX_0059d9b0 +
@@ -1014,8 +1013,7 @@ unsigned int update_star_field(void)
                 break;
             }
         }
-        obj++;
-    } while (obj < 49);
+    }
     if (g_pActiveHazardField_0059bfe0 != 0)
         update_hazards();
     return 0;
@@ -1034,9 +1032,7 @@ unsigned int house_keep_objects(void)
 {
     short obj;
 
-    obj = 0;
-
-    do {
+    for (obj = 0; obj <= WC1_SPACE_LAST_MOVING_OBJECT; obj++) {
         switch (g_aeObjectClass_0059d100[obj]) {
         case OBJECT_CLASS_DUST:
             if (g_aeObjectType_0059b560[obj] == OBJECT_TYPE_DEBRIS_DUST &&
@@ -1160,8 +1156,7 @@ unsigned int house_keep_objects(void)
             }
             break;
         }
-        obj++;
-    } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
+    }
     return 0;
 }
 
@@ -1375,27 +1370,19 @@ unsigned int animate_shape(short obj)
         return 0;
     }
 
-    if ((command & 0x0c00) == 0x0400)
-        goto grow_object;
-    if ((command & 0x0c00) == 0x0800)
-        goto shrink_object;
-    command &= 0x3f;
-    g_asObjectViewFrame_0059d230[obj] = command;
-
-finish_command:
+    if ((command & 0x0c00) == 0x0400) {
+        g_asObjectScale_0059de40[obj] +=
+            (command & 0x3f) * (g_asObjectScale_0059de40[obj] >> 6);
+    } else if ((command & 0x0c00) == 0x0800) {
+        g_asObjectScale_0059de40[obj] -=
+            (command & 0x3f) * (g_asObjectScale_0059de40[obj] >> 6);
+    } else {
+        command &= 0x3f;
+        g_asObjectViewFrame_0059d230[obj] = command;
+    }
     g_asObjectFlip_0059c870[obj] = (command & 0xc0) >> 2;
     g_asObjectAnimationIndex_0059da30[obj]++;
     return 0;
-
-grow_object:
-    g_asObjectScale_0059de40[obj] +=
-        (command & 0x3f) * (g_asObjectScale_0059de40[obj] >> 6);
-    goto finish_command;
-
-shrink_object:
-    g_asObjectScale_0059de40[obj] -=
-        (command & 0x3f) * (g_asObjectScale_0059de40[obj] >> 6);
-    goto finish_command;
 }
 
 /* Function start: 0x412E30 */

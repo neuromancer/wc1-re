@@ -21,7 +21,9 @@ void cleanup_objectives(void)
     proximity = g_aMissionNavPoints_0046c2f0[
         g_nMissionEntryNavPoint_005a8690].proximityRadius;
     objectiveType = g_aMissionObjectives_0059dac0[objective].type;
-    while (objectiveType != -1) {
+    for (; objectiveType != -1;
+         objective++,
+         objectiveType = g_aMissionObjectives_0059dac0[objective].type) {
         if (achieved(objective) == 0) {
             index = (short)g_aMissionObjectives_0059dac0[objective].index;
             switch (objectiveType) {
@@ -81,8 +83,6 @@ void cleanup_objectives(void)
                 break;
             }
         }
-        objective++;
-        objectiveType = g_aMissionObjectives_0059dac0[objective].type;
     }
 }
 

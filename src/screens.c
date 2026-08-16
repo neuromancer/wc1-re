@@ -282,7 +282,7 @@ unsigned int MedalEstablish(char *text, short duration)
                               g_szTextScratchBuffer_00598b00);
     x = g_asMedalDisplayX_0046e2d0[g_nConversationMedalIndex_00598c08];
     y = 87;
-    do {
+    for (; frame < 32; frame++) {
         DrawMedals();
         DrawSpriteScaled(&DAT_005a76b0, x, y,
                          g_pMedalSceneShape_0046e2f4, 12,
@@ -296,10 +296,9 @@ unsigned int MedalEstablish(char *text, short duration)
             duration = -1;
             break;
         }
-        frame++;
         DIBslam();
         DIBslamReal();
-    } while (frame < 32);
+    }
     WaitForSceneAdvance(duration, 0);
     return 0;
 }
@@ -512,11 +511,9 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_00598b00);
-    character = 0;
-    do {
+    for (character = 0; character < 8; character++) {
         g_aBriefingCharacters_0046e218[character].animationPhase = 0;
-        character++;
-    } while (character < 8);
+    }
     frame = 0;
     for (;;) {
         DrawSpriteDefault(&DAT_005a76b0, 0, 0,
@@ -525,8 +522,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
                           g_pBriefingAnimationShape_00598c14, 0);
         DrawSpriteDefault(&DAT_005a76b0, 241, 64,
                           g_pBriefingAnimationShape_00598c14, 22);
-        character = 0;
-        do {
+        for (character = 0; character < 8; character++) {
             layout = &g_aBriefingCharacters_0046e218[character];
             if (active[character] == 0 &&
                 RandomBelowOrEqual(5) == 0)
@@ -539,8 +535,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
                     layout->animationPhase * 12);
             if (active[character] == 1 && layout->animationPhase < 11)
                 layout->animationPhase++;
-            character++;
-        } while (character < 8);
+        }
         RefreshMemoryStatusOverlay();
         escaped = CheckEscaped();
         if (escaped != 0) {

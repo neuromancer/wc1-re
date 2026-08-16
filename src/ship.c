@@ -845,27 +845,24 @@ short Explosion(short obj)
         missionShip = -1;
         if (objectClass == OBJECT_CLASS_CAPITAL_SHIP)
             missionShip = find_ship_index(obj);
-        if (obj < 10) {
-            if (g_acShipRating_0059cd80[obj] == -1 &&
-                (missionShip == -1 ||
-                 g_anShipMissionShip_0059d4b0[obj] != missionShip) &&
-                RandomBelow(100) > 2)
-                goto message_finished;
+        if (obj < 10 &&
+            (g_acShipRating_0059cd80[obj] != -1 ||
+             (missionShip != -1 &&
+              g_anShipMissionShip_0059d4b0[obj] == missionShip) ||
+             RandomBelow(100) <= 2)) {
             send_message(obj, 7);
         }
-message_finished:
         rating = g_acShipRating_0059cd80[obj];
         if (rating != -1 && rating != RATING_ACE_ICEMAN)
             personality_killed((short)rating);
         if (g_nYourWingman_0046c04c == obj) {
             missionShip = 0;
             g_nWingmanKilledThisMission_005a7cb4 = 1;
-            do {
+            for (; missionShip < 10; missionShip++) {
                 if (g_acShipRating_0059cd80[missionShip] >
                     RATING_ACE_ICEMAN)
                     break;
-                missionShip++;
-            } while (missionShip < 10);
+            }
             if (missionShip < 10)
                 send_message(missionShip, 5);
             g_nYourWingman_0046c04c = -1;
@@ -878,10 +875,9 @@ message_finished:
             OBJECT_CLASS_CAPITAL_SHIP) {
             short count = 4;
 
-            do {
+            for (; count != 0; count--) {
                 onboard_explosion(obj);
-                count--;
-            } while (count != 0);
+            }
             g_asObjectCounter_0059c330[obj] =
                 (short)(g_aObjectTypeData_00466458[
                     g_aeObjectType_0059b560[obj]].damageCapacity >> 2) + 8;
