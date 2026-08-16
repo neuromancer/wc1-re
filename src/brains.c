@@ -1673,7 +1673,7 @@ unsigned int landing(signed char damageLevel)
     DAT_0059ab58 = 0;
     PlaySfxWaveFileByNumber(17, -1, 0);
     DAT_00469fb4 = 1;
-    do {
+    for (; frame < 30; frame++) {
         PumpWindowMessages();
         DrawScrambleFrame();
         g_nScrambleShipY_005a8726 =
@@ -1682,8 +1682,7 @@ unsigned int landing(signed char damageLevel)
             (short)(g_nScrambleCockpitDetailY_005a86c6 - 2);
         if (DAT_0059ab58 == 1)
             break;
-        frame++;
-    } while (frame < 30);
+    }
 
     ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
         damageOffset, 0);
@@ -1698,7 +1697,7 @@ unsigned int landing(signed char damageLevel)
         frame = 0;
         PlaySfxWaveFileByNumber(15, -1, 0);
         DAT_00469fb4 = 1;
-        do {
+        for (; frame < 30; frame++) {
             PumpWindowMessages();
             if (g_nRenderedSpaceFrame_0059d61a == 29)
                 DAT_00469fb4 = 1;
@@ -1730,8 +1729,7 @@ unsigned int landing(signed char damageLevel)
             }
             if (DAT_0059ab58 == 1)
                 break;
-            frame++;
-        } while (frame < 30);
+        }
 
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
             damageOffset, 0);
@@ -1808,7 +1806,7 @@ unsigned int funeral_player(void)
         g_nFuneralParticleScale_005a8728 =
             (short)(0x1000L / g_nFuneralParticleDistance_005a8710);
         shape = g_pConversationSpecialShape_005a86ec;
-        do {
+        for (; index < 7; index++) {
             if (g_aFuneralParticles_005a86f0[index].x != 0) {
                 DrawSpriteScaled(
                     &DAT_005a76b0,
@@ -1824,8 +1822,7 @@ unsigned int funeral_player(void)
                     g_aFuneralParticles_005a86f0[index].y)
                     g_aFuneralParticles_005a86f0[index].x = 0;
             }
-            index++;
-        } while (index < 7);
+        }
 
         DrawSpriteDefault(&DAT_005a76b0,
                           g_nFuneralForegroundX_005a8718,
@@ -1917,11 +1914,9 @@ unsigned int funeral_sequence(int playerFuneral)
     g_nFuneralBaseY_005a8722 = 0;
     g_nFuneralBaseX_005a8720 = 0;
     g_nFuneralForegroundY_005a871a = 0;
-    particle = 0;
-    do {
+    for (particle = 0; particle < 7; particle++) {
         g_aFuneralParticles_005a86f0[particle].x = 0;
-        particle++;
-    } while (particle < 7);
+    }
 
     frame = 0;
     InitializeConversationText();
@@ -1939,13 +1934,12 @@ unsigned int funeral_sequence(int playerFuneral)
         ClearViewport(&g_stConversationTextViewport_005a7570,
                       DAT_0046999c);
         DAT_00469fb4 = 1;
-        do {
+        for (; frame < 10; frame++) {
             PumpWindowMessages();
             funeral_player();
             if (DAT_0059ab58 == 1)
                 break;
-            frame++;
-        } while (frame < 10);
+        }
 
         if (DAT_0059ab58 != 1) {
             frame = 0;
@@ -1953,13 +1947,12 @@ unsigned int funeral_sequence(int playerFuneral)
                 g_szFuneralCompanyCommand_00465c18, 0, 160,
                 DAT_004699a4);
             DAT_00469fb4 = 1;
-            do {
+            for (; frame < 15; frame++) {
                 PumpWindowMessages();
                 funeral_player();
                 if (DAT_0059ab58 == 1)
                     break;
-                frame++;
-            } while (frame < 15);
+            }
             ClearViewport(&g_stConversationTextViewport_005a7570,
                           DAT_0046999c);
 
@@ -1968,27 +1961,25 @@ unsigned int funeral_sequence(int playerFuneral)
                 DAT_00469fb4 = 1;
                 FormatTextBufferFromStart(
                     g_szFuneralAttentionCommand_00465c2c, 0, 160);
-                do {
+                for (; frame < 10; frame++) {
                     PumpWindowMessages();
                     funeral_player();
                     if (frame == 0)
                         PlaySfxWaveFileByNumber(0x24, -1, 0);
                     if (DAT_0059ab58 == 1)
                         break;
-                    frame++;
-                } while (frame < 10);
+                }
 
                 if (DAT_0059ab58 != 1) {
                     g_nFuneralGuardFrame_005a873c = 3;
                     frame = 0;
                     DAT_00469fb4 = 1;
-                    do {
+                    for (; frame < 10; frame++) {
                         PumpWindowMessages();
                         funeral_player();
                         if (DAT_0059ab58 == 1)
                             break;
-                        frame++;
-                    } while (frame < 10);
+                    }
 
                     if (DAT_0059ab58 != 1) {
                         ClearViewport(
@@ -1999,24 +1990,22 @@ unsigned int funeral_sequence(int playerFuneral)
                         FormatTextBufferFromStart(
                             g_szFuneralPrepareArmsCommand_00465c40,
                             0, 160);
-                        do {
+                        for (; frame != 0; frame--) {
                             PumpWindowMessages();
                             funeral_player();
-                            frame--;
-                        } while (frame != 0);
+                        }
 
                         frame = 0;
                         g_nFuneralRifleFrame_005a871e = 5;
                         DAT_00469fb4 = 1;
-                        do {
+                        for (; frame < 10; frame++) {
                             PumpWindowMessages();
                             funeral_player();
                             if (frame == 0)
                                 PlaySfxWaveFileByNumber(0x1f, -1, 0);
                             if (DAT_0059ab58 == 1)
                                 break;
-                            frame++;
-                        } while (frame < 10);
+                        }
 
                         if (DAT_0059ab58 != 1) {
                             SceneDirector(3, followupSceneData,
@@ -2025,8 +2014,7 @@ unsigned int funeral_sequence(int playerFuneral)
                                           DAT_004699d8);
 
                             if (DAT_0059ab58 != 1) {
-                                volley = 0;
-                                do {
+                                for (volley = 0; volley < 3; volley++) {
                                     ClearViewport(
                                         &g_stConversationTextViewport_005a7570,
                                         DAT_0046999c);
@@ -2039,7 +2027,7 @@ unsigned int funeral_sequence(int playerFuneral)
 
                                     frame = 0;
                                     DAT_00469fb4 = 1;
-                                    do {
+                                    for (; frame < 10; frame++) {
                                         PumpWindowMessages();
                                         funeral_player();
                                         if (volley > 0) {
@@ -2057,8 +2045,7 @@ unsigned int funeral_sequence(int playerFuneral)
                                         }
                                         if (DAT_0059ab58 == 1)
                                             break;
-                                        frame++;
-                                    } while (frame < 10);
+                                    }
 
                                     ClearViewport(
                                         &g_stConversationTextViewport_005a7570,
@@ -2067,8 +2054,9 @@ unsigned int funeral_sequence(int playerFuneral)
                                         break;
 
                                     g_nFuneralParticleDistance_005a8710 = 16;
-                                    particle = 0;
-                                    do {
+                                    for (particle = 0;
+                                         particle < 7;
+                                         particle++) {
                                         g_aFuneralParticles_005a86f0[particle].x =
                                             (short)(
                                                 g_aFuneralParticleOrigins_00465b18[
@@ -2079,13 +2067,12 @@ unsigned int funeral_sequence(int playerFuneral)
                                                 g_aFuneralParticleOrigins_00465b18[
                                                     particle].y +
                                                 g_nFuneralBaseY_005a8722);
-                                        particle++;
-                                    } while (particle < 7);
+                                    }
 
                                     frame = 0;
                                     PlaySfxWaveFileByNumber(0x1d, -1, 0);
                                     DAT_00469fb4 = 1;
-                                    do {
+                                    for (; frame < 24; frame++) {
                                         PumpWindowMessages();
                                         funeral_player();
                                         if (volley > 0) {
@@ -2104,13 +2091,11 @@ unsigned int funeral_sequence(int playerFuneral)
                                         g_nFuneralParticleDistance_005a8710++;
                                         if (DAT_0059ab58 == 1)
                                             break;
-                                        frame++;
-                                    } while (frame < 24);
+                                    }
 
                                     if (DAT_0059ab58 == 1)
                                         break;
-                                    volley++;
-                                } while (volley < 3);
+                                }
 
                                 if (DAT_0059ab58 != 1) {
                                     frame = 0;
