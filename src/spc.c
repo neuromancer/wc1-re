@@ -1629,6 +1629,10 @@ int object_collision(short obj)
             collisionSpeed =
                 (short)((unsigned int)Vector_magnitude(&componentDelta) >> 8);
             damage = (short)((collisionSpeed * collisionSpeed) >> 1);
+#ifdef WC1_SDL
+            if (obj == 0 || partner == 0)
+                Wc1SdlQueueJoystickCollisionRumble(collisionSpeed);
+#endif
 
             objectMass = (unsigned short)
                 g_asObjectRadarRadius_0059c790[obj];

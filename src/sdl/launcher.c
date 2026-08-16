@@ -21,6 +21,8 @@ static int Wc1SdlParsePortArguments(int *argumentCount, char **arguments,
             *useEnhancedRenderer = 1;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
             Wc1SdlEnableJoystickDebug();
+        } else if (strcmp(argument, "--joystick-rumble") == 0) {
+            Wc1SdlEnableJoystickRumble();
         } else if (strncmp(argument, "--joystick-mode=", 16) == 0) {
             if (!Wc1SdlSetJoystickMode(argument + 16)) {
                 fprintf(stderr, "Unknown joystick mode: %s\n",

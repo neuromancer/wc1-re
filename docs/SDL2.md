@@ -87,10 +87,18 @@ deadzone. For example:
 Add `--joystick-debug` to print the detected device type and each joystick
 axis, button, and hat event to the terminal.
 
+Add `--joystick-rumble` to enable gentle heavy-weapon, damage, collision, and
+afterburner feedback on supported controllers and force-feedback joysticks. It
+is disabled by default; devices without rumble support continue without
+feedback.
+
 Gamepad Start pauses and resumes during spaceflight, Back acts as Escape, and
 the Y face button answers Yes at `Y/N` prompts. Mapped SDL controllers use
 their named buttons. Both WCAT-style modes also provide these spaceflight
 bindings:
+
+The four primary actions map to A/B/X/Y: fire guns, fire the selected release
+weapon, hold afterburner, and the mode-specific fourth action.
 
 | Control | Action |
 | --- | --- |

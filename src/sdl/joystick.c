@@ -5,6 +5,7 @@ typedef struct Wc1SdlJoystickDevice {
     SDL_Joystick *joystick;
     SDL_JoystickID instanceId;
     Uint8 hatState;
+    int rumbleSupport; /* -1 unavailable, 0 untested, 1 available */
 } Wc1SdlJoystickDevice;
 
 typedef enum Wc1SdlJoystickMode {
@@ -45,9 +46,14 @@ typedef enum Wc1SdlJoystickButton {
 static Wc1SdlJoystickDevice g_aWc1SdlJoystickDevices[2];
 static int g_bWc1SdlJoystickDebug;
 static int g_bWc1SdlJoystickInputStarted;
+static int g_bWc1SdlJoystickRumbleEnabled;
 static int g_bWc1SdlJoystickSpaceflightActive;
 static int g_bWc1SdlTwoAxisModifierActive;
 static int g_nWc1SdlCommunicationMenuSelection;
+static int g_nWc1SdlRumblingJoystick = -1;
+static Uint16 g_wWc1SdlRumbleLow;
+static Uint16 g_wWc1SdlRumbleHigh;
+static Uint32 g_dwWc1SdlRumbleDeadline;
 static Wc1SdlJoystickMode g_eWc1SdlJoystickMode;
 static Wc1SdlJoystickAxesMode g_eWc1SdlJoystickAxesMode;
 
@@ -91,6 +97,207 @@ int Wc1SdlSetJoystickAxesMode(const char *name)
 void Wc1SdlEnableJoystickDebug(void)
 {
     g_bWc1SdlJoystickDebug = 1;
+}
+
+void Wc1SdlEnableJoystickRumble(void)
+{
+    g_bWc1SdlJoystickRumbleEnabled = 1;
+}
+
+static void Wc1SdlStopJoystickRumble(void)
+{
+    Wc1SdlJoystickDevice *device;
+
+    if (g_nWc1SdlRumblingJoystick < 0 ||
+        g_nWc1SdlRumblingJoystick >= 2)
+        return;
+    device = &g_aWc1SdlJoystickDevices[g_nWc1SdlRumblingJoystick];
+    if (device->joystick != 0 && device->rumbleSupport > 0)
+        SDL_JoystickRumble(device->joystick, 0, 0, 0);
+    g_nWc1SdlRumblingJoystick = -1;
+}
+
+static void Wc1SdlSendJoystickRumble(int slot, Uint16 low, Uint16 high)
+{
+    Wc1SdlJoystickDevice *device;
+
+    device = &g_aWc1SdlJoystickDevices[slot];
+    if (device->joystick == 0 || device->rumbleSupport < 0)
+        return;
+    /* Brief renewals expire safely if a pause or modal dialog stops updates. */
+    if (SDL_JoystickRumble(device->joystick, low, high, 100) != 0) {
+        device->rumbleSupport = -1;
+        if (g_bWc1SdlJoystickDebug) {
+            printf("SDL joystick slot %d does not support rumble: %s\n",
+                   slot, SDL_GetError());
+            fflush(stdout);
+        }
+        SDL_ClearError();
+        return;
+    }
+    if (device->rumbleSupport == 0 && g_bWc1SdlJoystickDebug) {
+        printf("SDL joystick slot %d rumble enabled\n", slot);
+        fflush(stdout);
+    }
+    device->rumbleSupport = 1;
+    g_nWc1SdlRumblingJoystick = slot;
+}
+
+static void Wc1SdlUpdateJoystickRumble(void)
+{
+    Uint16 low;
+    Uint16 high;
+    Uint32 now;
+    int activeSlot;
+
+    if (!g_bWc1SdlJoystickRumbleEnabled)
+        return;
+    activeSlot = (int)g_nActiveInputDevice_005a819c;
+    if (!g_bWc1SdlJoystickSpaceflightActive || activeSlot < 0 ||
+        activeSlot >= 2 ||
+        g_aWc1SdlJoystickDevices[activeSlot].joystick == 0) {
+        Wc1SdlStopJoystickRumble();
+        return;
+    }
+    if (g_nWc1SdlRumblingJoystick != -1 &&
+        g_nWc1SdlRumblingJoystick != activeSlot)
+        Wc1SdlStopJoystickRumble();
+
+    low = 0;
+    high = 0;
+    if (g_anShipFuel_0059b470[0] > 0 &&
+        g_aeSpecialManeuver_0059c3c0[0] ==
+            SPECIAL_MANEUVER_AFTERBURNER &&
+        g_asShipAfterburnerTimer_0059c810[0] > 0) {
+        low = 0x6000;
+        high = 0x3000;
+    }
+
+    now = SDL_GetTicks();
+    if (g_dwWc1SdlRumbleDeadline != 0 &&
+        !SDL_TICKS_PASSED(now, g_dwWc1SdlRumbleDeadline)) {
+        if (low < g_wWc1SdlRumbleLow)
+            low = g_wWc1SdlRumbleLow;
+        if (high < g_wWc1SdlRumbleHigh)
+            high = g_wWc1SdlRumbleHigh;
+    } else {
+        g_wWc1SdlRumbleLow = 0;
+        g_wWc1SdlRumbleHigh = 0;
+        g_dwWc1SdlRumbleDeadline = 0;
+    }
+
+    if (low == 0 && high == 0) {
+        Wc1SdlStopJoystickRumble();
+        return;
+    }
+    Wc1SdlSendJoystickRumble(activeSlot, low, high);
+}
+
+static void Wc1SdlQueueJoystickRumble(Uint16 low, Uint16 high,
+                                      Uint32 duration)
+{
+    Uint32 deadline;
+    Uint32 now;
+
+    if (!g_bWc1SdlJoystickRumbleEnabled)
+        return;
+
+    now = SDL_GetTicks();
+    deadline = now + duration;
+    if (deadline == 0)
+        deadline = 1;
+    if (g_dwWc1SdlRumbleDeadline == 0 ||
+        SDL_TICKS_PASSED(now, g_dwWc1SdlRumbleDeadline)) {
+        g_wWc1SdlRumbleLow = low;
+        g_wWc1SdlRumbleHigh = high;
+        g_dwWc1SdlRumbleDeadline = deadline;
+    } else {
+        if (g_wWc1SdlRumbleLow < low)
+            g_wWc1SdlRumbleLow = low;
+        if (g_wWc1SdlRumbleHigh < high)
+            g_wWc1SdlRumbleHigh = high;
+        if (SDL_TICKS_PASSED(deadline, g_dwWc1SdlRumbleDeadline))
+            g_dwWc1SdlRumbleDeadline = deadline;
+    }
+    Wc1SdlUpdateJoystickRumble();
+}
+
+void Wc1SdlQueueJoystickWeaponRumble(int weaponType)
+{
+    Uint16 low;
+    Uint16 high;
+    Uint32 duration;
+
+    /* Lasers fire continuously, so feedback here quickly becomes noise. */
+    switch ((enum ObjectType)weaponType) {
+    case OBJECT_TYPE_LASER_CANNON:
+        return;
+    case OBJECT_TYPE_NEUTRON_PARTICLE_GUN:
+        low = 0x6000;
+        high = 0x7800;
+        duration = 75;
+        break;
+    case OBJECT_TYPE_MASS_DRIVER_CANNON:
+    case OBJECT_TYPE_TURRET:
+        low = 0x7800;
+        high = 0x6000;
+        duration = 90;
+        break;
+    case OBJECT_TYPE_DUMB_FIRE_MISSILE:
+        low = 0x9000;
+        high = 0x6000;
+        duration = 150;
+        break;
+    case OBJECT_TYPE_HEAT_SEEKING_MISSILE:
+        low = 0x8800;
+        high = 0x5800;
+        duration = 170;
+        break;
+    case OBJECT_TYPE_FF_MISSILE:
+        low = 0x8000;
+        high = 0x6800;
+        duration = 180;
+        break;
+    case OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE:
+        low = 0x9000;
+        high = 0x5800;
+        duration = 170;
+        break;
+    case OBJECT_TYPE_TORPEDO:
+        low = 0xa000;
+        high = 0x6800;
+        duration = 200;
+        break;
+    default:
+        return;
+    }
+    Wc1SdlQueueJoystickRumble(low, high, duration);
+}
+
+void Wc1SdlQueueJoystickDamageRumble(int damage)
+{
+    if (damage <= 0)
+        return;
+    if (damage < 16) {
+        Wc1SdlQueueJoystickRumble(0x5800, 0x7000, 90);
+    } else if (damage < 64) {
+        Wc1SdlQueueJoystickRumble(0x7800, 0x8000, 130);
+    } else {
+        Wc1SdlQueueJoystickRumble(0xa000, 0x9000, 180);
+    }
+}
+
+void Wc1SdlQueueJoystickCollisionRumble(int collisionSpeed)
+{
+    if (collisionSpeed <= 0)
+        return;
+    if (collisionSpeed < 10) {
+        Wc1SdlQueueJoystickRumble(0x6800, 0x5000, 110);
+    } else if (collisionSpeed < 30) {
+        Wc1SdlQueueJoystickRumble(0x8800, 0x6800, 160);
+    } else {
+        Wc1SdlQueueJoystickRumble(0xb000, 0x7800, 220);
+    }
 }
 
 void Wc1SdlLogJoystickEvent(const SDL_Event *event)
@@ -144,6 +351,12 @@ void Wc1SdlLogJoystickEvent(const SDL_Event *event)
 
 static void Wc1SdlCloseJoystick(Wc1SdlJoystickDevice *device)
 {
+    if (device->joystick != 0 && device->rumbleSupport > 0)
+        SDL_JoystickRumble(device->joystick, 0, 0, 0);
+    if (g_nWc1SdlRumblingJoystick >= 0 &&
+        device == &g_aWc1SdlJoystickDevices[
+                      g_nWc1SdlRumblingJoystick])
+        g_nWc1SdlRumblingJoystick = -1;
     if (device->controller != 0)
         SDL_GameControllerClose(device->controller);
     else if (device->joystick != 0)
@@ -152,6 +365,7 @@ static void Wc1SdlCloseJoystick(Wc1SdlJoystickDevice *device)
     device->joystick = 0;
     device->instanceId = -1;
     device->hatState = SDL_HAT_CENTERED;
+    device->rumbleSupport = 0;
 }
 
 static int Wc1SdlFindJoystick(SDL_JoystickID instanceId)
@@ -217,6 +431,16 @@ static void Wc1SdlOpenJoystick(int deviceIndex)
     device->joystick = joystick;
     device->instanceId = SDL_JoystickInstanceID(joystick);
     device->hatState = SDL_HAT_CENTERED;
+    device->rumbleSupport = 0;
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+    if (g_bWc1SdlJoystickRumbleEnabled) {
+        if (SDL_JoystickHasRumble(joystick) == SDL_FALSE)
+            device->rumbleSupport = -1;
+        printf("SDL joystick slot %d %s rumble support\n", slot,
+               device->rumbleSupport < 0 ? "does not expose" : "exposes");
+        fflush(stdout);
+    }
+#endif
     if (g_bWc1SdlJoystickDebug) {
         const char *name = SDL_JoystickName(joystick);
 
@@ -449,15 +673,20 @@ void Wc1SdlApplyJoystickFlightControls(void)
 
     g_bWc1SdlJoystickSpaceflightActive = 1;
     if (DAT_0059ab2c != get_player_input ||
-        g_eWc1SdlJoystickMode == WC1_SDL_JOYSTICK_ORIGINAL)
+        g_eWc1SdlJoystickMode == WC1_SDL_JOYSTICK_ORIGINAL) {
+        Wc1SdlUpdateJoystickRumble();
         return;
+    }
     activeSlot = (int)g_nActiveInputDevice_005a819c;
-    if (activeSlot < 0 || activeSlot >= 2)
+    if (activeSlot < 0 || activeSlot >= 2) {
+        Wc1SdlUpdateJoystickRumble();
         return;
+    }
     sample = &g_aInputDeviceSamples_005a81f0[activeSlot];
     if (Wc1SdlReadJoystickButton(
             &g_aWc1SdlJoystickDevices[activeSlot], 2))
         your_afterburner();
+    Wc1SdlUpdateJoystickRumble();
 
     if (g_eWc1SdlJoystickMode ==
             WC1_SDL_JOYSTICK_FOUR_BUTTON_TWO_AXIS) {
@@ -526,6 +755,10 @@ void Wc1SdlApplyJoystickFlightControls(void)
 void Wc1SdlEndJoystickSpaceflight(void)
 {
     g_bWc1SdlJoystickSpaceflightActive = 0;
+    g_wWc1SdlRumbleLow = 0;
+    g_wWc1SdlRumbleHigh = 0;
+    g_dwWc1SdlRumbleDeadline = 0;
+    Wc1SdlStopJoystickRumble();
 }
 
 static int Wc1SdlControllerButtonIndex(int button)

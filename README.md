@@ -1554,10 +1554,17 @@ SDL game-controller mappings are used automatically. The default
 `--joystick-mode=original` keeps the original two-axis, two-button controls.
 Two WCAT-style layouts are also available:
 
+Add `--joystick-rumble` to enable gentle heavy-weapon, damage, collision, and
+afterburner feedback on supported controllers and force-feedback joysticks.
+Rumble is disabled by default.
+
 | Option | Spaceflight controls |
 | --- | --- |
 | `--joystick-mode=4button-2axis` | Buttons 1–4: fire, missile, afterburner, roll/throttle modifier |
 | `--joystick-mode=4button-4axis` | Buttons 1–4: fire, missile, afterburner, cycle target; extra axes control roll and throttle |
+
+On mapped controllers, buttons 1–4 correspond to A, B, X, and Y; hold X to
+engage the afterburner.
 
 In either WCAT-style mode, LB/RB cycle guns and missiles, LT/RT or the
 left/right stick clicks open navigation/map and engage autopilot, and the

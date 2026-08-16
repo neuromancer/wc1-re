@@ -170,8 +170,12 @@ BOOL Wc1SdlReadJoystickAxisRange(unsigned int device,
 int Wc1SdlSetJoystickMode(const char *name);
 int Wc1SdlSetJoystickAxesMode(const char *name);
 void Wc1SdlEnableJoystickDebug(void);
+void Wc1SdlEnableJoystickRumble(void);
 void Wc1SdlLogJoystickEvent(const SDL_Event *event);
 int Wc1SdlGetCommunicationMenuSelection(void);
+void Wc1SdlQueueJoystickWeaponRumble(int weaponType);
+void Wc1SdlQueueJoystickDamageRumble(int damage);
+void Wc1SdlQueueJoystickCollisionRumble(int collisionSpeed);
 void Wc1SdlApplyJoystickFlightControls(void);
 void Wc1SdlEndJoystickSpaceflight(void);
 void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,

@@ -117,8 +117,12 @@ int inflict_damage(short attacker, short victim, short damage,
             g_asShipAccumulatedDamage_0059dee0[victim])
             return explode(attacker, victim);
     } else {
-        if (victim == 0)
+        if (victim == 0) {
             TriggerPlayerHitPaletteFlash();
+#ifdef WC1_SDL
+            Wc1SdlQueueJoystickDamageRumble(damage);
+#endif
+        }
 
         if (attacker != -1 &&
             g_nYourWingman_0046c04c == victim &&
@@ -1532,6 +1536,10 @@ int fire_weapon(short obj, short weapon)
         } else {
             g_asObjectCounter_0059c330[obj] = 12;
         }
+#ifdef WC1_SDL
+        if (obj == 0)
+            Wc1SdlQueueJoystickWeaponRumble(weaponType);
+#endif
         switch (weaponType) {
         case OBJECT_TYPE_LASER_CANNON:
         case OBJECT_TYPE_NEUTRON_PARTICLE_GUN:
