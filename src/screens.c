@@ -367,8 +367,7 @@ unsigned int DrawMedals(void)
                      (short)(g_stCampaignState_0059ca50.currentPilot->rank +
                              33),
                      0, 255, 16);
-    badge = 0;
-    do {
+    for (badge = 0; badge < 12; badge++) {
         if (g_stCampaignState_0059ca50.badges[badge] != 0) {
             if (x > 231) {
                 rowY = (short)(rowY + 3);
@@ -379,11 +378,9 @@ unsigned int DrawMedals(void)
                               (short)(badge + 13));
             x = (short)(x + 11);
         }
-        badge++;
-    } while (badge < 12);
+    }
     rowY = (short)(rowY + 5);
-    medal = 0;
-    do {
+    for (medal = 0; medal < 5; medal++) {
         if (g_stCampaignState_0059ca50.medals[medal] != 0) {
             x = g_asMedalDisplayX_0046e2d0[medal];
             stack = rowY;
@@ -402,8 +399,7 @@ unsigned int DrawMedals(void)
                               g_pMedalSceneShape_0046e2f4,
                               (short)(medal + 28));
         }
-        medal++;
-    } while (medal < 5);
+    }
     DIBslam();
     DIBslamReal();
     return 0;
@@ -438,15 +434,13 @@ unsigned int EstablishingShot(char *text, short duration)
                           g_pBriefingAnimationShape_00598c14, frame);
         DrawSpriteDefault(&DAT_005a76b0, 241, 64,
                           g_pBriefingAnimationShape_00598c14, 22);
-        character = 0;
-        do {
+        for (character = 0; character < 8; character++) {
             DrawBriefingCharacter(
                 character, 0,
                 g_aBriefingCharacters_0046e218[character]
                     .animation[frame],
                 0, 0);
-            character++;
-        } while (character < 8);
+        }
         RefreshMemoryStatusOverlay();
         escaped = CheckEscaped();
         if (escaped != 0) {
@@ -479,11 +473,9 @@ unsigned int DrawBriefingLongShot(void)
                       g_pBriefingAnimationShape_00598c14, 21);
     DrawSpriteDefault(&DAT_005a76b0, 241, 64,
                       g_pBriefingAnimationShape_00598c14, 22);
-    character = 0;
-    do {
+    for (character = 0; character < 8; character++) {
         DrawBriefingCharacter(character, 0, 0, 0, 0);
-        character++;
-    } while (character < 8);
+    }
     RefreshMemoryStatusOverlay();
     return 0;
 }
@@ -1471,7 +1463,7 @@ unsigned int death_sequence(void)
     new_view(9, 0);
     DAT_0059ab58 = 0;
     DAT_00469fb4 = 1;
-    do {
+    for (; frame < 8; frame++) {
         if (frame == 7) {
             ClearViewport(&DAT_005a7510,
                           g_cViewportClearColour_004699a0);
@@ -1487,8 +1479,7 @@ unsigned int death_sequence(void)
         DIBslamReal();
         if (DAT_0059ab58 == 1)
             break;
-        frame++;
-    } while (frame < 8);
+    }
 
     GetScreenUpdateFlag();
     FreePacketAndClear(&cockpitBackground, 0);
@@ -1579,8 +1570,7 @@ unsigned int ShowVictoryScreen(void)
     DAT_00469fb4 = 1;
     do {
         if (RandomBelowOrEqual(7) == 0 && emptyCount != 0) {
-            index = 0;
-            do {
+            for (index = 0; index < 30; index++) {
                 if (g_aFireworks_005a6900[index].frame == -1) {
                     g_aFireworks_005a6900[index].frame = 0;
                     g_aFireworks_005a6900[index].x =
@@ -1591,8 +1581,7 @@ unsigned int ShowVictoryScreen(void)
                         RandomInRange(0, 2);
                     break;
                 }
-                index++;
-            } while (index < 30);
+            }
         }
         if (RefreshCockpitStatus() != 0) {
             emptyCount = TheEndFireWorks(&DAT_005a7510, 30);
