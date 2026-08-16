@@ -820,15 +820,25 @@ void InflightComputer(void)
     unsigned char *background;
     InputEventState event;
     Viewport pointerViewport;
+#ifdef WC1_SDL
+    MouseCursorState savedInputState;
+#else
     unsigned int savedInputState[7];
+#endif
 
     savedNavPoint = (short)g_cCurrentNavPointIndex_0059c86c;
     done = 0;
     hasObjectives = 0;
     displayedNavPoint = savedNavPoint;
     g_bInflightComputerActive_00468754 = 1;
+#ifdef WC1_SDL
+    memcpy(&savedInputState,
+           (const void *)&g_stMouseCursorState_0059ab10,
+           sizeof(savedInputState));
+#else
     memcpy(savedInputState, (const void *)&g_stMouseCursorState_0059ab10,
            sizeof(savedInputState));
+#endif
 
     if (message_showing() != 0)
         EndCommMenu();
@@ -931,10 +941,16 @@ void InflightComputer(void)
     ReleasePacketHandle(g_pNavMapShape_00468708);
     SetTextContext(&g_stDefaultTextContext_005a7740);
     PlaySfxWaveFileByNumber(0x19, -1, 0);
+#ifdef WC1_SDL
+    memcpy((void *)&g_stMouseCursorState_0059ab10,
+           &savedInputState, sizeof(savedInputState));
+    WarpMouseTo(savedInputState.x, savedInputState.y);
+#else
     memcpy((void *)&g_stMouseCursorState_0059ab10, savedInputState,
            sizeof(savedInputState));
     WarpMouseTo(((short *)savedInputState)[0],
                 ((short *)savedInputState)[1]);
+#endif
     if (DAT_0046a008 == 0) {
         force_view(0, 0);
     } else {
