@@ -12,7 +12,7 @@
 
 #define IX_SOUND_FILE "D:\\Rnd\\prj\\ix\\src\\sound\\sound.cpp"
 
-/* Function start: 0x00447CD8 */   /* source line 103 */
+/* Function start: 0x46A758 */   /* source line 103 */
 extern "C" void __fastcall ix_sound_start(IxSound *sound)
 {
     int voice;
@@ -98,7 +98,7 @@ extern "C" void __fastcall ix_sound_start(IxSound *sound)
     }
 }
 
-/* Function start: 0x0044801E */   /* source lines 151, 152 */
+/* Function start: 0x46AA9E */   /* source lines 151, 152 */
 extern "C" void __fastcall ix_sound_release(IxSound *sound)
 {
     if ((sound->flags & IX_SOUND_PLAYING) == 0) {
@@ -115,7 +115,7 @@ extern "C" void __fastcall ix_sound_release(IxSound *sound)
     }
 }
 
-/* Function start: 0x004480CF */   /* source line(s) 165: can't stop sound that's not playing! */
+/* Function start: 0x46AB4F */   /* source line(s) 165: can't stop sound that's not playing! */
 extern "C" void __fastcall ix_sound_stop(IxSound *sound)
 {
     IxSound *replacement;
@@ -177,7 +177,7 @@ extern "C" void __fastcall ix_sound_stop(IxSound *sound)
         ix_system_delete_sound(sound);
 }
 
-/* Function start: 0x0044831A */
+/* Function start: 0x46AD9A */
 void IxSound::ix_sound_reprioritise(void)
 {
     unsigned int newPriority;
@@ -256,7 +256,7 @@ void IxSound::ix_sound_reprioritise(void)
     priority = newPriority;
 }
 
-/* Function start: 0x00448645 */
+/* Function start: 0x46B0C5 */
 void IxSound::ix_sound_set_delete_on_stop(int enabled)
 {
     if (enabled != 0)
@@ -265,13 +265,13 @@ void IxSound::ix_sound_set_delete_on_stop(int enabled)
         flags &= ~IX_SOUND_DELETE_ON_STOP;
 }
 
-/* Function start: 0x00448678 */
+/* Function start: WC2_UNMAPPED */
 extern "C" int __fastcall ix_sound_is_playing(IxSound *sound)
 {
     return (sound->flags & IX_SOUND_PLAYING) != 0;
 }
 
-/* Function start: 0x004486B0 */
+/* Function start: 0x46B130 */
 void IxSample::ix_sample_construct(void)
 {
     flags = 0;
@@ -283,7 +283,7 @@ void IxSample::ix_sample_construct(void)
     g_pSampleList_00598610 = this;
 }
 
-/* Function start: 0x0044870F */
+/* Function start: 0x46B18F */
 void IxSample::ix_sample_destruct(void)
 {
     if (buffer != 0) {

@@ -7,7 +7,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x41ADA0 */
+/* Function start: 0x40230E */
 void CreateEmptySaveGameFile(void)
 {
     SaveGameDiskRecord diskRecord;
@@ -119,7 +119,7 @@ void CreateEmptySaveGameFile(void)
     }
 }
 
-/* Function start: 0x41B020 */
+/* Function start: 0x446E9D */
 void EnsureSaveGameFile(void)
 {
     short file;
@@ -137,7 +137,7 @@ void EnsureSaveGameFile(void)
         CreateEmptySaveGameFile();
 }
 
-/* Function start: 0x41B070 */
+/* Function start: WC2_UNMAPPED */
 void InitializeBarracksAnimation(BarracksAnimationState *state)
 {
     short bunk;
@@ -161,7 +161,7 @@ void InitializeBarracksAnimation(BarracksAnimationState *state)
     state->eyesOpen = 1;
 }
 
-/* Function start: 0x41B0E0 */
+/* Function start: WC2_UNMAPPED */
 void FreeBarracksMenuLabel(char **label)
 {
     if (*label != 0 &&
@@ -172,7 +172,7 @@ void FreeBarracksMenuLabel(char **label)
     }
 }
 
-/* Function start: 0x41B110 */
+/* Function start: 0x44F332 */
 void SetAwakenBarracksMenuLabel(char **label, int series, int mission,
                                 char *description)
 {
@@ -189,7 +189,7 @@ void SetAwakenBarracksMenuLabel(char **label, int series, int mission,
               strlen(g_szTextScratchBuffer_00598b00) + 2);
 }
 
-/* Function start: 0x41B180 */
+/* Function start: WC2_UNMAPPED */
 void FreeBarracksMenuLabels(void)
 {
     const char *saveCampaignLabel;
@@ -212,7 +212,7 @@ void FreeBarracksMenuLabels(void)
     g_pszCurrentRoomMenuLabel_00598aba = 0;
 }
 
-/* Function start: 0x41B1E0 */
+/* Function start: 0x402385 */
 short SaveGame(short slot, SaveGameRecord *gameRecord)
 {
     SaveGameDiskRecord diskRecord;
@@ -303,7 +303,7 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
     return (written != 0) & (file >= 0);
 }
 
-/* Function start: 0x41B420 */
+/* Function start: 0x42E3CF */
 short PromptForTextInput(short x, short y, const char *prompt,
                          char *destination, short maximumLength,
                          short inputMode)
@@ -345,7 +345,7 @@ short PromptForTextInput(short x, short y, const char *prompt,
     return result;
 }
 
-/* Function start: 0x41B550 */
+/* Function start: 0x4346E9 */
 int WarnLoadGameFirst(void)
 {
     InputEventState event;
@@ -365,7 +365,7 @@ int WarnLoadGameFirst(void)
     return (int)key;
 }
 
-/* Function start: 0x41B5C0 */
+/* Function start: WC2_UNMAPPED */
 void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
                             PilotRecord *pilots,
                             MissionObjective *objectives)
@@ -404,7 +404,7 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
     }
 }
 
-/* Function start: 0x41B710 */
+/* Function start: 0x446F14 */
 int LoadGame(short slot, SaveGameRecord *gameRecord)
 {
     SaveGameDiskRecord diskRecord;
@@ -505,7 +505,7 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     return 0;
 }
 
-/* Function start: 0x41B980 */
+/* Function start: 0x434ACE */
 void LoadGameFromSlot(short slot, CampaignState *campaign,
                       PilotRecord *pilots,
                       MissionObjective *objectives)
@@ -544,7 +544,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
     EnterAllocationScope();
 }
 
-/* Function start: 0x41BAD0 */
+/* Function start: WC2_UNMAPPED */
 void SetBunkMenuLabel(short occupied, short side, char **label,
                       int series, int mission, char *description)
 {
@@ -559,7 +559,7 @@ void SetBunkMenuLabel(short occupied, short side, char **label,
     *label = (char *)g_apszSaveCampaignMenuLabels_004693e8[1];
 }
 
-/* Function start: 0x41BB20 */
+/* Function start: 0x433ED7 */
 void GetBunkInfo(BarracksAnimationState *state)
 {
     SaveGameRecord gameRecord;
@@ -586,7 +586,7 @@ void GetBunkInfo(BarracksAnimationState *state)
     } while (bunk < 8);
 }
 
-/* Function start: 0x41BBD0 */
+/* Function start: 0x46138D */
 void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
                        BarracksAnimationState *state)
 {
@@ -614,7 +614,7 @@ void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
                          &g_stRoomScreenViewport_005988a0);
 }
 
-/* Function start: 0x41BC90 */
+/* Function start: 0x467300 */
 void DrawBarracksStaticDetails(Viewport *viewport,
                                unsigned char *shape)
 {
@@ -624,7 +624,7 @@ void DrawBarracksStaticDetails(Viewport *viewport,
     CheckCursor();
 }
 
-/* Function start: 0x41BCE0 */
+/* Function start: 0x40815F */
 void AnimateBarracks(Viewport *viewport, unsigned char *shape,
                      BarracksAnimationState *state)
 {
@@ -708,7 +708,7 @@ void AnimateBarracks(Viewport *viewport, unsigned char *shape,
     }
 }
 
-/* Function start: 0x41BF10 */
+/* Function start: 0x434F7D */
 int ConfirmQuitWingCommander(void)
 {
     short confirmed;
@@ -724,7 +724,7 @@ int ConfirmQuitWingCommander(void)
     return (int)confirmed;
 }
 
-/* Function start: 0x41BF60 */
+/* Function start: 0x436722 */
 int ConfirmAwakenAfterBadData(short slot)
 {
     SaveGameRecord gameRecord;
@@ -744,7 +744,7 @@ int ConfirmAwakenAfterBadData(short slot)
     return (int)confirmed;
 }
 
-/* Function start: 0x41BFE0 */
+/* Function start: 0x43641C */
 int ConfirmReplaceFaultyData(short slot)
 {
     SaveGameRecord gameRecord;
@@ -768,7 +768,7 @@ int ConfirmReplaceFaultyData(short slot)
     return (int)confirmed;
 }
 
-/* Function start: 0x41C090 */
+/* Function start: 0x418DAA */
 void HandleBarracksBunkSelection(Viewport *viewport,
                                   unsigned char *shape,
                                   BarracksAnimationState *state,
@@ -801,7 +801,7 @@ refresh:
     EnterAllocationScope();
 }
 
-/* Function start: 0x41C140 */
+/* Function start: WC2_UNMAPPED */
 void UpdateBarracksScreen(Viewport *viewport, unsigned char *shape,
                           BarracksAnimationState *state)
 {
@@ -810,7 +810,7 @@ void UpdateBarracksScreen(Viewport *viewport, unsigned char *shape,
     RefreshRoomMenuLabel();
 }
 
-/* Function start: 0x41C170 */
+/* Function start: 0x419831 */
 short BarracksScreen(void)
 {
     InputEventState event;
@@ -944,7 +944,7 @@ short BarracksScreen(void)
     return result;
 }
 
-/* Function start: 0x41C510 */
+/* Function start: 0x4225A0 */
 unsigned short __stdcall StepPaletteTransition(short *current,
                                                 const short *target,
                                                 short componentCount)
@@ -1024,7 +1024,7 @@ unsigned short __stdcall StepPaletteTransition(short *current,
     return 1;
 }
 
-/* Function start: 0x41C740 */
+/* Function start: 0x446910 */
 char *__stdcall DosStrcat(char *destination, const char *source)
 {
     char *end;

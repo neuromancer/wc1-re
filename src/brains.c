@@ -10,20 +10,20 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x4060A0 */
+/* Function start: 0x440606 */
 void SetShipAiScratchWord(unsigned short v)
 {
     DAT_00475e78 = v;
 }
 
-/* Function start: 0x4060B0 */
+/* Function start: 0x44061B */
 void maneuver_complete(short ship)
 {
     set_special(ship, SPECIAL_MANEUVER_NONE);
     reset_maneuver(ship, MANEUVER_NONE);
 }
 
-/* Function start: 0x4060D0 */
+/* Function start: 0x440642 */
 void Mline_up_drop(short ship, short target)
 {
     /* The shipped comparison normalizes this test to 0/1, then compares it
@@ -39,7 +39,7 @@ void Mline_up_drop(short ship, short target)
     }
 }
 
-/* Function start: 0x406130 */
+/* Function start: 0x4406BA */
 void Mwabble(short ship)
 {
     short choice;
@@ -67,14 +67,14 @@ void Mwabble(short ship)
     }
 }
 
-/* Function start: 0x4061E0 */
+/* Function start: 0x439559 */
 void advance(short ship)
 {
     if (g_aeShipManeuver_0059dcb0[ship] != MANEUVER_NONE)
         g_acShipSequence_0059d520[ship] = g_acShipSequence_0059d520[ship] + 1;
 }
 
-/* Function start: 0x406200 */
+/* Function start: WC2_UNMAPPED */
 void ShipAiState35(short ship, short target)
 {
     (void)target;
@@ -111,7 +111,7 @@ void ShipAiState35(short ship, short target)
     }
 }
 
-/* Function start: 0x406310 */
+/* Function start: 0x44151B */
 void Mfull_ahead(short ship)
 {
     short count;
@@ -123,7 +123,7 @@ void Mfull_ahead(short ship)
         maneuver_complete(ship);
 }
 
-/* Function start: 0x406350 */
+/* Function start: WC2_UNMAPPED */
 void Mchill(short ship, short target)
 {
     FixedVector destination;
@@ -134,7 +134,7 @@ void Mchill(short ship, short target)
         reset_maneuver(ship, g_acShipSequence_0059d520[ship]);
 }
 
-/* Function start: 0x4063B0 */
+/* Function start: 0x441837 */
 void Mdrop_a_mine(short ship)
 {
     short weapon;
@@ -148,7 +148,7 @@ void Mdrop_a_mine(short ship)
     maneuver_complete(ship);
 }
 
-/* Function start: 0x406400 */
+/* Function start: 0x433E8C */
 void Mthink(short ship)
 {
     approach_cruise_speed(ship);
@@ -158,7 +158,7 @@ void Mthink(short ship)
         maneuver_complete(ship);
 }
 
-/* Function start: 0x406440 */
+/* Function start: 0x44086B */
 void Mtight_loop(short ship)
 {
     approach_cruise_speed(ship);
@@ -186,7 +186,7 @@ void Mtight_loop(short ship)
     }
 }
 
-/* Function start: 0x4064F0 */
+/* Function start: 0x440967 */
 void Mhard_break(short ship)
 {
     short advanceSequence;
@@ -214,7 +214,7 @@ void Mhard_break(short ship)
         advance(ship);
 }
 
-/* Function start: 0x4065A0 */
+/* Function start: 0x440A93 */
 void Msit_n_spin(short ship, short target)
 {
     short advanceSequence;
@@ -283,7 +283,7 @@ void Msit_n_spin(short ship, short target)
         advance(ship);
 }
 
-/* Function start: 0x4067A0 */
+/* Function start: 0x440D0B */
 void Mturn_n_spin(short ship, short target)
 {
     short advanceSequence;
@@ -317,7 +317,7 @@ void Mturn_n_spin(short ship, short target)
         advance(ship);
 }
 
-/* Function start: 0x406860 */
+/* Function start: 0x440E46 */
 void Mburnout(short ship, short target)
 {
     (void)target;
@@ -340,7 +340,7 @@ void Mburnout(short ship, short target)
     }
 }
 
-/* Function start: 0x4068D0 */
+/* Function start: WC2_UNMAPPED */
 void Mkickit(short ship)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -356,7 +356,7 @@ void Mkickit(short ship)
     }
 }
 
-/* Function start: 0x406910 */
+/* Function start: 0x44145A */
 void Mturn_n_kick(short ship)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -379,7 +379,7 @@ void Mturn_n_kick(short ship)
     }
 }
 
-/* Function start: 0x406990 */
+/* Function start: WC2_UNMAPPED */
 void Mroll_over(short ship)
 {
     if (g_acShipSequence_0059d520[ship] == 0) {
@@ -393,7 +393,7 @@ void Mroll_over(short ship)
     }
 }
 
-/* Function start: 0x4069F0 */
+/* Function start: 0x441146 */
 void Mhard_turn(short ship)
 {
     approach_full_speed(ship);
@@ -410,7 +410,7 @@ void Mhard_turn(short ship)
     }
 }
 
-/* Function start: 0x406A50 */
+/* Function start: 0x4411E1 */
 void Mfish_hook(short ship, short target)
 {
     short advanceSequence = 1;
@@ -452,7 +452,7 @@ void Mfish_hook(short ship, short target)
         advance(ship);
 }
 
-/* Function start: 0x406B60 */
+/* Function start: 0x4410C0 */
 void Mtry2tail(short ship, short target)
 {
     if (unactive(target) == 0) {
@@ -466,7 +466,7 @@ void Mtry2tail(short ship, short target)
     }
 }
 
-/* Function start: 0x406BD0 */
+/* Function start: WC2_UNMAPPED */
 void Msplit_left(short ship)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -481,7 +481,7 @@ void Msplit_left(short ship)
     }
 }
 
-/* Function start: 0x406C20 */
+/* Function start: WC2_UNMAPPED */
 void Msplit_right(short ship)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -496,7 +496,7 @@ void Msplit_right(short ship)
     }
 }
 
-/* Function start: 0x406C70 */
+/* Function start: 0x4415DC */
 void Mgloat(short ship)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -521,7 +521,7 @@ void Mgloat(short ship)
     }
 }
 
-/* Function start: 0x406D20 */
+/* Function start: WC2_UNMAPPED */
 void Mtail_fire(short ship, short target)
 {
     if (no_goal(ship) != 0)
@@ -532,7 +532,7 @@ void Mtail_fire(short ship, short target)
     fire_when_ready(ship, 1);
 }
 
-/* Function start: 0x406D80 */
+/* Function start: 0x4418B2 */
 void Mzip_past(short ship, short target)
 {
     if (unactive(target) == 0) {
@@ -553,7 +553,7 @@ void Mzip_past(short ship, short target)
     }
 }
 
-/* Function start: 0x406E10 */
+/* Function start: 0x441C01 */
 void Mtarget_missile(short ship, short target)
 {
     short object;
@@ -582,7 +582,7 @@ void Mtarget_missile(short ship, short target)
     }
 }
 
-/* Function start: 0x406EC0 */
+/* Function start: 0x44199B */
 void Mram_missile(short ship, short target)
 {
     approach_full_speed(ship);
@@ -595,7 +595,7 @@ void Mram_missile(short ship, short target)
     }
 }
 
-/* Function start: 0x406F20 */
+/* Function start: 0x441A13 */
 void Mbuzz_debris(short ship)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -622,7 +622,7 @@ void Mbuzz_debris(short ship)
     }
 }
 
-/* Function start: 0x406FB0 */
+/* Function start: 0x45BF30 */
 void Mstrafe_enemy(short ship, short target)
 {
     short aimed;
@@ -640,7 +640,7 @@ void Mstrafe_enemy(short ship, short target)
     fire_when_ready(ship, (short)(aimed == 0));
 }
 
-/* Function start: 0x407030 */
+/* Function start: 0x441BC1 */
 void Mbest_strafe(short ship, short target)
 {
     if (g_nTargetFacing_0059d52a < 0x50) {
@@ -650,7 +650,7 @@ void Mbest_strafe(short ship, short target)
     Mzip_past(ship, target);
 }
 
-/* Function start: 0x407060 */
+/* Function start: 0x441D00 */
 void Msit_n_fire(short ship, short target)
 {
     if (g_aeObjectClass_0059d100[target] == OBJECT_CLASS_CAPITAL_SHIP) {
@@ -666,7 +666,7 @@ void Msit_n_fire(short ship, short target)
     fire_when_ready(ship, 1);
 }
 
-/* Function start: 0x4070D0 */
+/* Function start: 0x441D71 */
 void Mstrafe_n_roll(short ship, short target)
 {
     if (0 < g_asObjectCounter_0059c330[ship]) {
@@ -676,7 +676,7 @@ void Mstrafe_n_roll(short ship, short target)
     Mstrafe_enemy(ship, target);
 }
 
-/* Function start: 0x407100 */
+/* Function start: 0x441DB3 */
 void Mkill_missile(short ship, short target)
 {
     if (missile_on_tail(ship) == 0) {
@@ -699,7 +699,7 @@ void Mkill_missile(short ship, short target)
         fire(ship, g_acShipTarget_0059ce60[ship]);
 }
 
-/* Function start: 0x4071B0 */
+/* Function start: 0x441E9C */
 void Msuicide_run(short ship, short target)
 {
     approach_full_speed(ship);
@@ -707,7 +707,7 @@ void Msuicide_run(short ship, short target)
         point_ship_at_object(ship, target);
 }
 
-/* Function start: 0x4071E0 */
+/* Function start: 0x441EC8 */
 void Mget_distance(short ship, short target)
 {
     short amount;
@@ -726,7 +726,7 @@ void Mget_distance(short ship, short target)
     }
 }
 
-/* Function start: 0x407270 */
+/* Function start: 0x441F86 */
 void general_zig(short ship, unsigned int target, short pitch)
 {
     short complete = 1;
@@ -759,19 +759,19 @@ void general_zig(short ship, unsigned int target, short pitch)
         advance(ship);
 }
 
-/* Function start: 0x407350 */
+/* Function start: 0x44210C */
 void Mzig_zag(short ship, unsigned int target)
 {
     general_zig(ship, target, 0);
 }
 
-/* Function start: 0x407370 */
+/* Function start: 0x442129 */
 void Mzig_zag_pitch(short ship, unsigned int target)
 {
     general_zig(ship, target, 0x23);
 }
 
-/* Function start: 0x407390 */
+/* Function start: 0x442146 */
 void Mcorkscrew(short ship)
 {
     approach_full_speed(ship);
@@ -797,7 +797,7 @@ void Mcorkscrew(short ship)
         maneuver_complete(ship);
 }
 
-/* Function start: 0x407450 */
+/* Function start: 0x442252 */
 void Mveer_away(short ship, short target)
 {
     switch (g_acShipSequence_0059d520[ship]) {
@@ -834,38 +834,38 @@ void Mveer_away(short ship, short target)
     approach_full_speed(ship);
 }
 
-/* Function start: 0x407560 */
+/* Function start: 0x4423E2 */
 void ShipAiState44(short ship)
 {
     g_acShipStress_0059d620[ship] = 0;
     maneuver_complete(ship);
 }
 
-/* Function start: 0x407580 */
+/* Function start: WC2_UNMAPPED */
 void Mtarget_laser(short ship, short target)
 {
     Mbest_strafe(ship, target);
 }
 
-/* Function start: 0x4075A0 */
+/* Function start: WC2_UNMAPPED */
 void Mrout_me(short ship)
 {
     try2rout(ship);
 }
 
-/* Function start: 0x4075B0 */
+/* Function start: WC2_UNMAPPED */
 /* Empty in the original: dispatch-table slots 0 and 1 (no-op / invalid state). */
 void Mnone(void)
 {
 }
 
-/* Function start: 0x4075C0 */
+/* Function start: 0x4424CD */
 void Mreset(short ship)
 {
     maneuver_complete(ship);
 }
 
-/* Function start: 0x4075D0 */
+/* Function start: 0x4424E4 */
 void perform_maneuver(short obj)
 {
     short target = g_acShipTarget_0059ce60[obj];
@@ -1014,7 +1014,7 @@ void perform_maneuver(short obj)
     }
 }
 
-/* Function start: 0x407710 */
+/* Function start: 0x447170 */
 short __stdcall GetShapeFrameExtent(short x, short y,
                                     unsigned char *shape, short frame,
                                     short extent)
@@ -1025,7 +1025,7 @@ short __stdcall GetShapeFrameExtent(short x, short y,
     return bounds[extent];
 }
 
-/* Function start: 0x407750 */
+/* Function start: WC2_UNMAPPED */
 unsigned int AnimateScrambleWalk(short ticks)
 {
     signed char elapsed;
@@ -1110,7 +1110,7 @@ unsigned int AnimateScrambleWalk(short ticks)
     return 0;
 }
 
-/* Function start: 0x4079C0 */
+/* Function start: 0x460650 */
 unsigned int PlayScrambleHangarScene(void)
 {
     if (g_nMemoryConfiguration_005a7cd4 == 1)
@@ -1202,7 +1202,7 @@ unsigned int PlayScrambleHangarScene(void)
     return 0;
 }
 
-/* Function start: 0x407C90 */
+/* Function start: WC2_UNMAPPED */
 unsigned int DrawScrambleActor(short actorIndex)
 {
     signed char frame;
@@ -1261,7 +1261,7 @@ unsigned int DrawScrambleActor(short actorIndex)
     return 0;
 }
 
-/* Function start: 0x407D90 */
+/* Function start: WC2_UNMAPPED */
 unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
                                     short deltaY, unsigned char *shape,
                                     short scale, short angle,
@@ -1283,7 +1283,7 @@ unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
     return 0;
 }
 
-/* Function start: 0x407E10 */
+/* Function start: 0x42C7BC */
 unsigned int DrawScrambleFrame(void)
 {
     short detailIndex;
@@ -1418,7 +1418,7 @@ unsigned int DrawScrambleFrame(void)
     return 0;
 }
 
-/* Function start: 0x408200 (Mac symbol: scramble) */
+/* Function start: 0x429423 (Mac symbol: scramble) */
 unsigned int scramble(void)
 {
     unsigned char *actorShape;
@@ -1577,7 +1577,7 @@ unsigned int scramble(void)
     return 0;
 }
 
-/* Function start: 0x408650 (Mac symbol: landing) */
+/* Function start: 0x42EF12 (Mac symbol: landing) */
 unsigned int landing(signed char damageLevel)
 {
     unsigned char *actorShape;
@@ -1765,7 +1765,7 @@ unsigned int landing(signed char damageLevel)
     return 0;
 }
 
-/* Function start: 0x408B30 (Mac symbol: funeral_player) */
+/* Function start: WC2_UNMAPPED (Mac symbol: funeral_player) */
 unsigned int funeral_player(void)
 {
     short index;
@@ -1842,7 +1842,7 @@ unsigned int funeral_player(void)
     return 0;
 }
 
-/* Function start: 0x408D50 (Mac symbol: funeral_wingman) */
+/* Function start: WC2_UNMAPPED (Mac symbol: funeral_wingman) */
 unsigned int funeral_wingman(char *text, short duration)
 {
     AddPCName(text);
@@ -1865,7 +1865,7 @@ unsigned int funeral_wingman(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x408DE0 (Mac symbol: funeral_sequence) */
+/* Function start: 0x459D74 (Mac symbol: funeral_sequence) */
 unsigned int funeral_sequence(int playerFuneral)
 {
     int *packet;
@@ -2155,7 +2155,7 @@ unsigned int funeral_sequence(int playerFuneral)
     return 0;
 }
 
-/* Function start: 0x4094E0 */
+/* Function start: 0x409C1A */
 unsigned int RunAnimationDemoLoop(signed char animation)
 {
     switch (animation) {
@@ -2274,7 +2274,7 @@ unsigned int RunAnimationDemoLoop(signed char animation)
     return 0;
 }
 
-/* Function start: 0x409760 */
+/* Function start: 0x442770 */
 void cruise_home(short obj)
 {
     FixedVector *destination;
@@ -2316,13 +2316,13 @@ void cruise_home(short obj)
     }
 }
 
-/* Function start: 0x4098C0 */
+/* Function start: WC2_UNMAPPED */
 void fail(short obj)
 {
     reset_objective(obj, OBJECTIVE_NONE);
 }
 
-/* Function start: 0x4098D0 */
+/* Function start: 0x43A8EA */
 void coming_home(short obj)
 {
     short objective;
@@ -2352,7 +2352,7 @@ void coming_home(short obj)
     }
 }
 
-/* Function start: 0x4099C0 */
+/* Function start: 0x442B78 */
 void run_away(short obj)
 {
     FixedVector direction;
@@ -2382,7 +2382,7 @@ void run_away(short obj)
         remove_object(obj);
 }
 
-/* Function start: 0x409AC0 */
+/* Function start: 0x442CC3 */
 short check_engage_target(short obj)
 {
     short newTarget = detect_enemy_tail(obj);
@@ -2394,7 +2394,7 @@ short check_engage_target(short obj)
     return g_acShipTarget_0059ce60[obj];
 }
 
-/* Function start: 0x409B10 */
+/* Function start: 0x442D58 */
 short check_destroy_target(short obj)
 {
     short destroyTarget = find_ship_index(g_anShipMissionShip_0059d4b0[obj]);
@@ -2424,7 +2424,7 @@ short check_destroy_target(short obj)
     return g_acShipTarget_0059ce60[obj];
 }
 
-/* Function start: 0x409C20 */
+/* Function start: 0x442EFC */
 void maneuvering(short obj, short newTarget)
 {
     g_acShipTarget_0059ce60[obj] = newTarget;
@@ -2432,7 +2432,7 @@ void maneuvering(short obj, short newTarget)
     perform_maneuver(obj);
 }
 
-/* Function start: 0x409C50 */
+/* Function start: 0x442F2D */
 void formation_burst(short obj)
 {
     approach_full_speed(obj);
@@ -2449,20 +2449,20 @@ void formation_burst(short obj)
     }
 }
 
-/* Function start: 0x409CE0 */
+/* Function start: 0x442FE9 */
 void disallow_engage(void)
 {
     g_bEngageAllowed_0046c080 = 0;
 }
 
-/* Function start: 0x409CF0 */
+/* Function start: 0x442FFD */
 void allow_engage(void)
 {
     g_bEngageAllowed_0046c080 = 1;
     g_nAutoEngageTimer_0046c084 = -1;
 }
 
-/* Function start: 0x409D10 */
+/* Function start: 0x44301A */
 void try2allow_engage(int pilotLevel)
 {
     if (pilotLevel <= 4) {
@@ -2480,7 +2480,7 @@ void try2allow_engage(int pilotLevel)
     g_nAutoEngageTimer_0046c084 = -40;
 }
 
-/* Function start: 0x409D60 */
+/* Function start: 0x443095 */
 void imperial_formation(short obj)
 {
     short leader = g_asShipWingLeader_0059d400[obj];
@@ -2525,7 +2525,7 @@ void imperial_formation(short obj)
     }
 }
 
-/* Function start: 0x409F00 */
+/* Function start: 0x4432EB */
 void formation_break(short obj)
 {
     switch (g_acShipSequence_0059d520[obj]) {
@@ -2547,7 +2547,7 @@ void formation_break(short obj)
     }
 }
 
-/* Function start: 0x409F80 */
+/* Function start: 0x4433B1 */
 void imperial_wingman(short obj)
 {
     switch (g_aeShipObjective_0059d200[obj]) {
@@ -2572,7 +2572,7 @@ void imperial_wingman(short obj)
     }
 }
 
-/* Function start: 0x40A030 */
+/* Function start: 0x443499 */
 void kilrathi_wingman(short obj)
 {
     short leader = g_asShipWingLeader_0059d400[obj];
@@ -2612,7 +2612,7 @@ void kilrathi_wingman(short obj)
     }
 }
 
-/* Function start: 0x40A130 */
+/* Function start: WC2_UNMAPPED */
 void wingman_mission(short obj)
 {
     if (g_aeShipSide_0059d650[obj] == SIDE_IMPERIAL) {
@@ -2622,13 +2622,13 @@ void wingman_mission(short obj)
     kilrathi_wingman(obj);
 }
 
-/* Function start: 0x40A160 */
+/* Function start: 0x44366D */
 short dist_from_home(short obj)
 {
     return distance_from_point(obj, &g_aShipMissionSpot_0059dd10[obj]);
 }
 
-/* Function start: 0x40A180 */
+/* Function start: 0x443698 */
 short scan_and_lock(short obj, int scanRange, enum ShipTactic newTactic)
 {
     g_acShipTarget_0059ce60[obj] = scan_for_enemy(obj, 14000);
@@ -2637,7 +2637,7 @@ short scan_and_lock(short obj, int scanRange, enum ShipTactic newTactic)
     return g_acShipTarget_0059ce60[obj] != -1;
 }
 
-/* Function start: 0x40A1C0 */
+/* Function start: 0x443707 */
 void patrol_area(short obj)
 {
     short target = g_acShipTarget_0059ce60[obj];
@@ -2686,7 +2686,7 @@ void patrol_area(short obj)
     }
 }
 
-/* Function start: 0x40A360 */
+/* Function start: 0x442455 */
 void kilrathi_patrol(short obj)
 {
     switch (g_aeShipObjective_0059d200[obj]) {
@@ -2710,13 +2710,13 @@ void kilrathi_patrol(short obj)
     }
 }
 
-/* Function start: 0x40A400 */
+/* Function start: WC2_UNMAPPED */
 void imperial_wingleader(short obj)
 {
     kilrathi_patrol(obj);
 }
 
-/* Function start: 0x40A410 */
+/* Function start: 0x443A08 */
 void cruise_to_destination(short obj)
 {
     FixedVector *destination;
@@ -2757,7 +2757,7 @@ void cruise_to_destination(short obj)
     }
 }
 
-/* Function start: 0x40A540 */
+/* Function start: 0x443C45 */
 void prepare_for_jump(short obj)
 {
     short count;
@@ -2785,7 +2785,7 @@ void prepare_for_jump(short obj)
     }
 }
 
-/* Function start: 0x40A630 */
+/* Function start: 0x42D4C1 */
 void accelerate_and_jump(short obj)
 {
     approach_full_speed(obj);
@@ -2793,7 +2793,7 @@ void accelerate_and_jump(short obj)
         warp(obj);
 }
 
-/* Function start: 0x40A670 */
+/* Function start: 0x443DBD */
 void reach_warp(short obj)
 {
     switch (g_aeShipTactic_0059d5e0[obj]) {
@@ -2816,7 +2816,7 @@ void reach_warp(short obj)
     }
 }
 
-/* Function start: 0x40A710 */
+/* Function start: 0x443EE9 */
 void warp_arrival(short obj)
 {
     if (g_aeShipTactic_0059d5e0[obj] == TACTIC_WARP_IN)
@@ -2825,7 +2825,7 @@ void warp_arrival(short obj)
         reset_tactic(obj, TACTIC_WARP_IN);
 }
 
-/* Function start: 0x40A740 */
+/* Function start: 0x443F28 */
 void return_to_buddy(short obj, short buddy)
 {
     approach_cruise_speed(obj);
@@ -2837,7 +2837,7 @@ void return_to_buddy(short obj, short buddy)
     }
 }
 
-/* Function start: 0x40A7A0 */
+/* Function start: 0x443FA2 */
 void escort_buddy(short obj, short buddy)
 {
     approach_ship_speed(obj, buddy);
@@ -2845,7 +2845,7 @@ void escort_buddy(short obj, short buddy)
         point_parallel(obj, buddy);
 }
 
-/* Function start: 0x40A7D0 */
+/* Function start: 0x443FE4 */
 void escort_mission(short obj)
 {
     short buddy = find_ship_index(g_anShipMissionShip_0059d4b0[obj]);
@@ -2882,7 +2882,7 @@ void escort_mission(short obj)
     }
 }
 
-/* Function start: 0x40A900 */
+/* Function start: 0x444199 */
 void check_goal(short obj)
 {
     if (gone_ship(g_anShipMissionShip_0059d4b0[obj]) != 0)
@@ -2891,7 +2891,7 @@ void check_goal(short obj)
         reset_mission_type(obj, MISSION_TYPE_PATROL);
 }
 
-/* Function start: 0x40A940 */
+/* Function start: 0x4441E5 */
 void streak_toward(short obj, short goal, short range)
 {
     if (no_goal(obj) != 0) {
@@ -2906,7 +2906,7 @@ void streak_toward(short obj, short goal, short range)
         approach_full_speed(obj);
 }
 
-/* Function start: 0x40A9B0 */
+/* Function start: 0x444291 */
 void approach_and_engage(short obj, short goal)
 {
     unsigned short range = (unsigned short)distance_from_object(obj, goal);
@@ -2937,7 +2937,7 @@ void approach_and_engage(short obj, short goal)
     }
 }
 
-/* Function start: 0x40AAC0 */
+/* Function start: 0x4429C0 */
 void strike_mission(short obj)
 {
     short goal = find_ship_index(g_anShipMissionShip_0059d4b0[obj]);
@@ -2975,7 +2975,7 @@ void strike_mission(short obj)
     }
 }
 
-/* Function start: 0x40ABB0 */
+/* Function start: 0x4446C9 */
 void return_to_master(short obj, short master)
 {
     short range = distance_from_object(obj, master);
@@ -2987,7 +2987,7 @@ void return_to_master(short obj, short master)
     }
 }
 
-/* Function start: 0x40AC00 */
+/* Function start: 0x44472C */
 void defend_mission(short obj)
 {
     short master = find_ship_index(g_anShipMissionShip_0059d4b0[obj]);
@@ -3034,7 +3034,7 @@ void defend_mission(short obj)
     }
 }
 
-/* Function start: 0x40AD80 */
+/* Function start: 0x444966 */
 void rendezvous_mission(short obj)
 {
     short goal = find_ship_index(g_anShipMissionShip_0059d4b0[obj]);
@@ -3068,7 +3068,7 @@ void rendezvous_mission(short obj)
     }
 }
 
-/* Function start: 0x40AE80 */
+/* Function start: 0x444ADC */
 void ship_intelligence(short obj)
 {
     if (regulate_turn(obj) != 0)
@@ -3120,7 +3120,7 @@ void ship_intelligence(short obj)
         g_acShipAiCooldown_0059d680[obj]--;
 }
 
-/* Function start: 0x40AF70 */
+/* Function start: 0x444C80 */
 void orbit_sphere(short obj)
 {
     short radius = g_aMissionNavPoints_0046c2f0[
@@ -3138,7 +3138,7 @@ void orbit_sphere(short obj)
     trim_goals(obj, 10);
 }
 
-/* Function start: 0x40B010 */
+/* Function start: 0x444D5C */
 void tanker_intelligence(short obj)
 {
     if (attacker_in_range(obj, 3000) != 0) {
@@ -3160,7 +3160,7 @@ void tanker_intelligence(short obj)
     orbit_sphere(obj);
 }
 
-/* Function start: 0x40B0C0 */
+/* Function start: 0x444E51 */
 void destroyer_intelligence(short obj)
 {
     if (fire_turrets(obj) != 0) {
@@ -3172,7 +3172,7 @@ void destroyer_intelligence(short obj)
     orbit_sphere(obj);
 }
 
-/* Function start: 0x40B110 */
+/* Function start: 0x42A876 */
 void stationary_intelligence(short obj)
 {
     if (g_aeObjectType_0059b560[obj] == OBJECT_TYPE_KILRATHI_BASE) {
@@ -3181,7 +3181,7 @@ void stationary_intelligence(short obj)
     }
 }
 
-/* Function start: 0x40B140 */
+/* Function start: 0x441742 */
 void capital_ship_intelligence(short obj)
 {
     enum ObjectType type;
@@ -3246,7 +3246,7 @@ void capital_ship_intelligence(short obj)
     }
 }
 
-/* Function start: 0x40B320 */
+/* Function start: 0x445D9A */
 void futurion_intelligence(short obj)
 {
     short range;
@@ -3266,7 +3266,7 @@ void futurion_intelligence(short obj)
             (enum ObjectClass)g_asObjectCounter_0059c330[obj];
 }
 
-/* Function start: 0x40B3A0 */
+/* Function start: 0x446474 */
 void mine_intelligence(short obj)
 {
     short other;
@@ -3288,7 +3288,7 @@ void mine_intelligence(short obj)
     }
 }
 
-/* Function start: 0x40B430 */
+/* Function start: 0x445E68 */
 void heat_seeking_missile_intelligence(short obj)
 {
     short other;
@@ -3350,7 +3350,7 @@ void heat_seeking_missile_intelligence(short obj)
         explode(obj, obj);
 }
 
-/* Function start: 0x40B570 */
+/* Function start: 0x446133 */
 void FF_missile_intelligence(short obj)
 {
     short other;
@@ -3388,7 +3388,7 @@ void FF_missile_intelligence(short obj)
     }
 }
 
-/* Function start: 0x40B670 */
+/* Function start: 0x44B200 */
 void set_sphere_point(const MissionShipRecord *record,
                       FixedVector *position)
 {
@@ -3397,7 +3397,7 @@ void set_sphere_point(const MissionShipRecord *record,
         &record->position, position);
 }
 
-/* Function start: 0x40B6A0 */
+/* Function start: 0x44B239 */
 unsigned int is_alive(int pilot)
 {
     if (pilot <= 4)
@@ -3412,7 +3412,7 @@ unsigned int is_alive(int pilot)
     return 0;
 }
 
-/* Function start: 0x40B700 */
+/* Function start: 0x44B257 */
 unsigned int check_futurion(short i)
 {
     unsigned int prev;
@@ -3425,7 +3425,7 @@ unsigned int check_futurion(short i)
     return 0;
 }
 
-/* Function start: 0x40B730 */
+/* Function start: 0x44B2E2 */
 unsigned int init_mission(short series, short mission)
 {
 #ifdef WC1_SDL
@@ -3447,7 +3447,7 @@ unsigned int init_mission(short series, short mission)
     return 0;
 }
 
-/* Function start: 0x40B7A0 */
+/* Function start: WC2_UNMAPPED */
 void prepare_mission(void)
 {
     MissionShipRecord *playerRecord;
@@ -3515,7 +3515,7 @@ void prepare_mission(void)
     g_bLandingAuthorized_00468ff8 = 0;
 }
 
-/* Function start: 0x40B940 */
+/* Function start: 0x456988 */
 int release_all_capital_ship_shapes(void)
 {
     short obj;
@@ -3532,7 +3532,7 @@ int release_all_capital_ship_shapes(void)
     return 0;
 }
 
-/* Function start: 0x40B990 */
+/* Function start: WC2_UNMAPPED */
 int release_capital_ship_shapes(enum ObjectType type)
 {
     short obj;
@@ -3551,7 +3551,7 @@ int release_capital_ship_shapes(enum ObjectType type)
     return 0;
 }
 
-/* Function start: 0x40B9F0 */
+/* Function start: 0x444420 */
 int load_ship(enum ObjectType type, short slot)
 {
     short obj;
@@ -3679,7 +3679,7 @@ int load_ship(enum ObjectType type, short slot)
     return 0;
 }
 
-/* Function start: 0x40BC70 */
+/* Function start: 0x44BA73 */
 int free_ship(short slot)
 {
     ObjectResourceSlot *resource;
@@ -3752,7 +3752,7 @@ int free_ship(short slot)
     return 0;
 }
 
-/* Function start: 0x40BE20 */
+/* Function start: 0x4175AD */
 int free_all_slots(void)
 {
     short slot = 0;
@@ -3768,7 +3768,7 @@ int free_all_slots(void)
     return 0;
 }
 
-/* Function start: 0x40BE60 */
+/* Function start: 0x44CCE1 */
 int load_all_slots(void)
 {
     enum ObjectType type;
@@ -3787,7 +3787,7 @@ int load_all_slots(void)
     return 0;
 }
 
-/* Function start: 0x40BEA0 */
+/* Function start: 0x44CDCF */
 void remove_nav_point_objects(void)
 {
     short i = 0;
@@ -3798,7 +3798,7 @@ void remove_nav_point_objects(void)
     } while (i < 10);
 }
 
-/* Function start: 0x40BEC0 */
+/* Function start: 0x43B258 */
 short get_shape_slot(void)
 {
     short slot = 0;
@@ -3811,7 +3811,7 @@ short get_shape_slot(void)
     return -1;
 }
 
-/* Function start: 0x40BEF0 */
+/* Function start: 0x43A1EB */
 int shape_loaded(enum ObjectType type)
 {
     short slot = 0;
@@ -3825,7 +3825,7 @@ int shape_loaded(enum ObjectType type)
     return 0;
 }
 
-/* Function start: 0x40BF20 */
+/* Function start: 0x43A251 */
 int shape_needed(const MissionNavPoint *navPoint, enum ObjectType type)
 {
     short preload;
@@ -3841,7 +3841,7 @@ int shape_needed(const MissionNavPoint *navPoint, enum ObjectType type)
     return 0;
 }
 
-/* Function start: 0x40BF50 */
+/* Function start: 0x428EDC */
 int new_sphere_shapes(MissionNavPoint *navPoint)
 {
     ObjectResourceSlot *resource;
@@ -3878,7 +3878,7 @@ int new_sphere_shapes(MissionNavPoint *navPoint)
     return 0;
 }
 
-/* Function start: 0x40BFF0 */
+/* Function start: 0x440F76 */
 int set_up_action_sphere(short navPoint)
 {
     MissionNavPoint *nav;
@@ -3947,7 +3947,7 @@ int set_up_action_sphere(short navPoint)
     return 0;
 }
 
-/* Function start: 0x40C150 */
+/* Function start: WC2_UNMAPPED */
 void free_pilot_talk(short personality)
 {
     short line;
@@ -3966,7 +3966,7 @@ void free_pilot_talk(short personality)
     } while (line < 11);
 }
 
-/* Function start: 0x40C1C0 */
+/* Function start: 0x434043 */
 void get_pilot_talk(short personality)
 {
     char speech[84];
@@ -3998,7 +3998,7 @@ void get_pilot_talk(short personality)
     LoadCommPortraitShape(personality, 4);
 }
 
-/* Function start: 0x40C2B0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int init_personalities(void)
 {
     short missionShip;
@@ -4028,13 +4028,13 @@ unsigned int init_personalities(void)
     return 0;
 }
 
-/* Function start: 0x40C350 */
+/* Function start: WC2_UNMAPPED */
 unsigned int room_for_me(short obj, short minimum)
 {
     return 1;
 }
 
-/* Function start: 0x40C360 */
+/* Function start: 0x44D81F */
 void approve_xyz(short obj, short minimum, short maximum)
 {
     if (obj == -1 || room_for_me(obj, minimum) != 0)
@@ -4045,7 +4045,7 @@ void approve_xyz(short obj, short minimum, short maximum)
     } while (room_for_me(obj, minimum) == 0);
 }
 
-/* Function start: 0x40C3C0 */
+/* Function start: 0x44D888 */
 void set_up_next_wave(void)
 {
     MissionNavPoint *waveNav;
@@ -4088,7 +4088,7 @@ void set_up_next_wave(void)
     g_nCurrentWave_0046c01c = -1;
 }
 
-/* Function start: 0x40C4A0 */
+/* Function start: 0x448D1A */
 unsigned int sub_int_vector(const ShortVector *left,
                             const ShortVector *right,
                             ShortVector *difference)
@@ -4099,7 +4099,7 @@ unsigned int sub_int_vector(const ShortVector *left,
     return 0;
 }
 
-/* Function start: 0x40C4E0 */
+/* Function start: 0x44DA2F */
 unsigned int set_formation_position(short obj,
                                     const MissionShipRecord *record)
 {
@@ -4134,7 +4134,7 @@ unsigned int set_formation_position(short obj,
     return 0;
 }
 
-/* Function start: 0x40C5E0 */
+/* Function start: 0x44DB7E */
 void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
 {
     MissionShipRecord *record = &g_aMissionShips_0046c948[missionShip];
@@ -4171,7 +4171,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     init_intelligence_data(obj);
 }
 
-/* Function start: 0x40C740 */
+/* Function start: 0x4380FD */
 unsigned int is_team_member(short missionShip)
 {
     short index;
@@ -4187,7 +4187,7 @@ unsigned int is_team_member(short missionShip)
     return 0;
 }
 
-/* Function start: 0x40C780 */
+/* Function start: 0x43AA3F */
 unsigned int find_next_ship_turn_slot(short obj)
 {
     signed char interval;
@@ -4216,7 +4216,7 @@ unsigned int find_next_ship_turn_slot(short obj)
     return 0;
 }
 
-/* Function start: 0x40C800 */
+/* Function start: 0x44E187 */
 short init_ship(short missionShip, short navPoint)
 {
     MissionShipRecord *record;
@@ -4256,7 +4256,7 @@ short init_ship(short missionShip, short navPoint)
     return obj;
 }
 
-/* Function start: 0x40C950 */
+/* Function start: 0x44E44F */
 unsigned int init_intelligence_data(short obj)
 {
     FixedVector *missionSpot;
@@ -4312,7 +4312,7 @@ unsigned int init_intelligence_data(short obj)
     return 0;
 }
 
-/* Function start: 0x40CAA0 */
+/* Function start: 0x44F1F0 */
 short __stdcall SampleBothJoysticks(InputDeviceSample *samples,
                                     unsigned int fallback)
 {
@@ -4325,7 +4325,7 @@ short __stdcall SampleBothJoysticks(InputDeviceSample *samples,
     return 1;
 }
 
-/* Function start: 0x40CAE0 */
+/* Function start: 0x4388F5 */
 int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
                                    short joystick,
                                    unsigned int fallback)
@@ -4344,7 +4344,7 @@ int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
     return result;
 }
 
-/* Function start: 0x40CB30 */
+/* Function start: 0x461922 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 void SampleActiveJoystickDevice(void)
@@ -4357,7 +4357,7 @@ void SampleActiveJoystickDevice(void)
                              device, 0);
 }
 
-/* Function start: 0x40CB60 */
+/* Function start: 0x44FA70 */
 void DrawNavTextLine(unsigned char alignment, unsigned short colour,
                      const char *format, ...)
 {
@@ -4381,19 +4381,19 @@ void DrawNavTextLine(unsigned char alignment, unsigned short colour,
     DrawTextString(g_pCurrentTextContext_0059af8c->text);
 }
 
-/* Function start: 0x40CBB0 */
+/* Function start: 0x44FADA */
 void SetNavMapCoordinateScaling(short enabled)
 {
     g_nNavMapCoordinateScaling_00468660 = enabled;
 }
 
-/* Function start: 0x40CBC0 */
+/* Function start: 0x44760F */
 void ScaleNavMapMarkerSize(short *size)
 {
     *size = (short)(*size / (g_nNavMapScale_00468664 * 100));
 }
 
-/* Function start: 0x40CBE0 */
+/* Function start: 0x44FB19 */
 void ScaleNavMapCoordinates(short *x, short *y, short mapX, short mapY)
 {
     *x = (short)((mapX - g_nNavMapCentreX_005a8152) /
@@ -4402,7 +4402,7 @@ void ScaleNavMapCoordinates(short *x, short *y, short mapX, short mapY)
                  g_nNavMapScale_00468664 + 67);
 }
 
-/* Function start: 0x40CC30 */
+/* Function start: 0x44FB68 */
 void nav_getxy(short *x, short *y, int worldX, int worldZ)
 {
     short mapY;
@@ -4414,7 +4414,7 @@ void nav_getxy(short *x, short *y, int worldX, int worldZ)
         ScaleNavMapCoordinates(x, y, *x, mapY);
 }
 
-/* Function start: 0x40CC80 */
+/* Function start: 0x44FBC8 */
 void CheckPoint(short x, short y)
 {
     g_nNavMapMinimumX_005a812e =
@@ -4427,7 +4427,7 @@ void CheckPoint(short x, short y)
         MaxShort(g_nNavMapMaximumY_005a8150, y);
 }
 
-/* Function start: 0x40CCF0 */
+/* Function start: 0x44FC37 */
 void IncludeNavMapWorldPoint(int worldX, int worldZ)
 {
     short x;
@@ -4437,7 +4437,7 @@ void IncludeNavMapWorldPoint(int worldX, int worldZ)
     CheckPoint(x, y);
 }
 
-/* Function start: 0x40CD30 */
+/* Function start: 0x44FC6D */
 void SetScale(void)
 {
     short objectiveIndex;
@@ -4490,7 +4490,7 @@ void SetScale(void)
     SetNavMapCoordinateScaling(1);
 }
 
-/* Function start: 0x40CED0 */
+/* Function start: 0x44FE9F */
 void Build_objective_list(void)
 {
     MissionObjectiveSource *source;

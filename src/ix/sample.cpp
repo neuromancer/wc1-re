@@ -59,7 +59,7 @@ struct IxWaveFormat {
 #pragma pack(pop)
 #endif
 
-/* Function start: 0x0044879C */   /* source line(s) 166;169;170;193;195;197: sample already ready! | FORM id not found! | AIFF id not found! | Unsupported number of ch */
+/* Function start: 0x46B21C */   /* source line(s) 166;169;170;193;195;197: sample already ready! | FORM id not found! | AIFF id not found! | Unsupported number of ch */
 int IxSample::ix_sample_load_aiff(void *data, int bytes)
 {
     unsigned char *end;
@@ -171,7 +171,7 @@ int IxSample::ix_sample_load_aiff(void *data, int bytes)
     return 0;
 }
 
-/* Function start: 0x00448C8B */   /* source line(s) 261;264;265;279;281;283;285: sample already ready! | RIFF id not found! | WAVE id not found! | Unsupported number of ch */
+/* Function start: 0x46B70B */   /* source line(s) 261;264;265;279;281;283;285: sample already ready! | RIFF id not found! | WAVE id not found! | Unsupported number of ch */
 int IxSample::ix_sample_load_wav(void *data, int bytes)
 {
     unsigned char *end;
@@ -262,7 +262,7 @@ int IxSample::ix_sample_load_wav(void *data, int bytes)
     return 0;
 }
 
-/* Function start: 0x00449044 */   /* source line(s) 333: sample already ready! */
+/* Function start: 0x46BAC4 */   /* source line(s) 333: sample already ready! */
 int IxSample::ix_sample_load_raw(void *data, int bytes, int newFrequency,
                                  int newBitsPerSample, int newChannels)
 {
@@ -288,7 +288,7 @@ int IxSample::ix_sample_load_raw(void *data, int bytes, int newFrequency,
     return 0;
 }
 
-/* Function start: 0x0044914C */
+/* Function start: 0x46BBCC */
 long IxSample::ix_sample_convert_from_ieee_extended(unsigned char *bytes)
 {
     unsigned long lowMantissa;

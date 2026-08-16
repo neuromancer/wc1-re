@@ -1,9 +1,36 @@
 # Toolchain and compiler-flag derivation
 
+## WC2 target on this branch
+
+Target: `WC2.EXE`, MD5 `6e8bd31e8ad5603f74a9c8ea657d01cd`, 714,752
+bytes. Built **1996-09-24 17:41:25 UTC**. Image base `0x00400000`.
+
+WC2's PE header reports linker **3.10**. The selected decomp.me MSVC 4.1
+package identifies `CL.EXE` as C/C++ compiler **10.10.6038** and `LINK.EXE` as
+incremental linker **3.10.6038**, matching the shipped image's linker stamp.
+Both the game core and ix library have the unoptimized debug-build shape, so
+this branch uses `/MTd /Od /Oi` throughout.
+
+The controlled remap report separates optimizer and compiler effects:
+
+| Rebuild configuration | Average | Exact | >=90% |
+| --- | ---: | ---: | ---: |
+| MSVC 4.20 with WC1's optimized core flags | 47.48% | 153 | 176 |
+| MSVC 4.20 with `/Od /Oi` | 74.01% | 302 | 460 |
+| MSVC 4.1 with `/Od /Oi` | 74.01% | 303 | 461 |
+
+Thus optimization accounts for the material code-generation gap. MSVC 4.1
+also supplies the exact linker generation and improves two threshold counts,
+although the rounded aggregate is unchanged. See
+[`reports/WC2_REMAP_REPORT.md`](../reports/WC2_REMAP_REPORT.md) for the full
+evidence-tier breakdown.
+
+## Historical WC1 predecessor
+
 Target: `WC1.EXE`, MD5 `b20a68b7e45f837e59f7e31bab2e2020`, 518,656 bytes.
 Built **1996-09-24 16:33 UTC**. Image base `0x00400000`.
 
-## Toolchain: Microsoft Visual C++ 4.20
+### Toolchain: Microsoft Visual C++ 4.20
 
 | Signal | Value | Reading |
 |---|---|---|
@@ -24,7 +51,7 @@ For contrast: the DOS original (`../releases/dos/WC.EXE`) is **Borland Turbo C++
 VROOMM overlays (`Turbo C++ - Copyright 1990 Borland Intl.`, `Runtime overlay error`). So the
 Win32 port is a genuine recompile, not a wrapper.
 
-## Flag derivation
+### WC1 flag derivation
 
 Each flag in the Makefile is backed by an observation. Do not change these casually — the
 comparison depends on them.

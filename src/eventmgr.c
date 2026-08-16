@@ -7,7 +7,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x4355F0 */
+/* Function start: 0x462625 */
 void TranslatePolledInputEvent(unsigned short type, unsigned int value)
 {
     unsigned int state;
@@ -43,7 +43,7 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
     }
 }
 
-/* Function start: 0x4356A0 */
+/* Function start: 0x462849 */
 void QueueInputEventAtCursor(unsigned int type, short primaryButton,
                              short secondaryButton)
 {
@@ -57,7 +57,7 @@ void QueueInputEventAtCursor(unsigned int type, short primaryButton,
                     primaryButton, secondaryButton, 0);
 }
 
-/* Function start: 0x4356E0 */
+/* Function start: WC2_UNMAPPED */
 InputEvent *AllocateInputEvent(void)
 {
     int *used;
@@ -85,7 +85,7 @@ InputEvent *AllocateInputEvent(void)
     return &g_aInputEventPool_00598c40[0];
 }
 
-/* Function start: 0x435760 */
+/* Function start: 0x42C04B */
 void ReleaseInputEvent(InputEvent *event)
 {
     int slot;
@@ -96,7 +96,7 @@ void ReleaseInputEvent(InputEvent *event)
     }
 }
 
-/* Function start: 0x435790 */
+/* Function start: 0x4629A7 */
 void QueueInputEvent(unsigned short type, unsigned short x,
                      unsigned short y, unsigned short value,
                      int primaryButton, int secondaryButton,
@@ -147,7 +147,7 @@ void QueueInputEvent(unsigned short type, unsigned short x,
     g_pInputEventTail_0046da94->secondaryButton = (short)secondaryButton;
 }
 
-/* Function start: 0x4358B0 */
+/* Function start: WC2_UNMAPPED */
 void ReleaseInputEventQueue(void)
 {
     InputEvent *event = g_pInputEventHead_0046da90;
@@ -162,7 +162,7 @@ void ReleaseInputEventQueue(void)
     g_pInputEventHead_0046da90 = 0;
 }
 
-/* Function start: 0x4358E0 */
+/* Function start: 0x458F5A */
 void RetainInputEventsOfType(int type)
 {
     InputEvent *event = g_pInputEventHead_0046da90;
@@ -185,7 +185,7 @@ void RetainInputEventsOfType(int type)
     }
 }
 
-/* Function start: 0x435940 */
+/* Function start: WC2_UNMAPPED */
 void RemoveInputEvent(InputEvent *event)
 {
     InputEvent *previous = event->previous;
@@ -214,7 +214,7 @@ void RemoveInputEvent(InputEvent *event)
     ReleaseInputEvent(event);
 }
 
-/* Function start: 0x4359C0 */
+/* Function start: WC2_UNMAPPED */
 short __stdcall GetNextInputEvent(InputEventState *state)
 {
     short *eventX;
@@ -315,14 +315,14 @@ short __stdcall GetNextInputEvent(InputEventState *state)
     return type;
 }
 
-/* Function start: 0x435CC0 */
+/* Function start: 0x464D5F */
 short __stdcall PollInputEvent(InputEventState *event, short filter)
 {
     PumpWindowMessages();
     return GetNextInputEvent(event);
 }
 
-/* Function start: 0x435CE0 */
+/* Function start: 0x43AFD3 */
 short __stdcall PeekInputEvent(InputEventState *state, short type)
 {
     InputEvent *event;
@@ -350,7 +350,7 @@ short __stdcall PeekInputEvent(InputEventState *state, short type)
     return 0;
 }
 
-/* Function start: 0x435D80 */
+/* Function start: WC2_UNMAPPED */
 short __stdcall IsInputEventQueued(short type)
 {
     InputEvent *event = g_pInputEventHead_0046da90;
@@ -360,13 +360,13 @@ short __stdcall IsInputEventQueued(short type)
     return event != 0;
 }
 
-/* Function start: 0x435DB0 */
+/* Function start: 0x46354F */
 void FlushInputEvents(void)
 {
     ReleaseInputEventQueue();
 }
 
-/* Function start: 0x435DC0 */
+/* Function start: WC2_UNMAPPED */
 short __stdcall ResetAllocationDepth(int x, int y)
 {
     (void)x;
@@ -375,12 +375,12 @@ short __stdcall ResetAllocationDepth(int x, int y)
     return 1;
 }
 
-/* Function start: 0x435DE0 */
+/* Function start: WC2_UNMAPPED */
 void CheckCursor(void)
 {
 }
 
-/* Function start: 0x435E20 */
+/* Function start: 0x4635E3 */
 void CaptureMouseCursorBackground(void)
 {
     int x;
@@ -413,7 +413,7 @@ void CaptureMouseCursorBackground(void)
     DAT_0059a84c = 1;
 }
 
-/* Function start: 0x435EF0 */
+/* Function start: 0x4636F7 */
 void DrawMouseCursor(void)
 {
     int x;
@@ -442,7 +442,7 @@ void DrawMouseCursor(void)
     DAT_0059ab40 = 1;
 }
 
-/* Function start: 0x435FA0 */
+/* Function start: 0x4637F4 */
 void RestoreMouseCursorBackground(void)
 {
     int x;
@@ -472,7 +472,7 @@ void RestoreMouseCursorBackground(void)
     DAT_0059a84c = 0;
 }
 
-/* Function start: 0x436060 */
+/* Function start: 0x4638F1 */
 void RefreshMouseCursorDisplay(void)
 {
     DAT_0059ab5c = 319;
@@ -488,19 +488,19 @@ void RefreshMouseCursorDisplay(void)
     RestoreMouseCursorBackground();
 }
 
-/* Function start: 0x4360D0 */
+/* Function start: 0x463BA1 */
 void EnterAllocationScope(void)
 {
     DAT_0046daa0 = DAT_0046daa0 + 1;
 }
 
-/* Function start: 0x4360E0 */
+/* Function start: 0x463E19 */
 void LeaveAllocationScope(void)
 {
     DAT_0046daa0 = DAT_0046daa0 - 1;
 }
 
-/* Function start: 0x4360F0 */
+/* Function start: 0x4379F0 */
 void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
 {
     g_stMouseCursorState_0059ab10.shapeChanged = 1;
@@ -517,7 +517,7 @@ void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
     g_stMouseCursorState_0059ab10.shape = shape;
 }
 
-/* Function start: 0x436160 */
+/* Function start: 0x463F74 */
 void __stdcall SetMouseHomePosition(short x, short y)
 {
     g_stMouseCursorState_0059ab10.x = x;
@@ -525,7 +525,7 @@ void __stdcall SetMouseHomePosition(short x, short y)
     SetMousePositionDuplicate(x, y);
 }
 
-/* Function start: 0x436190 */
+/* Function start: WC2_UNMAPPED */
 void __stdcall ApplyPackedMousePosition(ShortPoint point)
 {
     g_stMouseCursorState_0059ab10.x = point.x;
@@ -533,78 +533,78 @@ void __stdcall ApplyPackedMousePosition(ShortPoint point)
     SetMousePositionDuplicate(point.x, point.y);
 }
 
-/* Function start: 0x4361E0 */
+/* Function start: 0x464009 */
 void SetFrameTimerPeriod(short period)
 {
     SetMultimediaTimerCallback((int)period);
 }
 
-/* Function start: 0x4361F0 */
+/* Function start: WC2_UNMAPPED */
 void __stdcall SetFrameTimerAndWait(short period)
 {
     SetFrameTimerPeriod(period);
     WaitForFrameTick();
 }
 
-/* Function start: 0x436210 */
+/* Function start: 0x46403D */
 void __stdcall SetFrameTimerPeriodDirect(short p)
 {
     SetMultimediaTimerCallback((int)p);
 }
 
-/* Function start: 0x436230 */
+/* Function start: 0x484453 */
 void WaitForFrameTick(void)
 {
     while (DAT_0059ab3c != 0) ;
 }
 
-/* Function start: 0x436240 */
+/* Function start: 0x44A03C */
 int IsFrameTickElapsed(void)
 {
     return DAT_0059ab3c == 0;
 }
 
-/* Function start: 0x436260 */
+/* Function start: WC2_UNMAPPED */
 unsigned short GetSoundHardwareFlag(void)
 {
     return 1;
 }
 
-/* Function start: 0x4362A0 */
+/* Function start: WC2_UNMAPPED */
 void TimerResetHook(void)
 {
 }
 
-/* Function start: 0x4362B0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetVideoReleaseResult(void)
 {
     return 0;
 }
 
-/* Function start: 0x4362C0 */
+/* Function start: 0x46418D */
 unsigned short IdentityWord(unsigned short v)
 {
     return v;
 }
 
-/* Function start: 0x4362D0 */
+/* Function start: WC2_UNMAPPED */
 void TimerStopHook(void)
 {
 }
 
-/* Function start: 0x4362E0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetFixedOneMillion(void)
 {
     return 0x3e8000;
 }
 
-/* Function start: 0x4362F0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetFixedOneMillionAlt(void)
 {
     return 0x3e8000;
 }
 
-/* Function start: 0x4363A0 */
+/* Function start: 0x4642D6 */
 void ClearInputKeyStatePreservingModifiers(void)
 {
     unsigned int control = g_abInputKeyState_0059a860[0x1d];
@@ -617,7 +617,7 @@ void ClearInputKeyStatePreservingModifiers(void)
     ClearDebugPauseFlags();
 }
 
-/* Function start: 0x4363E0 */
+/* Function start: WC2_UNMAPPED */
 void ClearInputKeyState(void)
 {
     memset(g_abInputKeyState_0059a860, 0,
@@ -625,7 +625,7 @@ void ClearInputKeyState(void)
     ClearDebugPauseFlags();
 }
 
-/* Function start: 0x436420 */
+/* Function start: 0x46431A */
 void SetInputKeyState(int scanCode, unsigned char pressed)
 {
     if (scanCode >= 0 && scanCode < 0x80) {
@@ -638,7 +638,7 @@ void SetInputKeyState(int scanCode, unsigned char pressed)
     exit(1);
 }
 
-/* Function start: 0x436460 */
+/* Function start: WC2_UNMAPPED */
 void sort_object_depth(void)
 {
     unsigned int distance;
@@ -693,7 +693,7 @@ void sort_object_depth(void)
     }
 }
 
-/* Function start: 0x436520 */
+/* Function start: 0x433690 */
 void draw_sorted_objects_to_buffer(void)
 {
     int *sortedEntry;
@@ -817,7 +817,7 @@ void draw_sorted_objects_to_buffer(void)
                            WC1_SPACE_OBJECT_COUNT);
 }
 
-/* Function start: 0x436650 */
+/* Function start: 0x46470E */
 void intro_drawbackgroundships(void)
 {
     unsigned char *shape;
@@ -902,7 +902,7 @@ void intro_drawbackgroundships(void)
     }
 }
 
-/* Function start: 0x436740 */
+/* Function start: 0x4648C5 */
 void set_up_screen_viewport(signed char mode)
 {
     int modeIndex;
@@ -970,86 +970,86 @@ geometry_ready:
     g_nViewportOriginY_0059ab50 = viewportGeometry->originY;
 }
 
-/* Function start: 0x4368C0 */
+/* Function start: WC2_UNMAPPED */
 void MouseIdleHook(void)
 {
 }
 
-/* Function start: 0x4368E0 */
+/* Function start: WC2_UNMAPPED */
 unsigned short GetNavRangeSentinel(void)
 {
     return 0x8000;
 }
 
-/* Function start: 0x4368F0 */
+/* Function start: WC2_UNMAPPED */
 unsigned short GetOriginalFreeMemory(void)
 {
     return 0x8000;
 }
 
-/* Function start: 0x436900 */
+/* Function start: WC2_UNMAPPED */
 void StartupHook(unsigned int (*callback)(unsigned int, short))
 {
     (void)callback;
 }
 
-/* Function start: 0x436910 */
+/* Function start: WC2_UNMAPPED */
 unsigned int JoystickEdgeHook(int button)
 {
     (void)button;
 }
 
-/* Function start: 0x436950 */
+/* Function start: 0x464B3A */
 void FreeIfNotNull(void *p)
 {
     if (p != 0)
         free(p);
 }
 
-/* Function start: 0x436970 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetStartupErrorCode(int vector)
 {
     (void)vector;
     return 0;
 }
 
-/* Function start: 0x436980 */
+/* Function start: WC2_UNMAPPED */
 void ShutdownHook(int vector, void *handler)
 {
     (void)vector;
     (void)handler;
 }
 
-/* Function start: 0x4369A0 */
+/* Function start: WC2_UNMAPPED */
 unsigned short __stdcall SelectDiskDriveHook(short drive)
 {
     return 0;
 }
 
-/* Function start: 0x4369B0 */
+/* Function start: WC2_UNMAPPED */
 short GetCurrentDiskDriveHook(void)
 {
     return 0;
 }
 
-/* Function start: 0x4369C0 */
+/* Function start: WC2_UNMAPPED */
 unsigned short __stdcall GetShutdownErrorCode(unsigned char *driveState)
 {
     (void)driveState;
     return 0;
 }
 
-/* Function start: 0x4369D0 */
+/* Function start: WC2_UNMAPPED */
 void VideoReleaseHook(void)
 {
 }
 
-/* Function start: 0x4369E0 */
+/* Function start: WC2_UNMAPPED */
 void ExitCleanupHook(void)
 {
 }
 
-/* Function start: 0x436A00 */
+/* Function start: WC2_UNMAPPED */
 unsigned int IsVectorWithinRange(FixedVector *vector, short range)
 {
     int magnitude = Vector_magnitude(vector);
@@ -1060,7 +1060,7 @@ unsigned int IsVectorWithinRange(FixedVector *vector, short range)
     return 0;
 }
 
-/* Function start: 0x436A30 */
+/* Function start: 0x419C10 */
 unsigned int shrink_vector(FixedVector *vector)
 {
     unsigned int shrinking;
@@ -1073,7 +1073,7 @@ unsigned int shrink_vector(FixedVector *vector)
     return 0;
 }
 
-/* Function start: 0x436A70 */
+/* Function start: 0x47AF60 */
 unsigned int shrink(int *component)
 {
     int value;
@@ -1095,7 +1095,7 @@ unsigned int shrink(int *component)
     return integerPart;
 }
 
-/* Function start: 0x436C70 */
+/* Function start: 0x42BAC0 */
 void __stdcall FillGraphicSuffix(char *path, short number, short digits)
 {
     char *dot;
@@ -1110,7 +1110,7 @@ void __stdcall FillGraphicSuffix(char *path, short number, short digits)
     ConvertChar_Int(suffix, number, digits);
 }
 
-/* Function start: 0x436CB0 */
+/* Function start: 0x42BB17 */
 void __stdcall ConvertChar_Int(char *text, short number, short digits)
 {
     while (digits--) {

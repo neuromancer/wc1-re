@@ -4,10 +4,17 @@ MSVC emits functions in source order, and the linker concatenates object files
 in command-line order. Address order is therefore the primary evidence for
 source ownership and link order.
 
-`src/map` is the address-sorted developer-function inventory. Regenerate and
-check it with `make sort` before changing file boundaries.
+`src/map` is now the address-sorted inventory of the 1,235 source functions
+with a mapped WC2 destination. The 243 unresolved functions are omitted until
+their destinations are established.
 
-## Image layout
+The physical source and object order still preserves the WC1 reconstruction
+while WC2 compilation-unit ownership is recovered. Do not mechanically reorder
+the files from low-confidence transfer rows: `make sort` is expected to report
+out-of-order WC2 labels during this migration. The sections below record the
+historical WC1 boundaries as provenance, not current WC2 placement claims.
+
+## Historical WC1 image layout
 
 ```text
 0x00401000  game core and Win32 support (mostly C; boundaries provisional)
@@ -20,7 +27,7 @@ The final core function before `ix_log_printf` starts at `0x00442600`. The
 first CRT `__FILE__` anchor is at `0x004492E0`; the final `ix` routine occupies
 the preceding range.
 
-## `ix` library order
+## Historical WC1 `ix` library order
 
 Live assertion `__FILE__` and `__LINE__` strings fix these object boundaries
 and their link order:
@@ -41,7 +48,7 @@ and their link order:
 immediately before the exact sequence above, but its original object extent is
 not yet established.
 
-## Game-core working split
+## Historical WC1 game-core working split
 
 The core is grouped into short subsystem-named files following address order.
 The windows below are placement guides, not claims that every edge is an

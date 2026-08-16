@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x43F640 */
+/* Function start: 0x47EA00 */
 void CorrectPointers(void)
 {
     short pilot;
@@ -25,19 +25,19 @@ void CorrectPointers(void)
         &g_stCampaignState_0059ca50.elapsedDate;
 }
 
-/* Function start: 0x43F690 */
+/* Function start: WC2_UNMAPPED */
 void ClearRoomMenuLabel(void)
 {
     g_pszCurrentRoomMenuLabel_00598aba = 0;
 }
 
-/* Function start: 0x43F6A0 */
+/* Function start: WC2_UNMAPPED */
 int IsRoomMenuLabelEmpty(void)
 {
     return g_pszCurrentRoomMenuLabel_00598aba == 0;
 }
 
-/* Function start: 0x43F6B0 */
+/* Function start: WC2_UNMAPPED */
 void DrawRoomMenuLabel(TextContext *context, const char *label)
 {
     DosStrcpy(g_szTextScratchBuffer_00598b00, label);
@@ -47,7 +47,7 @@ void DrawRoomMenuLabel(TextContext *context, const char *label)
                               g_szTextScratchBuffer_00598b00);
 }
 
-/* Function start: 0x43F6F0 */
+/* Function start: 0x45641B */
 void RefreshRoomMenuLabel(void)
 {
     if (IsRoomMenuLabelEmpty())
@@ -57,13 +57,13 @@ void RefreshRoomMenuLabel(void)
                       g_pszCurrentRoomMenuLabel_00598aba);
 }
 
-/* Function start: 0x43F720 */
+/* Function start: WC2_UNMAPPED */
 void ClearRoomMenuCursorFrame(void)
 {
     g_nRoomMenuCursorFrame_00598ab0 = 0;
 }
 
-/* Function start: 0x43F730 */
+/* Function start: WC2_UNMAPPED */
 void SelectRoomMenuLabel(short i)
 {
     const char *label;
@@ -73,7 +73,7 @@ void SelectRoomMenuLabel(short i)
         g_pszCurrentRoomMenuLabel_00598aba = label;
 }
 
-/* Function start: 0x43F750 */
+/* Function start: 0x4575B4 */
 void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
                         Viewport *viewport, char *text,
                         unsigned char alignment)
@@ -93,7 +93,7 @@ void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
     ClearRoomMenuCursorFrame();
 }
 
-/* Function start: 0x43F7C0 */
+/* Function start: 0x464E06 */
 int FindMenuRegionAtPoint(short x, short y,
                           const TitleMenuRegion *regions)
 {
@@ -109,7 +109,7 @@ int FindMenuRegionAtPoint(short x, short y,
     return -1;
 }
 
-/* Function start: 0x43F810 */
+/* Function start: 0x45C128 */
 void InitializeRoomViewports(void)
 {
     g_stRoomScreenViewport_005988a0 = DAT_005a6ba0;
@@ -127,7 +127,7 @@ void InitializeRoomViewports(void)
     g_nMenuInputRepeatDelay_005a8208 = 6;
 }
 
-/* Function start: 0x43F940 */
+/* Function start: 0x418FFC */
 short RecRoom(void)
 {
     InputEventState event;
@@ -546,7 +546,7 @@ short RecRoom(void)
     return result;
 }
 
-/* Function start: 0x440510 */
+/* Function start: 0x459C4D */
 void ShowChalkBoard(void)
 {
     InputEventState event;
@@ -651,7 +651,7 @@ void ShowChalkBoard(void)
     FlushInputEvents();
 }
 
-/* Function start: 0x440800 */
+/* Function start: WC2_UNMAPPED */
 void ResetCampaignData(void)
 {
     memcpy(&g_stCampaignState_0059ca50,
@@ -664,7 +664,7 @@ void ResetCampaignData(void)
     CorrectPointers();
 }
 
-/* Function start: 0x440840 */
+/* Function start: 0x469BE0 */
 short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
                                       void *destination,
                                       unsigned int length)
@@ -685,14 +685,14 @@ short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
     return 1;
 }
 
-/* Function start: 0x4408A0 */
+/* Function start: 0x4254C0 */
 void CheckHeapBlockSignature(unsigned char *shape)
 {
     if (*(int *)(shape - 8) != 0x6666656a)
         exit_squadron(g_szInvalidShapeAllocation_00470d18);
 }
 
-/* Function start: 0x4408C0 */
+/* Function start: 0x42553A */
 unsigned char *GetPreparedShapeData(unsigned char *shape)
 {
 #ifdef WC1_SDL
@@ -702,14 +702,14 @@ unsigned char *GetPreparedShapeData(unsigned char *shape)
 #endif
 }
 
-/* Function start: 0x4408D0 */
+/* Function start: 0x425550 */
 short __stdcall GetShapeFrameCount(unsigned char *shape)
 {
     CheckHeapBlockSignature(shape);
     return (short)((*(unsigned short *)(shape + 4) >> 2) - 1);
 }
 
-/* Function start: 0x4408F0 */
+/* Function start: 0x42557C */
 void GetShapeFrameExtents(unsigned char *shape, short frame,
                           short *width, short *height,
                           short *leftExtent, short *topExtent)
@@ -749,7 +749,7 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
     }
 }
 
-/* Function start: 0x440960 */
+/* Function start: 0x425618 */
 void DecodeShapeFrame(unsigned char *shape, short frame,
                       unsigned char *bitmap, int width, short height,
                       int leftExtent, int topExtent)
@@ -884,7 +884,7 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
     }
 }
 
-/* Function start: 0x440BE0 */
+/* Function start: 0x4259E2 */
 int SignExtendClipCoord(volatile short v)
 {
     if ((unsigned short)v < 0xfdc0)

@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x42EFC0 */
+/* Function start: 0x421910 */
 void cleanup_objectives(void)
 {
     int objectiveType;
@@ -86,13 +86,13 @@ void cleanup_objectives(void)
     }
 }
 
-/* Function start: 0x42F1F0 */
+/* Function start: WC2_UNMAPPED */
 int too_busy(short ship)
 {
     return g_aeShipMissionType_0059c3f0[ship] == MISSION_TYPE_ROUT;
 }
 
-/* Function start: 0x42F210 */
+/* Function start: WC2_UNMAPPED */
 void reply(short ship, short accepted)
 {
     if (accepted == 1) {
@@ -102,7 +102,7 @@ void reply(short ship, short accepted)
     send_message(ship, 1);
 }
 
-/* Function start: 0x42F240 */
+/* Function start: 0x421C35 */
 int disobey_formation(short ship)
 {
     switch (g_aiPilotLevel_0059cf30[ship]) {
@@ -114,7 +114,7 @@ int disobey_formation(short ship)
     return 0;
 }
 
-/* Function start: 0x42F270 */
+/* Function start: 0x40F91C */
 int bad_target(short ship, short target)
 {
     if (target != ship &&
@@ -124,7 +124,7 @@ int bad_target(short ship, short target)
     return 1;
 }
 
-/* Function start: 0x42F2B0 */
+/* Function start: 0x41F337 */
 short can_land(void)
 {
     int *objectiveType;
@@ -156,7 +156,7 @@ next_objective:
     return result;
 }
 
-/* Function start: 0x42F350 */
+/* Function start: 0x41693A */
 short i_wanna_rout(short ship, int pilot)
 {
     if (pilot <= 4)
@@ -178,7 +178,7 @@ short i_wanna_rout(short ship, int pilot)
     return 1;
 }
 
-/* Function start: 0x42F3F0 */
+/* Function start: 0x421F86 */
 void request(short requester, short ship, short command)
 {
     signed char *requesterTarget;
@@ -293,14 +293,14 @@ void request(short requester, short ship, short command)
     }
 }
 
-/* Function start: 0x42F730 */
+/* Function start: WC2_UNMAPPED */
 unsigned short __stdcall ShouldSuspendCursorForRect(const ShortRect *bounds)
 {
     (void)bounds;
     return 0;
 }
 
-/* Function start: 0x42F740 */
+/* Function start: 0x40FB80 */
 unsigned short __stdcall InitializeDIBScreenViewport(
     Viewport *viewport, unsigned short colour)
 {
@@ -334,7 +334,7 @@ unsigned short __stdcall InitializeDIBScreenViewport(
     return 1;
 }
 
-/* Function start: 0x42F7E0 */
+/* Function start: 0x40FC7E */
 /* Initialises a 320x200 viewport record (0x13F == 319, 199) then validates it. */
 void InitFullScreenViewport(int *record, short arg)
 {
@@ -348,7 +348,7 @@ void InitFullScreenViewport(int *record, short arg)
     AllocateViewport(viewport, arg, 0);
 }
 
-/* Function start: 0x42F810 */
+/* Function start: 0x453A70 */
 unsigned int __stdcall GetPacketSize(const char *filename, short section)
 {
     PacketSectionHandle handle;
@@ -374,7 +374,7 @@ unsigned int __stdcall GetPacketSize(const char *filename, short section)
     return size;
 }
 
-/* Function start: 0x42F890 */
+/* Function start: 0x421144 */
 int GetFreeNearHeapBytes(void)
 {
     NearHeapBlock *block;
@@ -393,26 +393,26 @@ int GetFreeNearHeapBytes(void)
     return freeBytes;
 }
 
-/* Function start: 0x42F930 */
+/* Function start: 0x40A2A3 */
 void FrameStartHook(int mode)
 {
     TimerResetHook();
 }
 
-/* Function start: 0x42F940 */
+/* Function start: 0x458E20 */
 unsigned short IsSoundHardwarePresent(short device)
 {
     GetSoundHardwareFlag();
     return 1;
 }
 
-/* Function start: 0x42F950 */
+/* Function start: WC2_UNMAPPED */
 void MessagePumpHook(int mode)
 {
     TimerStopHook();
 }
 
-/* Function start: 0x42F960 */
+/* Function start: 0x458E49 */
 void *PushMemoryStackFrame(void *memory, int offset)
 {
     int index;
@@ -437,7 +437,7 @@ void *PushMemoryStackFrame(void *memory, int offset)
     return memory;
 }
 
-/* Function start: 0x42F9E0 */
+/* Function start: 0x458EED */
 int IsPushedPacketHandle(void *handle)
 {
     int index;
@@ -456,7 +456,7 @@ int IsPushedPacketHandle(void *handle)
     return 0;
 }
 
-/* Function start: 0x42FA20 */
+/* Function start: WC2_UNMAPPED */
 void *MapPacketHandleToBlock(void *handle)
 {
     int count = g_nPacketHandleCount_005a6530;
@@ -497,7 +497,7 @@ void *MapPacketHandleToBlock(void *handle)
     }
 }
 
-/* Function start: 0x42FA90 */
+/* Function start: 0x45901D */
 void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
 {
     unsigned int *memory;
@@ -529,7 +529,7 @@ void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
     return memory;
 }
 
-/* Function start: 0x42FAE0 */
+/* Function start: 0x428B3C */
 void ReleasePacketHandle(void *handle)
 {
     int group = 4;
@@ -549,7 +549,7 @@ void ReleasePacketHandle(void *handle)
     FreeGuardedAllocation(MapPacketHandleToBlock(handle));
 }
 
-/* Function start: 0x42FB20 */
+/* Function start: WC2_UNMAPPED */
 /* Tail-jump thunk to 0x004362E0, not a constant return -- Ghidra followed the
  * jump and folded the callee's body into the display.  The optimized compiler
  * emits the tail jump from this forwarding return. */
@@ -559,14 +559,14 @@ unsigned int GetFixedOneMillionThunk(short memoryType)
     return GetFixedOneMillion();
 }
 
-/* Function start: 0x42FB30 */
+/* Function start: 0x459149 */
 unsigned int GetFixedOneMillionThunkAlt(short memoryType)
 {
     (void)memoryType;
     return GetFixedOneMillionAlt();
 }
 
-/* Function start: 0x42FB40 */
+/* Function start: WC2_UNMAPPED */
 void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
                              short distance, unsigned char *shape,
                              short frame, short type, short scale)
@@ -589,7 +589,7 @@ void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
     }
 }
 
-/* Function start: 0x42FC00 */
+/* Function start: 0x433C84 */
 unsigned int ShowCampaignVictorySequence(void)
 {
     CampaignVictoryProjectile projectiles[16];
@@ -814,7 +814,7 @@ unsigned int ShowCampaignVictorySequence(void)
     return 0;
 }
 
-/* Function start: 0x430150 */
+/* Function start: 0x446823 */
 unsigned int ShowTigerClawEscapeScene(void)
 {
     unsigned char *escapeShape;
@@ -938,7 +938,7 @@ unsigned int ShowTigerClawEscapeScene(void)
     return 0;
 }
 
-/* Function start: 0x4304F0 */
+/* Function start: 0x429261 */
 unsigned int ShowTheEndScreen(short enableFireworks)
 {
     FireworkState *firework;
@@ -1005,7 +1005,7 @@ unsigned int ShowTheEndScreen(short enableFireworks)
     return 0;
 }
 
-/* Function start: 0x430710 */
+/* Function start: 0x421D59 */
 short __stdcall UpdateInputDeviceTransitions(short raw)
 {
     unsigned int now;
@@ -1057,7 +1057,7 @@ short __stdcall UpdateInputDeviceTransitions(short raw)
     return 1;
 }
 
-/* Function start: 0x430840 */
+/* Function start: 0x421409 */
 void PollJoystickButtonEvents(void)
 {
     short doubleClick;
@@ -1097,7 +1097,7 @@ void PollJoystickButtonEvents(void)
         g_stHostMouseState_0059af70.primaryButton;
 }
 
-/* Function start: 0x430920 */
+/* Function start: 0x421530 */
 void PollMenuInputDevices(void)
 {
     unsigned char changes;
@@ -1210,7 +1210,7 @@ void PollMenuInputDevices(void)
     g_bInputPollingGuard_0046a01c--;
 }
 
-/* Function start: 0x430BC0 */
+/* Function start: 0x44F52E */
 short get_face(short rating, unsigned int side)
 {
     if (rating == -1)
@@ -1220,7 +1220,7 @@ short get_face(short rating, unsigned int side)
     return rating;
 }
 
-/* Function start: 0x430BF0 */
+/* Function start: 0x44BCF7 */
 void LoadCommPortraitShape(short face, signed char alternate)
 {
     short section;
@@ -1237,7 +1237,7 @@ void LoadCommPortraitShape(short face, signed char alternate)
                                                      (short)alternate);
 }
 
-/* Function start: 0x430C50 */
+/* Function start: 0x438CEB */
 void ResetCommMenuChoices(short reuse)
 {
     short choice;
@@ -1255,13 +1255,13 @@ void ResetCommMenuChoices(short reuse)
     g_nCommMenuReuseMode_0046af64 = reuse;
 }
 
-/* Function start: 0x430CA0 */
+/* Function start: 0x4473D1 */
 int IsCommMenuIdle(void)
 {
     return g_nCommMenuChoiceCount_0046af60 == 0;
 }
 
-/* Function start: 0x430CB0 */
+/* Function start: 0x40A981 */
 void AppendCommMenuChoice(const char *text, short command)
 {
     short index;
@@ -1278,45 +1278,45 @@ void AppendCommMenuChoice(const char *text, short command)
     g_abCommMenuChoiceCommand_0059e488[index] = (signed char)command;
 }
 
-/* Function start: 0x430D30 */
+/* Function start: 0x447369 */
 void SendCommMenuChoice(short i)
 {
     AppendCommMenuChoice(g_apszCommMenuText_0046af90[i], i);
 }
 
-/* Function start: 0x430D50 */
+/* Function start: 0x4474CA */
 void OpenCommMenuForTarget(const char *heading, const char *message)
 {
     CockpitMessage(message, DAT_004699a8, -1);
     g_pszCommMenuHeading_0059e490 = heading;
 }
 
-/* Function start: 0x430D80 */
+/* Function start: 0x4534FC */
 int IsCommChoiceMenuOpen(void)
 {
     return get_mode(1) == 4;
 }
 
-/* Function start: 0x430DA0 */
+/* Function start: WC2_UNMAPPED */
 short GetPendingMenuAction(void)
 {
     return (short)g_cPendingCommMenuAction_0046af6c;
 }
 
-/* Function start: 0x430DB0 */
+/* Function start: WC2_UNMAPPED */
 void SetPendingMenuAction(unsigned char v)
 {
     g_cPendingCommMenuAction_0046af6c = (signed char)v;
 }
 
-/* Function start: 0x430DC0 */
+/* Function start: 0x447526 */
 void OpenCommRecipientMenu(void)
 {
     push_mode(1, 4);
     SetPendingMenuAction(1);
 }
 
-/* Function start: 0x430DE0 */
+/* Function start: 0x4474F4 */
 void CloseCommChoiceMenu(void)
 {
     if (get_mode(1) == 4) {
@@ -1327,19 +1327,19 @@ void CloseCommChoiceMenu(void)
     exit_squadron("!stop");
 }
 
-/* Function start: 0x430E10 */
+/* Function start: 0x44756F */
 int wingman_dead(void)
 {
     return g_nYourWingman_0046c04c == -1;
 }
 
-/* Function start: 0x430E30 */
+/* Function start: 0x447479 */
 short have_target(void)
 {
     return unactive(g_acShipTarget_0059ce60[0]) == 0;
 }
 
-/* Function start: 0x430E50 */
+/* Function start: 0x4475D3 */
 unsigned short CanOpenCommMenu(void)
 {
     if (have_target() == 0) {
@@ -1349,14 +1349,14 @@ unsigned short CanOpenCommMenu(void)
     return 1;
 }
 
-/* Function start: 0x430E70 */
+/* Function start: WC2_UNMAPPED */
 void SelectCommRecipient(short recipient)
 {
     g_cCommMenuRecipient_0046afc4 = recipient;
     SetPendingMenuAction(2);
 }
 
-/* Function start: 0x430E90 */
+/* Function start: 0x447629 */
 void BuildCommunicationRecipientMenu(void)
 {
     short target;
@@ -1405,7 +1405,7 @@ finish_recipient_menu:
     SendCommMenuChoice(0);
 }
 
-/* Function start: 0x430FC0 */
+/* Function start: 0x447890 */
 void BuildCommunicationCommandMenu(void)
 {
     signed char rating;
@@ -1478,7 +1478,7 @@ void BuildCommunicationCommandMenu(void)
     }
 }
 
-/* Function start: 0x431200 */
+/* Function start: 0x447D85 */
 void RefreshCommunicationMenu(void)
 {
     if (IsCommChoiceMenuOpen() != 0) {
@@ -1491,7 +1491,7 @@ void RefreshCommunicationMenu(void)
     }
 }
 
-/* Function start: 0x431240 */
+/* Function start: 0x447DE3 */
 void HandleCommunicationMenuRequest(void)
 {
     if (IsCommChoiceMenuOpen() != 0)
@@ -1504,7 +1504,7 @@ void HandleCommunicationMenuRequest(void)
     }
 }
 
-/* Function start: 0x431290 */
+/* Function start: 0x447E47 */
 void show_communications_disp(void)
 {
     signed char choice;
@@ -1547,7 +1547,7 @@ void show_communications_disp(void)
     }
 }
 
-/* Function start: 0x431350 */
+/* Function start: 0x447EF5 */
 unsigned int Chosen_communicate_option(short choice)
 {
     int action;
@@ -1580,13 +1580,13 @@ unsigned int Chosen_communicate_option(short choice)
     return 0;
 }
 
-/* Function start: 0x431400 */
+/* Function start: WC2_UNMAPPED */
 void talk_equiv(void)
 {
     RefreshCommunicationMenu();
 }
 
-/* Function start: 0x431410 */
+/* Function start: WC2_UNMAPPED */
 void FreeCommDisplayResources(void)
 {
 #ifdef WC1_SDL
@@ -1604,7 +1604,7 @@ void FreeCommDisplayResources(void)
     g_nCommPortraitIndex_0046afd0 = -1;
 }
 
-/* Function start: 0x431470 */
+/* Function start: 0x448070 */
 void EndCommSessionWithWingman(void)
 {
 #ifdef WC1_SDL
@@ -1619,7 +1619,7 @@ void EndCommSessionWithWingman(void)
         pop_mode(1);
 }
 
-/* Function start: 0x4314C0 */
+/* Function start: 0x4480C6 */
 void EndCommMenu(void)
 {
     clear_message_time();
@@ -1628,7 +1628,7 @@ void EndCommMenu(void)
     DAT_00469004 = 0;
 }
 
-/* Function start: 0x4314F0 */
+/* Function start: 0x448100 */
 void ShowCentredPrompt(char *text, unsigned short arg)
 {
     DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
@@ -1636,7 +1636,7 @@ void ShowCentredPrompt(char *text, unsigned short arg)
                       DAT_004699a8, arg);
 }
 
-/* Function start: 0x431520 */
+/* Function start: 0x42B80C */
 short LoadCommDisplayResources(short rating, enum Side side)
 {
     short loaded;
@@ -1664,7 +1664,7 @@ short LoadCommDisplayResources(short rating, enum Side side)
     return 0;
 }
 
-/* Function start: 0x4315C0 */
+/* Function start: 0x448136 */
 char *ExpandCommMessageTokens(const char *text)
 {
     char *destination;
@@ -1709,7 +1709,7 @@ char *ExpandCommMessageTokens(const char *text)
     }
 }
 
-/* Function start: 0x4316E0 */
+/* Function start: 0x4482CA */
 void real_vid_transmit(short obj, short message)
 {
     char text[84];
@@ -1801,13 +1801,13 @@ void real_vid_transmit(short obj, short message)
     ShowCentredPrompt(expandedText, (unsigned short)MeasureMessageWidth(text));
 }
 
-/* Function start: 0x4318F0 */
+/* Function start: 0x458E39 */
 void __stdcall ShutdownVideoHook(short mode)
 {
     ReleaseVideoResourcesHook();
 }
 
-/* Function start: 0x431900 */
+/* Function start: 0x424A60 */
 short __stdcall ReserveContiguousPaletteEntries(short entryCount)
 {
     short entry;
@@ -1840,7 +1840,7 @@ short __stdcall ReserveContiguousPaletteEntries(short entryCount)
     return firstEntry;
 }
 
-/* Function start: 0x431970 */
+/* Function start: 0x420340 */
 void __stdcall ReleaseContiguousPaletteEntries(short firstEntry)
 {
     short entry;
@@ -1854,7 +1854,7 @@ void __stdcall ReleaseContiguousPaletteEntries(short firstEntry)
     }
 }
 
-/* Function start: 0x4319B0 */
+/* Function start: 0x401978 */
 void PrintPaletteAllocationMap(void)
 {
     short index;
@@ -1875,7 +1875,7 @@ void PrintPaletteAllocationMap(void)
     } while (row != 0);
 }
 
-/* Function start: 0x431A10 */
+/* Function start: 0x423480 */
 void LoadJoystickCalibrationFile(short horizontalRange,
                                  short verticalRange,
                                  short horizontalDeadZone,
@@ -1993,7 +1993,7 @@ void LoadJoystickCalibrationFile(short horizontalRange,
     g_nActiveInputDevice_005a819c = activeDevice;
 }
 
-/* Function start: 0x431D20 */
+/* Function start: 0x4238E9 */
 short ReadCalibratedJoystick(void)
 {
     InputDeviceSample *sample;
@@ -2080,7 +2080,7 @@ short ReadCalibratedJoystick(void)
     return 1;
 }
 
-/* Function start: 0x431EA0 */
+/* Function start: WC2_UNMAPPED */
 void __stdcall UnionRectBounds(ShortRect *destination,
                                const ShortRect *first,
                                const ShortRect *second)
@@ -2095,7 +2095,7 @@ void __stdcall UnionRectBounds(ShortRect *destination,
         first->bottom : second->bottom;
 }
 
-/* Function start: 0x431F00 */
+/* Function start: 0x45CD2C */
 void ThrottleFrameAndDrawFps(HDC dc)
 {
     DWORD now;

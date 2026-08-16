@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x436D00 */
+/* Function start: 0x4401C0 */
 unsigned int LoadBriefingRoom(void)
 {
     g_pConversationBackdropShape_00598c04 = 0;
@@ -44,7 +44,7 @@ unsigned int LoadBriefingRoom(void)
     return 0;
 }
 
-/* Function start: 0x436E30 */
+/* Function start: 0x42D568 */
 unsigned int ViewMedals(void)
 {
     InputEventState event;
@@ -87,7 +87,7 @@ unsigned int ViewMedals(void)
     } while (1);
 }
 
-/* Function start: 0x436F50 */
+/* Function start: 0x44BEE5 */
 unsigned int AwardCampaignMedal(short medal)
 {
     int *packet;
@@ -144,7 +144,7 @@ unsigned int AwardCampaignMedal(short medal)
     return 0;
 }
 
-/* Function start: 0x4370D0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int DrawMedalChest(char *text, short duration)
 {
     short escaped;
@@ -197,7 +197,7 @@ unsigned int DrawMedalChest(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x437250 */
+/* Function start: 0x434177 */
 unsigned int DrawMedalLongShot(short *animation, char *text,
                                short duration)
 {
@@ -262,7 +262,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     return 0;
 }
 
-/* Function start: 0x4373E0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int MedalEstablish(char *text, short duration)
 {
     int distance;
@@ -303,7 +303,7 @@ unsigned int MedalEstablish(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x4374B0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int PinMedal(char *text, short duration)
 {
     short escaped;
@@ -343,7 +343,7 @@ unsigned int PinMedal(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x4375C0 */
+/* Function start: 0x452AC8 */
 unsigned int DrawMedals(void)
 {
     short badge;
@@ -405,7 +405,7 @@ unsigned int DrawMedals(void)
     return 0;
 }
 
-/* Function start: 0x437770 */
+/* Function start: WC2_UNMAPPED */
 unsigned int EstablishingShot(char *text, short duration)
 {
     short character;
@@ -456,7 +456,7 @@ unsigned int EstablishingShot(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x4378D0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int DrawBriefingLongShot(void)
 {
     short character;
@@ -480,7 +480,7 @@ unsigned int DrawBriefingLongShot(void)
     return 0;
 }
 
-/* Function start: 0x437980 */
+/* Function start: WC2_UNMAPPED */
 unsigned int ReturnToBriefingLongShot(char *text, short duration)
 {
     char active[10] = "";
@@ -547,7 +547,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x437B80 */
+/* Function start: 0x433F94 */
 unsigned int Dismissed(char *text, short duration)
 {
     short frame;
@@ -629,7 +629,7 @@ unsigned int Dismissed(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x437DC0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int DrawDebriefingLongShot(void)
 {
     DrawSpriteDefault(&DAT_005a76b0, g_nDebriefingLeftX_0046e56c, 0,
@@ -666,7 +666,7 @@ unsigned int DrawDebriefingLongShot(void)
     return 0;
 }
 
-/* Function start: 0x437F20 */
+/* Function start: WC2_UNMAPPED */
 unsigned int DebriefingEstablishingShot(char *text, short duration)
 {
     const signed char *delta;
@@ -727,7 +727,7 @@ unsigned int DebriefingEstablishingShot(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x438090 */
+/* Function start: 0x4296E2 */
 int no_objectives_achieved(void)
 {
     short objective;
@@ -741,7 +741,7 @@ int no_objectives_achieved(void)
     return objective >= g_cMissionObjectiveCount_0059c46a;
 }
 
-/* Function start: 0x4380D0 */
+/* Function start: 0x42B0B7 */
 short wing_status(short personality)
 {
     int currentMission;
@@ -760,7 +760,7 @@ short wing_status(short personality)
     return currentMission;
 }
 
-/* Function start: 0x438110 */
+/* Function start: WC2_UNMAPPED */
 short int_value(char **text)
 {
     char number[8];
@@ -780,7 +780,7 @@ short int_value(char **text)
     return (short)atoi(number);
 }
 
-/* Function start: 0x438160 */
+/* Function start: 0x41D591 */
 ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
                                     ConversationSceneRecord *sceneData,
                                     unsigned char *textData)
@@ -1009,7 +1009,7 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
     }
 }
 
-/* Function start: 0x438B90 */
+/* Function start: WC2_UNMAPPED */
 unsigned int TalkerInit(void)
 {
     g_pFaceAnimationCommands_00598c18 =
@@ -1019,7 +1019,7 @@ unsigned int TalkerInit(void)
     return 0;
 }
 
-/* Function start: 0x438BC0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int FreeTalker(void)
 {
     FreePacketAndClear(&g_pConversationOverlayShape_00598c30, 0);
@@ -1029,7 +1029,7 @@ unsigned int FreeTalker(void)
     return 0;
 }
 
-/* Function start: 0x438C00 */
+/* Function start: 0x434BB5 */
 unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                            unsigned char *textData)
 {
@@ -1250,7 +1250,7 @@ scene_complete:
     return 0;
 }
 
-/* Function start: 0x439070 */
+/* Function start: 0x446710 */
 unsigned int DrawPodiumShot(void)
 {
     if (g_pTalkingHeadShape_00598c0c != 0)
@@ -1274,7 +1274,7 @@ unsigned int DrawPodiumShot(void)
     return 0;
 }
 
-/* Function start: 0x439150 */
+/* Function start: 0x4021A7 */
 unsigned int DrawBriefingCharacter(short character, short pose,
                                    short animationFrame,
                                    const signed char *unusedXOffsets,
@@ -1311,7 +1311,7 @@ unsigned int DrawBriefingCharacter(short character, short pose,
     return 0;
 }
 
-/* Function start: 0x439220 */
+/* Function start: 0x42E868 */
 unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
 {
     short escaped;
@@ -1355,7 +1355,7 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
     }
 }
 
-/* Function start: 0x439400 */
+/* Function start: 0x40A2D0 */
 void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
                                unsigned short top, unsigned short right,
                                unsigned short bottom)
@@ -1366,7 +1366,7 @@ void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
     viewport->bottom = (short)bottom;
 }
 
-/* Function start: 0x439430 */
+/* Function start: 0x433410 */
 void __stdcall PanToScreen(Viewport *source, Viewport *destination)
 {
     unsigned char *indices;
@@ -1440,7 +1440,7 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
     DIBslamReal();
 }
 
-/* Function start: 0x439660 (Mac symbol: death_sequence) */
+/* Function start: 0x4697A0 (Mac symbol: death_sequence) */
 unsigned int death_sequence(void)
 {
     unsigned char *deathShape;
@@ -1512,7 +1512,7 @@ unsigned int death_sequence(void)
     return 0;
 }
 
-/* Function start: 0x439840 */
+/* Function start: WC2_UNMAPPED */
 unsigned int ShowGetReadyScreen(void)
 {
     short frame;
@@ -1550,7 +1550,7 @@ unsigned int ShowGetReadyScreen(void)
     return 0;
 }
 
-/* Function start: 0x439910 */
+/* Function start: 0x408CC8 */
 unsigned int ShowVictoryScreen(void)
 {
     short distance;
@@ -1605,7 +1605,7 @@ unsigned int ShowVictoryScreen(void)
     return 0;
 }
 
-/* Function start: 0x439A80 */
+/* Function start: 0x45F7EC */
 unsigned int ShowGameOverScreen(void)
 {
     FixedVector cameraOffset;
@@ -1660,7 +1660,7 @@ unsigned int ShowGameOverScreen(void)
 
 #ifndef WC1_SDL
 
-/* Function start: 0x439C0E */
+/* Function start: WC2_UNMAPPED */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* The hot-patch entry followed by an unframed REP STOS implementation
@@ -1675,7 +1675,7 @@ __declspec(naked) void __stdcall FillRasterBytes(
 #endif
 }
 
-/* Function start: 0x439C3E */
+/* Function start: 0x40243C */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the explicit ES setup used by the hand-written driver glue. */
@@ -1688,7 +1688,7 @@ __declspec(naked) char *CopyRasterDriverName(void *const *callbacks)
 #endif
 }
 
-/* Function start: 0x439C69 */
+/* Function start: 0x402465 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the explicit ES setup used by the hand-written driver glue. */
@@ -1702,7 +1702,7 @@ __declspec(naked) void InstallRasterDriverCallbacks(
 #endif
 }
 
-/* Function start: 0x439C88 */
+/* Function start: 0x402484 */
 /* The explicit segment setup and symmetric read primitive at 0x439D63 show
  * that this raster-library pixel writer was hand-written assembly. */
 __declspec(naked) unsigned int SetRasterClipPixel(
@@ -1823,7 +1823,7 @@ write_point_outside:
     }
 }
 
-/* Function start: 0x439D63 */
+/* Function start: 0x40255F */
 __declspec(naked) int ReadRasterClipPixel(RasterClip *clip, int x, int y)
 {
     __asm {
@@ -1939,7 +1939,7 @@ point_outside:
     }
 }
 
-/* Function start: 0x439E39 */
+/* Function start: 0x402635 */
 /* The segment setup, fixed-point clipping, and unrolled drawing paths identify
  * the original as hand-written raster assembly.  Preserve those paths exactly;
  * mode 0 writes a colour, mode 1 translates through a colour table, and higher
@@ -1956,7 +1956,7 @@ __declspec(naked) unsigned int DrawClippedLine(
 }
 #pragma optimize("", on)
 
-/* Function start: 0x43A83B */
+/* Function start: 0x403037 */
 /* Original hand-written alternating-pixel rectangle fill used for
  * checkerboard shading inside a clipped raster surface. */
 #pragma optimize("", off)
@@ -2123,7 +2123,7 @@ checker_43a969:
 }
 #pragma optimize("", on)
 
-/* Function start: 0x43A974 */
+/* Function start: 0x403170 */
 /* The segment setup, outcode construction, and REP run decoders identify
  * this as an original hand-written clipped raster routine. */
 #pragma optimize("", off)
@@ -2613,7 +2613,7 @@ plain_43ad6d:
 }
 #pragma optimize("", on)
 
-/* Function start: 0x43AD78 */
+/* Function start: 0x403574 */
 /* This is one of the original hand-written raster loops: it establishes ES,
  * decodes each prepared scan line, and uses REP stores/copies for the runs. */
 #pragma optimize("", off)
@@ -2730,7 +2730,7 @@ plain_done:
 }
 #pragma optimize("", on)
 
-/* Function start: 0x43AE3F */
+/* Function start: 0x40363B */
 /* The segment-register setup and fixed-size REP copy identify this as one of
  * the original hand-written raster support routines. */
 __declspec(naked) void SetPaletteTranslationTable(
@@ -2759,7 +2759,7 @@ __declspec(naked) void SetPaletteTranslationTable(
     }
 }
 
-/* Function start: 0x43AE5E */
+/* Function start: 0x40365A */
 /* Palette-translated counterpart to the original hand-written clipped
  * raster routine above. */
 #pragma optimize("", off)
@@ -3308,7 +3308,7 @@ color_43b32b:
 }
 #pragma optimize("", on)
 
-/* Function start: 0x43B336 */
+/* Function start: 0x403B32 */
 /* Palette-translated counterpart to the original hand-written loop above. */
 #pragma optimize("", off)
 __declspec(naked) int DrawRLEImageColorUnclipped(
@@ -3453,7 +3453,7 @@ color_done:
 }
 #pragma optimize("", on)
 
-/* Function start: 0x43B469 */
+/* Function start: 0x403C65 */
 /* The retail routine is a hand-written fixed-point scanline texture mapper.
  * It transforms a four-corner workspace, clips both polygon edges, and walks
  * the decoded RLE image with direction-specific source increments. */
@@ -3471,7 +3471,7 @@ __declspec(naked) int RotateRLEImage(
 }
 #pragma optimize("", on)
 
-/* Function start: 0x43C015 */
+/* Function start: 0x404811 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* The command-stream walk retains the raster library's explicit ES setup. */
@@ -3488,7 +3488,7 @@ __declspec(naked) unsigned int GetRLEFrameBounds(
 }
 #pragma optimize("", on)
 
-/* Function start: 0x43C18D */
+/* Function start: 0x404989 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* The paired forward/backward scans and explicit segment state belong to the
@@ -3504,7 +3504,7 @@ __declspec(naked) int EncodeRasterClipToRLEFrame(
 #endif
 }
 
-/* Function start: 0x43C410 */
+/* Function start: 0x404C0C */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the hand-written RLE command-stream traversal. */
@@ -3520,7 +3520,7 @@ __declspec(naked) unsigned int TranslateRLEFramePalette(
 }
 #pragma optimize("", on)
 
-/* Function start: 0x43C4A2 */
+/* Function start: 0x404C9E */
 /* The register-paired run classifier and explicit ES setup identify the
  * original scanline encoder as hand-written raster assembly. */
 __declspec(naked) void EncodeRLEScanline(
@@ -3675,7 +3675,7 @@ encode_finish_line:
     }
 }
 
-/* Function start: 0x43C62B */
+/* Function start: 0x404E27 */
 /* Companion command emitter for the hand-written RLE scanline encoder. */
 __declspec(naked) void EmitRLEScanlineRun(
     int runType, int trailingCount, int sourceX)
@@ -3878,7 +3878,7 @@ emit_done:
     }
 }
 
-/* Function start: 0x43C808 */
+/* Function start: 0x405004 */
 /* The explicit ES setup and REP stores identify the original as hand-written
  * raster assembly, so preserve that implementation rather than asking the C
  * compiler to synthesize a materially different fill loop. */
@@ -4000,7 +4000,7 @@ test_row:
     }
 }
 
-/* Function start: 0x43C8E7 */
+/* Function start: 0x4050E3 */
 /* This is the companion hand-written clipped blitter.  Direction-flag and
  * segment-register handling are part of its overlap-safe behavior. */
 __declspec(naked) int BlitRasterClip(
@@ -4384,7 +4384,7 @@ blit_no_overlap:
     }
 }
 
-/* Function start: 0x43CC83 */
+/* Function start: 0x40547F */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the raster library's explicit segment setup and wrapped nine-blit
@@ -4400,7 +4400,7 @@ __declspec(naked) int ScrollRasterClipWrapped(
 #endif
 }
 
-/* Function start: 0x43CE80 */
+/* Function start: 0x40567C */
 /* The segment setup, explicit clip arithmetic, and symmetric pixel stores
  * identify this as the retail hand-written midpoint ellipse rasterizer. */
 #pragma optimize("", off)
@@ -4416,7 +4416,7 @@ __declspec(naked) unsigned int DrawRasterEllipse(
 }
 #pragma optimize("", on)
 
-/* Function start: 0x43D1C1 */
+/* Function start: 0x4059BD */
 /* Filled counterpart to the hand-written midpoint ellipse outline routine. */
 __declspec(naked) unsigned int FillRasterEllipse(
     RasterClip *clip, int x, int y, int horizontalRadius,
@@ -4743,7 +4743,7 @@ fill_ellipse_done:
     }
 }
 
-/* Function start: 0x43E2D3 */
+/* Function start: 0x406ACF */
 /* Segment preservation and the in-text lookup table identify this as part of
  * the original hand-written raster assembly. */
 __declspec(naked) void GetRLETransformTrig(int angleTenths, int *cosine,
@@ -4820,7 +4820,7 @@ rle_trig_store:
     }
 }
 
-/* Function start: 0x43E38B */
+/* Function start: 0x406B87 */
 __declspec(naked) void CalculateRoundedRLEFixedProduct(int left, int right,
                                                        int *result)
 {
@@ -4848,7 +4848,7 @@ __declspec(naked) void CalculateRoundedRLEFixedProduct(int left, int right,
     }
 }
 
-/* Function start: 0x43E3B1 */
+/* Function start: 0x406BAD */
 __declspec(naked) void TransformRLEPoint(int *point, int *result,
                                          int *origin,
                                          unsigned int angleTenths,
@@ -4934,7 +4934,7 @@ __declspec(naked) void TransformRLEPoint(int *point, int *result,
     }
 }
 
-/* Function start: 0x43E478 */
+/* Function start: 0x406C74 */
 /* The preserved segment register identifies this as another handwritten
  * raster-library accessor.  Offset 8 is the row count used by the raw-frame
  * blitter below this interface. */
@@ -4958,7 +4958,7 @@ __declspec(naked) unsigned int GetRawImageHeight(unsigned char *shape)
     }
 }
 
-/* Function start: 0x43E48B */
+/* Function start: 0x406C87 */
 __declspec(naked) unsigned int GetRawFrameWidth(unsigned char *shape,
                                                  int frame)
 {
@@ -4985,7 +4985,7 @@ __declspec(naked) unsigned int GetRawFrameWidth(unsigned char *shape,
     }
 }
 
-/* Function start: 0x43E4AB */
+/* Function start: 0x406CA7 */
 /* This clipped raw-frame blitter preserves the original hand-written segment
  * setup, REP copies, and XLAT palette-translation path. */
 __declspec(naked) int BlitRawFrame(
@@ -5191,7 +5191,7 @@ raw_frame_done:
     }
 }
 
-/* Function start: 0x43E63E */
+/* Function start: 0x406E3A */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the segment state used by the adjacent hand-written raw blitters. */
@@ -5206,7 +5206,7 @@ __declspec(naked) void BlitSelectedRawFrames(
 #endif
 }
 
-/* Function start: 0x43E675 */
+/* Function start: 0x406E71 */
 /* Shared by the ILBM, PCX, and GIF decoders.  The segment preservation and
  * width-first REP copy identify this as a hand-written scanline blitter. */
 __declspec(naked) int BlitRawScanline(RasterClip *clip, int y,
@@ -5220,7 +5220,7 @@ __declspec(naked) int BlitRawScanline(RasterClip *clip, int y,
 #endif
 }
 
-/* Function start: 0x43E784 */
+/* Function start: 0x406F80 */
 /* The adjacent BMHD/CMAP/BODY identifiers and big-endian chunk length identify
  * this as the common IFF chunk-data locator. */
 __declspec(naked) unsigned char *FindIFFChunkData(
@@ -5233,7 +5233,7 @@ __declspec(naked) unsigned char *FindIFFChunkData(
 #endif
 }
 
-/* Function start: 0x43E7C6 */
+/* Function start: 0x406FC2 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the hand-written ByteRun1 and planar-to-chunky decoder loops. */
@@ -5247,7 +5247,7 @@ __declspec(naked) unsigned int DecodeIFFImage(
 #endif
 }
 
-/* Function start: 0x43E98D */
+/* Function start: 0x407189 */
 __declspec(naked) void CopyILBMPalette(const unsigned char *iffData,
                                        unsigned char *palette)
 {
@@ -5258,7 +5258,7 @@ __declspec(naked) void CopyILBMPalette(const unsigned char *iffData,
 #endif
 }
 
-/* Function start: 0x43E9BE */
+/* Function start: 0x4071BA */
 __declspec(naked) unsigned int GetILBMImageSize(
     const unsigned char *iffData)
 {
@@ -5269,7 +5269,7 @@ __declspec(naked) unsigned int GetILBMImageSize(
 #endif
 }
 
-/* Function start: 0x43E9EB */
+/* Function start: 0x4071E7 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the hand-written PCX run decoder and its ES scanline writes. */
@@ -5283,7 +5283,7 @@ __declspec(naked) unsigned int DecodePCXImage(
 #endif
 }
 
-/* Function start: 0x43EA6D */
+/* Function start: 0x407269 */
 /* A PCX file stores its 256 RGB palette entries in the final 768 bytes;
  * raster palette components are converted from eight to six bits here. */
 __declspec(naked) void CopyPCXPaletteFromFileTail(
@@ -5297,7 +5297,7 @@ __declspec(naked) void CopyPCXPaletteFromFileTail(
 #endif
 }
 
-/* Function start: 0x43EA98 */
+/* Function start: 0x407294 */
 __declspec(naked) unsigned int GetPCXImageSize(const unsigned char *header)
 {
 #ifdef _MSC_VER
@@ -5307,7 +5307,7 @@ __declspec(naked) unsigned int GetPCXImageSize(const unsigned char *header)
 #endif
 }
 
-/* Function start: 0x43EABF */
+/* Function start: 0x4072BB */
 /* These five helpers form the register-calling-convention core of the GIF LZW
  * decoder at 0x0043EC29.  EDI holds its workspace throughout the group. */
 __declspec(naked) void ResetGIFLZWDictionary(void)
@@ -5319,7 +5319,7 @@ __declspec(naked) void ResetGIFLZWDictionary(void)
 #endif
 }
 
-/* Function start: 0x43EB07 */
+/* Function start: 0x407303 */
 __declspec(naked) unsigned int ReadGIFDataSubBlockByte(void)
 {
 #ifdef _MSC_VER
@@ -5329,7 +5329,7 @@ __declspec(naked) unsigned int ReadGIFDataSubBlockByte(void)
 #endif
 }
 
-/* Function start: 0x43EB20 */
+/* Function start: 0x40731C */
 __declspec(naked) unsigned int ReadGIFLZWCode(void)
 {
 #ifdef _MSC_VER
@@ -5339,7 +5339,7 @@ __declspec(naked) unsigned int ReadGIFLZWCode(void)
 #endif
 }
 
-/* Function start: 0x43EB66 */
+/* Function start: 0x407362 */
 __declspec(naked) void AppendGIFLZWDictionaryEntry(void)
 {
 #ifdef _MSC_VER
@@ -5349,7 +5349,7 @@ __declspec(naked) void AppendGIFLZWDictionaryEntry(void)
 #endif
 }
 
-/* Function start: 0x43EBAC */
+/* Function start: 0x4073A8 */
 __declspec(naked) void EmitGIFDecodedPixel(void)
 {
 #ifdef _MSC_VER
@@ -5359,7 +5359,7 @@ __declspec(naked) void EmitGIFDecodedPixel(void)
 #endif
 }
 
-/* Function start: 0x43EC29 */
+/* Function start: 0x407425 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* The decoder uses the register-convention GIF helpers and explicit segment
@@ -5374,7 +5374,7 @@ __declspec(naked) unsigned int ExpandGIFLZWImage(
 #endif
 }
 
-/* Function start: 0x43EE42 */
+/* Function start: 0x40763E */
 /* GIF global and local color tables use the same packed size field; a local
  * table, when present, replaces the global palette copied first. */
 __declspec(naked) void CopyGIFPalette(const unsigned char *gifData,
@@ -5387,7 +5387,7 @@ __declspec(naked) void CopyGIFPalette(const unsigned char *gifData,
 #endif
 }
 
-/* Function start: 0x43EEA3 */
+/* Function start: 0x40769F */
 __declspec(naked) unsigned int GetGIFImageSize(
     const unsigned char *gifData)
 {
@@ -5398,7 +5398,7 @@ __declspec(naked) unsigned int GetGIFImageSize(
 #endif
 }
 
-/* Function start: 0x43EEDB */
+/* Function start: 0x4076D7 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Retain the segment-preserving raster-library accessor verbatim. */
@@ -5412,7 +5412,7 @@ __declspec(naked) unsigned int GetRLEFrameDimensions(
 #endif
 }
 
-/* Function start: 0x43EEFD */
+/* Function start: 0x4076F9 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Retain the segment-preserving raster-library accessor verbatim. */
@@ -5426,7 +5426,7 @@ __declspec(naked) unsigned int GetRLEFrameExtents(
 #endif
 }
 
-/* Function start: 0x43EF20 */
+/* Function start: 0x40771C */
 /* The ES save with no C-visible use identifies this pair as hand-written
  * raster-library accessors, so retain the original instruction sequence. */
 __declspec(naked) unsigned int GetRLEImageSize(unsigned char *shape, int frame)
@@ -5462,7 +5462,7 @@ __declspec(naked) unsigned int GetRLEImageSize(unsigned char *shape, int frame)
     }
 }
 
-/* Function start: 0x43EF54 */
+/* Function start: 0x407750 */
 __declspec(naked) unsigned int GetRLEImageOrigin(unsigned char *shape,
                                                   int frame)
 {
@@ -5492,7 +5492,7 @@ __declspec(naked) unsigned int GetRLEImageOrigin(unsigned char *shape,
     }
 }
 
-/* Function start: 0x43EF7E */
+/* Function start: 0x40777A */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the hand-written palette-delta stream traversal. */
@@ -5506,7 +5506,7 @@ __declspec(naked) void ApplyRLEFramePalette(
 #endif
 }
 
-/* Function start: 0x43EFC9 */
+/* Function start: 0x4077C5 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the hand-written palette-delta stream copy. */
@@ -5520,7 +5520,7 @@ __declspec(naked) unsigned int CopyRLEFramePalette(
 #endif
 }
 
-/* Function start: 0x43F011 */
+/* Function start: 0x40780D */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the hand-written palette-delta stream copy. */
@@ -5534,7 +5534,7 @@ __declspec(naked) unsigned int SetRLEFramePalette(
 #endif
 }
 
-/* Function start: 0x43F05B */
+/* Function start: 0x407857 */
 __declspec(naked) unsigned int GetRLEFrameCount(const unsigned char *shape)
 {
     __asm {
@@ -5555,7 +5555,7 @@ __declspec(naked) unsigned int GetRLEFrameCount(const unsigned char *shape)
     }
 }
 
-/* Function start: 0x43F06E */
+/* Function start: 0x40786A */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Retain the segment-preserving directory scan from the raster library. */
@@ -5569,7 +5569,7 @@ __declspec(naked) int CollectUniqueRLEImageFrames(
 #endif
 }
 
-/* Function start: 0x43F0D0 */
+/* Function start: 0x4078CC */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Retain the segment-preserving directory scan from the raster library. */
@@ -5583,7 +5583,7 @@ __declspec(naked) int CollectUniqueRLEPaletteFrames(
 #endif
 }
 
-/* Function start: 0x43F425 */
+/* Function start: 0x407C21 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the callback-driven, fixed-point palette fade implemented by the
@@ -5599,7 +5599,7 @@ __declspec(naked) void FadeRasterPaletteToPalette(
 #endif
 }
 
-/* Function start: 0x43F5A9 */
+/* Function start: 0x407DA5 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 /* Preserve the segment-based colour-set scan used by the raster library. */

@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x403100 */
+/* Function start: 0x455715 */
 FontWorkspace **AllocateFontWorkspace(short fontIndex)
 {
     FontWorkspace **workspace;
@@ -35,7 +35,7 @@ FontWorkspace **AllocateFontWorkspace(short fontIndex)
     return workspace;
 }
 
-/* Function start: 0x403180 */
+/* Function start: 0x42EE4F */
 void FreeFontWorkspace(FontWorkspace **workspace)
 {
     int offset;
@@ -49,7 +49,7 @@ void FreeFontWorkspace(FontWorkspace **workspace)
     free(workspace);
 }
 
-/* Function start: 0x4031C0 */
+/* Function start: 0x456123 */
 char *LocateStreamsDirOnDisc(void)
 {
     char current[256];
@@ -81,7 +81,7 @@ char *LocateStreamsDirOnDisc(void)
     return result;
 }
 
-/* Function start: 0x403290 */
+/* Function start: 0x456236 */
 char FindCdRomDriveByVolumeLabel(const char *label,
                                  const char *directory)
 {
@@ -130,7 +130,7 @@ char FindCdRomDriveByVolumeLabel(const char *label,
     return result;
 }
 
-/* Function start: 0x4033E0 */
+/* Function start: 0x4563A3 */
 int SetCurrentDirOnDrive(char drive, const char *directory)
 {
     char path[256];
@@ -146,7 +146,7 @@ int SetCurrentDirOnDrive(char drive, const char *directory)
     return result;
 }
 
-/* Function start: 0x403450 */
+/* Function start: 0x456443 */
 int PromptInsertCorrectCd(void)
 {
     char title[18];
@@ -165,7 +165,7 @@ int PromptInsertCorrectCd(void)
     return 0;
 }
 
-/* Function start: 0x4034D0 */
+/* Function start: 0x45A010 */
 short __stdcall OpenDataFileOrDie(const char *path)
 {
     short fd = (short)_open(path, 0x8002);

@@ -15,7 +15,7 @@
 
 #pragma function(strcat)
 
-/* Function start: 0x004614C0 */
+/* Function start: 0x48C290 */
 #ifdef WC1_SDL
 extern "C" void ix_lzo1x_decompress(
     unsigned char *source, unsigned char *destination,
@@ -188,7 +188,7 @@ lzo_finish:
 }
 #endif
 
-/* Function start: 0x00461650 */
+/* Function start: 0x48C420 */
 extern "C" FILE *ix_file_open(const char *path, int mode)
 {
     char modeString[4];
@@ -211,32 +211,32 @@ extern "C" FILE *ix_file_open(const char *path, int mode)
 #endif
 }
 
-/* Function start: 0x004616BE */
+/* Function start: 0x48C48E */
 extern "C" void ix_file_close(FILE *file)
 {
     fclose(file);
 }
 
-/* Function start: 0x004616DA */
+/* Function start: 0x48C4AA */
 extern "C" void ix_file_seek(FILE *file, long position)
 {
     fseek(file, position, SEEK_SET);
 }
 
-/* Function start: 0x004616FC */
+/* Function start: 0x48C4CC */
 extern "C" long ix_file_tell(FILE *file)
 {
     return ftell(file);
 }
 
-/* Function start: 0x00461718 */
+/* Function start: WC2_UNMAPPED */
 extern "C" unsigned int ix_file_read(FILE *file, void *destination,
                                       unsigned int bytes)
 {
     return fread(destination, 1, bytes, file);
 }
 
-/* Function start: 0x00461764 */
+/* Function start: 0x48C534 */
 extern "C" long ix_file_size(FILE *file)
 {
     long position;

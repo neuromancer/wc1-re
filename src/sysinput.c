@@ -6,13 +6,13 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x402E80 */
+/* Function start: 0x423C60 */
 void SetMousePosition(int x, int y)
 {
     SetCursorPos(x, y);
 }
 
-/* Function start: 0x402EA0 */
+/* Function start: 0x455AC8 */
 unsigned int PollKeyboardState(void)
 {
     g_nClearedKeyboardState_00475b6c = 0;
@@ -61,43 +61,43 @@ unsigned int PollKeyboardState(void)
     return g_nRightArrowKeyState_00475c00 != 0 ? 0x4d : 0;
 }
 
-/* Function start: 0x403060 */
+/* Function start: 0x455E8F */
 int GetShiftKeyState(void)
 {
     return GetAsyncKeyState(VK_SHIFT);
 }
 
-/* Function start: 0x403070 */
+/* Function start: 0x455EBF */
 int GetControlKeyState(void)
 {
     return GetAsyncKeyState(VK_CONTROL);
 }
 
-/* Function start: 0x403080 */
+/* Function start: 0x455EAA */
 unsigned int GetKeyboardModifiers(void)
 {
     return DAT_005a8964;
 }
 
-/* Function start: 0x403090 */
+/* Function start: 0x455EF5 */
 unsigned int GetGameClockTicks(void)
 {
     return (GetTickCount() - g_dwGameClockBase_005a89a8) * 60 / 1000;
 }
 
-/* Function start: 0x4030B0 */
+/* Function start: 0x455F23 */
 void InitGameClockEpoch(void)
 {
     g_dwGameClockBase_005a89a8 = GetTickCount() + (rand() & 3600000);
 }
 
-/* Function start: 0x4030D0 */
+/* Function start: 0x455697 */
 void WriteDebugString(const char *s)
 {
     OutputDebugString(s);
 }
 
-/* Function start: 0x4030E0 */
+/* Function start: WC2_UNMAPPED */
 /* Byte-identical duplicate of SetMousePosition (0x00402E80); both exist because
  * VC++ 4.2's linker did no COMDAT folding. */
 void SetMousePositionDuplicate(int x, int y)

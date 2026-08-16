@@ -14,7 +14,7 @@ int g_bAlternateChaseView_00468ffc = 0;
 extern short g_nStarFieldJRotation_005a7f02;
 extern short g_nStarFieldIRotation_005a7f04;
 
-/* Function start: 0x4102B0 */
+/* Function start: 0x418770 */
 void CalibrateJoystickInteractive()
 {
     InputDeviceSample samples[2];
@@ -160,7 +160,7 @@ void CalibrateJoystickInteractive()
         _unlink("j.cal");
 }
 
-/* Function start: 0x4106C0 */
+/* Function start: WC2_UNMAPPED */
 void WaitForJoystickButtonRelease(void)
 {
     do {
@@ -172,7 +172,7 @@ void WaitForJoystickButtonRelease(void)
                  g_nActiveInputDevice_005a819c].buttons != 0);
 }
 
-/* Function start: 0x410700 */
+/* Function start: WC2_UNMAPPED */
 void WaitForJoystickButtonPress(void)
 {
     do {
@@ -184,7 +184,7 @@ void WaitForJoystickButtonPress(void)
                  g_nActiveInputDevice_005a819c].buttons == 0);
 }
 
-/* Function start: 0x410740 */
+/* Function start: 0x44ADE0 */
 void SetFleetOverviewView(int initializeCockpit)
 {
     FixedVector centre;
@@ -281,7 +281,7 @@ void SetFleetOverviewView(int initializeCockpit)
         point_at(WC1_EYE_OBJECT, g_aShipPosition_0059c490[0]);
 }
 
-/* Function start: 0x410A30 */
+/* Function start: 0x41F2C5 */
 unsigned int rotate_eye_to_goal(void)
 {
     short totalError;
@@ -304,13 +304,13 @@ unsigned int rotate_eye_to_goal(void)
     return 0;
 }
 
-/* Function start: 0x410AD0 */
+/* Function start: 0x419CDC */
 short GetVectorMagnitude(const FixedVector *vector)
 {
     return FixedToShortSaturating(Vector_magnitude(vector));
 }
 
-/* Function start: 0x410AF0 */
+/* Function start: 0x419D01 */
 unsigned int set_eye_direction_and_position(void)
 {
     FixedVector vector;
@@ -622,7 +622,7 @@ unsigned int set_eye_direction_and_position(void)
     return 0;
 }
 
-/* Function start: 0x4117B0 */
+/* Function start: 0x41AD51 */
 unsigned int force_view(int view, short obj)
 {
     DAT_0046c03c = -1;
@@ -630,7 +630,7 @@ unsigned int force_view(int view, short obj)
     return 0;
 }
 
-/* Function start: 0x4117D0 */
+/* Function start: 0x41AE40 */
 unsigned int new_view(int view, short obj)
 {
     FixedVector vector;
@@ -828,7 +828,7 @@ unsigned int new_view(int view, short obj)
     return 0;
 }
 
-/* Function start: 0x411EC0 */
+/* Function start: 0x41B62E */
 unsigned int start_dust(short obj, FixedVector origin,
                         short forwardDistance, int rightOffset,
                         int upOffset)
@@ -856,7 +856,7 @@ unsigned int start_dust(short obj, FixedVector origin,
     return 0;
 }
 
-/* Function start: 0x411FE0 */
+/* Function start: 0x41B762 */
 unsigned int generate_stars(void)
 {
     FixedVector origin;
@@ -901,7 +901,7 @@ unsigned int generate_stars(void)
     return 0;
 }
 
-/* Function start: 0x412100 */
+/* Function start: 0x41B8D6 */
 unsigned int update_star_field(void)
 {
     FixedVector cameraMotion;
@@ -1019,7 +1019,7 @@ unsigned int update_star_field(void)
     return 0;
 }
 
-/* Function start: 0x412410 */
+/* Function start: 0x44804A */
 short count_down(short obj)
 {
     if (g_asObjectCounter_0059c330[obj] != -1)
@@ -1027,7 +1027,7 @@ short count_down(short obj)
     return g_asObjectCounter_0059c330[obj];
 }
 
-/* Function start: 0x412430 */
+/* Function start: 0x41BD81 */
 unsigned int house_keep_objects(void)
 {
     short obj;
@@ -1160,7 +1160,7 @@ unsigned int house_keep_objects(void)
     return 0;
 }
 
-/* Function start: 0x412820 */
+/* Function start: 0x41C7ED */
 unsigned int update_objects_in_space(void)
 {
     short obj;
@@ -1210,7 +1210,7 @@ unsigned int update_objects_in_space(void)
     return 0;
 }
 
-/* Function start: 0x412920 */
+/* Function start: 0x41CB3C */
 unsigned int rotate_object(short obj)
 {
     if (g_anObjectPitchRotation_0059b2a0[obj] != 0) {
@@ -1228,7 +1228,7 @@ unsigned int rotate_object(short obj)
     return 0;
 }
 
-/* Function start: 0x4129A0 */
+/* Function start: 0x41CC0A */
 unsigned int accelerate_and_move_object(short obj)
 {
     FixedVector delta;
@@ -1337,7 +1337,7 @@ unsigned int accelerate_and_move_object(short obj)
     return 0;
 }
 
-/* Function start: 0x412CD0 */
+/* Function start: 0x41D07B */
 unsigned int animate_shape(short obj)
 {
     unsigned char *animation;
@@ -1385,7 +1385,7 @@ unsigned int animate_shape(short obj)
     return 0;
 }
 
-/* Function start: 0x412E30 */
+/* Function start: 0x41D2DA */
 unsigned int animate_object(short obj)
 {
     FixedVector offset;
@@ -1442,7 +1442,7 @@ unsigned int animate_object(short obj)
     return 0;
 }
 
-/* Function start: 0x413030 */
+/* Function start: 0x41D4C7 */
 unsigned int hit_asteroid(short asteroid, short destructionChance)
 {
     short fragments;
@@ -1460,7 +1460,7 @@ unsigned int hit_asteroid(short asteroid, short destructionChance)
     return 0;
 }
 
-/* Function start: 0x4130D0 */
+/* Function start: 0x445087 */
 int object_collision(short obj)
 {
     SphericalVector impact;
@@ -1696,7 +1696,7 @@ int object_collision(short obj)
     return 0;
 }
 
-/* Function start: 0x413880 */
+/* Function start: 0x41E276 */
 unsigned int object_intelligence(short obj)
 {
     if (g_nCannedSceneMode_00469fac == 4)

@@ -11,7 +11,7 @@
 
 #pragma function(memcpy)
 
-/* Function start: 0x41C760 */
+/* Function start: 0x45AC50 */
 DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
                                          HWND targetWindow,
                                          int columnCount,
@@ -74,7 +74,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     strcpy(spinnerCharacters, g_szDebugOverlaySpinner_0046965c);
 }
 
-/* Function start: 0x41C910 */
+/* Function start: 0x40EEC7 */
 DebugOverlayConsole::~DebugOverlayConsole()
 {
     animationState = 2;
@@ -89,7 +89,7 @@ DebugOverlayConsole::~DebugOverlayConsole()
     free(spinnerCharacters);
 }
 
-/* Function start: 0x41C960 */
+/* Function start: 0x45AEE4 */
 extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
 {
     DebugOverlayConsole *console;
@@ -137,7 +137,7 @@ extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
 #endif
 }
 
-/* Function start: 0x41CA60 */
+/* Function start: 0x42E692 */
 extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
                                                     LPARAM flags)
 {
@@ -161,7 +161,7 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
 #endif
 }
 
-/* Function start: 0x41CAB0 */
+/* Function start: 0x45B0BB */
 extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
                                      const char *format, ...)
 {
@@ -227,7 +227,7 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
     console->DrawPendingLines();
 }
 
-/* Function start: 0x41CC00 */
+/* Function start: 0x45B2E0 */
 void DebugOverlayConsole::Clear(void)
 {
     cursorRow = 0;
@@ -236,7 +236,7 @@ void DebugOverlayConsole::Clear(void)
     memset(dirtyLines, 1, rows);
 }
 
-/* Function start: 0x41CC50 */
+/* Function start: 0x45B348 */
 void DebugOverlayConsole::Scroll(void)
 {
     memcpy(textBuffer, textBuffer + columns, (rows - 1) * columns);
@@ -245,7 +245,7 @@ void DebugOverlayConsole::Scroll(void)
     memset(dirtyLines, 1, rows);
 }
 
-/* Function start: 0x41CCC0 */
+/* Function start: 0x45B3DC */
 void DebugOverlayConsole::DrawPendingLines(void)
 {
 #ifndef WC1_SDL
@@ -266,7 +266,7 @@ void DebugOverlayConsole::DrawPendingLines(void)
     memset(dirtyLines, 0, rows);
 }
 
-/* Function start: 0x41CD40 */
+/* Function start: 0x45B49C */
 char DebugOverlayConsole::WaitForKey(void)
 {
 #ifdef WC1_SDL
@@ -359,7 +359,7 @@ char DebugOverlayConsole::WaitForKey(void)
 #endif
 }
 
-/* Function start: 0x41CF00 */
+/* Function start: 0x45B5D8 */
 void DebugOverlayConsole::EnableReverseVideo(void)
 {
 #ifndef WC1_SDL
@@ -379,7 +379,7 @@ void DebugOverlayConsole::EnableReverseVideo(void)
     }
 }
 
-/* Function start: 0x41CF50 */
+/* Function start: 0x45B55C */
 void DebugOverlayConsole::DisableReverseVideo(void)
 {
 #ifndef WC1_SDL
@@ -399,7 +399,7 @@ void DebugOverlayConsole::DisableReverseVideo(void)
     }
 }
 
-/* Function start: 0x41CFA0 */
+/* Function start: 0x40AD89 */
 void DebugOverlayConsole::SetOverlayTextColor(int red, int green, int blue)
 {
 #ifndef WC1_SDL
@@ -414,7 +414,7 @@ void DebugOverlayConsole::SetOverlayTextColor(int red, int green, int blue)
 #endif
 }
 
-/* Function start: 0x41CFF0 */
+/* Function start: 0x45B6BB */
 void DebugOverlayConsole::SetOverlayBackgroundColor(int red, int green,
                                                     int blue)
 {
@@ -430,7 +430,7 @@ void DebugOverlayConsole::SetOverlayBackgroundColor(int red, int green,
 #endif
 }
 
-/* Function start: 0x41D040 */
+/* Function start: 0x45B722 */
 void DebugOverlayConsole::SetTransparentBackground(void)
 {
 #ifndef WC1_SDL
@@ -445,7 +445,7 @@ void DebugOverlayConsole::SetTransparentBackground(void)
 #endif
 }
 
-/* Function start: 0x41D080 */
+/* Function start: 0x44FAEF */
 void DebugOverlayConsole::SetOpaqueBackground(void)
 {
 #ifndef WC1_SDL

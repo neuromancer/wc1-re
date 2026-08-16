@@ -9,7 +9,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x421100 */
+/* Function start: WC2_UNMAPPED */
 short find_weapon(short obj, enum ObjectType weaponType)
 {
     short weapon;
@@ -26,7 +26,7 @@ short find_weapon(short obj, enum ObjectType weaponType)
     return -1;
 }
 
-/* Function start: 0x421150 */
+/* Function start: 0x41670E */
 int fire_missile(short ship)
 {
     short weapon;
@@ -60,7 +60,7 @@ int fire_missile(short ship)
     return -1;
 }
 
-/* Function start: 0x421220 */
+/* Function start: 0x42C9B0 */
 int fire_fixed_projectile_weapon(short obj)
 {
     int loadoutOffset;
@@ -88,7 +88,7 @@ int fire_fixed_projectile_weapon(short obj)
     /* The original leaves EAX incidental on successful and empty paths. */
 }
 
-/* Function start: 0x4212A0 */
+/* Function start: 0x448D58 */
 int drop_mine(short obj, signed char weapon, enum ObjectType type,
               short lifetime)
 {
@@ -114,7 +114,7 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
     return mine;
 }
 
-/* Function start: 0x421350 */
+/* Function start: 0x40ABCC */
 void fire_afterburner(short obj, short time)
 {
     short timer;
@@ -131,7 +131,7 @@ void fire_afterburner(short obj, short time)
     }
 }
 
-/* Function start: 0x4213B0 */
+/* Function start: 0x4169CC */
 unsigned int fire_super_brake(short ship)
 {
     g_asShipAfterburnerTimer_0059c810[ship] = 10;
@@ -139,7 +139,7 @@ unsigned int fire_super_brake(short ship)
     return 0;
 }
 
-/* Function start: 0x4213D0 */
+/* Function start: 0x4169F3 */
 short flip_angle(short ship, short angle)
 {
     short flip;
@@ -156,7 +156,7 @@ short flip_angle(short ship, short angle)
     return angle;
 }
 
-/* Function start: 0x421430 */
+/* Function start: 0x416A87 */
 unsigned int place_exhaust_on_ships(void)
 {
     int shipIndex;
@@ -217,7 +217,7 @@ unsigned int place_exhaust_on_ships(void)
     /* The original leaves EAX incidental after scanning every ship. */
 }
 
-/* Function start: 0x4215E0 */
+/* Function start: 0x42CC42 */
 unsigned int reposition_fixed_child_objects(void)
 {
     int objectIndex;
@@ -320,7 +320,7 @@ unsigned int reposition_fixed_child_objects(void)
     return 0;
 }
 
-/* Function start: 0x421760 */
+/* Function start: 0x4170F9 */
 unsigned int housekeep_power_plant_and_fuel(short ship)
 {
     if (0 < g_anShipSpeed_0059b320[ship])
@@ -328,7 +328,7 @@ unsigned int housekeep_power_plant_and_fuel(short ship)
     return 0;
 }
 
-/* Function start: 0x421780 */
+/* Function start: 0x450136 */
 unsigned int replenish_shields(short ship)
 {
     signed char shield;
@@ -358,7 +358,7 @@ unsigned int replenish_shields(short ship)
     return 0;
 }
 
-/* Function start: 0x421830 */
+/* Function start: 0x41724A */
 unsigned int replenish_weapon_energy_bank(short ship)
 {
     short energy;
@@ -389,7 +389,7 @@ unsigned int replenish_weapon_energy_bank(short ship)
     return 0;
 }
 
-/* Function start: 0x4218D0 */
+/* Function start: 0x41740F */
 void accelerate(short amount)
 {
     if (malf(0) != 0) {
@@ -400,7 +400,7 @@ void accelerate(short amount)
     celerate(0, (int)amount << 8);
 }
 
-/* Function start: 0x421920 */
+/* Function start: 0x417471 */
 void your_afterburner(void)
 {
     short time;
@@ -434,7 +434,7 @@ void your_afterburner(void)
     }
 }
 
-/* Function start: 0x4219C0 */
+/* Function start: 0x45B810 */
 unsigned int LoadGamePaletteFile(void)
 {
     short index;
@@ -465,7 +465,7 @@ unsigned int LoadGamePaletteFile(void)
     return 0;
 }
 
-/* Function start: 0x421A40 */
+/* Function start: 0x45B905 */
 unsigned int EMShutDown(void)
 {
     if (g_nEventManagerActive_0059a850 != 0)
@@ -473,7 +473,7 @@ unsigned int EMShutDown(void)
     return 0;
 }
 
-/* Function start: 0x421A60 */
+/* Function start: WC2_UNMAPPED */
 unsigned short InitializeEventManagerResources(void)
 {
     DAT_0059a9f0 = 20;
@@ -486,7 +486,7 @@ unsigned short InitializeEventManagerResources(void)
     return 0;
 }
 
-/* Function start: 0x421AB0 */
+/* Function start: 0x45B924 */
 unsigned int EMStartUp(void)
 {
     PromptInsertNumberedDisk(0);
@@ -499,7 +499,7 @@ unsigned int EMStartUp(void)
     return 0;
 }
 
-/* Function start: 0x421B10 */
+/* Function start: 0x45B9D3 */
 unsigned int LoadOriginFxDrivers(void)
 {
     int memoryThreshold;
@@ -590,7 +590,7 @@ unsigned int LoadOriginFxDrivers(void)
     return 0;
 }
 
-/* Function start: 0x421D80 */
+/* Function start: 0x45C088 */
 unsigned int InitializeGameTextContexts(void)
 {
     InitializeDIBScreenViewport(&DAT_005a6ba0,
@@ -613,7 +613,7 @@ unsigned int InitializeGameTextContexts(void)
     return 0;
 }
 
-/* Function start: 0x421E20 */
+/* Function start: 0x45C1A1 */
 unsigned int initialize_direction_view_frame(short yaw, short pitch,
                                              signed char frame)
 {
@@ -631,7 +631,7 @@ unsigned int initialize_direction_view_frame(short yaw, short pitch,
     return 0;
 }
 
-/* Function start: 0x421EF0 */
+/* Function start: 0x45C279 */
 unsigned int initialize_direction_view_frames(void)
 {
     signed char frame;
@@ -659,7 +659,7 @@ unsigned int initialize_direction_view_frames(void)
     return 0;
 }
 
-/* Function start: 0x421F50 */
+/* Function start: 0x420B12 */
 unsigned int LoadSpaceflightResources(void)
 {
     unsigned char *debrisShapeSet;
@@ -690,43 +690,43 @@ unsigned int LoadSpaceflightResources(void)
     return 0;
 }
 
-/* Function start: 0x421FE0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetFxDriverInitResult(void)
 {
     return 0;
 }
 
-/* Function start: 0x421FF0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetMessagePumpResult(void)
 {
     return 0;
 }
 
-/* Function start: 0x422000 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetFxDriverStatus(void)
 {
     return 0;
 }
 
-/* Function start: 0x422010 */
+/* Function start: 0x4587E0 */
 short ace_status(short ace, unsigned char bits)
 {
     return (g_stCampaignState_0059ca50.aceFlags[ace] & bits) == bits;
 }
 
-/* Function start: 0x422030 */
+/* Function start: WC2_UNMAPPED */
 void unflag_ace(short ace, unsigned char bits)
 {
     g_stCampaignState_0059ca50.aceFlags[ace] &= ~bits;
 }
 
-/* Function start: 0x422050 */
+/* Function start: WC2_UNMAPPED */
 void flag_ace(short ace, unsigned char bits)
 {
     g_stCampaignState_0059ca50.aceFlags[ace] |= bits;
 }
 
-/* Function start: 0x422060 */
+/* Function start: WC2_UNMAPPED */
 void kill_ace(short ace)
 {
     if (ace_status(ace, 1) != 0) {
@@ -735,7 +735,7 @@ void kill_ace(short ace)
     }
 }
 
-/* Function start: 0x422090 */
+/* Function start: 0x417838 */
 void ace_greeting(short obj)
 {
     short ace = (short)g_aiPilotLevel_0059cf30[obj] - 14;
@@ -744,26 +744,26 @@ void ace_greeting(short obj)
     flag_ace(ace, 8);
 }
 
-/* Function start: 0x4220D0 */
+/* Function start: WC2_UNMAPPED */
 void prepare_ace(short ace)
 {
     unflag_ace(ace, 0x1a);
     flag_ace(ace, 0x20);
 }
 
-/* Function start: 0x4220F0 */
+/* Function start: 0x429581 */
 short signed_random(short range)
 {
     return RandomBelowOrEqual((short)(range * 2)) - range;
 }
 
-/* Function start: 0x422110 */
+/* Function start: 0x4295A9 */
 int alert_flag(short ship, unsigned int bits)
 {
     return (DAT_0059b430[ship] & bits) != 0;
 }
 
-/* Function start: 0x422130 */
+/* Function start: WC2_UNMAPPED */
 /* NOT a constant return: `mov eax,0x59b430 / cmp eax,1 / sbb eax,eax / inc eax`
  * is the classic `>= 1` boolean idiom applied to the *address* 0x0059B430,
  * which is always non-zero -- hence Ghidra folding it to `return 1`.  Written
@@ -773,14 +773,14 @@ unsigned int HasSpeechBuffer(void)
     return (unsigned int)&DAT_0059b430 >= 1;
 }
 
-/* Function start: 0x422140 */
+/* Function start: 0x4295D9 */
 unsigned short set_alert(short i, unsigned int bits)
 {
     DAT_0059b430[i] |= bits;
     return 0;
 }
 
-/* Function start: 0x422160 */
+/* Function start: 0x4295F2 */
 void clear_alert(short i)
 {
     g_asCollisionCountdown_0059d2d0[i] = 0;
@@ -788,7 +788,7 @@ void clear_alert(short i)
     DAT_0059cf20[i] = 0xff;
 }
 
-/* Function start: 0x422180 */
+/* Function start: 0x429625 */
 void start_collision_alert(short obj, short other)
 {
     if ((short)(signed char)DAT_0059cf20[obj] != other) {
@@ -801,7 +801,7 @@ void start_collision_alert(short obj, short other)
     set_special(obj, SPECIAL_MANEUVER_NONE);
 }
 
-/* Function start: 0x4221E0 */
+/* Function start: 0x429698 */
 void try2end_collision_alert(short obj)
 {
     g_asCollisionCountdown_0059d2d0[obj]--;
@@ -811,7 +811,7 @@ void try2end_collision_alert(short obj)
         set_alert(obj, 2);
 }
 
-/* Function start: 0x422220 */
+/* Function start: 0x415625 */
 short normal_speed(short obj)
 {
     if (g_aeSpecialManeuver_0059c3c0[obj] !=
@@ -821,7 +821,7 @@ short normal_speed(short obj)
     return 0;
 }
 
-/* Function start: 0x422260 */
+/* Function start: 0x429736 */
 short real_crash_time(short obj, short other)
 {
     short collisionRadius;
@@ -886,7 +886,7 @@ short real_crash_time(short obj, short other)
     return elapsed;
 }
 
-/* Function start: 0x422440 */
+/* Function start: 0x446D55 */
 void clear_crash_cache(void)
 {
     short i = 0;
@@ -897,7 +897,7 @@ void clear_crash_cache(void)
     } while (i < 10);
 }
 
-/* Function start: 0x422460 */
+/* Function start: 0x429958 */
 short crash_time(short obj, short other)
 {
     if (g_asCollisionPartner_005a7cc0[obj] == other)
@@ -911,7 +911,7 @@ short crash_time(short obj, short other)
     return real_crash_time(obj, other);
 }
 
-/* Function start: 0x4224F0 */
+/* Function start: 0x4299C9 */
 short detect_collisions(short obj)
 {
     short candidate;
@@ -939,7 +939,7 @@ short detect_collisions(short obj)
     return candidate;
 }
 
-/* Function start: 0x422560 */
+/* Function start: 0x429B55 */
 unsigned int unactive(short ship)
 {
     if (ship != -1 &&
@@ -949,7 +949,7 @@ unsigned int unactive(short ship)
     return 1;
 }
 
-/* Function start: 0x422590 */
+/* Function start: WC2_UNMAPPED */
 int are_alive(short obj)
 {
     if (unactive(obj) == 0 &&
@@ -958,7 +958,7 @@ int are_alive(short obj)
     return 0;
 }
 
-/* Function start: 0x4225C0 */
+/* Function start: 0x429BF0 */
 int trim_goals(short obj, short amount)
 {
     short goal = g_anYawGoal_0059c310[obj];
@@ -975,7 +975,7 @@ int trim_goals(short obj, short amount)
     return 0;
 }
 
-/* Function start: 0x422640 */
+/* Function start: 0x429CAD */
 int report_kilrathi_rout(int mode)
 {
     short obj;
@@ -1011,7 +1011,7 @@ int report_kilrathi_rout(int mode)
     return 0;
 }
 
-/* Function start: 0x422710 */
+/* Function start: 0x429E24 */
 short find_ship_index(short missionShip)
 {
     short obj;
@@ -1032,7 +1032,7 @@ short find_ship_index(short missionShip)
     return -1;
 }
 
-/* Function start: 0x422780 */
+/* Function start: 0x429EE0 */
 int try2rout(short obj)
 {
     short canContinue;
@@ -1065,7 +1065,7 @@ int try2rout(short obj)
     return canContinue == 0;
 }
 
-/* Function start: 0x422830 */
+/* Function start: 0x42A003 */
 signed char no_goal(short ship)
 {
     return (g_anYawGoal_0059c310[ship] |
@@ -1073,7 +1073,7 @@ signed char no_goal(short ship)
             g_anRollGoal_0059d630[ship]) == 0;
 }
 
-/* Function start: 0x422860 */
+/* Function start: 0x465730 */
 int being_tailed(short obj, short other)
 {
     ship_vs_ship(obj, other);
@@ -1082,7 +1082,7 @@ int being_tailed(short obj, short other)
            g_nTargetRange_0059ce10 < 7000;
 }
 
-/* Function start: 0x4228A0 */
+/* Function start: WC2_UNMAPPED */
 int any_enemy_tail(short obj)
 {
     short other;
@@ -1102,7 +1102,7 @@ int any_enemy_tail(short obj)
     return 0;
 }
 
-/* Function start: 0x422930 */
+/* Function start: 0x42A108 */
 short detect_enemy_tail(short obj)
 {
     short other;
@@ -1119,7 +1119,7 @@ short detect_enemy_tail(short obj)
     return -1;
 }
 
-/* Function start: 0x4229B0 */
+/* Function start: 0x42A1C5 */
 int is_ship_tailing_player_target(short obj)
 {
     short target = g_acShipTarget_0059ce60[0];
@@ -1129,7 +1129,7 @@ int is_ship_tailing_player_target(short obj)
     return 0;
 }
 
-/* Function start: 0x4229F0 */
+/* Function start: 0x41596F */
 int missile_on_tail(short obj)
 {
     short other;
@@ -1142,7 +1142,7 @@ int missile_on_tail(short obj)
     return 0;
 }
 
-/* Function start: 0x422A30 */
+/* Function start: 0x41F446 */
 short select_weighted_value(short *choices)
 {
     short roll;
@@ -1160,7 +1160,7 @@ short select_weighted_value(short *choices)
     return choices[1];
 }
 
-/* Function start: 0x422A70 */
+/* Function start: 0x42A062 */
 unsigned int build_squad_list(short leader)
 {
     short obj;
@@ -1177,7 +1177,7 @@ unsigned int build_squad_list(short leader)
     return 0;
 }
 
-/* Function start: 0x422AC0 */
+/* Function start: 0x4210B8 */
 unsigned int find_squad_center(FixedVector *center)
 {
     short count = 0;
@@ -1194,7 +1194,7 @@ unsigned int find_squad_center(FixedVector *center)
     return 0;
 }
 
-/* Function start: 0x422B30 */
+/* Function start: 0x42A39A */
 unsigned int init_formation_burst(short obj)
 {
     FixedVector center;
@@ -1219,7 +1219,7 @@ unsigned int init_formation_burst(short obj)
     return 0;
 }
 
-/* Function start: 0x422BE0 */
+/* Function start: 0x42A490 */
 unsigned int reset_mission_type(short obj,
                                 enum ShipMissionType missionType)
 {
@@ -1231,7 +1231,7 @@ unsigned int reset_mission_type(short obj,
     return 0;
 }
 
-/* Function start: 0x422C30 */
+/* Function start: 0x42A4E5 */
 unsigned int change_mission_type(short obj,
                                  enum ShipMissionType missionType)
 {
@@ -1242,7 +1242,7 @@ unsigned int change_mission_type(short obj,
     return 0;
 }
 
-/* Function start: 0x422C70 */
+/* Function start: 0x42A52A */
 unsigned int reset_objective(short ship, enum ShipObjective objective)
 {
     steady_object(ship);
@@ -1251,7 +1251,7 @@ unsigned int reset_objective(short ship, enum ShipObjective objective)
     return 0;
 }
 
-/* Function start: 0x422CA0 */
+/* Function start: 0x42A55F */
 unsigned int alter_objective(short ship, enum ShipObjective objective)
 {
     steady_object(ship);
@@ -1260,7 +1260,7 @@ unsigned int alter_objective(short ship, enum ShipObjective objective)
     return 0;
 }
 
-/* Function start: 0x422CD0 */
+/* Function start: 0x42A594 */
 unsigned int reset_tactic(short ship, enum ShipTactic tactic)
 {
     reset_maneuver(ship, MANEUVER_NONE);
@@ -1269,7 +1269,7 @@ unsigned int reset_tactic(short ship, enum ShipTactic tactic)
     return 0;
 }
 
-/* Function start: 0x422D00 */
+/* Function start: 0x4429A7 */
 unsigned int alter_tactic(short ship, enum ShipTactic tactic)
 {
     reset_maneuver(ship, MANEUVER_NONE);
@@ -1277,7 +1277,7 @@ unsigned int alter_tactic(short ship, enum ShipTactic tactic)
     return 0;
 }
 
-/* Function start: 0x422D30 */
+/* Function start: 0x42A5F1 */
 void reset_maneuver(short ship, short maneuver)
 {
     g_aeShipManeuver_0059dcb0[ship] = (enum ShipManeuver)maneuver;
@@ -1285,7 +1285,7 @@ void reset_maneuver(short ship, short maneuver)
     g_acShipSequence_0059d520[ship] = 0;
 }
 
-/* Function start: 0x422D60 */
+/* Function start: 0x42A625 */
 void try2reset_maneuver(short obj, short maneuver)
 {
     if (g_aeShipManeuver_0059dcb0[obj] != maneuver) {
@@ -1294,7 +1294,7 @@ void try2reset_maneuver(short obj, short maneuver)
     }
 }
 
-/* Function start: 0x422D90 */
+/* Function start: 0x42A664 */
 unsigned int set_special(short ship, enum SpecialManeuver special)
 {
     enum SpecialManeuver *currentState;
@@ -1311,21 +1311,21 @@ unsigned int set_special(short ship, enum SpecialManeuver special)
     return 0;
 }
 
-/* Function start: 0x422DD0 */
+/* Function start: 0x42A6E8 */
 unsigned int approach_zero_speed(short ship)
 {
     approach_speed(ship, 0);
     return 0;
 }
 
-/* Function start: 0x422DF0 */
+/* Function start: 0x42A701 */
 unsigned int approach_min_speed(short obj)
 {
     approach_speed(obj, 0x500);
     return 0;
 }
 
-/* Function start: 0x422E10 */
+/* Function start: 0x42A71D */
 unsigned int approach_half_speed(short obj)
 {
     short speed = g_aObjectTypeData_00466458[
@@ -1335,7 +1335,7 @@ unsigned int approach_half_speed(short obj)
     return 0;
 }
 
-/* Function start: 0x422E50 */
+/* Function start: 0x42A754 */
 unsigned int approach_cruise_speed(short ship)
 {
     approach_speed(ship,
@@ -1344,7 +1344,7 @@ unsigned int approach_cruise_speed(short ship)
     return 0;
 }
 
-/* Function start: 0x422E80 */
+/* Function start: 0x42A788 */
 unsigned int approach_full_speed(short ship)
 {
     approach_speed(ship,
@@ -1352,14 +1352,14 @@ unsigned int approach_full_speed(short ship)
     return 0;
 }
 
-/* Function start: 0x422EA0 */
+/* Function start: 0x42A7AF */
 unsigned int approach_ship_speed(short obj, short other)
 {
     approach_speed(obj, g_anShipSpeed_0059b320[other]);
     return 0;
 }
 
-/* Function start: 0x422EC0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int get_front_spot(short obj, unsigned short distance,
                             FixedVector *point)
 {
@@ -1369,7 +1369,7 @@ unsigned int get_front_spot(short obj, unsigned short distance,
     return 0;
 }
 
-/* Function start: 0x422F10 */
+/* Function start: 0x42A7D2 */
 unsigned int get_rear_spot(short obj, unsigned short distance,
                            FixedVector *point)
 {
@@ -1379,7 +1379,7 @@ unsigned int get_rear_spot(short obj, unsigned short distance,
     return 0;
 }
 
-/* Function start: 0x422F60 */
+/* Function start: 0x4407B0 */
 unsigned int close_behind(short range)
 {
     if (g_nTargetRange_0059ce10 < range &&
@@ -1388,7 +1388,7 @@ unsigned int close_behind(short range)
     return 0;
 }
 
-/* Function start: 0x422F80 */
+/* Function start: 0x42A8B5 */
 short scan_for_enemy(short obj, unsigned short range)
 {
     short target;
@@ -1425,7 +1425,7 @@ short scan_for_enemy(short obj, unsigned short range)
     return target;
 }
 
-/* Function start: 0x423070 */
+/* Function start: 0x42AA0D */
 int any_enemy(short obj, short range)
 {
     short other;
@@ -1446,7 +1446,7 @@ int any_enemy(short obj, short range)
     return 0;
 }
 
-/* Function start: 0x4230F0 */
+/* Function start: 0x4608E8 */
 short nearest_enemy_range(short obj)
 {
     short other;
@@ -1466,7 +1466,7 @@ short nearest_enemy_range(short obj)
     return range;
 }
 
-/* Function start: 0x423210 */
+/* Function start: WC2_UNMAPPED */
 void fire_when_ready(short obj, short aimed)
 {
     (void)aimed;
@@ -1479,7 +1479,7 @@ void fire_when_ready(short obj, short aimed)
     fire(obj, g_acShipTarget_0059ce60[obj]);
 }
 
-/* Function start: 0x423260 */
+/* Function start: 0x42AB81 */
 unsigned int ships_within_range(short obj, short other, short range)
 {
     FixedVector delta;
@@ -1489,7 +1489,7 @@ unsigned int ships_within_range(short obj, short other, short range)
     return IsVectorWithinRange(&delta, range);
 }
 
-/* Function start: 0x4232B0 */
+/* Function start: WC2_UNMAPPED */
 int attacker_in_range(short obj, short range)
 {
     short other;
@@ -1512,7 +1512,7 @@ int attacker_in_range(short obj, short range)
     return 0;
 }
 
-/* Function start: 0x423350 */
+/* Function start: 0x42ACAF */
 int in_danger(short obj)
 {
     short target;
@@ -1540,7 +1540,7 @@ int in_danger(short obj)
     return target != -1;
 }
 
-/* Function start: 0x423400 */
+/* Function start: 0x41AD8B */
 unsigned int target_within_range(short obj)
 {
     short target = g_acShipTarget_0059ce60[obj];
@@ -1550,7 +1550,7 @@ unsigned int target_within_range(short obj)
     return ships_within_range(obj, target, 7000);
 }
 
-/* Function start: 0x423440 */
+/* Function start: 0x42AAD3 */
 short build_target_list(short obj, short range)
 {
     short count;
@@ -1576,7 +1576,7 @@ short build_target_list(short obj, short range)
     return count;
 }
 
-/* Function start: 0x4234C0 */
+/* Function start: WC2_UNMAPPED */
 int select_safe_target(short obj)
 {
     short target;
@@ -1599,7 +1599,7 @@ int select_safe_target(short obj)
     return target != -1;
 }
 
-/* Function start: 0x423530 */
+/* Function start: 0x42AF60 */
 void inherit_leader_mission(short obj)
 {
     short leader = g_asShipWingLeader_0059d400[obj];
@@ -1616,7 +1616,7 @@ void inherit_leader_mission(short obj)
     }
 }
 
-/* Function start: 0x4235B0 */
+/* Function start: 0x42B00A */
 void inherit_leader(short obj)
 {
     short leader = g_asShipWingLeader_0059d400[obj];
@@ -1632,7 +1632,7 @@ void inherit_leader(short obj)
     }
 }
 
-/* Function start: 0x423610 */
+/* Function start: 0x45865D */
 unsigned int dead_ship(short i)
 {
     if (i != -1 && g_aMissionShips_0046c948[i].state != 3)
@@ -1640,7 +1640,7 @@ unsigned int dead_ship(short i)
     return 1;
 }
 
-/* Function start: 0x423640 */
+/* Function start: 0x42B0FB */
 int gone_ship(short missionShip)
 {
     if (missionShip != -1 &&
@@ -1650,7 +1650,7 @@ int gone_ship(short missionShip)
     return 1;
 }
 
-/* Function start: 0x423670 */
+/* Function start: 0x429BA8 */
 short skill_rating(short obj)
 {
     int rating = g_aiPilotLevel_0059cf30[obj];
@@ -1664,7 +1664,7 @@ short skill_rating(short obj)
     return (short)rating - 10;
 }
 
-/* Function start: 0x4236B0 */
+/* Function start: 0x45655D */
 int skill_check(short obj, short difficulty)
 {
     short roll;
@@ -1673,7 +1673,7 @@ int skill_check(short obj, short difficulty)
     return skill_rating(obj) > roll;
 }
 
-/* Function start: 0x4236F0 */
+/* Function start: 0x42B1AE */
 short find_ships_sphere(short missionShip)
 {
     MissionNavPoint *navPoint;
@@ -1707,7 +1707,7 @@ short find_ships_sphere(short missionShip)
     return navIndex;
 }
 
-/* Function start: 0x423780 */
+/* Function start: 0x42B2A7 */
 int locate_ship(short missionShip, FixedVector *point)
 {
     short navPoint;
@@ -1731,7 +1731,7 @@ int locate_ship(short missionShip, FixedVector *point)
     return 0;
 }
 
-/* Function start: 0x423820 */
+/* Function start: 0x42B38F */
 unsigned int get_follow_point(short obj, FixedVector *point)
 {
     short pathIndex;
@@ -1767,7 +1767,7 @@ unsigned int get_follow_point(short obj, FixedVector *point)
     return 0;
 }
 
-/* Function start: 0x423930 */
+/* Function start: 0x42B524 */
 unsigned int get_first_follow_point(short obj, FixedVector *point)
 {
     if (g_aeShipSide_0059d650[obj] == SIDE_IMPERIAL)
@@ -1777,7 +1777,7 @@ unsigned int get_first_follow_point(short obj, FixedVector *point)
     return 0;
 }
 
-/* Function start: 0x423970 */
+/* Function start: 0x42B565 */
 int hostile_sphere(short obj, short navPoint)
 {
     short index;
@@ -1794,7 +1794,7 @@ int hostile_sphere(short obj, short navPoint)
     return 0;
 }
 
-/* Function start: 0x4239D0 */
+/* Function start: 0x42B5F7 */
 int abandoned(short obj, short other)
 {
     short navPoint;
@@ -1813,7 +1813,7 @@ int abandoned(short obj, short other)
     return 0;
 }
 
-/* Function start: 0x423A50 */
+/* Function start: 0x42B6C5 */
 void engage(short obj, short target, enum ShipObjective objective)
 {
     if (g_aeShipObjective_0059d200[obj] != objective) {
@@ -1826,7 +1826,7 @@ void engage(short obj, short target, enum ShipObjective objective)
     g_acShipTarget_0059ce60[obj] = target;
 }
 
-/* Function start: 0x423AC0 */
+/* Function start: 0x42B73B */
 int target_valid(short obj)
 {
     return unactive(g_acShipTarget_0059ce60[obj]) == 0 &&
@@ -1835,7 +1835,7 @@ int target_valid(short obj)
                g_aeShipSide_0059d650[obj];
 }
 
-/* Function start: 0x423B00 */
+/* Function start: 0x458467 */
 unsigned int triumph(short obj)
 {
     unsigned int result = 0;
@@ -1859,7 +1859,7 @@ unsigned int triumph(short obj)
     return result;
 }
 
-/* Function start: 0x423BA0 */
+/* Function start: 0x40C959 */
 short find_ratio(short inputMinimum, short inputMaximum,
                          short input, short outputMinimum,
                          short outputMaximum)
@@ -1873,7 +1873,7 @@ short find_ratio(short inputMinimum, short inputMaximum,
                    (int)(inputMaximum - inputMinimum)) + outputMinimum;
 }
 
-/* Function start: 0x423C00 */
+/* Function start: 0x42B985 */
 short evaluate_damage(short obj)
 {
     ObjectTypeData *typeData =
@@ -1893,13 +1893,13 @@ short evaluate_damage(short obj)
                        typeData->armorRight + 26);
 }
 
-/* Function start: 0x423CD0 */
+/* Function start: WC2_UNMAPPED */
 short mine_available(short obj)
 {
     return find_weapon(obj, OBJECT_TYPE_SPACE_MINE);
 }
 
-/* Function start: 0x423CE0 */
+/* Function start: 0x4568E0 */
 int LoadShapeSet(PacketResourceDescriptor *resources,
                  unsigned short flags, short defaultLogicalFile)
 {
@@ -1920,7 +1920,7 @@ int LoadShapeSet(PacketResourceDescriptor *resources,
     return 1;
 }
 
-/* Function start: 0x423D50 */
+/* Function start: 0x432DCC */
 int FreeShapeSet(PacketResourceDescriptor *resources,
                  unsigned short releaseFlags)
 {
@@ -1932,7 +1932,7 @@ int FreeShapeSet(PacketResourceDescriptor *resources,
     return 0;
 }
 
-/* Function start: 0x423D80 */
+/* Function start: 0x4589D0 */
 int LoadPacketResourceList(PacketResourceDescriptor *resources,
                            short flags, int availableBytes)
 {
@@ -1960,7 +1960,7 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
     return availableBytes;
 }
 
-/* Function start: 0x423E10 */
+/* Function start: 0x456A68 */
 unsigned int ResetCockpitPaletteEntries(void)
 {
     short black[3];
@@ -1983,7 +1983,7 @@ unsigned int ResetCockpitPaletteEntries(void)
     return 0;
 }
 
-/* Function start: 0x423E90 */
+/* Function start: 0x456B1A */
 unsigned int initialize_cockpit(signed char mode)
 {
     Viewport savedScreen;
@@ -2133,7 +2133,7 @@ unsigned int initialize_cockpit(signed char mode)
     return result;
 }
 
-/* Function start: 0x4242D0 */
+/* Function start: 0x459527 */
 unsigned int InitializeConstellationObject(
     const ConstellationObjectDefinition *definition, short object)
 {
@@ -2157,7 +2157,7 @@ unsigned int InitializeConstellationObject(
     return 0;
 }
 
-/* Function start: 0x4243B0 */
+/* Function start: 0x44C796 */
 unsigned int FreeConstellationObject(short object)
 {
     FreePacketAndClear(&g_apObjectShape_0059d2f0[object], 0);
@@ -2165,7 +2165,7 @@ unsigned int FreeConstellationObject(short object)
     return 0;
 }
 
-/* Function start: 0x4243E0 */
+/* Function start: 0x42917D */
 unsigned int init_constellation(short scene)
 {
     short slot;
@@ -2202,7 +2202,7 @@ unsigned int init_constellation(short scene)
     /* The successful path returns the last expression left in EAX. */
 }
 
-/* Function start: 0x424490 */
+/* Function start: 0x45890E */
 unsigned int free_constellation(void)
 {
     short object;
@@ -2221,7 +2221,7 @@ unsigned int free_constellation(void)
     return 0;
 }
 
-/* Function start: 0x4244E0 */
+/* Function start: 0x457720 */
 void init_vdus(void)
 {
     DAT_005a7530 = DAT_005a6ba0;
@@ -2242,7 +2242,7 @@ void init_vdus(void)
     DAT_0059ce18[1] = 0;
 }
 
-/* Function start: 0x4245B0 */
+/* Function start: 0x4577D7 */
 unsigned int InitializeCockpitResources(signed char mode)
 {
     const CockpitLayout *layout;
@@ -2385,7 +2385,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     return result;
 }
 
-/* Function start: 0x4249A0 */
+/* Function start: 0x458196 */
 unsigned int free_cockpit(void)
 {
     if (g_bCockpitResourcesActive_00469d58 == 0)
@@ -2413,7 +2413,7 @@ unsigned int free_cockpit(void)
     ReleasePacketHandle(g_pScannerMarkerBackground_005a7dc4);
 }
 
-/* Function start: 0x424A80 */
+/* Function start: 0x4560C0 */
 unsigned int init_3Space_objects(short scene)
 {
     short slot;
@@ -2439,7 +2439,7 @@ unsigned int init_3Space_objects(short scene)
     return load_common_3Space_objects();
 }
 
-/* Function start: 0x424B00 */
+/* Function start: 0x414BE9 */
 unsigned int load_common_3Space_objects(void)
 {
     LoadShapeSet(g_aCommon3SpaceResources_00469bc0, 0, -1);
@@ -2472,7 +2472,7 @@ unsigned int load_common_3Space_objects(void)
     return 0;
 }
 
-/* Function start: 0x424B80 */
+/* Function start: 0x44EA50 */
 unsigned int remove_all_3d_objects(void)
 {
     short i = 0;
@@ -2484,7 +2484,7 @@ unsigned int remove_all_3d_objects(void)
     return 0;
 }
 
-/* Function start: 0x424BA0 */
+/* Function start: 0x4293F9 */
 unsigned int free_3Space(void)
 {
     if (DAT_00469d5c == 0)
@@ -2499,7 +2499,7 @@ unsigned int free_3Space(void)
     return 0;
 }
 
-/* Function start: 0x424BE0 */
+/* Function start: 0x42E6EB */
 unsigned int free_3Space_objects(void)
 {
     FreeShapeSet(g_aCommon3SpaceResources_00469bc0, 0);
@@ -2524,7 +2524,7 @@ unsigned int free_3Space_objects(void)
     return 0;
 }
 
-/* Function start: 0x424C60 */
+/* Function start: 0x43C601 */
 unsigned int init_inflight_music(void)
 {
     g_nCombatMusicActive_0046aa3c = 0;
@@ -2533,7 +2533,7 @@ unsigned int init_inflight_music(void)
     return 0;
 }
 
-/* Function start: 0x424C80 */
+/* Function start: 0x458806 */
 unsigned int free_inflight_music(void)
 {
     int slot;
@@ -2553,21 +2553,21 @@ unsigned int free_inflight_music(void)
     return 0;
 }
 
-/* Function start: 0x424CE0 */
+/* Function start: 0x469AD0 */
 unsigned int PreloadMusicTrackHook(short track)
 {
     (void)track;
     return 0;
 }
 
-/* Function start: 0x424CF0 */
+/* Function start: 0x40E31F */
 unsigned int ReleaseMusicTrackHook(short track)
 {
     (void)track;
     return 0;
 }
 
-/* Function start: 0x424D00 */
+/* Function start: WC2_UNMAPPED */
 unsigned short LoadSceneAnimationResources(short scene, short variant)
 {
     unsigned char *packet;
@@ -2594,7 +2594,7 @@ unsigned short LoadSceneAnimationResources(short scene, short variant)
     return 0;
 }
 
-/* Function start: 0x424DA0 */
+/* Function start: WC2_UNMAPPED */
 void ReleaseSceneAnimationResources(void)
 {
     ReleasePacketHandle(g_pSceneAnimationPrimaryShape_005a7c58);
@@ -2603,7 +2603,7 @@ void ReleaseSceneAnimationResources(void)
     ReleasePacketHandle(g_pSceneAnimationDefinitions_005a7c6c);
 }
 
-/* Function start: 0x424DE0 */
+/* Function start: WC2_UNMAPPED */
 signed char *__stdcall FindSceneAnimationCommand(
     signed char *script, signed char command)
 {
@@ -2644,7 +2644,7 @@ signed char *__stdcall FindSceneAnimationCommand(
     return *script != 0 ? script : 0;
 }
 
-/* Function start: 0x424EA0 */
+/* Function start: WC2_UNMAPPED */
 short __stdcall SceneAnimationGoalReached(short delta, short current,
                                           short goal)
 {
@@ -2660,7 +2660,7 @@ short __stdcall SceneAnimationGoalReached(short delta, short current,
     return 0;
 }
 
-/* Function start: 0x424EF0 */
+/* Function start: 0x446A1D */
 unsigned int __stdcall UpdateSceneAnimationObject(
     SceneAnimationObject *object, Viewport *viewport)
 {
@@ -2923,7 +2923,7 @@ unsigned int __stdcall UpdateSceneAnimationObject(
     return complete;
 }
 
-/* Function start: 0x425500 */
+/* Function start: WC2_UNMAPPED */
 void PlaySceneAnimation(char *text, short animation, short duration)
 {
     SceneAnimationObject *object;

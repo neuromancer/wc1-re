@@ -33,7 +33,7 @@ extern LPDIRECTSOUNDBUFFER g_pPrimarySoundBuffer_0059812c;
 BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
                                  LPSTR module, LPVOID context);
 
-/* Function start: 0x00445F60 */   /* source lines 46, 50, 60, 63, 81, 84, 96 */
+/* Function start: 0x48B7C0 */   /* source lines 46, 50, 60, 63, 81, 84, 96 */
 DWORD WINAPI ix_mixer_thread_proc(void *parameter)
 {
 #ifdef WC1_SDL
@@ -174,7 +174,7 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
 #endif
 }
 
-/* Function start: 0x004463FC */   /* source line(s) 150;157;161;176;186;196: Failed to Lock, %s | Failed to Unlock, %s | Failed to Play, %s | Failed to get current pos */
+/* Function start: 0x48BC5C */   /* source line(s) 150;157;161;176;186;196: Failed to Lock, %s | Failed to Unlock, %s | Failed to Play, %s | Failed to get current pos */
 int ix_mixer_service(void)
 {
 #ifdef WC1_SDL
@@ -265,13 +265,13 @@ int ix_mixer_service(void)
 #endif
 }
 
-/* Function start: 0x004467A0 */
+/* Function start: WC2_UNMAPPED */
 void ix_mixer_static_initializer(void)
 {
     ix_mixer_static_initialization_hook();
 }
 
-/* Function start: 0x004467B5 */
+/* Function start: WC2_UNMAPPED */
 void ix_mixer_static_initialization_hook(void)
 {
 }

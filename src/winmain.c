@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x401000 */
+/* Function start: 0x417550 */
 void SaveGamePalette(void)
 {
     int index;
@@ -21,14 +21,14 @@ void SaveGamePalette(void)
     } while (entry < DAT_005a8a50 + 0x300);
 }
 
-/* Function start: 0x401020 */
+/* Function start: 0x464021 */
 void RestoreGamePalette(void)
 {
     WaitForVerticalBlankThunk();
     DIBwholePaletteFromWords(DAT_005a8a50);
 }
 
-/* Function start: 0x401040 */
+/* Function start: WC2_UNMAPPED */
 short easy2see(short obj)
 {
     short bounds[4];
@@ -51,7 +51,7 @@ short easy2see(short obj)
         g_asObjectFlip_0059c870[obj], bounds);
 }
 
-/* Function start: 0x4010C0 */
+/* Function start: 0x4176D2 */
 void make_shard(short asteroid, FixedVector direction)
 {
     short fragment;
@@ -87,7 +87,7 @@ static const signed char g_acHazardPitchRange_00465050[8] = {
     -10, 4, -8, 8, -12, 8, -8, 8
 };
 
-/* Function start: 0x4011D0 */
+/* Function start: 0x457587 */
 void remove_hazard(signed char hazard)
 {
     g_aiSoundEffectSourceActive_005a66ec[(short)hazard + 1] = 0;
@@ -96,7 +96,7 @@ void remove_hazard(signed char hazard)
         MaxShort(0, (short)(g_nActiveHazards_00465044 - 1));
 }
 
-/* Function start: 0x401210 */
+/* Function start: 0x4576AB */
 void remove_all_hazards(void)
 {
     short slot = 0;
@@ -109,19 +109,19 @@ void remove_all_hazards(void)
     g_pActiveHazardField_0059bfe0 = 0;
 }
 
-/* Function start: 0x401250 */
+/* Function start: 0x417AD7 */
 short difficulty(void)
 {
     return (short)(abs(25 - (int)g_nHazardReferenceSpeed_00465040) * 2);
 }
 
-/* Function start: 0x401270 */
+/* Function start: 0x417916 */
 short asteroid_velocity(void)
 {
     return MinShort(20, (short)(RandomBelowOrEqual(7) + 10));
 }
 
-/* Function start: 0x401290 */
+/* Function start: 0x417941 */
 void skew_randomly(short obj, short allowReverse)
 {
     FixedVector saved;
@@ -145,7 +145,7 @@ void skew_randomly(short obj, short allowReverse)
         negate_vector(&g_aShipForwardVector_0059bce0[obj]);
 }
 
-/* Function start: 0x401390 */
+/* Function start: 0x433AB0 */
 void align(short *value, short quantum)
 {
     short current;
@@ -155,7 +155,7 @@ void align(short *value, short quantum)
     *value = current;
 }
 
-/* Function start: 0x4013B0 */
+/* Function start: 0x417AF9 */
 void init_hazard(short obj, FixedVector position, short moving)
 {
     enum ObjectType type;
@@ -235,7 +235,7 @@ void init_hazard(short obj, FixedVector position, short moving)
     g_acObjectCollisionGraceTicks_0059ddb0[obj] = 0;
 }
 
-/* Function start: 0x401680 */
+/* Function start: WC2_UNMAPPED */
 int near_field(const HazardField *field, const FixedVector *point)
 {
     return IsPointWithinRange((FixedVector *)&field->center,
@@ -243,14 +243,14 @@ int near_field(const HazardField *field, const FixedVector *point)
                               (short)(field->innerRadius + 4300));
 }
 
-/* Function start: 0x4016A0 */
+/* Function start: 0x440831 */
 short within_field(const HazardField *field, const FixedVector *point)
 {
     return IsPointWithinRange((FixedVector *)&field->center,
                               (FixedVector *)point, field->innerRadius);
 }
 
-/* Function start: 0x4016C0 */
+/* Function start: 0x417EFF */
 short try_far_spot(FixedVector *spot, short *moving)
 {
     short yaw;
@@ -297,14 +297,14 @@ short try_far_spot(FixedVector *spot, short *moving)
            within_field(g_pActiveHazardField_0059bfe0, spot) != 0;
 }
 
-/* Function start: 0x401870 */
+/* Function start: 0x418175 */
 short rear_sphere(void)
 {
     return find_ratio(0, 20, (short)g_nHazardReferenceSpeed_00465040,
                       4300, 3100);
 }
 
-/* Function start: 0x401890 */
+/* Function start: WC2_UNMAPPED */
 int ok_hazard_spot(short obj)
 {
     int range = 4300;
@@ -316,7 +316,7 @@ int ok_hazard_spot(short obj)
                               (short)range);
 }
 
-/* Function start: 0x4018D0 */
+/* Function start: 0x464C4B */
 short make_hazard(void)
 {
     FixedVector spot;
@@ -330,14 +330,14 @@ short make_hazard(void)
     return obj;
 }
 
-/* Function start: 0x401930 */
+/* Function start: WC2_UNMAPPED */
 void extra_hazard(short obj)
 {
     if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_DUST)
         g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_NULL;
 }
 
-/* Function start: 0x401950 */
+/* Function start: 0x4182B6 */
 void approach(short obj)
 {
     FixedVector target;
@@ -352,7 +352,7 @@ void approach(short obj)
                     &g_aShipVelocity_0059c010[obj]);
 }
 
-/* Function start: 0x4019E0 */
+/* Function start: 0x41836E */
 void manage_hazard(short obj, short slot)
 {
     if (g_nRenderedSpaceFrame_0059d61a % 20 != slot)
@@ -368,7 +368,7 @@ void manage_hazard(short obj, short slot)
         approach(obj);
 }
 
-/* Function start: 0x401A60 */
+/* Function start: WC2_UNMAPPED */
 void match_ship_to_eye(void)
 {
     g_aShipPosition_0059c490[0] = g_aShipPosition_0059c490[61];
@@ -382,7 +382,7 @@ void match_ship_to_eye(void)
     g_pActiveHazardField_0059bfe0->center = g_aShipPosition_0059c490[61];
 }
 
-/* Function start: 0x401B30 */
+/* Function start: 0x4184F6 */
 void update_hazards(void)
 {
     short slot;
@@ -406,7 +406,7 @@ void update_hazards(void)
         g_abHazardObjects_0046c028[emptySlot] = (signed char)make_hazard();
 }
 
-/* Function start: 0x401BC0 */
+/* Function start: WC2_UNMAPPED */
 void start_hazard_field(short region)
 {
     short slot;
@@ -419,7 +419,7 @@ void start_hazard_field(short region)
     } while (slot++ < 3);
 }
 
-/* Function start: 0x401C00 */
+/* Function start: WC2_UNMAPPED */
 void add_hazard_field(enum ObjectType type, FixedVector center,
                       short radius, short density)
 {
@@ -436,7 +436,7 @@ void add_hazard_field(enum ObjectType type, FixedVector center,
     g_nHazardFieldCount_0059c90c++;
 }
 
-/* Function start: 0x401C60 */
+/* Function start: 0x41787A */
 void check_hazards(void)
 {
     HazardField *field;
@@ -462,7 +462,7 @@ void check_hazards(void)
     }
 }
 
-/* Function start: 0x401CE0 */
+/* Function start: 0x4199F0 */
 void __stdcall WarpMouseTo(short x, short y)
 {
 #ifndef WC1_SDL
@@ -478,7 +478,7 @@ void __stdcall WarpMouseTo(short x, short y)
 #endif
 }
 
-/* Function start: 0x401D10 */
+/* Function start: 0x453C95 */
 void CheckLauncherAndConfig(void)
 {
     FILE *config;
@@ -535,7 +535,7 @@ void CheckLauncherAndConfig(void)
 
 #ifndef WC1_SDL
 
-/* Function start: 0x401E30 */
+/* Function start: 0x453E60 */
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
                    LPSTR commandLine, int showCommand)
 {
@@ -615,7 +615,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
 
 #endif
 
-/* Function start: 0x402070 */
+/* Function start: 0x454103 */
 void ShutdownGameWindow(void)
 {
     DAT_005a8a38 = (unsigned int)time(0);
@@ -655,7 +655,7 @@ void ShutdownGameWindow(void)
     exit(0);
 }
 
-/* Function start: 0x4020E0 */
+/* Function start: 0x45418B */
 void ShowNoticeMessageBox(const char *text)
 {
     DIBpositionWindow();
@@ -663,7 +663,7 @@ void ShowNoticeMessageBox(const char *text)
     exit(0);
 }
 
-/* Function start: 0x402110 */
+/* Function start: 0x45422D */
 unsigned int AbortToDesktop(void)
 {
 #ifndef WC1_SDL
@@ -689,7 +689,7 @@ unsigned int AbortToDesktop(void)
 
 #ifndef WC1_SDL
 
-/* Function start: 0x402180 */
+/* Function start: 0x4542B7 */
 int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
                      int showCommand)
 {
@@ -743,7 +743,7 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
 
 #endif
 
-/* Function start: 0x402320 */
+/* Function start: 0x45445A */
 unsigned int PumpWindowMessages(void)
 {
 #ifndef WC1_SDL
@@ -827,7 +827,7 @@ unsigned int PumpWindowMessages(void)
     return DAT_005a8a3c;
 }
 
-/* Function start: 0x402520 */
+/* Function start: 0x473CBA */
 unsigned int GetF1KeyLatch(void)
 {
     return DAT_004650ac;
@@ -835,7 +835,7 @@ unsigned int GetF1KeyLatch(void)
 
 #ifndef WC1_SDL
 
-/* Function start: 0x402530 */
+/* Function start: 0x454625 */
 LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                                 WPARAM wParam, LPARAM lParam)
 {
@@ -974,7 +974,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
 
 #endif
 
-/* Function start: 0x402A20 */
+/* Function start: 0x416690 */
 int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
                                   unsigned int *buttons, short joystick,
                                   unsigned int fallback)
@@ -1022,14 +1022,14 @@ int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
     return 1;
 }
 
-/* Function start: 0x402AC0 */
+/* Function start: WC2_UNMAPPED */
 short GetJoystickButtons(void)
 {
     return ((short)g_aJoystickInfo_005a8970[1].wButtons << 2) |
            (unsigned short)g_aJoystickInfo_005a8970[0].wButtons;
 }
 
-/* Function start: 0x402AE0 */
+/* Function start: 0x45536F */
 void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
                         short *yMin, short *yMax)
 {
@@ -1067,13 +1067,13 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
 #endif
 }
 
-/* Function start: 0x402B80 */
+/* Function start: 0x455427 */
 HINSTANCE GetApplicationInstance(void)
 {
     return DAT_005a8a40;
 }
 
-/* Function start: 0x402B90 */
+/* Function start: 0x45543C */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 HWND GetMainWindowHandle(void)
@@ -1081,7 +1081,7 @@ HWND GetMainWindowHandle(void)
     return DAT_005a89a0;
 }
 
-/* Function start: 0x402BA0 */
+/* Function start: 0x455451 */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 HDC GetMainWindowDeviceContext(void)
@@ -1089,7 +1089,7 @@ HDC GetMainWindowDeviceContext(void)
     return DAT_005a8a30;
 }
 
-/* Function start: 0x402BB0 */
+/* Function start: 0x455466 */
 void *AllocateGuardedMemory(unsigned int size)
 {
     GuardedAllocation *allocation;
@@ -1126,7 +1126,7 @@ void *AllocateGuardedMemory(unsigned int size)
            0x400;
 }
 
-/* Function start: 0x402CA0 */
+/* Function start: 0x455565 */
 void ReportHeapGuardCorruption(void *memory, int count, int overrun)
 {
     char text[0x80];
@@ -1141,7 +1141,7 @@ void ReportHeapGuardCorruption(void *memory, int count, int overrun)
     exit(0);
 }
 
-/* Function start: 0x402D40 */
+/* Function start: 0x462890 */
 void CheckAllGuardedAllocations(void)
 {
     GuardedAllocation *allocation = g_pGuardedAllocationHead_004650b0;
@@ -1206,7 +1206,7 @@ void CheckAllGuardedAllocations(void)
     }
 }
 
-/* Function start: 0x402DB0 */
+/* Function start: 0x4138A8 */
 void FreeGuardedAllocation(void *memory)
 {
     GuardedAllocation *allocation = g_pGuardedAllocationHead_004650b0;

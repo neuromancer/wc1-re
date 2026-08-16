@@ -1600,8 +1600,9 @@ Kilrathi Saga data in `data/full`; `make run-modern-dos` uses DOS data in
 
 ### Reconstructed Win32 build
 
-The default target builds `WC1.EXE` with the original MSVC 4.20 toolchain under
-wibo:
+On the `wc2-address-remap` branch, the default target builds `WC2.EXE` with
+MSVC 4.1 under wibo. The Makefile downloads and checksum-verifies the compiler
+package automatically; the former MSVC 4.20 submodule is not used:
 
 ```sh
 make -j
@@ -1612,10 +1613,10 @@ data, substitutes the reconstructed executable, downloads DREAMM when needed,
 and launches it in an emulated Windows 95 environment:
 
 ```sh
-make run WC1_ISO=/path/to/kilrathi-saga.iso
+make run WC2_ISO=/path/to/kilrathi-saga.iso
 ```
 
-Use `make debug WC1_ISO=/path/to/kilrathi-saga.iso` to start DREAMM's debugger.
+Use `make debug WC2_ISO=/path/to/kilrathi-saga.iso` to start DREAMM's debugger.
 
 ## Reconstruction workflow
 
@@ -1628,8 +1629,11 @@ make compare-func FUNC=perform_maneuver
 make verify
 ```
 
-These commands require the retail executable at `data/full/WC1.ORI.EXE` and the
-original-code exports under `code-full/`.
+`make report` stages the retail WC2 executable at `data/full/WC2.ORI.EXE`,
+exports WC2 code under `code-full/` when needed, and reports only functions
+with mapped WC2 labels. See [the initial remap report](reports/WC2_REMAP_REPORT.md)
+and the row-level [migration manifest](reports/wc2-address-remap.tsv) and
+[similarity review queue](reports/wc2-similarity.tsv).
 
 Contributor references are intentionally limited to:
 

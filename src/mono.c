@@ -8,13 +8,13 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x403500 */
+/* Function start: 0x45A04A */
 void __stdcall CloseDataFile(unsigned short fd)
 {
     g_nPacketError_00465460 = (short)_close(fd & 0xffff);
 }
 
-/* Function start: 0x403520 */
+/* Function start: 0x45A06C */
 short __stdcall WriteDataFileAtOffset(unsigned short fd, int offset,
                                       unsigned int length, const void *data)
 {
@@ -32,7 +32,7 @@ short __stdcall WriteDataFileAtOffset(unsigned short fd, int offset,
     return 1;
 }
 
-/* Function start: 0x4035C0 */
+/* Function start: 0x45A12D */
 short __stdcall CreateDataFile(const char *path)
 {
     unsigned short fd;
@@ -46,7 +46,7 @@ short __stdcall CreateDataFile(const char *path)
     return (short)fd;
 }
 
-/* Function start: 0x403610 */
+/* Function start: 0x45A19B */
 int __stdcall ReadDataFileAtOffset(unsigned short fd, int offset,
                                    unsigned int length, void *data)
 {
@@ -64,7 +64,7 @@ int __stdcall ReadDataFileAtOffset(unsigned short fd, int offset,
     return 1;
 }
 
-/* Function start: 0x4036B0 */
+/* Function start: 0x45A259 */
 int __stdcall SeekDataFile(unsigned short fd, int offset,
                            unsigned int origin)
 {
@@ -78,7 +78,7 @@ int __stdcall SeekDataFile(unsigned short fd, int offset,
     return position;
 }
 
-/* Function start: 0x403710 */
+/* Function start: 0x41687F */
 int MeasureScaledIntroTextWidth(const char *text, short scale)
 {
     short bounds[4];
@@ -107,7 +107,7 @@ int MeasureScaledIntroTextWidth(const char *text, short scale)
     return width;
 }
 
-/* Function start: 0x4037A0 */
+/* Function start: 0x4087FF */
 int DrawCenteredScaledIntroText(const char *text, short centreX,
                                 short baselineY, short scale)
 {
@@ -145,7 +145,7 @@ int DrawCenteredScaledIntroText(const char *text, short centreX,
     return 0;
 }
 
-/* Function start: 0x403890 */
+/* Function start: 0x42C0A2 */
 short GetLineLength(const char *text)
 {
     short width;
@@ -179,7 +179,7 @@ short GetLineLength(const char *text)
     return width;
 }
 
-/* Function start: 0x403920 */
+/* Function start: 0x42C0F1 */
 int print_subtitle(Viewport *viewport, short colour, const char *text)
 {
     const char *scan;
@@ -235,7 +235,7 @@ int print_subtitle(Viewport *viewport, short colour, const char *text)
     return 0;
 }
 
-/* Function start: 0x403A80 */
+/* Function start: 0x4207B0 */
 int advance_canned_sequence(short obj)
 {
     const short *command;
@@ -269,7 +269,7 @@ int advance_canned_sequence(short obj)
     return 0;
 }
 
-/* Function start: 0x403B70 */
+/* Function start: 0x438711 */
 unsigned int update_canned_sequence(short obj)
 {
     int velocity;
@@ -300,7 +300,7 @@ unsigned int update_canned_sequence(short obj)
     return 0;
 }
 
-/* Function start: 0x403C40 */
+/* Function start: 0x437760 */
 void __stdcall SplitGameClockTicks(unsigned char *parts)
 {
     int ticks = (int)GetGameClockTicks();
@@ -314,7 +314,7 @@ void __stdcall SplitGameClockTicks(unsigned char *parts)
     parts[3] = (unsigned char)(ticks % 24);
 }
 
-/* Function start: 0x403C90 */
+/* Function start: 0x4377F0 */
 void MonoDebug_install(void)
 {
     unsigned int version;
@@ -344,7 +344,7 @@ void MonoDebug_install(void)
     g_bMonoDebugInstalled_00475e70 = 1;
 }
 
-/* Function start: 0x403D60 */
+/* Function start: 0x4378D9 */
 void MonoDebug_remove(void)
 {
     if (g_bMonoDebugInstalled_00475e70 != 0) {
@@ -353,7 +353,7 @@ void MonoDebug_remove(void)
     }
 }
 
-/* Function start: 0x403DB0 */
+/* Function start: 0x42F0B3 */
 void SoundDebugPrintf(const char *fmt, ...)
 {
 #ifdef WC1_SDL
@@ -368,7 +368,7 @@ void SoundDebugPrintf(const char *fmt, ...)
     MonoDebug_print(DAT_005a8760);
 }
 
-/* Function start: 0x403DE0 */
+/* Function start: 0x437983 */
 void MonoDebug_print(const char *text)
 {
     if (g_bMonoDebugInstalled_00475e70 != 0) {
@@ -380,13 +380,13 @@ void MonoDebug_print(const char *text)
     }
 }
 
-/* Function start: 0x403E30 */
+/* Function start: 0x4379D4 */
 void ReadPerformanceCounter(LARGE_INTEGER *p)
 {
     QueryPerformanceCounter(p);
 }
 
-/* Function start: 0x403E40 */
+/* Function start: 0x40A27A */
 void __stdcall ResetStringBuilder(TextContext *context)
 {
     context->textCursor = context->text;

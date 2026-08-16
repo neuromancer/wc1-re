@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x42CDB0 */
+/* Function start: 0x457434 */
 unsigned int parse_view_script(void)
 {
     FixedVector vector;
@@ -137,7 +137,7 @@ unsigned int parse_view_script(void)
     return 0;
 }
 
-/* Function start: 0x42D1C0 */
+/* Function start: 0x4394A0 */
 unsigned int update_scripted_view(void)
 {
     short counter;
@@ -164,7 +164,7 @@ unsigned int update_scripted_view(void)
     return 0;
 }
 
-/* Function start: 0x42D230 */
+/* Function start: WC2_UNMAPPED */
 void initialize_scripted_view(const short *script)
 {
     g_bScriptedView_0046a8d4 = 1;
@@ -175,7 +175,7 @@ void initialize_scripted_view(const short *script)
     g_asObjectCollisionRadius_0059d710[61] = 100;
 }
 
-/* Function start: 0x42D270 */
+/* Function start: 0x45A2C0 */
 unsigned int InitializeFireworks(void)
 {
     int empty = -1;
@@ -188,7 +188,7 @@ unsigned int InitializeFireworks(void)
     return 0;
 }
 
-/* Function start: 0x42D2A0 */
+/* Function start: 0x45A300 */
 short TheEndFireWorks(Viewport *viewport, short count)
 {
     short index;
@@ -228,7 +228,7 @@ short TheEndFireWorks(Viewport *viewport, short count)
     return emptyCount;
 }
 
-/* Function start: 0x42D390 */
+/* Function start: 0x45A441 */
 unsigned int InitializeConstellationField(Viewport *viewport,
                                           short direction,
                                           short density)
@@ -277,7 +277,7 @@ unsigned int InitializeConstellationField(Viewport *viewport,
     return 0;
 }
 
-/* Function start: 0x42D500 */
+/* Function start: 0x45A634 */
 unsigned int DrawConstellationField(void)
 {
     ConstellationParticle *particle;
@@ -340,7 +340,7 @@ unsigned int DrawConstellationField(void)
     return 0;
 }
 
-/* Function start: 0x42D730 */
+/* Function start: 0x44F010 */
 short __stdcall OpenPacketSection(const char *filename, short section,
                                   PacketSectionHandle *handle)
 {
@@ -397,13 +397,13 @@ failed:
     return 0;
 }
 
-/* Function start: 0x42D870 */
+/* Function start: 0x44F1C7 */
 void __stdcall CloseDataFileByHandle(unsigned short *handle)
 {
     CloseDataFile(*handle);
 }
 
-/* Function start: 0x42D880 */
+/* Function start: 0x445AAC */
 void * __stdcall DecompressPacketSection(
     PacketSectionHandle *handle, void *destination, unsigned short flags,
     void *decompressionWorkspace)
@@ -523,7 +523,7 @@ initializeDecompressor:
     return packet;
 }
 
-/* Function start: 0x42DB70 */
+/* Function start: WC2_UNMAPPED */
 short GetTargetColourIndex(void)
 {
     short v = (short)DAT_0046b168;
@@ -533,7 +533,7 @@ short GetTargetColourIndex(void)
     return v;
 }
 
-/* Function start: 0x42DB90 */
+/* Function start: 0x43FAC0 */
 void show_target_disp(void)
 {
     short target;
@@ -637,7 +637,7 @@ void show_target_disp(void)
                           (short)(frame + 1));
 }
 
-/* Function start: 0x42DEA0 */
+/* Function start: 0x43FF40 */
 void DrawTargetRangeReadout(void)
 {
     short target;
@@ -700,7 +700,7 @@ draw_readout:
     }
 }
 
-/* Function start: 0x42E020 */
+/* Function start: 0x45CA50 */
 void LogDisplayMode(const char *mode)
 {
     SystemDebugPrintf("display_mode == '%s'\n", mode);
@@ -709,7 +709,7 @@ void LogDisplayMode(const char *mode)
     exit(1);
 }
 
-/* Function start: 0x42E050 */
+/* Function start: 0x45CA80 */
 short __stdcall CalcRectangleArea(const Viewport *viewport)
 {
     short height;
@@ -722,7 +722,7 @@ short __stdcall CalcRectangleArea(const Viewport *viewport)
     return (short)(height * width);
 }
 
-/* Function start: 0x42E090 */
+/* Function start: 0x45CAD2 */
 unsigned short __stdcall AllocateViewport(Viewport *viewport,
                                           short clearColour, short flags)
 {
@@ -771,7 +771,7 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
     return 1;
 }
 
-/* Function start: 0x42E1D0 */
+/* Function start: 0x46505E */
 void __stdcall AlignSpriteFrameToRectCorner(
     const ShortRect *rectangle, ShortPoint *position, short corner,
     unsigned char *shape, short frame)
@@ -822,19 +822,19 @@ void __stdcall AlignSpriteFrameToRectCorner(
     }
 }
 
-/* Function start: 0x42E320 */
+/* Function start: WC2_UNMAPPED */
 void FadeMusic(void)
 {
     SoundDebugPrintf("FadeMusic");
 }
 
-/* Function start: 0x42E330 */
+/* Function start: 0x42F100 */
 void SetMusicOn(short enabled)
 {
     SoundDebugPrintf("SetMusicOn %d", (int)enabled);
 }
 
-/* Function start: 0x42E350 */
+/* Function start: 0x452A26 */
 void StopMusic(short unused)
 {
     (void)unused;
@@ -844,7 +844,7 @@ void StopMusic(short unused)
     SoundDebugPrintf("");
 }
 
-/* Function start: 0x42E380 */
+/* Function start: 0x4641C5 */
 void SetMusBreakpt(int first, int second)
 {
     (void)first;
@@ -852,31 +852,31 @@ void SetMusBreakpt(int first, int second)
     SoundDebugPrintf("SetMusBreakpt");
 }
 
-/* Function start: 0x42E390 */
+/* Function start: WC2_UNMAPPED */
 void PaletteFadeHook(void)
 {
 }
 
-/* Function start: 0x42E3A0 */
+/* Function start: 0x452AAB */
 void FlushSoundEffect(void)
 {
     stop_all_sounds();
     SoundDebugPrintf("FlushSoundEffect");
 }
 
-/* Function start: 0x42E3C0 */
+/* Function start: WC2_UNMAPPED */
 void FlushSoundEffects(void)
 {
     stop_all_sounds();
     SoundDebugPrintf("FlushSoundEffects");
 }
 
-/* Function start: 0x42E3E0 */
+/* Function start: 0x452AF0 */
 void SceneLeaveHook(void)
 {
 }
 
-/* Function start: 0x42E3F0 */
+/* Function start: 0x452B03 */
 void SelectFlightMusicTrack(int track)
 {
     const char *streamName;
@@ -973,7 +973,7 @@ void SelectFlightMusicTrack(int track)
     }
 }
 
-/* Function start: 0x42E520 */
+/* Function start: WC2_UNMAPPED */
 int MapMusicTrackToStreamerCommand(int track)
 {
     switch (track) {
@@ -1064,7 +1064,7 @@ int MapMusicTrackToStreamerCommand(int track)
     }
 }
 
-/* Function start: 0x42E6F0 */
+/* Function start: WC2_UNMAPPED */
 void ProcessMusicScriptCommand(int track, int command, short enabled)
 {
     int streamerCommand;
@@ -1125,7 +1125,7 @@ void ProcessMusicScriptCommand(int track, int command, short enabled)
     SoundDebugPrintf("\n");
 }
 
-/* Function start: 0x42E880 */
+/* Function start: 0x452CF4 */
 unsigned int spacetrack(int track, int mode, short enabled)
 {
     if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
@@ -1133,14 +1133,14 @@ unsigned int spacetrack(int track, int mode, short enabled)
     return 1;
 }
 
-/* Function start: 0x42E8B0 */
+/* Function start: 0x452D32 */
 void StopMusicUnlessSuppressed(void)
 {
     if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
         StopMusic(0);
 }
 
-/* Function start: 0x42E8D0 */
+/* Function start: WC2_UNMAPPED */
 unsigned short GetMusicMode(void)
 {
     if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3 &&
@@ -1149,7 +1149,7 @@ unsigned short GetMusicMode(void)
     return 0;
 }
 
-/* Function start: 0x42E900 */
+/* Function start: 0x452DB0 */
 void wait_for_end_of_music(void)
 {
     if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3) {
@@ -1166,7 +1166,7 @@ void wait_for_end_of_music(void)
     }
 }
 
-/* Function start: 0x42E9E0 */
+/* Function start: 0x452E46 */
 void new_space_music_changes(short attacker, short victim)
 {
     enum Side side;
@@ -1209,7 +1209,7 @@ void new_space_music_changes(short attacker, short victim)
     }
 }
 
-/* Function start: 0x42EAD0 */
+/* Function start: 0x452F90 */
 int changetrack(void)
 {
     int track;
@@ -1241,7 +1241,7 @@ int changetrack(void)
     return track;
 }
 
-/* Function start: 0x42EB60 */
+/* Function start: 0x453085 */
 void gametrack(void)
 {
     int track;
@@ -1288,7 +1288,7 @@ void gametrack(void)
     }
 }
 
-/* Function start: 0x42ECB0 */
+/* Function start: 0x453240 */
 void servicetrack(void)
 {
     short object;
@@ -1353,7 +1353,7 @@ void servicetrack(void)
     }
 }
 
-/* Function start: 0x42EE80 */
+/* Function start: 0x42DE62 */
 void ResetSoundState(void)
 {
     FlushSoundEffects();
@@ -1361,47 +1361,47 @@ void ResetSoundState(void)
     DAT_005a7ec0 = 0;
 }
 
-/* Function start: 0x42EEA0 */
+/* Function start: 0x4732E0 */
 void ResetSoundStateForScene(void)
 {
     ResetSoundState();
     g_nFlightSoundEffectsEnabled_0046aa34 = 0;
 }
 
-/* Function start: 0x42EEB0 */
+/* Function start: WC2_UNMAPPED */
 void ResetSoundStateForFlight(void)
 {
     ResetSoundState();
     g_nFlightSoundEffectsEnabled_0046aa34 = 1;
 }
 
-/* Function start: 0x42EEE0 */
+/* Function start: WC2_UNMAPPED */
 void EnableMusicForScene(void)
 {
     g_nWaitForMusicEnabled_0046aa30 = 1;
     SetMusicOn(1);
 }
 
-/* Function start: 0x42EF00 */
+/* Function start: WC2_UNMAPPED */
 unsigned int SoundFxTick(void)
 {
     WriteDebugString("soundFX");
     return 0;
 }
 
-/* Function start: 0x42EF10 */
+/* Function start: 0x45357E */
 void FlushSoundEffectsAndLog(void)
 {
     FlushSoundEffects();
 }
 
-/* Function start: 0x42EF20 */
+/* Function start: 0x4535BB */
 void sound_effect(void)
 {
     WriteDebugString("sound_effect");
 }
 
-/* Function start: 0x42EF30 */
+/* Function start: 0x45373B */
 void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
 {
     FixedVector delta;

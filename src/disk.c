@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x41D120 */
+/* Function start: 0x40F0D2 */
 void ReportPacketLoadError(void *packet, short logicalFile,
                            short retry, short section,
                            const char *sourceTag)
@@ -40,7 +40,7 @@ void ReportPacketLoadError(void *packet, short logicalFile,
     }
 }
 
-/* Function start: 0x41D200 */
+/* Function start: WC2_UNMAPPED */
 void *LoadPacketIntoBuffer(short logicalFile, short section,
                            void *destination)
 {
@@ -54,7 +54,7 @@ void *LoadPacketIntoBuffer(short logicalFile, short section,
     return packet;
 }
 
-/* Function start: 0x41D250 */
+/* Function start: 0x40F49D */
 void *LoadPacketAllocated(short logicalFile, short section)
 {
     unsigned int packetSize;
@@ -79,7 +79,7 @@ void *LoadPacketAllocated(short logicalFile, short section)
     return packet;
 }
 
-/* Function start: 0x41D2E0 */
+/* Function start: 0x40F5B6 */
 void *FetchDiskPacketRetrying(short logicalFile, short section,
                               unsigned short flags)
 {
@@ -146,7 +146,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     return packet;
 }
 
-/* Function start: 0x41D510 */
+/* Function start: 0x42067F */
 unsigned int InitializeTextContextFromFont(TextContext *context,
                                            short fontIndex,
                                            unsigned char colour,
@@ -176,7 +176,7 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
     return 0;
 }
 
-/* Function start: 0x41D590 */
+/* Function start: 0x459082 */
 unsigned int ReleaseTextFont(short fontIndex)
 {
     int index;
@@ -193,7 +193,7 @@ unsigned int ReleaseTextFont(short fontIndex)
     return 0;
 }
 
-/* Function start: 0x41D5F0 */
+/* Function start: 0x40F96E */
 unsigned int DrawTextAt(TextContext *context, short x, short y,
                         const char *text, unsigned char alignment)
 {
@@ -212,7 +212,7 @@ unsigned int DrawTextAt(TextContext *context, short x, short y,
     return 0;
 }
 
-/* Function start: 0x41D650 */
+/* Function start: 0x410680 */
 unsigned int SortSignedByteValuesAscending(signed char *values,
                                            short count)
 {
@@ -242,7 +242,7 @@ unsigned int SortSignedByteValuesAscending(signed char *values,
     return 0;
 }
 
-/* Function start: 0x41D6C0 */
+/* Function start: 0x4342E8 */
 short OpenDiskDataFile(short logicalFile)
 {
     short file;
@@ -276,7 +276,7 @@ short OpenDiskDataFile(short logicalFile)
     return 0;
 }
 
-/* Function start: 0x41D760 */
+/* Function start: 0x437A44 */
 void __stdcall PromptInsertNumberedDisk(short logicalFile)
 {
     TextContext *savedTextContext;
@@ -385,13 +385,13 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
     g_pCurrentTextContext_0059af8c = savedTextContext;
 }
 
-/* Function start: 0x41DA00 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetZeroUnused(void)
 {
     return 0;
 }
 
-/* Function start: 0x41DA10 */
+/* Function start: 0x43D81F */
 short CheckEscaped(void)
 {
     InputEventState event;
@@ -416,7 +416,7 @@ short CheckEscaped(void)
     return escaped;
 }
 
-/* Function start: 0x41DAA0 */
+/* Function start: 0x40FA2C */
 short WaitForInputKey(void)
 {
     InputEventState event;
@@ -457,7 +457,7 @@ short WaitForInputKey(void)
     return key;
 }
 
-/* Function start: 0x41DBA0 */
+/* Function start: 0x409120 */
 void WaitForSceneAdvance(short duration, short unused)
 {
     InputEventState event;
@@ -500,7 +500,7 @@ void WaitForSceneAdvance(short duration, short unused)
     }
 }
 
-/* Function start: 0x41DC70 */
+/* Function start: 0x421E6D */
 void MoveMenuPointerFromKeyboard(InputEventState *event)
 {
     int delta;
@@ -568,7 +568,7 @@ clamp_pointer:
     }
 }
 
-/* Function start: 0x41DDF0 */
+/* Function start: 0x4345A1 */
 void EraseLastTextInputCharacter(void)
 {
     Viewport clearArea;
@@ -599,7 +599,7 @@ void EraseLastTextInputCharacter(void)
     }
 }
 
-/* Function start: 0x41DEB0 */
+/* Function start: 0x43456E */
 short WaitForStreamInputKey(void)
 {
     unsigned int saved = DAT_0046505c;
@@ -613,7 +613,7 @@ short WaitForStreamInputKey(void)
     return key;
 }
 
-/* Function start: 0x41DEE0 */
+/* Function start: 0x4103A6 */
 short initialize_object(short obj, enum ObjectType type, short owner)
 {
     if (obj != -1) {
@@ -624,7 +624,7 @@ short initialize_object(short obj, enum ObjectType type, short owner)
     return obj;
 }
 
-/* Function start: 0x41DF40 */
+/* Function start: 0x41040D */
 short borrow_dust(void)
 {
     short i = 0x22;
@@ -637,7 +637,7 @@ short borrow_dust(void)
     return -1;
 }
 
-/* Function start: 0x41DF70 */
+/* Function start: 0x4105BF */
 short new_object(enum ObjectType type, short owner)
 {
     short obj;
@@ -648,7 +648,7 @@ short new_object(enum ObjectType type, short owner)
     return initialize_object(obj, type, owner);
 }
 
-/* Function start: 0x41DFA0 */
+/* Function start: 0x41062D */
 short initialize_ship(enum ObjectType type, short owner)
 {
     short obj = get_ship_slot();
@@ -660,7 +660,7 @@ short initialize_ship(enum ObjectType type, short owner)
     return obj;
 }
 
-/* Function start: 0x41DFE0 */
+/* Function start: 0x452D66 */
 short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
 {
     enum ObjectClass selectedClass;
@@ -684,7 +684,7 @@ short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
     return selected;
 }
 
-/* Function start: 0x41E040 */
+/* Function start: WC2_UNMAPPED */
 unsigned int remove_weapon(short obj, short weapon)
 {
     short ship;
@@ -731,7 +731,7 @@ unsigned int remove_weapon(short obj, short weapon)
     return 0;
 }
 
-/* Function start: 0x41E120 */
+/* Function start: 0x410999 */
 void set_objects_data(short obj, enum ObjectType type, short owner)
 {
     ObjectTypeData *typeData;
@@ -847,7 +847,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     animate_shape(obj);
 }
 
-/* Function start: 0x41E400 */
+/* Function start: 0x411172 */
 unsigned int match_rotation_goal(short *rotation, short *goal,
                                  short totalError, short rate)
 {
@@ -888,7 +888,7 @@ unsigned int match_rotation_goal(short *rotation, short *goal,
     return 0;
 }
 
-/* Function start: 0x41E520 */
+/* Function start: 0x41133D */
 void rotate_object_to_goal(short obj)
 {
     ObjectTypeData *typeData;
@@ -924,7 +924,7 @@ void rotate_object_to_goal(short obj)
                         typeData->rollRate);
 }
 
-/* Function start: 0x41E710 */
+/* Function start: 0x4117AC */
 unsigned int celerate(short ship, int delta)
 {
     int maximumSpeed = (int)g_asShipMaximumSpeed_0059c440[ship] << 8;
@@ -939,7 +939,7 @@ unsigned int celerate(short ship, int delta)
     return 0;
 }
 
-/* Function start: 0x41E750 */
+/* Function start: 0x41181D */
 unsigned int approach_speed(short ship, int targetSpeed)
 {
     int delta;
@@ -956,7 +956,7 @@ unsigned int approach_speed(short ship, int targetSpeed)
     return 0;
 }
 
-/* Function start: 0x41E7C0 */
+/* Function start: 0x4728E0 */
 unsigned int steady_object(short ship)
 {
     g_anYawGoal_0059c310[ship] = 0;
@@ -965,14 +965,14 @@ unsigned int steady_object(short ship)
     return 0;
 }
 
-/* Function start: 0x41E7F0 */
+/* Function start: 0x4118F2 */
 short real_velocity(short obj)
 {
     return FixedToShortSaturating(
         Vector_magnitude(&g_aShipVelocity_0059c010[obj]));
 }
 
-/* Function start: 0x41E820 */
+/* Function start: 0x411922 */
 unsigned int fix_velocity(short obj)
 {
     ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
@@ -981,7 +981,7 @@ unsigned int fix_velocity(short obj)
     return 0;
 }
 
-/* Function start: 0x41E860 */
+/* Function start: 0x43CE8F */
 unsigned int sort_viable_target_list(void)
 {
     short nextOuter;

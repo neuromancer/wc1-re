@@ -16,7 +16,7 @@
 
 #define IX_THREAD_FILE "D:\\Rnd\\Prj\\ix\\Src\\Streamer\\thread.cpp"
 
-/* Function start: 0x00443DA6 */   /* source line(s) 196: File chunk without packet! */
+/* Function start: 0x46D3A6 */   /* source line(s) 196: File chunk without packet! */
 void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
 {
     unsigned int packagePosition;
@@ -143,7 +143,7 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
     }
 }
 
-/* Function start: 0x004441C6 */
+/* Function start: 0x46D7C6 */
 unsigned int ix_thread_service_streams(void)
 {
     int bytesUntilRefill;
@@ -185,7 +185,7 @@ unsigned int ix_thread_service_streams(void)
     return 0;
 }
 
-/* Function start: 0x00444316 */
+/* Function start: 0x46D916 */
 void ix_thread_advance_audio_chunk(void)
 {
     if (g_pStreamerAudioChunks_00597c88[
@@ -269,7 +269,7 @@ void ix_thread_advance_audio_chunk(void)
     }
 }
 
-/* Function start: 0x004445C9 */   /* source line(s) 394: failed to lock stream buffer */
+/* Function start: 0x46DBC9 */   /* source line(s) 394: failed to lock stream buffer */
 void ix_thread_lock_stream_buffer(void)
 {
     unsigned int remaining;
@@ -299,7 +299,7 @@ void ix_thread_lock_stream_buffer(void)
     ix_thread_advance_audio_chunk();
 }
 
-/* Function start: 0x004446A6 */
+/* Function start: 0x46DCA6 */
 unsigned int ix_thread_get_audio_chunk_size(void)
 {
     unsigned int fileOffset;
@@ -313,7 +313,7 @@ unsigned int ix_thread_get_audio_chunk_size(void)
     return 0;
 }
 
-/* Function start: 0x00444700 */
+/* Function start: 0x46DD00 */
 unsigned int IxStreamFile::ix_stream_file_read(void *newDestination,
                                                 unsigned int bytes)
 {
@@ -342,7 +342,7 @@ unsigned int IxStreamFile::ix_stream_file_read(void *newDestination,
     return bytes;
 }
 
-/* Function start: 0x00444809 */
+/* Function start: 0x46DE09 */
 void IxStreamFile::ix_stream_file_seek(unsigned int newPosition)
 {
     ix_stream_file_wait();
@@ -352,20 +352,20 @@ void IxStreamFile::ix_stream_file_seek(unsigned int newPosition)
         position = 0;
 }
 
-/* Function start: 0x0044485B */
+/* Function start: WC2_UNMAPPED */
 unsigned int IxStreamFile::ix_stream_file_tell(void)
 {
     ix_stream_file_wait();
     return position;
 }
 
-/* Function start: 0x0044487F */
+/* Function start: 0x46DE7F */
 unsigned int IxStreamFile::ix_stream_file_size(void)
 {
     return size;
 }
 
-/* Function start: 0x0044489B */
+/* Function start: 0x46DE9B */
 void IxStreamFile::ix_stream_file_wait(void)
 {
     if ((flags & IX_STREAM_FILE_READING) != 0) {
@@ -374,7 +374,7 @@ void IxStreamFile::ix_stream_file_wait(void)
     }
 }
 
-/* Function start: 0x004448D9 */
+/* Function start: 0x46B0F8 */
 int IxStreamFile::ix_stream_file_is_reading(void)
 {
     if ((flags & IX_STREAM_FILE_READING) != 0)

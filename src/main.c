@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x4274E0 */
+/* Function start: 0x45C558 */
 #ifdef WC1_SDL
 int Wc1GameMain(short argc, char **argv)
 #else
@@ -213,7 +213,7 @@ int main(short argc, char **argv)
     }
 }
 
-/* Function start: 0x4279D0 */
+/* Function start: 0x43D7F2 */
 unsigned int GetScreenUpdateFlag(void)
 {
     if (message_showing())
@@ -223,7 +223,7 @@ unsigned int GetScreenUpdateFlag(void)
     return 0;
 }
 
-/* Function start: 0x427A00 */
+/* Function start: 0x465CF6 */
 unsigned int initialize_view_buffer(void)
 {
     if (DAT_0046a004 != 0 && DAT_005a7510.pixels == 0) {
@@ -234,7 +234,7 @@ unsigned int initialize_view_buffer(void)
     return 0;
 }
 
-/* Function start: 0x427A40 */
+/* Function start: 0x465D55 */
 unsigned int dump_buffer_to_screen(void)
 {
     short bottom;
@@ -268,14 +268,14 @@ unsigned int dump_buffer_to_screen(void)
     return 0;
 }
 
-/* Function start: 0x427B00 */
+/* Function start: 0x465E88 */
 unsigned int clear_view_buffer(void)
 {
     ClearViewport(&DAT_005a7510, (unsigned char)DAT_004699d8);
     return 0;
 }
 
-/* Function start: 0x427B20 */
+/* Function start: 0x437CBF */
 unsigned int InitializeConversationViewport(void)
 {
     ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
@@ -291,7 +291,7 @@ unsigned int InitializeConversationViewport(void)
     return 0;
 }
 
-/* Function start: 0x427BA0 */
+/* Function start: 0x437D68 */
 unsigned int ResetScreenClipToFullHeight(void)
 {
     free_viewport(&DAT_005a76b0);
@@ -300,7 +300,7 @@ unsigned int ResetScreenClipToFullHeight(void)
     return 0;
 }
 
-/* Function start: 0x427BC0 */
+/* Function start: 0x437D92 */
 unsigned int InitializeConversationText(void)
 {
     g_stConversationTextViewport_005a7570 =
@@ -319,7 +319,7 @@ unsigned int InitializeConversationText(void)
     return 0;
 }
 
-/* Function start: 0x427C30 */
+/* Function start: 0x40963B */
 unsigned int RefreshMemoryStatusOverlay(void)
 {
     WaitForVerticalBlankThunk();
@@ -328,7 +328,7 @@ unsigned int RefreshMemoryStatusOverlay(void)
     return 0;
 }
 
-/* Function start: 0x427C50 */
+/* Function start: 0x465EE9 */
 unsigned int Update_3Space(void)
 {
     house_keep();
@@ -340,7 +340,7 @@ unsigned int Update_3Space(void)
     return 0;
 }
 
-/* Function start: 0x427C80 */
+/* Function start: 0x465F3A */
 unsigned int TriggerPlayerHitPaletteFlash(void)
 {
     if (DAT_0046c03c <= 3)
@@ -348,7 +348,7 @@ unsigned int TriggerPlayerHitPaletteFlash(void)
     return 0;
 }
 
-/* Function start: 0x427CA0 */
+/* Function start: 0x418288 */
 unsigned int FadeFlightPaletteEntry(short *entry)
 {
     if (entry[0] != 0) {
@@ -361,7 +361,7 @@ unsigned int FadeFlightPaletteEntry(short *entry)
     return 0;
 }
 
-/* Function start: 0x427CD0 */
+/* Function start: 0x465FA3 */
 unsigned int UpdateSpacePaletteFade(void)
 {
     if (DAT_005a7780[0] != 0) {
@@ -382,7 +382,7 @@ unsigned int UpdateSpacePaletteFade(void)
     return 0;
 }
 
-/* Function start: 0x427D40 */
+/* Function start: 0x4186A4 */
 unsigned int house_keep(void)
 {
     short palette;
@@ -414,7 +414,7 @@ unsigned int house_keep(void)
     return 0;
 }
 
-/* Function start: 0x427DF0 */
+/* Function start: 0x46428B */
 void init_player_input(void)
 {
     SetMousePosition(
@@ -425,7 +425,7 @@ void init_player_input(void)
     g_bPointerMovedByKeyboard_005a7d54 = 1;
 }
 
-/* Function start: 0x427E40 */
+/* Function start: WC2_UNMAPPED */
 void get_player_input(void)
 {
     int device;
@@ -459,7 +459,7 @@ void get_player_input(void)
     }
 }
 
-/* Function start: 0x427F20 */
+/* Function start: 0x4663A2 */
 /* The two volume-adjustment exits deliberately use bare returns.  Retail
  * preserves the value left in EAX by ShowOnScreenMessage on those paths. */
 int process_player_input(void)
@@ -662,7 +662,7 @@ int process_player_input(void)
     return handled;
 }
 
-/* Function start: 0x428480 */
+/* Function start: 0x466908 */
 unsigned int fire_players_lasers(void)
 {
     if (g_asObjectCounter_0059c330[0] == -1 &&
@@ -675,7 +675,7 @@ unsigned int fire_players_lasers(void)
     return 0;
 }
 
-/* Function start: 0x4284D0 */
+/* Function start: 0x46696E */
 unsigned int players_flight_dynamics(void)
 {
     ObjectTypeData *typeData;
@@ -708,7 +708,7 @@ unsigned int players_flight_dynamics(void)
     return 0;
 }
 
-/* Function start: 0x4285D0 */
+/* Function start: 0x466B02 */
 unsigned int player_input(void)
 {
     InputEventState event;
@@ -968,7 +968,7 @@ unsigned int player_input(void)
     return 0;
 }
 
-/* Function start: 0x428C90 */
+/* Function start: 0x465E25 */
 unsigned int SelectNextExternalViewObject(void)
 {
     short object;
@@ -985,7 +985,7 @@ unsigned int SelectNextExternalViewObject(void)
     return 0;
 }
 
-/* Function start: 0x428CD0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int SelectPreviousExternalViewObject(void)
 {
     short object;
@@ -1002,7 +1002,7 @@ unsigned int SelectPreviousExternalViewObject(void)
     return 0;
 }
 
-/* Function start: 0x428D10 */
+/* Function start: 0x45F200 */
 unsigned int HandleFleetOverviewInput(void)
 {
     signed char key;

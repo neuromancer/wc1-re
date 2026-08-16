@@ -65,7 +65,7 @@ typedef char MissionObjectiveDisk_size_must_be_0x40[
 typedef char MissionShipDisk_size_must_be_0x2a[
     sizeof(MissionShipDisk) == 0x2a ? 1 : -1];
 
-/* Function start: 0x404610 */
+/* Function start: 0x459BC8 */
 unsigned short __stdcall LoadPaletteTripletsFile(const char *path)
 {
     unsigned char *palette;
@@ -97,7 +97,7 @@ unsigned short __stdcall LoadPaletteTripletsFile(const char *path)
     return 0;
 }
 
-/* Function start: 0x4046A0 */
+/* Function start: 0x44EBCA */
 unsigned int ejection_sequence(void)
 {
     FixedVector viewOffset;
@@ -265,7 +265,7 @@ unsigned int ejection_sequence(void)
     return 0;
 }
 
-/* Function start: 0x404BE0 */
+/* Function start: 0x4251F2 */
 void stranded_sequence(void)
 {
     short frame;
@@ -301,7 +301,7 @@ void stranded_sequence(void)
     DAT_0059ab58 = 0;
 }
 
-/* Function start: 0x404CD0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int ParseFaceAnimation(char *text, short *commands)
 {
     char duration[8];
@@ -339,7 +339,7 @@ unsigned int ParseFaceAnimation(char *text, short *commands)
     return 0;
 }
 
-/* Function start: 0x404D70 */
+/* Function start: 0x42ABCE */
 unsigned int ParseMouthAnimation(char *text, short *commands)
 {
     char character;
@@ -376,7 +376,7 @@ unsigned int ParseMouthAnimation(char *text, short *commands)
     return 0;
 }
 
-/* Function start: 0x404E10 */
+/* Function start: 0x452930 */
 char *AddPCName(const char *text)
 {
     char formatted[12];
@@ -464,7 +464,7 @@ char *AddPCName(const char *text)
     }
 }
 
-/* Function start: 0x4050B0 */
+/* Function start: 0x4099A8 */
 unsigned int LoadFace(short face)
 {
     switch (g_nConversationCharacter_0046e580) {
@@ -530,7 +530,7 @@ unsigned int LoadFace(short face)
     return 0;
 }
 
-/* Function start: 0x405290 */
+/* Function start: WC2_UNMAPPED */
 unsigned int LongTalk(unsigned char *talker, char *text,
                       short *mouthCommands, short *faceCommands,
                       short duration)
@@ -623,7 +623,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
     return 0;
 }
 
-/* Function start: 0x4054B0 */
+/* Function start: 0x4098F2 */
 unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
                        short faceFrame)
 {
@@ -683,7 +683,7 @@ unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
     return 0;
 }
 
-/* Function start: 0x405660 */
+/* Function start: 0x4416D5 */
 unsigned int Briefing(short series, short mission)
 {
     DAT_0059ab58 = 0;
@@ -704,7 +704,7 @@ unsigned int Briefing(short series, short mission)
     return 0;
 }
 
-/* Function start: 0x4056F0 */
+/* Function start: 0x424D4D */
 unsigned int DeBriefing(short series, short mission)
 {
     short fullScore;
@@ -748,7 +748,7 @@ unsigned int DeBriefing(short series, short mission)
     return 0;
 }
 
-/* Function start: 0x405840 */
+/* Function start: 0x409B80 */
 unsigned int Office(void)
 {
     BriefingPacketHeader *header;
@@ -783,7 +783,7 @@ unsigned int Office(void)
     return 0;
 }
 
-/* Function start: 0x405910 */
+/* Function start: 0x40C1DA */
 unsigned int LoadBriefingData(short series, short mission)
 {
     BriefingPacketHeader *header;
@@ -815,7 +815,7 @@ unsigned int LoadBriefingData(short series, short mission)
     return 0;
 }
 
-/* Function start: 0x4059B0 */
+/* Function start: 0x4156A7 */
 unsigned int LoadMissionData(short series, short mission)
 {
     short logicalFile;
@@ -946,7 +946,7 @@ unsigned int LoadMissionData(short series, short mission)
     return 0;
 }
 
-/* Function start: 0x405CC0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int UpdateMap(char *text, short duration)
 {
     Viewport savedScreen;
@@ -974,7 +974,7 @@ unsigned int UpdateMap(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x405DE0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int CloseLook(unsigned char *shape, short shot,
                        short *animation, char *text, short duration,
                        short unused)

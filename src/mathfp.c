@@ -6,19 +6,19 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x434CD0 */
+/* Function start: 0x4618E0 */
 short RandomBelow(short n)
 {
     return (short)(rand() % (int)n);
 }
 
-/* Function start: 0x434CF0 */
+/* Function start: 0x4618FF */
 void __stdcall SeedRandomFromClock(void)
 {
     srand((unsigned int)time(0));
 }
 
-/* Function start: 0x434D20 */
+/* Function start: 0x461942 */
 short __stdcall RandomInRange(short lo, short hi)
 {
     short span = hi - lo;
@@ -28,7 +28,7 @@ short __stdcall RandomInRange(short lo, short hi)
     return lo + rand() % (span + 1);
 }
 
-/* Function start: 0x434D50 */
+/* Function start: 0x4619A1 */
 short RandomBelowOrEqual(short n)
 {
     if (n != -1 && n != 0)
@@ -36,7 +36,7 @@ short RandomBelowOrEqual(short n)
     return 0;
 }
 
-/* Function start: 0x434D80 */
+/* Function start: 0x4619E2 */
 long MultiplyFixed(int left, int right)
 {
     double leftValue = (double)left * (1.0 / 256.0);
@@ -45,7 +45,7 @@ long MultiplyFixed(int left, int right)
     return (long)(leftValue * rightValue * 256.0);
 }
 
-/* Function start: 0x434DB0 */
+/* Function start: 0x461A2D */
 long DivideFixed(int numerator, int denominator)
 {
     float numeratorValue = (float)((double)numerator * (1.0 / 256.0));
@@ -58,39 +58,39 @@ long DivideFixed(int numerator, int denominator)
     return (long)(numeratorValue / denominatorValue * 256.0);
 }
 
-/* Function start: 0x434E00 */
+/* Function start: 0x461A91 */
 long SinFixed(short degrees)
 {
     return (long)(sin((double)degrees * WC1_DEG2RAD) * 256.0);
 }
 
-/* Function start: 0x434E30 */
+/* Function start: 0x461AD6 */
 long CosFixed(short degrees)
 {
     return (long)(cos((double)degrees * WC1_DEG2RAD) * 256.0);
 }
 
-/* Function start: 0x434E60 */
+/* Function start: 0x461B1B */
 long ArcSin(int value)
 {
     return (long)(asin((double)value * 0.00390625f) *
                   57.295779513082323);
 }
 
-/* Function start: 0x434E90 */
+/* Function start: 0x461B6B */
 long ArcCos(int value)
 {
     return (long)(acos((double)value * 0.00390625f) *
                   57.295779513082323);
 }
 
-/* Function start: 0x434EC0 */
+/* Function start: 0x461BBB */
 long Magnitude(int value)
 {
     return (long)(sqrt((double)value * 0.00390625f) * 256.0);
 }
 
-/* Function start: 0x434EE0 */
+/* Function start: 0x45CCC5 */
 long PlanarMagnitude(int x, int y)
 {
     double scaledX = (double)x * (1.0 / 256.0);
@@ -101,7 +101,7 @@ long PlanarMagnitude(int x, int y)
     return (long)(sqrt(scaledX + scaledY) * 256.0);
 }
 
-/* Function start: 0x434F20 */
+/* Function start: 0x461C71 */
 long Vector_magnitude(const FixedVector *vector)
 {
     double x = (double)vector->x * (1.0 / 256.0);
@@ -114,32 +114,32 @@ long Vector_magnitude(const FixedVector *vector)
     return (long)(sqrt(x + y + z) * 256.0);
 }
 
-/* Function start: 0x434F70 */
+/* Function start: 0x488B20 */
 void __stdcall SetTextCursor(unsigned short a, unsigned short b)
 {
     g_pCurrentTextContext_0059af8c->cursorX = (short)a;
     g_pCurrentTextContext_0059af8c->cursorY = (short)b;
 }
 
-/* Function start: 0x434FA0 */
+/* Function start: 0x40F882 */
 void __stdcall SetTextContext(TextContext *context)
 {
     g_pCurrentTextContext_0059af8c = context;
 }
 
-/* Function start: 0x434FB0 */
+/* Function start: WC2_UNMAPPED */
 void WaitForVerticalBlankThunk(void)
 {
     DIBwaitForVerticalBlank();
 }
 
-/* Function start: 0x434FC0 */
+/* Function start: WC2_UNMAPPED */
 void *__stdcall IdentityHandle(void *v)
 {
     return v;
 }
 
-/* Function start: 0x434FD0 */
+/* Function start: 0x461D90 */
 /* __stdcall forwarder that passes its argument through; `ret 4` is callee
  * cleanup.  The Ghidra label claimed a no-argument call, which was wrong. */
 void __stdcall SetWholePaletteFromTriplets(unsigned char *palette)
@@ -147,24 +147,24 @@ void __stdcall SetWholePaletteFromTriplets(unsigned char *palette)
     DIBwholePaletteFromTriplets(palette);
 }
 
-/* Function start: 0x434FE0 */
+/* Function start: 0x461DA7 */
 unsigned short __stdcall ReadWord(unsigned short *p)
 {
     return *p;
 }
 
-/* Function start: 0x434FF0 */
+/* Function start: 0x461DBD */
 unsigned short __stdcall GetFontCharWidth(char i)
 {
     return g_pCurrentTextContext_0059af8c->font[4 + (int)i];
 }
 
-/* Function start: 0x435010 */
+/* Function start: 0x4641A0 */
 void ReleaseVideoResourcesHook(void)
 {
 }
 
-/* Function start: 0x435020 */
+/* Function start: 0x461DF0 */
 short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
                                     unsigned char *shape, short frame)
 {
@@ -195,7 +195,7 @@ short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
     return 0;
 }
 
-/* Function start: 0x435090 */
+/* Function start: 0x461E97 */
 short __stdcall IsPointInRect(short x, short y, const short *rect)
 {
     if (rect[0] <= x && x <= rect[2] &&
@@ -204,13 +204,13 @@ short __stdcall IsPointInRect(short x, short y, const short *rect)
     return 0;
 }
 
-/* Function start: 0x4350D0 */
+/* Function start: 0x461EFE */
 void __stdcall SplitPackedPoint(ShortPoint point, short *p)
 {
     IsPointInRect(point.x, point.y, p);
 }
 
-/* Function start: 0x4350F0 */
+/* Function start: 0x461F22 */
 void __stdcall DrawTextString(const char *text)
 {
     const char *cursor;
@@ -302,7 +302,7 @@ void __stdcall DrawTextString(const char *text)
     }
 }
 
-/* Function start: 0x435290 */
+/* Function start: 0x4621D5 */
 void __stdcall DrawTextCharacter(char character)
 {
     TextContext *context;
@@ -330,7 +330,7 @@ void __stdcall DrawTextCharacter(char character)
     }
 }
 
-/* Function start: 0x435310 */
+/* Function start: WC2_UNMAPPED */
 void __stdcall AppendTextCharacter(char character)
 {
     *g_pCurrentTextContext_0059af8c->textCursor = character;
@@ -338,7 +338,7 @@ void __stdcall AppendTextCharacter(char character)
     *g_pCurrentTextContext_0059af8c->textCursor = 0;
 }
 
-/* Function start: 0x435340 */
+/* Function start: 0x417124 */
 int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
 {
     unsigned char *run;
@@ -388,7 +388,7 @@ int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
     return size;
 }
 
-/* Function start: 0x4353F0 */
+/* Function start: WC2_UNMAPPED */
 void ResetTextCursor(void)
 {
     g_pCurrentTextContext_0059af8c->cursorX = 0;

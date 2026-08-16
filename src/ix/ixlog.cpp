@@ -26,7 +26,7 @@ char g_szLogBuf_005977d0[1024];
 /* Mono-monitor debug printer in the game core (C linkage). */
 extern "C" void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
 
-/* Function start: 0x4426A0 */
+/* Function start: 0x428BD4 */
 void ix_log_printf(const char *fmt, ...)
 {
     if (fmt != 0) {

@@ -7,7 +7,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x418080 */
+/* Function start: 0x453B30 */
 short __stdcall MeasureTextPixelWidthClamped(const char *text)
 {
     short width = 0;
@@ -24,7 +24,7 @@ short __stdcall MeasureTextPixelWidthClamped(const char *text)
     return width;
 }
 
-/* Function start: 0x4180C0 */
+/* Function start: 0x4389FE */
 int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
                                 short origin)
 {
@@ -54,13 +54,13 @@ int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
         handle->position = (unsigned int)(result - handle->dataOffset);
 }
 
-/* Function start: 0x418130 */
+/* Function start: WC2_UNMAPPED */
 unsigned short GetMusicDriverPresent(short mode)
 {
     return 1;
 }
 
-/* Function start: 0x418140 */
+/* Function start: 0x40ED9F */
 short __stdcall CollectActivePaletteIndices(Viewport *viewport,
                                              unsigned char *indices,
                                              short capacity)
@@ -88,7 +88,7 @@ short __stdcall CollectActivePaletteIndices(Viewport *viewport,
     return count;
 }
 
-/* Function start: 0x4181C0 */
+/* Function start: 0x428E5C */
 short get_ship_max_velocity(short obj)
 {
     short velocity = g_aObjectTypeData_00466458[
@@ -99,7 +99,7 @@ short get_ship_max_velocity(short obj)
     return velocity;
 }
 
-/* Function start: 0x418210 */
+/* Function start: 0x40A481 */
 short recalc_max_velocity(short ship)
 {
     short oldVelocity;
@@ -119,7 +119,7 @@ short recalc_max_velocity(short ship)
     return 0;
 }
 
-/* Function start: 0x418280 */
+/* Function start: WC2_UNMAPPED */
 void drain_fuel(short ship, short amount)
 {
     g_anShipFuel_0059b470[ship] -= (int)amount;
@@ -127,7 +127,7 @@ void drain_fuel(short ship, short amount)
         recalc_max_velocity(ship);
 }
 
-/* Function start: 0x4182B0 */
+/* Function start: WC2_UNMAPPED */
 void damage_ion_drive(short ship, short amount, short maximum)
 {
     volatile signed char *ionDriveDamage;
@@ -144,7 +144,7 @@ void damage_ion_drive(short ship, short amount, short maximum)
     recalc_max_velocity(ship);
 }
 
-/* Function start: 0x4182F0 */
+/* Function start: 0x40A5A0 */
 int GetShipAccelerationRate(short ship)
 {
     int shipIndex = (int)ship;
@@ -156,7 +156,7 @@ int GetShipAccelerationRate(short ship)
     return acceleration;
 }
 
-/* Function start: 0x418330 */
+/* Function start: 0x40A691 */
 void point_at(short obj, FixedVector point)
 {
     FixedVector direction;
@@ -167,13 +167,13 @@ void point_at(short obj, FixedVector point)
     fix_objects_ijk(obj);
 }
 
-/* Function start: 0x4183A0 */
+/* Function start: 0x40A6F7 */
 void look_at(short obj)
 {
     point_at(WC1_EYE_OBJECT, g_aShipPosition_0059c490[obj]);
 }
 
-/* Function start: 0x4183D0 */
+/* Function start: 0x40A725 */
 void position_relative(FixedVector *position, FixedVector direction,
                        short distance)
 {
@@ -188,7 +188,7 @@ void position_relative(FixedVector *position, FixedVector direction,
     }
 }
 
-/* Function start: 0x418420 */
+/* Function start: WC2_UNMAPPED */
 void position_relative_ijk(FixedVector *position, short obj,
                            short right, short up, short forward)
 {
@@ -198,7 +198,7 @@ void position_relative_ijk(FixedVector *position, short obj,
     position_relative(position, g_aShipForwardVector_0059bce0[obj], forward);
 }
 
-/* Function start: 0x4184C0 */
+/* Function start: 0x40A81B */
 short FixedToShortSaturating(int value)
 {
     if (value < -0x7fff00)
@@ -208,21 +208,21 @@ short FixedToShortSaturating(int value)
     return (short)(value >> 8);
 }
 
-/* Function start: 0x4184E0 */
+/* Function start: 0x40A867 */
 int MinInt(int a, int b)
 {
     if (a <= b) b = a;
     return b;
 }
 
-/* Function start: 0x4184F0 */
+/* Function start: 0x40A893 */
 int MaxInt(int a, int b)
 {
     if (b <= a) b = a;
     return b;
 }
 
-/* Function start: 0x418500 */
+/* Function start: 0x40A8BF */
 int AbsInt(int v)
 {
     if (v < 0)
@@ -230,7 +230,7 @@ int AbsInt(int v)
     return v;
 }
 
-/* Function start: 0x418510 */
+/* Function start: WC2_UNMAPPED */
 /* Exact Mac symbol: intfract_sign. No inbound reference is known in the
  * shipped executable; this routine is believed unreachable. */
 int intfract_sign(int sign, int magnitude)
@@ -243,7 +243,7 @@ int intfract_sign(int sign, int magnitude)
     return -result;
 }
 
-/* Function start: 0x418520 */
+/* Function start: WC2_UNMAPPED */
 unsigned short SignShort(short v)
 {
     if (v < 0)
@@ -251,7 +251,7 @@ unsigned short SignShort(short v)
     return (unsigned short)(0 < v);
 }
 
-/* Function start: 0x418540 */
+/* Function start: 0x40A8EB */
 unsigned int SignFixed(int v)
 {
     if (v < 0)
@@ -259,7 +259,7 @@ unsigned int SignFixed(int v)
     return v > 0 ? 0x100 : 0;
 }
 
-/* Function start: 0x418560 */
+/* Function start: 0x40A925 */
 /* Normalise a degree value into (-180, 180]. 0x168 == 360, 0xB4 == 180. */
 short WrapDegrees(short degrees)
 {
@@ -272,20 +272,20 @@ short WrapDegrees(short degrees)
     return v;
 }
 
-/* Function start: 0x418590 */
+/* Function start: 0x464072 */
 int equ_vector(const FixedVector *left, const FixedVector *right)
 {
     return left->x == right->x && left->y == right->y &&
            left->z == right->z;
 }
 
-/* Function start: 0x4185C0 */
+/* Function start: WC2_UNMAPPED */
 int IsPairEqualityDifferentFromFlag(const unsigned int *values)
 {
     return ((values[1] == values[0]) == values[2]) == 0;
 }
 
-/* Function start: 0x4185F0 */
+/* Function start: 0x40AA0B */
 void zero_vector(FixedVector *vector)
 {
     vector->z = 0;
@@ -293,7 +293,7 @@ void zero_vector(FixedVector *vector)
     vector->x = 0;
 }
 
-/* Function start: 0x418600 */
+/* Function start: 0x43951A */
 void negate_vector(FixedVector *vector)
 {
     vector->x = -vector->x;
@@ -301,7 +301,7 @@ void negate_vector(FixedVector *vector)
     vector->z = -vector->z;
 }
 
-/* Function start: 0x418620 */
+/* Function start: 0x40AA6A */
 void AddFixedVectors(const FixedVector *left, const FixedVector *right,
                      FixedVector *sum)
 {
@@ -310,7 +310,7 @@ void AddFixedVectors(const FixedVector *left, const FixedVector *right,
     sum->z = right->z + left->z;
 }
 
-/* Function start: 0x418650 */
+/* Function start: 0x40AAA8 */
 void SubtractFixedVectors(FixedVector *left, FixedVector *right,
                           FixedVector *difference)
 {
@@ -319,7 +319,7 @@ void SubtractFixedVectors(FixedVector *left, FixedVector *right,
     difference->z = left->z - right->z;
 }
 
-/* Function start: 0x418680 */
+/* Function start: 0x40AAE6 */
 void ComputeVectorDelta(FixedVector *from, FixedVector *to, FixedVector *delta)
 {
     delta->x = to->x - from->x;
@@ -327,7 +327,7 @@ void ComputeVectorDelta(FixedVector *from, FixedVector *to, FixedVector *delta)
     delta->z = to->z - from->z;
 }
 
-/* Function start: 0x4186B0 */
+/* Function start: 0x4118A9 */
 void ScaleFixedVector(FixedVector *vector, int scale, FixedVector *result)
 {
     result->x = MultiplyFixed(vector->x, scale);
@@ -335,7 +335,7 @@ void ScaleFixedVector(FixedVector *vector, int scale, FixedVector *result)
     result->z = MultiplyFixed(vector->z, scale);
 }
 
-/* Function start: 0x418700 */
+/* Function start: 0x40AB78 */
 void divide_vector(FixedVector *vector, int divisor, FixedVector *result)
 {
     result->x = DivideFixed(vector->x, divisor);
@@ -343,7 +343,7 @@ void divide_vector(FixedVector *vector, int divisor, FixedVector *result)
     result->z = DivideFixed(vector->z, divisor);
 }
 
-/* Function start: 0x418750 */
+/* Function start: WC2_UNMAPPED */
 short ChooseRandomSignedMagnitude(short minimum, short maximum,
                                   int allowNegative)
 {
@@ -354,7 +354,7 @@ short ChooseRandomSignedMagnitude(short minimum, short maximum,
     return value;
 }
 
-/* Function start: 0x418780 */
+/* Function start: 0x40AC24 */
 void MakeRandomVectorFixed(short minimum, short maximum, FixedVector *vector)
 {
 #ifdef WC1_SDL
@@ -368,13 +368,13 @@ void MakeRandomVectorFixed(short minimum, short maximum, FixedVector *vector)
 #endif
 }
 
-/* Function start: 0x4187E0 */
+/* Function start: 0x40AC88 */
 void FillFixedVectorWithRandomComponents(short limit, FixedVector *vector)
 {
     MakeRandomVectorFixed(0, limit, vector);
 }
 
-/* Function start: 0x418800 */
+/* Function start: 0x413A3B */
 void random_radial(const FixedVector *center, short radius,
                    FixedVector *position)
 {
@@ -385,7 +385,7 @@ void random_radial(const FixedVector *center, short radius,
     AddFixedVectors(center, &offset, position);
 }
 
-/* Function start: 0x418840 */
+/* Function start: WC2_UNMAPPED */
 void MakeRandomNormalizedVector(FixedVector *vector)
 {
     vector->x = (unsigned short)RandomInRange(0x40, 0xff);
@@ -394,7 +394,7 @@ void MakeRandomNormalizedVector(FixedVector *vector)
     NormalizeFixedVector(vector);
 }
 
-/* Function start: 0x418890 */
+/* Function start: 0x40ACE0 */
 void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical)
 {
@@ -414,7 +414,7 @@ void rectangular_to_spherical(const FixedVector *rectangular,
         DivideFixed(rectangular->y, spherical->radius)) - 90);
 }
 
-/* Function start: 0x418980 */
+/* Function start: WC2_UNMAPPED */
 void ConvertShortVectorToFixedVector(const ShortVector *source,
                                      FixedVector *destination)
 {
@@ -429,7 +429,7 @@ void ConvertShortVectorToFixedVector(const ShortVector *source,
 #endif
 }
 
-/* Function start: 0x4189B0 */
+/* Function start: WC2_UNMAPPED */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 void ConvertFixedVectorToShortVector(const FixedVector *source,
@@ -440,7 +440,7 @@ void ConvertFixedVectorToShortVector(const FixedVector *source,
     destination->z = (short)(source->z >> 8);
 }
 
-/* Function start: 0x4189E0 */
+/* Function start: 0x40AB24 */
 int dot_product(const FixedVector *left, const FixedVector *right)
 {
     return MultiplyFixed(left->x, right->x) +
@@ -448,7 +448,7 @@ int dot_product(const FixedVector *left, const FixedVector *right)
            MultiplyFixed(left->z, right->z);
 }
 
-/* Function start: 0x418A30 */
+/* Function start: 0x40AFFA */
 short vector_angle(FixedVector left, FixedVector right)
 {
     NormalizeFixedVector(&left);
@@ -456,7 +456,7 @@ short vector_angle(FixedVector left, FixedVector right)
     return (short)(((short)dot_product(&left, &right) * 100) / 0x100);
 }
 
-/* Function start: 0x418A80 */
+/* Function start: 0x40AE70 */
 void vector_cross_product(const FixedVector *left, const FixedVector *right,
                           FixedVector *product)
 {
@@ -468,7 +468,7 @@ void vector_cross_product(const FixedVector *left, const FixedVector *right,
                  MultiplyFixed(left->y, right->x);
 }
 
-/* Function start: 0x418B10 */
+/* Function start: 0x40AF18 */
 short NormalizeFixedVector(FixedVector *vector)
 {
     int magnitude = Vector_magnitude(vector);
@@ -482,7 +482,7 @@ short NormalizeFixedVector(FixedVector *vector)
     return 0;
 }
 
-/* Function start: 0x418B60 */
+/* Function start: 0x40ACA5 */
 int vector_length_in_dir(const FixedVector *vector,
                          const FixedVector *direction)
 {
@@ -494,7 +494,7 @@ int vector_length_in_dir(const FixedVector *vector,
         Vector_magnitude(vector), dot_product(direction, &normalized));
 }
 
-/* Function start: 0x418BB0 */
+/* Function start: 0x401FDD */
 void vector_component_in_dir(const FixedVector *vector,
                              const FixedVector *direction,
                              FixedVector *component)
@@ -505,7 +505,7 @@ void vector_component_in_dir(const FixedVector *vector,
     ScaleFixedVector((FixedVector *)direction, length, component);
 }
 
-/* Function start: 0x418BE0 */
+/* Function start: 0x40B17F */
 void rotate_about_i(short angle, FixedVector *j, FixedVector *k)
 {
     int old;
@@ -525,7 +525,7 @@ void rotate_about_i(short angle, FixedVector *j, FixedVector *k)
     k->z = MultiplyFixed(old, sine) + MultiplyFixed(k->z, cosine);
 }
 
-/* Function start: 0x418D00 */
+/* Function start: 0x40B02F */
 void rotate_about_j(short angle, FixedVector *i, FixedVector *k)
 {
     int cosine;
@@ -545,7 +545,7 @@ void rotate_about_j(short angle, FixedVector *i, FixedVector *k)
     k->z = MultiplyFixed(k->z, cosine) - MultiplyFixed(old, sine);
 }
 
-/* Function start: 0x418E40 */
+/* Function start: 0x40B2CF */
 void rotate_about_k(short angle, FixedVector *i, FixedVector *j)
 {
     int old;
@@ -565,7 +565,7 @@ void rotate_about_k(short angle, FixedVector *i, FixedVector *j)
     j->z = MultiplyFixed(old, sine) + MultiplyFixed(j->z, cosine);
 }
 
-/* Function start: 0x418F60 */
+/* Function start: 0x40B41F */
 void init_ijk(short obj)
 {
     g_aShipForwardVector_0059bce0[obj].z = 0x100;
@@ -582,7 +582,7 @@ void init_ijk(short obj)
     g_anObjectPitchRotation_0059b2a0[obj] = 0;
 }
 
-/* Function start: 0x418FD0 */
+/* Function start: 0x449FAE */
 void copy_frame(short source, short destination)
 {
     g_aShipRightVector_0059b6e0[destination] =
@@ -593,7 +593,7 @@ void copy_frame(short source, short destination)
         g_aShipForwardVector_0059bce0[source];
 }
 
-/* Function start: 0x419050 */
+/* Function start: 0x40B5DF */
 void fix_objects_ijk(short obj)
 {
     vector_cross_product(&g_aShipUpVector_0059b9e0[obj],
@@ -607,7 +607,7 @@ void fix_objects_ijk(short obj)
     NormalizeFixedVector(&g_aShipForwardVector_0059bce0[obj]);
 }
 
-/* Function start: 0x4190B0 */
+/* Function start: 0x418426 */
 void transform_to_objects_frame(const FixedVector *source,
                                 FixedVector *destination, short obj)
 {
@@ -616,7 +616,7 @@ void transform_to_objects_frame(const FixedVector *source,
     destination->z = dot_product(source, &g_aShipForwardVector_0059bce0[obj]);
 }
 
-/* Function start: 0x419110 */
+/* Function start: 0x40B747 */
 void alter_pitch(short angle, short obj)
 {
     rotate_about_i(angle, &g_aShipUpVector_0059b9e0[obj],
@@ -624,7 +624,7 @@ void alter_pitch(short angle, short obj)
     fix_objects_ijk(obj);
 }
 
-/* Function start: 0x419150 */
+/* Function start: 0x40B706 */
 void alter_yaw(short angle, short obj)
 {
     rotate_about_j(angle, &g_aShipRightVector_0059b6e0[obj],
@@ -632,7 +632,7 @@ void alter_yaw(short angle, short obj)
     fix_objects_ijk(obj);
 }
 
-/* Function start: 0x419190 */
+/* Function start: 0x40B788 */
 void alter_roll(short angle, short obj)
 {
     rotate_about_k(angle, &g_aShipRightVector_0059b6e0[obj],
@@ -640,7 +640,7 @@ void alter_roll(short angle, short obj)
     fix_objects_ijk(obj);
 }
 
-/* Function start: 0x4191D0 */
+/* Function start: WC2_UNMAPPED */
 short distance_between_points(const FixedVector *from,
                               const FixedVector *to)
 {
@@ -652,7 +652,7 @@ short distance_between_points(const FixedVector *from,
     return FixedToShortSaturating((int)magnitude);
 }
 
-/* Function start: 0x419210 */
+/* Function start: 0x40B7C9 */
 short distance_from_point(short obj, const FixedVector *point)
 {
     long magnitude;
@@ -664,14 +664,14 @@ short distance_from_point(short obj, const FixedVector *point)
            g_asObjectCollisionRadius_0059d710[obj];
 }
 
-/* Function start: 0x419260 */
+/* Function start: 0x40B85C */
 short distance_from_object(short obj, short other)
 {
     return distance_from_point(obj, &g_aShipPosition_0059c490[other]) -
            g_asObjectCollisionRadius_0059d710[other];
 }
 
-/* Function start: 0x419290 */
+/* Function start: 0x40B92F */
 void get_facing_range_from_point(short obj, const FixedVector *point)
 {
     g_nTargetRange_0059ce10 =
@@ -685,7 +685,7 @@ void get_facing_range_from_point(short obj, const FixedVector *point)
             &g_aShipForwardVector_0059bce0[obj]) * 100) >> 8);
 }
 
-/* Function start: 0x419310 */
+/* Function start: 0x40A3A0 */
 void get_facing_range_from_object(short obj, short other)
 {
     get_facing_range_from_point(obj, &g_aShipPosition_0059c490[other]);
@@ -697,19 +697,19 @@ void get_facing_range_from_object(short obj, short other)
             &g_aShipForwardVector_0059bce0[other]) * 100) >> 8);
 }
 
-/* Function start: 0x419390 */
+/* Function start: 0x40B898 */
 void ship_vs_point(short obj, const FixedVector *point)
 {
     get_facing_range_from_point(obj, point);
 }
 
-/* Function start: 0x4193B0 */
+/* Function start: 0x42A222 */
 void ship_vs_ship(short obj, short other)
 {
     get_facing_range_from_object(obj, other);
 }
 
-/* Function start: 0x4193D0 */
+/* Function start: 0x40B9B5 */
 short facing_to_object(short obj, FixedVector *point)
 {
     FixedVector direction;
@@ -723,7 +723,7 @@ short facing_to_object(short obj, FixedVector *point)
     return g_nFacingToTarget_0059d920;
 }
 
-/* Function start: 0x419440 */
+/* Function start: 0x40BA2E */
 short match_roll_orientation(short obj, short reference)
 {
     FixedVector roll;
@@ -741,7 +741,7 @@ short match_roll_orientation(short obj, short reference)
     return WrapDegrees(angle);
 }
 
-/* Function start: 0x4194D0 */
+/* Function start: 0x40BADB */
 int set_ship_rotation_goals(short obj, short turnRate,
                             const FixedVector *direction,
                             short pointingMode,
@@ -786,7 +786,7 @@ int set_ship_rotation_goals(short obj, short turnRate,
     return 0;
 }
 
-/* Function start: 0x419620 */
+/* Function start: 0x40BC6B */
 void point_ship(short obj, short turnRate, const FixedVector *direction)
 {
     set_ship_rotation_goals(obj, turnRate, direction,
@@ -795,7 +795,7 @@ void point_ship(short obj, short turnRate, const FixedVector *direction)
                             &g_anPitchGoal_0059d7a0[obj]);
 }
 
-/* Function start: 0x419660 */
+/* Function start: 0x40B805 */
 void point_ship_at_point(short obj, const FixedVector *point)
 {
     FixedVector direction;
@@ -805,13 +805,13 @@ void point_ship_at_point(short obj, const FixedVector *point)
     point_ship(obj, 0, &direction);
 }
 
-/* Function start: 0x4196A0 */
+/* Function start: 0x40BCE8 */
 void point_ship_at_object(short obj, short other)
 {
     point_ship_at_point(obj, &g_aShipPosition_0059c490[other]);
 }
 
-/* Function start: 0x4196C0 */
+/* Function start: 0x40BCA9 */
 void point_capital_ship_at_object(short obj, short other)
 {
     FixedVector direction;
@@ -821,7 +821,7 @@ void point_capital_ship_at_object(short obj, short other)
     point_ship(obj, 0, &direction);
 }
 
-/* Function start: 0x419710 */
+/* Function start: 0x41EBC1 */
 void point_ship_behind_object(short obj, short other)
 {
     FixedVector point = g_aShipPosition_0059c490[other];
@@ -832,7 +832,7 @@ void point_ship_behind_object(short obj, short other)
     point_ship_at_point(obj, &point);
 }
 
-/* Function start: 0x419790 */
+/* Function start: 0x40BE3A */
 void point_ship_below_object(short obj, short other)
 {
     FixedVector point = g_aShipPosition_0059c490[other];
@@ -843,7 +843,7 @@ void point_ship_below_object(short obj, short other)
     point_ship_at_point(obj, &point);
 }
 
-/* Function start: 0x419810 */
+/* Function start: 0x40BD58 */
 void point_perpendicular_to_point(short obj, const FixedVector *point)
 {
     point_ship_at_point(obj, point);
@@ -853,20 +853,20 @@ void point_perpendicular_to_point(short obj, const FixedVector *point)
         g_anYawGoal_0059c310[obj] -= 90;
 }
 
-/* Function start: 0x419850 */
+/* Function start: 0x40BEB0 */
 void point_perpendicular(short obj, short other)
 {
     point_perpendicular_to_point(obj, &g_aShipPosition_0059c490[other]);
 }
 
-/* Function start: 0x419870 */
+/* Function start: 0x462527 */
 void point_parallel(short obj, short other)
 {
     if (other != -1)
         point_ship(obj, 0, &g_aShipForwardVector_0059bce0[other]);
 }
 
-/* Function start: 0x4198A0 */
+/* Function start: 0x42A823 */
 void MoveObjectAlongDirection(short obj, const FixedVector *direction,
                               short distance)
 {
@@ -878,14 +878,14 @@ void MoveObjectAlongDirection(short obj, const FixedVector *direction,
                     &g_aShipPosition_0059c490[obj]);
 }
 
-/* Function start: 0x419950 */
+/* Function start: 0x40BF0B */
 void NormalizeAndScaleVector(FixedVector *vector, int scale)
 {
     NormalizeFixedVector(vector);
     ScaleFixedVector(vector, scale, vector);
 }
 
-/* Function start: 0x419970 */
+/* Function start: 0x40BF36 */
 void SetVectorFixedPoint(unsigned int *p, short v)
 {
 #ifdef WC1_SDL
@@ -895,7 +895,7 @@ void SetVectorFixedPoint(unsigned int *p, short v)
 #endif
 }
 
-/* Function start: 0x419990 */
+/* Function start: 0x40BF55 */
 unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
 {
     FixedVector delta;
@@ -904,7 +904,7 @@ unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
     return IsVectorWithinRange(&delta, range);
 }
 
-/* Function start: 0x4199C0 */
+/* Function start: 0x4569C8 */
 short check_for_collision(short obj)
 {
     FixedVector *objectPosition;
@@ -940,7 +940,7 @@ short check_for_collision(short obj)
     return -1;
 }
 
-/* Function start: 0x419A70 */
+/* Function start: 0x40B550 */
 void position_child(short parent, short hardpoint, FixedVector *position)
 {
     const ShortVector *offset = &g_aChildOffsets_004682f0[hardpoint];
@@ -959,14 +959,14 @@ void position_child(short parent, short hardpoint, FixedVector *position)
                   g_aShipPosition_0059c490[parent].z;
 }
 
-/* Function start: 0x419B40 */
+/* Function start: 0x425B9E */
 void child_object(short hardpoint, short child, short parent)
 {
     position_child(parent, hardpoint, &g_aShipPosition_0059c490[child]);
     g_acObjectOwner_0059ce20[child] = (signed char)parent;
 }
 
-/* Function start: 0x419B70 */
+/* Function start: 0x40C211 */
 short get_ship_slot(void)
 {
     short slot = 1;
@@ -982,7 +982,7 @@ short get_ship_slot(void)
     return -1;
 }
 
-/* Function start: 0x419BA0 */
+/* Function start: 0x40C266 */
 short find_vacant_3d_object(void)
 {
     short i = 10;
@@ -997,7 +997,7 @@ short find_vacant_3d_object(void)
     return -1;
 }
 
-/* Function start: 0x419BD0 */
+/* Function start: 0x40C2C9 */
 void remove_object(short obj)
 {
     short slot;
@@ -1030,7 +1030,7 @@ void remove_object(short obj)
     g_apObjectShape_0059d2f0[obj] = 0;
 }
 
-/* Function start: 0x419CC0 */
+/* Function start: 0x40C46C */
 void apply_force_to_objects_center(FixedVector *force, short obj)
 {
     FixedVector acceleration;
@@ -1043,7 +1043,7 @@ void apply_force_to_objects_center(FixedVector *force, short obj)
                     &g_aShipVelocity_0059c010[obj]);
 }
 
-/* Function start: 0x419D10 */
+/* Function start: 0x40C4D1 */
 void apply_force_to_object(FixedVector *point, FixedVector *force,
                            short obj)
 {
@@ -1102,7 +1102,7 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
         check_for_lost_control(obj);
 }
 
-/* Function start: 0x419F70 */
+/* Function start: 0x40C796 */
 void rotational_acceleration(FixedVector *point, FixedVector *force,
                              short obj)
 {
@@ -1142,7 +1142,7 @@ void rotational_acceleration(FixedVector *point, FixedVector *force,
         check_for_lost_control(obj);
 }
 
-/* Function start: 0x41A0F0 */
+/* Function start: 0x464055 */
 void ClampVectorTo30(short *p)
 {
     short v = *p;
@@ -1155,7 +1155,7 @@ void ClampVectorTo30(short *p)
         *p = v - 1;
 }
 
-/* Function start: 0x41A110 */
+/* Function start: 0x40C99F */
 void ClampTo30(short *p)
 {
     if (*p > 0x1e) {
@@ -1166,7 +1166,7 @@ void ClampTo30(short *p)
         *p = -0x1e;
 }
 
-/* Function start: 0x41A130 */
+/* Function start: 0x43CF5A */
 unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
 {
     FixedVector direction;
@@ -1193,7 +1193,7 @@ unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
     return visible;
 }
 
-/* Function start: 0x41A1D0 */
+/* Function start: 0x40C9DD */
 void transform_objects_to_your_view(void)
 {
     FixedVector direction;
@@ -1318,7 +1318,7 @@ void transform_objects_to_your_view(void)
     }
 }
 
-/* Function start: 0x41A530 */
+/* Function start: 0x40CEF6 */
 void set_background_objects_rotation(short obj, FixedVector *direction)
 {
     SphericalVector spherical;
@@ -1343,7 +1343,7 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
     g_asObjectScreenScale_0059c950[obj] = 0xff;
 }
 
-/* Function start: 0x41A610 */
+/* Function start: 0x40CFF8 */
 void get_right_shape(short obj, FixedVector *direction)
 {
     FixedVector right = { 0x100, 0, 0 };
@@ -1465,7 +1465,7 @@ void get_right_shape(short obj, FixedVector *direction)
     }
 }
 
-/* Function start: 0x41A9D0 */
+/* Function start: 0x4593D6 */
 short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
                                unsigned int topLeft,
                                unsigned int bottomRight,
@@ -1500,7 +1500,7 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
     return 1;
 }
 
-/* Function start: 0x41AAE0 */
+/* Function start: 0x42C725 */
 void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
                         unsigned char alignment,
                         const char *format, ...)
@@ -1523,7 +1523,7 @@ void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
     FormatTextBufferFromStart(text);
 }
 
-/* Function start: 0x41AB60 */
+/* Function start: 0x4266B1 */
 void RestoreModalTextPanel(ModalTextPanel *panel)
 {
     CopyViewportContents(&panel->savedBackground, &panel->viewport);
@@ -1531,7 +1531,7 @@ void RestoreModalTextPanel(ModalTextPanel *panel)
     g_pCurrentTextContext_0059af8c = panel->previousContext;
 }
 
-/* Function start: 0x41AB90 */
+/* Function start: 0x4595EF */
 short ShowModalTextPanel(short fontIndex, const char *format, ...)
 {
     unsigned int topLeft;
@@ -1583,7 +1583,7 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
     return 1;
 }
 
-/* Function start: 0x41AD10 */
+/* Function start: 0x45979B */
 void ReleaseModalTextPanel(void)
 {
     if (g_pModalTextPanel_00469448 != 0) {
@@ -1595,7 +1595,7 @@ void ReleaseModalTextPanel(void)
     }
 }
 
-/* Function start: 0x41AD50 */
+/* Function start: WC2_UNMAPPED */
 short AnySavedGames(void)
 {
     SaveGameRecord gameRecord;

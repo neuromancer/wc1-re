@@ -15,7 +15,7 @@ IxStream g_streams_00598138[8];
 int      g_nStreamCount_00598130;
 int      g_nStreamsAllocated_00598134;
 
-/* Function start: 0x4451B5 */   /* source lines 26, 27, 28, 32 */
+/* Function start: 0x48AA15 */   /* source lines 26, 27, 28, 32 */
 void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channels)
 {
     IxVoice *v;
@@ -67,7 +67,7 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
     g_streams_00598138[stream].flags |= IX_STREAM_ALLOCATED;
 }
 
-/* Function start: 0x44546B */   /* source lines 62, 63 */
+/* Function start: 0x48ACCB */   /* source lines 62, 63 */
 void ix_dsps_free(int stream)
 {
     if (stream < 0 || stream >= g_nStreamCount_00598130) {
@@ -88,7 +88,7 @@ void ix_dsps_free(int stream)
     g_streams_00598138[stream].flags &= ~IX_STREAM_ALLOCATED;
 }
 
-/* Function start: 0x445582 */   /* source lines 77, 78, 79 */
+/* Function start: 0x48ADE2 */   /* source lines 77, 78, 79 */
 void ix_dsps_prepare(int stream)
 {
     if (stream < 0 || stream >= g_nStreamCount_00598130) {
@@ -113,7 +113,7 @@ void ix_dsps_prepare(int stream)
         g_streams_00598138[stream].buffer;
 }
 
-/* Function start: 0x4456D8 */   /* source lines 87, 88, 89 */
+/* Function start: 0x48AF38 */   /* source lines 87, 88, 89 */
 void ix_dsps_play(int stream)
 {
     IxVoice *v;
@@ -140,7 +140,7 @@ void ix_dsps_play(int stream)
     g_streams_00598138[stream].flags |= IX_STREAM_PLAYING;
 }
 
-/* Function start: 0x445808 */   /* source lines 99, 100, 101 */
+/* Function start: 0x48B068 */   /* source lines 99, 100, 101 */
 void ix_dsps_stop(int stream)
 {
     if (stream < 0 || stream >= g_nStreamCount_00598130) {
@@ -162,7 +162,7 @@ void ix_dsps_stop(int stream)
     g_streams_00598138[stream].flags &= ~IX_STREAM_PLAYING;
 }
 
-/* Function start: 0x445906 */   /* source lines 109, 110 */
+/* Function start: 0x48B166 */   /* source lines 109, 110 */
 void ix_dsps_set_volume(int stream, unsigned short vol)
 {
     IxVoice *v;
@@ -186,7 +186,7 @@ void ix_dsps_set_volume(int stream, unsigned short vol)
     v->rightGainHi = (unsigned char)((unsigned short)v->volume >> 8);
 }
 
-/* Function start: 0x445A0B */   /* source line 122 */
+/* Function start: 0x48B26B */   /* source line 122 */
 unsigned int ix_dsps_get_flags(int stream)
 {
     if (stream < 0 || stream >= g_nStreamCount_00598130) {
@@ -197,7 +197,7 @@ unsigned int ix_dsps_get_flags(int stream)
     return g_streams_00598138[stream].flags;
 }
 
-/* Function start: 0x445A6F */   /* source lines 128, 129 */
+/* Function start: 0x48B2CF */   /* source lines 128, 129 */
 int ix_dsps_get_buffer_free(int stream)
 {
     int elapsed;
@@ -239,7 +239,7 @@ int ix_dsps_get_buffer_free(int stream)
     return g_streams_00598138[stream].size - g_streams_00598138[stream].pending;
 }
 
-/* Function start: 0x00445CDB */   /* source lines 169, 172, 173 */
+/* Function start: 0x48B53B */   /* source lines 169, 172, 173 */
 void ix_dsps_lock(int stream, unsigned int requestedBytes,
                   unsigned char **buffer, unsigned int *lockedBytes)
 {
@@ -270,7 +270,7 @@ void ix_dsps_lock(int stream, unsigned int requestedBytes,
     g_streams_00598138[stream].flags |= IX_STREAM_LOCKED;
 }
 
-/* Function start: 0x00445E3C */   /* source lines 188, 191, 192 */
+/* Function start: 0x48B69C */   /* source lines 188, 191, 192 */
 void ix_dsps_unlock(int stream)
 {
     IxStream *s;

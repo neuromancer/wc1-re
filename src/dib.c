@@ -7,7 +7,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x432050 */
+/* Function start: 0x45CE9A */
 void ReportSpaceFlightMaxFps(float adjustment)
 {
     g_fSpaceFlightFrameRate_0046b1cc += adjustment;
@@ -23,7 +23,7 @@ void ReportSpaceFlightMaxFps(float adjustment)
         SetSpaceFlightFrameTiming();
 }
 
-/* Function start: 0x4320E0 */
+/* Function start: 0x45CF3B */
 void SetSpaceFlightFrameTiming(void)
 {
     DAT_0046b1c8 = 1;
@@ -31,7 +31,7 @@ void SetSpaceFlightFrameTiming(void)
     DAT_0046b1bc = 0;
 }
 
-/* Function start: 0x432110 */
+/* Function start: 0x45CF7F */
 void SetCinematicFrameTiming(void)
 {
     DAT_0046b1c8 = 0;
@@ -39,7 +39,7 @@ void SetCinematicFrameTiming(void)
     DAT_0046b1bc = 0;
 }
 
-/* Function start: 0x432140 */
+/* Function start: 0x45D004 */
 void DIBerror(const char *tag, int hr)
 {
 #ifdef WC1_SDL
@@ -72,7 +72,7 @@ void DIBerror(const char *tag, int hr)
 #endif
 }
 
-/* Function start: 0x432230 */
+/* Function start: 0x45D11F */
 void DIBpositionWindow(void)
 {
 #ifdef WC1_SDL
@@ -89,7 +89,7 @@ void DIBpositionWindow(void)
 #endif
 }
 
-/* Function start: 0x4322B0 */
+/* Function start: 0x45D1BB */
 void DIBreInstall(void)
 {
 #ifndef WC1_SDL
@@ -111,7 +111,7 @@ void DIBreInstall(void)
     DIBslamReal();
 }
 
-/* Function start: 0x432310 */
+/* Function start: 0x45D23B */
 void DIBinstall(HWND window)
 {
 #ifndef WC1_SDL
@@ -162,7 +162,7 @@ void DIBinstall(HWND window)
     DAT_00486060 = 0;
 }
 
-/* Function start: 0x432410 */
+/* Function start: 0x45D3A1 */
 int DIBcascade(int mode, int *reportedResult)
 {
 #ifdef WC1_SDL
@@ -294,7 +294,7 @@ int DIBcascade(int mode, int *reportedResult)
 #endif
 }
 
-/* Function start: 0x432680 */
+/* Function start: 0x428A6D */
 /* Full teardown: destroy the DIB, release its surfaces, restore the display
  * mode and release DirectDraw itself. */
 void DIBunInstall(void)
@@ -311,7 +311,7 @@ void DIBunInstall(void)
 #endif
 }
 
-/* Function start: 0x4326E0 */
+/* Function start: 0x45D80F */
 void DIBmakeDIB(void)
 {
 #ifndef WC1_SDL
@@ -384,7 +384,7 @@ void DIBmakeDIB(void)
            DAT_0047664c * DAT_00476650);
 }
 
-/* Function start: 0x4328A0 */
+/* Function start: 0x45DA8C */
 void DIBdestroyDIB(void)
 {
 #ifndef WC1_SDL
@@ -424,13 +424,13 @@ void DIBdestroyDIB(void)
 #endif
 }
 
-/* Function start: 0x432960 */
+/* Function start: 0x45DB8C */
 void DIBslam(void)
 {
     DAT_00486518 = 1;
 }
 
-/* Function start: 0x432970 */
+/* Function start: 0x45DC33 */
 void DIBslamReal(void)
 {
 #ifndef WC1_SDL
@@ -599,7 +599,7 @@ void DIBslamReal(void)
 #endif
 }
 
-/* Function start: 0x432C60 */
+/* Function start: 0x45E060 */
 void DIBupdate(int left, int top, int right, int bottom)
 {
 #ifndef WC1_SDL
@@ -665,19 +665,19 @@ void DIBupdate(int left, int top, int right, int bottom)
 #endif
 }
 
-/* Function start: 0x432DE0 */
+/* Function start: 0x45E276 */
 unsigned char *GetDIBPixelBuffer(void)
 {
     return DAT_00476648;
 }
 
-/* Function start: 0x432E00 */
+/* Function start: WC2_UNMAPPED */
 HWND GetDIBWindowHandle(void)
 {
     return DAT_00486074;
 }
 
-/* Function start: 0x432E30 */
+/* Function start: WC2_UNMAPPED */
 void CachePaletteEntryFromWords(short index, unsigned short *rgb)
 {
     int cacheOffset = index * 4;
@@ -696,7 +696,7 @@ void CachePaletteEntryFromWords(short index, unsigned short *rgb)
     DAT_005a8a50[wordOffset + 2] = value;
 }
 
-/* Function start: 0x432EA0 */
+/* Function start: 0x45E37C */
 void DIBramPalette(void)
 {
 #ifdef WC1_SDL
@@ -724,7 +724,7 @@ void DIBramPalette(void)
 #endif
 }
 
-/* Function start: 0x432F10 */
+/* Function start: 0x45E46C */
 void DIBsetPalette(short index, short *rgb)
 {
     short value;
@@ -775,7 +775,7 @@ void DIBsetPalette(short index, short *rgb)
     }
 }
 
-/* Function start: 0x433020 */
+/* Function start: 0x45E9C5 */
 void GetPaletteEntryAsWords(short i, unsigned short *rgb)
 {
     extern unsigned char DAT_00486110[];
@@ -786,7 +786,7 @@ void GetPaletteEntryAsWords(short i, unsigned short *rgb)
     rgb[2] = DAT_00486110[k];
 }
 
-/* Function start: 0x433060 */
+/* Function start: 0x45E667 */
 void DIBwholePaletteFromTriplets(unsigned char *palette)
 {
 #ifndef WC1_SDL
@@ -840,7 +840,7 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
 #endif
 }
 
-/* Function start: 0x433120 */
+/* Function start: 0x45E816 */
 void DIBwholePaletteFromWords(unsigned short *palette)
 {
 #ifndef WC1_SDL
@@ -894,7 +894,7 @@ void DIBwholePaletteFromWords(unsigned short *palette)
 #endif
 }
 
-/* Function start: 0x4331E0 */
+/* Function start: WC2_UNMAPPED */
 void DIBwaitForVerticalBlank(void)
 {
 #ifdef WC1_SDL
@@ -907,7 +907,7 @@ void DIBwaitForVerticalBlank(void)
 
 #ifndef WC1_SDL
 
-/* Function start: 0x4331F0 */
+/* Function start: WC2_UNMAPPED */
 char *DirectDrawResultToText(int result)
 {
     switch (result) {

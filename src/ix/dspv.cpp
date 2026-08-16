@@ -21,7 +21,7 @@ unsigned short g_nMasterVolume_0047198c;
 short          g_anPanTable_00597d28[512];
 CRITICAL_SECTION g_csMixer_005985e8;
 
-/* Function start: 0x4467C5 */   /* source line 23 */
+/* Function start: 0x48A235 */   /* source line 23 */
 void ix_dspv_set_active(int voice)
 {
     if (voice < 0 || voice >= g_nVoiceCount_00598600) {
@@ -32,7 +32,7 @@ void ix_dspv_set_active(int voice)
     g_voices_005981a8[voice].flags |= IX_VOICE_ACTIVE;
 }
 
-/* Function start: 0x446829 */   /* source line 29 */
+/* Function start: 0x48A299 */   /* source line 29 */
 void ix_dspv_clear_active(int voice)
 {
     if (voice < 0 || voice >= g_nVoiceCount_00598600) {
@@ -43,7 +43,7 @@ void ix_dspv_clear_active(int voice)
     g_voices_005981a8[voice].flags &= ~IX_VOICE_ACTIVE;
 }
 
-/* Function start: 0x44688E */   /* source line 35 */
+/* Function start: 0x48A2FE */   /* source line 35 */
 void ix_dspv_clear_flag4(int voice)
 {
     if (voice < 0 || voice >= g_nVoiceCount_00598600) {
@@ -54,7 +54,7 @@ void ix_dspv_clear_flag4(int voice)
     g_voices_005981a8[voice].flags &= ~IX_VOICE_FLAG4;
 }
 
-/* Function start: 0x4468F2 */   /* source line 41 */
+/* Function start: 0x48A362 */   /* source line 41 */
 unsigned int ix_dspv_get_flags(int voice)
 {
     if (voice < 0 || voice >= g_nVoiceCount_00598600) {
@@ -65,7 +65,7 @@ unsigned int ix_dspv_get_flags(int voice)
     return g_voices_005981a8[voice].flags;
 }
 
-/* Function start: 0x446956 */
+/* Function start: 0x48A3C6 */
 /* No bounds check in the original -- callers are internal. */
 void ix_dspv_set_flag4(int voice, int on)
 {
@@ -75,7 +75,7 @@ void ix_dspv_set_flag4(int voice, int on)
         g_voices_005981a8[voice].flags &= ~IX_VOICE_FLAG4;
 }
 
-/* Function start: 0x44698F */   /* source line 55 */
+/* Function start: 0x48A3FF */   /* source line 55 */
 void ix_dspv_set_buffer(int voice, unsigned char *p, int len)
 {
     if (voice < 0 || voice >= g_nVoiceCount_00598600) {
@@ -92,7 +92,7 @@ void ix_dspv_set_buffer(int voice, unsigned char *p, int len)
     LeaveCriticalSection(&g_csMixer_005985e8);
 }
 
-/* Function start: 0x446A2B */   /* source line 69 */
+/* Function start: 0x48A49B */   /* source line 69 */
 int ix_dspv_get_position(int voice)
 {
     if (voice < 0 || voice >= g_nVoiceCount_00598600) {
@@ -105,7 +105,7 @@ int ix_dspv_get_position(int voice)
     return v->cursor - v->start;
 }
 
-/* Function start: 0x446AA0 */   /* source line 77 */
+/* Function start: 0x48A510 */   /* source line 77 */
 void ix_dspv_set_position(int voice, int off)
 {
     if (voice < 0 || voice >= g_nVoiceCount_00598600) {
@@ -118,7 +118,7 @@ void ix_dspv_set_position(int voice, int off)
     v->cursor = v->start + off;
 }
 
-/* Function start: 0x446B18 */   /* source line 85 */
+/* Function start: 0x48A588 */   /* source line 85 */
 void ix_dspv_set_volume(int voice, short vol)
 {
     if (voice < 0 || voice >= g_nVoiceCount_00598600) {
@@ -130,7 +130,7 @@ void ix_dspv_set_volume(int voice, short vol)
     ix_dspv_recalc_mix(voice);
 }
 
-/* Function start: 0x446B8C */   /* source line 93 */
+/* Function start: 0x48A5FC */   /* source line 93 */
 void ix_dspv_set_pan(int voice, unsigned short angle)
 {
     IxVoice *state;
@@ -160,7 +160,7 @@ void ix_dspv_set_pan(int voice, unsigned short angle)
     ix_dspv_recalc_mix(voice);
 }
 
-/* Function start: 0x446CB1 */   /* source line 131 */
+/* Function start: 0x48A721 */   /* source line 131 */
 void ix_dspv_set_frequency(int voice, unsigned int hz)
 {
     if (voice < 0 || g_nVoiceCount_00598600 <= voice) {
@@ -172,7 +172,7 @@ void ix_dspv_set_frequency(int voice, unsigned int hz)
         (short)(((int)(hz & 0xffff) << 8) / IX_MIXER_BASE_RATE);
 }
 
-/* Function start: 0x446D2C */   /* source lines 137, 138 */
+/* Function start: 0x48A79C */   /* source lines 137, 138 */
 void ix_dspv_set_bits_per_sample(int voice, int bps)
 {
     if (voice < 0 || voice >= g_nVoiceCount_00598600) {
@@ -191,7 +191,7 @@ void ix_dspv_set_bits_per_sample(int voice, int bps)
         g_voices_005981a8[voice].flags &= ~IX_VOICE_16BIT;
 }
 
-/* Function start: 0x446DF5 */   /* source lines 148, 149 */
+/* Function start: 0x48A865 */   /* source lines 148, 149 */
 void ix_dspv_set_channels(int voice, int channels)
 {
     if (voice < 0 || voice >= g_nVoiceCount_00598600) {
@@ -210,7 +210,7 @@ void ix_dspv_set_channels(int voice, int channels)
         g_voices_005981a8[voice].flags &= ~IX_VOICE_STEREO;
 }
 
-/* Function start: 0x446EBF */
+/* Function start: 0x48A92F */
 void ix_dspv_recalc_mix(int voice)
 {
     IxVoice *state;
@@ -231,7 +231,7 @@ void ix_dspv_recalc_mix(int voice)
     LeaveCriticalSection(&g_csMixer_005985e8);
 }
 
-/* Function start: 0x00446F74 */
+/* Function start: 0x48BFF8 */
 #ifdef WC1_SDL
 void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
 {

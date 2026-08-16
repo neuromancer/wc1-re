@@ -7,7 +7,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x425730 */
+/* Function start: WC2_UNMAPPED */
 unsigned int WaitForKeyExceptXOrF12(void)
 {
     int key;
@@ -23,7 +23,7 @@ unsigned int WaitForKeyExceptXOrF12(void)
     return 0;
 }
 
-/* Function start: 0x425770 */
+/* Function start: 0x407E40 */
 void ShowMeanwhileTransition(short scene, short variant)
 {
     int track;
@@ -65,7 +65,7 @@ void ShowMeanwhileTransition(short scene, short variant)
     ReleaseMusicTrackHook((short)track);
 }
 
-/* Function start: 0x4258D0 */
+/* Function start: WC2_UNMAPPED */
 void ApplyAnswerTextCipher(char *text, signed char direction)
 {
     short position;
@@ -78,7 +78,7 @@ void ApplyAnswerTextCipher(char *text, signed char direction)
     }
 }
 
-/* Function start: 0x425910 */
+/* Function start: 0x447300 */
 void LoadAnswerPromptAndResponse(short entry, char *prompt,
                                  char *response)
 {
@@ -112,7 +112,7 @@ void LoadAnswerPromptAndResponse(short entry, char *prompt,
     FreePacketAndClear((int *)&packet, 0);
 }
 
-/* Function start: 0x4259B0 */
+/* Function start: 0x40DA0C */
 /* No inbound reference is known in the shipped executable; this routine is
  * believed unreachable. */
 short PromptForAnswerText(short entry)
@@ -146,12 +146,12 @@ short PromptForAnswerText(short entry)
     return matches;
 }
 
-/* Function start: 0x425AF0 */
+/* Function start: 0x4333F8 */
 void SceneEnterHook(void)
 {
 }
 
-/* Function start: 0x425B00 */
+/* Function start: 0x40FCD0 */
 void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
                                short columns, short rows)
 {
@@ -159,7 +159,7 @@ void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
         new DebugOverlayConsole(module, window, columns, rows, 0);
 }
 
-/* Function start: 0x425B90 */
+/* Function start: 0x40FF00 */
 void DestroyGlobalDebugOverlayConsole(void)
 {
     delete g_pDebugOverlay_004763f0;
@@ -168,7 +168,7 @@ void DestroyGlobalDebugOverlayConsole(void)
 #endif
 }
 
-/* Function start: 0x425BB0 */
+/* Function start: 0x40FDAD */
 void SystemDebugPrintf(const char *format, ...)
 {
 #ifdef WC1_SDL
@@ -182,13 +182,13 @@ void SystemDebugPrintf(const char *format, ...)
 #endif
 }
 
-/* Function start: 0x425BC0 */
+/* Function start: 0x40FE23 */
 char PumpMessagesDuringWait(void)
 {
     return g_pDebugOverlay_004763f0->WaitForKey();
 }
 
-/* Function start: 0x425BD0 */
+/* Function start: 0x40FE3E */
 unsigned char TakeDebugStepFlag(void)
 {
     unsigned char value = (unsigned char)g_dwDebugOverlayKeyLatch_0046964c;
@@ -197,38 +197,38 @@ unsigned char TakeDebugStepFlag(void)
     return value;
 }
 
-/* Function start: 0x425BE0 */
+/* Function start: 0x40FE59 */
 void ResetDiskPromptTimer(void)
 {
 }
 
-/* Function start: 0x425BF0 */
+/* Function start: 0x40FE7E */
 /* No inbound reference is known in the shipped executable; this compiled-out
  * console compatibility routine is believed unreachable. */
 void SetConsoleTextColourHook(void)
 {
 }
 
-/* Function start: 0x425C00 */
+/* Function start: 0x40FEA3 */
 /* No inbound reference is known in the shipped executable; this compiled-out
  * console compatibility routine is believed unreachable. */
 void SetConsoleBackgroundColourHook(void)
 {
 }
 
-/* Function start: 0x425C10 */
+/* Function start: 0x40FEBE */
 void DiskPromptDrawHook(void)
 {
 }
 
-/* Function start: 0x425C20 */
+/* Function start: 0x40FED9 */
 void ClearDebugPauseFlags(void)
 {
     g_dwDebugOverlayKeyLatch_0046964c = 0;
     g_dwDebugOverlayKey_00469648 = 0;
 }
 
-/* Function start: 0x425C30 */
+/* Function start: 0x43E472 */
 unsigned short EraseTextContextBackground(TextContext *context)
 {
     unsigned short colour;
@@ -240,7 +240,7 @@ unsigned short EraseTextContextBackground(TextContext *context)
     return 0;
 }
 
-/* Function start: 0x425C60 */
+/* Function start: 0x42C43D */
 int DisplayTrainSimHighScoreTable(short phase)
 {
     short completed;
@@ -273,7 +273,7 @@ int DisplayTrainSimHighScoreTable(short phase)
     return completed;
 }
 
-/* Function start: 0x425D00 */
+/* Function start: 0x4595AA */
 int AnimateTrainSimTitle(void)
 {
     short completed;
@@ -318,7 +318,7 @@ int AnimateTrainSimTitle(void)
     return completed;
 }
 
-/* Function start: 0x425DF0 */
+/* Function start: 0x40FFC0 */
 unsigned char *GetHighScoreEntry(short i)
 {
     short k = (short)g_aHighScoreEntries_005a7c30[i].pilotIndex;
@@ -328,20 +328,20 @@ unsigned char *GetHighScoreEntry(short i)
     return (unsigned char *)g_aPilotRecords_005988d0[k].callsign;
 }
 
-/* Function start: 0x425E20 */
+/* Function start: WC2_UNMAPPED */
 unsigned int GetHighScoreValue(short i)
 {
     return g_aHighScoreEntries_005a7c30[i].score;
 }
 
-/* Function start: 0x425E30 */
+/* Function start: WC2_UNMAPPED */
 unsigned int SetHighScoreEntry(short i, unsigned char b, unsigned int v)
 {
     g_aHighScoreEntries_005a7c30[i].pilotIndex = (signed char)b;
     return g_aHighScoreEntries_005a7c30[i].score = v;
 }
 
-/* Function start: 0x425E50 */
+/* Function start: WC2_UNMAPPED */
 void SortTrainSimHighScores(void)
 {
     HighScoreEntry temporary;
@@ -367,7 +367,7 @@ void SortTrainSimHighScores(void)
     } while (outer < 6);
 }
 
-/* Function start: 0x425ED0 */
+/* Function start: WC2_UNMAPPED */
 short FindTrainSimHighScore(short pilot)
 {
     short index;
@@ -381,7 +381,7 @@ short FindTrainSimHighScore(short pilot)
     return index;
 }
 
-/* Function start: 0x425EF0 */
+/* Function start: WC2_UNMAPPED */
 short InsertTrainSimHighScore(short pilot, unsigned int score)
 {
     if (FindTrainSimHighScore(pilot) != -1)
@@ -393,7 +393,7 @@ short InsertTrainSimHighScore(short pilot, unsigned int score)
     return FindTrainSimHighScore(pilot);
 }
 
-/* Function start: 0x425F40 */
+/* Function start: 0x41565E */
 void InitializeTrainSimHighScores(void)
 {
     short slot;
@@ -423,13 +423,13 @@ void InitializeTrainSimHighScores(void)
     SetHighScoreEntry(5, 8, 0);
 }
 
-/* Function start: 0x425FE0 */
+/* Function start: WC2_UNMAPPED */
 short IsHighScoreSlotUsed(short i)
 {
     return g_aHighScoreEntries_005a7c30[i].pilotIndex != -1;
 }
 
-/* Function start: 0x426000 */
+/* Function start: WC2_UNMAPPED */
 void AddRandomTrainSimHighScores(void)
 {
     short remaining;
@@ -468,7 +468,7 @@ void AddRandomTrainSimHighScores(void)
     } while (remaining != 0);
 }
 
-/* Function start: 0x4260E0 */
+/* Function start: 0x439369 */
 void DrawTextInputCursor(char character)
 {
     unsigned char savedBackground =
@@ -485,7 +485,7 @@ void DrawTextInputCursor(char character)
     g_pCurrentTextContext_0059af8c->cursorX = savedX;
 }
 
-/* Function start: 0x426140 */
+/* Function start: 0x459348 */
 void ClearTextInputCharacter(char character)
 {
     Viewport clearArea;
@@ -504,7 +504,7 @@ void ClearTextInputCharacter(char character)
     EnterAllocationScope();
 }
 
-/* Function start: 0x4261D0 */
+/* Function start: 0x442421 */
 void ClearNextTextInputCharacter(char character)
 {
     short savedX;
@@ -515,7 +515,7 @@ void ClearNextTextInputCharacter(char character)
     g_pCurrentTextContext_0059af8c->cursorX = savedX;
 }
 
-/* Function start: 0x426200 */
+/* Function start: 0x4597E3 */
 short ReadTextInput(char *destination, short maximumLength,
                     volatile short mode)
 {
@@ -646,7 +646,7 @@ redraw:
     return 1;
 }
 
-/* Function start: 0x4265A0 */
+/* Function start: 0x42075F */
 void ReadRequiredPilotField(short x, short y, const char *label,
                             char *destination, short maximumLength)
 {
@@ -662,7 +662,7 @@ void ReadRequiredPilotField(short x, short y, const char *label,
     } while (ReadTextInput(destination, maximumLength, 0) == 0);
 }
 
-/* Function start: 0x426600 */
+/* Function start: 0x4348C3 */
 void PromptForPilotField(short x, short y, const char *label,
                          char *destination, short maximumLength,
                          const char *defaultText)
@@ -676,7 +676,7 @@ void PromptForPilotField(short x, short y, const char *label,
     } while (ReadTextInput(destination, maximumLength, 0) == 0);
 }
 
-/* Function start: 0x426660 */
+/* Function start: 0x4347D6 */
 void InitializeTrainSimTextPanel(void)
 {
     g_stTrainSimPanelViewport_00469da8 = DAT_005a6ba0;
@@ -694,7 +694,7 @@ void InitializeTrainSimTextPanel(void)
     EraseTextContextBackground(&g_stTrainSimTextContext_005a7bd0);
 }
 
-/* Function start: 0x426700 */
+/* Function start: 0x42EBD0 */
 void ShowTrainSimTextMessage(const char *message)
 {
     SetTextCursor(
@@ -707,7 +707,7 @@ void ShowTrainSimTextMessage(const char *message)
     DIBslamReal();
 }
 
-/* Function start: 0x426750 */
+/* Function start: 0x458532 */
 void EnterPilotNameAndCallsign(void)
 {
     unsigned char *backdrop;
@@ -735,7 +735,7 @@ void EnterPilotNameAndCallsign(void)
     ReleasePacketHandle(backdrop);
 }
 
-/* Function start: 0x426820 */
+/* Function start: WC2_UNMAPPED */
 void UpdateTrainSimHighScores(int score)
 {
     short slot;
@@ -769,7 +769,7 @@ void UpdateTrainSimHighScores(int score)
     SetEventManagerPump(PollMenuInputDevices);
 }
 
-/* Function start: 0x4268E0 */
+/* Function start: 0x436A8F */
 void ShowTrainSimHighScores(void)
 {
     unsigned char *backdrop;
@@ -881,7 +881,7 @@ void ShowTrainSimHighScores(void)
     ReleasePacketHandle(backdrop);
 }
 
-/* Function start: 0x426C50 */
+/* Function start: WC2_UNMAPPED */
 unsigned char *LoadTrainSimOpponentShape(int opponent)
 {
     g_cObjectResourceLogicalFile_005a86b0 =
@@ -890,7 +890,7 @@ unsigned char *LoadTrainSimOpponentShape(int opponent)
         (short)g_cObjectResourceLogicalFile_005a86b0, 1, 0);
 }
 
-/* Function start: 0x426C70 */
+/* Function start: 0x4353D4 */
 short SelectTrainSimMission(short *mission)
 {
     InputEventState event;

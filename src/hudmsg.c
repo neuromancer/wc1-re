@@ -8,7 +8,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x428E70 */
+/* Function start: 0x464E1E */
 /* Message dwell time: grows with text length, scaled by the speed setting. */
 short MeasureMessageWidth(const char *text)
 {
@@ -16,7 +16,7 @@ short MeasureMessageWidth(const char *text)
                    ((char)g_bMessageSpeed_0046af68 + 1));
 }
 
-/* Function start: 0x428EA0 */
+/* Function start: 0x418ECD */
 void WaitForKeyAcknowledge(int mode)
 {
     int acknowledged;
@@ -49,7 +49,7 @@ void WaitForKeyAcknowledge(int mode)
     FlushInputEvents();
 }
 
-/* Function start: 0x428F20 */
+/* Function start: 0x437C2E */
 void ShowModalMessage(const char *format, ...)
 {
     char text[52];
@@ -72,14 +72,14 @@ void ShowModalMessage(const char *format, ...)
     WaitForKeyAcknowledge(0);
 }
 
-/* Function start: 0x428F80 */
+/* Function start: 0x437C96 */
 void ReportOutOfMemoryAndExit(const char *resource)
 {
     ShowModalMessage("ERROR: Out of memory for %s", resource);
     FatalErrorAndExit("You do not have enough memory to run Wing Commander.");
 }
 
-/* Function start: 0x428FA0 */
+/* Function start: 0x437DFA */
 void ShowOnScreenMessage(int flags, short duration,
                          const char *format, ...)
 {
@@ -127,7 +127,7 @@ void ShowOnScreenMessage(int flags, short duration,
         SetHudMessageText("", DAT_004699ac, 2);
 }
 
-/* Function start: 0x4290A0 */
+/* Function start: 0x437F2F */
 void ShowGamePausedBanner(short showBanner)
 {
     if (showBanner != 0) {
@@ -137,14 +137,14 @@ void ShowGamePausedBanner(short showBanner)
     WaitForKeyAcknowledge(1);
 }
 
-/* Function start: 0x4290D0 */
+/* Function start: 0x437F77 */
 void ShowVersionBanner(void)
 {
     ShowOnScreenMessage(1, 9999, "WING COMMANDER VER. %s",
                         g_pGameVersion_004693b4);
 }
 
-/* Function start: 0x4290F0 */
+/* Function start: 0x437F9A */
 void SetMessageDisplaySpeed(void)
 {
     g_bMessageSpeed_0046af68 =
@@ -153,7 +153,7 @@ void SetMessageDisplaySpeed(void)
                         (signed char)g_bMessageSpeed_0046af68 + 1);
 }
 
-/* Function start: 0x429120 */
+/* Function start: 0x437FD3 */
 void ReportFramesSkipped(short adjustment)
 {
     g_nFrameSkip_00469fb8 = MinShort(
@@ -162,7 +162,7 @@ void ReportFramesSkipped(short adjustment)
                         g_nFrameSkip_00469fb8 - 1);
 }
 
-/* Function start: 0x429160 */
+/* Function start: 0x46733D */
 int HandleSpaceFlightControls(void)
 {
     int notRepeated;
@@ -601,7 +601,7 @@ primary_controls_complete:
     return 0;
 }
 
-/* Function start: 0x429DD0 */
+/* Function start: 0x4690FF */
 unsigned int Draw_3Space_Frame(void)
 {
     UpdateSpacePaletteFade();
@@ -628,7 +628,7 @@ unsigned int Draw_3Space_Frame(void)
     return 1;
 }
 
-/* Function start: 0x429E30 */
+/* Function start: 0x424E8C */
 void GetArcadeBonus(void)
 {
     g_nArcadeWaveBonus_005a7c50 =
@@ -638,14 +638,14 @@ void GetArcadeBonus(void)
           (g_nArcadeWave_00469e34 * 5 + 5) * 2) * 50) * 2;
 }
 
-/* Function start: 0x429E70 */
+/* Function start: WC2_UNMAPPED */
 void FigureArcadeTime(void)
 {
     g_nArcadeTimeRemaining_005a7c2c =
         (short)((g_nArcadeWave_00469e34 + 6) * 400);
 }
 
-/* Function start: 0x429E90 */
+/* Function start: 0x434EBC */
 void DrawArcadeScorePanel(short x, short y)
 {
     char score[20];
@@ -656,7 +656,7 @@ void DrawArcadeScorePanel(short x, short y)
                       g_nArcadeTimeRemaining_005a7c2c, x + 0xbe);
 }
 
-/* Function start: 0x429EE0 */
+/* Function start: 0x435064 */
 void UpdateArcadeScoreDisplay(void)
 {
     char bonus[20];
@@ -689,7 +689,7 @@ void UpdateArcadeScoreDisplay(void)
     }
 }
 
-/* Function start: 0x429FC0 */
+/* Function start: 0x46903F */
 unsigned int RenderSpaceViewFrame(void)
 {
     if (Draw_3Space_Frame() == 0)
@@ -723,7 +723,7 @@ unsigned int RenderSpaceViewFrame(void)
     return 1;
 }
 
-/* Function start: 0x42A0C0 */
+/* Function start: 0x401A10 */
 unsigned int RefreshCockpitStatus(void)
 {
     Update_3Space();
@@ -732,7 +732,7 @@ unsigned int RefreshCockpitStatus(void)
     return Draw_3Space_Frame();
 }
 
-/* Function start: 0x42A0E0 */
+/* Function start: 0x469143 */
 short GetShipDistanceToNavPoint(short ship, MissionNavPoint *navPoint)
 {
     FixedVector delta;
@@ -742,7 +742,7 @@ short GetShipDistanceToNavPoint(short ship, MissionNavPoint *navPoint)
     return FixedToShortSaturating(Vector_magnitude(&delta));
 }
 
-/* Function start: 0x42A120 */
+/* Function start: 0x46918D */
 short FindNearestNavPoint(short ship)
 {
     short navPointIndex = 0;
@@ -759,7 +759,7 @@ short FindNearestNavPoint(short ship)
     return g_nCurrentNavPoint_0059df60;
 }
 
-/* Function start: 0x42A170 */
+/* Function start: 0x469223 */
 unsigned int ReleaseStaleNavTarget(void)
 {
     short v = FindNearestNavPoint(0);
@@ -769,7 +769,7 @@ unsigned int ReleaseStaleNavTarget(void)
     return 0;
 }
 
-/* Function start: 0x42A190 */
+/* Function start: 0x46925E */
 int RunSpaceFlight(short entryNavPoint)
 {
     Viewport *savedViewport;
@@ -899,7 +899,7 @@ int RunSpaceFlight(short entryNavPoint)
     return g_nArcadeState_00469fb0;
 }
 
-/* Function start: 0x42A520 */
+/* Function start: 0x4695FD */
 int calculate_damage_level(void)
 {
     ObjectTypeData *typeData;
@@ -933,7 +933,7 @@ int calculate_damage_level(void)
     return 3;
 }
 
-/* Function start: 0x42A610 */
+/* Function start: 0x419A40 */
 void UpdateTrainSimMenuCursor(void)
 {
     short mouseX;
@@ -955,13 +955,13 @@ void UpdateTrainSimMenuCursor(void)
     SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
 }
 
-/* Function start: 0x42A670 */
+/* Function start: 0x452A00 */
 void ResetMouseCursorFrame(void)
 {
     SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, 0);
 }
 
-/* Function start: 0x42A680 */
+/* Function start: 0x440F01 */
 void UpdateRoomMenuCursor(void)
 {
     short mouseX;
@@ -993,7 +993,7 @@ void UpdateRoomMenuCursor(void)
     SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
 }
 
-/* Function start: 0x42A700 */
+/* Function start: 0x453820 */
 void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
                                            unsigned short colour,
                                            short enabled)
@@ -1058,7 +1058,7 @@ void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
     DIBslamReal();
 }
 
-/* Function start: 0x42A8F0 */
+/* Function start: 0x44CE0A */
 short find_objective(int type, short index)
 {
     short objective;
@@ -1076,7 +1076,7 @@ short find_objective(int type, short index)
     return -1;
 }
 
-/* Function start: 0x42A950 */
+/* Function start: 0x424AEE */
 void arrive_from_warp(short obj)
 {
     short objective = find_objective(0, g_nCurrentNavPoint_0059df60);
@@ -1099,7 +1099,7 @@ void arrive_from_warp(short obj)
         reset_mission_type(obj, MISSION_TYPE_PATROL);
 }
 
-/* Function start: 0x42AA10 */
+/* Function start: 0x424C05 */
 unsigned int unwarp(short obj)
 {
     short effect;
@@ -1121,7 +1121,7 @@ unsigned int unwarp(short obj)
     return 0;
 }
 
-/* Function start: 0x42AAF0 */
+/* Function start: 0x45924D */
 unsigned int warp(short obj)
 {
     short effect;
@@ -1143,7 +1143,7 @@ unsigned int warp(short obj)
     return 0;
 }
 
-/* Function start: 0x42ABD0 */
+/* Function start: WC2_UNMAPPED */
 int drop_player_mine(short obj)
 {
     short weapon;
@@ -1170,7 +1170,7 @@ int drop_player_mine(short obj)
     return -1;
 }
 
-/* Function start: 0x42AC50 */
+/* Function start: WC2_UNMAPPED */
 unsigned int personality_killed(short personality)
 {
     if (personality < 8) {
@@ -1187,7 +1187,7 @@ unsigned int personality_killed(short personality)
     return 0;
 }
 
-/* Function start: 0x42ACC0 */
+/* Function start: 0x440490 */
 void clean_up_cockpit(void)
 {
     short wingman = g_nYourWingman_0046c04c;
@@ -1202,7 +1202,7 @@ void clean_up_cockpit(void)
     ClearHudGunReadouts();
 }
 
-/* Function start: 0x42AD00 */
+/* Function start: WC2_UNMAPPED */
 short find_next_gun(short obj, enum ObjectType currentGun)
 {
     unsigned char *loadout = g_aShipWeapons_0059cab0[obj];
@@ -1236,7 +1236,7 @@ short find_next_gun(short obj, enum ObjectType currentGun)
     return firstGun;
 }
 
-/* Function start: 0x42ADA0 */
+/* Function start: WC2_UNMAPPED */
 int select_guns(short obj, short selectedGun)
 {
     short weaponCount;
@@ -1267,7 +1267,7 @@ int select_guns(short obj, short selectedGun)
     return -1;
 }
 
-/* Function start: 0x42AE10 */
+/* Function start: 0x46166D */
 unsigned int select_new_gun(void)
 {
     g_eSelectedGunType_0046c054 = (enum ObjectType)select_guns(
@@ -1277,7 +1277,7 @@ unsigned int select_new_gun(void)
     return 0;
 }
 
-/* Function start: 0x42AE50 */
+/* Function start: 0x4616B8 */
 unsigned int select_new_release_weapon(enum ObjectType preferredType)
 {
     signed char weaponCount;
@@ -1351,13 +1351,13 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
     return 0;
 }
 
-/* Function start: 0x42AFA0 */
+/* Function start: WC2_UNMAPPED */
 void WaitForDebugStep(void)
 {
     while (TakeDebugStepFlag() == 0) ;
 }
 
-/* Function start: 0x42AFB0 */
+/* Function start: WC2_UNMAPPED */
 void CALLBACK FrameTimerCallback(UINT timerId, UINT message,
                                  DWORD user, DWORD first, DWORD second)
 {
@@ -1369,7 +1369,7 @@ void CALLBACK FrameTimerCallback(UINT timerId, UINT message,
     DAT_0059ab3c = 0;
 }
 
-/* Function start: 0x42AFC0 */
+/* Function start: 0x40A2E7 */
 void SetMultimediaTimerCallback(int period)
 {
     int milliseconds = period * 1000 / 60;

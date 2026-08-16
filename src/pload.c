@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x42B050 */
+/* Function start: 0x4465A0 */
 void * __stdcall PacketLoad(const char *filename, short section,
                             void *destination, unsigned short flags,
                             void *decompressionWorkspace)
@@ -116,7 +116,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
     return packet;
 }
 
-/* Function start: 0x42B160 */
+/* Function start: 0x423CA0 */
 void InitializeAudioSystem(HWND window)
 {
     if (DAT_00465058 != 0 && DAT_0046a440 == 0) {
@@ -128,7 +128,7 @@ void InitializeAudioSystem(HWND window)
     }
 }
 
-/* Function start: 0x42B1B0 */
+/* Function start: 0x423D02 */
 void ServiceAudioStream(void)
 {
     if (DAT_00465058 != 0 && DAT_0046a440 != 0) {
@@ -140,7 +140,7 @@ void ServiceAudioStream(void)
     }
 }
 
-/* Function start: 0x42B1F0 */
+/* Function start: 0x423D4F */
 WaveTableEntry *AllocateWaveTableEntry(void)
 {
     if (g_pWaveTableHead_0046a444 == 0) {
@@ -156,7 +156,7 @@ WaveTableEntry *AllocateWaveTableEntry(void)
     return g_pWaveTableTail_0046a448;
 }
 
-/* Function start: 0x42B240 */
+/* Function start: 0x424A00 */
 WaveTableEntry *FindWaveTableEntryByName(const char *name)
 {
     WaveTableEntry *entry = g_pWaveTableHead_0046a444;
@@ -169,7 +169,7 @@ WaveTableEntry *FindWaveTableEntryByName(const char *name)
     return 0;
 }
 
-/* Function start: 0x42B290 */
+/* Function start: 0x42DD9F */
 void RemoveWaveTableEntry(WaveTableEntry *target)
 {
     WaveTableEntry *previous = 0;
@@ -191,7 +191,7 @@ void RemoveWaveTableEntry(WaveTableEntry *target)
     }
 }
 
-/* Function start: 0x42B300 */
+/* Function start: 0x423ED1 */
 void FreeWaveTable(void)
 {
     WaveTableEntry *entry = g_pWaveTableHead_0046a444;
@@ -207,7 +207,7 @@ void FreeWaveTable(void)
     g_pWaveTableHead_0046a444 = 0;
 }
 
-/* Function start: 0x42B340 */
+/* Function start: 0x423F3F */
 ActiveSoundEntry *AllocateActiveSoundEntry(void)
 {
     if (g_pActiveSoundHead_0046a438 == 0) {
@@ -223,7 +223,7 @@ ActiveSoundEntry *AllocateActiveSoundEntry(void)
     return g_pActiveSoundTail_0046a43c;
 }
 
-/* Function start: 0x42B390 */
+/* Function start: 0x423FAB */
 void RemoveActiveSoundEntry(ActiveSoundEntry *target)
 {
     ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
@@ -244,7 +244,7 @@ void RemoveActiveSoundEntry(ActiveSoundEntry *target)
     }
 }
 
-/* Function start: 0x42B3F0 */
+/* Function start: 0x461D29 */
 ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample)
 {
     ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;

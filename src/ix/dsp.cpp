@@ -37,7 +37,7 @@ void *(__cdecl *g_pIxMalloc_00471990)(unsigned int) = malloc;
 #endif
 void (__cdecl *g_pIxFree_00471994)(void *) = free;
 
-/* Function start: 0x00444910 */   /* source line 62 */
+/* Function start: 0x489990 */   /* source line 62 */
 int ix_dsp_init(void)
 {
     if ((g_dwDspFlags_00597d18 & 1) == 0) {
@@ -63,7 +63,7 @@ int ix_dsp_init(void)
     return 0;
 }
 
-/* Function start: 0x004449CF */
+/* Function start: 0x489A4F */
 void ix_dsp_shutdown(void)
 {
     if ((g_dwDspFlags_00597d18 & 1) != 0) {
@@ -92,7 +92,7 @@ void ix_dsp_shutdown(void)
     }
 }
 
-/* Function start: 0x00444A62 */
+/* Function start: 0x489AE2 */
 void ix_dsp_configure(int option, void *value)
 {
     switch (option) {
@@ -121,7 +121,7 @@ void ix_dsp_configure(int option, void *value)
     }
 }
 
-/* Function start: 0x00444B25 */
+/* Function start: 0x489BA5 */
 BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
                                  LPSTR module, LPVOID context)
 {
@@ -157,19 +157,19 @@ BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
 #endif
 }
 
-/* Function start: 0x00444BFD */
+/* Function start: 0x489C7D */
 unsigned int ix_dsp_get_tick(void)
 {
     return g_dwDspTick_00598128;
 }
 
-/* Function start: 0x00444C12 */
+/* Function start: 0x489C92 */
 unsigned int ix_dsp_get_flags(void)
 {
     return g_dwDspFlags_00597d18;
 }
 
-/* Function start: 0x00444C27 */
+/* Function start: 0x489CA7 */
 void ix_dsp_set_config_bit1(int enabled)
 {
     if (enabled != 0)
@@ -178,7 +178,7 @@ void ix_dsp_set_config_bit1(int enabled)
         g_dwDspFlags_00597d18 &= ~2U;
 }
 
-/* Function start: 0x00444C54 */
+/* Function start: 0x489CD4 */
 void ix_dsp_set_config_bit3(int enabled)
 {
     if (enabled != 0)
@@ -187,13 +187,13 @@ void ix_dsp_set_config_bit3(int enabled)
         g_dwDspFlags_00597d18 &= ~8U;
 }
 
-/* Function start: 0x00444C81 */
+/* Function start: 0x489D01 */
 int ix_dsp_get_voice_count(void)
 {
     return g_nVoiceCount_00598600;
 }
 
-/* Function start: 0x00444C96 */   /* source line(s) 176: can't change voice count while voices are in use */
+/* Function start: 0x489D16 */   /* source line(s) 176: can't change voice count while voices are in use */
 void ix_dsp_set_voice_count(int voiceCount)
 {
     if (g_nVoicesAllocated_00598604 != 0 ||
@@ -208,13 +208,13 @@ void ix_dsp_set_voice_count(int voiceCount)
     }
 }
 
-/* Function start: 0x00444D18 */
+/* Function start: 0x489D98 */
 int ix_dsp_get_stream_count(void)
 {
     return g_nStreamCount_00598130;
 }
 
-/* Function start: 0x00444D2D */   /* source line(s) 187: can't change stream count while voices are in use */
+/* Function start: 0x489DAD */   /* source line(s) 187: can't change stream count while voices are in use */
 void ix_dsp_set_stream_count(int streamCount)
 {
     if (g_nVoicesAllocated_00598604 != 0 ||
@@ -229,13 +229,13 @@ void ix_dsp_set_stream_count(int streamCount)
     }
 }
 
-/* Function start: 0x00444DAF */
+/* Function start: 0x489E2F */
 unsigned short ix_dsp_get_master_volume(void)
 {
     return g_nMasterVolume_0047198c;
 }
 
-/* Function start: 0x00444DC5 */
+/* Function start: 0x489E45 */
 void ix_dsp_set_master_volume(unsigned short volume)
 {
     int voice;
@@ -252,7 +252,7 @@ void ix_dsp_set_master_volume(unsigned short volume)
     }
 }
 
-/* Function start: 0x00444E52 */
+/* Function start: 0x489ED2 */
 void ix_dsp_build_pan_tables(void)
 {
     short left;
@@ -286,7 +286,7 @@ void ix_dsp_build_pan_tables(void)
     }
 }
 
-/* Function start: 0x00444F97 */
+/* Function start: 0x48A017 */
 const char *ix_dsp_result_to_text(int result)
 {
 #ifdef WC1_SDL
@@ -326,32 +326,32 @@ const char *ix_dsp_result_to_text(int result)
 #endif
 }
 
-/* Function start: 0x00445123 */
+/* Function start: 0x48A1A3 */
 void *ix_dsp_alloc(unsigned int bytes)
 {
     return g_pIxMalloc_00471990(bytes);
 }
 
-/* Function start: 0x00445140 */
+/* Function start: 0x48A1C0 */
 #pragma function(memcpy)
 void *ix_dsp_copy(void *destination, const void *source, unsigned int bytes)
 {
     return memcpy(destination, source, bytes);
 }
 
-/* Function start: 0x00445164 */
+/* Function start: 0x48A1E4 */
 void ix_dsp_free(void *memory)
 {
     g_pIxFree_00471994(memory);
 }
 
-/* Function start: 0x00445190 */
+/* Function start: WC2_UNMAPPED */
 void ix_dsp_static_initializer(void)
 {
     ix_dsp_static_initialization_hook();
 }
 
-/* Function start: 0x004451A5 */
+/* Function start: WC2_UNMAPPED */
 void ix_dsp_static_initialization_hook(void)
 {
 }

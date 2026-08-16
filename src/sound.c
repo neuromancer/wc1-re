@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x42B410 */
+/* Function start: 0x465CBC */
 void ReleaseFinishedSoundEntries(void)
 {
     ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
@@ -22,7 +22,7 @@ void ReleaseFinishedSoundEntries(void)
     }
 }
 
-/* Function start: 0x42B450 */
+/* Function start: 0x42D444 */
 void StopSoundsUsingWave(const char *name)
 {
     WaveTableEntry *wave;
@@ -42,7 +42,7 @@ void StopSoundsUsingWave(const char *name)
     }
 }
 
-/* Function start: 0x42B4A0 */
+/* Function start: 0x42418C */
 void playWAVE(const char *filename, int looping, int volume)
 {
     WaveTableEntry *wave;
@@ -103,7 +103,7 @@ void playWAVE(const char *filename, int looping, int volume)
     }
 }
 
-/* Function start: 0x42B640 */
+/* Function start: 0x4245A2 */
 void stop_all_sounds(void)
 {
 #ifdef WC1_SDL
@@ -124,7 +124,7 @@ void stop_all_sounds(void)
     }
 }
 
-/* Function start: 0x42B680 */
+/* Function start: 0x4245F8 */
 void PlaySnowStaticSound(void)
 {
     unsigned char *fileData;
@@ -166,13 +166,13 @@ void PlaySnowStaticSound(void)
     }
 }
 
-/* Function start: 0x42B7D0 */
+/* Function start: WC2_UNMAPPED */
 void ServiceSoundSystem(void)
 {
     ix_system_service_sounds();
 }
 
-/* Function start: 0x42B7E0 */
+/* Function start: 0x42482E */
 void SetSoundEffectsVolume(int volume)
 {
     if (volume >= 0 && volume < 65000)
@@ -180,21 +180,21 @@ void SetSoundEffectsVolume(int volume)
     SoundDebugPrintf("Setting SFX Volume to %d", volume);
 }
 
-/* Function start: 0x42B810 */
+/* Function start: 0x42485C */
 LONG RegistryQueryValue(HKEY key, LPCSTR name, DWORD type,
                         LPBYTE data, DWORD size)
 {
     return RegQueryValueExA(key, name, 0, &type, data, &size);
 }
 
-/* Function start: 0x42B840 */
+/* Function start: 0x424888 */
 void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
                         const BYTE *data, DWORD size)
 {
     RegSetValueExA(key, name, 0, type, data, size);
 }
 
-/* Function start: 0x42B870 */
+/* Function start: 0x4248B4 */
 void LoadVolumeSettingsFromRegistry(void)
 {
     HKEY key;
@@ -224,7 +224,7 @@ void LoadVolumeSettingsFromRegistry(void)
     }
 }
 
-/* Function start: 0x42B930 */
+/* Function start: 0x424980 */
 void SaveVolumeSettingsToRegistry(void)
 {
     HKEY key;
@@ -242,7 +242,7 @@ void SaveVolumeSettingsToRegistry(void)
     RegCloseKey(key);
 }
 
-/* Function start: 0x42B9A0 */
+/* Function start: 0x459160 */
 void DrawLaunchDoorFrame(short distance)
 {
     short bounds[4];
@@ -290,7 +290,7 @@ void DrawLaunchDoorFrame(short distance)
     }
 }
 
-/* Function start: 0x42BA90 */
+/* Function start: 0x42ECCB */
 void LaunchPlayerShip(void)
 {
     short doorDistances[4];
@@ -353,7 +353,7 @@ void LaunchPlayerShip(void)
     DAT_0059ab58 = 0;
 }
 
-/* Function start: 0x42BC00 */
+/* Function start: 0x43B7C0 */
 unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
 {
     unsigned char *carrierShape;
@@ -634,12 +634,12 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     return 0;
 }
 
-/* Function start: 0x42C410 */
+/* Function start: WC2_UNMAPPED */
 void FxDriverShutdownHook(void)
 {
 }
 
-/* Function start: 0x42C420 */
+/* Function start: WC2_UNMAPPED */
 unsigned short InitializeDiskPromptTextContext(void)
 {
     short textWidth;
@@ -680,7 +680,7 @@ unsigned short InitializeDiskPromptTextContext(void)
     return 0;
 }
 
-/* Function start: 0x42C510 */
+/* Function start: 0x432E23 */
 unsigned short RewriteDiskFileGraphicsExtensions(short videoMode)
 {
     DiskFileRecord *record;
@@ -718,7 +718,7 @@ unsigned short RewriteDiskFileGraphicsExtensions(short videoMode)
     return 0;
 }
 
-/* Function start: 0x42C580 */
+/* Function start: 0x401000 */
 short LoadWingCmdrCfgFile(short argc, char **argv)
 {
     FILE *file;
@@ -760,7 +760,7 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
     return (short)(argumentCount - 1);
 }
 
-/* Function start: 0x42C660 */
+/* Function start: 0x42949F */
 unsigned short LoadInstallDat(void)
 {
     DiskFileRecord *records;
@@ -847,7 +847,7 @@ unsigned short LoadInstallDat(void)
     return 0;
 }
 
-/* Function start: 0x42C800 */
+/* Function start: 0x401120 */
 void show_damage_disp(void)
 {
     signed char component;
@@ -891,7 +891,7 @@ void show_damage_disp(void)
     ShowComponentHitHudMessage(message, DAT_004699b4, -1);
 }
 
-/* Function start: 0x42C970 */
+/* Function start: 0x4012E1 */
 void UpdateDamageDisplay(void)
 {
     signed char componentCount;
@@ -1059,7 +1059,7 @@ void UpdateDamageDisplay(void)
                       (short)g_cDamageDisplayFrame_005a77dd);
 }
 
-/* Function start: 0x42CDA0 */
+/* Function start: WC2_UNMAPPED */
 unsigned short GetJoystickPresentUnused(void)
 {
     return 1;

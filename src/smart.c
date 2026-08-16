@@ -7,7 +7,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x433AC0 */
+/* Function start: 0x41E4E0 */
 unsigned int steer_away_from_object(short obj, short other, short amount)
 {
     FixedVector predicted;
@@ -32,7 +32,7 @@ unsigned int steer_away_from_object(short obj, short other, short amount)
     return 0;
 }
 
-/* Function start: 0x433B90 */
+/* Function start: 0x41E5C8 */
 void steer_away_from_predicted_object(short obj, short other,
                                       short predictionTicks, short amount)
 {
@@ -59,7 +59,7 @@ void steer_away_from_predicted_object(short obj, short other,
     }
 }
 
-/* Function start: 0x433C80 */
+/* Function start: 0x41E6C8 */
 void prevent_collision(short obj)
 {
     short other;
@@ -104,7 +104,7 @@ void prevent_collision(short obj)
     }
 }
 
-/* Function start: 0x433D90 */
+/* Function start: WC2_UNMAPPED */
 int handle_collisions(short obj)
 {
     short other;
@@ -117,7 +117,7 @@ int handle_collisions(short obj)
     return alert_flag(obj, 1);
 }
 
-/* Function start: 0x433DE0 */
+/* Function start: 0x421CF6 */
 int regulate_turn(short obj)
 {
     signed char count;
@@ -136,7 +136,7 @@ int regulate_turn(short obj)
     return 0;
 }
 
-/* Function start: 0x433E50 */
+/* Function start: 0x41EA86 */
 unsigned int select_target(short obj)
 {
     if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI) {
@@ -154,7 +154,7 @@ unsigned int select_target(short obj)
     return 0;
 }
 
-/* Function start: 0x433EC0 */
+/* Function start: 0x41EB1D */
 unsigned int veer_random(short obj, short amount)
 {
     switch (RandomBelowOrEqual(3)) {
@@ -174,7 +174,7 @@ unsigned int veer_random(short obj, short amount)
     return 0;
 }
 
-/* Function start: 0x433F50 */
+/* Function start: 0x40A774 */
 unsigned int offset_location(short obj, const ShortVector *offset,
                              FixedVector *location)
 {
@@ -188,7 +188,7 @@ unsigned int offset_location(short obj, const ShortVector *offset,
     return 0;
 }
 
-/* Function start: 0x433FF0 */
+/* Function start: 0x41EC73 */
 unsigned int compute_formation_destination(short leader,
                                            const ShortVector *offset,
                                            FixedVector *destination)
@@ -203,7 +203,7 @@ unsigned int compute_formation_destination(short leader,
     return 0;
 }
 
-/* Function start: 0x434040 */
+/* Function start: 0x41ECEF */
 unsigned int control_speed(short obj, unsigned short range,
                            int desiredSpeed)
 {
@@ -227,7 +227,7 @@ unsigned int control_speed(short obj, unsigned short range,
     return 0;
 }
 
-/* Function start: 0x4340F0 */
+/* Function start: 0x41EDCC */
 unsigned int chase_location(short obj, const FixedVector *destination,
                             short reference)
 {
@@ -280,7 +280,7 @@ unsigned int chase_location(short obj, const FixedVector *destination,
     return 0;
 }
 
-/* Function start: 0x4342C0 */
+/* Function start: 0x41EFFE */
 unsigned int goto_location(short obj, const FixedVector *destination)
 {
     short range;
@@ -308,7 +308,7 @@ unsigned int goto_location(short obj, const FixedVector *destination)
     return 0;
 }
 
-/* Function start: 0x434360 */
+/* Function start: 0x41F0C5 */
 unsigned int goto_formation(short obj, const FixedVector *destination,
                             short leader)
 {
@@ -352,7 +352,7 @@ unsigned int goto_formation(short obj, const FixedVector *destination,
     return 0;
 }
 
-/* Function start: 0x4344E0 */
+/* Function start: 0x40BD0E */
 unsigned int maintain_formation(short obj)
 {
     short leader;
@@ -367,7 +367,7 @@ unsigned int maintain_formation(short obj)
     return 0;
 }
 
-/* Function start: 0x434550 */
+/* Function start: WC2_UNMAPPED */
 unsigned int reset_stress(short obj)
 {
     short damage;
@@ -389,7 +389,7 @@ unsigned int reset_stress(short obj)
     return 0;
 }
 
-/* Function start: 0x4345D0 */
+/* Function start: 0x41F3EF */
 short stress_morale(short obj)
 {
     if (g_acShipStress_0059d620[obj] < 15)
@@ -399,7 +399,7 @@ short stress_morale(short obj)
     return 2;
 }
 
-/* Function start: 0x4345F0 */
+/* Function start: WC2_UNMAPPED */
 enum ShipManeuver any_defense(short obj)
 {
     signed char *maneuvers;
@@ -413,7 +413,7 @@ enum ShipManeuver any_defense(short obj)
     return (enum ShipManeuver)maneuvers[RandomBelowOrEqual(count)];
 }
 
-/* Function start: 0x434630 */
+/* Function start: 0x41F4C6 */
 enum ShipManeuver pick_regular_maneuver(short obj, int event)
 {
     short reroll;
@@ -466,7 +466,7 @@ enum ShipManeuver pick_regular_maneuver(short obj, int event)
     }
 }
 
-/* Function start: 0x434800 */
+/* Function start: 0x41F714 */
 enum ShipManeuver pick_from_list(const ManeuverChoice *choice, short obj)
 {
     enum ShipManeuver maneuver;
@@ -492,7 +492,7 @@ enum ShipManeuver pick_from_list(const ManeuverChoice *choice, short obj)
     return maneuver;
 }
 
-/* Function start: 0x4348A0 */
+/* Function start: 0x41F83F */
 enum ShipManeuver pick_kilrathi_maneuver(short obj, int event)
 {
     const ManeuverChoice *choice;
@@ -512,7 +512,7 @@ enum ShipManeuver pick_kilrathi_maneuver(short obj, int event)
     }
 }
 
-/* Function start: 0x434900 */
+/* Function start: 0x41E860 */
 unsigned int process_maneuver_node(short obj, int event)
 {
     const ManeuverChoice *choice;
@@ -537,7 +537,7 @@ unsigned int process_maneuver_node(short obj, int event)
     return 0;
 }
 
-/* Function start: 0x434980 */
+/* Function start: 0x41FD2B */
 void handle_stress(short obj, int event)
 {
     short aggression;
@@ -584,7 +584,7 @@ void handle_stress(short obj, int event)
         g_acShipStress_0059d620[obj] = 0;
 }
 
-/* Function start: 0x434A80 */
+/* Function start: 0x41FF37 */
 void intelligence_events(short obj)
 {
     int event;
@@ -656,7 +656,7 @@ void intelligence_events(short obj)
     g_aiIntelligenceEvent_0046d368[obj] = event;
 }
 
-/* Function start: 0x434C70 */
+/* Function start: 0x440571 */
 unsigned int chase_speed(short obj, short range)
 {
     short targetRange = g_nTargetRange_0059ce10;

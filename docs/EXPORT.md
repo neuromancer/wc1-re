@@ -1,5 +1,10 @@
 # Producing `code-full/`
 
+> **WC2 branch:** `make report` stages `data/full/WC2.ORI.EXE` and creates a
+> stamped WC2 `code-full/` export automatically. `make export-asm` forces a
+> clean regeneration. WC1-specific examples below are retained as historical
+> reconstruction documentation.
+
 `code-full/` holds the original disassembly that every binary-comp comparison reads. Files
 are named by **entry address**, not by symbol:
 

@@ -36,7 +36,7 @@ static const enum ObjectType g_aaeExplosionDebris_004698e0[4][7] = {
     }
 };
 
-/* Function start: 0x41E650 */
+/* Function start: 0x42B15A */
 unsigned int check_for_lost_control(short obj)
 {
     enum ObjectType type;
@@ -61,7 +61,7 @@ unsigned int check_for_lost_control(short obj)
     return 0;
 }
 
-/* Function start: 0x41E900 */
+/* Function start: 0x411A50 */
 void send_appropriate_message(short attacker, short victim)
 {
     if (g_aeObjectClass_0059d100[attacker] >= OBJECT_CLASS_SHIP) {
@@ -90,7 +90,7 @@ void send_appropriate_message(short attacker, short victim)
     }
 }
 
-/* Function start: 0x41E9B0 */
+/* Function start: 0x411C72 */
 int inflict_damage(short attacker, short victim, short damage,
                    const FixedVector *impactDirection)
 {
@@ -187,7 +187,7 @@ int inflict_damage(short attacker, short victim, short damage,
     return 0;
 }
 
-/* Function start: 0x41EC60 */
+/* Function start: 0x41262D */
 short pilot_hit(short obj)
 {
     if (DAT_0059cf00[obj] > 0) {
@@ -207,7 +207,7 @@ short pilot_hit(short obj)
     return DAT_0059cf00[obj];
 }
 
-/* Function start: 0x41ECE0 */
+/* Function start: 0x41270A */
 int onboard_explosion(short obj)
 {
     int objectOffset;
@@ -237,7 +237,7 @@ int onboard_explosion(short obj)
     return debris != -1;
 }
 
-/* Function start: 0x41EDB0 */
+/* Function start: 0x41280B */
 void call_enemy(short obj)
 {
     short other;
@@ -253,7 +253,7 @@ void call_enemy(short obj)
     }
 }
 
-/* Function start: 0x41EE20 */
+/* Function start: 0x4128A7 */
 int internal_damage(short attacker, short victim, short damage,
                     short quadrant)
 {
@@ -373,7 +373,7 @@ int internal_damage(short attacker, short victim, short damage,
     return 0;
 }
 
-/* Function start: 0x41F1A0 */
+/* Function start: 0x412F03 */
 void revise_shields(short obj)
 {
     short maximum;
@@ -389,7 +389,7 @@ void revise_shields(short obj)
                 g_aeObjectType_0059b560[obj]].shieldAft >> 2)));
 }
 
-/* Function start: 0x41F220 */
+/* Function start: 0x413099 */
 int your_internal_damage(short attacker, short damage, short quadrant)
 {
     enum ObjectClass attackerClass;
@@ -535,14 +535,14 @@ damage_component:
     }
 }
 
-/* Function start: 0x41F5D0 */
+/* Function start: 0x412F90 */
 unsigned int check_computer_damage(void)
 {
     damage_your_component(3, 1, 3);
     return 0;
 }
 
-/* Function start: 0x41F5F0 */
+/* Function start: 0x413578 */
 short ReportComponentRepaired(short component, short minimumDamage)
 {
     char message[80];
@@ -558,7 +558,7 @@ short ReportComponentRepaired(short component, short minimumDamage)
     return 0;
 }
 
-/* Function start: 0x41F660 */
+/* Function start: 0x4135F1 */
 void repair_internal_damage(void)
 {
     short repair;
@@ -600,7 +600,7 @@ void repair_internal_damage(void)
     }
 }
 
-/* Function start: 0x41F700 */
+/* Function start: 0x4136E2 */
 void Create_ship_hit_debris(short obj, short count)
 {
     FixedVector offset;
@@ -625,7 +625,7 @@ void Create_ship_hit_debris(short obj, short count)
     }
 }
 
-/* Function start: 0x41F7C0 */
+/* Function start: WC2_UNMAPPED */
 void check_next_wave(void)
 {
     short obj;
@@ -642,7 +642,7 @@ void check_next_wave(void)
     set_up_next_wave();
 }
 
-/* Function start: 0x41F800 */
+/* Function start: 0x4115F8 */
 unsigned int Create_explosion_debris(short obj)
 {
     FixedVector vector;
@@ -694,7 +694,7 @@ unsigned int Create_explosion_debris(short obj)
     return 0;
 }
 
-/* Function start: 0x41F9E0 */
+/* Function start: 0x413D61 */
 unsigned int affect_mission_score(short pilot, int event, short amount)
 {
     short score;
@@ -745,7 +745,7 @@ unsigned int affect_mission_score(short pilot, int event, short amount)
     return 0;
 }
 
-/* Function start: 0x41FA90 */
+/* Function start: 0x413E4C */
 unsigned int score_for_kill(short pilot, short victim)
 {
     int event;
@@ -785,7 +785,7 @@ unsigned int score_for_kill(short pilot, short victim)
     return 0;
 }
 
-/* Function start: 0x41FB40 */
+/* Function start: 0x413F58 */
 unsigned int analyze_kill(short attacker, short victim)
 {
     int enemy;
@@ -804,7 +804,7 @@ unsigned int analyze_kill(short attacker, short victim)
     return 0;
 }
 
-/* Function start: 0x41FBC0 */
+/* Function start: 0x42A313 */
 short ShipExplosion(short obj)
 {
     unsigned short originalScale;
@@ -834,7 +834,7 @@ short ShipExplosion(short obj)
     return explosion;
 }
 
-/* Function start: 0x41FCD0 */
+/* Function start: 0x41444C */
 short Explosion(short obj)
 {
     enum ObjectClass objectClass;
@@ -907,7 +907,7 @@ short Explosion(short obj)
     return explosion;
 }
 
-/* Function start: 0x41FEB0 */
+/* Function start: WC2_UNMAPPED */
 short the_creator(short obj)
 {
     signed char owner;
@@ -923,7 +923,7 @@ short the_creator(short obj)
     return -1;
 }
 
-/* Function start: 0x41FEE0 */
+/* Function start: 0x414025 */
 int explosion_shock_wave(short obj, short blastDamage)
 {
     FixedVector delta;
@@ -973,7 +973,7 @@ int explosion_shock_wave(short obj, short blastDamage)
     return 0;
 }
 
-/* Function start: 0x420040 */
+/* Function start: 0x414835 */
 int explode(short attacker, short victim)
 {
     short creator;
@@ -1037,7 +1037,7 @@ int explode(short attacker, short victim)
     return 1;
 }
 
-/* Function start: 0x420190 */
+/* Function start: WC2_UNMAPPED */
 int send_at_point(short obj, FixedVector *point, short speed)
 {
     ComputeVectorDelta(&g_aShipPosition_0059c490[obj], point,
@@ -1047,7 +1047,7 @@ int send_at_point(short obj, FixedVector *point, short speed)
     return 0;
 }
 
-/* Function start: 0x4201D0 */
+/* Function start: 0x410020 */
 short find_child_object(short parent, enum ObjectClass objectClass)
 {
     short obj;
@@ -1062,7 +1062,7 @@ short find_child_object(short parent, enum ObjectClass objectClass)
     return -1;
 }
 
-/* Function start: 0x420210 */
+/* Function start: 0x414CA9 */
 short find_child_ship(short parent, enum ObjectClass objectClass,
                       short target)
 {
@@ -1080,7 +1080,7 @@ short find_child_ship(short parent, enum ObjectClass objectClass,
     return -1;
 }
 
-/* Function start: 0x420260 */
+/* Function start: 0x414D3D */
 int launch_object(short parent, short child, FixedVector direction,
                   short speed)
 {
@@ -1094,7 +1094,7 @@ int launch_object(short parent, short child, FixedVector direction,
     return 0;
 }
 
-/* Function start: 0x4202D0 */
+/* Function start: 0x414DC0 */
 void fire(short obj, short target)
 {
     ShipWeaponSlot *slot;
@@ -1249,7 +1249,7 @@ void fire(short obj, short target)
     }
 }
 
-/* Function start: 0x4207E0 */
+/* Function start: 0x415508 */
 short hemisphere(FixedVector *target, FixedVector *parent,
                  FixedVector *hardpoint)
 {
@@ -1261,7 +1261,7 @@ short hemisphere(FixedVector *target, FixedVector *parent,
     return vector_angle(parentFromTarget, parentFromHardpoint);
 }
 
-/* Function start: 0x420840 */
+/* Function start: 0x415563 */
 int fire_flack(short owner, short explosion, short range,
                FixedVector *aim)
 {
@@ -1280,7 +1280,7 @@ int fire_flack(short owner, short explosion, short range,
     return 0;
 }
 
-/* Function start: 0x4208C0 */
+/* Function start: WC2_UNMAPPED */
 short rnd_sign(short v)
 {
     if (RandomBelowOrEqual(1) != 0)
@@ -1288,7 +1288,7 @@ short rnd_sign(short v)
     return -v;
 }
 
-/* Function start: 0x4208E0 */
+/* Function start: 0x40A556 */
 int rnd_aim(short radius, short speed, short maximum)
 {
     short aim;
@@ -1298,7 +1298,7 @@ int rnd_aim(short radius, short speed, short maximum)
     return rnd_sign(aim) << 8;
 }
 
-/* Function start: 0x420920 */
+/* Function start: 0x444F53 */
 short pop_flack(short obj, short range, FixedVector *hardpoint)
 {
     FixedVector randomAim;
@@ -1336,7 +1336,7 @@ short pop_flack(short obj, short range, FixedVector *hardpoint)
     return explosion;
 }
 
-/* Function start: 0x420AA0 */
+/* Function start: 0x4159DB */
 int fire_turrets(short obj)
 {
     ShipWeaponSlot *slot;
@@ -1396,7 +1396,7 @@ int fire_turrets(short obj)
     return 1;
 }
 
-/* Function start: 0x420C20 */
+/* Function start: 0x415E2C */
 int fire_weapon(short obj, short weapon)
 {
     ObjectTypeData *weaponData;

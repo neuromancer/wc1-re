@@ -1,19 +1,18 @@
 # Wing Commander (Kilrathi Saga, Win32) source reconstruction Makefile.
 #
-# This build intentionally uses the original Microsoft Visual C++ 4.20
-# toolchain under wibo.  Matching that compiler, its flags, and the linker
-# input order is part of the recovery process: binary-comp checks the rebuilt
-# executable against the original at the instruction and data-layout level.
+# This WC2 branch uses Microsoft Visual C++ 4.1 under wibo. Matching the
+# compiler, its flags, and the linker input order is part of the recovery
+# process: binary-comp checks the rebuilt executable against the original at
+# the instruction and data-layout level.
 #
-# The toolchain identification is evidence-based; see docs/COMPILER.md for the
-# full derivation (linker stamp 4.20, no Rich header, separate .idata,
-# _amsg_exit instead of fast_error_exit, no __set_app_type, aw_*.c CRT names).
+# The toolchain identification is evidence-based; see docs/COMPILER.md. WC2's
+# PE header reports linker 3.10.6038, exactly matching the MSVC 4.1 package.
 #
 # Common entry points:
-#   make                 # build WC1.EXE
-#   make WC1.EXE         # build WC1.EXE
+#   make                 # build WC2.EXE
+#   make WC2.EXE         # build WC2.EXE
 #   make run             # build and launch in DREAMM
-#   make report          # per-function similarity report
+#   make report          # WC2 per-function similarity report on this branch
 #   make order           # compilation-unit boundary hints
 #   make verify          # primary recovery verification checklist
 #   make progress        # reimplementation progress summary
@@ -23,14 +22,16 @@
 # ---------------------------------------------------------------------------
 
 WIBO = ./wibo
-CC = $(WIBO) compilers/msvc420/bin/CL.EXE
-LINK = $(WIBO) compilers/msvc420/bin/LINK.EXE
+MSVC41_DIR = compilers/msvc41
+MSVC41_STAMP = $(MSVC41_DIR)/.installed
+CC = $(WIBO) $(MSVC41_DIR)/Bin/CL.EXE
+LINK = $(WIBO) $(MSVC41_DIR)/Bin/LINK.EXE
 
 # MSVC expects Windows-style include/library search paths.  The recipes pass
 # these through the host shell to wibo, so command-line /I paths use doubled
 # backslashes while env vars keep normal Windows separators.
-MSVC_INC = compilers\msvc420\include
-MSVC_LIB = compilers\msvc420\lib
+MSVC_INC = compilers\msvc41\Include;compilers\msvc41\SdkInclude
+MSVC_LIB = compilers\msvc41\Lib
 
 # Keep these flags synchronized with the recovered binary.  Changing optimizer
 # or codegen flags will usually invalidate binary-comp comparisons.
@@ -53,23 +54,18 @@ CFLAGS_COMMON = \
 	/MTd \
 	/I include
 
-# IMPORTANT: the two halves of this program were built with DIFFERENT optimizer
-# settings.  This is not a guess -- it is visible in every function:
+# WC1 used different optimizer settings for its game core and ix library. WC2
+# does not: both areas have the unoptimized debug-build shape:
 #
-#   Game core = OPTIMIZED.  GetShiftKeyState (0x00403060) is four instructions
-#   with no prologue; MinShort (0x0041D0C0) reads its arguments straight off ESP
-#   with no frame pointer; RandomBelowOrEqual (0x00434D50) schedules `POP ESI`
-#   between CDQ and IDIV and tail-duplicates its epilogue.
-#
-#   ix library = UNOPTIMIZED (/Od).  Every single ix function opens with
+# Every ix function and the mapped WC2 game-core functions open with
 #   `PUSH EBP / MOV EBP,ESP / PUSH EBX / PUSH ESI / PUSH EDI` -- saving all three
 #   registers whether or not they are used -- spills intermediates to stack
 #   temporaries such as [EBP-4], and jumps to one shared
 #   `POP EDI / POP ESI / POP EBX / LEAVE / RET` epilogue.
 #
-# Compiling ix with optimization on (or the core with it off) makes matching
-# impossible, so keep these separate.
-CFLAGS_CORE = $(CFLAGS_COMMON) /Og /Oi /Ot /Oy /Ob1 /Gs
+# The MSVC 4.1 control improved the remapped report from 47.48% with WC1's
+# optimized flags to 74.01% with /Od, while ix remains 99.13% similar.
+CFLAGS_CORE = $(CFLAGS_COMMON) /Od /Oi
 CFLAGS_IX   = $(CFLAGS_COMMON) /Od /Oi
 
 # Default for anything not covered by a more specific rule.
@@ -94,8 +90,8 @@ GAME_LIBS = \
 # Project inputs and generated outputs
 # ---------------------------------------------------------------------------
 
-TARGET = WC1.EXE
-MAPFILE = WC1.map
+TARGET = WC2.EXE
+MAPFILE = WC2.map
 OUT_DIR = out
 
 UNAME_S := $(shell uname -s)
@@ -148,14 +144,15 @@ MODERN_DEAD_STRIP_OTHER = -Wl,--gc-sections
 MODERN_DEAD_STRIP_FLAGS = $(if $(filter Darwin,$(UNAME_S)),\
 	$(MODERN_DEAD_STRIP_DARWIN),$(MODERN_DEAD_STRIP_OTHER))
 
-# Where the retail executable lives.  `make data/full/WC1.ORI.EXE` copies it out
+# Where the retail executable lives. `make data/full/WC2.ORI.EXE` copies it out
 # of the sibling analysis tree so this repo never has to vendor the binary.
-ORIGINAL_EXE = data/full/WC1.ORI.EXE
-ORIGINAL_SRC ?= ../releases/win32/WC1.EXE
+ORIGINAL_EXE = data/full/WC2.ORI.EXE
+ORIGINAL_SRC ?= ../releases/win32/WC2.EXE
 
 VERIFY_CONFIG = config/binary-comp.json
 CODE_DIR = code-full
-EXPORT_ASM_FLAGS ?=
+CODE_EXPORT_STAMP = $(CODE_DIR)/.wc2-exported
+EXPORT_ASM_FLAGS ?= --discover --max-functions 4096
 # Optional verification dependency; install with pip as documented in README.md.
 BINARY_COMP ?= binary-comp
 
@@ -217,18 +214,18 @@ DREAMM = $(CURDIR)/$(DREAMM_BIN)
 DREAMM_STAMP = $(DREAMM_DIR)/.$(DREAMM_ARCHIVE).stamp
 
 # The game runs out of the installed data directory.  C: is mounted writable
-# from data/full/hd because DREAMM otherwise discards every write to C:, and the
+# from data/wc2-full/hd because DREAMM otherwise discards every write to C:, and the
 # game rewrites INSTALL.DAT and its save slots.
 #
 # The disc is mounted at D: when present: the binary really does look for it
 # (LocateStreamsDirOnDisc, FindCdRomDriveByVolumeLabel, PromptInsertCorrectCd),
-# and the streaming music lives there.  Point WC1_ISO at an image or a directory.
-RUN_DIR = data/full
-# Any disc image dropped in data/ or data/full/ is picked up automatically.
+# and the streaming music lives there. Point WC2_ISO at an image or a directory.
+RUN_DIR = data/wc2-full
+# Any disc image dropped in data/ or data/wc2-full/ is picked up automatically.
 # The recipes cd into RUN_DIR, so the mount path is made relative to it.
-WC1_ISO ?= $(firstword $(wildcard data/*.iso data/*.ISO data/full/*.iso data/full/*.ISO))
+WC2_ISO ?= $(firstword $(wildcard data/*.iso data/*.ISO data/wc2-full/*.iso data/wc2-full/*.ISO))
 DREAMM_MOUNTS = -mount rw:C=hd \
-                $(if $(WC1_ISO),-mount d=$(patsubst $(RUN_DIR)/%,%,$(patsubst data/%,../%,$(WC1_ISO))))
+                $(if $(WC2_ISO),-mount d=$(patsubst $(RUN_DIR)/%,%,$(patsubst data/%,../%,$(WC2_ISO))))
 
 # ---------------------------------------------------------------------------
 # Source order
@@ -238,14 +235,15 @@ DREAMM_MOUNTS = -mount rw:C=hd \
 # MSVC emits functions in source order and the linker concatenates objects in
 # command-line order, so address order == link order.
 #
-# SRCS_ORDERED_IX is EXACT, recovered from live assert __FILE__ anchors in the
-# shipped debug build; each module occupies one contiguous address range:
+# This is the inherited WC1 object order. Its ix portion was exact for WC1,
+# recovered from live assert __FILE__ anchors; each module occupied one range:
 #     streamer.cpp 0x00442750   thread.cpp 0x00443da6   dsp.cpp    0x00444910
 #     dsps.cpp     0x004451b5   mixer.cpp  0x00445f60   dspv.cpp   0x004467c5
 #     system.cpp   0x00447200   sound.cpp  0x00447cd8   sample.cpp 0x0044879c
-# The ix library links AFTER the whole game core (it sits at higher addresses).
+# WC2 placement is not assumed from these ranges. Keep the inherited order
+# stable until the remapped call graph and WC2 string anchors prove its units.
 #
-# SRCS_ORDERED_CORE is NOT yet known: no source-file anchors exist below
+# The inherited WC1 core order was not yet fully known: no source-file anchors exist below
 # 0x00442750, so game-core module boundaries have to be recovered incrementally
 # with `make order`.  Add files here as boundaries are established; anything not
 # listed is appended automatically so new work still builds.
@@ -653,14 +651,64 @@ $(WIBO):
 	cd wibo-src && cmake --preset $(WIBO_PRESET) && cmake --build --preset $(WIBO_PRESET)
 	ln -sf $(WIBO_BIN) $@
 
-# wibo needs this compatible MSVC runtime beside CL.EXE and LINK.EXE. Keep a
-# cached copy outside the submodule, then place it in the toolchain on demand.
+# The decomp.me MSVC 4.1 package contains Bin/ and Include/ but no linker
+# libraries or DirectX headers. Bootstrap the compiler from the requested
+# release and add only build-support files from the old pinned SDK snapshot;
+# the compiler and linker themselves always come from MSVC 4.1.
+MSVC41_URL = https://github.com/decompme/compilers/releases/download/compilers/msvc4.1.tar.gz
+MSVC41_SHA256 = ba2a100dad6b5f1f097860c8cb5e0d3b5f78881e69f96f16168b174e12af80b0
+MSVC41_ARCHIVE = 3rdparty/msvc4.1.tar.gz
+MSVC41_SUPPORT_COMMIT = df2c13aad74c094988c6c7e784234c2e778a0e91
+MSVC41_SUPPORT_URL = https://github.com/itsmattkc/MSVC420/archive/$(MSVC41_SUPPORT_COMMIT).tar.gz
+MSVC41_SUPPORT_SHA256 = caddbd356e57106050565297c1931871339ee488a58019ba766dc6cb8b214939
+MSVC41_SUPPORT_ARCHIVE = 3rdparty/msvc420-support.tar.gz
+
+# wibo needs this compatible runtime beside CL.EXE and LINK.EXE.
 MSVCRT40_URL = https://raw.githubusercontent.com/neuromancer/my-teacher-is-an-alien-re/3d1bfe60522ae05b86bbd2252fd01c8d0a11c3df/3rdparty/msvcrt40.dll
 MSVCRT40_SHA256 = ab55a2de2b6faf3daacd3e69473d385ceaead8033f7c79beb6bbf802f230f030
 MSVCRT_SOURCE = 3rdparty/msvcrt40.dll
-MSVCRT_DLL = compilers/msvc420/bin/msvcrt40.dll
+MSVCRT_DLL = $(MSVC41_DIR)/Bin/msvcrt40.dll
 
-$(MSVCRT_DLL): $(MSVCRT_SOURCE)
+$(MSVC41_ARCHIVE):
+	@mkdir -p $(dir $@)
+	@echo "Downloading Microsoft Visual C++ 4.1..."
+	@curl -fL --retry 3 -o "$@.tmp" "$(MSVC41_URL)"
+	@printf '%s  %s\n' "$(MSVC41_SHA256)" "$@.tmp" | \
+		shasum -a 256 -c - >/dev/null || \
+		(rm -f "$@.tmp"; echo "Error: MSVC 4.1 archive checksum mismatch." >&2; exit 1)
+	@mv "$@.tmp" "$@"
+
+$(MSVC41_SUPPORT_ARCHIVE):
+	@mkdir -p $(dir $@)
+	@echo "Downloading pinned linker-library support files..."
+	@curl -fL --retry 3 -o "$@.tmp" "$(MSVC41_SUPPORT_URL)"
+	@printf '%s  %s\n' "$(MSVC41_SUPPORT_SHA256)" "$@.tmp" | \
+		shasum -a 256 -c - >/dev/null || \
+		(rm -f "$@.tmp"; echo "Error: support archive checksum mismatch." >&2; exit 1)
+	@mv "$@.tmp" "$@"
+
+$(MSVC41_STAMP): $(MSVC41_ARCHIVE) $(MSVC41_SUPPORT_ARCHIVE)
+	@mkdir -p compilers
+	@msvc41_install=$$(mktemp -d compilers/.msvc41-install.XXXXXX); \
+		msvc41_support=$$(mktemp -d compilers/.msvc41-support.XXXXXX); \
+		trap 'rm -rf "$$msvc41_install" "$$msvc41_support"' 0; \
+		tar -xzf "$(MSVC41_ARCHIVE)" -C "$$msvc41_install"; \
+		tar -xzf "$(MSVC41_SUPPORT_ARCHIVE)" -C "$$msvc41_support"; \
+		support_root=$$(find "$$msvc41_support" -mindepth 1 -maxdepth 1 \
+			-type d -name 'MSVC420-*' -print -quit); \
+		test -n "$$support_root"; \
+		mkdir -p "$$msvc41_install/Lib" "$$msvc41_install/SdkInclude"; \
+		cp -R "$$support_root/lib/." "$$msvc41_install/Lib/"; \
+		cp -R "$$support_root/include/." "$$msvc41_install/SdkInclude/"; \
+		touch "$$msvc41_install/.installed"; \
+		rm -rf "$(MSVC41_DIR)"; \
+		mv "$$msvc41_install" "$(MSVC41_DIR)"; \
+		rm -rf "$$msvc41_support"; \
+		trap - 0
+
+msvc41-toolchain: $(MSVCRT_DLL)
+
+$(MSVCRT_DLL): $(MSVCRT_SOURCE) | $(MSVC41_STAMP)
 	cp -f $< $@
 
 $(MSVCRT_SOURCE):
@@ -766,8 +814,15 @@ $(GLOBALS_AUDIT_SOURCE): bin/collectGlobalDefinitions.py include/wcdata.h $(GLOB
 		--constants-header include/wcdata.h \
 		$(GLOBALS_DEFINITION_SOURCES)
 
-report: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) report $(BC) $(if $(FILTER),--filter $(FILTER))
+# Function annotations were projected through the reviewed WC1-to-WC2 map.
+# Unmapped annotations are deliberately non-numeric, preventing an apparently
+# valid score against unrelated WC2 bytes.
+wc2-remap-audit:
+	@python3 bin/remapWC1ToWC2.py --check
+
+report: $(TARGET) wc2-remap-audit | code-full $(ORIGINAL_EXE)
+	@$(BINARY_COMP) report $(BC) --no-build \
+		$(if $(FILTER),--filter $(FILTER))
 
 # Compare a single rebuilt function against the original.  This is the inner
 # loop while implementing:  make compare-func FUNC=MinShort
@@ -782,8 +837,9 @@ compare-func: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 # Regenerate code-full/ straight from the original PE with Capstone.  Preferred
 # over scraping Ghidra; bin/exportGhidra.py remains for names Ghidra knows and
 # the PE does not.
-export-asm: | $(ORIGINAL_EXE)
-	@$(BINARY_COMP) export-asm $(BC) $(EXPORT_ASM_FLAGS)
+export-asm: wc2-remap-audit | $(ORIGINAL_EXE)
+	@$(BINARY_COMP) export-asm $(BC) --clean $(EXPORT_ASM_FLAGS)
+	@touch $(CODE_EXPORT_STAMP)
 
 # Split near-miss functions into source-reachable vs allocator churn.
 triage: $(TARGET) | code-full $(ORIGINAL_EXE)
@@ -911,17 +967,19 @@ verify-values-stack-locals: $(TARGET) | code-full $(ORIGINAL_EXE)
 # The retail executable is not vendored.  Copy it in from the analysis tree.
 $(ORIGINAL_EXE):
 	@test -f "$(ORIGINAL_SRC)" || \
-		(echo "Error: original not found at $(ORIGINAL_SRC). Set ORIGINAL_SRC=/path/to/WC1.EXE" >&2 && exit 1)
+		(echo "Error: original not found at $(ORIGINAL_SRC). Set ORIGINAL_SRC=/path/to/WC2.EXE" >&2 && exit 1)
 	@mkdir -p $(dir $@)
 	@cp -f "$(ORIGINAL_SRC)" $@
 	@echo "Staged original -> $@"
 
-# code-full/ holds the Ghidra-exported disassembly, strings and globals used by
-# binary-comp.  Export it from the WC Ghidra project; never overwrite silently.
-code-full:
-	@echo "Error: code-full/ missing." >&2
-	@echo "Export the Ghidra disassembly for WC1.EXE into code-full/ (see docs/EXPORT.md)." >&2
-	@exit 1
+# code-full/ is a reproducible binary-comp export of WC2. A WC1-era directory
+# has no WC2 stamp, so `make report` replaces it automatically.
+code-full: $(CODE_EXPORT_STAMP)
+
+$(CODE_EXPORT_STAMP): $(SRCS) ghidra_scripts/wc1_wc2_name_map.tsv \
+		bin/remapWC1ToWC2.py | $(ORIGINAL_EXE)
+	@$(MAKE) export-asm
+	@test -f $@
 
 # ---------------------------------------------------------------------------
 # DREAMM launch targets
@@ -952,34 +1010,34 @@ $(DREAMM_BIN): $(DREAMM_STAMP)
 
 dreamm: $(DREAMM_BIN)
 
-# The Kilrathi Saga disc carries a ready-to-run WC1 tree at /WC1 (WC1.EXE,
+# The Kilrathi Saga disc carries a ready-to-run WC2 tree at /WC2 (WC2.EXE,
 # GAMEDAT with the MODULE/CAMP/BRIEFING files, STREAMS, WINGCMDR.CFG).  Extract
 # just that -- 142 MB of the disc's 634 -- rather than asking for a separate
 # install.  bsdtar reads ISO9660 directly and ships with macOS and most Linuxes.
 $(RUN_DIR)/GAMEDAT:
-	@test -n "$(WC1_ISO)" || \
-		(echo "Error: no disc image found. Put the Kilrathi Saga ISO in data/ or set WC1_ISO=." >&2 && exit 1)
+	@test -n "$(WC2_ISO)" || \
+		(echo "Error: no disc image found. Put the Kilrathi Saga ISO in data/ or set WC2_ISO=." >&2 && exit 1)
 	@command -v bsdtar >/dev/null 2>&1 || \
 		(echo "Error: bsdtar not found; needed to read the ISO." >&2 && exit 1)
-	@echo "Extracting WC1 from $(WC1_ISO)..."
+	@echo "Extracting WC2 from $(WC2_ISO)..."
 	@mkdir -p "$(RUN_DIR)"
-	@bsdtar -xf "$(WC1_ISO)" -C "$(RUN_DIR)" --strip-components=1 WC1
+	@bsdtar -xf "$(WC2_ISO)" -C "$(RUN_DIR)" --strip-components=1 WC2
 
 run-check: $(RUN_DIR)/GAMEDAT
 	@mkdir -p "$(RUN_DIR)/hd"
 
 run: $(TARGET) run-check | $(DREAMM_BIN)
-	cp -f $(TARGET) "$(RUN_DIR)/WC1.EXE"
-	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -launch WC1.EXE
+	cp -f $(TARGET) "$(RUN_DIR)/WC2.EXE"
+	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -launch WC2.EXE
 
 run-original: run-check $(ORIGINAL_EXE) | $(DREAMM_BIN)
-	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -launch WC1.ORI.EXE
+	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -launch WC2.ORI.EXE
 
 # DREAMM's own debugger, the same target the sibling project uses.
 debug: $(TARGET) run-check | $(DREAMM_BIN)
-	cp -f $(TARGET) "$(RUN_DIR)/WC1.EXE"
+	cp -f $(TARGET) "$(RUN_DIR)/WC2.EXE"
 	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -debug \
-		-launch WC1.EXE > debug.log
+		-launch WC2.EXE > debug.log
 
 # ---------------------------------------------------------------------------
 # Cleanup and phony declarations
@@ -990,7 +1048,7 @@ clean:
 	       $(OUT_DIR)/ix $(TARGET) $(MAPFILE)
 
 clean-run:
-	rm -f "$(RUN_DIR)/WC1.EXE" "$(RUN_DIR)/debug.log"
+	rm -f "$(RUN_DIR)/WC2.EXE" "$(RUN_DIR)/debug.log"
 
 clean-dreamm:
 	rm -rf $(DREAMM_DIR)
@@ -1031,6 +1089,7 @@ clean-modern:
 	modern-check-deps \
 	modern-test \
 	modern-test-full \
+	msvc41-toolchain \
 	order \
 	progress \
 	report \
@@ -1049,3 +1108,4 @@ clean-modern:
 	verify-globals-code \
 	verify-values \
 	verify-values-stack-locals \
+	wc2-remap-audit \

@@ -99,7 +99,7 @@ unsigned char DAT_004693b0 = 0;
 char *g_pGameVersion_004693b4 = g_szGameVersion_004693b8;
 char g_szGameVersion_004693b8[9] = "1.03F-95";
 
-/* Function start: 0x413A10 */
+/* Function start: 0x40F040 */
 void EmitTextString(void (__stdcall *writer)(int), const char *text)
 {
     short character;
@@ -111,7 +111,7 @@ void EmitTextString(void (__stdcall *writer)(int), const char *text)
     }
 }
 
-/* Function start: 0x413A40 */
+/* Function start: 0x420378 */
 void FormatTextTokens(void (__stdcall *writer)(int),
 #ifdef WC1_SDL
                       const char *format, va_list *arguments)
@@ -244,7 +244,7 @@ void FormatTextTokens(void (__stdcall *writer)(int),
     }
 }
 
-/* Function start: 0x413C40 */
+/* Function start: 0x461D02 */
 void DrawFormattedText(const char *format, ...)
 {
 #ifdef WC1_SDL
@@ -263,7 +263,7 @@ void DrawFormattedText(const char *format, ...)
         DIBslam();
 }
 
-/* Function start: 0x413C70 */
+/* Function start: 0x40D6B0 */
 void FormatTextBufferFromStart(const char *format, ...)
 {
     g_pCurrentTextContext_0059af8c->textCursor =
@@ -286,7 +286,7 @@ void FormatTextBufferFromStart(const char *format, ...)
         DIBslam();
 }
 
-/* Function start: 0x413CB0 */
+/* Function start: 0x4206F2 */
 void AppendFormattedText(const char *format, ...)
 {
 #ifdef WC1_SDL
@@ -305,7 +305,7 @@ void AppendFormattedText(const char *format, ...)
         DIBslam();
 }
 
-/* Function start: 0x413CE0 */
+/* Function start: 0x4380B0 */
 void FatalErrorAndExit(const char *format, ...)
 {
     char text[0xfc];
@@ -323,13 +323,13 @@ void FatalErrorAndExit(const char *format, ...)
     exit_squadron(text);
 }
 
-/* Function start: 0x413D20 */
+/* Function start: WC2_UNMAPPED */
 unsigned short IsCockpitExplosionActive(void)
 {
     return g_nCockpitExplosionFrame_00469068 < 8;
 }
 
-/* Function start: 0x413D40 */
+/* Function start: 0x438129 */
 void EraseCockpitReadoutRegion(Viewport *viewport, short left,
                                short top, short right, short bottom,
                                short colour)
@@ -346,7 +346,7 @@ void EraseCockpitReadoutRegion(Viewport *viewport, short left,
     }
 }
 
-/* Function start: 0x413DA0 */
+/* Function start: 0x438194 */
 void vdu_polygon(signed char bar, short percent)
 {
 #ifdef WC1_SDL
@@ -445,7 +445,7 @@ void vdu_polygon(signed char bar, short percent)
     }
 }
 
-/* Function start: 0x413F70 */
+/* Function start: 0x438454 */
 unsigned int InitializeCockpitReadout(signed char slot,
                                       TextContext *context)
 {
@@ -456,7 +456,7 @@ unsigned int InitializeCockpitReadout(signed char slot,
     return 0;
 }
 
-/* Function start: 0x413FB0 */
+/* Function start: 0x4384AD */
 void DrawCockpitReadout(signed char slot, const char *text)
 {
     CockpitReadout *readout;
@@ -476,7 +476,7 @@ void DrawCockpitReadout(signed char slot, const char *text)
     }
 }
 
-/* Function start: 0x414050 */
+/* Function start: WC2_UNMAPPED */
 void EraseCockpitReadoutAtPosition(signed char slot, short left,
                                    short top)
 {
@@ -489,7 +489,7 @@ void EraseCockpitReadoutAtPosition(signed char slot, short left,
         DAT_0046999c);
 }
 
-/* Function start: 0x4140A0 */
+/* Function start: 0x4385B3 */
 short DrawHudMessageSlot(HudMessageSlot *slot)
 {
     unsigned char savedColour;
@@ -523,7 +523,7 @@ short DrawHudMessageSlot(HudMessageSlot *slot)
     return showingEraseColour;
 }
 
-/* Function start: 0x414180 */
+/* Function start: 0x4387FA */
 void ClearHudMessageSlot(HudMessageSlot *slot)
 {
     slot->flashCount = 0;
@@ -532,14 +532,14 @@ void ClearHudMessageSlot(HudMessageSlot *slot)
     slot->text = 0;
 }
 
-/* Function start: 0x4141B0 */
+/* Function start: 0x4387A7 */
 void ClearHudMessageIfMatching(HudMessageSlot *slot, const char *text)
 {
     if (slot->text == text)
         ClearHudMessageSlot(slot);
 }
 
-/* Function start: 0x4141D0 */
+/* Function start: WC2_UNMAPPED */
 void ClearHudGunReadouts(void)
 {
     g_aHudMessageSlots_005a7dd0[0].text = 0;
@@ -548,7 +548,7 @@ void ClearHudGunReadouts(void)
     g_aHudMessageSlots_005a7dd0[1].flashCount = 0;
 }
 
-/* Function start: 0x4141F0 */
+/* Function start: 0x40A51D */
 void SetHudMessageSlot(HudMessageSlot *slot, TextContext *context,
                        short x, short y, const char *text,
                        unsigned short colour, signed char flashCount)
@@ -564,7 +564,7 @@ void SetHudMessageSlot(HudMessageSlot *slot, TextContext *context,
     slot->flashCount = flashCount;
 }
 
-/* Function start: 0x414240 */
+/* Function start: 0x438864 */
 void UpdateMessage(HudMessageSlot *slot)
 {
     short showingEraseColour;
@@ -576,7 +576,7 @@ void UpdateMessage(HudMessageSlot *slot)
     }
 }
 
-/* Function start: 0x414270 */
+/* Function start: WC2_UNMAPPED */
 void set_global_message(const char *text, unsigned short colour,
                         int flashCount)
 {
@@ -586,7 +586,7 @@ void set_global_message(const char *text, unsigned short colour,
                       text, colour, (signed char)flashCount);
 }
 
-/* Function start: 0x4142B0 */
+/* Function start: WC2_UNMAPPED */
 void CockpitMessage(const char *text, unsigned short colour,
                     int flashCount)
 {
@@ -594,13 +594,13 @@ void CockpitMessage(const char *text, unsigned short colour,
         set_global_message(text, colour, flashCount);
 }
 
-/* Function start: 0x4142E0 */
+/* Function start: 0x43893F */
 void remove_message(const char *text)
 {
     ClearHudMessageIfMatching(&g_aHudMessageSlots_005a7dd0[1], text);
 }
 
-/* Function start: 0x414300 */
+/* Function start: 0x43895F */
 short kilrathi_near(short obj, short range)
 {
     short ship;
@@ -618,7 +618,7 @@ short kilrathi_near(short obj, short range)
     return 0;
 }
 
-/* Function start: 0x414380 */
+/* Function start: 0x438ADD */
 short auto_pilot_valid(short showReason)
 {
     const char *reason;
@@ -641,7 +641,7 @@ short auto_pilot_valid(short showReason)
     return reason == 0;
 }
 
-/* Function start: 0x414410 */
+/* Function start: 0x4213FE */
 void *reset_cockpit(void)
 {
     memset(g_abCockpitLightGoal_005a7eb8, 0,
@@ -651,7 +651,7 @@ void *reset_cockpit(void)
     return g_abCockpitLightState_005a7e70;
 }
 
-/* Function start: 0x414440 */
+/* Function start: 0x438D30 */
 unsigned int SetCockpitLightBlink(signed char light, short interval)
 {
     if (interval < 20) {
@@ -669,7 +669,7 @@ unsigned int SetCockpitLightBlink(signed char light, short interval)
     return 0;
 }
 
-/* Function start: 0x414490 */
+/* Function start: 0x438DAD */
 void draw_cockpit_lights(void)
 {
     signed char light;
@@ -723,7 +723,7 @@ void draw_cockpit_lights(void)
     } while (light < 7);
 }
 
-/* Function start: 0x4145B0 */
+/* Function start: 0x438F62 */
 void update_lights(void)
 {
     short fuelPercent;
@@ -753,7 +753,7 @@ void update_lights(void)
     }
 }
 
-/* Function start: 0x414690 */
+/* Function start: 0x439076 */
 void update_bars(void)
 {
     ObjectTypeData *typeData;
@@ -789,14 +789,14 @@ void update_bars(void)
                  g_szTextScratchBuffer_00598b00, 10));
 }
 
-/* Function start: 0x4147E0 */
+/* Function start: 0x439264 */
 short get_mode(short i)
 {
     return DAT_0059d500[
         ((int)g_acVduModeStackDepth_0059dec0[i] + i * 4) * 2];
 }
 
-/* Function start: 0x414800 */
+/* Function start: 0x443D6E */
 void set_mode(short i, int state)
 {
     if (get_mode(i) != state)
@@ -805,7 +805,7 @@ void set_mode(short i, int state)
     *(int *)&DAT_0059d500[i * 8] = state;
 }
 
-/* Function start: 0x414850 */
+/* Function start: 0x464BFE */
 unsigned short SetVduModeIfChanged(short i, int state)
 {
     short changed;
@@ -816,13 +816,13 @@ unsigned short SetVduModeIfChanged(short i, int state)
     return changed;
 }
 
-/* Function start: 0x414890 */
+/* Function start: 0x43934D */
 int GetVduModeStackDepth(short i)
 {
     return g_acVduModeStackDepth_0059dec0[i];
 }
 
-/* Function start: 0x4148A0 */
+/* Function start: 0x4393B3 */
 void push_mode(short i, int state)
 {
     ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[i]);
@@ -831,14 +831,14 @@ void push_mode(short i, int state)
         ((int)g_acVduModeStackDepth_0059dec0[i] + i * 4) * 2] = state;
 }
 
-/* Function start: 0x4148E0 */
+/* Function start: 0x4388B6 */
 void pop_mode(short i)
 {
     ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[i]);
     g_acVduModeStackDepth_0059dec0[i]--;
 }
 
-/* Function start: 0x414910 */
+/* Function start: 0x4393E1 */
 void set_new_vdu(short vdu)
 {
     if (get_mode(vdu) == 0) {
@@ -852,7 +852,7 @@ void set_new_vdu(short vdu)
     DAT_0059ce18[vdu] = (unsigned int)get_mode(vdu);
 }
 
-/* Function start: 0x414980 */
+/* Function start: 0x447544 */
 short update_vid_disp(short vdu)
 {
     short changed;
@@ -863,32 +863,32 @@ short update_vid_disp(short vdu)
     return changed;
 }
 
-/* Function start: 0x4149C0 */
+/* Function start: 0x439500 */
 void InvalidateVduMode(short i)
 {
     DAT_0059ce18[i] = 0;
 }
 
-/* Function start: 0x4149E0 */
+/* Function start: 0x43C5B0 */
 void clear_message_time(void)
 {
     DAT_005a7dca = 0;
 }
 
-/* Function start: 0x4149F0 */
+/* Function start: 0x43952E */
 short message_showing(void)
 {
     return 0 < DAT_005a7dca;
 }
 
-/* Function start: 0x414A10 */
+/* Function start: 0x46EEBD */
 unsigned short set_message_time(unsigned short v)
 {
     DAT_005a7dca = (short)v;
     return 0;
 }
 
-/* Function start: 0x414A20 */
+/* Function start: 0x439588 */
 void check_message(void)
 {
     if (message_showing() &&
@@ -896,7 +896,7 @@ void check_message(void)
         EndCommMenu();
 }
 
-/* Function start: 0x414A50 */
+/* Function start: 0x4396BF */
 unsigned int update_digital_readouts(void)
 {
     long velocity;
@@ -913,19 +913,19 @@ unsigned int update_digital_readouts(void)
     return 0;
 }
 
-/* Function start: 0x414AD0 */
+/* Function start: 0x446CC2 */
 void PlayTargetLockSfx(void)
 {
     PlaySfxWaveFileByNumber(0x18, -1, 0);
 }
 
-/* Function start: 0x414AE0 */
+/* Function start: 0x439753 */
 void malf_sound(void)
 {
     PlaySfxWaveFileByNumber(0x1f, -1, 0);
 }
 
-/* Function start: 0x414AF0 */
+/* Function start: 0x439789 */
 short malf(char component)
 {
     int damage = g_acPlayerComponentDamage_0059bff0[(int)component];
@@ -933,7 +933,7 @@ short malf(char component)
     return (unsigned short)RandomInRange(0, 15) < damage * damage;
 }
 
-/* Function start: 0x414B20 */
+/* Function start: 0x421BFC */
 unsigned short vdu_malf(short vdu, short sound)
 {
     if (DAT_0046c03c == 0)
@@ -942,7 +942,7 @@ unsigned short vdu_malf(short vdu, short sound)
     return 0;
 }
 
-/* Function start: 0x414B70 */
+/* Function start: 0x43984F */
 void ShowComponentHitHudMessage(const char *text, unsigned short colour,
                                 short flashCount)
 {
@@ -958,7 +958,7 @@ void ShowComponentHitHudMessage(const char *text, unsigned short colour,
     }
 }
 
-/* Function start: 0x414BF0 */
+/* Function start: 0x4398CB */
 int damage_your_component(char component, char amount, char maximum)
 {
     int index = (int)component;
@@ -979,7 +979,7 @@ int damage_your_component(char component, char amount, char maximum)
     return g_acPlayerComponentDamage_0059bff0[index];
 }
 
-/* Function start: 0x414CB0 */
+/* Function start: 0x4399C6 */
 void RemovePlayerReleaseWeapon(signed char weapon)
 {
     volatile ShipWeaponSlot *loadout;
@@ -1007,7 +1007,7 @@ void RemovePlayerReleaseWeapon(signed char weapon)
     select_new_release_weapon(preferredType);
 }
 
-/* Function start: 0x414D50 */
+/* Function start: 0x439A5A */
 void fire_computer_graphic_missile(void)
 {
     short visible;
@@ -1053,7 +1053,7 @@ void fire_computer_graphic_missile(void)
     }
 }
 
-/* Function start: 0x414EA0 */
+/* Function start: 0x439BB7 */
 void show_weapon_disp(void)
 {
     ShipWeaponSlot *weapons;
@@ -1126,36 +1126,36 @@ void show_weapon_disp(void)
         } while (count < (signed char)g_aShipWeapons_0059cab0[0][0]);
 }
 
-/* Function start: 0x415040 */
+/* Function start: WC2_UNMAPPED */
 void update_status_text(void)
 {
 }
 
-/* Function start: 0x415050 */
+/* Function start: WC2_UNMAPPED */
 short sighted(short objective)
 {
     return (g_aMissionObjectives_0059dac0[objective].flags & 4) == 4;
 }
 
-/* Function start: 0x415070 */
+/* Function start: WC2_UNMAPPED */
 short visited(short objective)
 {
     return (g_aMissionObjectives_0059dac0[objective].flags & 1) == 1;
 }
 
-/* Function start: 0x415090 */
+/* Function start: 0x40AA37 */
 short achieved(short objective)
 {
     return (g_aMissionObjectives_0059dac0[objective].flags & 2) == 2;
 }
 
-/* Function start: 0x4150B0 */
+/* Function start: WC2_UNMAPPED */
 void flag_objective(short objective, unsigned char flags)
 {
     g_aMissionObjectives_0059dac0[objective].flags |= flags;
 }
 
-/* Function start: 0x4150D0 */
+/* Function start: 0x43A2CD */
 void DrawCalculatingLabel(void)
 {
     if (g_nCurrentObjectiveRange_0059d2b0 <= 0) {
@@ -1171,7 +1171,7 @@ void DrawCalculatingLabel(void)
         g_nCurrentObjectiveRange_0059d2b0;
 }
 
-/* Function start: 0x415130 */
+/* Function start: 0x43A374 */
 const char *objective_name(short objective)
 {
     if (objective >= (short)g_cMissionObjectiveCount_0059c46a)
@@ -1182,7 +1182,7 @@ const char *objective_name(short objective)
     return g_aMissionObjectives_0059dac0[objective].displayName;
 }
 
-/* Function start: 0x415180 */
+/* Function start: 0x43A3F8 */
 void show_navigation_disp(void)
 {
     DrawTextAt(&DAT_005a7700, DAT_005a7530.left, DAT_005a7530.top,
@@ -1195,7 +1195,7 @@ void show_navigation_disp(void)
     DrawCalculatingLabel();
 }
 
-/* Function start: 0x4151F0 */
+/* Function start: 0x43A474 */
 short hidden_objective(short objective)
 {
     short nameHidden;
@@ -1228,7 +1228,7 @@ short hidden_objective(short objective)
     return hidden;
 }
 
-/* Function start: 0x4152C0 */
+/* Function start: 0x43A75E */
 int set_new_objective(short pathIndex)
 {
     if (pathIndex < 0) {
@@ -1256,7 +1256,7 @@ int set_new_objective(short pathIndex)
     return 1;
 }
 
-/* Function start: 0x415370 */
+/* Function start: 0x43A851 */
 short cycle_next_objective(void)
 {
     short wraps;
@@ -1276,7 +1276,7 @@ short cycle_next_objective(void)
     return wraps < 3;
 }
 
-/* Function start: 0x4153D0 */
+/* Function start: WC2_UNMAPPED */
 void set_next_destination(void)
 {
     set_new_objective(0);
@@ -1301,7 +1301,7 @@ void set_next_destination(void)
     InvalidateVduMode(1);
 }
 
-/* Function start: 0x415470 */
+/* Function start: 0x43A9D7 */
 short LocateMobileObjective(short objective)
 {
     short ship = -1;
@@ -1314,7 +1314,7 @@ short LocateMobileObjective(short objective)
     return ship;
 }
 
-/* Function start: 0x4154C0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int someone_coming(void)
 {
     short ship = 0;
@@ -1329,7 +1329,7 @@ unsigned int someone_coming(void)
     return 0;
 }
 
-/* Function start: 0x415510 */
+/* Function start: 0x43AAC3 */
 unsigned int escorting_a_ship(void)
 {
     if (g_aeShipMissionType_0059c3f0[0] != MISSION_TYPE_ESCORT) {
@@ -1339,7 +1339,7 @@ unsigned int escorting_a_ship(void)
     return 1;
 }
 
-/* Function start: 0x415530 */
+/* Function start: 0x43AAFF */
 void flag_reached(short objective, short reached)
 {
     short carrierMissionShip;
@@ -1391,7 +1391,7 @@ void flag_reached(short objective, short reached)
         set_next_destination();
 }
 
-/* Function start: 0x4156D0 */
+/* Function start: 0x43AD61 */
 void check_sighting(short objective, short range, short object)
 {
     if (sighted(objective) == 0 && range < 16000 &&
@@ -1400,7 +1400,7 @@ void check_sighting(short objective, short range, short object)
         flag_objective(objective, 4);
 }
 
-/* Function start: 0x415720 */
+/* Function start: 0x43ADC4 */
 void check_visit(short objective, short range)
 {
     int reachedRange;
@@ -1414,7 +1414,7 @@ void check_visit(short objective, short range)
         flag_reached(objective, 0);
 }
 
-/* Function start: 0x415770 */
+/* Function start: 0x43AE2F */
 void update_objective_location(short objective)
 {
     FixedVector delta;
@@ -1440,7 +1440,7 @@ void update_objective_location(short objective)
     }
 }
 
-/* Function start: 0x415850 */
+/* Function start: WC2_UNMAPPED */
 unsigned int objective_lost(short objective)
 {
     int objectiveIndex;
@@ -1462,7 +1462,7 @@ unsigned int objective_lost(short objective)
     }
 }
 
-/* Function start: 0x4158A0 */
+/* Function start: 0x43B089 */
 void check_objectives(void)
 {
     if (objective_lost((short)g_cCurrentObjective_0046c020) != 0) {
@@ -1476,7 +1476,7 @@ void check_objectives(void)
         DrawCalculatingLabel();
 }
 
-/* Function start: 0x4158F0 */
+/* Function start: 0x43B0EB */
 void rotational_pos_to_scanner_pos(signed char object,
                                    const SphericalVector *position)
 {
@@ -1517,7 +1517,7 @@ void rotational_pos_to_scanner_pos(signed char object,
         g_nScannerCursorY_005a7e6e;
 }
 
-/* Function start: 0x415A30 */
+/* Function start: 0x450CF8 */
 short mobile_objective(short objective)
 {
     int type = g_aMissionObjectives_0059dac0[objective].type;
@@ -1527,7 +1527,7 @@ short mobile_objective(short objective)
     return 0;
 }
 
-/* Function start: 0x415A70 */
+/* Function start: WC2_UNMAPPED */
 void ResetScannerContacts(void)
 {
     short i = 10;
@@ -1539,7 +1539,7 @@ void ResetScannerContacts(void)
     g_nScannerTargetObject_00469090 = -1;
 }
 
-/* Function start: 0x415A90 */
+/* Function start: 0x43B29D */
 void clear_head_up_display(void)
 {
     short object;
@@ -1575,7 +1575,7 @@ void clear_head_up_display(void)
     g_nScannerTargetObject_00469090 = -1;
 }
 
-/* Function start: 0x415B70 */
+/* Function start: 0x43B4CF */
 unsigned int set_objective_range(short showOnScanner)
 {
     FixedVector relative;
@@ -1595,7 +1595,7 @@ unsigned int set_objective_range(short showOnScanner)
     return 0;
 }
 
-/* Function start: 0x415C00 */
+/* Function start: 0x450623 */
 short get_color(short object, unsigned short *colour)
 {
     enum ObjectClass objectClass;
@@ -1629,7 +1629,7 @@ short get_color(short object, unsigned short *colour)
     return 0;
 }
 
-/* Function start: 0x415CE0 */
+/* Function start: 0x460DFE */
 unsigned int draw_3d_scanner(void)
 {
     const int *grid;
@@ -1722,7 +1722,7 @@ unsigned int draw_3d_scanner(void)
     return 0;
 }
 
-/* Function start: 0x415FC0 */
+/* Function start: 0x43BE1B */
 void start_lock(unsigned short v)
 {
     g_bTargetLockReadoutDirty_0046c060 = 0;
@@ -1731,7 +1731,7 @@ void start_lock(unsigned short v)
         RandomBelowOrEqual(0x167);
 }
 
-/* Function start: 0x415FF0 */
+/* Function start: 0x43BE55 */
 unsigned short starting_lock(unsigned short v)
 {
     if (g_nTargetLockCountdown_0046c064 == -1) {
@@ -1741,7 +1741,7 @@ unsigned short starting_lock(unsigned short v)
     return 0;
 }
 
-/* Function start: 0x416010 */
+/* Function start: 0x43BE8D */
 void lock_off(void)
 {
     if (g_nTargetLockCountdown_0046c064 > -1)
@@ -1750,7 +1750,7 @@ void lock_off(void)
     g_nTargetLockCountdown_0046c064 = -1;
 }
 
-/* Function start: 0x416040 */
+/* Function start: 0x43BEFF */
 short CheckTargetLockMalfunction(void)
 {
     short countdown;
@@ -1766,7 +1766,7 @@ short CheckTargetLockMalfunction(void)
     return 0;
 }
 
-/* Function start: 0x416090 */
+/* Function start: 0x43BF67 */
 short decrement_lock_time(short screenX)
 {
     (void)screenX;
@@ -1789,7 +1789,7 @@ short decrement_lock_time(short screenX)
     return 0;
 }
 
-/* Function start: 0x416120 */
+/* Function start: 0x43C048 */
 void target_locking(signed char target)
 {
     enum ObjectType weaponType;
@@ -1849,7 +1849,7 @@ image_recognition_lock:
     lock_off();
 }
 
-/* Function start: 0x416220 */
+/* Function start: 0x43C30D */
 void SetRectBounds(Viewport *viewport, unsigned short a, unsigned short b,
                    unsigned short c, unsigned short d)
 {
@@ -1859,13 +1859,13 @@ void SetRectBounds(Viewport *viewport, unsigned short a, unsigned short b,
     viewport->bottom = (short)d;
 }
 
-/* Function start: 0x416250 */
+/* Function start: WC2_UNMAPPED */
 short GetRectHeight(const Viewport *viewport)
 {
     return viewport->right - viewport->left;
 }
 
-/* Function start: 0x416260 */
+/* Function start: 0x433AD0 */
 void print_message_text(char *text, unsigned short colour)
 {
     TextContext context;
@@ -1959,14 +1959,14 @@ void print_message_text(char *text, unsigned short colour)
     DAT_00469008 = DAT_00469004;
 }
 
-/* Function start: 0x416460 */
+/* Function start: WC2_UNMAPPED */
 void ShowHudTextLine(char *s, unsigned short b)
 {
     DAT_00469004 = s;
     print_message_text(s, b);
 }
 
-/* Function start: 0x416480 */
+/* Function start: 0x465EA9 */
 void SetHudTextColour(short v)
 {
     if (v != 0)
@@ -1974,7 +1974,7 @@ void SetHudTextColour(short v)
     print_message_text(DAT_00469008, (unsigned char)DAT_004699d8);
 }
 
-/* Function start: 0x4164B0 */
+/* Function start: 0x43C6D8 */
 void draw_target_box(unsigned short colour, signed char object,
                      short solid, short drawLockMarker, short padding,
                      ShortRect *savedBounds)
@@ -2095,14 +2095,14 @@ void draw_target_box(unsigned short colour, signed char object,
     }
 }
 
-/* Function start: 0x4168A0 */
+/* Function start: 0x443E8C */
 void remove_nav_pointer(void)
 {
     if (DAT_00469208 != -1)
         remove_object(DAT_00469208);
 }
 
-/* Function start: 0x4168C0 */
+/* Function start: 0x43CBFD */
 void draw_nav_pointer(void)
 {
     FixedVector objectivePosition;
@@ -2167,7 +2167,7 @@ void draw_nav_pointer(void)
     g_asObjectDistance_0059b4a0[object] = 0x4a38;
 }
 
-/* Function start: 0x416AC0 */
+/* Function start: 0x43D386 */
 unsigned int overlay_head_up_display(void)
 {
     target_locking(g_acShipTarget_0059ce60[0]);
@@ -2247,7 +2247,7 @@ no_sight:
     return 0;
 }
 
-/* Function start: 0x416C90 */
+/* Function start: WC2_UNMAPPED */
 void RestoreCockpitExplosionIfVisible(void)
 {
     if (IsCockpitExplosionActive() &&
@@ -2256,7 +2256,7 @@ void RestoreCockpitExplosionIfVisible(void)
     }
 }
 
-/* Function start: 0x416CB0 */
+/* Function start: 0x4083E6 */
 unsigned int RestoreTransientCockpitGraphics(void)
 {
     if (g_bMouseCursorVisible_0046a018 == 1) {
@@ -2301,7 +2301,7 @@ unsigned int RestoreTransientCockpitGraphics(void)
     return 0;
 }
 
-/* Function start: 0x416DE0 */
+/* Function start: 0x43D956 */
 void SetHudMessageText(char *text, unsigned short colour,
                        unsigned short duration)
 {
@@ -2314,7 +2314,7 @@ void SetHudMessageText(char *text, unsigned short colour,
     }
 }
 
-/* Function start: 0x416E20 */
+/* Function start: 0x43D9DA */
 void malf_noise(short vdu, int effect, unsigned short colour,
                 short sound, short refresh)
 {
@@ -2331,7 +2331,7 @@ void malf_noise(short vdu, int effect, unsigned short colour,
         set_new_vdu(vdu);
 }
 
-/* Function start: 0x416E90 */
+/* Function start: 0x43DA68 */
 void build_your_target_list(short *hasEnemy)
 {
     signed char object;
@@ -2362,7 +2362,7 @@ void build_your_target_list(short *hasEnemy)
         sort_viable_target_list();
 }
 
-/* Function start: 0x416F30 */
+/* Function start: 0x43DD1B */
 void cycle_onscreen_targets(void)
 {
     signed char previousTarget;
@@ -2395,7 +2395,7 @@ void cycle_onscreen_targets(void)
         g_nTargetLockCountdown_0046c064 = -1;
 }
 
-/* Function start: 0x416FD0 */
+/* Function start: 0x43DDFC */
 void check_target(void)
 {
     short selectNewTarget;
@@ -2462,7 +2462,7 @@ void check_target(void)
     }
 }
 
-/* Function start: 0x417190 */
+/* Function start: 0x43E1B2 */
 void update_missile_warning(void)
 {
     if (missile_on_tail(0) != 0) {
@@ -2474,7 +2474,7 @@ void update_missile_warning(void)
     }
 }
 
-/* Function start: 0x4171D0 */
+/* Function start: 0x43E297 */
 void determine_pilot_hand(void)
 {
     short yaw;
@@ -2505,7 +2505,7 @@ void determine_pilot_hand(void)
     g_bStickIndicatorFrame_005a7dc8 = 0;
 }
 
-/* Function start: 0x417260 */
+/* Function start: 0x43E371 */
 void DrawPilotHandFrame(void)
 {
     int view = (int)g_cCockpitView_0059dab0;
@@ -2528,7 +2528,7 @@ void DrawPilotHandFrame(void)
     DAT_0046900c = g_bStickIndicatorFrame_005a7dc8;
 }
 
-/* Function start: 0x417320 */
+/* Function start: 0x43F110 */
 void CopyTrainSimPilotViewToRightVdu(void)
 {
     Viewport destination;
@@ -2548,7 +2548,7 @@ void CopyTrainSimPilotViewToRightVdu(void)
     CopyViewportContents(&g_stTrainSimVduSource_00469210, &destination);
 }
 
-/* Function start: 0x4173C0 */
+/* Function start: 0x43E43A */
 void animate_pilot(void)
 {
     if (g_pPilotHandShape_005a7684 != 0) {
@@ -2558,7 +2558,7 @@ void animate_pilot(void)
     }
 }
 
-/* Function start: 0x4173F0 */
+/* Function start: 0x4601F1 */
 void ResetPilotHandAnimation(void)
 {
     if (g_pPilotHandShape_005a7684 != 0) {
@@ -2568,7 +2568,7 @@ void ResetPilotHandAnimation(void)
     }
 }
 
-/* Function start: 0x417420 */
+/* Function start: 0x43E4A8 */
 void send_message(short obj, signed char message)
 {
     if (g_nTrainSimActive_00469e2c == 0 &&
@@ -2599,7 +2599,7 @@ void send_message(short obj, signed char message)
     }
 }
 
-/* Function start: 0x4174F0 */
+/* Function start: 0x43E5DA */
 void npc_communication(void)
 {
     signed char message;
@@ -2646,14 +2646,14 @@ void npc_communication(void)
     }
 }
 
-/* Function start: 0x417610 */
+/* Function start: 0x43E870 */
 void clear_cockpit_damage(void)
 {
     memset(g_anCockpitDamageState_005a7ef0, 0,
            sizeof(g_anCockpitDamageState_005a7ef0));
 }
 
-/* Function start: 0x417630 */
+/* Function start: 0x43E8B2 */
 void explosion_draw(void)
 {
     short damage;
@@ -2678,7 +2678,7 @@ void explosion_draw(void)
     FreePacketAndClear(&g_pCockpitPilotShape_0046905c, 0);
 }
 
-/* Function start: 0x4176C0 */
+/* Function start: 0x43E9E2 */
 unsigned int DrawPendingCockpitDamage(void)
 {
     if (g_pCockpitPilotShape_0046905c == 0)
@@ -2703,7 +2703,7 @@ unsigned int DrawPendingCockpitDamage(void)
     return 0;
 }
 
-/* Function start: 0x417760 */
+/* Function start: 0x43EAE3 */
 void RestoreCockpitExplosionBackground(void)
 {
     if (IsCockpitExplosionActive() &&
@@ -2718,7 +2718,7 @@ void RestoreCockpitExplosionBackground(void)
     }
 }
 
-/* Function start: 0x4177B0 */
+/* Function start: 0x43EB46 */
 void cockpit_explosion(void)
 {
     short frame;
@@ -2752,7 +2752,7 @@ void cockpit_explosion(void)
     FreePacketAndClear(&g_pCockpitExplosionShape_00469064, 0);
 }
 
-/* Function start: 0x4178A0 */
+/* Function start: 0x43EC50 */
 void place_damage_on_cockpit(short damage)
 {
     if (DAT_0046c03c == 0 && g_nTrainSimActive_00469e2c == 0 &&
@@ -2772,7 +2772,7 @@ void place_damage_on_cockpit(short damage)
     }
 }
 
-/* Function start: 0x417910 */
+/* Function start: 0x43ECD9 */
 void vid_transmit(void)
 {
     short randomFrame;
@@ -2826,7 +2826,7 @@ void vid_transmit(void)
     }
 }
 
-/* Function start: 0x417AC0 */
+/* Function start: 0x43F042 */
 void vid_equiv(short obj, short message)
 {
     if (get_mode(1) != 4 &&
@@ -2836,13 +2836,13 @@ void vid_equiv(short obj, short message)
         real_vid_transmit(obj, message);
 }
 
-/* Function start: 0x417B10 */
+/* Function start: 0x43F09D */
 void update_dead_disp(short a)
 {
     malf_noise(a, 1, DAT_004699b0, 0x17, 0);
 }
 
-/* Function start: 0x417B30 */
+/* Function start: 0x43F0C3 */
 void check_stranded(void)
 {
     if (g_nTrainSimActive_00469e2c == 0 &&
@@ -2852,7 +2852,7 @@ void check_stranded(void)
         g_nArcadeState_00469fb0 = 3;
 }
 
-/* Function start: 0x417B70 */
+/* Function start: 0x43F2F5 */
 void update_VDUs(void)
 {
     short changed;
@@ -2980,7 +2980,7 @@ void update_VDUs(void)
         CopyTrainSimPilotViewToRightVdu();
 }
 
-/* Function start: 0x417E70 */
+/* Function start: 0x43F6C9 */
 void update_cockpit(void)
 {
     check_target();
@@ -3009,14 +3009,14 @@ void update_cockpit(void)
     check_stranded();
 }
 
-/* Function start: 0x417F00 */
+/* Function start: 0x43F849 */
 void PlayCockpitSelectionSfx(short selectionSound)
 {
     (void)selectionSound;
     PlaySfxWaveFileByNumber(0x19, -1, 0);
 }
 
-/* Function start: 0x417F10 */
+/* Function start: 0x43F862 */
 void vdu_pop_all(short vdu)
 {
     int mode;
@@ -3030,7 +3030,7 @@ void vdu_pop_all(short vdu)
     }
 }
 
-/* Function start: 0x417F60 */
+/* Function start: 0x43F8CD */
 void SelectCockpitVduMode(short vdu, int mode)
 {
     short changed;

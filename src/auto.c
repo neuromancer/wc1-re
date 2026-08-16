@@ -9,7 +9,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x403E50 */
+/* Function start: 0x4228B0 */
 void visit_the_cinema(int view, int obj, short frames)
 {
     int savedOriginUnlock;
@@ -36,7 +36,7 @@ void visit_the_cinema(int view, int obj, short frames)
     DAT_0046a000 = savedKeyboardFlag;
 }
 
-/* Function start: 0x403EE0 */
+/* Function start: 0x422953 */
 unsigned int player_wingman(short obj)
 {
     if (obj != -1 && g_asShipWingLeader_0059d400[obj] == 0)
@@ -44,14 +44,14 @@ unsigned int player_wingman(short obj)
     return 0;
 }
 
-/* Function start: 0x403F10 */
+/* Function start: 0x422990 */
 void set_speed(short obj, short speed)
 {
     g_anShipSpeed_0059b320[obj] = (int)speed << 8;
     fix_velocity(obj);
 }
 
-/* Function start: 0x403F40 */
+/* Function start: 0x4229B9 */
 void auto_position(short obj, short *formationSlot)
 {
     short ship = obj;
@@ -90,7 +90,7 @@ void auto_position(short obj, short *formationSlot)
                           lateral, vertical, forward);
 }
 
-/* Function start: 0x404050 */
+/* Function start: 0x422B1C */
 void auto_pilot_sequence(void)
 {
     short savedCannedSceneMode;

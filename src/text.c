@@ -8,7 +8,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x433910 */
+/* Function start: 0x43C364 */
 void show_info_disp(void)
 {
     char objectiveMarker[2];

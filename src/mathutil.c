@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x41D0C0 */
+/* Function start: 0x46F3D0 */
 short MinShort(short a, short b)
 {
     if (a < b)
@@ -14,7 +14,7 @@ short MinShort(short a, short b)
     return b;
 }
 
-/* Function start: 0x41D0E0 */
+/* Function start: 0x40F072 */
 short MaxShort(short a, short b)
 {
     if (a > b)
@@ -22,7 +22,7 @@ short MaxShort(short a, short b)
     return b;
 }
 
-/* Function start: 0x41D100 */
+/* Function start: 0x40F0A4 */
 void FreePacketAndClear(void *slot, unsigned short releaseFlags)
 {
 #ifdef WC1_SDL

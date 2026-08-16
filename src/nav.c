@@ -137,7 +137,7 @@ PacketResourceDescriptor g_aIntroResourceDescriptors_00468ac0[3] = {
 
 int g_bTitleMenuSceneInitialized_00468ad8 = 0;
 
-/* Function start: 0x40D090 */
+/* Function start: WC2_UNMAPPED */
 short NavMapPointInsideReservedArea(short area, short x, short y)
 {
     ShortRect *rectangle;
@@ -147,13 +147,13 @@ short NavMapPointInsideReservedArea(short area, short x, short y)
            rectangle->top <= y && y <= rectangle->bottom;
 }
 
-/* Function start: 0x40D0E0 */
+/* Function start: 0x4501B2 */
 short NavMapLabelFits(short x, short y, short width, short height)
 {
     return x > 0 && y > 0 && x + width < 150 && y + height < 135;
 }
 
-/* Function start: 0x40D120 */
+/* Function start: 0x450210 */
 short NavMapLabelPositionAvailable(short x, short y,
                                    short width, short height)
 {
@@ -183,13 +183,13 @@ short NavMapLabelPositionAvailable(short x, short y,
     return available;
 }
 
-/* Function start: 0x40D1D0 */
+/* Function start: WC2_UNMAPPED */
 void ResetNavMapReservedAreas(void)
 {
     g_nNavMapReservedAreaCount_00468710 = 0;
 }
 
-/* Function start: 0x40D1E0 */
+/* Function start: 0x43A29E */
 void ReserveNavMapArea(short x, short y, short width, short height)
 {
     ShortRect *rectangle;
@@ -205,13 +205,13 @@ void ReserveNavMapArea(short x, short y, short width, short height)
     g_nNavMapReservedAreaCount_00468710 = area;
 }
 
-/* Function start: 0x40D240 */
+/* Function start: WC2_UNMAPPED */
 void ResetNavMapLabels(void)
 {
     g_nNavMapLabelCount_0046870c = 0;
 }
 
-/* Function start: 0x40D250 */
+/* Function start: 0x4503BB */
 short TryPlaceNavMapLabel(short x, short y, short width, short force)
 {
     short placed;
@@ -226,7 +226,7 @@ short TryPlaceNavMapLabel(short x, short y, short width, short force)
     return placed;
 }
 
-/* Function start: 0x40D2C0 */
+/* Function start: 0x450458 */
 void PlaceNavMapLabel(short x, short y, unsigned short colour,
                       const char *text)
 {
@@ -268,7 +268,7 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
     g_nNavMapLabelCount_0046870c++;
 }
 
-/* Function start: 0x40D410 */
+/* Function start: 0x4506F8 */
 void AddUniqueObjectiveNavLabel(short x, short y,
                                 unsigned short colour, const char *text,
                                 short objective, short missionShip)
@@ -290,7 +290,7 @@ void AddUniqueObjectiveNavLabel(short x, short y,
     PlaceNavMapLabel(x, y, colour, text);
 }
 
-/* Function start: 0x40D490 */
+/* Function start: 0x4507DA */
 short IsPointInNavMapLabel(short labelIndex, short x, short y)
 {
     if (g_aNavMapLabels_00475e80[labelIndex].x <= x &&
@@ -304,7 +304,7 @@ short IsPointInNavMapLabel(short labelIndex, short x, short y)
     return 0;
 }
 
-/* Function start: 0x40D540 */
+/* Function start: 0x45087F */
 void DrawNavMapLabels(void)
 {
     short label;
@@ -320,7 +320,7 @@ void DrawNavMapLabels(void)
     }
 }
 
-/* Function start: 0x40D5A0 */
+/* Function start: 0x450900 */
 void DrawNavRectangleMarker(short x, short y, short size, short shadow,
                             unsigned short colour, short reserve)
 {
@@ -338,7 +338,7 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
                           (short)(size * 2 + 1));
 }
 
-/* Function start: 0x40D640 */
+/* Function start: 0x43C570 */
 void DrawNavSquareOutline(Viewport *viewport, short x, short y,
                           short size, signed char colour)
 {
@@ -347,7 +347,7 @@ void DrawNavSquareOutline(Viewport *viewport, short x, short y,
                        (short)colour);
 }
 
-/* Function start: 0x40D680 */
+/* Function start: 0x450A12 */
 void DrawNavSquareMarker(short x, short y, short size, short shadow,
                          short colour, short reserve)
 {
@@ -373,7 +373,7 @@ void DrawNavSquareMarker(short x, short y, short size, short shadow,
     (void)shadow;
 }
 
-/* Function start: 0x40D740 */
+/* Function start: 0x450E98 */
 void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
                             short size, signed char colour)
 {
@@ -385,7 +385,7 @@ void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
                      x, (short)(y - size), colour);
 }
 
-/* Function start: 0x40D7D0 */
+/* Function start: 0x450BBA */
 void DrawNavTriangleMarker(short x, short y, short size, short shadow,
                            unsigned short colour, short reserve)
 {
@@ -399,7 +399,7 @@ void DrawNavTriangleMarker(short x, short y, short size, short shadow,
     (void)shadow;
 }
 
-/* Function start: 0x40D830 */
+/* Function start: 0x450C2A */
 void DrawNavCrossMarker(short x, short y, short size, short shadow,
                         unsigned short colour, short reserve)
 {
@@ -418,14 +418,14 @@ void DrawNavCrossMarker(short x, short y, short size, short shadow,
     (void)shadow;
 }
 
-/* Function start: 0x40D8C0 */
+/* Function start: 0x450DF6 */
 void SetScreenClipRect(unsigned short a, unsigned short b,
                        unsigned short c, unsigned short d)
 {
     SetRectBounds(&DAT_005a76b0, a, b, c, d);
 }
 
-/* Function start: 0x40D8F0 */
+/* Function start: 0x450E1E */
 void DrawNavHazardMarker(FixedVector navPosition, FixedVector offset,
                          short size, unsigned short markerColour,
                          unsigned short textColour, const char *text)
@@ -440,7 +440,7 @@ void DrawNavHazardMarker(FixedVector navPosition, FixedVector offset,
     PlaceNavMapLabel(x, y, textColour, text);
 }
 
-/* Function start: 0x40D980 */
+/* Function start: 0x450F1E */
 void DrawNavPlayerMarker(short colour, short reserve)
 {
     short x;
@@ -455,7 +455,7 @@ void DrawNavPlayerMarker(short colour, short reserve)
     DrawNavSquareMarker(x, y, 0, 0, colour, reserve);
 }
 
-/* Function start: 0x40DA00 */
+/* Function start: 0x450FE2 */
 void BuildMap(short showPlayer)
 {
     MissionNavPoint *navPoint;
@@ -564,7 +564,7 @@ void BuildMap(short showPlayer)
     SetScreenClipRect(0, 0, 259, 155);
 }
 
-/* Function start: 0x40DDA0 */
+/* Function start: 0x45153A */
 void UpdateInflightNavText(short showColon)
 {
     char time[12];
@@ -593,7 +593,7 @@ void UpdateInflightNavText(short showColon)
         DrawFormattedText(g_szStandardTimeColon_004687f8);
 }
 
-/* Function start: 0x40DE70 */
+/* Function start: 0x451637 */
 void FormatNavCoordinates(unsigned char *out)
 {
     unsigned char tmp[4];
@@ -603,7 +603,7 @@ void FormatNavCoordinates(unsigned char *out)
     out[0] = tmp[3];
 }
 
-/* Function start: 0x40DEA0 */
+/* Function start: 0x418D14 */
 void DrawSelectedNavLegendEntry(const char *text, short navPoint)
 {
     if ((short)g_cCurrentNavPointIndex_0059c86c == navPoint) {
@@ -613,7 +613,7 @@ void DrawSelectedNavLegendEntry(const char *text, short navPoint)
     }
 }
 
-/* Function start: 0x40DEE0 */
+/* Function start: 0x4516C0 */
 void DrawNavMapLegend(void)
 {
     short objective;
@@ -632,7 +632,7 @@ void DrawNavMapLegend(void)
         (short)((short)g_cMissionObjectiveCount_0059c46a - 1));
 }
 
-/* Function start: 0x40DF50 */
+/* Function start: 0x451756 */
 char *nav_note(short objective)
 {
     char *note;
@@ -643,7 +643,7 @@ char *nav_note(short objective)
     return note;
 }
 
-/* Function start: 0x40DF70 */
+/* Function start: 0x45180F */
 void DrawNavLocationReadout(const char *title, short showFlightData)
 {
     enum ShipMissionType playerMissionType;
@@ -700,7 +700,7 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
     DIBslamReal();
 }
 
-/* Function start: 0x40E190 */
+/* Function start: 0x451AD3 */
 void BriefingMap_LoadShapes(void)
 {
     short objective;
@@ -717,7 +717,7 @@ void BriefingMap_LoadShapes(void)
     }
 }
 
-/* Function start: 0x40E210 */
+/* Function start: 0x451B70 */
 void BriefingMap_DisplayMap(void)
 {
     Viewport savedViewport;
@@ -736,7 +736,7 @@ void BriefingMap_DisplayMap(void)
     AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0);
 }
 
-/* Function start: 0x40E2B0 */
+/* Function start: 0x451C5C */
 short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
 {
     short mapX;
@@ -775,7 +775,7 @@ short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
     return selected;
 }
 
-/* Function start: 0x40E3C0 */
+/* Function start: 0x451DDB */
 void CentreMouseOnCurrentNavObjective(void)
 {
     short x;
@@ -795,7 +795,7 @@ void CentreMouseOnCurrentNavObjective(void)
     EnterAllocationScope();
 }
 
-/* Function start: 0x40E430 */
+/* Function start: 0x451E57 */
 void ShowConfedNavScan(void)
 {
     SetRectBounds(&DAT_005a6ba0, 30, 22, 289, 177);
@@ -805,7 +805,7 @@ void ShowConfedNavScan(void)
     SetRectBounds(&DAT_005a6ba0, 0, 0, 319, 199);
 }
 
-/* Function start: 0x40E480 */
+/* Function start: 0x451FAA */
 void InflightComputer(void)
 {
     short savedNavPoint;
@@ -968,7 +968,7 @@ void InflightComputer(void)
     g_bInflightComputerActive_00468754 = 0;
 }
 
-/* Function start: 0x40E890 */
+/* Function start: 0x4397D5 */
 unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress)
 {
     NearHeapBlock *block;
@@ -992,7 +992,7 @@ unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress)
     return 0;
 }
 
-/* Function start: 0x40E900 */
+/* Function start: 0x420874 */
 int ReleaseNearHeapBlock(int descriptorAddress)
 {
     NearHeapBlock *block;
@@ -1010,7 +1010,7 @@ int ReleaseNearHeapBlock(int descriptorAddress)
     return descriptorAddress;
 }
 
-/* Function start: 0x40E950 */
+/* Function start: 0x4208FC */
 void PurgeNearHeapBlocks(unsigned short flags)
 {
     NearHeapBlock *block;
@@ -1041,7 +1041,7 @@ void PurgeNearHeapBlocks(unsigned short flags)
     }
 }
 
-/* Function start: 0x40E9E0 */
+/* Function start: 0x4209C2 */
 unsigned short InitializeNearHeap(void)
 {
     short initialSize;
@@ -1090,7 +1090,7 @@ unsigned short InitializeNearHeap(void)
     return g_nNearHeapActive_004688c0;
 }
 
-/* Function start: 0x40EB70 */
+/* Function start: 0x420B88 */
 void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
 {
     NearHeapBlock *block;
@@ -1183,7 +1183,7 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
     return DosNearPtrToFar(allocationAddress);
 }
 
-/* Function start: 0x40ED30 */
+/* Function start: 0x420E16 */
 void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
 {
     NearHeapBlock *block;
@@ -1276,14 +1276,14 @@ void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
     return DosNearPtrToFar(allocationAddress);
 }
 
-/* Function start: 0x40EFE0 */
+/* Function start: WC2_UNMAPPED */
 void add_statistics(short pilot, short missions, short kills)
 {
     g_apWingmanPilots_00598a30[pilot]->missions += missions;
     g_apWingmanPilots_00598a30[pilot]->kills += kills;
 }
 
-/* Function start: 0x40F010 */
+/* Function start: 0x42BB70 */
 void PostMission(void)
 {
     short oldKills;
@@ -1354,7 +1354,7 @@ void PostMission(void)
     }
 }
 
-/* Function start: 0x40F190 */
+/* Function start: WC2_UNMAPPED */
 int FullMissionScore(void)
 {
     signed char *scores;
@@ -1373,7 +1373,7 @@ int FullMissionScore(void)
     return score;
 }
 
-/* Function start: 0x40F1E0 */
+/* Function start: WC2_UNMAPPED */
 int PlayersMissionScore(void)
 {
     signed char *scores;
@@ -1391,7 +1391,7 @@ int PlayersMissionScore(void)
     return score;
 }
 
-/* Function start: 0x40F240 */
+/* Function start: 0x4651B7 */
 unsigned int UpdateSeries(void)
 {
     unsigned char *seriesData;
@@ -1466,7 +1466,7 @@ unsigned int UpdateSeries(void)
     return 0;
 }
 
-/* Function start: 0x40F3F0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int MoveNewCampaign(void)
 {
     short days;
@@ -1485,7 +1485,7 @@ unsigned int MoveNewCampaign(void)
     return 0;
 }
 
-/* Function start: 0x40F440 */
+/* Function start: 0x4407DA */
 unsigned int StartNewCampaign(short campaign)
 {
     DAT_004688f0 = 1;
@@ -1502,7 +1502,7 @@ unsigned int StartNewCampaign(short campaign)
     return 0;
 }
 
-/* Function start: 0x40F4B0 */
+/* Function start: 0x46591A */
 short GameFlow(void)
 {
     short roomSelection;
@@ -1676,7 +1676,7 @@ short GameFlow(void)
     return 1;
 }
 
-/* Function start: 0x40F940 */
+/* Function start: 0x4471B0 */
 void __stdcall free_viewport(Viewport *viewport)
 {
     unsigned char *allocation;
@@ -1717,13 +1717,13 @@ void __stdcall free_viewport(Viewport *viewport)
     }
 }
 
-/* Function start: 0x40FA30 */
+/* Function start: WC2_UNMAPPED */
 unsigned short GetPaletteReadyUnused(void)
 {
     return 1;
 }
 
-/* Function start: 0x40FA40 */
+/* Function start: WC2_UNMAPPED */
 void DrawTitleLogo(short distance, short y)
 {
     short bounds[4];
@@ -1761,7 +1761,7 @@ void DrawTitleLogo(short distance, short y)
                          g_pTitleShape_005a7f08, 2, 0, scale, 0);
 }
 
-/* Function start: 0x40FB10 */
+/* Function start: WC2_UNMAPPED */
 void UpdateTitleMenuCursor(void)
 {
     short frame;
@@ -1782,7 +1782,7 @@ void UpdateTitleMenuCursor(void)
     SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
 }
 
-/* Function start: 0x40FB70 */
+/* Function start: 0x42F1FD */
 int Title_Sequence(void)
 {
     short frame;

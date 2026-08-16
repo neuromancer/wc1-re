@@ -2,6 +2,10 @@
 out/
 out-modern/
 dist/
+compilers/msvc41/
+compilers/.msvc41-*/
+3rdparty/msvc4.1.tar.gz
+3rdparty/msvc420-support.tar.gz
 *.obj
 *.asm
 *.map

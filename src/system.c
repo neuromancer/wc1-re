@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x427080 */
+/* Function start: 0x410715 */
 void RunTrainSim(void)
 {
     unsigned int savedFrameState;
@@ -102,7 +102,7 @@ void RunTrainSim(void)
     g_nTrainSimActive_00469e2c = 0;
 }
 
-/* Function start: 0x4272F0 */
+/* Function start: 0x46579D */
 short LogMemoryUsage(void)
 {
     ShutdownHook(0x21, (void *)DAT_0059ab4c);
@@ -122,7 +122,7 @@ short LogMemoryUsage(void)
     return 0;
 }
 
-/* Function start: 0x427370 */
+/* Function start: 0x437AB4 */
 void exit_squadron(const char *msg)
 {
     LogMemoryUsage();
@@ -135,7 +135,7 @@ void exit_squadron(const char *msg)
     exit(0);
 }
 
-/* Function start: 0x4273C0 */
+/* Function start: 0x437AEC */
 unsigned int ShowMemoryStatusDebug(void)
 {
     TextContext savedContext;
@@ -162,7 +162,7 @@ unsigned int ShowMemoryStatusDebug(void)
     return 0;
 }
 
-/* Function start: 0x4274C0 */
+/* Function start: 0x43CBD3 */
 unsigned int GetJoystickButtonEdge(unsigned int a, short b)
 {
     (void)a;

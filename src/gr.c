@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x440C00 */
+/* Function start: 0x425A16 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip)
 {
@@ -45,14 +45,14 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
     clip->bottom = viewport->bottom - viewport->top;
 }
 
-/* Function start: 0x440CF0 */
+/* Function start: WC2_UNMAPPED */
 void ClipViewportToScreen(Viewport *viewport)
 {
     ValidateViewportBounds(viewport, &g_stRasterSurface_004875a8,
                            &g_stRasterClip_00496fc0);
 }
 
-/* Function start: 0x440D10 */
+/* Function start: 0x425BBF */
 void SetSolidColourTranslation(unsigned char colour)
 {
     memset(g_abSolidColourTranslation_00497648, colour, 255);
@@ -60,7 +60,7 @@ void SetSolidColourTranslation(unsigned char colour)
     SetPaletteTranslationTable(g_abSolidColourTranslation_00497648);
 }
 
-/* Function start: 0x440D50 */
+/* Function start: 0x425BF6 */
 void PrepareShapeRLEData(unsigned char *shape)
 {
     RLEFrameHeader *frameHeader;
@@ -169,7 +169,7 @@ void PrepareShapeRLEData(unsigned char *shape)
 #endif
 }
 
-/* Function start: 0x440FE0 */
+/* Function start: 0x425FB4 */
 void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            unsigned char *shape, int frame,
                            int angle, int scaleX, int scaleY,
@@ -207,13 +207,13 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
     }
 }
 
-/* Function start: 0x441140 */
+/* Function start: 0x4261D5 */
 void RasterLineHook(const void *marker)
 {
     (void)marker;
 }
 
-/* Function start: 0x441150 */
+/* Function start: 0x4261E5 */
 void DrawFontGlyph(char character, TextContext *context, int height,
                    int width, int y)
 {
@@ -284,7 +284,7 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     }
 }
 
-/* Function start: 0x441370 */
+/* Function start: WC2_UNMAPPED */
 void __stdcall MarkActivePaletteEntries(Viewport *viewport,
                                          unsigned char *active)
 {
@@ -301,19 +301,19 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
     } while (index < 256);
 }
 
-/* Function start: 0x4413C0 */
+/* Function start: 0x461D68 */
 void __stdcall GetPaletteEntry(short index, unsigned short *rgb)
 {
     GetPaletteEntryAsWords(index, rgb);
 }
 
-/* Function start: 0x4413E0 */
+/* Function start: 0x4266CC */
 void __stdcall SetPaletteEntry(short index, short *rgb)
 {
     DIBsetPalette(index, rgb);
 }
 
-/* Function start: 0x441400 */
+/* Function start: 0x4266E7 */
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
                        unsigned char *shape, short frame)
 {
@@ -322,7 +322,7 @@ void DrawSpriteDefault(Viewport *viewport, short x, short y,
                               0, 0x100, 0x100, 0, 0);
 }
 
-/* Function start: 0x441450 */
+/* Function start: 0x426769 */
 void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame)
@@ -457,7 +457,7 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
     }
 }
 
-/* Function start: 0x441740 */
+/* Function start: 0x426B96 */
 void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame)
@@ -594,7 +594,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
         DIBslam();
 }
 
-/* Function start: 0x441A40 */
+/* Function start: 0x426FD9 */
 void DrawSolidColourSprite(Viewport *viewport, short x, short y,
                            unsigned char *shape, short frame,
                            unsigned char colour)
@@ -604,7 +604,7 @@ void DrawSolidColourSprite(Viewport *viewport, short x, short y,
                           0x100, 0x100, 0, 1);
 }
 
-/* Function start: 0x441A90 */
+/* Function start: 0x427047 */
 void CopyViewportContents(Viewport *source, Viewport *destination)
 {
     RasterClip destinationClip;
@@ -619,7 +619,7 @@ void CopyViewportContents(Viewport *source, Viewport *destination)
                    0xffffffff);
 }
 
-/* Function start: 0x441AE0 */
+/* Function start: 0x427123 */
 void ClearViewport(Viewport *viewport, short colour)
 {
     if (viewport->pixels != 0 && viewport->rowOffsets != 0) {
@@ -632,7 +632,7 @@ void ClearViewport(Viewport *viewport, short colour)
     }
 }
 
-/* Function start: 0x441B20 */
+/* Function start: 0x427179 */
 void DrawViewportPixel(Viewport *viewport, short x, short y,
                        short colour)
 {
@@ -642,7 +642,7 @@ void DrawViewportPixel(Viewport *viewport, short x, short y,
                        (int)y - viewport->top, colour);
 }
 
-/* Function start: 0x441B60 */
+/* Function start: 0x4271D2 */
 int GetViewportPixel(Viewport *viewport, short x, short y)
 {
     ClipViewportToScreen(viewport);
@@ -651,7 +651,7 @@ int GetViewportPixel(Viewport *viewport, short x, short y)
                                (int)y - viewport->top);
 }
 
-/* Function start: 0x441BA0 */
+/* Function start: WC2_UNMAPPED */
 void DrawViewportLine(Viewport *viewport, short x1, short y1,
                       short x2, short y2, short colour)
 {
@@ -662,12 +662,12 @@ void DrawViewportLine(Viewport *viewport, short x1, short y1,
                     0, colour);
 }
 
-/* Function start: 0x441BF0 */
+/* Function start: WC2_UNMAPPED */
 void TriangleRasterizerHook(void)
 {
 }
 
-/* Function start: 0x441C70 */
+/* Function start: 0x42722E */
 void DrawFilledViewportRect(Viewport *viewport, short left, short top,
                             short right, short bottom, short colour)
 {
@@ -686,7 +686,7 @@ void DrawFilledViewportRect(Viewport *viewport, short left, short top,
     }
 }
 
-/* Function start: 0x441CF0 */
+/* Function start: 0x427EC8 */
 void DrawViewportBorder(Viewport *viewport, short left, short top,
                         short right, short bottom, short colour)
 {
@@ -709,7 +709,7 @@ void DrawViewportBorder(Viewport *viewport, short left, short top,
                     0, colour);
 }
 
-/* Function start: 0x441DD0 */
+/* Function start: 0x428023 */
 void DrawViewportEllipse(Viewport *viewport, short x, short y,
                          short verticalRadius, short horizontalRadius,
                          short colour)
@@ -721,7 +721,7 @@ void DrawViewportEllipse(Viewport *viewport, short x, short y,
         DIBslam();
 }
 
-/* Function start: 0x441E20 */
+/* Function start: 0x42808F */
 void FillViewportEllipse(Viewport *viewport, short x, short y,
                          short verticalRadius, short horizontalRadius,
                          short colour)
@@ -733,7 +733,7 @@ void FillViewportEllipse(Viewport *viewport, short x, short y,
         DIBslam();
 }
 
-/* Function start: 0x441E70 */
+/* Function start: 0x4280FB */
 void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
                                short verticalRadius,
                                short horizontalRadius, short colour)
@@ -745,7 +745,7 @@ void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
         DIBslam();
 }
 
-/* Function start: 0x441FC0 */
+/* Function start: 0x440549 */
 void DrawSpriteScaled(Viewport *viewport, short x, short y,
                       unsigned char *shape, short frame, short angle,
                       short scale, short flip)
@@ -754,7 +754,7 @@ void DrawSpriteScaled(Viewport *viewport, short x, short y,
                           scale, scale, flip, 0);
 }
 
-/* Function start: 0x442000 */
+/* Function start: 0x428344 */
 void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
                                  unsigned char *shape, short frame,
                                  short angle, short scale, short flip,
@@ -765,7 +765,7 @@ void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
                           scale, scale, flip, 1);
 }
 
-/* Function start: 0x442050 */
+/* Function start: 0x4283A4 */
 int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               unsigned char *shape, short frame,
                               short angle, short scale, int flip,
@@ -842,7 +842,7 @@ int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
     return 0;
 }
 
-/* Function start: 0x442200 */
+/* Function start: 0x428690 */
 void fizzle_fade(Viewport *source, Viewport *destination,
                  const ScreenViewportGeometry *geometry)
 {
@@ -878,7 +878,7 @@ void fizzle_fade(Viewport *source, Viewport *destination,
     }
 }
 
-/* Function start: 0x442300 */
+/* Function start: 0x427DE8 */
 void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 {
     (void)effect;
@@ -888,7 +888,7 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
     RasterLineHook(g_szSnowViewport_00470da4);
 }
 
-/* Function start: 0x442330 */
+/* Function start: WC2_UNMAPPED */
 void UpdateStreamerStoppedFlag(void)
 {
     if (DAT_00465058 != 0)
@@ -896,14 +896,14 @@ void UpdateStreamerStoppedFlag(void)
         (g_dwStreamerState_00597cd0 & 4) == 0;
 }
 
-/* Function start: 0x442350 */
+/* Function start: 0x42894B */
 void SignalAudioMixerWakeEvent(void)
 {
     if (DAT_00465058 != 0)
         ix_streamer_configure(2, 0);
 }
 
-/* Function start: 0x442370 */
+/* Function start: 0x428900 */
 void InitializeAudioStreamer(HWND window)
 {
     if (DAT_00465058 != 0) {
@@ -914,7 +914,7 @@ void InitializeAudioStreamer(HWND window)
     }
 }
 
-/* Function start: 0x4423B0 */
+/* Function start: 0x4289BF */
 void Streamer_open(const char *streamName)
 {
     char *streamsDirectory;
@@ -933,7 +933,7 @@ void Streamer_open(const char *streamName)
     }
 }
 
-/* Function start: 0x442430 */
+/* Function start: 0x428A2F */
 void Streamer_play(void)
 {
     if (DAT_00465058 != 0 && g_bStreamerAudioPlaying_00597748 == 0) {
@@ -943,7 +943,7 @@ void Streamer_play(void)
     }
 }
 
-/* Function start: 0x442460 */
+/* Function start: WC2_UNMAPPED */
 void Streamer_stop(void)
 {
     if (DAT_00465058 != 0 && g_bStreamerAudioPlaying_00597748 != 0) {
@@ -953,14 +953,14 @@ void Streamer_stop(void)
     }
 }
 
-/* Function start: 0x4424B0 */
+/* Function start: 0x428AEB */
 void ClearStreamerTrigger(void)
 {
     if (DAT_00465058 != 0)
         ix_streamer_set_trigger(-1);
 }
 
-/* Function start: 0x4424D0 */
+/* Function start: 0x424113 */
 void Streamer_trigger(int trigger)
 {
     if (DAT_00465058 != 0) {
@@ -976,7 +976,7 @@ void Streamer_trigger(int trigger)
     }
 }
 
-/* Function start: 0x442520 */
+/* Function start: 0x443631 */
 void SetStreamerIntensity(unsigned char intensity)
 {
     if (DAT_00465058 != 0) {
@@ -986,7 +986,7 @@ void SetStreamerIntensity(unsigned char intensity)
     }
 }
 
-/* Function start: 0x442550 */
+/* Function start: WC2_UNMAPPED */
 void ForceStreamerTrigger(int trigger)
 {
     if (DAT_00465058 != 0) {
@@ -998,14 +998,14 @@ void ForceStreamerTrigger(int trigger)
     }
 }
 
-/* Function start: 0x442590 */
+/* Function start: 0x428DA3 */
 void SetMusicStreamVolume(unsigned short volume)
 {
     if (DAT_00465058 != 0)
         ix_streamer_set_volume(volume);
 }
 
-/* Function start: 0x4425D0 */
+/* Function start: 0x428B86 */
 void Streamer_close(void)
 {
     if (DAT_00465058 != 0) {
@@ -1014,7 +1014,7 @@ void Streamer_close(void)
     }
 }
 
-/* Function start: 0x442600 */
+/* Function start: 0x428D09 */
 int ReadCheaterFlagFromRegistry(void)
 {
     HKEY key;

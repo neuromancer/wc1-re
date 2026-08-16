@@ -392,8 +392,8 @@ extern "C" {
 
 /* Variadic printers cannot be generated mechanically, so they live here. */
 void ShowOnScreenMessage(int flags, short duration, const char *fmt, ...);
-void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
-void SystemDebugPrintf(const char *fmt, ...);  /* 0x00425BB0 */
+void SoundDebugPrintf(const char *fmt, ...);   /* 0x42F0B3 */
+void SystemDebugPrintf(const char *fmt, ...);  /* 0x40FDAD */
 
 #ifndef WC1_ANALYSIS
 #include "wcdata.h"

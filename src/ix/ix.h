@@ -35,7 +35,7 @@
  * Fatal paths then call exit(-1).  107 call sites; keep __FILE__/__LINE__
  * accurate, they are the module map.
  * -------------------------------------------------------------------------- */
-void ix_log_printf(const char *fmt, ...);      /* 0x004426A0 */
+void ix_log_printf(const char *fmt, ...);      /* 0x428BD4 */
 
 /* --------------------------------------------------------------------------
  * DSP voice.  Array at 0x005981A8, stride 32 bytes; count at 0x00598600.
@@ -165,19 +165,19 @@ extern int     g_nVoiceCount_00598600;
 
 void ix_dspv_set_active(int voice);              /* 0x004467C5  flags |= ACTIVE */
 void ix_dspv_clear_active(int voice);            /* 0x00446829  flags &= ~ACTIVE */
-void ix_dspv_clear_flag4(int voice);             /* 0x0044688E */
-unsigned int ix_dspv_get_flags(int voice);       /* 0x004468F2 */
-void ix_dspv_set_buffer(int voice, unsigned char *p, int len); /* 0x0044698F */
+void ix_dspv_clear_flag4(int voice);             /* 0x48A2FE */
+unsigned int ix_dspv_get_flags(int voice);       /* 0x48A362 */
+void ix_dspv_set_buffer(int voice, unsigned char *p, int len); /* 0x48A3FF */
 int  ix_dspv_get_position(int voice);            /* 0x00446A2B  cursor - start */
 void ix_dspv_set_position(int voice, int off);   /* 0x00446AA0  cursor = start + off */
-void ix_dspv_set_volume(int voice, short vol);   /* 0x00446B18 */
-void ix_dspv_set_pan(int voice, unsigned short a); /* 0x00446B8C */
-void ix_dspv_set_frequency(int voice, unsigned int hz);        /* 0x00446CB1 */
+void ix_dspv_set_volume(int voice, short vol);   /* 0x48A588 */
+void ix_dspv_set_pan(int voice, unsigned short a); /* 0x48A5FC */
+void ix_dspv_set_frequency(int voice, unsigned int hz);        /* 0x48A721 */
 void ix_dspv_set_bits_per_sample(int voice, int bps);          /* 0x00446D2C  8 or 16 */
 void ix_dspv_set_channels(int voice, int ch);                  /* 0x00446DF5  1 or 2 */
-void ix_dspv_set_flag4(int voice, int on);                     /* 0x00446956 */
-void ix_dspv_recalc_mix(int voice);                            /* 0x00446EBF */
-void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes); /* 0x00446F74 */
+void ix_dspv_set_flag4(int voice, int on);                     /* 0x48A3C6 */
+void ix_dspv_recalc_mix(int voice);                            /* 0x48A92F */
+void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes); /* 0x48BFF8 */
 
 /* --------------------------------------------------------------------------
  * DSP stream.  Array at 0x00598138, stride 0x38; count at 0x00598130.
@@ -208,75 +208,75 @@ extern int      g_nStreamsAllocated_00598134;
 
 #define IX_DSPS_FILE "D:\\rnd\\prj\\ix\\win95\\dsp\\dsps.cpp"
 void ix_dsps_alloc(int stream, unsigned int size, int frequency,
-                   int bitsPerSample, int channels); /* 0x004451B5 */
-void ix_dsps_free(int stream);                   /* 0x0044546B */
-void ix_dsps_prepare(int stream);                /* 0x00445582 */
-void ix_dsps_play(int stream);                   /* 0x004456D8 */
-void ix_dsps_stop(int stream);                   /* 0x00445808 */
-void ix_dsps_set_volume(int stream, unsigned short vol); /* 0x00445906 */
-unsigned int ix_dsps_get_flags(int stream);      /* 0x00445A0B */
-int  ix_dsps_get_buffer_free(int stream);        /* 0x00445A6F */
+                   int bitsPerSample, int channels); /* 0x48AA15 */
+void ix_dsps_free(int stream);                   /* 0x48ACCB */
+void ix_dsps_prepare(int stream);                /* 0x48ADE2 */
+void ix_dsps_play(int stream);                   /* 0x48AF38 */
+void ix_dsps_stop(int stream);                   /* 0x48B068 */
+void ix_dsps_set_volume(int stream, unsigned short vol); /* 0x48B166 */
+unsigned int ix_dsps_get_flags(int stream);      /* 0x48B26B */
+int  ix_dsps_get_buffer_free(int stream);        /* 0x48B2CF */
 void ix_dsps_lock(int stream, unsigned int requestedBytes,
-                  unsigned char **buffer, unsigned int *lockedBytes); /* 0x00445CDB */
-void ix_dsps_unlock(int stream);                 /* 0x00445E3C */
+                  unsigned char **buffer, unsigned int *lockedBytes); /* 0x48B53B */
+void ix_dsps_unlock(int stream);                 /* 0x48B69C */
 
 /* --------------------------------------------------------------------------
  * Mixer (DirectSound), DSP core, system, sound, sample.
  * -------------------------------------------------------------------------- */
-DWORD WINAPI ix_mixer_thread_proc(void *parameter); /* 0x00445F60 */
-int  ix_mixer_service(void);                     /* 0x004463FC */
-void ix_mixer_static_initializer(void);           /* 0x004467A0 */
-void ix_mixer_static_initialization_hook(void);   /* 0x004467B5 */
-const char *ix_dsp_result_to_text(int hr);       /* 0x00444F97 */
+DWORD WINAPI ix_mixer_thread_proc(void *parameter); /* 0x48B7C0 */
+int  ix_mixer_service(void);                     /* 0x48BC5C */
+void ix_mixer_static_initializer(void);           /* WC2 unmapped */
+void ix_mixer_static_initialization_hook(void);   /* WC2 unmapped */
+const char *ix_dsp_result_to_text(int hr);       /* 0x48A017 */
 
-int  ix_dsp_init(void);                          /* 0x00444910 */
-void ix_dsp_shutdown(void);                      /* 0x004449CF */
-void ix_dsp_configure(int option, void *value);  /* 0x00444A62 */
-unsigned int ix_dsp_get_tick(void);              /* 0x00444BFD */
-unsigned int ix_dsp_get_flags(void);             /* 0x00444C12 */
-void ix_dsp_set_config_bit1(int enabled);        /* 0x00444C27 */
-void ix_dsp_set_config_bit3(int enabled);        /* 0x00444C54 */
-int  ix_dsp_get_voice_count(void);               /* 0x00444C81 */
-void ix_dsp_set_voice_count(int n);              /* 0x00444C96 */
-int  ix_dsp_get_stream_count(void);              /* 0x00444D18 */
-void ix_dsp_set_stream_count(int n);             /* 0x00444D2D */
-unsigned short ix_dsp_get_master_volume(void);   /* 0x00444DAF */
-void ix_dsp_set_master_volume(unsigned short vol); /* 0x00444DC5 */
-void ix_dsp_build_pan_tables(void);              /* 0x00444E52 */
-void *ix_dsp_alloc(unsigned int bytes);           /* 0x00445123 */
+int  ix_dsp_init(void);                          /* 0x489990 */
+void ix_dsp_shutdown(void);                      /* 0x489A4F */
+void ix_dsp_configure(int option, void *value);  /* 0x489AE2 */
+unsigned int ix_dsp_get_tick(void);              /* 0x489C7D */
+unsigned int ix_dsp_get_flags(void);             /* 0x489C92 */
+void ix_dsp_set_config_bit1(int enabled);        /* 0x489CA7 */
+void ix_dsp_set_config_bit3(int enabled);        /* 0x489CD4 */
+int  ix_dsp_get_voice_count(void);               /* 0x489D01 */
+void ix_dsp_set_voice_count(int n);              /* 0x489D16 */
+int  ix_dsp_get_stream_count(void);              /* 0x489D98 */
+void ix_dsp_set_stream_count(int n);             /* 0x489DAD */
+unsigned short ix_dsp_get_master_volume(void);   /* 0x489E2F */
+void ix_dsp_set_master_volume(unsigned short vol); /* 0x489E45 */
+void ix_dsp_build_pan_tables(void);              /* 0x489ED2 */
+void *ix_dsp_alloc(unsigned int bytes);           /* 0x48A1A3 */
 void *ix_dsp_copy(void *destination, const void *source,
-                  unsigned int bytes);           /* 0x00445140 */
-void ix_dsp_free(void *memory);                  /* 0x00445164 */
-void ix_dsp_static_initializer(void);            /* 0x00445190 */
-void ix_dsp_static_initialization_hook(void);    /* 0x004451A5 */
+                  unsigned int bytes);           /* 0x48A1C0 */
+void ix_dsp_free(void *memory);                  /* 0x48A1E4 */
+void ix_dsp_static_initializer(void);            /* WC2 unmapped */
+void ix_dsp_static_initialization_hook(void);    /* WC2 unmapped */
 
-extern "C" int  ix_system_init(void);            /* 0x00447200 */
-extern "C" void ix_system_service_sounds(void); /* 0x004472A7 */
-extern "C" void ix_system_shutdown(void);        /* 0x004473F3 */
-extern "C" void ix_system_configure(int option, void *value); /* 0x00447426 */
-extern "C" unsigned short ix_system_get_master_volume(void); /* 0x00447446 */
-extern "C" void ix_system_set_master_volume(unsigned short vol); /* 0x0044745B */
-extern "C" int ix_system_get_voice_count(void);  /* 0x00447477 */
-extern "C" void ix_system_set_voice_count(int n); /* 0x0044748C */
-extern "C" IxSample *ix_system_new_sample(void); /* 0x004474E3 */
-extern "C" void ix_system_delete_sample(IxSample *sample); /* 0x00447519 */
-extern "C" void ix_system_delete_all_samples(void); /* 0x00447548 */
-extern "C" IxSound *ix_system_new_sound(IxSample *sample); /* 0x0044758D */
-extern "C" void ix_system_delete_sound(IxSound *sound); /* 0x004475C7 */
-extern "C" void ix_system_delete_all_sounds(void); /* 0x00447610 */
-int ix_system_release_voice(IxSound *sound);     /* 0x004476B9 */
-void ix_system_assign_voice(IxSound *sound, int voice); /* 0x004476FA */
+extern "C" int  ix_system_init(void);            /* 0x469C80 */
+extern "C" void ix_system_service_sounds(void); /* 0x469D27 */
+extern "C" void ix_system_shutdown(void);        /* 0x469E73 */
+extern "C" void ix_system_configure(int option, void *value); /* 0x4624A7 */
+extern "C" unsigned short ix_system_get_master_volume(void); /* 0x469EC6 */
+extern "C" void ix_system_set_master_volume(unsigned short vol); /* 0x469EDB */
+extern "C" int ix_system_get_voice_count(void);  /* 0x469EF7 */
+extern "C" void ix_system_set_voice_count(int n); /* 0x469F0C */
+extern "C" IxSample *ix_system_new_sample(void); /* 0x469F63 */
+extern "C" void ix_system_delete_sample(IxSample *sample); /* 0x469F99 */
+extern "C" void ix_system_delete_all_samples(void); /* 0x469FC8 */
+extern "C" IxSound *ix_system_new_sound(IxSample *sample); /* 0x46A00D */
+extern "C" void ix_system_delete_sound(IxSound *sound); /* 0x46A047 */
+extern "C" void ix_system_delete_all_sounds(void); /* 0x46A090 */
+int ix_system_release_voice(IxSound *sound);     /* 0x46A139 */
+void ix_system_assign_voice(IxSound *sound, int voice); /* 0x46A17A */
 IxSound *ix_system_find_highest_waiting(IxSound *sound,
-                                        unsigned int minimumPriority); /* 0x00447921 */
+                                        unsigned int minimumPriority); /* 0x46A3A1 */
 IxSound *ix_system_find_lowest_playing(IxSound *sound,
-                                       unsigned int maximumPriority); /* 0x00447974 */
-int ix_system_find_free_voice(void);             /* 0x004479C7 */
+                                       unsigned int maximumPriority); /* 0x46A3F4 */
+int ix_system_find_free_voice(void);             /* 0x46A447 */
 
-extern "C" void __fastcall ix_sound_start(IxSound *sound); /* 0x00447CD8 */
-extern "C" void __fastcall ix_sound_release(IxSound *sound); /* 0x0044801E */
-void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x00447B7A */
-extern "C" void __fastcall ix_sound_stop(IxSound *sound);   /* 0x004480CF */
-extern "C" int __fastcall ix_sound_is_playing(IxSound *sound); /* 0x00448678 */
+extern "C" void __fastcall ix_sound_start(IxSound *sound); /* 0x46A758 */
+extern "C" void __fastcall ix_sound_release(IxSound *sound); /* 0x46AA9E */
+void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x46A5FA */
+extern "C" void __fastcall ix_sound_stop(IxSound *sound);   /* 0x46AB4F */
+extern "C" int __fastcall ix_sound_is_playing(IxSound *sound); /* WC2 unmapped */
 
 /* --------------------------------------------------------------------------
  * Streamer.  Global state word at 0x00597CD0; wake event at 0x00597CD4.
@@ -393,59 +393,59 @@ struct IxStreamFile {
     int ix_stream_file_is_reading(void);
 };
 
-extern "C" int ix_streamer_init(void);           /* 0x00442750 */
+extern "C" int ix_streamer_init(void);           /* 0x46BD50 */
 #ifdef WC1_SDL
-extern "C" void ix_streamer_destroy(void);       /* 0x0044286F */
+extern "C" void ix_streamer_destroy(void);       /* 0x46BE6F */
 #else
-void ix_streamer_destroy(void);                  /* 0x0044286F */
+void ix_streamer_destroy(void);                  /* 0x46BE6F */
 #endif
-extern "C" void ix_streamer_configure(int option, void *value); /* 0x0044291E */
-void ix_streamer_set_dev_mode(int mode);         /* 0x0044293E */
-extern "C" int ix_streamer_open_stream_file(char *path); /* 0x004429B6 */
-extern "C" void ix_streamer_close_stream_file(void); /* 0x0044307A */
-extern "C" void ix_streamer_audio_play(void);    /* 0x004431F3 */
-extern "C" void ix_streamer_audio_stop(void);    /* 0x00443253 */
-void ix_streamer_audio_pause(void);              /* 0x004432B6 */
-void ix_streamer_audio_reprepare(void);          /* 0x0044330F */
-extern "C" void ix_streamer_set_intensity(unsigned char intensity); /* 0x0044336B */
-unsigned char ix_streamer_get_intensity(void);   /* 0x004433AC */
-extern "C" void ix_streamer_set_trigger(char trigger); /* 0x004433C1 */
-char ix_streamer_get_trigger(void);              /* 0x00443419 */
-extern "C" void ix_streamer_force_trigger(char trigger); /* 0x0044342E */
-extern "C" void ix_streamer_set_volume(unsigned short vol); /* 0x004435BE */
-unsigned short ix_streamer_get_volume(void);     /* 0x0044363B */
-unsigned int ix_streamer_get_audio_chunk(void);  /* 0x00443651 */
-void ix_streamer_seek_chunk(unsigned int chunk); /* 0x00443666 */
-unsigned int ix_streamer_hash_name(unsigned char *name); /* 0x004436C0 */
-IxStreamerFileEntry *ix_streamer_find_entry(unsigned int hash); /* 0x00443755 */
-unsigned int ix_streamer_service_audio(void);    /* 0x00443CC0 */
+extern "C" void ix_streamer_configure(int option, void *value); /* 0x469EA6 */
+void ix_streamer_set_dev_mode(int mode);         /* 0x46BF3E */
+extern "C" int ix_streamer_open_stream_file(char *path); /* 0x46BFB6 */
+extern "C" void ix_streamer_close_stream_file(void); /* 0x46C67A */
+extern "C" void ix_streamer_audio_play(void);    /* 0x46C7F3 */
+extern "C" void ix_streamer_audio_stop(void);    /* 0x46C853 */
+void ix_streamer_audio_pause(void);              /* 0x46C8B6 */
+void ix_streamer_audio_reprepare(void);          /* 0x46C90F */
+extern "C" void ix_streamer_set_intensity(unsigned char intensity); /* 0x46C96B */
+unsigned char ix_streamer_get_intensity(void);   /* 0x46C9AC */
+extern "C" void ix_streamer_set_trigger(char trigger); /* 0x46C9C1 */
+char ix_streamer_get_trigger(void);              /* 0x46CA19 */
+extern "C" void ix_streamer_force_trigger(char trigger); /* 0x46CA2E */
+extern "C" void ix_streamer_set_volume(unsigned short vol); /* 0x46CBBE */
+unsigned short ix_streamer_get_volume(void);     /* 0x46CC3B */
+unsigned int ix_streamer_get_audio_chunk(void);  /* 0x428DE0 */
+void ix_streamer_seek_chunk(unsigned int chunk); /* 0x46CC66 */
+unsigned int ix_streamer_hash_name(unsigned char *name); /* 0x46CCC0 */
+IxStreamerFileEntry *ix_streamer_find_entry(unsigned int hash); /* 0x46CD55 */
+unsigned int ix_streamer_service_audio(void);    /* 0x46D2C0 */
 IxStreamFile *ix_streamer_open_file(unsigned char *name,
-                                    unsigned char priority); /* 0x004437E3 */
-void ix_streamer_close_file(IxStreamFile *streamFile); /* 0x00443A5D */
-DWORD WINAPI ix_streamer_thread_proc(void *parameter); /* 0x00443B10 */
+                                    unsigned char priority); /* 0x46CDE3 */
+void ix_streamer_close_file(IxStreamFile *streamFile); /* 0x46D05D */
+DWORD WINAPI ix_streamer_thread_proc(void *parameter); /* 0x46D110 */
 
-void ix_thread_handle_file_chunk(IxStreamFile *streamFile); /* 0x00443DA6 */
-unsigned int ix_thread_service_streams(void);     /* 0x004441C6 */
-void ix_thread_advance_audio_chunk(void);         /* 0x00444316 */
-void ix_thread_lock_stream_buffer(void);         /* 0x004445C9 */
-unsigned int ix_thread_get_audio_chunk_size(void); /* 0x004446A6 */
+void ix_thread_handle_file_chunk(IxStreamFile *streamFile); /* 0x46D3A6 */
+unsigned int ix_thread_service_streams(void);     /* 0x46D7C6 */
+void ix_thread_advance_audio_chunk(void);         /* 0x46D916 */
+void ix_thread_lock_stream_buffer(void);         /* 0x46DBC9 */
+unsigned int ix_thread_get_audio_chunk_size(void); /* 0x46DCA6 */
 #ifdef WC1_SDL
 extern "C" void ix_lzo1x_decompress(
     unsigned char *source, unsigned char *destination,
-    unsigned int destinationBytes, unsigned int sourceBytes); /* 0x004614C0 */
+    unsigned int destinationBytes, unsigned int sourceBytes); /* 0x48C290 */
 #else
 extern "C" void ix_lzo1x_decompress(unsigned char *source,
                                      unsigned char *destination,
-                                     unsigned int destinationBytes); /* 0x004614C0 */
+                                     unsigned int destinationBytes); /* 0x48C290 */
 #endif
 extern "C" FILE *ix_file_open(const char *path,
-                               int mode); /* 0x00461650 */
-extern "C" void ix_file_close(FILE *file);       /* 0x004616BE */
-extern "C" void ix_file_seek(FILE *file, long position); /* 0x004616DA */
-extern "C" long ix_file_tell(FILE *file);        /* 0x004616FC */
+                               int mode); /* 0x48C420 */
+extern "C" void ix_file_close(FILE *file);       /* 0x48C48E */
+extern "C" void ix_file_seek(FILE *file, long position); /* 0x48C4AA */
+extern "C" long ix_file_tell(FILE *file);        /* 0x48C4CC */
 extern "C" unsigned int ix_file_read(FILE *file, void *destination,
-                                      unsigned int bytes); /* 0x00461718 */
-extern "C" long ix_file_size(FILE *file);        /* 0x00461764 */
+                                      unsigned int bytes); /* WC2 unmapped */
+extern "C" long ix_file_size(FILE *file);        /* 0x48C534 */
 
 extern unsigned int *g_pStreamerPacketOffsets_00597bd0;
 extern unsigned int g_dwStreamerThreadTick_00597bd4;
