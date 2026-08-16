@@ -482,10 +482,10 @@ void BuildMap(short showPlayer)
     ResetNavMapReservedAreas();
     SetScale();
 
-    navPoint = g_aMissionNavPoints_0046c2f0;
-    while (navPoint->type != 0) {
-        slot = 0;
-        while (slot < 10) {
+    for (navPoint = g_aMissionNavPoints_0046c2f0;
+         navPoint->type != 0;
+         navPoint++) {
+        for (slot = 0; slot < 10; slot++) {
             missionShipIndex = navPoint->missionShips[slot];
             if (missionShipIndex != -1) {
                 missionShip = &g_aMissionShips_0046c948[missionShipIndex];
@@ -503,13 +503,12 @@ void BuildMap(short showPlayer)
                                         g_szNavMines_004687c4);
                 }
             }
-            slot++;
         }
-        navPoint++;
     }
 
-    objectiveIndex = 0;
-    while (objectiveIndex < (short)g_cMissionObjectiveCount_0059c46a) {
+    for (objectiveIndex = 0;
+         objectiveIndex < (short)g_cMissionObjectiveCount_0059c46a;
+         objectiveIndex++) {
         objective = &g_aMissionObjectives_0059dac0[objectiveIndex];
         if (mobile_objective(objectiveIndex) == 0 ||
             (g_aMissionShips_0046c948[
@@ -552,7 +551,6 @@ void BuildMap(short showPlayer)
                     objectiveIndex, (short)objective->index);
             }
         }
-        objectiveIndex++;
     }
     if (showPlayer != 0) {
         DrawNavPlayerMarker(g_cViewportClearColour_004699a0, 1);
@@ -1018,11 +1016,11 @@ void PurgeNearHeapBlocks(unsigned short flags)
         }
         descriptorAddress = g_nNearHeapBase_005a8120 +
                             g_nNearHeapSize_005a811c - 8;
-        while (descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124) {
+        for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124;
+             descriptorAddress -= 8) {
             block = DosNearPtrToFar(descriptorAddress);
             if ((block->sizeAndFlags & 0x40000000) == 0)
                 descriptorAddress = ReleaseNearHeapBlock(descriptorAddress);
-            descriptorAddress -= 8;
         }
     }
 }
@@ -1105,13 +1103,14 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
     allocationAddress = 0;
     descriptorAddress =
         g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c - 8;
-    while (descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124) {
+    for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124;
+         descriptorAddress -= 8) {
         block = DosNearPtrToFar(descriptorAddress);
         blockSize = block->sizeAndFlags & 0xfffff;
         if ((block->sizeAndFlags & 0x80000000) != 0)
-            goto next_descriptor_from_end;
+            continue;
         if ((int)blockSize < size)
-            goto next_descriptor_from_end;
+            continue;
         if ((int)blockSize > size) {
             if (g_nNearHeapBase_005a8120 -
                     g_nNearHeapMaxDescriptors_004688c4 * 8 +
@@ -1135,15 +1134,14 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
                     g_nNearHeapMaxDescriptors_004688c4 * 8 +
                     g_nNearHeapSize_005a811c >=
                 g_nNearHeapFirstDescriptor_005a8124)
-                goto next_descriptor_from_end;
+                continue;
 
             g_nNearHeapFirstDescriptor_005a8124 -= 8;
             shiftAddress = g_nNearHeapFirstDescriptor_005a8124;
-            while (descriptorAddress > shiftAddress) {
+            for (; descriptorAddress > shiftAddress; shiftAddress += 8) {
                 block = DosNearPtrToFar(shiftAddress);
                 block->address = block[1].address;
                 block->sizeAndFlags = block[1].sizeAndFlags;
-                shiftAddress += 8;
             }
             descriptorAddress -= 8;
             block = DosNearPtrToFar(descriptorAddress);
@@ -1158,8 +1156,6 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
         block->sizeAndFlags |= allocationFlags;
         allocationAddress = block->address;
         break;
-next_descriptor_from_end:
-        descriptorAddress -= 8;
     }
 
     if (allocationAddress != 0) {
@@ -1201,14 +1197,15 @@ void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
 
     allocationAddress = 0;
     descriptorAddress = g_nNearHeapFirstDescriptor_005a8124;
-    while (descriptorAddress <
-           g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c) {
+    for (; descriptorAddress <
+               g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c;
+         descriptorAddress += 8) {
         block = DosNearPtrToFar(descriptorAddress);
         blockSize = block->sizeAndFlags & 0xfffff;
         if ((block->sizeAndFlags & 0x80000000) != 0)
-            goto next_descriptor;
+            continue;
         if ((int)blockSize < size)
-            goto next_descriptor;
+            continue;
         if ((int)blockSize > size) {
             if (g_nNearHeapBase_005a8120 -
                     g_nNearHeapMaxDescriptors_004688c4 * 8 +
@@ -1232,15 +1229,14 @@ void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
                     g_nNearHeapMaxDescriptors_004688c4 * 8 +
                     g_nNearHeapSize_005a811c >=
                 g_nNearHeapFirstDescriptor_005a8124)
-                goto next_descriptor;
+                continue;
 
             g_nNearHeapFirstDescriptor_005a8124 -= 8;
             shiftAddress = g_nNearHeapFirstDescriptor_005a8124;
-            while (descriptorAddress > shiftAddress) {
+            for (; descriptorAddress > shiftAddress; shiftAddress += 8) {
                 block = DosNearPtrToFar(shiftAddress);
                 block->address = block[1].address;
                 block->sizeAndFlags = block[1].sizeAndFlags;
-                shiftAddress += 8;
             }
             descriptorAddress -= 8;
             block = DosNearPtrToFar(descriptorAddress);
@@ -1253,8 +1249,6 @@ void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
         block->sizeAndFlags |= allocationFlags;
         allocationAddress = block->address;
         break;
-next_descriptor:
-        descriptorAddress += 8;
     }
 
     if (allocationAddress != 0) {
@@ -1323,13 +1317,11 @@ void PostMission(void)
         g_stCampaignState_0059ca50.currentPilot->kills / 5)
         g_stCampaignState_0059ca50.promotionScore++;
 
-    pilot = 0;
-    do {
+    for (pilot = 0; pilot < 8; pilot++) {
         if (g_nYourWingman_0046c04c == -1 ||
             g_acShipRating_0059cd80[g_nYourWingman_0046c04c] != pilot) {
             if (g_stCampaignState_0059ca50.personalityDeathMission[
                     pilot] != 0) {
-                pilot++;
                 continue;
             }
             missions = RandomInRange(0, 2);
@@ -1343,8 +1335,7 @@ void PostMission(void)
             kills = g_nWingmanKillCount_005a7cb8;
         }
         add_statistics(pilot, missions, kills);
-        pilot++;
-    } while (pilot < 8);
+    }
 }
 
 /* Function start: 0x40F190 */
@@ -1377,12 +1368,10 @@ int PlayersMissionScore(void)
         (int)g_stCampaignState_0059ca50.currentSeries * 0x5a +
         (int)g_stCampaignState_0059ca50.currentMission * 0x14 - 0x50);
     score = 0;
-    objective = 0;
-    do {
+    for (objective = 0; objective < 16; objective++) {
         if (achieved(objective) != 0)
             score = (short)(score + scores[objective + 4]);
-        objective++;
-    } while (objective < 16);
+    }
     return score;
 }
 
@@ -1902,7 +1891,7 @@ int Title_Sequence(void)
             start_hazard_field(0);
 
             credit = 0;
-            while (credit < g_nIntroCreditCount_00468a30) {
+            for (; credit < g_nIntroCreditCount_00468a30; credit++) {
                 frame = 0;
                 do {
                     Update_3Space();
@@ -1935,7 +1924,6 @@ int Title_Sequence(void)
                     }
                     frame++;
                 } while (frame < 40);
-                credit++;
             }
             if (state != 0)
                 break;

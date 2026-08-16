@@ -239,15 +239,14 @@ void call_enemy(short obj)
     short other;
 
     other = 0;
-    do {
+    for (; other < 10; other++) {
         if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
             g_aeSpecialManeuver_0059c3c0[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other] &&
             RandomBelow(100) < 50)
             g_acShipTarget_0059ce60[other] = obj;
-        other++;
-    } while (other < 10);
+    }
 }
 
 /* Function start: 0x41EE20 */
@@ -651,12 +650,12 @@ unsigned int Create_explosion_debris(short obj)
     index = 0;
     check_next_wave();
     set = RandomBelowOrEqual(3);
-    do {
+    for (; index < 7; index++) {
         debris = find_vacant_3d_object();
         if (debris == -1)
             break;
         set_objects_data(debris,
-                         g_aaeExplosionDebris_004698e0[set][index++], -1);
+                         g_aaeExplosionDebris_004698e0[set][index], -1);
         g_asObjectCounter_0059c330[debris] = 40;
         FillFixedVectorWithRandomComponents(50, &vector);
         AddFixedVectors(&g_aShipPosition_0059c490[obj], &vector,
@@ -667,13 +666,12 @@ unsigned int Create_explosion_debris(short obj)
         AddFixedVectors(&vector,
                         &g_aShipVelocity_0059c010[debris],
                         &g_aShipVelocity_0059c010[debris]);
-    } while (index < 7);
+    }
     index = 0;
-    do {
+    for (; index < 8; index++) {
         debris = find_vacant_3d_object();
         if (debris == -1)
             break;
-        index++;
         FillFixedVectorWithRandomComponents(50, &vector);
         AddFixedVectors(&g_aShipPosition_0059c490[obj], &vector,
                         &g_aShipPosition_0059c490[debris]);
@@ -688,7 +686,7 @@ unsigned int Create_explosion_debris(short obj)
         g_asObjectCounter_0059c330[debris] = 40;
         g_aeObjectClass_0059d100[debris] = OBJECT_CLASS_DUST;
         g_aeObjectType_0059b560[debris] = OBJECT_TYPE_DEBRIS_DUST;
-    } while (index < 8);
+    }
     return 0;
 }
 
@@ -937,7 +935,7 @@ int explosion_shock_wave(short obj, short blastDamage)
     short attacker;
 
     other = 0;
-    do {
+    for (; other < 10; other++) {
         if (other != obj &&
             g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP) {
             ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
@@ -971,8 +969,7 @@ int explosion_shock_wave(short obj, short blastDamage)
                                MinShort(100, damage), &delta);
             }
         }
-        other++;
-    } while (other < 10);
+    }
     return 0;
 }
 
@@ -1137,9 +1134,10 @@ void fire(short obj, short target)
         minePresent = 1;
 
     loadoutOffset = (int)obj * sizeof(g_aShipWeapons_0059cab0[0]);
-    weapon = 0;
-    while (weapon < *(signed char *)((unsigned char *)
-               g_aShipWeapons_0059cab0 + loadoutOffset)) {
+    for (weapon = 0;
+         weapon < *(signed char *)((unsigned char *)
+             g_aShipWeapons_0059cab0 + loadoutOffset);
+         weapon++) {
         slot = (ShipWeaponSlot *)((unsigned char *)
             g_aShipWeapons_0059cab0 + loadoutOffset +
             weapon * sizeof(ShipWeaponSlot) + 1);
@@ -1248,7 +1246,6 @@ void fire(short obj, short target)
                 fireMissile = 0;
             }
         }
-        weapon++;
     }
 }
 
@@ -1360,9 +1357,10 @@ int fire_turrets(short obj)
     loadoutOffset = (int)obj * sizeof(g_aShipWeapons_0059cab0[0]);
     slot = (ShipWeaponSlot *)((unsigned char *)
         g_aShipWeapons_0059cab0 + loadoutOffset + 1);
-    weapon = 0;
-    while (weapon < *(signed char *)((unsigned char *)
-               g_aShipWeapons_0059cab0 + loadoutOffset)) {
+    for (weapon = 0;
+         weapon < *(signed char *)((unsigned char *)
+             g_aShipWeapons_0059cab0 + loadoutOffset);
+         weapon++, slot++) {
         if (RandomBelowOrEqual(2) == 0) {
             position_child(obj, slot->hardpoint, &hardpoint);
             startTarget = RandomBelowOrEqual(lastTarget);
@@ -1394,8 +1392,6 @@ int fire_turrets(short obj)
                     targetIndex = 0;
             } while (targetIndex != startTarget);
         }
-        weapon++;
-        slot++;
     }
     return 1;
 }

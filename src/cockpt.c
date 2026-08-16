@@ -1677,8 +1677,7 @@ unsigned int draw_3d_scanner(void)
             OBJECT_CLASS_SHIP)
         g_nScannerTargetObject_00469090 = -1;
 
-    object = 1;
-    do {
+    for (object = 1; object < 10; object++) {
         if (get_color(object, &colour) != 0) {
             rectangular_to_spherical(&g_aObjectViewPosition_0059afa0[object],
                                      &spherical);
@@ -1696,8 +1695,7 @@ unsigned int draw_3d_scanner(void)
                                       colour);
             }
         }
-        object++;
-    } while (object < 10);
+    }
 
     if (get_mode(1) == 5) {
         set_objective_range(1);
@@ -2380,11 +2378,12 @@ void cycle_onscreen_targets(void)
     if (g_cViableTargetCount_0046c088 == 0) {
         g_acShipTarget_0059ce60[0] = -1;
     } else {
-        index = 0;
-        while (index < g_cViableTargetCount_0046c088 &&
-               g_acViableTarget_0059c920[(int)index] !=
-                   g_acShipTarget_0059ce60[0])
-            index++;
+        for (index = 0;
+             index < g_cViableTargetCount_0046c088 &&
+             g_acViableTarget_0059c920[(int)index] !=
+                 g_acShipTarget_0059ce60[0];
+             index++)
+            ;
         do {
             index = (signed char)((index + 1) %
                                   g_cViableTargetCount_0046c088);
@@ -2448,12 +2447,13 @@ void check_target(void)
             g_acShipTarget_0059ce60[0] = oldTarget;
         }
         if (selectNewTarget != 0) {
-            targetIndex = 0;
-            while (targetIndex < g_cViableTargetCount_0046c088 &&
-                   g_aeShipSide_0059d650[
-                       (short)g_acViableTarget_0059c920[targetIndex]] ==
-                       g_aeShipSide_0059d650[0])
-                targetIndex++;
+            for (targetIndex = 0;
+                 targetIndex < g_cViableTargetCount_0046c088 &&
+                 g_aeShipSide_0059d650[
+                     (short)g_acViableTarget_0059c920[targetIndex]] ==
+                     g_aeShipSide_0059d650[0];
+                 targetIndex++)
+                ;
             g_acShipTarget_0059ce60[0] =
                 g_acViableTarget_0059c920[
                     targetIndex % (short)g_cViableTargetCount_0046c088];

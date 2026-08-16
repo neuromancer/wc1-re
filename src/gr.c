@@ -97,8 +97,7 @@ void PrepareShapeRLEData(unsigned char *shape)
     frameOffset = (int *)(g_abShapeRLEScratch_00497748 + 8);
     output = g_abShapeRLEScratch_00497748 + 8 + (frameCount << 3);
 
-    frame = 0;
-    while (frame < frameCount) {
+    for (frame = 0; frame < frameCount; frame++) {
         *frameOffset = (int)(output - g_abShapeRLEScratch_00497748);
         frameOffset += 2;
         GetShapeFrameExtents(shape, (short)frame, &width, &height,
@@ -124,8 +123,7 @@ void PrepareShapeRLEData(unsigned char *shape)
         memset(bitmap, 0xff, (unsigned int)((int)width * height));
         DecodeShapeFrame(shape, (short)frame, bitmap, width, height,
                          leftExtent, topExtent);
-        row = 0;
-        while (row < height) {
+        for (row = 0; row < height; row++) {
             remaining = width;
             while (remaining > 0) {
                 if (*pixel != 0xff) {
@@ -155,10 +153,8 @@ void PrepareShapeRLEData(unsigned char *shape)
                 }
             }
             *output++ = 0;
-            row++;
         }
         ReleasePacketHandle(bitmap);
-        frame++;
     }
 
     preparedSize = (int)(output - g_abShapeRLEScratch_00497748);
@@ -249,7 +245,7 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                        characterData[0x104];
         source = font + bitmapOffset;
         if (fontColour == colour && fontBackground == background) {
-            while (height-- != 0) {
+            for (; height-- != 0; row++) {
                 if (viewport->top == row &&
                     (viewport->rowOffsets[row] & 0x8000) != 0)
                     destinationOffset = (unsigned int)context->cursorX;
@@ -257,17 +253,15 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                     destinationOffset = viewport->rowOffsets[row] +
                                         (unsigned int)context->cursorX;
                 destination = viewport->pixels + destinationOffset;
-                column = width;
-                while (column-- != 0) {
+                for (column = width; column-- != 0;) {
                     if (*source != 0xff)
                         *destination = *source;
                     source++;
                     destination++;
                 }
-                row++;
             }
         } else {
-            while (height-- != 0) {
+            for (; height-- != 0; row++) {
                 if (viewport->top == row &&
                     (viewport->rowOffsets[row] & 0x8000) != 0)
                     destinationOffset = (unsigned int)context->cursorX;
@@ -275,15 +269,13 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                     destinationOffset = viewport->rowOffsets[row] +
                                         (unsigned int)context->cursorX;
                 destination = viewport->pixels + destinationOffset;
-                column = width;
-                while (column-- != 0) {
+                for (column = width; column-- != 0;) {
                     translated = g_abPaletteTranslation_00470678[*source];
                     if (translated != 0xff)
                         *destination = translated;
                     source++;
                     destination++;
                 }
-                row++;
             }
         }
         context->cursorX += font[4 + characterIndex];
@@ -683,16 +675,14 @@ void DrawFilledViewportRect(Viewport *viewport, short left, short top,
     int height;
 
     height = bottom - top;
-    row = 0;
     ClipViewportToScreen(viewport);
-    while (row <= height) {
+    for (row = 0; row <= height; row++) {
         DrawClippedLine(&g_stRasterClip_00496fc0,
                         left - viewport->left,
                         row + top - viewport->top,
                         right - viewport->left,
                         row + top - viewport->top,
                         0, colour);
-        row++;
     }
 }
 

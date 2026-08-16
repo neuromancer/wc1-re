@@ -187,107 +187,108 @@ void request(short requester, short ship, short command)
 
     requesterTarget = &g_acShipTarget_0059ce60[requester];
 
-retry_request:
-    target = (short)*requesterTarget;
-    switch (command) {
-    case 1:
-        allow_engage();
-        if (bad_target(ship, target) == 0) {
+    for (;;) {
+        target = (short)*requesterTarget;
+        switch (command) {
+        case 1:
+            allow_engage();
+            if (bad_target(ship, target) == 0) {
+                engage(ship, target, OBJECTIVE_ENGAGE_ENEMY);
+                reply(ship, 1);
+                return;
+            }
+            reply(ship, 0);
+            return;
+        case 2:
+            allow_engage();
+            target = -1;
+            for (object = 0; object < 10; object++) {
+                if (g_aeObjectClass_0059d100[object] >=
+                        OBJECT_CLASS_SHIP &&
+                    g_aeSpecialManeuver_0059c3c0[object] !=
+                        SPECIAL_MANEUVER_UNKNOWN_9 &&
+                    g_aeShipSide_0059d650[ship] !=
+                        g_aeShipSide_0059d650[object] &&
+                    g_acShipTarget_0059ce60[object] == requester) {
+                    target = object;
+                    break;
+                }
+            }
+            if (target == -1) {
+                command = 9;
+                continue;
+            }
             engage(ship, target, OBJECTIVE_ENGAGE_ENEMY);
             reply(ship, 1);
             return;
-        }
-        reply(ship, 0);
-        return;
-    case 2:
-        allow_engage();
-        target = -1;
-        object = 0;
-        do {
-            if (g_aeObjectClass_0059d100[object] >= OBJECT_CLASS_SHIP &&
-                g_aeSpecialManeuver_0059c3c0[object] !=
-                    SPECIAL_MANEUVER_UNKNOWN_9 &&
-                g_aeShipSide_0059d650[ship] !=
-                    g_aeShipSide_0059d650[object] &&
-                g_acShipTarget_0059ce60[object] == requester) {
-                target = object;
-                break;
+        case 3:
+            if (i_wanna_rout(ship, g_aiPilotLevel_0059cf30[ship]) != 0 &&
+                try2rout(ship) != 0) {
+                g_bEngageAllowed_0046c080 = 0;
+                reply(ship, 1);
+                return;
             }
-            object++;
-        } while (object < 10);
-        if (target == -1) {
-            command = 9;
-            goto retry_request;
-        }
-        engage(ship, target, OBJECTIVE_ENGAGE_ENEMY);
-        reply(ship, 1);
-        return;
-    case 3:
-        if (i_wanna_rout(ship, g_aiPilotLevel_0059cf30[ship]) != 0 &&
-            try2rout(ship) != 0) {
-            g_bEngageAllowed_0046c080 = 0;
-            reply(ship, 1);
-            return;
-        }
-        reply(ship, 0);
-        return;
-    case 4:
-    case 5:
-    case 6:
-        if (RandomBelow(100) < 70 ||
-            ((signed char)g_acShipRating_0059cd80[ship] > 8 &&
-             (signed char)g_acShipRating_0059cd80[ship] < 13))
-            send_message(ship, (signed char)(command - 2));
-        if (g_acShipTarget_0059ce60[ship] != requester &&
-            too_busy(ship) == 0) {
-            engage(ship, requester, OBJECTIVE_ENGAGE_ENEMY);
-            return;
-        }
-        break;
-    case 7:
-        allow_engage();
-        if (g_aeShipObjective_0059d200[ship] ==
-                OBJECTIVE_HOLD_FORMATION) {
-            reset_objective(ship, OBJECTIVE_BREAK_FORMATION);
-            reply(ship, 1);
-            return;
-        }
-        reply(ship, 0);
-        return;
-    case 8:
-        disallow_engage();
-        if (disobey_formation(ship) != 0) {
-            alter_objective(ship, OBJECTIVE_BREAK_FORMATION);
             reply(ship, 0);
             return;
-        }
-        g_nAutoEngageTimer_0046c084 = -150;
-        reply(ship, 1);
-        return;
-    case 9:
-        disallow_engage();
-        if (disobey_formation(ship) != 0) {
+        case 4:
+        case 5:
+        case 6:
+            if (RandomBelow(100) < 70 ||
+                ((signed char)g_acShipRating_0059cd80[ship] > 8 &&
+                 (signed char)g_acShipRating_0059cd80[ship] < 13))
+                send_message(ship, (signed char)(command - 2));
+            if (g_acShipTarget_0059ce60[ship] != requester &&
+                too_busy(ship) == 0) {
+                engage(ship, requester, OBJECTIVE_ENGAGE_ENEMY);
+                return;
+            }
+            break;
+        case 7:
+            allow_engage();
+            if (g_aeShipObjective_0059d200[ship] ==
+                    OBJECTIVE_HOLD_FORMATION) {
+                reset_objective(ship, OBJECTIVE_BREAK_FORMATION);
+                reply(ship, 1);
+                return;
+            }
             reply(ship, 0);
             return;
-        }
-        reset_objective(ship, OBJECTIVE_HOLD_FORMATION);
-        g_nAutoEngageTimer_0046c084 = -150;
-        reply(ship, 1);
-        return;
-    case 10:
-    case 11:
-        g_bRadioSilence_0046af70 = 0;
-        reply(ship, 1);
-        g_bRadioSilence_0046af70 = command == 10;
-        return;
-    case 12:
-        cleanup_objectives();
-        if (can_land() != 0) {
-            g_bLandingAuthorized_00468ff8 = 1;
-            send_message(ship, 8);
+        case 8:
+            disallow_engage();
+            if (disobey_formation(ship) != 0) {
+                alter_objective(ship, OBJECTIVE_BREAK_FORMATION);
+                reply(ship, 0);
+                return;
+            }
+            g_nAutoEngageTimer_0046c084 = -150;
+            reply(ship, 1);
+            return;
+        case 9:
+            disallow_engage();
+            if (disobey_formation(ship) != 0) {
+                reply(ship, 0);
+                return;
+            }
+            reset_objective(ship, OBJECTIVE_HOLD_FORMATION);
+            g_nAutoEngageTimer_0046c084 = -150;
+            reply(ship, 1);
+            return;
+        case 10:
+        case 11:
+            g_bRadioSilence_0046af70 = 0;
+            reply(ship, 1);
+            g_bRadioSilence_0046af70 = command == 10;
+            return;
+        case 12:
+            cleanup_objectives();
+            if (can_land() != 0) {
+                g_bLandingAuthorized_00468ff8 = 1;
+                send_message(ship, 8);
+                return;
+            }
+            send_message(ship, 9);
             return;
         }
-        send_message(ship, 9);
         return;
     }
 }
@@ -383,11 +384,11 @@ int GetFreeNearHeapBytes(void)
     freeBytes = 0;
     descriptorAddress =
         g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c - 8;
-    while (descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124) {
+    for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124;
+         descriptorAddress -= 8) {
         block = DosNearPtrToFar(descriptorAddress);
         if ((block->sizeAndFlags & 0x80000000) == 0)
             freeBytes += block->sizeAndFlags & 0xfffff;
-        descriptorAddress -= 8;
     }
     return freeBytes;
 }

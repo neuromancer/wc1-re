@@ -14,14 +14,14 @@ short find_weapon(short obj, enum ObjectType weaponType)
 {
     short weapon;
 
-    weapon = 0;
-    while (weapon < (signed char)g_aShipWeapons_0059cab0[obj][0]) {
+    for (weapon = 0;
+         weapon < (signed char)g_aShipWeapons_0059cab0[obj][0];
+         weapon++) {
         ShipWeaponSlot *weaponSlot =
             &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
 
         if (weaponSlot->type == weaponType)
             return weapon;
-        weapon++;
     }
     return -1;
 }
@@ -37,7 +37,7 @@ int fire_missile(short ship)
     slot = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[ship][1];
     weaponCount = (signed char)g_aShipWeapons_0059cab0[ship][0];
     if (weaponCount > 0) {
-        do {
+        for (; weapon < weaponCount; weapon++, slot++) {
             if (g_aObjectTypeData_00466458[slot->type].objectClass ==
                     OBJECT_CLASS_MISSILE) {
                 if (ship != 0)
@@ -55,9 +55,7 @@ int fire_missile(short ship)
                     return fire_weapon(0, weapon);
                 }
             }
-            weapon++;
-            slot++;
-        } while (weapon < weaponCount);
+        }
     }
     return -1;
 }
@@ -883,8 +881,7 @@ short detect_collisions(short obj)
 
     candidate = -1;
     closestTime = 30;
-    other = 0;
-    do {
+    for (other = 0; other <= 60; other++) {
         if (other != obj &&
             g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_ASTEROID &&
             g_aeObjectClass_0059d100[other] != OBJECT_CLASS_MISSILE) {
@@ -894,8 +891,7 @@ short detect_collisions(short obj)
                 candidate = other;
             }
         }
-        other++;
-    } while (other <= 60);
+    }
     if (candidate != -1) {
         g_asCollisionPartner_005a7cc0[obj] = candidate;
         g_asCollisionTime_005a7ca0[obj] = closestTime;
@@ -1051,8 +1047,7 @@ int any_enemy_tail(short obj)
 {
     short other;
 
-    other = 0;
-    do {
+    for (other = 0; other < 10; other++) {
         if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
             g_aeSpecialManeuver_0059c3c0[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
@@ -1062,8 +1057,7 @@ int any_enemy_tail(short obj)
             g_nTargetShip_0059c3b0 = other;
             return 1;
         }
-        other++;
-    } while (other < 10);
+    }
     g_nTargetShip_0059c3b0 = -1;
     return 0;
 }
@@ -1524,8 +1518,7 @@ short build_target_list(short obj, short range)
     short distance;
 
     count = 0;
-    other = 0;
-    do {
+    for (other = 0; other < 10; other++) {
         if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
             g_aeSpecialManeuver_0059c3c0[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
@@ -1538,8 +1531,7 @@ short build_target_list(short obj, short range)
                 count++;
             }
         }
-        other++;
-    } while (other < 10);
+    }
     g_acFormationMemberList_0059d490[count] = -1;
     return count;
 }
@@ -1652,20 +1644,17 @@ short find_ships_sphere(short missionShip)
     navIndex = 0;
     navPoint = g_aMissionNavPoints_0046c2f0;
     fallback = -1;
-    do {
-        shipIndex = 0;
-        do {
+    for (; navIndex < WC1_ACTIVE_MISSION_NAV_POINT_COUNT;
+         navIndex++, navPoint++) {
+        for (shipIndex = 0; shipIndex < 10; shipIndex++) {
             if (navPoint->missionShips[shipIndex] == missionShip) {
                 if (navPoint->type == 1)
                     return navIndex;
                 if (fallback == -1)
                     fallback = navIndex;
             }
-            shipIndex++;
-        } while (shipIndex < 10);
-        navIndex++;
-        navPoint++;
-    } while (navIndex < WC1_ACTIVE_MISSION_NAV_POINT_COUNT);
+        }
+    }
     if (fallback != -1) {
         navIndex = fallback;
         if (g_aMissionNavPoints_0046c2f0[navIndex].type > 1)
@@ -2302,8 +2291,9 @@ unsigned int InitializeCockpitResources(signed char mode)
 
     g_pReleaseWeaponDisplayBackground_0046906c = 0;
     maximumSize = 0;
-    weapon = 0;
-    while (weapon < (signed char)g_aShipWeapons_0059cab0[0][0]) {
+    for (weapon = 0;
+         weapon < (signed char)g_aShipWeapons_0059cab0[0][0];
+         weapon++) {
         weaponSlot = &((ShipWeaponSlot *)
             &g_aShipWeapons_0059cab0[0][1])[weapon];
         if (g_aObjectTypeData_00466458[weaponSlot->type].objectClass ==
@@ -2313,7 +2303,6 @@ unsigned int InitializeCockpitResources(signed char mode)
                 (short)(weaponSlot->type * 2 - 0x2f));
             maximumSize = MaxShort(maximumSize, (short)backgroundSize);
         }
-        weapon++;
     }
     if (maximumSize != 0)
         g_pReleaseWeaponDisplayBackground_0046906c =
@@ -2322,13 +2311,11 @@ unsigned int InitializeCockpitResources(signed char mode)
     g_pCockpitExplosionBackground_00469060 = 0;
     if (g_pCockpitExplosionShape_00469064 != 0) {
         maximumSize = 0;
-        frame = 0;
-        do {
+        for (frame = 0; frame < 8; frame++) {
             backgroundSize = MeasureShapeFrameStorage(
                 g_pCockpitExplosionShape_00469064, frame);
             maximumSize = MaxShort(maximumSize, (short)backgroundSize);
-            frame++;
-        } while (frame < 8);
+        }
         if (maximumSize != 0)
             g_pCockpitExplosionBackground_00469060 =
                 AllocateTaggedMemory(maximumSize, 0);
@@ -2336,13 +2323,11 @@ unsigned int InitializeCockpitResources(signed char mode)
 
     g_pDamageDisplayBackground_0046a748 = 0;
     maximumSize = 0;
-    frame = 0;
-    do {
+    for (frame = 0; frame < 9; frame++) {
         backgroundSize = MeasureShapeFrameStorage(
             g_pCockpitWeaponShape_005a7564, frame);
         maximumSize = MaxShort(maximumSize, (short)backgroundSize);
-        frame++;
-    } while (frame < 9);
+    }
     if (maximumSize != 0)
         g_pDamageDisplayBackground_0046a748 =
             AllocateTaggedMemory(maximumSize, 0);

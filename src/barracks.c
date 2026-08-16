@@ -27,7 +27,7 @@ void CreateEmptySaveGameFile(void)
     PromptInsertNumberedDisk(0x10);
     file = CreateDataFile("SAVEGAME.WLD");
     if (file >= 0) {
-        do {
+        for (; slot < 8; slot++) {
             sprintf(gameRecord.description, "game %d", (int)slot + 1);
             memcpy(diskRecord.description, gameRecord.description,
                    sizeof(diskRecord.description));
@@ -41,19 +41,15 @@ void CreateEmptySaveGameFile(void)
 
             diskBytes = diskRecord.campaign.medals;
             gameBytes = gameRecord.campaign.medals;
-            index = 0;
-            do {
+            for (index = 0; index < 5; index++) {
                 diskBytes[index] = gameBytes[index];
-                index++;
-            } while (index < 5);
+            }
 
             diskBytes = diskRecord.campaign.badges;
             gameBytes = gameRecord.campaign.badges;
-            index = 0;
-            do {
+            for (index = 0; index < 12; index++) {
                 diskBytes[index] = gameBytes[index];
-                index++;
-            } while (index < 12);
+            }
 
             diskRecord.campaign.currentMission =
                 gameRecord.campaign.currentMission;
@@ -65,28 +61,25 @@ void CreateEmptySaveGameFile(void)
                 diskRecord.campaign.seriesHistory;
             gameBytes = (unsigned char *)
                 gameRecord.campaign.seriesHistory;
-            index = 0;
-            do {
+            for (index = 0; index < 8; index++) {
                 diskBytes[index] = gameBytes[index];
-                index++;
-            } while (index < 8);
+            }
 
             gameDeathMission =
                 gameRecord.campaign.personalityDeathMission;
             diskDeathMission =
                 diskRecord.campaign.personalityDeathMission;
-            do {
-                *diskDeathMission++ = (short)*gameDeathMission++;
-            } while (diskDeathMission <
-                     diskRecord.campaign.personalityDeathMission + 8);
+            for (; diskDeathMission <
+                       diskRecord.campaign.personalityDeathMission + 8;
+                 diskDeathMission++, gameDeathMission++) {
+                *diskDeathMission = (short)*gameDeathMission;
+            }
 
             diskBytes = diskRecord.campaign.aceFlags;
             gameBytes = gameRecord.campaign.aceFlags;
-            index = 0;
-            do {
+            for (index = 0; index < 4; index++) {
                 diskBytes[index] = gameBytes[index];
-                index++;
-            } while (index < 4);
+            }
             diskRecord.campaign.currentDate =
                 gameRecord.campaign.currentDate;
             diskRecord.campaign.elapsedDate.day =
@@ -104,7 +97,8 @@ void CreateEmptySaveGameFile(void)
 
             gameObjective = gameRecord.objectives;
             diskObjective = diskRecord.objectives;
-            do {
+            for (; diskObjective < diskRecord.objectives + 16;
+                 diskObjective++, gameObjective++) {
                 diskObjective->mapX = gameObjective->mapX;
                 diskObjective->mapY = gameObjective->mapY;
                 diskObjective->field_4 = gameObjective->field_4;
@@ -115,15 +109,12 @@ void CreateEmptySaveGameFile(void)
                     (short)(int)gameObjective->displayName;
                 diskObjective->name = (short)(int)gameObjective->name;
                 diskObjective->position = gameObjective->position;
-                diskObjective++;
-                gameObjective++;
-            } while (diskObjective < diskRecord.objectives + 16);
+            }
 
             WriteDataFileAtOffset((unsigned short)file,
                                   (int)slot * 0x33c, 0x33c,
                                   &diskRecord);
-            slot++;
-        } while (slot < 8);
+        }
         CloseDataFile((unsigned short)file);
     }
 }
@@ -245,18 +236,14 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
     diskRecord.campaign.playerShipType =
         (short)gameRecord->campaign.playerShipType;
     diskBytes = diskRecord.campaign.medals;
-    index = 0;
-    do {
+    for (index = 0; index < 5; index++) {
         diskBytes[index] = gameRecord->campaign.medals[index];
-        index++;
-    } while (index < 5);
+    }
 
     diskBytes = diskRecord.campaign.badges;
-    index = 0;
-    do {
+    for (index = 0; index < 12; index++) {
         diskBytes[index] = gameRecord->campaign.badges[index];
-        index++;
-    } while (index < 12);
+    }
     diskRecord.campaign.currentMission =
         gameRecord->campaign.currentMission;
     diskRecord.campaign.currentSeries =
@@ -264,26 +251,23 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
     diskRecord.campaign.seriesHistoryCount =
         gameRecord->campaign.seriesHistoryCount;
     diskBytes = (unsigned char *)diskRecord.campaign.seriesHistory;
-    index = 0;
-    do {
+    for (index = 0; index < 8; index++) {
         diskBytes[index] =
             (unsigned char)gameRecord->campaign.seriesHistory[index];
-        index++;
-    } while (index < 8);
+    }
 
     gameDeathMission = gameRecord->campaign.personalityDeathMission;
     diskDeathMission = diskRecord.campaign.personalityDeathMission;
-    do {
-        *diskDeathMission++ = (short)*gameDeathMission++;
-    } while (diskDeathMission <
-             diskRecord.campaign.personalityDeathMission + 8);
+    for (; diskDeathMission <
+               diskRecord.campaign.personalityDeathMission + 8;
+         diskDeathMission++, gameDeathMission++) {
+        *diskDeathMission = (short)*gameDeathMission;
+    }
 
     diskBytes = diskRecord.campaign.aceFlags;
-    index = 0;
-    do {
+    for (index = 0; index < 4; index++) {
         diskBytes[index] = gameRecord->campaign.aceFlags[index];
-        index++;
-    } while (index < 4);
+    }
     diskRecord.campaign.currentDate = gameRecord->campaign.currentDate;
     diskRecord.campaign.elapsedDate.day =
         gameRecord->campaign.elapsedDate.day;
@@ -297,7 +281,8 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
 
     gameObjective = gameRecord->objectives;
     diskObjective = diskRecord.objectives;
-    do {
+    for (; diskObjective < diskRecord.objectives + 16;
+         diskObjective++, gameObjective++) {
         diskObjective->mapX = gameObjective->mapX;
         diskObjective->mapY = gameObjective->mapY;
         diskObjective->field_4 = gameObjective->field_4;
@@ -308,9 +293,7 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
             (short)(int)gameObjective->displayName;
         diskObjective->name = (short)(int)gameObjective->name;
         diskObjective->position = gameObjective->position;
-        diskObjective++;
-        gameObjective++;
-    } while (diskObjective < diskRecord.objectives + 16);
+    }
 
     file = OpenDataFileOrDie("SAVEGAME.WLD");
     written = WriteDataFileAtOffset((unsigned short)file,
@@ -453,19 +436,15 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
         (enum ObjectType)diskRecord.campaign.playerShipType;
     gameBytes = gameRecord->campaign.medals;
     diskBytes = diskRecord.campaign.medals;
-    index = 0;
-    do {
+    for (index = 0; index < 5; index++) {
         gameBytes[index] = diskBytes[index];
-        index++;
-    } while (index < 5);
+    }
 
     gameBytes = gameRecord->campaign.badges;
     diskBytes = diskRecord.campaign.badges;
-    index = 0;
-    do {
+    for (index = 0; index < 12; index++) {
         gameBytes[index] = diskBytes[index];
-        index++;
-    } while (index < 12);
+    }
     gameRecord->campaign.currentMission =
         diskRecord.campaign.currentMission;
     gameRecord->campaign.currentSeries =
@@ -474,26 +453,23 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
         diskRecord.campaign.seriesHistoryCount;
     gameBytes = (unsigned char *)gameRecord->campaign.seriesHistory;
     diskBytes = (unsigned char *)diskRecord.campaign.seriesHistory;
-    index = 0;
-    do {
+    for (index = 0; index < 8; index++) {
         gameBytes[index] = diskBytes[index];
-        index++;
-    } while (index < 8);
+    }
 
     gameDeathMission = gameRecord->campaign.personalityDeathMission;
     diskDeathMission = diskRecord.campaign.personalityDeathMission;
-    do {
-        *gameDeathMission++ = (int)*diskDeathMission++;
-    } while (diskDeathMission <
-             diskRecord.campaign.personalityDeathMission + 8);
+    for (; diskDeathMission <
+               diskRecord.campaign.personalityDeathMission + 8;
+         diskDeathMission++, gameDeathMission++) {
+        *gameDeathMission = (int)*diskDeathMission;
+    }
 
     gameBytes = gameRecord->campaign.aceFlags;
     diskBytes = diskRecord.campaign.aceFlags;
-    index = 0;
-    do {
+    for (index = 0; index < 4; index++) {
         gameBytes[index] = diskBytes[index];
-        index++;
-    } while (index < 4);
+    }
     gameRecord->campaign.currentDate = diskRecord.campaign.currentDate;
     gameRecord->campaign.elapsedDate.day =
         diskRecord.campaign.elapsedDate.day;
@@ -508,7 +484,8 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
 
     gameObjective = gameRecord->objectives;
     diskObjective = diskRecord.objectives;
-    do {
+    for (; diskObjective < diskRecord.objectives + 16;
+         diskObjective++, gameObjective++) {
         gameObjective->mapX = diskObjective->mapX;
         gameObjective->mapY = diskObjective->mapY;
         gameObjective->field_4 = diskObjective->field_4;
@@ -519,9 +496,7 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
             (const char *)(int)diskObjective->displayName;
         gameObjective->name = (char *)(int)diskObjective->name;
         gameObjective->position = diskObjective->position;
-        diskObjective++;
-        gameObjective++;
-    } while (diskObjective < diskRecord.objectives + 16);
+    }
 
     fileOpen &= read != 0;
     CloseDataFile((unsigned short)file);
@@ -1002,8 +977,7 @@ unsigned short __stdcall StepPaletteTransition(short *current,
         }
 
         g_nPaletteTransitionMaxDelta_005a7d90 = 0;
-        index = 0;
-        while (index < componentCount) {
+        for (index = 0; index < componentCount; index++) {
             difference = (short)(current[index] - target[index]);
             if (difference < 0) {
                 difference = (short)-difference;
@@ -1014,14 +988,11 @@ unsigned short __stdcall StepPaletteTransition(short *current,
             g_pPaletteTransitionDelta_005a7d8c[index] = difference;
             if (g_nPaletteTransitionMaxDelta_005a7d90 < difference)
                 g_nPaletteTransitionMaxDelta_005a7d90 = difference;
-            index++;
         }
 
-        index = 0;
-        while (index < componentCount) {
+        for (index = 0; index < componentCount; index++) {
             g_pPaletteTransitionAccumulator_005a7d94[index] =
                 (short)(g_nPaletteTransitionMaxDelta_005a7d90 / 4);
-            index++;
         }
         g_nPaletteTransitionInitialise_00469640 = 0;
         g_nPaletteTransitionCountdown_005a7d98 =
@@ -1038,8 +1009,7 @@ unsigned short __stdcall StepPaletteTransition(short *current,
         return 0;
     }
 
-    index = 0;
-    while (index < componentCount) {
+    for (index = 0; index < componentCount; index++) {
         g_pPaletteTransitionAccumulator_005a7d94[index] =
             (short)(g_pPaletteTransitionAccumulator_005a7d94[index] +
                     g_pPaletteTransitionDelta_005a7d8c[index]);
@@ -1052,7 +1022,6 @@ unsigned short __stdcall StepPaletteTransition(short *current,
                 (short)(current[index] +
                         g_pPaletteTransitionDirection_005a7d88[index]);
         }
-        index++;
     }
     return 1;
 }

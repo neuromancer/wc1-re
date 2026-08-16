@@ -656,17 +656,16 @@ void sort_object_depth(void)
     memset(g_anObjectDepthPlaced_0059a8f0, 0,
            sizeof(g_anObjectDepthPlaced_0059a8f0));
     obj = 0;
-    do {
+    for (; obj < WC1_SPACE_OBJECT_COUNT; obj++) {
         distance = (unsigned short)g_asObjectDistance_0059b4a0[obj];
         if (previous < (int)distance) {
             previous = (int)distance;
             bestObject = obj;
         }
-        obj++;
-    } while (obj < WC1_SPACE_OBJECT_COUNT);
+    }
     sorted = 0;
     sortedEntry = g_anSortedObject_0059aa00;
-    do {
+    for (; sorted < WC1_SPACE_OBJECT_COUNT; sorted++, sortedEntry++) {
         best = -1;
         *sortedEntry = bestObject;
         if (bestObject == -1)
@@ -676,7 +675,9 @@ void sort_object_depth(void)
         g_anObjectDepthPlaced_0059a8f0[bestObject] = 1;
         bestObject = -1;
         placed = g_anObjectDepthPlaced_0059a8f0;
-        do {
+        for (; placed < g_anObjectDepthPlaced_0059a8f0 +
+                           WC1_SPACE_OBJECT_COUNT;
+             screenOffset += sizeof(short), placed++, obj++) {
             if (*placed == 0 &&
                 *(short *)((unsigned char *)g_asObjectScreenX_0059d9b0 +
                            screenOffset) != (short)0x8001) {
@@ -688,14 +689,8 @@ void sort_object_depth(void)
                     best = (int)distance;
                 }
             }
-            screenOffset += sizeof(short);
-            placed++;
-            obj++;
-        } while (placed < g_anObjectDepthPlaced_0059a8f0 +
-                            WC1_SPACE_OBJECT_COUNT);
-        sortedEntry++;
-        sorted++;
-    } while (sorted < WC1_SPACE_OBJECT_COUNT);
+        }
+    }
 }
 
 /* Function start: 0x436520 */
@@ -832,7 +827,10 @@ void intro_drawbackgroundships(void)
     shortOffset = 0;
     zero = 0;
     dwordOffset = 0;
-    do {
+    for (; dwordOffset < WC1_SPACE_OBJECT_COUNT * (int)sizeof(int);
+         shortOffset += sizeof(short),
+         dwordOffset += sizeof(int),
+         obj++) {
         if (*(enum ObjectType *)((unsigned char *)g_aeObjectType_0059b560 +
                                  dwordOffset) < zero)
             return;
@@ -897,10 +895,7 @@ void intro_drawbackgroundships(void)
                 break;
             }
         }
-        shortOffset += sizeof(short);
-        dwordOffset += sizeof(int);
-        obj++;
-    } while (dwordOffset < WC1_SPACE_OBJECT_COUNT * (int)sizeof(int));
+    }
 }
 
 /* Function start: 0x436740 */

@@ -671,7 +671,7 @@ short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
     selected = 0;
     weapon = 0;
     if ((signed char)loadout[0] > (signed char)selected)
-        do {
+        for (; (short)(signed char)loadout[0] > weapon; weapon++) {
             if (selected != 0)
                 break;
             if (g_aObjectTypeData_00466458[
@@ -680,8 +680,7 @@ short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
                     selectedClass &&
                 ((ShipWeaponSlot *)(loadout + weapon * 7 + 1))->disabled == 0)
                 selected = 1;
-            weapon++;
-        } while ((short)(signed char)loadout[0] > weapon);
+        }
     return selected;
 }
 
@@ -702,7 +701,8 @@ unsigned int remove_weapon(short obj, short weapon)
     preferredType =
         ((ShipWeaponSlot *)(loadout + weaponOffset + 1))->type;
     objectClass = g_aObjectTypeData_00466458[preferredType].objectClass;
-    while (currentWeapon < (signed char)loadout[0] - 1) {
+    for (; currentWeapon < (signed char)loadout[0] - 1;
+         currentWeapon++) {
         unsigned char *entry = loadout + currentWeapon * 7;
 
 #ifdef WC1_SDL
@@ -713,7 +713,6 @@ unsigned int remove_weapon(short obj, short weapon)
         *(short *)(entry + 5) = *(short *)(entry + 12);
         entry[7] = entry[14];
 #endif
-        currentWeapon++;
     }
     loadout[(signed char)loadout[0] * 7 + 7] = 1;
     loadout[0]--;
@@ -818,8 +817,8 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
             if (obj == 0) {
                 g_nSelectedReleaseWeaponIndex_0046c058 = -1;
                 g_eSelectedGunType_0046c054 = (enum ObjectType)-1;
-                weapon = (short)(signed char)loadout[0];
-                while (weapon-- > 0) {
+                for (weapon = (short)(signed char)loadout[0];
+                     weapon-- > 0;) {
                     ShipWeaponSlot *slot;
 
                     slot = (ShipWeaponSlot *)(loadout + weapon * 7 + 1);
@@ -1000,7 +999,7 @@ unsigned int sort_viable_target_list(void)
                 nextOuter = outer + 1;
                 inner = nextOuter;
                 if (inner < count) {
-                    do {
+                    for (; inner < count; inner++) {
                         distance =
                             g_asViableTargetDistance_0059c470[outer];
                         if (g_asViableTargetDistance_0059c470[inner] <
@@ -1014,8 +1013,7 @@ unsigned int sort_viable_target_list(void)
                                 g_acViableTarget_0059c920[inner];
                             g_acViableTarget_0059c920[inner] = target;
                         }
-                        inner++;
-                    } while (inner < count);
+                    }
                 }
                 outer = nextOuter;
             } while ((int)outer < count - 1);

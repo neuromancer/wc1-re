@@ -289,17 +289,18 @@ unsigned int DrawConstellationField(void)
     height = (short)(g_pConstellationViewport_005a6aac->bottom -
                      g_pConstellationViewport_005a6aac->top);
     ClearViewport(g_pConstellationViewport_005a6aac, DAT_004699d8);
-    index = 0;
-    while (index < g_nConstellationStarCount_005a6ab0) {
+    for (index = 0;
+         index < g_nConstellationStarCount_005a6ab0;
+         index++) {
         DrawSpriteDefault(g_pConstellationViewport_005a6aac,
                           g_aConstellationStars_005a6a70[index].x,
                           g_aConstellationStars_005a6a70[index].y,
                           g_pConstellationShape_005a765c,
                           g_aConstellationStars_005a6a70[index].frame);
-        index++;
     }
-    index = 0;
-    while (index < g_nConstellationParticleCount_005a6b54) {
+    for (index = 0;
+         index < g_nConstellationParticleCount_005a6b54;
+         index++) {
         particle = &g_aConstellationParticles_005a6ac0[index];
         DrawSpriteDefault(g_pConstellationViewport_005a6aac,
                           particle->x, particle->y,
@@ -335,7 +336,6 @@ unsigned int DrawConstellationField(void)
                 g_asConstellationFrame_0046a8f8[randomIndex] +
                 RandomInRange(0, 3));
         }
-        index++;
     }
     return 0;
 }

@@ -337,8 +337,7 @@ short RecRoom(void)
         if (IsFrameTickElapsed() != 0) {
             DrawSpriteDefault(&pilotWork, 0, 0,
                               g_pRecRoomBackgroundShape_00598a50, 0);
-            index = 0;
-            do {
+            for (index = 0; index < 3; index++) {
                 if (g_apRecRoomCharacterShapes_005988c0[index] != 0) {
                     if (*animations[index] == -1) {
                         if (index == 0) {
@@ -406,8 +405,7 @@ short RecRoom(void)
                         }
                     }
                 }
-                index++;
-            } while (index < 3);
+            }
 
             if (firstFrame == 0) {
                 firstFrame = 1;
@@ -567,10 +565,8 @@ void ShowChalkBoard(void)
     int score;
     int otherScore;
 
-    index = 0;
-    do {
-        other = index;
-        do {
+    for (index = 0; index < 9; index++) {
+        for (other = index; other < 9; other++) {
             pilot = g_asChalkBoardPilotOrder_00470518[index];
             swap = g_asChalkBoardPilotOrder_00470518[other];
             score = g_aPilotRecords_005988d0[pilot].kills * 1000 -
@@ -581,10 +577,8 @@ void ShowChalkBoard(void)
                 g_asChalkBoardPilotOrder_00470518[index] = swap;
                 g_asChalkBoardPilotOrder_00470518[other] = pilot;
             }
-            other++;
-        } while (other < 9);
-        index++;
-    } while (index < 9);
+        }
+    }
 
     memset(&context, 0, sizeof(context));
     g_stChalkBoardDate_00470514 = *g_pCurrentCampaignDate_005a86a8;
@@ -618,7 +612,7 @@ void ShowChalkBoard(void)
                           185, 24);
         rowY = 46;
         index = 0;
-        do {
+        for (; index < 9; index++, rowY = (short)(rowY + 16)) {
             pilot = g_asChalkBoardPilotOrder_00470518[index];
             DosStrcpy(pilotName, g_aPilotRecords_005988d0[pilot].name);
             _strupr(pilotName);
@@ -644,9 +638,7 @@ void ShowChalkBoard(void)
                                   230, rowY,
                                   g_szKilledInAction_00470664);
             }
-            index++;
-            rowY = (short)(rowY + 16);
-        } while (index < 9);
+        }
         DIBslam();
         DIBslamReal();
     } while (done == 0);

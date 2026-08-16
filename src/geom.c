@@ -1206,8 +1206,7 @@ void transform_objects_to_your_view(void)
 
     g_nClosestVisibleObject_0046c048 = -1;
     draw_nav_pointer();
-    obj = 0;
-    do {
+    for (obj = 0; obj <= WC1_SPACE_LAST_MOVING_OBJECT; obj++) {
         objectIndex = (int)obj;
         if (g_aeObjectClass_0059d100[objectIndex] != OBJECT_CLASS_NULL &&
             g_aeObjectClass_0059d100[objectIndex] !=
@@ -1219,7 +1218,6 @@ void transform_objects_to_your_view(void)
             if (g_aeObjectClass_0059d100[objectIndex] ==
                 OBJECT_CLASS_FUTURION) {
                 g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
-                obj++;
                 continue;
             }
             if (g_aeObjectClass_0059d100[objectIndex] ==
@@ -1235,12 +1233,12 @@ void transform_objects_to_your_view(void)
             if (distance <
                 g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
                 g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
-                goto next_object;
+                continue;
             }
             if (g_aeObjectClass_0059d100[objectIndex] == OBJECT_CLASS_DUST &&
                 distance > (1400 << 8)) {
                 g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
-                goto next_object;
+                continue;
             }
             transform_to_objects_frame(&direction,
                                        &g_aObjectViewPosition_0059afa0[
@@ -1249,12 +1247,12 @@ void transform_objects_to_your_view(void)
             if (g_aObjectViewPosition_0059afa0[objectIndex].z <
                 g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
                 g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
-                goto next_object;
+                continue;
             }
             if (DivideFixed(g_aObjectViewPosition_0059afa0[objectIndex].z,
                             distance) < 0x94) {
                 g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
-                goto next_object;
+                continue;
             }
             objectRadius =
                 g_asObjectCollisionRadius_0059d710[objectIndex] * 0x100;
@@ -1276,7 +1274,7 @@ void transform_objects_to_your_view(void)
                         objectIndex] < 5) {
                     g_asObjectScreenX_0059d9b0[objectIndex] =
                         (short)0x8001;
-                    goto next_object;
+                    continue;
                 }
             }
             g_asObjectDistance_0059b4a0[objectIndex] =
@@ -1317,9 +1315,7 @@ void transform_objects_to_your_view(void)
                 break;
             }
         }
-next_object:
-        obj++;
-    } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
+    }
 }
 
 /* Function start: 0x41A530 */
@@ -1436,14 +1432,12 @@ void get_right_shape(short obj, FixedVector *direction)
 
     if (objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
         if (g_asCapitalShipViewFrame_0059dd90[obj] != frame) {
-            slot = 1;
-            do {
+            for (slot = 1; slot < 3; slot++) {
                 if (g_aObjectResourceSlots_0059ddf0[slot].type ==
                     (signed char)type) {
                     break;
                 }
-                slot++;
-            } while (slot < 3);
+            }
             g_asObjectViewFrame_0059d230[obj] = 0;
             g_asCapitalShipViewFrame_0059dd90[obj] = frame;
             if (DAT_005a7510.pixels != 0 &&

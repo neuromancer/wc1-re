@@ -1388,8 +1388,9 @@ unsigned int DrawScrambleFrame(void)
         break;
     }
 
-    detailIndex = 0;
-    while (detailIndex < g_nScrambleShipDetailCount_005a86cc) {
+    for (detailIndex = 0;
+         detailIndex < g_nScrambleShipDetailCount_005a86cc;
+         detailIndex++) {
         detailSlot = g_acScrambleShipDetailIndices_005a86d0[detailIndex];
         detail = &g_aaScrambleShipDetails_00465828[
             g_stCampaignState_0059ca50.playerShipType][detailSlot];
@@ -1398,7 +1399,6 @@ unsigned int DrawScrambleFrame(void)
                           (short)(g_nScrambleShipY_005a8726 + detail->y),
                           g_pScrambleDetailShape_005a86bc,
                           detail->frame);
-        detailIndex++;
     }
 
     if (g_bScrambleCanopyClosed_005a873a == 1) {
@@ -1600,8 +1600,9 @@ unsigned int landing(signed char damageLevel)
     damageOffset = damageLevel * 4;
     g_nScrambleShipDetailCount_005a86cc =
         g_anLandingDamageDetailCounts_00465aa8[damageLevel];
-    frame = 0;
-    while (frame < g_nScrambleShipDetailCount_005a86cc) {
+    for (frame = 0;
+         frame < g_nScrambleShipDetailCount_005a86cc;
+         frame++) {
         do {
             detail = RandomInRange(0, 31);
             for (prior = 0; prior < frame; prior++) {
@@ -1611,7 +1612,6 @@ unsigned int landing(signed char damageLevel)
             }
         } while (prior < frame);
         g_acScrambleShipDetailIndices_005a86d0[frame] = detail;
-        frame++;
     }
 
     g_cCockpitLogicalFile_005a7c74 =
@@ -3334,10 +3334,9 @@ void heat_seeking_missile_intelligence(short obj)
     other = 0;
     g_cViableTargetCount_0046c088 = 0;
     *target = -1;
-    do {
+    for (; other <= 9; other++) {
         if (other == obj ||
             g_aeObjectClass_0059d100[other] < OBJECT_CLASS_SHIP) {
-            other++;
             continue;
         }
         get_facing_range_from_object(obj, other);
@@ -3350,8 +3349,7 @@ void heat_seeking_missile_intelligence(short obj)
             g_acViableTarget_0059c920[viableIndex] = other;
             g_cViableTargetCount_0046c088 = ++viableIndex;
         }
-        other++;
-    } while (other <= 9);
+    }
     sort_viable_target_list();
     targetCount = g_cViableTargetCount_0046c088;
     if (targetCount > 0) {

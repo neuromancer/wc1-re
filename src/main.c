@@ -51,8 +51,9 @@ int main(short argc, char **argv)
     DAT_0059a856 = 1;
     ResetCampaignData();
 
-    argumentIndex = 0;
-    while (argumentIndex < argumentCount) {
+    for (argumentIndex = 0;
+         argumentIndex < argumentCount;
+         argumentIndex++) {
         argument = g_pStartupArguments_005a7b10[argumentIndex];
         if (strcmp("Origin", argument) == 0)
             g_nOriginDevUnlock_00469ff4 = 1;
@@ -135,7 +136,6 @@ int main(short argc, char **argv)
             }
             break;
         }
-        argumentIndex++;
     }
 
     SetCinematicFrameTiming();
@@ -901,16 +901,18 @@ unsigned int player_input(void)
             }
             g_stMouseCursorState_0059ab10.x = event.x;
             g_stMouseCursorState_0059ab10.y = event.y;
-            yawInput = 0;
-            while (g_asMouseYawThresholds_0046a030[yawInput] <=
-                    abs((int)horizontal))
-                yawInput++;
+            for (yawInput = 0;
+                 g_asMouseYawThresholds_0046a030[yawInput] <=
+                     abs((int)horizontal);
+                 yawInput++)
+                ;
             if (horizontal < 0)
                 yawInput = (short)-yawInput;
-            pitchInput = 0;
-            while (g_asMousePitchThresholds_0046a040[pitchInput] <=
-                    abs((int)vertical))
-                pitchInput++;
+            for (pitchInput = 0;
+                 g_asMousePitchThresholds_0046a040[pitchInput] <=
+                     abs((int)vertical);
+                 pitchInput++)
+                ;
             if (vertical < 0)
                 pitchInput = (short)-pitchInput;
             viewportLeft = (int)DAT_005a7510.left;

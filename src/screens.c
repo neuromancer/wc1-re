@@ -1417,14 +1417,12 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
                                     destination->left,
                                     destination->top),
             target);
-        index = 0;
-        while (index < activeCount) {
+        for (index = 0; index < activeCount; index++) {
             GetPaletteEntry(
                 (short)indices[index],
                 (unsigned short *)&originalPalette[index * 3]);
             CachePaletteEntryFromWords((short)indices[index], target);
             memcpy(&transitionPalette[index * 3], target, 6);
-            index++;
         }
 
         WaitForVerticalBlankThunk();
@@ -1436,12 +1434,10 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
         while (StepPaletteTransition(
                    transitionPalette, originalPalette,
                    (short)(activeCount * 3)) != 0) {
-            index = 0;
-            while (index < activeCount) {
+            for (index = 0; index < activeCount; index++) {
                 CachePaletteEntryFromWords(
                     (short)indices[index],
                     (unsigned short *)&transitionPalette[index * 3]);
-                index++;
             }
             WaitForVerticalBlankThunk();
             DIBramPalette();

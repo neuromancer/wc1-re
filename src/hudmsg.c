@@ -1031,26 +1031,22 @@ void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
     memset(targetPalette, 0, paletteBytes);
 
     GetPaletteEntry((short)colour, target);
-    index = 0;
-    while (index < activeCount) {
+    for (index = 0; index < activeCount; index++) {
         GetPaletteEntry((short)indices[index],
                         (unsigned short *)&currentPalette[index * 3]);
         memcpy(&targetPalette[index * 3], target, 6);
-        index++;
     }
 
     while (StepPaletteTransition(
                currentPalette, targetPalette,
                (short)(activeCount * 3)) != 0) {
-        index = 0;
-        while (index < activeCount) {
+        for (index = 0; index < activeCount; index++) {
             g_abPaletteTriplets_005a77f0[indices[index]][0] =
                 (unsigned char)currentPalette[index * 3];
             g_abPaletteTriplets_005a77f0[indices[index]][1] =
                 (unsigned char)currentPalette[index * 3 + 1];
             g_abPaletteTriplets_005a77f0[indices[index]][2] =
                 (unsigned char)currentPalette[index * 3 + 2];
-            index++;
         }
         SetWholePaletteFromTriplets(&g_abPaletteTriplets_005a77f0[0][0]);
     }
@@ -1160,7 +1156,7 @@ int drop_player_mine(short obj)
     loadoutOffset = (int)obj * sizeof(g_aShipWeapons_0059cab0[0]);
     weaponCount = *(signed char *)
         ((unsigned char *)g_aShipWeapons_0059cab0 + loadoutOffset);
-    while (weaponCount > weapon) {
+    for (; weaponCount > weapon; weapon++) {
         weaponSlot = (ShipWeaponSlot *)
             ((unsigned char *)g_aShipWeapons_0059cab0 + loadoutOffset + 1) +
             weapon;
@@ -1170,7 +1166,6 @@ int drop_player_mine(short obj)
                 OBJECT_CLASS_MINE &&
             weaponSlot->disabled == 0)
             return drop_mine(obj, (signed char)weapon, type, 20);
-        weapon++;
     }
     return -1;
 }
@@ -1302,22 +1297,22 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
         if (preferredType != -1) {
             weapon = 0;
             if (weaponCount > 0) {
-                do {
+                for (; weapon <
+                           (signed char)g_aShipWeapons_0059cab0[0][0];
+                     weapon++) {
                     if (weaponSlots[weapon].type == preferredType) {
                         currentWeapon = weapon;
                         weaponSlots[currentWeapon].disabled = 0;
                         break;
                     }
-                    weapon++;
-                } while (weapon <
-                         (signed char)g_aShipWeapons_0059cab0[0][0]);
+                }
             }
         }
         g_nSelectedReleaseWeaponIndex_0046c058 = currentWeapon;
         if (currentWeapon == -1) {
             weapon = 0;
             if (weaponCount > 0) {
-                do {
+                for (; weapon < weaponCount; weapon++) {
                     if (g_aObjectTypeData_00466458[
                             weaponSlots[weapon].type].objectClass !=
                             OBJECT_CLASS_PROJECTILE) {
@@ -1326,8 +1321,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
                         weaponSlots[currentWeapon].disabled = 0;
                         break;
                     }
-                    weapon++;
-                } while (weapon < weaponCount);
+                }
             }
         }
     } else {
