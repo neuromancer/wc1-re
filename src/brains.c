@@ -1140,8 +1140,9 @@ unsigned int PlayScrambleHangarScene(void)
         g_nScrambleRightWalkerX_0046577c = 200;
         g_nScrambleWalkerY_005a8734 = -14;
         DAT_00469fb4 = 1;
-        g_cScrambleWalkTicks_005a86e8 = 0;
-        do {
+        for (g_cScrambleWalkTicks_005a86e8 = 0;
+             g_cScrambleWalkTicks_005a86e8 < 24;
+             g_cScrambleWalkTicks_005a86e8++) {
             PumpWindowMessages();
             DAT_00469fb4--;
             if (DAT_00469fb4 < 1) {
@@ -1186,8 +1187,7 @@ unsigned int PlayScrambleHangarScene(void)
                 (short)(g_nScrambleRightWalkerX_0046577c + 3);
             if (DAT_0059ab58 == 1)
                 break;
-            g_cScrambleWalkTicks_005a86e8++;
-        } while (g_cScrambleWalkTicks_005a86e8 < 24);
+        }
 
         if (DAT_0059ab58 != 1) {
             g_cScrambleLeftWalkerFrame_00465768 = 7;
@@ -1485,9 +1485,8 @@ unsigned int scramble(void)
             break;
         }
 
-        frame = 0;
         DAT_00469fb4 = 1;
-        do {
+        for (frame = 0; frame < 10; frame++) {
             PumpWindowMessages();
             DrawScrambleFrame();
             g_nScrambleBackgroundRightX_005a8714--;
@@ -1501,13 +1500,11 @@ unsigned int scramble(void)
                 (short)(g_nScrambleCockpitDetailX_005a86c4 + 4);
             if (DAT_0059ab58 == 1)
                 break;
-            frame++;
-        } while (frame < 10);
+        }
 
         if (DAT_0059ab58 != 1) {
-            frame = 0;
             DAT_00469fb4 = 1;
-            do {
+            for (frame = 0; frame < 27; frame++) {
                 PumpWindowMessages();
                 DrawScrambleFrame();
                 g_nScrambleCanopyOffset_005a8736++;
@@ -1520,17 +1517,15 @@ unsigned int scramble(void)
                     g_nScrambleCanopyFrame_005a86b8++;
                 if (DAT_0059ab58 == 1)
                     break;
-                frame++;
-            } while (frame < 27);
+            }
         }
 
         if (DAT_0059ab58 != 1) {
             FlushSoundEffectsAndLog();
             g_nScrambleCanopyOffset_005a8736--;
-            frame = 0;
             PlaySfxWaveFileByNumber(15, -1, 0);
             DAT_00469fb4 = 1;
-            do {
+            for (frame = 0; frame < 23; frame++) {
                 PumpWindowMessages();
                 if (frame == 22)
                     DAT_00469fb4 = 1;
@@ -1557,8 +1552,7 @@ unsigned int scramble(void)
                     g_nScrambleCanopyFrame_005a86b8++;
                 if (DAT_0059ab58 == 1)
                     break;
-                frame++;
-            } while (frame < 23);
+            }
 
             FlushSoundEffectsAndLog();
             PlaySfxWaveFileByNumber(16, -1, 0);
