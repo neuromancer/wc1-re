@@ -6,12 +6,9 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x45C558 */
+/* Function start: WC2_UNMAPPED */
 #ifdef WC1_SDL
-int Wc1GameMain(short argc, char **argv)
-#else
-int main(short argc, char **argv)
-#endif
+int RunWc1GameMain(short argc, char **argv)
 {
     char *argument;
     int animationDemo;
@@ -32,12 +29,14 @@ int main(short argc, char **argv)
     ExitCleanupHook();
     StartupHook(GetJoystickButtonEdge);
     DAT_0059ab4c = GetStartupErrorCode(0x21);
-    ShutdownHook(0x21, MouseIdleHook);
+    Wc1ShutdownHook(0x21, MouseIdleHook);
 
     argumentCount = LoadWingCmdrCfgFile(argc, argv);
     _chdir("gamedat");
+#if 0
     LoadInstallDat();
     _chdir("..");
+#endif
 #ifdef WC1_SDL
     if (Wc1SdlUsingDosData())
         DAT_0059ab34 = 1;
@@ -54,7 +53,7 @@ int main(short argc, char **argv)
     for (argumentIndex = 0;
          argumentIndex < argumentCount;
          argumentIndex++) {
-        argument = g_pStartupArguments_005a7b10[argumentIndex];
+        argument = g_pStartupArguments_005c57f0[argumentIndex];
         if (strcmp("Origin", argument) == 0)
             g_nOriginDevUnlock_0049d774 = 1;
 
@@ -167,7 +166,7 @@ int main(short argc, char **argv)
 
     if (launchMission != 0) {
 #ifdef WC1_SDL
-        if (init_mission(series, mission) != 0) {
+        if (InitWc1Mission(series, mission) != 0) {
             fprintf(stderr,
                     "Mission SERIES=%d MISSION=%d is absent or invalid.\n",
                     (int)series, (int)mission);
@@ -207,11 +206,138 @@ int main(short argc, char **argv)
         default:
             break;
         }
-        gameFlowResult = GameFlow();
+        gameFlowResult = RunWc1GameFlow();
         while (gameFlowResult != 0)
-            gameFlowResult = GameFlow();
+            gameFlowResult = RunWc1GameFlow();
     }
 }
+#endif
+
+#ifndef WC1_SDL
+
+#pragma function(strcpy)
+
+/* Function start: 0x46591A */
+void RunGameApplication(short argc, char **argv)
+{
+    short argumentCount;
+    int memoryBytes;
+    short campaignSelected;
+    int roomSelection;
+    int flightResult;
+
+    campaignSelected = 0;
+    argumentCount = LoadWingCmdrCfgFile(argc, argv);
+    _chdir("gamedat");
+    printf("Loading WING COMMANDER 2.  Please wait...\n");
+    g_bHighMemoryResourcesEnabled_005c80e4 = 1;
+    g_stDefaultPilotProfile_00492660.field_5e = 5;
+    memcpy(&g_stCurrentPilotProfile_00493408,
+           &g_stDefaultPilotProfile_00492660,
+           sizeof(g_stCurrentPilotProfile_00493408));
+    main(argumentCount, g_pStartupArguments_005c57f0);
+
+    if (g_bMemoryAdjustmentEnabled_0049cc84 != 0) {
+        memoryBytes = (unsigned short)g_nMemoryAdjustmentKb_005c8dda << 10;
+        g_pMemoryAdjustment_0049d788 =
+            AllocateTaggedMemory((unsigned int)memoryBytes, 0x40);
+        if (g_pMemoryAdjustment_0049d788 != 0)
+            printf("Adjusting Mem size by %dK\n",
+                   g_nMemoryAdjustmentKb_005c8dda);
+    }
+
+    g_stCurrentPilotProfile_00493408.series = g_nDirectSeries_0049d79c;
+    g_stDefaultPilotProfile_00492660.series =
+        g_stCurrentPilotProfile_00493408.series;
+    g_stCurrentPilotProfile_00493408.mission = g_nDirectMission_0049d79a;
+    g_stDefaultPilotProfile_00492660.mission =
+        g_stCurrentPilotProfile_00493408.mission;
+    g_nResourcePaletteMode_005c57e6 = 0;
+    LoadOriginFxDrivers();
+    SetMenuInputPump();
+    if (g_bRewritePacketExtensions_0049cb48 == 0) {
+        g_nMenuShadowColour_005c5876 = 2;
+        g_nMenuHighlightColour_005c5874 = 10;
+        g_nMenuTextColour_005c57e8 = 0x5e;
+    } else {
+        g_nMenuShadowColour_005c5876 = 0;
+        g_nMenuHighlightColour_005c5874 = 10;
+        g_nMenuTextColour_005c57e8 = 2;
+    }
+
+    if (g_bDirectMissionLaunch_0049d798 == 0) {
+        g_bSceneEscapeRequested_0049d4b0 = 0;
+        for (;;) {
+            if (g_nOriginDevUnlock_0049d774 != 0 &&
+                g_bDeveloperCampaignReady_004926c4 != 0 &&
+                g_bDirectCampaignSelection_0049cc74 != 0) {
+                g_nSelectedCampaignSlot_005d3bf2 = 0;
+                while (RunSelectedCampaign() != 0) {
+                }
+            } else {
+                while (campaignSelected == 0) {
+                    roomSelection = RecRoom();
+                    switch (roomSelection) {
+                    case 0:
+                        g_nSelectedCampaignSlot_005d3bf2 =
+                            BarracksScreen();
+                        InitializeNewPilotCampaign(
+                            g_nSelectedCampaignSlot_005d3bf2);
+                        campaignSelected = RunPilotDatabaseMenu();
+                        break;
+                    case 1:
+                        g_nSelectedCampaignSlot_005d3bf2 =
+                            LoadSelectedPilotCampaign();
+                        campaignSelected = 1;
+                        break;
+                    }
+                }
+                campaignSelected = 0;
+                if (g_nOriginDevUnlock_0049d774 != 0) {
+                    strcpy(g_stCurrentPilotProfile_00493408.callsign,
+                           "CHEATER");
+                    strcpy(g_szPilotCallsign_00499ef8, "CHEATER");
+                }
+                while (RunSelectedCampaign() != 0) {
+                }
+            }
+        }
+    } else {
+        g_nCurrentSeries_005c5870 = g_nDirectSeries_0049d79c;
+        g_nCurrentMission_005c5878 = g_nDirectMission_0049d79a;
+        LoadTemporaryCampaignGlobals();
+        g_pCampaignGlobals_00499c94->field_08 = 0;
+        InitializeCampaignConstellationState(
+            g_pCampaignGlobals_00499c94, 1);
+        SaveAndFreeTemporaryCampaignGlobals();
+        init_mission(g_nDirectSeries_0049d79c,
+                     g_nDirectMission_0049d79a);
+        RunSpaceFlight(g_nMissionEntryNavOverride_0049d790);
+        LogMemoryUsage();
+        printf("You ");
+        switch (flightResult = g_nArcadeState_0049d75c) {
+        case 1:
+            printf("have landed.\n");
+            break;
+        case 3:
+            printf("are stranded.\n");
+            break;
+        case 4:
+            printf("have died.\n");
+            break;
+        case 2:
+            printf("have ejected.\n");
+            break;
+        }
+        if (g_pMemoryAdjustment_0049d788 != 0) {
+            free(g_pMemoryAdjustment_0049d788);
+        }
+    }
+}
+
+#pragma intrinsic(strcpy)
+
+#endif
 
 /* Function start: 0x465CBC */
 void free_view_buffer(void)
@@ -651,7 +777,7 @@ int process_player_input(void)
             }
             break;
         case 0x4c:
-            WarpMouseTo(
+            WarpWc1MouseTo(
                 (short)((g_stViewBuffer_005d2b00.left + g_stViewBuffer_005d2b00.right) / 2),
                 (short)((g_stViewBuffer_005d2b00.top + g_stViewBuffer_005d2b00.bottom) / 2));
             g_nRollInput_0059d3f4 = 0;
@@ -1004,7 +1130,7 @@ unsigned int player_input(void)
                 g_nYawInput_0059d3f2 = 0;
                 g_nMousePitchInput_0046a05c = 0;
                 g_nPitchInput_0059d3f0 = 0;
-                WarpMouseTo(
+                WarpWc1MouseTo(
                     (short)((viewportLeft + g_stViewBuffer_005d2b00.right) / 2),
                     (short)((g_stViewBuffer_005d2b00.bottom + g_stViewBuffer_005d2b00.top) / 2));
             } else {

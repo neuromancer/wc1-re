@@ -68,8 +68,8 @@ typedef char MissionObjectiveDisk_size_must_be_0x40[
 typedef char MissionShipDisk_size_must_be_0x2a[
     sizeof(MissionShipDisk) == 0x2a ? 1 : -1];
 
-/* Function start: 0x459BC8 */
-unsigned short __stdcall LoadPaletteTripletsFile(const char *path)
+/* Function start: WC2_UNMAPPED */
+unsigned short __stdcall LoadWc1PaletteTripletsFile(const char *path)
 {
     unsigned char *palette;
     FILE *file;
@@ -163,8 +163,8 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
         if (g_pScreenViewportPacket_005a6b94 == 0)
             ReportOutOfMemoryAndExit(g_szViewTemplates_004655d4);
         else
-            LoadPacketIntoBuffer(8, 8,
-                                 g_pScreenViewportPacket_005a6b94);
+            LoadWc1PacketIntoBuffer(8, 8,
+                                    g_pScreenViewportPacket_005a6b94);
 
         g_aObjectTypeData_00496d30[OBJECT_TYPE_EJECTED_PILOT].shapeSet =
             FetchDiskPacketRetrying(2, 2, 0);
@@ -567,7 +567,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
                 CloseTalk(talker, -1, -1);
                 DIBslam();
                 DIBslamReal();
-                WaitForSceneAdvance(duration, 0);
+                WaitForWc1SceneAdvance(duration, 0);
                 return 0;
             }
             IsFrameTickElapsed();
@@ -1036,7 +1036,7 @@ unsigned int UpdateMap(char *text, short duration)
     g_stScreenViewport_005d21a0 = savedScreen;
     g_stSecondaryViewBuffer_005d2c90 = savedVirtualScreen;
     BriefingMap_DisplayMap();
-    WaitForSceneAdvance(duration, 0);
+    WaitForWc1SceneAdvance(duration, 0);
     ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
     SetTextContext(&g_stConversationTextContext_005a7760);
     ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
@@ -1155,6 +1155,6 @@ unsigned int CloseLook(unsigned char *shape, short shot,
     }
     DIBslam();
     DIBslamReal();
-    WaitForSceneAdvance(duration, unused);
+    WaitForWc1SceneAdvance(duration, unused);
     return 0;
 }

@@ -23,12 +23,32 @@ void ReportSpaceFlightMaxFps(float adjustment)
         SetSpaceFlightFrameTiming();
 }
 
-/* Function start: 0x45CF7F */
-void SetSpaceFlightFrameTiming(void)
+/* Function start: WC2_UNMAPPED */
+void SetWc1SpaceFlightFrameTiming(void)
 {
     DAT_0046b1c8 = 1;
     DAT_0046b1b8 = (long)(1000.0 / g_fSpaceFlightFrameRate_0046b1cc);
     DAT_0046b1bc = 0;
+}
+
+/* Function start: 0x45CF3B */
+void SetSpaceFlightFrameTiming(void)
+{
+    g_nFrameTimingMode_0049ceb0 = 1;
+    g_nFramePeriodMilliseconds_005c343c =
+        (long)(1000.0 / g_fSpaceFlightFrameRate_0049ceb4);
+    g_nFrameTimingAccumulator_0049cea4 = 0;
+    g_bFrameTimingEnabled_0049cebc = 1;
+}
+
+/* Function start: 0x45CF7F */
+void SetDefaultFrameTiming(void)
+{
+    g_nFrameTimingMode_0049ceb0 = 0;
+    g_nFramePeriodMilliseconds_005c343c =
+        (long)(1000.0 / g_fPreviousFrameRate_005c3440);
+    g_nFrameTimingAccumulator_0049cea4 = 0;
+    g_bFrameTimingEnabled_0049cebc = 1;
 }
 
 /* Function start: 0x45CFC3 */

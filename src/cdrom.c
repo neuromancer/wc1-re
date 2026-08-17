@@ -149,24 +149,26 @@ int SetCurrentDirOnDrive(char drive, const char *directory)
 /* Function start: 0x456443 */
 int PromptInsertCorrectCd(void)
 {
+    int disc;
     char title[18];
     char message[1024];
 
+    disc = 1;
     strcpy(title, "Insert Correct CD");
     sprintf(message,
             "Please place The Kilrathi Saga disc %d into your CD-ROM drive and click OK\n"
             "or click cancel to quit",
-            1);
-    do {
-        if (LocateStreamsDirOnDisc() != 0)
-            return 1;
-    } while (MessageBoxA(0, message, title,
-                         MB_OKCANCEL | MB_ICONEXCLAMATION) != IDCANCEL);
-    return 0;
+            disc);
+    while (LocateStreamsDirOnDisc() == 0) {
+        if (MessageBoxA(0, message, title,
+                        MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
+            return 0;
+    }
+    return 1;
 }
 
 /* Function start: 0x45A010 */
-short __stdcall OpenDataFileOrDie(const char *path)
+short OpenDataFileOrDie(const char *path)
 {
     short fd = (short)_open(path, 0x8002);
 

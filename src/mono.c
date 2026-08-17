@@ -11,14 +11,14 @@
 static char g_szSoundDebugBuffer_005d1f00[0xfa0];
 
 /* Function start: 0x45A04A */
-void __stdcall CloseDataFile(unsigned short fd)
+void CloseDataFile(unsigned short fd)
 {
     g_nPacketError_0049ca90 = (short)_close(fd & 0xffff);
 }
 
 /* Function start: 0x45A06C */
-short __stdcall WriteDataFileAtOffset(unsigned short fd, int offset,
-                                      unsigned int length, const void *data)
+short WriteDataFileAtOffset(unsigned short fd, int offset,
+                            unsigned int length, const void *data)
 {
     g_nPacketError_0049ca90 = 0;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
@@ -35,7 +35,7 @@ short __stdcall WriteDataFileAtOffset(unsigned short fd, int offset,
 }
 
 /* Function start: 0x45A12D */
-short __stdcall CreateDataFile(const char *path)
+short CreateDataFile(const char *path)
 {
     unsigned short fd;
 
@@ -49,8 +49,8 @@ short __stdcall CreateDataFile(const char *path)
 }
 
 /* Function start: 0x45A19B */
-int __stdcall ReadDataFileAtOffset(unsigned short fd, int offset,
-                                   unsigned int length, void *data)
+int ReadDataFileAtOffset(unsigned short fd, int offset,
+                         unsigned int length, void *data)
 {
     g_nPacketError_0049ca90 = 0;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
@@ -67,8 +67,8 @@ int __stdcall ReadDataFileAtOffset(unsigned short fd, int offset,
 }
 
 /* Function start: 0x45A259 */
-int __stdcall SeekDataFile(unsigned short fd, int offset,
-                           unsigned int origin)
+int SeekDataFile(unsigned short fd, int offset,
+                 unsigned int origin)
 {
     int position;
 

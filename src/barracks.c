@@ -338,20 +338,20 @@ short PromptForTextInput(short x, short y, const char *prompt,
         DrawModalTextPanel(&panel, 3, 6, 0, prompt);
         DIBslam();
         DIBslamReal();
-        if (ReadTextInput(destination, maximumLength, inputMode) != 0)
+        if (ReadTextInput(destination, maximumLength, inputMode, 0) != 0)
             result = 1;
         RestoreModalTextPanel(&panel);
     }
     return result;
 }
 
-/* Function start: 0x4346E9 */
-int WarnLoadGameFirst(void)
+/* Function start: WC2_UNMAPPED */
+int WarnWc1LoadGameFirst(void)
 {
     InputEventState event;
     short key;
 
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     key = 0;
     if (ShowModalTextPanel(0, "Load a game first.") != 0) {
         while (PollInputEvent(&event) != 0) {
@@ -375,7 +375,7 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
     char *separator;
 
     if (DAT_004688f0 == 0) {
-        WarnLoadGameFirst();
+        WarnWc1LoadGameFirst();
         return;
     }
     DosStrcpy(oldLabel,
@@ -513,7 +513,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
     SaveGameRecord gameRecord;
     int loaded;
 
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     if (ShowModalTextPanel(0, "Loading Game...") != 0) {
         loaded = LoadGame(slot, &gameRecord);
         if (loaded != 0) {
@@ -523,10 +523,10 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
                    sizeof(gameRecord.campaign));
             DAT_005a8114 = campaign->campaignIndex;
             g_nCampaignDataSet_005a8118 = DAT_005a8114;
-            LoadPacketIntoBuffer(
+            LoadWc1PacketIntoBuffer(
                 g_asCampaignPilotFiles_00469450[DAT_005a8114], 0,
                 g_pConstellationDefinitions_00598a28);
-            LoadPacketIntoBuffer(
+            LoadWc1PacketIntoBuffer(
                 g_asCampaignPilotFiles_00469450[
                     g_nCampaignDataSet_005a8118],
                 1, g_pMissionCampaignData_005988bc);
@@ -708,12 +708,12 @@ void AnimateBarracks(Viewport *viewport, unsigned char *shape,
     }
 }
 
-/* Function start: 0x434F7D */
-int ConfirmQuitWingCommander(void)
+/* Function start: WC2_UNMAPPED */
+int ConfirmWc1QuitWingCommander(void)
 {
     short confirmed;
 
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     confirmed = 0;
     if (ShowModalTextPanel(0, "Quit Wing Commander? (Y/N)") != 0) {
         confirmed = (short)((short)toupper(
@@ -724,8 +724,8 @@ int ConfirmQuitWingCommander(void)
     return (int)confirmed;
 }
 
-/* Function start: 0x436722 */
-int ConfirmAwakenAfterBadData(short slot)
+/* Function start: WC2_UNMAPPED */
+int ConfirmWc1AwakenAfterBadData(short slot)
 {
     SaveGameRecord gameRecord;
     short confirmed;
@@ -733,7 +733,7 @@ int ConfirmAwakenAfterBadData(short slot)
     confirmed = 0;
     if (LoadGame(slot, &gameRecord) == 0)
         ShowModalMessage("Error: data may be bad.");
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     if (ShowModalTextPanel(0, "Awaken %s? (Y/N)",
                            gameRecord.description) != 0) {
         confirmed = (short)((short)toupper(
@@ -744,20 +744,20 @@ int ConfirmAwakenAfterBadData(short slot)
     return (int)confirmed;
 }
 
-/* Function start: 0x43641C */
-int ConfirmReplaceFaultyData(short slot)
+/* Function start: WC2_UNMAPPED */
+int ConfirmWc1ReplaceFaultyData(short slot)
 {
     SaveGameRecord gameRecord;
     short confirmed;
 
     confirmed = 0;
     if (DAT_004688f0 == 0) {
-        WarnLoadGameFirst();
+        WarnWc1LoadGameFirst();
         return 0;
     }
     if (LoadGame(slot, &gameRecord) == 0)
         memcpy(gameRecord.description, "FAULTY DATA", 12);
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     if (ShowModalTextPanel(0, "Replace %s? (Y/N)",
                            gameRecord.description) != 0) {
         confirmed = (short)((short)toupper(
@@ -768,19 +768,19 @@ int ConfirmReplaceFaultyData(short slot)
     return (int)confirmed;
 }
 
-/* Function start: 0x418DAA */
-void HandleBarracksBunkSelection(Viewport *viewport,
-                                  unsigned char *shape,
-                                  BarracksAnimationState *state,
-                                  short region)
+/* Function start: WC2_UNMAPPED */
+void HandleWc1BarracksBunkSelection(Viewport *viewport,
+                                     unsigned char *shape,
+                                     BarracksAnimationState *state,
+                                     short region)
 {
     short slot;
 
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     slot = (short)(region / 2);
     if (state->bunks[slot].occupied != 0) {
         if (region % 2 == 0) {
-            if (ConfirmAwakenAfterBadData(slot) != 0) {
+            if (ConfirmWc1AwakenAfterBadData(slot) != 0) {
                 LoadGameFromSlot(
                     slot, &g_stCampaignState_0059ca50,
                     g_aPilotRecords_005988d0,
@@ -788,7 +788,7 @@ void HandleBarracksBunkSelection(Viewport *viewport,
             }
             goto refresh;
         }
-        if (ConfirmReplaceFaultyData(slot) == 0)
+        if (ConfirmWc1ReplaceFaultyData(slot) == 0)
             goto refresh;
     }
     SaveGameWithNamePrompt(slot, &g_stCampaignState_0059ca50,
@@ -801,6 +801,47 @@ refresh:
     ResumeMouseCursor();
 }
 
+/* Function start: 0x418DAA */
+short RunCampaignSelectionFrame(void *scene, void *field)
+{
+    short selection;
+
+    selection = 0;
+    do {
+        selection = PollSceneHotspotInput(scene, 0, 0, 0, 0);
+        if (selection == 0) {
+            DisableMouseCursorDrawing();
+            DrawSpriteDefault(
+                &g_stSecondaryViewBuffer_005d2c90, 0, 0, field, 0);
+            DrawConstellationField();
+            DrawSpriteDefault(
+                &g_stSecondaryViewBuffer_005d2c90, 0, 0, scene, 0);
+            if (g_pszPersonnelFooter_00492658 != 0) {
+                g_stDefaultTextContext_005d2d20.viewport =
+                    &g_stSecondaryViewBuffer_005d2c90;
+                InitializeTextContextFromFont(
+                    &g_stDefaultTextContext_005d2d20, 1,
+                    g_cPersonnelTextColour_0049cb50, -1);
+                SetTextCursor(
+                    (unsigned short)((320 -
+                        MeasureTextPixelWidthClamped(
+                            g_pszPersonnelFooter_00492658)) >> 1),
+                    180);
+                DrawFormattedText("%S", g_pszPersonnelFooter_00492658);
+                g_stDefaultTextContext_005d2d20.viewport =
+                    &g_stScreenViewport_005d21a0;
+            }
+            EnableMouseCursorDrawing();
+            WaitForVerticalBlankThunk();
+            CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
+                                 &g_stScreenViewport_005d21a0);
+        }
+    } while (selection == 0);
+    if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        selection = 0;
+    return selection;
+}
+
 /* Function start: WC2_UNMAPPED */
 void UpdateBarracksScreen(Viewport *viewport, unsigned char *shape,
                           BarracksAnimationState *state)
@@ -810,8 +851,8 @@ void UpdateBarracksScreen(Viewport *viewport, unsigned char *shape,
     RefreshRoomMenuLabel();
 }
 
-/* Function start: 0x419831 */
-short BarracksScreen(void)
+/* Function start: WC2_UNMAPPED */
+short RunWc1BarracksScreen(void)
 {
     InputEventState event;
     BarracksAnimationState animation;
@@ -839,7 +880,7 @@ short BarracksScreen(void)
     GetBunkInfo(&animation);
     DrawBarracksBunks(&g_stSecondaryViewBuffer_005d2c90, background, &animation);
     g_stMouseCursorState_0059ab10.viewport = &g_stRoomScreenViewport_005988a0;
-    WarpMouseTo(160, 100);
+    WarpWc1MouseTo(160, 100);
     ResumeMouseCursor();
     SetFrameTimerPeriodDirect(0);
     FlushInputEvents();
@@ -876,27 +917,27 @@ short BarracksScreen(void)
             region = FindMenuRegionAtPoint(
                 event.x, event.y, g_aBarracksMenuRegions_00463008);
             if (region >= 0 && region < 16) {
-                HandleBarracksBunkSelection(
+                HandleWc1BarracksBunkSelection(
                     &g_stSecondaryViewBuffer_005d2c90, background, &animation, region);
             } else if (region == 16) {
                 if (DAT_004688f0 == 0)
-                    WarnLoadGameFirst();
+                    WarnWc1LoadGameFirst();
                 else
                     result = 7;
             } else if (region == 17) {
                 if (DAT_004688f0 == 0)
-                    WarnLoadGameFirst();
+                    WarnWc1LoadGameFirst();
                 else
                     result = 8;
             } else if (region == 18) {
-                if (ConfirmQuitWingCommander() != 0) {
+                if (ConfirmWc1QuitWingCommander() != 0) {
                     ShutdownEventManager();
                     exit_squadron(
                         "You step out of the airlock and into...");
                 }
             } else if (region == 19) {
                 if (DAT_004688f0 == 0) {
-                    WarnLoadGameFirst();
+                    WarnWc1LoadGameFirst();
                 } else {
                     LoadMissionData(
                         (short)g_stCampaignState_0059ca50.currentSeries,
@@ -904,7 +945,7 @@ short BarracksScreen(void)
                     FlushInputEvents();
                     if ((int)(DAT_0059ab54 - lastMedalsTick) >
                         g_nInputTickScale_0059af90) {
-                        SuspendMouseCursor();
+                        SuspendWc1MouseCursor();
                         ClearViewport(&g_stRoomScreenViewport_005988a0,
                                       g_cSecondaryViewBufferColour_0049cb4c);
                         g_stSecondaryViewBuffer_005d2c90.bottom = 127;
@@ -932,7 +973,7 @@ short BarracksScreen(void)
         DIBslamReal();
     }
 
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     g_nMenuPointerSpeed_0046af58 = 2;
     g_nMenuInputRepeatDelay_005a8208 =
         g_nSavedRoomControllerX_005988b4;
@@ -944,6 +985,55 @@ short BarracksScreen(void)
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(35);
     return result;
+}
+
+/* Function start: 0x419831 */
+short BarracksScreen(void)
+{
+    signed char selection;
+    void *campaignScene;
+    void *field;
+
+    selection = 0;
+    campaignScene = 0;
+    field = 0;
+    DisableMouseCursorDrawing();
+    ClearViewport(&g_stModalSourceViewport_005d2c50,
+                  g_cSecondaryViewBufferColour_0049cb4c);
+    g_stSecondaryViewBuffer_005d2c90.left = 0;
+    g_stSecondaryViewBuffer_005d2c90.right = 319;
+    g_stSecondaryViewBuffer_005d2c90.top = 0;
+    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+    if ((short)AllocateViewport(
+            &g_stSecondaryViewBuffer_005d2c90,
+            g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
+        ReportFatalErrorCode("033");
+    }
+    ClearViewport(&g_stSecondaryViewBuffer_005d2c90, 0);
+    campaignScene = LoadNamedPacket(
+        "campaign.vga", 0, 0, 0, 0, 1);
+    if (campaignScene != 0 && WaitForSceneAdvance(campaignScene) != 0) {
+        field = FetchDiskPacketRetrying("field.v00", 1, 0);
+        init_constellation(0);
+        InitializeConstellationField(
+            &g_stSecondaryViewBuffer_005d2c90, 0, 16);
+        SetMenuInputPump();
+        SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+        SetPersonnelMousePosition(159, 99);
+        EnableMouseCursorDrawing();
+        while (selection == 0) {
+            selection = (signed char)RunCampaignSelectionFrame(
+                campaignScene, field);
+        }
+        FreePacketAndClear(&g_pRoomPlanetShapes_005d2c4c, 0);
+        FreePacketAndClear(&campaignScene, 0);
+        FreePacketAndClear(&field, 0);
+        free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+        return (short)(selection - 1);
+    }
+    FreePacketAndClear(&campaignScene, 0);
+    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+    return 0;
 }
 
 /* Function start: 0x4225A0 */

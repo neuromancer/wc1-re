@@ -332,7 +332,7 @@ short RecRoom(void)
             *(ShortRect *)&pilotWork.left;
     }
 
-    WarpMouseTo(160, 100);
+    WarpWc1MouseTo(160, 100);
     GetShapeFrameBounds(
         &shotglassWork.left,
         g_aRecRoomCharacterOrigins_00470490[0].x,
@@ -410,7 +410,7 @@ short RecRoom(void)
                                 *(ShortRect *)&shotglassWork.left;
                             if (ShouldSuspendCursorForRect(
                                     &nextFrameBounds) != 0) {
-                                SuspendMouseCursor();
+                                SuspendWc1MouseCursor();
                                 CopyViewportContents(
                                     &shotglassWork,
                                     &shotglassDestination);
@@ -441,7 +441,7 @@ short RecRoom(void)
                        g_apRecRoomCharacterShapes_005988c0[2] != 0) {
                 if (ShouldSuspendCursorForRect(
                         (ShortRect *)&pilotWork.left) != 0) {
-                    SuspendMouseCursor();
+                    SuspendWc1MouseCursor();
                     CopyViewportContents(&pilotWork,
                                          &pilotDestination);
                     ResumeMouseCursor();
@@ -451,7 +451,7 @@ short RecRoom(void)
                 }
             }
 
-            SuspendMouseCursor();
+            SuspendWc1MouseCursor();
             CopyViewportContents(&bottomSource, &bottomDestination);
             RefreshRoomMenuLabel();
             ResumeMouseCursor();
@@ -477,7 +477,7 @@ short RecRoom(void)
         if (clicked != 0) {
             region = FindMenuRegionAtPoint(
                 event.x, event.y, g_aRecRoomMenuRegions_004704a0);
-            SuspendMouseCursor();
+            SuspendWc1MouseCursor();
             if (region >= 0 && region <= 2) {
                 if (g_apRecRoomCharacterShapes_005988c0[region] != 0) {
                     free_constellation();

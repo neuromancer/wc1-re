@@ -9,6 +9,8 @@
  */
 #include "wc1.h"
 
+#pragma function(strcat)
+
 static char g_szTemporaryCampaignGlobalsFile_00499bc0[] = "TEMPGLOB.000";
 
 /* Function start: WC2_UNMAPPED */
@@ -423,8 +425,16 @@ void your_afterburner(void)
     }
 }
 
-/* Function start: 0x45B810 */
-unsigned int LoadGamePaletteFile(void)
+/* Function start: 0x45B7E0 */
+short QueryCurrentGraphicsMode(void)
+{
+    if ((short)g_nSpacePaletteFadeMode_004901e8 == -1)
+        return 0x13;
+    return (short)g_nSpacePaletteFadeMode_004901e8;
+}
+
+/* Function start: WC2_UNMAPPED */
+unsigned int LoadWc1GamePaletteFile(void)
 {
     short index;
 
@@ -446,12 +456,39 @@ unsigned int LoadGamePaletteFile(void)
         } while ((unsigned int)(int)index < 12);
         return 0;
     case 0x13:
-        LoadPaletteTripletsFile("game.pal");
+        LoadWc1PaletteTripletsFile("game.pal");
         ResetCockpitPaletteEntries();
         SaveGamePalette();
         return 0;
     }
     return 0;
+}
+
+/* Function start: 0x45B810 */
+void LoadGamePaletteFile(void)
+{
+    short index;
+    unsigned char *reservedColours;
+    unsigned char *palette;
+    int graphicsMode;
+
+    reservedColours = g_abGamePaletteReservedColours_0049cb54;
+    graphicsMode = (int)(short)g_nSpacePaletteFadeMode_004901e8;
+    switch (graphicsMode) {
+    case 9:
+    case 13:
+        for (index = 0; (unsigned short)index < 14; index++)
+            reservedColours[index] =
+                g_abLegacyVideoModeColours_0049cb90[index];
+        break;
+    case 0x13:
+        palette = FetchDiskPacketRetrying("brief.pal", 0, 0);
+        for (index = 0; index < 0x100; index++)
+            SetPaletteEntryFromTriplet(palette + index * 3, index);
+        ResetCockpitPaletteEntries();
+        SaveGamePalette();
+        break;
+    }
 }
 
 /* Function start: 0x45B905 */
@@ -475,8 +512,8 @@ unsigned short InitializeEventManagerResources(void)
     return 0;
 }
 
-/* Function start: 0x45B924 */
-unsigned int EMStartUp(void)
+/* Function start: WC2_UNMAPPED */
+unsigned int StartWc1EventManager(void)
 {
     PromptInsertNumberedDisk(0);
     RegisterEventManagerShutdown((void (*)(void))LogMemoryUsage);
@@ -488,8 +525,32 @@ unsigned int EMStartUp(void)
     return 0;
 }
 
-/* Function start: 0x45B9D3 */
-unsigned int LoadOriginFxDrivers(void)
+/* Function start: 0x45B924 */
+void EMStartUp(void)
+{
+    if (InitializeInputManagerMemory() == 0)
+        ReportFatalErrorCode("020");
+    g_pfnEventManagerShutdown_005c8be0 = (void (*)(void))LogMemoryUsage;
+    InitializeInputDriverHook();
+    if (g_bRewritePacketExtensions_0049cb48 == 0) {
+        LoadInputCursorShape(g_szInputCursorPacketName_0049cba0,
+                             0, 0x13);
+    } else {
+        RewritePacketFilenameForInstalledData(
+            g_szInputCursorPacketName_0049cba0);
+        LoadInputCursorShape(g_szInputCursorPacketName_0049cba0,
+                             0, 0x0d);
+    }
+    FinalizeInputDriverHook();
+    SetInputViewport(&g_stScreenViewport_005d21a0);
+    g_nInputTickInterval_005c8448 = 20;
+    g_nInputRepeatDelay_005c80d6 = 20;
+    g_bInputCursorEnabled_005c80e6 = 1;
+    g_nInputDeviceMode_005c83e6 = 3;
+}
+
+/* Function start: WC2_UNMAPPED */
+unsigned int LoadWc1OriginFxDrivers(void)
 {
     int memoryThreshold;
     int videoModeMemory;
@@ -511,7 +572,7 @@ unsigned int LoadOriginFxDrivers(void)
 #endif
     LoadJoystickCalibrationFile(9, 9, 1, 1);
     g_nInputDoubleClickInterval_0046af54 = 2;
-    EMStartUp();
+    StartWc1EventManager();
     GetFxDriverInitResult();
     g_dwOriginalFreeMemory_005a7cd8 = GetLargestFreeMemoryBlockByType(0);
     if (g_nMusicDriverMode_0049be8c != 0 &&
@@ -568,7 +629,7 @@ unsigned int LoadOriginFxDrivers(void)
             g_bSlowSceneAnimation_00469998];
     if (GetTargetColourIndex() != requestedGraphicsMode)
         exit_squadron("Requested graphics display mode not available.");
-    LoadGamePaletteFile();
+    LoadWc1GamePaletteFile();
     InitializeGameTextContexts();
     InitializeDiskPromptTextContext();
     GetEventManagerStatus();
@@ -576,12 +637,189 @@ unsigned int LoadOriginFxDrivers(void)
     if (g_nMusicDriverMode_0049be8c != 0 &&
         g_nMusicDriverMode_0049be8c != 3)
         GetFxDriverStatus();
-    initialize_direction_view_frames();
+    InitializeWc1DirectionViewFrames();
     g_pConstellationDefinitions_00598a28 =
         LoadPacketAllocated(0x3a, 0);
     g_pMissionCampaignData_005988bc = LoadPacketAllocated(0x3a, 1);
     SystemDebugPrintf("\n[SYSTEM] : Exiting initialize()\n");
     return 0;
+}
+
+/* Function start: 0x45B9D3 */
+void LoadOriginFxDrivers(void)
+{
+#ifdef WC1_SDL
+    LoadWc1OriginFxDrivers();
+#else
+    int memoryThreshold;
+    char campaignNumber[4];
+    FILE *memoryLogFile;
+    char startupPacketName[13] = "stars.00";
+    int availableMemory;
+    int expandedShipMemoryBytes;
+    short postPaletteStatus;
+
+    memoryThreshold = 100000;
+    g_nDetectedGraphicsMode_005c80d2 = QueryCurrentGraphicsMode();
+    g_nGraphicsInitializationFlags_00493048 = 0x20c;
+    IsSoundHardwarePresent(8);
+    if (g_bPumpMessagesWhileLoading_005c8ddc != 0)
+        MessagePumpHook(4);
+    if (g_bHighMemoryResourcesEnabled_005c80e4 == 0)
+        printf("No ");
+    printf("Expanded Memory Detected.\n");
+    g_bOriginFxDriverActive_0049cbb0 = 0;
+    if (LoadGraphicsDriver(g_bRewritePacketExtensions_0049cb48) == 0)
+        exit_squadron("Failed to load Origin-FX drivers");
+    InitializeMouseCursorDepth(0);
+    g_nGraphicsDriverStage_00493050 = 2;
+    EMStartUp();
+    g_dwInitialFreeMemory_005c8dd0 =
+        GetLargestFreeMemoryBlockByType(0);
+    availableMemory = (int)GetAvailableFarMemoryByType(4);
+    g_nAvailableGameMemory_005c8de0 = 0xc63e0;
+    availableMemory = 0x7c0600;
+    if (g_bSpeechResourcesEnabled_0049cc2c != 0 &&
+        g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
+        g_bSpeechCacheEnabled_005c8de8 = 0;
+        if (g_nMinimumMemoryNoMusic_0049cc20 + 0x1000 <
+            (int)g_dwInitialFreeMemory_005c8dd0) {
+            if (InitializeSpeechCache(
+                    g_nSpeechCacheUnitCount_005c8dde,
+                    g_nSpeechCacheSizeCode_005c8dd8) == 0) {
+                g_bSpeechCacheEnabled_005c8de8 = 1;
+                printf("Speech Enabled.\n");
+            }
+        }
+    }
+    if (g_bHighMemoryResourcesEnabled_005c80e4 != 0)
+        InitializeHighMemoryGraphicsBuffers();
+    memoryLogFile = fopen("mem.$$$", "w+");
+    LogMemoryStateToFile(memoryLogFile);
+    if (memoryLogFile != 0)
+        fclose(memoryLogFile);
+    if (g_bHighMemoryResourcesEnabled_005c80e4 == 0) {
+        g_bExpandedShipGraphicsEnabled_004931a4 = 0;
+        g_nMinimumMemoryNoMusic_0049cc20 = 0x42680;
+    }
+    if (g_bRewritePacketExtensions_0049cb48 == 1) {
+        g_nMinimumMemoryNoMusic_0049cc20 -= 20000;
+        g_nMinimumMemoryFullMusic_0049cc24 -= 20000;
+        g_nMinimumMemoryAlternate_0049cc28 -= 20000;
+    }
+    expandedShipMemoryBytes =
+        (int)g_nExpandedShipMemoryKb_0049cbac << 10;
+    if (g_nMusicDriverMode_0049be8c != 0 &&
+        g_nMusicDriverMode_0049be8c != 3) {
+        if (g_nMusicDriverMode_0049be8c == 1)
+            g_nMusicMemoryRequirement_005c8dcc = 0x1b800;
+        else if (g_nMusicDriverMode_0049be8c == 2)
+            g_nMusicMemoryRequirement_005c8dcc = 0x13800;
+        if (g_bHighMemoryResourcesEnabled_005c80e4 != 0)
+            memoryThreshold += g_nMusicMemoryRequirement_005c8dcc;
+    }
+    SetFrameTimerPeriodDirect(0x78);
+    g_nAvailableGameMemory_005c8de0 = 0xc63e0;
+    availableMemory = 0x7c0600;
+    if (availableMemory > memoryThreshold) {
+        g_nAvailableGameMemory_005c8de0 = 0xc63e0;
+        g_nMemoryConfiguration_005c8dc8 = 2;
+        printf("Expanded Memory fully used.\n");
+    } else {
+        g_nAvailableGameMemory_005c8de0 =
+            (int)g_dwInitialFreeMemory_005c8dd0 -
+            g_nMinimumMemoryNoMusic_0049cc20;
+        if (g_nAvailableGameMemory_005c8de0 < 0)
+            exit_squadron(
+                "You do not have enough memory to play Wing Commander 2.\n"
+                "Refer to your reference guide for assistance.");
+        g_nMemoryConfiguration_005c8dc8 = 0;
+        if (g_nMusicDriverMode_0049be8c == 1 ||
+            g_nMusicDriverMode_0049be8c == 2) {
+            if (g_nMinimumMemoryFullMusic_0049cc24 <
+                    (int)g_dwInitialFreeMemory_005c8dd0 &&
+                (int)GetAvailableFarMemoryByType(4) >
+                    g_nMusicMemoryRequirement_005c8dcc) {
+                g_nAvailableGameMemory_005c8de0 =
+                    (int)g_dwInitialFreeMemory_005c8dd0 -
+                    g_nMinimumMemoryFullMusic_0049cc24;
+                g_nMemoryConfiguration_005c8dc8 = 1;
+                printf("Full");
+            } else {
+                printf("Limited");
+            }
+            printf(" music/FX will play.");
+        }
+    }
+    LoadHighMemoryShapeResources();
+    LoadJoystickCalibrationFile(9, 9, 1, 1);
+    ConfigureInputPump(1, PollJoystickButtonEvents);
+    ConfigureDefaultSpacePalette(
+        g_acExpectedGraphicsModes_00493078[
+            g_bRewritePacketExtensions_0049cb48]);
+    if (g_acExpectedGraphicsModes_00493078[
+            g_bRewritePacketExtensions_0049cb48] !=
+        QueryCurrentGraphicsMode())
+        exit_squadron(
+            "Requested graphics display mode not available.");
+    LoadGamePaletteFile();
+    InitializeGameTextContexts();
+    postPaletteStatus = InitializePostPaletteState();
+    if (g_nMusicDriverMode_0049be8c == 3)
+        SetMusicTickRateHook(0x1e00);
+    else
+        SetMusicTickRateHook(0x3c);
+    g_nFrameSkip_0049d764 = 1;
+    if (g_nMusicDriverMode_0049be8c != 0 &&
+        g_nMusicDriverMode_0049be8c != 3)
+        InitializeMusicResources();
+    initialize_direction_view_frames();
+    strcat(startupPacketName,
+           _itoa((int)g_nSelectedCampaignSlot_005d3bf2,
+                 campaignNumber, 10));
+    g_pStartupStarPacket_005d212c =
+        LoadPacketAllocated(startupPacketName, 0);
+    if (g_nOriginDevUnlock_0049d774 != 0)
+        _unlink("logfile.txt");
+    if (g_nShowMemoryStatus_0049d784 != 0) {
+        _unlink("track0.txt");
+        _unlink("track1.txt");
+        _unlink("track2.txt");
+        _unlink("track3.txt");
+        _unlink("track4.txt");
+        _unlink("track5.txt");
+        _unlink("track6.txt");
+        _unlink("track7.txt");
+        _unlink("track8.txt");
+        _unlink("track9.txt");
+    }
+    (void)expandedShipMemoryBytes;
+    (void)postPaletteStatus;
+#endif
+}
+
+/* Function start: 0x45BF30 */
+void InitializeHighMemoryGraphicsBuffers(void)
+{
+    unsigned int highMemoryEnd;
+
+    g_pHighMemoryBlockA_004901f8 =
+        AllocateDefaultMemory((unsigned int)g_wHighMemoryBlockBytes_004901fc);
+    g_dwHighMemoryParagraph_005d3fb4 =
+        IdentityDword((unsigned int)g_pHighMemoryBlockA_004901f8);
+    highMemoryEnd = (unsigned int)g_wHighMemoryBlockBytes_004901fc +
+        g_dwHighMemoryParagraph_005d3fb4;
+    g_pHighMemoryBlockB_00490200 =
+        AllocateDefaultMemory(0x4961a4 - 0x493130);
+    if (g_pHighMemoryBlockB_00490200 == 0 ||
+        g_pHighMemoryBlockA_004901f8 == 0) {
+        FreePacketAndClear(&g_pHighMemoryBlockA_004901f8, 4);
+        FreePacketAndClear(&g_pHighMemoryBlockB_00490200, 4);
+        g_bHighMemoryBuffersReady_005d2ad8 = 0;
+    } else {
+        g_bHighMemoryBuffersReady_005d2ad8 = 1;
+    }
+    (void)highMemoryEnd;
 }
 
 /* Function start: 0x45C088 */
@@ -624,8 +862,8 @@ unsigned int initialize_direction_view_frame(short yaw, short pitch,
     return 0;
 }
 
-/* Function start: 0x45C279 */
-unsigned int initialize_direction_view_frames(void)
+/* Function start: WC2_UNMAPPED */
+unsigned int InitializeWc1DirectionViewFrames(void)
 {
     signed char frame;
     signed char pitchBands;
@@ -651,6 +889,215 @@ unsigned int initialize_direction_view_frames(void)
     initialize_direction_view_frame(0, -90, frame);
     return 0;
 }
+
+/* Function start: 0x45C279 */
+void initialize_direction_view_frames(void)
+{
+    short yaw;
+    short pitch;
+    signed char frame;
+    signed char pitchBand;
+    signed char yawSector;
+
+    yaw = 0;
+    pitch = 90;
+    frame = 0;
+    initialize_direction_view_frame(yaw, pitch, frame++);
+    for (pitchBand = 0; pitchBand < 5; pitchBand++) {
+        pitch -= 30;
+        yaw = 0;
+        for (yawSector = 0; yawSector < 12; yawSector++) {
+            initialize_direction_view_frame(yaw, pitch, frame++);
+            yaw += 30;
+        }
+    }
+    initialize_direction_view_frame(0, -90, frame);
+}
+
+/* Function start: 0x45C35C */
+void LoadHighMemoryShapeResources(void)
+{
+    if (g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
+        if (LoadShapeSet(g_aCommon3SpaceResources_0049c728,
+                         4, "objects.vga") != 0) {
+            LoadShapeSet(g_aMissionResourceDescriptors_0049c798,
+                         4, "objects.vga");
+            g_aObjectTypeData_00496d30[34].shapeSet =
+                g_aObjectTypeData_00496d30[35].shapeSet;
+            g_aObjectTypeData_00496d30[33].shapeSet =
+                g_aObjectTypeData_00496d30[34].shapeSet;
+            g_aObjectTypeData_00496d30[30].shapeSet =
+                g_aObjectTypeData_00496d30[33].shapeSet;
+            g_aObjectTypeData_00496d30[29].shapeSet =
+                g_aObjectTypeData_00496d30[30].shapeSet;
+            LoadShapeSet(g_aHighMemoryCockpitResources_0049c7e8,
+                         4, "cockpit.vga");
+        }
+    }
+}
+
+/* Function start: 0x45C3FA */
+void StopMusicIfDriverActive(void)
+{
+    if (g_nMusicDriverMode_0049be8c != 0)
+        StopMusicStream();
+}
+
+/* Function start: 0x45C419 */
+void InitializeMusicResources(void)
+{
+    int resource;
+
+    FadeMusic(200);
+    if (g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
+        for (resource = 0; resource < 0x42; resource++) {
+            if (g_abMusicResourcePresent_0049cc30[resource] != 0) {
+                if (g_nMusicDriverMode_0049be8c == 1) {
+                    g_aMusicResources_005d13e0[resource].packet =
+                        FetchDiskPacketRetrying(
+                            "music.r00", (short)resource, 4);
+                } else {
+                    g_aMusicResources_005d13e0[resource].packet =
+                        FetchDiskPacketRetrying(
+                            "music.a00", (short)resource, 4);
+                }
+            } else {
+                g_aMusicResources_005d13e0[resource].packet = 0;
+            }
+            if (g_aMusicResources_005d13e0[resource].packet == 0)
+                continue;
+            g_aMusicResources_005d13e0[resource].loaded = 1;
+        }
+    } else if (g_nMemoryConfiguration_005c8dc8 == 1) {
+        g_pLimitedMusicBufferA_0049bea0 =
+            AllocateTaggedMemory(0x33d0, 0x10);
+        g_nLimitedMusicBufferAState_0049bea4 = -1;
+        g_pLimitedMusicBufferB_0049bea6 =
+            AllocateTaggedMemory(0x33d0, 0x10);
+        g_nLimitedMusicBufferBState_0049beaa = -1;
+    }
+}
+
+#ifndef WC1_SDL
+
+#pragma function(strcmp)
+
+/* Function start: 0x45C558 */
+void main(short argc, char **argv)
+{
+    short argumentIndex;
+    int campaignIsNumeric;
+    int missionIsNumeric;
+
+    g_bRewritePacketExtensions_0049cb48 = 0;
+    g_bSpeechResourcesEnabled_0049cc2c = 1;
+    g_nSpeechCacheUnitCount_005c8dde = 2;
+    g_nSpeechCacheSizeCode_005c8dd8 = 5;
+    for (argumentIndex = 0; argumentIndex < argc; argumentIndex++) {
+        if (strcmp("Origin", argv[argumentIndex]) == 0)
+            g_nOriginDevUnlock_0049d774 = 1;
+
+        switch (argv[argumentIndex][0]) {
+        case '?':
+            printf("Version %s.\n", g_pszGameVersion_0049b528);
+        case '+':
+            if (argv[argumentIndex][1] == 'w')
+                g_bRoomTransitionAnimationEnabled_00499c00 = 1;
+            if (argv[argumentIndex][1] == 'l')
+                g_bAutopilotDebugEnabled_00499bfc = 1;
+            if (argv[argumentIndex][1] == 'e') {
+                g_bMemoryAdjustmentEnabled_0049cc84 = 1;
+                g_nMemoryAdjustmentKb_005c8dda =
+                    (short)atoi(argv[argumentIndex] + 2);
+            }
+            break;
+        case '-':
+            if (argv[argumentIndex][1] == 'm')
+                g_nShowMemoryStatus_0049d784 = 1;
+            if (argv[argumentIndex][1] == 'x')
+                g_bPumpMessagesWhileLoading_005c8ddc = 1;
+            if (argv[argumentIndex][1] == 't')
+                g_bPumpMessagesDuringLoad_0049cc7c = 1;
+            if (argv[argumentIndex][1] == 'f')
+                g_bSkipCampaignScenes_0049cc78 = 1;
+            if (g_nOriginDevUnlock_0049d774 != 0) {
+                switch (argv[argumentIndex][1]) {
+                case 'k':
+                    g_bPlayerDamageEnabled_0049d77c = 0;
+                    break;
+                case 'b':
+                    g_bPlayerCollisionEnabled_0049d780 = 0;
+                    break;
+                }
+            }
+            break;
+        case 'E':
+        case 'e':
+            if (g_nOriginDevUnlock_0049d774 != 0)
+                g_bDirectMissionLaunch_0049d798 = 1;
+            break;
+        case 'T':
+        case 't':
+            if (g_nOriginDevUnlock_0049d774 != 0) {
+                missionIsNumeric = isdigit(argv[argumentIndex][1]);
+                if (missionIsNumeric != 0) {
+                    g_nDirectMission_0049d79a =
+                        (short)atoi(argv[argumentIndex] + 1);
+                } else {
+                    g_nDirectMission_0049d79a = (short)(
+                        toupper(argv[argumentIndex][1]) - 'A');
+                }
+                if (g_nDirectMission_0049d79a > 3)
+                    g_nDirectMission_0049d79a = 0;
+                g_bDirectCampaignSelection_0049cc74 = 1;
+            }
+            break;
+        case 'V':
+        case 'v':
+            if (g_nOriginDevUnlock_0049d774 != 0) {
+                g_nDirectSeries_0049d79c =
+                    (short)atoi(argv[argumentIndex] + 1);
+                g_bDirectCampaignSelection_0049cc74 = 1;
+            }
+            break;
+        case 'Z':
+        case 'z':
+            campaignIsNumeric = isdigit(argv[argumentIndex][1]);
+            if (campaignIsNumeric != 0) {
+                g_nSelectedStartingCampaign_005d3bf0 =
+                    (short)(argv[argumentIndex][1] - '0');
+            } else {
+                g_nSelectedStartingCampaign_005d3bf0 = 0;
+            }
+            break;
+        case 'X':
+        case 'x':
+            g_bExpandedShipGraphicsEnabled_004931a4 = 1;
+            g_nExpandedShipMemoryKb_0049cbac =
+                (short)atoi(argv[argumentIndex] + 1);
+            break;
+        case 'A':
+        case 'a':
+        case 'P':
+        case 'p':
+        case 'R':
+        case 'r':
+            break;
+        case 'C':
+        case 'c':
+            g_bSpeechResourcesEnabled_0049cc2c = 1;
+            g_nSpeechCacheUnitCount_005c8dde =
+                (short)(argv[argumentIndex][1] - '0');
+            g_nSpeechCacheSizeCode_005c8dd8 =
+                (short)(argv[argumentIndex][2] - '0');
+            break;
+        }
+    }
+}
+
+#pragma intrinsic(strcmp)
+
+#endif
 
 /* Function start: 0x420B12 */
 unsigned int LoadSpaceflightResources(void)
@@ -749,6 +1196,33 @@ void prepare_ace(short ace)
 {
     unflag_ace(ace, 0x1a);
     flag_ace(ace, 0x20);
+}
+
+/* Function start: 0x42917D */
+void InitializeCampaignConstellationState(Wc2CampaignGlobals *globals,
+                                           short copyPosition)
+{
+    short pilotIndex;
+    short pilotCount;
+
+    pilotCount = globals->pilotCount;
+    if (g_pPilotStatus_005d2fcc == 0)
+        g_pPilotStatus_005d2fcc =
+            (short *)calloc((int)pilotCount, 2);
+    if (g_pPilotStatus_005d2fcc == 0)
+        ReportFatalErrorCode("017");
+    if (pilotCount != 32)
+        ReportFatalErrorCode("018");
+
+    for (pilotIndex = 0; pilotIndex < pilotCount; pilotIndex++)
+        g_pPilotStatus_005d2fcc[pilotIndex] =
+            globals->pilotStatus[pilotIndex];
+
+    if (copyPosition != 0) {
+        g_stCurrentPilotProfile_00493408.series = globals->series;
+        g_stCurrentPilotProfile_00493408.mission = globals->mission;
+    }
+    g_nArcadeState_0049d75c = (int)globals->arcadeState;
 }
 
 /* Function start: 0x4293F9 */
@@ -2440,8 +2914,8 @@ void FreeConstellationObject(short object)
 #endif
 }
 
-/* Function start: 0x4575B4 */
-unsigned int init_constellation(short scene)
+/* Function start: WC2_UNMAPPED */
+unsigned int InitWc1Constellation(short scene)
 {
     short slot;
     short object;
@@ -2475,6 +2949,41 @@ unsigned int init_constellation(short scene)
         slot++;
     } while (slot < 4);
     /* The successful path returns the last expression left in EAX. */
+}
+
+/* Function start: 0x4575B4 */
+unsigned int init_constellation(short scene)
+{
+    short slot;
+    short sceneIndex;
+    short object;
+
+    if (g_pRoomPlanetShapes_005d2c4c == 0) {
+        g_pRoomPlanetShapes_005d2c4c =
+            FetchDiskPacketRetrying("planets.v00", 0, 0);
+    }
+    sceneIndex = (short)(scene - 1);
+    if (g_nAvailableGameMemory_005c8de0 < 6500)
+        return;
+    if (sceneIndex >= 0) {
+        for (slot = 0; slot < 4; slot++) {
+            if (((ConstellationObjectDefinition (*)[4])
+                     g_pStartupStarPacket_005d212c)
+                    [sceneIndex][slot].shapePacket != -1) {
+                object = find_vacant_3d_object();
+                if (object != -1) {
+                    InitializeConstellationObject(
+                        &((ConstellationObjectDefinition (*)[4])
+                              g_pStartupStarPacket_005d212c)
+                             [sceneIndex][slot],
+                        object);
+                }
+                g_asConstellationObjectIndices_0049c8e0[slot] = object;
+            } else {
+                g_asConstellationObjectIndices_0049c8e0[slot] = -1;
+            }
+        }
+    }
 }
 
 /* Function start: 0x4576AB */
@@ -2889,16 +3398,158 @@ void free_inflight_music(void)
     StopMusicUnlessSuppressed();
     g_nInFlightMusicActive_0049bf08 = 0;
     if (g_nInFlightMusicSlotA_0049bea4 != -1) {
-        *(int *)(g_abSoundPlaybackSlots_005d13e0 +
-                 g_nInFlightMusicSlotA_0049bea4 * 6) = 0;
+        g_aMusicResources_005d13e0[
+            g_nInFlightMusicSlotA_0049bea4].packet = 0;
         g_nInFlightMusicSlotA_0049bea4 = -1;
     }
     if (g_nInFlightMusicSlotB_0049beaa != -1) {
-        *(int *)(g_abSoundPlaybackSlots_005d13e0 +
-                 g_nInFlightMusicSlotB_0049beaa * 6) = 0;
+        g_aMusicResources_005d13e0[
+            g_nInFlightMusicSlotB_0049beaa].packet = 0;
         g_nInFlightMusicSlotB_0049beaa = -1;
     }
 #endif
+}
+
+/* Function start: 0x458A90 */
+signed char DecodeSceneStructChunk(unsigned char **cursor,
+                                   SceneResourceTable **resource)
+{
+    short pointerSize;
+    unsigned int chunkSize;
+    unsigned char *data;
+    void **entries;
+    short index;
+    unsigned short recordSize;
+    unsigned short count;
+
+    data = *cursor;
+    data += 4;
+    chunkSize = *(unsigned int *)data;
+    data += 4;
+    SwapSceneChunkSizeEndian((int *)&chunkSize);
+    recordSize = *(unsigned short *)data;
+    data += 2;
+    count = (unsigned short)((chunkSize - 2) / recordSize);
+    (*resource)->type = 0;
+    (*resource)->count = count;
+    pointerSize = 4;
+    entries = AllocateScenePointerTable(
+        count, pointerSize, 0, "Cannot Allocate STRC stuff");
+    (*resource)->data = entries;
+    index = 1;
+    while ((unsigned short)index <= count) {
+        *entries = IdentityHandle(data);
+        entries++;
+        data += recordSize;
+        index++;
+    }
+    *cursor += ((chunkSize + 1) & ~1) + 8;
+    return 1;
+}
+
+/* Function start: 0x458B8C */
+signed char DecodeSceneOffsetChunk(unsigned char **cursor,
+                                   SceneResourceTable **resource)
+{
+    unsigned int chunkSize;
+    unsigned char *data;
+    void **entries;
+    unsigned short count;
+    short index;
+    void *resolved;
+    int offset;
+
+    data = *cursor;
+    data += 4;
+    chunkSize = *(unsigned int *)data;
+    data += 4;
+    SwapSceneChunkSizeEndian((int *)&chunkSize);
+    count = *(unsigned short *)data;
+    data += 2;
+    (*resource)->type = 1;
+    (*resource)->count = count;
+    entries = AllocateScenePointerTable(
+        count, 4, 0, "Cannot Alloc OFST stuff");
+    (*resource)->data = entries;
+    index = 1;
+    while (index <= (short)count) {
+        offset = *(int *)data;
+        if (offset != -1)
+            resolved = data + offset;
+        else
+            resolved = 0;
+        data += 4;
+        *entries = resolved;
+        entries++;
+        index++;
+    }
+    *cursor += ((chunkSize + 1) & ~1) + 8;
+    return 1;
+}
+
+/* Function start: 0x458C81 */
+signed char DecodeSceneSymbolChunk(unsigned char **cursor,
+                                   SceneResourceTable **resource)
+{
+    short pointerSize;
+    unsigned int chunkSize;
+    unsigned char *nextString;
+    unsigned char *data;
+    void **entries;
+    unsigned char *start;
+    short count;
+    short remaining;
+
+    data = *cursor;
+    start = data;
+    data += 4;
+    chunkSize = *(unsigned int *)data;
+    data += 4;
+    SwapSceneChunkSizeEndian((int *)&chunkSize);
+    start = data;
+    count = 0;
+    pointerSize = 4;
+    do {
+        nextString = (unsigned char *)DosStrchr((char *)data, 0) + 1;
+        count++;
+        data = nextString;
+    } while (nextString - start < (int)chunkSize);
+    data = start;
+    (*resource)->type = 2;
+    (*resource)->count = count;
+    entries = AllocateScenePointerTable(
+        count, pointerSize, 0, "Cannot Alloc SYMB stuff");
+    (*resource)->data = entries;
+    data = start;
+    remaining = count;
+    do {
+        *entries = IdentityHandle(data);
+        entries++;
+        data = (unsigned char *)DosStrchr((char *)data, 0) + 1;
+        remaining--;
+    } while (remaining != 0);
+    *cursor += ((chunkSize + 1) & ~1) + 8;
+    return 1;
+}
+
+/* Function start: 0x458D94 */
+signed char DecodeSceneFileChunk(unsigned char **cursor,
+                                 SceneResourceTable **resource)
+{
+    unsigned int chunkSize;
+    unsigned char *data;
+
+    data = *cursor;
+    data += 4;
+    chunkSize = *(unsigned int *)data;
+    data += 4;
+    SwapSceneChunkSizeEndian((int *)&chunkSize);
+    (*resource)->count = *(unsigned short *)data;
+    data += 2;
+    (*resource)->data = data;
+    (*resource)->type = 3;
+    *cursor += ((chunkSize + 1) & ~1) + 8;
+    return 1;
 }
 
 /* Function start: 0x469AD0 */

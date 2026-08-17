@@ -778,10 +778,22 @@ void ResumeMouseCursor(void)
     g_nMouseCursorDrawDepth_0049d4d4 = g_nMouseCursorDrawDepth_0049d4d4 + 1;
 }
 
-/* Function start: 0x463E19 */
-void SuspendMouseCursor(void)
+/* Function start: WC2_UNMAPPED */
+void SuspendWc1MouseCursor(void)
 {
     g_nMouseCursorDrawDepth_0049d4d4 = g_nMouseCursorDrawDepth_0049d4d4 - 1;
+}
+
+/* Function start: 0x463BA1 */
+void EnableMouseCursorDrawing(void)
+{
+    g_nMouseCursorDrawDepth_0049d4d4 = 1;
+}
+
+/* Function start: 0x463E19 */
+void DisableMouseCursorDrawing(void)
+{
+    g_nMouseCursorDrawDepth_0049d4d4 = -1;
 }
 
 /* Function start: 0x463EEE */
@@ -831,7 +843,7 @@ void __stdcall SetFrameTimerAndWait(short period)
 }
 
 /* Function start: 0x46403D */
-void __stdcall SetFrameTimerPeriodDirect(short p)
+void SetFrameTimerPeriodDirect(short p)
 {
     SetMultimediaTimerCallback((int)p);
 }
@@ -848,6 +860,25 @@ int IsFrameTickElapsed(void)
     return g_nFrameTimerPending_005c844c == 0;
 }
 
+#pragma function(memset)
+/* Function start: 0x46409B */
+void *AllocateZeroedRecords(int count, short elementSize, short flags)
+{
+    void *allocation;
+
+    allocation = AllocateTaggedMemory(
+        count * elementSize, (short)(flags | 0x40));
+    memset(allocation, 0, count * elementSize);
+    return allocation;
+}
+#pragma intrinsic(memset)
+
+/* Function start: 0x464123 */
+void *AllocateDefaultMemory(unsigned int size)
+{
+    return AllocateTaggedMemory(size, 0);
+}
+
 /* Function start: 0x464141 */
 unsigned short GetSoundHardwareFlag(void)
 {
@@ -859,10 +890,16 @@ void TimerResetHook(void)
 {
 }
 
-/* Function start: 0x46417A */
-unsigned int GetVideoReleaseResult(void)
+/* Function start: WC2_UNMAPPED */
+unsigned int GetWc1VideoReleaseResult(void)
 {
     return 0;
+}
+
+/* Function start: 0x46417A */
+unsigned int IdentityDword(unsigned int value)
+{
+    return value;
 }
 
 /* Function start: 0x46418D */
@@ -1256,6 +1293,11 @@ geometry_ready:
     g_nViewportOriginY_0059ab50 = viewportGeometry->originY;
 }
 
+/* Function start: 0x464A90 */
+void FinalizeInputManagerHook(void)
+{
+}
+
 /* Function start: 0x464AA0 */
 void MouseIdleHook(void)
 {
@@ -1342,6 +1384,34 @@ int ConfigureInputPump(int slot, void (*pump)(void))
     }
 }
 
+/* Function start: 0x464E73 */
+short LoadInputCursorShape(const char *filename, short section,
+                           short flags)
+{
+    void *shape;
+
+    (void)flags;
+    if (filename != 0) {
+        shape = LoadNamedPacket(filename, section, 0, 0, 0, 1);
+        g_pInputCursorShape_005c83f9 = shape;
+        g_pInputManagerState_005c8464->cursorShape = shape;
+        if (shape == 0)
+            return 0;
+    }
+    SetInputViewport(0);
+    return 1;
+}
+
+/* Function start: 0x464EE0 */
+void InitializeInputDriverHook(void)
+{
+}
+
+/* Function start: 0x464EF0 */
+void FinalizeInputDriverHook(void)
+{
+}
+
 /* Function start: 0x464F25 */
 unsigned int GetNamedPacketSize(const char *filename, short section)
 {
@@ -1358,6 +1428,35 @@ void *LoadNamedPacket(const char *filename, short section,
                       decompressionWorkspace, registerHandle);
 }
 
+/* Function start: 0x464F75 */
+short OffsetSceneHotspotBounds(ShortRect *bounds,
+                               const SceneHotspot *hotspot,
+                               short offsetX, short offsetY)
+{
+    bounds->left = (short)(hotspot->left + offsetX);
+    bounds->right = (short)(hotspot->right + offsetX);
+    bounds->bottom = (short)(hotspot->bottom + offsetY);
+    bounds->top = (short)(hotspot->top + offsetY);
+    return 1;
+}
+
+/* Function start: 0x464FE7 */
+void SetPaletteEntryFromTriplet(const unsigned char *triplet, short index)
+{
+    short rgb[3];
+
+    rgb[0] = triplet[0];
+    rgb[1] = triplet[1];
+    rgb[2] = triplet[2];
+    DIBsetPalette(index, rgb);
+}
+
+/* Function start: 0x46502E */
+void SetMusicTickRateHook(short period)
+{
+    (void)period;
+}
+
 /* Function start: 0x464B60 */
 unsigned int GetStartupErrorCode(int vector)
 {
@@ -1365,11 +1464,16 @@ unsigned int GetStartupErrorCode(int vector)
     return 0;
 }
 
-/* Function start: 0x464B82 */
-void ShutdownHook(int vector, void *handler)
+/* Function start: WC2_UNMAPPED */
+void Wc1ShutdownHook(int vector, void *handler)
 {
     (void)vector;
     (void)handler;
+}
+
+/* Function start: 0x464B82 */
+void PersonnelDriveHook()
+{
 }
 
 /* Function start: 0x464B92 */

@@ -504,8 +504,8 @@ void check_hazards(void)
     }
 }
 
-/* Function start: 0x4199F0 */
-void __stdcall WarpMouseTo(short x, short y)
+/* Function start: WC2_UNMAPPED */
+void __stdcall WarpWc1MouseTo(short x, short y)
 {
 #ifndef WC1_SDL
     __asm cli
@@ -520,14 +520,25 @@ void __stdcall WarpMouseTo(short x, short y)
 #endif
 }
 
+/* Function start: 0x4199F0 */
+void SetPersonnelMousePosition(short x, short y)
+{
+    g_nPersonnelMouseX_005c8d00 = x;
+    g_nPersonnelMouseY_005c8d02 = y;
+    g_nQueuedInputX_005c83f0 = x;
+    g_nQueuedInputY_005c83f2 = y;
+    SetMousePosition(x, y);
+}
+
+#pragma function(strcmp)
+
 /* Function start: 0x453C95 */
 void CheckLauncherAndConfig(void)
 {
+#ifdef WC1_SDL
     FILE *config;
     char option[100];
-#ifdef WC1_SDL
     char resolvedPath[PATH_MAX];
-#endif
 
     if (ReadCheaterFlagFromRegistry() != 0) {
         *(unsigned char *)&g_nOriginDevUnlock_0049d774 = 1;
@@ -535,15 +546,11 @@ void CheckLauncherAndConfig(void)
         *(unsigned char *)&DAT_0046a000 = 0;
     }
 
-#ifdef WC1_SDL
     if (Wc1SdlResolvePath("WINGCMDR.CFG", resolvedPath,
                           sizeof(resolvedPath)))
         config = fopen(resolvedPath, "rt");
     else
         config = 0;
-#else
-    config = fopen("WINGCMDR.CFG", "rt");
-#endif
     if (config != 0) {
         while (fscanf(config, "%s", option) != EOF) {
             char command;
@@ -573,7 +580,68 @@ void CheckLauncherAndConfig(void)
         }
         fclose(config);
     }
+#else
+    int scanResult;
+    char option[100];
+    int controlFile;
+    char command;
+    FILE *config;
+
+    if (ReadCheaterFlagFromRegistry() != 0) {
+        *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
+        *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
+        *(unsigned char *)&g_nOriginDevUnlock_0049d774 = 1;
+    }
+
+    controlFile = _open("ctrl.del", O_BINARY);
+    if (controlFile != -1) {
+        g_bDebugBreakEnabled_0049c238 = 1;
+        _close(controlFile);
+    }
+
+    config = fopen("WC2.CFG", "rt");
+    while (config != 0) {
+        scanResult = fscanf(config, "%s", option);
+        if (scanResult == -1) {
+            fclose(config);
+            break;
+        }
+        if (strcmp("[[log]]", option) == 0)
+            g_nDebugFileLoggingEnabled_0049c2d8 = 1;
+
+        command = option[0];
+        if (command == '-')
+            command = option[1];
+        switch (command) {
+        case 'b':
+            *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
+            break;
+        case 'k':
+            *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
+            break;
+        case 's':
+            break;
+        case 'f':
+            g_bShowFrameRate_0049c260 = 1;
+            break;
+        case 'q':
+            g_bConfigQuickModeEnabled_0049c264 = 0;
+            break;
+        case 'l':
+            g_bSkipCampaignVideo_0049c270 = 1;
+            break;
+        case 'w':
+            g_bUseHardwarePalette_0049c268 = 0;
+            break;
+        case 'm':
+            g_bConfigMemoryOption_0049c2e0 = 1;
+            break;
+        }
+    }
+#endif
 }
+
+#pragma intrinsic(strcmp)
 
 #ifndef WC1_SDL
 
@@ -585,11 +653,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     RECT clip;
     HANDLE process;
 
-    (void)commandLine;
-    DAT_005a89a4 = CreateSemaphoreA(0, 0, 1, "Wing Commander 1");
+    if (commandLine != 0 && strchr(commandLine, 's') != 0)
+        g_nAudioEnabled_0049c244 = 0;
+    DAT_005a89a4 = CreateSemaphoreA(0, 0, 1, "Wing Commander 2");
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         MessageBoxA(0,
-                    "Only one instance of Wing Commander 1 for Windows95 may be running at a time",
+                    "Only one instance of Wing Commander 2 for Windows95 may be running at a time",
                     "ATTENTION", MB_ICONERROR);
         exit(0);
     }
@@ -599,13 +668,13 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     GlobalMemoryStatus(&memoryStatus);
     if (memoryStatus.dwTotalPhys < 0x800000) {
         MessageBoxA(0,
-                    "You must have at leat 8 megs of memory available to play Wing Commander 1 for Windows95",
+                    "You must have at leat 8 megs of memory available to play Wing Commander 2 for Windows95",
                     "ATTENTION", MB_ICONERROR);
         exit(0);
     }
     if (memoryStatus.dwTotalPageFile < 0x800000) {
         MessageBoxA(0,
-                    "You must have at leat 8 megs of virtual memory available to play Wing Commander 1 for Window95",
+                    "You must have at leat 8 megs of virtual memory available to play Wing Commander 2 for Window95",
                     "ATTENTION", MB_ICONERROR);
         exit(0);
     }
@@ -620,20 +689,18 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     if (!CreateMainWindow(instance, previous, showCommand))
         return 0;
 
-    DAT_00465080 = 0;
+    g_bWindowInactive_0049c274 = 0;
     process = GetCurrentProcess();
     MonoDebug_install();
     SetPriorityClass(process, HIGH_PRIORITY_CLASS);
-    if (g_nAudioEnabled_0049c244 != 0) {
-        InitializeAudioSystem(DAT_005a89a0);
-        InitializeAudioStreamer(DAT_005a89a0);
-    }
+    InitializeAudioSystem(DAT_005a89a0);
+    InitializeAudioStreamer(DAT_005a89a0);
     srand((unsigned int)time(0));
-    InitGameClockEpoch();
+    InitGameClockRandomEpoch();
     CreateDebugOverlayConsole(instance, DAT_005a89a0, 60, 20);
-    DAT_005a8a44 = (unsigned int)time(0);
+    g_dwGameStartTime_005d12b4 = (unsigned int)time(0);
     ShowCursor(FALSE);
-    DAT_0059ab2c = 0;
+    g_pfnInputPump_005c840c = 0;
     clip.left = 0;
     clip.top = 0;
     clip.right = 320;
@@ -641,16 +708,23 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     ClipCursor(&clip);
 
     _onexit((_onexit_t)AbortToDesktop);
-    main(0, (char **)"Vj");
+    g_nInputClock_005c84a8 = 0;
+    AllocateApplicationScratchBuffer();
+    g_bApplicationControllerActive_0049c25c = 1;
+    RunGameApplication(0, &g_pEmptyStartupArgumentVector_0049c470);
+    g_bApplicationShutdownStarted_0049c23c = 1;
+    ReleaseApplicationScratchBuffer();
 
     ClipCursor(0);
     ShowCursor(TRUE);
-    DAT_005a8a38 = (unsigned int)time(0);
+    g_dwGameExitTime_005d129c = (unsigned int)time(0);
     DestroyGlobalDebugOverlayConsole();
     ServiceAudioStream();
     DestroyWindow(DAT_005a89a0);
     DIBunInstall();
+#if 0
     Streamer_close();
+#endif
     CloseHandle(DAT_005a89a4);
     return 1;
 }
@@ -1017,9 +1091,9 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
 #endif
 
 /* Function start: 0x4551E7 */
-int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
-                                  unsigned int *buttons, short joystick,
-                                  unsigned int fallback)
+int GetJoystickPosition(unsigned int *x, unsigned int *y,
+                        unsigned int *buttons, short joystick,
+                        unsigned int fallback)
 {
     unsigned int device;
     unsigned int infoIndex;

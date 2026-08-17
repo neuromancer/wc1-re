@@ -102,10 +102,24 @@ void RunTrainSim(void)
     g_nTrainSimActive_00469e2c = 0;
 }
 
-/* Function start: 0x46579D */
-short LogMemoryUsage(void)
+/* Function start: 0x4656CC */
+void AllocateApplicationScratchBuffer(void)
 {
-    ShutdownHook(0x21, (void *)DAT_0059ab4c);
+    g_pApplicationScratchBuffer_005c8483 =
+        AllocateTaggedMemory(0x1000, 0);
+}
+
+/* Function start: 0x4656EB */
+void ReleaseApplicationScratchBuffer(void)
+{
+    ReleasePacketHandle(g_pApplicationScratchBuffer_005c8483);
+    g_pApplicationScratchBuffer_005c8483 = 0;
+}
+
+/* Function start: WC2_UNMAPPED */
+short LogWc1MemoryUsage(void)
+{
+    Wc1ShutdownHook(0x21, (void *)DAT_0059ab4c);
     EMShutDown();
     GetMessagePumpResult();
     _chdir("..");
@@ -120,6 +134,56 @@ short LogMemoryUsage(void)
     MouseIdleHook();
     MessagePumpHook(8);
     return 0;
+}
+
+/* Function start: 0x46579D */
+short LogMemoryUsage(void)
+{
+    _unlink("tape.tmp");
+    StopMusicIfDriverActive();
+    EMShutDown();
+    if (g_bSpeechCacheEnabled_005c8de8 != 0)
+        ShutdownSpeechCache();
+    if (g_bParentDirectorySelected_0049d78c == 0) {
+        _chdir("..");
+        g_bParentDirectorySelected_0049d78c++;
+    }
+    ConfigureDefaultSpacePalette(g_nDetectedGraphicsMode_005c80d2);
+    if (g_nOriginDevUnlock_0049d774 != 0) {
+        printf("Series %d, Mission %d (%c)\n",
+               (int)g_nCurrentSeries_005c5870,
+               (int)g_nCurrentMission_005c5878,
+               (int)g_nCurrentMission_005c5878 + 'A');
+    }
+    if (g_nShowMemoryStatus_0049d784 != 0) {
+        printf(
+            "initial far: %lu.  current far: %lu.  current near: %u.\n",
+            g_dwInitialFreeMemory_005c8dd0,
+            GetLargestFreeMemoryBlockByType(0), 0);
+    }
+    FinalizeInputManagerHook();
+    MessagePumpHook(8);
+    if (g_pMemoryAdjustment_0049d788 != 0)
+        free(g_pMemoryAdjustment_0049d788);
+    return 0;
+}
+
+/* Function start: 0x437A44 */
+void ReportFatalErrorCode(const char *errorCode)
+{
+    FILE *errorFile;
+
+    errorFile = fopen("err.$$$", "w+");
+    if (errorFile != 0)
+        fclose(errorFile);
+    sprintf(
+        g_szDefaultTextBuffer_005d2b80,
+        "Sorry, an error has occurred.\n"
+        "Please note the following information: %s.\n"
+        "Check your configuration.  If this problem persists, please\n"
+        "call Origin Systems' service line.  We are sorry for the inconvenience.",
+        errorCode);
+    FatalErrorAndExit(g_szDefaultTextBuffer_005d2b80);
 }
 
 /* Function start: 0x437AB4 */

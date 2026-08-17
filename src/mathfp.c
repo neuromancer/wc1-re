@@ -210,7 +210,7 @@ void WaitForVerticalBlankThunk(void)
 }
 
 /* Function start: 0x461D7D */
-void *__stdcall IdentityHandle(void *v)
+void *IdentityHandle(void *v)
 {
     return v;
 }
@@ -237,6 +237,11 @@ unsigned short __stdcall GetFontCharWidth(char i)
 
 /* Function start: WC2_UNMAPPED */
 void ReleaseVideoResourcesHook(void)
+{
+}
+
+/* Function start: 0x461DE0 */
+void ApplySpacePaletteModeHook(void)
 {
 }
 
@@ -272,7 +277,7 @@ short GetShapeFrameBounds(short *bounds, short x, short y,
 }
 
 /* Function start: 0x461E97 */
-short __stdcall IsPointInRect(short x, short y, const short *rect)
+short IsPointInRect(short x, short y, const short *rect)
 {
     if (rect[0] <= x && x <= rect[2] &&
         rect[1] <= y && y <= rect[3])

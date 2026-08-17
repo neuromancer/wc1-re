@@ -1648,7 +1648,7 @@ unsigned int scramble(void)
             FlushSoundEffectsAndLog();
             PlaySfxWaveFileByNumber(16, -1, 0);
             if (g_bSceneEscapeRequested_0049d4b0 != 1)
-                WaitForSceneAdvance(60, 0);
+                WaitForWc1SceneAdvance(60, 0);
         }
 
         g_bSceneEscapeRequested_0049d4b0 = 0;
@@ -1836,7 +1836,7 @@ unsigned int landing(signed char damageLevel)
             DIBslam();
             DIBslamReal();
             ReleaseTextFont(0);
-            WaitForSceneAdvance(300, 0);
+            WaitForWc1SceneAdvance(300, 0);
         }
     }
 
@@ -2363,6 +2363,26 @@ unsigned int RunCampaignGameLoop(short animation)
     }
     exit_squadron("Animation demo over.");
     return 0;
+}
+
+/* Function start: 0x409850 */
+void InitializeNewPilotCampaign(short campaignSlot)
+{
+    g_nSelectedCampaignSlot_005d3bf2 = campaignSlot;
+    g_nSelectedStartingCampaign_005d3bf0 = -1;
+    LoadStartingCampaignGlobals(0);
+    SaveAndFreeTemporaryCampaignGlobals();
+    LoadTemporaryCampaignGlobals();
+    if (g_pCampaignGlobals_00499c94 == 0)
+        ReportFatalErrorCode("015");
+    g_pCampaignGlobals_00499c94->series = 1000;
+    g_pCampaignGlobals_00499c94->mission = 2000;
+    FadeViewportPaletteToColour(&g_stModalSourceViewport_005d2c50, 0, 1);
+    ShowTheEndScreen(g_nSelectedCampaignSlot_005d3bf2);
+    ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
+    free_all_slots();
+    ResetGameTextContexts();
+    g_bNewPilotCampaignInitialized_004926c0 = 1;
 }
 
 /* Function start: 0x40A27A */
@@ -3606,8 +3626,18 @@ void check_futurion(short i)
 #endif
 }
 
-/* Function start: 0x44B2E2 */
-unsigned int init_mission(short series, short mission)
+/* Function start: 0x44B29D */
+void ResetWeaponDisplayPositions(void)
+{
+    short index;
+
+    for (index = 0; index < 16; index++)
+        g_aWeaponDisplayPositions_005d1de0[index] =
+            g_aDefaultWeaponDisplayPositions_0049afa0[index];
+}
+
+/* Function start: WC2_UNMAPPED */
+unsigned int InitWc1Mission(short series, short mission)
 {
 #if 0
 #ifdef WC1_SDL
@@ -3630,6 +3660,52 @@ unsigned int init_mission(short series, short mission)
         (signed char)(series == 0 ? 4 :
             g_nPlayerShipType_00493464));
     return 0;
+}
+
+/* Function start: 0x44B2E2 */
+void init_mission(short series, short mission)
+{
+    short index;
+
+    g_bTargetLockActive_0049ae80 = 0;
+    g_bMissileLockAcquired_0049b2b0 = 0;
+    g_nLastAdaptiveDifficultyChangeFrame_00492d60 = 0;
+    g_cPendingEjectionTransition_0049b8ac = -1;
+    g_nEnemyCommCommandBase_005d179c = 20;
+    g_nEnemyCommPilotIndex_005d179e = -1;
+    g_nCommDeathSequenceFrame_0049ae84 = 0;
+    g_bDisplayWingmanTargetData_0049347c = 0;
+    LoadMissionData(series, mission);
+    init_3Space_objects(series);
+    g_nMissionResourceBudget_005c8de4 = 0x7c0600;
+    LoadPacketResourceList(g_aMissionResourceDescriptors_0049c798, 0,
+                           g_nAvailableGameMemory_005c8de0,
+                           "objects.vga");
+    LoadPacketIntoBuffer("difflevl.000", 0,
+                         g_asDifficultyLevels_004930a8, 0);
+    g_nEnemyTauntCommandBase_0049b76c = 20;
+    g_bFriendlyFireWarningIssued_00492d5c = 0;
+    g_nAdaptiveDifficulty_005d3844 = 5;
+    for (index = 0; index < 10; index++) {
+        g_asShipIntelSlot_00495d30[index] = -1;
+        g_asShipIntelResourceKey_00495d48[index] = -1;
+    }
+    g_nWingmanRoutDecisionMode_00496138 = 0;
+    g_nWingmanFormationDisobeyMode_0049613a = 0;
+    g_nWingmanTargetingMode_0049613c = 0;
+    g_nWingmanEngagementMode_0049613e = 0;
+    prepare_mission();
+    g_bCockpitDamageFrame0Shown_0049b2b4 = 0;
+    g_bCockpitDamageFrame2Shown_0049b2b8 = 0;
+    g_bFuelGaugeDamaged_0049b054 = 0;
+    InitializeCockpitResources(g_nPlayerShipType_00493464);
+    g_bMissionDeathSequencePending_0049b720 = 0;
+    for (index = 0; index < 5; index++)
+        g_abJumpDriveUsedBySystem_005d2fe8[index] = 0;
+    ResetWeaponDisplayPositions();
+    g_nCurrentStarSystem_005d169c =
+        g_aMissionNavPoints_00491e98[
+            g_stMissionHeader_005d3e70.entryNavPoint].systemIndex;
 }
 
 /* Function start: 0x44BA73 */
@@ -4314,8 +4390,44 @@ void free_pilot_talk(short personality)
     } while (line < 11);
 }
 
+#pragma function(strcpy)
+
 /* Function start: 0x434043 */
-void get_pilot_talk(short personality)
+short LoadSelectedPilotCampaign(void)
+{
+    int campaignBytes;
+    short selectedCampaign;
+    short file;
+
+    LoadTemporaryCampaignGlobals();
+    campaignBytes = (unsigned int)g_pCampaignGlobals_00499c94->wordCount * 2;
+    file = OpenDataFileOrDie("savegame.wc2");
+    if (file < 0)
+        ReportFatalErrorCode("002");
+    SeekDataFile((unsigned short)file, campaignBytes * 8 + 0x430, 0);
+    SeekDataFile((unsigned short)file, 2, 1);
+    ReadDataFileAtOffset((unsigned short)file, -1, 0x60,
+                         &g_stCurrentPilotProfile_00493408);
+    SeekDataFile((unsigned short)file, 0x24, 1);
+    ReadDataFileAtOffset((unsigned short)file, -1, campaignBytes,
+                         g_pCampaignGlobals_00499c94);
+    CloseDataFile((unsigned short)file);
+    strcpy(g_szPilotFirstName_00499f28,
+           g_stCurrentPilotProfile_00493408.firstName);
+    strcpy(g_szPilotLastName_00499f10,
+           g_stCurrentPilotProfile_00493408.lastName);
+    strcpy(g_szPilotCallsign_00499ef8,
+           g_stCurrentPilotProfile_00493408.callsign);
+    InitializeCampaignConstellationState(g_pCampaignGlobals_00499c94, 1);
+    selectedCampaign = g_pCampaignGlobals_00499c94->campaignSlot;
+    SaveAndFreeTemporaryCampaignGlobals();
+    return selectedCampaign;
+}
+
+#pragma intrinsic(strcpy)
+
+/* Function start: WC2_UNMAPPED */
+void LoadWc1PilotTalk(short personality)
 {
     char speech[84];
     short file;
@@ -4359,20 +4471,20 @@ unsigned int init_personalities(void)
             g_aMissionShips_00492290[missionShip].pilot - 5;
         if (personality >= 0 && personality < 8) {
             face = get_face(personality, SIDE_IMPERIAL);
-            get_pilot_talk(face);
+            LoadWc1PilotTalk(face);
         }
         if (personality > 8) {
             face = get_face(personality, SIDE_KILRATHI);
-            get_pilot_talk(face);
+            LoadWc1PilotTalk(face);
             prepare_ace((short)(personality - 9));
         }
         missionShip++;
     } while (missionShip < WC1_ACTIVE_MISSION_SHIP_COUNT);
 
     face = get_face(-1, SIDE_KILRATHI);
-    get_pilot_talk(face);
+    LoadWc1PilotTalk(face);
     face = get_face(-1, SIDE_IMPERIAL);
-    get_pilot_talk(face);
+    LoadWc1PilotTalk(face);
     return 0;
 }
 
@@ -4729,8 +4841,8 @@ unsigned int init_intelligence_data(short obj)
 }
 
 /* Function start: 0x44F1F0 */
-short __stdcall SampleBothJoysticks(InputDeviceSample *samples,
-                                    unsigned int fallback)
+short SampleBothJoysticks(InputDeviceSample *samples,
+                          unsigned int fallback)
 {
     GetJoystickPosition((unsigned int *)&samples[0].x,
                         (unsigned int *)&samples[0].y,
@@ -4741,23 +4853,21 @@ short __stdcall SampleBothJoysticks(InputDeviceSample *samples,
     return 1;
 }
 
-/* Function start: WC2_UNMAPPED */
-int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
-                                   short joystick,
-                                   unsigned int fallback)
+/* Function start: 0x44F247 */
+int SampleJoystickDevice(InputDeviceSample *samples, short joystick,
+                         unsigned int fallback)
 {
-    InputDeviceSample *sample;
-    int result;
     short sampleIndex;
 
-    sampleIndex = (short)(joystick != 0);
-    sample = &samples[sampleIndex];
-    result = GetJoystickPosition((unsigned int *)&sample->x,
-                                 (unsigned int *)&sample->y,
-                                 &sample->buttons, joystick, fallback);
-    if (result != 0)
-        g_nActiveInputDevice_005a819c = -1;
-    return result;
+    sampleIndex = 0;
+    if (joystick != 0)
+        sampleIndex = 1;
+    else
+        sampleIndex = 0;
+    return GetJoystickPosition(
+        (unsigned int *)&samples[sampleIndex].x,
+        (unsigned int *)&samples[sampleIndex].y,
+        &samples[sampleIndex].buttons, joystick, fallback);
 }
 
 /* Function start: WC2_UNMAPPED */

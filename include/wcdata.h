@@ -533,6 +533,39 @@ typedef struct PacketDecompressionWorkspace {
     unsigned char input[0x400];
 } PacketDecompressionWorkspace;
 
+#pragma pack(push, 1)
+typedef struct InputManagerState {
+    unsigned char field_0[0x0d];
+    void *cursorShape;
+    unsigned char field_11[0x10];
+} InputManagerState;
+#pragma pack(pop)
+
+typedef struct InputPumpContext {
+    void (*pump)(void);
+    Viewport *viewport;
+} InputPumpContext;
+
+#pragma pack(push, 1)
+typedef struct CannedSceneBufferHeader {
+    unsigned int byteCount;
+    short nextFrame;
+} CannedSceneBufferHeader;
+#pragma pack(pop)
+
+typedef char InputManagerState_size_must_be_0x21[
+    sizeof(InputManagerState) == 0x21 ? 1 : -1];
+
+#pragma pack(push, 1)
+typedef struct MusicResource {
+    void *packet;
+    short loaded;
+} MusicResource;
+#pragma pack(pop)
+
+typedef char MusicResource_size_must_be_6[
+    sizeof(MusicResource) == 6 ? 1 : -1];
+
 typedef char CockpitLayout_size_must_be_0x118[
     sizeof(CockpitLayout) == 0x118 ? 1 : -1];
 typedef char ScreenViewportGeometry_size_must_be_0x10[
@@ -597,11 +630,35 @@ typedef struct PacketResourceDescriptor {
 #endif
     short section;
 } PacketResourceDescriptor;
+
+/* A decoded WC2 scene chunk.  The retail code addresses the allocation at
+ * +2 and the number of entries at +6, so this record is byte packed. */
+typedef struct SceneResourceTable {
+    short type;
+    void *data;
+    short count;
+} SceneResourceTable;
+
+typedef struct ScenePacketHeader {
+    int formOffset;
+} ScenePacketHeader;
+
+typedef struct SceneHotspot {
+    short left;
+    short top;
+    short right;
+    short bottom;
+    unsigned char selection;
+} SceneHotspot;
 #pragma pack(pop)
 
 #ifndef WC1_SDL
 typedef char PacketResourceDescriptor_size_must_be_0x0a[
     sizeof(PacketResourceDescriptor) == 0x0a ? 1 : -1];
+typedef char SceneResourceTable_size_must_be_0x08[
+    sizeof(SceneResourceTable) == 0x08 ? 1 : -1];
+typedef char SceneHotspot_size_must_be_0x09[
+    sizeof(SceneHotspot) == 0x09 ? 1 : -1];
 #endif
 
 /* Six packed TrainSim ranking records begin at 0x005A7C30.  The five-byte
@@ -771,6 +828,47 @@ typedef struct SaveGameDiskCampaignState {
     short seriesScore;                 /* +0x40 */
     short campaignIndex;               /* +0x42 */
 } SaveGameDiskCampaignState;
+
+/* WC2 keeps the current/default pilot identity and campaign cursor in one
+ * packed 0x60-byte record.  The string widths and the late series/mission
+ * fields are fixed by the accesses in the startup controller and personnel
+ * database.  Fields whose purpose is not yet established retain offset names. */
+#pragma pack(push, 1)
+typedef struct Wc2PilotProfile {
+    char firstName[25];               /* +0x00 */
+    char lastName[25];                /* +0x19 */
+    char callsign[13];                /* +0x32 */
+    short field_3f;                   /* +0x3F */
+    short field_41;                   /* +0x41 */
+    short field_43;                   /* +0x43 */
+    unsigned char field_45[0x11];     /* +0x45 */
+    short series;                     /* +0x56 */
+    short mission;                    /* +0x58 */
+    unsigned char field_5a[4];        /* +0x5A */
+    short field_5e;                   /* +0x5E */
+} Wc2PilotProfile;
+
+/* Variable-length WC2 campaign globals.  The on-disk word count determines
+ * the saved byte size; all 32 pilot-status words nevertheless have fixed
+ * offsets in the retail image. */
+typedef struct Wc2CampaignGlobals {
+    unsigned short wordCount;         /* +0x00 */
+    short campaignSlot;               /* +0x02 */
+    short series;                     /* +0x04 */
+    short mission;                    /* +0x06 */
+    short field_08;                   /* +0x08 */
+    unsigned char field_0a[8];        /* +0x0A */
+    short arcadeState;                /* +0x12 */
+    unsigned char field_14[0x8a];     /* +0x14 */
+    short pilotCount;                 /* +0x9E */
+    short pilotStatus[32];            /* +0xA0 */
+} Wc2CampaignGlobals;
+#pragma pack(pop)
+
+typedef char Wc2PilotProfile_size_must_be_0x60[
+    sizeof(Wc2PilotProfile) == 0x60 ? 1 : -1];
+typedef char Wc2CampaignGlobals_pilot_status_must_start_at_0xa0[
+    offsetof(Wc2CampaignGlobals, pilotStatus) == 0xa0 ? 1 : -1];
 
 /* One open packet section.  OpenPacketSection fills this record and the packet
  * reader advances position while leaving the containing data file open. */

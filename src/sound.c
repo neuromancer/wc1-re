@@ -855,13 +855,13 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
     argumentCount = 0;
     destination = g_szTextScratchBuffer_005d1c40;
 #ifdef WC1_SDL
-    if (Wc1SdlResolvePath("WINGCMDR.CFG", resolvedPath,
+    if (Wc1SdlResolvePath("wc2.cfg", resolvedPath,
                           sizeof(resolvedPath)))
-        file = fopen(resolvedPath, "rt");
+        file = fopen(resolvedPath, "rb");
     else
         file = 0;
 #else
-    file = fopen("WINGCMDR.CFG", "rt");
+    file = fopen("wc2.cfg", "rb");
 #endif
     while (file != 0) {
 #if 0
@@ -876,7 +876,7 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
             break;
         }
 #endif
-        g_pStartupArguments_005a7b10[argumentCount++] =
+        g_pStartupArguments_005c57f0[argumentCount++] =
             destination;
         destination = strchr(destination, 0) + 1;
     }
@@ -884,11 +884,11 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
     while (argc-- != 0) {
 #if 0
         strcpy(destination, argv[argumentIndex]);
-        g_pStartupArguments_005a7b10[argumentCount++] = destination;
+        g_pStartupArguments_005c57f0[argumentCount++] = destination;
         argumentIndex++;
 #else
         strcpy(destination, argv[argumentIndex++]);
-        g_pStartupArguments_005a7b10[argumentCount++] = destination;
+        g_pStartupArguments_005c57f0[argumentCount++] = destination;
 #endif
         destination = strchr(destination, 0) + 1;
     }

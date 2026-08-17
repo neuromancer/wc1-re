@@ -180,7 +180,7 @@ unsigned int DrawMedalChest(char *text, short duration)
         DIBslam();
         DIBslamReal();
     } while (offset < 162);
-    WaitForSceneAdvance(duration, 0);
+    WaitForWc1SceneAdvance(duration, 0);
     switch (g_nConversationMedalIndex_00598c08) {
     case 0:
     case 1:
@@ -258,7 +258,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     RefreshMemoryStatusOverlay();
     DIBslam();
     DIBslamReal();
-    WaitForSceneAdvance(duration, 0);
+    WaitForWc1SceneAdvance(duration, 0);
     return 0;
 }
 
@@ -299,7 +299,7 @@ unsigned int MedalEstablish(char *text, short duration)
         DIBslam();
         DIBslamReal();
     }
-    WaitForSceneAdvance(duration, 0);
+    WaitForWc1SceneAdvance(duration, 0);
     return 0;
 }
 
@@ -339,7 +339,7 @@ unsigned int PinMedal(char *text, short duration)
         DIBslamReal();
         escaped = IsFrameTickElapsed();
     }
-    WaitForSceneAdvance(duration, 0);
+    WaitForWc1SceneAdvance(duration, 0);
     return 0;
 }
 
@@ -451,7 +451,7 @@ unsigned int EstablishingShot(char *text, short duration)
         DIBslam();
         DIBslamReal();
     } while (frame < 22);
-    WaitForSceneAdvance(duration, 0);
+    WaitForWc1SceneAdvance(duration, 0);
     spacetrack(25, 1, -1);
     return 0;
 }
@@ -541,14 +541,14 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
         if (frame > 39)
             break;
     }
-    WaitForSceneAdvance(duration, 0);
+    WaitForWc1SceneAdvance(duration, 0);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
     return 0;
 }
 
-/* Function start: 0x433F94 */
-unsigned int Dismissed(char *text, short duration)
+/* Function start: WC2_UNMAPPED */
+unsigned int DismissWc1Scene(char *text, short duration)
 {
     short frame;
     short leftDelta;
@@ -623,7 +623,7 @@ unsigned int Dismissed(char *text, short duration)
         DIBslam();
         DIBslamReal();
     } while (frame < 32);
-    WaitForSceneAdvance(duration, 0);
+    WaitForWc1SceneAdvance(duration, 0);
     FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
     SetTextContext(&g_stConversationTextContext_005a7760);
     return 0;
@@ -723,7 +723,7 @@ unsigned int DebriefingEstablishingShot(char *text, short duration)
         if (frame >= 48)
             break;
     }
-    WaitForSceneAdvance(duration, 0);
+    WaitForWc1SceneAdvance(duration, 0);
     return 0;
 }
 
@@ -1190,7 +1190,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 break;
             case 3:
                 previousShot = 4;
-                Dismissed(text, duration);
+                DismissWc1Scene(text, duration);
                 break;
             case 4:
                 UpdateMap(text, duration);
@@ -1329,7 +1329,7 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
         RefreshMemoryStatusOverlay();
         DIBslam();
         DIBslamReal();
-        WaitForSceneAdvance(duration, 0);
+        WaitForWc1SceneAdvance(duration, 0);
         return 0;
     }
     SetFrameTimerPeriodDirect(duration);
@@ -1356,9 +1356,22 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
 }
 
 /* Function start: WC2_UNMAPPED */
-void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
-                               unsigned short top, unsigned short right,
-                               unsigned short bottom)
+void __stdcall SetWc1ViewportRect(Viewport *viewport,
+                                  unsigned short left,
+                                  unsigned short top,
+                                  unsigned short right,
+                                  unsigned short bottom)
+{
+    viewport->left = (short)left;
+    viewport->top = (short)top;
+    viewport->right = (short)right;
+    viewport->bottom = (short)bottom;
+}
+
+/* Function start: 0x423C60 */
+void SetViewportRect(Viewport *viewport, unsigned short left,
+                     unsigned short top, unsigned short right,
+                     unsigned short bottom)
 {
     viewport->left = (short)left;
     viewport->top = (short)top;

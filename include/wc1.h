@@ -131,6 +131,13 @@ typedef struct MouseCursorState {
     unsigned int reservedAfterViewport;  /* +0x17 */
     unsigned char shapeChanged;          /* +0x1B */
 } MouseCursorState;
+
+/* Cursor descriptor used by WC2's personnel database.  Only the sprite
+ * pointer at the evidence-backed unaligned +0x0D offset is currently known. */
+typedef struct PersonnelCursorState {
+    unsigned char field_00[0x0d];
+    unsigned char *shape;
+} PersonnelCursorState;
 #pragma pack(pop)
 
 #ifndef WC1_SDL

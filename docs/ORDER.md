@@ -72,6 +72,7 @@ containing file boundary remains provisional.
 | `src/debug.cpp` | `0x41C760`–`0x41D0BF` | Proven C++ debug-console object |
 | `src/mathutil.c` | `0x41D000`–`0x41D24F` | Integer min/max cluster |
 | `src/disk.c` | `0x41D250`–`0x41EFFF` | Disk files and packet retry paths |
+| `src/personnel.c` | WC2 `0x428C35`, `0x433AD0`–`0x436A8F`, `0x459BC8` | WC2 personnel database and WC1 pilot transfer flow |
 | `src/ship.c` | `0x41F000`–`0x420FFF` | Ship damage, explosions, and weapons |
 | `src/logic.c` | `0x421000`–`0x424FFF` | Mac `logic` unit and adjacent mission logic |
 | `src/pilot.cpp` | `0x425000`–`0x426FFF` | Pilot/TrainSim flow and C++ console owner |

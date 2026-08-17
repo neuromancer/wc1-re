@@ -8,6 +8,13 @@
 
 #pragma function(strcmp)
 
+/* Function start: 0x446560 */
+short LoadGraphicsDriver(short rewritePacketExtensions)
+{
+    (void)rewritePacketExtensions;
+    return 1;
+}
+
 /* Function start: 0x4465A0 */
 void * __stdcall PacketLoad(const char *filename, short section,
                             void *destination, unsigned short flags,
@@ -134,12 +141,15 @@ void InitializeAudioSystem(HWND window)
 /* Function start: 0x423D02 */
 void ServiceAudioStream(void)
 {
-    if (g_nAudioEnabled_0049c244 != 0 && DAT_0046a440 != 0) {
-        ix_system_delete_all_sounds();
-        ix_system_delete_all_samples();
-        ix_system_shutdown();
-        FreeWaveTable();
-        DAT_0046a440 = 0;
+    if (g_nAudioEnabled_0049c244 != 0) {
+        if (DAT_0046a440 != 0) {
+            ix_system_delete_all_sounds();
+            ix_system_delete_all_samples();
+            ix_system_shutdown();
+            FreeWaveTable();
+            DAT_0046a440 = 0;
+        }
+        return;
     }
 }
 

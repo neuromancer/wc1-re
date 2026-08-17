@@ -802,8 +802,8 @@ void CentreMouseOnCurrentNavObjective(void)
         g_aMissionObjectives_004932a8[objective].mapY);
     x = (short)(x + 30);
     y = (short)(y + 22);
-    SuspendMouseCursor();
-    WarpMouseTo(x, y);
+    SuspendWc1MouseCursor();
+    WarpWc1MouseTo(x, y);
     ResumeMouseCursor();
 }
 
@@ -811,7 +811,7 @@ void CentreMouseOnCurrentNavObjective(void)
 void ShowConfedNavScan(void)
 {
     SetRectBounds(&g_stScreenViewport_005d21a0, 30, 22, 289, 177);
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     DrawNavLocationReadout(g_szConfedNavScan_004688b0, 1);
     ResumeMouseCursor();
     SetRectBounds(&g_stScreenViewport_005d21a0, 0, 0, 319, 199);
@@ -944,7 +944,7 @@ void InflightComputer(void)
             set_new_objective(savedNavPoint);
         }
         free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-        SuspendMouseCursor();
+        SuspendWc1MouseCursor();
         EventManagerHook(0);
         SetEventManagerPump(get_player_input);
         g_bInputMode_0059a848 = (unsigned char)savedInputMode;
@@ -956,11 +956,11 @@ void InflightComputer(void)
 #ifdef WC1_SDL
     memcpy((void *)&g_stMouseCursorState_0059ab10,
            &savedInputState, sizeof(savedInputState));
-    WarpMouseTo(savedInputState.x, savedInputState.y);
+    WarpWc1MouseTo(savedInputState.x, savedInputState.y);
 #else
     memcpy((void *)&g_stMouseCursorState_0059ab10, savedInputState,
            sizeof(savedInputState));
-    WarpMouseTo(((short *)savedInputState)[0],
+    WarpWc1MouseTo(((short *)savedInputState)[0],
                 ((short *)savedInputState)[1]);
 #endif
     if (g_nCockpitDisplayMode_0049d71c == 0) {
@@ -1441,6 +1441,26 @@ void PostMission(void)
     }
 }
 
+/* Function start: 0x42BDFE */
+void WriteMemoryStateReportHook(void)
+{
+}
+
+/* Function start: 0x42BE09 */
+void LogMemoryStateToFile(FILE *file)
+{
+    FILE *previousFile;
+    unsigned char previousFileMode;
+
+    previousFile = g_pMemoryLogFile_00499da8;
+    previousFileMode = g_bMemoryLogToFile_00499bf8;
+    g_bMemoryLogToFile_00499bf8 = 1;
+    g_pMemoryLogFile_00499da8 = file;
+    WriteMemoryStateReportHook();
+    g_pMemoryLogFile_00499da8 = previousFile;
+    g_bMemoryLogToFile_00499bf8 = previousFileMode;
+}
+
 /* Function start: WC2_UNMAPPED */
 int FullMissionScore(void)
 {
@@ -1686,15 +1706,15 @@ unsigned int StartNewCampaign(short campaign)
     g_stCampaignState_0059ca50.campaignIndex = campaign;
     g_nCampaignDataSet_005a8118 = campaign;
     DAT_004688e0 = 0;
-    LoadPacketIntoBuffer(g_asCampaignPilotFiles_00469450[campaign], 1,
-                         g_pMissionCampaignData_005988bc);
+    LoadWc1PacketIntoBuffer(g_asCampaignPilotFiles_00469450[campaign],
+                            1, g_pMissionCampaignData_005988bc);
     DAT_00470510 = 0;
     DAT_005a8114 = -1;
     return 0;
 }
 
-/* Function start: 0x46591A */
-short GameFlow(void)
+/* Function start: WC2_UNMAPPED */
+short RunWc1GameFlow(void)
 {
     short roomSelection;
     int barracksSelection;
@@ -2244,7 +2264,7 @@ int Title_Sequence(void)
     g_stMouseCursorState_0059ab10.viewport = &g_stScreenViewport_005d21a0;
     SetEventManagerPump(PollMenuInputDevices);
     g_nMenuInputRepeatDelay_005a8208 = 6;
-    WarpMouseTo(160, 100);
+    WarpWc1MouseTo(160, 100);
     ResumeMouseCursor();
     g_bInputMode_0059a848 = 1;
     DAT_0046505c = 0;
@@ -2299,7 +2319,7 @@ int Title_Sequence(void)
     ReleasePacketHandle(alternateMenuShape);
     SetEventManagerPump(0);
     EventManagerHook(0);
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     FadeViewportPaletteToColour(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c, 1);
     ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
     DIBslam();

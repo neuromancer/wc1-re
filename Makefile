@@ -266,6 +266,7 @@ SRCS_ORDERED_CORE = \
 	src/debug.cpp \
 	src/mathutil.c \
 	src/disk.c \
+	src/personnel.c \
 	src/ship.c \
 	src/logic.c \
 	src/pilot.cpp \
@@ -332,6 +333,7 @@ MODERN_GAMEPLAY_SRCS = \
 	src/mono.c \
 	src/music.c \
 	src/nav.c \
+	src/personnel.c \
 	src/pload.c \
 	src/screen.c \
 	src/screens.c \
@@ -1031,6 +1033,7 @@ run: $(TARGET) run-check | $(DREAMM_BIN)
 	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -launch WC2.EXE
 
 run-original: run-check $(ORIGINAL_EXE) | $(DREAMM_BIN)
+	cp -f $(ORIGINAL_EXE) "$(RUN_DIR)/WC2.ORI.EXE"
 	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -launch WC2.ORI.EXE
 
 # DREAMM's own debugger, the same target the sibling project uses.
@@ -1048,7 +1051,8 @@ clean:
 	       $(OUT_DIR)/ix $(TARGET) $(MAPFILE)
 
 clean-run:
-	rm -f "$(RUN_DIR)/WC2.EXE" "$(RUN_DIR)/debug.log"
+	rm -f "$(RUN_DIR)/WC2.EXE" "$(RUN_DIR)/WC2.ORI.EXE" \
+	       "$(RUN_DIR)/debug.log"
 
 clean-dreamm:
 	rm -rf $(DREAMM_DIR)

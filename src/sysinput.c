@@ -82,13 +82,14 @@ unsigned int GetKeyboardModifiers(void)
 /* Function start: 0x455EF5 */
 unsigned int GetGameClockTicks(void)
 {
-    return (GetTickCount() - g_dwGameClockBase_005a89a8) * 60 / 1000;
+    return (GetTickCount() - g_dwGameClockBase_005d10e8) * 60 / 1000;
 }
 
 /* Function start: 0x455F23 */
-void InitGameClockEpoch(void)
+void InitGameClockRandomEpoch(void)
 {
-    g_dwGameClockBase_005a89a8 = GetTickCount() + (rand() & 3600000);
+    g_dwGameClockStart_005d12b8 = GetTickCount();
+    g_dwGameClockBase_005d10e8 = GetTickCount() + (rand() & 3600000);
 }
 
 /* Function start: 0x45641B */

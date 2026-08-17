@@ -62,6 +62,21 @@ void __stdcall DosMemset(void *destination, unsigned int count, short value)
     memset(destination, value, (unsigned short)count);
 }
 
+/* Function start: 0x46257A */
+short InitializePostPaletteState(void)
+{
+    return 0;
+}
+
+/* Function start: 0x46259D */
+short InitializeInputManagerMemory(void)
+{
+    g_bInputManagerInitialized_005c80ca = 1;
+    g_pInputManagerState_005c8464 =
+        (InputManagerState *)AllocateTaggedMemory(0x21, 0x40);
+    return 1;
+}
+
 /* Function start: WC2_UNMAPPED */
 unsigned short GetEventManagerStatus(void)
 {

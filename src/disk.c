@@ -6,6 +6,259 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x409120 */
+short WaitForSceneAdvance(void *scenePacket)
+{
+    unsigned char *cursor;
+    unsigned char *nextForm;
+    short hotspotCount;
+    unsigned int formType;
+
+    if (g_pActiveScenePacket_00492654 != scenePacket) {
+        ReleasePacketSlot(&g_stSceneHotspotTable_005d3bf8.data);
+        nextForm = (unsigned char *)scenePacket +
+            ((ScenePacketHeader *)scenePacket)->formOffset;
+        do {
+            cursor = nextForm;
+            formType = ReadNextSceneForm(&cursor, &nextForm);
+            if (formType == 0x52544f48) {
+                DecodeSceneResourceChunk(
+                    &cursor, &g_stSceneHotspotTable_005d3bf8);
+                if (g_stSceneHotspotTable_005d3bf8.type != 0)
+                    ReleasePacketSlot(
+                        &g_stSceneHotspotTable_005d3bf8.data);
+            } else if (formType == 0x54585448) {
+                DecodeSceneResourceChunk(
+                    &cursor, &g_stSceneTextTable_005d3c00);
+                if (g_stSceneTextTable_005d3c00.type == 2)
+                    break;
+                ReleasePacketSlot(&g_stSceneTextTable_005d3c00.data);
+            }
+        } while (formType != 0);
+        g_pActiveScenePacket_00492654 = scenePacket;
+    }
+    hotspotCount = g_stSceneHotspotTable_005d3bf8.count;
+    g_pActiveScenePacket_00492654 = 0;
+    ReleasePacketSlot(&g_stSceneHotspotTable_005d3bf8.data);
+    ReleasePacketSlot(&g_stSceneTextTable_005d3c00.data);
+    if (hotspotCount <= 2)
+        return 0;
+    else
+        return 1;
+}
+
+/* Function start: 0x409417 */
+short FindSceneHotspotAtPosition(void *scenePacket, short offsetX,
+                                 short offsetY, short x, short y)
+{
+    ShortRect bounds;
+    short selection;
+    unsigned char *cursor;
+    SceneHotspot *hotspot;
+    short index;
+    unsigned char *nextForm;
+    unsigned int formType;
+    ScenePacketHeader *packet;
+    SceneHotspot **hotspots;
+    char **textEntries;
+
+    selection = 0;
+    g_pszPersonnelFooter_00492658 = 0;
+    packet = (ScenePacketHeader *)scenePacket;
+    if (g_pActiveScenePacket_00492654 != scenePacket) {
+        ReleasePacketSlot(&g_stSceneHotspotTable_005d3bf8.data);
+        nextForm = (unsigned char *)packet + packet->formOffset;
+        do {
+            cursor = nextForm;
+            formType = ReadNextSceneForm(&cursor, &nextForm);
+            if (formType == 0x52544f48) {
+                DecodeSceneResourceChunk(
+                    &cursor, &g_stSceneHotspotTable_005d3bf8);
+                if (g_stSceneHotspotTable_005d3bf8.type != 0)
+                    ReleasePacketSlot(
+                        &g_stSceneHotspotTable_005d3bf8.data);
+            } else if (formType == 0x54585448) {
+                DecodeSceneResourceChunk(
+                    &cursor, &g_stSceneTextTable_005d3c00);
+                if (g_stSceneTextTable_005d3c00.type == 2)
+                    break;
+                ReleasePacketSlot(&g_stSceneTextTable_005d3c00.data);
+            }
+        } while (formType != 0);
+        g_pActiveScenePacket_00492654 = scenePacket;
+    }
+
+    hotspots = (SceneHotspot **)g_stSceneHotspotTable_005d3bf8.data;
+    index = 0;
+    while (index < g_stSceneHotspotTable_005d3bf8.count) {
+        hotspot = hotspots[index];
+        OffsetSceneHotspotBounds(&bounds, hotspot, offsetX, offsetY);
+        if (IsPointInRect(x, y, &bounds.left) != 0) {
+            selection = hotspot->selection;
+            textEntries = (char **)g_stSceneTextTable_005d3c00.data;
+            if (textEntries != 0) {
+                g_pszPersonnelFooter_00492658 = textEntries[0];
+                if (index == g_stSceneHotspotTable_005d3bf8.count - 1) {
+                    g_pszPersonnelFooter_00492658 = 0;
+                } else {
+                    index = (short)(selection - 1);
+                    while (index-- != 0) {
+                        g_pszPersonnelFooter_00492658 =
+                            DosStrchr(g_pszPersonnelFooter_00492658, 0) + 1;
+                    }
+                    if (*g_pszPersonnelFooter_00492658 == 0)
+                        g_pszPersonnelFooter_00492658 = 0;
+                }
+            }
+            break;
+        }
+        index++;
+    }
+    return selection;
+}
+
+/* Function start: 0x40963B */
+short PollSceneHotspotInput(void *scenePacket, short offsetX,
+                            short offsetY, short dismissOnBackground,
+                            short maximumSelection)
+{
+    short selection;
+    InputEventState event;
+    InputEventState *inputEvent;
+    short controlPressed;
+    short shiftPressed;
+
+    selection = 0;
+    ServiceInputDevices(15);
+    inputEvent = FindQueuedInputEvent(4);
+    if (inputEvent != 0) {
+        controlPressed = (short)GetControlKeyState();
+        shiftPressed = (short)GetShiftKeyState();
+        if ((controlPressed != 0 && shiftPressed != 0) ||
+            g_bJoystickCalibrationHotkey_005d1284 != 0) {
+            controlPressed = 0;
+            shiftPressed = 0;
+            g_bJoystickCalibrationHotkey_005d1284 = 0;
+            CalibrateJoystickInteractive();
+            ReleaseInputEventQueue();
+        }
+    }
+    inputEvent = FindQueuedInputEvent(1);
+    if (inputEvent == 0)
+        inputEvent = &event;
+    GetNextInputEvent(&event);
+    selection = FindSceneHotspotAtPosition(
+        scenePacket, offsetX, offsetY, inputEvent->x, inputEvent->y);
+    if (maximumSelection != 0 && selection > maximumSelection)
+        selection = 0;
+    if (g_bDisableChalkboardReplay_0049ca58 != 0 && selection == 2) {
+        selection = 0;
+        g_pszPersonnelFooter_00492658 = 0;
+    }
+    if (selection != 0) {
+        SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape, 1);
+    } else if (g_bPersonnelMenuDrawing_0049a6c0 != 0) {
+        SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape, 0);
+    }
+    g_bSceneBackgroundClicked_005c9018 = 0;
+    if (inputEvent->type != 1) {
+        selection = 0;
+    } else if (selection == 0 && dismissOnBackground != 0) {
+        g_bSceneBackgroundClicked_005c9018 = 1;
+    }
+    if (selection != 0 ||
+        (dismissOnBackground != 0 &&
+         g_bSceneBackgroundClicked_005c9018 != 0)) {
+        g_pActiveScenePacket_00492654 = 0;
+        ReleasePacketSlot(&g_stSceneHotspotTable_005d3bf8.data);
+        ReleasePacketSlot(&g_stSceneTextTable_005d3c00.data);
+    }
+    return selection;
+}
+
+/* Function start: 0x40D6E1 */
+void SwapSceneChunkSizeEndian(int *value)
+{
+    char *bytes;
+
+    bytes = (char *)value;
+    bytes[0] ^= bytes[3];
+    bytes[3] ^= bytes[0];
+    bytes[0] ^= bytes[3];
+    bytes[1] ^= bytes[2];
+    bytes[2] ^= bytes[1];
+    bytes[1] ^= bytes[2];
+}
+
+/* Function start: 0x40D812 */
+unsigned int ReadNextSceneForm(unsigned char **cursor,
+                               unsigned char **nextForm)
+{
+    unsigned int chunkSize;
+    unsigned int formType;
+    unsigned char *data;
+
+    data = *cursor;
+    formType = 0;
+    if (*(unsigned int *)data == 0x4d524f46) {
+        data += 4;
+        chunkSize = *(unsigned int *)data;
+        data += 4;
+        SwapSceneChunkSizeEndian((int *)&chunkSize);
+        *nextForm = data + ((chunkSize + 1) & ~1);
+        formType = *(unsigned int *)data;
+        data += 4;
+        *cursor = IdentityHandle(data);
+    }
+    return formType;
+}
+
+/* Function start: 0x40D9AD */
+void *AllocateScenePointerTable(int count, short elementSize,
+                                unsigned short flags,
+                                const char *errorMessage)
+{
+    void *allocation;
+
+    allocation = AllocateZeroedRecords(count, elementSize, flags);
+    if (count * elementSize <= 4)
+        flags = 0;
+    if (allocation == 0)
+        FatalErrorAndExit("%s", errorMessage);
+    return allocation;
+}
+
+/* Function start: 0x40E130 */
+signed char DecodeSceneResourceChunk(unsigned char **cursor,
+                                     SceneResourceTable *resource)
+{
+    unsigned char *chunk;
+    signed char decoded;
+    unsigned int chunkType;
+
+    chunk = *cursor;
+    decoded = 0;
+    chunkType = *(unsigned int *)chunk;
+    switch (chunkType) {
+    case 0x43525453:
+        decoded = DecodeSceneStructChunk(&chunk, &resource);
+        break;
+    case 0x5453464f:
+        decoded = DecodeSceneOffsetChunk(&chunk, &resource);
+        break;
+    case 0x424d5953:
+        decoded = DecodeSceneSymbolChunk(&chunk, &resource);
+        break;
+    case 0x454c4946:
+        decoded = DecodeSceneFileChunk(&chunk, &resource);
+        break;
+    case 0x4d524f46:
+        break;
+    }
+    *cursor = IdentityHandle(chunk);
+    return decoded;
+}
+
 /* Function start: 0x40F0D2 */
 void ReportPacketLoadError(void *packet, char *fileName,
                            short retry, short section,
@@ -75,6 +328,42 @@ void ReportPacketLoadError(void *packet, char *fileName,
 #endif
 }
 
+#ifndef WC1_SDL
+#pragma function(strlen, strcat)
+#endif
+
+/* Function start: 0x40F266 */
+void AppendPacketLoadDebugLog(char *fileName, short section,
+                              void *packet)
+{
+    short file;
+    char truncatedFileName[36];
+    char logLine[80];
+
+    file = (short)_open("logfile.txt", 0x4109, 0x80);
+    strncpy(truncatedFileName, fileName, strlen(truncatedFileName));
+    sprintf(logLine, "\n%s, #%d, %Fp", truncatedFileName,
+            (int)section, packet);
+    if (g_nShowMemoryStatus_0049d784 != 0) {
+        _ltoa((long)GetNamedPacketSize(fileName, section),
+              truncatedFileName, 10);
+        strcat(logLine, ",Size:");
+        strcat(logLine, truncatedFileName);
+        _ltoa((long)ReleaseMusicTrackHook(), truncatedFileName, 10);
+        strcat(logLine, ",LB:");
+        strcat(logLine, truncatedFileName);
+        _ltoa((long)PreloadMusicTrackHook(), truncatedFileName, 10);
+        strcat(logLine, ",Free:");
+        strcat(logLine, truncatedFileName);
+    }
+    _write((int)file, logLine, strlen(logLine));
+    _close((int)file);
+}
+
+#ifndef WC1_SDL
+#pragma intrinsic(strlen, strcat)
+#endif
+
 /* Function start: 0x40F3AE */
 void RewritePacketFilenameForInstalledData(char *fileName)
 {
@@ -91,8 +380,8 @@ void RewritePacketFilenameForInstalledData(char *fileName)
 }
 
 /* Function start: WC2_UNMAPPED */
-void *LoadPacketIntoBuffer(short logicalFile, short section,
-                           void *destination)
+void *LoadWc1PacketIntoBuffer(short logicalFile, short section,
+                              void *destination)
 {
     void *packet;
 
@@ -101,6 +390,22 @@ void *LoadPacketIntoBuffer(short logicalFile, short section,
         g_pDiskFileRecords_005a7cf0[logicalFile].name,
         section, destination, 0, 0, 1);
     ReportPacketLoadError(destination, logicalFile, 0, section, "RP");
+    return packet;
+}
+
+/* Function start: 0x40F40E */
+void *LoadPacketIntoBuffer(char *fileName, short section,
+                           void *destination, short registerHandle)
+{
+    void *packet;
+
+    if (g_bRewritePacketExtensions_0049cb48 == 1)
+        RewritePacketFilenameForInstalledData(fileName);
+    packet = LoadNamedPacket(fileName, section, destination, 0, 0,
+                             registerHandle);
+    ReportPacketLoadError(destination, fileName, 0, section, "RP");
+    if (g_nOriginDevUnlock_0049d774 != 0)
+        AppendPacketLoadDebugLog(fileName, section, packet);
     return packet;
 }
 
@@ -132,18 +437,18 @@ void *LoadPacketAllocated(char *fileName, short section)
     short retries;
     char errorText[40];
     void *packet;
-    short packetSize;
+    int packetSize;
 
     retries = 5;
     if (g_bRewritePacketExtensions_0049cb48 == 1)
         RewritePacketFilenameForInstalledData(fileName);
-    packetSize = (short)GetNamedPacketSize(fileName, section);
-    packet = AllocateTaggedMemory((int)packetSize, 0x40);
+    packetSize = (int)GetNamedPacketSize(fileName, section);
+    packet = AllocateTaggedMemory((int)(short)packetSize, 0x40);
     if (packet != 0) {
         do {
             LoadNamedPacket(fileName, section, packet, 0, 0, 1);
             retries--;
-            if (retries < 1 || g_nPacketError_0049ca90 == 0)
+            if (retries <= 0 || g_nPacketError_0049ca90 == 0)
                 break;
         } while (g_nPacketError_0049ca90 != 8);
     } else {
@@ -152,6 +457,8 @@ void *LoadPacketAllocated(char *fileName, short section)
         exit_squadron(errorText);
     }
     ReportPacketLoadError(packet, fileName, 0, section, "LPN");
+    if (g_nOriginDevUnlock_0049d774 != 0)
+        AppendPacketLoadDebugLog(fileName, section, packet);
     return packet;
 #endif
 }
@@ -288,7 +595,7 @@ void *FetchDiskPacketRetrying(char *fileName, short section,
         ReportPacketLoadError(0, fileName, flags, section, "LP4");
     }
     if (g_nOriginDevUnlock_0049d774 != 0) {
-        /* The debug-only packet log is reconstructed separately. */
+        AppendPacketLoadDebugLog(fileName, section, packet);
     }
     return packet;
 }
@@ -422,8 +729,8 @@ unsigned int SortSignedByteValuesAscending(signed char *values,
     return 0;
 }
 
-/* Function start: 0x4342E8 */
-short OpenDiskDataFile(short logicalFile)
+/* Function start: WC2_UNMAPPED */
+short CheckWc1DiskAvailable(short logicalFile)
 {
     short file;
 
@@ -467,7 +774,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
 
     savedViewportMode = 2;
     diskReady = 0;
-    if (OpenDiskDataFile(logicalFile) != 0)
+    if (CheckWc1DiskAvailable(logicalFile) != 0)
         return;
     if (g_bGraphicsActive_00469a20 == 0) {
         diskNumber =
@@ -480,7 +787,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
             _cprintf("Please Insert Disk %d. Press any key to continue",
                      (int)diskNumber);
             WaitForInputKey();
-        } while (OpenDiskDataFile(logicalFile) == 0);
+        } while (CheckWc1DiskAvailable(logicalFile) == 0);
         return;
     }
 
@@ -546,7 +853,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
             (int)g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber);
         DrawTextString(g_szTextScratchBuffer_005d1c40);
         WaitForInputKey();
-        if (OpenDiskDataFile(logicalFile) != 0)
+        if (CheckWc1DiskAvailable(logicalFile) != 0)
             diskReady++;
         if (savedViewportMode != 0) {
             CopyViewportContents(
@@ -647,8 +954,8 @@ short WaitForInputKey(void)
     return key;
 }
 
-/* Function start: 0x409120 */
-void WaitForSceneAdvance(short duration, short unused)
+/* Function start: WC2_UNMAPPED */
+void WaitForWc1SceneAdvance(short duration, short unused)
 {
     InputEventState event;
     unsigned char savedMode;
@@ -780,7 +1087,7 @@ void EraseLastTextInputCharacter(void)
         clearArea.bottom = (short)(clearArea.top +
             ReadWord((unsigned short *)
                 g_pCurrentTextContext_005c8d1c->font) - 1);
-        SuspendMouseCursor();
+        SuspendWc1MouseCursor();
         ClearViewport(&clearArea,
                       g_pCurrentTextContext_005c8d1c->backgroundColour);
         ResumeMouseCursor();

@@ -43,7 +43,7 @@ void ShowMeanwhileTransition(short scene, short variant)
     print_subtitle(&g_stSecondaryViewBuffer_005d2c90, 0x40, g_szMeanwhile_00469d80);
     PanToScreen(&g_stSecondaryViewBuffer_005d2c90, &g_stScreenViewport_005d21a0);
     FreePacketAndClear((int *)&g_pIntroFont_005a8960, 0);
-    WaitForSceneAdvance(100, 0);
+    WaitForWc1SceneAdvance(100, 0);
     ClearViewport(&g_stModalSourceViewport_005d2c50, g_cSecondaryViewBufferColour_0049cb4c);
     DIBslam();
     DIBslamReal();
@@ -557,7 +557,7 @@ void ClearTextInputCharacter(char character)
     clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
     clearArea.bottom = (short)(clearArea.top +
         ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font) - 1);
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     ClearViewport(&clearArea,
                   g_pCurrentTextContext_005c8d1c->backgroundColour);
     ResumeMouseCursor();
@@ -576,7 +576,8 @@ void ClearNextTextInputCharacter(char character)
 
 /* Function start: 0x4597E3 */
 short ReadTextInput(char *destination, short maximumLength,
-                    volatile short mode)
+                    volatile short mode,
+                    volatile short allowPathSeparators)
 {
     Viewport inputViewport;
     Viewport *savedViewport;
@@ -657,7 +658,9 @@ short ReadTextInput(char *destination, short maximumLength,
                 input[inputLength] = 0;
             } else {
                 if (inputLength < maximumLength &&
-                    ((key >= 'A' && key <= 'Z') ||
+                    ((allowPathSeparators != 0 &&
+                      (key == ':' || key == '\\')) ||
+                     (key >= 'A' && key <= 'Z') ||
                      (key >= 'a' && key <= 'z') ||
                      (key >= '0' && key <= '9') ||
                      (key == ' ' && inputLength != 0))) {
@@ -718,7 +721,7 @@ void ReadRequiredPilotField(short x, short y, const char *label,
     do {
         DosStrcpy(destination,
                   (const char *)&g_dwTrainSimStringPadding_00469e68);
-    } while (ReadTextInput(destination, maximumLength, 0) == 0);
+    } while (ReadTextInput(destination, maximumLength, 0, 0) == 0);
 }
 
 /* Function start: 0x4348C3 */
@@ -732,11 +735,11 @@ void PromptForPilotField(short x, short y, const char *label,
     DrawFormattedText(label);
     do {
         DosStrcpy(destination, defaultText);
-    } while (ReadTextInput(destination, maximumLength, 0) == 0);
+    } while (ReadTextInput(destination, maximumLength, 0, 0) == 0);
 }
 
-/* Function start: 0x4347D6 */
-void InitializeTrainSimTextPanel(void)
+/* Function start: WC2_UNMAPPED */
+void InitializeWc1TrainSimTextPanel(void)
 {
     g_stTrainSimPanelViewport_00469da8 = g_stScreenViewport_005d21a0;
     *(ShortRect *)&g_stTrainSimPanelViewport_00469da8.left =
@@ -776,7 +779,7 @@ void EnterPilotNameAndCallsign(void)
         reinterpret_cast<char *>(static_cast<unsigned int>(
             (unsigned short)g_cCockpitLogicalFile_005a7c74)), 0, 0);
     DrawSpriteDefault(&g_stScreenViewport_005d21a0, 0, 0, backdrop, 0);
-    InitializeTrainSimTextPanel();
+    InitializeWc1TrainSimTextPanel();
     ShowTrainSimTextMessage(g_szNewPilotPrompt_00469e70);
     PromptForPilotField(10,
                         (short)(g_stTrainSimTextContext_005a7bd0.cursorY + 2),
@@ -815,7 +818,7 @@ void UpdateTrainSimHighScores(int score)
         EnterPilotNameAndCallsign();
         return;
     }
-    InitializeTrainSimTextPanel();
+    InitializeWc1TrainSimTextPanel();
     if (slot != -1)
         sprintf(message, g_szHighScoreCongratulations_00469ef4,
                 slot + 1);
@@ -1040,7 +1043,7 @@ short SelectTrainSimMission(short *mission)
     SetEventManagerPump(PollMenuInputDevices);
     EventManagerHook(UpdateTrainSimMenuCursor);
     g_nMenuInputRepeatDelay_005a8208 = 6;
-    WarpMouseTo(160, 100);
+    WarpWc1MouseTo(160, 100);
     ResumeMouseCursor();
     savedInputMode = (signed char)g_bInputMode_0059a848;
     g_bInputMode_0059a848 = 1;
@@ -1088,7 +1091,7 @@ select_region:
     g_bInputMode_0059a848 = (unsigned char)savedInputMode;
     SetEventManagerPump(0);
     EventManagerHook(0);
-    SuspendMouseCursor();
+    SuspendWc1MouseCursor();
     ReleaseTextFont(1);
     *mission = (short)(selection - 1);
     return cancelled < 1;

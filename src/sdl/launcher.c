@@ -197,13 +197,13 @@ int main(int argumentCount, char **arguments)
         InitializeAudioSystem((HWND)window);
         InitializeAudioStreamer((HWND)window);
         srand((unsigned int)time(0));
-        InitGameClockEpoch();
+        InitGameClockRandomEpoch();
         CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
         DAT_005a8a44 = (unsigned int)time(0);
         DAT_0059ab2c = 0;
         SDL_SetWindowMouseGrab(window, SDL_TRUE);
         SDL_ShowCursor(SDL_DISABLE);
-        gameResult = Wc1GameMain((short)(argumentCount - 1), arguments);
+        gameResult = RunWc1GameMain((short)(argumentCount - 1), arguments);
         SDL_SetWindowMouseGrab(window, SDL_FALSE);
         SDL_ShowCursor(SDL_ENABLE);
         DestroyGlobalDebugOverlayConsole();

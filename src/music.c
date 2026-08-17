@@ -6,6 +6,77 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x44F84F */
+short InitializeSpeechCache(short unitCount, short sizeCode)
+{
+    void *cacheMetadata;
+    unsigned int codeBase;
+    unsigned int codeEnd;
+    void *discardedDataAllocation;
+    unsigned int dataBase;
+    unsigned int dataEnd;
+
+    g_pSpeechCacheCode_005d1720 =
+        AllocateTaggedMemory((unsigned int)g_wSpeechCacheCodeBytes_0048e0e0,
+                             0x44);
+    if (g_pSpeechCacheCode_005d1720 == 0)
+        return 1;
+    codeBase = IdentityDword((unsigned int)g_pSpeechCacheCode_005d1720);
+    codeEnd = (unsigned int)g_pSpeechCacheCode_005d1720 +
+        (unsigned int)g_wSpeechCacheCodeBytes_0048e0e0;
+    if (codeEnd < codeBase)
+        ReportFatalErrorCode("027");
+    g_wSpeechCacheBlockBytes_0049bb58 =
+        (unsigned short)(((unsigned short)unitCount << 4) + 0x200);
+    g_wSpeechCacheSizeCode_0049bb5c = (unsigned short)sizeCode;
+    cacheMetadata = AllocateTaggedMemory(0x0c, 0x40);
+    if (cacheMetadata == 0)
+        return 2;
+    g_pSpeechCacheDataAllocation_005d1718 =
+        AllocateTaggedMemory(
+            (unsigned int)g_wSpeechCacheDataWords_0048e0e4 * 2 + 0x0f,
+            0x42);
+    if (g_pSpeechCacheDataAllocation_005d1718 == 0)
+        return 1;
+    do {
+        discardedDataAllocation = 0;
+        dataBase = (unsigned int)g_pSpeechCacheDataAllocation_005d1718;
+        dataEnd = dataBase +
+            ((int)((unsigned int)g_wSpeechCacheDataWords_0048e0e4 * 2) /
+             16);
+        if ((dataEnd & 0xfffff000) != (dataBase & 0xfffff000)) {
+            discardedDataAllocation =
+                g_pSpeechCacheDataAllocation_005d1718;
+            g_pSpeechCacheDataAllocation_005d1718 =
+                AllocateTaggedMemory(
+                    (unsigned int)g_wSpeechCacheDataWords_0048e0e4 * 2 +
+                        0x0f,
+                    0x42);
+            if (g_pSpeechCacheDataAllocation_005d1718 == 0)
+                return 1;
+            ReleasePacketHandle(discardedDataAllocation);
+        } else {
+            discardedDataAllocation = 0;
+        }
+        PumpWindowMessages(0);
+    } while (discardedDataAllocation != 0);
+    g_ucSpeechCachePage_005d1724 = (unsigned char)(dataBase >> 12);
+    dataBase -= (unsigned int)g_ucSpeechCachePage_005d1724 << 12;
+    g_wSpeechCacheSegment_0049bb64 = (unsigned short)(dataBase << 4);
+    g_wSpeechCacheEndSegment_0049bb68 =
+        (unsigned short)(g_wSpeechCacheDataWords_0048e0e4 +
+                         g_wSpeechCacheSegment_0049bb64);
+    return 0;
+}
+
+/* Function start: 0x44FA31 */
+void ShutdownSpeechCache(void)
+{
+    g_wSpeechCacheState_0049bb60 = 0;
+    FreePacketAndClear(&g_pSpeechCacheDataAllocation_005d1718, 0x40);
+    FreePacketAndClear(&g_pSpeechCacheCode_005d1720, 0x44);
+}
+
 static int g_nActiveMusicStreamMask_0049be9c = -1;
 static signed char g_acMusicTrackStreamFlags_0049beb8[72] = {
     6, 6, 6, 6, 6, 6, 10, 10, 10, 10, 10, 10,
@@ -553,7 +624,7 @@ initializeDecompressor:
                 handle, g_pPacketDecompressInput_0059ab04,
                 g_wPacketDecompressInputSize_0059ab38) == 0)
             packet = 0;
-        g_nPacketDecompressResult_0059ab30 = GetVideoReleaseResult();
+        g_nPacketDecompressResult_0059ab30 = GetWc1VideoReleaseResult();
         if (packet != 0)
             VideoReleaseHook();
     }
