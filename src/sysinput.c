@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x423C60 */
+/* Function start: 0x455A85 */
 void SetMousePosition(int x, int y)
 {
     SetCursorPos(x, y);
@@ -91,10 +91,33 @@ void InitGameClockEpoch(void)
     g_dwGameClockBase_005a89a8 = GetTickCount() + (rand() & 3600000);
 }
 
-/* Function start: 0x455697 */
+/* Function start: 0x45641B */
+int TakeInputPressCount(void)
+{
+    int pressCount;
+
+    pressCount = g_nInputPressCount_0049c258;
+    g_nInputPressCount_0049c258 = 0;
+    return pressCount;
+}
+
+/* Function start: 0x455F59 */
 void WriteDebugString(const char *s)
 {
+#if 0
     OutputDebugString(s);
+#else
+    if (s != 0) {
+        OutputDebugString(s);
+        if (g_nDebugFileLoggingEnabled_0049c2d8 != 0) {
+            if (g_pDebugLogFile_0049c2dc == 0)
+                g_pDebugLogFile_0049c2dc = fopen("log.log", "wt");
+            fprintf(g_pDebugLogFile_0049c2dc, "%s", s);
+            fflush(g_pDebugLogFile_0049c2dc);
+        }
+    }
+    return;
+#endif
 }
 
 /* Function start: WC2_UNMAPPED */

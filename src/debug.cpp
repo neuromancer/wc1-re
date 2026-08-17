@@ -74,7 +74,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     strcpy(spinnerCharacters, g_szDebugOverlaySpinner_0046965c);
 }
 
-/* Function start: 0x40EEC7 */
+/* Function start: WC2_UNMAPPED */
 DebugOverlayConsole::~DebugOverlayConsole()
 {
     animationState = 2;
@@ -137,15 +137,15 @@ extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
 #endif
 }
 
-/* Function start: 0x42E692 */
+/* Function start: WC2_UNMAPPED */
 extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
                                                     LPARAM flags)
 {
 #ifdef WC1_SDL
     (void)code;
     if ((flags & 0x40000000) != 0) {
-        g_dwDebugOverlayKey_00469648 = (DWORD)key;
-        g_dwDebugOverlayKeyLatch_0046964c = (DWORD)key;
+        g_dwDebugOverlayKey_0049cb28 = (DWORD)key;
+        g_dwDebugOverlayKeyLatch_0049cb2c = (DWORD)key;
     }
     return 0;
 #else
@@ -153,8 +153,8 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
         return CallNextHookEx(g_hDebugKeyboardHook_00469650,
                               code, key, flags);
     if ((flags & 0x40000000) != 0) {
-        g_dwDebugOverlayKey_00469648 = key;
-        g_dwDebugOverlayKeyLatch_0046964c = key;
+        g_dwDebugOverlayKey_0049cb28 = key;
+        g_dwDebugOverlayKeyLatch_0049cb2c = key;
     }
     return CallNextHookEx(g_hDebugKeyboardHook_00469650,
                           code, key, flags);
@@ -272,15 +272,15 @@ char DebugOverlayConsole::WaitForKey(void)
 #ifdef WC1_SDL
     char key;
 
-    while (g_dwDebugOverlayKey_00469648 == 0 &&
+    while (g_dwDebugOverlayKey_0049cb28 == 0 &&
            PumpWindowMessages() != 0) {
         if (busyWait == 0)
             SDL_Delay(1);
     }
-    if (g_dwDebugOverlayKey_00469648 == 0)
+    if (g_dwDebugOverlayKey_0049cb28 == 0)
         return 0x1b;
-    key = (char)g_dwDebugOverlayKey_00469648;
-    g_dwDebugOverlayKey_00469648 = 0;
+    key = (char)g_dwDebugOverlayKey_0049cb28;
+    g_dwDebugOverlayKey_0049cb28 = 0;
     return key;
 #else
     RECT clip;
@@ -292,7 +292,7 @@ char DebugOverlayConsole::WaitForKey(void)
     minimized = 0;
     complete = 0;
     if (busyWait == 0) {
-        while (g_dwDebugOverlayKey_00469648 == 0) {
+        while (g_dwDebugOverlayKey_0049cb28 == 0) {
             while (complete == 0) {
                 if (minimized != 0) {
                     if (GetMessageA(&message, 0, 0, 0) != 0) {
@@ -347,13 +347,13 @@ char DebugOverlayConsole::WaitForKey(void)
             }
         }
     } else {
-        while (g_dwDebugOverlayKey_00469648 == 0)
+        while (g_dwDebugOverlayKey_0049cb28 == 0)
             ;
     }
     {
-        char key = (char)g_dwDebugOverlayKey_00469648;
+        char key = (char)g_dwDebugOverlayKey_0049cb28;
 
-        g_dwDebugOverlayKey_00469648 = 0;
+        g_dwDebugOverlayKey_0049cb28 = 0;
         return key;
     }
 #endif

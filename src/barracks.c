@@ -179,14 +179,14 @@ void SetAwakenBarracksMenuLabel(char **label, int series, int mission,
     FreeBarracksMenuLabel(label);
 #ifdef WC1_SDL
     /* MSVC 4.20 accepts %Fs as its legacy far-string conversion. */
-    sprintf(g_szTextScratchBuffer_00598b00, "Awaken %s.", description);
+    sprintf(g_szTextScratchBuffer_005d1c40, "Awaken %s.", description);
 #else
-    sprintf(g_szTextScratchBuffer_00598b00, "Awaken %Fs.", description);
+    sprintf(g_szTextScratchBuffer_005d1c40, "Awaken %Fs.", description);
 #endif
     *label = AllocateTaggedMemory(
-        strlen(g_szTextScratchBuffer_00598b00) + 2, 0);
-    DosMemcpy(*label, g_szTextScratchBuffer_00598b00,
-              strlen(g_szTextScratchBuffer_00598b00) + 2);
+        strlen(g_szTextScratchBuffer_005d1c40) + 2, 0);
+    DosMemcpy(*label, g_szTextScratchBuffer_005d1c40,
+              strlen(g_szTextScratchBuffer_005d1c40) + 2);
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -321,8 +321,8 @@ short PromptForTextInput(short x, short y, const char *prompt,
     InitializeModalTextPanel(&panel, 0,
                              g_dwModalBoundsTopLeft_00469440,
                              g_dwModalBoundsBottomRight_00469444,
-                             DAT_0046999c, DAT_0046999c,
-                             DAT_0046999c);
+                             g_cSecondaryViewBufferColour_0049cb4c, g_cSecondaryViewBufferColour_0049cb4c,
+                             g_cSecondaryViewBufferColour_0049cb4c);
     widestCharacter = MeasureTextPixelWidthClamped("M");
     widestCharacter *= (int)maximumLength;
     promptWidth = MeasureTextPixelWidthClamped(prompt);
@@ -351,17 +351,17 @@ int WarnLoadGameFirst(void)
     InputEventState event;
     short key;
 
-    LeaveAllocationScope();
+    SuspendMouseCursor();
     key = 0;
     if (ShowModalTextPanel(0, "Load a game first.") != 0) {
-        while (PollInputEvent(&event, 0xff) != 0) {
+        while (PollInputEvent(&event) != 0) {
         }
         key = WaitForInputKey();
-        while (PollInputEvent(&event, 0xff) != 0) {
+        while (PollInputEvent(&event) != 0) {
         }
         ReleaseModalTextPanel();
     }
-    EnterAllocationScope();
+    ResumeMouseCursor();
     return (int)key;
 }
 
@@ -513,7 +513,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
     SaveGameRecord gameRecord;
     int loaded;
 
-    LeaveAllocationScope();
+    SuspendMouseCursor();
     if (ShowModalTextPanel(0, "Loading Game...") != 0) {
         loaded = LoadGame(slot, &gameRecord);
         if (loaded != 0) {
@@ -541,7 +541,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
             memcpy(campaign->currentPilot->callsign, "CHEATER", 8);
         }
     }
-    EnterAllocationScope();
+    ResumeMouseCursor();
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -610,11 +610,11 @@ void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
                           shape, frame);
         bunk++;
     } while (bunk < 8);
-    CopyViewportContents(&DAT_005a76b0,
+    CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
                          &g_stRoomScreenViewport_005988a0);
 }
 
-/* Function start: 0x467300 */
+/* Function start: WC2_UNMAPPED */
 void DrawBarracksStaticDetails(Viewport *viewport,
                                unsigned char *shape)
 {
@@ -713,14 +713,14 @@ int ConfirmQuitWingCommander(void)
 {
     short confirmed;
 
-    LeaveAllocationScope();
+    SuspendMouseCursor();
     confirmed = 0;
     if (ShowModalTextPanel(0, "Quit Wing Commander? (Y/N)") != 0) {
         confirmed = (short)((short)toupper(
             WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
-    EnterAllocationScope();
+    ResumeMouseCursor();
     return (int)confirmed;
 }
 
@@ -733,14 +733,14 @@ int ConfirmAwakenAfterBadData(short slot)
     confirmed = 0;
     if (LoadGame(slot, &gameRecord) == 0)
         ShowModalMessage("Error: data may be bad.");
-    LeaveAllocationScope();
+    SuspendMouseCursor();
     if (ShowModalTextPanel(0, "Awaken %s? (Y/N)",
                            gameRecord.description) != 0) {
         confirmed = (short)((short)toupper(
             WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
-    EnterAllocationScope();
+    ResumeMouseCursor();
     return (int)confirmed;
 }
 
@@ -757,14 +757,14 @@ int ConfirmReplaceFaultyData(short slot)
     }
     if (LoadGame(slot, &gameRecord) == 0)
         memcpy(gameRecord.description, "FAULTY DATA", 12);
-    LeaveAllocationScope();
+    SuspendMouseCursor();
     if (ShowModalTextPanel(0, "Replace %s? (Y/N)",
                            gameRecord.description) != 0) {
         confirmed = (short)((short)toupper(
             WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
-    EnterAllocationScope();
+    ResumeMouseCursor();
     return (int)confirmed;
 }
 
@@ -776,7 +776,7 @@ void HandleBarracksBunkSelection(Viewport *viewport,
 {
     short slot;
 
-    LeaveAllocationScope();
+    SuspendMouseCursor();
     slot = (short)(region / 2);
     if (state->bunks[slot].occupied != 0) {
         if (region % 2 == 0) {
@@ -784,7 +784,7 @@ void HandleBarracksBunkSelection(Viewport *viewport,
                 LoadGameFromSlot(
                     slot, &g_stCampaignState_0059ca50,
                     g_aPilotRecords_005988d0,
-                    g_aMissionObjectives_0059dac0);
+                    g_aMissionObjectives_004932a8);
             }
             goto refresh;
         }
@@ -793,12 +793,12 @@ void HandleBarracksBunkSelection(Viewport *viewport,
     }
     SaveGameWithNamePrompt(slot, &g_stCampaignState_0059ca50,
                            g_aPilotRecords_005988d0,
-                           g_aMissionObjectives_0059dac0);
+                           g_aMissionObjectives_004932a8);
 
 refresh:
     GetBunkInfo(state);
     DrawBarracksBunks(viewport, shape, state);
-    EnterAllocationScope();
+    ResumeMouseCursor();
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -826,19 +826,21 @@ short BarracksScreen(void)
     lastMedalsTick = 0;
     PreloadMusicTrackHook(35);
     spacetrack(35, 2, 1);
+#if 0
     InitializeRoomViewports();
+#endif
     background = FetchDiskPacketRetrying(5, 12, 0);
     InitializeRoomMenu(g_aBarracksMenuRegions_00463008,
                        g_apszBarracksMenuLabels_004693f0,
                        &g_stRoomScreenViewport_005988a0,
-                       g_szDefaultTextBuffer_005a7590, 2);
+                       g_szDefaultTextBuffer_005d2b80, 2);
     EnsureSaveGameFile();
     InitializeBarracksAnimation(&animation);
     GetBunkInfo(&animation);
-    DrawBarracksBunks(&DAT_005a76b0, background, &animation);
+    DrawBarracksBunks(&g_stSecondaryViewBuffer_005d2c90, background, &animation);
     g_stMouseCursorState_0059ab10.viewport = &g_stRoomScreenViewport_005988a0;
     WarpMouseTo(160, 100);
-    EnterAllocationScope();
+    ResumeMouseCursor();
     SetFrameTimerPeriodDirect(0);
     FlushInputEvents();
     g_nSavedRoomControllerX_005988b4 =
@@ -853,7 +855,7 @@ short BarracksScreen(void)
                                  background, &animation);
             SetFrameTimerPeriodDirect(2);
         }
-        eventType = PollInputEvent(&event, 0xff);
+        eventType = PollInputEvent(&event);
         clicked = 0;
         if (eventType == 3 || eventType == 5) {
             ClearInputKeyStatePreservingModifiers();
@@ -875,7 +877,7 @@ short BarracksScreen(void)
                 event.x, event.y, g_aBarracksMenuRegions_00463008);
             if (region >= 0 && region < 16) {
                 HandleBarracksBunkSelection(
-                    &DAT_005a76b0, background, &animation, region);
+                    &g_stSecondaryViewBuffer_005d2c90, background, &animation, region);
             } else if (region == 16) {
                 if (DAT_004688f0 == 0)
                     WarnLoadGameFirst();
@@ -902,22 +904,22 @@ short BarracksScreen(void)
                     FlushInputEvents();
                     if ((int)(DAT_0059ab54 - lastMedalsTick) >
                         g_nInputTickScale_0059af90) {
-                        LeaveAllocationScope();
+                        SuspendMouseCursor();
                         ClearViewport(&g_stRoomScreenViewport_005988a0,
-                                      DAT_0046999c);
-                        DAT_005a76b0.bottom = 127;
-                        DAT_005a6ba0.top = 24;
-                        DAT_005a6ba0.bottom = 151;
+                                      g_cSecondaryViewBufferColour_0049cb4c);
+                        g_stSecondaryViewBuffer_005d2c90.bottom = 127;
+                        g_stScreenViewport_005d21a0.top = 24;
+                        g_stScreenViewport_005d21a0.bottom = 151;
                         ViewMedals();
                         lastMedalsTick = (int)DAT_0059ab54;
                         ClearViewport(&g_stRoomScreenViewport_005988a0,
-                                      DAT_0046999c);
-                        DAT_005a6ba0.top = 0;
-                        DAT_005a6ba0.bottom = 199;
-                        DAT_005a76b0.bottom = 199;
-                        DrawBarracksBunks(&DAT_005a76b0, background,
+                                      g_cSecondaryViewBufferColour_0049cb4c);
+                        g_stScreenViewport_005d21a0.top = 0;
+                        g_stScreenViewport_005d21a0.bottom = 199;
+                        g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+                        DrawBarracksBunks(&g_stSecondaryViewBuffer_005d2c90, background,
                                           &animation);
-                        EnterAllocationScope();
+                        ResumeMouseCursor();
                         UpdateBarracksScreen(
                             &g_stRoomScreenViewport_005988a0,
                             background, &animation);
@@ -930,7 +932,7 @@ short BarracksScreen(void)
         DIBslamReal();
     }
 
-    LeaveAllocationScope();
+    SuspendMouseCursor();
     g_nMenuPointerSpeed_0046af58 = 2;
     g_nMenuInputRepeatDelay_005a8208 =
         g_nSavedRoomControllerX_005988b4;
@@ -938,7 +940,7 @@ short BarracksScreen(void)
     FreeBarracksMenuLabels();
     ReleasePacketHandle(background);
     ReleaseTextFont(0);
-    free_viewport(&DAT_005a76b0);
+    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(35);
     return result;

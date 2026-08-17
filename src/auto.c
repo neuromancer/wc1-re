@@ -60,7 +60,7 @@ void auto_position(short obj, short *formationSlot)
     short forward;
 
     if (player_wingman(ship) != 0) {
-        position_relative_ijk(&g_aShipPosition_0059c490[ship], 0,
+        position_relative_ijk(&g_aShipPosition_00494550[ship], 0,
                               g_aShipFormationOffset_0059b520[ship].x,
                               g_aShipFormationOffset_0059b520[ship].y,
                               g_aShipFormationOffset_0059b520[ship].z);
@@ -74,25 +74,26 @@ void auto_position(short obj, short *formationSlot)
     vertical = 0;
     forward = MaxShort(1, (short)(*formationSlot >> 1));
     forward = (short)(forward * -1800);
-    if (g_nYourWingman_0046c04c != -1) {
+    if (g_nYourWingman_0049346c != -1) {
         int radii;
         int separation;
 
         radii = g_asObjectCollisionRadius_0059d710[ship] +
-                g_asObjectCollisionRadius_0059d710[g_nYourWingman_0046c04c];
+                g_asObjectCollisionRadius_0059d710[g_nYourWingman_0049346c];
         separation = abs(
-            g_aShipFormationOffset_0059b520[g_nYourWingman_0046c04c].z -
+            g_aShipFormationOffset_0059b520[g_nYourWingman_0049346c].z -
             forward);
         if (radii > separation)
             vertical = 500;
     }
-    position_relative_ijk(&g_aShipPosition_0059c490[ship], 0,
+    position_relative_ijk(&g_aShipPosition_00494550[ship], 0,
                           lateral, vertical, forward);
 }
 
 /* Function start: 0x422B1C */
 void auto_pilot_sequence(void)
 {
+    FILE *debugFile;
     short savedCannedSceneMode;
     short leaveCurrentNavPoint;
     short formationSlot;
@@ -105,23 +106,44 @@ void auto_pilot_sequence(void)
     short nearestShipRange;
     short cruiseSpeed;
     short other;
+    short missile;
 
-    savedCannedSceneMode = (short)g_nCannedSceneMode_00469fac;
+    savedCannedSceneMode = g_nCannedSceneMode_0049021c;
     formationSlot = 0;
-    destination = g_aMissionObjectives_0059dac0[
-        g_abFlightPath_0059c000[g_cCurrentNavPointIndex_0059c86c]].position;
     leaveCurrentNavPoint = 1;
+    debugFile = 0;
+    g_bAutopilotSequenceActive_00493064 = 1;
+    destination = g_aMissionObjectives_004932a8[
+        g_abFlightPath_004932a0[g_cCurrentNavPointIndex_00493298]].position;
 
     if (auto_pilot_valid(1) != 0) {
+        if (g_bAutopilotDebugEnabled_00499bfc != 0)
+            debugFile = fopen("auto.$$$", "w+");
+        if (g_cPendingEjectionTransition_0049b8ac != -1 &&
+            g_bEjectionSequencePending_0049b8b8 != 0) {
+            g_nEjectionSequenceState_0049b8c0 = 0;
+            g_bEjectionSequencePending_0049b8b8 = 0;
+            ejection_sequence(
+                (unsigned char)g_cPendingEjectionTransition_0049b8ac, 1);
+            g_cPendingEjectionTransition_0049b8ac = -1;
+            if (g_nArcadeState_0049d75c == 1) {
+                g_cPendingEjectionTransition_0049b8ac = -1;
+                return;
+            }
+        }
         if (distance_between_points(
-                &g_aMissionObjectives_0059dac0[
-                    g_cCurrentObjective_0046c020].position,
-                &g_aMissionNavPoints_0046c2f0[
-                    g_nCurrentNavPoint_0059df60].position) <
-            g_aMissionNavPoints_0046c2f0[
-                g_nCurrentNavPoint_0059df60].proximityRadius + 25)
+                &g_aMissionObjectives_004932a8[
+                    g_cCurrentObjective_004931cc].position,
+                &g_aMissionNavPoints_00491e98[
+                    g_nCurrentNavPoint_004931bc].position) <
+            g_aMissionNavPoints_00491e98[
+                g_nCurrentNavPoint_004931bc].proximityRadius + 25)
             leaveCurrentNavPoint = 0;
 
+        for (missile = 0; missile < 10; missile++) {
+            if (g_aeObjectClass_00495328[missile] == OBJECT_CLASS_MISSILE)
+                remove_object(missile);
+        }
         clean_up_cockpit();
         ResetSoundState();
         g_nAutopilotFormationShipCount_00465544 = 0;
@@ -130,24 +152,24 @@ void auto_pilot_sequence(void)
             travelMode[ship] = 0;
             g_anShipSpeed_0059b320[ship] = 0;
             zero_vector(&g_aShipVelocity_0059c010[ship]);
-            if (g_aeObjectClass_0059d100[ship] >= OBJECT_CLASS_SHIP &&
-                g_aeSpecialManeuver_0059c3c0[ship] !=
+            if (g_aeObjectClass_00495328[ship] >= OBJECT_CLASS_SHIP &&
+                g_aeSpecialManeuver_00495600[ship] !=
                     SPECIAL_MANEUVER_UNKNOWN_9 &&
-                g_aeShipSide_0059d650[ship] == SIDE_IMPERIAL) {
+                g_asShipSide_004955d0[ship] == SIDE_IMPERIAL) {
                 if (is_team_member(
                         g_nShipMissionIndices_0059c830[ship]) != 0) {
                     if (kilrathi_near(ship, 10000) == 0) {
                         travelMode[ship] = -1;
-                        g_aeSpecialManeuver_0059c3c0[ship] =
+                        g_aeSpecialManeuver_00495600[ship] =
                             SPECIAL_MANEUVER_NONE;
-                        g_anRollGoal_0059d630[ship] = 0;
+                        g_anRollGoal_004954d8[ship] = 0;
                         g_anObjectRollRotation_0059d7e0[ship] = 0;
-                        g_anPitchGoal_0059d7a0[ship] = 0;
+                        g_anPitchGoal_004954a8[ship] = 0;
                         g_anObjectPitchRotation_0059b2a0[ship] = 0;
-                        g_anYawGoal_0059c310[ship] = 0;
+                        g_anYawGoal_004954c0[ship] = 0;
                         g_anObjectYawRotation_0059ce80[ship] = 0;
                         if (ship != 0 &&
-                            ship != g_nYourWingman_0046c04c)
+                            ship != g_nYourWingman_0049346c)
                             g_nAutopilotFormationShipCount_00465544++;
                     }
                 } else if (leaveCurrentNavPoint != 0) {
@@ -168,14 +190,14 @@ void auto_pilot_sequence(void)
                     if (player_wingman(ship) != 0)
                         travelMode[ship] = 1;
                     else if (equ_vector(
-                                 &g_aShipDestination_0059d530[ship],
+                                 &g_aShipDestination_004953f0[ship],
                                  &destination) != 0)
                         travelMode[ship] = 2;
                     else
                         travelMode[ship] = 3;
                 } else {
                     if (player_wingman(ship) != 0 ||
-                        equ_vector(&g_aShipDestination_0059d530[ship],
+                        equ_vector(&g_aShipDestination_004953f0[ship],
                                    &destination) != 0)
                         travelMode[ship] = 1;
                     else
@@ -183,7 +205,7 @@ void auto_pilot_sequence(void)
                 }
                 if (travelMode[ship] == 1) {
                     auto_position(ship, &formationSlot);
-                    ScaleFixedVector(&g_aShipForwardVector_0059bce0[0],
+                    ScaleFixedVector(&g_aShipForwardVector_00494208[0],
                                      0x3c00,
                                      &g_aShipVelocity_0059c010[ship]);
                     copy_frame(0, ship);
@@ -195,36 +217,36 @@ void auto_pilot_sequence(void)
             }
         }
 
-        g_nCannedSceneMode_00469fac = 4;
+        g_nCannedSceneMode_0049021c = 4;
         visit_the_cinema(12, 0, 120);
-        while (g_nCannedSceneMode_00469fac == 4) {
-            ComputeVectorDelta(&g_aShipPosition_0059c490[0],
+        while (g_nCannedSceneMode_0049021c == 4) {
+            ComputeVectorDelta(&g_aShipPosition_00494550[0],
                                &destination, &travelStep);
             NormalizeFixedVector(&travelStep);
             ScaleFixedVector(&travelStep, 0x19000, &travelStep);
-            AddFixedVectors(&g_aShipPosition_0059c490[0], &travelStep,
-                            &g_aShipPosition_0059c490[0]);
+            AddFixedVectors(&g_aShipPosition_00494550[0], &travelStep,
+                            &g_aShipPosition_00494550[0]);
             ReleaseStaleNavTarget();
             check_hazards();
 
             nearestShipRange = 0x7fff;
             destinationRange = distance_from_point(0, &destination);
             for (other = 0; other < 10; other++) {
-                if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
+                if (g_aeObjectClass_00495328[other] >= OBJECT_CLASS_SHIP &&
                     travelMode[other] == 0)
                     nearestShipRange = MinShort(
                         nearestShipRange, distance_from_object(0, other));
             }
 
             if ((unsigned short)destinationRange < 1000 ||
-                g_pActiveHazardField_0059bfe0 != 0 ||
+                g_pActiveHazardField_00493278 != 0 ||
                 nearestShipRange < 4000 ||
                 report_kilrathi_rout(1) != 0)
-                g_nCannedSceneMode_00469fac = savedCannedSceneMode;
+                g_nCannedSceneMode_0049021c = savedCannedSceneMode;
         }
 
-        SubtractFixedVectors(&g_aShipPosition_0059c490[0], &travelStep,
-                             &g_aShipPosition_0059c490[0]);
+        SubtractFixedVectors(&g_aShipPosition_00494550[0], &travelStep,
+                             &g_aShipPosition_00494550[0]);
         cruiseSpeed = g_asShipMaximumSpeed_0059c440[0];
         for (ship = 0; ship < 10; ship++) {
             if (travelMode[ship] != 0 &&
@@ -248,10 +270,10 @@ void auto_pilot_sequence(void)
                     case 3:
                         if (distance_from_point(
                                 ship,
-                                &g_aShipDestination_0059d530[ship]) <
+                                &g_aShipDestination_004953f0[ship]) <
                             initialDistance)
-                            g_aShipPosition_0059c490[ship] =
-                                g_aShipDestination_0059d530[ship];
+                            g_aShipPosition_00494550[ship] =
+                                g_aShipDestination_004953f0[ship];
                         break;
                     }
                 }
@@ -259,26 +281,29 @@ void auto_pilot_sequence(void)
         }
 
         Update_3Space();
-        if (DAT_0046a008 == 0) {
+        if (g_nCockpitDisplayMode_0049d71c == 0) {
             force_view(0, 0);
             SetMousePosition(
-                (DAT_005a7510.right - DAT_005a7510.left) / 2 + 1,
-                (DAT_005a7510.bottom - DAT_005a7510.top) / 2);
+                (g_stViewBuffer_005d2b00.right - g_stViewBuffer_005d2b00.left) / 2 + 1,
+                (g_stViewBuffer_005d2b00.bottom - g_stViewBuffer_005d2b00.top) / 2);
         } else {
-            GetScreenUpdateFlag();
-            SetViewportRect(&DAT_005a7510, 0, 0,
+            free_view_buffer();
+            SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
                             (unsigned short)(g_nScreenWidth_0046daa4 - 1),
                             (unsigned short)(g_nScreenHeight_0046daa8 - 1));
             initialize_view_buffer();
-            DAT_0046a008 = 1;
+            g_nCockpitDisplayMode_0049d71c = 1;
             force_view(0, 0);
-            DAT_0046a008 = 1;
-            GetScreenUpdateFlag();
-            SetViewportRect(&DAT_005a7510, 0, 0, 319, 199);
+            g_nCockpitDisplayMode_0049d71c = 1;
+            free_view_buffer();
+            SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0, 319, 199);
             initialize_view_buffer();
             SetMousePosition(
-                (DAT_005a7510.right - DAT_005a7510.left) / 2,
+                (g_stViewBuffer_005d2b00.right - g_stViewBuffer_005d2b00.left) / 2,
                 g_nViewCenterY_0059a854);
         }
+        if (debugFile != 0)
+            fclose(debugFile);
     }
+    g_bAutopilotSequenceActive_00493064 = 0;
 }

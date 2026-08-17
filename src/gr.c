@@ -6,6 +6,8 @@
  */
 #include "wc1.h"
 
+#pragma function(memset)
+
 /* Function start: 0x425A16 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip)
@@ -15,7 +17,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
     int nextOffset;
     int rowStrideOffset;
 
-    if (viewport->pixels != DAT_005a6ba0.pixels) {
+    if (viewport->pixels != g_stScreenViewport_005d21a0.pixels) {
         allocation = 0;
         while (allocation < g_nViewportAllocationCount_005a7f0c) {
             if (g_apViewportAllocations_005a7f10[allocation] ==
@@ -26,7 +28,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
         if (allocation >= g_nViewportAllocationCount_005a7f0c)
             exit_squadron(g_szBadViewport_00470d24);
     }
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         DIBslam();
     topOffset = SignExtendClipCoord(viewport->rowOffsets[viewport->top]);
     nextOffset = SignExtendClipCoord(
@@ -49,15 +51,29 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
 void ClipViewportToScreen(Viewport *viewport)
 {
     ValidateViewportBounds(viewport, &g_stRasterSurface_004875a8,
-                           &g_stRasterClip_00496fc0);
+                           &g_stRasterClip_004b2088);
+}
+
+/* Function start: 0x448D1A */
+void SetViewportHorizontalBounds(Viewport *viewport, int left, int right)
+{
+    viewport->left = (short)left;
+    viewport->right = (short)right;
+}
+
+/* Function start: 0x448D39 */
+void SetViewportVerticalBounds(Viewport *viewport, int top, int bottom)
+{
+    viewport->top = (short)top;
+    viewport->bottom = (short)bottom;
 }
 
 /* Function start: 0x425BBF */
 void SetSolidColourTranslation(unsigned char colour)
 {
-    memset(g_abSolidColourTranslation_00497648, colour, 255);
-    g_abSolidColourTranslation_00497648[255] = 0xff;
-    SetPaletteTranslationTable(g_abSolidColourTranslation_00497648);
+    memset(g_abSolidColourTranslation_004b2710, colour, 255);
+    g_abSolidColourTranslation_004b2710[255] = 0xff;
+    SetPaletteTranslationTable(g_abSolidColourTranslation_004b2710);
 }
 
 /* Function start: 0x425BF6 */
@@ -192,13 +208,13 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
             }
         }
         if (blendMode != 0) {
-            RotateRLEImage(&g_stRasterClip_00496fc0,
+            RotateRLEImage(&g_stRasterClip_004b2088,
                            GetPreparedShapeData(shape), frame,
                            x - viewport->left, y - viewport->top,
                            g_abShapeTransformScratch_004875c0,
                            angle * 10, scaleX * 256, scaleY * 256, 1);
         } else {
-            RotateRLEImage(&g_stRasterClip_00496fc0,
+            RotateRLEImage(&g_stRasterClip_004b2088,
                            GetPreparedShapeData(shape), frame,
                            x - viewport->left, y - viewport->top,
                            g_abShapeTransformScratch_004875c0,
@@ -285,9 +301,9 @@ void DrawFontGlyph(char character, TextContext *context, int height,
 }
 
 /* Function start: 0x426694 */
-void __stdcall MarkActivePaletteEntries(Viewport *viewport,
-                                         unsigned char *active)
+void MarkActivePaletteEntries(Viewport *viewport, unsigned char *active)
 {
+#if 0
     unsigned short rgb[3];
     int index;
 
@@ -299,16 +315,19 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
             active[index] = 1;
         index++;
     } while (index < 256);
+#endif
+    RasterLineHook("EstablishColors");
+    return;
 }
 
 /* Function start: 0x4266B1 */
-void __stdcall GetPaletteEntry(short index, unsigned short *rgb)
+void GetPaletteEntry(short index, unsigned short *rgb)
 {
     GetPaletteEntryAsWords(index, rgb);
 }
 
 /* Function start: 0x4266CC */
-void __stdcall SetPaletteEntry(short index, short *rgb)
+void SetPaletteEntry(short index, short *rgb)
 {
     DIBsetPalette(index, rgb);
 }
@@ -317,9 +336,16 @@ void __stdcall SetPaletteEntry(short index, short *rgb)
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
                        unsigned char *shape, short frame)
 {
+#if 0
     if (shape != 0 && frame >= 0)
         DrawSpriteTransformed(viewport, x, y, shape, frame,
                               0, 0x100, 0x100, 0, 0);
+#else
+    if (shape != 0 && frame >= 0 && viewport->left >= 0 &&
+        HasValidShapeAllocationSignature(shape) != 0)
+        DrawSpriteTransformed(viewport, x, y, shape, frame,
+                              0, 0x100, 0x100, 0, 0);
+#endif
 }
 
 /* Function start: 0x426769 */
@@ -590,7 +616,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
 #endif
         commands += 2;
     }
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         DIBslam();
 }
 
@@ -599,9 +625,18 @@ void DrawSolidColourSprite(Viewport *viewport, short x, short y,
                            unsigned char *shape, short frame,
                            unsigned char colour)
 {
+#if 0
     SetSolidColourTranslation(colour);
     DrawSpriteTransformed(viewport, x, y, shape, frame, 0,
                           0x100, 0x100, 0, 1);
+#else
+    if (viewport->left >= 0) {
+        SetSolidColourTranslation(colour);
+        if (HasValidShapeAllocationSignature(shape) != 0)
+            DrawSpriteTransformed(viewport, x, y, shape, frame, 0,
+                                  0x100, 0x100, 0, 1);
+    }
+#endif
 }
 
 /* Function start: 0x427047 */
@@ -622,14 +657,22 @@ void CopyViewportContents(Viewport *source, Viewport *destination)
 /* Function start: 0x427123 */
 void ClearViewport(Viewport *viewport, short colour)
 {
+#if 0
     if (viewport->pixels != 0 && viewport->rowOffsets != 0) {
         ClipViewportToScreen(viewport);
-        FillRasterClip(&g_stRasterClip_00496fc0, colour);
+        FillRasterClip(&g_stRasterClip_004b2088, colour);
     }
-    if (viewport == &DAT_005a6ba0) {
+    if (viewport == &g_stScreenViewport_005d21a0) {
         DIBslam();
         DIBslamReal();
     }
+#else
+    if (viewport->pixels != 0 && viewport->rowOffsets != 0 &&
+        viewport->left >= 0) {
+        ClipViewportToScreen(viewport);
+        FillRasterClip(&g_stRasterClip_004b2088, colour);
+    }
+#endif
 }
 
 /* Function start: 0x427179 */
@@ -637,7 +680,7 @@ void DrawViewportPixel(Viewport *viewport, short x, short y,
                        short colour)
 {
     ClipViewportToScreen(viewport);
-    SetRasterClipPixel(&g_stRasterClip_00496fc0,
+    SetRasterClipPixel(&g_stRasterClip_004b2088,
                        (int)x - viewport->left,
                        (int)y - viewport->top, colour);
 }
@@ -646,7 +689,7 @@ void DrawViewportPixel(Viewport *viewport, short x, short y,
 int GetViewportPixel(Viewport *viewport, short x, short y)
 {
     ClipViewportToScreen(viewport);
-    return ReadRasterClipPixel(&g_stRasterClip_00496fc0,
+    return ReadRasterClipPixel(&g_stRasterClip_004b2088,
                                (int)x - viewport->left,
                                (int)y - viewport->top);
 }
@@ -656,7 +699,7 @@ void DrawViewportLine(Viewport *viewport, short x1, short y1,
                       short x2, short y2, short colour)
 {
     ClipViewportToScreen(viewport);
-    DrawClippedLine(&g_stRasterClip_00496fc0,
+    DrawClippedLine(&g_stRasterClip_004b2088,
                     x1 - viewport->left, y1 - viewport->top,
                     x2 - viewport->left, y2 - viewport->top,
                     0, colour);
@@ -677,7 +720,7 @@ void DrawFilledViewportRect(Viewport *viewport, short left, short top,
     height = bottom - top;
     ClipViewportToScreen(viewport);
     for (row = 0; row <= height; row++) {
-        DrawClippedLine(&g_stRasterClip_00496fc0,
+        DrawClippedLine(&g_stRasterClip_004b2088,
                         left - viewport->left,
                         row + top - viewport->top,
                         right - viewport->left,
@@ -691,19 +734,19 @@ void DrawViewportBorder(Viewport *viewport, short left, short top,
                         short right, short bottom, short colour)
 {
     ClipViewportToScreen(viewport);
-    DrawClippedLine(&g_stRasterClip_00496fc0,
+    DrawClippedLine(&g_stRasterClip_004b2088,
                     left - viewport->left, top - viewport->top,
                     right - viewport->left, top - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stRasterClip_00496fc0,
+    DrawClippedLine(&g_stRasterClip_004b2088,
                     left - viewport->left, bottom - viewport->top,
                     right - viewport->left, bottom - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stRasterClip_00496fc0,
+    DrawClippedLine(&g_stRasterClip_004b2088,
                     left - viewport->left, top - viewport->top,
                     left - viewport->left, bottom - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stRasterClip_00496fc0,
+    DrawClippedLine(&g_stRasterClip_004b2088,
                     right - viewport->left, top - viewport->top,
                     right - viewport->left, bottom - viewport->top,
                     0, colour);
@@ -715,9 +758,9 @@ void DrawViewportEllipse(Viewport *viewport, short x, short y,
                          short colour)
 {
     ClipViewportToScreen(viewport);
-    DrawRasterEllipse(&g_stRasterClip_00496fc0, x, y,
+    DrawRasterEllipse(&g_stRasterClip_004b2088, x, y,
                       horizontalRadius, verticalRadius, colour);
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         DIBslam();
 }
 
@@ -727,9 +770,9 @@ void FillViewportEllipse(Viewport *viewport, short x, short y,
                          short colour)
 {
     ClipViewportToScreen(viewport);
-    FillRasterEllipse(&g_stRasterClip_00496fc0, x, y,
+    FillRasterEllipse(&g_stRasterClip_004b2088, x, y,
                       horizontalRadius, verticalRadius, colour);
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         DIBslam();
 }
 
@@ -739,9 +782,9 @@ void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
                                short horizontalRadius, short colour)
 {
     ClipViewportToScreen(viewport);
-    DrawRasterEllipse(&g_stRasterClip_00496fc0, x, y,
+    DrawRasterEllipse(&g_stRasterClip_004b2088, x, y,
                       horizontalRadius, verticalRadius, colour);
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         DIBslam();
 }
 
@@ -873,7 +916,7 @@ void fizzle_fade(Viewport *source, Viewport *destination,
                 destinationX = *run++;
             } while (destinationX != -1);
         }
-        if (destination->pixels == DAT_005a6ba0.pixels)
+        if (destination->pixels == g_stScreenViewport_005d21a0.pixels)
             DIBslam();
     }
 }
@@ -883,7 +926,7 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 {
     (void)effect;
     (void)colour;
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         DIBslam();
     RasterLineHook(g_szSnowViewport_00470da4);
 }
@@ -891,27 +934,48 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 /* Function start: 0x428979 */
 void UpdateStreamerStoppedFlag(void)
 {
-    if (DAT_00465058 != 0)
-    g_nMusicTrackComplete_0046aa04 =
-        (g_dwStreamerState_00597cd0 & 4) == 0;
+    if (g_nAudioEnabled_0049c244 != 0) {
+        if ((GetStreamerState() & 4) == 0)
+            g_nMusicTrackComplete_0049be88 = 1;
+        else
+            g_nMusicTrackComplete_0049be88 = 0;
+    }
+    return;
 }
 
 /* Function start: 0x42894B */
 void SignalAudioMixerWakeEvent(void)
 {
-    if (DAT_00465058 != 0)
+#if 0
+    if (g_nAudioEnabled_0049c244 != 0)
         ix_streamer_configure(2, 0);
+#else
+    if (g_nAudioEnabled_0049c244 == 0)
+        return;
+    ix_streamer_configure(2, 0);
+    return;
+#endif
 }
 
 /* Function start: 0x428900 */
 void InitializeAudioStreamer(HWND window)
 {
-    if (DAT_00465058 != 0) {
+#if 0
+    if (g_nAudioEnabled_0049c244 != 0) {
         ix_streamer_configure(3, (void *)1);
         ix_streamer_configure(0, window);
         ix_streamer_init();
         ix_streamer_set_intensity(0x19);
     }
+#else
+    if (g_nAudioEnabled_0049c244 == 0)
+        return;
+    ix_streamer_configure(3, (void *)1);
+    ix_streamer_configure(0, window);
+    ix_streamer_init();
+    ix_streamer_set_intensity(0x19);
+    return;
+#endif
 }
 
 /* Function start: 0x4289BF */
@@ -919,99 +983,168 @@ void Streamer_open(const char *streamName)
 {
     char *streamsDirectory;
 
-    if (DAT_00465058 != 0) {
+    if (g_nAudioEnabled_0049c244 != 0) {
         streamsDirectory = LocateStreamsDirOnDisc();
+#if 0
         if (streamsDirectory == 0) {
             ShowNoticeMessageBox("Unable to locate streamed music.\n");
             exit_squadron("");
         }
-        sprintf(g_szStreamerPath_00597750, "%s%s",
+#endif
+        sprintf(g_szStreamerPath_005b2818, "%s%s",
                 streamsDirectory, streamName);
-        SoundDebugPrintf("Streamer_open %s", g_szStreamerPath_00597750);
-        ix_streamer_open_stream_file(g_szStreamerPath_00597750);
-        g_bStreamerAudioPlaying_00597748 = 0;
+        SoundDebugPrintf("Streamer_open %s", g_szStreamerPath_005b2818);
+        ix_streamer_open_stream_file(g_szStreamerPath_005b2818);
+        g_nStreamerAudioPlaying_005b2810 = 0;
     }
+    return;
 }
 
 /* Function start: 0x428A2F */
 void Streamer_play(void)
 {
-    if (DAT_00465058 != 0 && g_bStreamerAudioPlaying_00597748 == 0) {
-        g_bStreamerAudioPlaying_00597748 = 1;
+#if 0
+    if (g_nAudioEnabled_0049c244 != 0 && g_nStreamerAudioPlaying_005b2810 == 0) {
+        g_nStreamerAudioPlaying_005b2810 = 1;
         SoundDebugPrintf("Streamer_play");
         ix_streamer_audio_play();
     }
+#else
+    if (g_nAudioEnabled_0049c244 == 0)
+        return;
+    if (g_nStreamerAudioPlaying_005b2810 == 0) {
+        g_nStreamerAudioPlaying_005b2810 = 1;
+        ix_streamer_audio_play();
+    }
+    return;
+#endif
 }
 
 /* Function start: 0x428A6D */
 void Streamer_stop(void)
 {
-    if (DAT_00465058 != 0 && g_bStreamerAudioPlaying_00597748 != 0) {
+#if 0
+    if (g_nAudioEnabled_0049c244 != 0 && g_nStreamerAudioPlaying_005b2810 != 0) {
         SoundDebugPrintf("Streamer_stop");
         ix_streamer_audio_stop();
-        g_bStreamerAudioPlaying_00597748 = 0;
+        g_nStreamerAudioPlaying_005b2810 = 0;
     }
+#else
+    if (g_nAudioEnabled_0049c244 == 0)
+        return;
+    if (g_nStreamerAudioPlaying_005b2810 != 0) {
+        ix_streamer_audio_stop();
+        g_nStreamerAudioPlaying_005b2810 = 0;
+    }
+    return;
+#endif
 }
 
-/* Function start: 0x428AEB */
+/* Function start: WC2_UNMAPPED */
 void ClearStreamerTrigger(void)
 {
-    if (DAT_00465058 != 0)
+    if (g_nAudioEnabled_0049c244 != 0)
         ix_streamer_set_trigger(-1);
 }
 
-/* Function start: 0x428B3C */
-void Streamer_trigger(int trigger)
+/* Function start: 0x428AEB */
+void SetStreamerTrigger(int trigger)
 {
-    if (DAT_00465058 != 0) {
-        if (g_bStreamerAudioPlaying_00597748 == 0) {
+#if 0
+    if (g_nAudioEnabled_0049c244 != 0) {
+        if (g_nStreamerAudioPlaying_005b2810 == 0) {
             ForceStreamerTrigger(trigger);
             return;
         }
         SoundDebugPrintf("Streamer_trigger %d", trigger);
         if (trigger >= 0)
             ix_streamer_set_trigger((char)trigger);
-        if (g_bStreamerAudioPlaying_00597748 == 0)
+        if (g_nStreamerAudioPlaying_005b2810 == 0)
             Streamer_play();
     }
+#else
+    if (g_nAudioEnabled_0049c244 != 0) {
+        ix_streamer_set_trigger((char)trigger);
+        if (trigger >= 0 && g_nStreamerAudioPlaying_005b2810 == 0)
+            ForceStreamerTrigger(trigger);
+    }
+    return;
+#endif
 }
 
-/* Function start: 0x428BAD */
-void SetStreamerIntensity(unsigned char intensity)
+/* Function start: 0x428AAB */
+void SetStreamerIntensity(int intensity)
 {
-    if (DAT_00465058 != 0) {
-        ix_streamer_set_intensity(intensity);
-        if (g_bStreamerAudioPlaying_00597748 == 0)
+    if (g_nAudioEnabled_0049c244 != 0) {
+        ix_streamer_set_intensity((unsigned char)intensity);
+        if (g_nStreamerAudioPlaying_005b2810 == 0)
             Streamer_play();
     }
+    return;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x428B3C */
 void ForceStreamerTrigger(int trigger)
 {
-    if (DAT_00465058 != 0) {
+    if (g_nAudioEnabled_0049c244 != 0) {
+#if 0
         SoundDebugPrintf("FORCE");
-        if (trigger >= 0)
+#endif
+        if (trigger > 0)
             ix_streamer_force_trigger((char)trigger);
-        if (g_bStreamerAudioPlaying_00597748 == 0)
+        if (g_nStreamerAudioPlaying_005b2810 == 0)
             Streamer_play();
     }
+    return;
 }
 
 /* Function start: 0x428DA3 */
 void SetMusicStreamVolume(unsigned short volume)
 {
-    if (DAT_00465058 != 0)
+#if 0
+    if (g_nAudioEnabled_0049c244 != 0)
         ix_streamer_set_volume(volume);
+#else
+    ix_streamer_set_volume(volume);
+    return;
+#endif
+}
+
+/* Function start: 0x428DBF */
+unsigned int GetMusicStreamVolume(void)
+{
+    return ix_streamer_get_volume();
+}
+
+/* Function start: 0x428DE0 */
+unsigned int GetStreamerState(void)
+{
+    return g_dwStreamerState_005c4c38;
 }
 
 /* Function start: 0x428B86 */
 void Streamer_close(void)
 {
-    if (DAT_00465058 != 0) {
+#if 0
+    if (g_nAudioEnabled_0049c244 != 0) {
         SoundDebugPrintf("Streamer_close");
         ix_streamer_close_stream_file();
     }
+#else
+    if (g_nAudioEnabled_0049c244 == 0)
+        return;
+    ix_streamer_close_stream_file();
+    return;
+#endif
+}
+
+/* Function start: 0x428BAD */
+void DestroyAudioStreamer(void)
+{
+    if (g_nAudioEnabled_0049c244 == 0)
+        return;
+    ix_streamer_destroy();
+    return;
 }
 
 /* Function start: 0x428D09 */

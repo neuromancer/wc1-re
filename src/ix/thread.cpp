@@ -35,7 +35,7 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
 
     entry = streamFile->entry;
     streamFile->serviceTick = g_dwStreamerThreadTick_00597bd4;
-    if ((g_dwStreamerState_00597cd0 & 0x100) != 0) {
+    if ((g_dwStreamerState_005c4c38 & 0x100) != 0) {
         ix_file_seek(streamFile->file, streamFile->position);
         ix_file_read(streamFile->file, streamFile->destination,
                      streamFile->remaining);
@@ -172,8 +172,8 @@ unsigned int ix_thread_service_streams(void)
 
     if (g_pStreamerReadQueue_00597c6c != 0)
         return 0;
-    if ((g_dwStreamerState_00597cd0 & 4) == 0 ||
-        (g_dwStreamerState_00597cd0 & 8) != 0)
+    if ((g_dwStreamerState_005c4c38 & 4) == 0 ||
+        (g_dwStreamerState_005c4c38 & 8) != 0)
         return 1000;
     bytesUntilRefill = ix_thread_get_audio_chunk_size() -
                        ix_dsps_get_buffer_free(0);
@@ -189,33 +189,33 @@ unsigned int ix_thread_service_streams(void)
 void ix_thread_advance_audio_chunk(void)
 {
     if (g_pStreamerAudioChunks_00597c88[
-            g_nStreamerAudioChunk_00597cc8].triggerCount > 0) {
+            g_dwStreamerAudioChunk_005c4c30].triggerCount > 0) {
         unsigned int triggerIndex;
         unsigned int triggerCount;
 
         triggerCount = g_pStreamerAudioChunks_00597c88[
-            g_nStreamerAudioChunk_00597cc8].triggerCount;
+            g_dwStreamerAudioChunk_005c4c30].triggerCount;
         triggerIndex = g_pStreamerAudioChunks_00597c88[
-            g_nStreamerAudioChunk_00597cc8].firstTrigger;
+            g_dwStreamerAudioChunk_005c4c30].firstTrigger;
         while (triggerCount--) {
             if (g_pStreamerTriggers_00597cf8[triggerIndex].tag == 'A') {
                 g_nStreamerBranchStackIndex_00470e8c =
                     (g_nStreamerBranchStackIndex_00470e8c - 1) & 0x1f;
-                g_nStreamerAudioChunk_00597cc8 =
+                g_dwStreamerAudioChunk_005c4c30 =
                     g_adwStreamerBranchStack_00597be8[
                         g_nStreamerBranchStackIndex_00470e8c];
                 return;
             }
             if (g_pStreamerTriggers_00597cf8[triggerIndex].tag == '@') {
-                g_dwStreamerState_00597cd0 |= 0x800;
+                g_dwStreamerState_005c4c38 |= 0x800;
             } else if (g_pStreamerTriggers_00597cf8[triggerIndex].tag ==
                        g_cStreamerBranchTag_00470e88) {
                 g_adwStreamerBranchStack_00597be8[
                     g_nStreamerBranchStackIndex_00470e8c] =
-                        g_nStreamerAudioChunk_00597cc8;
+                        g_dwStreamerAudioChunk_005c4c30;
                 g_nStreamerBranchStackIndex_00470e8c =
                     (g_nStreamerBranchStackIndex_00470e8c + 1) & 0x1f;
-                g_nStreamerAudioChunk_00597cc8 =
+                g_dwStreamerAudioChunk_005c4c30 =
                     g_pStreamerTriggers_00597cf8[triggerIndex].audioChunk;
                 g_cStreamerBranchTag_00470e88 = -1;
                 return;
@@ -225,7 +225,7 @@ void ix_thread_advance_audio_chunk(void)
     }
 
     if (g_pStreamerAudioChunks_00597c88[
-            g_nStreamerAudioChunk_00597cc8].branchCount > 0) {
+            g_dwStreamerAudioChunk_005c4c30].branchCount > 0) {
         unsigned int branchCount;
         unsigned int branchIndex;
         unsigned int bestDistance;
@@ -233,9 +233,9 @@ void ix_thread_advance_audio_chunk(void)
         unsigned int distance;
 
         branchCount = g_pStreamerAudioChunks_00597c88[
-            g_nStreamerAudioChunk_00597cc8].branchCount - 1;
+            g_dwStreamerAudioChunk_005c4c30].branchCount - 1;
         branchIndex = g_pStreamerAudioChunks_00597c88[
-            g_nStreamerAudioChunk_00597cc8].firstBranch;
+            g_dwStreamerAudioChunk_005c4c30].firstBranch;
         bestDistance =
             ((g_pStreamerBranches_00597c8c[branchIndex].intensity -
               g_bStreamerIntensity_00597c78) >> 31 ^
@@ -259,13 +259,13 @@ void ix_thread_advance_audio_chunk(void)
             }
             branchIndex++;
         }
-        g_nStreamerAudioChunk_00597cc8 =
+        g_dwStreamerAudioChunk_005c4c30 =
             g_pStreamerBranches_00597c8c[selectedBranch].audioChunk;
     } else {
-        g_nStreamerAudioChunk_00597cc8++;
+        g_dwStreamerAudioChunk_005c4c30++;
         if (g_pStreamerHeader_00597c84->audioChunkCount - 1 <=
-            g_nStreamerAudioChunk_00597cc8)
-            g_nStreamerAudioChunk_00597cc8 = 0;
+            g_dwStreamerAudioChunk_005c4c30)
+            g_dwStreamerAudioChunk_005c4c30 = 0;
     }
 }
 
@@ -280,7 +280,7 @@ void ix_thread_lock_stream_buffer(void)
     remaining = ix_thread_get_audio_chunk_size();
     if (remaining > 0) {
         fileOffset = g_pStreamerAudioChunks_00597c88[
-            g_nStreamerAudioChunk_00597cc8].fileOffset;
+            g_dwStreamerAudioChunk_005c4c30].fileOffset;
         while (remaining > 0) {
             ix_dsps_lock(0, remaining, &buffer, &lockedBytes);
             if (buffer == 0) {
@@ -304,11 +304,11 @@ unsigned int ix_thread_get_audio_chunk_size(void)
 {
     unsigned int fileOffset;
 
-    if (g_nStreamerAudioChunk_00597cc8 != (unsigned int)-1) {
+    if (g_dwStreamerAudioChunk_005c4c30 != (unsigned int)-1) {
         fileOffset = g_pStreamerAudioChunks_00597c88[
-            g_nStreamerAudioChunk_00597cc8].fileOffset;
+            g_dwStreamerAudioChunk_005c4c30].fileOffset;
         return g_pStreamerAudioChunks_00597c88[
-            g_nStreamerAudioChunk_00597cc8].fileEnd - fileOffset;
+            g_dwStreamerAudioChunk_005c4c30].fileEnd - fileOffset;
     }
     return 0;
 }

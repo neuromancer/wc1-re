@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x455715 */
+/* Function start: WC2_UNMAPPED */
 FontWorkspace **AllocateFontWorkspace(short fontIndex)
 {
     FontWorkspace **workspace;
@@ -35,7 +35,7 @@ FontWorkspace **AllocateFontWorkspace(short fontIndex)
     return workspace;
 }
 
-/* Function start: 0x42EE4F */
+/* Function start: WC2_UNMAPPED */
 void FreeFontWorkspace(FontWorkspace **workspace)
 {
     int offset;
@@ -170,6 +170,6 @@ short __stdcall OpenDataFileOrDie(const char *path)
 {
     short fd = (short)_open(path, 0x8002);
 
-    g_nPacketError_00465460 = (short)errno;
+    g_nPacketError_0049ca90 = (short)errno;
     return fd;
 }

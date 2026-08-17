@@ -23,7 +23,7 @@
  * Addresses are filled in as each is located.  _FrameSkip is confirmed:
  * ReportFramesSkipped clamps it with MinShort(MaxShort(v + d, 1), 5).
  * -------------------------------------------------------------------------- */
-extern short g_nFrameSkip_00469fb8;          /* int _FrameSkip = 1  (clamped 1..5) */
+extern short g_nFrameSkip_0049d764;          /* int _FrameSkip = 1  (clamped 1..5) */
 /* TODO: locate _FrameCount, Game_Mode, Game_Status, window_colored, version */
 
 /* --------------------------------------------------------------------------
@@ -32,7 +32,7 @@ extern short g_nFrameSkip_00469fb8;          /* int _FrameSkip = 1  (clamped 1..
  * -------------------------------------------------------------------------- */
 extern unsigned char g_bCurrentKey_0046c014;     /* key code from PollKeyboardState */
 extern signed char g_cPreviousKey_0046c018;
-extern unsigned char g_bMessageSpeed_0046af68;   /* cycled (x+1)%5 */
+extern signed char g_cMessageSpeed_0049b778;     /* cycled (x+1)%5 */
 extern short g_nOriginDevUnlock_0049d774;        /* argv element == "Origin" */
 extern unsigned long g_dwGameClockBase_005a89a8; /* GetTickCount epoch, randomised at startup */
 

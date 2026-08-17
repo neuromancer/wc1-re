@@ -166,7 +166,7 @@ static void Wc1SdlUpdateJoystickRumble(void)
     low = 0;
     high = 0;
     if (g_anShipFuel_0059b470[0] > 0 &&
-        g_aeSpecialManeuver_0059c3c0[0] ==
+        g_aeSpecialManeuver_00495600[0] ==
             SPECIAL_MANEUVER_AFTERBURNER &&
         g_asShipAfterburnerTimer_0059c810[0] > 0) {
         low = 0x6000;
@@ -801,19 +801,19 @@ static void Wc1SdlQueueScanCodePress(unsigned short scanCode)
 {
     /* player_input samples one transition before consuming the remaining
        queue, so lead with the release for this impulse. */
-    QueueInputEvent(4, 0, 0, scanCode, 0, 0, 0);
-    QueueInputEvent(3, 0, 0, scanCode, 0, 0, 0);
+    QueueInputEvent(4, 0, 0, scanCode, 0, 0, 0, 0, 0);
+    QueueInputEvent(3, 0, 0, scanCode, 0, 0, 0, 0, 0);
 }
 
 int Wc1SdlGetCommunicationMenuSelection(void)
 {
-    if (g_nCommMenuChoiceCount_0046af60 <= 0) {
+    if (g_nCommMenuChoiceCount_0049b770 <= 0) {
         g_nWc1SdlCommunicationMenuSelection = 0;
         return -1;
     }
-    if (g_nCommMenuReuseMode_0046af64 == 0 ||
+    if (g_nCommMenuReuseMode_0049b774 == 0 ||
         g_nWc1SdlCommunicationMenuSelection >=
-            g_nCommMenuChoiceCount_0046af60)
+            g_nCommMenuChoiceCount_0049b770)
         g_nWc1SdlCommunicationMenuSelection = 0;
     return g_nWc1SdlCommunicationMenuSelection;
 }
@@ -829,7 +829,7 @@ static int Wc1SdlHandleCommunicationDpad(int button)
     case WC1_SDL_JOYSTICK_BUTTON_DPAD_UP:
         if (selection != -1) {
             if (selection == 0)
-                selection = g_nCommMenuChoiceCount_0046af60;
+                selection = g_nCommMenuChoiceCount_0049b770;
             g_nWc1SdlCommunicationMenuSelection = selection - 1;
             InvalidateVduMode(1);
         }
@@ -837,7 +837,7 @@ static int Wc1SdlHandleCommunicationDpad(int button)
     case WC1_SDL_JOYSTICK_BUTTON_DPAD_DOWN:
         if (selection != -1) {
             selection++;
-            if (selection >= g_nCommMenuChoiceCount_0046af60)
+            if (selection >= g_nCommMenuChoiceCount_0049b770)
                 selection = 0;
             g_nWc1SdlCommunicationMenuSelection = selection;
             InvalidateVduMode(1);
@@ -934,14 +934,14 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
 
     spaceflightActive = g_bWc1SdlJoystickSpaceflightActive &&
         DAT_0059ab2c == get_player_input &&
-        g_nArcadeState_00469fb0 == 0;
+        g_nArcadeState_0049d75c == 0;
     eventType = pressed ? 3 : 4;
     if (button == WC1_SDL_JOYSTICK_BUTTON_BACK) {
         if (pressed)
-            DAT_0059ab58 = 1;
+            g_bSceneEscapeRequested_0049d4b0 = 1;
         if (DAT_0046505c != 0)
-            QueueInputEvent(eventType, 0, 0, 0x1b, 0, 0, 0);
-        QueueInputEvent(eventType, 0, 0, 0x01, 0, 0, 0);
+            QueueInputEvent(eventType, 0, 0, 0x1b, 0, 0, 0, 0, 0);
+        QueueInputEvent(eventType, 0, 0, 0x01, 0, 0, 0, 0, 0);
         return;
     }
     if (button == WC1_SDL_JOYSTICK_BUTTON_START) {
@@ -953,8 +953,8 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
         return;
     if (button == WC1_SDL_JOYSTICK_BUTTON_Y &&
         !spaceflightActive && DAT_0046505c != 0) {
-        QueueInputEvent(3, 0, 0, 'Y', 0, 0, 0);
-        QueueInputEvent(3, 0, 0, 0x15, 0, 0, 0);
+        QueueInputEvent(3, 0, 0, 'Y', 0, 0, 0, 0, 0);
+        QueueInputEvent(3, 0, 0, 0x15, 0, 0, 0, 0, 0);
         return;
     }
     if (!spaceflightActive ||

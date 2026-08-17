@@ -14,20 +14,20 @@ unsigned int steer_away_from_object(short obj, short other, short amount)
     FixedVector difference;
     FixedVector relative;
 
-    g_anRollGoal_0059d630[obj] = 0;
-    AddFixedVectors(&g_aShipPosition_0059c490[other],
+    g_anRollGoal_004954d8[obj] = 0;
+    AddFixedVectors(&g_aShipPosition_00494550[other],
                     &g_aShipVelocity_0059c010[other], &predicted);
-    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+    ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                        &predicted, &difference);
     transform_to_objects_frame(&difference, &relative, obj);
     if (abs(relative.x) < abs(relative.y)) {
         if (relative.x > 0)
             amount = -amount;
-        g_anYawGoal_0059c310[obj] = amount;
+        g_anYawGoal_004954c0[obj] = amount;
     } else {
         if (relative.y > 0)
             amount = -amount;
-        g_anPitchGoal_0059d7a0[obj] = amount;
+        g_anPitchGoal_004954a8[obj] = amount;
     }
     return 0;
 }
@@ -40,22 +40,22 @@ void steer_away_from_predicted_object(short obj, short other,
     FixedVector difference;
     FixedVector relative;
 
-    g_anRollGoal_0059d630[obj] = 0;
+    g_anRollGoal_004954d8[obj] = 0;
     ScaleFixedVector(&g_aShipVelocity_0059c010[other],
                      (int)predictionTicks << 8, &predicted);
-    AddFixedVectors(&g_aShipPosition_0059c490[other],
+    AddFixedVectors(&g_aShipPosition_00494550[other],
                     &predicted, &predicted);
-    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+    ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                        &predicted, &difference);
     transform_to_objects_frame(&difference, &relative, obj);
     if (abs(relative.x) < abs(relative.y)) {
         if (relative.x < 0)
             amount = -amount;
-        g_anYawGoal_0059c310[obj] = amount;
+        g_anYawGoal_004954c0[obj] = amount;
     } else {
         if (relative.y > 0)
             amount = -amount;
-        g_anPitchGoal_0059d7a0[obj] = amount;
+        g_anPitchGoal_004954a8[obj] = amount;
     }
 }
 
@@ -78,8 +78,8 @@ void prevent_collision(short obj)
         try2end_collision_alert(obj);
         return;
     }
-    ship_vs_point(obj, &g_aShipPosition_0059c490[other]);
-    facing = g_nFacingToTarget_0059d920;
+    ship_vs_point(obj, &g_aShipPosition_00494550[other]);
+    facing = g_nFacingToTarget_00493194;
     if (facing > 75) {
         if (g_nTargetFacing_0059d52a < -70)
             approach_zero_speed(obj);
@@ -91,7 +91,7 @@ void prevent_collision(short obj)
         approach_full_speed(obj);
     }
     if (no_goal(obj) != 0) {
-        facing = g_nFacingToTarget_0059d920;
+        facing = g_nFacingToTarget_00493194;
         if (facing < -60 &&
             g_nTargetFacing_0059d52a > 60) {
             veer_random(obj, 14);
@@ -105,7 +105,7 @@ void prevent_collision(short obj)
 }
 
 /* Function start: 0x41E860 */
-int handle_collisions(short obj)
+short handle_collisions(short obj)
 {
     short other;
 
@@ -117,39 +117,78 @@ int handle_collisions(short obj)
     return alert_flag(obj, 1);
 }
 
-/* Function start: 0x421CF6 */
-int regulate_turn(short obj)
+/* Function start: 0x41E8D3 */
+short CountEnemyFighters(void)
 {
+    short count;
+    short obj;
+
+    count = 0;
+    for (obj = 0; obj < 10; obj++) {
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP &&
+            g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[0])
+            count++;
+    }
+    return count;
+}
+
+/* Function start: 0x41E945 */
+short regulate_turn(short obj)
+{
+#if 0
     signed char count;
 
-    if (g_aeSpecialManeuver_0059c3c0[obj] ==
+    if (g_aeSpecialManeuver_00495600[obj] ==
         SPECIAL_MANEUVER_UNKNOWN_9)
         return 1;
-    if (g_aeObjectClass_0059d100[obj] != OBJECT_CLASS_CAPITAL_SHIP &&
+    if (g_aeObjectClass_00495328[obj] != OBJECT_CLASS_CAPITAL_SHIP &&
         handle_collisions(obj) != 0)
         return 1;
-    count = --g_acTurnRegulator_0059cf10[obj];
+    count = --g_acTurnRegulator_00495618[obj];
     if (count > 0)
         return 1;
-    g_abShipTurn_0059d860[obj]++;
-    g_acTurnRegulator_0059cf10[obj] = g_acTurnInterval_0059d7d0[obj];
+    g_abShipTurn_00495fd8[obj]++;
+    g_acTurnRegulator_00495618[obj] = g_acTurnInterval_00495628[obj];
     return 0;
+#else
+    if (g_aeSpecialManeuver_00495600[obj] ==
+        SPECIAL_MANEUVER_UNKNOWN_9)
+        return 1;
+    g_acTurnRegulator_00495618[obj]--;
+    if (g_aeObjectClass_00495328[obj] < OBJECT_CLASS_CAPITAL_SHIP &&
+        handle_collisions(obj) != 0)
+        return 1;
+    if ((g_nSpaceFrame_00493134 & 1) != 0 &&
+        obj == g_nYourWingman_0049346c &&
+        g_bWingmanTurnRateUnlocked_00493040 == 0)
+        return 1;
+    if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP &&
+        GetAdaptiveTurnRate() >= 120 &&
+        CountEnemyFighters() < 3 &&
+        g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[0])
+        g_acTurnRegulator_00495618[obj] = 0;
+    if (g_acTurnRegulator_00495618[obj] > 0)
+        return 1;
+    g_abShipTurn_00495fd8[obj]++;
+    g_acTurnRegulator_00495618[obj] = g_acTurnInterval_00495628[obj];
+    return 0;
+#endif
 }
 
 /* Function start: 0x41EA86 */
 unsigned int select_target(short obj)
 {
-    if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI) {
+    if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI) {
         if (RandomBelow(100) < 50) {
             if (attacker_in_range(0, 16000) == 0) {
                 if (distance_from_object(obj, 0) < 5000) {
-                    g_acShipTarget_0059ce60[obj] = 0;
+                    g_acShipTarget_00495f20[obj] = 0;
                     return 0;
                 }
             }
         }
     }
-    g_acShipTarget_0059ce60[obj] =
+    g_acShipTarget_00495f20[obj] =
         (signed char)scan_for_enemy(obj, 16000);
     return 0;
 }
@@ -159,16 +198,16 @@ unsigned int veer_random(short obj, short amount)
 {
     switch (RandomBelowOrEqual(3)) {
     case 0:
-        g_anYawGoal_0059c310[obj] = amount;
+        g_anYawGoal_004954c0[obj] = amount;
         return 0;
     case 1:
-        g_anYawGoal_0059c310[obj] = -amount;
+        g_anYawGoal_004954c0[obj] = -amount;
         return 0;
     case 2:
-        g_anPitchGoal_0059d7a0[obj] = amount;
+        g_anPitchGoal_004954a8[obj] = amount;
         return 0;
     case 3:
-        g_anPitchGoal_0059d7a0[obj] = -amount;
+        g_anPitchGoal_004954a8[obj] = -amount;
         break;
     }
     return 0;
@@ -178,8 +217,8 @@ unsigned int veer_random(short obj, short amount)
 unsigned int offset_location(short obj, const ShortVector *offset,
                              FixedVector *location)
 {
-    *location = g_aShipPosition_0059c490[obj];
-    position_relative(location, g_aShipForwardVector_0059bce0[obj],
+    *location = g_aShipPosition_00494550[obj];
+    position_relative(location, g_aShipForwardVector_00494208[obj],
                       offset->z);
     position_relative(location, g_aShipUpVector_0059b9e0[obj],
                       offset->y);
@@ -242,14 +281,14 @@ unsigned int chase_location(short obj, const FixedVector *destination,
     desiredSpeed = g_anShipSpeed_0059b320[reference] - 0x200;
     if (desiredSpeed < 0)
         desiredSpeed = 0;
-    ScaleFixedVector(&g_aShipForwardVector_0059bce0[reference],
+    ScaleFixedVector(&g_aShipForwardVector_00494208[reference],
                      g_anShipSpeed_0059b320[reference] * 15,
                      &forwardTravel);
     AddFixedVectors(destination, &forwardTravel, &projectedDestination);
     get_facing_range_from_point(obj, &projectedDestination);
-    forwardFacing = g_nFacingToTarget_0059d920;
+    forwardFacing = g_nFacingToTarget_00493194;
     get_facing_range_from_point(obj, destination);
-    if (g_nFacingToTarget_0059d920 < 0) {
+    if (g_nFacingToTarget_00493194 < 0) {
         approach_speed(obj, 0);
         speed = FixedToShortSaturating(g_anShipSpeed_0059b320[reference]);
         speed = MaxShort(speed, 1);
@@ -260,9 +299,9 @@ unsigned int chase_location(short obj, const FixedVector *destination,
     }
     control_speed(obj, (unsigned short)g_nTargetRange_0059ce10,
                   desiredSpeed);
-    if (g_nFacingToTarget_0059d920 > 85 &&
+    if (g_nFacingToTarget_00493194 > 85 &&
         g_nTargetRange_0059ce10 > 175)
-        g_anRollGoal_0059d630[obj] =
+        g_anRollGoal_004954d8[obj] =
             match_roll_orientation(obj, reference);
     if (pointAtDestination != 0)
         point_ship(obj, 0, &g_vToTarget_0059d4d0);
@@ -287,7 +326,7 @@ unsigned int goto_location(short obj, const FixedVector *destination)
     short speed;
 
     ship_vs_point(obj, destination);
-    if (g_nFacingToTarget_0059d920 < 51) {
+    if (g_nFacingToTarget_00493194 < 51) {
         approach_half_speed(obj);
         if (no_goal(obj) != 0) {
             point_ship_at_point(obj, destination);
@@ -315,17 +354,17 @@ unsigned int goto_formation(short obj, const FixedVector *destination,
     short forwardFacing;
     FixedVector projected;
 
-    AddFixedVectors(&g_aShipPosition_0059c490[obj],
-                    &g_aShipForwardVector_0059bce0[leader], &projected);
+    AddFixedVectors(&g_aShipPosition_00494550[obj],
+                    &g_aShipForwardVector_00494208[leader], &projected);
     get_facing_range_from_point(obj, &projected);
-    forwardFacing = g_nFacingToTarget_0059d920;
+    forwardFacing = g_nFacingToTarget_00493194;
     get_facing_range_from_point(obj, destination);
-    if (g_nFacingToTarget_0059d920 < 40) {
+    if (g_nFacingToTarget_00493194 < 40) {
         approach_min_speed(obj);
     } else if (g_nTargetRange_0059ce10 > 2000) {
         approach_full_speed(obj);
         if (g_nTargetRange_0059ce10 > 3000 &&
-            g_nFacingToTarget_0059d920 > 70 && normal_speed(obj) != 0)
+            g_nFacingToTarget_00493194 > 70 && normal_speed(obj) != 0)
             fire_afterburner(obj, 5);
     } else if (g_nTargetRange_0059ce10 > 200) {
         control_speed(obj, (unsigned short)g_nTargetRange_0059ce10,
@@ -346,7 +385,7 @@ unsigned int goto_formation(short obj, const FixedVector *destination,
     if (g_nTargetRange_0059ce10 < 700) {
         trim_goals(obj, 10);
         if (forwardFacing > 90)
-            g_anRollGoal_0059d630[obj] =
+            g_anRollGoal_004954d8[obj] =
                 match_roll_orientation(obj, leader);
     }
     return 0;
@@ -362,7 +401,7 @@ unsigned int maintain_formation(short obj)
     compute_formation_destination(leader,
                                   &g_aShipFormationOffset_0059b520[obj],
                                   &destination);
-    g_aShipDestination_0059d530[obj] = destination;
+    g_aShipDestination_004953f0[obj] = destination;
     goto_formation(obj, &destination, leader);
     return 0;
 }
@@ -373,7 +412,7 @@ unsigned int reset_stress(short obj)
     short damage;
 
     if (obj >= 12) {
-        if (g_acPilotAggression_0046d9a0[g_aiPilotLevel_0059cf30[obj]] == 0)
+        if (g_acPilotAggression_0046d9a0[g_asPilotLevel_00495d60[obj]] == 0)
             damage = 100;
         else
             damage = evaluate_damage(obj);
@@ -399,45 +438,67 @@ short stress_morale(short obj)
     return 2;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x41F446 */
 enum ShipManeuver any_defense(short obj)
 {
+#if 0
     signed char *maneuvers;
     short count;
 
     count = 0;
-    maneuvers = g_apDefenseManeuvers_0046d3d0[
-        g_aiPilotLevel_0059cf30[obj]];
+    maneuvers = g_apDefenseManeuvers_00493018[
+        g_asPilotLevel_00495d60[obj]];
     while (maneuvers[count] != -1)
         count++;
     return (enum ShipManeuver)maneuvers[RandomBelowOrEqual(count)];
+#else
+    short count;
+    short pilotLevel;
+    signed char *maneuvers;
+
+    count = 0;
+    pilotLevel = g_asPilotLevel_00495d60[obj];
+    if (pilotLevel > 4)
+        pilotLevel = 4;
+    maneuvers = g_apDefenseManeuvers_00493018[pilotLevel];
+    while (maneuvers[count] != -1)
+        count++;
+    return (enum ShipManeuver)
+        maneuvers[RandomBelowOrEqual((short)(count - 1))];
+#endif
 }
 
 /* Function start: 0x41F4C6 */
-enum ShipManeuver pick_regular_maneuver(short obj, int event)
+short pick_regular_maneuver(short obj, short event)
 {
     short reroll;
+#if 0
     short morale;
+#endif
 
     reroll = RandomBelowOrEqual(100) < 3 ||
-             g_aeShipManeuver_0059dcb0[obj] == MANEUVER_NONE;
+             g_asShipManeuver_00495f48[obj] == MANEUVER_NONE;
+#if 0
     morale = stress_morale(obj);
     if (morale == 2)
+#else
+    if (stress_morale(obj) == 2)
+#endif
         return MANEUVER_OUTA_HERE;
     if ((g_aiIntelligenceEvent_0046d368[obj] == event ||
          RandomBelowOrEqual(100) < 20) &&
         (event == 0 || event == 3 || event == 4 || event == 7) &&
         reroll == 0)
-        return g_aeShipManeuver_0059dcb0[obj];
+        return g_asShipManeuver_00495f48[obj];
 
     switch (event) {
     case 0:
-        if (g_aeObjectClass_0059d100[
-                g_acShipTarget_0059ce60[obj]] ==
+        if (g_aeObjectClass_00495328[
+                g_acShipTarget_00495f20[obj]] ==
             OBJECT_CLASS_CAPITAL_SHIP)
             return MANEUVER_STRAFE_ENEMY;
         if (RandomBelow(100) <
-            g_aiPilotLevel_0059cf30[obj] * 5 + 60)
+            g_asPilotLevel_00495d60[obj] * 5 + 60)
             return MANEUVER_ZIP_PAST;
         return any_defense(obj);
     case 2:
@@ -448,13 +509,13 @@ enum ShipManeuver pick_regular_maneuver(short obj, int event)
         return any_defense(obj);
     case 4:
         if (RandomBelowOrEqual(100) >=
-            g_aiPilotLevel_0059cf30[obj] * 20 + 30)
+            g_asPilotLevel_00495d60[obj] * 20 + 30)
             return any_defense(obj);
         return MANEUVER_STRAFE_ENEMY;
     case 5:
         return MANEUVER_TAIL_FIRE;
     case 6:
-        if (g_aiPilotLevel_0059cf30[obj] >= 2)
+        if (g_asPilotLevel_00495d60[obj] >= 2)
             return MANEUVER_HARD_TURN;
         return MANEUVER_WABBLE;
     case 7:
@@ -472,7 +533,7 @@ enum ShipManeuver pick_from_list(const ManeuverChoice *choice, short obj)
     enum ShipManeuver maneuver;
     short chooseAgain;
 
-    maneuver = g_aeShipManeuver_0059dcb0[obj];
+    maneuver = g_asShipManeuver_00495f48[obj];
     chooseAgain = maneuver == MANEUVER_NONE;
     if (choice->primary != maneuver && choice->secondary != maneuver &&
         RandomBelow(100) < 10 &&
@@ -500,7 +561,7 @@ enum ShipManeuver pick_kilrathi_maneuver(short obj, int event)
 
     choice =
         &g_aKilrathiManeuverChoices_0046d808[
-            g_aiPilotLevel_0059cf30[obj]][event][stress_morale(obj)];
+            g_asPilotLevel_00495d60[obj]][event][stress_morale(obj)];
     maneuver = pick_from_list(choice, obj);
     switch (maneuver) {
     case MANEUVER_UNKNOWN_45:
@@ -522,7 +583,7 @@ unsigned int process_maneuver_node(short obj, int event)
 
     rating = (short)g_acShipRating_0059cd80[obj];
     if (rating == -1) {
-        if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
+        if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
             maneuver = pick_kilrathi_maneuver(obj, event);
         else
             maneuver = pick_regular_maneuver(obj, event);
@@ -532,7 +593,7 @@ unsigned int process_maneuver_node(short obj, int event)
             &g_aRatedManeuverChoices_0046d3e8[rating][event][morale];
         maneuver = pick_from_list(choice, obj);
     }
-    if (g_aeShipManeuver_0059dcb0[obj] != maneuver)
+    if (g_asShipManeuver_00495f48[obj] != maneuver)
         reset_maneuver(obj, (short)maneuver);
     return 0;
 }
@@ -544,7 +605,7 @@ void handle_stress(short obj, int event)
     short damage;
 
     aggression =
-        g_acPilotAggression_0046d9a0[g_aiPilotLevel_0059cf30[obj]];
+        g_acPilotAggression_0046d9a0[g_asPilotLevel_00495d60[obj]];
     switch (event) {
     case 3:
     case 4:
@@ -563,7 +624,7 @@ void handle_stress(short obj, int event)
     case -1:
     case 2:
         g_acShipStress_0059d620[obj] -=
-            g_acPilotRecovery_0046d9b8[g_aiPilotLevel_0059cf30[obj]];
+            g_acPilotRecovery_0046d9b8[g_asPilotLevel_00495d60[obj]];
         break;
     }
     damage = evaluate_damage(obj);
@@ -595,14 +656,14 @@ void intelligence_events(short obj)
 
     event = -1;
     targetGone = 0;
-    target = g_acShipTarget_0059ce60[obj];
+    target = g_acShipTarget_00495f20[obj];
     previousStress = (short)g_acShipStress_0059d620[obj];
-    if (missile_on_tail(obj) != 0) {
+    if (FindMissileTargetingObject(obj) != 0) {
         event = 6;
     } else if (unactive(target) != 0) {
         targetGone = 1;
-    } else if (g_aeSpecialManeuver_0059c3c0[
-                   g_acShipTarget_0059ce60[obj]] ==
+    } else if (g_aeSpecialManeuver_00495600[
+                   g_acShipTarget_00495f20[obj]] ==
                SPECIAL_MANEUVER_UNKNOWN_9) {
         event = 8;
     } else {
@@ -612,13 +673,13 @@ void intelligence_events(short obj)
             event = 2;
         } else if (g_acShipAiCooldown_0059d680[obj] > 0) {
             event = 7;
-        } else if (g_nFacingToTarget_0059d920 > 55 &&
+        } else if (g_nFacingToTarget_00493194 > 55 &&
                    g_nTargetFacing_0059d52a < -55) {
             event = 5;
-        } else if (g_nFacingToTarget_0059d920 > 75 &&
+        } else if (g_nFacingToTarget_00493194 > 75 &&
                    g_nTargetFacing_0059d52a > 75) {
             event = 4;
-        } else if (g_nFacingToTarget_0059d920 < -60 &&
+        } else if (g_nFacingToTarget_00493194 < -60 &&
                    g_nTargetFacing_0059d52a > 85 &&
                    g_nTargetRange_0059ce10 < 7000) {
             event = 3;
@@ -638,9 +699,9 @@ void intelligence_events(short obj)
         reset_stress(obj);
     }
 
-    if (g_nYourWingman_0046c04c == obj &&
-        g_aeObjectClass_0059d100[0] == OBJECT_CLASS_SHIP &&
-        g_acWingmanMessageState_0059d2c0[g_nYourWingman_0046c04c] == -1) {
+    if (g_nYourWingman_0049346c == obj &&
+        g_aeObjectClass_00495328[0] == OBJECT_CLASS_SHIP &&
+        g_acWingmanMessageState_0059d2c0[g_nYourWingman_0049346c] == -1) {
         if (previousStress < 15 && g_acShipStress_0059d620[obj] >= 15) {
             send_message(obj, 4);
         } else {
@@ -657,8 +718,9 @@ void intelligence_events(short obj)
 }
 
 /* Function start: 0x440571 */
-unsigned int chase_speed(short obj, short range)
+void chase_speed(short obj, short range)
 {
+#if 0
     short targetRange = g_nTargetRange_0059ce10;
 
     if (range < targetRange) {
@@ -671,6 +733,19 @@ unsigned int chase_speed(short obj, short range)
     }
     approach_speed(obj,
                       g_anShipSpeed_0059b320[
-                          g_acShipTarget_0059ce60[obj]]);
+                          g_acShipTarget_00495f20[obj]]);
     return 0;
+#else
+    if (range < g_nTargetRange_0059ce10) {
+        approach_full_speed(obj);
+        if ((short)(range * 2) < g_nTargetRange_0059ce10)
+            fire_afterburner(obj, 2);
+    } else if (range > g_nTargetRange_0059ce10) {
+        approach_zero_speed(obj);
+    } else {
+        approach_speed(obj,
+                       g_anShipSpeed_0059b320[
+                           g_acShipTarget_00495f20[obj]]);
+    }
+#endif
 }

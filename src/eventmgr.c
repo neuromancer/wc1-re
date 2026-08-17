@@ -23,7 +23,7 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
                         0,
                         g_bHostPrimaryMouseButton_005a8998,
                         g_bHostSecondaryMouseButton_005a899c,
-                        state);
+                        state, 0, 0);
         return;
     case 6:
     {
@@ -31,14 +31,14 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
             &g_aInputDeviceSamples_005a81f0[g_nActiveInputDevice_005a819c];
 
         QueueInputEvent(type, (short)sample->x, (short)sample->y,
-                        0, 0, 0, 0);
+                        0, 0, 0, 0, 0, 0);
         return;
     }
     case 13:
         QueueInputEvent(type,
                         (short)g_nHostMouseMessageX_005a8990,
                         (short)g_nHostMouseMessageY_005a8994,
-                        0, 0, 0, 0);
+                        0, 0, 0, 0, 0, 0);
         return;
     }
 }
@@ -54,45 +54,69 @@ void QueueInputEventAtCursor(unsigned int type, short primaryButton,
 
     QueueInputEvent((unsigned short)eventType, (unsigned short)x,
                     (unsigned short)y, 0,
-                    primaryButton, secondaryButton, 0);
+                    primaryButton, secondaryButton, 0, 0, 0);
 }
 
-/* Function start: WC2_UNMAPPED */
+#pragma function(memset)
+/* Function start: 0x462890 */
 InputEvent *AllocateInputEvent(void)
 {
+#if 0
     int *used;
     int index;
 
-    if (g_bInputEventPoolInitialized_0046da98 != 0) {
+    if (g_nInputEventPoolInitialized_0049d4bc != 0) {
         index = 0;
-        used = g_aiInputEventSlotUsed_0059ab70;
+        used = g_anInputEventSlotUsed_005c87e0;
         do {
             if (*used == 0) {
-                g_aiInputEventSlotUsed_0059ab70[index] = 1;
-                return &g_aInputEventPool_00598c40[index];
+                g_anInputEventSlotUsed_005c87e0[index] = 1;
+                return &g_aInputEventPool_005c5890[index];
             }
             used++;
             index++;
-        } while (used < &g_aiInputEventSlotUsed_0059ab70[0x100]);
+        } while (used < &g_anInputEventSlotUsed_005c87e0[0x100]);
         return 0;
     }
-    memset(g_aInputEventPool_00598c40, 0,
-           sizeof(g_aInputEventPool_00598c40));
-    memset(g_aiInputEventSlotUsed_0059ab70, 0,
-           sizeof(g_aiInputEventSlotUsed_0059ab70));
-    g_bInputEventPoolInitialized_0046da98 = 1;
-    g_aiInputEventSlotUsed_0059ab70[0] = 1;
-    return &g_aInputEventPool_00598c40[0];
-}
+    memset(g_aInputEventPool_005c5890, 0,
+           sizeof(g_aInputEventPool_005c5890));
+    memset(g_anInputEventSlotUsed_005c87e0, 0,
+           sizeof(g_anInputEventSlotUsed_005c87e0));
+    g_nInputEventPoolInitialized_0049d4bc = 1;
+    g_anInputEventSlotUsed_005c87e0[0] = 1;
+    return &g_aInputEventPool_005c5890[0];
+#else
+    int index;
 
-/* Function start: 0x42C04B */
+    if (g_nInputEventPoolInitialized_0049d4bc != 0) {
+        for (index = 0; index < 0x100; index++) {
+            if (g_anInputEventSlotUsed_005c87e0[index] == 0) {
+                g_anInputEventSlotUsed_005c87e0[index] = 1;
+                return &g_aInputEventPool_005c5890[index];
+            }
+        }
+    } else {
+        memset(g_aInputEventPool_005c5890, 0,
+               sizeof(g_aInputEventPool_005c5890));
+        memset(g_anInputEventSlotUsed_005c87e0, 0,
+               sizeof(g_anInputEventSlotUsed_005c87e0));
+        g_nInputEventPoolInitialized_0049d4bc = 1;
+        g_anInputEventSlotUsed_005c87e0[0] = 1;
+        return &g_aInputEventPool_005c5890[0];
+    }
+    return 0;
+#endif
+}
+#pragma intrinsic(memset)
+
+/* Function start: 0x46294F */
 void ReleaseInputEvent(InputEvent *event)
 {
     int slot;
 
     for (slot = 0; slot < 0x100; slot++) {
-        if (&g_aInputEventPool_00598c40[slot] == event)
-            g_aiInputEventSlotUsed_0059ab70[slot] = 0;
+        if (&g_aInputEventPool_005c5890[slot] == event)
+            g_anInputEventSlotUsed_005c87e0[slot] = 0;
     }
 }
 
@@ -100,57 +124,89 @@ void ReleaseInputEvent(InputEvent *event)
 void QueueInputEvent(unsigned short type, unsigned short x,
                      unsigned short y, unsigned short value,
                      int primaryButton, int secondaryButton,
-                     unsigned int timestamp)
+                     unsigned int ignored, unsigned int field14,
+                     unsigned int field18)
 {
     unsigned int modifiers;
     InputEvent *event;
+
+    (void)ignored;
 
     modifiers = 0;
     if (GetShiftKeyState() != 0)
         modifiers = 0xe0;
     if (GetControlKeyState() != 0)
-        modifiers |= 0x2000;
+        modifiers |= 0x3800;
     if (GetKeyboardModifiers() != 0)
         modifiers |= 0x700;
     if (primaryButton != 0)
-        modifiers |= 2;
+        modifiers |= 1;
     if (secondaryButton != 0)
-        modifiers |= 4;
+        modifiers |= 2;
 
-    if (g_pInputEventHead_0046da90 == 0) {
-        g_pInputEventHead_0046da90 = AllocateInputEvent();
-        if (g_pInputEventHead_0046da90 == 0) {
+    if (g_pInputEventHead_0049d4b4 == 0) {
+        g_pInputEventHead_0049d4b4 = AllocateInputEvent();
+        if (g_pInputEventHead_0049d4b4 == 0) {
             ReleaseInputEventQueue();
             return;
         }
-        g_pInputEventTail_0046da94 = g_pInputEventHead_0046da90;
-        g_pInputEventHead_0046da90->next = 0;
-        g_pInputEventTail_0046da94->previous = 0;
+        g_pInputEventTail_0049d4b8 = g_pInputEventHead_0049d4b4;
+        g_pInputEventHead_0049d4b4->next = 0;
+        g_pInputEventTail_0049d4b8->previous = 0;
     } else {
         event = AllocateInputEvent();
-        g_pInputEventTail_0046da94->next = event;
-        if (g_pInputEventTail_0046da94->next == 0) {
+        g_pInputEventTail_0049d4b8->next = event;
+        if (g_pInputEventTail_0049d4b8->next == 0) {
             ReleaseInputEventQueue();
             return;
         }
-        g_pInputEventTail_0046da94->next->previous =
-            g_pInputEventTail_0046da94;
-        g_pInputEventTail_0046da94 = g_pInputEventTail_0046da94->next;
-        g_pInputEventTail_0046da94->next = 0;
+        g_pInputEventTail_0049d4b8->next->previous =
+            g_pInputEventTail_0049d4b8;
+        g_pInputEventTail_0049d4b8 = g_pInputEventTail_0049d4b8->next;
+        g_pInputEventTail_0049d4b8->next = 0;
     }
-    g_pInputEventTail_0046da94->type = type;
-    g_pInputEventTail_0046da94->modifiers = modifiers;
-    g_pInputEventTail_0046da94->x = x;
-    g_pInputEventTail_0046da94->y = y;
-    g_pInputEventTail_0046da94->value = value;
-    g_pInputEventTail_0046da94->primaryButton = (short)primaryButton;
-    g_pInputEventTail_0046da94->secondaryButton = (short)secondaryButton;
+    g_pInputEventTail_0049d4b8->type = type;
+    g_pInputEventTail_0049d4b8->modifiers = modifiers;
+    g_pInputEventTail_0049d4b8->x = x;
+    g_pInputEventTail_0049d4b8->y = y;
+    g_pInputEventTail_0049d4b8->value = value;
+    g_pInputEventTail_0049d4b8->primaryButton = (short)primaryButton;
+    g_pInputEventTail_0049d4b8->secondaryButton = (short)secondaryButton;
+    g_pInputEventTail_0049d4b8->field_14 = field14;
+    g_pInputEventTail_0049d4b8->field_18 = field18;
+    g_pInputEventTail_0049d4b8->status = 1;
+    if (g_pInputEventTail_0049d4b8->type == 3) {
+        g_nQueuedInputX_005c83f0 = g_pInputEventTail_0049d4b8->x;
+        g_nQueuedInputY_005c83f2 = g_pInputEventTail_0049d4b8->y;
+    }
+    if (g_pInputEventTail_0049d4b8->type == 2) {
+        g_nInputDoubleClickDeadline_0049d4c0 =
+            g_nInputClock_005c84a8 + 25;
+        g_nPreviousPrimaryButton_0049d4c4 = primaryButton;
+        g_nPreviousSecondaryButton_0049d4c8 = secondaryButton;
+    }
+    if (g_pInputEventTail_0049d4b8->type == 1 ||
+        g_pInputEventTail_0049d4b8->type == 8 ||
+        g_pInputEventTail_0049d4b8->type == 9) {
+        if ((g_pInputEventTail_0049d4b8->primaryButton != 0 &&
+             g_nPreviousPrimaryButton_0049d4c4 != 0) ||
+            (g_pInputEventTail_0049d4b8->secondaryButton != 0 &&
+             g_nPreviousSecondaryButton_0049d4c8 != 0)) {
+            if (g_nInputDoubleClickDeadline_0049d4c0 >
+                g_nInputClock_005c84a8) {
+                g_nInputDoubleClickDeadline_0049d4c0 = 0;
+                g_pInputEventTail_0049d4b8->status = 2;
+                g_nPreviousPrimaryButton_0049d4c4 = 0;
+                g_nPreviousSecondaryButton_0049d4c8 = 0;
+            }
+        }
+    }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x462C43 */
 void ReleaseInputEventQueue(void)
 {
-    InputEvent *event = g_pInputEventHead_0046da90;
+    InputEvent *event = g_pInputEventHead_0049d4b4;
 
     while (event != 0) {
         InputEvent *next = event->next;
@@ -158,14 +214,14 @@ void ReleaseInputEventQueue(void)
         ReleaseInputEvent(event);
         event = next;
     }
-    g_pInputEventTail_0046da94 = 0;
-    g_pInputEventHead_0046da90 = 0;
+    g_pInputEventTail_0049d4b8 = 0;
+    g_pInputEventHead_0049d4b4 = g_pInputEventTail_0049d4b8;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x462C9C */
 void RetainInputEventsOfType(int type)
 {
-    InputEvent *event = g_pInputEventHead_0046da90;
+    InputEvent *event = g_pInputEventHead_0049d4b4;
 
     while (event != 0) {
         InputEvent *next = event->next;
@@ -174,20 +230,21 @@ void RetainInputEventsOfType(int type)
             if (event->previous != 0)
                 event->previous->next = next;
             else
-                g_pInputEventHead_0046da90 = next;
+                g_pInputEventHead_0049d4b4 = next;
             if (event->next != 0)
                 event->next->previous = event->previous;
             else
-                g_pInputEventTail_0046da94 = event->previous;
+                g_pInputEventTail_0049d4b8 = event->previous;
             ReleaseInputEvent(event);
         }
         event = next;
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x462D48 */
 void RemoveInputEvent(InputEvent *event)
 {
+#if 0
     InputEvent *previous = event->previous;
     InputEvent *next = event->next;
 
@@ -199,137 +256,281 @@ void RemoveInputEvent(InputEvent *event)
             return;
         }
         previous->next = 0;
-        g_pInputEventTail_0046da94 = event->previous;
+        g_pInputEventTail_0049d4b8 = event->previous;
         ReleaseInputEvent(event);
         return;
     }
     if (next != 0) {
-        g_pInputEventHead_0046da90 = next;
+        g_pInputEventHead_0049d4b4 = next;
         event->next->previous = 0;
         ReleaseInputEvent(event);
         return;
     }
-    g_pInputEventTail_0046da94 = 0;
-    g_pInputEventHead_0046da90 = 0;
+    g_pInputEventTail_0049d4b8 = 0;
+    g_pInputEventHead_0049d4b4 = 0;
     ReleaseInputEvent(event);
+#else
+    if (event->previous != 0) {
+        if (event->next != 0) {
+            event->previous->next = event->next;
+            event->next->previous = event->previous;
+        } else {
+            event->previous->next = 0;
+            g_pInputEventTail_0049d4b8 = event->previous;
+        }
+    } else {
+        if (event->next != 0) {
+            g_pInputEventHead_0049d4b4 = event->next;
+            event->next->previous = 0;
+        } else {
+            g_pInputEventTail_0049d4b8 = 0;
+            g_pInputEventHead_0049d4b4 = 0;
+        }
+    }
+    ReleaseInputEvent(event);
+#endif
 }
 
-/* Function start: WC2_UNMAPPED */
-short __stdcall GetNextInputEvent(InputEventState *state)
+/* Function start: 0x462DFC */
+short GetNextInputEvent(InputEventState *state)
 {
+#if 0
     short *eventX;
     int eventY;
     int type;
 
     type = 0;
-    if (g_pInputEventHead_0046da90 != 0) {
-        eventX = &g_pInputEventHead_0046da90->x;
-        eventY = (int)g_pInputEventHead_0046da90->y;
+    if (g_pInputEventHead_0049d4b4 != 0) {
+        eventX = &g_pInputEventHead_0049d4b4->x;
+        eventY = (int)g_pInputEventHead_0049d4b4->y;
         if ((int)g_stMouseCursorState_0059ab10.viewport->left > (int)*eventX)
             *eventX = g_stMouseCursorState_0059ab10.viewport->left;
         else if ((int)g_stMouseCursorState_0059ab10.viewport->right < (int)*eventX)
             *eventX = g_stMouseCursorState_0059ab10.viewport->right;
         if ((int)g_stMouseCursorState_0059ab10.viewport->top > eventY)
-            g_pInputEventHead_0046da90->y = g_stMouseCursorState_0059ab10.viewport->top;
+            g_pInputEventHead_0049d4b4->y = g_stMouseCursorState_0059ab10.viewport->top;
         else if ((int)g_stMouseCursorState_0059ab10.viewport->bottom <
                  eventY)
-            g_pInputEventHead_0046da90->y =
+            g_pInputEventHead_0049d4b4->y =
                 g_stMouseCursorState_0059ab10.viewport->bottom;
 
         state->modifiers =
-            (short)g_pInputEventHead_0046da90->modifiers;
-        switch (g_pInputEventHead_0046da90->type) {
+            (short)g_pInputEventHead_0049d4b4->modifiers;
+        switch (g_pInputEventHead_0049d4b4->type) {
         case 1:
-            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0046da90->x;
-            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0046da90->y;
+            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0049d4b4->x;
+            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0049d4b4->y;
             g_stMouseCursorState_0059ab10.primaryButton = 0;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
             type = 1;
             break;
         case 2:
-            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0046da90->x;
-            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0046da90->y;
+            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0049d4b4->x;
+            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0049d4b4->y;
             g_stMouseCursorState_0059ab10.primaryButton =
-                (unsigned char)g_pInputEventHead_0046da90->primaryButton;
+                (unsigned char)g_pInputEventHead_0049d4b4->primaryButton;
             g_stMouseCursorState_0059ab10.secondaryButton =
-                (unsigned char)g_pInputEventHead_0046da90->secondaryButton;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+                (unsigned char)g_pInputEventHead_0049d4b4->secondaryButton;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
             type = 2;
             state->value =
-                (int)g_pInputEventHead_0046da90->secondaryButton * 2 |
-                (int)g_pInputEventHead_0046da90->primaryButton;
+                (int)g_pInputEventHead_0049d4b4->secondaryButton * 2 |
+                (int)g_pInputEventHead_0049d4b4->primaryButton;
             break;
         case 3:
             type = 3;
-            state->value = g_pInputEventHead_0046da90->value;
+            state->value = g_pInputEventHead_0049d4b4->value;
             state->x = g_stMouseCursorState_0059ab10.x;
             state->y = g_stMouseCursorState_0059ab10.y;
             break;
         case 4:
             type = 4;
-            state->x = g_pInputEventHead_0046da90->value;
+            state->x = g_pInputEventHead_0049d4b4->value;
             state->x = g_stMouseCursorState_0059ab10.x;
             state->y = g_stMouseCursorState_0059ab10.y;
             break;
         case 5:
             type = 5;
-            state->x = g_pInputEventHead_0046da90->value;
+            state->x = g_pInputEventHead_0049d4b4->value;
             break;
         case 6:
             type = 6;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
             break;
         case 7:
             type = 7;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
             break;
         case 8:
             type = 8;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
             break;
         case 9:
             type = 9;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
             break;
         case 10:
             type = 10;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
             break;
         case 13:
-            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0046da90->x;
-            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0046da90->y;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0049d4b4->x;
+            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0049d4b4->y;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
             type = 13;
             break;
         }
-        RemoveInputEvent(g_pInputEventHead_0046da90);
+        RemoveInputEvent(g_pInputEventHead_0049d4b4);
     }
     return type;
+#else
+    int clearQueue;
+    int type;
+    int eventX;
+    int eventY;
+    int eventType;
+
+    clearQueue = 0;
+    if (g_nNextInputQueueFlushTick_0049d4cc < g_nInputClock_005c84a8)
+        FlushInputEvents();
+    g_nNextInputQueueFlushTick_0049d4cc = g_nInputClock_005c84a8 + 20;
+    type = 0;
+    if (g_pInputEventHead_0049d4b4 != 0) {
+        eventX = (int)g_pInputEventHead_0049d4b4->x;
+        eventY = (int)g_pInputEventHead_0049d4b4->y;
+        if (g_pInputViewport_005c8403 != 0) {
+            if ((int)g_pInputViewport_005c8403->left > eventX)
+                g_pInputEventHead_0049d4b4->x =
+                    g_pInputViewport_005c8403->left;
+            else if ((int)g_pInputViewport_005c8403->right < eventX)
+                g_pInputEventHead_0049d4b4->x =
+                    g_pInputViewport_005c8403->right;
+            if ((int)g_pInputViewport_005c8403->top > eventY)
+                g_pInputEventHead_0049d4b4->y =
+                    g_pInputViewport_005c8403->top;
+            else if ((int)g_pInputViewport_005c8403->bottom < eventY)
+                g_pInputEventHead_0049d4b4->y =
+                    g_pInputViewport_005c8403->bottom;
+        }
+
+        state->status = (short)g_pInputEventHead_0049d4b4->status;
+        state->modifiers =
+            (short)g_pInputEventHead_0049d4b4->modifiers;
+        eventType = (int)g_pInputEventHead_0049d4b4->type;
+        switch (eventType) {
+        case 1:
+            g_nQueuedInputX_005c83f0 = g_pInputEventHead_0049d4b4->x;
+            g_nQueuedInputY_005c83f2 = g_pInputEventHead_0049d4b4->y;
+            g_bQueuedPrimaryButton_005c83f4 =
+                (unsigned char)g_pInputEventHead_0049d4b4->primaryButton;
+            g_bQueuedSecondaryButton_005c83f5 =
+                (unsigned char)g_pInputEventHead_0049d4b4->secondaryButton;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
+            *(unsigned int *)&state->value =
+                (int)g_pInputEventHead_0049d4b4->secondaryButton * 2 |
+                (int)g_pInputEventHead_0049d4b4->primaryButton;
+            state->value = (short)*(unsigned int *)&state->value;
+            state->status = (short)g_pInputEventHead_0049d4b4->status;
+            type = 1;
+            break;
+        case 2:
+            g_nQueuedInputX_005c83f0 = g_pInputEventHead_0049d4b4->x;
+            g_nQueuedInputY_005c83f2 = g_pInputEventHead_0049d4b4->y;
+            g_bQueuedPrimaryButton_005c83f4 = 0;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
+            *(unsigned int *)&state->value =
+                (int)g_pInputEventHead_0049d4b4->secondaryButton * 2 |
+                (int)g_pInputEventHead_0049d4b4->primaryButton;
+            state->value = (short)*(unsigned int *)&state->value;
+            state->status = (short)g_pInputEventHead_0049d4b4->status;
+            type = 2;
+            break;
+        case 3:
+            g_nQueuedInputX_005c83f0 = g_pInputEventHead_0049d4b4->x;
+            g_nQueuedInputY_005c83f2 = g_pInputEventHead_0049d4b4->y;
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
+            type = 3;
+            clearQueue = 1;
+            break;
+        case 4:
+            *(unsigned int *)&state->value =
+                (int)g_pInputEventHead_0049d4b4->value;
+            state->value = (short)g_pInputEventHead_0049d4b4->field_18;
+            state->status = (short)g_pInputEventHead_0049d4b4->field_14;
+            state->x = g_nQueuedInputX_005c83f0;
+            state->y = g_nQueuedInputY_005c83f2;
+            type = 4;
+            break;
+        case 5:
+            state->x = g_pInputEventHead_0049d4b4->value;
+            *(unsigned int *)&state->value =
+                (int)g_pInputEventHead_0049d4b4->value;
+            state->value = (short)g_pInputEventHead_0049d4b4->field_18;
+            state->status = (short)g_pInputEventHead_0049d4b4->field_14;
+            state->x = g_nQueuedInputX_005c83f0;
+            state->y = g_nQueuedInputY_005c83f2;
+            type = 5;
+            break;
+        case 6:
+            state->x = g_pInputEventHead_0049d4b4->value;
+            type = 6;
+            break;
+        case 7:
+        case 8:
+        case 9:
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
+            type = (int)g_pInputEventHead_0049d4b4->type;
+            break;
+        default:
+            state->x = g_pInputEventHead_0049d4b4->x;
+            state->y = g_pInputEventHead_0049d4b4->y;
+            type = 0;
+            break;
+        }
+        RemoveInputEvent(g_pInputEventHead_0049d4b4);
+        if (clearQueue != 0) {
+            ReleaseInputEventQueue();
+            FlushInputEvents();
+        } else {
+            state->x = g_nQueuedInputX_005c83f0;
+            state->y = g_nQueuedInputY_005c83f2;
+        }
+    } else {
+        state->x = g_nQueuedInputX_005c83f0;
+        state->y = g_nQueuedInputY_005c83f2;
+    }
+    return type;
+#endif
 }
 
-/* Function start: 0x464D5F */
-short __stdcall PollInputEvent(InputEventState *event, short filter)
+/* Function start: 0x46327F */
+short PollInputEvent(InputEventState *event)
 {
-    PumpWindowMessages();
+    PumpWindowMessages(0);
     return GetNextInputEvent(event);
 }
 
-/* Function start: WC2_UNMAPPED */
-short __stdcall PeekInputEvent(InputEventState *state, short type)
+/* Function start: 0x4632A5 */
+short PeekInputEvent(InputEventState *state, short type)
 {
+#if 0
     InputEvent *event;
     int eventType;
     int modifiers;
 
-    event = g_pInputEventHead_0046da90;
+    event = g_pInputEventHead_0049d4b4;
     modifiers = 0;
     while (event != 0 && event->type != type)
         event = event->next;
@@ -348,34 +549,117 @@ short __stdcall PeekInputEvent(InputEventState *state, short type)
         return 1;
     }
     return 0;
+#else
+    unsigned int modifiers;
+    int eventType;
+    InputEvent *event;
+
+    modifiers = 0;
+    g_nNextInputQueueFlushTick_0049d4cc = g_nInputClock_005c84a8 + 20;
+    for (event = g_pInputEventHead_0049d4b4;
+         event != 0 && event->type != type;
+         event = event->next)
+        ;
+    if (event != 0) {
+        state->type = (int)event->type;
+        *(unsigned int *)&state->value = event->modifiers;
+        state->status = (short)event->field_14;
+        state->value = (short)event->field_18;
+        state->timestamp = event->timestamp;
+        eventType = (int)event->type;
+        if (eventType == 1 || eventType == 2)
+            modifiers |= 8;
+        if (event->primaryButton != 0)
+            modifiers |= 1;
+        if (event->secondaryButton != 0)
+            modifiers |= 2;
+        state->modifiers = (unsigned short)modifiers;
+        state->x = event->x;
+        state->y = event->y;
+        state->status = (short)event->status;
+        state->value = (short)*(unsigned int *)&state->value;
+        return 1;
+    }
+    return 0;
+#endif
 }
 
-/* Function start: WC2_UNMAPPED */
-short __stdcall IsInputEventQueued(short type)
+/* Function start: 0x4633E7 */
+InputEventState *FindQueuedInputEvent(int type)
 {
-    InputEvent *event = g_pInputEventHead_0046da90;
+#if 0
+    InputEvent *event = g_pInputEventHead_0049d4b4;
 
     while (event != 0 && event->type != type)
         event = event->next;
     return event != 0;
+#else
+    unsigned int modifiers;
+    int eventType;
+    InputEvent *event;
+
+    modifiers = 0;
+    g_nNextInputQueueFlushTick_0049d4cc = g_nInputClock_005c84a8 + 20;
+    for (event = g_pInputEventHead_0049d4b4;
+         event != 0 && event->type != type;
+         event = event->next)
+        ;
+    if (event != 0) {
+        if (event->type == 3) {
+            g_nQueuedInputX_005c83f0 = g_pInputEventHead_0049d4b4->x;
+            g_nQueuedInputY_005c83f2 = g_pInputEventHead_0049d4b4->y;
+        }
+        g_stFoundInputEvent_005c3af8.type = (int)event->type;
+        *(unsigned int *)&g_stFoundInputEvent_005c3af8.value =
+            event->modifiers;
+        g_stFoundInputEvent_005c3af8.value = (short)event->field_18;
+        g_stFoundInputEvent_005c3af8.status = (short)event->field_14;
+        g_stFoundInputEvent_005c3af8.timestamp = event->timestamp;
+        eventType = (int)event->type;
+        if (eventType == 1 || eventType == 2)
+            modifiers |= 8;
+        if (event->primaryButton != 0)
+            modifiers |= 1;
+        if (event->secondaryButton != 0)
+            modifiers |= 2;
+        g_stFoundInputEvent_005c3af8.modifiers =
+            (unsigned short)modifiers;
+        g_stFoundInputEvent_005c3af8.x = event->x;
+        g_stFoundInputEvent_005c3af8.y = event->y;
+        g_stFoundInputEvent_005c3af8.status = (short)event->status;
+        g_stFoundInputEvent_005c3af8.value =
+            (short)*(unsigned int *)&g_stFoundInputEvent_005c3af8.value;
+        return &g_stFoundInputEvent_005c3af8;
+    }
+    return 0;
+#endif
 }
 
 /* Function start: 0x46354F */
 void FlushInputEvents(void)
 {
+    g_nNextInputQueueFlushTick_0049d4cc = g_nInputClock_005c84a8 + 20;
     ReleaseInputEventQueue();
 }
 
-/* Function start: WC2_UNMAPPED */
-short __stdcall ResetAllocationDepth(int x, int y)
+/* Function start: 0x463571 */
+#if 0
+short __stdcall InitializeMouseCursorDepth(int x, int y)
 {
     (void)x;
     (void)y;
-    DAT_0046daa0 = 0;
+    g_nMouseCursorDrawDepth_0049d4d4 = 0;
     return 1;
 }
+#else
+short InitializeMouseCursorDepth(void)
+{
+    g_nMouseCursorDrawDepth_0049d4d4 = 1;
+    return 1;
+}
+#endif
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4635D3 */
 void CheckCursor(void)
 {
 }
@@ -386,7 +670,7 @@ void CaptureMouseCursorBackground(void)
     int x;
     int y;
 
-    if (DAT_0046daa0 == 0 ||
+    if (g_nMouseCursorDrawDepth_0049d4d4 == 0 ||
         g_stMouseCursorState_0059ab10.viewport == 0 ||
         g_stMouseCursorState_0059ab10.shape == 0)
         return;
@@ -419,7 +703,7 @@ void DrawMouseCursor(void)
     int x;
     int y;
 
-    if (DAT_0046daa0 == 0 ||
+    if (g_nMouseCursorDrawDepth_0049d4d4 == 0 ||
         g_stMouseCursorState_0059ab10.viewport == 0 ||
         g_stMouseCursorState_0059ab10.shape == 0)
         return;
@@ -448,7 +732,7 @@ void RestoreMouseCursorBackground(void)
     int x;
     int y;
 
-    if (DAT_0046daa0 == 0 ||
+    if (g_nMouseCursorDrawDepth_0049d4d4 == 0 ||
         g_stMouseCursorState_0059ab10.viewport == 0 ||
         g_stMouseCursorState_0059ab10.shape == 0 ||
         DAT_0059a84c == 0)
@@ -489,22 +773,22 @@ void RefreshMouseCursorDisplay(void)
 }
 
 /* Function start: 0x46396C */
-void EnterAllocationScope(void)
+void ResumeMouseCursor(void)
 {
-    DAT_0046daa0 = DAT_0046daa0 + 1;
+    g_nMouseCursorDrawDepth_0049d4d4 = g_nMouseCursorDrawDepth_0049d4d4 + 1;
 }
 
 /* Function start: 0x463E19 */
-void LeaveAllocationScope(void)
+void SuspendMouseCursor(void)
 {
-    DAT_0046daa0 = DAT_0046daa0 - 1;
+    g_nMouseCursorDrawDepth_0049d4d4 = g_nMouseCursorDrawDepth_0049d4d4 - 1;
 }
 
 /* Function start: 0x463EEE */
 void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
 {
     g_stMouseCursorState_0059ab10.shapeChanged = 1;
-    if (g_stMouseCursorState_0059ab10.viewport != 0 && DAT_0046daa0 > 0 &&
+    if (g_stMouseCursorState_0059ab10.viewport != 0 && g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
         g_pDrawnMouseCursorShape_0046da9c != 0) {
         RestoreSpriteBackground(g_stMouseCursorState_0059ab10.viewport, DAT_004865a8,
                                 (short)g_nMouseCursorSavedX_0059a844,
@@ -555,13 +839,13 @@ void __stdcall SetFrameTimerPeriodDirect(short p)
 /* Function start: 0x464055 */
 void WaitForFrameTick(void)
 {
-    while (DAT_0059ab3c != 0) ;
+    while (g_nFrameTimerPending_005c844c != 0) ;
 }
 
 /* Function start: 0x464072 */
 int IsFrameTickElapsed(void)
 {
-    return DAT_0059ab3c == 0;
+    return g_nFrameTimerPending_005c844c == 0;
 }
 
 /* Function start: 0x464141 */
@@ -587,24 +871,24 @@ unsigned short IdentityWord(unsigned short v)
     return v;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4641A0 */
 void TimerStopHook(void)
 {
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int GetFixedOneMillion(void)
+/* Function start: 0x4641B0 */
+unsigned int GetAvailableFarMemory(void)
 {
     return 0x3e8000;
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int GetFixedOneMillionAlt(void)
+/* Function start: 0x4641C5 */
+unsigned int GetLargestFreeMemoryBlock(void)
 {
     return 0x3e8000;
 }
 
-/* Function start: 0x4642D6 */
+/* Function start: 0x46428B */
 void ClearInputKeyStatePreservingModifiers(void)
 {
     unsigned int control = g_abInputKeyState_0059a860[0x1d];
@@ -617,13 +901,15 @@ void ClearInputKeyStatePreservingModifiers(void)
     ClearDebugPauseFlags();
 }
 
-/* Function start: WC2_UNMAPPED */
+#pragma function(memset)
+/* Function start: 0x4642D6 */
 void ClearInputKeyState(void)
 {
     memset(g_abInputKeyState_0059a860, 0,
            sizeof(g_abInputKeyState_0059a860));
     ClearDebugPauseFlags();
 }
+#pragma intrinsic(memset)
 
 /* Function start: 0x46431A */
 void SetInputKeyState(int scanCode, unsigned char pressed)
@@ -638,8 +924,8 @@ void SetInputKeyState(int scanCode, unsigned char pressed)
     exit(1);
 }
 
-/* Function start: WC2_UNMAPPED */
-void sort_object_depth(void)
+/* Function start: 0x46436E */
+void BuildObjectDepthOrder(void)
 {
     unsigned int distance;
     int previous;
@@ -656,7 +942,7 @@ void sort_object_depth(void)
     memset(g_anObjectDepthPlaced_0059a8f0, 0,
            sizeof(g_anObjectDepthPlaced_0059a8f0));
     obj = 0;
-    for (; obj < WC1_SPACE_OBJECT_COUNT; obj++) {
+    for (; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
         distance = (unsigned short)g_asObjectDistance_0059b4a0[obj];
         if (previous < (int)distance) {
             previous = (int)distance;
@@ -665,7 +951,7 @@ void sort_object_depth(void)
     }
     sorted = 0;
     sortedEntry = g_anSortedObject_0059aa00;
-    for (; sorted < WC1_SPACE_OBJECT_COUNT; sorted++, sortedEntry++) {
+    for (; sorted < WC2_SPACE_OBJECT_COUNT; sorted++, sortedEntry++) {
         best = -1;
         *sortedEntry = bestObject;
         if (bestObject == -1)
@@ -676,10 +962,10 @@ void sort_object_depth(void)
         bestObject = -1;
         placed = g_anObjectDepthPlaced_0059a8f0;
         for (; placed < g_anObjectDepthPlaced_0059a8f0 +
-                           WC1_SPACE_OBJECT_COUNT;
+                           WC2_SPACE_OBJECT_COUNT;
              screenOffset += sizeof(short), placed++, obj++) {
             if (*placed == 0 &&
-                *(short *)((unsigned char *)g_asObjectScreenX_0059d9b0 +
+                *(short *)((unsigned char *)g_asObjectScreenX_00493598 +
                            screenOffset) != (short)0x8001) {
                 distance = *(unsigned short *)(
                     (unsigned char *)g_asObjectDistance_0059b4a0 +
@@ -693,7 +979,7 @@ void sort_object_depth(void)
     }
 }
 
-/* Function start: 0x433690 */
+/* Function start: 0x4644DA */
 void draw_sorted_objects_to_buffer(void)
 {
     int *sortedEntry;
@@ -717,12 +1003,12 @@ void draw_sorted_objects_to_buffer(void)
             return;
         if ((int)g_acObjectType_00493980[obj] < 0)
             return;
-        objectClass = g_aeObjectClass_0059d100[obj];
+        objectClass = g_aeObjectClass_00495328[obj];
 #ifdef WC1_SDL
         enhancedScreenX = (float)(short)(
-            g_asObjectScreenX_0059d9b0[obj] + g_nViewCenterX_0059a852);
+            g_asObjectScreenX_00493598[obj] + g_nViewCenterX_0059a852);
         enhancedScreenY = (float)(short)(
-            g_asObjectScreenY_0059d930[obj] + g_nViewCenterY_0059a854);
+            g_asObjectScreenY_00493628[obj] + g_nViewCenterY_0059a854);
         if (objectClass != OBJECT_CLASS_NULL &&
             objectClass != OBJECT_CLASS_FIXED_OBJECT &&
             obj != DAT_00469208 &&
@@ -737,8 +1023,8 @@ void draw_sorted_objects_to_buffer(void)
                     (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
                     g_aObjectViewPosition_0059afa0[obj].y),
                 g_aObjectViewPosition_0059afa0[obj].z) >> 8);
-            if (projectedScreenX == g_asObjectScreenX_0059d9b0[obj] &&
-                projectedScreenY == g_asObjectScreenY_0059d930[obj]) {
+            if (projectedScreenX == g_asObjectScreenX_00493598[obj] &&
+                projectedScreenY == g_asObjectScreenY_00493628[obj]) {
                 enhancedScreenX =
                     (float)g_nViewCenterX_0059a852 +
                     (float)(((double)(g_nScreenWidth_0046daa4 & ~1) * 0.5 *
@@ -759,8 +1045,8 @@ void draw_sorted_objects_to_buffer(void)
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             default:
-                screenY = g_asObjectScreenY_0059d930[obj];
-                screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
+                screenY = g_asObjectScreenY_00493628[obj];
+                screenX = (short)(g_asObjectScreenX_00493598[obj] +
                                   g_nViewCenterX_0059a852);
                 shape = g_apObjectShape_0059d2f0[obj];
                 g_asObjectDrawX_0059d000[obj] = screenX;
@@ -769,7 +1055,7 @@ void draw_sorted_objects_to_buffer(void)
                 if (shape != 0) {
 #ifdef WC1_SDL
                     if (!Wc1SdlRecordSpaceSprite(
-                            &DAT_005a7510, enhancedScreenX, enhancedScreenY,
+                            &g_stViewBuffer_005d2b00, enhancedScreenX, enhancedScreenY,
                             shape,
                             g_asObjectViewFrame_0059d230[obj],
                             g_asObjectScreenAngle_0059cd90[obj],
@@ -777,7 +1063,7 @@ void draw_sorted_objects_to_buffer(void)
                             g_asObjectFlip_0059c870[obj]))
 #endif
                     DrawSpriteScaled(
-                        &DAT_005a7510, screenX, screenY, shape,
+                        &g_stViewBuffer_005d2b00, screenX, screenY, shape,
                         g_asObjectViewFrame_0059d230[obj],
                         g_asObjectScreenAngle_0059cd90[obj],
                         g_asObjectScreenScale_0059c950[obj],
@@ -792,8 +1078,8 @@ void draw_sorted_objects_to_buffer(void)
 #endif
             case OBJECT_CLASS_DUST:
                 specialObject = (int)DAT_00469208;
-                screenY = g_asObjectScreenY_0059d930[obj];
-                screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
+                screenY = g_asObjectScreenY_00493628[obj];
+                screenX = (short)(g_asObjectScreenX_00493598[obj] +
                                   g_nViewCenterX_0059a852);
                 g_asObjectDrawX_0059d000[obj] = screenX;
                 screenY = (short)(screenY + g_nViewCenterY_0059a854);
@@ -804,17 +1090,17 @@ void draw_sorted_objects_to_buffer(void)
                     shape = g_pConstellationShape_005a765c;
 #ifdef WC1_SDL
                 if (!Wc1SdlRecordSpaceSprite(
-                        &DAT_005a7510, enhancedScreenX, enhancedScreenY, shape,
+                        &g_stViewBuffer_005d2b00, enhancedScreenX, enhancedScreenY, shape,
                         g_asObjectViewFrame_0059d230[obj], 0, 0x100, 0))
 #endif
-                DrawSpriteDefault(&DAT_005a7510, screenX, screenY, shape,
+                DrawSpriteDefault(&g_stViewBuffer_005d2b00, screenX, screenY, shape,
                                   g_asObjectViewFrame_0059d230[obj]);
                 break;
             }
         }
         sortedEntry++;
     } while (sortedEntry < g_anSortedObject_0059aa00 +
-                           WC1_SPACE_OBJECT_COUNT);
+                           WC2_SPACE_OBJECT_COUNT);
 }
 
 /* Function start: 0x46470E */
@@ -831,7 +1117,7 @@ void intro_drawbackgroundships(void)
     shortOffset = 0;
     zero = 0;
     dwordOffset = 0;
-    for (; dwordOffset < WC1_SPACE_OBJECT_COUNT * (int)sizeof(int);
+    for (; dwordOffset < WC2_SPACE_OBJECT_COUNT * (int)sizeof(int);
          shortOffset += sizeof(short),
          dwordOffset += sizeof(int),
          obj++) {
@@ -839,7 +1125,7 @@ void intro_drawbackgroundships(void)
                                  dwordOffset) < zero)
             return;
         objectClass = *(enum ObjectClass *)(
-            (unsigned char *)g_aeObjectClass_0059d100 + dwordOffset);
+            (unsigned char *)g_aeObjectClass_00495328 + dwordOffset);
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             default:
@@ -852,7 +1138,7 @@ void intro_drawbackgroundships(void)
 #endif
                 if (shape != 0) {
                     DrawSolidColourSpriteScaled(
-                        &DAT_005a7510,
+                        &g_stViewBuffer_005d2b00,
                         *(short *)((unsigned char *)g_asObjectDrawX_0059d000 +
                                    shortOffset),
                         *(short *)((unsigned char *)g_asObjectDrawY_0059cf80 +
@@ -866,7 +1152,7 @@ void intro_drawbackgroundships(void)
                                    shortOffset),
                         *(short *)((unsigned char *)g_asObjectFlip_0059c870 +
                                    shortOffset),
-                        DAT_004699d8);
+                        g_cPrimaryViewBufferColour_0049cb88);
                 }
                 break;
             case OBJECT_CLASS_STAR:
@@ -887,7 +1173,7 @@ void intro_drawbackgroundships(void)
                 else
                     shape = g_pConstellationShape_005a765c;
                 DrawSolidColourSprite(
-                    &DAT_005a7510,
+                    &g_stViewBuffer_005d2b00,
                     *(short *)((unsigned char *)g_asObjectDrawX_0059d000 +
                                shortOffset),
                     *(short *)((unsigned char *)g_asObjectDrawY_0059cf80 +
@@ -895,7 +1181,7 @@ void intro_drawbackgroundships(void)
                     shape,
                     *(short *)((unsigned char *)g_asObjectViewFrame_0059d230 +
                                shortOffset),
-                    DAT_004699d8);
+                    g_cPrimaryViewBufferColour_0049cb88);
                 break;
             }
         }
@@ -910,7 +1196,7 @@ void set_up_screen_viewport(signed char mode)
     short viewportWidth;
     const ScreenViewportGeometry *viewportGeometry;
 
-    g_cScreenViewportMode_0059a9f2 = mode;
+    g_cScreenViewportMode_005c82a6 = mode;
     modeIndex = (int)mode;
     if (modeIndex >= 4) {
         if (modeIndex <= 5)
@@ -930,7 +1216,7 @@ static_geometry:
 
 geometry_ready:
 
-    if (DAT_0046a008 != 0 && DAT_0046a008 != -2) {
+    if (g_nCockpitDisplayMode_0049d71c != 0 && g_nCockpitDisplayMode_0049d71c != -2) {
         viewportWidth = g_pScreenViewportGeometry_0059a9f4->width;
         viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
         *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
@@ -970,30 +1256,30 @@ geometry_ready:
     g_nViewportOriginY_0059ab50 = viewportGeometry->originY;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464AA0 */
 void MouseIdleHook(void)
 {
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464AB0 */
 unsigned short GetNavRangeSentinel(void)
 {
     return 0x8000;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464AC4 */
 unsigned short GetOriginalFreeMemory(void)
 {
     return 0x8000;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464AE8 */
 void StartupHook(unsigned int (*callback)(unsigned int, short))
 {
     (void)callback;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464B0B */
 unsigned int JoystickEdgeHook(int button)
 {
     (void)button;
@@ -1006,58 +1292,137 @@ void FreeIfNotNull(void *p)
         free(p);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464D5F */
+short ServiceInputDevices(short deviceMask)
+{
+    (void)deviceMask;
+    g_nNextInputQueueFlushTick_0049d4cc = g_nInputClock_005c84a8 + 20;
+    if (g_nInputPollPeriod_0049d6d8 == 1)
+        PumpWindowMessages(1);
+    else
+        PumpWindowMessages(0);
+    if (g_nNextInputPollTick_0049d6d4 <= g_nInputClock_005c84a8) {
+        FlushInputEvents();
+        PumpWindowMessages(0);
+        g_nNextInputPollTick_0049d6d4 +=
+            g_nInputClock_005c84a8 + g_nInputPollPeriod_0049d6d8;
+        return 1;
+    }
+    PumpWindowMessages(1);
+    if (g_bSceneAdvanceRequested_0049d4b0 != 0)
+        return 1;
+    return 0;
+}
+
+/* Function start: 0x464E06 */
+void SetInputViewport(Viewport *viewport)
+{
+    g_pInputViewport_005c8403 = viewport;
+    return;
+}
+
+/* Function start: 0x464E1E */
+void ClearInputPump(void)
+{
+    ConfigureInputPump(1, 0);
+}
+
+/* Function start: 0x464E35 */
+void SetMenuInputPump(void)
+{
+    ConfigureInputPump(1, PollMenuInputDevices);
+}
+
+/* Function start: 0x464E4F */
+int ConfigureInputPump(int slot, void (*pump)(void))
+{
+    if (slot == 1) {
+        g_pfnInputPump_005c840c = pump;
+        return 0;
+    }
+}
+
+/* Function start: 0x464F25 */
+unsigned int GetNamedPacketSize(const char *filename, short section)
+{
+    return GetPacketSize(filename, section);
+}
+
+/* Function start: 0x464F45 */
+void *LoadNamedPacket(const char *filename, short section,
+                      void *destination, unsigned short flags,
+                      void *decompressionWorkspace,
+                      short registerHandle)
+{
+    return PacketLoad(filename, section, destination, flags,
+                      decompressionWorkspace, registerHandle);
+}
+
+/* Function start: 0x464B60 */
 unsigned int GetStartupErrorCode(int vector)
 {
     (void)vector;
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464B82 */
 void ShutdownHook(int vector, void *handler)
 {
     (void)vector;
     (void)handler;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464B92 */
 unsigned short __stdcall SelectDiskDriveHook(short drive)
 {
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464BA5 */
 short GetCurrentDiskDriveHook(void)
 {
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464BB8 */
 unsigned short __stdcall GetShutdownErrorCode(unsigned char *driveState)
 {
     (void)driveState;
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464BCB */
 void VideoReleaseHook(void)
 {
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464BDB */
 void ExitCleanupHook(void)
 {
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int IsVectorWithinRange(FixedVector *vector, short range)
+#pragma function(abs)
+
+/* Function start: 0x464BFE */
+short IsVectorWithinRange(FixedVector *vector, short range)
 {
+#if 0
     int magnitude = Vector_magnitude(vector);
     int fixedRange = abs((int)range << 8);
 
     if (fixedRange >= magnitude)
         return 1;
     return 0;
+#else
+    int magnitude;
+    int fixedRange;
+
+    fixedRange = (int)range << 8;
+    magnitude = Vector_magnitude(vector);
+    if (abs(fixedRange) >= magnitude)
+        return 1;
+    return 0;
+#endif
 }
 
 /* Function start: WC2_UNMAPPED */

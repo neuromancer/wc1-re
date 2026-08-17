@@ -267,7 +267,7 @@ void Wc1SdlServiceOriginFxMusic(void)
         return;
     SDL_LockMutex(g_pWc1SdlDosMusicMutex);
     Wc1SdlUpdateDosAdlibMusicVolume();
-    desiredTrack = g_nCurrentMusicTrack_0046aa14;
+    desiredTrack = g_nCurrentMusicTrack_0049be98;
     if (g_bWc1SdlOriginFxServicesAllTracks == 0 &&
         desiredTrack != 19) {
         Wc1SdlDeleteDosAdlibTrack();
@@ -279,10 +279,10 @@ void Wc1SdlServiceOriginFxMusic(void)
         finishedTrack = g_nWc1SdlActiveMusicTrack;
         Wc1SdlDeleteDosAdlibTrack();
         g_nMusicTrackComplete_0046aa04 = 1;
-        if (g_nCurrentMusicTrack_0046aa14 == finishedTrack)
-            g_nCurrentMusicTrack_0046aa14 = -1;
+        if (g_nCurrentMusicTrack_0049be98 == finishedTrack)
+            g_nCurrentMusicTrack_0049be98 = -1;
     }
-    desiredTrack = g_nCurrentMusicTrack_0046aa14;
+    desiredTrack = g_nCurrentMusicTrack_0049be98;
     if (desiredTrack == g_nWc1SdlActiveMusicTrack) {
         SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
         return;
@@ -303,7 +303,7 @@ void Wc1SdlServiceOriginFxMusic(void)
             (unsigned int)desiredTrack, &midi, &midiSize)) {
         fprintf(stderr, "Unable to decode OriginFX music track %d.\n",
                 desiredTrack);
-        g_nCurrentMusicTrack_0046aa14 = -1;
+        g_nCurrentMusicTrack_0049be98 = -1;
         g_nMusicTrackComplete_0046aa04 = 1;
         return;
     }
@@ -314,13 +314,13 @@ void Wc1SdlServiceOriginFxMusic(void)
     if (player == 0) {
         fprintf(stderr, "Unable to parse OriginFX music track %d.\n",
                 desiredTrack);
-        g_nCurrentMusicTrack_0046aa14 = -1;
+        g_nCurrentMusicTrack_0049be98 = -1;
         g_nMusicTrackComplete_0046aa04 = 1;
         return;
     }
 
     SDL_LockMutex(g_pWc1SdlDosMusicMutex);
-    if (g_nCurrentMusicTrack_0046aa14 != desiredTrack) {
+    if (g_nCurrentMusicTrack_0049be98 != desiredTrack) {
         SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
         Wc1SdlDestroyOriginFxPlayer(player);
         return;

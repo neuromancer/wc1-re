@@ -268,7 +268,8 @@ static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
             queued->modifiers |= 4;
         return;
     }
-    QueueInputEvent(13, x, y, 0, primaryButton, secondaryButton, 0);
+    QueueInputEvent(13, x, y, 0, primaryButton, secondaryButton,
+                    0, 0, 0);
 }
 
 static int Wc1SdlHandleWindowEvent(const SDL_WindowEvent *event)
@@ -375,19 +376,19 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     if (event->keysym.scancode == SDL_SCANCODE_F1)
         DAT_004650ac = pressed && event->repeat == 0;
     if (pressed && scanCode == 1)
-        DAT_0059ab58 = 1;
+        g_bSceneEscapeRequested_0049d4b0 = 1;
     if (scanCode != 0) {
         if (DAT_0046505c != 0) {
             QueueInputEvent(pressed ? 3 : 4, 0, 0,
-                            (unsigned short)virtualKey, 0, 0, 0);
+                            (unsigned short)virtualKey, 0, 0, 0, 0, 0);
         }
         QueueInputEvent(pressed ? 3 : 4, 0, 0,
-                        (unsigned short)scanCode, 0, 0, 0);
+                        (unsigned short)scanCode, 0, 0, 0, 0, 0);
         SetInputKeyState(scanCode, (unsigned char)pressed);
     }
     if (!pressed) {
-        g_dwDebugOverlayKey_00469648 = (DWORD)virtualKey;
-        g_dwDebugOverlayKeyLatch_0046964c = (DWORD)virtualKey;
+        g_dwDebugOverlayKey_0049cb28 = (DWORD)virtualKey;
+        g_dwDebugOverlayKeyLatch_0049cb2c = (DWORD)virtualKey;
     }
     return 0;
 }
@@ -405,8 +406,8 @@ static void Wc1SdlHandleMouseWheelEvent(const SDL_MouseWheelEvent *event)
     scanCode = wheelY > 0 ? 0x0d : 0x0c;
     /* player_input samples one transition before consuming the remaining
        queue, so lead with the release for this impulse. */
-    QueueInputEvent(4, 0, 0, (unsigned short)scanCode, 0, 0, 0);
-    QueueInputEvent(3, 0, 0, (unsigned short)scanCode, 0, 0, 0);
+    QueueInputEvent(4, 0, 0, (unsigned short)scanCode, 0, 0, 0, 0, 0);
+    QueueInputEvent(3, 0, 0, (unsigned short)scanCode, 0, 0, 0, 0, 0);
 }
 
 static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
@@ -451,7 +452,7 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
     } else {
         QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 2 : 1,
                         (unsigned short)mouseX, (unsigned short)mouseY,
-                        0, primaryButton, secondaryButton, 0);
+                        0, primaryButton, secondaryButton, 0, 0, 0);
     }
     g_nHostMouseMessageX_005a8990 = mouseX;
     g_nHostMouseMessageY_005a8994 = mouseY;

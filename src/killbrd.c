@@ -40,14 +40,14 @@ int IsRoomMenuLabelEmpty(void)
 /* Function start: WC2_UNMAPPED */
 void DrawRoomMenuLabel(TextContext *context, const char *label)
 {
-    DosStrcpy(g_szTextScratchBuffer_00598b00, label);
+    DosStrcpy(g_szTextScratchBuffer_005d1c40, label);
     SetTextContext(context);
     FormatTextBufferFromStart(g_szRoomMenuLabelFormat_004705dc,
                               0, 188,
-                              g_szTextScratchBuffer_00598b00);
+                              g_szTextScratchBuffer_005d1c40);
 }
 
-/* Function start: 0x45641B */
+/* Function start: WC2_UNMAPPED */
 void RefreshRoomMenuLabel(void)
 {
     if (IsRoomMenuLabelEmpty())
@@ -73,7 +73,7 @@ void SelectRoomMenuLabel(short i)
         g_pszCurrentRoomMenuLabel_00598aba = label;
 }
 
-/* Function start: 0x4575B4 */
+/* Function start: WC2_UNMAPPED */
 void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
                         Viewport *viewport, char *text,
                         unsigned char alignment)
@@ -93,7 +93,7 @@ void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
     ClearRoomMenuCursorFrame();
 }
 
-/* Function start: 0x464E06 */
+/* Function start: WC2_UNMAPPED */
 int FindMenuRegionAtPoint(short x, short y,
                           const TitleMenuRegion *regions)
 {
@@ -110,21 +110,37 @@ int FindMenuRegionAtPoint(short x, short y,
 }
 
 /* Function start: 0x45C128 */
-void InitializeRoomViewports(void)
+void ResetGameTextContexts(void)
 {
-    g_stRoomScreenViewport_005988a0 = DAT_005a6ba0;
-    DAT_005a76b0.right = 319;
-    DAT_005a76b0.bottom = 199;
-    DAT_005a76b0.left = 0;
-    DAT_005a76b0.top = 0;
-    AllocateViewport(&DAT_005a76b0, DAT_0046999c, 0);
-    g_stRoomMouseViewport_00598a80 = DAT_005a76b0;
+#if 0
+    g_stRoomScreenViewport_005988a0 = g_stScreenViewport_005d21a0;
+    g_stSecondaryViewBuffer_005d2c90.right = 319;
+    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+    g_stSecondaryViewBuffer_005d2c90.left = 0;
+    g_stSecondaryViewBuffer_005d2c90.top = 0;
+    AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c, 0);
+    g_stRoomMouseViewport_00598a80 = g_stSecondaryViewBuffer_005d2c90;
     g_stRoomDisplayViewport_00598a60 = g_stRoomScreenViewport_005988a0;
     SetEventManagerPump(PollMenuInputDevices);
     EventManagerHook(UpdateRoomMenuCursor);
     g_nSavedRoomControllerX_005988b4 =
         g_nMenuInputRepeatDelay_005a8208;
     g_nMenuInputRepeatDelay_005a8208 = 6;
+#else
+    g_stDefaultTextContext_005d2d20.viewport =
+        &g_stModalSourceViewport_005d2c50;
+    g_stDefaultTextContext_005d2d20.text =
+        g_szDefaultTextBuffer_005d2b80;
+    InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 1,
+                                  g_ucPrimaryTextColour_0049cb64,
+                                  g_cSecondaryViewBufferColour_0049cb4c);
+    SetTextContext(&g_stDefaultTextContext_005d2d20);
+    g_stSpaceTextContext_005d21c0.viewport = &g_stViewBuffer_005d2b00;
+    g_stSpaceTextContext_005d21c0.text = g_szDefaultTextBuffer_005d2b80;
+    g_stSpaceTextContext_005d21c0.alignment = 2;
+    InitializeTextContextFromFont(&g_stSpaceTextContext_005d21c0, 1,
+                                  g_ucSpaceClearColour_0049cb5c, -1);
+#endif
 }
 
 /* Function start: 0x418FFC */
@@ -251,10 +267,12 @@ short RecRoom(void)
             characterMask = 3;
     }
 
-    SetViewportRect(&DAT_005a76b0, 0, 0, 319, 199);
+    SetViewportRect(&g_stSecondaryViewBuffer_005d2c90, 0, 0, 319, 199);
+#if 0
     InitializeRoomViewports();
+#endif
     init_constellation(0);
-    g_stConstellationViewport_005a6b40 = DAT_005a76b0;
+    g_stConstellationViewport_005a6b40 = g_stSecondaryViewBuffer_005d2c90;
     SetViewportRect(&g_stConstellationViewport_005a6b40,
                     54, 35, 146, 72);
     InitializeConstellationField(&g_stConstellationViewport_005a6b40,
@@ -268,9 +286,9 @@ short RecRoom(void)
     InitializeRoomMenu(g_aRecRoomMenuRegions_004704a0,
                        g_apszRecRoomMenuLabels_004704f8,
                        &g_stRoomScreenViewport_005988a0,
-                       g_szDefaultTextBuffer_005a7590, 2);
+                       g_szDefaultTextBuffer_005d2b80, 2);
 
-    bottomSource = DAT_005a76b0;
+    bottomSource = g_stSecondaryViewBuffer_005d2c90;
     SetViewportRect(&bottomSource, 0, 187, 319, 199);
     bottomDestination = g_stRoomScreenViewport_005988a0;
     SetViewportRect(&bottomDestination, 0, 187, 319, 199);
@@ -280,8 +298,8 @@ short RecRoom(void)
     g_bInputMode_0059a848 = 1;
     g_stMouseCursorState_0059ab10.viewport = &g_stRoomDisplayViewport_00598a60;
 
-    pilotWork = DAT_005a76b0;
-    shotglassWork = DAT_005a76b0;
+    pilotWork = g_stSecondaryViewBuffer_005d2c90;
+    shotglassWork = g_stSecondaryViewBuffer_005d2c90;
     pilotDestination = g_stRoomScreenViewport_005988a0;
     shotglassDestination = g_stRoomScreenViewport_005988a0;
 
@@ -324,10 +342,10 @@ short RecRoom(void)
 
     while (result == 0) {
         if (firstFrame == 0) {
-            DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                               g_pRecRoomBackgroundShape_00598a50, 0);
             if (characterMask != 0) {
-                DrawSpriteDefault(&DAT_005a76b0, 158, 128,
+                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 158, 128,
                                   g_pRecRoomBackgroundShape_00598a50,
                                   characterMask);
             }
@@ -392,11 +410,11 @@ short RecRoom(void)
                                 *(ShortRect *)&shotglassWork.left;
                             if (ShouldSuspendCursorForRect(
                                     &nextFrameBounds) != 0) {
-                                LeaveAllocationScope();
+                                SuspendMouseCursor();
                                 CopyViewportContents(
                                     &shotglassWork,
                                     &shotglassDestination);
-                                EnterAllocationScope();
+                                ResumeMouseCursor();
                             } else {
                                 CopyViewportContents(
                                     &shotglassWork,
@@ -410,38 +428,38 @@ short RecRoom(void)
             if (firstFrame == 0) {
                 firstFrame = 1;
                 if (DAT_00470510 != 0) {
-                    PanToScreen(&DAT_005a76b0,
+                    PanToScreen(&g_stSecondaryViewBuffer_005d2c90,
                                 &g_stRoomScreenViewport_005988a0);
                     DAT_00470510 = 0;
                 } else {
                     CopyViewportContents(
-                        &DAT_005a76b0,
+                        &g_stSecondaryViewBuffer_005d2c90,
                         &g_stRoomScreenViewport_005988a0);
                 }
-                EnterAllocationScope();
+                ResumeMouseCursor();
             } else if (g_apRecRoomCharacterShapes_005988c0[1] != 0 ||
                        g_apRecRoomCharacterShapes_005988c0[2] != 0) {
                 if (ShouldSuspendCursorForRect(
                         (ShortRect *)&pilotWork.left) != 0) {
-                    LeaveAllocationScope();
+                    SuspendMouseCursor();
                     CopyViewportContents(&pilotWork,
                                          &pilotDestination);
-                    EnterAllocationScope();
+                    ResumeMouseCursor();
                 } else {
                     CopyViewportContents(&pilotWork,
                                          &pilotDestination);
                 }
             }
 
-            LeaveAllocationScope();
+            SuspendMouseCursor();
             CopyViewportContents(&bottomSource, &bottomDestination);
             RefreshRoomMenuLabel();
-            EnterAllocationScope();
+            ResumeMouseCursor();
             SetFrameTimerPeriodDirect(9);
         }
 
         clicked = 0;
-        eventType = PollInputEvent(&event, 0xff);
+        eventType = PollInputEvent(&event);
         if (eventType == 3 || eventType == 5) {
             ClearInputKeyStatePreservingModifiers();
             if ((short)event.value == 0x1c ||
@@ -459,17 +477,17 @@ short RecRoom(void)
         if (clicked != 0) {
             region = FindMenuRegionAtPoint(
                 event.x, event.y, g_aRecRoomMenuRegions_004704a0);
-            LeaveAllocationScope();
+            SuspendMouseCursor();
             if (region >= 0 && region <= 2) {
                 if (g_apRecRoomCharacterShapes_005988c0[region] != 0) {
                     free_constellation();
                     ReleasePacketHandle(g_pRecRoomBackgroundShape_00598a50);
-                    DAT_005a76b0.bottom = 127;
-                    DAT_005a6ba0.top = 24;
-                    DAT_005a6ba0.bottom = 151;
+                    g_stSecondaryViewBuffer_005d2c90.bottom = 127;
+                    g_stScreenViewport_005d21a0.top = 24;
+                    g_stScreenViewport_005d21a0.bottom = 151;
                     InitializeConversationText();
                     ClearViewport(&g_stRoomScreenViewport_005988a0,
-                                  DAT_0046999c);
+                                  g_cSecondaryViewBufferColour_0049cb4c);
                     g_pConversationBackdropShape_00598c04 =
                         FetchDiskPacketRetrying(
                             5, 1, 0);
@@ -477,16 +495,16 @@ short RecRoom(void)
                         2,
                         g_apRecRoomSceneData_00598ae0[region],
                         g_apRecRoomTextData_00598aa0[region]);
-                    DAT_0059ab58 = 0;
+                    g_bSceneEscapeRequested_0049d4b0 = 0;
                     SetEventManagerPump(PollMenuInputDevices);
                     FreePacketAndClear(
                         &g_pConversationBackdropShape_00598c04, 0);
                     SetFrameTimerPeriodDirect(1);
-                    DAT_005a6ba0.top = 0;
-                    DAT_005a6ba0.bottom = 199;
-                    DAT_005a76b0.bottom = 199;
+                    g_stScreenViewport_005d21a0.top = 0;
+                    g_stScreenViewport_005d21a0.bottom = 199;
+                    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
                     g_stConstellationViewport_005a6b40 =
-                        DAT_005a76b0;
+                        g_stSecondaryViewBuffer_005d2c90;
                     g_stConstellationViewport_005a6b40.left = 54;
                     g_stConstellationViewport_005a6b40.top = 35;
                     g_stConstellationViewport_005a6b40.right = 146;
@@ -498,24 +516,24 @@ short RecRoom(void)
                         FetchDiskPacketRetrying(
                             5, 0, 0);
                     ClearViewport(&g_stRoomScreenViewport_005988a0,
-                                  DAT_0046999c);
+                                  g_cSecondaryViewBufferColour_0049cb4c);
                 }
             } else if (region == 3) {
                 FlushInputEvents();
                 if ((int)(DAT_0059ab54 - lastChalkboardTick) >
                     g_nInputTickScale_0059af90) {
                     ShowChalkBoard();
-                    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+                    ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
                     lastChalkboardTick = (int)DAT_0059ab54;
                 }
             } else if (region == 4 || region == 5) {
                 result = region;
             } else {
                 clicked = 0;
-                EnterAllocationScope();
+                ResumeMouseCursor();
             }
 
-            g_stRoomMouseViewport_00598a80 = DAT_005a6ba0;
+            g_stRoomMouseViewport_00598a80 = g_stScreenViewport_005d21a0;
             g_stMouseCursorState_0059ab10.viewport = &g_stRoomMouseViewport_00598a80;
             g_bInputMode_0059a848 = 1;
             if (clicked != 0)
@@ -538,9 +556,9 @@ short RecRoom(void)
     ReleasePacketHandle(g_pRecRoomBackgroundShape_00598a50);
     ReleaseTextFont(0);
     ReleasePacketHandle(g_pBriefingPacket_00598aec);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
-    free_viewport(&DAT_005a76b0);
-    DAT_0059ab58 = 0;
+    ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
+    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+    g_bSceneEscapeRequested_0049d4b0 = 0;
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(30);
     return result;
@@ -584,10 +602,10 @@ void ShowChalkBoard(void)
     g_stChalkBoardDate_00470514 = *g_pCurrentCampaignDate_005a86a8;
     background = FetchDiskPacketRetrying(5, 2, 0);
     previousContext = g_pCurrentTextContext_005c8d1c;
-    g_stModalSourceViewport_005a7670 = DAT_005a6ba0;
-    context.viewport = &g_stModalSourceViewport_005a7670;
-    context.text = g_szDefaultTextBuffer_005a7590;
-    context.textCursor = g_szDefaultTextBuffer_005a7590;
+    g_stModalSourceViewport_005d2c50 = g_stScreenViewport_005d21a0;
+    context.viewport = &g_stModalSourceViewport_005d2c50;
+    context.text = g_szDefaultTextBuffer_005d2b80;
+    context.textCursor = g_szDefaultTextBuffer_005d2b80;
     InitializeTextContextFromFont(&context, 3,
                                   g_cViewportClearColour_004699a0, -1);
     savedInputMode = g_bInputMode_0059a848;
@@ -600,7 +618,7 @@ void ShowChalkBoard(void)
             PeekInputEvent(&event, 3) != 0)
             done = 1;
 
-        DrawSpriteDefault(&g_stModalSourceViewport_005a7670,
+        DrawSpriteDefault(&g_stModalSourceViewport_005d2c50,
                           0, 0, background, 0);
         context.alignment = 2;
         SetTextContext(&context);
@@ -688,8 +706,23 @@ short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
 /* Function start: 0x4254C0 */
 void CheckHeapBlockSignature(unsigned char *shape)
 {
+#if 0
     if (*(int *)(shape - 8) != 0x6666656a)
         exit_squadron(g_szInvalidShapeAllocation_00470d18);
+#else
+    if (*(int *)(shape - 8) != 0x6666656a) {
+        if (IsFreedHeapBlockTracked(shape) != 0)
+            exit_squadron("not jefftep (freed)");
+        else
+            exit_squadron("not jefftep");
+    }
+#endif
+}
+
+/* Function start: 0x42550E */
+int HasValidShapeAllocationSignature(unsigned char *shape)
+{
+    return *(int *)(shape - 8) == 0x6666656a;
 }
 
 /* Function start: 0x42553A */

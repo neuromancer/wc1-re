@@ -35,12 +35,12 @@ void RunTrainSim(void)
     }
 
     if (proceed != 0) {
-        g_nCannedSceneMode_00469fac = 0;
+        g_nCannedSceneMode_0049021c = 0;
         g_nTrainSimActive_00469e2c = 1;
         PreloadMusicTrackHook(20);
         PreloadMusicTrackHook(21);
         PreloadMusicTrackHook(22);
-        ResetStringBuilder(&DAT_005a6bc0);
+        ResetStringBuilder(&g_stSpaceTextContext_005d21c0);
         savedDataSet = g_nCampaignDataSet_005a8118;
         savedCampaign = g_stCampaignState_0059ca50.campaignIndex;
         g_stCampaignState_0059ca50.campaignIndex = 0;
@@ -81,7 +81,7 @@ void RunTrainSim(void)
                     ShowVictoryScreen();
                 g_nTrainSimMission_00469e30++;
             } else {
-                g_nArcadeState_00469fb0 = 4;
+                g_nArcadeState_0049d75c = 4;
                 ShowGameOverScreen();
                 g_nTrainSimMission_00469e30 = 4;
             }
@@ -114,7 +114,7 @@ short LogMemoryUsage(void)
         SystemDebugPrintf(
             "Original FMem %lu.  Current FMem %lu.  Current NMem %u.\n",
             g_dwOriginalFreeMemory_005a7cd8,
-            GetFixedOneMillionThunkAlt(0),
+            GetLargestFreeMemoryBlockByType(0),
             (unsigned int)(int)(short)GetOriginalFreeMemory());
     }
     MouseIdleHook();
@@ -123,8 +123,9 @@ short LogMemoryUsage(void)
 }
 
 /* Function start: 0x437AB4 */
-void exit_squadron(const char *msg)
+void exit_squadron(const char *msg, ...)
 {
+#if 0
     LogMemoryUsage();
     SystemDebugPrintf(msg);
     SystemDebugPrintf("[SYSTEM]: Exit_squadron\n");
@@ -133,6 +134,13 @@ void exit_squadron(const char *msg)
     ClearDebugPauseFlags();
     AbortToDesktop();
     exit(0);
+#else
+    if (msg != 0)
+        ShowNoticeMessageBox(msg);
+    _unlink("tape.tmp");
+    LogMemoryUsage();
+    ShutdownGameWindow();
+#endif
 }
 
 /* Function start: 0x437AEC */
@@ -143,20 +151,20 @@ unsigned int ShowMemoryStatusDebug(void)
     char value[60];
 
     previousContext = g_pCurrentTextContext_005c8d1c;
-    savedContext = g_stDefaultTextContext_005a7740;
+    savedContext = g_stDefaultTextContext_005d2d20;
     if (g_nShowMemoryStatus_0049d784 != 0) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005a7740, 1,
+            &g_stDefaultTextContext_005d2d20, 1,
             (unsigned char)g_cViewportClearColour_004699a0,
-            DAT_0046999c);
-        SetTextContext(&g_stDefaultTextContext_005a7740);
+            g_cSecondaryViewBufferColour_0049cb4c);
+        SetTextContext(&g_stDefaultTextContext_005d2d20);
         DrawFormattedText("%X%YCurrent NMem %d.",
                           0, 176, (int)(short)GetOriginalFreeMemory());
-        sprintf(value, "%ld", GetFixedOneMillionThunkAlt(0));
+        sprintf(value, "%ld", GetLargestFreeMemoryBlockByType(0));
         DrawFormattedText("%X%YCurrent FMem %s.", 0, 184, value);
         sprintf(value, "%ld", g_dwOriginalFreeMemory_005a7cd8);
         DrawFormattedText("%X%YOriginal FMem %s.", 0, 0, value);
-        g_stDefaultTextContext_005a7740 = savedContext;
+        g_stDefaultTextContext_005d2d20 = savedContext;
     }
     g_pCurrentTextContext_005c8d1c = previousContext;
     return 0;

@@ -8,25 +8,27 @@
  */
 #include "wc1.h"
 
+static char g_szSoundDebugBuffer_005d1f00[0xfa0];
+
 /* Function start: 0x45A04A */
 void __stdcall CloseDataFile(unsigned short fd)
 {
-    g_nPacketError_00465460 = (short)_close(fd & 0xffff);
+    g_nPacketError_0049ca90 = (short)_close(fd & 0xffff);
 }
 
 /* Function start: 0x45A06C */
 short __stdcall WriteDataFileAtOffset(unsigned short fd, int offset,
                                       unsigned int length, const void *data)
 {
-    g_nPacketError_00465460 = 0;
+    g_nPacketError_0049ca90 = 0;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
         sprintf(g_szWriteDataFileError_00475da0, "!lseek %d\n", offset);
-        g_nPacketError_00465460 = (short)errno;
+        g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
     if (_write(fd, data, length) == -1) {
         sprintf(g_szWriteDataFileError_00475da0, "!write %d\n", offset);
-        g_nPacketError_00465460 = (short)errno;
+        g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
     return 1;
@@ -40,7 +42,7 @@ short __stdcall CreateDataFile(const char *path)
     fd = (unsigned short)_open(path, 0x8101, 0x180);
     if ((unsigned int)fd == (unsigned int)-1) {
         sprintf(g_szCreateDataFileError_00475d60, "!_open '%s'\n", path);
-        g_nPacketError_00465460 = (short)errno;
+        g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
     return (short)fd;
@@ -50,15 +52,15 @@ short __stdcall CreateDataFile(const char *path)
 int __stdcall ReadDataFileAtOffset(unsigned short fd, int offset,
                                    unsigned int length, void *data)
 {
-    g_nPacketError_00465460 = 0;
+    g_nPacketError_0049ca90 = 0;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
         sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
-        g_nPacketError_00465460 = (short)errno;
+        g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
     if (_read(fd, data, length) == -1) {
         sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
-        g_nPacketError_00465460 = (short)errno;
+        g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
     return 1;
@@ -73,7 +75,7 @@ int __stdcall SeekDataFile(unsigned short fd, int offset,
     position = _lseek(fd, offset, origin & 0xffff);
     if (position == -1) {
         sprintf(g_szSeekDataFileError_00475de0, "!lseek %d\n", offset);
-        g_nPacketError_00465460 = (short)errno;
+        g_nPacketError_0049ca90 = (short)errno;
     }
     return position;
 }
@@ -93,7 +95,7 @@ int MeasureScaledIntroTextWidth(const char *text, short scale)
         if (c >= 'A' && c <= 'z') {
             c -= 'A';
 
-            GetTransformedShapeBounds(&DAT_005a7510, 0, 0,
+            GetTransformedShapeBounds(&g_stViewBuffer_005d2b00, 0, 0,
                                       g_pIntroFont_005a8960, (short)c, 0,
                                       scale, 0, bounds);
             width = (short)(width + bounds[2] + 1);
@@ -128,10 +130,10 @@ int DrawCenteredScaledIntroText(const char *text, short centreX,
         if (c >= 'A' && c <= 'z') {
             c -= 'A';
 
-            DrawSpriteScaled(&DAT_005a7510, x, y,
+            DrawSpriteScaled(&g_stViewBuffer_005d2b00, x, y,
                              g_pIntroFont_005a8960, (short)c, 0,
                              drawScale, 0);
-            GetTransformedShapeBounds(&DAT_005a7510, 0, 0,
+            GetTransformedShapeBounds(&g_stViewBuffer_005d2b00, 0, 0,
                                       g_pIntroFont_005a8960, (short)c, 0,
                                       drawScale, 0, bounds);
             x = (short)(x + bounds[2] + 1);
@@ -230,7 +232,7 @@ int print_subtitle(Viewport *viewport, short colour, const char *text)
             x = (short)((320 - GetLineLength(text)) >> 1);
         }
     }
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         DIBslam();
     return 0;
 }
@@ -249,9 +251,9 @@ int advance_canned_sequence(short obj)
         g_asActionCount_0059c930[obj] = *command++;
         break;
     case 1:
-        g_anYawGoal_0059c310[obj] = *command++;
-        g_anPitchGoal_0059d7a0[obj] = *command++;
-        g_anRollGoal_0059d630[obj] = *command++;
+        g_anYawGoal_004954c0[obj] = *command++;
+        g_anPitchGoal_004954a8[obj] = *command++;
+        g_anRollGoal_004954d8[obj] = *command++;
         g_anShipSpeed_0059b320[obj] = (int)*command++ << 8;
         break;
     case 2:
@@ -261,7 +263,7 @@ int advance_canned_sequence(short obj)
         fire_fixed_projectile_weapon(obj);
         break;
     case 4:
-        g_aeSpecialManeuver_0059c3c0[obj] =
+        g_aeSpecialManeuver_00495600[obj] =
             SPECIAL_MANEUVER_AFTERBURNER;
         break;
     }
@@ -282,9 +284,9 @@ unsigned int update_canned_sequence(short obj)
             advance_canned_sequence(obj);
         break;
     case 1:
-        if (g_anYawGoal_0059c310[obj] == 0 &&
-            g_anPitchGoal_0059d7a0[obj] == 0 &&
-            g_anRollGoal_0059d630[obj] == 0) {
+        if (g_anYawGoal_004954c0[obj] == 0 &&
+            g_anPitchGoal_004954a8[obj] == 0 &&
+            g_anRollGoal_004954d8[obj] == 0) {
             requested = g_anShipSpeed_0059b320[obj];
             velocity = Vector_magnitude(
                 &g_aShipVelocity_0059c010[0]);
@@ -353,9 +355,10 @@ void MonoDebug_remove(void)
     }
 }
 
-/* Function start: 0x42F0B3 */
+/* Function start: 0x437946 */
 void SoundDebugPrintf(const char *fmt, ...)
 {
+#if 0
 #ifdef WC1_SDL
     va_list arguments;
 
@@ -366,6 +369,14 @@ void SoundDebugPrintf(const char *fmt, ...)
     vsprintf(DAT_005a8760, fmt, (char *)(&fmt + 1));
 #endif
     MonoDebug_print(DAT_005a8760);
+#else
+    va_list arguments;
+
+    va_start(arguments, fmt);
+    vsprintf(g_szSoundDebugBuffer_005d1f00, fmt, arguments);
+    va_end(arguments);
+    MonoDebug_print(g_szSoundDebugBuffer_005d1f00);
+#endif
 }
 
 /* Function start: 0x437983 */
@@ -386,7 +397,7 @@ void ReadPerformanceCounter(LARGE_INTEGER *p)
     QueryPerformanceCounter(p);
 }
 
-/* Function start: 0x40A27A */
+/* Function start: WC2_UNMAPPED */
 void __stdcall ResetStringBuilder(TextContext *context)
 {
     context->textCursor = context->text;

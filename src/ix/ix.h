@@ -394,11 +394,7 @@ struct IxStreamFile {
 };
 
 extern "C" int ix_streamer_init(void);           /* 0x46BD50 */
-#ifdef WC1_SDL
 extern "C" void ix_streamer_destroy(void);       /* 0x46BE6F */
-#else
-void ix_streamer_destroy(void);                  /* 0x46BE6F */
-#endif
 extern "C" void ix_streamer_configure(int option, void *value); /* 0x469EA6 */
 void ix_streamer_set_dev_mode(int mode);         /* 0x46BF3E */
 extern "C" int ix_streamer_open_stream_file(char *path); /* 0x46BFB6 */
@@ -413,8 +409,8 @@ extern "C" void ix_streamer_set_trigger(char trigger); /* 0x46C9C1 */
 char ix_streamer_get_trigger(void);              /* 0x46CA19 */
 extern "C" void ix_streamer_force_trigger(char trigger); /* 0x46CA2E */
 extern "C" void ix_streamer_set_volume(unsigned short vol); /* 0x46CBBE */
-unsigned short ix_streamer_get_volume(void);     /* 0x46CC3B */
-unsigned int ix_streamer_get_audio_chunk(void);  /* 0x428DE0 */
+extern "C" unsigned short ix_streamer_get_volume(void); /* 0x46CC3B */
+unsigned int ix_streamer_get_audio_chunk(void);  /* 0x46CC51 */
 void ix_streamer_seek_chunk(unsigned int chunk); /* 0x46CC66 */
 unsigned int ix_streamer_hash_name(unsigned char *name); /* 0x46CCC0 */
 IxStreamerFileEntry *ix_streamer_find_entry(unsigned int hash); /* 0x46CD55 */
@@ -465,9 +461,9 @@ extern IxStreamerBranch *g_pStreamerBranches_00597c8c;
 extern IxStreamerFileChunk *g_pStreamerFileChunks_00597c90;
 extern CRITICAL_SECTION g_csStreamerFileQueue_00597c98;
 extern CRITICAL_SECTION g_csStreamerThread_00597cb0;
-extern unsigned int g_nStreamerAudioChunk_00597cc8;
+extern unsigned int g_dwStreamerAudioChunk_005c4c30;
 extern DWORD g_dwStreamerThreadId_00597ccc;
-extern "C" unsigned int g_dwStreamerState_00597cd0;
+extern "C" unsigned int g_dwStreamerState_005c4c38;
 extern HANDLE g_hStreamerWakeEvent_00597cd4;
 extern unsigned int g_nStreamerFileChunk_00597cd8;
 extern unsigned int g_nStreamerBytesPerSecond_00597cdc;

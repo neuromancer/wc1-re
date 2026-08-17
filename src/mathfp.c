@@ -6,6 +6,8 @@
  */
 #include "wc1.h"
 
+#pragma function(sin, cos, asin, acos, sqrt)
+
 /* Function start: 0x4618E0 */
 short RandomBelow(short n)
 {
@@ -18,14 +20,22 @@ void __stdcall SeedRandomFromClock(void)
     srand((unsigned int)time(0));
 }
 
-/* Function start: 0x461942 */
-short __stdcall RandomInRange(short lo, short hi)
+/* Function start: 0x461922 */
+unsigned short GetRandomWord(void)
 {
-    short span = hi - lo;
+    return rand() & 0xffff;
+}
 
+/* Function start: 0x461942 */
+short RandomInRange(unsigned short lo, unsigned short hi)
+{
+    short span;
+
+    span = (short)(hi - lo);
     if (span == 0)
         span = 1;
-    return lo + rand() % (span + 1);
+    span = (short)(rand() % (span + 1));
+    return (short)(span + lo);
 }
 
 /* Function start: 0x4619A1 */
@@ -61,33 +71,84 @@ long DivideFixed(int numerator, int denominator)
 /* Function start: 0x461A91 */
 long SinFixed(short degrees)
 {
+#if 0
     return (long)(sin((double)degrees * WC1_DEG2RAD) * 256.0);
+#else
+    float angle;
+    long result;
+
+    angle = (float)degrees;
+    result = (long)(sin((double)angle * WC1_DEG2RAD) * 256.0);
+    return result;
+#endif
 }
 
 /* Function start: 0x461AD6 */
 long CosFixed(short degrees)
 {
+#if 0
     return (long)(cos((double)degrees * WC1_DEG2RAD) * 256.0);
+#else
+    float angle;
+    long result;
+
+    angle = (float)degrees;
+    result = (long)(cos((double)angle * WC1_DEG2RAD) * 256.0);
+    return result;
+#endif
 }
 
 /* Function start: 0x461B1B */
-long ArcSin(int value)
+short ArcSin(int value)
 {
+#if 0
     return (long)(asin((double)value * 0.00390625f) *
                   57.295779513082323);
+#else
+    float scale;
+    float normalized;
+    short result;
+
+    scale = 256.0f;
+    normalized = (float)value / scale;
+    result = (short)(asin((double)normalized) * 57.295779513082323);
+    return result;
+#endif
 }
 
 /* Function start: 0x461B6B */
-long ArcCos(int value)
+short ArcCos(int value)
 {
+#if 0
     return (long)(acos((double)value * 0.00390625f) *
                   57.295779513082323);
+#else
+    float scale;
+    float normalized;
+    short result;
+
+    scale = 256.0f;
+    normalized = (float)value / scale;
+    result = (short)(acos((double)normalized) * 57.295779513082323);
+    return result;
+#endif
 }
 
 /* Function start: 0x461BBB */
 long Magnitude(int value)
 {
+#if 0
     return (long)(sqrt((double)value * 0.00390625f) * 256.0);
+#else
+    float scale;
+    float normalized;
+    long result;
+
+    scale = 256.0f;
+    normalized = (float)value / scale;
+    result = (long)(sqrt((double)normalized) * scale);
+    return result;
+#endif
 }
 
 /* Function start: 0x461C06 */
@@ -104,6 +165,7 @@ long PlanarMagnitude(int x, int y)
 /* Function start: 0x461C71 */
 long Vector_magnitude(const FixedVector *vector)
 {
+#if 0
     double x = (double)vector->x * (1.0 / 256.0);
     double y = (double)vector->y * (1.0 / 256.0);
     double z = (double)vector->z * (1.0 / 256.0);
@@ -112,6 +174,16 @@ long Vector_magnitude(const FixedVector *vector)
     y *= y;
     z *= z;
     return (long)(sqrt(x + y + z) * 256.0);
+#else
+    float x = (float)vector->x / 256.0;
+    float y = (float)vector->y / 256.0;
+    float z = (float)vector->z / 256.0;
+
+    x *= x;
+    y *= y;
+    z *= z;
+    return (long)(sqrt(x + y + z) * 256.0);
+#endif
 }
 
 /* Function start: 0x461D02 */
@@ -163,14 +235,14 @@ unsigned short __stdcall GetFontCharWidth(char i)
     return g_pCurrentTextContext_005c8d1c->font[4 + (int)i];
 }
 
-/* Function start: 0x4641A0 */
+/* Function start: WC2_UNMAPPED */
 void ReleaseVideoResourcesHook(void)
 {
 }
 
 /* Function start: 0x461DF0 */
-short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
-                                    unsigned char *shape, short frame)
+short GetShapeFrameBounds(short *bounds, short x, short y,
+                          unsigned char *shape, short frame)
 {
     short frameTableOffset;
 #ifdef WC1_SDL
@@ -215,7 +287,7 @@ void __stdcall SplitPackedPoint(ShortPoint point, short *p)
 }
 
 /* Function start: 0x461F22 */
-void __stdcall DrawTextString(const char *text)
+void DrawTextString(const char *text)
 {
     const char *cursor;
     const char *lineStart;
@@ -307,7 +379,7 @@ void __stdcall DrawTextString(const char *text)
 }
 
 /* Function start: 0x4621D5 */
-void __stdcall DrawTextCharacter(char character)
+void DrawTextCharacter(char character)
 {
     TextContext *context;
     unsigned char *font;
@@ -315,6 +387,8 @@ void __stdcall DrawTextCharacter(char character)
     unsigned int glyphWidth;
     int cursorY;
 
+    if (g_pCurrentTextContext_005c8d1c == 0)
+        return;
     if (character == '\n') {
         g_pCurrentTextContext_005c8d1c->cursorX =
             g_pCurrentTextContext_005c8d1c->viewport->left;
@@ -334,12 +408,13 @@ void __stdcall DrawTextCharacter(char character)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
-void __stdcall AppendTextCharacter(char character)
+/* Function start: 0x4622BD */
+void AppendTextCharacter(char character)
 {
     *g_pCurrentTextContext_005c8d1c->textCursor = character;
     g_pCurrentTextContext_005c8d1c->textCursor++;
     *g_pCurrentTextContext_005c8d1c->textCursor = 0;
+    return;
 }
 
 /* Function start: WC2_UNMAPPED */

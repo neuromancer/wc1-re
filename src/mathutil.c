@@ -6,12 +6,21 @@
  */
 #include "wc1.h"
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x40F040 */
 short MinShort(short a, short b)
 {
     if (a < b)
         return a;
     return b;
+}
+
+/* Function start: 0x40D6B0 */
+void ReleasePacketSlot(void **slot)
+{
+    if (slot != 0) {
+        ReleasePacketHandle(*slot);
+        *slot = 0;
+    }
 }
 
 /* Function start: 0x40F072 */

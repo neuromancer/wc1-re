@@ -125,10 +125,17 @@ enum ShipMissionType {
     MISSION_TYPE_ROUT              = 5,
     MISSION_TYPE_GOTO_WARP         = 6,
     MISSION_TYPE_WARP_ARRIVE       = 7,
+#if 0
     MISSION_TYPE_CANNED_SEQUENCE   = 8,
     MISSION_TYPE_RENDEZVOUS        = 9,
     MISSION_TYPE_COME_HOME         = 10,
     MISSION_TYPE_BOGUS_AVOID_CRASH = 11
+#else
+    MISSION_TYPE_RENDEZVOUS        = 8,
+    MISSION_TYPE_CANNED_SEQUENCE   = 10,
+    MISSION_TYPE_BOGUS_AVOID_CRASH = 11,
+    MISSION_TYPE_COME_HOME         = 12
+#endif
 };
 
 enum ShipObjective {
@@ -576,15 +583,26 @@ typedef struct TitleMenuRegion {
 typedef unsigned char *Wc1PackedResourcePointer
     __attribute__((aligned(1)));
 #endif
+#pragma pack(push, 1)
 typedef struct PacketResourceDescriptor {
 #ifdef WC1_SDL
     Wc1PackedResourcePointer *resource;
 #else
     unsigned char **resource;
 #endif
+#if 0
     short logicalFile;
+#else
+    char *fileName;
+#endif
     short section;
 } PacketResourceDescriptor;
+#pragma pack(pop)
+
+#ifndef WC1_SDL
+typedef char PacketResourceDescriptor_size_must_be_0x0a[
+    sizeof(PacketResourceDescriptor) == 0x0a ? 1 : -1];
+#endif
 
 /* Six packed TrainSim ranking records begin at 0x005A7C30.  The five-byte
  * stride is explicit in every getter, setter, and ranking-table scan. */
@@ -797,18 +815,20 @@ typedef struct SphericalVector {
     short pitch;
 } SphericalVector;
 
-/* Runtime asteroid/mine-field descriptor.  The packed 0x16-byte stride is
- * visible in the Win32 hazard-field scans and agrees with the Mac `hazar`
- * compilation unit. */
+/* Runtime asteroid/mine-field descriptor.  WC2 retained the original
+ * 16-bit object type, producing the 0x14-byte stride visible in its scans. */
 #pragma pack(push, 1)
 typedef struct HazardField {
-    enum ObjectType type;             /* +0x00 */
-    FixedVector center;                /* +0x04 */
-    short innerRadius;                 /* +0x10 */
-    short outerRadius;                 /* +0x12 */
-    short density;                     /* +0x14 */
+    short type;                        /* +0x00 */
+    FixedVector center;                /* +0x02 */
+    short innerRadius;                 /* +0x0e */
+    short outerRadius;                 /* +0x10 */
+    short density;                     /* +0x12 */
 } HazardField;
 #pragma pack(pop)
+
+typedef char HazardField_size_must_be_0x14[
+    sizeof(HazardField) == 0x14 ? 1 : -1];
 
 /* Weighted pair in the retail maneuver-selection tables. */
 typedef struct ManeuverChoice {
@@ -860,32 +880,51 @@ typedef char ConstellationParticle_size_must_be_0x08[
 typedef char ConstellationObjectDefinition_size_must_be_0x08[
     sizeof(ConstellationObjectDefinition) == 0x08 ? 1 : -1];
 
-/* Runtime mission-nav record.  The loader expands each 3-byte disk coordinate
- * to a 32-bit fixed-point value, producing the 0x51-byte stride observed at
- * 0x0046C2F0. */
+/* Runtime WC2 mission-nav record.  The loader expands each 3-byte disk
+ * coordinate to a 32-bit fixed-point value.  The three resource columns and
+ * the ten mission-ship indices produce the 0x65-byte stride at 0x00491E98. */
 #pragma pack(push, 1)
 typedef struct MissionNavPoint {
     char name[0x1e];                 /* +0x00 */
     signed char type;                /* +0x1E: 1 is an active nav point */
     FixedVector position;            /* +0x1F */
     short proximityRadius;           /* +0x2B */
+#if 0
     signed char triggers[4][2];      /* +0x2D: type, target nav point */
     enum ObjectType preloadObjectTypes[2]; /* +0x35 */
     short missionShips[10];          /* +0x3D */
+#else
+    signed char systemIndex;         /* +0x2D */
+    signed char field_2e;            /* +0x2E */
+    signed char triggers[4][2];      /* +0x2F: type, target nav point */
+    signed char field_37[8];         /* +0x37 */
+    short preloadObjectTypes[3];     /* +0x3F */
+    short preloadObjectClasses[3];   /* +0x45 */
+    short preloadLogicalFiles[3];    /* +0x4B */
+    short missionShips[10];          /* +0x51 */
+#endif
 } MissionNavPoint;
 #pragma pack(pop)
 
-/* The +0x28 slot has two proven interpretations.  Loaded campaign records use
- * it as the pilot/personality value, while the built-in opening-sequence
- * records (32-45) store a pointer to a canned command stream there. */
+/* Direct 0x18-byte header copied from WC2 campaign packet 0. */
+#pragma pack(push, 1)
+typedef struct MissionHeader {
+    short entryNavPoint;              /* +0x00 */
+    short wingmanMissionShip;         /* +0x02 */
+    short homeMissionShip;            /* +0x04 */
+    short playerMissionShip;          /* +0x06 */
+    short initialMissionShips[8];     /* +0x08 */
+} MissionHeader;
+#pragma pack(pop)
+
+#if 0
+/* WC1 expanded the on-disk mission record and reused the +0x28 slot for the
+ * built-in opening-sequence command streams. */
 typedef union MissionShipBehaviour {
     const short *cannedSequence;
     int pilot;
 } MissionShipBehaviour;
 
-/* The expanded runtime mission-ship record at 0x0046C948.  The first 32
- * records are overwritten by LoadMissionData; the recovered opening
- * sequence follows them in records 32-45. */
 #pragma pack(push, 1)
 typedef struct MissionShipRecord {
     enum ObjectType type;             /* +0x00 */
@@ -909,37 +948,94 @@ typedef struct MissionShipRecord {
     signed char formationIndex;       /* +0x34 */
     signed char targetMissionIndex;   /* +0x35 */
 } MissionShipRecord;
+#else
+/* WC2 copies sixteen packed 0x3c-byte mission records directly from packet 3
+ * into the table at 0x00492290. */
+#pragma pack(push, 1)
+typedef struct MissionShipRecord {
+    char name[19];                    /* +0x00 */
+    signed char field_13;             /* +0x13 */
+    signed char type;                 /* +0x14: loaded ship-resource type */
+    short objectType;                 /* +0x15: world-object/hazard type */
+    short side;                       /* +0x17 */
+    signed char field_19;             /* +0x19 */
+    signed char field_1a;             /* +0x1A */
+    short missionType;                /* +0x1B */
+    signed char navPoint;             /* +0x1D */
+    FixedVector position;             /* +0x1E */
+    short pitch;                      /* +0x2A */
+    short yaw;                        /* +0x2C */
+    short roll;                       /* +0x2E */
+    signed char formationSpot;        /* +0x30 */
+    short speed;                      /* +0x31 */
+    short rating;                     /* +0x33 */
+    short pilot;                      /* +0x35 */
+    signed char state;                /* +0x37 */
+    signed char leaderMissionIndex;   /* +0x38 */
+    signed char formationIndex;       /* +0x39 */
+    signed char systemIndex;          /* +0x3A */
+    signed char portrait;             /* +0x3B */
+} MissionShipRecord;
+#endif
 
-/* Expanded copy of one 64-byte objective/map record. */
+/* WC1 expanded the first short to an int after loading; WC2 retains the
+ * packet's packed 64-byte representation in memory. */
 typedef struct MissionObjectiveSource {
+#if 0
     int type;                         /* +0x00: sign-extended disk short */
     short index;                      /* +0x04 */
     char description[60];             /* +0x06 */
+#else
+    short type;                       /* +0x00 */
+    short index;                      /* +0x02 */
+    char description[60];             /* +0x04 */
+#endif
 } MissionObjectiveSource;
 
-/* Four packed resource-cache entries at 0x0059DDF0. */
+/* Five packed WC2 ship-resource cache entries at 0x00493398. */
 typedef struct ObjectResourceSlot {
-    signed char type;                 /* +0x00 */
-    unsigned char *shapeSet;          /* +0x01: archive section 0 */
-    unsigned char *animation;         /* +0x05: archive section 2 */
-    unsigned char *shape;             /* +0x09: archive section 1 */
+#if 0
+    signed char type;                 /* +0x00: WC1 layout */
+    unsigned char *shapeSet;          /* +0x01 */
+    unsigned char *animation;         /* +0x05 */
+    unsigned char *shape;             /* +0x09 */
+#else
+    short type;                       /* +0x00 */
+    short logicalFile;                /* +0x02 */
+    short objectClass;                /* +0x04 */
+    unsigned char *shapeSet;          /* +0x06: archive section 0 */
+    unsigned char *animation;         /* +0x0A: archive section 2 */
+    unsigned char *shape;             /* +0x0E: archive section 1 */
+    unsigned char *field_12;          /* +0x12 */
+#endif
 } ObjectResourceSlot;
+typedef char ObjectResourceSlot_size_must_be_0x16[
+    sizeof(ObjectResourceSlot) == 0x16 ? 1 : -1];
 #pragma pack(pop)
 
-/* Runtime mission-objective records use the 0x1F-byte stride visible in every
- * objective scan.  The coordinate pair leads each record at 0x0059DAC0; the
- * former declaration incorrectly began five bytes later at the type field. */
+/* WC2 runtime mission-objective records use the 0x1E-byte stride visible in
+ * every objective scan.  The coordinate pair leads each record at 0x4932A8. */
 #pragma pack(push, 1)
 typedef struct MissionObjective {
     short mapX;                       /* +0x00 */
     short mapY;                       /* +0x02 */
     unsigned char field_4;            /* +0x04 */
+#if 0
     int type;                         /* +0x05 */
     signed char index;                /* +0x09 */
     unsigned char flags;              /* +0x0A */
     const char *displayName;          /* +0x0B */
     char *name;                       /* +0x0F: mission description */
     FixedVector position;             /* +0x13 */
+#else
+    short type;                       /* +0x05 */
+    signed char index;                /* +0x07 */
+    unsigned char field_8;            /* +0x08 */
+    signed char flags;                /* +0x09 */
+    const char *displayName;          /* +0x0A */
+    char *name;                       /* +0x0E: mission description */
+    FixedVector position;             /* +0x12 */
+#endif
 } MissionObjective;
 
 /* One objective in SAVEGAME.WLD.  The runtime integer and two pointer-sized
@@ -993,23 +1089,40 @@ typedef struct BarracksAnimationState {
 } BarracksAnimationState;
 #pragma pack(pop)
 
+#if 0
 typedef char MissionNavPoint_size_must_be_0x51[
     sizeof(MissionNavPoint) == 0x51 ? 1 : -1];
-#ifndef WC1_SDL
-typedef char MissionShipRecord_size_must_be_0x36[
-    sizeof(MissionShipRecord) == 0x36 ? 1 : -1];
+#else
+typedef char MissionNavPoint_size_must_be_0x65[
+    sizeof(MissionNavPoint) == 0x65 ? 1 : -1];
 #endif
-typedef char MissionObjectiveSource_size_must_be_0x42[
-    sizeof(MissionObjectiveSource) == 0x42 ? 1 : -1];
 #ifndef WC1_SDL
+typedef char MissionShipRecord_size_must_be_0x3c[
+    sizeof(MissionShipRecord) == 0x3c ? 1 : -1];
+#endif
+typedef char MissionHeader_size_must_be_0x18[
+    sizeof(MissionHeader) == 0x18 ? 1 : -1];
+typedef char MissionObjectiveSource_size_must_be_0x40[
+    sizeof(MissionObjectiveSource) == 0x40 ? 1 : -1];
+#ifndef WC1_SDL
+#if 0
 typedef char MissionObjective_size_must_be_0x1f[
     sizeof(MissionObjective) == 0x1f ? 1 : -1];
+#else
+typedef char MissionObjective_size_must_be_0x1e[
+    sizeof(MissionObjective) == 0x1e ? 1 : -1];
+#endif
 #endif
 typedef char SaveGameDiskObjective_size_must_be_0x19[
     sizeof(SaveGameDiskObjective) == 0x19 ? 1 : -1];
 #ifndef WC1_SDL
+#if 0
 typedef char SaveGameRecord_size_must_be_0x3b0[
     sizeof(SaveGameRecord) == 0x3b0 ? 1 : -1];
+#else
+typedef char SaveGameRecord_size_must_be_0x3a0[
+    sizeof(SaveGameRecord) == 0x3a0 ? 1 : -1];
+#endif
 #endif
 typedef char SaveGameDiskRecord_size_must_be_0x33c[
     sizeof(SaveGameDiskRecord) == 0x33c ? 1 : -1];
@@ -1021,15 +1134,20 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #endif
 
 #define WC1_SPACE_OBJECT_COUNT 64
+#define WC2_SPACE_OBJECT_COUNT 70
 #define WC1_SPACE_LAST_MOVING_OBJECT 60
+#define WC2_SPACE_LAST_MOVING_OBJECT 66
 #define WC1_EYE_OBJECT 61
+#define WC2_EYE_OBJECT 67
 #define WC1_DIRECTION_VIEW_COUNT 62
 #define WC1_DIRECTION_SHAPE_TABLE_COUNT 3
+#define WC2_MISSION_SHIP_COUNT 16
 #define WC1_MISSION_SHIP_STORAGE_COUNT 48
 #define WC1_MISSION_SHIP_SCAN_LIMIT 64
 #define WC1_ACTIVE_MISSION_SHIP_COUNT 32
 #define WC1_MISSION_NAV_POINT_COUNT 20
 #define WC1_ACTIVE_MISSION_NAV_POINT_COUNT 16
+#define WC2_MISSION_OBJECTIVE_COUNT 8
 #define WC1_MISSION_OBJECTIVE_COUNT 16
 
 /* --------------------------------------------------------------------------

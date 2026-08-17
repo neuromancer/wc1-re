@@ -6,6 +6,8 @@
  */
 #include "wc1.h"
 
+#pragma function(strlen)
+
 /* Function start: WC2_UNMAPPED */
 unsigned int __stdcall DosFarPtrToNear(void *v)
 {
@@ -13,19 +15,19 @@ unsigned int __stdcall DosFarPtrToNear(void *v)
 }
 
 /* Function start: 0x462452 */
-void *__stdcall DosNearPtrToFar(unsigned int v)
+void *DosNearPtrToFar(unsigned int v)
 {
     return (void *)v;
 }
 
 /* Function start: 0x462465 */
-char *__stdcall DosStrrchr(char *s, short c)
+char *DosStrrchr(char *s, short c)
 {
     return strrchr(s, (int)c);
 }
 
 /* Function start: 0x462486 */
-char *__stdcall DosStrchr(const char *s, short c)
+char *DosStrchr(const char *s, short c)
 {
     return strchr(s, (int)c);
 }
@@ -43,7 +45,7 @@ char *__stdcall CopyFarString(char *destination, const char *source)
 }
 
 /* Function start: 0x46250B */
-short __stdcall DosStrlen(const char *s)
+short DosStrlen(const char *s)
 {
     return (short)strlen(s);
 }
@@ -95,13 +97,13 @@ unsigned short __stdcall ConfigureEventManagerPointer(
     return 0;
 }
 
-/* Function start: 0x464E35 */
+/* Function start: WC2_UNMAPPED */
 void __stdcall EventManagerHook(void (*callback)(void))
 {
     (void)callback;
 }
 
-/* Function start: 0x464E4F */
+/* Function start: WC2_UNMAPPED */
 void __stdcall SetEventManagerPump(void (*pump)(void))
 {
     DAT_0059ab2c = pump;

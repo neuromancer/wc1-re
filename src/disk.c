@@ -7,15 +7,16 @@
 #include "wc1.h"
 
 /* Function start: 0x40F0D2 */
-void ReportPacketLoadError(void *packet, short logicalFile,
+void ReportPacketLoadError(void *packet, char *fileName,
                            short retry, short section,
                            const char *sourceTag)
 {
     short error;
-    unsigned int packetSize;
     const char *operation;
+    unsigned int packetSize;
 
-    error = g_nPacketError_00465460;
+#if 0
+    error = g_nPacketError_0049ca90;
     if ((packet == 0 || (error != 0 && error != 8)) &&
         (packet != 0 || error != 8)) {
         if (section != -1)
@@ -25,8 +26,8 @@ void ReportPacketLoadError(void *packet, short logicalFile,
         operation = "allocating memory";
         if (packet != 0 && section != -1)
             operation = "reading from disk";
-        g_nPacketError_00465460 = error;
-        sprintf(g_szDefaultTextBuffer_005a7590,
+        g_nPacketError_0049ca90 = error;
+        sprintf(g_szDefaultTextBuffer_005d2b80,
                 "Sorry, an error has occured while %s.\n"
                 "Please note the following information:\n"
                 "%s #%d (ERR %d  PS%ld  LB%ld  FL%d) at %s\n"
@@ -35,8 +36,57 @@ void ReportPacketLoadError(void *packet, short logicalFile,
                 operation,
                 g_pDiskFileRecords_005a7cf0[logicalFile].name,
                 (int)section, (int)error, packetSize,
-                GetFixedOneMillionThunkAlt(retry), (int)retry, sourceTag);
-        FatalErrorAndExit(g_szDefaultTextBuffer_005a7590);
+                GetLargestFreeMemoryBlockByType(retry), (int)retry, sourceTag);
+        FatalErrorAndExit(g_szDefaultTextBuffer_005d2b80);
+    }
+#else
+    if ((packet == 0 ||
+         (g_nPacketError_0049ca90 != 0 &&
+          g_nPacketError_0049ca90 != 8)) &&
+        (packet != 0 || g_nPacketError_0049ca90 != 8)) {
+        error = g_nPacketError_0049ca90;
+        if (section != -1)
+            packetSize = GetNamedPacketSize(fileName, section);
+        LogMemoryUsage();
+        g_nPacketError_0049ca90 = error;
+        if (g_nOriginDevUnlock_0049d774 == 0) {
+            if (packet == 0 || section == -1)
+                operation = g_pszPacketAllocateOperation_00492b10;
+            else
+                operation = g_pszPacketReadOperation_00492b0c;
+            sprintf(g_szDefaultTextBuffer_005d2b80,
+                    g_pszPacketLoadErrorFormat_00492b14,
+                    operation, fileName, (int)section, (int)error,
+                    packetSize,
+                    GetLargestFreeMemoryBlockByType(retry), (int)retry,
+                    sourceTag);
+            FatalErrorAndExit(g_szDefaultTextBuffer_005d2b80);
+        } else {
+            printf("Error: %Fs, packet %d\n", fileName, (int)section);
+            printf("packet size: %ld\n", packetSize);
+            printf("largest block: %ld  FREE: %ld\n",
+                   GetLargestFreeMemoryBlockByType(retry),
+                   GetAvailableFarMemoryByType(retry));
+            printf("MAIN: %ld   EMS: %ld\n",
+                   PreloadMusicTrackHook(), GetAvailableFarMemory());
+            exit(1);
+        }
+    }
+#endif
+}
+
+/* Function start: 0x40F3AE */
+void RewritePacketFilenameForInstalledData(char *fileName)
+{
+    char *extension;
+    char *extensionStart;
+
+    if (g_bRewritePacketExtensions_0049cb48 == 1) {
+        extension = DosStrchr(fileName, '.');
+        extensionStart = extension;
+        extension++;
+        if (extensionStart != 0 && toupper(*extension) == 'V')
+            *extension = 'e';
     }
 }
 
@@ -49,14 +99,15 @@ void *LoadPacketIntoBuffer(short logicalFile, short section,
     PromptInsertNumberedDisk(logicalFile);
     packet = PacketLoad(
         g_pDiskFileRecords_005a7cf0[logicalFile].name,
-        section, destination, 0, 0);
+        section, destination, 0, 0, 1);
     ReportPacketLoadError(destination, logicalFile, 0, section, "RP");
     return packet;
 }
 
 /* Function start: 0x40F49D */
-void *LoadPacketAllocated(short logicalFile, short section)
+void *LoadPacketAllocated(char *fileName, short section)
 {
+#if 0
     unsigned int packetSize;
     void *packet;
     short retries;
@@ -70,16 +121,43 @@ void *LoadPacketAllocated(short logicalFile, short section)
         do {
             retries--;
             PacketLoad(g_pDiskFileRecords_005a7cf0[logicalFile].name,
-                       section, packet, 0, 0);
-            if (retries <= 0 || g_nPacketError_00465460 == 0)
+                       section, packet, 0, 0, 1);
+            if (retries <= 0 || g_nPacketError_0049ca90 == 0)
                 break;
-        } while (g_nPacketError_00465460 != 8);
+        } while (g_nPacketError_0049ca90 != 8);
     }
     ReportPacketLoadError(packet, logicalFile, 0, section, "LPN");
     return packet;
+#else
+    short retries;
+    char errorText[40];
+    void *packet;
+    short packetSize;
+
+    retries = 5;
+    if (g_bRewritePacketExtensions_0049cb48 == 1)
+        RewritePacketFilenameForInstalledData(fileName);
+    packetSize = (short)GetNamedPacketSize(fileName, section);
+    packet = AllocateTaggedMemory((int)packetSize, 0x40);
+    if (packet != 0) {
+        do {
+            LoadNamedPacket(fileName, section, packet, 0, 0, 1);
+            retries--;
+            if (retries < 1 || g_nPacketError_0049ca90 == 0)
+                break;
+        } while (g_nPacketError_0049ca90 != 8);
+    } else {
+        sprintf(errorText, "Error in LPN:  %Fs, #%d\n",
+                fileName, (int)section);
+        exit_squadron(errorText);
+    }
+    ReportPacketLoadError(packet, fileName, 0, section, "LPN");
+    return packet;
+#endif
 }
 
 /* Function start: 0x40F5B6 */
+#if 0
 void *FetchDiskPacketRetrying(short logicalFile, short section,
                               unsigned short flags)
 {
@@ -91,7 +169,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     if (flags == 0) {
         if (GetPacketSize(
                 g_pDiskFileRecords_005a7cf0[logicalFile].name, section) >
-            (int)GetFixedOneMillionThunkAlt(0)) {
+            (int)GetLargestFreeMemoryBlockByType(0)) {
             ReportPacketLoadError(0, logicalFile, 0, section, "LP1");
         }
     }
@@ -100,80 +178,165 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     do {
         retries--;
         FreePacketAndClear(&packet, flags);
-        packet = PacketLoad(fileName, section, 0, flags, 0);
-        if (retries < 1 || g_nPacketError_00465460 == 0)
+        packet = PacketLoad(fileName, section, 0, flags, 0, 1);
+        if (retries < 1 || g_nPacketError_0049ca90 == 0)
             break;
-    } while (g_nPacketError_00465460 != 8);
+    } while (g_nPacketError_0049ca90 != 8);
 
     if (packet == 0) {
-        if (DAT_005a7510.pixels != 0) {
-            free_viewport(&DAT_005a7510);
+        if (g_stViewBuffer_005d2b00.pixels != 0) {
+            free_viewport(&g_stViewBuffer_005d2b00);
             do {
                 retries--;
                 FreePacketAndClear(&packet, flags);
-                packet = PacketLoad(fileName, section, 0, flags, 0);
-                if (retries < 1 || g_nPacketError_00465460 == 0)
+                packet = PacketLoad(fileName, section, 0, flags, 0, 1);
+                if (retries < 1 || g_nPacketError_0049ca90 == 0)
                     break;
-            } while (g_nPacketError_00465460 != 8);
-            if (AllocateViewport(&DAT_005a7510,
-                                 (short)DAT_004699d8, 0x20) == 0) {
+            } while (g_nPacketError_0049ca90 != 8);
+            if (AllocateViewport(&g_stViewBuffer_005d2b00,
+                                 (short)g_cPrimaryViewBufferColour_0049cb88, 0x20) == 0) {
                 ReportPacketLoadError(0, logicalFile, flags, flags,
                                       "LP2");
             }
         }
-        if (packet == 0 && DAT_005a76b0.pixels != 0) {
-            free_viewport(&DAT_005a76b0);
+        if (packet == 0 && g_stSecondaryViewBuffer_005d2c90.pixels != 0) {
+            free_viewport(&g_stSecondaryViewBuffer_005d2c90);
             do {
                 retries--;
                 FreePacketAndClear(&packet, flags);
-                packet = PacketLoad(fileName, section, 0, flags, 0);
-                if (retries < 1 || g_nPacketError_00465460 == 0)
+                packet = PacketLoad(fileName, section, 0, flags, 0, 1);
+                if (retries < 1 || g_nPacketError_0049ca90 == 0)
                     break;
-            } while (g_nPacketError_00465460 != 8);
-            if (AllocateViewport(&DAT_005a76b0,
-                                 (short)DAT_0046999c, 0) == 0) {
+            } while (g_nPacketError_0049ca90 != 8);
+            if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90,
+                                 (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
                 ReportPacketLoadError(0, logicalFile, flags, section,
                                       "LP3");
             }
         }
     }
     if (packet == 0 && (flags & 4) == 0 &&
-        g_nPacketError_00465460 != 0 && g_nPacketError_00465460 != 8) {
+        g_nPacketError_0049ca90 != 0 && g_nPacketError_0049ca90 != 8) {
         ReportPacketLoadError(packet, logicalFile, flags, section, "LP4");
     }
 
     ClearInputKeyStatePreservingModifiers();
     return packet;
 }
-
-/* Function start: 0x42067F */
-unsigned int InitializeTextContextFromFont(TextContext *context,
-                                           short fontIndex,
-                                           unsigned char colour,
-                                           signed char background)
+#else
+void *FetchDiskPacketRetrying(char *fileName, short section,
+                              unsigned short flags)
 {
+    void *packet;
+    unsigned int availableMemory;
+    short retries;
+    unsigned int largestBlock;
+
+    packet = 0;
+    retries = 5;
+    if (g_bRewritePacketExtensions_0049cb48 == 1)
+        RewritePacketFilenameForInstalledData(fileName);
+    do {
+        FreePacketAndClear(&packet, flags);
+        largestBlock = ReleaseMusicTrackHook();
+        availableMemory = PreloadMusicTrackHook();
+        packet = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
+        largestBlock = ReleaseMusicTrackHook();
+        availableMemory = PreloadMusicTrackHook();
+        retries--;
+        if (retries < 1 || g_nPacketError_0049ca90 == 0)
+            break;
+    } while (g_nPacketError_0049ca90 != 8);
+
+    if (packet == 0 && g_stViewBuffer_005d2b00.pixels != 0) {
+        free_viewport(&g_stViewBuffer_005d2b00);
+        do {
+            FreePacketAndClear(&packet, flags);
+            largestBlock = ReleaseMusicTrackHook();
+            availableMemory = PreloadMusicTrackHook();
+            packet = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
+            largestBlock = ReleaseMusicTrackHook();
+            availableMemory = PreloadMusicTrackHook();
+            retries--;
+            if (retries < 1 || g_nPacketError_0049ca90 == 0)
+                break;
+        } while (g_nPacketError_0049ca90 != 8);
+        if (AllocateViewport(&g_stViewBuffer_005d2b00,
+                             g_cPrimaryViewBufferColour_0049cb88,
+                             0x20) == 0) {
+            ReportPacketLoadError(0, fileName, flags, flags, "LP2");
+        }
+    }
+    if (packet == 0 &&
+        g_stSecondaryViewBuffer_005d2c90.pixels != 0) {
+        free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+        do {
+            FreePacketAndClear(&packet, flags);
+            packet = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
+            retries--;
+            if (retries < 1 || g_nPacketError_0049ca90 == 0)
+                break;
+        } while (g_nPacketError_0049ca90 != 8);
+        if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90,
+                             g_cSecondaryViewBufferColour_0049cb4c,
+                             0) == 0) {
+            ReportPacketLoadError(0, fileName, flags, section, "LP3");
+        }
+    }
+    if (packet == 0 && (flags & 4) == 0 &&
+        g_nPacketError_0049ca90 != 0 && g_nPacketError_0049ca90 != 8) {
+        ReportPacketLoadError(0, fileName, flags, section, "LP4");
+    }
+    if (g_nOriginDevUnlock_0049d774 != 0) {
+        /* The debug-only packet log is reconstructed separately. */
+    }
+    return packet;
+}
+#endif
+
+/* Function start: 0x40F882 */
+void InitializeTextContextFromFont(TextContext *context, short fontIndex,
+                                   unsigned char colour,
+                                   signed char background)
+{
+#if 0
     int index;
 
     index = fontIndex;
-    if (g_apTextFonts_005a6c00[index] == 0) {
+    if (g_apTextFonts_005d2200[index] == 0) {
         if (fontIndex == 1) {
-            g_apTextFonts_005a6c00[index] =
+            g_apTextFonts_005d2200[index] =
                 FetchDiskPacketRetrying(0, fontIndex,
                                                          0x10);
         } else {
-            g_apTextFonts_005a6c00[index] =
+            g_apTextFonts_005d2200[index] =
                 FetchDiskPacketRetrying(0, fontIndex,
                                                          0);
         }
         g_apFontWorkspaces_005a6c10[index] =
             AllocateFontWorkspace((short)index);
     }
-    context->font = g_apTextFonts_005a6c00[index];
+    context->font = g_apTextFonts_005d2200[index];
     context->colour = colour;
     context->backgroundColour = (unsigned char)background;
     context->fontWorkspace = g_apFontWorkspaces_005a6c10[index];
     SetTextContext(context);
     return 0;
+#else
+    if (g_apTextFonts_005d2200[fontIndex] == 0) {
+        if (fontIndex == 1) {
+            g_apTextFonts_005d2200[fontIndex] =
+                FetchDiskPacketRetrying("fonts.fnt", fontIndex, 0x10);
+        } else {
+            g_apTextFonts_005d2200[fontIndex] =
+                FetchDiskPacketRetrying("fonts.fnt", fontIndex, 0);
+        }
+    }
+    context->font = g_apTextFonts_005d2200[fontIndex];
+    context->colour = colour;
+    context->backgroundColour = (unsigned char)background;
+    SetTextContext(context);
+#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -184,9 +347,9 @@ unsigned int ReleaseTextFont(short fontIndex)
     if (fontIndex == 1)
         return 0;
     index = fontIndex;
-    if (g_apTextFonts_005a6c00[index] != 0) {
-        ReleasePacketHandle(g_apTextFonts_005a6c00[index]);
-        g_apTextFonts_005a6c00[index] = 0;
+    if (g_apTextFonts_005d2200[index] != 0) {
+        ReleasePacketHandle(g_apTextFonts_005d2200[index]);
+        g_apTextFonts_005d2200[index] = 0;
         FreeFontWorkspace(g_apFontWorkspaces_005a6c10[index]);
         g_apFontWorkspaces_005a6c10[index] = 0;
     }
@@ -194,9 +357,10 @@ unsigned int ReleaseTextFont(short fontIndex)
 }
 
 /* Function start: 0x40F96E */
-unsigned int DrawTextAt(TextContext *context, short x, short y,
-                        const char *text, unsigned char alignment)
+void DrawTextAt(TextContext *context, short x, short y,
+                const char *text, unsigned char alignment)
 {
+#if 0
     char *savedText = context->text;
     unsigned char savedAlignment = context->alignment;
 
@@ -207,9 +371,25 @@ unsigned int DrawTextAt(TextContext *context, short x, short y,
     DrawTextString(text);
     context->text = savedText;
     context->alignment = savedAlignment;
-    if (context->viewport->pixels == DAT_005a6ba0.pixels)
+    if (context->viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         DIBslam();
     return 0;
+#else
+    char *savedText;
+    unsigned char savedAlignment;
+
+    savedText = context->text;
+    savedAlignment = context->alignment;
+    if (x < 0 || y < 0)
+        return;
+    SetTextContext(context);
+    SetTextCursor(x, y);
+    context->text = (char *)text;
+    context->alignment = alignment;
+    DrawTextString(text);
+    context->text = savedText;
+    context->alignment = savedAlignment;
+#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -293,8 +473,10 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
         diskNumber =
             g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber;
         do {
+#if 0
             DiskPromptDrawHook();
             ResetDiskPromptTimer();
+#endif
             _cprintf("Please Insert Disk %d. Press any key to continue",
                      (int)diskNumber);
             WaitForInputKey();
@@ -321,12 +503,12 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
     g_stDiskPromptViewport_005a7d40.bottom =
         (short)(g_dwDiskPromptBottomRight_005a7d84 >> 16);
 
-    if (DAT_005a7510.pixels != 0) {
-        g_stDiskPromptBackgroundViewport_005a7d00 = DAT_005a7510;
-        backgroundColour = (unsigned char)DAT_004699d8;
-    } else if (DAT_005a76b0.pixels != 0) {
-        g_stDiskPromptBackgroundViewport_005a7d00 = DAT_005a76b0;
-        backgroundColour = (unsigned char)DAT_0046999c;
+    if (g_stViewBuffer_005d2b00.pixels != 0) {
+        g_stDiskPromptBackgroundViewport_005a7d00 = g_stViewBuffer_005d2b00;
+        backgroundColour = (unsigned char)g_cPrimaryViewBufferColour_0049cb88;
+    } else if (g_stSecondaryViewBuffer_005d2c90.pixels != 0) {
+        g_stDiskPromptBackgroundViewport_005a7d00 = g_stSecondaryViewBuffer_005d2c90;
+        backgroundColour = (unsigned char)g_cSecondaryViewBufferColour_0049cb4c;
     } else {
         savedViewportMode = (signed char)AllocateViewport(
             &g_stDiskPromptBackgroundViewport_005a7d00, -1, 0);
@@ -362,7 +544,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
         FormatTextBufferFromStart(
             "Please insert disk %d\ninto any drive\nPress any key when ready.",
             (int)g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber);
-        DrawTextString(g_szTextScratchBuffer_00598b00);
+        DrawTextString(g_szTextScratchBuffer_005d1c40);
         WaitForInputKey();
         if (OpenDiskDataFile(logicalFile) != 0)
             diskReady++;
@@ -399,21 +581,29 @@ short CheckEscaped(void)
 
     PumpWindowMessages();
     escaped = 0;
-    if (IsInputEventQueued(10) != 0) {
+    if (FindQueuedInputEvent(10) != 0) {
         PeekInputEvent(&event, 10);
         escaped = (short)event.value + 1;
-    } else if (IsInputEventQueued(2) != 0) {
+    } else if (FindQueuedInputEvent(2) != 0) {
         PeekInputEvent(&event, 2);
         escaped = (short)event.value + 1;
-    } else if (IsInputEventQueued(3) != 0) {
+    } else if (FindQueuedInputEvent(3) != 0) {
         PeekInputEvent(&event, 3);
         escaped = (short)event.value + 1;
-        while (PollInputEvent(&event, 0xff) != 0)
+        while (PollInputEvent(&event) != 0)
             ;
     }
     if (escaped != 0)
         FlushInputEvents();
     return escaped;
+}
+
+/* Function start: 0x40F9F7 */
+void FlushPendingInputPresses(void)
+{
+    PumpWindowMessages();
+    while (TakeInputPressCount() != 0)
+        ServiceInputDevices(15);
 }
 
 /* Function start: 0x40FA2C */
@@ -430,11 +620,11 @@ short WaitForInputKey(void)
     savedMode = g_bInputMode_0059a848;
     g_bInputMode_0059a848 = 1;
     do {
-        switch (PollInputEvent(&event, 0xff)) {
+        switch (PollInputEvent(&event)) {
         case 2:
         case 10:
             key = 0x1c;
-            while (PollInputEvent(&event, 0xff) != 0)
+            while (PollInputEvent(&event) != 0)
                 ;
             break;
         case 3:
@@ -443,9 +633,9 @@ short WaitForInputKey(void)
             if (key == 0x1d) {
                 key = 0;
             } else {
-                if (PollInputEvent(&event, 0xff) != 0) {
+                if (PollInputEvent(&event) != 0) {
                     do {
-                    } while (PollInputEvent(&event, 0xff) != 0);
+                    } while (PollInputEvent(&event) != 0);
                 }
             }
             break;
@@ -482,7 +672,7 @@ void WaitForSceneAdvance(short duration, short unused)
         }
     }
     while ((short)IsFrameTickElapsed() == 0 && advanced == 0) {
-        eventType = PollInputEvent(&event, 0xff);
+        eventType = PollInputEvent(&event);
         switch (eventType) {
         case 2:
         case 3:
@@ -492,7 +682,7 @@ void WaitForSceneAdvance(short duration, short unused)
             g_bInputMode_0059a848 = savedMode;
             FlushInputEvents();
             do {
-                eventType = PollInputEvent(&event, 0xff);
+                eventType = PollInputEvent(&event);
             } while (eventType != 0);
             ClearInputKeyStatePreservingModifiers();
             break;
@@ -500,7 +690,7 @@ void WaitForSceneAdvance(short duration, short unused)
     }
 }
 
-/* Function start: 0x421E6D */
+/* Function start: WC2_UNMAPPED */
 void MoveMenuPointerFromKeyboard(InputEventState *event)
 {
     int delta;
@@ -561,7 +751,7 @@ clamp_pointer:
         RetainInputEventsOfType(3);
         QueueInputEvent(13, (unsigned short)g_stMouseCursorState_0059ab10.x,
                         (unsigned short)g_stMouseCursorState_0059ab10.y,
-                        0, 0, 0, 0);
+                        0, 0, 0, 0, 0, 0);
         g_bPointerMovedByKeyboard_005a7d54 = 1;
         SetMousePosition(g_stHostMouseState_0059af70.x,
                          g_stHostMouseState_0059af70.y);
@@ -590,16 +780,16 @@ void EraseLastTextInputCharacter(void)
         clearArea.bottom = (short)(clearArea.top +
             ReadWord((unsigned short *)
                 g_pCurrentTextContext_005c8d1c->font) - 1);
-        LeaveAllocationScope();
+        SuspendMouseCursor();
         ClearViewport(&clearArea,
                       g_pCurrentTextContext_005c8d1c->backgroundColour);
-        EnterAllocationScope();
+        ResumeMouseCursor();
         g_pCurrentTextContext_005c8d1c->cursorX = (short)(
             g_pCurrentTextContext_005c8d1c->cursorX - characterWidth);
     }
 }
 
-/* Function start: 0x43456E */
+/* Function start: WC2_UNMAPPED */
 short WaitForStreamInputKey(void)
 {
     unsigned int saved = DAT_0046505c;
@@ -613,12 +803,38 @@ short WaitForStreamInputKey(void)
     return key;
 }
 
+/* Function start: 0x410102 */
+short CanShipWeaponDamageTarget(short ship, short target)
+{
+    if (g_aeObjectClass_00495328[ship] == OBJECT_CLASS_SHIP) {
+        if (g_aasShipShield_00495518[target][0] >= 1000 ||
+            g_aasShipShield_00495518[target][1] >= 1000)
+            return 0;
+    }
+    return 1;
+}
+
+/* Function start: 0x410215 */
+short ShipHasTorpedo(short ship)
+{
+    unsigned char *loadout;
+    short weapon;
+
+    loadout = g_aShipWeapons_004956b0[ship];
+    weapon = 0;
+    for (; (short)(signed char)loadout[0] > weapon; weapon++) {
+        if (((ShipWeaponSlot *)(loadout + 1))[weapon].type == 0x13)
+            return 1;
+    }
+    return 0;
+}
+
 /* Function start: 0x4103A6 */
 short initialize_object(short obj, enum ObjectType type, short owner)
 {
     if (obj != -1) {
         set_objects_data(obj, type, owner);
-        zero_vector(&g_aShipPosition_0059c490[obj]);
+        zero_vector(&g_aShipPosition_00494550[obj]);
         zero_vector(&g_aShipVelocity_0059c010[obj]);
     }
     return obj;
@@ -627,14 +843,61 @@ short initialize_object(short obj, enum ObjectType type, short owner)
 /* Function start: 0x41040D */
 short borrow_dust(void)
 {
+    short i;
+    signed char found;
+
+    found = 0;
+    for (i = 10; i <= 66; i++) {
+        if (g_aeObjectClass_00495328[i] == OBJECT_CLASS_DUST) {
+            found++;
+            break;
+        }
+    }
+    if (!found) {
+        for (i = 10; i <= 66; i++) {
+            if (g_aeObjectClass_00495328[i] == OBJECT_CLASS_DEBRIS) {
+                found++;
+                break;
+            }
+        }
+    }
+    if (!found) {
+        for (i = 10; i <= 66; i++) {
+            if (g_aeObjectClass_00495328[i] == OBJECT_CLASS_PROJECTILE &&
+                g_acObjectOwner_00495208[i] != 0 &&
+                g_asObjectScreenX_00493598[i] == (short)0x8001) {
+                found++;
+                break;
+            }
+        }
+    }
+    if (!found) {
+        for (i = 10; i <= 66; i++) {
+            if ((g_aeObjectClass_00495328[i] == OBJECT_CLASS_ASTEROID ||
+                 g_aeObjectClass_00495328[i] == OBJECT_CLASS_MINE) &&
+                g_asObjectScreenX_00493598[i] == (short)0x8001) {
+                found++;
+                break;
+            }
+        }
+    }
+    if (!found) {
+        i = -1;
+    } else {
+        g_asObjectScreenX_00493598[i] = (short)0x8001;
+    }
+    return i;
+
+#if 0
     short i = 0x22;
 
     do {
-        if (g_aeObjectClass_0059d100[i] == OBJECT_CLASS_DUST)
+        if (g_aeObjectClass_00495328[i] == OBJECT_CLASS_DUST)
             return i;
         i = i + 1;
     } while (i < 0x2a);
     return -1;
+#endif
 }
 
 /* Function start: 0x4105BF */
@@ -655,14 +918,15 @@ short initialize_ship(enum ObjectType type, short owner)
 
     if (obj != -1) {
         initialize_object(obj, type, owner);
-        g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
+        g_asShipSide_004955d0[obj] = SIDE_NEUTRAL;
     }
     return obj;
 }
 
 /* Function start: 0x410680 */
-short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
+short any_selected(unsigned char *loadout, short objectClass)
 {
+#if 0
     enum ObjectClass selectedClass;
     short selected;
     short weapon;
@@ -682,6 +946,22 @@ short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
                 selected = 1;
         }
     return selected;
+#else
+    short selected;
+    short weapon;
+
+    selected = 0;
+    weapon = 0;
+    for (; (short)(signed char)loadout[0] > weapon && selected == 0;
+         weapon++) {
+        if (g_aObjectTypeData_00496d30[
+                ((ShipWeaponSlot *)(loadout + 1))[weapon].weaponType]
+                .objectClass == objectClass &&
+            ((ShipWeaponSlot *)(loadout + 1))[weapon].disabled == 0)
+            selected = 1;
+    }
+    return selected;
+#endif
 }
 
 /* Function start: 0x410715 */
@@ -721,7 +1001,7 @@ unsigned int remove_weapon(short obj, short weapon)
             if (objectClass == OBJECT_CLASS_PROJECTILE) {
                 select_new_gun();
             } else {
-                g_nSelectedReleaseWeaponIndex_0046c058 = -1;
+                g_nSelectedReleaseWeaponIndex_004934e0 = -1;
                 select_new_release_weapon(preferredType);
             }
         }
@@ -743,7 +1023,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
 
     if (type == OBJECT_TYPE_SPACE_DUST) {
         g_acObjectType_00493980[obj] = type;
-        g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_DUST;
+        g_aeObjectClass_00495328[obj] = OBJECT_CLASS_DUST;
         return;
     }
     if (g_aObjectTypeData_00496d30[type].shapeSet == 0) {
@@ -771,7 +1051,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     }
     typeData = &g_aObjectTypeData_00496d30[type];
     g_acObjectType_00493980[obj] = type;
-    g_aeObjectClass_0059d100[obj] = typeData->objectClass;
+    g_aeObjectClass_00495328[obj] = typeData->objectClass;
     if (type == OBJECT_TYPE_ROCK_CHUNK)
         g_apObjectShape_0059d2f0[obj] =
             g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID1].shapeSet;
@@ -784,16 +1064,16 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     g_asObjectScale_0059de40[obj] = typeData->scale;
     g_asObjectAfterburnerVelocity_0059c9d0[obj] =
         typeData->afterburnerVelocity;
-    g_acObjectOwner_0059ce20[obj] = (signed char)owner;
+    g_acObjectOwner_00495208[obj] = (signed char)owner;
     g_asShipAccumulatedDamage_0059dee0[obj] = zero;
-    objectClass = g_aeObjectClass_0059d100[obj];
+    objectClass = g_aeObjectClass_00495328[obj];
     g_asObjectFlip_0059c870[obj] = zero;
     g_acLastCollisionObject_0059d6a0[obj] = -1;
     g_asObjectScreenAngle_0059cd90[obj] = zero;
 
     if (objectClass >= OBJECT_CLASS_MISSILE) {
         g_asObjectViewFrame_0059d230[obj] = zero;
-        g_acShipTarget_0059ce60[obj] = -1;
+        g_acShipTarget_00495f20[obj] = -1;
         if (objectClass >= OBJECT_CLASS_SHIP) {
             value = typeData->shieldFore;
             g_aasShipShield_00495518[obj][0] = value;
@@ -815,7 +1095,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
                    sizeof(typeData->weaponLoadout));
 
             if (obj == 0) {
-                g_nSelectedReleaseWeaponIndex_0046c058 = -1;
+                g_nSelectedReleaseWeaponIndex_004934e0 = -1;
                 g_eSelectedGunType_0046c054 = (enum ObjectType)-1;
                 for (weapon = (short)(signed char)loadout[0];
                      weapon-- > 0;) {
@@ -828,7 +1108,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
                                 OBJECT_CLASS_PROJECTILE)
                             g_eSelectedGunType_0046c054 = slot->type;
                         else
-                            g_nSelectedReleaseWeaponIndex_0046c058 = weapon;
+                            g_nSelectedReleaseWeaponIndex_004934e0 = weapon;
                     }
                 }
             }
@@ -895,32 +1175,32 @@ void rotate_object_to_goal(short obj)
     short totalError;
 
     typeData = &g_aObjectTypeData_00496d30[g_acObjectType_00493980[obj]];
-    if (g_aeSpecialManeuver_0059c3c0[obj] ==
+    if (g_aeSpecialManeuver_00495600[obj] ==
             SPECIAL_MANEUVER_BLOWING_UP) {
         if ((short)alert_flag(obj, 1) != 0) {
             set_special(obj, SPECIAL_MANEUVER_NONE);
         } else {
-            if (g_asObjectCounter_0059c330[obj] == -1 &&
-                skill_check(obj, 7) != 0)
-                g_aeSpecialManeuver_0059c3c0[obj] =
+            if (g_asObjectCounter_00494be0[obj] == -1 &&
+                skill_check(obj) != 0)
+                g_aeSpecialManeuver_00495600[obj] =
                     SPECIAL_MANEUVER_NONE;
             return;
         }
     }
     totalError = (short)(abs(g_anObjectYawRotation_0059ce80[obj] -
-                            g_anYawGoal_0059c310[obj]) +
+                            g_anYawGoal_004954c0[obj]) +
                          abs(g_anObjectPitchRotation_0059b2a0[obj] -
-                             g_anPitchGoal_0059d7a0[obj]) +
+                             g_anPitchGoal_004954a8[obj]) +
                          abs(g_anObjectRollRotation_0059d7e0[obj] -
-                             g_anRollGoal_0059d630[obj]));
+                             g_anRollGoal_004954d8[obj]));
     match_rotation_goal(&g_anObjectPitchRotation_0059b2a0[obj],
-                        &g_anPitchGoal_0059d7a0[obj], totalError,
+                        &g_anPitchGoal_004954a8[obj], totalError,
                         typeData->yawRate);
     match_rotation_goal(&g_anObjectYawRotation_0059ce80[obj],
-                        &g_anYawGoal_0059c310[obj], totalError,
+                        &g_anYawGoal_004954c0[obj], totalError,
                         typeData->pitchRate);
     match_rotation_goal(&g_anObjectRollRotation_0059d7e0[obj],
-                        &g_anRollGoal_0059d630[obj], totalError,
+                        &g_anRollGoal_004954d8[obj], totalError,
                         typeData->rollRate);
 }
 
@@ -959,9 +1239,9 @@ unsigned int approach_speed(short ship, int targetSpeed)
 /* Function start: 0x4118A9 */
 unsigned int steady_object(short ship)
 {
-    g_anYawGoal_0059c310[ship] = 0;
-    g_anPitchGoal_0059d7a0[ship] = 0;
-    g_anRollGoal_0059d630[ship] = 0;
+    g_anYawGoal_004954c0[ship] = 0;
+    g_anPitchGoal_004954a8[ship] = 0;
+    g_anRollGoal_004954d8[ship] = 0;
     return 0;
 }
 
@@ -975,7 +1255,7 @@ short real_velocity(short obj)
 /* Function start: 0x411922 */
 unsigned int fix_velocity(short obj)
 {
-    ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
+    ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
                      g_anShipSpeed_0059b320[obj],
                      &g_aShipVelocity_0059c010[obj]);
     return 0;

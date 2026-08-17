@@ -197,7 +197,7 @@ typedef enum Wc1GlFrameState {
 
 /* A full world-object list may be followed by four three-part launch doors.
    The title logo uses only three additional entries. */
-#define WC1_GL_RECORDED_SPRITE_CAPACITY (WC1_SPACE_OBJECT_COUNT + 12)
+#define WC1_GL_RECORDED_SPRITE_CAPACITY (WC2_SPACE_OBJECT_COUNT + 12)
 #define WC1_GL_SPRITE_VERTEX_COUNT (WC1_GL_RECORDED_SPRITE_CAPACITY * 6)
 #define WC1_GL_SPRITE_ATLAS_MAX_SIZE 2048
 #define WC1_GL_SPRITE_ATLAS_LAYER_CAPACITY 4

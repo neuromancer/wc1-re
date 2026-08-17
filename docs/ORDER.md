@@ -83,7 +83,7 @@ containing file boundary remains provisional.
 | `src/music.c` | `0x42D000`–`0x42EFFF` | Self-naming music diagnostics |
 | `src/screen.c` | `0x42F000`–`0x431FFF` | Screen scopes, prompts, and comm menus |
 | `src/dib.c` | `0x432000`–`0x43390F` | Proven DirectDraw `DIB*` unit |
-| `src/text.c` | `0x433910`–`0x433ABF` | Exact Mac `show_info_disp` symbol |
+| `src/text.c` | `0x433690`–`0x433ABF` | WC2 adds its cinematic sprite-font renderer before the exact Mac `show_info_disp` symbol |
 | `src/smart.c` | `0x433AC0`–`0x434CCF` | Proven Mac `smart` symbol run |
 | `src/mathfp.c` | `0x434CD0`–`0x4353FF` | Random and floating-point helpers |
 | `src/strdos.c` | `0x435400`–`0x4355EF` | DOS-width string/memory shims and setup calls |

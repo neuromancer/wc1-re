@@ -7,9 +7,12 @@
  */
 #include "wc1.h"
 
+#pragma function(strcat)
+
 /* Function start: 0x453B30 */
-short __stdcall MeasureTextPixelWidthClamped(const char *text)
+short MeasureTextPixelWidthClamped(const char *text)
 {
+#if 0
     short width = 0;
     const char *scan = text;
 
@@ -22,9 +25,21 @@ short __stdcall MeasureTextPixelWidthClamped(const char *text)
         width = (short)(width - GetFontCharWidth(*scan));
     }
     return width;
+#else
+    const char *scan;
+    short width;
+
+    width = 0;
+    scan = text;
+    while (width < 320 && *scan != 0)
+        width = (short)(width + GetFontCharWidth(*scan++));
+    if (*scan-- != 0)
+        width = (short)(width - GetFontCharWidth(*scan));
+    return width;
+#endif
 }
 
-/* Function start: 0x4389FE */
+/* Function start: WC2_UNMAPPED */
 int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
                                 short origin)
 {
@@ -88,14 +103,26 @@ short __stdcall CollectActivePaletteIndices(Viewport *viewport,
     return count;
 }
 
-/* Function start: 0x428E5C */
+/* Function start: 0x40A3A0 */
 short get_ship_max_velocity(short obj)
 {
     short velocity = g_aObjectTypeData_00496d30[
         g_acObjectType_00493980[obj]].maximumVelocity;
 
+#if 0
     if (obj < 10 && g_acShipRating_0059cd80[obj] > 8)
         return velocity + velocity / 3;
+#else
+    if (g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[0] &&
+        g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP) {
+        velocity = (short)(
+            (int)MinShort(150, MaxShort(80, GetAdaptiveTurnRate())) *
+            velocity / 100);
+    }
+    if (g_asPilotLevel_00495d60[obj] == RATING_ACE_SPIRIT &&
+        g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
+        return velocity + velocity / 3;
+#endif
     return velocity;
 }
 
@@ -119,7 +146,7 @@ short recalc_max_velocity(short ship)
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x40A51D */
 void drain_fuel(short ship, short amount)
 {
     g_anShipFuel_0059b470[ship] -= (int)amount;
@@ -127,9 +154,10 @@ void drain_fuel(short ship, short amount)
         recalc_max_velocity(ship);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x40A556 */
 void damage_ion_drive(short ship, short amount, short maximum)
 {
+#if 0
     volatile signed char *ionDriveDamage;
     int damage;
 
@@ -142,11 +170,18 @@ void damage_ion_drive(short ship, short amount, short maximum)
         damage = 0;
     *ionDriveDamage = (signed char)damage;
     recalc_max_velocity(ship);
+#else
+    g_acShipIonDriveDamage_0059d4a0[ship] = (signed char)MaxShort(
+        0, MinShort((short)(g_acShipIonDriveDamage_0059d4a0[ship] + amount),
+                    maximum));
+    recalc_max_velocity(ship);
+#endif
 }
 
 /* Function start: 0x40A5A0 */
 int GetShipAccelerationRate(short ship)
 {
+#if 0
     int shipIndex = (int)ship;
     enum ObjectType objectType = g_acObjectType_00493980[shipIndex];
     int acceleration = g_aObjectTypeData_00496d30[objectType].acceleration;
@@ -154,6 +189,24 @@ int GetShipAccelerationRate(short ship)
     if (ship < 10 && g_acShipRating_0059cd80[shipIndex] > RATING_ACE_ICEMAN)
         return acceleration + acceleration / 3;
     return acceleration;
+#else
+    int adaptiveScale;
+    int acceleration;
+
+    acceleration = g_aObjectTypeData_00496d30[
+        g_acObjectType_00493980[ship]].acceleration;
+    if (g_asShipSide_004955d0[ship] != g_asShipSide_004955d0[0] &&
+        g_aeObjectClass_00495328[ship] == OBJECT_CLASS_SHIP) {
+        adaptiveScale =
+            (int)MinShort(150, MaxShort(80, GetAdaptiveTurnRate())) << 8;
+        acceleration = MultiplyFixed(acceleration, adaptiveScale);
+        acceleration = DivideFixed(acceleration, 100 << 8);
+    }
+    if (g_asPilotLevel_00495d60[ship] == RATING_ACE_SPIRIT &&
+        g_asShipSide_004955d0[ship] == SIDE_KILRATHI)
+        return acceleration + acceleration / 3;
+    return acceleration;
+#endif
 }
 
 /* Function start: 0x40A691 */
@@ -161,16 +214,16 @@ void point_at(short obj, FixedVector point)
 {
     FixedVector direction;
 
-    ComputeVectorDelta(&g_aShipPosition_0059c490[obj], &point, &direction);
+    ComputeVectorDelta(&g_aShipPosition_00494550[obj], &point, &direction);
     shrink_vector(&direction);
-    g_aShipForwardVector_0059bce0[obj] = direction;
+    g_aShipForwardVector_00494208[obj] = direction;
     fix_objects_ijk(obj);
 }
 
 /* Function start: 0x40A6F7 */
 void look_at(short obj)
 {
-    point_at(WC1_EYE_OBJECT, g_aShipPosition_0059c490[obj]);
+    point_at(WC1_EYE_OBJECT, g_aShipPosition_00494550[obj]);
 }
 
 /* Function start: 0x40A725 */
@@ -192,10 +245,10 @@ void position_relative(FixedVector *position, FixedVector direction,
 void position_relative_ijk(FixedVector *position, short obj,
                            short right, short up, short forward)
 {
-    *position = g_aShipPosition_0059c490[obj];
+    *position = g_aShipPosition_00494550[obj];
     position_relative(position, g_aShipRightVector_0059b6e0[obj], right);
     position_relative(position, g_aShipUpVector_0059b9e0[obj], up);
-    position_relative(position, g_aShipForwardVector_0059bce0[obj], forward);
+    position_relative(position, g_aShipForwardVector_00494208[obj], forward);
 }
 
 /* Function start: 0x40A81B */
@@ -273,7 +326,7 @@ short WrapDegrees(short degrees)
 }
 
 /* Function start: 0x40A981 */
-int equ_vector(const FixedVector *left, const FixedVector *right)
+short equ_vector(const FixedVector *left, const FixedVector *right)
 {
     return left->x == right->x && left->y == right->y &&
            left->z == right->z;
@@ -568,12 +621,12 @@ void rotate_about_k(short angle, FixedVector *i, FixedVector *j)
 /* Function start: 0x40B41F */
 void init_ijk(short obj)
 {
-    g_aShipForwardVector_0059bce0[obj].z = 0x100;
+    g_aShipForwardVector_00494208[obj].z = 0x100;
     g_aShipUpVector_0059b9e0[obj].y = 0x100;
     g_aShipRightVector_0059b6e0[obj].x = 0x100;
-    g_aShipForwardVector_0059bce0[obj].y = 0;
+    g_aShipForwardVector_00494208[obj].y = 0;
     g_aShipUpVector_0059b9e0[obj].z = 0;
-    g_aShipForwardVector_0059bce0[obj].x = 0;
+    g_aShipForwardVector_00494208[obj].x = 0;
     g_aShipUpVector_0059b9e0[obj].x = 0;
     g_aShipRightVector_0059b6e0[obj].z = 0;
     g_aShipRightVector_0059b6e0[obj].y = 0;
@@ -589,22 +642,22 @@ void copy_frame(short source, short destination)
         g_aShipRightVector_0059b6e0[source];
     g_aShipUpVector_0059b9e0[destination] =
         g_aShipUpVector_0059b9e0[source];
-    g_aShipForwardVector_0059bce0[destination] =
-        g_aShipForwardVector_0059bce0[source];
+    g_aShipForwardVector_00494208[destination] =
+        g_aShipForwardVector_00494208[source];
 }
 
 /* Function start: 0x40B5DF */
 void fix_objects_ijk(short obj)
 {
     vector_cross_product(&g_aShipUpVector_0059b9e0[obj],
-                         &g_aShipForwardVector_0059bce0[obj],
+                         &g_aShipForwardVector_00494208[obj],
                          &g_aShipRightVector_0059b6e0[obj]);
-    vector_cross_product(&g_aShipForwardVector_0059bce0[obj],
+    vector_cross_product(&g_aShipForwardVector_00494208[obj],
                          &g_aShipRightVector_0059b6e0[obj],
                          &g_aShipUpVector_0059b9e0[obj]);
     NormalizeFixedVector(&g_aShipRightVector_0059b6e0[obj]);
     NormalizeFixedVector(&g_aShipUpVector_0059b9e0[obj]);
-    NormalizeFixedVector(&g_aShipForwardVector_0059bce0[obj]);
+    NormalizeFixedVector(&g_aShipForwardVector_00494208[obj]);
 }
 
 /* Function start: 0x40B699 */
@@ -613,14 +666,14 @@ void transform_to_objects_frame(const FixedVector *source,
 {
     destination->x = dot_product(source, &g_aShipRightVector_0059b6e0[obj]);
     destination->y = dot_product(source, &g_aShipUpVector_0059b9e0[obj]);
-    destination->z = dot_product(source, &g_aShipForwardVector_0059bce0[obj]);
+    destination->z = dot_product(source, &g_aShipForwardVector_00494208[obj]);
 }
 
 /* Function start: 0x40B747 */
 void alter_pitch(short angle, short obj)
 {
     rotate_about_i(angle, &g_aShipUpVector_0059b9e0[obj],
-                   &g_aShipForwardVector_0059bce0[obj]);
+                   &g_aShipForwardVector_00494208[obj]);
     fix_objects_ijk(obj);
 }
 
@@ -628,7 +681,7 @@ void alter_pitch(short angle, short obj)
 void alter_yaw(short angle, short obj)
 {
     rotate_about_j(angle, &g_aShipRightVector_0059b6e0[obj],
-                   &g_aShipForwardVector_0059bce0[obj]);
+                   &g_aShipForwardVector_00494208[obj]);
     fix_objects_ijk(obj);
 }
 
@@ -657,7 +710,7 @@ short distance_from_point(short obj, const FixedVector *point)
 {
     long magnitude;
 
-    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+    ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                        (FixedVector *)point, &g_vToTarget_0059d4d0);
     magnitude = Vector_magnitude(&g_vToTarget_0059d4d0);
     return FixedToShortSaturating((int)magnitude) -
@@ -667,7 +720,7 @@ short distance_from_point(short obj, const FixedVector *point)
 /* Function start: 0x40B85C */
 short distance_from_object(short obj, short other)
 {
-    return distance_from_point(obj, &g_aShipPosition_0059c490[other]) -
+    return distance_from_point(obj, &g_aShipPosition_00494550[other]) -
            g_asObjectCollisionRadius_0059d710[other];
 }
 
@@ -679,22 +732,22 @@ void get_facing_range_from_point(short obj, const FixedVector *point)
         g_asObjectCollisionRadius_0059d710[obj];
     g_vNormalizedToTarget_005a7db0 = g_vToTarget_0059d4d0;
     NormalizeFixedVector(&g_vNormalizedToTarget_005a7db0);
-    g_nFacingToTarget_0059d920 =
+    g_nFacingToTarget_00493194 =
         (short)(((short)dot_product(
             &g_vNormalizedToTarget_005a7db0,
-            &g_aShipForwardVector_0059bce0[obj]) * 100) >> 8);
+            &g_aShipForwardVector_00494208[obj]) * 100) >> 8);
 }
 
 /* Function start: 0x40B92F */
 void get_facing_range_from_object(short obj, short other)
 {
-    get_facing_range_from_point(obj, &g_aShipPosition_0059c490[other]);
+    get_facing_range_from_point(obj, &g_aShipPosition_00494550[other]);
     g_nTargetRange_0059ce10 -= g_asObjectCollisionRadius_0059d710[other];
     negate_vector(&g_vNormalizedToTarget_005a7db0);
     g_nTargetFacing_0059d52a =
         (short)(((short)dot_product(
             &g_vNormalizedToTarget_005a7db0,
-            &g_aShipForwardVector_0059bce0[other]) * 100) >> 8);
+            &g_aShipForwardVector_00494208[other]) * 100) >> 8);
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -703,7 +756,7 @@ void ship_vs_point(short obj, const FixedVector *point)
     get_facing_range_from_point(obj, point);
 }
 
-/* Function start: 0x42A222 */
+/* Function start: WC2_UNMAPPED */
 void ship_vs_ship(short obj, short other)
 {
     get_facing_range_from_object(obj, other);
@@ -714,13 +767,13 @@ short facing_to_object(short obj, FixedVector *point)
 {
     FixedVector direction;
 
-    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+    ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                        point, &direction);
     NormalizeFixedVector(&direction);
-    g_nFacingToTarget_0059d920 =
+    g_nFacingToTarget_00493194 =
         (short)(((short)dot_product(
-            &direction, &g_aShipForwardVector_0059bce0[obj]) * 100) >> 8);
-    return g_nFacingToTarget_0059d920;
+            &direction, &g_aShipForwardVector_00494208[obj]) * 100) >> 8);
+    return g_nFacingToTarget_00493194;
 }
 
 /* Function start: 0x40BA2E */
@@ -791,8 +844,8 @@ void point_ship(short obj, short turnRate, const FixedVector *direction)
 {
     set_ship_rotation_goals(obj, turnRate, direction,
                             g_acShipPointingMode_0059d790[obj],
-                            &g_anYawGoal_0059c310[obj],
-                            &g_anPitchGoal_0059d7a0[obj]);
+                            &g_anYawGoal_004954c0[obj],
+                            &g_anPitchGoal_004954a8[obj]);
 }
 
 /* Function start: 0x40BCA9 */
@@ -800,7 +853,7 @@ void point_ship_at_point(short obj, const FixedVector *point)
 {
     FixedVector direction;
 
-    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
+    ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                        (FixedVector *)point, &direction);
     point_ship(obj, 0, &direction);
 }
@@ -808,7 +861,7 @@ void point_ship_at_point(short obj, const FixedVector *point)
 /* Function start: 0x40BCE8 */
 void point_ship_at_object(short obj, short other)
 {
-    point_ship_at_point(obj, &g_aShipPosition_0059c490[other]);
+    point_ship_at_point(obj, &g_aShipPosition_00494550[other]);
 }
 
 /* Function start: 0x40BD0E */
@@ -816,17 +869,17 @@ void point_capital_ship_at_object(short obj, short other)
 {
     FixedVector direction;
 
-    ComputeVectorDelta(&g_aShipPosition_0059c490[other],
-                       &g_aShipPosition_0059c490[obj], &direction);
+    ComputeVectorDelta(&g_aShipPosition_00494550[other],
+                       &g_aShipPosition_00494550[obj], &direction);
     point_ship(obj, 0, &direction);
 }
 
 /* Function start: 0x40BDC2 */
 void point_ship_behind_object(short obj, short other)
 {
-    FixedVector point = g_aShipPosition_0059c490[other];
+    FixedVector point = g_aShipPosition_00494550[other];
 
-    position_relative(&point, g_aShipForwardVector_0059bce0[other],
+    position_relative(&point, g_aShipForwardVector_00494208[other],
                       (short)(-500 -
                           g_asObjectCollisionRadius_0059d710[other]));
     point_ship_at_point(obj, &point);
@@ -835,7 +888,7 @@ void point_ship_behind_object(short obj, short other)
 /* Function start: 0x40BE3A */
 void point_ship_below_object(short obj, short other)
 {
-    FixedVector point = g_aShipPosition_0059c490[other];
+    FixedVector point = g_aShipPosition_00494550[other];
 
     position_relative(&point, g_aShipUpVector_0059b9e0[other],
                       (short)(g_asObjectCollisionRadius_0059d710[other] +
@@ -847,26 +900,26 @@ void point_ship_below_object(short obj, short other)
 void point_perpendicular_to_point(short obj, const FixedVector *point)
 {
     point_ship_at_point(obj, point);
-    if (g_anYawGoal_0059c310[obj] < 0)
-        g_anYawGoal_0059c310[obj] += 90;
+    if (g_anYawGoal_004954c0[obj] < 0)
+        g_anYawGoal_004954c0[obj] += 90;
     else
-        g_anYawGoal_0059c310[obj] -= 90;
+        g_anYawGoal_004954c0[obj] -= 90;
 }
 
 /* Function start: 0x40BEB0 */
 void point_perpendicular(short obj, short other)
 {
-    point_perpendicular_to_point(obj, &g_aShipPosition_0059c490[other]);
+    point_perpendicular_to_point(obj, &g_aShipPosition_00494550[other]);
 }
 
 /* Function start: 0x40BED6 */
 void point_parallel(short obj, short other)
 {
     if (other != -1)
-        point_ship(obj, 0, &g_aShipForwardVector_0059bce0[other]);
+        point_ship(obj, 0, &g_aShipForwardVector_00494208[other]);
 }
 
-/* Function start: 0x42A823 */
+/* Function start: WC2_UNMAPPED */
 void MoveObjectAlongDirection(short obj, const FixedVector *direction,
                               short distance)
 {
@@ -874,8 +927,8 @@ void MoveObjectAlongDirection(short obj, const FixedVector *direction,
 
     offset = *direction;
     SetVectorFixedPoint((unsigned int *)&offset, distance);
-    AddFixedVectors(&g_aShipPosition_0059c490[obj], &offset,
-                    &g_aShipPosition_0059c490[obj]);
+    AddFixedVectors(&g_aShipPosition_00494550[obj], &offset,
+                    &g_aShipPosition_00494550[obj]);
 }
 
 /* Function start: 0x40BF0B */
@@ -907,6 +960,7 @@ unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
 /* Function start: 0x40BF8C */
 short check_for_collision(short obj)
 {
+#if 0
     FixedVector *objectPosition;
     FixedVector *position;
     int objectIndex;
@@ -914,21 +968,21 @@ short check_for_collision(short obj)
     short range;
 
     objectIndex = (int)obj;
-    objectPosition = &g_aShipPosition_0059c490[objectIndex];
+    objectPosition = &g_aShipPosition_00494550[objectIndex];
     other = 0;
-    position = g_aShipPosition_0059c490;
+    position = g_aShipPosition_00494550;
     do {
         if (other != obj &&
-            g_aeObjectClass_0059d100[(int)other] >=
+            g_aeObjectClass_00495328[(int)other] >=
                 OBJECT_CLASS_PROJECTILE) {
             ComputeVectorDelta(objectPosition, position,
                                &g_vCollisionDelta_0059d690);
             range = (short)(
                 g_asObjectCollisionRadius_0059d710[(int)other] +
                 g_asObjectCollisionRadius_0059d710[objectIndex]);
-            if (g_aeObjectClass_0059d100[(int)other] ==
+            if (g_aeObjectClass_00495328[(int)other] ==
                     OBJECT_CLASS_SHIP &&
-                g_aeObjectClass_0059d100[objectIndex] == OBJECT_CLASS_SHIP)
+                g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_SHIP)
                 range >>= 1;
             if (IsVectorWithinRange(&g_vCollisionDelta_0059d690,
                                     range) != 0)
@@ -938,6 +992,32 @@ short check_for_collision(short obj)
         position++;
     } while (other <= WC1_SPACE_LAST_MOVING_OBJECT);
     return -1;
+#else
+    FixedVector *objectPosition;
+    FixedVector *position;
+    short other;
+    short range;
+
+    objectPosition = &g_aShipPosition_00494550[obj];
+    position = g_aShipPosition_00494550;
+    for (other = 0; other <= WC2_SPACE_LAST_MOVING_OBJECT;
+         other++, position++) {
+        if (other != obj &&
+            g_aeObjectClass_00495328[other] >= OBJECT_CLASS_PROJECTILE) {
+            ComputeVectorDelta(objectPosition, position,
+                               &g_vCollisionDelta_0059d690);
+            range = (short)(g_asObjectCollisionRadius_0059d710[other] +
+                            g_asObjectCollisionRadius_0059d710[obj]);
+            if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_SHIP &&
+                g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
+                range >>= 1;
+            if (IsVectorWithinRange(&g_vCollisionDelta_0059d690,
+                                    range) != 0)
+                return other;
+        }
+    }
+    return -1;
+#endif
 }
 
 /* Function start: 0x40C08C */
@@ -945,34 +1025,35 @@ void position_child(short parent, short hardpoint, FixedVector *position)
 {
     const ShortVector *offset = &g_aChildOffsets_004682f0[hardpoint];
 
-    position->x = g_aShipForwardVector_0059bce0[parent].x * offset->z +
+    position->x = g_aShipForwardVector_00494208[parent].x * offset->z +
                   g_aShipUpVector_0059b9e0[parent].x * offset->y +
                   g_aShipRightVector_0059b6e0[parent].x * offset->x +
-                  g_aShipPosition_0059c490[parent].x;
-    position->y = g_aShipForwardVector_0059bce0[parent].y * offset->z +
+                  g_aShipPosition_00494550[parent].x;
+    position->y = g_aShipForwardVector_00494208[parent].y * offset->z +
                   g_aShipUpVector_0059b9e0[parent].y * offset->y +
                   g_aShipRightVector_0059b6e0[parent].y * offset->x +
-                  g_aShipPosition_0059c490[parent].y;
-    position->z = g_aShipForwardVector_0059bce0[parent].z * offset->z +
+                  g_aShipPosition_00494550[parent].y;
+    position->z = g_aShipForwardVector_00494208[parent].z * offset->z +
                   g_aShipUpVector_0059b9e0[parent].z * offset->y +
                   g_aShipRightVector_0059b6e0[parent].z * offset->x +
-                  g_aShipPosition_0059c490[parent].z;
+                  g_aShipPosition_00494550[parent].z;
 }
 
 /* Function start: 0x40C1DA */
 void child_object(short hardpoint, short child, short parent)
 {
-    position_child(parent, hardpoint, &g_aShipPosition_0059c490[child]);
-    g_acObjectOwner_0059ce20[child] = (signed char)parent;
+    position_child(parent, hardpoint, &g_aShipPosition_00494550[child]);
+    g_acObjectOwner_00495208[child] = (signed char)parent;
 }
 
 /* Function start: 0x40C211 */
 short get_ship_slot(void)
 {
+#if 0
     short slot = 1;
 
     do {
-        if (g_aeObjectClass_0059d100[slot] == OBJECT_CLASS_NULL) {
+        if (g_aeObjectClass_00495328[slot] == OBJECT_CLASS_NULL) {
             DAT_0046c010 = slot;
             return slot;
         }
@@ -980,21 +1061,42 @@ short get_ship_slot(void)
     } while (slot <= 9);
     DAT_0046c010 = -1;
     return -1;
+#else
+    short slot;
+
+    for (slot = 1; slot <= 9; slot++) {
+        if (g_aeObjectClass_00495328[slot] == OBJECT_CLASS_NULL)
+            return slot;
+    }
+    return -1;
+#endif
 }
 
 /* Function start: 0x40C266 */
 short find_vacant_3d_object(void)
 {
+#if 0
     short i = 10;
 
     do {
-        if (g_aeObjectClass_0059d100[i] == OBJECT_CLASS_NULL) {
-            g_asObjectScreenX_0059d9b0[i] = (short)0x8001;
+        if (g_aeObjectClass_00495328[i] == OBJECT_CLASS_NULL) {
+            g_asObjectScreenX_00493598[i] = (short)0x8001;
             return i;
         }
         i = i + 1;
     } while (i <= 0x3c);
     return -1;
+#else
+    short object;
+
+    for (object = 10; object <= WC2_SPACE_LAST_MOVING_OBJECT; object++) {
+        if (g_aeObjectClass_00495328[object] == OBJECT_CLASS_NULL) {
+            g_asObjectScreenX_00493598[object] = (short)0x8001;
+            return object;
+        }
+    }
+    return -1;
+#endif
 }
 
 /* Function start: 0x40C2C9 */
@@ -1004,29 +1106,29 @@ void remove_object(short obj)
 
     if (obj == -1)
         return;
-    g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
+    g_asObjectScreenX_00493598[obj] = (short)0x8001;
     g_asObjectDistance_0059b4a0[obj] = 0;
     if (obj == DAT_00469208)
         DAT_00469208 = -1;
-    if (obj == g_nYourWingman_0046c04c)
-        g_nYourWingman_0046c04c = -1;
+    if (obj == g_nYourWingman_0049346c)
+        g_nYourWingman_0049346c = -1;
     for (slot = 0; slot < 20; slot++) {
-        if (g_abHazardObjects_0046c028[slot] == obj) {
-            g_abHazardObjects_0046c028[slot] = -1;
+        if (g_abHazardObjects_00493280[slot] == obj) {
+            g_abHazardObjects_00493280[slot] = -1;
             break;
         }
     }
     if (obj < 10) {
-        if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_CAPITAL_SHIP)
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_CAPITAL_SHIP)
             FreePacketAndClear(&g_apObjectShape_0059d2f0[obj], 0);
         g_acShipRating_0059cd80[obj] = -1;
         g_acWingmanMessageState_0059d2c0[obj] = -1;
-        g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
-        g_aeShipManeuver_0059dcb0[obj] = MANEUVER_NONE;
+        g_asShipSide_004955d0[obj] = SIDE_NEUTRAL;
+        g_asShipManeuver_00495f48[obj] = MANEUVER_NONE;
         clear_alert(obj);
         g_asCapitalShipViewFrame_0059dd90[obj] = -1;
     }
-    g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_NULL;
+    g_aeObjectClass_00495328[obj] = OBJECT_CLASS_NULL;
     g_apObjectShape_0059d2f0[obj] = 0;
 }
 
@@ -1098,7 +1200,7 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
         MultiplyFixed(0x16a, mass));
     AddFixedVectors(&g_aShipVelocity_0059c010[obj], &acceleration,
                     &g_aShipVelocity_0059c010[obj]);
-    if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_SHIP)
+    if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
         check_for_lost_control(obj);
 }
 
@@ -1138,13 +1240,14 @@ void rotational_acceleration(FixedVector *point, FixedVector *force,
     ClampTo30(&g_anObjectPitchRotation_0059b2a0[obj]);
     ClampTo30(&g_anObjectYawRotation_0059ce80[obj]);
     ClampTo30(&g_anObjectRollRotation_0059d7e0[obj]);
-    if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_SHIP)
+    if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
         check_for_lost_control(obj);
 }
 
 /* Function start: 0x40C959 */
 void ClampVectorTo30(short *p)
 {
+#if 0
     short v = *p;
 
     if (v < 0) {
@@ -1153,6 +1256,13 @@ void ClampVectorTo30(short *p)
     }
     if (0 < v)
         *p = v - 1;
+#else
+    if (*p < 0) {
+        *p = *p + 1;
+    } else if (*p > 0) {
+        *p = *p - 1;
+    }
+#endif
 }
 
 /* Function start: 0x40C99F */
@@ -1175,7 +1285,7 @@ unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
     long projection;
     unsigned short visible;
 
-    ComputeVectorDelta(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
+    ComputeVectorDelta(&g_aShipPosition_00494550[WC1_EYE_OBJECT],
                        (FixedVector *)point, &direction);
     distance = Vector_magnitude(&direction);
     if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >
@@ -1208,36 +1318,36 @@ void transform_objects_to_your_view(void)
     draw_nav_pointer();
     for (obj = 0; obj <= WC1_SPACE_LAST_MOVING_OBJECT; obj++) {
         objectIndex = (int)obj;
-        if (g_aeObjectClass_0059d100[objectIndex] != OBJECT_CLASS_NULL &&
-            g_aeObjectClass_0059d100[objectIndex] !=
+        if (g_aeObjectClass_00495328[objectIndex] != OBJECT_CLASS_NULL &&
+            g_aeObjectClass_00495328[objectIndex] !=
                 OBJECT_CLASS_FIXED_OBJECT &&
             obj != DAT_00469208) {
             g_asPreviousObjectDistance_0059d080[objectIndex] =
                 g_asObjectDistance_0059b4a0[objectIndex];
             g_asObjectDistance_0059b4a0[objectIndex] = 0;
-            if (g_aeObjectClass_0059d100[objectIndex] ==
+            if (g_aeObjectClass_00495328[objectIndex] ==
                 OBJECT_CLASS_FUTURION) {
-                g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
+                g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
                 continue;
             }
-            if (g_aeObjectClass_0059d100[objectIndex] ==
+            if (g_aeObjectClass_00495328[objectIndex] ==
                     OBJECT_CLASS_PLANET ||
-                g_aeObjectClass_0059d100[objectIndex] == OBJECT_CLASS_STAR) {
-                direction = g_aShipPosition_0059c490[objectIndex];
+                g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_STAR) {
+                direction = g_aShipPosition_00494550[objectIndex];
             } else {
-                ComputeVectorDelta(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
-                                   &g_aShipPosition_0059c490[objectIndex],
+                ComputeVectorDelta(&g_aShipPosition_00494550[WC1_EYE_OBJECT],
+                                   &g_aShipPosition_00494550[objectIndex],
                                    &direction);
             }
             distance = Vector_magnitude(&direction);
             if (distance <
                 g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
-                g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
+                g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
                 continue;
             }
-            if (g_aeObjectClass_0059d100[objectIndex] == OBJECT_CLASS_DUST &&
+            if (g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_DUST &&
                 distance > (1400 << 8)) {
-                g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
+                g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
                 continue;
             }
             transform_to_objects_frame(&direction,
@@ -1246,19 +1356,19 @@ void transform_objects_to_your_view(void)
                                        WC1_EYE_OBJECT);
             if (g_aObjectViewPosition_0059afa0[objectIndex].z <
                 g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
-                g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
+                g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
                 continue;
             }
             if (DivideFixed(g_aObjectViewPosition_0059afa0[objectIndex].z,
                             distance) < 0x94) {
-                g_asObjectScreenX_0059d9b0[objectIndex] = (short)0x8001;
+                g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
                 continue;
             }
             objectRadius =
                 g_asObjectCollisionRadius_0059d710[objectIndex] * 0x100;
             if (distance <= objectRadius)
                 distance = objectRadius + 1;
-            if (g_aeObjectClass_0059d100[objectIndex] > OBJECT_CLASS_DUST) {
+            if (g_aeObjectClass_00495328[objectIndex] > OBJECT_CLASS_DUST) {
                 scaleFactor = DivideFixed(
                     (short)(g_nScreenWidth_0046daa4 & ~1) << 15,
                     distance - objectRadius);
@@ -1272,24 +1382,24 @@ void transform_objects_to_your_view(void)
                     g_asObjectScreenScale_0059c950[objectIndex] = 0x2000;
                 if ((unsigned short)g_asObjectScreenScale_0059c950[
                         objectIndex] < 5) {
-                    g_asObjectScreenX_0059d9b0[objectIndex] =
+                    g_asObjectScreenX_00493598[objectIndex] =
                         (short)0x8001;
                     continue;
                 }
             }
             g_asObjectDistance_0059b4a0[objectIndex] =
                 (short)(distance >> 8);
-            g_asObjectScreenX_0059d9b0[objectIndex] = (short)(DivideFixed(
+            g_asObjectScreenX_00493598[objectIndex] = (short)(DivideFixed(
                 MultiplyFixed(
                     (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
                     g_aObjectViewPosition_0059afa0[objectIndex].x),
                 g_aObjectViewPosition_0059afa0[objectIndex].z) >> 8);
-            g_asObjectScreenY_0059d930[objectIndex] = (short)(DivideFixed(
+            g_asObjectScreenY_00493628[objectIndex] = (short)(DivideFixed(
                 MultiplyFixed(
                     (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
                     g_aObjectViewPosition_0059afa0[objectIndex].y),
                 g_aObjectViewPosition_0059afa0[objectIndex].z) >> 8);
-            switch (g_aeObjectClass_0059d100[objectIndex]) {
+            switch (g_aeObjectClass_00495328[objectIndex]) {
             case OBJECT_CLASS_PLANET:
                 if (g_asObjectScreenScale_0059c950[objectIndex] == 0xff)
                     set_background_objects_rotation(obj, &direction);
@@ -1302,7 +1412,7 @@ void transform_objects_to_your_view(void)
                 if (dustSize > 3)
                     dustSize = 3;
                 g_asObjectViewFrame_0059d230[objectIndex] =
-                    (short)(((g_asObjectCounter_0059c330[objectIndex] +
+                    (short)(((g_asObjectCounter_00494be0[objectIndex] +
                               g_nSpaceFrame_00493134) & 3) +
                             (g_asObjectScreenAngle_0059cd90[objectIndex] &
                              0x10) +
@@ -1409,7 +1519,7 @@ void get_right_shape(short obj, FixedVector *direction)
     if (projectedUp.x >= 0)
         angle = (short)(360 - angle);
 
-    objectClass = g_aeObjectClass_0059d100[obj];
+    objectClass = g_aeObjectClass_00495328[obj];
     type = g_acObjectType_00493980[obj];
     if (objectClass == OBJECT_CLASS_MISSILE ||
         type == OBJECT_TYPE_TURRET) {
@@ -1433,24 +1543,24 @@ void get_right_shape(short obj, FixedVector *direction)
     if (objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
         if (g_asCapitalShipViewFrame_0059dd90[obj] != frame) {
             for (slot = 1; slot < 3; slot++) {
-                if (g_aObjectResourceSlots_0059ddf0[slot].type ==
+                if (g_aObjectResourceSlots_00493398[slot].type ==
                     (signed char)type) {
                     break;
                 }
             }
             g_asObjectViewFrame_0059d230[obj] = 0;
             g_asCapitalShipViewFrame_0059dd90[obj] = frame;
-            if (DAT_005a7510.pixels != 0 &&
+            if (g_stViewBuffer_005d2b00.pixels != 0 &&
                 IdentityWord(
                     (unsigned short)g_apObjectShape_0059d2f0[obj]) == 0) {
-                GetScreenUpdateFlag();
+                free_view_buffer();
             }
             if (g_aapPacketReferences_00465c88[slot][frame] != 0) {
                 g_apObjectShape_0059d2f0[obj] =
                     g_aapPacketReferences_00465c88[slot][frame];
             } else {
-                if (DAT_005a7510.pixels != 0)
-                    GetScreenUpdateFlag();
+                if (g_stViewBuffer_005d2b00.pixels != 0)
+                    free_view_buffer();
                 g_cCapitalShipLogicalFile_005a7da0 =
                     (signed char)(type + 22);
                 g_apObjectShape_0059d2f0[obj] =
@@ -1477,13 +1587,13 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
     memcpy(&panel->right, &bottomRight, sizeof(bottomRight));
     panel->previousContext = g_pCurrentTextContext_005c8d1c;
     g_pCurrentTextContext_005c8d1c = &panel->context;
-    panel->context = g_stDefaultTextContext_005a7740;
+    panel->context = g_stDefaultTextContext_005d2d20;
     if (fontIndex == -1)
         fontIndex = 1;
     InitializeTextContextFromFont(&panel->context, fontIndex,
                                   (unsigned char)clearColour,
                                   backgroundColour);
-    panel->viewport = g_stModalSourceViewport_005a7670;
+    panel->viewport = g_stModalSourceViewport_005d2c50;
     memcpy(&panel->savedBackground.left, &panel->left,
            sizeof(topLeft) + sizeof(bottomRight));
     memcpy(&panel->viewport.left, &panel->left,
@@ -1491,7 +1601,7 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
     if (AllocateViewport(&panel->savedBackground, clearColour, 0) == 0)
         return 0;
     CopyViewportContents(&panel->viewport, &panel->savedBackground);
-    panel->context.text = g_szTextScratchBuffer_00598b00;
+    panel->context.text = g_szTextScratchBuffer_005d1c40;
     panel->context.viewport = &panel->viewport;
     ResetStringBuilder(&panel->context);
     EraseTextContextBackground(&panel->context);
@@ -1520,7 +1630,9 @@ void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
                   (unsigned short)(panel->top + y));
     panel->context.alignment = alignment;
     strcat(text, "%P");
-    FormatTextBufferFromStart(text);
+    AppendFormattedText(text);
+    MarkDibDirty();
+    DIBslamReal();
 }
 
 /* Function start: 0x4595AA */
@@ -1557,8 +1669,8 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
         return 0;
     if (InitializeModalTextPanel(g_pModalTextPanel_00469448, fontIndex,
                                  topLeft, bottomRight,
-                                 DAT_0046999c, DAT_0046999c,
-                                 DAT_0046999c) == 0) {
+                                 g_cSecondaryViewBufferColour_0049cb4c, g_cSecondaryViewBufferColour_0049cb4c,
+                                 g_cSecondaryViewBufferColour_0049cb4c) == 0) {
         ReleasePacketHandle(g_pModalTextPanel_00469448);
         g_pModalTextPanel_00469448 = 0;
         return 0;

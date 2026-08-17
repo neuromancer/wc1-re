@@ -6,10 +6,13 @@
  */
 #include "wc1.h"
 
+#pragma function(strcmp)
+
 /* Function start: 0x4465A0 */
 void * __stdcall PacketLoad(const char *filename, short section,
                             void *destination, unsigned short flags,
-                            void *decompressionWorkspace)
+                            void *decompressionWorkspace,
+                            short registerHandle)
 {
     unsigned char *packet;
     PacketSectionHandle handle;
@@ -21,7 +24,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
         switch (compression) {
         default:
             if (handle.dataSize == 0) {
-                g_nPacketError_00465460 = 8;
+                g_nPacketError_0049ca90 = 8;
             } else {
                 packet = destination;
                 if (packet == 0) {
@@ -30,7 +33,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
                         (unsigned short)(flags | 0x40));
                     g_pLastPacketAllocation_005a68f0 = packet;
                     if (packet == 0)
-                        g_nPacketError_00465460 = 4;
+                        g_nPacketError_0049ca90 = 4;
                 }
                 if (packet != 0) {
                     if (IsPushedPacketHandle(packet) == 0)
@@ -56,7 +59,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
                 ReadDataFileAtOffset((unsigned short)handle.file,
                                      (int)handle.dataOffset, 4,
                                      sizeBytes) == 0) {
-                g_nPacketError_00465460 = 6;
+                g_nPacketError_0049ca90 = 6;
                 break;
             }
             outputSize = (unsigned int)sizeBytes[0] |
@@ -67,7 +70,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
             compressedData = (unsigned char *)malloc(
                 compressedSize != 0 ? compressedSize : 1);
             if (compressedData == 0) {
-                g_nPacketError_00465460 = 1;
+                g_nPacketError_0049ca90 = 1;
                 break;
             }
             handle.position = 4;
@@ -84,7 +87,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
                 packet = AllocateTaggedMemory(outputSize, flags);
             g_pLastPacketAllocation_005a68f0 = packet;
             if (packet == 0) {
-                g_nPacketError_00465460 = 4;
+                g_nPacketError_0049ca90 = 4;
             } else if (!Wc1SdlDecompressOriginLzw(
                            compressedData, compressedSize, packet,
                            outputSize, &writtenSize)) {
@@ -92,7 +95,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
                     ReleasePacketHandle(packet);
                 packet = 0;
                 g_pLastPacketAllocation_005a68f0 = 0;
-                g_nPacketError_00465460 = 6;
+                g_nPacketError_0049ca90 = 6;
             }
             free(compressedData);
             break;
@@ -119,7 +122,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
 /* Function start: 0x423CA0 */
 void InitializeAudioSystem(HWND window)
 {
-    if (DAT_00465058 != 0 && DAT_0046a440 == 0) {
+    if (g_nAudioEnabled_0049c244 != 0 && DAT_0046a440 == 0) {
         ix_system_configure(3, (void *)1);
         ix_system_configure(0, window);
         ix_system_init();
@@ -131,7 +134,7 @@ void InitializeAudioSystem(HWND window)
 /* Function start: 0x423D02 */
 void ServiceAudioStream(void)
 {
-    if (DAT_00465058 != 0 && DAT_0046a440 != 0) {
+    if (g_nAudioEnabled_0049c244 != 0 && DAT_0046a440 != 0) {
         ix_system_delete_all_sounds();
         ix_system_delete_all_samples();
         ix_system_shutdown();
@@ -143,23 +146,23 @@ void ServiceAudioStream(void)
 /* Function start: 0x423D4F */
 WaveTableEntry *AllocateWaveTableEntry(void)
 {
-    if (g_pWaveTableHead_0046a444 == 0) {
-        g_pWaveTableHead_0046a444 =
+    if (g_pWaveTableHead_004961b4 == 0) {
+        g_pWaveTableHead_004961b4 =
             malloc(sizeof(WaveTableEntry));
-        g_pWaveTableTail_0046a448 = g_pWaveTableHead_0046a444;
+        g_pWaveTableTail_004961b8 = g_pWaveTableHead_004961b4;
     } else {
-        g_pWaveTableTail_0046a448->next =
+        g_pWaveTableTail_004961b8->next =
             malloc(sizeof(WaveTableEntry));
-        g_pWaveTableTail_0046a448 = g_pWaveTableTail_0046a448->next;
+        g_pWaveTableTail_004961b8 = g_pWaveTableTail_004961b8->next;
     }
-    g_pWaveTableTail_0046a448->next = 0;
-    return g_pWaveTableTail_0046a448;
+    g_pWaveTableTail_004961b8->next = 0;
+    return g_pWaveTableTail_004961b8;
 }
 
 /* Function start: 0x423DBB */
 WaveTableEntry *FindWaveTableEntryByName(const char *name)
 {
-    WaveTableEntry *entry = g_pWaveTableHead_0046a444;
+    WaveTableEntry *entry = g_pWaveTableHead_004961b4;
 
     while (entry != 0) {
         if (strcmp(entry->name, name) == 0)
@@ -173,7 +176,7 @@ WaveTableEntry *FindWaveTableEntryByName(const char *name)
 void RemoveWaveTableEntry(WaveTableEntry *target)
 {
     WaveTableEntry *previous = 0;
-    WaveTableEntry *entry = g_pWaveTableHead_0046a444;
+    WaveTableEntry *entry = g_pWaveTableHead_004961b4;
 
     while (entry != 0 && target != entry) {
         previous = entry;
@@ -182,10 +185,10 @@ void RemoveWaveTableEntry(WaveTableEntry *target)
     if (entry != 0) {
         if (previous != 0)
             previous->next = entry->next;
-        if (g_pWaveTableTail_0046a448 == entry && previous != 0)
-            g_pWaveTableTail_0046a448 = previous;
-        if (g_pWaveTableHead_0046a444 == entry)
-            g_pWaveTableHead_0046a444 = entry->next;
+        if (g_pWaveTableTail_004961b8 == entry && previous != 0)
+            g_pWaveTableTail_004961b8 = previous;
+        if (g_pWaveTableHead_004961b4 == entry)
+            g_pWaveTableHead_004961b4 = entry->next;
         free(entry->name);
         free(entry);
     }
@@ -194,7 +197,7 @@ void RemoveWaveTableEntry(WaveTableEntry *target)
 /* Function start: 0x423ED1 */
 void FreeWaveTable(void)
 {
-    WaveTableEntry *entry = g_pWaveTableHead_0046a444;
+    WaveTableEntry *entry = g_pWaveTableHead_004961b4;
 
     while (entry != 0) {
         WaveTableEntry *next = entry->next;
@@ -203,8 +206,8 @@ void FreeWaveTable(void)
         free(entry);
         entry = next;
     }
-    g_pWaveTableTail_0046a448 = 0;
-    g_pWaveTableHead_0046a444 = 0;
+    g_pWaveTableTail_004961b8 = 0;
+    g_pWaveTableHead_004961b4 = 0;
 }
 
 /* Function start: 0x423F3F */

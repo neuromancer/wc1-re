@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x4401C0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int LoadBriefingRoom(void)
 {
     g_pConversationBackdropShape_00598c04 = 0;
@@ -37,9 +37,9 @@ unsigned int LoadBriefingRoom(void)
     FreePacketAndClear(&g_pConversationBackdropShape_00598c04, 8);
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
-    if (DAT_0059ab58 != 0) {
+    if (g_bSceneEscapeRequested_0049d4b0 != 0) {
         StopMusicUnlessSuppressed();
-        DAT_0059ab58 = 0;
+        g_bSceneEscapeRequested_0049d4b0 = 0;
     }
     return 0;
 }
@@ -56,7 +56,7 @@ unsigned int ViewMedals(void)
         FetchDiskPacketRetrying(4, 8, 0);
     g_pConversationBackdropShape_00598c04 = 0;
     InitializeConversationText();
-    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+    ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
     savedInputMode = g_bInputMode_0059a848;
     g_bInputMode_0059a848 = 1;
     do {
@@ -69,11 +69,11 @@ unsigned int ViewMedals(void)
         AddPCName(g_pszMedalsPilotSummary_0046e2f8);
         RefreshMemoryStatusOverlay();
         ClearViewport(&g_stConversationTextViewport_005a7570,
-                      DAT_0046999c);
+                      g_cSecondaryViewBufferColour_0049cb4c);
         FormatTextBufferFromStart(
             g_szViewMedalsTextFormat_0046e604, 0, 160,
             g_cViewportClearColour_004699a0,
-            g_szTextScratchBuffer_00598b00);
+            g_szTextScratchBuffer_005d1c40);
         DIBslam();
         DIBslamReal();
         if (clicked != 0) {
@@ -130,7 +130,7 @@ unsigned int AwardCampaignMedal(short medal)
     g_stCampaignState_0059ca50.medals[medal]++;
     SceneDirector(5, g_pMedalSceneData_00598c20,
                   g_pMedalTextData_00598af8);
-    DAT_0059ab58 = 0;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
     FreePacketAndClear(&g_pConversationBackdropShape_00598c04, 8);
     FreePacketAndClear(&g_pMedalSceneShape_0046e2f4, 8);
     ReleasePacketHandle(packet);
@@ -152,22 +152,22 @@ unsigned int DrawMedalChest(char *text, short duration)
 
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     offset = 0;
     FormatTextBufferFromStart(g_szMedalChestTextFormat_0046e610,
                               0, 160,
                               g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_00598b00);
+                              g_szTextScratchBuffer_005d1c40);
     do {
-        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pMedalSceneShape_0046e2f4, 41);
-        DrawSpriteDefault(&DAT_005a76b0, (short)(92 - offset), 64,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, (short)(92 - offset), 64,
                           g_pMedalSceneShape_0046e2f4, 43);
-        DrawSpriteDefault(&DAT_005a76b0, (short)(228 + offset), 64,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, (short)(228 + offset), 64,
                           g_pMedalSceneShape_0046e2f4, 44);
-        DrawSpriteDefault(&DAT_005a76b0, 0, 64,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 64,
                           g_pMedalSceneShape_0046e2f4, 42);
-        DrawSpriteScaled(&DAT_005a76b0, 319, 64,
+        DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, 319, 64,
                          g_pMedalSceneShape_0046e2f4, 42,
                          0, 256, 16);
         RefreshMemoryStatusOverlay();
@@ -210,11 +210,11 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     countdown = 0;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szMedalLongShotTextFormat_0046e61c,
                               0, 160,
                               g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_00598b00);
+                              g_szTextScratchBuffer_005d1c40);
     cursor = animation;
     start = animation;
     if (*cursor != -1) {
@@ -231,12 +231,12 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
                     countdown = (short)(cursor[1] * 2);
                 }
             }
-            DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                               g_pConversationBackdropShape_00598c04, 0);
-            DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                               g_pMedalSceneShape_0046e2f4, 0);
             if (frame > -1)
-                DrawSpriteDefault(&DAT_005a76b0, 121, 8,
+                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 121, 8,
                                   g_pMedalSceneShape_0046e2f4,
                                   (short)(frame + 1));
             RefreshMemoryStatusOverlay();
@@ -251,9 +251,9 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
                 break;
         }
     }
-    DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                       g_pConversationBackdropShape_00598c04, 0);
-    DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                       g_pMedalSceneShape_0046e2f4, 0);
     RefreshMemoryStatusOverlay();
     DIBslam();
@@ -274,17 +274,17 @@ unsigned int MedalEstablish(char *text, short duration)
     distance = 200;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     frame = 0;
     FormatTextBufferFromStart(g_szMedalEstablishTextFormat_0046e628,
                               0, 160,
                               g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_00598b00);
+                              g_szTextScratchBuffer_005d1c40);
     x = g_asMedalDisplayX_0046e2d0[g_nConversationMedalIndex_00598c08];
     y = 87;
     for (; frame < 32; frame++) {
         DrawMedals();
-        DrawSpriteScaled(&DAT_005a76b0, x, y,
+        DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, x, y,
                          g_pMedalSceneShape_0046e2f4, 12,
                          0, (short)(0xc800L / distance), 0);
         distance--;
@@ -312,21 +312,21 @@ unsigned int PinMedal(char *text, short duration)
     frame = 0;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szPinMedalTextFormat_0046e634,
                               0, 160,
                               g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_00598b00);
-    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+                              g_szTextScratchBuffer_005d1c40);
+    ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
     SetFrameTimerPeriodDirect(duration);
     escaped = IsFrameTickElapsed();
     while (escaped == 0) {
         frame++;
-        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pConversationBackdropShape_00598c04, 0);
-        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pMedalSceneShape_0046e2f4, 0);
-        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pMedalSceneShape_0046e2f4,
                           (short)(frame % 3 + 38));
         RefreshMemoryStatusOverlay();
@@ -354,15 +354,15 @@ unsigned int DrawMedals(void)
 
     rowY = 78;
     x = 188;
-    DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                       g_pConversationBackdropShape_00598c04, 1);
-    DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                       g_pMedalSceneShape_0046e2f4, 11);
-    DrawSpriteDefault(&DAT_005a76b0, 253, 38,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 253, 38,
                       g_pMedalSceneShape_0046e2f4,
                       (short)(g_stCampaignState_0059ca50.currentPilot->rank +
                               33));
-    DrawSpriteScaled(&DAT_005a76b0, 67, 38,
+    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, 67, 38,
                      g_pMedalSceneShape_0046e2f4,
                      (short)(g_stCampaignState_0059ca50.currentPilot->rank +
                              33),
@@ -373,7 +373,7 @@ unsigned int DrawMedals(void)
                 rowY = (short)(rowY + 3);
                 x = 188;
             }
-            DrawSpriteDefault(&DAT_005a76b0, x, rowY,
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, x, rowY,
                               g_pMedalSceneShape_0046e2f4,
                               (short)(badge + 13));
             x = (short)(x + 11);
@@ -389,13 +389,13 @@ unsigned int DrawMedals(void)
                 while (badge < (signed char)
                                    g_stCampaignState_0059ca50.medals[medal]) {
                     badge++;
-                    DrawSpriteDefault(&DAT_005a76b0, x, stack,
+                    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, x, stack,
                                       g_pMedalSceneShape_0046e2f4,
                                       (short)(medal + 25));
                     stack = (short)(stack + 2);
                 }
             }
-            DrawSpriteDefault(&DAT_005a76b0, x, stack,
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, x, stack,
                               g_pMedalSceneShape_0046e2f4,
                               (short)(medal + 28));
         }
@@ -420,19 +420,19 @@ unsigned int EstablishingShot(char *text, short duration)
             FetchDiskPacketRetrying(4, 5, 0);
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szEstablishingShotTextFormat_0046e640,
                               0, 160,
                               g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_00598b00);
+                              g_szTextScratchBuffer_005d1c40);
     frame = 0;
     FlushInputEvents();
     do {
-        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pConversationBackdropShape_00598c04, 0);
-        DrawSpriteDefault(&DAT_005a76b0, 241, 60,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 60,
                           g_pBriefingAnimationShape_00598c14, frame);
-        DrawSpriteDefault(&DAT_005a76b0, 241, 64,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 64,
                           g_pBriefingAnimationShape_00598c14, 22);
         for (character = 0; character < 8; character++) {
             DrawBriefingCharacter(
@@ -467,11 +467,11 @@ unsigned int DrawBriefingLongShot(void)
     if (g_pBriefingPortraitShape_00598c24 == 0)
         g_pBriefingPortraitShape_00598c24 =
             FetchDiskPacketRetrying(4, 5, 0);
-    DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                       g_pConversationBackdropShape_00598c04, 0);
-    DrawSpriteDefault(&DAT_005a76b0, 241, 60,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 60,
                       g_pBriefingAnimationShape_00598c14, 21);
-    DrawSpriteDefault(&DAT_005a76b0, 241, 64,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 64,
                       g_pBriefingAnimationShape_00598c14, 22);
     for (character = 0; character < 8; character++) {
         DrawBriefingCharacter(character, 0, 0, 0, 0);
@@ -498,21 +498,21 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
             FetchDiskPacketRetrying(4, 5, 0);
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szBriefingReturnTextFormat_0046e64c,
                               0, 160,
                               g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_00598b00);
+                              g_szTextScratchBuffer_005d1c40);
     for (character = 0; character < 8; character++) {
         g_aBriefingCharacters_0046e218[character].animationPhase = 0;
     }
     frame = 0;
     for (;;) {
-        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pConversationBackdropShape_00598c04, 0);
-        DrawSpriteDefault(&DAT_005a76b0, 241, 60,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 60,
                           g_pBriefingAnimationShape_00598c14, 0);
-        DrawSpriteDefault(&DAT_005a76b0, 241, 64,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 64,
                           g_pBriefingAnimationShape_00598c14, 22);
         for (character = 0; character < 8; character++) {
             layout = &g_aBriefingCharacters_0046e218[character];
@@ -543,7 +543,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
     }
     WaitForSceneAdvance(duration, 0);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     return 0;
 }
 
@@ -571,15 +571,15 @@ unsigned int Dismissed(char *text, short duration)
         FreePacketAndClear(&g_pBriefingPortraitShape_00598c24, 0);
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szDismissedTextFormat_0046e658,
                               0, 160,
                               g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_00598b00);
+                              g_szTextScratchBuffer_005d1c40);
     frame = 0;
     g_pTalkingHeadShape_00598c0c =
         FetchDiskPacketRetrying(4, 2, 0);
-    DAT_00469fb4 = 1;
+    g_nFrameSkipCountdown_0049d760 = 1;
     do {
         if (CheckEscaped() != 0) {
             rightX = 348;
@@ -588,18 +588,18 @@ unsigned int Dismissed(char *text, short duration)
             podiumFrame = 34;
             podiumX = 336;
         }
-        DAT_00469fb4--;
-        if (DAT_00469fb4 < 1) {
-            DAT_00469fb4 = g_nFrameSkip_00469fb8;
-            DrawSpriteDefault(&DAT_005a76b0, leftX, 0,
+        g_nFrameSkipCountdown_0049d760--;
+        if (g_nFrameSkipCountdown_0049d760 < 1) {
+            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, leftX, 0,
                               g_pConversationBackdropShape_00598c04, 1);
-            DrawSpriteDefault(&DAT_005a76b0, (short)(leftX + 320), 0,
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, (short)(leftX + 320), 0,
                               g_pConversationBackdropShape_00598c04, 2);
-            DrawSpriteDefault(&DAT_005a76b0, podiumX, 127,
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, podiumX, 127,
                               g_pTalkingHeadShape_00598c0c,
                               g_abBriefingPodiumFrames_0046e510[
                                   podiumFrame]);
-            DrawSpriteDefault(&DAT_005a76b0, rightX, 127,
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, rightX, 127,
                               g_pConversationBackdropShape_00598c04, 3);
             RefreshMemoryStatusOverlay();
         }
@@ -632,34 +632,34 @@ unsigned int Dismissed(char *text, short duration)
 /* Function start: WC2_UNMAPPED */
 unsigned int DrawDebriefingLongShot(void)
 {
-    DrawSpriteDefault(&DAT_005a76b0, g_nDebriefingLeftX_0046e56c, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingLeftX_0046e56c, 0,
                       g_pConversationBackdropShape_00598c04, 2);
-    DrawSpriteDefault(&DAT_005a76b0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                       (short)(g_nDebriefingLeftX_0046e56c + 320), 0,
                       g_pConversationBackdropShape_00598c04, 3);
-    DrawSpriteDefault(&DAT_005a76b0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                       (short)(g_nDebriefingPilotX_0046e570 - 1), 127,
                       g_pConversationBackdropShape_00598c04, 4);
-    DrawSpriteDefault(&DAT_005a76b0, g_nDebriefingPilotX_0046e570, 127,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingPilotX_0046e570, 127,
                       g_pConversationBackdropShape_00598c04, 5);
-    DrawSpriteDefault(&DAT_005a76b0, g_nDebriefingPodiumX_0046e57c, 127,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingPodiumX_0046e57c, 127,
                       g_pConversationBackdropShape_00598c04, 8);
     if (g_stCampaignState_0059ca50.personalityDeathMission[
             g_nDebriefingPersonality_00465c80] == 0) {
         if (g_nDebriefingPersonality_00465c80 != 0)
             DrawSpriteDefault(
-                &DAT_005a76b0, g_nDebriefingOfficerX_0046e578, 32,
+                &g_stSecondaryViewBuffer_005d2c90, g_nDebriefingOfficerX_0046e578, 32,
                 g_pConversationBackdropShape_00598c04,
                 (short)(g_nDebriefingPersonality_00465c80 + 9));
-        DrawSpriteDefault(&DAT_005a76b0,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                           g_nDebriefingOfficerX_0046e578, 32,
                           g_pConversationBackdropShape_00598c04, 6);
         if (g_nDebriefingPersonality_00465c80 == 0)
-            DrawSpriteDefault(&DAT_005a76b0,
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                               g_nDebriefingOfficerX_0046e578, 32,
                               g_pConversationBackdropShape_00598c04, 9);
     }
-    DrawSpriteDefault(&DAT_005a76b0, g_nDebriefingRightX_0046e574, 127,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingRightX_0046e574, 127,
                       g_pConversationBackdropShape_00598c04, 7);
     DIBslam();
     DIBslamReal();
@@ -681,12 +681,12 @@ unsigned int DebriefingEstablishingShot(char *text, short duration)
     g_nDebriefingPodiumX_0046e57c = 344;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szDebriefEstablishTextFormat_0046e664,
                               0, 160,
                               g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_00598b00);
-    DAT_00469fb4 = 1;
+                              g_szTextScratchBuffer_005d1c40);
+    g_nFrameSkipCountdown_0049d760 = 1;
     for (;;) {
         delta = &g_abDebriefingEstablishDeltas_0046e538[frame];
         g_nDebriefingLeftX_0046e56c =
@@ -705,10 +705,10 @@ unsigned int DebriefingEstablishingShot(char *text, short duration)
             (short)(g_nDebriefingRightX_0046e574 -
                     MaxShort((short)(delta[0] + 3), 0));
         if (frame == 47)
-            DAT_00469fb4 = 1;
-        DAT_00469fb4--;
-        if (DAT_00469fb4 < 1) {
-            DAT_00469fb4 = g_nFrameSkip_00469fb8;
+            g_nFrameSkipCountdown_0049d760 = 1;
+        g_nFrameSkipCountdown_0049d760--;
+        if (g_nFrameSkipCountdown_0049d760 < 1) {
+            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
             DrawDebriefingLongShot();
             RefreshMemoryStatusOverlay();
             DIBslam();
@@ -733,12 +733,12 @@ int no_objectives_achieved(void)
     short objective;
 
     objective = 0;
-    while (objective < g_cMissionObjectiveCount_0059c46a) {
+    while (objective < g_cMissionObjectiveCount_00493294) {
         if (achieved(objective) != 0)
             break;
         objective++;
     }
-    return objective >= g_cMissionObjectiveCount_0059c46a;
+    return objective >= g_cMissionObjectiveCount_00493294;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -780,7 +780,7 @@ short int_value(char **text)
     return (short)atoi(number);
 }
 
-/* Function start: 0x41D591 */
+/* Function start: WC2_UNMAPPED */
 ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
                                     ConversationSceneRecord *sceneData,
                                     unsigned char *textData)
@@ -802,13 +802,13 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
         case 2:
             first = int_value(&test);
             second = int_value(&test);
-            if (g_stCampaignState_0059ca50.missionScore < first)
+            if (g_nMissionScore_00493462 < first)
                 return sceneData + second;
             break;
         case 3:
             first = int_value(&test);
             second = int_value(&test);
-            if (first <= g_stCampaignState_0059ca50.missionScore)
+            if (first <= g_nMissionScore_00493462)
                 return sceneData + second;
             break;
         case 4:
@@ -825,12 +825,12 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
             break;
         case 6:
             first = int_value(&test);
-            if (g_nPlayerKillCount_005a7c9c == 0)
+            if (g_cPlayerKillCount_005d2fa8 == 0)
                 return sceneData + first;
             break;
         case 7:
             first = int_value(&test);
-            if (g_nPlayerKillCount_005a7c9c != 0)
+            if (g_cPlayerKillCount_005d2fa8 != 0)
                 return sceneData + first;
             break;
         case 8:
@@ -943,34 +943,34 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
             break;
         case 20:
             first = int_value(&test);
-            if (g_stCampaignState_0059ca50.playerShipType != 0)
+            if (g_nPlayerShipType_00493464 != 0)
                 return sceneData + first;
             break;
         case 21:
             first = int_value(&test);
-            if (g_stCampaignState_0059ca50.playerShipType != 2)
+            if (g_nPlayerShipType_00493464 != 2)
                 return sceneData + first;
             break;
         case 22:
             first = int_value(&test);
-            if (g_stCampaignState_0059ca50.playerShipType != 3)
+            if (g_nPlayerShipType_00493464 != 3)
                 return sceneData + first;
             break;
         case 23:
             first = int_value(&test);
-            if (g_stCampaignState_0059ca50.playerShipType != 1)
+            if (g_nPlayerShipType_00493464 != 1)
                 return sceneData + first;
             break;
         case 24:
             first = int_value(&test);
-            if (g_stCampaignState_0059ca50.playerShipType != 1 &&
-                g_stCampaignState_0059ca50.playerShipType < DAT_004688dc)
+            if (g_nPlayerShipType_00493464 != 1 &&
+                g_nPlayerShipType_00493464 < DAT_004688dc)
                 return sceneData + first;
             break;
         case 25:
             first = int_value(&test);
-            if (g_stCampaignState_0059ca50.playerShipType == 1 ||
-                g_stCampaignState_0059ca50.playerShipType >= DAT_004688dc)
+            if (g_nPlayerShipType_00493464 == 1 ||
+                g_nPlayerShipType_00493464 >= DAT_004688dc)
                 return sceneData + first;
             break;
         case 26:
@@ -1029,7 +1029,7 @@ unsigned int FreeTalker(void)
     return 0;
 }
 
-/* Function start: 0x434BB5 */
+/* Function start: WC2_UNMAPPED */
 unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                            unsigned char *textData)
 {
@@ -1049,7 +1049,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
     ClearInputKeyState();
     FlushInputEvents();
     SetEventManagerPump(PollJoystickButtonEvents);
-    DAT_0059ab58 = 0;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
     record = (ConversationSceneRecord *)sceneBytes;
     do {
         do {
@@ -1105,10 +1105,10 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         case 4:
             previousShot = 4;
             if (g_nConversationCharacter_0046e580 < 0)
-                g_cCurrentObjective_0046c020 =
+                g_cCurrentObjective_004931cc =
                     (signed char)-g_nConversationCharacter_0046e580;
             else
-                g_cCurrentObjective_0046c020 =
+                g_cCurrentObjective_004931cc =
                     (signed char)g_nConversationCharacter_0046e580;
             g_nTalkingHeadFace_0046e584 = -1;
             break;
@@ -1118,7 +1118,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         case 15:
             if (previousShot != shot) {
                 init_constellation(0);
-                g_stConstellationViewport_005a6b40 = DAT_005a76b0;
+                g_stConstellationViewport_005a6b40 = g_stSecondaryViewBuffer_005d2c90;
                 InitializeConstellationField(
                     &g_stConstellationViewport_005a6b40, -1, 16);
                 g_bConversationConstellation_0046e58c = 1;
@@ -1237,10 +1237,10 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
             }
         }
         record++;
-    } while (DAT_0059ab58 != 1);
+    } while (g_bSceneEscapeRequested_0049d4b0 != 1);
 scene_complete:
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     FreeTalker();
     SetEventManagerPump(0);
     if (g_bConversationConstellation_0046e58c == 1) {
@@ -1261,13 +1261,13 @@ unsigned int DrawPodiumShot(void)
         FreePacketAndClear(&g_pBriefingPortraitShape_00598c24, 0);
     g_pTalkingHeadShape_00598c0c =
         FetchDiskPacketRetrying(4, 2, 0);
-    DrawSpriteDefault(&DAT_005a76b0, -96, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, -96, 0,
                       g_pConversationBackdropShape_00598c04, 1);
-    DrawSpriteDefault(&DAT_005a76b0, 224, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 224, 0,
                       g_pConversationBackdropShape_00598c04, 2);
-    DrawSpriteDefault(&DAT_005a76b0, 240, 127,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 240, 127,
                       g_pTalkingHeadShape_00598c0c, 0);
-    DrawSpriteDefault(&DAT_005a76b0, 252, 127,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 252, 127,
                       g_pConversationBackdropShape_00598c04, 3);
     RefreshMemoryStatusOverlay();
     FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
@@ -1293,7 +1293,7 @@ unsigned int DrawBriefingCharacter(short character, short pose,
             frame = (short)(frame + animationFrame);
         offsetIndex = (int)character * 12 + (int)pose;
         DrawSpriteScaled(
-            &DAT_005a76b0,
+            &g_stSecondaryViewBuffer_005d2c90,
             (short)(layout->portraitX +
                     ((const signed char *)
                          g_aBriefingPortraitOffsetX_0046e300)[offsetIndex]),
@@ -1303,7 +1303,7 @@ unsigned int DrawBriefingCharacter(short character, short pose,
             g_pBriefingPortraitShape_00598c24, frame,
             ((const short *)g_aBriefingPortraitScale_0046e3c0)[offsetIndex],
             layout->scale, 0);
-        DrawSpriteScaled(&DAT_005a76b0,
+        DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
                          layout->bodyX, (short)(layout->bodyY + 10),
                          g_pBriefingBodyShape_00598c1c, pose,
                          0, layout->scale, 0);
@@ -1318,13 +1318,13 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
 
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szFuneralLongShotTextFormat_0046e670,
                               0, 160,
                               g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_00598b00);
+                              g_szTextScratchBuffer_005d1c40);
     if (shot == 9) {
-        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pConversationBackdropShape_00598c04, 0);
         RefreshMemoryStatusOverlay();
         DIBslam();
@@ -1339,12 +1339,12 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
             return 0;
         if (g_bConversationConstellation_0046e58c == 1)
             DrawConstellationField();
-        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pConversationBackdropShape_00598c04, 3);
-        DrawSpriteDefault(&DAT_005a76b0, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pConversationBackdropShape_00598c04,
                           (short)(shot - 8));
-        DrawSpriteDefault(&DAT_005a76b0, 80, 127,
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 80, 127,
                           g_pConversationBackdropShape_00598c04, 8);
         RefreshMemoryStatusOverlay();
         DIBslam();
@@ -1355,7 +1355,7 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
     }
 }
 
-/* Function start: 0x40A2D0 */
+/* Function start: WC2_UNMAPPED */
 void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
                                unsigned short top, unsigned short right,
                                unsigned short bottom)
@@ -1377,7 +1377,7 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
     short activeCount;
     short index;
 
-    if (DAT_0046b168 == 0x13) {
+    if (g_nSpacePaletteFadeMode_004901e8 == 0x13) {
         indices = AllocateTaggedMemory(256, 0);
         if (indices == 0)
             return;
@@ -1447,7 +1447,7 @@ unsigned int death_sequence(void)
     unsigned char *cockpitBackground;
     signed char frame;
 
-    g_nCannedSceneMode_00469fac = 1;
+    g_nCannedSceneMode_0049021c = 1;
     free_all_slots();
     free_cockpit();
     StopMusicUnlessSuppressed();
@@ -1461,40 +1461,40 @@ unsigned int death_sequence(void)
         (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
     PlaySfxWaveFileByNumber(4, -1, 0);
     new_view(9, 0);
-    DAT_0059ab58 = 0;
-    DAT_00469fb4 = 1;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
+    g_nFrameSkipCountdown_0049d760 = 1;
     for (; frame < 8; frame++) {
         if (frame == 7) {
-            ClearViewport(&DAT_005a7510,
+            ClearViewport(&g_stViewBuffer_005d2b00,
                           g_cViewportClearColour_004699a0);
         } else {
             RefreshCockpitStatus();
-            DrawSpriteDefault(&DAT_005a7510, 0, 0,
+            DrawSpriteDefault(&g_stViewBuffer_005d2b00, 0, 0,
                               cockpitBackground, 0);
         }
-        DrawSpriteDefault(&DAT_005a7510, 160, 199,
+        DrawSpriteDefault(&g_stViewBuffer_005d2b00, 160, 199,
                           deathShape, (short)frame);
         dump_buffer_to_screen();
         DIBslam();
         DIBslamReal();
-        if (DAT_0059ab58 == 1)
+        if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
     }
 
-    GetScreenUpdateFlag();
+    free_view_buffer();
     FreePacketAndClear(&cockpitBackground, 0);
     FreePacketAndClear(&deathShape, 0);
-    if (DAT_0059ab58 != 1) {
+    if (g_bSceneEscapeRequested_0049d4b0 != 1) {
         frame = 0;
         load_all_slots();
         new_view(4, 0);
-        DAT_00469fb4 = 1;
+        g_nFrameSkipCountdown_0049d760 = 1;
         do {
             if (RefreshCockpitStatus() != 0)
                 dump_buffer_to_screen();
             if (frame == 2)
                 Explosion(0);
-            if (DAT_0059ab58 == 1)
+            if (g_bSceneEscapeRequested_0049d4b0 == 1)
                 break;
             frame++;
             DIBslam();
@@ -1502,12 +1502,12 @@ unsigned int death_sequence(void)
         } while (frame < 60);
     }
 
-    DAT_0059ab58 = 0;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
     free_all_slots();
-    DAT_005a6ba0.top = 0;
-    DAT_005a6ba0.bottom = 199;
-    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    g_stScreenViewport_005d21a0.top = 0;
+    g_stScreenViewport_005d21a0.bottom = 199;
+    FadeViewportPaletteToColour(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c, 1);
+    ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
     RestoreGamePalette();
     return 0;
 }
@@ -1522,10 +1522,10 @@ unsigned int ShowGetReadyScreen(void)
     g_pIntroFont_005a8960 =
         FetchDiskPacketRetrying(9, 1, 0);
     distance = 400;
-    g_nCannedSceneMode_00469fac = 1;
+    g_nCannedSceneMode_0049021c = 1;
     force_view(0, 0);
-    DAT_00469fb4 = 1;
-    DAT_0059ab58 = 0;
+    g_nFrameSkipCountdown_0049d760 = 1;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
     do {
         if (RefreshCockpitStatus() != 0) {
             DrawCenteredScaledIntroText(
@@ -1536,16 +1536,16 @@ unsigned int ShowGetReadyScreen(void)
         }
         if (distance > 100)
             distance = (short)(distance - 10);
-        if (DAT_0059ab58 == 1)
+        if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
         frame++;
         DIBslam();
         DIBslamReal();
     } while (frame < 40);
-    DAT_0059ab58 = 0;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
     ReleasePacketHandle(g_pIntroFont_005a8960);
     clear_view_buffer();
-    g_nCannedSceneMode_00469fac = 0;
+    g_nCannedSceneMode_0049021c = 0;
     ResetSoundState();
     return 0;
 }
@@ -1566,32 +1566,32 @@ unsigned int ShowVictoryScreen(void)
     g_pIntroFont_005a8960 =
         FetchDiskPacketRetrying(9, 1, 0);
     frame = 0;
-    DAT_0059ab58 = 0;
-    DAT_00469fb4 = 1;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
+    g_nFrameSkipCountdown_0049d760 = 1;
     do {
         if (RandomBelowOrEqual(7) == 0 && emptyCount != 0) {
             for (index = 0; index < 30; index++) {
-                if (g_aFireworks_005a6900[index].frame == -1) {
-                    g_aFireworks_005a6900[index].frame = 0;
-                    g_aFireworks_005a6900[index].x =
-                        RandomInRange(0, DAT_005a7510.right);
-                    g_aFireworks_005a6900[index].y =
-                        RandomInRange(0, DAT_005a7510.bottom);
-                    g_aFireworks_005a6900[index].variant =
+                if (g_aFireworks_005c8df0[index].frame == -1) {
+                    g_aFireworks_005c8df0[index].frame = 0;
+                    g_aFireworks_005c8df0[index].x =
+                        RandomInRange(0, g_stViewBuffer_005d2b00.right);
+                    g_aFireworks_005c8df0[index].y =
+                        RandomInRange(0, g_stViewBuffer_005d2b00.bottom);
+                    g_aFireworks_005c8df0[index].variant =
                         RandomInRange(0, 2);
                     break;
                 }
             }
         }
         if (RefreshCockpitStatus() != 0) {
-            emptyCount = TheEndFireWorks(&DAT_005a7510, 30);
+            emptyCount = TheEndFireWorks(&g_stViewBuffer_005d2b00, 30);
             DrawCenteredScaledIntroText(
                 "Victory", g_nViewCenterX_0059a852,
                 g_nViewCenterY_0059a854,
                 (short)(0xc800 / (int)distance));
             dump_buffer_to_screen();
         }
-        if (DAT_0059ab58 == 1)
+        if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
         if (distance > 100)
             distance = (short)(distance - 10);
@@ -1599,7 +1599,7 @@ unsigned int ShowVictoryScreen(void)
         DIBslam();
         DIBslamReal();
     } while (frame < 80);
-    DAT_0059ab58 = 0;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
     ReleasePacketHandle(g_pIntroFont_005a8960);
     ReleasePacketHandle(g_pFireworkShape_005a6a68);
     return 0;
@@ -1615,26 +1615,26 @@ unsigned int ShowGameOverScreen(void)
     frame = 0;
     g_pIntroFont_005a8960 =
         FetchDiskPacketRetrying(9, 1, 0);
-    g_cViewObject_0046c000 = (signed char)Explosion(0);
-    DAT_0046c03c = 4;
+    g_cViewObject_0049313c = (signed char)Explosion(0);
+    g_nCurrentView_00492fa8 = 4;
     g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] = 100;
     ScaleFixedVector(
-        &g_aShipForwardVector_0059bce0[g_cViewObject_0046c000],
+        &g_aShipForwardVector_00494208[g_cViewObject_0049313c],
         -0x12c00, &cameraOffset);
     AddFixedVectors(
-        &g_aShipPosition_0059c490[g_cViewObject_0046c000],
-        &cameraOffset, &g_aShipPosition_0059c490[WC1_EYE_OBJECT]);
+        &g_aShipPosition_00494550[g_cViewObject_0049313c],
+        &cameraOffset, &g_aShipPosition_00494550[WC1_EYE_OBJECT]);
     g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT] =
-        g_aShipUpVector_0059b9e0[g_cViewObject_0046c000];
-    g_aShipForwardVector_0059bce0[WC1_EYE_OBJECT] = cameraOffset;
+        g_aShipUpVector_0059b9e0[g_cViewObject_0049313c];
+    g_aShipForwardVector_00494208[WC1_EYE_OBJECT] = cameraOffset;
     fix_objects_ijk(WC1_EYE_OBJECT);
     zero_vector(&g_aShipVelocity_0059c010[WC1_EYE_OBJECT]);
     set_eye_direction_and_position();
     distance = 700;
     generate_stars();
     spacetrack(22, 2, 1);
-    DAT_0059ab58 = 0;
-    DAT_00469fb4 = 1;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
+    g_nFrameSkipCountdown_0049d760 = 1;
     do {
         if (RefreshCockpitStatus() != 0) {
             if (frame > 20)
@@ -1644,7 +1644,7 @@ unsigned int ShowGameOverScreen(void)
                     (short)(0xc800 / (int)distance));
             dump_buffer_to_screen();
         }
-        if (DAT_0059ab58 == 1)
+        if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
         if (distance > 100)
             distance = (short)(distance - 10);
@@ -1653,7 +1653,7 @@ unsigned int ShowGameOverScreen(void)
         DIBslamReal();
     } while (frame < 80);
     StopMusicUnlessSuppressed();
-    DAT_0059ab58 = 0;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
     ReleasePacketHandle(g_pIntroFont_005a8960);
     return 0;
 }

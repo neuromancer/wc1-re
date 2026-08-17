@@ -6,7 +6,11 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x465CBC */
+#ifndef WC1_SDL
+#pragma function(strcpy)
+#endif
+
+/* Function start: 0x4240AE */
 void ReleaseFinishedSoundEntries(void)
 {
     ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
@@ -22,13 +26,13 @@ void ReleaseFinishedSoundEntries(void)
     }
 }
 
-/* Function start: 0x42D444 */
+/* Function start: 0x424113 */
 void StopSoundsUsingWave(const char *name)
 {
     WaveTableEntry *wave;
     ActiveSoundEntry *entry;
 
-    if (DAT_00465058 != 0) {
+    if (g_nAudioEnabled_0049c244 != 0) {
         wave = FindWaveTableEntryByName(name);
         if (wave != 0) {
             for (;;) {
@@ -45,6 +49,7 @@ void StopSoundsUsingWave(const char *name)
 /* Function start: 0x42418C */
 void playWAVE(const char *filename, int looping, int volume)
 {
+#if 0
     WaveTableEntry *wave;
     ActiveSoundEntry *active;
     IxSound *sound;
@@ -52,7 +57,7 @@ void playWAVE(const char *filename, int looping, int volume)
     long fileSize;
     int file;
 
-    if (DAT_00465058 != 0) {
+    if (g_nAudioEnabled_0049c244 != 0) {
         ReleaseFinishedSoundEntries();
         wave = FindWaveTableEntryByName(filename);
         if (wave != 0) {
@@ -101,6 +106,72 @@ void playWAVE(const char *filename, int looping, int volume)
         strcpy(wave->name, filename);
         free(fileData);
     }
+#else
+    WaveTableEntry *wave;
+    ActiveSoundEntry *active;
+    IxSound *sound;
+    unsigned char *fileData;
+    long fileSize;
+    int file;
+    char error[100];
+
+    if (memcmp(filename, "sfx16.wav", 9) == 0) {
+        if (g_nSpaceFrame_00493134 <= g_nNextSfx16PlaybackFrame_004a2668)
+            return;
+        g_nNextSfx16PlaybackFrame_004a2668 =
+            g_nSpaceFrame_00493134 + 100;
+    }
+    if (g_nAudioEnabled_0049c244 == 0)
+        return;
+    volume /= 2;
+    ReleaseFinishedSoundEntries();
+    SoundDebugPrintf("%s\n", filename);
+    wave = FindWaveTableEntryByName(filename);
+    if (wave != 0) {
+        if (looping != 0) {
+            active = AllocateActiveSoundEntry();
+            active->sound = ix_system_new_sound(wave->sample);
+            active->sound->ix_system_sound_set_volume(volume);
+            ix_sound_start(active->sound);
+        } else {
+            sound = ix_system_new_sound(wave->sample);
+            sound->ix_sound_set_delete_on_stop(1);
+            sound->ix_system_sound_set_volume(volume);
+            ix_sound_start(sound);
+        }
+        return;
+    }
+
+    file = _open(filename, 0x8000);
+    if (file == -1) {
+        sprintf(error, "playWAVE Unable to open file '%s'", filename);
+        MessageBoxA(0, error, "Error", MB_ICONHAND);
+        _exit(1);
+    }
+    fileSize = _filelength(file);
+    fileData = (unsigned char *)malloc((unsigned int)fileSize);
+    _read(file, fileData, (unsigned int)fileSize);
+    _close(file);
+
+    wave = AllocateWaveTableEntry();
+    wave->sample = ix_system_new_sample();
+    wave->sample->ix_sample_load_wav(fileData, fileSize);
+    if (looping == 0) {
+        sound = ix_system_new_sound(wave->sample);
+        sound->ix_sound_set_delete_on_stop(1);
+        sound->ix_system_sound_set_volume(volume);
+        ix_sound_start(sound);
+    } else {
+        wave->sample->ix_sample_set_looping(1);
+        active = AllocateActiveSoundEntry();
+        active->sound = ix_system_new_sound(wave->sample);
+        active->sound->ix_system_sound_set_volume(volume);
+        ix_sound_start(active->sound);
+    }
+    wave->name = (char *)malloc(strlen(filename) + 1);
+    strcpy(wave->name, filename);
+    free(fileData);
+#endif
 }
 
 /* Function start: 0x4245A2 */
@@ -131,7 +202,7 @@ void PlaySnowStaticSound(void)
     long fileSize;
     int file;
 
-    if (DAT_00465058 != 0) {
+    if (g_nAudioEnabled_0049c244 != 0) {
         ReleaseFinishedSoundEntries();
         if (g_pSnowStaticSound_00476550 == 0) {
             file = _open("sfx22.wav", 0x8000);
@@ -169,15 +240,43 @@ void PlaySnowStaticSound(void)
 /* Function start: 0x42476B */
 void ServiceSoundSystem(void)
 {
+#if 0
     ix_system_service_sounds();
+#else
+    if (g_nAudioEnabled_0049c244 != 0) {
+        ix_system_service_sounds();
+        if (g_pSpeechSound_004a2658 != 0 &&
+            ix_sound_is_playing(g_pSpeechSound_004a2658) == 0 &&
+            g_bSpeechSoundActive_004a2660 != 0) {
+            g_nSpeechCompletionDelay_004a265c++;
+            if (g_bSpaceFlightActive_005c586c != 0) {
+                g_bSpeechPlaybackComplete_004a266c = 1;
+                g_bSpeechSoundActive_004a2660 = 0;
+            }
+            if (g_nSpeechCompletionDelay_004a265c > 20) {
+                if (g_bSpaceFlightActive_005c586c == 0)
+                    g_nInputPressCount_0049c258 = 1;
+                g_bSpeechSoundActive_004a2660 = 0;
+                if (g_bSpaceFlightActive_005c586c == 0)
+                    SetCinematicFrameTiming(70.0f);
+            }
+        }
+    }
+#endif
 }
 
 /* Function start: 0x42482E */
 void SetSoundEffectsVolume(int volume)
 {
+#if 0
     if (volume >= 0 && volume < 65000)
         ix_system_set_master_volume((unsigned short)volume);
     SoundDebugPrintf("Setting SFX Volume to %d", volume);
+#else
+    if (g_nAudioEnabled_0049c244 == 0)
+        return;
+    ix_system_set_master_volume((unsigned short)volume);
+#endif
 }
 
 /* Function start: 0x42485C */
@@ -251,46 +350,46 @@ void DrawLaunchDoorFrame(short distance)
     if (distance > 10) {
         scale = (short)(0x1a00L / distance);
         GetTransformedShapeBounds(
-            &DAT_005a7510,
+            &g_stViewBuffer_005d2b00,
             (short)((short)g_nScreenWidth_0046daa4 >> 1),
             (short)((short)g_nScreenHeight_0046daa8 >> 1),
             g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0, bounds);
 #ifdef WC1_SDL
         if (!Wc1SdlRecordSpaceSprite(
-                &DAT_005a7510, (short)(bounds[0] - 1),
+                &g_stViewBuffer_005d2b00, (short)(bounds[0] - 1),
                 (short)((short)g_nScreenHeight_0046daa8 >> 1),
                 g_pLaunchDoorShape_005a77e8, 0, 0, scale, 0))
 #endif
         DrawSpriteScaled(
-            &DAT_005a7510, (short)(bounds[0] - 1),
+            &g_stViewBuffer_005d2b00, (short)(bounds[0] - 1),
             (short)((short)g_nScreenHeight_0046daa8 >> 1),
             g_pLaunchDoorShape_005a77e8, 0, 0, scale, 0);
 #ifdef WC1_SDL
         if (!Wc1SdlRecordSpaceSprite(
-                &DAT_005a7510,
+                &g_stViewBuffer_005d2b00,
                 (short)((short)g_nScreenWidth_0046daa4 >> 1),
                 (short)((short)g_nScreenHeight_0046daa8 >> 1),
                 g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0))
 #endif
         DrawSpriteScaled(
-            &DAT_005a7510,
+            &g_stViewBuffer_005d2b00,
             (short)((short)g_nScreenWidth_0046daa4 >> 1),
             (short)((short)g_nScreenHeight_0046daa8 >> 1),
             g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0);
 #ifdef WC1_SDL
         if (!Wc1SdlRecordSpaceSprite(
-                &DAT_005a7510, bounds[2],
+                &g_stViewBuffer_005d2b00, bounds[2],
                 (short)((short)g_nScreenHeight_0046daa8 >> 1),
                 g_pLaunchDoorShape_005a77e8, 2, 0, scale, 0))
 #endif
         DrawSpriteScaled(
-            &DAT_005a7510, bounds[2],
+            &g_stViewBuffer_005d2b00, bounds[2],
             (short)((short)g_nScreenHeight_0046daa8 >> 1),
             g_pLaunchDoorShape_005a77e8, 2, 0, scale, 0);
     }
 }
 
-/* Function start: 0x42ECCB */
+/* Function start: WC2_UNMAPPED */
 void LaunchPlayerShip(void)
 {
     short doorDistances[4];
@@ -305,14 +404,15 @@ void LaunchPlayerShip(void)
     distanceStep = 1;
 
     spacetrack(changetrack(), 1, 0);
-    if (DAT_0059ab58 == 0) {
+    if (g_bSceneEscapeRequested_0049d4b0 == 0) {
         g_pLaunchDoorShape_005a77e8 =
-            (unsigned char *)FetchDiskPacketRetrying(1, 7, 0);
-        g_nCannedSceneMode_00469fac = 1;
+            (unsigned char *)FetchDiskPacketRetrying(
+                (char *)(unsigned long)1, 7, 0);
+        g_nCannedSceneMode_0049021c = 1;
         force_view(0, 0);
         PlaySfxWaveFileByNumber(20, -1, 0);
-        DAT_00469fb4 = 1;
-        DAT_0059ab58 = 0;
+        g_nFrameSkipCountdown_0049d760 = 1;
+        g_bSceneEscapeRequested_0049d4b0 = 0;
         frame = 0;
         do {
             PumpWindowMessages();
@@ -329,14 +429,14 @@ void LaunchPlayerShip(void)
             }
             DIBslam();
             DIBslamReal();
-            if (DAT_0059ab58 == 1)
+            if (g_bSceneEscapeRequested_0049d4b0 == 1)
                 break;
             if (frame % 5 == 0)
                 distanceStep++;
             frame++;
         } while (frame < 25);
 
-        if (DAT_0059ab58 != 0) {
+        if (g_bSceneEscapeRequested_0049d4b0 != 0) {
             StopMusicUnlessSuppressed();
             spacetrack(changetrack(), 1, 0);
         }
@@ -348,12 +448,12 @@ void LaunchPlayerShip(void)
     DIBslam();
     DIBslamReal();
     clear_view_buffer();
-    g_nCannedSceneMode_00469fac = 0;
+    g_nCannedSceneMode_0049021c = 0;
     ResetSoundState();
-    DAT_0059ab58 = 0;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
 }
 
-/* Function start: 0x43B7C0 */
+/* Function start: WC2_UNMAPPED */
 unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
 {
     unsigned char *carrierShape;
@@ -379,13 +479,15 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     PreloadMusicTrackHook(0x1c);
     spacetrack(0x1c, 2, 1);
     carrierShape =
-        (unsigned char *)FetchDiskPacketRetrying(1, 8, 0);
+        (unsigned char *)FetchDiskPacketRetrying(
+            (char *)(unsigned long)1, 8, 0);
     actorShape =
-        (unsigned char *)FetchDiskPacketRetrying(1, 4, 0);
-    g_pScrambleViewport_005a86b4 = &DAT_005a7510;
+        (unsigned char *)FetchDiskPacketRetrying(
+            (char *)(unsigned long)1, 4, 0);
+    g_pScrambleViewport_005a86b4 = &g_stViewBuffer_005d2b00;
     object = (short)sceneObject;
     fighterShape = g_aObjectTypeData_00496d30[
-        g_stCampaignState_0059ca50.playerShipType].shapeSet;
+        g_nPlayerShipType_00493464].shapeSet;
     fighterScreenY = 64;
     fighterScreenX = 20;
     g_nScriptedViewObject_0046a8d0 = object;
@@ -400,22 +502,22 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     g_apObjectShape_0059d2f0[object] = carrierShape;
     g_asObjectFlip_0059c870[object] = 0;
     g_asObjectViewFrame_0059d230[object] = 3;
-    DAT_0059ab58 = 0;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
     g_asObjectScreenAngle_0059cd90[object] = 0;
     g_asObjectScreenScale_0059c950[object] = 0x100;
     g_asObjectDistance_0059b4a0[object] = 2000;
-    DAT_00469fb4 = 1;
+    g_nFrameSkipCountdown_0049d760 = 1;
     frame = 0;
     approachDistance = 20;
     do {
         PumpWindowMessages();
-        g_aeObjectClass_0059d100[0] = OBJECT_CLASS_NULL;
-        g_aeObjectClass_0059d100[object] = OBJECT_CLASS_NULL;
+        g_aeObjectClass_00495328[0] = OBJECT_CLASS_NULL;
+        g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
         set_eye_direction_and_position();
-        DAT_00469fb4--;
-        if (DAT_00469fb4 < 1) {
-            DAT_00469fb4 = g_nFrameSkip_00469fb8;
-            g_nRenderedSpaceFrame_0059d61a++;
+        g_nFrameSkipCountdown_0049d760--;
+        if (g_nFrameSkipCountdown_0049d760 < 1) {
+            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+            g_nRenderedSpaceFrame_00493138++;
             UpdateSpacePaletteFade();
             clear_view_buffer();
             house_keep_objects();
@@ -433,29 +535,29 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                 g_asObjectViewFrame_0059d230[0] =
                     g_acCarrierLaunchApproachFrames_0046a580[47 - frame];
             }
-            g_aeObjectClass_0059d100[0] = OBJECT_CLASS_SHIP;
+            g_aeObjectClass_00495328[0] = OBJECT_CLASS_SHIP;
             approachScale = (short)(
                 ((unsigned int)(unsigned short)g_asObjectScale_0059de40[0]
                     << 4) / approachDistance);
-            g_aeObjectClass_0059d100[object] = OBJECT_CLASS_SHIP;
-            g_asObjectScreenX_0059d9b0[0] =
+            g_aeObjectClass_00495328[object] = OBJECT_CLASS_SHIP;
+            g_asObjectScreenX_00493598[0] =
                 (short)(fighterScreenX - g_nViewCenterX_0059a852);
-            g_asObjectScreenY_0059d930[0] =
+            g_asObjectScreenY_00493628[0] =
                 (short)(fighterScreenY - g_nViewCenterY_0059a854);
             g_asObjectScreenScale_0059c950[0] = approachScale;
-            g_asObjectScreenX_0059d9b0[object] =
+            g_asObjectScreenX_00493598[object] =
                 (short)(g_nScrambleBackgroundRightX_005a8714 -
                         g_nViewCenterX_0059a852);
-            g_asObjectScreenY_0059d930[object] =
+            g_asObjectScreenY_00493628[object] =
                 (short)(g_nScrambleBackgroundY_005a8712 -
                         g_nViewCenterY_0059a854);
-            sort_object_depth();
+            BuildObjectDepthOrder();
 #ifdef WC1_SDL
             Wc1SdlBeginSpaceFrame(
                 g_pScreenViewportGeometry_0059a9f4,
-                (int)g_cScreenViewportMode_0059a9f2,
-                DAT_0046a008 > 0,
-                (unsigned char)DAT_004699d8);
+                (int)g_cScreenViewportMode_005c82a6,
+                g_nCockpitDisplayMode_0049d71c > 0,
+                (unsigned char)g_cPrimaryViewBufferColour_0049cb88);
 #endif
             draw_sorted_objects_to_buffer();
             dump_buffer_to_screen();
@@ -467,21 +569,21 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         approachDistance = (short)(approachDistance + 2);
         g_asObjectDistance_0059b4a0[0] =
             (short)(g_asObjectDistance_0059b4a0[0] + 10);
-        AddFixedVectors(&g_aShipPosition_0059c490[61],
+        AddFixedVectors(&g_aShipPosition_00494550[61],
                         &g_aShipVelocity_0059c010[61],
-                        &g_aShipPosition_0059c490[61]);
-        if (DAT_0059ab58 == 1)
+                        &g_aShipPosition_00494550[61]);
+        if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
         frame++;
         DIBslam();
         DIBslamReal();
     } while (frame < 100);
 
-    g_aeObjectClass_0059d100[0] = OBJECT_CLASS_NULL;
-    g_aeObjectClass_0059d100[object] = OBJECT_CLASS_NULL;
-    if (DAT_0059ab58 != 1) {
+    g_aeObjectClass_00495328[0] = OBJECT_CLASS_NULL;
+    g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
+    if (g_bSceneEscapeRequested_0049d4b0 != 1) {
         copy_frame(object, 61);
-        g_aShipPosition_0059c490[61] = g_aShipPosition_0059c490[object];
+        g_aShipPosition_00494550[61] = g_aShipPosition_00494550[object];
         g_nScrambleBackgroundRightX_005a8714 = 0;
         fighterScreenX = 200;
         fighterScreenY = 32;
@@ -501,40 +603,40 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         frame = 0;
         actorX = 60;
         actorY = 10;
-        DAT_00469fb4 = 1;
+        g_nFrameSkipCountdown_0049d760 = 1;
         do {
             PumpWindowMessages();
             alter_yaw(-1, 61);
             if (RefreshCockpitStatus() != 0) {
                 DrawSpriteDefault(
-                    &DAT_005a7510,
+                    &g_stViewBuffer_005d2b00,
                     (short)(g_nScrambleBackgroundRightX_005a8714 + 239),
                     g_nScrambleBackgroundY_005a8712,
                     carrierShape, 0);
                 DrawSpriteDefault(
-                    &DAT_005a7510,
+                    &g_stViewBuffer_005d2b00,
                     (short)(g_nScrambleBackgroundRightX_005a8714 + 240),
                     g_nScrambleBackgroundY_005a8712,
                     carrierShape, 1);
                 DrawScrambleActor(0);
                 approachScale = (short)(0x6000L / approachDistance);
-                DrawSpriteScaled(&DAT_005a7510, fighterScreenX,
+                DrawSpriteScaled(&g_stViewBuffer_005d2b00, fighterScreenX,
                                  fighterScreenY, fighterShape, 16, 0,
                                  approachScale, 0);
                 DrawScrambleActor(3);
                 DrawScrambleActor(4);
                 DrawScrambleActor(1);
                 DrawSpriteDefault(
-                    &DAT_005a7510,
+                    &g_stViewBuffer_005d2b00,
                     (short)(g_nScrambleBackgroundRightX_005a8714 + 60),
                     (short)(g_nScrambleBackgroundY_005a8712 + 10),
                     actorShape, 16);
                 DrawSpriteDefault(
-                    &DAT_005a7510,
+                    &g_stViewBuffer_005d2b00,
                     (short)(g_nScrambleBackgroundRightX_005a8714 + 80),
                     (short)(g_nScrambleBackgroundY_005a8712 + 134),
                     actorShape, 8);
-                DrawSpriteDefault(&DAT_005a7510, carrierScreenX,
+                DrawSpriteDefault(&g_stViewBuffer_005d2b00, carrierScreenX,
                                   g_nScrambleBackgroundY_005a8712,
                                   carrierShape, 2);
                 WaitForVerticalBlankThunk();
@@ -550,47 +652,47 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                 ((void (__cdecl *)(int, int, int, int))PaletteFadeHook)(
                     (int)sceneObject, 10, 0, 0);
             }
-            if (DAT_0059ab58 == 1)
+            if (g_bSceneEscapeRequested_0049d4b0 == 1)
                 break;
             DIBslam();
             DIBslamReal();
             frame++;
         } while (frame < 35);
 
-        if (DAT_0059ab58 != 1) {
-            DAT_00469fb4 = 1;
+        if (g_bSceneEscapeRequested_0049d4b0 != 1) {
+            g_nFrameSkipCountdown_0049d760 = 1;
             frame = 0;
             do {
                 PumpWindowMessages();
                 if (RefreshCockpitStatus() != 0) {
                     DrawSpriteDefault(
-                        &DAT_005a7510,
+                        &g_stViewBuffer_005d2b00,
                         (short)(g_nScrambleBackgroundRightX_005a8714 + 239),
                         g_nScrambleBackgroundY_005a8712,
                         carrierShape, 0);
                     DrawSpriteDefault(
-                        &DAT_005a7510,
+                        &g_stViewBuffer_005d2b00,
                         (short)(g_nScrambleBackgroundRightX_005a8714 + 240),
                         g_nScrambleBackgroundY_005a8712,
                         carrierShape, 1);
                     DrawScrambleActor(0);
-                    DrawSpriteScaled(&DAT_005a7510, fighterScreenX,
+                    DrawSpriteScaled(&g_stViewBuffer_005d2b00, fighterScreenX,
                                      fighterScreenY, fighterShape, 16, 0,
                                      approachScale, 0);
                     DrawScrambleActor(3);
                     DrawScrambleActor(4);
                     DrawScrambleActor(1);
                     DrawSpriteDefault(
-                        &DAT_005a7510,
+                        &g_stViewBuffer_005d2b00,
                         (short)(g_nScrambleBackgroundRightX_005a8714 + actorX),
                         (short)(g_nScrambleBackgroundY_005a8712 + actorY),
                         actorShape, 16);
                     DrawSpriteDefault(
-                        &DAT_005a7510,
+                        &g_stViewBuffer_005d2b00,
                         (short)(g_nScrambleBackgroundRightX_005a8714 + 80),
                         (short)(g_nScrambleBackgroundY_005a8712 + 134),
                         actorShape, 8);
-                    DrawSpriteDefault(&DAT_005a7510, carrierScreenX,
+                    DrawSpriteDefault(&g_stViewBuffer_005d2b00, carrierScreenX,
                                       g_nScrambleBackgroundY_005a8712,
                                       carrierShape, 2);
                     WaitForVerticalBlankThunk();
@@ -618,11 +720,11 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                     actorY--;
                 DIBslam();
                 DIBslamReal();
-            } while (DAT_0059ab58 != 1 && frame < 50);
+            } while (g_bSceneEscapeRequested_0049d4b0 != 1 && frame < 50);
         }
     }
 
-    DAT_0059ab58 = 0;
+    g_bSceneEscapeRequested_0049d4b0 = 0;
     ResetSoundState();
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x1c);
@@ -646,15 +748,15 @@ unsigned short InitializeDiskPromptTextContext(void)
     short textHeight;
 
     g_nDiskPromptBorderColour_00469694 = 0x50;
-    if (DAT_005a6ba0.pixels == 0)
+    if (g_stScreenViewport_005d21a0.pixels == 0)
         InitializeGameTextContexts();
-    g_stDiskPromptTextContext_005a7d60 = g_stDefaultTextContext_005a7740;
+    g_stDiskPromptTextContext_005a7d60 = g_stDefaultTextContext_005d2d20;
     g_stDiskPromptTextContext_005a7d60.viewport =
         &g_stDiskPromptViewport_005a7d40;
     g_stDiskPromptTextContext_005a7d60.text =
-        g_szTextScratchBuffer_00598b00;
+        g_szTextScratchBuffer_005d1c40;
     g_stDiskPromptTextContext_005a7d60.alignment = 2;
-    g_stDiskPromptViewport_005a7d40 = DAT_005a6ba0;
+    g_stDiskPromptViewport_005a7d40 = g_stScreenViewport_005d21a0;
     textWidth =
         (short)(MeasureTextPixelWidthClamped(
                     g_szPressAnyKeyWhenReady_0046a5fc) +
@@ -674,15 +776,16 @@ unsigned short InitializeDiskPromptTextContext(void)
     ((short *)&g_dwDiskPromptBottomRight_005a7d84)[0] =
         (short)(((short *)&g_dwDiskPromptTopLeft_005a7d80)[0] + textWidth);
     InitializeTextContextFromFont(&g_stDiskPromptTextContext_005a7d60, 1,
-                                  DAT_0046999c,
+                                  g_cSecondaryViewBufferColour_0049cb4c,
                                   (signed char)g_cViewportClearColour_004699a0);
     g_bGraphicsActive_00469a20 = 1;
     return 0;
 }
 
 /* Function start: 0x432E23 */
-unsigned short RewriteDiskFileGraphicsExtensions(short videoMode)
+void RewriteDiskFileGraphicsExtensions(char *fileName)
 {
+#if 0
     DiskFileRecord *record;
     char *extensionPosition;
     char extension;
@@ -716,6 +819,24 @@ unsigned short RewriteDiskFileGraphicsExtensions(short videoMode)
         record++;
     }
     return 0;
+#else
+    char *extensionPosition;
+
+    if (g_cCutsceneVideoMode_00499c48 == 13) {
+        extensionPosition = strchr(fileName, '.');
+#ifdef WC1_SDL
+        if (extensionPosition != 0) {
+            extensionPosition++;
+            if (toupper((int)*extensionPosition) == 'V')
+                *extensionPosition = 'E';
+        }
+#else
+        if (extensionPosition++ != 0 &&
+            toupper((int)*extensionPosition) == 'V')
+            *extensionPosition = 'E';
+#endif
+    }
+#endif
 }
 
 /* Function start: 0x401000 */
@@ -725,13 +846,14 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
     short argumentCount;
     char *destination;
     short argumentIndex;
+    short scanResult;
 #ifdef WC1_SDL
     char resolvedPath[PATH_MAX];
 #endif
 
     argumentIndex = 1;
     argumentCount = 0;
-    destination = g_szTextScratchBuffer_00598b00;
+    destination = g_szTextScratchBuffer_005d1c40;
 #ifdef WC1_SDL
     if (Wc1SdlResolvePath("WINGCMDR.CFG", resolvedPath,
                           sizeof(resolvedPath)))
@@ -742,25 +864,38 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
     file = fopen("WINGCMDR.CFG", "rt");
 #endif
     while (file != 0) {
+#if 0
         if ((short)fscanf(file, "%s", destination) == -1) {
             fclose(file);
             break;
         }
+#else
+        scanResult = (short)fscanf(file, "%s", destination);
+        if (scanResult == -1) {
+            fclose(file);
+            break;
+        }
+#endif
         g_pStartupArguments_005a7b10[argumentCount++] =
             destination;
         destination = strchr(destination, 0) + 1;
     }
 
     while (argc-- != 0) {
+#if 0
         strcpy(destination, argv[argumentIndex]);
         g_pStartupArguments_005a7b10[argumentCount++] = destination;
         argumentIndex++;
+#else
+        strcpy(destination, argv[argumentIndex++]);
+        g_pStartupArguments_005a7b10[argumentCount++] = destination;
+#endif
         destination = strchr(destination, 0) + 1;
     }
     return (short)(argumentCount - 1);
 }
 
-/* Function start: 0x42949F */
+/* Function start: WC2_UNMAPPED */
 unsigned short LoadInstallDat(void)
 {
     DiskFileRecord *records;
@@ -867,7 +1002,7 @@ void show_damage_disp(void)
                      (short)(DAT_005a6b80.left + 2),
                      (short)(DAT_005a6b80.top + 6),
                      (short)(DAT_005a6b80.right - 2),
-                     (short)(DAT_005a6b80.top + 6), DAT_004699b4);
+                     (short)(DAT_005a6b80.top + 6), g_ucPrimaryTextColour_0049cb64);
     if (g_cDamagedComponentCount_005a77de == 0) {
         DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left,
                    (short)(DAT_005a6b80.top + 20),
@@ -888,7 +1023,7 @@ void show_damage_disp(void)
     sprintf(message, g_szDamagedUnitCountFormat_0046a89c,
             (int)g_cDamagedComponentCount_005a77de,
             (int)(g_cDamagedComponentCount_005a77de == 1 ? ' ' : 's'));
-    ShowComponentHitHudMessage(message, DAT_004699b4, -1);
+    ShowComponentHitHudMessage(message, g_ucPrimaryTextColour_0049cb64, -1);
 }
 
 /* Function start: 0x4012E1 */
@@ -915,7 +1050,7 @@ void UpdateDamageDisplay(void)
     if (componentCount == 0)
         return;
 
-    if (DAT_0046a008 == 0) {
+    if (g_nCockpitDisplayMode_0049d71c == 0) {
         g_nDamageDisplayTicks_005a7786--;
         if (g_nDamageDisplayTicks_005a7786 > 0)
             return;
@@ -981,17 +1116,17 @@ void UpdateDamageDisplay(void)
                 g_stDamageSpritePosition_005a77d8.y,
                 g_pCockpitWeaponShape_005a7564,
                 (short)g_cDamageDisplayFrame_005a77dd);
-            DAT_005a74f0.colour = DAT_0046999c;
+            DAT_005a74f0.colour = g_cSecondaryViewBufferColour_0049cb4c;
             DrawTextAt(&DAT_005a74f0, (short)(DAT_005a6b80.left + 1),
                        (short)(DAT_005a6b80.top + 7),
                        g_szDamageStatusText_005a7790, 2);
-            DAT_005a74f0.colour = DAT_004699b4;
+            DAT_005a74f0.colour = g_ucPrimaryTextColour_0049cb64;
             DrawViewportLine(
                 &DAT_005a6b80, (short)(DAT_005a6b80.left + 36),
                 (short)(DAT_005a6b80.top + 22),
                 g_stDamageSpritePosition_005a77d8.x,
                 g_stDamageSpritePosition_005a77d8.y,
-                DAT_0046999c);
+                g_cSecondaryViewBufferColour_0049cb4c);
             g_nDamageDisplayTicks_005a7786 = 2;
         }
         g_nDamageDisplayPhase_005a77e4 =

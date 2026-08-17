@@ -87,18 +87,18 @@ static int Wc1SdlRunRuntimeChecks(void)
     if (g_aShipWeapons_0059cab0[1][0] != 1)
         return 1;
 
-    g_acShipTarget_0059ce60[0] = -1;
+    g_acShipTarget_00495f20[0] = -1;
     g_cTargetDisplayObject_0046c06c = -1;
     g_nRenderedSpaceFrame_0059d61a = 1;
     DrawTargetRangeReadout();
 
-    g_aeObjectClass_0059d100[1] = OBJECT_CLASS_SHIP;
-    g_acObjectOwner_0059ce20[1] = -1;
+    g_aeObjectClass_00495328[1] = OBJECT_CLASS_SHIP;
+    g_acObjectOwner_00495208[1] = -1;
     g_nYourWingman_0046c04c = -1;
     send_appropriate_message(1, 0);
 
-    g_acShipTarget_0059ce60[0] = -1;
-    g_aeShipManeuver_0059dcb0[0] = MANEUVER_NONE;
+    g_acShipTarget_00495f20[0] = -1;
+    g_asShipManeuver_00495f48[0] = MANEUVER_NONE;
     perform_maneuver(0);
 
     g_pSnowStaticSound_00476550 = ix_system_new_sound(0);
@@ -113,13 +113,13 @@ static int Wc1SdlRunRuntimeChecks(void)
     if (DAT_005a6be0.left != -99)
         return 1;
 
-    g_anShipMissionShip_0059d4b0[1] = -1;
-    g_aeShipObjective_0059d200[1] = OBJECTIVE_HOME_BASE;
+    g_anShipMissionShip_00495e00[1] = -1;
+    g_aeShipObjective_00495f08[1] = OBJECTIVE_HOME_BASE;
     strike_mission(1);
     if (g_aeShipMissionType_0059c3f0[1] != MISSION_TYPE_ROUT)
         return 1;
 
-    g_nCommPortraitIndex_0046afd0 = -1;
+    g_nCommPortraitIndex_0049b79c = -1;
     FreeCommDisplayResources();
     return 0;
 }

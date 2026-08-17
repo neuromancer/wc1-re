@@ -31,9 +31,9 @@ IxStreamerBranch *g_pStreamerBranches_00597c8c;
 IxStreamerFileChunk *g_pStreamerFileChunks_00597c90;
 CRITICAL_SECTION g_csStreamerFileQueue_00597c98;
 CRITICAL_SECTION g_csStreamerThread_00597cb0;
-unsigned int g_nStreamerAudioChunk_00597cc8;
+unsigned int g_dwStreamerAudioChunk_005c4c30;
 DWORD g_dwStreamerThreadId_00597ccc;
-extern "C" unsigned int g_dwStreamerState_00597cd0 = 0;
+extern "C" unsigned int g_dwStreamerState_005c4c38 = 0;
 HANDLE g_hStreamerWakeEvent_00597cd4;
 unsigned int g_nStreamerFileChunk_00597cd8;
 unsigned int g_nStreamerBytesPerSecond_00597cdc;
@@ -48,7 +48,7 @@ unsigned int g_dwStreamerId_0047117c = 0x4d525453;
 /* Function start: 0x46BD50 */   /* source line(s) 60;63;75: Streamer already inited! | Failed to init DSP | Failed to start streamer_thread! */
 extern "C" int ix_streamer_init(void)
 {
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_INITIALIZED) != 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_INITIALIZED) != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 60);
         ix_log_printf("Streamer already inited!");
         return -1;
@@ -70,8 +70,8 @@ extern "C" int ix_streamer_init(void)
         ix_log_printf("Failed to start streamer_thread!");
         exit(-1);
     }
-    g_dwStreamerState_00597cd0 |= IX_STREAMER_INITIALIZED;
-    g_dwStreamerState_00597cd0 |= IX_STREAMER_DEVELOPER_MODE;
+    g_dwStreamerState_005c4c38 |= IX_STREAMER_INITIALIZED;
+    g_dwStreamerState_005c4c38 |= IX_STREAMER_DEVELOPER_MODE;
     return 0;
 }
 
@@ -79,16 +79,16 @@ extern "C" int ix_streamer_init(void)
 #ifdef WC1_SDL
 extern "C"
 #endif
-void ix_streamer_destroy(void)
+extern "C" void ix_streamer_destroy(void)
 {
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_INITIALIZED) == 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_INITIALIZED) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 87);
         ix_log_printf("Streamer not ready for destroy");
         return;
     }
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_FILE_OPEN) != 0)
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_FILE_OPEN) != 0)
         ix_streamer_close_stream_file();
-    g_dwStreamerState_00597cd0 |= IX_STREAMER_SHUTDOWN;
+    g_dwStreamerState_005c4c38 |= IX_STREAMER_SHUTDOWN;
     SetEvent(g_hStreamerWakeEvent_00597cd4);
 #ifdef WC1_SDL
     WaitForSingleObject(g_hStreamerThread_00597c7c, INFINITE);
@@ -102,9 +102,9 @@ void ix_streamer_destroy(void)
     DeleteCriticalSection(&g_csStreamer_00597ce0);
     DeleteCriticalSection(&g_csStreamerThread_00597cb0);
     ix_dsp_shutdown();
-    g_dwStreamerState_00597cd0 &= ~IX_STREAMER_INITIALIZED;
+    g_dwStreamerState_005c4c38 &= ~IX_STREAMER_INITIALIZED;
 #ifdef WC1_SDL
-    g_dwStreamerState_00597cd0 &=
+    g_dwStreamerState_005c4c38 &=
         ~(IX_STREAMER_SHUTDOWN | IX_STREAMER_THREAD_RUNNING);
 #endif
 }
@@ -125,23 +125,23 @@ void ix_streamer_set_dev_mode(int mode)
         exit(-1);
     }
     if (mode != 0)
-        g_dwStreamerState_00597cd0 |= IX_STREAMER_DEVELOPER_MODE;
+        g_dwStreamerState_005c4c38 |= IX_STREAMER_DEVELOPER_MODE;
     else
-        g_dwStreamerState_00597cd0 &= ~IX_STREAMER_DEVELOPER_MODE;
+        g_dwStreamerState_005c4c38 &= ~IX_STREAMER_DEVELOPER_MODE;
 }
 
 /* Function start: 0x46BFB6 */   /* source line(s) 129;142;146;150;151;157;168;177;186;195;204;238;240: Streamer not ready to open stream file! | Failed to open stream file. | Streamer failed to */
 extern "C" int ix_streamer_open_stream_file(char *path)
 {
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_INITIALIZED) == 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_INITIALIZED) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 129);
         ix_log_printf("Streamer not ready to open stream file!");
         return -1;
     }
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_FILE_OPEN) != 0)
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_FILE_OPEN) != 0)
         ix_streamer_close_stream_file();
     g_pStreamerIdleFiles_00597be0 = 0;
-    g_nStreamerAudioChunk_00597cc8 = 0;
+    g_dwStreamerAudioChunk_005c4c30 = 0;
     g_nStreamerFileChunk_00597cd8 = (unsigned int)-1;
     g_nStreamerBranchStackIndex_00470e8c = 0;
     g_pStreamerPackageFile_00597bdc = ix_file_open(path, 1);
@@ -185,7 +185,7 @@ extern "C" int ix_streamer_open_stream_file(char *path)
                      g_pStreamerAudioChunks_00597c88,
                      g_pStreamerHeader_00597c84->audioChunkCount *
                      sizeof(IxStreamerAudioChunk));
-        g_dwStreamerState_00597cd0 |= IX_STREAMER_HAS_AUDIO;
+        g_dwStreamerState_005c4c38 |= IX_STREAMER_HAS_AUDIO;
     }
     if (g_pStreamerHeader_00597c84->branchCount != 0) {
         g_pStreamerBranches_00597c8c = (IxStreamerBranch *)
@@ -270,7 +270,7 @@ extern "C" int ix_streamer_open_stream_file(char *path)
                      g_pStreamerHeader_00597c84->packetCount *
                      sizeof(unsigned int));
     }
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_HAS_AUDIO) != 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_HAS_AUDIO) != 0) {
         g_nStreamerAudioBufferSize_00597c70 =
             g_pStreamerHeader_00597c84->audioBufferSize;
         ix_dsp_configure(0x100,
@@ -299,7 +299,7 @@ extern "C" int ix_streamer_open_stream_file(char *path)
         ix_log_printf("Failed to allocate file_buffer!");
         exit(-1);
     }
-    g_dwStreamerState_00597cd0 |= IX_STREAMER_FILE_OPEN;
+    g_dwStreamerState_005c4c38 |= IX_STREAMER_FILE_OPEN;
     SetEvent(g_hStreamerWakeEvent_00597cd4);
     return 0;
 }
@@ -310,12 +310,12 @@ extern "C" void ix_streamer_close_stream_file(void)
     IxStreamFile *streamFile;
     IxStreamFile *previous;
 
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_INITIALIZED) == 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_INITIALIZED) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 250);
         ix_log_printf("Streamer not ready to open stream file!");
         return;
     }
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_FILE_OPEN) == 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_FILE_OPEN) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 251);
         ix_log_printf("Stream file not open!");
         return;
@@ -327,7 +327,7 @@ extern "C" void ix_streamer_close_stream_file(void)
         streamFile = previous;
     }
     EnterCriticalSection(&g_csStreamer_00597ce0);
-    g_dwStreamerState_00597cd0 &= 0xffffff91;
+    g_dwStreamerState_005c4c38 &= 0xffffff91;
     g_pIxFree_00471994(g_pStreamerHeader_00597c84);
     g_pIxFree_00471994(g_pStreamerAudioChunks_00597c88);
     g_pIxFree_00471994(g_pStreamerBranches_00597c8c);
@@ -346,25 +346,25 @@ extern "C" void ix_streamer_close_stream_file(void)
 /* Function start: 0x46C7F3 */   /* source line(s) 286: Stream has no audio */
 extern "C" void ix_streamer_audio_play(void)
 {
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_HAS_AUDIO) == 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_HAS_AUDIO) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 286);
         ix_log_printf("Stream has no audio");
         return;
     }
-    g_dwStreamerState_00597cd0 |= IX_STREAMER_AUDIO_PLAYING;
-    g_dwStreamerState_00597cd0 &= ~IX_STREAMER_AUDIO_PAUSED;
+    g_dwStreamerState_005c4c38 |= IX_STREAMER_AUDIO_PLAYING;
+    g_dwStreamerState_005c4c38 &= ~IX_STREAMER_AUDIO_PAUSED;
     SetEvent(g_hStreamerWakeEvent_00597cd4);
 }
 
 /* Function start: 0x46C853 */   /* source line(s) 295: Stream has no audio */
 extern "C" void ix_streamer_audio_stop(void)
 {
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_HAS_AUDIO) == 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_HAS_AUDIO) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 295);
         ix_log_printf("Stream has no audio");
         return;
     }
-    g_dwStreamerState_00597cd0 &= ~IX_STREAMER_AUDIO_PLAYING;
+    g_dwStreamerState_005c4c38 &= ~IX_STREAMER_AUDIO_PLAYING;
     ix_streamer_seek_chunk(0);
     SetEvent(g_hStreamerWakeEvent_00597cd4);
 }
@@ -372,24 +372,24 @@ extern "C" void ix_streamer_audio_stop(void)
 /* Function start: 0x46C8B6 */   /* source line(s) 304: Stream has no audio */
 void ix_streamer_audio_pause(void)
 {
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_HAS_AUDIO) == 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_HAS_AUDIO) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 304);
         ix_log_printf("Stream has no audio");
         return;
     }
-    g_dwStreamerState_00597cd0 |= IX_STREAMER_AUDIO_PAUSED;
+    g_dwStreamerState_005c4c38 |= IX_STREAMER_AUDIO_PAUSED;
     SetEvent(g_hStreamerWakeEvent_00597cd4);
 }
 
 /* Function start: 0x46C90F */   /* source line(s) 312: Stream has no audio */
 void ix_streamer_audio_reprepare(void)
 {
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_HAS_AUDIO) == 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_HAS_AUDIO) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 312);
         ix_log_printf("Stream has no audio");
         return;
     }
-    g_dwStreamerState_00597cd0 |= IX_STREAMER_REPREPARE_AUDIO;
+    g_dwStreamerState_005c4c38 |= IX_STREAMER_REPREPARE_AUDIO;
     SetEvent(g_hStreamerWakeEvent_00597cd4);
 }
 
@@ -438,12 +438,12 @@ extern "C" void ix_streamer_force_trigger(char trigger)
     unsigned int chunkCount;
     unsigned int triggerIndex;
 
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_HAS_AUDIO) == 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_HAS_AUDIO) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 342);
         ix_log_printf("Stream has no audio");
         return;
     }
-    chunk = g_nStreamerAudioChunk_00597cc8;
+    chunk = g_dwStreamerAudioChunk_005c4c30;
     chunkCount = g_pStreamerHeader_00597c84->audioChunkCount;
     EnterCriticalSection(&g_csStreamer_00597ce0);
     while (-1 < trigger && chunkCount--) {
@@ -457,10 +457,10 @@ extern "C" void ix_streamer_force_trigger(char trigger)
                     trigger) {
                     g_adwStreamerBranchStack_00597be8[
                         g_nStreamerBranchStackIndex_00470e8c] =
-                            g_nStreamerAudioChunk_00597cc8;
+                            g_dwStreamerAudioChunk_005c4c30;
                     g_nStreamerBranchStackIndex_00470e8c =
                         (g_nStreamerBranchStackIndex_00470e8c + 1) & 0x1f;
-                    g_nStreamerAudioChunk_00597cc8 =
+                    g_dwStreamerAudioChunk_005c4c30 =
                         g_pStreamerTriggers_00597cf8[
                             triggerIndex].audioChunk;
                     trigger = -1;
@@ -473,9 +473,9 @@ extern "C" void ix_streamer_force_trigger(char trigger)
         if (g_pStreamerHeader_00597c84->audioChunkCount - 1 <= chunk)
             chunk = 0;
     }
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_DSP_PLAYING) != 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_DSP_PLAYING) != 0) {
         ix_dsps_stop(0);
-        g_dwStreamerState_00597cd0 &= ~IX_STREAMER_DSP_PLAYING;
+        g_dwStreamerState_005c4c38 &= ~IX_STREAMER_DSP_PLAYING;
     }
     LeaveCriticalSection(&g_csStreamer_00597ce0);
     SetEvent(g_hStreamerWakeEvent_00597cd4);
@@ -490,7 +490,7 @@ extern "C" void ix_streamer_set_volume(unsigned short volume)
     } else {
         g_nStreamerVolume_00470e84 = 0;
     }
-    if ((g_dwStreamerState_00597cd0 & 2) != 0) {
+    if ((g_dwStreamerState_005c4c38 & 2) != 0) {
         EnterCriticalSection(&g_csStreamer_00597ce0);
         ix_dsps_set_volume(0, g_nStreamerVolume_00470e84);
         LeaveCriticalSection(&g_csStreamer_00597ce0);
@@ -498,15 +498,15 @@ extern "C" void ix_streamer_set_volume(unsigned short volume)
 }
 
 /* Function start: 0x46CC3B */
-unsigned short ix_streamer_get_volume(void)
+extern "C" unsigned short ix_streamer_get_volume(void)
 {
     return g_nStreamerVolume_00470e84;
 }
 
-/* Function start: 0x428DE0 */
+/* Function start: 0x46CC51 */
 unsigned int ix_streamer_get_audio_chunk(void)
 {
-    return g_nStreamerAudioChunk_00597cc8;
+    return g_dwStreamerAudioChunk_005c4c30;
 }
 
 /* Function start: 0x46CC66 */
@@ -514,12 +514,12 @@ void ix_streamer_seek_chunk(unsigned int chunk)
 {
     EnterCriticalSection(&g_csStreamer_00597ce0);
     if (chunk >= 0) {
-        g_nStreamerAudioChunk_00597cc8 =
+        g_dwStreamerAudioChunk_005c4c30 =
             g_pStreamerHeader_00597c84->audioChunkCount - 1 < chunk
                 ? g_pStreamerHeader_00597c84->audioChunkCount - 1
                 : chunk;
     } else {
-        g_nStreamerAudioChunk_00597cc8 = 0;
+        g_dwStreamerAudioChunk_005c4c30 = 0;
     }
     LeaveCriticalSection(&g_csStreamer_00597ce0);
 }
@@ -579,7 +579,7 @@ IxStreamFile *ix_streamer_open_file(unsigned char *name,
     FILE *file;
 
     streamFile = 0;
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_DEVELOPER_MODE) == 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_DEVELOPER_MODE) == 0) {
         entry = ix_streamer_find_entry(ix_streamer_hash_name(name));
         if (entry != 0) {
             streamFile = (IxStreamFile *)
@@ -649,7 +649,7 @@ void ix_streamer_close_file(IxStreamFile *streamFile)
     else
         streamFile->next->previous = streamFile->previous;
     LeaveCriticalSection(&g_csStreamerFileQueue_00597c98);
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_DEVELOPER_MODE) != 0)
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_DEVELOPER_MODE) != 0)
         ix_file_close(streamFile->file);
     CloseHandle(streamFile->completionEvent);
     g_pIxFree_00471994(streamFile);
@@ -662,50 +662,50 @@ DWORD WINAPI ix_streamer_thread_proc(void *parameter)
 
     timeout = 0;
     EnterCriticalSection(&g_csStreamerThread_00597cb0);
-    g_dwStreamerState_00597cd0 |= IX_STREAMER_THREAD_RUNNING;
-    while ((g_dwStreamerState_00597cd0 & IX_STREAMER_SHUTDOWN) == 0) {
+    g_dwStreamerState_005c4c38 |= IX_STREAMER_THREAD_RUNNING;
+    while ((g_dwStreamerState_005c4c38 & IX_STREAMER_SHUTDOWN) == 0) {
         g_dwStreamerThreadTick_00597bd4++;
         EnterCriticalSection(&g_csStreamer_00597ce0);
-        if ((g_dwStreamerState_00597cd0 & IX_STREAMER_FILE_OPEN) != 0) {
-            if ((g_dwStreamerState_00597cd0 &
+        if ((g_dwStreamerState_005c4c38 & IX_STREAMER_FILE_OPEN) != 0) {
+            if ((g_dwStreamerState_005c4c38 &
                  IX_STREAMER_REPREPARE_AUDIO) != 0) {
-                if ((g_dwStreamerState_00597cd0 &
+                if ((g_dwStreamerState_005c4c38 &
                      IX_STREAMER_DSP_PLAYING) != 0) {
                     ix_dsps_stop(0);
-                    g_dwStreamerState_00597cd0 &=
+                    g_dwStreamerState_005c4c38 &=
                         ~IX_STREAMER_DSP_PLAYING;
                 }
                 ix_dsps_prepare(0);
-                g_dwStreamerState_00597cd0 &=
+                g_dwStreamerState_005c4c38 &=
                     ~(IX_STREAMER_REPREPARE_AUDIO |
                       IX_STREAMER_END_TRIGGERED);
             }
-            if ((g_dwStreamerState_00597cd0 &
+            if ((g_dwStreamerState_005c4c38 &
                  (IX_STREAMER_HAS_AUDIO | IX_STREAMER_AUDIO_PLAYING)) ==
                 (IX_STREAMER_HAS_AUDIO | IX_STREAMER_AUDIO_PLAYING)) {
                 timeout = ix_streamer_service_audio();
-                if ((g_dwStreamerState_00597cd0 &
+                if ((g_dwStreamerState_005c4c38 &
                      IX_STREAMER_AUDIO_PAUSED) != 0) {
-                    if ((g_dwStreamerState_00597cd0 &
+                    if ((g_dwStreamerState_005c4c38 &
                          IX_STREAMER_DSP_PAUSED) == 0) {
                         ix_dsps_stop(0);
-                        g_dwStreamerState_00597cd0 |=
+                        g_dwStreamerState_005c4c38 |=
                             IX_STREAMER_DSP_PAUSED;
                     }
                 } else {
-                    if ((g_dwStreamerState_00597cd0 &
+                    if ((g_dwStreamerState_005c4c38 &
                          IX_STREAMER_DSP_PAUSED) != 0) {
                         ix_dsps_play(0);
-                        g_dwStreamerState_00597cd0 &=
+                        g_dwStreamerState_005c4c38 &=
                             ~IX_STREAMER_DSP_PAUSED;
                     }
                 }
             } else {
                 timeout = ix_thread_service_streams();
-                if ((g_dwStreamerState_00597cd0 &
+                if ((g_dwStreamerState_005c4c38 &
                      IX_STREAMER_DSP_PLAYING) != 0) {
                     ix_dsps_stop(0);
-                    g_dwStreamerState_00597cd0 &=
+                    g_dwStreamerState_005c4c38 &=
                         ~(IX_STREAMER_DSP_PLAYING |
                           IX_STREAMER_DSP_PAUSED);
                 }
@@ -714,9 +714,9 @@ DWORD WINAPI ix_streamer_thread_proc(void *parameter)
             WaitForSingleObject(g_hStreamerWakeEvent_00597cd4, timeout);
             ResetEvent(g_hStreamerWakeEvent_00597cd4);
         } else {
-            if ((g_dwStreamerState_00597cd0 & IX_STREAMER_DSP_PLAYING) != 0) {
+            if ((g_dwStreamerState_005c4c38 & IX_STREAMER_DSP_PLAYING) != 0) {
                 ix_dsps_stop(0);
-                g_dwStreamerState_00597cd0 &=
+                g_dwStreamerState_005c4c38 &=
                     ~(IX_STREAMER_DSP_PLAYING | IX_STREAMER_DSP_PAUSED);
             }
             LeaveCriticalSection(&g_csStreamer_00597ce0);
@@ -724,7 +724,7 @@ DWORD WINAPI ix_streamer_thread_proc(void *parameter)
             ResetEvent(g_hStreamerWakeEvent_00597cd4);
         }
     }
-    g_dwStreamerState_00597cd0 &= ~IX_STREAMER_THREAD_RUNNING;
+    g_dwStreamerState_005c4c38 &= ~IX_STREAMER_THREAD_RUNNING;
     LeaveCriticalSection(&g_csStreamerThread_00597cb0);
     (void)parameter;
     return 0;
@@ -736,16 +736,16 @@ unsigned int ix_streamer_service_audio(void)
     unsigned int bytesUntilStop;
     register unsigned int chunkSize;
 
-    if ((g_dwStreamerState_00597cd0 & IX_STREAMER_END_TRIGGERED) != 0) {
+    if ((g_dwStreamerState_005c4c38 & IX_STREAMER_END_TRIGGERED) != 0) {
         bytesUntilStop = g_pStreamerHeader_00597c84->audioBufferSize -
                          ix_dsps_get_buffer_free(0);
         Sleep((bytesUntilStop * 1000U) /
               g_nStreamerBytesPerSecond_00597cdc);
-        g_dwStreamerState_00597cd0 &= 0xfffff7db;
+        g_dwStreamerState_005c4c38 &= 0xfffff7db;
         ix_dsps_stop(0);
-    } else if ((g_dwStreamerState_00597cd0 &
+    } else if ((g_dwStreamerState_005c4c38 &
                 IX_STREAMER_DSP_PLAYING) == 0) {
-        g_dwStreamerState_00597cd0 |= IX_STREAMER_DSP_PLAYING;
+        g_dwStreamerState_005c4c38 |= IX_STREAMER_DSP_PLAYING;
         ix_dsps_prepare(0);
         for (;;) {
             chunkSize = ix_thread_get_audio_chunk_size();

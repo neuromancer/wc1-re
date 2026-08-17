@@ -70,6 +70,13 @@ typedef struct IxSample IxSample;
 struct IxSample {
     unsigned int flags;
 #ifdef __cplusplus
+    void ix_sample_set_looping(int enabled)
+    {
+        if (enabled != 0)
+            flags |= 2;
+        else
+            flags &= ~2U;
+    }
     int ix_sample_load_wav(void *data, int bytes);
 #endif
 };
@@ -131,9 +138,7 @@ typedef char MouseCursorState_size_must_be_0x1c[
     sizeof(MouseCursorState) == 0x1c ? 1 : -1];
 #endif
 
-/* The event manager keeps a fixed pool of doubly-linked input records.  The
- * 0x1C-byte stride is fixed by the allocator at 0x004356E0 and the link
- * accesses at 0x00435790-0x004359BF. */
+/* The event manager keeps a fixed pool of doubly-linked input records. */
 typedef struct InputEvent {
     short type;                       /* +0x00 */
     short x;                          /* +0x02 */
@@ -143,12 +148,16 @@ typedef struct InputEvent {
     unsigned int timestamp;           /* +0x0C */
     short primaryButton;              /* +0x10 */
     short secondaryButton;            /* +0x12 */
-    struct InputEvent *next;           /* +0x14 */
-    struct InputEvent *previous;       /* +0x18 */
+    unsigned int field_14;             /* +0x14 */
+    unsigned int field_18;             /* +0x18 */
+    unsigned int status;               /* +0x1C */
+    struct InputEvent *next;           /* +0x20 */
+    struct InputEvent *previous;       /* +0x24 */
 } InputEvent;
 
-/* Public event records retain the packed layout of the 16-bit event-manager
- * API.  In particular, both 32-bit fields are intentionally unaligned. */
+#if 0
+/* WC1 public event records retain the packed layout of the 16-bit
+ * event-manager API. */
 #pragma pack(push, 1)
 typedef struct InputEventState {
     short type;                       /* +0x00 */
@@ -159,6 +168,19 @@ typedef struct InputEventState {
     short y;                          /* +0x0E */
 } InputEventState;
 #pragma pack(pop)
+#else
+/* WC2 widens the event type and aligns the public event record.  value and
+ * status are also written together as a 32-bit value at several call sites. */
+typedef struct InputEventState {
+    int type;                         /* +0x00 */
+    unsigned short value;             /* +0x04 */
+    unsigned short status;            /* +0x06 */
+    unsigned int timestamp;           /* +0x08 */
+    unsigned short modifiers;         /* +0x0C */
+    short x;                          /* +0x0E */
+    short y;                          /* +0x10 */
+} InputEventState;
+#endif
 
 /* One sampled joystick position and its button mask. */
 typedef struct InputDeviceSample {
@@ -304,6 +326,12 @@ typedef struct GuardedAllocation {
     struct GuardedAllocation *next;
 } GuardedAllocation;
 
+/* One pointer retained by the debug heap after the underlying block is freed. */
+typedef struct FreedHeapBlock {
+    void *block;
+    struct FreedHeapBlock *next;
+} FreedHeapBlock;
+
 /* Win32 developer console.  The constructor/destructor and member-call ABI in
  * the shipped image identify this small utility as C++ even though the game
  * itself remains C.  The 0x400-byte formatting area fixes the complete 0x45C
@@ -347,6 +375,11 @@ typedef struct DebugOverlayConsole {
     void SetOverlayBackgroundColor(int red, int green, int blue);
     void SetTransparentBackground(void);
     void SetOpaqueBackground(void);
+    void SetTextPosition(int row, int column);
+    void SetCursorPosition(int column, int row);
+    void Reset(void);
+    unsigned char TakeStepFlag(void);
+    void ClearPauseFlags(void);
 #endif
 } DebugOverlayConsole;
 
@@ -391,8 +424,8 @@ extern "C" {
 #endif
 
 /* Variadic printers cannot be generated mechanically, so they live here. */
-void ShowOnScreenMessage(int flags, short duration, const char *fmt, ...);
-void SoundDebugPrintf(const char *fmt, ...);   /* 0x42F0B3 */
+void ShowOnScreenMessage(short duration, const char *fmt, ...);
+void SoundDebugPrintf(const char *fmt, ...);   /* 0x437946 */
 void SystemDebugPrintf(const char *fmt, ...);  /* 0x40FDAD */
 
 #ifndef WC1_ANALYSIS

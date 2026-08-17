@@ -6,7 +6,17 @@
  */
 #include "wc1.h"
 
-/* Function start: 0x457434 */
+static int g_nActiveMusicStreamMask_0049be9c = -1;
+static signed char g_acMusicTrackStreamFlags_0049beb8[72] = {
+    6, 6, 6, 6, 6, 6, 10, 10, 10, 10, 10, 10,
+    6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0,
+    0, 0, 0, 6, 16, 16, 0, 6, 6, 16, 16, 0,
+    16, 16, 16, 16, 16, 6, 10, 1, 1, 1, 1, 7,
+    1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 1, 16,
+    16, 1, 1, 16, 16, 16, 0, 0, 0, 0, 0, 0
+};
+
+/* Function start: WC2_UNMAPPED */
 unsigned int parse_view_script(void)
 {
     FixedVector vector;
@@ -25,18 +35,18 @@ unsigned int parse_view_script(void)
         switch (command) {
         case 0:
 #ifdef WC1_SDL
-            g_aShipPosition_0059c490[61].x =
+            g_aShipPosition_00494550[61].x =
                 (int)*g_pViewScript_005a6b58++ * 0x100;
-            g_aShipPosition_0059c490[61].y =
+            g_aShipPosition_00494550[61].y =
                 (int)*g_pViewScript_005a6b58++ * 0x100;
-            g_aShipPosition_0059c490[61].z =
+            g_aShipPosition_00494550[61].z =
                 (int)*g_pViewScript_005a6b58++ * 0x100;
 #else
-            g_aShipPosition_0059c490[61].x =
+            g_aShipPosition_00494550[61].x =
                 (int)*g_pViewScript_005a6b58++ << 8;
-            g_aShipPosition_0059c490[61].y =
+            g_aShipPosition_00494550[61].y =
                 (int)*g_pViewScript_005a6b58++ << 8;
-            g_aShipPosition_0059c490[61].z =
+            g_aShipPosition_00494550[61].z =
                 (int)*g_pViewScript_005a6b58++ << 8;
 #endif
             break;
@@ -47,11 +57,11 @@ unsigned int parse_view_script(void)
             break;
         case 2:
 #ifdef WC1_SDL
-            ScaleFixedVector(&g_aShipForwardVector_0059bce0[61],
+            ScaleFixedVector(&g_aShipForwardVector_00494208[61],
                              (int)*g_pViewScript_005a6b58++ * 0x100,
                              &g_aShipVelocity_0059c010[61]);
 #else
-            ScaleFixedVector(&g_aShipForwardVector_0059bce0[61],
+            ScaleFixedVector(&g_aShipForwardVector_00494208[61],
                              (int)*g_pViewScript_005a6b58++ << 8,
                              &g_aShipVelocity_0059c010[61]);
 #endif
@@ -88,11 +98,11 @@ unsigned int parse_view_script(void)
             alter_pitch(*g_pViewScript_005a6b58++, 63);
             alter_roll(*g_pViewScript_005a6b58++, 63);
 #ifdef WC1_SDL
-            ScaleFixedVector(&g_aShipForwardVector_0059bce0[63],
+            ScaleFixedVector(&g_aShipForwardVector_00494208[63],
                              (int)*g_pViewScript_005a6b58++ * 0x100,
                              &vector);
 #else
-            ScaleFixedVector(&g_aShipForwardVector_0059bce0[63],
+            ScaleFixedVector(&g_aShipForwardVector_00494208[63],
                              (int)*g_pViewScript_005a6b58++ << 8,
                              &vector);
 #endif
@@ -107,14 +117,14 @@ unsigned int parse_view_script(void)
             copy_frame(g_nScriptedViewObject_0046a8d0, 61);
             break;
         case 12:
-            g_aShipPosition_0059c490[61] =
-                g_aShipPosition_0059c490[g_nScriptedViewObject_0046a8d0];
+            g_aShipPosition_00494550[61] =
+                g_aShipPosition_00494550[g_nScriptedViewObject_0046a8d0];
             break;
         case 15:
-            ComputeVectorDelta(&g_aShipPosition_0059c490[61],
-                &g_aShipPosition_0059c490[g_nScriptedViewObject_0046a8d0],
+            ComputeVectorDelta(&g_aShipPosition_00494550[61],
+                &g_aShipPosition_00494550[g_nScriptedViewObject_0046a8d0],
                 &vector);
-            g_aShipForwardVector_0059bce0[61] = vector;
+            g_aShipForwardVector_00494208[61] = vector;
             fix_objects_ijk(61);
             break;
         case 16:
@@ -133,7 +143,7 @@ unsigned int parse_view_script(void)
         if (*g_pViewScript_005a6b58 == 13)
             return 0;
     }
-    g_asObjectCounter_0059c330[61] = g_pViewScript_005a6b58[1];
+    g_asObjectCounter_00494be0[61] = g_pViewScript_005a6b58[1];
     return 0;
 }
 
@@ -153,8 +163,8 @@ unsigned int update_scripted_view(void)
         }
         break;
     case 14:
-        counter = g_asObjectCounter_0059c330[61];
-        g_asObjectCounter_0059c330[61]--;
+        counter = g_asObjectCounter_00494be0[61];
+        g_asObjectCounter_00494be0[61]--;
         if (counter < 1) {
             g_pViewScript_005a6b58 += 2;
             parse_view_script();
@@ -176,42 +186,50 @@ void initialize_scripted_view(const short *script)
 }
 
 /* Function start: 0x45A2C0 */
-unsigned int InitializeFireworks(void)
+void InitializeFireworks(void)
 {
+#if 0
     int empty = -1;
     short i = 0;
 
     do {
-        g_aFireworks_005a6900[i].frame = (short)empty;
+        g_aFireworks_005c8df0[i].frame = (short)empty;
         i = i + 1;
     } while (i < 0x1e);
     return 0;
+#else
+    short i;
+
+    for (i = 0; i < 0x1e; i++)
+        g_aFireworks_005c8df0[i].frame = -1;
+#endif
 }
 
 /* Function start: 0x45A300 */
 short TheEndFireWorks(Viewport *viewport, short count)
 {
+#if 0
     short index;
     short emptyCount;
 
     emptyCount = 0;
     index = count;
     while (--index >= 0) {
-        if (g_aFireworks_005a6900[index].frame == -1) {
+        if (g_aFireworks_005c8df0[index].frame == -1) {
             emptyCount++;
         } else {
             DrawSpriteDefault(
-                viewport, g_aFireworks_005a6900[index].x,
-                g_aFireworks_005a6900[index].y,
+                viewport, g_aFireworks_005c8df0[index].x,
+                g_aFireworks_005c8df0[index].y,
                 g_pFireworkShape_005a6a68,
-                (short)(g_aFireworks_005a6900[index].frame +
-                        g_aFireworks_005a6900[index].variant * 8));
-            if (g_aFireworks_005a6900[index].frame++ == 7) {
-                g_aFireworks_005a6900[index].frame = -1;
+                (short)(g_aFireworks_005c8df0[index].frame +
+                        g_aFireworks_005c8df0[index].variant * 8));
+            if (g_aFireworks_005c8df0[index].frame++ == 7) {
+                g_aFireworks_005c8df0[index].frame = -1;
                 ((void (__cdecl *)(int, short))FlushSoundEffectsAndLog)(
-                    g_aFireworks_005a6900[index].soundHandle, index);
-            } else if (g_aFireworks_005a6900[index].frame == 1) {
-                g_aFireworks_005a6900[index].soundHandle =
+                    g_aFireworks_005c8df0[index].soundHandle, index);
+            } else if (g_aFireworks_005c8df0[index].frame == 1) {
+                g_aFireworks_005c8df0[index].soundHandle =
                     ((unsigned int (__cdecl *)(
                         const unsigned char *, int, int, short, short,
                         int))SoundFxTick)(
@@ -219,13 +237,39 @@ short TheEndFireWorks(Viewport *viewport, short count)
                             0, 127,
                             (signed char)(
                                 127 -
-                                (int)g_aFireworks_005a6900[index].x *
+                                (int)g_aFireworks_005c8df0[index].x *
                                     127 / 319),
                             index, 1);
             }
         }
     }
     return emptyCount;
+#else
+    short emptyCount;
+    short index;
+
+    emptyCount = 0;
+    for (index = (short)(count - 1); index >= 0; index--) {
+        if (g_aFireworks_005c8df0[index].frame == -1) {
+            emptyCount++;
+        } else {
+            DrawSpriteDefault(
+                viewport, g_aFireworks_005c8df0[index].x,
+                g_aFireworks_005c8df0[index].y,
+                g_pFireworkShape_005a6a68,
+                (short)(g_aFireworks_005c8df0[index].frame +
+                        g_aFireworks_005c8df0[index].variant * 8));
+            if (g_aFireworks_005c8df0[index].frame++ == 7) {
+                g_aFireworks_005c8df0[index].frame = -1;
+                ((void (__cdecl *)(int, short))FlushSoundEffectsAndLog)(
+                    g_aFireworks_005c8df0[index].soundHandle, index);
+            } else if (g_aFireworks_005c8df0[index].frame == 1) {
+                PlaySfxWaveFileByNumber(0x25, -1, 0);
+            }
+        }
+    }
+    return emptyCount;
+#endif
 }
 
 /* Function start: 0x45A441 */
@@ -288,7 +332,7 @@ unsigned int DrawConstellationField(void)
 
     height = (short)(g_pConstellationViewport_005a6aac->bottom -
                      g_pConstellationViewport_005a6aac->top);
-    ClearViewport(g_pConstellationViewport_005a6aac, DAT_004699d8);
+    ClearViewport(g_pConstellationViewport_005a6aac, g_cPrimaryViewBufferColour_0049cb88);
     for (index = 0;
          index < g_nConstellationStarCount_005a6ab0;
          index++) {
@@ -362,7 +406,7 @@ short __stdcall OpenPacketSection(const char *filename, short section,
         goto failed;
     sectionCount = (short)(directorySize >> 2) - 1;
     if (section >= sectionCount) {
-        g_nPacketError_00465460 = 3;
+        g_nPacketError_0049ca90 = 3;
         goto failed;
     }
     sectionIndex = (int)section;
@@ -420,11 +464,11 @@ void * __stdcall DecompressPacketSection(
     g_pLastPacketAllocation_005a68f0 = 0;
     if (g_wPacketCompressionFormatFlags_0046a924 == 0) {
         if (handle->compression != 1) {
-            g_nPacketError_00465460 = 6;
+            g_nPacketError_0049ca90 = 6;
             return 0;
         }
     } else if ((handle->compression & 0xc0) != 0) {
-        g_nPacketError_00465460 = 6;
+        g_nPacketError_0049ca90 = 6;
         return 0;
     }
 
@@ -445,13 +489,13 @@ void * __stdcall DecompressPacketSection(
                 fallbackAllocations = 1;
                 largeScratch = AllocateTaggedMemory(0x3000, 0x22);
                 if (largeScratch == 0) {
-                    g_nPacketError_00465460 = 1;
+                    g_nPacketError_0049ca90 = 1;
                     return 0;
                 }
                 smallScratch = AllocateTaggedMemory(0x400, 0x22);
                 if (smallScratch == 0) {
                     ReleasePacketHandle(largeScratch);
-                    g_nPacketError_00465460 = 2;
+                    g_nPacketError_0049ca90 = 2;
                     return 0;
                 }
             }
@@ -485,7 +529,7 @@ initializeDecompressor:
         g_nPacketDecompressWorkspaceSegment_0059ab3a++;
 
     if (SeekPacketSection(handle, 0, 0) == -1) {
-        g_nPacketError_00465460 = 5;
+        g_nPacketError_0049ca90 = 5;
         return 0;
     }
     if (destination == 0) {
@@ -493,17 +537,17 @@ initializeDecompressor:
             g_pLastPacketAllocation_005a68f0 = AllocateTaggedMemory(
                 allocationSize, flags);
             if (g_pLastPacketAllocation_005a68f0 == 0)
-                g_nPacketError_00465460 = 4;
+                g_nPacketError_0049ca90 = 4;
         }
     } else {
         if (SeekPacketSection(handle, 4, 0) == -1) {
-            g_nPacketError_00465460 = 5;
+            g_nPacketError_0049ca90 = 5;
             return 0;
         }
         g_pLastPacketAllocation_005a68f0 = destination;
     }
 
-    if (g_nPacketError_00465460 == 0) {
+    if (g_nPacketError_0049ca90 == 0) {
         packet = g_pLastPacketAllocation_005a68f0;
         if (ReadPacketSectionData(
                 handle, g_pPacketDecompressInput_0059ab04,
@@ -526,9 +570,9 @@ initializeDecompressor:
 /* Function start: WC2_UNMAPPED */
 short GetTargetColourIndex(void)
 {
-    short v = (short)DAT_0046b168;
+    short v = (short)g_nSpacePaletteFadeMode_004901e8;
 
-    if ((short)DAT_0046b168 == -1)
+    if ((short)g_nSpacePaletteFadeMode_004901e8 == -1)
         v = 0x13;
     return v;
 }
@@ -560,13 +604,13 @@ void show_target_disp(void)
                           (unsigned int)g_cDefaultTextColour_004699cc,
                           g_szAutoTargetting_0046a968);
     }
-    target = g_acShipTarget_0059ce60[0];
+    target = g_acShipTarget_00495f20[0];
     if (target != -1 &&
-        (g_aeObjectClass_0059d100[target] < OBJECT_CLASS_SHIP ||
-         g_aeSpecialManeuver_0059c3c0[target] ==
+        (g_aeObjectClass_00495328[target] < OBJECT_CLASS_SHIP ||
+         g_aeSpecialManeuver_00495600[target] ==
              SPECIAL_MANEUVER_UNKNOWN_9)) {
         target = -1;
-        g_acShipTarget_0059ce60[0] = -1;
+        g_acShipTarget_00495f20[0] = -1;
     }
     g_cTargetDisplayObject_0046c06c = (signed char)target;
     DrawFormattedText(g_szTargetLabel_0046a984);
@@ -592,7 +636,7 @@ void show_target_disp(void)
     }
     DrawFormattedText(g_szRangeLabel_0046a9a4);
     InitializeCockpitReadout(1, &DAT_005a7700);
-    if (g_asObjectScreenX_0059d9b0[targetIndex] == (short)0x8001) {
+    if (g_asObjectScreenX_00493598[targetIndex] == (short)0x8001) {
         g_cTargetDisplayObject_0046c06c = -1;
         return;
     }
@@ -643,7 +687,7 @@ void DrawTargetRangeReadout(void)
     short target;
     const char *rangeText;
 
-    target = g_acShipTarget_0059ce60[0];
+    target = g_acShipTarget_00495f20[0];
 #ifdef WC1_SDL
     /* The original tests the table before the -1 sentinel.  At target -1 it
        reads the zero-filled gap at 0x0059c3bc, so the comparison is false. */
@@ -651,52 +695,52 @@ void DrawTargetRangeReadout(void)
 #else
     if (
 #endif
-        g_aeSpecialManeuver_0059c3c0[target] ==
+        g_aeSpecialManeuver_00495600[target] ==
         SPECIAL_MANEUVER_UNKNOWN_9) {
-        g_acShipTarget_0059ce60[0] = -1;
+        g_acShipTarget_00495f20[0] = -1;
         InvalidateVduMode(1);
         return;
     }
     if (target != -1 &&
-        g_aeObjectClass_0059d100[target] < OBJECT_CLASS_SHIP) {
-        g_acShipTarget_0059ce60[0] = -1;
+        g_aeObjectClass_00495328[target] < OBJECT_CLASS_SHIP) {
+        g_acShipTarget_00495f20[0] = -1;
         target = -1;
     }
     if (g_cTargetDisplayObject_0046c06c != target ||
-        (short)(g_nRenderedSpaceFrame_0059d61a % 8) == 0) {
+        (short)(g_nRenderedSpaceFrame_00493138 % 8) == 0) {
         set_new_vdu(1);
         show_target_disp();
     }
     if (target == -1)
         return;
 
-    if (g_asObjectScreenX_0059d9b0[target] == (short)0x8001) {
+    if (g_asObjectScreenX_00493598[target] == (short)0x8001) {
         rangeText = g_szTargetOffscreenRange_0046a9bc;
     } else if ((unsigned short)g_asObjectDistance_0059b4a0[target] <=
                30000) {
         strcat(_itoa((unsigned short)g_asObjectDistance_0059b4a0[target],
-                     g_szTextScratchBuffer_00598b00, 10), " m");
+                     g_szTextScratchBuffer_005d1c40, 10), " m");
         goto draw_readout;
     } else {
         rangeText = g_szTargetTooFar_0046a9b0;
     }
-    memcpy(g_szTextScratchBuffer_00598b00, rangeText, 8);
+    memcpy(g_szTextScratchBuffer_005d1c40, rangeText, 8);
 
 draw_readout:
-    DrawCockpitReadout(1, g_szTextScratchBuffer_00598b00);
-    if (g_nTargetLockCountdown_0046c064 == 0) {
+    DrawCockpitReadout(1, g_szTextScratchBuffer_005d1c40);
+    if (g_nTargetLockCountdown_004934ec == 0) {
         if (g_bTargetLockAcquired_0046c074 == 1) {
             g_bTargetLockAcquired_0046c074 = 0;
             return;
         }
-    } else if (g_bTargetLockReadoutDirty_0046c060 != 0) {
+    } else if (g_bTargetLockReadoutDirty_004934e8 != 0) {
         EraseCockpitReadoutRegion(&DAT_005a7530,
                                   DAT_005a7530.left,
                                   (short)(DAT_005a7530.bottom - 6),
                                   DAT_005a7530.right,
                                   DAT_005a7530.bottom,
-                                  (short)DAT_0046999c);
-        g_bTargetLockReadoutDirty_0046c060 = 0;
+                                  (short)g_cSecondaryViewBufferColour_0049cb4c);
+        g_bTargetLockReadoutDirty_004934e8 = 0;
     }
 }
 
@@ -710,12 +754,12 @@ void LogDisplayMode(const char *mode)
 }
 
 /* Function start: 0x45CA80 */
-short __stdcall CalcRectangleArea(const Viewport *viewport)
+short CalcRectangleArea(const Viewport *viewport)
 {
     short height;
     short width;
 
-    if (DAT_0046b168 != 0x13)
+    if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
         LogDisplayMode("not MCGA");
     height = (short)(viewport->bottom - viewport->top + 1);
     width = (short)(viewport->right - viewport->left + 1);
@@ -723,8 +767,8 @@ short __stdcall CalcRectangleArea(const Viewport *viewport)
 }
 
 /* Function start: 0x45CAD2 */
-unsigned short __stdcall AllocateViewport(Viewport *viewport,
-                                          short clearColour, short flags)
+unsigned short AllocateViewport(Viewport *viewport,
+                                short clearColour, short flags)
 {
     unsigned short *rowOffsets;
     unsigned short top;
@@ -739,7 +783,7 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
     left = viewport->left;
     width = (unsigned short)(viewport->right - left + 1);
     g_nAllocateViewportCalls_005a68ec++;
-    if (DAT_0046b168 != 0x13)
+    if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
         LogDisplayMode("not MCGA");
     viewport->allocation = AllocateTaggedMemory(
         (unsigned int)width * height, (unsigned short)(flags + 2));
@@ -754,7 +798,7 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
         0);
     viewport->rowOffsets = rowOffsets;
     if (rowOffsets == 0) {
-        if (DAT_0046b168 != 0x13)
+        if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
             ReleasePacketHandle(viewport->allocation);
         return 0;
     }
@@ -822,53 +866,78 @@ void __stdcall AlignSpriteFrameToRectCorner(
     }
 }
 
-/* Function start: WC2_UNMAPPED */
-void FadeMusic(void)
+/* Function start: 0x452AE5 */
+void FadeMusic(int duration)
 {
+#if 0
     SoundDebugPrintf("FadeMusic");
+#endif
 }
 
-/* Function start: 0x42F100 */
+/* Function start: WC2_UNMAPPED */
 void SetMusicOn(short enabled)
 {
     SoundDebugPrintf("SetMusicOn %d", (int)enabled);
 }
 
-/* Function start: 0x452A26 */
-void StopMusic(short unused)
+/* Function start: 0x452A00 */
+void StopMusicStream(void)
 {
-    (void)unused;
-    SoundDebugPrintf("StopMusic");
-    g_nCurrentMusicTrack_0046aa14 = -1;
     Streamer_stop();
-    SoundDebugPrintf("");
 }
 
-/* Function start: 0x4641C5 */
+/* Function start: 0x452A26 */
+void StopMusic(int enabled)
+{
+#if 0
+    (void)unused;
+    SoundDebugPrintf("StopMusic");
+    g_nCurrentMusicTrack_0049be98 = -1;
+    Streamer_stop();
+    SoundDebugPrintf("");
+#endif
+    g_nCurrentMusicTrack_0049be98 = -1;
+    Streamer_stop();
+}
+
+/* Function start: 0x452A10 */
 void SetMusBreakpt(int first, int second)
 {
+#if 0
     (void)first;
     (void)second;
     SoundDebugPrintf("SetMusBreakpt");
+#endif
 }
 
-/* Function start: WC2_UNMAPPED */
-void PaletteFadeHook(void)
+/* Function start: 0x452A99 */
+unsigned int PaletteFadeHook(void)
 {
+    return 0;
 }
 
 /* Function start: 0x452AAB */
 void FlushSoundEffect(void)
 {
+#if 0
     stop_all_sounds();
     SoundDebugPrintf("FlushSoundEffect");
+#else
+    SoundDebugPrintf("FLUSH_EFFECT");
+    stop_all_sounds();
+#endif
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x452AC8 */
 void FlushSoundEffects(void)
 {
+#if 0
     stop_all_sounds();
     SoundDebugPrintf("FlushSoundEffects");
+#else
+    SoundDebugPrintf("FLUSH_EFFECTS");
+    stop_all_sounds();
+#endif
 }
 
 /* Function start: 0x452AF0 */
@@ -876,7 +945,7 @@ void SceneLeaveHook(void)
 {
 }
 
-/* Function start: 0x452B03 */
+/* Function start: WC2_UNMAPPED */
 void SelectFlightMusicTrack(int track)
 {
     const char *streamName;
@@ -1064,30 +1133,36 @@ int MapMusicTrackToStreamerCommand(int track)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
-void ProcessMusicScriptCommand(int track, int command, short enabled)
+/* Function start: 0x402258 */
+void RecordMusicCommandHook(int track, int command, int enabled)
 {
+}
+
+/* Function start: 0x452B03 */
+unsigned short ProcessMusicScriptCommand(int track, int command, int enabled)
+{
+#if 0
     int streamerCommand;
 
     if (track == -1 || g_bMusicCommandSuppressed_0046a9fc != 0)
         return;
     if (command == 4) {
         SoundDebugPrintf("queue_stop\n");
-        StopMusic(enabled);
-        g_nCurrentMusicTrack_0046aa14 = -1;
+        StopMusic();
+        g_nCurrentMusicTrack_0049be98 = -1;
         return;
     }
 
     SoundDebugPrintf("track_%02d ", track);
-    if ((g_nCurrentMusicTrack_0046aa14 == 25 && track == 25) ||
-        (g_nCurrentMusicTrack_0046aa14 == 38 && track == 38) ||
-        (g_nCurrentMusicTrack_0046aa14 == 39 && track == 39) ||
-        (g_nCurrentMusicTrack_0046aa14 == 40 && track == 40)) {
+    if ((g_nCurrentMusicTrack_0049be98 == 25 && track == 25) ||
+        (g_nCurrentMusicTrack_0049be98 == 38 && track == 38) ||
+        (g_nCurrentMusicTrack_0049be98 == 39 && track == 39) ||
+        (g_nCurrentMusicTrack_0049be98 == 40 && track == 40)) {
         SoundDebugPrintf("skipping for QA\n");
         return;
     }
 
-    g_nCurrentMusicTrack_0046aa14 = track;
+    g_nCurrentMusicTrack_0049be98 = track;
     SelectFlightMusicTrack(track);
     if (g_nMusicStreamSet_0046aa18 == 2) {
         if ((track >= 0 && track <= 5) ||
@@ -1096,14 +1171,14 @@ void ProcessMusicScriptCommand(int track, int command, short enabled)
             SetStreamerIntensity((unsigned char)track);
         } else {
             SoundDebugPrintf("flight_trigger %d ", track);
-            Streamer_trigger(track);
+            SetStreamerTrigger(track);
         }
     } else {
         switch (command) {
         case 0:
             SoundDebugPrintf(" queue_start ");
             streamerCommand = MapMusicTrackToStreamerCommand(track);
-            Streamer_trigger(streamerCommand);
+            SetStreamerTrigger(streamerCommand);
             break;
         case 1:
             SoundDebugPrintf(" queue_break ");
@@ -1113,7 +1188,7 @@ void ProcessMusicScriptCommand(int track, int command, short enabled)
         case 2:
             SoundDebugPrintf(" queue_switch ");
             streamerCommand = MapMusicTrackToStreamerCommand(track);
-            Streamer_trigger(streamerCommand);
+            SetStreamerTrigger(streamerCommand);
             break;
         case 3:
             SoundDebugPrintf(" queue_interrupt ");
@@ -1123,28 +1198,93 @@ void ProcessMusicScriptCommand(int track, int command, short enabled)
         }
     }
     SoundDebugPrintf("\n");
+#else
+    int streamFlags;
+    int streamerCommand;
+
+    if (track == -1)
+        return 0;
+
+    streamFlags = g_acMusicTrackStreamFlags_0049beb8[track];
+    SoundDebugPrintf("queue_next_music %d %x\n", track, streamFlags);
+    if (track >= 0x40)
+        streamerCommand = track - 0x2c;
+    else
+        streamerCommand = track;
+
+    if (command == 4) {
+        SoundDebugPrintf("queue_stop\n");
+        StopMusic(enabled);
+        g_nCurrentMusicTrack_0049be98 = -1;
+        return;
+    }
+
+    if ((streamFlags & g_nActiveMusicStreamMask_0049be9c) == 0) {
+        if ((streamFlags & 1) != 0) {
+            Streamer_open("gameflow.str");
+            g_nActiveMusicStreamMask_0049be9c = 1;
+        } else if ((streamFlags & 2) != 0) {
+            Streamer_open("spaceflt.str");
+            g_nActiveMusicStreamMask_0049be9c = 2;
+        } else if ((streamFlags & 0x10) != 0) {
+            Streamer_open("gametwo.str");
+            g_nActiveMusicStreamMask_0049be9c = 0x10;
+        } else {
+            SoundDebugPrintf("**** unknown stream for track %d\n", track);
+            StopMusic(0);
+            return;
+        }
+        SetStreamerIntensity(0x32);
+    } else {
+        g_nCurrentMusicTrack_0049be98 = track;
+    }
+
+    if (g_nActiveMusicStreamMask_0049be9c == 2) {
+        if ((streamFlags & 4) != 0) {
+            SetStreamerIntensity(streamerCommand);
+        } else if ((streamFlags & 8) != 0) {
+            SetStreamerTrigger(streamerCommand);
+        } else {
+            SoundDebugPrintf(
+                "unknown int/trig stream for track %d\n", track);
+            exit_squadron("unknown track %d", track);
+        }
+    } else {
+        Streamer_stop();
+        ForceStreamerTrigger(streamerCommand);
+    }
+
+    if (g_nCannedSceneMode_0049021c == 0)
+        RecordMusicCommandHook(track, command, enabled);
+    return 1;
+#endif
 }
 
 /* Function start: 0x452CF4 */
-unsigned int spacetrack(int track, int mode, short enabled)
+void spacetrack(int track, int mode, int enabled)
 {
-    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
+    if (g_nMusicDriverMode_0049be8c != 0 &&
+        g_nMusicDriverMode_0049be8c != 3)
         ProcessMusicScriptCommand(track, mode, enabled);
+#if 0
     return 1;
+#endif
 }
 
 /* Function start: 0x452D32 */
 void StopMusicUnlessSuppressed(void)
 {
-    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
+    if (g_nMusicDriverMode_0049be8c != 0 &&
+        g_nMusicDriverMode_0049be8c != 3)
         StopMusic(0);
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned short GetMusicMode(void)
+/* Function start: 0x452D66 */
+unsigned short IsMusicTrackComplete(void)
 {
-    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3 &&
-        g_nMusicTrackComplete_0046aa04 != 0)
+    if (g_nMusicDriverMode_0049be8c != 0 &&
+        g_nMusicDriverMode_0049be8c != 3 &&
+        g_nMusicTrackComplete_0049be88 != 0)
         return 1;
     return 0;
 }
@@ -1152,17 +1292,29 @@ unsigned short GetMusicMode(void)
 /* Function start: 0x452DB0 */
 void wait_for_end_of_music(void)
 {
-    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3) {
-        if (g_nWaitForMusicEnabled_0046aa30 == 0) {
+    if (g_nMusicDriverMode_0049be8c != 0 &&
+        g_nMusicDriverMode_0049be8c != 3) {
+        if (g_nWaitForMusicEnabled_0049beac == 0) {
             StopMusic(0);
             return;
         }
         SetMusBreakpt(0, 0);
+#if 0
         do {
-            if (g_nMusicTrackComplete_0046aa04 != 0)
+            if (g_nMusicTrackComplete_0049be88 != 0)
                 return;
-        } while (DAT_0059ab58 == 0 && CheckEscaped() == 0);
+        } while (g_bSceneEscapeRequested_0049d4b0 == 0 &&
+                 CheckEscaped() == 0);
         StopMusic(0);
+#else
+        while (g_nMusicTrackComplete_0049be88 == 0) {
+            if (g_bSceneEscapeRequested_0049d4b0 != 0 ||
+                CheckEscaped() != 0) {
+                StopMusic(0);
+                return;
+            }
+        }
+#endif
     }
 }
 
@@ -1171,9 +1323,9 @@ void new_space_music_changes(short attacker, short victim)
 {
     enum Side side;
 
-    if (g_nInFlightMusicActive_0046aa40 != 0 &&
+    if (g_nInFlightMusicActive_0049bf08 != 0 &&
         g_nTrainSimActive_00469e2c == 0) {
-        side = g_aeShipSide_0059d650[victim];
+        side = g_asShipSide_004955d0[victim];
         if (side == SIDE_KILRATHI) {
             if (report_kilrathi_rout(1) == 0) {
                 spacetrack(10, 1, 0);
@@ -1189,17 +1341,17 @@ void new_space_music_changes(short attacker, short victim)
                 return;
             }
         } else {
-            if (g_nYourWingman_0046c04c == victim) {
+            if (g_nYourWingman_0049346c == victim) {
                 spacetrack(8, 3, 0);
                 return;
             }
             if (side == SIDE_IMPERIAL) {
-                if ((g_aeShipMissionType_0059c3f0[0] ==
+                if ((g_asShipMissionType_00495de8[0] ==
                          MISSION_TYPE_DEFEND ||
-                     g_aeShipMissionType_0059c3f0[0] ==
+                     g_asShipMissionType_00495de8[0] ==
                          MISSION_TYPE_ESCORT) &&
                     g_nShipMissionIndices_0059c830[victim] ==
-                        g_anShipMissionShip_0059d4b0[0]) {
+                        g_anShipMissionShip_00495e00[0]) {
                     spacetrack(11, 3, 0);
                     return;
                 }
@@ -1214,7 +1366,7 @@ int changetrack(void)
 {
     int track;
 
-    switch (g_aeShipMissionType_0059c3f0[0]) {
+    switch (g_asShipMissionType_00495de8[0]) {
     case MISSION_TYPE_ESCORT:
         track = 18;
         break;
@@ -1229,10 +1381,10 @@ int changetrack(void)
         track = 15;
         break;
     }
-    if (g_aMissionObjectives_0059dac0[
-            g_cCurrentObjective_0046c020].type == OBJECTIVE_HOME_BASE) {
+    if (g_aMissionObjectives_004932a8[
+            g_cCurrentObjective_004931cc].type == OBJECTIVE_HOME_BASE) {
         if (triumph(0) != 0) {
-            if (g_aeShipMissionType_0059c3f0[0] == MISSION_TYPE_PATROL)
+            if (g_asShipMissionType_00495de8[0] == MISSION_TYPE_PATROL)
                 return 13;
             return 14;
         }
@@ -1248,21 +1400,21 @@ void gametrack(void)
     short damage;
 
     track = -1;
-    if (g_nInFlightMusicActive_0046aa40 != 0) {
+    if (g_nInFlightMusicActive_0049bf08 != 0) {
         if (g_nTrainSimActive_00469e2c != 0) {
             if (g_nMusicStreamSet_0046aa18 != 0 ||
-                g_nCurrentMusicTrack_0046aa14 != 20)
+                g_nCurrentMusicTrack_0049be98 != 20)
                 spacetrack(20, 1, 0);
             SoundDebugPrintf("%d %d\n", g_nMusicStreamSet_0046aa18,
-                             g_nCurrentMusicTrack_0046aa14);
+                             g_nCurrentMusicTrack_0049be98);
             return;
         }
-        if (g_nCombatMusicActive_0046aa3c != 0) {
+        if (g_nCombatMusicActive_0049bf04 != 0) {
             if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
-                g_nMusicTrackComplete_0046aa04 != 0) {
-                if (g_nInitialFlightMusicPending_0046aa38 != 0)
-                    g_nInitialFlightMusicPending_0046aa38 = 0;
-                if (missile_on_tail(0) != 0) {
+                g_nMusicTrackComplete_0049be88 != 0) {
+                if (g_nInitialFlightMusicPending_0049bf00 != 0)
+                    g_nInitialFlightMusicPending_0049bf00 = 0;
+                if (FindMissileTargetingObject(0) != 0) {
                     track = 3;
                 } else if (any_enemy_tail(0) != 0) {
                     track = 1;
@@ -1276,13 +1428,13 @@ void gametrack(void)
                         track = 4;
                 }
                 if (report_kilrathi_rout(1) == 0)
-                    g_nCombatMusicActive_0046aa3c = 0;
+                    g_nCombatMusicActive_0049bf04 = 0;
             }
         } else if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
-                   g_nMusicTrackComplete_0046aa04 != 0) {
+                   g_nMusicTrackComplete_0049be88 != 0) {
             track = changetrack();
             if (report_kilrathi_rout(2) != 0)
-                g_nCombatMusicActive_0046aa3c = 1;
+                g_nCombatMusicActive_0049bf04 = 1;
         }
         spacetrack(track, 1, 0);
     }
@@ -1297,40 +1449,40 @@ void servicetrack(void)
 
     gametrack();
     if (g_nFlightSoundEffectsEnabled_0046aa34 != 0) {
-        for (object = 0; object < WC1_SPACE_OBJECT_COUNT; object++) {
+        for (object = 0; object < WC2_SPACE_OBJECT_COUNT; object++) {
             if (object == g_nPassingShipSoundObject_0046aa48) {
-                if (g_aeObjectClass_0059d100[object] !=
+                if (g_aeObjectClass_00495328[object] !=
                         OBJECT_CLASS_SHIP ||
-                    g_aeObjectClass_0059d100[object] !=
+                    g_aeObjectClass_00495328[object] !=
                         OBJECT_CLASS_CAPITAL_SHIP)
                     g_nPassingShipSoundObject_0046aa48 = -1;
             }
-            if (g_aeObjectClass_0059d100[object] ==
+            if (g_aeObjectClass_00495328[object] ==
                     OBJECT_CLASS_ASTEROID) {
                 if (g_asObjectDistance_0059b4a0[object] == 0 &&
                     (unsigned short)
                         g_asPreviousObjectDistance_0059d080[object] < 50 &&
                     g_aiSoundEffectSourceActive_005a66ec[object + 1] == 0)
                     PlaySfxWaveFileByNumber(6, object, 0);
-            } else if (g_aeObjectClass_0059d100[object] >=
+            } else if (g_aeObjectClass_00495328[object] >=
                            OBJECT_CLASS_SHIP &&
-                       g_aeObjectClass_0059d100[object] <=
+                       g_aeObjectClass_00495328[object] <=
                            OBJECT_CLASS_CAPITAL_SHIP &&
-                       g_asObjectScreenX_0059d9b0[object] !=
+                       g_asObjectScreenX_00493598[object] !=
                            (short)0x8001 &&
                        (unsigned short)
                            g_asObjectDistance_0059b4a0[object] < 0x55a) {
                 if (g_nPassingShipSoundObject_0046aa48 == -1) {
                     ScaleFixedVector(&g_aShipVelocity_0059c010[object],
                                      0x1400, &travel);
-                    AddFixedVectors(&g_aShipPosition_0059c490[object],
+                    AddFixedVectors(&g_aShipPosition_00494550[object],
                                     &travel, &futurePosition);
                     ComputeVectorDelta(
-                        &g_aShipPosition_0059c490[WC1_EYE_OBJECT],
+                        &g_aShipPosition_00494550[WC1_EYE_OBJECT],
                         &futurePosition, &travel);
                     ComputeVectorDelta(
-                        &g_aShipPosition_0059c490[WC1_EYE_OBJECT],
-                        &g_aShipPosition_0059c490[object],
+                        &g_aShipPosition_00494550[WC1_EYE_OBJECT],
+                        &g_aShipPosition_00494550[object],
                         &futurePosition);
                     if (dot_product(&travel, &futurePosition) < 0xdd) {
                         g_nPassingShipSoundCountdown_0046aa4c = 10;
@@ -1353,7 +1505,7 @@ void servicetrack(void)
     }
 }
 
-/* Function start: 0x42DE62 */
+/* Function start: 0x453496 */
 void ResetSoundState(void)
 {
     FlushSoundEffects();
@@ -1361,24 +1513,24 @@ void ResetSoundState(void)
     DAT_005a7ec0 = 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4534BA */
 void ResetSoundStateForScene(void)
 {
     ResetSoundState();
     g_nFlightSoundEffectsEnabled_0046aa34 = 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4534D3 */
 void ResetSoundStateForFlight(void)
 {
     ResetSoundState();
     g_nFlightSoundEffectsEnabled_0046aa34 = 1;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4534FC */
 void EnableMusicForScene(void)
 {
-    g_nWaitForMusicEnabled_0046aa30 = 1;
+    g_nWaitForMusicEnabled_0049beac = 1;
     SetMusicOn(1);
 }
 
@@ -1389,21 +1541,50 @@ unsigned int SoundFxTick(void)
     return 0;
 }
 
+/* Function start: 0x45351A */
+int LogUnknownSoundEffect(const unsigned char *definition,
+                          int sourceObject, int pan, int volume,
+                          int looping, int priority)
+{
+    SoundDebugPrintf("Playing SFX <UNKNOWN>\n");
+    return 0;
+}
+
 /* Function start: 0x45357E */
 void FlushSoundEffectsAndLog(void)
 {
+#if 0
     FlushSoundEffects();
+#else
+    FlushSoundEffect();
+    SoundDebugPrintf("flushFX\n");
+    return;
+#endif
 }
 
 /* Function start: 0x4535BB */
-void sound_effect(void)
+void sound_effect(signed char soundNumber, short sourceObject, short looping)
 {
+#if 0
     WriteDebugString("sound_effect");
+#else
+    short volume;
+    short effectHandle = 0;
+    int distance;
+    FixedVector delta;
+    int stereoOffset;
+    short sampleNumber;
+    short pan;
+
+    SoundDebugPrintf("Playing SFX #%d\n", soundNumber);
+    return;
+#endif
 }
 
 /* Function start: 0x45373B */
 void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
 {
+#if 0
     FixedVector delta;
     int distance;
 
@@ -1414,11 +1595,11 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
         volume = 127;
         if (sourceObject != -1) {
             if (sourceObject < 0 ||
-                sourceObject >= WC1_SPACE_OBJECT_COUNT)
+                sourceObject >= WC2_SPACE_OBJECT_COUNT)
                 return;
             ComputeVectorDelta(
-                &g_aShipPosition_0059c490[WC1_EYE_OBJECT],
-                &g_aShipPosition_0059c490[sourceObject], &delta);
+                &g_aShipPosition_00494550[WC1_EYE_OBJECT],
+                &g_aShipPosition_00494550[sourceObject], &delta);
             distance = (int)((Vector_magnitude(&delta) / 500L) >> 8);
             volume -= distance;
             if (volume < 0)
@@ -1435,8 +1616,8 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
 #endif
 
     if (sourceObject != -1) {
-        ComputeVectorDelta(&g_aShipPosition_0059c490[WC1_EYE_OBJECT],
-                           &g_aShipPosition_0059c490[sourceObject],
+        ComputeVectorDelta(&g_aShipPosition_00494550[WC1_EYE_OBJECT],
+                           &g_aShipPosition_00494550[sourceObject],
                            &delta);
         distance = Vector_magnitude(&delta);
         if (distance > 32000)
@@ -1450,4 +1631,30 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
                 soundNumber - 1);
         playWAVE(g_szSfxWavePath_00476558, looping, distance);
     }
+#else
+    FixedVector delta;
+    int magnitude;
+    int distance;
+
+    if (sourceObject != -1) {
+        ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                           &g_aShipPosition_00494550[sourceObject],
+                           &delta);
+        magnitude = Vector_magnitude(&delta);
+        distance = magnitude;
+        if (distance > 32000)
+            distance = 32000;
+        g_aiSoundEffectSourceActive_005d12c0[sourceObject] = 1;
+    } else {
+        distance = 72000;
+    }
+    if (distance < 10)
+        return;
+    soundNumber--;
+    SoundDebugPrintf(
+        "Playing SFX #%d on obj: %d with volume of %d\n",
+        soundNumber, sourceObject, distance);
+    sprintf(g_szSfxWavePath_005b3650, "sfx%02i.wav", soundNumber);
+    playWAVE(g_szSfxWavePath_005b3650, looping, distance);
+#endif
 }

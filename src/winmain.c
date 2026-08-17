@@ -9,6 +9,7 @@
 /* Function start: 0x417550 */
 void SaveGamePalette(void)
 {
+#if 0
     int index;
     unsigned short *entry;
 
@@ -19,6 +20,15 @@ void SaveGamePalette(void)
         entry += 3;
         index++;
     } while (entry < DAT_005a8a50 + 0x300);
+#else
+    unsigned short index;
+
+    for (index = 0; (short)index < 256; index++) {
+        if ((index & 15) == 0)
+            WaitForVerticalBlankThunk();
+        GetPaletteEntry(index, g_ausPaletteWords_005d3220[index]);
+    }
+#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -36,15 +46,15 @@ short easy2see(short obj)
     short y;
     unsigned char *shape;
 
-    x = g_asObjectScreenX_0059d9b0[obj];
+    x = g_asObjectScreenX_00493598[obj];
     if (x == (short)0x8001)
         return 0;
     x = (short)(x + g_nViewCenterX_0059a852);
-    y = g_asObjectScreenY_0059d930[obj];
+    y = g_asObjectScreenY_00493628[obj];
     shape = g_apObjectShape_0059d2f0[obj];
     y = (short)(y + g_nViewCenterY_0059a854);
     return GetTransformedShapeBounds(
-        &DAT_005a7510, x, y, shape,
+        &g_stViewBuffer_005d2b00, x, y, shape,
         g_asObjectViewFrame_0059d230[obj],
         g_asObjectScreenAngle_0059cd90[obj],
         g_asObjectScreenScale_0059c950[obj],
@@ -61,18 +71,18 @@ void make_shard(short asteroid, FixedVector direction)
     if (fragment == -1)
         return;
     set_objects_data(fragment, OBJECT_TYPE_ROCK_CHUNK, asteroid);
-    g_asObjectCounter_0059c330[fragment] = 40;
-    g_acObjectOwner_0059ce20[fragment] = (signed char)asteroid;
+    g_asObjectCounter_00494be0[fragment] = 40;
+    g_acObjectOwner_00495208[fragment] = (signed char)asteroid;
     SetVectorFixedPoint((unsigned int *)&direction,
                         (short)(g_asObjectCollisionRadius_0059d710[asteroid] >> 1));
-    AddFixedVectors(&g_aShipPosition_0059c490[asteroid], &direction,
-                    &g_aShipPosition_0059c490[fragment]);
-    g_aShipForwardVector_0059bce0[fragment] = direction;
+    AddFixedVectors(&g_aShipPosition_00494550[asteroid], &direction,
+                    &g_aShipPosition_00494550[fragment]);
+    g_aShipForwardVector_00494208[fragment] = direction;
     fix_objects_ijk(fragment);
     alter_yaw(signed_random(20), fragment);
     alter_pitch(signed_random(20), fragment);
     g_aShipVelocity_0059c010[fragment] =
-        g_aShipForwardVector_0059bce0[fragment];
+        g_aShipForwardVector_00494208[fragment];
     speed = (short)(real_velocity(asteroid) + RandomInRange(0, 5));
     SetVectorFixedPoint(
         (unsigned int *)&g_aShipVelocity_0059c010[fragment], speed);
@@ -90,23 +100,41 @@ static const signed char g_acHazardPitchRange_00465050[8] = {
 /* Function start: 0x417838 */
 void remove_hazard(signed char hazard)
 {
+#if 0
     g_aiSoundEffectSourceActive_005a66ec[(short)hazard + 1] = 0;
     remove_object((short)hazard);
-    g_nActiveHazards_00465044 =
-        MaxShort(0, (short)(g_nActiveHazards_00465044 - 1));
+    g_nActiveHazards_00492e5c =
+        MaxShort(0, (short)(g_nActiveHazards_00492e5c - 1));
+#else
+    remove_object((short)hazard);
+    g_nActiveHazards_00492e5c =
+        MaxShort(0, (short)(g_nActiveHazards_00492e5c - 1));
+#endif
 }
 
 /* Function start: 0x41787A */
 void remove_all_hazards(void)
 {
+#if 0
     short slot = 0;
 
     do {
-        remove_hazard(g_abHazardObjects_0046c028[slot]);
-        g_abHazardObjects_0046c028[slot] = -1;
+        remove_hazard(g_abHazardObjects_00493280[slot]);
+        g_abHazardObjects_00493280[slot] = -1;
         slot++;
     } while (slot < 20);
-    g_pActiveHazardField_0059bfe0 = 0;
+    g_pActiveHazardField_00493278 = 0;
+#else
+    short slot;
+
+    for (slot = 0; slot < 20; slot++) {
+        if (g_abHazardObjects_00493280[slot] != -1) {
+            remove_hazard(g_abHazardObjects_00493280[slot]);
+            g_abHazardObjects_00493280[slot] = -1;
+        }
+    }
+    g_pActiveHazardField_00493278 = 0;
+#endif
 }
 
 /* Function start: 0x4178E5 */
@@ -129,30 +157,34 @@ void skew_randomly(short obj, short allowReverse)
     if (RandomBelow(100) < 50) {
         saved = g_aShipRightVector_0059b6e0[obj];
         g_aShipRightVector_0059b6e0[obj] =
-            g_aShipForwardVector_0059bce0[obj];
-        g_aShipForwardVector_0059bce0[obj] =
+            g_aShipForwardVector_00494208[obj];
+        g_aShipForwardVector_00494208[obj] =
             g_aShipUpVector_0059b9e0[obj];
         g_aShipUpVector_0059b9e0[obj] = saved;
     } else {
         saved = g_aShipUpVector_0059b9e0[obj];
         g_aShipUpVector_0059b9e0[obj] =
-            g_aShipForwardVector_0059bce0[obj];
-        g_aShipForwardVector_0059bce0[obj] =
+            g_aShipForwardVector_00494208[obj];
+        g_aShipForwardVector_00494208[obj] =
             g_aShipRightVector_0059b6e0[obj];
         g_aShipRightVector_0059b6e0[obj] = saved;
     }
     if (allowReverse != 0 && RandomBelow(100) < 50)
-        negate_vector(&g_aShipForwardVector_0059bce0[obj]);
+        negate_vector(&g_aShipForwardVector_00494208[obj]);
 }
 
 /* Function start: 0x417AD7 */
-void align(short *value, short quantum)
+void align(int *value, short quantum)
 {
+#if 0
     short current;
 
-    current = *value;
+    current = *(short *)value;
     current = (short)(current - current % quantum);
-    *value = current;
+    *(short *)value = current;
+#else
+    *value -= *value % quantum;
+#endif
 }
 
 /* Function start: 0x417AF9 */
@@ -166,14 +198,14 @@ void init_hazard(short obj, FixedVector position, short moving)
 
     hazardMoves = moving;
     type = OBJECT_TYPE_SPACE_MINE;
-    if (g_pActiveHazardField_0059bfe0->type == OBJECT_TYPE_ASTEROID_FIELD)
+    if (g_pActiveHazardField_00493278->type == OBJECT_TYPE_ASTEROID_FIELD)
         type = (enum ObjectType)(OBJECT_TYPE_ASTEROID1 +
                                 RandomBelowOrEqual(5));
     set_objects_data(obj, type, -1);
-    g_aShipPosition_0059c490[obj] = position;
+    g_aShipPosition_00494550[obj] = position;
 
     if (type == OBJECT_TYPE_SPACE_MINE) {
-        point_at(obj, g_aShipPosition_0059c490[0]);
+        point_at(obj, g_aShipPosition_00494550[0]);
         speed = 2;
         skew_randomly(obj, 1);
         hazardMoves = 0;
@@ -194,15 +226,15 @@ void init_hazard(short obj, FixedVector position, short moving)
         }
         ScaleFixedVector(&g_aShipVelocity_0059c010[0],
                          (int)travelTime << 8, &vector);
-        AddFixedVectors(&g_aShipPosition_0059c490[0], &vector, &vector);
+        AddFixedVectors(&g_aShipPosition_00494550[0], &vector, &vector);
         point_at(obj, vector);
         speed = distance_between_points(
-            &vector, &g_aShipPosition_0059c490[obj]);
+            &vector, &g_aShipPosition_00494550[obj]);
         travelTime = MaxShort(3,
             (short)(travelTime - RandomBelow(5)));
         speed = (short)(speed / travelTime);
     } else {
-        point_at(obj, g_pActiveHazardField_0059bfe0->center);
+        point_at(obj, g_pActiveHazardField_00493278->center);
         speed = 0;
         skew_randomly(obj, 1);
         if (RandomBelow(100) >= 20)
@@ -210,7 +242,7 @@ void init_hazard(short obj, FixedVector position, short moving)
     }
     if (kilrathi_near(0, 16000) != 0)
         speed = 0;
-    ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
+    ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
                      (int)speed << 8, &g_aShipVelocity_0059c010[obj]);
 
     if (hazardMoves == 0) {
@@ -220,18 +252,18 @@ void init_hazard(short obj, FixedVector position, short moving)
             separation = 1500;
         else
             separation = RandomBelowOrEqual(1000) << 8;
-        ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
+        ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
                          separation, &vector);
-        SubtractFixedVectors(&g_aShipPosition_0059c490[obj], &vector,
-                             &g_aShipPosition_0059c490[obj]);
+        SubtractFixedVectors(&g_aShipPosition_00494550[obj], &vector,
+                             &g_aShipPosition_00494550[obj]);
     }
     if (type == OBJECT_TYPE_SPACE_MINE) {
-        align((short *)&g_aShipPosition_0059c490[obj].x, 200);
-        align((short *)&g_aShipPosition_0059c490[obj].y, 200);
-        align((short *)&g_aShipPosition_0059c490[obj].z, 200);
+        align(&g_aShipPosition_00494550[obj].x, 200);
+        align(&g_aShipPosition_00494550[obj].y, 200);
+        align(&g_aShipPosition_00494550[obj].z, 200);
     }
-    g_nActiveHazards_00465044++;
-    g_asObjectCounter_0059c330[obj] = 0;
+    g_nActiveHazards_00492e5c++;
+    g_asObjectCounter_00494be0[obj] = 0;
     g_acObjectCollisionGraceTicks_0059ddb0[obj] = 0;
 }
 
@@ -258,10 +290,10 @@ short try_far_spot(FixedVector *spot, short *moving)
     unsigned short outsideRange;
 
     copy_frame(0, 63);
-    g_aShipPosition_0059c490[63] = g_aShipPosition_0059c490[0];
+    g_aShipPosition_00494550[63] = g_aShipPosition_00494550[0];
     pitch = signed_random(20);
     yaw = signed_random(35);
-    if (DAT_0046c03c == 0 && g_cCockpitView_0059dab0 <= 3) {
+    if (g_nCurrentView_00492fa8 == 0 && g_cCockpitView_0059dab0 <= 3) {
         signed char minimum;
         signed char maximum;
 
@@ -287,14 +319,14 @@ short try_far_spot(FixedVector *spot, short *moving)
     yaw = (short)(yaw + find_ratio(
         -15, 15, g_anObjectYawRotation_0059ce80[0], -150, 150));
     rotate_about_j(yaw, &g_aShipRightVector_0059b6e0[63],
-                   &g_aShipForwardVector_0059bce0[63]);
+                   &g_aShipForwardVector_00494208[63]);
     rotate_about_i(pitch, &g_aShipUpVector_0059b9e0[63],
-                   &g_aShipForwardVector_0059bce0[63]);
+                   &g_aShipForwardVector_00494208[63]);
     position_relative_ijk(spot, 63, 0, 0, 3050);
     outsideRange = !(unsigned short)IsPointWithinRange(
-        &g_aShipPosition_0059c490[0], spot, 3000);
+        &g_aShipPosition_00494550[0], spot, 3000);
     return outsideRange != 0 &&
-           within_field(g_pActiveHazardField_0059bfe0, spot) != 0;
+           within_field(g_pActiveHazardField_00493278, spot) != 0;
 }
 
 /* Function start: 0x418175 */
@@ -309,10 +341,10 @@ int ok_hazard_spot(short obj)
 {
     int range = 4300;
 
-    if (g_asObjectScreenX_0059d9b0[obj] == (short)0x8001)
+    if (g_asObjectScreenX_00493598[obj] == (short)0x8001)
         range = rear_sphere();
-    return IsPointWithinRange(&g_aShipPosition_0059c490[0],
-                              &g_aShipPosition_0059c490[obj],
+    return IsPointWithinRange(&g_aShipPosition_00494550[0],
+                              &g_aShipPosition_00494550[obj],
                               (short)range);
 }
 
@@ -333,8 +365,8 @@ short make_hazard(void)
 /* Function start: 0x418288 */
 void extra_hazard(short obj)
 {
-    if (g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_DUST)
-        g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_NULL;
+    if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_DUST)
+        g_aeObjectClass_00495328[obj] = OBJECT_CLASS_NULL;
 }
 
 /* Function start: 0x4182B6 */
@@ -344,9 +376,9 @@ void approach(short obj)
     FixedVector thrust;
 
     ScaleFixedVector(&g_aShipVelocity_0059c010[0], 20 << 8, &target);
-    AddFixedVectors(&g_aShipPosition_0059c490[0], &target, &target);
+    AddFixedVectors(&g_aShipPosition_00494550[0], &target, &target);
     point_at(obj, target);
-    ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj], 20 << 8,
+    ScaleFixedVector(&g_aShipForwardVector_00494208[obj], 20 << 8,
                      &thrust);
     AddFixedVectors(&g_aShipVelocity_0059c010[obj], &thrust,
                     &g_aShipVelocity_0059c010[obj]);
@@ -355,14 +387,14 @@ void approach(short obj)
 /* Function start: 0x41836E */
 void manage_hazard(short obj, short slot)
 {
-    if (g_nRenderedSpaceFrame_0059d61a % 20 != slot)
+    if (g_nRenderedSpaceFrame_00493138 % 20 != slot)
         return;
     if (ok_hazard_spot(obj) == 0) {
         remove_hazard((signed char)obj);
         return;
     }
     if (g_acObjectType_00493980[obj] == OBJECT_TYPE_SPACE_MINE &&
-        g_asObjectScreenX_0059d9b0[obj] != (short)0x8001 &&
+        g_asObjectScreenX_00493598[obj] != (short)0x8001 &&
         (unsigned short)g_asObjectDistance_0059b4a0[obj] > 1500 &&
         real_velocity(obj) < 20)
         approach(obj);
@@ -371,15 +403,15 @@ void manage_hazard(short obj, short slot)
 /* Function start: 0x418426 */
 void match_ship_to_eye(void)
 {
-    g_aShipPosition_0059c490[0] = g_aShipPosition_0059c490[61];
+    g_aShipPosition_00494550[0] = g_aShipPosition_00494550[61];
     g_nHazardReferenceSpeed_00465040 = 100;
     g_aShipRightVector_0059b6e0[0] = g_aShipRightVector_0059b6e0[61];
     g_aShipUpVector_0059b9e0[0] = g_aShipUpVector_0059b9e0[61];
-    g_aShipForwardVector_0059bce0[0] =
-        g_aShipForwardVector_0059bce0[61];
-    ScaleFixedVector(&g_aShipForwardVector_0059bce0[0], 100 << 8,
+    g_aShipForwardVector_00494208[0] =
+        g_aShipForwardVector_00494208[61];
+    ScaleFixedVector(&g_aShipForwardVector_00494208[0], 100 << 8,
                      &g_aShipVelocity_0059c010[0]);
-    g_pActiveHazardField_0059bfe0->center = g_aShipPosition_0059c490[61];
+    g_pActiveHazardField_00493278->center = g_aShipPosition_00494550[61];
 }
 
 /* Function start: 0x4184F6 */
@@ -394,8 +426,8 @@ void update_hazards(void)
         g_nHazardReferenceSpeed_00465040 = real_velocity(0);
     slot = 0;
     do {
-        if (g_abHazardObjects_0046c028[slot] != -1)
-            manage_hazard((short)g_abHazardObjects_0046c028[slot], slot);
+        if (g_abHazardObjects_00493280[slot] != -1)
+            manage_hazard((short)g_abHazardObjects_00493280[slot], slot);
         else
             emptySlot = slot;
         slot++;
@@ -403,20 +435,30 @@ void update_hazards(void)
     if (emptySlot != -1 &&
         RandomBelowOrEqual(215) <
             (short)g_nHazardReferenceSpeed_00465040 + 30)
-        g_abHazardObjects_0046c028[emptySlot] = (signed char)make_hazard();
+        g_abHazardObjects_00493280[emptySlot] = (signed char)make_hazard();
 }
 
 /* Function start: 0x4185CC */
 void start_hazard_field(short region)
 {
+#if 0
     short slot;
 
     remove_all_hazards();
-    g_pActiveHazardField_0059bfe0 = &g_aHazardFields_0059d870[region];
+    g_pActiveHazardField_00493278 = &g_aHazardFields_004931d8[region];
     slot = 1;
     do {
-        g_abHazardObjects_0046c028[slot] = (signed char)make_hazard();
+        g_abHazardObjects_00493280[slot] = (signed char)make_hazard();
     } while (slot++ < 3);
+#else
+    short slot;
+
+    slot = 0;
+    remove_all_hazards();
+    g_pActiveHazardField_00493278 = &g_aHazardFields_004931d8[region];
+    while (slot++ < 3)
+        g_abHazardObjects_00493280[slot] = (signed char)make_hazard();
+#endif
 }
 
 /* Function start: 0x418626 */
@@ -427,7 +469,7 @@ void add_hazard_field(enum ObjectType type, FixedVector center,
 
     if (g_nHazardFieldCount_0059c90c >= 7)
         return;
-    field = &g_aHazardFields_0059d870[g_nHazardFieldCount_0059c90c];
+    field = &g_aHazardFields_004931d8[g_nHazardFieldCount_0059c90c];
     field->type = type;
     field->center = center;
     field->outerRadius = radius;
@@ -444,20 +486,20 @@ void check_hazards(void)
 
     if (g_bIntroSecondaryScene_0046c024 != 0)
         return;
-    if (g_pActiveHazardField_0059bfe0 == 0) {
+    if (g_pActiveHazardField_00493278 == 0) {
         region = 0;
-        field = g_aHazardFields_0059d870;
+        field = g_aHazardFields_004931d8;
         while (region < g_nHazardFieldCount_0059c90c) {
-            if (field != g_pActiveHazardField_0059bfe0 &&
-                near_field(field, &g_aShipPosition_0059c490[0]) != 0) {
+            if (field != g_pActiveHazardField_00493278 &&
+                near_field(field, &g_aShipPosition_00494550[0]) != 0) {
                 start_hazard_field(region);
                 return;
             }
             region++;
             field++;
         }
-    } else if (near_field(g_pActiveHazardField_0059bfe0,
-                          &g_aShipPosition_0059c490[0]) == 0) {
+    } else if (near_field(g_pActiveHazardField_00493278,
+                          &g_aShipPosition_00494550[0]) == 0) {
         remove_all_hazards();
     }
 }
@@ -569,7 +611,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     }
 
     if (waveOutGetNumDevs() == 0)
-        DAT_00465058 = 0;
+        g_nAudioEnabled_0049c244 = 0;
     CheckLauncherAndConfig();
     if (!PromptInsertCorrectCd()) {
         CloseHandle(DAT_005a89a4);
@@ -582,7 +624,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     process = GetCurrentProcess();
     MonoDebug_install();
     SetPriorityClass(process, HIGH_PRIORITY_CLASS);
-    if (DAT_00465058 != 0) {
+    if (g_nAudioEnabled_0049c244 != 0) {
         InitializeAudioSystem(DAT_005a89a0);
         InitializeAudioStreamer(DAT_005a89a0);
     }
@@ -624,7 +666,7 @@ void ShutdownGameWindow(void)
         SDL_Window *window;
 
         DAT_005a8a3c = 0;
-        if ((g_dwStreamerState_00597cd0 & 1) != 0)
+        if ((g_dwStreamerState_005c4c38 & 1) != 0)
             ix_streamer_destroy();
         ServiceAudioStream();
         DestroyGlobalDebugOverlayConsole();
@@ -879,7 +921,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     case WM_KEYDOWN:
         if (DAT_0046505c != 0)
             QueueInputEvent(3, 0, 0, (unsigned short)wParam,
-                            0, 0, 0);
+                            0, 0, 0, 0, 0);
         if (wParam == VK_F1) {
             DAT_004650ac = 1;
             if ((lParam & 0x40000000) != 0)
@@ -887,20 +929,20 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         }
         scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
         if (scanCode == 1)
-            DAT_0059ab58 = 1;
+            g_bSceneEscapeRequested_0049d4b0 = 1;
         QueueInputEvent(3, 0, 0, (unsigned short)scanCode,
-                        0, 0, 0);
+                        0, 0, 0, 0, 0);
         SetInputKeyState((int)scanCode, 1);
         break;
     case WM_KEYUP:
         if (DAT_0046505c != 0)
             QueueInputEvent(4, 0, 0, (unsigned short)wParam,
-                            0, 0, 0);
+                            0, 0, 0, 0, 0);
         if (wParam == VK_F1)
             DAT_004650ac = 0;
         scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
         QueueInputEvent(4, 0, 0, (unsigned short)scanCode,
-                        0, 0, 0);
+                        0, 0, 0, 0, 0);
         SetInputKeyState((int)scanCode, 0);
         break;
     case WM_SYSKEYDOWN:
@@ -943,7 +985,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         eventType = 13;
         QueueInputEvent(eventType, (unsigned short)mouseX,
                         (unsigned short)mouseY, 0,
-                        primaryButton, secondaryButton, 0);
+                        primaryButton, secondaryButton, 0, 0, 0);
         mouseEvent = 1;
         break;
     case WM_LBUTTONDOWN:
@@ -951,7 +993,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         eventType = 2;
         QueueInputEvent(eventType, (unsigned short)mouseX,
                         (unsigned short)mouseY, 0,
-                        primaryButton, secondaryButton, 0);
+                        primaryButton, secondaryButton, 0, 0, 0);
         mouseEvent = 1;
         break;
     case WM_LBUTTONUP:
@@ -959,7 +1001,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         eventType = 1;
         QueueInputEvent(eventType, (unsigned short)mouseX,
                         (unsigned short)mouseY, 0,
-                        primaryButton, secondaryButton, 0);
+                        primaryButton, secondaryButton, 0, 0, 0);
         mouseEvent = 1;
         break;
     }
@@ -992,14 +1034,14 @@ int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
     }
 #ifdef WC1_SDL
     if (Wc1SdlReadJoystick(
-            device, &g_aJoystickInfo_005a8970[infoIndex]) != FALSE) {
+            device, &g_aJoystickInfo_005d10b0[infoIndex]) != FALSE) {
 #else
-    if (joyGetPos(device, &g_aJoystickInfo_005a8970[infoIndex]) ==
+    if (joyGetPos(device, &g_aJoystickInfo_005d10b0[infoIndex]) ==
         JOYERR_NOERROR) {
 #endif
-        *x = g_aJoystickInfo_005a8970[infoIndex].wXpos;
-        *y = g_aJoystickInfo_005a8970[infoIndex].wYpos;
-        buttonState = g_aJoystickInfo_005a8970[infoIndex].wButtons;
+        *x = g_aJoystickInfo_005d10b0[infoIndex].wXpos;
+        *y = g_aJoystickInfo_005d10b0[infoIndex].wYpos;
+        buttonState = g_aJoystickInfo_005d10b0[infoIndex].wButtons;
         *buttons = buttonState;
         if (joystick != 0)
             *buttons = buttonState >> 2;
@@ -1025,8 +1067,16 @@ int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
 /* Function start: 0x455346 */
 short GetJoystickButtons(void)
 {
-    return ((short)g_aJoystickInfo_005a8970[1].wButtons << 2) |
-           (unsigned short)g_aJoystickInfo_005a8970[0].wButtons;
+#if 0
+    return ((short)g_aJoystickInfo_005d10b0[1].wButtons << 2) |
+           (unsigned short)g_aJoystickInfo_005d10b0[0].wButtons;
+#else
+    short buttons;
+
+    buttons = (g_aJoystickInfo_005d10b0[1].wButtons << 2) |
+              g_aJoystickInfo_005d10b0[0].wButtons;
+    return buttons;
+#endif
 }
 
 /* Function start: 0x45536F */
@@ -1141,9 +1191,10 @@ void ReportHeapGuardCorruption(void *memory, int count, int overrun)
     exit(0);
 }
 
-/* Function start: 0x462890 */
+/* Function start: 0x455624 */
 void CheckAllGuardedAllocations(void)
 {
+#if 0
     GuardedAllocation *allocation = g_pGuardedAllocationHead_004650b0;
 #ifdef WC1_SDL
     unsigned char *guard;
@@ -1204,6 +1255,37 @@ void CheckAllGuardedAllocations(void)
 
         allocation = allocation->next;
     }
+#endif
+}
+
+/* Function start: 0x45562F */
+int IsFreedHeapBlockTracked(void *memory)
+{
+    FreedHeapBlock *block;
+
+    block = g_pFreedHeapBlockHead_0049c304;
+    while (block != 0) {
+        if (block->block == memory)
+            return 1;
+        if (block->block == (unsigned char *)memory - 8)
+            return 1;
+        block = block->next;
+    }
+    return 0;
+}
+
+/* Function start: 0x455715 */
+void TrackFreedHeapBlock(void *memory)
+{
+    if (g_pFreedHeapBlockHead_0049c304 == 0) {
+        g_pFreedHeapBlockHead_0049c304 = malloc(sizeof(FreedHeapBlock));
+        g_pFreedHeapBlockTail_0049c308 = g_pFreedHeapBlockHead_0049c304;
+    } else {
+        g_pFreedHeapBlockTail_0049c308->next = malloc(sizeof(FreedHeapBlock));
+        g_pFreedHeapBlockTail_0049c308 = g_pFreedHeapBlockTail_0049c308->next;
+    }
+    g_pFreedHeapBlockTail_0049c308->next = 0;
+    g_pFreedHeapBlockTail_0049c308->block = memory;
 }
 
 /* Function start: 0x4138A8 */
