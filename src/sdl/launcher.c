@@ -55,23 +55,23 @@ static void Wc1SdlApplyLegacyArguments(int argumentCount, char **arguments)
     while (argumentIndex < argumentCount) {
         argument = arguments[argumentIndex];
         if (strcmp(argument, "$#SAGA.EXE") == 0)
-            DAT_0046506c = 1;
+            g_bShowKilrathiSagaCredits_0046506c = 1;
         command = argument[0] == '-' ? argument[1] : argument[0];
         switch (command) {
         case 'b':
             *(unsigned char *)&DAT_0046a000 = 0;
             break;
         case 'c':
-            DAT_0046507c = 0;
+            g_bCockpitEnabled_0046507c = 0;
             break;
         case 'f':
-            DAT_00465070 = 1;
+            g_bShowFrameRate_00465070 = 1;
             break;
         case 'k':
             *(unsigned char *)&DAT_00469ffc = 0;
             break;
         case 'q':
-            DAT_00465074 = 0;
+            g_bDirectDrawModeCascadeEnabled_00465074 = 0;
             break;
         default:
             break;
@@ -179,7 +179,7 @@ int main(int argumentCount, char **arguments)
         usingDosData = Wc1SdlUsingDosData();
         if (usingDosData) {
             /* DOS audio drivers cannot be used by the native SDL2 host. */
-            DAT_00465058 = 0;
+            g_bIxAudioEnabled_00465058 = 0;
         }
         if (usingDosData || useEnhancedRenderer) {
             if (!Wc1SdlInitializeOriginFxAudio(usingDosData)) {

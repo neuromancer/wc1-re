@@ -507,23 +507,23 @@ void CheckLauncherAndConfig(void)
             char command;
 
             if (memcmp(option, "$#SAGA.EXE", 11) == 0)
-                DAT_0046506c = 1;
+                g_bShowKilrathiSagaCredits_0046506c = 1;
             command = option[0] == '-' ? option[1] : option[0];
             switch (command) {
             case 'b':
                 *(unsigned char *)&DAT_0046a000 = 0;
                 break;
             case 'c':
-                DAT_0046507c = 0;
+                g_bCockpitEnabled_0046507c = 0;
                 break;
             case 'f':
-                DAT_00465070 = 1;
+                g_bShowFrameRate_00465070 = 1;
                 break;
             case 'k':
                 *(unsigned char *)&DAT_00469ffc = 0;
                 break;
             case 'q':
-                DAT_00465074 = 0;
+                g_bDirectDrawModeCascadeEnabled_00465074 = 0;
                 break;
             }
             if (config == 0)
@@ -569,7 +569,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     }
 
     if (waveOutGetNumDevs() == 0)
-        DAT_00465058 = 0;
+        g_bIxAudioEnabled_00465058 = 0;
     CheckLauncherAndConfig();
     if (!PromptInsertCorrectCd()) {
         CloseHandle(DAT_005a89a4);
@@ -578,11 +578,11 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     if (!CreateMainWindow(instance, previous, showCommand))
         return 0;
 
-    DAT_00465080 = 0;
+    g_bMainWindowMinimized_00465080 = 0;
     process = GetCurrentProcess();
     MonoDebug_install();
     SetPriorityClass(process, HIGH_PRIORITY_CLASS);
-    if (DAT_00465058 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0) {
         InitializeAudioSystem(DAT_005a89a0);
         InitializeAudioStreamer(DAT_005a89a0);
     }
@@ -754,9 +754,9 @@ unsigned int PumpWindowMessages(void)
     int done;
 #endif
 
-    if (DAT_004650a8 != 0)
+    if (g_bWindowMessagePumpActive_004650a8 != 0)
         return 1;
-    DAT_004650a8 = 1;
+    g_bWindowMessagePumpActive_004650a8 = 1;
     if (DAT_0059ab2c != 0)
         DAT_0059ab2c();
 #ifdef WC1_SDL
@@ -764,7 +764,7 @@ unsigned int PumpWindowMessages(void)
 #else
     done = 0;
     do {
-        if (DAT_00465080 != 0) {
+        if (g_bMainWindowMinimized_00465080 != 0) {
             if (GetMessageA(&message, 0, 0, 0) != 0) {
                 done = 1;
                 TranslateMessage(&message);
@@ -774,8 +774,8 @@ unsigned int PumpWindowMessages(void)
                 ShutdownGameWindow();
             }
             if (IsIconic(DAT_005a89a0) == 0)
-                DAT_00465080 = 0;
-            if (DAT_00465080 == 0) {
+                g_bMainWindowMinimized_00465080 = 0;
+            if (g_bMainWindowMinimized_00465080 == 0) {
                 clip.left = 0;
                 clip.top = 0;
                 clip.right = 320;
@@ -808,7 +808,7 @@ unsigned int PumpWindowMessages(void)
             }
         }
         if (IsIconic(DAT_005a89a0) != 0) {
-            if (DAT_00465080 == 0) {
+            if (g_bMainWindowMinimized_00465080 == 0) {
                 cursorX = 160;
                 cursorY = 100;
                 ClipCursor(0);
@@ -816,21 +816,21 @@ unsigned int PumpWindowMessages(void)
                 SetPriorityClass(GetCurrentProcess(),
                                  NORMAL_PRIORITY_CLASS);
             }
-            DAT_00465080 = 1;
-            if (DAT_00465080 != 0)
+            g_bMainWindowMinimized_00465080 = 1;
+            if (g_bMainWindowMinimized_00465080 != 0)
                 done = 0;
         }
     } while (done == 0);
 #endif
     DAT_0059ab54 = GetTickCount() * 60 / 1000;
-    DAT_004650a8 = 0;
+    g_bWindowMessagePumpActive_004650a8 = 0;
     return DAT_005a8a3c;
 }
 
 /* Function start: 0x402520 */
 unsigned int GetF1KeyLatch(void)
 {
-    return DAT_004650ac;
+    return g_bF1KeyLatch_004650ac;
 }
 
 #ifndef WC1_SDL
@@ -877,13 +877,13 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         EndPaint(DAT_005a89a0, &paint);
         break;
     case WM_KEYDOWN:
-        if (DAT_0046505c != 0)
+        if (g_bKeyEventQueueEnabled_0046505c != 0)
             QueueInputEvent(3, 0, 0, (unsigned short)wParam,
                             0, 0, 0);
         if (wParam == VK_F1) {
-            DAT_004650ac = 1;
+            g_bF1KeyLatch_004650ac = 1;
             if ((lParam & 0x40000000) != 0)
-                DAT_004650ac = 0;
+                g_bF1KeyLatch_004650ac = 0;
         }
         scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
         if (scanCode == 1)
@@ -893,11 +893,11 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         SetInputKeyState((int)scanCode, 1);
         break;
     case WM_KEYUP:
-        if (DAT_0046505c != 0)
+        if (g_bKeyEventQueueEnabled_0046505c != 0)
             QueueInputEvent(4, 0, 0, (unsigned short)wParam,
                             0, 0, 0);
         if (wParam == VK_F1)
-            DAT_004650ac = 0;
+            g_bF1KeyLatch_004650ac = 0;
         scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
         QueueInputEvent(4, 0, 0, (unsigned short)scanCode,
                         0, 0, 0);

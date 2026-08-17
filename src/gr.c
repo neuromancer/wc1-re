@@ -891,7 +891,7 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 /* Function start: 0x442330 */
 void UpdateStreamerStoppedFlag(void)
 {
-    if (DAT_00465058 != 0)
+    if (g_bIxAudioEnabled_00465058 != 0)
     g_nMusicTrackComplete_0046aa04 =
         (g_dwStreamerState_00597cd0 & 4) == 0;
 }
@@ -899,14 +899,14 @@ void UpdateStreamerStoppedFlag(void)
 /* Function start: 0x442350 */
 void SignalAudioMixerWakeEvent(void)
 {
-    if (DAT_00465058 != 0)
+    if (g_bIxAudioEnabled_00465058 != 0)
         ix_streamer_configure(2, 0);
 }
 
 /* Function start: 0x442370 */
 void InitializeAudioStreamer(HWND window)
 {
-    if (DAT_00465058 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0) {
         ix_streamer_configure(3, (void *)1);
         ix_streamer_configure(0, window);
         ix_streamer_init();
@@ -919,7 +919,7 @@ void Streamer_open(const char *streamName)
 {
     char *streamsDirectory;
 
-    if (DAT_00465058 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0) {
         streamsDirectory = LocateStreamsDirOnDisc();
         if (streamsDirectory == 0) {
             ShowNoticeMessageBox("Unable to locate streamed music.\n");
@@ -936,7 +936,8 @@ void Streamer_open(const char *streamName)
 /* Function start: 0x442430 */
 void Streamer_play(void)
 {
-    if (DAT_00465058 != 0 && g_bStreamerAudioPlaying_00597748 == 0) {
+    if (g_bIxAudioEnabled_00465058 != 0 &&
+        g_bStreamerAudioPlaying_00597748 == 0) {
         g_bStreamerAudioPlaying_00597748 = 1;
         SoundDebugPrintf("Streamer_play");
         ix_streamer_audio_play();
@@ -946,7 +947,8 @@ void Streamer_play(void)
 /* Function start: 0x442460 */
 void Streamer_stop(void)
 {
-    if (DAT_00465058 != 0 && g_bStreamerAudioPlaying_00597748 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0 &&
+        g_bStreamerAudioPlaying_00597748 != 0) {
         SoundDebugPrintf("Streamer_stop");
         ix_streamer_audio_stop();
         g_bStreamerAudioPlaying_00597748 = 0;
@@ -956,14 +958,14 @@ void Streamer_stop(void)
 /* Function start: 0x4424B0 */
 void ClearStreamerTrigger(void)
 {
-    if (DAT_00465058 != 0)
+    if (g_bIxAudioEnabled_00465058 != 0)
         ix_streamer_set_trigger(-1);
 }
 
 /* Function start: 0x4424D0 */
 void Streamer_trigger(int trigger)
 {
-    if (DAT_00465058 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0) {
         if (g_bStreamerAudioPlaying_00597748 == 0) {
             ForceStreamerTrigger(trigger);
             return;
@@ -979,7 +981,7 @@ void Streamer_trigger(int trigger)
 /* Function start: 0x442520 */
 void SetStreamerIntensity(unsigned char intensity)
 {
-    if (DAT_00465058 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0) {
         ix_streamer_set_intensity(intensity);
         if (g_bStreamerAudioPlaying_00597748 == 0)
             Streamer_play();
@@ -989,7 +991,7 @@ void SetStreamerIntensity(unsigned char intensity)
 /* Function start: 0x442550 */
 void ForceStreamerTrigger(int trigger)
 {
-    if (DAT_00465058 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0) {
         SoundDebugPrintf("FORCE");
         if (trigger >= 0)
             ix_streamer_force_trigger((char)trigger);
@@ -1001,14 +1003,14 @@ void ForceStreamerTrigger(int trigger)
 /* Function start: 0x442590 */
 void SetMusicStreamVolume(unsigned short volume)
 {
-    if (DAT_00465058 != 0)
+    if (g_bIxAudioEnabled_00465058 != 0)
         ix_streamer_set_volume(volume);
 }
 
 /* Function start: 0x4425D0 */
 void Streamer_close(void)
 {
-    if (DAT_00465058 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0) {
         SoundDebugPrintf("Streamer_close");
         ix_streamer_close_stream_file();
     }

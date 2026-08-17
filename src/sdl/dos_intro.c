@@ -46,7 +46,7 @@ static void Wc1SdlDrawDosIntroSky(Viewport *viewport,
                                    unsigned char *planetShape,
                                    int planetY)
 {
-    ClearViewport(viewport, (unsigned char)DAT_0046999c);
+    ClearViewport(viewport, (unsigned char)g_cBlackColour_0046999c);
     DrawSpriteDefault(viewport, 0, 0, titleShape, 0);
     if (planetShape != 0)
         DrawSpriteDefault(viewport, 160, (short)planetY, planetShape, 0);
@@ -168,7 +168,7 @@ static int Wc1SdlDrawDosIntroLogoReveal(
     planetY = 120000 / distance;
     scale = 256000 / distance;
     logoBottom = logoY + 34 * scale / 0x100;
-    ClearViewport(viewport, (unsigned char)DAT_0046999c);
+    ClearViewport(viewport, (unsigned char)g_cBlackColour_0046999c);
     DrawSpriteDefault(viewport, 0, 0, titleShape, 0);
     if (logoBottom < planetY) {
         DrawSpriteDefault(viewport, 160, (short)planetY, planetShape, 0);
@@ -216,7 +216,7 @@ static int Wc1SdlDrawDosIntroFireworks(
     Wc1SdlDosIntroFirework *firework;
     int index;
 
-    ClearViewport(viewport, (unsigned char)DAT_0046999c);
+    ClearViewport(viewport, (unsigned char)g_cBlackColour_0046999c);
     DrawSpriteDefault(viewport, 0, 0, titleShape, 0);
     Wc1SdlDrawDosIntroLogo(viewport, titleShape, logoY, 0x100);
     index = 0;
@@ -267,7 +267,7 @@ void Wc1SdlPlayDosStartupIntro(void)
     introViewport.top = 0;
     introViewport.right = 319;
     introViewport.bottom = 127;
-    if (AllocateViewport(&introViewport, (short)DAT_0046999c, 0) == 0) {
+    if (AllocateViewport(&introViewport, (short)g_cBlackColour_0046999c, 0) == 0) {
         free_viewport(&introViewport);
         return;
     }
@@ -283,7 +283,7 @@ void Wc1SdlPlayDosStartupIntro(void)
     planetShape = FetchDiskPacketRetrying(9, 3, 0);
 
     DrawFilledViewportRect(&DAT_005a6ba0, 0, 0, 319, 199,
-                           (short)DAT_0046999c);
+                           (short)g_cBlackColour_0046999c);
     ClearInputKeyStatePreservingModifiers();
     FlushInputEvents();
     previousMusicTrack = g_nCurrentMusicTrack_0046aa14;
@@ -465,7 +465,7 @@ void Wc1SdlPlayDosStartupIntro(void)
         g_nCurrentMusicTrack_0046aa14 = previousMusicTrack;
         Wc1SdlServiceOriginFxMusic();
     }
-    ClearViewport(&DAT_005a6ba0, (unsigned char)DAT_0046999c);
+    ClearViewport(&DAT_005a6ba0, (unsigned char)g_cBlackColour_0046999c);
     free_viewport(&introViewport);
     ReleasePacketHandle(planetShape);
     sectionIndex = WC1_SDL_DOS_INTRO_TITLE_SECTION_COUNT;

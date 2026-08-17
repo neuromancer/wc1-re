@@ -491,7 +491,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                             (short)(weaponCount - 1)));
                     ShowComponentHitHudMessage(
                         g_szWeaponDestroyed_00469960,
-                        DAT_004699ac, 8);
+                        g_cRedColour_004699ac, 8);
                 }
             }
             break;
@@ -511,7 +511,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                 g_anShipFuel_0059b470[0] < 0)
                 return explode(attacker, 0);
             ShowComponentHitHudMessage(g_szFuelTanksHit_00469974,
-                                       DAT_004699ac, 8);
+                                       g_cRedColour_004699ac, 8);
             break;
         case 8:
             if (quadrant != 0) {
@@ -552,7 +552,7 @@ short ReportComponentRepaired(short component, short minimumDamage)
         g_acPlayerComponentDamage_0059bff0[component]--;
         sprintf(message, g_szComponentFixedFormat_00469984,
                 g_apszComponentNames_0046a778[component]);
-        ShowComponentHitHudMessage(message, DAT_004699ac, 8);
+        ShowComponentHitHudMessage(message, g_cRedColour_004699ac, 8);
         return 1;
     }
     return 0;

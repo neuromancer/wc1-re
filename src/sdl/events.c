@@ -373,11 +373,11 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         event->keysym.scancode == SDL_SCANCODE_RALT)
         DAT_005a8964 = pressed ? (unsigned int)virtualKey : 0;
     if (event->keysym.scancode == SDL_SCANCODE_F1)
-        DAT_004650ac = pressed && event->repeat == 0;
+        g_bF1KeyLatch_004650ac = pressed && event->repeat == 0;
     if (pressed && scanCode == 1)
         DAT_0059ab58 = 1;
     if (scanCode != 0) {
-        if (DAT_0046505c != 0) {
+        if (g_bKeyEventQueueEnabled_0046505c != 0) {
             QueueInputEvent(pressed ? 3 : 4, 0, 0,
                             (unsigned short)virtualKey, 0, 0, 0);
         }

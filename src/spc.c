@@ -32,7 +32,7 @@ void CalibrateJoystickInteractive()
 
     g_stDefaultTextContext_005a7740.alignment = 2;
     InitializeTextContextFromFont(&g_stDefaultTextContext_005a7740, 1,
-        g_cViewportClearColour_004699a0, (signed char)DAT_0046999c);
+        g_cViewportClearColour_004699a0, (signed char)g_cBlackColour_0046999c);
     shown = ShowModalTextPanel(1,
         "Turn AUTO FIRE off if present, press a button");
     if (shown != 0) {

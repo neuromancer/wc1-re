@@ -725,7 +725,7 @@ void draw_sorted_objects_to_buffer(void)
             g_asObjectScreenY_0059d930[obj] + g_nViewCenterY_0059a854);
         if (objectClass != OBJECT_CLASS_NULL &&
             objectClass != OBJECT_CLASS_FIXED_OBJECT &&
-            obj != DAT_00469208 &&
+            obj != g_nNavPointerObject_00469208 &&
             g_aObjectViewPosition_0059afa0[obj].z != 0) {
             projectedScreenX = (short)(DivideFixed(
                 MultiplyFixed(
@@ -791,7 +791,7 @@ void draw_sorted_objects_to_buffer(void)
             case OBJECT_CLASS_PLANET:
 #endif
             case OBJECT_CLASS_DUST:
-                specialObject = (int)DAT_00469208;
+                specialObject = (int)g_nNavPointerObject_00469208;
                 screenY = g_asObjectScreenY_0059d930[obj];
                 screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
                                   g_nViewCenterX_0059a852);
@@ -866,7 +866,7 @@ void intro_drawbackgroundships(void)
                                    shortOffset),
                         *(short *)((unsigned char *)g_asObjectFlip_0059c870 +
                                    shortOffset),
-                        DAT_004699d8);
+                        g_cPrimaryViewBufferColour_004699d8);
                 }
                 break;
             case OBJECT_CLASS_STAR:
@@ -876,7 +876,7 @@ void intro_drawbackgroundships(void)
             case OBJECT_CLASS_PLANET:
 #endif
             case OBJECT_CLASS_DUST:
-                if (obj == DAT_00469208)
+                if (obj == g_nNavPointerObject_00469208)
 #ifdef WC1_SDL
                     shape = g_apObjectShape_0059d2f0[obj];
 #else
@@ -895,7 +895,7 @@ void intro_drawbackgroundships(void)
                     shape,
                     *(short *)((unsigned char *)g_asObjectViewFrame_0059d230 +
                                shortOffset),
-                    DAT_004699d8);
+                    g_cPrimaryViewBufferColour_004699d8);
                 break;
             }
         }

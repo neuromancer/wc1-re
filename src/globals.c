@@ -156,18 +156,18 @@ TitleMenuRegion g_aBarracksMenuRegions_00463008[21] = {
 
 short g_nHazardReferenceSpeed_00465040;
 short g_nActiveHazards_00465044;
-int DAT_00465058 = 1;
-unsigned int DAT_0046505c;
+int g_bIxAudioEnabled_00465058 = 1;
+unsigned int g_bKeyEventQueueEnabled_0046505c;
 unsigned int g_nGuardedAllocationTotalBytes_00465060;
 unsigned int g_nGuardedAllocationBytes_00465064;
 unsigned int g_nGuardedAllocationPeakBytes_00465068;
-int DAT_0046506c;
-int DAT_00465070;
-int DAT_00465074 = 1;
-int DAT_0046507c = 1;
-int DAT_00465080;
-int DAT_004650a8;
-unsigned int DAT_004650ac;
+int g_bShowKilrathiSagaCredits_0046506c;
+int g_bShowFrameRate_00465070;
+int g_bDirectDrawModeCascadeEnabled_00465074 = 1;
+int g_bCockpitEnabled_0046507c = 1;
+int g_bMainWindowMinimized_00465080;
+int g_bWindowMessagePumpActive_004650a8;
+unsigned int g_bF1KeyLatch_004650ac;
 GuardedAllocation *g_pGuardedAllocationHead_004650b0;
 const char g_szJoystickDevCapsFailure_004652dc[26] =
     "Joystick: !joyGetDevCaps\n";
@@ -355,7 +355,7 @@ const char g_szFuneralFireCommand_00465c54[16] =
     "%X%Y%FFire!%P";
 short g_nEnemySighting_00465c7c = 0x7fff;
 short g_nDebriefingPersonality_00465c80;
-int DAT_00465c84;
+int g_bInitialFormationSetup_00465c84;
 void *g_aapPacketReferences_00465c88[4][0x25];
 const ShortVector g_aaFormationPositions_00465ed8[5][8] = {
     {
@@ -449,22 +449,22 @@ const char g_szFuelTanksHit_00469974[16] = "Fuel tanks hit";
 const char g_szComponentFixedFormat_00469984[8] = "%s FIXD";
 const char g_szNeedLock_0046998c[12] = "Need Lock";
 short g_bSlowSceneAnimation_00469998;
-unsigned char DAT_0046999c;
+unsigned char g_cBlackColour_0046999c;
 unsigned char g_cViewportClearColour_004699a0 = 15;
-unsigned char DAT_004699a4 = 0x25;
-unsigned char DAT_004699a8 = 0x47;
-unsigned char DAT_004699ac = 0x50;
-unsigned char DAT_004699b0 = 0xaa;
-unsigned char DAT_004699b4 = 0xa6;
-unsigned char DAT_004699b8 = 0x85;
-unsigned char DAT_004699bc = 0x27;
-unsigned char DAT_004699c0 = 7;
-unsigned char DAT_004699c4 = 0x0b;
-unsigned char DAT_004699c8 = 0xb6;
+unsigned char g_cBlueColour_004699a4 = 0x25;
+unsigned char g_cYellowColour_004699a8 = 0x47;
+unsigned char g_cRedColour_004699ac = 0x50;
+unsigned char g_cDarkGreenColour_004699b0 = 0xaa;
+unsigned char g_cPrimaryTextColour_004699b4 = 0xa6;
+unsigned char g_cOrangeColour_004699b8 = 0x85;
+unsigned char g_cDarkBlueColour_004699bc = 0x27;
+unsigned char g_cDarkGreyColour_004699c0 = 7;
+unsigned char g_cLightGreyColour_004699c4 = 0x0b;
+unsigned char g_cMagentaColour_004699c8 = 0xb6;
 unsigned char g_cDefaultTextColour_004699cc = 0xa8;
-unsigned char DAT_004699d0 = 0xfd;
-unsigned char DAT_004699d4 = 0xf5;
-unsigned char DAT_004699d8 = 0xbf;
+unsigned char g_cBrownColour_004699d0 = 0xfd;
+unsigned char g_cAsteroidColour_004699d4 = 0xf5;
+unsigned char g_cPrimaryViewBufferColour_004699d8 = 0xbf;
 const unsigned char g_abLegacyVideoModeColours_004699e0[14] = {
     9, 14, 4, 2, 10, 12, 15, 8, 7, 5, 2, 6, 7, 0
 };
@@ -551,7 +551,7 @@ short g_asConstellationObjectIndices_00469d50[4] = {
     -1, -1, -1, -1
 };
 int g_bCockpitResourcesActive_00469d58;
-int DAT_00469d5c;
+int g_b3SpaceObjectsActive_00469d5c;
 const short g_asSceneAnimationLogicalFiles_00469d60[8] = {
     63, 64, 65, 66, 67, 68, 69, 70
 };

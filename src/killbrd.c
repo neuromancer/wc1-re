@@ -117,7 +117,7 @@ void InitializeRoomViewports(void)
     DAT_005a76b0.bottom = 199;
     DAT_005a76b0.left = 0;
     DAT_005a76b0.top = 0;
-    AllocateViewport(&DAT_005a76b0, DAT_0046999c, 0);
+    AllocateViewport(&DAT_005a76b0, g_cBlackColour_0046999c, 0);
     g_stRoomMouseViewport_00598a80 = DAT_005a76b0;
     g_stRoomDisplayViewport_00598a60 = g_stRoomScreenViewport_005988a0;
     SetEventManagerPump(PollMenuInputDevices);
@@ -469,7 +469,7 @@ short RecRoom(void)
                     DAT_005a6ba0.bottom = 151;
                     InitializeConversationText();
                     ClearViewport(&g_stRoomScreenViewport_005988a0,
-                                  DAT_0046999c);
+                                  g_cBlackColour_0046999c);
                     g_pConversationBackdropShape_00598c04 =
                         FetchDiskPacketRetrying(
                             5, 1, 0);
@@ -498,14 +498,14 @@ short RecRoom(void)
                         FetchDiskPacketRetrying(
                             5, 0, 0);
                     ClearViewport(&g_stRoomScreenViewport_005988a0,
-                                  DAT_0046999c);
+                                  g_cBlackColour_0046999c);
                 }
             } else if (region == 3) {
                 FlushInputEvents();
                 if ((int)(DAT_0059ab54 - lastChalkboardTick) >
                     g_nInputTickScale_0059af90) {
                     ShowChalkBoard();
-                    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+                    ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
                     lastChalkboardTick = (int)DAT_0059ab54;
                 }
             } else if (region == 4 || region == 5) {
@@ -538,7 +538,7 @@ short RecRoom(void)
     ReleasePacketHandle(g_pRecRoomBackgroundShape_00598a50);
     ReleaseTextFont(0);
     ReleasePacketHandle(g_pBriefingPacket_00598aec);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     free_viewport(&DAT_005a76b0);
     DAT_0059ab58 = 0;
     StopMusicUnlessSuppressed();

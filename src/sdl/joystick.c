@@ -939,7 +939,7 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     if (button == WC1_SDL_JOYSTICK_BUTTON_BACK) {
         if (pressed)
             DAT_0059ab58 = 1;
-        if (DAT_0046505c != 0)
+        if (g_bKeyEventQueueEnabled_0046505c != 0)
             QueueInputEvent(eventType, 0, 0, 0x1b, 0, 0, 0);
         QueueInputEvent(eventType, 0, 0, 0x01, 0, 0, 0);
         return;
@@ -952,7 +952,7 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     if (!pressed)
         return;
     if (button == WC1_SDL_JOYSTICK_BUTTON_Y &&
-        !spaceflightActive && DAT_0046505c != 0) {
+        !spaceflightActive && g_bKeyEventQueueEnabled_0046505c != 0) {
         QueueInputEvent(3, 0, 0, 'Y', 0, 0, 0);
         QueueInputEvent(3, 0, 0, 0x15, 0, 0, 0);
         return;

@@ -95,7 +95,7 @@ void DIBreInstall(void)
 #ifndef WC1_SDL
     int err;
 
-    if (DAT_00465074 != 0) {
+    if (g_bDirectDrawModeCascadeEnabled_00465074 != 0) {
         IDirectDraw2_SetCooperativeLevel(
             g_pDirectDraw2_0046b1a4, DAT_00486074, 0x13);
         if (DIBcascade(-2, &err) == 0)
@@ -136,7 +136,7 @@ void DIBinstall(HWND window)
     if (result != DD_OK)
         DIBerror("DIBInstall   Unable to acquire DirectDraw2 interface", result);
 
-    if (DAT_00465074 != 0)
+    if (g_bDirectDrawModeCascadeEnabled_00465074 != 0)
         result = IDirectDraw2_SetCooperativeLevel(
             g_pDirectDraw2_0046b1a4, DAT_00486074, 0x13);
     else
@@ -145,7 +145,7 @@ void DIBinstall(HWND window)
     if (result != DD_OK)
         DIBerror("DIBmakeInstall   SetCooperativeLevel", result);
 
-    if (DAT_00465074 == 0) {
+    if (g_bDirectDrawModeCascadeEnabled_00465074 == 0) {
         DAT_0046b1b4 = -1;
     } else {
         cascadeResult = DIBcascade(-1, 0);

@@ -49,7 +49,7 @@ int fire_missile(short ship)
                         if (get_mode(0) == 1)
                             ShowComponentHitHudMessage(
                                 g_szNeedLock_0046998c,
-                                DAT_004699a8, 3);
+                                g_cYellowColour_004699a8, 3);
                         return -1;
                     }
                     return fire_weapon(0, weapon);
@@ -445,7 +445,7 @@ unsigned int LoadGamePaletteFile(void)
     case 13:
         index = 0;
         do {
-            ((unsigned char *)&DAT_004699a4)[index] =
+            ((unsigned char *)&g_cBlueColour_004699a4)[index] =
                 g_abLegacyVideoModeColours_004699e0[index];
             index++;
         } while ((unsigned int)(int)index < 14);
@@ -594,22 +594,22 @@ unsigned int LoadOriginFxDrivers(void)
 unsigned int InitializeGameTextContexts(void)
 {
     InitializeDIBScreenViewport(&DAT_005a6ba0,
-                                (unsigned char)DAT_0046999c);
+                                (unsigned char)g_cBlackColour_0046999c);
     g_stModalSourceViewport_005a7670 = DAT_005a6ba0;
     g_stDefaultTextContext_005a7740.viewport =
         &g_stModalSourceViewport_005a7670;
     g_stDefaultTextContext_005a7740.text =
         g_szDefaultTextBuffer_005a7590;
     InitializeTextContextFromFont(&g_stDefaultTextContext_005a7740, 1,
-                                  (unsigned char)DAT_004699b4,
-                                  DAT_0046999c);
+                                  (unsigned char)g_cPrimaryTextColour_004699b4,
+                                  g_cBlackColour_0046999c);
     SetTextContext(&g_stDefaultTextContext_005a7740);
 
     DAT_005a6bc0.viewport = &DAT_005a7510;
     DAT_005a6bc0.text = g_szDefaultTextBuffer_005a7590;
     DAT_005a6bc0.alignment = 2;
     InitializeTextContextFromFont(&DAT_005a6bc0, 1,
-                                  (unsigned char)DAT_004699ac, -1);
+                                  (unsigned char)g_cRedColour_004699ac, -1);
     return 0;
 }
 
@@ -1979,7 +1979,7 @@ unsigned int ResetCockpitPaletteEntries(void)
     } while (index < 6);
     memcpy(DAT_005a7780, black, sizeof(black));
     DAT_005a7780[2] = 32;
-    SetPaletteEntry((short)DAT_004699d8, DAT_005a7780);
+    SetPaletteEntry((short)g_cPrimaryViewBufferColour_004699d8, DAT_005a7780);
     return 0;
 }
 
@@ -1995,7 +1995,7 @@ unsigned int initialize_cockpit(signed char mode)
 
     if (DAT_0046a008 == 0 && mode == g_cScreenViewportMode_0059a9f2) {
         if (DAT_005a7510.pixels != 0)
-            ClearViewport(&DAT_005a7510, DAT_004699d8);
+            ClearViewport(&DAT_005a7510, g_cPrimaryViewBufferColour_004699d8);
         else
             initialize_view_buffer();
         return 0;
@@ -2007,7 +2007,7 @@ unsigned int initialize_cockpit(signed char mode)
     DAT_005a6ba0.top = 0;
     DAT_005a6ba0.right = 319;
     DAT_005a6ba0.bottom = 199;
-    ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
+    ClearViewport(&g_stModalSourceViewport_005a7670, g_cBlackColour_0046999c);
 
     g_cCockpitLogicalFile_005a7c74 =
         (unsigned char)(g_cCockpitView_0059dab0 + 17);
@@ -2228,14 +2228,14 @@ void init_vdus(void)
     DAT_005a6b80 = DAT_005a6ba0;
 
     InitializeTextContextFromFont(
-        &DAT_005a74f0, 2, DAT_004699b4, (signed char)DAT_0046999c);
+        &DAT_005a74f0, 2, g_cPrimaryTextColour_004699b4, (signed char)g_cBlackColour_0046999c);
     DAT_005a74f0.viewport = &DAT_005a6b80;
     DAT_005a74f0.text = g_szDefaultTextBuffer_005a7590;
     set_mode(0, 1);
     DAT_0059ce18[0] = 0;
 
     InitializeTextContextFromFont(
-        &DAT_005a7700, 2, DAT_004699b4, (signed char)DAT_0046999c);
+        &DAT_005a7700, 2, g_cPrimaryTextColour_004699b4, (signed char)g_cBlackColour_0046999c);
     DAT_005a7700.viewport = &DAT_005a7530;
     DAT_005a7700.text = g_szDefaultTextBuffer_005a7590;
     set_mode(1, g_nTrainSimActive_00469e2c == 0 ? 5 : 3);
@@ -2278,7 +2278,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     init_vdus();
 
     InitializeTextContextFromFont(
-        &DAT_005a7720, 2, DAT_004699b4, (signed char)DAT_0046999c);
+        &DAT_005a7720, 2, g_cPrimaryTextColour_004699b4, (signed char)g_cBlackColour_0046999c);
     DAT_005a7720.viewport = &DAT_005a6ba0;
     SetTextContext(&DAT_005a7720);
 
@@ -2318,8 +2318,8 @@ unsigned int InitializeCockpitResources(signed char mode)
                         (unsigned short)(bounds->right - bounds->left),
                         (unsigned short)(bounds->bottom - bounds->top));
         DAT_005a7550 = DAT_005a7690;
-        AllocateViewport(&DAT_005a7690, DAT_0046999c, 0);
-        AllocateViewport(&DAT_005a7550, DAT_0046999c, 0);
+        AllocateViewport(&DAT_005a7690, g_cBlackColour_0046999c, 0);
+        AllocateViewport(&DAT_005a7550, g_cBlackColour_0046999c, 0);
     }
 
     LoadShapeSet(g_aCockpitSecondaryResources_00469ce0, 0,
@@ -2418,9 +2418,9 @@ unsigned int init_3Space_objects(short scene)
 {
     short slot;
 
-    if (DAT_00469d5c == 1)
+    if (g_b3SpaceObjectsActive_00469d5c == 1)
         return 0;
-    DAT_00469d5c = 1;
+    g_b3SpaceObjectsActive_00469d5c = 1;
     g_cScreenViewportMode_0059a9f2 = -1;
     remove_all_3d_objects();
     g_nExternalViewShip_0046c040 = -1;
@@ -2487,9 +2487,9 @@ unsigned int remove_all_3d_objects(void)
 /* Function start: 0x424BA0 */
 unsigned int free_3Space(void)
 {
-    if (DAT_00469d5c == 0)
+    if (g_b3SpaceObjectsActive_00469d5c == 0)
         return 0;
-    DAT_00469d5c = 0;
+    g_b3SpaceObjectsActive_00469d5c = 0;
     GetScreenUpdateFlag();
     DAT_0046a004 = 0;
     free_constellation();
@@ -2937,7 +2937,7 @@ void PlaySceneAnimation(char *text, short animation, short duration)
     g_bSceneAnimationWaitCommand_00469d70 = 0;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szSceneAnimationTextFormat_00469d74,
                               0, 160,
                               g_nConversationTextColour_00598c10,

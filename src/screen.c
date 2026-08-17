@@ -649,7 +649,7 @@ unsigned int ShowCampaignVictorySequence(void)
             textIndex = -1;
         if (textIndex != -1) {
             ClearViewport(&g_stConversationTextViewport_005a7570,
-                          DAT_0046999c);
+                          g_cBlackColour_0046999c);
             SetTextContext(&g_stConversationTextContext_005a7760);
             FormatTextBufferFromStart(
                 g_szCampaignVictoryTextFormat_0046af24, 0, 160,
@@ -767,7 +767,7 @@ unsigned int ShowCampaignVictorySequence(void)
         planetShape =
             FetchDiskPacketRetrying(9, 5, 0);
         animationFrame = 1;
-        ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+        ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
         WaitForVerticalBlankThunk();
         DrawSpriteDefault(&DAT_005a6ba0, 0, 0, planetShape, 0);
         elapsed = 0;
@@ -790,9 +790,9 @@ unsigned int ShowCampaignVictorySequence(void)
         } while (elapsed < 40);
         ReleasePacketHandle(planetShape);
         FadeViewportPaletteToColour(&g_stModalSourceViewport_005a7670,
-                                    DAT_0046999c, 1);
+                                    g_cBlackColour_0046999c, 1);
         ClearViewport(&g_stModalSourceViewport_005a7670,
-                      DAT_0046999c);
+                      g_cBlackColour_0046999c);
         DIBslam();
         DIBslamReal();
         RestoreGamePalette();
@@ -805,9 +805,9 @@ unsigned int ShowCampaignVictorySequence(void)
     g_bIntroSceneResourcesActive_00469d48 = 1;
     g_nCannedSceneMode_00469fac = 0;
     FadeViewportPaletteToColour(&g_stModalSourceViewport_005a7670,
-                                DAT_0046999c, 1);
+                                g_cBlackColour_0046999c, 1);
     ClearViewport(&g_stModalSourceViewport_005a7670,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     DIBslam();
     DIBslamReal();
     RestoreGamePalette();
@@ -844,7 +844,7 @@ unsigned int ShowTigerClawEscapeScene(void)
     g_nScriptedViewObject_0046a8d0 = 1;
     initialize_scripted_view(g_asTigerClawEscapeViewScript_0046c238);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     SetTextContext(&g_stConversationTextContext_005a7760);
     FormatTextBufferFromStart(
         g_szTigerClawEscapeOpeningFormat_0046af30, 0, 160,
@@ -877,7 +877,7 @@ unsigned int ShowTigerClawEscapeScene(void)
         switch (frame) {
         case 150:
             ClearViewport(&g_stConversationTextViewport_005a7570,
-                          DAT_0046999c);
+                          g_cBlackColour_0046999c);
             SetTextContext(&g_stConversationTextContext_005a7760);
             FormatTextBufferFromStart(
                 g_szTigerClawEscapeJumpFormat_0046af3c, 0, 160,
@@ -906,7 +906,7 @@ unsigned int ShowTigerClawEscapeScene(void)
             break;
         case 210:
             ClearViewport(&g_stConversationTextViewport_005a7570,
-                          DAT_0046999c);
+                          g_cBlackColour_0046999c);
             SetTextContext(&g_stConversationTextContext_005a7760);
             FormatTextBufferFromStart(
                 g_szTigerClawEscapeClosingFormat_0046af48, 0, 160,
@@ -929,7 +929,7 @@ unsigned int ShowTigerClawEscapeScene(void)
     ReleaseTextFont(0);
     free_3Space();
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x22);
     g_bScriptedView_0046a8d4 = 0;
@@ -952,8 +952,8 @@ unsigned int ShowTheEndScreen(short enableFireworks)
     InitializeConversationViewport();
     ViewMedals();
     ReleaseTextFont(0);
-    ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
-    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+    ClearViewport(&g_stModalSourceViewport_005a7670, g_cBlackColour_0046999c);
+    ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
     InitializeFireworks();
     g_pFireworkShape_005a6a68 =
         FetchDiskPacketRetrying(9, 0x11, 0);
@@ -966,7 +966,7 @@ unsigned int ShowTheEndScreen(short enableFireworks)
     activeFireworks = 0;
     frame = 0;
     do {
-        ClearViewport(&DAT_005a76b0, DAT_0046999c);
+        ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
         if (enableFireworks != 0 && activeFireworks != 0 &&
             (RandomBelowOrEqual(100) < 40 || frame > 280)) {
             slot = 0;
@@ -1287,7 +1287,7 @@ void SendCommMenuChoice(short i)
 /* Function start: 0x430D50 */
 void OpenCommMenuForTarget(const char *heading, const char *message)
 {
-    CockpitMessage(message, DAT_004699a8, -1);
+    CockpitMessage(message, g_cYellowColour_004699a8, -1);
     g_pszCommMenuHeading_0059e490 = heading;
 }
 
@@ -1528,7 +1528,7 @@ void show_communications_disp(void)
             do {
 #ifdef WC1_SDL
                 if ((int)choice == selectedChoice)
-                    DAT_005a7700.colour = DAT_004699a8;
+                    DAT_005a7700.colour = g_cYellowColour_004699a8;
 #endif
                 DrawFormattedText("\n%d %s", (int)choice + 1,
                                   g_apszCommMenuChoiceText_0059e4e0[
@@ -1625,7 +1625,7 @@ void EndCommMenu(void)
     clear_message_time();
     if (get_mode(1) == 6)
         EndCommSessionWithWingman();
-    DAT_00469004 = 0;
+    g_pszPendingHudMessage_00469004 = 0;
 }
 
 /* Function start: 0x4314F0 */
@@ -1633,7 +1633,7 @@ void ShowCentredPrompt(char *text, unsigned short arg)
 {
     DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
     SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
-                      DAT_004699a8, arg);
+                      g_cYellowColour_004699a8, arg);
 }
 
 /* Function start: 0x431520 */
@@ -2100,7 +2100,7 @@ void ThrottleFrameAndDrawFps(HDC dc)
 {
     DWORD now;
 
-    if (DAT_00465070 != 0) {
+    if (g_bShowFrameRate_00465070 != 0) {
         sprintf((char *)DAT_00476620, "%f", DAT_00486510);
         TextOutA(dc, 0, 0, (char *)DAT_00476620,
                  strlen((char *)DAT_00476620));
@@ -2116,7 +2116,7 @@ void ThrottleFrameAndDrawFps(HDC dc)
             Sleep(0);
     }
 
-    if (DAT_00465070 != 0) {
+    if (g_bShowFrameRate_00465070 != 0) {
         if (DAT_0046b1c4 != 0) {
             now = timeGetTime();
             DAT_00486510 = 1000.0f / ((double)now - DAT_0046b1c4);

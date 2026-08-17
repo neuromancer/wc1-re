@@ -254,8 +254,8 @@ unsigned int ejection_sequence(void)
         ReleasePacketHandle(g_pScreenViewportPacket_005a6b94);
         g_pScreenViewportPacket_005a6b94 = 0;
     }
-    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    FadeViewportPaletteToColour(&DAT_005a6ba0, g_cBlackColour_0046999c, 1);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     DIBslam();
     DIBslamReal();
     RestoreGamePalette();
@@ -295,8 +295,8 @@ void stranded_sequence(void)
     FreePacketAndClear(&g_pIntroFont_005a8960, 0);
     DAT_005a6ba0.top = 0;
     DAT_005a6ba0.bottom = 199;
-    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    FadeViewportPaletteToColour(&DAT_005a6ba0, g_cBlackColour_0046999c, 1);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     RestoreGamePalette();
     DAT_0059ab58 = 0;
 }
@@ -549,7 +549,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
     mouthStart = mouthCommands;
     faceFrame = 0;
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     mouthFrame = 0;
     faceCountdown = 0;
     mouthCountdown = 0;
@@ -641,13 +641,13 @@ unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
                               g_nConversationBackdropFrame_0046e588);
             break;
         }
-        ClearViewport(&DAT_005a76b0, DAT_0046999c);
+        ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
         break;
     case 3:
-        ClearViewport(&DAT_005a76b0, DAT_004699d8);
+        ClearViewport(&DAT_005a76b0, g_cPrimaryViewBufferColour_004699d8);
         break;
     default:
-        ClearViewport(&DAT_005a76b0, DAT_0046999c);
+        ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
         break;
     }
     DrawSpriteDefault(&DAT_005a76b0, 0, 0, talker, 0);
@@ -727,7 +727,7 @@ unsigned int DeBriefing(short series, short mission)
     InitializeConversationViewport();
     InitializeConversationText();
     ClearViewport(g_stConversationTextContext_005a7760.viewport,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     SetTextContext(&g_stConversationTextContext_005a7760);
     LoadBriefingData(series, mission);
     g_pConversationBackdropShape_00598c04 =
@@ -954,12 +954,12 @@ unsigned int UpdateMap(char *text, short duration)
 
     savedScreen = DAT_005a6ba0;
     savedVirtualScreen = DAT_005a76b0;
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     if (DAT_005a76b0.pixels != 0)
-        ClearViewport(&DAT_005a76b0, DAT_0046999c);
+        ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szBriefingMapTextFormat_00465660,
                               0, 160,
                               g_nConversationTextColour_00598c10,
@@ -968,9 +968,9 @@ unsigned int UpdateMap(char *text, short duration)
     DAT_005a76b0 = savedVirtualScreen;
     BriefingMap_DisplayMap();
     WaitForSceneAdvance(duration, 0);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     SetTextContext(&g_stConversationTextContext_005a7760);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     return 0;
 }
 
@@ -992,7 +992,7 @@ unsigned int CloseLook(unsigned char *shape, short shot,
     sceneFrame = 0;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szCloseLookTextFormat_0046566c,
                               0, 160,
                               g_nConversationTextColour_00598c10,

@@ -321,8 +321,8 @@ short PromptForTextInput(short x, short y, const char *prompt,
     InitializeModalTextPanel(&panel, 0,
                              g_dwModalBoundsTopLeft_00469440,
                              g_dwModalBoundsBottomRight_00469444,
-                             DAT_0046999c, DAT_0046999c,
-                             DAT_0046999c);
+                             g_cBlackColour_0046999c, g_cBlackColour_0046999c,
+                             g_cBlackColour_0046999c);
     widestCharacter = MeasureTextPixelWidthClamped("M");
     widestCharacter *= (int)maximumLength;
     promptWidth = MeasureTextPixelWidthClamped(prompt);
@@ -334,7 +334,7 @@ short PromptForTextInput(short x, short y, const char *prompt,
                                  (unsigned int)bounds[0],
                                  (unsigned int)bounds[1],
                                  g_cViewportClearColour_004699a0,
-                                 DAT_004699a4, DAT_004699ac) != 0) {
+                                 g_cBlueColour_004699a4, g_cRedColour_004699ac) != 0) {
         DrawModalTextPanel(&panel, 3, 6, 0, prompt);
         DIBslam();
         DIBslamReal();
@@ -374,7 +374,7 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
     char oldLabel[40];
     char *separator;
 
-    if (DAT_004688f0 == 0) {
+    if (g_bCampaignActive_004688f0 == 0) {
         WarnLoadGameFirst();
         return;
     }
@@ -532,7 +532,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
                 1, g_pMissionCampaignData_005988bc);
             DosMemcpy(objectives, gameRecord.objectives, 0x1f0);
             CorrectPointers();
-            DAT_004688f0 = 1;
+            g_bCampaignActive_004688f0 = 1;
         }
         ReleaseModalTextPanel();
         if (loaded == 0) {
@@ -751,7 +751,7 @@ int ConfirmReplaceFaultyData(short slot)
     short confirmed;
 
     confirmed = 0;
-    if (DAT_004688f0 == 0) {
+    if (g_bCampaignActive_004688f0 == 0) {
         WarnLoadGameFirst();
         return 0;
     }
@@ -877,12 +877,12 @@ short BarracksScreen(void)
                 HandleBarracksBunkSelection(
                     &DAT_005a76b0, background, &animation, region);
             } else if (region == 16) {
-                if (DAT_004688f0 == 0)
+                if (g_bCampaignActive_004688f0 == 0)
                     WarnLoadGameFirst();
                 else
                     result = 7;
             } else if (region == 17) {
-                if (DAT_004688f0 == 0)
+                if (g_bCampaignActive_004688f0 == 0)
                     WarnLoadGameFirst();
                 else
                     result = 8;
@@ -893,7 +893,7 @@ short BarracksScreen(void)
                         "You step out of the airlock and into...");
                 }
             } else if (region == 19) {
-                if (DAT_004688f0 == 0) {
+                if (g_bCampaignActive_004688f0 == 0) {
                     WarnLoadGameFirst();
                 } else {
                     LoadMissionData(
@@ -904,14 +904,14 @@ short BarracksScreen(void)
                         g_nInputTickScale_0059af90) {
                         LeaveAllocationScope();
                         ClearViewport(&g_stRoomScreenViewport_005988a0,
-                                      DAT_0046999c);
+                                      g_cBlackColour_0046999c);
                         DAT_005a76b0.bottom = 127;
                         DAT_005a6ba0.top = 24;
                         DAT_005a6ba0.bottom = 151;
                         ViewMedals();
                         lastMedalsTick = (int)DAT_0059ab54;
                         ClearViewport(&g_stRoomScreenViewport_005988a0,
-                                      DAT_0046999c);
+                                      g_cBlackColour_0046999c);
                         DAT_005a6ba0.top = 0;
                         DAT_005a6ba0.bottom = 199;
                         DAT_005a76b0.bottom = 199;

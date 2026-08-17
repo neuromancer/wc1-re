@@ -106,10 +106,10 @@ void ShowOnScreenMessage(int flags, short duration,
         SetHudTextColour(1);
         DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
         SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
-                          DAT_004699ac, messageDuration);
+                          g_cRedColour_004699ac, messageDuration);
         if (messageDuration == 9999) {
             ShowHudTextLine(g_szHudMessageBuffer_0059e1c0,
-                            (unsigned short)DAT_004699ac);
+                            (unsigned short)g_cRedColour_004699ac);
             dump_buffer_to_screen();
         }
     }
@@ -124,7 +124,7 @@ void ShowOnScreenMessage(int flags, short duration,
         return;
     }
     if (messageDuration == 9999)
-        SetHudMessageText("", DAT_004699ac, 2);
+        SetHudMessageText("", g_cRedColour_004699ac, 2);
 }
 
 /* Function start: 0x4290A0 */
@@ -268,10 +268,10 @@ int HandleSpaceFlightControls(void)
                     g_bVideoImagesSuppressed_0046af74 == 0;
                 if (g_bVideoImagesSuppressed_0046af74 != 0)
                     SetHudMessageText("VIDEO IMAGES SUPRESSED",
-                                      DAT_004699ac, 20);
+                                      g_cRedColour_004699ac, 20);
                 else
                     SetHudMessageText("VIDEO IMAGES ENABLED",
-                                      DAT_004699b4, 20);
+                                      g_cPrimaryTextColour_004699b4, 20);
             }
             break;
         case 0x30:
@@ -426,10 +426,10 @@ int HandleSpaceFlightControls(void)
                 g_bMissileCameraEnabled_0046c07c ^= 1;
                 if (g_bMissileCameraEnabled_0046c07c != 0)
                     SetHudMessageText("MISSILE CAMERA ON",
-                                      DAT_004699ac, 20);
+                                      g_cRedColour_004699ac, 20);
                 else
                     SetHudMessageText("MISSILE CAMERA OFF",
-                                      DAT_004699b4, 20);
+                                      g_cPrimaryTextColour_004699b4, 20);
             }
             break;
         case 0x43:
@@ -620,7 +620,7 @@ unsigned int Draw_3Space_Frame(void)
         g_pScreenViewportGeometry_0059a9f4,
         (int)g_cScreenViewportMode_0059a9f2,
         DAT_0046a008 > 0,
-        (unsigned char)DAT_004699d8);
+        (unsigned char)g_cPrimaryViewBufferColour_004699d8);
 #endif
     draw_sorted_objects_to_buffer();
     if (DAT_0046c03c == 0)
@@ -703,7 +703,7 @@ unsigned int RenderSpaceViewFrame(void)
     if (DAT_0046a008 == 0 && g_nTrainSimActive_00469e2c != 0) {
         DrawFilledViewportRect(&DAT_005a7510, 10, 10,
                                DAT_005a7510.right, 0x11,
-                               DAT_004699d8);
+                               g_cPrimaryViewBufferColour_004699d8);
         if (g_nArcadeBonusCountdown_0046a014 != 0) {
             g_nArcadeBonusCountdown_0046a014--;
             if (g_nArcadeBonusCountdown_0046a014 == 0) {
@@ -715,11 +715,11 @@ unsigned int RenderSpaceViewFrame(void)
                     g_nArcadeState_00469fb0 = 1;
                 else
                     g_nArcadeWave_00469e34++;
-                ClearViewport(&DAT_005a7510, DAT_004699d8);
+                ClearViewport(&DAT_005a7510, g_cPrimaryViewBufferColour_004699d8);
             }
         }
     }
-    ClearViewport(&DAT_005a7510, DAT_004699d8);
+    ClearViewport(&DAT_005a7510, g_cPrimaryViewBufferColour_004699d8);
     return 1;
 }
 
@@ -777,7 +777,8 @@ int RunSpaceFlight(short entryNavPoint)
     unsigned int frameReady;
 
     DAT_0046a008 = 0;
-    if (g_nTrainSimActive_00469e2c == 0 && DAT_0046507c == 0)
+    if (g_nTrainSimActive_00469e2c == 0 &&
+        g_bCockpitEnabled_0046507c == 0)
         DAT_0046a008 = 1;
     DAT_00469fb4 = 1;
     g_bInputMode_0059a848 = 1;

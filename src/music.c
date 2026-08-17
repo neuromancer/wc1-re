@@ -288,7 +288,7 @@ unsigned int DrawConstellationField(void)
 
     height = (short)(g_pConstellationViewport_005a6aac->bottom -
                      g_pConstellationViewport_005a6aac->top);
-    ClearViewport(g_pConstellationViewport_005a6aac, DAT_004699d8);
+    ClearViewport(g_pConstellationViewport_005a6aac, g_cPrimaryViewBufferColour_004699d8);
     for (index = 0;
          index < g_nConstellationStarCount_005a6ab0;
          index++) {
@@ -552,7 +552,7 @@ void show_target_disp(void)
                g_szEmptyTargetDisplayText_0046a948, 2);
     if (g_nTargetLockMode_0046c078 != 0) {
         DrawFormattedText(g_szTextColourStringColourFormat_0046a960,
-                          (unsigned int)DAT_004699ac,
+                          (unsigned int)g_cRedColour_004699ac,
                           g_szLockedTarget_0046a94c,
                           (unsigned int)g_cDefaultTextColour_004699cc);
     } else {
@@ -695,7 +695,7 @@ draw_readout:
                                   (short)(DAT_005a7530.bottom - 6),
                                   DAT_005a7530.right,
                                   DAT_005a7530.bottom,
-                                  (short)DAT_0046999c);
+                                  (short)g_cBlackColour_0046999c);
         g_bTargetLockReadoutDirty_0046c060 = 0;
     }
 }

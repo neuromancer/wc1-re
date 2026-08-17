@@ -116,7 +116,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
                     break;
             } while (g_nPacketError_00465460 != 8);
             if (AllocateViewport(&DAT_005a7510,
-                                 (short)DAT_004699d8, 0x20) == 0) {
+                                 (short)g_cPrimaryViewBufferColour_004699d8, 0x20) == 0) {
                 ReportPacketLoadError(0, logicalFile, flags, flags,
                                       "LP2");
             }
@@ -131,7 +131,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
                     break;
             } while (g_nPacketError_00465460 != 8);
             if (AllocateViewport(&DAT_005a76b0,
-                                 (short)DAT_0046999c, 0) == 0) {
+                                 (short)g_cBlackColour_0046999c, 0) == 0) {
                 ReportPacketLoadError(0, logicalFile, flags, section,
                                       "LP3");
             }
@@ -323,10 +323,10 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
 
     if (DAT_005a7510.pixels != 0) {
         g_stDiskPromptBackgroundViewport_005a7d00 = DAT_005a7510;
-        backgroundColour = (unsigned char)DAT_004699d8;
+        backgroundColour = (unsigned char)g_cPrimaryViewBufferColour_004699d8;
     } else if (DAT_005a76b0.pixels != 0) {
         g_stDiskPromptBackgroundViewport_005a7d00 = DAT_005a76b0;
-        backgroundColour = (unsigned char)DAT_0046999c;
+        backgroundColour = (unsigned char)g_cBlackColour_0046999c;
     } else {
         savedViewportMode = (signed char)AllocateViewport(
             &g_stDiskPromptBackgroundViewport_005a7d00, -1, 0);
@@ -602,14 +602,14 @@ void EraseLastTextInputCharacter(void)
 /* Function start: 0x41DEB0 */
 short WaitForStreamInputKey(void)
 {
-    unsigned int saved = DAT_0046505c;
+    unsigned int saved = g_bKeyEventQueueEnabled_0046505c;
     short key;
 
-    DAT_0046505c = 1;
+    g_bKeyEventQueueEnabled_0046505c = 1;
     do {
         key = WaitForInputKey();
     } while (key == 0);
-    DAT_0046505c = saved;
+    g_bKeyEventQueueEnabled_0046505c = saved;
     return key;
 }
 

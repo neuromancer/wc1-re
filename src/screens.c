@@ -56,7 +56,7 @@ unsigned int ViewMedals(void)
         FetchDiskPacketRetrying(4, 8, 0);
     g_pConversationBackdropShape_00598c04 = 0;
     InitializeConversationText();
-    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+    ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
     savedInputMode = g_bInputMode_0059a848;
     g_bInputMode_0059a848 = 1;
     do {
@@ -69,7 +69,7 @@ unsigned int ViewMedals(void)
         AddPCName(g_pszMedalsPilotSummary_0046e2f8);
         RefreshMemoryStatusOverlay();
         ClearViewport(&g_stConversationTextViewport_005a7570,
-                      DAT_0046999c);
+                      g_cBlackColour_0046999c);
         FormatTextBufferFromStart(
             g_szViewMedalsTextFormat_0046e604, 0, 160,
             g_cViewportClearColour_004699a0,
@@ -152,7 +152,7 @@ unsigned int DrawMedalChest(char *text, short duration)
 
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     offset = 0;
     FormatTextBufferFromStart(g_szMedalChestTextFormat_0046e610,
                               0, 160,
@@ -210,7 +210,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     countdown = 0;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szMedalLongShotTextFormat_0046e61c,
                               0, 160,
                               g_nConversationTextColour_00598c10,
@@ -274,7 +274,7 @@ unsigned int MedalEstablish(char *text, short duration)
     distance = 200;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     frame = 0;
     FormatTextBufferFromStart(g_szMedalEstablishTextFormat_0046e628,
                               0, 160,
@@ -312,12 +312,12 @@ unsigned int PinMedal(char *text, short duration)
     frame = 0;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szPinMedalTextFormat_0046e634,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_00598b00);
-    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+    ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
     SetFrameTimerPeriodDirect(duration);
     escaped = IsFrameTickElapsed();
     while (escaped == 0) {
@@ -420,7 +420,7 @@ unsigned int EstablishingShot(char *text, short duration)
             FetchDiskPacketRetrying(4, 5, 0);
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szEstablishingShotTextFormat_0046e640,
                               0, 160,
                               g_nConversationTextColour_00598c10,
@@ -498,7 +498,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
             FetchDiskPacketRetrying(4, 5, 0);
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szBriefingReturnTextFormat_0046e64c,
                               0, 160,
                               g_nConversationTextColour_00598c10,
@@ -543,7 +543,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
     }
     WaitForSceneAdvance(duration, 0);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     return 0;
 }
 
@@ -571,7 +571,7 @@ unsigned int Dismissed(char *text, short duration)
         FreePacketAndClear(&g_pBriefingPortraitShape_00598c24, 0);
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szDismissedTextFormat_0046e658,
                               0, 160,
                               g_nConversationTextColour_00598c10,
@@ -681,7 +681,7 @@ unsigned int DebriefingEstablishingShot(char *text, short duration)
     g_nDebriefingPodiumX_0046e57c = 344;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szDebriefEstablishTextFormat_0046e664,
                               0, 160,
                               g_nConversationTextColour_00598c10,
@@ -845,7 +845,7 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
             break;
         case 10:
             first = int_value(&test);
-            if (DAT_004688cc == 0)
+            if (g_bOfficeVisitPending_004688cc == 0)
                 return sceneData + first;
             break;
         case 11:
@@ -922,23 +922,23 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
             break;
         case 16:
             first = int_value(&test);
-            if (DAT_004688d0 != 1)
+            if (g_bPromotionPending_004688d0 != 1)
                 return sceneData + first;
             break;
         case 17:
             first = int_value(&test);
-            if (DAT_004688d4 == 0)
+            if (g_bPlayerEjectedThisMission_004688d4 == 0)
                 return sceneData + first;
             break;
         case 18:
             first = int_value(&test);
-            if (DAT_004688d4 == 1 &&
+            if (g_bPlayerEjectedThisMission_004688d4 == 1 &&
                 g_stCampaignState_0059ca50.elapsedDate.year == 1)
                 return sceneData + first;
             break;
         case 19:
             first = int_value(&test);
-            if (DAT_004688d8 != 1)
+            if (g_bPlayerShipTypeChanged_004688d8 != 1)
                 return sceneData + first;
             break;
         case 20:
@@ -964,18 +964,20 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
         case 24:
             first = int_value(&test);
             if (g_stCampaignState_0059ca50.playerShipType != 1 &&
-                g_stCampaignState_0059ca50.playerShipType < DAT_004688dc)
+                g_stCampaignState_0059ca50.playerShipType <
+                    g_nPreviousPlayerShipType_004688dc)
                 return sceneData + first;
             break;
         case 25:
             first = int_value(&test);
             if (g_stCampaignState_0059ca50.playerShipType == 1 ||
-                g_stCampaignState_0059ca50.playerShipType >= DAT_004688dc)
+                g_stCampaignState_0059ca50.playerShipType >=
+                    g_nPreviousPlayerShipType_004688dc)
                 return sceneData + first;
             break;
         case 26:
             first = int_value(&test);
-            if (DAT_004688d4 == 1 &&
+            if (g_bPlayerEjectedThisMission_004688d4 == 1 &&
                 g_stCampaignState_0059ca50.elapsedDate.year > 1)
                 return sceneData + first;
             break;
@@ -1240,7 +1242,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
     } while (DAT_0059ab58 != 1);
 scene_complete:
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FreeTalker();
     SetEventManagerPump(0);
     if (g_bConversationConstellation_0046e58c == 1) {
@@ -1318,7 +1320,7 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
 
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szFuneralLongShotTextFormat_0046e670,
                               0, 160,
                               g_nConversationTextColour_00598c10,
@@ -1506,8 +1508,8 @@ unsigned int death_sequence(void)
     free_all_slots();
     DAT_005a6ba0.top = 0;
     DAT_005a6ba0.bottom = 199;
-    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    FadeViewportPaletteToColour(&DAT_005a6ba0, g_cBlackColour_0046999c, 1);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     RestoreGamePalette();
     return 0;
 }

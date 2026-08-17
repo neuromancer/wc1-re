@@ -26,7 +26,7 @@ void RunTrainSim(void)
     g_cCockpitView_0059dab0 = 4;
     g_cCockpitLogicalFile_005a7c74 = 21;
 
-    if (DAT_004688e0 == 0) {
+    if (g_bCampaignStartupMode_004688e0 == 0) {
         ShowTrainSimHighScores();
         proceed = SelectTrainSimMission(&g_nTrainSimMission_00469e30);
     } else {
@@ -52,7 +52,7 @@ void RunTrainSim(void)
             init_mission(0, g_nTrainSimMission_00469e30);
             ShowGetReadyScreen();
 
-            if (DAT_004688e0 != 0) {
+            if (g_bCampaignStartupMode_004688e0 != 0) {
                 g_aasShipShield_0059d5b0[0][0] = 0;
                 g_aasShipMaximumShield_0059d6e0[0][0] = 0;
                 g_acPlayerComponentDamage_0059bff0[2] = 4;
@@ -71,8 +71,8 @@ void RunTrainSim(void)
             InvalidateVduMode(1);
             DIBslam();
             DIBslamReal();
-            savedFrameState = DAT_0046505c;
-            DAT_0046505c = 1;
+            savedFrameState = g_bKeyEventQueueEnabled_0046505c;
+            g_bKeyEventQueueEnabled_0046505c = 1;
             result = RunSpaceFlight(g_nArcadeWave_00469e34);
             if (result == 1) {
                 if (g_nTrainSimMission_00469e30 < 3)
@@ -85,7 +85,7 @@ void RunTrainSim(void)
                 ShowGameOverScreen();
                 g_nTrainSimMission_00469e30 = 4;
             }
-            DAT_0046505c = savedFrameState;
+            g_bKeyEventQueueEnabled_0046505c = savedFrameState;
         }
 
         g_stCampaignState_0059ca50.campaignIndex = savedCampaign;
@@ -148,7 +148,7 @@ unsigned int ShowMemoryStatusDebug(void)
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005a7740, 1,
             (unsigned char)g_cViewportClearColour_004699a0,
-            DAT_0046999c);
+            g_cBlackColour_0046999c);
         SetTextContext(&g_stDefaultTextContext_005a7740);
         DrawFormattedText("%X%YCurrent NMem %d.",
                           0, 176, (int)(short)GetOriginalFreeMemory());

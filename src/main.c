@@ -70,13 +70,13 @@ int main(short argc, char **argv)
                     DAT_0046a000 = 0;
                     break;
                 case 'f':
-                    DAT_00465070 = 1;
+                    g_bShowFrameRate_00465070 = 1;
                     break;
                 case 'k':
                     DAT_00469ffc = 0;
                     break;
                 case 'q':
-                    DAT_00465074 = 0;
+                    g_bDirectDrawModeCascadeEnabled_00465074 = 0;
                     break;
                 }
             }
@@ -125,7 +125,7 @@ int main(short argc, char **argv)
             break;
         case 's':
             if (g_nOriginDevUnlock_00469ff4 != 0) {
-                DAT_004688f0 = 1;
+                g_bCampaignActive_004688f0 = 1;
                 series = (short)atoi(argument + 1);
             }
             break;
@@ -178,7 +178,7 @@ int main(short argc, char **argv)
 #endif
 #ifdef WC1_SDL
         /* Use the normal campaign setup unless cockpitless mode was requested. */
-        if (DAT_0046507c != 0)
+        if (g_bCockpitEnabled_0046507c != 0)
             LaunchPlayerShip();
 #endif
         RunSpaceFlight(DAT_0046a010);
@@ -192,7 +192,7 @@ int main(short argc, char **argv)
     DAT_0059ab58 = 0;
     for (;;) {
         FrameStartHook(0);
-        DAT_004688e0 = 1;
+        g_bCampaignStartupMode_004688e0 = 1;
         selection = Title_Sequence();
         switch (selection) {
         case 0:
@@ -227,7 +227,7 @@ unsigned int GetScreenUpdateFlag(void)
 unsigned int initialize_view_buffer(void)
 {
     if (DAT_0046a004 != 0 && DAT_005a7510.pixels == 0) {
-        if (AllocateViewport(&DAT_005a7510, (short)DAT_004699d8,
+        if (AllocateViewport(&DAT_005a7510, (short)g_cPrimaryViewBufferColour_004699d8,
                              0x20) == 0)
             ReportOutOfMemoryAndExit(g_szSpaceBuffer_0046a1d0);
     }
@@ -271,21 +271,21 @@ unsigned int dump_buffer_to_screen(void)
 /* Function start: 0x427B00 */
 unsigned int clear_view_buffer(void)
 {
-    ClearViewport(&DAT_005a7510, (unsigned char)DAT_004699d8);
+    ClearViewport(&DAT_005a7510, (unsigned char)g_cPrimaryViewBufferColour_004699d8);
     return 0;
 }
 
 /* Function start: 0x427B20 */
 unsigned int InitializeConversationViewport(void)
 {
-    ClearViewport(&g_stModalSourceViewport_005a7670, DAT_0046999c);
+    ClearViewport(&g_stModalSourceViewport_005a7670, g_cBlackColour_0046999c);
     DAT_005a6ba0.top = 24;
     DAT_005a6ba0.bottom = 151;
     DAT_005a76b0.left = 0;
     DAT_005a76b0.right = 319;
     DAT_005a76b0.top = 0;
     DAT_005a76b0.bottom = 127;
-    if (AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0) == 0)
+    if (AllocateViewport(&DAT_005a76b0, (short)g_cBlackColour_0046999c, 0) == 0)
         ReportPacketLoadError(0, 0, 0, 0,
                               g_szAllocateBufferTag_0046a1e0);
     return 0;
@@ -314,7 +314,7 @@ unsigned int InitializeConversationText(void)
     InitializeTextContextFromFont(&g_stConversationTextContext_005a7760,
                                   0,
                                   g_cViewportClearColour_004699a0,
-                                  DAT_0046999c);
+                                  g_cBlackColour_0046999c);
     SetTextContext(&g_stConversationTextContext_005a7760);
     return 0;
 }
@@ -368,13 +368,13 @@ unsigned int UpdateSpacePaletteFade(void)
         switch ((int)(short)DAT_0046b168) {
         case 9:
         case 13:
-            ClearViewport(&DAT_005a7510, (short)DAT_004699ac);
+            ClearViewport(&DAT_005a7510, (short)g_cRedColour_004699ac);
             g_bViewportDirty_00469fc4 = 1;
             DAT_005a7780[0] = 0;
             break;
         case 0x13:
             DAT_005a7780[0] = (short)(DAT_005a7780[0] - 4);
-            SetPaletteEntry((short)DAT_004699d8,
+            SetPaletteEntry((short)g_cPrimaryViewBufferColour_004699d8,
                             DAT_005a7780);
             break;
         }

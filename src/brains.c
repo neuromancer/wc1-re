@@ -1735,10 +1735,10 @@ unsigned int landing(signed char damageLevel)
             damageOffset, 0);
         if (DAT_0059ab58 != 1) {
             ClearViewport(&g_stConversationTextViewport_005a7570,
-                          DAT_0046999c);
+                          g_cBlackColour_0046999c);
             FormatTextBufferFromStart(
                 g_szLandingCommentFormat_00465bf8, 0, 160,
-                DAT_004699a4,
+                g_cBlueColour_004699a4,
                 *(const char **)
                     ((unsigned char *)g_apszLandingDamageComments_00465ab8 +
                      damageOffset));
@@ -1759,7 +1759,7 @@ unsigned int landing(signed char damageLevel)
     ReleasePacketHandle(g_pScrambleCanopyShape_005a874c);
     ResetScreenClipToFullHeight();
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x1d);
     return 0;
@@ -1847,7 +1847,7 @@ unsigned int funeral_wingman(char *text, short duration)
 {
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
-                  DAT_0046999c);
+                  g_cBlackColour_0046999c);
     FormatTextBufferFromStart(g_szFuneralTextFormat_00465c0c,
                               0, 160,
                               g_nConversationTextColour_00598c10,
@@ -1923,16 +1923,16 @@ unsigned int funeral_sequence(int playerFuneral)
     init_constellation(0);
     g_pConversationSpecialShape_005a86ec =
         FetchDiskPacketRetrying(4, 9, 0);
-    ClearViewport(&DAT_005a76b0, DAT_004699d8);
+    ClearViewport(&DAT_005a76b0, g_cPrimaryViewBufferColour_004699d8);
     InitializeConstellationField(&DAT_005a76b0, -1, 16);
     DAT_0059ab58 = 0;
     PumpWindowMessages();
     SceneDirector(3, sceneData, textData);
 
     if (DAT_0059ab58 != 1) {
-        ClearViewport(&DAT_005a76b0, DAT_004699d8);
+        ClearViewport(&DAT_005a76b0, g_cPrimaryViewBufferColour_004699d8);
         ClearViewport(&g_stConversationTextViewport_005a7570,
-                      DAT_0046999c);
+                      g_cBlackColour_0046999c);
         DAT_00469fb4 = 1;
         for (; frame < 10; frame++) {
             PumpWindowMessages();
@@ -1945,7 +1945,7 @@ unsigned int funeral_sequence(int playerFuneral)
             frame = 0;
             FormatTextBufferFromStart(
                 g_szFuneralCompanyCommand_00465c18, 0, 160,
-                DAT_004699a4);
+                g_cBlueColour_004699a4);
             DAT_00469fb4 = 1;
             for (; frame < 15; frame++) {
                 PumpWindowMessages();
@@ -1954,7 +1954,7 @@ unsigned int funeral_sequence(int playerFuneral)
                     break;
             }
             ClearViewport(&g_stConversationTextViewport_005a7570,
-                          DAT_0046999c);
+                          g_cBlackColour_0046999c);
 
             if (DAT_0059ab58 != 1) {
                 frame = 0;
@@ -1984,7 +1984,7 @@ unsigned int funeral_sequence(int playerFuneral)
                     if (DAT_0059ab58 != 1) {
                         ClearViewport(
                             &g_stConversationTextViewport_005a7570,
-                            DAT_0046999c);
+                            g_cBlackColour_0046999c);
                         frame = 10;
                         DAT_00469fb4 = 1;
                         FormatTextBufferFromStart(
@@ -2011,16 +2011,16 @@ unsigned int funeral_sequence(int playerFuneral)
                             SceneDirector(3, followupSceneData,
                                           followupTextData);
                             ClearViewport(&DAT_005a76b0,
-                                          DAT_004699d8);
+                                          g_cPrimaryViewBufferColour_004699d8);
 
                             if (DAT_0059ab58 != 1) {
                                 for (volley = 0; volley < 3; volley++) {
                                     ClearViewport(
                                         &g_stConversationTextViewport_005a7570,
-                                        DAT_0046999c);
+                                        g_cBlackColour_0046999c);
                                     FormatTextBufferFromStart(
                                         g_szFuneralFireCommand_00465c54,
-                                        0, 160, DAT_004699a4);
+                                        0, 160, g_cBlueColour_004699a4);
                                     if (volley == 1)
                                         PlaySfxWaveFileByNumber(
                                             0x1e, -1, 0);
@@ -2049,7 +2049,7 @@ unsigned int funeral_sequence(int playerFuneral)
 
                                     ClearViewport(
                                         &g_stConversationTextViewport_005a7570,
-                                        DAT_0046999c);
+                                        g_cBlackColour_0046999c);
                                     if (DAT_0059ab58 == 1)
                                         break;
 
@@ -2142,8 +2142,8 @@ unsigned int funeral_sequence(int playerFuneral)
     free_constellation();
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
-    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    FadeViewportPaletteToColour(&DAT_005a6ba0, g_cBlackColour_0046999c, 1);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     RestoreGamePalette();
     DAT_0059ab58 = 0;
     ClearInputKeyStatePreservingModifiers();
@@ -3474,7 +3474,7 @@ void prepare_mission(void)
 
     memset(g_acPlayerComponentDamage_0059bff0, 0,
            sizeof(g_acPlayerComponentDamage_0059bff0));
-    DAT_00465c84 = 1;
+    g_bInitialFormationSetup_00465c84 = 1;
     g_nYourWingman_0046c04c = -1;
     initial = 0;
     do {
@@ -3491,7 +3491,7 @@ void prepare_mission(void)
         }
         initial++;
     } while (initial < 8);
-    DAT_00465c84 = 0;
+    g_bInitialFormationSetup_00465c84 = 0;
 
     Build_objective_list();
     missionShip = 0;
@@ -4123,7 +4123,7 @@ unsigned int set_formation_position(short obj,
         &g_aaFormationPositions_00465ed8[leaderRecord->formationIndex]
                                                [leaderRecord->formationSpot],
         &g_aShipFormationOffset_0059b520[obj]);
-    if (source == 0 && DAT_00465c84 == 0)
+    if (source == 0 && g_bInitialFormationSetup_00465c84 == 0)
         return 0;
 
     copy_frame(source, obj);

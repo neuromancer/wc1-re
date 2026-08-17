@@ -119,7 +119,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
 /* Function start: 0x42B160 */
 void InitializeAudioSystem(HWND window)
 {
-    if (DAT_00465058 != 0 && DAT_0046a440 == 0) {
+    if (g_bIxAudioEnabled_00465058 != 0 && DAT_0046a440 == 0) {
         ix_system_configure(3, (void *)1);
         ix_system_configure(0, window);
         ix_system_init();
@@ -131,7 +131,7 @@ void InitializeAudioSystem(HWND window)
 /* Function start: 0x42B1B0 */
 void ServiceAudioStream(void)
 {
-    if (DAT_00465058 != 0 && DAT_0046a440 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0 && DAT_0046a440 != 0) {
         ix_system_delete_all_sounds();
         ix_system_delete_all_samples();
         ix_system_shutdown();

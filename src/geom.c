@@ -1006,8 +1006,8 @@ void remove_object(short obj)
         return;
     g_asObjectScreenX_0059d9b0[obj] = (short)0x8001;
     g_asObjectDistance_0059b4a0[obj] = 0;
-    if (obj == DAT_00469208)
-        DAT_00469208 = -1;
+    if (obj == g_nNavPointerObject_00469208)
+        g_nNavPointerObject_00469208 = -1;
     if (obj == g_nYourWingman_0046c04c)
         g_nYourWingman_0046c04c = -1;
     for (slot = 0; slot < 20; slot++) {
@@ -1211,7 +1211,7 @@ void transform_objects_to_your_view(void)
         if (g_aeObjectClass_0059d100[objectIndex] != OBJECT_CLASS_NULL &&
             g_aeObjectClass_0059d100[objectIndex] !=
                 OBJECT_CLASS_FIXED_OBJECT &&
-            obj != DAT_00469208) {
+            obj != g_nNavPointerObject_00469208) {
             g_asPreviousObjectDistance_0059d080[objectIndex] =
                 g_asObjectDistance_0059b4a0[objectIndex];
             g_asObjectDistance_0059b4a0[objectIndex] = 0;
@@ -1557,8 +1557,8 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
         return 0;
     if (InitializeModalTextPanel(g_pModalTextPanel_00469448, fontIndex,
                                  topLeft, bottomRight,
-                                 DAT_0046999c, DAT_0046999c,
-                                 DAT_0046999c) == 0) {
+                                 g_cBlackColour_0046999c, g_cBlackColour_0046999c,
+                                 g_cBlackColour_0046999c) == 0) {
         ReleasePacketHandle(g_pModalTextPanel_00469448);
         g_pModalTextPanel_00469448 = 0;
         return 0;
@@ -1572,7 +1572,7 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
     if (InitializeModalTextPanel(g_pModalTextPanel_00469448, fontIndex,
                                  topLeft, bottomRight,
                                  g_cViewportClearColour_004699a0,
-                                 DAT_004699a4, DAT_004699ac) == 0) {
+                                 g_cBlueColour_004699a4, g_cRedColour_004699ac) == 0) {
         ReleasePacketHandle(g_pModalTextPanel_00469448);
         g_pModalTextPanel_00469448 = 0;
         return 0;

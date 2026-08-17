@@ -9,15 +9,15 @@
 short g_nNavMapCoordinateScaling_00468660 = 0;
 short g_nNavMapScale_00468664 = 1;
 NavMapObjectiveStyle g_aNavMapObjectiveStyles_00468668[10] = {
-    { 1, 2, &DAT_004699b4, &g_cDefaultTextColour_004699cc,
+    { 1, 2, &g_cPrimaryTextColour_004699b4, &g_cDefaultTextColour_004699cc,
       &g_cDefaultTextColour_004699cc },
-    { 3, 2, &DAT_0046999c, &g_cViewportClearColour_004699a0,
+    { 3, 2, &g_cBlackColour_0046999c, &g_cViewportClearColour_004699a0,
       &g_cDefaultTextColour_004699cc },
-    { 4, 2, &DAT_004699c8, &DAT_004699c8,
+    { 4, 2, &g_cMagentaColour_004699c8, &g_cMagentaColour_004699c8,
       &g_cDefaultTextColour_004699cc },
-    { 2, 3, &DAT_004699c8, &g_cDefaultTextColour_004699cc,
+    { 2, 3, &g_cMagentaColour_004699c8, &g_cDefaultTextColour_004699cc,
       &g_cDefaultTextColour_004699cc },
-    { 2, 3, &DAT_004699ac, &DAT_004699ac,
+    { 2, 3, &g_cRedColour_004699ac, &g_cRedColour_004699ac,
       &g_cDefaultTextColour_004699cc },
     { 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0 },
@@ -82,16 +82,16 @@ char g_szConfedNavScan_004688b0[16] = "ConFed Nav Scan";
 volatile short g_nNearHeapActive_004688c0 = 0;
 volatile short g_nNearHeapMaxDescriptors_004688c4 = 0x80;
 volatile int g_nNearHeapRelocationBytes_004688c8 = 0;
-int DAT_004688cc = 0;
-int DAT_004688d0 = 0;
-int DAT_004688d4 = 0;
-int DAT_004688d8 = 0;
-short DAT_004688dc = 0;
-int DAT_004688e0 = 0;
-short DAT_004688e4 = -1;
-short DAT_004688e8 = -1;
-unsigned short DAT_004688ec = 1;
-int DAT_004688f0 = 0;
+int g_bOfficeVisitPending_004688cc = 0;
+int g_bPromotionPending_004688d0 = 0;
+int g_bPlayerEjectedThisMission_004688d4 = 0;
+int g_bPlayerShipTypeChanged_004688d8 = 0;
+short g_nPreviousPlayerShipType_004688dc = 0;
+int g_bCampaignStartupMode_004688e0 = 0;
+short g_nPendingMedalIndex_004688e4 = -1;
+short g_nPostSeriesSequence_004688e8 = -1;
+unsigned short g_bSeriesFailed_004688ec = 1;
+int g_bCampaignActive_004688f0 = 0;
 char *g_pszIntroOpeningText_00468910 =
     "In the distant future,\n"
     "mankind is locked in a deadly war...";
@@ -475,7 +475,7 @@ void BuildMap(short showPlayer)
     g_stNavLabelTextContext_005a8180.viewport = &DAT_005a76b0;
     g_stNavLabelTextContext_005a8180.text = g_szDefaultTextBuffer_005a7590;
     InitializeTextContextFromFont(&g_stNavLabelTextContext_005a8180,
-                                  2, DAT_004699b4, -1);
+                                  2, g_cPrimaryTextColour_004699b4, -1);
     g_stNavLabelTextContext_005a8180.alignment = 0;
     SetTextContext(&g_stNavLabelTextContext_005a8180);
     ResetNavMapLabels();
@@ -493,13 +493,13 @@ void BuildMap(short showPlayer)
                     DrawNavHazardMarker(navPoint->position,
                                         missionShip->position,
                                         missionShip->speed,
-                                        DAT_004699d4, DAT_004699d4,
+                                        g_cAsteroidColour_004699d4, g_cAsteroidColour_004699d4,
                                         g_szNavAsteroids_004687b8);
                 } else if (missionShip->type == OBJECT_TYPE_MINE_FIELD) {
                     DrawNavHazardMarker(navPoint->position,
                                         missionShip->position,
                                         missionShip->speed,
-                                        DAT_004699ac, DAT_004699ac,
+                                        g_cRedColour_004699ac, g_cRedColour_004699ac,
                                         g_szNavMines_004687c4);
                 }
             }
@@ -541,7 +541,7 @@ void BuildMap(short showPlayer)
                     break;
                 }
                 if (g_cCurrentObjective_0046c020 == objectiveIndex)
-                    labelColour = DAT_004699a8;
+                    labelColour = g_cYellowColour_004699a8;
                 else
                     labelColour = *style->labelColour;
                 g_awNavObjectiveLabelIndex_005a8130[objectiveIndex] =
@@ -557,7 +557,7 @@ void BuildMap(short showPlayer)
         nav_getxy(&x, &y, g_aShipPosition_0059c490[0].x,
                   g_aShipPosition_0059c490[0].z);
         PlaceNavMapLabel(
-            x, y, DAT_004699c4,
+            x, y, g_cLightGreyColour_004699c4,
             g_stCampaignState_0059ca50.currentPilot->callsign);
     }
     DrawNavMapLabels();
@@ -607,8 +607,8 @@ void FormatNavCoordinates(unsigned char *out)
 void DrawSelectedNavLegendEntry(const char *text, short navPoint)
 {
     if ((short)g_cCurrentNavPointIndex_0059c86c == navPoint) {
-        DrawNavTextLine(0, (unsigned short)DAT_004699a8, text);
-        DrawNavTextLine(0, (unsigned short)DAT_004699a8,
+        DrawNavTextLine(0, (unsigned short)g_cYellowColour_004699a8, text);
+        DrawNavTextLine(0, (unsigned short)g_cYellowColour_004699a8,
                         g_szNavLegendNewline_004687fc);
     }
 }
@@ -648,12 +648,12 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
 {
     enum ShipMissionType playerMissionType;
 
-    ClearViewport(&DAT_005a76b0, DAT_0046999c);
+    ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
     SetScreenClipRect(155, 2, 259, 155);
     g_stNavMapTextContext_005a8160.viewport = &DAT_005a76b0;
     g_stNavMapTextContext_005a8160.text = g_szDefaultTextBuffer_005a7590;
     InitializeTextContextFromFont(&g_stNavMapTextContext_005a8160,
-                                  1, DAT_004699b4, DAT_0046999c);
+                                  1, g_cPrimaryTextColour_004699b4, g_cBlackColour_0046999c);
     g_stNavMapTextContext_005a8160.alignment = 0;
     g_stNavMapTextContext_005a8160.cursorX = 0;
     g_stNavMapTextContext_005a8160.cursorY = 0;
@@ -708,7 +708,7 @@ void BriefingMap_LoadShapes(void)
     g_pNavMapShape_00468708 =
         FetchDiskPacketRetrying(8, 2, 0);
     SetScreenClipRect(0, 0, 259, 155);
-    if (AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0) == 0)
+    if (AllocateViewport(&DAT_005a76b0, (short)g_cBlackColour_0046999c, 0) == 0)
         ReportOutOfMemoryAndExit(g_szNavViewportName_00468894);
     objective = 0;
     while (objective < (short)g_cMissionObjectiveCount_0059c46a) {
@@ -733,7 +733,7 @@ void BriefingMap_DisplayMap(void)
     ReleaseTextFont(2);
     ReleaseTextFont(1);
     DAT_005a76b0 = savedViewport;
-    AllocateViewport(&DAT_005a76b0, (short)DAT_0046999c, 0);
+    AllocateViewport(&DAT_005a76b0, (short)g_cBlackColour_0046999c, 0);
 }
 
 /* Function start: 0x40E2B0 */
@@ -845,7 +845,7 @@ void InflightComputer(void)
     GetScreenUpdateFlag();
     g_cScreenViewportMode_0059a9f2 = -1;
     background = FetchDiskPacketRetrying(8, 1, 0);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     DrawSpriteDefault(&DAT_005a6ba0, 0, 0, background, 0);
     ReleasePacketHandle(background);
 
@@ -892,7 +892,7 @@ void InflightComputer(void)
                 (unsigned char *)g_pElapsedCampaignDate_005a86ac);
             g_stNavLabelTextContext_005a8180.viewport = &DAT_005a6ba0;
             frame = DAT_0059ab54 / 15;
-            markerColour = DAT_004699c0;
+            markerColour = g_cDarkGreyColour_004699c0;
             if (frame % 2 != 0)
                 markerColour = g_cViewportClearColour_004699a0;
             DrawNavPlayerMarker(markerColour, 0);
@@ -1417,9 +1417,10 @@ unsigned int UpdateSeries(void)
 
     if (g_stCampaignState_0059ca50.currentMission >=
         (signed char)seriesData[2]) {
-        DAT_004688dc =
+        g_nPreviousPlayerShipType_004688dc =
             (short)g_stCampaignState_0059ca50.playerShipType;
-        DAT_004688e8 = (short)(signed char)seriesData[5];
+        g_nPostSeriesSequence_004688e8 =
+            (short)(signed char)seriesData[5];
         g_stCampaignState_0059ca50.seriesHistory[
             g_stCampaignState_0059ca50.seriesHistoryCount] =
             g_stCampaignState_0059ca50.currentSeries;
@@ -1437,20 +1438,20 @@ unsigned int UpdateSeries(void)
             g_stCampaignState_0059ca50.playerShipType =
                 (enum ObjectType)(signed char)seriesData[7];
         }
-        DAT_004688ec = (unsigned short)failed;
-        if (DAT_004688dc !=
+        g_bSeriesFailed_004688ec = (unsigned short)failed;
+        if (g_nPreviousPlayerShipType_004688dc !=
             (short)g_stCampaignState_0059ca50.playerShipType) {
-            DAT_004688d8 = 1;
-            DAT_004688cc = 1;
+            g_bPlayerShipTypeChanged_004688d8 = 1;
+            g_bOfficeVisitPending_004688cc = 1;
         }
         g_stCampaignState_0059ca50.seriesScore = 0;
         g_stCampaignState_0059ca50.currentMission = 0;
         if ((signed char)g_pMissionCampaignData_005988bc[
                 (int)g_stCampaignState_0059ca50.currentSeries *
                 0x5a + 5] ==
-                DAT_004688e8 &&
-            DAT_004688e8 < 0x40)
-            DAT_004688e8 = -1;
+                g_nPostSeriesSequence_004688e8 &&
+            g_nPostSeriesSequence_004688e8 < 0x40)
+            g_nPostSeriesSequence_004688e8 = -1;
     }
 
     if (g_nWingmanKilledThisMission_005a7cb4 != 0)
@@ -1458,10 +1459,10 @@ unsigned int UpdateSeries(void)
             MaxShort(0, (short)(
                 g_stCampaignState_0059ca50.missionScore - 15));
     if (medalData[1] <= g_nMissionMedalScore_005a8116 &&
-        DAT_004688e4 == -1) {
+        g_nPendingMedalIndex_004688e4 == -1) {
         g_stSavedCampaignDate_0046e188 =
             *g_pCurrentCampaignDate_005a86a8;
-        DAT_004688e4 = medalData[0];
+        g_nPendingMedalIndex_004688e4 = medalData[0];
     }
     return 0;
 }
@@ -1488,13 +1489,13 @@ unsigned int MoveNewCampaign(void)
 /* Function start: 0x40F440 */
 unsigned int StartNewCampaign(short campaign)
 {
-    DAT_004688f0 = 1;
+    g_bCampaignActive_004688f0 = 1;
     ResetCampaignData();
-    DAT_004688e0 = 1;
+    g_bCampaignStartupMode_004688e0 = 1;
     RunTrainSim();
     g_stCampaignState_0059ca50.campaignIndex = campaign;
     g_nCampaignDataSet_005a8118 = campaign;
-    DAT_004688e0 = 0;
+    g_bCampaignStartupMode_004688e0 = 0;
     LoadPacketIntoBuffer(g_asCampaignPilotFiles_00469450[campaign], 1,
                          g_pMissionCampaignData_005988bc);
     DAT_00470510 = 0;
@@ -1521,23 +1522,23 @@ short GameFlow(void)
         g_nCampaignDataSet_005a8118 = DAT_005a8114;
     }
 
-    DAT_0046505c = 0;
+    g_bKeyEventQueueEnabled_0046505c = 0;
     do {
         roomSelection = 0;
-        DAT_004688d4 = 0;
-        DAT_004688e8 = -1;
-        DAT_004688d0 = 0;
-        DAT_004688e4 = -1;
-        DAT_004688cc = 0;
-        DAT_004688d8 = 0;
-        if (DAT_004688e0 == 0)
+        g_bPlayerEjectedThisMission_004688d4 = 0;
+        g_nPostSeriesSequence_004688e8 = -1;
+        g_bPromotionPending_004688d0 = 0;
+        g_nPendingMedalIndex_004688e4 = -1;
+        g_bOfficeVisitPending_004688cc = 0;
+        g_bPlayerShipTypeChanged_004688d8 = 0;
+        if (g_bCampaignStartupMode_004688e0 == 0)
             roomSelection = RecRoom();
         DAT_00470510 = 0;
         if (roomSelection == 5) {
             RunTrainSim();
         } else {
             barracksSelection = BarracksScreen();
-            DAT_004688e0 = 0;
+            g_bCampaignStartupMode_004688e0 = 0;
             if (barracksSelection == 6)
                 return 0;
             if (barracksSelection == 7)
@@ -1546,7 +1547,7 @@ short GameFlow(void)
         PumpWindowMessages();
     } while (launchMission == 0);
 
-    DAT_0046505c = 1;
+    g_bKeyEventQueueEnabled_0046505c = 1;
     g_nDebriefingPersonality_00465c80 = *(short *)(
         g_pMissionCampaignData_005988bc +
         (short)g_stCampaignState_0059ca50.currentSeries * 0x5a - 0x5a);
@@ -1583,13 +1584,13 @@ short GameFlow(void)
         if (g_nArcadeState_00469fb0 == 3)
             return 0;
         g_nArcadeState_00469fb0 = 0;
-        DAT_004688d4 = 1;
+        g_bPlayerEjectedThisMission_004688d4 = 1;
         g_stCampaignState_0059ca50.promotionScore = MaxShort(
             0, (short)(g_stCampaignState_0059ca50.promotionScore - 1));
         g_stCampaignState_0059ca50.elapsedDate.year++;
         if (g_stCampaignState_0059ca50.elapsedDate.year == 1)
-            DAT_004688e4 = 3;
-        DAT_004688cc = 1;
+            g_nPendingMedalIndex_004688e4 = 3;
+        g_bOfficeVisitPending_004688cc = 1;
         break;
     case 3:
         stranded_sequence();
@@ -1599,7 +1600,7 @@ short GameFlow(void)
         death_sequence();
         free_3Space();
         funeral_sequence(1);
-        DAT_004688f0 = 0;
+        g_bCampaignActive_004688f0 = 0;
         return 0;
     default:
         free_cockpit();
@@ -1615,59 +1616,62 @@ short GameFlow(void)
     g_stCampaignState_0059ca50.currentSeries = (signed char)flownSeries;
     g_stCampaignState_0059ca50.currentMission = (signed char)flownMission;
 
-    if (DAT_004688d4 == 0) {
+    if (g_bPlayerEjectedThisMission_004688d4 == 0) {
         if ((unsigned short)RandomInRange(0, 5) +
                 g_stCampaignState_0059ca50.promotionScore > 7) {
             g_stCampaignState_0059ca50.promotionScore = 0;
             if (g_nCampaignDataSet_005a8118 == 0) {
-                DAT_004688d0 =
+                g_bPromotionPending_004688d0 =
                     g_stCampaignState_0059ca50.currentPilot->rank < 3;
             } else if (g_nCampaignDataSet_005a8118 > 0) {
-                DAT_004688d0 =
+                g_bPromotionPending_004688d0 =
                     g_stCampaignState_0059ca50.currentPilot->rank < 4;
             } else {
-                DAT_004688d0 = 0;
+                g_bPromotionPending_004688d0 = 0;
             }
-            DAT_004688cc =
-                DAT_004688cc != 0 || DAT_004688d0 != 0;
+            g_bOfficeVisitPending_004688cc =
+                g_bOfficeVisitPending_004688cc != 0 ||
+                g_bPromotionPending_004688d0 != 0;
         }
     }
 
     DeBriefing(flownSeries, flownMission);
-    if (DAT_004688d0 != 0)
+    if (g_bPromotionPending_004688d0 != 0)
         g_stCampaignState_0059ca50.currentPilot->rank++;
 
     if (nextSeries == -1) {
-        if (DAT_004688e4 != -1)
-            AwardCampaignMedal(DAT_004688e4);
+        if (g_nPendingMedalIndex_004688e4 != -1)
+            AwardCampaignMedal(g_nPendingMedalIndex_004688e4);
 
-        if (DAT_004688e8 == -1) {
+        if (g_nPostSeriesSequence_004688e8 == -1) {
             flightResult = 0;
-        } else if (DAT_004688e8 == 0x40) {
+        } else if (g_nPostSeriesSequence_004688e8 == 0x40) {
             ShowCampaignVictorySequence();
             flightResult = 1;
-        } else if (DAT_004688e8 == 0x41) {
+        } else if (g_nPostSeriesSequence_004688e8 == 0x41) {
             ShowTigerClawEscapeScene();
             flightResult = 0;
         } else {
-            ShowMeanwhileTransition(DAT_004688e8, (short)DAT_004688ec);
-            flightResult = DAT_004688ec >= 1;
+            ShowMeanwhileTransition(g_nPostSeriesSequence_004688e8,
+                                    (short)g_bSeriesFailed_004688ec);
+            flightResult = g_bSeriesFailed_004688ec >= 1;
         }
         ShowTheEndScreen((short)flightResult);
-        DAT_004688f0 = 0;
+        g_bCampaignActive_004688f0 = 0;
         return 0;
     }
 
     if (g_nWingmanKilledThisMission_005a7cb4 != 0)
         funeral_sequence(0);
-    if (DAT_004688cc == 1)
+    if (g_bOfficeVisitPending_004688cc == 1)
         Office();
-    if (DAT_004688e4 != -1) {
-        AwardCampaignMedal(DAT_004688e4);
-        DAT_004688e4 = -1;
+    if (g_nPendingMedalIndex_004688e4 != -1) {
+        AwardCampaignMedal(g_nPendingMedalIndex_004688e4);
+        g_nPendingMedalIndex_004688e4 = -1;
     }
-    if (DAT_004688e8 != -1)
-        ShowMeanwhileTransition(DAT_004688e8, (short)DAT_004688ec);
+    if (g_nPostSeriesSequence_004688e8 != -1)
+        ShowMeanwhileTransition(g_nPostSeriesSequence_004688e8,
+                                (short)g_bSeriesFailed_004688ec);
     g_stCampaignState_0059ca50.currentSeries = (signed char)nextSeries;
     g_stCampaignState_0059ca50.currentMission = (signed char)nextMission;
     MoveNewCampaign();
@@ -1801,7 +1805,7 @@ int Title_Sequence(void)
     signed char selectedIndex;
 
     state = 0;
-    if (DAT_0046506c != 0)
+    if (g_bShowKilrathiSagaCredits_0046506c != 0)
         g_nIntroCreditCount_00468a30 += 9;
     if (DAT_0059ab58 == 0) {
         PreloadMusicTrackHook(0x17);
@@ -2025,7 +2029,7 @@ int Title_Sequence(void)
         menuIndex++;
     } while (menuIndex < 4);
 
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     menuIndex = 0;
     do {
         if (menuOptions[menuIndex] != -1) {
@@ -2052,7 +2056,7 @@ int Title_Sequence(void)
     WarpMouseTo(160, 100);
     EnterAllocationScope();
     g_bInputMode_0059a848 = 1;
-    DAT_0046505c = 0;
+    g_bKeyEventQueueEnabled_0046505c = 0;
     while (state == 0) {
         selectedIndex = -1;
         activate = 0;
@@ -2098,15 +2102,15 @@ int Title_Sequence(void)
         DIBslamReal();
     }
 
-    DAT_0046505c = 1;
+    g_bKeyEventQueueEnabled_0046505c = 1;
     ClearDebugPauseFlags();
     ReleasePacketHandle(menuShape);
     ReleasePacketHandle(alternateMenuShape);
     SetEventManagerPump(0);
     EventManagerHook(0);
     LeaveAllocationScope();
-    FadeViewportPaletteToColour(&DAT_005a6ba0, DAT_0046999c, 1);
-    ClearViewport(&DAT_005a6ba0, DAT_0046999c);
+    FadeViewportPaletteToColour(&DAT_005a6ba0, g_cBlackColour_0046999c, 1);
+    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
     DIBslam();
     DIBslamReal();
     RestoreGamePalette();

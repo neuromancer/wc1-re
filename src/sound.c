@@ -28,7 +28,7 @@ void StopSoundsUsingWave(const char *name)
     WaveTableEntry *wave;
     ActiveSoundEntry *entry;
 
-    if (DAT_00465058 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0) {
         wave = FindWaveTableEntryByName(name);
         if (wave != 0) {
             for (;;) {
@@ -52,7 +52,7 @@ void playWAVE(const char *filename, int looping, int volume)
     long fileSize;
     int file;
 
-    if (DAT_00465058 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0) {
         ReleaseFinishedSoundEntries();
         wave = FindWaveTableEntryByName(filename);
         if (wave != 0) {
@@ -131,7 +131,7 @@ void PlaySnowStaticSound(void)
     long fileSize;
     int file;
 
-    if (DAT_00465058 != 0) {
+    if (g_bIxAudioEnabled_00465058 != 0) {
         ReleaseFinishedSoundEntries();
         if (g_pSnowStaticSound_00476550 == 0) {
             file = _open("sfx22.wav", 0x8000);
@@ -455,7 +455,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                 g_pScreenViewportGeometry_0059a9f4,
                 (int)g_cScreenViewportMode_0059a9f2,
                 DAT_0046a008 > 0,
-                (unsigned char)DAT_004699d8);
+                (unsigned char)g_cPrimaryViewBufferColour_004699d8);
 #endif
             draw_sorted_objects_to_buffer();
             dump_buffer_to_screen();
@@ -674,7 +674,7 @@ unsigned short InitializeDiskPromptTextContext(void)
     ((short *)&g_dwDiskPromptBottomRight_005a7d84)[0] =
         (short)(((short *)&g_dwDiskPromptTopLeft_005a7d80)[0] + textWidth);
     InitializeTextContextFromFont(&g_stDiskPromptTextContext_005a7d60, 1,
-                                  DAT_0046999c,
+                                  g_cBlackColour_0046999c,
                                   (signed char)g_cViewportClearColour_004699a0);
     g_bGraphicsActive_00469a20 = 1;
     return 0;
@@ -867,7 +867,7 @@ void show_damage_disp(void)
                      (short)(DAT_005a6b80.left + 2),
                      (short)(DAT_005a6b80.top + 6),
                      (short)(DAT_005a6b80.right - 2),
-                     (short)(DAT_005a6b80.top + 6), DAT_004699b4);
+                     (short)(DAT_005a6b80.top + 6), g_cPrimaryTextColour_004699b4);
     if (g_cDamagedComponentCount_005a77de == 0) {
         DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left,
                    (short)(DAT_005a6b80.top + 20),
@@ -888,7 +888,7 @@ void show_damage_disp(void)
     sprintf(message, g_szDamagedUnitCountFormat_0046a89c,
             (int)g_cDamagedComponentCount_005a77de,
             (int)(g_cDamagedComponentCount_005a77de == 1 ? ' ' : 's'));
-    ShowComponentHitHudMessage(message, DAT_004699b4, -1);
+    ShowComponentHitHudMessage(message, g_cPrimaryTextColour_004699b4, -1);
 }
 
 /* Function start: 0x42C970 */
@@ -981,17 +981,17 @@ void UpdateDamageDisplay(void)
                 g_stDamageSpritePosition_005a77d8.y,
                 g_pCockpitWeaponShape_005a7564,
                 (short)g_cDamageDisplayFrame_005a77dd);
-            DAT_005a74f0.colour = DAT_0046999c;
+            DAT_005a74f0.colour = g_cBlackColour_0046999c;
             DrawTextAt(&DAT_005a74f0, (short)(DAT_005a6b80.left + 1),
                        (short)(DAT_005a6b80.top + 7),
                        g_szDamageStatusText_005a7790, 2);
-            DAT_005a74f0.colour = DAT_004699b4;
+            DAT_005a74f0.colour = g_cPrimaryTextColour_004699b4;
             DrawViewportLine(
                 &DAT_005a6b80, (short)(DAT_005a6b80.left + 36),
                 (short)(DAT_005a6b80.top + 22),
                 g_stDamageSpritePosition_005a77d8.x,
                 g_stDamageSpritePosition_005a77d8.y,
-                DAT_0046999c);
+                g_cBlackColour_0046999c);
             g_nDamageDisplayTicks_005a7786 = 2;
         }
         g_nDamageDisplayPhase_005a77e4 =
