@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef _WIN32
+extern __declspec(dllimport) BOOL __stdcall ImmDisableIME(DWORD threadId);
+#endif
+
 static int Wc1SdlParsePortArguments(int *argumentCount, char **arguments,
                                     int *useEnhancedRenderer)
 {
@@ -133,6 +137,9 @@ int main(int argumentCount, char **arguments)
     int useEnhancedRenderer;
     int usingDosData;
 
+#ifdef _WIN32
+    ImmDisableIME((DWORD)-1);
+#endif
     if (!Wc1SdlParsePortArguments(&argumentCount, arguments,
                                    &useEnhancedRenderer))
         return 1;

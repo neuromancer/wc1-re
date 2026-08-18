@@ -102,8 +102,10 @@ UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
 
 MODERN_EXE_SUFFIX :=
+MODERN_PLATFORM_LIBS :=
 ifneq (,$(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)))
 MODERN_EXE_SUFFIX := .exe
+MODERN_PLATFORM_LIBS := -limm32
 endif
 
 # The native build uses the host compiler and never contributes objects to the
@@ -529,6 +531,7 @@ $(MODERN_TARGET): \
 	@mkdir -p $(dir $@)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
+		$(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
 $(MODERN_BASE_C_TEST_BINS): $(MODERN_OUT_DIR)/tests/%$(MODERN_EXE_SUFFIX): \
