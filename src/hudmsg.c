@@ -482,6 +482,13 @@ primary_controls_complete:
             CloseCommChoiceMenu();
             return 0;
         }
+#ifdef WC1_SDL
+        /* The original leaves Escape inert in flight, leaving no way to
+         * halt a mission.  Pause on it, exactly as the pause key does. */
+        ShowGamePausedBanner(1);
+        SetFrameTimerPeriodDirect(1);
+        return 0;
+#endif
         break;
     case 0x0c:
     case 0x4a:
