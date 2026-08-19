@@ -146,6 +146,9 @@ int Wc1SdlStartAudio(Wc1SdlAudioMixer mixer,
 void Wc1SdlStopAudio(void);
 void Wc1SdlOutputDebugString(const char *text);
 void Wc1SdlPumpEvents(void);
+void Wc1SdlSetMouseGrab(int enabled);
+void Wc1SdlSuspendMouseGrab(void);
+void Wc1SdlResumeMouseGrab(void);
 int Wc1SdlInitializeVideo(SDL_Window *window);
 int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
                               const unsigned char *palette);

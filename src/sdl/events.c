@@ -271,6 +271,51 @@ static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
     QueueInputEvent(13, x, y, 0, primaryButton, secondaryButton, 0);
 }
 
+/* The pointer is confined only while spaceflight is running, unpaused, and
+ * focused.  Mouse flight steers by the pointer's distance from the viewport
+ * centre, so a hard turn parks it against the window edge and needs the
+ * confinement; anywhere else it would only trap the pointer. */
+static int g_bWc1SdlMouseGrabRequested;
+static int g_bWc1SdlWindowFocused = 1;
+static int g_nWc1SdlMouseGrabSuspendDepth;
+
+static void Wc1SdlApplyMouseGrab(void)
+{
+    SDL_Window *window;
+
+    window = (SDL_Window *)hMainWindow;
+    if (window == 0)
+        return;
+    SDL_SetWindowMouseGrab(
+        window,
+        g_bWc1SdlMouseGrabRequested && g_bWc1SdlWindowFocused &&
+                g_nWc1SdlMouseGrabSuspendDepth == 0
+            ? SDL_TRUE
+            : SDL_FALSE);
+}
+
+void Wc1SdlSetMouseGrab(int enabled)
+{
+    g_bWc1SdlMouseGrabRequested = enabled;
+    Wc1SdlApplyMouseGrab();
+}
+
+/* Modal waits release the pointer without disturbing whether spaceflight
+ * wants it, so a wait entered outside flight cannot switch the grab on.
+ * The depth keeps nested waits honest. */
+void Wc1SdlSuspendMouseGrab(void)
+{
+    g_nWc1SdlMouseGrabSuspendDepth++;
+    Wc1SdlApplyMouseGrab();
+}
+
+void Wc1SdlResumeMouseGrab(void)
+{
+    if (g_nWc1SdlMouseGrabSuspendDepth > 0)
+        g_nWc1SdlMouseGrabSuspendDepth--;
+    Wc1SdlApplyMouseGrab();
+}
+
 static int Wc1SdlHandleWindowEvent(const SDL_WindowEvent *event)
 {
     SDL_Window *window;
@@ -278,6 +323,13 @@ static int Wc1SdlHandleWindowEvent(const SDL_WindowEvent *event)
     if (event->event == SDL_WINDOWEVENT_CLOSE) {
         ShutdownGameWindow();
         return 1;
+    }
+    if (event->event == SDL_WINDOWEVENT_FOCUS_LOST ||
+        event->event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+        g_bWc1SdlWindowFocused =
+            event->event == SDL_WINDOWEVENT_FOCUS_GAINED;
+        Wc1SdlApplyMouseGrab();
+        return 0;
     }
     if (event->event != SDL_WINDOWEVENT_SIZE_CHANGED &&
         event->event != SDL_WINDOWEVENT_DISPLAY_CHANGED)

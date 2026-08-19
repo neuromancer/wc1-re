@@ -208,10 +208,9 @@ int main(int argumentCount, char **arguments)
         CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
         nSessionStartTime = (unsigned int)time(0);
         pEventManagerPump = 0;
-        SDL_SetWindowMouseGrab(window, SDL_TRUE);
         SDL_ShowCursor(SDL_DISABLE);
         gameResult = Wc1GameMain((short)(argumentCount - 1), arguments);
-        SDL_SetWindowMouseGrab(window, SDL_FALSE);
+        Wc1SdlSetMouseGrab(0);
         SDL_ShowCursor(SDL_ENABLE);
         DestroyGlobalDebugOverlayConsole();
         if ((dwStreamerState & 1) != 0)

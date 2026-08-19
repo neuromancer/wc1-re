@@ -22,6 +22,12 @@ void WaitForKeyAcknowledge(int mode)
     int acknowledged;
     int key;
 
+#ifdef WC1_SDL
+    /* Every modal wait blocks here, including both pause paths: Ctrl+P
+     * calls this directly and P reaches it through ShowOnScreenMessage's
+     * 9999 duration.  Free the pointer for the duration of the wait. */
+    Wc1SdlSuspendMouseGrab();
+#endif
     if (mode != 0) {
         acknowledged = 0;
         do {
@@ -39,6 +45,9 @@ void WaitForKeyAcknowledge(int mode)
         } while (acknowledged == 0);
         FlushInputEvents();
         ClearDebugPauseFlags();
+#ifdef WC1_SDL
+        Wc1SdlResumeMouseGrab();
+#endif
         return;
     }
     FlushInputEvents();
@@ -47,6 +56,9 @@ void WaitForKeyAcknowledge(int mode)
         key = PumpMessagesDuringWait();
     } while (key == 0x19 || key == 0x50 || key == 0x0c);
     FlushInputEvents();
+#ifdef WC1_SDL
+    Wc1SdlResumeMouseGrab();
+#endif
 }
 
 /* Function start: 0x428F20 */
@@ -784,6 +796,9 @@ int RunSpaceFlight(short entryNavPoint)
         bCockpitlessView = 1;
     nFrameSkipCounter = 1;
     bInputMode = 1;
+#ifdef WC1_SDL
+    Wc1SdlSetMouseGrab(1);
+#endif
     SetEventManagerPump(get_player_input);
     savedViewport = (Viewport *)stMouseCursorState.viewport;
     stMouseCursorState.viewport = &stSpaceBuffer;
@@ -882,6 +897,7 @@ int RunSpaceFlight(short entryNavPoint)
     }
 
 #ifdef WC1_SDL
+    Wc1SdlSetMouseGrab(0);
     Wc1SdlCancelSpaceFrame();
     if (Wc1SdlUsingDosData())
         Wc1SdlStopDosSoundEffects();
