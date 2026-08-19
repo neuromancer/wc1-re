@@ -1147,9 +1147,16 @@ unsigned int house_keep_objects(void)
                 g_bLandingAuthorized_00468ff8 != 0 &&
                 normal_speed(0) != 0) {
                 get_facing_range_from_object(0, obj);
+#ifdef WC1_SDL
+                /* WC2 lands from any bearing; the original also required the
+                   Claw's bow to face the player. */
+                if (g_nTargetRange_0059ce10 < 700 &&
+                    g_nFacingToTarget_0059d920 > 75) {
+#else
                 if (g_nTargetRange_0059ce10 < 700 &&
                     g_nFacingToTarget_0059d920 > 75 &&
                     g_nTargetFacing_0059d52a > 70) {
+#endif
                     g_nArcadeState_00469fb0 = 1;
                     g_nPlayerCollisionObject_0046c050 = obj;
                 }
