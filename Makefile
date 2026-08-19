@@ -157,7 +157,11 @@ ORIGINAL_SRC ?= ../releases/win32/WC1.EXE
 
 VERIFY_CONFIG = config/binary-comp.json
 CODE_DIR = code-full
-EXPORT_ASM_FLAGS ?=
+# Every FUN_*.disassembled.txt in code-full/ also acts as a function boundary
+# for the next export, so exports left behind by another binary truncate our
+# functions at their addresses and silently wreck `make report`.  Always
+# regenerate the directory from scratch.
+EXPORT_ASM_FLAGS ?= --clean --discover
 # Optional verification dependency; install with pip as documented in README.md.
 BINARY_COMP ?= binary-comp
 

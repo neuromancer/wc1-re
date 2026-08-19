@@ -27,7 +27,7 @@ scores measure machine-code similarity to the retail executable; they are not
 a gameplay-completeness score.
 
 <details>
-<summary>All 1,454 function similarity scores (98.44% average)</summary>
+<summary>All 1,454 function similarity scores (98.45% average)</summary>
 
 | Compilation unit | Function | Address | Similarity |
 | --- | --- | --- | ---: |
@@ -808,7 +808,7 @@ a gameplay-completeness score.
 | `killbrd.c` | `FindMenuRegionAtPoint` | `0x43F7C0` | 100.00% |
 | `killbrd.c` | `InitializeRoomViewports` | `0x43F810` | 100.00% |
 | `killbrd.c` | `RecRoom` | `0x43F940` | 85.91% |
-| `killbrd.c` | `ShowChalkBoard` | `0x440510` | 84.47% |
+| `killbrd.c` | `ShowChalkBoard` | `0x440510` | 85.52% |
 | `killbrd.c` | `ResetCampaignData` | `0x440800` | 100.00% |
 | `killbrd.c` | `ReadPacketSectionData` | `0x440840` | 100.00% |
 | `killbrd.c` | `CheckHeapBlockSignature` | `0x4408A0` | 100.00% |
@@ -817,7 +817,7 @@ a gameplay-completeness score.
 | `killbrd.c` | `GetShapeFrameExtents` | `0x4408F0` | 100.00% |
 | `killbrd.c` | `DecodeShapeFrame` | `0x440960` | 85.71% |
 | `killbrd.c` | `SignExtendClipCoord` | `0x440BE0` | 100.00% |
-| `logic.c` | `find_weapon` | `0x421100` | 96.43% |
+| `logic.c` | `find_weapon` | `0x421100` | 100.00% |
 | `logic.c` | `fire_missile` | `0x421150` | 91.14% |
 | `logic.c` | `fire_fixed_projectile_weapon` | `0x421220` | 100.00% |
 | `logic.c` | `drop_mine` | `0x4212A0` | 100.00% |
@@ -1105,7 +1105,7 @@ a gameplay-completeness score.
 | `nav.c` | `PurgeNearHeapBlocks` | `0x40E950` | 95.12% |
 | `nav.c` | `InitializeNearHeap` | `0x40E9E0` | 100.00% |
 | `nav.c` | `AllocateNearHeapBlockFromEnd` | `0x40EB70` | 91.54% |
-| `nav.c` | `AllocateNearHeapBlockByFlags` | `0x40ED30` | 93.06% |
+| `nav.c` | `AllocateNearHeapBlockByFlags` | `0x40ED30` | 93.75% |
 | `nav.c` | `add_statistics` | `0x40EFE0` | 100.00% |
 | `nav.c` | `PostMission` | `0x40F010` | 83.17% |
 | `nav.c` | `FullMissionScore` | `0x40F190` | 100.00% |
@@ -1114,7 +1114,7 @@ a gameplay-completeness score.
 | `nav.c` | `MoveNewCampaign` | `0x40F3F0` | 95.24% |
 | `nav.c` | `StartNewCampaign` | `0x40F440` | 100.00% |
 | `nav.c` | `GameFlow` | `0x40F4B0` | 91.23% |
-| `nav.c` | `free_viewport` | `0x40F940` | 98.18% |
+| `nav.c` | `free_viewport` | `0x40F940` | 94.55% |
 | `nav.c` | `GetPaletteReadyUnused` | `0x40FA30` | 100.00% |
 | `nav.c` | `UpdateTitleMenuCursor` | `0x40FB10` | 100.00% |
 | `nav.c` | `Title_Sequence` | `0x40FB70` | 90.25% |
@@ -1176,7 +1176,7 @@ a gameplay-completeness score.
 | `screen.c` | `IsSoundHardwarePresent` | `0x42F940` | 100.00% |
 | `screen.c` | `MessagePumpHook` | `0x42F950` | 100.00% |
 | `screen.c` | `PushMemoryStackFrame` | `0x42F960` | 97.67% |
-| `screen.c` | `IsPushedPacketHandle` | `0x42F9E0` | 95.45% |
+| `screen.c` | `IsPushedPacketHandle` | `0x42F9E0` | 100.00% |
 | `screen.c` | `MapPacketHandleToBlock` | `0x42FA20` | 100.00% |
 | `screen.c` | `AllocateTaggedMemory` | `0x42FA90` | 100.00% |
 | `screen.c` | `ReleasePacketHandle` | `0x42FAE0` | 100.00% |
@@ -1223,8 +1223,8 @@ a gameplay-completeness score.
 | `screen.c` | `ReserveContiguousPaletteEntries` | `0x431900` | 100.00% |
 | `screen.c` | `ReleaseContiguousPaletteEntries` | `0x431970` | 100.00% |
 | `screen.c` | `PrintPaletteAllocationMap` | `0x4319B0` | 100.00% |
-| `screen.c` | `LoadJoystickCalibrationFile` | `0x431A10` | 94.65% |
-| `screen.c` | `ReadCalibratedJoystick` | `0x431D20` | 85.95% |
+| `screen.c` | `LoadJoystickCalibrationFile` | `0x431A10` | 93.00% |
+| `screen.c` | `ReadCalibratedJoystick` | `0x431D20` | 88.43% |
 | `screen.c` | `UnionRectBounds` | `0x431EA0` | 100.00% |
 | `screen.c` | `ThrottleFrameAndDrawFps` | `0x431F00` | 100.00% |
 | `screens.c` | `LoadBriefingRoom` | `0x436D00` | 100.00% |
@@ -1323,7 +1323,7 @@ a gameplay-completeness score.
 | `ship.c` | `repair_internal_damage` | `0x41F660` | 100.00% |
 | `ship.c` | `Create_ship_hit_debris` | `0x41F700` | 100.00% |
 | `ship.c` | `check_next_wave` | `0x41F7C0` | 100.00% |
-| `ship.c` | `Create_explosion_debris` | `0x41F800` | 94.07% |
+| `ship.c` | `Create_explosion_debris` | `0x41F800` | 98.51% |
 | `ship.c` | `affect_mission_score` | `0x41F9E0` | 100.00% |
 | `ship.c` | `score_for_kill` | `0x41FA90` | 100.00% |
 | `ship.c` | `analyze_kill` | `0x41FB40` | 100.00% |
