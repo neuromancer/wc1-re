@@ -1518,19 +1518,41 @@ cd C:\path\to\WC1
 .\wc1-modern.exe
 ```
 
-DOS game-data support is partial. Compressed packet resources, OriginFX/AdLib
-music, and synthesized sound effects work, but other DOS-specific data or
-behavior may remain unsupported.
+With DOS data, compressed packet resources, OriginFX/AdLib music, and
+synthesized sound effects work; other DOS-specific data or behavior may not.
+
+### Fixes and features
+
+What the port adds on top of the reconstructed game. The first group is always
+active; the rest need a switch, and switches can be combined.
+
+| Fix or feature | Enable with |
+| --- | --- |
+| Runs from either Kilrathi Saga or DOS game data, detected automatically | always on |
+| Resizable window, fullscreen toggle, and mouse capture | always on |
+| Background planets drawn with correct per-object scaling (WCDX fix) | always on |
+| Landing on the *Tiger's Claw* from any bearing; retail also required the Claw's bow to face you | always on |
+| Mouse wheel throttle control during spaceflight | always on |
+| Gamepad support with automatic SDL mappings and hot-plug | always on |
+| OpenGL renderer drawing space objects at output resolution | `--enhanced` |
+| Restored, music-synchronized startup intro | `--enhanced`, or automatic with DOS data |
+| OriginFX intro music | `--enhanced`, or automatic with DOS data |
+| Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
+| WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
+| Alternate twin-stick, HOTAS, throttle, and rudder axis layouts | `--joystick-axes=<layout>` |
+| Joystick diagnostics on stderr | `--joystick-debug` |
+| Frame-rate counter | `-f` |
+| Cockpitless view | `-c` |
+
+```sh
+./wc1-modern --enhanced --joystick-rumble
+```
 
 ### Enhanced renderer
 
-Pass `--enhanced` to use the optional OpenGL renderer. It draws space objects
-at output resolution while retaining the original indexed artwork, palettes,
-cockpit, and HUD. The original software renderer remains the default.
-
-```sh
-./wc1-modern --enhanced
-```
+The OpenGL renderer keeps the original indexed artwork, palettes, cockpit, and
+HUD; only space objects are redrawn at output resolution. The software renderer
+remains the default.
 
 | Output-resolution ships | Cockpit combat |
 | --- | --- |
@@ -1546,17 +1568,10 @@ cockpit, and HUD. The original software renderer remains the default.
 | Gamepad Start (spaceflight) | Pause or resume |
 | Gamepad Back | Escape/back |
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
+| Mouse wheel (spaceflight) | Increase or decrease speed |
 
-During spaceflight, scroll the mouse wheel up or down to increase or decrease
-speed.
-
-SDL game-controller mappings are used automatically. The default
-`--joystick-mode=original` keeps the original two-axis, two-button controls.
-Two WCAT-style layouts are also available:
-
-Add `--joystick-rumble` to enable gentle heavy-weapon, damage, collision, and
-afterburner feedback on supported controllers and force-feedback joysticks.
-Rumble is disabled by default.
+The default `--joystick-mode=original` keeps the original two-axis, two-button
+controls. Two WCAT-style layouts are also available:
 
 | Option | Spaceflight controls |
 | --- | --- |
