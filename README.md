@@ -1533,6 +1533,8 @@ active; the rest need a switch, and switches can be combined.
 | Background planets drawn with correct per-object scaling (WCDX fix) | always on |
 | Landing on the *Tiger's Claw* from any bearing; retail also required the Claw's bow to face you | always on |
 | Mouse wheel throttle control during spaceflight | always on |
+| `Esc` pauses during spaceflight, where the original left it inert | always on |
+| Pointer confined only during unpaused, focused spaceflight | always on |
 | Gamepad support with automatic SDL mappings and hot-plug | always on |
 | OpenGL renderer drawing space objects at output resolution | `--enhanced` |
 | Restored, music-synchronized startup intro | `--enhanced`, or automatic with DOS data |
@@ -1569,6 +1571,13 @@ remains the default.
 | Gamepad Back | Escape/back |
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
 | Mouse wheel (spaceflight) | Increase or decrease speed |
+| `Esc` (spaceflight) | Pause; press any key to resume |
+
+`Esc` pausing is a port addition. The original leaves it inert during
+spaceflight, and there is no in-flight quit or restart: a mission ends only
+by landing on the *Tiger's Claw*, ejecting, or dying. Quitting is done from
+the barracks menu (*Quit Wing Commander*), and retrying a mission means
+saving to a bunk beforehand and reloading it from there.
 
 The default `--joystick-mode=original` keeps the original two-axis, two-button
 controls. Two WCAT-style layouts are also available:
