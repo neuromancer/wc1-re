@@ -16,15 +16,15 @@ int main(int argumentCount, char **arguments)
     if (SDL_Init(0) != 0)
         return 1;
 
-    g_nVoiceCount_00598600 = 32;
-    g_nStreamCount_00598130 = 2;
+    nVoiceCount = 32;
+    nStreamCount = 2;
     ix_dsps_alloc(0, 262144U, 22050, 16, 2);
-    result = g_streams_00598138[0].buffer == 0 ||
-             (g_streams_00598138[0].flags & IX_STREAM_ALLOCATED) == 0 ||
-             g_nStreamsAllocated_00598134 != 1;
+    result = streams[0].buffer == 0 ||
+             (streams[0].flags & IX_STREAM_ALLOCATED) == 0 ||
+             nStreamsAllocated != 1;
     ix_dsps_free(0);
-    if ((g_streams_00598138[0].flags & IX_STREAM_ALLOCATED) != 0 ||
-        g_nStreamsAllocated_00598134 != 0)
+    if ((streams[0].flags & IX_STREAM_ALLOCATED) != 0 ||
+        nStreamsAllocated != 0)
         result = 1;
 
     SDL_Quit();

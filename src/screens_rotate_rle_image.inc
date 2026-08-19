@@ -33,19 +33,19 @@ rotate_rle_43b495:
         mov edx, dword ptr [ebp + 0x1c]
         mov dword ptr [ebx], edx
         mov dword ptr [esi + 0x4], 0x0
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0xc], 0x0
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x48], 0x0
+        mov dword ptr [aRLETransformVertices + 0xc], 0x0
+        mov dword ptr [aRLETransformVertices + 0x48], 0x0
         mov dword ptr [esi + 0x8], 0x0
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x10], 0x0
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x24], 0x0
+        mov dword ptr [aRLETransformVertices + 0x10], 0x0
+        mov dword ptr [aRLETransformVertices + 0x24], 0x0
         mov dword ptr [ebx + 0x4], eax
         mov dword ptr [esi + 0xc], eax
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x20], eax
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x34], eax
+        mov dword ptr [aRLETransformVertices + 0x20], eax
+        mov dword ptr [aRLETransformVertices + 0x34], eax
         mov dword ptr [ebx + 0x8], ecx
         mov dword ptr [esi + 0x10], ecx
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x38], ecx
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x4c], ecx
+        mov dword ptr [aRLETransformVertices + 0x38], ecx
+        mov dword ptr [aRLETransformVertices + 0x4c], ecx
         push dword ptr [ebp + 0x10]
         push dword ptr [ebp + 0xc]
         call GetRLEImageOrigin
@@ -172,10 +172,10 @@ rotate_rle_43b645:
         add esp, 0x18
         mov eax, dword ptr [ebp - 0x38]
         add eax, dword ptr [ebp - 0x4c]
-        mov dword ptr [g_aRLETransformVertices_0047002c], eax
+        mov dword ptr [aRLETransformVertices], eax
         mov eax, dword ptr [ebp - 0x34]
         add eax, dword ptr [ebp - 0x50]
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x4], eax
+        mov dword ptr [aRLETransformVertices + 0x4], eax
         mov eax, dword ptr [ebp - 0x44]
         mov dword ptr [ebp - 0x30], eax
         mov dword ptr [ebp - 0x2c], 0x0
@@ -192,16 +192,16 @@ rotate_rle_43b645:
         add esp, 0x18
         mov eax, dword ptr [ebp - 0x38]
         add eax, dword ptr [ebp - 0x4c]
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x14], eax
+        mov dword ptr [aRLETransformVertices + 0x14], eax
         mov eax, dword ptr [ebp - 0x34]
         add eax, dword ptr [ebp - 0x50]
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x18], eax
+        mov dword ptr [aRLETransformVertices + 0x18], eax
         mov eax, dword ptr [ebp - 0xec]
-        add dword ptr [g_aRLETransformVertices_0047002c], eax
-        add dword ptr [g_aRLETransformVertices_0047002c + 0x14], eax
+        add dword ptr [aRLETransformVertices], eax
+        add dword ptr [aRLETransformVertices + 0x14], eax
         mov eax, dword ptr [ebp - 0xf0]
-        add dword ptr [g_aRLETransformVertices_0047002c + 0x4], eax
-        add dword ptr [g_aRLETransformVertices_0047002c + 0x18], eax
+        add dword ptr [aRLETransformVertices + 0x4], eax
+        add dword ptr [aRLETransformVertices + 0x18], eax
         mov eax, dword ptr [ebp - 0x44]
         mov ebx, dword ptr [ebp - 0x48]
         mov dword ptr [ebp - 0x30], eax
@@ -219,10 +219,10 @@ rotate_rle_43b645:
         add esp, 0x18
         mov eax, dword ptr [ebp - 0x38]
         add eax, dword ptr [ebp - 0x4c]
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x28], eax
+        mov dword ptr [aRLETransformVertices + 0x28], eax
         mov eax, dword ptr [ebp - 0x34]
         add eax, dword ptr [ebp - 0x50]
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x2c], eax
+        mov dword ptr [aRLETransformVertices + 0x2c], eax
         mov eax, dword ptr [ebp - 0x48]
         mov dword ptr [ebp - 0x30], 0x0
         mov dword ptr [ebp - 0x2c], eax
@@ -239,16 +239,16 @@ rotate_rle_43b645:
         add esp, 0x18
         mov eax, dword ptr [ebp - 0x38]
         add eax, dword ptr [ebp - 0x4c]
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x3c], eax
+        mov dword ptr [aRLETransformVertices + 0x3c], eax
         mov eax, dword ptr [ebp - 0x34]
         add eax, dword ptr [ebp - 0x50]
-        mov dword ptr [g_aRLETransformVertices_0047002c + 0x40], eax
+        mov dword ptr [aRLETransformVertices + 0x40], eax
         mov eax, dword ptr [ebp - 0xec]
-        add dword ptr [g_aRLETransformVertices_0047002c + 0x28], eax
-        add dword ptr [g_aRLETransformVertices_0047002c + 0x3c], eax
+        add dword ptr [aRLETransformVertices + 0x28], eax
+        add dword ptr [aRLETransformVertices + 0x3c], eax
         mov eax, dword ptr [ebp - 0xf0]
-        add dword ptr [g_aRLETransformVertices_0047002c + 0x2c], eax
-        add dword ptr [g_aRLETransformVertices_0047002c + 0x40], eax
+        add dword ptr [aRLETransformVertices + 0x2c], eax
+        add dword ptr [aRLETransformVertices + 0x40], eax
         lea ebx, [ebp - 0x14]
         mov eax, dword ptr [ebx]
         mov dword ptr [ebp - 0x58], eax
@@ -257,7 +257,7 @@ rotate_rle_43b645:
         mov dword ptr [ebp - 0x54], ecx
         push ds
         pop es
-        mov ebx, offset g_aRLETransformVertices_0047002c
+        mov ebx, offset aRLETransformVertices
         mov eax, ebx
         add eax, 0x50
         mov dword ptr [ebp - 0x64], ebx
@@ -553,13 +553,13 @@ rotate_rle_43bba3:
         pop edx
         pop ebx
         add edx, eax
-        mov dword ptr [g_anRLESourceSteps_0047007c], edx
+        mov dword ptr [anRLESourceSteps], edx
         add edx, ecx
-        mov dword ptr [g_anRLESourceSteps_0047007c + 0x4], edx
+        mov dword ptr [anRLESourceSteps + 0x4], edx
         add ebx, eax
-        mov dword ptr [g_anRLESourceSteps_0047007c + 0x8], ebx
+        mov dword ptr [anRLESourceSteps + 0x8], ebx
         add ebx, ecx
-        mov dword ptr [g_anRLESourceSteps_0047007c + 0xc], ebx
+        mov dword ptr [anRLESourceSteps + 0xc], ebx
         mov ecx, dword ptr [ebp - 0xd4]
         sub ecx, dword ptr [ebp - 0xc0]
         jg rotate_rle_43be33
@@ -614,7 +614,7 @@ rotate_rle_43bc60:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
         mov bl, byte ptr [esi]
         cmp bl, -0x1
         je rotate_rle_43bc7b
@@ -625,7 +625,7 @@ rotate_rle_43bc7b:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
         mov bl, byte ptr [esi]
         cmp bl, -0x1
         je rotate_rle_43bc96
@@ -636,7 +636,7 @@ rotate_rle_43bc96:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
         mov bl, byte ptr [esi]
         cmp bl, -0x1
         je rotate_rle_43bcb1
@@ -647,7 +647,7 @@ rotate_rle_43bcb1:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
         mov bl, byte ptr [esi]
         cmp bl, -0x1
         je rotate_rle_43bccc
@@ -658,7 +658,7 @@ rotate_rle_43bccc:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
         mov bl, byte ptr [esi]
         cmp bl, -0x1
         je rotate_rle_43bce7
@@ -669,7 +669,7 @@ rotate_rle_43bce7:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
         add edi, 0x6
         sub dword ptr [esp], 0x6
         js rotate_rle_43bda9
@@ -686,7 +686,7 @@ rotate_rle_43bd18:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
         dec dword ptr [esp]
         js rotate_rle_43bda9
         mov bl, byte ptr [esi]
@@ -699,7 +699,7 @@ rotate_rle_43bd38:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
         dec dword ptr [esp]
         js rotate_rle_43bda9
         mov bl, byte ptr [esi]
@@ -712,7 +712,7 @@ rotate_rle_43bd58:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
         dec dword ptr [esp]
         js rotate_rle_43bda9
         mov bl, byte ptr [esi]
@@ -725,7 +725,7 @@ rotate_rle_43bd78:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
         dec dword ptr [esp]
         js rotate_rle_43bda9
         mov bl, byte ptr [esi]
@@ -738,7 +738,7 @@ rotate_rle_43bd98:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr g_anRLESourceSteps_0047007c[ebx*4]
+        add esi, dword ptr anRLESourceSteps[ebx*4]
 rotate_rle_43bda9:
         add esp, 0x4
         pop ebp

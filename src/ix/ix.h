@@ -137,26 +137,26 @@ struct IxSound {
     void ix_sound_set_delete_on_stop(int enabled);
 };
 
-extern unsigned int g_dwIxSystemFlags_00598608;
-extern IxSound *g_pFreeSoundList_0059860c;
-extern IxSample *g_pSampleList_00598610;
-extern int g_nActiveVoices_00598614;
-extern int g_nSystemVoiceCount_00598618;
-extern IxSound *g_pActiveSoundList_0059861c;
-extern IxSound *g_pWaitingSoundList_00598620;
-extern void *(__cdecl *g_pIxMalloc_00471990)(unsigned int);
-extern void (__cdecl *g_pIxFree_00471994)(void *);
+extern unsigned int dwIxSystemFlags;
+extern IxSound *pFreeSoundList;
+extern IxSample *pSampleList;
+extern int nActiveVoices;
+extern int nSystemVoiceCount;
+extern IxSound *pActiveSoundList;
+extern IxSound *pWaitingSoundList;
+extern void *(__cdecl *pIxMalloc)(unsigned int);
+extern void (__cdecl *pIxFree)(void *);
 
 /* Master volume and the stereo pan table (two shorts per position). */
-extern unsigned short g_nMasterVolume_0047198c;
-extern short          g_anPanTable_00597d28[];
-extern CRITICAL_SECTION g_csMixer_005985e8;
+extern unsigned short nMasterVolume;
+extern short          anPanTable[];
+extern CRITICAL_SECTION csMixer;
 
 #define IX_MIXER_BASE_RATE 22050    /* 0x5622, the divisor in set_frequency */
 
 /* Globals keep their original address in the name (see AGENTS.md). */
-extern IxVoice g_voices_005981a8[];
-extern int     g_nVoiceCount_00598600;
+extern IxVoice voices[];
+extern int     nVoiceCount;
 
 /* The ix source tree lived on D: -- each assert site carries its own copy of
  * this literal (the build did not use /Gf, so identical strings are not
@@ -202,9 +202,9 @@ struct IxStream {                       /* 0x38 bytes */
     CRITICAL_SECTION cs;                /* +0x20, 24 bytes */
 };
 
-extern IxStream g_streams_00598138[];
-extern int      g_nStreamCount_00598130;
-extern int      g_nStreamsAllocated_00598134;
+extern IxStream streams[];
+extern int      nStreamCount;
+extern int      nStreamsAllocated;
 
 #define IX_DSPS_FILE "D:\\rnd\\prj\\ix\\win95\\dsp\\dsps.cpp"
 void ix_dsps_alloc(int stream, unsigned int size, int frequency,
@@ -447,34 +447,34 @@ extern "C" unsigned int ix_file_read(FILE *file, void *destination,
                                       unsigned int bytes); /* 0x00461718 */
 extern "C" long ix_file_size(FILE *file);        /* 0x00461764 */
 
-extern unsigned int *g_pStreamerPacketOffsets_00597bd0;
-extern unsigned int g_dwStreamerThreadTick_00597bd4;
-extern FILE *g_pStreamerPackageFile_00597bdc;
-extern IxStreamFile *g_pStreamerIdleFiles_00597be0;
-extern unsigned int g_adwStreamerBranchStack_00597be8[32];
-extern unsigned char *g_pStreamerCompressedBuffer_00597c68;
-extern IxStreamFile *g_pStreamerReadQueue_00597c6c;
-extern unsigned int g_nStreamerAudioBufferSize_00597c70;
-extern unsigned char *g_pStreamerFileBuffer_00597c74;
-extern unsigned char g_bStreamerIntensity_00597c78;
-extern HANDLE g_hStreamerThread_00597c7c;
-extern IxStreamerFileEntry *g_pStreamerFileEntries_00597c80;
-extern IxStreamerHeader *g_pStreamerHeader_00597c84;
-extern IxStreamerAudioChunk *g_pStreamerAudioChunks_00597c88;
-extern IxStreamerBranch *g_pStreamerBranches_00597c8c;
-extern IxStreamerFileChunk *g_pStreamerFileChunks_00597c90;
-extern CRITICAL_SECTION g_csStreamerFileQueue_00597c98;
-extern CRITICAL_SECTION g_csStreamerThread_00597cb0;
-extern unsigned int g_nStreamerAudioChunk_00597cc8;
-extern DWORD g_dwStreamerThreadId_00597ccc;
-extern "C" unsigned int g_dwStreamerState_00597cd0;
-extern HANDLE g_hStreamerWakeEvent_00597cd4;
-extern unsigned int g_nStreamerFileChunk_00597cd8;
-extern unsigned int g_nStreamerBytesPerSecond_00597cdc;
-extern unsigned short g_nStreamerVolume_00470e84;
-extern char g_cStreamerBranchTag_00470e88;
-extern unsigned int g_nStreamerBranchStackIndex_00470e8c;
-extern CRITICAL_SECTION g_csStreamer_00597ce0;
-extern IxStreamerTrigger *g_pStreamerTriggers_00597cf8;
+extern unsigned int *pStreamerPacketOffsets;
+extern unsigned int dwStreamerThreadTick;
+extern FILE *pStreamerPackageFile;
+extern IxStreamFile *pStreamerIdleFiles;
+extern unsigned int adwStreamerBranchStack[32];
+extern unsigned char *pStreamerCompressedBuffer;
+extern IxStreamFile *pStreamerReadQueue;
+extern unsigned int nStreamerAudioBufferSize;
+extern unsigned char *pStreamerFileBuffer;
+extern unsigned char bStreamerIntensity;
+extern HANDLE hStreamerThread;
+extern IxStreamerFileEntry *pStreamerFileEntries;
+extern IxStreamerHeader *pStreamerHeader;
+extern IxStreamerAudioChunk *pStreamerAudioChunks;
+extern IxStreamerBranch *pStreamerBranches;
+extern IxStreamerFileChunk *pStreamerFileChunks;
+extern CRITICAL_SECTION csStreamerFileQueue;
+extern CRITICAL_SECTION csStreamerThread;
+extern unsigned int nStreamerAudioChunk;
+extern DWORD dwStreamerThreadId;
+extern "C" unsigned int dwStreamerState;
+extern HANDLE hStreamerWakeEvent;
+extern unsigned int nStreamerFileChunk;
+extern unsigned int nStreamerBytesPerSecond;
+extern unsigned short nStreamerVolume;
+extern char cStreamerBranchTag;
+extern unsigned int nStreamerBranchStackIndex;
+extern CRITICAL_SECTION csStreamer;
+extern IxStreamerTrigger *pStreamerTriggers;
 
 #endif /* IX_H */

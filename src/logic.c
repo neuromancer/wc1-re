@@ -15,10 +15,10 @@ short find_weapon(short obj, enum ObjectType weaponType)
     short weapon;
 
     for (weapon = 0;
-         weapon < (signed char)g_aShipWeapons_0059cab0[obj][0];
+         weapon < (signed char)aShipWeapons[obj][0];
          weapon++) {
         ShipWeaponSlot *weaponSlot =
-            &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
+            &((ShipWeaponSlot *)&aShipWeapons[obj][1])[weapon];
 
         if (weaponSlot->type == weaponType)
             return weapon;
@@ -34,22 +34,22 @@ int fire_missile(short ship)
     signed char weaponCount;
 
     weapon = 0;
-    slot = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[ship][1];
-    weaponCount = (signed char)g_aShipWeapons_0059cab0[ship][0];
+    slot = (ShipWeaponSlot *)&aShipWeapons[ship][1];
+    weaponCount = (signed char)aShipWeapons[ship][0];
     if (weaponCount > 0) {
         for (; weapon < weaponCount; weapon++, slot++) {
-            if (g_aObjectTypeData_00466458[slot->type].objectClass ==
+            if (aObjectTypeData[slot->type].objectClass ==
                     OBJECT_CLASS_MISSILE) {
                 if (ship != 0)
                     return fire_weapon(ship, weapon);
                 if (slot->disabled == 0) {
                     if ((slot->type == OBJECT_TYPE_HEAT_SEEKING_MISSILE ||
                          slot->type == OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE) &&
-                        g_nTargetLockCountdown_0046c064 != 0) {
+                        nTargetLockCountdown != 0) {
                         if (get_mode(0) == 1)
                             ShowComponentHitHudMessage(
-                                g_szNeedLock_0046998c,
-                                g_cYellowColour_004699a8, 3);
+                                szNeedLock,
+                                cYellowColour, 3);
                         return -1;
                     }
                     return fire_weapon(0, weapon);
@@ -67,15 +67,15 @@ int fire_fixed_projectile_weapon(short obj)
     short weapon;
     ShipWeaponSlot *slot;
 
-    loadoutOffset = obj * sizeof(g_aShipWeapons_0059cab0[0]);
+    loadoutOffset = obj * sizeof(aShipWeapons[0]);
     weapon = 0;
-    slot = (ShipWeaponSlot *)((unsigned char *)g_aShipWeapons_0059cab0 +
+    slot = (ShipWeaponSlot *)((unsigned char *)aShipWeapons +
                               loadoutOffset + 1);
-    if (*(signed char *)((unsigned char *)g_aShipWeapons_0059cab0 +
+    if (*(signed char *)((unsigned char *)aShipWeapons +
                          loadoutOffset) <= 0)
         return;
     do {
-        if (g_aObjectTypeData_00466458[slot->type].objectClass ==
+        if (aObjectTypeData[slot->type].objectClass ==
                 OBJECT_CLASS_PROJECTILE &&
             slot->disabled == 0) {
             if (fire_weapon(obj, weapon) == -1)
@@ -83,7 +83,7 @@ int fire_fixed_projectile_weapon(short obj)
         }
         weapon++;
         slot++;
-    } while ((short)*(signed char *)((unsigned char *)g_aShipWeapons_0059cab0 +
+    } while ((short)*(signed char *)((unsigned char *)aShipWeapons +
                                      loadoutOffset) > weapon);
     /* The original leaves EAX incidental on successful and empty paths. */
 }
@@ -100,13 +100,13 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
         return -1;
     copy_frame(obj, mine);
     weaponSlot =
-        &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[obj][1])[weapon];
+        &((ShipWeaponSlot *)&aShipWeapons[obj][1])[weapon];
     child_object(weaponSlot->hardpoint, mine, obj);
     if (lifetime == -1)
         lifetime = 20;
-    g_acObjectCollisionGraceTicks_0059ddb0[mine] =
+    acObjectCollisionGraceTicks[mine] =
         (signed char)lifetime;
-    g_asObjectCounter_0059c330[mine] = (short)(signed char)lifetime;
+    asObjectCounter[mine] = (short)(signed char)lifetime;
     if (obj == 0)
         RemovePlayerReleaseWeapon(weapon);
     else
@@ -120,21 +120,21 @@ void fire_afterburner(short obj, short time)
     short timer;
     long velocity;
 
-    velocity = Vector_magnitude(&g_aShipVelocity_0059c010[obj]);
+    velocity = Vector_magnitude(&aShipVelocity[obj]);
     if (get_ship_max_velocity(obj) * 0x500L > velocity) {
         set_special(obj, SPECIAL_MANEUVER_AFTERBURNER);
         timer = 0;
-        if (g_aeSpecialManeuver_0059c3c0[obj] ==
+        if (aeSpecialManeuver[obj] ==
             SPECIAL_MANEUVER_AFTERBURNER)
             timer = time;
-        g_asShipAfterburnerTimer_0059c810[obj] = timer;
+        asShipAfterburnerTimer[obj] = timer;
     }
 }
 
 /* Function start: 0x4213B0 */
 unsigned int fire_super_brake(short ship)
 {
-    g_asShipAfterburnerTimer_0059c810[ship] = 10;
+    asShipAfterburnerTimer[ship] = 10;
     set_special(ship, SPECIAL_MANEUVER_SUPER_BRAKE);
     return 0;
 }
@@ -144,12 +144,12 @@ short flip_angle(short ship, short angle)
 {
     short flip;
 
-    flip = g_asObjectFlip_0059c870[ship];
+    flip = asObjectFlip[ship];
     if ((flip & 0x10) != 0)
         angle = (short)(180 - angle);
     if ((flip & 0x20) != 0)
         angle = (short)-angle;
-    angle += g_asObjectScreenAngle_0059cd90[ship];
+    angle += asObjectScreenAngle[ship];
     angle %= 360;
     if (angle < 0)
         angle += 360;
@@ -169,15 +169,15 @@ unsigned int place_exhaust_on_ships(void)
     ship = 0;
     do {
         shipIndex = (int)ship;
-        if (g_aeObjectClass_0059d100[shipIndex] >= OBJECT_CLASS_MISSILE &&
-            g_anShipSpeed_0059b320[shipIndex] != 0 &&
-            g_aeSpecialManeuver_0059c3c0[shipIndex] !=
+        if (aeObjectClass[shipIndex] >= OBJECT_CLASS_MISSILE &&
+            anShipSpeed[shipIndex] != 0 &&
+            aeSpecialManeuver[shipIndex] !=
                 SPECIAL_MANEUVER_KILL_ENGINES &&
-            g_asObjectScreenX_0059d9b0[shipIndex] != (short)0x8001) {
-            animation = (short *)g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[shipIndex]].animation;
+            asObjectScreenX[shipIndex] != (short)0x8001) {
+            animation = (short *)aObjectTypeData[
+                aeObjectType[shipIndex]].animation;
             if (animation != 0) {
-                object = animation[g_asObjectViewFrame_0059d230[shipIndex]];
+                object = animation[asObjectViewFrame[shipIndex]];
                 if (object != -1) {
                     animation = (short *)((unsigned char *)animation + object);
                     while (*animation != -1) {
@@ -189,22 +189,22 @@ unsigned int place_exhaust_on_ships(void)
                         frame = *animation++;
                         scale = *animation++;
                         scale -= RandomInRange(0, 32);
-                        if (g_abShipExhaustHeat_0059d610[shipIndex] == 0)
+                        if (abShipExhaustHeat[shipIndex] == 0)
                             scale = (short)(scale - 32);
-                        g_asObjectScale_0059de40[object] = scale;
-                        g_asObjectDistance_0059b4a0[object] = *animation++;
-                        g_asObjectScreenAngle_0059cd90[object] =
+                        asObjectScale[object] = scale;
+                        asObjectDistance[object] = *animation++;
+                        asObjectScreenAngle[object] =
                             flip_angle(ship, *animation++);
-                        g_asObjectFlip_0059c870[object] = 0;
-                        g_asObjectScreenX_0059d9b0[object] = *animation++;
-                        g_asObjectScreenY_0059d930[object] = *animation++;
-                        if (g_aeSpecialManeuver_0059c3c0[shipIndex] ==
+                        asObjectFlip[object] = 0;
+                        asObjectScreenX[object] = *animation++;
+                        asObjectScreenY[object] = *animation++;
+                        if (aeSpecialManeuver[shipIndex] ==
                                 SPECIAL_MANEUVER_AFTERBURNER) {
-                            g_asObjectViewFrame_0059d230[object] =
+                            asObjectViewFrame[object] =
                                 (short)(frame * 3 +
                                         RandomInRange(0, 2));
                         } else {
-                            g_asObjectViewFrame_0059d230[object] =
+                            asObjectViewFrame[object] =
                                 (short)(frame * 2 + 12 +
                                         RandomInRange(0, 1));
                         }
@@ -244,55 +244,55 @@ unsigned int reposition_fixed_child_objects(void)
     object = 10;
     do {
         objectIndex = (int)object;
-        if (g_aeObjectClass_0059d100[objectIndex] ==
+        if (aeObjectClass[objectIndex] ==
                 OBJECT_CLASS_FIXED_OBJECT) {
-            parent = (short)g_acObjectOwner_0059ce20[objectIndex];
-            if (g_aeObjectType_0059b560[objectIndex] ==
+            parent = (short)acObjectOwner[objectIndex];
+            if (aeObjectType[objectIndex] ==
                     OBJECT_TYPE_TURRET ||
-                g_aeObjectType_0059b560[objectIndex] ==
+                aeObjectType[objectIndex] ==
                     OBJECT_TYPE_THRUSTERS) {
                 parentIndex = (int)parent;
-                angle = g_asObjectScreenAngle_0059cd90[parentIndex];
+                angle = asObjectScreenAngle[parentIndex];
                 sine = SinFixed(angle);
                 cosine = CosFixed(angle);
                 parentScale =
-                    g_asObjectScreenScale_0059c950[parentIndex];
-                right = (int)g_asObjectScreenX_0059d9b0[objectIndex] *
+                    asObjectScreenScale[parentIndex];
+                right = (int)asObjectScreenX[objectIndex] *
                         (unsigned short)parentScale;
-                g_asObjectDistance_0059b4a0[objectIndex] +=
-                    g_asObjectDistance_0059b4a0[parentIndex];
-                if ((g_asObjectFlip_0059c870[parentIndex] & 0x10) != 0)
+                asObjectDistance[objectIndex] +=
+                    asObjectDistance[parentIndex];
+                if ((asObjectFlip[parentIndex] & 0x10) != 0)
                     right = -right;
-                up = (int)g_asObjectScreenY_0059d930[objectIndex] *
+                up = (int)asObjectScreenY[objectIndex] *
                      (unsigned short)parentScale;
-                if ((g_asObjectFlip_0059c870[parentIndex] & 0x20) != 0)
+                if ((asObjectFlip[parentIndex] & 0x20) != 0)
                     up = -up;
-                g_asObjectScreenX_0059d9b0[objectIndex] = (short)(
+                asObjectScreenX[objectIndex] = (short)(
                     (MultiplyFixed(right, (int)cosine) -
                      MultiplyFixed(up, (int)sine)) >> 8);
-                g_asObjectScreenY_0059d930[objectIndex] = (short)(
+                asObjectScreenY[objectIndex] = (short)(
                     (MultiplyFixed(up, (int)cosine) +
                      MultiplyFixed(right, (int)sine)) >> 8);
-                g_asObjectScreenX_0059d9b0[objectIndex] +=
-                    g_asObjectScreenX_0059d9b0[parentIndex];
-                g_asObjectScreenY_0059d930[objectIndex] +=
-                    g_asObjectScreenY_0059d930[parentIndex];
+                asObjectScreenX[objectIndex] +=
+                    asObjectScreenX[parentIndex];
+                asObjectScreenY[objectIndex] +=
+                    asObjectScreenY[parentIndex];
 #ifdef WC1_SDL
-                if (g_aeObjectType_0059b560[objectIndex] ==
+                if (aeObjectType[objectIndex] ==
                         OBJECT_TYPE_THRUSTERS) {
                     /* Match the anchor to the enhanced parent transform. */
                     parentScreenX =
-                        (float)g_nViewCenterX_0059a852 +
-                        (float)(((double)(g_nScreenWidth_0046daa4 & ~1) *
+                        (float)nViewCenterX +
+                        (float)(((double)(nScreenWidth & ~1) *
                                  0.5 *
-                                 g_aObjectViewPosition_0059afa0[parentIndex].x) /
-                                g_aObjectViewPosition_0059afa0[parentIndex].z);
+                                 aObjectViewPosition[parentIndex].x) /
+                                aObjectViewPosition[parentIndex].z);
                     parentScreenY =
-                        (float)g_nViewCenterY_0059a854 +
-                        (float)(((double)(g_nScreenWidth_0046daa4 & ~1) *
+                        (float)nViewCenterY +
+                        (float)(((double)(nScreenWidth & ~1) *
                                  0.5 *
-                                 g_aObjectViewPosition_0059afa0[parentIndex].y) /
-                                g_aObjectViewPosition_0059afa0[parentIndex].z);
+                                 aObjectViewPosition[parentIndex].y) /
+                                aObjectViewPosition[parentIndex].z);
                     GetRLETransformTrig((int)angle * 10,
                                         &fixedCosine, &fixedSine);
                     cosineFloat = (float)fixedCosine / 65536.0f;
@@ -309,11 +309,11 @@ unsigned int reposition_fixed_child_objects(void)
 #endif
             }
             parentIndex = (int)parent;
-            g_asObjectScreenScale_0059c950[objectIndex] = (short)(
+            asObjectScreenScale[objectIndex] = (short)(
                 (unsigned short)
-                    g_asObjectScreenScale_0059c950[parentIndex] *
+                    asObjectScreenScale[parentIndex] *
                 (unsigned short)
-                    g_asObjectScale_0059de40[objectIndex] >> 8);
+                    asObjectScale[objectIndex] >> 8);
         }
         object++;
     } while (object <= WC1_SPACE_LAST_MOVING_OBJECT);
@@ -323,7 +323,7 @@ unsigned int reposition_fixed_child_objects(void)
 /* Function start: 0x421760 */
 unsigned int housekeep_power_plant_and_fuel(short ship)
 {
-    if (0 < g_anShipSpeed_0059b320[ship])
+    if (0 < anShipSpeed[ship])
         drain_fuel(ship, 5);
     return 0;
 }
@@ -333,24 +333,24 @@ unsigned int replenish_shields(short ship)
 {
     signed char shield;
 
-    if (ship == 0 && g_acPlayerComponentDamage_0059bff0[1] > 0 &&
-        g_nSpaceFrame_0059b420 %
-            (g_acPlayerComponentDamage_0059bff0[1] + 1) != 0)
+    if (ship == 0 && acPlayerComponentDamage[1] > 0 &&
+        nSpaceFrame %
+            (acPlayerComponentDamage[1] + 1) != 0)
         return 0;
     shield = 0;
     do {
         short maximum;
         short current;
 
-        maximum = g_aasShipMaximumShield_0059d6e0[ship][shield];
-        if (g_aasShipShield_0059d5b0[ship][shield] > maximum)
-            g_aasShipShield_0059d5b0[ship][shield] = maximum;
-        current = g_aasShipShield_0059d5b0[ship][shield];
+        maximum = aasShipMaximumShield[ship][shield];
+        if (aasShipShield[ship][shield] > maximum)
+            aasShipShield[ship][shield] = maximum;
+        current = aasShipShield[ship][shield];
         if (current < maximum &&
-            g_nSpaceFrame_0059b420 %
-                g_aObjectTypeData_00466458[
-                    g_aeObjectType_0059b560[ship]].animationDelay == 0) {
-            g_aasShipShield_0059d5b0[ship][shield] =
+            nSpaceFrame %
+                aObjectTypeData[
+                    aeObjectType[ship]].animationDelay == 0) {
+            aasShipShield[ship][shield] =
                 (short)(current + 1);
         }
         shield++;
@@ -365,24 +365,24 @@ unsigned int replenish_weapon_energy_bank(short ship)
     short shieldEnergy;
     short maximumShield;
 
-    if (ship == 0 && g_acPlayerComponentDamage_0059bff0[1] != 0 &&
+    if (ship == 0 && acPlayerComponentDamage[1] != 0 &&
         (int)(unsigned short)RandomInRange(0, 4) <
-            g_acPlayerComponentDamage_0059bff0[1])
+            acPlayerComponentDamage[1])
         return 0;
-    energy = g_asShipWeaponEnergy_0059d470[ship];
+    energy = asShipWeaponEnergy[ship];
     if (energy < 100) {
-        shieldEnergy = g_aasShipShield_0059d5b0[ship][1];
-        maximumShield = g_aasShipMaximumShield_0059d6e0[ship][1];
+        shieldEnergy = aasShipShield[ship][1];
+        maximumShield = aasShipMaximumShield[ship][1];
         shieldEnergy =
-            (short)(shieldEnergy + g_aasShipShield_0059d5b0[ship][0]);
+            (short)(shieldEnergy + aasShipShield[ship][0]);
         maximumShield =
             (short)(maximumShield +
-                    g_aasShipMaximumShield_0059d6e0[ship][0]);
+                    aasShipMaximumShield[ship][0]);
         if (shieldEnergy < maximumShield) {
-            g_asShipWeaponEnergy_0059d470[ship] =
+            asShipWeaponEnergy[ship] =
                 MinShort((short)(energy + 1), 100);
         } else {
-            g_asShipWeaponEnergy_0059d470[ship] =
+            asShipWeaponEnergy[ship] =
                 MinShort((short)(energy + 2), 100);
         }
     }
@@ -394,7 +394,7 @@ void accelerate(short amount)
 {
     if (malf(0) != 0) {
         amount = (short)(amount - 2);
-        if (g_nSpaceFrame_0059b420 % 3 == 0)
+        if (nSpaceFrame % 3 == 0)
             PlaySfxWaveFileByNumber(3, -1, 0);
     }
     celerate(0, (int)amount << 8);
@@ -407,29 +407,29 @@ void your_afterburner(void)
     int frame;
     int nextSoundFrame;
 
-    if (g_anShipFuel_0059b470[0] <= 0)
+    if (anShipFuel[0] <= 0)
         return;
     if (malf(0) != 0) {
         PlaySfxWaveFileByNumber(3, -1, 0);
         return;
     }
-    if (g_aeSpecialManeuver_0059c3c0[0] !=
+    if (aeSpecialManeuver[0] !=
             SPECIAL_MANEUVER_AFTERBURNER) {
         time = 8;
-    } else if (g_asShipAfterburnerTimer_0059c810[0] == 0) {
+    } else if (asShipAfterburnerTimer[0] == 0) {
         time = 8;
     } else {
-        if (g_asShipAfterburnerTimer_0059c810[0] > 2)
+        if (asShipAfterburnerTimer[0] > 2)
             return;
         time = 2;
     }
     fire_afterburner(0, time);
-    frame = (int)g_nSpaceFrame_0059b420;
+    frame = (int)nSpaceFrame;
     nextSoundFrame = frame + 6;
-    if (nextSoundFrame < g_nAfterburnerSoundDeadline_005a7ce8)
-        g_nAfterburnerSoundDeadline_005a7ce8 = 0;
-    if (g_nAfterburnerSoundDeadline_005a7ce8 < frame) {
-        g_nAfterburnerSoundDeadline_005a7ce8 = nextSoundFrame;
+    if (nextSoundFrame < nAfterburnerSoundDeadline)
+        nAfterburnerSoundDeadline = 0;
+    if (nAfterburnerSoundDeadline < frame) {
+        nAfterburnerSoundDeadline = nextSoundFrame;
         PlaySfxWaveFileByNumber(12, -1, 0);
     }
 }
@@ -440,19 +440,19 @@ unsigned int LoadGamePaletteFile(void)
     short index;
 
     PromptInsertNumberedDisk(0);
-    switch ((int)(short)DAT_0046b168) {
+    switch ((int)(short)nVideoMode) {
     case 9:
     case 13:
         index = 0;
         do {
-            ((unsigned char *)&g_cBlueColour_004699a4)[index] =
-                g_abLegacyVideoModeColours_004699e0[index];
+            ((unsigned char *)&cBlueColour)[index] =
+                abLegacyVideoModeColours[index];
             index++;
         } while ((unsigned int)(int)index < 14);
         index = 0;
         do {
-            g_asConversationTextColours_004699f0[index] =
-                g_asConversationTextColours_004699f0[index + 12];
+            asConversationTextColours[index] =
+                asConversationTextColours[index + 12];
             index++;
         } while ((unsigned int)(int)index < 12);
         return 0;
@@ -468,7 +468,7 @@ unsigned int LoadGamePaletteFile(void)
 /* Function start: 0x421A40 */
 unsigned int EMShutDown(void)
 {
-    if (g_nEventManagerActive_0059a850 != 0)
+    if (nEventManagerActive != 0)
         ShutdownEventManager();
     return 0;
 }
@@ -477,12 +477,12 @@ unsigned int EMShutDown(void)
 unsigned short InitializeEventManagerResources(void)
 {
     DAT_0059a9f0 = 20;
-    g_nInputTickScale_0059af90 = 20;
+    nInputTickScale = 20;
     DAT_0059ab64 = 1;
-    g_stMouseCursorState_0059ab10.shape = g_pMouseCursorResource_005a7cdc =
+    stMouseCursorState.shape = pMouseCursorResource =
         FetchDiskPacketRetrying(14, 0, 0x10);
-    g_stMouseCursorState_0059ab10.frame = 0;
-    g_stMouseCursorState_0059ab10.viewport = &DAT_005a6ba0;
+    stMouseCursorState.frame = 0;
+    stMouseCursorState.viewport = &stScreen;
     return 0;
 }
 
@@ -493,9 +493,9 @@ unsigned int EMStartUp(void)
     RegisterEventManagerShutdown((void (*)(void))LogMemoryUsage);
     if (InitializeEventManager(20, InitializeEventManagerResources, 0) == 0)
         exit_squadron("EMStartUp Failed");
-    ConfigureEventManagerPointer(g_stMouseCursorState_0059ab10.shape, 0);
+    ConfigureEventManagerPointer(stMouseCursorState.shape, 0);
     SetEventManagerPump(PollJoystickButtonEvents);
-    g_nMenuInputRepeatDelay_005a8208 = 6;
+    nMenuInputRepeatDelay = 6;
     return 0;
 }
 
@@ -508,53 +508,53 @@ unsigned int LoadOriginFxDrivers(void)
 
     memoryThreshold = 100000;
     _chdir("gamedat");
-    g_nNearHeapMaxDescriptors_004688c4 = 0x80;
+    nNearHeapMaxDescriptors = 0x80;
     IsSoundHardwarePresent(8);
-    if (DAT_0059a856 == 0)
+    if (bExpandedMemoryAvailable == 0)
         SystemDebugPrintf("No ");
     SystemDebugPrintf("Expanded Memory Detected.\n");
-    g_bGraphicsActive_00469a20 = 0;
+    bGraphicsActive = 0;
     PromptInsertNumberedDisk(0x38);
-    if (GetMusicDriverPresent(g_bSlowSceneAnimation_00469998) == 0)
+    if (GetMusicDriverPresent(bSlowSceneAnimation) == 0)
         exit_squadron("Failed to load Origin-FX drivers");
-    RewriteDiskFileGraphicsExtensions(g_bSlowSceneAnimation_00469998);
+    RewriteDiskFileGraphicsExtensions(bSlowSceneAnimation);
     LoadJoystickCalibrationFile(9, 9, 1, 1);
-    g_nInputDoubleClickInterval_0046af54 = 2;
+    nInputDoubleClickInterval = 2;
     EMStartUp();
     GetFxDriverInitResult();
-    g_dwOriginalFreeMemory_005a7cd8 = GetFixedOneMillionThunkAlt(0);
-    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
+    dwOriginalFreeMemory = GetFixedOneMillionThunkAlt(0);
+    if (nMusicPlaybackMode != 0 && nMusicPlaybackMode != 3)
         memoryThreshold = 210000;
     SetFrameTimerPeriodDirect(0x78);
     if ((int)GetFixedOneMillionThunk(4) > memoryThreshold) {
-        g_nAvailableGameMemory_005a7ce0 =
-            (int)g_dwOriginalFreeMemory_005a7cd8 -
-            g_anExpandedMemoryReservationByVideoMode_00469ab0[
-                g_bSlowSceneAnimation_00469998];
-        if (g_nAvailableGameMemory_005a7ce0 < 0)
+        nAvailableGameMemory =
+            (int)dwOriginalFreeMemory -
+            anExpandedMemoryReservationByVideoMode[
+                bSlowSceneAnimation];
+        if (nAvailableGameMemory < 0)
             exit_squadron(
                 "You do not have enough memory to play Wing Commander.\n"
                 "Refer to your reference guide for assistance.");
-        g_nMemoryConfiguration_005a7cd4 = 2;
+        nMemoryConfiguration = 2;
         SystemDebugPrintf("Expanded Memory fully used.\n");
     } else {
-        g_nAvailableGameMemory_005a7ce0 =
-            (int)g_dwOriginalFreeMemory_005a7cd8 -
-            g_anBaseMemoryReservationByVideoMode_00469a90[
-                g_bSlowSceneAnimation_00469998];
-        if (g_nAvailableGameMemory_005a7ce0 < 0)
+        nAvailableGameMemory =
+            (int)dwOriginalFreeMemory -
+            anBaseMemoryReservationByVideoMode[
+                bSlowSceneAnimation];
+        if (nAvailableGameMemory < 0)
             exit_squadron(
                 "You do not have enough memory to play Wing Commander.\n"
                 "Refer to your reference guide for assistance.");
-        g_nMemoryConfiguration_005a7cd4 = 0;
-        if (DAT_0046a9f8 == 1 || DAT_0046a9f8 == 2) {
+        nMemoryConfiguration = 0;
+        if (nMusicPlaybackMode == 1 || nMusicPlaybackMode == 2) {
             videoModeMemory =
-                g_anFullMusicMemoryReservationByVideoMode_00469aa0[
-                    g_bSlowSceneAnimation_00469998];
-            if ((int)g_dwOriginalFreeMemory_005a7cd8 > videoModeMemory) {
-                g_nMemoryConfiguration_005a7cd4 = 1;
-                g_nAvailableGameMemory_005a7ce0 =
-                    (int)g_dwOriginalFreeMemory_005a7cd8 - videoModeMemory;
+                anFullMusicMemoryReservationByVideoMode[
+                    bSlowSceneAnimation];
+            if ((int)dwOriginalFreeMemory > videoModeMemory) {
+                nMemoryConfiguration = 1;
+                nAvailableGameMemory =
+                    (int)dwOriginalFreeMemory - videoModeMemory;
                 SystemDebugPrintf("Full");
             } else {
                 SystemDebugPrintf("Limited");
@@ -568,24 +568,24 @@ unsigned int LoadOriginFxDrivers(void)
     SetEventManagerPump(PollJoystickButtonEvents);
     PromptInsertNumberedDisk(0);
     ShutdownVideoHook(
-        g_acGraphicsModeByAnimationSpeed_0046b178[
-            g_bSlowSceneAnimation_00469998]);
+        acGraphicsModeByAnimationSpeed[
+            bSlowSceneAnimation]);
     requestedGraphicsMode =
-        g_acGraphicsModeByAnimationSpeed_0046b178[
-            g_bSlowSceneAnimation_00469998];
+        acGraphicsModeByAnimationSpeed[
+            bSlowSceneAnimation];
     if (GetTargetColourIndex() != requestedGraphicsMode)
         exit_squadron("Requested graphics display mode not available.");
     LoadGamePaletteFile();
     InitializeGameTextContexts();
     InitializeDiskPromptTextContext();
     GetEventManagerStatus();
-    g_nFrameSkip_00469fb8 = 1;
-    if (DAT_0046a9f8 != 0 && DAT_0046a9f8 != 3)
+    nFrameSkip = 1;
+    if (nMusicPlaybackMode != 0 && nMusicPlaybackMode != 3)
         GetFxDriverStatus();
     initialize_direction_view_frames();
-    g_pConstellationDefinitions_00598a28 =
+    pConstellationDefinitions =
         LoadPacketAllocated(0x3a, 0);
-    g_pMissionCampaignData_005988bc = LoadPacketAllocated(0x3a, 1);
+    pMissionCampaignData = LoadPacketAllocated(0x3a, 1);
     SystemDebugPrintf("\n[SYSTEM] : Exiting initialize()\n");
     return 0;
 }
@@ -593,23 +593,23 @@ unsigned int LoadOriginFxDrivers(void)
 /* Function start: 0x421D80 */
 unsigned int InitializeGameTextContexts(void)
 {
-    InitializeDIBScreenViewport(&DAT_005a6ba0,
-                                (unsigned char)g_cBlackColour_0046999c);
-    g_stModalSourceViewport_005a7670 = DAT_005a6ba0;
-    g_stDefaultTextContext_005a7740.viewport =
-        &g_stModalSourceViewport_005a7670;
-    g_stDefaultTextContext_005a7740.text =
-        g_szDefaultTextBuffer_005a7590;
-    InitializeTextContextFromFont(&g_stDefaultTextContext_005a7740, 1,
-                                  (unsigned char)g_cPrimaryTextColour_004699b4,
-                                  g_cBlackColour_0046999c);
-    SetTextContext(&g_stDefaultTextContext_005a7740);
+    InitializeDIBScreenViewport(&stScreen,
+                                (unsigned char)cBlackColour);
+    stModalSourceViewport = stScreen;
+    stDefaultTextContext.viewport =
+        &stModalSourceViewport;
+    stDefaultTextContext.text =
+        szDefaultTextBuffer;
+    InitializeTextContextFromFont(&stDefaultTextContext, 1,
+                                  (unsigned char)cPrimaryTextColour,
+                                  cBlackColour);
+    SetTextContext(&stDefaultTextContext);
 
-    DAT_005a6bc0.viewport = &DAT_005a7510;
-    DAT_005a6bc0.text = g_szDefaultTextBuffer_005a7590;
-    DAT_005a6bc0.alignment = 2;
-    InitializeTextContextFromFont(&DAT_005a6bc0, 1,
-                                  (unsigned char)g_cRedColour_004699ac, -1);
+    stHudMessageTextContext.viewport = &stSpaceBuffer;
+    stHudMessageTextContext.text = szDefaultTextBuffer;
+    stHudMessageTextContext.alignment = 2;
+    InitializeTextContextFromFont(&stHudMessageTextContext, 1,
+                                  (unsigned char)cRedColour, -1);
     return 0;
 }
 
@@ -625,9 +625,9 @@ unsigned int initialize_direction_view_frame(short yaw, short pitch,
     rotate_about_j(yaw, &right, &forward);
     rotate_about_i(pitch, &up, &forward);
     index = (short)frame;
-    g_aDirectionViewRightVector_005a6c20[index] = right;
-    g_aDirectionViewUpVector_005a6f10[index] = up;
-    g_aDirectionViewForwardVector_005a7200[index] = forward;
+    aDirectionViewRightVector[index] = right;
+    aDirectionViewUpVector[index] = up;
+    aDirectionViewForwardVector[index] = forward;
     return 0;
 }
 
@@ -664,29 +664,29 @@ unsigned int LoadSpaceflightResources(void)
 {
     unsigned char *debrisShapeSet;
 
-    if (DAT_0059a856 == 0)
+    if (bExpandedMemoryAvailable == 0)
         return 0;
-    if (LoadShapeSet(g_aCommon3SpaceResources_00469bc0, 4, -1) == 0)
+    if (LoadShapeSet(aCommon3SpaceResources, 4, -1) == 0)
         return 0;
-    LoadShapeSet(g_aMissionResourceDescriptors_00469c20, 4, -1);
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_WING].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
+    LoadShapeSet(aMissionResourceDescriptors, 4, -1);
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
     debrisShapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
         debrisShapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
         debrisShapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
         debrisShapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
         debrisShapeSet;
-    LoadShapeSet(g_aCockpitResourceDescriptors_00469c48, 4, -1);
-    g_apCommPortraitShapes_0059e180[8] = 0;
-    g_apCommPortraitShapes_0059e180[9] = 0;
-    g_apCommPortraitShapes_0059e180[10] = 0;
-    g_apCommPortraitShapes_0059e180[11] = 0;
-    g_apCommPortraitShapes_0059e180[13] = 0;
+    LoadShapeSet(aCockpitResourceDescriptors, 4, -1);
+    apCommPortraitShapes[8] = 0;
+    apCommPortraitShapes[9] = 0;
+    apCommPortraitShapes[10] = 0;
+    apCommPortraitShapes[11] = 0;
+    apCommPortraitShapes[13] = 0;
     return 0;
 }
 
@@ -711,19 +711,19 @@ unsigned int GetFxDriverStatus(void)
 /* Function start: 0x422010 */
 short ace_status(short ace, unsigned char bits)
 {
-    return (g_stCampaignState_0059ca50.aceFlags[ace] & bits) == bits;
+    return (stCampaignState.aceFlags[ace] & bits) == bits;
 }
 
 /* Function start: 0x422030 */
 void unflag_ace(short ace, unsigned char bits)
 {
-    g_stCampaignState_0059ca50.aceFlags[ace] &= ~bits;
+    stCampaignState.aceFlags[ace] &= ~bits;
 }
 
 /* Function start: 0x422050 */
 void flag_ace(short ace, unsigned char bits)
 {
-    g_stCampaignState_0059ca50.aceFlags[ace] |= bits;
+    stCampaignState.aceFlags[ace] |= bits;
 }
 
 /* Function start: 0x422060 */
@@ -738,7 +738,7 @@ void kill_ace(short ace)
 /* Function start: 0x422090 */
 void ace_greeting(short obj)
 {
-    short ace = (short)g_aiPilotLevel_0059cf30[obj] - 14;
+    short ace = (short)aiPilotLevel[obj] - 14;
 
     send_message(obj, (signed char)(ace_status(ace, 4) != 0));
     flag_ace(ace, 8);
@@ -760,7 +760,7 @@ short signed_random(short range)
 /* Function start: 0x422110 */
 int alert_flag(short ship, unsigned int bits)
 {
-    return (DAT_0059b430[ship] & bits) != 0;
+    return (anShipAlertFlags[ship] & bits) != 0;
 }
 
 /* Function start: 0x422130 */
@@ -770,42 +770,42 @@ int alert_flag(short ship, unsigned int bits)
  * the way the original was, so the idiom survives. */
 unsigned int HasSpeechBuffer(void)
 {
-    return (unsigned int)&DAT_0059b430 >= 1;
+    return (unsigned int)&anShipAlertFlags >= 1;
 }
 
 /* Function start: 0x422140 */
 unsigned short set_alert(short i, unsigned int bits)
 {
-    DAT_0059b430[i] |= bits;
+    anShipAlertFlags[i] |= bits;
     return 0;
 }
 
 /* Function start: 0x422160 */
 void clear_alert(short i)
 {
-    g_asCollisionCountdown_0059d2d0[i] = 0;
-    DAT_0059b430[i] = 0;
-    DAT_0059cf20[i] = 0xff;
+    asCollisionCountdown[i] = 0;
+    anShipAlertFlags[i] = 0;
+    abCollisionAlertTarget[i] = 0xff;
 }
 
 /* Function start: 0x422180 */
 void start_collision_alert(short obj, short other)
 {
-    if ((short)(signed char)DAT_0059cf20[obj] != other) {
-        DAT_0059cf20[obj] = (unsigned char)other;
+    if ((short)(signed char)abCollisionAlertTarget[obj] != other) {
+        abCollisionAlertTarget[obj] = (unsigned char)other;
         steady_object(obj);
     }
-    g_asCollisionCountdown_0059d2d0[obj] = 3;
+    asCollisionCountdown[obj] = 3;
     set_alert(obj, 1);
-    g_asShipAfterburnerTimer_0059c810[obj] = 0;
+    asShipAfterburnerTimer[obj] = 0;
     set_special(obj, SPECIAL_MANEUVER_NONE);
 }
 
 /* Function start: 0x4221E0 */
 void try2end_collision_alert(short obj)
 {
-    g_asCollisionCountdown_0059d2d0[obj]--;
-    if (g_asCollisionCountdown_0059d2d0[obj] <= 0)
+    asCollisionCountdown[obj]--;
+    if (asCollisionCountdown[obj] <= 0)
         clear_alert(obj);
     else
         set_alert(obj, 2);
@@ -814,9 +814,9 @@ void try2end_collision_alert(short obj)
 /* Function start: 0x422220 */
 short normal_speed(short obj)
 {
-    if (g_aeSpecialManeuver_0059c3c0[obj] !=
+    if (aeSpecialManeuver[obj] !=
             SPECIAL_MANEUVER_AFTERBURNER &&
-        real_velocity(obj) <= g_asShipMaximumSpeed_0059c440[obj])
+        real_velocity(obj) <= asShipMaximumSpeed[obj])
         return 1;
     return 0;
 }
@@ -837,19 +837,19 @@ short real_crash_time(short obj, short other)
     FixedVector travel;
     FixedVector separation;
 
-    collisionRadius = g_asObjectCollisionRadius_0059d710[obj];
-    collisionRadius += g_asObjectCollisionRadius_0059d710[other];
+    collisionRadius = asObjectCollisionRadius[obj];
+    collisionRadius += asObjectCollisionRadius[other];
     collisionRadius += 30;
     collisionFound = 0;
-    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
-                       &g_aShipPosition_0059c490[other],
+    ComputeVectorDelta(&aShipPosition[obj],
+                       &aShipPosition[other],
                        &relativePosition);
     distance = Vector_magnitude(&relativePosition);
     if (((long)collisionRadius + 1500) * 0x100 < distance)
         return 0x7fff;
 
-    ComputeVectorDelta(&g_aShipVelocity_0059c010[obj],
-                       &g_aShipVelocity_0059c010[other],
+    ComputeVectorDelta(&aShipVelocity[obj],
+                       &aShipVelocity[other],
                        &relativeVelocity);
     relativeSpeed = Vector_magnitude(&relativeVelocity);
     if (relativeSpeed == 0)
@@ -892,7 +892,7 @@ void clear_crash_cache(void)
     short i = 0;
 
     do {
-        g_asCollisionPartner_005a7cc0[i] = -1;
+        asCollisionPartner[i] = -1;
         i = i + 1;
     } while (i < 10);
 }
@@ -900,13 +900,13 @@ void clear_crash_cache(void)
 /* Function start: 0x422460 */
 short crash_time(short obj, short other)
 {
-    if (g_asCollisionPartner_005a7cc0[obj] == other)
-        return g_asCollisionTime_005a7ca0[obj];
-    if (other < 10 && g_asCollisionPartner_005a7cc0[other] == obj)
-        return g_asCollisionTime_005a7ca0[other];
-    if (g_aeObjectClass_0059d100[other] == OBJECT_CLASS_ASTEROID &&
-        (g_asObjectScreenX_0059d9b0[other] == -0x7fff ||
-         g_asObjectScreenX_0059d9b0[obj] == -0x7fff))
+    if (asCollisionPartner[obj] == other)
+        return asCollisionTime[obj];
+    if (other < 10 && asCollisionPartner[other] == obj)
+        return asCollisionTime[other];
+    if (aeObjectClass[other] == OBJECT_CLASS_ASTEROID &&
+        (asObjectScreenX[other] == -0x7fff ||
+         asObjectScreenX[obj] == -0x7fff))
         return 0x7fff;
     return real_crash_time(obj, other);
 }
@@ -923,8 +923,8 @@ short detect_collisions(short obj)
     closestTime = 30;
     for (other = 0; other <= 60; other++) {
         if (other != obj &&
-            g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_ASTEROID &&
-            g_aeObjectClass_0059d100[other] != OBJECT_CLASS_MISSILE) {
+            aeObjectClass[other] >= OBJECT_CLASS_ASTEROID &&
+            aeObjectClass[other] != OBJECT_CLASS_MISSILE) {
             time = crash_time(obj, other);
             if (closestTime > time) {
                 closestTime = time;
@@ -933,8 +933,8 @@ short detect_collisions(short obj)
         }
     }
     if (candidate != -1) {
-        g_asCollisionPartner_005a7cc0[obj] = candidate;
-        g_asCollisionTime_005a7ca0[obj] = closestTime;
+        asCollisionPartner[obj] = candidate;
+        asCollisionTime[obj] = closestTime;
     }
     return candidate;
 }
@@ -943,8 +943,8 @@ short detect_collisions(short obj)
 unsigned int unactive(short ship)
 {
     if (ship != -1 &&
-        g_aeObjectClass_0059d100[ship] >= OBJECT_CLASS_SHIP &&
-        g_aeShipManeuver_0059dcb0[ship] != MANEUVER_HARD_BRAKE)
+        aeObjectClass[ship] >= OBJECT_CLASS_SHIP &&
+        aeShipManeuver[ship] != MANEUVER_HARD_BRAKE)
         return 0;
     return 1;
 }
@@ -953,7 +953,7 @@ unsigned int unactive(short ship)
 int are_alive(short obj)
 {
     if (unactive(obj) == 0 &&
-        g_aeShipObjective_0059d200[obj] != OBJECTIVE_WANDER)
+        aeShipObjective[obj] != OBJECTIVE_WANDER)
         return 1;
     return 0;
 }
@@ -961,17 +961,17 @@ int are_alive(short obj)
 /* Function start: 0x4225C0 */
 int trim_goals(short obj, short amount)
 {
-    short goal = g_anYawGoal_0059c310[obj];
+    short goal = anYawGoal[obj];
 
     if (amount < goal)
-        g_anYawGoal_0059c310[obj] = amount;
+        anYawGoal[obj] = amount;
     else if (goal < -amount)
-        g_anYawGoal_0059c310[obj] = -amount;
-    goal = g_anPitchGoal_0059d7a0[obj];
+        anYawGoal[obj] = -amount;
+    goal = anPitchGoal[obj];
     if (amount < goal)
-        g_anPitchGoal_0059d7a0[obj] = amount;
+        anPitchGoal[obj] = amount;
     else if (goal < -amount)
-        g_anPitchGoal_0059d7a0[obj] = -amount;
+        anPitchGoal[obj] = -amount;
     return 0;
 }
 
@@ -981,32 +981,32 @@ int report_kilrathi_rout(int mode)
     short obj;
 
     for (obj = 0; obj < 10; obj++) {
-        if (g_aeObjectClass_0059d100[obj] < OBJECT_CLASS_SHIP ||
-            g_aeSpecialManeuver_0059c3c0[obj] ==
+        if (aeObjectClass[obj] < OBJECT_CLASS_SHIP ||
+            aeSpecialManeuver[obj] ==
                 SPECIAL_MANEUVER_UNKNOWN_9)
             continue;
         switch (mode) {
         case 0:
-            if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
+            if (aeShipSide[obj] == SIDE_KILRATHI)
                 return 1;
             break;
         case 1:
-            if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI &&
-                g_aeShipMissionType_0059c3f0[obj] != MISSION_TYPE_ROUT &&
+            if (aeShipSide[obj] == SIDE_KILRATHI &&
+                aeShipMissionType[obj] != MISSION_TYPE_ROUT &&
                 distance_from_object(0, obj) < 16000)
                 return 1;
             break;
         case 2:
-            if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI &&
-                (g_aeShipObjective_0059d200[obj] ==
+            if (aeShipSide[obj] == SIDE_KILRATHI &&
+                (aeShipObjective[obj] ==
                      OBJECTIVE_ENGAGE_ENEMY ||
-                 g_aeShipObjective_0059d200[obj] ==
+                 aeShipObjective[obj] ==
                      OBJECTIVE_DESTROY_SHIP))
                 return 1;
             break;
         }
     }
-    if (mode == 1 && g_nCurrentWave_0046c01c != -1)
+    if (mode == 1 && nCurrentWave != -1)
         check_next_wave();
     return 0;
 }
@@ -1016,15 +1016,15 @@ short find_ship_index(short missionShip)
 {
     short obj;
 
-    g_nLastFoundShip_005a7cba = -1;
+    nLastFoundShip = -1;
     if (missionShip != -1) {
         for (obj = 0; obj < 10; obj++) {
-            if (((g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_SHIP &&
-                  g_aeSpecialManeuver_0059c3c0[obj] !=
+            if (((aeObjectClass[obj] >= OBJECT_CLASS_SHIP &&
+                  aeSpecialManeuver[obj] !=
                       SPECIAL_MANEUVER_UNKNOWN_9) ||
-                 g_aeObjectClass_0059d100[obj] == OBJECT_CLASS_FUTURION) &&
-                g_nShipMissionIndices_0059c830[obj] == missionShip) {
-                g_nLastFoundShip_005a7cba = obj;
+                 aeObjectClass[obj] == OBJECT_CLASS_FUTURION) &&
+                nShipMissionIndices[obj] == missionShip) {
+                nLastFoundShip = obj;
                 return obj;
             }
         }
@@ -1039,27 +1039,27 @@ int try2rout(short obj)
     short other;
 
     canContinue = 0;
-    if (g_nTrainSimActive_00469e2c != 0) {
+    if (nTrainSimActive != 0) {
         canContinue = 1;
     } else {
         other = 0;
         do {
-            if (g_aeObjectClass_0059d100[other] ==
+            if (aeObjectClass[other] ==
                     OBJECT_CLASS_CAPITAL_SHIP &&
-                g_aeSpecialManeuver_0059c3c0[other] !=
+                aeSpecialManeuver[other] !=
                     SPECIAL_MANEUVER_UNKNOWN_9 &&
-                g_aeShipSide_0059d650[obj] ==
-                    g_aeShipSide_0059d650[other])
+                aeShipSide[obj] ==
+                    aeShipSide[other])
                 canContinue = 1;
             other++;
         } while (other < 10);
     }
     if (canContinue != 0) {
-        g_acShipStress_0059d620[obj] = 0;
+        acShipStress[obj] = 0;
         maneuver_complete(obj);
     } else {
         reset_mission_type(obj, MISSION_TYPE_ROUT);
-        if (obj == g_nYourWingman_0046c04c)
+        if (obj == nYourWingman)
             send_message(obj, 9);
     }
     return canContinue == 0;
@@ -1068,18 +1068,18 @@ int try2rout(short obj)
 /* Function start: 0x422830 */
 signed char no_goal(short ship)
 {
-    return (g_anYawGoal_0059c310[ship] |
-            g_anPitchGoal_0059d7a0[ship] |
-            g_anRollGoal_0059d630[ship]) == 0;
+    return (anYawGoal[ship] |
+            anPitchGoal[ship] |
+            anRollGoal[ship]) == 0;
 }
 
 /* Function start: 0x422860 */
 int being_tailed(short obj, short other)
 {
     ship_vs_ship(obj, other);
-    return g_nFacingToTarget_0059d920 < -60 &&
-           g_nTargetFacing_0059d52a > 85 &&
-           g_nTargetRange_0059ce10 < 7000;
+    return nFacingToTarget < -60 &&
+           nTargetFacing > 85 &&
+           nTargetRange < 7000;
 }
 
 /* Function start: 0x4228A0 */
@@ -1088,17 +1088,17 @@ int any_enemy_tail(short obj)
     short other;
 
     for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_0059c3c0[other] !=
+        if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
+            aeSpecialManeuver[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other] &&
-            g_acShipTarget_0059ce60[other] == obj &&
+            aeShipSide[obj] != aeShipSide[other] &&
+            acShipTarget[other] == obj &&
             being_tailed(obj, other) != 0) {
-            g_nTargetShip_0059c3b0 = other;
+            nTargetShip = other;
             return 1;
         }
     }
-    g_nTargetShip_0059c3b0 = -1;
+    nTargetShip = -1;
     return 0;
 }
 
@@ -1108,11 +1108,11 @@ short detect_enemy_tail(short obj)
     short other;
 
     for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_0059c3c0[other] !=
+        if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
+            aeSpecialManeuver[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other] &&
-            g_acShipTarget_0059ce60[other] == obj &&
+            aeShipSide[obj] != aeShipSide[other] &&
+            acShipTarget[other] == obj &&
             being_tailed(obj, other) != 0)
             return other;
     }
@@ -1122,7 +1122,7 @@ short detect_enemy_tail(short obj)
 /* Function start: 0x4229B0 */
 int is_ship_tailing_player_target(short obj)
 {
-    short target = g_acShipTarget_0059ce60[0];
+    short target = acShipTarget[0];
 
     if (unactive(target) == 0 && being_tailed(target, obj) != 0)
         return 1;
@@ -1135,8 +1135,8 @@ int missile_on_tail(short obj)
     short other;
 
     for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_0059d100[other] == OBJECT_CLASS_MISSILE &&
-            g_acShipTarget_0059ce60[other] == obj)
+        if (aeObjectClass[other] == OBJECT_CLASS_MISSILE &&
+            acShipTarget[other] == obj)
             return 1;
     }
     return 0;
@@ -1166,12 +1166,12 @@ unsigned int build_squad_list(short leader)
     short obj;
     short index = 1;
 
-    g_acFormationMemberList_0059d490[0] = (signed char)leader;
-    g_acFormationMemberList_0059d490[1] = -1;
+    acFormationMemberList[0] = (signed char)leader;
+    acFormationMemberList[1] = -1;
     for (obj = 0; obj < 10; obj++) {
-        if (g_asShipWingLeader_0059d400[obj] == leader) {
-            g_acFormationMemberList_0059d490[index++] = (signed char)obj;
-            g_acFormationMemberList_0059d490[index] = -1;
+        if (asShipWingLeader[obj] == leader) {
+            acFormationMemberList[index++] = (signed char)obj;
+            acFormationMemberList[index] = -1;
         }
     }
     return 0;
@@ -1183,9 +1183,9 @@ unsigned int find_squad_center(FixedVector *center)
     short count = 0;
 
     zero_vector(center);
-    while (g_acFormationMemberList_0059d490[count] != -1) {
-        AddFixedVectors(center, &g_aShipPosition_0059c490[
-                            (short)g_acFormationMemberList_0059d490[count]],
+    while (acFormationMemberList[count] != -1) {
+        AddFixedVectors(center, &aShipPosition[
+                            (short)acFormationMemberList[count]],
                         center);
         count++;
     }
@@ -1204,17 +1204,17 @@ unsigned int init_formation_burst(short obj)
 
     build_squad_list(obj);
     find_squad_center(&center);
-    member = g_acFormationMemberList_0059d490[0];
+    member = acFormationMemberList[0];
     while (member != -1) {
-        destination = &g_aShipDestination_0059d530[member];
-        ComputeVectorDelta(&center, &g_aShipPosition_0059c490[member],
+        destination = &aShipDestination[member];
+        ComputeVectorDelta(&center, &aShipPosition[member],
                            destination);
         ScaleFixedVector(destination, 0xa00, destination);
-        AddFixedVectors(destination, &g_aShipPosition_0059c490[member],
+        AddFixedVectors(destination, &aShipPosition[member],
                         destination);
         steady_object(member);
         reset_objective(member, OBJECTIVE_BREAK_FORMATION);
-        member = g_acFormationMemberList_0059d490[++index];
+        member = acFormationMemberList[++index];
     }
     return 0;
 }
@@ -1224,10 +1224,10 @@ unsigned int reset_mission_type(short obj,
                                 enum ShipMissionType missionType)
 {
     if (missionType == MISSION_TYPE_ROUT &&
-        g_aeShipSide_0059d650[obj] == SIDE_KILRATHI)
+        aeShipSide[obj] == SIDE_KILRATHI)
         report_kilrathi_rout(1);
     reset_objective(obj, OBJECTIVE_NONE);
-    g_aeShipMissionType_0059c3f0[obj] = missionType;
+    aeShipMissionType[obj] = missionType;
     return 0;
 }
 
@@ -1235,8 +1235,8 @@ unsigned int reset_mission_type(short obj,
 unsigned int change_mission_type(short obj,
                                  enum ShipMissionType missionType)
 {
-    if (g_aeShipObjective_0059d200[obj] == OBJECTIVE_ENGAGE_ENEMY)
-        g_aeShipMissionType_0059c3f0[obj] = missionType;
+    if (aeShipObjective[obj] == OBJECTIVE_ENGAGE_ENEMY)
+        aeShipMissionType[obj] = missionType;
     else
         reset_mission_type(obj, missionType);
     return 0;
@@ -1247,7 +1247,7 @@ unsigned int reset_objective(short ship, enum ShipObjective objective)
 {
     steady_object(ship);
     reset_tactic(ship, TACTIC_NONE);
-    g_aeShipObjective_0059d200[ship] = objective;
+    aeShipObjective[ship] = objective;
     return 0;
 }
 
@@ -1256,7 +1256,7 @@ unsigned int alter_objective(short ship, enum ShipObjective objective)
 {
     steady_object(ship);
     alter_tactic(ship, TACTIC_NONE);
-    g_aeShipObjective_0059d200[ship] = objective;
+    aeShipObjective[ship] = objective;
     return 0;
 }
 
@@ -1264,8 +1264,8 @@ unsigned int alter_objective(short ship, enum ShipObjective objective)
 unsigned int reset_tactic(short ship, enum ShipTactic tactic)
 {
     reset_maneuver(ship, MANEUVER_NONE);
-    g_aeShipTactic_0059d5e0[ship] = tactic;
-    g_acShipTarget_0059ce60[ship] = -1;
+    aeShipTactic[ship] = tactic;
+    acShipTarget[ship] = -1;
     return 0;
 }
 
@@ -1273,22 +1273,22 @@ unsigned int reset_tactic(short ship, enum ShipTactic tactic)
 unsigned int alter_tactic(short ship, enum ShipTactic tactic)
 {
     reset_maneuver(ship, MANEUVER_NONE);
-    g_aeShipTactic_0059d5e0[ship] = tactic;
+    aeShipTactic[ship] = tactic;
     return 0;
 }
 
 /* Function start: 0x422D30 */
 void reset_maneuver(short ship, short maneuver)
 {
-    g_aeShipManeuver_0059dcb0[ship] = (enum ShipManeuver)maneuver;
-    g_asShipCount_0059c420[ship] = 0;
-    g_acShipSequence_0059d520[ship] = 0;
+    aeShipManeuver[ship] = (enum ShipManeuver)maneuver;
+    asShipCount[ship] = 0;
+    acShipSequence[ship] = 0;
 }
 
 /* Function start: 0x422D60 */
 void try2reset_maneuver(short obj, short maneuver)
 {
-    if (g_aeShipManeuver_0059dcb0[obj] != maneuver) {
+    if (aeShipManeuver[obj] != maneuver) {
         reset_maneuver(obj, maneuver);
         steady_object(obj);
     }
@@ -1300,7 +1300,7 @@ unsigned int set_special(short ship, enum SpecialManeuver special)
     enum SpecialManeuver *currentState;
     enum SpecialManeuver current;
 
-    currentState = &g_aeSpecialManeuver_0059c3c0[ship];
+    currentState = &aeSpecialManeuver[ship];
     current = *currentState;
     if (current < SPECIAL_MANEUVER_LOST_CONTROL || special > current)
         *currentState = special;
@@ -1328,8 +1328,8 @@ unsigned int approach_min_speed(short obj)
 /* Function start: 0x422E10 */
 unsigned int approach_half_speed(short obj)
 {
-    short speed = g_aObjectTypeData_00466458[
-        g_aeObjectType_0059b560[obj]].cruiseVelocity;
+    short speed = aObjectTypeData[
+        aeObjectType[obj]].cruiseVelocity;
 
     approach_speed(obj, (int)(short)(speed & 0xfffe) << 7);
     return 0;
@@ -1339,8 +1339,8 @@ unsigned int approach_half_speed(short obj)
 unsigned int approach_cruise_speed(short ship)
 {
     approach_speed(ship,
-        (int)g_aObjectTypeData_00466458[
-            g_aeObjectType_0059b560[ship]].cruiseVelocity << 8);
+        (int)aObjectTypeData[
+            aeObjectType[ship]].cruiseVelocity << 8);
     return 0;
 }
 
@@ -1348,14 +1348,14 @@ unsigned int approach_cruise_speed(short ship)
 unsigned int approach_full_speed(short ship)
 {
     approach_speed(ship,
-                      (int)g_asShipMaximumSpeed_0059c440[ship] << 8);
+                      (int)asShipMaximumSpeed[ship] << 8);
     return 0;
 }
 
 /* Function start: 0x422EA0 */
 unsigned int approach_ship_speed(short obj, short other)
 {
-    approach_speed(obj, g_anShipSpeed_0059b320[other]);
+    approach_speed(obj, anShipSpeed[other]);
     return 0;
 }
 
@@ -1363,9 +1363,9 @@ unsigned int approach_ship_speed(short obj, short other)
 unsigned int get_front_spot(short obj, unsigned short distance,
                             FixedVector *point)
 {
-    ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
+    ScaleFixedVector(&aShipForwardVector[obj],
                      (int)distance << 8, point);
-    AddFixedVectors(&g_aShipPosition_0059c490[obj], point, point);
+    AddFixedVectors(&aShipPosition[obj], point, point);
     return 0;
 }
 
@@ -1373,17 +1373,17 @@ unsigned int get_front_spot(short obj, unsigned short distance,
 unsigned int get_rear_spot(short obj, unsigned short distance,
                            FixedVector *point)
 {
-    ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
+    ScaleFixedVector(&aShipForwardVector[obj],
                      -((int)distance << 8), point);
-    AddFixedVectors(&g_aShipPosition_0059c490[obj], point, point);
+    AddFixedVectors(&aShipPosition[obj], point, point);
     return 0;
 }
 
 /* Function start: 0x422F60 */
 unsigned int close_behind(short range)
 {
-    if (g_nTargetRange_0059ce10 < range &&
-        g_nTargetFacing_0059d52a < -0x32)
+    if (nTargetRange < range &&
+        nTargetFacing < -0x32)
         return 1;
     return 0;
 }
@@ -1396,32 +1396,32 @@ short scan_for_enemy(short obj, unsigned short range)
     short distance;
 
     target = -1;
-    g_nTargetRange_0059ce10 = 0;
+    nTargetRange = 0;
     for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_0059d100[other] < OBJECT_CLASS_SHIP ||
-            g_aeSpecialManeuver_0059c3c0[other] ==
+        if (aeObjectClass[other] < OBJECT_CLASS_SHIP ||
+            aeSpecialManeuver[other] ==
                 SPECIAL_MANEUVER_UNKNOWN_9)
             continue;
-        g_nTargetShip_0059c3b0 = target;
-        if (g_aeShipSide_0059d650[obj] == g_aeShipSide_0059d650[other])
+        nTargetShip = target;
+        if (aeShipSide[obj] == aeShipSide[other])
             continue;
-        distance = distance_from_point(other, &g_aShipPosition_0059c490[obj]);
-        target = g_nTargetShip_0059c3b0;
+        distance = distance_from_point(other, &aShipPosition[obj]);
+        target = nTargetShip;
         if (distance < range &&
             (target == -1 ||
-             distance < g_nTargetRange_0059ce10)) {
+             distance < nTargetRange)) {
             target = other;
-            g_nTargetRange_0059ce10 = distance;
+            nTargetRange = distance;
         }
     }
     if (target != -1) {
-        g_nTargetShip_0059c3b0 = target;
-        get_facing_range_from_object(obj, g_nTargetShip_0059c3b0);
-        g_nTargetRange_0059ce10 =
-            distance_from_object(obj, g_nTargetShip_0059c3b0);
-        target = g_nTargetShip_0059c3b0;
+        nTargetShip = target;
+        get_facing_range_from_object(obj, nTargetShip);
+        nTargetRange =
+            distance_from_object(obj, nTargetShip);
+        target = nTargetShip;
     }
-    g_nTargetShip_0059c3b0 = target;
+    nTargetShip = target;
     return target;
 }
 
@@ -1430,15 +1430,15 @@ int any_enemy(short obj, short range)
 {
     short other;
 
-    g_nTargetShip_0059c3b0 = -1;
+    nTargetShip = -1;
     for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_0059c3c0[other] !=
+        if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
+            aeSpecialManeuver[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other]) {
-            g_nTargetRange_0059ce10 = distance_from_object(obj, other);
-            if (g_nTargetRange_0059ce10 < range) {
-                g_nTargetShip_0059c3b0 = other;
+            aeShipSide[obj] != aeShipSide[other]) {
+            nTargetRange = distance_from_object(obj, other);
+            if (nTargetRange < range) {
+                nTargetShip = other;
                 return 1;
             }
         }
@@ -1452,14 +1452,14 @@ short nearest_enemy_range(short obj)
     short other;
     short range;
 
-    g_nTargetShip_0059c3b0 = -1;
+    nTargetShip = -1;
     range = 0x7fff;
     other = 0;
     do {
-        if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_0059c3c0[other] !=
+        if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
+            aeSpecialManeuver[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other])
+            aeShipSide[obj] != aeShipSide[other])
             range = MinShort(range, distance_from_object(obj, other));
         other++;
     } while (other < 10);
@@ -1470,13 +1470,13 @@ short nearest_enemy_range(short obj)
 void fire_when_ready(short obj, short aimed)
 {
     (void)aimed;
-    if (g_nYourWingman_0046c04c == obj &&
-        g_aiPilotLevel_0059cf30[obj] != 11) {
+    if (nYourWingman == obj &&
+        aiPilotLevel[obj] != 11) {
         ship_vs_ship(obj, 0);
-        if (g_nFacingToTarget_0059d920 > 80)
+        if (nFacingToTarget > 80)
             return;
     }
-    fire(obj, g_acShipTarget_0059ce60[obj]);
+    fire(obj, acShipTarget[obj]);
 }
 
 /* Function start: 0x423260 */
@@ -1484,8 +1484,8 @@ unsigned int ships_within_range(short obj, short other, short range)
 {
     FixedVector delta;
 
-    ComputeVectorDelta(&g_aShipPosition_0059c490[obj],
-                       &g_aShipPosition_0059c490[other], &delta);
+    ComputeVectorDelta(&aShipPosition[obj],
+                       &aShipPosition[other], &delta);
     return IsVectorWithinRange(&delta, range);
 }
 
@@ -1495,20 +1495,20 @@ int attacker_in_range(short obj, short range)
     short other;
 
     for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_0059c3c0[other] !=
+        if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
+            aeSpecialManeuver[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other] &&
-            g_acShipTarget_0059ce60[other] == obj) {
-            g_nTargetRange_0059ce10 = distance_from_object(other, obj);
-            if ((unsigned short)g_nTargetRange_0059ce10 <
+            aeShipSide[obj] != aeShipSide[other] &&
+            acShipTarget[other] == obj) {
+            nTargetRange = distance_from_object(other, obj);
+            if ((unsigned short)nTargetRange <
                 (unsigned short)range) {
-                g_nTargetShip_0059c3b0 = other;
+                nTargetShip = other;
                 return 1;
             }
         }
     }
-    g_nTargetShip_0059c3b0 = -1;
+    nTargetShip = -1;
     return 0;
 }
 
@@ -1521,29 +1521,29 @@ int in_danger(short obj)
 
     target = -1;
     for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_0059c3c0[other] !=
+        if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
+            aeSpecialManeuver[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other]) {
-            g_nTargetShip_0059c3b0 = target;
-            if (g_acShipTarget_0059ce60[other] != obj)
+            aeShipSide[obj] != aeShipSide[other]) {
+            nTargetShip = target;
+            if (acShipTarget[other] != obj)
                 continue;
             range = (unsigned short)distance_from_object(other, obj);
-            target = g_nTargetShip_0059c3b0;
-            if (target == -1 || range < g_nTargetRange_0059ce10) {
+            target = nTargetShip;
+            if (target == -1 || range < nTargetRange) {
                 target = other;
-                g_nTargetRange_0059ce10 = (short)range;
+                nTargetRange = (short)range;
             }
         }
     }
-    g_nTargetShip_0059c3b0 = target;
+    nTargetShip = target;
     return target != -1;
 }
 
 /* Function start: 0x423400 */
 unsigned int target_within_range(short obj)
 {
-    short target = g_acShipTarget_0059ce60[obj];
+    short target = acShipTarget[obj];
 
     if (unactive(target) != 0)
         return 0;
@@ -1559,20 +1559,20 @@ short build_target_list(short obj, short range)
 
     count = 0;
     for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_0059d100[other] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_0059c3c0[other] !=
+        if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
+            aeSpecialManeuver[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_aeShipSide_0059d650[obj] != g_aeShipSide_0059d650[other]) {
+            aeShipSide[obj] != aeShipSide[other]) {
             distance = distance_from_object(obj, other);
             if (distance < range) {
-                g_acFormationMemberList_0059d490[count] =
+                acFormationMemberList[count] =
                     (signed char)other;
-                g_asTargetListRange_0059cf60[count] = distance;
+                asTargetListRange[count] = distance;
                 count++;
             }
         }
     }
-    g_acFormationMemberList_0059d490[count] = -1;
+    acFormationMemberList[count] = -1;
     return count;
 }
 
@@ -1586,56 +1586,56 @@ int select_safe_target(short obj)
     index = -1;
     do {
         index++;
-        target = (short)g_acFormationMemberList_0059d490[index];
+        target = (short)acFormationMemberList[index];
         if (target == -1)
             break;
     } while (in_danger(target) != 0);
     if (target == -1 && index > 0) {
         index--;
-        target = (short)g_acFormationMemberList_0059d490[
+        target = (short)acFormationMemberList[
             RandomBelowOrEqual(index)];
     }
-    g_nTargetShip_0059c3b0 = target;
+    nTargetShip = target;
     return target != -1;
 }
 
 /* Function start: 0x423530 */
 void inherit_leader_mission(short obj)
 {
-    short leader = g_asShipWingLeader_0059d400[obj];
+    short leader = asShipWingLeader[obj];
 
     if (leader != -1 &&
-        g_aeObjectClass_0059d100[obj] >= OBJECT_CLASS_SHIP) {
-        g_aeShipMissionType_0059c3f0[obj] =
-            g_aeShipMissionType_0059c3f0[leader];
-        g_anShipMissionShip_0059d4b0[obj] =
-            g_anShipMissionShip_0059d4b0[leader];
-        g_asShipWingLeader_0059d400[obj] = -1;
-        g_aShipMissionSpot_0059dd10[obj] =
-            g_aShipMissionSpot_0059dd10[leader];
+        aeObjectClass[obj] >= OBJECT_CLASS_SHIP) {
+        aeShipMissionType[obj] =
+            aeShipMissionType[leader];
+        anShipMissionShip[obj] =
+            anShipMissionShip[leader];
+        asShipWingLeader[obj] = -1;
+        aShipMissionSpot[obj] =
+            aShipMissionSpot[leader];
     }
 }
 
 /* Function start: 0x4235B0 */
 void inherit_leader(short obj)
 {
-    short leader = g_asShipWingLeader_0059d400[obj];
+    short leader = asShipWingLeader[obj];
     short other;
 
-    if (leader == -1 || g_aeObjectClass_0059d100[obj] < OBJECT_CLASS_SHIP)
+    if (leader == -1 || aeObjectClass[obj] < OBJECT_CLASS_SHIP)
         return;
     inherit_leader_mission(obj);
-    g_asShipWingLeader_0059d400[obj] = g_asShipWingLeader_0059d400[leader];
+    asShipWingLeader[obj] = asShipWingLeader[leader];
     for (other = 0; other < 10; other++) {
-        if (g_asShipWingLeader_0059d400[other] == leader)
-            g_asShipWingLeader_0059d400[other] = obj;
+        if (asShipWingLeader[other] == leader)
+            asShipWingLeader[other] = obj;
     }
 }
 
 /* Function start: 0x423610 */
 unsigned int dead_ship(short i)
 {
-    if (i != -1 && g_aMissionShips_0046c948[i].state != 3)
+    if (i != -1 && aMissionShips[i].state != 3)
         return 0;
     return 1;
 }
@@ -1644,8 +1644,8 @@ unsigned int dead_ship(short i)
 int gone_ship(short missionShip)
 {
     if (missionShip != -1 &&
-        g_aMissionShips_0046c948[missionShip].state != 3 &&
-        g_aMissionShips_0046c948[missionShip].state != 2)
+        aMissionShips[missionShip].state != 3 &&
+        aMissionShips[missionShip].state != 2)
         return 0;
     return 1;
 }
@@ -1653,7 +1653,7 @@ int gone_ship(short missionShip)
 /* Function start: 0x423670 */
 short skill_rating(short obj)
 {
-    int rating = g_aiPilotLevel_0059cf30[obj];
+    int rating = aiPilotLevel[obj];
 
     if (rating <= 4)
         return MaxShort(2, (short)rating);
@@ -1682,7 +1682,7 @@ short find_ships_sphere(short missionShip)
     short shipIndex;
 
     navIndex = 0;
-    navPoint = g_aMissionNavPoints_0046c2f0;
+    navPoint = aMissionNavPoints;
     fallback = -1;
     for (; navIndex < WC1_ACTIVE_MISSION_NAV_POINT_COUNT;
          navIndex++, navPoint++) {
@@ -1697,10 +1697,10 @@ short find_ships_sphere(short missionShip)
     }
     if (fallback != -1) {
         navIndex = fallback;
-        if (g_aMissionNavPoints_0046c2f0[navIndex].type > 1)
+        if (aMissionNavPoints[navIndex].type > 1)
             do {
                 navIndex--;
-            } while (g_aMissionNavPoints_0046c2f0[navIndex].type > 1);
+            } while (aMissionNavPoints[navIndex].type > 1);
     } else {
         navIndex = -1;
     }
@@ -1715,15 +1715,15 @@ int locate_ship(short missionShip, FixedVector *point)
 
     obj = find_ship_index(missionShip);
     if (obj != -1) {
-        *point = g_aShipPosition_0059c490[obj];
+        *point = aShipPosition[obj];
         return 1;
     }
     if (dead_ship(missionShip) != 0)
         return 0;
     navPoint = find_ships_sphere(missionShip);
     if (navPoint != -1) {
-        AddFixedVectors(&g_aMissionNavPoints_0046c2f0[navPoint].position,
-                        &g_aMissionShips_0046c948[missionShip].position,
+        AddFixedVectors(&aMissionNavPoints[navPoint].position,
+                        &aMissionShips[missionShip].position,
                         point);
         return 1;
     }
@@ -1739,28 +1739,28 @@ unsigned int get_follow_point(short obj, FixedVector *point)
     short missionShip;
     int type;
 
-    if (g_aeShipSide_0059d650[obj] == SIDE_KILRATHI) {
-        *point = g_aMissionNavPoints_0046c2f0[
-            g_anShipMissionShip_0059d4b0[obj]].position;
+    if (aeShipSide[obj] == SIDE_KILRATHI) {
+        *point = aMissionNavPoints[
+            anShipMissionShip[obj]].position;
         return 0;
     }
-    pathIndex = (short)g_abShipNavPointIndex_0059d7c0[obj];
+    pathIndex = (short)abShipNavPointIndex[obj];
     while (++pathIndex < 16) {
-        objective = (short)g_abFlightPath_0059c000[pathIndex];
-        type = g_aMissionObjectives_0059dac0[objective].type;
+        objective = (short)abFlightPath[pathIndex];
+        type = aMissionObjectives[objective].type;
         switch (type) {
         case 0:
-            *point = g_aMissionObjectives_0059dac0[objective].position;
-            g_abShipNavPointIndex_0059d7c0[obj] = (signed char)pathIndex;
+            *point = aMissionObjectives[objective].position;
+            abShipNavPointIndex[obj] = (signed char)pathIndex;
             return 0;
         case 1:
-            missionShip = (short)g_aMissionObjectives_0059dac0[objective].index;
+            missionShip = (short)aMissionObjectives[objective].index;
             objective = find_ship_index(missionShip);
             if (objective == -1)
-                *point = g_aMissionNavPoints_0046c2f0[missionShip].position;
+                *point = aMissionNavPoints[missionShip].position;
             else
-                *point = g_aShipPosition_0059c490[objective];
-            g_abShipNavPointIndex_0059d7c0[obj] = (signed char)pathIndex;
+                *point = aShipPosition[objective];
+            abShipNavPointIndex[obj] = (signed char)pathIndex;
             return 0;
         }
     }
@@ -1770,9 +1770,9 @@ unsigned int get_follow_point(short obj, FixedVector *point)
 /* Function start: 0x423930 */
 unsigned int get_first_follow_point(short obj, FixedVector *point)
 {
-    if (g_aeShipSide_0059d650[obj] == SIDE_IMPERIAL)
-        g_abShipNavPointIndex_0059d7c0[obj] =
-            g_cCurrentNavPointIndex_0059c86c - 1;
+    if (aeShipSide[obj] == SIDE_IMPERIAL)
+        abShipNavPointIndex[obj] =
+            cCurrentNavPointIndex - 1;
     get_follow_point(obj, point);
     return 0;
 }
@@ -1782,13 +1782,13 @@ int hostile_sphere(short obj, short navPoint)
 {
     short index;
     short missionShip;
-    short *ships = g_aMissionNavPoints_0046c2f0[navPoint].missionShips;
+    short *ships = aMissionNavPoints[navPoint].missionShips;
 
     for (index = 0; index < 10; index++) {
         missionShip = ships[index];
         if (missionShip != -1 &&
-            g_aeShipSide_0059d650[obj] !=
-                g_aMissionShips_0046c948[missionShip].side)
+            aeShipSide[obj] !=
+                aMissionShips[missionShip].side)
             return 1;
     }
     return 0;
@@ -1799,11 +1799,11 @@ int abandoned(short obj, short other)
 {
     short navPoint;
 
-    if ((g_abShipTurn_0059d860[obj] & 7) == 0 &&
-        g_aeShipSide_0059d650[obj] != SIDE_KILRATHI &&
+    if ((abShipTurn[obj] & 7) == 0 &&
+        aeShipSide[obj] != SIDE_KILRATHI &&
         RandomBelowOrEqual(8) == 0) {
         navPoint = FindNearestNavPoint(obj);
-        if (g_nCurrentNavPoint_0059df60 != navPoint &&
+        if (nCurrentNavPoint != navPoint &&
             hostile_sphere(obj, navPoint) != 0 &&
             distance_from_object(obj, other) > 10000) {
             explode(-1, obj);
@@ -1816,23 +1816,23 @@ int abandoned(short obj, short other)
 /* Function start: 0x423A50 */
 void engage(short obj, short target, enum ShipObjective objective)
 {
-    if (g_aeShipObjective_0059d200[obj] != objective) {
+    if (aeShipObjective[obj] != objective) {
         reset_objective(obj, objective);
-        if (g_acShipRating_0059cd80[obj] > 8 &&
+        if (acShipRating[obj] > 8 &&
             ace_status(
-                (short)((short)g_aiPilotLevel_0059cf30[obj] - 14), 8) == 0)
+                (short)((short)aiPilotLevel[obj] - 14), 8) == 0)
             ace_greeting(obj);
     }
-    g_acShipTarget_0059ce60[obj] = target;
+    acShipTarget[obj] = target;
 }
 
 /* Function start: 0x423AC0 */
 int target_valid(short obj)
 {
-    return unactive(g_acShipTarget_0059ce60[obj]) == 0 &&
-           g_aeShipSide_0059d650[
-               g_acShipTarget_0059ce60[obj]] !=
-               g_aeShipSide_0059d650[obj];
+    return unactive(acShipTarget[obj]) == 0 &&
+           aeShipSide[
+               acShipTarget[obj]] !=
+               aeShipSide[obj];
 }
 
 /* Function start: 0x423B00 */
@@ -1841,20 +1841,20 @@ unsigned int triumph(short obj)
     unsigned int result = 0;
     short objective;
 
-    switch (g_aeShipMissionType_0059c3f0[obj]) {
+    switch (aeShipMissionType[obj]) {
     case MISSION_TYPE_PATROL:
         objective = 0;
-        while (g_abFlightPath_0059c000[objective] != -1 &&
+        while (abFlightPath[objective] != -1 &&
                visited(
-                   (short)g_abFlightPath_0059c000[objective]) != 0)
+                   (short)abFlightPath[objective]) != 0)
             objective++;
         return 1;
     case MISSION_TYPE_ESCORT:
     case MISSION_TYPE_DEFEND:
     case MISSION_TYPE_WINGMAN:
-        return dead_ship(g_anShipMissionShip_0059d4b0[obj]) == 0;
+        return dead_ship(anShipMissionShip[obj]) == 0;
     case MISSION_TYPE_STRIKE:
-        result = dead_ship(g_anShipMissionShip_0059d4b0[obj]);
+        result = dead_ship(anShipMissionShip[obj]);
     }
     return result;
 }
@@ -1877,19 +1877,19 @@ short find_ratio(short inputMinimum, short inputMaximum,
 short evaluate_damage(short obj)
 {
     ObjectTypeData *typeData =
-        &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[obj]];
+        &aObjectTypeData[aeObjectType[obj]];
 
-    if (g_aeObjectClass_0059d100[obj] < OBJECT_CLASS_SHIP)
+    if (aeObjectClass[obj] < OBJECT_CLASS_SHIP)
         return 100;
-    return (short)((g_acShipDamage_0059c460[obj] * -26) /
+    return (short)((acShipDamage[obj] * -26) /
                        typeData->damageCapacity +
-                   (g_aasShipArmor_0059d420[obj][1] * 27) /
+                   (aasShipArmor[obj][1] * 27) /
                        typeData->armorRear +
-                   (g_aasShipArmor_0059d420[obj][0] * 23) /
+                   (aasShipArmor[obj][0] * 23) /
                        typeData->armorFront +
-                   (g_aasShipArmor_0059d420[obj][2] * 12) /
+                   (aasShipArmor[obj][2] * 12) /
                        typeData->armorLeft +
-                   (g_aasShipArmor_0059d420[obj][3] * 12) /
+                   (aasShipArmor[obj][3] * 12) /
                        typeData->armorRight + 26);
 }
 
@@ -1942,7 +1942,7 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
         if (*resources->resource == 0) {
             PromptInsertNumberedDisk(resources->logicalFile);
             packetSize = (int)GetPacketSize(
-                g_pDiskFileRecords_005a7cf0[
+                pDiskFileRecords[
                     resources->logicalFile].name,
                 resources->section);
             if (packetSize < availableBytes) {
@@ -1971,15 +1971,16 @@ unsigned int ResetCockpitPaletteEntries(void)
     black[2] = 0;
     index = 0;
     do {
-        memcpy(g_aPaletteFadeEntries_005a76d0[index], black,
+        memcpy(aPaletteFadeEntries[index], black,
                sizeof(black));
         SetPaletteEntry((short)(index + 185),
-                        g_aPaletteFadeEntries_005a76d0[index]);
+                        aPaletteFadeEntries[index]);
         index++;
     } while (index < 6);
-    memcpy(DAT_005a7780, black, sizeof(black));
-    DAT_005a7780[2] = 32;
-    SetPaletteEntry((short)g_cPrimaryViewBufferColour_004699d8, DAT_005a7780);
+    memcpy(asDamageFlashColour, black, sizeof(black));
+    asDamageFlashColour[2] = 32;
+    SetPaletteEntry((short)cPrimaryViewBufferColour,
+                    asDamageFlashColour);
     return 0;
 }
 
@@ -1993,106 +1994,106 @@ unsigned int initialize_cockpit(signed char mode)
     if (message_showing())
         EndCommMenu();
 
-    if (DAT_0046a008 == 0 && mode == g_cScreenViewportMode_0059a9f2) {
-        if (DAT_005a7510.pixels != 0)
-            ClearViewport(&DAT_005a7510, g_cPrimaryViewBufferColour_004699d8);
+    if (bCockpitlessView == 0 && mode == cScreenViewportMode) {
+        if (stSpaceBuffer.pixels != 0)
+            ClearViewport(&stSpaceBuffer, cPrimaryViewBufferColour);
         else
             initialize_view_buffer();
         return 0;
     }
 
     GetScreenUpdateFlag();
-    savedScreen = DAT_005a6ba0;
-    DAT_005a6ba0.left = 0;
-    DAT_005a6ba0.top = 0;
-    DAT_005a6ba0.right = 319;
-    DAT_005a6ba0.bottom = 199;
-    ClearViewport(&g_stModalSourceViewport_005a7670, g_cBlackColour_0046999c);
+    savedScreen = stScreen;
+    stScreen.left = 0;
+    stScreen.top = 0;
+    stScreen.right = 319;
+    stScreen.bottom = 199;
+    ClearViewport(&stModalSourceViewport, cBlackColour);
 
-    g_cCockpitLogicalFile_005a7c74 =
-        (unsigned char)(g_cCockpitView_0059dab0 + 17);
-    g_cScreenViewportMode_0059a9f2 = mode;
+    cCockpitLogicalFile =
+        (unsigned char)(cCockpitView + 17);
+    cScreenViewportMode = mode;
     switch (mode) {
     case 0:
-        if (g_apCockpitShapes_005a7c80[0] != 0) {
-            if (DAT_0046a008 == 0)
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
-                                  g_apCockpitShapes_005a7c80[0], 0);
+        if (apCockpitShapes[0] != 0) {
+            if (bCockpitlessView == 0)
+                DrawSpriteDefault(&stScreen, 0, 0,
+                                  apCockpitShapes[0], 0);
         } else {
             backdrop = FetchDiskPacketRetrying(
-                (short)g_cCockpitLogicalFile_005a7c74, 0, 0);
-            if (DAT_0046a008 == 0)
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+                (short)cCockpitLogicalFile, 0, 0);
+            if (bCockpitlessView == 0)
+                DrawSpriteDefault(&stScreen, 0, 0, backdrop, 0);
             ReleasePacketHandle(backdrop);
         }
         ResetCockpitPaletteEntries();
-        if (DAT_0046a008 == 0)
+        if (bCockpitlessView == 0)
             explosion_draw();
         reset_cockpit();
         InvalidateVduMode(0);
         InvalidateVduMode(1);
         update_VDUs();
         clear_head_up_display();
-        if (DAT_0046a008 == 0)
+        if (bCockpitlessView == 0)
             ResetPilotHandAnimation();
         set_up_screen_viewport(0);
         break;
     case 1:
-        if (g_apCockpitShapes_005a7c80[1] != 0) {
-            if (DAT_0046a008 == 0)
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
-                                  g_apCockpitShapes_005a7c80[1], 0);
+        if (apCockpitShapes[1] != 0) {
+            if (bCockpitlessView == 0)
+                DrawSpriteDefault(&stScreen, 0, 0,
+                                  apCockpitShapes[1], 0);
         } else {
             backdrop = FetchDiskPacketRetrying(
-                (short)g_cCockpitLogicalFile_005a7c74, 1, 0);
-            if (DAT_0046a008 == 0)
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+                (short)cCockpitLogicalFile, 1, 0);
+            if (bCockpitlessView == 0)
+                DrawSpriteDefault(&stScreen, 0, 0, backdrop, 0);
             ReleasePacketHandle(backdrop);
         }
         set_up_screen_viewport(1);
         break;
     case 2:
-        if (g_apCockpitShapes_005a7c80[2] != 0) {
-            if (DAT_0046a008 == 0)
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
-                                  g_apCockpitShapes_005a7c80[2], 0);
+        if (apCockpitShapes[2] != 0) {
+            if (bCockpitlessView == 0)
+                DrawSpriteDefault(&stScreen, 0, 0,
+                                  apCockpitShapes[2], 0);
         } else {
             backdrop = FetchDiskPacketRetrying(
-                (short)g_cCockpitLogicalFile_005a7c74, 2, 0);
-            if (DAT_0046a008 == 0)
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+                (short)cCockpitLogicalFile, 2, 0);
+            if (bCockpitlessView == 0)
+                DrawSpriteDefault(&stScreen, 0, 0, backdrop, 0);
             ReleasePacketHandle(backdrop);
         }
         set_up_screen_viewport(2);
         break;
     case 3:
-        if (g_apCockpitShapes_005a7c80[3] != 0) {
-            if (DAT_0046a008 == 0)
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
-                                  g_apCockpitShapes_005a7c80[3], 0);
+        if (apCockpitShapes[3] != 0) {
+            if (bCockpitlessView == 0)
+                DrawSpriteDefault(&stScreen, 0, 0,
+                                  apCockpitShapes[3], 0);
         } else {
             backdrop = FetchDiskPacketRetrying(
-                (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
-            if (DAT_0046a008 == 0)
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+                (short)cCockpitLogicalFile, 3, 0);
+            if (bCockpitlessView == 0)
+                DrawSpriteDefault(&stScreen, 0, 0, backdrop, 0);
             ReleasePacketHandle(backdrop);
         }
         set_up_screen_viewport(3);
         break;
     case 4:
-        if (g_bIntroSceneResourcesActive_00469d48 == 1) {
-            if (g_pCinematicViewBackdrop_005a7c90 != 0) {
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
-                                  g_pCinematicViewBackdrop_005a7c90, 0);
-                if (DAT_0046a008 < 1) {
+        if (bIntroSceneResourcesActive == 1) {
+            if (pCinematicViewBackdrop != 0) {
+                DrawSpriteDefault(&stScreen, 0, 0,
+                                  pCinematicViewBackdrop, 0);
+                if (bCockpitlessView < 1) {
                     DIBslam();
                     DIBslamReal();
                 }
             } else {
                 backdrop = FetchDiskPacketRetrying(8, 6, 0);
                 if (backdrop != 0) {
-                    DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
-                    if (DAT_0046a008 < 1) {
+                    DrawSpriteDefault(&stScreen, 0, 0, backdrop, 0);
+                    if (bCockpitlessView < 1) {
                         DIBslam();
                         DIBslamReal();
                     }
@@ -2109,14 +2110,14 @@ unsigned int initialize_cockpit(signed char mode)
         set_up_screen_viewport(5);
         break;
     case 7:
-        if (g_pRearViewBackdrop_005a7c94 != 0) {
-            if (DAT_0046a008 == 0)
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0,
-                                  g_pRearViewBackdrop_005a7c94, 0);
+        if (pRearViewBackdrop != 0) {
+            if (bCockpitlessView == 0)
+                DrawSpriteDefault(&stScreen, 0, 0,
+                                  pRearViewBackdrop, 0);
         } else {
             backdrop = FetchDiskPacketRetrying(8, 7, 0);
-            if (DAT_0046a008 == 0)
-                DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+            if (bCockpitlessView == 0)
+                DrawSpriteDefault(&stScreen, 0, 0, backdrop, 0);
             if (backdrop != 0)
                 ReleasePacketHandle(backdrop);
         }
@@ -2124,12 +2125,12 @@ unsigned int initialize_cockpit(signed char mode)
         break;
     }
 
-    DAT_0046a004 = 1;
-    SetViewportRect(&DAT_005a7510, 0, 0,
-                    (unsigned short)(g_nScreenWidth_0046daa4 - 1),
-                    (unsigned short)(g_nScreenHeight_0046daa8 - 1));
+    bViewBufferEnabled = 1;
+    SetViewportRect(&stSpaceBuffer, 0, 0,
+                    (unsigned short)(nScreenWidth - 1),
+                    (unsigned short)(nScreenHeight - 1));
     result = initialize_view_buffer();
-    DAT_005a6ba0 = savedScreen;
+    stScreen = savedScreen;
     return result;
 }
 
@@ -2139,19 +2140,19 @@ unsigned int InitializeConstellationObject(
 {
     FixedVector position;
 
-    g_aeObjectClass_0059d100[object] = OBJECT_CLASS_PLANET;
+    aeObjectClass[object] = OBJECT_CLASS_PLANET;
     init_ijk(63);
     alter_yaw((short)-definition->yaw, 63);
     alter_pitch((short)-definition->pitch, 63);
     alter_roll(definition->roll, 63);
-    ScaleFixedVector(&g_aShipForwardVector_0059bce0[63],
+    ScaleFixedVector(&aShipForwardVector[63],
                      0x753000, &position);
-    g_aShipPosition_0059c490[object] = position;
-    g_asObjectScreenScale_0059c950[object] = 0xff;
-    g_asObjectScreenAngle_0059cd90[object] = 0;
-    g_asObjectViewFrame_0059d230[object] = 0;
-    g_aeObjectType_0059b560[object] = OBJECT_TYPE_HORNET;
-    g_apObjectShape_0059d2f0[object] =
+    aShipPosition[object] = position;
+    asObjectScreenScale[object] = 0xff;
+    asObjectScreenAngle[object] = 0;
+    asObjectViewFrame[object] = 0;
+    aeObjectType[object] = OBJECT_TYPE_HORNET;
+    apObjectShape[object] =
         FetchDiskPacketRetrying(
             12, (short)(definition->shapePacket + 1), 0);
     return 0;
@@ -2160,7 +2161,7 @@ unsigned int InitializeConstellationObject(
 /* Function start: 0x4243B0 */
 unsigned int FreeConstellationObject(short object)
 {
-    FreePacketAndClear(&g_apObjectShape_0059d2f0[object], 0);
+    FreePacketAndClear(&apObjectShape[object], 0);
     remove_object(object);
     return 0;
 }
@@ -2172,30 +2173,30 @@ unsigned int init_constellation(short scene)
     short object;
     int definitionBase;
 
-    if (g_pConstellationShape_005a765c != 0)
+    if (pConstellationShape != 0)
         return 0;
 
     scene--;
-    g_pConstellationShape_005a765c =
+    pConstellationShape =
         FetchDiskPacketRetrying(12, 0, 0);
-    if (g_nTrainSimActive_00469e2c != 0 || scene < 0)
+    if (nTrainSimActive != 0 || scene < 0)
         return;
 
     definitionBase = (int)scene * 4;
     slot = 0;
     do {
-        if (g_pConstellationDefinitions_00598a28[
+        if (pConstellationDefinitions[
                 definitionBase + slot].shapePacket != -1) {
             object = find_vacant_3d_object();
             if (object != -1) {
                 InitializeConstellationObject(
-                    &g_pConstellationDefinitions_00598a28[
+                    &pConstellationDefinitions[
                         definitionBase + slot],
                     object);
             }
-            g_asConstellationObjectIndices_00469d50[slot] = object;
+            asConstellationObjectIndices[slot] = object;
         } else {
-            g_asConstellationObjectIndices_00469d50[slot] = -1;
+            asConstellationObjectIndices[slot] = -1;
         }
         slot++;
     } while (slot < 4);
@@ -2209,12 +2210,12 @@ unsigned int free_constellation(void)
     short slot;
 
     slot = 0;
-    FreePacketAndClear(&g_pConstellationShape_005a765c, 0);
+    FreePacketAndClear(&pConstellationShape, 0);
     do {
-        object = g_asConstellationObjectIndices_00469d50[slot];
+        object = asConstellationObjectIndices[slot];
         if (object != -1) {
             FreeConstellationObject(object);
-            g_asConstellationObjectIndices_00469d50[slot] = -1;
+            asConstellationObjectIndices[slot] = -1;
         }
         slot++;
     } while (slot < 4);
@@ -2224,22 +2225,26 @@ unsigned int free_constellation(void)
 /* Function start: 0x4244E0 */
 void init_vdus(void)
 {
-    DAT_005a7530 = DAT_005a6ba0;
-    DAT_005a6b80 = DAT_005a6ba0;
+    stRightVdu = stScreen;
+    stLeftVdu = stScreen;
 
     InitializeTextContextFromFont(
-        &DAT_005a74f0, 2, g_cPrimaryTextColour_004699b4, (signed char)g_cBlackColour_0046999c);
-    DAT_005a74f0.viewport = &DAT_005a6b80;
-    DAT_005a74f0.text = g_szDefaultTextBuffer_005a7590;
+        &stLeftVduTextContext, 2,
+        cPrimaryTextColour,
+        (signed char)cBlackColour);
+    stLeftVduTextContext.viewport = &stLeftVdu;
+    stLeftVduTextContext.text = szDefaultTextBuffer;
     set_mode(0, 1);
-    DAT_0059ce18[0] = 0;
+    anVduModeCache[0] = 0;
 
     InitializeTextContextFromFont(
-        &DAT_005a7700, 2, g_cPrimaryTextColour_004699b4, (signed char)g_cBlackColour_0046999c);
-    DAT_005a7700.viewport = &DAT_005a7530;
-    DAT_005a7700.text = g_szDefaultTextBuffer_005a7590;
-    set_mode(1, g_nTrainSimActive_00469e2c == 0 ? 5 : 3);
-    DAT_0059ce18[1] = 0;
+        &stRightVduTextContext, 2,
+        cPrimaryTextColour,
+        (signed char)cBlackColour);
+    stRightVduTextContext.viewport = &stRightVdu;
+    stRightVduTextContext.text = szDefaultTextBuffer;
+    set_mode(1, nTrainSimActive == 0 ? 5 : 3);
+    anVduModeCache[1] = 0;
 }
 
 /* Function start: 0x4245B0 */
@@ -2255,162 +2260,164 @@ unsigned int InitializeCockpitResources(signed char mode)
     short frame;
     short weapon;
 
-    if (g_bCockpitResourcesActive_00469d58 == 1) {
-        if (mode == g_cCockpitView_0059dab0)
+    if (bCockpitResourcesActive == 1) {
+        if (mode == cCockpitView)
             return 0;
         free_cockpit();
     }
 
-    g_bCockpitResourcesActive_00469d58 = 1;
-    g_cCockpitView_0059dab0 = mode;
-    g_cCockpitLogicalFile_005a7c74 = (unsigned char)(mode + 17);
+    bCockpitResourcesActive = 1;
+    cCockpitView = mode;
+    cCockpitLogicalFile = (unsigned char)(mode + 17);
     clear_cockpit_damage();
     ClearHudGunReadouts();
     reset_cockpit();
     GetScreenUpdateFlag();
 
-    LoadShapeSet(g_aCockpitPrimaryResources_00469d08, 4,
-                 (short)g_cCockpitLogicalFile_005a7c74);
-    g_pScreenViewportPacket_005a6b94 =
+    LoadShapeSet(aCockpitPrimaryResources, 4,
+                 (short)cCockpitLogicalFile);
+    pScreenViewportPacket =
         LoadPacketAllocated(
-            (short)g_cCockpitLogicalFile_005a7c74, 6);
-    DAT_005a6be0 = DAT_005a6ba0;
+            (short)cCockpitLogicalFile, 6);
+    stCockpitBar = stScreen;
     init_vdus();
 
     InitializeTextContextFromFont(
-        &DAT_005a7720, 2, g_cPrimaryTextColour_004699b4, (signed char)g_cBlackColour_0046999c);
-    DAT_005a7720.viewport = &DAT_005a6ba0;
-    SetTextContext(&DAT_005a7720);
+        &stCockpitReadoutTextContext, 2,
+        cPrimaryTextColour,
+        (signed char)cBlackColour);
+    stCockpitReadoutTextContext.viewport = &stScreen;
+    SetTextContext(&stCockpitReadoutTextContext);
 
-    layout = &g_stCockpitLayout_0046e008;
-    origin = &layout->readoutOrigins[0][(int)g_cCockpitView_0059dab0];
+    layout = &stCockpitLayout;
+    origin = &layout->readoutOrigins[0][(int)cCockpitView];
     SetTextCursor((unsigned short)origin->x, (unsigned short)origin->y);
-    InitializeCockpitReadout(4, &DAT_005a7720);
-    origin = &layout->readoutOrigins[1][(int)g_cCockpitView_0059dab0];
+    InitializeCockpitReadout(4, &stCockpitReadoutTextContext);
+    origin = &layout->readoutOrigins[1][(int)cCockpitView];
     SetTextCursor((unsigned short)origin->x, (unsigned short)origin->y);
-    InitializeCockpitReadout(5, &DAT_005a7720);
-    origin = &layout->readoutOrigins[2][(int)g_cCockpitView_0059dab0];
+    InitializeCockpitReadout(5, &stCockpitReadoutTextContext);
+    origin = &layout->readoutOrigins[2][(int)cCockpitView];
     SetTextCursor((unsigned short)origin->x, (unsigned short)origin->y);
-    InitializeCockpitReadout(2, &DAT_005a7720);
-    origin = &layout->readoutOrigins[3][(int)g_cCockpitView_0059dab0];
+    InitializeCockpitReadout(2, &stCockpitReadoutTextContext);
+    origin = &layout->readoutOrigins[3][(int)cCockpitView];
     SetTextCursor((unsigned short)origin->x, (unsigned short)origin->y);
-    InitializeCockpitReadout(3, &DAT_005a7720);
+    InitializeCockpitReadout(3, &stCockpitReadoutTextContext);
 
-    bounds = &layout->leftVduBounds[(int)g_cCockpitView_0059dab0];
-    DAT_005a6b80.left = bounds->left;
-    DAT_005a6b80.top = bounds->top;
-    DAT_005a6b80.right = bounds->right;
-    DAT_005a6b80.bottom = bounds->bottom;
-    bounds = &layout->rightVduBounds[(int)g_cCockpitView_0059dab0];
-    DAT_005a7530.left = bounds->left;
-    DAT_005a7530.top = bounds->top;
-    DAT_005a7530.right = bounds->right;
-    DAT_005a7530.bottom = bounds->bottom;
+    bounds = &layout->leftVduBounds[(int)cCockpitView];
+    stLeftVdu.left = bounds->left;
+    stLeftVdu.top = bounds->top;
+    stLeftVdu.right = bounds->right;
+    stLeftVdu.bottom = bounds->bottom;
+    bounds = &layout->rightVduBounds[(int)cCockpitView];
+    stRightVdu.left = bounds->left;
+    stRightVdu.top = bounds->top;
+    stRightVdu.right = bounds->right;
+    stRightVdu.bottom = bounds->bottom;
 
-    if (g_pPilotHandShape_005a7684 != 0) {
-        DAT_005a6b60 = DAT_005a6ba0;
-        bounds = &layout->pilotHandBounds[(int)g_cCockpitView_0059dab0];
-        DAT_005a6b60.left = bounds->left;
-        DAT_005a6b60.top = bounds->top;
-        DAT_005a6b60.right = bounds->right;
-        DAT_005a6b60.bottom = bounds->bottom;
-        SetViewportRect(&DAT_005a7690, 0, 0,
+    if (pPilotHandShape != 0) {
+        stPilotHand = stScreen;
+        bounds = &layout->pilotHandBounds[(int)cCockpitView];
+        stPilotHand.left = bounds->left;
+        stPilotHand.top = bounds->top;
+        stPilotHand.right = bounds->right;
+        stPilotHand.bottom = bounds->bottom;
+        SetViewportRect(&stPilotHandComposite, 0, 0,
                         (unsigned short)(bounds->right - bounds->left),
                         (unsigned short)(bounds->bottom - bounds->top));
-        DAT_005a7550 = DAT_005a7690;
-        AllocateViewport(&DAT_005a7690, g_cBlackColour_0046999c, 0);
-        AllocateViewport(&DAT_005a7550, g_cBlackColour_0046999c, 0);
+        stPilotHandBackdrop = stPilotHandComposite;
+        AllocateViewport(&stPilotHandComposite, cBlackColour, 0);
+        AllocateViewport(&stPilotHandBackdrop, cBlackColour, 0);
     }
 
-    LoadShapeSet(g_aCockpitSecondaryResources_00469ce0, 0,
-                 (short)g_cCockpitLogicalFile_005a7c74);
+    LoadShapeSet(aCockpitSecondaryResources, 0,
+                 (short)cCockpitLogicalFile);
     backgroundSize = MeasureShapeFrameStorage(
-        g_pTargetLockShape_005a6bf4, 2);
-    g_pScannerMarkerBackground_005a7dc4 =
+        pTargetLockShape, 2);
+    pScannerMarkerBackground =
         AllocateTaggedMemory(backgroundSize, 0);
 
-    g_pReleaseWeaponDisplayBackground_0046906c = 0;
+    pReleaseWeaponDisplayBackground = 0;
     maximumSize = 0;
     for (weapon = 0;
-         weapon < (signed char)g_aShipWeapons_0059cab0[0][0];
+         weapon < (signed char)aShipWeapons[0][0];
          weapon++) {
         weaponSlot = &((ShipWeaponSlot *)
-            &g_aShipWeapons_0059cab0[0][1])[weapon];
-        if (g_aObjectTypeData_00466458[weaponSlot->type].objectClass ==
+            &aShipWeapons[0][1])[weapon];
+        if (aObjectTypeData[weaponSlot->type].objectClass ==
                 OBJECT_CLASS_MISSILE) {
             backgroundSize = MeasureShapeFrameStorage(
-                g_pCockpitWeaponShape_005a7564,
+                pCockpitWeaponShape,
                 (short)(weaponSlot->type * 2 - 0x2f));
             maximumSize = MaxShort(maximumSize, (short)backgroundSize);
         }
     }
     if (maximumSize != 0)
-        g_pReleaseWeaponDisplayBackground_0046906c =
+        pReleaseWeaponDisplayBackground =
             AllocateTaggedMemory(maximumSize, 0);
 
-    g_pCockpitExplosionBackground_00469060 = 0;
-    if (g_pCockpitExplosionShape_00469064 != 0) {
+    pCockpitExplosionBackground = 0;
+    if (pCockpitExplosionShape != 0) {
         maximumSize = 0;
         for (frame = 0; frame < 8; frame++) {
             backgroundSize = MeasureShapeFrameStorage(
-                g_pCockpitExplosionShape_00469064, frame);
+                pCockpitExplosionShape, frame);
             maximumSize = MaxShort(maximumSize, (short)backgroundSize);
         }
         if (maximumSize != 0)
-            g_pCockpitExplosionBackground_00469060 =
+            pCockpitExplosionBackground =
                 AllocateTaggedMemory(maximumSize, 0);
     }
 
-    g_pDamageDisplayBackground_0046a748 = 0;
+    pDamageDisplayBackground = 0;
     maximumSize = 0;
     for (frame = 0; frame < 9; frame++) {
         backgroundSize = MeasureShapeFrameStorage(
-            g_pCockpitWeaponShape_005a7564, frame);
+            pCockpitWeaponShape, frame);
         maximumSize = MaxShort(maximumSize, (short)backgroundSize);
     }
     if (maximumSize != 0)
-        g_pDamageDisplayBackground_0046a748 =
+        pDamageDisplayBackground =
             AllocateTaggedMemory(maximumSize, 0);
 
     ResetScannerContacts();
     result = init_personalities();
-    g_nCockpitExplosionFrame_00469068 = 8;
-    g_bRadioSilence_0046af70 = 0;
-    if (g_nMemoryConfiguration_005a7cd4 == 2)
-        DAT_0046af78 = 1;
-    else if (g_nSceneResourceBudget_005a7ce4 > 0x59d8)
-        DAT_0046af78 = 1;
+    nCockpitExplosionFrame = 8;
+    bRadioSilence = 0;
+    if (nMemoryConfiguration == 2)
+        bCommVideoEnabled = 1;
+    else if (nSceneResourceBudget > 0x59d8)
+        bCommVideoEnabled = 1;
     else
-        DAT_0046af78 = 0;
+        bCommVideoEnabled = 0;
     return result;
 }
 
 /* Function start: 0x4249A0 */
 unsigned int free_cockpit(void)
 {
-    if (g_bCockpitResourcesActive_00469d58 == 0)
+    if (bCockpitResourcesActive == 0)
         return 0;
-    g_bCockpitResourcesActive_00469d58 = 0;
+    bCockpitResourcesActive = 0;
     GetScreenUpdateFlag();
-    if (g_pScreenViewportPacket_005a6b94 != 0) {
-        ReleasePacketHandle(g_pScreenViewportPacket_005a6b94);
-        g_pScreenViewportPacket_005a6b94 = 0;
+    if (pScreenViewportPacket != 0) {
+        ReleasePacketHandle(pScreenViewportPacket);
+        pScreenViewportPacket = 0;
     }
     ReleaseTextFont(2);
-    if (g_pPilotHandShape_005a7684 != 0) {
-        free_viewport(&DAT_005a7690);
-        free_viewport(&DAT_005a7550);
+    if (pPilotHandShape != 0) {
+        free_viewport(&stPilotHandComposite);
+        free_viewport(&stPilotHandBackdrop);
     }
-    g_cCockpitLogicalFile_005a7c74 =
-        (signed char)(g_cCockpitView_0059dab0 + 17);
-    FreeShapeSet(g_aCockpitPrimaryResources_00469d08, 4);
-    FreeShapeSet(g_aCockpitSecondaryResources_00469ce0, 0);
-    FreePacketAndClear(&g_pCockpitPilotShape_0046905c, 0);
-    FreePacketAndClear(&g_pReleaseWeaponDisplayBackground_0046906c, 0);
-    FreePacketAndClear(&g_pCockpitExplosionBackground_00469060, 0);
-    FreePacketAndClear(&g_pDamageDisplayBackground_0046a748, 0);
+    cCockpitLogicalFile =
+        (signed char)(cCockpitView + 17);
+    FreeShapeSet(aCockpitPrimaryResources, 4);
+    FreeShapeSet(aCockpitSecondaryResources, 0);
+    FreePacketAndClear(&pCockpitPilotShape, 0);
+    FreePacketAndClear(&pReleaseWeaponDisplayBackground, 0);
+    FreePacketAndClear(&pCockpitExplosionBackground, 0);
+    FreePacketAndClear(&pDamageDisplayBackground, 0);
     FreeCommDisplayResources();
-    ReleasePacketHandle(g_pScannerMarkerBackground_005a7dc4);
+    ReleasePacketHandle(pScannerMarkerBackground);
 }
 
 /* Function start: 0x424A80 */
@@ -2418,21 +2425,21 @@ unsigned int init_3Space_objects(short scene)
 {
     short slot;
 
-    if (g_b3SpaceObjectsActive_00469d5c == 1)
+    if (b3SpaceObjectsActive == 1)
         return 0;
-    g_b3SpaceObjectsActive_00469d5c = 1;
-    g_cScreenViewportMode_0059a9f2 = -1;
+    b3SpaceObjectsActive = 1;
+    cScreenViewportMode = -1;
     remove_all_3d_objects();
-    g_nExternalViewShip_0046c040 = -1;
-    g_nRenderedSpaceFrame_0059d61a = 0;
-    g_bScriptedView_0046a8d4 = 0;
-    g_nSpaceFrame_0059b420 = 0;
-    g_bMissileCameraEnabled_0046c07c = 0;
-    g_nClosestVisibleObject_0046c048 = -1;
-    g_nPlayerCollisionObject_0046c050 = -1;
+    nExternalViewShip = -1;
+    nRenderedSpaceFrame = 0;
+    bScriptedView = 0;
+    nSpaceFrame = 0;
+    bMissileCameraEnabled = 0;
+    nClosestVisibleObject = -1;
+    nPlayerCollisionObject = -1;
     slot = 0;
     do {
-        g_aObjectResourceSlots_0059ddf0[slot].type = -1;
+        aObjectResourceSlots[slot].type = -1;
         slot++;
     } while (slot <= 3);
     init_constellation(scene);
@@ -2442,33 +2449,33 @@ unsigned int init_3Space_objects(short scene)
 /* Function start: 0x424B00 */
 unsigned int load_common_3Space_objects(void)
 {
-    LoadShapeSet(g_aCommon3SpaceResources_00469bc0, 0, -1);
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_TURRET].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_LASER_CANNON].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_TURRET].animation =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_LASER_CANNON].animation;
+    LoadShapeSet(aCommon3SpaceResources, 0, -1);
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_TURRET].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_LASER_CANNON].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_TURRET].animation =
+        aObjectTypeData[OBJECT_TYPE_LASER_CANNON].animation;
 
     load_ship(OBJECT_TYPE_HEAT_SEEKING_MISSILE, 3);
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_FF_MISSILE].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_FF_MISSILE].animation =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
+    aObjectTypeData[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_FF_MISSILE].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_HEAT_SEEKING_MISSILE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation =
+        aObjectTypeData[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
+    aObjectTypeData[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation =
+        aObjectTypeData[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
+    aObjectTypeData[OBJECT_TYPE_FF_MISSILE].animation =
+        aObjectTypeData[OBJECT_TYPE_HEAT_SEEKING_MISSILE].animation;
     return 0;
 }
 
@@ -2487,11 +2494,11 @@ unsigned int remove_all_3d_objects(void)
 /* Function start: 0x424BA0 */
 unsigned int free_3Space(void)
 {
-    if (g_b3SpaceObjectsActive_00469d5c == 0)
+    if (b3SpaceObjectsActive == 0)
         return 0;
-    g_b3SpaceObjectsActive_00469d5c = 0;
+    b3SpaceObjectsActive = 0;
     GetScreenUpdateFlag();
-    DAT_0046a004 = 0;
+    bViewBufferEnabled = 0;
     free_constellation();
     remove_all_hazards();
     remove_all_3d_objects();
@@ -2502,34 +2509,34 @@ unsigned int free_3Space(void)
 /* Function start: 0x424BE0 */
 unsigned int free_3Space_objects(void)
 {
-    FreeShapeSet(g_aCommon3SpaceResources_00469bc0, 0);
-    FreeShapeSet(g_aMissionResourceDescriptors_00469c20, 0);
+    FreeShapeSet(aCommon3SpaceResources, 0);
+    FreeShapeSet(aMissionResourceDescriptors, 0);
     free_ship(3);
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet = 0;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet = 0;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_FF_MISSILE].shapeSet = 0;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation = 0;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation = 0;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_FF_MISSILE].animation = 0;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_WING].shapeSet =
-        g_aObjectTypeData_00466458[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet = 0;
+    aObjectTypeData[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet = 0;
+    aObjectTypeData[OBJECT_TYPE_FF_MISSILE].shapeSet = 0;
+    aObjectTypeData[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation = 0;
+    aObjectTypeData[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation = 0;
+    aObjectTypeData[OBJECT_TYPE_FF_MISSILE].animation = 0;
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
+    aObjectTypeData[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+        aObjectTypeData[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
     return 0;
 }
 
 /* Function start: 0x424C60 */
 unsigned int init_inflight_music(void)
 {
-    g_nCombatMusicActive_0046aa3c = 0;
-    g_nInFlightMusicActive_0046aa40 = 1;
-    g_nInitialFlightMusicPending_0046aa38 = 1;
+    nCombatMusicActive = 0;
+    nInFlightMusicActive = 1;
+    nInitialFlightMusicPending = 1;
     return 0;
 }
 
@@ -2539,16 +2546,16 @@ unsigned int free_inflight_music(void)
     int slot;
 
     StopMusicUnlessSuppressed();
-    g_nInFlightMusicActive_0046aa40 = 0;
-    if (g_nInFlightMusicSlotA_0046aa24 != -1) {
-        slot = g_nInFlightMusicSlotA_0046aa24;
-        g_nInFlightMusicSlotA_0046aa24 = -1;
-        *(int *)(g_abSoundPlaybackSlots_005a67f0 + slot * 6) = 0;
+    nInFlightMusicActive = 0;
+    if (nInFlightMusicSlotA != -1) {
+        slot = nInFlightMusicSlotA;
+        nInFlightMusicSlotA = -1;
+        *(int *)(abSoundPlaybackSlots + slot * 6) = 0;
     }
-    if (g_nInFlightMusicSlotB_0046aa2c != -1) {
-        slot = g_nInFlightMusicSlotB_0046aa2c;
-        g_nInFlightMusicSlotB_0046aa2c = -1;
-        *(int *)(g_abSoundPlaybackSlots_005a67f0 + slot * 6) = 0;
+    if (nInFlightMusicSlotB != -1) {
+        slot = nInFlightMusicSlotB;
+        nInFlightMusicSlotB = -1;
+        *(int *)(abSoundPlaybackSlots + slot * 6) = 0;
     }
     return 0;
 }
@@ -2573,34 +2580,34 @@ unsigned short LoadSceneAnimationResources(short scene, short variant)
     unsigned char *packet;
     short logicalFile;
 
-    logicalFile = g_asSceneAnimationLogicalFiles_00469d60[scene];
-    g_pSceneAnimationPrimaryShape_005a7c58 =
+    logicalFile = asSceneAnimationLogicalFiles[scene];
+    pSceneAnimationPrimaryShape =
         FetchDiskPacketRetrying(logicalFile, 0, 0);
-    g_pSceneAnimationDefinitions_005a7c6c =
+    pSceneAnimationDefinitions =
         FetchDiskPacketRetrying(
             logicalFile, (short)(variant + 1), 0);
-    g_pSceneAnimationSecondaryShape_005a7c70 =
+    pSceneAnimationSecondaryShape =
         FetchDiskPacketRetrying(
             logicalFile, (short)(variant + 3), 0);
     packet = FetchDiskPacketRetrying(
         logicalFile, (short)(variant + 5), 0);
-    g_pSceneAnimationPacket_005a7c60 = packet;
-    g_pSceneAnimationSceneData_005a7c54 =
+    pSceneAnimationPacket = packet;
+    pSceneAnimationSceneData =
         packet + *(unsigned int *)(packet + 0);
-    g_pSceneAnimationTextData_005a7c5c =
+    pSceneAnimationTextData =
         packet + *(unsigned int *)(packet + 4);
-    g_pSceneAnimationObjects_005a7c64 =
-        (SceneAnimationObject *)(g_pSceneAnimationDefinitions_005a7c6c + 2);
+    pSceneAnimationObjects =
+        (SceneAnimationObject *)(pSceneAnimationDefinitions + 2);
     return 0;
 }
 
 /* Function start: 0x424DA0 */
 void ReleaseSceneAnimationResources(void)
 {
-    ReleasePacketHandle(g_pSceneAnimationPrimaryShape_005a7c58);
-    ReleasePacketHandle(g_pSceneAnimationPacket_005a7c60);
-    ReleasePacketHandle(g_pSceneAnimationSecondaryShape_005a7c70);
-    ReleasePacketHandle(g_pSceneAnimationDefinitions_005a7c6c);
+    ReleasePacketHandle(pSceneAnimationPrimaryShape);
+    ReleasePacketHandle(pSceneAnimationPacket);
+    ReleasePacketHandle(pSceneAnimationSecondaryShape);
+    ReleasePacketHandle(pSceneAnimationDefinitions);
 }
 
 /* Function start: 0x424DE0 */
@@ -2746,7 +2753,7 @@ unsigned int __stdcall UpdateSceneAnimationObject(
             xOffset = 0;
             frame = (short)*cursor++;
             while (frame != -1) {
-                if (object->layer != 2 && DAT_00469fb4 < 1)
+                if (object->layer != 2 && nFrameSkipCounter < 1)
                     DrawSpriteScaled(
                         viewport, (short)(object->x + xOffset), object->y,
                         object->shape, frame, object->rotation,
@@ -2764,7 +2771,7 @@ unsigned int __stdcall UpdateSceneAnimationObject(
             complete = 1;
             frame = (short)*cursor++;
             while (frame != -1) {
-                if (object->layer != 2 && DAT_00469fb4 < 1)
+                if (object->layer != 2 && nFrameSkipCounter < 1)
                     DrawSpriteScaled(
                         viewport, (short)(object->x + xOffset), object->y,
                         object->shape, frame, object->rotation,
@@ -2862,10 +2869,10 @@ unsigned int __stdcall UpdateSceneAnimationObject(
             break;
 
         case 'R':
-            objectCount = *(short *)g_pSceneAnimationDefinitions_005a7c6c;
+            objectCount = *(short *)pSceneAnimationDefinitions;
             objectIndex = (short)(objectCount * (short)*cursor++);
             objectIndex = (short)(objectIndex + (short)*cursor++);
-            source = &g_pSceneAnimationObjects_005a7c64[objectIndex];
+            source = &pSceneAnimationObjects[objectIndex];
             object->x = source->x;
             object->y = source->y;
             object->rotation = source->rotation;
@@ -2874,9 +2881,9 @@ unsigned int __stdcall UpdateSceneAnimationObject(
             break;
 
         case 'W':
-            g_nSceneAnimationWaitFrames_005a7c68 = *(short *)cursor;
+            nSceneAnimationWaitFrames = *(short *)cursor;
             cursor += 2;
-            g_bSceneAnimationWaitCommand_00469d70 = 1;
+            bSceneAnimationWaitCommand = 1;
             break;
 
         case 'X':
@@ -2932,94 +2939,94 @@ void PlaySceneAnimation(char *text, short animation, short duration)
     short objectCount;
     short remaining;
 
-    g_nSceneAnimationWaitFrames_005a7c68 = -1;
+    nSceneAnimationWaitFrames = -1;
     complete = 0;
-    g_bSceneAnimationWaitCommand_00469d70 = 0;
+    bSceneAnimationWaitCommand = 0;
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
-                  g_cBlackColour_0046999c);
-    FormatTextBufferFromStart(g_szSceneAnimationTextFormat_00469d74,
+    ClearViewport(&stConversationTextViewport,
+                  cBlackColour);
+    FormatTextBufferFromStart(szSceneAnimationTextFormat,
                               0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_00598b00);
+                              nConversationTextColour,
+                              szTextScratchBuffer);
 
-    objectCount = *(short *)g_pSceneAnimationDefinitions_005a7c6c;
-    objects = g_pSceneAnimationObjects_005a7c64 +
+    objectCount = *(short *)pSceneAnimationDefinitions;
+    objects = pSceneAnimationObjects +
         (short)(objectCount * animation);
     remaining = objectCount;
     object = objects;
     while (remaining > 0) {
         if (object->layer == 0)
-            object->shape = g_pSceneAnimationPrimaryShape_005a7c58;
+            object->shape = pSceneAnimationPrimaryShape;
         else
-            object->shape = g_pSceneAnimationSecondaryShape_005a7c70;
+            object->shape = pSceneAnimationSecondaryShape;
         object->scriptStart =
-            (signed char *)g_pSceneAnimationDefinitions_005a7c6c +
+            (signed char *)pSceneAnimationDefinitions +
             object->scriptOffset;
         object->scriptCursor = object->scriptStart;
         object++;
         remaining--;
     }
 
-    DAT_00469fb4 = 1;
-    DAT_0059ab58 = 0;
+    nFrameSkipCounter = 1;
+    bEscapePressed = 0;
     ClearInputKeyState();
     DIBslam();
     DIBslamReal();
     for (;;) {
         do {
-            DAT_00469fb4--;
+            nFrameSkipCounter--;
             object = objects;
             remaining = objectCount;
             while (remaining > 0) {
                 complete |= (unsigned short)
-                    UpdateSceneAnimationObject(object, &DAT_005a76b0);
+                    UpdateSceneAnimationObject(object, &stSceneBuffer);
                 object++;
                 remaining--;
             }
-            if (g_nSceneAnimationWaitFrames_005a7c68 != -1) {
-                if (g_nSceneAnimationWaitFrames_005a7c68 == 0)
+            if (nSceneAnimationWaitFrames != -1) {
+                if (nSceneAnimationWaitFrames == 0)
                     complete++;
                 else
-                    g_nSceneAnimationWaitFrames_005a7c68--;
+                    nSceneAnimationWaitFrames--;
             }
             if (complete == 0) {
                 RefreshMemoryStatusOverlay();
                 DIBslam();
                 DIBslamReal();
             }
-            if (DAT_00469fb4 == 0) {
-                DAT_00469fb4 = g_nFrameSkip_00469fb8;
-                if (g_bSlowSceneAnimation_00469998 != 0)
-                    DAT_00469fb4++;
+            if (nFrameSkipCounter == 0) {
+                nFrameSkipCounter = nFrameSkip;
+                if (bSlowSceneAnimation != 0)
+                    nFrameSkipCounter++;
             }
             if ((complete == 0 && CheckEscaped() != 0) ||
-                DAT_0059ab58 != 0) {
-                if (g_nSceneAnimationWaitFrames_005a7c68 == -1) {
+                bEscapePressed != 0) {
+                if (nSceneAnimationWaitFrames == -1) {
                     while (complete == 0 &&
-                           g_bSceneAnimationWaitCommand_00469d70 == 0) {
+                           bSceneAnimationWaitCommand == 0) {
                         object = objects;
                         remaining = objectCount;
                         while (remaining > 0) {
-                            DAT_00469fb4 = 2;
+                            nFrameSkipCounter = 2;
                             complete |= (unsigned short)
                                 UpdateSceneAnimationObject(
-                                    object, &DAT_005a76b0);
+                                    object, &stSceneBuffer);
                             object++;
                             remaining--;
                         }
                     }
                 }
-                g_nSceneAnimationWaitFrames_005a7c68 = 0;
+                nSceneAnimationWaitFrames = 0;
             }
         } while (complete == 0);
 
-        if (g_nSceneAnimationWaitFrames_005a7c68 == -1) {
+        if (nSceneAnimationWaitFrames == -1) {
             SetFrameTimerPeriodDirect((short)(duration / 2));
             do {
                 if (IsFrameTickElapsed() != 0 || CheckEscaped() != 0)
                     break;
-            } while (DAT_0059ab58 == 0);
+            } while (bEscapePressed == 0);
         }
         if (complete != 0)
             return;

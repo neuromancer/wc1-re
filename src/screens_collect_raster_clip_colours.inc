@@ -9,7 +9,7 @@
         cld
         push	ds
         pop	es
-        mov edi, offset g_abRasterPaletteUsageScratch_0046f915
+        mov edi, offset abRasterPaletteUsageScratch
         mov	eax, 0x0
         mov	ecx, 0x40
         rep		stosd
@@ -35,9 +35,9 @@
 dormant_loc_43f5fe:
         mov	eax, 0x0
         movzx	eax, byte ptr [ecx + esi]
-        cmp byte ptr g_abRasterPaletteUsageScratch_0046f915[eax], 0x0
+        cmp byte ptr abRasterPaletteUsageScratch[eax], 0x0
         jne dormant_loc_43f620
-        or byte ptr g_abRasterPaletteUsageScratch_0046f915[eax], 0x1
+        or byte ptr abRasterPaletteUsageScratch[eax], 0x1
         inc	dword ptr [ebp - 0x4]
         cmp	edi, 0x0
         je dormant_loc_43f620

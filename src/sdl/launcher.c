@@ -59,23 +59,23 @@ static void Wc1SdlApplyLegacyArguments(int argumentCount, char **arguments)
     while (argumentIndex < argumentCount) {
         argument = arguments[argumentIndex];
         if (strcmp(argument, "$#SAGA.EXE") == 0)
-            g_bShowKilrathiSagaCredits_0046506c = 1;
+            bShowKilrathiSagaCredits = 1;
         command = argument[0] == '-' ? argument[1] : argument[0];
         switch (command) {
         case 'b':
-            *(unsigned char *)&DAT_0046a000 = 0;
+            *(unsigned char *)&bPlayerCollisionResponse = 0;
             break;
         case 'c':
-            g_bCockpitEnabled_0046507c = 0;
+            bCockpitEnabled = 0;
             break;
         case 'f':
-            g_bShowFrameRate_00465070 = 1;
+            bShowFrameRate = 1;
             break;
         case 'k':
-            *(unsigned char *)&DAT_00469ffc = 0;
+            *(unsigned char *)&bPlayerVulnerable = 0;
             break;
         case 'q':
-            g_bDirectDrawModeCascadeEnabled_00465074 = 0;
+            bDirectDrawModeCascadeEnabled = 0;
             break;
         default:
             break;
@@ -86,44 +86,44 @@ static void Wc1SdlApplyLegacyArguments(int argumentCount, char **arguments)
 
 static int Wc1SdlRunRuntimeChecks(void)
 {
-    g_aShipWeapons_0059cab0[1][0] = 2;
+    aShipWeapons[1][0] = 2;
     remove_weapon(1, 0);
-    if (g_aShipWeapons_0059cab0[1][0] != 1)
+    if (aShipWeapons[1][0] != 1)
         return 1;
 
-    g_acShipTarget_0059ce60[0] = -1;
-    g_cTargetDisplayObject_0046c06c = -1;
-    g_nRenderedSpaceFrame_0059d61a = 1;
+    acShipTarget[0] = -1;
+    cTargetDisplayObject = -1;
+    nRenderedSpaceFrame = 1;
     DrawTargetRangeReadout();
 
-    g_aeObjectClass_0059d100[1] = OBJECT_CLASS_SHIP;
-    g_acObjectOwner_0059ce20[1] = -1;
-    g_nYourWingman_0046c04c = -1;
+    aeObjectClass[1] = OBJECT_CLASS_SHIP;
+    acObjectOwner[1] = -1;
+    nYourWingman = -1;
     send_appropriate_message(1, 0);
 
-    g_acShipTarget_0059ce60[0] = -1;
-    g_aeShipManeuver_0059dcb0[0] = MANEUVER_NONE;
+    acShipTarget[0] = -1;
+    aeShipManeuver[0] = MANEUVER_NONE;
     perform_maneuver(0);
 
-    g_pSnowStaticSound_00476550 = ix_system_new_sound(0);
-    if (g_pSnowStaticSound_00476550 == 0)
+    pSnowStaticSound = ix_system_new_sound(0);
+    if (pSnowStaticSound == 0)
         return 1;
     stop_all_sounds();
-    if (g_pSnowStaticSound_00476550 != 0)
+    if (pSnowStaticSound != 0)
         return 1;
 
-    g_cCockpitView_0059dab0 = 4;
+    cCockpitView = 4;
     vdu_polygon(2, 50);
-    if (DAT_005a6be0.left != -99)
+    if (stCockpitBar.left != -99)
         return 1;
 
-    g_anShipMissionShip_0059d4b0[1] = -1;
-    g_aeShipObjective_0059d200[1] = OBJECTIVE_HOME_BASE;
+    anShipMissionShip[1] = -1;
+    aeShipObjective[1] = OBJECTIVE_HOME_BASE;
     strike_mission(1);
-    if (g_aeShipMissionType_0059c3f0[1] != MISSION_TYPE_ROUT)
+    if (aeShipMissionType[1] != MISSION_TYPE_ROUT)
         return 1;
 
-    g_nCommPortraitIndex_0046afd0 = -1;
+    nCommPortraitIndex = -1;
     FreeCommDisplayResources();
     return 0;
 }
@@ -177,7 +177,7 @@ int main(int argumentCount, char **arguments)
                 "(GL sharp bilinear).\n");
 
     DIBinstall((HWND)window);
-    DAT_005a89a0 = (HWND)window;
+    hMainWindow = (HWND)window;
     Wc1SdlStartEventPump();
     if (checkOnly) {
         gameResult = Wc1SdlRunRuntimeChecks();
@@ -186,7 +186,7 @@ int main(int argumentCount, char **arguments)
         usingDosData = Wc1SdlUsingDosData();
         if (usingDosData) {
             /* DOS audio drivers cannot be used by the native SDL2 host. */
-            g_bIxAudioEnabled_00465058 = 0;
+            bIxAudioEnabled = 0;
         }
         if (usingDosData || useEnhancedRenderer) {
             if (!Wc1SdlInitializeOriginFxAudio(usingDosData)) {
@@ -206,15 +206,15 @@ int main(int argumentCount, char **arguments)
         srand((unsigned int)time(0));
         InitGameClockEpoch();
         CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
-        DAT_005a8a44 = (unsigned int)time(0);
-        DAT_0059ab2c = 0;
+        nSessionStartTime = (unsigned int)time(0);
+        pEventManagerPump = 0;
         SDL_SetWindowMouseGrab(window, SDL_TRUE);
         SDL_ShowCursor(SDL_DISABLE);
         gameResult = Wc1GameMain((short)(argumentCount - 1), arguments);
         SDL_SetWindowMouseGrab(window, SDL_FALSE);
         SDL_ShowCursor(SDL_ENABLE);
         DestroyGlobalDebugOverlayConsole();
-        if ((g_dwStreamerState_00597cd0 & 1) != 0)
+        if ((dwStreamerState & 1) != 0)
             ix_streamer_destroy();
         ServiceAudioStream();
         Wc1SdlShutdownOriginFxAudio();

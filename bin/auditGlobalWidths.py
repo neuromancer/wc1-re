@@ -6,8 +6,10 @@ The original always accesses a global at its real width, so a global declared
 declared two bytes too wide.  Every call site of such a global emits the wrong
 operand size, so one declaration fix moves many functions at once.
 
-Reads include/globals.h for `extern <type> <name>_00<addr>;` declarations and
-code-full/*.disassembled.txt for the widths the original actually uses.
+Reads include/globals.h for `extern <type> <name>;  /* 0x00<addr> */`
+declarations -- the address may sit in the name as a `_00<addr>` suffix or
+in a trailing comment -- and code-full/*.disassembled.txt for the widths the
+original actually uses.
 
     python3 bin/auditGlobalWidths.py
 """
@@ -30,13 +32,16 @@ OPERAND_SIZES = {'byte': 1, 'word': 2, 'dword': 4, 'qword': 8}
 
 DECL = re.compile(
     r'extern\s+(.+?)\s+(\**)((?:g_\w+|DAT)_00([0-9a-fA-F]{6}))\s*;\s*$')
+# Same declaration once the address moved out of the name into a comment.
+DECL_COMMENTED = re.compile(
+    r'extern\s+(.+?)\s+(\**)(\w+)\s*;\s*/\*\s*0x00([0-9a-fA-F]{6})\s*\*/\s*$')
 ACCESS = re.compile(r'\b(byte|word|dword|qword) ptr \[0x([0-9a-f]{6})\]')
 
 
 def declared_scalars():
     scalars = {}
     for line in open(HEADER):
-        match = DECL.match(line.strip())
+        match = DECL.match(line.strip()) or DECL_COMMENTED.match(line.strip())
         if not match:
             continue
         base, stars, name, address = match.groups()

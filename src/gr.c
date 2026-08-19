@@ -15,18 +15,18 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
     int nextOffset;
     int rowStrideOffset;
 
-    if (viewport->pixels != DAT_005a6ba0.pixels) {
+    if (viewport->pixels != stScreen.pixels) {
         allocation = 0;
-        while (allocation < g_nViewportAllocationCount_005a7f0c) {
-            if (g_apViewportAllocations_005a7f10[allocation] ==
+        while (allocation < nViewportAllocationCount) {
+            if (apViewportAllocations[allocation] ==
                 viewport->pixels)
                 break;
             allocation++;
         }
-        if (allocation >= g_nViewportAllocationCount_005a7f0c)
-            exit_squadron(g_szBadViewport_00470d24);
+        if (allocation >= nViewportAllocationCount)
+            exit_squadron(szBadViewport);
     }
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == stScreen.pixels)
         DIBslam();
     topOffset = SignExtendClipCoord(viewport->rowOffsets[viewport->top]);
     nextOffset = SignExtendClipCoord(
@@ -48,16 +48,16 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
 /* Function start: 0x440CF0 */
 void ClipViewportToScreen(Viewport *viewport)
 {
-    ValidateViewportBounds(viewport, &g_stRasterSurface_004875a8,
-                           &g_stRasterClip_00496fc0);
+    ValidateViewportBounds(viewport, &stRasterSurface,
+                           &stRasterClip);
 }
 
 /* Function start: 0x440D10 */
 void SetSolidColourTranslation(unsigned char colour)
 {
-    memset(g_abSolidColourTranslation_00497648, colour, 255);
-    g_abSolidColourTranslation_00497648[255] = 0xff;
-    SetPaletteTranslationTable(g_abSolidColourTranslation_00497648);
+    memset(abSolidColourTranslation, colour, 255);
+    abSolidColourTranslation[255] = 0xff;
+    SetPaletteTranslationTable(abSolidColourTranslation);
 }
 
 /* Function start: 0x440D50 */
@@ -88,17 +88,17 @@ void PrepareShapeRLEData(unsigned char *shape)
     if (GetPreparedShapeData(shape) != 0)
         return;
 
-    *(int *)g_abShapeRLEScratch_00497748 =
-        *(const int *)g_szShapeRLEVersion_00470d30;
+    *(int *)abShapeRLEScratch =
+        *(const int *)szShapeRLEVersion;
     frameCount = GetShapeFrameCount(shape);
-    *(int *)(g_abShapeRLEScratch_00497748 + 4) = frameCount;
-    memset(g_abShapeRLEScratch_00497748 + 8, 0,
+    *(int *)(abShapeRLEScratch + 4) = frameCount;
+    memset(abShapeRLEScratch + 8, 0,
            (unsigned int)(frameCount << 3));
-    frameOffset = (int *)(g_abShapeRLEScratch_00497748 + 8);
-    output = g_abShapeRLEScratch_00497748 + 8 + (frameCount << 3);
+    frameOffset = (int *)(abShapeRLEScratch + 8);
+    output = abShapeRLEScratch + 8 + (frameCount << 3);
 
     for (frame = 0; frame < frameCount; frame++) {
-        *frameOffset = (int)(output - g_abShapeRLEScratch_00497748);
+        *frameOffset = (int)(output - abShapeRLEScratch);
         frameOffset += 2;
         GetShapeFrameExtents(shape, (short)frame, &width, &height,
                              &leftExtent, &topExtent);
@@ -157,11 +157,11 @@ void PrepareShapeRLEData(unsigned char *shape)
         ReleasePacketHandle(bitmap);
     }
 
-    preparedSize = (int)(output - g_abShapeRLEScratch_00497748);
-    if (preparedSize > (int)sizeof(g_abShapeRLEScratch_00497748))
-        exit_squadron(g_szShapeRLEOverflow_00470d38);
+    preparedSize = (int)(output - abShapeRLEScratch);
+    if (preparedSize > (int)sizeof(abShapeRLEScratch))
+        exit_squadron(szShapeRLEOverflow);
     preparedShape = AllocateTaggedMemory(preparedSize, 0);
-    memcpy(preparedShape, g_abShapeRLEScratch_00497748, preparedSize);
+    memcpy(preparedShape, abShapeRLEScratch, preparedSize);
 #ifdef WC1_SDL
     *(unsigned char **)(shape - 8 - sizeof(unsigned char *)) = preparedShape;
 #else
@@ -188,20 +188,20 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                 scaleX = -scaleX;
                 scaleY = -scaleY;
             } else {
-                exit_squadron(g_szBadShapeFlip_00470d4c);
+                exit_squadron(szBadShapeFlip);
             }
         }
         if (blendMode != 0) {
-            RotateRLEImage(&g_stRasterClip_00496fc0,
+            RotateRLEImage(&stRasterClip,
                            GetPreparedShapeData(shape), frame,
                            x - viewport->left, y - viewport->top,
-                           g_abShapeTransformScratch_004875c0,
+                           abShapeTransformScratch,
                            angle * 10, scaleX * 256, scaleY * 256, 1);
         } else {
-            RotateRLEImage(&g_stRasterClip_00496fc0,
+            RotateRLEImage(&stRasterClip,
                            GetPreparedShapeData(shape), frame,
                            x - viewport->left, y - viewport->top,
-                           g_abShapeTransformScratch_004875c0,
+                           abShapeTransformScratch,
                            angle * 10, scaleX * 256, scaleY * 256, 0);
         }
     }
@@ -233,8 +233,8 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     short characterIndex;
     int column;
 
-    g_abPaletteTranslation_00470678[fontColour] = colour;
-    g_abPaletteTranslation_00470678[fontBackground] = background;
+    abPaletteTranslation[fontColour] = colour;
+    abPaletteTranslation[fontBackground] = background;
     characterIndex = (short)(signed char)character;
     if (characterIndex != 0x81 && characterIndex != 0x84 &&
         characterIndex != 0x8e && characterIndex != 0x94 &&
@@ -270,7 +270,7 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                                         (unsigned int)context->cursorX;
                 destination = viewport->pixels + destinationOffset;
                 for (column = width; column-- != 0;) {
-                    translated = g_abPaletteTranslation_00470678[*source];
+                    translated = abPaletteTranslation[*source];
                     if (translated != 0xff)
                         *destination = translated;
                     source++;
@@ -279,8 +279,8 @@ void DrawFontGlyph(char character, TextContext *context, int height,
             }
         }
         context->cursorX += font[4 + characterIndex];
-        g_abPaletteTranslation_00470678[fontColour] = fontColour;
-        g_abPaletteTranslation_00470678[fontBackground] = fontBackground;
+        abPaletteTranslation[fontColour] = fontColour;
+        abPaletteTranslation[fontBackground] = fontBackground;
     }
 }
 
@@ -590,7 +590,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
 #endif
         commands += 2;
     }
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == stScreen.pixels)
         DIBslam();
 }
 
@@ -624,9 +624,9 @@ void ClearViewport(Viewport *viewport, short colour)
 {
     if (viewport->pixels != 0 && viewport->rowOffsets != 0) {
         ClipViewportToScreen(viewport);
-        FillRasterClip(&g_stRasterClip_00496fc0, colour);
+        FillRasterClip(&stRasterClip, colour);
     }
-    if (viewport == &DAT_005a6ba0) {
+    if (viewport == &stScreen) {
         DIBslam();
         DIBslamReal();
     }
@@ -637,7 +637,7 @@ void DrawViewportPixel(Viewport *viewport, short x, short y,
                        short colour)
 {
     ClipViewportToScreen(viewport);
-    SetRasterClipPixel(&g_stRasterClip_00496fc0,
+    SetRasterClipPixel(&stRasterClip,
                        (int)x - viewport->left,
                        (int)y - viewport->top, colour);
 }
@@ -646,7 +646,7 @@ void DrawViewportPixel(Viewport *viewport, short x, short y,
 int GetViewportPixel(Viewport *viewport, short x, short y)
 {
     ClipViewportToScreen(viewport);
-    return ReadRasterClipPixel(&g_stRasterClip_00496fc0,
+    return ReadRasterClipPixel(&stRasterClip,
                                (int)x - viewport->left,
                                (int)y - viewport->top);
 }
@@ -656,7 +656,7 @@ void DrawViewportLine(Viewport *viewport, short x1, short y1,
                       short x2, short y2, short colour)
 {
     ClipViewportToScreen(viewport);
-    DrawClippedLine(&g_stRasterClip_00496fc0,
+    DrawClippedLine(&stRasterClip,
                     x1 - viewport->left, y1 - viewport->top,
                     x2 - viewport->left, y2 - viewport->top,
                     0, colour);
@@ -677,7 +677,7 @@ void DrawFilledViewportRect(Viewport *viewport, short left, short top,
     height = bottom - top;
     ClipViewportToScreen(viewport);
     for (row = 0; row <= height; row++) {
-        DrawClippedLine(&g_stRasterClip_00496fc0,
+        DrawClippedLine(&stRasterClip,
                         left - viewport->left,
                         row + top - viewport->top,
                         right - viewport->left,
@@ -691,19 +691,19 @@ void DrawViewportBorder(Viewport *viewport, short left, short top,
                         short right, short bottom, short colour)
 {
     ClipViewportToScreen(viewport);
-    DrawClippedLine(&g_stRasterClip_00496fc0,
+    DrawClippedLine(&stRasterClip,
                     left - viewport->left, top - viewport->top,
                     right - viewport->left, top - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stRasterClip_00496fc0,
+    DrawClippedLine(&stRasterClip,
                     left - viewport->left, bottom - viewport->top,
                     right - viewport->left, bottom - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stRasterClip_00496fc0,
+    DrawClippedLine(&stRasterClip,
                     left - viewport->left, top - viewport->top,
                     left - viewport->left, bottom - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stRasterClip_00496fc0,
+    DrawClippedLine(&stRasterClip,
                     right - viewport->left, top - viewport->top,
                     right - viewport->left, bottom - viewport->top,
                     0, colour);
@@ -715,9 +715,9 @@ void DrawViewportEllipse(Viewport *viewport, short x, short y,
                          short colour)
 {
     ClipViewportToScreen(viewport);
-    DrawRasterEllipse(&g_stRasterClip_00496fc0, x, y,
+    DrawRasterEllipse(&stRasterClip, x, y,
                       horizontalRadius, verticalRadius, colour);
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == stScreen.pixels)
         DIBslam();
 }
 
@@ -727,9 +727,9 @@ void FillViewportEllipse(Viewport *viewport, short x, short y,
                          short colour)
 {
     ClipViewportToScreen(viewport);
-    FillRasterEllipse(&g_stRasterClip_00496fc0, x, y,
+    FillRasterEllipse(&stRasterClip, x, y,
                       horizontalRadius, verticalRadius, colour);
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == stScreen.pixels)
         DIBslam();
 }
 
@@ -739,9 +739,9 @@ void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
                                short horizontalRadius, short colour)
 {
     ClipViewportToScreen(viewport);
-    DrawRasterEllipse(&g_stRasterClip_00496fc0, x, y,
+    DrawRasterEllipse(&stRasterClip, x, y,
                       horizontalRadius, verticalRadius, colour);
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == stScreen.pixels)
         DIBslam();
 }
 
@@ -798,9 +798,9 @@ int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
         leftExtent = frameData[1];
         topExtent = frameData[2];
         absoluteCosine =
-            (int)(g_awAbsoluteCosine_00470778[angle] * scale) >> 8;
+            (int)(awAbsoluteCosine[angle] * scale) >> 8;
         absoluteSine =
-            (int)(g_awAbsoluteSine_00470a48[angle] * scale) >> 8;
+            (int)(awAbsoluteSine[angle] * scale) >> 8;
         if (absoluteCosine == 0)
             absoluteCosine = 1;
         if (absoluteSine == 0)
@@ -873,7 +873,7 @@ void fizzle_fade(Viewport *source, Viewport *destination,
                 destinationX = *run++;
             } while (destinationX != -1);
         }
-        if (destination->pixels == DAT_005a6ba0.pixels)
+        if (destination->pixels == stScreen.pixels)
             DIBslam();
     }
 }
@@ -883,30 +883,30 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 {
     (void)effect;
     (void)colour;
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == stScreen.pixels)
         DIBslam();
-    RasterLineHook(g_szSnowViewport_00470da4);
+    RasterLineHook(szSnowViewport);
 }
 
 /* Function start: 0x442330 */
 void UpdateStreamerStoppedFlag(void)
 {
-    if (g_bIxAudioEnabled_00465058 != 0)
-    g_nMusicTrackComplete_0046aa04 =
-        (g_dwStreamerState_00597cd0 & 4) == 0;
+    if (bIxAudioEnabled != 0)
+    nMusicTrackComplete =
+        (dwStreamerState & 4) == 0;
 }
 
 /* Function start: 0x442350 */
 void SignalAudioMixerWakeEvent(void)
 {
-    if (g_bIxAudioEnabled_00465058 != 0)
+    if (bIxAudioEnabled != 0)
         ix_streamer_configure(2, 0);
 }
 
 /* Function start: 0x442370 */
 void InitializeAudioStreamer(HWND window)
 {
-    if (g_bIxAudioEnabled_00465058 != 0) {
+    if (bIxAudioEnabled != 0) {
         ix_streamer_configure(3, (void *)1);
         ix_streamer_configure(0, window);
         ix_streamer_init();
@@ -919,26 +919,26 @@ void Streamer_open(const char *streamName)
 {
     char *streamsDirectory;
 
-    if (g_bIxAudioEnabled_00465058 != 0) {
+    if (bIxAudioEnabled != 0) {
         streamsDirectory = LocateStreamsDirOnDisc();
         if (streamsDirectory == 0) {
             ShowNoticeMessageBox("Unable to locate streamed music.\n");
             exit_squadron("");
         }
-        sprintf(g_szStreamerPath_00597750, "%s%s",
+        sprintf(szStreamerPath, "%s%s",
                 streamsDirectory, streamName);
-        SoundDebugPrintf("Streamer_open %s", g_szStreamerPath_00597750);
-        ix_streamer_open_stream_file(g_szStreamerPath_00597750);
-        g_bStreamerAudioPlaying_00597748 = 0;
+        SoundDebugPrintf("Streamer_open %s", szStreamerPath);
+        ix_streamer_open_stream_file(szStreamerPath);
+        bStreamerAudioPlaying = 0;
     }
 }
 
 /* Function start: 0x442430 */
 void Streamer_play(void)
 {
-    if (g_bIxAudioEnabled_00465058 != 0 &&
-        g_bStreamerAudioPlaying_00597748 == 0) {
-        g_bStreamerAudioPlaying_00597748 = 1;
+    if (bIxAudioEnabled != 0 &&
+        bStreamerAudioPlaying == 0) {
+        bStreamerAudioPlaying = 1;
         SoundDebugPrintf("Streamer_play");
         ix_streamer_audio_play();
     }
@@ -947,33 +947,33 @@ void Streamer_play(void)
 /* Function start: 0x442460 */
 void Streamer_stop(void)
 {
-    if (g_bIxAudioEnabled_00465058 != 0 &&
-        g_bStreamerAudioPlaying_00597748 != 0) {
+    if (bIxAudioEnabled != 0 &&
+        bStreamerAudioPlaying != 0) {
         SoundDebugPrintf("Streamer_stop");
         ix_streamer_audio_stop();
-        g_bStreamerAudioPlaying_00597748 = 0;
+        bStreamerAudioPlaying = 0;
     }
 }
 
 /* Function start: 0x4424B0 */
 void ClearStreamerTrigger(void)
 {
-    if (g_bIxAudioEnabled_00465058 != 0)
+    if (bIxAudioEnabled != 0)
         ix_streamer_set_trigger(-1);
 }
 
 /* Function start: 0x4424D0 */
 void Streamer_trigger(int trigger)
 {
-    if (g_bIxAudioEnabled_00465058 != 0) {
-        if (g_bStreamerAudioPlaying_00597748 == 0) {
+    if (bIxAudioEnabled != 0) {
+        if (bStreamerAudioPlaying == 0) {
             ForceStreamerTrigger(trigger);
             return;
         }
         SoundDebugPrintf("Streamer_trigger %d", trigger);
         if (trigger >= 0)
             ix_streamer_set_trigger((char)trigger);
-        if (g_bStreamerAudioPlaying_00597748 == 0)
+        if (bStreamerAudioPlaying == 0)
             Streamer_play();
     }
 }
@@ -981,9 +981,9 @@ void Streamer_trigger(int trigger)
 /* Function start: 0x442520 */
 void SetStreamerIntensity(unsigned char intensity)
 {
-    if (g_bIxAudioEnabled_00465058 != 0) {
+    if (bIxAudioEnabled != 0) {
         ix_streamer_set_intensity(intensity);
-        if (g_bStreamerAudioPlaying_00597748 == 0)
+        if (bStreamerAudioPlaying == 0)
             Streamer_play();
     }
 }
@@ -991,11 +991,11 @@ void SetStreamerIntensity(unsigned char intensity)
 /* Function start: 0x442550 */
 void ForceStreamerTrigger(int trigger)
 {
-    if (g_bIxAudioEnabled_00465058 != 0) {
+    if (bIxAudioEnabled != 0) {
         SoundDebugPrintf("FORCE");
         if (trigger >= 0)
             ix_streamer_force_trigger((char)trigger);
-        if (g_bStreamerAudioPlaying_00597748 == 0)
+        if (bStreamerAudioPlaying == 0)
             Streamer_play();
     }
 }
@@ -1003,14 +1003,14 @@ void ForceStreamerTrigger(int trigger)
 /* Function start: 0x442590 */
 void SetMusicStreamVolume(unsigned short volume)
 {
-    if (g_bIxAudioEnabled_00465058 != 0)
+    if (bIxAudioEnabled != 0)
         ix_streamer_set_volume(volume);
 }
 
 /* Function start: 0x4425D0 */
 void Streamer_close(void)
 {
-    if (g_bIxAudioEnabled_00465058 != 0) {
+    if (bIxAudioEnabled != 0) {
         SoundDebugPrintf("Streamer_close");
         ix_streamer_close_stream_file();
     }

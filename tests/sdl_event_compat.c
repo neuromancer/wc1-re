@@ -26,7 +26,7 @@ int main(int argumentCount, char **arguments)
     memset(&viewport, 0, sizeof(viewport));
     viewport.right = 319;
     viewport.bottom = 199;
-    g_stMouseCursorState_0059ab10.viewport = &viewport;
+    stMouseCursorState.viewport = &viewport;
     Wc1SdlStartEventPump();
 
     memset(&event, 0, sizeof(event));
@@ -36,7 +36,7 @@ int main(int argumentCount, char **arguments)
     event.key.keysym.sym = SDLK_a;
     if (SDL_PushEvent(&event) != 1 || PumpWindowMessages() == 0)
         return 1;
-    if (g_abInputKeyState_0059a860[0x1e] != 1)
+    if (abInputKeyState[0x1e] != 1)
         return 1;
     if (GetNextInputEvent(&input) != 3 || input.value != 0x1e)
         return 1;
@@ -44,11 +44,11 @@ int main(int argumentCount, char **arguments)
     event.type = SDL_KEYUP;
     if (SDL_PushEvent(&event) != 1 || PumpWindowMessages() == 0)
         return 1;
-    if (g_abInputKeyState_0059a860[0x1e] != 0)
+    if (abInputKeyState[0x1e] != 0)
         return 1;
     if (GetNextInputEvent(&input) != 4)
         return 1;
-    if (g_dwDebugOverlayKey_00469648 != 'A')
+    if (dwDebugOverlayKey != 'A')
         return 1;
 
     FlushInputEvents();
@@ -107,22 +107,22 @@ int main(int argumentCount, char **arguments)
     event.key.keysym.scancode = SDL_SCANCODE_F;
     event.key.keysym.sym = SDLK_f;
     event.key.keysym.mod = KMOD_NONE;
-    DAT_0059ab2c = get_player_input;
+    pEventManagerPump = get_player_input;
     if (SDL_PushEvent(&event) != 1)
         return 1;
     Wc1SdlPumpEvents();
-    DAT_0059ab2c = 0;
+    pEventManagerPump = 0;
     if ((SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) != 0)
         return 1;
     if (GetNextInputEvent(&input) != 3 || input.value != 0x21)
         return 1;
 
     event.type = SDL_KEYUP;
-    DAT_0059ab2c = get_player_input;
+    pEventManagerPump = get_player_input;
     if (SDL_PushEvent(&event) != 1)
         return 1;
     Wc1SdlPumpEvents();
-    DAT_0059ab2c = 0;
+    pEventManagerPump = 0;
     if ((SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) != 0)
         return 1;
     if (GetNextInputEvent(&input) != 4 || input.value != 0x21)
@@ -173,7 +173,7 @@ int main(int argumentCount, char **arguments)
     event.key.keysym.scancode = SDL_SCANCODE_Q;
     event.key.keysym.sym = SDLK_q;
     event.key.keysym.mod = KMOD_GUI;
-    DAT_005a89a0 = (HWND)window;
+    hMainWindow = (HWND)window;
     if (SDL_PushEvent(&event) != 1)
         return 1;
     PumpWindowMessages();

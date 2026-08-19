@@ -376,17 +376,19 @@ static void CopyBaseWithoutMouse(unsigned char *destination,
     Viewport viewport;
 
     memcpy(destination, pixels, sizeof(g_renderer.spaceFrameBase));
-    if (DAT_0059a84c == 0 || g_stMouseCursorState_0059ab10.viewport == 0 ||
-        g_stMouseCursorState_0059ab10.shape == 0 ||
-        g_stMouseCursorState_0059ab10.viewport->pixels != pixels)
+    if (bMouseCursorDrawn == 0 ||
+        stMouseCursorState.viewport == 0 ||
+        stMouseCursorState.shape == 0 ||
+        stMouseCursorState.viewport->pixels != pixels)
         return;
-    viewport = *g_stMouseCursorState_0059ab10.viewport;
+    viewport = *stMouseCursorState.viewport;
     viewport.pixels = destination;
     viewport.allocation = destination;
-    RestoreSpriteBackground(&viewport, DAT_004865a8, (short)DAT_0059a8e4,
-                            (short)DAT_0059a8e0,
-                            g_stMouseCursorState_0059ab10.shape,
-                            (short)g_stMouseCursorState_0059ab10.frame);
+    RestoreSpriteBackground(&viewport, abCursorSaveArea,
+                            (short)nMouseCursorDrawnX,
+                            (short)nMouseCursorDrawnY,
+                            stMouseCursorState.shape,
+                            (short)stMouseCursorState.frame);
 }
 
 static void *LoadGlFunction(const char *name, int *functionsAvailable)

@@ -15,7 +15,7 @@ gif_lzw_have_bits:
         add dword ptr [edi + 18h], 8
 gif_lzw_extract_code:
         mov ebx, edx
-        movzx eax, byte ptr g_abGifLZWCodeMasks_0046ff15[ebx]
+        movzx eax, byte ptr abGifLZWCodeMasks[ebx]
         mov ebx, dword ptr [edi + 14h]
         and ebx, eax
         push ebx

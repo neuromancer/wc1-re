@@ -56,7 +56,7 @@ char *LocateStreamsDirOnDisc(void)
     char *result;
     char drive;
 
-    result = g_szStreamsPath_00475c18;
+    result = szStreamsPath;
     GetCurrentDirectoryA(0xff, current);
     drive = FindCdRomDriveByVolumeLabel("<anydisc>", "\\wc1\\streams\\");
     if (drive != 0) {
@@ -170,6 +170,6 @@ short __stdcall OpenDataFileOrDie(const char *path)
 {
     short fd = (short)_open(path, 0x8002);
 
-    g_nPacketError_00465460 = (short)errno;
+    nPacketError = (short)errno;
     return fd;
 }

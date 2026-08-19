@@ -21,16 +21,16 @@ void * __stdcall PacketLoad(const char *filename, short section,
         switch (compression) {
         default:
             if (handle.dataSize == 0) {
-                g_nPacketError_00465460 = 8;
+                nPacketError = 8;
             } else {
                 packet = destination;
                 if (packet == 0) {
                     packet = AllocateTaggedMemory(
                         handle.dataSize,
                         (unsigned short)(flags | 0x40));
-                    g_pLastPacketAllocation_005a68f0 = packet;
+                    pLastPacketAllocation = packet;
                     if (packet == 0)
-                        g_nPacketError_00465460 = 4;
+                        nPacketError = 4;
                 }
                 if (packet != 0) {
                     if (IsPushedPacketHandle(packet) == 0)
@@ -56,7 +56,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
                 ReadDataFileAtOffset((unsigned short)handle.file,
                                      (int)handle.dataOffset, 4,
                                      sizeBytes) == 0) {
-                g_nPacketError_00465460 = 6;
+                nPacketError = 6;
                 break;
             }
             outputSize = (unsigned int)sizeBytes[0] |
@@ -67,7 +67,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
             compressedData = (unsigned char *)malloc(
                 compressedSize != 0 ? compressedSize : 1);
             if (compressedData == 0) {
-                g_nPacketError_00465460 = 1;
+                nPacketError = 1;
                 break;
             }
             handle.position = 4;
@@ -82,17 +82,17 @@ void * __stdcall PacketLoad(const char *filename, short section,
             packet = destination;
             if (packet == 0)
                 packet = AllocateTaggedMemory(outputSize, flags);
-            g_pLastPacketAllocation_005a68f0 = packet;
+            pLastPacketAllocation = packet;
             if (packet == 0) {
-                g_nPacketError_00465460 = 4;
+                nPacketError = 4;
             } else if (!Wc1SdlDecompressOriginLzw(
                            compressedData, compressedSize, packet,
                            outputSize, &writtenSize)) {
                 if (allocatedPacket != 0)
                     ReleasePacketHandle(packet);
                 packet = 0;
-                g_pLastPacketAllocation_005a68f0 = 0;
-                g_nPacketError_00465460 = 6;
+                pLastPacketAllocation = 0;
+                nPacketError = 6;
             }
             free(compressedData);
             break;
@@ -119,47 +119,47 @@ void * __stdcall PacketLoad(const char *filename, short section,
 /* Function start: 0x42B160 */
 void InitializeAudioSystem(HWND window)
 {
-    if (g_bIxAudioEnabled_00465058 != 0 && DAT_0046a440 == 0) {
+    if (bIxAudioEnabled != 0 && bAudioSystemInitialized == 0) {
         ix_system_configure(3, (void *)1);
         ix_system_configure(0, window);
         ix_system_init();
         ix_system_set_voice_count(0x10);
-        DAT_0046a440 = 1;
+        bAudioSystemInitialized = 1;
     }
 }
 
 /* Function start: 0x42B1B0 */
 void ServiceAudioStream(void)
 {
-    if (g_bIxAudioEnabled_00465058 != 0 && DAT_0046a440 != 0) {
+    if (bIxAudioEnabled != 0 && bAudioSystemInitialized != 0) {
         ix_system_delete_all_sounds();
         ix_system_delete_all_samples();
         ix_system_shutdown();
         FreeWaveTable();
-        DAT_0046a440 = 0;
+        bAudioSystemInitialized = 0;
     }
 }
 
 /* Function start: 0x42B1F0 */
 WaveTableEntry *AllocateWaveTableEntry(void)
 {
-    if (g_pWaveTableHead_0046a444 == 0) {
-        g_pWaveTableHead_0046a444 =
+    if (pWaveTableHead == 0) {
+        pWaveTableHead =
             malloc(sizeof(WaveTableEntry));
-        g_pWaveTableTail_0046a448 = g_pWaveTableHead_0046a444;
+        pWaveTableTail = pWaveTableHead;
     } else {
-        g_pWaveTableTail_0046a448->next =
+        pWaveTableTail->next =
             malloc(sizeof(WaveTableEntry));
-        g_pWaveTableTail_0046a448 = g_pWaveTableTail_0046a448->next;
+        pWaveTableTail = pWaveTableTail->next;
     }
-    g_pWaveTableTail_0046a448->next = 0;
-    return g_pWaveTableTail_0046a448;
+    pWaveTableTail->next = 0;
+    return pWaveTableTail;
 }
 
 /* Function start: 0x42B240 */
 WaveTableEntry *FindWaveTableEntryByName(const char *name)
 {
-    WaveTableEntry *entry = g_pWaveTableHead_0046a444;
+    WaveTableEntry *entry = pWaveTableHead;
 
     while (entry != 0) {
         if (strcmp(entry->name, name) == 0)
@@ -173,7 +173,7 @@ WaveTableEntry *FindWaveTableEntryByName(const char *name)
 void RemoveWaveTableEntry(WaveTableEntry *target)
 {
     WaveTableEntry *previous = 0;
-    WaveTableEntry *entry = g_pWaveTableHead_0046a444;
+    WaveTableEntry *entry = pWaveTableHead;
 
     while (entry != 0 && target != entry) {
         previous = entry;
@@ -182,10 +182,10 @@ void RemoveWaveTableEntry(WaveTableEntry *target)
     if (entry != 0) {
         if (previous != 0)
             previous->next = entry->next;
-        if (g_pWaveTableTail_0046a448 == entry && previous != 0)
-            g_pWaveTableTail_0046a448 = previous;
-        if (g_pWaveTableHead_0046a444 == entry)
-            g_pWaveTableHead_0046a444 = entry->next;
+        if (pWaveTableTail == entry && previous != 0)
+            pWaveTableTail = previous;
+        if (pWaveTableHead == entry)
+            pWaveTableHead = entry->next;
         free(entry->name);
         free(entry);
     }
@@ -194,7 +194,7 @@ void RemoveWaveTableEntry(WaveTableEntry *target)
 /* Function start: 0x42B300 */
 void FreeWaveTable(void)
 {
-    WaveTableEntry *entry = g_pWaveTableHead_0046a444;
+    WaveTableEntry *entry = pWaveTableHead;
 
     while (entry != 0) {
         WaveTableEntry *next = entry->next;
@@ -203,30 +203,30 @@ void FreeWaveTable(void)
         free(entry);
         entry = next;
     }
-    g_pWaveTableTail_0046a448 = 0;
-    g_pWaveTableHead_0046a444 = 0;
+    pWaveTableTail = 0;
+    pWaveTableHead = 0;
 }
 
 /* Function start: 0x42B340 */
 ActiveSoundEntry *AllocateActiveSoundEntry(void)
 {
-    if (g_pActiveSoundHead_0046a438 == 0) {
-        g_pActiveSoundHead_0046a438 =
+    if (pActiveSoundHead == 0) {
+        pActiveSoundHead =
             malloc(sizeof(ActiveSoundEntry));
-        g_pActiveSoundTail_0046a43c = g_pActiveSoundHead_0046a438;
+        pActiveSoundTail = pActiveSoundHead;
     } else {
-        g_pActiveSoundTail_0046a43c->next =
+        pActiveSoundTail->next =
             malloc(sizeof(ActiveSoundEntry));
-        g_pActiveSoundTail_0046a43c = g_pActiveSoundTail_0046a43c->next;
+        pActiveSoundTail = pActiveSoundTail->next;
     }
-    g_pActiveSoundTail_0046a43c->next = 0;
-    return g_pActiveSoundTail_0046a43c;
+    pActiveSoundTail->next = 0;
+    return pActiveSoundTail;
 }
 
 /* Function start: 0x42B390 */
 void RemoveActiveSoundEntry(ActiveSoundEntry *target)
 {
-    ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
+    ActiveSoundEntry *entry = pActiveSoundHead;
     ActiveSoundEntry *previous = 0;
 
     while (entry != 0 && entry != target) {
@@ -236,10 +236,10 @@ void RemoveActiveSoundEntry(ActiveSoundEntry *target)
     if (entry != 0) {
         if (previous != 0)
             previous->next = entry->next;
-        if (g_pActiveSoundTail_0046a43c == entry && previous != 0)
-            g_pActiveSoundTail_0046a43c = previous;
-        if (g_pActiveSoundHead_0046a438 == entry)
-            g_pActiveSoundHead_0046a438 = entry->next;
+        if (pActiveSoundTail == entry && previous != 0)
+            pActiveSoundTail = previous;
+        if (pActiveSoundHead == entry)
+            pActiveSoundHead = entry->next;
         free(entry);
     }
 }
@@ -247,7 +247,7 @@ void RemoveActiveSoundEntry(ActiveSoundEntry *target)
 /* Function start: 0x42B3F0 */
 ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample)
 {
-    ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
+    ActiveSoundEntry *entry = pActiveSoundHead;
 
     for (;;) {
         if (entry == 0)

@@ -10,33 +10,35 @@
 /* Function start: 0x432050 */
 void ReportSpaceFlightMaxFps(float adjustment)
 {
-    g_fSpaceFlightFrameRate_0046b1cc += adjustment;
-    if (g_fSpaceFlightFrameRate_0046b1cc < 8.0)
-        g_fSpaceFlightFrameRate_0046b1cc = 8.0f;
-    else if (g_fSpaceFlightFrameRate_0046b1cc > 32.0)
-        g_fSpaceFlightFrameRate_0046b1cc = 32.0f;
-    sprintf(g_szSpaceFlightMaxFpsMessage_00486528,
+    fSpaceFlightFrameRate += adjustment;
+    if (fSpaceFlightFrameRate < 8.0)
+        fSpaceFlightFrameRate = 8.0f;
+    else if (fSpaceFlightFrameRate > 32.0)
+        fSpaceFlightFrameRate = 32.0f;
+    sprintf(szSpaceFlightMaxFpsMessage,
             "Space Flight Max FPS : %.1f",
-            (double)g_fSpaceFlightFrameRate_0046b1cc);
-    SetHudMessageText(g_szSpaceFlightMaxFpsMessage_00486528, 0x50, 0x14);
-    if (DAT_0046b1c8 == 1)
+            (double)fSpaceFlightFrameRate);
+    SetHudMessageText(szSpaceFlightMaxFpsMessage, 0x50, 0x14);
+    if (bSpaceFlightFrameTiming == 1)
         SetSpaceFlightFrameTiming();
 }
 
 /* Function start: 0x4320E0 */
 void SetSpaceFlightFrameTiming(void)
 {
-    DAT_0046b1c8 = 1;
-    DAT_0046b1b8 = (long)(1000.0 / g_fSpaceFlightFrameRate_0046b1cc);
-    DAT_0046b1bc = 0;
+    bSpaceFlightFrameTiming = 1;
+    nFrameIntervalMs =
+        (long)(1000.0 / fSpaceFlightFrameRate);
+    nFrameDeadlineMs = 0;
 }
 
 /* Function start: 0x432110 */
 void SetCinematicFrameTiming(void)
 {
-    DAT_0046b1c8 = 0;
-    DAT_0046b1b8 = (long)(1000.0 / g_fCinematicFrameRate_0046b1d0);
-    DAT_0046b1bc = 0;
+    bSpaceFlightFrameTiming = 0;
+    nFrameIntervalMs =
+        (long)(1000.0 / fCinematicFrameRate);
+    nFrameDeadlineMs = 0;
 }
 
 /* Function start: 0x432140 */
@@ -45,29 +47,31 @@ void DIBerror(const char *tag, int hr)
 #ifdef WC1_SDL
     const char *text = SDL_GetError();
 
-    sprintf(DAT_00486078, "ERROR: %s - (%s)", tag, text);
+    sprintf(szDIBErrorMessage, "ERROR: %s - (%s)", tag, text);
     Wc1SdlShutdownVideo();
-    OutputDebugStringA(DAT_00486078);
-    if (DAT_00486074 != 0)
-        SDL_SetWindowSize((SDL_Window *)DAT_00486074, 320, 200);
-    MessageBoxA(0, DAT_00486078, "SDL Video Error", MB_ICONERROR);
+    OutputDebugStringA(szDIBErrorMessage);
+    if (hDIBWindow != 0)
+        SDL_SetWindowSize((SDL_Window *)hDIBWindow, 320, 200);
+    MessageBoxA(0, szDIBErrorMessage, "SDL Video Error",
+                MB_ICONERROR);
     exit(1);
 #else
     FILE *errorFile;
     char *text = DirectDrawResultToText(hr);
 
-    sprintf(DAT_00486078, "ERROR: %s - (%s)", tag, text);
-    COM_RELEASE(g_pSecondarySurface_0046b1ac);
-    COM_RELEASE(g_pPrimarySurface_0046b1a8);
-    IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0046b1a4);
-    IDirectDraw2_Release(g_pDirectDraw2_0046b1a4);
-    OutputDebugStringA(DAT_00486078);
-    SetWindowPos(DAT_00486074, HWND_BOTTOM, 0, 0, 320, 200,
+    sprintf(szDIBErrorMessage, "ERROR: %s - (%s)", tag, text);
+    COM_RELEASE(pSecondarySurface);
+    COM_RELEASE(pPrimarySurface);
+    IDirectDraw2_RestoreDisplayMode(pDirectDraw2);
+    IDirectDraw2_Release(pDirectDraw2);
+    OutputDebugStringA(szDIBErrorMessage);
+    SetWindowPos(hDIBWindow, HWND_BOTTOM, 0, 0, 320, 200,
                  SWP_SHOWWINDOW);
     errorFile = fopen("direct.err", "wt+");
-    fprintf(errorFile, DAT_00486078);
+    fprintf(errorFile, szDIBErrorMessage);
     fclose(errorFile);
-    MessageBoxA(0, DAT_00486078, "DirectDraw Error", MB_ICONERROR);
+    MessageBoxA(0, szDIBErrorMessage, "DirectDraw Error",
+                MB_ICONERROR);
     exit(1);
 #endif
 }
@@ -77,14 +81,14 @@ void DIBpositionWindow(void)
 {
 #ifdef WC1_SDL
     Wc1SdlShutdownVideo();
-    if (DAT_00486074 != 0)
-        SDL_SetWindowSize((SDL_Window *)DAT_00486074, 320, 200);
+    if (hDIBWindow != 0)
+        SDL_SetWindowSize((SDL_Window *)hDIBWindow, 320, 200);
 #else
-    COM_RELEASE(g_pSecondarySurface_0046b1ac);
-    COM_RELEASE(g_pPrimarySurface_0046b1a8);
-    IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0046b1a4);
-    IDirectDraw2_Release(g_pDirectDraw2_0046b1a4);
-    SetWindowPos(DAT_00486074, HWND_BOTTOM, 0, 0, 320, 200,
+    COM_RELEASE(pSecondarySurface);
+    COM_RELEASE(pPrimarySurface);
+    IDirectDraw2_RestoreDisplayMode(pDirectDraw2);
+    IDirectDraw2_Release(pDirectDraw2);
+    SetWindowPos(hDIBWindow, HWND_BOTTOM, 0, 0, 320, 200,
                  SWP_SHOWWINDOW);
 #endif
 }
@@ -95,16 +99,16 @@ void DIBreInstall(void)
 #ifndef WC1_SDL
     int err;
 
-    if (g_bDirectDrawModeCascadeEnabled_00465074 != 0) {
+    if (bDirectDrawModeCascadeEnabled != 0) {
         IDirectDraw2_SetCooperativeLevel(
-            g_pDirectDraw2_0046b1a4, DAT_00486074, 0x13);
+            pDirectDraw2, hDIBWindow, 0x13);
         if (DIBcascade(-2, &err) == 0)
             DIBerror("DIBreInstall   DIBcascade Failure", err);
     } else {
-        DAT_0046b1b4 = -1;
+        nDIBCascadeLevel = -1;
     }
 #else
-    if (!Wc1SdlInitializeVideo((SDL_Window *)DAT_00486074))
+    if (!Wc1SdlInitializeVideo((SDL_Window *)hDIBWindow))
         DIBerror("DIBreInstall", -1);
 #endif
     DIBslam();
@@ -120,33 +124,33 @@ void DIBinstall(HWND window)
     int cascadeResult;
 #endif
 
-    DAT_00486074 = window;
+    hDIBWindow = window;
 #ifdef WC1_SDL
     if (!Wc1SdlInitializeVideo((SDL_Window *)window))
         DIBerror("DIBinstall", -1);
-    DAT_0046b1b4 = 0;
+    nDIBCascadeLevel = 0;
 #else
     result = DirectDrawCreate(0, &directDraw, 0);
     if (result != DD_OK)
         DIBerror("DIBInstall   Create", result);
 
     result = IDirectDraw_QueryInterface(
-        directDraw, &g_guidDirectDraw2_00463118,
-        (void **)&g_pDirectDraw2_0046b1a4);
+        directDraw, &guidDirectDraw2,
+        (void **)&pDirectDraw2);
     if (result != DD_OK)
         DIBerror("DIBInstall   Unable to acquire DirectDraw2 interface", result);
 
-    if (g_bDirectDrawModeCascadeEnabled_00465074 != 0)
+    if (bDirectDrawModeCascadeEnabled != 0)
         result = IDirectDraw2_SetCooperativeLevel(
-            g_pDirectDraw2_0046b1a4, DAT_00486074, 0x13);
+            pDirectDraw2, hDIBWindow, 0x13);
     else
         result = IDirectDraw2_SetCooperativeLevel(
-            g_pDirectDraw2_0046b1a4, DAT_00486074, 0x17);
+            pDirectDraw2, hDIBWindow, 0x17);
     if (result != DD_OK)
         DIBerror("DIBmakeInstall   SetCooperativeLevel", result);
 
-    if (g_bDirectDrawModeCascadeEnabled_00465074 == 0) {
-        DAT_0046b1b4 = -1;
+    if (bDirectDrawModeCascadeEnabled == 0) {
+        nDIBCascadeLevel = -1;
     } else {
         cascadeResult = DIBcascade(-1, 0);
         if (cascadeResult == 0)
@@ -154,19 +158,21 @@ void DIBinstall(HWND window)
     }
 #endif
 
-    DAT_00486074 = window;
-    memset(DAT_00486110, 0, sizeof(DAT_00486110));
-    memset(DAT_00476658, 0, sizeof(DAT_00476658));
+    hDIBWindow = window;
+    memset(abDIBPaletteCache, 0,
+           sizeof(abDIBPaletteCache));
+    memset(abDIBPixelBackup, 0,
+           sizeof(abDIBPixelBackup));
     DIBmakeDIB();
-    DAT_00486518 = 1;
-    DAT_00486060 = 0;
+    bDIBSlamPending = 1;
+    nDIBSlamCount = 0;
 }
 
 /* Function start: 0x432410 */
 int DIBcascade(int mode, int *reportedResult)
 {
 #ifdef WC1_SDL
-    DAT_0046b1b4 = 0;
+    nDIBCascadeLevel = 0;
     if (reportedResult != 0)
         *reportedResult = 0;
     return mode < 3;
@@ -178,15 +184,15 @@ int DIBcascade(int mode, int *reportedResult)
     for (;;) {
         if (mode != -2) {
             if (mode == -1)
-                DAT_0046b1b4 = 0;
+                nDIBCascadeLevel = 0;
             else
-                DAT_0046b1b4++;
+                nDIBCascadeLevel++;
         }
 
-        switch (DAT_0046b1b4) {
+        switch (nDIBCascadeLevel) {
         case 0:
-            result = g_pDirectDraw2_0046b1a4->lpVtbl->SetDisplayMode(
-                g_pDirectDraw2_0046b1a4, 320, 200, 8, 0, 0);
+            result = pDirectDraw2->lpVtbl->SetDisplayMode(
+                pDirectDraw2, 320, 200, 8, 0, 0);
             if (reportedResult != 0)
                 *reportedResult = result;
             if (result != DD_OK) {
@@ -197,8 +203,8 @@ int DIBcascade(int mode, int *reportedResult)
             modeText = "320x200 achieved...testing\n";
             break;
         case 1:
-            result = g_pDirectDraw2_0046b1a4->lpVtbl->SetDisplayMode(
-                g_pDirectDraw2_0046b1a4, 640, 400, 8, 0, 0);
+            result = pDirectDraw2->lpVtbl->SetDisplayMode(
+                pDirectDraw2, 640, 400, 8, 0, 0);
             if (reportedResult != 0)
                 *reportedResult = result;
             if (result != DD_OK) {
@@ -209,8 +215,8 @@ int DIBcascade(int mode, int *reportedResult)
             modeText = "640x400 achieved...testing\n";
             break;
         case 2:
-            result = g_pDirectDraw2_0046b1a4->lpVtbl->SetDisplayMode(
-                g_pDirectDraw2_0046b1a4, 640, 480, 8, 0, 0);
+            result = pDirectDraw2->lpVtbl->SetDisplayMode(
+                pDirectDraw2, 640, 480, 8, 0, 0);
             if (reportedResult != 0)
                 *reportedResult = result;
             if (result != DD_OK) {
@@ -226,9 +232,9 @@ int DIBcascade(int mode, int *reportedResult)
 
         OutputDebugStringA(modeText);
         if (mode == -2) {
-            if (g_pSecondarySurface_0046b1ac != 0) {
+            if (pSecondarySurface != 0) {
                 result = IDirectDrawSurface_Restore(
-                    g_pSecondarySurface_0046b1ac);
+                    pSecondarySurface);
                 if (reportedResult != 0)
                     *reportedResult = result;
                 if (result != DD_OK)
@@ -237,15 +243,15 @@ int DIBcascade(int mode, int *reportedResult)
             }
 
             result = IDirectDrawSurface_Restore(
-                g_pPrimarySurface_0046b1a8);
+                pPrimarySurface);
             if (reportedResult != 0)
                 *reportedResult = result;
             if (result != DD_OK)
                 DIBerror("DIBcascade   Unable to restore surface", result);
 
             result = IDirectDrawSurface_SetPalette(
-                g_pPrimarySurface_0046b1a8,
-                g_pDirectDrawPalette_0046b1b0);
+                pPrimarySurface,
+                pDirectDrawPalette);
             if (result != DD_OK)
                 DIBerror("DIBcascade   CreatePalette", result);
             return 1;
@@ -257,39 +263,39 @@ int DIBcascade(int mode, int *reportedResult)
         surface.dwFlags = DDSD_CAPS;
         surface.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
         result = IDirectDraw2_CreateSurface(
-            g_pDirectDraw2_0046b1a4, &surface,
-            &g_pPrimarySurface_0046b1a8, 0);
+            pDirectDraw2, &surface,
+            &pPrimarySurface, 0);
         if (reportedResult != 0)
             *reportedResult = result;
         if (result != DD_OK) {
             OutputDebugStringA(" failed\n");
             mode = 0;
-            IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0046b1a4);
+            IDirectDraw2_RestoreDisplayMode(pDirectDraw2);
             reportedResult = 0;
             continue;
         }
 
         OutputDebugStringA(" successful\n locking surface:");
         result = IDirectDrawSurface_Lock(
-            g_pPrimarySurface_0046b1a8, 0, &surface,
+            pPrimarySurface, 0, &surface,
             DDLOCK_WAIT, 0);
         if (reportedResult != 0)
             *reportedResult = result;
         if (result == DD_OK) {
             IDirectDrawSurface_Unlock(
-                g_pPrimarySurface_0046b1a8, surface.lpSurface);
+                pPrimarySurface, surface.lpSurface);
             IDirectDrawSurface_Release(
-                g_pPrimarySurface_0046b1a8);
-            g_pPrimarySurface_0046b1a8 = 0;
+                pPrimarySurface);
+            pPrimarySurface = 0;
             OutputDebugStringA(" successful\n");
             return 1;
         }
 
         OutputDebugStringA(" failed\n");
         mode = 0;
-        IDirectDrawSurface_Release(g_pPrimarySurface_0046b1a8);
+        IDirectDrawSurface_Release(pPrimarySurface);
         reportedResult = 0;
-        IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0046b1a4);
+        IDirectDraw2_RestoreDisplayMode(pDirectDraw2);
     }
 #endif
 }
@@ -302,12 +308,12 @@ void DIBunInstall(void)
     DIBdestroyDIB();
 #ifdef WC1_SDL
     Wc1SdlShutdownVideo();
-    DAT_00486074 = 0;
+    hDIBWindow = 0;
 #else
-    COM_RELEASE(g_pSecondarySurface_0046b1ac);
-    COM_RELEASE(g_pPrimarySurface_0046b1a8);
-    IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0046b1a4);
-    IDirectDraw2_Release(g_pDirectDraw2_0046b1a4);
+    COM_RELEASE(pSecondarySurface);
+    COM_RELEASE(pPrimarySurface);
+    IDirectDraw2_RestoreDisplayMode(pDirectDraw2);
+    IDirectDraw2_Release(pDirectDraw2);
 #endif
 }
 
@@ -325,8 +331,8 @@ void DIBmakeDIB(void)
     surface.dwFlags = DDSD_CAPS;
     surface.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_MODEX;
     result = IDirectDraw2_CreateSurface(
-        g_pDirectDraw2_0046b1a4, &surface,
-        &g_pPrimarySurface_0046b1a8, 0);
+        pDirectDraw2, &surface,
+        &pPrimarySurface, 0);
     if (result != DD_OK)
         DIBerror("DIBmakeDIB   CreateSurface (primary)", result);
 #endif
@@ -335,26 +341,26 @@ void DIBmakeDIB(void)
 #ifndef WC1_SDL
     offset = 0;
     do {
-        entries[offset / 4].peRed = DAT_00486110[offset + 2];
-        entries[offset / 4].peGreen = DAT_00486110[offset + 1];
-        entries[offset / 4].peBlue = DAT_00486110[offset];
+        entries[offset / 4].peRed = abDIBPaletteCache[offset + 2];
+        entries[offset / 4].peGreen = abDIBPaletteCache[offset + 1];
+        entries[offset / 4].peBlue = abDIBPaletteCache[offset];
         entries[offset / 4].peFlags = 0;
         offset += 4;
     } while (offset < 0x400);
 
     result = IDirectDraw2_CreatePalette(
-        g_pDirectDraw2_0046b1a4, DDPCAPS_8BIT, entries,
-        &g_pDirectDrawPalette_0046b1b0, 0);
+        pDirectDraw2, DDPCAPS_8BIT, entries,
+        &pDirectDrawPalette, 0);
     if (result != DD_OK)
         DIBerror("DIBmakeDIB   CreatePalette", result);
 
     result = IDirectDrawSurface_SetPalette(
-        g_pPrimarySurface_0046b1a8,
-        g_pDirectDrawPalette_0046b1b0);
+        pPrimarySurface,
+        pDirectDrawPalette);
     if (result != DD_OK)
         DIBerror("DIBmakeDIB   CreatePalette", result);
 
-    if (DAT_0046b1b4 > 0) {
+    if (nDIBCascadeLevel > 0) {
         memset(&surface, 0, sizeof(surface));
         surface.dwSize = sizeof(surface);
         surface.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
@@ -362,8 +368,8 @@ void DIBmakeDIB(void)
         surface.dwHeight = 200;
         surface.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
         result = IDirectDraw2_CreateSurface(
-            g_pDirectDraw2_0046b1a4, &surface,
-            &g_pSecondarySurface_0046b1ac, 0);
+            pDirectDraw2, &surface,
+            &pSecondarySurface, 0);
         if (result != DD_OK)
             DIBerror("DIBmakeDIB   CreateSurface (secondary)", result);
     }
@@ -371,17 +377,17 @@ void DIBmakeDIB(void)
 
     DAT_00476644 = 0;
     DAT_00476640 = 0;
-    DAT_0047664c = 320;
-    DAT_00476650 = 200;
-    DAT_00476648 = malloc(64000);
+    nDIBWidth = 320;
+    nDIBHeight = 200;
+    pDIBPixelBuffer = malloc(64000);
 #ifdef WC1_SDL
-    if (DAT_00476648 == 0)
+    if (pDIBPixelBuffer == 0)
         DIBerror("DIBmakeDIB", -1);
 #endif
-    DAT_005a6ba0.pixels = GetDIBPixelBuffer();
-    DAT_005a6ba0.allocation = DAT_005a6ba0.pixels;
-    memcpy(DAT_00476648, DAT_00476658,
-           DAT_0047664c * DAT_00476650);
+    stScreen.pixels = GetDIBPixelBuffer();
+    stScreen.allocation = stScreen.pixels;
+    memcpy(pDIBPixelBuffer, abDIBPixelBackup,
+           nDIBWidth * nDIBHeight);
 }
 
 /* Function start: 0x4328A0 */
@@ -392,42 +398,42 @@ void DIBdestroyDIB(void)
 #endif
 
 #ifdef WC1_SDL
-    if (DAT_00476648 != 0) {
+    if (pDIBPixelBuffer != 0) {
 #endif
-    memcpy(DAT_00476658, DAT_00476648,
-           DAT_0047664c * DAT_00476650);
+    memcpy(abDIBPixelBackup, pDIBPixelBuffer,
+           nDIBWidth * nDIBHeight);
 #ifdef WC1_SDL
     }
 #endif
 #ifndef WC1_SDL
-    if (DAT_0046b1b4 > 0) {
-        result = IDirectDrawSurface_Release(g_pSecondarySurface_0046b1ac);
+    if (nDIBCascadeLevel > 0) {
+        result = IDirectDrawSurface_Release(pSecondarySurface);
         if (result != 0)
             DIBerror("DIBdestroyDIB   secondary->Release", result);
-        g_pSecondarySurface_0046b1ac = 0;
+        pSecondarySurface = 0;
     }
-    if (g_pPrimarySurface_0046b1a8 != 0) {
-        result = IDirectDrawSurface_Release(g_pPrimarySurface_0046b1a8);
+    if (pPrimarySurface != 0) {
+        result = IDirectDrawSurface_Release(pPrimarySurface);
         if (result != 0)
             DIBerror("DIBdestroyDIB   primary->Release", result);
-        g_pPrimarySurface_0046b1a8 = 0;
+        pPrimarySurface = 0;
     }
 #endif
-    if (DAT_00476648 != 0)
-        free(DAT_00476648);
+    if (pDIBPixelBuffer != 0)
+        free(pDIBPixelBuffer);
     DAT_00476640 = 0;
     DAT_00476644 = 0;
-    DAT_00476648 = 0;
+    pDIBPixelBuffer = 0;
 #ifdef WC1_SDL
-    DAT_005a6ba0.pixels = 0;
-    DAT_005a6ba0.allocation = 0;
+    stScreen.pixels = 0;
+    stScreen.allocation = 0;
 #endif
 }
 
 /* Function start: 0x432960 */
 void DIBslam(void)
 {
-    DAT_00486518 = 1;
+    bDIBSlamPending = 1;
 }
 
 /* Function start: 0x432970 */
@@ -445,54 +451,56 @@ void DIBslamReal(void)
 #endif
 
     UpdateStreamerStoppedFlag();
-    if (DAT_00486518 != 0) {
+    if (bDIBSlamPending != 0) {
 #ifndef WC1_SDL
         memset(&surface, 0, sizeof(surface));
         surface.dwSize = sizeof(surface);
 #endif
 
 #ifdef WC1_SDL
-        if (g_stMouseCursorState_0059ab10.viewport != 0 &&
-            g_stMouseCursorState_0059ab10.viewport->pixels == DAT_00476648) {
+        if (stMouseCursorState.viewport != 0 &&
+            stMouseCursorState.viewport->pixels ==
+                pDIBPixelBuffer) {
 #else
-        if (g_stMouseCursorState_0059ab10.viewport->pixels == DAT_00476648) {
+        if (stMouseCursorState.viewport->pixels ==
+                pDIBPixelBuffer) {
 #endif
             CaptureMouseCursorBackground();
             DrawMouseCursor();
         }
 
 #ifndef WC1_SDL
-        if (DAT_0046b1b4 > 0) {
+        if (nDIBCascadeLevel > 0) {
             result = IDirectDrawSurface_Lock(
-                g_pSecondarySurface_0046b1ac,
+                pSecondarySurface,
                 0, &surface, DDLOCK_WAIT, 0);
         } else {
             result = IDirectDrawSurface_Lock(
-                g_pPrimarySurface_0046b1a8,
+                pPrimarySurface,
                 0, &surface, DDLOCK_WAIT, 0);
         }
         if (result != DD_OK) {
             if (result == DDERR_SURFACELOST) {
-                if (DAT_0046b1b4 > 0) {
+                if (nDIBCascadeLevel > 0) {
                     result = IDirectDrawSurface_Restore(
-                        g_pSecondarySurface_0046b1ac);
+                        pSecondarySurface);
                     if (result != DD_OK)
                         DIBerror("DIBslamReal   Unable to restore surface (secondary)",
                                  result);
                 }
                 result = IDirectDrawSurface_Restore(
-                    g_pPrimarySurface_0046b1a8);
+                    pPrimarySurface);
                 if (result != DD_OK)
                     DIBerror("DIBslamReal   Unable to restore surface (primary)",
                              result);
 
-                if (DAT_0046b1b4 > 0) {
+                if (nDIBCascadeLevel > 0) {
                     result = IDirectDrawSurface_Lock(
-                        g_pSecondarySurface_0046b1ac,
+                        pSecondarySurface,
                         0, &surface, DDLOCK_WAIT, 0);
                 } else {
                     result = IDirectDrawSurface_Lock(
-                        g_pPrimarySurface_0046b1a8,
+                        pPrimarySurface,
                         0, &surface, DDLOCK_WAIT, 0);
                 }
                 if (result != DD_OK)
@@ -500,49 +508,52 @@ void DIBslamReal(void)
                              result);
             } else {
                 IDirectDrawSurface_Unlock(
-                    g_pPrimarySurface_0046b1a8, surface.lpSurface);
+                    pPrimarySurface, surface.lpSurface);
                 DIBerror("DIBslamReal   secondary->Lock", result);
             }
         }
 
         destination = surface.lpSurface;
-        source = DAT_00476648;
-        if (DAT_0046b1b4 <= 0) {
+        source = pDIBPixelBuffer;
+        if (nDIBCascadeLevel <= 0) {
             IDirectDraw2_WaitForVerticalBlank(
-                g_pDirectDraw2_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
+                pDirectDraw2, DDWAITVB_BLOCKBEGIN, 0);
         }
         row = 0;
-        if ((int)DAT_00476650 > 0) {
+        if ((int)nDIBHeight > 0) {
             do {
-                memcpy(destination, source, DAT_0047664c);
+                memcpy(destination, source, nDIBWidth);
                 destination += surface.lPitch;
-                source += DAT_0047664c;
+                source += nDIBWidth;
                 row++;
-            } while ((int)DAT_00476650 > row);
+            } while ((int)nDIBHeight > row);
         }
 
-        if (DAT_0046b1b4 > 0) {
+        if (nDIBCascadeLevel > 0) {
             IDirectDrawSurface_Unlock(
-                g_pSecondarySurface_0046b1ac, surface.lpSurface);
+                pSecondarySurface, surface.lpSurface);
         } else {
             IDirectDrawSurface_Unlock(
-                g_pPrimarySurface_0046b1a8, surface.lpSurface);
+                pPrimarySurface, surface.lpSurface);
         }
 #else
-        if (!Wc1SdlPresentIndexedFrame(DAT_00476648, DAT_00486110))
+        if (!Wc1SdlPresentIndexedFrame(pDIBPixelBuffer,
+                                       abDIBPaletteCache))
             DIBerror("DIBslamReal", -1);
 #endif
 
 #ifdef WC1_SDL
-        if (g_stMouseCursorState_0059ab10.viewport != 0 &&
-            g_stMouseCursorState_0059ab10.viewport->pixels == DAT_00476648)
+        if (stMouseCursorState.viewport != 0 &&
+            stMouseCursorState.viewport->pixels ==
+                pDIBPixelBuffer)
 #else
-        if (g_stMouseCursorState_0059ab10.viewport->pixels == DAT_00476648)
+        if (stMouseCursorState.viewport->pixels ==
+                pDIBPixelBuffer)
 #endif
             RestoreMouseCursorBackground();
 
 #ifndef WC1_SDL
-        if (DAT_0046b1b4 > 0) {
+        if (nDIBCascadeLevel > 0) {
             destinationRect.left = 0;
             destinationRect.top = 0;
             destinationRect.right = 639;
@@ -551,30 +562,30 @@ void DIBslamReal(void)
             sourceRect.top = 0;
             sourceRect.right = 319;
             sourceRect.bottom = 199;
-            if (DAT_0046b1b4 == 2) {
+            if (nDIBCascadeLevel == 2) {
                 destinationRect.top = 40;
                 destinationRect.bottom = 439;
             }
 
             result = IDirectDrawSurface_Blt(
-                g_pPrimarySurface_0046b1a8, &destinationRect,
-                g_pSecondarySurface_0046b1ac, &sourceRect,
+                pPrimarySurface, &destinationRect,
+                pSecondarySurface, &sourceRect,
                 DDBLT_WAIT, 0);
             if (result != DD_OK) {
                 if (result == DDERR_SURFACELOST) {
                     result = IDirectDrawSurface_Restore(
-                        g_pPrimarySurface_0046b1a8);
+                        pPrimarySurface);
                     if (result != DD_OK)
                         DIBerror("DIBslamReal (BLIT)  Unable to restore surface (primary)",
                                  result);
                     result = IDirectDrawSurface_Restore(
-                        g_pSecondarySurface_0046b1ac);
+                        pSecondarySurface);
                     if (result != DD_OK)
                         DIBerror("DIBslamReal (BLIT)  Unable to restore surface (secondary)",
                                  result);
                     result = IDirectDrawSurface_Blt(
-                        g_pPrimarySurface_0046b1a8, &destinationRect,
-                        g_pSecondarySurface_0046b1ac, &sourceRect,
+                        pPrimarySurface, &destinationRect,
+                        pSecondarySurface, &sourceRect,
                         DDBLT_WAIT, 0);
                     if (result != DD_OK)
                         DIBerror("DIBslamReal (BLIT)  Unable to blit to restored surface (primary)",
@@ -585,17 +596,17 @@ void DIBslamReal(void)
             }
         }
 #endif
-        DAT_00486518 = 0;
+        bDIBSlamPending = 0;
     }
 
-    DAT_00486060++;
+    nDIBSlamCount++;
     ServiceSoundSystem();
 #ifdef WC1_SDL
     ThrottleFrameAndDrawFps(0);
 #else
-    dc = GetDC(DAT_00486074);
+    dc = GetDC(hDIBWindow);
     ThrottleFrameAndDrawFps(dc);
-    ReleaseDC(DAT_00486074, dc);
+    ReleaseDC(hDIBWindow, dc);
 #endif
 }
 
@@ -611,7 +622,7 @@ void DIBupdate(int left, int top, int right, int bottom)
     HRESULT result;
 #endif
 
-    if (DAT_0046b1b4 > 0)
+    if (nDIBCascadeLevel > 0)
         return;
     if (left < 0)
         left = 0;
@@ -633,7 +644,8 @@ void DIBupdate(int left, int top, int right, int bottom)
 #ifdef WC1_SDL
     if (right < left || bottom < top)
         return;
-    if (!Wc1SdlPresentIndexedFrame(DAT_00476648, DAT_00486110))
+    if (!Wc1SdlPresentIndexedFrame(pDIBPixelBuffer,
+                                   abDIBPaletteCache))
         DIBerror("DIBupdate", -1);
 #else
     width = right - left + 1;
@@ -641,40 +653,40 @@ void DIBupdate(int left, int top, int right, int bottom)
     memset(&surface, 0, sizeof(surface));
     surface.dwSize = sizeof(surface);
     result = IDirectDrawSurface_Lock(
-        g_pPrimarySurface_0046b1a8, 0, &surface,
+        pPrimarySurface, 0, &surface,
         DDLOCK_WAIT, 0);
     if (result != DD_OK) {
         IDirectDrawSurface_Unlock(
-            g_pPrimarySurface_0046b1a8, surface.lpSurface);
+            pPrimarySurface, surface.lpSurface);
         DIBerror("DIBupdate   primary->Lock", result);
     }
 
     destination = (unsigned char *)surface.lpSurface
                 + surface.lPitch * top + left;
-    source = DAT_00476648 + DAT_0047664c * top + left;
+    source = pDIBPixelBuffer + nDIBWidth * top + left;
     IDirectDraw2_WaitForVerticalBlank(
-        g_pDirectDraw2_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
+        pDirectDraw2, DDWAITVB_BLOCKBEGIN, 0);
     while (height > 0) {
         memcpy(destination, source, width);
         destination += surface.lPitch;
-        source += DAT_0047664c;
+        source += nDIBWidth;
         height--;
     }
     IDirectDrawSurface_Unlock(
-        g_pPrimarySurface_0046b1a8, surface.lpSurface);
+        pPrimarySurface, surface.lpSurface);
 #endif
 }
 
 /* Function start: 0x432DE0 */
 unsigned char *GetDIBPixelBuffer(void)
 {
-    return DAT_00476648;
+    return pDIBPixelBuffer;
 }
 
 /* Function start: 0x432E00 */
 HWND GetDIBWindowHandle(void)
 {
-    return DAT_00486074;
+    return hDIBWindow;
 }
 
 /* Function start: 0x432E30 */
@@ -685,23 +697,24 @@ void CachePaletteEntryFromWords(short index, unsigned short *rgb)
     unsigned char value;
 
     value = *(unsigned char *)&rgb[0];
-    DAT_00486110[cacheOffset + 2] = value;
-    DAT_005a8a50[wordOffset] = value;
+    abDIBPaletteCache[cacheOffset + 2] = value;
+    awPaletteRgbWords[wordOffset] = value;
     value = *(unsigned char *)&rgb[1];
-    DAT_00486110[cacheOffset + 1] = value;
-    DAT_005a8a50[wordOffset + 1] = value;
+    abDIBPaletteCache[cacheOffset + 1] = value;
+    awPaletteRgbWords[wordOffset + 1] = value;
     value = *(unsigned char *)&rgb[2];
-    DAT_00486110[cacheOffset] = value;
-    DAT_00486110[cacheOffset + 3] = 1;
-    DAT_005a8a50[wordOffset + 2] = value;
+    abDIBPaletteCache[cacheOffset] = value;
+    abDIBPaletteCache[cacheOffset + 3] = 1;
+    awPaletteRgbWords[wordOffset + 2] = value;
 }
 
 /* Function start: 0x432EA0 */
 void DIBramPalette(void)
 {
 #ifdef WC1_SDL
-    if (DAT_00476648 != 0 &&
-        !Wc1SdlPresentIndexedFrame(DAT_00476648, DAT_00486110))
+    if (pDIBPixelBuffer != 0 &&
+        !Wc1SdlPresentIndexedFrame(pDIBPixelBuffer,
+                                   abDIBPaletteCache))
         DIBerror("DIBramPalette", -1);
 #else
     unsigned char entries[0x400];
@@ -709,15 +722,15 @@ void DIBramPalette(void)
     HRESULT result;
 
     do {
-        entries[offset] = DAT_00486110[offset + 2];
-        entries[offset + 1] = DAT_00486110[offset + 1];
-        entries[offset + 2] = DAT_00486110[offset];
+        entries[offset] = abDIBPaletteCache[offset + 2];
+        entries[offset + 1] = abDIBPaletteCache[offset + 1];
+        entries[offset + 2] = abDIBPaletteCache[offset];
         entries[offset + 3] = 0;
         offset += 4;
     } while (offset < 0x400);
 
     result = IDirectDrawPalette_SetEntries(
-        g_pDirectDrawPalette_0046b1b0, 0, 0, 256,
+        pDirectDrawPalette, 0, 0, 256,
         (LPPALETTEENTRY)entries);
     if (result != DD_OK)
         DIBerror("DIBramPalette   SetEntries", result);
@@ -739,36 +752,37 @@ void DIBsetPalette(short index, short *rgb)
     paletteIndex = (int)index;
     cacheOffset = paletteIndex * 4;
     value = rgb[0];
-    if ((int)DAT_00486110[cacheOffset + 2] != (int)value ||
-        (int)DAT_00486110[cacheOffset + 1] != (int)rgb[1] ||
-        (int)DAT_00486110[cacheOffset] != (int)rgb[2]) {
-        DAT_00486110[cacheOffset + 2] = (unsigned char)value;
+    if ((int)abDIBPaletteCache[cacheOffset + 2] != (int)value ||
+        (int)abDIBPaletteCache[cacheOffset + 1] != (int)rgb[1] ||
+        (int)abDIBPaletteCache[cacheOffset] != (int)rgb[2]) {
+        abDIBPaletteCache[cacheOffset + 2] = (unsigned char)value;
         wordOffset = paletteIndex * 3;
-        DAT_005a8a50[wordOffset] = (unsigned char)value;
+        awPaletteRgbWords[wordOffset] = (unsigned char)value;
         value = *(unsigned char *)&rgb[1];
-        DAT_00486110[cacheOffset + 1] = (unsigned char)value;
-        DAT_005a8a50[wordOffset + 1] = (unsigned char)value;
+        abDIBPaletteCache[cacheOffset + 1] = (unsigned char)value;
+        awPaletteRgbWords[wordOffset + 1] = (unsigned char)value;
         value = *(unsigned char *)&rgb[2];
-        DAT_00486110[cacheOffset] = (unsigned char)value;
-        DAT_00486110[cacheOffset + 3] = 1;
-        DAT_005a8a50[wordOffset + 2] = (unsigned char)value;
+        abDIBPaletteCache[cacheOffset] = (unsigned char)value;
+        abDIBPaletteCache[cacheOffset + 3] = 1;
+        awPaletteRgbWords[wordOffset + 2] = (unsigned char)value;
 
         /* WC1_SDL consumes this cache on the next normal frame submission.
            A DirectDraw palette entry update did not blit or wait for vertical
            blank, so flight fades must not submit additional SDL frames. */
 #ifndef WC1_SDL
         entry.peBlue = (unsigned char)value;
-        entry.peRed = (unsigned char)DAT_005a8a50[wordOffset];
-        entry.peGreen = (unsigned char)DAT_005a8a50[wordOffset + 1];
+        entry.peRed = (unsigned char)awPaletteRgbWords[wordOffset];
+        entry.peGreen =
+            (unsigned char)awPaletteRgbWords[wordOffset + 1];
         entry.peFlags = 0;
         result = IDirectDrawPalette_SetEntries(
-            g_pDirectDrawPalette_0046b1b0, 0, paletteIndex, 1, &entry);
+            pDirectDrawPalette, 0, paletteIndex, 1, &entry);
         if (result != DD_OK)
             DIBerror("DIBsetPalette   SetEntries", result);
 
         result = IDirectDrawSurface_SetPalette(
-            g_pPrimarySurface_0046b1a8,
-            g_pDirectDrawPalette_0046b1b0);
+            pPrimarySurface,
+            pDirectDrawPalette);
         if (result != DD_OK)
             DIBerror("DIBmakeDIB   CreatePalette", result);
 #endif
@@ -778,12 +792,12 @@ void DIBsetPalette(short index, short *rgb)
 /* Function start: 0x433020 */
 void GetPaletteEntryAsWords(short i, unsigned short *rgb)
 {
-    extern unsigned char DAT_00486110[];
+    extern unsigned char abDIBPaletteCache[];
     int k = i * 4;
 
-    rgb[0] = DAT_00486110[k + 2];
-    rgb[1] = DAT_00486110[k + 1];
-    rgb[2] = DAT_00486110[k];
+    rgb[0] = abDIBPaletteCache[k + 2];
+    rgb[1] = abDIBPaletteCache[k + 1];
+    rgb[2] = abDIBPaletteCache[k];
 }
 
 /* Function start: 0x433060 */
@@ -797,7 +811,7 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
     int error;
 
     IDirectDraw2_WaitForVerticalBlank(
-        g_pDirectDraw2_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
+        pDirectDraw2, DDWAITVB_BLOCKBEGIN, 0);
 #else
     Wc1SdlWaitForVerticalBlank();
 #endif
@@ -805,22 +819,22 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
         unsigned char value = palette[0];
 
         palette = palette + 3;
-        DAT_00486110[offset + 2] = value;
+        abDIBPaletteCache[offset + 2] = value;
 #ifndef WC1_SDL
         entries[offset] = value;
 #endif
         value = palette[-2];
-        DAT_00486110[offset + 1] = value;
+        abDIBPaletteCache[offset + 1] = value;
 #ifndef WC1_SDL
         entries[offset + 1] = value;
 #endif
         value = palette[-1];
-        DAT_00486110[offset] = value;
+        abDIBPaletteCache[offset] = value;
 #ifndef WC1_SDL
         entries[offset + 2] = value;
         entries[offset + 3] = 0;
 #endif
-        DAT_00486110[offset + 3] = 4;
+        abDIBPaletteCache[offset + 3] = 4;
         offset = offset + 4;
     } while (offset < 0x400);
 
@@ -828,13 +842,13 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
     DIBramPalette();
 #else
     error = IDirectDrawPalette_SetEntries(
-        g_pDirectDrawPalette_0046b1b0, 0, 0, 0x100,
+        pDirectDrawPalette, 0, 0, 0x100,
         (LPPALETTEENTRY)entries);
     if (error != 0)
         DIBerror("DIBsetWholePalette   SetEntries", error);
 
     error = IDirectDrawSurface_SetPalette(
-        g_pPrimarySurface_0046b1a8, g_pDirectDrawPalette_0046b1b0);
+        pPrimarySurface, pDirectDrawPalette);
     if (error != 0)
         DIBerror("DIBmakeDIB   CreatePalette", error);
 #endif
@@ -851,7 +865,7 @@ void DIBwholePaletteFromWords(unsigned short *palette)
     int error;
 
     IDirectDraw2_WaitForVerticalBlank(
-        g_pDirectDraw2_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
+        pDirectDraw2, DDWAITVB_BLOCKBEGIN, 0);
 #else
     Wc1SdlWaitForVerticalBlank();
 #endif
@@ -859,22 +873,22 @@ void DIBwholePaletteFromWords(unsigned short *palette)
         unsigned char value = *(unsigned char *)palette;
 
         palette = palette + 3;
-        DAT_00486110[offset + 2] = value;
+        abDIBPaletteCache[offset + 2] = value;
 #ifndef WC1_SDL
         entries[offset] = value;
 #endif
         value = *(unsigned char *)(palette - 2);
-        DAT_00486110[offset + 1] = value;
+        abDIBPaletteCache[offset + 1] = value;
 #ifndef WC1_SDL
         entries[offset + 1] = value;
 #endif
         value = *(unsigned char *)(palette - 1);
-        DAT_00486110[offset] = value;
+        abDIBPaletteCache[offset] = value;
 #ifndef WC1_SDL
         entries[offset + 2] = value;
         entries[offset + 3] = 0;
 #endif
-        DAT_00486110[offset + 3] = 4;
+        abDIBPaletteCache[offset + 3] = 4;
         offset = offset + 4;
     } while (offset < 0x400);
 
@@ -882,13 +896,13 @@ void DIBwholePaletteFromWords(unsigned short *palette)
     DIBramPalette();
 #else
     error = IDirectDrawPalette_SetEntries(
-        g_pDirectDrawPalette_0046b1b0, 0, 0, 0x100,
+        pDirectDrawPalette, 0, 0, 0x100,
         (LPPALETTEENTRY)entries);
     if (error != 0)
         DIBerror("DIBsetWholePalette   SetEntries", error);
 
     error = IDirectDrawSurface_SetPalette(
-        g_pPrimarySurface_0046b1a8, g_pDirectDrawPalette_0046b1b0);
+        pPrimarySurface, pDirectDrawPalette);
     if (error != 0)
         DIBerror("DIBmakeDIB   CreatePalette", error);
 #endif
@@ -901,7 +915,7 @@ void DIBwaitForVerticalBlank(void)
     Wc1SdlWaitForVerticalBlank();
 #else
     IDirectDraw2_WaitForVerticalBlank(
-        g_pDirectDraw2_0046b1a4, DDWAITVB_BLOCKBEGIN, 0);
+        pDirectDraw2, DDWAITVB_BLOCKBEGIN, 0);
 #endif
 }
 

@@ -12,12 +12,12 @@ unsigned int WaitForKeyExceptXOrF12(void)
 {
     int key;
 
-    g_bFilteredKeyWaitStarted_00598c34 =
-        g_bFilteredKeyWaitActive_0059a849 = 1;
+    bFilteredKeyWaitStarted =
+        bFilteredKeyWaitActive = 1;
     do {
         key = PumpMessagesDuringWait();
     } while (key == 'X' || key == VK_F12);
-    g_bFilteredKeyWaitActive_0059a849 = 0;
+    bFilteredKeyWaitActive = 0;
     FlushInputEvents();
     ClearInputKeyState();
     return 0;
@@ -34,25 +34,25 @@ void ShowMeanwhileTransition(short scene, short variant)
     InitializeConversationViewport();
     InitializeConversationText();
     LoadSceneAnimationResources(scene, variant);
-    ClearViewport(g_stConversationTextContext_005a7760.viewport,
-                  g_cBlackColour_0046999c);
-    SetTextContext(&g_stConversationTextContext_005a7760);
-    g_pIntroFont_005a8960 =
+    ClearViewport(stConversationTextContext.viewport,
+                  cBlackColour);
+    SetTextContext(&stConversationTextContext);
+    pIntroFont =
         (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
-    print_subtitle(&DAT_005a76b0, 0x40, g_szMeanwhile_00469d80);
-    PanToScreen(&DAT_005a76b0, &DAT_005a6ba0);
-    FreePacketAndClear((int *)&g_pIntroFont_005a8960, 0);
+    print_subtitle(&stSceneBuffer, 0x40, szMeanwhile);
+    PanToScreen(&stSceneBuffer, &stScreen);
+    FreePacketAndClear((int *)&pIntroFont, 0);
     WaitForSceneAdvance(100, 0);
-    ClearViewport(&g_stModalSourceViewport_005a7670, g_cBlackColour_0046999c);
+    ClearViewport(&stModalSourceViewport, cBlackColour);
     DIBslam();
     DIBslamReal();
-    SceneDirector(6, g_pSceneAnimationSceneData_005a7c54,
-                  g_pSceneAnimationTextData_005a7c5c);
+    SceneDirector(6, pSceneAnimationSceneData,
+                  pSceneAnimationTextData);
     SaveGamePalette();
     StopMusic(30);
-    FadeViewportPaletteToColour(&g_stModalSourceViewport_005a7670,
-                                g_cBlackColour_0046999c, 1);
-    ClearViewport(&g_stModalSourceViewport_005a7670, g_cBlackColour_0046999c);
+    FadeViewportPaletteToColour(&stModalSourceViewport,
+                                cBlackColour, 1);
+    ClearViewport(&stModalSourceViewport, cBlackColour);
     DIBslam();
     DIBslamReal();
     RestoreGamePalette();
@@ -125,23 +125,23 @@ short PromptForAnswerText(short entry)
     ((short *)&bounds[0])[1] = 50;
     ((short *)&bounds[1])[0] = 269;
     ((short *)&bounds[1])[1] = 149;
-    ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
-    LoadAnswerPromptAndResponse(entry, g_szHudMessageBuffer_0059e1c0,
-                                g_szComponentHitMessage_005a7e00);
-    ApplyAnswerTextCipher(g_szHudMessageBuffer_0059e1c0, 1);
+    ClearViewport(&stScreen, cBlackColour);
+    LoadAnswerPromptAndResponse(entry, szHudMessageBuffer,
+                                szComponentHitMessage);
+    ApplyAnswerTextCipher(szHudMessageBuffer, 1);
     InitializeModalTextPanel(&panel, 0, bounds[0], bounds[1],
-                             g_cViewportClearColour_004699a0,
-                             g_cBlackColour_0046999c, g_cRedColour_004699ac);
+                             cViewportClearColour,
+                             cBlackColour, cRedColour);
     DrawModalTextPanel(&panel, 6, 10, 2,
-                       g_szHudMessageBuffer_0059e1c0);
-    g_szComponentHitMessage_005a7e00[20] =
-        g_szEmptyAnswerInput_00469d90[0];
-    PromptForTextInput(65, 125, (char *)g_szAnswerLabel_00469d94,
-                       &g_szComponentHitMessage_005a7e00[20], 10, 2);
+                       szHudMessageBuffer);
+    szComponentHitMessage[20] =
+        szEmptyAnswerInput[0];
+    PromptForTextInput(65, 125, (char *)szAnswerLabel,
+                       &szComponentHitMessage[20], 10, 2);
     RestoreModalTextPanel(&panel);
-    ApplyAnswerTextCipher(&g_szComponentHitMessage_005a7e00[20], -1);
-    matches = (short)(strcmp(&g_szComponentHitMessage_005a7e00[20],
-                             g_szComponentHitMessage_005a7e00) == 0);
+    ApplyAnswerTextCipher(&szComponentHitMessage[20], -1);
+    matches = (short)(strcmp(&szComponentHitMessage[20],
+                             szComponentHitMessage) == 0);
     ReleaseTextFont(0);
     return matches;
 }
@@ -155,16 +155,16 @@ void SceneEnterHook(void)
 void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
                                short columns, short rows)
 {
-    g_pDebugOverlay_004763f0 =
+    pDebugOverlay =
         new DebugOverlayConsole(module, window, columns, rows, 0);
 }
 
 /* Function start: 0x425B90 */
 void DestroyGlobalDebugOverlayConsole(void)
 {
-    delete g_pDebugOverlay_004763f0;
+    delete pDebugOverlay;
 #ifdef WC1_SDL
-    g_pDebugOverlay_004763f0 = 0;
+    pDebugOverlay = 0;
 #endif
 }
 
@@ -185,15 +185,15 @@ void SystemDebugPrintf(const char *format, ...)
 /* Function start: 0x425BC0 */
 char PumpMessagesDuringWait(void)
 {
-    return g_pDebugOverlay_004763f0->WaitForKey();
+    return pDebugOverlay->WaitForKey();
 }
 
 /* Function start: 0x425BD0 */
 unsigned char TakeDebugStepFlag(void)
 {
-    unsigned char value = (unsigned char)g_dwDebugOverlayKeyLatch_0046964c;
+    unsigned char value = (unsigned char)dwDebugOverlayKeyLatch;
 
-    g_dwDebugOverlayKeyLatch_0046964c = 0;
+    dwDebugOverlayKeyLatch = 0;
     return value;
 }
 
@@ -224,8 +224,8 @@ void DiskPromptDrawHook(void)
 /* Function start: 0x425C20 */
 void ClearDebugPauseFlags(void)
 {
-    g_dwDebugOverlayKeyLatch_0046964c = 0;
-    g_dwDebugOverlayKey_00469648 = 0;
+    dwDebugOverlayKeyLatch = 0;
+    dwDebugOverlayKey = 0;
 }
 
 /* Function start: 0x425C30 */
@@ -235,7 +235,7 @@ unsigned short EraseTextContextBackground(TextContext *context)
 
     colour = context->backgroundColour;
     if (colour == 0xff)
-        colour = g_cBlackColour_0046999c;
+        colour = cBlackColour;
     ClearViewport(context->viewport, colour);
     return 0;
 }
@@ -248,17 +248,17 @@ int DisplayTrainSimHighScoreTable(short phase)
     (void)phase;
     completed = 1;
     DrawFilledViewportRect(
-        &g_stModalSourceViewport_005a7670,
-        g_stTrainSimPanelBounds_00469dc0.left,
-        g_stTrainSimPanelBounds_00469dc0.top,
-        g_stTrainSimPanelBounds_00469dc0.right,
-        g_stTrainSimPanelBounds_00469dc0.bottom,
-        g_cBlackColour_0046999c);
-    *(ShortRect *)&g_stTrainSimHighScoreDisplayViewport_005a7bf0.left =
-        g_stTrainSimPanelBounds_00469dc0;
+        &stModalSourceViewport,
+        stTrainSimPanelBounds.left,
+        stTrainSimPanelBounds.top,
+        stTrainSimPanelBounds.right,
+        stTrainSimPanelBounds.bottom,
+        cBlackColour);
+    *(ShortRect *)&stTrainSimHighScoreDisplayViewport.left =
+        stTrainSimPanelBounds;
     CopyViewportContents(
-        &g_stTrainSimHighScoreBufferViewport_005a7bb0,
-        &g_stTrainSimHighScoreDisplayViewport_005a7bf0);
+        &stTrainSimHighScoreBufferViewport,
+        &stTrainSimHighScoreDisplayViewport);
     SetFrameTimerPeriodDirect(0x2d0);
     do {
         if ((short)IsFrameTickElapsed() != 0)
@@ -282,31 +282,31 @@ int AnimateTrainSimTitle(void)
     completed = 0;
     y = 0x6b;
     DrawFilledViewportRect(
-        &g_stModalSourceViewport_005a7670,
-        g_stTrainSimPanelBounds_00469dc0.left,
-        g_stTrainSimPanelBounds_00469dc0.top,
-        g_stTrainSimPanelBounds_00469dc0.right,
-        g_stTrainSimPanelBounds_00469dc0.bottom,
-        g_cBlackColour_0046999c);
+        &stModalSourceViewport,
+        stTrainSimPanelBounds.left,
+        stTrainSimPanelBounds.top,
+        stTrainSimPanelBounds.right,
+        stTrainSimPanelBounds.bottom,
+        cBlackColour);
     DIBslam();
     DIBslamReal();
     y = (short)(y - ReadWord(
-        (unsigned short *)g_stTrainSimTextContext_005a7bd0.font));
-    g_stTrainSimTitleDisplayViewport_005a7b90.top = y;
-    g_stTrainSimTitleDisplayViewport_005a7b90.bottom =
+        (unsigned short *)stTrainSimTextContext.font));
+    stTrainSimTitleDisplayViewport.top = y;
+    stTrainSimTitleDisplayViewport.bottom =
         (short)(y + ReadWord(
-            (unsigned short *)g_stTrainSimTextContext_005a7bd0.font) + 2);
+            (unsigned short *)stTrainSimTextContext.font) + 2);
     if (CheckEscaped() == 0) {
         for (;;) {
             SetFrameTimerPeriodDirect(3);
-            if (g_stTrainSimTitleDisplayViewport_005a7b90.top <=
-                g_stTrainSimPanelBounds_00469dc0.top)
+            if (stTrainSimTitleDisplayViewport.top <=
+                stTrainSimPanelBounds.top)
                 break;
-            g_stTrainSimTitleDisplayViewport_005a7b90.top--;
-            g_stTrainSimTitleDisplayViewport_005a7b90.bottom--;
+            stTrainSimTitleDisplayViewport.top--;
+            stTrainSimTitleDisplayViewport.bottom--;
             CopyViewportContents(
-                &g_stTrainSimPanelViewport_00469da8,
-                &g_stTrainSimTitleDisplayViewport_005a7b90);
+                &stTrainSimPanelViewport,
+                &stTrainSimTitleDisplayViewport);
             DIBslam();
             DIBslamReal();
             WaitForFrameTick();
@@ -321,24 +321,24 @@ int AnimateTrainSimTitle(void)
 /* Function start: 0x425DF0 */
 unsigned char *GetHighScoreEntry(short i)
 {
-    short k = (short)g_aHighScoreEntries_005a7c30[i].pilotIndex;
+    short k = (short)aHighScoreEntries[i].pilotIndex;
 
     if (8 < k)
-        return g_apszBuiltInHighScoreNames_00469de0[k - 9];
-    return (unsigned char *)g_aPilotRecords_005988d0[k].callsign;
+        return apszBuiltInHighScoreNames[k - 9];
+    return (unsigned char *)aPilotRecords[k].callsign;
 }
 
 /* Function start: 0x425E20 */
 unsigned int GetHighScoreValue(short i)
 {
-    return g_aHighScoreEntries_005a7c30[i].score;
+    return aHighScoreEntries[i].score;
 }
 
 /* Function start: 0x425E30 */
 unsigned int SetHighScoreEntry(short i, unsigned char b, unsigned int v)
 {
-    g_aHighScoreEntries_005a7c30[i].pilotIndex = (signed char)b;
-    return g_aHighScoreEntries_005a7c30[i].score = v;
+    aHighScoreEntries[i].pilotIndex = (signed char)b;
+    return aHighScoreEntries[i].score = v;
 }
 
 /* Function start: 0x425E50 */
@@ -353,12 +353,12 @@ void SortTrainSimHighScores(void)
         inner = (short)(outer + 1);
         if (inner < 6) {
             do {
-                if ((int)g_aHighScoreEntries_005a7c30[outer].score <
-                    (int)g_aHighScoreEntries_005a7c30[inner].score) {
-                    temporary = g_aHighScoreEntries_005a7c30[inner];
-                    g_aHighScoreEntries_005a7c30[inner] =
-                        g_aHighScoreEntries_005a7c30[outer];
-                    g_aHighScoreEntries_005a7c30[outer] = temporary;
+                if ((int)aHighScoreEntries[outer].score <
+                    (int)aHighScoreEntries[inner].score) {
+                    temporary = aHighScoreEntries[inner];
+                    aHighScoreEntries[inner] =
+                        aHighScoreEntries[outer];
+                    aHighScoreEntries[outer] = temporary;
                 }
                 inner++;
             } while (inner < 6);
@@ -374,7 +374,7 @@ short FindTrainSimHighScore(short pilot)
 
     index = 5;
     do {
-        if (g_aHighScoreEntries_005a7c30[index].pilotIndex == pilot)
+        if (aHighScoreEntries[index].pilotIndex == pilot)
             return index;
         index--;
     } while (index >= 0);
@@ -410,7 +410,7 @@ void InitializeTrainSimHighScores(void)
             } while (candidate == 8);
             previous = 0;
             while (previous < slot) {
-                if (g_aHighScoreEntries_005a7c30[previous].pilotIndex ==
+                if (aHighScoreEntries[previous].pilotIndex ==
                     candidate)
                     candidate = -1;
                 previous++;
@@ -426,7 +426,7 @@ void InitializeTrainSimHighScores(void)
 /* Function start: 0x425FE0 */
 short IsHighScoreSlotUsed(short i)
 {
-    return g_aHighScoreEntries_005a7c30[i].pilotIndex != -1;
+    return aHighScoreEntries[i].pilotIndex != -1;
 }
 
 /* Function start: 0x426000 */
@@ -446,16 +446,16 @@ void AddRandomTrainSimHighScores(void)
             pilot = RandomInRange(0, 14);
         } while (pilot == 8 ||
                  (pilot < 9 &&
-                  g_stCampaignState_0059ca50
+                  stCampaignState
                           .personalityDeathMission[pilot] != 0) ||
                  (FindTrainSimHighScore(pilot) == -1 &&
                   RandomBelow(100) > 20));
         slot = FindTrainSimHighScore(pilot);
         if (slot == -1)
             slot = RandomInRange(0, 5);
-        baseScore = (int)g_aHighScoreEntries_005a7c30[slot].score;
+        baseScore = (int)aHighScoreEntries[slot].score;
         scoreRange =
-            (int)g_aHighScoreEntries_005a7c30[0].score - baseScore + 2000;
+            (int)aHighScoreEntries[0].score - baseScore + 2000;
         while (scoreRange / scale > 30000)
             scale = (short)(scale * 2);
         InsertTrainSimHighScore(
@@ -472,17 +472,17 @@ void AddRandomTrainSimHighScores(void)
 void DrawTextInputCursor(char character)
 {
     unsigned char savedBackground =
-        g_pCurrentTextContext_0059af8c->backgroundColour;
-    unsigned char colour = g_pCurrentTextContext_0059af8c->colour;
+        pCurrentTextContext->backgroundColour;
+    unsigned char colour = pCurrentTextContext->colour;
     short savedX;
     char cursor[2] = { character, 0 };
 
-    savedX = g_pCurrentTextContext_0059af8c->cursorX;
-    g_pCurrentTextContext_0059af8c->cursorX = (short)(savedX + 1);
-    g_pCurrentTextContext_0059af8c->backgroundColour = colour;
+    savedX = pCurrentTextContext->cursorX;
+    pCurrentTextContext->cursorX = (short)(savedX + 1);
+    pCurrentTextContext->backgroundColour = colour;
     DrawFormattedText(cursor);
-    g_pCurrentTextContext_0059af8c->backgroundColour = savedBackground;
-    g_pCurrentTextContext_0059af8c->cursorX = savedX;
+    pCurrentTextContext->backgroundColour = savedBackground;
+    pCurrentTextContext->cursorX = savedX;
 }
 
 /* Function start: 0x426140 */
@@ -492,15 +492,15 @@ void ClearTextInputCharacter(char character)
     short characterWidth;
 
     characterWidth = (short)GetFontCharWidth(character);
-    clearArea = *g_pCurrentTextContext_0059af8c->viewport;
-    clearArea.left = g_pCurrentTextContext_0059af8c->cursorX;
+    clearArea = *pCurrentTextContext->viewport;
+    clearArea.left = pCurrentTextContext->cursorX;
     clearArea.right = (short)(clearArea.left + characterWidth - 1);
-    clearArea.top = g_pCurrentTextContext_0059af8c->cursorY;
+    clearArea.top = pCurrentTextContext->cursorY;
     clearArea.bottom = (short)(clearArea.top +
-        ReadWord((unsigned short *)g_pCurrentTextContext_0059af8c->font) - 1);
+        ReadWord((unsigned short *)pCurrentTextContext->font) - 1);
     LeaveAllocationScope();
     ClearViewport(&clearArea,
-                  g_pCurrentTextContext_0059af8c->backgroundColour);
+                  pCurrentTextContext->backgroundColour);
     EnterAllocationScope();
 }
 
@@ -509,10 +509,10 @@ void ClearNextTextInputCharacter(char character)
 {
     short savedX;
 
-    savedX = g_pCurrentTextContext_0059af8c->cursorX;
-    g_pCurrentTextContext_0059af8c->cursorX++;
+    savedX = pCurrentTextContext->cursorX;
+    pCurrentTextContext->cursorX++;
     ClearTextInputCharacter(character);
-    g_pCurrentTextContext_0059af8c->cursorX = savedX;
+    pCurrentTextContext->cursorX = savedX;
 }
 
 /* Function start: 0x426200 */
@@ -533,35 +533,35 @@ short ReadTextInput(char *destination, short maximumLength,
     unsigned char character;
     char input[40];
 
-    savedBackground = g_pCurrentTextContext_0059af8c->backgroundColour;
+    savedBackground = pCurrentTextContext->backgroundColour;
     accepted = 0;
     if (savedBackground == 0xff) {
-        g_pCurrentTextContext_0059af8c->backgroundColour = g_cBlackColour_0046999c;
+        pCurrentTextContext->backgroundColour = cBlackColour;
     }
-    savedViewport = g_pCurrentTextContext_0059af8c->viewport;
-    savedText = g_pCurrentTextContext_0059af8c->text;
-    g_pCurrentTextContext_0059af8c->text = input;
-    savedX = g_pCurrentTextContext_0059af8c->cursorX;
-    savedY = g_pCurrentTextContext_0059af8c->cursorY;
+    savedViewport = pCurrentTextContext->viewport;
+    savedText = pCurrentTextContext->text;
+    pCurrentTextContext->text = input;
+    savedX = pCurrentTextContext->cursorX;
+    savedY = pCurrentTextContext->cursorY;
     inputViewport = *savedViewport;
-    g_pCurrentTextContext_0059af8c->viewport = &inputViewport;
+    pCurrentTextContext->viewport = &inputViewport;
     DosStrcpy(input, destination);
     inputLength = DosStrlen(input);
 
     inputViewport.left = savedX;
     inputViewport.top = savedY;
     inputViewport.bottom = (short)(inputViewport.top +
-        ReadWord((unsigned short *)g_pCurrentTextContext_0059af8c->font));
+        ReadWord((unsigned short *)pCurrentTextContext->font));
     inputViewport.right = (short)(inputViewport.left +
         MeasureTextPixelWidthClamped(input));
     ClearViewport(&inputViewport,
-                  g_pCurrentTextContext_0059af8c->backgroundColour);
+                  pCurrentTextContext->backgroundColour);
     inputViewport.right = savedViewport->right;
     DrawFormattedText(input);
     DrawTextInputCursor(' ');
 
-    savedFrameState = g_bKeyEventQueueEnabled_0046505c;
-    g_bKeyEventQueueEnabled_0046505c = 0;
+    savedFrameState = bKeyEventQueueEnabled;
+    bKeyEventQueueEnabled = 0;
     do {
         handled = 0;
         do {
@@ -580,14 +580,14 @@ short ReadTextInput(char *destination, short maximumLength,
                 inputViewport.top = savedY;
                 inputViewport.bottom = (short)(inputViewport.top +
                     ReadWord((unsigned short *)
-                        g_pCurrentTextContext_0059af8c->font));
+                        pCurrentTextContext->font));
                 inputViewport.right = (short)(inputViewport.left +
                     MeasureTextPixelWidthClamped(input));
                 ClearViewport(&inputViewport,
-                              g_pCurrentTextContext_0059af8c->backgroundColour);
-                g_pCurrentTextContext_0059af8c->cursorX = savedX;
-                g_pCurrentTextContext_0059af8c->text = savedText;
-                g_pCurrentTextContext_0059af8c->viewport = savedViewport;
+                              pCurrentTextContext->backgroundColour);
+                pCurrentTextContext->cursorX = savedX;
+                pCurrentTextContext->text = savedText;
+                pCurrentTextContext->viewport = savedViewport;
                 return 0;
             } else if (key == 8 && inputLength != 0) {
                 inputLength--;
@@ -638,11 +638,11 @@ redraw:
         } while (handled == 0);
     } while (accepted == 0);
 
-    g_bKeyEventQueueEnabled_0046505c = savedFrameState;
+    bKeyEventQueueEnabled = savedFrameState;
     DosStrcpy(destination, input);
-    g_pCurrentTextContext_0059af8c->text = savedText;
-    g_pCurrentTextContext_0059af8c->viewport = savedViewport;
-    g_pCurrentTextContext_0059af8c->backgroundColour = savedBackground;
+    pCurrentTextContext->text = savedText;
+    pCurrentTextContext->viewport = savedViewport;
+    pCurrentTextContext->backgroundColour = savedBackground;
     return 1;
 }
 
@@ -652,13 +652,13 @@ void ReadRequiredPilotField(short x, short y, const char *label,
 {
     short cursorX;
 
-    cursorX = (short)(g_stTrainSimPanelViewport_00469da8.left + x);
-    g_stTrainSimTextContext_005a7bd0.alignment = 0;
+    cursorX = (short)(stTrainSimPanelViewport.left + x);
+    stTrainSimTextContext.alignment = 0;
     SetTextCursor((unsigned short)cursorX, (unsigned short)y);
     DrawFormattedText(label);
     do {
         DosStrcpy(destination,
-                  (const char *)&g_dwTrainSimStringPadding_00469e68);
+                  (const char *)&dwTrainSimStringPadding);
     } while (ReadTextInput(destination, maximumLength, 0) == 0);
 }
 
@@ -667,8 +667,8 @@ void PromptForPilotField(short x, short y, const char *label,
                          char *destination, short maximumLength,
                          const char *defaultText)
 {
-    g_stTrainSimTextContext_005a7bd0.alignment = 0;
-    SetTextCursor((unsigned short)(g_stTrainSimPanelViewport_00469da8.left + x),
+    stTrainSimTextContext.alignment = 0;
+    SetTextCursor((unsigned short)(stTrainSimPanelViewport.left + x),
                   (unsigned short)y);
     DrawFormattedText(label);
     do {
@@ -679,30 +679,30 @@ void PromptForPilotField(short x, short y, const char *label,
 /* Function start: 0x426660 */
 void InitializeTrainSimTextPanel(void)
 {
-    g_stTrainSimPanelViewport_00469da8 = DAT_005a6ba0;
-    *(ShortRect *)&g_stTrainSimPanelViewport_00469da8.left =
-        g_stTrainSimPanelBounds_00469dc0;
-    ClearViewport(&g_stTrainSimPanelViewport_00469da8, g_cBlackColour_0046999c);
-    g_stTrainSimTextContext_005a7bd0.text = g_szDefaultTextBuffer_005a7590;
-    ResetStringBuilder(&g_stTrainSimTextContext_005a7bd0);
-    SetTextContext(&g_stTrainSimTextContext_005a7bd0);
-    InitializeTextContextFromFont(&g_stTrainSimTextContext_005a7bd0, 1,
-                                  g_cDefaultTextColour_004699cc,
-                                  (signed char)g_cBlackColour_0046999c);
-    g_stTrainSimTextContext_005a7bd0.viewport =
-        &g_stTrainSimPanelViewport_00469da8;
-    EraseTextContextBackground(&g_stTrainSimTextContext_005a7bd0);
+    stTrainSimPanelViewport = stScreen;
+    *(ShortRect *)&stTrainSimPanelViewport.left =
+        stTrainSimPanelBounds;
+    ClearViewport(&stTrainSimPanelViewport, cBlackColour);
+    stTrainSimTextContext.text = szDefaultTextBuffer;
+    ResetStringBuilder(&stTrainSimTextContext);
+    SetTextContext(&stTrainSimTextContext);
+    InitializeTextContextFromFont(&stTrainSimTextContext, 1,
+                                  cDefaultTextColour,
+                                  (signed char)cBlackColour);
+    stTrainSimTextContext.viewport =
+        &stTrainSimPanelViewport;
+    EraseTextContextBackground(&stTrainSimTextContext);
 }
 
 /* Function start: 0x426700 */
 void ShowTrainSimTextMessage(const char *message)
 {
     SetTextCursor(
-        (unsigned short)g_stTrainSimPanelViewport_00469da8.left,
-        (unsigned short)(g_stTrainSimPanelViewport_00469da8.top + 2));
-    g_stTrainSimTextContext_005a7bd0.alignment = 2;
+        (unsigned short)stTrainSimPanelViewport.left,
+        (unsigned short)(stTrainSimPanelViewport.top + 2));
+    stTrainSimTextContext.alignment = 2;
     FormatTextBufferFromStart(message);
-    FormatTextBufferFromStart(g_szTextFlushToken_00469e6c);
+    FormatTextBufferFromStart(szTextFlushToken);
     DIBslam();
     DIBslamReal();
 }
@@ -712,25 +712,25 @@ void EnterPilotNameAndCallsign(void)
 {
     unsigned char *backdrop;
 
-    ClearViewport(&DAT_005a6ba0, 0);
+    ClearViewport(&stScreen, 0);
     backdrop = (unsigned char *)FetchDiskPacketRetrying(
-        (short)g_cCockpitLogicalFile_005a7c74, 0, 0);
-    DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
+        (short)cCockpitLogicalFile, 0, 0);
+    DrawSpriteDefault(&stScreen, 0, 0, backdrop, 0);
     InitializeTrainSimTextPanel();
-    ShowTrainSimTextMessage(g_szNewPilotPrompt_00469e70);
+    ShowTrainSimTextMessage(szNewPilotPrompt);
     PromptForPilotField(10,
-                        (short)(g_stTrainSimTextContext_005a7bd0.cursorY + 2),
-                        g_szPilotNameLabel_00469ec8,
-                        g_stCampaignState_0059ca50.currentPilot->name,
-                        13, g_szDefaultPilotName_00469ec0);
+                        (short)(stTrainSimTextContext.cursorY + 2),
+                        szPilotNameLabel,
+                        stCampaignState.currentPilot->name,
+                        13, szDefaultPilotName);
     PromptForPilotField(10,
-                        (short)(g_stTrainSimTextContext_005a7bd0.cursorY + 10),
-                        g_szCallsignLabel_00469ee0,
-                        g_stCampaignState_0059ca50.currentPilot->callsign,
-                        13, g_szDefaultCallsign_00469ed4);
-    if (g_nOriginDevUnlock_00469ff4 != 0) {
-        memcpy(g_stCampaignState_0059ca50.currentPilot->callsign,
-               g_szCheaterCallsign_00469eec, 8);
+                        (short)(stTrainSimTextContext.cursorY + 10),
+                        szCallsignLabel,
+                        stCampaignState.currentPilot->callsign,
+                        13, szDefaultCallsign);
+    if (nOriginDevUnlock != 0) {
+        memcpy(stCampaignState.currentPilot->callsign,
+               szCheaterCallsign, 8);
     }
     ReleasePacketHandle(backdrop);
 }
@@ -744,23 +744,23 @@ void UpdateTrainSimHighScores(int score)
 
     slot = FindTrainSimHighScore(8);
     if (slot == -1)
-        previousScore = g_aHighScoreEntries_005a7c30[5].score;
+        previousScore = aHighScoreEntries[5].score;
     else
-        previousScore = g_aHighScoreEntries_005a7c30[slot].score;
+        previousScore = aHighScoreEntries[slot].score;
     slot = -1;
     if (score > (int)previousScore)
         slot = InsertTrainSimHighScore(8, (unsigned int)score);
 
-    if (g_bCampaignStartupMode_004688e0 != 0) {
+    if (bCampaignStartupMode != 0) {
         EnterPilotNameAndCallsign();
         return;
     }
     InitializeTrainSimTextPanel();
     if (slot != -1)
-        sprintf(message, g_szHighScoreCongratulations_00469ef4,
+        sprintf(message, szHighScoreCongratulations,
                 slot + 1);
     else
-        sprintf(message, g_szLowScoreMessage_00469f38, score);
+        sprintf(message, szLowScoreMessage, score);
     ShowTrainSimTextMessage(message);
     SetEventManagerPump(PollJoystickButtonEvents);
     DIBslam();
@@ -780,90 +780,90 @@ void ShowTrainSimHighScores(void)
     short row;
 
     SetEventManagerPump(PollJoystickButtonEvents);
-    ClearViewport(&DAT_005a6ba0, 0);
+    ClearViewport(&stScreen, 0);
     backdrop = (unsigned char *)FetchDiskPacketRetrying(
-        (short)g_cCockpitLogicalFile_005a7c74, 0, 0);
-    DrawSpriteDefault(&DAT_005a6ba0, 0, 0, backdrop, 0);
-    InitializeTextContextFromFont(&g_stTrainSimTextContext_005a7bd0, 1,
-                                  g_cDefaultTextColour_004699cc,
-                                  (signed char)g_cBlackColour_0046999c);
-    SetTextContext(&g_stTrainSimTextContext_005a7bd0);
-    SetViewportRect(&g_stTrainSimPanelViewport_00469da8,
+        (short)cCockpitLogicalFile, 0, 0);
+    DrawSpriteDefault(&stScreen, 0, 0, backdrop, 0);
+    InitializeTextContextFromFont(&stTrainSimTextContext, 1,
+                                  cDefaultTextColour,
+                                  (signed char)cBlackColour);
+    SetTextContext(&stTrainSimTextContext);
+    SetViewportRect(&stTrainSimPanelViewport,
                     0, 0, 319, 199);
-    g_stTrainSimTextContext_005a7bd0.text =
-        g_szDefaultTextBuffer_005a7590;
-    ResetStringBuilder(&g_stTrainSimTextContext_005a7bd0);
+    stTrainSimTextContext.text =
+        szDefaultTextBuffer;
+    ResetStringBuilder(&stTrainSimTextContext);
     titleWidth = (short)((MeasureTextPixelWidthClamped(
-        g_szTrainSimTitle_00469dc8) & 0xfff8) + 8);
-    g_stTrainSimPanelViewport_00469da8.right = titleWidth;
-    g_stTrainSimPanelViewport_00469da8.bottom =
+        szTrainSimTitle) & 0xfff8) + 8);
+    stTrainSimPanelViewport.right = titleWidth;
+    stTrainSimPanelViewport.bottom =
         (short)(ReadWord((unsigned short *)
-            g_stTrainSimTextContext_005a7bd0.font) + 2);
-    AllocateViewport(&g_stTrainSimPanelViewport_00469da8,
-                     g_cBlackColour_0046999c, 0);
-    g_stTrainSimTextContext_005a7bd0.viewport =
-        &g_stTrainSimPanelViewport_00469da8;
-    EraseTextContextBackground(&g_stTrainSimTextContext_005a7bd0);
+            stTrainSimTextContext.font) + 2);
+    AllocateViewport(&stTrainSimPanelViewport,
+                     cBlackColour, 0);
+    stTrainSimTextContext.viewport =
+        &stTrainSimPanelViewport;
+    EraseTextContextBackground(&stTrainSimTextContext);
     SetTextCursor(0, 1);
-    DrawFormattedText(g_szTrainSimTitle_00469dc8);
+    DrawFormattedText(szTrainSimTitle);
     lineHeight = (short)ReadWord((unsigned short *)
-        g_stTrainSimTextContext_005a7bd0.font);
+        stTrainSimTextContext.font);
 
-    g_stTrainSimTitleDisplayViewport_005a7b90 = DAT_005a6ba0;
-    *(ShortRect *)&g_stTrainSimTitleDisplayViewport_005a7b90.left =
-        g_stTrainSimPanelBounds_00469dc0;
-    ClearViewport(&g_stTrainSimTitleDisplayViewport_005a7b90,
-                  g_cBlackColour_0046999c);
+    stTrainSimTitleDisplayViewport = stScreen;
+    *(ShortRect *)&stTrainSimTitleDisplayViewport.left =
+        stTrainSimPanelBounds;
+    ClearViewport(&stTrainSimTitleDisplayViewport,
+                  cBlackColour);
     titleLeft = (short)((160 - titleWidth / 2) & 0xfffe);
-    g_stTrainSimTitleDisplayViewport_005a7b90.left = titleLeft;
-    g_stTrainSimTitleDisplayViewport_005a7b90.right =
+    stTrainSimTitleDisplayViewport.left = titleLeft;
+    stTrainSimTitleDisplayViewport.right =
         (short)(titleLeft + titleWidth);
-    g_stTrainSimTitleDisplayViewport_005a7b90.top =
+    stTrainSimTitleDisplayViewport.top =
         (short)(RandomInRange(0, 0x4e) + 0x1d);
-    g_stTrainSimTitleDisplayViewport_005a7b90.bottom =
-        (short)(g_stTrainSimTitleDisplayViewport_005a7b90.top +
+    stTrainSimTitleDisplayViewport.bottom =
+        (short)(stTrainSimTitleDisplayViewport.top +
                 lineHeight + 2);
-    if (g_stTrainSimTitleDisplayViewport_005a7b90.bottom > 109) {
-        g_stTrainSimTitleDisplayViewport_005a7b90.bottom = 109;
+    if (stTrainSimTitleDisplayViewport.bottom > 109) {
+        stTrainSimTitleDisplayViewport.bottom = 109;
     }
 
     row = 0;
     InitializeTextContextFromFont(
-        &g_stTrainSimHighScoreTextContext_005a7c10, 1,
-        g_cDefaultTextColour_004699cc,
-        (signed char)g_cBlackColour_0046999c);
-    *(ShortRect *)&g_stTrainSimHighScoreBufferViewport_005a7bb0.left =
-        g_stTrainSimPanelBounds_00469dc0;
-    AllocateViewport(&g_stTrainSimHighScoreBufferViewport_005a7bb0,
-                     g_cBlackColour_0046999c, 0);
-    g_stTrainSimHighScoreDisplayViewport_005a7bf0 = DAT_005a6ba0;
+        &stTrainSimHighScoreTextContext, 1,
+        cDefaultTextColour,
+        (signed char)cBlackColour);
+    *(ShortRect *)&stTrainSimHighScoreBufferViewport.left =
+        stTrainSimPanelBounds;
+    AllocateViewport(&stTrainSimHighScoreBufferViewport,
+                     cBlackColour, 0);
+    stTrainSimHighScoreDisplayViewport = stScreen;
     lineHeight = (short)(lineHeight + 3);
-    g_stTrainSimHighScoreTextContext_005a7c10.viewport =
-        &g_stTrainSimHighScoreBufferViewport_005a7bb0;
-    g_stTrainSimHighScoreTextContext_005a7c10.text =
-        g_szDefaultTextBuffer_005a7590;
-    *(ShortRect *)&g_stTrainSimHighScoreDisplayViewport_005a7bf0.left =
-        g_stTrainSimPanelBounds_00469dc0;
-    SetTextContext(&g_stTrainSimHighScoreTextContext_005a7c10);
-    ResetStringBuilder(&g_stTrainSimHighScoreTextContext_005a7c10);
-    EraseTextContextBackground(&g_stTrainSimHighScoreTextContext_005a7c10);
+    stTrainSimHighScoreTextContext.viewport =
+        &stTrainSimHighScoreBufferViewport;
+    stTrainSimHighScoreTextContext.text =
+        szDefaultTextBuffer;
+    *(ShortRect *)&stTrainSimHighScoreDisplayViewport.left =
+        stTrainSimPanelBounds;
+    SetTextContext(&stTrainSimHighScoreTextContext);
+    ResetStringBuilder(&stTrainSimHighScoreTextContext);
+    EraseTextContextBackground(&stTrainSimHighScoreTextContext);
     SetTextCursor(
-        (unsigned short)g_stTrainSimHighScoreBufferViewport_005a7bb0.left,
+        (unsigned short)stTrainSimHighScoreBufferViewport.left,
         (unsigned short)(
-            g_stTrainSimHighScoreBufferViewport_005a7bb0.top + 1));
-    FormatTextBufferFromStart(g_szHighScoresHeading_00469f70, 2);
-    g_stTrainSimHighScoreTextContext_005a7c10.alignment = 0;
+            stTrainSimHighScoreBufferViewport.top + 1));
+    FormatTextBufferFromStart(szHighScoresHeading, 2);
+    stTrainSimHighScoreTextContext.alignment = 0;
     do {
         if (IsHighScoreSlotUsed(row)) {
-            ResetStringBuilder(&g_stTrainSimHighScoreTextContext_005a7c10);
-            sprintf(score, g_szHighScoreNumberFormat_00469f80,
+            ResetStringBuilder(&stTrainSimHighScoreTextContext);
+            sprintf(score, szHighScoreNumberFormat,
                     GetHighScoreValue(row));
-            DrawFormattedText(g_szHighScoreRowFormat_00469f88,
-                g_stTrainSimHighScoreBufferViewport_005a7bb0.left + 10,
+            DrawFormattedText(szHighScoreRowFormat,
+                stTrainSimHighScoreBufferViewport.left + 10,
                 lineHeight * (row + 1) +
-                    g_stTrainSimHighScoreBufferViewport_005a7bb0.top + 1,
+                    stTrainSimHighScoreBufferViewport.top + 1,
                 row + 1, GetHighScoreEntry(row),
-                g_stTrainSimHighScoreBufferViewport_005a7bb0.left + 150,
+                stTrainSimHighScoreBufferViewport.left + 150,
                 score);
         }
         row++;
@@ -876,18 +876,18 @@ void ShowTrainSimHighScores(void)
             break;
     } while (AnimateTrainSimTitle() != 0);
     ReleaseTextFont(1);
-    free_viewport(&g_stTrainSimPanelViewport_00469da8);
-    free_viewport(&g_stTrainSimHighScoreBufferViewport_005a7bb0);
+    free_viewport(&stTrainSimPanelViewport);
+    free_viewport(&stTrainSimHighScoreBufferViewport);
     ReleasePacketHandle(backdrop);
 }
 
 /* Function start: 0x426C50 */
 unsigned char *LoadTrainSimOpponentShape(int opponent)
 {
-    g_cObjectResourceLogicalFile_005a86b0 =
+    cObjectResourceLogicalFile =
         (signed char)(opponent + 0x16);
     return (unsigned char *)FetchDiskPacketRetrying(
-        (short)g_cObjectResourceLogicalFile_005a86b0, 1, 0);
+        (short)cObjectResourceLogicalFile, 1, 0);
 }
 
 /* Function start: 0x426C70 */
@@ -909,52 +909,52 @@ short SelectTrainSimMission(short *mission)
 
     cancelled = 0;
     selection = 0;
-    SetTextContext(&g_stTrainSimTextContext_005a7bd0);
+    SetTextContext(&stTrainSimTextContext);
     InitializeTextContextFromFont(
-        &g_stTrainSimTextContext_005a7bd0, 1,
-        g_cDefaultTextColour_004699cc, (signed char)g_cBlackColour_0046999c);
-    *(ShortRect *)&g_stTrainSimTitleDisplayViewport_005a7b90.left =
-        g_stTrainSimPanelBounds_00469dc0;
-    g_stTrainSimTextContext_005a7bd0.viewport =
-        &g_stTrainSimTitleDisplayViewport_005a7b90;
-    EraseTextContextBackground(&g_stTrainSimTextContext_005a7bd0);
+        &stTrainSimTextContext, 1,
+        cDefaultTextColour, (signed char)cBlackColour);
+    *(ShortRect *)&stTrainSimTitleDisplayViewport.left =
+        stTrainSimPanelBounds;
+    stTrainSimTextContext.viewport =
+        &stTrainSimTitleDisplayViewport;
+    EraseTextContextBackground(&stTrainSimTextContext);
     SetTextCursor(
-        (unsigned short)g_stTrainSimTitleDisplayViewport_005a7b90.left,
+        (unsigned short)stTrainSimTitleDisplayViewport.left,
         (unsigned short)(
-            g_stTrainSimTitleDisplayViewport_005a7b90.top + 30));
-    g_stTrainSimTextContext_005a7bd0.alignment = 2;
-    FormatTextBufferFromStart(g_szSelectEnemy_00469f98);
+            stTrainSimTitleDisplayViewport.top + 30));
+    stTrainSimTextContext.alignment = 2;
+    FormatTextBufferFromStart(szSelectEnemy);
 
-    menuViewport = DAT_005a6ba0;
-    *(ShortRect *)&menuViewport.left = g_stTrainSimPanelBounds_00469dc0;
+    menuViewport = stScreen;
+    *(ShortRect *)&menuViewport.left = stTrainSimPanelBounds;
     topLeftShape = LoadTrainSimOpponentShape(9);
     bottomLeftShape = LoadTrainSimOpponentShape(10);
     topRightShape = LoadTrainSimOpponentShape(11);
     bottomRightShape = LoadTrainSimOpponentShape(12);
 
     AlignSpriteFrameToRectCorner(
-        &g_stTrainSimPanelBounds_00469dc0, &positions[0], 0,
+        &stTrainSimPanelBounds, &positions[0], 0,
         topLeftShape, 0);
     GetShapeFrameBounds(
-        &g_aTrainSimMissionRegions_00469df8[0].left,
+        &aTrainSimMissionRegions[0].left,
         positions[0].x, positions[0].y, topLeftShape, 0);
     AlignSpriteFrameToRectCorner(
-        &g_stTrainSimPanelBounds_00469dc0, &positions[1], 2,
+        &stTrainSimPanelBounds, &positions[1], 2,
         bottomLeftShape, 0);
     GetShapeFrameBounds(
-        &g_aTrainSimMissionRegions_00469df8[1].left,
+        &aTrainSimMissionRegions[1].left,
         positions[1].x, positions[1].y, bottomLeftShape, 0);
     AlignSpriteFrameToRectCorner(
-        &g_stTrainSimPanelBounds_00469dc0, &positions[2], 1,
+        &stTrainSimPanelBounds, &positions[2], 1,
         topRightShape, 0);
     GetShapeFrameBounds(
-        &g_aTrainSimMissionRegions_00469df8[2].left,
+        &aTrainSimMissionRegions[2].left,
         positions[2].x, positions[2].y, topRightShape, 0);
     AlignSpriteFrameToRectCorner(
-        &g_stTrainSimPanelBounds_00469dc0, &positions[3], 3,
+        &stTrainSimPanelBounds, &positions[3], 3,
         bottomRightShape, 0);
     GetShapeFrameBounds(
-        &g_aTrainSimMissionRegions_00469df8[3].left,
+        &aTrainSimMissionRegions[3].left,
         positions[3].x, positions[3].y, bottomRightShape, 0);
 
     DrawSpriteDefault(&menuViewport, positions[0].x, positions[0].y,
@@ -974,17 +974,17 @@ short SelectTrainSimMission(short *mission)
     DrawSpriteDefault(&menuViewport, positions[3].x, positions[3].y,
                       bottomRightShape, 2);
 
-    g_stMouseCursorState_0059ab10.viewport = &g_stTrainSimTitleDisplayViewport_005a7b90;
+    stMouseCursorState.viewport = &stTrainSimTitleDisplayViewport;
     SetEventManagerPump(PollMenuInputDevices);
     EventManagerHook(UpdateTrainSimMenuCursor);
-    g_nMenuInputRepeatDelay_005a8208 = 6;
+    nMenuInputRepeatDelay = 6;
     WarpMouseTo(160, 100);
     EnterAllocationScope();
-    savedInputMode = (signed char)g_bInputMode_0059a848;
-    g_bInputMode_0059a848 = 1;
+    savedInputMode = (signed char)bInputMode;
+    bInputMode = 1;
 
     do {
-        if (DAT_0059ab58 != 0)
+        if (bEscapePressed != 0)
             break;
         eventType = PollInputEvent(&event, 0xff);
         switch (eventType) {
@@ -992,7 +992,7 @@ short SelectTrainSimMission(short *mission)
 select_region:
             region = (signed char)FindMenuRegionAtPoint(
                 event.x, event.y,
-                g_aTrainSimMissionRegions_00469df8);
+                aTrainSimMissionRegions);
             if (region >= 0 && region < 4)
                 selection = (signed char)(region + 1);
             break;
@@ -1017,13 +1017,13 @@ select_region:
         DIBslamReal();
     } while (selection == 0);
 
-    if (DAT_0059ab58 != 0)
+    if (bEscapePressed != 0)
         cancelled = 1;
     ReleasePacketHandle(topLeftShape);
     ReleasePacketHandle(bottomLeftShape);
     ReleasePacketHandle(topRightShape);
     ReleasePacketHandle(bottomRightShape);
-    g_bInputMode_0059a848 = (unsigned char)savedInputMode;
+    bInputMode = (unsigned char)savedInputMode;
     SetEventManagerPump(0);
     EventManagerHook(0);
     LeaveAllocationScope();

@@ -16,90 +16,90 @@ void RunTrainSim(void)
     int result;
 
     proceed = 1;
-    g_nArcadeWave_00469e34 = 0;
-    g_nTrainSimMission_00469e30 = 0;
-    g_bInputMode_0059a848 = 1;
+    nArcadeWave = 0;
+    nTrainSimMission = 0;
+    bInputMode = 1;
     SetEventManagerPump(PollMenuInputDevices);
-    g_nArcadeWave_00469e34 = 0;
-    g_nArcadeScore_005a7bc4 = 0;
-    g_nArcadeBonusCountdown_0046a014 = 0;
-    g_cCockpitView_0059dab0 = 4;
-    g_cCockpitLogicalFile_005a7c74 = 21;
+    nArcadeWave = 0;
+    nArcadeScore = 0;
+    nArcadeBonusCountdown = 0;
+    cCockpitView = 4;
+    cCockpitLogicalFile = 21;
 
-    if (g_bCampaignStartupMode_004688e0 == 0) {
+    if (bCampaignStartupMode == 0) {
         ShowTrainSimHighScores();
-        proceed = SelectTrainSimMission(&g_nTrainSimMission_00469e30);
+        proceed = SelectTrainSimMission(&nTrainSimMission);
     } else {
-        g_nArcadeScore_005a7bc4 = 4000;
-        g_nTrainSimMission_00469e30 = 2;
+        nArcadeScore = 4000;
+        nTrainSimMission = 2;
     }
 
     if (proceed != 0) {
-        g_nCannedSceneMode_00469fac = 0;
-        g_nTrainSimActive_00469e2c = 1;
+        nCannedSceneMode = 0;
+        nTrainSimActive = 1;
         PreloadMusicTrackHook(20);
         PreloadMusicTrackHook(21);
         PreloadMusicTrackHook(22);
-        ResetStringBuilder(&DAT_005a6bc0);
-        savedDataSet = g_nCampaignDataSet_005a8118;
-        savedCampaign = g_stCampaignState_0059ca50.campaignIndex;
-        g_stCampaignState_0059ca50.campaignIndex = 0;
-        g_nCampaignDataSet_005a8118 = 0;
+        ResetStringBuilder(&stHudMessageTextContext);
+        savedDataSet = nCampaignDataSet;
+        savedCampaign = stCampaignState.campaignIndex;
+        stCampaignState.campaignIndex = 0;
+        nCampaignDataSet = 0;
 
-        while (g_nTrainSimMission_00469e30 < 4) {
-            g_nTrainSimActive_00469e2c = 1;
+        while (nTrainSimMission < 4) {
+            nTrainSimActive = 1;
             FigureArcadeTime();
-            init_mission(0, g_nTrainSimMission_00469e30);
+            init_mission(0, nTrainSimMission);
             ShowGetReadyScreen();
 
-            if (g_bCampaignStartupMode_004688e0 != 0) {
-                g_aasShipShield_0059d5b0[0][0] = 0;
-                g_aasShipMaximumShield_0059d6e0[0][0] = 0;
-                g_acPlayerComponentDamage_0059bff0[2] = 4;
-                g_aasShipShield_0059d5b0[0][1] = 0;
-                g_aasShipMaximumShield_0059d6e0[0][1] = 0;
-                g_nArcadeTimeRemaining_005a7c2c = 100;
-                g_nCurrentWave_0046c01c = 2;
-                g_acShipDamage_0059c460[0] = (signed char)(
-                    g_aObjectTypeData_00466458[
-                        g_aeObjectType_0059b560[0]].damageCapacity + 1);
+            if (bCampaignStartupMode != 0) {
+                aasShipShield[0][0] = 0;
+                aasShipMaximumShield[0][0] = 0;
+                acPlayerComponentDamage[2] = 4;
+                aasShipShield[0][1] = 0;
+                aasShipMaximumShield[0][1] = 0;
+                nArcadeTimeRemaining = 100;
+                nCurrentWave = 2;
+                acShipDamage[0] = (signed char)(
+                    aObjectTypeData[
+                        aeObjectType[0]].damageCapacity + 1);
                 set_up_next_wave();
-                g_nArcadeTimeRemaining_005a7c2c = 25;
+                nArcadeTimeRemaining = 25;
             }
 
             InvalidateVduMode(0);
             InvalidateVduMode(1);
             DIBslam();
             DIBslamReal();
-            savedFrameState = g_bKeyEventQueueEnabled_0046505c;
-            g_bKeyEventQueueEnabled_0046505c = 1;
-            result = RunSpaceFlight(g_nArcadeWave_00469e34);
+            savedFrameState = bKeyEventQueueEnabled;
+            bKeyEventQueueEnabled = 1;
+            result = RunSpaceFlight(nArcadeWave);
             if (result == 1) {
-                if (g_nTrainSimMission_00469e30 < 3)
-                    g_nArcadeWave_00469e34 = 0;
+                if (nTrainSimMission < 3)
+                    nArcadeWave = 0;
                 else
                     ShowVictoryScreen();
-                g_nTrainSimMission_00469e30++;
+                nTrainSimMission++;
             } else {
-                g_nArcadeState_00469fb0 = 4;
+                nArcadeState = 4;
                 ShowGameOverScreen();
-                g_nTrainSimMission_00469e30 = 4;
+                nTrainSimMission = 4;
             }
-            g_bKeyEventQueueEnabled_0046505c = savedFrameState;
+            bKeyEventQueueEnabled = savedFrameState;
         }
 
-        g_stCampaignState_0059ca50.campaignIndex = savedCampaign;
-        g_nCampaignDataSet_005a8118 = savedDataSet;
+        stCampaignState.campaignIndex = savedCampaign;
+        nCampaignDataSet = savedDataSet;
         free_all_slots();
         free_cockpit();
         free_3Space();
         ReleaseMusicTrackHook(20);
         ReleaseMusicTrackHook(21);
         ReleaseMusicTrackHook(22);
-        UpdateTrainSimHighScores(g_nArcadeScore_005a7bc4);
+        UpdateTrainSimHighScores(nArcadeScore);
         ShowTrainSimHighScores();
     }
-    g_nTrainSimActive_00469e2c = 0;
+    nTrainSimActive = 0;
 }
 
 /* Function start: 0x4272F0 */
@@ -110,10 +110,10 @@ short LogMemoryUsage(void)
     GetMessagePumpResult();
     _chdir("..");
     ShutdownVideoHook(3);
-    if (g_nOriginDevUnlock_00469ff4 != 0) {
+    if (nOriginDevUnlock != 0) {
         SystemDebugPrintf(
             "Original FMem %lu.  Current FMem %lu.  Current NMem %u.\n",
-            g_dwOriginalFreeMemory_005a7cd8,
+            dwOriginalFreeMemory,
             GetFixedOneMillionThunkAlt(0),
             (unsigned int)(int)(short)GetOriginalFreeMemory());
     }
@@ -142,23 +142,23 @@ unsigned int ShowMemoryStatusDebug(void)
     TextContext *previousContext;
     char value[60];
 
-    previousContext = g_pCurrentTextContext_0059af8c;
-    savedContext = g_stDefaultTextContext_005a7740;
-    if (g_nShowMemoryStatus_0046a00c != 0) {
+    previousContext = pCurrentTextContext;
+    savedContext = stDefaultTextContext;
+    if (nShowMemoryStatus != 0) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005a7740, 1,
-            (unsigned char)g_cViewportClearColour_004699a0,
-            g_cBlackColour_0046999c);
-        SetTextContext(&g_stDefaultTextContext_005a7740);
+            &stDefaultTextContext, 1,
+            (unsigned char)cViewportClearColour,
+            cBlackColour);
+        SetTextContext(&stDefaultTextContext);
         DrawFormattedText("%X%YCurrent NMem %d.",
                           0, 176, (int)(short)GetOriginalFreeMemory());
         sprintf(value, "%ld", GetFixedOneMillionThunkAlt(0));
         DrawFormattedText("%X%YCurrent FMem %s.", 0, 184, value);
-        sprintf(value, "%ld", g_dwOriginalFreeMemory_005a7cd8);
+        sprintf(value, "%ld", dwOriginalFreeMemory);
         DrawFormattedText("%X%YOriginal FMem %s.", 0, 0, value);
-        g_stDefaultTextContext_005a7740 = savedContext;
+        stDefaultTextContext = savedContext;
     }
-    g_pCurrentTextContext_0059af8c = previousContext;
+    pCurrentTextContext = previousContext;
     return 0;
 }
 

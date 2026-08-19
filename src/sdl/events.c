@@ -255,7 +255,7 @@ static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
 {
     InputEvent *queued;
 
-    queued = g_pInputEventTail_0046da94;
+    queued = pInputEventTail;
     if (queued != 0 && queued->type == 13) {
         queued->x = (short)x;
         queued->y = (short)y;
@@ -298,9 +298,9 @@ static SDL_Window *Wc1SdlGetFullscreenWindow(Uint32 windowId)
     if (window == 0)
         window = SDL_GetKeyboardFocus();
     if (window == 0)
-        window = (SDL_Window *)DAT_00486074;
+        window = (SDL_Window *)hDIBWindow;
     if (window == 0)
-        window = (SDL_Window *)DAT_005a89a0;
+        window = (SDL_Window *)hMainWindow;
     return window;
 }
 
@@ -319,7 +319,7 @@ static int Wc1SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
 #else
     modifierPressed = (event->keysym.mod & KMOD_ALT) != 0 ||
         (SDL_GetModState() & KMOD_ALT) != 0 ||
-        g_abInputKeyState_0059a860[0x38] != 0;
+        abInputKeyState[0x38] != 0;
 #endif
     return enterPressed && modifierPressed;
 }
@@ -371,13 +371,13 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     if ((event->keysym.mod & KMOD_ALT) != 0 ||
         event->keysym.scancode == SDL_SCANCODE_LALT ||
         event->keysym.scancode == SDL_SCANCODE_RALT)
-        DAT_005a8964 = pressed ? (unsigned int)virtualKey : 0;
+        nSystemKeyDown = pressed ? (unsigned int)virtualKey : 0;
     if (event->keysym.scancode == SDL_SCANCODE_F1)
-        g_bF1KeyLatch_004650ac = pressed && event->repeat == 0;
+        bF1KeyLatch = pressed && event->repeat == 0;
     if (pressed && scanCode == 1)
-        DAT_0059ab58 = 1;
+        bEscapePressed = 1;
     if (scanCode != 0) {
-        if (g_bKeyEventQueueEnabled_0046505c != 0) {
+        if (bKeyEventQueueEnabled != 0) {
             QueueInputEvent(pressed ? 3 : 4, 0, 0,
                             (unsigned short)virtualKey, 0, 0, 0);
         }
@@ -386,8 +386,8 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         SetInputKeyState(scanCode, (unsigned char)pressed);
     }
     if (!pressed) {
-        g_dwDebugOverlayKey_00469648 = (DWORD)virtualKey;
-        g_dwDebugOverlayKeyLatch_0046964c = (DWORD)virtualKey;
+        dwDebugOverlayKey = (DWORD)virtualKey;
+        dwDebugOverlayKeyLatch = (DWORD)virtualKey;
     }
     return 0;
 }
@@ -441,8 +441,8 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
     secondaryButton = (buttons & SDL_BUTTON_RMASK) != 0;
 
     if (event->type == SDL_MOUSEMOTION) {
-        if (g_bPointerMovedByKeyboard_005a7d54 != 0) {
-            g_bPointerMovedByKeyboard_005a7d54 = 0;
+        if (bPointerMovedByKeyboard != 0) {
+            bPointerMovedByKeyboard = 0;
             return;
         }
         Wc1SdlQueueMouseMotion((unsigned short)mouseX,
@@ -453,15 +453,15 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
                         (unsigned short)mouseX, (unsigned short)mouseY,
                         0, primaryButton, secondaryButton, 0);
     }
-    g_nHostMouseMessageX_005a8990 = mouseX;
-    g_nHostMouseMessageY_005a8994 = mouseY;
-    g_bHostPrimaryMouseButton_005a8998 = primaryButton;
-    g_bHostSecondaryMouseButton_005a899c = secondaryButton;
+    nHostMouseMessageX = mouseX;
+    nHostMouseMessageY = mouseY;
+    bHostPrimaryMouseButton = primaryButton;
+    bHostSecondaryMouseButton = secondaryButton;
 }
 
 void Wc1SdlStartEventPump(void)
 {
-    DAT_005a8a3c = 1;
+    bMainWindowAlive = 1;
 }
 
 void Wc1SdlPumpEvents(void)

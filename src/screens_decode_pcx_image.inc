@@ -22,7 +22,7 @@
         mov	dword ptr [ebp - 0x4], eax
         add	esi, 0x80
 dormant_loc_43ea26:
-        mov edi, offset g_abRasterDecodeBuffer_0046ec15
+        mov edi, offset abRasterDecodeBuffer
         mov	edx, edi
         add	edx, dword ptr [ebp - 0x4]
 dormant_loc_43ea30:
@@ -42,7 +42,7 @@ dormant_loc_43ea46:
         cmp	edi, edx
         jl dormant_loc_43ea30
         push	dword ptr [ebp - 0x4]
-        push offset g_abRasterDecodeBuffer_0046ec15
+        push offset abRasterDecodeBuffer
         push	ebx
         push	dword ptr [ebp + 0x8]
         call BlitRawScanline

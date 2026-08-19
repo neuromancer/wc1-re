@@ -593,7 +593,7 @@ static int CheckStaticViewportHeight(Viewport *viewport,
     }
     memset(pixels, 0, 320 * 200);
     Wc1SdlBeginSpaceFrame(
-        &g_aScreenViewportGeometry_0046dab8[4], 4, 0, 0);
+        &aScreenViewportGeometry[4], 4, 0, 0);
     result = Wc1SdlRecordSpaceSprite(
         viewport, 160, 130, shape, 0, 0, 0x100, 0);
     Wc1SdlCompleteSpaceFrame();
@@ -801,19 +801,19 @@ int main(int argumentCount, char **arguments)
 
     DIBinstall((HWND)window);
     SDL_GL_SetSwapInterval(0);
-    DAT_005a6ba0.rowOffsets = g_awScreenRowOffsets_005a6540;
-    DAT_005a6ba0.left = 0;
-    DAT_005a6ba0.top = 0;
-    DAT_005a6ba0.right = 319;
-    DAT_005a6ba0.bottom = 199;
+    stScreen.rowOffsets = awScreenRowOffsets;
+    stScreen.left = 0;
+    stScreen.top = 0;
+    stScreen.right = 319;
+    stScreen.bottom = 199;
     row = 0;
     while (row < 202) {
-        g_awScreenRowOffsets_005a6540[row] = (unsigned short)(row * 320);
+        awScreenRowOffsets[row] = (unsigned short)(row * 320);
         row++;
     }
-    g_stMouseCursorState_0059ab10.viewport = &DAT_005a6ba0;
+    stMouseCursorState.viewport = &stScreen;
     pixels = GetDIBPixelBuffer();
-    result = pixels != 0 && DAT_0047664c == 320 && DAT_00476650 == 200;
+    result = pixels != 0 && nDIBWidth == 320 && nDIBHeight == 200;
     if (result) {
         colour[0] = 255;
         colour[1] = 0;
@@ -822,10 +822,10 @@ int main(int argumentCount, char **arguments)
         colour[0] = 0;
         colour[1] = 255;
         DIBsetPalette(2, colour);
-        result = RunGlRendererChecks(&DAT_005a6ba0, pixels);
+        result = RunGlRendererChecks(&stScreen, pixels);
     }
     DIBunInstall();
-    g_stMouseCursorState_0059ab10.viewport = 0;
+    stMouseCursorState.viewport = 0;
     SDL_DestroyWindow(window);
     SDL_Quit();
     return result ? 0 : 1;

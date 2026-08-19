@@ -9,7 +9,7 @@
         push	ds
         pop	es
         mov	esi, dword ptr [ebp + 0x8]
-        mov edi, offset g_apRasterDriverCallbacks_0046e69c
+        mov edi, offset apRasterDriverCallbacks
         mov	ecx, 0xd
         rep		movsd
         pop	es

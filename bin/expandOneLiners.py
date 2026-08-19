@@ -5,13 +5,13 @@ AGENTS.md forbids `unsigned short f(void) { return 0; }`: the reconstruction is
 read side by side with the disassembly, and a body folded onto the signature
 line hides how many statements the original actually has.  This rewrites
 
-    void DIBslam(void) { DAT_00486518 = 1; }
+    void DIBslam(void) { bDIBSlamPending = 1; }
 
 as
 
     void DIBslam(void)
     {
-        DAT_00486518 = 1;
+        bDIBSlamPending = 1;
     }
 
 Statements are split on top-level `;` only, so `for (i = 0; i < n; i++)` and

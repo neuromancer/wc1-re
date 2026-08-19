@@ -9,7 +9,7 @@
         push ds
         pop es
         push dword ptr [ebp + 8]
-        push offset g_abIffCmapChunkId_0043e77c
+        push offset abIffCmapChunkId
         call FindIFFChunkData
         add esp, 8
         mov esi, eax

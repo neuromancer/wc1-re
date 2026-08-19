@@ -117,14 +117,14 @@ long Vector_magnitude(const FixedVector *vector)
 /* Function start: 0x434F70 */
 void __stdcall SetTextCursor(unsigned short a, unsigned short b)
 {
-    g_pCurrentTextContext_0059af8c->cursorX = (short)a;
-    g_pCurrentTextContext_0059af8c->cursorY = (short)b;
+    pCurrentTextContext->cursorX = (short)a;
+    pCurrentTextContext->cursorY = (short)b;
 }
 
 /* Function start: 0x434FA0 */
 void __stdcall SetTextContext(TextContext *context)
 {
-    g_pCurrentTextContext_0059af8c = context;
+    pCurrentTextContext = context;
 }
 
 /* Function start: 0x434FB0 */
@@ -156,7 +156,7 @@ unsigned short __stdcall ReadWord(unsigned short *p)
 /* Function start: 0x434FF0 */
 unsigned short __stdcall GetFontCharWidth(char i)
 {
-    return g_pCurrentTextContext_0059af8c->font[4 + (int)i];
+    return pCurrentTextContext->font[4 + (int)i];
 }
 
 /* Function start: 0x435010 */
@@ -226,11 +226,11 @@ void __stdcall DrawTextString(const char *text)
     finished = 0;
     cursor = text;
     for (;;) {
-        lineWidth = g_pCurrentTextContext_0059af8c->cursorX;
+        lineWidth = pCurrentTextContext->cursorX;
         while (*cursor == ' ')
             cursor++;
         lineStart = cursor;
-        right = g_pCurrentTextContext_0059af8c->viewport->right;
+        right = pCurrentTextContext->viewport->right;
         if (lineWidth < right) {
             for (;;) {
                 value = *cursor;
@@ -242,12 +242,12 @@ void __stdcall DrawTextString(const char *text)
                     break;
                 }
                 lineWidth +=
-                    g_pCurrentTextContext_0059af8c->font[4 + value];
+                    pCurrentTextContext->font[4 + value];
                 if (lineWidth >= right) {
                     cursor--;
                     wrapped = 1;
                     lineWidth -=
-                        g_pCurrentTextContext_0059af8c->font[4 + value];
+                        pCurrentTextContext->font[4 + value];
                     if (*cursor != ' ') {
                         if (cursor <= text) {
                             SystemDebugPrintf(
@@ -260,7 +260,7 @@ void __stdcall DrawTextString(const char *text)
                             value = *cursor;
                             cursor--;
                             lineWidth -=
-                                g_pCurrentTextContext_0059af8c
+                                pCurrentTextContext
                                     ->font[4 + value];
                         } while (*cursor != ' ');
                         if (cursor <= text) {
@@ -276,26 +276,26 @@ void __stdcall DrawTextString(const char *text)
             }
         }
 
-        if (g_pCurrentTextContext_0059af8c->alignment == 2) {
-            savedX = g_pCurrentTextContext_0059af8c->cursorX;
-            g_pCurrentTextContext_0059af8c->cursorX = (short)(
-                g_pCurrentTextContext_0059af8c->viewport->left +
-                ((g_pCurrentTextContext_0059af8c->viewport->right -
-                  g_pCurrentTextContext_0059af8c->viewport->left) -
+        if (pCurrentTextContext->alignment == 2) {
+            savedX = pCurrentTextContext->cursorX;
+            pCurrentTextContext->cursorX = (short)(
+                pCurrentTextContext->viewport->left +
+                ((pCurrentTextContext->viewport->right -
+                  pCurrentTextContext->viewport->left) -
                  lineWidth + savedX + 1) / 2);
         }
         while (lineStart < cursor) {
             DrawTextCharacter(*lineStart);
             lineStart++;
         }
-        if (g_pCurrentTextContext_0059af8c->alignment == 2)
-            g_pCurrentTextContext_0059af8c->cursorX = (short)savedX;
+        if (pCurrentTextContext->alignment == 2)
+            pCurrentTextContext->cursorX = (short)savedX;
         if (wrapped != 0) {
-            g_pCurrentTextContext_0059af8c->cursorX =
-                g_pCurrentTextContext_0059af8c->viewport->left;
+            pCurrentTextContext->cursorX =
+                pCurrentTextContext->viewport->left;
             wrapped = 0;
-            g_pCurrentTextContext_0059af8c->cursorY +=
-                *(short *)g_pCurrentTextContext_0059af8c->font;
+            pCurrentTextContext->cursorY +=
+                *(short *)pCurrentTextContext->font;
         }
         if (finished != 0)
             return;
@@ -312,19 +312,19 @@ void __stdcall DrawTextCharacter(char character)
     int cursorY;
 
     if (character == '\n') {
-        g_pCurrentTextContext_0059af8c->cursorX =
-            g_pCurrentTextContext_0059af8c->viewport->left;
-        g_pCurrentTextContext_0059af8c->cursorY =
-            (short)(g_pCurrentTextContext_0059af8c->cursorY +
-                    *(short *)g_pCurrentTextContext_0059af8c->font);
+        pCurrentTextContext->cursorX =
+            pCurrentTextContext->viewport->left;
+        pCurrentTextContext->cursorY =
+            (short)(pCurrentTextContext->cursorY +
+                    *(short *)pCurrentTextContext->font);
     } else if (character == '\r') {
-        g_pCurrentTextContext_0059af8c->cursorX =
-            g_pCurrentTextContext_0059af8c->viewport->left;
+        pCurrentTextContext->cursorX =
+            pCurrentTextContext->viewport->left;
     } else if (character != 0) {
-        font = g_pCurrentTextContext_0059af8c->font;
+        font = pCurrentTextContext->font;
         fontHeight = *(short *)font;
         glyphWidth = font[4 + (int)(signed char)character];
-        context = g_pCurrentTextContext_0059af8c;
+        context = pCurrentTextContext;
         cursorY = context->cursorY;
         DrawFontGlyph(character, context, fontHeight, glyphWidth, cursorY);
     }
@@ -333,9 +333,9 @@ void __stdcall DrawTextCharacter(char character)
 /* Function start: 0x435310 */
 void __stdcall AppendTextCharacter(char character)
 {
-    *g_pCurrentTextContext_0059af8c->textCursor = character;
-    g_pCurrentTextContext_0059af8c->textCursor++;
-    *g_pCurrentTextContext_0059af8c->textCursor = 0;
+    *pCurrentTextContext->textCursor = character;
+    pCurrentTextContext->textCursor++;
+    *pCurrentTextContext->textCursor = 0;
 }
 
 /* Function start: 0x435340 */
@@ -391,6 +391,6 @@ int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
 /* Function start: 0x4353F0 */
 void ResetTextCursor(void)
 {
-    g_pCurrentTextContext_0059af8c->cursorX = 0;
-    g_pCurrentTextContext_0059af8c->cursorY = 0;
+    pCurrentTextContext->cursorX = 0;
+    pCurrentTextContext->cursorY = 0;
 }

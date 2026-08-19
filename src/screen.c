@@ -17,15 +17,15 @@ void cleanup_objectives(void)
     short object;
 
     objective = 0;
-    home = find_ship_index(g_nHomeMissionShipIndex_005a8692);
-    proximity = g_aMissionNavPoints_0046c2f0[
-        g_nMissionEntryNavPoint_005a8690].proximityRadius;
-    objectiveType = g_aMissionObjectives_0059dac0[objective].type;
+    home = find_ship_index(nHomeMissionShipIndex);
+    proximity = aMissionNavPoints[
+        nMissionEntryNavPoint].proximityRadius;
+    objectiveType = aMissionObjectives[objective].type;
     for (; objectiveType != -1;
          objective++,
-         objectiveType = g_aMissionObjectives_0059dac0[objective].type) {
+         objectiveType = aMissionObjectives[objective].type) {
         if (achieved(objective) == 0) {
-            index = (short)g_aMissionObjectives_0059dac0[objective].index;
+            index = (short)aMissionObjectives[objective].index;
             switch (objectiveType) {
             case 0:
             case 1:
@@ -34,43 +34,43 @@ void cleanup_objectives(void)
                     flag_objective(objective, 2);
                 break;
             case 2:
-                if (g_aMissionShips_0046c948[index].missionType ==
+                if (aMissionShips[index].missionType ==
                         MISSION_TYPE_GOTO_WARP) {
-                    if (g_aMissionShips_0046c948[index].state == 2) {
+                    if (aMissionShips[index].state == 2) {
                         flag_objective(objective, 2);
-                        if (g_aMissionShips_0046c948[index].type ==
+                        if (aMissionShips[index].type ==
                                 OBJECT_TYPE_HORNET ||
-                            g_aMissionShips_0046c948[index].type ==
+                            aMissionShips[index].type ==
                                 OBJECT_TYPE_DRAYMAN)
                             affect_mission_score(0, 5, -1);
                         else
                             affect_mission_score(0, 9, -1);
                     }
-                } else if (g_aMissionShips_0046c948[index].missionType ==
+                } else if (aMissionShips[index].missionType ==
                                MISSION_TYPE_WARP_ARRIVE ||
-                           g_aMissionShips_0046c948[index].missionType ==
+                           aMissionShips[index].missionType ==
                                MISSION_TYPE_COME_HOME) {
                     object = find_ship_index(index);
                     if (object != -1 && home != -1 &&
                         distance_from_object(object, home) < proximity)
-                        g_aMissionShips_0046c948[index].state = 1;
-                    if (g_aMissionShips_0046c948[index].state == 1 &&
+                        aMissionShips[index].state = 1;
+                    if (aMissionShips[index].state == 1 &&
                         sighted(objective) != 0) {
                         flag_objective(objective, 2);
-                        if (g_aMissionShips_0046c948[index].type ==
+                        if (aMissionShips[index].type ==
                                 OBJECT_TYPE_HORNET ||
-                            g_aMissionShips_0046c948[index].type ==
+                            aMissionShips[index].type ==
                                 OBJECT_TYPE_DRAYMAN)
                             affect_mission_score(0, 5, -1);
                         else
                             affect_mission_score(0, 9, -1);
                     }
-                } else if (g_aMissionShips_0046c948[index].state == 0 &&
+                } else if (aMissionShips[index].state == 0 &&
                            sighted(objective) != 0) {
                     flag_objective(objective, 2);
-                    if (g_aMissionShips_0046c948[index].type ==
+                    if (aMissionShips[index].type ==
                             OBJECT_TYPE_HORNET ||
-                        g_aMissionShips_0046c948[index].type ==
+                        aMissionShips[index].type ==
                             OBJECT_TYPE_DRAYMAN)
                         affect_mission_score(0, 5, -1);
                     else
@@ -78,7 +78,7 @@ void cleanup_objectives(void)
                 }
                 break;
             case 4:
-                if (g_aMissionShips_0046c948[index].state == 3)
+                if (aMissionShips[index].state == 3)
                     flag_objective(objective, 2);
                 break;
             }
@@ -89,7 +89,7 @@ void cleanup_objectives(void)
 /* Function start: 0x42F1F0 */
 int too_busy(short ship)
 {
-    return g_aeShipMissionType_0059c3f0[ship] == MISSION_TYPE_ROUT;
+    return aeShipMissionType[ship] == MISSION_TYPE_ROUT;
 }
 
 /* Function start: 0x42F210 */
@@ -105,7 +105,7 @@ void reply(short ship, short accepted)
 /* Function start: 0x42F240 */
 int disobey_formation(short ship)
 {
-    switch (g_aiPilotLevel_0059cf30[ship]) {
+    switch (aiPilotLevel[ship]) {
     case 10:
         return any_enemy_tail(0);
     case 11:
@@ -118,7 +118,7 @@ int disobey_formation(short ship)
 int bad_target(short ship, short target)
 {
     if (target != ship &&
-        g_aeShipSide_0059d650[target] != g_aeShipSide_0059d650[ship] &&
+        aeShipSide[target] != aeShipSide[ship] &&
         too_busy(ship) == 0)
         return 0;
     return 1;
@@ -133,14 +133,14 @@ short can_land(void)
 
     result = 0;
     if (any_enemy(0, 20000) == 0) {
-        if (evaluate_damage(0) < 50 || g_nPlayerKillCount_005a7c9c > 0 ||
-            g_anShipFuel_0059b470[0] < 1000)
+        if (evaluate_damage(0) < 50 || nPlayerKillCount > 0 ||
+            anShipFuel[0] < 1000)
             result = 1;
         index = 0;
-        if (g_cMissionObjectiveCount_0059c46a > 0) {
+        if (cMissionObjectiveCount > 0) {
             do {
                 objectiveType =
-                    &g_aMissionObjectives_0059dac0[index].type;
+                    &aMissionObjectives[index].type;
                 if (*objectiveType != 1) {
                     if (achieved(index) == 0) {
                         if (visited(index) == 0 || *objectiveType == 2)
@@ -150,7 +150,7 @@ short can_land(void)
                 }
 next_objective:
                 index++;
-            } while (index < g_cMissionObjectiveCount_0059c46a);
+            } while (index < cMissionObjectiveCount);
         }
     }
     return result;
@@ -168,7 +168,7 @@ short i_wanna_rout(short ship, int pilot)
     case 11:
         return 0;
     case 8:
-        return g_aeShipMissionType_0059c3f0[ship] ==
+        return aeShipMissionType[ship] ==
                MISSION_TYPE_CANNED_SEQUENCE;
     case 9:
         return (short)triumph(0);
@@ -185,7 +185,7 @@ void request(short requester, short ship, short command)
     short target;
     short object;
 
-    requesterTarget = &g_acShipTarget_0059ce60[requester];
+    requesterTarget = &acShipTarget[requester];
 
     for (;;) {
         target = (short)*requesterTarget;
@@ -203,13 +203,13 @@ void request(short requester, short ship, short command)
             allow_engage();
             target = -1;
             for (object = 0; object < 10; object++) {
-                if (g_aeObjectClass_0059d100[object] >=
+                if (aeObjectClass[object] >=
                         OBJECT_CLASS_SHIP &&
-                    g_aeSpecialManeuver_0059c3c0[object] !=
+                    aeSpecialManeuver[object] !=
                         SPECIAL_MANEUVER_UNKNOWN_9 &&
-                    g_aeShipSide_0059d650[ship] !=
-                        g_aeShipSide_0059d650[object] &&
-                    g_acShipTarget_0059ce60[object] == requester) {
+                    aeShipSide[ship] !=
+                        aeShipSide[object] &&
+                    acShipTarget[object] == requester) {
                     target = object;
                     break;
                 }
@@ -222,9 +222,9 @@ void request(short requester, short ship, short command)
             reply(ship, 1);
             return;
         case 3:
-            if (i_wanna_rout(ship, g_aiPilotLevel_0059cf30[ship]) != 0 &&
+            if (i_wanna_rout(ship, aiPilotLevel[ship]) != 0 &&
                 try2rout(ship) != 0) {
-                g_bEngageAllowed_0046c080 = 0;
+                bEngageAllowed = 0;
                 reply(ship, 1);
                 return;
             }
@@ -234,10 +234,10 @@ void request(short requester, short ship, short command)
         case 5:
         case 6:
             if (RandomBelow(100) < 70 ||
-                ((signed char)g_acShipRating_0059cd80[ship] > 8 &&
-                 (signed char)g_acShipRating_0059cd80[ship] < 13))
+                ((signed char)acShipRating[ship] > 8 &&
+                 (signed char)acShipRating[ship] < 13))
                 send_message(ship, (signed char)(command - 2));
-            if (g_acShipTarget_0059ce60[ship] != requester &&
+            if (acShipTarget[ship] != requester &&
                 too_busy(ship) == 0) {
                 engage(ship, requester, OBJECTIVE_ENGAGE_ENEMY);
                 return;
@@ -245,7 +245,7 @@ void request(short requester, short ship, short command)
             break;
         case 7:
             allow_engage();
-            if (g_aeShipObjective_0059d200[ship] ==
+            if (aeShipObjective[ship] ==
                     OBJECTIVE_HOLD_FORMATION) {
                 reset_objective(ship, OBJECTIVE_BREAK_FORMATION);
                 reply(ship, 1);
@@ -260,7 +260,7 @@ void request(short requester, short ship, short command)
                 reply(ship, 0);
                 return;
             }
-            g_nAutoEngageTimer_0046c084 = -150;
+            nAutoEngageTimer = -150;
             reply(ship, 1);
             return;
         case 9:
@@ -270,19 +270,19 @@ void request(short requester, short ship, short command)
                 return;
             }
             reset_objective(ship, OBJECTIVE_HOLD_FORMATION);
-            g_nAutoEngageTimer_0046c084 = -150;
+            nAutoEngageTimer = -150;
             reply(ship, 1);
             return;
         case 10:
         case 11:
-            g_bRadioSilence_0046af70 = 0;
+            bRadioSilence = 0;
             reply(ship, 1);
-            g_bRadioSilence_0046af70 = command == 10;
+            bRadioSilence = command == 10;
             return;
         case 12:
             cleanup_objectives();
             if (can_land() != 0) {
-                g_bLandingAuthorized_00468ff8 = 1;
+                bLandingAuthorized = 1;
                 send_message(ship, 8);
                 return;
             }
@@ -308,26 +308,26 @@ unsigned short __stdcall InitializeDIBScreenViewport(
     int offset;
 
     (void)colour;
-    g_nScreenAllocationState_005a66e0 = 0;
-    g_pAllocatedScreenViewport_005a6534 = viewport;
-    g_pAllocatedScreenViewportMirror_005a66e4 = viewport;
-    g_aiSoundEffectSourceActive_005a66ec[0] =
-        (int)&g_nScreenAllocationState_005a66e0;
+    nScreenAllocationState = 0;
+    pAllocatedScreenViewport = viewport;
+    pAllocatedScreenViewportMirror = viewport;
+    aiSoundEffectSourceActive[0] =
+        (int)&nScreenAllocationState;
     viewport->right = 319;
     viewport->bottom = 199;
     viewport->left = 0;
     viewport->top = 0;
-    if (DAT_0046b168 != 0x13) {
+    if (nVideoMode != 0x13) {
         SystemDebugPrintf("== BAD alloc_screen == : type: '%d'\n",
-                          (int)(short)DAT_0046b168);
+                          (int)(short)nVideoMode);
         _exit(1);
     }
     viewport->pixels = GetDIBPixelBuffer();
-    viewport->rowOffsets = g_awScreenRowOffsets_005a6540;
+    viewport->rowOffsets = awScreenRowOffsets;
     row = 0;
     offset = 0;
     do {
-        g_awScreenRowOffsets_005a6540[row] = (unsigned short)offset;
+        awScreenRowOffsets[row] = (unsigned short)offset;
         offset = (short)offset + 320;
         row++;
     } while (row < 202);
@@ -359,7 +359,7 @@ unsigned int __stdcall GetPacketSize(const char *filename, short section)
         switch (handle.compression) {
         case 1:
             ReadPacketSectionData(&handle, &size, 4);
-            if (g_nPacketError_00465460 != 0)
+            if (nPacketError != 0)
                 size = (unsigned int)-1;
             break;
         case 2:
@@ -383,8 +383,8 @@ int GetFreeNearHeapBytes(void)
 
     freeBytes = 0;
     descriptorAddress =
-        g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c - 8;
-    for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124;
+        nNearHeapBase + nNearHeapSize - 8;
+    for (; descriptorAddress >= nNearHeapFirstDescriptor;
          descriptorAddress -= 8) {
         block = DosNearPtrToFar(descriptorAddress);
         if ((block->sizeAndFlags & 0x80000000) == 0)
@@ -419,19 +419,19 @@ void *PushMemoryStackFrame(void *memory, int offset)
 
     if (offset != 0) {
         printf("push %p by %d\n", memory, offset);
-        if (g_nPacketHandleCount_005a6530 == 0x1000)
+        if (nPacketHandleCount == 0x1000)
             exit_squadron("qq mem push overflow");
-        index = g_nPacketHandleCount_005a6530;
-        g_aiPacketHandleOffsets_005a2530[index] = offset;
+        index = nPacketHandleCount;
+        aiPacketHandleOffsets[index] = offset;
         if (offset < 0) {
             memory = (unsigned char *)memory - offset;
-            g_apPacketHandles_0059e530[index] = memory;
-            g_nPacketHandleCount_005a6530 = index + 1;
+            apPacketHandles[index] = memory;
+            nPacketHandleCount = index + 1;
             return memory;
         }
         memory = (unsigned char *)memory + offset;
-        g_apPacketHandles_0059e530[index] = memory;
-        g_nPacketHandleCount_005a6530 = index + 1;
+        apPacketHandles[index] = memory;
+        nPacketHandleCount = index + 1;
         return memory;
     }
     return memory;
@@ -443,15 +443,15 @@ int IsPushedPacketHandle(void *handle)
     int index;
 
     index = 0;
-    if (g_nPacketHandleCount_005a6530 > 0) {
+    if (nPacketHandleCount > 0) {
         do {
-            if (g_apPacketHandles_0059e530[index] == handle) {
-                if (g_aiPacketHandleOffsets_005a2530[index] < 0)
+            if (apPacketHandles[index] == handle) {
+                if (aiPacketHandleOffsets[index] < 0)
                     return 1;
                 return 0;
             }
             index++;
-        } while (index < g_nPacketHandleCount_005a6530);
+        } while (index < nPacketHandleCount);
     }
     return 0;
 }
@@ -459,7 +459,7 @@ int IsPushedPacketHandle(void *handle)
 /* Function start: 0x42FA20 */
 void *MapPacketHandleToBlock(void *handle)
 {
-    int count = g_nPacketHandleCount_005a6530;
+    int count = nPacketHandleCount;
     int bytes = count * 4;
     int i;
     void **entry;
@@ -467,33 +467,33 @@ void *MapPacketHandleToBlock(void *handle)
 
     for (;;) {
         i = 0;
-        g_nPacketHandleCount_005a6530 = count;
+        nPacketHandleCount = count;
         if (bytes <= 0)
             return handle;
-        entry = g_apPacketHandles_0059e530;
+        entry = apPacketHandles;
         while (*entry != handle) {
             entry = entry + 1;
             i = i + 1;
-            g_nPacketHandleCount_005a6530 = count;
+            nPacketHandleCount = count;
             if (i >= count)
                 return handle;
         }
-        offset = g_aiPacketHandleOffsets_005a2530[i];
+        offset = aiPacketHandleOffsets[i];
         if (offset < 0)
             handle = (unsigned char *)handle + offset;
         else
             handle = (unsigned char *)handle - offset;
 #ifdef WC1_SDL
-        g_apPacketHandles_0059e530[i] =
-            g_apPacketHandles_0059e530[count - 1];
+        apPacketHandles[i] =
+            apPacketHandles[count - 1];
 #else
-        g_apPacketHandles_0059e530[i] =
-            *(void **)((unsigned char *)g_apPacketHandles_0059e530 + bytes - 4);
+        apPacketHandles[i] =
+            *(void **)((unsigned char *)apPacketHandles + bytes - 4);
 #endif
         bytes = bytes - 4;
         count = count - 1;
-        g_aiPacketHandleOffsets_005a2530[i] =
-            *(int *)((unsigned char *)g_aiPacketHandleOffsets_005a2530 + bytes);
+        aiPacketHandleOffsets[i] =
+            *(int *)((unsigned char *)aiPacketHandleOffsets + bytes);
     }
 }
 
@@ -516,13 +516,13 @@ void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
 #ifdef WC1_SDL
         *(unsigned char **)memory = 0;
         memcpy((unsigned char *)memory + sizeof(unsigned char *),
-               g_abTaggedAllocationPrefix_0046ad88,
-               sizeof(g_abTaggedAllocationPrefix_0046ad88));
+               abTaggedAllocationPrefix,
+               sizeof(abTaggedAllocationPrefix));
         memory = PushMemoryStackFrame(
             memory, -(int)(8 + sizeof(unsigned char *)));
 #else
-        memcpy(memory, g_abTaggedAllocationPrefix_0046ad88,
-               sizeof(g_abTaggedAllocationPrefix_0046ad88));
+        memcpy(memory, abTaggedAllocationPrefix,
+               sizeof(abTaggedAllocationPrefix));
         memory = PushMemoryStackFrame(memory, -8);
 #endif
     }
@@ -533,7 +533,7 @@ void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
 void ReleasePacketHandle(void *handle)
 {
     int group = 4;
-    void **entry = &g_aapPacketReferences_00465c88[0][0];
+    void **entry = &aapPacketReferences[0][0];
 
     do {
         int i = 0x25;
@@ -574,18 +574,18 @@ void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
     (void)unusedPitch;
     *object = find_vacant_3d_object();
     if (*object != -1) {
-        g_aeObjectClass_0059d100[*object] = OBJECT_CLASS_PLANET;
+        aeObjectClass[*object] = OBJECT_CLASS_PLANET;
         init_ijk(63);
         alter_yaw(yaw, 63);
-        ScaleFixedVector(&g_aShipForwardVector_0059bce0[63],
+        ScaleFixedVector(&aShipForwardVector[63],
                          (int)distance << 8,
-                         &g_aShipPosition_0059c490[*object]);
-        g_asObjectViewFrame_0059d230[*object] = frame;
-        g_asObjectScreenAngle_0059cd90[*object] = type;
-        g_aeObjectType_0059b560[*object] =
-            (enum ObjectType)g_asObjectScreenAngle_0059cd90[*object];
-        g_asObjectScreenScale_0059c950[*object] = scale;
-        g_apObjectShape_0059d2f0[*object] = shape;
+                         &aShipPosition[*object]);
+        asObjectViewFrame[*object] = frame;
+        asObjectScreenAngle[*object] = type;
+        aeObjectType[*object] =
+            (enum ObjectType)asObjectScreenAngle[*object];
+        asObjectScreenScale[*object] = scale;
+        apObjectShape[*object] = shape;
     }
 }
 
@@ -614,8 +614,8 @@ unsigned int ShowCampaignVictorySequence(void)
     spacetrack(0x21, 2, 1);
     InitializeConversationText();
     init_3Space_objects(0);
-    g_nCannedSceneMode_00469fac = 2;
-    g_bIntroSceneResourcesActive_00469d48 = 0;
+    nCannedSceneMode = 2;
+    bIntroSceneResourcesActive = 0;
     set_up_action_sphere(0x12);
     planetShape =
         FetchDiskPacketRetrying(9, 3, 0);
@@ -623,8 +623,8 @@ unsigned int ShowCampaignVictorySequence(void)
         FetchDiskPacketRetrying(9, 2, 0);
     CreateCannedSceneObject(&planetObject, -4, 0, 30000,
                             planetShape, 0, 0, 0x50);
-    g_nScriptedViewObject_0046a8d0 = 1;
-    initialize_scripted_view(g_asCampaignVictoryViewScript_0046c160);
+    nScriptedViewObject = 1;
+    initialize_scripted_view(asCampaignVictoryViewScript);
     slot = 16;
     projectile = projectiles;
     do {
@@ -635,9 +635,9 @@ unsigned int ShowCampaignVictorySequence(void)
 
     planetDepth = -1500;
     frame = 0;
-    DAT_0059ab58 = 0;
+    bEscapePressed = 0;
     verticalOffset = -70000;
-    DAT_00469fb4 = 1;
+    nFrameSkipCounter = 1;
     do {
         if (frame == 0)
             textIndex = 0;
@@ -648,24 +648,24 @@ unsigned int ShowCampaignVictorySequence(void)
         else
             textIndex = -1;
         if (textIndex != -1) {
-            ClearViewport(&g_stConversationTextViewport_005a7570,
-                          g_cBlackColour_0046999c);
-            SetTextContext(&g_stConversationTextContext_005a7760);
+            ClearViewport(&stConversationTextViewport,
+                          cBlackColour);
+            SetTextContext(&stConversationTextContext);
             FormatTextBufferFromStart(
-                g_szCampaignVictoryTextFormat_0046af24, 0, 160,
-                g_apszCampaignVictoryText_0046ad90[textIndex]);
+                szCampaignVictoryTextFormat, 0, 160,
+                apszCampaignVictoryText[textIndex]);
         }
 
         Update_3Space();
         if (Draw_3Space_Frame() != 0) {
             if (frame > 90)
-                g_asObjectScreenScale_0059c950[planetObject]++;
-            if (g_asObjectCollisionRadius_0059d710[61] < planetDepth) {
+                asObjectScreenScale[planetObject]++;
+            if (asObjectCollisionRadius[61] < planetDepth) {
                 slot = 0;
                 projectile = projectiles;
                 do {
                     if (projectile->scale != -1 &&
-                        g_asObjectCollisionRadius_0059d710[61] <
+                        asObjectCollisionRadius[61] <
                             projectile->depth) {
                         projectile->screenX =
                             (short)(projectile->x / projectile->depth);
@@ -676,11 +676,11 @@ unsigned int ShowCampaignVictorySequence(void)
                             projectile->scale = -1;
                         } else {
                             DrawSpriteScaled(
-                                &DAT_005a7510,
+                                &stSpaceBuffer,
                                 (short)(projectile->screenX +
-                                        g_nViewCenterX_0059a852),
+                                        nViewCenterX),
                                 (short)(projectile->screenY +
-                                        g_nViewCenterY_0059a854),
+                                        nViewCenterY),
                                 projectileShape, 1, 0,
                                 (short)projectile->scale,
                                 projectile->flip);
@@ -709,7 +709,7 @@ unsigned int ShowCampaignVictorySequence(void)
 
                     if (vacantCount > 1) {
                         origin =
-                            &g_aCampaignVictoryProjectileOrigins_0046adb0[
+                            &aCampaignVictoryProjectileOrigins[
                                 RandomBelowOrEqual(3)];
                         projectile = &projectiles[vacant[0]];
                         projectile->depth = planetDepth;
@@ -739,8 +739,8 @@ unsigned int ShowCampaignVictorySequence(void)
 
                 planetScale = 0x40000L / planetDepth;
                 DrawSpriteScaled(
-                    &DAT_005a7510, g_nViewCenterX_0059a852,
-                    (short)(g_nViewCenterY_0059a854 +
+                    &stSpaceBuffer, nViewCenterX,
+                    (short)(nViewCenterY +
                             verticalOffset / planetDepth),
                     planetShape, 0, 0, (short)planetScale, 0);
                 verticalOffset += 200;
@@ -751,7 +751,7 @@ unsigned int ShowCampaignVictorySequence(void)
             DIBslamReal();
         }
         planetDepth += 15;
-        if (DAT_0059ab58 == 1)
+        if (bEscapePressed == 1)
             break;
         DIBslam();
         DIBslamReal();
@@ -763,23 +763,23 @@ unsigned int ShowCampaignVictorySequence(void)
     free_all_slots();
     ReleaseTextFont(0);
     free_3Space();
-    if (DAT_0059ab58 != 1) {
+    if (bEscapePressed != 1) {
         planetShape =
             FetchDiskPacketRetrying(9, 5, 0);
         animationFrame = 1;
-        ClearViewport(&DAT_005a6ba0, g_cBlackColour_0046999c);
+        ClearViewport(&stScreen, cBlackColour);
         WaitForVerticalBlankThunk();
-        DrawSpriteDefault(&DAT_005a6ba0, 0, 0, planetShape, 0);
+        DrawSpriteDefault(&stScreen, 0, 0, planetShape, 0);
         elapsed = 0;
         WaitForSceneAdvance(14, 0);
         do {
             SetFrameTimerPeriodDirect(8);
-            DrawSpriteDefault(&DAT_005a6ba0, 0, 0, planetShape,
+            DrawSpriteDefault(&stScreen, 0, 0, planetShape,
                               animationFrame++);
             if (animationFrame > 17)
                 animationFrame = 12;
             while ((short)IsFrameTickElapsed() == 0) {
-                if (DAT_0059ab58 != 0 || CheckEscaped() != 0) {
+                if (bEscapePressed != 0 || CheckEscaped() != 0) {
                     elapsed = 1000;
                     break;
                 }
@@ -789,25 +789,25 @@ unsigned int ShowCampaignVictorySequence(void)
             DIBslamReal();
         } while (elapsed < 40);
         ReleasePacketHandle(planetShape);
-        FadeViewportPaletteToColour(&g_stModalSourceViewport_005a7670,
-                                    g_cBlackColour_0046999c, 1);
-        ClearViewport(&g_stModalSourceViewport_005a7670,
-                      g_cBlackColour_0046999c);
+        FadeViewportPaletteToColour(&stModalSourceViewport,
+                                    cBlackColour, 1);
+        ClearViewport(&stModalSourceViewport,
+                      cBlackColour);
         DIBslam();
         DIBslamReal();
         RestoreGamePalette();
     }
 
-    DAT_0059ab58 = 0;
+    bEscapePressed = 0;
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x21);
-    g_bScriptedView_0046a8d4 = 0;
-    g_bIntroSceneResourcesActive_00469d48 = 1;
-    g_nCannedSceneMode_00469fac = 0;
-    FadeViewportPaletteToColour(&g_stModalSourceViewport_005a7670,
-                                g_cBlackColour_0046999c, 1);
-    ClearViewport(&g_stModalSourceViewport_005a7670,
-                  g_cBlackColour_0046999c);
+    bScriptedView = 0;
+    bIntroSceneResourcesActive = 1;
+    nCannedSceneMode = 0;
+    FadeViewportPaletteToColour(&stModalSourceViewport,
+                                cBlackColour, 1);
+    ClearViewport(&stModalSourceViewport,
+                  cBlackColour);
     DIBslam();
     DIBslamReal();
     RestoreGamePalette();
@@ -828,47 +828,47 @@ unsigned int ShowTigerClawEscapeScene(void)
     approachStep = 15;
     PreloadMusicTrackHook(0x22);
     spacetrack(0x22, 2, 1);
-    init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
-    g_nCannedSceneMode_00469fac = 2;
-    g_bIntroSceneResourcesActive_00469d48 = 0;
+    init_3Space_objects((short)stCampaignState.currentSeries);
+    nCannedSceneMode = 2;
+    bIntroSceneResourcesActive = 0;
     InitializeConversationText();
     set_up_action_sphere(0x13);
     escapeShape =
         FetchDiskPacketRetrying(9, 2, 0);
-    if (g_aObjectTypeData_00466458[
+    if (aObjectTypeData[
             OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet == 0) {
-        g_aObjectTypeData_00466458[
+        aObjectTypeData[
             OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet =
                 FetchDiskPacketRetrying(3, 14, 0);
     }
-    g_nScriptedViewObject_0046a8d0 = 1;
-    initialize_scripted_view(g_asTigerClawEscapeViewScript_0046c238);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
-                  g_cBlackColour_0046999c);
-    SetTextContext(&g_stConversationTextContext_005a7760);
+    nScriptedViewObject = 1;
+    initialize_scripted_view(asTigerClawEscapeViewScript);
+    ClearViewport(&stConversationTextViewport,
+                  cBlackColour);
+    SetTextContext(&stConversationTextContext);
     FormatTextBufferFromStart(
-        g_szTigerClawEscapeOpeningFormat_0046af30, 0, 160,
-        g_pszTigerClawEscapeOpening_0046ada0);
-    DAT_00469fb4 = 1;
-    DAT_0059ab58 = 0;
+        szTigerClawEscapeOpeningFormat, 0, 160,
+        pszTigerClawEscapeOpening);
+    nFrameSkipCounter = 1;
+    bEscapePressed = 0;
     depth = -1000;
     verticalOffset = -70000;
     frame = 0;
     do {
         Update_3Space();
         if (Draw_3Space_Frame() != 0) {
-            if (g_asObjectCollisionRadius_0059d710[61] < depth &&
+            if (asObjectCollisionRadius[61] < depth &&
                 frame < 198) {
                 DrawSpriteScaled(
-                    &DAT_005a7510, g_nViewCenterX_0059a852,
-                    (short)(g_nViewCenterY_0059a854 +
+                    &stSpaceBuffer, nViewCenterX,
+                    (short)(nViewCenterY +
                             verticalOffset / depth),
                     escapeShape, 0, 0, (short)(0x40000L / depth), 0);
             }
             dump_buffer_to_screen();
             clear_view_buffer();
         }
-        if (g_asObjectCollisionRadius_0059d710[61] < depth)
+        if (asObjectCollisionRadius[61] < depth)
             verticalOffset += 400;
         depth += approachStep;
         if (frame > 170)
@@ -876,12 +876,12 @@ unsigned int ShowTigerClawEscapeScene(void)
 
         switch (frame) {
         case 150:
-            ClearViewport(&g_stConversationTextViewport_005a7570,
-                          g_cBlackColour_0046999c);
-            SetTextContext(&g_stConversationTextContext_005a7760);
+            ClearViewport(&stConversationTextViewport,
+                          cBlackColour);
+            SetTextContext(&stConversationTextContext);
             FormatTextBufferFromStart(
-                g_szTigerClawEscapeJumpFormat_0046af3c, 0, 160,
-                g_pszTigerClawEscapeJump_0046ada4);
+                szTigerClawEscapeJumpFormat, 0, 160,
+                pszTigerClawEscapeJump);
             break;
         case 190:
             effect = find_vacant_3d_object();
@@ -889,52 +889,52 @@ unsigned int ShowTigerClawEscapeScene(void)
                 set_objects_data(effect,
                                  OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
                                  -1);
-                ScaleFixedVector(&g_aShipForwardVector_0059bce0[61],
+                ScaleFixedVector(&aShipForwardVector[61],
                                  0x271000, &jumpOffset);
-                g_asObjectScale_0059de40[effect] =
-                    (short)(g_asObjectScale_0059de40[effect] << 2);
-                zero_vector(&g_aShipVelocity_0059c010[effect]);
-                AddFixedVectors(&g_aShipPosition_0059c490[61],
+                asObjectScale[effect] =
+                    (short)(asObjectScale[effect] << 2);
+                zero_vector(&aShipVelocity[effect]);
+                AddFixedVectors(&aShipPosition[61],
                                 &jumpOffset,
-                                &g_aShipPosition_0059c490[effect]);
+                                &aShipPosition[effect]);
             }
             break;
         case 198:
-            ClearViewport(&DAT_005a7510,
-                          g_cViewportClearColour_004699a0);
-            g_bViewportDirty_00469fc4 = 1;
+            ClearViewport(&stSpaceBuffer,
+                          cViewportClearColour);
+            bViewportDirty = 1;
             break;
         case 210:
-            ClearViewport(&g_stConversationTextViewport_005a7570,
-                          g_cBlackColour_0046999c);
-            SetTextContext(&g_stConversationTextContext_005a7760);
+            ClearViewport(&stConversationTextViewport,
+                          cBlackColour);
+            SetTextContext(&stConversationTextContext);
             FormatTextBufferFromStart(
-                g_szTigerClawEscapeClosingFormat_0046af48, 0, 160,
-                g_pszTigerClawEscapeClosing_0046ada8);
+                szTigerClawEscapeClosingFormat, 0, 160,
+                pszTigerClawEscapeClosing);
             break;
         }
-        if (DAT_0059ab58 == 1)
+        if (bEscapePressed == 1)
             break;
         frame++;
         DIBslam();
         DIBslamReal();
     } while (frame < 260);
 
-    ReleasePacketHandle(g_aObjectTypeData_00466458[
+    ReleasePacketHandle(aObjectTypeData[
         OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet);
-    g_aObjectTypeData_00466458[
+    aObjectTypeData[
         OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet = 0;
     ReleasePacketHandle(escapeShape);
     free_all_slots();
     ReleaseTextFont(0);
     free_3Space();
-    ClearViewport(&g_stConversationTextViewport_005a7570,
-                  g_cBlackColour_0046999c);
+    ClearViewport(&stConversationTextViewport,
+                  cBlackColour);
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x22);
-    g_bScriptedView_0046a8d4 = 0;
-    g_nCannedSceneMode_00469fac = 0;
-    g_bIntroSceneResourcesActive_00469d48 = 1;
+    bScriptedView = 0;
+    nCannedSceneMode = 0;
+    bIntroSceneResourcesActive = 1;
     return 0;
 }
 
@@ -952,44 +952,44 @@ unsigned int ShowTheEndScreen(short enableFireworks)
     InitializeConversationViewport();
     ViewMedals();
     ReleaseTextFont(0);
-    ClearViewport(&g_stModalSourceViewport_005a7670, g_cBlackColour_0046999c);
-    ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
+    ClearViewport(&stModalSourceViewport, cBlackColour);
+    ClearViewport(&stSceneBuffer, cBlackColour);
     InitializeFireworks();
-    g_pFireworkShape_005a6a68 =
+    pFireworkShape =
         FetchDiskPacketRetrying(9, 0x11, 0);
-    g_pIntroFont_005a8960 =
+    pIntroFont =
         FetchDiskPacketRetrying(9, 1, 0);
-    print_subtitle(&DAT_005a76b0, 0x3a, g_pszTheEnd_0046adc8);
-    PanToScreen(&DAT_005a76b0, &DAT_005a6ba0);
-    DAT_0059ab58 = 0;
-    DAT_00469fb4 = 1;
+    print_subtitle(&stSceneBuffer, 0x3a, pszTheEnd);
+    PanToScreen(&stSceneBuffer, &stScreen);
+    bEscapePressed = 0;
+    nFrameSkipCounter = 1;
     activeFireworks = 0;
     frame = 0;
     do {
-        ClearViewport(&DAT_005a76b0, g_cBlackColour_0046999c);
+        ClearViewport(&stSceneBuffer, cBlackColour);
         if (enableFireworks != 0 && activeFireworks != 0 &&
             (RandomBelowOrEqual(100) < 40 || frame > 280)) {
             slot = 0;
             do {
-                firework = &g_aFireworks_005a6900[slot];
+                firework = &aFireworks[slot];
                 if (firework->frame == -1) {
                     firework->frame = 0;
-                    firework->x = RandomInRange(0, DAT_005a7510.right);
-                    firework->y = RandomInRange(0, DAT_005a7510.bottom);
+                    firework->x = RandomInRange(0, stSpaceBuffer.right);
+                    firework->y = RandomInRange(0, stSpaceBuffer.bottom);
                     firework->variant = RandomInRange(0, 2);
                     break;
                 }
                 slot++;
             } while (slot < 30);
         }
-        activeFireworks = TheEndFireWorks(&DAT_005a76b0, 30);
+        activeFireworks = TheEndFireWorks(&stSceneBuffer, 30);
         if (frame < 160) {
-            print_subtitle(&DAT_005a76b0, 0x3a,
-                           g_pszTheEnd_0046adc8);
+            print_subtitle(&stSceneBuffer, 0x3a,
+                           pszTheEnd);
         } else if (frame > 190) {
             StopMusic((short)(320 - frame));
-            print_subtitle(&DAT_005a76b0, 0x3a,
-                           g_pszForNow_0046adcc);
+            print_subtitle(&stSceneBuffer, 0x3a,
+                           pszForNow);
         }
         frame++;
         RefreshMemoryStatusOverlay();
@@ -997,8 +997,8 @@ unsigned int ShowTheEndScreen(short enableFireworks)
         DIBslamReal();
     } while (frame < 320);
 
-    ReleasePacketHandle(g_pFireworkShape_005a6a68);
-    ReleasePacketHandle(g_pIntroFont_005a8960);
+    ReleasePacketHandle(pFireworkShape);
+    ReleasePacketHandle(pIntroFont);
     ResetScreenClipToFullHeight();
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x17);
@@ -1014,45 +1014,45 @@ short __stdcall UpdateInputDeviceTransitions(short raw)
     unsigned short previous;
     short device;
 
-    device = g_nActiveInputDevice_005a819c;
+    device = nActiveInputDevice;
     if (raw == 0)
         ReadCalibratedJoystick();
     else
-        SampleJoystickDevice(&g_aInputDeviceSamples_005a81f0[device],
+        SampleJoystickDevice(&aInputDeviceSamples[device],
                              device, 0);
 
-    g_asInputButton2DoubleClick_0059e520[device] = 0;
-    g_asInputButton1DoubleClick_0059e508[device] = 0;
-    g_asInputButton2Changed_0059e510[device] = 0;
-    g_asInputButton1Changed_0059e50c[device] = 0;
-    buttons = (unsigned short)g_aInputDeviceSamples_005a81f0[device].buttons;
-    previous = (unsigned short)g_asPreviousInputButtons_0059e514[device];
+    asInputButton2DoubleClick[device] = 0;
+    asInputButton1DoubleClick[device] = 0;
+    asInputButton2Changed[device] = 0;
+    asInputButton1Changed[device] = 0;
+    buttons = (unsigned short)aInputDeviceSamples[device].buttons;
+    previous = (unsigned short)asPreviousInputButtons[device];
     if (buttons != previous) {
         changed = buttons ^ previous;
-        now = DAT_0059ab54;
+        now = nTickCount60Hz;
         if ((changed & 1) != 0) {
-            g_asInputButton1Changed_0059e50c[device] = 1;
+            asInputButton1Changed[device] = 1;
             if ((buttons & 1) != 0) {
                 if ((int)(now -
-                    g_anInputButton1PressTime_0059e518[device]) <=
-                        g_nInputDoubleClickInterval_0046af54 *
-                        g_nInputTickScale_0059af90)
-                    g_asInputButton1DoubleClick_0059e508[device] = 1;
-                g_anInputButton1PressTime_0059e518[device] = now;
+                    anInputButton1PressTime[device]) <=
+                        nInputDoubleClickInterval *
+                        nInputTickScale)
+                    asInputButton1DoubleClick[device] = 1;
+                anInputButton1PressTime[device] = now;
             }
         }
         if ((changed & 2) != 0) {
-            g_asInputButton2Changed_0059e510[device] = 1;
+            asInputButton2Changed[device] = 1;
             if ((buttons & 2) != 0) {
                 if ((int)(now -
-                    g_anInputButton2PressTime_0059e500[device]) <=
-                        g_nInputDoubleClickInterval_0046af54 *
-                        g_nInputTickScale_0059af90)
-                    g_asInputButton2DoubleClick_0059e520[device] = 1;
-                g_anInputButton2PressTime_0059e500[device] = now;
+                    anInputButton2PressTime[device]) <=
+                        nInputDoubleClickInterval *
+                        nInputTickScale)
+                    asInputButton2DoubleClick[device] = 1;
+                anInputButton2PressTime[device] = now;
             }
         }
-        g_asPreviousInputButtons_0059e514[device] = (short)buttons;
+        asPreviousInputButtons[device] = (short)buttons;
     }
     return 1;
 }
@@ -1062,39 +1062,39 @@ void PollJoystickButtonEvents(void)
 {
     short doubleClick;
 
-    if (g_nActiveInputDevice_005a819c == -1 ||
-        g_bInputPollingGuard_0046a01c != 0)
+    if (nActiveInputDevice == -1 ||
+        bInputPollingGuard != 0)
         return;
-    g_bInputPollingGuard_0046a01c++;
+    bInputPollingGuard++;
     UpdateInputDeviceTransitions(1);
-    if (g_asInputButton1Changed_0059e50c
-            [g_nActiveInputDevice_005a819c] != 0) {
+    if (asInputButton1Changed
+            [nActiveInputDevice] != 0) {
         doubleClick = 0;
-        if (g_asInputButton1DoubleClick_0059e508
-                [g_nActiveInputDevice_005a819c] != 0)
+        if (asInputButton1DoubleClick
+                [nActiveInputDevice] != 0)
             doubleClick = 3;
         QueueInputEventAtCursor(
-            ((unsigned short)g_aInputDeviceSamples_005a81f0
-                [g_nActiveInputDevice_005a819c].buttons & 1) + 1,
+            ((unsigned short)aInputDeviceSamples
+                [nActiveInputDevice].buttons & 1) + 1,
             0, doubleClick);
     }
-    if (g_asInputButton2Changed_0059e510
-            [g_nActiveInputDevice_005a819c] != 0) {
+    if (asInputButton2Changed
+            [nActiveInputDevice] != 0) {
         doubleClick = 0;
-        if (g_asInputButton2DoubleClick_0059e520
-                [g_nActiveInputDevice_005a819c] != 0)
+        if (asInputButton2DoubleClick
+                [nActiveInputDevice] != 0)
             doubleClick = 3;
         QueueInputEventAtCursor(
-            (((unsigned short)g_aInputDeviceSamples_005a81f0
-                [g_nActiveInputDevice_005a819c].buttons >> 1) & 1) + 1,
+            (((unsigned short)aInputDeviceSamples
+                [nActiveInputDevice].buttons >> 1) & 1) + 1,
             1, doubleClick);
     }
-    g_bInputPollingGuard_0046a01c--;
-    g_stHostMouseState_0059af70.primaryButton =
-        (unsigned char)g_aInputDeviceSamples_005a81f0
-            [g_nActiveInputDevice_005a819c].buttons;
-    g_stHostMouseState_0059af70.secondaryButton =
-        g_stHostMouseState_0059af70.primaryButton;
+    bInputPollingGuard--;
+    stHostMouseState.primaryButton =
+        (unsigned char)aInputDeviceSamples
+            [nActiveInputDevice].buttons;
+    stHostMouseState.secondaryButton =
+        stHostMouseState.primaryButton;
 }
 
 /* Function start: 0x430920 */
@@ -1107,107 +1107,107 @@ void PollMenuInputDevices(void)
     int deviceIndex;
 
     changes = 0;
-    if (g_nActiveInputDevice_005a819c == -1)
+    if (nActiveInputDevice == -1)
         return;
-    g_stHostMouseState_0059af70.x =
-        g_stMouseCursorState_0059ab10.x;
-    g_stHostMouseState_0059af70.y =
-        g_stMouseCursorState_0059ab10.y;
-    if (g_bInputPollingGuard_0046a01c != 0)
+    stHostMouseState.x =
+        stMouseCursorState.x;
+    stHostMouseState.y =
+        stMouseCursorState.y;
+    if (bInputPollingGuard != 0)
         return;
-    g_bInputPollingGuard_0046a01c++;
+    bInputPollingGuard++;
     UpdateInputDeviceTransitions(0);
 
-    deviceIndex = (int)g_nActiveInputDevice_005a819c;
-    if (g_asInputButton1Changed_0059e50c[deviceIndex] != 0) {
-        g_stHostMouseState_0059af70.x +=
-            (short)g_aInputDeviceSamples_005a81f0
+    deviceIndex = (int)nActiveInputDevice;
+    if (asInputButton1Changed[deviceIndex] != 0) {
+        stHostMouseState.x +=
+            (short)aInputDeviceSamples
                 [deviceIndex].x *
-            g_nMenuPointerSpeed_0046af58;
-        g_stHostMouseState_0059af70.y +=
-            (short)g_aInputDeviceSamples_005a81f0
+            nMenuPointerSpeed;
+        stHostMouseState.y +=
+            (short)aInputDeviceSamples
                 [deviceIndex].y *
-            g_nMenuPointerSpeed_0046af58;
-        if (g_asInputButton1DoubleClick_0059e508[deviceIndex] != 0)
+            nMenuPointerSpeed;
+        if (asInputButton1DoubleClick[deviceIndex] != 0)
             changes = 3;
         QueueInputEventAtCursor(
-            ((unsigned short)g_aInputDeviceSamples_005a81f0
+            ((unsigned short)aInputDeviceSamples
                 [deviceIndex].buttons & 1) + 1,
             0, (short)(signed char)changes);
         changes = 1;
     }
-    deviceIndex = (int)g_nActiveInputDevice_005a819c;
-    if (g_asInputButton2Changed_0059e510[deviceIndex] != 0) {
-        g_stHostMouseState_0059af70.x +=
-            (short)g_aInputDeviceSamples_005a81f0
+    deviceIndex = (int)nActiveInputDevice;
+    if (asInputButton2Changed[deviceIndex] != 0) {
+        stHostMouseState.x +=
+            (short)aInputDeviceSamples
                 [deviceIndex].x *
-            g_nMenuPointerSpeed_0046af58;
-        g_stHostMouseState_0059af70.y +=
-            (short)g_aInputDeviceSamples_005a81f0
+            nMenuPointerSpeed;
+        stHostMouseState.y +=
+            (short)aInputDeviceSamples
                 [deviceIndex].y *
-            g_nMenuPointerSpeed_0046af58;
+            nMenuPointerSpeed;
         doubleClick = 0;
-        if (g_asInputButton1DoubleClick_0059e508[deviceIndex] != 0)
+        if (asInputButton1DoubleClick[deviceIndex] != 0)
             doubleClick = 3;
         QueueInputEventAtCursor(
-            (((unsigned short)g_aInputDeviceSamples_005a81f0
+            (((unsigned short)aInputDeviceSamples
                 [deviceIndex].buttons >> 1) & 1) + 1,
             1, (short)doubleClick);
         changes++;
     }
     if (changes == 0) {
-        movementX = (short)g_aInputDeviceSamples_005a81f0
-            [g_nActiveInputDevice_005a819c].x;
-        movementY = (short)g_aInputDeviceSamples_005a81f0
-            [g_nActiveInputDevice_005a819c].y;
-        g_stHostMouseState_0059af70.x +=
-            g_nMenuPointerSpeed_0046af58 * movementX;
-        g_stHostMouseState_0059af70.y +=
-            g_nMenuPointerSpeed_0046af58 * movementY;
+        movementX = (short)aInputDeviceSamples
+            [nActiveInputDevice].x;
+        movementY = (short)aInputDeviceSamples
+            [nActiveInputDevice].y;
+        stHostMouseState.x +=
+            nMenuPointerSpeed * movementX;
+        stHostMouseState.y +=
+            nMenuPointerSpeed * movementY;
         changes = (unsigned char)movementY | (unsigned char)movementX;
         if (changes != 0) {
             FlushInputEvents();
-            if (g_stHostMouseState_0059af70.x <= 0)
-                g_stHostMouseState_0059af70.x = 0;
-            if (g_stHostMouseState_0059af70.x >= 319)
-                g_stHostMouseState_0059af70.x = 319;
-            if (g_stHostMouseState_0059af70.y <= 0)
-                g_stHostMouseState_0059af70.y = 0;
-            if (g_stHostMouseState_0059af70.y >= 199)
-                g_stHostMouseState_0059af70.y = 199;
-            SetMousePosition(g_stHostMouseState_0059af70.x,
-                             g_stHostMouseState_0059af70.y);
+            if (stHostMouseState.x <= 0)
+                stHostMouseState.x = 0;
+            if (stHostMouseState.x >= 319)
+                stHostMouseState.x = 319;
+            if (stHostMouseState.y <= 0)
+                stHostMouseState.y = 0;
+            if (stHostMouseState.y >= 199)
+                stHostMouseState.y = 199;
+            SetMousePosition(stHostMouseState.x,
+                             stHostMouseState.y);
         }
     }
 
-    g_stHostMouseState_0059af70.primaryButton =
-        (unsigned char)g_aInputDeviceSamples_005a81f0
-            [g_nActiveInputDevice_005a819c].buttons;
-    g_stHostMouseState_0059af70.secondaryButton =
-        g_stHostMouseState_0059af70.primaryButton;
-    if (g_stHostMouseState_0059af70.x <= 0)
-        g_stHostMouseState_0059af70.x = 0;
-    if (g_stHostMouseState_0059af70.x >= 319)
-        g_stHostMouseState_0059af70.x = 319;
-    if (g_stHostMouseState_0059af70.y <= 0)
-        g_stHostMouseState_0059af70.y = 0;
-    if (g_stHostMouseState_0059af70.y >= 199)
-        g_stHostMouseState_0059af70.y = 199;
+    stHostMouseState.primaryButton =
+        (unsigned char)aInputDeviceSamples
+            [nActiveInputDevice].buttons;
+    stHostMouseState.secondaryButton =
+        stHostMouseState.primaryButton;
+    if (stHostMouseState.x <= 0)
+        stHostMouseState.x = 0;
+    if (stHostMouseState.x >= 319)
+        stHostMouseState.x = 319;
+    if (stHostMouseState.y <= 0)
+        stHostMouseState.y = 0;
+    if (stHostMouseState.y >= 199)
+        stHostMouseState.y = 199;
     if (changes != 0) {
         LeaveAllocationScope();
-        g_stMouseCursorState_0059ab10.primaryButton =
-            g_stHostMouseState_0059af70.primaryButton;
-        g_stMouseCursorState_0059ab10.x =
-            g_stHostMouseState_0059af70.x;
-        g_stMouseCursorState_0059ab10.y =
-            g_stHostMouseState_0059af70.y;
-        g_stMouseCursorState_0059ab10.secondaryButton =
-            g_stHostMouseState_0059af70.secondaryButton;
-        g_stMouseCursorState_0059ab10.flags =
-            g_stHostMouseState_0059af70.flags;
+        stMouseCursorState.primaryButton =
+            stHostMouseState.primaryButton;
+        stMouseCursorState.x =
+            stHostMouseState.x;
+        stMouseCursorState.y =
+            stHostMouseState.y;
+        stMouseCursorState.secondaryButton =
+            stHostMouseState.secondaryButton;
+        stMouseCursorState.flags =
+            stHostMouseState.flags;
         EnterAllocationScope();
     }
-    g_bInputPollingGuard_0046a01c--;
+    bInputPollingGuard--;
 }
 
 /* Function start: 0x430BC0 */
@@ -1232,7 +1232,7 @@ void LoadCommPortraitShape(short face, signed char alternate)
     else
         section = -1;
     if (section != -1)
-        g_apCommPortraitShapes_0059e180[face] =
+        apCommPortraitShapes[face] =
             FetchDiskPacketRetrying(11, section,
                                                      (short)alternate);
 }
@@ -1243,22 +1243,22 @@ void ResetCommMenuChoices(short reuse)
     short choice;
 
     if (reuse == 0) {
-        memset(g_abCommMenuChoiceCommand_0059e488, -1,
-               sizeof(g_abCommMenuChoiceCommand_0059e488));
+        memset(abCommMenuChoiceCommand, -1,
+               sizeof(abCommMenuChoiceCommand));
         choice = 0;
         do {
-            g_apszCommMenuChoiceText_0059e4e0[choice] = 0;
+            apszCommMenuChoiceText[choice] = 0;
             choice++;
         } while (choice < 7);
     }
-    g_nCommMenuChoiceCount_0046af60 = 0;
-    g_nCommMenuReuseMode_0046af64 = reuse;
+    nCommMenuChoiceCount = 0;
+    nCommMenuReuseMode = reuse;
 }
 
 /* Function start: 0x430CA0 */
 int IsCommMenuIdle(void)
 {
-    return g_nCommMenuChoiceCount_0046af60 == 0;
+    return nCommMenuChoiceCount == 0;
 }
 
 /* Function start: 0x430CB0 */
@@ -1266,29 +1266,29 @@ void AppendCommMenuChoice(const char *text, short command)
 {
     short index;
 
-    if (g_nCommMenuReuseMode_0046af64 == 1) {
-        index = g_nCommMenuChoiceCount_0046af60;
-        if (g_apszCommMenuChoiceText_0059e4e0[index] != text ||
-            g_abCommMenuChoiceCommand_0059e488[index] != command)
-            g_nCommMenuReuseMode_0046af64 = 0;
+    if (nCommMenuReuseMode == 1) {
+        index = nCommMenuChoiceCount;
+        if (apszCommMenuChoiceText[index] != text ||
+            abCommMenuChoiceCommand[index] != command)
+            nCommMenuReuseMode = 0;
     }
-    index = g_nCommMenuChoiceCount_0046af60;
-    g_apszCommMenuChoiceText_0059e4e0[index] = text;
-    g_nCommMenuChoiceCount_0046af60 = index + 1;
-    g_abCommMenuChoiceCommand_0059e488[index] = (signed char)command;
+    index = nCommMenuChoiceCount;
+    apszCommMenuChoiceText[index] = text;
+    nCommMenuChoiceCount = index + 1;
+    abCommMenuChoiceCommand[index] = (signed char)command;
 }
 
 /* Function start: 0x430D30 */
 void SendCommMenuChoice(short i)
 {
-    AppendCommMenuChoice(g_apszCommMenuText_0046af90[i], i);
+    AppendCommMenuChoice(apszCommMenuText[i], i);
 }
 
 /* Function start: 0x430D50 */
 void OpenCommMenuForTarget(const char *heading, const char *message)
 {
-    CockpitMessage(message, g_cYellowColour_004699a8, -1);
-    g_pszCommMenuHeading_0059e490 = heading;
+    CockpitMessage(message, cYellowColour, -1);
+    pszCommMenuHeading = heading;
 }
 
 /* Function start: 0x430D80 */
@@ -1300,13 +1300,13 @@ int IsCommChoiceMenuOpen(void)
 /* Function start: 0x430DA0 */
 short GetPendingMenuAction(void)
 {
-    return (short)g_cPendingCommMenuAction_0046af6c;
+    return (short)cPendingCommMenuAction;
 }
 
 /* Function start: 0x430DB0 */
 void SetPendingMenuAction(unsigned char v)
 {
-    g_cPendingCommMenuAction_0046af6c = (signed char)v;
+    cPendingCommMenuAction = (signed char)v;
 }
 
 /* Function start: 0x430DC0 */
@@ -1330,13 +1330,13 @@ void CloseCommChoiceMenu(void)
 /* Function start: 0x430E10 */
 int wingman_dead(void)
 {
-    return g_nYourWingman_0046c04c == -1;
+    return nYourWingman == -1;
 }
 
 /* Function start: 0x430E30 */
 short have_target(void)
 {
-    return unactive(g_acShipTarget_0059ce60[0]) == 0;
+    return unactive(acShipTarget[0]) == 0;
 }
 
 /* Function start: 0x430E50 */
@@ -1352,7 +1352,7 @@ unsigned short CanOpenCommMenu(void)
 /* Function start: 0x430E70 */
 void SelectCommRecipient(short recipient)
 {
-    g_cCommMenuRecipient_0046afc4 = recipient;
+    cCommMenuRecipient = recipient;
     SetPendingMenuAction(2);
 }
 
@@ -1363,40 +1363,40 @@ void BuildCommunicationRecipientMenu(void)
     short command;
     const char *text;
 
-    ResetCommMenuChoices(g_nCommMenuReuseMode_0046af64);
+    ResetCommMenuChoices(nCommMenuReuseMode);
     OpenCommMenuForTarget("VID-COM SYSTEM\n\nSend message to?\n\n",
                           "SELECT");
     if (wingman_dead() != 0) {
-        SelectCommRecipient(g_acShipTarget_0059ce60[0]);
+        SelectCommRecipient(acShipTarget[0]);
         return;
     }
     if (have_target() == 0 ||
-        g_acShipTarget_0059ce60[0] == g_nYourWingman_0046c04c) {
-        SelectCommRecipient(g_nYourWingman_0046c04c);
+        acShipTarget[0] == nYourWingman) {
+        SelectCommRecipient(nYourWingman);
         return;
     }
     AppendCommMenuChoice(
-        g_apWingmanPilots_00598a30[
-            (signed char)g_acShipRating_0059cd80[
-                g_nYourWingman_0046c04c]]->callsign,
+        apWingmanPilots[
+            (signed char)acShipRating[
+                nYourWingman]]->callsign,
         1);
-    target = g_acShipTarget_0059ce60[0];
+    target = acShipTarget[0];
     if (target != -1) {
-        if (g_aeShipSide_0059d650[target] == SIDE_KILRATHI &&
-            g_aeObjectClass_0059d100[target] == OBJECT_CLASS_SHIP) {
+        if (aeShipSide[target] == SIDE_KILRATHI &&
+            aeObjectClass[target] == OBJECT_CLASS_SHIP) {
             command = 2;
             text = "ENEMY TARGET";
         } else {
-            if (g_aeShipSide_0059d650[target] != SIDE_IMPERIAL ||
-                ((g_aeObjectClass_0059d100[target] != OBJECT_CLASS_SHIP ||
+            if (aeShipSide[target] != SIDE_IMPERIAL ||
+                ((aeObjectClass[target] != OBJECT_CLASS_SHIP ||
                   any_enemy(0, 14000) == 0) &&
-                 g_aeObjectType_0059b560[target] !=
+                 aeObjectType[target] !=
                      OBJECT_TYPE_TIGERS_CLAW)) {
                 goto finish_recipient_menu;
             }
             command = 3;
-            text = g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[target]].displayName;
+            text = aObjectTypeData[
+                aeObjectType[target]].displayName;
         }
         AppendCommMenuChoice(text, command);
     }
@@ -1411,43 +1411,43 @@ void BuildCommunicationCommandMenu(void)
     signed char rating;
     const char *name;
 
-    ResetCommMenuChoices(g_nCommMenuReuseMode_0046af64);
-    if (g_cCommMenuRecipient_0046afc4 == g_nYourWingman_0046c04c) {
-        if (g_aeShipObjective_0059d200[g_nYourWingman_0046c04c] ==
+    ResetCommMenuChoices(nCommMenuReuseMode);
+    if (cCommMenuRecipient == nYourWingman) {
+        if (aeShipObjective[nYourWingman] ==
                 OBJECTIVE_HOLD_FORMATION &&
             any_enemy(0, 14000) != 0) {
             SendCommMenuChoice(7);
         }
-        if (g_nAutoEngageTimer_0046c084 == -1) {
-            if (g_aeShipObjective_0059d200[g_nYourWingman_0046c04c] !=
+        if (nAutoEngageTimer == -1) {
+            if (aeShipObjective[nYourWingman] !=
                     OBJECTIVE_HOLD_FORMATION)
                 SendCommMenuChoice(9);
         } else {
             SendCommMenuChoice(8);
         }
-        if (g_bRadioSilence_0046af70 != 0)
+        if (bRadioSilence != 0)
             SendCommMenuChoice(11);
         else
             SendCommMenuChoice(10);
     }
-    if (g_aeShipSide_0059d650[g_cCommMenuRecipient_0046afc4] ==
-            g_aeShipSide_0059d650[0]) {
-        if (g_aeObjectType_0059b560[g_cCommMenuRecipient_0046afc4] ==
+    if (aeShipSide[cCommMenuRecipient] ==
+            aeShipSide[0]) {
+        if (aeObjectType[cCommMenuRecipient] ==
                 OBJECT_TYPE_TIGERS_CLAW &&
-            g_bLandingAuthorized_00468ff8 == 0) {
+            bLandingAuthorized == 0) {
             SendCommMenuChoice(12);
         }
         if (have_target() != 0 &&
-            g_aeShipSide_0059d650[g_acShipTarget_0059ce60[0]] ==
+            aeShipSide[acShipTarget[0]] ==
                 SIDE_KILRATHI) {
             SendCommMenuChoice(1);
         }
         if (evaluate_damage(0) < 50 && any_enemy(0, 14000) != 0)
             SendCommMenuChoice(2);
     }
-    if (g_cCommMenuRecipient_0046afc4 == g_nYourWingman_0046c04c)
+    if (cCommMenuRecipient == nYourWingman)
         SendCommMenuChoice(3);
-    if (g_aeShipSide_0059d650[g_cCommMenuRecipient_0046afc4] ==
+    if (aeShipSide[cCommMenuRecipient] ==
             SIDE_KILRATHI) {
         SendCommMenuChoice(4);
         SendCommMenuChoice(5);
@@ -1459,21 +1459,21 @@ void BuildCommunicationCommandMenu(void)
         CloseCommChoiceMenu();
 
     if (IsCommChoiceMenuOpen() != 0) {
-        strcpy(g_szCommMenuHeadingBuffer_0059e4a0,
+        strcpy(szCommMenuHeadingBuffer,
                "VID-COM SYSTEM\n\nTo: ");
-        rating = g_acShipRating_0059cd80[g_cCommMenuRecipient_0046afc4];
+        rating = acShipRating[cCommMenuRecipient];
         if (rating == -1) {
-            name = g_aObjectTypeData_00466458[
-                g_aeObjectType_0059b560[
-                    g_cCommMenuRecipient_0046afc4]].displayName;
+            name = aObjectTypeData[
+                aeObjectType[
+                    cCommMenuRecipient]].displayName;
         } else if (rating < 8) {
-            name = g_apWingmanPilots_00598a30[rating]->callsign;
+            name = apWingmanPilots[rating]->callsign;
         } else {
-            name = g_apszKilrathiAceNames_0046af80[rating - 9];
+            name = apszKilrathiAceNames[rating - 9];
         }
-        strcat(g_szCommMenuHeadingBuffer_0059e4a0, name);
-        strcat(g_szCommMenuHeadingBuffer_0059e4a0, "\n");
-        OpenCommMenuForTarget(g_szCommMenuHeadingBuffer_0059e4a0,
+        strcat(szCommMenuHeadingBuffer, name);
+        strcat(szCommMenuHeadingBuffer, "\n");
+        OpenCommMenuForTarget(szCommMenuHeadingBuffer,
                               "CHOOSE");
     }
 }
@@ -1486,7 +1486,7 @@ void RefreshCommunicationMenu(void)
             BuildCommunicationRecipientMenu();
         if (GetPendingMenuAction() == 2)
             BuildCommunicationCommandMenu();
-        if (g_nCommMenuReuseMode_0046af64 == 0)
+        if (nCommMenuReuseMode == 0)
             InvalidateVduMode(1);
     }
 }
@@ -1518,32 +1518,32 @@ void show_communications_disp(void)
     if (IsCommChoiceMenuOpen() != 0) {
         set_new_vdu(1);
         choice = 0;
-        DrawTextAt(&DAT_005a7700, DAT_005a7530.left,
-                   DAT_005a7530.top, g_pszCommMenuHeading_0059e490, 2);
+        DrawTextAt(&stRightVduTextContext, stRightVdu.left,
+                   stRightVdu.top, pszCommMenuHeading, 2);
 #ifdef WC1_SDL
         selectedChoice = Wc1SdlGetCommunicationMenuSelection();
-        normalColour = DAT_005a7700.colour;
+        normalColour = stRightVduTextContext.colour;
 #endif
-        if (g_nCommMenuChoiceCount_0046af60 > 0) {
+        if (nCommMenuChoiceCount > 0) {
             do {
 #ifdef WC1_SDL
                 if ((int)choice == selectedChoice)
-                    DAT_005a7700.colour = g_cYellowColour_004699a8;
+                    stRightVduTextContext.colour = cYellowColour;
 #endif
                 DrawFormattedText("\n%d %s", (int)choice + 1,
-                                  g_apszCommMenuChoiceText_0059e4e0[
+                                  apszCommMenuChoiceText[
                                       (int)choice]);
 #ifdef WC1_SDL
-                DAT_005a7700.colour = normalColour;
+                stRightVduTextContext.colour = normalColour;
 #endif
                 choice++;
-            } while (choice < g_nCommMenuChoiceCount_0046af60);
+            } while (choice < nCommMenuChoiceCount);
         }
-        DrawSpriteDefault(&DAT_005a7530,
-                          (short)(DAT_005a7530.left + 36),
-                          (short)(DAT_005a7530.top + 10),
-                          g_pCommMenuCursorShape_005a7660, 0x19);
-        g_nCommMenuReuseMode_0046af64 = 1;
+        DrawSpriteDefault(&stRightVdu,
+                          (short)(stRightVdu.left + 36),
+                          (short)(stRightVdu.top + 10),
+                          pCommMenuCursorShape, 0x19);
+        nCommMenuReuseMode = 1;
     }
 }
 
@@ -1559,22 +1559,22 @@ unsigned int Chosen_communicate_option(short choice)
         CloseCommChoiceMenu();
         return 0;
     case 1:
-        if (g_abCommMenuChoiceCommand_0059e488[choice] == 0) {
+        if (abCommMenuChoiceCommand[choice] == 0) {
             CloseCommChoiceMenu();
             return 0;
         }
-        if (g_abCommMenuChoiceCommand_0059e488[choice] == 1) {
-            SelectCommRecipient(g_nYourWingman_0046c04c);
+        if (abCommMenuChoiceCommand[choice] == 1) {
+            SelectCommRecipient(nYourWingman);
             RefreshCommunicationMenu();
             return 0;
         }
-        SelectCommRecipient(g_acShipTarget_0059ce60[0]);
+        SelectCommRecipient(acShipTarget[0]);
         RefreshCommunicationMenu();
         return 0;
     case 2:
         CloseCommChoiceMenu();
-        request(0, (short)g_cCommMenuRecipient_0046afc4,
-                (short)g_abCommMenuChoiceCommand_0059e488[choice]);
+        request(0, (short)cCommMenuRecipient,
+                (short)abCommMenuChoiceCommand[choice]);
         return 0;
     }
     return 0;
@@ -1592,27 +1592,27 @@ void FreeCommDisplayResources(void)
 #ifdef WC1_SDL
     /* The original indexes the portrait table with its -1 inactive sentinel,
        aliasing the final two palette-allocation words at 0x0059E17C. */
-    if (g_nCommPortraitIndex_0046afd0 != -1)
+    if (nCommPortraitIndex != -1)
 #endif
-    FreePacketAndClear(&g_apCommPortraitShapes_0059e180[
-        g_nCommPortraitIndex_0046afd0], 0);
-    FreePacketAndClear(&g_pConfedCommBackground_00469278, 0);
-    FreePacketAndClear(&g_pKilrathiCommBackground_00469280, 0);
-    FreePacketAndClear(&g_pCommStaticShape_0046927c, 0);
-    g_nCommSpeakerRating_0046afcc = -1;
-    g_nCommSpeakerObject_0046afc8 = -1;
-    g_nCommPortraitIndex_0046afd0 = -1;
+    FreePacketAndClear(&apCommPortraitShapes[
+        nCommPortraitIndex], 0);
+    FreePacketAndClear(&pConfedCommBackground, 0);
+    FreePacketAndClear(&pKilrathiCommBackground, 0);
+    FreePacketAndClear(&pCommStaticShape, 0);
+    nCommSpeakerRating = -1;
+    nCommSpeakerObject = -1;
+    nCommPortraitIndex = -1;
 }
 
 /* Function start: 0x431470 */
 void EndCommSessionWithWingman(void)
 {
 #ifdef WC1_SDL
-    if (g_nCommPortraitIndex_0046afd0 != -1 &&
+    if (nCommPortraitIndex != -1 &&
 #else
     if (
 #endif
-        g_apCommPortraitShapes_0059e180[g_nCommPortraitIndex_0046afd0] != 0)
+        apCommPortraitShapes[nCommPortraitIndex] != 0)
         malf_noise(1, 1, 12, 23, 1);
     FreeCommDisplayResources();
     if (get_mode(1) == 6)
@@ -1625,15 +1625,15 @@ void EndCommMenu(void)
     clear_message_time();
     if (get_mode(1) == 6)
         EndCommSessionWithWingman();
-    g_pszPendingHudMessage_00469004 = 0;
+    pszPendingHudMessage = 0;
 }
 
 /* Function start: 0x4314F0 */
 void ShowCentredPrompt(char *text, unsigned short arg)
 {
-    DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
-    SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
-                      g_cYellowColour_004699a8, arg);
+    DosStrcpy(szHudMessageBuffer, text);
+    SetHudMessageText(szHudMessageBuffer,
+                      cYellowColour, arg);
 }
 
 /* Function start: 0x431520 */
@@ -1644,22 +1644,22 @@ short LoadCommDisplayResources(short rating, enum Side side)
     loaded = 1;
     switch (side) {
     case SIDE_IMPERIAL:
-        if (g_pConfedCommBackground_00469278 == 0)
-            g_pConfedCommBackground_00469278 =
+        if (pConfedCommBackground == 0)
+            pConfedCommBackground =
                 FetchDiskPacketRetrying(11, 0, 0);
-        loaded = g_pConfedCommBackground_00469278 != 0;
+        loaded = pConfedCommBackground != 0;
         break;
     case SIDE_KILRATHI:
-        if (g_pKilrathiCommBackground_00469280 == 0)
-            g_pKilrathiCommBackground_00469280 =
+        if (pKilrathiCommBackground == 0)
+            pKilrathiCommBackground =
                 FetchDiskPacketRetrying(11, 9, 0);
-        loaded = g_pKilrathiCommBackground_00469280 != 0;
+        loaded = pKilrathiCommBackground != 0;
         break;
     }
-    if (g_pCommStaticShape_0046927c == 0)
-        g_pCommStaticShape_0046927c =
+    if (pCommStaticShape == 0)
+        pCommStaticShape =
             FetchDiskPacketRetrying(11, 11, 0);
-    if (loaded != 0 && g_pCommStaticShape_0046927c != 0)
+    if (loaded != 0 && pCommStaticShape != 0)
         return 1;
     return 0;
 }
@@ -1671,14 +1671,14 @@ char *ExpandCommMessageTokens(const char *text)
     const char *marker;
     short length;
 
-    g_szTextScratchBuffer_00598b00[0] = '\0';
+    szTextScratchBuffer[0] = '\0';
     for (;;) {
         marker = DosStrchr(text, '$');
         if (marker == 0) {
-            DosStrcat(g_szTextScratchBuffer_00598b00, text);
-            return g_szTextScratchBuffer_00598b00;
+            DosStrcat(szTextScratchBuffer, text);
+            return szTextScratchBuffer;
         }
-        destination = DosStrchr(g_szTextScratchBuffer_00598b00, '\0');
+        destination = DosStrchr(szTextScratchBuffer, '\0');
         while (marker != text)
             *destination++ = *text++;
         *destination = '\0';
@@ -1686,23 +1686,23 @@ char *ExpandCommMessageTokens(const char *text)
         switch (marker[1]) {
         case 'C':
             DosStrcat(
-                g_szTextScratchBuffer_00598b00,
-                g_stCampaignState_0059ca50.currentPilot->callsign);
+                szTextScratchBuffer,
+                stCampaignState.currentPilot->callsign);
             break;
         case 'N':
         case 'P':
-            DosStrcat(g_szTextScratchBuffer_00598b00,
-                      g_stCampaignState_0059ca50.currentPilot->name);
+            DosStrcat(szTextScratchBuffer,
+                      stCampaignState.currentPilot->name);
             break;
         case 'R':
-            DosStrcat(g_szTextScratchBuffer_00598b00,
-                      g_apszPilotRankNames_00470098[
-                          g_stCampaignState_0059ca50.currentPilot->rank]);
-            length = DosStrlen(g_szTextScratchBuffer_00598b00);
-            if (g_szTextScratchBuffer_00598b00[length - 1] == '.' &&
+            DosStrcat(szTextScratchBuffer,
+                      apszPilotRankNames[
+                          stCampaignState.currentPilot->rank]);
+            length = DosStrlen(szTextScratchBuffer);
+            if (szTextScratchBuffer[length - 1] == '.' &&
                 *text == '.') {
-                length = DosStrlen(g_szTextScratchBuffer_00598b00);
-                g_szTextScratchBuffer_00598b00[length - 1] = '\0';
+                length = DosStrlen(szTextScratchBuffer);
+                szTextScratchBuffer[length - 1] = '\0';
             }
             break;
         }
@@ -1717,82 +1717,84 @@ void real_vid_transmit(short obj, short message)
     char *speech;
     int objectOffset;
 
-    g_nCommSpeakerObject_0046afc8 = obj;
-    g_nCommSpeakerRating_0046afcc =
-        (short)g_acShipRating_0059cd80[obj];
-    g_nCommPortraitIndex_0046afd0 =
-        get_face(g_nCommSpeakerRating_0046afcc,
-                 g_aeShipSide_0059d650[obj]);
-    if (g_nCommPortraitIndex_0046afd0 == -1)
+    nCommSpeakerObject = obj;
+    nCommSpeakerRating =
+        (short)acShipRating[obj];
+    nCommPortraitIndex =
+        get_face(nCommSpeakerRating,
+                 aeShipSide[obj]);
+    if (nCommPortraitIndex == -1)
         return;
     objectOffset = (int)obj * sizeof(enum ObjectType);
-    if (DAT_0046af78 != 0 && g_bVideoImagesSuppressed_0046af74 == 0) {
-        if (g_apCommPortraitShapes_0059e180[
-                g_nCommPortraitIndex_0046afd0] == 0)
-            LoadCommPortraitShape(g_nCommPortraitIndex_0046afd0, 0);
-        if (g_apCommPortraitShapes_0059e180[
-                g_nCommPortraitIndex_0046afd0] != 0 &&
-            LoadCommDisplayResources(g_nCommSpeakerRating_0046afcc,
-                g_aeShipSide_0059d650[
-                    g_nCommSpeakerObject_0046afc8]) != 0) {
+    if (bCommVideoEnabled != 0 && bVideoImagesSuppressed == 0) {
+        if (apCommPortraitShapes[
+                nCommPortraitIndex] == 0)
+            LoadCommPortraitShape(nCommPortraitIndex, 0);
+        if (apCommPortraitShapes[
+                nCommPortraitIndex] != 0 &&
+            LoadCommDisplayResources(nCommSpeakerRating,
+                aeShipSide[
+                    nCommSpeakerObject]) != 0) {
             push_mode(1, 6);
             malf_noise(1, 3, 12, 23, 1);
             DrawSpriteDefault(
-                &DAT_005a7530, DAT_005a7530.left, DAT_005a7530.top,
-                g_aeShipSide_0059d650[
-                    g_nCommSpeakerObject_0046afc8] == SIDE_IMPERIAL ?
-                    g_pConfedCommBackground_00469278 :
-                    g_pKilrathiCommBackground_00469280,
+                &stRightVdu, stRightVdu.left,
+                stRightVdu.top,
+                aeShipSide[
+                    nCommSpeakerObject] == SIDE_IMPERIAL ?
+                    pConfedCommBackground :
+                    pKilrathiCommBackground,
                 0);
             DrawSpriteDefault(
-                &DAT_005a7530, DAT_005a7530.left, DAT_005a7530.top,
-                g_apCommPortraitShapes_0059e180[
-                    g_nCommPortraitIndex_0046afd0],
+                &stRightVdu, stRightVdu.left,
+                stRightVdu.top,
+                apCommPortraitShapes[
+                    nCommPortraitIndex],
                 0);
         }
     }
-    speech = g_aapszPilotSpeech_0059e220[
-        g_nCommPortraitIndex_0046afd0][message];
-    if (g_nCommSpeakerRating_0046afcc >= 0 &&
-        g_nCommSpeakerRating_0046afcc <= 7) {
+    speech = aapszPilotSpeech[
+        nCommPortraitIndex][message];
+    if (nCommSpeakerRating >= 0 &&
+        nCommSpeakerRating <= 7) {
 #ifdef WC1_SDL
         /* MSVC 4.20 accepts %Fs as its legacy far-string conversion. */
         sprintf(text, "%s: %s",
-                g_apWingmanPilots_00598a30[
-                    g_nCommSpeakerRating_0046afcc]->callsign,
+                apWingmanPilots[
+                    nCommSpeakerRating]->callsign,
                 speech);
 #else
-        sprintf(text, g_szConfedCommFormat_0046b150,
-                g_apWingmanPilots_00598a30[
-                    g_nCommSpeakerRating_0046afcc]->callsign,
+        sprintf(text, szConfedCommFormat,
+                apWingmanPilots[
+                    nCommSpeakerRating]->callsign,
                 speech);
 #endif
-    } else if (g_nCommSpeakerRating_0046afcc >= 9 &&
-               g_nCommSpeakerRating_0046afcc <= 12) {
+    } else if (nCommSpeakerRating >= 9 &&
+               nCommSpeakerRating <= 12) {
 #ifdef WC1_SDL
         sprintf(text, "%s: %s",
-                g_apszKilrathiAceNames_0046af80[
-                    g_nCommSpeakerRating_0046afcc - 9],
+                apszKilrathiAceNames[
+                    nCommSpeakerRating - 9],
                 speech);
 #else
-        sprintf(text, g_szKilrathiAceCommFormat_0046b158,
-                g_apszKilrathiAceNames_0046af80[
-                    g_nCommSpeakerRating_0046afcc - 9],
+        sprintf(text, szKilrathiAceCommFormat,
+                apszKilrathiAceNames[
+                    nCommSpeakerRating - 9],
                 speech);
 #endif
     } else {
 #ifdef WC1_SDL
         sprintf(text, "%s: %s",
-                g_aObjectTypeData_00466458[
+                aObjectTypeData[
                     *(enum ObjectType *)(void *)
-                        ((unsigned char *)g_aeObjectType_0059b560 +
+                        ((unsigned char *)aeObjectType +
                          objectOffset)].displayName,
                 speech);
 #else
-        sprintf(text, g_szShipCommFormat_0046b160,
-                g_aObjectTypeData_00466458[
+        sprintf(text, szShipCommFormat,
+                aObjectTypeData[
                     *(enum ObjectType *)(void *)
-                        ((unsigned char *)g_aeObjectType_0059b560 +
+                        ((unsigned char *)aeObjectType +
                          objectOffset)].displayName,
                 speech);
 #endif
@@ -1819,7 +1821,7 @@ short __stdcall ReserveContiguousPaletteEntries(short entryCount)
     entry = 0;
     firstEntry = 0;
     for (;;) {
-        if (g_awPaletteEntryAllocation_0059df80[entry] != 0) {
+        if (awPaletteEntryAllocation[entry] != 0) {
             freeEntries = 0;
             firstEntry = (short)(entry + 1);
         } else
@@ -1833,7 +1835,7 @@ short __stdcall ReserveContiguousPaletteEntries(short entryCount)
 
     fillEntry = 0;
     while (fillEntry < entryCount) {
-        g_awPaletteEntryAllocation_0059df80[firstEntry + fillEntry] =
+        awPaletteEntryAllocation[firstEntry + fillEntry] =
             entryCount;
         fillEntry++;
     }
@@ -1847,9 +1849,9 @@ void __stdcall ReleaseContiguousPaletteEntries(short firstEntry)
     short entryCount;
 
     entry = 0;
-    entryCount = g_awPaletteEntryAllocation_0059df80[firstEntry];
+    entryCount = awPaletteEntryAllocation[firstEntry];
     while (entry < entryCount) {
-        g_awPaletteEntryAllocation_0059df80[firstEntry + entry] = 0;
+        awPaletteEntryAllocation[firstEntry + entry] = 0;
         entry++;
     }
 }
@@ -1866,7 +1868,7 @@ void PrintPaletteAllocationMap(void)
     do {
         column = 0x40;
         do {
-            printf("%c", g_awPaletteEntryAllocation_0059df80[index++] < 1 ?
+            printf("%c", awPaletteEntryAllocation[index++] < 1 ?
                    '_' : '.');
             column--;
         } while (column != 0);
@@ -1900,7 +1902,7 @@ void LoadJoystickCalibrationFile(short horizontalRange,
         horizontalRange += (short)failed;
     if (verticalRange == 0)
         verticalRange++;
-    g_nJoystickFailureValue_005a81e0 = -1;
+    nJoystickFailureValue = -1;
     SampleBothJoysticks(samples, 0xffff);
     if (samples[0].x != -1 && samples[0].y != -1)
         activeDevice = 0;
@@ -1923,8 +1925,8 @@ void LoadJoystickCalibrationFile(short horizontalRange,
                 failed = _read(file, &storedCentreX, 2) <= 0;
             if (failed == 0)
                 failed = _read(file, &storedCentreY, 2) <= 0;
-            g_nJoystickCentreX_005a81dc = (unsigned int)storedCentreX;
-            g_nJoystickCentreY_005a81d8 = (unsigned int)storedCentreY;
+            nJoystickCentreX = (unsigned int)storedCentreX;
+            nJoystickCentreY = (unsigned int)storedCentreY;
             _close(file);
             if (failed != 0)
                 _unlink("j.cal");
@@ -1939,58 +1941,58 @@ void LoadJoystickCalibrationFile(short horizontalRange,
             centreX = ((int)minimumX + (int)maximumX) / 2;
             centreY = ((int)maximumY + (int)minimumY) / 2;
         } else {
-            centreX = g_nJoystickCentreX_005a81dc;
-            centreY = g_nJoystickCentreY_005a81d8;
+            centreX = nJoystickCentreX;
+            centreY = nJoystickCentreY;
         }
 
-        g_nJoystickCalibrationMinimumX_0059df68 = centreX;
-        g_nJoystickCalibrationMaximumX_0059df6c = centreX;
+        nJoystickCalibrationMinimumX = centreX;
+        nJoystickCalibrationMaximumX = centreX;
         if (centreX > 10) {
-            g_nJoystickCalibrationMinimumX_0059df68 = centreX - 10;
-            g_nJoystickCalibrationMaximumX_0059df6c = centreX + 10;
+            nJoystickCalibrationMinimumX = centreX - 10;
+            nJoystickCalibrationMaximumX = centreX + 10;
         }
-        g_nJoystickCalibrationMinimumY_0059df64 = centreY;
-        g_nJoystickCalibrationMaximumY_0059df70 = centreY;
+        nJoystickCalibrationMinimumY = centreY;
+        nJoystickCalibrationMaximumY = centreY;
         if (centreY > 10) {
-            g_nJoystickCalibrationMinimumY_0059df64 = centreY - 10;
-            g_nJoystickCalibrationMaximumY_0059df70 = centreY + 10;
+            nJoystickCalibrationMinimumY = centreY - 10;
+            nJoystickCalibrationMaximumY = centreY + 10;
         }
 
-        g_nJoystickLeftScale_005a81ac =
-            g_nJoystickCalibrationMinimumX_0059df68 /
+        nJoystickLeftScale =
+            nJoystickCalibrationMinimumX /
             (int)horizontalRange;
-        g_nJoystickUpScale_005a81a8 =
-            g_nJoystickCalibrationMinimumY_0059df64 /
+        nJoystickUpScale =
+            nJoystickCalibrationMinimumY /
             (int)verticalRange;
-        if (g_nJoystickLeftScale_005a81ac == 0)
-            g_nJoystickLeftScale_005a81ac = 1;
-        if (g_nJoystickUpScale_005a81a8 == 0)
-            g_nJoystickUpScale_005a81a8 = 1;
-        g_nJoystickRightScale_005a81d0 =
-            g_nJoystickCalibrationMinimumX_0059df68 /
+        if (nJoystickLeftScale == 0)
+            nJoystickLeftScale = 1;
+        if (nJoystickUpScale == 0)
+            nJoystickUpScale = 1;
+        nJoystickRightScale =
+            nJoystickCalibrationMinimumX /
             (int)horizontalRange;
-        if (g_nJoystickRightScale_005a81d0 == 0)
-            g_nJoystickRightScale_005a81d0 = 1;
-        g_nJoystickDownScale_005a81d4 =
-            g_nJoystickCalibrationMinimumY_0059df64 /
+        if (nJoystickRightScale == 0)
+            nJoystickRightScale = 1;
+        nJoystickDownScale =
+            nJoystickCalibrationMinimumY /
             (int)verticalRange;
-        if (g_nJoystickDownScale_005a81d4 == 0)
-            g_nJoystickDownScale_005a81d4 = 1;
+        if (nJoystickDownScale == 0)
+            nJoystickDownScale = 1;
 
-        g_nJoystickCentreX_005a81dc = centreX;
-        g_nJoystickCentreY_005a81d8 = centreY;
-        g_nJoystickMinimumX_005a81b8 =
-            centreX - horizontalRange * g_nJoystickLeftScale_005a81ac;
-        g_nJoystickMinimumY_005a81bc =
-            centreY - verticalRange * g_nJoystickUpScale_005a81a8;
-        g_nJoystickMaximumX_005a81b0 =
-            horizontalRange * g_nJoystickLeftScale_005a81ac + centreX;
-        g_nJoystickMaximumY_005a81b4 =
-            verticalRange * g_nJoystickUpScale_005a81a8 + centreY;
-        g_nJoystickHorizontalDeadZone_005a81a4 = horizontalDeadZone;
-        g_nJoystickVerticalDeadZone_005a81a0 = verticalDeadZone;
+        nJoystickCentreX = centreX;
+        nJoystickCentreY = centreY;
+        nJoystickMinimumX =
+            centreX - horizontalRange * nJoystickLeftScale;
+        nJoystickMinimumY =
+            centreY - verticalRange * nJoystickUpScale;
+        nJoystickMaximumX =
+            horizontalRange * nJoystickLeftScale + centreX;
+        nJoystickMaximumY =
+            verticalRange * nJoystickUpScale + centreY;
+        nJoystickHorizontalDeadZone = horizontalDeadZone;
+        nJoystickVerticalDeadZone = verticalDeadZone;
     }
-    g_nActiveInputDevice_005a819c = activeDevice;
+    nActiveInputDevice = activeDevice;
 }
 
 /* Function start: 0x431D20 */
@@ -2005,78 +2007,78 @@ short ReadCalibratedJoystick(void)
     short normalizedY;
     short device;
 
-    device = g_nActiveInputDevice_005a819c;
+    device = nActiveInputDevice;
     if (device == -1)
         return 0;
     deviceIndex = (int)device;
-    sample = &g_aInputDeviceSamples_005a81f0[deviceIndex];
+    sample = &aInputDeviceSamples[deviceIndex];
     sampleResult = SampleJoystickDevice(
         sample, device,
-        g_nJoystickFailureValue_005a81e0);
+        nJoystickFailureValue);
     rawX = sample->x;
-    rawY = g_aInputDeviceSamples_005a81f0[deviceIndex].y;
-    if (rawX == g_nJoystickFailureValue_005a81e0 ||
-        rawY == g_nJoystickFailureValue_005a81e0 ||
+    rawY = aInputDeviceSamples[deviceIndex].y;
+    if (rawX == nJoystickFailureValue ||
+        rawY == nJoystickFailureValue ||
         sampleResult != 0) {
-        g_nActiveInputDevice_005a819c = -1;
-        g_aInputDeviceSamples_005a81f0[deviceIndex].buttons = 0;
-        g_aInputDeviceSamples_005a81f0[deviceIndex].y = 0;
+        nActiveInputDevice = -1;
+        aInputDeviceSamples[deviceIndex].buttons = 0;
+        aInputDeviceSamples[deviceIndex].y = 0;
         sample->x = 0;
         return 0;
     }
 
-    g_nJoystickRawX_005a81c0 = rawX;
-    g_nJoystickRawY_005a81c4 = rawY;
-    if (rawX < g_nJoystickMinimumX_005a81b8)
-        sample->x = g_nJoystickMinimumX_005a81b8;
-    if (sample->x > g_nJoystickMaximumX_005a81b0)
-        sample->x = g_nJoystickMaximumX_005a81b0;
-    if (g_aInputDeviceSamples_005a81f0[deviceIndex].y <
-        g_nJoystickMinimumY_005a81bc)
-        g_aInputDeviceSamples_005a81f0[deviceIndex].y =
-            g_nJoystickMinimumY_005a81bc;
-    if (g_aInputDeviceSamples_005a81f0[deviceIndex].y >
-        g_nJoystickMaximumY_005a81b4)
-        g_aInputDeviceSamples_005a81f0[deviceIndex].y =
-            g_nJoystickMaximumY_005a81b4;
+    nJoystickRawX = rawX;
+    nJoystickRawY = rawY;
+    if (rawX < nJoystickMinimumX)
+        sample->x = nJoystickMinimumX;
+    if (sample->x > nJoystickMaximumX)
+        sample->x = nJoystickMaximumX;
+    if (aInputDeviceSamples[deviceIndex].y <
+        nJoystickMinimumY)
+        aInputDeviceSamples[deviceIndex].y =
+            nJoystickMinimumY;
+    if (aInputDeviceSamples[deviceIndex].y >
+        nJoystickMaximumY)
+        aInputDeviceSamples[deviceIndex].y =
+            nJoystickMaximumY;
 
     normalizedY = 0;
     normalizedX = 0;
     rawX = sample->x;
-    if (g_nJoystickCentreX_005a81dc > rawX) {
-        normalizedX = (short)((g_nJoystickCentreX_005a81dc - rawX) /
-                              g_nJoystickLeftScale_005a81ac);
-        if (g_nJoystickHorizontalDeadZone_005a81a4 < normalizedX) {
+    if (nJoystickCentreX > rawX) {
+        normalizedX = (short)((nJoystickCentreX - rawX) /
+                              nJoystickLeftScale);
+        if (nJoystickHorizontalDeadZone < normalizedX) {
             if (normalizedX != 0)
                 normalizedX = (short)-normalizedX;
         } else {
             normalizedX = 0;
         }
-    } else if (g_nJoystickCentreX_005a81dc < rawX) {
-        normalizedX = (short)((rawX - g_nJoystickCentreX_005a81dc) /
-                              g_nJoystickRightScale_005a81d0);
-        if (normalizedX <= g_nJoystickHorizontalDeadZone_005a81a4)
+    } else if (nJoystickCentreX < rawX) {
+        normalizedX = (short)((rawX - nJoystickCentreX) /
+                              nJoystickRightScale);
+        if (normalizedX <= nJoystickHorizontalDeadZone)
             normalizedX = 0;
     }
 
-    rawY = g_aInputDeviceSamples_005a81f0[deviceIndex].y;
-    if (g_nJoystickCentreY_005a81d8 > rawY) {
-        normalizedY = (short)((g_nJoystickCentreY_005a81d8 - rawY) /
-                              g_nJoystickUpScale_005a81a8);
-        if (g_nJoystickVerticalDeadZone_005a81a0 < normalizedY) {
+    rawY = aInputDeviceSamples[deviceIndex].y;
+    if (nJoystickCentreY > rawY) {
+        normalizedY = (short)((nJoystickCentreY - rawY) /
+                              nJoystickUpScale);
+        if (nJoystickVerticalDeadZone < normalizedY) {
             if (normalizedY != 0)
                 normalizedY = (short)-normalizedY;
         } else {
             normalizedY = 0;
         }
-    } else if (g_nJoystickCentreY_005a81d8 < rawY) {
-        normalizedY = (short)((rawY - g_nJoystickCentreY_005a81d8) /
-                              g_nJoystickDownScale_005a81d4);
-        if (normalizedY <= g_nJoystickVerticalDeadZone_005a81a0)
+    } else if (nJoystickCentreY < rawY) {
+        normalizedY = (short)((rawY - nJoystickCentreY) /
+                              nJoystickDownScale);
+        if (normalizedY <= nJoystickVerticalDeadZone)
             normalizedY = 0;
     }
     sample->x = (int)normalizedX;
-    g_aInputDeviceSamples_005a81f0[deviceIndex].y = (int)normalizedY;
+    aInputDeviceSamples[deviceIndex].y = (int)normalizedY;
     return 1;
 }
 
@@ -2100,32 +2102,36 @@ void ThrottleFrameAndDrawFps(HDC dc)
 {
     DWORD now;
 
-    if (g_bShowFrameRate_00465070 != 0) {
-        sprintf((char *)DAT_00476620, "%f", DAT_00486510);
-        TextOutA(dc, 0, 0, (char *)DAT_00476620,
-                 strlen((char *)DAT_00476620));
+    if (bShowFrameRate != 0) {
+        sprintf((char *)szFrameRateText, "%f",
+                fMeasuredFrameRate);
+        TextOutA(dc, 0, 0, (char *)szFrameRateText,
+                 strlen((char *)szFrameRateText));
     }
 
-    if (g_stMouseCursorState_0059ab10.viewport->pixels == DAT_00476648) {
-        while (timeGetTime() < (DWORD)DAT_0046b1bc) {
+    if (stMouseCursorState.viewport->pixels ==
+            pDIBPixelBuffer) {
+        while (timeGetTime() < (DWORD)nFrameDeadlineMs) {
             Sleep(0);
             RefreshMouseCursorDisplay();
         }
     } else {
-        while (timeGetTime() < (DWORD)DAT_0046b1bc)
+        while (timeGetTime() < (DWORD)nFrameDeadlineMs)
             Sleep(0);
     }
 
-    if (g_bShowFrameRate_00465070 != 0) {
-        if (DAT_0046b1c4 != 0) {
+    if (bShowFrameRate != 0) {
+        if (nPreviousFrameTimeMs != 0) {
             now = timeGetTime();
-            DAT_00486510 = 1000.0f / ((double)now - DAT_0046b1c4);
+            fMeasuredFrameRate =
+                1000.0f / ((double)now - nPreviousFrameTimeMs);
         }
-        DAT_0046b1c4 = timeGetTime();
-        sprintf((char *)DAT_00476620, "%f", DAT_00486510);
-        TextOutA(dc, 0, 0, (char *)DAT_00476620,
-                 strlen((char *)DAT_00476620));
+        nPreviousFrameTimeMs = timeGetTime();
+        sprintf((char *)szFrameRateText, "%f",
+                fMeasuredFrameRate);
+        TextOutA(dc, 0, 0, (char *)szFrameRateText,
+                 strlen((char *)szFrameRateText));
     }
 
-    DAT_0046b1bc = timeGetTime() + DAT_0046b1b8;
+    nFrameDeadlineMs = timeGetTime() + nFrameIntervalMs;
 }

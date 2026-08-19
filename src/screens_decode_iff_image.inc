@@ -27,7 +27,7 @@
         xor	eax, 0x4d424c49
         mov	dword ptr [ebp - 0x4], eax
         push	dword ptr [ebp + 0xc]
-        push offset g_abIffBmhdChunkId_0043e778
+        push offset abIffBmhdChunkId
         call FindIFFChunkData
         add	esp, 0x8
         mov	esi, eax
@@ -75,7 +75,7 @@ dormant_loc_43e835:
 dormant_loc_43e88b:
         mov	dword ptr [ebp - 0xc], eax
         push	dword ptr [ebp + 0xc]
-        push offset g_abIffBodyChunkId_0043e780
+        push offset abIffBodyChunkId
         call FindIFFChunkData
         add	esp, 0x8
         mov	dword ptr [ebp - 0x10], eax
@@ -83,7 +83,7 @@ dormant_loc_43e8a1:
         mov	esi, dword ptr [ebp - 0x10]
         cmp	dword ptr [ebp - 0x2c], 0x1
         jne dormant_loc_43e8fc
-        mov edi, offset g_abRasterPaletteUsageScratch_0046f915
+        mov edi, offset abRasterPaletteUsageScratch
         mov	edx, dword ptr [ebp - 0x34]
         add	edx, edi
 dormant_loc_43e8b4:
@@ -119,7 +119,7 @@ dormant_loc_43e8d5:
         jmp dormant_loc_43e8b4
 dormant_loc_43e8f2:
         mov	dword ptr [ebp - 0x10], esi
-        mov esi, offset g_abRasterPaletteUsageScratch_0046f915
+        mov esi, offset abRasterPaletteUsageScratch
         jmp dormant_loc_43e904
 dormant_loc_43e8fc:
         mov	eax, esi
@@ -128,7 +128,7 @@ dormant_loc_43e8fc:
 dormant_loc_43e904:
         cmp	dword ptr [ebp - 0x4], 0x0
         jne dormant_loc_43e966
-        mov edi, offset g_abRasterDecodeBuffer_0046ec15
+        mov edi, offset abRasterDecodeBuffer
         mov	eax, dword ptr [ebp - 0x30]
         mov	dword ptr [ebp - 0x18], eax
         mov	dword ptr [ebp - 0x1c], eax
@@ -158,7 +158,7 @@ dormant_loc_43e937:
         jne dormant_loc_43e91e
 dormant_loc_43e94e:
         push	dword ptr [ebp - 0xc]
-        push offset g_abRasterDecodeBuffer_0046ec15
+        push offset abRasterDecodeBuffer
         push	dword ptr [ebp - 0x28]
         push	dword ptr [ebp + 0x8]
         call BlitRawScanline

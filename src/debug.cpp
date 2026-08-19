@@ -24,7 +24,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
 #endif
 
     busyWait = waitMode;
-    g_nDebugOverlayConsoleCount_00469644++;
+    nDebugOverlayConsoleCount++;
     window = targetWindow;
     columns = columnCount;
     cursorRow = 0;
@@ -43,7 +43,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     deviceContext = GetDC(window);
     SelectObject(deviceContext,
                  CreateFontA(10, 10, 0, 0, 400, 0, 0, 0, 0, 2, 0, 0,
-                             0x30, g_szDebugOverlayFontName_00469654));
+                             0x30, szDebugOverlayFontName));
 #endif
     backgroundColor = 0;
     textColor = 0xffffff;
@@ -56,8 +56,8 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     characterWidth = metrics.tmMaxCharWidth;
     characterHeight = metrics.tmHeight;
 
-    if (g_hDebugKeyboardHook_00469650 == 0) {
-        g_hDebugKeyboardHook_00469650 =
+    if (hDebugKeyboardHook == 0) {
+        hDebugKeyboardHook =
             SetWindowsHookExA(WH_KEYBOARD, (HOOKPROC)DebugKeyboardHookProc,
                               module, 0);
     }
@@ -71,7 +71,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     spinnerIndex = 0;
     animationState = 1;
     spinnerCharacters = (char *)malloc(5);
-    strcpy(spinnerCharacters, g_szDebugOverlaySpinner_0046965c);
+    strcpy(spinnerCharacters, szDebugOverlaySpinner);
 }
 
 /* Function start: 0x41C910 */
@@ -79,10 +79,10 @@ DebugOverlayConsole::~DebugOverlayConsole()
 {
     animationState = 2;
 #ifdef WC1_SDL
-    g_nDebugOverlayConsoleCount_00469644--;
+    nDebugOverlayConsoleCount--;
 #else
-    if (--g_nDebugOverlayConsoleCount_00469644 == 0)
-        UnhookWindowsHookEx(g_hDebugKeyboardHook_00469650);
+    if (--nDebugOverlayConsoleCount == 0)
+        UnhookWindowsHookEx(hDebugKeyboardHook);
 #endif
     free(textBuffer);
     free(dirtyLines);
@@ -144,19 +144,19 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
 #ifdef WC1_SDL
     (void)code;
     if ((flags & 0x40000000) != 0) {
-        g_dwDebugOverlayKey_00469648 = (DWORD)key;
-        g_dwDebugOverlayKeyLatch_0046964c = (DWORD)key;
+        dwDebugOverlayKey = (DWORD)key;
+        dwDebugOverlayKeyLatch = (DWORD)key;
     }
     return 0;
 #else
     if (code < 0)
-        return CallNextHookEx(g_hDebugKeyboardHook_00469650,
+        return CallNextHookEx(hDebugKeyboardHook,
                               code, key, flags);
     if ((flags & 0x40000000) != 0) {
-        g_dwDebugOverlayKey_00469648 = key;
-        g_dwDebugOverlayKeyLatch_0046964c = key;
+        dwDebugOverlayKey = key;
+        dwDebugOverlayKeyLatch = key;
     }
-    return CallNextHookEx(g_hDebugKeyboardHook_00469650,
+    return CallNextHookEx(hDebugKeyboardHook,
                           code, key, flags);
 #endif
 }
@@ -175,7 +175,7 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
         vsprintf(console->formatBuffer, format, arguments);
         va_end(arguments);
     } else {
-        strcpy(console->formatBuffer, g_szDebugOverlayNewline_00469664);
+        strcpy(console->formatBuffer, szDebugOverlayNewline);
     }
     length = strlen(console->formatBuffer);
     index = 0;
@@ -272,15 +272,15 @@ char DebugOverlayConsole::WaitForKey(void)
 #ifdef WC1_SDL
     char key;
 
-    while (g_dwDebugOverlayKey_00469648 == 0 &&
+    while (dwDebugOverlayKey == 0 &&
            PumpWindowMessages() != 0) {
         if (busyWait == 0)
             SDL_Delay(1);
     }
-    if (g_dwDebugOverlayKey_00469648 == 0)
+    if (dwDebugOverlayKey == 0)
         return 0x1b;
-    key = (char)g_dwDebugOverlayKey_00469648;
-    g_dwDebugOverlayKey_00469648 = 0;
+    key = (char)dwDebugOverlayKey;
+    dwDebugOverlayKey = 0;
     return key;
 #else
     RECT clip;
@@ -292,7 +292,7 @@ char DebugOverlayConsole::WaitForKey(void)
     minimized = 0;
     complete = 0;
     if (busyWait == 0) {
-        while (g_dwDebugOverlayKey_00469648 == 0) {
+        while (dwDebugOverlayKey == 0) {
             while (complete == 0) {
                 if (minimized != 0) {
                     if (GetMessageA(&message, 0, 0, 0) != 0) {
@@ -302,7 +302,7 @@ char DebugOverlayConsole::WaitForKey(void)
                     } else {
                         ShutdownGameWindow();
                     }
-                    if (IsIconic(DAT_005a89a0) == 0)
+                    if (IsIconic(hMainWindow) == 0)
                         minimized = 0;
                     if (minimized == 0) {
                         clip.left = 0;
@@ -313,8 +313,8 @@ char DebugOverlayConsole::WaitForKey(void)
                         ShowCursor(0);
                         process = GetCurrentProcess();
                         SetPriorityClass(process, HIGH_PRIORITY_CLASS);
-                        SetActiveWindow(DAT_005a89a0);
-                        SetForegroundWindow(DAT_005a89a0);
+                        SetActiveWindow(hMainWindow);
+                        SetForegroundWindow(hMainWindow);
                         DIBreInstall();
                         DIBslam();
                         DIBslamReal();
@@ -333,7 +333,7 @@ char DebugOverlayConsole::WaitForKey(void)
                         complete = 1;
                     }
                 }
-                if (IsIconic(DAT_005a89a0) != 0) {
+                if (IsIconic(hMainWindow) != 0) {
                     if (minimized == 0) {
                         ClipCursor(0);
                         ShowCursor(1);
@@ -347,13 +347,13 @@ char DebugOverlayConsole::WaitForKey(void)
             }
         }
     } else {
-        while (g_dwDebugOverlayKey_00469648 == 0)
+        while (dwDebugOverlayKey == 0)
             ;
     }
     {
-        char key = (char)g_dwDebugOverlayKey_00469648;
+        char key = (char)dwDebugOverlayKey;
 
-        g_dwDebugOverlayKey_00469648 = 0;
+        dwDebugOverlayKey = 0;
         return key;
     }
 #endif

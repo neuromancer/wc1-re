@@ -43,7 +43,7 @@ dormant_loc_43c459:
         movzx	ecx, al
         mov	eax, 0x0
         mov	al, byte ptr [esi]
-        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al, byte ptr abRasterPaletteTranslation[eax]
         mov	byte ptr [esi], al
         inc	esi
         mov	al, byte ptr [esi]
@@ -57,7 +57,7 @@ dormant_loc_43c477:
         mov	eax, 0x0
 dormant_loc_43c47f:
         mov	al, byte ptr [esi]
-        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al, byte ptr abRasterPaletteTranslation[eax]
         mov	byte ptr [esi], al
         inc	esi
         loop dormant_loc_43c47f

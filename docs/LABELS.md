@@ -19,7 +19,8 @@ An implemented function takes the first applicable kind of name:
 Do not retain operational labels, relationship labels such as `HelperOf...`,
 generic counters such as `ReturnConst0v5`, or addresses in function names.
 Globals are different: identified globals use
-`g_<hungarian><Name>_<address>`, and unidentified globals retain `DAT_<address>`.
+`<hungarian><Name>` with the address in a trailing `/* 0x004xxxxx */` comment on the
+declaration and the definition, and unidentified globals retain `DAT_<address>`.
 
 ## Evidence priority
 

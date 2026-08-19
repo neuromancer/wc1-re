@@ -128,9 +128,9 @@ int main(int argumentCount, char **arguments)
         return 1;
     }
     DIBinstall((HWND)window);
-    g_stMouseCursorState_0059ab10.viewport = &DAT_005a6ba0;
+    stMouseCursorState.viewport = &stScreen;
     pixels = GetDIBPixelBuffer();
-    if (pixels == 0 || DAT_0047664c != 320 || DAT_00476650 != 200)
+    if (pixels == 0 || nDIBWidth != 320 || nDIBHeight != 200)
         return 1;
     red[0] = 255;
     red[1] = 0;
@@ -145,7 +145,7 @@ int main(int argumentCount, char **arguments)
     pixels[320 * 200 - 1] = 1;
     DIBslam();
     DIBslamReal();
-    if (DAT_00486518 != 0)
+    if (bDIBSlamPending != 0)
         return 1;
     DIBupdate(0, 0, 319, 199);
     memset(tripletPalette, 0, sizeof(tripletPalette));
@@ -155,7 +155,7 @@ int main(int argumentCount, char **arguments)
     if (cached[0] != 0 || cached[1] != 127 || cached[2] != 0)
         return 1;
     DIBunInstall();
-    g_stMouseCursorState_0059ab10.viewport = 0;
+    stMouseCursorState.viewport = 0;
     if (GetDIBPixelBuffer() != 0)
         return 1;
     SDL_DestroyWindow(window);

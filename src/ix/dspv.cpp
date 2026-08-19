@@ -15,54 +15,54 @@
 #include <stdlib.h>
 #include <string.h>
 
-IxVoice        g_voices_005981a8[34];
-int            g_nVoiceCount_00598600;
-unsigned short g_nMasterVolume_0047198c;
-short          g_anPanTable_00597d28[512];
-CRITICAL_SECTION g_csMixer_005985e8;
+IxVoice        voices[34];
+int            nVoiceCount;
+unsigned short nMasterVolume;
+short          anPanTable[512];
+CRITICAL_SECTION csMixer;
 
 /* Function start: 0x4467C5 */   /* source line 23 */
 void ix_dspv_set_active(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || voice >= nVoiceCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 23);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005981a8[voice].flags |= IX_VOICE_ACTIVE;
+    voices[voice].flags |= IX_VOICE_ACTIVE;
 }
 
 /* Function start: 0x446829 */   /* source line 29 */
 void ix_dspv_clear_active(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || voice >= nVoiceCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 29);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005981a8[voice].flags &= ~IX_VOICE_ACTIVE;
+    voices[voice].flags &= ~IX_VOICE_ACTIVE;
 }
 
 /* Function start: 0x44688E */   /* source line 35 */
 void ix_dspv_clear_flag4(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || voice >= nVoiceCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 35);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005981a8[voice].flags &= ~IX_VOICE_FLAG4;
+    voices[voice].flags &= ~IX_VOICE_FLAG4;
 }
 
 /* Function start: 0x4468F2 */   /* source line 41 */
 unsigned int ix_dspv_get_flags(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || voice >= nVoiceCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 41);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    return g_voices_005981a8[voice].flags;
+    return voices[voice].flags;
 }
 
 /* Function start: 0x446956 */
@@ -70,37 +70,37 @@ unsigned int ix_dspv_get_flags(int voice)
 void ix_dspv_set_flag4(int voice, int on)
 {
     if (on != 0)
-        g_voices_005981a8[voice].flags |= IX_VOICE_FLAG4;
+        voices[voice].flags |= IX_VOICE_FLAG4;
     else
-        g_voices_005981a8[voice].flags &= ~IX_VOICE_FLAG4;
+        voices[voice].flags &= ~IX_VOICE_FLAG4;
 }
 
 /* Function start: 0x44698F */   /* source line 55 */
 void ix_dspv_set_buffer(int voice, unsigned char *p, int len)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || voice >= nVoiceCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 55);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    IxVoice *v = &g_voices_005981a8[voice];
+    IxVoice *v = &voices[voice];
 
-    EnterCriticalSection(&g_csMixer_005985e8);
+    EnterCriticalSection(&csMixer);
     v->cursor = p;
     v->start = p;
     v->end = p + len;
-    LeaveCriticalSection(&g_csMixer_005985e8);
+    LeaveCriticalSection(&csMixer);
 }
 
 /* Function start: 0x446A2B */   /* source line 69 */
 int ix_dspv_get_position(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || voice >= nVoiceCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 69);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    IxVoice *v = &g_voices_005981a8[voice];
+    IxVoice *v = &voices[voice];
 
     return v->cursor - v->start;
 }
@@ -108,12 +108,12 @@ int ix_dspv_get_position(int voice)
 /* Function start: 0x446AA0 */   /* source line 77 */
 void ix_dspv_set_position(int voice, int off)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || voice >= nVoiceCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 77);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    IxVoice *v = &g_voices_005981a8[voice];
+    IxVoice *v = &voices[voice];
 
     v->cursor = v->start + off;
 }
@@ -121,12 +121,12 @@ void ix_dspv_set_position(int voice, int off)
 /* Function start: 0x446B18 */   /* source line 85 */
 void ix_dspv_set_volume(int voice, short vol)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || voice >= nVoiceCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 85);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005981a8[voice].volume = vol;
+    voices[voice].volume = vol;
     ix_dspv_recalc_mix(voice);
 }
 
@@ -138,12 +138,12 @@ void ix_dspv_set_pan(int voice, unsigned short angle)
     short delta;
     short pos;
 
-    if (voice < 0 || g_nVoiceCount_00598600 <= voice) {
+    if (voice < 0 || nVoiceCount <= voice) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 93);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    state = &g_voices_005981a8[voice];
+    state = &voices[voice];
     step = (short)((unsigned short)angle >> 9);
     delta = step - state->panAngle;
     if (delta > 0x40)
@@ -163,19 +163,19 @@ void ix_dspv_set_pan(int voice, unsigned short angle)
 /* Function start: 0x446CB1 */   /* source line 131 */
 void ix_dspv_set_frequency(int voice, unsigned int hz)
 {
-    if (voice < 0 || g_nVoiceCount_00598600 <= voice) {
+    if (voice < 0 || nVoiceCount <= voice) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 131);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005981a8[voice].rate =
+    voices[voice].rate =
         (short)(((int)(hz & 0xffff) << 8) / IX_MIXER_BASE_RATE);
 }
 
 /* Function start: 0x446D2C */   /* source lines 137, 138 */
 void ix_dspv_set_bits_per_sample(int voice, int bps)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || voice >= nVoiceCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 137);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -186,15 +186,15 @@ void ix_dspv_set_bits_per_sample(int voice, int bps)
         exit(-1);
     }
     if (bps == 16)
-        g_voices_005981a8[voice].flags |= IX_VOICE_16BIT;
+        voices[voice].flags |= IX_VOICE_16BIT;
     else
-        g_voices_005981a8[voice].flags &= ~IX_VOICE_16BIT;
+        voices[voice].flags &= ~IX_VOICE_16BIT;
 }
 
 /* Function start: 0x446DF5 */   /* source lines 148, 149 */
 void ix_dspv_set_channels(int voice, int channels)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_00598600) {
+    if (voice < 0 || voice >= nVoiceCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 148);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -205,9 +205,9 @@ void ix_dspv_set_channels(int voice, int channels)
         exit(-1);
     }
     if (channels == 2)
-        g_voices_005981a8[voice].flags |= IX_VOICE_STEREO;
+        voices[voice].flags |= IX_VOICE_STEREO;
     else
-        g_voices_005981a8[voice].flags &= ~IX_VOICE_STEREO;
+        voices[voice].flags &= ~IX_VOICE_STEREO;
 }
 
 /* Function start: 0x446EBF */
@@ -217,18 +217,18 @@ void ix_dspv_recalc_mix(int voice)
     short pos;
     int gain;
 
-    state = &g_voices_005981a8[voice];
+    state = &voices[voice];
     pos = state->panPos;
     gain = ((unsigned int)state->volume
-            * (unsigned int)g_nMasterVolume_0047198c) / 0xffff;
-    EnterCriticalSection(&g_csMixer_005985e8);
+            * (unsigned int)nMasterVolume) / 0xffff;
+    EnterCriticalSection(&csMixer);
     state->leftGain =
-        (short)((int)g_anPanTable_00597d28[pos * 2] * gain >> 0x10);
+        (short)((int)anPanTable[pos * 2] * gain >> 0x10);
     state->rightGain =
-        (short)((int)g_anPanTable_00597d28[pos * 2 + 1] * gain >> 0x10);
+        (short)((int)anPanTable[pos * 2 + 1] * gain >> 0x10);
     state->leftGainHi = (unsigned char)(state->leftGain >> 8);
     state->rightGainHi = (unsigned char)(state->rightGain >> 8);
-    LeaveCriticalSection(&g_csMixer_005985e8);
+    LeaveCriticalSection(&csMixer);
 }
 
 /* Function start: 0x00446F74 */
@@ -243,10 +243,10 @@ void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
     output = (short *)outputBuffer;
     frameCount = outputBytes / 4;
     voice = 0;
-    while (voice < g_nVoiceCount_00598600 + g_nStreamCount_00598130) {
+    while (voice < nVoiceCount + nStreamCount) {
         IxVoice *state;
 
-        state = &g_voices_005981a8[voice];
+        state = &voices[voice];
         if ((state->flags & IX_VOICE_ACTIVE) != 0) {
             unsigned char *cursor;
             unsigned int frame;
@@ -347,9 +347,9 @@ __declspec(naked) void ix_dspv_mix(void *outputBuffer,
         mov ecx, dword ptr [ebp + 0xc]
         shr ecx, 2
         rep stosd
-        mov ebx, offset g_voices_005981a8
-        mov ecx, dword ptr [g_nVoiceCount_00598600]
-        add ecx, dword ptr [g_nStreamCount_00598130]
+        mov ebx, offset voices
+        mov ecx, dword ptr [nVoiceCount]
+        add ecx, dword ptr [nStreamCount]
 
     voice_loop:
         mov eax, dword ptr [ebx]

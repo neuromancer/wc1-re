@@ -15,20 +15,20 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
     switch (type) {
     case 2:
         state = (value >> 2) |
-                (g_bHostSecondaryMouseButton_005a899c << 1) |
-                g_bHostPrimaryMouseButton_005a8998;
+                (bHostSecondaryMouseButton << 1) |
+                bHostPrimaryMouseButton;
         QueueInputEvent(type,
-                        (short)g_nHostMouseMessageX_005a8990,
-                        (short)g_nHostMouseMessageY_005a8994,
+                        (short)nHostMouseMessageX,
+                        (short)nHostMouseMessageY,
                         0,
-                        g_bHostPrimaryMouseButton_005a8998,
-                        g_bHostSecondaryMouseButton_005a899c,
+                        bHostPrimaryMouseButton,
+                        bHostSecondaryMouseButton,
                         state);
         return;
     case 6:
     {
         InputDeviceSample *sample =
-            &g_aInputDeviceSamples_005a81f0[g_nActiveInputDevice_005a819c];
+            &aInputDeviceSamples[nActiveInputDevice];
 
         QueueInputEvent(type, (short)sample->x, (short)sample->y,
                         0, 0, 0, 0);
@@ -36,8 +36,8 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
     }
     case 13:
         QueueInputEvent(type,
-                        (short)g_nHostMouseMessageX_005a8990,
-                        (short)g_nHostMouseMessageY_005a8994,
+                        (short)nHostMouseMessageX,
+                        (short)nHostMouseMessageY,
                         0, 0, 0, 0);
         return;
     }
@@ -49,8 +49,8 @@ void QueueInputEventAtCursor(unsigned int type, short primaryButton,
 {
     /* Preserve the original 16-bit event ID and sample each volatile axis. */
     unsigned int eventType = type & 0xffff;
-    int x = g_stMouseCursorState_0059ab10.x;
-    int y = g_stMouseCursorState_0059ab10.y;
+    int x = stMouseCursorState.x;
+    int y = stMouseCursorState.y;
 
     QueueInputEvent((unsigned short)eventType, (unsigned short)x,
                     (unsigned short)y, 0,
@@ -63,26 +63,26 @@ InputEvent *AllocateInputEvent(void)
     int *used;
     int index;
 
-    if (g_bInputEventPoolInitialized_0046da98 != 0) {
+    if (bInputEventPoolInitialized != 0) {
         index = 0;
-        used = g_aiInputEventSlotUsed_0059ab70;
+        used = aiInputEventSlotUsed;
         do {
             if (*used == 0) {
-                g_aiInputEventSlotUsed_0059ab70[index] = 1;
-                return &g_aInputEventPool_00598c40[index];
+                aiInputEventSlotUsed[index] = 1;
+                return &aInputEventPool[index];
             }
             used++;
             index++;
-        } while (used < &g_aiInputEventSlotUsed_0059ab70[0x100]);
+        } while (used < &aiInputEventSlotUsed[0x100]);
         return 0;
     }
-    memset(g_aInputEventPool_00598c40, 0,
-           sizeof(g_aInputEventPool_00598c40));
-    memset(g_aiInputEventSlotUsed_0059ab70, 0,
-           sizeof(g_aiInputEventSlotUsed_0059ab70));
-    g_bInputEventPoolInitialized_0046da98 = 1;
-    g_aiInputEventSlotUsed_0059ab70[0] = 1;
-    return &g_aInputEventPool_00598c40[0];
+    memset(aInputEventPool, 0,
+           sizeof(aInputEventPool));
+    memset(aiInputEventSlotUsed, 0,
+           sizeof(aiInputEventSlotUsed));
+    bInputEventPoolInitialized = 1;
+    aiInputEventSlotUsed[0] = 1;
+    return &aInputEventPool[0];
 }
 
 /* Function start: 0x435760 */
@@ -91,8 +91,8 @@ void ReleaseInputEvent(InputEvent *event)
     int slot;
 
     for (slot = 0; slot < 0x100; slot++) {
-        if (&g_aInputEventPool_00598c40[slot] == event)
-            g_aiInputEventSlotUsed_0059ab70[slot] = 0;
+        if (&aInputEventPool[slot] == event)
+            aiInputEventSlotUsed[slot] = 0;
     }
 }
 
@@ -117,40 +117,40 @@ void QueueInputEvent(unsigned short type, unsigned short x,
     if (secondaryButton != 0)
         modifiers |= 4;
 
-    if (g_pInputEventHead_0046da90 == 0) {
-        g_pInputEventHead_0046da90 = AllocateInputEvent();
-        if (g_pInputEventHead_0046da90 == 0) {
+    if (pInputEventHead == 0) {
+        pInputEventHead = AllocateInputEvent();
+        if (pInputEventHead == 0) {
             ReleaseInputEventQueue();
             return;
         }
-        g_pInputEventTail_0046da94 = g_pInputEventHead_0046da90;
-        g_pInputEventHead_0046da90->next = 0;
-        g_pInputEventTail_0046da94->previous = 0;
+        pInputEventTail = pInputEventHead;
+        pInputEventHead->next = 0;
+        pInputEventTail->previous = 0;
     } else {
         event = AllocateInputEvent();
-        g_pInputEventTail_0046da94->next = event;
-        if (g_pInputEventTail_0046da94->next == 0) {
+        pInputEventTail->next = event;
+        if (pInputEventTail->next == 0) {
             ReleaseInputEventQueue();
             return;
         }
-        g_pInputEventTail_0046da94->next->previous =
-            g_pInputEventTail_0046da94;
-        g_pInputEventTail_0046da94 = g_pInputEventTail_0046da94->next;
-        g_pInputEventTail_0046da94->next = 0;
+        pInputEventTail->next->previous =
+            pInputEventTail;
+        pInputEventTail = pInputEventTail->next;
+        pInputEventTail->next = 0;
     }
-    g_pInputEventTail_0046da94->type = type;
-    g_pInputEventTail_0046da94->modifiers = modifiers;
-    g_pInputEventTail_0046da94->x = x;
-    g_pInputEventTail_0046da94->y = y;
-    g_pInputEventTail_0046da94->value = value;
-    g_pInputEventTail_0046da94->primaryButton = (short)primaryButton;
-    g_pInputEventTail_0046da94->secondaryButton = (short)secondaryButton;
+    pInputEventTail->type = type;
+    pInputEventTail->modifiers = modifiers;
+    pInputEventTail->x = x;
+    pInputEventTail->y = y;
+    pInputEventTail->value = value;
+    pInputEventTail->primaryButton = (short)primaryButton;
+    pInputEventTail->secondaryButton = (short)secondaryButton;
 }
 
 /* Function start: 0x4358B0 */
 void ReleaseInputEventQueue(void)
 {
-    InputEvent *event = g_pInputEventHead_0046da90;
+    InputEvent *event = pInputEventHead;
 
     while (event != 0) {
         InputEvent *next = event->next;
@@ -158,14 +158,14 @@ void ReleaseInputEventQueue(void)
         ReleaseInputEvent(event);
         event = next;
     }
-    g_pInputEventTail_0046da94 = 0;
-    g_pInputEventHead_0046da90 = 0;
+    pInputEventTail = 0;
+    pInputEventHead = 0;
 }
 
 /* Function start: 0x4358E0 */
 void RetainInputEventsOfType(int type)
 {
-    InputEvent *event = g_pInputEventHead_0046da90;
+    InputEvent *event = pInputEventHead;
 
     while (event != 0) {
         InputEvent *next = event->next;
@@ -174,11 +174,11 @@ void RetainInputEventsOfType(int type)
             if (event->previous != 0)
                 event->previous->next = next;
             else
-                g_pInputEventHead_0046da90 = next;
+                pInputEventHead = next;
             if (event->next != 0)
                 event->next->previous = event->previous;
             else
-                g_pInputEventTail_0046da94 = event->previous;
+                pInputEventTail = event->previous;
             ReleaseInputEvent(event);
         }
         event = next;
@@ -199,18 +199,18 @@ void RemoveInputEvent(InputEvent *event)
             return;
         }
         previous->next = 0;
-        g_pInputEventTail_0046da94 = event->previous;
+        pInputEventTail = event->previous;
         ReleaseInputEvent(event);
         return;
     }
     if (next != 0) {
-        g_pInputEventHead_0046da90 = next;
+        pInputEventHead = next;
         event->next->previous = 0;
         ReleaseInputEvent(event);
         return;
     }
-    g_pInputEventTail_0046da94 = 0;
-    g_pInputEventHead_0046da90 = 0;
+    pInputEventTail = 0;
+    pInputEventHead = 0;
     ReleaseInputEvent(event);
 }
 
@@ -222,95 +222,95 @@ short __stdcall GetNextInputEvent(InputEventState *state)
     int type;
 
     type = 0;
-    if (g_pInputEventHead_0046da90 != 0) {
-        eventX = &g_pInputEventHead_0046da90->x;
-        eventY = (int)g_pInputEventHead_0046da90->y;
-        if ((int)g_stMouseCursorState_0059ab10.viewport->left > (int)*eventX)
-            *eventX = g_stMouseCursorState_0059ab10.viewport->left;
-        else if ((int)g_stMouseCursorState_0059ab10.viewport->right < (int)*eventX)
-            *eventX = g_stMouseCursorState_0059ab10.viewport->right;
-        if ((int)g_stMouseCursorState_0059ab10.viewport->top > eventY)
-            g_pInputEventHead_0046da90->y = g_stMouseCursorState_0059ab10.viewport->top;
-        else if ((int)g_stMouseCursorState_0059ab10.viewport->bottom <
+    if (pInputEventHead != 0) {
+        eventX = &pInputEventHead->x;
+        eventY = (int)pInputEventHead->y;
+        if ((int)stMouseCursorState.viewport->left > (int)*eventX)
+            *eventX = stMouseCursorState.viewport->left;
+        else if ((int)stMouseCursorState.viewport->right < (int)*eventX)
+            *eventX = stMouseCursorState.viewport->right;
+        if ((int)stMouseCursorState.viewport->top > eventY)
+            pInputEventHead->y = stMouseCursorState.viewport->top;
+        else if ((int)stMouseCursorState.viewport->bottom <
                  eventY)
-            g_pInputEventHead_0046da90->y =
-                g_stMouseCursorState_0059ab10.viewport->bottom;
+            pInputEventHead->y =
+                stMouseCursorState.viewport->bottom;
 
         state->modifiers =
-            (short)g_pInputEventHead_0046da90->modifiers;
-        switch (g_pInputEventHead_0046da90->type) {
+            (short)pInputEventHead->modifiers;
+        switch (pInputEventHead->type) {
         case 1:
-            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0046da90->x;
-            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0046da90->y;
-            g_stMouseCursorState_0059ab10.primaryButton = 0;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            stMouseCursorState.x = pInputEventHead->x;
+            stMouseCursorState.y = pInputEventHead->y;
+            stMouseCursorState.primaryButton = 0;
+            state->x = pInputEventHead->x;
+            state->y = pInputEventHead->y;
             type = 1;
             break;
         case 2:
-            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0046da90->x;
-            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0046da90->y;
-            g_stMouseCursorState_0059ab10.primaryButton =
-                (unsigned char)g_pInputEventHead_0046da90->primaryButton;
-            g_stMouseCursorState_0059ab10.secondaryButton =
-                (unsigned char)g_pInputEventHead_0046da90->secondaryButton;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            stMouseCursorState.x = pInputEventHead->x;
+            stMouseCursorState.y = pInputEventHead->y;
+            stMouseCursorState.primaryButton =
+                (unsigned char)pInputEventHead->primaryButton;
+            stMouseCursorState.secondaryButton =
+                (unsigned char)pInputEventHead->secondaryButton;
+            state->x = pInputEventHead->x;
+            state->y = pInputEventHead->y;
             type = 2;
             state->value =
-                (int)g_pInputEventHead_0046da90->secondaryButton * 2 |
-                (int)g_pInputEventHead_0046da90->primaryButton;
+                (int)pInputEventHead->secondaryButton * 2 |
+                (int)pInputEventHead->primaryButton;
             break;
         case 3:
             type = 3;
-            state->value = g_pInputEventHead_0046da90->value;
-            state->x = g_stMouseCursorState_0059ab10.x;
-            state->y = g_stMouseCursorState_0059ab10.y;
+            state->value = pInputEventHead->value;
+            state->x = stMouseCursorState.x;
+            state->y = stMouseCursorState.y;
             break;
         case 4:
             type = 4;
-            state->x = g_pInputEventHead_0046da90->value;
-            state->x = g_stMouseCursorState_0059ab10.x;
-            state->y = g_stMouseCursorState_0059ab10.y;
+            state->x = pInputEventHead->value;
+            state->x = stMouseCursorState.x;
+            state->y = stMouseCursorState.y;
             break;
         case 5:
             type = 5;
-            state->x = g_pInputEventHead_0046da90->value;
+            state->x = pInputEventHead->value;
             break;
         case 6:
             type = 6;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = pInputEventHead->x;
+            state->y = pInputEventHead->y;
             break;
         case 7:
             type = 7;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = pInputEventHead->x;
+            state->y = pInputEventHead->y;
             break;
         case 8:
             type = 8;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = pInputEventHead->x;
+            state->y = pInputEventHead->y;
             break;
         case 9:
             type = 9;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = pInputEventHead->x;
+            state->y = pInputEventHead->y;
             break;
         case 10:
             type = 10;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            state->x = pInputEventHead->x;
+            state->y = pInputEventHead->y;
             break;
         case 13:
-            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0046da90->x;
-            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0046da90->y;
-            state->x = g_pInputEventHead_0046da90->x;
-            state->y = g_pInputEventHead_0046da90->y;
+            stMouseCursorState.x = pInputEventHead->x;
+            stMouseCursorState.y = pInputEventHead->y;
+            state->x = pInputEventHead->x;
+            state->y = pInputEventHead->y;
             type = 13;
             break;
         }
-        RemoveInputEvent(g_pInputEventHead_0046da90);
+        RemoveInputEvent(pInputEventHead);
     }
     return type;
 }
@@ -329,7 +329,7 @@ short __stdcall PeekInputEvent(InputEventState *state, short type)
     int eventType;
     int modifiers;
 
-    event = g_pInputEventHead_0046da90;
+    event = pInputEventHead;
     modifiers = 0;
     while (event != 0 && event->type != type)
         event = event->next;
@@ -353,7 +353,7 @@ short __stdcall PeekInputEvent(InputEventState *state, short type)
 /* Function start: 0x435D80 */
 short __stdcall IsInputEventQueued(short type)
 {
-    InputEvent *event = g_pInputEventHead_0046da90;
+    InputEvent *event = pInputEventHead;
 
     while (event != 0 && event->type != type)
         event = event->next;
@@ -371,7 +371,7 @@ short __stdcall ResetAllocationDepth(int x, int y)
 {
     (void)x;
     (void)y;
-    DAT_0046daa0 = 0;
+    nMouseCursorShowCount = 0;
     return 1;
 }
 
@@ -386,31 +386,31 @@ void CaptureMouseCursorBackground(void)
     int x;
     int y;
 
-    if (DAT_0046daa0 == 0 ||
-        g_stMouseCursorState_0059ab10.viewport == 0 ||
-        g_stMouseCursorState_0059ab10.shape == 0)
+    if (nMouseCursorShowCount == 0 ||
+        stMouseCursorState.viewport == 0 ||
+        stMouseCursorState.shape == 0)
         return;
 
-    CaptureSpriteBackground(g_stMouseCursorState_0059ab10.viewport,
-                            DAT_004865a8,
-                            g_stMouseCursorState_0059ab10.x,
-                            g_stMouseCursorState_0059ab10.y,
-                            g_stMouseCursorState_0059ab10.shape,
-                            g_stMouseCursorState_0059ab10.frame);
-    x = g_stMouseCursorState_0059ab10.x;
-    y = g_stMouseCursorState_0059ab10.y;
-    if (DAT_0059ab5c > x - 16)
-        DAT_0059ab5c = x - 16;
-    DAT_0059a8e4 = x;
-    if (DAT_0059ab44 < x + 16)
-        DAT_0059ab44 = x + 16;
-    if (DAT_0059ab60 > y - 16)
-        DAT_0059ab60 = y - 16;
-    DAT_0059a8e0 = y;
-    if (DAT_0059ab48 < y + 16)
-        DAT_0059ab48 = y + 16;
-    DAT_0059ab40 = 1;
-    DAT_0059a84c = 1;
+    CaptureSpriteBackground(stMouseCursorState.viewport,
+                            abCursorSaveArea,
+                            stMouseCursorState.x,
+                            stMouseCursorState.y,
+                            stMouseCursorState.shape,
+                            stMouseCursorState.frame);
+    x = stMouseCursorState.x;
+    y = stMouseCursorState.y;
+    if (nMouseCursorDamageLeft > x - 16)
+        nMouseCursorDamageLeft = x - 16;
+    nMouseCursorDrawnX = x;
+    if (nMouseCursorDamageRight < x + 16)
+        nMouseCursorDamageRight = x + 16;
+    if (nMouseCursorDamageTop > y - 16)
+        nMouseCursorDamageTop = y - 16;
+    nMouseCursorDrawnY = y;
+    if (nMouseCursorDamageBottom < y + 16)
+        nMouseCursorDamageBottom = y + 16;
+    bMouseCursorDamagePending = 1;
+    bMouseCursorDrawn = 1;
 }
 
 /* Function start: 0x435EF0 */
@@ -419,27 +419,27 @@ void DrawMouseCursor(void)
     int x;
     int y;
 
-    if (DAT_0046daa0 == 0 ||
-        g_stMouseCursorState_0059ab10.viewport == 0 ||
-        g_stMouseCursorState_0059ab10.shape == 0)
+    if (nMouseCursorShowCount == 0 ||
+        stMouseCursorState.viewport == 0 ||
+        stMouseCursorState.shape == 0)
         return;
 
-    DrawSpriteDefault(g_stMouseCursorState_0059ab10.viewport,
-                      g_stMouseCursorState_0059ab10.x,
-                      g_stMouseCursorState_0059ab10.y,
-                      g_stMouseCursorState_0059ab10.shape,
-                      g_stMouseCursorState_0059ab10.frame);
-    x = g_stMouseCursorState_0059ab10.x;
-    if (DAT_0059ab5c > x - 16)
-        DAT_0059ab5c = x - 16;
-    if (DAT_0059ab44 < x + 16)
-        DAT_0059ab44 = x + 16;
-    y = g_stMouseCursorState_0059ab10.y;
-    if (DAT_0059ab60 > y - 16)
-        DAT_0059ab60 = y - 16;
-    if (DAT_0059ab48 < y + 16)
-        DAT_0059ab48 = y + 16;
-    DAT_0059ab40 = 1;
+    DrawSpriteDefault(stMouseCursorState.viewport,
+                      stMouseCursorState.x,
+                      stMouseCursorState.y,
+                      stMouseCursorState.shape,
+                      stMouseCursorState.frame);
+    x = stMouseCursorState.x;
+    if (nMouseCursorDamageLeft > x - 16)
+        nMouseCursorDamageLeft = x - 16;
+    if (nMouseCursorDamageRight < x + 16)
+        nMouseCursorDamageRight = x + 16;
+    y = stMouseCursorState.y;
+    if (nMouseCursorDamageTop > y - 16)
+        nMouseCursorDamageTop = y - 16;
+    if (nMouseCursorDamageBottom < y + 16)
+        nMouseCursorDamageBottom = y + 16;
+    bMouseCursorDamagePending = 1;
 }
 
 /* Function start: 0x435FA0 */
@@ -448,88 +448,93 @@ void RestoreMouseCursorBackground(void)
     int x;
     int y;
 
-    if (DAT_0046daa0 == 0 ||
-        g_stMouseCursorState_0059ab10.viewport == 0 ||
-        g_stMouseCursorState_0059ab10.shape == 0 ||
-        DAT_0059a84c == 0)
+    if (nMouseCursorShowCount == 0 ||
+        stMouseCursorState.viewport == 0 ||
+        stMouseCursorState.shape == 0 ||
+        bMouseCursorDrawn == 0)
         return;
 
-    RestoreSpriteBackground(g_stMouseCursorState_0059ab10.viewport,
-                            DAT_004865a8,
-                            (short)DAT_0059a8e4, (short)DAT_0059a8e0,
-                            g_stMouseCursorState_0059ab10.shape,
-                            g_stMouseCursorState_0059ab10.frame);
-    x = DAT_0059a8e4;
-    if (DAT_0059ab5c > x - 16)
-        DAT_0059ab5c = x - 16;
-    if (DAT_0059ab44 < x + 16)
-        DAT_0059ab44 = x + 16;
-    y = DAT_0059a8e0;
-    if (DAT_0059ab60 > y - 16)
-        DAT_0059ab60 = y - 16;
-    if (DAT_0059ab48 < y + 16)
-        DAT_0059ab48 = y + 16;
-    DAT_0059a84c = 0;
+    RestoreSpriteBackground(stMouseCursorState.viewport,
+                            abCursorSaveArea,
+                            (short)nMouseCursorDrawnX,
+                            (short)nMouseCursorDrawnY,
+                            stMouseCursorState.shape,
+                            stMouseCursorState.frame);
+    x = nMouseCursorDrawnX;
+    if (nMouseCursorDamageLeft > x - 16)
+        nMouseCursorDamageLeft = x - 16;
+    if (nMouseCursorDamageRight < x + 16)
+        nMouseCursorDamageRight = x + 16;
+    y = nMouseCursorDrawnY;
+    if (nMouseCursorDamageTop > y - 16)
+        nMouseCursorDamageTop = y - 16;
+    if (nMouseCursorDamageBottom < y + 16)
+        nMouseCursorDamageBottom = y + 16;
+    bMouseCursorDrawn = 0;
 }
 
 /* Function start: 0x436060 */
 void RefreshMouseCursorDisplay(void)
 {
-    DAT_0059ab5c = 319;
-    DAT_0059ab60 = 199;
-    DAT_0059ab44 = 0;
-    DAT_0059ab48 = 0;
-    DAT_0059ab40 = 0;
-    DAT_0059a84c = 0;
+    nMouseCursorDamageLeft = 319;
+    nMouseCursorDamageTop = 199;
+    nMouseCursorDamageRight = 0;
+    nMouseCursorDamageBottom = 0;
+    bMouseCursorDamagePending = 0;
+    bMouseCursorDrawn = 0;
     CaptureMouseCursorBackground();
     DrawMouseCursor();
-    DIBupdate(DAT_0059ab5c, DAT_0059ab60,
-              DAT_0059ab44, DAT_0059ab48);
+    DIBupdate(nMouseCursorDamageLeft,
+              nMouseCursorDamageTop,
+              nMouseCursorDamageRight,
+              nMouseCursorDamageBottom);
     RestoreMouseCursorBackground();
 }
 
 /* Function start: 0x4360D0 */
 void EnterAllocationScope(void)
 {
-    DAT_0046daa0 = DAT_0046daa0 + 1;
+    nMouseCursorShowCount = nMouseCursorShowCount + 1;
 }
 
 /* Function start: 0x4360E0 */
 void LeaveAllocationScope(void)
 {
-    DAT_0046daa0 = DAT_0046daa0 - 1;
+    nMouseCursorShowCount = nMouseCursorShowCount - 1;
 }
 
 /* Function start: 0x4360F0 */
 void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
 {
-    g_stMouseCursorState_0059ab10.shapeChanged = 1;
-    if (g_stMouseCursorState_0059ab10.viewport != 0 && DAT_0046daa0 > 0 &&
-        g_pDrawnMouseCursorShape_0046da9c != 0) {
-        RestoreSpriteBackground(g_stMouseCursorState_0059ab10.viewport, DAT_004865a8,
-                                (short)g_nMouseCursorSavedX_0059a844,
-                                (short)g_nMouseCursorSavedY_0059a840,
-                                g_pDrawnMouseCursorShape_0046da9c,
-                                (short)g_stMouseCursorState_0059ab10.frame);
-        g_pDrawnMouseCursorShape_0046da9c = 0;
+    stMouseCursorState.shapeChanged = 1;
+    if (stMouseCursorState.viewport != 0 &&
+        nMouseCursorShowCount > 0 &&
+        pDrawnMouseCursorShape != 0) {
+        RestoreSpriteBackground(stMouseCursorState.viewport,
+                                abCursorSaveArea,
+                                (short)nMouseCursorSavedX,
+                                (short)nMouseCursorSavedY,
+                                pDrawnMouseCursorShape,
+                                (short)stMouseCursorState.frame);
+        pDrawnMouseCursorShape = 0;
     }
-    g_stMouseCursorState_0059ab10.frame = frame;
-    g_stMouseCursorState_0059ab10.shape = shape;
+    stMouseCursorState.frame = frame;
+    stMouseCursorState.shape = shape;
 }
 
 /* Function start: 0x436160 */
 void __stdcall SetMouseHomePosition(short x, short y)
 {
-    g_stMouseCursorState_0059ab10.x = x;
-    g_stMouseCursorState_0059ab10.y = y;
+    stMouseCursorState.x = x;
+    stMouseCursorState.y = y;
     SetMousePositionDuplicate(x, y);
 }
 
 /* Function start: 0x436190 */
 void __stdcall ApplyPackedMousePosition(ShortPoint point)
 {
-    g_stMouseCursorState_0059ab10.x = point.x;
-    g_stMouseCursorState_0059ab10.y = point.y;
+    stMouseCursorState.x = point.x;
+    stMouseCursorState.y = point.y;
     SetMousePositionDuplicate(point.x, point.y);
 }
 
@@ -555,13 +560,13 @@ void __stdcall SetFrameTimerPeriodDirect(short p)
 /* Function start: 0x436230 */
 void WaitForFrameTick(void)
 {
-    while (DAT_0059ab3c != 0) ;
+    while (bFrameTickPending != 0) ;
 }
 
 /* Function start: 0x436240 */
 int IsFrameTickElapsed(void)
 {
-    return DAT_0059ab3c == 0;
+    return bFrameTickPending == 0;
 }
 
 /* Function start: 0x436260 */
@@ -607,21 +612,21 @@ unsigned int GetFixedOneMillionAlt(void)
 /* Function start: 0x4363A0 */
 void ClearInputKeyStatePreservingModifiers(void)
 {
-    unsigned int control = g_abInputKeyState_0059a860[0x1d];
-    unsigned int alt = g_abInputKeyState_0059a860[0x38];
+    unsigned int control = abInputKeyState[0x1d];
+    unsigned int alt = abInputKeyState[0x38];
 
-    memset(g_abInputKeyState_0059a860, 0,
-           sizeof(g_abInputKeyState_0059a860));
-    g_abInputKeyState_0059a860[0x1d] = control;
-    g_abInputKeyState_0059a860[0x38] = alt;
+    memset(abInputKeyState, 0,
+           sizeof(abInputKeyState));
+    abInputKeyState[0x1d] = control;
+    abInputKeyState[0x38] = alt;
     ClearDebugPauseFlags();
 }
 
 /* Function start: 0x4363E0 */
 void ClearInputKeyState(void)
 {
-    memset(g_abInputKeyState_0059a860, 0,
-           sizeof(g_abInputKeyState_0059a860));
+    memset(abInputKeyState, 0,
+           sizeof(abInputKeyState));
     ClearDebugPauseFlags();
 }
 
@@ -629,7 +634,7 @@ void ClearInputKeyState(void)
 void SetInputKeyState(int scanCode, unsigned char pressed)
 {
     if (scanCode >= 0 && scanCode < 0x80) {
-        g_abInputKeyState_0059a860[scanCode] = pressed;
+        abInputKeyState[scanCode] = pressed;
         return;
     }
     SystemDebugPrintf("keyboard almost messed up\n");
@@ -653,18 +658,18 @@ void sort_object_depth(void)
 
     previous = -999999999;
     bestObject = -1;
-    memset(g_anObjectDepthPlaced_0059a8f0, 0,
-           sizeof(g_anObjectDepthPlaced_0059a8f0));
+    memset(anObjectDepthPlaced, 0,
+           sizeof(anObjectDepthPlaced));
     obj = 0;
     for (; obj < WC1_SPACE_OBJECT_COUNT; obj++) {
-        distance = (unsigned short)g_asObjectDistance_0059b4a0[obj];
+        distance = (unsigned short)asObjectDistance[obj];
         if (previous < (int)distance) {
             previous = (int)distance;
             bestObject = obj;
         }
     }
     sorted = 0;
-    sortedEntry = g_anSortedObject_0059aa00;
+    sortedEntry = anSortedObject;
     for (; sorted < WC1_SPACE_OBJECT_COUNT; sorted++, sortedEntry++) {
         best = -1;
         *sortedEntry = bestObject;
@@ -672,17 +677,17 @@ void sort_object_depth(void)
             return;
         screenOffset = 0;
         obj = 0;
-        g_anObjectDepthPlaced_0059a8f0[bestObject] = 1;
+        anObjectDepthPlaced[bestObject] = 1;
         bestObject = -1;
-        placed = g_anObjectDepthPlaced_0059a8f0;
-        for (; placed < g_anObjectDepthPlaced_0059a8f0 +
+        placed = anObjectDepthPlaced;
+        for (; placed < anObjectDepthPlaced +
                            WC1_SPACE_OBJECT_COUNT;
              screenOffset += sizeof(short), placed++, obj++) {
             if (*placed == 0 &&
-                *(short *)((unsigned char *)g_asObjectScreenX_0059d9b0 +
+                *(short *)((unsigned char *)asObjectScreenX +
                            screenOffset) != (short)0x8001) {
                 distance = *(unsigned short *)(
-                    (unsigned char *)g_asObjectDistance_0059b4a0 +
+                    (unsigned char *)asObjectDistance +
                     screenOffset);
                 if (best < (int)distance && previous >= (int)distance) {
                     bestObject = obj;
@@ -710,48 +715,48 @@ void draw_sorted_objects_to_buffer(void)
     short projectedScreenY;
 #endif
 
-    sortedEntry = g_anSortedObject_0059aa00;
+    sortedEntry = anSortedObject;
     do {
         obj = *sortedEntry;
         if (obj < 0)
             return;
-        if ((int)g_aeObjectType_0059b560[obj] < 0)
+        if ((int)aeObjectType[obj] < 0)
             return;
-        objectClass = g_aeObjectClass_0059d100[obj];
+        objectClass = aeObjectClass[obj];
 #ifdef WC1_SDL
         enhancedScreenX = (float)(short)(
-            g_asObjectScreenX_0059d9b0[obj] + g_nViewCenterX_0059a852);
+            asObjectScreenX[obj] + nViewCenterX);
         enhancedScreenY = (float)(short)(
-            g_asObjectScreenY_0059d930[obj] + g_nViewCenterY_0059a854);
+            asObjectScreenY[obj] + nViewCenterY);
         if (objectClass != OBJECT_CLASS_NULL &&
             objectClass != OBJECT_CLASS_FIXED_OBJECT &&
-            obj != g_nNavPointerObject_00469208 &&
-            g_aObjectViewPosition_0059afa0[obj].z != 0) {
+            obj != nNavPointerObject &&
+            aObjectViewPosition[obj].z != 0) {
             projectedScreenX = (short)(DivideFixed(
                 MultiplyFixed(
-                    (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
-                    g_aObjectViewPosition_0059afa0[obj].x),
-                g_aObjectViewPosition_0059afa0[obj].z) >> 8);
+                    (short)(nScreenWidth & ~1) << 7,
+                    aObjectViewPosition[obj].x),
+                aObjectViewPosition[obj].z) >> 8);
             projectedScreenY = (short)(DivideFixed(
                 MultiplyFixed(
-                    (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
-                    g_aObjectViewPosition_0059afa0[obj].y),
-                g_aObjectViewPosition_0059afa0[obj].z) >> 8);
-            if (projectedScreenX == g_asObjectScreenX_0059d9b0[obj] &&
-                projectedScreenY == g_asObjectScreenY_0059d930[obj]) {
+                    (short)(nScreenWidth & ~1) << 7,
+                    aObjectViewPosition[obj].y),
+                aObjectViewPosition[obj].z) >> 8);
+            if (projectedScreenX == asObjectScreenX[obj] &&
+                projectedScreenY == asObjectScreenY[obj]) {
                 enhancedScreenX =
-                    (float)g_nViewCenterX_0059a852 +
-                    (float)(((double)(g_nScreenWidth_0046daa4 & ~1) * 0.5 *
-                             g_aObjectViewPosition_0059afa0[obj].x) /
-                            g_aObjectViewPosition_0059afa0[obj].z);
+                    (float)nViewCenterX +
+                    (float)(((double)(nScreenWidth & ~1) * 0.5 *
+                             aObjectViewPosition[obj].x) /
+                            aObjectViewPosition[obj].z);
                 enhancedScreenY =
-                    (float)g_nViewCenterY_0059a854 +
-                    (float)(((double)(g_nScreenWidth_0046daa4 & ~1) * 0.5 *
-                             g_aObjectViewPosition_0059afa0[obj].y) /
-                            g_aObjectViewPosition_0059afa0[obj].z);
+                    (float)nViewCenterY +
+                    (float)(((double)(nScreenWidth & ~1) * 0.5 *
+                             aObjectViewPosition[obj].y) /
+                            aObjectViewPosition[obj].z);
             }
         } else if (objectClass == OBJECT_CLASS_FIXED_OBJECT &&
-                   g_aeObjectType_0059b560[obj] == OBJECT_TYPE_THRUSTERS) {
+                   aeObjectType[obj] == OBJECT_TYPE_THRUSTERS) {
             Wc1SdlGetThrusterScreenPosition(
                 (short)obj, &enhancedScreenX, &enhancedScreenY);
         }
@@ -759,29 +764,29 @@ void draw_sorted_objects_to_buffer(void)
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             default:
-                screenY = g_asObjectScreenY_0059d930[obj];
-                screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
-                                  g_nViewCenterX_0059a852);
-                shape = g_apObjectShape_0059d2f0[obj];
-                g_asObjectDrawX_0059d000[obj] = screenX;
-                screenY = (short)(screenY + g_nViewCenterY_0059a854);
-                g_asObjectDrawY_0059cf80[obj] = screenY;
+                screenY = asObjectScreenY[obj];
+                screenX = (short)(asObjectScreenX[obj] +
+                                  nViewCenterX);
+                shape = apObjectShape[obj];
+                asObjectDrawX[obj] = screenX;
+                screenY = (short)(screenY + nViewCenterY);
+                asObjectDrawY[obj] = screenY;
                 if (shape != 0) {
 #ifdef WC1_SDL
                     if (!Wc1SdlRecordSpaceSprite(
-                            &DAT_005a7510, enhancedScreenX, enhancedScreenY,
+                            &stSpaceBuffer, enhancedScreenX, enhancedScreenY,
                             shape,
-                            g_asObjectViewFrame_0059d230[obj],
-                            g_asObjectScreenAngle_0059cd90[obj],
-                            g_asObjectScreenScale_0059c950[obj],
-                            g_asObjectFlip_0059c870[obj]))
+                            asObjectViewFrame[obj],
+                            asObjectScreenAngle[obj],
+                            asObjectScreenScale[obj],
+                            asObjectFlip[obj]))
 #endif
                     DrawSpriteScaled(
-                        &DAT_005a7510, screenX, screenY, shape,
-                        g_asObjectViewFrame_0059d230[obj],
-                        g_asObjectScreenAngle_0059cd90[obj],
-                        g_asObjectScreenScale_0059c950[obj],
-                        g_asObjectFlip_0059c870[obj]);
+                        &stSpaceBuffer, screenX, screenY, shape,
+                        asObjectViewFrame[obj],
+                        asObjectScreenAngle[obj],
+                        asObjectScreenScale[obj],
+                        asObjectFlip[obj]);
                 }
                 break;
             case OBJECT_CLASS_STAR:
@@ -791,29 +796,30 @@ void draw_sorted_objects_to_buffer(void)
             case OBJECT_CLASS_PLANET:
 #endif
             case OBJECT_CLASS_DUST:
-                specialObject = (int)g_nNavPointerObject_00469208;
-                screenY = g_asObjectScreenY_0059d930[obj];
-                screenX = (short)(g_asObjectScreenX_0059d9b0[obj] +
-                                  g_nViewCenterX_0059a852);
-                g_asObjectDrawX_0059d000[obj] = screenX;
-                screenY = (short)(screenY + g_nViewCenterY_0059a854);
-                g_asObjectDrawY_0059cf80[obj] = screenY;
+                specialObject = (int)nNavPointerObject;
+                screenY = asObjectScreenY[obj];
+                screenX = (short)(asObjectScreenX[obj] +
+                                  nViewCenterX);
+                asObjectDrawX[obj] = screenX;
+                screenY = (short)(screenY + nViewCenterY);
+                asObjectDrawY[obj] = screenY;
                 if (specialObject == obj)
-                    shape = g_apObjectShape_0059d2f0[obj];
+                    shape = apObjectShape[obj];
                 else
-                    shape = g_pConstellationShape_005a765c;
+                    shape = pConstellationShape;
 #ifdef WC1_SDL
                 if (!Wc1SdlRecordSpaceSprite(
-                        &DAT_005a7510, enhancedScreenX, enhancedScreenY, shape,
-                        g_asObjectViewFrame_0059d230[obj], 0, 0x100, 0))
+                        &stSpaceBuffer, enhancedScreenX,
+                        enhancedScreenY, shape,
+                        asObjectViewFrame[obj], 0, 0x100, 0))
 #endif
-                DrawSpriteDefault(&DAT_005a7510, screenX, screenY, shape,
-                                  g_asObjectViewFrame_0059d230[obj]);
+                DrawSpriteDefault(&stSpaceBuffer, screenX, screenY, shape,
+                                  asObjectViewFrame[obj]);
                 break;
             }
         }
         sortedEntry++;
-    } while (sortedEntry < g_anSortedObject_0059aa00 +
+    } while (sortedEntry < anSortedObject +
                            WC1_SPACE_OBJECT_COUNT);
 }
 
@@ -835,38 +841,38 @@ void intro_drawbackgroundships(void)
          shortOffset += sizeof(short),
          dwordOffset += sizeof(int),
          obj++) {
-        if (*(enum ObjectType *)((unsigned char *)g_aeObjectType_0059b560 +
+        if (*(enum ObjectType *)((unsigned char *)aeObjectType +
                                  dwordOffset) < zero)
             return;
         objectClass = *(enum ObjectClass *)(
-            (unsigned char *)g_aeObjectClass_0059d100 + dwordOffset);
+            (unsigned char *)aeObjectClass + dwordOffset);
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             default:
 #ifdef WC1_SDL
-                shape = g_apObjectShape_0059d2f0[obj];
+                shape = apObjectShape[obj];
 #else
                 shape = *(unsigned char **)(
-                    (unsigned char *)g_apObjectShape_0059d2f0 +
+                    (unsigned char *)apObjectShape +
                     dwordOffset);
 #endif
                 if (shape != 0) {
                     DrawSolidColourSpriteScaled(
-                        &DAT_005a7510,
-                        *(short *)((unsigned char *)g_asObjectDrawX_0059d000 +
+                        &stSpaceBuffer,
+                        *(short *)((unsigned char *)asObjectDrawX +
                                    shortOffset),
-                        *(short *)((unsigned char *)g_asObjectDrawY_0059cf80 +
+                        *(short *)((unsigned char *)asObjectDrawY +
                                    shortOffset),
                         shape,
-                        *(short *)((unsigned char *)g_asObjectViewFrame_0059d230 +
+                        *(short *)((unsigned char *)asObjectViewFrame +
                                    shortOffset),
-                        *(short *)((unsigned char *)g_asObjectScreenAngle_0059cd90 +
+                        *(short *)((unsigned char *)asObjectScreenAngle +
                                    shortOffset),
-                        *(short *)((unsigned char *)g_asObjectScreenScale_0059c950 +
+                        *(short *)((unsigned char *)asObjectScreenScale +
                                    shortOffset),
-                        *(short *)((unsigned char *)g_asObjectFlip_0059c870 +
+                        *(short *)((unsigned char *)asObjectFlip +
                                    shortOffset),
-                        g_cPrimaryViewBufferColour_004699d8);
+                        cPrimaryViewBufferColour);
                 }
                 break;
             case OBJECT_CLASS_STAR:
@@ -876,26 +882,26 @@ void intro_drawbackgroundships(void)
             case OBJECT_CLASS_PLANET:
 #endif
             case OBJECT_CLASS_DUST:
-                if (obj == g_nNavPointerObject_00469208)
+                if (obj == nNavPointerObject)
 #ifdef WC1_SDL
-                    shape = g_apObjectShape_0059d2f0[obj];
+                    shape = apObjectShape[obj];
 #else
                     shape = *(unsigned char **)(
-                        (unsigned char *)g_apObjectShape_0059d2f0 +
+                        (unsigned char *)apObjectShape +
                         dwordOffset);
 #endif
                 else
-                    shape = g_pConstellationShape_005a765c;
+                    shape = pConstellationShape;
                 DrawSolidColourSprite(
-                    &DAT_005a7510,
-                    *(short *)((unsigned char *)g_asObjectDrawX_0059d000 +
+                    &stSpaceBuffer,
+                    *(short *)((unsigned char *)asObjectDrawX +
                                shortOffset),
-                    *(short *)((unsigned char *)g_asObjectDrawY_0059cf80 +
+                    *(short *)((unsigned char *)asObjectDrawY +
                                shortOffset),
                     shape,
-                    *(short *)((unsigned char *)g_asObjectViewFrame_0059d230 +
+                    *(short *)((unsigned char *)asObjectViewFrame +
                                shortOffset),
-                    g_cPrimaryViewBufferColour_004699d8);
+                    cPrimaryViewBufferColour);
                 break;
             }
         }
@@ -910,64 +916,64 @@ void set_up_screen_viewport(signed char mode)
     short viewportWidth;
     const ScreenViewportGeometry *viewportGeometry;
 
-    g_cScreenViewportMode_0059a9f2 = mode;
+    cScreenViewportMode = mode;
     modeIndex = (int)mode;
     if (modeIndex >= 4) {
         if (modeIndex <= 5)
             goto static_geometry;
     }
 
-    g_pScreenViewportGeometry_0059a9f4 =
+    pScreenViewportGeometry =
         (const ScreenViewportGeometry *)(
-            (const unsigned char *)g_pScreenViewportPacket_005a6b94 +
-            g_pScreenViewportPacket_005a6b94
+            (const unsigned char *)pScreenViewportPacket +
+            pScreenViewportPacket
                 ->geometryOffsets[modeIndex]);
     goto geometry_ready;
 
 static_geometry:
-    g_pScreenViewportGeometry_0059a9f4 =
-        &g_aScreenViewportGeometry_0046dab8[modeIndex];
+    pScreenViewportGeometry =
+        &aScreenViewportGeometry[modeIndex];
 
 geometry_ready:
 
-    if (DAT_0046a008 != 0 && DAT_0046a008 != -2) {
-        viewportWidth = g_pScreenViewportGeometry_0059a9f4->width;
-        viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
-        *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
-        g_nViewCenterX_0059a852 = (short)(viewportWidth / 2);
+    if (bCockpitlessView != 0 && bCockpitlessView != -2) {
+        viewportWidth = pScreenViewportGeometry->width;
+        viewportGeometry = pScreenViewportGeometry;
+        *(short *)&nScreenWidth = viewportWidth;
+        nViewCenterX = (short)(viewportWidth / 2);
         viewportHeight = viewportGeometry->height;
-        g_nViewCenterY_0059a854 = (short)(viewportHeight / 2);
-        *(short *)&g_nScreenHeight_0046daa8 = viewportHeight;
-        g_nViewportOriginX_0059ab52 = viewportGeometry->originX;
-        g_nViewportOriginY_0059ab50 = viewportGeometry->originY;
-        switch ((int)g_cCockpitView_0059dab0) {
+        nViewCenterY = (short)(viewportHeight / 2);
+        *(short *)&nScreenHeight = viewportHeight;
+        nViewportOriginX = viewportGeometry->originX;
+        nViewportOriginY = viewportGeometry->originY;
+        switch ((int)cCockpitView) {
         case 0:
-            g_nViewportOriginY_0059ab50 += 10;
-            g_nViewCenterY_0059a854 += 10;
+            nViewportOriginY += 10;
+            nViewCenterY += 10;
             break;
         case 1:
-            g_nViewportOriginY_0059ab50 += 25;
-            g_nViewCenterY_0059a854 += 25;
+            nViewportOriginY += 25;
+            nViewCenterY += 25;
             break;
         case 2:
-            g_nViewportOriginY_0059ab50 += 50;
-            g_nViewCenterY_0059a854 += 50;
+            nViewportOriginY += 50;
+            nViewCenterY += 50;
             break;
         }
-        *(short *)&g_nScreenWidth_0046daa4 = 320;
-        *(short *)&g_nScreenHeight_0046daa8 = 200;
+        *(short *)&nScreenWidth = 320;
+        *(short *)&nScreenHeight = 200;
         return;
     }
 
-    viewportWidth = g_pScreenViewportGeometry_0059a9f4->width;
-    viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
-    *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
-    g_nViewCenterX_0059a852 = (short)(viewportWidth / 2);
+    viewportWidth = pScreenViewportGeometry->width;
+    viewportGeometry = pScreenViewportGeometry;
+    *(short *)&nScreenWidth = viewportWidth;
+    nViewCenterX = (short)(viewportWidth / 2);
     viewportHeight = viewportGeometry->height;
-    g_nViewCenterY_0059a854 = (short)(viewportHeight / 2);
-    *(short *)&g_nScreenHeight_0046daa8 = viewportHeight;
-    g_nViewportOriginX_0059ab52 = viewportGeometry->originX;
-    g_nViewportOriginY_0059ab50 = viewportGeometry->originY;
+    nViewCenterY = (short)(viewportHeight / 2);
+    *(short *)&nScreenHeight = viewportHeight;
+    nViewportOriginX = viewportGeometry->originX;
+    nViewportOriginY = viewportGeometry->originY;
 }
 
 /* Function start: 0x4368C0 */

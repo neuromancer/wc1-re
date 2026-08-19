@@ -10,7 +10,7 @@
         push	ds
         pop	es
         mov	edi, dword ptr [ebp + 0x8]
-        mov	dword ptr [g_pGifRasterTarget_0046ff28], edi
+        mov	dword ptr [pGifRasterTarget], edi
         mov	edi, dword ptr [ebp + 0x10]
         mov	eax, 0x0
         mov	ecx, 0x2e

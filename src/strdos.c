@@ -76,7 +76,7 @@ short __stdcall InitializeEventManager(short period,
                                        unsigned short (*initialize)(void),
                                        void *configuration)
 {
-    g_nEventManagerActive_0059a850 = 1;
+    nEventManagerActive = 1;
     if (initialize != 0)
         initialize();
     return 1;
@@ -85,7 +85,7 @@ short __stdcall InitializeEventManager(short period,
 /* Function start: 0x435590 */
 void ShutdownEventManager(void)
 {
-    g_nEventManagerActive_0059a850 = 0;
+    nEventManagerActive = 0;
 }
 
 /* Function start: 0x4355A0 */
@@ -104,5 +104,5 @@ void __stdcall EventManagerHook(void (*callback)(void))
 /* Function start: 0x4355D0 */
 void __stdcall SetEventManagerPump(void (*pump)(void))
 {
-    DAT_0059ab2c = pump;
+    pEventManagerPump = pump;
 }

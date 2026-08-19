@@ -17,28 +17,29 @@ void show_info_disp(void)
     char *marker;
 
     set_new_vdu(0);
-    DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left, DAT_005a6b80.top,
+    DrawTextAt(&stLeftVduTextContext,
+               stLeftVdu.left, stLeftVdu.top,
                " INFO DISPLAY \n", 0);
-    DrawFormattedText("Version: %s\n", g_pGameVersion_004693b4);
+    DrawFormattedText("Version: %s\n", pGameVersion);
     DrawFormattedText("Series %d Misn %d\n",
-                      (int)g_stCampaignState_0059ca50.currentSeries,
-                      (int)g_stCampaignState_0059ca50.currentMission);
+                      (int)stCampaignState.currentSeries,
+                      (int)stCampaignState.currentMission);
     DrawFormattedText("PC Kills   =%d\nWing Kills =%d\n",
-                      (int)g_nPlayerKillCount_005a7c9c,
-                      (int)g_nWingmanKillCount_005a7cb8);
+                      (int)nPlayerKillCount,
+                      (int)nWingmanKillCount);
     DrawFormattedText("Series Score   =%d\n",
-                      (int)g_stCampaignState_0059ca50.seriesScore);
+                      (int)stCampaignState.seriesScore);
     DrawFormattedText("Miss Score %d, Medal %d\n",
-                      (int)g_stCampaignState_0059ca50.missionScore,
-                      (int)g_nMissionMedalScore_005a8116);
+                      (int)stCampaignState.missionScore,
+                      (int)nMissionMedalScore);
     DrawFormattedText("Promotion Score=%d\n",
-                      (int)g_stCampaignState_0059ca50.promotionScore);
+                      (int)stCampaignState.promotionScore);
     objective = 0;
     DrawFormattedText("OBJECTIVES\n");
     strcpy(objectiveSummary, "");
     for (; objective < 16; objective++) {
         marker = " ";
-        if (objective < g_cMissionObjectiveCount_0059c46a) {
+        if (objective < cMissionObjectiveCount) {
             sprintf(objectiveMarker, "%c", objective % 10 + '1');
             marker = objectiveMarker;
             if (sighted(objective) != 0)

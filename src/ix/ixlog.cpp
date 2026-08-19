@@ -21,7 +21,7 @@
 
 
 /* Formatting scratch buffer. */
-char g_szLogBuf_005977d0[1024];
+char szLogBuf[1024];
 
 /* Mono-monitor debug printer in the game core (C linkage). */
 extern "C" void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
@@ -34,21 +34,21 @@ void ix_log_printf(const char *fmt, ...)
         va_list arguments;
 
         va_start(arguments, fmt);
-        vsprintf(g_szLogBuf_005977d0, fmt, arguments);
+        vsprintf(szLogBuf, fmt, arguments);
         va_end(arguments);
 #else
-        vsprintf(g_szLogBuf_005977d0, fmt, (char *)(&fmt + 1));
+        vsprintf(szLogBuf, fmt, (char *)(&fmt + 1));
 #endif
     } else {
-        strcpy(g_szLogBuf_005977d0, "(null)");
+        strcpy(szLogBuf, "(null)");
     }
 
-    if (strncmp(g_szLogBuf_005977d0, "sleep_for", 9) != 0) {
-        SoundDebugPrintf("%s", g_szLogBuf_005977d0);
+    if (strncmp(szLogBuf, "sleep_for", 9) != 0) {
+        SoundDebugPrintf("%s", szLogBuf);
 #ifdef WC1_SDL
-        Wc1SdlOutputDebugString(g_szLogBuf_005977d0);
+        Wc1SdlOutputDebugString(szLogBuf);
 #else
-        if (_CrtDbgReport(0, 0, 0, 0, "%s", g_szLogBuf_005977d0) == 1)
+        if (_CrtDbgReport(0, 0, 0, 0, "%s", szLogBuf) == 1)
             _CrtDbgBreak();
 #endif
     }

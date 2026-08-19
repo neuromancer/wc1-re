@@ -15,28 +15,28 @@ void ReportPacketLoadError(void *packet, short logicalFile,
     unsigned int packetSize;
     const char *operation;
 
-    error = g_nPacketError_00465460;
+    error = nPacketError;
     if ((packet == 0 || (error != 0 && error != 8)) &&
         (packet != 0 || error != 8)) {
         if (section != -1)
             packetSize = GetPacketSize(
-                g_pDiskFileRecords_005a7cf0[logicalFile].name, section);
+                pDiskFileRecords[logicalFile].name, section);
         LogMemoryUsage();
         operation = "allocating memory";
         if (packet != 0 && section != -1)
             operation = "reading from disk";
-        g_nPacketError_00465460 = error;
-        sprintf(g_szDefaultTextBuffer_005a7590,
+        nPacketError = error;
+        sprintf(szDefaultTextBuffer,
                 "Sorry, an error has occured while %s.\n"
                 "Please note the following information:\n"
                 "%s #%d (ERR %d  PS%ld  LB%ld  FL%d) at %s\n"
                 "Check your configuration.  If this problem persists, please\n"
                 "call Origin Systems' service line.  We are sorry for the inconvenience.",
                 operation,
-                g_pDiskFileRecords_005a7cf0[logicalFile].name,
+                pDiskFileRecords[logicalFile].name,
                 (int)section, (int)error, packetSize,
                 GetFixedOneMillionThunkAlt(retry), (int)retry, sourceTag);
-        FatalErrorAndExit(g_szDefaultTextBuffer_005a7590);
+        FatalErrorAndExit(szDefaultTextBuffer);
     }
 }
 
@@ -48,7 +48,7 @@ void *LoadPacketIntoBuffer(short logicalFile, short section,
 
     PromptInsertNumberedDisk(logicalFile);
     packet = PacketLoad(
-        g_pDiskFileRecords_005a7cf0[logicalFile].name,
+        pDiskFileRecords[logicalFile].name,
         section, destination, 0, 0);
     ReportPacketLoadError(destination, logicalFile, 0, section, "RP");
     return packet;
@@ -64,16 +64,16 @@ void *LoadPacketAllocated(short logicalFile, short section)
     retries = 5;
     PromptInsertNumberedDisk(logicalFile);
     packetSize = GetPacketSize(
-        g_pDiskFileRecords_005a7cf0[logicalFile].name, section);
+        pDiskFileRecords[logicalFile].name, section);
     packet = AllocateTaggedMemory((unsigned int)(short)packetSize, 0x40);
     if (packet != 0) {
         do {
             retries--;
-            PacketLoad(g_pDiskFileRecords_005a7cf0[logicalFile].name,
+            PacketLoad(pDiskFileRecords[logicalFile].name,
                        section, packet, 0, 0);
-            if (retries <= 0 || g_nPacketError_00465460 == 0)
+            if (retries <= 0 || nPacketError == 0)
                 break;
-        } while (g_nPacketError_00465460 != 8);
+        } while (nPacketError != 8);
     }
     ReportPacketLoadError(packet, logicalFile, 0, section, "LPN");
     return packet;
@@ -90,55 +90,55 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
     PromptInsertNumberedDisk(logicalFile);
     if (flags == 0) {
         if (GetPacketSize(
-                g_pDiskFileRecords_005a7cf0[logicalFile].name, section) >
+                pDiskFileRecords[logicalFile].name, section) >
             (int)GetFixedOneMillionThunkAlt(0)) {
             ReportPacketLoadError(0, logicalFile, 0, section, "LP1");
         }
     }
-    fileName = g_pDiskFileRecords_005a7cf0[logicalFile].name;
+    fileName = pDiskFileRecords[logicalFile].name;
 
     do {
         retries--;
         FreePacketAndClear(&packet, flags);
         packet = PacketLoad(fileName, section, 0, flags, 0);
-        if (retries < 1 || g_nPacketError_00465460 == 0)
+        if (retries < 1 || nPacketError == 0)
             break;
-    } while (g_nPacketError_00465460 != 8);
+    } while (nPacketError != 8);
 
     if (packet == 0) {
-        if (DAT_005a7510.pixels != 0) {
-            free_viewport(&DAT_005a7510);
+        if (stSpaceBuffer.pixels != 0) {
+            free_viewport(&stSpaceBuffer);
             do {
                 retries--;
                 FreePacketAndClear(&packet, flags);
                 packet = PacketLoad(fileName, section, 0, flags, 0);
-                if (retries < 1 || g_nPacketError_00465460 == 0)
+                if (retries < 1 || nPacketError == 0)
                     break;
-            } while (g_nPacketError_00465460 != 8);
-            if (AllocateViewport(&DAT_005a7510,
-                                 (short)g_cPrimaryViewBufferColour_004699d8, 0x20) == 0) {
+            } while (nPacketError != 8);
+            if (AllocateViewport(&stSpaceBuffer,
+                                 (short)cPrimaryViewBufferColour, 0x20) == 0) {
                 ReportPacketLoadError(0, logicalFile, flags, flags,
                                       "LP2");
             }
         }
-        if (packet == 0 && DAT_005a76b0.pixels != 0) {
-            free_viewport(&DAT_005a76b0);
+        if (packet == 0 && stSceneBuffer.pixels != 0) {
+            free_viewport(&stSceneBuffer);
             do {
                 retries--;
                 FreePacketAndClear(&packet, flags);
                 packet = PacketLoad(fileName, section, 0, flags, 0);
-                if (retries < 1 || g_nPacketError_00465460 == 0)
+                if (retries < 1 || nPacketError == 0)
                     break;
-            } while (g_nPacketError_00465460 != 8);
-            if (AllocateViewport(&DAT_005a76b0,
-                                 (short)g_cBlackColour_0046999c, 0) == 0) {
+            } while (nPacketError != 8);
+            if (AllocateViewport(&stSceneBuffer,
+                                 (short)cBlackColour, 0) == 0) {
                 ReportPacketLoadError(0, logicalFile, flags, section,
                                       "LP3");
             }
         }
     }
     if (packet == 0 && (flags & 4) == 0 &&
-        g_nPacketError_00465460 != 0 && g_nPacketError_00465460 != 8) {
+        nPacketError != 0 && nPacketError != 8) {
         ReportPacketLoadError(packet, logicalFile, flags, section, "LP4");
     }
 
@@ -155,23 +155,23 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
     int index;
 
     index = fontIndex;
-    if (g_apTextFonts_005a6c00[index] == 0) {
+    if (apTextFonts[index] == 0) {
         if (fontIndex == 1) {
-            g_apTextFonts_005a6c00[index] =
+            apTextFonts[index] =
                 FetchDiskPacketRetrying(0, fontIndex,
                                                          0x10);
         } else {
-            g_apTextFonts_005a6c00[index] =
+            apTextFonts[index] =
                 FetchDiskPacketRetrying(0, fontIndex,
                                                          0);
         }
-        g_apFontWorkspaces_005a6c10[index] =
+        apFontWorkspaces[index] =
             AllocateFontWorkspace((short)index);
     }
-    context->font = g_apTextFonts_005a6c00[index];
+    context->font = apTextFonts[index];
     context->colour = colour;
     context->backgroundColour = (unsigned char)background;
-    context->fontWorkspace = g_apFontWorkspaces_005a6c10[index];
+    context->fontWorkspace = apFontWorkspaces[index];
     SetTextContext(context);
     return 0;
 }
@@ -184,11 +184,11 @@ unsigned int ReleaseTextFont(short fontIndex)
     if (fontIndex == 1)
         return 0;
     index = fontIndex;
-    if (g_apTextFonts_005a6c00[index] != 0) {
-        ReleasePacketHandle(g_apTextFonts_005a6c00[index]);
-        g_apTextFonts_005a6c00[index] = 0;
-        FreeFontWorkspace(g_apFontWorkspaces_005a6c10[index]);
-        g_apFontWorkspaces_005a6c10[index] = 0;
+    if (apTextFonts[index] != 0) {
+        ReleasePacketHandle(apTextFonts[index]);
+        apTextFonts[index] = 0;
+        FreeFontWorkspace(apFontWorkspaces[index]);
+        apFontWorkspaces[index] = 0;
     }
     return 0;
 }
@@ -207,7 +207,7 @@ unsigned int DrawTextAt(TextContext *context, short x, short y,
     DrawTextString(text);
     context->text = savedText;
     context->alignment = savedAlignment;
-    if (context->viewport->pixels == DAT_005a6ba0.pixels)
+    if (context->viewport->pixels == stScreen.pixels)
         DIBslam();
     return 0;
 }
@@ -247,11 +247,11 @@ short OpenDiskDataFile(short logicalFile)
 {
     short file;
 
-    FillGraphicSuffix(g_szDiskMarkerFile_00469688,
+    FillGraphicSuffix(szDiskMarkerFile,
                       (unsigned char)
-                          g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber,
+                          pDiskFileRecords[logicalFile].diskNumber,
                       3);
-    file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688);
+    file = OpenDataFileOrDie(szDiskMarkerFile);
     if (file != -1) {
         CloseDataFile((unsigned short)file);
         return 1;
@@ -260,7 +260,7 @@ short OpenDiskDataFile(short logicalFile)
         return 1;
     if (GetCurrentDiskDriveHook() == 'A') {
         if (toupper((int)(signed char)
-                        g_abDiskPromptDriveState_005a7d20[1]) == 'B') {
+                        abDiskPromptDriveState[1]) == 'B') {
             SelectDiskDriveHook('B');
         } else {
             return 0;
@@ -268,7 +268,7 @@ short OpenDiskDataFile(short logicalFile)
     } else {
         SelectDiskDriveHook('A');
     }
-    file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688);
+    file = OpenDataFileOrDie(szDiskMarkerFile);
     if (file != -1) {
         CloseDataFile((unsigned short)file);
         return 1;
@@ -289,9 +289,9 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
     diskReady = 0;
     if (OpenDiskDataFile(logicalFile) != 0)
         return;
-    if (g_bGraphicsActive_00469a20 == 0) {
+    if (bGraphicsActive == 0) {
         diskNumber =
-            g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber;
+            pDiskFileRecords[logicalFile].diskNumber;
         do {
             DiskPromptDrawHook();
             ResetDiskPromptTimer();
@@ -302,87 +302,87 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
         return;
     }
 
-    savedTextContext = g_pCurrentTextContext_0059af8c;
-    SetTextContext(&g_stDiskPromptTextContext_005a7d60);
-    g_stDiskPromptBackgroundViewport_005a7d00.left =
-        (short)g_dwDiskPromptTopLeft_005a7d80;
-    g_stDiskPromptBackgroundViewport_005a7d00.top =
-        (short)(g_dwDiskPromptTopLeft_005a7d80 >> 16);
-    g_stDiskPromptViewport_005a7d40.left =
-        (short)g_dwDiskPromptTopLeft_005a7d80;
-    g_stDiskPromptViewport_005a7d40.top =
-        (short)(g_dwDiskPromptTopLeft_005a7d80 >> 16);
-    g_stDiskPromptBackgroundViewport_005a7d00.right =
-        (short)g_dwDiskPromptBottomRight_005a7d84;
-    g_stDiskPromptBackgroundViewport_005a7d00.bottom =
-        (short)(g_dwDiskPromptBottomRight_005a7d84 >> 16);
-    g_stDiskPromptViewport_005a7d40.right =
-        (short)g_dwDiskPromptBottomRight_005a7d84;
-    g_stDiskPromptViewport_005a7d40.bottom =
-        (short)(g_dwDiskPromptBottomRight_005a7d84 >> 16);
+    savedTextContext = pCurrentTextContext;
+    SetTextContext(&stDiskPromptTextContext);
+    stDiskPromptBackgroundViewport.left =
+        (short)dwDiskPromptTopLeft;
+    stDiskPromptBackgroundViewport.top =
+        (short)(dwDiskPromptTopLeft >> 16);
+    stDiskPromptViewport.left =
+        (short)dwDiskPromptTopLeft;
+    stDiskPromptViewport.top =
+        (short)(dwDiskPromptTopLeft >> 16);
+    stDiskPromptBackgroundViewport.right =
+        (short)dwDiskPromptBottomRight;
+    stDiskPromptBackgroundViewport.bottom =
+        (short)(dwDiskPromptBottomRight >> 16);
+    stDiskPromptViewport.right =
+        (short)dwDiskPromptBottomRight;
+    stDiskPromptViewport.bottom =
+        (short)(dwDiskPromptBottomRight >> 16);
 
-    if (DAT_005a7510.pixels != 0) {
-        g_stDiskPromptBackgroundViewport_005a7d00 = DAT_005a7510;
-        backgroundColour = (unsigned char)g_cPrimaryViewBufferColour_004699d8;
-    } else if (DAT_005a76b0.pixels != 0) {
-        g_stDiskPromptBackgroundViewport_005a7d00 = DAT_005a76b0;
-        backgroundColour = (unsigned char)g_cBlackColour_0046999c;
+    if (stSpaceBuffer.pixels != 0) {
+        stDiskPromptBackgroundViewport = stSpaceBuffer;
+        backgroundColour = (unsigned char)cPrimaryViewBufferColour;
+    } else if (stSceneBuffer.pixels != 0) {
+        stDiskPromptBackgroundViewport = stSceneBuffer;
+        backgroundColour = (unsigned char)cBlackColour;
     } else {
         savedViewportMode = (signed char)AllocateViewport(
-            &g_stDiskPromptBackgroundViewport_005a7d00, -1, 0);
+            &stDiskPromptBackgroundViewport, -1, 0);
         backgroundColour = (short)(unsigned int)savedTextContext;
     }
 
-    g_stDiskPromptBackgroundViewport_005a7d00.left =
-        (short)g_dwDiskPromptTopLeft_005a7d80;
-    g_stDiskPromptBackgroundViewport_005a7d00.top =
-        (short)(g_dwDiskPromptTopLeft_005a7d80 >> 16);
-    g_stDiskPromptBackgroundViewport_005a7d00.right =
-        (short)g_dwDiskPromptBottomRight_005a7d84;
-    g_stDiskPromptBackgroundViewport_005a7d00.bottom =
-        (short)(g_dwDiskPromptBottomRight_005a7d84 >> 16);
+    stDiskPromptBackgroundViewport.left =
+        (short)dwDiskPromptTopLeft;
+    stDiskPromptBackgroundViewport.top =
+        (short)(dwDiskPromptTopLeft >> 16);
+    stDiskPromptBackgroundViewport.right =
+        (short)dwDiskPromptBottomRight;
+    stDiskPromptBackgroundViewport.bottom =
+        (short)(dwDiskPromptBottomRight >> 16);
     if (savedViewportMode != 0) {
-        CopyViewportContents(&g_stDiskPromptViewport_005a7d40,
-                             &g_stDiskPromptBackgroundViewport_005a7d00);
+        CopyViewportContents(&stDiskPromptViewport,
+                             &stDiskPromptBackgroundViewport);
     }
 
     do {
-        ClearViewport(&g_stDiskPromptViewport_005a7d40,
-                      g_cViewportClearColour_004699a0);
+        ClearViewport(&stDiskPromptViewport,
+                      cViewportClearColour);
         SetTextCursor(
-            (unsigned short)(g_stDiskPromptViewport_005a7d40.left + 2),
-            (unsigned short)(g_stDiskPromptViewport_005a7d40.top + 2));
+            (unsigned short)(stDiskPromptViewport.left + 2),
+            (unsigned short)(stDiskPromptViewport.top + 2));
         DrawViewportBorder(
-            &g_stDiskPromptViewport_005a7d40,
-            g_stDiskPromptViewport_005a7d40.left,
-            g_stDiskPromptViewport_005a7d40.top,
-            g_stDiskPromptViewport_005a7d40.right,
-            g_stDiskPromptViewport_005a7d40.bottom,
-            g_nDiskPromptBorderColour_00469694);
+            &stDiskPromptViewport,
+            stDiskPromptViewport.left,
+            stDiskPromptViewport.top,
+            stDiskPromptViewport.right,
+            stDiskPromptViewport.bottom,
+            nDiskPromptBorderColour);
         FormatTextBufferFromStart(
             "Please insert disk %d\ninto any drive\nPress any key when ready.",
-            (int)g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber);
-        DrawTextString(g_szTextScratchBuffer_00598b00);
+            (int)pDiskFileRecords[logicalFile].diskNumber);
+        DrawTextString(szTextScratchBuffer);
         WaitForInputKey();
         if (OpenDiskDataFile(logicalFile) != 0)
             diskReady++;
         if (savedViewportMode != 0) {
             CopyViewportContents(
-                &g_stDiskPromptBackgroundViewport_005a7d00,
-                &g_stDiskPromptViewport_005a7d40);
+                &stDiskPromptBackgroundViewport,
+                &stDiskPromptViewport);
         } else {
-            ClearViewport(&g_stDiskPromptViewport_005a7d40,
+            ClearViewport(&stDiskPromptViewport,
                           backgroundColour);
         }
     } while (diskReady == 0);
 
     if (savedViewportMode == 1) {
-        free_viewport(&g_stDiskPromptBackgroundViewport_005a7d00);
+        free_viewport(&stDiskPromptBackgroundViewport);
     } else if (savedViewportMode == 2) {
-        ClearViewport(&g_stDiskPromptBackgroundViewport_005a7d00,
+        ClearViewport(&stDiskPromptBackgroundViewport,
                       backgroundColour);
     }
-    g_pCurrentTextContext_0059af8c = savedTextContext;
+    pCurrentTextContext = savedTextContext;
 }
 
 /* Function start: 0x41DA00 */
@@ -424,11 +424,11 @@ short WaitForInputKey(void)
     signed char key;
 
     key = 0;
-    if (g_nEventManagerActive_0059a850 == 0)
+    if (nEventManagerActive == 0)
         return (signed char)PumpMessagesDuringWait();
 
-    savedMode = g_bInputMode_0059a848;
-    g_bInputMode_0059a848 = 1;
+    savedMode = bInputMode;
+    bInputMode = 1;
     do {
         switch (PollInputEvent(&event, 0xff)) {
         case 2:
@@ -452,7 +452,7 @@ short WaitForInputKey(void)
         }
     } while (key == 0);
     ClearInputKeyStatePreservingModifiers();
-    g_bInputMode_0059a848 = savedMode;
+    bInputMode = savedMode;
     FlushInputEvents();
     return key;
 }
@@ -468,8 +468,8 @@ void WaitForSceneAdvance(short duration, short unused)
 
     (void)unused;
     advanced = 0;
-    savedMode = g_bInputMode_0059a848;
-    g_bInputMode_0059a848 = 1;
+    savedMode = bInputMode;
+    bInputMode = 1;
     if (duration != -1) {
         SetFrameTimerPeriodDirect(duration);
     } else {
@@ -489,7 +489,7 @@ void WaitForSceneAdvance(short duration, short unused)
         case 5:
         case 10:
             advanced++;
-            g_bInputMode_0059a848 = savedMode;
+            bInputMode = savedMode;
             FlushInputEvents();
             do {
                 eventType = PollInputEvent(&event, 0xff);
@@ -506,38 +506,38 @@ void MoveMenuPointerFromKeyboard(InputEventState *event)
     int delta;
     int moved;
 
-    delta = g_nKeyboardPointerStep_004696a4 * 2;
+    delta = nKeyboardPointerStep * 2;
     moved = 0;
     if ((short)event->value == 0x4c) {
-        if (g_nKeyboardPointerStep_004696a4 == 1)
-            g_nKeyboardPointerStep_004696a4 = 4;
+        if (nKeyboardPointerStep == 1)
+            nKeyboardPointerStep = 4;
         else
-            g_nKeyboardPointerStep_004696a4 = 1;
+            nKeyboardPointerStep = 1;
     } else {
         switch ((short)event->value) {
         case 0x47:
-            g_stMouseCursorState_0059ab10.y -= delta;
+            stMouseCursorState.y -= delta;
             /* fall through */
         case 0x4b:
-            g_stMouseCursorState_0059ab10.x -= delta;
+            stMouseCursorState.x -= delta;
             break;
         case 0x49:
-            g_stMouseCursorState_0059ab10.x += delta;
+            stMouseCursorState.x += delta;
             /* fall through */
         case 0x48:
-            g_stMouseCursorState_0059ab10.y -= delta;
+            stMouseCursorState.y -= delta;
             break;
         case 0x4f:
-            g_stMouseCursorState_0059ab10.x -= delta;
+            stMouseCursorState.x -= delta;
             /* fall through */
         case 0x50:
-            g_stMouseCursorState_0059ab10.y += delta;
+            stMouseCursorState.y += delta;
             break;
         case 0x51:
-            g_stMouseCursorState_0059ab10.y += delta;
+            stMouseCursorState.y += delta;
             /* fall through */
         case 0x4d:
-            g_stMouseCursorState_0059ab10.x += delta;
+            stMouseCursorState.x += delta;
             break;
         default:
             goto clamp_pointer;
@@ -546,25 +546,25 @@ void MoveMenuPointerFromKeyboard(InputEventState *event)
     }
 
 clamp_pointer:
-    if (g_stMouseCursorState_0059ab10.x < 0)
-        g_stMouseCursorState_0059ab10.x = 0;
-    else if (g_stMouseCursorState_0059ab10.x > 320)
-        g_stMouseCursorState_0059ab10.x = 320;
-    if (g_stMouseCursorState_0059ab10.y < 0)
-        g_stMouseCursorState_0059ab10.y = 0;
-    else if (g_stMouseCursorState_0059ab10.y > 320)
-        g_stMouseCursorState_0059ab10.y = 320;
+    if (stMouseCursorState.x < 0)
+        stMouseCursorState.x = 0;
+    else if (stMouseCursorState.x > 320)
+        stMouseCursorState.x = 320;
+    if (stMouseCursorState.y < 0)
+        stMouseCursorState.y = 0;
+    else if (stMouseCursorState.y > 320)
+        stMouseCursorState.y = 320;
 
-    g_stHostMouseState_0059af70.x = g_stMouseCursorState_0059ab10.x;
-    g_stHostMouseState_0059af70.y = g_stMouseCursorState_0059ab10.y;
+    stHostMouseState.x = stMouseCursorState.x;
+    stHostMouseState.y = stMouseCursorState.y;
     if (moved != 0) {
         RetainInputEventsOfType(3);
-        QueueInputEvent(13, (unsigned short)g_stMouseCursorState_0059ab10.x,
-                        (unsigned short)g_stMouseCursorState_0059ab10.y,
+        QueueInputEvent(13, (unsigned short)stMouseCursorState.x,
+                        (unsigned short)stMouseCursorState.y,
                         0, 0, 0, 0);
-        g_bPointerMovedByKeyboard_005a7d54 = 1;
-        SetMousePosition(g_stHostMouseState_0059af70.x,
-                         g_stHostMouseState_0059af70.y);
+        bPointerMovedByKeyboard = 1;
+        SetMousePosition(stHostMouseState.x,
+                         stHostMouseState.y);
     }
 }
 
@@ -577,39 +577,39 @@ void EraseLastTextInputCharacter(void)
     short length;
     short characterWidth;
 
-    text = g_pCurrentTextContext_0059af8c->text;
+    text = pCurrentTextContext->text;
     textWidth = MeasureTextPixelWidthClamped(text);
     length = DosStrlen(text);
     if (length != 0) {
         characterWidth = (short)GetFontCharWidth(text[length - 1]);
-        clearArea = *g_pCurrentTextContext_0059af8c->viewport;
+        clearArea = *pCurrentTextContext->viewport;
         clearArea.left = (short)(clearArea.left +
                                  textWidth - characterWidth);
         clearArea.right = (short)(clearArea.left + characterWidth - 1);
-        clearArea.top = g_pCurrentTextContext_0059af8c->cursorY;
+        clearArea.top = pCurrentTextContext->cursorY;
         clearArea.bottom = (short)(clearArea.top +
             ReadWord((unsigned short *)
-                g_pCurrentTextContext_0059af8c->font) - 1);
+                pCurrentTextContext->font) - 1);
         LeaveAllocationScope();
         ClearViewport(&clearArea,
-                      g_pCurrentTextContext_0059af8c->backgroundColour);
+                      pCurrentTextContext->backgroundColour);
         EnterAllocationScope();
-        g_pCurrentTextContext_0059af8c->cursorX = (short)(
-            g_pCurrentTextContext_0059af8c->cursorX - characterWidth);
+        pCurrentTextContext->cursorX = (short)(
+            pCurrentTextContext->cursorX - characterWidth);
     }
 }
 
 /* Function start: 0x41DEB0 */
 short WaitForStreamInputKey(void)
 {
-    unsigned int saved = g_bKeyEventQueueEnabled_0046505c;
+    unsigned int saved = bKeyEventQueueEnabled;
     short key;
 
-    g_bKeyEventQueueEnabled_0046505c = 1;
+    bKeyEventQueueEnabled = 1;
     do {
         key = WaitForInputKey();
     } while (key == 0);
-    g_bKeyEventQueueEnabled_0046505c = saved;
+    bKeyEventQueueEnabled = saved;
     return key;
 }
 
@@ -618,8 +618,8 @@ short initialize_object(short obj, enum ObjectType type, short owner)
 {
     if (obj != -1) {
         set_objects_data(obj, type, owner);
-        zero_vector(&g_aShipPosition_0059c490[obj]);
-        zero_vector(&g_aShipVelocity_0059c010[obj]);
+        zero_vector(&aShipPosition[obj]);
+        zero_vector(&aShipVelocity[obj]);
     }
     return obj;
 }
@@ -630,7 +630,7 @@ short borrow_dust(void)
     short i = 0x22;
 
     do {
-        if (g_aeObjectClass_0059d100[i] == OBJECT_CLASS_DUST)
+        if (aeObjectClass[i] == OBJECT_CLASS_DUST)
             return i;
         i = i + 1;
     } while (i < 0x2a);
@@ -655,7 +655,7 @@ short initialize_ship(enum ObjectType type, short owner)
 
     if (obj != -1) {
         initialize_object(obj, type, owner);
-        g_aeShipSide_0059d650[obj] = SIDE_NEUTRAL;
+        aeShipSide[obj] = SIDE_NEUTRAL;
     }
     return obj;
 }
@@ -674,7 +674,7 @@ short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
         for (; (short)(signed char)loadout[0] > weapon; weapon++) {
             if (selected != 0)
                 break;
-            if (g_aObjectTypeData_00466458[
+            if (aObjectTypeData[
                     ((ShipWeaponSlot *)(loadout + weapon * 7 + 1))->type]
                     .objectClass ==
                     selectedClass &&
@@ -697,10 +697,10 @@ unsigned int remove_weapon(short obj, short weapon)
     ship = obj;
     currentWeapon = weapon;
     weaponOffset = (int)currentWeapon * sizeof(ShipWeaponSlot);
-    loadout = g_aShipWeapons_0059cab0[ship];
+    loadout = aShipWeapons[ship];
     preferredType =
         ((ShipWeaponSlot *)(loadout + weaponOffset + 1))->type;
-    objectClass = g_aObjectTypeData_00466458[preferredType].objectClass;
+    objectClass = aObjectTypeData[preferredType].objectClass;
     for (; currentWeapon < (signed char)loadout[0] - 1;
          currentWeapon++) {
         unsigned char *entry = loadout + currentWeapon * 7;
@@ -721,7 +721,7 @@ unsigned int remove_weapon(short obj, short weapon)
             if (objectClass == OBJECT_CLASS_PROJECTILE) {
                 select_new_gun();
             } else {
-                g_nSelectedReleaseWeaponIndex_0046c058 = -1;
+                nSelectedReleaseWeaponIndex = -1;
                 select_new_release_weapon(preferredType);
             }
         }
@@ -742,11 +742,11 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     short weapon;
 
     if (type == OBJECT_TYPE_SPACE_DUST) {
-        g_aeObjectType_0059b560[obj] = type;
-        g_aeObjectClass_0059d100[obj] = OBJECT_CLASS_DUST;
+        aeObjectType[obj] = type;
+        aeObjectClass[obj] = OBJECT_CLASS_DUST;
         return;
     }
-    if (g_aObjectTypeData_00466458[type].shapeSet == 0) {
+    if (aObjectTypeData[type].shapeSet == 0) {
         switch (type) {
         case OBJECT_TYPE_ASTEROID2:
             type = OBJECT_TYPE_ASTEROID1;
@@ -769,81 +769,81 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
             break;
         }
     }
-    typeData = &g_aObjectTypeData_00466458[type];
-    g_aeObjectType_0059b560[obj] = type;
-    g_aeObjectClass_0059d100[obj] = typeData->objectClass;
+    typeData = &aObjectTypeData[type];
+    aeObjectType[obj] = type;
+    aeObjectClass[obj] = typeData->objectClass;
     if (type == OBJECT_TYPE_ROCK_CHUNK)
-        g_apObjectShape_0059d2f0[obj] =
-            g_aObjectTypeData_00466458[OBJECT_TYPE_ASTEROID1].shapeSet;
+        apObjectShape[obj] =
+            aObjectTypeData[OBJECT_TYPE_ASTEROID1].shapeSet;
     else
-        g_apObjectShape_0059d2f0[obj] = typeData->shapeSet;
+        apObjectShape[obj] = typeData->shapeSet;
     init_ijk(obj);
-    g_asObjectCollisionRadius_0059d710[obj] = typeData->collisionRadius;
+    asObjectCollisionRadius[obj] = typeData->collisionRadius;
     zero = 0;
-    g_asObjectRadarRadius_0059c790[obj] = typeData->radarRadius;
-    g_asObjectScale_0059de40[obj] = typeData->scale;
-    g_asObjectAfterburnerVelocity_0059c9d0[obj] =
+    asObjectRadarRadius[obj] = typeData->radarRadius;
+    asObjectScale[obj] = typeData->scale;
+    asObjectAfterburnerVelocity[obj] =
         typeData->afterburnerVelocity;
-    g_acObjectOwner_0059ce20[obj] = (signed char)owner;
-    g_asShipAccumulatedDamage_0059dee0[obj] = zero;
-    objectClass = g_aeObjectClass_0059d100[obj];
-    g_asObjectFlip_0059c870[obj] = zero;
-    g_acLastCollisionObject_0059d6a0[obj] = -1;
-    g_asObjectScreenAngle_0059cd90[obj] = zero;
+    acObjectOwner[obj] = (signed char)owner;
+    asShipAccumulatedDamage[obj] = zero;
+    objectClass = aeObjectClass[obj];
+    asObjectFlip[obj] = zero;
+    acLastCollisionObject[obj] = -1;
+    asObjectScreenAngle[obj] = zero;
 
     if (objectClass >= OBJECT_CLASS_MISSILE) {
-        g_asObjectViewFrame_0059d230[obj] = zero;
-        g_acShipTarget_0059ce60[obj] = -1;
+        asObjectViewFrame[obj] = zero;
+        acShipTarget[obj] = -1;
         if (objectClass >= OBJECT_CLASS_SHIP) {
             value = typeData->shieldFore;
-            g_aasShipShield_0059d5b0[obj][0] = value;
-            g_aasShipMaximumShield_0059d6e0[obj][0] = value;
+            aasShipShield[obj][0] = value;
+            aasShipMaximumShield[obj][0] = value;
             value = typeData->shieldAft;
-            g_aasShipShield_0059d5b0[obj][1] = value;
-            g_aasShipMaximumShield_0059d6e0[obj][1] = value;
-            g_aasShipArmor_0059d420[obj][0] = typeData->armorFront;
-            g_aasShipArmor_0059d420[obj][2] = typeData->armorLeft;
-            g_aasShipArmor_0059d420[obj][3] = typeData->armorRight;
-            g_aasShipArmor_0059d420[obj][1] = typeData->armorRear;
-            g_anShipFuel_0059b470[obj] = *(int *)&typeData->lifetime;
-            g_acShipIonDriveDamage_0059d4a0[obj] = (signed char)zero;
-            g_acShipDamage_0059c460[obj] = (signed char)zero;
+            aasShipShield[obj][1] = value;
+            aasShipMaximumShield[obj][1] = value;
+            aasShipArmor[obj][0] = typeData->armorFront;
+            aasShipArmor[obj][2] = typeData->armorLeft;
+            aasShipArmor[obj][3] = typeData->armorRight;
+            aasShipArmor[obj][1] = typeData->armorRear;
+            anShipFuel[obj] = *(int *)&typeData->lifetime;
+            acShipIonDriveDamage[obj] = (signed char)zero;
+            acShipDamage[obj] = (signed char)zero;
             recalc_max_velocity(obj);
-            DAT_0059cf00[obj] = 4;
-            loadout = g_aShipWeapons_0059cab0[obj];
+            acPilotHitPoints[obj] = 4;
+            loadout = aShipWeapons[obj];
             memcpy(loadout, typeData->weaponLoadout,
                    sizeof(typeData->weaponLoadout));
 
             if (obj == 0) {
-                g_nSelectedReleaseWeaponIndex_0046c058 = -1;
-                g_eSelectedGunType_0046c054 = (enum ObjectType)-1;
+                nSelectedReleaseWeaponIndex = -1;
+                eSelectedGunType = (enum ObjectType)-1;
                 for (weapon = (short)(signed char)loadout[0];
                      weapon-- > 0;) {
                     ShipWeaponSlot *slot;
 
                     slot = (ShipWeaponSlot *)(loadout + weapon * 7 + 1);
                     if (slot->disabled == 0) {
-                        if (g_aObjectTypeData_00466458[
+                        if (aObjectTypeData[
                                 slot->type].objectClass ==
                                 OBJECT_CLASS_PROJECTILE)
-                            g_eSelectedGunType_0046c054 = slot->type;
+                            eSelectedGunType = slot->type;
                         else
-                            g_nSelectedReleaseWeaponIndex_0046c058 = weapon;
+                            nSelectedReleaseWeaponIndex = weapon;
                     }
                 }
             }
-            DAT_0059c910[obj] = -1;
-            g_asShipWeaponEnergy_0059d470[obj] = 100;
+            acLastAttacker[obj] = -1;
+            asShipWeaponEnergy[obj] = 100;
         }
         return;
     }
 
     if (typeData->animation == 0) {
-        g_asObjectViewFrame_0059d230[obj] = typeData->yawRate;
+        asObjectViewFrame[obj] = typeData->yawRate;
         return;
     }
-    g_asObjectAnimationDelay_0059b660[obj] = 1;
-    g_asObjectAnimationIndex_0059da30[obj] = 0;
+    asObjectAnimationDelay[obj] = 1;
+    asObjectAnimationIndex[obj] = 0;
     animate_shape(obj);
 }
 
@@ -894,48 +894,48 @@ void rotate_object_to_goal(short obj)
     ObjectTypeData *typeData;
     short totalError;
 
-    typeData = &g_aObjectTypeData_00466458[g_aeObjectType_0059b560[obj]];
-    if (g_aeSpecialManeuver_0059c3c0[obj] ==
+    typeData = &aObjectTypeData[aeObjectType[obj]];
+    if (aeSpecialManeuver[obj] ==
             SPECIAL_MANEUVER_BLOWING_UP) {
         if ((short)alert_flag(obj, 1) != 0) {
             set_special(obj, SPECIAL_MANEUVER_NONE);
         } else {
-            if (g_asObjectCounter_0059c330[obj] == -1 &&
+            if (asObjectCounter[obj] == -1 &&
                 skill_check(obj, 7) != 0)
-                g_aeSpecialManeuver_0059c3c0[obj] =
+                aeSpecialManeuver[obj] =
                     SPECIAL_MANEUVER_NONE;
             return;
         }
     }
-    totalError = (short)(abs(g_anObjectYawRotation_0059ce80[obj] -
-                            g_anYawGoal_0059c310[obj]) +
-                         abs(g_anObjectPitchRotation_0059b2a0[obj] -
-                             g_anPitchGoal_0059d7a0[obj]) +
-                         abs(g_anObjectRollRotation_0059d7e0[obj] -
-                             g_anRollGoal_0059d630[obj]));
-    match_rotation_goal(&g_anObjectPitchRotation_0059b2a0[obj],
-                        &g_anPitchGoal_0059d7a0[obj], totalError,
+    totalError = (short)(abs(anObjectYawRotation[obj] -
+                            anYawGoal[obj]) +
+                         abs(anObjectPitchRotation[obj] -
+                             anPitchGoal[obj]) +
+                         abs(anObjectRollRotation[obj] -
+                             anRollGoal[obj]));
+    match_rotation_goal(&anObjectPitchRotation[obj],
+                        &anPitchGoal[obj], totalError,
                         typeData->yawRate);
-    match_rotation_goal(&g_anObjectYawRotation_0059ce80[obj],
-                        &g_anYawGoal_0059c310[obj], totalError,
+    match_rotation_goal(&anObjectYawRotation[obj],
+                        &anYawGoal[obj], totalError,
                         typeData->pitchRate);
-    match_rotation_goal(&g_anObjectRollRotation_0059d7e0[obj],
-                        &g_anRollGoal_0059d630[obj], totalError,
+    match_rotation_goal(&anObjectRollRotation[obj],
+                        &anRollGoal[obj], totalError,
                         typeData->rollRate);
 }
 
 /* Function start: 0x41E710 */
 unsigned int celerate(short ship, int delta)
 {
-    int maximumSpeed = (int)g_asShipMaximumSpeed_0059c440[ship] << 8;
+    int maximumSpeed = (int)asShipMaximumSpeed[ship] << 8;
     int speed;
 
-    speed = g_anShipSpeed_0059b320[ship] + delta;
-    g_anShipSpeed_0059b320[ship] = speed;
+    speed = anShipSpeed[ship] + delta;
+    anShipSpeed[ship] = speed;
     if (speed > maximumSpeed)
-        g_anShipSpeed_0059b320[ship] = maximumSpeed;
-    if (g_anShipSpeed_0059b320[ship] < 0)
-        g_anShipSpeed_0059b320[ship] = 0;
+        anShipSpeed[ship] = maximumSpeed;
+    if (anShipSpeed[ship] < 0)
+        anShipSpeed[ship] = 0;
     return 0;
 }
 
@@ -946,7 +946,7 @@ unsigned int approach_speed(short ship, int targetSpeed)
     int acceleration;
 
     acceleration = GetShipAccelerationRate(ship);
-    delta = targetSpeed - g_anShipSpeed_0059b320[ship];
+    delta = targetSpeed - anShipSpeed[ship];
 
     if ((short)alert_flag(ship, 1))
         acceleration += acceleration;
@@ -959,9 +959,9 @@ unsigned int approach_speed(short ship, int targetSpeed)
 /* Function start: 0x41E7C0 */
 unsigned int steady_object(short ship)
 {
-    g_anYawGoal_0059c310[ship] = 0;
-    g_anPitchGoal_0059d7a0[ship] = 0;
-    g_anRollGoal_0059d630[ship] = 0;
+    anYawGoal[ship] = 0;
+    anPitchGoal[ship] = 0;
+    anRollGoal[ship] = 0;
     return 0;
 }
 
@@ -969,15 +969,15 @@ unsigned int steady_object(short ship)
 short real_velocity(short obj)
 {
     return FixedToShortSaturating(
-        Vector_magnitude(&g_aShipVelocity_0059c010[obj]));
+        Vector_magnitude(&aShipVelocity[obj]));
 }
 
 /* Function start: 0x41E820 */
 unsigned int fix_velocity(short obj)
 {
-    ScaleFixedVector(&g_aShipForwardVector_0059bce0[obj],
-                     g_anShipSpeed_0059b320[obj],
-                     &g_aShipVelocity_0059c010[obj]);
+    ScaleFixedVector(&aShipForwardVector[obj],
+                     anShipSpeed[obj],
+                     &aShipVelocity[obj]);
     return 0;
 }
 
@@ -991,8 +991,8 @@ unsigned int sort_viable_target_list(void)
     short count;
     short inner;
 
-    if (g_cViableTargetCount_0046c088 > 1) {
-        count = (short)g_cViableTargetCount_0046c088;
+    if (cViableTargetCount > 1) {
+        count = (short)cViableTargetCount;
         outer = 0;
         if (count - 1 > 0) {
             do {
@@ -1001,17 +1001,17 @@ unsigned int sort_viable_target_list(void)
                 if (inner < count) {
                     for (; inner < count; inner++) {
                         distance =
-                            g_asViableTargetDistance_0059c470[outer];
-                        if (g_asViableTargetDistance_0059c470[inner] <
+                            asViableTargetDistance[outer];
+                        if (asViableTargetDistance[inner] <
                             distance) {
-                            g_asViableTargetDistance_0059c470[outer] =
-                                g_asViableTargetDistance_0059c470[inner];
-                            target = g_acViableTarget_0059c920[outer];
-                            g_asViableTargetDistance_0059c470[inner] =
+                            asViableTargetDistance[outer] =
+                                asViableTargetDistance[inner];
+                            target = acViableTarget[outer];
+                            asViableTargetDistance[inner] =
                                 distance;
-                            g_acViableTarget_0059c920[outer] =
-                                g_acViableTarget_0059c920[inner];
-                            g_acViableTarget_0059c920[inner] = target;
+                            acViableTarget[outer] =
+                                acViableTarget[inner];
+                            acViableTarget[inner] = target;
                         }
                     }
                 }

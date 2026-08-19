@@ -11,22 +11,22 @@
 /* Function start: 0x403500 */
 void __stdcall CloseDataFile(unsigned short fd)
 {
-    g_nPacketError_00465460 = (short)_close(fd & 0xffff);
+    nPacketError = (short)_close(fd & 0xffff);
 }
 
 /* Function start: 0x403520 */
 short __stdcall WriteDataFileAtOffset(unsigned short fd, int offset,
                                       unsigned int length, const void *data)
 {
-    g_nPacketError_00465460 = 0;
+    nPacketError = 0;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
-        sprintf(g_szWriteDataFileError_00475da0, "!lseek %d\n", offset);
-        g_nPacketError_00465460 = (short)errno;
+        sprintf(szWriteDataFileError, "!lseek %d\n", offset);
+        nPacketError = (short)errno;
         return 0;
     }
     if (_write(fd, data, length) == -1) {
-        sprintf(g_szWriteDataFileError_00475da0, "!write %d\n", offset);
-        g_nPacketError_00465460 = (short)errno;
+        sprintf(szWriteDataFileError, "!write %d\n", offset);
+        nPacketError = (short)errno;
         return 0;
     }
     return 1;
@@ -39,8 +39,8 @@ short __stdcall CreateDataFile(const char *path)
 
     fd = (unsigned short)_open(path, 0x8101, 0x180);
     if ((unsigned int)fd == (unsigned int)-1) {
-        sprintf(g_szCreateDataFileError_00475d60, "!_open '%s'\n", path);
-        g_nPacketError_00465460 = (short)errno;
+        sprintf(szCreateDataFileError, "!_open '%s'\n", path);
+        nPacketError = (short)errno;
         return 0;
     }
     return (short)fd;
@@ -50,15 +50,15 @@ short __stdcall CreateDataFile(const char *path)
 int __stdcall ReadDataFileAtOffset(unsigned short fd, int offset,
                                    unsigned int length, void *data)
 {
-    g_nPacketError_00465460 = 0;
+    nPacketError = 0;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
-        sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
-        g_nPacketError_00465460 = (short)errno;
+        sprintf(szReadDataFileError, "!lseek %d\n", offset);
+        nPacketError = (short)errno;
         return 0;
     }
     if (_read(fd, data, length) == -1) {
-        sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
-        g_nPacketError_00465460 = (short)errno;
+        sprintf(szReadDataFileError, "!lseek %d\n", offset);
+        nPacketError = (short)errno;
         return 0;
     }
     return 1;
@@ -72,8 +72,8 @@ int __stdcall SeekDataFile(unsigned short fd, int offset,
 
     position = _lseek(fd, offset, origin & 0xffff);
     if (position == -1) {
-        sprintf(g_szSeekDataFileError_00475de0, "!lseek %d\n", offset);
-        g_nPacketError_00465460 = (short)errno;
+        sprintf(szSeekDataFileError, "!lseek %d\n", offset);
+        nPacketError = (short)errno;
     }
     return position;
 }
@@ -93,8 +93,8 @@ int MeasureScaledIntroTextWidth(const char *text, short scale)
         if (c >= 'A' && c <= 'z') {
             c -= 'A';
 
-            GetTransformedShapeBounds(&DAT_005a7510, 0, 0,
-                                      g_pIntroFont_005a8960, (short)c, 0,
+            GetTransformedShapeBounds(&stSpaceBuffer, 0, 0,
+                                      pIntroFont, (short)c, 0,
                                       scale, 0, bounds);
             width = (short)(width + bounds[2] + 1);
             width = (short)(width + ((int)scale * 2 >> 8));
@@ -128,11 +128,11 @@ int DrawCenteredScaledIntroText(const char *text, short centreX,
         if (c >= 'A' && c <= 'z') {
             c -= 'A';
 
-            DrawSpriteScaled(&DAT_005a7510, x, y,
-                             g_pIntroFont_005a8960, (short)c, 0,
+            DrawSpriteScaled(&stSpaceBuffer, x, y,
+                             pIntroFont, (short)c, 0,
                              drawScale, 0);
-            GetTransformedShapeBounds(&DAT_005a7510, 0, 0,
-                                      g_pIntroFont_005a8960, (short)c, 0,
+            GetTransformedShapeBounds(&stSpaceBuffer, 0, 0,
+                                      pIntroFont, (short)c, 0,
                                       drawScale, 0, bounds);
             x = (short)(x + bounds[2] + 1);
             x = (short)(x + (scaled * 2 >> 8));
@@ -160,15 +160,15 @@ short GetLineLength(const char *text)
         if (c >= 'A' && c <= 'z') {
             c = (char)(c - 'A');
             width = width + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, c, 2);
+                0, 0, pIntroFont, c, 2);
             width = width + 2;
         } else if (c == '.') {
             width = width + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, 58, 2);
+                0, 0, pIntroFont, 58, 2);
             width = width + 2;
         } else if (c == ',') {
             width = width + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, 59, 2);
+                0, 0, pIntroFont, 59, 2);
             width = width + 2;
         } else if (c == ' ') {
             width = width + 6;
@@ -209,28 +209,28 @@ int print_subtitle(Viewport *viewport, short colour, const char *text)
             break;
         if (c >= 'A' && c <= 'z') {
             c = (char)(c - 'A');
-            DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, c);
+            DrawSpriteDefault(viewport, x, y, pIntroFont, c);
             x = x + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, c, 2);
+                0, 0, pIntroFont, c, 2);
             x = x + 2;
         } else if (c == ' ') {
             x = x + 6;
         } else if (c == '.') {
-            DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, 58);
+            DrawSpriteDefault(viewport, x, y, pIntroFont, 58);
             x = x + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, 58, 2);
+                0, 0, pIntroFont, 58, 2);
             x = x + 2;
         } else if (c == ',') {
-            DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, 59);
+            DrawSpriteDefault(viewport, x, y, pIntroFont, 59);
             x = x + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, 59, 2);
+                0, 0, pIntroFont, 59, 2);
             x = x + 2;
         } else if (c == '\n') {
             y = y + 16;
             x = (short)((320 - GetLineLength(text)) >> 1);
         }
     }
-    if (viewport->pixels == DAT_005a6ba0.pixels)
+    if (viewport->pixels == stScreen.pixels)
         DIBslam();
     return 0;
 }
@@ -240,19 +240,19 @@ int advance_canned_sequence(short obj)
 {
     const short *command;
 
-    command = g_apCannedSequence_0059dce0[obj];
+    command = apCannedSequence[obj];
     if (command == 0)
         return 0;
-    g_asCannedCommand_0059d4e0[obj] = *command++;
-    switch (g_asCannedCommand_0059d4e0[obj]) {
+    asCannedCommand[obj] = *command++;
+    switch (asCannedCommand[obj]) {
     case 0:
-        g_asActionCount_0059c930[obj] = *command++;
+        asActionCount[obj] = *command++;
         break;
     case 1:
-        g_anYawGoal_0059c310[obj] = *command++;
-        g_anPitchGoal_0059d7a0[obj] = *command++;
-        g_anRollGoal_0059d630[obj] = *command++;
-        g_anShipSpeed_0059b320[obj] = (int)*command++ << 8;
+        anYawGoal[obj] = *command++;
+        anPitchGoal[obj] = *command++;
+        anRollGoal[obj] = *command++;
+        anShipSpeed[obj] = (int)*command++ << 8;
         break;
     case 2:
         explode(-1, obj);
@@ -261,11 +261,11 @@ int advance_canned_sequence(short obj)
         fire_fixed_projectile_weapon(obj);
         break;
     case 4:
-        g_aeSpecialManeuver_0059c3c0[obj] =
+        aeSpecialManeuver[obj] =
             SPECIAL_MANEUVER_AFTERBURNER;
         break;
     }
-    g_apCannedSequence_0059dce0[obj] = command;
+    apCannedSequence[obj] = command;
     return 0;
 }
 
@@ -275,19 +275,19 @@ unsigned int update_canned_sequence(short obj)
     int velocity;
     int requested;
 
-    switch (g_asCannedCommand_0059d4e0[obj]) {
+    switch (asCannedCommand[obj]) {
     case 0:
-        g_asActionCount_0059c930[obj]--;
-        if (g_asActionCount_0059c930[obj] == 0)
+        asActionCount[obj]--;
+        if (asActionCount[obj] == 0)
             advance_canned_sequence(obj);
         break;
     case 1:
-        if (g_anYawGoal_0059c310[obj] == 0 &&
-            g_anPitchGoal_0059d7a0[obj] == 0 &&
-            g_anRollGoal_0059d630[obj] == 0) {
-            requested = g_anShipSpeed_0059b320[obj];
+        if (anYawGoal[obj] == 0 &&
+            anPitchGoal[obj] == 0 &&
+            anRollGoal[obj] == 0) {
+            requested = anShipSpeed[obj];
             velocity = Vector_magnitude(
-                &g_aShipVelocity_0059c010[0]);
+                &aShipVelocity[0]);
             if ((velocity > requested - 0x400) < requested + 0x400)
                 advance_canned_sequence(obj);
         }
@@ -319,37 +319,37 @@ void MonoDebug_install(void)
 {
     unsigned int version;
 
-    g_hMonoDebugDevice_00475e74 =
+    hMonoDebugDevice =
         CreateFileA("\\\\.\\MONODEBG.VXD", 0, 0, 0, CREATE_ALWAYS,
                     FILE_FLAG_DELETE_ON_CLOSE, 0);
-    if (g_hMonoDebugDevice_00475e74 == INVALID_HANDLE_VALUE)
+    if (hMonoDebugDevice == INVALID_HANDLE_VALUE)
         return;
 
-    if (!DeviceIoControl(g_hMonoDebugDevice_00475e74, 1, 0, 0,
+    if (!DeviceIoControl(hMonoDebugDevice, 1, 0, 0,
                          &version, sizeof(version), 0, 0)) {
-        CloseHandle(g_hMonoDebugDevice_00475e74);
+        CloseHandle(hMonoDebugDevice);
         return;
     }
     if (version != 0x20004) {
-        CloseHandle(g_hMonoDebugDevice_00475e74);
+        CloseHandle(hMonoDebugDevice);
         exit_squadron("MonoDebug__install expecting version");
         return;
     }
-    if (!DeviceIoControl(g_hMonoDebugDevice_00475e74, 2, 0, 0,
+    if (!DeviceIoControl(hMonoDebugDevice, 2, 0, 0,
                          0, 0, 0, 0)) {
-        CloseHandle(g_hMonoDebugDevice_00475e74);
+        CloseHandle(hMonoDebugDevice);
         exit_squadron("MonoDebug__install init failed");
         return;
     }
-    g_bMonoDebugInstalled_00475e70 = 1;
+    bMonoDebugInstalled = 1;
 }
 
 /* Function start: 0x403D60 */
 void MonoDebug_remove(void)
 {
-    if (g_bMonoDebugInstalled_00475e70 != 0) {
-        CloseHandle(g_hMonoDebugDevice_00475e74);
-        g_bMonoDebugInstalled_00475e70 = 0;
+    if (bMonoDebugInstalled != 0) {
+        CloseHandle(hMonoDebugDevice);
+        bMonoDebugInstalled = 0;
     }
 }
 
@@ -360,19 +360,19 @@ void SoundDebugPrintf(const char *fmt, ...)
     va_list arguments;
 
     va_start(arguments, fmt);
-    vsprintf(DAT_005a8760, fmt, arguments);
+    vsprintf(szSoundDebugMessage, fmt, arguments);
     va_end(arguments);
 #else
-    vsprintf(DAT_005a8760, fmt, (char *)(&fmt + 1));
+    vsprintf(szSoundDebugMessage, fmt, (char *)(&fmt + 1));
 #endif
-    MonoDebug_print(DAT_005a8760);
+    MonoDebug_print(szSoundDebugMessage);
 }
 
 /* Function start: 0x403DE0 */
 void MonoDebug_print(const char *text)
 {
-    if (g_bMonoDebugInstalled_00475e70 != 0) {
-        if (!DeviceIoControl(g_hMonoDebugDevice_00475e74, 9,
+    if (bMonoDebugInstalled != 0) {
+        if (!DeviceIoControl(hMonoDebugDevice, 9,
                              (void *)text, 0xfa0, 0, 0, 0, 0)) {
             exit_squadron("MonoDebug::print failed (buffer possibly on stack?!)");
             MonoDebug_remove();

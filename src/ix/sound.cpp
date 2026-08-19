@@ -37,63 +37,63 @@ extern "C" void __fastcall ix_sound_start(IxSound *sound)
             (sound->sample->frequency + sound->pitchOffset);
     }
 
-    if (g_nActiveVoices_00598614 < g_nSystemVoiceCount_00598618) {
+    if (nActiveVoices < nSystemVoiceCount) {
         voice = ix_system_find_free_voice();
 
-        if (sound == g_pFreeSoundList_0059860c)
-            g_pFreeSoundList_0059860c = sound->next;
+        if (sound == pFreeSoundList)
+            pFreeSoundList = sound->next;
         if (sound->next != 0)
             sound->next->previous = sound->previous;
         if (sound->previous != 0)
             sound->previous->next = sound->next;
-        sound->next = g_pActiveSoundList_0059861c;
+        sound->next = pActiveSoundList;
         sound->previous = 0;
-        if (g_pActiveSoundList_0059861c != 0)
-            g_pActiveSoundList_0059861c->previous = sound;
-        g_pActiveSoundList_0059861c = sound;
+        if (pActiveSoundList != 0)
+            pActiveSoundList->previous = sound;
+        pActiveSoundList = sound;
         ix_system_assign_voice(sound, voice);
     } else {
         lowestPlaying = ix_system_find_lowest_playing(
-            g_pActiveSoundList_0059861c, sound->priority);
+            pActiveSoundList, sound->priority);
         if (lowestPlaying != 0) {
             releasedVoice = ix_system_release_voice(lowestPlaying);
 
-            if (lowestPlaying == g_pActiveSoundList_0059861c)
-                g_pActiveSoundList_0059861c = lowestPlaying->next;
+            if (lowestPlaying == pActiveSoundList)
+                pActiveSoundList = lowestPlaying->next;
             if (lowestPlaying->next != 0)
                 lowestPlaying->next->previous = lowestPlaying->previous;
             if (lowestPlaying->previous != 0)
                 lowestPlaying->previous->next = lowestPlaying->next;
-            lowestPlaying->next = g_pWaitingSoundList_00598620;
+            lowestPlaying->next = pWaitingSoundList;
             lowestPlaying->previous = 0;
-            if (g_pWaitingSoundList_00598620 != 0)
-                g_pWaitingSoundList_00598620->previous = lowestPlaying;
-            g_pWaitingSoundList_00598620 = lowestPlaying;
+            if (pWaitingSoundList != 0)
+                pWaitingSoundList->previous = lowestPlaying;
+            pWaitingSoundList = lowestPlaying;
 
-            if (sound == g_pFreeSoundList_0059860c)
-                g_pFreeSoundList_0059860c = sound->next;
+            if (sound == pFreeSoundList)
+                pFreeSoundList = sound->next;
             if (sound->next != 0)
                 sound->next->previous = sound->previous;
             if (sound->previous != 0)
                 sound->previous->next = sound->next;
-            sound->next = g_pActiveSoundList_0059861c;
+            sound->next = pActiveSoundList;
             sound->previous = 0;
-            if (g_pActiveSoundList_0059861c != 0)
-                g_pActiveSoundList_0059861c->previous = sound;
-            g_pActiveSoundList_0059861c = sound;
+            if (pActiveSoundList != 0)
+                pActiveSoundList->previous = sound;
+            pActiveSoundList = sound;
             ix_system_assign_voice(sound, releasedVoice);
         } else {
-            if (sound == g_pFreeSoundList_0059860c)
-                g_pFreeSoundList_0059860c = sound->next;
+            if (sound == pFreeSoundList)
+                pFreeSoundList = sound->next;
             if (sound->next != 0)
                 sound->next->previous = sound->previous;
             if (sound->previous != 0)
                 sound->previous->next = sound->next;
-            sound->next = g_pWaitingSoundList_00598620;
+            sound->next = pWaitingSoundList;
             sound->previous = 0;
-            if (g_pWaitingSoundList_00598620 != 0)
-                g_pWaitingSoundList_00598620->previous = sound;
-            g_pWaitingSoundList_00598620 = sound;
+            if (pWaitingSoundList != 0)
+                pWaitingSoundList->previous = sound;
+            pWaitingSoundList = sound;
         }
     }
 }
@@ -131,46 +131,46 @@ extern "C" void __fastcall ix_sound_stop(IxSound *sound)
     if ((sound->flags & IX_SOUND_HAS_VOICE) != 0) {
         voice = ix_system_release_voice(sound);
         replacement = ix_system_find_highest_waiting(
-            g_pWaitingSoundList_00598620, 0);
+            pWaitingSoundList, 0);
 
-        if (sound == g_pActiveSoundList_0059861c)
-            g_pActiveSoundList_0059861c = sound->next;
+        if (sound == pActiveSoundList)
+            pActiveSoundList = sound->next;
         if (sound->next != 0)
             sound->next->previous = sound->previous;
         if (sound->previous != 0)
             sound->previous->next = sound->next;
-        sound->next = g_pFreeSoundList_0059860c;
+        sound->next = pFreeSoundList;
         sound->previous = 0;
-        if (g_pFreeSoundList_0059860c != 0)
-            g_pFreeSoundList_0059860c->previous = sound;
-        g_pFreeSoundList_0059860c = sound;
+        if (pFreeSoundList != 0)
+            pFreeSoundList->previous = sound;
+        pFreeSoundList = sound;
 
         if (replacement != 0) {
             ix_system_assign_voice(replacement, voice);
-            if (replacement == g_pWaitingSoundList_00598620)
-                g_pWaitingSoundList_00598620 = replacement->next;
+            if (replacement == pWaitingSoundList)
+                pWaitingSoundList = replacement->next;
             if (replacement->next != 0)
                 replacement->next->previous = replacement->previous;
             if (replacement->previous != 0)
                 replacement->previous->next = replacement->next;
-            replacement->next = g_pActiveSoundList_0059861c;
+            replacement->next = pActiveSoundList;
             replacement->previous = 0;
-            if (g_pActiveSoundList_0059861c != 0)
-                g_pActiveSoundList_0059861c->previous = replacement;
-            g_pActiveSoundList_0059861c = replacement;
+            if (pActiveSoundList != 0)
+                pActiveSoundList->previous = replacement;
+            pActiveSoundList = replacement;
         }
     } else {
-        if (sound == g_pWaitingSoundList_00598620)
-            g_pWaitingSoundList_00598620 = sound->next;
+        if (sound == pWaitingSoundList)
+            pWaitingSoundList = sound->next;
         if (sound->next != 0)
             sound->next->previous = sound->previous;
         if (sound->previous != 0)
             sound->previous->next = sound->next;
-        sound->next = g_pFreeSoundList_0059860c;
+        sound->next = pFreeSoundList;
         sound->previous = 0;
-        if (g_pFreeSoundList_0059860c != 0)
-            g_pFreeSoundList_0059860c->previous = sound;
-        g_pFreeSoundList_0059860c = sound;
+        if (pFreeSoundList != 0)
+            pFreeSoundList->previous = sound;
+        pFreeSoundList = sound;
     }
 
     if ((sound->flags & IX_SOUND_DELETE_ON_STOP) != 0)
@@ -191,65 +191,65 @@ void IxSound::ix_sound_reprioritise(void)
     if ((flags & IX_SOUND_HAS_VOICE) != 0) {
         if (priority > newPriority) {
             waitingSound = ix_system_find_highest_waiting(
-                g_pWaitingSoundList_00598620, newPriority);
+                pWaitingSoundList, newPriority);
             if (waitingSound != 0) {
                 releasedVoice = ix_system_release_voice(this);
 
-                if (this == g_pActiveSoundList_0059861c)
-                    g_pActiveSoundList_0059861c = next;
+                if (this == pActiveSoundList)
+                    pActiveSoundList = next;
                 if (next != 0)
                     next->previous = previous;
                 if (previous != 0)
                     previous->next = next;
-                next = g_pWaitingSoundList_00598620;
+                next = pWaitingSoundList;
                 previous = 0;
-                if (g_pWaitingSoundList_00598620 != 0)
-                    g_pWaitingSoundList_00598620->previous = this;
-                g_pWaitingSoundList_00598620 = this;
+                if (pWaitingSoundList != 0)
+                    pWaitingSoundList->previous = this;
+                pWaitingSoundList = this;
 
-                if (waitingSound == g_pWaitingSoundList_00598620)
-                    g_pWaitingSoundList_00598620 = waitingSound->next;
+                if (waitingSound == pWaitingSoundList)
+                    pWaitingSoundList = waitingSound->next;
                 if (waitingSound->next != 0)
                     waitingSound->next->previous = waitingSound->previous;
                 if (waitingSound->previous != 0)
                     waitingSound->previous->next = waitingSound->next;
-                waitingSound->next = g_pActiveSoundList_0059861c;
+                waitingSound->next = pActiveSoundList;
                 waitingSound->previous = 0;
-                if (g_pActiveSoundList_0059861c != 0)
-                    g_pActiveSoundList_0059861c->previous = waitingSound;
-                g_pActiveSoundList_0059861c = waitingSound;
+                if (pActiveSoundList != 0)
+                    pActiveSoundList->previous = waitingSound;
+                pActiveSoundList = waitingSound;
                 ix_system_assign_voice(waitingSound, releasedVoice);
             }
         }
     } else if ((flags & IX_SOUND_PLAYING) != 0 && priority < newPriority) {
         playingSound = ix_system_find_lowest_playing(
-            g_pActiveSoundList_0059861c, newPriority);
+            pActiveSoundList, newPriority);
         if (playingSound != 0) {
             reassignedVoice = ix_system_release_voice(playingSound);
 
-            if (playingSound == g_pActiveSoundList_0059861c)
-                g_pActiveSoundList_0059861c = playingSound->next;
+            if (playingSound == pActiveSoundList)
+                pActiveSoundList = playingSound->next;
             if (playingSound->next != 0)
                 playingSound->next->previous = playingSound->previous;
             if (playingSound->previous != 0)
                 playingSound->previous->next = playingSound->next;
-            playingSound->next = g_pWaitingSoundList_00598620;
+            playingSound->next = pWaitingSoundList;
             playingSound->previous = 0;
-            if (g_pWaitingSoundList_00598620 != 0)
-                g_pWaitingSoundList_00598620->previous = playingSound;
-            g_pWaitingSoundList_00598620 = playingSound;
+            if (pWaitingSoundList != 0)
+                pWaitingSoundList->previous = playingSound;
+            pWaitingSoundList = playingSound;
 
-            if (this == g_pWaitingSoundList_00598620)
-                g_pWaitingSoundList_00598620 = next;
+            if (this == pWaitingSoundList)
+                pWaitingSoundList = next;
             if (next != 0)
                 next->previous = previous;
             if (previous != 0)
                 previous->next = next;
-            next = g_pActiveSoundList_0059861c;
+            next = pActiveSoundList;
             previous = 0;
-            if (g_pActiveSoundList_0059861c != 0)
-                g_pActiveSoundList_0059861c->previous = this;
-            g_pActiveSoundList_0059861c = this;
+            if (pActiveSoundList != 0)
+                pActiveSoundList->previous = this;
+            pActiveSoundList = this;
             ix_system_assign_voice(this, reassignedVoice);
         }
     }
@@ -276,11 +276,11 @@ void IxSample::ix_sample_construct(void)
 {
     flags = 0;
     buffer = 0;
-    next = g_pSampleList_00598610;
+    next = pSampleList;
     previous = 0;
-    if (g_pSampleList_00598610 != 0)
-        g_pSampleList_00598610->previous = this;
-    g_pSampleList_00598610 = this;
+    if (pSampleList != 0)
+        pSampleList->previous = this;
+    pSampleList = this;
 }
 
 /* Function start: 0x0044870F */
@@ -290,8 +290,8 @@ void IxSample::ix_sample_destruct(void)
         ix_dsp_free(buffer);
         buffer = 0;
     }
-    if (this == g_pSampleList_00598610)
-        g_pSampleList_00598610 = next;
+    if (this == pSampleList)
+        pSampleList = next;
     if (next != 0)
         next->previous = previous;
     if (previous != 0)

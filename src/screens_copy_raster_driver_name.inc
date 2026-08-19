@@ -11,7 +11,7 @@
         pop	es
         mov	esi, dword ptr [ebp + 0x8]
         call	dword ptr [esi]
-        mov edi, offset g_szRasterDriverName_0046e6d0
+        mov edi, offset szRasterDriverName
 dormant_loc_439c54:
         mov	bl, byte ptr [eax]
         mov	byte ptr [edi], bl
@@ -19,7 +19,7 @@ dormant_loc_439c54:
         inc	eax
         or	bl, bl
         jne dormant_loc_439c54
-        mov eax, offset g_szRasterDriverName_0046e6d0
+        mov eax, offset szRasterDriverName
         pop	es
         pop	edi
         pop	esi
