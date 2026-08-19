@@ -1,6 +1,9 @@
+#include "wc1.h"
+
 #include "video_internal.h"
 
 static SDL_Renderer *g_pSdlRenderer;
+static unsigned int g_dwWc1SdlStaticNoiseSeed = 0x1f123bb5U;
 static SDL_Texture *g_pSdlFrameTexture;
 static Uint32 g_adwSdlFramePixels[
     WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT];
@@ -141,4 +144,46 @@ int Wc1SdlRecordSpaceSprite(
         return 0;
     return Wc1SdlGlRendererRecordSpaceSprite(
         viewport, x, y, shape, frame, angle, scale, flip);
+}
+
+/* Restores the display static the Kilrathi Saga port dropped.  Retail's
+ * snow_viewport only slams the DIB and calls the empty RasterLineHook marker,
+ * so a knocked-out display shows nothing while malf_noise still plays the
+ * sound.  The DOS rasteriser's exact pattern is not recovered here; this
+ * scatters noise over the viewport to restore the player-facing cue.
+ *
+ * The generator is local on purpose.  Drawing thousands of pixels through the
+ * game's RandomBelowOrEqual would consume its sequence and change gameplay,
+ * so the port keeps its own. */
+static unsigned int Wc1SdlNextStaticNoise(void)
+{
+    g_dwWc1SdlStaticNoiseSeed ^= g_dwWc1SdlStaticNoiseSeed << 13;
+    g_dwWc1SdlStaticNoiseSeed ^= g_dwWc1SdlStaticNoiseSeed >> 17;
+    g_dwWc1SdlStaticNoiseSeed ^= g_dwWc1SdlStaticNoiseSeed << 5;
+    return g_dwWc1SdlStaticNoiseSeed;
+}
+
+void Wc1SdlDrawViewportStatic(struct Viewport *viewport, int effect,
+                              unsigned short colour)
+{
+    unsigned int sample;
+    short bright;
+    short x;
+    short y;
+
+    if (viewport == 0 || viewport->pixels == 0)
+        return;
+    /* The two call sites use effect 1 for a damaged display and 3 for the
+     * heavier comm dropout, so the busier pattern goes to the latter. */
+    bright = (short)(effect >= 3 ? 1 : 2);
+    for (y = viewport->top; y <= viewport->bottom; y++) {
+        for (x = viewport->left; x <= viewport->right; x++) {
+            sample = Wc1SdlNextStaticNoise() >> 16;
+            if ((short)(sample & 3) > bright)
+                continue;
+            DrawViewportPixel(viewport, x, y,
+                              (short)((sample & 4) != 0 ? colour
+                                                        : cBlackColour));
+        }
+    }
 }

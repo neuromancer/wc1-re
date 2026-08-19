@@ -881,8 +881,16 @@ void fizzle_fade(Viewport *source, Viewport *destination,
 /* Function start: 0x442300 */
 void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 {
+#ifdef WC1_SDL
+    /* Retail draws nothing here: the Kilrathi Saga port emptied the body
+     * down to the DIB slam and the RasterLineHook name marker, which is
+     * why a knocked-out display shows no static even though malf_noise
+     * still plays the sound. */
+    Wc1SdlDrawViewportStatic(viewport, effect, colour);
+#else
     (void)effect;
     (void)colour;
+#endif
     if (viewport->pixels == stScreen.pixels)
         DIBslam();
     RasterLineHook(szSnowViewport);

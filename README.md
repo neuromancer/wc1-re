@@ -1531,6 +1531,7 @@ active; the rest need a switch, and switches can be combined.
 | Runs from either Kilrathi Saga or DOS game data, detected automatically | always on |
 | Resizable window, fullscreen toggle, and mouse capture | always on |
 | Background planets drawn with correct per-object scaling (WCDX fix) | always on |
+| Static on knocked-out cockpit displays, which the 1996 port dropped | always on |
 | Landing on the *Tiger's Claw* from any bearing; retail also required the Claw's bow to face you | always on |
 | Mouse wheel throttle control during spaceflight | always on |
 | `Esc` pauses during spaceflight, where the original left it inert | always on |

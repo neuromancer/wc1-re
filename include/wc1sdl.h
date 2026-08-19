@@ -147,6 +147,8 @@ void Wc1SdlStopAudio(void);
 void Wc1SdlOutputDebugString(const char *text);
 void Wc1SdlPumpEvents(void);
 void Wc1SdlSetMouseGrab(int enabled);
+void Wc1SdlDrawViewportStatic(struct Viewport *viewport, int effect,
+                              unsigned short colour);
 void Wc1SdlSuspendMouseGrab(void);
 void Wc1SdlResumeMouseGrab(void);
 int Wc1SdlInitializeVideo(SDL_Window *window);
