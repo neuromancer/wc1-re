@@ -1689,9 +1689,13 @@ unsigned int landing(signed char damageLevel)
     if (bEscapePressed != 1) {
         nScrambleOverlayX =
             (short)(nScrambleShipX + 180);
+#ifdef SDL_PORT
+        canopyFrames = apLandingCanopyFrames[damageLevel];
+#else
         canopyFrames = *(const signed char **)
             ((unsigned char *)apLandingCanopyFrames +
              damageOffset);
+#endif
         nScrambleOverlayY =
             (short)(nScrambleShipY + 50);
         frame = 0;
@@ -1739,9 +1743,13 @@ unsigned int landing(signed char damageLevel)
             FormatTextBufferFromStart(
                 szLandingCommentFormat, 0, 160,
                 cBlueColour,
+#ifdef SDL_PORT
+                apszLandingDamageComments[damageLevel]);
+#else
                 *(const char **)
                     ((unsigned char *)apszLandingDamageComments +
                      damageOffset));
+#endif
             DIBslam();
             DIBslamReal();
             ReleaseTextFont(0);
@@ -3689,6 +3697,12 @@ int free_ship(short slot)
     short section;
 
     resource = &aObjectResourceSlots[slot];
+#ifdef SDL_PORT
+    /* The carrier-return sequence also frees empty slots. Their -1 type
+     * becomes an unsigned enum index on native builds. */
+    if (resource->type == -1)
+        return 0;
+#endif
     type = (enum ObjectType)resource->type;
     typeData = &aObjectTypeData[type];
 

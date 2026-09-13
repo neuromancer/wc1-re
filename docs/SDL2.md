@@ -51,4 +51,18 @@ make run-modern-dos
 make run-modern-mission SERIES=1 MISSION=0
 ```
 
-`modern-test` is a data-free SDL2 initialization smoke check.
+`modern-test` runs data-free SDL2 initialization, text, and ship-resource
+cleanup checks. `make modern-test-landing MODERN_RUN_DIR=/path/to/WC1` also
+runs all four fighter landing animations at all four damage levels using
+installed game data, checking the damage comment and restored screen bounds.
+
+The Windows v0.0.12 crash offset `0x1a9da` reported in
+[issue #14](https://github.com/neuromancer/wc1-re/issues/14) is the object-class
+lookup in `free_ship` (original entry `0x0040BC70`). The carrier-return
+sequence frees slots 1 and 2 even when a nav transition has marked them empty
+with type `-1`. Native builds must skip that sentinel before converting it to
+an enum and indexing the object-type table. Capital ships still require
+cleanup when their `shapeSet` is null. The subsequent `landing` animation
+(original entry `0x00408650`) must index its canopy and damage-comment tables
+as pointer arrays, whose entries grow from four to eight bytes on 64-bit
+hosts. Both fixes are confined to `SDL_PORT`.

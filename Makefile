@@ -420,10 +420,17 @@ MODERN_SMOKE_TEST_BIN = \
 	$(MODERN_OUT_DIR)/tests/sdl_smoke$(MODERN_EXE_SUFFIX)
 MODERN_TEXT_TEST_BIN = \
 	$(MODERN_OUT_DIR)/tests/sdl_text_compat$(MODERN_EXE_SUFFIX)
-MODERN_TEST_BINS = $(MODERN_SMOKE_TEST_BIN) $(MODERN_TEXT_TEST_BIN)
+MODERN_SHIP_RESOURCE_TEST_BIN = \
+	$(MODERN_OUT_DIR)/tests/sdl_ship_resources$(MODERN_EXE_SUFFIX)
+MODERN_LANDING_TEST_BIN = \
+	$(MODERN_OUT_DIR)/tests/sdl_landing$(MODERN_EXE_SUFFIX)
+MODERN_TEST_BINS = $(MODERN_SMOKE_TEST_BIN) $(MODERN_TEXT_TEST_BIN) \
+	$(MODERN_SHIP_RESOURCE_TEST_BIN)
 MODERN_TEST_OBJS = \
 	$(MODERN_OUT_DIR)/tests/sdl_smoke.o \
-	$(MODERN_OUT_DIR)/tests/sdl_text_compat.o
+	$(MODERN_OUT_DIR)/tests/sdl_text_compat.o \
+	$(MODERN_OUT_DIR)/tests/sdl_ship_resources.o \
+	$(MODERN_OUT_DIR)/tests/sdl_landing.o
 MODERN_DEPFILES = \
 	$(MODERN_GAMEPLAY_OBJS:.o=.d) \
 	$(MODERN_IX_OBJS:.o=.d) \
@@ -535,6 +542,28 @@ $(MODERN_TEXT_TEST_BIN): \
 		$(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
+$(MODERN_SHIP_RESOURCE_TEST_BIN): \
+		$(MODERN_OUT_DIR)/tests/sdl_ship_resources.o \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) \
+		$(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
+		$(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+$(MODERN_LANDING_TEST_BIN): \
+		$(MODERN_OUT_DIR)/tests/sdl_landing.o \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) \
+		$(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
+		$(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
 modern-test: $(MODERN_TEST_BINS)
 	@echo "Running $(MODERN_SMOKE_TEST_BIN)"
 	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
@@ -542,6 +571,14 @@ modern-test: $(MODERN_TEST_BINS)
 	@echo "Running $(MODERN_TEXT_TEST_BIN)"
 	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
 		$(MODERN_TEXT_TEST_BIN)
+	@echo "Running $(MODERN_SHIP_RESOURCE_TEST_BIN)"
+	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
+		$(MODERN_SHIP_RESOURCE_TEST_BIN)
+
+# Optional integration check using an installed copy of the game data.
+modern-test-landing: $(MODERN_LANDING_TEST_BIN)
+	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
+		$(MODERN_LANDING_TEST_BIN) "$(MODERN_RUN_DIR)"
 
 run-modern: modern
 	@case "$(MODERN_RUN_DIR)" in \
@@ -955,6 +992,7 @@ clean-modern:
 	modern-check-deps \
 	modern-check-sdl \
 	modern-test \
+	modern-test-landing \
 	order \
 	report \
 	run \
