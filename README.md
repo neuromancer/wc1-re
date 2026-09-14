@@ -43,9 +43,12 @@ is not stored in this repository.
 
 Download the archive for your platform from
 [GitHub Releases](https://github.com/neuromancer/wc1-re/releases). Extract its
-contents into an installed Kilrathi Saga or DOS Wing Commander directory and
-keep the bundled runtime libraries beside the executable. Start it with that
-directory as the working directory:
+contents and keep the bundled runtime libraries beside the executable. New
+release builds open a graphical launcher when started without arguments. Use
+**Browse…** to select an installed Kilrathi Saga or DOS Wing Commander directory
+containing `GAMEDAT`, choose the graphics and joystick options, and select
+**Launch WC1**. Older releases require the game directory as the working
+directory:
 
 ```sh
 # macOS or Linux
@@ -61,6 +64,15 @@ cd C:\path\to\WC1
 
 With DOS data, compressed packet resources, OriginFX/AdLib music, and
 synthesized sound effects work; other DOS-specific data or behavior may not.
+
+The launcher follows WC2's layout, with WC1's enhanced OpenGL renderer, EGA
+dithering, cockpitless view, joystick modes, axis layouts, and rumble. Kilrathi
+Saga installations also need `STREAMS/PREFLITE.STR`, `POSFLITE.STR`, and
+`MISSION.STR`. Settings apply to the current launch.
+
+Providing command-line arguments starts the game directly from the working
+directory. Add `--gui` to review those options in the launcher first; changing
+a control overrides its command-line default.
 
 ### Fixes and features
 
@@ -82,13 +94,14 @@ active; the rest need a switch, and switches can be combined.
 | Pointer confined only during unpaused, focused spaceflight | always on |
 | Gamepad support with automatic SDL mappings and hot-plug | always on |
 | OpenGL renderer drawing space objects at output resolution | `--enhanced` |
+| EGA 16-colour dithering | `--ega` |
 | Restored, music-synchronized startup intro | `--enhanced`, or automatic with DOS data |
 | OriginFX intro music | `--enhanced`, or automatic with DOS data |
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
 | Alternate twin-stick, HOTAS, throttle, and rudder axis layouts | `--joystick-axes=<layout>` |
 | Joystick diagnostics on stderr | `--joystick-debug` |
-| Frame-rate counter | `-f` |
+| Legacy frame-rate flag (SDL text overlay is not implemented) | `-f` |
 | Cockpitless view | `-c` |
 
 ```sh
@@ -168,6 +181,22 @@ The executable is written to `out-modern/wc1-modern` (or
 `out-modern/wc1-modern.exe` on Windows). `make run-modern` launches it with
 Kilrathi Saga data in `data/full`; `make run-modern-dos` uses DOS data in
 `data/dos`.
+
+To build the graphical launcher, also install CMake 3.21+, Rust 1.88+, and a
+C++20 compiler. Linux builds need the D-Bus and Fontconfig development packages
+(`libdbus-1-dev` and `libfontconfig1-dev` on Debian/Ubuntu), and the folder picker
+uses the desktop's XDG portal. Then build:
+
+```sh
+make -j modern-gui
+```
+
+This produces `out-modern/wc1-modern-gui` (`.exe` on Windows). The first build
+downloads the pinned Slint and Native File Dialog Extended sources. Both are
+linked into the executable; `make modern` keeps its existing dependencies.
+`make run-modern-gui` opens the launcher with `data/full` selected, or use
+`MODERN_RUN_DIR=/path/to/WC1` to select another installation. Release archives
+include this GUI build under the usual `wc1-modern` name.
 
 ### Reconstructed Win32 build
 

@@ -105,37 +105,48 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
-            clang file liblzo2-dev libsdl2-dev make patchelf pkg-config zip
+            clang cmake file libdbus-1-dev libfontconfig1-dev liblzo2-dev \
+            libsdl2-dev make patchelf pkg-config zip
       - name: Install macOS dependencies
         if: matrix.platform == 'macos'
-        run: brew install lzo pkg-config sdl2
+        run: brew install cmake lzo pkg-config sdl2
       - name: Build SDL2 release port
-        run: make -j2 modern MODERN_RELEASE=1
+        run: make -j2 modern-gui MODERN_RELEASE=1
+      - name: Test launcher options and installation checks
+        run: make -j2 modern-test-launcher MODERN_RELEASE=1
       - name: Validate native release binary
         run: |
-          test -s out-modern/wc1-modern
-          file out-modern/wc1-modern
+          binary=out-modern/wc1-modern-gui
+          test -s "$binary"
+          file "$binary"
           test "$(uname -m)" = "${{ matrix.architecture }}"
-          if nm -u out-modern/wc1-modern | grep -Eiq '__asan_|__ubsan_'; then
+          if nm -u "$binary" | grep -Ei '__asan_|__ubsan_' >/dev/null; then
             echo "Release binary contains sanitizer instrumentation." >&2
             exit 1
           fi
           if [[ "${{ matrix.platform }}" == linux ]]; then
-            dependencies=$(ldd out-modern/wc1-modern)
+            nm --defined-only "$binary" |
+              grep ' SdlRunLauncherGui$' >/dev/null
+            dependencies=$(ldd "$binary")
           else
-            dependencies=$(otool -L out-modern/wc1-modern)
+            nm -gU "$binary" | grep ' _SdlRunLauncherGui$' >/dev/null
+            dependencies=$(otool -L "$binary")
+          fi
+          if grep -Eiq 'wc1-slint-gui' <<< "$dependencies"; then
+            echo "Release binary still depends on a GUI module." >&2
+            exit 1
           fi
           if grep -Eiq 'asan|ubsan' <<< "$dependencies"; then
             echo "Release binary links a sanitizer runtime." >&2
             exit 1
           fi
       - name: Package SDL2 port
-        run: >-
-          packaging/package-modern.sh
-          "${{ needs.metadata.outputs.version }}"
-          "${{ matrix.platform }}"
-          "${{ matrix.architecture }}"
-          out-modern/wc1-modern
+        run: |
+          packaging/package-modern.sh \
+            "${{ needs.metadata.outputs.version }}" \
+            "${{ matrix.platform }}" \
+            "${{ matrix.architecture }}" \
+            out-modern/wc1-modern-gui
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -163,25 +174,49 @@ jobs:
             make
             zip
             mingw-w64-clang-x86_64-clang
+            mingw-w64-clang-x86_64-cmake
             mingw-w64-clang-x86_64-lld
             mingw-w64-clang-x86_64-lzo2
             mingw-w64-clang-x86_64-ntldd
             mingw-w64-clang-x86_64-pkgconf
+            mingw-w64-clang-x86_64-rust
             mingw-w64-clang-x86_64-SDL2
       - name: Build SDL2 release port
         shell: msys2 {0}
         run: >-
-          make -j2 modern MODERN_RELEASE=1
+          make -j2 modern-gui MODERN_RELEASE=1
+          MODERN_CC=clang MODERN_CXX=clang++
+      - name: Test launcher options and installation checks
+        shell: msys2 {0}
+        run: >-
+          make -j2 modern-test-launcher MODERN_RELEASE=1
           MODERN_CC=clang MODERN_CXX=clang++
       - name: Validate Windows executable
         shell: msys2 {0}
         run: |
-          test -s out-modern/wc1-modern.exe
-          if llvm-nm -u out-modern/wc1-modern.exe | grep -Eiq '__asan_|__ubsan_'; then
+          binary=out-modern/wc1-modern-gui.exe
+          test -s "$binary"
+          if llvm-nm -u "$binary" |
+              grep -Ei '__asan_|__ubsan_' >/dev/null; then
             echo "Release binary contains sanitizer instrumentation." >&2
             exit 1
           fi
-          if ntldd -R out-modern/wc1-modern.exe | grep -Eiq 'asan|ubsan'; then
+          symbols=$(llvm-nm -g --defined-only "$binary")
+          grep ' SdlRunLauncherGui$' <<< "$symbols" >/dev/null
+          if grep -Eq ' __imp_slint_' <<< "$symbols"; then
+            echo "Static Slint functions still use DLL import pointers." >&2
+            exit 1
+          fi
+          if ! grep -q ' T slint_get_WindowItemVTable$' <<< "$symbols"; then
+            echo "Static Slint window accessor was discarded by the linker." >&2
+            exit 1
+          fi
+          dependencies=$(ntldd -R "$binary")
+          if grep -Eiq 'wc1-slint-gui' <<< "$dependencies"; then
+            echo "Release binary still depends on a GUI module." >&2
+            exit 1
+          fi
+          if grep -Eiq 'asan|ubsan' <<< "$dependencies"; then
             echo "Release binary links a sanitizer runtime." >&2
             exit 1
           fi
@@ -192,7 +227,7 @@ jobs:
           "${{ needs.metadata.outputs.version }}"
           windows
           x86_64
-          out-modern/wc1-modern.exe
+          out-modern/wc1-modern-gui.exe
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

@@ -1,0 +1,241 @@
+import {
+    Button,
+    CheckBox,
+    ComboBox,
+    GroupBox,
+    HorizontalBox,
+    LineEdit,
+    Palette,
+    VerticalBox
+} from "std-widgets.slint";
+
+export component LauncherWindow inherits Window {
+    title: "Wing Commander";
+    preferred-width: 660px;
+    preferred-height: 690px;
+    min-width: 580px;
+    min-height: 520px;
+    background: Palette.background;
+
+    in-out property <string> game-directory;
+    in-out property <bool> enhanced-renderer;
+    in-out property <bool> ega-dither;
+    in-out property <bool> cockpitless-view;
+    in-out property <bool> joystick-rumble;
+    in-out property <int> joystick-mode-index;
+    in-out property <int> joystick-axes-index;
+
+    in property <bool> path-valid: false;
+    in property <bool> picker-error: false;
+    in property <string> status-text: "Choose a Wing Commander directory.";
+
+    callback configuration-changed();
+    callback browse-requested();
+    callback launch-requested();
+    callback cancel-requested();
+
+    VerticalBox {
+        padding: 14px;
+        spacing: 7px;
+
+        Rectangle {
+            preferred-height: 105px;
+            min-height: 90px;
+            background: #000018;
+            border-radius: 6px;
+
+            VerticalBox {
+                padding: 10px;
+                spacing: 0px;
+
+                Text {
+                    text: "WING COMMANDER";
+                    color: #eee2bf;
+                    font-size: 30px;
+                    font-weight: 800;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+
+                Text {
+                    text: "DOS · THE KILRATHI SAGA";
+                    color: #b1bfd5;
+                    font-size: 12px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        GroupBox {
+            title: "Game installation";
+
+            VerticalBox {
+                spacing: 5px;
+
+                Text {
+                    text: "Directory containing GAMEDAT";
+                    color: Palette.foreground;
+                }
+
+                HorizontalBox {
+                    spacing: 6px;
+
+                    LineEdit {
+                        horizontal-stretch: 1;
+                        text <=> root.game-directory;
+                        placeholder-text: "/path/to/WC1";
+                        edited(_) => {
+                            root.configuration-changed();
+                        }
+                        accepted(_) => {
+                            root.configuration-changed();
+                        }
+                    }
+
+                    Button {
+                        text: "Browse…";
+                        clicked => {
+                            root.browse-requested();
+                        }
+                    }
+                }
+
+                HorizontalBox {
+                    spacing: 8px;
+
+                    Text {
+                        text: root.picker-error ? "!" : root.path-valid ? "✓" : "●";
+                        color: root.picker-error ? #b3261e : root.path-valid ? #17803d : #b45f06;
+                        font-size: 14px;
+                    }
+
+                    Text {
+                        horizontal-stretch: 1;
+                        text: root.status-text;
+                        color: root.picker-error ? #b3261e : root.path-valid ? #17803d : #b45f06;
+                        wrap: word-wrap;
+                    }
+                }
+            }
+        }
+
+        GroupBox {
+            title: "Graphics and gameplay";
+
+            VerticalBox {
+                spacing: 4px;
+
+                HorizontalBox {
+                    spacing: 10px;
+
+                    CheckBox {
+                        horizontal-stretch: 1;
+                        text: "Enhanced OpenGL";
+                        checked <=> root.enhanced-renderer;
+                    }
+
+                    CheckBox {
+                        horizontal-stretch: 1;
+                        text: "EGA 16-colour dithering";
+                        checked <=> root.ega-dither;
+                    }
+
+                    CheckBox {
+                        horizontal-stretch: 1;
+                        text: "Cockpitless view";
+                        checked <=> root.cockpitless-view;
+                    }
+                }
+            }
+        }
+
+        GroupBox {
+            title: "Joystick";
+
+            VerticalBox {
+                spacing: 5px;
+
+                HorizontalBox {
+                    spacing: 8px;
+
+                    Text {
+                        text: "Control mode";
+                        vertical-alignment: center;
+                        width: 105px;
+                        color: Palette.foreground;
+                    }
+
+                    ComboBox {
+                        horizontal-stretch: 1;
+                        model: [
+                            "Original — two axes / two buttons",
+                            "WCAT — four buttons / two axes",
+                            "WCAT — four buttons / four axes"
+                        ];
+                        current-index <=> root.joystick-mode-index;
+                    }
+
+                    CheckBox {
+                        text: "Rumble";
+                        checked <=> root.joystick-rumble;
+                    }
+                }
+
+                HorizontalBox {
+                    spacing: 8px;
+
+                    Text {
+                        text: "Axis layout";
+                        vertical-alignment: center;
+                        width: 105px;
+                        color: Palette.foreground;
+                    }
+
+                    ComboBox {
+                        horizontal-stretch: 1;
+                        enabled: root.joystick-mode-index == 2;
+                        model: [
+                            "Twin-stick roll",
+                            "Twin-stick yaw",
+                            "HOTAS yaw",
+                            "HOTAS roll",
+                            "Linear throttle",
+                            "Rudder yaw",
+                            "Rudder roll"
+                        ];
+                        current-index <=> root.joystick-axes-index;
+                    }
+                }
+            }
+        }
+
+        HorizontalBox {
+            spacing: 8px;
+
+            Text {
+                horizontal-stretch: 1;
+                text: "Close this window to cancel.";
+                color: Palette.foreground;
+                opacity: 0.65;
+                vertical-alignment: center;
+            }
+
+            Button {
+                text: "Cancel";
+                clicked => {
+                    root.cancel-requested();
+                }
+            }
+
+            Button {
+                text: "Launch WC1";
+                enabled: root.path-valid;
+                primary: true;
+                clicked => {
+                    root.launch-requested();
+                }
+            }
+        }
+    }
+}

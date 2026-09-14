@@ -1,6 +1,7 @@
 #include "wc1.h"
 
 #include "video_internal.h"
+#include "slint/launcher_api.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -9,45 +10,115 @@
 extern __declspec(dllimport) BOOL __stdcall ImmDisableIME(DWORD threadId);
 #endif
 
+static const char *const g_apszSdlLauncherJoystickModes[] = {
+    "original", "4button-2axis", "4button-4axis"
+};
+
+static const char *const g_apszSdlLauncherJoystickAxes[] = {
+    "twin-stick-roll", "twin-stick-yaw", "hotas-yaw", "hotas-roll",
+    "linear-throttle", "rudder-yaw", "rudder-roll"
+};
+
+static int SdlFindLauncherChoice(const char *name,
+                                 const char *const *choices, size_t choiceCount)
+{
+    size_t choice;
+
+    for (choice = 0; choice < choiceCount; choice++) {
+        if (strcmp(name, choices[choice]) == 0)
+            return (int)choice;
+    }
+    return -1;
+}
+
 static int SdlParsePortArguments(int *argumentCount, char **arguments,
-                                    int *useEnhancedRenderer)
+                                  int *useLauncherGui,
+                                  SdlLauncherOptions *options)
 {
     char *argument;
     int argumentIndex;
     int outputArgumentIndex;
 
     outputArgumentIndex = 1;
-    *useEnhancedRenderer = 0;
+    memset(options, 0, sizeof(*options));
+#ifdef WC1_STATIC_GUI
+    *useLauncherGui = *argumentCount == 1;
+#else
+    *useLauncherGui = 0;
+#endif
     argumentIndex = 1;
     while (argumentIndex < *argumentCount) {
         argument = arguments[argumentIndex];
-        if (strcmp(argument, "--enhanced") == 0) {
-            *useEnhancedRenderer = 1;
+        if (strcmp(argument, "--gui") == 0) {
+            *useLauncherGui = 1;
+        } else if (strcmp(argument, "--enhanced") == 0) {
+            options->enhancedRenderer = 1;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
             SdlEnableJoystickDebug();
         } else if (strcmp(argument, "--joystick-rumble") == 0) {
-            SdlEnableJoystickRumble();
+            options->joystickRumble = 1;
         } else if (strncmp(argument, "--joystick-mode=", 16) == 0) {
-            if (!SdlSetJoystickMode(argument + 16)) {
+            options->joystickMode = SdlFindLauncherChoice(
+                argument + 16, g_apszSdlLauncherJoystickModes,
+                SDL_arraysize(g_apszSdlLauncherJoystickModes));
+            if (options->joystickMode < 0) {
                 fprintf(stderr, "Unknown joystick mode: %s\n",
                         argument + 16);
                 return 0;
             }
         } else if (strncmp(argument, "--joystick-axes=", 16) == 0) {
-            if (!SdlSetJoystickAxesMode(argument + 16)) {
+            options->joystickAxes = SdlFindLauncherChoice(
+                argument + 16, g_apszSdlLauncherJoystickAxes,
+                SDL_arraysize(g_apszSdlLauncherJoystickAxes));
+            if (options->joystickAxes < 0) {
                 fprintf(stderr, "Unknown joystick axes mode: %s\n",
                         argument + 16);
                 return 0;
             }
         } else if (strcmp(argument, "--ega") == 0) {
-            SdlEnableEgaDither();
+            options->egaDither = 1;
         } else {
+            if ((argument[0] == '-' ? argument[1] : argument[0]) == 'c')
+                options->cockpitlessView = 1;
             arguments[outputArgumentIndex++] = argument;
         }
         argumentIndex++;
     }
     *argumentCount = outputArgumentIndex;
     arguments[outputArgumentIndex] = 0;
+    return 1;
+}
+
+static int SdlOpenLauncherGui(SdlLauncherOptions *options)
+{
+#ifdef WC1_STATIC_GUI
+    return SdlRunLauncherGui(options);
+#else
+    (void)options;
+    fprintf(stderr,
+            "The graphical launcher is not included in this build.\n"
+            "Build it with 'make modern-gui'.\n");
+    return SDL_LAUNCHER_UNAVAILABLE;
+#endif
+}
+
+static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
+{
+    if (options->joystickMode < SDL_LAUNCHER_JOYSTICK_ORIGINAL ||
+        options->joystickMode > SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS ||
+        options->joystickAxes < SDL_LAUNCHER_AXES_TWIN_STICK_ROLL ||
+        options->joystickAxes > SDL_LAUNCHER_AXES_RUDDER_ROLL) {
+        fprintf(stderr, "Invalid launcher joystick options.\n");
+        return 0;
+    }
+    SdlSetJoystickMode(g_apszSdlLauncherJoystickModes[options->joystickMode]);
+    SdlSetJoystickAxesMode(g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
+    /* Apply these only after the dialog so checked command-line defaults can
+     * be turned off before the video and input systems are initialized. */
+    if (options->joystickRumble)
+        SdlEnableJoystickRumble();
+    if (options->egaDither)
+        SdlEnableEgaDither();
     return 1;
 }
 
@@ -147,15 +218,28 @@ int main(int argumentCount, char **arguments)
     Uint32 windowFlags;
     int checkOnly;
     int gameResult;
+    int launcherResult;
+    int useLauncherGui;
     int useEnhancedRenderer;
     int usingDosData;
+    SdlLauncherOptions launcherOptions;
 
 #ifdef _WIN32
     ImmDisableIME((DWORD)-1);
 #endif
     if (!SdlParsePortArguments(&argumentCount, arguments,
-                                   &useEnhancedRenderer))
+                               &useLauncherGui, &launcherOptions))
         return 1;
+    if (useLauncherGui) {
+        launcherResult = SdlOpenLauncherGui(&launcherOptions);
+        if (launcherResult == SDL_LAUNCHER_CANCELLED)
+            return 0;
+        if (launcherResult != SDL_LAUNCHER_ACCEPTED)
+            return 1;
+    }
+    if (!SdlApplyLauncherOptions(&launcherOptions))
+        return 1;
+    useEnhancedRenderer = launcherOptions.enhancedRenderer;
     if (useEnhancedRenderer) {
         SdlSetVideoBackend(
             SDL_PORT_VIDEO_BACKEND_GL_SHARP_BILINEAR);
@@ -187,6 +271,12 @@ int main(int argumentCount, char **arguments)
         SDL_Quit();
         return 1;
     }
+    if (useLauncherGui && !checkOnly) {
+        /* Hand focus from Slint's native event loop to the SDL game window. */
+        SDL_ShowWindow(window);
+        SDL_RaiseWindow(window);
+        SDL_PumpEvents();
+    }
     if (useEnhancedRenderer)
         fprintf(stderr,
                 "Experimental enhanced rendering enabled "
@@ -216,6 +306,8 @@ int main(int argumentCount, char **arguments)
             }
         }
         SdlApplyLegacyArguments(argumentCount, arguments);
+        if (useLauncherGui)
+            bCockpitEnabled = !launcherOptions.cockpitlessView;
         MonoDebug_install();
         InitializeAudioSystem((HWND)window);
         InitializeAudioStreamer((HWND)window);

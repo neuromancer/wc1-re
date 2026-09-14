@@ -111,6 +111,15 @@ endif
 # MSVC 4.20 reference executable.
 MODERN_OUT_DIR = out-modern
 MODERN_TARGET = $(MODERN_OUT_DIR)/wc1-modern$(MODERN_EXE_SUFFIX)
+MODERN_GUI_TARGET = $(MODERN_OUT_DIR)/wc1-modern-gui$(MODERN_EXE_SUFFIX)
+MODERN_CMAKE ?= cmake
+MODERN_GUI_SOURCE_DIR = src/sdl/slint
+MODERN_GUI_BUILD_DIR = $(MODERN_OUT_DIR)/slint-gui
+MODERN_GUI_BUILD_TYPE ?= Release
+MODERN_GUI_CMAKE_ARGS ?=
+MODERN_GUI_SRCS = $(wildcard $(MODERN_GUI_SOURCE_DIR)/*)
+MODERN_EMPTY :=
+MODERN_SPACE := $(MODERN_EMPTY) $(MODERN_EMPTY)
 MODERN_RUN_DIR ?= data/full
 MODERN_ARGS ?=
 SERIES ?= 1
@@ -416,12 +425,22 @@ MODERN_GAME_HOST_OBJS = \
 	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_CXX_SRCS)) \
 	$(MODERN_YMFM_OBJS)
 MODERN_LAUNCHER_OBJ = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_LAUNCHER_SRC))
+MODERN_STATIC_GUI_LAUNCHER_OBJ = $(MODERN_OUT_DIR)/obj/sdl/launcher_gui.o
+MODERN_GUI_GAME_OBJS = $(MODERN_STATIC_GUI_LAUNCHER_OBJ) \
+	$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+	$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+MODERN_GUI_CMAKE_OBJECTS = $(abspath $(MODERN_GUI_GAME_OBJS))
+ifneq (,$(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)))
+MODERN_GUI_CMAKE_OBJECTS = $(shell cygpath -m $(abspath $(MODERN_GUI_GAME_OBJS)))
+endif
 MODERN_SMOKE_TEST_BIN = \
 	$(MODERN_OUT_DIR)/tests/sdl_smoke$(MODERN_EXE_SUFFIX)
 MODERN_TEXT_TEST_BIN = \
 	$(MODERN_OUT_DIR)/tests/sdl_text_compat$(MODERN_EXE_SUFFIX)
 MODERN_SHIP_RESOURCE_TEST_BIN = \
 	$(MODERN_OUT_DIR)/tests/sdl_ship_resources$(MODERN_EXE_SUFFIX)
+MODERN_LAUNCHER_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_launcher$(MODERN_EXE_SUFFIX)
+MODERN_LAUNCHER_PATH_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_launcher_paths$(MODERN_EXE_SUFFIX)
 MODERN_LANDING_TEST_BIN = \
 	$(MODERN_OUT_DIR)/tests/sdl_landing$(MODERN_EXE_SUFFIX)
 MODERN_TEST_BINS = $(MODERN_SMOKE_TEST_BIN) $(MODERN_TEXT_TEST_BIN) \
@@ -430,13 +449,15 @@ MODERN_TEST_OBJS = \
 	$(MODERN_OUT_DIR)/tests/sdl_smoke.o \
 	$(MODERN_OUT_DIR)/tests/sdl_text_compat.o \
 	$(MODERN_OUT_DIR)/tests/sdl_ship_resources.o \
-	$(MODERN_OUT_DIR)/tests/sdl_landing.o
+	$(MODERN_OUT_DIR)/tests/sdl_landing.o \
+	$(MODERN_OUT_DIR)/tests/sdl_launcher.o
 MODERN_DEPFILES = \
 	$(MODERN_GAMEPLAY_OBJS:.o=.d) \
 	$(MODERN_IX_OBJS:.o=.d) \
 	$(MODERN_BASE_HOST_OBJS:.o=.d) \
 	$(MODERN_GAME_HOST_OBJS:.o=.d) \
 	$(MODERN_LAUNCHER_OBJ:.o=.d) \
+	$(MODERN_STATIC_GUI_LAUNCHER_OBJ:.o=.d) \
 	$(MODERN_TEST_OBJS:.o=.d)
 
 # ---------------------------------------------------------------------------
@@ -456,6 +477,33 @@ build-full: $(TARGET)
 # never supply objects to the assembly-comparison target above.
 modern: $(MODERN_TARGET)
 
+# Optional native launcher; the ordinary modern target does not need Slint.
+modern-gui: $(MODERN_GUI_TARGET)
+
+# Slint enables full Rust LTO upstream; the small launcher does not need its
+# substantial clean-build cost.
+$(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile
+	@command -v $(MODERN_CMAKE) >/dev/null 2>&1 || { \
+		echo "CMake 3.21 or newer is required for modern-gui." >&2; \
+		exit 1; \
+	}
+	@command -v cargo >/dev/null 2>&1 || { \
+		echo "Rust 1.88 or newer is required to build Slint." >&2; \
+		exit 1; \
+	}
+	$(MODERN_CMAKE) -S $(MODERN_GUI_SOURCE_DIR) \
+		-B $(MODERN_GUI_BUILD_DIR) \
+		-DCMAKE_CXX_COMPILER="$(MODERN_CXX)" \
+		-DCMAKE_BUILD_TYPE=$(MODERN_GUI_BUILD_TYPE) \
+		-DWC1_GAME_OBJECTS="$(subst $(MODERN_SPACE),;,$(MODERN_GUI_CMAKE_OBJECTS))" \
+		-DWC1_GAME_SANITIZERS=$(if $(MODERN_SANITIZER_FLAGS),ON,OFF) \
+		-DWC1_GUI_OUTPUT_DIRECTORY="$(abspath $(MODERN_OUT_DIR))" \
+		$(MODERN_GUI_CMAKE_ARGS)
+	CARGO_PROFILE_RELEASE_LTO=false \
+		$(MODERN_CMAKE) --build $(MODERN_GUI_BUILD_DIR) \
+		--config $(MODERN_GUI_BUILD_TYPE) --target wc1-modern-gui
+	@test -s $@
+
 modern-check-sdl:
 	@if test -z "$(strip $(MODERN_SDL_CFLAGS))" || \
 	   test -z "$(strip $(MODERN_SDL_LIBS))"; then \
@@ -470,6 +518,12 @@ modern-check-deps: modern-check-sdl
 		echo "Install LZO2 development files." >&2; \
 		exit 1; \
 	fi
+
+$(MODERN_STATIC_GUI_LAUNCHER_OBJ): $(MODERN_LAUNCHER_SRC) Makefile | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) -DWC1_STATIC_GUI=1 $(MODERN_CFLAGS) \
+		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$(MODERN_DEPFLAGS) -c $< -o $@
 
 $(MODERN_OUT_DIR)/obj/%.o: src/%.c | modern-check-deps
 	@mkdir -p $(dir $@)
@@ -564,6 +618,30 @@ $(MODERN_LANDING_TEST_BIN): \
 		$(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
+$(MODERN_LAUNCHER_TEST_BIN): \
+		$(MODERN_OUT_DIR)/tests/sdl_launcher.o \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) \
+		$(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
+		$(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+# Installation validation can be tested without downloading or displaying Slint.
+$(MODERN_LAUNCHER_PATH_TEST_BIN): tests/sdl_launcher_paths.cpp \
+		$(MODERN_GUI_SOURCE_DIR)/launcher_paths.cpp \
+		$(MODERN_GUI_SOURCE_DIR)/launcher_paths.h \
+		$(MODERN_GUI_SOURCE_DIR)/launcher_api.h
+	@mkdir -p $(dir $@)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) -std=c++20 $(MODERN_SANITIZER_FLAGS) \
+		$(filter %.cpp,$^) -o $@
+
+modern-test-launcher: $(MODERN_LAUNCHER_TEST_BIN) $(MODERN_LAUNCHER_PATH_TEST_BIN)
+	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy $(MODERN_LAUNCHER_TEST_BIN)
+	@$(MODERN_LAUNCHER_PATH_TEST_BIN)
+
 modern-test: $(MODERN_TEST_BINS)
 	@echo "Running $(MODERN_SMOKE_TEST_BIN)"
 	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
@@ -590,6 +668,17 @@ run-modern: modern
 		exit 1; \
 	}; \
 	cd "$$modern_run_dir" && "$(CURDIR)/$(MODERN_TARGET)" $(MODERN_ARGS)
+
+run-modern-gui: modern-gui
+	@case "$(MODERN_RUN_DIR)" in \
+		/*) modern_run_dir="$(MODERN_RUN_DIR)" ;; \
+		*) modern_run_dir="$(CURDIR)/$(MODERN_RUN_DIR)" ;; \
+	esac; \
+	test -d "$$modern_run_dir" || { \
+		echo "Modern run directory does not exist: $$modern_run_dir" >&2; \
+		exit 1; \
+	}; \
+	cd "$$modern_run_dir" && "$(CURDIR)/$(MODERN_GUI_TARGET)" --gui $(MODERN_ARGS)
 
 # The SDL2 host recognizes the compressed resources in an installed DOS copy
 # and plays its OriginFX music and synthesized effects through an embedded
@@ -989,15 +1078,18 @@ clean-modern:
 	globals-missing \
 	missing-data \
 	modern \
+	modern-gui \
 	modern-check-deps \
 	modern-check-sdl \
 	modern-test \
 	modern-test-landing \
+	modern-test-launcher \
 	order \
 	report \
 	run \
 	run-check \
 	run-modern \
+	run-modern-gui \
 	run-modern-dos \
 	run-modern-mission \
 	seh \

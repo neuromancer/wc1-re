@@ -5,10 +5,19 @@ This archive contains the work-in-progress native SDL2 port. Release binaries
 are optimized and do not include the AddressSanitizer or
 UndefinedBehaviorSanitizer instrumentation used by development builds.
 
-No copyrighted game data is included. Extract every file in this archive into
-an installed Kilrathi Saga or DOS WC1 directory, then start wc1-modern
-(wc1-modern.exe on Windows) from that directory. Keep the bundled runtime
-libraries beside the executable.
+No copyrighted game data is included. Extract every file in this archive and
+start wc1-modern (wc1-modern.exe on Windows) without arguments to open the
+graphical launcher. Keep the bundled runtime libraries beside the executable.
+Choose the installed WC1 directory containing GAMEDAT, select the graphics and
+joystick options, and click Launch WC1. Kilrathi Saga also needs the sibling
+STREAMS directory with PREFLITE.STR, POSFLITE.STR, and MISSION.STR.
+
+The launcher offers enhanced OpenGL rendering, EGA dithering, cockpitless
+campaign flight, joystick modes and axis layouts, and rumble. Settings apply
+to the current launch. Command-line arguments start the game directly from the
+working directory; add --gui to review them in the launcher before starting.
+Linux's Browse button uses an installed XDG desktop portal. The directory can
+also be entered directly.
 
 The DOS data path supports the original compressed packet resources and plays
 OriginFX music and synthesized sound effects through an embedded YM3812
