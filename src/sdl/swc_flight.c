@@ -217,6 +217,7 @@ static int SwcStartMissionShips(void)
     memset(anObjectYawRotation, 0, sizeof(anObjectYawRotation));
     memset(anObjectRollRotation, 0, sizeof(anObjectRollRotation));
     memset(acPlayerComponentDamage, 0, sizeof(acPlayerComponentDamage));
+    clear_cockpit_damage();
     memset(acObjectCollisionGraceTicks, 0, sizeof(acObjectCollisionGraceTicks));
     memset(nShipMissionIndices, 0xff, sizeof(nShipMissionIndices));
     nCurrentNavPoint = nMissionEntryNavPoint;
@@ -242,6 +243,7 @@ static int SwcStartMissionShips(void)
     bLandingAuthorized = 0;
     nInFlightMusicActive = 0;
     nArcadeState = 0;
+    nTrainSimActive = 0;
     nExternalViewShip = -1;
     nTargetLockCountdown = -1;
     memset(aHudMessageSlots, 0, sizeof(aHudMessageSlots));
@@ -389,7 +391,50 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         target_locking(acShipTarget[0]);
     UpdateMessage(&aHudMessageSlots[0]);
     UpdateMessage(&aHudMessageSlots[1]);
+    SdlUpdateSwcCockpit();
     nSpaceFrame++;
+}
+
+static SDL_Rect SwcRotatedSpriteBounds(const SDL_Rect *sprite, short angle)
+{
+    double radians = angle * DEGREES_TO_RADIANS;
+    double cosine = SDL_cos(radians);
+    double sine = SDL_sin(radians);
+    double pivotX = sprite->w / 2;
+    double pivotY = sprite->h / 2;
+    double minX = 0;
+    double minY = 0;
+    double maxX = 0;
+    double maxY = 0;
+    double x;
+    double y;
+    double rotatedX;
+    double rotatedY;
+    SDL_Rect bounds;
+    int corner;
+
+    /* Match the explicit integer pivot passed to SDL_RenderCopyEx below. */
+    if (angle % 360 == 0)
+        return *sprite;
+    for (corner = 0; corner < 4; corner++) {
+        x = (corner & 1 ? sprite->w : 0) - pivotX;
+        y = (corner & 2 ? sprite->h : 0) - pivotY;
+        rotatedX = sprite->x + pivotX + x * cosine - y * sine;
+        rotatedY = sprite->y + pivotY + x * sine + y * cosine;
+        if (corner == 0 || rotatedX < minX)
+            minX = rotatedX;
+        if (corner == 0 || rotatedX > maxX)
+            maxX = rotatedX;
+        if (corner == 0 || rotatedY < minY)
+            minY = rotatedY;
+        if (corner == 0 || rotatedY > maxY)
+            maxY = rotatedY;
+    }
+    bounds.x = (int)SDL_floor(minX);
+    bounds.y = (int)SDL_floor(minY);
+    bounds.w = (int)SDL_ceil(maxX) - bounds.x;
+    bounds.h = (int)SDL_ceil(maxY) - bounds.y;
+    return bounds;
 }
 
 static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
@@ -400,6 +445,7 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
 {
     SDL_Rect rectangle;
     SDL_Rect targetBounds = {0};
+    SDL_Point pivot;
     SDL_Texture *texture;
     short object;
     short frame;
@@ -459,29 +505,24 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
         rectangle.h = SDL_max(1, rectangle.h * scale / 256);
         rectangle.x = 160 + asObjectScreenX[object] - rectangle.w / 2;
         rectangle.y = centreY + asObjectScreenY[object] - rectangle.h / 2;
+        pivot = (SDL_Point){rectangle.w / 2, rectangle.h / 2};
         if (SDL_RenderCopyEx(renderer, texture, NULL, &rectangle,
-                             asObjectScreenAngle[object], NULL,
+                             asObjectScreenAngle[object], &pivot,
                              (SDL_RendererFlip)(((asObjectFlip[object] & 0x10) ?
                                  SDL_FLIP_HORIZONTAL : 0) | ((asObjectFlip[object] & 0x20) ?
                                  SDL_FLIP_VERTICAL : 0))) != 0)
             return -1;
         if (object == acShipTarget[0])
-            targetBounds = rectangle;
+            targetBounds = SwcRotatedSpriteBounds(&rectangle, asObjectScreenAngle[object]);
     }
-    SDL_SetRenderDrawColor(renderer, 70, 230, 130, 255);
-    object = nNavPointerObject;
-    if (object >= 0 && asObjectScreenX[object] != (short)0x8001) {
-        rectangle.x = 156 + asObjectScreenX[object];
-        rectangle.y = centreY + asObjectScreenY[object] - 4;
-        rectangle.w = rectangle.h = 9;
-        SDL_RenderDrawRect(renderer, &rectangle);
-    }
+    if (SdlDrawSwcSpaceHud(targetBounds.w > 0 ? &targetBounds : NULL) != 0)
+        return -1;
     if (!cockpitless) {
         if (SDL_RenderCopy(renderer, cockpit, NULL, NULL) != 0 ||
             SdlDrawSwcCockpit() != 0)
             return -1;
     }
-    if (SdlDrawSwcHud(targetBounds.w > 0 ? &targetBounds : NULL) != 0)
+    if (SdlDrawSwcHud() != 0 || (!cockpitless && SdlDrawSwcCockpitDamage() != 0))
         return -1;
     if (showMap) {
         SetScale();
@@ -604,6 +645,7 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     bHostSecondaryMouseButton = 0;
     nSpaceFrame = 0;
     nRenderedSpaceFrame = 0;
+    SdlUpdateSwcCockpit();
     SetSpaceFlightFrameTiming();
     tickInterval = (Uint32)nFrameIntervalMs;
     for (object = 1; object < shipCount; object++) {

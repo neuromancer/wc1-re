@@ -7,7 +7,8 @@ flight dynamics, movement, projection, ship-view selection, navigation, and
 player weapons, including projectile collisions, damage, and missile guidance.
 The Hornet cockpit now has speed and navigation readouts, fuel/throttle/energy
 gauges, player/target shield and armor displays, radar contacts, weapon status,
-and the original reticle. Enemy AI, nav-sphere transitions, mission completion, the remaining HUD,
+navigation and hostile-direction markers, warning lamps, and damaged displays.
+Enemy AI, nav-sphere transitions, mission completion, the remaining HUD,
 audio, and movies are not connected yet. Ship parameters still come from WC1.
 
 `make modern-swc` builds the asset viewer. It loads the demo's CMF files,
@@ -24,6 +25,7 @@ entry point in SDL builds. The CMF reader and mission adapter are linked into
 `src/sdl/swc_cockpit.c` presents the Hornet instruments and bitmap text.
 The viewer needs only the host C compiler and SDL2. Mission tests also link
 the existing native core and need its normal build dependencies, including LZO.
+Flight uses SDL2 2.0.18 or later for the VDU polygon rendering.
 
 ## Run
 
@@ -177,6 +179,8 @@ rejected because a persisted Mac pointer cannot be used as a host pointer.
 | `fire_players_lasers`, `fire_fixed_projectile_weapon`, `fire_weapon`, `fire_missile` | Shared hardpoints, energy use, cooldowns, projectile initialization and missile release | SDL-only SWC aiming offset and laser cooldown; other weapon parameters remain WC1 |
 | `house_keep_objects`, `update_objects_in_space` | Shared lifetimes, collisions, damage, missile guidance, shield/energy recharge and animations | NPC ship intelligence is skipped during SWC flight; mission transitions remain disconnected |
 | `select_new_gun`, `select_new_release_weapon`, `cycle_onscreen_targets`, `target_locking` | Shared selection and missile lock state | SDL presents SWC art and text instead of WC1's cockpit packets |
+| `draw_nav_pointer`, `auto_pilot_valid`, `missile_on_tail`, `calculate_damage_level` | Shared objective projection and warning queries | SWC navigation activation and stale-marker reset; autopilot uses WC1 proximity/hazard gates, with travel still disconnected |
+| `malf`, `your_internal_damage`, `place_damage_on_cockpit` | Shared component damage and impact flow | SDL-only SWC malfunction countdown and three physical damage regions; original Mac static, damage and spark artwork |
 | `SetSpaceFlightFrameTiming` | Initializes the shared flight tick interval, 50 ms at WC1's default 20 Hz | Replaces the host's hard-coded 62 ms; SWC's elapsed-tick translation scaling is not reproduced |
 | `generate_stars`, `update_star_field`, `transform_objects_to_your_view`, `get_right_shape` | Projects the scene and chooses among 37 decoded ship views | SWC hotspots, scale, and exact presentation still need reconstruction |
 
@@ -287,11 +291,11 @@ The renderer now adds projected Y to the scene origin, matching both original
 engines. WC1's cockpit-packet drawing is bypassed for messages, missile removal,
 VDU changes and damage overlays; shared gameplay state is retained. Win32
 reference branches remain unchanged. NPC ship AI, wave spawning, mission
-completion, weapon audio and damaged-cockpit animation are still pending.
+completion and weapon audio are still pending.
 
 ### Hornet cockpit
 
-The first cockpit pass presents shared WC1 state through the Mac demo's artwork.
+The cockpit presents shared WC1 state through the Mac demo's artwork.
 WC1's `update_digital_readouts` supplies actual and commanded speed; the SDL
 readout adapter applies SWC's four-digit zero padding and original positions.
 `get_color` classifies contacts, `rotational_pos_to_scanner_pos` supplies the
@@ -310,6 +314,12 @@ X offset only during SWC flight. The Win32 reference branches are preserved.
 | Target hull / armor / shields | CODE_13 `show_target_disp` +0x1270; DATA/0 +0x756 | STnn/2 or SHnn/38 at (230,136), with PC00/9 shields |
 | Gun / missile selection | CODE_13 `update_status_text` +0x102e; DATA/0 +0x726 | Original short names at (51,84); host keeps them visible and adds ammunition/lock state |
 | Reticle | CODE_13 `overlay_head_up_display` +0x2f56; DATA/0 +0x792 | CKPT/1 frame 0 at (144,96), including the frame's offsets |
+| Forward navigation marker | CODE_13 `draw_nav_pointer` +0x3460 | Shared WC1 projection, CKPT/1 frame 3; visible in target mode too, with stale offscreen positions cleared |
+| Hostile direction | CODE_13 `draw_3d_scanner` +0x285a | CKPT/1 frames 6..13; tracks the last hostile target or first enemy contact within scanner range |
+| Autopilot / missile / severe damage lamps | CODE_13 `update_lights` +0x0408; DATA/0 +0x3d8 | PC00/12, /14, /13; shared WC1 warning queries refreshed every seven simulation ticks, damage alarm at (156,45) |
+| Malfunctioning VDUs | CODE_13 `malf` +0x1a28, `update_VDUs` +0x0aa8, `update_dead_disp` +0x0dda; CODE_03 `init_vdus` +0x0914 | VDUS/1 and /2 static mapped onto the original Hornet polygons, replacing live displays |
+| Component status | CODE_13 `show_weapon_disp` +0x0fc8, `update_status_text` +0x102e; DATA/0 +0x886 / +0x89a / +0x8ae | Cycles damaged components every 30 healthy weapon-display updates, with original names, severity labels and colors |
+| Damaged panels / sparks | CODE_13 `place_damage_on_cockpit` +0x41ae, `cockpit_explosion` +0x4222, `explosion_draw` +0x40a0; DATA/0 +0x7f2 | PC00/7 overlays disable radar/left VDU/right VDU; CKPT/6 supplies the eight-frame spark sequence |
 
 The layout constants come from DATA/0 expanded using the original CODE_01
 startup decoder. Offsets above refer to the expanded A5-relative data, not
@@ -319,16 +329,43 @@ using its signed x/y offsets, following CODE_01 `MacDraw2` +0x0ef4. Radar contac
 are transformed from their current world positions, as in SWC; this avoids the
 scene projection cache omitting objects close to the player.
 
+Spatial markers and target brackets are drawn before the cockpit artwork,
+following CODE_13 `update_cockpit` +0x02d4, so solid panels mask them. Text remains
+on its own overlay, and panel damage/sparks are drawn last. Target bounds include
+the SDL sprite rotation around the same explicit pivot used to draw the ship.
+The hostile arrow is suppressed outside scanner range to avoid stale coordinates.
+
+Display state, random static frames, component cycling and sparks advance only
+on simulation ticks, so render rate and pausing do not change their duration.
+The shared `malf` entry point uses SWC's countdown during SWC flight, including
+when WC1 targeting or damage logic calls it. CODE_04 `dp_random` +0x5d44,
+`random_number` +0x5d8c and `Random3DO` +0x5dea exclude the upper bound: SWC's
+malfunction test samples 0..14 and its countdown samples 5..9, while dead VDUs
+select frames 0..2 from the four-frame resource. The SDL adapter adjusts WC1's
+inclusive random bounds without replacing its RNG. Likewise CODE_05
+`your_internal_damage` +0x184a selects three cockpit regions, not WC1's four.
+
+VDU rendering respects the shared mode stack and SWC's physical-damage flags.
+`show_navigation_disp` +0x121a, `show_damage_disp` +0x123a and `show_info_disp`
++0x1256 are empty functions in the Mac demo. Destination/range text is produced
+by the separate readout layer, not a missing navigation-page implementation.
+CODE_01 `MacDrawcel2` +0x14a4 maps static over the quad from DATA/0 +0x426/+0x5a6;
+the SDL replacement uses `SDL_RenderGeometry` and ignores frame-origin offsets
+for this operation. Cockpit damage and malfunction state reset on a new flight.
+
 This pass supports the Enyo 1 Hornet cockpit. Ship capacities still use WC1
 definitions. Shield, armor and weapon-energy displays now respond to shared
-combat state. Target brackets use SDL corners around the centered sprite bounds;
-the original rotated MacScale1 bounds/CKPT/36 drawing are not reproduced yet.
+combat state. Target brackets use SDL corners around the rotated sprite bounds;
+the original MacScale1 rasterizer and CKPT/36 corner artwork remain unimplemented.
 Target names use WC1 object names rather than SWC's pilot/ace-name substitutions.
 Component messages and missile-lock notices use WC1 lifetimes at host positions.
-The cockpit toggle retains the reticle, weapon status, target/navigation text,
-and messages. Other cockpitless instruments, component-damage text cycling,
-malfunction effects, warning lamps, hostile direction arrows, ITTS, pilot animation,
-and remaining VDU modes are pending.
+The cockpit toggle retains the spatial HUD, weapon/component status,
+target/navigation text, and messages. Automatic target acquisition, target-lock
+controls/animation, ITTS, cockpit banking and pilot animation, side/rear views,
+communication portraits, original message timing and other cockpitless instruments
+remain pending. Lamps reuse WC1's availability/proximity queries; SWC-specific
+autopilot escort gates and autopilot travel are not connected. Damage sounds and
+alarms remain silent until SWC audio is implemented.
 
 #### Text font
 

@@ -62,8 +62,11 @@ SDL_Texture *SdlCreateSwcTexture(SDL_Renderer *renderer, const SwcBuffer *set,
                                  uint32_t index, const SDL_Color colors[256]);
 int SdlInitSwcCockpit(SDL_Renderer *renderer, const SwcCmf *cockpit,
                        const SwcCmf *space, const SDL_Color colors[256]);
+void SdlUpdateSwcCockpit(void);
 int SdlDrawSwcCockpit(void);
-int SdlDrawSwcHud(const SDL_Rect *targetBounds);
+int SdlDrawSwcCockpitDamage(void);
+int SdlDrawSwcSpaceHud(const SDL_Rect *targetBounds);
+int SdlDrawSwcHud(void);
 void SdlFreeSwcCockpit(void);
 
 #endif

@@ -942,6 +942,10 @@ short malf(char component)
 {
     int damage = acPlayerComponentDamage[(int)component];
 
+#ifdef SDL_PORT
+    if (SdlSwcFlightActive())
+        return SdlSwcComponentMalfunction(component);
+#endif
     return (unsigned short)RandomInRange(0, 15) < damage * damage;
 }
 
@@ -2174,6 +2178,13 @@ void draw_nav_pointer(void)
         active = 1;
     else
         active = 0;
+#ifdef SDL_PORT
+    /* SWC CODE_13 +0x3460 keeps navigation visible alongside target mode. */
+    if (SdlSwcFlightActive())
+        active = nTrainSimActive == 0 && nCannedSceneMode != 4 &&
+            nCameraViewMode == 0 && cCurrentObjective >= 0 &&
+            cCurrentObjective < cMissionObjectiveCount;
+#endif
     if (active == 0) {
         remove_nav_pointer();
         return;
@@ -2195,6 +2206,13 @@ void draw_nav_pointer(void)
         asObjectScreenX[object] = (short)0x8001;
         asObjectDistance[object] = 0;
     }
+#ifdef SDL_PORT
+    /* SWC clears the old projection before every visibility check. */
+    if (SdlSwcFlightActive()) {
+        asObjectScreenX[object] = (short)0x8001;
+        asObjectDistance[object] = 0;
+    }
+#endif
     objectivePosition = aMissionObjectives[
         (signed char)cCurrentObjective].position;
     ComputeVectorDelta(&aShipPosition[EYE_OBJECT],
@@ -2812,14 +2830,16 @@ void cockpit_explosion(void)
 /* Function start: 0x4178A0 */
 void place_damage_on_cockpit(short damage)
 {
+#ifdef SDL_PORT
+    if (SdlSwcFlightActive()) {
+        SdlSwcCockpitDamage(damage);
+        return;
+    }
+#endif
     if (nCameraViewMode == 0 && nTrainSimActive == 0 &&
         anCockpitDamageState[damage] == 0) {
         nPendingCockpitDamage = damage;
         anCockpitDamageState[damage] = 1;
-#ifdef SDL_PORT
-        if (SdlSwcFlightActive())
-            return;
-#endif
         if (pCockpitExplosionShape == 0) {
             explosion_draw();
             return;

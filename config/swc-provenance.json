@@ -128,9 +128,9 @@
       "entry_offset": "0x0e54",
       "end_offset": "0x101a",
       "source": "src/sdl/swc_cockpit.c",
-      "symbol": "SdlDrawSwcCockpit",
+      "symbol": "SwcDrawPlayerStatus",
       "relationship": "partial-presentation-adaptation",
-      "differences": "Presents the hull, armor flash and shield-presence sprites from WC1 state. Component-damage text cycling and the malfunction/dead-display branches remain unimplemented."
+      "differences": "Presents hull, armor flash and shield-presence sprites from WC1 state. SdlUpdateSwcCockpit supplies the original component cycle and malfunction check; SdlDrawSwcCockpit respects VDU modes and physical damage."
     },
     {
       "original_name": "draw_3d_scanner",
@@ -140,7 +140,7 @@
       "source": "src/sdl/swc_cockpit.c",
       "symbol": "SwcDrawCockpitScanner",
       "relationship": "partial-presentation-adaptation",
-      "differences": "Reuses WC1 classification, transforms, scanner mapping and objective range. Uses SWC's 30,000-unit cutoff, contact-frame mapping, selected-contact blink, nav marker and grid draw order. The nav marker is always enabled for a valid objective. Hostile direction arrows remain unimplemented; T now cycles WC1's visible target list."
+      "differences": "Reuses WC1 classification, transforms, scanner mapping and objective range. Uses SWC's 30,000-unit cutoff, contact-frame mapping, selected-contact blink, navigation activation and grid draw order. SwcUpdateCockpitScanner retains/selects a hostile and chooses CKPT/1 direction frames using the original thresholds; arrows are suppressed outside range to avoid stale coordinates. Physical radar damage disables contacts and arrows. Updates run on simulation ticks."
     },
     {
       "original_name": "show_target_disp",
@@ -150,7 +150,7 @@
       "source": "src/sdl/swc_cockpit.c",
       "symbol": "SwcDrawTargetStatus",
       "relationship": "partial-presentation-adaptation",
-      "differences": "Uses the original target hull, four armor-flash frames, shield-presence thresholds and Hornet position. Reads WC1 state and capacities; malfunction/dead-display behavior remains pending."
+      "differences": "Uses the original target hull, four armor-flash frames, shield-presence thresholds and Hornet position. Reads WC1 state and capacities; the caller respects target mode, component-five malfunction and physical VDU damage."
     },
     {
       "original_name": "overlay_head_up_display",
@@ -158,12 +158,114 @@
       "entry_offset": "0x2f56",
       "end_offset": "0x30fa",
       "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlDrawSwcSpaceHud",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Normal CKPT/1 reticle and original position; ITTS and lock-marker animation remain pending. Target brackets use SDL corners around rotated sprite bounds rather than MacScale1 bounds and CKPT/36. Spatial HUD precedes the cockpit artwork; text remains a separate overlay."
+    },
+    {
+      "original_name": "update_cockpit",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x02d4",
+      "end_offset": "0x03de",
+      "source": "src/sdl/swc_flight.c",
+      "symbol": "SwcDrawFlight",
+      "relationship": "draw-order-evidence-only",
+      "differences": "Spatial HUD is composed before cockpit art, followed by instruments/text and persistent damage/sparks. SDL masks markers with cockpit transparency. Banking, hands, side/rear views and communication are pending."
+    },
+    {
+      "original_name": "update_lights",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x0408",
+      "end_offset": "0x0510",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlUpdateSwcCockpit",
+      "relationship": "host-adaptation",
+      "differences": "Seven-tick warning refresh reuses WC1 auto_pilot_valid, missile_on_tail and calculate_damage_level. Original PC00/12, /14 and /13 lamps, low-shield threshold and damage-light cadence; alarms are silent. SWC-specific autopilot escort gates and travel are not connected."
+    },
+    {
+      "original_name": "update_VDUs",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x0aa8",
+      "end_offset": "0x0b6c",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlDrawSwcCockpit",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Shared mode stack gates player/target displays and mode-zero static. SWC components 3/5 can temporarily replace their displays with static; physical damage suppresses the corresponding VDU. Demo navigation/damage/info routines are empty; communication modes remain pending."
+    },
+    {
+      "original_name": "update_dead_disp",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x0dda",
+      "end_offset": "0x0e40",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SwcDrawDeadDisplay",
+      "relationship": "host-adaptation",
+      "differences": "Uses VDUS/1 and /2 (CODE_03 init_vdus +0x0914) and original Hornet polygons. Original random selection 0..2 is sampled per simulation tick; each resource contains four frames. SDL_RenderGeometry replaces MacDrawcel2."
+    },
+    {
+      "original_name": "MacDrawcel2",
+      "resource": "CODE_01.bin",
+      "entry_offset": "0x14a4",
+      "end_offset": "0x15b2",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SwcDrawDeadDisplay",
+      "relationship": "placement-evidence-only",
+      "differences": "Maps the full static image to the four VDU polygon corners, ignoring frame x/y. SDL textured triangles replace the original fixed-point polygon rasterizer."
+    },
+    {
+      "original_name": "malf",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x1a28",
+      "end_offset": "0x1aa6",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlSwcComponentMalfunction",
+      "relationship": "algorithm-adaptation",
+      "differences": "Shared WC1 malf dispatches here only during SWC flight. Preserves damage-squared probability and the per-component 5..9-call countdown; uses WC1 RNG with adjusted inclusive bounds, not SWC's Rand16 generator."
+    },
+    {
+      "original_name": "update_status_text",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x102e",
+      "end_offset": "0x1204",
+      "source": "src/sdl/swc_cockpit.c",
       "symbol": "SdlDrawSwcHud",
       "relationship": "partial-presentation-adaptation",
-      "differences": "Normal CKPT/1 reticle and original position only; ITTS remains pending. Target brackets use SDL corners and current sprite rectangles rather than draw_target_box's MacScale1 bounds and CKPT/36. Weapon text is persistent with added ammunition/lock state, unlike update_status_text's selection timers. Shared WC1 messages use host positions and font."
+      "differences": "Original component/severity strings and colors with show_weapon_disp's 30-update component cycle. Weapon text remains persistent with added ammunition/lock state, unlike original selection timers. Shared WC1 messages use host positions, font and lifetimes."
+    },
+    {
+      "original_name": "cockpit_explosion",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x4222",
+      "end_offset": "0x4296",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlSwcCockpitDamage",
+      "relationship": "host-adaptation",
+      "differences": "Three physical regions and their original origins; active sparks suppress another hit. Reuses the first three WC1 damage flags. Region bounds are checked and sound remains suppressed."
+    },
+    {
+      "original_name": "place_damage_on_cockpit",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x41ae",
+      "end_offset": "0x4208",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlDrawSwcCockpitDamage",
+      "relationship": "host-adaptation",
+      "differences": "Draws PC00/7 frames 0..2 at the original Hornet positions after instruments/text. Other cockpits are unsupported."
+    },
+    {
+      "original_name": "explosion_draw",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x40a0",
+      "end_offset": "0x419c",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlDrawSwcCockpitDamage",
+      "relationship": "host-adaptation",
+      "differences": "Original eight CKPT/6 spark frames and offsets; SdlUpdateSwcCockpit advances/restarts them on simulation ticks. Repeat probability and position ranges use WC1 RNG with adjusted exclusive upper bounds. Audio remains absent."
     }
   ],
   "shared_wc1_evidence": [
+    {"name": "draw_nav_pointer", "resource": "CODE_13.bin", "entry_offset": "0x3460", "source": "src/cockpt.c", "wc1_address": "0x004168c0", "qualification": "Reuses allocation, objective-relative transform, view-cone/radius gates and projection. SDL-only SWC activation allows target mode; valid-objective guard and per-call invalidation prevent stale markers. CKPT/1 frame 3 replaces the host rectangle."},
+    {"name": "your_internal_damage", "resource": "CODE_05.bin", "entry_offset": "0x179e", "source": "src/ship.c", "wc1_address": "0x0041f220", "qualification": "Shared WC1 impact and component-damage flow. Original +0x184a calls random_number(3), which selects regions 0..2; SDL changes only the cockpit-region bound. Other damage probabilities and definitions remain WC1."},
     {"name": "fire_players_lasers", "resource": "CODE_09.bin", "entry_offset": "0x021a", "source": "src/main.c", "wc1_address": "0x00428480", "qualification": "Same cooldown/energy gate and selected-gun call. VDU selection is routed to SWC state without invoking WC1 cockpit drawing."},
     {"name": "fire_weapon", "resource": "CODE_05.bin", "entry_offset": "0x3320", "source": "src/ship.c", "wc1_address": "0x00420c20", "qualification": "Shares allocation, hardpoint, energy, lifetime and launch flow. SDL-only SWC player convergence adds 400 units along up for lasers, 300 for neutron/mass driver (+0x34c8..+0x3532); laser refire delay is 4 from DATA/0 +0x31f2. Remaining ship/weapon definitions are WC1; SWC sound remains suppressed."},
     {"name": "fire_missile", "resource": "CODE_05.bin", "entry_offset": "0x3856", "source": "src/logic.c", "wc1_address": "0x00421150", "qualification": "Same enabled-missile iteration and HS/IR lock gate. WC1 also queues the NEED LOCK message."},
@@ -215,7 +317,17 @@
   ],
   "cockpit_ui": {
     "source": "src/sdl/swc_cockpit.c",
-    "scope": "Enyo 1 Hornet instruments, target hull/armor/shields, normal reticle and weapon status. Text/reticle/messages also appear without the cockpit. Capacities remain WC1. Remaining VDU modes, malfunction effects, warning lamps, pilot animation, ITTS and other cockpitless instruments are pending.",
+    "scope": "Enyo 1 Hornet instruments, target hull/armor/shields, normal reticle, navigation/hostile markers, warning lamps, component text, malfunctioning VDUs, damaged panels and sparks. Spatial HUD is masked by the cockpit; text/HUD also appear without it. Capacities remain WC1. Automatic acquisition, lock controls/animation, communication, cockpit banking, pilot animation, side/rear views, ITTS and other cockpitless instruments are pending. SDL2 2.0.18 or later is required for VDU polygons.",
+    "empty_demo_pages": [
+      {"resource": "CODE_13.bin", "entry_offset": "0x121a", "name": "show_navigation_disp"},
+      {"resource": "CODE_13.bin", "entry_offset": "0x123a", "name": "show_damage_disp"},
+      {"resource": "CODE_13.bin", "entry_offset": "0x1256", "name": "show_info_disp"}
+    ],
+    "random_bound_evidence": {
+      "resource": "CODE_04.bin",
+      "functions": [{"entry_offset": "0x5d44", "name": "dp_random"}, {"entry_offset": "0x5d8c", "name": "random_number"}, {"entry_offset": "0x5dea", "name": "Random3DO"}],
+      "qualification": "Original small-range draws take Rand16 modulo the upper bound, excluding it. UI and damage-region selection adjust WC1's inclusive random bounds. The SWC RNG itself is not reproduced."
+    },
     "data_resource": {
       "resource_fork_path_from_repo_root": "../releases/mac/extracted/SuperWingCommanderDemo.rsrc",
       "type": "DATA",
@@ -225,7 +337,10 @@
       "hornet_tables": [
         {"offset": "0x0300", "encoding": "BE32[6]", "meaning": "scanner center X/Y, minimum X/Y, maximum X/Y", "values": [159, 171, 148, 160, 169, 181]},
         {"offset": "0x0390", "encoding": "BE32[3]", "meaning": "scanner grid origin X/Y and frame", "values": [139, 151, 0]},
+        {"offset": "0x03d8", "encoding": "BE32[3]", "meaning": "damage light origin X/Y and frame", "values": [156, 45, 0]},
         {"offset": "0x0420", "encoding": "byte", "meaning": "maximum energy frame", "value": 10},
+        {"offset": "0x0426", "encoding": "BE32[8]", "meaning": "left VDU polygon X/Y pairs", "values": [33, 134, 90, 132, 90, 188, 33, 189]},
+        {"offset": "0x05a6", "encoding": "BE32[8]", "meaning": "right VDU polygon X/Y pairs", "values": [231, 132, 288, 134, 288, 189, 231, 188]},
         {"offset": "0x0666", "encoding": "BE32[2]", "meaning": "actual-speed text origin", "values": [96, 32]},
         {"offset": "0x0696", "encoding": "BE32[2]", "meaning": "command-speed text origin", "values": [205, 32]},
         {"offset": "0x06c6", "encoding": "BE32[2]", "meaning": "target/range text origin", "values": [200, 110]},
@@ -235,8 +350,12 @@
         {"offset": "0x0792", "encoding": "BE32[2]", "meaning": "scene origin; reticle adds (-16,-4) before frame offsets", "values": [160, 100]},
         {"offset": "0x0786", "encoding": "byte", "meaning": "maximum throttle frame", "value": 13},
         {"offset": "0x078c", "encoding": "byte", "meaning": "maximum fuel frame", "value": 13},
-        {"offset": "0x433e", "encoding": "BE32 triples", "meaning": "cockpit resource list; selected chunks PC00/9, 10, 15, 16, 17, 18"},
-        {"offset": "0x43e6", "encoding": "BE32 triples", "meaning": "shared cockpit resource list; reticle CKPT/1 and contact sprites CKPT/31"}
+        {"offset": "0x07f2", "encoding": "BE32[6]", "meaning": "radar, left VDU, right VDU damage origins", "values": [142, 153, 33, 134, 231, 132]},
+        {"offset": "0x0886", "encoding": "BE32[5]", "meaning": "component severity text colors", "values": [194, 132, 159, 212, 176]},
+        {"offset": "0x089a", "encoding": "BE32 A5-relative string pointers", "meaning": "Ok, Light, Moderate, Heavy, Destroyed"},
+        {"offset": "0x08ae", "encoding": "BE32 A5-relative string pointers", "meaning": "nine component names"},
+        {"offset": "0x433e", "encoding": "BE32 triples", "meaning": "cockpit resource list; selected chunks PC00/7, 9, 10, 12, 13, 14, 15, 16, 17, 18"},
+        {"offset": "0x43e6", "encoding": "BE32 triples", "meaning": "shared cockpit resource list; reticle/nav/hostile CKPT/1, sparks CKPT/6 and contacts CKPT/31"}
       ]
     },
     "text_evidence": [

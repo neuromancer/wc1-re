@@ -419,6 +419,13 @@ int your_internal_damage(short attacker, short damage, short quadrant)
     asShipAccumulatedDamage[0] = (short)(
         asShipAccumulatedDamage[0] + events);
     if (events > 1)
+#ifdef SDL_PORT
+        /* SWC CODE_05 +0x184a uses random_number(3), upper bound exclusive:
+           CODE_04 dp_random +0x5d44. Its cockpit has three damage regions. */
+        if (SdlSwcFlightActive())
+            place_damage_on_cockpit(RandomBelowOrEqual(2));
+        else
+#endif
         place_damage_on_cockpit(RandomBelowOrEqual(3));
 
     while (events > 0) {
