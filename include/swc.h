@@ -92,6 +92,19 @@ int SwcMovieNextFrame(SwcMovie *movie);
 /* Hornet launch for the Enyo 1 host; returns a SwcMovieResult. */
 int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer);
 
+/* First-mission carrier visit: 0 = launch, 2 = quit, -1 = error. */
+int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
+                      const char *missionPath, const char *resourceFork);
+/* Demo speech is AIFF, mono signed 16-bit big-endian PCM at 11025 Hz. */
+int SwcReadSpeech(const char *path, SwcBuffer *pcm);
+
+/* Shared SDL text presentation for the cockpit and carrier. */
+SDL_Texture *SdlCreateSwcFont(SDL_Renderer *renderer);
+int SdlDrawSwcText(SDL_Renderer *renderer, SDL_Texture *font, int x,
+                    int baseline, SDL_Color ink, const char *text);
+int SdlDrawSwcSubtitle(SDL_Renderer *renderer, SDL_Texture *font,
+                        const char *text);
+
 /* SDL presentation of the Mac demo's cockpit resources. */
 SDL_Texture *SdlCreateSwcTexture(SDL_Renderer *renderer, const SwcBuffer *set,
                                  uint32_t index, const SDL_Color colors[256]);

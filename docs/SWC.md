@@ -1,16 +1,19 @@
 # Super Wing Commander Mac demo
 
-The GUI recognizes the SWC Mac demo and starts an experimental Enyo 1 flight
-with five ships, four objectives, and the original 320x240 cockpit and sprites.
+The GUI recognizes the SWC Mac demo and opens the Tiger's Claw bar and barracks.
+Talk to Shotglass, Paladin and Angel, check pilot rankings or medals, then enter
+the briefing room and launch the experimental Enyo 1 flight with five ships,
+four objectives, and the original 320x240 cockpit and sprites.
 SDL2 handles input and presentation; WC1 supplies mission state, ship setup,
 flight dynamics, movement, projection, ship-view selection, navigation, and
 player weapons, including projectile collisions, damage, and missile guidance.
 The Hornet cockpit now has speed and navigation readouts, fuel/throttle/energy
 gauges, player/target shield and armor displays, radar contacts, weapon status,
 navigation and hostile-direction markers, warning lamps, and damaged displays.
-The original Hornet launch movies play before flight, with embedded audio.
+The original conversations and first briefing use the demo's text, portraits
+and AIFF speech. The Hornet launch movies follow, with embedded audio.
 Enemy AI, nav-sphere transitions, mission completion, the remaining HUD,
-flight audio, music, and scripted scenes are not connected yet. Ship parameters
+flight audio, music, and later scripted scenes are not connected yet. Ship parameters
 still come from WC1.
 
 `make modern-swc` builds the asset viewer. It loads the demo's CMF files,
@@ -24,7 +27,9 @@ entry point in SDL builds. The CMF reader and mission adapter are linked into
 `wc1-modern`; the original Win32 reference build does not include them.
 `src/sdl/swc_demo.c` remains a separate presentation/inspection entry point.
 `src/sdl/swc_flight.c` hosts the experimental flight using the shared core.
-`src/sdl/swc_cockpit.c` presents the Hornet instruments and bitmap text.
+`src/sdl/swc_cockpit.c` presents the Hornet instruments. `src/sdl/swc_text.c`
+shares bitmap text between the cockpit and carrier. `src/sdl/swc_rooms.c`
+adapts carrier presentation and scenes; `src/swc/speech.c` reads AIFF speech.
 `src/swc/movie.c` reads and decodes the Mac movies; `src/sdl/swc_movie.c`
 supplies SDL2 presentation, queued audio, and the launch sequence.
 The viewer needs only the host C compiler and SDL2. Mission tests also link
@@ -34,15 +39,24 @@ Flight uses SDL2 2.0.18 or later for the VDU polygon rendering.
 ## Run
 
 Build the GUI with `make modern-gui`, run `out-modern/wc1-modern-gui`, select the
-extracted **SuperWing DEMO** directory, and click **Start Enyo 1**. To preselect
-the directory or start flight directly:
+extracted **SuperWing DEMO** directory, and click **Enter Tiger's Claw**. To
+preselect the directory or start the carrier visit from the command line:
 
 ```sh
 out-modern/wc1-modern-gui --gui --swc-demo "data/swc-demo/SuperWing DEMO"
 out-modern/wc1-modern --swc-demo "data/swc-demo/SuperWing DEMO"
 ```
 
-With the archive's `Movies/` directory present, the Hornet launch plays first.
+Click a person or doorway to interact; hover shows its label. Tab/arrows select
+hotspots and Enter activates them. From the bar, enter the barracks through the
+upper-right door, then the briefing room through its right-hand door. Click,
+Space or Enter advances dialogue; Esc returns from a conversation or skips the
+briefing into launch. P pauses dialogue and speech; focus loss also pauses both.
+Esc returns from the barracks, rankings or medals, and exits from the bar.
+Window close exits at any point. The simulator retains the demo's unavailable
+message. Save/load bunks explain that SWC saves are not supported yet.
+
+With the archive's `Movies/` directory present, the Hornet launch follows the briefing.
 Space, Enter, Esc, or a left click skips the entire sequence on release; P
 pauses it. Losing focus pauses video and audio together. Closing the movie
 window exits without starting flight. Once in flight, Esc resumes its normal
@@ -165,6 +179,90 @@ payloads borrow the decoded set; owned buffers and CMFs have explicit lifetimes.
 The viewer centers extracted ship images for inspection. It does not claim to
 reproduce flight projection, sprite hotspots, scaling, or original draw order.
 
+## Carrier rooms and first briefing
+
+The demo's original `GameFlow` (CODE_09 +0x1b8e) calls `RecRoom`, then
+`BarracksScreen`, `Briefing` and `scramble`. `StartNewCampaign` enables the
+room path. These are playable demo sections, rather than unused full-game
+assets. Choosing the simulator instead displays the original demo restriction.
+
+The SDL adapter shares these existing WC1 functions without changing them:
+
+| WC1 code | Use in the SWC carrier |
+| --- | --- |
+| `ResetCampaignData`, `CorrectPointers` | Fresh campaign and pilot records, including callsign, rankings, medals and badges |
+| `FindMenuRegionAtPoint`, `IsPointInRect` | Hotspot hit testing, with coordinates recovered from the Mac instructions |
+| `ConversationSceneRecord`, `ParseTests` | Original 13-byte scene commands and conditional branches |
+| `AddPCName` | Player callsign substitutions in original dialogue |
+| `ParseMouthAnimation`, `ParseFaceAnimation` | Original script strings decoded into animation commands |
+| `Build_objective_list`, `SetScale`, `nav_getxy` | Shared mission objectives and briefing-map coordinates |
+
+WC1's complete `SceneDirector`, `RecRoom` and `BarracksScreen` call DOS packet,
+viewport, font and input routines. The SDL adapter uses their reusable logic
+and data types, with separate presentation for SWC's Mac CMFs and palettes.
+The ranking sort retains the same kills/missions rule as WC1 and SWC. No
+reference-build functions were edited for this feature.
+
+`Data.CMF` contains `CMP0/3`, whose first pair selects Paladin and Angel, and
+`BRF0/5`, the Enyo 1 script. Its ten section offsets are little-endian 32-bit
+values; scene records contain three signed bytes followed by five little-endian
+16-bit fields. Sections 0/1 hold the first briefing; 4/5, 8/9 and 6/7 hold
+Shotglass, Paladin and Angel respectively. The host validates section bounds,
+NUL termination, animation syntax, branch targets and expanded subtitle size
+before calling WC1's original parsers. It supports the initial mission's
+commands and rejects unsupported script forms explicitly.
+
+| Original presentation evidence | SDL implementation |
+| --- | --- |
+| CODE_07 `RecRoom` +0x059a | Original bar artwork, three characters, room hotspots, rankings and simulator message |
+| CODE_07 `ShowChalkBoard` +0x111a | Original board artwork and row positions with shared WC1 pilot records |
+| CODE_03 `BarracksScreen` +0x5c70 | Original barracks background and briefing/bar/medal/bunk hotspots |
+| CODE_03 `DrawMedals` +0x5a9c | Original badge/medal frames, offsets and shared campaign awards |
+| CODE_03 `SceneDirector` +0x254c | First briefing and bar records, including Angel's interjection in Paladin's conversation |
+| CODE_03 `DrawBriefingLongShot` +0x1e54, `DrawPodiumShot` +0x1e02 | Original background/body frames and placement |
+| CODE_03 `LoadFace` +0x42cc, `CloseTalk` +0x323c | Original portrait/background selection and mouth/eye overlay offsets |
+
+Expanded DATA/0 supplies the room palettes and filenames at +0x3fd2/+0x4046,
+ranking rows at +0x2690, idle programs at +0x27ae/+0x2816/+0x27da, medal
+frames at +0x42f2 and briefing origins at +0x4306/+0x430a. The GUI now checks
+the carrier CMFs as well as the flight CMFs. Speech and launch movies remain
+optional; missing carrier artwork is an error.
+
+Speech comes from `AIFF/camp.0/04/04SSLL00.AIF`, where `SS` is the script
+section and `LL` the original record index, including branch-skipped records.
+The format string is used by CODE_03 `SceneDirector` +0x2cb6; the archive adds
+the `04` directory. All 92 demo recordings inspected use AIFF with one channel,
+16-bit big-endian PCM at 11025 Hz. The reader validates FORM/COMM/SSND sizes,
+chunk padding, data offsets and declared sample counts. SDL queues the PCM;
+missing/unreadable files or an unavailable device leave subtitles usable.
+Malformed present speech is an error. No external audio codec is required.
+
+The original demo files all declare a FORM size four bytes shorter than the
+actual container, apparently omitting the `AIFF` type from the count. Their
+final SSND chunks reach physical EOF and contain exactly the declared PCM
+samples. The reader permits this specific four-byte SSND overrun only when
+that chunk ends at physical EOF. Other chunk overruns and truncated samples
+remain errors; ordinary AIFF FORM bounds are unchanged. This fixes rejection
+of Angel's `04060000.AIF` and the other original recordings.
+
+Scope remains a fresh Enyo 1 visit using WC1's initial pilot template. Save/load,
+name entry, later mission rooms and post-flight progression are not connected.
+The scene adapter preserves original dialogue and artwork but does not claim
+exact Mac presentation: audio-marker lip synchronization, scene-specific text
+colors and typography, camera pans, palette fades, music, hover/decorative
+animations and exact idle timing are pending. Mouth/face commands currently run
+on a host clock; the map uses WC1 coordinates with simple SDL markers. The
+Anonymous Pro bitmap and readable subtitle panel are shared with the cockpit.
+
+Mission state is prepared before the carrier for the briefing map; simulation
+starts only after launch. Actions complete on release, focus loss pauses
+speech and scene time, and textures/audio are released on every exit. The
+finite `--check` path bypasses both rooms and movies. Validation for this change
+was original-instruction/data inspection, static review and compilation with
+`make modern modern-gui`; no tests, interactive code, game, GUI or audio
+playback were run. The existing launcher fixture was updated for the required
+CMFs but was not executed. Visual behavior and audio timing still need user review.
+
 ## Launch movies
 
 The Mac demo stores 38 custom `LMov` files under `Movies/`, with `.dcMov`
@@ -172,7 +270,8 @@ extensions. These are not ordinary QuickTime movies. The new decoder follows
 CODE_12 `LMovieOpen`, `LMovieTask`, and `LMovieDrawFrameMinRect`; the SDL host
 replaces QuickDraw blits, Sound Manager double buffers, and Mac event handling.
 WC1's `scramble` constructs its launch from sprites, so it cannot play these
-files. Shared WC1 flight initialization and gameplay still run after playback.
+files. Shared WC1 mission state is prepared before the carrier visit; flight
+simulation starts after playback.
 
 CODE_03 `scramble` +0x45d0 and its A5-relative strings specify this order:
 `ARMOR`, `HALL`, `LAUNCH01`, `LAUNCH02`, `LAUNCH03`, `LAUNCH04.00`,
@@ -203,9 +302,9 @@ while longer audio finishes. All movie resources are released on finish, skip,
 error, or window close.
 
 The separate `MIDI/ARMOR.MooV` soundtrack selected by the original launch,
-palette fades, opening/landing/funeral integration, and the scripted briefing
-and conversation scenes remain pending. No external video library is needed
-for this slice.
+palette fades and opening/landing/funeral integration remain pending. First
+briefing and bar scenes now use the carrier adapter described above. No
+external video library is needed for this slice.
 
 Validation for this pass consists of original-instruction review, offline
 inspection of all 38 original containers and 3,521 encoded frame streams,
@@ -481,6 +580,7 @@ many WC1 names were already derived from this Mac executable's MacsBug strings.
 3. Connect nav-sphere transitions, NPC AI/firing, carrier return, and the
    remaining HUD modes. The demo explicitly disables its simulator, so campaign
    flight is the useful first playable milestone.
-4. Connect opening/landing/funeral movies to game flow; add scripted scenes,
-   AIFF speech/effects, music, and palette transitions. The LMov decoder and
-   Hornet launch playback are now present; other scene entry points are pending.
+4. Connect opening/landing/funeral movies and later scripted scenes to game flow;
+   add save/load, audio-marker lip synchronization, effects, music and palette
+   transitions. The first bar, barracks and briefing, AIFF speech and Hornet
+   launch playback are present; other scene entry points are pending.

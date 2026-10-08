@@ -28,6 +28,10 @@
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_06.bin",
       "sha256": "28a54352640bfe5e6e7e9da02d718dc2708e3abfb621e79fbb120b8e2164013c"
     },
+    "CODE_07.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_07.bin",
+      "sha256": "650f50ff308446e1fc086f39fd09cf419409ac7f3cc646a2a9f4741c1bd9e94b"
+    },
     "CODE_08.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_08.bin",
       "sha256": "f9980153b4508c43f14c720a23bd18550f631ef51dc664980eb0e5595c295a6f"
@@ -54,6 +58,56 @@
     }
   },
   "functions": [
+    {
+      "original_name": "RecRoom",
+      "resource": "CODE_07.bin",
+      "entry_offset": "0x059a",
+      "end_offset": "0x1110",
+      "source": "src/sdl/swc_rooms.c",
+      "symbol": "SdlRunSwcCarrier",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Enyo 1 Shotglass/Paladin/Angel roster, original room artwork and hotspot coordinates. Shares WC1 hit testing and campaign state. SDL events/cursors/text replace Mac hardware presentation. Original idle programs use a provisional host clock; hover/decorative animations and music are pending. Simulator restriction follows CODE_09 GameFlow +0x1b8e. Debug mission/campaign selection is excluded."
+    },
+    {
+      "original_name": "BarracksScreen",
+      "resource": "CODE_03.bin",
+      "entry_offset": "0x5c70",
+      "end_offset": "0x6a88",
+      "source": "src/sdl/swc_rooms.c",
+      "symbol": "SdlRunSwcCarrier",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Original background and eleven room/bunk hotspots; bar, briefing and medals are connected. Bunks display an explicit unsupported-save message. No WC1 save files are written. Hover/decorative animation and save/name-entry dialogs are pending."
+    },
+    {
+      "original_name": "ShowChalkBoard",
+      "resource": "CODE_07.bin",
+      "entry_offset": "0x111a",
+      "end_offset": "0x13ea",
+      "source": "src/sdl/swc_rooms.c",
+      "symbol": "SwcDrawRankings",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Uses WC1 pilot records and the common kills*1000-missions+1 ranking rule, original RCRM/3 art and DATA/0 +0x2690 rows. SDL bitmap labels replace QuickDraw fonts and formatting."
+    },
+    {
+      "original_name": "DrawMedals",
+      "resource": "CODE_03.bin",
+      "entry_offset": "0x5a9c",
+      "end_offset": "0x5bf6",
+      "source": "src/sdl/swc_rooms.c",
+      "symbol": "SwcDrawMedalCase",
+      "relationship": "host-adaptation",
+      "differences": "Draws original RCRM/46 background, badge frames and medal frames from shared WC1 campaign state, retaining the (-109,-77) origin and DATA/0 +0x42f2 lookup. SDL events replace the modal Mac input loop."
+    },
+    {
+      "original_name": "SceneDirector",
+      "resource": "CODE_03.bin",
+      "entry_offset": "0x254c",
+      "end_offset": "0x2f98",
+      "source": "src/sdl/swc_rooms.c",
+      "symbol": "SwcPlayRoomScene",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Supports BRF0/5 sections 0,4,6,8, with the original 13-byte WC1 record layout, shared ParseTests/AddPCName/animation parsers, original portraits/backgrounds and speech. Validates data before legacy parsers. Does not call the DOS renderer. Map uses WC1 objectives and transforms. Native panning, text colors, fades and audio-marker lip synchronization are pending; animations/subtitles use host presentation."
+    },
     {
       "original_name": "scramble",
       "resource": "CODE_03.bin",
@@ -328,6 +382,9 @@
     }
   ],
   "shared_wc1_evidence": [
+    {"name": "ParseTests", "resource": "CODE_03.bin", "entry_offset": "0x3b4a", "source": "src/screens.c", "wc1_address": "0x00438160", "qualification": "Shares the branch parser after bounded validation. The carrier accepts goto, score and wing-status tests; Enyo 1 uses command 4 to gate Angel's interjection. Other scene families remain unsupported."},
+    {"name": "AddPCName", "resource": "CODE_03.bin", "entry_offset": "0x0df8", "source": "src/cmpgn.c", "wc1_address": "0x00404e10", "qualification": "Shares player callsign expansion. The Enyo carrier validates $C markers and expanded length before using WC1's fixed scratch buffer. Other substitutions are not enabled in this host slice."},
+    {"name": "TranslateEyes", "resource": "CODE_03.bin", "entry_offset": "0x0d5c", "source": "src/cmpgn.c", "symbol": "ParseFaceAnimation", "wc1_address": "0x00404cd0", "qualification": "Same frame/duration/comma/R command language. WC1 emits short command pairs; the original Mac emits wider pairs. Host validates durations/termination and supplies adequately sized buffers."},
     {"name": "draw_nav_pointer", "resource": "CODE_13.bin", "entry_offset": "0x3460", "source": "src/cockpt.c", "wc1_address": "0x004168c0", "qualification": "Reuses allocation, objective-relative transform, view-cone/radius gates and projection. SDL-only SWC activation allows target mode; valid-objective guard and per-call invalidation prevent stale markers. CKPT/1 frame 3 replaces the host rectangle."},
     {"name": "your_internal_damage", "resource": "CODE_05.bin", "entry_offset": "0x179e", "source": "src/ship.c", "wc1_address": "0x0041f220", "qualification": "Shared WC1 impact and component-damage flow. Original +0x184a calls random_number(3), which selects regions 0..2; SDL changes only the cockpit-region bound. Other damage probabilities and definitions remain WC1."},
     {"name": "fire_players_lasers", "resource": "CODE_09.bin", "entry_offset": "0x021a", "source": "src/main.c", "wc1_address": "0x00428480", "qualification": "Same cooldown/energy gate and selected-gun call. VDU selection is routed to SWC state without invoking WC1 cockpit drawing."},
@@ -461,9 +518,37 @@
     "launch_sequence": ["ARMOR", "HALL", "LAUNCH01", "LAUNCH02", "LAUNCH03", "LAUNCH04.00", "LAUNCH06.00", "LAUNCH07.00", "LAUNCH08.00"],
     "launch_string_evidence": "CODE_03 scramble +0x45d0, expanded DATA/0 A5-relative strings -0x3414, -0x3402, -0x33fd, -0x33f4, -0x33eb, -0x33e2, -0x33d3, -0x33c4, -0x33b5. Last four format strings use %2.2d; Hornet selects zero.",
     "audio": "Embedded unsigned 8-bit mono at 0x56ee8ba3 fixed-point Hz (22254.545...), rounded to 22255 Hz by SDL. Stored blocks are 11128 bytes; header +0xa6 is the valid sample count. SDL queues trimmed PCM, pauses with video, and falls back to silent playback if the device is unavailable.",
-    "pending": "Separate MIDI/ARMOR.MooV music (A5-0x340d), palette transitions, opening/landing/funeral game-flow integration, and scripted briefing/conversation scenes.",
+    "pending": "Separate MIDI/ARMOR.MooV music (A5-0x340d), palette transitions, opening/landing/funeral game-flow integration, and later scripted scenes. First briefing/bar conversations are connected through the carrier adapter.",
     "validation": "Original assembly and A5-string inspection; offline parsing of all 38 original files and 3521 encoded frames, including record bounds, scanline commands, exact frame consumption and audio lengths; static source review and make modern modern-gui. No interactive code, game, GUI, playback or audio device executed."
   },
-  "host_only_sources": ["src/swc/rsrc.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c", "src/sdl/swc_cockpit.c", "src/sdl/swc_movie.c"],
+  "carrier": {
+    "source": "src/sdl/swc_rooms.c",
+    "scope": "Fresh Enyo 1: bar, three conversations, rankings, barracks, medals, briefing, Hornet launch, flight. GUI and CLI enter the carrier; check-only bypasses rooms and movies. Save bunks explain unsupported saving/loading. Simulator remains disabled as in the original demo.",
+    "flow_evidence": [
+      {"resource": "CODE_09.bin", "entry_offset": "0x1a70", "name": "StartNewCampaign", "qualification": "Enables the recreation-room path."},
+      {"resource": "CODE_09.bin", "entry_offset": "0x1b8e", "name": "GameFlow", "qualification": "RecRoom, BarracksScreen, Briefing and scramble; simulator selection shows the demo restriction."},
+      {"resource": "CODE_03.bin", "entry_offset": "0x1556", "name": "LoadBriefingData"},
+      {"resource": "CODE_03.bin", "entry_offset": "0x39c6", "name": "scene_ptr"},
+      {"resource": "CODE_03.bin", "entry_offset": "0x1e54", "name": "DrawBriefingLongShot"},
+      {"resource": "CODE_03.bin", "entry_offset": "0x1e02", "name": "DrawPodiumShot"},
+      {"resource": "CODE_03.bin", "entry_offset": "0x42cc", "name": "LoadFace"},
+      {"resource": "CODE_03.bin", "entry_offset": "0x323c", "name": "CloseTalk"}
+    ],
+    "shared_wc1_functions": ["ResetCampaignData", "CorrectPointers", "FindMenuRegionAtPoint", "IsPointInRect", "ParseTests", "AddPCName", "ParseMouthAnimation", "ParseFaceAnimation", "Build_objective_list", "SetScale", "nav_getxy"],
+    "reuse_qualification": "Reference functions are unchanged. Original WC1 room/director functions also perform DOS resource and viewport I/O, so the host reuses their separable logic/data types and provides SDL presentation. Pilot identity, rankings and awards start from WC1's initial campaign template; the SWC character initialization template and name-entry UI are not reconstructed.",
+    "script": {"file": "Data.CMF", "chunk": "BRF0/5", "directory": "10 LE32 section offsets", "record": "13 bytes: three signed bytes, five LE16 fields", "sections": {"briefing": 0, "shotglass": 4, "angel": 6, "paladin": 8}, "roster": "CMP0/3 indexed by (series-1)*8+mission*2; Enyo 1 pair 5,4 is validated."},
+    "data_offsets": {"palettes": "0x3fd2", "filenames": "0x4046", "ranking_rows": "0x2690", "idle_sequences": ["0x27ae", "0x2816", "0x27da"], "medal_frames": "0x42f2", "briefing_origin": ["0x4306", "0x430a"]},
+    "speech": {
+      "reader_source": "src/swc/speech.c",
+      "format": "AIFF COMM/SSND, mono signed 16-bit big-endian PCM, 11025 Hz; all 92 demo recordings inspected have this format.",
+      "form_length_quirk": "All 92 original files declare FORM four bytes short, apparently excluding the AIFF form type. Each final SSND chunk ends at physical EOF with exactly the PCM byte count declared by COMM. The reader permits only this exact four-byte overrun by a final SSND chunk; other bounds/sample-count checks remain in force. Observed directly in 04060000.AIF and the full original speech corpus without playback.",
+      "path": "AIFF/camp.0/04/04SSLL00.AIF; SS=section, LL=original record index",
+      "evidence": "CODE_03 SceneDirector +0x2cb6; DATA/0 +0x4322/+0x4326 resolves to %s%d:%2.2d%2.2d%2.2d%2.2d.AIF and camp.; SpoolSoundFile +0x6b02 provides original Sound Manager context. Archive supplies the mission subdirectory.",
+      "qualification": "Bounded host reader and SDL queued audio replace Sound Manager streaming. Missing/unreadable recordings or unavailable device leave subtitles usable; malformed present recordings fail. MARK chunks are ignored; script mouth/face timing is provisional and is not native voice-marker synchronization."
+    },
+    "pending": "Save/load and name entry, later rooms/scenes, campaign progression, exact idle/hover/decorative animation, native map/camera transitions, audio-marker lip synchronization, original text colors/typography, music and fades.",
+    "validation": "Ghidra original-instruction and offline original-data inspection, static review and make modern modern-gui. Existing launcher fixture updated but not run. No tests, game, GUI, interactive checks, playback or audio device executed. Appearance and timing require user review."
+  },
+  "host_only_sources": ["src/swc/rsrc.c", "src/swc/speech.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c", "src/sdl/swc_cockpit.c", "src/sdl/swc_text.c", "src/sdl/swc_rooms.c", "src/sdl/swc_movie.c"],
   "palette_resource_fork_sha256": "24b707f9e024d86bf8ce996e2bc45521f36f75582b7e7410bef6467c49cb7c2b"
 }

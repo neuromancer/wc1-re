@@ -80,7 +80,10 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
         return {false, "The selected path is not a directory."};
     const auto cmfs = find_child_case_insensitive(directory, "CMFs");
     if (cmfs && fs::is_directory(*cmfs, error)) {
-        for (const auto name : {"Data.CMF", "Spaceflight.CMF", "PCShipV00.CMF"}) {
+        for (const auto name : {"Data.CMF", "Spaceflight.CMF", "PCShipV00.CMF",
+                                "RecRoomScene.CMF", "Barracks.CMF", "ViewMedals.CMF",
+                                "Head10.CMF", "RRTalkingHeads.CMF", "Briefing.CMF",
+                                "BriefingCommander.CMF", "BRTH1.CMF", "BRInterface.CMF"}) {
             const auto path = find_child_case_insensitive(*cmfs, name);
             if (!path || !has_readable_file(*cmfs, name))
                 return {false, std::string("SWC needs CMFs/") + name + ".", true};
@@ -99,7 +102,7 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
         }
         if (!palette)
             return {false, "SWC palette missing: preserve the demo's resource fork or add SuperWingCommanderDemo.rsrc.", true};
-        return {true, "Super Wing Commander Mac demo: Hornet launch and experimental Enyo 1 flight. Enemy AI and mission completion are not implemented.", true};
+        return {true, "Super Wing Commander Mac demo: explore the bar and barracks, attend the briefing, then launch Enyo 1. Saving, enemy AI and mission completion are not implemented.", true};
     }
     const auto gameData = find_child_case_insensitive(directory, "GAMEDAT");
     if (!gameData || !fs::is_directory(*gameData, error))

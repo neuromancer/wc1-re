@@ -4,7 +4,6 @@
  * Mac QuickDraw text is replaced by a bundled, pre-rendered bitmap font. */
 #include "wc1.h"
 #include "swc.h"
-#include "swc_hud_font.h"
 
 #include <string.h>
 
@@ -159,13 +158,8 @@ int SdlInitSwcCockpit(SDL_Renderer *renderer, const SwcCmf *cockpit,
        frame maxima: energy 10, throttle 13, fuel 13 for the Hornet. */
     static const uint32_t chunks[] = {10, 15, 16, 17, 18, 31, 9, 1, 12, 13, 14, 7, 6};
     static const uint32_t counts[] = {7, 11, 14, 14, 1, 13, 2, 14, 1, 1, 2, 3, 8};
-    SDL_Surface *fontSurface;
-    uint32_t *row;
     size_t index;
     int shared;
-    int character;
-    int x;
-    int y;
     int result = -1;
 
     SdlFreeSwcCockpit();
@@ -185,25 +179,8 @@ int SdlInitSwcCockpit(SDL_Renderer *renderer, const SwcCmf *cockpit,
                                &swcDeadVduShapes[index]) != 0)
             goto done;
     }
-    fontSurface = SDL_CreateRGBSurfaceWithFormat(0, 16 * SWC_HUD_FONT_WIDTH,
-        6 * SWC_HUD_FONT_HEIGHT, 32, SDL_PIXELFORMAT_ARGB8888);
-    if (fontSurface == NULL)
-        goto done;
-    SDL_FillRect(fontSurface, NULL, 0);
-    for (character = 0; character < 95; character++) {
-        for (y = 0; y < SWC_HUD_FONT_HEIGHT; y++) {
-            row = (uint32_t *)((uint8_t *)fontSurface->pixels +
-                (character / 16 * SWC_HUD_FONT_HEIGHT + y) * fontSurface->pitch);
-            for (x = 0; x < SWC_HUD_FONT_WIDTH; x++) {
-                if (abSwcHudFont[character][y] & (0x80 >> x))
-                    row[character % 16 * SWC_HUD_FONT_WIDTH + x] = UINT32_C(0xffffffff);
-            }
-        }
-    }
-    swcCockpitFont = SDL_CreateTextureFromSurface(renderer, fontSurface);
-    SDL_FreeSurface(fontSurface);
-    if (swcCockpitFont == NULL ||
-        SDL_SetTextureBlendMode(swcCockpitFont, SDL_BLENDMODE_BLEND) != 0)
+    swcCockpitFont = SdlCreateSwcFont(renderer);
+    if (swcCockpitFont == NULL)
         goto done;
     result = 0;
 done:
@@ -240,30 +217,10 @@ static void SwcDrawInstrument(enum SwcCockpitInstrument instrument,
 static void SwcDrawCockpitText(int x, int baseline, unsigned char color,
                                 const char *text)
 {
-    SDL_Rect source = {0, 0, SWC_HUD_FONT_WIDTH, SWC_HUD_FONT_HEIGHT};
-    SDL_Rect destination = {x - SWC_HUD_FONT_BEARING,
-        baseline - SWC_HUD_FONT_BASELINE, SWC_HUD_FONT_WIDTH, SWC_HUD_FONT_HEIGHT};
-    SDL_Color ink = swcCockpitColors[color];
-    unsigned char character;
-
     if (swcCockpitDrawResult != 0)
         return;
-    swcCockpitDrawResult = SDL_SetTextureColorMod(swcCockpitFont, ink.r, ink.g, ink.b);
-    if (swcCockpitDrawResult != 0)
-        return;
-    while (*text != 0 && destination.x < SWC_FRAME_WIDTH) {
-        character = (unsigned char)*text++;
-        if (character < 32 || character > 126)
-            character = '?';
-        character -= 32;
-        source.x = character % 16 * SWC_HUD_FONT_WIDTH;
-        source.y = character / 16 * SWC_HUD_FONT_HEIGHT;
-        swcCockpitDrawResult = SDL_RenderCopy(swcCockpitRenderer,
-            swcCockpitFont, &source, &destination);
-        if (swcCockpitDrawResult != 0)
-            return;
-        destination.x += SWC_HUD_FONT_ADVANCE;
-    }
+    swcCockpitDrawResult = SdlDrawSwcText(swcCockpitRenderer, swcCockpitFont,
+        x, baseline, swcCockpitColors[color], text);
 }
 
 void SdlDrawSwcCockpitReadout(signed char slot, const char *text)

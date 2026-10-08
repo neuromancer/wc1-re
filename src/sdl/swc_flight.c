@@ -591,6 +591,7 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     int done = 0;
     int result = -1;
 
+    ResetCampaignData();
     nCampaignDataSet = 0;
     if (SdlLoadSwcMissionData(missionPath, 1, 0) != 0)
         goto done;
@@ -628,20 +629,8 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
         goto done;
     if (SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf, colors) != 0)
         goto done;
-    if (!checkOnly) {
-        SDL_ShowWindow(window);
-        SDL_RaiseWindow(window);
-        SDL_PumpEvents();
-        movieResult = SdlPlaySwcLaunch(window, renderer);
-        if (movieResult == SWC_MOVIE_ERROR)
-            goto done;
-        if (movieResult == SWC_MOVIE_QUIT) {
-            result = 0;
-            goto done;
-        }
-        /* Movie input/timing never advances shared WC1 flight state. */
-        focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
-    }
+    /* Prepare shared mission state for the briefing map. No flight ticks or
+       player input run while visiting the carrier or watching launch. */
     swcFlightActive = 1;
     SwcSetExplosionData(savedExplosions);
     explosionsConfigured = 1;
@@ -649,6 +638,27 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     shipCount = SwcStartMissionShips();
     if (shipCount < 0)
         goto done;
+    if (!checkOnly) {
+        SDL_ShowWindow(window);
+        SDL_RaiseWindow(window);
+        SDL_PumpEvents();
+        movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path);
+        if (movieResult == -1)
+            goto done;
+        if (movieResult == SWC_MOVIE_QUIT) {
+            result = 0;
+            goto done;
+        }
+        movieResult = SdlPlaySwcLaunch(window, renderer);
+        if (movieResult == SWC_MOVIE_ERROR)
+            goto done;
+        if (movieResult == SWC_MOVIE_QUIT) {
+            result = 0;
+            goto done;
+        }
+        /* Carrier/movie input never advances shared WC1 flight state. */
+        focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+    }
     SwcResetFlightInput();
     FlushInputEvents();
     SetEventManagerPump(NULL);
