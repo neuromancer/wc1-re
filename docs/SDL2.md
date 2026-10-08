@@ -22,6 +22,11 @@ path retains its separate synthesized music-and-effects mix.
 Development builds use ASan and UBSan. Release builds select
 `MODERN_RELEASE=1`.
 
+Super Wing Commander Mac demo work has a separate SDL2 bootstrap target,
+`make modern-swc`. It currently previews the demo's cockpit and ship sprites
+at 320x240; gameplay is not connected yet. See [SWC.md](SWC.md) for data setup,
+validation, original-code evidence, and the binary-similarity workflow status.
+
 ## Graphical launcher
 
 `make modern-gui` builds `out-modern/wc1-modern-gui` (`.exe` on Windows).

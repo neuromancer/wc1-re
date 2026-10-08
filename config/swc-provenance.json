@@ -1,0 +1,72 @@
+{
+  "description": "SWC Mac demo evidence inventory; not a binary-similarity configuration or score report.",
+  "reference": "Super Wing Commander Mac demo 1.0.2, extracted 68000 CODE resources",
+  "address_convention": "Byte offsets from the start of each CODE resource, including its segment header; end offsets are exclusive.",
+  "comparison_tool": "binary-similarity",
+  "measurement_status": "pending-tool-location",
+  "reference_binaries": {
+    "CODE_01.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_01.bin",
+      "sha256": "b329613e0d0513e6c4d609f8496044c5dda96c17d6321953543958dbc885d758"
+    },
+    "CODE_09.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_09.bin",
+      "sha256": "16f6706d468467a326fe7533ac662ddd57020975770746b3325b15d2bf323f97"
+    }
+  },
+  "functions": [
+    {
+      "original_name": "GetFramePtr",
+      "resource": "CODE_01.bin",
+      "entry_offset": "0x05f4",
+      "end_offset": "0x064e",
+      "source": "src/swc/shape.c",
+      "symbol": "SwcGetFramePtr",
+      "relationship": "host-adaptation",
+      "differences": "Explicit buffer length, index/format checks and host frame descriptor replace a Mac Handle and an A0 pointer return.",
+      "score": null
+    },
+    {
+      "original_name": "DrawRLEImage",
+      "resource": "CODE_01.bin",
+      "entry_offset": "0x17aa",
+      "end_offset": "0x1b72",
+      "source": "src/swc/shape.c",
+      "symbol": "SwcDecodeFrame",
+      "relationship": "format-evidence-only",
+      "differences": "The SDL adapter decodes a whole frame; original clipped drawing and hotspot placement are not reconstructed.",
+      "score": null
+    },
+    {
+      "original_name": "CMGetChunk",
+      "resource": "CODE_09.bin",
+      "entry_offset": "0x22f6",
+      "end_offset": "0x26a0",
+      "source": "src/swc/cmf.c",
+      "symbol": "SwcCMGetChunk",
+      "relationship": "host-adaptation",
+      "differences": "Owned SDL buffers replace Mac Handles, purge state and cached pointers. File bytes and output lengths are validated.",
+      "score": null
+    },
+    {
+      "original_name": "CMDecompressRLE",
+      "resource": "CODE_09.bin",
+      "entry_offset": "0x2b26",
+      "end_offset": "0x2c16",
+      "algorithm_offset": "0x2ba4",
+      "algorithm_end_offset": "0x2c00",
+      "source": "src/swc/cmf.c",
+      "symbol": "SwcDecompressRLE",
+      "relationship": "algorithm-adaptation",
+      "differences": "Allocation and BE size prefix handling move to the caller; explicit bounds/exact-consumption checks are added; Mac debugger callbacks are absent.",
+      "score": null
+    }
+  ],
+  "additional_format_evidence": [
+    {"resource": "CODE_09.bin", "entry_offset": "0x26ae", "name": "CMOpenFile"},
+    {"resource": "CODE_09.bin", "entry_offset": "0x2fac", "name": "CMReformatTOC"},
+    {"resource": "CODE_09.bin", "entry_offset": "0x32a6", "name": "CMFindChunkEntryPtr"}
+  ],
+  "host_only_sources": ["src/swc/rsrc.c", "src/sdl/swc_demo.c"],
+  "palette_resource_fork_sha256": "24b707f9e024d86bf8ce996e2bc45521f36f75582b7e7410bef6467c49cb7c2b"
+}

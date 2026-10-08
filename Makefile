@@ -460,6 +460,17 @@ MODERN_DEPFILES = \
 	$(MODERN_STATIC_GUI_LAUNCHER_OBJ:.o=.d) \
 	$(MODERN_TEST_OBJS:.o=.d)
 
+# SWC Mac demo bootstrap: SDL2 only, separate from both WC1 executables.
+SWC_TARGET = $(MODERN_OUT_DIR)/swc-demo$(MODERN_EXE_SUFFIX)
+SWC_TEST_BIN = $(MODERN_OUT_DIR)/tests/swc_assets$(MODERN_EXE_SUFFIX)
+SWC_DATA_DIR ?= data/swc-demo/SuperWing DEMO
+SWC_ARGS ?=
+SWC_SRCS = src/swc/cmf.c src/swc/shape.c src/swc/rsrc.c
+SWC_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(SWC_SRCS))
+SWC_HOST_OBJ = $(MODERN_OUT_DIR)/obj/sdl/swc_demo.o
+SWC_TEST_OBJ = $(MODERN_OUT_DIR)/tests/swc_assets.o
+MODERN_DEPFILES += $(SWC_OBJS:.o=.d) $(SWC_HOST_OBJ:.o=.d) $(SWC_TEST_OBJ:.o=.d)
+
 # ---------------------------------------------------------------------------
 # Build targets and tool bootstrap
 # ---------------------------------------------------------------------------
@@ -476,6 +487,33 @@ build-full: $(TARGET)
 # The native port is deliberately built in a separate output tree.  It must
 # never supply objects to the assembly-comparison target above.
 modern: $(MODERN_TARGET)
+
+modern-swc: $(SWC_TARGET)
+
+# No LZO, ix, Slint, or Win32 reference objects enter this bootstrap.
+$(SWC_OBJS) $(SWC_HOST_OBJ): $(MODERN_OUT_DIR)/obj/%.o: src/%.c | modern-check-sdl
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_TEST_CPPFLAGS) $(MODERN_CFLAGS) \
+		$(MODERN_SANITIZER_FLAGS) $(MODERN_DEPFLAGS) -c $< -o $@
+
+$(SWC_TARGET): $(SWC_OBJS) $(SWC_HOST_OBJ)
+	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) -o $@
+
+$(SWC_TEST_BIN): $(SWC_OBJS) $(SWC_TEST_OBJ)
+	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) -o $@
+
+modern-test-swc: $(SWC_TEST_BIN)
+	@$(SWC_TEST_BIN) "$(MODERN_OUT_DIR)/tests/swc-fixture"
+
+modern-test-swc-data: $(SWC_TEST_BIN) $(SWC_TARGET)
+	@$(SWC_TEST_BIN) "$(MODERN_OUT_DIR)/tests/swc-fixture" "$(SWC_DATA_DIR)"/CMFs/*.CMF
+	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
+		$(SWC_TARGET) "$(SWC_DATA_DIR)" --check $(SWC_ARGS)
+
+run-modern-swc: modern-swc
+	@$(SWC_TARGET) "$(SWC_DATA_DIR)" $(SWC_ARGS)
 
 # Optional native launcher; the ordinary modern target does not need Slint.
 modern-gui: $(MODERN_GUI_TARGET)
@@ -1049,6 +1087,7 @@ clean-modern:
 	rm -rf $(MODERN_OUT_DIR)
 
 .PHONY: \
+	modern-swc modern-test-swc modern-test-swc-data run-modern-swc \
 	all \
 	audit-addresses \
 	audit-compiler-glue \
