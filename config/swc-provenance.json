@@ -36,6 +36,10 @@
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_09.bin",
       "sha256": "16f6706d468467a326fe7533ac662ddd57020975770746b3325b15d2bf323f97"
     },
+    "CODE_12.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_12.bin",
+      "sha256": "fef78de3965c97a0d493449b7553be8ce56b64b5d91ee2485336d3f198a4ebe1"
+    },
     "CODE_13.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_13.bin",
       "sha256": "8d97784594aa3467589db52c6ea5a9948c8f466cdea90339c90b4aef4dc4beba"
@@ -50,6 +54,66 @@
     }
   },
   "functions": [
+    {
+      "original_name": "scramble",
+      "resource": "CODE_03.bin",
+      "entry_offset": "0x45d0",
+      "end_offset": "0x46e0",
+      "source": "src/sdl/swc_movie.c",
+      "symbol": "SdlPlaySwcLaunch",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Original nine-clip order with Hornet suffix 00. Uses the existing SDL path resolver; missing movies preserve direct flight. Skipping, quit and error are explicit results. Separate ARMOR.MooV music and palette transitions are pending. WC1's sprite-based scramble is not suitable for these assets."
+    },
+    {
+      "original_name": "MovieDisplay",
+      "resource": "CODE_12.bin",
+      "entry_offset": "0x0468",
+      "end_offset": "0x0920",
+      "source": "src/sdl/swc_movie.c",
+      "symbol": "SdlPlaySwcMovie",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "SDL textures, per-movie palette conversion, queued PCM and event handling replace QuickDraw/Sound Manager. Adds pause/focus handling, explicit quit and skip-on-release; skips the complete launch sequence. External music and palette transitions remain pending."
+    },
+    {
+      "original_name": "LMovieOpen",
+      "resource": "CODE_12.bin",
+      "entry_offset": "0x1fc4",
+      "end_offset": "0x288a",
+      "source": "src/swc/movie.c",
+      "symbol": "SwcMovieOpen",
+      "relationship": "host-adaptation",
+      "differences": "Validates the demo's version-1 320x240 container, record spans, 256-color table and 8-bit mono audio. Uses owned host buffers; ignores persisted Mac pointers. LMFillPixMap +0x1e5e supplies the initial pixel value. Palette order follows +0x2590..+0x25bc. Host limits files to 64 MiB and frame rate to 1..60; rounds 16.16 sample rate to integer Hz."
+    },
+    {
+      "original_name": "LMovieClose",
+      "resource": "CODE_12.bin",
+      "entry_offset": "0x1eea",
+      "end_offset": "0x1fb6",
+      "source": "src/swc/movie.c",
+      "symbol": "SwcMovieClose",
+      "relationship": "host-adaptation",
+      "differences": "Releases host-owned record, pixel, PCM and file buffers. SDL presentation owns and closes its audio device and textures."
+    },
+    {
+      "original_name": "LMovieTask",
+      "resource": "CODE_12.bin",
+      "entry_offset": "0x1644",
+      "end_offset": "0x1dc8",
+      "source": "src/swc/movie.c",
+      "symbol": "SwcMovieNextFrame",
+      "relationship": "partial-algorithm-adaptation",
+      "differences": "Preserves record-order video deltas and skipping of audio records (+0x18c4..+0x199e). SwcMovieOpen collects PCM using the remaining-sample counter semantics at +0x1c42..+0x1c78, excluding padding even after a 0x11 audio marker. SdlPlaySwcMovie replaces asynchronous Mac disk buffers, timers and Sound Manager; no emulation of that I/O machinery."
+    },
+    {
+      "original_name": "LMovieDrawFrameMinRect",
+      "resource": "CODE_12.bin",
+      "entry_offset": "0x2898",
+      "end_offset": "0x2bba",
+      "source": "src/swc/movie.c",
+      "symbol": "SwcMovieDrawFrame",
+      "relationship": "algorithm-adaptation",
+      "differences": "Preserves end-row, short/long skip/literal/repeat and no-op command semantics, including retained pixels between frames. Adds source/destination bounds and exact-consumption checks. Contiguous indexed pixels replace the QuickDraw pixmap; SDL uploads the full image instead of using the original dirty rectangle."
+    },
     {
       "original_name": "GetFramePtr",
       "resource": "CODE_01.bin",
@@ -390,6 +454,16 @@
     "qualification": "Rendering uses the original (160,100) plus projected XY, with horizontal/vertical flip bits retained. Sprite centering, WC1 scaling/ship definitions, and simple SDL target brackets are provisional. No original Mac handle management, screen shake or SWC weapon audio. NPC ship AI remains disconnected.",
     "validation": "Original-instruction and offline resource inspection; static source review; make modern modern-gui only. No interactive execution or tests."
   },
-  "host_only_sources": ["src/swc/rsrc.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c", "src/sdl/swc_cockpit.c"],
+  "movies": {
+    "decoder_source": "src/swc/movie.c",
+    "presentation_source": "src/sdl/swc_movie.c",
+    "scope": "Version-1 LMov decoder and original Hornet launch before Enyo 1 in both SDL launchers. Missing sequence files preserve direct flight; malformed movies fail explicitly. The check-only flight path bypasses movies.",
+    "launch_sequence": ["ARMOR", "HALL", "LAUNCH01", "LAUNCH02", "LAUNCH03", "LAUNCH04.00", "LAUNCH06.00", "LAUNCH07.00", "LAUNCH08.00"],
+    "launch_string_evidence": "CODE_03 scramble +0x45d0, expanded DATA/0 A5-relative strings -0x3414, -0x3402, -0x33fd, -0x33f4, -0x33eb, -0x33e2, -0x33d3, -0x33c4, -0x33b5. Last four format strings use %2.2d; Hornet selects zero.",
+    "audio": "Embedded unsigned 8-bit mono at 0x56ee8ba3 fixed-point Hz (22254.545...), rounded to 22255 Hz by SDL. Stored blocks are 11128 bytes; header +0xa6 is the valid sample count. SDL queues trimmed PCM, pauses with video, and falls back to silent playback if the device is unavailable.",
+    "pending": "Separate MIDI/ARMOR.MooV music (A5-0x340d), palette transitions, opening/landing/funeral game-flow integration, and scripted briefing/conversation scenes.",
+    "validation": "Original assembly and A5-string inspection; offline parsing of all 38 original files and 3521 encoded frames, including record bounds, scanline commands, exact frame consumption and audio lengths; static source review and make modern modern-gui. No interactive code, game, GUI, playback or audio device executed."
+  },
+  "host_only_sources": ["src/swc/rsrc.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c", "src/sdl/swc_cockpit.c", "src/sdl/swc_movie.c"],
   "palette_resource_fork_sha256": "24b707f9e024d86bf8ce996e2bc45521f36f75582b7e7410bef6467c49cb7c2b"
 }

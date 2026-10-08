@@ -99,7 +99,7 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
         }
         if (!palette)
             return {false, "SWC palette missing: preserve the demo's resource fork or add SuperWingCommanderDemo.rsrc.", true};
-        return {true, "Super Wing Commander Mac demo: Enyo 1 experimental flight. Movement and navigation; combat is not implemented.", true};
+        return {true, "Super Wing Commander Mac demo: Hornet launch and experimental Enyo 1 flight. Enemy AI and mission completion are not implemented.", true};
     }
     const auto gameData = find_child_case_insensitive(directory, "GAMEDAT");
     if (!gameData || !fs::is_directory(*gameData, error))

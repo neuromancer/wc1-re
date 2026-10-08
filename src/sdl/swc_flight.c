@@ -587,6 +587,7 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     int paused = 0;
     int focused = 1;
     int explosionsConfigured = 0;
+    int movieResult;
     int done = 0;
     int result = -1;
 
@@ -627,6 +628,20 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
         goto done;
     if (SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf, colors) != 0)
         goto done;
+    if (!checkOnly) {
+        SDL_ShowWindow(window);
+        SDL_RaiseWindow(window);
+        SDL_PumpEvents();
+        movieResult = SdlPlaySwcLaunch(window, renderer);
+        if (movieResult == SWC_MOVIE_ERROR)
+            goto done;
+        if (movieResult == SWC_MOVIE_QUIT) {
+            result = 0;
+            goto done;
+        }
+        /* Movie input/timing never advances shared WC1 flight state. */
+        focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+    }
     swcFlightActive = 1;
     SwcSetExplosionData(savedExplosions);
     explosionsConfigured = 1;
@@ -658,8 +673,10 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     if (!checkOnly) {
         SDL_ShowWindow(window);
         SDL_RaiseWindow(window);
-        SDL_SetWindowMouseGrab(window, SDL_TRUE);
-        SwcCentreFlightMouse();
+        if (focused) {
+            SDL_SetWindowMouseGrab(window, SDL_TRUE);
+            SwcCentreFlightMouse();
+        }
     }
     while (!done) {
         while (SDL_PollEvent(&event)) {

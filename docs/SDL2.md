@@ -24,8 +24,10 @@ Development builds use ASan and UBSan. Release builds select
 
 The GUI recognizes the Super Wing Commander Mac demo and offers **Start Enyo 1**.
 This experimental SDL2 flight uses SWC cockpit/ship images and mission data with
-WC1 ship setup, flight dynamics, projection, and navigation. Combat and mission
-completion are not implemented. `make modern-swc` still builds the separate
+WC1 ship setup, flight dynamics, projection, navigation, and player weapons.
+The original Hornet launch movies play first when `Movies/` is present, with
+embedded audio and Space/Enter/Esc/click to skip. NPC AI and mission completion
+are not implemented. `make modern-swc` still builds the separate
 asset viewer. See [SWC.md](SWC.md) for setup, controls, and remaining work.
 
 ## Graphical launcher
@@ -66,11 +68,12 @@ For SWC, select the **SuperWing DEMO** directory containing `CMFs/Data.CMF`,
 `Spaceflight.CMF`, and `PCShipV00.CMF`. Keep the executable's native resource fork
 or place its extracted raw fork at `SuperWingCommanderDemo.rsrc` in that directory.
 The GUI checks archive headers and palette availability, identifies the Mac demo,
-and launches Enyo 1 directly. Unsupported graphics and joystick options are
-disabled; cockpitless view is available. `--swc-demo DIRECTORY` selects the same
+and starts the Hornet launch sequence followed by Enyo 1. Unsupported graphics
+and joystick options are disabled; cockpitless view is available.
+`--swc-demo DIRECTORY` selects the same
 flight from the command line, and also preselects the directory with `--gui`.
-Adding `--check` runs a finite flight check; with `--gui`, it also opens the
-launcher and invokes its normal launch callback automatically.
+Adding `--check` skips movies and runs a finite flight check; with `--gui`, it
+also opens the launcher and invokes its normal launch callback automatically.
 
 `src/sdl/slint/` is a separate CMake project using C++20, CMake 3.21+, and Rust
 1.88+. It pins Slint 1.16.1 and Native File Dialog Extended 1.3.0 and links them

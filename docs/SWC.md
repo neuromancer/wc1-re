@@ -8,8 +8,10 @@ player weapons, including projectile collisions, damage, and missile guidance.
 The Hornet cockpit now has speed and navigation readouts, fuel/throttle/energy
 gauges, player/target shield and armor displays, radar contacts, weapon status,
 navigation and hostile-direction markers, warning lamps, and damaged displays.
+The original Hornet launch movies play before flight, with embedded audio.
 Enemy AI, nav-sphere transitions, mission completion, the remaining HUD,
-audio, and movies are not connected yet. Ship parameters still come from WC1.
+flight audio, music, and scripted scenes are not connected yet. Ship parameters
+still come from WC1.
 
 `make modern-swc` builds the asset viewer. It loads the demo's CMF files,
 decodes sprites, reads the resource-fork palette, and displays the cockpit and
@@ -23,6 +25,8 @@ entry point in SDL builds. The CMF reader and mission adapter are linked into
 `src/sdl/swc_demo.c` remains a separate presentation/inspection entry point.
 `src/sdl/swc_flight.c` hosts the experimental flight using the shared core.
 `src/sdl/swc_cockpit.c` presents the Hornet instruments and bitmap text.
+`src/swc/movie.c` reads and decodes the Mac movies; `src/sdl/swc_movie.c`
+supplies SDL2 presentation, queued audio, and the launch sequence.
 The viewer needs only the host C compiler and SDL2. Mission tests also link
 the existing native core and need its normal build dependencies, including LZO.
 Flight uses SDL2 2.0.18 or later for the VDU polygon rendering.
@@ -37,6 +41,12 @@ the directory or start flight directly:
 out-modern/wc1-modern-gui --gui --swc-demo "data/swc-demo/SuperWing DEMO"
 out-modern/wc1-modern --swc-demo "data/swc-demo/SuperWing DEMO"
 ```
+
+With the archive's `Movies/` directory present, the Hornet launch plays first.
+Space, Enter, Esc, or a left click skips the entire sequence on release; P
+pauses it. Losing focus pauses video and audio together. Closing the movie
+window exits without starting flight. Once in flight, Esc resumes its normal
+exit behavior and Space/Enter/mouse buttons resume their weapon bindings.
 
 Flight uses WC1's DOS/Win32 mouse and keyboard controls through SDL2:
 
@@ -154,6 +164,54 @@ are limited to 64 MiB and impossible compression ratios are rejected. Frame
 payloads borrow the decoded set; owned buffers and CMFs have explicit lifetimes.
 The viewer centers extracted ship images for inspection. It does not claim to
 reproduce flight projection, sprite hotspots, scaling, or original draw order.
+
+## Launch movies
+
+The Mac demo stores 38 custom `LMov` files under `Movies/`, with `.dcMov`
+extensions. These are not ordinary QuickTime movies. The new decoder follows
+CODE_12 `LMovieOpen`, `LMovieTask`, and `LMovieDrawFrameMinRect`; the SDL host
+replaces QuickDraw blits, Sound Manager double buffers, and Mac event handling.
+WC1's `scramble` constructs its launch from sprites, so it cannot play these
+files. Shared WC1 flight initialization and gameplay still run after playback.
+
+CODE_03 `scramble` +0x45d0 and its A5-relative strings specify this order:
+`ARMOR`, `HALL`, `LAUNCH01`, `LAUNCH02`, `LAUNCH03`, `LAUNCH04.00`,
+`LAUNCH06.00`, `LAUNCH07.00`, `LAUNCH08.00`. The `.00` suffix selects the
+Hornet. The host checks that all nine files can be opened before playback;
+missing/unreadable movies produce a stderr message and leave the existing
+direct-flight path available. Invalid movie data reports an error. The finite
+`--check` flight path bypasses movies.
+
+| Movie data | Recovered contract |
+| --- | --- |
+| Header | Big endian; `LMov`, version `0x00010000`; 184 fixed bytes followed by 16 bytes per indexed record |
+| Layout | Metadata size at +0x08; record count at +0x0c; integer frame rate at +0x10; audio-present bit at +0x14; height/width at +0x18/+0x1a; initial pixel value at +0x1c |
+| Index | Flags, persisted cache pointer, payload length, absolute file offset; flags 2 = video, 1/0x11 = audio |
+| Palette | Length at +0xac; 2056-byte Mac color table immediately after the index; 256 colors in table order, ignoring `ColorSpec.value` |
+| Audio | Block bytes at +0x9c; 16.16 sample rate at +0xa0; sample bits at +0xa4; valid sample count at +0xa6; audio flags at +0xaa |
+| Demo audio | Unsigned 8-bit mono, flags 2, 11128-byte stored blocks, 22254.545... Hz; the sample count trims the last block and excludes padded audio after it |
+| Frame commands | Upper three bits select end-row, short/long skip, short/long literal, short/long repeat, or no-op |
+| Run lengths | Short: `(command & 31) + 1`; long: `((command & 31) << 8) + nextByte + 1`; skips retain preceding pixels |
+
+The host accepts the demo's 320x240, 256-color layout, checks record and scanline
+bounds, and limits loaded movies to 64 MiB. Every video delta is decoded in
+order even when presentation must catch up. SDL2 displays each movie's own
+palette, queues its embedded PCM, and rounds the original sample rate to an
+integer Hz. Playback falls back to silent video if no audio device is available.
+The video clock and audio device pause together, and the last frame remains
+while longer audio finishes. All movie resources are released on finish, skip,
+error, or window close.
+
+The separate `MIDI/ARMOR.MooV` soundtrack selected by the original launch,
+palette fades, opening/landing/funeral integration, and the scripted briefing
+and conversation scenes remain pending. No external video library is needed
+for this slice.
+
+Validation for this pass consists of original-instruction review, offline
+inspection of all 38 original containers and 3,521 encoded frame streams,
+static source review, and `make modern modern-gui`. This is not a playback
+test: no game, GUI, interactive check, or audio device was run. Playback and
+audio synchronization still need user review.
 
 ## WC1 reuse and original-code evidence
 
@@ -423,6 +481,6 @@ many WC1 names were already derived from this Mac executable's MacsBug strings.
 3. Connect nav-sphere transitions, NPC AI/firing, carrier return, and the
    remaining HUD modes. The demo explicitly disables its simulator, so campaign
    flight is the useful first playable milestone.
-4. Add scenes, AIFF speech/effects, music, and the custom `LMov` movie format.
-   The `.dcMov` files are not ordinary QuickTime movies; renaming them is not
-   a decoder implementation.
+4. Connect opening/landing/funeral movies to game flow; add scripted scenes,
+   AIFF speech/effects, music, and palette transitions. The LMov decoder and
+   Hornet launch playback are now present; other scene entry points are pending.

@@ -46,6 +46,34 @@ typedef struct SwcFrame {
     size_t size;
 } SwcFrame;
 
+typedef struct SwcMovieRecord {
+    uint32_t flags;
+    uint32_t size;
+    uint32_t offset;
+} SwcMovieRecord;
+
+typedef struct SwcMovie {
+    SwcBuffer file;
+    SwcBuffer audio;
+    SwcMovieRecord *records;
+    uint8_t *pixels;
+    SDL_Color colors[256];
+    uint32_t recordCount;
+    uint32_t nextRecord;
+    uint32_t frameCount;
+    uint32_t framesPerSecond;
+    int sampleRate;
+    uint16_t width;
+    uint16_t height;
+} SwcMovie;
+
+enum SwcMovieResult {
+    SWC_MOVIE_ERROR = -1,
+    SWC_MOVIE_FINISHED = 0,
+    SWC_MOVIE_SKIPPED = 1,
+    SWC_MOVIE_QUIT = 2
+};
+
 int SwcCMOpen(const char *path, SwcCmf *cmf);
 void SwcCMClose(SwcCmf *cmf);
 int SwcCMGetChunk(const SwcCmf *cmf, const char type[4], uint32_t id,
@@ -56,6 +84,13 @@ int SwcGetFrameCount(const SwcBuffer *set, uint32_t *count);
 int SwcGetFramePtr(const SwcBuffer *set, uint32_t index, SwcFrame *frame);
 int SwcDecodeFrame(const SwcFrame *frame, uint8_t *pixels, size_t capacity);
 int SwcReadPalette(const char *resourceFork, int16_t id, SDL_Color colors[256]);
+
+int SwcMovieOpen(const char *path, SwcMovie *movie);
+void SwcMovieClose(SwcMovie *movie);
+/* Advances the retained indexed image: 1 = frame, 0 = end, -1 = error. */
+int SwcMovieNextFrame(SwcMovie *movie);
+/* Hornet launch for the Enyo 1 host; returns a SwcMovieResult. */
+int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer);
 
 /* SDL presentation of the Mac demo's cockpit resources. */
 SDL_Texture *SdlCreateSwcTexture(SDL_Renderer *renderer, const SwcBuffer *set,
