@@ -399,6 +399,7 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/video_state.c
 MODERN_GAME_HOST_SRCS = \
 	src/sdl/swc_flight.c \
+	src/sdl/swc_cockpit.c \
 	src/swc/shape.c \
 	src/swc/rsrc.c \
 	src/sdl/audio.c \

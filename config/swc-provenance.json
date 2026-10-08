@@ -24,9 +24,17 @@
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_05.bin",
       "sha256": "e72593f434716572fdd50d05a69fa45d96e1e57996eaab47c34dd8f8c6e04388"
     },
+    "CODE_06.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_06.bin",
+      "sha256": "28a54352640bfe5e6e7e9da02d718dc2708e3abfb621e79fbb120b8e2164013c"
+    },
     "CODE_09.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_09.bin",
       "sha256": "16f6706d468467a326fe7533ac662ddd57020975770746b3325b15d2bf323f97"
+    },
+    "CODE_13.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_13.bin",
+      "sha256": "8d97784594aa3467589db52c6ea5a9948c8f466cdea90339c90b4aef4dc4beba"
     },
     "CODE_14.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_14.bin",
@@ -85,6 +93,46 @@
       "symbol": "SdlLoadSwcMissionData",
       "relationship": "format-adapter-to-wc1-state",
       "differences": "Decode big-endian records into existing WC1 mission structures, validate narrower fields and references, then publish atomically. The original copies Mac records directly."
+    },
+    {
+      "original_name": "MacDraw2",
+      "resource": "CODE_01.bin",
+      "entry_offset": "0x0ef4",
+      "end_offset": "0x10a2",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SwcDrawInstrument",
+      "relationship": "placement-evidence-only",
+      "differences": "Adds signed frame x/y offsets to the draw origin. SDL cached textures and renderer clipping replace the Mac drawing pipeline; this does not reconstruct the whole original routine."
+    },
+    {
+      "original_name": "update_bars",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x0520",
+      "end_offset": "0x0652",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlDrawSwcCockpit",
+      "relationship": "host-adaptation",
+      "differences": "Uses the Hornet's original frame-selection formulas and maxima with shared WC1 fuel, throttle and energy state. Ship definitions remain WC1; explicit capacity guards, frame bounds and a wider fuel-product intermediate replace unchecked arithmetic."
+    },
+    {
+      "original_name": "show_weapon_disp",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x0e54",
+      "end_offset": "0x101a",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlDrawSwcCockpit",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Presents the hull, armor flash and shield-presence sprites from WC1 state. Component-damage text cycling and the malfunction/dead-display branches remain unimplemented."
+    },
+    {
+      "original_name": "draw_3d_scanner",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x285a",
+      "end_offset": "0x2bbc",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SwcDrawCockpitScanner",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Reuses WC1 classification, transforms, scanner mapping and objective range. Uses SWC's 30,000-unit cutoff, contact-frame mapping, selected-contact blink, nav marker and grid draw order. The nav marker is always enabled for a valid objective. Hostile direction arrows and target selection controls remain unimplemented."
     }
   ],
   "shared_wc1_evidence": [
@@ -103,7 +151,11 @@
     {"name": "fire_afterburner", "resource": "CODE_05.bin", "entry_offset": "0x3a38", "source": "src/logic.c", "wc1_address": "0x00421350", "qualification": "Same maximum-velocity*0x500 eligibility check and maneuver/timer update."},
     {"name": "accelerate_and_move_object", "resource": "CODE_02.bin", "entry_offset": "0x439e", "source": "src/spc.c", "wc1_address": "0x004129a0", "qualification": "Shared target-velocity, acceleration and boost/brake calculations. SWC scales the final displacement with a seven-entry elapsed-tick table; the host retains WC1's fixed-step movement. SWC also omits WC1's random kill-engines recovery."},
     {"name": "max_acceleration", "resource": "CODE_04.bin", "entry_offset": "0x1a10", "source": "src/geom.c", "symbol": "GetShipAccelerationRate", "wc1_address": "0x004182f0", "qualification": "SWC also grants the one-third acceleration bonus to ratings 1..7. An SDL-only condition enables that difference during SWC flight."},
-    {"name": "drain_fuel", "resource": "CODE_04.bin", "entry_offset": "0x1944", "source": "src/geom.c", "wc1_address": "0x00418280", "qualification": "SWC recalculates maximum speed when remaining fuel is <=0. An SDL-only condition enables that behavior during SWC flight, preserving WC1's retail array-address comparison otherwise."}
+    {"name": "drain_fuel", "resource": "CODE_04.bin", "entry_offset": "0x1944", "source": "src/geom.c", "wc1_address": "0x00418280", "qualification": "SWC recalculates maximum speed when remaining fuel is <=0. An SDL-only condition enables that behavior during SWC flight, preserving WC1's retail array-address comparison otherwise."},
+    {"name": "update_digital_readouts", "resource": "CODE_13.bin", "entry_offset": "0x0660", "source": "src/cockpt.c", "wc1_address": "0x00414a50", "qualification": "Shares the actual and commanded speed calculations. DrawCockpitReadout routes only the speed slots to the SWC SDL text adapter, which applies original positions and four-digit zero padding. Other SWC text layers are not implementations of the full original routine."},
+    {"name": "rotational_pos_to_scanner_pos", "resource": "CODE_13.bin", "entry_offset": "0x253c", "source": "src/cockpt.c", "wc1_address": "0x004158f0", "qualification": "Same yaw threshold/divisors and pitch divisor. SDL-only selection supplies Hornet bounds and the SWC +1 X adjustment before clamping (CODE_13 +0x25cc). WC1's reference branch is preserved."},
+    {"name": "set_objective_range", "resource": "CODE_13.bin", "entry_offset": "0x271c", "source": "src/cockpt.c", "wc1_address": "0x00415b70", "qualification": "Shares mobile-objective update, player-relative transform, spherical conversion, optional scanner placement and distance shifted by eight."},
+    {"name": "get_color", "resource": "CODE_13.bin", "entry_offset": "0x27ac", "source": "src/cockpt.c", "wc1_address": "0x00415c00", "qualification": "Same contact class/side/target classification. The SDL adapter maps WC1 color values to SWC CKPT/31 sprite indices: hostile fighter 11, Imperial fighter 9, other fighter/Tiger's Claw 3, hostile capital 5, other capital 1, player-targeting missile 7."}
   ],
   "wc1_control_reuse": {
     "source": "src/sdl/swc_flight.c",
@@ -121,6 +173,45 @@
     {"resource": "CODE_09.bin", "entry_offset": "0x2fac", "name": "CMReformatTOC"},
     {"resource": "CODE_09.bin", "entry_offset": "0x32a6", "name": "CMFindChunkEntryPtr"}
   ],
-  "host_only_sources": ["src/swc/rsrc.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c"],
+  "cockpit_ui": {
+    "source": "src/sdl/swc_cockpit.c",
+    "scope": "Enyo 1 Hornet instruments only; capacities remain WC1. Remaining VDU modes, malfunction effects, warning lamps, pilot animation, original reticle placement and cockpitless HUD are pending.",
+    "data_resource": {
+      "resource_fork_path_from_repo_root": "../releases/mac/extracted/SuperWingCommanderDemo.rsrc",
+      "type": "DATA",
+      "id": 0,
+      "sha256": "078ce20287e48117e6bee31236b01e9f28a1449031336b8e26d8d7a96549bb0f",
+      "offset_convention": "Expanded A5-relative global-data offsets, not compressed resource offsets. Recovered offline using the original CODE_01 startup decoder, including its byte-command loop at +0x015e..+0x0230.",
+      "hornet_tables": [
+        {"offset": "0x0300", "encoding": "BE32[6]", "meaning": "scanner center X/Y, minimum X/Y, maximum X/Y", "values": [159, 171, 148, 160, 169, 181]},
+        {"offset": "0x0390", "encoding": "BE32[3]", "meaning": "scanner grid origin X/Y and frame", "values": [139, 151, 0]},
+        {"offset": "0x0420", "encoding": "byte", "meaning": "maximum energy frame", "value": 10},
+        {"offset": "0x0666", "encoding": "BE32[2]", "meaning": "actual-speed text origin", "values": [96, 32]},
+        {"offset": "0x0696", "encoding": "BE32[2]", "meaning": "command-speed text origin", "values": [205, 32]},
+        {"offset": "0x06f6", "encoding": "BE32[2]", "meaning": "destination/range text origin", "values": [200, 94]},
+        {"offset": "0x0786", "encoding": "byte", "meaning": "maximum throttle frame", "value": 13},
+        {"offset": "0x078c", "encoding": "byte", "meaning": "maximum fuel frame", "value": 13},
+        {"offset": "0x433e", "encoding": "BE32 triples", "meaning": "cockpit resource list; selected chunks PC00/10, 15, 16, 17, 18"},
+        {"offset": "0x43e6", "encoding": "BE32 triples", "meaning": "shared cockpit resource list; contact sprites CKPT/31"}
+      ]
+    },
+    "text_evidence": [
+      {"resource": "CODE_06.bin", "entry_offset": "0x1d9a", "name": "AllocTextLayer", "qualification": "Defaults the font ID to 21 (Helvetica), not Monaco (4)."},
+      {"resource": "CODE_14.bin", "entry_offset": "0x1fec", "name": "init_text", "qualification": "Cockpit readout layers pass font size 9."},
+      {"resource": "CODE_06.bin", "entry_offset": "0x1ef4", "name": "tprintf", "qualification": "QuickDraw rendering; newline at +0x2214 advances by font size plus two. The SDL adapter is not a reconstruction of this text formatter."}
+    ],
+    "substitute_font": {
+      "source": "third_party/anonymouspro/AnonymousPro-Regular.ttf",
+      "source_url": "https://raw.githubusercontent.com/google/fonts/main/ofl/anonymouspro/AnonymousPro-Regular.ttf",
+      "sha256": "46d8b9a5f4b38fc9d30f3cdd676d4c6f78a9bef949bb1a8304216cc731eb87f8",
+      "derived_name": "SWC HUD Bitmap",
+      "generated_header": "src/sdl/swc_hud_font.h",
+      "generator": "bin/buildSwcHudFont.py",
+      "license": "SIL OFL 1.1; third_party/anonymouspro/OFL.txt; copied into release archives",
+      "qualification": "Provisional nine-pixel monochrome ASCII substitute, five-pixel advance. No claim of original SWC typography or Monaco metric compatibility. Compiled bitmap requires neither SDL2_ttf nor a runtime TTF."
+    },
+    "validation": "Original-instruction, expanded-resource and offline glyph inspection; static source review; native and GUI compilation only. No game, GUI or interactive checks executed for this pass."
+  },
+  "host_only_sources": ["src/swc/rsrc.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c", "src/sdl/swc_cockpit.c"],
   "palette_resource_fork_sha256": "24b707f9e024d86bf8ce996e2bc45521f36f75582b7e7410bef6467c49cb7c2b"
 }

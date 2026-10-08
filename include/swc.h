@@ -57,4 +57,12 @@ int SwcGetFramePtr(const SwcBuffer *set, uint32_t index, SwcFrame *frame);
 int SwcDecodeFrame(const SwcFrame *frame, uint8_t *pixels, size_t capacity);
 int SwcReadPalette(const char *resourceFork, int16_t id, SDL_Color colors[256]);
 
+/* SDL presentation of the Mac demo's cockpit resources. */
+SDL_Texture *SdlCreateSwcTexture(SDL_Renderer *renderer, const SwcBuffer *set,
+                                 uint32_t index, const SDL_Color colors[256]);
+int SdlInitSwcCockpit(SDL_Renderer *renderer, const SwcCmf *cockpit,
+                       const SwcCmf *space, const SDL_Color colors[256]);
+int SdlDrawSwcCockpit(void);
+void SdlFreeSwcCockpit(void);
+
 #endif

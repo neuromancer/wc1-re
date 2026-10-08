@@ -461,6 +461,12 @@ void DrawCockpitReadout(signed char slot, const char *text)
 {
     CockpitReadout *readout;
 
+#ifdef SDL_PORT
+    if (SdlSwcFlightActive()) {
+        SdlDrawSwcCockpitReadout(slot, text);
+        return;
+    }
+#endif
     readout = &aCockpitReadouts[(int)slot];
     if (readout->x != -99) {
         SetTextContext(readout->context);
@@ -1486,18 +1492,42 @@ void rotational_pos_to_scanner_pos(signed char object,
                                    const SphericalVector *position)
 {
     short horizontal;
+#ifdef SDL_PORT
+    const CockpitScannerGeometry *scanner;
+
+    scanner = SdlSwcFlightActive() ? &stSwcCockpitScanner :
+        &stCockpitLayout.scanner[(int)cCockpitView];
+#endif
 
     horizontal = position->yaw;
     if (abs((int)horizontal) < 45)
         nScannerCursorX = (short)(
+#ifdef SDL_PORT
+            scanner->centerX + horizontal / 4);
+#else
             stCockpitLayout.scanner[
                 (int)cCockpitView].centerX + horizontal / 4);
+#endif
     else
         nScannerCursorX = (short)(
+#ifdef SDL_PORT
+            scanner->centerX + horizontal / 6);
+#else
             stCockpitLayout.scanner[
                 (int)cCockpitView].centerX + horizontal / 6);
+#endif
 
     nScannerCursorY = (short)(
+#ifdef SDL_PORT
+        scanner->centerY + position->pitch / -3);
+    /* CODE_13 +0x25cc adds one to X before applying the Mac limits. */
+    if (SdlSwcFlightActive())
+        nScannerCursorX++;
+    nScannerCursorX = MinShort(scanner->maximumX, nScannerCursorX);
+    nScannerCursorX = MaxShort(scanner->minimumX, nScannerCursorX);
+    nScannerCursorY = MinShort(scanner->maximumY, nScannerCursorY);
+    nScannerCursorY = MaxShort(scanner->minimumY, nScannerCursorY);
+#else
         stCockpitLayout.scanner[
             (int)cCockpitView].centerY + position->pitch / -3);
     nScannerCursorX =
@@ -1516,6 +1546,7 @@ void rotational_pos_to_scanner_pos(signed char object,
         MaxShort(stCockpitLayout.scanner[
                      (int)cCockpitView].minimumY,
                  nScannerCursorY);
+#endif
     asScannerObjectX[(int)object] =
         nScannerCursorX;
     asScannerObjectY[(int)object] =

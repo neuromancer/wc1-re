@@ -240,6 +240,9 @@ int SdlFindSwcMissionData(char *path, unsigned long capacity);
 int SdlLoadSwcMissionData(const char *path, short series, short mission);
 int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless);
 int SdlSwcFlightActive(void);
+void SdlDrawSwcCockpitReadout(signed char slot, const char *text);
+struct CockpitScannerGeometry;
+extern const struct CockpitScannerGeometry stSwcCockpitScanner;
 void SdlPlayDosStartupIntro(void);
 int SdlDecompressOriginLzw(const unsigned char *source,
                               size_t sourceSize,

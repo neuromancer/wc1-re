@@ -21,9 +21,9 @@ int SdlSwcFlightActive(void)
     return swcFlightActive;
 }
 
-static SDL_Texture *SwcCreateFlightImage(SDL_Renderer *renderer,
-                                         const SwcBuffer *set, uint32_t index,
-                                         const SDL_Color colors[256])
+SDL_Texture *SdlCreateSwcTexture(SDL_Renderer *renderer,
+                                  const SwcBuffer *set, uint32_t index,
+                                  const SDL_Color colors[256])
 {
     SwcFrame frame;
     SDL_Surface *surface;
@@ -94,7 +94,7 @@ static int SwcLoadFlightImages(SDL_Renderer *renderer, const SwcCmf *cockpit,
         goto done;
     }
     for (index = 0; index < count; index++) {
-        images->views[index] = SwcCreateFlightImage(renderer, &set, index, colors);
+        images->views[index] = SdlCreateSwcTexture(renderer, &set, index, colors);
         if (images->views[index] == NULL)
             goto done;
     }
@@ -319,8 +319,12 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
         rectangle.w = rectangle.h = 9;
         SDL_RenderDrawRect(renderer, &rectangle);
     }
-    if (!cockpitless && SDL_RenderCopy(renderer, cockpit, NULL, NULL) != 0)
-        return -1;
+    if (!cockpitless) {
+        if (SDL_RenderCopy(renderer, cockpit, NULL, NULL) != 0 ||
+            SdlDrawSwcCockpit() != 0)
+            return -1;
+    }
+    SDL_SetRenderDrawColor(renderer, 70, 230, 130, 255);
     SDL_RenderDrawLine(renderer, 155, centreY, 158, centreY);
     SDL_RenderDrawLine(renderer, 162, centreY, 165, centreY);
     SDL_RenderDrawLine(renderer, 160, centreY - 5, 160, centreY - 2);
@@ -421,8 +425,10 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
         goto done;
     if (SwcCMGetChunk(&cockpitCmf, "PC00", 1, &cockpitSet) != 0)
         goto done;
-    cockpit = SwcCreateFlightImage(renderer, &cockpitSet, 0, colors);
+    cockpit = SdlCreateSwcTexture(renderer, &cockpitSet, 0, colors);
     if (cockpit == NULL)
+        goto done;
+    if (SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf, colors) != 0)
         goto done;
     swcFlightActive = 1;
     srand(1);
@@ -567,7 +573,8 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
                      "SWC Enyo 1%s | %s | speed %ld (set %d)%s | mouse/arrows: steer RMB: roll/throttle +/-: speed Tab: boost N: nav M: map C: cockpit P: pause Esc: exit",
                      paused || !focused ? " (paused)" : "",
                      aMissionObjectives[(int)cCurrentObjective].name,
-                     Vector_magnitude(&aShipVelocity[0]) / 256, anShipSpeed[0] / 256,
+                     MultiplyFixed(Vector_magnitude(&aShipVelocity[0]), 0xa00) >> 8,
+                     (anShipSpeed[0] >> 8) * 10,
                      aeSpecialManeuver[0] == SPECIAL_MANEUVER_AFTERBURNER ? " afterburner" : "");
         SDL_SetWindowTitle(window, title);
         if (checkOnly && ticks == 120) {
@@ -603,6 +610,7 @@ done:
         for (view = 0; view < 37; view++)
             SDL_DestroyTexture(images[object].views[view]);
     }
+    SdlFreeSwcCockpit();
     SDL_DestroyTexture(cockpit);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

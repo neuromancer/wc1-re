@@ -4,7 +4,9 @@ The GUI recognizes the SWC Mac demo and starts an experimental Enyo 1 flight
 with five ships, four objectives, and the original 320x240 cockpit and sprites.
 SDL2 handles input and presentation; WC1 supplies mission state, ship setup,
 flight dynamics, movement, projection, ship-view selection, and navigation.
-Combat, enemy AI, nav-sphere transitions, mission completion, the full HUD,
+The Hornet cockpit now has speed and navigation readouts, fuel/throttle/energy
+gauges, a shield/armor display, and radar contacts using the original art.
+Combat, enemy AI, nav-sphere transitions, mission completion, the remaining HUD,
 audio, and movies are not connected yet. Ship parameters still come from WC1.
 
 `make modern-swc` builds the asset viewer. It loads the demo's CMF files,
@@ -18,6 +20,7 @@ entry point in SDL builds. The CMF reader and mission adapter are linked into
 `wc1-modern`; the original Win32 reference build does not include them.
 `src/sdl/swc_demo.c` remains a separate presentation/inspection entry point.
 `src/sdl/swc_flight.c` hosts the experimental flight using the shared core.
+`src/sdl/swc_cockpit.c` presents the Hornet instruments and bitmap text.
 The viewer needs only the host C compiler and SDL2. Mission tests also link
 the existing native core and need its normal build dependencies, including LZO.
 
@@ -234,6 +237,61 @@ movement algorithms, with these qualifications:
 The movement and mouse-control updates were compiled with `make modern modern-gui`
 and reviewed statically. No game, GUI, or interactive check was run for those updates.
 
+### Hornet cockpit
+
+The first cockpit pass presents shared WC1 state through the Mac demo's artwork.
+WC1's `update_digital_readouts` supplies actual and commanded speed; the SDL
+readout adapter applies SWC's four-digit zero padding and original positions.
+`get_color` classifies contacts, `rotational_pos_to_scanner_pos` supplies the
+radar math, and `set_objective_range` / `objective_name` supply navigation data.
+The shared scanner routine selects the Hornet geometry and SWC's extra one-pixel
+X offset only during SWC flight. The Win32 reference branches are preserved.
+
+| Instrument | Original evidence | Current presentation |
+| --- | --- | --- |
+| Actual / commanded speed | CODE_13 `update_digital_readouts` +0x0660; expanded DATA/0 +0x666 / +0x696 | Baselines (96, 32) / (205, 32), using the shared WC1 speed calculations |
+| Weapon energy / fuel / throttle | CODE_13 `update_bars` +0x0520; DATA/0 +0x420 / +0x78c / +0x786 | PC00 chunks 15 / 16 / 17; Hornet frame maxima 10 / 13 / 13 |
+| Hull, armor and shields | CODE_13 `show_weapon_disp` +0x0e54 | PC00/10: hull, armor flashing below half strength, fore/aft shield presence |
+| Radar | CODE_13 `draw_3d_scanner` +0x285a; DATA/0 +0x300 / +0x390 | CKPT/31 contact sprites, 30,000-unit cutoff, nav marker, then PC00/18 grid at (139, 151) |
+| Destination / range | CODE_13 `update_digital_readouts`; DATA/0 +0x6f6 | Baseline (200, 94), 11-pixel line spacing, `FAR` at 32,000 or above |
+
+The layout constants come from DATA/0 expanded using the original CODE_01
+startup decoder. Offsets above refer to the expanded A5-relative data, not
+compressed resource-file offsets. Resource lists at +0x433e and +0x43e6 identify
+the shape sets. The SDL cache verifies their frame counts and places each frame
+using its signed x/y offsets, following CODE_01 `MacDraw2` +0x0ef4. Radar contacts
+are transformed from their current world positions, as in SWC; this avoids the
+scene projection cache omitting objects close to the player.
+
+This pass supports the Enyo 1 Hornet cockpit. Ship capacities still use WC1
+definitions. Weapon/target VDU modes, component-damage text, malfunction effects,
+warning lamps, hostile direction arrows, pilot animation, and the original
+reticle placement remain unfinished. Combat is not connected, so shield/armor
+and weapon-energy displays currently reflect their initialized state. The
+cockpit toggle hides all these instruments; a separate cockpitless HUD is pending.
+
+#### Text font
+
+The inspected Mac cockpit layers request QuickDraw font ID 21 (Helvetica) at
+size 9: CODE_06 `AllocTextLayer` +0x1d9a and CODE_14 `init_text` +0x1fec.
+CODE_06 `tprintf` +0x1ef4 draws QuickDraw text, advancing a newline by font size
+plus two pixels. SDL2 has no built-in font. The current substitute is a
+monochrome, nine-pixel ASCII atlas derived from Anonymous Pro Regular, with a
+five-pixel character advance. This is a provisional display substitute and does
+not claim identical Monaco metrics or original SWC typography.
+
+The generated **SWC HUD Bitmap** is compiled into the executable, so normal
+builds and installations need neither SDL2_ttf nor a system font. The original
+TTF, source hash and SIL Open Font License are in
+[`third_party/anonymouspro`](../third_party/anonymouspro/README.md). The optional
+[`bin/buildSwcHudFont.py`](../bin/buildSwcHudFont.py) generator uses Pillow and
+records its rasterizer versions in the output. Release archives include the
+font license. Bytes outside printable ASCII currently display as `?`.
+
+Cockpit validation consists of original-instruction and resource inspection,
+static source review, and `make modern modern-gui`. No game, GUI, or interactive
+check was run for this pass; its appearance still needs user review in flight.
+
 SWC binary similarity measurement is no longer part of this work: the original
 Mac compiler/toolchain is unavailable. Validation uses original instructions,
 actual data, and functional tests. WC1's reference-build verification remains
@@ -262,11 +320,12 @@ many WC1 names were already derived from this Mac executable's MacsBug strings.
    copies into WC1 structures would corrupt state. The current adapter rejects
    object IDs outside WC1's table; Enyo 1 currently uses WC1 object definitions.
    Review original instructions before sharing behavior that differs in SWC.
-2. Refine sprite hotspots, SWC projection, scaling, and the 320x240 HUD. The
-   current SDL renderer centers sprites selected and projected by WC1.
+2. Refine ship-sprite hotspots, SWC projection, scaling, and the remaining
+   320x240 HUD. Instrument sprites use their original offsets; the current
+   SDL renderer still centers ship sprites selected and projected by WC1.
 3. Connect nav-sphere transitions, NPC AI, combat, carrier return, and the
-   HUD. The demo explicitly disables its simulator, so campaign flight is the
-   useful first playable milestone.
+   remaining HUD modes. The demo explicitly disables its simulator, so campaign
+   flight is the useful first playable milestone.
 4. Add scenes, AIFF speech/effects, music, and the custom `LMov` movie format.
    The `.dcMov` files are not ordinary QuickTime movies; renaming them is not
    a decoder implementation.
