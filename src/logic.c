@@ -397,7 +397,12 @@ void accelerate(short amount)
         if (nSpaceFrame % 3 == 0)
             PlaySfxWaveFileByNumber(3, -1, 0);
     }
+#ifdef SDL_PORT
+    /* Negative throttle steps are valid; shifting them is undefined in C. */
+    celerate(0, (int)amount * 256);
+#else
     celerate(0, (int)amount << 8);
+#endif
 }
 
 /* Function start: 0x421920 */

@@ -717,7 +717,12 @@ unsigned int players_flight_dynamics(void)
 /* Function start: 0x4285D0 */
 unsigned int player_input(void)
 {
+#ifdef SDL_PORT
+    /* Motion/empty polls do not populate every field of the legacy event. */
+    InputEventState event = {0};
+#else
     InputEventState event;
+#endif
     short modifiers;
     short eventType;
     short queuedKeyEvent;

@@ -230,6 +230,11 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
     int volume;
     int pan;
 
+    /* SWC has no sound bank/device yet. Shared flight controls must not try
+       to open Kilrathi Saga WAV files in the Mac demo installation. */
+    if (SdlSwcFlightActive())
+        return 0;
+
     magnitude = 0;
     pan = SDL_SOUND_CENTRE_PAN;
     if (sourceObject != -1) {

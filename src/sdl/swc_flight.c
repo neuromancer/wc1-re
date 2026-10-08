@@ -12,6 +12,9 @@ typedef struct SwcFlightImages {
 } SwcFlightImages;
 
 static int swcFlightActive;
+static int swcMouseAfterburner;
+static int swcRightClickPending;
+static Uint32 swcLastRightClick;
 
 int SdlSwcFlightActive(void)
 {
@@ -155,15 +158,89 @@ static int SwcStartMissionShips(void)
     return count;
 }
 
+static void SwcResetFlightInput(void)
+{
+    bCurrentKey = 0;
+    cPreviousKey = 0;
+    nPitchInput = 0;
+    nYawInput = 0;
+    nRollInput = 0;
+    bFlightRollLatch = 0;
+    bMouseCursorVisible = 0;
+    bMouseAfterburnerControl = 0;
+    nMouseYawInput = 0;
+    nMousePitchInput = 0;
+    swcMouseAfterburner = 0;
+    swcRightClickPending = 0;
+}
+
+static void SwcCentreFlightMouse(void)
+{
+    SwcResetFlightInput();
+    nHostMouseMessageX = (stSpaceBuffer.left + stSpaceBuffer.right) / 2;
+    nHostMouseMessageY = (stSpaceBuffer.top + stSpaceBuffer.bottom) / 2;
+    WarpMouseTo((short)nHostMouseMessageX, (short)nHostMouseMessageY);
+    bMouseCursorVisible = 1;
+}
+
 static void SwcFlightTick(const Uint8 *keys, int shipCount)
 {
     short object;
+    short throttle;
+    int secondaryButton;
 
-    nPitchInput = (short)((keys[SDL_SCANCODE_UP] - keys[SDL_SCANCODE_DOWN]) * 8);
-    nYawInput = (short)((keys[SDL_SCANCODE_RIGHT] - keys[SDL_SCANCODE_LEFT]) * 8);
-    nRollInput = (short)((keys[SDL_SCANCODE_E] - keys[SDL_SCANCODE_Q]) * 8);
-    celerate(0, (keys[SDL_SCANCODE_EQUALS] + keys[SDL_SCANCODE_KP_PLUS] -
-                 keys[SDL_SCANCODE_MINUS] - keys[SDL_SCANCODE_KP_MINUS]) * 256);
+    /* Retain WC1's key priority, diagonal keys, ramp and direction reversal.
+       Its Win32 key polling is supplied by the same SDL sample for the whole
+       tick, including modifiers and the existing deterministic check path. */
+    SdlSetKeyboardSnapshot(keys);
+    cPreviousKey = (signed char)bCurrentKey;
+    bCurrentKey = (unsigned char)PollKeyboardState();
+    if (bCurrentKey == 0 && bMouseCursorVisible) {
+        /* Feed the original mouse branch in player_input. A held position is
+           sampled each tick, so right-button throttle is independent of SDL
+           motion-event frequency. Button actions that fire weapons stay out
+           of the queue; the right button is only a motion modifier here. */
+        secondaryButton = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_RMASK) != 0;
+        QueueInputEvent(13, (unsigned short)nHostMouseMessageX,
+                        (unsigned short)nHostMouseMessageY, 0, 0, secondaryButton, 0);
+        player_input();
+        /* WC1 recentres the pointer when right-button roll/throttle ends. */
+        nHostMouseMessageX = stMouseCursorState.x;
+        nHostMouseMessageY = stMouseCursorState.y;
+    } else {
+        /* Keyboard steering takes over until the next mouse movement.
+           Release each keyboard axis independently, even if another is held. */
+        if (!(nUpArrowKeyState || nDownArrowKeyState || nHomeKeyState ||
+              nPageUpKeyState || nEndKeyState || nPageDownKeyState))
+            nPitchInput = 0;
+        if (!(nLeftArrowKeyState || nRightArrowKeyState || nHomeKeyState ||
+              nPageUpKeyState || nEndKeyState || nPageDownKeyState))
+            nYawInput = 0;
+        if (!(nInsertKeyState || nDeleteKeyState ||
+              nOemCommaKeyState || nOemPeriodKeyState))
+            nRollInput = 0;
+        if (bCurrentKey == 0x4c) {
+            SwcCentreFlightMouse();
+        } else if (bCurrentKey != 0) {
+            bMouseAfterburnerControl = 0;
+            process_player_input();
+        } else {
+            bFlightRollLatch = 0;
+        }
+    }
+    SdlSetKeyboardSnapshot(NULL);
+
+    /* Movement commands from WC1's HandleSpaceFlightControls. Poll held keys
+       separately so thrust can change while steering, without host key repeat. */
+    throttle = (short)((keys[SDL_SCANCODE_EQUALS] || keys[SDL_SCANCODE_KP_PLUS]) -
+                       (keys[SDL_SCANCODE_MINUS] || keys[SDL_SCANCODE_KP_MINUS]));
+    if (keys[SDL_SCANCODE_BACKSPACE])
+        anShipSpeed[0] = 0;
+    else if (throttle != 0)
+        accelerate(throttle);
+    if (keys[SDL_SCANCODE_TAB] || keys[SDL_SCANCODE_KP_MULTIPLY] ||
+        (swcMouseAfterburner && (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_RMASK)))
+        your_afterburner();
     players_flight_dynamics();
     for (object = 0; object < shipCount; object++) {
         rotate_object(object);
@@ -288,11 +365,16 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     SDL_Texture *cockpit = NULL;
+    Viewport savedSpaceBuffer = stSpaceBuffer;
+    Viewport *savedMouseViewport = stMouseCursorState.viewport;
+    void (*savedInputPump)(void) = pEventManagerPump;
+    int savedCockpitlessView = bCockpitlessView;
     SDL_Event event;
     FixedVector start;
     Uint8 checkKeys[SDL_NUM_SCANCODES] = {0};
     Uint32 previous;
     Uint32 current;
+    Uint32 tickInterval;
     Uint32 elapsed = 0;
     char path[PATH_MAX];
     char title[256];
@@ -302,6 +384,8 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     int view;
     int ticks = 0;
     int showMap = 0;
+    int paused = 0;
+    int focused = 1;
     int done = 0;
     int result = -1;
 
@@ -345,6 +429,19 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     shipCount = SwcStartMissionShips();
     if (shipCount < 0)
         goto done;
+    SwcResetFlightInput();
+    FlushInputEvents();
+    SetEventManagerPump(NULL);
+    stMouseCursorState.viewport = &stSpaceBuffer;
+    /* SWC's view is centred in this rectangle in either cockpit mode. The
+       WC1 cockpitless camera offsets do not apply to the 320x240 SDL view. */
+    bCockpitlessView = 0;
+    SetViewportRect(&stSpaceBuffer, 0, 0, 319, cockpitless ? 239 : 159);
+    bHostPrimaryMouseButton = 0;
+    bHostSecondaryMouseButton = 0;
+    nSpaceFrame = 0;
+    SetSpaceFlightFrameTiming();
+    tickInterval = (Uint32)nFrameIntervalMs;
     for (object = 1; object < shipCount; object++) {
         if (SwcLoadFlightImages(renderer, &cockpitCmf, &spaceCmf, colors,
                                 aeObjectType[object], &images[aeObjectType[object]]) != 0)
@@ -355,11 +452,63 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     if (!checkOnly) {
         SDL_ShowWindow(window);
         SDL_RaiseWindow(window);
+        SDL_SetWindowMouseGrab(window, SDL_TRUE);
+        SwcCentreFlightMouse();
     }
     while (!done) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 done = 1;
+            if (event.type == SDL_WINDOWEVENT) {
+                if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+                    focused = 0;
+                    elapsed = 0;
+                    SwcResetFlightInput();
+                    SDL_SetWindowMouseGrab(window, SDL_FALSE);
+                } else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+                    focused = 1;
+                    previous = SDL_GetTicks();
+                    if (!checkOnly && !paused) {
+                        SDL_SetWindowMouseGrab(window, SDL_TRUE);
+                        SwcCentreFlightMouse();
+                    }
+                } else if ((event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
+                            event.window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED) &&
+                           !checkOnly && focused && !paused) {
+                    SDL_SetWindowMouseGrab(window, SDL_FALSE);
+                    SDL_SetWindowMouseGrab(window, SDL_TRUE);
+                }
+            }
+            if (!checkOnly && focused && !paused) {
+                /* SDL_RenderSetLogicalSize already converts these positions
+                   to 320x240, including window scaling and letterboxing. */
+                if (event.type == SDL_MOUSEMOTION) {
+                    nHostMouseMessageX = SDL_clamp(event.motion.x,
+                                                   stSpaceBuffer.left, stSpaceBuffer.right);
+                    nHostMouseMessageY = SDL_clamp(event.motion.y,
+                                                   stSpaceBuffer.top, stSpaceBuffer.bottom);
+                    bMouseCursorVisible = 1;
+                } else if ((event.type == SDL_MOUSEBUTTONDOWN ||
+                            event.type == SDL_MOUSEBUTTONUP) &&
+                           event.button.button == SDL_BUTTON_RIGHT) {
+                    nHostMouseMessageX = SDL_clamp(event.button.x,
+                                                   stSpaceBuffer.left, stSpaceBuffer.right);
+                    nHostMouseMessageY = SDL_clamp(event.button.y,
+                                                   stSpaceBuffer.top, stSpaceBuffer.bottom);
+                    if (event.type == SDL_MOUSEBUTTONDOWN) {
+                        /* WC1 uses a timing-only window of 20 ticks at 60 Hz.
+                           Recentring after the first click must not cancel it. */
+                        swcMouseAfterburner = swcRightClickPending &&
+                            (Uint32)(event.button.timestamp - swcLastRightClick) <=
+                                20 * 1000 / 60;
+                        swcLastRightClick = event.button.timestamp;
+                        swcRightClickPending = 1;
+                    } else {
+                        swcMouseAfterburner = 0;
+                    }
+                    bMouseCursorVisible = 1;
+                }
+            }
             if (event.type == SDL_KEYDOWN && !event.key.repeat) {
                 switch (event.key.keysym.sym) {
                 case SDLK_ESCAPE:
@@ -370,35 +519,56 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
                     break;
                 case SDLK_c:
                     cockpitless = !cockpitless;
+                    SetViewportRect(&stSpaceBuffer, 0, 0, 319, cockpitless ? 239 : 159);
+                    if (!checkOnly && focused && !paused)
+                        SwcCentreFlightMouse();
                     break;
                 case SDLK_m:
                     showMap = !showMap;
+                    break;
+                case SDLK_p:
+                    paused = !paused;
+                    elapsed = 0;
+                    previous = SDL_GetTicks();
+                    SwcResetFlightInput();
+                    SDL_SetWindowMouseGrab(window, !checkOnly && focused && !paused
+                                                   ? SDL_TRUE : SDL_FALSE);
+                    if (!checkOnly && focused && !paused)
+                        SwcCentreFlightMouse();
                     break;
                 default:
                     break;
                 }
             }
         }
+        if (done)
+            break;
         current = SDL_GetTicks();
-        elapsed += SDL_min(current - previous, 250);
+        if (focused && !paused)
+            elapsed += SDL_min(current - previous, 250);
+        else
+            elapsed = 0;
         previous = current;
         if (checkOnly) {
             /* Deterministic exercise of the same input/dynamics/render path. */
             checkKeys[SDL_SCANCODE_RIGHT] = ticks < 100;
             checkKeys[SDL_SCANCODE_EQUALS] = 1;
-            elapsed = 62;
+            elapsed = tickInterval;
         }
-        while (elapsed >= 62) {
+        while (elapsed >= tickInterval) {
             SwcFlightTick(checkOnly ? checkKeys : SDL_GetKeyboardState(NULL), shipCount);
-            elapsed -= 62;
+            elapsed -= tickInterval;
             ticks++;
         }
         if (SwcDrawFlight(renderer, cockpit, images, shipCount, cockpitless, showMap) != 0)
             goto done;
         SDL_RenderPresent(renderer);
         SDL_snprintf(title, sizeof(title),
-                     "SWC Enyo 1 | %s | speed %d | arrows: steer +/-: speed N: nav M: map C: cockpit Esc: exit",
-                     aMissionObjectives[(int)cCurrentObjective].name, anShipSpeed[0] / 256);
+                     "SWC Enyo 1%s | %s | speed %ld (set %d)%s | mouse/arrows: steer RMB: roll/throttle +/-: speed Tab: boost N: nav M: map C: cockpit P: pause Esc: exit",
+                     paused || !focused ? " (paused)" : "",
+                     aMissionObjectives[(int)cCurrentObjective].name,
+                     Vector_magnitude(&aShipVelocity[0]) / 256, anShipSpeed[0] / 256,
+                     aeSpecialManeuver[0] == SPECIAL_MANEUVER_AFTERBURNER ? " afterburner" : "");
         SDL_SetWindowTitle(window, title);
         if (checkOnly && ticks == 120) {
             if (memcmp(&start, &aShipPosition[0], sizeof(start)) == 0 || cMissionObjectiveCount != 4) {
@@ -415,7 +585,20 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     result = 0;
 done:
     SDL_strlcpy(failure, SDL_GetError(), sizeof(failure));
+    SdlSetKeyboardSnapshot(NULL);
+    SwcResetFlightInput();
+    if (swcFlightActive) {
+        FlushInputEvents();
+        SdlEndJoystickSpaceflight();
+        SetCinematicFrameTiming();
+    }
+    stSpaceBuffer = savedSpaceBuffer;
+    stMouseCursorState.viewport = savedMouseViewport;
+    SetEventManagerPump(savedInputPump);
+    bCockpitlessView = savedCockpitlessView;
     swcFlightActive = 0;
+    if (window != NULL)
+        SDL_SetWindowMouseGrab(window, SDL_FALSE);
     for (object = 0; object < OBJECT_TYPE_COUNT; object++) {
         for (view = 0; view < 37; view++)
             SDL_DestroyTexture(images[object].views[view]);

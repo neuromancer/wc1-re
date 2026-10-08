@@ -175,6 +175,8 @@ DWORD RegSetValueExA(HKEY key, const char *name, DWORD reserved,
                      DWORD type, const BYTE *data, DWORD size);
 
 DWORD SdlGetTicks(void);
+/* Borrow one SDL keyboard sample for a simulation tick; NULL restores live polling. */
+void SdlSetKeyboardSnapshot(const Uint8 *keys);
 int SdlGetAsyncKeyState(int virtualKey);
 int SdlStartAudio(SdlAudioMixer mixer,
                      CRITICAL_SECTION *criticalSection,

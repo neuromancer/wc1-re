@@ -32,10 +32,31 @@ out-modern/wc1-modern-gui --gui --swc-demo "data/swc-demo/SuperWing DEMO"
 out-modern/wc1-modern --swc-demo "data/swc-demo/SuperWing DEMO"
 ```
 
-Arrows steer, Q/E roll, +/- change speed, N cycles objectives, M toggles the nav
-map, C toggles the cockpit, and Esc exits. The window title shows the selected
-objective and speed. The GUI disables graphics and joystick features that the
-SWC flight host does not support yet.
+Flight uses WC1's DOS/Win32 mouse and keyboard controls through SDL2:
+
+| Control | Action |
+| --- | --- |
+| Mouse movement | Steer using WC1's dead zones and response curve |
+| Hold right button and move | Horizontal motion rolls; vertical motion changes throttle |
+| Double-click right button and hold | Afterburner; release stops renewing the boost timer |
+| Arrows or keypad 2/4/6/8 | Pitch/yaw with WC1's gradual steering response |
+| Home/PgUp/End/PgDn or keypad 7/9/1/3 | Diagonal steering |
+| Comma/period, Insert/Delete, or keypad 0/decimal | Roll |
+| Shift with a steering key | WC1's fast steering response |
+| Keypad 5 | Centre steering and the mouse pointer |
+| +/- or keypad +/- | Change commanded speed while held |
+| Backspace | Set commanded speed to zero; the ship decelerates |
+| Tab or keypad * | Afterburner, subject to WC1's fuel and timer checks |
+| N / M / C | Next objective / nav map / cockpit |
+| P / Esc | Pause / exit |
+
+The window title shows the selected objective, actual and commanded speed,
+and afterburner state. The pointer is confined to the flight window; P releases
+it while paused. Losing focus also pauses movement and releases the pointer.
+Keyboard steering takes over until the next mouse movement. Releasing the
+right-button roll/throttle mode recentres the pointer, as in WC1. Left-click
+weapons are inactive because combat is not connected. Joystick flight is still
+unsupported; the GUI disables its options. Q/E are no longer roll bindings.
 
 Point `SWC_DATA_DIR` at the extracted **SuperWing DEMO** directory containing
 `CMFs/`. For example, from the repository root on macOS:
@@ -140,7 +161,11 @@ rejected because a persisted Mac pointer cannot be used as a host pointer.
 | `Set_up_ship_info` / `init_intelligence_data` | Sets the Enyo player's position, orientation, speed, pilot, and mission state | Other mission modes and SWC AI differences need review |
 | `Build_objective_list` | Builds Enyo's three nav objectives and carrier-return objective | Other SWC objective behavior is not established |
 | `cycle_next_objective`, `nav_getxy`, `SetScale` | Cycles and projects the shared objective state | This uses WC1 map units/layout; SWC's `nav_getxy` uses wider coordinates and different scaling |
+| `PollKeyboardState`, `process_player_input` | WC1 keyboard priorities, diagonals, gradual steering, reversals, and Shift response | Deliberately uses DOS/Win32 controls; SWC's Mac event/device layer differs |
+| `player_input`, `QueueInputEvent`, `WarpMouseTo` | Original mouse response, edge limits, right-button roll/throttle, and recentering | SWC supplies only motion events and the right-button modifier; weapon events are excluded |
+| `accelerate`, `celerate`, `your_afterburner`, `fire_afterburner` | Throttle bounds, boost activation, and boost timers | Audio calls stop at the SDL boundary until SWC sound is implemented |
 | `players_flight_dynamics`, `rotate_object`, `accelerate_and_move_object` | Steers and moves the five entry-nav ships | WC1 ship parameters; NPC AI and combat are not active |
+| `SetSpaceFlightFrameTiming` | Initializes the shared flight tick interval, 50 ms at WC1's default 20 Hz | Replaces the host's hard-coded 62 ms; SWC's elapsed-tick translation scaling is not reproduced |
 | `generate_stars`, `update_star_field`, `transform_objects_to_your_view`, `get_right_shape` | Projects the scene and chooses among 37 decoded ship views | SWC hotspots, scale, and exact presentation still need reconstruction |
 
 The SDL version of `nav_getxy` writes coordinates through byte copies because
@@ -148,6 +173,66 @@ the existing packed objective records can place them at odd addresses. Its
 calculations are unchanged; the Win32 reference implementation is preserved.
 During SWC flight, `get_right_shape` returns the selected frame to the SDL
 texture cache instead of fetching WC1 capital-ship packets.
+
+The keyboard adapter passes one SDL state sample to the original Win32 key
+polling interface for each simulation tick. Held keypad keys use the same
+bindings as the existing SDL key events. It clears released axes independently
+and samples throttle and boost independently of steering, without relying on
+operating system key repeat. The mouse adapter initializes WC1's input viewport
+to the SWC cockpit opening (320x160) or the full 320x240 view, then queues one
+motion sample per simulation tick and calls `player_input` directly. This uses
+the existing response tables, direction signs, right-button behavior, and
+recentering code without duplicating the mouse algorithm. SDL converts window
+coordinates and pointer warps through its logical renderer, including resize
+and letterboxing; the extra WC1 cockpitless camera offsets are not applied.
+
+The SWC event loop owns event pumping. Its calls into `player_input` cannot
+consume unfiltered SDL button or window events through WC1's separate loop.
+Primary/secondary host button states stay clear, and no weapon button events
+are queued. Right-button state is passed only as a motion modifier; two presses
+within WC1's 20/60-second interval activate the shared `your_afterburner` routine
+while the button is held. This timing-only check tolerates WC1's pointer
+recentering between clicks. `HandleSpaceFlightControls` is still bypassed because its HUD
+and combat commands are not connected. SDL builds zero-initialize the legacy
+input event before polling, since motion and empty polls leave some fields
+unset. In SDL builds only, `accelerate` multiplies signed throttle steps by 256
+instead of left-shifting negative values. The reference build retains the
+original expressions and event declaration.
+
+### Movement comparison
+
+Ghidra inspection of the original 68000 instructions supports sharing the
+movement algorithms, with these qualifications:
+
+- CODE_09 `players_flight_dynamics` +0x02de computes the same axis-rate times
+  input divided by eight, with the same yaw/roll signs and blowing-up branch.
+  SWC uses wider fields in its 204-byte object definitions.
+- CODE_02 `rotate_object` +0x4306 applies pitch, yaw, and roll, then moves each
+  rotation value toward zero. CODE_04 `alter_pitch` +0x2b1c, `alter_yaw` +0x2b6c,
+  and `alter_roll` +0x2bba use the same basis-vector rotation and normalization
+  sequence as WC1.
+- CODE_05 `celerate` +0x09c6 clamps commanded speed to zero and maximum speed
+  times 256. `accelerate` +0x428c applies the same malfunction adjustment before
+  calling it. `your_afterburner` +0x42e0 and `fire_afterburner` +0x3a38 use the
+  same fuel gate, eight/two-tick boost renewal, and velocity limit. Sound
+  scheduling is platform-specific.
+- CODE_02 `accelerate_and_move_object` +0x439e shares the forward target velocity,
+  acceleration toward that target, drift, boost/brake timer, and fuel-drain
+  calculations. Its final position update multiplies velocity by a seven-entry
+  table indexed by elapsed Mac ticks clamped to 0..6 (+0x43ba..+0x43d2 and
+  +0x471e..+0x4762). WC1 adds velocity once per simulation tick. The host retains
+  WC1's fixed-step model rather than mixing the two timing systems.
+- SWC also differs in CODE_04 `max_acceleration` +0x1a10 (one-third bonus for
+  ratings 1..7 as well as ratings above 8) and `drain_fuel` +0x1944 (recalculate
+  maximum speed when fuel reaches or passes zero). The shared WC1 routines
+  apply those two conditions during SWC flight. WC1's original rating gate
+  and retail array-address fuel check remain in place for WC1.
+- CODE_01 `get_player_input` +0x4508 and `process_player_input` +0x3cba operate
+  on Mac events, key-character state, and action flags. A matching function
+  name does not establish identical input handling.
+
+The movement and mouse-control updates were compiled with `make modern modern-gui`
+and reviewed statically. No game, GUI, or interactive check was run for those updates.
 
 SWC binary similarity measurement is no longer part of this work: the original
 Mac compiler/toolchain is unavailable. Validation uses original instructions,

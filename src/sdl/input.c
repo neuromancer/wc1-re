@@ -125,13 +125,24 @@ DWORD SdlGetTicks(void)
     return SDL_GetTicks();
 }
 
+static const Uint8 *sdlKeyboardSnapshot;
+
+void SdlSetKeyboardSnapshot(const Uint8 *keys)
+{
+    sdlKeyboardSnapshot = keys;
+}
+
 int SdlGetAsyncKeyState(int virtualKey)
 {
     const Uint8 *keys;
     SDL_Scancode scanCode;
+    SDL_Scancode keypadCode = SDL_SCANCODE_UNKNOWN;
 
-    SDL_PumpEvents();
-    keys = SDL_GetKeyboardState(0);
+    keys = sdlKeyboardSnapshot;
+    if (keys == NULL) {
+        SDL_PumpEvents();
+        keys = SDL_GetKeyboardState(0);
+    }
     switch (virtualKey) {
     case VK_SHIFT:
         return (keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT])
@@ -157,33 +168,43 @@ int SdlGetAsyncKeyState(int virtualKey)
         break;
     case VK_PRIOR:
         scanCode = SDL_SCANCODE_PAGEUP;
+        keypadCode = SDL_SCANCODE_KP_9;
         break;
     case VK_NEXT:
         scanCode = SDL_SCANCODE_PAGEDOWN;
+        keypadCode = SDL_SCANCODE_KP_3;
         break;
     case VK_END:
         scanCode = SDL_SCANCODE_END;
+        keypadCode = SDL_SCANCODE_KP_1;
         break;
     case VK_HOME:
         scanCode = SDL_SCANCODE_HOME;
+        keypadCode = SDL_SCANCODE_KP_7;
         break;
     case VK_LEFT:
         scanCode = SDL_SCANCODE_LEFT;
+        keypadCode = SDL_SCANCODE_KP_4;
         break;
     case VK_UP:
         scanCode = SDL_SCANCODE_UP;
+        keypadCode = SDL_SCANCODE_KP_8;
         break;
     case VK_RIGHT:
         scanCode = SDL_SCANCODE_RIGHT;
+        keypadCode = SDL_SCANCODE_KP_6;
         break;
     case VK_DOWN:
         scanCode = SDL_SCANCODE_DOWN;
+        keypadCode = SDL_SCANCODE_KP_2;
         break;
     case VK_INSERT:
         scanCode = SDL_SCANCODE_INSERT;
+        keypadCode = SDL_SCANCODE_KP_0;
         break;
     case VK_DELETE:
         scanCode = SDL_SCANCODE_DELETE;
+        keypadCode = SDL_SCANCODE_KP_PERIOD;
         break;
     case 0xbc:
         scanCode = SDL_SCANCODE_COMMA;
@@ -194,7 +215,9 @@ int SdlGetAsyncKeyState(int virtualKey)
     default:
         return 0;
     }
-    return keys[scanCode] ? 0x8000 : 0;
+    return (keys[scanCode] ||
+            (keypadCode != SDL_SCANCODE_UNKNOWN && keys[keypadCode]))
+        ? 0x8000 : 0;
 }
 
 void SdlOutputDebugString(const char *text)
@@ -210,6 +233,9 @@ void SdlOutputDebugString(const char *text)
 int SdlSetCursorPosition(int x, int y)
 {
     SDL_Window *window;
+    SDL_Renderer *renderer;
+    int logicalWidth = 0;
+    int logicalHeight = 0;
     int windowX;
     int windowY;
 
@@ -218,7 +244,14 @@ int SdlSetCursorPosition(int x, int y)
         window = SDL_GetMouseFocus();
     if (window == 0)
         return FALSE;
-    if (!SdlMapLogicalToWindow(
+    renderer = SDL_GetRenderer(window);
+    if (renderer != NULL)
+        SDL_RenderGetLogicalSize(renderer, &logicalWidth, &logicalHeight);
+    if (logicalWidth > 0 && logicalHeight > 0) {
+        /* SWC uses SDL's 320x240 logical renderer, including letterboxing.
+           WC1's renderer keeps its existing 320x200 coordinate conversion. */
+        SDL_RenderLogicalToWindow(renderer, (float)x, (float)y, &windowX, &windowY);
+    } else if (!SdlMapLogicalToWindow(
             window, x, y, &windowX, &windowY))
         return FALSE;
     SDL_WarpMouseInWindow(window, windowX, windowY);

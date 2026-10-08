@@ -123,7 +123,13 @@ short recalc_max_velocity(short ship)
 void drain_fuel(short ship, short amount)
 {
     anShipFuel[ship] -= (int)amount;
+#ifdef SDL_PORT
+    /* SWC CODE_04 +0x1944 tests the ship's remaining fuel. WC1 retail tests
+       the array address instead; retain that behavior outside SWC flight. */
+    if (SdlSwcFlightActive() ? anShipFuel[ship] <= 0 : anShipFuel == 0)
+#else
     if (anShipFuel == 0)
+#endif
         recalc_max_velocity(ship);
 }
 
@@ -151,7 +157,13 @@ int GetShipAccelerationRate(short ship)
     enum ObjectType objectType = aeObjectType[shipIndex];
     int acceleration = aObjectTypeData[objectType].acceleration;
 
-    if (ship < 10 && acShipRating[shipIndex] > RATING_ACE_ICEMAN)
+    if (ship < 10 && (acShipRating[shipIndex] > RATING_ACE_ICEMAN
+#ifdef SDL_PORT
+        /* SWC CODE_04 +0x1a10 also boosts ratings strictly between 0 and 8. */
+        || (SdlSwcFlightActive() && acShipRating[shipIndex] > 0 &&
+            acShipRating[shipIndex] < RATING_ACE_ICEMAN)
+#endif
+        ))
         return acceleration + acceleration / 3;
     return acceleration;
 }

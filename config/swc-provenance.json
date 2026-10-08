@@ -8,6 +8,10 @@
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_01.bin",
       "sha256": "b329613e0d0513e6c4d609f8496044c5dda96c17d6321953543958dbc885d758"
     },
+    "CODE_02.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_02.bin",
+      "sha256": "09af5ddd5a03f5b1716b916eeb343137c1f15433213b03947c7679914ae7481c"
+    },
     "CODE_03.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_03.bin",
       "sha256": "0873acc64f6caf1b1a9de12fea9b50ed312743753b09259594799fe2818c64b3"
@@ -15,6 +19,10 @@
     "CODE_04.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_04.bin",
       "sha256": "ec50c2b84f6f030caab595acae37de76954fdd4a8e441bde5f96483ef88e6e80"
+    },
+    "CODE_05.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_05.bin",
+      "sha256": "e72593f434716572fdd50d05a69fa45d96e1e57996eaab47c34dd8f8c6e04388"
     },
     "CODE_09.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_09.bin",
@@ -83,8 +91,31 @@
     {"name": "set_sphere_point", "resource": "CODE_04.bin", "entry_offset": "0x000c", "source": "src/brains.c", "wc1_address": "0x0040b670"},
     {"name": "Set_up_ship_info", "resource": "CODE_04.bin", "entry_offset": "0x1340", "source": "src/brains.c", "wc1_address": "0x0040c5e0"},
     {"name": "Build_objective_list", "resource": "CODE_14.bin", "entry_offset": "0x24fc", "source": "src/brains.c", "wc1_address": "0x0040ced0", "qualification": "Enyo 1 uses the existing WC1 objective builder; other SWC objective behavior remains unverified."},
-    {"name": "nav_getxy", "resource": "CODE_14.bin", "entry_offset": "0x24d0", "source": "src/brains.c", "wc1_address": "0x0040cc30", "qualification": "The host currently uses WC1 map coordinates. The SWC original stores world coordinates shifted by eight in wider map fields."}
+    {"name": "nav_getxy", "resource": "CODE_14.bin", "entry_offset": "0x24d0", "source": "src/brains.c", "wc1_address": "0x0040cc30", "qualification": "The host currently uses WC1 map coordinates. The SWC original stores world coordinates shifted by eight in wider map fields."},
+    {"name": "players_flight_dynamics", "resource": "CODE_09.bin", "entry_offset": "0x02de", "source": "src/main.c", "wc1_address": "0x004284d0", "qualification": "Same axis-rate/input division, signs and blowing-up branch. Uses WC1 ship definitions and narrower rotation fields."},
+    {"name": "rotate_object", "resource": "CODE_02.bin", "entry_offset": "0x4306", "source": "src/spc.c", "wc1_address": "0x00412920", "qualification": "Same per-axis rotate/approach-zero sequence; SWC rotation fields are wider."},
+    {"name": "alter_pitch", "resource": "CODE_04.bin", "entry_offset": "0x2b1c", "source": "src/geom.c", "wc1_address": "0x00419110"},
+    {"name": "alter_yaw", "resource": "CODE_04.bin", "entry_offset": "0x2b6c", "source": "src/geom.c", "wc1_address": "0x00419150"},
+    {"name": "alter_roll", "resource": "CODE_04.bin", "entry_offset": "0x2bba", "source": "src/geom.c", "wc1_address": "0x00419190"},
+    {"name": "celerate", "resource": "CODE_05.bin", "entry_offset": "0x09c6", "source": "src/disk.c", "wc1_address": "0x0041e710", "qualification": "Same speed clamp to 0..maximum*256; the host still uses WC1 ship parameters."},
+    {"name": "accelerate", "resource": "CODE_05.bin", "entry_offset": "0x428c", "source": "src/logic.c", "wc1_address": "0x004218d0", "qualification": "Same malfunction adjustment and celerate call. SDL multiplies signed steps by 256 to avoid negative-shift undefined behavior; reference expression is preserved."},
+    {"name": "your_afterburner", "resource": "CODE_05.bin", "entry_offset": "0x42e0", "source": "src/logic.c", "wc1_address": "0x00421920", "qualification": "Same fuel/malfunction gates and eight/two-tick renewal. Sound scheduling differs; SWC sound calls are suppressed at the SDL boundary."},
+    {"name": "fire_afterburner", "resource": "CODE_05.bin", "entry_offset": "0x3a38", "source": "src/logic.c", "wc1_address": "0x00421350", "qualification": "Same maximum-velocity*0x500 eligibility check and maneuver/timer update."},
+    {"name": "accelerate_and_move_object", "resource": "CODE_02.bin", "entry_offset": "0x439e", "source": "src/spc.c", "wc1_address": "0x004129a0", "qualification": "Shared target-velocity, acceleration and boost/brake calculations. SWC scales the final displacement with a seven-entry elapsed-tick table; the host retains WC1's fixed-step movement. SWC also omits WC1's random kill-engines recovery."},
+    {"name": "max_acceleration", "resource": "CODE_04.bin", "entry_offset": "0x1a10", "source": "src/geom.c", "symbol": "GetShipAccelerationRate", "wc1_address": "0x004182f0", "qualification": "SWC also grants the one-third acceleration bonus to ratings 1..7. An SDL-only condition enables that difference during SWC flight."},
+    {"name": "drain_fuel", "resource": "CODE_04.bin", "entry_offset": "0x1944", "source": "src/geom.c", "wc1_address": "0x00418280", "qualification": "SWC recalculates maximum speed when remaining fuel is <=0. An SDL-only condition enables that behavior during SWC flight, preserving WC1's retail array-address comparison otherwise."}
   ],
+  "wc1_control_reuse": {
+    "source": "src/sdl/swc_flight.c",
+    "functions": ["PollKeyboardState", "process_player_input", "player_input", "QueueInputEvent", "WarpMouseTo", "accelerate", "your_afterburner", "SetSpaceFlightFrameTiming"],
+    "qualification": "DOS/Win32 controls are intentional. Held keyboard input is sampled per tick, with independent axis release. Mouse motion is passed to WC1 player_input using an initialized SWC viewport, preserving its response tables, signs and right-button roll/throttle. Only motion/modifier events are queued; the SWC host owns SDL event pumping and leaves weapon button states clear. Right double-click/hold uses WC1's timing-only 20/60-second interval and shared afterburner routine. Pointer capture is released on pause/focus loss, and SDL logical coordinates handle resizing and warping. HandleSpaceFlightControls and its HUD/combat commands are still bypassed. SWC's Mac event/device code differs.",
+    "wc1_mouse_evidence": {"source": "src/main.c", "wc1_address": "0x004285d0", "response_tables": ["0x0046a030", "0x0046a040"]},
+    "mac_input_evidence": [
+      {"name": "get_player_input", "resource": "CODE_01.bin", "entry_offset": "0x4508"},
+      {"name": "process_player_input", "resource": "CODE_01.bin", "entry_offset": "0x3cba"}
+    ],
+    "validation": "Original-instruction review, static source review, and native/GUI compilation only for the movement and mouse updates; no interactive execution."
+  },
   "additional_format_evidence": [
     {"resource": "CODE_09.bin", "entry_offset": "0x26ae", "name": "CMOpenFile"},
     {"resource": "CODE_09.bin", "entry_offset": "0x2fac", "name": "CMReformatTOC"},

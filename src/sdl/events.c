@@ -526,6 +526,11 @@ void SdlPumpEvents(void)
 {
     SDL_Event event;
 
+    /* The SWC host owns its SDL window and event loop. Its calls into WC1's
+       player_input consume only the flight events it has already queued. */
+    if (SdlSwcFlightActive())
+        return;
+
     SdlServiceOriginFxMusic();
     while (SDL_PollEvent(&event)) {
         SdlLogJoystickEvent(&event);
