@@ -6,7 +6,7 @@
 #include <string.h>
 
 static int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
-                           const char *path)
+                           const char *path, const char *sequence)
 {
     SwcMovie movie = {0};
     SDL_Surface *indexed = NULL;
@@ -26,6 +26,7 @@ static int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
     Uint64 targetFrame;
     uint32_t frame = 1;
     char failure[256];
+    char title[160];
     int audioInitialized = 0;
     int focused;
     int paused = 0;
@@ -131,9 +132,10 @@ static int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
             playing = focused && !paused;
             if (audio != 0)
                 SDL_PauseAudioDevice(audio, !playing);
-            SDL_SetWindowTitle(window, playing
-                ? "Super Wing Commander - launch | Space/Enter/Esc/click: skip | P: pause"
-                : "Super Wing Commander - launch (paused) | Space/Enter/Esc/click: skip | P: resume");
+            SDL_snprintf(title, sizeof(title),
+                "Super Wing Commander - %s%s | Space/Enter/Esc/click: skip | P: %s",
+                sequence, playing ? "" : " (paused)", playing ? "pause" : "resume");
+            SDL_SetWindowTitle(window, title);
         }
         targetFrame = elapsed * movie.framesPerSecond / frequency + 1;
         while (frame < movie.frameCount && frame < targetFrame) {
@@ -180,33 +182,45 @@ done:
     return result;
 }
 
-/* CODE_03 +0x45d0 scramble: original order and ship-zero filename suffixes.
- * Unlike WC1's sprite-based scramble, SWC calls MovieDisplay nine times.
- * The separate ARMOR.MooV music stream and palette fades remain pending. */
-int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer)
+/* Shared SDL presentation for CODE_03 scramble and landing's MovieDisplay
+ * calls. Separate music streams and palette fades remain pending. */
+static int SdlPlaySwcFlightMovies(SDL_Window *window, SDL_Renderer *renderer,
+                                  int landing, int health)
 {
-    static const char *const names[] = {
+    static const char *const launchNames[] = {
         "ARMOR", "HALL", "LAUNCH01", "LAUNCH02", "LAUNCH03",
         "LAUNCH04.00", "LAUNCH06.00", "LAUNCH07.00", "LAUNCH08.00"
     };
-    char paths[SDL_arraysize(names)][PATH_MAX];
+    const char *landingNames[] = {
+        "LANDING1.00", "LANDING2.00", "LANDING1", "LANDING4.00",
+        "LANDING5.00", "LANDING6.00", NULL
+    };
+    const char *const *names = landing ? landingNames : launchNames;
+    const char *sequence = landing ? "landing" : "launch";
+    size_t count = landing ? SDL_arraysize(landingNames) : SDL_arraysize(launchNames);
+    char paths[SDL_arraysize(launchNames)][PATH_MAX];
+    char finalLanding[16];
     char relative[64];
     SDL_RWops *reader;
     size_t index;
     int cursorVisible;
     int result = SWC_MOVIE_FINISHED;
 
+    /* CODE_03 landing +0x447e: damage variant = 2 - health*2/100. */
+    SDL_snprintf(finalLanding, sizeof(finalLanding), "LANDING7.%02d",
+                 2 - SDL_clamp(health, 0, 100) * 2 / 100);
+    landingNames[6] = finalLanding;
     /* Movies are optional for an existing minimal flight installation. Check
      * the entire sequence before showing it; malformed present movies still
      * report a decoding error instead of silently starting partial playback. */
-    for (index = 0; index < SDL_arraysize(names); index++) {
+    for (index = 0; index < count; index++) {
         SDL_snprintf(relative, sizeof(relative), "Movies/%s.dcMov", names[index]);
         if (!SdlResolvePath(relative, paths[index], sizeof(paths[index])))
             return SDL_SetError("SWC movie path is too long: %s", relative);
         reader = SDL_RWFromFile(paths[index], "rb");
         if (reader == NULL) {
-            fprintf(stderr, "Skipping SWC launch: cannot read %s (%s)\n",
-                    relative, SDL_GetError());
+            fprintf(stderr, "Skipping SWC %s: cannot read %s (%s)\n",
+                    sequence, relative, SDL_GetError());
             SDL_ClearError();
             return SWC_MOVIE_FINISHED;
         }
@@ -214,12 +228,24 @@ int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer)
     }
     cursorVisible = SDL_ShowCursor(SDL_QUERY);
     SDL_ShowCursor(SDL_DISABLE);
-    for (index = 0; index < SDL_arraysize(names); index++) {
-        result = SdlPlaySwcMovie(window, renderer, paths[index]);
+    for (index = 0; index < count; index++) {
+        result = SdlPlaySwcMovie(window, renderer, paths[index], sequence);
         if (result != SWC_MOVIE_FINISHED)
             break;
     }
     SDL_ShowCursor(cursorVisible);
     SDL_SetWindowTitle(window, "Super Wing Commander - Enyo 1 (experimental flight)");
     return result;
+}
+
+/* CODE_03 scramble +0x45d0: nine clips, Hornet suffix 00. */
+int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer)
+{
+    return SdlPlaySwcFlightMovies(window, renderer, 0, 100);
+}
+
+/* CODE_03 landing +0x447e: seven clips, ending selected by evaluate_damage. */
+int SdlPlaySwcLanding(SDL_Window *window, SDL_Renderer *renderer, int health)
+{
+    return SdlPlaySwcFlightMovies(window, renderer, 1, health);
 }

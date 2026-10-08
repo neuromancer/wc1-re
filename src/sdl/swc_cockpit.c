@@ -843,6 +843,34 @@ int SdlDrawSwcHud(void)
         if (slot->text != NULL && slot->flashCount != 0 && slot->drawColour != cBlackColour)
             SwcDrawCockpitText(8, 214 + 11 * index, 0x81, slot->text);
     }
+    if (IsCommChoiceMenuOpen()) {
+        SDL_Rect panel = {10, 12, 300, 34 + 11 * SDL_min(nCommMenuChoiceCount, 7)};
+        const char *heading = pszCommMenuHeading;
+        size_t length;
+
+        /* WC1 owns recipients, command availability and request dispatch.
+           Only the DOS text/VDU drawing is replaced by this SDL overlay. */
+        if (swcCockpitDrawResult == 0)
+            swcCockpitDrawResult = SDL_SetRenderDrawColor(swcCockpitRenderer, 0, 0, 0, 255);
+        if (swcCockpitDrawResult == 0)
+            swcCockpitDrawResult = SDL_RenderFillRect(swcCockpitRenderer, &panel);
+        baseline = 23;
+        while (heading != NULL && *heading != 0 && baseline < 45) {
+            length = strcspn(heading, "\r\n");
+            if (length != 0) {
+                SDL_snprintf(text, sizeof(text), "%.*s", (int)SDL_min(length, sizeof(text) - 1), heading);
+                SwcDrawCockpitText(16, baseline, 0x81, text);
+                baseline += 11;
+            }
+            heading += length;
+            while (*heading == '\r' || *heading == '\n')
+                heading++;
+        }
+        for (index = 0; index < nCommMenuChoiceCount && index < 7; index++) {
+            SDL_snprintf(text, sizeof(text), "%d. %s", index + 1, apszCommMenuChoiceText[index]);
+            SwcDrawCockpitText(16, 45 + 11 * index, 0x84, text);
+        }
+    }
     if (bPlayerDestroyed || nArcadeState == 4)
         SwcDrawCockpitText(90, 65, 0xd4, "SHIP DESTROYED - ESC TO EXIT");
     return swcCockpitDrawResult;

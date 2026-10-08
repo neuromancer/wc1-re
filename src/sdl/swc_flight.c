@@ -235,6 +235,11 @@ static int SwcStartMissionShips(void)
     nYourWingman = -1;
     nPlayerKillCount = 0;
     nWingmanKillCount = 0;
+    nWingmanKilledThisMission = 0;
+    bPlayerEjectedThisMission = 0;
+    bOfficeVisitPending = 0;
+    bRadioSilence = 0;
+    clear_message_time();
     nEnemySighting = 0x7fff;
     nTargetLockMode = 0;
     bEngageAllowed = 0;
@@ -271,7 +276,9 @@ static int SwcStartMissionShips(void)
     nCurrentWave = -1;
     bPlayerDestroyed = 0;
     bPlayerVulnerable = 1;
+    bPlayerCollisionsEnabled = 1;
     bLandingAuthorized = 0;
+    nPlayerCollisionObject = -1;
     nInFlightMusicActive = 0;
     nArcadeState = 0;
     nTrainSimActive = 0;
@@ -283,6 +290,8 @@ static int SwcStartMissionShips(void)
     ausVduModeStack[0] = 1;
     acVduModeStackDepth[1] = 0;
     ausVduModeStack[8] = 5;
+    ResetCommMenuChoices(0);
+    SetPendingMenuAction(0);
     nScreenWidth = SWC_FRAME_WIDTH;
     copy_frame(0, EYE_OBJECT);
     aShipPosition[EYE_OBJECT] = aShipPosition[0];
@@ -325,7 +334,7 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
     int secondaryButton;
     int bothButtons;
 
-    if (bPlayerDestroyed || nArcadeState == 4) {
+    if (bPlayerDestroyed || nArcadeState != 0) {
         SwcResetFlightInput();
         return;
     }
@@ -406,6 +415,12 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
     /* Shared object lifetimes, cooldowns, collisions/damage, animations,
        missile guidance, energy recharge, shields and movement. */
     house_keep_objects();
+    if (nArcadeState == 1) {
+        /* Landing ends FlyingLoop in SWC GameFlow. Do not let another
+           movement/collision pass damage the ship after docking. */
+        SwcResetFlightInput();
+        return;
+    }
     update_objects_in_space();
     ReleaseStaleNavTarget();
     check_hazards();
@@ -427,6 +442,16 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         target_locking(acShipTarget[0]);
     UpdateMessage(&aHudMessageSlots[0]);
     UpdateMessage(&aHudMessageSlots[1]);
+    if (IsCommChoiceMenuOpen()) {
+        if (bPlayerDestroyed || !CanOpenCommMenu() ||
+            (GetPendingMenuAction() == 2 &&
+             (cCommMenuRecipient <= 0 || cCommMenuRecipient >= 10 ||
+              aeObjectClass[cCommMenuRecipient] < OBJECT_CLASS_SHIP ||
+              aeSpecialManeuver[cCommMenuRecipient] == SPECIAL_MANEUVER_UNKNOWN_9)))
+            CloseCommChoiceMenu();
+        else
+            RefreshCommunicationMenu();
+    }
     SdlUpdateSwcCockpit();
     nSpaceFrame++;
     nRenderedSpaceFrame++;
@@ -624,6 +649,9 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     int focused = 1;
     int objectsConfigured = 0;
     int movieResult;
+    int choice;
+    int command;
+    int recipient;
     int done = 0;
     int result = -1;
 
@@ -678,7 +706,7 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
         SDL_ShowWindow(window);
         SDL_RaiseWindow(window);
         SDL_PumpEvents();
-        movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path);
+        movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, 0);
         if (movieResult == -1)
             goto done;
         if (movieResult == SWC_MOVIE_QUIT) {
@@ -785,7 +813,10 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
             if (event.type == SDL_KEYDOWN && !event.key.repeat) {
                 switch (event.key.keysym.sym) {
                 case SDLK_ESCAPE:
-                    done = 1;
+                    if (IsCommChoiceMenuOpen())
+                        CloseCommChoiceMenu();
+                    else
+                        done = 1;
                     break;
                 case SDLK_n:
                     if (focused && !paused)
@@ -828,9 +859,40 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
                         swcReleaseWeaponPending = 1;
                     break;
                 case SDLK_c:
-                    cockpitless = !cockpitless;
-                    if (!checkOnly && focused && !paused)
-                        SwcCentreFlightMouse();
+                    if (focused && !paused && !bPlayerDestroyed && nArcadeState == 0) {
+                        if (IsCommChoiceMenuOpen())
+                            CloseCommChoiceMenu();
+                        else
+                            HandleCommunicationMenuRequest();
+                    }
+                    break;
+                case SDLK_1:
+                case SDLK_2:
+                case SDLK_3:
+                case SDLK_4:
+                case SDLK_5:
+                case SDLK_6:
+                case SDLK_7:
+                    choice = (int)(event.key.keysym.sym - SDLK_1);
+                    if (focused && !paused && !bPlayerDestroyed && IsCommChoiceMenuOpen() &&
+                        choice < nCommMenuChoiceCount) {
+                        command = GetPendingMenuAction() == 2 ? abCommMenuChoiceCommand[choice] : -1;
+                        recipient = cCommMenuRecipient;
+                        Chosen_communicate_option((short)choice);
+                        if (command == 12)
+                            set_global_message(bLandingAuthorized ? "Landing clearance granted" :
+                                "Landing clearance denied", 0x81, 5);
+                        else if (command > 0 && recipient > 0 && recipient < 10)
+                            set_global_message(acWingmanMessageState[recipient] == 1 ?
+                                "Unable to comply" : "Message sent", 0x81, 3);
+                    }
+                    break;
+                case SDLK_F1:
+                    if (event.key.keysym.mod & KMOD_CTRL) {
+                        cockpitless = !cockpitless;
+                        if (!checkOnly && focused && !paused)
+                            SwcCentreFlightMouse();
+                    }
                     break;
                 case SDLK_m:
                     showMap = !showMap;
@@ -870,13 +932,36 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
                           checkOnly ? 0 : SDL_GetMouseState(NULL, NULL));
             elapsed -= tickInterval;
             ticks++;
+            if (nArcadeState == 1)
+                break;
+        }
+        if (nArcadeState == 1 && !checkOnly) {
+            SDL_SetWindowMouseGrab(window, SDL_FALSE);
+            SwcResetFlightInput();
+            FlushInputEvents();
+            if (IsCommChoiceMenuOpen())
+                CloseCommChoiceMenu();
+            cleanup_objectives();
+            movieResult = SdlPlaySwcLanding(window, renderer, evaluate_damage(0));
+            if (movieResult == SWC_MOVIE_ERROR)
+                goto done;
+            if (movieResult != SWC_MOVIE_QUIT) {
+                /* CODE_09 PostMission +0x1672 matches WC1's statistics and
+                   badges. Keep the flown mission selected for its debrief. */
+                PostMission();
+                movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, 1);
+                if (movieResult == SWC_MOVIE_ERROR)
+                    goto done;
+            }
+            result = 0;
+            goto done;
         }
         if (SwcDrawFlight(renderer, cockpit, &cockpitCmf, &spaceCmf, colors,
                           images, cockpitless, showMap) != 0)
             goto done;
         SDL_RenderPresent(renderer);
         SDL_snprintf(title, sizeof(title),
-                     "SWC Enyo 1%s | %s | speed %ld (set %d)%s | mouse/arrows: steer RMB: roll/throttle +/-: speed Tab: boost Space/LMB: guns Enter/both buttons: missile G/W: weapons T: target L: lock N: nav A: autopilot M: map C: cockpit P: pause Esc: exit",
+                     "SWC Enyo 1%s | %s | speed %ld (set %d)%s | mouse/arrows: steer RMB: roll/throttle +/-: speed Tab: boost Space/LMB: guns Enter/both buttons: missile G/W: weapons T: target L: lock N: nav A: autopilot C: comms 1-7: choice M: map Ctrl+F1: cockpit P: pause Esc: exit",
                      paused || !focused ? " (paused)" : "",
                      aMissionObjectives[(int)cCurrentObjective].name,
                      MultiplyFixed(Vector_magnitude(&aShipVelocity[0]), 0xa00) >> 8,

@@ -11,7 +11,8 @@
 
 enum SwcRoomPackId {
     SWC_RECROOM, SWC_BARRACKS, SWC_MEDALS, SWC_SHOTGLASS, SWC_BAR_HEADS,
-    SWC_BRIEFING, SWC_COMMANDER, SWC_WINGMEN, SWC_BRIEFING_MAP, SWC_ROOM_PACKS
+    SWC_BRIEFING, SWC_COMMANDER, SWC_WINGMEN, SWC_BRIEFING_MAP,
+    SWC_DEBRIEFING, SWC_DEBRIEFING_HEADS, SWC_ROOM_PACKS
 };
 
 typedef struct SwcRoomArt {
@@ -48,6 +49,7 @@ typedef struct SwcCarrier {
     int focused;
     int paused;
     int drawResult;
+    int afterFlight;
 } SwcCarrier;
 
 typedef struct SwcRoomInput {
@@ -97,9 +99,11 @@ static SwcRoomArt *SwcGetRoomArt(SwcCarrier *carrier, enum SwcRoomPackId packId,
     static const char *const files[SWC_ROOM_PACKS] = {
         "RecRoomScene.CMF", "Barracks.CMF", "ViewMedals.CMF", "Head10.CMF",
         "RRTalkingHeads.CMF", "Briefing.CMF", "BriefingCommander.CMF",
-        "BRTH1.CMF", "BRInterface.CMF"
+        "BRTH1.CMF", "BRInterface.CMF", "DeBriefing.CMF", "DeBriefingHeads.CMF"
     };
-    static const short palettes[SWC_ROOM_PACKS] = {135, 150, 151, 137, 136, 170, 171, 173, 172};
+    static const short palettes[SWC_ROOM_PACKS] = {
+        135, 150, 151, 137, 136, 170, 171, 173, 172, 190, 191
+    };
     SwcRoomPack *pack = &carrier->packs[packId];
     SwcRoomArt *art;
     SwcFrame frame;
@@ -285,12 +289,12 @@ static int SwcValidateSceneTests(const unsigned char *text, size_t count)
     int digits;
 
     /* Validate before entering WC1's original, unbounded int_value parser.
-     * The first-mission bar uses command 4; retain goto and score tests too.
+     * Enyo 1 uses pilot status, kills and full/partial mission score tests.
      * Other campaign scripts need their own state/operand validation. */
     while ((command = *text++) != 0) {
-        if (command < 1 || command > 5)
+        if (command < 1 || (command > 10 && command != 35 && command != 36))
             return SDL_SetError("Unsupported SWC carrier branch %u", command);
-        arguments = command == 1 ? 1 : 2;
+        arguments = command >= 2 && command <= 5 ? 2 : 1;
         first = 0;
         for (argument = 0; argument < arguments; argument++) {
             value = 0;
@@ -401,11 +405,15 @@ static int SwcLoadRoomScene(SwcCarrier *carrier, int section, SwcRoomScene *scen
         expanded = 0;
         while (*text != 0) {
             if (*text++ == '$') {
-                /* All Enyo 1 substitutions are $C. Validate both the marker
-                 * and output capacity before sharing WC1's AddPCName. */
-                if (*text++ != 'C')
+                /* Bound WC1's AddPCName output: callsign and signed-short
+                 * player/wingman kill counts are the Enyo 1 substitutions. */
+                if (*text == 'C')
+                    expanded += strlen(stCampaignState.currentPilot->callsign);
+                else if (*text == 'K' || *text == 'L')
+                    expanded += 6;
+                else
                     return SDL_SetError("Unsupported SWC carrier text substitution");
-                expanded += strlen(stCampaignState.currentPilot->callsign);
+                text++;
             } else {
                 expanded++;
             }
@@ -564,6 +572,13 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
         } else if (shot == 25 || shot == 26) {
             pack = SWC_BAR_HEADS;
             backgroundFrame = talker == 4 ? 2 : 1;
+        } else if (carrier->afterFlight && (shot == 20 || shot == 21 || shot == 29)) {
+            /* SceneDirector +0x2960/+0x2988: commander talker 10 uses
+             * BRFG/15 frame 1; player/wingman talker 11 uses frame 0. */
+            pack = SWC_DEBRIEFING_HEADS;
+            background = "BRFG";
+            backgroundId = 15;
+            backgroundFrame = talker == 10 ? 1 : 0;
         } else if (shot == 20) {
             pack = SWC_COMMANDER;
             background = "BRFG";
@@ -594,6 +609,16 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
         SwcDrawRoomArt(carrier, SWC_BRIEFING, "BRFG", 4, mouth + 1, 25, 50);
     } else if (shot == 3 || shot == 4) {
         SwcDrawBriefingMap(carrier, talker < 0 ? -talker : talker);
+    } else if (shot == 10 || shot == 11) {
+        /* MountGraphics +0x23b8 and DrawDebriefingLongShot +0x1b8c. */
+        SwcDrawRoomArt(carrier, SWC_DEBRIEFING, "BRFG", 11, 0, 0, 0);
+        SwcDrawRoomArt(carrier, SWC_DEBRIEFING, "BRFG", 12, 0, 40, 45);
+        SwcDrawRoomArt(carrier, SWC_DEBRIEFING, "BRFG", 14,
+                        shot == 10 ? 0 : mouth + 1, 140, 60);
+        if (nDebriefingPersonality >= 0 && nDebriefingPersonality < 8 &&
+            stCampaignState.personalityDeathMission[nDebriefingPersonality] == 0)
+            SwcDrawRoomArt(carrier, SWC_DEBRIEFING, "BRFG", 13,
+                            nDebriefingPersonality, 195, 40);
     } else {
         carrier->drawResult = SDL_SetError("Unsupported SWC carrier shot %d", shot);
     }
@@ -628,6 +653,8 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
     carrier->paused = 0;
     SDL_SetWindowTitle(carrier->window, section == 0
         ? "Super Wing Commander - briefing | Click/Space/Enter: next | Esc: launch | P: pause"
+        : section == 2
+        ? "Super Wing Commander - debriefing | Click/Space/Enter: next | Esc: finish | P: pause"
         : "Super Wing Commander - conversation | Click/Space/Enter: next | Esc: bar | P: pause");
     while (index < scene.count) {
         record = &scene.records[index];
@@ -794,11 +821,14 @@ static void SwcDrawMedalCase(SwcCarrier *carrier)
 }
 
 int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
-                      const char *missionPath, const char *resourceFork)
+                      const char *missionPath, const char *resourceFork, int afterFlight)
 {
     SwcCarrier carrier = {0};
     SwcCmf data = {0};
     SwcBuffer roster = {0};
+    SwcBuffer campaign = {0};
+    unsigned char campaignData[90] = {0};
+    unsigned char *savedCampaignData = pMissionCampaignData;
     SwcRoomInput input;
     SwcRoomArt *art;
     SDL_Cursor *savedCursor = SDL_GetCursor();
@@ -827,6 +857,7 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
         savedCursor = SDL_GetDefaultCursor();
     carrier.renderer = renderer;
     carrier.resourceFork = resourceFork;
+    carrier.afterFlight = afterFlight;
     carrier.focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
     carrier.mouseX = carrier.mouseY = -1;
     if (SwcCMOpen(missionPath, &data) != 0 ||
@@ -845,6 +876,25 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
     hand = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
     SDL_ShowCursor(SDL_ENABLE);
     SDL_SetWindowMouseGrab(window, SDL_FALSE);
+    if (afterFlight) {
+        if (SwcCMGetChunk(&data, "CMP0", 2, &campaign) != 0)
+            goto done;
+        if (stCampaignState.currentSeries != 1 || stCampaignState.currentMission != 0 ||
+            campaign.size < 128 || campaign.data[0] != 0 || campaign.data[1] != 0 ||
+            campaign.data[2] != 0 || campaign.data[3] != 0) {
+            SDL_SetError("Unsupported SWC debriefing campaign (expected Enyo 1/Spirit)");
+            goto done;
+        }
+        /* CODE_09 FullMissionScore +0x17e2 and PlayersMissionScore +0x1840
+         * read 16 signed weights at CMP0/2 +(series-1)*128+mission*24+40.
+         * Supply WC1's corresponding first-mission score window so its
+         * ParseTests cases 35/36 run unchanged. This is not a campaign loader. */
+        memcpy(campaignData + 14, campaign.data + 40, 16);
+        pMissionCampaignData = campaignData;
+        nDebriefingPersonality = 0;
+        result = SwcPlayRoomScene(&carrier, 2);
+        goto done;
+    }
     previous = SDL_GetTicks();
     while (1) {
         current = SDL_GetTicks();
@@ -958,6 +1008,7 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
     }
 done:
     SDL_strlcpy(failure, SDL_GetError(), sizeof(failure));
+    pMissionCampaignData = savedCampaignData;
     if (carrier.audio != 0)
         SDL_CloseAudioDevice(carrier.audio);
     if (carrier.audioInitialized)
@@ -981,6 +1032,7 @@ done:
     }
     SwcCMClose(&data);
     SDL_free(roster.data);
+    SDL_free(campaign.data);
     SDL_free(carrier.script.data);
     if (result == -1)
         SDL_SetError("SWC carrier: %s", failure);

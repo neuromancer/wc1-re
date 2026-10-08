@@ -91,10 +91,11 @@ void SwcMovieClose(SwcMovie *movie);
 int SwcMovieNextFrame(SwcMovie *movie);
 /* Hornet launch for the Enyo 1 host; returns a SwcMovieResult. */
 int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer);
+int SdlPlaySwcLanding(SDL_Window *window, SDL_Renderer *renderer, int health);
 
-/* First-mission carrier visit: 0 = launch, 2 = quit, -1 = error. */
+/* First-mission carrier visit: 0 = launch/debrief complete, 2 = quit, -1 = error. */
 int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
-                      const char *missionPath, const char *resourceFork);
+                      const char *missionPath, const char *resourceFork, int afterFlight);
 /* Demo speech is AIFF, mono signed 16-bit big-endian PCM at 11025 Hz. */
 int SwcReadSpeech(const char *path, SwcBuffer *pcm);
 

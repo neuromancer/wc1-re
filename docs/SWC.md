@@ -13,11 +13,13 @@ adapts WC2's matching calculation to SWC's original projection and cockpit art.
 The Hornet cockpit now has speed and navigation readouts, fuel/throttle/energy
 gauges, player/target shield and armor displays, radar contacts, weapon status,
 navigation and hostile-direction markers, warning lamps, and damaged displays.
-The original conversations and first briefing use the demo's text, portraits
-and AIFF speech. The Hornet launch movies follow, with embedded audio.
-Carrier landing/debriefing, mission completion, the remaining HUD,
-flight audio, music, and later scripted scenes are not connected yet.
-Combat and travel are connected, but this is not yet a complete mission loop.
+The original conversations, briefing and debriefing use the demo's text,
+portraits and AIFF speech. Hornet launch and landing movies have embedded audio.
+WC1 communications now provide wingman orders and landing-clearance requests;
+returning to the carrier ends Enyo 1 with the original debriefing branches.
+Later missions, campaign progression, remaining HUD modes, voiced flight
+communications, flight effects and music are still pending. The new landing
+path has been compiled and inspected, without interactive execution.
 
 `make modern-swc` builds the asset viewer. It loads the demo's CMF files,
 decodes sprites, reads the resource-fork palette, and displays the cockpit and
@@ -86,8 +88,10 @@ Flight uses WC1's DOS/Win32 mouse and keyboard controls through SDL2:
 | T | Cycle visible targets using WC1's range ordering and enemy preference |
 | L | Toggle target-lock mode; ITTS leads a hostile fighter when guns are in range |
 | A | Autopilot toward the selected objective, stopping for enemies or hazards |
-| N / M / C | Next objective / nav map / cockpit |
-| P / Esc | Pause / exit |
+| N / M | Next objective / nav map |
+| C / 1..7 | Open/close WC1 communications / choose a numbered recipient or command |
+| Ctrl+F1 | Toggle cockpit |
+| P / Esc | Pause / close communications, otherwise exit |
 
 The window title shows the selected objective, actual and commanded speed,
 and afterburner state. The pointer is confined to the flight window; P releases
@@ -97,6 +101,14 @@ right-button roll/throttle mode recentres the pointer, as in WC1. Holding both
 buttons releases one missile per press; a latched right-button afterburner keeps
 its existing behavior and allows left-button guns. Joystick flight is still
 unsupported; the GUI disables its options. Q/E are no longer roll bindings.
+
+To return, select the Tiger's Claw objective with N and travel back with A
+when autopilot is available. Use T to target the visible carrier, then C and
+the numbered choices to request landing clearance. The shared rules can deny
+an immediate return or a return with enemies nearby. With clearance granted,
+approach within 700 range units without afterburning to begin landing. Skipping
+landing movies continues into debriefing; closing the window exits. Debriefing
+ends the current demo session, returning to the launcher when started there.
 
 Point `SWC_DATA_DIR` at the extracted **SuperWing DEMO** directory containing
 `CMFs/`. For example, from the repository root on macOS:
@@ -198,7 +210,7 @@ The SDL adapter shares these existing WC1 functions without changing them:
 | `ResetCampaignData`, `CorrectPointers` | Fresh campaign and pilot records, including callsign, rankings, medals and badges |
 | `FindMenuRegionAtPoint`, `IsPointInRect` | Hotspot hit testing, with coordinates recovered from the Mac instructions |
 | `ConversationSceneRecord`, `ParseTests` | Original 13-byte scene commands and conditional branches |
-| `AddPCName` | Player callsign substitutions in original dialogue |
+| `AddPCName` | Player callsign and player/wingman kill substitutions in original dialogue |
 | `ParseMouthAnimation`, `ParseFaceAnimation` | Original script strings decoded into animation commands |
 | `Build_objective_list`, `SetScale`, `nav_getxy` | Shared mission objectives and briefing-map coordinates |
 
@@ -211,7 +223,7 @@ reference-build functions were edited for this feature.
 `Data.CMF` contains `CMP0/3`, whose first pair selects Paladin and Angel, and
 `BRF0/5`, the Enyo 1 script. Its ten section offsets are little-endian 32-bit
 values; scene records contain three signed bytes followed by five little-endian
-16-bit fields. Sections 0/1 hold the first briefing; 4/5, 8/9 and 6/7 hold
+16-bit fields. Sections 0/1 hold the first briefing, 2/3 the debriefing; 4/5, 8/9 and 6/7 hold
 Shotglass, Paladin and Angel respectively. The host validates section bounds,
 NUL termination, animation syntax, branch targets and expanded subtitle size
 before calling WC1's original parsers. It supports the initial mission's
@@ -230,7 +242,7 @@ commands and rejects unsupported script forms explicitly.
 Expanded DATA/0 supplies the room palettes and filenames at +0x3fd2/+0x4046,
 ranking rows at +0x2690, idle programs at +0x27ae/+0x2816/+0x27da, medal
 frames at +0x42f2 and briefing origins at +0x4306/+0x430a. The GUI now checks
-the carrier CMFs as well as the flight CMFs. Speech and launch movies remain
+the carrier/debriefing CMFs as well as the flight CMFs. Speech and movies remain
 optional; missing carrier artwork is an error.
 
 Speech comes from `AIFF/camp.0/04/04SSLL00.AIF`, where `SS` is the script
@@ -251,7 +263,7 @@ remain errors; ordinary AIFF FORM bounds are unchanged. This fixes rejection
 of Angel's `04060000.AIF` and the other original recordings.
 
 Scope remains a fresh Enyo 1 visit using WC1's initial pilot template. Save/load,
-name entry, later mission rooms and post-flight progression are not connected.
+name entry, later mission rooms and post-debriefing progression are not connected.
 The scene adapter preserves original dialogue and artwork but does not claim
 exact Mac presentation: audio-marker lip synchronization, scene-specific text
 colors and typography, camera pans, palette fades, music, hover/decorative
@@ -268,7 +280,50 @@ was original-instruction/data inspection, static review and compilation with
 playback were run. The existing launcher fixture was updated for the required
 CMFs but was not executed. Visual behavior and audio timing still need user review.
 
-## Launch movies
+## Carrier return and debriefing
+
+The SDL flight host reuses WC1's communication recipient/command menus and
+`request`, including wingman orders and landing command 12. C and number keys
+follow DOS/Win32 controls; SWC's native CODE_06 `Chosen_communicate_option`
+instead routes four quick commands. SDL draws the menu and clearance feedback;
+original inflight voice/portraits are not yet presented.
+
+CODE_06 `cleanup_objectives` +0x0738, `can_land` +0x0ab4 and `request` +0x0c0e
+match the shared Enyo 1 rules. Clearance needs no enemy within 20,000 and either
+patrol progress, a kill, health below 50, or fuel below 1,000. It does not require
+completing every objective. CODE_02 `house_keep_objects` +0x414a then checks
+range below 700 with collisions enabled, clearance and normal-speed flight.
+The SDL SWC branch omits WC1's facing checks. Flight stops before another
+collision pass once landing is triggered.
+
+CODE_03 `landing` +0x447e plays `LANDING1.00`, `LANDING2.00`, `LANDING1`,
+`LANDING4.00`, `LANDING5.00`, `LANDING6.00`, then `LANDING7.NN`, with
+`NN = 2 - evaluate_damage(0)*2/100`. The host uses this order and health variant.
+Missing movies leave debriefing available; malformed present movies fail.
+
+WC1 `PostMission` matches CODE_09 +0x1672, including pilot statistics and the
+first-mission badge fallthrough. `FullMissionScore` +0x17e2 and
+`PlayersMissionScore` +0x1840 use 16 signed weights from `CMP0/2` at
+`(series-1)*128 + mission*24 + 40`. Enyo 1's weights are `2,1,2,1` followed by
+zeros. A temporary WC1 campaign score window supplies those weights to its
+unchanged score functions and `ParseTests`; the previous pointer is restored
+on every exit. This does not load or advance the full campaign.
+
+`BRF0/5` section 2 has 32 records. The bounded reader now accepts its kill,
+wingman-status and full/partial score branches plus `$C`, `$K` and `$L`.
+Original `DeBriefing.CMF` BRFG/11..14 and `DeBriefingHeads.CMF` BRFG/15 and
+TKHD portraits use palettes 190/191. Body origins follow `DrawDebriefingLongShot`
++0x1b8c; close-up backgrounds follow `SceneDirector` +0x2960/+0x2988.
+Early returns and Spirit's loss select the original dialogue instead of a
+fixed success outcome. Office/award ceremonies, funeral, save persistence and
+advancing to Enyo 2 remain pending; dismissal ends this first-mission host.
+
+Validation: original Ghidra instructions and offline demo-data inspection,
+static review, and `make -j4 modern modern-gui`. No tests, interactive code,
+game/GUI sessions or audio playback were run. Existing packed-pointer linker
+warnings remain; the launcher fixture only gained the required CMF filenames.
+
+## Launch and landing movies
 
 The Mac demo stores 38 custom `LMov` files under `Movies/`, with `.dcMov`
 extensions. These are not ordinary QuickTime movies. The new decoder follows
@@ -307,7 +362,7 @@ while longer audio finishes. All movie resources are released on finish, skip,
 error, or window close.
 
 The separate `MIDI/ARMOR.MooV` soundtrack selected by the original launch,
-palette fades and opening/landing/funeral integration remain pending. First
+palette fades and opening/funeral integration remain pending. First
 briefing and bar scenes now use the carrier adapter described above. No
 external video library is needed for this slice.
 
@@ -329,7 +384,7 @@ rejected because a persisted Mac pointer cannot be used as a host pointer.
 
 | Existing WC1 code | Current SWC use | Remaining qualification |
 | --- | --- | --- |
-| `LoadMissionData` in `src/cmpgn.c` | Detects `CMFs/Data.CMF` and invokes the SDL adapter | The direct SDL flight host also calls this adapter; campaign scenes are not connected |
+| `LoadMissionData` in `src/cmpgn.c` | Detects `CMFs/Data.CMF` and invokes the SDL adapter | The direct SDL flight host also calls this adapter; later campaign scenes are not connected |
 | `set_sphere_point` in `src/brains.c` | Adds the existing nav position and ship-relative position | Validated with synthetic data and Enyo 1 |
 | `Set_up_ship_info` / `init_intelligence_data` | Sets the Enyo player's position, orientation, speed, pilot, and mission state | Other mission modes and SWC AI differences need review |
 | `Build_objective_list` | Builds Enyo's three nav objectives and carrier-return objective | Other SWC objective behavior is not established |
@@ -499,8 +554,8 @@ and retains the arrival position when undoing the final step would change the
 active nav sphere. SDL resumes rendering after travel; the 120-frame cinematic
 is not presented. NPC dispatch uses WC1's combat routines, with SWC's actual
 ship-side test for patrols (CODE_02 +0x1c2c). Hazard updates and render-dependent
-gameplay counters advance once per simulation tick. Flight communications,
-carrier landing and the end-of-mission sequence remain disconnected.
+gameplay counters advance once per simulation tick. Communications, carrier
+landing and the first debriefing are described above; later progression is pending.
 
 `L` enables ITTS for a selected hostile fighter. `SwcIttsRangeCheck` and
 `SwcUpdateItts` adapt WC2 `cockpt.c`'s `HasInRangeGunForTargetLead` (0x43ce8f)
@@ -639,10 +694,11 @@ many WC1 names were already derived from this Mac executable's MacsBug strings.
 2. Refine ship-sprite hotspots, SWC projection, scaling, and the remaining
    320x240 HUD. Instrument sprites use their original offsets; the current
    SDL renderer still centers ship sprites selected and projected by WC1.
-3. Connect carrier return, landing/debriefing, communication and the remaining
-   HUD modes. Nav-sphere transitions and NPC AI/firing are connected, but the
-   first mission still lacks its ending. The demo disables its simulator.
-4. Connect opening/landing/funeral movies and later scripted scenes to game flow;
+3. Continue flight communications (voices/portraits), remaining HUD modes and
+   post-debriefing progression. Landing and the first debriefing are connected;
+   the demo disables its simulator.
+4. Connect opening/funeral movies and later scripted scenes to game flow;
    add save/load, audio-marker lip synchronization, effects, music and palette
    transitions. The first bar, barracks and briefing, AIFF speech and Hornet
-   launch playback are present; other scene entry points are pending.
+   launch/landing playback and first debriefing are present; other scene entry
+   points are pending.

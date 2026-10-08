@@ -74,7 +74,8 @@ int main(int argumentCount, char **arguments)
     for (const auto name : {"data.cmf", "SPACEFLIGHT.CMF", "PCShipV00.CMF",
                             "RecRoomScene.CMF", "Barracks.CMF", "ViewMedals.CMF",
                             "Head10.CMF", "RRTalkingHeads.CMF", "Briefing.CMF",
-                            "BriefingCommander.CMF", "BRTH1.CMF", "BRInterface.CMF"}) {
+                            "BriefingCommander.CMF", "BRTH1.CMF", "BRInterface.CMF",
+                            "DeBriefing.CMF", "DeBriefingHeads.CMF"}) {
         assert(!validate_game_directory(swcDirectory).valid);
         std::array<char, 28> header = {'C', 'M', 'F', '1'};
         std::ofstream file(cmfs / name, std::ios::binary);

@@ -2,7 +2,7 @@
   "description": "SWC Mac demo evidence inventory; not a binary-similarity configuration or score report.",
   "reference": "Super Wing Commander Mac demo 1.0.2, extracted 68000 CODE resources",
   "address_convention": "Byte offsets from the start of each CODE resource, including its segment header; end offsets are exclusive.",
-  "validation_strategy": "Original instructions, format checks, real-demo integration and shared WC1 runtime tests. SWC binary scoring is not planned without the original Mac toolchain.",
+  "validation_strategy": "Original instructions, offline original-data inspection, static review and compilation. Runtime tests and interactive checks are not run under the current user instruction. SWC binary scoring is not planned without the original Mac toolchain.",
   "reference_binaries": {
     "CODE_01.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_01.bin",
@@ -146,7 +146,7 @@
       "source": "src/sdl/swc_rooms.c",
       "symbol": "SwcPlayRoomScene",
       "relationship": "partial-presentation-adaptation",
-      "differences": "Supports BRF0/5 sections 0,4,6,8, with the original 13-byte WC1 record layout, shared ParseTests/AddPCName/animation parsers, original portraits/backgrounds and speech. Validates data before legacy parsers. Does not call the DOS renderer. Map uses WC1 objectives and transforms. Native panning, text colors, fades and audio-marker lip synchronization are pending; animations/subtitles use host presentation."
+      "differences": "Supports BRF0/5 sections 0,2,4,6,8, with the original 13-byte WC1 record layout, shared ParseTests/AddPCName/animation parsers, original portraits/backgrounds and speech. Debriefing uses original long-shot origins and talker-selected BRFG/15 backgrounds. Validates data before legacy parsers. Does not call the DOS renderer. Map uses WC1 objectives and transforms. Native panning, text colors, fades and audio-marker lip synchronization are pending; animations/subtitles use host presentation."
     },
     {
       "original_name": "scramble",
@@ -159,6 +159,16 @@
       "differences": "Original nine-clip order with Hornet suffix 00. Uses the existing SDL path resolver; missing movies preserve direct flight. Skipping, quit and error are explicit results. Separate ARMOR.MooV music and palette transitions are pending. WC1's sprite-based scramble is not suitable for these assets."
     },
     {
+      "original_name": "landing",
+      "resource": "CODE_03.bin",
+      "entry_offset": "0x447e",
+      "end_offset": "0x45c6",
+      "source": "src/sdl/swc_movie.c",
+      "symbol": "SdlPlaySwcLanding",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Original seven-clip order with Hornet suffix 00; LANDING7 variant is 2-evaluate_damage(0)*2/100. Shares the launch SDL decoder/presentation and skip/quit/error handling. Missing movies leave debriefing available. Separate LANDING.MooV music and palette transitions are pending."
+    },
+    {
       "original_name": "MovieDisplay",
       "resource": "CODE_12.bin",
       "entry_offset": "0x0468",
@@ -166,7 +176,7 @@
       "source": "src/sdl/swc_movie.c",
       "symbol": "SdlPlaySwcMovie",
       "relationship": "partial-presentation-adaptation",
-      "differences": "SDL textures, per-movie palette conversion, queued PCM and event handling replace QuickDraw/Sound Manager. Adds pause/focus handling, explicit quit and skip-on-release; skips the complete launch sequence. External music and palette transitions remain pending."
+      "differences": "SDL textures, per-movie palette conversion, queued PCM and event handling replace QuickDraw/Sound Manager. Adds pause/focus handling, explicit quit and skip-on-release; skips the complete launch or landing sequence. External music and palette transitions remain pending."
     },
     {
       "original_name": "LMovieOpen",
@@ -422,8 +432,14 @@
     }
   ],
   "shared_wc1_evidence": [
-    {"name": "ParseTests", "resource": "CODE_03.bin", "entry_offset": "0x3b4a", "source": "src/screens.c", "wc1_address": "0x00438160", "qualification": "Shares the branch parser after bounded validation. The carrier accepts goto, score and wing-status tests; Enyo 1 uses command 4 to gate Angel's interjection. Other scene families remain unsupported."},
-    {"name": "AddPCName", "resource": "CODE_03.bin", "entry_offset": "0x0df8", "source": "src/cmpgn.c", "wc1_address": "0x00404e10", "qualification": "Shares player callsign expansion. The Enyo carrier validates $C markers and expanded length before using WC1's fixed scratch buffer. Other substitutions are not enabled in this host slice."},
+    {"name": "ParseTests", "resource": "CODE_03.bin", "entry_offset": "0x3b4a", "source": "src/screens.c", "wc1_address": "0x00438160", "qualification": "Shares the branch parser after bounded validation. Enyo 1 accepts commands 1..10 and 35/36 for goto, scores, wing status, kills and office flag. Native CMP0/2 weights are adapted to WC1's score window for the first debriefing. Other scene families remain unsupported."},
+    {"name": "AddPCName", "resource": "CODE_03.bin", "entry_offset": "0x0df8", "source": "src/cmpgn.c", "wc1_address": "0x00404e10", "qualification": "Shares callsign and kill-count expansion. The Enyo carrier validates $C/$K/$L markers and expanded length before using WC1's fixed scratch buffer. Other substitutions are not enabled in this host slice."},
+    {"name": "cleanup_objectives", "resource": "CODE_06.bin", "entry_offset": "0x0738", "source": "src/screen.c", "wc1_address": "0x0042efc0", "qualification": "Shared patrol/escort/kill completion rules; called by clearance requests and at landing before debriefing."},
+    {"name": "can_land", "resource": "CODE_06.bin", "entry_offset": "0x0ab4", "source": "src/screen.c", "wc1_address": "0x0042f2b0", "qualification": "Shared Enyo 1 rule: no enemy within 20000 and health below 50, kills, fuel below 1000 or non-return objective progress. SWC's later series-4 mission-3 story restriction is outside this host's scope."},
+    {"name": "request", "resource": "CODE_06.bin", "entry_offset": "0x0c0e", "source": "src/screen.c", "wc1_address": "0x0042f3f0", "qualification": "WC1 command dispatch reused by DOS/Win32 recipient/command menus. Landing command 12 cleans objectives, checks can_land and queues native message 8/9. SDL presents clearance text; inflight voices/portraits remain pending. Native SWC Chosen_communicate_option +0x0276 exposes four quick commands rather than these menus."},
+    {"name": "PostMission", "resource": "CODE_09.bin", "entry_offset": "0x1672", "source": "src/nav.c", "wc1_address": "0x0040f010", "qualification": "Original mission/kill statistics, badge thresholds and deliberate first-mission badge fallthrough match WC1. Shared code is called once after landing; stats are not persisted and full UpdateSeries is not called."},
+    {"name": "FullMissionScore", "resource": "CODE_09.bin", "entry_offset": "0x17e2", "source": "src/nav.c", "wc1_address": "0x0040f190", "qualification": "Same sum of 16 signed objective weights. Native CMP0/2 uses 128-byte series and 24-byte mission records; the Enyo 1 adapter supplies only WC1's first-mission score window during debriefing and restores the previous data pointer."},
+    {"name": "PlayersMissionScore", "resource": "CODE_09.bin", "entry_offset": "0x1840", "source": "src/nav.c", "wc1_address": "0x0040f1e0", "qualification": "Same achieved-objective filter over the adapted native weights; preserves original full/partial debriefing branches without forcing a success outcome."},
     {"name": "TranslateEyes", "resource": "CODE_03.bin", "entry_offset": "0x0d5c", "source": "src/cmpgn.c", "symbol": "ParseFaceAnimation", "wc1_address": "0x00404cd0", "qualification": "Same frame/duration/comma/R command language. WC1 emits short command pairs; the original Mac emits wider pairs. Host validates durations/termination and supplies adequately sized buffers."},
     {"name": "draw_nav_pointer", "resource": "CODE_13.bin", "entry_offset": "0x3460", "source": "src/cockpt.c", "wc1_address": "0x004168c0", "qualification": "Reuses allocation, objective-relative transform, view-cone/radius gates and projection. SDL-only SWC activation allows target mode; valid-objective guard and per-call invalidation prevent stale markers. CKPT/1 frame 3 replaces the host rectangle."},
     {"name": "your_internal_damage", "resource": "CODE_05.bin", "entry_offset": "0x179e", "source": "src/ship.c", "wc1_address": "0x0041f220", "qualification": "Shared WC1 impact and component-damage flow. Original +0x184a calls random_number(3), which selects regions 0..2; SDL changes only the cockpit-region bound. Other damage probabilities remain WC1; object parameters use the recovered SWC definitions."},
@@ -435,7 +451,7 @@
     {"name": "select_guns", "resource": "CODE_15.bin", "entry_offset": "0x0186", "source": "src/hudmsg.c", "wc1_address": "0x0042ada0"},
     {"name": "select_new_gun", "resource": "CODE_15.bin", "entry_offset": "0x0202", "source": "src/hudmsg.c", "wc1_address": "0x0042ae10", "qualification": "Shared gun selection; SWC's 15-tick status-text timer is not reproduced."},
     {"name": "select_new_release_weapon", "resource": "CODE_15.bin", "entry_offset": "0x023e", "source": "src/hudmsg.c", "wc1_address": "0x0042ae50", "qualification": "Shared preferred-type selection and enabled slot state; host text is persistent."},
-    {"name": "house_keep_objects", "resource": "CODE_02.bin", "entry_offset": "0x3d38", "source": "src/spc.c", "wc1_address": "0x00412430", "qualification": "Same lifetime/cooldown stages. Retains WC1's debris-expiration behavior; SWC-only object classes are unsupported."},
+    {"name": "house_keep_objects", "resource": "CODE_02.bin", "entry_offset": "0x3d38", "source": "src/spc.c", "wc1_address": "0x00412430", "qualification": "Same lifetime/cooldown stages. SDL SWC landing follows +0x414a: clearance, collisions enabled, normal speed and range below 700, without facing checks. Flight exits before another collision pass after docking. Retains WC1's debris-expiration behavior; SWC-only object classes are unsupported."},
     {"name": "update_objects_in_space", "resource": "CODE_02.bin", "entry_offset": "0x418c", "source": "src/spc.c", "wc1_address": "0x00412820", "qualification": "Shares animation, collision, rotation, missile intelligence, energy, movement and shield stages. WC1 collision/damage remains in use; SWC's collision-candidate prepass is absent. NPC ship intelligence, nav transitions and encounter spawning are connected; flight communication is still disconnected."},
     {"name": "animate_shape", "resource": "CODE_02.bin", "entry_offset": "0x4790", "source": "src/spc.c", "wc1_address": "0x00412cd0", "qualification": "Same frame/loop/scale/removal commands. Host supplies SWC explosion sequences and scales to WC1's interpreter. Original Mac handle management and the final ship-explosion frame's screen-shake trigger are not reproduced."},
     {"name": "replenish_weapon_energy_bank", "resource": "CODE_05.bin", "entry_offset": "0x419e", "source": "src/logic.c", "wc1_address": "0x00421830", "qualification": "Shared one/two-unit recharge and 100-unit cap; shield capacities now use recovered SWC definitions."},
@@ -573,19 +589,23 @@
   "movies": {
     "decoder_source": "src/swc/movie.c",
     "presentation_source": "src/sdl/swc_movie.c",
-    "scope": "Version-1 LMov decoder and original Hornet launch before Enyo 1 in both SDL launchers. Missing sequence files preserve direct flight; malformed movies fail explicitly. The check-only flight path bypasses movies.",
+    "scope": "Version-1 LMov decoder and original Hornet launch/landing for Enyo 1 in both SDL launchers. Missing sequence files preserve flight/debriefing; malformed movies fail explicitly. The check-only flight path bypasses movies.",
     "launch_sequence": ["ARMOR", "HALL", "LAUNCH01", "LAUNCH02", "LAUNCH03", "LAUNCH04.00", "LAUNCH06.00", "LAUNCH07.00", "LAUNCH08.00"],
     "launch_string_evidence": "CODE_03 scramble +0x45d0, expanded DATA/0 A5-relative strings -0x3414, -0x3402, -0x33fd, -0x33f4, -0x33eb, -0x33e2, -0x33d3, -0x33c4, -0x33b5. Last four format strings use %2.2d; Hornet selects zero.",
+    "landing_sequence": ["LANDING1.00", "LANDING2.00", "LANDING1", "LANDING4.00", "LANDING5.00", "LANDING6.00", "LANDING7.NN"],
+    "landing_string_evidence": "CODE_03 landing +0x447e; expanded DATA/0 +0x42a6..0x42ba filename pointers, A5-0x341d LANDING1. Final NN is 2-evaluate_damage(0)*2/100, yielding 00..02.",
     "audio": "Embedded unsigned 8-bit mono at 0x56ee8ba3 fixed-point Hz (22254.545...), rounded to 22255 Hz by SDL. Stored blocks are 11128 bytes; header +0xa6 is the valid sample count. SDL queues trimmed PCM, pauses with video, and falls back to silent playback if the device is unavailable.",
-    "pending": "Separate MIDI/ARMOR.MooV music (A5-0x340d), palette transitions, opening/landing/funeral game-flow integration, and later scripted scenes. First briefing/bar conversations are connected through the carrier adapter.",
+    "pending": "Separate ARMOR.MooV/LANDING.MooV music, palette transitions, opening/funeral game-flow integration, and later scripted scenes. First briefing/bar/debriefing conversations are connected through the carrier adapter.",
     "validation": "Original assembly and A5-string inspection; offline parsing of all 38 original files and 3521 encoded frames, including record bounds, scanline commands, exact frame consumption and audio lengths; static source review and make modern modern-gui. No interactive code, game, GUI, playback or audio device executed."
   },
   "carrier": {
     "source": "src/sdl/swc_rooms.c",
-    "scope": "Fresh Enyo 1: bar, three conversations, rankings, barracks, medals, briefing, Hornet launch, flight. GUI and CLI enter the carrier; check-only bypasses rooms and movies. Save bunks explain unsupported saving/loading. Simulator remains disabled as in the original demo.",
+    "scope": "Fresh Enyo 1: bar, three conversations, rankings, barracks, medals, briefing, Hornet launch, flight, landing and debriefing. Dismissal ends the session; later campaign progression is not implemented. GUI and CLI enter the carrier; check-only bypasses rooms and movies. Save bunks explain unsupported saving/loading. Simulator remains disabled as in the original demo.",
     "flow_evidence": [
       {"resource": "CODE_09.bin", "entry_offset": "0x1a70", "name": "StartNewCampaign", "qualification": "Enables the recreation-room path."},
-      {"resource": "CODE_09.bin", "entry_offset": "0x1b8e", "name": "GameFlow", "qualification": "RecRoom, BarracksScreen, Briefing and scramble; simulator selection shows the demo restriction."},
+      {"resource": "CODE_09.bin", "entry_offset": "0x1b8e", "name": "GameFlow", "qualification": "RecRoom, BarracksScreen, Briefing, scramble, landing, PostMission and DeBriefing; simulator selection shows the demo restriction. Full UpdateSeries and later scenes are not connected."},
+      {"resource": "CODE_03.bin", "entry_offset": "0x137c", "name": "DeBriefing"},
+      {"resource": "CODE_03.bin", "entry_offset": "0x1b8c", "name": "DrawDebriefingLongShot"},
       {"resource": "CODE_03.bin", "entry_offset": "0x1556", "name": "LoadBriefingData"},
       {"resource": "CODE_03.bin", "entry_offset": "0x39c6", "name": "scene_ptr"},
       {"resource": "CODE_03.bin", "entry_offset": "0x1e54", "name": "DrawBriefingLongShot"},
@@ -593,9 +613,15 @@
       {"resource": "CODE_03.bin", "entry_offset": "0x42cc", "name": "LoadFace"},
       {"resource": "CODE_03.bin", "entry_offset": "0x323c", "name": "CloseTalk"}
     ],
-    "shared_wc1_functions": ["ResetCampaignData", "CorrectPointers", "FindMenuRegionAtPoint", "IsPointInRect", "ParseTests", "AddPCName", "ParseMouthAnimation", "ParseFaceAnimation", "Build_objective_list", "SetScale", "nav_getxy"],
+    "shared_wc1_functions": ["ResetCampaignData", "CorrectPointers", "FindMenuRegionAtPoint", "IsPointInRect", "ParseTests", "AddPCName", "ParseMouthAnimation", "ParseFaceAnimation", "Build_objective_list", "SetScale", "nav_getxy", "PostMission", "FullMissionScore", "PlayersMissionScore"],
     "reuse_qualification": "Reference functions are unchanged. Original WC1 room/director functions also perform DOS resource and viewport I/O, so the host reuses their separable logic/data types and provides SDL presentation. Pilot identity, rankings and awards start from WC1's initial campaign template; the SWC character initialization template and name-entry UI are not reconstructed.",
-    "script": {"file": "Data.CMF", "chunk": "BRF0/5", "directory": "10 LE32 section offsets", "record": "13 bytes: three signed bytes, five LE16 fields", "sections": {"briefing": 0, "shotglass": 4, "angel": 6, "paladin": 8}, "roster": "CMP0/3 indexed by (series-1)*8+mission*2; Enyo 1 pair 5,4 is validated."},
+    "script": {"file": "Data.CMF", "chunk": "BRF0/5", "directory": "10 LE32 section offsets", "record": "13 bytes: three signed bytes, five LE16 fields", "sections": {"briefing": 0, "debriefing": 2, "shotglass": 4, "angel": 6, "paladin": 8}, "roster": "CMP0/3 indexed by (series-1)*8+mission*2; Enyo 1 pair 5,4 is validated."},
+    "debriefing": {
+      "campaign_scores": "CMP0/2 +(series-1)*128+mission*24+40: 16 signed byte weights. Enyo 1 is 2,1,2,1, then zeros. Host validates Enyo 1/Spirit, copies only these weights into WC1's first-mission score window at +14, and restores pMissionCampaignData on every exit.",
+      "art": "DeBriefing.CMF palette 190: BRFG/11 background, /12 player at (40,45), /14 commander mouth+1 at (140,60), /13 living wingman at (195,40). DeBriefingHeads.CMF palette 191: BRFG/15 frame 1 for talker 10, frame 0 for talker 11, TKHD portraits selected by shot-19.",
+      "branches": "Original 32 records select complete/partial mission, surviving/lost Spirit and player/wingman kill reports. Callsign/kills use the unchanged WC1 AddPCName. Early landing is not forced into a success result.",
+      "limits": "Finishes the first-mission session after debriefing; no full campaign progression, office/award ceremonies, funeral or persistence. Original scene timing/music/fades remain pending."
+    },
     "data_offsets": {"palettes": "0x3fd2", "filenames": "0x4046", "ranking_rows": "0x2690", "idle_sequences": ["0x27ae", "0x2816", "0x27da"], "medal_frames": "0x42f2", "briefing_origin": ["0x4306", "0x430a"]},
     "speech": {
       "reader_source": "src/swc/speech.c",

@@ -1148,10 +1148,10 @@ unsigned int house_keep_objects(void)
                 normal_speed(0) != 0) {
                 get_facing_range_from_object(0, obj);
 #ifdef SDL_PORT
-                /* WC2 lands from any bearing; the original also required the
-                   Claw's bow to face the player. */
+                /* SWC CODE_02 +0x414a checks range alone. Keep the existing
+                   SDL WC1 approach check for non-SWC flights. */
                 if (nTargetRange < 700 &&
-                    nFacingToTarget > 75) {
+                    (SdlSwcFlightActive() || nFacingToTarget > 75)) {
 #else
                 if (nTargetRange < 700 &&
                     nFacingToTarget > 75 &&
