@@ -16,6 +16,12 @@ void visit_the_cinema(int view, int obj, short frames)
     int savedInputFlag;
     int savedKeyboardFlag;
 
+#ifdef SDL_PORT
+    /* SWC's travel state is shared below; its movie/space presentation is
+       owned by the SDL host, not the WC1 viewport renderer. */
+    if (SdlSwcFlightActive())
+        return;
+#endif
     savedOriginUnlock = nOriginDevUnlock;
     savedInputFlag = bPlayerVulnerable;
     savedKeyboardFlag = bPlayerCollisionResponse;
@@ -105,6 +111,9 @@ void auto_pilot_sequence(void)
     short nearestShipRange;
     short cruiseSpeed;
     short other;
+#ifdef SDL_PORT
+    FixedVector previousPosition;
+#endif
 
     savedCannedSceneMode = (short)nCannedSceneMode;
     formationSlot = 0;
@@ -146,6 +155,11 @@ void auto_pilot_sequence(void)
                         anObjectPitchRotation[ship] = 0;
                         anYawGoal[ship] = 0;
                         anObjectYawRotation[ship] = 0;
+#ifdef SDL_PORT
+                        /* CODE_14 +0x03a8: release the player's gun timer. */
+                        if (SdlSwcFlightActive() && ship == 0)
+                            asObjectCounter[0] = -1;
+#endif
                         if (ship != 0 &&
                             ship != nYourWingman)
                             nAutopilotFormationShipCount++;
@@ -223,8 +237,17 @@ void auto_pilot_sequence(void)
                 nCannedSceneMode = savedCannedSceneMode;
         }
 
+#ifdef SDL_PORT
+        previousPosition = aShipPosition[0];
+#endif
         SubtractFixedVectors(&aShipPosition[0], &travelStep,
                              &aShipPosition[0]);
+#ifdef SDL_PORT
+        /* CODE_14 +0x0648: retain the arrival position when reversing the
+           last step would disagree with the active navigation sphere. */
+        if (SdlSwcFlightActive() && FindNearestNavPoint(0) != nCurrentNavPoint)
+            aShipPosition[0] = previousPosition;
+#endif
         cruiseSpeed = asShipMaximumSpeed[0];
         for (ship = 0; ship < 10; ship++) {
             if (travelMode[ship] != 0 &&
@@ -258,6 +281,10 @@ void auto_pilot_sequence(void)
             }
         }
 
+#ifdef SDL_PORT
+        if (SdlSwcFlightActive())
+            return;
+#endif
         Update_3Space();
         if (bCockpitlessView == 0) {
             force_view(0, 0);

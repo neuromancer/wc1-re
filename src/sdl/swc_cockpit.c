@@ -63,6 +63,8 @@ static int swcSparkFrame = -1;
 static int swcSparkRegion;
 static short swcSparkStartFrame;
 static SDL_Point swcSparkPosition;
+static int swcIttsActive;
+static SDL_Point swcIttsPosition = {0x7fff, 0};
 
 /* DATA/0 +0x7f2: radar, left VDU, right VDU. */
 static const SDL_Point swcDamagePositions[3] = {
@@ -149,6 +151,8 @@ void SdlFreeSwcCockpit(void)
     swcScannerEnemy = swcHostileArrow = -1;
     swcDamageComponent = swcDamageDisplayTicks = 0;
     swcSparkFrame = -1;
+    swcIttsActive = 0;
+    swcIttsPosition.x = 0x7fff;
 }
 
 int SdlInitSwcCockpit(SDL_Renderer *renderer, const SwcCmf *cockpit,
@@ -243,6 +247,103 @@ static int SwcCockpitTarget(void)
     return target > 0 && target < 10 &&
         aeObjectClass[target] >= OBJECT_CLASS_SHIP &&
         aeSpecialManeuver[target] != SPECIAL_MANEUVER_UNKNOWN_9 ? target : -1;
+}
+
+/* CODE_13 itts_range_check +0x2bce. WC2's
+   HasInRangeGunForTargetLead (cockpt.c, 0x43ce8f) has the same loop. */
+static int SwcIttsRangeCheck(short targetRange)
+{
+    const ShipWeaponSlot *weapons = (ShipWeaponSlot *)&aShipWeapons[0][1];
+    int remaining = (signed char)aShipWeapons[0][0];
+
+    while (remaining-- > 0) {
+        const ObjectTypeData *type;
+
+        if (weapons[remaining].disabled)
+            continue;
+        type = &aObjectTypeData[weapons[remaining].type];
+        if (type->objectClass == OBJECT_CLASS_PROJECTILE &&
+            type->maximumVelocity * type->lifetime > targetRange)
+            return 1;
+    }
+    return 0;
+}
+
+static void SwcUpdateItts(void)
+{
+    /* CODE_13 position_itts_crosshair +0x2c48, overlay +0x2f56.
+       Reuse WC2 UpdateTargetLeadIndicator (0x43cf5a)'s velocity prediction,
+       retaining SWC's forward cone, 160-pixel projection and sprite origin. */
+    const ShipWeaponSlot *weapons = (ShipWeaponSlot *)&aShipWeapons[0][1];
+    int target = SwcCockpitTarget();
+    int weapon;
+    int projectileSpeed = 100;
+    int interceptFrames;
+    int distance;
+    FixedVector combinedVelocity;
+    FixedVector projectileVelocity;
+    FixedVector targetOffset;
+    FixedVector interceptPoint;
+    FixedVector relative;
+    FixedVector eyeRelative;
+
+    swcIttsPosition.x = 0x7fff;
+    if (target == -1 || nTargetLockMode == 0 ||
+        aeShipSide[target] == aeShipSide[0] ||
+        aeObjectClass[target] >= OBJECT_CLASS_CAPITAL_SHIP ||
+        acPlayerComponentDamage[5] >= 4) {
+        swcIttsActive = 0;
+        return;
+    }
+    if (!swcIttsActive) {
+        if (!SwcIttsRangeCheck(distance_from_object(0, (short)target)))
+            return;
+        swcIttsActive = 1;
+        set_global_message("ITTS engaged", 0xd4, 3);
+    }
+    weapon = (signed char)aShipWeapons[0][0];
+    while (weapon-- > 0) {
+        const ObjectTypeData *type;
+
+        if (weapons[weapon].disabled)
+            continue;
+        type = &aObjectTypeData[weapons[weapon].type];
+        if (type->objectClass == OBJECT_CLASS_PROJECTILE &&
+            projectileSpeed < type->maximumVelocity)
+            projectileSpeed = type->maximumVelocity;
+    }
+    vector_component_in_dir(&aShipVelocity[0], &aShipForwardVector[0],
+                            &combinedVelocity);
+    ScaleFixedVector(&aShipForwardVector[0], projectileSpeed << 8,
+                     &projectileVelocity);
+    AddFixedVectors(&projectileVelocity, &combinedVelocity, &combinedVelocity);
+    projectileSpeed = (Vector_magnitude(&combinedVelocity) >> 8) + 1;
+    interceptFrames = distance_from_object(0, (short)target) / projectileSpeed;
+    zero_vector(&targetOffset);
+    if (interceptFrames > 0)
+        ScaleFixedVector(&aShipVelocity[target], interceptFrames << 8,
+                         &targetOffset);
+    AddFixedVectors(&aShipPosition[target], &targetOffset, &interceptPoint);
+    if (!SwcIttsRangeCheck(distance_from_point(0, &interceptPoint))) {
+        set_global_message("Target out of range", 0xd4, 3);
+        swcIttsActive = 0;
+        return;
+    }
+    ComputeVectorDelta(&aShipPosition[0], &interceptPoint, &relative);
+    distance = Vector_magnitude(&relative);
+    if (distance <= asObjectCollisionRadius[EYE_OBJECT] * 256)
+        return;
+    transform_to_objects_frame(&relative, &eyeRelative, EYE_OBJECT);
+    if (eyeRelative.z < asObjectCollisionRadius[0] * 256 ||
+        DivideFixed(eyeRelative.z, distance) < 0x94)
+        return;
+    swcIttsPosition.x = (int)(((int64_t)eyeRelative.x * 0xa000 /
+                               eyeRelative.z) >> 8) + 0x91;
+    swcIttsPosition.y = (int)(((int64_t)eyeRelative.y * 0xa000 /
+                               eyeRelative.z) >> 8) + 0x55;
+    if (swcIttsPosition.x < 10 || swcIttsPosition.x > 310 ||
+        swcIttsPosition.y < 5 || swcIttsPosition.y > 230)
+        swcIttsPosition.x = 0x7fff;
 }
 
 static void SwcUpdateCockpitScanner(void)
@@ -424,6 +525,7 @@ void SdlUpdateSwcCockpit(void)
         }
     }
     SwcUpdateCockpitScanner();
+    SwcUpdateItts();
     /* CODE_13 explosion_draw +0x40a0: eight frames, occasional repeat
        around the damaged panel. Frame zero is retained for the impact tick. */
     if (swcSparkFrame >= 0 && swcSparkStartFrame != nSpaceFrame &&
@@ -602,12 +704,20 @@ int SdlDrawSwcSpaceHud(const SDL_Rect *targetBounds)
     int target = SwcCockpitTarget();
     int object = nNavPointerObject;
     int index;
+    int reticle = 0;
 
     swcCockpitDrawResult = 0;
     /* CODE_13 overlay_head_up_display +0x2f56: scene center (160,100),
        normal reticle at (center.x-16, center.y-4), including frame offsets.
        update_cockpit draws this layer before the opaque cockpit artwork. */
-    SwcDrawInstrument(SWC_RETICLE, 0, 144, 96);
+    if (swcIttsActive && target != -1 && nTargetLockMode != 0 &&
+        swcIttsPosition.x != 0x7fff) {
+        SwcDrawInstrument(SWC_RETICLE, 5, swcIttsPosition.x, swcIttsPosition.y);
+        if (swcIttsPosition.x + 20 >= 155 && swcIttsPosition.x + 10 <= 163 &&
+            swcIttsPosition.y + 20 >= 107 && swcIttsPosition.y + 10 <= 115)
+            reticle = 4;
+    }
+    SwcDrawInstrument(SWC_RETICLE, reticle, 144, 96);
     if (!anCockpitDamageState[0] && swcHostileArrow != -1)
         SwcDrawInstrument(SWC_RETICLE, 6 + swcHostileArrow, 144, 96);
     if (object >= 0 && asObjectScreenX[object] != (short)0x8001) {

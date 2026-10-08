@@ -1240,6 +1240,9 @@ extern int bHostSecondaryMouseButton; /* 0x005a899c */
 
 extern ObjectTypeData aObjectTypeData[OBJECT_TYPE_COUNT]; /* 0x00466458 */
 extern const ShortVector aChildOffsets[56]; /* 0x004682f0 */
+#ifdef SDL_PORT
+extern const ShortVector aSwcChildOffsets[63];
+#endif
 extern const ShortPoint aWeaponDisplayPositions[32]; /* 0x00468440 */
 extern const ShortPoint aWeaponDisplayOrigins[5]; /* 0x004684c0 */
 extern LPDIRECTDRAWSURFACE pPrimarySurface; /* 0x0046b1a8 */

@@ -1,8 +1,9 @@
 /* SDL2 first-mission host. Mission state, ship setup, flight dynamics, view
  * selection, navigation and player weapons belong to the existing WC1 core.
- * SWC object definitions, NPC ship AI, progression and the complete HUD remain open. */
+ * The Mac object definitions are translated at this SDL-only boundary. */
 #include "wc1.h"
 #include "swc.h"
+#include "swc_objects.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -20,27 +21,21 @@ static int swcReleaseWeaponPending;
 static int swcGunFirePending;
 static int swcBothButtonsHeld;
 
-static void SwcSetExplosionData(ObjectTypeData saved[3])
+static void SwcSetObjectData(ObjectTypeData saved[OBJECT_TYPE_COUNT])
 {
-    /* CODE_08 init_data_struct2 +0x4c7c/+0x4d52/+0x4e28 points to DATA/0
-       +0x2564/+0x261c/+0x25c0: consecutive frames, then remove (0xa000).
-       Keep WC1's animation interpreter; supply the Mac artwork's sequences. */
-    static unsigned int animations[3][23];
-    static const int frames[3] = {15, 20, 22};
-    static const short scales[3] = {0x300, 0x200, 0x400};
+    /* CODE_08 +0x0286/+0x47cc. The shared runtime has the same object IDs
+       through 57, but packed seven-byte loadouts and split fuel storage. */
     int type;
-    int frame;
 
-    for (type = 0; type < 3; type++) {
-        ObjectTypeData *data = &aObjectTypeData[OBJECT_TYPE_EXPLOSION0 + type];
+    memcpy(saved, aObjectTypeData, sizeof(aObjectTypeData));
+    memcpy(aObjectTypeData, swcObjectDefinitions, sizeof(aObjectTypeData));
+    for (type = 0; type < 22; type++) {
+        ObjectTypeData *data = &aObjectTypeData[type];
 
-        saved[type] = *data;
-        for (frame = 0; frame < frames[type]; frame++)
-            animations[type][frame] = (unsigned int)frame;
-        animations[type][frame] = 0xa000;
-        data->animation = (unsigned char *)animations[type];
-        data->yawRate = 1;
-        data->scale = scales[type];
+        memcpy(&data->lifetime, &swcShipFuel[type], sizeof(int));
+        data->weaponLoadout[0] = swcWeaponCounts[type];
+        memcpy(data->weaponLoadout + 1, swcWeaponLoadouts[type],
+               sizeof(swcWeaponLoadouts[type]));
     }
 }
 
@@ -139,6 +134,15 @@ static int SwcLoadFlightImages(SDL_Renderer *renderer, const SwcCmf *cockpit,
     case OBJECT_TYPE_DEBRIS_PIPE: chunk = 5; expected = 33; break;
     case OBJECT_TYPE_SPACE_MINE:
         cmf = cockpit; chunk = 16; expected = 14; break;
+    /* CODE_04 load_ship +0x04d2..+0x054e loads the two asteroid sets;
+       CODE_05 set_objects_data +0x02b0 assigns the first set to rock fragments. */
+    case OBJECT_TYPE_ASTEROID1:
+    case OBJECT_TYPE_ASTEROID3:
+    case OBJECT_TYPE_ASTEROID5:
+    case OBJECT_TYPE_ROCK_CHUNK: chunk = 17; expected = 12; break;
+    case OBJECT_TYPE_ASTEROID2:
+    case OBJECT_TYPE_ASTEROID4:
+    case OBJECT_TYPE_ASTEROID6: chunk = 18; expected = 12; break;
     default:
         if (type >= OBJECT_TYPE_DUMB_FIRE_MISSILE &&
             type <= OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE) {
@@ -220,6 +224,23 @@ static int SwcStartMissionShips(void)
     clear_cockpit_damage();
     memset(acObjectCollisionGraceTicks, 0, sizeof(acObjectCollisionGraceTicks));
     memset(nShipMissionIndices, 0xff, sizeof(nShipMissionIndices));
+    memset(abHazardObjects, 0xff, sizeof(abHazardObjects));
+    memset(acShipSpawnNavPoint, 0xff, sizeof(acShipSpawnNavPoint));
+    memset(acTurnRegulator, 0, sizeof(acTurnRegulator));
+    memset(acTurnInterval, 0, sizeof(acTurnInterval));
+    memset(apObjectShape, 0, sizeof(apObjectShape));
+    pActiveHazardField = NULL;
+    nHazardFieldCount = 0;
+    nActiveHazards = 0;
+    nYourWingman = -1;
+    nPlayerKillCount = 0;
+    nWingmanKillCount = 0;
+    nEnemySighting = 0x7fff;
+    nTargetLockMode = 0;
+    bEngageAllowed = 0;
+    nAutoEngageTimer = -1;
+    nCommSpeakerObject = -1;
+    bIntroSecondaryScene = 0;
     nCurrentNavPoint = nMissionEntryNavPoint;
     stCampaignState.playerShipType = aMissionShips[nPlayerMissionShipIndex].type;
     bInitialFormationSetup = 1;
@@ -229,7 +250,17 @@ static int SwcStartMissionShips(void)
             find_ship_index(aMissionShips[record].leaderMissionIndex) == -1)
             return SDL_SetError("SWC entry formation needs its leader initialized first");
         set_objects_data(index, aMissionShips[record].type, -1);
-        Set_up_ship_info(index, record, (signed char)nCurrentNavPoint);
+        Set_up_ship_info(index, record, is_team_member(record) ? -1 :
+                                      (signed char)nCurrentNavPoint);
+        if (index != 0) {
+            find_next_ship_turn_slot(index);
+            if (nYourWingman == -1 && is_team_member(record) &&
+                aiPilotLevel[index] > 4 && aiPilotLevel[index] < 14)
+                nYourWingman = index;
+        }
+        asObjectScreenX[index] = (short)0x8001;
+        if (aMissionShips[record].type == OBJECT_TYPE_TIGERS_CLAW)
+            nCarrierMissionShipIndex = record;
     }
     bInitialFormationSetup = 0;
     Build_objective_list();
@@ -376,6 +407,11 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
        missile guidance, energy recharge, shields and movement. */
     house_keep_objects();
     update_objects_in_space();
+    ReleaseStaleNavTarget();
+    check_hazards();
+    check_next_wave();
+    if (cCurrentObjective >= 0 && cCurrentObjective < cMissionObjectiveCount)
+        update_objective_location((short)cCurrentObjective);
     copy_frame(0, EYE_OBJECT);
     aShipPosition[EYE_OBJECT] = aShipPosition[0];
     aShipVelocity[EYE_OBJECT] = aShipVelocity[0];
@@ -393,6 +429,7 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
     UpdateMessage(&aHudMessageSlots[1]);
     SdlUpdateSwcCockpit();
     nSpaceFrame++;
+    nRenderedSpaceFrame++;
 }
 
 static SDL_Rect SwcRotatedSpriteBounds(const SDL_Rect *sprite, short angle)
@@ -465,7 +502,6 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
     if (SDL_RenderClear(renderer) != 0)
         return -1;
     SDL_SetRenderDrawColor(renderer, 160, 175, 200, 255);
-    nRenderedSpaceFrame++;
     for (object = 1; object <= SPACE_LAST_MOVING_OBJECT; object++) {
         if ((aeObjectClass[object] == OBJECT_CLASS_STAR ||
              aeObjectClass[object] == OBJECT_CLASS_DUST) &&
@@ -560,7 +596,7 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     SwcCmf spaceCmf = {0};
     SwcBuffer cockpitSet = {0};
     SwcFlightImages images[OBJECT_TYPE_COUNT] = {{0}};
-    ObjectTypeData savedExplosions[3];
+    ObjectTypeData savedObjects[OBJECT_TYPE_COUNT];
     SDL_Color colors[256];
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
@@ -586,7 +622,7 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     int showMap = 0;
     int paused = 0;
     int focused = 1;
-    int explosionsConfigured = 0;
+    int objectsConfigured = 0;
     int movieResult;
     int done = 0;
     int result = -1;
@@ -632,8 +668,8 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     /* Prepare shared mission state for the briefing map. No flight ticks or
        player input run while visiting the carrier or watching launch. */
     swcFlightActive = 1;
-    SwcSetExplosionData(savedExplosions);
-    explosionsConfigured = 1;
+    SwcSetObjectData(savedObjects);
+    objectsConfigured = 1;
     srand(1);
     shipCount = SwcStartMissionShips();
     if (shipCount < 0)
@@ -752,7 +788,23 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
                     done = 1;
                     break;
                 case SDLK_n:
-                    cycle_next_objective();
+                    if (focused && !paused)
+                        cycle_next_objective();
+                    break;
+                case SDLK_a:
+                    if (focused && !paused && !bPlayerDestroyed && nArcadeState == 0) {
+                        auto_pilot_sequence();
+                        copy_frame(0, EYE_OBJECT);
+                        aShipPosition[EYE_OBJECT] = aShipPosition[0];
+                        aShipVelocity[EYE_OBJECT] = aShipVelocity[0];
+                        elapsed = 0;
+                        previous = SDL_GetTicks();
+                        SwcCentreFlightMouse();
+                    }
+                    break;
+                case SDLK_l:
+                    if (focused && !paused)
+                        nTargetLockMode = (short)(nTargetLockMode == 0);
                     break;
                 case SDLK_t:
                     if (focused && !paused) {
@@ -824,7 +876,7 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
             goto done;
         SDL_RenderPresent(renderer);
         SDL_snprintf(title, sizeof(title),
-                     "SWC Enyo 1%s | %s | speed %ld (set %d)%s | mouse/arrows: steer RMB: roll/throttle +/-: speed Tab: boost Space/LMB: guns Enter/both buttons: missile G/W: weapons T: target N: nav M: map C: cockpit P: pause Esc: exit",
+                     "SWC Enyo 1%s | %s | speed %ld (set %d)%s | mouse/arrows: steer RMB: roll/throttle +/-: speed Tab: boost Space/LMB: guns Enter/both buttons: missile G/W: weapons T: target L: lock N: nav A: autopilot M: map C: cockpit P: pause Esc: exit",
                      paused || !focused ? " (paused)" : "",
                      aMissionObjectives[(int)cCurrentObjective].name,
                      MultiplyFixed(Vector_magnitude(&aShipVelocity[0]), 0xa00) >> 8,
@@ -858,10 +910,8 @@ done:
     SetEventManagerPump(savedInputPump);
     bCockpitlessView = savedCockpitlessView;
     swcFlightActive = 0;
-    if (explosionsConfigured) {
-        for (object = 0; object < 3; object++)
-            aObjectTypeData[OBJECT_TYPE_EXPLOSION0 + object] = savedExplosions[object];
-    }
+    if (objectsConfigured)
+        memcpy(aObjectTypeData, savedObjects, sizeof(aObjectTypeData));
     if (window != NULL)
         SDL_SetWindowMouseGrab(window, SDL_FALSE);
     for (object = 0; object < OBJECT_TYPE_COUNT; object++) {

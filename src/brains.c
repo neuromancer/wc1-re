@@ -3085,7 +3085,12 @@ void ship_intelligence(short obj)
     case MISSION_TYPE_PATROL:
         /* The retail source tests the array address rather than this ship's
          * side, leaving the Imperial arm present but unreachable. */
+#ifdef SDL_PORT
+        /* SWC CODE_02 ship_intelligence +0x1c2c reads this ship's side. */
+        if (SdlSwcFlightActive() ? aeShipSide[obj] == SIDE_IMPERIAL : aeShipSide == 0)
+#else
         if (aeShipSide == 0)
+#endif
             imperial_wingleader(obj);
         else
             kilrathi_patrol(obj);
@@ -3863,6 +3868,12 @@ int new_sphere_shapes(MissionNavPoint *navPoint)
     short preload;
     enum ObjectType type;
 
+#ifdef SDL_PORT
+    /* The SWC renderer owns CMF textures and loads each active type on demand.
+       WC1's disk packet cache and viewport setup have no SDL resource here. */
+    if (SdlSwcFlightActive())
+        return 0;
+#endif
     GetScreenUpdateFlag();
     slot = 1;
     release_all_capital_ship_shapes();

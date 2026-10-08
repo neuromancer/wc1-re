@@ -955,7 +955,12 @@ short check_for_collision(short obj)
 /* Function start: 0x419A70 */
 void position_child(short parent, short hardpoint, FixedVector *position)
 {
+#ifdef SDL_PORT
+    const ShortVector *offset = SdlSwcFlightActive() ?
+        &aSwcChildOffsets[hardpoint] : &aChildOffsets[hardpoint];
+#else
     const ShortVector *offset = &aChildOffsets[hardpoint];
+#endif
 
     position->x = aShipForwardVector[parent].x * offset->z +
                   aShipUpVector[parent].x * offset->y +
