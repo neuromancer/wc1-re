@@ -3,6 +3,8 @@
 #define main SdlLauncherMain
 #define SdlEnableEgaDither RecordEgaDither
 #define SdlEnableJoystickRumble RecordJoystickRumble
+#define SdlFindSwcMissionData FindTestSwcMissionData
+#define SdlRunSwcMission RunTestSwcMission
 #include "../src/sdl/launcher.c"
 #undef main
 
@@ -12,6 +14,24 @@ static int dialogResult;
 static int dialogCalls;
 static int egaEnabled;
 static int rumbleEnabled;
+static int swcSelected;
+static int swcFound;
+static int missionCalls;
+
+int FindTestSwcMissionData(char *path, unsigned long capacity)
+{
+    SDL_strlcpy(path, "CMFs/Data.CMF", capacity);
+    return swcFound;
+}
+
+int RunTestSwcMission(const char *path, int checkOnly, int cockpitless)
+{
+    assert(SDL_WasInit(0) == 0);
+    assert(strcmp(path, "CMFs/Data.CMF") == 0);
+    assert(checkOnly && cockpitless);
+    missionCalls++;
+    return 0;
+}
 
 void RecordEgaDither(void)
 {
@@ -28,6 +48,11 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     assert(SDL_WasInit(0) == 0);
     dialogCalls++;
     if (dialogResult == SDL_LAUNCHER_ACCEPTED) {
+        if (swcSelected) {
+            options->swcDemo = 1;
+            options->cockpitlessView = 1;
+            return dialogResult;
+        }
         assert(options->enhancedRenderer);
         assert(options->egaDither);
         assert(options->joystickRumble);
@@ -56,6 +81,10 @@ int main(void)
         "--joystick-rumble", 0
     };
     char *directCheck[] = {"wc1-modern-gui", "--check", 0};
+    char *swcCheck[] = {"wc1-modern-gui", "--gui", "--check", 0};
+    char *missingSwc[] = {"wc1-modern-gui", "--gui", "--check", 0};
+    char *swcOption[] = {"wc1-modern-gui", "--swc-demo", "/tmp/SWC Demo", "--check", 0};
+    char *badSwcOption[] = {"wc1-modern-gui", "--swc-demo", 0};
 
     argumentCount = 13;
     assert(SdlParsePortArguments(&argumentCount, arguments, &useGui, &options));
@@ -77,6 +106,12 @@ int main(void)
     assert(!SdlParsePortArguments(&argumentCount, badMode, &useGui, &options));
     argumentCount = 2;
     assert(!SdlParsePortArguments(&argumentCount, badAxes, &useGui, &options));
+    argumentCount = 2;
+    assert(!SdlParsePortArguments(&argumentCount, badSwcOption, &useGui, &options));
+    argumentCount = 4;
+    assert(SdlParsePortArguments(&argumentCount, swcOption, &useGui, &options));
+    assert(options.swcDemo && strcmp(options.gameDirectory, "/tmp/SWC Demo") == 0);
+    assert(argumentCount == 2 && strcmp(swcOption[1], "--check") == 0);
 
     dialogResult = SDL_LAUNCHER_CANCELLED;
     assert(SdlLauncherMain(1, defaults) == 0);
@@ -90,6 +125,13 @@ int main(void)
     assert(egaEnabled == 0 && rumbleEnabled == 0);
     assert(SdlLauncherMain(2, directCheck) == 0);
     assert(dialogCalls == 3);
+    swcSelected = 1;
+    swcFound = 1;
+    assert(SdlLauncherMain(3, swcCheck) == 0);
+    assert(dialogCalls == 4 && missionCalls == 1 && SDL_WasInit(0) == 0);
+    swcFound = 0;
+    assert(SdlLauncherMain(3, missingSwc) == 1);
+    assert(dialogCalls == 5 && missionCalls == 1 && SDL_WasInit(0) == 0);
     puts("Launcher options and startup checks passed.");
     return 0;
 }

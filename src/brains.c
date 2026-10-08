@@ -4419,6 +4419,18 @@ void ScaleNavMapCoordinates(short *x, short *y, short mapX, short mapY)
 /* Function start: 0x40CC30 */
 void nav_getxy(short *x, short *y, int worldX, int worldZ)
 {
+#ifdef SDL_PORT
+    short mapX;
+    short mapY;
+
+    /* MissionObjective is packed; its coordinate fields may be unaligned. */
+    mapX = (short)((worldX / 100) >> 8);
+    mapY = (short)((worldZ / 100) >> 8);
+    if (nNavMapCoordinateScaling != 0)
+        ScaleNavMapCoordinates(&mapX, &mapY, mapX, mapY);
+    memcpy((void *)x, &mapX, sizeof(mapX));
+    memcpy((void *)y, &mapY, sizeof(mapY));
+#else
     short mapY;
 
     *x = (short)((worldX / 100) >> 8);
@@ -4426,6 +4438,7 @@ void nav_getxy(short *x, short *y, int worldX, int worldZ)
     *y = mapY;
     if (nNavMapCoordinateScaling != 0)
         ScaleNavMapCoordinates(x, y, *x, mapY);
+#endif
 }
 
 /* Function start: 0x40CC80 */

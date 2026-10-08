@@ -2,16 +2,27 @@
   "description": "SWC Mac demo evidence inventory; not a binary-similarity configuration or score report.",
   "reference": "Super Wing Commander Mac demo 1.0.2, extracted 68000 CODE resources",
   "address_convention": "Byte offsets from the start of each CODE resource, including its segment header; end offsets are exclusive.",
-  "comparison_tool": "binary-similarity",
-  "measurement_status": "pending-tool-location",
+  "validation_strategy": "Original instructions, format checks, real-demo integration and shared WC1 runtime tests. SWC binary scoring is not planned without the original Mac toolchain.",
   "reference_binaries": {
     "CODE_01.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_01.bin",
       "sha256": "b329613e0d0513e6c4d609f8496044c5dda96c17d6321953543958dbc885d758"
     },
+    "CODE_03.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_03.bin",
+      "sha256": "0873acc64f6caf1b1a9de12fea9b50ed312743753b09259594799fe2818c64b3"
+    },
+    "CODE_04.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_04.bin",
+      "sha256": "ec50c2b84f6f030caab595acae37de76954fdd4a8e441bde5f96483ef88e6e80"
+    },
     "CODE_09.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_09.bin",
       "sha256": "16f6706d468467a326fe7533ac662ddd57020975770746b3325b15d2bf323f97"
+    },
+    "CODE_14.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_14.bin",
+      "sha256": "9ed0401726cca73b2790345fc903de1051f23330b9eb94eafe5b9aa4aaac4d73"
     }
   },
   "functions": [
@@ -23,8 +34,7 @@
       "source": "src/swc/shape.c",
       "symbol": "SwcGetFramePtr",
       "relationship": "host-adaptation",
-      "differences": "Explicit buffer length, index/format checks and host frame descriptor replace a Mac Handle and an A0 pointer return.",
-      "score": null
+      "differences": "Explicit buffer length, index/format checks and host frame descriptor replace a Mac Handle and an A0 pointer return."
     },
     {
       "original_name": "DrawRLEImage",
@@ -34,8 +44,7 @@
       "source": "src/swc/shape.c",
       "symbol": "SwcDecodeFrame",
       "relationship": "format-evidence-only",
-      "differences": "The SDL adapter decodes a whole frame; original clipped drawing and hotspot placement are not reconstructed.",
-      "score": null
+      "differences": "The SDL adapter decodes a whole frame; original clipped drawing and hotspot placement are not reconstructed."
     },
     {
       "original_name": "CMGetChunk",
@@ -45,8 +54,7 @@
       "source": "src/swc/cmf.c",
       "symbol": "SwcCMGetChunk",
       "relationship": "host-adaptation",
-      "differences": "Owned SDL buffers replace Mac Handles, purge state and cached pointers. File bytes and output lengths are validated.",
-      "score": null
+      "differences": "Owned SDL buffers replace Mac Handles, purge state and cached pointers. File bytes and output lengths are validated."
     },
     {
       "original_name": "CMDecompressRLE",
@@ -58,15 +66,30 @@
       "source": "src/swc/cmf.c",
       "symbol": "SwcDecompressRLE",
       "relationship": "algorithm-adaptation",
-      "differences": "Allocation and BE size prefix handling move to the caller; explicit bounds/exact-consumption checks are added; Mac debugger callbacks are absent.",
-      "score": null
+      "differences": "Allocation and BE size prefix handling move to the caller; explicit bounds/exact-consumption checks are added; Mac debugger callbacks are absent."
+    },
+    {
+      "original_name": "LoadMissionData",
+      "resource": "CODE_03.bin",
+      "entry_offset": "0x16d2",
+      "end_offset": "0x1890",
+      "source": "src/sdl/swc_mission.c",
+      "symbol": "SdlLoadSwcMissionData",
+      "relationship": "format-adapter-to-wc1-state",
+      "differences": "Decode big-endian records into existing WC1 mission structures, validate narrower fields and references, then publish atomically. The original copies Mac records directly."
     }
+  ],
+  "shared_wc1_evidence": [
+    {"name": "set_sphere_point", "resource": "CODE_04.bin", "entry_offset": "0x000c", "source": "src/brains.c", "wc1_address": "0x0040b670"},
+    {"name": "Set_up_ship_info", "resource": "CODE_04.bin", "entry_offset": "0x1340", "source": "src/brains.c", "wc1_address": "0x0040c5e0"},
+    {"name": "Build_objective_list", "resource": "CODE_14.bin", "entry_offset": "0x24fc", "source": "src/brains.c", "wc1_address": "0x0040ced0", "qualification": "Enyo 1 uses the existing WC1 objective builder; other SWC objective behavior remains unverified."},
+    {"name": "nav_getxy", "resource": "CODE_14.bin", "entry_offset": "0x24d0", "source": "src/brains.c", "wc1_address": "0x0040cc30", "qualification": "The host currently uses WC1 map coordinates. The SWC original stores world coordinates shifted by eight in wider map fields."}
   ],
   "additional_format_evidence": [
     {"resource": "CODE_09.bin", "entry_offset": "0x26ae", "name": "CMOpenFile"},
     {"resource": "CODE_09.bin", "entry_offset": "0x2fac", "name": "CMReformatTOC"},
     {"resource": "CODE_09.bin", "entry_offset": "0x32a6", "name": "CMFindChunkEntryPtr"}
   ],
-  "host_only_sources": ["src/swc/rsrc.c", "src/sdl/swc_demo.c"],
+  "host_only_sources": ["src/swc/rsrc.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c"],
   "palette_resource_fork_sha256": "24b707f9e024d86bf8ce996e2bc45521f36f75582b7e7410bef6467c49cb7c2b"
 }

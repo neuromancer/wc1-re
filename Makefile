@@ -391,11 +391,16 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/compat.c \
 	src/sdl/input.c \
 	src/sdl/resources.c \
+	src/sdl/swc_mission.c \
+	src/swc/cmf.c \
 	src/sdl/registry.c \
 	src/sdl/thread.c \
 	src/sdl/timer.c \
 	src/sdl/video_state.c
 MODERN_GAME_HOST_SRCS = \
+	src/sdl/swc_flight.c \
+	src/swc/shape.c \
+	src/swc/rsrc.c \
 	src/sdl/audio.c \
 	src/sdl/dos_intro.c \
 	src/sdl/events.c \
@@ -460,16 +465,19 @@ MODERN_DEPFILES = \
 	$(MODERN_STATIC_GUI_LAUNCHER_OBJ:.o=.d) \
 	$(MODERN_TEST_OBJS:.o=.d)
 
-# SWC Mac demo bootstrap: SDL2 only, separate from both WC1 executables.
+# SWC Mac demo viewer and tests; mission tests link the shared WC1 SDL2 core.
 SWC_TARGET = $(MODERN_OUT_DIR)/swc-demo$(MODERN_EXE_SUFFIX)
 SWC_TEST_BIN = $(MODERN_OUT_DIR)/tests/swc_assets$(MODERN_EXE_SUFFIX)
+SWC_MISSION_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_swc_mission$(MODERN_EXE_SUFFIX)
 SWC_DATA_DIR ?= data/swc-demo/SuperWing DEMO
 SWC_ARGS ?=
 SWC_SRCS = src/swc/cmf.c src/swc/shape.c src/swc/rsrc.c
 SWC_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(SWC_SRCS))
 SWC_HOST_OBJ = $(MODERN_OUT_DIR)/obj/sdl/swc_demo.o
 SWC_TEST_OBJ = $(MODERN_OUT_DIR)/tests/swc_assets.o
-MODERN_DEPFILES += $(SWC_OBJS:.o=.d) $(SWC_HOST_OBJ:.o=.d) $(SWC_TEST_OBJ:.o=.d)
+SWC_MISSION_TEST_OBJ = $(MODERN_OUT_DIR)/tests/sdl_swc_mission.o
+MODERN_DEPFILES += $(SWC_OBJS:.o=.d) $(SWC_HOST_OBJ:.o=.d) $(SWC_TEST_OBJ:.o=.d) \
+	$(SWC_MISSION_TEST_OBJ:.o=.d)
 
 # ---------------------------------------------------------------------------
 # Build targets and tool bootstrap
@@ -505,12 +513,24 @@ $(SWC_TEST_BIN): $(SWC_OBJS) $(SWC_TEST_OBJ)
 		$^ $(MODERN_SDL_LIBS) -o $@
 
 modern-test-swc: $(SWC_TEST_BIN)
-	@$(SWC_TEST_BIN) "$(MODERN_OUT_DIR)/tests/swc-fixture"
+	@UBSAN_OPTIONS=halt_on_error=1 $(SWC_TEST_BIN) "$(MODERN_OUT_DIR)/tests/swc-fixture"
 
-modern-test-swc-data: $(SWC_TEST_BIN) $(SWC_TARGET)
-	@$(SWC_TEST_BIN) "$(MODERN_OUT_DIR)/tests/swc-fixture" "$(SWC_DATA_DIR)"/CMFs/*.CMF
-	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
+$(SWC_MISSION_TEST_BIN): $(SWC_MISSION_TEST_OBJ) $(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) $(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+modern-test-swc-mission: $(SWC_MISSION_TEST_BIN)
+	@UBSAN_OPTIONS=halt_on_error=1 $(SWC_MISSION_TEST_BIN) "$(MODERN_OUT_DIR)/tests/swc-mission-fixture"
+
+modern-test-swc-data: $(SWC_TEST_BIN) $(SWC_TARGET) $(SWC_MISSION_TEST_BIN) $(MODERN_TARGET)
+	@UBSAN_OPTIONS=halt_on_error=1 $(SWC_TEST_BIN) "$(MODERN_OUT_DIR)/tests/swc-corpus-fixture" "$(SWC_DATA_DIR)"/CMFs/*.CMF
+	@UBSAN_OPTIONS=halt_on_error=1 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
 		$(SWC_TARGET) "$(SWC_DATA_DIR)" --check $(SWC_ARGS)
+	@UBSAN_OPTIONS=halt_on_error=1 $(SWC_MISSION_TEST_BIN) "$(MODERN_OUT_DIR)/tests/swc-mission-data-fixture" "$(SWC_DATA_DIR)"
+	@UBSAN_OPTIONS=halt_on_error=1 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
+		$(MODERN_TARGET) --swc-demo "$(SWC_DATA_DIR)" --check
 
 run-modern-swc: modern-swc
 	@$(SWC_TARGET) "$(SWC_DATA_DIR)" $(SWC_ARGS)
@@ -680,7 +700,7 @@ modern-test-launcher: $(MODERN_LAUNCHER_TEST_BIN) $(MODERN_LAUNCHER_PATH_TEST_BI
 	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy $(MODERN_LAUNCHER_TEST_BIN)
 	@$(MODERN_LAUNCHER_PATH_TEST_BIN)
 
-modern-test: $(MODERN_TEST_BINS)
+modern-test: $(MODERN_TEST_BINS) modern-test-swc-mission
 	@echo "Running $(MODERN_SMOKE_TEST_BIN)"
 	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
 		$(MODERN_SMOKE_TEST_BIN)
@@ -1087,7 +1107,7 @@ clean-modern:
 	rm -rf $(MODERN_OUT_DIR)
 
 .PHONY: \
-	modern-swc modern-test-swc modern-test-swc-data run-modern-swc \
+	modern-swc modern-test-swc modern-test-swc-mission modern-test-swc-data run-modern-swc \
 	all \
 	audit-addresses \
 	audit-compiler-glue \

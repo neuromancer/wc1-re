@@ -27,6 +27,7 @@ export component LauncherWindow inherits Window {
 
     in property <bool> path-valid: false;
     in property <bool> picker-error: false;
+    in property <bool> swc-demo: false;
     in property <string> status-text: "Choose a Wing Commander directory.";
 
     callback configuration-changed();
@@ -58,7 +59,7 @@ export component LauncherWindow inherits Window {
                 }
 
                 Text {
-                    text: "DOS · THE KILRATHI SAGA";
+                    text: "DOS · THE KILRATHI SAGA · SUPER WING COMMANDER";
                     color: #b1bfd5;
                     font-size: 12px;
                     horizontal-alignment: center;
@@ -74,7 +75,7 @@ export component LauncherWindow inherits Window {
                 spacing: 5px;
 
                 Text {
-                    text: "Directory containing GAMEDAT";
+                    text: "Directory containing GAMEDAT (WC1) or CMFs (SWC Mac demo)";
                     color: Palette.foreground;
                 }
 
@@ -132,12 +133,14 @@ export component LauncherWindow inherits Window {
                     CheckBox {
                         horizontal-stretch: 1;
                         text: "Enhanced OpenGL";
+                        enabled: !root.swc-demo;
                         checked <=> root.enhanced-renderer;
                     }
 
                     CheckBox {
                         horizontal-stretch: 1;
                         text: "EGA 16-colour dithering";
+                        enabled: !root.swc-demo;
                         checked <=> root.ega-dither;
                     }
 
@@ -174,10 +177,12 @@ export component LauncherWindow inherits Window {
                             "WCAT — four buttons / four axes"
                         ];
                         current-index <=> root.joystick-mode-index;
+                        enabled: !root.swc-demo;
                     }
 
                     CheckBox {
                         text: "Rumble";
+                        enabled: !root.swc-demo;
                         checked <=> root.joystick-rumble;
                     }
                 }
@@ -194,7 +199,7 @@ export component LauncherWindow inherits Window {
 
                     ComboBox {
                         horizontal-stretch: 1;
-                        enabled: root.joystick-mode-index == 2;
+                        enabled: !root.swc-demo && root.joystick-mode-index == 2;
                         model: [
                             "Twin-stick roll",
                             "Twin-stick yaw",
@@ -215,7 +220,7 @@ export component LauncherWindow inherits Window {
 
             Text {
                 horizontal-stretch: 1;
-                text: "Close this window to cancel.";
+                text: root.swc-demo ? "Arrows: steer · +/-: speed · N: next nav" : "Close this window to cancel.";
                 color: Palette.foreground;
                 opacity: 0.65;
                 vertical-alignment: center;
@@ -229,7 +234,7 @@ export component LauncherWindow inherits Window {
             }
 
             Button {
-                text: "Launch WC1";
+                text: root.swc-demo ? "Start Enyo 1" : "Launch WC1";
                 enabled: root.path-valid;
                 primary: true;
                 clicked => {

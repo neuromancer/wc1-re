@@ -10,6 +10,7 @@ namespace wc1_launcher {
 struct DirectoryStatus {
     bool valid;
     std::string message;
+    bool swcDemo = false;
 };
 
 std::string path_to_utf8(const std::filesystem::path &path);

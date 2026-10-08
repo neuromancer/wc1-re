@@ -1430,6 +1430,13 @@ void get_right_shape(short obj, FixedVector *direction)
         angle += 360;
     asObjectScreenAngle[obj] = angle;
 
+#ifdef SDL_PORT
+    /* SWC CMFs keep all 37 capital-ship views in the SDL texture cache. */
+    if (SdlSwcFlightActive()) {
+        asObjectViewFrame[obj] = frame;
+        return;
+    }
+#endif
     if (objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
         if (asCapitalShipViewFrame[obj] != frame) {
             for (slot = 1; slot < 3; slot++) {

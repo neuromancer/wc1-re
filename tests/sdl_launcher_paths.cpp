@@ -59,12 +59,31 @@ int main(int argumentCount, char **arguments)
     }
     const auto saga = validate_game_directory(directory);
     assert(saga.valid && saga.message.find("Kilrathi Saga") != std::string::npos);
+    assert(!saga.swcDemo && !dos.swcDemo);
     fs::remove(streams / "Mission.str");
     fs::create_directory(streams / "Mission.str");
     assert(!validate_game_directory(directory).valid);
     fs::remove(streams / "Mission.str");
     std::ofstream(streams / "Mission.str");
     assert(!validate_game_directory(directory).valid);
+
+    const fs::path swc = root / path_from_utf8("SuperWing — DEMO");
+    const fs::path cmfs = swc / "cMfS";
+    fs::create_directories(cmfs);
+    const auto swcDirectory = path_to_utf8(swc);
+    for (const auto name : {"data.cmf", "SPACEFLIGHT.CMF", "PCShipV00.CMF"}) {
+        assert(!validate_game_directory(swcDirectory).valid);
+        std::array<char, 28> header = {'C', 'M', 'F', '1'};
+        std::ofstream file(cmfs / name, std::ios::binary);
+        file.write(header.data(), header.size());
+    }
+    assert(!validate_game_directory(swcDirectory).valid); // Palette is required.
+    std::ofstream(swc / "superwingcommanderdemo.RSRC").put('x');
+    const auto mac = validate_game_directory(swcDirectory);
+    assert(mac.valid && mac.swcDemo && mac.message.find("Enyo 1") != std::string::npos);
+    assert(!validate_game_directory(path_to_utf8(cmfs)).valid);
+    std::ofstream(cmfs / "data.cmf", std::ios::trunc) << "corrupt";
+    assert(!validate_game_directory(swcDirectory).valid);
     fs::remove_all(root);
 
     for (int argument = 1; argument < argumentCount; argument++) {

@@ -6,8 +6,11 @@
 #include <slint.h>
 
 #include <algorithm>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <string>
 #include <system_error>
 
@@ -24,6 +27,7 @@ void refresh_window(LauncherWindow &window)
 
     window.set_picker_error(false);
     window.set_path_valid(status.valid);
+    window.set_swc_demo(status.swcDemo);
     window.set_status_text(slint::SharedString(status.message));
 }
 
@@ -77,6 +81,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
 {
     bool accepted;
     bool pickerInitialized;
+    bool checkFailed = false;
 
     if (options == nullptr)
         return SDL_LAUNCHER_ERROR;
@@ -142,10 +147,41 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         }
         browse_for_game_directory(*window);
     });
+    slint::Timer checkTimer;
+    if (options->checkOnly) {
+        // Exercise the real window and launch callback without manual input.
+        checkTimer.start(slint::TimerMode::SingleShot, std::chrono::milliseconds(250), [&]() {
+            if (const char *path = std::getenv("WC1_GUI_CHECK_SNAPSHOT")) {
+                const auto pixels = window->window().take_snapshot();
+                if (!pixels) {
+                    checkFailed = true;
+                } else {
+                    std::ofstream file(path_from_utf8(path), std::ios::binary);
+                    file << "P6\n" << pixels->width() << ' ' << pixels->height() << "\n255\n";
+                    for (const auto &pixel : *pixels) {
+                        const char rgb[] = {static_cast<char>(pixel.r),
+                                            static_cast<char>(pixel.g),
+                                            static_cast<char>(pixel.b)};
+                        file.write(rgb, sizeof(rgb));
+                    }
+                    checkFailed = !file.good();
+                }
+            }
+            if (!window->get_path_valid() || checkFailed) {
+                std::fprintf(stderr, "Launcher check failed: %s\n", window->get_status_text().data());
+                checkFailed = true;
+                slint::quit_event_loop();
+            } else {
+                window->invoke_launch_requested();
+            }
+        });
+    }
     slint::run_event_loop();
     if (pickerInitialized)
         NFD_Quit();
     window->hide();
+    if (checkFailed)
+        return SDL_LAUNCHER_ERROR;
     if (!accepted)
         return SDL_LAUNCHER_CANCELLED;
 
@@ -160,5 +196,6 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->joystickRumble = window->get_joystick_rumble();
     options->joystickMode = std::max(0, window->get_joystick_mode_index());
     options->joystickAxes = std::max(0, window->get_joystick_axes_index());
+    options->swcDemo = window->get_swc_demo();
     return SDL_LAUNCHER_ACCEPTED;
 }

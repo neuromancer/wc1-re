@@ -830,6 +830,12 @@ unsigned int LoadMissionData(short series, short mission)
     short *initialShip;
     int index;
     int item;
+#ifdef SDL_PORT
+    char swcPath[PATH_MAX];
+
+    if (SdlFindSwcMissionData(swcPath, sizeof(swcPath)))
+        return SdlLoadSwcMissionData(swcPath, series, mission);
+#endif
 
     logicalFile = asMissionDataFiles[nCampaignDataSet];
     packet = FetchDiskPacketRetrying(logicalFile, 0, 0);

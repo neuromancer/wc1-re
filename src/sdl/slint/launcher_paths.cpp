@@ -78,9 +78,32 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
 
     if (!fs::is_directory(directory, error))
         return {false, "The selected path is not a directory."};
+    const auto cmfs = find_child_case_insensitive(directory, "CMFs");
+    if (cmfs && fs::is_directory(*cmfs, error)) {
+        for (const auto name : {"Data.CMF", "Spaceflight.CMF", "PCShipV00.CMF"}) {
+            const auto path = find_child_case_insensitive(*cmfs, name);
+            if (!path || !has_readable_file(*cmfs, name))
+                return {false, std::string("SWC needs CMFs/") + name + ".", true};
+            std::ifstream file(*path, std::ios::binary);
+            std::array<char, 28> header = {};
+            file.read(header.data(), header.size());
+            if (file.gcount() != static_cast<std::streamsize>(header.size()) ||
+                std::string_view(header.data(), 4) != "CMF1")
+                return {false, std::string("Invalid SWC archive: ") + name + ".", true};
+        }
+        bool palette = has_readable_file(directory, "SuperWingCommanderDemo.rsrc");
+        const auto executable = find_child_case_insensitive(directory, "Super Wing Commander Demo");
+        if (!palette && executable) {
+            std::ifstream fork(*executable / "..namedfork" / "rsrc", std::ios::binary);
+            palette = fork.peek() != std::ifstream::traits_type::eof();
+        }
+        if (!palette)
+            return {false, "SWC palette missing: preserve the demo's resource fork or add SuperWingCommanderDemo.rsrc.", true};
+        return {true, "Super Wing Commander Mac demo: Enyo 1 experimental flight. Movement and navigation; combat is not implemented.", true};
+    }
     const auto gameData = find_child_case_insensitive(directory, "GAMEDAT");
     if (!gameData || !fs::is_directory(*gameData, error))
-        return {false, "Choose the parent directory containing GAMEDAT."};
+        return {false, "Choose a WC1 directory containing GAMEDAT or the SWC demo directory containing CMFs."};
 
     const auto module = find_child_case_insensitive(*gameData, "MODULE.000");
     if (!module || !fs::is_regular_file(*module, error))

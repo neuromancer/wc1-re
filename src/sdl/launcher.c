@@ -51,6 +51,15 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         argument = arguments[argumentIndex];
         if (strcmp(argument, "--gui") == 0) {
             *useLauncherGui = 1;
+        } else if (strcmp(argument, "--swc-demo") == 0) {
+            if (argumentIndex + 1 >= *argumentCount ||
+                strlen(arguments[argumentIndex + 1]) >= sizeof(options->gameDirectory)) {
+                fprintf(stderr, "--swc-demo requires a demo directory.\n");
+                return 0;
+            }
+            SDL_strlcpy(options->gameDirectory, arguments[++argumentIndex],
+                        sizeof(options->gameDirectory));
+            options->swcDemo = 1;
         } else if (strcmp(argument, "--enhanced") == 0) {
             options->enhancedRenderer = 1;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
@@ -222,6 +231,7 @@ int main(int argumentCount, char **arguments)
     int useLauncherGui;
     int useEnhancedRenderer;
     int usingDosData;
+    char swcPath[PATH_MAX];
     SdlLauncherOptions launcherOptions;
 
 #ifdef _WIN32
@@ -230,12 +240,32 @@ int main(int argumentCount, char **arguments)
     if (!SdlParsePortArguments(&argumentCount, arguments,
                                &useLauncherGui, &launcherOptions))
         return 1;
+    checkOnly = argumentCount == 2 && strcmp(arguments[1], "--check") == 0;
+    launcherOptions.checkOnly = checkOnly;
     if (useLauncherGui) {
         launcherResult = SdlOpenLauncherGui(&launcherOptions);
         if (launcherResult == SDL_LAUNCHER_CANCELLED)
             return 0;
         if (launcherResult != SDL_LAUNCHER_ACCEPTED)
             return 1;
+    } else if (launcherOptions.gameDirectory[0] != '\0' &&
+               SdlChangeDirectory(launcherOptions.gameDirectory) != 0) {
+        fprintf(stderr, "Cannot open SWC demo directory: %s\n", SDL_GetError());
+        return 1;
+    }
+    if (SdlFindSwcMissionData(swcPath, sizeof(swcPath))) {
+        gameResult = SdlRunSwcMission(swcPath, checkOnly, launcherOptions.cockpitlessView);
+        if (gameResult != 0) {
+            fprintf(stderr, "Cannot start SWC Enyo 1: %s\n", SDL_GetError());
+            if (useLauncherGui)
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Super Wing Commander",
+                                         SDL_GetError(), NULL);
+        }
+        return gameResult != 0;
+    }
+    if (launcherOptions.swcDemo) {
+        fprintf(stderr, "The SWC demo needs CMFs/Data.CMF.\n");
+        return 1;
     }
     if (!SdlApplyLauncherOptions(&launcherOptions))
         return 1;
@@ -244,7 +274,6 @@ int main(int argumentCount, char **arguments)
         SdlSetVideoBackend(
             SDL_PORT_VIDEO_BACKEND_GL_SHARP_BILINEAR);
     }
-    checkOnly = argumentCount == 2 && strcmp(arguments[1], "--check") == 0;
     /* The build defines SDL_MAIN_HANDLED, so tell SDL the process is already
      * up rather than letting it rename main() out from under us. */
     SDL_SetMainReady();

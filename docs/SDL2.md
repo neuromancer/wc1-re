@@ -22,10 +22,11 @@ path retains its separate synthesized music-and-effects mix.
 Development builds use ASan and UBSan. Release builds select
 `MODERN_RELEASE=1`.
 
-Super Wing Commander Mac demo work has a separate SDL2 bootstrap target,
-`make modern-swc`. It currently previews the demo's cockpit and ship sprites
-at 320x240; gameplay is not connected yet. See [SWC.md](SWC.md) for data setup,
-validation, original-code evidence, and the binary-similarity workflow status.
+The GUI recognizes the Super Wing Commander Mac demo and offers **Start Enyo 1**.
+This experimental SDL2 flight uses SWC cockpit/ship images and mission data with
+WC1 ship setup, flight dynamics, projection, and navigation. Combat and mission
+completion are not implemented. `make modern-swc` still builds the separate
+asset viewer. See [SWC.md](SWC.md) for setup, controls, and remaining work.
 
 ## Graphical launcher
 
@@ -53,13 +54,23 @@ the dialog so EGA and rumble can be unchecked. WC1's SDL frame-rate text output
 is a stub, so the launcher does not expose `-f`. WC2's balanced-difficulty option
 has no WC1 counterpart.
 
-The selected directory must contain `GAMEDAT/MODULE.000`, `CAMP.000`, and
+For WC1, the selected directory must contain `GAMEDAT/MODULE.000`, `CAMP.000`, and
 `INSTALL.DAT`. Validation reads byte 7 of `MODULE.000`, matching `SdlUsingDosData`:
 1 identifies DOS compression, while other values identify Kilrathi Saga's raw
 packets. Saga data also requires readable `PREFLITE.STR`, `POSFLITE.STR`, and
 `MISSION.STR` in the sibling `STREAMS` directory. Names are matched without
 case sensitivity. These are startup checks, not a complete game-data audit.
 Invalid selections disable Launch; folder-picker errors stay in the dialog.
+
+For SWC, select the **SuperWing DEMO** directory containing `CMFs/Data.CMF`,
+`Spaceflight.CMF`, and `PCShipV00.CMF`. Keep the executable's native resource fork
+or place its extracted raw fork at `SuperWingCommanderDemo.rsrc` in that directory.
+The GUI checks archive headers and palette availability, identifies the Mac demo,
+and launches Enyo 1 directly. Unsupported graphics and joystick options are
+disabled; cockpitless view is available. `--swc-demo DIRECTORY` selects the same
+flight from the command line, and also preselects the directory with `--gui`.
+Adding `--check` runs a finite flight check; with `--gui`, it also opens the
+launcher and invokes its normal launch callback automatically.
 
 `src/sdl/slint/` is a separate CMake project using C++20, CMake 3.21+, and Rust
 1.88+. It pins Slint 1.16.1 and Native File Dialog Extended 1.3.0 and links them

@@ -234,6 +234,10 @@ void SdlShutdownVideo(void);
 int SdlTranslateScanCode(SDL_Scancode scanCode);
 void SdlWaitForVerticalBlank(void);
 int SdlUsingDosData(void);
+int SdlFindSwcMissionData(char *path, unsigned long capacity);
+int SdlLoadSwcMissionData(const char *path, short series, short mission);
+int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless);
+int SdlSwcFlightActive(void);
 void SdlPlayDosStartupIntro(void);
 int SdlDecompressOriginLzw(const unsigned char *source,
                               size_t sourceSize,
