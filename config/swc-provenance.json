@@ -28,6 +28,10 @@
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_06.bin",
       "sha256": "28a54352640bfe5e6e7e9da02d718dc2708e3abfb621e79fbb120b8e2164013c"
     },
+    "CODE_08.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_08.bin",
+      "sha256": "f9980153b4508c43f14c720a23bd18550f631ef51dc664980eb0e5595c295a6f"
+    },
     "CODE_09.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_09.bin",
       "sha256": "16f6706d468467a326fe7533ac662ddd57020975770746b3325b15d2bf323f97"
@@ -39,6 +43,10 @@
     "CODE_14.bin": {
       "path_from_repo_root": "../releases/mac/extracted/code/CODE_14.bin",
       "sha256": "9ed0401726cca73b2790345fc903de1051f23330b9eb94eafe5b9aa4aaac4d73"
+    },
+    "CODE_15.bin": {
+      "path_from_repo_root": "../releases/mac/extracted/code/CODE_15.bin",
+      "sha256": "5fd1392ccf5a5615d9851f3c4a1516fe7a0339345ec0126cac9af2e0f2d92fac"
     }
   },
   "functions": [
@@ -132,10 +140,42 @@
       "source": "src/sdl/swc_cockpit.c",
       "symbol": "SwcDrawCockpitScanner",
       "relationship": "partial-presentation-adaptation",
-      "differences": "Reuses WC1 classification, transforms, scanner mapping and objective range. Uses SWC's 30,000-unit cutoff, contact-frame mapping, selected-contact blink, nav marker and grid draw order. The nav marker is always enabled for a valid objective. Hostile direction arrows and target selection controls remain unimplemented."
+      "differences": "Reuses WC1 classification, transforms, scanner mapping and objective range. Uses SWC's 30,000-unit cutoff, contact-frame mapping, selected-contact blink, nav marker and grid draw order. The nav marker is always enabled for a valid objective. Hostile direction arrows remain unimplemented; T now cycles WC1's visible target list."
+    },
+    {
+      "original_name": "show_target_disp",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x1270",
+      "end_offset": "0x14ce",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SwcDrawTargetStatus",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Uses the original target hull, four armor-flash frames, shield-presence thresholds and Hornet position. Reads WC1 state and capacities; malfunction/dead-display behavior remains pending."
+    },
+    {
+      "original_name": "overlay_head_up_display",
+      "resource": "CODE_13.bin",
+      "entry_offset": "0x2f56",
+      "end_offset": "0x30fa",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlDrawSwcHud",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Normal CKPT/1 reticle and original position only; ITTS remains pending. Target brackets use SDL corners and current sprite rectangles rather than draw_target_box's MacScale1 bounds and CKPT/36. Weapon text is persistent with added ammunition/lock state, unlike update_status_text's selection timers. Shared WC1 messages use host positions and font."
     }
   ],
   "shared_wc1_evidence": [
+    {"name": "fire_players_lasers", "resource": "CODE_09.bin", "entry_offset": "0x021a", "source": "src/main.c", "wc1_address": "0x00428480", "qualification": "Same cooldown/energy gate and selected-gun call. VDU selection is routed to SWC state without invoking WC1 cockpit drawing."},
+    {"name": "fire_weapon", "resource": "CODE_05.bin", "entry_offset": "0x3320", "source": "src/ship.c", "wc1_address": "0x00420c20", "qualification": "Shares allocation, hardpoint, energy, lifetime and launch flow. SDL-only SWC player convergence adds 400 units along up for lasers, 300 for neutron/mass driver (+0x34c8..+0x3532); laser refire delay is 4 from DATA/0 +0x31f2. Remaining ship/weapon definitions are WC1; SWC sound remains suppressed."},
+    {"name": "fire_missile", "resource": "CODE_05.bin", "entry_offset": "0x3856", "source": "src/logic.c", "wc1_address": "0x00421150", "qualification": "Same enabled-missile iteration and HS/IR lock gate. WC1 also queues the NEED LOCK message."},
+    {"name": "fire_fixed_projectile_weapon", "resource": "CODE_05.bin", "entry_offset": "0x38fe", "source": "src/logic.c", "wc1_address": "0x00421220", "qualification": "Same iteration over enabled projectile slots, using WC1's packed seven-byte weapon layout instead of SWC's ten-byte slots."},
+    {"name": "find_next_gun", "resource": "CODE_15.bin", "entry_offset": "0x00f2", "source": "src/hudmsg.c", "wc1_address": "0x0042ad00"},
+    {"name": "select_guns", "resource": "CODE_15.bin", "entry_offset": "0x0186", "source": "src/hudmsg.c", "wc1_address": "0x0042ada0"},
+    {"name": "select_new_gun", "resource": "CODE_15.bin", "entry_offset": "0x0202", "source": "src/hudmsg.c", "wc1_address": "0x0042ae10", "qualification": "Shared gun selection; SWC's 15-tick status-text timer is not reproduced."},
+    {"name": "select_new_release_weapon", "resource": "CODE_15.bin", "entry_offset": "0x023e", "source": "src/hudmsg.c", "wc1_address": "0x0042ae50", "qualification": "Shared preferred-type selection and enabled slot state; host text is persistent."},
+    {"name": "house_keep_objects", "resource": "CODE_02.bin", "entry_offset": "0x3d38", "source": "src/spc.c", "wc1_address": "0x00412430", "qualification": "Same lifetime/cooldown stages. Retains WC1's debris-expiration behavior; SWC-only object classes are unsupported."},
+    {"name": "update_objects_in_space", "resource": "CODE_02.bin", "entry_offset": "0x418c", "source": "src/spc.c", "wc1_address": "0x00412820", "qualification": "Shares animation, collision, rotation, missile intelligence, energy, movement and shield stages. WC1 collision/damage remains in use; SWC's collision-candidate prepass is absent. NPC ship intelligence is explicitly skipped until mission/communication integration is ready."},
+    {"name": "animate_shape", "resource": "CODE_02.bin", "entry_offset": "0x4790", "source": "src/spc.c", "wc1_address": "0x00412cd0", "qualification": "Same frame/loop/scale/removal commands. Host supplies SWC explosion sequences and scales to WC1's interpreter. Original Mac handle management and the final ship-explosion frame's screen-shake trigger are not reproduced."},
+    {"name": "replenish_weapon_energy_bank", "resource": "CODE_05.bin", "entry_offset": "0x419e", "source": "src/logic.c", "wc1_address": "0x00421830", "qualification": "Shared one/two-unit recharge and 100-unit cap; capacities and shield state remain WC1."},
     {"name": "set_sphere_point", "resource": "CODE_04.bin", "entry_offset": "0x000c", "source": "src/brains.c", "wc1_address": "0x0040b670"},
     {"name": "Set_up_ship_info", "resource": "CODE_04.bin", "entry_offset": "0x1340", "source": "src/brains.c", "wc1_address": "0x0040c5e0"},
     {"name": "Build_objective_list", "resource": "CODE_14.bin", "entry_offset": "0x24fc", "source": "src/brains.c", "wc1_address": "0x0040ced0", "qualification": "Enyo 1 uses the existing WC1 objective builder; other SWC objective behavior remains unverified."},
@@ -160,7 +200,7 @@
   "wc1_control_reuse": {
     "source": "src/sdl/swc_flight.c",
     "functions": ["PollKeyboardState", "process_player_input", "player_input", "QueueInputEvent", "WarpMouseTo", "accelerate", "your_afterburner", "SetSpaceFlightFrameTiming"],
-    "qualification": "DOS/Win32 controls are intentional. Held keyboard input is sampled per tick, with independent axis release. Mouse motion is passed to WC1 player_input using an initialized SWC viewport, preserving its response tables, signs and right-button roll/throttle. Only motion/modifier events are queued; the SWC host owns SDL event pumping and leaves weapon button states clear. Right double-click/hold uses WC1's timing-only 20/60-second interval and shared afterburner routine. Pointer capture is released on pause/focus loss, and SDL logical coordinates handle resizing and warping. HandleSpaceFlightControls and its HUD/combat commands are still bypassed. SWC's Mac event/device code differs.",
+    "qualification": "DOS/Win32 controls are intentional. Held keyboard input is sampled per tick, with independent axis release. Mouse motion is passed to WC1 player_input using an initialized SWC viewport, preserving its response tables, signs and right-button roll/throttle. Only motion/modifier events are queued; the SWC host owns SDL event pumping and leaves weapon button states clear. Right double-click/hold uses WC1's timing-only 20/60-second interval and shared afterburner routine. Pointer capture is released on pause/focus loss, and SDL logical coordinates handle resizing and warping. The SDL host calls the shared gun/missile, selection and target routines directly. HandleSpaceFlightControls remains bypassed; unsupported mission/VDU commands are not dispatched. SWC's Mac event/device code differs.",
     "wc1_mouse_evidence": {"source": "src/main.c", "wc1_address": "0x004285d0", "response_tables": ["0x0046a030", "0x0046a040"]},
     "mac_input_evidence": [
       {"name": "get_player_input", "resource": "CODE_01.bin", "entry_offset": "0x4508"},
@@ -175,7 +215,7 @@
   ],
   "cockpit_ui": {
     "source": "src/sdl/swc_cockpit.c",
-    "scope": "Enyo 1 Hornet instruments only; capacities remain WC1. Remaining VDU modes, malfunction effects, warning lamps, pilot animation, original reticle placement and cockpitless HUD are pending.",
+    "scope": "Enyo 1 Hornet instruments, target hull/armor/shields, normal reticle and weapon status. Text/reticle/messages also appear without the cockpit. Capacities remain WC1. Remaining VDU modes, malfunction effects, warning lamps, pilot animation, ITTS and other cockpitless instruments are pending.",
     "data_resource": {
       "resource_fork_path_from_repo_root": "../releases/mac/extracted/SuperWingCommanderDemo.rsrc",
       "type": "DATA",
@@ -188,11 +228,15 @@
         {"offset": "0x0420", "encoding": "byte", "meaning": "maximum energy frame", "value": 10},
         {"offset": "0x0666", "encoding": "BE32[2]", "meaning": "actual-speed text origin", "values": [96, 32]},
         {"offset": "0x0696", "encoding": "BE32[2]", "meaning": "command-speed text origin", "values": [205, 32]},
+        {"offset": "0x06c6", "encoding": "BE32[2]", "meaning": "target/range text origin", "values": [200, 110]},
         {"offset": "0x06f6", "encoding": "BE32[2]", "meaning": "destination/range text origin", "values": [200, 94]},
+        {"offset": "0x0726", "encoding": "BE32[2]", "meaning": "weapon status text origin", "values": [51, 84]},
+        {"offset": "0x0756", "encoding": "BE32[2]", "meaning": "target silhouette origin", "values": [230, 136]},
+        {"offset": "0x0792", "encoding": "BE32[2]", "meaning": "scene origin; reticle adds (-16,-4) before frame offsets", "values": [160, 100]},
         {"offset": "0x0786", "encoding": "byte", "meaning": "maximum throttle frame", "value": 13},
         {"offset": "0x078c", "encoding": "byte", "meaning": "maximum fuel frame", "value": 13},
-        {"offset": "0x433e", "encoding": "BE32 triples", "meaning": "cockpit resource list; selected chunks PC00/10, 15, 16, 17, 18"},
-        {"offset": "0x43e6", "encoding": "BE32 triples", "meaning": "shared cockpit resource list; contact sprites CKPT/31"}
+        {"offset": "0x433e", "encoding": "BE32 triples", "meaning": "cockpit resource list; selected chunks PC00/9, 10, 15, 16, 17, 18"},
+        {"offset": "0x43e6", "encoding": "BE32 triples", "meaning": "shared cockpit resource list; reticle CKPT/1 and contact sprites CKPT/31"}
       ]
     },
     "text_evidence": [
@@ -211,6 +255,21 @@
       "qualification": "Provisional nine-pixel monochrome ASCII substitute, five-pixel advance. No claim of original SWC typography or Monaco metric compatibility. Compiled bitmap requires neither SDL2_ttf nor a runtime TTF."
     },
     "validation": "Original-instruction, expanded-resource and offline glyph inspection; static source review; native and GUI compilation only. No game, GUI or interactive checks executed for this pass."
+  },
+  "weapon_presentation": {
+    "source": "src/sdl/swc_flight.c",
+    "resource_mapping_evidence": {"resource": "CODE_08.bin", "entry_offset": "0x000c", "name": "get_Mac_mem", "mapping_instructions": "0x0050..0x022c", "qualification": "CODE_03 init_3Space_objects aliases shared debris resources. Host caches independently counted OBJT, 22-frame missile MSnn/1 and 37-frame ship resources."},
+    "explosion_data": {
+      "reference": "CODE_08 init_data_struct2 +0x4c7c/+0x4d52/+0x4e28 and expanded DATA/0",
+      "sequences": [
+        {"type": 48, "data_offset": "0x2564", "frames": 15, "scale": 768},
+        {"type": 49, "data_offset": "0x261c", "frames": 20, "scale": 512},
+        {"type": 50, "data_offset": "0x25c0", "frames": 22, "scale": 1024}
+      ],
+      "qualification": "Consecutive frames starting at zero, then 0xa000 removal; one tick per frame. The host temporarily supplies these sequences/scales to WC1's animation interpreter and restores the original definitions on exit."
+    },
+    "qualification": "Rendering uses the original (160,100) plus projected XY, with horizontal/vertical flip bits retained. Sprite centering, WC1 scaling/ship definitions, and simple SDL target brackets are provisional. No original Mac handle management, screen shake or SWC weapon audio. NPC ship AI remains disconnected.",
+    "validation": "Original-instruction and offline resource inspection; static source review; make modern modern-gui only. No interactive execution or tests."
   },
   "host_only_sources": ["src/swc/rsrc.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c", "src/sdl/swc_cockpit.c"],
   "palette_resource_fork_sha256": "24b707f9e024d86bf8ce996e2bc45521f36f75582b7e7410bef6467c49cb7c2b"

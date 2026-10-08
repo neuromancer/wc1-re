@@ -746,7 +746,12 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
         aeObjectClass[obj] = OBJECT_CLASS_DUST;
         return;
     }
-    if (aObjectTypeData[type].shapeSet == 0) {
+    if (aObjectTypeData[type].shapeSet == 0
+#ifdef SDL_PORT
+        /* SWC owns CMF textures instead of WC1 disk packets. */
+        && !SdlSwcFlightActive()
+#endif
+    ) {
         switch (type) {
         case OBJECT_TYPE_ASTEROID2:
             type = OBJECT_TYPE_ASTEROID1;

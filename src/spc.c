@@ -1706,6 +1706,12 @@ int object_collision(short obj)
 /* Function start: 0x413880 */
 unsigned int object_intelligence(short obj)
 {
+#ifdef SDL_PORT
+    /* The SWC host shares missile guidance. Ship AI still needs its mission,
+       communication and nav-transition integration. */
+    if (SdlSwcFlightActive() && aeObjectClass[obj] >= OBJECT_CLASS_SHIP)
+        return 0;
+#endif
     if (nCannedSceneMode == 4)
         return 0;
     if (nCannedSceneMode == 2 &&

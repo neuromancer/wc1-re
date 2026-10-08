@@ -63,6 +63,7 @@ SDL_Texture *SdlCreateSwcTexture(SDL_Renderer *renderer, const SwcBuffer *set,
 int SdlInitSwcCockpit(SDL_Renderer *renderer, const SwcCmf *cockpit,
                        const SwcCmf *space, const SDL_Color colors[256]);
 int SdlDrawSwcCockpit(void);
+int SdlDrawSwcHud(const SDL_Rect *targetBounds);
 void SdlFreeSwcCockpit(void);
 
 #endif

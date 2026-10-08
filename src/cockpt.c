@@ -522,6 +522,11 @@ short DrawHudMessageSlot(HudMessageSlot *slot)
     }
 
     showingEraseColour = slot->drawColour == cBlackColour;
+#ifdef SDL_PORT
+    /* SWC presents these shared message slots through its SDL text layer. */
+    if (SdlSwcFlightActive())
+        return showingEraseColour;
+#endif
     savedColour = slot->context->colour;
     slot->context->colour = (unsigned char)slot->drawColour;
     DrawTextAt(slot->context, slot->x, slot->y, slot->text, 2);
@@ -943,7 +948,11 @@ short malf(char component)
 /* Function start: 0x414B20 */
 unsigned short vdu_malf(short vdu, short sound)
 {
-    if (nCameraViewMode == 0)
+    if (nCameraViewMode == 0
+#ifdef SDL_PORT
+        && !SdlSwcFlightActive()
+#endif
+    )
         malf_noise(vdu, 1, cDarkGreenColour, sound, 0);
     set_mode(vdu, 0);
     return 0;
@@ -996,6 +1005,14 @@ void RemovePlayerReleaseWeapon(signed char weapon)
 
     loadout = (ShipWeaponSlot *)&aShipWeapons[0][1];
     preferredType = loadout[weapon].type;
+#ifdef SDL_PORT
+    if (SdlSwcFlightActive()) {
+        remove_weapon(0, weapon);
+        nSelectedReleaseWeaponIndex = -1;
+        select_new_release_weapon(preferredType);
+        return;
+    }
+#endif
     eReleaseWeaponDisplayType = preferredType;
     cReleaseWeaponDisplayFrame =
         (signed char)(preferredType * 2 - 0x2f);
@@ -1855,10 +1872,13 @@ void target_locking(signed char target)
             lock_off();
             return;
         }
-#endif
+        weaponType = ((ShipWeaponSlot *)&aShipWeapons[0][1])[
+            nSelectedReleaseWeaponIndex].type;
+#else
         weaponType = *(enum ObjectType *)(
             &aShipWeapons[0][1] +
             nSelectedReleaseWeaponIndex * 7);
+#endif
         if (weaponType != OBJECT_TYPE_HEAT_SEEKING_MISSILE) {
             if (weaponType != OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE) {
                 lock_off();
@@ -2796,6 +2816,10 @@ void place_damage_on_cockpit(short damage)
         anCockpitDamageState[damage] == 0) {
         nPendingCockpitDamage = damage;
         anCockpitDamageState[damage] = 1;
+#ifdef SDL_PORT
+        if (SdlSwcFlightActive())
+            return;
+#endif
         if (pCockpitExplosionShape == 0) {
             explosion_draw();
             return;
@@ -3073,6 +3097,12 @@ void SelectCockpitVduMode(short vdu, int mode)
 {
     short changed;
 
+#ifdef SDL_PORT
+    if (SdlSwcFlightActive()) {
+        set_mode(vdu, mode);
+        return;
+    }
+#endif
     if (nCameraViewMode != 0)
         return;
     if (malf(3) != 0 ||

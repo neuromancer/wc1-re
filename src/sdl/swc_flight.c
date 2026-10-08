@@ -1,6 +1,6 @@
 /* SDL2 first-mission host. Mission state, ship setup, flight dynamics, view
- * selection and navigation belong to the existing WC1 core. SWC object
- * definitions, combat, campaign progression and the complete HUD remain open. */
+ * selection, navigation and player weapons belong to the existing WC1 core.
+ * SWC object definitions, NPC ship AI, progression and the complete HUD remain open. */
 #include "wc1.h"
 #include "swc.h"
 
@@ -8,13 +8,41 @@
 #include <string.h>
 
 typedef struct SwcFlightImages {
-    SDL_Texture *views[37];
+    SDL_Texture **views;
+    uint32_t count;
 } SwcFlightImages;
 
 static int swcFlightActive;
 static int swcMouseAfterburner;
 static int swcRightClickPending;
 static Uint32 swcLastRightClick;
+static int swcReleaseWeaponPending;
+static int swcGunFirePending;
+static int swcBothButtonsHeld;
+
+static void SwcSetExplosionData(ObjectTypeData saved[3])
+{
+    /* CODE_08 init_data_struct2 +0x4c7c/+0x4d52/+0x4e28 points to DATA/0
+       +0x2564/+0x261c/+0x25c0: consecutive frames, then remove (0xa000).
+       Keep WC1's animation interpreter; supply the Mac artwork's sequences. */
+    static unsigned int animations[3][23];
+    static const int frames[3] = {15, 20, 22};
+    static const short scales[3] = {0x300, 0x200, 0x400};
+    int type;
+    int frame;
+
+    for (type = 0; type < 3; type++) {
+        ObjectTypeData *data = &aObjectTypeData[OBJECT_TYPE_EXPLOSION0 + type];
+
+        saved[type] = *data;
+        for (frame = 0; frame < frames[type]; frame++)
+            animations[type][frame] = (unsigned int)frame;
+        animations[type][frame] = 0xa000;
+        data->animation = (unsigned char *)animations[type];
+        data->yawRate = 1;
+        data->scale = scales[type];
+    }
+}
 
 int SdlSwcFlightActive(void)
 {
@@ -77,23 +105,77 @@ static int SwcLoadFlightImages(SDL_Renderer *renderer, const SwcCmf *cockpit,
     SwcBuffer set = {0};
     const SwcCmf *cmf;
     char chunkType[5];
+    uint32_t chunk = 1;
+    uint32_t expected = 0;
     uint32_t count;
     uint32_t index;
+    SwcFrame frame;
     int result = -1;
 
-    if (images->views[0] != NULL)
+    if (images->views != NULL)
         return 0;
-    cmf = aObjectTypeData[type].objectClass == OBJECT_CLASS_CAPITAL_SHIP ? space : cockpit;
-    SDL_snprintf(chunkType, sizeof(chunkType), "%s%02d", cmf == space ? "SH" : "ST", type);
-    if (SwcCMGetChunk(cmf, chunkType, 1, &set) != 0)
+    cmf = space;
+    SDL_strlcpy(chunkType, "OBJT", sizeof(chunkType));
+    /* CODE_08 get_Mac_mem +0x0050..+0x022c, followed by CODE_03
+       init_3Space_objects aliases. Mac OBJT IDs differ from WC1 packets. */
+    switch (type) {
+    case OBJECT_TYPE_LASER_CANNON: chunk = 7; expected = 4; break;
+    case OBJECT_TYPE_NEUTRON_PARTICLE_GUN:
+        cmf = cockpit; chunk = 9; expected = 6; break;
+    case OBJECT_TYPE_MASS_DRIVER_CANNON: chunk = 8; expected = 3; break;
+    case OBJECT_TYPE_EXPLOSION0: chunk = 2; expected = 15; break;
+    case OBJECT_TYPE_EXPLOSION1: chunk = 3; expected = 20; break;
+    case OBJECT_TYPE_EXPLOSION2: chunk = 4; expected = 22; break;
+    case OBJECT_TYPE_LASER_SPARK: chunk = 10; expected = 6; break;
+    case OBJECT_TYPE_RED_SPARK: chunk = 12; expected = 4; break;
+    case OBJECT_TYPE_BLUE_SPARK: chunk = 11; expected = 4; break;
+    case OBJECT_TYPE_SPARK_TRAIL: chunk = 13; expected = 8; break;
+    case OBJECT_TYPE_DEBRIS_METAL_SHEET:
+    case OBJECT_TYPE_DEBRIS_WING: chunk = 6; expected = 29; break;
+    case OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK:
+    case OBJECT_TYPE_DEBRIS_SHIP_TUBING:
+    case OBJECT_TYPE_DEBRIS_GLASS:
+    case OBJECT_TYPE_DEBRIS_O_RING:
+    case OBJECT_TYPE_DEBRIS_PIPE: chunk = 5; expected = 33; break;
+    case OBJECT_TYPE_SPACE_MINE:
+        cmf = cockpit; chunk = 16; expected = 14; break;
+    default:
+        if (type >= OBJECT_TYPE_DUMB_FIRE_MISSILE &&
+            type <= OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE) {
+            SDL_snprintf(chunkType, sizeof(chunkType), "MS%02d",
+                         type - OBJECT_TYPE_DUMB_FIRE_MISSILE);
+            expected = 22;
+        } else if (aObjectTypeData[type].objectClass >= OBJECT_CLASS_SHIP) {
+            cmf = aObjectTypeData[type].objectClass == OBJECT_CLASS_CAPITAL_SHIP ?
+                space : cockpit;
+            SDL_snprintf(chunkType, sizeof(chunkType), "%s%02d",
+                         cmf == space ? "SH" : "ST", type);
+            expected = 37;
+        } else {
+            return SDL_SetError("Unsupported SWC flight object type %d", type);
+        }
+        break;
+    }
+    if (SwcCMGetChunk(cmf, chunkType, chunk, &set) != 0)
         return -1;
     if (SwcGetFrameCount(&set, &count) != 0)
         goto done;
-    if (count != SDL_arraysize(images->views)) {
-        SDL_SetError("Expected 37 SWC ship views in %s/1", chunkType);
+    if (count != expected) {
+        SDL_SetError("Unexpected SWC frame count in %s/%u", chunkType, chunk);
         goto done;
     }
+    images->views = SDL_calloc(count, sizeof(*images->views));
+    if (images->views == NULL) {
+        SDL_OutOfMemory();
+        goto done;
+    }
+    images->count = count;
     for (index = 0; index < count; index++) {
+        if (SwcGetFramePtr(&set, index, &frame) != 0)
+            goto done;
+        /* The final red-spark frame is intentionally empty. */
+        if (frame.width == 0 || frame.height == 0)
+            continue;
         images->views[index] = SdlCreateSwcTexture(renderer, &set, index, colors);
         if (images->views[index] == NULL)
             goto done;
@@ -130,6 +212,12 @@ static int SwcStartMissionShips(void)
         records[count++] = record;
     }
     memset(aeObjectClass, 0, sizeof(aeObjectClass));
+    memset(asObjectCounter, 0xff, sizeof(asObjectCounter));
+    memset(anObjectPitchRotation, 0, sizeof(anObjectPitchRotation));
+    memset(anObjectYawRotation, 0, sizeof(anObjectYawRotation));
+    memset(anObjectRollRotation, 0, sizeof(anObjectRollRotation));
+    memset(acPlayerComponentDamage, 0, sizeof(acPlayerComponentDamage));
+    memset(acObjectCollisionGraceTicks, 0, sizeof(acObjectCollisionGraceTicks));
     memset(nShipMissionIndices, 0xff, sizeof(nShipMissionIndices));
     nCurrentNavPoint = nMissionEntryNavPoint;
     stCampaignState.playerShipType = aMissionShips[nPlayerMissionShipIndex].type;
@@ -148,6 +236,18 @@ static int SwcStartMissionShips(void)
     nNavPointerObject = -1;
     nCameraViewMode = 0;
     nCannedSceneMode = 0;
+    nCurrentWave = -1;
+    bPlayerDestroyed = 0;
+    bPlayerVulnerable = 1;
+    bLandingAuthorized = 0;
+    nInFlightMusicActive = 0;
+    nArcadeState = 0;
+    nExternalViewShip = -1;
+    nTargetLockCountdown = -1;
+    memset(aHudMessageSlots, 0, sizeof(aHudMessageSlots));
+    memset(acVduModeStackDepth, 0, sizeof(acVduModeStackDepth));
+    memset(ausVduModeStack, 0, sizeof(ausVduModeStack));
+    ausVduModeStack[0] = 1;
     acVduModeStackDepth[1] = 0;
     ausVduModeStack[8] = 5;
     nScreenWidth = SWC_FRAME_WIDTH;
@@ -172,6 +272,9 @@ static void SwcResetFlightInput(void)
     nMousePitchInput = 0;
     swcMouseAfterburner = 0;
     swcRightClickPending = 0;
+    swcReleaseWeaponPending = 0;
+    swcGunFirePending = 0;
+    swcBothButtonsHeld = 0;
 }
 
 static void SwcCentreFlightMouse(void)
@@ -183,12 +286,16 @@ static void SwcCentreFlightMouse(void)
     bMouseCursorVisible = 1;
 }
 
-static void SwcFlightTick(const Uint8 *keys, int shipCount)
+static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
 {
-    short object;
     short throttle;
     int secondaryButton;
+    int bothButtons;
 
+    if (bPlayerDestroyed || nArcadeState == 4) {
+        SwcResetFlightInput();
+        return;
+    }
     /* Retain WC1's key priority, diagonal keys, ramp and direction reversal.
        Its Win32 key polling is supplied by the same SDL sample for the whole
        tick, including modifiers and the existing deterministic check path. */
@@ -200,7 +307,7 @@ static void SwcFlightTick(const Uint8 *keys, int shipCount)
            sampled each tick, so right-button throttle is independent of SDL
            motion-event frequency. Button actions that fire weapons stay out
            of the queue; the right button is only a motion modifier here. */
-        secondaryButton = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_RMASK) != 0;
+        secondaryButton = (mouseButtons & SDL_BUTTON_RMASK) != 0;
         QueueInputEvent(13, (unsigned short)nHostMouseMessageX,
                         (unsigned short)nHostMouseMessageY, 0, 0, secondaryButton, 0);
         player_input();
@@ -239,34 +346,70 @@ static void SwcFlightTick(const Uint8 *keys, int shipCount)
     else if (throttle != 0)
         accelerate(throttle);
     if (keys[SDL_SCANCODE_TAB] || keys[SDL_SCANCODE_KP_MULTIPLY] ||
-        (swcMouseAfterburner && (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_RMASK)))
+        (swcMouseAfterburner && (mouseButtons & SDL_BUTTON_RMASK)))
         your_afterburner();
-    players_flight_dynamics();
-    for (object = 0; object < shipCount; object++) {
-        rotate_object(object);
-        accelerate_and_move_object(object);
+    bothButtons = (mouseButtons & (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK)) ==
+        (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK);
+    if (bothButtons && !swcBothButtonsHeld && !swcMouseAfterburner)
+        swcReleaseWeaponPending = 1;
+    swcBothButtonsHeld = bothButtons;
+    if (keys[SDL_SCANCODE_SPACE] || (swcGunFirePending && !bothButtons) ||
+        ((mouseButtons & SDL_BUTTON_LMASK) && (!bothButtons || swcMouseAfterburner)))
+        fire_players_lasers();
+    swcGunFirePending = 0;
+    if (swcReleaseWeaponPending) {
+        swcReleaseWeaponPending = 0;
+        if (nSelectedReleaseWeaponIndex >= 0) {
+            ShipWeaponSlot *slot = &((ShipWeaponSlot *)&aShipWeapons[0][1])[
+                nSelectedReleaseWeaponIndex];
+
+            if (slot->type == OBJECT_TYPE_SPACE_MINE)
+                drop_player_mine(0);
+            else if (nExternalViewShip == -1)
+                nExternalViewShip = (short)fire_missile(0);
+        }
     }
+    players_flight_dynamics();
+    /* Shared object lifetimes, cooldowns, collisions/damage, animations,
+       missile guidance, energy recharge, shields and movement. */
+    house_keep_objects();
+    update_objects_in_space();
     copy_frame(0, EYE_OBJECT);
     aShipPosition[EYE_OBJECT] = aShipPosition[0];
     aShipVelocity[EYE_OBJECT] = aShipVelocity[0];
     update_star_field();
-    for (object = 34; object < 42; object++)
-        accelerate_and_move_object(object);
+    if (acShipTarget[0] >= 0 &&
+        (acShipTarget[0] >= 10 || aeObjectClass[acShipTarget[0]] < OBJECT_CLASS_SHIP ||
+         aeSpecialManeuver[acShipTarget[0]] == SPECIAL_MANEUVER_UNKNOWN_9))
+        acShipTarget[0] = -1;
+    if (acShipTarget[0] >= 0 &&
+        asObjectScreenX[acShipTarget[0]] == (short)0x8001)
+        lock_off();
+    else
+        target_locking(acShipTarget[0]);
+    UpdateMessage(&aHudMessageSlots[0]);
+    UpdateMessage(&aHudMessageSlots[1]);
     nSpaceFrame++;
 }
 
 static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
-                          SwcFlightImages images[OBJECT_TYPE_COUNT], int shipCount,
+                          const SwcCmf *cockpitCmf, const SwcCmf *spaceCmf,
+                          const SDL_Color colors[256],
+                          SwcFlightImages images[OBJECT_TYPE_COUNT],
                           int cockpitless, int showMap)
 {
     SDL_Rect rectangle;
+    SDL_Rect targetBounds = {0};
     SDL_Texture *texture;
     short object;
     short frame;
-    short sorted[10];
+    short sorted[SPACE_OBJECT_COUNT];
+    short count = 0;
     short index;
     short prior;
-    int centreY = cockpitless ? 120 : 80;
+    /* CODE_02 draw_sorted_objects_to_buffer uses (160,100) + projected XY
+       in both cockpit modes. Positive view Y also points down in WC1. */
+    int centreY = 100;
     int x;
     int y;
     int scale;
@@ -276,46 +419,60 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
     if (SDL_RenderClear(renderer) != 0)
         return -1;
     SDL_SetRenderDrawColor(renderer, 160, 175, 200, 255);
-    for (object = 34; object < 49; object++) {
-        if (asObjectScreenX[object] != (short)0x8001)
+    nRenderedSpaceFrame++;
+    for (object = 1; object <= SPACE_LAST_MOVING_OBJECT; object++) {
+        if ((aeObjectClass[object] == OBJECT_CLASS_STAR ||
+             aeObjectClass[object] == OBJECT_CLASS_DUST) &&
+            asObjectScreenX[object] != (short)0x8001)
             SDL_RenderDrawPoint(renderer, 160 + asObjectScreenX[object],
-                                 centreY - asObjectScreenY[object]);
+                                 centreY + asObjectScreenY[object]);
     }
-    for (object = 1; object < shipCount; object++) {
-        index = object - 1;
-        while (index > 0 && asObjectDistance[sorted[index - 1]] < asObjectDistance[object]) {
+    for (object = 1; object <= SPACE_LAST_MOVING_OBJECT; object++) {
+        if (aeObjectClass[object] < OBJECT_CLASS_EXPLOSION ||
+            aeObjectClass[object] == OBJECT_CLASS_FIXED_OBJECT ||
+            asObjectScreenX[object] == (short)0x8001)
+            continue;
+        index = count++;
+        while (index > 0 && (unsigned short)asObjectDistance[sorted[index - 1]] <
+                               (unsigned short)asObjectDistance[object]) {
             sorted[index] = sorted[index - 1];
             index--;
         }
         sorted[index] = object;
     }
-    for (index = 0; index < shipCount - 1; index++) {
+    for (index = 0; index < count; index++) {
         object = sorted[index];
-        if (asObjectScreenX[object] == (short)0x8001)
-            continue;
+        if (SwcLoadFlightImages(renderer, cockpitCmf, spaceCmf, colors,
+                               aeObjectType[object], &images[aeObjectType[object]]) != 0)
+            return -1;
         frame = asObjectViewFrame[object];
-        if (frame < 0 || frame >= 37)
-            return SDL_SetError("WC1 selected an unsupported SWC ship view: %d", frame);
+        if (frame < 0 || (uint32_t)frame >= images[aeObjectType[object]].count)
+            return SDL_SetError("Unsupported SWC frame %d for object type %d",
+                                frame, aeObjectType[object]);
         texture = images[aeObjectType[object]].views[frame];
         if (texture == NULL)
-            return SDL_SetError("SWC flight image is missing");
+            continue;
         if (SDL_QueryTexture(texture, NULL, NULL, &rectangle.w, &rectangle.h) != 0)
             return -1;
         scale = (unsigned short)asObjectScreenScale[object];
         rectangle.w = SDL_max(1, rectangle.w * scale / 256);
         rectangle.h = SDL_max(1, rectangle.h * scale / 256);
         rectangle.x = 160 + asObjectScreenX[object] - rectangle.w / 2;
-        rectangle.y = centreY - asObjectScreenY[object] - rectangle.h / 2;
+        rectangle.y = centreY + asObjectScreenY[object] - rectangle.h / 2;
         if (SDL_RenderCopyEx(renderer, texture, NULL, &rectangle,
                              asObjectScreenAngle[object], NULL,
-                             asObjectFlip[object] ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE) != 0)
+                             (SDL_RendererFlip)(((asObjectFlip[object] & 0x10) ?
+                                 SDL_FLIP_HORIZONTAL : 0) | ((asObjectFlip[object] & 0x20) ?
+                                 SDL_FLIP_VERTICAL : 0))) != 0)
             return -1;
+        if (object == acShipTarget[0])
+            targetBounds = rectangle;
     }
     SDL_SetRenderDrawColor(renderer, 70, 230, 130, 255);
     object = nNavPointerObject;
     if (object >= 0 && asObjectScreenX[object] != (short)0x8001) {
         rectangle.x = 156 + asObjectScreenX[object];
-        rectangle.y = centreY - asObjectScreenY[object] - 4;
+        rectangle.y = centreY + asObjectScreenY[object] - 4;
         rectangle.w = rectangle.h = 9;
         SDL_RenderDrawRect(renderer, &rectangle);
     }
@@ -324,11 +481,8 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
             SdlDrawSwcCockpit() != 0)
             return -1;
     }
-    SDL_SetRenderDrawColor(renderer, 70, 230, 130, 255);
-    SDL_RenderDrawLine(renderer, 155, centreY, 158, centreY);
-    SDL_RenderDrawLine(renderer, 162, centreY, 165, centreY);
-    SDL_RenderDrawLine(renderer, 160, centreY - 5, 160, centreY - 2);
-    SDL_RenderDrawLine(renderer, 160, centreY + 2, 160, centreY + 5);
+    if (SdlDrawSwcHud(targetBounds.w > 0 ? &targetBounds : NULL) != 0)
+        return -1;
     if (showMap) {
         SetScale();
         rectangle.x = 80;
@@ -364,7 +518,8 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     SwcCmf cockpitCmf = {0};
     SwcCmf spaceCmf = {0};
     SwcBuffer cockpitSet = {0};
-    SwcFlightImages images[OBJECT_TYPE_COUNT] = {{{0}}};
+    SwcFlightImages images[OBJECT_TYPE_COUNT] = {{0}};
+    ObjectTypeData savedExplosions[3];
     SDL_Color colors[256];
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
@@ -381,7 +536,7 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     Uint32 tickInterval;
     Uint32 elapsed = 0;
     char path[PATH_MAX];
-    char title[256];
+    char title[384];
     char failure[256];
     int shipCount;
     int object;
@@ -390,6 +545,7 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     int showMap = 0;
     int paused = 0;
     int focused = 1;
+    int explosionsConfigured = 0;
     int done = 0;
     int result = -1;
 
@@ -431,6 +587,8 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     if (SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf, colors) != 0)
         goto done;
     swcFlightActive = 1;
+    SwcSetExplosionData(savedExplosions);
+    explosionsConfigured = 1;
     srand(1);
     shipCount = SwcStartMissionShips();
     if (shipCount < 0)
@@ -439,13 +597,13 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
     FlushInputEvents();
     SetEventManagerPump(NULL);
     stMouseCursorState.viewport = &stSpaceBuffer;
-    /* SWC's view is centred in this rectangle in either cockpit mode. The
-       WC1 cockpitless camera offsets do not apply to the 320x240 SDL view. */
+    /* SWC uses the same (160,100) scene center in either cockpit mode. */
     bCockpitlessView = 0;
-    SetViewportRect(&stSpaceBuffer, 0, 0, 319, cockpitless ? 239 : 159);
+    SetViewportRect(&stSpaceBuffer, 0, 0, 319, 199);
     bHostPrimaryMouseButton = 0;
     bHostSecondaryMouseButton = 0;
     nSpaceFrame = 0;
+    nRenderedSpaceFrame = 0;
     SetSpaceFlightFrameTiming();
     tickInterval = (Uint32)nFrameIntervalMs;
     for (object = 1; object < shipCount; object++) {
@@ -494,6 +652,10 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
                     nHostMouseMessageY = SDL_clamp(event.motion.y,
                                                    stSpaceBuffer.top, stSpaceBuffer.bottom);
                     bMouseCursorVisible = 1;
+                } else if (event.type == SDL_MOUSEBUTTONDOWN &&
+                           event.button.button == SDL_BUTTON_LEFT) {
+                    /* Preserve clicks that begin and end between simulation ticks. */
+                    swcGunFirePending = 1;
                 } else if ((event.type == SDL_MOUSEBUTTONDOWN ||
                             event.type == SDL_MOUSEBUTTONUP) &&
                            event.button.button == SDL_BUTTON_RIGHT) {
@@ -523,9 +685,29 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
                 case SDLK_n:
                     cycle_next_objective();
                     break;
+                case SDLK_t:
+                    if (focused && !paused) {
+                        cycle_onscreen_targets();
+                        set_mode(1, acShipTarget[0] == -1 ? 5 : 3);
+                    }
+                    break;
+                case SDLK_g:
+                    if (focused && !paused)
+                        select_new_gun();
+                    break;
+                case SDLK_w:
+                    if (focused && !paused) {
+                        select_new_release_weapon((enum ObjectType)-1);
+                        lock_off();
+                    }
+                    break;
+                case SDLK_RETURN:
+                case SDLK_KP_ENTER:
+                    if (focused && !paused)
+                        swcReleaseWeaponPending = 1;
+                    break;
                 case SDLK_c:
                     cockpitless = !cockpitless;
-                    SetViewportRect(&stSpaceBuffer, 0, 0, 319, cockpitless ? 239 : 159);
                     if (!checkOnly && focused && !paused)
                         SwcCentreFlightMouse();
                     break;
@@ -562,15 +744,18 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
             elapsed = tickInterval;
         }
         while (elapsed >= tickInterval) {
-            SwcFlightTick(checkOnly ? checkKeys : SDL_GetKeyboardState(NULL), shipCount);
+            nTickCount60Hz = (unsigned int)((uint64_t)SDL_GetTicks() * 60 / 1000);
+            SwcFlightTick(checkOnly ? checkKeys : SDL_GetKeyboardState(NULL),
+                          checkOnly ? 0 : SDL_GetMouseState(NULL, NULL));
             elapsed -= tickInterval;
             ticks++;
         }
-        if (SwcDrawFlight(renderer, cockpit, images, shipCount, cockpitless, showMap) != 0)
+        if (SwcDrawFlight(renderer, cockpit, &cockpitCmf, &spaceCmf, colors,
+                          images, cockpitless, showMap) != 0)
             goto done;
         SDL_RenderPresent(renderer);
         SDL_snprintf(title, sizeof(title),
-                     "SWC Enyo 1%s | %s | speed %ld (set %d)%s | mouse/arrows: steer RMB: roll/throttle +/-: speed Tab: boost N: nav M: map C: cockpit P: pause Esc: exit",
+                     "SWC Enyo 1%s | %s | speed %ld (set %d)%s | mouse/arrows: steer RMB: roll/throttle +/-: speed Tab: boost Space/LMB: guns Enter/both buttons: missile G/W: weapons T: target N: nav M: map C: cockpit P: pause Esc: exit",
                      paused || !focused ? " (paused)" : "",
                      aMissionObjectives[(int)cCurrentObjective].name,
                      MultiplyFixed(Vector_magnitude(&aShipVelocity[0]), 0xa00) >> 8,
@@ -604,11 +789,16 @@ done:
     SetEventManagerPump(savedInputPump);
     bCockpitlessView = savedCockpitlessView;
     swcFlightActive = 0;
+    if (explosionsConfigured) {
+        for (object = 0; object < 3; object++)
+            aObjectTypeData[OBJECT_TYPE_EXPLOSION0 + object] = savedExplosions[object];
+    }
     if (window != NULL)
         SDL_SetWindowMouseGrab(window, SDL_FALSE);
     for (object = 0; object < OBJECT_TYPE_COUNT; object++) {
-        for (view = 0; view < 37; view++)
+        for (view = 0; (uint32_t)view < images[object].count; view++)
             SDL_DestroyTexture(images[object].views[view]);
+        SDL_free(images[object].views);
     }
     SdlFreeSwcCockpit();
     SDL_DestroyTexture(cockpit);

@@ -3,10 +3,11 @@
 The GUI recognizes the SWC Mac demo and starts an experimental Enyo 1 flight
 with five ships, four objectives, and the original 320x240 cockpit and sprites.
 SDL2 handles input and presentation; WC1 supplies mission state, ship setup,
-flight dynamics, movement, projection, ship-view selection, and navigation.
+flight dynamics, movement, projection, ship-view selection, navigation, and
+player weapons, including projectile collisions, damage, and missile guidance.
 The Hornet cockpit now has speed and navigation readouts, fuel/throttle/energy
-gauges, a shield/armor display, and radar contacts using the original art.
-Combat, enemy AI, nav-sphere transitions, mission completion, the remaining HUD,
+gauges, player/target shield and armor displays, radar contacts, weapon status,
+and the original reticle. Enemy AI, nav-sphere transitions, mission completion, the remaining HUD,
 audio, and movies are not connected yet. Ship parameters still come from WC1.
 
 `make modern-swc` builds the asset viewer. It loads the demo's CMF files,
@@ -50,6 +51,10 @@ Flight uses WC1's DOS/Win32 mouse and keyboard controls through SDL2:
 | +/- or keypad +/- | Change commanded speed while held |
 | Backspace | Set commanded speed to zero; the ship decelerates |
 | Tab or keypad * | Afterburner, subject to WC1's fuel and timer checks |
+| Space / left mouse button | Fire selected guns; holding repeats while energy and cooldown permit |
+| Enter / press both mouse buttons | Release one selected missile; guided weapons require a lock |
+| G / W | Cycle gun selection / missile type |
+| T | Cycle visible targets using WC1's range ordering and enemy preference |
 | N / M / C | Next objective / nav map / cockpit |
 | P / Esc | Pause / exit |
 
@@ -57,8 +62,9 @@ The window title shows the selected objective, actual and commanded speed,
 and afterburner state. The pointer is confined to the flight window; P releases
 it while paused. Losing focus also pauses movement and releases the pointer.
 Keyboard steering takes over until the next mouse movement. Releasing the
-right-button roll/throttle mode recentres the pointer, as in WC1. Left-click
-weapons are inactive because combat is not connected. Joystick flight is still
+right-button roll/throttle mode recentres the pointer, as in WC1. Holding both
+buttons releases one missile per press; a latched right-button afterburner keeps
+its existing behavior and allows left-button guns. Joystick flight is still
 unsupported; the GUI disables its options. Q/E are no longer roll bindings.
 
 Point `SWC_DATA_DIR` at the extracted **SuperWing DEMO** directory containing
@@ -167,7 +173,10 @@ rejected because a persisted Mac pointer cannot be used as a host pointer.
 | `PollKeyboardState`, `process_player_input` | WC1 keyboard priorities, diagonals, gradual steering, reversals, and Shift response | Deliberately uses DOS/Win32 controls; SWC's Mac event/device layer differs |
 | `player_input`, `QueueInputEvent`, `WarpMouseTo` | Original mouse response, edge limits, right-button roll/throttle, and recentering | SWC supplies only motion events and the right-button modifier; weapon events are excluded |
 | `accelerate`, `celerate`, `your_afterburner`, `fire_afterburner` | Throttle bounds, boost activation, and boost timers | Audio calls stop at the SDL boundary until SWC sound is implemented |
-| `players_flight_dynamics`, `rotate_object`, `accelerate_and_move_object` | Steers and moves the five entry-nav ships | WC1 ship parameters; NPC AI and combat are not active |
+| `players_flight_dynamics`, `rotate_object`, `accelerate_and_move_object` | Steers and moves the entry-nav ships and active weapons | WC1 ship parameters; NPC ship AI is not active |
+| `fire_players_lasers`, `fire_fixed_projectile_weapon`, `fire_weapon`, `fire_missile` | Shared hardpoints, energy use, cooldowns, projectile initialization and missile release | SDL-only SWC aiming offset and laser cooldown; other weapon parameters remain WC1 |
+| `house_keep_objects`, `update_objects_in_space` | Shared lifetimes, collisions, damage, missile guidance, shield/energy recharge and animations | NPC ship intelligence is skipped during SWC flight; mission transitions remain disconnected |
+| `select_new_gun`, `select_new_release_weapon`, `cycle_onscreen_targets`, `target_locking` | Shared selection and missile lock state | SDL presents SWC art and text instead of WC1's cockpit packets |
 | `SetSpaceFlightFrameTiming` | Initializes the shared flight tick interval, 50 ms at WC1's default 20 Hz | Replaces the host's hard-coded 62 ms; SWC's elapsed-tick translation scaling is not reproduced |
 | `generate_stars`, `update_star_field`, `transform_objects_to_your_view`, `get_right_shape` | Projects the scene and chooses among 37 decoded ship views | SWC hotspots, scale, and exact presentation still need reconstruction |
 
@@ -182,7 +191,7 @@ polling interface for each simulation tick. Held keypad keys use the same
 bindings as the existing SDL key events. It clears released axes independently
 and samples throttle and boost independently of steering, without relying on
 operating system key repeat. The mouse adapter initializes WC1's input viewport
-to the SWC cockpit opening (320x160) or the full 320x240 view, then queues one
+to a 320x200 rectangle centered at SWC's scene origin (160,100), then queues one
 motion sample per simulation tick and calls `player_input` directly. This uses
 the existing response tables, direction signs, right-button behavior, and
 recentering code without duplicating the mouse algorithm. SDL converts window
@@ -195,8 +204,10 @@ Primary/secondary host button states stay clear, and no weapon button events
 are queued. Right-button state is passed only as a motion modifier; two presses
 within WC1's 20/60-second interval activate the shared `your_afterburner` routine
 while the button is held. This timing-only check tolerates WC1's pointer
-recentering between clicks. `HandleSpaceFlightControls` is still bypassed because its HUD
-and combat commands are not connected. SDL builds zero-initialize the legacy
+recentering between clicks. SDL handles weapon buttons separately and calls the
+shared firing routines. Short left clicks remain pending until a simulation
+tick. `HandleSpaceFlightControls` is still bypassed because its remaining HUD
+and mission commands are not connected. SDL builds zero-initialize the legacy
 input event before polling, since motion and empty polls leave some fields
 unset. In SDL builds only, `accelerate` multiplies signed throttle steps by 256
 instead of left-shifting negative values. The reference build retains the
@@ -237,6 +248,47 @@ movement algorithms, with these qualifications:
 The movement and mouse-control updates were compiled with `make modern modern-gui`
 and reviewed statically. No game, GUI, or interactive check was run for those updates.
 
+### Player weapons
+
+The flight host now calls WC1's object lifecycle instead of moving only the
+initial ships. Guns use the shared energy gate, hardpoints, projectile creation,
+convergence, collision/damage, and recharge code. Missiles use the shared loadout,
+lock gate, launch timer, guidance, collision grace, expiration, and explosion code.
+WC1 handles shield/armor damage, debris, and ammunition removal. Player destruction
+stops simulation/input and displays an exit message; the death scene is pending.
+
+Original instructions support this reuse:
+
+- CODE_09 `fire_players_lasers` +0x021a has the same cooldown/energy gate and
+  selected-gun call. CODE_05 `fire_fixed_projectile_weapon` +0x38fe iterates
+  enabled projectile slots; `fire_missile` +0x3856 requires a lock for HS/IR.
+- CODE_05 `fire_weapon` +0x3320 shares the allocation, hardpoint, energy,
+  lifetime, velocity and release flow. Its player convergence point adds 400
+  world units along up for lasers and 300 for neutron/mass driver
+  (+0x34c8..+0x3532). Expanded DATA/0 +0x31f2 has refire delays `{4,10,4,0}`,
+  compared with WC1's `{6,10,4,0}`. Both differences apply only to SWC.
+- CODE_02 `house_keep_objects` +0x3d38 and `update_objects_in_space` +0x418c
+  follow the same lifecycle stages. This does not establish complete gameplay
+  equivalence: WC1 still supplies collision/damage algorithms and ship/weapon
+  definitions, and SWC's elapsed-tick movement scaling remains pending.
+- CODE_02 `animate_shape` +0x4790 uses the same frame, loop, scale and removal
+  commands. SWC explosion types 48/49/50 use 15/20/22 frames, scale 768/512/1024,
+  and one tick per frame. The host supplies the recovered sequences from
+  DATA/0 +0x2564/+0x261c/+0x25c0 to WC1's interpreter and restores the original
+  definitions on exit. Mac handle management and explosion screen shake are absent.
+
+CODE_08 `get_Mac_mem` +0x0050..+0x022c identifies the projectile/effect OBJT
+chunks; CODE_03 supplies debris aliases. The SDL cache loads each used resource
+with its own frame count, including intentionally empty frames. Missiles use
+MS00..03/1 (22 views). Ship views remain 37-frame sets. Resource data is borrowed
+only while CMFs are open, and all textures are freed on normal/error exits.
+
+The renderer now adds projected Y to the scene origin, matching both original
+engines. WC1's cockpit-packet drawing is bypassed for messages, missile removal,
+VDU changes and damage overlays; shared gameplay state is retained. Win32
+reference branches remain unchanged. NPC ship AI, wave spawning, mission
+completion, weapon audio and damaged-cockpit animation are still pending.
+
 ### Hornet cockpit
 
 The first cockpit pass presents shared WC1 state through the Mac demo's artwork.
@@ -254,6 +306,10 @@ X offset only during SWC flight. The Win32 reference branches are preserved.
 | Hull, armor and shields | CODE_13 `show_weapon_disp` +0x0e54 | PC00/10: hull, armor flashing below half strength, fore/aft shield presence |
 | Radar | CODE_13 `draw_3d_scanner` +0x285a; DATA/0 +0x300 / +0x390 | CKPT/31 contact sprites, 30,000-unit cutoff, nav marker, then PC00/18 grid at (139, 151) |
 | Destination / range | CODE_13 `update_digital_readouts`; DATA/0 +0x6f6 | Baseline (200, 94), 11-pixel line spacing, `FAR` at 32,000 or above |
+| Target / range | CODE_13 `update_digital_readouts`; DATA/0 +0x6c6 | Baseline (200, 110), using WC1's object name and surface range |
+| Target hull / armor / shields | CODE_13 `show_target_disp` +0x1270; DATA/0 +0x756 | STnn/2 or SHnn/38 at (230,136), with PC00/9 shields |
+| Gun / missile selection | CODE_13 `update_status_text` +0x102e; DATA/0 +0x726 | Original short names at (51,84); host keeps them visible and adds ammunition/lock state |
+| Reticle | CODE_13 `overlay_head_up_display` +0x2f56; DATA/0 +0x792 | CKPT/1 frame 0 at (144,96), including the frame's offsets |
 
 The layout constants come from DATA/0 expanded using the original CODE_01
 startup decoder. Offsets above refer to the expanded A5-relative data, not
@@ -264,11 +320,15 @@ are transformed from their current world positions, as in SWC; this avoids the
 scene projection cache omitting objects close to the player.
 
 This pass supports the Enyo 1 Hornet cockpit. Ship capacities still use WC1
-definitions. Weapon/target VDU modes, component-damage text, malfunction effects,
-warning lamps, hostile direction arrows, pilot animation, and the original
-reticle placement remain unfinished. Combat is not connected, so shield/armor
-and weapon-energy displays currently reflect their initialized state. The
-cockpit toggle hides all these instruments; a separate cockpitless HUD is pending.
+definitions. Shield, armor and weapon-energy displays now respond to shared
+combat state. Target brackets use SDL corners around the centered sprite bounds;
+the original rotated MacScale1 bounds/CKPT/36 drawing are not reproduced yet.
+Target names use WC1 object names rather than SWC's pilot/ace-name substitutions.
+Component messages and missile-lock notices use WC1 lifetimes at host positions.
+The cockpit toggle retains the reticle, weapon status, target/navigation text,
+and messages. Other cockpitless instruments, component-damage text cycling,
+malfunction effects, warning lamps, hostile direction arrows, ITTS, pilot animation,
+and remaining VDU modes are pending.
 
 #### Text font
 
@@ -288,7 +348,7 @@ TTF, source hash and SIL Open Font License are in
 records its rasterizer versions in the output. Release archives include the
 font license. Bytes outside printable ASCII currently display as `?`.
 
-Cockpit validation consists of original-instruction and resource inspection,
+Cockpit and weapon validation consists of original-instruction and resource inspection,
 static source review, and `make modern modern-gui`. No game, GUI, or interactive
 check was run for this pass; its appearance still needs user review in flight.
 
@@ -323,7 +383,7 @@ many WC1 names were already derived from this Mac executable's MacsBug strings.
 2. Refine ship-sprite hotspots, SWC projection, scaling, and the remaining
    320x240 HUD. Instrument sprites use their original offsets; the current
    SDL renderer still centers ship sprites selected and projected by WC1.
-3. Connect nav-sphere transitions, NPC AI, combat, carrier return, and the
+3. Connect nav-sphere transitions, NPC AI/firing, carrier return, and the
    remaining HUD modes. The demo explicitly disables its simulator, so campaign
    flight is the useful first playable milestone.
 4. Add scenes, AIFF speech/effects, music, and the custom `LMov` movie format.

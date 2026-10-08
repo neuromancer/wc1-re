@@ -1468,6 +1468,20 @@ int fire_weapon(short obj, short weapon)
             AddFixedVectors(&aShipPosition[obj], &vector,
                             &vector);
             point_at(projectile, vector);
+#ifdef SDL_PORT
+            /* SWC CODE_05 +0x34c8..+0x3532 offsets the player's convergence
+               point along up: 300 units for neutron/mass driver, 400 otherwise. */
+            if (SdlSwcFlightActive()) {
+                if (obj == 0) {
+                    ScaleFixedVector(&aShipUpVector[obj],
+                        (weaponType == OBJECT_TYPE_NEUTRON_PARTICLE_GUN ||
+                         weaponType == OBJECT_TYPE_MASS_DRIVER_CANNON ? 300 : 400) * 256,
+                        &cockpitOffset);
+                    AddFixedVectors(&cockpitOffset, &vector, &vector);
+                    point_at(projectile, vector);
+                }
+            } else
+#endif
             if (bCockpitlessView != 0 && cCockpitView == 3) {
                 ScaleFixedVector(&aShipUpVector[obj], 0x12200,
                                  &cockpitOffset);
@@ -1532,6 +1546,11 @@ int fire_weapon(short obj, short weapon)
                 asObjectCounter[obj] =
                     acGunRefireDelay[
                         weaponType - OBJECT_TYPE_LASER_CANNON];
+#ifdef SDL_PORT
+                /* SWC DATA/0 +0x31f2 is {4,10,4,0}; only lasers differ. */
+                if (SdlSwcFlightActive() && weaponType == OBJECT_TYPE_LASER_CANNON)
+                    asObjectCounter[obj] = 4;
+#endif
             }
         } else {
             asObjectCounter[obj] = 12;
