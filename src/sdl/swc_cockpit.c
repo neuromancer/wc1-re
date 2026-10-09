@@ -872,6 +872,6 @@ int SdlDrawSwcHud(void)
         }
     }
     if (bPlayerDestroyed || nArcadeState == 4)
-        SwcDrawCockpitText(90, 65, 0xd4, "SHIP DESTROYED - ESC TO EXIT");
+        SwcDrawCockpitText(125, 65, 0xd4, "SHIP DESTROYED");
     return swcCockpitDrawResult;
 }

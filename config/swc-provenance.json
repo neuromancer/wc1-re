@@ -146,7 +146,27 @@
       "source": "src/sdl/swc_rooms.c",
       "symbol": "SwcPlayRoomScene",
       "relationship": "partial-presentation-adaptation",
-      "differences": "Supports BRF0/5 sections 0,2,4,6,8, with the original 13-byte WC1 record layout, shared ParseTests/AddPCName/animation parsers, original portraits/backgrounds and speech. Debriefing uses original long-shot origins and talker-selected BRFG/15 backgrounds. Validates data before legacy parsers. Does not call the DOS renderer. Map uses WC1 objectives and transforms. Native panning, text colors, fades and audio-marker lip synchronization are pending; animations/subtitles use host presentation."
+      "differences": "Supports BRF0/5 sections 0,2,4,6,8 and BRF0/1 funeral sections 0,2,10,12, with the original 13-byte WC1 record layout, shared ParseTests/AddPCName/animation parsers, original portraits/backgrounds and speech. Debriefing uses original long-shot origins, talker-selected BRFG/15 backgrounds and CloseTalk base portrait frame 21. Funeral uses BRFG/19..20 and TKHD/1,10 with base frame 0. Validates data before legacy parsers. Does not call the DOS renderer. Map uses WC1 objectives and transforms. Native panning, text colors, fades and audio-marker lip synchronization are pending; animations/subtitles use host presentation."
+    },
+    {
+      "original_name": "funeral_sequence",
+      "resource": "CODE_03.bin",
+      "entry_offset": "0x4a08",
+      "end_offset": "0x4b0a",
+      "source": "src/sdl/swc_rooms.c",
+      "symbol": "SdlRunSwcCarrier",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "Fresh Enyo 1 player/Spirit paths: SdlPlaySwcFuneralMovies plays FUNSERV0/FUNSERVA before the eulogy and FUNSERVB before farewell. Original BRF0/1 dialogue branches, artwork and AIFF speech use the shared WC1 parser and pilot state. Movie and dialogue audio devices have separate lifetimes; skip/quit/errors stop the sequence. Separate FUNERAL.MooV music, fades and exact scene timing remain pending."
+    },
+    {
+      "original_name": "the_end",
+      "resource": "CODE_03.bin",
+      "entry_offset": "0x4b1e",
+      "end_offset": "0x4bbe",
+      "source": "src/sdl/swc_rooms.c",
+      "symbol": "SdlRunSwcCarrier",
+      "relationship": "partial-presentation-adaptation",
+      "differences": "After the player's completed farewell, SDL presents THE END and waits for input. Uses the existing bitmap font and a static black background; original QuickDraw typography and animated background remain pending. Skipping the funeral bypasses the end card."
     },
     {
       "original_name": "scramble",
@@ -432,8 +452,9 @@
     }
   ],
   "shared_wc1_evidence": [
-    {"name": "ParseTests", "resource": "CODE_03.bin", "entry_offset": "0x3b4a", "source": "src/screens.c", "wc1_address": "0x00438160", "qualification": "Shares the branch parser after bounded validation. Enyo 1 accepts commands 1..10 and 35/36 for goto, scores, wing status, kills and office flag. Native CMP0/2 weights are adapted to WC1's score window for the first debriefing. Other scene families remain unsupported."},
-    {"name": "AddPCName", "resource": "CODE_03.bin", "entry_offset": "0x0df8", "source": "src/cmpgn.c", "wc1_address": "0x00404e10", "qualification": "Shares callsign and kill-count expansion. The Enyo carrier validates $C/$K/$L markers and expanded length before using WC1's fixed scratch buffer. Other substitutions are not enabled in this host slice."},
+    {"name": "ParseTests", "resource": "CODE_03.bin", "entry_offset": "0x3b4a", "source": "src/screens.c", "wc1_address": "0x00438160", "qualification": "Shares the branch parser after bounded validation. Enyo 1 accepts commands 1..10 and funeral command 30 for a pilot lost on this mission. Score commands 35/36 are permitted only for debriefing, where native CMP0/2 weights are adapted to WC1's score window. Other scene families remain unsupported."},
+    {"name": "wing_status", "resource": "CODE_03.bin", "entry_offset": "0x38ca", "source": "src/screens.c", "wc1_address": "0x004380d0", "qualification": "Original ParseTests command 30 at +0x3cee compares wing_status to 1. Shared WC1 code identifies loss on currentSeries*4+currentMission; the host retains the flown mission through debriefing and funeral."},
+    {"name": "AddPCName", "resource": "CODE_03.bin", "entry_offset": "0x0df8", "source": "src/cmpgn.c", "wc1_address": "0x00404e10", "qualification": "Shares callsign, name, rank and kill-count expansion. The Enyo carrier validates $C/$N/$R/$K/$L markers, rank bounds and expanded length before using WC1's fixed scratch buffer. Other substitutions are not enabled in this host slice."},
     {"name": "cleanup_objectives", "resource": "CODE_06.bin", "entry_offset": "0x0738", "source": "src/screen.c", "wc1_address": "0x0042efc0", "qualification": "Shared patrol/escort/kill completion rules; called by clearance requests and at landing before debriefing."},
     {"name": "can_land", "resource": "CODE_06.bin", "entry_offset": "0x0ab4", "source": "src/screen.c", "wc1_address": "0x0042f2b0", "qualification": "Shared Enyo 1 rule: no enemy within 20000 and health below 50, kills, fuel below 1000 or non-return objective progress. SWC's later series-4 mission-3 story restriction is outside this host's scope."},
     {"name": "request", "resource": "CODE_06.bin", "entry_offset": "0x0c0e", "source": "src/screen.c", "wc1_address": "0x0042f3f0", "qualification": "WC1 command dispatch reused by DOS/Win32 recipient/command menus. Landing command 12 cleans objectives, checks can_land and queues native message 8/9. SDL presents clearance text; inflight voices/portraits remain pending. Native SWC Chosen_communicate_option +0x0276 exposes four quick commands rather than these menus."},
@@ -589,21 +610,23 @@
   "movies": {
     "decoder_source": "src/swc/movie.c",
     "presentation_source": "src/sdl/swc_movie.c",
-    "scope": "Version-1 LMov decoder and original Hornet launch/landing for Enyo 1 in both SDL launchers. Missing sequence files preserve flight/debriefing; malformed movies fail explicitly. The check-only flight path bypasses movies.",
+    "scope": "Version-1 LMov decoder and original Hornet launch/landing plus player/Spirit funeral clips for Enyo 1 in both SDL launchers. Missing movie groups preserve flight/dialogue; malformed movies fail explicitly. The check-only flight path bypasses movies.",
     "launch_sequence": ["ARMOR", "HALL", "LAUNCH01", "LAUNCH02", "LAUNCH03", "LAUNCH04.00", "LAUNCH06.00", "LAUNCH07.00", "LAUNCH08.00"],
     "launch_string_evidence": "CODE_03 scramble +0x45d0, expanded DATA/0 A5-relative strings -0x3414, -0x3402, -0x33fd, -0x33f4, -0x33eb, -0x33e2, -0x33d3, -0x33c4, -0x33b5. Last four format strings use %2.2d; Hornet selects zero.",
     "landing_sequence": ["LANDING1.00", "LANDING2.00", "LANDING1", "LANDING4.00", "LANDING5.00", "LANDING6.00", "LANDING7.NN"],
     "landing_string_evidence": "CODE_03 landing +0x447e; expanded DATA/0 +0x42a6..0x42ba filename pointers, A5-0x341d LANDING1. Final NN is 2-evaluate_damage(0)*2/100, yielding 00..02.",
+    "funeral_sequence": ["FUNSERV0", "FUNSERVA", "eulogy dialogue", "FUNSERVB", "farewell dialogue"],
+    "funeral_string_evidence": "CODE_03 funeral_sequence +0x4a08; expanded DATA/0 A5-relative strings -0x3397 FUNSERV0, -0x338e FUNERAL.MooV, -0x3381 FUNSERVA, -0x3378 FUNSERVB.",
     "audio": "Embedded unsigned 8-bit mono at 0x56ee8ba3 fixed-point Hz (22254.545...), rounded to 22255 Hz by SDL. Stored blocks are 11128 bytes; header +0xa6 is the valid sample count. SDL queues trimmed PCM, pauses with video, and falls back to silent playback if the device is unavailable.",
-    "pending": "Separate ARMOR.MooV/LANDING.MooV music, palette transitions, opening/funeral game-flow integration, and later scripted scenes. First briefing/bar/debriefing conversations are connected through the carrier adapter.",
+    "pending": "Separate ARMOR.MooV/LANDING.MooV/FUNERAL.MooV music, palette transitions, opening game-flow integration and later scripted scenes. First briefing/bar/debriefing/funeral conversations are connected through the carrier adapter.",
     "validation": "Original assembly and A5-string inspection; offline parsing of all 38 original files and 3521 encoded frames, including record bounds, scanline commands, exact frame consumption and audio lengths; static source review and make modern modern-gui. No interactive code, game, GUI, playback or audio device executed."
   },
   "carrier": {
     "source": "src/sdl/swc_rooms.c",
-    "scope": "Fresh Enyo 1: bar, three conversations, rankings, barracks, medals, briefing, Hornet launch, flight, landing and debriefing. Dismissal ends the session; later campaign progression is not implemented. GUI and CLI enter the carrier; check-only bypasses rooms and movies. Save bunks explain unsupported saving/loading. Simulator remains disabled as in the original demo.",
+    "scope": "Fresh Enyo 1: bar, three conversations, rankings, barracks, medals, briefing, Hornet launch, flight, landing, debriefing and player/Spirit funerals. Player death enters the funeral without landing/PostMission; Spirit's funeral follows debriefing if she was lost. Dismissal ends the session; later campaign progression is not implemented. GUI and CLI enter the carrier; check-only bypasses rooms and movies. Save bunks explain unsupported saving/loading. Simulator remains disabled as in the original demo.",
     "flow_evidence": [
       {"resource": "CODE_09.bin", "entry_offset": "0x1a70", "name": "StartNewCampaign", "qualification": "Enables the recreation-room path."},
-      {"resource": "CODE_09.bin", "entry_offset": "0x1b8e", "name": "GameFlow", "qualification": "RecRoom, BarracksScreen, Briefing, scramble, landing, PostMission and DeBriefing; simulator selection shows the demo restriction. Full UpdateSeries and later scenes are not connected."},
+      {"resource": "CODE_09.bin", "entry_offset": "0x1b8e", "name": "GameFlow", "qualification": "RecRoom, BarracksScreen, Briefing, scramble, landing, PostMission and DeBriefing; simulator selection shows the demo restriction. Player funeral call at +0x1e44 passes 1; wingman-loss check +0x218c calls the funeral with 0 at +0x2196. Full UpdateSeries and later scenes are not connected; the separate death_sequence cinematic is still pending."},
       {"resource": "CODE_03.bin", "entry_offset": "0x137c", "name": "DeBriefing"},
       {"resource": "CODE_03.bin", "entry_offset": "0x1b8c", "name": "DrawDebriefingLongShot"},
       {"resource": "CODE_03.bin", "entry_offset": "0x1556", "name": "LoadBriefingData"},
@@ -611,23 +634,34 @@
       {"resource": "CODE_03.bin", "entry_offset": "0x1e54", "name": "DrawBriefingLongShot"},
       {"resource": "CODE_03.bin", "entry_offset": "0x1e02", "name": "DrawPodiumShot"},
       {"resource": "CODE_03.bin", "entry_offset": "0x42cc", "name": "LoadFace"},
-      {"resource": "CODE_03.bin", "entry_offset": "0x323c", "name": "CloseTalk"}
+      {"resource": "CODE_03.bin", "entry_offset": "0x323c", "name": "CloseTalk", "qualification": "+0x3292 selects portrait base frame 21 for debriefing, 0 otherwise."},
+      {"resource": "CODE_03.bin", "entry_offset": "0x1af8", "name": "DrawFuneralLongShot"},
+      {"resource": "CODE_03.bin", "entry_offset": "0x46ec", "name": "funeral_player"},
+      {"resource": "CODE_03.bin", "entry_offset": "0x47cc", "name": "farwell_player"},
+      {"resource": "CODE_03.bin", "entry_offset": "0x4888", "name": "funeral_wingman"},
+      {"resource": "CODE_03.bin", "entry_offset": "0x494a", "name": "farwell_wingman"}
     ],
-    "shared_wc1_functions": ["ResetCampaignData", "CorrectPointers", "FindMenuRegionAtPoint", "IsPointInRect", "ParseTests", "AddPCName", "ParseMouthAnimation", "ParseFaceAnimation", "Build_objective_list", "SetScale", "nav_getxy", "PostMission", "FullMissionScore", "PlayersMissionScore"],
+    "shared_wc1_functions": ["ResetCampaignData", "CorrectPointers", "FindMenuRegionAtPoint", "IsPointInRect", "ParseTests", "wing_status", "AddPCName", "ParseMouthAnimation", "ParseFaceAnimation", "Build_objective_list", "SetScale", "nav_getxy", "PostMission", "FullMissionScore", "PlayersMissionScore"],
     "reuse_qualification": "Reference functions are unchanged. Original WC1 room/director functions also perform DOS resource and viewport I/O, so the host reuses their separable logic/data types and provides SDL presentation. Pilot identity, rankings and awards start from WC1's initial campaign template; the SWC character initialization template and name-entry UI are not reconstructed.",
     "script": {"file": "Data.CMF", "chunk": "BRF0/5", "directory": "10 LE32 section offsets", "record": "13 bytes: three signed bytes, five LE16 fields", "sections": {"briefing": 0, "debriefing": 2, "shotglass": 4, "angel": 6, "paladin": 8}, "roster": "CMP0/3 indexed by (series-1)*8+mission*2; Enyo 1 pair 5,4 is validated."},
     "debriefing": {
       "campaign_scores": "CMP0/2 +(series-1)*128+mission*24+40: 16 signed byte weights. Enyo 1 is 2,1,2,1, then zeros. Host validates Enyo 1/Spirit, copies only these weights into WC1's first-mission score window at +14, and restores pMissionCampaignData on every exit.",
-      "art": "DeBriefing.CMF palette 190: BRFG/11 background, /12 player at (40,45), /14 commander mouth+1 at (140,60), /13 living wingman at (195,40). DeBriefingHeads.CMF palette 191: BRFG/15 frame 1 for talker 10, frame 0 for talker 11, TKHD portraits selected by shot-19.",
+      "art": "DeBriefing.CMF palette 190: BRFG/11 background, /12 player at (40,45), /14 commander mouth+1 at (140,60), /13 living wingman at (195,40). DeBriefingHeads.CMF palette 191: BRFG/15 frame 1 for talker 10, frame 0 for talker 11, TKHD portraits selected by shot-19 with base frame 21.",
       "branches": "Original 32 records select complete/partial mission, surviving/lost Spirit and player/wingman kill reports. Callsign/kills use the unchanged WC1 AddPCName. Early landing is not forced into a success result.",
-      "limits": "Finishes the first-mission session after debriefing; no full campaign progression, office/award ceremonies, funeral or persistence. Original scene timing/music/fades remain pending."
+      "limits": "Finishes the first-mission session after debriefing and any lost-Spirit funeral; no full campaign progression, office/award ceremonies or persistence. Original scene timing/music/fades remain pending."
+    },
+    "funeral": {
+      "script": "Data.CMF BRF0/1: 14 LE32 offsets, same 13-byte records. Enyo player eulogy/farewell sections 2/0, Spirit sections 12/10. DATA/0 +0x42be selects player story 0 for series 1. Wingman dialogue uses shared ParseTests command 30 and wing_status.",
+      "art": "Funeral.CMF palette 193: BRFG/19 long shot, BRFG/20 background frame 0 for textColour 0 otherwise 1, TKHD/1 and TKHD/10 with base frame 0. Original MountGraphics +0x2484/+0x2498 and SceneDirector +0x29b0 identify these assets. GUI requires this CMF.",
+      "speech": "AIFF/camp.0/00/00SSLL00.AIF; 11 supplied recordings for the player/Spirit sequences. Fresh pilot rank 0 is validated for the $R voice variant. Missing speech keeps subtitles usable.",
+      "limits": "Fresh Enyo 1 only. Movie/dialogue ordering and terminal input wait are connected, but the separate death cinematic, animated end background, FUNERAL.MooV music, fades and exact timing remain pending. End card uses existing SDL bitmap text on black."
     },
     "data_offsets": {"palettes": "0x3fd2", "filenames": "0x4046", "ranking_rows": "0x2690", "idle_sequences": ["0x27ae", "0x2816", "0x27da"], "medal_frames": "0x42f2", "briefing_origin": ["0x4306", "0x430a"]},
     "speech": {
       "reader_source": "src/swc/speech.c",
       "format": "AIFF COMM/SSND, mono signed 16-bit big-endian PCM, 11025 Hz; all 92 demo recordings inspected have this format.",
       "form_length_quirk": "All 92 original files declare FORM four bytes short, apparently excluding the AIFF form type. Each final SSND chunk ends at physical EOF with exactly the PCM byte count declared by COMM. The reader permits only this exact four-byte overrun by a final SSND chunk; other bounds/sample-count checks remain in force. Observed directly in 04060000.AIF and the full original speech corpus without playback.",
-      "path": "AIFF/camp.0/04/04SSLL00.AIF; SS=section, LL=original record index",
+      "path": "AIFF/camp.0/MM/MMSSLL00.AIF; MM=04 for Enyo 1 or 00 for funerals, SS=section, LL=original record index",
       "evidence": "CODE_03 SceneDirector +0x2cb6; DATA/0 +0x4322/+0x4326 resolves to %s%d:%2.2d%2.2d%2.2d%2.2d.AIF and camp.; SpoolSoundFile +0x6b02 provides original Sound Manager context. Archive supplies the mission subdirectory.",
       "qualification": "Bounded host reader and SDL queued audio replace Sound Manager streaming. Missing/unreadable recordings or unavailable device leave subtitles usable; malformed present recordings fail. MARK chunks are ignored; script mouth/face timing is provisional and is not native voice-marker synchronization."
     },

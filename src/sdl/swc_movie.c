@@ -182,10 +182,15 @@ done:
     return result;
 }
 
-/* Shared SDL presentation for CODE_03 scramble and landing's MovieDisplay
+/* Shared SDL presentation for CODE_03 scramble, landing and funeral MovieDisplay
  * calls. Separate music streams and palette fades remain pending. */
-static int SdlPlaySwcFlightMovies(SDL_Window *window, SDL_Renderer *renderer,
-                                  int landing, int health)
+enum SwcMovieSequence {
+    SWC_MOVIES_LAUNCH, SWC_MOVIES_LANDING,
+    SWC_MOVIES_FUNERAL_START, SWC_MOVIES_FUNERAL_FAREWELL
+};
+
+static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
+                                   enum SwcMovieSequence sequence, int health)
 {
     static const char *const launchNames[] = {
         "ARMOR", "HALL", "LAUNCH01", "LAUNCH02", "LAUNCH03",
@@ -195,9 +200,11 @@ static int SdlPlaySwcFlightMovies(SDL_Window *window, SDL_Renderer *renderer,
         "LANDING1.00", "LANDING2.00", "LANDING1", "LANDING4.00",
         "LANDING5.00", "LANDING6.00", NULL
     };
-    const char *const *names = landing ? landingNames : launchNames;
-    const char *sequence = landing ? "landing" : "launch";
-    size_t count = landing ? SDL_arraysize(landingNames) : SDL_arraysize(launchNames);
+    static const char *const funeralStartNames[] = {"FUNSERV0", "FUNSERVA"};
+    static const char *const funeralFarewellNames[] = {"FUNSERVB"};
+    const char *const *names;
+    const char *title;
+    size_t count;
     char paths[SDL_arraysize(launchNames)][PATH_MAX];
     char finalLanding[16];
     char relative[64];
@@ -210,6 +217,30 @@ static int SdlPlaySwcFlightMovies(SDL_Window *window, SDL_Renderer *renderer,
     SDL_snprintf(finalLanding, sizeof(finalLanding), "LANDING7.%02d",
                  2 - SDL_clamp(health, 0, 100) * 2 / 100);
     landingNames[6] = finalLanding;
+    switch (sequence) {
+    case SWC_MOVIES_LAUNCH:
+        names = launchNames;
+        count = SDL_arraysize(launchNames);
+        title = "launch";
+        break;
+    case SWC_MOVIES_LANDING:
+        names = landingNames;
+        count = SDL_arraysize(landingNames);
+        title = "landing";
+        break;
+    case SWC_MOVIES_FUNERAL_START:
+        names = funeralStartNames;
+        count = SDL_arraysize(funeralStartNames);
+        title = "funeral";
+        break;
+    case SWC_MOVIES_FUNERAL_FAREWELL:
+        names = funeralFarewellNames;
+        count = SDL_arraysize(funeralFarewellNames);
+        title = "funeral";
+        break;
+    default:
+        return SDL_SetError("Unsupported SWC movie sequence");
+    }
     /* Movies are optional for an existing minimal flight installation. Check
      * the entire sequence before showing it; malformed present movies still
      * report a decoding error instead of silently starting partial playback. */
@@ -220,7 +251,7 @@ static int SdlPlaySwcFlightMovies(SDL_Window *window, SDL_Renderer *renderer,
         reader = SDL_RWFromFile(paths[index], "rb");
         if (reader == NULL) {
             fprintf(stderr, "Skipping SWC %s: cannot read %s (%s)\n",
-                    sequence, relative, SDL_GetError());
+                    title, relative, SDL_GetError());
             SDL_ClearError();
             return SWC_MOVIE_FINISHED;
         }
@@ -229,7 +260,7 @@ static int SdlPlaySwcFlightMovies(SDL_Window *window, SDL_Renderer *renderer,
     cursorVisible = SDL_ShowCursor(SDL_QUERY);
     SDL_ShowCursor(SDL_DISABLE);
     for (index = 0; index < count; index++) {
-        result = SdlPlaySwcMovie(window, renderer, paths[index], sequence);
+        result = SdlPlaySwcMovie(window, renderer, paths[index], title);
         if (result != SWC_MOVIE_FINISHED)
             break;
     }
@@ -241,11 +272,19 @@ static int SdlPlaySwcFlightMovies(SDL_Window *window, SDL_Renderer *renderer,
 /* CODE_03 scramble +0x45d0: nine clips, Hornet suffix 00. */
 int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer)
 {
-    return SdlPlaySwcFlightMovies(window, renderer, 0, 100);
+    return SdlPlaySwcMovieSequence(window, renderer, SWC_MOVIES_LAUNCH, 100);
 }
 
 /* CODE_03 landing +0x447e: seven clips, ending selected by evaluate_damage. */
 int SdlPlaySwcLanding(SDL_Window *window, SDL_Renderer *renderer, int health)
 {
-    return SdlPlaySwcFlightMovies(window, renderer, 1, health);
+    return SdlPlaySwcMovieSequence(window, renderer, SWC_MOVIES_LANDING, health);
+}
+
+/* CODE_03 funeral_sequence +0x4a08: two clips precede the eulogy,
+ * FUNSERVB separates it from the farewell. */
+int SdlPlaySwcFuneralMovies(SDL_Window *window, SDL_Renderer *renderer, int farewell)
+{
+    return SdlPlaySwcMovieSequence(window, renderer, farewell
+        ? SWC_MOVIES_FUNERAL_FAREWELL : SWC_MOVIES_FUNERAL_START, 100);
 }

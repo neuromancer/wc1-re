@@ -12,7 +12,7 @@
 enum SwcRoomPackId {
     SWC_RECROOM, SWC_BARRACKS, SWC_MEDALS, SWC_SHOTGLASS, SWC_BAR_HEADS,
     SWC_BRIEFING, SWC_COMMANDER, SWC_WINGMEN, SWC_BRIEFING_MAP,
-    SWC_DEBRIEFING, SWC_DEBRIEFING_HEADS, SWC_ROOM_PACKS
+    SWC_DEBRIEFING, SWC_DEBRIEFING_HEADS, SWC_FUNERAL, SWC_ROOM_PACKS
 };
 
 typedef struct SwcRoomArt {
@@ -49,7 +49,7 @@ typedef struct SwcCarrier {
     int focused;
     int paused;
     int drawResult;
-    int afterFlight;
+    enum SwcCarrierVisit visit;
 } SwcCarrier;
 
 typedef struct SwcRoomInput {
@@ -99,10 +99,11 @@ static SwcRoomArt *SwcGetRoomArt(SwcCarrier *carrier, enum SwcRoomPackId packId,
     static const char *const files[SWC_ROOM_PACKS] = {
         "RecRoomScene.CMF", "Barracks.CMF", "ViewMedals.CMF", "Head10.CMF",
         "RRTalkingHeads.CMF", "Briefing.CMF", "BriefingCommander.CMF",
-        "BRTH1.CMF", "BRInterface.CMF", "DeBriefing.CMF", "DeBriefingHeads.CMF"
+        "BRTH1.CMF", "BRInterface.CMF", "DeBriefing.CMF", "DeBriefingHeads.CMF",
+        "Funeral.CMF"
     };
     static const short palettes[SWC_ROOM_PACKS] = {
-        135, 150, 151, 137, 136, 170, 171, 173, 172, 190, 191
+        135, 150, 151, 137, 136, 170, 171, 173, 172, 190, 191, 193
     };
     SwcRoomPack *pack = &carrier->packs[packId];
     SwcRoomArt *art;
@@ -279,7 +280,7 @@ static short SwcSceneWord(const uint8_t *bytes)
     return (short)(bytes[0] | (unsigned int)bytes[1] << 8);
 }
 
-static int SwcValidateSceneTests(const unsigned char *text, size_t count)
+static int SwcValidateSceneTests(const unsigned char *text, size_t count, enum SwcCarrierVisit visit)
 {
     unsigned int command;
     unsigned int value;
@@ -289,12 +290,14 @@ static int SwcValidateSceneTests(const unsigned char *text, size_t count)
     int digits;
 
     /* Validate before entering WC1's original, unbounded int_value parser.
-     * Enyo 1 uses pilot status, kills and full/partial mission score tests.
+     * Enyo 1 uses pilot status, kills and full/partial mission score tests;
+     * the funeral adds command 30 (pilot lost on this mission).
      * Other campaign scripts need their own state/operand validation. */
     while ((command = *text++) != 0) {
-        if (command < 1 || (command > 10 && command != 35 && command != 36))
+        if (command < 1 || (command > 10 && command != 30 && command != 35 && command != 36) ||
+            ((command == 35 || command == 36) && visit != SWC_CARRIER_DEBRIEFING))
             return SDL_SetError("Unsupported SWC carrier branch %u", command);
-        arguments = command >= 2 && command <= 5 ? 2 : 1;
+        arguments = (command >= 2 && command <= 5) || command == 30 ? 2 : 1;
         first = 0;
         for (argument = 0; argument < arguments; argument++) {
             value = 0;
@@ -310,7 +313,7 @@ static int SwcValidateSceneTests(const unsigned char *text, size_t count)
             if (argument == 0)
                 first = value;
         }
-        if (value >= count || ((command == 4 || command == 5) && first >= 8))
+        if (value >= count || ((command == 4 || command == 5 || command == 30) && first >= 8))
             return SDL_SetError("SWC scene branch target or pilot is out of range");
     }
     return 0;
@@ -353,29 +356,31 @@ static int SwcLoadRoomScene(SwcCarrier *carrier, int section, SwcRoomScene *scen
     const uint8_t *bytes;
     const unsigned char *end;
     const char *text;
-    uint32_t offsets[11];
+    uint32_t offsets[15];
     short strings[4];
     size_t index;
     size_t length;
     size_t expanded;
+    size_t sections = carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL ? 14 : 10;
     int field;
 
     /* LoadBriefingData +0x1556 and scene_ptr +0x39c6: unlike Mac sprites,
      * these directory entries and the five record shorts are little-endian. */
-    if (carrier->script.size < 40 || section < 0 || section > 8 || (section & 1))
-        return SDL_SetError("Invalid SWC briefing section");
-    for (index = 0; index < 10; index++) {
+    if (carrier->script.size < sections * 4 || section < 0 ||
+        (size_t)section + 1 >= sections || (section & 1))
+        return SDL_SetError("Invalid SWC scene section");
+    for (index = 0; index < sections; index++) {
         offsets[index] = SwcSceneOffset(carrier->script.data + index * 4);
-        if (offsets[index] > carrier->script.size || offsets[index] < 40 ||
+        if (offsets[index] > carrier->script.size || offsets[index] < sections * 4 ||
             (index > 0 && offsets[index] < offsets[index - 1]))
             return SDL_SetError("Invalid SWC briefing directory");
     }
-    offsets[10] = (uint32_t)carrier->script.size;
+    offsets[sections] = (uint32_t)carrier->script.size;
     length = offsets[section + 1] - offsets[section];
     scene->count = length / 13;
     scene->text = carrier->script.data + offsets[section + 1];
     scene->textSize = offsets[section + 2] - offsets[section + 1];
-    if (offsets[0] != 40 || length % 13 != 0 || scene->count == 0 ||
+    if (offsets[0] != sections * 4 || length % 13 != 0 || scene->count == 0 ||
         scene->count > SDL_arraysize(scene->records))
         return SDL_SetError("Invalid SWC scene record count");
     for (index = 0; index < scene->count; index++) {
@@ -397,7 +402,7 @@ static int SwcLoadRoomScene(SwcCarrier *carrier, int section, SwcRoomScene *scen
             if (end == NULL || end - (const unsigned char *)text > 255)
                 return SDL_SetError("Unterminated or oversized SWC scene string");
         }
-        if (SwcValidateSceneTests(scene->text + record->testsOffset, scene->count) != 0 ||
+        if (SwcValidateSceneTests(scene->text + record->testsOffset, scene->count, carrier->visit) != 0 ||
             SwcValidateAnimation((char *)scene->text + record->mouthAnimationOffset, 0) != 0 ||
             SwcValidateAnimation((char *)scene->text + record->faceAnimationOffset, 1) != 0)
             return -1;
@@ -405,11 +410,16 @@ static int SwcLoadRoomScene(SwcCarrier *carrier, int section, SwcRoomScene *scen
         expanded = 0;
         while (*text != 0) {
             if (*text++ == '$') {
-                /* Bound WC1's AddPCName output: callsign and signed-short
-                 * player/wingman kill counts are the Enyo 1 substitutions. */
+                /* Bound WC1's AddPCName output before its fixed scratch buffer. */
                 if (*text == 'C')
                     expanded += strlen(stCampaignState.currentPilot->callsign);
-                else if (*text == 'K' || *text == 'L')
+                else if (*text == 'N')
+                    expanded += strlen(stCampaignState.currentPilot->name);
+                else if (*text == 'R') {
+                    if ((unsigned int)stCampaignState.currentPilot->rank >= SDL_arraysize(apszPilotRankNames))
+                        return SDL_SetError("Invalid SWC pilot rank in scene substitution");
+                    expanded += strlen(apszPilotRankNames[stCampaignState.currentPilot->rank]);
+                } else if (*text == 'K' || *text == 'L')
                     expanded += 6;
                 else
                     return SDL_SetError("Unsupported SWC carrier text substitution");
@@ -467,6 +477,7 @@ static int SwcStartSpeech(SwcCarrier *carrier, int section, int line, Uint32 *du
     char relative[96];
     char path[PATH_MAX];
     Uint32 speechDuration;
+    int mission = carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL ? 0 : 4;
     int result = 0;
 
     if (carrier->audio != 0) {
@@ -474,9 +485,11 @@ static int SwcStartSpeech(SwcCarrier *carrier, int section, int line, Uint32 *du
         SDL_ClearQueuedAudio(carrier->audio);
     }
     /* SceneDirector +0x2cb6; DATA/0 +0x4322/+0x4326:
-     * "%s%d:%2.2d%2.2d%2.2d%2.2d.AIF", "camp.". The archive groups
-     * the mission's files under AIFF/camp.0/04. Keep original record indices. */
-    SDL_snprintf(relative, sizeof(relative), "AIFF/camp.0/04/04%02d%02d00.AIF", section, line);
+     * "%s%d:%2.2d%2.2d%2.2d%2.2d.AIF", "camp.". The archive groups files
+     * by mission: 04 for Enyo 1, 00 for funerals. Keep original record indices.
+     * The fresh demo pilot has rank 0, including the $R speech variant. */
+    SDL_snprintf(relative, sizeof(relative), "AIFF/camp.0/%02d/%02d%02d%02d00.AIF",
+                 mission, mission, section, line);
     if (!SdlResolvePath(relative, path, sizeof(path)))
         return SDL_SetError("Cannot resolve SWC speech %s", relative);
     file = SDL_RWFromFile(path, "rb");
@@ -572,7 +585,13 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
         } else if (shot == 25 || shot == 26) {
             pack = SWC_BAR_HEADS;
             backgroundFrame = talker == 4 ? 2 : 1;
-        } else if (carrier->afterFlight && (shot == 20 || shot == 21 || shot == 29)) {
+        } else if (carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL && (shot == 20 || shot == 29)) {
+            /* SceneDirector +0x29b0: BRFG/20 frame depends on text colour. */
+            pack = SWC_FUNERAL;
+            background = "BRFG";
+            backgroundId = 20;
+            backgroundFrame = textColour == 0 ? 0 : 1;
+        } else if (carrier->visit == SWC_CARRIER_DEBRIEFING && (shot == 20 || shot == 21 || shot == 29)) {
             /* SceneDirector +0x2960/+0x2988: commander talker 10 uses
              * BRFG/15 frame 1; player/wingman talker 11 uses frame 0. */
             pack = SWC_DEBRIEFING_HEADS;
@@ -594,7 +613,9 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
             return;
         }
         SwcDrawRoomArt(carrier, pack, background, backgroundId, backgroundFrame, 0, 0);
-        SwcDrawRoomArt(carrier, pack, "TKHD", (uint32_t)(shot - 19), 0, 0, 0);
+        /* CloseTalk +0x3292 uses base frame 21 in debriefing, otherwise 0. */
+        SwcDrawRoomArt(carrier, pack, "TKHD", (uint32_t)(shot - 19),
+                        carrier->visit == SWC_CARRIER_DEBRIEFING ? 21 : 0, 0, 0);
         if (face >= 0 && face < 10)
             SwcDrawRoomArt(carrier, pack, "TKHD", (uint32_t)(shot - 19), face + 11, 0, 0);
         if (mouth >= 0)
@@ -619,6 +640,9 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
             stCampaignState.personalityDeathMission[nDebriefingPersonality] == 0)
             SwcDrawRoomArt(carrier, SWC_DEBRIEFING, "BRFG", 13,
                             nDebriefingPersonality, 195, 40);
+    } else if (shot == 17 && carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL) {
+        /* CODE_03 DrawFuneralLongShot +0x1af8 and MountGraphics +0x2484. */
+        SwcDrawRoomArt(carrier, SWC_FUNERAL, "BRFG", 19, 0, 0, 0);
     } else {
         carrier->drawResult = SDL_SetError("Unsupported SWC carrier shot %d", shot);
     }
@@ -651,7 +675,10 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
     carrier->armedKey = SDL_SCANCODE_UNKNOWN;
     carrier->mouseDown = 0;
     carrier->paused = 0;
-    SDL_SetWindowTitle(carrier->window, section == 0
+    carrier->focused = (SDL_GetWindowFlags(carrier->window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+    SDL_SetWindowTitle(carrier->window, carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL
+        ? "Super Wing Commander - funeral | Click/Space/Enter: next | Esc: finish | P: pause"
+        : section == 0
         ? "Super Wing Commander - briefing | Click/Space/Enter: next | Esc: launch | P: pause"
         : section == 2
         ? "Super Wing Commander - debriefing | Click/Space/Enter: next | Esc: finish | P: pause"
@@ -697,7 +724,7 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
                 goto done;
             }
             if (input.back) {
-                result = 0;
+                result = carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL ? SWC_MOVIE_SKIPPED : 0;
                 goto done;
             }
             wasPlaying = carrier->focused && !carrier->paused;
@@ -821,7 +848,7 @@ static void SwcDrawMedalCase(SwcCarrier *carrier)
 }
 
 int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
-                      const char *missionPath, const char *resourceFork, int afterFlight)
+                      const char *missionPath, const char *resourceFork, enum SwcCarrierVisit visit)
 {
     SwcCarrier carrier = {0};
     SwcCmf data = {0};
@@ -857,18 +884,26 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
         savedCursor = SDL_GetDefaultCursor();
     carrier.renderer = renderer;
     carrier.resourceFork = resourceFork;
-    carrier.afterFlight = afterFlight;
+    carrier.visit = visit;
     carrier.focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
     carrier.mouseX = carrier.mouseY = -1;
+    if (visit < SWC_CARRIER_PREFLIGHT || visit > SWC_CARRIER_WINGMAN_FUNERAL) {
+        SDL_SetError("Unsupported SWC carrier visit");
+        goto done;
+    }
     if (SwcCMOpen(missionPath, &data) != 0 ||
-        SwcCMGetChunk(&data, "BRF0", 5, &carrier.script) != 0 ||
-        SwcCMGetChunk(&data, "CMP0", 3, &roster) != 0)
+        SwcCMGetChunk(&data, "BRF0", visit >= SWC_CARRIER_PLAYER_FUNERAL ? 1 : 5,
+                      &carrier.script) != 0)
         goto done;
     /* RecRoom indexes CMP0/3 by (series-1)*8 + mission*2. This host is
      * deliberately Enyo 1 only: validate its Paladin/Angel roster. */
-    if (roster.size < 2 || roster.data[0] != 5 || roster.data[1] != 4) {
-        SDL_SetError("Unsupported SWC carrier roster (expected Enyo 1)");
-        goto done;
+    if (visit < SWC_CARRIER_PLAYER_FUNERAL) {
+        if (SwcCMGetChunk(&data, "CMP0", 3, &roster) != 0)
+            goto done;
+        if (roster.size < 2 || roster.data[0] != 5 || roster.data[1] != 4) {
+            SDL_SetError("Unsupported SWC carrier roster (expected Enyo 1)");
+            goto done;
+        }
     }
     carrier.font = SdlCreateSwcFont(renderer);
     if (carrier.font == NULL)
@@ -876,7 +911,59 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
     hand = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
     SDL_ShowCursor(SDL_ENABLE);
     SDL_SetWindowMouseGrab(window, SDL_FALSE);
-    if (afterFlight) {
+    if (visit >= SWC_CARRIER_PLAYER_FUNERAL) {
+        /* CODE_03 funeral_sequence +0x4a08 interleaves three movies with
+         * BRF0/1: Enyo player's eulogy/farewell 2/0, Spirit's 12/10. */
+        if (stCampaignState.currentSeries != 1 || stCampaignState.currentMission != 0 ||
+            stCampaignState.currentPilot->rank != 0) {
+            SDL_SetError("Unsupported SWC funeral (expected fresh Enyo 1 pilot)");
+            goto done;
+        }
+        result = SdlPlaySwcFuneralMovies(window, renderer, 0);
+        if (result != SWC_MOVIE_FINISHED)
+            goto done;
+        result = SwcPlayRoomScene(&carrier, visit == SWC_CARRIER_PLAYER_FUNERAL ? 2 : 12);
+        if (result != SWC_MOVIE_FINISHED)
+            goto done;
+        /* Hand the audio device back before MovieDisplay, then let the
+         * farewell reopen speech. Some SDL backends allow only one device. */
+        if (carrier.audio != 0)
+            SDL_CloseAudioDevice(carrier.audio);
+        if (carrier.audioInitialized)
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
+        carrier.audio = 0;
+        carrier.audioInitialized = 0;
+        carrier.audioAttempted = 0;
+        result = SdlPlaySwcFuneralMovies(window, renderer, 1);
+        if (result != SWC_MOVIE_FINISHED)
+            goto done;
+        result = SwcPlayRoomScene(&carrier, visit == SWC_CARRIER_PLAYER_FUNERAL ? 0 : 10);
+        if (result != SWC_MOVIE_FINISHED || visit == SWC_CARRIER_WINGMAN_FUNERAL)
+            goto done;
+        /* CODE_03 the_end +0x4b1e retains a terminal screen until input.
+         * SDL draws a static end card; the original background animation is pending. */
+        SDL_SetWindowTitle(window, "Super Wing Commander - THE END | Click/Space/Enter/Esc: finish");
+        carrier.armedKey = SDL_SCANCODE_UNKNOWN;
+        carrier.mouseDown = 0;
+        result = SWC_MOVIE_ERROR;
+        while (1) {
+            input = SwcPollCarrier(&carrier);
+            if (input.quit || input.back || input.activate || input.clicked) {
+                result = input.quit ? SWC_MOVIE_QUIT : SWC_MOVIE_FINISHED;
+                break;
+            }
+            if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) != 0 ||
+                SDL_RenderClear(renderer) != 0 ||
+                SdlDrawSwcText(renderer, carrier.font, 142, 110,
+                    (SDL_Color){245, 245, 230, 255}, "THE END") != 0 ||
+                SdlDrawSwcSubtitle(renderer, carrier.font, "Click or press Enter to finish.") != 0)
+                break;
+            SDL_RenderPresent(renderer);
+            SDL_Delay(16);
+        }
+        goto done;
+    }
+    if (visit == SWC_CARRIER_DEBRIEFING) {
         if (SwcCMGetChunk(&data, "CMP0", 2, &campaign) != 0)
             goto done;
         if (stCampaignState.currentSeries != 1 || stCampaignState.currentMission != 0 ||

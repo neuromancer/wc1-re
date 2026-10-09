@@ -706,7 +706,7 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
         SDL_ShowWindow(window);
         SDL_RaiseWindow(window);
         SDL_PumpEvents();
-        movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, 0);
+        movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, SWC_CARRIER_PREFLIGHT);
         if (movieResult == -1)
             goto done;
         if (movieResult == SWC_MOVIE_QUIT) {
@@ -932,15 +932,25 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
                           checkOnly ? 0 : SDL_GetMouseState(NULL, NULL));
             elapsed -= tickInterval;
             ticks++;
-            if (nArcadeState == 1)
+            if (nArcadeState == 1 || nArcadeState == 4 || bPlayerDestroyed)
                 break;
         }
-        if (nArcadeState == 1 && !checkOnly) {
+        if (!checkOnly && (nArcadeState == 1 || nArcadeState == 4 || bPlayerDestroyed)) {
             SDL_SetWindowMouseGrab(window, SDL_FALSE);
             SwcResetFlightInput();
             FlushInputEvents();
             if (IsCommChoiceMenuOpen())
                 CloseCommChoiceMenu();
+            if (nArcadeState == 4 || bPlayerDestroyed) {
+                /* CODE_09 GameFlow +0x1b8e: death leads to the player's funeral,
+                   without landing or PostMission statistics. */
+                movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path,
+                                                SWC_CARRIER_PLAYER_FUNERAL);
+                if (movieResult == SWC_MOVIE_ERROR)
+                    goto done;
+                result = 0;
+                goto done;
+            }
             cleanup_objectives();
             movieResult = SdlPlaySwcLanding(window, renderer, evaluate_damage(0));
             if (movieResult == SWC_MOVIE_ERROR)
@@ -949,9 +959,17 @@ int SdlRunSwcMission(const char *missionPath, int checkOnly, int cockpitless)
                 /* CODE_09 PostMission +0x1672 matches WC1's statistics and
                    badges. Keep the flown mission selected for its debrief. */
                 PostMission();
-                movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, 1);
+                movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, SWC_CARRIER_DEBRIEFING);
                 if (movieResult == SWC_MOVIE_ERROR)
                     goto done;
+                if (movieResult != SWC_MOVIE_QUIT && nWingmanKilledThisMission) {
+                    /* GameFlow +0x218c dispatches the lost-wingman service
+                       after debriefing. The flown mission remains selected. */
+                    movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path,
+                                                    SWC_CARRIER_WINGMAN_FUNERAL);
+                    if (movieResult == SWC_MOVIE_ERROR)
+                        goto done;
+                }
             }
             result = 0;
             goto done;

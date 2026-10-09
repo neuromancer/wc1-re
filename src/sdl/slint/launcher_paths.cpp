@@ -84,7 +84,7 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
                                 "RecRoomScene.CMF", "Barracks.CMF", "ViewMedals.CMF",
                                 "Head10.CMF", "RRTalkingHeads.CMF", "Briefing.CMF",
                                 "BriefingCommander.CMF", "BRTH1.CMF", "BRInterface.CMF",
-                                "DeBriefing.CMF", "DeBriefingHeads.CMF"}) {
+                                "DeBriefing.CMF", "DeBriefingHeads.CMF", "Funeral.CMF"}) {
             const auto path = find_child_case_insensitive(*cmfs, name);
             if (!path || !has_readable_file(*cmfs, name))
                 return {false, std::string("SWC needs CMFs/") + name + ".", true};

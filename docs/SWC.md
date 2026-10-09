@@ -13,13 +13,17 @@ adapts WC2's matching calculation to SWC's original projection and cockpit art.
 The Hornet cockpit now has speed and navigation readouts, fuel/throttle/energy
 gauges, player/target shield and armor displays, radar contacts, weapon status,
 navigation and hostile-direction markers, warning lamps, and damaged displays.
-The original conversations, briefing and debriefing use the demo's text,
-portraits and AIFF speech. Hornet launch and landing movies have embedded audio.
+The original conversations, briefing, debriefing and funeral scenes use the
+demo's text, portraits and AIFF speech. Hornet launch, landing and funeral
+movies have embedded audio.
 WC1 communications now provide wingman orders and landing-clearance requests;
-returning to the carrier ends Enyo 1 with the original debriefing branches.
+returning to the carrier ends Enyo 1 with the original debriefing branches and
+Spirit's funeral if she was lost. Player destruction leads to the player's
+funeral and an end card.
 Later missions, campaign progression, remaining HUD modes, voiced flight
-communications, flight effects and music are still pending. The new landing
-path has been compiled and inspected, without interactive execution.
+communications, the separate death cinematic, flight effects and music are
+still pending. Landing and funeral paths have been compiled and inspected,
+without interactive execution.
 
 `make modern-swc` builds the asset viewer. It loads the demo's CMF files,
 decodes sprites, reads the resource-fork palette, and displays the cockpit and
@@ -36,7 +40,7 @@ entry point in SDL builds. The CMF reader and mission adapter are linked into
 shares bitmap text between the cockpit and carrier. `src/sdl/swc_rooms.c`
 adapts carrier presentation and scenes; `src/swc/speech.c` reads AIFF speech.
 `src/swc/movie.c` reads and decodes the Mac movies; `src/sdl/swc_movie.c`
-supplies SDL2 presentation, queued audio, and the launch sequence.
+supplies SDL2 presentation, queued audio, and the launch/landing/funeral sequences.
 The viewer needs only the host C compiler and SDL2. Mission tests also link
 the existing native core and need its normal build dependencies, including LZO.
 Flight uses SDL2 2.0.18 or later for the VDU polygon rendering.
@@ -107,8 +111,13 @@ when autopilot is available. Use T to target the visible carrier, then C and
 the numbered choices to request landing clearance. The shared rules can deny
 an immediate return or a return with enemies nearby. With clearance granted,
 approach within 700 range units without afterburning to begin landing. Skipping
-landing movies continues into debriefing; closing the window exits. Debriefing
-ends the current demo session, returning to the launcher when started there.
+landing movies continues into debriefing; closing the window exits. If Spirit
+was lost, her funeral follows debriefing. Player destruction instead starts the
+player's funeral without landing or mission-stat updates. Click, Space or Enter
+advances funeral dialogue; Esc skips the rest of the funeral. Skipping a funeral
+movie also ends the sequence. The player's completed farewell leads to a static
+THE END card that waits for input. These paths end the current demo session,
+returning to the launcher when started there.
 
 Point `SWC_DATA_DIR` at the extracted **SuperWing DEMO** directory containing
 `CMFs/`. For example, from the repository root on macOS:
@@ -210,7 +219,7 @@ The SDL adapter shares these existing WC1 functions without changing them:
 | `ResetCampaignData`, `CorrectPointers` | Fresh campaign and pilot records, including callsign, rankings, medals and badges |
 | `FindMenuRegionAtPoint`, `IsPointInRect` | Hotspot hit testing, with coordinates recovered from the Mac instructions |
 | `ConversationSceneRecord`, `ParseTests` | Original 13-byte scene commands and conditional branches |
-| `AddPCName` | Player callsign and player/wingman kill substitutions in original dialogue |
+| `AddPCName` | Player callsign, name, rank and player/wingman kill substitutions in original dialogue |
 | `ParseMouthAnimation`, `ParseFaceAnimation` | Original script strings decoded into animation commands |
 | `Build_objective_list`, `SetScale`, `nav_getxy` | Shared mission objectives and briefing-map coordinates |
 
@@ -242,7 +251,7 @@ commands and rejects unsupported script forms explicitly.
 Expanded DATA/0 supplies the room palettes and filenames at +0x3fd2/+0x4046,
 ranking rows at +0x2690, idle programs at +0x27ae/+0x2816/+0x27da, medal
 frames at +0x42f2 and briefing origins at +0x4306/+0x430a. The GUI now checks
-the carrier/debriefing CMFs as well as the flight CMFs. Speech and movies remain
+the carrier/debriefing/funeral CMFs as well as the flight CMFs. Speech and movies remain
 optional; missing carrier artwork is an error.
 
 Speech comes from `AIFF/camp.0/04/04SSLL00.AIF`, where `SS` is the script
@@ -314,16 +323,56 @@ wingman-status and full/partial score branches plus `$C`, `$K` and `$L`.
 Original `DeBriefing.CMF` BRFG/11..14 and `DeBriefingHeads.CMF` BRFG/15 and
 TKHD portraits use palettes 190/191. Body origins follow `DrawDebriefingLongShot`
 +0x1b8c; close-up backgrounds follow `SceneDirector` +0x2960/+0x2988.
+`CloseTalk` +0x3292 selects portrait base frame 21 for debriefing, unlike the
+frame 0 base used in other conversations.
 Early returns and Spirit's loss select the original dialogue instead of a
-fixed success outcome. Office/award ceremonies, funeral, save persistence and
-advancing to Enyo 2 remain pending; dismissal ends this first-mission host.
+fixed success outcome. Spirit's funeral follows if she died on this mission.
+Office/award ceremonies, save persistence and advancing to Enyo 2 remain
+pending; dismissal ends this first-mission host after any funeral.
 
 Validation: original Ghidra instructions and offline demo-data inspection,
 static review, and `make -j4 modern modern-gui`. No tests, interactive code,
 game/GUI sessions or audio playback were run. Existing packed-pointer linker
 warnings remain; the launcher fixture only gained the required CMF filenames.
 
-## Launch and landing movies
+## Funeral scenes
+
+CODE_09 `GameFlow` +0x1b8e routes player death to `funeral_sequence(1)`
+(call at +0x1e44), without landing or `PostMission`. Its +0x218c check starts
+`funeral_sequence(0)` after debriefing when the wingman was lost. The SDL host
+uses those outcomes and WC1's existing pilot-death state, retaining the flown
+mission for the original `ParseTests` command 30 / `wing_status` branches.
+
+CODE_03 `funeral_sequence` +0x4a08 interleaves `FUNSERV0`, `FUNSERVA`,
+the eulogy, `FUNSERVB`, then the farewell. The SDL adapter uses this order and
+the existing movie player. Each movie group is checked for readable files
+before playback; a missing group leaves the dialogue available. Malformed
+present movies and speech report errors. Audio ownership passes between the
+movie player and dialogue player, and all paths handle skip, quit and cleanup.
+
+`Data.CMF` `BRF0/1` has fourteen LE32 directory entries and the same 13-byte
+records as the briefing. For fresh Enyo 1, `funeral_player` +0x46ec selects
+section 2 and `farwell_player` +0x47cc selects section 0; `funeral_wingman`
++0x4888 and `farwell_wingman` +0x494a select sections 12 and 10. The latter
+scripts branch to Spirit using shared WC1 state. The bounded reader also
+permits `$N` and `$R` before WC1's `AddPCName`; score tests 35/36 remain limited
+to debriefing, where the temporary campaign score window is available.
+
+`Funeral.CMF` uses palette 193: BRFG/19 is the long shot, BRFG/20 supplies two
+close-up backgrounds selected by text color, and TKHD/1 and TKHD/10 supply the
+portraits. This follows `DrawFuneralLongShot` +0x1af8, `MountGraphics` +0x2484
+and `SceneDirector` +0x29b0. Speech uses `AIFF/camp.0/00/00SSLL00.AIF`; the
+demo includes eleven recordings for these player/Spirit scenes. The fresh
+pilot's rank is zero, matching the supplied `$R` speech variant.
+
+The host presents a static THE END card after the player's farewell, retaining
+`the_end` +0x4b1e's input wait. The original animated end background, separate
+death cinematic, `FUNERAL.MooV` music, fades and exact scene timing remain
+pending. Validation was original-instruction/data inspection, static review
+and `make -j4 modern modern-gui`; no tests, interactive sessions or playback
+were run. The GUI requires `Funeral.CMF`; its existing fixture was updated only.
+
+## Launch, landing and funeral movies
 
 The Mac demo stores 38 custom `LMov` files under `Movies/`, with `.dcMov`
 extensions. These are not ordinary QuickTime movies. The new decoder follows
@@ -361,9 +410,9 @@ The video clock and audio device pause together, and the last frame remains
 while longer audio finishes. All movie resources are released on finish, skip,
 error, or window close.
 
-The separate `MIDI/ARMOR.MooV` soundtrack selected by the original launch,
-palette fades and opening/funeral integration remain pending. First
-briefing and bar scenes now use the carrier adapter described above. No
+The separate `MIDI/ARMOR.MooV`, `LANDING.MooV` and `FUNERAL.MooV` soundtracks,
+palette fades and opening integration remain pending. First briefing, bar,
+debriefing and funeral scenes use the carrier adapter described above. No
 external video library is needed for this slice.
 
 Validation for this pass consists of original-instruction review, offline
@@ -697,8 +746,8 @@ many WC1 names were already derived from this Mac executable's MacsBug strings.
 3. Continue flight communications (voices/portraits), remaining HUD modes and
    post-debriefing progression. Landing and the first debriefing are connected;
    the demo disables its simulator.
-4. Connect opening/funeral movies and later scripted scenes to game flow;
+4. Connect opening movies, the death cinematic and later scripted scenes;
    add save/load, audio-marker lip synchronization, effects, music and palette
    transitions. The first bar, barracks and briefing, AIFF speech and Hornet
-   launch/landing playback and first debriefing are present; other scene entry
-   points are pending.
+   launch/landing playback, first debriefing and player/Spirit funerals are
+   present; the animated end background and other scene entry points are pending.

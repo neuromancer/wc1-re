@@ -92,10 +92,19 @@ int SwcMovieNextFrame(SwcMovie *movie);
 /* Hornet launch for the Enyo 1 host; returns a SwcMovieResult. */
 int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer);
 int SdlPlaySwcLanding(SDL_Window *window, SDL_Renderer *renderer, int health);
+/* Original funeral clips, before the eulogy (0) or before the farewell (1). */
+int SdlPlaySwcFuneralMovies(SDL_Window *window, SDL_Renderer *renderer, int farewell);
 
-/* First-mission carrier visit: 0 = launch/debrief complete, 2 = quit, -1 = error. */
+enum SwcCarrierVisit {
+    SWC_CARRIER_PREFLIGHT,
+    SWC_CARRIER_DEBRIEFING,
+    SWC_CARRIER_PLAYER_FUNERAL,
+    SWC_CARRIER_WINGMAN_FUNERAL
+};
+
+/* First-mission carrier visit; returns a SwcMovieResult. */
 int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
-                      const char *missionPath, const char *resourceFork, int afterFlight);
+                      const char *missionPath, const char *resourceFork, enum SwcCarrierVisit visit);
 /* Demo speech is AIFF, mono signed 16-bit big-endian PCM at 11025 Hz. */
 int SwcReadSpeech(const char *path, SwcBuffer *pcm);
 
