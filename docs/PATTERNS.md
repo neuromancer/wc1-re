@@ -4345,3 +4345,54 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `1e204bcaaf11ca80199a9a29080a56899edfad15f891b56a590e8c63fb20fd43`.
+- `ShowTrainSimHighScores` initializes its row counter immediately before
+  the score loop, after setting the text alignment. Moving that existing
+  assignment out of the viewport setup lets CL hoist the zero into the
+  original argument-preparation position and recover the two rectangle
+  copies' register choices. All 103 differing encodings disappear, mnemonic
+  similarity rises from 98.67% to 100%, and the complete 880-byte span
+  matches literally, up from 520 bytes. Its 69 relocations retain the
+  original count and now also occupy the original function-relative positions.
+  Initializing the row after the score-buffer allocation or immediately
+  before the heading produces the same executable. Moving it only after the
+  font-context initializer leaves 24 differing encodings and gains 248 file
+  bytes; moving the declaration does not improve that intermediate result.
+  Qualified rectangle copies leave the earlier output unchanged. Replacing
+  either copy with `memcpy` gives inferior results and is not retained.
+  Other trials are discarded. Explicit seek-offset captures and a result
+  initializer leave the file-seek routine unchanged. Front-spot position
+  pointers and promoted indices, communication-class captures, and navigation
+  label coordinate/index captures regress the file. Reversed label comparisons,
+  captured colon flags, and moved/scoped packet-table declarations do not
+  improve their targets. Explicit clock assignments on the input routine's
+  conditional paths introduce an extra clock load and sixteen code bytes.
+  A qualified explosion offset combined with a promoted debris index still
+  drops the original saved EBP and fails to recover its instruction sequence. Qualifying
+  navigation-pointer initialization stores gives no gain.
+  In the calibration loader's current Y-before-X product order, qualified
+  scale reloads recover all 34 original relocations but enlarge the span from
+  784 to 800 bytes. Its RET is at `0x00431d22`, three bytes after the
+  original `0x00431d1f`, crossing the next alignment boundary. Qualifying
+  only the Y-bound stores and minimum read gives
+  32 relocations at that same oversized span; combining the two changes gives
+  34. All three shift subsequent code and are restored, leaving this as
+  investigation evidence rather than a retained correction.
+  Only the high-score row changes in the full report. Normalized exact
+  functions rise from 1,373 to 1,374 of 1,550; same-size differences fall
+  from 172 to 171. Five size differences remain, totaling a net 26 extra
+  bytes. There are now 1,443 mnemonic-perfect functions; mean similarity
+  remains 99.72%, with three below 90%. No exact function is lost, and
+  function spans and unit placements are unchanged.
+  Strict whole-file matching rises by 359 positions, from 488,600 to 488,959
+  of 518,656 (94.2050% to 94.2742%); 29,697 positions still differ in 5,981
+  runs. Code gains 360 positions, reaching 377,412 of 401,408. The serialized
+  relocation section loses one matching position, reaching 30,652 of 36,352,
+  despite the corrected function's relocation positions now matching exactly.
+  The `.rdata`, `.data` and `.idata` sections remain literally exact. The
+  continuous matching prefix remains 544 bytes, with the first difference
+  at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `15a7a819ad37a63c1b796dcecec5edb0a07a0125b57c9cdc613b1dd0217d7d9d`.

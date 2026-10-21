@@ -648,7 +648,6 @@ void ShowTrainSimHighScores(void)
         stCurrentTrainSimTitleDisplayViewport.bottom = 109;
     }
 
-    row = 0;
     InitializeTextContextFromFont(
         &stTrainSimHighScoreTextContext, 1,
         cDefaultTextColour,
@@ -674,6 +673,7 @@ void ShowTrainSimHighScores(void)
             stTrainSimulatorHighScoreBufView.top + 1));
     FormatTextBufferFromStart("%JHIGH SCORES%P", 2);
     stTrainSimHighScoreTextContext.alignment = 0;
+    row = 0;
     do {
         if (IsHighScoreSlotUsed(row)) {
             ResetStringBuilder(&stTrainSimHighScoreTextContext);
