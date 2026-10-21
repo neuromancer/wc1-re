@@ -200,11 +200,11 @@ short GetLineLength(const char *text)
 /* Function start: 0x403920 */
 int print_subtitle(Viewport *viewport, short colour, const char *text)
 {
+    char c;
     const char *scan;
     short lines;
-    short x;
     short y;
-    char c;
+    short x;
 
     lines = 1;
     scan = text;

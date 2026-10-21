@@ -3779,3 +3779,68 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `68582717d4c9980815fac25dbb57e68ba9f0caf8ce553d058f83cdb86691cf47`.
+- `LoadWingCmdrCfgFile` declares the destination pointer before the argument
+  count. This restores EBP for the destination and BX for the count, including
+  the original initialization order. All eighteen differing encodings
+  disappear, and the full 224-byte span matches literally, up from 197 bytes.
+  Initializing the count before the argument index gives the same result
+  and is unnecessary.
+- `print_subtitle` declares the character first, then scan, line count, Y
+  and X. This recovers EBX for the initial text pointer, EDI for the scan,
+  SI for Y and BP for X. Differing encodings fall from 37 to six, mnemonic
+  similarity rises from 95.45% to 96.97%, and literal matching rises from
+  304 to 338 of 352 bytes. The remaining differences schedule the constant
+  320 before the argument push at the two line-length calls. Swapping X/Y
+  alone gives a smaller gain. Moving the character first without that swap,
+  rotating the scan declaration last, or capturing the earlier file-seek
+  offset likewise gives a smaller gain; the offset capture leaves the seek
+  routine unchanged. The selected declaration order needs no extra local.
+- `GetShapeFrameCorners` declares left, top, right and bottom in that order.
+  This recovers EBX for the right coordinate and the original code length
+  within its 144-byte span. Differing encodings fall from 26 to sixteen,
+  mnemonic similarity rises from 92.86% to 95.24%, and literal matching rises
+  from 71 to 118 bytes. The Y-origin load still occurs too early, and the
+  top and corner-pointer registers remain different. Other tested coordinate
+  orders give no larger gain; combining or reversing the Y additions leaves
+  the selected output unchanged.
+- `easy2see` captures its promoted object index after the bounds and coordinate
+  declarations, then uses it for all seven object-table accesses. Its emitted
+  128-byte span is unchanged. The resulting compiler context restores EAX for
+  the guarded block, ECX for the prefix-corruption count and EDX for the first
+  countdown in `CheckAllGuardedAllocations`. That routine loses all nine
+  differing encodings and matches its complete 112-byte span, up from 103.
+  This is a measured declaration-context choice, not proof that the original
+  visibility routine spelled out the promotion. Reordering the guard counters
+  or scoping the block pointer gives a smaller four-byte improvement; moving
+  the block declaration alone does nothing. Visibility-local permutations
+  leave output unchanged.
+  Reversed wingman, wave-entry and ship-side equalities leave their output
+  unchanged. Inlining the pilot-field cursor offset loses a byte, an assignment
+  expression leaves the old output, and a qualified X parameter regresses
+  literal matching despite reaching 100% mnemonic similarity. Front-position
+  pointer/index captures and a promoted Futurion index regress the file.
+  An unsigned event-slot index gives no literal gain and lowers mnemonic
+  similarity. A captured full-ahead counter makes both `Mfull_ahead` and
+  `Mgloat` exact, but regresses `Mfish_hook` and loses eighteen file bytes.
+  Separate cockpit-light draw scopes make the lights and `flag_reached`
+  exact, but regress other cockpit routines and lose 58 file bytes. Promoted
+  AI-initialization indices leave that target unchanged while disturbing
+  neighbors; a captured constellation-definition pointer regresses output.
+  These probes are not retained.
+  Only four function rows change in the full report. Normalized exact
+  functions rise from 1,362 to 1,364 of 1,550; same-size differences fall
+  from 183 to 181, and five size differences remain, totaling a net 26 extra
+  bytes. Mean mnemonic similarity remains 99.70%, with three functions below
+  90%. No existing exact function is lost, and spans and unit placements are
+  unchanged. Strict whole-file matching rises by 117 positions, from 487,812
+  to 487,929 of 518,656 (94.0531% to 94.0756%); 30,727 positions still differ.
+  All gains are in code. The `.rdata`, `.data` and `.idata` sections remain
+  literally exact, while relocation matching stays at 30,440 of 36,352 bytes.
+  The affected routines retain their original relocation counts. The
+  continuous matching prefix remains 544 bytes, with the first difference
+  at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `e8519157166f8bce702ffc83a4de6a53713ab52cfc3c1d451f80d67d7f7b095d`.

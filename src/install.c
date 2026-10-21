@@ -102,8 +102,8 @@ unsigned short RewriteDiskFileGraphicsExtensions(short videoMode)
 short LoadWingCmdrCfgFile(short argc, char **argv)
 {
     FILE *file;
-    short argumentCount;
     char *destination;
+    short argumentCount;
     short argumentIndex;
 #ifdef SDL_PORT
     char resolvedPath[PATH_MAX];

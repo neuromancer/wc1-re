@@ -1187,8 +1187,8 @@ void GetShapeFrameCorners(unsigned char *shape, int frame, int x, int y,
     if ((int)*(unsigned short *)(shape + 4) >= frameOffset) {
         ShapeFrameExtents *extents;
         int left;
-        int right;
         int top;
+        int right;
         int bottom;
 
         shape += *(int *)(shape + frameOffset);
