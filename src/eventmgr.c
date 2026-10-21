@@ -832,13 +832,13 @@ void SetInputKeyState(int scanCode, unsigned char pressed)
 /* Function start: 0x436460 */
 void sort_object_depth(void)
 {
-    unsigned int distance;
-    int previous;
-    int best;
-    int bestObject;
-    int obj;
-    int screenOffset;
     int *placed;
+    int previous;
+    int screenOffset;
+    int bestObject;
+    int best;
+    unsigned int distance;
+    int obj;
     int *sortedEntry;
     int sorted;
 
@@ -857,8 +857,8 @@ void sort_object_depth(void)
     sorted = 0;
     sortedEntry = anSortedObjects;
     for (; sorted < SPACE_OBJECT_COUNT; sorted++, sortedEntry++) {
-        best = -1;
         *sortedEntry = bestObject;
+        best = -1;
         if (bestObject == -1)
             return;
         screenOffset = 0;

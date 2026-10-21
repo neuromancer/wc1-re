@@ -3505,3 +3505,59 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `15e00c14df7b85cfa3ebd386cbf0702c52f5d3477115f38482ffd49503bd779e`.
+- `sort_object_depth` declares the placed-object pointer first, followed by
+  the previous distance, screen offset, selected object, next-best distance,
+  unsigned distance and object counter. In the outer loop, store the selected
+  object before resetting the next-best distance to -1. Together these
+  choices recover the original cursor load and second-scan registers:
+  EBP for the best distance, EBX for the screen offset, ECX for the object,
+  EDI for the placed-object pointer, EAX for distance, EDX for the previous
+  distance and ESI for the selected object. All 192 bytes now match literally,
+  up from 166; all nineteen differing encodings disappear. Declaration order
+  alone leaves ten differences, and exchanging the best-distance and screen
+  offset declarations does not finish the match.
+- `LoadPacketAllocated` captures the promoted logical-file index in an int
+  after prompting for the disk. Use it for the size lookup and packet-load
+  lookup. Keep an explicit file-table pointer for the retry loop, refreshing
+  it after capturing the packet-error word. The original likewise reloads
+  the table after the call, before testing the retries and error.
+  The promoted index recovers ESI for the scaled index and BP for the section.
+  Differing encodings fall from 37 to 32, and literal matching rises from
+  66 to 71 of 144 bytes. The table/error register swap and its one-byte
+  instruction-length effect remain. Keeping both the table and error locals
+  preserves the byte-sort routine's existing two differences; the index
+  alone, a merged retry condition, or an implicit index leaves that neighbor
+  with four. These local spellings reproduce measured compiler context;
+  they do not establish the original local names.
+  Packet-size narrowing and the tested index/error declaration orders do
+  not improve the packet loader further. Save-game counter declaration moves
+  and explicit do/while forms for its four byte-copy loops leave its four
+  base/index-encoding differences unchanged. A sprite frame-count local leaves
+  its target routine unchanged while disturbing later output, so it is discarded.
+  The launch-pointer array restores the frame size but does not recover the
+  original pointer slots; its four-byte literal gain comes with two additional
+  differing encodings, and that trial is not retained.
+  Palette component-count captures change the aligned function size and are
+  discarded. Palette local-order changes, scene-animation pointer declaration
+  moves, input-coordinate declaration moves, target-box type/index captures,
+  and packet-stack count captures do not improve their targets. Explicit
+  input-event candidate pointers and communication object/class captures
+  regress the file. These probes are not retained.
+  Only the two intended function rows change in the full report. Normalized
+  exact functions rise from 1,354 to 1,355 of 1,550; same-size differences fall
+  from 191 to 190, and five size differences remain. Mean mnemonic similarity
+  is 99.68%, with three functions below 90%. No existing exact function is lost,
+  and function spans and compilation-unit placements are unchanged.
+  Strict whole-file matching rises by 31 positions, from 486,750 to
+  486,781 of 518,656 (93.8483% to 93.8543%); 31,875 positions still differ.
+  All gains are in code. The `.rdata`, `.data` and `.idata` sections remain
+  literally exact; relocation-section matching remains 30,303 of 36,352 bytes.
+  Packet loading and depth sorting retain their original relocation counts
+  of five and eight respectively.
+  The continuous matching prefix is still 544 bytes, and the first difference
+  remains the relocation section's virtual-size field at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `0f39e0c35d0cd8dc3c62fc4d18c89125488ea4dfd9df244ddb1d43974c2faef5`.

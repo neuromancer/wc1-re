@@ -94,20 +94,27 @@ void *LoadPacketAllocated(short logicalFile, short section)
     unsigned int packetSize;
     void *packet;
     short retries;
+    int fileIndex;
+    DiskFileRecord *files;
+    short error;
 
     retries = 5;
     PromptInsertNumberedDisk(logicalFile);
+    fileIndex = logicalFile;
     packetSize = GetPacketSize(
-        pDiskFileRecords[logicalFile].name, section);
+        pDiskFileRecords[fileIndex].name, section);
     packet = AllocateTaggedMemory((unsigned int)(short)packetSize, 0x40);
     if (packet != 0) {
+        files = pDiskFileRecords;
         do {
             retries--;
-            PacketLoad(pDiskFileRecords[logicalFile].name,
+            PacketLoad(files[fileIndex].name,
                        section, packet, 0, 0);
-            if (retries <= 0 || nPacketError == 0)
+            error = nPacketError;
+            files = pDiskFileRecords;
+            if (retries <= 0 || error == 0)
                 break;
-        } while (nPacketError != 8);
+        } while (error != 8);
     }
     ReportPacketLoadError(packet, logicalFile, 0, section, "LPN");
     return packet;
