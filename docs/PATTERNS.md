@@ -606,7 +606,7 @@ do not reject a recovered size solely because its positional count is larger.
   and base-relative `LEA` distinguish this from `strcat`, which uses the
   scanner's ending pointer directly. Ordinary `strcpy` calls produce the
   shared eight-byte readout copies. This restores the original function size;
-  the placement of the excessive-range branch remains different.
+  the explicit range-label form documented below also recovers branch placement.
 - Preserve diagnostic whitespace. The music wrappers' original literals
   include newlines, and `StopMusic` prints a trailing space before its stream
   stop and a separate newline afterwards. Normalized function comparisons
@@ -3910,3 +3910,45 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `da8920e4cebd42e56d4576780bd7827e467738541611350ba64b6702db1d9146`.
+- `DrawTargetRangeReadout` uses an explicit branch to numeric formatting and
+  a shared readout label after the excessive-range copy. This retains the
+  source literal order `"TOO FAR"`, `" m"`, `"----- m"` while allowing CL to
+  schedule numeric formatting before the excessive-range block, as in the
+  original. All 21 differing encodings disappear, mnemonic similarity rises
+  from 95.15% to 100%, and the complete 384-byte span matches literally,
+  up from 323 bytes. Its 26 relocations remain at the original positions.
+  Reversing the ordinary if/else branches also reaches normalized exactness,
+  but swaps the first two literals: eleven data bytes and two code address
+  bytes then differ. That form is not retained. A ternary, separate distance
+  tests, flattened visibility cases and a Boolean switch do not recover both
+  code and data order. Capturing the distance or reversing the comparison's
+  spelling leaves the old output unchanged.
+  Packet-section temporary changes, packet-loader declaration/assignment
+  changes, navigation-coordinate declaration changes, a viewport for-loop,
+  gun-counter declaration changes, hostile-ship local/comparison changes,
+  and early-return/promoted-index ship searches give no suitable file gain.
+  Neither packet-release local order nor reversed barracks-label comparisons,
+  navigation sums, heap-address sums or a byte-sort skip label helps.
+  Explicit packet-handle traversal pointers superficially gain three file
+  bytes but add a fourth relocation where the original has three, even with
+  an ordinary captured count. A qualified count read prevents that extra
+  reference and brings the target closer, but regresses the formerly exact
+  `PushMemoryStackFrame` and loses file bytes. All six declaration orders and
+  two attempts to preserve that neighbor with its own index capture fail to
+  improve the file. These probes are discarded.
+  Only the range-readout row changes in the full report. Normalized exact
+  functions rise from 1,367 to 1,368 of 1,550; same-size differences fall
+  from 178 to 177, and five size differences remain, totaling a net 26 extra
+  bytes. Mean mnemonic similarity remains 99.71%, with three functions below
+  90%. No existing exact function is lost, and spans and unit placements are
+  unchanged. Strict whole-file matching rises by 61 positions, from 488,018
+  to 488,079 of 518,656 (94.0928% to 94.1046%); 30,577 positions still differ.
+  All gains are in code. The `.rdata`, `.data` and `.idata` sections remain
+  literally exact, and relocation matching stays at 30,440 of 36,352 bytes.
+  The continuous matching prefix remains 544 bytes, with the first difference
+  at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `7230b2fed4950a97479b885b2309fbaa1ba89ae889f7159625ef9e4f61e8a6c3`.

@@ -727,17 +727,19 @@ void DrawTargetRangeReadout(void)
         return;
 
     if (asObjectScreenXList[target] != (short)0x8001) {
-        if ((unsigned short)asObjDistancesTable[target] > 30000) {
-            strcpy(szTxtWorkspaceBuffer, "TOO FAR");
-        } else {
-            strcpy(szTxtWorkspaceBuffer + strlen(
-                itoa((unsigned short)asObjDistancesTable[target],
-                     szTxtWorkspaceBuffer, 10)), " m");
-        }
+        if ((unsigned short)asObjDistancesTable[target] <= 30000)
+            goto format_range;
+        strcpy(szTxtWorkspaceBuffer, "TOO FAR");
+        goto range_ready;
+format_range:
+        strcpy(szTxtWorkspaceBuffer + strlen(
+            itoa((unsigned short)asObjDistancesTable[target],
+                 szTxtWorkspaceBuffer, 10)), " m");
     } else {
         strcpy(szTxtWorkspaceBuffer, "----- m");
     }
 
+range_ready:
     DrawCockpitReadout(1, szTxtWorkspaceBuffer);
     if (nTargetLockCountdown == 0) {
         if (bTargetLockAcquired == 1) {
