@@ -4396,3 +4396,83 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `15a7a819ad37a63c1b796dcecec5edb0a07a0125b57c9cdc613b1dd0217d7d9d`.
+- `LoadJoystickCalibrationFile` can recover all 34 original relocations
+  without crossing its 784-byte alignment boundary. Reload the up and left
+  scales through qualified reads into their existing locals, then multiply
+  the original short range parameters instead of the promoted range locals.
+  Both products fold their scale operands into memory-source multiplies.
+  Its RET is now one byte before the original, rather than three bytes
+  beyond it; alignment retains the original next function address. Mnemonic
+  similarity rises from 94.72% to 98.77%, differing encodings fall from 86
+  to 83 of 243, and literal matching rises from 538 to 649 bytes.
+  Reloading the scales while retaining the promoted-range products still
+  exceeds the boundary by one byte. Product order, centre-store placement,
+  unsigned product casts and qualified zero-scale increments give no better
+  candidate. These qualifiers reproduce measured reads, not recovered
+  original source spelling.
+- That loader correction must be evaluated with the earlier damage and
+  flight-control reference corrections. Alone it loses 8,536 matching file
+  positions because the serialized relocation table moves. Combining only
+  the loader and damage changes still loses 4,555 positions; combining only
+  the loader and controls loses 7,922. All three together gain 4,088 before
+  repairing two neighboring ship routines. Individual whole-file losses
+  therefore did not invalidate these original-count corrections.
+  In `internal_damage`, retain a branch-scoped pointer to the capital ship's
+  accumulated damage across both side-specific updates and the capacity
+  test. This reproduces the original persistent address and removes its
+  extra reference: 31 relocations, versus 32 before. The correct function
+  span ends at `revise_shields`, `0x0041f1a0`, and is 896 bytes; extending it
+  to `your_internal_damage` would incorrectly count seven following
+  references. Differing encodings fall from 225 to 118 of 266, mnemonic
+  similarity rises from 96.99% to 98.12%, and literal matching rises from
+  216 to 613 bytes.
+  Retain the previously tested flight-control captures for the wingman,
+  selected weapon, missile-camera value and branch-local signed view-mode
+  byte, the qualified communication-key guard, and the common laser-fire
+  return. Its 174 relocations now match the original count, versus 176
+  before. Every mnemonic matches, but its initial AL key difference remains
+  two bytes shorter than the original CL sequence; two volume loads and
+  pushes also use the other register. Literal matching falls from 1,149 to
+  424 of 3,184 bytes, and differing encodings rise from 593 to 768 of 789.
+  Captured signed or unsigned key differences, including a scoped capture,
+  do not repair that sequence. The three target routines recover the
+  original relocation counts, not all original relocation positions.
+- The added capital-damage pointer changes later compiler choices. Give
+  `Create_ship_hit_debris` an explicit entry guard and a do/while loop,
+  keeping its existing created-count declaration before the debris local.
+  The guard restores all 128 bytes of `analyze_kill`; the declaration order
+  restores the debris loop's comparison direction and all 192 debris bytes.
+  These two corrections recover another 23 file positions. Moving the
+  vector declaration after both counters gives the same result. Pointer
+  declaration placement and a more specific type-local name do not improve
+  damage output. A captured type-data pointer shortens its aligned span;
+  an inline system-choice expression disturbs later layout. Reversed ship
+  comparisons, an explicit side difference and shock-wave declaration moves
+  give no further gain. The medal display's separate row increment still
+  shrinks its aligned span; qualifying that update preserves its size but
+  worsens matching. These alternatives are discarded.
+  One normalized-exact neighbor is lost: `explosion_shock_wave` reverses an
+  equivalent comparison and matches 351 of 352 bytes. A raw audit of all
+  120 functions in the three changed units also finds an arithmetic reorder
+  hidden by normalization: `calculate_damage_level` exchanges the independent
+  rear and right armour terms, matching 236 of 240 bytes while its report
+  still says `EXACT`. No other function's literal match count changes.
+  Four normalized report rows change. There are 1,373 exact functions,
+  172 same-size differences and five size differences totaling a net 26
+  extra bytes. There are 1,444 mnemonic-perfect functions; average similarity
+  remains 99.72%, with three below 90%. Spans and unit placements are unchanged.
+  Strict whole-file matching rises by 4,111 positions, from 488,959 to
+  493,070 of 518,656 (94.2742% to 95.0669%). There remain 25,586 differing
+  positions in 3,529 runs. Code loses 222 matching positions, reaching
+  377,190 of 401,408; the relocation section gains 4,333, reaching 34,985
+  of 36,352. The `.rdata`, `.data` and `.idata` sections remain literally
+  exact. The continuous matching prefix remains 544 bytes, with the first
+  difference at `0x220`. Total HIGHLOW entries rise from 15,444 to 15,445,
+  against the original 15,446; `animate_shape` still has fifteen against
+  the original sixteen.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips. Call diagnostics remain 11; global-access
+  diagnostics fall from 56 to 55. The clean-build and post-verification
+  hashes agree:
+  `8b5d7a376263aca53b11a56c1c501fcf66bd7cb0175e1c114216b8ac736a0994`.

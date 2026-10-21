@@ -137,8 +137,10 @@ void LoadJoystickCalibrationFile(short horizontalRange,
             nJoystickDownScaleValue++;
 
         nJoystickCentreX = centreX;
-        rangeY *= nJoystickUpScale;
-        rangeX *= nCurrentJoystickLeftScale;
+        upScale = *(volatile int *)&nJoystickUpScale;
+        rangeY = verticalRange * upScale;
+        leftScale = *(volatile int *)&nCurrentJoystickLeftScale;
+        rangeX = horizontalRange * leftScale;
         nJoystickCentreY = centreY;
         nStickMinimumPositionX = centreX - rangeX;
         nStickMinimumPositionY = centreY - rangeY;

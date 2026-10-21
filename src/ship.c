@@ -711,21 +711,24 @@ int internal_damage(short attacker, short victim, short damage,
     type = aeObjectTypeList[victim];
     damageCapacity = aObjectTypeData[type].damageCapacity;
     if (aeObjectClass[victim] == OBJECT_CLASS_CAPITAL_SHIP) {
+        short *accumulatedDamage;
+
+        accumulatedDamage = &asShipAccumulatedDmg[victim];
         if (aeShipSide[victim] == SIDE_KILRATHI) {
             events = MaxShort(1, (short)(damage >> 3));
-            asShipAccumulatedDmg[victim] = (short)(
-                asShipAccumulatedDmg[victim] + events);
+            *accumulatedDamage = (short)(
+                *accumulatedDamage + events);
             if (attacker != -1 && attacker < 10 &&
                 any_enemy(attacker, 10000) == 0)
                 call_enemy(attacker);
         } else {
             events = MaxShort(1, (short)(damage / 10));
-            asShipAccumulatedDmg[victim] = (short)(
-                asShipAccumulatedDmg[victim] + events);
+            *accumulatedDamage = (short)(
+                *accumulatedDamage + events);
             if (RandomBelowOrEqual(1000) < 35 && attacker != 0)
                 send_message(victim, 4);
         }
-        if (asShipAccumulatedDmg[victim] >=
+        if (*accumulatedDamage >=
             damageCapacity)
             return explode(attacker, victim);
         onboard_explosion(victim);
@@ -1035,11 +1038,13 @@ void repair_internal_damage(void)
 void Create_ship_hit_debris(short obj, short count)
 {
     FixedVector offset;
-    short debris;
     short created;
+    short debris;
 
     created = 0;
-    while (created < count) {
+    if (created >= count)
+        return;
+    do {
         debris = find_vacant_3d_object();
         if (debris == -1)
             return;
@@ -1053,7 +1058,7 @@ void Create_ship_hit_debris(short obj, short count)
         FillFixedVectorWithRandomComponents(
             6, &aShipVelocity[debris]);
         created++;
-    }
+    } while (created < count);
 }
 
 /* Function start: 0x41F7C0 */

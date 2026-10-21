@@ -1424,6 +1424,8 @@ int HandleSpaceFlightControls(void)
 {
     int notRepeated;
     int control;
+    int selectedWeapon;
+    short wingman;
 
     player_input();
     players_flight_dynamics();
@@ -1446,7 +1448,7 @@ int HandleSpaceFlightControls(void)
         case 10:
             if (notRepeated && get_mode(1) == 4 &&
                 nCameraViewMode == 0 &&
-                (signed char)bCurrentKey >= 2 &&
+                *(volatile signed char *)&bCurrentKey >= 2 &&
                 (signed char)bCurrentKey <=
                     nCommMenuChoiceCount + 2 &&
                 get_mode(1) == 4) {
@@ -1506,10 +1508,10 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x23:
-            if (notRepeated && nYourWingman != -1 &&
-                aeShipObjectiveList[nYourWingman] !=
+            if (notRepeated && (wingman = *(volatile short *)&nYourWingman) != -1 &&
+                aeShipObjectiveList[wingman] !=
                     OBJECTIVE_HOLD_FORMATION) {
-                request(0, nYourWingman, 9);
+                request(0, wingman, 9);
             }
             break;
         case 0x2e:
@@ -1537,8 +1539,8 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x30:
-            if (notRepeated && nYourWingman != -1 &&
-                aeShipObjectiveList[nYourWingman] ==
+            if (notRepeated && (wingman = *(volatile short *)&nYourWingman) != -1 &&
+                aeShipObjectiveList[wingman] ==
                     OBJECTIVE_HOLD_FORMATION &&
                 any_enemy(0, 14000) != 0) {
                 request(0, nYourWingman, 7);
@@ -1560,8 +1562,13 @@ int HandleSpaceFlightControls(void)
                     GetScreenUpdateFlag();
                     if (bCockpitlessView != 0) {
                         SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
-                        cScreenViewMode++;
-                        initialize_cockpit((int)cScreenViewMode - 1);
+                        {
+                            signed char screenMode = cScreenViewMode;
+
+                            screenMode++;
+                            cScreenViewMode = screenMode;
+                            initialize_cockpit((int)screenMode - 1);
+                        }
                         SetMousePosition(
                             ((int)stSpaceBufferViewport.right -
                              (int)stSpaceBufferViewport.left) / 2 + 1,
@@ -1571,8 +1578,13 @@ int HandleSpaceFlightControls(void)
                             &stSpaceBufferViewport, 0, 0,
                             (short)(nScreenWidth - 1),
                             (short)(nScreenHeight - 1));
-                        cScreenViewMode++;
-                        initialize_cockpit((int)cScreenViewMode - 1);
+                        {
+                            signed char screenMode = cScreenViewMode;
+
+                            screenMode++;
+                            cScreenViewMode = screenMode;
+                            initialize_cockpit((int)screenMode - 1);
+                        }
                         SetMousePosition(
                             ((int)stSpaceBufferViewport.right -
                              (int)stSpaceBufferViewport.left) / 2 + 1,
@@ -1684,9 +1696,12 @@ int HandleSpaceFlightControls(void)
             goto restore_normal_viewport;
         case 0x42:
             if (notRepeated) {
+                int missileCameraEnabled;
+
+                missileCameraEnabled = bMissileCameraEnabled ^ 1;
                 bMouseCursorVisible = 0;
-                bMissileCameraEnabled ^= 1;
-                if (bMissileCameraEnabled != 0)
+                bMissileCameraEnabled = missileCameraEnabled;
+                if (missileCameraEnabled != 0)
                     SetHudMessageText("MISSILE CAMERA ON",
                                       cRedColour, 20);
                 else
@@ -1779,10 +1794,11 @@ primary_controls_complete:
         SetFrameTimerPeriodDirect(1);
         return 0;
     case 0x1c:
-        if (notRepeated && nSelectedReleaseWeaponIndex != -1) {
+        if (notRepeated &&
+            (selectedWeapon = *(volatile int *)&nSelectedReleaseWeaponIndex) != -1) {
             ShipWeaponSlot *slot =
                 &((ShipWeaponSlot *)&aShipWeaponsTable[0][1])[
-                    nSelectedReleaseWeaponIndex];
+                    selectedWeapon];
 
             if (slot->type == OBJECT_TYPE_SPACE_MINE) {
                 drop_player_mine(0);
@@ -1866,7 +1882,7 @@ primary_controls_complete:
         break;
     case 0x39:
         fire_players_lasers();
-        return 0;
+        break;
     }
     return 0;
 }
