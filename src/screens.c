@@ -658,6 +658,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
 {
     char active[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     signed char *phase;
+    char *characterActive;
     short character;
     short escaped;
     short frame;
@@ -688,9 +689,10 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
         DrawSpriteDefault(&stSceneBuffer, 241, 64,
                           pCurrentBriefingAnimShape, 22);
         for (character = 0; character < 8; character++) {
-            if (active[character] == 0 &&
+            characterActive = &active[character];
+            if (*characterActive == 0 &&
                 RandomBelowOrEqual(5) == 0)
-                active[character] = 1;
+                *characterActive = 1;
             phase = &aBriefingCharacters[character].animationPhase;
             DrawBriefingCharacter(
                 character, *phase, 0,
@@ -698,7 +700,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
                     *phase * 12,
                 (const signed char *)aBriefingPortraitOffsetY +
                     *phase * 12);
-            if (active[character] == 1 && *phase < 11)
+            if (*characterActive == 1 && *phase < 11)
                 (*phase)++;
         }
         RefreshMemoryStatusOverlay();
@@ -723,10 +725,10 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
 /* Function start: 0x437B80 */
 unsigned int Dismissed(char *text, short duration)
 {
-    short podiumFrame;
+    short leftX;
     short frame;
     short leftDelta;
-    short leftX;
+    short podiumFrame;
     short podiumDelta;
     short podiumX;
     short rightDelta;
@@ -788,7 +790,7 @@ unsigned int Dismissed(char *text, short duration)
         }
         if (frame > 24)
             leftDelta = (short)aiBriefingLeftPanelVelocity[
-                11 - (frame - 25)];
+                11 - (frame - 24)];
         podiumX = (short)(podiumX + podiumDelta);
         rightX = (short)(rightX + rightDelta);
         frame++;
@@ -1573,13 +1575,13 @@ void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
 /* Function start: 0x439430 */
 void __stdcall PanToScreen(Viewport *source, Viewport *destination)
 {
-    unsigned char *indices;
     unsigned short target[3];
     short *originalPalette;
     short *transitionPalette;
     unsigned int paletteBytes;
     short index;
     short activeCount;
+    unsigned char *indices;
 
     if (nVideoMode == 0x13) {
         indices = AllocateTaggedMemory(256, 0);

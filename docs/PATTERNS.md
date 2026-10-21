@@ -4292,3 +4292,56 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `50c818521448a11a3f50d8bcf5e3100005d24f8456114704687caf5dafa3dff3`.
+- `ReturnToBriefingLongShot` captures the current character's activity byte
+  through an explicit pointer before its random activation test, and retains
+  that pointer through the draw call. This restores the original register
+  allocation: all nine differing encodings disappear, and the complete
+  512-byte span matches literally, up from 503 bytes.
+  The added local also changes later compiler decisions. Move `PanToScreen`'s
+  existing indices-pointer declaration after its count locals to retain its
+  exact 560-byte span. Without that move, two indexed reads use the shorter
+  ESI-base encoding instead of the original EBP-base encoding, displacing the
+  remaining instructions and producing 115 differing encodings. Placing the
+  declaration after the target array or palette pointers does not repair it.
+  A separately promoted palette index leaves one literal difference at best.
+- In the same context, declare `Dismissed`'s existing left coordinate before
+  its podium-frame local. This recovers SI for the podium frame and the
+  original initialization sequence. Correct the reverse left-panel velocity
+  index to `11 - (frame - 24)`: on frame 25 the original reads entry 10, not
+  entry 11. Its address calculation is `0x0046e50c - frame * 4`, with the
+  table beginning at `0x0046e480`; the previous expression emitted
+  `0x0046e510 - frame * 4`. Normalized address comparison concealed this
+  one-entry error. Differing encodings fall from eighteen to nine, mnemonic
+  similarity rises from 97.39% to 100%, and literal matching improves from
+  541 to 567 of 576 bytes. The remaining differences exchange BX/DI for the
+  left-panel and podium coordinates. The compiler-context change also removes
+  one differing encoding in `SceneDirector`, improving literal matching from
+  1,133 to 1,134 of 1,136 bytes; two reversed comparisons remain.
+  Moving only the briefing character declaration does not improve output.
+  Scoping the activity pointer to the inner loop fails to make the briefing
+  routine exact. Other dismissal declaration orders give no further gain.
+  Reversing the wave-list equality, swapping its local declarations, and
+  spelling its search as a break loop leave output unchanged. Pilot-prompt
+  coordinate expressions and qualified reads/stores do not improve the file;
+  a qualified X read reaches 100% mnemonic similarity but loses 42 literal
+  positions. Component-index captures regress neighboring code without
+  improving the repair routine. Qualifying the empty-save objective-position
+  copy leaves output unchanged. These probes are discarded.
+  Only the briefing, dismissal and scene-director rows change in the full
+  report. Normalized exact functions rise from 1,372 to 1,373 of 1,550;
+  same-size differences fall from 173 to 172. Five size differences remain,
+  totaling a net 26 extra bytes. There are now 1,442 mnemonic-perfect
+  functions; mean similarity remains 99.72%, with three below 90%. No exact
+  function is lost, and spans and unit placements are unchanged. The four
+  inspected routines retain their original 21, 32, 63 and 1 relocations.
+  Strict whole-file matching rises by 37 positions, from 488,563 to 488,600
+  of 518,656 (94.1979% to 94.2050%); 30,056 positions still differ in 5,988
+  runs. Code gains 36 positions, reaching 377,052 of 401,408; relocation
+  matching gains one, reaching 30,653 of 36,352. The `.rdata`, `.data` and
+  `.idata` sections remain literally exact. The continuous matching prefix
+  remains 544 bytes, with the first difference at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `1e204bcaaf11ca80199a9a29080a56899edfad15f891b56a590e8c63fb20fd43`.
