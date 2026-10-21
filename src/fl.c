@@ -179,11 +179,13 @@ void ShipAiState35(short ship, short target)
 /* Function start: 0x406310 */
 void Mfull_ahead(short ship)
 {
+    short *counter;
     short count;
 
     approach_full_speed(ship);
-    count = asShipTotal[ship];
-    asShipTotal[ship] = count - 1;
+    counter = &asShipTotal[ship];
+    count = *counter;
+    *counter = count - 1;
     if (count < 1)
         maneuver_complete(ship);
 }
@@ -476,11 +478,12 @@ void Mhard_turn(short ship)
 void Mfish_hook(short ship, short target)
 {
     short advanceSequence = 1;
+    int shipIndex = ship;
 
     (void)target;
-    switch (acShipSequence[ship]) {
+    switch (acShipSequence[shipIndex]) {
     case 0:
-        anYawTarget[ship] =
+        anYawTarget[shipIndex] =
             RandomBelowOrEqual(2) * 240 - 120;
         fire_afterburner(ship, 5);
         break;
@@ -490,13 +493,13 @@ void Mfish_hook(short ship, short target)
         break;
     case 2:
         fire_super_brake(ship);
-        anYawTarget[ship] =
+        anYawTarget[shipIndex] =
             RandomBelowOrEqual(2) * 90 - 45;
         break;
     case 3:
         advanceSequence =
             aObjectTypeData[
-                aeObjectTypeList[ship]].cruiseVelocity >=
+                aeObjectTypeList[shipIndex]].cruiseVelocity >=
             real_velocity(ship);
         break;
     case 4:
@@ -618,8 +621,8 @@ void Mzip_past(short ship, short target)
 /* Function start: 0x406E10 */
 void Mtarget_missile(short ship, short target)
 {
-    int objectIndex;
     short object;
+    int objectIndex;
 
     if (no_goal(ship) != 0)
         point_ship_at_object(ship, target);

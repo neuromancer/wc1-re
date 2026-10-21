@@ -3844,3 +3844,69 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `e8519157166f8bce702ffc83a4de6a53713ab52cfc3c1d451f80d67d7f7b095d`.
+- `Mfull_ahead` captures its counter pointer after the speed-adjustment call,
+  then reads and decrements through that pointer. This restores EAX for the
+  address and CX for the old count, matching all 64 bytes instead of 57.
+  Retain this together with two declaration changes in the same unit:
+  `Mfish_hook` captures its promoted ship index after `advanceSequence`, and
+  `Mtarget_missile` declares the short object before its promoted index.
+  These preserve the original SI/BX allocation in the fish-hook maneuver and
+  CX/EAX allocation in the missile scan. Their complete 272- and 176-byte
+  spans remain literally exact. The resulting context also makes all 176
+  bytes of `Mgloat` exact, up from 161, removing eleven differing encodings.
+  The combined gain is 22 code bytes with no neighboring regression.
+  Putting the fish-hook index first does not recover its allocation; an
+  unsigned sequence flag, a register hint and reusing the flag for cruise
+  velocity do not help. Without the missile-local reorder, that routine
+  acquires six differing encodings.
+- `RunTrainSim` handles a failed flight before its success branch, matching
+  the original jump and block order. Save the campaign index before the data
+  set to restore the DI/AX load sequence. Together these changes remove all
+  thirteen differing encodings, raise mnemonic similarity from 93.94% to
+  100%, and make the full 624-byte span literally exact, up from 560 bytes.
+  Reversing the branches alone leaves three differences and gains 45 bytes;
+  both changes together gain 64.
+- `ValidateViewportBounds` declares its allocation index after the three
+  row-offset locals. The viewport-pixel load now uses EAX as in the original.
+  Differing encodings fall from thirteen to twelve, and literal matching
+  rises from 223 to 225 of 240 bytes. The allocation counter and scan pointer
+  still exchange registers, and several comparisons remain reversed. The
+  intermediate index-declaration positions give no improvement.
+- `EstablishingShot` captures its promoted frame index before the character
+  loop and uses it for the animation-table reads. Its emitted 352-byte span
+  is unchanged. This declaration context fixes one equality-comparison byte
+  in `SceneDirector`, reducing its differing encodings from four to three
+  and increasing literal matching from 1,132 to 1,133 of 1,136 bytes. This
+  is a measured compiler-context choice rather than proof of the original
+  local spelling.
+  The player-mine slot-pointer probe superficially gains seven file bytes,
+  but merges two original absolute references: the routine drops from its
+  correct four relocations to three. Only two code bytes improve, while
+  unrelated relocation mismatches partly cancel. Discard that form. Separate
+  promoted weapon-index locals retain direct table access but regress output.
+  Four objective-local rotations leave `flag_reached` unchanged; its promoted
+  index capture regresses the unit. Separate frame, Y or X/Y locals in the
+  cockpitless light branch make the light routine exact but regress the
+  complete file. Pixel-pointer captures in viewport validation and Y-origin
+  captures in corner extraction likewise regress the file. All five remaining
+  navigation-label local orders leave output unchanged. Removing its final
+  label pointer and passing both indexed coordinates directly adds sixteen
+  aligned bytes, with either width/offset declaration order. None of these
+  probes is retained.
+  Only five function rows change in the full report. Normalized exact
+  functions rise from 1,364 to 1,367 of 1,550; same-size differences fall
+  from 181 to 178, and five size differences remain, totaling a net 26 extra
+  bytes. Mean mnemonic similarity rises to 99.71%, with three functions below
+  90%. No existing exact function is lost, and spans and unit placements are
+  unchanged. Strict whole-file matching rises by 89 positions, from 487,929
+  to 488,018 of 518,656 (94.0756% to 94.0928%); 30,638 positions still differ.
+  All gains are in code. The `.rdata`, `.data` and `.idata` sections remain
+  literally exact, and relocation matching remains 30,440 of 36,352 bytes.
+  The affected routines retain their original relocation counts. The
+  continuous matching prefix remains 544 bytes, with the first difference
+  at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `da8920e4cebd42e56d4576780bd7827e467738541611350ba64b6702db1d9146`.

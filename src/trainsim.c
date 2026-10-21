@@ -888,8 +888,8 @@ void RunTrainSim(void)
         PreloadMusicTrackHook(21);
         PreloadMusicTrackHook(22);
         ResetStringBuilder(&stHudMessageTextContext);
-        savedDataSet = nCampaignDataSet;
         savedCampaign = stCampaignState.campaignIndex;
+        savedDataSet = nCampaignDataSet;
         stCampaignState.campaignIndex = 0;
         nCampaignDataSet = 0;
 
@@ -921,16 +921,16 @@ void RunTrainSim(void)
             savedFrameState = bKeyEventQueueEnabled;
             bKeyEventQueueEnabled = 1;
             result = RunSpaceFlight(nArcadeWave);
-            if (result == 1) {
+            if (result != 1) {
+                nArcadeState = 4;
+                ShowGameOverScreen();
+                nTrainSimMission = 4;
+            } else {
                 if (nTrainSimMission < 3)
                     nArcadeWave = 0;
                 else
                     ShowVictoryScreen();
                 nTrainSimMission++;
-            } else {
-                nArcadeState = 4;
-                ShowGameOverScreen();
-                nTrainSimMission = 4;
             }
             bKeyEventQueueEnabled = savedFrameState;
         }

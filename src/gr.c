@@ -352,10 +352,10 @@ int SignExtendClipCoord(volatile short v)
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip)
 {
-    int allocation;
     int topOffset;
     int nextOffset;
     int rowStrideOffset;
+    int allocation;
 
     if (viewport->pixels != stScreenView.pixels) {
         allocation = 0;

@@ -582,6 +582,7 @@ unsigned int EstablishingShot(char *text, short duration)
     short character;
     short escaped;
     short frame;
+    int frameIndex;
 
     if (pSceneBriefingBodyShape == 0)
         pSceneBriefingBodyShape =
@@ -605,11 +606,12 @@ unsigned int EstablishingShot(char *text, short duration)
                           pCurrentBriefingAnimShape, frame);
         DrawSpriteDefault(&stSceneBuffer, 241, 64,
                           pCurrentBriefingAnimShape, 22);
+        frameIndex = frame;
         for (character = 0; character < 8; character++) {
             DrawBriefingCharacter(
                 character, 0,
                 aBriefingCharacters[character]
-                    .animation[frame],
+                    .animation[frameIndex],
                 0, 0);
         }
         RefreshMemoryStatusOverlay();
