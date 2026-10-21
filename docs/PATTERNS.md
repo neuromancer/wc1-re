@@ -4048,3 +4048,46 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `7765a9f19df191ba4adde74cbe3af1bd275a940813619c0f9f27f06dd46f6077`.
+- `show_target_disp` computes each shield ratio into the existing short
+  frame local before passing it to `MinShort`. This restores the original
+  division, argument preparation and register choices for both shield draws.
+  All 25 differing encodings disappear, mnemonic similarity rises from
+  95.07% to 100%, and all 784 bytes match literally, up from 696. Its 46
+  relocations and the complete view unit's 307 relocations remain unchanged.
+  A separate short shield-level local also makes this routine exact, but
+  disturbs `CalcRectangleArea` and gains four fewer file bytes. Capturing
+  only the scaled numerator gains two bytes and retains 23 differing
+  encodings. Reusing the existing frame local preserves every neighboring
+  report row and requires no additional declaration.
+  Eight autopilot local-order variants give no gain. Early-return and
+  captured-frame-count forms of `DrawSpriteTransformed` regress the file;
+  eight existing-local layouts in `GetViewportIntersection` leave its output
+  unchanged. The latter's original reversed loop expression and uninitialized
+  state remain preserved. Capturing the first navigation-label availability
+  result or the communication object's class regresses output. Capturing
+  the NPC speaker for the second loop or splitting subtitle centering into
+  a remaining-width local leaves output unchanged.
+  Eight combinations of qualified parameter/count reads in the position
+  and volume voice setters produce the same executable. Their compensating
+  minus-one/plus-one size errors remain unresolved. Swapping local declaration
+  or initialization order, or using an explicit search break, in the wave
+  and active-sound removal routines gives no improvement. Capturing the
+  formation spot before calculating the formation delta also regresses the
+  file. All of these probes are discarded.
+  Only the target-display row changes in the full report. Normalized exact
+  functions rise from 1,369 to 1,370 of 1,550; same-size differences fall
+  from 176 to 175, and five size differences remain, totaling a net 26
+  extra bytes. Mean mnemonic similarity remains 99.71%, with three functions
+  below 90%. No existing exact function is lost, and spans and unit placements
+  are unchanged. Strict whole-file matching rises by 88 positions, from
+  488,151 to 488,239 of 518,656 (94.1185% to 94.1354%); 30,417 positions
+  still differ in 6,224 runs. All gains are in code, which now matches at
+  376,899 of 401,408 positions. Relocation matching remains 30,445 of
+  36,352, and the `.rdata`, `.data` and `.idata` sections remain literally
+  exact. The continuous matching prefix remains 544 bytes, with the first
+  difference at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `36cd2f4404ac58841aa000721338d9d8ea30f989794e0858d3c87d77e3a5db2c`.

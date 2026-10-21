@@ -656,9 +656,9 @@ void show_target_disp(void)
 
     x = (short)(stRightVduViewport.left + 0x25);
     y = (short)(stRightVduViewport.top + 0x26);
-    frame = (short)((3 - MinShort(
-        (short)((aasShipShield[targetIndex][1] * 6) /
-                typeData->shieldAft), 3)) * 2);
+    frame = (short)((aasShipShield[targetIndex][1] * 6) /
+                    typeData->shieldAft);
+    frame = (short)((3 - MinShort(frame, 3)) * 2);
     if (frame < 6)
         DrawSpriteDefault(&stRightVduViewport, x, y,
                           pCockpitIndicatorShape, frame);
@@ -685,9 +685,9 @@ void show_target_disp(void)
     }
 
     DrawSpriteDefault(&stRightVduViewport, x, y, typeData->shape, 2);
-    frame = (short)((3 - MinShort(
-        (short)((aasShipShield[targetIndex][0] * 6) /
-                typeData->shieldFore), 3)) * 2);
+    frame = (short)((aasShipShield[targetIndex][0] * 6) /
+                    typeData->shieldFore);
+    frame = (short)((3 - MinShort(frame, 3)) * 2);
     if (frame < 6)
         DrawSpriteDefault(&stRightVduViewport, x, y,
                           pCockpitIndicatorShape,
