@@ -105,7 +105,8 @@ unsigned short InitializeNearHeap(void)
                 DosFarPtrToNear(pCurrentNearHeapAlloc);
             if (*(unsigned short *)0x00400013 == 0x270) {
                 nNearHeapRelocationBytes =
-                    0x9c000 - nNearHeapSize - nNearHeapBase;
+                    0x9c000 - *(volatile int *)&nNearHeapSize -
+                    *(volatile int *)&nNearHeapBase;
                 nNearHeapSize =
                     0x98000 - nNearHeapRelocationBytes - nNearHeapBase;
                 if (nNearHeapMaxDescriptors * 8 <

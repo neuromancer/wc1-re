@@ -4190,3 +4190,63 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `b40c38f54b4b1db8efcdd8643332aa47214822619deda85d1e3cc2ebdfb7c752`.
+- Qualify both boundary reads in `InitializeNearHeap`'s relocation-byte
+  calculation. Its own 304 emitted bytes stay unchanged, including its eight
+  remaining literal operand-address differences, but CL emits the following
+  `ShutdownNearHeap` addition in the original base-before-size order. This
+  makes all 96 shutdown bytes literally exact, up from 94. The entire
+  executable changes at only those two operand bytes. This is a measured
+  compiler-context choice, not evidence that the original C used `volatile`.
+  Qualifying the second calculation as well produces the same executable.
+  Either boundary read alone, or qualifying only the second calculation,
+  instead changes the shutdown register allocation and loses 77 file bytes.
+  Shared and separate arithmetic locals, at function or branch scope, shrink
+  the initializer's aligned span by sixteen bytes and are discarded. A
+  captured shutdown end address or qualified shutdown operands also regresses
+  output. Qualifying the free-byte query's base or size leaves it unchanged.
+  The initializer and shutdown retain their original 27 and 6 relocations.
+- Further flight-control work is preserved as investigation evidence only.
+  Capture the incremented signed view-mode byte inside each of the two
+  cockpit branches, and let the final laser-fire case break to the function's
+  common return. Combined with the earlier wingman/weapon captures, qualified
+  communication-key read and missile-camera capture, this reproduces every
+  mnemonic and the original 174 relocations, versus 176 in the retained
+  handler. Only seven non-branch operand choices remain: the initial key
+  difference uses AL instead of CL, and the two volume-table loads and pushes
+  use ECX instead of EAX. The key sequence is two bytes short, displacing the
+  following instructions. Differing encodings rise from 593 to 768 of 789
+  despite mnemonic similarity rising from 97.59% to 100%. Literal matching
+  falls from 1,149 to 424 of the unchanged 3,184-byte span. Whole-file
+  matching loses 8,027 positions, including 7,297 relocation-section bytes,
+  so this coherent candidate is not retained yet. Its normalized report
+  changes only the handler; branch-scoped mode captures preserve the other
+  main-unit rows. Function-scoped captures disturb neighboring routines,
+  while qualified mode reads can shrink `RunSpaceFlight` by sixteen bytes.
+  Capturing the previous key or both keys, changing those captures' scopes
+  and assignment order, or reordering the adjacent current/previous/view
+  declarations does not fix the remaining register choices.
+  Guarded-allocation counter captures and the five other counter-declaration
+  orders give no gain. Direct or separately captured trimming goals, reversed
+  target comparisons and captured sides, hostile-sphere side captures,
+  ship-lookup guard layouts, and flight-dynamics input captures also fail to
+  improve the file. Wave-index and objective-range captures regress output;
+  swapping the near-heap base/size declarations loses 21 matching positions.
+  These trials are all restored and discarded.
+  A fresh raw audit of all 1,371 normalized-exact functions finds fourteen
+  spans that still differ at their original addresses before this checkpoint,
+  including operand-order differences and audio spans affected by a one-byte
+  displacement. The shutdown correction reduces that count to thirteen.
+  All 1,550 normalized report rows remain unchanged: 1,371 exact functions,
+  174 same-size differences, and five size differences totaling a net 26
+  extra bytes. Mean mnemonic similarity remains 99.72%, with three functions
+  below 90%. Strict whole-file matching rises by two positions, from 488,539
+  to 488,541 of 518,656 (94.1933% to 94.1936%); 30,115 positions still differ
+  in 6,016 runs. Code matches at 376,994 of 401,408 positions. Relocation
+  matching remains 30,652 of 36,352, and `.rdata`, `.data` and `.idata` remain
+  literally exact. Function spans, unit placements and the continuous
+  544-byte matching prefix are unchanged; the first difference is at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `21570d859814a894ffe07809fb330651d2fdc9488f29aa94511486ccae1b085f`.
