@@ -338,8 +338,8 @@ short ReadTextInput(char *destination, short maximumLength,
     unsigned char key;
     char input[40];
 
-    savedBackground = pCurTextContext->backgroundColour;
     accepted = 0;
+    savedBackground = pCurTextContext->backgroundColour;
     if (savedBackground == 0xff) {
         pCurTextContext->backgroundColour = cBlackColour;
     }

@@ -3952,3 +3952,46 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `7230b2fed4950a97479b885b2309fbaa1ba89ae889f7159625ef9e4f61e8a6c3`.
+- `DrawScrambleActor` declares `animationFrame` before `frame`. CL then
+  keeps the animation index in BL and uses EAX for the state comparison,
+  matching the original prologue and branch bodies. Differing encodings
+  fall from 27 to thirteen, and literal matching rises from 191 to 225 of
+  256 bytes. Mnemonic similarity remains 97.22%; animation-pointer load
+  scheduling and control-mask promotion still differ. The routine retains
+  all twenty relocations, and their improved positions gain three more
+  file bytes. Other byte-local orders and the X/Y swap give no greater gain.
+  Putting the control byte first reaches 100% mnemonic similarity but gains
+  fewer literal bytes. Scoping that byte, splitting its mask assignment,
+  or using an unsigned switch provides no further improvement. Animation-
+  pointer and promoted-control locals likewise give no larger file gain.
+- `ReadTextInput` initializes `accepted` before saving the background colour.
+  This selects CL for the saved byte and restores the original final stores,
+  pointer reload and epilogue scheduling. All nine differing encodings
+  disappear, mnemonic similarity rises from 98.52% to 100%, and all 928
+  bytes match literally, up from 910. Its 22 relocations are unchanged.
+  Moving only the saved-background declaration leaves the old output.
+  Qualifying its final read gains three file bytes but retains six differing
+  encodings, including when combined with the earlier result initialization;
+  that form is not retained.
+  Separating the master-return range assignment or using an early distant
+  return leaves output unchanged, as does the cruise-local declaration swap.
+  Reversing the imperial formation's wave comparison does nothing; capturing
+  that wave, with or without a qualified read, regresses the file. An explicit
+  polling-drain branch in `WaitForInputKey` leaves its fifteen differences.
+  These probes are discarded.
+  Only the two selected function rows change in the full report. Normalized
+  exact functions rise from 1,368 to 1,369 of 1,550; same-size differences
+  fall from 177 to 176, and five size differences remain, totaling a net
+  26 extra bytes. Mean mnemonic similarity remains 99.71%, with three
+  functions below 90%. No existing exact function is lost, and spans and
+  unit placements are unchanged. Strict whole-file matching rises by 55
+  positions, from 488,079 to 488,134 of 518,656 (94.1046% to 94.1152%);
+  30,522 positions still differ. Code gains 52 matching positions and
+  relocation data gains three, reaching 30,443 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The continuous
+  matching prefix remains 544 bytes, with the first difference at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `a5f3d2ec4328160eda84cce9e0c387124396c11de2c6984a78b268c6181dfdf2`.

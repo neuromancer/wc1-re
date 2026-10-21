@@ -372,8 +372,8 @@ unsigned int PlayScrambleHangarScene(void)
 /* Function start: 0x407C90 */
 unsigned int DrawScrambleActor(short actorIndex)
 {
-    signed char frame;
     signed char animationFrame;
+    signed char frame;
     unsigned char control;
     short x;
     short y;
