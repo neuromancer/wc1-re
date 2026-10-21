@@ -4091,3 +4091,57 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `36cd2f4404ac58841aa000721338d9d8ea30f989794e0858d3c87d77e3a5db2c`.
+- `CalibrateJoystickInteractive` multiplies its existing left, up, right
+  and down scale locals by their corresponding ranges after publishing the
+  scales, then uses those products to calculate the four bounds. This
+  restores retention of the minimum-X value through the final validity
+  comparison, removing its extra absolute reload. The routine now has the
+  original 53 relocations instead of 54. Differing encodings fall from 131
+  to 105, mnemonic similarity rises from 95.75% to 96.73%, and literal
+  matching rises from 577 to 666 of its unchanged 1,040-byte span. The
+  relocation section gains another 207 matching positions.
+  Capturing minimum X in a new local at four declaration positions, or
+  repeating its expression in the final condition, also removes the extra
+  relocation but regresses the file. Interleaving the first bound store
+  between the up and right products produces the retained executable.
+  Placing each product immediately before its bound, grouping products by
+  axis, or permuting the horizontal-range/left-scale/right-scale declarations
+  gives no greater gain. Lower-right sample stores retain a three-byte
+  scheduling discrepancy. Separating their global and record assignments,
+  or qualifying the record stores or Y read, does not improve the file;
+  qualifying their global stores shortens the aligned span by sixteen bytes.
+  These additional variants are discarded.
+- Capturing `animate_shape`'s masked decrease factor, at function or branch
+  scope, worsens its output. Explicit subtraction and equivalent negated
+  products leave it unchanged. The shrink branch still shares one computed
+  scale address and has fifteen relocations against the original sixteen.
+  Flight-control captures for the wingman, selected weapon, communication
+  guard and missile-camera value increase mnemonic similarity to 98.35%,
+  but retain 176 relocations versus 174 and regress literal matching. Six
+  declaration orders give the same result. Qualifying the captured wingman
+  and weapon reads removes both remaining excess references and reaches
+  98.99% mnemonic similarity, but loses 8,137 matching file positions against
+  the retained calibration build and disturbs two exact neighboring routines.
+  A captured signed or unsigned key difference recovers 52 of those positions;
+  the inline difference does not. These controls remain a coupled matching
+  problem, so none of the captures is retained in this checkpoint.
+  Five cockpit-light local permutations and byte/int frame types regress
+  output. Reversing the VDU percentage product leaves its four differences;
+  capturing that product in an int also leaves them and disturbs neighbors.
+  Those probes are discarded as well.
+  Only the calibration row changes in the full report. Normalized exact
+  functions remain 1,370 of 1,550, with 175 same-size differences and five
+  size differences totaling a net 26 extra bytes. Mean mnemonic similarity
+  remains 99.71%, with three functions below 90%. No existing exact function
+  is lost, and spans and unit placements are unchanged. Strict whole-file
+  matching rises by 296 positions, from 488,239 to 488,535 of 518,656
+  (94.1354% to 94.1925%); 30,121 positions still differ in 6,019 runs.
+  Code gains 89 matching positions, reaching 376,988 of 401,408; relocation
+  matching rises to 30,652 of 36,352. The `.rdata`, `.data` and `.idata`
+  sections remain literally exact. The continuous matching prefix remains
+  544 bytes, with the first difference at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `7de2c9f5768cb531f58a55aa61379f727cbe604ba050bfd612c0dd08ab8a13dd`.
