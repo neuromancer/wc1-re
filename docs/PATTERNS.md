@@ -4250,3 +4250,45 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `21570d859814a894ffe07809fb330651d2fdc9488f29aa94511486ccae1b085f`.
+- `ReleaseInputEvent` walks the used-slot table with an explicit pointer,
+  advancing that pointer before the slot index. This restores the original
+  order of the two loop updates and the full instruction-body length.
+  Differing encodings fall from thirteen to five; literal matching rises
+  from 28 to 43 of the unchanged 48-byte span. The used-table pointer and
+  event parameter still exchange EAX/EDX. The changed compiler context also
+  makes `RetainInputEventsOfType` exact: its seven differing encodings
+  disappear, and all 96 bytes match, up from 89.
+  Keep `sort_object_depth`'s existing placed pointer after its object local.
+  Without this declaration move, the added release-loop pointer disturbs
+  nineteen depth-sort encodings. Moving the declaration restores the entire
+  original 192-byte span without another local or logic change. Placing it
+  last or scoping it to the inner search also restores that span. Reversing
+  the release loop's update order loses three file bytes; a declaration
+  initializer or do/while form gives no further gain. The three routines
+  retain their original two, three and eight relocations, respectively.
+  Separate or scoped joystick double-click locals and captured button-state
+  bytes regress output. Capturing the first device index leaves it unchanged.
+  Separating the ordinary sprite's X/Y loads and adding X before the shape
+  load leaves the renderer unchanged; adding X afterward regresses it.
+  Captured Y-origin reads in the frame-corner routine, including qualified
+  reads, do not improve it and shift later code. Branch-assigned or direct
+  navigation-label returns also regress output. Separate high-score lookup
+  indices at three declaration scopes, and using the message-duration
+  parameter directly, leave the executable unchanged. These trials are
+  discarded.
+  Only the release and retain rows change in the full report. Normalized
+  exact functions rise from 1,371 to 1,372 of 1,550; same-size differences
+  fall from 174 to 173. Five size differences remain, totaling a net 26
+  extra bytes. Mean mnemonic similarity remains 99.72%, with three functions
+  below 90%. No existing exact function is lost, and spans and unit placements
+  are unchanged. Strict whole-file matching rises by 22 positions, from
+  488,541 to 488,563 of 518,656 (94.1936% to 94.1979%); 30,093 positions
+  still differ in 6,004 runs. All gains are in code, now matching at 377,016
+  of 401,408 positions. Relocation matching remains 30,652 of 36,352; `.rdata`,
+  `.data` and `.idata` remain literally exact. The continuous matching prefix
+  remains 544 bytes, with the first difference at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `50c818521448a11a3f50d8bcf5e3100005d24f8456114704687caf5dafa3dff3`.

@@ -100,11 +100,13 @@ InputEvent *AllocateInputEvent(void)
 /* Function start: 0x435760 */
 void ReleaseInputEvent(InputEvent *event)
 {
+    int *used;
     int slot;
 
-    for (slot = 0; slot < 0x100; slot++) {
+    used = aiInputEventSlotUsedTable;
+    for (slot = 0; slot < 0x100; used++, slot++) {
         if (&aInputEvtPool[slot] == event)
-            aiInputEventSlotUsedTable[slot] = 0;
+            *used = 0;
     }
 }
 
@@ -832,13 +834,13 @@ void SetInputKeyState(int scanCode, unsigned char pressed)
 /* Function start: 0x436460 */
 void sort_object_depth(void)
 {
-    int *placed;
     int previous;
     int screenOffset;
     int bestObject;
     int best;
     unsigned int distance;
     int obj;
+    int *placed;
     int *sortedEntry;
     int sorted;
 
