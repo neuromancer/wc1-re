@@ -891,8 +891,8 @@ void draw_sorted_objects_to_buffer(void)
     int obj;
     int objectClass;
     unsigned char *shape;
-    short screenX;
     short screenY;
+    short screenX;
     int specialObject;
 #ifdef SDL_PORT
     float enhancedScreenX;
@@ -989,18 +989,27 @@ void draw_sorted_objects_to_buffer(void)
                 asObjectDrawPosX[obj] = screenX;
                 screenY = (short)(screenY + nCurrentViewCenterPosY);
                 asObjectDrawPosY[obj] = screenY;
-                if (specialObject == obj)
+                if (specialObject == obj) {
                     shape = apObjShapeArray[obj];
-                else
+#ifdef SDL_PORT
+                    if (!SdlRecordSpaceSprite(
+                            &stSpaceBufferViewport, enhancedScreenX,
+                            enhancedScreenY, shape,
+                            asObjectViewFrames[obj], 0, 0x100, 0))
+#endif
+                    DrawSpriteDefault(&stSpaceBufferViewport, screenX, screenY, shape,
+                                      asObjectViewFrames[obj]);
+                } else {
                     shape = pCurrentConstellationShape;
 #ifdef SDL_PORT
-                if (!SdlRecordSpaceSprite(
-                        &stSpaceBufferViewport, enhancedScreenX,
-                        enhancedScreenY, shape,
-                        asObjectViewFrames[obj], 0, 0x100, 0))
+                    if (!SdlRecordSpaceSprite(
+                            &stSpaceBufferViewport, enhancedScreenX,
+                            enhancedScreenY, shape,
+                            asObjectViewFrames[obj], 0, 0x100, 0))
 #endif
-                DrawSpriteDefault(&stSpaceBufferViewport, screenX, screenY, shape,
-                                  asObjectViewFrames[obj]);
+                    DrawSpriteDefault(&stSpaceBufferViewport, screenX, screenY, shape,
+                                      asObjectViewFrames[obj]);
+                }
                 break;
             }
         }
@@ -1281,11 +1290,15 @@ unsigned int IsVectorWithinRange(FixedVector *vector, short range)
 unsigned int shrink_vector(FixedVector *vector)
 {
     unsigned int shrinking;
+    int *z;
+    int *y;
 
+    y = &vector->y;
+    z = &vector->z;
     do {
         shrinking = shrink(&vector->x);
-        shrinking |= shrink(&vector->y);
-        shrinking |= shrink(&vector->z);
+        shrinking |= shrink(y);
+        shrinking |= shrink(z);
     } while (shrinking != 0);
     return 0;
 }

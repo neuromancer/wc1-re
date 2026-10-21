@@ -3561,3 +3561,55 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `0f39e0c35d0cd8dc3c62fc4d18c89125488ea4dfd9df244ddb1d43974c2faef5`.
+- `draw_sorted_objects_to_buffer` makes the special-object draw call in
+  each shape-selection branch. CL merges the calls while preparing the
+  frame argument before choosing the shape, as the original does. Selecting
+  the shape before a single source call delays that argument and changes
+  the object-index allocation. Declare screen Y before screen X to recover
+  DX/CX for the special-object coordinates. Together these changes reduce
+  differing encodings from 57 to nineteen, raise mnemonic similarity from
+  91.67% to 97.22%, and raise literal matching from 190 to 274 of 304 bytes.
+  The ordinary-object path still differs in register allocation and load
+  scheduling. Moving the object or shape declarations, loading X first, and
+  using an enum class local do not improve the selected result. Separate
+  branch scopes for the shape pointers regress it and are discarded.
+- `shrink_vector` names the Y and Z component pointers that the original
+  computes before its loop. Declare the result first, then Z and Y, while
+  assigning Y before Z. This restores ESI for the vector, EBP for Y, EBX
+  for Z and EDI for the accumulated result. All 64 bytes now match literally,
+  up from 55, and all nine differing encodings disappear. Declaring Y, Z
+  and the result in that order leaves five differences. The loop still
+  evaluates and combines the X, Y and Z calls in their original order.
+- `approach_speed` declares acceleration before delta. This restores EDI
+  for the speed difference, increasing literal matching from 97 to 103 of
+  112 bytes and reducing differing encodings from fifteen to nine. The ship
+  and acceleration registers remain exchanged. Capturing the current speed
+  or promoted ship index leaves this routine unchanged while disturbing
+  neighbors; updating the target-speed parameter directly also regresses
+  output. These trials are not retained.
+  Explicit object-class and promoted-index captures in `set_up_action_sphere`
+  regress file matching. Moving all camera locals into the switch and
+  reversing its vector equalities leave `set_eye_direction_and_position`
+  unchanged. A previous-angle local also leaves that routine unchanged while
+  disturbing its unit. A separate direction vector in camera mode five or
+  an explicit component capture for its comparisons regresses the file.
+  Moving `animate_shape`'s promoted index first or exchanging its declaration
+  with the object type leaves its output unchanged. None of these probes
+  is retained.
+  Only the three intended function rows change in the full report. Normalized
+  exact functions rise from 1,355 to 1,356 of 1,550; same-size differences fall
+  from 190 to 189, and five size differences remain. Mean mnemonic similarity
+  is 99.69%, with three functions below 90%. No existing exact function is lost,
+  and function spans and compilation-unit placements are unchanged.
+  Strict whole-file matching rises by 104 positions, from 486,781 to
+  486,885 of 518,656 (93.8543% to 93.8744%); 31,771 positions still differ.
+  Code gains 99 matching bytes and relocations gain five. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The three routines
+  retain their original relocation counts: one for speed adjustment,
+  27 for sorted-object drawing and none for vector shrinking. The continuous
+  matching prefix remains 544 bytes, with the first difference at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `057193fbf5697a765cffe83cc88fb9b4766c2df632fb54c2e1f0ad3577e1088c`.

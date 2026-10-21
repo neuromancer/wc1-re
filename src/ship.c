@@ -435,8 +435,8 @@ unsigned int celerate(short ship, int delta)
 /* Function start: 0x41E750 */
 unsigned int approach_speed(short ship, int targetSpeed)
 {
-    int delta;
     int acceleration;
+    int delta;
 
     acceleration = GetShipAccelerationRate(ship);
     delta = targetSpeed - anShipSpeed[ship];
