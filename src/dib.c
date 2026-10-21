@@ -763,6 +763,8 @@ void DIBupdate(int left, volatile int top, int right, int bottom)
     int width;
     int height;
     HRESULT result;
+    int destinationOffset;
+    int sourceOffset;
 #endif
 
     if (nDIBCascadeLevel > 0)
@@ -804,9 +806,12 @@ void DIBupdate(int left, volatile int top, int right, int bottom)
         DIBerror("DIBupdate   primary->Lock", result);
     }
 
-    destination = (unsigned char *)surface.lpSurface
-                + surface.lPitch * top + left;
-    source = pDIBImage + nDIBFrameWidth * top + left;
+    destinationOffset = surface.lPitch * top;
+    destinationOffset += left;
+    destination = (unsigned char *)surface.lpSurface + destinationOffset;
+    sourceOffset = nDIBFrameWidth * top;
+    sourceOffset += left;
+    source = pDIBImage + sourceOffset;
     IDirectDraw2_WaitForVerticalBlank(
         pDirectDraw2, DDWAITVB_BLOCKBEGIN, 0);
     while (height > 0) {

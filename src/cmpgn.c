@@ -596,6 +596,7 @@ unsigned int LoadMissionData(short series, short mission)
     short *initialShip;
     short *sourceInitialShip;
     int item;
+    unsigned char *auxiliary;
 
     logicalFile = asMissionDataFiles[nCampaignDataSet];
     packet = FetchDiskPacketRetrying(logicalFile, 0, 0);
@@ -632,7 +633,7 @@ unsigned int LoadMissionData(short series, short mission)
     diskNav = (MissionNavPointDisk *)(packet + missionIndex * 0x4d0);
     for (index = 0;
          index < ACTIVE_MISSION_NAV_POINT_COUNT;
-         diskNav++, index++) {
+         index++, diskNav++) {
         memcpy(aMissionNavPoints[index].name,
                diskNav->name,
                sizeof(aMissionNavPoints[index].name));
@@ -659,7 +660,7 @@ unsigned int LoadMissionData(short series, short mission)
     diskObjective =
         (MissionObjectiveDisk *)(packet + missionIndex * 0x400);
     for (index = 0; index < MISSION_OBJECTIVE_COUNT;
-         diskObjective++, index++) {
+         index++, diskObjective++) {
         aMissionObjectiveSources[index].type =
             diskObjective->type;
         aMissionObjectiveSources[index].index =
@@ -698,14 +699,16 @@ unsigned int LoadMissionData(short series, short mission)
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(logicalFile, 4, 0);
+    auxiliary = packet + missionIndex * sizeof(abMissionAuxData);
     DosMemcpy(abMissionAuxData,
-              packet + missionIndex * sizeof(abMissionAuxData),
+              auxiliary,
               sizeof(abMissionAuxData));
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(logicalFile, 5, 0);
+    auxiliary = packet + series * sizeof(abSeriesAuxData);
     DosMemcpy(abSeriesAuxData,
-              packet + series * sizeof(abSeriesAuxData),
+              auxiliary,
               sizeof(abSeriesAuxData));
     ReleasePacketHandle(packet);
     return 0;

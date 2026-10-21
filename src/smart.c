@@ -600,37 +600,38 @@ void intelligence_events(short obj)
     short playerDamage;
 
     event = -1;
-    targetGone = 0;
     target = acShipTargetTable[obj];
     previousStress = (short)acShipStressList[obj];
+    targetGone = 0;
     if (missile_on_tail(obj) != 0) {
         event = 6;
-    } else if (unactive(target) != 0) {
-        targetGone = 1;
-    } else if (aeSpecialManeuvers[
-                   acShipTargetTable[obj]] ==
-               SPECIAL_MANEUVER_UNKNOWN_9) {
-        event = 8;
-    } else {
-        event = 0;
-        ship_vs_ship(obj, target);
-        if (nTgtRange > 8000) {
-            event = 2;
-        } else if (acShipAiCooldowns[obj] > 0) {
-            event = 7;
-        } else if (nFacingToTargetValue > 55 &&
-                   nTargetFacingValue < -55) {
-            event = 5;
-        } else if (nFacingToTargetValue > 75 &&
-                   nTargetFacingValue > 75) {
-            event = 4;
-        } else if (nFacingToTargetValue < -60 &&
-                   nTargetFacingValue > 85 &&
-                   nTgtRange < 7000) {
-            event = 3;
-        } else if (anShipSpeed[target] < 20) {
-            event = 1;
+    } else if (unactive(target) == 0) {
+        if (aeSpecialManeuvers[acShipTargetTable[obj]] ==
+                SPECIAL_MANEUVER_UNKNOWN_9) {
+            event = 8;
+        } else {
+            event = 0;
+            ship_vs_ship(obj, target);
+            if (nTgtRange > 8000) {
+                event = 2;
+            } else if (acShipAiCooldowns[obj] > 0) {
+                event = 7;
+            } else if (nFacingToTargetValue > 55 &&
+                       nTargetFacingValue < -55) {
+                event = 5;
+            } else if (nFacingToTargetValue > 75 &&
+                       nTargetFacingValue > 75) {
+                event = 4;
+            } else if (nFacingToTargetValue < -60 &&
+                       nTargetFacingValue > 85 &&
+                       nTgtRange < 7000) {
+                event = 3;
+            } else if (anShipSpeed[target] < 20) {
+                event = 1;
+            }
         }
+    } else {
+        targetGone = 1;
     }
 
     handle_stress(obj, event);

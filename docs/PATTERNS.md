@@ -3719,3 +3719,63 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `b2130c6ac766c0347c387186a224c01ca7000ddeb8109d8c292bd7ca722364a4`.
+- `LoadMissionData` captures each auxiliary packet's source pointer before
+  calling `DosMemcpy`. This restores the scaled-address calculations before
+  the length pushes and recovers the original preload-copy register choices.
+  Increment each navigation/objective loop's index before its disk pointer
+  to recover the remaining instruction order. Together these changes remove
+  all sixteen differing encodings and make the entire 784-byte span literally
+  exact, up from 758 matching bytes. Explicit source/destination pointers for
+  the preload loop regress output and are discarded.
+- `reposition_fixed_child_objects` indexes parent tables with the short
+  parent directly in its turret/thruster branch. Keep the promoted index
+  capture only for the final scale update. The original sign-extends the
+  parent into EAX and retains its doubled word index in EDI across the
+  trigonometric and multiply calls; the earlier int capture instead retains
+  an unscaled index. Removing that early capture eliminates all 81 differing
+  encodings and matches all 384 bytes, up from 92. Changing the scale local
+  to unsigned short alone leaves output unchanged.
+- `intelligence_events` initializes the target-gone flag after reading the
+  target and previous stress. Place the inactive-target case after the
+  active-target event selection, matching the original branch layout. This
+  reduces differing encodings from 129 to one and raises mnemonic similarity
+  from 95.10% to 100%. Literal code matching rises from 85 to 495 of 496 bytes,
+  with another thirteen matching relocation bytes. The remaining difference
+  reverses the operands of the wingman equality comparison.
+- `DIBupdate` calculates destination and source pixel offsets in separate
+  int locals before adding their buffer bases. This restores the original
+  integer arithmetic sequence, reducing differing encodings from five to
+  three and increasing literal matching from 371 to 381 of 384 bytes, plus
+  one relocation byte. The remaining differences allocate the DirectDraw
+  pointer to EDX instead of ECX. Reusing a single offset local reaches the
+  same target result but disturbs neighboring functions. Swapping the two
+  offset declarations gives no further gain; placing both before the buffer
+  pointers or capturing the DirectDraw pointer regresses output.
+  Component-index/damage captures in `ReportComponentRepaired`, a turn-interval
+  capture in `find_next_ship_turn_slot`, and an int target-list index in
+  `build_your_target_list` regress the file. Reordering its existing locals
+  or capturing a promoted object index gives no improvement. The `any_selected`
+  local-order swap leaves output unchanged; a captured weapon-slot pointer
+  regresses it. All high-score local permutations and changing the previous
+  score's signedness leave `UpdateTrainSimHighScores` unchanged. Explicit
+  triangle endpoints, an asteroid velocity pointer and a captured enemy
+  distance regress their routines. A string-builder pointer and alternative
+  on-screen-message flag declaration/assignment orders give no improvement.
+  None of these probes is retained.
+  Only the four intended function rows change in the full report. Normalized
+  exact functions rise from 1,360 to 1,362 of 1,550; same-size differences fall
+  from 185 to 183, and five size differences remain, totaling 26 extra bytes.
+  Mean mnemonic similarity rises to 99.70%, with three functions below 90%.
+  No existing exact function is lost, and spans and unit placements are
+  unchanged. Strict whole-file matching rises by 752 positions, from 487,060
+  to 487,812 of 518,656 (93.9081% to 94.0531%); 30,844 positions still differ.
+  Code gains 738 matching bytes and relocations gain fourteen. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. All four routines
+  retain their original relocation counts, and the relocation directory
+  remains four bytes short. The continuous matching prefix remains 544 bytes,
+  with the first difference at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `68582717d4c9980815fac25dbb57e68ba9f0caf8ce553d058f83cdb86691cf47`.

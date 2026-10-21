@@ -2257,21 +2257,20 @@ unsigned int reposition_fixed_child_objects(void)
                     OBJECT_TYPE_TURRET ||
                 aeObjectTypeList[objectIndex] ==
                     OBJECT_TYPE_THRUSTERS) {
-                parentIndex = (int)parent;
-                angle = asObjScreenAngles[parentIndex];
+                angle = asObjScreenAngles[parent];
                 sine = SinFixed(angle);
                 cosine = CosFixed(angle);
                 parentScale =
-                    asObjScreenScalesArray[parentIndex];
+                    asObjScreenScalesArray[parent];
                 right = (int)asObjectScreenXList[objectIndex] *
                         (unsigned short)parentScale;
                 asObjDistancesTable[objectIndex] +=
-                    asObjDistancesTable[parentIndex];
-                if ((asObjectFlipArray[parentIndex] & 0x10) != 0)
+                    asObjDistancesTable[parent];
+                if ((asObjectFlipArray[parent] & 0x10) != 0)
                     right = -right;
                 up = (int)asObjectScreenYArray[objectIndex] *
                      (unsigned short)parentScale;
-                if ((asObjectFlipArray[parentIndex] & 0x20) != 0)
+                if ((asObjectFlipArray[parent] & 0x20) != 0)
                     up = -up;
                 asObjectScreenXList[objectIndex] = (short)(
                     (MultiplyFixed(right, (int)cosine) -
@@ -2280,9 +2279,9 @@ unsigned int reposition_fixed_child_objects(void)
                     (MultiplyFixed(up, (int)cosine) +
                      MultiplyFixed(right, (int)sine)) >> 8);
                 asObjectScreenXList[objectIndex] +=
-                    asObjectScreenXList[parentIndex];
+                    asObjectScreenXList[parent];
                 asObjectScreenYArray[objectIndex] +=
-                    asObjectScreenYArray[parentIndex];
+                    asObjectScreenYArray[parent];
 #ifdef SDL_PORT
                 if (aeObjectTypeList[objectIndex] ==
                         OBJECT_TYPE_THRUSTERS) {
@@ -2291,14 +2290,14 @@ unsigned int reposition_fixed_child_objects(void)
                         (float)nCurrentViewCenterPosX +
                         (float)(((double)(nScreenWidth & ~1) *
                                  0.5 *
-                                 aObjectViewPositionsList[parentIndex].x) /
-                                aObjectViewPositionsList[parentIndex].z);
+                                 aObjectViewPositionsList[parent].x) /
+                                aObjectViewPositionsList[parent].z);
                     parentScreenY =
                         (float)nCurrentViewCenterPosY +
                         (float)(((double)(nScreenWidth & ~1) *
                                  0.5 *
-                                 aObjectViewPositionsList[parentIndex].y) /
-                                aObjectViewPositionsList[parentIndex].z);
+                                 aObjectViewPositionsList[parent].y) /
+                                aObjectViewPositionsList[parent].z);
                     GetRLETransformTrig((int)angle * 10,
                                         &fixedCosine, &fixedSine);
                     cosineFloat = (float)fixedCosine / 65536.0f;
