@@ -137,15 +137,13 @@ void LoadJoystickCalibrationFile(short horizontalRange,
             nJoystickDownScaleValue++;
 
         nJoystickCentreX = centreX;
+        rangeY *= nJoystickUpScale;
+        rangeX *= nCurrentJoystickLeftScale;
         nJoystickCentreY = centreY;
-        nStickMinimumPositionX =
-            centreX - rangeX * nCurrentJoystickLeftScale;
-        nStickMinimumPositionY =
-            centreY - rangeY * nJoystickUpScale;
-        nStickMaxX =
-            rangeX * nCurrentJoystickLeftScale + centreX;
-        nStickMaxY =
-            rangeY * nJoystickUpScale + centreY;
+        nStickMinimumPositionX = centreX - rangeX;
+        nStickMinimumPositionY = centreY - rangeY;
+        nStickMaxX = rangeX + centreX;
+        nStickMaxY = rangeY + centreY;
         nJoystickHorizontalDeadZone = horizontalDeadZone;
         nJoystickVertDeadZoneValue = verticalDeadZone;
     }

@@ -4145,3 +4145,48 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `7de2c9f5768cb531f58a55aa61379f727cbe604ba050bfd612c0dd08ab8a13dd`.
+- `SortSignedByteValuesAscending` again declares and initializes the swap
+  byte inside the inner loop. In the current unit layout this restores the
+  original memory-first swap comparison and its `JGE`, eliminating the two
+  remaining differing encodings. All 112 bytes now match literally, up from
+  110, with no neighboring report changes. Reversing the source comparison
+  alone leaves output unchanged. Qualifying the inner read changes register
+  allocation, and capturing its value in a separate byte local regresses
+  output; neither alternative is retained.
+- `LoadJoystickCalibrationFile` multiplies its existing Y and X range locals
+  by their scales between the centre-X and centre-Y publications, then uses
+  those products for all four bounds. This moves the two products and first
+  subtraction ahead of the centre-Y store, as in the original. Mnemonic
+  similarity rises from 93.90% to 94.72%, while differing encodings remain
+  86 of 243. Literal matching gains two bytes, from 536 to 538 of the same
+  784-byte span. The loader still has 30 relocations against the original
+  34; the change neither repairs nor worsens that discrepancy. Placing both
+  products before the centre stores gives the same literal gain. Computing
+  X before Y, or publishing both centres before the products, gives no gain.
+  Capturing cockpit frames or message pointers, constellation-definition
+  pointers, and intelligence-object indices gives no improvement. Weapon
+  coordinate captures, gun-selection local scopes and initialization order,
+  and external-view selection captures also fail to improve the file.
+  A mine-slot pointer used for the disabled test gains seven file bytes but
+  removes one of the original four relocations, so it is discarded. A pointer
+  used only for the type, qualified field reads, and swapping its existing
+  declarations leave the baseline unchanged. Reversing the navigation-square
+  bottom sum or wingman equality leaves output unchanged; capturing the
+  bottom coordinate regresses output. These bounded trials are discarded.
+  Only the sorting and calibration-loader rows change in the full report.
+  Normalized exact functions rise from 1,370 to 1,371 of 1,550; same-size
+  differences fall from 175 to 174. Five size differences remain, totaling
+  a net 26 extra bytes. Mean mnemonic similarity rises from 99.71% to 99.72%,
+  with three functions below 90%. No existing exact function is lost, and
+  spans and unit placements are unchanged. Strict whole-file matching rises
+  by four positions, from 488,535 to 488,539 of 518,656 (94.1925% to 94.1933%);
+  30,117 positions still differ in 6,018 runs. All gains are in code, which
+  now matches at 376,992 of 401,408 positions. Relocation matching remains
+  30,652 of 36,352, and the `.rdata`, `.data` and `.idata` sections remain
+  literally exact. The continuous matching prefix remains 544 bytes, with
+  the first difference at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `b40c38f54b4b1db8efcdd8643332aa47214822619deda85d1e3cc2ebdfb7c752`.

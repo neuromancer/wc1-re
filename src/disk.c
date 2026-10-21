@@ -256,7 +256,6 @@ unsigned int DrawTextAt(TextContext *context, short x, short y,
 unsigned int SortSignedByteValuesAscending(signed char *values,
                                            short count)
 {
-    signed char value;
     short next;
     signed char outer;
     signed char inner;
@@ -268,7 +267,7 @@ unsigned int SortSignedByteValuesAscending(signed char *values,
             next = (short)inner;
             if ((short)inner < count) {
                 do {
-                    value = values[outer];
+                    signed char value = values[outer];
 
                     if (values[inner] < value) {
                         values[outer] = values[inner];
