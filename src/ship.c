@@ -2099,6 +2099,7 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
 {
     ShipWeaponSlot *weaponSlot;
     short mine;
+    int mineIndex;
 
     mine = new_object(type, obj);
     if (mine == -1)
@@ -2109,14 +2110,15 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
     child_object(weaponSlot->hardpoint, mine, obj);
     if (lifetime == -1)
         lifetime = 20;
-    acObjCollisionGraceTicks[mine] =
+    mineIndex = mine;
+    acObjCollisionGraceTicks[mineIndex] =
         (signed char)lifetime;
-    asObjectCounterArray[mine] = (short)(signed char)lifetime;
+    asObjectCounterArray[mineIndex] = (short)(signed char)lifetime;
     if (obj == 0)
         RemovePlayerReleaseWeapon(weapon);
     else
         remove_weapon(obj, weapon);
-    return mine;
+    return mineIndex;
 }
 
 /* Function start: 0x421350 */

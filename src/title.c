@@ -111,9 +111,9 @@ void DrawTitleLogo(short distance, short y)
 /* Function start: 0x40FB10 */
 void UpdateTitleMenuCursor(void)
 {
-    short frame;
     short mouseX;
     short mouseY;
+    short frame;
     TitleMenuRegion *region;
 
     frame = 0;

@@ -3613,3 +3613,53 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `057193fbf5697a765cffe83cc88fb9b4766c2df632fb54c2e1f0ad3577e1088c`.
+- `UpdateTitleMenuCursor` declares mouse X and Y before its frame. This
+  restores SI/DI for the coordinates and BX for the frame, removing all
+  seven differing encodings. Its entire 96-byte span now matches literally,
+  up from 89 bytes.
+- `drop_mine` captures the promoted mine index after choosing its lifetime.
+  Use that int for the collision-grace and counter stores, then return it
+  after removing the weapon. The original likewise sign-extends the mine
+  into EDI before those stores and preserves it through the final call.
+  This also recovers SI for the owner and DI for the newly created mine.
+  All 176 bytes now match literally, up from 160; all sixteen differing
+  encodings disappear. Exchanging the two original local declarations alone
+  leaves the old register allocation unchanged.
+- In `gametrack`'s training-simulator branch, declare the current track
+  before the stream set. Capture the stream set first, then capture the
+  current track only if the stream-set test needs it. After changing tracks,
+  reload the current track and then the stream set for the diagnostic.
+  The original performs those same reads, retaining the guard's values on
+  the path that makes no track change. These captures recover EAX for the
+  track and ECX for the stream set, matching all 336 bytes, up from 320,
+  and removing all seven differing encodings. Capturing only the diagnostic
+  arguments does not fix this routine. Both forms improve one literal byte
+  in the following `servicetrack`, from 118 to 119 of 464, reducing its
+  differing encodings from 95 to 94 without changing mnemonic similarity.
+  Declaration and loop changes in `ReleaseContiguousPaletteEntries` do not
+  improve literal matching; the entry-first declaration raises mnemonic
+  similarity to 100% but loses one matching file byte. A promoted first-entry
+  index also regresses output. A shared polling-exit label in `WaitForInputKey`
+  and explicit left-bound locals in `UnionRectBounds` leave their output
+  unchanged. A promoted index in `pilot_hit` leaves that routine unchanged
+  while disturbing neighbors. The second communication-loop index capture,
+  cruise-local declaration swap and save-writer position pointers likewise
+  give no improvement; a captured cruise destination regresses the file.
+  These probes are not retained.
+  Only four function rows change in the full report. Normalized exact
+  functions rise from 1,356 to 1,359 of 1,550; same-size differences fall
+  from 189 to 186, and five size differences remain. Mean mnemonic similarity
+  stays 99.69%, with three functions below 90%. No existing exact function
+  is lost, and function spans and compilation-unit placements are unchanged.
+  Strict whole-file matching rises by 40 positions, from 486,885 to
+  486,925 of 518,656 (93.8744% to 93.8821%); 31,731 positions still differ.
+  All gains are in code. The `.rdata`, `.data` and `.idata` sections remain
+  literally exact, and relocation-section matching remains 30,308 of
+  36,352 bytes. Relocation counts in the affected routines are unchanged.
+  The continuous matching prefix remains 544 bytes, with the first
+  difference at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `2f12c11cf88a0cf4c1108d950e8f7b60230540bca792a0663e6a22f594eff742`.

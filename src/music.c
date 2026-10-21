@@ -550,11 +550,17 @@ void gametrack(void)
     track = -1;
     if (nInFlightMusicActive != 0) {
         if (nTrainSimActive != 0) {
-            if (nMusicStreamSet != 0 ||
-                nCurrentMusicTrack != 20)
+            int currentTrack;
+            int streamSet;
+
+            streamSet = nMusicStreamSet;
+            if (streamSet != 0 ||
+                (currentTrack = nCurrentMusicTrack) != 20) {
                 spacetrack(20, 1, 0);
-            SoundDebugPrintf("%d %d\n", nMusicStreamSet,
-                             nCurrentMusicTrack);
+                currentTrack = nCurrentMusicTrack;
+                streamSet = nMusicStreamSet;
+            }
+            SoundDebugPrintf("%d %d\n", streamSet, currentTrack);
             return;
         }
         if (nCombatMusicActive != 0) {
