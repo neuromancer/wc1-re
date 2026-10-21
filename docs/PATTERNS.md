@@ -4476,3 +4476,59 @@ Shapes recovered with this method:
   diagnostics fall from 56 to 55. The clean-build and post-verification
   hashes agree:
   `8b5d7a376263aca53b11a56c1c501fcf66bd7cb0175e1c114216b8ac736a0994`.
+- `auto_pilot_sequence` initializes its nearest-ship range after obtaining
+  the destination distance. This changes CL's scheduling of the constant
+  initialization to match the original, including the argument preparation
+  around the two preceding calls. Declare its final four short locals as
+  other ship, destination range, cruise speed, then nearest-ship range.
+  This restores the nearest-range and loop-index registers and reduces
+  differing encodings from seventeen to five of 419. Every mnemonic now
+  matches, up from 98.81%; literal matching rises from 1,427 to 1,467 of
+  the unchanged 1,472-byte span. The remaining differences reverse one
+  comparison and exchange BX/SI for the destination range and ship-class
+  constant. All 64 relocations now occupy their original relative positions.
+  Moving only the initialization gains 32 file bytes but leaves fourteen
+  differing encodings; the selected local order gains another nine.
+  Initializing the other-ship index before the distance call regresses
+  output. The other four tested permutations of the three range/index
+  declarations give smaller gains.
+- `print_subtitle` stores each `GetLineLength` result in its existing X
+  local before centering that coordinate. The helper already returns a
+  short, so this adds no narrowing beyond the original call interface.
+  Separating these expressions lets CL push the argument before loading
+  the constant 320 at both calls, matching the original scheduling.
+  All six differing encodings disappear, mnemonic similarity rises from
+  96.97% to 100%, and all 352 bytes match literally, up from 338.
+  Capturing the width in a separate int local, declared first or last,
+  also makes this target exact; the existing-local form needs no new local.
+  Its seven relocations remain at their original positions.
+  Other bounded trials are discarded. Reordering the damage-level armour
+  terms leaves the emitted order unchanged; moving its damage declaration
+  loses four file bytes, and qualified armour reads shorten its span.
+  Unsigned or qualified flight-control key comparisons leave output unchanged.
+  Capturing or qualifying barracks labels, copying the bunk row before
+  division, and qualifying or negating the scramble-detail loop bound give
+  no gain. Qualified camera-vector comparisons leave their reversed loads
+  unchanged. Capturing the animation scale with qualified reads, stores or
+  both still fails to recover its missing relocation and regresses matching.
+  Shard-local order, scope and initializer changes leave output unchanged.
+  Only the autopilot and subtitle rows change in the full report. A raw
+  audit of all 25 functions in their two units also confirms that only those
+  two emitted spans change. Normalized exact functions rise from 1,373 to
+  1,374; same-size differences fall from 172 to 171. Five size differences
+  remain, totaling a net 26 extra bytes. There are 1,446 mnemonic-perfect
+  functions, with mean similarity 99.73% and three below 90%. Spans and
+  compilation-unit placements remain unchanged.
+  Strict whole-file matching rises by 55 positions, from 493,070 to
+  493,125 of 518,656 (95.0669% to 95.0775%). There remain 25,531 differing
+  positions in 3,519 runs. Code gains 54 matching positions, reaching
+  377,244 of 401,408; relocations gain one, reaching 34,986 of 36,352.
+  The `.rdata`, `.data` and `.idata` sections remain literally exact.
+  The uninterrupted matching prefix remains 544 bytes. Its first difference
+  at `0x220` is the relocation section's virtual size: 36,304 bytes rebuilt
+  versus 36,306 original. Both raw relocation sections are 36,352 bytes.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `c0e7c80616d966b6333ae776e2bc46e1fc7c71f82e03ce312cccb7d178ff2173`.

@@ -116,10 +116,10 @@ void auto_pilot_sequence(void)
     FixedVector travelStep;
     short ship;
     short initialDistance;
-    short nearestShipRange;
     short other;
-    short cruiseSpeed;
     short destinationRange;
+    short cruiseSpeed;
+    short nearestShipRange;
 #ifdef SDL_PORT
     FixedVector previousPosition;
 #endif
@@ -236,8 +236,8 @@ void auto_pilot_sequence(void)
             ReleaseStaleNavTarget();
             check_hazards();
 
-            nearestShipRange = 0x7fff;
             destinationRange = distance_from_point(0, &destination);
+            nearestShipRange = 0x7fff;
             for (other = 0; other < 10; other++) {
                 if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
                     travelMode[other] == 0)

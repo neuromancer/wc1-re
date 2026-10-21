@@ -214,7 +214,8 @@ int print_subtitle(Viewport *viewport, short colour, const char *text)
     }
     lines = (short)(lines * 16);
     y = (short)((128 - lines) / 2);
-    x = (short)((320 - GetLineLength(text)) >> 1);
+    x = GetLineLength(text);
+    x = (short)((320 - x) >> 1);
     scan = text;
     while ((c = *scan++) != 0) {
         if (c >= 'A' && c <= 'z') {
@@ -236,7 +237,8 @@ int print_subtitle(Viewport *viewport, short colour, const char *text)
             x = x + 2;
         } else if (c == '\n') {
             y = y + 16;
-            x = (short)((320 - GetLineLength(scan)) >> 1);
+            x = GetLineLength(scan);
+            x = (short)((320 - x) >> 1);
         }
     }
     if (viewport->pixels == stScreenView.pixels)
