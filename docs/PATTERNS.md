@@ -3663,3 +3663,59 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `2f12c11cf88a0cf4c1108d950e8f7b60230540bca792a0663e6a22f594eff742`.
+- `process_maneuver_node` captures the promoted object index after its
+  choice, rating and maneuver declarations. Use that int for the rating,
+  side and current-maneuver table accesses, while retaining the short object
+  argument for calls. This recovers SI for the object and EDI for its index,
+  as in the original `MOVSX EDI,SI`, and removes all ten differing encodings.
+  The full 128-byte span is now literally exact, up from 114 matching bytes.
+  Declaring the rating before the choice pointer instead regresses output.
+- `heat_seeking_missile_intelligence` declares the candidate-list index
+  before exhaust heat and the ship-scan index. This recovers DX for the heat
+  countdown and the original ordering of its clear and target store. The
+  complete mnemonic sequence now matches, and differing encodings fall
+  from fourteen to eleven. Literal matching rises from 298 to 309 of 320
+  code bytes, with another matching byte in relocations. The candidate-loop
+  index still exchanges AX and BX with its promoted table index; the first
+  scan also retains its reversed equality comparison. The other local
+  declaration orders do not improve on this result. Sharing the two loop
+  indices can reproduce it but gives no further gain; explicitly capturing
+  the selected target index leaves eleven differences and regresses the file.
+- `PlaceNavMapLabel` indexes the label array directly for its initial colour
+  and text stores, then captures the label pointer only when reserving the
+  final rectangle. This preserves the 336-byte span and restores the seventh
+  address relocation, matching the original count. The earlier pointer used
+  for the initial stores combined their two absolute references into one.
+  This is still an intermediate match: code matching falls from 58 to 50
+  bytes, but relocation matching gains 117 bytes, improving the complete file
+  by 109. Its normalized report row is unchanged. Capturing an initial short
+  or int label index gives a smaller gain; mixing indexed and pointer access
+  in the initial stores displaces later code. Those alternatives are discarded.
+  Reversing or regrouping `dot_product`'s three terms leaves its output
+  unchanged. Sequential accumulation makes that routine exact, but disturbs
+  `rotate_about_j` and adds sixteen bytes to `rotate_about_k`, shifting later
+  code. Int/long accumulators and the product/sum/result names do not avoid
+  those regressions, so none is retained. Reversed menu-label comparisons,
+  a captured menu-label value, reversed formation comparisons, separate
+  master-range assignment, a master-range rename, packet-release local order,
+  a promoted `Mgloat` index, and speed-controller local order or speed-pointer
+  captures give no improvement. Formation index/spot captures, a previous-view
+  class minimum, a guarded particle loop, and captured flight inputs regress
+  the file; explicit int constellation-loop comparisons leave output unchanged.
+  Only two normalized report rows change; the navigation routine also changes
+  literally as described above. Exact functions rise from 1,359 to 1,360 of
+  1,550, same-size differences fall from 186 to 185, and five size differences
+  remain. Mean mnemonic similarity is 99.69%, with three functions below 90%.
+  No existing exact function is lost, and spans and unit placements are
+  unchanged. Strict whole-file matching rises by 135 positions, from 486,925
+  to 487,060 of 518,656 (93.8821% to 93.9081%); 31,596 positions still differ.
+  Code gains seventeen matching bytes and relocations gain 118. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The rebuilt image now
+  has 15,445 HIGHLOW relocations against the original 15,446; the relocation
+  directory remains four bytes short. The continuous matching prefix remains
+  544 bytes, with the first difference at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `b2130c6ac766c0347c387186a224c01ca7000ddeb8109d8c292bd7ca722364a4`.

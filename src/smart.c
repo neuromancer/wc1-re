@@ -524,10 +524,12 @@ unsigned int process_maneuver_node(short obj, int event)
     const ManeuverChoice *choice;
     short rating;
     enum ShipManeuver maneuver;
+    int objectIndex;
 
-    rating = (short)acShipRating[obj];
+    objectIndex = obj;
+    rating = (short)acShipRating[objectIndex];
     if (rating == -1) {
-        if (aeShipSide[obj] == SIDE_KILRATHI)
+        if (aeShipSide[objectIndex] == SIDE_KILRATHI)
             maneuver = pick_kilrathi_maneuver(obj, event);
         else
             maneuver = pick_regular_maneuver(obj, event);
@@ -536,7 +538,7 @@ unsigned int process_maneuver_node(short obj, int event)
             &aRatedManeuverChoices[rating][event][stress_morale(obj)];
         maneuver = pick_from_list(choice, obj);
     }
-    if (aeShipManeuversTable[obj] != maneuver)
+    if (aeShipManeuversTable[objectIndex] != maneuver)
         reset_maneuver(obj, (short)maneuver);
     return 0;
 }

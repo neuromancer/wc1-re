@@ -1008,9 +1008,9 @@ void mine_intelligence(short obj)
 /* Function start: 0x40B430 */
 void heat_seeking_missile_intelligence(short obj)
 {
+    short targ;
     short exhaustHeat;
     short targetShip;
-    short targ;
 
     if (nFacingToTargetValue < 0 || acShipTargetTable[obj] == -1) {
         acShipTargetTable[obj] = -1;

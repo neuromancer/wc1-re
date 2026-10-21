@@ -170,9 +170,8 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
     NavMapLabel *label;
 
     width = (short)(strlen(text) * 4 + 2);
-    label = &aNavMapLabels[nNavMapLabelCount];
-    label->colour = colour;
-    label->text = text;
+    aNavMapLabels[nNavMapLabelCount].colour = colour;
+    aNavMapLabels[nNavMapLabelCount].text = text;
     offset = -1;
     do {
         offset++;
@@ -194,9 +193,10 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
                                 width, offset == 12) != 0)
             break;
     } while (offset != 12);
+    label = &aNavMapLabels[nNavMapLabelCount];
     ReserveNavMapArea(
-        aNavMapLabels[nNavMapLabelCount].x,
-        aNavMapLabels[nNavMapLabelCount].y,
+        label->x,
+        label->y,
         width, 6);
     nNavMapLabelCount++;
 }
