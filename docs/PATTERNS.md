@@ -3995,3 +3995,56 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The clean-build and post-verification hashes agree:
   `a5f3d2ec4328160eda84cce9e0c387124396c11de2c6984a78b268c6181dfdf2`.
+- `animate_shape` inlines both scale products and uses the short object
+  parameter for the decrease branch. Removing the scale-change local
+  restores EBX for the promoted object index and EDX for its type. The
+  increase path regains its separate absolute scale store. Differing
+  encodings fall from 31 to 21, mnemonic similarity rises from 99.04% to
+  99.05%, and literal matching rises from 273 to 286 of 352 bytes. Relocation
+  data gains another two matching positions. The decrease still computes
+  its scale address once, so the routine retains fifteen relocations against
+  the original sixteen; that discrepancy is unresolved.
+  Inlining both products alone gains nine file bytes. Inlining only one,
+  reusing the scale-change local for the result, or adding explicit scale
+  branches/frame-tail labels does not improve the earlier output. Using
+  the short index for the increase branch gives the same file gain as the
+  selected decrease form. A short index only in the product read, an explicit
+  mixed-index subtraction, captured decrease-scale words, omitted product
+  casts and an inline frame-tail label give no greater gain.
+- `initialize_cockpit` writes the zero top edge before the zero left edge,
+  matching the original store addresses. This gains two literal bytes,
+  from 825 to 827 of 1,088; address normalization hides the change in its
+  function report. Its 72 relocations remain unchanged.
+  The original also lacks the reconstructed null checks after loading the
+  mode-four backdrop and before releasing the rear-view backdrop. Removing
+  both, together with the store-order correction, makes all 1,088 cockpit
+  bytes exact. However, that compiler context changes `PlaySceneAnimation`
+  from 545 matching bytes to 114 of 560, and loses 175 file bytes overall.
+  Removing either guard separately also regresses the file. Five scene-local
+  layouts, two captured-index positions, reuse of the animation parameter,
+  reversed multiplication operands, completion/wait initialization order
+  and a chained initial object assignment do not recover that neighbor.
+  Chained cockpit zero stores, reversed right/bottom stores and initializing
+  the mode at declaration likewise give no suitable combined gain. These
+  broader changes are not retained; the two original backdrop paths remain
+  work to complete alongside the scene-allocation discrepancy.
+  Moving the scramble actor's coordinate pair or using long DirectDraw pixel
+  offsets gives no improvement. A C90 identifier-list definition of the
+  barracks detail routine produces identical bytes, but its function row is
+  omitted by the source scanner; retain its prototype-style definition.
+  Only the animation row changes in the full report. Normalized exact
+  functions remain 1,369 of 1,550, with 176 same-size differences and five
+  size differences totaling a net 26 extra bytes. Mean mnemonic similarity
+  remains 99.71%, with three functions below 90%. No existing exact function
+  is lost, and spans and unit placements are unchanged. Strict whole-file
+  matching rises by seventeen positions, from 488,134 to 488,151 of 518,656
+  (94.1152% to 94.1185%); 30,505 positions still differ. Code gains fifteen
+  matching positions and relocation data gains two, reaching 30,445 of
+  36,352. The `.rdata`, `.data` and `.idata` sections remain literally exact.
+  The continuous matching prefix remains 544 bytes, with the first difference
+  at `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The clean-build and post-verification hashes agree:
+  `7765a9f19df191ba4adde74cbe3af1bd275a940813619c0f9f27f06dd46f6077`.

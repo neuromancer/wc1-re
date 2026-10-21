@@ -1200,7 +1200,6 @@ unsigned int animate_shape(short obj)
     unsigned char *animation;
     enum ObjectType type;
     short command;
-    short scaleChange;
     int objectIndex;
 
     objectIndex = obj;
@@ -1242,14 +1241,12 @@ unsigned int animate_shape(short obj)
 
     switch (command & 0x0c00) {
     case 0x0400:
-        scaleChange =
-            (command & 0x3f) * (awObjectScales[objectIndex] >> 6);
-        awObjectScales[objectIndex] += scaleChange;
+        awObjectScales[objectIndex] += (short)(
+            (command & 0x3f) * (awObjectScales[objectIndex] >> 6));
         break;
     case 0x0800:
-        scaleChange =
-            (command & 0x3f) * (awObjectScales[objectIndex] >> 6);
-        awObjectScales[objectIndex] -= scaleChange;
+        awObjectScales[obj] -= (short)(
+            (command & 0x3f) * (awObjectScales[obj] >> 6));
         break;
     default:
         command &= 0x3f;

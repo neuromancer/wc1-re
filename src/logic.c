@@ -1424,8 +1424,8 @@ unsigned int initialize_cockpit(int requestedMode)
 
     GetScreenUpdateFlag();
     savedScreen = stScreenView;
-    stScreenView.left = 0;
     stScreenView.top = 0;
+    stScreenView.left = 0;
     stScreenView.right = 319;
     stScreenView.bottom = 199;
     ClearViewport(&stModalSrcViewport, cBlackColour);
