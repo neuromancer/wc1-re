@@ -822,7 +822,7 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
         rowOffsets[top + row] = (unsigned short)(offset - left);
         row++;
         offset = (short)(offset + width);
-    } while ((unsigned int)row < (unsigned int)height + 2);
+    } while ((int)row < (int)height + 2);
     if (clearColour != -1)
         ClearViewport(viewport, clearColour);
     return 1;

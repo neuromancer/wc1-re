@@ -759,13 +759,13 @@ void ShowConfedNavScan(void)
 /* Function start: 0x40E480 */
 void InflightComputer(void)
 {
-    short savedNavPoint;
     short done;
     short hasObjectives;
     volatile short savedInputMode;
     short objective;
     short displayedNavPoint;
     short eventType;
+    short savedNavPoint;
     int frame;
     unsigned char *background;
     InputEventState event;
@@ -819,8 +819,8 @@ void InflightComputer(void)
     } else {
         pointerViewport = stScreenView;
         SetRectBounds(&pointerViewport, 32, 24, 182, 159);
-        savedInputMode = (short)(signed char)bInputModeState;
         stMouseCursorState.viewport = &pointerViewport;
+        savedInputMode = (short)(signed char)bInputModeState;
         bInputModeState = 1;
         SetEventManagerPump(PollMenuInputDevices);
         EventManagerHook(ResetMouseCursorFrame);

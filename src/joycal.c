@@ -165,6 +165,7 @@ short ReadCalibratedJoystick(void)
     short normalizedX;
     short normalizedY;
     short device;
+    int axisScale;
 
     device = *(volatile short *)&nCurrentActiveInputDevice;
     if (device == -1)
@@ -206,7 +207,8 @@ short ReadCalibratedJoystick(void)
     centre = *(volatile int *)&nJoystickCentreX;
     if (centre > rawX) {
         rawX = centre - rawX;
-        rawX /= nCurrentJoystickLeftScale;
+        axisScale = nCurrentJoystickLeftScale;
+        rawX /= axisScale;
         normalizedX = (short)rawX;
         if (nJoystickHorizontalDeadZone < normalizedX) {
             if (normalizedX != 0)
@@ -216,7 +218,8 @@ short ReadCalibratedJoystick(void)
         }
     } else if (centre < rawX) {
         rawX = rawX - centre;
-        rawX /= nJoystickRightScale;
+        axisScale = nJoystickRightScale;
+        rawX /= axisScale;
         normalizedX = (short)rawX;
         if (normalizedX <= nJoystickHorizontalDeadZone)
             normalizedX = 0;
@@ -226,7 +229,8 @@ short ReadCalibratedJoystick(void)
     centre = *(volatile int *)&nJoystickCentreY;
     if (centre > rawY) {
         rawY = centre - rawY;
-        rawY /= nJoystickUpScale;
+        axisScale = nJoystickUpScale;
+        rawY /= axisScale;
         normalizedY = (short)rawY;
         if (nJoystickVertDeadZoneValue < normalizedY) {
             if (normalizedY != 0)
@@ -236,7 +240,8 @@ short ReadCalibratedJoystick(void)
         }
     } else if (centre < rawY) {
         rawY = rawY - centre;
-        rawY /= nJoystickDownScaleValue;
+        axisScale = nJoystickDownScaleValue;
+        rawY /= axisScale;
         normalizedY = (short)rawY;
         if (normalizedY <= nJoystickVertDeadZoneValue)
             normalizedY = 0;

@@ -6333,3 +6333,81 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `69ca6bb8d970757162ee0710dcf6357b90f400c2837f84c750d74e88076e1c9b`.
+- `InflightComputer` assigns the cursor viewport before reading the saved
+  input mode. With the retained volatile short, this makes CL use EAX for
+  the viewport address and CX for the saved mode, as the original does.
+  The five-byte absolute pointer store removes the one-byte displacement
+  through the remainder of the function. Moving the saved navigation-point
+  declaration after the event-type local also restores the original
+  displayed-objective comparison order. Literal matching rises from 386
+  to 1,035 of 1,040 bytes; differing encodings fall from 203 to five of 278,
+  with the mnemonic sequence still exact and the 72-byte frame unchanged.
+  All 52 relocation operands now occupy their original offsets, up from
+  twenty. The source-order change alone recovers 648 code and 32 relocation
+  positions; the declaration move adds one code position, for 681 total.
+  The five residual bytes are stack offsets: the saved navigation point and
+  objective flag remain two bytes above their original slots. A separate
+  captured input-mode short or byte gives the same first gain, so keep the
+  smaller source-order change. Moving the pointer store after the mode flag
+  gives no gain. Moving the objective flag declaration adds nothing, and
+  moving the displayed-objective declaration regresses the result.
+  An ordinary saved-mode short restores the wrong 68-byte frame. Qualifying
+  only its store or its final byte/word read does not retain the 72-byte
+  frame. A typed cursor-state snapshot copied with memcpy leaves the output
+  unchanged; structure assignments regress matching. These forms are not
+  retained.
+- `ReadCalibratedJoystick` captures each division's axis scale in one shared
+  int local. Its complete 384-byte span remains unchanged, including its
+  thirty relocation operands and unresolved memory-form divisors. This
+  measured declaration context makes the following `UnionRectBounds`
+  match all 96 bytes, recovering six positions and its four differing
+  encodings. The original loads the first rectangle pointer before the
+  second and uses the first left edge as the initial minimum operand.
+  Capturing any one scale gives the same unit result, as does qualifying
+  all four reads; keep the ordinary shared scale. Directly reversing the
+  rectangle's minimum expression or capturing either left edge does not
+  improve its output. An explicit local/if minimum loses eleven positions.
+- `AllocateViewport` compares its unsigned-short row and height after int
+  promotion. The range still fits signed int, and this restores the
+  original signed JL in place of JB. It gains one literal position, from
+  184 to 185 of 320, and raises mnemonic similarity from 87.13% to 88.12%.
+  Its 55 differing encodings, eight-byte frame and seven relocations remain.
+  Reloading the viewport's row-table field, using a separate row-count
+  bound, and moving the offset initialization earlier leave the aligned
+  size intact but regress the bytes. Six further height, row-table and
+  offset declaration placements give no additional gain. The original
+  initial loop guard and register allocation remain unresolved.
+- Other bounded trials are discarded. Capturing the chalkboard's current
+  pilot before the swap adds sixteen aligned bytes; qualified captures in
+  the existing short leave output unchanged, while a scoped int loses
+  eighty positions. Extending a promoted navigation-object index through
+  the initial screen-coordinate stores adds sixteen bytes. Interactive
+  calibration range/scale declaration moves regress the file. Advancing
+  the RLE frame-table pointer before its store loses 181 positions, and a
+  loop-local frame-offset capture disturbs later output. All 46 native
+  probes are complete; discarded sources were force-restored and checked
+  against the baseline executable hash before applying the selected forms.
+  Only three rows change in the full report. Direct raw comparisons of all
+  54 navigation/calibration/viewport function spans locate all 657 changed
+  code positions in the inflight computer, rectangle union and viewport
+  allocator; 32 relocation-section positions change. The calibrated
+  joystick reader's bytes are unchanged. All 3,797 mapped symbol/address
+  entries, representing 3,784 distinct names, retain their addresses.
+  Normalized exact functions rise from 1,388 to 1,389, with 1,459 mnemonic-
+  perfect functions, 156 same-size differences and five size differences
+  totaling a net 26 extra bytes. Mean similarity remains 99.77%, with three
+  functions below 90%.
+  Strict whole-file matching rises by 688 positions, from 501,326 to
+  502,014 of 518,656 (96.6587% to 96.7913%). There remain 16,642 differing
+  positions in 2,747 runs: 15,705 in code, 936 in relocations and one in
+  the headers. Code matches 385,703 of 401,408 bytes; relocations match
+  35,416 of 36,352. The `.rdata`, `.data` and `.idata` sections remain
+  literally exact, and the first difference remains at file offset `0x220`.
+  The largest remaining function gaps are flight controls (2,760 bytes),
+  carrier launch (1,257), the test parser (717), the chalk board (688),
+  and the scramble walk (524).
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `084f3ae163a3f747a77fc7293b5dcb5ef6bdc9678a39224ba29396ee2e32b4cb`.
