@@ -216,6 +216,9 @@ void try2allow_engage(int pilotLevel)
 void imperial_formation(short obj)
 {
     short leader = asShipWingLeaderArray[obj];
+    short target;
+    FixedVector dest;
+    short closest;
 
     if (leader == -1)
         leader = obj;
@@ -245,16 +248,15 @@ void imperial_formation(short obj)
         nEnemySighting = nCurrentWave;
     }
 
-    if (aeSpecialManeuvers[obj] == SPECIAL_MANEUVER_NONE &&
-        distance_from_object(obj, leader) > 9000) {
-        if (facing_to_object(obj, &aShipPositionsArray[leader]) > 85 &&
-            real_velocity(obj) < 110) {
-            fire_afterburner(obj, 10);
-            return;
-        }
-        point_ship_at_object(obj, leader);
-        approach_ship_speed(obj, leader);
-    }
+    if (aeSpecialManeuvers[obj] == SPECIAL_MANEUVER_NONE)
+        if (distance_from_object(obj, leader) > 9000)
+            if (facing_to_object(obj, &aShipPositionsArray[leader]) > 85 &&
+                real_velocity(obj) < 110)
+                fire_afterburner(obj, 10);
+            else {
+                point_ship_at_object(obj, leader);
+                approach_ship_speed(obj, leader);
+            }
 }
 
 /* Function start: 0x409F00 */
@@ -789,6 +791,8 @@ void rendezvous_mission(short obj)
 /* Function start: 0x40AE80 */
 void ship_intelligence(short obj)
 {
+    short target;
+
     if (regulate_turn(obj) != 0)
         return;
     switch (aeShipMissionType[obj]) {
@@ -852,12 +856,12 @@ void orbit_sphere(short obj)
         aMissionNavPoints[nCurrentNavigationPoint].position;
     short range = distance_from_point(obj, &center);
 
-    if (no_goal(obj) != 0 && range > radius - 750) {
-        if (range > radius)
-            point_ship_at_point(obj, &center);
-        else
-            point_perpendicular_to_point(obj, &center);
-    }
+    if (no_goal(obj) != 0)
+        if (range > radius - 750)
+            if (range > radius)
+                point_ship_at_point(obj, &center);
+            else
+                point_perpendicular_to_point(obj, &center);
     trim_goals(obj, 10);
 }
 
@@ -907,8 +911,6 @@ void stationary_intelligence(short obj)
 /* Function start: 0x40B140 */
 void capital_ship_intelligence(short obj)
 {
-    enum ObjectType type;
-
     if (regulate_turn(obj) != 0)
         return;
     switch (aeShipMissionType[obj]) {
@@ -931,41 +933,41 @@ void capital_ship_intelligence(short obj)
         break;
     }
 
-    type = aeObjectTypeList[obj];
-    if (type == OBJECT_TYPE_DORKIR || type == OBJECT_TYPE_LUMBARI) {
+    if (aeObjectTypeList[obj] == OBJECT_TYPE_DORKIR ||
+        aeObjectTypeList[obj] == OBJECT_TYPE_LUMBARI) {
         tanker_intelligence(obj);
         return;
     }
-    if (type == OBJECT_TYPE_SPIKERI || type == OBJECT_TYPE_RALARI ||
-        type == OBJECT_TYPE_FRALTHI || type == OBJECT_TYPE_SNAKEIR ||
-        type == OBJECT_TYPE_SIVAR || type == OBJECT_TYPE_KILRATHI_BASE) {
+    if (aeObjectTypeList[obj] == OBJECT_TYPE_SPIKERI ||
+        aeObjectTypeList[obj] == OBJECT_TYPE_RALARI ||
+        aeObjectTypeList[obj] == OBJECT_TYPE_FRALTHI ||
+        aeObjectTypeList[obj] == OBJECT_TYPE_SNAKEIR ||
+        aeObjectTypeList[obj] == OBJECT_TYPE_SIVAR ||
+        aeObjectTypeList[obj] == OBJECT_TYPE_KILRATHI_BASE) {
         destroyer_intelligence(obj);
         return;
     }
 
-    nTargetShip = acShipTargetTable[obj];
-    if (unactive(nTargetShip) != 0)
+    if (unactive(nTargetShip = acShipTargetTable[obj]) != 0)
         scan_for_enemy(obj, 15000);
-    if (aeShipTacticArray[obj] != TACTIC_SELF_DEFENSE) {
+    switch (aeShipTacticArray[obj]) {
+    case TACTIC_SELF_DEFENSE:
+        approach_full_speed(obj);
+        if (unactive(acShipTargetTable[obj]) != 0) {
+            select_target(obj);
+            if (unactive(acShipTargetTable[obj]) != 0)
+                reset_tactic(obj, TACTIC_NONE);
+        } else
+            fire_turrets(obj);
+        break;
+    default:
         if (nTargetShip != -1) {
             approach_full_speed(obj);
             aeShipTacticArray[obj] = TACTIC_SELF_DEFENSE;
-            acShipTargetTable[obj] =
-                (signed char)nTargetShip;
+            acShipTargetTable[obj] = (signed char)nTargetShip;
             fire_turrets(obj);
-        } else {
+        } else
             approach_cruise_speed(obj);
-        }
-        return;
-    }
-
-    approach_full_speed(obj);
-    if (unactive(acShipTargetTable[obj]) != 0) {
-        select_target(obj);
-        if (unactive(acShipTargetTable[obj]) != 0)
-            reset_tactic(obj, TACTIC_NONE);
-    } else {
-        fire_turrets(obj);
     }
 }
 
@@ -1008,9 +1010,9 @@ void mine_intelligence(short obj)
 /* Function start: 0x40B430 */
 void heat_seeking_missile_intelligence(short obj)
 {
-    short targ;
     short exhaustHeat;
     short targetShip;
+    short targ;
 
     if (nFacingToTargetValue < 0 || acShipTargetTable[obj] == -1) {
         acShipTargetTable[obj] = -1;

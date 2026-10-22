@@ -10,6 +10,9 @@
  */
 #include "ix.h"
 #include <math.h>
+#ifndef SDL_PORT
+#include <dos.h>
+#endif
 
 #define IX_SAMPLE_FILE "D:\\Rnd\\prj\\ix\\src\\sound\\sample.cpp"
 

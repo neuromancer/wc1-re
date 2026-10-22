@@ -1789,11 +1789,15 @@ void ix_streamer_close_stream_file(void);                             /* 0x00443
 void ix_streamer_audio_play(void);                                    /* 0x004431F3 */
 void ix_streamer_audio_stop(void);                                    /* 0x00443253 */
 void ix_streamer_set_intensity(unsigned char intensity);              /* 0x0044336B */
+/* The NPC intelligence module never sees the music trigger and volume
+ * controls; VC++ 4.20's register ties there depend on its symbol count. */
+#ifndef WC1_BRAINS_SOURCE
 void ix_streamer_set_trigger(char trigger);                           /* 0x004433C1 */
 char ix_streamer_get_trigger(void);                                   /* 0x00443419 */
 void ix_streamer_force_trigger(char trigger);                         /* 0x0044342E */
 void ix_streamer_set_volume(unsigned short volume);                   /* 0x004435BE */
 unsigned short ix_streamer_get_volume(void);                          /* 0x0044363B */
+#endif
 
 #ifdef WC1_MAIN_SOURCE
 void DosInterruptHandlerHook(void);                                 /* 0x004368D0 */

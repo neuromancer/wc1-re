@@ -6434,3 +6434,56 @@ Shapes recovered with this method:
   retained, so the preceding native/modern builds and verification results
   still describe the executable. This checkpoint records the discarded
   probes only.
+
+## Include placement and leaked-source symbol counts
+
+The data layout is complete, so the remaining tie-break work is the
+declaration-count pass. Two levers realize a unit's symbol offset with
+ordinary source rather than probe or dummy declarations.
+
+- `#include` placement. A standard header that `wc1.h` does not include
+  adds its symbols wherever it appears. After the unit's includes it shifts
+  only the unit's own symbols; before them it also shifts every header
+  global. A header that `wc1.h` already includes, placed first, only moves
+  its symbols ahead of `<windows.h>` and leaves the total unchanged. Costs
+  were measured by matching each compiled exact set against a 544-offset
+  `logic.c` sweep. Any new header file costs at least one: `<limits.h>`,
+  `<memory.h>`, `<share.h>`, `<dos.h>` and `<windowsx.h>` 1, `<assert.h>` 2,
+  `<signal.h>`, `<setjmp.h>`, `<search.h>` and `<locale.h>` 5, `<sys/types.h>`
+  7, `<malloc.h>` 14, `<float.h>` 16, `<sys/stat.h>` 19, `<crtdbg.h>` 35,
+  `<process.h>` 62. `<stddef.h>` is already reached through other headers.
+  Guard headers the SDL port lacks with `#ifndef SDL_PORT`.
+  `ix/sound.cpp` and `ix/sample.cpp`, both from `ix\src\sound`, include
+  `<dos.h>`. This makes `IxSound::ix_sound_reprioritise` and
+  `IxSample::ix_sample_convert_from_ieee_extended` exact; it also removes the
+  former's one-byte shortfall and `ix_sound_is_playing`'s one-byte excess.
+  `system.cpp`, from the same tree, loses `ix_system_find_free_voice` with
+  the include and does not take it.
+- Leaked-source shape. `..\BRAINS.C`, the surviving 1990 WINGLEADER module,
+  keeps locals and branch nesting that cost symbols without emitting code.
+  Restored in `brains.c`: `imperial_formation`'s unused `target`, `dest` and
+  `closest` and its nested special-maneuver tests; `orbit_sphere`'s nested
+  range tests (the leaked `mega_ship`); `ship_intelligence`'s unused
+  `target`; `capital_ship_intelligence`'s inner tactic `switch` without a
+  type local; and `heat_seeking_missile_intelligence`'s leaked declaration
+  order `exhaustHeat`, `targetShip`, `targ`. Every function from
+  `cruise_home` to `defend_mission` then needs one common offset, eight
+  symbols fewer than the shared headers give it. The NPC module therefore
+  does not see the five streamer trigger and volume prototypes
+  (`WC1_BRAINS_SOURCE` in `wc1funcs.h`). 45 of 46 routines are exact;
+  `FF_missile_intelligence` now needs a different offset from the
+  heat-seeker before it. Its tie is local (`obj` against its own promoted
+  index) and the leaked text of both routines matches ours, so the
+  difference is not yet explained.
+  A shared loop variable in the heat-seeker also matches its registers,
+  but the leaked declarations keep three locals, so it is not retained.
+- `approach_speed` declares `delta` before `acceleration`. The old order is
+  never exact in 0..543; the new one is exact at offsets 3..30 of 32, so it
+  waits for `ship.c`'s offset to be realized.
+
+Planning tools (scratchpad): a separable fit of each function's 544-offset
+sweep (exact iff R[s mod 32] and C[s mod 257]) extrapolates windows to any
+shift, and a DP over the 8,224 residues gives the fewest offset changes per
+unit. In `brains.c` these changes cut the boundaries from two to one.
+The byte report improves from 1,389 to 1,394 exact functions and from five
+size differences to three; `.text` matches 96.2%.

@@ -10,6 +10,9 @@
  */
 #define WC1_IX_SOUND_SOURCE
 #include "ix.h"
+#ifndef SDL_PORT
+#include <dos.h>
+#endif
 
 #define IX_SOUND_FILE "D:\\Rnd\\prj\\ix\\src\\sound\\sound.cpp"
 
