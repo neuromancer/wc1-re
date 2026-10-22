@@ -589,6 +589,7 @@ unsigned int scramble(void)
 {
     unsigned char *actorShape;
     short frame;
+    short animationOffset;
     int soundHandle; /* Unset in the original; ignored by the Win32 callee. */
 
 #ifdef SDL_PORT
@@ -659,7 +660,7 @@ unsigned int scramble(void)
         for (frame = 0; frame < 10; frame++) {
             PumpWindowMessages();
             DrawScrambleFrame();
-            nScrambleBackgroundRightCoordX--;
+            animationOffset = (short)(nScrambleBackgroundRightCoordX - 1);
             nScrambleShipY =
                 (short)(nScrambleShipY - 2);
             stScrambleCockpitDetail.y =
@@ -668,8 +669,9 @@ unsigned int scramble(void)
                 (short)(nCurrentScrambleShipPositionX + 4);
             stScrambleCockpitDetail.x =
                 (short)(stScrambleCockpitDetail.x + 4);
+            nScrambleBackgroundRightCoordX = animationOffset;
             if (bEscapePressedFlag == 1)
-                break;
+                goto releaseScrambleResources;
         }
 
         if (bEscapePressedFlag != 1) {
@@ -677,11 +679,12 @@ unsigned int scramble(void)
             for (frame = 0; frame < 27; frame++) {
                 PumpWindowMessages();
                 DrawScrambleFrame();
-                nScrambleCanopyOffset++;
+                animationOffset = (short)(nScrambleCanopyOffset + 1);
                 nCurrentScrambleShipPositionX =
                     (short)(nCurrentScrambleShipPositionX + 4);
                 stScrambleCockpitDetail.x =
                     (short)(stScrambleCockpitDetail.x + 4);
+                nScrambleCanopyOffset = animationOffset;
                 nScrambleBackgroundRightCoordX--;
                 if (nSceneScrambleCanopyFrameValue < 25)
                     nSceneScrambleCanopyFrameValue++;
@@ -730,6 +733,7 @@ unsigned int scramble(void)
                 WaitForSceneAdvance(60, 0);
         }
 
+releaseScrambleResources:
         bEscapePressedFlag = 0;
         ReleasePacketHandle(pScrambleCockpitShapePtr);
         ReleasePacketHandle(pSceneScrambleBgShapePtr);

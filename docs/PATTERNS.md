@@ -5691,3 +5691,53 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `7404a9c49b38cf44860e09a2ad57046703960d942797241aea73c06d03064e0d`.
+- `scramble` captures its first-phase backdrop coordinate and second-phase
+  canopy offset in one short local declared after the frame counter. Each
+  source store follows the intervening ship/detail updates. This restores
+  the first loop's original scheduling. Its escape goes directly to the common
+  resource-release block at `0x004085B0`, preserving the original near
+  branch and the complete 1,104-byte span. Literal matching rises from 577
+  to 1,072 bytes, differing encodings fall from 139 to 29 of 264, and
+  mnemonic similarity rises from 96.97% to 99.24%. All eighty relocation
+  operands now occupy their original positions, versus 47 before.
+  Remaining differences are register allocation and the second loop's
+  choice of coordinate to update in a register. The shared local is a
+  matching source choice, not a recovered original name or declaration.
+  The native unset sound-handle read and modern-port initialization remain.
+  Combining the direct escape with only the backdrop capture gains 521
+  file positions. Separate backdrop and canopy locals gain 522, but also
+  exchange the funeral routine's final frame counter and step registers,
+  losing six previously exact bytes there. Reusing the one coordinate
+  local recovers those six bytes without changing the scramble result.
+  Declaring that shared local before the frame counter loses six positions.
+  Moving the backdrop local alone to function scope gives no gain after
+  the frame counter and loses six positions before it. Moving both separate
+  locals to function scope, narrowing the funeral scene-pair scope, or
+  exchanging its frame/volley declarations does not repair the regression.
+  Separate later-phase counters gain only 513 or 519 positions. Qualifying
+  the canopy store leaves output unchanged; qualifying its read adds an
+  unwanted relocation operand and loses 16,309 file positions.
+  Three `flag_reached` probes are discarded: reusing the captured carrier
+  for its lookup, moving that capture before the objective-type read, and
+  combining both changes lose 381, 13,970 and 380 positions respectively.
+  All seventeen probes are complete. Only the scramble row changes in the
+  full report. Direct before/after raw comparisons of all twelve cutscene
+  functions confirm that only its span changes; `funeral_sequence` retains
+  all 1,792 matching bytes. All 3,797 mapped symbol/address entries,
+  representing 3,784 distinct names, retain their addresses. The report
+  remains at 1,388 normalized exact and 1,460 mnemonic-perfect functions,
+  with 157 same-size differences and five size differences totaling a net
+  26 extra bytes. Mean similarity remains 99.78%, with three functions
+  below 90%.
+  Strict whole-file matching rises by 528 positions, from 499,707 to
+  500,235 of 518,656 (96.3465% to 96.4483%). There remain 18,421 differing
+  positions in 2,904 runs. Code gains 495 positions, reaching 384,002 of
+  401,408; relocations gain 33, reaching 35,338 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same header difference at
+  file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `a88044eb1bfe5584f05ce9cdca92522dc44491497c2f966d2a400a686cc1ef97`.
