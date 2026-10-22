@@ -6,35 +6,12 @@
  */
 #define WC1_ENDING_SOURCE
 #include "wc1.h"
+#include <sys/types.h>
 
 /* 0x0046ad88 */
 static unsigned char abTaggedAllocationPrefix[8] = {
     'j', 'e', 'f', 'f', 0, 0, 0, 0
 };
-/* 0x0046ad90 */
-static const char *apszCampaignVictoryText[4] = {
-    "Destroying the remains of the Kilrathi naval power in the sector...",
-    "The Tiger's Claw closes in for the kill...",
-    "And the last Kilrathi planet in the sector falls!",
-    0
-};
-/* 0x0046ada0 */
-static const char *pszTigerClawEscapeOpening =
-    "Fleeing from the overwelming Kilrathi forces in the sector...";
-/* 0x0046ada4 */
-static const char *pszTigerClawEscapeJump =
-    "The Tiger's Claw manages to jump out. Barely.";
-/* 0x0046ada8 */
-static const char *pszTigerClawEscapeClosing =
-    "There'll be other sectors, other battles...";
-/* 0x0046adb0 */
-static ShortVector aCampaignVictoryProjectileOrigins[4] = {
-    { -55, 42, 0 }, { -68, 46, 0 },
-    { 60, 42, 16 }, { 73, 46, 16 }
-};
-static const char *pszTheEnd = "The End"; /* 0x0046adc8 */
-static const char *pszForNow = "For Now..."; /* 0x0046adcc */
-
 /* Linker commons defined here; LINK orders them by identifier hash. */
 signed char acShipStressList[16]; /* 0x0059d620 */
 short anRollGoal[16]; /* 0x0059d630 */
@@ -136,9 +113,34 @@ void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
     }
 }
 
+/* 0x0046ad90 */
+static const char *apszCampaignVictoryText[4] = {
+    "Destroying the remains of the Kilrathi naval power in the sector...",
+    "The Tiger's Claw closes in for the kill...",
+    "And the last Kilrathi planet in the sector falls!",
+    0
+};
+/* 0x0046ada0 */
+static const char *pszTigerClawEscapeOpening =
+    "Fleeing from the overwelming Kilrathi forces in the sector...";
+/* 0x0046ada4 */
+static const char *pszTigerClawEscapeJump =
+    "The Tiger's Claw manages to jump out. Barely.";
+/* 0x0046ada8 */
+static const char *pszTigerClawEscapeClosing =
+    "There'll be other sectors, other battles...";
+/* 0x0046adb0 */
+static ShortVector aCampaignVictoryProjectileOrigins[4] = {
+    { -55, 42, 0 }, { -68, 46, 0 },
+    { 60, 42, 16 }, { 73, 46, 16 }
+};
+static const char *pszTheEnd = "The End"; /* 0x0046adc8 */
+static const char *pszForNow = "For Now..."; /* 0x0046adcc */
+
 /* Function start: 0x42FC00 */
 unsigned int ShowCampaignVictorySequence(void)
 {
+    short slot;
     CampaignVictoryProjectile projectiles[16];
     unsigned char *planetShape;
     unsigned char *projectileShape;
@@ -148,7 +150,6 @@ unsigned int ShowCampaignVictorySequence(void)
     short vacant[2];
     short vacantCount;
     short textIndex;
-    short slot;
     CampaignVictoryProjectile *projectile;
     short frame;
     short elapsed;

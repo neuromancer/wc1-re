@@ -6502,3 +6502,12 @@ size differences to three; `.text` matches 96.2%.
   report rises from 1,394 to 1,404 exact functions; never-exact
   `PlayScrambleHangarScene` shows more differing bytes at the new
   `cutscene.c` offset.
+- `ending.c` defines the victory-text, escape-text, projectile-origin and
+  end-caption statics immediately before `ShowCampaignVictorySequence`,
+  their first user, keeping their declaration order and the literal order
+  ahead of the scene format strings; `.data` is unchanged. The move takes
+  their twelve symbols (statics and literals) away from the allocation
+  helpers. With `slot` declared first in the victory sequence and
+  `<sys/types.h>` (+7) included, both the allocation helpers and the
+  victory sequence are exact; only `ShowTigerClawEscapeScene`, a register
+  permutation, remains.
