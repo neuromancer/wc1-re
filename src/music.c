@@ -611,49 +611,48 @@ void servicetrack(void)
                         OBJECT_CLASS_CAPITAL_SHIP)
                     nPassingShipSoundObject = -1;
             }
-            if (aeObjectClass[object] ==
-                    OBJECT_CLASS_ASTEROID) {
+            switch (aeObjectClass[object]) {
+            case OBJECT_CLASS_ASTEROID:
                 if (asObjDistancesTable[object] == 0 &&
                     (unsigned short)
                         asPreviousObjectDistance[object] < 50 &&
                     aiSoundEffectSourceActiveArray[object] == 0)
                     PlaySfxWaveFileByNumber(6, object, 0);
-            } else if (aeObjectClass[object] >=
-                           OBJECT_CLASS_SHIP &&
-                       aeObjectClass[object] <=
-                           OBJECT_CLASS_CAPITAL_SHIP &&
-                       asObjectScreenXList[object] !=
-                           (short)0x8001 &&
-                       (unsigned short)
-                           asObjDistancesTable[object] < 0x55a) {
-                if (nPassingShipSoundObject == -1) {
-                    ScaleFixedVector(&aShipVelocity[object],
-                                     0x1400, &travel);
-                    AddFixedVectors(&aShipPositionsArray[object],
-                                    &travel, &futurePosition);
-                    ComputeVectorDelta(
-                        &aShipPositionsArray[EYE_OBJECT],
-                        &futurePosition, &travel);
-                    ComputeVectorDelta(
-                        &aShipPositionsArray[EYE_OBJECT],
-                        &aShipPositionsArray[object],
-                        &futurePosition);
-                    if (dot_product(&travel, &futurePosition) < 0xdd) {
-                        nPassingShipSoundCountdown = 10;
-                        nPassingShipSoundObject = object;
-                        if (nPassingShipAudioCooldown <
-                            nCurrentSpaceFrameValue) {
-                            nPassingShipAudioCooldown =
-                                nCurrentSpaceFrameValue + 6;
-                            PlaySfxWaveFileByNumber(2, object, 0);
+                break;
+            case OBJECT_CLASS_SHIP:
+            case OBJECT_CLASS_CAPITAL_SHIP:
+                if (asObjectScreenXList[object] != (short)0x8001 &&
+                    (unsigned short)asObjDistancesTable[object] < 0x55a) {
+                    if (nPassingShipSoundObject == -1) {
+                        ScaleFixedVector(&aShipVelocity[object],
+                                         0x1400, &travel);
+                        AddFixedVectors(&aShipPositionsArray[object],
+                                        &travel, &futurePosition);
+                        ComputeVectorDelta(
+                            &aShipPositionsArray[EYE_OBJECT],
+                            &futurePosition, &travel);
+                        ComputeVectorDelta(
+                            &aShipPositionsArray[EYE_OBJECT],
+                            &aShipPositionsArray[object],
+                            &futurePosition);
+                        if (dot_product(&travel, &futurePosition) < 0xdd) {
+                            nPassingShipSoundCountdown = 10;
+                            nPassingShipSoundObject = object;
+                            if (nPassingShipAudioCooldown <
+                                nCurrentSpaceFrameValue) {
+                                nPassingShipAudioCooldown =
+                                    nCurrentSpaceFrameValue + 6;
+                                PlaySfxWaveFileByNumber(2, object, 0);
+                            }
                         }
+                    } else if (object ==
+                                   nPassingShipSoundObject) {
+                        nPassingShipSoundCountdown--;
+                        if (nPassingShipSoundCountdown == 0)
+                            nPassingShipSoundObject = -1;
                     }
-                } else if (object ==
-                               nPassingShipSoundObject) {
-                    nPassingShipSoundCountdown--;
-                    if (nPassingShipSoundCountdown == 0)
-                        nPassingShipSoundObject = -1;
                 }
+                break;
             }
         }
     }

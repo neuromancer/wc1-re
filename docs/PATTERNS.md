@@ -5019,3 +5019,61 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `a471bc4f94941b8a5f1fee7d0774b0a225e02037cca48ff7b8ddbbd346e5b220`.
+- `servicetrack` dispatches asteroid and ship effects with a switch on the
+  object class. The asteroid case comes first, followed by shared ship and
+  capital-ship cases. This reproduces the original early class tests and
+  branches before the asteroid body; the former if/else chain placed the
+  ship-range tests after that body. Keep the existing distance, visibility,
+  countdown and audio-cooldown tests inside their respective cases.
+  The complete 464-byte span now matches literally, up from 119 bytes.
+  All 94 differing encodings disappear, mnemonic similarity rises from
+  91.30% to 100%, and all 23 relocation operands occupy their original
+  positions, up from five. The switch gains 345 code positions and eighteen
+  relocation-section positions. Its preceding passing-object reset retains
+  the original pair of unequal-class tests joined with OR.
+- `ReportComponentRepaired` qualifies the decremented damage-byte store
+  and the following component-name pointer read. This preserves the original
+  store before the name load, although the component-index register and
+  message-buffer address scheduling still differ. Literal matching rises
+  from 92 to 93 of 112 bytes; differing encodings fall from six to five of
+  31, and mnemonic similarity rises from 90.32% to 93.55%. All five relocation
+  operands remain, with the same three in their original positions. Qualifying
+  only the store gives no gain. A message-buffer pointer at either function
+  or branch scope leaves the target score unchanged and regresses its unit.
+  These qualifiers are matching choices, not recovered original spelling.
+  Other bounded trials are discarded. Qualified maneuver-proximity reads
+  leave their target unchanged and regress the unit. Moving the shock-wave
+  loop variable after its vectors or distance, declaring the wave-list entry
+  first, capturing the intelligence routine's wingman in either declaration
+  position, and capturing the barracks label value give no gain. Promoted
+  ship-search indices regress the file. Ordered mission-argument capture
+  improves that search and makes `close_behind` exact, but regresses
+  `evaluate_damage` and the scene-animation goal comparison. An explicit
+  packet-reference row cursor enlarges the release routine by sixteen bytes.
+  Either flight-input capture order loses four file positions.
+  Qualified constellation-definition reloads give no gain; a pointer capture
+  loses five positions. Narrowing the palette byte-count scope gives no
+  literal gain and reduces mnemonic similarity; separate or promoted palette
+  update indices also give no gain. Moving the calibration failure local
+  first or last and capturing the HUD-message pointer leave output unchanged.
+  Moving the target-bracket valid flag before or after its bounds raises its
+  mnemonic similarity but loses ninety file positions. None is retained.
+  All 29 probes are complete. Only the two selected rows change in the full
+  report. Direct before/after raw comparisons of all 93 functions in their
+  units confirm that only those two spans change. All 3,784 mapped symbol
+  addresses are unchanged. The report reaches 1,382 normalized exact
+  functions and 1,455 mnemonic-perfect functions, with 163 same-size
+  differences and five size differences totaling a net 26 extra bytes.
+  Mean similarity rises to 99.76%, with three functions below 90%.
+  Strict whole-file matching rises by 364 positions, from 496,847 to
+  497,211 of 518,656 (95.7951% to 95.8653%). There remain 21,445 differing
+  positions in 3,161 runs. Code gains 346 positions, reaching 381,166 of
+  401,408; relocations gain eighteen, reaching 35,150 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same header difference at
+  file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `e9e8597f36e1a90c6f3cfeca82c72e6feb584da2d2f38d76e70726d31cbe1621`.

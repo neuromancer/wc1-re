@@ -989,9 +989,10 @@ short ReportComponentRepaired(short component, short minimumDamage)
 
     if (minimumDamage <
         (short)acPlayerComponentDamageList[component]) {
-        acPlayerComponentDamageList[component]--;
+        *(signed char volatile *)&acPlayerComponentDamageList[component] =
+            (signed char)(acPlayerComponentDamageList[component] - 1);
         sprintf(message, "%s FIXD",
-                apszComponentNames[component]);
+                *(const char *volatile *)&apszComponentNames[component]);
         ShowComponentHitHudMessage(message, cRedColour, 8);
         return 1;
     }
