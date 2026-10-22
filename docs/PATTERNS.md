@@ -5350,3 +5350,57 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `7bb1f2d77364b49f459c984183d174531dbdfc6800c26668c9f51f3ccfd909fb`.
+- `EstablishingShot` declares its promoted frame index before the character
+  counter. This restores EBX for the promoted frame and BP for the character
+  loop, removing all seven differing encodings. Its complete 352-byte span
+  now matches literally, up from 345 bytes. All sixteen relocation operands
+  retain their original positions. Declaring the frame index immediately
+  before the frame counter, or scoping it around the character loop, gives
+  no gain. This declaration order is a matching choice, not recovered
+  original local spelling.
+- `ShowCampaignVictorySequence` uses a separate short initialization counter,
+  scoped to the projectile-initialization loop. This restores the original
+  DX counter, ECX record pointer and EAX sentinel. In the later vacant-slot
+  search, initialize the vacant count before the slot index, after assigning
+  the record pointer. Together these changes increase literal matching from
+  1,346 to 1,353 of 1,360 bytes and reduce differing encodings from fourteen
+  to seven of 366. The 376-byte local frame and all forty original relocation
+  positions remain unchanged. The remaining differences exchange CX/DX for
+  the vacant count and sentinel.
+  Changing only the vacant-search initialization order gains one byte.
+  Four other initialization orders lose five positions each. Reversing the
+  first loop's pointer/counter assignments gives no gain. A function-scope
+  initialization counter declared first loses two positions despite reducing
+  the target's differing-encoding count; combining it with the new vacant
+  order loses three. Declaring that counter after the slot gives no gain.
+  Moving the vacant-count declaration first gives no gain, and moving the
+  projectile-pointer declaration first loses 906 positions. None of these
+  alternatives is retained.
+  Other bounded trials are discarded. Capturing the shutdown routine's
+  cursor imports, individually or in either combined declaration order,
+  loses file positions. Initializing the dismissal podium coordinate before
+  the left coordinate loses two positions; initializing the left coordinate
+  before the podium frame loses 22. Chaining the disk-prompt rectangle copy,
+  copying the second rectangle from the first, and using a local rectangle
+  all leave output unchanged. Moving its saved-context declaration last or
+  its background-colour declaration first likewise gives no gain.
+  All twenty-six probes are complete. Only the victory and establishing-shot
+  rows change in the full report. Direct before/after raw comparisons of all
+  forty functions in their two units confirm that only those spans change.
+  All 3,797 mapped symbol/address entries, representing 3,784 distinct names,
+  retain their addresses. The report reaches 1,386 normalized exact
+  functions, with 159 same-size differences and five size differences
+  totaling a net 26 extra bytes. There remain 1,457 mnemonic-perfect
+  functions, mean similarity 99.77%, and three functions below 90%.
+  Strict whole-file matching rises by fourteen positions, from 497,556 to
+  497,570 of 518,656 (95.9318% to 95.9345%). There remain 21,086 differing
+  positions in 3,085 runs. Code gains all fourteen positions, reaching
+  381,503 of 401,408; relocations remain at 35,172 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same header difference at
+  file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `6c7674a2ca00529211282a4f600e58d581c3addb9707c1253a46c48a85e065f0`.

@@ -579,10 +579,10 @@ unsigned int DrawMedals(void)
 /* Function start: 0x437770 */
 unsigned int EstablishingShot(char *text, short duration)
 {
+    int frameIndex;
     short character;
     short escaped;
     short frame;
-    int frameIndex;
 
     if (pSceneBriefingBodyShape == 0)
         pSceneBriefingBodyShape =

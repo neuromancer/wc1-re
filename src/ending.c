@@ -173,13 +173,17 @@ unsigned int ShowCampaignVictorySequence(void)
                             planetShape, 0, 0, 0x50);
     nScriptedViewObject = 1;
     initialize_scripted_view(asCampaignVictoryViewScript);
-    slot = 16;
-    projectile = projectiles;
-    do {
-        projectile->scale = -1;
-        projectile++;
-        slot--;
-    } while (slot != 0);
+    {
+        short initializationCount;
+
+        initializationCount = 16;
+        projectile = projectiles;
+        do {
+            projectile->scale = -1;
+            projectile++;
+            initializationCount--;
+        } while (initializationCount != 0);
+    }
 
     planetDepth = -1500;
     frame = 0;
@@ -248,8 +252,8 @@ unsigned int ShowCampaignVictorySequence(void)
 
                 if (frame < 170 && --spawnCountdown < 1) {
                     projectile = projectiles;
-                    slot = 0;
                     vacantCount = 0;
+                    slot = 0;
                     do {
                         if (projectile->scale == -1) {
                             vacant[vacantCount] = slot;
