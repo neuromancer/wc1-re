@@ -710,7 +710,7 @@ int internal_damage(short attacker, short victim, short damage,
     short damageCapacity;
     short events;
     short system;
-    short weaponCount;
+    signed char weaponCount;
 
     if (victim == 0)
         return your_internal_damage(attacker, damage, quadrant);
@@ -771,10 +771,10 @@ int internal_damage(short attacker, short victim, short damage,
                 return explode(attacker, victim);
             break;
         case 3:
-            aasShipShield[victim][0] = 0;
-            aasShipShield[victim][1] = 0;
             aasShipMaximumShieldTable[victim][0] = 0;
+            aasShipShield[victim][0] = 0;
             aasShipMaximumShieldTable[victim][1] = 0;
+            aasShipShield[victim][1] = 0;
             break;
         case 4:
             events--;
@@ -785,12 +785,12 @@ int internal_damage(short attacker, short victim, short damage,
             break;
         case 5:
             if (quadrant == 0) {
-                weaponCount = (short)(signed char)
+                weaponCount = (signed char)
                     aShipWeaponsTable[victim][0];
                 if (weaponCount > 0) {
                     events--;
                     remove_weapon(victim,
-                        RandomBelowOrEqual(
+                        (short)(signed char)RandomBelowOrEqual(
                             (short)(weaponCount - 1)));
                 }
             }
@@ -822,7 +822,12 @@ int internal_damage(short attacker, short victim, short damage,
             break;
         }
     }
+#ifdef SDL_PORT
     return 0;
+#else
+    /* The original leaves the return register unset on this path. */
+    return;
+#endif
 }
 
 /* Function start: 0x41F1A0 */

@@ -5524,3 +5524,55 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `78be240599b7b64424db045467f7e503cc24b34a6ca88a06e1aaaaab5e9325fe`.
+- `internal_damage` uses a signed-byte weapon count and narrows the random
+  weapon index to a signed byte before passing it as a short to
+  `remove_weapon`. The original loads and tests AL, sign-extends it to AX
+  before decrementing the count, and sign-extends AL to AX again after the
+  random call. Retain both narrowing steps. Clear the shield words in their
+  observed order: maximum fore, current fore, maximum aft, current aft.
+  These changes gain 231 matching file positions. Qualifying the four
+  shield stores produces the same executable and is unnecessary.
+  The fighter-damage loop's exit does not set the return register in the
+  original. Use a bare return for the native reconstruction and retain a
+  defined zero return for the modern port. This removes the extra XOR and
+  restores the initial no-events branch to the shared epilogue, gaining
+  twelve more file positions. Native fallthrough produces the same result.
+  Moving the event, system or weapon-count declaration first adds no gain.
+  The complete 896-byte span improves from 613 to 839 literal matches;
+  differing encodings fall from 118 to 53 of 266, and mnemonic similarity
+  rises from 98.12% to 99.25%. All 31 relocation operands now occupy their
+  original positions. Register allocation and the weapon-case decrement
+  scheduling still differ. The capital-ship damage pointer remains scoped
+  to its branch, preserving the original relocation count.
+  Other bounded trials are discarded. Four promoted-key declaration/scope
+  variants leave the fleet-input target unchanged and lose four file
+  positions. A byte count alone gains 22 positions; narrowing only the
+  random result gains 37; combining both gains 225 before reordering the
+  shield stores. Three barracks key if-chain layouts add sixteen bytes and
+  lose whole-file matches. Capturing the last weapon or promoted victim
+  index improves the damage target further but worsens later ship routines,
+  losing 55 and 51 positions relative to the retained width/store candidate.
+  A separate weapon-index local or capital-ship damage increment loses
+  sixty positions relative to that candidate. Capturing the hangar escape
+  byte, or its two coordinates in either declaration order, leaves that
+  target unchanged and loses 39 file positions.
+  All twenty-four probes are complete. Only the internal-damage row changes
+  in the full report. Direct before/after raw comparisons of all 64 ship
+  functions confirm that only its span changes. All 3,797 mapped
+  symbol/address entries, representing 3,784 distinct names, retain their
+  addresses. The report remains at 1,388 normalized exact and 1,459
+  mnemonic-perfect functions, with 157 same-size differences and five size
+  differences totaling a net 26 extra bytes. Mean similarity remains 99.77%,
+  with three functions below 90%.
+  Strict whole-file matching rises by 243 positions, from 497,621 to
+  497,864 of 518,656 (95.9443% to 95.9912%). There remain 20,792 differing
+  positions in 3,047 runs. Code gains 226 positions, reaching 381,776 of
+  401,408; relocations gain seventeen, reaching 35,193 of 36,352. The
+  `.rdata`, `.data` and `.idata` sections remain literally exact. The
+  uninterrupted matching prefix remains 544 bytes, with the same header
+  difference at file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `022f65eb7c55c2f27c4ba667356d1ca039d69c5c80b1e3d5bed7b51b557deb21`.
