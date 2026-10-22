@@ -6411,3 +6411,26 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `084f3ae163a3f747a77fc7293b5dcb5ef6bdc9678a39224ba29396ee2e32b4cb`.
+- The next thirteen bounded probes produce no retained reconstruction
+  change. Moving all twelve flight-profiler statics to their sole consumer,
+  `RunSpaceFlight`, loses 180 matching file positions; moving only the six
+  timestamps or six deltas loses 175. The flight-controls comparison stays
+  at 768 differing encodings out of 789, with its 3,184-byte span and 174
+  relocation operands unchanged.
+  In `make_shard`, a forward-vector pointer at function or inner-block
+  scope loses fourteen file positions. Splitting the speed calculation or
+  expressing either vector copy with memcpy leaves output unchanged.
+  Qualifying the medal row read loses 97 positions; a separate medal X
+  coordinate loses eleven, and combining those changes loses 108.
+  Capturing either release-weapon display coordinate separately loses
+  nine positions. Every probe completed and restored the source with a
+  forced native rebuild; the final executable reproduces the preceding
+  verified checkpoint's SHA-256. Work stopped at the user's request before
+  any further source trials.
+  Whole-file matching remains 502,014 of 518,656 bytes (96.7913%), with
+  16,642 differing positions in 2,747 runs. The first difference remains
+  at file offset `0x220`; this percentage measures matching positions
+  throughout the file, not a matching prefix. No source changes are
+  retained, so the preceding native/modern builds and verification results
+  still describe the executable. This checkpoint records the discarded
+  probes only.
