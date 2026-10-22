@@ -4532,3 +4532,62 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `c0e7c80616d966b6333ae776e2bc46e1fc7c71f82e03ce312cccb7d178ff2173`.
+- `ShowOnScreenMessage` initializes its modal-state local after formatting
+  the text, immediately before flushing input. This restores the original
+  zero/duration register allocation and removes all fourteen differing
+  encodings. Mnemonic similarity rises from 97.50% to 100%, and the complete
+  256-byte span matches literally, up from 240. Its next function is
+  `ShowGamePausedBanner` at `0x004290a0`; using `0x004290b0` would incorrectly
+  include sixteen bytes and one relocation from that neighbor. The message
+  routine itself has seven relocations, all at their original positions.
+  Moving the initialization just after the flush produces the same result;
+  exchanging its two short declarations alone leaves output unchanged.
+- `GameFlow` declares the flown series before the flown mission. This
+  restores the original instruction order, raising mnemonic similarity
+  from 99.28% to 100% and reducing differing encodings from 21 to 12 of
+  279. Literal matching rises from 1,144 to 1,156 of 1,168 bytes. The
+  remaining differences exchange EBX/EDI for zero and minus one during
+  initial state resets. All 80 relocations retain their original positions.
+  Moving the initial room or launch assignments, exchanging the next-series
+  and next-mission declarations, and moving other selection/result locals
+  give no further gain.
+- `ShowTigerClawEscapeScene` captures the sprite scale and projected Y
+  coordinate in real locals before drawing. Computing these divisions
+  separately restores the original instruction lengths around the draw
+  call and gains 552 file bytes. Initializing the existing depth local
+  after the opening text-format call, before the frame flag assignment,
+  gains another three. Mnemonic similarity rises from 93.98% to 97.69%,
+  differing encodings fall from 159 to 31 of 216, and literal matching
+  rises from 336 to 860 of the unchanged 928-byte span. Its 52 relocations
+  retain the original count; their relative positions are not all exact.
+  Register allocation and coordinate-load scheduling still differ.
+  Capturing only the scale gives no literal gain. Capturing X as well,
+  substituting X for Y, and initializing depth or both motion locals before
+  the opening format call give smaller gains. Reversing the Y addition or
+  moving the scale declaration gives the same result as the initial
+  scale/Y capture; moving the depth declaration loses one file byte.
+  Other bounded trials are discarded. Flight-control repeat-flag branch
+  forms, unsigned flags and local scopes do not repair its short initial
+  key sequence. Moving the fade byte-count calculation before its guard
+  regresses matching. Passing the existing zero-valued input-change local
+  instead of a zero constant leaves menu polling unchanged. Separate
+  branch-local joystick double-click flags lose two file bytes.
+  Only these three target rows change in the full report. Direct raw
+  before/after comparisons of all 70 functions in their units also confirm
+  that only those three emitted spans change. Normalized exact functions
+  rise from 1,374 to 1,375; same-size differences fall from 171 to 170.
+  Five size differences remain, totaling a net 26 extra bytes. There are
+  1,448 mnemonic-perfect functions, with mean similarity 99.73% and three
+  below 90%. Spans and compilation-unit placements remain unchanged.
+  Strict whole-file matching rises by 583 positions, from 493,125 to
+  493,708 of 518,656 (95.0775% to 95.1899%). There remain 24,948 differing
+  positions in 3,463 runs. Code gains 552 matching positions, reaching
+  377,796 of 401,408; relocations gain 31, reaching 35,017 of 36,352.
+  The `.rdata`, `.data` and `.idata` sections remain literally exact. The
+  continuous matching prefix remains 544 bytes, with the same relocation
+  virtual-size difference at file offset `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `a33c100bff73adb5b561d1ab17fad30e1062411f5d131cd4b7196380577c580f`.

@@ -374,6 +374,8 @@ unsigned int ShowTigerClawEscapeScene(void)
     short effect;
     int depth;
     int verticalOffset;
+    int scale;
+    short screenY;
 
     approachStep = 15;
     PreloadMusicTrackHook(0x22);
@@ -399,9 +401,9 @@ unsigned int ShowTigerClawEscapeScene(void)
     FormatTextBufferFromStart(
         "%X%Y%s%P", 0, 160,
         pszTigerClawEscapeOpening);
+    depth = -1000;
     nFrameSkipCounter = 1;
     bEscapePressedFlag = 0;
-    depth = -1000;
     verticalOffset = -70000;
     frame = 0;
     do {
@@ -409,11 +411,12 @@ unsigned int ShowTigerClawEscapeScene(void)
         if (Draw_3Space_Frame() != 0) {
             if (asObjectCollisionRadius[61] < depth &&
                 frame < 198) {
+                scale = 0x40000L / depth;
+                screenY = (short)(nCurrentViewCenterPosY + verticalOffset / depth);
                 DrawSpriteScaled(
                     &stSpaceBufferViewport, nCurrentViewCenterPosX,
-                    (short)(nCurrentViewCenterPosY +
-                            verticalOffset / depth),
-                    escapeShape, 0, 0, (short)(0x40000L / depth), 0);
+                    screenY,
+                    escapeShape, 0, 0, (short)scale, 0);
             }
             dump_buffer_to_screen();
             clear_view_buffer();

@@ -1341,7 +1341,7 @@ void ShowOnScreenMessage(int flags, short duration,
                          const char *format, ...)
 {
     short messageDuration;
-    short modalShown = 0;
+    short modalShown;
     char text[52];
 
 #ifdef SDL_PORT
@@ -1353,6 +1353,7 @@ void ShowOnScreenMessage(int flags, short duration,
 #else
     vsprintf(text, format, (char *)(&format + 1));
 #endif
+    modalShown = 0;
     FlushInputEvents();
     messageDuration = duration;
     if (messageDuration == 9999)

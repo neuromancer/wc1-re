@@ -250,8 +250,8 @@ short GameFlow(void)
     short roomSelection;
     int barracksSelection;
     short launchMission;
-    short flownMission;
     short flownSeries;
+    short flownMission;
     short nextSeries;
     short nextMission;
     int flightResult;
