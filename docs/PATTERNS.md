@@ -4908,3 +4908,55 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `38a5f57eb1dae6b648024633da8f4ce3022df616f81367ea8778393c1172a9d8`.
+- `LoadGame` needs the same qualified scalar reads and stores as the save
+  writers to preserve the original campaign-field interleaving. This restores
+  the current-pilot, ship-type, mission/series, date and score transfers without
+  changing the record copies or counted byte loops. These are matching source
+  choices, not evidence of the original qualifier spelling. Initialize the
+  disk death-mission pointer before the runtime pointer, but declare the
+  runtime pointer first. The original then loads the source into ESI and the
+  destination into EDX, and the complete widening loop matches.
+  Qualified transfers gain 95 literal bytes, initialization order adds six,
+  and declaration order adds seven. Literal matching rises from 492 to 600
+  of 624 bytes; differing encodings fall from 33 to nine of 162, and mnemonic
+  similarity rises from 97.53% to 98.77%. The remaining differences involve
+  the description's last byte, four commuted array-address encodings, and the
+  objective-pointer calculation's scheduling. Qualifying the occupied flag
+  gives no further gain. Moving objective-pointer initialization after the
+  mission-score transfer loses 48 positions against the selected loader.
+- `MainWindowProc` declares the secondary mouse-button local before the
+  primary one. This restores EBX for the primary button, gaining four literal
+  bytes, from 1,225 to 1,229 of 1,264. Differing encodings fall from 28 to 24
+  of 278; mnemonic similarity stays at 98.56%. The full message parameter
+  and secondary button still exchange registers. Signed button locals and
+  earlier command initialization give no additional improvement. Capturing
+  the full message parameter in a separate local worsens the result.
+  Other bounded trials are discarded. Packet-search count captures leave
+  output unchanged; an explicit cursor loses 43 positions and adds an unwanted
+  fourth relocation. Reordering the weapon hardpoint declaration gives no
+  gain, while coordinate captures leave that target unchanged and lose 103
+  file positions elsewhere in its unit. Qualifying the font row-table reads
+  leaves output unchanged; branch-local table loads enlarge the routine by
+  32 bytes. Input timestamp captures on separate branches add sixteen bytes.
+  Capturing either barracks-detail pointer gives no gain. Navigation-label
+  coordinate captures improve their target but regress neighboring functions;
+  an unsigned placement result leaves output unchanged. None is retained.
+  All 26 probes are complete. Only the two selected rows change in the full
+  report. Direct before/after raw comparisons of all 74 functions in their
+  units confirm that only those two spans change. Their one and fifty
+  relocation operands respectively retain their original positions. The
+  report remains at 1,380 normalized exact functions, 165 same-size differences
+  and five size differences totaling a net 26 extra bytes. There are 1,453
+  mnemonic-perfect functions, mean similarity is 99.75%, and three remain
+  below 90%. Spans and compilation-unit placements are unchanged.
+  Strict whole-file matching rises by 112 positions, from 496,136 to
+  496,248 of 518,656 (95.6580% to 95.6796%). There remain 22,408 differing
+  positions in 3,225 runs. All gains are in code, which reaches 380,239 of
+  401,408 matching positions. Relocations remain at 35,114 of 36,352; `.rdata`,
+  `.data` and `.idata` remain literally exact. The 544-byte uninterrupted
+  matching prefix and the header difference at file offset `0x220` are unchanged.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `12546759bf2d75046ca4189e9a9e96b577448a3ed43956f9c14197a818503d05`.

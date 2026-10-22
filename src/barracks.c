@@ -608,8 +608,8 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     SaveGameDiskObjective *diskObjective;
     MissionObjective *gameObjective;
     unsigned char *diskBytes;
-    short *diskDeathMission;
     int *gameDeathMission;
+    short *diskDeathMission;
     short file;
     short fileOpen;
     int index;
@@ -627,10 +627,10 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     gameRecord->occupied = diskRecord.occupied;
     memcpy(gameRecord->pilots, diskRecord.pilots,
            sizeof(gameRecord->pilots));
-    gameRecord->campaign.currentPilot =
-        (PilotRecord *)(int)diskRecord.campaign.currentPilot;
-    gameRecord->campaign.playerShipType =
-        (enum ObjectType)diskRecord.campaign.playerShipType;
+    *(PilotRecord *volatile *)&gameRecord->campaign.currentPilot =
+        (PilotRecord *)(int)*(short volatile *)&diskRecord.campaign.currentPilot;
+    *(enum ObjectType volatile *)&gameRecord->campaign.playerShipType =
+        (enum ObjectType)*(short volatile *)&diskRecord.campaign.playerShipType;
     diskBytes = diskRecord.campaign.medals;
     for (index = 0; index < 5; index++) {
         gameRecord->campaign.medals[index] = diskBytes[index];
@@ -640,19 +640,19 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     for (index = 0; index < 12; index++) {
         gameRecord->campaign.badges[index] = diskBytes[index];
     }
-    gameRecord->campaign.currentMission =
-        diskRecord.campaign.currentMission;
-    gameRecord->campaign.currentSeries =
-        diskRecord.campaign.currentSeries;
-    gameRecord->campaign.seriesHistoryCount =
-        diskRecord.campaign.seriesHistoryCount;
+    *(signed char volatile *)&gameRecord->campaign.currentMission =
+        *(signed char volatile *)&diskRecord.campaign.currentMission;
+    *(signed char volatile *)&gameRecord->campaign.currentSeries =
+        *(signed char volatile *)&diskRecord.campaign.currentSeries;
+    *(signed char volatile *)&gameRecord->campaign.seriesHistoryCount =
+        *(signed char volatile *)&diskRecord.campaign.seriesHistoryCount;
     diskBytes = (unsigned char *)diskRecord.campaign.seriesHistory;
     for (index = 0; index < 8; index++) {
         gameRecord->campaign.seriesHistory[index] = diskBytes[index];
     }
 
-    gameDeathMission = gameRecord->campaign.personalityDeathMission;
     diskDeathMission = diskRecord.campaign.personalityDeathMission;
+    gameDeathMission = gameRecord->campaign.personalityDeathMission;
     for (; diskDeathMission <
                diskRecord.campaign.personalityDeathMission + 8;
          diskDeathMission++, gameDeathMission++) {
@@ -663,17 +663,20 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     for (index = 0; index < 4; index++) {
         gameRecord->campaign.aceFlags[index] = diskBytes[index];
     }
-    gameRecord->campaign.currentDate = diskRecord.campaign.currentDate;
-    gameRecord->campaign.elapsedDate.day =
-        diskRecord.campaign.elapsedDate.day;
-    gameRecord->campaign.elapsedDate.year =
-        diskRecord.campaign.elapsedDate.year;
-    gameRecord->campaign.promotionScore =
-        diskRecord.campaign.promotionScore;
-    gameRecord->campaign.missionScore = diskRecord.campaign.missionScore;
-    gameRecord->campaign.seriesScore = diskRecord.campaign.seriesScore;
-    gameRecord->campaign.campaignIndex =
-        diskRecord.campaign.campaignIndex;
+    *(CampaignDate volatile *)&gameRecord->campaign.currentDate =
+        *(CampaignDate volatile *)&diskRecord.campaign.currentDate;
+    *(short volatile *)&gameRecord->campaign.elapsedDate.day =
+        *(short volatile *)&diskRecord.campaign.elapsedDate.day;
+    *(short volatile *)&gameRecord->campaign.elapsedDate.year =
+        *(short volatile *)&diskRecord.campaign.elapsedDate.year;
+    *(short volatile *)&gameRecord->campaign.promotionScore =
+        *(short volatile *)&diskRecord.campaign.promotionScore;
+    *(short volatile *)&gameRecord->campaign.missionScore =
+        *(short volatile *)&diskRecord.campaign.missionScore;
+    *(short volatile *)&gameRecord->campaign.seriesScore =
+        *(short volatile *)&diskRecord.campaign.seriesScore;
+    *(short volatile *)&gameRecord->campaign.campaignIndex =
+        *(short volatile *)&diskRecord.campaign.campaignIndex;
 
     gameObjective = gameRecord->objectives;
     diskObjective = diskRecord.objectives;
