@@ -188,12 +188,13 @@ short __stdcall GetShapeFrameExtent(short x, short y,
 unsigned int AnimateScrambleWalk(short ticks)
 {
     signed char elapsed;
-    unsigned char escapePressed;
 
     nFrameSkipCounter = 1;
     elapsed = 0;
     if (ticks > 0) {
         do {
+            unsigned char escapePressed;
+
             PumpWindowMessages();
             nFrameSkipCounter--;
             escapePressed = bEscapePressedFlag;

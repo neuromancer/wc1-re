@@ -5874,3 +5874,68 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `7b03409334133528d32263109ef924ee91865fe072e589a3d08c7f37ac1f379e`.
+- `AnimateScrambleWalk` declares its escape snapshot inside each loop
+  iteration. Initialization, refreshes and uses remain in place. Literal
+  matching rises from 58 to 100 bytes in its unchanged 624-byte span;
+  differing encodings fall from 147 to 134 of 159. Mnemonic similarity
+  falls from 100% to 98.74%, so this is another choice driven by the
+  literal-byte objective. All 57 relocation operands remain, with offsets
+  also present in the original increasing from four to seven. Most of the
+  draw sequence is still displaced by one byte. The loop-local signed-byte
+  variant gives the same result, as does moving the initial escape read
+  before the decrement. Retain the existing unsigned type and read order.
+  Scoping the elapsed counter to the positive-tick branch gives a smaller
+  gain with the loop-local escape flag, and regresses without it. Capturing
+  the first backdrop pointer at draw or loop scope, in either declaration
+  order, gives no further gain. Splitting the escape reads between the
+  draw and skip branches is also worse than the retained scope.
+  `ShowCarrierLaunchSequence` uses an int for the fade accumulator, retaining
+  the explicit short conversion on every increment. This moves its sign
+  extension from the call argument to the loop update, raising literal
+  matching from 806 to 807 of 2,064 bytes. Its 349 differing encodings,
+  95.79% mnemonic score, 28-byte frame and 107 relocations are unchanged.
+  These are measured source choices, not recovered original declarations.
+  Reusing the short object local in the later phases loses 89 file
+  positions, or 77 with the promoted fade accumulator. Short fade-hook
+  arguments lose 326 positions; adding the object guard loses 286, or 78
+  with the promoted accumulator. Keep the existing call types. Separate
+  first-phase approach counters lose 59 or 68 positions depending on scope.
+  The other large-gap probes give no retained change. Main-only signed or
+  plain-char key declarations leave flight controls unchanged; short or
+  unsigned-short repeat flags enlarge it by sixteen bytes. Register hints
+  on an explicit key difference lose four file positions. Parser case-13
+  return assignments, pointer/short destination captures, explicit else
+  blocks, and inverted guards leave output unchanged, including the
+  combinations with its kill and objective tests. Chalkboard score captures
+  lose 84 positions; a scoped short pilot index adds sixteen bytes, while
+  a scoped int loses 85 positions. Narrowing its swap and inner-index scopes
+  gives no gain. Inflight viewport-store ordering and qualified viewport
+  stores or input-mode reads leave output unchanged. Narrowing menu polling's
+  movement and double-click scopes, separately or together, also gives no gain.
+  Stream-allocation comparison reversal, later or narrower voice-pointer
+  declarations, and descriptive parameter/local renames give no gain.
+  Reversing its voice-index addition adds one byte and displaces later
+  audio code. Qualifying the stream-count read loses 1,156 file positions.
+  Reversing both stop expressions or renaming its index gives no gain.
+  All 61 bounded probes are terminal; discarded
+  variants restore the preceding executable hash after a forced rebuild.
+  Only the animation row changes in the normalized report. Raw comparisons
+  of all fifteen cutscene/launch spans identify exactly the two retained
+  routines as changed: 581 animation bytes and 43 launch bytes. Their sum
+  accounts for all 624 changed code positions. Another 56 positions change
+  in the relocation section. All 3,797 mapped symbol/address entries,
+  representing 3,784 distinct names, retain their addresses. Normalized
+  exact functions remain at 1,388, with 157 same-size differences and five
+  size differences totaling a net 26 extra bytes. Mnemonic-perfect functions
+  fall from 1,460 to 1,459; mean similarity remains 99.78%, with three below 90%.
+  Strict whole-file matching gains 46 positions, from 500,557 to 500,603
+  of 518,656 (96.5104% to 96.5193%). There remain 18,053 differences in
+  2,900 runs: 17,054 in code, 998 in relocations, and one in the headers.
+  Code matches 384,354 of 401,408 bytes; relocations match 35,354 of 36,352.
+  The `.rdata`, `.data` and `.idata` sections remain literally exact, and
+  the first difference remains at file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `cf86e7b8ff7bc717ad74a71a639d3c0a19f738d6947061f378f02a3a3f1ed0cd`.

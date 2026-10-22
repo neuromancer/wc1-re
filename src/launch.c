@@ -173,7 +173,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     short actorX;
     short frame;
     short object;
-    short fadeLevel;
+    int fadeLevel;
 
     bIntroSceneResourcesActive = 0;
     carrierScreenX = 180;
