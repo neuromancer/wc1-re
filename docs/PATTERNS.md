@@ -6550,3 +6550,18 @@ size differences to three; `.text` matches 96.2%.
   (gaining the worker and printf routines, losing `Clear`). Check every
   include for new size mismatches: `<direct.h>` in `ix/dsps.cpp` fixed
   `ix_dsps_stop` but changed `ix_dsps_alloc`'s size and is not retained.
+- Hiding a unit's own prototype makes its definition cost one more symbol,
+  a +1 step at that function. With each routine's exact offsets fitted from
+  a 544-offset sweep, a bitmask DP over the unit (scratchpad
+  `protoplan2.py`) finds the smallest set of hidden own prototypes and the
+  uniform include shift that make every offset-only routine exact.
+  `brains.c` hides `formation_break`, `imperial_wingman`,
+  `kilrathi_wingman`, `wingman_mission` and
+  `heat_seeking_missile_intelligence` and includes `<dos.h>`,
+  `<sys/types.h>` and `<assert.h>` (+10); all 46 routines are exact.
+  `view.c` hides `DrawConstellationField` and `CloseDataFileByHandle`
+  (`InitializeConstellationField` is exact). `barracks.c` needs only a
+  uniform +84: `<dos.h>`, `<process.h>`, `<sys/stat.h>` and `<assert.h>`
+  make both offset-only routines exact. `debug.cpp` (C++) does not follow
+  the model's prediction for a hidden worker prototype; the remaining
+  units' plans need negative steps, which hiding cannot produce.

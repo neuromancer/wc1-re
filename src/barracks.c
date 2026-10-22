@@ -8,6 +8,12 @@
  */
 #define WC1_BARRACKS_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <dos.h>
+#include <process.h>
+#endif
+#include <sys/stat.h>
+#include <assert.h>
 
 const TitleMenuRegion aBarracksMenuRegions[21] = {
     { 1, 137, 88, 149, 94 },

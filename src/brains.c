@@ -4,6 +4,11 @@
  */
 #define WC1_BRAINS_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <dos.h>
+#endif
+#include <sys/types.h>
+#include <assert.h>
 
 short nEnemySighting = 0x7fff; /* 0x00465c7c */
 

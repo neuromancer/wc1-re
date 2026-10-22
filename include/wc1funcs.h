@@ -203,10 +203,14 @@ void disallow_engage(void);                                             /* 0x004
 void allow_engage(void);                                                /* 0x00409CF0 */
 void try2allow_engage(int pilotLevel);                                  /* 0x00409D10 */
 void imperial_formation(short obj);                                     /* 0x00409D60 */
+/* The NPC intelligence module defines these without a preceding
+ * prototype. */
+#ifndef WC1_BRAINS_SOURCE
 void formation_break(short obj);                                        /* 0x00409F00 */
 void imperial_wingman(short obj);                                       /* 0x00409F80 */
 void kilrathi_wingman(short obj);                                       /* 0x0040A030 */
 void wingman_mission(short obj);                                        /* 0x0040A130 */
+#endif
 short dist_from_home(short obj);                                        /* 0x0040A160 */
 short scan_and_lock(short obj, int scanRange,
                     enum ShipTactic newTactic);                         /* 0x0040A180 */
@@ -236,7 +240,9 @@ void stationary_intelligence(short obj);                                /* 0x004
 void capital_ship_intelligence(short obj);                              /* 0x0040B140 */
 void futurion_intelligence(short obj);                                  /* 0x0040B320 */
 void mine_intelligence(short obj);                                      /* 0x0040B3A0 */
+#ifndef WC1_BRAINS_SOURCE
 void heat_seeking_missile_intelligence(short obj);                      /* 0x0040B430 */
+#endif
 void FF_missile_intelligence(short obj);                                /* 0x0040B570 */
 void set_sphere_point(const MissionShipRecord *record,
                       FixedVector *position);                           /* 0x0040B670 */
@@ -1148,10 +1154,16 @@ short TheEndFireWorks(Viewport *viewport, short count);                /* 0x0042
 unsigned int InitializeConstellationField(Viewport *viewport,
                                           short direction,
                                           short density);             /* 0x0042D390 */
+/* The view module defines this and CloseDataFileByHandle without a
+ * preceding prototype. */
+#ifndef WC1_VIEW_SOURCE
 unsigned int DrawConstellationField(void);                             /* 0x0042D500 */
+#endif
 short __stdcall OpenPacketSection(const char *filename, short section,
                                   PacketSectionHandle *handle);        /* 0x0042D730 */
+#ifndef WC1_VIEW_SOURCE
 void __stdcall CloseDataFileByHandle(unsigned short *p);                       /* 0x0042D870 */
+#endif
 void * __stdcall DecompressPacketSection(
     PacketSectionHandle *handle, void *destination, unsigned short flags,
     void *decompressionWorkspace);                                    /* 0x0042D880 */
