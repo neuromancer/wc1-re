@@ -5782,3 +5782,42 @@ Shapes recovered with this method:
   (96.4483%), with 18,421 differences in 2,904 runs and the first difference
   at `0x220`. The retained executable SHA-256 remains
   `a88044eb1bfe5584f05ce9cdca92522dc44491497c2f966d2a400a686cc1ef97`.
+- `DrawMedals` uses a separate short counter scoped to its medal-stack
+  loop. This changes eleven register-encoding bytes without changing its
+  244 literal matches in the 432-byte span, its 54 differing encodings,
+  or its twenty relocation operands. The compiler context also restores
+  the original text-colour comparison in `SceneDirector` at `0x00438DAB`,
+  recovering the byte lost during the earlier parser improvement. That
+  routine now matches 1,134 of 1,136 bytes, with two differing encodings
+  out of 257 and all 63 relocations still at their original positions.
+  The local scope is a matching choice, not recovered original source.
+  Narrowing the stack and row-coordinate scopes gives no additional gain.
+  Updating the row coordinate through a chained assignment, with either
+  shared or separate counters, shortens the medal routine by sixteen bytes
+  and is discarded.
+  The other bounded trials give no gain. Signed animation-scale captures
+  lose nine file positions; division by 64 instead of shifting, or using
+  the short object index for the animation tail, leaves output unchanged.
+  The animation routine still has fifteen relocations versus sixteen in
+  the original. Capturing the action-sphere object class as an enum or
+  integer, before or after its guard, loses 117 positions. Signed or long
+  palette byte counts and assigning the palette-clear return values leave
+  the fade output unchanged. Capturing either width of navigation-label
+  index loses 57 positions; narrowing its final reservation-pointer scope
+  gives no gain. All twenty-three probes are complete.
+  The full report changes only the `SceneDirector` row. Direct before/after
+  comparisons of all 32 screens-unit spans confirm that only it and
+  `DrawMedals` change. The complete executable changes twelve byte
+  positions, with a net gain of one original match: 500,236 of 518,656
+  (96.4485%), leaving 18,420 differences in 2,903 runs. Code matches
+  384,003 of 401,408 bytes; relocations remain at 35,338 of 36,352.
+  The `.rdata`, `.data` and `.idata` sections remain literally exact,
+  and the first difference remains at file offset `0x220`.
+  All 3,797 mapped symbol/address entries, representing 3,784 distinct
+  names, retain their addresses. Normalized exact functions remain at
+  1,388 and mnemonic-perfect functions at 1,460; mean similarity is 99.78%.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `1523315b036c936cfa7bc1411f3f4c28bfaedf67cef601081bb4050946112599`.

@@ -556,10 +556,12 @@ unsigned int DrawMedals(void)
             x = asMedalDisplayX[medal];
             stack = medalRowY;
             if (medal < 3) {
-                badge = 0;
-                while (badge < (signed char)
+                short medalCount;
+
+                medalCount = 0;
+                while (medalCount < (signed char)
                                    stCampaignState.medals[medal]) {
-                    badge++;
+                    medalCount++;
                     DrawSpriteDefault(&stSceneBuffer, x, stack,
                                       pMedalSceneShape,
                                       (short)(medal + 25));
