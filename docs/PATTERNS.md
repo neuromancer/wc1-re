@@ -4817,3 +4817,49 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `53c55a599cdbeac580daf364adb871542b722ab692342af47f68f967a69c264b`.
+- `OpenPacketSection` captures the directory entry's compression byte before
+  clearing the handle's final-section flag. This restores the original entry
+  load before the handle-pointer load, resolving two differing encodings and
+  gaining four literal bytes, from 290 to 294 of 320. Its single relocation
+  retains its original position. Exchanging the file-size and section-end
+  declarations does not improve the remaining fourteen differing encodings.
+- `DecompressPacketSection` qualifies the supplied-workspace branch's input-
+  size store as volatile. Together with the existing qualified allocation-
+  size local, this preserves the original word store before the local size
+  initialization. This is a matching source choice, not proof of the original
+  qualifiers. It gains twelve code bytes, from 729 to 741 of 752, and one
+  relocation-section byte. All 32 relocations now occupy their original
+  positions. The remaining eleven differing encodings exchange the packet
+  and allocation-size stack slots. Moving the packet declaration before the
+  size declaration gives no further gain.
+  Other bounded trials are discarded. Explicit packet-handle count captures
+  and a for-loop give no gain; an advancing entry pointer loses 43 file
+  positions and adds an unwanted fourth relocation. Visibility shape-pointer
+  captures and promoted shard-index captures leave their target scores
+  unchanged but lose fourteen file positions in their unit. Capturing the
+  scramble background shape loses 55. Moving the gun-search found-flag
+  initializer first leaves the literal count unchanged while reducing
+  mnemonic similarity; moving it after the count loses 91 positions.
+  Direct goal-array comparisons do not improve the trimming routine's score
+  and lose 461 file positions overall. Capturing joystick button bytes loses
+  two positions; capturing its first device index gives no improvement.
+  Splitting the largest-heap-block base calculation, qualifying the scene
+  animation stop local, and moving its cursor declaration first give no gain.
+  All 23 probes are complete. Only the two retained function rows change
+  in the full report. Direct before/after raw comparisons of all seventeen
+  functions in `view.c` confirm that only those two spans change. Both target
+  routines retain 100% mnemonic similarity. The full report remains at 1,380
+  normalized exact functions, 165 same-size differences and five size
+  differences totaling a net 26 extra bytes. Mean similarity remains 99.75%.
+  Strict whole-file matching rises by seventeen positions, from 495,861 to
+  495,878 of 518,656 (95.6050% to 95.6083%). There remain 22,778 differing
+  positions in 3,277 runs. Code reaches 379,886 of 401,408 matching positions;
+  relocations reach 35,097 of 36,352. The `.rdata`, `.data` and `.idata`
+  sections remain literally exact. Spans, compilation-unit placements, the
+  544-byte uninterrupted matching prefix and the header difference at
+  file offset `0x220` are unchanged.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `a44f21bba92f8e1ccf626fa24a8b0988505741e73ccdc6e3b624cefd9c313909`.

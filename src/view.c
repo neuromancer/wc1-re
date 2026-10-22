@@ -424,8 +424,8 @@ short __stdcall OpenPacketSection(const char *filename, short section,
     if (ReadDataFileAtOffset(file, directoryOffset, 4,
                              &sectionEntry) == 0)
         goto failed;
-    handle->finalSection = 0;
     compression = (short)(sectionEntry >> 24) & 0xff;
+    handle->finalSection = 0;
     sectionEntry &= 0x00ffffff;
     if (sectionCount - sectionIndex == 1) {
         handle->finalSection = 1;
@@ -519,7 +519,7 @@ void * __stdcall DecompressPacketSection(
     }
 
     workspace = IdentityHandle(decompressionWorkspace);
-    wPacketDecompressInputSize = 0x400;
+    *(volatile unsigned short *)&wPacketDecompressInputSize = 0x400;
     allocationSize = 0x3020;
     pPktDecompInput =
         ((PacketDecompressionWorkspace *)decompressionWorkspace)->input;
