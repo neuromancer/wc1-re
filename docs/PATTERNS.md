@@ -6259,3 +6259,77 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `c509175d23e1f1c9250bd650fe1b2e3124e460e9bc9bede3f00c393f5b41722e`.
+- `LoadJoystickCalibrationFile` declares the vertical centre before the
+  file-buffer extrema, and the horizontal centre and vertical range last.
+  The calculations are unchanged. The failed-read flag now uses EBP as in
+  the original, the vertical centre uses ESI, and the final bound sums
+  recover their original instruction lengths and operand order. The
+  unchanged 784-byte span gains 97 literal code positions, from 649 to 746.
+  All 34 relocation operands now occupy their original offsets, up from
+  29, recovering five relocation-section positions. Differing encodings
+  fall from 83 to 25 of 243; mnemonic similarity remains 98.77%, and the
+  forty-byte local frame is unchanged. The remaining centre/range register
+  swap and arithmetic scheduling differences persist. Moving the vertical
+  centre alone gives only seven file positions; moving the horizontal
+  centre last gives 41. Moving the vertical range last as well gives 102.
+  Other tested declaration orders give at most 101, and moving centres or
+  ranges into the active-device block regresses matching or aligned size.
+- `IsPushedPacketHandle` stores the found entry's pushed status in an int
+  result before returning it. This recovers the original ESI index and
+  the move-one/conditional-return shape. The count still uses ECX instead
+  of EAX, leaving its initial load one byte longer than the original.
+  Literal matching improves from five to seven of 64 bytes, with differing
+  encodings falling from 22 to 21 of 22; mnemonic similarity stays 90.91%.
+  Its three relocations remain, with none at the original offsets. Explicit
+  count captures and their declaration orders add no gain. Explicit entry
+  pointers add a relocation and regress matching. Reversing direct-return
+  branches or changing the search-loop shape gives worse assembly despite
+  small incidental literal gains, so those forms are discarded.
+- `CaptureSpriteBackground` and `RestoreSpriteBackground` declare the
+  existing copy length before the run-end coordinate. Calculations and
+  memory accesses are unchanged. Capture gains seven literal positions,
+  from 498 to 505 of 752; differing encodings fall from 101 to 94 of 220,
+  while mnemonic similarity falls from 92.27% to 91.82%. Restoration gains
+  five positions, from 511 to 516 of 768, and differing encodings fall from
+  106 to 101 of 224 at unchanged 92.41% similarity. Both keep their forty-
+  byte local frames and unchanged zero/one relocated operands. Declaring
+  the copy length after the run end or run length gives no additional gain.
+  These are measured source choices for literal matching, not recovered
+  original declaration text; the run-length spill differences remain.
+- Other bounded trials are discarded. Moving the camera's case-four
+  vectors into their only use block leaves its output unchanged. Byte-sized
+  menu change flags passed as the initial zero argument retain the shorter
+  initial clear and lose 125 file positions. Additional short parser
+  destination captures leave the target unchanged while disturbing a later
+  exact function; a long destination changes nothing. Consistent scalar
+  const parameters across the DSP definitions and their declarations compile
+  successfully but leave all tested audio bytes unchanged. This differs
+  from the earlier definition-only const trial, which failed to compile;
+  neither form gives a retained change. Launch shape-pointer arrays were
+  revisited with the current actor-coordinate scope and promoted fade level:
+  grouping all three loses 307 file positions, and grouping the actor and
+  fighter loses three. All 51 native probes are complete, with discarded
+  sources force-restored and checked against the baseline executable hash.
+  Only the four selected rows change in the full report. Direct raw
+  comparisons of all 83 graphics/calibration/screen function spans locate
+  all 179 changed code positions in those four routines; six relocation-
+  section positions change. All 3,797 mapped symbol/address entries,
+  representing 3,784 distinct names, retain their addresses. The report
+  remains at 1,388 normalized exact and 1,459 mnemonic-perfect functions,
+  with 157 same-size differences and five size differences totaling a net
+  26 extra bytes. Mean similarity remains 99.77%, with three functions
+  below 90%.
+  Strict whole-file matching rises by 116 positions, from 501,210 to
+  501,326 of 518,656 (96.6363% to 96.6587%). There remain 17,330 differing
+  positions in 2,824 runs: 16,361 in code, 968 in relocations, and one in
+  the headers. Code matches 385,047 of 401,408 bytes; relocations match
+  35,384 of 36,352. The `.rdata`, `.data` and `.idata` sections remain
+  literally exact, and the first difference remains at file offset `0x220`.
+  The largest remaining function gaps are flight controls (2,760 bytes),
+  carrier launch (1,257), the test parser (717), the chalk board (688),
+  and the inflight computer (654).
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `69ca6bb8d970757162ee0710dcf6357b90f400c2837f84c750d74e88076e1c9b`.

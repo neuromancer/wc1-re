@@ -476,14 +476,16 @@ void *PushMemoryStackFrame(void *memory, int offset)
 int IsPushedPacketHandle(void *handle)
 {
     int index;
+    int pushed;
 
     index = 0;
     if (nPacketHandleTotal > 0) {
         do {
             if (apPacketHandlesList[index] == handle) {
-                if (aiPktHandleDeltas[index] < 0)
-                    return 1;
-                return 0;
+                pushed = 1;
+                if (aiPktHandleDeltas[index] >= 0)
+                    pushed = 0;
+                return pushed;
             }
             index++;
         } while (index < nPacketHandleTotal);
