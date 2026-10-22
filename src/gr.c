@@ -1256,11 +1256,11 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
         int rightExtent;
         int topExtent;
         int bottomExtent;
-        int absoluteSine;
         int horizontalSpan;
         int verticalSpan;
         int transformedHeight;
         int transformedWidth;
+        int absoluteSine;
         int left;
         short top;
         short right;

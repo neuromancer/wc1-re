@@ -6131,3 +6131,66 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `2cbca12678b63be36063b1d8be7cb5557988d0f965fd3a61f01f0226f537daf3`.
+- `GetTransformedShapeBounds` declares its absolute-sine local after the
+  span and transformed-dimension locals. This changes CL 4.20's multiply
+  operand choices and register reuse, removing the two-byte displacement
+  at the failure return. The 432-byte span, eight-byte frame, two original
+  relocation operands, and all following function addresses are preserved.
+  Literal matching rises from 201 to 262 bytes. Differing encodings fall
+  from 101 to 76 of 149, while mnemonic similarity falls from 95.30% to
+  94.63%; retain this intermediate source order for the literal gain.
+  Placing the sine declaration after the left-coordinate local gives the
+  same executable. Placing it after the height local gives the same matching
+  count with different multiply encodings. Moving the cosine declaration
+  after the frame-offset local, or exchanging the right/top extent
+  declarations, gives no further gain. Moving cosine after the intersection
+  result or into the frame branch regresses the function. Five dimension
+  declaration orders alone range from four fewer file matches to three
+  more; none approaches the retained 61-position gain.
+  The larger-gap trials remain unretained. Chalkboard order-slot pointers,
+  at function or loop scope and with either one or both slots captured,
+  lose 101 file positions. Moving and qualifying its viewport store recovers
+  the original store position relative to font initialization but loses one
+  file position; the earlier sort displacement remains. A long score
+  multiplier, reversed score comparison, and a comma-sequenced swap capture
+  leave the executable unchanged. An earlier inline assignment in one
+  subtraction operand was unsequenced relative to a read in the other;
+  discard that candidate rather than relying on its compiler output.
+  Scoping the palette byte count to the allocation sequence, with or
+  without const qualification, gives no literal gain. Capturing an action-
+  sphere mission index loses 117 positions. Capturing the lower-right
+  joystick device index gives no gain; a sample pointer adds sixteen bytes
+  and four relocations. Reversing navigation-label stores adds sixteen
+  bytes. Inflight viewport-pointer captures at three declaration scopes
+  give no gain. Reversing or qualifying the audio-position bounds check,
+  moving its voice-pointer declaration before the guard, or narrowing that
+  pointer's scope also leaves output unchanged. The one-byte audio
+  discrepancy remains; restore its owning DSP archive on each rebuild.
+  Thirty-five valid native probes are complete, plus the discarded
+  unsequenced candidate. All discarded sources were restored with forced
+  rebuilds reproducing the preceding checkpoint's hash. The retained local
+  order reproduces observed code generation; it does not establish the
+  original declaration order.
+  Only the shape-bounds row changes in the full report. Direct before/after
+  comparisons of all 60 graphics-unit spans confirm that only this routine
+  changes; its 193 changed positions account for all changed code bytes.
+  Relocations and every other section remain unchanged from the preceding
+  checkpoint. All 3,797 mapped symbol/address entries, representing 3,784
+  distinct names, retain their addresses. The report remains at 1,388
+  normalized exact and 1,459 mnemonic-perfect functions, with 157 same-size
+  differences and five size differences totaling a net 26 extra bytes.
+  The rounded mean similarity is 99.77%, with three functions below 90%.
+  Strict whole-file matching rises by 61 positions, from 501,039 to 501,100
+  of 518,656 (96.6033% to 96.6151%). All gains are in code, reaching 384,842
+  of 401,408 bytes. Relocations remain at 35,363 of 36,352. There remain
+  17,556 differing positions in 2,893 runs: 16,566 in code, 989 in relocations,
+  and one in the headers. The `.rdata`, `.data` and `.idata` sections remain
+  literally exact. The uninterrupted matching prefix remains 544 bytes,
+  with the first difference at file offset `0x220`. The largest gaps remain
+  flight controls (2,760 bytes), carrier launch (1,257), and the conversation-
+  test parser (797); the shape-bounds gap falls from 231 bytes to 170.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `e4a96386ec5f011f12b5fdfc92c8db01fb4e0afbaa5ccf492d62d6264874f2cf`.
