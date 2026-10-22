@@ -6194,3 +6194,68 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `e4a96386ec5f011f12b5fdfc92c8db01fb4e0afbaa5ccf492d62d6264874f2cf`.
+- `ParseTests` shares an int destination between the medal test in case 13
+  and the late-ejection test in case 26. Both still receive the signed-short
+  result of `int_value`. This changes return-value scheduling and recovers
+  eighty literal code bytes in the unchanged 2,608-byte span, from 1,811
+  to 1,891 matches. All 76 relocated operands remain; operands at original
+  offsets increase from 55 to 71, recovering sixteen relocation-section
+  positions. The four-byte local frame remains unchanged. Differing
+  encodings fall from 264 to 253 of 820, while mnemonic similarity falls
+  from 97.93% to 97.20%. This is a measured source choice for literal
+  matching, not a claim that the original destination declaration is known.
+  A separate case-26 int gives the same parser result but changes the
+  previously exact `ShowVictoryScreen`, losing eleven file positions.
+  Sharing the existing destination avoids that regression. Declaring the
+  shared destination first, last, or around the second switch gives the
+  same literal gain; keep it last at function scope to minimize the edit.
+  Extending it to case 6, 7, or 14 gives a worse result. Capturing the
+  kill-test destination only inside its guard gives no additional gain.
+- `CaptureSpriteBackground` and `RestoreSpriteBackground` declare their
+  existing run-end coordinate before the count words. Their calculations
+  and memory accesses are unchanged. Capture gains eleven literal bytes,
+  from 487 to 498 of 752, with differing encodings falling from 104 to 101
+  of 220 and mnemonic similarity rising from 91.36% to 92.27%. Restoration
+  gains three bytes, from 508 to 511 of 768; its differing encodings fall
+  from 108 to 106 of 224, while mnemonic similarity falls from 93.30% to
+  92.41%. Both retain their forty-byte local frames. Capture has no
+  relocations; restoration retains its one operand at the original offset.
+  Moving only the capture skip local gives a smaller gain, and moving its
+  run end after the pixel pointer gains ten bytes. Combining run-end and
+  skip declaration moves gives no further gain, or regresses restoration.
+  The run-length spill and remaining clipping-register differences persist.
+- Other bounded trials are discarded. Weapon-position pointer captures,
+  qualified cockpit message/frame reads, font destination-pointer moves,
+  reversed font pointer sums, and first-rectangle coordinate captures give
+  no net improvement; several disturb aligned spans or later code.
+  Qualifying the loop-local scramble escape snapshot leaves that routine's
+  comparison unchanged but disturbs later layout. Capturing its decrement
+  in a loop-local short loses 49 file positions. Six further RLE local
+  declaration orders give no gain. Promoting parser destinations in cases
+  7, 8, 14, 15, or 18 regresses the file, as does a guarded case-26 capture
+  or an additional promoted kill destination. Captured camera comparison
+  pointers also regress matching. All fifty native probes are complete,
+  with discarded sources force-restored and checked against the baseline
+  executable hash before applying the selected changes.
+  Only the three selected rows change in the full report. Direct raw
+  comparisons of all 92 graphics/screens function spans locate all 1,363
+  changed code positions in those three routines; 21 relocation-section
+  positions change. All 3,797 mapped symbol/address entries, representing
+  3,784 distinct names, retain their addresses. The report remains at
+  1,388 normalized exact and 1,459 mnemonic-perfect functions, with 157
+  same-size differences and five size differences totaling a net 26 extra
+  bytes. Mean similarity remains 99.77%, with three functions below 90%.
+  Strict whole-file matching rises by 110 positions, from 501,100 to
+  501,210 of 518,656 (96.6151% to 96.6363%). There remain 17,446 differing
+  positions in 2,882 runs: 16,472 in code, 973 in relocations, and one in
+  the headers. Code matches 384,936 of 401,408 bytes; relocations match
+  35,379 of 36,352. The `.rdata`, `.data` and `.idata` sections remain
+  literally exact, and the first difference remains at file offset `0x220`.
+  The largest remaining function gaps are flight controls (2,760 bytes),
+  carrier launch (1,257), the test parser (717), the chalk board (688),
+  and the inflight computer (654).
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `c509175d23e1f1c9250bd650fe1b2e3124e460e9bc9bede3f00c393f5b41722e`.

@@ -711,6 +711,7 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame)
 {
+    int endX;
     unsigned short count;
     unsigned short runLength;
     unsigned char *commands;
@@ -728,7 +729,6 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
     int frameOffset;
     int drawX;
     int drawY;
-    int endX;
     int skip;
 
     saved = background;
@@ -845,6 +845,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame)
 {
+    int endX;
     unsigned short count;
     unsigned short runLength;
     unsigned char *commands;
@@ -862,7 +863,6 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
     int frameOffset;
     int drawX;
     int drawY;
-    int endX;
     int skip;
 
     saved = background;
