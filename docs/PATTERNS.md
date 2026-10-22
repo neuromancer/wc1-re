@@ -4746,3 +4746,74 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `4e837e7fbb6206541ffcf7c125ac9a09a4a6399304b427f6bccd31e91f1b0a15`.
+- `Explosion` skips the shock wave from its later capital-ship branch,
+  after reloading the object's class. Testing the class captured at entry
+  after both branches is incorrect and keeps that snapshot in EBX across
+  calls. Place a shock-wave call in the non-capital ship branch and another
+  after the non-ship setup. CL merges the common tail, frees EBX for the
+  scaled object index, and emits the original direct jump around the shock
+  wave from the capital-ship path. A shared source label also matches this
+  function, but changes registers in `fire_missile` and `drop_mine`, losing
+  42 and sixteen literal bytes respectively. The two source calls preserve
+  both neighbors' exact matches.
+  Use `< 3` for the random radio-message test, select the explosion type with
+  an if/else, and assign the returned explosion object again in the non-ship
+  branch before `set_objects_data`. Each reproduces an observed instruction
+  or store. Initialize the replacement-wingman scan after setting the killed
+  flag; this restores CX for the counter and resolves the final seven
+  encodings. Moving its declaration instead gives no improvement.
+  The complete change raises mnemonic similarity from 94.62% to 100%,
+  resolves all 123 differing encodings, and matches all 480 bytes, up from
+  36. All 22 relocations now occupy their original positions. Including the
+  relocation section, this gains 465 matching file positions.
+- `fire_turrets` tests the target count with a postdecrement. The original
+  stores the returned count, decrements its stack word, and tests the old
+  value in AX. A separate decrement followed by comparison with -1 changes
+  the instruction sequence and the two stack-local slots. The postdecrement
+  restores both, gaining 361 file positions. Literal matching rises from
+  30 to 382 of 384 bytes; differing encodings fall from 107 to two, and
+  mnemonic similarity rises from 96.52% to 99.13%. The two remaining bytes
+  reverse the circular-scan comparison and its equivalent branch condition.
+  All nine relocations now occupy their original positions. Exchanging the
+  count and weapon declarations, reversing the comparison operands, or
+  folding the target-index increment into that comparison gives no further
+  improvement.
+- `transform_objects_to_your_view` tests the class against
+  `OBJECT_CLASS_EXPLOSION` with `>=`, reproducing the original `CMP 5`/`JL`
+  boundary instead of `CMP 4`/`JLE`. This gains two literal bytes, reaching
+  476 of 864; differing encodings fall from 110 to 109 and mnemonic
+  similarity rises from 96.14% to 96.62%.
+  The broader clamp reconstruction remains unretained. An unsigned short
+  scale local reproduces the original clamp and single common store, but
+  exposes the undersized switch table and shortens the full span by sixteen
+  bytes. The original table has six entries, including individual no-op
+  entries for debris and asteroids. Adding those two empty cases produces
+  only five entries, with 48 relocations against the original 49. Changing
+  one break to continue, separating the cases in source, regrouping the dust
+  frame expression, or capturing its computed base does not recover the
+  missing entry. A conditional radius assignment also leaves the output
+  unchanged. These trials are restored rather than retaining shifted units.
+  Cockpit message captures leave output unchanged; frame captures lose
+  three file positions, or five with the message capture. Promoting the
+  housekeeping object index into a used int local loses 23 or nine file
+  positions depending on declaration order. None is retained.
+  All thirty bounded probes are complete. Only the three retained target
+  rows change in the full report. Direct before/after raw comparisons of
+  all 159 functions in their two units confirm that only those three spans
+  change. Normalized exact functions rise from 1,379 to 1,380; same-size
+  differences fall from 166 to 165. Five size differences remain, totaling
+  a net 26 extra bytes. There are 1,453 mnemonic-perfect functions, mean
+  similarity is 99.75%, and three functions remain below 90%. Spans and
+  compilation-unit placements are unchanged.
+  Strict whole-file matching rises by 828 positions, from 495,033 to
+  495,861 of 518,656 (95.4453% to 95.6050%). There remain 22,795 differing
+  positions in 3,285 runs. Code gains 798 positions, reaching 379,870 of
+  401,408; relocations gain thirty, reaching 35,096 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same relocation virtual-size
+  difference at file offset `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `53c55a599cdbeac580daf364adb871542b722ab692342af47f68f967a69c264b`.

@@ -1295,15 +1295,15 @@ short Explosion(short obj)
             (acShipRating[obj] != -1 ||
              (missionShip != -1 &&
               anShipMissionShips[obj] == missionShip) ||
-             RandomBelow(100) <= 2)) {
+             RandomBelow(100) < 3)) {
             send_message(obj, 7);
         }
         rating = acShipRating[obj];
         if (rating != -1 && rating != RATING_ACE_ICEMAN)
             personality_killed((short)rating);
         if (nYourWingman == obj) {
-            missionShip = 0;
             nCurrentWingmanKilledThisMission = 1;
+            missionShip = 0;
             for (; missionShip < 10; missionShip++) {
                 if (acShipRating[missionShip] >
                     RATING_ACE_ICEMAN)
@@ -1329,21 +1329,25 @@ short Explosion(short obj)
                     aeObjectTypeList[obj]].damageCapacity >> 2) + 8;
         } else {
             explosion = ShipExplosion(obj);
+            explosion_shock_wave(
+                obj, aObjectTypeData[
+                    aeObjectTypeList[obj]].explosionDamage);
         }
     } else {
-        explosionType = OBJECT_TYPE_EXPLOSION2;
         if (aeObjectTypeList[obj] == OBJECT_TYPE_TURRET ||
             objectClass == OBJECT_CLASS_ASTEROID)
             explosionType = OBJECT_TYPE_EXPLOSION0;
+        else
+            explosionType = OBJECT_TYPE_EXPLOSION2;
+        explosion = obj;
         set_objects_data(obj, explosionType,
                          acObjOwnersTable[obj]);
         if (aeObjectClass[obj] == OBJECT_CLASS_ASTEROID)
             awObjectScales[obj] = 0x380;
-    }
-    if (objectClass != OBJECT_CLASS_CAPITAL_SHIP)
         explosion_shock_wave(
             obj, aObjectTypeData[
                 aeObjectTypeList[obj]].explosionDamage);
+    }
     if (asObjectScreenXList[obj] != (short)0x8001)
         PlaySfxWaveFileByNumber(4, obj, 0);
     return explosion;
@@ -1790,8 +1794,7 @@ int fire_turrets(short obj)
     int loadoutOffset;
 
     lastTarget = build_target_list(obj, 5000);
-    lastTarget--;
-    if (lastTarget == -1)
+    if (lastTarget-- == 0)
         return 0;
 
     loadoutOffset = (int)obj * sizeof(aShipWeaponsTable[0]);

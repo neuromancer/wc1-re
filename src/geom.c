@@ -1293,7 +1293,7 @@ void transform_objects_to_your_view(void)
                 asObjectCollisionRadius[objectIndex] * 0x100;
             if (distance <= objectRadius)
                 distance = objectRadius + 1;
-            if (aeObjectClass[objectIndex] > OBJECT_CLASS_DUST) {
+            if (aeObjectClass[objectIndex] >= OBJECT_CLASS_EXPLOSION) {
                 scaleFactor = DivideFixed(
                     (short)(nScreenWidth & ~1) << 15,
                     distance - objectRadius);
