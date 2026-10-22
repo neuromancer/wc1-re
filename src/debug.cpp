@@ -8,6 +8,7 @@
  */
 #include "wc1.h"
 #include <stdarg.h>
+#include <signal.h>
 
 int nDebugOverlayConsoleCount = 0; /* 0x00469644 */
 DWORD dwDebugOverlayKey = 0; /* 0x00469648 */

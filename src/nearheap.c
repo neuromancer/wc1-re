@@ -2,6 +2,9 @@
  * DOS near-heap descriptor allocation and compaction.
  * Placement and boundary evidence are recorded in docs/ORDER.md.
  */
+#ifndef SDL_PORT
+#include <process.h>
+#endif
 #define WC1_NEARHEAP_SOURCE
 #include "wc1.h"
 
@@ -368,9 +371,9 @@ void FreeNearHeapBlock(void *pointer)
 int GetNearHeapBlockSize(void *pointer)
 {
     NearHeapBlock *block;
-    int address;
     int descriptorAddress;
     int size;
+    int address;
 
     size = 0;
     address = DosFarPtrToNear(pointer);

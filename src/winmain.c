@@ -884,8 +884,8 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     PAINTSTRUCT paint;
     int mouseEvent;
     unsigned int scanCode;
-    unsigned int secondaryButton;
     unsigned int primaryButton;
+    unsigned int secondaryButton;
     unsigned int mouseX;
     unsigned int mouseY;
     unsigned int command;

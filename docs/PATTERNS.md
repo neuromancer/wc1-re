@@ -6538,3 +6538,15 @@ size differences to three; `.text` matches 96.2%.
   matches everything except one `stScreenView` operand-order tie, which no
   probe offset in 0..63 or single `extern` move fixes; it is not yet
   retained.
+- A uniform shift and local orders combine: choose the unit offset where
+  the most routines are exact, then reorder the remaining routines' locals
+  at that offset. `nearheap.c` includes `<process.h>` ahead of `wc1.h` and
+  declares `GetNearHeapBlockSize`'s locals as `block`, `descriptorAddress`,
+  `size`, `address`; all nine heap routines are exact. `video.c` declares
+  `entry` before `entryCount`, puts `index` first in the allocation map,
+  and includes `<dos.h>` and `<sys/types.h>` (+8); all four routines are
+  exact. `MainWindowProc` declares `primaryButton` before
+  `secondaryButton` and is exact; `debug.cpp` includes `<signal.h>`
+  (gaining the worker and printf routines, losing `Clear`). Check every
+  include for new size mismatches: `<direct.h>` in `ix/dsps.cpp` fixed
+  `ix_dsps_stop` but changed `ix_dsps_alloc`'s size and is not retained.

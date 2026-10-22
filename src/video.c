@@ -5,6 +5,10 @@
  */
 #define WC1_VIDEO_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <dos.h>
+#endif
+#include <sys/types.h>
 
 unsigned short nVideoMode = 0xffff; /* 0x0046b168 */
 
@@ -63,8 +67,8 @@ short __stdcall ReserveContiguousPaletteEntries(short entryCount)
 /* Function start: 0x431970 */
 void __stdcall ReleaseContiguousPaletteEntries(short firstEntry)
 {
-    short entryCount;
     short entry;
+    short entryCount;
 
     entry = 0;
     entryCount = awPalEntryAllocation[firstEntry];
@@ -77,9 +81,9 @@ void __stdcall ReleaseContiguousPaletteEntries(short firstEntry)
 /* Function start: 0x4319B0 */
 void PrintPaletteAllocationMap(void)
 {
+    short index;
     short row;
     short column;
-    short index;
 
     index = 0;
     row = 4;
