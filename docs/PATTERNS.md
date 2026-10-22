@@ -5204,3 +5204,53 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `fe50d3789638d323eb0e6ed997084f45dea75a560355168053ff760086f6a5de`.
+- `ReserveContiguousPaletteEntries` clears first entry before free count and
+  entry index. This restores the original initial `XOR DX,DX`, `XOR CX,CX`,
+  `XOR EAX,EAX` order. Literal matching rises from 103 to 106 of 112 bytes,
+  and differing encodings fall from nine to six of 39. The remaining six
+  differences are register choices in the final allocation loop. Its span
+  and both relocation positions remain unchanged. Reusing entry index for
+  that loop or clearing free count last gives no gain. This initialization
+  order is a matching choice, not recovered original source spelling.
+  A raw audit of all 1,384 normalized-exact functions finds fifteen spans
+  with literal differences. They are existing operand-order, register and
+  displaced-audio-call differences; normalized exactness does not establish
+  literal equality. Qualifying or capturing the two objective-range reads
+  creates six differing encodings and loses more than 13,000 file positions.
+  The equivalent pilot-frame read trials leave output unchanged. Qualifying
+  the next-wave index operands also leaves output unchanged; capturing their
+  sum loses 105 file positions. Ordering the free-heap boundary reads loses
+  sixty positions, and moving the damage-level declaration first loses four.
+  Qualifying the sprite-background run length and capturing its shared
+  cursor advance, either in a separate local or the existing skip local,
+  enlarges each capture/restore variant by sixteen bytes. Separate locals
+  also regress neighboring graphics functions. All four trials are discarded.
+  Debug-console declaration order, moving its context before the wait,
+  initializing the console in its declaration, and capturing the clock
+  function pointer give no literal gain. The clock-pointer trials also
+  reduce mnemonic similarity. Two object-colour switch variants lose 209
+  and 281 file positions. Capturing enemy side inside the class/manoeuvre
+  guard leaves that target unchanged but loses 72 positions elsewhere.
+  Six parser trials leave output unchanged: moving the code or cursor
+  declarations, returning an advanced scene pointer in case six, case seven,
+  or all applicable cases, and reversing pointer-addition operands in case
+  six. None is retained.
+  All twenty-nine probes are complete. Only the palette-allocation row
+  changes in the full report. Direct before/after raw comparisons of all
+  four video-unit functions confirm that only its span changes. All 3,797
+  mapped symbol/address entries, representing 3,784 distinct names, retain
+  their addresses. The report remains at 1,384 normalized exact and 1,457
+  mnemonic-perfect functions, with 161 same-size differences and five size
+  differences totaling a net 26 extra bytes. Mean similarity remains 99.77%,
+  with three functions below 90%.
+  Strict whole-file matching rises by three positions, from 497,527 to
+  497,530 of 518,656 (95.9262% to 95.9268%). There remain 21,126 differing
+  positions in 3,113 runs. Code reaches 381,464 of 401,408 matching positions;
+  relocations remain at 35,171 of 36,352. The `.rdata`, `.data` and `.idata`
+  sections remain literally exact. The uninterrupted matching prefix remains
+  544 bytes, with the same header difference at file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `ffe5f1f79f91507364888606d4846e713470eacc4c6ee1fa55bd33c5b2f929e0`.

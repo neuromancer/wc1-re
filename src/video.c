@@ -35,9 +35,9 @@ short __stdcall ReserveContiguousPaletteEntries(short entryCount)
     short freeEntries;
     short firstEntry;
 
+    firstEntry = 0;
     freeEntries = 0;
     entry = 0;
-    firstEntry = 0;
     for (;;) {
         if (awPalEntryAllocation[entry] != 0) {
             freeEntries = 0;
