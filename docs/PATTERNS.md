@@ -5741,3 +5741,44 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `a88044eb1bfe5584f05ce9cdca92522dc44491497c2f966d2a400a686cc1ef97`.
+- A strict literal audit now covers all 1,550 annotated function spans at
+  their original file positions, using binary-comp for every comparison.
+  Of the 1,388 normalized-exact functions, 1,373 are literally exact and
+  fifteen retain operand-order or shifted-call differences. All 162 other
+  report entries retain literal differences, giving 177 remaining spans.
+  The source spans cover 296,316 `.text` bytes and contain all 17,406 code
+  differences. Concatenating the four intervening unannotated intervals
+  and comparing them with binary-comp proves their complete 105,092 bytes
+  exact, including both generated initializer pairs, the import thunks,
+  and CRT regions. The ten LZO/file spans absent from `src/map` are bounded
+  by their original disassembly exports and also match literally.
+  The whole-file remainder is therefore 17,406 code positions, 1,014
+  relocation-section positions, and the one existing header position.
+  Every source span has its original relocation count except `animate_shape`
+  at `0x00412CD0`: sixteen original HIGHLOW operands versus fifteen rebuilt.
+  The complete images contain 15,446 and 15,445 HIGHLOW entries respectively.
+  The largest literal deficits are `HandleSpaceFlightControls` (2,760 bytes),
+  `ShowCarrierLaunchSequence` (1,566), `ParseTests` (1,091),
+  `ShowChalkBoard` (688), and `InflightComputer` (660).
+  Twenty-three bounded source probes give no whole-file gain and are
+  discarded. Initializing the rout/attacker counters in their declarations,
+  or applying register hints, leaves output unchanged. Capturing only the
+  navigation triangle's top loses 116 file positions; four explicit bounds
+  lose 147. Promoting the font character index into a separate integer in
+  either declaration order adds sixteen bytes. Moving its existing index
+  declaration first or before its character-data pointer also adds sixteen;
+  qualifying and splitting the font-pointer reload adds 32.
+  Declaring the sprite-background saved pointer before its command pointer,
+  moving the run length after the clipping bounds, or initializing the saved
+  cursor in its declaration leaves both capture and restoration unchanged.
+  Qualifying either formation-table index read gives no gain. The existing
+  afterburner timer capture, under either descriptive local spelling,
+  makes acceleration exact but still regresses the following animation
+  routine, losing five file positions overall. Unsigned address arithmetic
+  or an unsigned byte accumulator leaves the free-heap query unchanged.
+  All probes restore their sources and force a native rebuild; every restore
+  reproduces the preceding fully verified checkpoint. No reconstruction
+  change is retained. Whole-file matching remains 500,235 of 518,656
+  (96.4483%), with 18,421 differences in 2,904 runs and the first difference
+  at `0x220`. The retained executable SHA-256 remains
+  `a88044eb1bfe5584f05ce9cdca92522dc44491497c2f966d2a400a686cc1ef97`.
