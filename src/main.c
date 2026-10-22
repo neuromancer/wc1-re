@@ -908,7 +908,7 @@ unsigned int player_input(void)
     unsigned int key;
 
     cPreviousKey = (signed char)bCurrentKey;
-    nPrevYawInput = nYawInputValue;
+    *(volatile short *)&nPrevYawInput = nYawInputValue;
     nPrevPitchInputValue = nPitchInput;
     nPreviousRollInputValue = nCurrentRollInputValue;
     keyboardRoll = 0;
@@ -1026,7 +1026,7 @@ unsigned int player_input(void)
                     SPECIAL_MANEUVER_AFTERBURNER)
                 buttons = 0;
             if (buttons != 0) {
-                nCurrentRollInputValue =
+                *(volatile short *)&nCurrentRollInputValue =
                     (short)stLastPolledFlightInput.x;
                 accelerate((short)-(
                     stLastPolledFlightInput.y / 2));
@@ -1043,7 +1043,7 @@ unsigned int player_input(void)
                         stLastPolledFlightInput.y ||
                     stLastPolledFlightInput.x != 0 ||
                     stLastPolledFlightInput.y != 0) {
-                    nYawInputValue =
+                    *(volatile short *)&nYawInputValue =
                         (short)stLastPolledFlightInput.x;
                     nPitchInput =
                         (short)-stLastPolledFlightInput.y;

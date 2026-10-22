@@ -5576,3 +5576,59 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `022f65eb7c55c2f27c4ba667356d1ca039d69c5c80b1e3d5bed7b51b557deb21`.
+- `player_input` qualifies three stores: the initial previous-yaw snapshot,
+  and the joystick X values written to the current roll and yaw words.
+  Together these retain the original full-width sample-X reads before the
+  two word stores, while preserving the initial input-read/store schedule.
+  The two former operand-size prefixes displaced much of the function by
+  one or two bytes. The complete 1,728-byte span now matches at 1,724
+  positions, up from 860. Differing encodings fall from 227 to four of 397;
+  mnemonic similarity remains 99.50%. All 137 relocation operands now
+  occupy their original positions, versus seventy before. The only four
+  differing bytes are the reversed operands and branch directions of the
+  two initial mouse-threshold comparisons. These qualified accesses are
+  matching source choices, not recovered original qualifier spelling.
+  This also improves the preceding `players_flight_dynamics` from 231 to
+  243 literal matches in its 256-byte span. Differing encodings fall from
+  nine to three of 62, with mnemonic similarity unchanged at 96.77%.
+  Its relocation count remains 24, with original-position offsets increasing
+  from 22 to 23. The pitch-input load and multiply still exchange order with
+  the shared type-offset calculation.
+  Qualifying only the joystick roll store gains 129 file positions; only the
+  yaw store loses 53. Combining those two without the previous-yaw store
+  shortens the function by sixteen bytes. Adding all three previous-input
+  stores restores its size and gains 911 positions. Only the previous-yaw
+  store is needed: removing the pitch qualification recovers 35 more
+  positions, and removing the roll qualification leaves output unchanged.
+  Qualifying the previous pitch alone retains the size loss; qualifying the
+  previous roll alone, or pitch and roll together, gains 873 positions.
+  A declaration initializer for the keyboard-roll flag gains three positions
+  over the all-three-previous-stores candidate, still below the retained
+  result. Guarded mouse-threshold loops, with or without qualified initial
+  reads, lose four positions. Qualifying both complete threshold loops
+  leaves output unchanged and is unnecessary.
+  Four transformed-bounds trials are discarded. Moving its height local
+  before the frame pointer adds sixteen bytes. Moving the sine coefficient
+  to function scope or the cosine coefficient into the frame branch loses
+  25 and seventeen file positions respectively. Sequential assignments for
+  the left-edge calculation leave output unchanged.
+  All eighteen probes are complete. Only the two input/dynamics rows change
+  in the full report. Direct before/after raw comparisons of all 53 functions
+  in `main.c` confirm that only those spans change. All 3,797 mapped
+  symbol/address entries, representing 3,784 distinct names, retain their
+  addresses. The report remains at 1,388 normalized exact and 1,459
+  mnemonic-perfect functions, with 157 same-size differences and five size
+  differences totaling a net 26 extra bytes. Mean similarity remains 99.77%,
+  with three functions below 90%.
+  Strict whole-file matching rises by 946 positions, from 497,864 to
+  498,810 of 518,656 (95.9912% to 96.1736%). There remain 19,846 differing
+  positions in 2,959 runs. Code gains 876 positions, reaching 382,652 of
+  401,408; relocations gain seventy, reaching 35,263 of 36,352. The
+  `.rdata`, `.data` and `.idata` sections remain literally exact. The
+  uninterrupted matching prefix remains 544 bytes, with the same header
+  difference at file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `5c51835e28e3441090478fef0c0297a90f48b4b762d259715f19d0a6f247bcd5`.
