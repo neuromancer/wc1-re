@@ -6,6 +6,10 @@
  *  final routine is chase_speed, immediately followed by the random unit.
  */
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <dos.h>
+#include <process.h>
+#endif
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 FixedVector aShipRightVector[64]; /* 0x0059b6e0 */

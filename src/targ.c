@@ -2,6 +2,9 @@
  * Mac targ symbols corroborate the 42a8f0-42acff range.
  */
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <process.h>
+#endif
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 TextContext stRightVduTxtContext; /* 0x005a7700 */

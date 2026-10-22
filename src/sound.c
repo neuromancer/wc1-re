@@ -3,6 +3,9 @@
  * the unit boundary; see docs/ORDER.md.
  */
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <malloc.h>
+#endif
 
 static ActiveSoundEntry *pActiveSoundHead = 0; /* 0x0046a438 */
 static ActiveSoundEntry *pActiveSoundTail = 0; /* 0x0046a43c */

@@ -4,6 +4,9 @@
  */
 #define WC1_CUTSCENE_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <process.h>
+#endif
 
 static signed char cScrambleLeftWalkerFrame = 7; /* 0x00465768 */
 static signed char cScrambleRightWalkerFrame = 10; /* 0x0046576c */
@@ -373,9 +376,9 @@ unsigned int PlayScrambleHangarScene(void)
 /* Function start: 0x407C90 */
 unsigned int DrawScrambleActor(short actorIndex)
 {
-    signed char animationFrame;
     signed char frame;
     unsigned char control;
+    signed char animationFrame;
     short x;
     short y;
 

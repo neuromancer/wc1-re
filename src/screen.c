@@ -4,6 +4,9 @@
  *  Address range 42efc0-42fa8f (see docs/ORDER.md).
  */
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <malloc.h>
+#endif
 
 
 /* Linker commons defined here; LINK orders them by identifier hash. */

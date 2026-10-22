@@ -8,6 +8,11 @@
 #include "ix.h"
 #include <stdlib.h>
 #include <string.h>
+#ifndef SDL_PORT
+#include <process.h>
+#include <crtdbg.h>
+#endif
+#include <fcntl.h>
 
 #pragma function(memcpy)
 

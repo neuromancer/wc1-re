@@ -6487,3 +6487,18 @@ shift, and a DP over the 8,224 residues gives the fewest offset changes per
 unit. In `brains.c` these changes cut the boundaries from two to one.
 The byte report improves from 1,389 to 1,394 exact functions and from five
 size differences to three; `.text` matches 96.2%.
+- Single-offset units realized with includes after `wc1.h` (as the leaked
+  main module follows `<game.h>` with `<dos.h>`): `smart.c` takes `<dos.h>`
+  and `<process.h>` (+63), `targ.c` and `cutscene.c` take `<process.h>`
+  (+62), the near-heap and memory-stack module `screen.c` takes
+  `<malloc.h>` (+14), and `sound.c` also takes `<malloc.h>`. `ix/thread.cpp`
+  takes `<process.h>`, `<crtdbg.h>` and `<fcntl.h>`. `winmain.c` includes
+  `<stdio.h>` ahead of `wc1.h`, which moves only header symbols and fixes
+  `ShutdownGameWindow`'s import-pointer registers. It then takes `<crtdbg.h>`
+  and `<assert.h>` (+37). Every exact routine in those units stays exact.
+  `cutscene.c`'s `DrawScrambleActor` declares `frame`, `control`, then
+  `animationFrame`; no order with `animationFrame` first is exact.
+  `smart.c`, `targ.c` and `ix/thread.cpp` are now fully exact. The byte
+  report rises from 1,394 to 1,404 exact functions; never-exact
+  `PlayScrambleHangarScene` shows more differing bytes at the new
+  `cutscene.c` offset.

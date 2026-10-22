@@ -4,8 +4,13 @@
  *  Address range 401000-402e7f (see docs/ORDER.md).
  *  Boundary evidence: CreateMainWindow/MainWindowProc/AbortToDesktop cluster; string band 465048-465354.
  */
+#include <stdio.h>
 #define WC1_WINMAIN_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <crtdbg.h>
+#include <assert.h>
+#endif
 
 short nHazardReferenceSpeed = 0; /* 0x00465040 */
 short nActiveHazards = 0; /* 0x00465044 */
