@@ -5939,3 +5939,65 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `cf86e7b8ff7bc717ad74a71a639d3c0a19f738d6947061f378f02a3a3f1ed0cd`.
+- `ParseTests` keeps the medal-test destination in a case-local int,
+  receiving the same signed-short result from `int_value`. This changes
+  the return scheduling: case 26 becomes two bytes shorter and cancels the
+  earlier displacement, bringing case 28 and the later tests back into
+  alignment from `0x00438941`. Case 13 itself still differs from the
+  original register sequence. This is a measured matching choice, not
+  recovered original source spelling.
+  Literal matching rises from 1,517 to 1,811 bytes in the unchanged
+  2,608-byte parser span. Differing encodings fall from 368 to 264 of 820,
+  and mnemonic similarity rises from 97.80% to 97.93%. All 76 relocation
+  operands remain; the count at original offsets falls from 56 to 55.
+  Moving the destination declaration to any of three function-scope
+  positions, reversing the pointer addition, using an indexed address,
+  or making the scene pointer const gives the same result. Keep the
+  smallest scope and ordinary pointer addition. Promoting the destination
+  only inside its guard gives no gain; narrowing it at the return loses
+  78 file positions relative to the preceding checkpoint. Reusing the
+  existing second short for the medal test also leaves output unchanged.
+  Promoting the kill-test destination alone gains 134 file positions;
+  combining it with the retained medal destination gains 265, less than
+  the retained change's 293. Promoting the shared first argument short
+  removes sixteen bytes from the parser span. Qualifying the scene pointer
+  volatile removes 64 bytes, with or without the medal change. Discard
+  those span-changing alternatives.
+  The other large-gap trials give no retained change. Capturing the current
+  chalkboard pilot record, at loop or function scope, loses 60 file
+  positions and one relocation operand. Capturing both compared records
+  removes sixteen code bytes and two relocation operands. Reversing the
+  flight-control key comparison, expressing it as a wrapped or promoted
+  difference, and expressing it as XOR give no literal gain. Moving the
+  keyboard declarations among meaningful keyboard groups also gives no
+  gain; two placements lose two positions. A separate unset launch sound
+  handle recovers one position through its DWORD guard, but does not fix
+  the 28-byte frame versus the original 32. That original stack slot has
+  only a short initialization, and its interpretation as a separate
+  handle remains unconfirmed; do not retain that speculative declaration.
+  All thirty-four probes are complete, and discarded sources were restored
+  with forced rebuilds reproducing the preceding checkpoint's hash.
+  Only the parser row changes in the full report. Direct before/after
+  comparisons of all 32 screens-unit spans confirm that only `ParseTests`
+  changes. The complete code section changes at 346 positions, all in that
+  routine, and one relocation-section position changes. All 3,797 mapped
+  symbol/address entries, representing 3,784 distinct names, retain their
+  addresses. The report remains at 1,388 normalized exact and 1,459
+  mnemonic-perfect functions, with 157 same-size differences and five size
+  differences totaling a net 26 extra bytes. Mean similarity remains
+  99.78%, with three functions below 90%.
+  Strict whole-file matching rises by 293 positions, from 500,603 to
+  500,896 of 518,656 (96.5193% to 96.5758%). The code section gains 294
+  positions, reaching 384,648 of 401,408; relocations lose one, reaching
+  35,353 of 36,352. There remain 17,760 differing positions in 2,899 runs:
+  16,760 in code, 999 in relocations, and one in the headers. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the first difference at file
+  offset `0x220`. The largest remaining function gaps are flight controls
+  (2,760 bytes), carrier launch (1,257), the conversation-test parser (797),
+  the chalkboard (688), and the inflight computer (660).
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `407fa6297b4ce9e664ca0a5ff30b1f64448f71dbc6ef18ff5af252e45e3b83b2`.

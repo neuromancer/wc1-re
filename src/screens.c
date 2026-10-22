@@ -1082,11 +1082,14 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
             break;
         }
         switch (testCode) {
-        case 13:
-            first = int_value(&test);
+        case 13: {
+            int destination;
+
+            destination = int_value(&test);
             if (nCurrentConversationMedalIndex == 4)
-                return sceneData + first;
+                return sceneData + destination;
             break;
+        }
         case 14:
             first = int_value(&test);
             if (nCurrentConversationMedalIndex < 3)
