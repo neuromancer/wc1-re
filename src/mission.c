@@ -954,9 +954,10 @@ unsigned int init_intelligence_data(short obj)
 
     abShipTurnList[obj] = 0;
     clear_alert(obj);
-    missionTarget = anShipMissionShips[obj];
+    missionTarget = *(short volatile *)&anShipMissionShips[obj];
     missionSpot = &aShipMissionSpotArray[obj];
-    aeSpecialManeuvers[obj] = SPECIAL_MANEUVER_NONE;
+    *(enum SpecialManeuver volatile *)&aeSpecialManeuvers[obj] =
+        SPECIAL_MANEUVER_NONE;
     *missionSpot = aMissionNavPoints[
         nCurrentNavigationPoint].position;
 

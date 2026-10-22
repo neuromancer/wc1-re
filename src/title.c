@@ -429,9 +429,15 @@ int Title_Sequence(void)
         {
             int selection;
 
-            if (selectedIndex == -1)
+            if (selectedIndex == -1) {
+                int mouseX;
+                int mouseY;
+
+                mouseY = event.y;
+                mouseX = event.x;
                 selectedIndex = FindMenuRegionAtPoint(
-                    event.x, event.y, aTitleMenuRegions);
+                    mouseX, mouseY, aTitleMenuRegions);
+            }
             selection = selectedIndex;
             if (selection < 0 || selection > 3)
                 state = 0;

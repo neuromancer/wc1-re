@@ -535,7 +535,7 @@ void send_appropriate_message(short attacker, short victim)
 int inflict_damage(short attacker, short victim, short damage,
                    const FixedVector *impactDirection)
 {
-    unsigned short quadrant;
+    short quadrant;
     short destroyed;
     int sideDot;
 
@@ -557,6 +557,12 @@ int inflict_damage(short attacker, short victim, short damage,
                 aeObjectTypeList[victim]].damageCapacity <=
             asShipAccumulatedDmg[victim])
             return explode(attacker, victim);
+#ifdef SDL_PORT
+        return 0;
+#else
+        /* The original survivor path returns without clearing EAX. */
+        return;
+#endif
     } else {
         if (victim == 0) {
             TriggerPlayerHitPaletteFlash();
@@ -590,9 +596,9 @@ int inflict_damage(short attacker, short victim, short damage,
             damage = (short)(damage -
                              aasShipArmor[victim][quadrant]);
             if (damage > 0) {
-                aasShipArmor[victim][quadrant] = 0;
+                *(short volatile *)&aasShipArmor[victim][quadrant] = 0;
 
-                if (asObjectScreenXList[victim] !=
+                if (*(short volatile *)&asObjectScreenXList[victim] !=
                         (short)0x8001 &&
                     aeObjectClass[victim] !=
                         OBJECT_CLASS_CAPITAL_SHIP &&

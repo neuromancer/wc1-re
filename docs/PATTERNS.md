@@ -4960,3 +4960,62 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `12546759bf2d75046ca4189e9a9e96b577448a3ed43956f9c14197a818503d05`.
+- `inflict_damage` uses a signed short quadrant. The original sign-extends
+  it both after the forward-vector dot product and before the armor lookup;
+  an unsigned declaration adds masking instructions and displaces the body.
+  Correcting the type gains 387 file positions. Qualifying both the armor-zero
+  store and the following screen-X read preserves their original order and
+  gains fourteen more; qualifying only the store leaves output unchanged.
+  These qualifiers are matching source choices, not recovered declarations.
+  The remaining branch at `0x0041EA43` originally reaches the epilogue at
+  `0x0041EC4A`, skipping the return-register clear. The non-ship survivor path
+  therefore returns without supplying a value. An explicit bare return and
+  a fallthrough variant both reproduce that branch and gain two positions.
+  Keep the explicit path, with the modern port retaining its defined zero
+  return. The complete 688-byte span now matches literally, up from 295 bytes;
+  all twenty relocation operands occupy their original positions, up from
+  ten. Differing encodings fall from 128 to zero of 220, and mnemonic
+  similarity rises from 97.30% to 100%.
+- `Title_Sequence` captures the mouse coordinates into integer locals,
+  reading Y before X. This restores the original sign-extending word loads
+  before the menu-region arguments are pushed. Either declaration order
+  produces the same improvement; keep X before Y. Literal matching rises
+  from 1,615 to 1,789 of 1,856 bytes, differing encodings fall from 74 to 28
+  of 472, and mnemonic similarity rises from 97.25% to 97.88%. All 77
+  relocation operands now occupy their original positions, up from 71.
+  The keyboard registers and selection-branch ordering still differ. A
+  conditional selection expression gives no further gain.
+- `init_intelligence_data` qualifies the mission-target read and the
+  special-maneuver store. Together they restore the target load immediately
+  after `clear_alert`; qualifying the read alone leaves output unchanged.
+  Literal matching rises from 250 to 264 of 336 bytes, differing encodings
+  fall from thirty to 29 of 75, and mnemonic similarity rises from 93.33%
+  to 96.00%. All 28 relocation operands remain, with 25 in their original
+  positions instead of 23. Register allocation and vector-copy scheduling
+  still differ. Capturing the navigation index as either an integer or a
+  short does not improve this routine and worsens the complete unit.
+  The remaining bounded trials are discarded. Reordering the intelligence
+  locals, replacing its vector assignments with memcpy, reordering the
+  hostile-sphere locals or reversing its comparison operands, and reusing
+  the other argument local in conversation-test cases six and seven leave
+  output unchanged. Moving the target-sort distance declaration after either
+  loop index loses 112 file positions.
+  All 22 probes are complete. Only these three rows change in the full
+  report. Direct before/after raw comparisons of all 112 functions in their
+  units confirm that only the selected spans change. All 3,784 mapped symbol
+  addresses are unchanged. The report reaches 1,381 normalized exact
+  functions and 1,454 mnemonic-perfect functions, with 164 same-size
+  differences and five size differences totaling a net 26 extra bytes.
+  Mean similarity remains 99.75%, with three functions below 90%.
+  Strict whole-file matching rises by 599 positions, from 496,248 to
+  496,847 of 518,656 (95.6796% to 95.7951%). There remain 21,809 differing
+  positions in 3,195 runs. Code gains 581 positions, reaching 380,820 of
+  401,408; relocations gain eighteen, reaching 35,132 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same header difference at
+  file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `a471bc4f94941b8a5f1fee7d0774b0a225e02037cca48ff7b8ddbbd346e5b220`.
