@@ -152,12 +152,12 @@ void ShutdownNearHeap(void)
 /* Function start: 0x40EB70 */
 void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
 {
+    int descriptorAddress;
+    int blockSize;
     NearHeapBlock *block;
     NearHeapBlock *lastBlock;
-    int descriptorAddress;
     int shiftAddress;
     int allocationAddress;
-    int blockSize;
     unsigned int allocationFlags;
     unsigned short alignment;
 

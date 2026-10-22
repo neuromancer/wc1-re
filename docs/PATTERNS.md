@@ -5475,3 +5475,52 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `0a4a28f511935c9976516251ff9d73d57eb95ec34c65c0a5f1a6cd8e4c7aa2dd`.
+- `AllocateNearHeapBlockFromEnd` declares the descriptor address and block
+  size before its two descriptor pointers, in that order. This restores
+  both descriptor-bound comparisons and the comparison before the shift
+  loop. The shift-loop backedge becomes reversed, while the block-size
+  comparisons remain reversed. The net improvement is four literal bytes:
+  439 to 443 of 448. Differing encodings fall from nine to five of 130,
+  and mnemonic similarity rises from 96.15% to 97.69%. All eighteen
+  relocation operands retain their original positions. This declaration
+  order is a matching choice, not recovered original local spelling.
+  Declaring only the block size first gains three bytes by restoring the
+  block-size comparisons instead. Putting the descriptor address after that
+  size declaration produces the same gain. Moving the shift address first
+  gives no gain. Retain the order with the best whole-file result.
+  Other bounded trials are discarded. Narrowing either the cruise range or
+  objective scope gives no gain. Reversing the debug formatter's product,
+  qualifying only its column read, capturing the row offset, and calculating
+  that offset in two ordinary assignments all leave output unchanged.
+  Qualifying both sequential offset reads loses twelve file positions.
+  Explicit `TextOutA` and `ShowCursor` captures in the console's draw and
+  wait routines lose 25 and 53 positions respectively. Moving the navigation
+  clock's cursor declaration first gives no gain. Using the object-class
+  enum for the futurion's saved class, either at function or block scope,
+  gives no gain. A separate NPC candidate counter likewise gives no gain.
+  Qualifying the idle-formation wingman comparison loses 377 positions.
+  Moving the constellation index declaration first loses seven positions;
+  a separate particle counter loses eighteen. Qualifying the guarded-heap
+  peak read leaves its target unchanged and loses fourteen positions.
+  Capturing the front-point fixed distance loses 94 positions. Initializing
+  the approach-acceleration local in its declaration gives no gain.
+  All twenty-three probes are complete. Only the end-allocation row changes
+  in the full report. Direct before/after raw comparisons of all nine
+  near-heap functions confirm that only its span changes. All 3,797 mapped
+  symbol/address entries, representing 3,784 distinct names, retain their
+  addresses. The report remains at 1,388 normalized exact and 1,459
+  mnemonic-perfect functions, with 157 same-size differences and five size
+  differences totaling a net 26 extra bytes. Mean similarity remains 99.77%,
+  with three functions below 90%.
+  Strict whole-file matching rises by four positions, from 497,617 to
+  497,621 of 518,656 (95.9436% to 95.9443%). There remain 21,035 differing
+  positions in 3,069 runs. Code gains all four positions, reaching 381,550
+  of 401,408; relocations remain at 35,176 of 36,352. The `.rdata`, `.data`
+  and `.idata` sections remain literally exact. The uninterrupted matching
+  prefix remains 544 bytes, with the same header difference at file offset
+  `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `78be240599b7b64424db045467f7e503cc24b34a6ca88a06e1aaaaab5e9325fe`.
