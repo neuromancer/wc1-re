@@ -408,7 +408,6 @@ void PrepareShapeRLEData(unsigned char *shape)
     unsigned char *bitmap;
     unsigned char *pixel;
     unsigned char *output;
-    unsigned char *preparedShape;
     int *frameOffset;
     int preparedSize;
     int frameCount;
@@ -417,6 +416,7 @@ void PrepareShapeRLEData(unsigned char *shape)
     short leftExtent;
     short topExtent;
     int frame;
+    unsigned char *preparedShape;
     int row;
     int remaining;
     int runLength;

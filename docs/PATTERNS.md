@@ -5254,3 +5254,48 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `ffe5f1f79f91507364888606d4846e713470eacc4c6ee1fa55bd33c5b2f929e0`.
+- `PrepareShapeRLEData` declares the prepared-shape pointer immediately after
+  the frame index. This restores the original `CMP EAX,[ESP+0x18]` and `JL`
+  at the frame-loop tail, replacing the reversed comparison and `JG`.
+  Literal matching rises from 303 to 305 of 656 bytes, differing encodings
+  fall from 127 to 125 of 217, and mnemonic similarity rises from 97.24%
+  to 97.70%. Its 44-byte local frame, function span and ten relocation
+  positions remain unchanged; nine relocation positions match the original.
+  This declaration order is a matching choice, not recovered source spelling.
+  Reusing the existing prepared-size local for the frame offset gives no
+  further gain, and moving the prepared pointer before all other locals
+  gives no gain. Separate opaque-run counters in either declaration order
+  worsen the target and enlarge neighboring graphics code.
+  Other bounded trials are discarded. Qualifying the maneuver-proximity
+  limit, alone or with the current range, loses file positions. Narrowing
+  the scene-command opcode scope, changing wave-removal declaration order
+  or using an explicit search break, capturing the intelligence wingman,
+  and moving the shock-wave index after its vectors give no gain.
+  Capturing the navigation-square bottom coordinate loses 87 positions.
+  A separate palette-upload index gives no gain. Recomputing only the first
+  palette-clear byte count enlarges that routine by sixteen bytes; narrowing
+  the existing byte-count local's scope gives no literal gain and lowers
+  mnemonic similarity. Capturing the first rectangle's left edge in the
+  existing X local, with either an ordinary or qualified read, shortens the
+  intersection routine by sixteen bytes and regresses the file. Unsigned
+  menu change flags with the original signed event conversion, or declaring
+  its device index first, give no gain.
+  All twenty-one probes are complete. Only the shape-preparation row
+  changes in the full report. Direct before/after raw comparisons of all
+  sixty graphics-unit functions confirm that only its span changes. All
+  3,797 mapped symbol/address entries, representing 3,784 distinct names,
+  retain their addresses. The report remains at 1,384 normalized exact and
+  1,457 mnemonic-perfect functions, with 161 same-size differences and five
+  size differences totaling a net 26 extra bytes. Mean similarity remains
+  99.77%, with three functions below 90%.
+  Strict whole-file matching rises by two positions, from 497,530 to
+  497,532 of 518,656 (95.9268% to 95.9272%). There remain 21,124 differing
+  positions in 3,111 runs. Code reaches 381,466 of 401,408 matching positions;
+  relocations remain at 35,171 of 36,352. The `.rdata`, `.data` and `.idata`
+  sections remain literally exact. The uninterrupted matching prefix remains
+  544 bytes, with the same header difference at file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `72c10a4a3428e0075d2cda77993382782d4a15bbb788df70fd4e66556f5c39c8`.
