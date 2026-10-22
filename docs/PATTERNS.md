@@ -4863,3 +4863,48 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `a44f21bba92f8e1ccf626fa24a8b0988505741e73ccdc6e3b624cefd9c313909`.
+- `StepPaletteTransition` captures its palette pointer and component count
+  separately on the initialization and update paths. This places the palette
+  load before the first loop's positive-count test, eliminating the separate
+  pointer load and jump on its zero-count path. Declare the index before the
+  difference: CL then keeps the scaled index in EAX and the component delta
+  in DX, reproducing the original `ADD EAX,EAX` and the complete first loop.
+  The phase captures alone gain 31 file positions; the declaration order
+  raises that gain to 258. Moving the difference declaration first retains
+  only the smaller gain. These are measured source choices, not recovered
+  original local declarations.
+  Differing encodings fall from 133 to 63 of 154, and mnemonic similarity
+  rises from 94.19% to 97.40%. Literal matching rises from 106 to 347 of
+  560 bytes. All 35 relocation operands remain; 22 now occupy their original
+  positions, up from six. The component-count load is still hoisted into the
+  prologue instead of being repeated on the two paths, and the final update
+  loop still uses different registers. Qualifying the conditional input
+  reads or the count parameter does not prevent that hoist. Capturing the
+  accumulated value gives no literal gain and reverses another comparison;
+  a countdown postdecrement also gives no gain.
+  The other bounded trials are discarded. Restricting decompression's size
+  qualifier to its accesses does not recover its exchanged stack slots.
+  Reusing the prepared-shape size local for the frame offset leaves output
+  unchanged; a separate offset local worsens the complete executable.
+  Qualifying the sprite-copy length reads enlarges each sprite routine by
+  sixteen bytes; also qualifying the following cursor-advance read enlarges
+  each by 48 bytes. Neither preserves the original layout.
+  All seventeen probes are complete. Only the palette routine's row changes
+  in the full report, and direct raw before/after comparisons of both
+  functions in `fade.c` confirm that its neighbor is unchanged. The report
+  remains at 1,380 normalized exact functions, 165 same-size differences and
+  five size differences totaling a net 26 extra bytes. There are 1,453
+  mnemonic-perfect functions, mean similarity is 99.75%, and three remain
+  below 90%. Function spans and compilation-unit placements are unchanged.
+  Strict whole-file matching rises by 258 positions, from 495,878 to
+  496,136 of 518,656 (95.6083% to 95.6580%). There remain 22,520 differing
+  positions in 3,249 runs. Code gains 241 positions, reaching 380,127 of
+  401,408; relocations gain seventeen, reaching 35,114 of 36,352. The
+  `.rdata`, `.data` and `.idata` sections remain literally exact. The
+  uninterrupted matching prefix remains 544 bytes, with the same header
+  difference at file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `38a5f57eb1dae6b648024633da8f4ce3022df616f81367ea8778393c1172a9d8`.
