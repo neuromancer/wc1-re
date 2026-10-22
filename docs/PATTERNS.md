@@ -5821,3 +5821,56 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `1523315b036c936cfa7bc1411f3f4c28bfaedf67cef601081bb4050946112599`.
+- `ShowCarrierLaunchSequence` scopes the actor's Y coordinate to the
+  branch containing its later animation phases. Its initialization and
+  uses stay in place. This changes register allocation and scheduling
+  after the first phase, increasing literal matching from 498 to 806
+  bytes in the unchanged 2,064-byte span. Differing encodings fall from
+  423 to 349 of 520, although mnemonic similarity falls from 95.98% to
+  95.79%. The literal-byte objective determines the retained choice.
+  All 107 relocation operands remain, with original-position offsets
+  increasing from 25 to 38. The native frame is still 28 bytes versus
+  the original 32. This is a matching scope choice, not recovered source.
+  Scoping only actor X gains five file positions; scoping both coordinates
+  gains sixteen, in either declaration order. Scoping the fade counter
+  alone leaves output unchanged, and adding it to the two-coordinate
+  scope gives no further gain. Capturing the fighter type at either end
+  of the declarations, or separating the first-phase scale at function
+  or block scope, shortens the routine by sixteen bytes and is discarded.
+  All thirty-one bounded probes are complete. The other trials give no
+  gain. Promoting the tactic-reset index loses 27 file positions; also
+  capturing its tactic argument loses 77 in either declaration order.
+  The futurion's enum-class local, at function or branch scope, leaves
+  output unchanged. Separate constellation star and particle counters
+  lose eight positions; narrowing the cached star-height scope loses
+  seven, or fifteen with separate counters. Capturing the constellation
+  definition index loses five at either scope; reversing its addition
+  leaves output unchanged. Narrowing the viewport-intersection coordinate
+  scopes and capturing the gun-slot type at either scope give no gain.
+  Separating the scene-command pointer increment leaves output unchanged;
+  returning directly on a command match loses 81 positions. Scoping the
+  flight-control weapon and shared wingman locals gives no gain; separate
+  wingman locals for its two cases lose four positions.
+  Only the launch row changes in the full report. Direct before/after
+  comparisons of all three launch-unit spans and the complete code section
+  locate all 397 changed code bytes in that one routine. Fourteen
+  relocation-section positions also change. All 3,797 mapped symbol/address
+  entries, representing 3,784 distinct names, retain their addresses.
+  The report remains at 1,388 normalized exact and 1,460 mnemonic-perfect
+  functions, with 157 same-size differences and five size differences
+  totaling a net 26 extra bytes. Mean similarity remains 99.78%, with
+  three functions below 90%.
+  Strict whole-file matching rises by 321 positions, from 500,236 to
+  500,557 of 518,656 (96.4485% to 96.5104%). There remain 18,099 differing
+  positions in 2,902 runs: 17,097 in code, 1,001 in relocations, and one
+  in the headers. Code matches 384,311 of 401,408 bytes; relocations match
+  35,351 of 36,352. The `.rdata`, `.data` and `.idata` sections remain
+  literally exact, and the first difference remains at file offset `0x220`.
+  The largest remaining function gaps are flight controls (2,760 bytes),
+  carrier launch (1,258), the conversation-test parser (1,091), the chalk
+  board (688), and the inflight computer (660).
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `7b03409334133528d32263109ef924ee91865fe072e589a3d08c7f37ac1f379e`.

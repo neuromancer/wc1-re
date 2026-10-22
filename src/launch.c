@@ -171,7 +171,6 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     short fighterScreenX;
     short carrierScreenX;
     short actorX;
-    short actorY;
     short frame;
     short object;
     short fadeLevel;
@@ -287,6 +286,8 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     aeObjectClass[0] = OBJECT_CLASS_NULL;
     aeObjectClass[object] = OBJECT_CLASS_NULL;
     if (bEscapePressedFlag != 1) {
+        short actorY;
+
         copy_frame(object, 61);
         aShipPositionsArray[61] = aShipPositionsArray[object];
         nScrambleBackgroundRightCoordX = 0;
