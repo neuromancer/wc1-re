@@ -6001,3 +6001,63 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `407fa6297b4ce9e664ca0a5ff30b1f64448f71dbc6ef18ff5af252e45e3b83b2`.
+- `PollMenuInputDevices` uses an int for its change accumulator. This
+  reproduces the initial full-register zero and its reuse in the transition
+  call and first button comparisons. The event argument still receives only
+  zero or three; the subsequent button count and zero/nonzero movement
+  result are unchanged. Later accumulator operations remain wider than the
+  original, so this is an intermediate matching choice rather than evidence
+  of the original declaration.
+  Literal matching rises from 69 to 185 bytes in the unchanged 672-byte
+  span. Differing encodings fall from 142 to 125 of 151, while mnemonic
+  similarity falls from 97.35% to 94.12%. Retain the change for its literal
+  gain. All 59 relocation operands remain, with original-position offsets
+  increasing from six to 22. Byte casts on the zero tests give the same
+  result. A byte cast on the event argument adds sixteen aligned bytes,
+  including when combined with byte tests and updates. Using the known-zero
+  byte flag in the first button comparisons leaves the old output unchanged,
+  as do a register hint and initialization at the declaration.
+  Explicit else blocks after either or both palette-allocation failure
+  branches give no improvement. Scoping the shape encoder's bitmap and pixel
+  pointers to each frame loses 174 file positions; scoping its prepared
+  pointer to the final allocation loses three. Narrower extent and run-count
+  scopes leave output unchanged. Capturing the frame-start offset at any of
+  three declaration positions regresses the encoder and later graphics code.
+  The projection clamp and switch-table work remains unretained. Placing
+  the empty debris case before dust or planet and the empty asteroid case
+  before the missile/ship cases, with or without an explicit default, still
+  leaves a five-entry table. The routine remains sixteen bytes short, with 48
+  relocation operands versus the original 49.
+  Audio allocation has two opposite one-byte operand-order displacements:
+  its stream-count comparison and its voice-index addition. Qualified reads
+  leave those target sequences unchanged and regress neighboring stream
+  controls. Reversing the addition fixes its operand order but exposes a
+  one-byte excess in the allocation routine. Reversed or negated bounds
+  comparisons, a negated valid-range check, and checking the upper bound
+  first do not recover the missing correction. Restore all audio probes,
+  including the owning DSP archive before each forced rebuild.
+  All thirty-one distinct probes are complete. Discarded sources were
+  restored with forced rebuilds reproducing the preceding checkpoint's hash.
+  Only the menu-input row changes in the full report. Direct before/after
+  comparisons of all four input-unit spans confirm that only
+  `PollMenuInputDevices` changes. The complete code section changes at 477
+  positions, all in that routine; 44 relocation-section positions change.
+  All 3,797 mapped symbol/address entries, representing 3,784 distinct names,
+  retain their addresses. The report remains at 1,388 normalized exact and
+  1,459 mnemonic-perfect functions, with 157 same-size differences and five
+  size differences totaling a net 26 extra bytes. Mean similarity remains
+  99.78%, with three functions below 90%.
+  Strict whole-file matching rises by 125 positions, from 500,896 to
+  501,021 of 518,656 (96.5758% to 96.5999%). Code gains 116 positions,
+  reaching 384,764 of 401,408; relocations gain nine, reaching 35,362 of
+  36,352. There remain 17,635 differing positions in 2,899 runs: 16,644 in
+  code, 990 in relocations, and one in the headers. The `.rdata`, `.data`
+  and `.idata` sections remain literally exact, and the first difference
+  remains at file offset `0x220` after a 544-byte matching prefix. The
+  menu-input gap falls from 603 bytes to 487; the three largest gaps remain
+  flight controls (2,760), carrier launch (1,257), and the parser (797).
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `a34899861a7e8c0c95ee8b675e6e837f8bb06835823f832b0e59efb86d1559da`.

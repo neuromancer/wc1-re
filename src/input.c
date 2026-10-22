@@ -122,7 +122,7 @@ void PollJoystickButtonEvents(void)
 /* Function start: 0x430920 */
 void PollMenuInputDevices(void)
 {
-    signed char changes;
+    int changes;
     char doubleClick;
     short movementX;
     short movementY;
