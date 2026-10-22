@@ -5299,3 +5299,54 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `72c10a4a3428e0075d2cda77993382782d4a15bbb788df70fd4e66556f5c39c8`.
+- `ReleasePacketHandle` traverses the packet-reference table with one
+  advancing pointer, declared before its two loop counters. Keep the
+  existing ascending group and entry loops. CL supplies the original
+  descending machine counters and allocates ESI to the traversal pointer
+  and EDX to the handle. The complete 64-byte span now matches literally,
+  up from 51 bytes, and all seven differing encodings disappear. Its one
+  relocation moves back to the original position. The traversal follows
+  the observed assembly; declaration order is a matching choice, not
+  recovered original spelling.
+  This compiler context also improves the victory sequence's free-firework
+  search, restoring EBX for its record cursor and AX for its object index.
+  `ShowCampaignVictorySequence` gains ten literal bytes, from 1,336 to
+  1,346 of 1,360, and differing encodings fall from eighteen to fourteen
+  of 366. Its forty relocation operands retain their original positions.
+  Declaring the release cursor last or writing explicit descending source
+  counters gives only eight file positions overall and leaves ten differing
+  encodings in the release routine. A separate row cursor instead enlarges
+  it by sixteen bytes and adds an unwanted second relocation.
+  Other bounded trials are discarded. Moving the packet-search index
+  initialization inside its guard or capturing the count in either local
+  order gives no gain. A qualified count capture reduces that routine from
+  22 to seven differing encodings but regresses `PushMemoryStackFrame`,
+  losing thirteen file positions. Qualified or captured barracks-label
+  pointers, a long seek result, a qualified ship-side comparison and a
+  separate master-range assignment give no gain. A register goal local
+  likewise gives no gain; separate axis scopes lose 27 positions. Moving
+  the ship-search failure store after its guard loses 39 positions, and
+  do/while rout and attacker queries give no gain. Narrowing the viewport
+  allocation-index scope gives no gain. Sprite shape/frame captures leave
+  their target unchanged but regress the font, corner and bounds helpers,
+  including two sixteen-byte increases.
+  All twenty-one probes are complete. Only the release and victory rows
+  change in the full report. Direct before/after raw comparisons of all
+  eight ending-unit functions confirm that only those spans change. All
+  3,797 mapped symbol/address entries, representing 3,784 distinct names,
+  retain their addresses. The report reaches 1,385 normalized exact
+  functions, with 160 same-size differences and five size differences
+  totaling a net 26 extra bytes. There remain 1,457 mnemonic-perfect
+  functions, mean similarity 99.77%, and three functions below 90%.
+  Strict whole-file matching rises by 24 positions, from 497,532 to
+  497,556 of 518,656 (95.9272% to 95.9318%). There remain 21,100 differing
+  positions in 3,098 runs. Code gains 23 positions, reaching 381,489 of
+  401,408; relocations gain one, reaching 35,172 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same header difference at
+  file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `7bb1f2d77364b49f459c984183d174531dbdfc6800c26668c9f51f3ccfd909fb`.

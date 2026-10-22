@@ -81,13 +81,16 @@ void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
 /* Function start: 0x42FAE0 */
 void ReleasePacketHandle(void *handle)
 {
+    void **reference;
     int group;
     int i;
 
+    reference = (void **)aapPacketReferences;
     for (group = 0; group < 4; group++) {
         for (i = 0; i < 0x25; i++) {
-            if (aapPacketReferences[group][i] == handle)
-                aapPacketReferences[group][i] = 0;
+            if (*reference == handle)
+                *reference = 0;
+            reference++;
         }
     }
     FreeGuardedAllocation(MapPacketHandleToBlock(handle));
