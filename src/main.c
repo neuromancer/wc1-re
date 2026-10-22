@@ -2,6 +2,7 @@
  * The initialized state and complete literal order identify this group.
  * Its trailing cursor/palette helpers remain provisional; see docs/ORDER.md.
  */
+#include <stdio.h>
 #define WC1_MAIN_SOURCE
 #include "wc1.h"
 

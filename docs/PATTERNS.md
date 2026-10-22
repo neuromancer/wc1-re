@@ -6523,3 +6523,18 @@ size differences to three; `.text` matches 96.2%.
   more routines but shortens `vdu_polygon` by sixteen bytes and shifts every
   later function; it is not retained. Check section sizes, not only exact
   counts, after any include change.
+- With every other order fixed, `SaveGame` declares its loop `index` first
+  and `AllocateNearHeapBlockByFlags` declares its block pointer after the
+  three addresses; both are then exact at the current offset. A search of
+  every local order for all 55 offset-only routines found only these two,
+  and `unitperm` sweeps of `logic.c` reach at most one more routine at any
+  uniform shift, so most offset-only routines need in-unit count changes.
+  `eventmgr.c` includes `<malloc.h>` and `<sys/types.h>`, `main.c`
+  `<stdio.h>` ahead of `wc1.h`, and `spc.c` `<float.h>`; this gains
+  `GetNextInputEvent`, `ReleaseInputEvent`, `GetViewportIntersection`,
+  `RunSpaceFlight` and `house_keep_objects` and loses `sort_object_depth`.
+  The WC2-shaped `ValidateViewportBounds` (empty-bodied `for` search,
+  block-scoped `allocation`, `topOffset`/`rowStrideOffset`/`nextOffset`)
+  matches everything except one `stScreenView` operand-order tie, which no
+  probe offset in 0..63 or single `extern` move fixes; it is not yet
+  retained.

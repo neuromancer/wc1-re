@@ -4,6 +4,7 @@
  * object_intelligence. Placement evidence is recorded in docs/ORDER.md.
  */
 #include "wc1.h"
+#include <float.h>
 
 int nCapitalShipViewDistance = 0x7d000; /* 0x00468ff4 */
 unsigned char bLandingAuthorized = 0; /* 0x00468ff8 */

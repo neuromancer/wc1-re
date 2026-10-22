@@ -413,6 +413,7 @@ void FreeBarracksMenuLabels(void)
 /* Function start: 0x41B1E0 */
 short SaveGame(short slot, SaveGameRecord *gameRecord)
 {
+    int index;
     SaveGameDiskRecord diskRecord;
     SaveGameDiskObjective *diskObjective;
     MissionObjective *gameObjective;
@@ -421,7 +422,6 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
     int *gameDeathMission;
     short file;
     int written;
-    int index;
 
     PromptInsertNumberedDisk(0x10);
     diskBytes = (unsigned char *)diskRecord.description;

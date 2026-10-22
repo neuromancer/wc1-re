@@ -246,9 +246,9 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
 void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
 {
     int blockSize;
-    NearHeapBlock *block;
     int descriptorAddress;
     int shiftAddress;
+    NearHeapBlock *block;
     int allocationAddress;
     unsigned int sizeAndFlags;
     unsigned int allocationFlags;

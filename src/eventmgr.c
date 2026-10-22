@@ -7,6 +7,10 @@
  */
 #define WC1_EVENTMGR_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <malloc.h>
+#endif
+#include <sys/types.h>
 
 /* The SDL renderer also reads the saved cursor background. */
 #ifndef SDL_PORT
