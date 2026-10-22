@@ -8,6 +8,8 @@
  */
 #define WC1_SHIP_SOURCE
 #include "wc1.h"
+#include <sys/stat.h>
+#include <setjmp.h>
 
 short asPlayerDamageSystemTable[50] = {
     0, 8, 6, 5, 0, 3, 5, 5, 7, 6,

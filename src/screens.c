@@ -727,10 +727,10 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
 /* Function start: 0x437B80 */
 unsigned int Dismissed(char *text, short duration)
 {
-    short leftX;
     short frame;
     short leftDelta;
     short podiumFrame;
+    short leftX;
     short podiumDelta;
     short podiumX;
     short rightDelta;
@@ -1218,8 +1218,8 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
     ConversationSceneRecord *selected;
     short duration;
     short previousColour;
-    short previousShot;
     short shot;
+    short previousShot;
     char *text;
 
     previousShot = -2;

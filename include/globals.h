@@ -144,7 +144,6 @@ extern unsigned char bRadioSilence; /* 0x0046af70 */
 extern unsigned char bVideoImagesSuppressed; /* 0x0046af74 */
 extern unsigned char bCommVideoEnabled; /* 0x0046af78 */
 extern signed char cCommMenuRecipient; /* 0x0046afc4 */
-extern short nCommSpeakerObject; /* 0x0046afc8 */
 extern short nCommSpeakerRating; /* 0x0046afcc */
 extern short nCommPortraitIndex; /* 0x0046afd0 */
 extern short nInputDoubleClickInterval; /* 0x0046af54 */
@@ -152,6 +151,7 @@ extern short nMenuPointerSpeed; /* 0x0046af58 */
 extern unsigned short nVideoMode; /* 0x0046b168 */
 extern signed char acGraphicsModeByAnimationSpeed[8]; /* 0x0046b178 */
 extern CockpitLayout stCockpitLayout; /* 0x0046e008 */
+extern short nCommSpeakerObject; /* 0x0046afc8 */
 extern short aasCockpitLightX[5][7]; /* 0x0046dca8 */
 extern short aasCockpitLightY[5][7]; /* 0x0046dcf0 */
 extern signed char aacCockpitLightOffFrame[5][7]; /* 0x0046dd38 */

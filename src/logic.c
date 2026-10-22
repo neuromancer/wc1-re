@@ -7,6 +7,9 @@
  */
 #define WC1_LOGIC_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <crtdbg.h>
+#endif
 
 PacketResourceDescriptor aCommon3SpaceResources[12] = {
     { &aObjectTypeData[OBJECT_TYPE_THRUSTERS].shapeSet, 3, 0 },

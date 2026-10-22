@@ -6511,3 +6511,15 @@ size differences to three; `.text` matches 96.2%.
   `<sys/types.h>` (+7) included, both the allocation helpers and the
   victory sequence are exact; only `ShowTigerClawEscapeScene`, a register
   permutation, remains.
+- `screens.c` declares `Dismissed`'s `leftX` after `podiumFrame` and
+  `SceneDirector`'s `shot` before `previousShot`; both routines are then
+  exact at every probe offset. Moving `nCommSpeakerObject`'s `extern` seven
+  declarations later in `globals.h` fixes `npc_communication` with no loss
+  in any unit. `nav.c` includes `<dos.h>` and `<float.h>`, `ship.c`
+  `<sys/stat.h>` and `<setjmp.h>`, and `logic.c` `<crtdbg.h>`. These gain
+  twelve routines and lose four (`find_child_object`, `replenish_shields`,
+  `your_afterburner`, `evaluate_damage`), which need a different offset
+  within their units. In `cockpt.c`, `<dos.h>` with `<float.h>` gains three
+  more routines but shortens `vdu_polygon` by sixteen bytes and shifts every
+  later function; it is not retained. Check section sizes, not only exact
+  counts, after any include change.

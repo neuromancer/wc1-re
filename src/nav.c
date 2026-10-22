@@ -4,6 +4,10 @@
  */
 #define WC1_NAV_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <dos.h>
+#endif
+#include <float.h>
 
 short nNavMapCoordinateScaling = 0; /* 0x00468660 */
 short nNavMapScale = 1; /* 0x00468664 */
