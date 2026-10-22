@@ -4591,3 +4591,30 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `a33c100bff73adb5b561d1ab17fad30e1062411f5d131cd4b7196380577c580f`.
+- A further 29 bounded trials across ten routines yield no retained change.
+  In `AllocateGuardedMemory`, capturing the allocated-byte total in a
+  function local, a scoped local or the now-unused size parameter leaves
+  its three register differences unchanged. `ReleaseNearHeapBlock` likewise
+  keeps its reversed final comparison after exchanging its locals, reusing
+  the next-descriptor local for the final bound, or qualifying that read.
+  Moving the constellation index declaration last loses ten file positions;
+  an explicit guard and do/while particle loop loses eight. Moving the
+  fleet key read inside its view guard, with either local scope, loses
+  nineteen positions and changes instruction scheduling.
+  All five alternative cockpit-light coordinate/frame declaration orders
+  regress matching; one also shortens the span by sixteen bytes and loses
+  a relocation. Reversing the VDU length product or exchanging length and
+  extent declarations leaves output unchanged. Capturing the communication
+  object's class within its guard loses eighteen file positions; reading
+  it before the guard loses 48. These changes are not retained.
+  Inlining the pilot-field X-coordinate addition, in either operand order,
+  loses one file position; qualifying the original left-bound read leaves
+  output unchanged. Saving the generated high-score product in the existing
+  range or a new score local, and explicitly capturing its loop divisor,
+  leaves the executable unchanged. Promoted mission indices declared first
+  or last, and a branch-local warp-vector copy, each lose 110 file positions
+  while leaving the mission initializer's report row unchanged. Exchanging
+  its target and spot declarations leaves the executable unchanged.
+  Every probe is restored and force-rebuilt. The final executable retains
+  the preceding verified hash and 493,708 matching positions; no additional
+  source changes or broad verification reruns are needed for this pass.
