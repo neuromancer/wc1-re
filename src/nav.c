@@ -762,7 +762,7 @@ void InflightComputer(void)
     short savedNavPoint;
     short done;
     short hasObjectives;
-    short savedInputMode;
+    volatile short savedInputMode;
     short objective;
     short displayedNavPoint;
     short eventType;

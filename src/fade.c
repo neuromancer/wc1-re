@@ -26,9 +26,10 @@ unsigned short __stdcall StepPaletteTransition(short *current,
     short previousCountdown;
     short count;
     short *palette;
+    short *accumulator;
 
-    if (nPaletteTransitionInitialise != 0) {
-        count = componentCount;
+    if (*(volatile short *)&nPaletteTransitionInitialise != 0) {
+        count = *(volatile short *)&componentCount;
         byteCount = (unsigned int)(count * 2);
         pPaletteTransitionAccumulatorPtr =
             AllocateTaggedMemory(byteCount, 0);
@@ -89,10 +90,11 @@ unsigned short __stdcall StepPaletteTransition(short *current,
         pPaletteTransitionAccumulatorPtr[index] =
             (short)(pPaletteTransitionAccumulatorPtr[index] +
                     pPaletteTransitionDelta[index]);
-        if (pPaletteTransitionAccumulatorPtr[index] >
+        accumulator = &pPaletteTransitionAccumulatorPtr[index];
+        if (*accumulator >
             nPaletteTransMaxDelta) {
-            pPaletteTransitionAccumulatorPtr[index] =
-                (short)(pPaletteTransitionAccumulatorPtr[index] -
+            *accumulator =
+                (short)(*accumulator -
                         nPaletteTransMaxDelta);
             palette[index] =
                 (short)(palette[index] +

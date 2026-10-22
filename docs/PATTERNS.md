@@ -6061,3 +6061,73 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `a34899861a7e8c0c95ee8b675e6e837f8bb06835823f832b0e59efb86d1559da`.
+- `StepPaletteTransition` qualifies the initialization-flag and initial
+  component-count reads, and captures the accumulator element's address
+  after its first update. The four register saves and flag comparison now
+  occupy their original positions. The final loop also recovers the
+  original accumulator-address and value registers. The count still loads
+  before the conditional jump, and the separate else-path reload remains
+  missing; this is an intermediate match. Qualifying that else-path read
+  as well gives identical output and is unnecessary.
+  Literal matching rises from 347 to 358 bytes in the unchanged 560-byte
+  span. Differing encodings fall from 63 to 59 of 154 at 97.40% mnemonic
+  similarity. All 35 relocation operands remain, with original-position
+  offsets increasing from 22 to 23. The read qualifiers alone recover eleven
+  file positions, the function-scope pointer alone one, and their combination
+  twelve. A loop-scope pointer gives no gain. Qualifying only the else-path
+  count read loses 247 positions; a separate initialization-count local at
+  either function or branch scope gives no gain.
+  `InflightComputer` keeps its saved input mode in a volatile short. This
+  restores the original 72-byte frame from 68 bytes and the original
+  snapshot, viewport, and event-buffer offsets. Its saved navigation point
+  and objective flag remain two bytes above their original slots, and the
+  viewport-pointer store still creates a one-byte displacement in later
+  code. Literal matching rises from 380 to 386 of 1,040 bytes, with differing
+  encodings falling from 207 to 203 of 278. The mnemonic sequence remains
+  exact and all 52 relocation operands remain. Moving this declaration to
+  four other positions or its branch scope, or making it unsigned, gives
+  the same output. Qualifying the saved navigation point regresses the
+  routine; qualifying the objective flag adds sixteen aligned bytes.
+  The larger-gap experiments remain unretained. Reversing the flight-control
+  repeat flag gains 130 file positions but changes its INC to NEG and
+  reverses 21 conditional jumps, contrary to the original branch sequence.
+  Capturing either or both input keys instead loses four positions. A
+  creation-only navigation-object index gains four file positions but
+  leaves the missing saved register and worsens the creation displacement;
+  restore it. A captured shape-slot pointer adds sixteen bytes and another
+  relocation. Explicit allocation-success else blocks and a separate
+  navigation-frame local give no gain. Narrowing joystick-transition local
+  scopes and all five alternative answer-parser pointer declaration orders
+  also give no gain. Capturing the shard velocity pointer loses fourteen
+  positions, and qualified flight-profile zero stores lose 494.
+  All forty-four native probes are complete. One additional audio probe is
+  rejected by VC++ 4.20: a const-qualified definition parameter conflicts
+  with its existing unqualified prototype under C2579. No shared prototype
+  change is retained, and the two related prepared probes are not run.
+  Discarded sources and the DSP archive were restored with forced rebuilds
+  reproducing the preceding checkpoint's hash. These qualifiers and local
+  choices reproduce observed code generation; they do not establish the
+  original source declarations.
+  Only the palette and inflight-computer rows change in the full report.
+  Direct before/after comparisons of all 36 fade/nav function spans confirm
+  that only those two routines change. Their 76 and 19 changed positions
+  account for all 95 changed code bytes; four relocation-section positions
+  change. All 3,797 mapped symbol/address entries, representing 3,784
+  distinct names, retain their addresses. The report remains at 1,388
+  normalized exact and 1,459 mnemonic-perfect functions, with 157 same-size
+  differences and five size differences totaling a net 26 extra bytes.
+  Mean similarity remains 99.78%, with three functions below 90%.
+  Strict whole-file matching rises by eighteen positions, from 501,021 to
+  501,039 of 518,656 (96.5999% to 96.6033%). Code gains seventeen positions,
+  reaching 384,781 of 401,408; relocations gain one, reaching 35,363 of
+  36,352. There remain 17,617 differing positions in 2,892 runs: 16,627 in
+  code, 989 in relocations, and one in the headers. The `.rdata`, `.data`
+  and `.idata` sections remain literally exact. The uninterrupted matching
+  prefix remains 544 bytes, with the first difference at file offset
+  `0x220`. The largest gaps remain flight controls (2,760 bytes), carrier
+  launch (1,257), and the conversation-test parser (797).
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `2cbca12678b63be36063b1d8be7cb5557988d0f965fd3a61f01f0226f537daf3`.
