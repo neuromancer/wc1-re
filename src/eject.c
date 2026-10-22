@@ -31,10 +31,10 @@ unsigned char *pIntroFont; /* 0x005a8960 */
 unsigned int ejection_sequence(void)
 {
     FixedVector viewOffset;
-    unsigned char *background;
-    unsigned char *ejectionShape;
     short frame;
+    unsigned char *background;
     short y;
+    unsigned char *ejectionShape;
     short descentSpeed;
     short spriteFrame;
 
@@ -117,9 +117,9 @@ unsigned int ejection_sequence(void)
             (short)cCockpitLogicalFile, 0, 0);
         ejectionShape = FetchDiskPacketRetrying(
             (short)cCockpitLogicalFile, 5, 0);
+        PlaySfxWaveFileByNumber(0x22, -1, 0);
         y = 40;
         frame = 0;
-        PlaySfxWaveFileByNumber(0x22, -1, 0);
         nFrameSkipCounter = 1;
         do {
             if (RefreshCockpitStatus() != 0) {
@@ -158,16 +158,18 @@ unsigned int ejection_sequence(void)
             nScriptedViewObject =
                 nEjectedPilotObject;
             initialize_scripted_view(asEjectionViewScript);
-            frame = 0;
             nFrameSkipCounter = 1;
             SetMusBreakpt(0, 0);
+            frame = 0;
             while (1) {
                 alter_pitch(4, nEjectedPilotObject);
                 if (RefreshCockpitStatus() != 0)
                     dump_buffer_to_screen();
-                if (frame == 10) {
+                switch (frame) {
+                case 10:
                     Explosion(0);
                     PlaySfxWaveFileByNumber(4, -1, 0);
+                    break;
                 }
                 frame++;
                 if (frame > 200 || bEscapePressedFlag != 0)

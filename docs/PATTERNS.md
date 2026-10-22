@@ -4679,3 +4679,70 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `3056dac369920a05200dad723b1c06e45d184ef5aed9665c3c9bc5056150d443`.
+- `ejection_sequence` uses a single-case switch for the frame-ten event.
+  This produces the original promoted frame comparison, recovering the two
+  missing bytes before the explosion call and realigning the final cleanup.
+  Initialize the second phase's Y and frame after its sound call, and the
+  third phase's frame after `SetMusBreakpt`. These placements recover the
+  original scheduling of the constant loads. Declare the frame before the
+  background pointer and the ejection-shape pointer after Y to recover the
+  registers in both sprite phases. Together these changes resolve all 88
+  differing encodings, raise mnemonic similarity from 97.83% to 100%, and
+  match all 1,344 bytes, up from 1,098. The 74 relocations now also occupy
+  their original positions. The switch alone gains 196 file positions;
+  the complete change gains 257. Moving the background after Y instead
+  leaves seven differing encodings and is not retained.
+- `Msit_n_spin` clears its advance flag after the point-at-destination call
+  in case zero and the speed-approach call in case three. This restores the
+  original zeroing schedule and separate stack cleanup on those paths,
+  reducing differing encodings from 100 to two. Spell the case-seven word
+  counter test as preincrement followed by `<= 5`; `< 6` instead produces
+  the equivalent but different `CMP 6`/`JGE` pair. With the original bound,
+  every mnemonic and byte matches: all 512 bytes, up from 188. Its 23
+  relocations now occupy their original positions. The complete change
+  gains 340 file positions. Moving only the point-call flag assignment
+  gains 127 positions; moving only the speed-call assignment gains one.
+- `ShowCampaignVictorySequence` captures the signed vertical-offset
+  quotient in an int before preparing the planet-overlay arguments.
+  This recovers the original division/argument scheduling and removes the
+  four-byte displacement through the following code. Capturing the complete
+  narrowed screen Y instead regresses matching and is discarded. Initialize
+  the vacant-slot search's pointer, slot and found count in that order.
+  For the final animation, declare elapsed time before the animation frame,
+  initialize the frame after clearing the viewport, and initialize elapsed
+  time after waiting for scene advance. These recover the original saved
+  registers and initialization schedule in that phase.
+  Mnemonic similarity rises from 96.99% to 100%; differing encodings fall
+  from 154 to eighteen of 366. Literal matching rises from 843 to 1,336
+  of 1,360 bytes. The remaining 24 byte differences are register choices
+  in projectile initialization and vacant-slot scanning. All forty
+  relocations now occupy their original positions. The complete change
+  gains 514 file positions. The quotient capture alone gains 457; moving
+  the vacant count last adds five, moving both animation initializations
+  adds 43, and exchanging the animation declarations then adds nine.
+  Exchanging those declarations before moving the initializations gives
+  no gain. A counted for-loop for projectile initialization loses 8,587
+  file positions and is discarded. Merely moving the vacant pointer
+  between the two counters leaves the quotient-capture output unchanged.
+  Both palette-pointer declaration variants and both chained profile-zero
+  assignment orders in `RunSpaceFlight` leave the executable unchanged.
+  All 26 bounded probes are restored before selecting the final combination.
+  Only these three target rows change in the full report. Direct raw
+  before/after comparisons of all 57 functions in their units confirm that
+  only those three emitted spans change. Normalized exact functions rise
+  from 1,377 to 1,379; same-size differences fall from 168 to 166. Five
+  size differences remain, totaling a net 26 extra bytes. There are 1,452
+  mnemonic-perfect functions, with mean similarity 99.74% and three below
+  90%. Spans and compilation-unit placements remain unchanged.
+  Strict whole-file matching rises by 1,111 positions, from 493,922 to
+  495,033 of 518,656 (95.2311% to 95.4453%). There remain 23,623 differing
+  positions in 3,329 runs. Code gains 1,063 positions, reaching 379,072 of
+  401,408; relocations gain 48, reaching 35,066 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same relocation virtual-size
+  difference at file offset `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `4e837e7fbb6206541ffcf7c125ac9a09a4a6399304b427f6bccd31e91f1b0a15`.

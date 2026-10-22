@@ -148,11 +148,12 @@ unsigned int ShowCampaignVictorySequence(void)
     short slot;
     CampaignVictoryProjectile *projectile;
     short frame;
-    short animationFrame;
     short elapsed;
+    short animationFrame;
     int planetScale;
     int verticalOffset;
     int planetDepth;
+    int projectedY;
 
     PreloadMusicTrackHook(0x21);
     spacetrack(0x21, 2, 1);
@@ -243,9 +244,9 @@ unsigned int ShowCampaignVictorySequence(void)
                 } while (slot < 16);
 
                 if (frame < 170 && --spawnCountdown < 1) {
-                    vacantCount = 0;
-                    slot = 0;
                     projectile = projectiles;
+                    slot = 0;
+                    vacantCount = 0;
                     do {
                         if (projectile->scale == -1) {
                             vacant[vacantCount] = slot;
@@ -288,10 +289,10 @@ unsigned int ShowCampaignVictorySequence(void)
                 }
 
                 planetScale = 0x40000L / planetDepth;
+                projectedY = verticalOffset / planetDepth;
                 DrawSpriteScaled(
                     &stSpaceBufferViewport, nCurrentViewCenterPosX,
-                    (short)(nCurrentViewCenterPosY +
-                            verticalOffset / planetDepth),
+                    (short)(nCurrentViewCenterPosY + projectedY),
                     projectileShape, 0, 0, (short)planetScale, 0);
                 verticalOffset += 200;
             }
@@ -316,12 +317,12 @@ unsigned int ShowCampaignVictorySequence(void)
     if (bEscapePressedFlag != 1) {
         planetShape =
             FetchDiskPacketRetrying(9, 5, 0);
-        animationFrame = 1;
         ClearViewport(&stScreenView, cBlackColour);
+        animationFrame = 1;
         WaitForVerticalBlankThunk();
         DrawSpriteDefault(&stScreenView, 0, 0, planetShape, 0);
-        elapsed = 0;
         WaitForSceneAdvance(14, 0);
+        elapsed = 0;
         do {
             SetFrameTimerPeriodDirect(8);
             DrawSpriteDefault(&stScreenView, 0, 0, planetShape,

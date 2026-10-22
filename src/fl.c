@@ -296,8 +296,8 @@ void Msit_n_spin(short ship, short target)
                              nTgtRange * 2, &destination);
             AddFixedVectors(&aShipPositionsArray[target],
                             &destination, &destination);
-            advanceSequence = 0;
             point_ship_at_point(ship, &destination);
+            advanceSequence = 0;
         } else {
             asShipTotal[ship] = 0;
         }
@@ -315,8 +315,8 @@ void Msit_n_spin(short ship, short target)
     case 3:
         if (abs(anShipSpeed[ship] -
                 anShipSpeed[target]) < 0x200) {
-            advanceSequence = 0;
             approach_speed(ship, anShipSpeed[target]);
+            advanceSequence = 0;
         }
         break;
     case 4:
@@ -332,7 +332,7 @@ void Msit_n_spin(short ship, short target)
     case 7:
         if (nFacingToTargetValue > 85)
             fire(ship, target);
-        if (++asShipTotal[ship] < 6)
+        if (++asShipTotal[ship] <= 5)
             advanceSequence = 0;
         break;
     case 8:
