@@ -4618,3 +4618,64 @@ Shapes recovered with this method:
   Every probe is restored and force-rebuilt. The final executable retains
   the preceding verified hash and 493,708 matching positions; no additional
   source changes or broad verification reruns are needed for this pass.
+- `control_speed` keeps the acceleration-times-travel-time product in a
+  separate int local. Use the braking-margin local first for the desired
+  minus current speed, then subtract its absolute value from that product.
+  This allows CL to reuse the speed-address register after its last read:
+  EDI holds the product, and the extra saved EBP disappears. All 63 differing
+  encodings are resolved, mnemonic similarity rises from 91.55% to 100%,
+  and the complete 176-byte span matches literally, up from twenty bytes.
+  Its one relocation now occupies the original position, gaining one more
+  file byte. Merely retaining an explicit speed pointer leaves output
+  unchanged. Capturing the unscaled acceleration and delaying multiplication
+  until after the difference gives only 48 matching code bytes and retains
+  EBP; it is superseded by the correctly sequenced product. Reusing the range
+  parameter for the quotient gives the same selected target and file score;
+  the retained version keeps the existing travel-time local.
+- `playWAVE` declares the file-data pointer before the wave-table pointer.
+  This restores EBX for the file data and EBP for the descriptor and later
+  wave-table entry. It also recovers the longer EBP-relative name accesses
+  and the original final return position. All 35 differing encodings
+  disappear under normalized comparison. Literal matching rises from 358
+  to 414 of 416 bytes, gaining 56 file positions. The two remaining bytes
+  are relative-call displacements to `ix_sound_set_delete_on_stop`: its
+  original entry is `0x00448645`, while the rebuilt entry remains one byte
+  early. The WAV routine's three relocations retain their original positions.
+  Moving the wave-table declaration last also reaches this target score;
+  placing the file descriptor before the data pointer or moving the data
+  pointer last leaves the earlier executable unchanged.
+- `LoadAnswerPromptAndResponse` declares its line counter before the three
+  line pointers. This restores DI for the counter and gains one literal
+  byte, from 47 to 48 of the unchanged 160-byte span. Differing encodings
+  fall from 46 to 45 of 59; mnemonic similarity remains 93.22%. The scan
+  and prompt pointers and scheduling still differ. Placing the counter
+  between pointer declarations leaves the earlier output unchanged;
+  explicitly initializing it before the fetch call loses thirteen file
+  positions. There are no relocations in this routine.
+  Other bounded trials are discarded. Narrowing the release-weapon
+  hardpoint local leaves output unchanged; capturing both display
+  coordinates retains its extra register and loses 103 file positions.
+  Delaying the chalkboard viewport assignment until just before font
+  initialization improves mnemonic similarity but loses one file byte.
+  Moving its swap declaration loses two; reusing the display pilot local
+  during sorting adds sixteen code bytes. A scoped current-pilot index
+  loses eighty file positions and disturbs `ReadPacketSectionData`.
+  Only the three retained target rows change in the full report. Direct
+  before/after raw comparisons of all sixty functions in their units
+  confirm that only those three emitted spans change. Normalized exact
+  functions rise from 1,375 to 1,377; same-size differences fall from 170
+  to 168. Five size differences remain, totaling a net 26 extra bytes.
+  There are 1,449 mnemonic-perfect functions; mean similarity rises to
+  99.74%, with three below 90%. Spans and unit placements are unchanged.
+  Strict whole-file matching rises by 214 positions, from 493,708 to
+  493,922 of 518,656 (95.1899% to 95.2311%). There remain 24,734 differing
+  positions in 3,441 runs. Code gains 213 positions, reaching 378,009 of
+  401,408; relocations gain one, reaching 35,018 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same relocation virtual-size
+  difference at file offset `0x220`.
+  The clean native build, modern build, source/address audits, order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `3056dac369920a05200dad723b1c06e45d184ef5aed9665c3c9bc5056150d443`.

@@ -89,10 +89,10 @@ void ApplyAnswerTextCipher(char *text, signed char direction)
 void LoadAnswerPromptAndResponse(short entry, char *prompt,
                                  char *response)
 {
+    short line;
     char *promptLine;
     char *scan;
     char *responseLine;
-    short line;
     char *volatile packet;
 
     packet = 0;

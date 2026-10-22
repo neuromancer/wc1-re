@@ -196,10 +196,10 @@ void StopSoundsUsingWave(const char *name)
 /* Function start: 0x42B4A0 */
 void playWAVE(const char *filename, int looping, int volume)
 {
+    unsigned char *fileData;
     WaveTableEntry *wave;
     ActiveSoundEntry *active;
     IxSound *sound;
-    unsigned char *fileData;
     long fileSize;
     int file;
 

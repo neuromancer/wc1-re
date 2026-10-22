@@ -219,12 +219,13 @@ unsigned int control_speed(short obj, unsigned short range,
 {
     unsigned short travelTime;
     int brakingMargin;
+    int acceleration;
 
     travelTime = range /
         MaxShort(FixedToShortSaturating(anShipSpeed[obj]), 1);
-    brakingMargin = GetShipAccelerationRate(obj) * travelTime;
-    brakingMargin -=
-        AbsInt(desiredSpeed - anShipSpeed[obj]);
+    acceleration = GetShipAccelerationRate(obj) * travelTime;
+    brakingMargin = desiredSpeed - anShipSpeed[obj];
+    brakingMargin = acceleration - AbsInt(brakingMargin);
     if (brakingMargin <= 0) {
         approach_speed(obj, desiredSpeed);
         return 0;
