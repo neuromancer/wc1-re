@@ -1510,15 +1510,15 @@ unsigned int initialize_cockpit(int requestedMode)
                     DIBslamReal();
                 }
             } else {
-                backdrop = FetchDiskPacketRetrying(8, 6, 0);
-                if (backdrop != 0) {
-                    DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
-                    if (bCockpitlessView < 1) {
-                        DIBslam();
-                        DIBslamReal();
-                    }
-                    ReleasePacketHandle(backdrop);
+                unsigned char *cinematicBackdrop;
+
+                cinematicBackdrop = FetchDiskPacketRetrying(8, 6, 0);
+                DrawSpriteDefault(&stScreenView, 0, 0, cinematicBackdrop, 0);
+                if (bCockpitlessView < 1) {
+                    DIBslam();
+                    DIBslamReal();
                 }
+                ReleasePacketHandle(cinematicBackdrop);
             }
         }
         set_up_screen_viewport(4);
@@ -1535,11 +1535,12 @@ unsigned int initialize_cockpit(int requestedMode)
                 DrawSpriteDefault(&stScreenView, 0, 0,
                                   pLogicRearViewBackdropPtr, 0);
         } else {
-            backdrop = FetchDiskPacketRetrying(8, 7, 0);
+            unsigned char *rearBackdrop;
+
+            rearBackdrop = FetchDiskPacketRetrying(8, 7, 0);
             if (bCockpitlessView == 0)
-                DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
-            if (backdrop != 0)
-                ReleasePacketHandle(backdrop);
+                DrawSpriteDefault(&stScreenView, 0, 0, rearBackdrop, 0);
+            ReleasePacketHandle(rearBackdrop);
         }
         set_up_screen_viewport(0);
         break;

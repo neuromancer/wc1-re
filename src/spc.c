@@ -31,10 +31,10 @@ void SetFleetOverviewView(int initializeCockpit)
     FixedVector orientation;
     FixedVector offset;
     int shipCount;
+    int range;
     int maximumRange;
     int playerRange;
     int cameraDistance;
-    int range;
     int object;
 
     orientation.x = 0xff;

@@ -969,10 +969,7 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
     short testCode;
 
     test = (char *)textData + record->testsOffset;
-    for (;;) {
-        testCode = (short)*test++;
-        if (testCode == 0)
-            return record;
+    while ((testCode = (short)*test++) != 0) {
         switch (testCode) {
         case 1:
             first = int_value(&test);
@@ -1187,6 +1184,7 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
             break;
         }
     }
+    return record;
 }
 
 /* Function start: 0x438B90 */

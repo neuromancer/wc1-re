@@ -5077,3 +5077,67 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `e9e8597f36e1a90c6f3cfeca82c72e6feb584da2d2f38d76e70726d31cbe1621`.
+- `initialize_cockpit` removes the reconstructed null checks after fetching
+  the cinematic backdrop and before releasing the rear-view backdrop. The
+  original executes those draw/release paths without testing the fetched
+  pointer. Give each of these two load branches its own backdrop local;
+  retain the existing function-scope local for modes zero through three.
+  This resolves the earlier whole-unit regression: removing the guards alone
+  makes the cockpit exact but loses 172 file positions through neighboring
+  register allocation. Scoping only one of the two pointers loses 184.
+  Scoping both preserves `PlaySceneAnimation` and gains 283 file positions.
+  Scoping all six load branches gives the same result, so keep the smaller
+  change. These scopes are matching choices, not recovered original spelling.
+  The complete 1,088-byte cockpit span now matches literally, up from 827
+  bytes. All 84 differing encodings disappear, mnemonic similarity rises
+  from 98.70% to 100%, and all 72 relocation operands occupy their original
+  positions, up from 57. The gain is 261 code and 22 relocation-section bytes.
+- `SetFleetOverviewView` declares the existing range local immediately
+  before the maximum-range local. This restores the original `CMP ESI,EAX`
+  and `JGE` instead of the reversed comparison and `JLE`. All 752 bytes now
+  match literally, up from 750; the two differing encodings disappear and
+  mnemonic similarity rises from 99.56% to 100%. Its 36 relocation operands
+  retain their original positions. Moving range before player range instead
+  gives no improvement.
+- `ParseTests` tests the terminating zero code in its while condition and
+  returns the current record after the loop. This moves that return after
+  the other return blocks, matching its original placement at `0x00438AA3`.
+  Preserve the existing pair of switches: both dispatch tables occur in the
+  original. Literal matching rises from 1,489 to 1,517 of 2,608 bytes,
+  differing encodings fall from 386 to 368 of 820, and mnemonic similarity
+  rises from 95.49% to 97.80%. All 76 relocations remain, although the number
+  at original positions decreases from 57 to 56. The compiler also reverses
+  the text-colour equality comparison in `SceneDirector` at `0x00438DAB`,
+  reducing its literal match from 1,134 to 1,133 of 1,136 bytes. Its 63
+  relocation operands remain at their original positions. The parser change
+  gains 26 file positions overall, including that one-byte neighboring cost
+  and one lost relocation-section byte.
+  An equivalent for condition produces the same result. Breaking from the
+  original infinite loop to a trailing return leaves output unchanged.
+  Separate per-case argument scopes lose one more file position through
+  `SceneDirector`; reversing the argument-local declarations gives no gain.
+  Moving the barracks activation label outside its keyboard switch, placing
+  the outer activation cases first, and putting the calibration case first
+  leave output unchanged. Capturing the collision object before its partner
+  through a qualified read enlarges that routine by 32 bytes. None of these
+  alternatives is retained.
+  All seventeen probes are complete. Only these three targets and the
+  described `SceneDirector` row change in the full report. Direct before/after
+  raw comparisons of all 160 functions in their units confirm that only those
+  four spans change. All 3,797 mapped symbol/address entries, representing
+  3,784 distinct names, retain their addresses. The report reaches 1,384
+  normalized exact functions and 1,457 mnemonic-perfect functions, with 161
+  same-size differences and five size differences totaling a net 26 extra
+  bytes. Mean similarity rises to 99.77%, with three functions below 90%.
+  Strict whole-file matching rises by 311 positions, from 497,211 to
+  497,522 of 518,656 (95.8653% to 95.9252%). There remain 21,134 differing
+  positions in 3,110 runs. Code gains 290 positions, reaching 381,456 of
+  401,408; relocations gain 21, reaching 35,171 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same header difference at
+  file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `be804c9f7579fe1b09264f2264b84a1f4f01cbe4c5b233367c33a2cfd581e0f7`.
