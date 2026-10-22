@@ -5632,3 +5632,62 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `5c51835e28e3441090478fef0c0297a90f48b4b762d259715f19d0a6f247bcd5`.
+- `draw_target_box` declares the X centre before the Y centre and scopes
+  the segment length to the outline-drawing branch. Together these choices
+  restore the original instruction lengths and every mnemonic. Literal
+  matching rises from 147 to 980 of 1,008 bytes, differing encodings fall
+  from 267 to 28 of 294, and mnemonic similarity rises from 94.22% to 100%.
+  All 45 relocation operands now occupy their original positions, versus
+  five before. The span ends at `remove_nav_pointer`, `0x004168A0`, before
+  that helper's 32 bytes. Remaining differences are register choices and
+  operand scheduling. These are matching declaration choices, not recovered
+  original local spelling or scope.
+  Moving only the X declaration first gains 822 file positions. Putting it
+  immediately after Y leaves output unchanged. Narrowing only the segment
+  length's scope gains two positions; combining it with X first gains 873.
+  Qualifying the two centre-coordinate reads gives no gain.
+- `scramble` qualifies its initial canopy-offset clear and overlay-X
+  sentinel store. Together they restore the initial store order and gain
+  24 file positions: 22 in code and two in relocations. Neither qualifier
+  alone changes output. Its 1,104-byte span improves from 555 to 577 literal
+  matches, differing encodings fall from 146 to 139 of 264, and mnemonic
+  similarity rises from 96.21% to 96.97%. The relocation count stays at
+  eighty, with original-position offsets increasing from 45 to 47. The
+  qualifiers express observed accesses, not recovered source declarations.
+  Loop scheduling, register allocation, and early-exit branch placement
+  remain different. A direct first-loop escape to resource release loses
+  eleven positions. All five other local declaration orders give no further
+  gain; two lose two positions relative to the qualified candidate.
+  Capturing the first loop's backdrop coordinate, alone or with the second
+  loop's canopy offset, shortens the function by sixteen bytes. Capturing
+  only the canopy offset improves mnemonic similarity but gives no literal
+  gain and is unnecessary. All those trials are discarded. The native
+  unset sound-handle read and the modern port's initialization are retained.
+  The flight-dynamics trials are also discarded. Capturing the pitch input
+  in either declaration position, or capturing its scaled rate, leaves the
+  target's three differences unchanged and loses four file positions.
+  Qualifying the pitch read makes that function exact but shortens the
+  following input routine by sixteen bytes. Qualifying its previous-pitch
+  or previous-roll stores restores the size but still loses 21 or six file
+  positions respectively; qualifying both loses 21.
+  All twenty-four probes are complete. Only the target-box and scramble
+  rows change in the full report. Direct before/after raw comparisons of
+  all 137 functions in their two units confirm that only those spans change.
+  All 3,797 mapped symbol/address entries, representing 3,784 distinct names,
+  retain their addresses. The report remains at 1,388 normalized exact
+  functions, with 157 same-size differences and five size differences
+  totaling a net 26 extra bytes. Mnemonic-perfect functions rise from 1,459
+  to 1,460, and mean similarity rises from 99.77% to 99.78%; three functions
+  remain below 90%.
+  Strict whole-file matching rises by 897 positions, from 498,810 to
+  499,707 of 518,656 (96.1736% to 96.3465%). There remain 18,949 differing
+  positions in 2,921 runs. Code gains 855 positions, reaching 383,507 of
+  401,408; relocations gain 42, reaching 35,305 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same header difference at
+  file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `7404a9c49b38cf44860e09a2ad57046703960d942797241aea73c06d03064e0d`.

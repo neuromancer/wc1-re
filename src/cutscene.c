@@ -594,8 +594,8 @@ unsigned int scramble(void)
 #ifdef SDL_PORT
     soundHandle = 0;
 #endif
-    nScrambleCanopyOffset = 0;
-    stScrambleOverlay.x = -1000;
+    *(volatile short *)&nScrambleCanopyOffset = 0;
+    *(volatile short *)&stScrambleOverlay.x = -1000;
     nSceneScrambleCanopyFrameValue = 0;
     nSceneScrambleShipDetailCountValue = 0;
     if (bEscapePressedFlag == 0) {

@@ -2045,11 +2045,10 @@ void draw_target_box(unsigned short colour, signed char object,
                      short solid, short drawLockMarker, short padding,
                      ShortRect *savedBounds)
 {
+    short centerX;
     short centerY;
     ShortRect bounds;
     int colourValue;
-    short centerX;
-    short segmentLength;
     short valid;
 
     colourValue = (short)colour;
@@ -2095,6 +2094,8 @@ void draw_target_box(unsigned short colour, signed char object,
             DrawViewportBorder(&stSpaceBufferViewport, bounds.left, bounds.top,
                                bounds.right, bounds.bottom, colour);
         } else {
+            short segmentLength;
+
             segmentLength =
                 (short)(((int)bounds.right - bounds.left) / 6 + 1);
             DrawViewportLine(&stSpaceBufferViewport, bounds.left, bounds.top,
