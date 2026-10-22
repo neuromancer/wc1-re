@@ -645,8 +645,8 @@ void get_player_input(void)
 int process_player_input(void)
 {
     short keys[4];
-    short *key;
     int shift;
+    short *key;
     int control;
     short finished;
     short handled;

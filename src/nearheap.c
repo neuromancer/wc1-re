@@ -343,6 +343,7 @@ void FreeNearHeapBlock(void *pointer)
 {
     int descriptorAddress;
     NearHeapBlock *block;
+    int blockAddress;
     int address;
 
     address = DosFarPtrToNear(pointer);
@@ -351,8 +352,9 @@ void FreeNearHeapBlock(void *pointer)
     for (; descriptorAddress >= nCurrentNearHeapFirstDescriptor;
          descriptorAddress -= 8) {
         block = DosNearPtrToFar(descriptorAddress);
-        if (block->address <= address &&
-            block->address + (int)(block->sizeAndFlags & 0xfffff) >
+        blockAddress = block->address;
+        if (blockAddress <= address &&
+            blockAddress + (int)(block->sizeAndFlags & 0xfffff) >
                 address) {
             ReleaseNearHeapBlock(descriptorAddress);
             break;

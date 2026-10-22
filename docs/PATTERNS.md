@@ -5404,3 +5404,74 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `6c7674a2ca00529211282a4f600e58d581c3addb9707c1253a46c48a85e065f0`.
+- `process_player_input` declares the shift-key state before the key cursor.
+  This restores ESI for the shift state and EDI for the advancing cursor,
+  removing all eleven differing encodings. The complete 1,376-byte span
+  now matches literally, up from 1,365 bytes, with all 106 relocation
+  operands at their original positions. Moving the shift declaration before
+  the key array or moving the cursor declaration last emits the same
+  executable. Retain the adjacent declaration swap. These are matching
+  declaration choices, not recovered original local spelling.
+- `FreeNearHeapBlock` captures each descriptor's address in an integer
+  local, declared between the descriptor pointer and the requested address.
+  Use that captured value for both interval comparisons. This restores
+  `CMP ECX,ESI` and `JG` instead of the reversed comparison and `JL`.
+  The complete 96-byte span now matches literally, up from 94 bytes, and
+  mnemonic similarity rises from 96.97% to 100%. All four relocation
+  operands retain their original positions.
+- `prepare_mission` keeps five initial stores and the player-index read as
+  qualified accesses: mission score, wingman-killed state, player mission
+  index, player-destroyed state, medal score, and wingman kill count. Place
+  the medal-score clear before the wingman-kill clear. This prevents the
+  player-index load from preceding the initial reset sequence and restores
+  the original leading register-save instructions. Literal matching rises
+  from 360 to 390 of 416 bytes, differing encodings fall from twelve to
+  five of 106, and mnemonic similarity rises from 98.11% to 100%.
+  Its relocation count remains 34; offsets coinciding with the original
+  increase from 28 to 32. The player-kill clear still moves ahead of its
+  original position, and scheduling differences remain. The qualifiers
+  express observed memory accesses, not recovered original source spelling.
+  Qualifying only the player-index read, reordering only the two score
+  stores, or combining those changes gives no gain. Qualifying just the
+  leading score/wingman stores and player read gains 24 file positions;
+  qualifying every startup access gains 22. Adding only the player-destroyed
+  store, or that store and the medal-score store, to the leading group loses
+  one position. Adding the wingman-kill store produces the retained gain of
+  34 file positions, including four relocation bytes.
+  Other bounded trials are discarded. Map slot/pointer declaration changes,
+  promoted slot captures in either scope, and narrowing the navigation
+  pointer's scope give no gain. Initializing the gun-selection found flag
+  first gives no gain; initializing its cursor first loses ten positions.
+  Capturing the tactic value leaves its target unchanged and loses 27 file
+  positions. Capturing the afterburner timer through a scoped pointer loses
+  565 positions. A captured timer value makes the acceleration routine exact
+  but regresses `animate_shape`, losing five file positions overall. Its
+  scoped form and declarations before or between the vector locals do the same.
+  Reusing the existing object-data value local for scale gives no gain.
+  Capturing pilot health leaves that target unchanged and regresses three
+  later ship functions, losing sixty positions. Enemy-range captures in
+  either declaration order leave their target unchanged and lose 29.
+  Moving the target-sort distance declaration first gives no gain. A promoted
+  inner index makes both the sort and pilot-hit routines exact but regresses
+  four other ship functions, losing forty positions overall. Narrowing the
+  asteroid fragment-counter scope gives no gain.
+  All thirty-two probes are complete. Only the input, heap-release and
+  mission-preparation rows change in the full report. Direct before/after
+  raw comparisons of all 106 functions in their three units confirm that
+  only those spans change. All 3,797 mapped symbol/address entries,
+  representing 3,784 distinct names, retain their addresses. The report
+  reaches 1,388 normalized exact and 1,459 mnemonic-perfect functions, with
+  157 same-size differences and five size differences totaling a net 26
+  extra bytes. Mean similarity remains 99.77%, with three functions below 90%.
+  Strict whole-file matching rises by 47 positions, from 497,570 to
+  497,617 of 518,656 (95.9345% to 95.9436%). There remain 21,039 differing
+  positions in 3,072 runs. Code gains 43 positions, reaching 381,546 of
+  401,408; relocations gain four, reaching 35,176 of 36,352. The `.rdata`,
+  `.data` and `.idata` sections remain literally exact. The uninterrupted
+  matching prefix remains 544 bytes, with the same header difference at
+  file offset `0x220`.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `0a4a28f511935c9976516251ff9d73d57eb95ec34c65c0a5f1a6cd8e4c7aa2dd`.
