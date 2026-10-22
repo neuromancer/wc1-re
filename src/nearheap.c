@@ -245,11 +245,11 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
 /* Function start: 0x40ED30 */
 void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
 {
+    int blockSize;
     NearHeapBlock *block;
     int descriptorAddress;
     int shiftAddress;
     int allocationAddress;
-    int blockSize;
     unsigned int sizeAndFlags;
     unsigned int allocationFlags;
     unsigned short alignment;

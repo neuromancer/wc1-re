@@ -5141,3 +5141,66 @@ Shapes recovered with this method:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. The clean-build and post-verification hashes agree:
   `be804c9f7579fe1b09264f2264b84a1f4f01cbe4c5b233367c33a2cfd581e0f7`.
+- `SelectNavObjectiveAtPoint` declares the existing X coordinate before Y.
+  This restores SI for X and several original instruction positions, although
+  Y and the path counter then exchange registers. Literal matching rises
+  from 245 to 249 of 272 bytes. Mnemonic similarity rises from 95.29% to
+  97.65%, while differing encodings increase from twelve to fifteen of 85;
+  retain the change for its literal-byte gain. All eight relocation operands
+  keep their original positions. Moving X immediately before map X loses
+  two file positions; declaring X first and Y last gives no net gain.
+- `AllocateNearHeapBlockByFlags` declares the masked block size before the
+  descriptor pointer. This restores the original size comparison and its
+  two branch directions at `0x0040EDDD`, but reverses the later descriptor-
+  shifting loop comparison. Literal matching rises from 461 to 462 of 464
+  bytes, differing encodings fall from three to two of 141, and mnemonic
+  similarity rises from 98.58% to 99.29%. All nineteen relocation operands
+  retain their original positions. Moving the shift-address declaration
+  before the descriptor address or after the allocation address gives no
+  further gain. Moving block size just before alignment loses four file
+  positions instead. These declaration orders are matching choices, not
+  recovered original spelling.
+  Other bounded trials are discarded. Promoted input-device indices in
+  either declaration position leave their target unchanged and lose two
+  file positions. Declaring the palette free count first loses six positions;
+  a separate allocation index loses twelve. Narrowing the frame-corner
+  vertical locals' scope loses 47 positions, and capturing its Y origin
+  leaves the target unchanged while enlarging other code. Qualifying the
+  pilot-field alignment store leaves output unchanged. A promoted weapon
+  index worsens the selected-weapon query and loses 113 positions.
+  Replacing the empty-save objective-position assignment with memcpy, or
+  capturing its source position pointer before the name fields, leaves
+  output unchanged. Neither is retained.
+  Separate ordinary-object coordinate scopes reduce the sorted-object
+  draw routine from nineteen to seven differing encodings, but regress
+  `intro_drawbackgroundships` and `shrink_vector`, losing thirteen file
+  positions overall. Either coordinate declaration order gives that result.
+  Moving the special-object coordinates into their own scope also gives no
+  improvement. Qualifying the ordinary X, Y, origin-X and shape loads in
+  their original order reduces the target to three differing encodings,
+  but still loses ten file positions through the neighboring regressions.
+  Scoping only X or only Y, with either load order, loses eleven or twelve
+  file positions. Using the qualified loads with the existing function-scope
+  coordinates loses 224 positions. Sharing a narrower scope inside the
+  object-class guard loses 224 with Y declared first and six with X first.
+  These sprite variants are all restored rather than retained.
+  All thirty probes are complete. Only the two selected rows change in
+  the full report. Direct before/after raw comparisons of all 43 functions
+  in their units confirm that only those spans change. All 3,797 mapped
+  symbol/address entries, representing 3,784 distinct names, are unchanged.
+  The report remains at 1,384 normalized exact and 1,457 mnemonic-perfect
+  functions, with 161 same-size differences and five size differences
+  totaling a net 26 extra bytes. Mean similarity remains 99.77%, with three
+  functions below 90%.
+  Strict whole-file matching rises by five positions, from 497,522 to
+  497,527 of 518,656 (95.9252% to 95.9262%). There remain 21,129 differing
+  positions in 3,116 runs. All gains are in code, which reaches 381,461 of
+  401,408 matching positions. Relocations remain at 35,171 of 36,352;
+  `.rdata`, `.data` and `.idata` remain literally exact. The 544-byte
+  uninterrupted matching prefix and the header difference at file offset
+  `0x220` are unchanged.
+  Clean native and modern builds, source/address audits, the order report,
+  and full verification pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. The clean-build and post-verification hashes agree:
+  `fe50d3789638d323eb0e6ed997084f45dea75a560355168053ff760086f6a5de`.

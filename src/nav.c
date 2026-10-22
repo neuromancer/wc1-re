@@ -691,13 +691,13 @@ void BriefingMap_DisplayMap(void)
 /* Function start: 0x40E2B0 */
 short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
 {
+    short x;
     short y;
     short mapY;
     short mapX;
     short oldNavPoint;
     short selected;
     short pathIndex;
-    short x;
 
     oldNavPoint = (short)cCurrentNavPtIdx;
     x = (short)(mouseX - 30);
