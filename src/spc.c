@@ -1247,7 +1247,7 @@ unsigned int animate_shape(short obj)
         break;
     case 0x0800:
         awObjectScales[obj] -= (short)(
-            (command & 0x3f) * (awObjectScales[obj] >> 6));
+            (command & 0x3f) * (awObjectScales[(unsigned int)obj] >> 6));
         break;
     default:
         command &= 0x3f;

@@ -6935,3 +6935,53 @@ size differences to three; `.text` matches 96.2%.
   retains SHA-256
   `5504a12307d0bb35d5b91c4e8ca57af705ad7ad5b294992af761c3ea653cd578`
   through verification.
+- `animate_shape` casts the shrink factor's scale-read index to unsigned
+  int while retaining the signed destination index. CL 4.20 then emits
+  separate absolute scale operands instead of one shared computed address.
+  The routine regains its sixteenth HIGHLOW relocation, bringing the whole
+  executable to the original 15,446. The relocation directory's virtual
+  size becomes the original 36,306 bytes, and all 1,024 PE header bytes now
+  match literally when rebuilt from the C source.
+  This source distinction is a matching choice; it does not establish the
+  original index declaration. The scale arithmetic still uses the original
+  word operands and logical right shift.
+  Literal matching in the 352-byte animation span rises from 286 to 288.
+  The shrink path still has a memory SUB; the original subtracts in a
+  register and then stores the word. It retains 21 differing encodings and
+  64 literal differences, and mnemonic similarity falls from 99.05% to
+  97.12%. The retained benefit includes seventeen more matching relocation
+  bytes and the final header byte, for twenty additional file positions.
+  All 401,056 code bytes outside this function and all 3,797 mapped
+  symbol/address pairs remain unchanged. Every source span now has its
+  original relocation count, although relocation positions still differ.
+  Whole-file matching reaches 505,010 of 518,656 positions (97.3690%), with
+  13,646 differences in 2,128 runs. The continuous matching prefix grows
+  from 544 to 1,088 bytes; the first remaining difference is at file offset
+  `0x440`, in code. There remain 12,820 differing code bytes and 826
+  relocation bytes. The `.rdata`, `.data` and `.idata` sections remain
+  exact, and every section's virtual and raw size matches the original.
+  Only the animation row changes in the function report. Counts remain
+  1,436 normalized exact, 111 same-size differences and three size
+  differences totaling a net 26 bytes, with 1,484 mnemonic-perfect
+  functions and a mean of 99.83%.
+- Additional transformed-bounds, animation and mono probes are discarded.
+  For `GetTransformedShapeBounds`, pair swaps and single moves through the
+  fourteen branch locals, span/dimension and bound permutations, split
+  arithmetic statements, named span corrections, promoted scale/angle
+  captures, wider bound temporaries with word comparisons, and all eight
+  multiply-operand reversals in combination give no whole-file gain.
+  Animation scale/factor captures, signed access casts, qualifiers and
+  explicit subtraction forms fail to improve on the retained mixed-index
+  compound assignment. All 120 declaration orders with a scale-change
+  local and all 120 with a saved scale retain the missing relocation.
+  Making both shrink indices unsigned gains more animation bytes but less
+  across the complete executable and retains only fifteen relocations.
+  Mono header placements, string-pointer captures and seek-result widths
+  leave its two register mismatches unresolved. None of these unsuccessful
+  probes changes the retained source.
+  Full verification, the modern build, sorting and address audits pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. The executable
+  retains SHA-256
+  `5e4eda13530862a1090aa7463047e9b2043e473f4e78fa0c01d6486d8e2af900`
+  through verification.
