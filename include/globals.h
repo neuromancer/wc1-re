@@ -669,6 +669,7 @@ extern signed char cCurrentObjResourceLogicalFile; /* 0x005a86b0 */
 extern CampaignDate *pCurrentCampaignDate; /* 0x005a86a8 */
 extern CampaignDate *pElapsedCampaignDatePtr; /* 0x005a86ac */
 extern ShortPoint aFuneralParticlesArray[7]; /* 0x005a86f0 */
+extern short nSceneScrambleShipDetailCountValue; /* 0x005a86cc */
 extern Viewport *pScrambleView; /* 0x005a86b4 */
 extern short nSceneScrambleCanopyFrameValue; /* 0x005a86b8 */
 extern unsigned char *pScrambleDetailShape; /* 0x005a86bc */
@@ -677,7 +678,6 @@ extern ShortPoint stScrambleCockpitDetail; /* 0x005a86c4 */
 extern unsigned char *pCurrentConversationSpecialShape; /* 0x005a86ec */
 extern short nFuneralCasketPositionX; /* 0x005a86c8 */
 extern short nFuneralCasketPosY; /* 0x005a86ca */
-extern short nSceneScrambleShipDetailCountValue; /* 0x005a86cc */
 extern signed char acScrambleShipDetailSlots[24]; /* 0x005a86d0 */
 extern signed char cCutsceneScrambleWalkTime; /* 0x005a86e8 */
 extern unsigned char *pSceneScrambleBgShapePtr; /* 0x005a870c */

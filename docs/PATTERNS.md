@@ -6704,3 +6704,57 @@ size differences to three; `.text` matches 96.2%.
   retains SHA-256
   `9ddb5fa93803f3fa89e51d860da6fb9ee40b2398d89c880fd6422c4d3a4fabd4`
   through verification.
+- `cutscene.c` replaces its unused `<process.h>` include with `<dos.h>`
+  and `<sys/types.h>` before `wc1.h`. In `PlayScrambleHangarScene`, this
+  lets the escape byte occupy AL after the counter comparison, instead
+  of keeping it in BL. The draw calls and loop tail regain their original
+  instruction positions. Initializing background X after the left walker's
+  X also restores the scheduling of the shared zero before viewport setup.
+  The 720-byte routine now matches 701 literal bytes, up from 255, and
+  differing encodings fall from 121 to 15 of 177. Its complete mnemonic
+  sequence matches; the loop's remaining register assignments do not.
+  These are measured declaration and initialization contexts, not recovered
+  original header text. The source comparison still uses the original
+  signed counter test and conditional jumps.
+  The new context initially disturbed four exact neighboring routines.
+  Declaring `DrawScrambleActor`'s X coordinate after its frame byte and
+  `funeral_sequence`'s frame before its followup-text pointer restores
+  both complete matches. Moving `nSceneScrambleShipDetailCountValue` eight
+  declarations earlier in `globals.h`, before `pScrambleView`, restores
+  the comparison directions in `DrawScrambleFrame` and `landing`. All
+  previously exact routines remain exact. `scramble` loses five literal
+  bytes, from 1,072 to 1,067 of 1,104, and its differing encodings rise
+  from 29 to 34 of 264. Moving the count five to nine declarations later
+  improves the hangar routine further in isolation, but loses ten bytes
+  in carrier launch; complete native builds reject that alternative.
+- `main.c` includes `<dos.h>` before `wc1.h`, retaining its early stdio
+  include. This restores the arithmetic scheduling in `calculate_damage_level`:
+  all 240 bytes now match literally, up from 232. The normalized report
+  had already called this routine exact, so its row does not expose the
+  gain. Every other main-unit byte remains unchanged.
+  Only the hangar and scramble rows change in the full report. Normalized
+  exact functions remain 1,434 of 1,550, and mnemonic-perfect functions
+  increase from 1,479 to 1,480. All spans and all 3,797 symbol/address pairs
+  remain unchanged. Binary-comp confirms that all 399,344 code bytes
+  outside the three changed routines are identical to the previous build.
+  The net gain is 449 code bytes and 39 relocation bytes: 504,308 of
+  518,656 matching positions (97.2336%), with 14,348 differences in 2,316
+  runs. The data sections remain exact. The unchanged relocation-count
+  deficit and relocation-section virtual size still prevent a whole-file
+  match, alongside the remaining code differences.
+- Additional flight-control expressions, local orders, header contexts,
+  and chalkboard pilot-record declaration moves do not repair their large
+  shifts. Palette-fade declaration exchanges, allocation guards, size
+  expressions and a named component count leave its extra register copy.
+  Counter captures at function, loop and block scope leave the walking
+  animation unchanged. Its equivalent nonpositive counter test gains 451
+  file positions by compensating the existing shift, but emits TEST/JG
+  where the original has CMP/JGE. Discard that compensation. All trials
+  use binary-comp for both function and literal whole-file comparisons;
+  no dummy declarations, padding, flags or assembly changes are retained.
+  Full verification, the modern build, sorting and address audits pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. The executable
+  retains SHA-256
+  `f6ec55f85f47283060ea52681e863106fd29dd48b17aca9e17dab5d7b72d3026`
+  through verification.

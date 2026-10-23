@@ -3,10 +3,11 @@
  * which end before the following AI state. See docs/ORDER.md for boundaries.
  */
 #define WC1_CUTSCENE_SOURCE
-#include "wc1.h"
 #ifndef SDL_PORT
-#include <process.h>
+#include <dos.h>
 #endif
+#include <sys/types.h>
+#include "wc1.h"
 
 static signed char cScrambleLeftWalkerFrame = 7; /* 0x00465768 */
 static signed char cScrambleRightWalkerFrame = 10; /* 0x0046576c */
@@ -292,9 +293,9 @@ unsigned int PlayScrambleHangarScene(void)
 
     InitializeConversationViewport();
     cScrambleLeftWalkerFrame = 7;
-    nScrambleBackgroundX = 0;
     cScrambleRightWalkerFrame = 10;
     nScrambleLeftWalkerX = 70;
+    nScrambleBackgroundX = 0;
     nScrambleRightWalkerX = 170;
     pCurrentScrambleHangarShape =
         FetchDiskPacketRetrying(1, 0, 0);
@@ -377,9 +378,9 @@ unsigned int PlayScrambleHangarScene(void)
 unsigned int DrawScrambleActor(short actorIndex)
 {
     signed char frame;
+    short x;
     unsigned char control;
     signed char animationFrame;
-    short x;
     short y;
 
     frame = 0;
@@ -1052,8 +1053,8 @@ unsigned int funeral_sequence(int playerFuneral)
     unsigned char *sceneData;
     unsigned char *textData;
     unsigned char *followupSceneData;
-    unsigned char *followupTextData;
     short frame;
+    unsigned char *followupTextData;
     short volley;
     short particle;
     short scenePair;

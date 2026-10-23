@@ -4,6 +4,9 @@
  */
 #include <stdio.h>
 #define WC1_MAIN_SOURCE
+#ifndef SDL_PORT
+#include <dos.h>
+#endif
 #include "wc1.h"
 
 /* Legacy overlay setting: named in the WINGLEADER source screenshot and
