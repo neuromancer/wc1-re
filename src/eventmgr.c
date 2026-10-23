@@ -839,12 +839,12 @@ void SetInputKeyState(int scanCode, unsigned char pressed)
 void sort_object_depth(void)
 {
     int previous;
-    int screenOffset;
-    int bestObject;
-    int best;
     unsigned int distance;
+    int bestObject;
     int obj;
     int *placed;
+    int screenOffset;
+    int best;
     int *sortedEntry;
     int sorted;
 

@@ -6808,3 +6808,39 @@ size differences to three; `.text` matches 96.2%.
   retains SHA-256
   `7c3baaa799a6aa45cd4766b4a5d9c64eaca004d7ef653942544ecbda0510412b`
   through verification.
+- `sort_object_depth` regains its complete literal match at the current
+  event-manager declaration context. Declare the previous distance, unsigned
+  candidate distance, selected object, scan index, placed-object pointer,
+  screen offset and next-best distance in that order, followed by the sorted
+  cursor and count. The second scan then uses EBP for its best distance,
+  EBX for its screen offset, ECX for the object, EDI for the placed pointer
+  and EAX for the candidate distance. In particular, moving the placed
+  pointer out of EBP removes the extra displacement byte in its zero test.
+  All 192 bytes match, up from 109, and all 35 differing encodings disappear.
+  This is a measured declaration order; the routine's statements are unchanged.
+  Direct array indexing with a loop-scoped best distance gets within four
+  literal bytes, but removing the offset declaration disturbs the later
+  rectangle routine. Separate scan-index/distance scopes and rectangle
+  corner-index captures do not beat the retained declaration order. Reordering
+  the five existing scan declarations preserves the unit's other code.
+  Only the sorter's row changes in the full report, raising normalized
+  exact functions from 1,434 to 1,435 of 1,550. All 3,797 symbol/address
+  pairs and all 401,216 code bytes outside the sorter remain unchanged.
+  The gain is 83 code bytes and three relocation bytes: 504,725 of 518,656
+  matching file positions (97.3140%), with 13,931 differences in 2,291 runs.
+  The other data sections remain exact; the relocation-count deficit and
+  section-size discrepancy are unchanged.
+- Projection's unsigned scale clamp and separate empty debris/asteroid
+  cases still cannot be retained. All 120 case-block orders produce five
+  table entries, while the original has six. Its two no-op entries remain
+  distinct despite pointing to the same loop increment. Break, continue
+  and a common next-object label, with or without an explicit default,
+  also leave the collapsed table. Those builds remain sixteen bytes short
+  and shift subsequent functions. Do not replace the missing source
+  distinction with handwritten table entries or padding.
+  Full verification, the modern build, sorting and address audits pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. The executable
+  retains SHA-256
+  `d4d8b732dce20d49ab2d46f40fb6e285bc7d47397703772ca3183123cec38540`
+  through verification.
