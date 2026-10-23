@@ -7146,3 +7146,11 @@ size differences to three; `.text` matches 96.2%.
   (`bStickIndicatorFrameState`, `cRenderedPilotHandFrame`) are signed chars.
   The original only ever sign-extends them. The casts that compensated at each use are
   gone; these retypes leave every routine's bytes unchanged.
+- `spc.c` includes `<signal.h>` and `<sys/stat.h>` ahead of `wc1.h`. The
+  shift of every header symbol makes `set_eye_direction_and_position` exact
+  (it differed in 409 bytes), along with `house_keep_objects` (51). This
+  matches the offsets where pre-include probes had made both exact. It
+  costs `rotate_eye_to_goal` four bytes, a global operand order that no
+  loss-free extern move restores, and adds eight to `animate_shape`.
+  Moving `nExternalViewShip` five places up restores `object_intelligence`
+  without touching another unit.

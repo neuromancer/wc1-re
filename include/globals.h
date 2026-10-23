@@ -160,12 +160,12 @@ extern CockpitBarDefinition aaCockpitBars[5][8]; /* 0x0046dd88 */
 extern const GUID guidDirectDraw2; /* 0x00463118 */
 extern signed char bCurrentKey; /* 0x0046c014 */
 extern signed char cPreviousKey; /* 0x0046c018 */
+extern short nExternalViewShip; /* 0x0046c040 */
 extern signed char cViewObject; /* 0x0046c000 */
 extern short nCurrentWave; /* 0x0046c01c */
 extern int bIntroSecondaryScene; /* 0x0046c024 */
 extern signed char abHazardObjects[0x14]; /* 0x0046c028 */
 extern short DAT_0046c010;
-extern short nExternalViewShip; /* 0x0046c040 */
 extern short nEyePitchRate; /* 0x0046c004 */
 extern short nEyeYawRate; /* 0x0046c008 */
 extern short nEyeRollRate; /* 0x0046c00c */

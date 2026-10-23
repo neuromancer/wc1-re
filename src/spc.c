@@ -3,6 +3,8 @@
  * The Mac spc symbol run identifies rotate_eye_to_goal through
  * object_intelligence. Placement evidence is recorded in docs/ORDER.md.
  */
+#include <signal.h>
+#include <sys/stat.h>
 #include "wc1.h"
 
 int nCapitalShipViewDistance = 0x7d000; /* 0x00468ff4 */
