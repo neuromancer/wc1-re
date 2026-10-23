@@ -6758,3 +6758,53 @@ size differences to three; `.text` matches 96.2%.
   retains SHA-256
   `f6ec55f85f47283060ea52681e863106fd29dd48b17aca9e17dab5d7b72d3026`
   through verification.
+- `PrepareShapeRLEData` copies a named frame-start offset into the frame
+  table with `memcpy`, matching its other serialized fields. The inlined
+  copy computes the offset in EAX, recovering the original five-byte
+  subtraction instead of the previous six-byte ECX form. The related WC2
+  original at `0x00425BF6` corroborates this source idiom: it stores the
+  offset in a real stack local and passes its address to a four-byte copy.
+  WC1's own instructions remain the matching authority.
+  Scope the offset to the frame loop and the prepared-data pointer to the
+  final allocation block. Express the final byte count at its three uses;
+  the optimizer retains the common result in EBX. These scopes keep the
+  44-byte frame while restoring its original spill layout. Computing the
+  bottom bound before the right bound gains two more literal bytes.
+  These scopes and ordering choices are measured reconstructions, not
+  recovered original source.
+  The routine now matches 629 of 656 literal bytes, up from 305. Differing
+  encodings fall from 125 to 14 of 217; mnemonic similarity remains 97.70%.
+  The remaining differences are bound-calculation scheduling and register
+  choices, including the operand loads for bitmap-size multiplication.
+- `gr.c` includes `<stdio.h>` before `wc1.h`; it already uses `sprintf`.
+  The declaration context restores the viewport surface-pointer arithmetic
+  scheduling in `ValidateViewportBounds`, gaining six literal bytes, from
+  225 to 231 of 240. Its mnemonic sequence now matches completely, with
+  nine differing encodings instead of twelve. Only these two rows change
+  in the full report. All 1,434 normalized exact routines remain exact, and
+  mnemonic-perfect routines increase from 1,480 to 1,481 of 1,550.
+  All spans, all 3,797 symbol/address pairs and all 400,512 code bytes outside
+  the two routines remain unchanged. The net gain is 330 code bytes and one
+  relocation byte: 504,639 of 518,656 matching file positions (97.2974%),
+  with 14,017 differences in 2,302 runs. The other data sections remain
+  exact. The original/rebuilt relocation counts remain 15,446/15,445, and
+  their virtual section sizes remain 36,306/36,304 bytes.
+- RLE trials that merely reorder or rename the original locals do not fix
+  the offset register. A function-scope offset copy improves that register
+  but enlarges the local frame to 48 bytes and disturbs later glyph code.
+  Keeping a separate final-size local with the narrower scopes matches 631
+  target bytes, but enlarges `DrawFontGlyph`'s aligned span by sixteen bytes.
+  Tested header contexts do not recover the complete-file
+  gain. Reusing the final-size local for the frame offset also enlarges the
+  encoder span and is discarded. Further bound declaration/assignment
+  orders and multiplication operand orders do not improve the retained
+  result. Input-menu byte flags, joystick divisor captures and standard-header
+  contexts in the geometry, calibration and mission units give no net gain.
+  All comparisons use binary-comp; no flags, dummy locals, padding or
+  handwritten assembly are introduced.
+  Full verification, the modern build, sorting and address audits pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. The executable
+  retains SHA-256
+  `7c3baaa799a6aa45cd4766b4a5d9c64eaca004d7ef653942544ecbda0510412b`
+  through verification.

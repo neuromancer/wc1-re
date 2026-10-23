@@ -4,6 +4,7 @@
  *  Address range 4408a0-44269f (provisional -- see docs/ORDER.md).
  *  Boundary evidence: PROVEN by name: shadow_draw, fizzle_fade, snow_viewport.
  */
+#include <stdio.h>
 #include "wc1.h"
 
 const char szGameRegistryKey[42] =
@@ -409,14 +410,12 @@ void PrepareShapeRLEData(unsigned char *shape)
     unsigned char *pixel;
     unsigned char *output;
     int *frameOffset;
-    int preparedSize;
     int frameCount;
     short width;
     short height;
     short leftExtent;
     short topExtent;
     int frame;
-    unsigned char *preparedShape;
     int row;
     int remaining;
     int runLength;
@@ -438,7 +437,9 @@ void PrepareShapeRLEData(unsigned char *shape)
     output = abShapeRLEBuffer + 8 + (frameCount << 3);
 
     for (frame = 0; frame < frameCount; frame++) {
-        *frameOffset = (int)(output - abShapeRLEBuffer);
+        int frameStart = (int)(output - abShapeRLEBuffer);
+
+        memcpy(frameOffset, &frameStart, sizeof(frameStart));
         frameOffset += 2;
         GetShapeFrameExtents(shape, (short)frame, &width, &height,
                              &leftExtent, &topExtent);
@@ -452,8 +453,8 @@ void PrepareShapeRLEData(unsigned char *shape)
         output += sizeof(leftExtent);
         frameLeft = -leftExtent;
         frameTop = -topExtent;
-        frameRight = width - leftExtent - 1;
         frameBottom = height - topExtent - 1;
+        frameRight = width - leftExtent - 1;
         memcpy(output, &frameLeft, sizeof(frameLeft));
         output += sizeof(frameLeft);
         memcpy(output, &frameTop, sizeof(frameTop));
@@ -503,18 +504,23 @@ void PrepareShapeRLEData(unsigned char *shape)
         ReleasePacketHandle(bitmap);
     }
 
-    preparedSize = (int)(output - abShapeRLEBuffer);
-    if (preparedSize > (int)sizeof(abShapeRLEBuffer))
+    if ((int)(output - abShapeRLEBuffer) > (int)sizeof(abShapeRLEBuffer))
         exit_squadron("qq copy overflow");
-    preparedShape = AllocateTaggedMemory(preparedSize, 0);
-    memcpy(preparedShape, abShapeRLEBuffer, preparedSize);
+    {
+        unsigned char *preparedShape;
+
+        preparedShape = AllocateTaggedMemory(
+            (int)(output - abShapeRLEBuffer), 0);
+        memcpy(preparedShape, abShapeRLEBuffer,
+               (int)(output - abShapeRLEBuffer));
 #ifdef SDL_PORT
-    memcpy(shape - 8 - sizeof(unsigned char *), &preparedShape,
-           sizeof(preparedShape));
+        memcpy(shape - 8 - sizeof(unsigned char *), &preparedShape,
+               sizeof(preparedShape));
 #else
-    memcpy(shape - sizeof(preparedShape), &preparedShape,
-           sizeof(preparedShape));
+        memcpy(shape - sizeof(preparedShape), &preparedShape,
+               sizeof(preparedShape));
 #endif
+    }
 }
 
 /* Function start: 0x440FE0 */
