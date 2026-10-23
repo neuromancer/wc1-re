@@ -788,7 +788,9 @@ int inflict_damage(short attacker, short victim, short damage,
                    const FixedVector *impactDirection);                /* 0x0041E9B0 */
 short pilot_hit(short obj);                                           /* 0x0041EC60 */
 int onboard_explosion(short obj);                                     /* 0x0041ECE0 */
+#ifndef WC1_SHIP_SOURCE
 void call_enemy(short obj);                                           /* 0x0041EDB0 */
+#endif
 int internal_damage(short attacker, short victim, short damage,
                     short quadrant);                                  /* 0x0041EE20 */
 void revise_shields(short obj);                                       /* 0x0041F1A0 */

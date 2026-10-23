@@ -6565,3 +6565,46 @@ size differences to three; `.text` matches 96.2%.
   make both offset-only routines exact. `debug.cpp` (C++) does not follow
   the model's prediction for a hidden worker prototype; the remaining
   units' plans need negative steps, which hiding cannot produce.
+- `onboard_explosion` copies `aShipVelocity[obj]` directly into the debris
+  velocity after changing its scale, then sets the debris counter to six.
+  Use the position arrays directly in `AddFixedVectors` too. With this
+  statement order, CL spills the common source-vector offset itself and
+  saves EBP for the three-dword copy, recovering the original 16-byte frame.
+  The explicit `objectOffset` local and byte-pointer arithmetic prevented
+  that allocation. Moving the counter alone while retaining a promoted
+  source index still leaves nine differing encodings; putting the counter
+  before the direct copy leaves fifty. The successful form matches all
+  208 bytes at the original address, including alignment, up from 60.
+  The unoptimized WC2 counterpart corroborates copy-before-counter order;
+  WC1's original assembly and literal binary-comp comparison establish the
+  retained result.
+  Removing the local shifts later declaration indices by one. `ship.c`
+  omits `call_enemy`'s own prototype, whose definition precedes its only
+  caller, and includes `<assert.h>`. The two header symbols replace the
+  omitted prototype and parameter; the definition restores the later
+  one-symbol step. These are measured declaration contexts, not recovered
+  original header text. Without them, `analyze_kill` loses its exact match
+  and `replenish_shields` gains one differing encoding. With them, all
+  401,200 code bytes outside the explosion span are unchanged.
+  The full report gains one exact function (1,431 to 1,432); only this
+  function's row changes, and `AllocateViewport` is the sole routine below
+  90% mnemonic similarity. Whole-file matching gains 155 positions: 148
+  code bytes and seven relocation bytes, reaching 502,486 of 518,656.
+  The remaining 16,170 differences still prevent a whole-executable match.
+  Full verification, the modern build, sorting and address audits pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. The rebuilt image
+  retains SHA-256
+  `6b6bae80050a8ac7cc76d02ce31638ef537a67618d95f63433ac7fd709bad2a3`
+  through verification.
+- Further voice-setter, flight-key and viewport trials at this checkpoint
+  are discarded. Standard-header shifts, removing the volume setter's
+  qualification, and equivalent negated bounds guards do not improve the
+  voice unit. Captured key bytes, qualified key reads, signed-key declarations,
+  and moving the previous-key declaration by up to sixteen declarations
+  leave flight controls' initial AL allocation unchanged. A guarded viewport
+  loop with direct row-table field access spills height instead of top and
+  adds sixteen bytes. All 720 orders of its six locals and all combinations
+  of register hints retain that error; explicit promoted height/top locals
+  can recover the span but worsen its instructions. No probe declarations,
+  comparison helpers, or discarded source forms are retained.

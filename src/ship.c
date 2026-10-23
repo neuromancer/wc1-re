@@ -10,6 +10,7 @@
 #include "wc1.h"
 #include <sys/stat.h>
 #include <setjmp.h>
+#include <assert.h>
 
 short asPlayerDamageSystemTable[50] = {
     0, 8, 6, 5, 0, 3, 5, 5, 7, 6,
@@ -659,28 +660,20 @@ short pilot_hit(short obj)
 /* Function start: 0x41ECE0 */
 int onboard_explosion(short obj)
 {
-    int objectOffset;
     short debris;
     FixedVector offset;
 
     debris = find_vacant_3d_object();
     if (debris != -1) {
         set_objects_data(debris, OBJECT_TYPE_EXPLOSION2, obj);
-        objectOffset = (int)obj * sizeof(FixedVector);
         awObjectScales[debris] <<= 2;
+        aShipVelocity[debris] = aShipVelocity[obj];
         asObjectCounterArray[debris] = 6;
-        aShipVelocity[debris] =
-            *(FixedVector *)(void *)
-                ((unsigned char *)aShipVelocity +
-                 objectOffset);
         MakeRandomVectorFixed(
             (short)(asObjectCollisionRadius[obj] >> 2),
             (short)(asObjectCollisionRadius[obj] >> 1),
             &offset);
-        AddFixedVectors((FixedVector *)(void *)
-                            ((unsigned char *)aShipPositionsArray +
-                             objectOffset),
-                        &offset,
+        AddFixedVectors(&aShipPositionsArray[obj], &offset,
                         &aShipPositionsArray[debris]);
     }
     return debris != -1;
