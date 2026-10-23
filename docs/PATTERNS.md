@@ -7191,3 +7191,15 @@ size differences to three; `.text` matches 96.2%.
   The `for` loop moves the unit's later symbols; `<assert.h>` ahead of
   `wc1.h` and `<process.h>` after it keep `select_new_release_weapon`
   exact.
+- `init_intelligence_data` follows WC2's order: it clears the special
+  maneuver right after `clear_alert`, then reads the mission target. It
+  assigns `aShipMissionSpotArray[obj]` directly instead of through a
+  `missionSpot` pointer. The pointer let CL schedule the vector copies
+  differently, and the volatile casts were matching devices. The routine is
+  exact (it differed in 72 bytes).
+- `check_futurion` copies the object class into the counter before
+  replacing it, as WC2 does, without a `prev` local. It is exact (8 bytes).
+  That removes one symbol ahead of `shape_loaded`.
+  `<process.h>` and `<crtdbg.h>` ahead of `wc1.h` restore it and also make
+  `set_formation_position` exact (3 bytes). `find_next_ship_turn_slot`
+  gains two differing bytes.

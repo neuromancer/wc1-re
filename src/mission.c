@@ -2,6 +2,10 @@
  * The following joystick and navigation helpers remain here provisionally;
  * their exact original object boundaries are unresolved. See docs/ORDER.md.
  */
+#ifndef SDL_PORT
+#include <process.h>
+#include <crtdbg.h>
+#endif
 #include "wc1.h"
 
 short nDebriefingPersonality = 0; /* 0x00465c80 */
@@ -87,12 +91,9 @@ unsigned int is_alive(int pilot)
 /* Function start: 0x40B700 */
 unsigned int check_futurion(short i)
 {
-    unsigned int prev;
-
     if (aeShipMissionType[i] == MISSION_TYPE_WARP_ARRIVE) {
-        prev = aeObjectClass[i];
+        asObjectCounterArray[i] = aeObjectClass[i];
         aeObjectClass[i] = OBJECT_CLASS_FUTURION;
-        asObjectCounterArray[i] = prev;
     }
     return 0;
 }
@@ -949,16 +950,13 @@ short init_ship(short missionShip, short navPoint)
 /* Function start: 0x40C950 */
 unsigned int init_intelligence_data(short obj)
 {
-    FixedVector *missionSpot;
     short missionTarget;
 
     abShipTurnList[obj] = 0;
     clear_alert(obj);
-    missionTarget = *(short volatile *)&anShipMissionShips[obj];
-    missionSpot = &aShipMissionSpotArray[obj];
-    *(enum SpecialManeuver volatile *)&aeSpecialManeuvers[obj] =
-        SPECIAL_MANEUVER_NONE;
-    *missionSpot = aMissionNavPoints[
+    aeSpecialManeuvers[obj] = SPECIAL_MANEUVER_NONE;
+    missionTarget = anShipMissionShips[obj];
+    aShipMissionSpotArray[obj] = aMissionNavPoints[
         nCurrentNavigationPoint].position;
 
     switch (aeShipMissionType[obj]) {
@@ -969,7 +967,7 @@ unsigned int init_intelligence_data(short obj)
         anShipMissionShips[obj] = missionTarget;
         break;
     case MISSION_TYPE_GOTO_WARP:
-        *missionSpot =
+        aShipMissionSpotArray[obj] =
             aMissionNavPoints[missionTarget].position;
         break;
     case MISSION_TYPE_WARP_ARRIVE:
@@ -979,7 +977,7 @@ unsigned int init_intelligence_data(short obj)
             break;
         /* fall through */
     case MISSION_TYPE_COME_HOME:
-        locate_ship(stCurrentMissionHeader.homeMissionShip, missionSpot);
+        locate_ship(stCurrentMissionHeader.homeMissionShip, &aShipMissionSpotArray[obj]);
         break;
     case MISSION_TYPE_CANNED_SEQUENCE:
 #ifdef SDL_PORT
