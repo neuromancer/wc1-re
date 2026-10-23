@@ -26,6 +26,7 @@ extern const unsigned char abIffBodyChunkId[4]; /* 0x0043e780 */
 extern short nHazardReferenceSpeed; /* 0x00465040 */
 extern short nActiveHazards; /* 0x00465044 */
 extern int bIxAudioEnabled; /* 0x00465058 */
+extern short nPacketError; /* 0x00465460 */
 extern unsigned int bKeyEventQueueEnabled; /* 0x0046505c */
 extern int bShowKilrathiSagaCredits; /* 0x0046506c */
 extern unsigned int nGuardedAllocationTotalBytes; /* 0x00465060 */
@@ -38,7 +39,6 @@ extern volatile int bMainWindowMinimized; /* 0x00465080 */
 extern int bWindowMessagePumpActive; /* 0x004650a8 */
 extern unsigned int bF1KeyLatch; /* 0x004650ac */
 extern GuardedAllocation *pGuardedAllocationHead; /* 0x004650b0 */
-extern short nPacketError; /* 0x00465460 */
 extern short nEnemySighting; /* 0x00465c7c */
 extern short nDebriefingPersonality; /* 0x00465c80 */
 extern void *aapPacketReferences[4][0x25]; /* 0x00465c88 */

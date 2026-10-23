@@ -6608,3 +6608,29 @@ size differences to three; `.text` matches 96.2%.
   of register hints retain that error; explicit promoted height/top locals
   can recover the span but worsen its instructions. No probe declarations,
   comparison helpers, or discarded source forms are retained.
+- `LoadPacketAllocated` becomes exact when `nPacketError` is declared before
+  `bKeyEventQueueEnabled` in `globals.h`. Moving the existing declaration
+  twelve places earlier changes its common-subexpression temporary's symbol
+  index. The retry loop then keeps the file table in ECX and the error word
+  in AX, as the original does. This restores the one-byte-longer table load
+  and all later instruction positions, eliminating 32 differing encodings.
+  All 144 bytes now match literally, up from 71. The function body and its
+  types are unchanged; this is measured declaration context, not recovered
+  original header text.
+  Only the packet loader's row changes in the full report, raising normalized
+  exact functions from 1,432 to 1,433 of 1,550. All 401,264 code bytes outside
+  its span are unchanged. The three changed relocation bytes also match,
+  giving a whole-file gain of 76 positions: 502,562 of 518,656 (96.8970%),
+  with 16,094 differences remaining. No function span or symbol address moves.
+  Earlier packet trials with reordered or scoped locals, an inline packet
+  size, implicit table/error captures, and equivalent retry guards do not
+  finish the match. Moving the key declarations within the tested header
+  neighborhood leaves flight controls' initial AL allocation unchanged.
+  Chalkboard swap scopes, score-index captures, and viewport-store placement
+  give no retained improvement. Viewport offset initialization placement and
+  signedness likewise fail to recover its original height/top allocation.
+  Full verification, the modern build, sorting and address audits pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. The image retains
+  SHA-256 `104bd745ec3000913c7cb57d72785393889e6ae576bf948489e51154e676e997`
+  through verification.
