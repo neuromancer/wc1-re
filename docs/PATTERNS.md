@@ -7024,3 +7024,18 @@ size differences to three; `.text` matches 96.2%.
   An object-level byte compare that masks relocated fields cannot see such
   global operand swaps; resolve each relocation through the map and compare
   it with the original's operand before trusting an exact result.
+- Ten routines that the normalized report called exact differed only in the
+  globals their relocated operands named: evaluation and commutative-operand
+  ties between globals, such as the rotation-error sums. Checking each
+  relocation's resolved address exposes them. Moving six `extern`
+  declarations in `globals.h` fixes seven of them with no other change in
+  any unit: `anObjectYawRotation` two declarations later fixes
+  `rotate_eye_to_goal`; `nNearHeapBase` two earlier fixes
+  `InitializeNearHeap`, `GetFreeNearHeapBytes` and
+  `GetLargestFreeNearHeapBlock`; `anPitchGoal` four later fixes
+  `rotate_object_to_goal`; `anRollGoal` three later fixes `no_goal`;
+  `nEnemySighting` seven later fixes `imperial_formation`; and
+  `nCurObjectiveRangeValue` two later fixes `check_objectives`. Each move was
+  accepted only after compiling every unit and lowering the total count of
+  differing bytes. These are measured declaration orders, not recovered
+  header text.

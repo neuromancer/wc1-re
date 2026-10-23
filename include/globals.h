@@ -39,7 +39,6 @@ extern volatile int bMainWindowMinimized; /* 0x00465080 */
 extern int bWindowMessagePumpActive; /* 0x004650a8 */
 extern unsigned int bF1KeyLatch; /* 0x004650ac */
 extern GuardedAllocation *pGuardedAllocationHead; /* 0x004650b0 */
-extern short nEnemySighting; /* 0x00465c7c */
 extern short nDebriefingPersonality; /* 0x00465c80 */
 extern void *aapPacketReferences[4][0x25]; /* 0x00465c88 */
 #ifdef SDL_PORT
@@ -50,6 +49,7 @@ extern short nNavMapScale; /* 0x00468664 */
 extern int bInflightComputerActive; /* 0x00468754 */
 extern short nNearHeapMaxDescriptors; /* 0x004688c4 */
 extern int bOfficeVisitPending; /* 0x004688cc */
+extern short nEnemySighting; /* 0x00465c7c */
 extern int bPromotionPending; /* 0x004688d0 */
 extern int bPlayerEjectedThisMission; /* 0x004688d4 */
 extern int bPlayerShipTypeChanged; /* 0x004688d8 */
@@ -404,9 +404,9 @@ extern signed char acShipTargetTable[16]; /* 0x0059ce60 */
 extern short nPrevPitchInputValue; /* 0x0059ce70 */
 extern short nPrevYawInput; /* 0x0059ce72 */
 extern short nPreviousRollInputValue; /* 0x0059ce74 */
-extern short anObjectYawRotation[SPACE_OBJECT_COUNT]; /* 0x0059ce80 */
 extern signed char acTurnRegulatorsArray[16]; /* 0x0059cf10 */
 extern unsigned char abCollisionAlertTargets[0x10]; /* 0x0059cf20 */
+extern short anObjectYawRotation[SPACE_OBJECT_COUNT]; /* 0x0059ce80 */
 extern int aiPilotLevel[12]; /* 0x0059cf30 */
 extern short asTargetListRangesArray[16]; /* 0x0059cf60 */
 extern signed char acPilotHitPointsArray[16]; /* 0x0059cf00 */
@@ -419,9 +419,9 @@ extern enum ObjectClass aeObjectClass[SPACE_OBJECT_COUNT]; /* 0x0059d100 */
 extern short asPreviousObjectDistance[SPACE_OBJECT_COUNT]; /* 0x0059d080 */
 extern enum ShipObjective aeShipObjectiveList[12]; /* 0x0059d200 */
 extern short asObjectViewFrames[SPACE_OBJECT_COUNT]; /* 0x0059d230 */
-extern int nCurObjectiveRangeValue; /* 0x0059d2b0 */
 extern signed char acWingmanMessageStatesArray[16]; /* 0x0059d2c0 */
 extern short asCollisionDelayList[16]; /* 0x0059d2d0 */
+extern int nCurObjectiveRangeValue; /* 0x0059d2b0 */
 extern unsigned char *apObjShapeArray[SPACE_OBJECT_COUNT]; /* 0x0059d2f0 */
 extern short nPitchInput; /* 0x0059d3f0 */
 extern short nYawInputValue; /* 0x0059d3f2 */
@@ -443,18 +443,18 @@ extern short aasShipShield[10][2]; /* 0x0059d5b0 */
 extern signed char abShipExhaustHeatList[10]; /* 0x0059d610 */
 extern short nRenderedSpaceFrame; /* 0x0059d61a */
 extern signed char acShipStressList[16]; /* 0x0059d620 */
-extern short anRollGoal[16]; /* 0x0059d630 */
 extern enum Side aeShipSide[12]; /* 0x0059d650 */
 extern signed char acShipAiCooldowns[16]; /* 0x0059d680 */
 extern FixedVector vCollisionDelta; /* 0x0059d690 */
+extern short anRollGoal[16]; /* 0x0059d630 */
 extern signed char acLastCollisionObjects[SPACE_OBJECT_COUNT]; /* 0x0059d6a0 */
 extern short aasShipMaximumShieldTable[10][2]; /* 0x0059d6e0 */
 extern signed char acShipPointingModeList[16]; /* 0x0059d790 */
-extern short anPitchGoal[16]; /* 0x0059d7a0 */
 extern signed char abShipNavPtIdx[16]; /* 0x0059d7c0 */
 extern signed char acTurnIntervalArray[16]; /* 0x0059d7d0 */
 extern short anObjectRollRotationList[SPACE_OBJECT_COUNT]; /* 0x0059d7e0 */
 extern signed char abShipTurnList[16]; /* 0x0059d860 */
+extern short anPitchGoal[16]; /* 0x0059d7a0 */
 extern short nFacingToTargetValue; /* 0x0059d920 */
 extern short asObjectScreenYArray[SPACE_OBJECT_COUNT]; /* 0x0059d930 */
 extern short asObjectScreenXList[SPACE_OBJECT_COUNT]; /* 0x0059d9b0 */
@@ -644,9 +644,9 @@ extern unsigned char *apViewportAllocations[128]; /* 0x005a7f10 */
 extern int nFreeViewCallsValue; /* 0x005a8110 */
 extern short nQueuedCampaignIndex; /* 0x005a8114 */
 extern short nMissionMedalScoreValue; /* 0x005a8116 */
+extern int nNearHeapBase; /* 0x005a8120 */
 extern short nCampaignDataSet; /* 0x005a8118 */
 extern int nNearHeapSize; /* 0x005a811c */
-extern int nNearHeapBase; /* 0x005a8120 */
 extern int nCurrentNearHeapFirstDescriptor; /* 0x005a8124 */
 extern void * volatile pCurrentNearHeapAlloc; /* 0x005a8128 */
 extern short nNavMapMaximumPositionX; /* 0x005a812c */
