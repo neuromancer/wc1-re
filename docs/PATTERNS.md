@@ -6669,3 +6669,38 @@ size differences to three; `.text` matches 96.2%.
   The executable retains SHA-256
   `73f58aaeb7f2fa54650f28f7a6b373c23e7f48c8053678c00a8129e61c3c4e50`
   through verification.
+- `spc.c` drops the unused `<float.h>` include. Its declaration-count shift
+  had made `house_keep_objects` exact but caused acceleration's common
+  four-byte array offset to occupy EBX throughout the routine. That forced
+  the magnitude onto the stack and enlarged its local frame from 32 to
+  36 bytes. Without the include, `accelerate_and_move_object` again keeps
+  magnitude in EBP and acceleration in EBX. Giving the desired afterburner
+  speed its own int local finishes the timer register allocation: all 816
+  bytes match literally, up from 78, and all 226 differing encodings vanish.
+  A captured short timer or a block-scoped afterburner-speed local emits the
+  same exact routine. Retain the separately named speed used by the scaling
+  call; the measured velocity-delta magnitude has a different purpose.
+  The header removal trades away the existing housekeeping match. Its
+  short object counter and common four-byte offset exchange SI and DI,
+  losing 51 literal bytes and leaving 49 differing encodings out of 247.
+  The complete-file byte objective determines this choice. Promoted index
+  and object-class captures, equivalent loop forms, register hints, tested
+  standard-header contexts, and nearby object-array declaration moves fail
+  to improve the combined result. With `<float.h>` retained, all tested
+  acceleration local orders and timer/speed captures retain its bad frame.
+- `animate_shape` declares the object type before the animation pointer.
+  In the new unit context this recovers nine literal bytes, from 277 to 286
+  of 352, reducing differing encodings from 29 to 21 of 104. Removing the
+  promoted object index loses another byte and is discarded.
+  Only these three rows change in the full report. Normalized exact functions
+  remain 1,434 of 1,550: acceleration gains an exact match and housekeeping
+  loses one. All spans, all 3,797 map entries, the other data sections, and
+  all 399,232 code bytes outside these routines remain unchanged. The net
+  gain is 696 code bytes and 33 relocation bytes, reaching 503,820 of
+  518,656 matching file positions (97.1395%), with 14,836 differences left.
+  Full verification, the modern build, sorting and address audits pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. The executable
+  retains SHA-256
+  `9ddb5fa93803f3fa89e51d860da6fb9ee40b2398d89c880fd6422c4d3a4fabd4`
+  through verification.

@@ -4,7 +4,6 @@
  * object_intelligence. Placement evidence is recorded in docs/ORDER.md.
  */
 #include "wc1.h"
-#include <float.h>
 
 int nCapitalShipViewDistance = 0x7d000; /* 0x00468ff4 */
 unsigned char bLandingAuthorized = 0; /* 0x00468ff8 */
@@ -1091,6 +1090,7 @@ unsigned int accelerate_and_move_object(short obj)
     FixedVector accelerationVector;
     int acceleration;
     int magnitude;
+    int afterburnerSpeed;
 
     if (aeObjectClass[obj] >= OBJECT_CLASS_MISSILE) {
         switch (aeSpecialManeuvers[obj]) {
@@ -1125,13 +1125,13 @@ unsigned int accelerate_and_move_object(short obj)
                     ScaleFixedVector(&aShipFwdVec[obj],
                                      anShipSpeed[obj], &delta);
                 } else {
-                    magnitude =
+                    afterburnerSpeed =
                         (aObjectTypeData[
                             aeObjectTypeList[obj]].maximumVelocity +
                          20) * 0x200;
                     ScaleFixedVector(
                         &aShipFwdVec[obj],
-                        magnitude,
+                        afterburnerSpeed,
                         &delta);
                     drain_fuel(obj, 200);
                     abShipExhaustHeatList[obj] = 3;
@@ -1198,8 +1198,8 @@ unsigned int accelerate_and_move_object(short obj)
 /* Function start: 0x412CD0 */
 unsigned int animate_shape(short obj)
 {
-    unsigned char *animation;
     enum ObjectType type;
+    unsigned char *animation;
     short command;
     int objectIndex;
 
