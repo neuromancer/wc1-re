@@ -7164,3 +7164,10 @@ size differences to three; `.text` matches 96.2%.
   the interleaving of the scale stores with the bound products. Forming the
   products inline in the bound expressions is worse under every include
   pair.
+- `StepPaletteTransition` uses `componentCount` directly instead of
+  copying it into a `count` local in both branches. With the copy, CL
+  merges the two parameter loads ahead of the initialization test; the
+  original reloads it in each branch. Declaring `palette` before
+  `previousCountdown` fixes the remaining addressing-operand order, and the
+  volatile cast on `nPaletteTransitionInitialise` is unnecessary. The
+  routine is exact (it differed in 202 bytes).

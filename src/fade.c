@@ -23,14 +23,12 @@ unsigned short __stdcall StepPaletteTransition(short *current,
     unsigned int byteCount;
     short index;
     short difference;
-    short previousCountdown;
-    short count;
     short *palette;
+    short previousCountdown;
     short *accumulator;
 
-    if (*(volatile short *)&nPaletteTransitionInitialise != 0) {
-        count = *(volatile short *)&componentCount;
-        byteCount = (unsigned int)(count * 2);
+    if (nPaletteTransitionInitialise != 0) {
+        byteCount = (unsigned int)(componentCount * 2);
         pPaletteTransitionAccumulatorPtr =
             AllocateTaggedMemory(byteCount, 0);
         pPaletteTransitionDelta =
@@ -51,7 +49,7 @@ unsigned short __stdcall StepPaletteTransition(short *current,
 
         nPaletteTransMaxDelta = 0;
         palette = current;
-        for (index = 0; index < count; index++) {
+        for (index = 0; index < componentCount; index++) {
             difference = (short)(palette[index] - target[index]);
             if (difference < 0) {
                 difference = (short)-difference;
@@ -65,14 +63,13 @@ unsigned short __stdcall StepPaletteTransition(short *current,
         }
 
         difference = (short)(nPaletteTransMaxDelta / 4);
-        for (index = 0; index < count; index++) {
+        for (index = 0; index < componentCount; index++) {
             pPaletteTransitionAccumulatorPtr[index] = difference;
         }
         nPaletteTransitionInitialise = 0;
         nPaletteTransitionCountdown =
             (short)(nPaletteTransMaxDelta / 4);
     } else {
-        count = componentCount;
         palette = current;
     }
 
@@ -86,7 +83,7 @@ unsigned short __stdcall StepPaletteTransition(short *current,
         return 0;
     }
 
-    for (index = 0; index < count; index++) {
+    for (index = 0; index < componentCount; index++) {
         pPaletteTransitionAccumulatorPtr[index] =
             (short)(pPaletteTransitionAccumulatorPtr[index] +
                     pPaletteTransitionDelta[index]);
