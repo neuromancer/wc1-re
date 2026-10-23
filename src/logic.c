@@ -6,6 +6,9 @@
  *  of initialized data and string literals.
  */
 #define WC1_LOGIC_SOURCE
+#ifndef SDL_PORT
+#include <sys/types.h>
+#endif
 #include "wc1.h"
 #ifndef SDL_PORT
 #include <crtdbg.h>
@@ -232,7 +235,7 @@ short real_crash_time(short obj, short other)
     FixedVector travel;
     FixedVector separation;
 
-    collisionRadius = asObjectCollisionRadius[obj];
+    collisionRadius = *(volatile short *)&asObjectCollisionRadius[obj];
     collisionRadius += asObjectCollisionRadius[other];
     collisionRadius += 30;
     collisionFound = 0;
@@ -778,7 +781,7 @@ unsigned int get_rear_spot(short obj, unsigned short distance,
 /* Function start: 0x422F60 */
 unsigned int close_behind(volatile short range)
 {
-    if (nTgtRange < range &&
+    if (range > nTgtRange &&
         nTargetFacingValue < -0x32)
         return 1;
     return 0;
@@ -920,8 +923,10 @@ int attacker_in_range(short obj, unsigned short range)
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             aeShipSide[obj] != aeShipSide[other] &&
             acShipTargetTable[other] == obj) {
-            nTgtRange = distance_from_object(other, obj);
-            if (range > nTgtRange) {
+            int distance = distance_from_object(other, obj);
+
+            nTgtRange = (short)distance;
+            if (range > distance) {
                 nTargetShip = other;
                 return 1;
             }
@@ -1093,9 +1098,9 @@ int skill_check(short obj, short difficulty)
 /* Function start: 0x4236F0 */
 short find_ships_sphere(short missionShip)
 {
-    short shipIndex;
     MissionNavPoint *navPoint;
     short fallback;
+    short shipIndex;
     short navIndex;
 
     navIndex = 0;
@@ -2086,15 +2091,15 @@ unsigned short __stdcall UpdateSceneAnimationObject(
     signed char *commandStart;
     signed char *cursor;
     signed char *label;
-    signed char property;
+    short labelNumber;
     signed char frame;
     unsigned short complete;
     unsigned short goalFlags;
-    short delay;
+    signed char property;
     short value;
     short xOffset;
     short layer;
-    short labelNumber;
+    short delay;
     short objectIndex;
     short objectSet;
     short objectCount;

@@ -6878,3 +6878,60 @@ size differences to three; `.text` matches 96.2%.
   retains SHA-256
   `dc296c1c5d9e0c8b6105bd806b14af6d8f31c63cf121db057ad68c2592d0861a`
   through verification.
+- `logic.c` includes `<sys/types.h>` before `wc1.h` in the native build.
+  With `UpdateSceneAnimationObject` declaring `labelNumber` before `frame`,
+  `property` after `goalFlags`, and `delay` after `layer`, its complete
+  1,552-byte span becomes exact, including its switch tables and alignment.
+  Literal matching rises from 1,377 to 1,552 bytes; all 155 differing
+  encodings disappear. The include alone restores the object/cursor register
+  assignment and leaves nine differing encodings. The declaration moves
+  resolve the negative-rotation wrap's CX/DI allocation and the label-search
+  comparison direction. This is a measured compiler context, not evidence
+  of the original header arrangement or local declaration spelling.
+  The same context makes `init_constellation` exact at 176 bytes, up from
+  120. `attacker_in_range` captures the returned short distance in a scoped
+  integer before storing its low word and comparing the promoted value;
+  this restores the original 154-byte body after the include alone shortened
+  it by one byte. That declaration also makes `FindSceneAnimationCommand`
+  exact at 192 bytes, up from 191. Declaring `find_ships_sphere`'s navigation
+  pointer and fallback before its ship index recovers most of that routine's
+  register assignment after the added distance local.
+  A qualified first collision-radius read preserves `real_crash_time`'s
+  original argument-load order, and reversing the source comparison in
+  `close_behind` preserves its original operand order. Both routines retain
+  their preceding exact bytes. The read qualifier is a matching choice;
+  it does not establish that the original array declaration was volatile.
+  The retained unit tradeoff improves `hostile_sphere` from 73 to 90 of
+  96 bytes, but loses 22 bytes in `attacker_in_range`, seven in
+  `evaluate_damage`, six each in `no_goal` and `find_ships_sphere`, two in
+  `scan_for_enemy`, and one in `InitializeCockpitResources`.
+  `find_ships_sphere` and `InitializeCockpitResources` lose their normalized
+  exact labels, with six and one differing encodings, respectively.
+  `no_goal` still reports normalized exact despite its six
+  literal differences in the order of the three global operands. The
+  attacker and damage routines fall to 87.50% and 88.89% mnemonic similarity;
+  retain this intermediate tradeoff for its verified whole-file byte gain.
+  All 3,797 symbol/address pairs and all 397,584 code bytes outside the ten
+  changed spans remain unchanged. The net gain is 205 code bytes and three
+  relocation bytes: 504,990 of 518,656 matching file positions (97.3651%),
+  with 13,666 differences in 2,141 runs. The `.rdata`, `.data` and `.idata`
+  sections remain exact, and the relocation-count deficit remains one.
+  The report reaches 1,436 normalized exact and 1,484 mnemonic-perfect
+  functions, with 111 same-size differences and three size differences
+  totaling a net 26 bytes. Three functions are below 90%; the mean remains
+  99.83%.
+- Further logic trials are discarded. Header orders, local permutations,
+  initialization orders, register hints, argument captures, qualified goal
+  reads, damage-term permutations and casts, explicit damage accumulators,
+  and qualified denominators do not improve the selected complete-file
+  result. Alternate distance-assignment chains and `long` captures leave
+  the attacker result unchanged. Subtracting the distance before testing
+  its sign adds instructions absent from the original. Additional captures
+  can change later functions' register allocation even when the edited
+  routine's output is unchanged; do not assess these probes in isolation.
+  Full verification, the modern build, sorting and address audits pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. The executable
+  retains SHA-256
+  `5504a12307d0bb35d5b91c4e8ca57af705ad7ad5b294992af761c3ea653cd578`
+  through verification.
