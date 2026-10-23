@@ -1270,85 +1270,91 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               short angle, short scale, short flip,
                               short *bounds)
 {
-    int absoluteCosine;
+    unsigned char *cursor;
     int frameOffset;
-    int intersects = 0;
+    int frameLeft;
+    int frameRight;
+    int frameTop;
+    int frameBottom;
+    int extentX;
+    int extentY;
+    int cosine;
+    int topEdge;
+    int sine;
+    int transformedHeight;
+    int transformedWidth;
+    int leftEdge;
+    short left;
+    short top;
+    short right;
+    short bottom;
+    int inside;
 
+    inside = 0;
     if (shape == 0) {
-        intersects = viewport->left <= x && x <= viewport->right &&
-                     viewport->top <= y && y <= viewport->bottom;
-        return intersects;
+        if (viewport->left > x || viewport->right < x ||
+            viewport->top > y || viewport->bottom < y)
+            inside = 0;
+        else
+            inside = 1;
+        return (short)inside;
     }
     CheckHeapBlockSignature(shape);
-    frameOffset = frame * 4 + 4;
-    if (frameOffset <= (int)*(unsigned short *)(shape + 4)) {
-        ShapeFrameExtents *frameData;
-        int leftExtent;
-        int rightExtent;
-        int topExtent;
-        int bottomExtent;
-        int horizontalSpan;
-        int verticalSpan;
-        int transformedHeight;
-        int transformedWidth;
-        int absoluteSine;
-        int left;
-        short top;
-        short right;
-        short bottom;
-
-        frameData = (ShapeFrameExtents *)(
-            shape + *(int *)(shape + frameOffset));
-        leftExtent = frameData->left;
-        rightExtent = frameData->right;
-        topExtent = frameData->top;
-        bottomExtent = frameData->bottom;
-        absoluteCosine =
-            (int)(awAbsoluteCosine[angle] * scale) >> 8;
-        absoluteSine =
-            (int)(awAbsoluteSine[angle] * scale) >> 8;
-        if (absoluteCosine == 0)
-            absoluteCosine++;
-        if (absoluteSine == 0)
-            absoluteSine++;
-        horizontalSpan = rightExtent + leftExtent;
-        verticalSpan = topExtent + bottomExtent;
-        transformedHeight =
-            absoluteSine * horizontalSpan +
-            absoluteCosine * verticalSpan;
+    frameOffset = frame;
+    cursor = shape;
+    frameOffset++;
+    frameOffset <<= 2;
+    if (*(unsigned short *)(cursor + 4) >= frameOffset) {
+        cursor += *(int *)(frameOffset + cursor);
+        frameRight = *(short *)(cursor + 2);
+        frameLeft = *(short *)cursor;
+        frameTop = *(short *)(cursor + 4);
+        frameBottom = *(short *)(cursor + 6);
+        cosine = awAbsoluteCosine[angle] * scale;
+        cosine >>= 8;
+        sine = awAbsoluteSine[angle] * scale;
+        sine >>= 8;
+        if (cosine == 0)
+            cosine++;
+        if (sine == 0)
+            sine++;
+        extentX = frameLeft + frameRight;
+        extentY = frameBottom + frameTop;
+        transformedHeight = sine * extentX + cosine * extentY;
         if ((char)transformedHeight != 0)
             transformedHeight += 0x100;
         transformedHeight >>= 8;
-        transformedWidth =
-            absoluteCosine * horizontalSpan +
-            absoluteSine * verticalSpan;
+        transformedWidth = sine * extentY + cosine * extentX;
         if ((char)transformedWidth != 0)
             transformedWidth += 0x100;
         transformedWidth >>= 8;
-        if (absoluteCosine == 0)
-            absoluteCosine = 1;
-        if (absoluteSine == 0)
-            absoluteSine = 1;
-        top = (short)(y - (absoluteSine * leftExtent >> 8) -
-                      (absoluteCosine * topExtent >> 8));
-        bottom = (short)(transformedHeight + top);
-        left = ((absoluteSine * topExtent >> 8) -
-                (absoluteCosine * leftExtent >> 8) + x) -
-               ((absoluteSine * verticalSpan >> 8) + 1);
-        right = (short)(transformedWidth + left);
-        if (viewport->left <= right && (short)left <= viewport->right &&
-            viewport->top <= bottom && top <= viewport->bottom) {
-            bounds[0] = (short)left;
+        if (cosine == 0)
+            cosine = 1;
+        if (sine == 0)
+            sine = 1;
+        leftEdge = (sine * frameTop >> 8) + x - (cosine * frameRight >> 8);
+        topEdge = y - (cosine * frameTop >> 8) - (sine * frameRight >> 8);
+        top = (short)topEdge;
+        bottom = (short)(top + transformedHeight);
+        extentY = sine * extentY;
+        extentY >>= 8;
+        extentY++;
+        extentY = leftEdge - extentY;
+        left = (short)extentY;
+        right = (short)(extentY + transformedWidth);
+        if (viewport->left > right || viewport->right < left ||
+            viewport->top > bottom || top > viewport->bottom) {
+            inside = 0;
+        } else {
+            bounds[0] = left;
             bounds[2] = right;
             bounds[1] = top;
             bounds[3] = bottom;
-            intersects = 1;
-        } else {
-            intersects = 0;
+            inside = 1;
         }
     }
     (void)flip;
-    return intersects;
+    return (short)inside;
 }
 
 /* Function start: 0x442200 */

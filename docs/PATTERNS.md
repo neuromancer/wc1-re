@@ -7058,3 +7058,8 @@ size differences to three; `.text` matches 96.2%.
   match. A trial `<crtdbg.h>` include kept every exact routine but grew
   `DrawFontGlyph` by sixteen bytes and shifted all later code; reject
   context changes that alter any routine's size, exact or not.
+- `GetTransformedShapeBounds` follows its WC2 counterpart: the frame index
+  is scaled in place, the cosine and sine products are shifted in separate
+  statements, and the left edge is formed by reusing `extentY` for the
+  scaled span. Without WC2's allocation-signature guard and with `topEdge`
+  declared after `cosine`, the routine is exact (it differed in 170 bytes).
