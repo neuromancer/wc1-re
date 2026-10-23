@@ -7203,3 +7203,19 @@ size differences to three; `.text` matches 96.2%.
   `<process.h>` and `<crtdbg.h>` ahead of `wc1.h` restore it and also make
   `set_formation_position` exact (3 bytes). `find_next_ship_turn_slot`
   gains two differing bytes.
+- `animate_shape` takes WC2's shape: it indexes by `obj` directly, stores
+  the masked animation index and re-reads it to fetch the next command, and
+  uses plain scale updates. It drops the earlier `objectIndex` local and
+  odd index casts. It falls from 60 to 25 differing bytes. What remains
+  (the type-data offset in EDI instead of EAX, and the factor order in the
+  scale products) does not move with local order, operand spelling or
+  probe offsets.
+- `ShowCarrierLaunchSequence`'s original frame is 32 bytes because
+  `object` is not a declared short. The routine indexes with the
+  `sceneObject` parameter, and CL spills its sign-extended copy into a
+  dword slot next to the fighter shape. Using the parameter directly
+  restores the 0x20 frame. With fighter shape, view object and both
+  fighter coordinates set in that order, it also restores the 2,064-byte
+  span. The spill slots of the four index temporaries come out in a
+  different order, though, so that form differs in more bytes (1,367) than
+  the retained one (927).

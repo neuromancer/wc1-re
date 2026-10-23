@@ -1203,35 +1203,31 @@ unsigned int animate_shape(short obj)
     enum ObjectType type;
     unsigned char *animation;
     short command;
-    int objectIndex;
 
-    objectIndex = obj;
-    type = aeObjectTypeList[objectIndex];
+    type = aeObjectTypeList[obj];
     animation = aObjectTypeData[type].animation;
     if (animation == 0)
         return 0;
-    if (--asObjectAnimationDelay[objectIndex] > 0)
+    if (--asObjectAnimationDelay[obj] > 0)
         return 0;
-    asObjectAnimationDelay[objectIndex] =
-        aObjectTypeData[type].yawRate;
-    command = *(unsigned short *)(animation +
-              asObjectAnimIndexes[objectIndex] * 4);
+    asObjectAnimationDelay[obj] = aObjectTypeData[type].yawRate;
+    command = *(unsigned short *)(animation + asObjectAnimIndexes[obj] * 4);
 #ifdef SDL_PORT
     /* SWC CODE_02 animate_shape +0x4832: final visible type-49 frame
        starts the eight-color cockpit glare sequence. */
     if (SdlSwcFlightActive() && type == OBJECT_TYPE_EXPLOSION1 &&
-        asObjectScreenXList[objectIndex] != (short)0x8001 &&
-        asObjectAnimIndexes[objectIndex] == 19) {
+        asObjectScreenXList[obj] != (short)0x8001 &&
+        asObjectAnimIndexes[obj] == 19) {
         bSwcExplosionGlare = 1;
         nSwcSpaceGlareTicks = 8;
     }
 #endif
     switch (command & 0xf000) {
     case 0x9000:
-        command &= 0x0fff;
-        asObjectAnimIndexes[objectIndex] = command;
-        command = *(unsigned short *)(animation + command * 4);
-        if (asObjectScreenXList[objectIndex] != (short)0x8001 &&
+        asObjectAnimIndexes[obj] = command & 0x0fff;
+        command = *(unsigned short *)(animation +
+                  asObjectAnimIndexes[obj] * 4);
+        if (asObjectScreenXList[obj] != (short)0x8001 &&
             (type == OBJECT_TYPE_DEBRIS_WING ||
              type == OBJECT_TYPE_DEBRIS_METAL_SHEET)) {
             PlaySfxWaveFileByNumber(13, obj, 0);
@@ -1244,20 +1240,20 @@ unsigned int animate_shape(short obj)
 
     switch (command & 0x0c00) {
     case 0x0400:
-        awObjectScales[objectIndex] += (short)(
-            (command & 0x3f) * (awObjectScales[objectIndex] >> 6));
+        awObjectScales[obj] +=
+            (command & 0x3f) * ((unsigned short)awObjectScales[obj] >> 6);
         break;
     case 0x0800:
-        awObjectScales[obj] -= (short)(
-            (command & 0x3f) * (awObjectScales[(unsigned int)obj] >> 6));
+        awObjectScales[obj] -=
+            (command & 0x3f) * ((unsigned short)awObjectScales[obj] >> 6);
         break;
     default:
         command &= 0x3f;
-        asObjectViewFrames[objectIndex] = command;
+        asObjectViewFrames[obj] = command;
         break;
     }
-    asObjectFlipArray[objectIndex] = (command & 0xc0) >> 2;
-    asObjectAnimIndexes[objectIndex]++;
+    asObjectFlipArray[obj] = (command & 0xc0) >> 2;
+    asObjectAnimIndexes[obj]++;
     return 0;
 }
 
