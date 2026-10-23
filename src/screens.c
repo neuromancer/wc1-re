@@ -969,14 +969,12 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
     short first;
     short second;
     short testCode;
-    int destination;
 
     test = (char *)textData + record->testsOffset;
     while ((testCode = (short)*test++) != 0) {
         switch (testCode) {
         case 1:
-            first = int_value(&test);
-            return sceneData + first;
+            return sceneData + int_value(&test);
         case 2:
             first = int_value(&test);
             second = int_value(&test);
@@ -1084,9 +1082,9 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
         }
         switch (testCode) {
         case 13:
-            destination = int_value(&test);
+            first = int_value(&test);
             if (nCurrentConversationMedalIndex == 4)
-                return sceneData + destination;
+                return sceneData + first;
             break;
         case 14:
             first = int_value(&test);
@@ -1154,10 +1152,10 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
                 return sceneData + first;
             break;
         case 26:
-            destination = int_value(&test);
+            first = int_value(&test);
             if (bPlayerEjectedThisMission == 1 &&
                 stCampaignState.elapsedDate.year > 1)
-                return sceneData + destination;
+                return sceneData + first;
             break;
         case 28:
             first = int_value(&test);

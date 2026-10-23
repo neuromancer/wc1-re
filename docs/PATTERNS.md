@@ -7083,3 +7083,16 @@ size differences to three; `.text` matches 96.2%.
   guard, falling from 32 to 11 differing bytes. `UpdateInputDeviceTransitions`
   keeps WC1's form: WC1 stores 1 into its change tables and tests one XOR of
   the button words, where WC2 increments and masks each bit.
+- `ParseTests` returns `sceneData + int_value(&test)` directly in case 1
+  and uses the short `first` for the medal and late-ejection tests (cases
+  13 and 26); the case-local int `destination` was a matching device and is
+  gone. With case 1 spelled this way, every return block takes the original
+  register pattern (`movsx edx` with the record base reloaded, or `movsx eax`
+  with the base added from the stack). Probe declarations after the includes
+  never change those patterns, which depend only on the expression shape
+  earlier in the function. The two mission-score comparisons then still had
+  their operands swapped. That is a global-index tie, so it moves with
+  probes placed before the includes but not after them. Moving the
+  `stCampaignState` extern four places up in `include/globals.h` fixes it
+  without changing any other unit, and the routine is exact (it differed
+  in 717 bytes).

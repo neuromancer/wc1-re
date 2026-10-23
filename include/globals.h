@@ -390,11 +390,11 @@ extern signed char acPreviousAttackers[16]; /* 0x0059c910 */
 extern signed char acViableTargetList[16]; /* 0x0059c920 */
 extern short asActionCounts[10]; /* 0x0059c930 */
 extern FixedVector vPreviousStarFieldMotion; /* 0x0059c900 */
+extern CampaignState stCampaignState; /* 0x0059ca50 */
 extern short nCurrentHazardFieldTotal; /* 0x0059c90c */
 extern unsigned short awObjMassArray[SPACE_OBJECT_COUNT]; /* 0x0059c790 */
 extern short asObjAfterburnerVelocities[SPACE_OBJECT_COUNT]; /* 0x0059c9d0 */
 extern short asObjScreenScalesArray[SPACE_OBJECT_COUNT]; /* 0x0059c950 */
-extern CampaignState stCampaignState; /* 0x0059ca50 */
 extern unsigned char aShipWeaponsTable[10][0x47]; /* 0x0059cab0 */
 extern signed char acShipRating[16]; /* 0x0059cd80 */
 extern short asObjScreenAngles[SPACE_OBJECT_COUNT]; /* 0x0059cd90 */
