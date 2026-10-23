@@ -84,150 +84,126 @@ void PollJoystickButtonEvents(void)
 {
     short doubleClick;
 
-    if (nCurrentActiveInputDevice == -1 ||
-        bInputPollingGuard != 0)
+    if (nCurrentActiveInputDevice == -1)
+        return;
+    if (bInputPollingGuard != 0)
         return;
     bInputPollingGuard++;
     UpdateInputDeviceTransitions(1);
-    if (asInputBtn1ChangedTable
-            [nCurrentActiveInputDevice] != 0) {
+    if (asInputBtn1ChangedTable[nCurrentActiveInputDevice] != 0) {
         doubleClick = 0;
-        if (asInputButton1DoubleClicksList
-                [nCurrentActiveInputDevice] != 0)
+        if (asInputButton1DoubleClicksList[nCurrentActiveInputDevice] != 0)
             doubleClick = 3;
         QueueInputEventAtCursor(
-            ((unsigned short)aInputDevSamples
-                [nCurrentActiveInputDevice].buttons & 1) + 1,
+            (aInputDevSamples[nCurrentActiveInputDevice].buttons & 1) + 1,
             0, doubleClick);
     }
-    if (asInputButton2ChangedTable
-            [nCurrentActiveInputDevice] != 0) {
+    if (asInputButton2ChangedTable[nCurrentActiveInputDevice] != 0) {
         doubleClick = 0;
-        if (asInputButton2DoubleClick
-                [nCurrentActiveInputDevice] != 0)
+        if (asInputButton2DoubleClick[nCurrentActiveInputDevice] != 0)
             doubleClick = 3;
         QueueInputEventAtCursor(
-            ((unsigned short)(aInputDevSamples
-                [nCurrentActiveInputDevice].buttons >> 1) & 1) + 1,
+            ((aInputDevSamples[nCurrentActiveInputDevice].buttons >> 1) &
+             1) + 1,
             1, doubleClick);
     }
-    bInputPollingGuard--;
     stHostMouseState.secondaryButton =
-        (unsigned char)aInputDevSamples
-            [nCurrentActiveInputDevice].buttons;
-    stHostMouseState.primaryButton =
-        stHostMouseState.secondaryButton;
+        (unsigned char)aInputDevSamples[nCurrentActiveInputDevice].buttons;
+    stHostMouseState.primaryButton = stHostMouseState.secondaryButton;
+    bInputPollingGuard--;
 }
 
 /* Function start: 0x430920 */
 void PollMenuInputDevices(void)
 {
-    int changes;
-    char doubleClick;
-    short movementX;
-    short movementY;
-    int deviceIndex;
+    signed char doubleClick;
+    unsigned char changes;
 
     changes = 0;
     if (nCurrentActiveInputDevice == -1)
         return;
-    stHostMouseState.x =
-        stMouseCursorState.x;
-    stHostMouseState.y =
-        stMouseCursorState.y;
-    if (bInputPollingGuard != 0)
-        return;
-    bInputPollingGuard++;
-    UpdateInputDeviceTransitions(0);
+    stHostMouseState.x = stMouseCursorState.x;
+    stHostMouseState.y = stMouseCursorState.y;
+    if (bInputPollingGuard == 0) {
+        bInputPollingGuard++;
+        UpdateInputDeviceTransitions(0);
 
-    deviceIndex = (int)nCurrentActiveInputDevice;
-    if (asInputBtn1ChangedTable[deviceIndex] != 0) {
-        stHostMouseState.x +=
-            (short)aInputDevSamples
-                [deviceIndex].x *
-            nMenuPointerSpeed;
-        stHostMouseState.y +=
-            (short)aInputDevSamples
-                [deviceIndex].y *
-            nMenuPointerSpeed;
-        if (asInputButton1DoubleClicksList[deviceIndex] != 0)
-            changes = 3;
-        QueueInputEventAtCursor(
-            ((unsigned short)aInputDevSamples
-                [deviceIndex].buttons & 1) + 1,
-            0, (short)changes);
-        changes = 1;
-    }
-    deviceIndex = (int)nCurrentActiveInputDevice;
-    if (asInputButton2ChangedTable[deviceIndex] != 0) {
-        stHostMouseState.x +=
-            (short)aInputDevSamples
-                [deviceIndex].x *
-            nMenuPointerSpeed;
-        stHostMouseState.y +=
-            (short)aInputDevSamples
-                [deviceIndex].y *
-            nMenuPointerSpeed;
-        doubleClick = 0;
-        if (asInputButton1DoubleClicksList[deviceIndex] != 0)
-            doubleClick = 3;
-        QueueInputEventAtCursor(
-            ((unsigned short)(aInputDevSamples
-                [deviceIndex].buttons >> 1) & 1) + 1,
-            1, (short)doubleClick);
-        changes++;
-    }
-    if (changes == 0) {
-        movementX = (short)aInputDevSamples
-            [nCurrentActiveInputDevice].x;
-        movementY = (short)aInputDevSamples
-            [nCurrentActiveInputDevice].y;
-        stHostMouseState.x +=
-            nMenuPointerSpeed * movementX;
-        stHostMouseState.y +=
-            nMenuPointerSpeed * movementY;
-        changes = (unsigned char)movementY | (unsigned char)movementX;
-        if (changes != 0) {
-            FlushInputEvents();
-            stHostMouseState.x = stHostMouseState.x > 0 ?
-                stHostMouseState.x : 0;
-            stHostMouseState.x = stHostMouseState.x < 319 ?
-                stHostMouseState.x : 319;
-            stHostMouseState.y = stHostMouseState.y > 0 ?
-                stHostMouseState.y : 0;
-            stHostMouseState.y = stHostMouseState.y < 199 ?
-                stHostMouseState.y : 199;
-            SetMousePosition(stHostMouseState.x,
-                             stHostMouseState.y);
+        if (asInputBtn1ChangedTable[nCurrentActiveInputDevice] != 0) {
+            stHostMouseState.x +=
+                aInputDevSamples[nCurrentActiveInputDevice].x *
+                nMenuPointerSpeed;
+            stHostMouseState.y +=
+                aInputDevSamples[nCurrentActiveInputDevice].y *
+                nMenuPointerSpeed;
+            doubleClick = 0;
+            if (asInputButton1DoubleClicksList[nCurrentActiveInputDevice] != 0)
+                doubleClick = 3;
+            QueueInputEventAtCursor(
+                (aInputDevSamples[nCurrentActiveInputDevice].buttons & 1) + 1,
+                0, (short)doubleClick);
+            changes++;
         }
-    }
+        if (asInputButton2ChangedTable[nCurrentActiveInputDevice] != 0) {
+            stHostMouseState.x +=
+                aInputDevSamples[nCurrentActiveInputDevice].x *
+                nMenuPointerSpeed;
+            stHostMouseState.y +=
+                aInputDevSamples[nCurrentActiveInputDevice].y *
+                nMenuPointerSpeed;
+            doubleClick = 0;
+            if (asInputButton1DoubleClicksList[nCurrentActiveInputDevice] != 0)
+                doubleClick = 3;
+            QueueInputEventAtCursor(
+                ((aInputDevSamples[nCurrentActiveInputDevice].buttons >> 1) &
+                 1) + 1,
+                1, (short)doubleClick);
+            changes++;
+        }
+        if (changes == 0) {
+            stHostMouseState.x +=
+                aInputDevSamples[nCurrentActiveInputDevice].x *
+                nMenuPointerSpeed;
+            stHostMouseState.y +=
+                aInputDevSamples[nCurrentActiveInputDevice].y *
+                nMenuPointerSpeed;
+            changes = (unsigned char)(
+                aInputDevSamples[nCurrentActiveInputDevice].y |
+                aInputDevSamples[nCurrentActiveInputDevice].x);
+            if (changes != 0) {
+                FlushInputEvents();
+                stHostMouseState.x = stHostMouseState.x > 0 ?
+                    stHostMouseState.x : 0;
+                stHostMouseState.x = stHostMouseState.x < 319 ?
+                    stHostMouseState.x : 319;
+                stHostMouseState.y = stHostMouseState.y > 0 ?
+                    stHostMouseState.y : 0;
+                stHostMouseState.y = stHostMouseState.y < 199 ?
+                    stHostMouseState.y : 199;
+                SetMousePosition(stHostMouseState.x, stHostMouseState.y);
+            }
+        }
 
-    stHostMouseState.secondaryButton =
-        (unsigned char)aInputDevSamples
-            [nCurrentActiveInputDevice].buttons;
-    stHostMouseState.primaryButton =
-        stHostMouseState.secondaryButton;
-    stHostMouseState.x = stHostMouseState.x > 0 ?
-        stHostMouseState.x : 0;
-    stHostMouseState.x = stHostMouseState.x < 319 ?
-        stHostMouseState.x : 319;
-    stHostMouseState.y = stHostMouseState.y > 0 ?
-        stHostMouseState.y : 0;
-    stHostMouseState.y = stHostMouseState.y < 199 ?
-        stHostMouseState.y : 199;
-    if (changes != 0) {
-        LeaveAllocationScope();
-        stMouseCursorState.primaryButton =
-            stHostMouseState.primaryButton;
-        stMouseCursorState.x =
-            stHostMouseState.x;
-        stMouseCursorState.y =
-            stHostMouseState.y;
-        stMouseCursorState.secondaryButton =
-            stHostMouseState.secondaryButton;
-        stMouseCursorState.flags =
-            stHostMouseState.flags;
-        EnterAllocationScope();
+        stHostMouseState.secondaryButton =
+            (unsigned char)aInputDevSamples[nCurrentActiveInputDevice].buttons;
+        stHostMouseState.primaryButton = stHostMouseState.secondaryButton;
+        stHostMouseState.x = stHostMouseState.x > 0 ?
+            stHostMouseState.x : 0;
+        stHostMouseState.x = stHostMouseState.x < 319 ?
+            stHostMouseState.x : 319;
+        stHostMouseState.y = stHostMouseState.y > 0 ?
+            stHostMouseState.y : 0;
+        stHostMouseState.y = stHostMouseState.y < 199 ?
+            stHostMouseState.y : 199;
+        if (changes != 0) {
+            LeaveAllocationScope();
+            stMouseCursorState.x = stHostMouseState.x;
+            stMouseCursorState.y = stHostMouseState.y;
+            stMouseCursorState.primaryButton = stHostMouseState.primaryButton;
+            stMouseCursorState.secondaryButton = stHostMouseState.secondaryButton;
+            stMouseCursorState.flags = stHostMouseState.flags;
+            EnterAllocationScope();
+        }
+        bInputPollingGuard--;
     }
-    bInputPollingGuard--;
 }
+

@@ -7073,3 +7073,13 @@ size differences to three; `.text` matches 96.2%.
   table to five entries. Dead stores to `dustSize` stand in for the original
   case bodies. With `objectRadius` declared before `distance`, the routine
   is exact (it differed in 301 bytes).
+- `PollMenuInputDevices` takes WC2's structure: the polling guard encloses
+  the body instead of returning early, each button block computes its own
+  signed-char double-click flag, `changes` counts as an unsigned char, the
+  idle path reads the device sample directly, and the cursor state is copied
+  as x, y, primary, secondary, flags. It is exact (it differed in 487 bytes);
+  of the 120 copy orders only WC2's is exact. `PollJoystickButtonEvents`
+  uses WC2's two early returns and copies the buttons before releasing the
+  guard, falling from 32 to 11 differing bytes. `UpdateInputDeviceTransitions`
+  keeps WC1's form: WC1 stores 1 into its change tables and tests one XOR of
+  the button words, where WC2 increments and masks each bit.
