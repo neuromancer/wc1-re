@@ -7096,3 +7096,12 @@ size differences to three; `.text` matches 96.2%.
   `stCampaignState` extern four places up in `include/globals.h` fixes it
   without changing any other unit, and the routine is exact (it differed
   in 717 bytes).
+- `ShowChalkBoard` compares the two pilots' scores by reading both order
+  slots in the condition. It loads the swap value from the candidate slot
+  only inside the taken branch, and it declares `other` before `index`.
+  CL canonicalizes the comparison. Writing it as `<` or as the mirrored `>`
+  emits identical code. The declaration order of the two loop indexes
+  decides which score is computed first, and with it which slot address
+  stays hoisted in ESI. The text context's viewport is assigned after the
+  previous context is saved, so the store lands between the font call's
+  argument pushes. The routine is exact (it differed in 688 bytes).

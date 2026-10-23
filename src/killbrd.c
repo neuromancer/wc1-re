@@ -795,8 +795,8 @@ void ShowChalkBoard(void)
     unsigned char done;
     unsigned char savedInputMode;
     char pilotName[20];
-    short index;
     short other;
+    short index;
     short pilot;
     short rowY;
     short swap;
@@ -804,11 +804,11 @@ void ShowChalkBoard(void)
     done = 0;
     for (index = 0; index < 9; index++) {
         for (other = index; other < 9; other++) {
-            swap = asChalkBoardPilotOrder[other];
             if (aPilotEntriesList[asChalkBoardPilotOrder[index]].kills * 1000 -
                     aPilotEntriesList[asChalkBoardPilotOrder[index]].missions + 1 <
-                aPilotEntriesList[swap].kills * 1000 -
-                    aPilotEntriesList[swap].missions + 1) {
+                aPilotEntriesList[asChalkBoardPilotOrder[other]].kills * 1000 -
+                    aPilotEntriesList[asChalkBoardPilotOrder[other]].missions + 1) {
+                swap = asChalkBoardPilotOrder[other];
                 asChalkBoardPilotOrder[other] =
                     asChalkBoardPilotOrder[index];
                 asChalkBoardPilotOrder[index] = swap;
@@ -818,10 +818,10 @@ void ShowChalkBoard(void)
 
     context.colour = 0;
     context.backgroundColour = 0;
-    context.viewport = &stModalSrcViewport;
     stChalkBoardDate = *pCurrentCampaignDate;
     background = FetchDiskPacketRetrying(5, 2, 0);
     previousContext = pCurTextContext;
+    context.viewport = &stModalSrcViewport;
     InitializeTextContextFromFont(&context, 3,
                                   cViewportClearColour, -1);
     context.text = szDefaultTxtBuf;
