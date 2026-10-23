@@ -11,6 +11,7 @@
 #define WC1_IX_DSPS_SOURCE
 #include "ix.h"
 #include <stdlib.h>
+#include <assert.h>
 
 int      nStreamCount;           /* 0x00598130 */
 int      nAllocatedStreams;      /* 0x00598134 */
@@ -66,10 +67,10 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
     v->volume = 0x7fff;
     v->leftGain = v->volume;
     v->rightGain = v->volume;
-    v->leftGainHi = (unsigned char)((unsigned short)v->volume >> 8);
-    v->rightGainHi = (unsigned char)((unsigned short)v->volume >> 8);
+    v->leftGainHi = (unsigned short)v->volume >> 8;
+    v->rightGainHi = (unsigned short)v->volume >> 8;
     v->field_10 = 0;
-    v->rate = (short)((freq << 8) / IX_MIXER_BASE_RATE);
+    v->rate = (freq << 8) / IX_MIXER_BASE_RATE;
     nAllocatedStreams = nAllocatedStreams + 1;
     streams[stream].flags |= IX_STREAM_ALLOCATED;
 }
@@ -189,8 +190,8 @@ void ix_dsps_set_volume(int stream, unsigned short vol)
         (unsigned short)(((int)(vol & 0xffff) * 0x7fff) / 0xffff);
     v->leftGain = v->volume;
     v->rightGain = v->volume;
-    v->leftGainHi = (unsigned char)((unsigned short)v->volume >> 8);
-    v->rightGainHi = (unsigned char)((unsigned short)v->volume >> 8);
+    v->leftGainHi = (unsigned short)v->volume >> 8;
+    v->rightGainHi = (unsigned short)v->volume >> 8;
 }
 
 /* Function start: 0x445A0B */   /* source line 122 */

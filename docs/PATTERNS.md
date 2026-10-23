@@ -6985,3 +6985,29 @@ size differences to three; `.text` matches 96.2%.
   retains SHA-256
   `5e4eda13530862a1090aa7463047e9b2043e473f4e78fa0c01d6486d8e2af900`
   through verification.
+- In the `/Od` C++ `ix` units every explicit cast consumes one symbol index,
+  unlike the C core. CL's `$L`/`$SG` listing numbers read the counter
+  directly: the first label number inside each `PROC` shows how many indices
+  the preceding source consumed, without a probe sweep. A probe prototype
+  costs two indices in these units and `extern int` probes cost one, so sweep
+  `ix` units with integer probes. The comparison operand-order tie in these
+  bounds checks depends on the counter at the function's start: a code-free
+  declaration inside the body moves only later functions.
+- `dsps.cpp` writes the voice gain bytes without the redundant outer
+  `(unsigned char)` casts, in both the allocator and the volume setter, and
+  assigns the mixer rate without a `(short)` cast. With `<assert.h>` included
+  after `<stdlib.h>`, all ten stream routines are exact; `ix_dsps_alloc` and
+  `ix_dsps_stop` were the two misses. The include position matters: placed
+  before `<stdlib.h>`, the same header shifts the last four routines by two
+  more indices.
+- `dspv.cpp` computes the voice position as
+  `(int)((unsigned long)v->cursor - (unsigned long)v->start)`; the three casts
+  emit the same subtraction and supply the three indices the following
+  setters need. The volume setter's volatile voice-count read is gone; it cost
+  one index and was compensating for the missing ones. All fourteen voice
+  routines are exact, and the one-byte call displacements in
+  `ix_system_assign_voice` and `ix_system_service_sounds` disappear.
+  These are measured source contexts, not recovered original text.
+  The report reaches 1,440 normalized exact functions; whole-file matching
+  reaches 505,761 of 518,656 positions. The remaining size difference is the
+  sample converter's span over the DirectSound import stubs.
