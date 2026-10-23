@@ -23,7 +23,7 @@ short nEyeRollRate = 1;
 short DAT_0046c010 = -1;
 
 /* 0x0046c014 */
-unsigned char bCurrentKey = 0x80;
+signed char bCurrentKey = (signed char)0x80;
 
 /* 0x0046c018 */
 signed char cPreviousKey = (signed char)0x80;

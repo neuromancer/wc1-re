@@ -7105,3 +7105,22 @@ size differences to three; `.text` matches 96.2%.
   stays hoisted in ESI. The text context's viewport is assigned after the
   previous context is saved, so the store lands between the font call's
   argument pushes. The routine is exact (it differed in 688 bytes).
+- `bCurrentKey` is a signed char. Every original load of it sign-extends
+  (`movsx`) and none zero-extends, so the earlier `unsigned char` type with a
+  `(signed char)` cast at each use was a reconstruction artifact. With the
+  signed type and no casts on the key, `HandleSpaceFlightControls` is exact
+  (it differed in 2,760 bytes) and so is `HandleFleetOverviewInput`. The
+  case 2..10 test then reads the key twice from memory, as the original does.
+  So does its first comparison against `cPreviousKey`, which uses CL. The
+  volatile casts on `bCurrentKey` and `cPreviousKey` in `player_input` had
+  to go: CL marks a global whose address is taken anywhere in the unit,
+  including in functions that come after the use, and that marking moved
+  registers in both routines. The release-weapon test in case 0x1c reads
+  `nSelectedReleaseWeaponIndex` into `selectedWeapon` without a volatile
+  cast or a slot pointer, and both volume toggles use if/else.
+  `player_input` now differs in 25 bytes, up from 4. CL keeps the key in a
+  register across the two release ORs and across the `cPreviousKey` reset;
+  the original performs all of them in memory. No header position and no
+  probe offset prevents that promotion. A volatile declaration of the key,
+  `#pragma optimize("g", off)` around the routine, and every on/off
+  combination of its remaining volatile casts are all worse.

@@ -158,7 +158,7 @@ extern signed char aacCockpitLightOffFrame[5][7]; /* 0x0046dd38 */
 extern signed char aacCockpitLightOnFrame[5][7]; /* 0x0046dd60 */
 extern CockpitBarDefinition aaCockpitBars[5][8]; /* 0x0046dd88 */
 extern const GUID guidDirectDraw2; /* 0x00463118 */
-extern unsigned char bCurrentKey; /* 0x0046c014 */
+extern signed char bCurrentKey; /* 0x0046c014 */
 extern signed char cPreviousKey; /* 0x0046c018 */
 extern signed char cViewObject; /* 0x0046c000 */
 extern short nCurrentWave; /* 0x0046c01c */

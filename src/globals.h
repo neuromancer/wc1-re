@@ -30,7 +30,7 @@ extern short nFrameSkip;          /* int _FrameSkip = 1  (clamped 1..5) */ /* 0x
  * Main-module state confirmed from the reconstruction of main() and the
  * input/banner functions.
  * -------------------------------------------------------------------------- */
-extern unsigned char bCurrentKey;     /* key code from PollKeyboardState */ /* 0x0046c014 */
+extern signed char bCurrentKey;       /* key code from PollKeyboardState */ /* 0x0046c014 */
 extern signed char cPreviousKey; /* 0x0046c018 */
 extern unsigned char bMessageSpeed;   /* cycled (x+1)%5 */ /* 0x0046af68 */
 extern short nOriginDevUnlock;        /* argv element == "Origin" */ /* 0x00469ff4 */

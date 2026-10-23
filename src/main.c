@@ -660,7 +660,7 @@ int process_player_input(void)
     shift = GetShiftKeyState();
     control = GetControlKeyState();
     key = keys;
-    switch ((signed char)bCurrentKey) {
+    switch (bCurrentKey) {
     case 0x47:
         *key++ = 0x48;
         *key++ = 0x4b;
@@ -678,7 +678,7 @@ int process_player_input(void)
         *key++ = 0x4d;
         break;
     default:
-        *key++ = (short)(signed char)bCurrentKey;
+        *key++ = (short)bCurrentKey;
         break;
     }
     *key = -1;
@@ -911,7 +911,7 @@ unsigned int player_input(void)
     unsigned int buttons;
     unsigned int key;
 
-    cPreviousKey = (signed char)bCurrentKey;
+    cPreviousKey = bCurrentKey;
     *(volatile short *)&nPrevYawInput = nYawInputValue;
     nPrevPitchInputValue = nPitchInput;
     nPreviousRollInputValue = nCurrentRollInputValue;
@@ -928,12 +928,12 @@ unsigned int player_input(void)
     bCurrentKeyboardEvtQueued = queuedKeyEvent;
     bMouseButtonEventQueuedFlag = IsInputEventQueued(2);
     if (bMouseMoveEvtQueued == 0)
-        *(volatile unsigned char *)&bCurrentKey |= 0x80;
-    *(volatile unsigned char *)&bCurrentKey |= 0x80;
+        bCurrentKey |= 0x80;
+    bCurrentKey |= 0x80;
 
     if (bMouseCursorVisible == 0) {
         key = PollKeyboardState();
-        bCurrentKey = (unsigned char)key;
+        bCurrentKey = (signed char)key;
         if (bCurrentKey == 0) {
             nCurrentRollInputValue = 0;
             bFlightRollLatch = 0;
@@ -942,7 +942,7 @@ unsigned int player_input(void)
         } else {
             bMouseAfterburnerControl = 0;
             process_player_input();
-            switch ((signed char)bCurrentKey) {
+            switch (bCurrentKey) {
             case 0x33:
             case 0x34:
             case 0x52:
@@ -963,7 +963,7 @@ unsigned int player_input(void)
                 fire_players_lasers();
             }
             if ((buttons & 2) == 0)
-                *(volatile signed char *)&cPreviousKey = 0;
+                cPreviousKey = 0;
             if (cPreviousKey == 0x0f && buttons == 2) {
                 bCurrentKey = 0x0f;
                 if (buttons == 1)
@@ -1008,7 +1008,7 @@ unsigned int player_input(void)
         case 3:
         case 5:
             bMouseAfterburnerControl = 0;
-            bCurrentKey = (unsigned char)event.value;
+            bCurrentKey = (signed char)event.value;
             process_player_input();
             break;
         case 6:
@@ -1204,7 +1204,7 @@ unsigned int HandleFleetOverviewInput(void)
 {
     short key;
 
-    key = (signed char)bCurrentKey;
+    key = bCurrentKey;
     if (nCameraViewMode == 8) {
         bCurrentKey = 0;
         switch (key) {
@@ -1250,7 +1250,7 @@ unsigned int HandleFleetOverviewInput(void)
             aShipRightVector[EYE_OBJECT].y = 0;
             break;
         default:
-            bCurrentKey = (unsigned char)key;
+            bCurrentKey = (signed char)key;
             break;
         }
     }
@@ -1434,14 +1434,13 @@ int HandleSpaceFlightControls(void)
 
     player_input();
     players_flight_dynamics();
-    notRepeated = (signed char)bCurrentKey !=
-                  cPreviousKey;
+    notRepeated = bCurrentKey != cPreviousKey;
     control = GetControlKeyState();
     GetKeyboardModifiers();
     HandleFleetOverviewInput();
 
     if (nTrainSimActive == 0) {
-        switch ((signed char)bCurrentKey) {
+        switch (bCurrentKey) {
         case 2:
         case 3:
         case 4:
@@ -1453,12 +1452,12 @@ int HandleSpaceFlightControls(void)
         case 10:
             if (notRepeated && get_mode(1) == 4 &&
                 nCameraViewMode == 0 &&
-                *(volatile signed char *)&bCurrentKey >= 2 &&
-                (signed char)bCurrentKey <=
+                bCurrentKey >= 2 &&
+                bCurrentKey <=
                     nCommMenuChoiceCount + 2 &&
                 get_mode(1) == 4) {
                 Chosen_communicate_option(
-                    (short)((signed char)bCurrentKey - 2));
+                    (short)(bCurrentKey - 2));
             }
             break;
         case 0x12:
@@ -1742,7 +1741,7 @@ restore_normal_viewport:
     initialize_view_buffer();
 
 primary_controls_complete:
-    switch ((signed char)bCurrentKey) {
+    switch (bCurrentKey) {
     case 1:
         bEscapePressedFlag = 0;
         if (nTrainSimActive != 0)
@@ -1800,12 +1799,9 @@ primary_controls_complete:
         return 0;
     case 0x1c:
         if (notRepeated &&
-            (selectedWeapon = *(volatile int *)&nSelectedReleaseWeaponIndex) != -1) {
-            ShipWeaponSlot *slot =
-                &((ShipWeaponSlot *)&aShipWeaponsTable[0][1])[
-                    selectedWeapon];
-
-            if (slot->type == OBJECT_TYPE_SPACE_MINE) {
+            (selectedWeapon = nSelectedReleaseWeaponIndex) != -1) {
+            if (((ShipWeaponSlot *)&aShipWeaponsTable[0][1])[
+                    selectedWeapon].type == OBJECT_TYPE_SPACE_MINE) {
                 drop_player_mine(0);
                 return 0;
             }
@@ -1822,8 +1818,10 @@ primary_controls_complete:
         break;
     case 0x32:
         if (notRepeated && control != 0) {
-            nMusicVolumeSetting =
-                nMusicVolumeSetting == 0 ? 20 : 0;
+            if (nMusicVolumeSetting == 0)
+                nMusicVolumeSetting = 20;
+            else
+                nMusicVolumeSetting = 0;
             SetMusicStreamVolume(
                 (unsigned short)anVolumeLevels[
                     nMusicVolumeSetting / 2]);
@@ -1834,8 +1832,10 @@ primary_controls_complete:
         break;
     case 0x1f:
         if (control != 0 && notRepeated) {
-            nSfxVolumeSetting =
-                nSfxVolumeSetting == 0 ? 20 : 0;
+            if (nSfxVolumeSetting == 0)
+                nSfxVolumeSetting = 20;
+            else
+                nSfxVolumeSetting = 0;
             SetSoundEffectsVolume(
                 anVolumeLevels[
                     nSfxVolumeSetting / 2]);

@@ -718,8 +718,8 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
        Its Win32 key polling is supplied by the same SDL sample for the whole
        tick, including modifiers. */
     SdlSetKeyboardSnapshot(keys);
-    cPreviousKey = (signed char)bCurrentKey;
-    bCurrentKey = (unsigned char)PollKeyboardState();
+    cPreviousKey = bCurrentKey;
+    bCurrentKey = (signed char)PollKeyboardState();
     if (bCurrentKey == 0 && haveJoystick &&
         (joystick.x != 0 || joystick.y != 0 || swcJoystickSteering || joystickModifier)) {
         swcJoystickSteering = 1;
