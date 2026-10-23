@@ -4,10 +4,12 @@
  */
 #define WC1_CUTSCENE_SOURCE
 #ifndef SDL_PORT
+#include <signal.h>
 #include <dos.h>
 #endif
 #include <sys/types.h>
 #include "wc1.h"
+#include <memory.h>
 
 static signed char cScrambleLeftWalkerFrame = 7; /* 0x00465768 */
 static signed char cScrambleRightWalkerFrame = 10; /* 0x0046576c */
@@ -197,11 +199,8 @@ unsigned int AnimateScrambleWalk(short ticks)
     elapsed = 0;
     if (ticks > 0) {
         do {
-            unsigned char escapePressed;
-
             PumpWindowMessages();
             nFrameSkipCounter--;
-            escapePressed = bEscapePressedFlag;
             if (nFrameSkipCounter < 1) {
                 nFrameSkipCounter = nFrameSkip;
                 DrawSpriteDefault(&stSceneBuffer,
@@ -256,7 +255,6 @@ unsigned int AnimateScrambleWalk(short ticks)
                 DIBslamReal();
 
                 cScrambleLeftWalkerFrame++;
-                escapePressed = bEscapePressedFlag;
                 if (cScrambleLeftWalkerFrame > 19)
                     cScrambleLeftWalkerFrame = 7;
                 cScrambleRightWalkerFrame++;
@@ -269,7 +267,7 @@ unsigned int AnimateScrambleWalk(short ticks)
                 nScrambleRightWalkerX + 3;
             nScrambleLeftWalkerX =
                 nScrambleLeftWalkerX + 2;
-            if (escapePressed == 1)
+            if (bEscapePressedFlag == 1)
                 break;
             elapsed++;
         } while (elapsed < ticks);

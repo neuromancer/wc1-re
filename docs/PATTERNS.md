@@ -7171,3 +7171,16 @@ size differences to three; `.text` matches 96.2%.
   `previousCountdown` fixes the remaining addressing-operand order, and the
   volatile cast on `nPaletteTransitionInitialise` is unnecessary. The
   routine is exact (it differed in 202 bytes).
+- `AnimateScrambleWalk` tests `bEscapePressedFlag` directly after the
+  coordinate updates, like the other cutscene loops; the escape-snapshot
+  local was a matching device. The original's early flag loads come from
+  CL's capped promotion set. The routine keeps the background and left
+  walker coordinates and the escape flag in registers, and leaves the right
+  walker in memory. Which candidates are dropped depends on the symbols'
+  indexes: with the direct read, post-include probe offsets 8–10 make the
+  routine exact. In real source, `<signal.h>` ahead of `<dos.h>` and
+  `<memory.h>` after `wc1.h` make `PlayScrambleHangarScene` exact (it
+  differed in 19 bytes) and bring `AnimateScrambleWalk` from 524 to 27
+  differing bytes. There the cap drops the left walker instead of the
+  right. Header pairs that make `AnimateScrambleWalk` exact cost the
+  hangar scene, `scramble` or `landing` more.
