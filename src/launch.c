@@ -171,8 +171,8 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     short fighterScreenX;
     short carrierScreenX;
     short actorX;
-    short frame;
     short object;
+    short frame;
     int fadeLevel;
 
     bIntroSceneResourcesActive = 0;
@@ -190,11 +190,11 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         (unsigned char *)FetchDiskPacketRetrying(1, 4, 0);
     pScrambleView = &stSpaceBufferViewport;
     object = (short)sceneObject;
+    fighterScreenY = 64;
     fighterShape = aObjectTypeData[
         stCampaignState.playerShipType].shapeSet;
-    fighterScreenY = 64;
-    fighterScreenX = 20;
     nScriptedViewObject = object;
+    fighterScreenX = 20;
     initialize_scripted_view(asCarrierLaunchViewData);
     nScrambleBackdropPositionY = 64;
     nScrambleBackgroundRightCoordX = 520;

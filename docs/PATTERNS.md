@@ -6634,3 +6634,38 @@ size differences to three; `.text` matches 96.2%.
   existing call/global-access diagnostics remain 11/55. The image retains
   SHA-256 `104bd745ec3000913c7cb57d72785393889e6ae576bf948489e51154e676e997`
   through verification.
+- `draw_nav_pointer` initializes a newly allocated object's class before
+  its frame count, angle, scale and shape, and assigns its owner last.
+  Keeping this source order lets CL retain the promoted object index in
+  EDI, its four-byte array offset in ESI and the shared constant three in
+  EDX. The original saved EDI and all later instruction positions return.
+  The 36-byte local frame and 512-byte function span are unchanged; all
+  512 bytes now match literally, up from 23, eliminating 132 differing
+  encodings. The unoptimized WC2 counterpart corroborates this store order;
+  the WC1 assembly and binary-comp establish the retained match. Three of
+  the 720 independent initialization orders emit the exact function.
+  All 27 relocation operands now occupy their original offsets, up from
+  one. The navigation-pointer change alone gains 517 file positions:
+  489 code bytes and 28 relocation bytes. All 400,896 code bytes outside
+  this span and all symbol addresses remain unchanged.
+- `ShowCarrierLaunchSequence` declares its object index before the frame
+  counter, initializes fighter Y before loading the fighter shape, and sets
+  the scripted-view object before initializing fighter X. This recovers
+  twelve literal code bytes, from 807 to 819 of 2,064, and reduces differing
+  encodings from 349 to 339 of 520. Mnemonic similarity remains 95.79%; the
+  28-byte local frame still differs from the original 32 bytes. Relocation
+  data is unchanged. These are measured ordering choices, not recovered
+  original declarations. The initialization changes alone gain two bytes;
+  moving the object declaration adds ten. Other tested declaration positions
+  give no further gain. Moving the player-shape store earlier does not
+  improve matching, and some variants shrink the aligned function span.
+  Only these two rows change in the full report, raising normalized exact
+  functions from 1,433 to 1,434. The combined gain is 529 file positions:
+  503,091 of 518,656 (96.9990%), with 15,565 differences remaining.
+  All 398,832 code bytes outside the two targets and all 3,797 map entries
+  remain unchanged. Full verification, the modern build, sorting and address
+  audits pass. Both value checks cover all 1,550 functions with zero
+  mismatches or skips; existing call/global-access diagnostics remain 11/55.
+  The executable retains SHA-256
+  `73f58aaeb7f2fa54650f28f7a6b373c23e7f48c8053678c00a8129e61c3c4e50`
+  through verification.

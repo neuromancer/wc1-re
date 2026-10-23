@@ -2202,13 +2202,13 @@ void draw_nav_pointer(void)
         nNavPointerObject = object;
         if (object == -1)
             return;
+        aeObjectClass[object] = OBJECT_CLASS_PLANET;
         asObjectViewFrames[object] = 3;
-        acObjOwnersTable[object] = -1;
         asObjScreenAngles[object] = 0;
         asObjScreenScalesArray[object] = 0x100;
-        aeObjectClass[object] = OBJECT_CLASS_PLANET;
         apObjShapeArray[object] =
             pTgtLockShapePtr;
+        acObjOwnersTable[object] = -1;
     }
     nNavPointerObject = object;
     asObjectScreenXList[object] = (short)0x8001;
