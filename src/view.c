@@ -582,9 +582,9 @@ initializeDecompressor:
 /* Function start: 0x42DB70 */
 short GetTargetColourIndex(void)
 {
-    short v = (short)nVideoMode;
+    short v = nVideoMode;
 
-    if ((short)nVideoMode == -1)
+    if (nVideoMode == -1)
         v = 0x13;
     return v;
 }

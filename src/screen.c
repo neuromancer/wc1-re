@@ -345,7 +345,7 @@ unsigned short __stdcall InitializeDIBScreenViewport(
     viewport->top = 0;
     if (nVideoMode != 0x13) {
         SystemDebugPrintf("== BAD alloc_screen == : type: '%d'\n",
-                          (int)(short)nVideoMode);
+                          (int)nVideoMode);
         exit(1);
     }
     viewport->pixels = GetDIBPixelBuffer();

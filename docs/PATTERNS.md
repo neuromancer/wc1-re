@@ -7124,3 +7124,25 @@ size differences to three; `.text` matches 96.2%.
   probe offset prevents that promotion. A volatile declaration of the key,
   `#pragma optimize("g", off)` around the routine, and every on/off
   combination of its remaining volatile casts are all worse.
+- `LoadJoystickCalibrationFile` and `ReadCalibratedJoystick` no longer use
+  volatile casts. Address-taking in either routine marked the joystick
+  scales for the whole unit, which turned Read's register divisions into
+  memory divisions. Read now takes its WC2 shape: direct indexed sample
+  accesses and a `result` local for the sampling call. Load keeps the
+  calibration scales in memory across their conditional increments while
+  CL still promotes the minimum X bound. That split comes from the capped
+  promotion set, which depends on the globals' symbol indexes, so it needs
+  a shift of the header globals: `<signal.h>` before `wc1.h` provides it,
+  and `<sys/types.h>` after it sets the unit's own offset. Load forms the
+  left product before the up product, increments `horizontalRange` with
+  `++`, and declares `rangeY`, `rangeX` and `centreX` first. Moving the
+  `nCurrentJoystickFailureValue` extern one place down in `globals.h` fixes
+  Read's failure-value comparison order without changing another unit. Both
+  routines are exact; together they differed in 241 bytes. The
+  `UnionRectBounds` helper that follows now differs in 6 bytes, an operand
+  order tie twelve probe units away. No include pair satisfies all three
+  routines.
+- `nVideoMode` is a short and the pilot-hand frame globals
+  (`bStickIndicatorFrameState`, `cRenderedPilotHandFrame`) are signed chars.
+  The original only ever sign-extends them. The casts that compensated at each use are
+  gone; these retypes leave every routine's bytes unchanged.

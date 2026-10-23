@@ -148,7 +148,7 @@ extern short nCommSpeakerRating; /* 0x0046afcc */
 extern short nCommPortraitIndex; /* 0x0046afd0 */
 extern short nInputDoubleClickInterval; /* 0x0046af54 */
 extern short nMenuPointerSpeed; /* 0x0046af58 */
-extern unsigned short nVideoMode; /* 0x0046b168 */
+extern short nVideoMode; /* 0x0046b168 */
 extern signed char acGraphicsModeByAnimationSpeed[8]; /* 0x0046b178 */
 extern CockpitLayout stCockpitLayout; /* 0x0046e008 */
 extern short nCommSpeakerObject; /* 0x0046afc8 */
@@ -619,7 +619,7 @@ extern int bPtrMovedByKeyboardState; /* 0x005a7d54 */
 extern FixedVector vNormalizedToTarget; /* 0x005a7db0 */
 extern ShortPoint stReleaseWeaponDisplayPosition; /* 0x005a7dbc */
 extern enum ObjectType eReleaseWpnDisplayType; /* 0x005a7dc0 */
-extern unsigned char bStickIndicatorFrameState; /* 0x005a7dc8 */
+extern signed char bStickIndicatorFrameState; /* 0x005a7dc8 */
 extern short nCurrentNoticeTimer; /* 0x005a7dca */
 extern short nPendingCockpitDamageValue; /* 0x005a7dcc */
 extern signed char cLastTargetObject; /* 0x005a7df2 */
@@ -783,8 +783,8 @@ extern int nJoystickRightScale; /* 0x005a81d0 */
 extern int nJoystickDownScaleValue; /* 0x005a81d4 */
 extern int nJoystickCentreY; /* 0x005a81d8 */
 extern int nJoystickCentreX; /* 0x005a81dc */
-extern int nCurrentJoystickFailureValue; /* 0x005a81e0 */
 extern short nMenuInputRepeatDelay; /* 0x005a8208 */
+extern int nCurrentJoystickFailureValue; /* 0x005a81e0 */
 extern int nHostMouseMessageX; /* 0x005a8990 */
 extern int nHostMouseMessageY; /* 0x005a8994 */
 extern int bHostPrimaryMouseButton; /* 0x005a8998 */

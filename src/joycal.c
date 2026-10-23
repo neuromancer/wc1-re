@@ -4,7 +4,9 @@
  *  Address range 431a10-431eff (see docs/ORDER.md).
  *  The adjacent rectangle helper remains in this provisional unit.
  */
+#include <signal.h>
 #include "wc1.h"
+#include <sys/types.h>
 
 /* 0x0046b178 */
 signed char acGraphicsModeByAnimationSpeed[8] = {
@@ -38,6 +40,9 @@ void LoadJoystickCalibrationFile(short horizontalRange,
                                  short horizontalDeadZone,
                                  short verticalDeadZone)
 {
+    int rangeY;
+    int rangeX;
+    int centreX;
     unsigned short storedCentreX;
     unsigned short storedCentreY;
     int centreY;
@@ -49,16 +54,13 @@ void LoadJoystickCalibrationFile(short horizontalRange,
     int failed;
     unsigned short minimumX;
     unsigned short maximumY;
-    int rangeX;
     int leftScale;
     int upScale;
-    int centreX;
-    int rangeY;
 
     activeDevice = -1;
     failed = 1;
     if (horizontalRange == 0)
-        horizontalRange += (short)failed;
+        horizontalRange++;
     if (verticalRange == 0)
         verticalRange++;
     nCurrentJoystickFailureValue = -1;
@@ -137,10 +139,10 @@ void LoadJoystickCalibrationFile(short horizontalRange,
             nJoystickDownScaleValue++;
 
         nJoystickCentreX = centreX;
-        upScale = *(volatile int *)&nJoystickUpScale;
-        rangeY = verticalRange * upScale;
-        leftScale = *(volatile int *)&nCurrentJoystickLeftScale;
+        leftScale = nCurrentJoystickLeftScale;
         rangeX = horizontalRange * leftScale;
+        upScale = nJoystickUpScale;
+        rangeY = verticalRange * upScale;
         nJoystickCentreY = centreY;
         nStickMinimumPositionX = centreX - rangeX;
         nStickMinimumPositionY = centreY - rangeY;
@@ -155,98 +157,75 @@ void LoadJoystickCalibrationFile(short horizontalRange,
 /* Function start: 0x431D20 */
 short ReadCalibratedJoystick(void)
 {
-    InputDeviceSample *sample;
-    int sampleResult;
-    int failureValue;
-    int rawY;
-    int rawX;
-    int minimumX;
-    int centre;
     short normalizedX;
     short normalizedY;
     short device;
-    int axisScale;
+    int result;
 
-    device = *(volatile short *)&nCurrentActiveInputDevice;
+    device = nCurrentActiveInputDevice;
     if (device == -1)
         return 0;
-    sample = &aInputDevSamples[device];
-    sampleResult = SampleJoystickDevice(
-        sample, device,
-        nCurrentJoystickFailureValue);
-    rawX = sample->x;
-    failureValue = *(volatile int *)&nCurrentJoystickFailureValue;
-    if (rawX == failureValue ||
-        (rawY = aInputDevSamples[device].y) == failureValue ||
-        sampleResult != 0) {
+    result = SampleJoystickDevice(&aInputDevSamples[device], device,
+                                  nCurrentJoystickFailureValue);
+    if (aInputDevSamples[device].x == nCurrentJoystickFailureValue ||
+        aInputDevSamples[device].y == nCurrentJoystickFailureValue ||
+        result != 0) {
         nCurrentActiveInputDevice = -1;
-        sample->x = aInputDevSamples[device].y =
+        aInputDevSamples[device].x =
+            aInputDevSamples[device].y =
             aInputDevSamples[device].buttons = 0;
         return 0;
     }
 
-    minimumX = *(volatile int *)&nStickMinimumPositionX;
-    nCurrentJoystickRawCoordX = rawX;
-    nCurrentJoystickRawCoordY = rawY;
-    if (minimumX > rawX)
-        sample->x = minimumX;
-    if (sample->x > nStickMaxX)
-        sample->x = nStickMaxX;
-    if (aInputDevSamples[device].y <
-        nStickMinimumPositionY)
-        aInputDevSamples[device].y =
-            nStickMinimumPositionY;
-    if (aInputDevSamples[device].y >
-        nStickMaxY)
-        aInputDevSamples[device].y =
-            nStickMaxY;
+    nCurrentJoystickRawCoordX = aInputDevSamples[device].x;
+    nCurrentJoystickRawCoordY = aInputDevSamples[device].y;
+    if (aInputDevSamples[device].x < nStickMinimumPositionX)
+        aInputDevSamples[device].x = nStickMinimumPositionX;
+    if (aInputDevSamples[device].x > nStickMaxX)
+        aInputDevSamples[device].x = nStickMaxX;
+    if (aInputDevSamples[device].y < nStickMinimumPositionY)
+        aInputDevSamples[device].y = nStickMinimumPositionY;
+    if (aInputDevSamples[device].y > nStickMaxY)
+        aInputDevSamples[device].y = nStickMaxY;
 
     normalizedY = 0;
-    normalizedX = 0;
-    rawX = sample->x;
-    centre = *(volatile int *)&nJoystickCentreX;
-    if (centre > rawX) {
-        rawX = centre - rawX;
-        axisScale = nCurrentJoystickLeftScale;
-        rawX /= axisScale;
-        normalizedX = (short)rawX;
+    normalizedX = normalizedY;
+    if (aInputDevSamples[device].x < nJoystickCentreX) {
+        normalizedX = (short)((nJoystickCentreX -
+            aInputDevSamples[device].x) /
+            nCurrentJoystickLeftScale);
         if (nJoystickHorizontalDeadZone < normalizedX) {
             if (normalizedX != 0)
                 normalizedX = (short)-normalizedX;
         } else {
             normalizedX = 0;
         }
-    } else if (centre < rawX) {
-        rawX = rawX - centre;
-        axisScale = nJoystickRightScale;
-        rawX /= axisScale;
-        normalizedX = (short)rawX;
+    } else if (aInputDevSamples[device].x > nJoystickCentreX) {
+        normalizedX = (short)((aInputDevSamples[device].x -
+            nJoystickCentreX) /
+            nJoystickRightScale);
         if (normalizedX <= nJoystickHorizontalDeadZone)
             normalizedX = 0;
     }
 
-    rawY = aInputDevSamples[device].y;
-    centre = *(volatile int *)&nJoystickCentreY;
-    if (centre > rawY) {
-        rawY = centre - rawY;
-        axisScale = nJoystickUpScale;
-        rawY /= axisScale;
-        normalizedY = (short)rawY;
+    if (aInputDevSamples[device].y < nJoystickCentreY) {
+        normalizedY = (short)((nJoystickCentreY -
+            aInputDevSamples[device].y) /
+            nJoystickUpScale);
         if (nJoystickVertDeadZoneValue < normalizedY) {
             if (normalizedY != 0)
                 normalizedY = (short)-normalizedY;
         } else {
             normalizedY = 0;
         }
-    } else if (centre < rawY) {
-        rawY = rawY - centre;
-        axisScale = nJoystickDownScaleValue;
-        rawY /= axisScale;
-        normalizedY = (short)rawY;
+    } else if (aInputDevSamples[device].y > nJoystickCentreY) {
+        normalizedY = (short)((aInputDevSamples[device].y -
+            nJoystickCentreY) /
+            nJoystickDownScaleValue);
         if (normalizedY <= nJoystickVertDeadZoneValue)
             normalizedY = 0;
     }
-    sample->x = (int)normalizedX;
+    aInputDevSamples[device].x = (int)normalizedX;
     aInputDevSamples[device].y = (int)normalizedY;
     return 1;
 }

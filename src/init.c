@@ -60,7 +60,7 @@ unsigned int LoadGamePaletteFile(void)
     short index;
 
     PromptInsertNumberedDisk(0);
-    switch ((int)(short)nVideoMode) {
+    switch (nVideoMode) {
     case 9:
     case 13:
         index = 0;

@@ -1538,7 +1538,7 @@ void ShowOffscreenBuffer(void)
     unsigned short pixels;
     unsigned short *rowOffsets;
 
-    switch ((short)nVideoMode) {
+    switch (nVideoMode) {
     case 4:
     case 7:
     case 9:

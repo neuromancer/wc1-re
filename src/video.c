@@ -10,7 +10,7 @@
 #endif
 #include <sys/types.h>
 
-unsigned short nVideoMode = 0xffff; /* 0x0046b168 */
+short nVideoMode = -1; /* 0x0046b168 */
 
 
 /* Linker commons defined here; LINK orders them by identifier hash. */

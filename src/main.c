@@ -549,7 +549,7 @@ unsigned int FadeFlightPaletteEntry(short *entry)
 unsigned int UpdateSpacePaletteFade(void)
 {
     if (asDamageFlashColour[0] != 0) {
-        switch ((int)(short)nVideoMode) {
+        switch (nVideoMode) {
         case 9:
         case 13:
             ClearViewport(&stSpaceBufferViewport, (short)cRedColour);

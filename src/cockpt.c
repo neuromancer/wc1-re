@@ -12,7 +12,7 @@
 static short asVduSelectionSound[2] = { 0x7f, 0 }; /* 0x00469000 */
 char *pszPendingHudMessage = 0; /* 0x00469004 */
 static char *pszDisplayedHudMessage = 0; /* 0x00469008 */
-static unsigned char cRenderedPilotHandFrame = 0xff; /* 0x0046900c */
+static signed char cRenderedPilotHandFrame = -1; /* 0x0046900c */
 /* Nothing in the shipped executable references these eight zero bytes. */
 static int DAT_00469010[2] = { 0, 0 }; /* 0x00469010 */
 /* 0x00469018 */
@@ -92,7 +92,7 @@ static unsigned char abMouseCursorBackground[0x400];
 
 enum ObjectType eReleaseWpnDisplayType; /* 0x005a7dc0 */
 unsigned char *pRadarMarkerBackground; /* 0x005a7dc4 */
-unsigned char bStickIndicatorFrameState; /* 0x005a7dc8 */
+signed char bStickIndicatorFrameState; /* 0x005a7dc8 */
 short nCurrentNoticeTimer; /* 0x005a7dca */
 short nPendingCockpitDamageValue; /* 0x005a7dcc */
 HudMessageSlot aCockpitHudMessageSlotsTable[2]; /* 0x005a7dd0 */
@@ -2370,7 +2370,7 @@ unsigned int RestoreTransientCockpitGraphics(void)
                               pCockpitExplosionShape,
                               nCockpitExplosionFrame);
         }
-        cRenderedPilotHandFrame = 0xff;
+        cRenderedPilotHandFrame = -1;
     }
     return 0;
 }
@@ -2557,22 +2557,22 @@ void determine_pilot_hand(void)
     pitch = nPitchInput / 2;
     if (yaw > 0) {
         bStickIndicatorFrameState =
-            (unsigned char)MinShort((short)(yaw + 8), 12);
+            (signed char)MinShort((short)(yaw + 8), 12);
         return;
     }
     if (yaw < 0) {
         bStickIndicatorFrameState =
-            (unsigned char)MinShort((short)(4 - yaw), 8);
+            (signed char)MinShort((short)(4 - yaw), 8);
         return;
     }
     if (pitch > 0) {
         bStickIndicatorFrameState =
-            (unsigned char)MinShort((short)(pitch + 12), 16);
+            (signed char)MinShort((short)(pitch + 12), 16);
         return;
     }
     if (pitch < 0) {
         bStickIndicatorFrameState =
-            (unsigned char)MinShort((short)-pitch, 4);
+            (signed char)MinShort((short)-pitch, 4);
         return;
     }
     bStickIndicatorFrameState = 0;
@@ -2590,13 +2590,13 @@ void DrawPilotHandFrame(void)
     CopyViewportContents(&stPilotHandBackdropView,
                          &stPilotHandComposite);
     DrawSpriteDefault(&stPilotHandComposite, x, y, pCurrentPilotHandShapePtr,
-                      (short)(signed char)bStickIndicatorFrameState);
+                      (short)bStickIndicatorFrameState);
     DrawSpriteDefault(
         &stPilotHandComposite,
         (short)(x + asPilotHandOffsets[
-            (signed char)bStickIndicatorFrameState * 2]),
+            bStickIndicatorFrameState * 2]),
         (short)(y + asPilotHandOffsets[
-            (signed char)bStickIndicatorFrameState * 2 + 1]),
+            bStickIndicatorFrameState * 2 + 1]),
         pCurrentPilotHandShapePtr, 0x11);
     CopyViewportContents(&stPilotHandComposite, &stPilotHandView);
     cRenderedPilotHandFrame = bStickIndicatorFrameState;
@@ -2636,7 +2636,7 @@ void animate_pilot(void)
 void ResetPilotHandAnimation(void)
 {
     if (pCurrentPilotHandShapePtr != 0) {
-        cRenderedPilotHandFrame = 0xff;
+        cRenderedPilotHandFrame = -1;
         CopyViewportContents(&stPilotHandView, &stPilotHandBackdropView);
         animate_pilot();
     }
@@ -2810,7 +2810,7 @@ void cockpit_explosion(void)
                               stCockpitExplosionPosition.y,
                               pCockpitExplosionShape,
                               nCockpitExplosionFrame);
-            cRenderedPilotHandFrame = 0xff;
+            cRenderedPilotHandFrame = -1;
         }
         return;
     }
