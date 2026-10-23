@@ -10,6 +10,11 @@
  */
 #define WC1_DIB_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <memory.h>
+#include <sys/stat.h>
+#include <sys/utime.h>
+#endif
 
 static LPDIRECTDRAW2 pDirectDraw2 = 0; /* 0x0046b1a4 */
 static LPDIRECTDRAWSURFACE pPrimarySurface = 0; /* 0x0046b1a8 */
@@ -107,6 +112,10 @@ short asObjScreenScalesArray[SPACE_OBJECT_COUNT]; /* 0x0059c950 */
 short asObjAfterburnerVelocities[SPACE_OBJECT_COUNT]; /* 0x0059c9d0 */
 CampaignState stCampaignState; /* 0x0059ca50 */
 unsigned char aShipWeaponsTable[10][0x47]; /* 0x0059cab0 */
+
+/* DIBreInstall calls these before their definitions. */
+int DIBcascade(int mode, int *reportedResult);
+void DIBslamReal(void);
 
 /* Function start: 0x431F00 */
 void ThrottleFrameAndDrawFps(HDC dc)
@@ -754,7 +763,7 @@ void DIBslamReal(void)
 }
 
 /* Function start: 0x432C60 */
-void DIBupdate(int left, volatile int top, int right, int bottom)
+void DIBupdate(int left, int top, int right, int bottom)
 {
 #ifndef SDL_PORT
     unsigned char *destination;

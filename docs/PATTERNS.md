@@ -7011,3 +7011,16 @@ size differences to three; `.text` matches 96.2%.
   The report reaches 1,440 normalized exact functions; whole-file matching
   reaches 505,761 of 518,656 positions. The remaining size difference is the
   sample converter's span over the DirectSound import stubs.
+- `DIBupdate` takes an ordinary `top` parameter. Its former volatile
+  qualifier imitated a symbol-count effect: without it the routine is exact
+  at every seventeenth offset. The whole unit then needs 27 more symbols
+  before its first routine, but the frame-size product in `DIBmakeDIB` and
+  `DIBdestroyDIB` is an operand-order tie between two unit statics, so the
+  split around the static definitions matters as well: 23 symbols before
+  them and four after. `<memory.h>`, `<sys/stat.h>` and `<sys/utime.h>`
+  supply the 27; `dib.c` forward-declares `DIBcascade` and `DIBslamReal`,
+  which `DIBreInstall` calls before their definitions, after its globals
+  instead of seeing them in `wc1funcs.h`. All 28 routines are exact.
+  An object-level byte compare that masks relocated fields cannot see such
+  global operand swaps; resolve each relocation through the map and compare
+  it with the original's operand before trusting an exact result.
