@@ -1232,11 +1232,12 @@ unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
 void transform_objects_to_your_view(void)
 {
     FixedVector direction;
-    int distance;
-    int objectIndex;
     int objectRadius;
-    int scaleFactor;
     short dustSize;
+    int objectIndex;
+    int distance;
+    int scaleFactor;
+    short screenScale;
     short obj;
 
     nClosestVisibleObject = -1;
@@ -1297,16 +1298,14 @@ void transform_objects_to_your_view(void)
                 scaleFactor = DivideFixed(
                     (short)(nScreenWidth & ~1) << 15,
                     distance - objectRadius);
-                asObjScreenScalesArray[objectIndex] = (short)(
+                screenScale = (short)(
                     MultiplyFixed((unsigned short)
                                       awObjectScales[objectIndex],
                                   scaleFactor) >> 8);
-                if ((unsigned short)asObjScreenScalesArray[
-                        objectIndex] >
-                    0x1fff)
-                    asObjScreenScalesArray[objectIndex] = 0x2000;
-                if ((unsigned short)asObjScreenScalesArray[
-                        objectIndex] < 5) {
+                if ((unsigned short)screenScale >= 0x2000)
+                    screenScale = 0x2000;
+                asObjScreenScalesArray[objectIndex] = screenScale;
+                if ((unsigned short)screenScale <= 4) {
                     asObjectScreenXList[objectIndex] =
                         (short)0x8001;
                     continue;
@@ -1336,12 +1335,19 @@ void transform_objects_to_your_view(void)
                         distance)) >> 8);
                 if (dustSize > 3)
                     dustSize = 3;
+                dustSize = (short)(
+                    (asObjScreenAngles[objectIndex] & 0x10) +
+                    (3 - dustSize) * 4);
                 asObjectViewFrames[objectIndex] =
                     (short)(((asObjectCounterArray[objectIndex] +
                               nCurrentSpaceFrameValue) & 3) +
-                            (asObjScreenAngles[objectIndex] &
-                             0x10) +
-                            (3 - dustSize) * 4);
+                            dustSize);
+                break;
+            case OBJECT_CLASS_DEBRIS:
+                dustSize = 0;
+                break;
+            case OBJECT_CLASS_ASTEROID:
+                dustSize = 1;
                 break;
             case OBJECT_CLASS_MISSILE:
             case OBJECT_CLASS_SHIP:

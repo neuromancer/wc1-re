@@ -7063,3 +7063,13 @@ size differences to three; `.text` matches 96.2%.
   statements, and the left edge is formed by reusing `extentY` for the
   scaled span. Without WC2's allocation-signature guard and with `topEdge`
   declared after `cosine`, the routine is exact (it differed in 170 bytes).
+- `transform_objects_to_your_view` follows WC2's projection loop where the
+  WC1 code agrees: the clamped screen scale is kept in a `screenScale`
+  local before it is stored, and the dust frame is formed in two statements
+  that reuse `dustSize`. The original six-entry jump table gives debris and
+  asteroids their own empty slots. Separate debris and asteroid case blocks
+  reproduce it only when each block holds a statement the optimizer later
+  deletes; empty blocks, `continue` and shared labels all collapse the
+  table to five entries. Dead stores to `dustSize` stand in for the original
+  case bodies. With `objectRadius` declared before `distance`, the routine
+  is exact (it differed in 301 bytes).
