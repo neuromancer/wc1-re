@@ -7039,3 +7039,22 @@ size differences to three; `.text` matches 96.2%.
   accepted only after compiling every unit and lowering the total count of
   differing bytes. These are measured declaration orders, not recovered
   header text.
+- The sprite background capture and restore routines take the shape of
+  WC2's unoptimized counterparts in `../wc2-re/src/gr.c`: the frame word is
+  scaled in place (`frame++; frame <<= 2;`), the run byte doubles as the run
+  length, the colour byte is read into its own local, and the clipping
+  arithmetic subtracts into `copyLength` and adds into `skip`. The WC2-only
+  viewport and allocation-signature guards are absent from WC1. With the
+  capture locals ordered `copyLength`, `commands`, `save`, `screen`,
+  `runRight`, then WC2's order, `CaptureSpriteBackground` is exact; the old
+  reconstruction with volatile run-length reads differed in 247 bytes.
+  `RestoreSpriteBackground` keeps WC1's trailing DIB refresh, reached by a
+  `goto` from the frame-range test, and differs only in two registers
+  (23 bytes, down from 252).
+  The WC2 shapes consume three fewer symbol indices than the old code, and
+  `CopyViewportContents` supplies them as WC2 writes it: the blit result is
+  kept in a local and passed to a discarded `abs` call that the optimizer
+  removes. Without that, the later `DrawFilledViewportRect` loses its exact
+  match. A trial `<crtdbg.h>` include kept every exact routine but grew
+  `DrawFontGlyph` by sixteen bytes and shifted all later code; reject
+  context changes that alter any routine's size, exact or not.

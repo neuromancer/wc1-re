@@ -718,132 +718,143 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
                              short frame)
 {
     short copyLength;
-    int endX;
-    unsigned short count;
-    unsigned short runLength;
     unsigned char *commands;
-    unsigned char *saved;
+    unsigned char *save;
     unsigned char *screen;
+    int runRight;
     unsigned char *pixels;
     unsigned char code;
-    short left;
-    short top;
-    short right;
-    short bottom;
-    short sourceX;
-    short sourceY;
-    int frameOffset;
+    unsigned char colour;
+    unsigned short rowCode;
+    short xOffset;
+    short yOffset;
+    short minimumX;
+    short maximumX;
+    short minimumY;
+    short maximumY;
     int drawX;
     int drawY;
     int skip;
 
-    saved = background;
-    if (background == 0)
+    save = background;
+    if (save == 0)
         return;
     if (shape == 0)
         return;
     if (frame < 0)
         return;
-    frameOffset = (short)(frame * 4 + 4);
-    if ((int)*(unsigned short *)(shape + 4) <= frameOffset)
-        return;
-    left = viewport->left;
-    right = viewport->right;
-    top = viewport->top;
-    bottom = viewport->bottom;
-    commands = shape + *(int *)(shape + frameOffset) + 8;
-    memcpy(&count, commands, sizeof(count));
-    pixels = viewport->pixels;
-    commands += 2;
-    while (count != 0) {
+    frame++;
+    frame <<= 2;
+    if (*(unsigned short *)(shape + 4) > frame) {
+        minimumX = viewport->left;
+        maximumX = viewport->right;
+        minimumY = viewport->top;
+        maximumY = viewport->bottom;
+        commands = shape + *(int *)(frame + shape);
+        commands += 8;
+        pixels = viewport->pixels;
 #ifdef SDL_PORT
-        memcpy(&sourceX, commands, sizeof(sourceX));
+        memcpy(&rowCode, commands, sizeof(rowCode));
 #else
-        sourceX = *(short *)commands;
+        rowCode = *(unsigned short *)commands;
 #endif
         commands += 2;
+        while (rowCode != 0) {
 #ifdef SDL_PORT
-        memcpy(&sourceY, commands, sizeof(sourceY));
+            memcpy(&xOffset, commands, sizeof(xOffset));
 #else
-        sourceY = *(short *)commands;
+            xOffset = *(short *)commands;
 #endif
-        commands += 2;
-        drawX = x + sourceX;
-        drawY = y + sourceY;
-        screen = pixels + (SPRITE_ROW_OFFSET(viewport, drawY) + drawX);
-        if ((count & 1) != 0) {
-            count >>= 1;
-            while (count != 0) {
-                code = *commands;
-                commands++;
-                if ((code & 1) != 0) {
+            commands += 2;
+#ifdef SDL_PORT
+            memcpy(&yOffset, commands, sizeof(yOffset));
+#else
+            yOffset = *(short *)commands;
+#endif
+            commands += 2;
+            drawX = x + xOffset;
+            drawY = y + yOffset;
+            screen = SPRITE_ROW_OFFSET(viewport, drawY) + drawX + pixels;
+            if ((rowCode & 1) != 0) {
+                rowCode >>= 1;
+                while (rowCode > 0) {
+                    code = *commands;
                     commands++;
-                    count -= (*(volatile unsigned short *)&runLength =
-                              (unsigned short)(code >> 1));
-                    if (top <= drawY && bottom >= drawY) {
-                        endX = drawX +
-                               *(volatile unsigned short *)&runLength - 1;
-                        if (drawX <= right && left <= endX) {
-                            copyLength = (short)runLength;
-                            skip = 0;
-                            if (drawX < left) {
-                                copyLength = copyLength - left + drawX;
-                                skip = left - drawX;
+                    if ((code & 1) != 0) {
+                        code >>= 1;
+                        rowCode = (unsigned short)(rowCode - code);
+                        colour = *commands;
+                        commands++;
+                        if (minimumY <= drawY && maximumY >= drawY) {
+                            runRight = code + drawX - 1;
+                            if (maximumX >= drawX &&
+                                minimumX <= runRight) {
+                                copyLength = code;
+                                skip = 0;
+                                if (minimumX > drawX) {
+                                    copyLength -= minimumX - drawX;
+                                    skip += minimumX - drawX;
+                                }
+                                if (maximumX < runRight)
+                                    copyLength -= runRight - maximumX;
+                                memcpy(save, skip + screen, copyLength);
+                                save += copyLength;
                             }
-                            if (right < endX)
-                                copyLength = copyLength - endX + right;
-                            memcpy(saved, screen + skip, copyLength);
-                            saved += copyLength;
                         }
-                    }
-                    drawX += runLength;
-                    screen += runLength;
-                } else {
-                    count -= (*(volatile unsigned short *)&runLength =
-                              (unsigned short)(code >> 1));
-                    if (top <= drawY && bottom >= drawY) {
-                        endX = drawX +
-                               *(volatile unsigned short *)&runLength - 1;
-                        if (drawX <= right && left <= endX) {
-                            copyLength = (short)runLength;
-                            skip = 0;
-                            if (drawX < left) {
-                                copyLength = copyLength - left + drawX;
-                                skip = left - drawX;
+                        screen += code;
+                        drawX += code;
+                    } else {
+                        code >>= 1;
+                        rowCode = (unsigned short)(rowCode - code);
+                        if (minimumY <= drawY && maximumY >= drawY) {
+                            runRight = code + drawX - 1;
+                            if (maximumX >= drawX &&
+                                minimumX <= runRight) {
+                                copyLength = code;
+                                skip = 0;
+                                if (minimumX > drawX) {
+                                    copyLength -= minimumX - drawX;
+                                    skip += minimumX - drawX;
+                                }
+                                if (maximumX < runRight)
+                                    copyLength -= runRight - maximumX;
+                                memcpy(save, skip + screen, copyLength);
+                                save += copyLength;
                             }
-                            if (right < endX)
-                                copyLength = copyLength - endX + right;
-                            memcpy(saved, screen + skip, copyLength);
-                            saved += copyLength;
                         }
+                        commands += code;
+                        screen += code;
+                        drawX += code;
                     }
-                    commands += runLength;
-                    drawX += runLength;
-                    screen += runLength;
                 }
-            }
-        } else {
-            count >>= 1;
-            if (top <= drawY && bottom >= drawY) {
-                endX = drawX + count - 1;
-                if (drawX <= right && left <= endX) {
-                    copyLength = (short)count;
-                    skip = 0;
-                    if (drawX < left) {
-                        copyLength = copyLength - left + drawX;
-                        skip = left - drawX;
+            } else {
+                rowCode >>= 1;
+                if (minimumY <= drawY && maximumY >= drawY) {
+                    runRight = rowCode + drawX - 1;
+                    if (maximumX >= drawX && minimumX <= runRight) {
+                        copyLength = rowCode;
+                        skip = 0;
+                        if (minimumX > drawX) {
+                            copyLength -= minimumX - drawX;
+                            skip += minimumX - drawX;
+                        }
+                        if (maximumX < runRight)
+                            copyLength -= runRight - maximumX;
+                        memcpy(save, skip + screen, copyLength);
+                        save += copyLength;
                     }
-                    if (right < endX)
-                        copyLength = copyLength - endX + right;
-                    memcpy(saved, screen + skip, copyLength);
-                    saved += copyLength;
                 }
+                commands += rowCode;
             }
-            commands += count;
+#ifdef SDL_PORT
+            memcpy(&rowCode, commands, sizeof(rowCode));
+#else
+            rowCode = *(unsigned short *)commands;
+#endif
+            commands += 2;
         }
-        memcpy(&count, commands, sizeof(count));
-        commands += 2;
     }
+    (void)colour;
 }
 
 /* Function start: 0x441740 */
@@ -851,136 +862,147 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame)
 {
-    short copyLength;
-    int endX;
-    unsigned short count;
-    unsigned short runLength;
     unsigned char *commands;
-    unsigned char *saved;
+    short copyLength;
+    unsigned char *save;
     unsigned char *screen;
+    int runRight;
     unsigned char *pixels;
     unsigned char code;
-    short left;
-    short top;
-    short right;
-    short bottom;
-    short sourceX;
-    short sourceY;
-    int frameOffset;
+    unsigned char colour;
+    unsigned short rowCode;
+    short xOffset;
+    short yOffset;
+    short minimumX;
+    short maximumX;
+    short minimumY;
+    short maximumY;
     int drawX;
     int drawY;
     int skip;
 
-    saved = background;
-    if (background == 0)
+    save = background;
+    if (save == 0)
         return;
     if (shape == 0)
         return;
     if (frame < 0)
         return;
-    frameOffset = (short)(frame * 4 + 4);
-    if ((int)*(unsigned short *)(shape + 4) <= frameOffset)
+    frame++;
+    frame <<= 2;
+    if (*(unsigned short *)(shape + 4) <= frame)
         goto refreshScreen;
-    left = viewport->left;
-    right = viewport->right;
-    top = viewport->top;
-    bottom = viewport->bottom;
-    commands = shape + *(int *)(shape + frameOffset) + 8;
-    memcpy(&count, commands, sizeof(count));
+    minimumX = viewport->left;
+    maximumX = viewport->right;
+    minimumY = viewport->top;
+    maximumY = viewport->bottom;
+    commands = shape + *(int *)(frame + shape);
+    commands += 8;
     pixels = viewport->pixels;
+#ifdef SDL_PORT
+    memcpy(&rowCode, commands, sizeof(rowCode));
+#else
+    rowCode = *(unsigned short *)commands;
+#endif
     commands += 2;
-    while (count != 0) {
+    while (rowCode != 0) {
 #ifdef SDL_PORT
-        memcpy(&sourceX, commands, sizeof(sourceX));
+        memcpy(&xOffset, commands, sizeof(xOffset));
 #else
-        sourceX = *(short *)commands;
+        xOffset = *(short *)commands;
 #endif
         commands += 2;
 #ifdef SDL_PORT
-        memcpy(&sourceY, commands, sizeof(sourceY));
+        memcpy(&yOffset, commands, sizeof(yOffset));
 #else
-        sourceY = *(short *)commands;
+        yOffset = *(short *)commands;
 #endif
         commands += 2;
-        drawX = x + sourceX;
-        drawY = y + sourceY;
-        screen = pixels + (SPRITE_ROW_OFFSET(viewport, drawY) + drawX);
-        if ((count & 1) != 0) {
-            count >>= 1;
-            while (count != 0) {
+        drawX = x + xOffset;
+        drawY = y + yOffset;
+        screen = SPRITE_ROW_OFFSET(viewport, drawY) + drawX + pixels;
+        if ((rowCode & 1) != 0) {
+            rowCode >>= 1;
+            while (rowCode > 0) {
                 code = *commands;
                 commands++;
                 if ((code & 1) != 0) {
+                    code >>= 1;
+                    rowCode = (unsigned short)(rowCode - code);
+                    colour = *commands;
                     commands++;
-                    count -= (*(volatile unsigned short *)&runLength =
-                              (unsigned short)(code >> 1));
-                    if (top <= drawY && bottom >= drawY) {
-                        endX = drawX +
-                               *(volatile unsigned short *)&runLength - 1;
-                        if (drawX <= right && left <= endX) {
-                            copyLength = (short)runLength;
+                    if (minimumY <= drawY && maximumY >= drawY) {
+                        runRight = code + drawX - 1;
+                        if (maximumX >= drawX &&
+                            minimumX <= runRight) {
+                            copyLength = code;
                             skip = 0;
-                            if (drawX < left) {
-                                copyLength = copyLength - left + drawX;
-                                skip = left - drawX;
+                            if (minimumX > drawX) {
+                                copyLength -= minimumX - drawX;
+                                skip += minimumX - drawX;
                             }
-                            if (right < endX)
-                                copyLength = copyLength - endX + right;
-                            memcpy(screen + skip, saved, copyLength);
-                            saved += copyLength;
+                            if (maximumX < runRight)
+                                copyLength -= runRight - maximumX;
+                            memcpy(skip + screen, save, copyLength);
+                            save += copyLength;
                         }
                     }
-                    drawX += runLength;
-                    screen += runLength;
+                    screen += code;
+                    drawX += code;
                 } else {
-                    count -= (*(volatile unsigned short *)&runLength =
-                              (unsigned short)(code >> 1));
-                    if (top <= drawY && bottom >= drawY) {
-                        endX = drawX +
-                               *(volatile unsigned short *)&runLength - 1;
-                        if (drawX <= right && left <= endX) {
-                            copyLength = (short)runLength;
+                    code >>= 1;
+                    rowCode = (unsigned short)(rowCode - code);
+                    if (minimumY <= drawY && maximumY >= drawY) {
+                        runRight = code + drawX - 1;
+                        if (maximumX >= drawX &&
+                            minimumX <= runRight) {
+                            copyLength = code;
                             skip = 0;
-                            if (drawX < left) {
-                                copyLength = copyLength - left + drawX;
-                                skip = left - drawX;
+                            if (minimumX > drawX) {
+                                copyLength -= minimumX - drawX;
+                                skip += minimumX - drawX;
                             }
-                            if (right < endX)
-                                copyLength = copyLength - endX + right;
-                            memcpy(screen + skip, saved, copyLength);
-                            saved += copyLength;
+                            if (maximumX < runRight)
+                                copyLength -= runRight - maximumX;
+                            memcpy(skip + screen, save, copyLength);
+                            save += copyLength;
                         }
                     }
-                    commands += runLength;
-                    drawX += runLength;
-                    screen += runLength;
+                    commands += code;
+                    screen += code;
+                    drawX += code;
                 }
             }
         } else {
-            count >>= 1;
-            if (top <= drawY && bottom >= drawY) {
-                endX = drawX + count - 1;
-                if (drawX <= right && left <= endX) {
-                    copyLength = (short)count;
+            rowCode >>= 1;
+            if (minimumY <= drawY && maximumY >= drawY) {
+                runRight = rowCode + drawX - 1;
+                if (maximumX >= drawX && minimumX <= runRight) {
+                    copyLength = rowCode;
                     skip = 0;
-                    if (drawX < left) {
-                        copyLength = copyLength - left + drawX;
-                        skip = left - drawX;
+                    if (minimumX > drawX) {
+                        copyLength -= minimumX - drawX;
+                        skip += minimumX - drawX;
                     }
-                    if (right < endX)
-                        copyLength = copyLength - endX + right;
-                    memcpy(screen + skip, saved, copyLength);
-                    saved += copyLength;
+                    if (maximumX < runRight)
+                        copyLength -= runRight - maximumX;
+                    memcpy(skip + screen, save, copyLength);
+                    save += copyLength;
                 }
             }
-            commands += count;
+            commands += rowCode;
         }
-        memcpy(&count, commands, sizeof(count));
+#ifdef SDL_PORT
+        memcpy(&rowCode, commands, sizeof(rowCode));
+#else
+        rowCode = *(unsigned short *)commands;
+#endif
         commands += 2;
     }
 refreshScreen:
     if (viewport->pixels == stScreenView.pixels)
         DIBslam();
+    (void)colour;
 }
 
 /* Function start: 0x441A40 */
@@ -996,16 +1018,19 @@ void DrawSolidColourSprite(Viewport *viewport, short x, short y,
 /* Function start: 0x441A90 */
 void CopyViewportContents(Viewport *source, Viewport *destination)
 {
+    RasterSurface sourceSurface;
     RasterClip destinationClip;
+    int blitResult;
     RasterClip sourceClip;
     RasterSurface destinationSurface;
-    RasterSurface sourceSurface;
 
     ValidateViewportBounds(source, &sourceSurface, &sourceClip);
     ValidateViewportBounds(destination, &destinationSurface,
                            &destinationClip);
-    BlitRasterClip(&sourceClip, 0, 0, &destinationClip, 0, 0,
-                   0xffffffff);
+    blitResult = BlitRasterClip(
+        &sourceClip, 0, 0, &destinationClip, 0, 0, 0xffffffff);
+    if (blitResult != 0)
+        abs(blitResult);
 }
 
 /* Function start: 0x441AE0 */
