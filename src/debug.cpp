@@ -6,8 +6,10 @@
  *  this isolated utility was compiled as C++ despite the surrounding game
  *  sources being C.
  */
+#ifndef SDL_PORT
 #include <malloc.h>
 #include <locale.h>
+#endif
 #include "wc1.h"
 #include <stdarg.h>
 #include <signal.h>
