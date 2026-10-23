@@ -518,10 +518,11 @@ unsigned int DrawMedals(void)
 {
     short badge;
     short medal;
+    unsigned short medalRowY;
+    short medalCount;
     short rowY;
-    short medalRowY;
-    short stack;
     short x;
+    short stack;
 
     rowY = 78;
     x = 188;
@@ -550,14 +551,13 @@ unsigned int DrawMedals(void)
             x = (short)(x + 11);
         }
     }
-    medalRowY = (short)(rowY + 5);
+    rowY = (short)(rowY + 5);
+    medalRowY = rowY;
     for (medal = 0; medal < 5; medal++) {
         if (stCampaignState.medals[medal] != 0) {
             x = asMedalDisplayX[medal];
             stack = medalRowY;
             if (medal < 3) {
-                short medalCount;
-
                 medalCount = 0;
                 while (medalCount < (signed char)
                                    stCampaignState.medals[medal]) {

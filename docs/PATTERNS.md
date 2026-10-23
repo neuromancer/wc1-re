@@ -7226,3 +7226,14 @@ size differences to three; `.text` matches 96.2%.
   exact. The unit falls from 130 to 38 differing bytes (object
   comparison); `DebugOverlayPrintf` now differs in its two row-times-width
   operand orders.
+- `DrawMedals` adds the medal-row offset to `rowY` in place and copies it
+  into `medalRowY`, which is an `unsigned short`. With matching types CL
+  merges the two variables and drops the copy. The original keeps the copy
+  and reuses `rowY`'s slot for the hoisted frame number. `medalCount` is
+  declared at function scope between `medalRowY` and `rowY`, and `stack`
+  last. The routine falls from 155 to 2 differing bytes; the loop test
+  still reloads the medal count into CX instead of AX under every local
+  order and probe offset.
+- Moving the `nAfterburnerSoundDeadline` extern ten places down in
+  `globals.h` makes `your_afterburner` exact without changing another
+  unit.

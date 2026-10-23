@@ -612,7 +612,6 @@ extern int nMemoryConfig; /* 0x005a7cd4 */
 extern unsigned char *pMouseCursorResource; /* 0x005a7cdc */
 extern int nAvailableGameMemory; /* 0x005a7ce0 */
 extern int nSceneResourceBudgetValue; /* 0x005a7ce4 */
-extern int nAfterburnerSoundDeadline; /* 0x005a7ce8 */
 extern unsigned char *pRadarMarkerBackground; /* 0x005a7dc4 */
 extern int bAfterburnerSfxEnabled; /* 0x005a7cec */
 extern int bPtrMovedByKeyboardState; /* 0x005a7d54 */
@@ -623,6 +622,7 @@ extern signed char bStickIndicatorFrameState; /* 0x005a7dc8 */
 extern short nCurrentNoticeTimer; /* 0x005a7dca */
 extern short nPendingCockpitDamageValue; /* 0x005a7dcc */
 extern signed char cLastTargetObject; /* 0x005a7df2 */
+extern int nAfterburnerSoundDeadline; /* 0x005a7ce8 */
 extern int nSavedMouseCursorY; /* 0x005a7df4 */
 extern int nStoredMouseCursorPosX; /* 0x005a7df8 */
 extern char szComponentHitMessage[40]; /* 0x005a7e00 */
