@@ -3,10 +3,10 @@
  *
  *  Address range 42efc0-42fa8f (see docs/ORDER.md).
  */
-#include "wc1.h"
 #ifndef SDL_PORT
 #include <malloc.h>
 #endif
+#include "wc1.h"
 
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
@@ -426,7 +426,7 @@ int GetLargestFreeNearHeapBlock(void)
     largestBytes = 0;
     descriptorAddress =
         nNearHeapBase + nNearHeapSize - 8;
-    for (; descriptorAddress >= nCurrentNearHeapFirstDescriptor;
+    for (; nCurrentNearHeapFirstDescriptor <= descriptorAddress;
          descriptorAddress -= 8) {
         block = DosNearPtrToFar(descriptorAddress);
         if ((block->sizeAndFlags & 0x80000000) == 0 &&

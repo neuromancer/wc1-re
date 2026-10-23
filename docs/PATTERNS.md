@@ -6844,3 +6844,37 @@ size differences to three; `.text` matches 96.2%.
   retains SHA-256
   `d4d8b732dce20d49ab2d46f40fb6e285bc7d47397703772ca3183123cec38540`
   through verification.
+- `screen.c` moves its existing `<malloc.h>` include before `wc1.h`, retaining
+  the SDL guard. This restores EAX for `IsPushedPacketHandle`'s count, EDX
+  for its table pointer and ECX for its handle argument. The count load
+  recovers the original five-byte accumulator encoding, bringing the loop
+  and found-entry test back to their original instruction addresses. Literal
+  matching rises from seven to 61 of 64 bytes, and differing encodings fall
+  from 21 to two of 22. Mnemonic similarity remains 90.91%. The final zero
+  return still exchanges the order of POP ESI and XOR EAX,EAX; its three
+  differing bytes are the sole remaining literal mismatch in the routine.
+  The include move initially reverses both loop comparisons in
+  `GetLargestFreeNearHeapBlock`. Writing its condition with the lower bound
+  on the left restores that routine's preceding bytes. It retains the two
+  existing differences in the commutative base/size loads, hidden by the
+  normalized exact report. Local declaration orders, alternate arithmetic
+  grouping, separate initialization statements and named heap-bound captures
+  do not improve the complete-file result.
+  Only the packet-test row changes in the report; all 1,435 normalized exact
+  routines remain exact. All 3,797 symbol/address pairs and all 401,344 code
+  bytes outside the packet test remain unchanged. The gain is 54 code bytes
+  and three relocation bytes: 504,782 of 518,656 matching file positions
+  (97.3250%), with 13,874 differences in 2,285 runs. The other data sections
+  remain exact, and the relocation-count deficit is unchanged.
+- Packet-test return rewrites, result widths/scopes and explicit count
+  captures do not fix the final return scheduling. For the answer-prompt
+  loader, all local declaration orders, tested standard-header contexts,
+  register hints, packet-assignment chains and line-start/difference captures
+  leave the scan/prompt register mismatch unresolved. Those trials are
+  discarded; compiler flags and the console construction cleanup are unchanged.
+  Full verification, the modern build, sorting and address audits pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. The executable
+  retains SHA-256
+  `dc296c1c5d9e0c8b6105bd806b14af6d8f31c63cf121db057ad68c2592d0861a`
+  through verification.
