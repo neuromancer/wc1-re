@@ -7219,3 +7219,10 @@ size differences to three; `.text` matches 96.2%.
   span. The spill slots of the four index temporaries come out in a
   different order, though, so that form differs in more bytes (1,367) than
   the retained one (927).
+- `debug.cpp` includes `<malloc.h>` and `<locale.h>` ahead of `wc1.h`. The
+  shift of the header symbols changes which import pointers
+  `DebugOverlayConsole::WaitForKey` keeps in registers. It also moves the
+  row and `TextOutA` registers in `DrawPendingLines` and makes `Clear`
+  exact. The unit falls from 130 to 38 differing bytes (object
+  comparison); `DebugOverlayPrintf` now differs in its two row-times-width
+  operand orders.

@@ -6,6 +6,8 @@
  *  this isolated utility was compiled as C++ despite the surrounding game
  *  sources being C.
  */
+#include <malloc.h>
+#include <locale.h>
 #include "wc1.h"
 #include <stdarg.h>
 #include <signal.h>
