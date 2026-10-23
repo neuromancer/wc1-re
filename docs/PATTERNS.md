@@ -7154,3 +7154,13 @@ size differences to three; `.text` matches 96.2%.
   loss-free extern move restores, and adds eight to `animate_shape`.
   Moving `nExternalViewShip` five places up restores `object_intelligence`
   without touching another unit.
+- `joystick.c` includes `<sys/types.h>` and the debug CRT's `<crtdbg.h>`
+  ahead of `wc1.h`. That header-symbol shift puts all three calibration
+  sample blocks of `CalibrateJoystickInteractive` on their original
+  pattern: the first two keep the X sample in EAX and form the Y address
+  separately, and the third loads both from a shifted base. Declaring the
+  four scales before the two ranges then brings the routine from 257 to
+  60 differing bytes. What remains is the horizontal range's register and
+  the interleaving of the scale stores with the bound products. Forming the
+  products inline in the bound expressions is worse under every include
+  pair.

@@ -3,6 +3,10 @@
  * Placement and boundary evidence are recorded in docs/ORDER.md.
  */
 #define WC1_JOYSTICK_SOURCE
+#include <sys/types.h>
+#ifndef SDL_PORT
+#include <crtdbg.h>
+#endif
 #include "wc1.h"
 
 /* Function start: 0x4102B0 */
@@ -14,12 +18,12 @@ void CalibrateJoystickInteractive()
     int file;
     int failed;
     int fontLoaded;
-    int horizontalRange;
-    int upScale;
     int leftScale;
+    int upScale;
     int rightScale;
-    int verticalRange;
     int downScale;
+    int horizontalRange;
+    int verticalRange;
 
     fontLoaded = 0;
     if (nCurrentActiveInputDevice == -1)
