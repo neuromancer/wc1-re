@@ -2,7 +2,11 @@
  * Mac select symbols corroborate the 42ad00-42af9f range.
  */
 #define WC1_SELECT_SOURCE
+#include <assert.h>
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <process.h>
+#endif
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 unsigned char *pCommMenuPointerShape; /* 0x005a7660 */
@@ -16,31 +20,30 @@ unsigned char *pCockpitDamageShape; /* 0x005a76f4 */
 /* Function start: 0x42AD00 */
 short find_next_gun(short obj, enum ObjectType currentGun)
 {
-    unsigned char *loadout = aShipWeaponsTable[obj];
-    int foundCurrent = 0;
-    short weapon = 0;
-    short firstGun = -1;
-    short weaponCount = (signed char)loadout[0];
-    ShipWeaponSlot *weaponSlot = (ShipWeaponSlot *)&loadout[1];
+    short firstGun;
+    unsigned char *loadout;
+    short weapon;
+    short weaponCount;
+    ShipWeaponSlot *weaponSlot;
+    int foundCurrent;
 
-    if (weaponCount > 0) {
-        do {
-            enum ObjectType type = weaponSlot->type;
-
-            if (aObjectTypeData[type].objectClass ==
-                    OBJECT_CLASS_PROJECTILE) {
-                if (firstGun == -1)
-                    firstGun = (short)type;
-                if (foundCurrent == 0) {
-                    if (currentGun == type)
-                        foundCurrent = 1;
-                } else if (currentGun != type) {
-                    return (short)weaponSlot->type;
-                }
+    loadout = aShipWeaponsTable[obj];
+    foundCurrent = 0;
+    firstGun = -1;
+    weaponCount = (signed char)loadout[0];
+    weaponSlot = (ShipWeaponSlot *)&loadout[1];
+    for (weapon = 0; weapon < weaponCount; weapon++, weaponSlot++) {
+        if (aObjectTypeData[weaponSlot->type].objectClass ==
+                OBJECT_CLASS_PROJECTILE) {
+            if (firstGun == -1)
+                firstGun = (short)weaponSlot->type;
+            if (foundCurrent == 0) {
+                if (weaponSlot->type == currentGun)
+                    foundCurrent = 1;
+            } else if (weaponSlot->type != currentGun) {
+                return (short)weaponSlot->type;
             }
-            weapon++;
-            weaponSlot++;
-        } while (weapon < weaponCount);
+        }
     }
     if (foundCurrent != 0 && firstGun != currentGun)
         firstGun = 0x80;

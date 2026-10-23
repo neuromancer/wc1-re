@@ -7184,3 +7184,10 @@ size differences to three; `.text` matches 96.2%.
   differing bytes. There the cap drops the left walker instead of the
   right. Header pairs that make `AnimateScrambleWalk` exact cost the
   hangar scene, `scramble` or `landing` more.
+- `find_next_gun` follows its WC2 counterpart: separately initialized
+  locals, a `for` loop that advances the slot pointer in its increment
+  clause, and the slot type compared directly. With `firstGun` declared
+  first and `foundCurrent` last it is exact (it differed in 50 bytes).
+  The `for` loop moves the unit's later symbols; `<assert.h>` ahead of
+  `wc1.h` and `<process.h>` after it keep `select_new_release_weapon`
+  exact.
