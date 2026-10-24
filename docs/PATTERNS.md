@@ -7469,3 +7469,34 @@ size differences to three; `.text` matches 96.2%.
   before translation leaves the extra saved register. Alternate input-key
   switch exits leave the differing block order or worsen it. None of these
   variants is retained.
+- `dot_product` accumulates the Y product, then the Z product, and finally
+  adds the X product. Separate full expressions preserve the original call
+  order, which the single addition expression reverses for Y and Z.
+  Inline the single-use `PlanarMagnitude` result into `DivideFixed` in
+  `rectangular_to_spherical`, retaining its saved Z coordinate across the
+  call. That routine's bytes stay exact, and removing its temporary preserves
+  the later geometry routines' compiler context after adding the dot-product
+  accumulator. The accumulator alone still grows `rotate_about_k` by sixteen
+  bytes and disturbs `rotate_about_j`; that isolated change is not usable.
+  The combined change matches all eighty dot-product bytes and changes only
+  its four coordinate offsets in the executable. Every other byte and all
+  3,797 symbol/address pairs remain unchanged. Normalized exact functions
+  rise to 1,473 of 1,550; strict matching reaches 515,387 of 518,656
+  (99.3697%), leaving 3,269 differing bytes.
+  Native and SDL builds, sorting/address audits and full verification pass.
+  Both value checks cover all 1,550 functions without mismatches or skips;
+  existing call/global-access diagnostics remain 11/56. Verification preserves
+  the executable's SHA-256:
+  `5a63695cda0cc40e3c91741eee0b5247ac4020f07be7939f11da30764a8bc7d6`.
+- Further sprite-restoration and carrier trials are discarded. Moving the
+  run-end, minimum-X or copy-length declarations, splitting the run-end
+  arithmetic, register hints, reversed clipping comparisons and a long
+  run-end local do not improve restoration. Scoping the run end to the row
+  loop loses five matching bytes.
+  The carrier's object-word spill is later read as a dword by its sound
+  calls without an intervening full-width initialization. A separate
+  uninitialized sound-handle local reproduces that kind of stack reuse,
+  but does not recover the routine's layout. With direct parameter indexing
+  it restores the 32-byte frame while shortening the function by sixteen
+  bytes; initialization orders do not repair the complete result. This is
+  still an unresolved source hypothesis, not a retained uninitialized local.

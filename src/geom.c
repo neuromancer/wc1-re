@@ -412,16 +412,14 @@ void MakeRandomNormalizedVector(FixedVector *vector)
 void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical)
 {
-    int horizontalLength;
     int z;
 
     spherical->radius = Vector_magnitude(rectangular);
     if (spherical->radius == 0)
         return;
     z = rectangular->z;
-    horizontalLength = PlanarMagnitude(rectangular->x, z);
     spherical->yaw = (short)ArcCos(
-        DivideFixed(z, horizontalLength));
+        DivideFixed(z, PlanarMagnitude(rectangular->x, z)));
     if (rectangular->x < 0)
         spherical->yaw = -spherical->yaw;
     spherical->pitch = (short)(ArcCos(
@@ -474,9 +472,11 @@ void ConvertFixedVectorToShortVector(const FixedVector *source,
 /* Function start: 0x4189E0 */
 int dot_product(const FixedVector *left, const FixedVector *right)
 {
-    return MultiplyFixed(left->x, right->x) +
-           MultiplyFixed(left->y, right->y) +
-           MultiplyFixed(left->z, right->z);
+    int product;
+
+    product = MultiplyFixed(left->y, right->y);
+    product += MultiplyFixed(left->z, right->z);
+    return product + MultiplyFixed(left->x, right->x);
 }
 
 /* Function start: 0x418A30 */
