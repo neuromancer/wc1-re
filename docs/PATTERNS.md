@@ -7273,3 +7273,11 @@ size differences to three; `.text` matches 96.2%.
   four-byte slot (`[ESP]`), ours at the high half. CL overlays locals with
   disjoint lifetimes in one slot (`CloseLook` shares -4 between `frame` and
   `start`), so the original's slot partner is still unidentified.
+- `internal_damage` follows WC2's capital-ship branch: each side adds
+  `MaxShort(...)` straight into `asShipAccumulatedDmg[victim]`, with no
+  pointer local and no `events` store. `onboard_explosion` sits in the
+  `else` of the explosion test. That `else` supplies the one symbol the
+  dropped block local held, which keeps `analyze_kill` and
+  `replenish_shields` on their original offsets. The routine falls from 57
+  to 37 differing bytes; the remainder is a swap of the victim index (EBX)
+  and the event count (SI) that no declaration order or probe offset fixes.
