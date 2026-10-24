@@ -3413,9 +3413,13 @@ Shapes recovered with this method:
   context also gains three literal bytes in `funeral_sequence`, from 144
   to 147 of 1,792; its differing encodings fall from 411 to 410 and its
   mnemonic similarity rises from 96.80% to 97.71%.
-- In `EmitTextString`, spell the guarded character loop as an explicit
-  nonzero test followed by do/while. Its own 48 bytes are unchanged, but
-  this restores one encoding in the later scanner. Declaring `row` first
+- `EmitTextString` names its callback's parameter
+  (`void (__stdcall *writer)(int character)`) and loops with
+  `while ((character = ...) != 0)`. The guarded do/while used before costs
+  one more label for identical code; the named callback parameter costs one
+  symbol before `writer` and `text`. Together they keep every later symbol
+  of `cockpt.c` where it was, and moving the routine's own parameters one
+  index up gives `text` EDI and `writer` ESI as in the original. Declaring `row` first
   and `grid` after `object` in `draw_3d_scanner` restores ESI for the row
   and EDI for the grid pointer. Together they make all 736 scanner bytes
   exact, up from 724. Moving only the grid declaration leaves one byte
@@ -7680,3 +7684,23 @@ Session findings that are not yet retained because they change span sizes:
   compare and block order, but CL then merges the `while` guard into the
   dispatch branch and the span loses sixteen bytes. A guarded `do`/`while`
   drain keeps the guard but moves the clear block last again.
+- A named parameter inside a function-pointer declarator is a
+  prototype-scope symbol: `void (*w)(int x), int b` costs one symbol more
+  than `void (*w)(int), int b`, before the definition's own parameters, and
+  emits nothing. Loop spellings with identical code differ in label cost:
+  `while ((c = *p++) != 0) f(c);` takes one label fewer than
+  `c = *p++; if (c != 0) do { f(c); c = *p++; } while (c != 0);`. Pairing a
+  `+1` before a routine's parameters with a `-1` inside its body moves only
+  that routine's indices (`EmitTextString`).
+- A synthetic window measured on a unit's first function does not carry
+  over to later functions. With the same symbol indices for
+  `EmitTextString`, sixteen leading externs gave `text` ESI, but fourteen
+  externs plus a two-symbol function before it gave EDI; thirteen externs
+  plus that function gave ESI again. C2 keeps state from the functions it
+  has already compiled, so windows must be confirmed in the real unit.
+- In `cockpt.c`, `EmitTextString`'s two parameters take the original
+  registers at every one of five tested shifts of +1 to +5 symbols; only
+  the unshifted position reverses them. A two-candidate tie that differs
+  from the original at its current index is therefore often the rare case
+  that any small shift fixes.
+

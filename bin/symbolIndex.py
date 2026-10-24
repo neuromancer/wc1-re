@@ -130,9 +130,21 @@ def proc_name(lines, start, func):
         header += line
         if '{' in line:
             break
-    if '__stdcall' in header:
-        params = header[header.index('(') + 1:header.index(')')]
-        count = 0 if params.strip() in ('', 'void') else params.count(',') + 1
+    m = re.search(r'\b' + re.escape(func) + r'\s*\(', header)
+    if m and '__stdcall' in header[:m.start()]:
+        # Count top-level commas: function-pointer parameters nest parentheses.
+        depth, count, params = 0, 0, ''
+        for ch in header[m.end():]:
+            if ch == '(':
+                depth += 1
+            elif ch == ')':
+                if depth == 0:
+                    break
+                depth -= 1
+            elif ch == ',' and depth == 0:
+                count += 1
+            params += ch
+        count = 0 if params.strip() in ('', 'void') else count + 1
         return '_%s@%d' % (func, 4 * count)
     return '_' + func
 

@@ -107,17 +107,12 @@ short nScannerCursorX; /* 0x005a7e6c */
 short nScannerCursorY; /* 0x005a7e6e */
 unsigned char abCockpitIndicatorStatesArray[7]; /* 0x005a7e70 */
 /* Function start: 0x413A10 */
-void EmitTextString(void (__stdcall *writer)(int), const char *text)
+void EmitTextString(void (__stdcall *writer)(int character), const char *text)
 {
     short character;
 
-    character = (signed char)*text++;
-    if (character != 0) {
-        do {
-            writer((short)character);
-            character = (signed char)*text++;
-        } while (character != 0);
-    }
+    while ((character = (signed char)*text++) != 0)
+        writer((short)character);
 }
 
 /* Function start: 0x413A40 */
