@@ -9,6 +9,7 @@ This script reads it directly with one compile per query:
     bin/symbolIndex.py local  src/launch.c ShowCarrierLaunchSequence frame
     bin/symbolIndex.py param  src/mono.c ResetStringBuilder
     bin/symbolIndex.py global src/launch.c nScrambleBackdropPositionY
+    bin/symbolIndex.py file   src/fl.c nManeuverProximityRange
     bin/symbolIndex.py labels launch
 
 `local` copies the unit next to itself, truncates FUNC right after the line
@@ -27,6 +28,14 @@ A function definition without a prototype costs two symbols, so NAME is the
 first label - 4.  Every header the real build opens before NAME is opened the
 same way, which matters: each header file costs a symbol, so preprocessed
 (/E) copies are biased by roughly one per header.
+
+`global` tries each header declaration of NAME in turn and reports the
+first one the unit's preprocessor keeps (a later redeclaration costs
+nothing).
+
+`file` measures a declaration in the unit itself (a static or a definition)
+by truncating a copy of the unit after that line and appending the same
+probe function, so NAME is again the first label - 4.
 
 `labels` prints each function's label numbers from out/UNIT.asm.  C1 parses
 the whole unit before C2 runs, so C2-created labels are numbered after the
@@ -149,45 +158,84 @@ def cmd_param(unit, func):
     report('%s (last parameter)' % func, first_label(asm, proc_name(lines, start, func)) - 2)
 
 
-def cmd_global(unit, name):
-    inc = os.path.join(WORK, 'inc')
-    if os.path.exists(inc):
-        shutil.rmtree(inc)
-    shutil.copytree(os.path.join(ROOT, 'include'), inc)
-    hit = None
-    for fn in sorted(os.listdir(inc)):
+def global_hits(name):
+    """Every header line that declares NAME, in include-directory order."""
+    hits = []
+    for fn in sorted(os.listdir(os.path.join(ROOT, 'include'))):
         if not fn.endswith('.h'):
             continue
-        lines = open(os.path.join(inc, fn), errors='replace').read().splitlines(keepends=True)
+        lines = open(os.path.join(ROOT, 'include', fn), errors='replace').read().splitlines(keepends=True)
         for i, line in enumerate(lines):
             code = re.sub(r'/\*.*?\*/', '', line).split('//')[0]
             if (re.search(r'\b' + re.escape(name) + r'\b', code) and code.rstrip().endswith(';')
                     and not code.lstrip().startswith(('#', '*'))):
-                hit = (fn, i, lines)
-                break
-        if hit:
-            break
-    if not hit:
+                hits.append((fn, i))
+    return hits
+
+
+def cmd_global(unit, name):
+    """Probe each declaration of NAME in turn; the first one the unit's
+    preprocessor keeps is the one that creates the symbol (a later
+    redeclaration costs nothing)."""
+    hits = global_hits(name)
+    if not hits:
         sys.exit('%s: no declaration found in include/' % name)
-    fn, i, lines = hit
-    keep, cont = [], False
-    for line in lines[i + 1:]:
-        if cont or line.lstrip().startswith(('#if', '#ifdef', '#ifndef', '#else', '#elif', '#endif')):
-            keep.append(line)
-            cont = line.rstrip().endswith('\\')
-    probe = '\nextern int __symidx_v;\nvoid __symidx_probe(void) { do { __symidx_v++; } while (__symidx_v); }\n'
-    open(os.path.join(inc, fn), 'w').write(''.join(lines[:i + 1]) + probe + ''.join(keep))
+    inc = os.path.join(WORK, 'inc')
     ulines = open(os.path.join(ROOT, unit), errors='replace').read().splitlines(keepends=True)
     last = max(k for k, line in enumerate(ulines) if line.lstrip().startswith('#include'))
     pre = ulines[:last + 1]
     depth = (sum(1 for line in pre if line.lstrip().startswith(('#if', '#ifdef', '#ifndef')))
              - sum(1 for line in pre if line.lstrip().startswith('#endif')))
-    path = probe_unit_copy(unit, ''.join(pre) + '#endif\n' * max(depth, 0))
+    preamble = ''.join(pre) + '#endif\n' * max(depth, 0)
+    probe = '\nextern int __symidx_v;\nvoid __symidx_probe(void) { do { __symidx_v++; } while (__symidx_v); }\n'
+    for fn, i in hits:
+        if os.path.exists(inc):
+            shutil.rmtree(inc)
+        shutil.copytree(os.path.join(ROOT, 'include'), inc)
+        lines = open(os.path.join(inc, fn), errors='replace').read().splitlines(keepends=True)
+        keep, cont = [], False
+        for line in lines[i + 1:]:
+            if cont or line.lstrip().startswith(('#if', '#ifdef', '#ifndef', '#else', '#elif', '#endif')):
+                keep.append(line)
+                cont = line.rstrip().endswith('\\')
+        open(os.path.join(inc, fn), 'w').write(''.join(lines[:i + 1]) + probe + ''.join(keep))
+        path = probe_unit_copy(unit, preamble)
+        try:
+            asm = compile_probe(path, unit, os.path.relpath(inc, ROOT).replace('/', '\\'))
+        finally:
+            os.remove(path)
+        if re.search(r'^___symidx_probe\s+PROC NEAR', asm, re.M):
+            report('%s (%s:%d)' % (name, fn, i + 1), first_label(asm, '___symidx_probe') - 4)
+            return
+    sys.exit('%s: no declaration is active in %s' % (name, unit))
+
+
+def cmd_file(unit, name):
+    lines = open(os.path.join(ROOT, unit), errors='replace').read().splitlines(keepends=True)
+    decl = None
+    for i, line in enumerate(lines):
+        code = re.sub(r'/\*.*?\*/', '', line).split('//')[0]
+        if (not line[:1].isspace() and re.search(r'\b' + re.escape(name) + r'\b', code)
+                and code.rstrip().endswith((';', '{', '=', ','))):
+            decl = i
+            break
+    if decl is None:
+        sys.exit('%s: no file-scope declaration in %s' % (name, unit))
+    # complete a multi-line initializer before probing
+    end = decl
+    if not lines[decl].split('/*')[0].rstrip().endswith(';'):
+        while end + 1 < len(lines) and not lines[end].split('/*')[0].rstrip().endswith(';'):
+            end += 1
+    probe = '\nextern int __symidx_v;\nvoid __symidx_probe(void) { do { __symidx_v++; } while (__symidx_v); }\n'
+    pre = lines[:end + 1]
+    depth = (sum(1 for line in pre if line.lstrip().startswith(('#if', '#ifdef', '#ifndef')))
+             - sum(1 for line in pre if line.lstrip().startswith('#endif')))
+    path = probe_unit_copy(unit, ''.join(pre) + probe + '#endif\n' * max(depth, 0))
     try:
-        asm = compile_probe(path, unit, os.path.relpath(inc, ROOT).replace('/', '\\'))
+        asm = compile_probe(path, unit, 'include')
     finally:
         os.remove(path)
-    report('%s (%s:%d)' % (name, fn, i + 1), first_label(asm, '___symidx_probe') - 4)
+    report('%s (%s:%d)' % (name, os.path.basename(unit), decl + 1), first_label(asm, '___symidx_probe') - 4)
 
 
 def cmd_labels(unit):
@@ -215,6 +263,9 @@ def main(argv):
     elif len(argv) >= 3 and argv[0] == 'global':
         for name in argv[2:]:
             cmd_global(argv[1], name)
+    elif len(argv) >= 3 and argv[0] == 'file':
+        for name in argv[2:]:
+            cmd_file(argv[1], name)
     elif len(argv) == 2 and argv[0] == 'labels':
         cmd_labels(argv[1])
     else:
