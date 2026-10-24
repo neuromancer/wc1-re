@@ -7542,3 +7542,80 @@ size differences to three; `.text` matches 96.2%.
   existing call/global-access diagnostics remain 11/56. Verification preserves
   the executable's SHA-256:
   `ebeb2ca1eb46900f499fb5048710d4bbf5f8c6b6987a8fc1218fc374b344ad5b`.
+
+## Reading symbol indices from listings
+
+The symbol counter that breaks these ties is printed in every /Fa listing:
+`$Lnnnn` labels and `$SGnnnn` literals are numbered from it. One extra
+`extern` before a function raises all of its labels by one; an extern plus a
+prototype with two named parameters raises them by four. C1 parses the whole
+unit before C2 runs, so labels C2 creates (for example the return path
+`$L28184` inside `attacker_in_range`, whose own C1 labels are `$L27605` and
+`$L27606`) are numbered after the unit's last C1 symbol. Each header file the
+compiler opens also consumes a symbol: compiling a unit's /E output yields
+labels 68 lower than the real build of `launch.c`, which opens 70 headers.
+
+`bin/symbolIndex.py` reads exact indices with one compile per query and no
+offset sweep. `local` and `param` truncate a copy of the unit inside the
+function and append a labelled probe loop; `global` truncates a copy of the
+declaring header and compiles only the unit's include preamble against it, so
+every header opened before the declaration is opened exactly as in the real
+build. `labels` lists each function's label numbers from `out/`. A function
+definition costs one symbol plus its parameters when a prototype precedes it
+and two plus its parameters otherwise; its locals follow in declaration
+order, then its labels.
+
+Callee-saved allocation, measured on small synthetic units:
+
+- Candidates that are all live together are assigned in ascending
+  (index mod 32) order and take ESI, EDI, EBX, EBP in that order. With
+  residues 30, 31 and 0 the order is 0, 30, 31.
+- Use counts and loop depth do not change that order. They only decide which
+  candidates are spilled when more are live than registers.
+- A candidate that interferes with more of the others is assigned later.
+  A pointer live across two loops, with the lowest residue, takes EBX while
+  the two pairs of loop-local shorts take ESI and EDI.
+- The separate webs of one variable keep that variable's index but are
+  separate candidates. A variable reused in a later phase therefore lands in
+  the register its residue order gives it in that phase.
+- A parameter and a local follow residue order (the local wins only once it
+  wraps past 31). Two parameters of one function kept the same order at every
+  tested offset, so parameters are not ranked by residue among themselves.
+- Declarations after a unit's last function change nothing, so C2's own
+  temporaries are not ranked by their C2 numbers.
+
+Scratch registers do not simply take the first free register. In a copy of
+`ResetStringBuilder` built against the real headers, the parameter takes ECX
+(as in the original) only at parameter residues 31, 0 and 1, and EAX at every
+other tested residue, including the same residue 0 at a different mod-257
+value. `mono.c` puts that parameter at 27401 (residue 9). Neither the end of
+`mono.c` nor the start of `auto.c` reaches the original window, so the
+routine needs an in-unit count change of -8 to -10 (or +22 to +24) symbols.
+
+Session findings that are not yet retained because they change span sizes:
+
+- `ShowCarrierLaunchSequence` reproduces all of the original stack slots
+  and its 32-byte frame when it indexes with the `sceneObject` parameter
+  directly, keeps the actor coordinates as one `ShortPoint`, and passes an
+  unset `int` sound handle to the volume hook and to
+  `FlushSoundEffectsAndLog`, as `scramble` and `PlayScrambleHangarScene`
+  already do. The original changes the fighter's registers between the
+  approach and the launch phases (Y in ESI then EDI, X in EBP then ESI),
+  which one variable per coordinate cannot do: separate launch-phase X and Y
+  locals declared first (residues 2 and 3, below the frame counter) give the
+  original ESI/EDI/EBP roles in all three phases. Storing
+  `apObjShapeArray[0]` right after the scripted-view call, as the original
+  does, also restores the scaled `[ECX*4]` store and the `LEA` of the
+  quadrupled index. The aligned span is still sixteen bytes short: the
+  doubled index is formed in place (`ADD ECX,ECX`, not `LEA EAX,[ECX*2]`),
+  and several scramble-coordinate temporaries use AX where the original
+  uses CX and the reverse. Moving the fighter-coordinate assignments after
+  the view-object store rotates the scratch registers of the shape lookup
+  by one position (EAX, ECX, EDX become ECX, EDX, EAX).
+- `WaitForInputKey`'s inner test must be a `switch`: every `if` spelling,
+  including `(int)` and `(short)` casts and an assignment inside the
+  condition, narrows to `CMP BL,1Dh`. A single-case `switch` whose case
+  ends in `continue`, followed by the drain loop, reproduces the original
+  compare and block order, but CL then merges the `while` guard into the
+  dispatch branch and the span loses sixteen bytes. A guarded `do`/`while`
+  drain keeps the guard but moves the clear block last again.
