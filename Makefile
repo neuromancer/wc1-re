@@ -383,8 +383,7 @@ SRCS_ORDERED_CORE = \
 	src/screens.c \
 	src/raster.asm \
 	src/killbrd.c \
-	src/gr.c \
-	src/globals.c
+	src/gr.c
 
 SRCS_IX_LOG = src/ix/ixlog.cpp
 
@@ -420,7 +419,9 @@ SRCS_ORDERED_IX = $(SRCS_IX_LOG) $(SRCS_IX_LIBRARIES)
 
 SRCS_ORDERED = $(SRCS_ORDERED_CORE) $(SRCS_ORDERED_IX)
 
-ALL_SRCS = $(wildcard src/*.c) $(wildcard src/*.cpp) $(wildcard src/*.asm) \
+# globals.c supplies the SDL raster tables; native storage is in raster.asm.
+ALL_SRCS = $(filter-out src/globals.c,$(wildcard src/*.c)) \
+           $(wildcard src/*.cpp) $(wildcard src/*.asm) \
            $(wildcard src/ix/*.cpp) $(wildcard src/ix/*.asm)
 SRCS = $(filter $(ALL_SRCS), $(SRCS_ORDERED)) \
        $(filter-out $(SRCS_ORDERED), $(ALL_SRCS))

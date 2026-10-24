@@ -1199,9 +1199,14 @@ INT3, the only such run in the core, up to `killbrd.obj` at `0x43F640`. Its
 `.data` (`0x0046E69C`–`0x0047008B`) follows the same order, between the
 "Game Over" literal of `screens.c` and the kill board tables.
 
-`src/globals.c` is temporary storage, not an original unit. Move a global only
-when ownership and declaration order are proven. When a boundary changes,
-update this table and `SRCS_ORDERED_CORE` together, then run `make order` and
+`src/globals.c` now supplies only the SDL raster tables; native storage is
+owned by the original units, including `raster.asm`. It is excluded from
+the native source list and retained in the SDL build and audit manifest.
+Linking without its former empty object produces a byte-identical executable
+after timestamp normalization, as checked with `binary-comp byte-compare`.
+It does not affect function matching or addresses. Move a global only when
+ownership and declaration order are proven. When a boundary changes, update
+this table and `SRCS_ORDERED_CORE` together, then run `make order` and
 `make verify`.
 
 The unreferenced music wait routine at `0x0042E970` reads a word at

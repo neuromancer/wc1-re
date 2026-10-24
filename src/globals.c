@@ -2,8 +2,8 @@
  *  SDL-only definitions of the raster library's tables.
  *
  *  Every native global is defined in the unit that owns it. This file has no
- *  counterpart in the shipped image: the Win32 build compiles it to an empty
- *  object, and only the portable raster routines use its tables.
+ *  counterpart in the shipped image and is excluded from the Win32 build.
+ *  Only the portable raster routines use its tables.
  */
 #include "wc1.h"
 

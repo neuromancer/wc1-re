@@ -7440,3 +7440,32 @@ size differences to three; `.text` matches 96.2%.
   rise to 1,471 of 1,550; strict matching reaches 515,357 of 518,656
   (99.3639%), leaving 3,299 differing bytes. The common prefix grows from
   1,088 to 8,308 bytes.
+- `GetShapeFrameCorners` increments and scales the frame parameter before
+  copying the resulting byte offset into its existing `frameOffset` local.
+  This restores the original delayed Y-origin load, bottom-coordinate
+  register and corner-pointer register. All 144 bytes now match; only the
+  routine's 26 differing code bytes change, with every other executable
+  byte and all 3,797 symbol/address pairs unchanged. Removing the offset
+  local instead leaves ten differing bytes and changes one byte in the
+  previously exact `GetTransformedShapeBounds`; retain the local used by
+  the range check and frame-table access. Coordinate declaration orders,
+  addition order, and alternate bottom-coordinate types add no improvement.
+  Normalized exact functions rise to 1,472 of 1,550; strict file matching
+  reaches 515,383 of 518,656 (99.3689%), leaving 3,273 differing bytes.
+  Native and SDL builds, order/sorting/address audits and full verification
+  pass. Both value checks cover all 1,550 functions with zero mismatches
+  or skips; existing call/global-access diagnostics remain 11/56. The
+  executable retains SHA-256
+  `3b08624964e762b903ec2966881b5874f2c495bbe8f6d5df299f2783b6218c1f`
+  through verification.
+- Further allocator, seek, launch and prompt trials are discarded. Signed
+  guarded-allocation sizes lose matches; unsigned-long sizes and counters
+  do not improve them. Permuting the allocation-counter externs yields no
+  gain. Alternate seek-offset and result integer types leave its register
+  swap. Capturing the launch object's promoted index, or using its short
+  snapshot at the late calls, loses file matches despite some variants
+  recovering the original frame size. Separate prompt-cursor X captures
+  also lose matches. Copying individual release-weapon position fields
+  before translation leaves the extra saved register. Alternate input-key
+  switch exits leave the differing block order or worsen it. None of these
+  variants is retained.

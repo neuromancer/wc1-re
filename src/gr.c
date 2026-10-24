@@ -1214,7 +1214,9 @@ void GetShapeFrameCorners(unsigned char *shape, int frame, int x, int y,
 
     *cornerCount = 0;
     CheckHeapBlockSignature(shape);
-    frameOffset = frame * 4 + 4;
+    frame++;
+    frame <<= 2;
+    frameOffset = frame;
     if ((int)*(unsigned short *)(shape + 4) >= frameOffset) {
         ShapeFrameExtents *extents;
         int left;
