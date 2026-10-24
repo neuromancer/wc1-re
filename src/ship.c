@@ -480,11 +480,11 @@ unsigned int fix_velocity(short obj)
 /* Function start: 0x41E860 */
 unsigned int sort_viable_target_list(void)
 {
-    short count;
-    short distance;
-    short inner;
     short outer;
+    short distance;
     signed char target;
+    short count;
+    short inner;
 
     if (cViableTargetCount > 1) {
         count = cViableTargetCount;

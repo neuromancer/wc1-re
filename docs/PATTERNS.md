@@ -7281,3 +7281,9 @@ size differences to three; `.text` matches 96.2%.
   `replenish_shields` on their original offsets. The routine falls from 57
   to 37 differing bytes; the remainder is a swap of the victim index (EBX)
   and the event count (SI) that no declaration order or probe offset fixes.
+- `sort_viable_target_list` declares `outer`, `distance`, `target`, `count`,
+  `inner` in that order. This restores the inner index in DI and the
+  original `count <= inner` loop test. The routine falls from 14 to 9
+  differing bytes; `distance` still lands in AX instead of SI with the
+  comparison reversed, under every declaration order, probe offset and
+  array-comparison form tried.
