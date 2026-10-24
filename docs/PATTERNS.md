@@ -7612,6 +7612,34 @@ Session findings that are not yet retained because they change span sizes:
   uses CX and the reverse. Moving the fighter-coordinate assignments after
   the view-object store rotates the scratch registers of the shape lookup
   by one position (EAX, ECX, EDX become ECX, EDX, EAX).
+- Two further steps make that `ShowCarrierLaunchSequence` structure
+  size-correct. Declaring the actor pair where `actorShape` was (and
+  `actorShape` where the pair was) gives the third phase's sums the
+  original order, actor field first in CX, without moving any register
+  candidate. Swapping the `extern` lines of `nScrambleBackdropPositionY`
+  and `nScrambleBackgroundRightCoordX` in `globals.h` then gives the second
+  phase's backdrop loads and the `+2` scroll update the original registers.
+  The full report changes only this row (96.18% to 98.08%), and the aligned
+  span stays 2,064 bytes. It is still not retained: the doubled object index
+  is formed in place (`ADD ECX,ECX`, five bytes short of `LEA EAX,[ECX*2]`)
+  and the first loop reloads that index into EAX before the scroll
+  coordinate instead of after it (two bytes longer). Those two size
+  differences misalign the rest of the routine, so strict file matching
+  falls by 552 bytes. Moving the per-object shape store after the first
+  word-array store, moving the scale store after the per-object screen
+  stores, or adding eight or sixteen symbols before the routine does not
+  repair them.
+- Four routines differ only by a parameter and a local two indices later
+  exchanging ESI and EDI (`attacker_in_range`, `hit_asteroid`,
+  `SeekDataFile`, `UpdateInflightNavText`); the original gives the local
+  ESI. Copies of `hit_asteroid` and `attacker_in_range` built against the
+  real headers do so only when the parameter's residue is 30, 31 or 0;
+  `spc.c` and `logic.c` put those parameters at 11 and 18. A `register`
+  local or old-style parameter declarations do not change the order. For
+  `attacker_in_range` the remaining difference at the original residue is
+  the `nTgtRange` store: an `int` local gives the original comparison order
+  but stores after the sign extension, while storing the call result to the
+  global first gives the original store but reverses the comparison.
 - `WaitForInputKey`'s inner test must be a `switch`: every `if` spelling,
   including `(int)` and `(short)` casts and an assignment inside the
   condition, narrows to `CMP BL,1Dh`. A single-case `switch` whose case
