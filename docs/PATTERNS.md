@@ -7309,3 +7309,12 @@ size differences to three; `.text` matches 96.2%.
   `if (previous < objective) return; else PlaceNavMapLabel(...);`, which
   keeps `IsPointInNavMapLabel` and `SelectNavObjectiveAtPoint` on their
   offsets. `PlaceNavMapLabel` is exact.
+- Two more clean `globals.h` swaps. Swapping `nViewAllocTotal` with
+  `nScannerCursorY` restores `free_viewport`'s allocation-count comparison
+  order (4 to 2 differing bytes). Swapping `anObjectRollRotationList` with
+  `aasShipMaximumShieldTable` restores the order of `check_for_lost_control`'s
+  three absolute-rotation terms (5 to 2). The remaining `free_viewport`
+  bytes are its `stSceneBuffer` comparisons, which no swap changes.
+  `check_for_lost_control` still sums the turn rates as pitch, yaw, roll
+  instead of roll, yaw, pitch; CL orders those terms by the `ObjectTypeData`
+  member symbols, which no extern swap moves.

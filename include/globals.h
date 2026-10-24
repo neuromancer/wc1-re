@@ -448,11 +448,11 @@ extern signed char acShipAiCooldowns[16]; /* 0x0059d680 */
 extern FixedVector vCollisionDelta; /* 0x0059d690 */
 extern short anRollGoal[16]; /* 0x0059d630 */
 extern signed char acLastCollisionObjects[SPACE_OBJECT_COUNT]; /* 0x0059d6a0 */
-extern short aasShipMaximumShieldTable[10][2]; /* 0x0059d6e0 */
+extern short anObjectRollRotationList[SPACE_OBJECT_COUNT]; /* 0x0059d7e0 */
 extern signed char acShipPointingModeList[16]; /* 0x0059d790 */
 extern signed char abShipNavPtIdx[16]; /* 0x0059d7c0 */
 extern signed char acTurnIntervalArray[16]; /* 0x0059d7d0 */
-extern short anObjectRollRotationList[SPACE_OBJECT_COUNT]; /* 0x0059d7e0 */
+extern short aasShipMaximumShieldTable[10][2]; /* 0x0059d6e0 */
 extern signed char abShipTurnList[16]; /* 0x0059d860 */
 extern short anPitchGoal[16]; /* 0x0059d7a0 */
 extern short nFacingToTargetValue; /* 0x0059d920 */
@@ -630,7 +630,7 @@ extern short nTargetLockMarkerY; /* 0x005a7e28 */
 extern short nCarrierMissionShipIndexValue; /* 0x005a7e2a */
 extern CockpitReadout aCockpitReadouts[6]; /* 0x005a7e30 */
 extern short nScannerCursorX; /* 0x005a7e6c */
-extern short nScannerCursorY; /* 0x005a7e6e */
+extern int nViewAllocTotal; /* 0x005a7f0c */
 extern short asScannerObjectY[11]; /* 0x005a7e80 */
 extern volatile ShortPoint stCockpitExplosionPosition; /* 0x005a7e98 */
 extern short asScannerObjectPositionX[11]; /* 0x005a7ea0 */
@@ -639,7 +639,7 @@ extern int nCurrentDamageAlarmSfxHandle; /* 0x005a7ec0 */
 extern unsigned short nPendingHudMessageColour; /* 0x005a7f00 */
 extern short nNavigationMapMinimumCoordX; /* 0x005a812e */
 extern short nExternalViewAngle; /* 0x005a7f06 */
-extern int nViewAllocTotal; /* 0x005a7f0c */
+extern short nScannerCursorY; /* 0x005a7e6e */
 extern unsigned char *apViewportAllocations[128]; /* 0x005a7f10 */
 extern int nFreeViewCallsValue; /* 0x005a8110 */
 extern short nQueuedCampaignIndex; /* 0x005a8114 */
