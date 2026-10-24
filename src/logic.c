@@ -790,8 +790,8 @@ unsigned int close_behind(volatile short range)
 /* Function start: 0x422F80 */
 short scan_for_enemy(short obj, unsigned short range)
 {
-    short other;
     short distance;
+    short other;
 
     nTargetShip = -1;
     nTgtRange = 0;
@@ -2353,11 +2353,11 @@ unsigned short __stdcall UpdateSceneAnimationObject(
 /* Function start: 0x425500 */
 void PlaySceneAnimation(char *text, short animation, short duration)
 {
-    SceneAnimationObject *object;
-    SceneAnimationObject *objects;
     unsigned short complete;
     short objectCount;
+    SceneAnimationObject *objects;
     short remaining;
+    SceneAnimationObject *object;
 
     nSceneAnimationDelayFrames = -1;
     complete = 0;

@@ -7287,3 +7287,9 @@ size differences to three; `.text` matches 96.2%.
   differing bytes; `distance` still lands in AX instead of SI with the
   comparison reversed, under every declaration order, probe offset and
   array-comparison form tried.
+- `scan_for_enemy` declares `distance` before `other`, which makes it exact.
+  `PlaySceneAnimation` declares `complete`, `objectCount`, `objects`,
+  `remaining` and then `object`, which takes it from 15 to 5 differing
+  bytes. Both orders came from a sweep of every local-declaration order of
+  the non-exact routines with at most five contiguous locals (scratchpad
+  `permall.py`). The sweep found nothing else at the current offsets.
