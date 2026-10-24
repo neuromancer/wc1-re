@@ -7524,3 +7524,21 @@ size differences to three; `.text` matches 96.2%.
   it restores the 32-byte frame while shortening the function by sixteen
   bytes; initialization orders do not repair the complete result. This is
   still an unresolved source hypothesis, not a retained uninitialized local.
+- `ShowCarrierLaunchSequence` derives its short fade argument from four
+  times the frame counter instead of maintaining a separate accumulator.
+  CL strength-reduces that expression to the original `MOVSX EBP,BP`
+  followed by `ADD BP,4`, before the display calls. The former accumulator
+  put the sign extension after those calls. Seventeen code bytes change,
+  gaining one literal match; every byte outside this routine and all 3,796
+  symbol/address pairs remain unchanged. Strict matching reaches 515,543
+  of 518,656 (99.3998%), leaving 3,113 differences. Only this report row
+  changes, from 95.79% to 96.18% mnemonic similarity; normalized exact
+  functions remain 1,474. The original 32-byte local frame is still
+  unresolved. An actor-coordinate pair plus a separate sound handle
+  reproduces its stack slots, but shortens the aligned span by sixteen
+  bytes and loses whole-file matches, so that combination is not retained.
+  Native and SDL builds, sorting/address audits and full verification pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/56. Verification preserves
+  the executable's SHA-256:
+  `ebeb2ca1eb46900f499fb5048710d4bbf5f8c6b6987a8fc1218fc374b344ad5b`.

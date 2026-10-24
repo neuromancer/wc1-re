@@ -173,7 +173,6 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     short actorX;
     short object;
     short frame;
-    int fadeLevel;
 
     bIntroSceneResourcesActive = 0;
     carrierScreenX = 180;
@@ -309,7 +308,6 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         frame = 0;
         actorX = 60;
         actorY = 10;
-        fadeLevel = 0;
         nFrameSkipCounter = 1;
         do {
             PumpWindowMessages();
@@ -356,12 +354,11 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             fighterScreenY++;
             approachDistance--;
             if (sceneObject != 0) {
-                ((void (__cdecl *)(int, int, int, int))PaletteFadeHook)(
-                    (int)sceneObject, 10, (int)fadeLevel, 0);
+                ((void (__cdecl *)(int, int, short, int))PaletteFadeHook)(
+                    (int)sceneObject, 10, (short)(frame * 4), 0);
             }
             if (bEscapePressedFlag == 1)
                 break;
-            fadeLevel = (short)(fadeLevel + 4);
             DIBslam();
             DIBslamReal();
             frame++;
