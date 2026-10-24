@@ -162,7 +162,6 @@ extern signed char bCurrentKey; /* 0x0046c014 */
 extern signed char cPreviousKey; /* 0x0046c018 */
 extern short nExternalViewShip; /* 0x0046c040 */
 extern signed char cViewObject; /* 0x0046c000 */
-extern short nCurrentWave; /* 0x0046c01c */
 extern int bIntroSecondaryScene; /* 0x0046c024 */
 extern signed char abHazardObjects[0x14]; /* 0x0046c028 */
 extern short DAT_0046c010;
@@ -170,6 +169,7 @@ extern short nEyePitchRate; /* 0x0046c004 */
 extern short nEyeYawRate; /* 0x0046c008 */
 extern short nEyeRollRate; /* 0x0046c00c */
 extern signed char cCurrentObjective; /* 0x0046c020 */
+extern short nCurrentWave; /* 0x0046c01c */
 extern int nCameraViewMode; /* 0x0046c03c */
 extern short nEjectedPilotObject; /* 0x0046c044 */
 extern short nClosestVisibleObject; /* 0x0046c048 */
@@ -690,6 +690,7 @@ extern short nFuneralRifleFrame; /* 0x005a871e */
 extern short nCutsceneFuneralBaseX; /* 0x005a8720 */
 extern short nCutsceneFuneralBasePosY; /* 0x005a8722 */
 extern short nCurrentScrambleShipPositionX; /* 0x005a8724 */
+extern signed char cScrambleWalkerPair; /* 0x005a8748 */
 extern short nScrambleShipY; /* 0x005a8726 */
 extern short nFuneralParticleScale; /* 0x005a8728 */
 extern unsigned char *pCurrentScrambleHangarShape; /* 0x005a872c */
@@ -701,7 +702,6 @@ extern signed char bScrambleCanopyClosed; /* 0x005a873a */
 extern short nCutsceneFuneralGuardFrame; /* 0x005a873c */
 extern ShortPoint stScrambleOverlay; /* 0x005a8740 */
 extern unsigned char *pScrambleOverlayShape; /* 0x005a8744 */
-extern signed char cScrambleWalkerPair; /* 0x005a8748 */
 extern unsigned char *pScrambleCanopyShape; /* 0x005a874c */
 extern unsigned char *pScrambleShipShape; /* 0x005a8750 */
 extern short nTalkingHeadFaceX; /* 0x005a8754 */

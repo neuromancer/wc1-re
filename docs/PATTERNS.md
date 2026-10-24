@@ -7237,3 +7237,7 @@ size differences to three; `.text` matches 96.2%.
 - Moving the `nAfterburnerSoundDeadline` extern ten places down in
   `globals.h` makes `your_afterburner` exact without changing another
   unit.
+- Moving the `cScrambleWalkerPair` extern eleven places up in `globals.h`
+  makes `AnimateScrambleWalk` exact, and moving `nCurrentWave` seven places
+  down makes `set_up_next_wave` exact. No other unit changes under either
+  move.
