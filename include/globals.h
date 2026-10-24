@@ -559,8 +559,9 @@ extern TextContext stDefaultTxtContext; /* 0x005a7740 */
 extern TextContext stCurrentConvTxtCtx; /* 0x005a7760 */
 extern short asDamageFlashColour[3]; /* 0x005a7780 */
 extern short nCurrentDmgDispTicks; /* 0x005a7786 */
-extern short nWpnDispOriginX; /* 0x005a7788 */
-extern short nWpnDisplayBaseY; /* 0x005a778a */
+extern ShortPoint stWpnDispOrigin; /* 0x005a7788 */
+typedef char WpnDispOrigin_size_must_be_4[
+    sizeof(stWpnDispOrigin) == 4 ? 1 : -1];
 extern char szDmgStateText[0x48]; /* 0x005a7790 */
 extern ShortPoint stDamageSpritePos; /* 0x005a77d8 */
 extern signed char cDamageDisplayComponentValue; /* 0x005a77dc */

@@ -82,16 +82,16 @@ void show_damage_disp(void)
     }
 
     component = cCurrentCockpitView;
-    nWpnDispOriginX =
+    stWpnDispOrigin.x =
         (short)(aWeaponDisplayOrigins[component].x +
                 stLeftVdu.left);
-    nWpnDisplayBaseY =
+    stWpnDispOrigin.y =
         (short)(aWeaponDisplayOrigins[component].y +
                 stLeftVdu.top);
     /* The original reloads X from memory for the sprite argument. */
     DrawSpriteDefault(&stLeftVdu,
-                      *(volatile short *)&nWpnDispOriginX,
-                      nWpnDisplayBaseY,
+                      stWpnDispOrigin.x,
+                      stWpnDispOrigin.y,
                       pCockpitWeaponShapePtr, 0);
     sprintf(message, "%d Unit%c Damaged",
             (int)cDamagedComponentCount,
@@ -164,10 +164,10 @@ void UpdateDamageDisplay(void)
                     cDamageDisplayComponentValue];
             stDamageSpritePos.x =
                 (short)(stDamageSpritePos.x +
-                        nWpnDispOriginX);
+                        stWpnDispOrigin.x);
             stDamageSpritePos.y =
                 (short)(stDamageSpritePos.y +
-                        nWpnDisplayBaseY);
+                        stWpnDispOrigin.y);
             CaptureSpriteBackground(
                 &stLeftVdu, pDamageDisplayBackground,
                 stDamageSpritePos.x,
@@ -249,10 +249,10 @@ void UpdateDamageDisplay(void)
             cDamageDisplayComponentValue];
     stDamageSpritePos.x =
         (short)(stDamageSpritePos.x +
-                nWpnDispOriginX);
+                stWpnDispOrigin.x);
     stDamageSpritePos.y =
         (short)(stDamageSpritePos.y +
-                nWpnDisplayBaseY);
+                stWpnDispOrigin.y);
     CaptureSpriteBackground(
         &stLeftVdu, pDamageDisplayBackground,
         stDamageSpritePos.x,

@@ -1020,10 +1020,10 @@ void RemovePlayerReleaseWeapon(signed char weapon)
     hardpoint = ((ShipWeaponSlot *)&aShipWeaponsTable[0][1])[weapon].hardpoint;
     stReleaseWeaponDisplayPosition.x =
         (short)(aWeaponDisplayPositions[hardpoint].x +
-                nWpnDispOriginX);
+                stWpnDispOrigin.x);
     stReleaseWeaponDisplayPosition.y =
         (short)(aWeaponDisplayPositions[hardpoint].y +
-                nWpnDisplayBaseY);
+                stWpnDispOrigin.y);
     cReleaseWeaponDisplayTicks = 3;
     cReleaseWeaponDisplayState = 0;
     if (pReleaseWeaponDisplayBackground == 0)
@@ -1120,16 +1120,16 @@ void show_weapon_disp(void)
     DrawFormattedText("\nWeapon: %s", releaseName);
     DrawFormattedText("\nGun: %s", gunName);
 
-    nWpnDispOriginX =
+    stWpnDispOrigin.x =
         (short)(stLeftVdu.left +
                 aWeaponDisplayOrigins[
                     (int)cCurrentCockpitView].x);
-    nWpnDisplayBaseY =
+    stWpnDispOrigin.y =
         (short)(stLeftVdu.top +
                 aWeaponDisplayOrigins[
                     (int)cCurrentCockpitView].y);
-    DrawSpriteDefault(&stLeftVdu, nWpnDispOriginX,
-                      nWpnDisplayBaseY,
+    DrawSpriteDefault(&stLeftVdu, stWpnDispOrigin.x,
+                      stWpnDispOrigin.y,
                       pCockpitWeaponShapePtr, 0);
     weapons = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
     count = 0;
@@ -1140,10 +1140,10 @@ void show_weapon_disp(void)
                             weapons->disabled - 0x2f);
             DrawSpriteDefault(
                 &stLeftVdu,
-                (short)(nWpnDispOriginX +
+                (short)(stWpnDispOrigin.x +
                         aWeaponDisplayPositions[
                             weapons->hardpoint].x),
-                (short)(nWpnDisplayBaseY +
+                (short)(stWpnDispOrigin.y +
                         aWeaponDisplayPositions[
                             weapons->hardpoint].y),
                 pCockpitWeaponShapePtr, frame);

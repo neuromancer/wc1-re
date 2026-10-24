@@ -13,8 +13,7 @@ TextContext stDefaultTxtContext; /* 0x005a7740 */
 TextContext stCurrentConvTxtCtx; /* 0x005a7760 */
 short asDamageFlashColour[3]; /* 0x005a7780 */
 short nCurrentDmgDispTicks; /* 0x005a7786 */
-short nWpnDispOriginX; /* 0x005a7788 */
-short nWpnDisplayBaseY; /* 0x005a778a */
+ShortPoint stWpnDispOrigin; /* 0x005a7788 */
 char szDmgStateText[0x48]; /* 0x005a7790 */
 ShortPoint stDamageSpritePos; /* 0x005a77d8 */
 signed char cDamageDisplayComponentValue; /* 0x005a77dc */

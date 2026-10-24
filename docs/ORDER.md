@@ -872,6 +872,13 @@ storage, so it holds no commons. The `nUnused…` commons are write-only. The
 three flight-profiler words at `0x00598888` are only zeroed with the
 profiler's deltas, and the input-timer flag at `0x0059AB64` is only set to 1.
 
+The weapon-display origin at `0x005A7788` is now one four-byte `ShortPoint`
+common in `targ.c`, named `stWpnDispOrigin`; its Y field occupies
+`0x005A778A`. This replaces the two scalar declarations. The structure
+recovers the original register use in `RemovePlayerReleaseWeapon` and the
+X reload in `show_damage_disp`. Its identifier-hash key, 334, preserves
+its position and every surrounding common address.
+
 The 200-byte `szSfxWavePath` buffer at `0x00476558` now resides in `music.c`.
 Its two original references both occur in `PlaySfxWaveFileByNumber`: `sprintf`
 formats the filename into it, then `playWAVE` receives the same buffer. Its

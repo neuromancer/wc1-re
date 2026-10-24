@@ -7483,6 +7483,30 @@ size differences to three; `.text` matches 96.2%.
   3,797 symbol/address pairs remain unchanged. Normalized exact functions
   rise to 1,473 of 1,550; strict matching reaches 515,387 of 518,656
   (99.3697%), leaving 3,269 differing bytes.
+- The weapon-display origin at `0x005A7788` is represented by one
+  `ShortPoint`, `stWpnDispOrigin`, with Y at offset two. Treating the
+  coordinates as separate scalar globals makes `RemovePlayerReleaseWeapon`
+  save EDI and keeps its Y load out of AX. The structure fields recover
+  the original DX/AX loads and remove that extra saved register. They also
+  produce `show_damage_disp`'s original X reload without a volatile cast.
+  The name's identifier-hash key, 334, places the four-byte common between
+  `nCurrentDmgDispTicks` and `szDmgStateText`, preserving the original layout.
+  The adjacent compile-time four-byte size check also preserves the shared
+  declaration count; omitting it changes unrelated register allocation and
+  function sizes throughout the build.
+  All 160 bytes of `RemovePlayerReleaseWeapon`, including alignment, now
+  match literally. Only that row changes in the complete function report;
+  normalized exact functions rise to 1,474 of 1,550. The executable gains
+  140 code bytes and fifteen relocation bytes, with every other byte
+  unchanged. Strict matching reaches 515,542 of 518,656 (99.3996%), leaving
+  3,114 differing bytes. All other symbol/address pairs are unchanged;
+  the two former scalar symbols become the one coordinate-pair symbol.
+  Native and SDL builds, order/sorting/address audits and full verification
+  pass. Both value checks cover all 1,550 functions with zero mismatches
+  or skips; existing call/global-access diagnostics remain 11/56. The
+  executable retains SHA-256
+  `04ac54d6533883d36bc51bc6e5074e89072381bfdd1a58b3304fa1e1cf94df9b`
+  through verification.
   Native and SDL builds, sorting/address audits and full verification pass.
   Both value checks cover all 1,550 functions without mismatches or skips;
   existing call/global-access diagnostics remain 11/56. Verification preserves
