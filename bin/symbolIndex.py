@@ -92,6 +92,25 @@ def first_label(asm, proc):
     return labels[0]
 
 
+def probe_label(asm, proc):
+    """Number of the probe loop's own top label: the target of the jump that
+    closes the loop after its store to __symidx_v.  Falls back to the first
+    label when that pattern is not found."""
+    m = re.search(r'^' + re.escape(proc) + r'\s+PROC NEAR(.*?)^' + re.escape(proc) + r'\s+ENDP',
+                  asm, re.S | re.M)
+    if not m:
+        sys.exit('probe function %s not found in listing' % proc)
+    seen_store = False
+    for line in m.group(1).splitlines():
+        if re.search(r'\bmov\s+DWORD PTR ___symidx_v\b', line) or re.search(r'\binc\s+DWORD PTR ___symidx_v\b', line):
+            seen_store = True
+        elif seen_store:
+            jm = re.search(r'\bj\w+\s+(?:SHORT\s+)?\$L(\d+)', line)
+            if jm:
+                return int(jm.group(1))
+    return first_label(asm, proc)
+
+
 def report(what, index):
     print('%-40s index %6d  mod32 %2d  mod257 %3d' % (what, index, index % 32, index % 257))
 
@@ -134,13 +153,27 @@ def cmd_local(unit, func, name):
             break
     if decl is None:
         sys.exit('declaration of %s not found in %s' % (name, func))
-    text = ''.join(lines[:decl + 1]) + '\n    ' + PROBE_BLOCK + '\n    return 0;\n}\n'
+    # Close every block still open at the truncation point; a block opened by
+    # `do` needs its `while`, and a value-returning function a return.
+    body = re.sub(r'/\*.*?\*/', '', ''.join(lines[start:decl + 1]), flags=re.S)
+    body = re.sub(r'"(?:\\.|[^"\\])*"', '""', body)
+    stack = []
+    for m in re.finditer(r'\{|\}', body):
+        if m.group(0) == '{':
+            stack.append(bool(re.search(r'\bdo\s*$', body[:m.start()])))
+        elif stack:
+            stack.pop()
+    closing = ''
+    for is_do in reversed(stack[1:]):
+        closing += '} while (0);\n' if is_do else '}\n'
+    text = (''.join(lines[:decl + 1]) + '\n    ' + PROBE_BLOCK + '\n' + closing +
+            '    return 0;\n}\n')
     path = probe_unit_copy(unit, text)
     try:
         asm = compile_probe(path, unit, 'include')
     finally:
         os.remove(path)
-    report('%s.%s' % (func, name), first_label(asm, proc_name(lines, start, func)) - 2)
+    report('%s.%s' % (func, name), probe_label(asm, proc_name(lines, start, func)) - 2)
 
 
 def cmd_param(unit, func):
