@@ -7375,3 +7375,21 @@ size differences to three; `.text` matches 96.2%.
   comparisons and divisions at the clock's other use sites agree with this
   declaration; the GetTickCount-based producer still performs its original
   unsigned arithmetic before storing the clock.
+- `AllocateTaggedMemory` takes a signed int size. Its unsigned prototype
+  made `FadeViewportPaletteToColour` retain an extra copy of the memset
+  count, shifting the later instructions. Correcting the declaration and
+  definition reduces that routine from 359 differing bytes to nine at the
+  unchanged 496-byte span; only the second loop's AX/DI allocation remains.
+  The shared prototype also exposes `AllocateViewport`'s missing initial
+  loop guard. Initialize its row offset before allocating the row table,
+  capture `height + 2` in an int row count, reload `viewport->rowOffsets`
+  in the guarded loop, and advance the offset before incrementing the row.
+  Together these recover its eight-byte frame, original registers and all
+  320 bytes. Keeping the bound only as an expression spills height and
+  enlarges the frame; a captured unsigned bound also loses the match.
+  Both corrections preserve every function address and all data bytes.
+  Code gains 485 matching positions and relocations gain five, bringing
+  strict file matching to 515,305 of 518,656 (99.3539%), with 3,351 bytes
+  still different. Only these two function-report rows change: normalized
+  exact functions rise to 1,469 of 1,550, and two remain below 90% mnemonic
+  similarity.

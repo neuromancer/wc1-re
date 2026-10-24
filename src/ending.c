@@ -24,7 +24,7 @@ short asObjectCollisionRadius[64]; /* 0x0059d710 */
 signed char acShipPointingModeList[16]; /* 0x0059d790 */
 
 /* Function start: 0x42FA90 */
-void *AllocateTaggedMemory(unsigned int size, unsigned short flags)
+void *AllocateTaggedMemory(int size, unsigned short flags)
 {
     unsigned int *memory;
     unsigned short tagged;

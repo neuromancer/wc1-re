@@ -1237,7 +1237,7 @@ void MessagePumpHook(int mode);                                        /* 0x0042
 void *PushMemoryStackFrame(void *memory, int offset);                   /* 0x0042F960 */
 int IsPushedPacketHandle(void *handle);                                /* 0x0042F9E0 */
 void *MapPacketHandleToBlock(void *handle);                            /* 0x0042FA20 */
-void *AllocateTaggedMemory(unsigned int size, unsigned short flags);   /* 0x0042FA90 */
+void *AllocateTaggedMemory(int size, unsigned short flags);            /* 0x0042FA90 */
 void ReleasePacketHandle(void *handle);                               /* 0x0042FAE0 */
 unsigned int GetFixedOneMillionThunk(short memoryType);                /* 0x0042FB20 */
 unsigned int GetFixedOneMillionThunkAlt(short memoryType);             /* 0x0042FB30 */

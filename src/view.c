@@ -790,6 +790,7 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
     unsigned short height;
     unsigned short row;
     short offset;
+    int rowCount;
 
     top = (unsigned short)viewport->top;
     height = (unsigned short)(viewport->bottom - top + 1);
@@ -806,6 +807,7 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
         return 0;
     viewport->pixels = viewport->allocation;
 
+    offset = 0;
     rowOffsets = AllocateTaggedMemory(
         (top + (unsigned int)height) * sizeof(unsigned short) + 4,
         0);
@@ -816,13 +818,13 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
         return 0;
     }
 
+    rowCount = height + 2;
     row = 0;
-    offset = 0;
-    do {
-        rowOffsets[top + row] = (unsigned short)(offset - left);
-        row++;
+    while ((int)row < rowCount) {
+        viewport->rowOffsets[top + row] = (unsigned short)(offset - left);
         offset = (short)(offset + width);
-    } while ((int)row < (int)height + 2);
+        row++;
+    }
     if (clearColour != -1)
         ClearViewport(viewport, clearColour);
     return 1;
