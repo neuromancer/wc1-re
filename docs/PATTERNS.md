@@ -7640,6 +7640,31 @@ Session findings that are not yet retained because they change span sizes:
   the `nTgtRange` store: an `int` local gives the original comparison order
   but stores after the sign extension, while storing the call result to the
   global first gives the original store but reverses the comparison.
+- `DrawFontGlyph` in WC2's leaner shape (no character-data, row-offset or
+  destination-offset locals; `while` loops ending in `row++`; the cursor
+  advance after both branches), keeping WC1's short character index for the
+  16-bit compares, reproduces the prologue and the whole first loop
+  instruction for instruction except that ECX and EDX are exchanged
+  throughout (the original keeps the viewport in ECX and the font pointer
+  and loop temporaries in EDX). The translated loop then allocates
+  differently and the span grows by sixteen bytes, so it is not retained;
+  moving the viewport or character-index declaration does not fix it.
+- `set_up_action_sphere`'s object-loop scratch registers (class value in
+  ECX, quadrupled index in EAX in the original) appear when the next wave's
+  type is read as `nav[1].type`, but that also drops the original's
+  unused `LEA EAX,[ECX+ECX*8]` and moves the loop counter, so the original
+  does index `aMissionNavPoints[navPoint + 1]`. Expressions earlier in a
+  function therefore steer a later loop's scratch registers. Reordering the
+  setup statements or writing the loop as a `for` does not reproduce it.
+- Comparison operand order is not a residue rule. Two adjacent `short` or
+  `signed char` globals compared with `>=` or `!=` load the lower-indexed
+  one except at sparse offsets: every sixteenth index and a period-17 series
+  whose window widens with the distance between the two symbols. Only the
+  period-17 series is independent of source spelling. Far-apart operands
+  also mostly load the lower index (`animate_pilot`), but `Mveer_away`'s
+  current indices load the higher one. The behaviour fits ordering by the
+  symbol records' storage rather than by index, so it is measured, not
+  predicted.
 - `WaitForInputKey`'s inner test must be a `switch`: every `if` spelling,
   including `(int)` and `(short)` casts and an assignment inside the
   condition, narrows to `CMP BL,1Dh`. A single-case `switch` whose case
