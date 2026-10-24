@@ -1071,7 +1071,6 @@ short BarracksScreen(void)
             switch ((short)event.value) {
             case 0x1c:
             case 0x39:
-activateRegion:
                 clicked = 1;
                 break;
             case 0x24:
@@ -1081,17 +1080,11 @@ activateRegion:
                 MoveMenuPointerFromKeyboard(&event);
                 break;
             }
-            break;
+            if (clicked == 0)
+                break;
+            /* Fall through to the shared mouse/keyboard activation. */
         case 2:
         case 10:
-            goto activateRegion;
-        case 13:
-            UpdateRoomMenuCursor();
-        default:
-            goto redraw;
-        }
-
-        if (clicked != 0) {
             region = FindMenuRegionAtPoint(
                 event.x, event.y, aBarracksMenuRegions);
             if (region >= 0 && region < 16) {
@@ -1152,8 +1145,11 @@ activateRegion:
                     break;
                 }
             }
+            break;
+        case 13:
+            UpdateRoomMenuCursor();
+            break;
         }
-redraw:
         ShowMemoryStatusDebug();
         DIBslam();
         DIBslamReal();

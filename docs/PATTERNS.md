@@ -7257,3 +7257,10 @@ size differences to three; `.text` matches 96.2%.
   remains: CL emits the `state = menuOptions[...] + 1` branch first under
   every if/else, ternary and early-break form tried, and under every probe
   offset.
+- `BarracksScreen` uses no labels. The keyboard cases fall into the click
+  case through `if (clicked == 0) break;`, and the region handling lives in
+  `case 2: case 10:`, so the jump table sends clicks straight to
+  `FindMenuRegionAtPoint`. The old `goto activateRegion`/`goto redraw`
+  version set `clicked` and tested it after the switch. That moved the
+  `UpdateRoomMenuCursor` case ahead of the activation code. The routine is
+  exact.
