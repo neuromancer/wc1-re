@@ -7301,3 +7301,11 @@ size differences to three; `.text` matches 96.2%.
   same distance broke `AnimateTrainSimTitle` and `update_scripted_view`
   through the shifted externs in between. Search swaps with scratchpad
   `gswap.py`.
+- `PlaceNavMapLabel` reads the new label's position as
+  `aNavMapLabels[nNavMapLabelCount].x`/`.y` for `ReserveNavMapArea`. A
+  `label` pointer local folds the array base into a `LEA` and loses the
+  original `[ECX+disp32]` operand. Dropping the local removes one symbol.
+  `AddUniqueObjectiveNavLabel` restores it with
+  `if (previous < objective) return; else PlaceNavMapLabel(...);`, which
+  keeps `IsPointInNavMapLabel` and `SelectNavObjectiveAtPoint` on their
+  offsets. `PlaceNavMapLabel` is exact.

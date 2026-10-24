@@ -171,7 +171,6 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
 {
     short width;
     short offset;
-    NavMapLabel *label;
 
     width = (short)(strlen(text) * 4 + 2);
     aNavMapLabels[nNavMapLabelCount].colour = colour;
@@ -197,10 +196,9 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
                                 width, offset == 12) != 0)
             break;
     } while (offset != 12);
-    label = &aNavMapLabels[nNavMapLabelCount];
     ReserveNavMapArea(
-        label->x,
-        label->y,
+        aNavMapLabels[nNavMapLabelCount].x,
+        aNavMapLabels[nNavMapLabelCount].y,
         width, 6);
     nNavMapLabelCount++;
 }
@@ -224,7 +222,8 @@ void AddUniqueObjectiveNavLabel(short x, short y,
     }
     if (previous < objective)
         return;
-    PlaceNavMapLabel(x, y, colour, text);
+    else
+        PlaceNavMapLabel(x, y, colour, text);
 }
 
 /* Function start: 0x40D490 */
