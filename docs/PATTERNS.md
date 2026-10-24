@@ -7640,6 +7640,14 @@ Session findings that are not yet retained because they change span sizes:
   the `nTgtRange` store: an `int` local gives the original comparison order
   but stores after the sign extension, while storing the call result to the
   global first gives the original store but reverses the comparison.
+- `PlaySceneAnimation`'s escape fast-forward loop counts objects with its
+  own `skipRemaining`, declared after `object`. The original holds that
+  loop's object pointer in EDI and its counter in BP, the reverse of the main
+  update loop, which separate webs of one counter cannot give under
+  residue-ordered allocation (`complete` 26, `remaining` 29, `object` 30,
+  `skipRemaining` 31). The routine is the last in `logic.c`, so the extra
+  local moves nothing else; it becomes exact (five differing encodings
+  before) and strict file matching gains five bytes.
 - `DrawFontGlyph` in WC2's leaner shape (no character-data, row-offset or
   destination-offset locals; `while` loops ending in `row++`; the cursor
   advance after both branches), keeping WC1's short character index for the

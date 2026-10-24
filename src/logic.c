@@ -2358,6 +2358,7 @@ void PlaySceneAnimation(char *text, short animation, short duration)
     SceneAnimationObject *objects;
     short remaining;
     SceneAnimationObject *object;
+    short skipRemaining;
 
     nSceneAnimationDelayFrames = -1;
     complete = 0;
@@ -2428,13 +2429,13 @@ void PlaySceneAnimation(char *text, short animation, short duration)
                            bSceneAnimationWaitCommand == 0) {
                         object = objects;
                         if (objectCount > 0) {
-                            remaining = objectCount;
+                            skipRemaining = objectCount;
                             do {
                                 nFrameSkipCounter = 2;
                                 complete |= UpdateSceneAnimationObject(
                                     object, &stSceneBuffer);
                                 object++;
-                            } while (--remaining != 0);
+                            } while (--skipRemaining != 0);
                         }
                     }
                 }
