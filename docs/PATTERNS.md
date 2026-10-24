@@ -7318,3 +7318,8 @@ size differences to three; `.text` matches 96.2%.
   `check_for_lost_control` still sums the turn rates as pitch, yaw, roll
   instead of roll, yaw, pitch; CL orders those terms by the `ObjectTypeData`
   member symbols, which no extern swap moves.
+- `DrawMedals` counts each campaign medal with a `for` loop. The earlier
+  `medalCount = 0; while (...) { medalCount++; ... }` shape put the
+  sign-extended medal count in `CX` for the bottom-of-loop test; with the
+  increment in the loop's own step (or at the end of the body) CL uses `AX`,
+  as the original does. The routine is exact.
