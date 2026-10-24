@@ -7241,3 +7241,10 @@ size differences to three; `.text` matches 96.2%.
   makes `AnimateScrambleWalk` exact, and moving `nCurrentWave` seven places
   down makes `set_up_next_wave` exact. No other unit changes under either
   move.
+- `ShowTigerClawEscapeScene` follows its sibling `ShowCampaignVictorySequence`
+  (`planetScale`/`projectedY`). The vertical projection goes into an `int`
+  local, and the call adds the view centre itself. Folding the centre into a
+  separate `screenY` statement makes CL hoist the wrong centre global.
+  `verticalOffset` is assigned right after `depth` and declared before it.
+  That order puts depth in EBP and the offset in EDI, and leaves ESI to the
+  CSE'd constant 1. The routine is exact.
