@@ -197,6 +197,10 @@ short GetLineLength(const char *text)
     return width;
 }
 
+/* print_subtitle's glyph blitter (gr.c); wc1funcs.h omits it for this unit. */
+void DrawSpriteDefault(Viewport *viewport, short x, short y,
+                       unsigned char *shape, short frame);
+
 /* Function start: 0x403920 */
 int print_subtitle(Viewport *viewport, short colour, const char *text)
 {

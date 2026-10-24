@@ -7725,4 +7725,15 @@ Session findings that are not yet retained because they change span sizes:
   `SeekDataFile` -4 or -5 (an older 544-offset sweep gives -6 to -4),
   `UpdateInflightNavText` +8 or +9, `attacker_in_range` +13 or +14 and
   `hit_asteroid` +20 or +21.
+- `mono.c` declares `DrawSpriteDefault` itself, right before
+  `print_subtitle` (its only user there), and `wc1funcs.h` omits the
+  prototype for `WC1_MONO_SOURCE`. The prototype's six symbols then move
+  from the header to the middle of the unit: everything from the file
+  globals to `GetLineLength` sits six indices lower, and `print_subtitle`
+  onwards is unchanged. An older 544-offset sweep of `mono.c` showed every
+  routine up to `GetLineLength` exact six lower and `SeekDataFile` exact
+  only there. `SeekDataFile`'s position local now takes ESI and its offset
+  parameter EDI, as in the original; it becomes exact and no other row
+  changes. A first prototype with five named parameters cost seven symbols
+  in a synthetic unit but six here.
 

@@ -1708,8 +1708,11 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
                                          unsigned char *active);       /* 0x00441370 */
 void __stdcall GetPaletteEntry(short index, unsigned short *rgb);         /* 0x004413C0 */
 void __stdcall SetPaletteEntry(short index, short *rgb);                  /* 0x004413E0 */
+/* The subtitle renderer declares this itself, just before its definition. */
+#ifndef WC1_MONO_SOURCE
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
                        unsigned char *shape, short frame);          /* 0x00441400 */
+#endif
 void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame);                          /* 0x00441450 */
