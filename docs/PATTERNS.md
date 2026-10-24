@@ -7264,3 +7264,12 @@ size differences to three; `.text` matches 96.2%.
   version set `clicked` and tested it after the switch. That moved the
   `UpdateRoomMenuCursor` case ahead of the activation code. The routine is
   exact.
+- `AddRandomTrainSimHighScores` stores the new score in an `unsigned int`
+  local before calling `InsertTrainSimHighScore`. The assignment gives the
+  original `LEA ECX,[EAX+EBX+0x32]` / `PUSH ECX`; the inline argument adds
+  in EAX instead. Declaring `baseScore` after `scoreRange` and `score` puts
+  it in EBX and the scale conversion in EBP. The routine falls from 42 to 2
+  differing bytes; the original keeps `remaining` at the low half of its
+  four-byte slot (`[ESP]`), ours at the high half. CL overlays locals with
+  disjoint lifetimes in one slot (`CloseLook` shares -4 between `frame` and
+  `start`), so the original's slot partner is still unidentified.

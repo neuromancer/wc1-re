@@ -242,8 +242,9 @@ void AddRandomTrainSimHighScores(void)
     short pilot;
     short scale;
     short slot;
-    int baseScore;
     int scoreRange;
+    unsigned int score;
+    int baseScore;
 
     remaining = 3;
     scale = 1;
@@ -264,12 +265,11 @@ void AddRandomTrainSimHighScores(void)
             (int)aHighScoreEntriesArray[0].score - baseScore + 2000;
         while (scoreRange / scale > 30000)
             scale = (short)(scale * 2);
-        InsertTrainSimHighScore(
-            pilot,
-            (unsigned int)((int)RandomBelowOrEqual(
-                               (short)(scoreRange / scale)) *
-                               scale +
-                           baseScore + 50));
+        score = (unsigned int)((int)RandomBelowOrEqual(
+                                   (short)(scoreRange / scale)) *
+                                   scale +
+                               baseScore + 50);
+        InsertTrainSimHighScore(pilot, score);
         remaining--;
     } while (remaining != 0);
 }
