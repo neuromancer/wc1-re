@@ -458,7 +458,7 @@ extern short anPitchGoal[16]; /* 0x0059d7a0 */
 extern short nFacingToTargetValue; /* 0x0059d920 */
 extern short asObjectScreenYArray[SPACE_OBJECT_COUNT]; /* 0x0059d930 */
 extern short asObjectScreenXList[SPACE_OBJECT_COUNT]; /* 0x0059d9b0 */
-extern signed char cCurrentCockpitView; /* 0x0059dab0 */
+extern InputDeviceSample stPreviousFlightInput; /* 0x005a7af0 */
 extern HazardField aHazardFields[8]; /* 0x0059d870 */
 extern MissionObjective aMissionObjectivesArray[MISSION_OBJECTIVE_COUNT]; /* 0x0059dac0 */
 extern enum ShipManeuver aeShipManeuversTable[12]; /* 0x0059dcb0 */
@@ -572,7 +572,7 @@ extern unsigned char *pLaunchDoorShape; /* 0x005a77e8 */
 extern unsigned int nCurrentFrameTimerIdValue; /* 0x005a77ec */
 extern unsigned char abPaletteTripletsArray[256][3]; /* 0x005a77f0 */
 extern Viewport stCurrentTrainSimTitleDisplayViewport; /* 0x005a7b90 */
-extern InputDeviceSample stPreviousFlightInput; /* 0x005a7af0 */
+extern signed char cCurrentCockpitView; /* 0x0059dab0 */
 extern short bMouseButtonEventQueuedFlag; /* 0x005a7afc */
 extern short bCurrentKeyboardEvtQueued; /* 0x005a7afe */
 extern short bMouseMoveEvtQueued; /* 0x005a7b00 */

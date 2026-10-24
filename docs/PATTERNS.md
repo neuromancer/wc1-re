@@ -7293,3 +7293,11 @@ size differences to three; `.text` matches 96.2%.
   bytes. Both orders came from a sweep of every local-declaration order of
   the non-exact routines with at most five contiguous locals (scratchpad
   `permall.py`). The sweep found nothing else at the current offsets.
+- Swapping two `extern` lines in `globals.h` changes only those two symbols'
+  indices; a single move also shifts every extern it passes. Swapping
+  `cCurrentCockpitView` with `stPreviousFlightInput`, 88 lines away, makes
+  `InitializeCockpitResources` exact (its `mode == cCurrentCockpitView`
+  operand order). No other unit changes. Moving `cCurrentCockpitView` the
+  same distance broke `AnimateTrainSimTitle` and `update_scripted_view`
+  through the shifted externs in between. Search swaps with scratchpad
+  `gswap.py`.
