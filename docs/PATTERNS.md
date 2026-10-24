@@ -7703,4 +7703,17 @@ Session findings that are not yet retained because they change span sizes:
   the unshifted position reverses them. A two-candidate tie that differs
   from the original at its current index is therefore often the rare case
   that any small shift fixes.
+- `DrawSpriteTransformed` needs its parameters one index lower: its shape
+  and frame parameters then take EDI and ESI as in the original. The
+  preceding `PrepareShapeRLEData` changes code at every tested shift of its
+  own locals, so the `-1` has to come after its last register local. Its
+  opaque-run branch ends with `continue` instead of an `else` (the `else`
+  label is allocated after `runCode`; the code is unchanged), and
+  `DrawSpriteTransformed` returns early through one `||` guard, which costs
+  one label more than the single `&&` condition. Every later `gr.c` symbol
+  keeps its index.
+- Label costs measured on identical code: an `else` costs one label; a
+  `||` chain costs one label more than the equivalent `&&` chain; a nested
+  `if` costs one more than merging it into an `&&`; `return` and
+  `continue` cost nothing; `for` and `while` cost the same.
 

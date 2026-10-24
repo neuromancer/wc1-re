@@ -487,17 +487,17 @@ void PrepareShapeRLEData(unsigned char *shape)
                         pixel++;
                     }
                     *runCode = (unsigned char)(runLength * 2 + 1);
-                } else {
-                    runLength = 0;
-                    while (remaining != 0 && runLength < 0xff &&
-                           *pixel == 0xff) {
-                        runLength++;
-                        remaining--;
-                        pixel++;
-                    }
-                    *output++ = 1;
-                    *output++ = (unsigned char)runLength;
+                    continue;
                 }
+                runLength = 0;
+                while (remaining != 0 && runLength < 0xff &&
+                       *pixel == 0xff) {
+                    runLength++;
+                    remaining--;
+                    pixel++;
+                }
+                *output++ = 1;
+                *output++ = (unsigned char)runLength;
             }
             *output++ = 0;
         }
@@ -529,35 +529,35 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            int angle, int scaleX, int scaleY,
                            int flip, int blendMode)
 {
-    if (shape != 0 && frame >= 0 && viewport->pixels != 0 &&
-        viewport->rowOffsets != 0 && frame < GetShapeFrameCount(shape)) {
-        PrepareShapeRLEData(shape);
-        ClipViewportToScreen(viewport);
-        if (flip != 0) {
-            if (flip == 0x10) {
-                scaleX = -scaleX;
-            } else if (flip == 0x20) {
-                scaleY = -scaleY;
-            } else if (flip == 0x30) {
-                scaleX = -scaleX;
-                scaleY = -scaleY;
-            } else {
-                exit_squadron("bad flip");
-            }
-        }
-        if (blendMode != 0) {
-            RotateRLEImage(&stRasterClip,
-                           GetPreparedShapeData(shape), frame,
-                           x - viewport->left, y - viewport->top,
-                           abShapeTransformPixels,
-                           angle * 10, scaleX * 256, scaleY * 256, 1);
+    if (shape == 0 || frame < 0 || viewport->pixels == 0 ||
+        viewport->rowOffsets == 0 || frame >= GetShapeFrameCount(shape))
+        return;
+    PrepareShapeRLEData(shape);
+    ClipViewportToScreen(viewport);
+    if (flip != 0) {
+        if (flip == 0x10) {
+            scaleX = -scaleX;
+        } else if (flip == 0x20) {
+            scaleY = -scaleY;
+        } else if (flip == 0x30) {
+            scaleX = -scaleX;
+            scaleY = -scaleY;
         } else {
-            RotateRLEImage(&stRasterClip,
-                           GetPreparedShapeData(shape), frame,
-                           x - viewport->left, y - viewport->top,
-                           abShapeTransformPixels,
-                           angle * 10, scaleX * 256, scaleY * 256, 0);
+            exit_squadron("bad flip");
         }
+    }
+    if (blendMode != 0) {
+        RotateRLEImage(&stRasterClip,
+                       GetPreparedShapeData(shape), frame,
+                       x - viewport->left, y - viewport->top,
+                       abShapeTransformPixels,
+                       angle * 10, scaleX * 256, scaleY * 256, 1);
+    } else {
+        RotateRLEImage(&stRasterClip,
+                       GetPreparedShapeData(shape), frame,
+                       x - viewport->left, y - viewport->top,
+                       abShapeTransformPixels,
+                       angle * 10, scaleX * 256, scaleY * 256, 0);
     }
 }
 
