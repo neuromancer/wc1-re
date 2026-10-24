@@ -7329,3 +7329,38 @@ size differences to three; `.text` matches 96.2%.
   `-1` store first, `0` takes `EBX` and `-1` takes `EDI` as in the original.
   CL still emits the eject-flag store before the sequence store, so the
   source order shows only in the register choice. The routine is exact.
+- Further carrier-launch probes do not improve the retained implementation.
+  With `sceneObject` used directly, all 24 orders of the fighter-shape,
+  scripted-view-object and two fighter-coordinate initializations recover
+  the 32-byte frame, but retain either a sixteen-byte span shortage or worse
+  bytes at the original span. Moving the player-shape store before the
+  initial object fields and moving actor Y to function scope do not finish
+  the recovery. All 122 distinct single-local moves in that combined form
+  also fail to improve the executable. Capturing the object as an int or
+  long, or as a signed byte, gives no gain; an unsigned capture also loses
+  the original sign extension and is not a valid recovery.
+  The original's four index slots, relative to ESP after the saved registers
+  and before call arguments, are: promoted index at `+0x18`, doubled index
+  at `+0x20`, quadrupled index at `+0x24`, and the sign-extended word at
+  `+0x28`. The tested direct-parameter form instead puts them at `+0x28`,
+  `+0x18`, `+0x20`, and `+0x24`. Matching the frame size alone therefore
+  does not establish the original stack layout. Keep the current source
+  until those temporaries and the instruction schedule are recovered together.
+- Smaller probes at this checkpoint are also discarded. Capturing the text
+  pointer in `ResetStringBuilder` retains its EAX/ECX swap. Early returns,
+  loop breaks and alternate integer result types do not repair
+  `IsPushedPacketHandle`'s final POP/XOR order. Qualified proximity reads do
+  not repair `Mveer_away`'s comparison and lose executable byte matches.
+  Captured yaw-rate, pitch-input and product locals do not improve
+  `players_flight_dynamics`, nor do the 251 tested swaps of
+  `nPitchInput` with single-line externs in the same preprocessor context
+  within 150 header lines. Reordering the release-weapon coordinates leaves
+  its extra saved EDI; moving the state stores earlier or inlining its
+  hardpoint index produces only one to four incidental equal file positions
+  while degrading its instruction schedule (94.59% to 83.78% or 70.27%).
+  These variants do not resolve the original register lifetime and are not
+  retained. Every compiled candidate was checked through binary-comp,
+  including its strict positional comparison with the normal link timestamp.
+  The unchanged executable has 514,661 matching positions out of 518,656,
+  with 3,995 differences; the function report has 1,467 normalized exact
+  entries out of 1,550. These remain separate measures of incomplete recovery.
