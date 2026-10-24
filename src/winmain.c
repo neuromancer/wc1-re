@@ -81,13 +81,14 @@ short easy2see(short obj)
 {
     short bounds[4];
     short x;
+    short screenX;
     short y;
     int objectIndex = obj;
 
-    x = asObjectScreenXList[objectIndex];
-    if (x == (short)0x8001)
+    screenX = asObjectScreenXList[objectIndex];
+    if (screenX == (short)0x8001)
         return 0;
-    x = (short)(x + nCurrentViewCenterPosX);
+    x = (short)(screenX + nCurrentViewCenterPosX);
     y = (short)(asObjectScreenYArray[objectIndex] + nCurrentViewCenterPosY);
     return (short)GetTransformedShapeBounds(
         &stSpaceBufferViewport, x, y,

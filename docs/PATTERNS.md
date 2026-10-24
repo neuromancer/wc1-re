@@ -7419,3 +7419,24 @@ size differences to three; `.text` matches 96.2%.
   loses whole-file matches; copying its position structure removes the extra
   saved register but substitutes dword accesses for the original word loads.
   Those alternatives are not retained.
+- `easy2see` keeps the raw screen X coordinate in a separate short from
+  the translated drawing X coordinate. Declare that snapshot between X
+  and Y, test it for the off-screen sentinel, then add the view centre
+  into X. This restores the original index and coordinate registers and
+  all 128 bytes, gaining 28 literal positions. A direct table test followed
+  by the coordinate expression gets most registers right but adds two
+  instruction bytes and sixteen aligned bytes; reusing X for the snapshot
+  retains the preceding allocation. The new local changes no other code.
+- `find_next_ship_turn_slot` captures the pilot's interval in a signed char
+  before storing it in the object table, then uses that unchanged value
+  throughout the search. This matches the original BL lifetime and restores
+  its final `CMP BL,DL` / `JL`, gaining two bytes. Its 128-byte span remains;
+  the argument/counter register swap still differs. Other declaration and
+  initialization orders give no larger gain. Captured cockpit frame/view
+  state and split raw coordinates in sorted-object drawing do not improve
+  those routines and are discarded.
+  Together, only thirty executable bytes change, all toward the original.
+  All 3,797 symbol/address pairs remain unchanged. Normalized exact functions
+  rise to 1,471 of 1,550; strict matching reaches 515,357 of 518,656
+  (99.3639%), leaving 3,299 differing bytes. The common prefix grows from
+  1,088 to 8,308 bytes.

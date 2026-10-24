@@ -880,19 +880,21 @@ unsigned int find_next_ship_turn_slot(short obj)
 {
     int objectIndex;
     short other;
+    signed char interval;
 
     objectIndex = obj;
     other = 1;
     acTurnRegulatorsArray[objectIndex] = 1;
-    acTurnIntervalArray[objectIndex] = anPilotTurnInterval[aiPilotLevel[objectIndex]];
+    interval = (signed char)anPilotTurnInterval[aiPilotLevel[objectIndex]];
+    acTurnIntervalArray[objectIndex] = interval;
     do {
         if (aeObjectClass[other] == OBJECT_CLASS_SHIP &&
             other != obj &&
             acTurnRegulatorsArray[other] == acTurnRegulatorsArray[objectIndex] &&
-            acTurnIntervalArray[other] == acTurnIntervalArray[objectIndex]) {
+            acTurnIntervalArray[other] == interval) {
             other = 1;
             acTurnRegulatorsArray[objectIndex]++;
-            if (acTurnIntervalArray[objectIndex] < acTurnRegulatorsArray[objectIndex])
+            if (interval < acTurnRegulatorsArray[objectIndex])
                 break;
         }
         other++;
