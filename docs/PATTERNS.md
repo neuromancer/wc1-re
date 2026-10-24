@@ -7716,4 +7716,13 @@ Session findings that are not yet retained because they change span sizes:
   `||` chain costs one label more than the equivalent `&&` chain; a nested
   `if` costs one more than merging it into an `&&`; `return` and
   `continue` cost nothing; `for` and `while` cost the same.
+- `bin/symbolIndex.py` reports one index more than the allocator's key for
+  parameters. With `key = probe - 1`, both one-symbol fixes follow the
+  ascending (key mod 32) rule: `EmitTextString`'s `text` came first only at
+  key residue 0, and `DrawSpriteTransformed`'s `frame` comes first only when
+  `shape` has residue 31. The same rule gives the shifts the remaining
+  parameter/local ties need, all too large for code-neutral label changes:
+  `SeekDataFile` -4 or -5 (an older 544-offset sweep gives -6 to -4),
+  `UpdateInflightNavText` +8 or +9, `attacker_in_range` +13 or +14 and
+  `hit_asteroid` +20 or +21.
 
