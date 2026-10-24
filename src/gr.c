@@ -587,12 +587,12 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     short characterIndex;
 
     row = y;
+    viewport = context->viewport;
+    colour = context->colour;
     background = context->backgroundColour;
     characterData = context->font;
-    viewport = context->viewport;
     fontColour = characterData[2];
     fontBackground = characterData[3];
-    colour = context->colour;
 
     abPaletteTranslation[fontColour] = colour;
     abPaletteTranslation[fontBackground] = background;

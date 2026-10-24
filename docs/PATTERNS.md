@@ -7401,3 +7401,21 @@ size differences to three; `.text` matches 96.2%.
   every other executable byte is unchanged. Normalized exact functions rise
   to 1,470 of 1,550, and strict file matching reaches 515,314 of 518,656
   (99.3556%), leaving 3,342 differing bytes.
+- `DrawFontGlyph` initializes the viewport and drawing colour immediately
+  after the row, before the background and font pointer. CL schedules the
+  resulting setup exactly as the original: background load and spill, font
+  pointer, viewport, drawing colour, and the two font-colour bytes. Only
+  thirteen code bytes change, all toward the original. The 512-byte span
+  and 24-byte frame remain intact; differing encodings fall from 61 to 57
+  of 162, and literal differences fall from 168 to 155. Every other file
+  byte is unchanged. Strict matching reaches 515,327 of 518,656 (99.3581%),
+  leaving 3,329 differing bytes; normalized exact functions remain 1,470.
+  Alternate destination-offset integer types and direct font lookups emit
+  the preceding code. Capturing the promoted character index, splitting
+  address locals between rendering branches, duplicating cursor advancement,
+  and moving individual pointer or counter declarations do not improve it.
+  All 120 declaration orders in `LoadAnswerPromptAndResponse` leave at least
+  its existing 112 literal differences. A release-weapon position pointer
+  loses whole-file matches; copying its position structure removes the extra
+  saved register but substitutes dword accesses for the original word loads.
+  Those alternatives are not retained.
