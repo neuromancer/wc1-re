@@ -266,8 +266,8 @@ short GameFlow(void)
     bKeyEventQueueEnabled = 0;
     do {
         roomSelection = 0;
-        bPlayerEjectedThisMission = 0;
         nPostSeriesSequence = -1;
+        bPlayerEjectedThisMission = 0;
         bPromotionPending = 0;
         nPendingMedalIndex = -1;
         bOfficeVisitPending = 0;

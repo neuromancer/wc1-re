@@ -7323,3 +7323,9 @@ size differences to three; `.text` matches 96.2%.
   sign-extended medal count in `CX` for the bottom-of-loop test; with the
   increment in the loop's own step (or at the end of the body) CL uses `AX`,
   as the original does. The routine is exact.
+- `GameFlow` resets its per-visit flags with `nPostSeriesSequence = -1;`
+  before `bPlayerEjectedThisMission = 0;`. CL hoists the `0` and `-1`
+  constants out of the barracks loop into callee-saved registers; with the
+  `-1` store first, `0` takes `EBX` and `-1` takes `EDI` as in the original.
+  CL still emits the eject-flag store before the sequence store, so the
+  source order shows only in the register choice. The routine is exact.
