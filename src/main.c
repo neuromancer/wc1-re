@@ -2299,6 +2299,7 @@ void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
     short *targetPalette;
     unsigned int paletteBytes;
     short index;
+    short paletteIndex;
     short activeCount;
 
     (void)enabled;
@@ -2333,13 +2334,13 @@ void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
         while (StepPaletteTransition(
                    currentPalette, targetPalette,
                    (short)(activeCount * 3)) != 0) {
-            for (index = 0; index < activeCount; index++) {
-                abPaletteTripletsArray[indices[index]][0] =
-                    (unsigned char)currentPalette[index * 3];
-                abPaletteTripletsArray[indices[index]][1] =
-                    (unsigned char)currentPalette[index * 3 + 1];
-                abPaletteTripletsArray[indices[index]][2] =
-                    (unsigned char)currentPalette[index * 3 + 2];
+            for (paletteIndex = 0; paletteIndex < activeCount; paletteIndex++) {
+                abPaletteTripletsArray[indices[paletteIndex]][0] =
+                    (unsigned char)currentPalette[paletteIndex * 3];
+                abPaletteTripletsArray[indices[paletteIndex]][1] =
+                    (unsigned char)currentPalette[paletteIndex * 3 + 1];
+                abPaletteTripletsArray[indices[paletteIndex]][2] =
+                    (unsigned char)currentPalette[paletteIndex * 3 + 2];
             }
             SetWholePaletteFromTriplets(&abPaletteTripletsArray[0][0]);
         }

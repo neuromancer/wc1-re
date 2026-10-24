@@ -7393,3 +7393,11 @@ size differences to three; `.text` matches 96.2%.
   still different. Only these two function-report rows change: normalized
   exact functions rise to 1,469 of 1,550, and two remain below 90% mnemonic
   similarity.
+- `FadeViewportPaletteToColour` uses separate short counters for preparing
+  the palette entries and applying each transition step. Declare the second
+  counter between the first counter and `activeCount`. This restores DI for
+  the second loop's counter, EAX for its promoted index, and the original
+  comparison direction. All 496 bytes now match. Only nine code bytes change;
+  every other executable byte is unchanged. Normalized exact functions rise
+  to 1,470 of 1,550, and strict file matching reaches 515,314 of 518,656
+  (99.3556%), leaving 3,342 differing bytes.
