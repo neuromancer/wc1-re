@@ -7248,3 +7248,12 @@ size differences to three; `.text` matches 96.2%.
   `verticalOffset` is assigned right after `depth` and declared before it.
   That order puts depth in EBP and the offset in EDI, and leaves ESI to the
   CSE'd constant 1. The routine is exact.
+- `Title_Sequence` fetches both menu shapes before it stores `menuOptions[0]`
+  and then `optionCount = 1`. Setting the count between the two fetches puts
+  the CSE'd constant 1 in EDI before the first call instead of the second.
+  `title.c` includes `<sys/stat.h>` after `wc1.h`; that shift moves the
+  switch key from CX to DX. The routine falls from 61 to 14 differing bytes
+  (object comparison). Only the range check on the selected menu entry
+  remains: CL emits the `state = menuOptions[...] + 1` branch first under
+  every if/else, ternary and early-break form tried, and under every probe
+  offset.

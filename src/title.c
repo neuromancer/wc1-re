@@ -3,6 +3,7 @@
  * Placement and boundary evidence are recorded in docs/ORDER.md.
  */
 #include "wc1.h"
+#include <sys/stat.h>
 
 /* 0x00468910 */
 static char *pszIntroOpeningText =
@@ -329,10 +330,10 @@ int Title_Sequence(void)
         bTitleMenuSceneInitialized = 1;
     }
     menuShape = FetchDiskPacketRetrying(9, 4, 0);
-    optionCount = 1;
     alternateMenuShape =
         FetchDiskPacketRetrying(0x4b, 0, 0);
     menuOptions[0] = 0;
+    optionCount = 1;
     if (AnySavedGames() != 0) {
         optionCount = 2;
         menuOptions[1] = 1;
