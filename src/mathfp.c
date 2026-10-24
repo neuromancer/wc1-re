@@ -17,7 +17,7 @@ int nEventMousePointerDamageBottom; /* 0x0059ab48 */
 int nSavedDosInterruptVector; /* 0x0059ab4c */
 short nViewportOriginPositionY; /* 0x0059ab50 */
 short nViewportOriginPositionX; /* 0x0059ab52 */
-unsigned int nTickCount60Hz; /* 0x0059ab54 */
+int nTickCount60Hz; /* 0x0059ab54 */
 unsigned char bEscapePressedFlag; /* 0x0059ab58 */
 int nMouseCursorDamageLeft; /* 0x0059ab5c */
 int nMousePointerDamageTopValue; /* 0x0059ab60 */

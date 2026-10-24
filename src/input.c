@@ -26,7 +26,7 @@ short __stdcall UpdateInputDeviceTransitions(short raw)
     unsigned short previous;
     unsigned short buttons;
     unsigned short changed;
-    unsigned int now;
+    int now;
     short device;
 
     device = nCurrentActiveInputDevice;

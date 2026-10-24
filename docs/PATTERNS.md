@@ -7364,3 +7364,14 @@ size differences to three; `.text` matches 96.2%.
   The unchanged executable has 514,661 matching positions out of 518,656,
   with 3,995 differences; the function report has 1,467 normalized exact
   entries out of 1,550. These remain separate measures of incomplete recovery.
+- `nTickCount60Hz` and `UpdateInputDeviceTransitions`'s `now` snapshot are
+  signed ints. Correcting both types restores the original register choices
+  and the timestamp load shared by the two button branches; changing only
+  one type does not. All 288 bytes of the routine now match, eliminating
+  143 differing code bytes and eleven differing relocation bytes. Rebuilding
+  every core unit changes no other code or data bytes. Normalized exact
+  functions rise to 1,468 of 1,550, and strict file matching rises to 514,815
+  of 518,656 (99.2594%), with 3,841 bytes still different. The signed elapsed
+  comparisons and divisions at the clock's other use sites agree with this
+  declaration; the GetTickCount-based producer still performs its original
+  unsigned arithmetic before storing the clock.

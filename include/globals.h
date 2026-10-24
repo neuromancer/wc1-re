@@ -328,7 +328,7 @@ extern MouseCursorState stMouseCursorState; /* 0x0059ab10 */
 extern void (*pCurrentEventManagerPump)(void); /* 0x0059ab2c */
 extern int nPacketDecompressResult; /* 0x0059ab30 */
 extern int nEventMousePointerDamageBottom; /* 0x0059ab48 */
-extern unsigned int nTickCount60Hz; /* 0x0059ab54 */
+extern int nTickCount60Hz; /* 0x0059ab54 */
 extern volatile int bFrameTickPendingFlag; /* 0x0059ab3c */
 extern int bMouseCursorDamagePending; /* 0x0059ab40 */
 extern TextContext *pCurTextContext; /* 0x0059af8c */
