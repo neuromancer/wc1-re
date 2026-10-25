@@ -876,31 +876,33 @@ unsigned int is_team_member(short missionShip)
     return 0;
 }
 
+/* init_ship's callees from other modules. */
+void AddFixedVectors(const FixedVector *left, const FixedVector *right,
+                     FixedVector *sum);
+short initialize_ship(enum ObjectType type, short owner);
+
 /* Function start: 0x40C780 */
 unsigned int find_next_ship_turn_slot(short obj)
 {
-    int objectIndex;
-    short activeObject;
+    short other;
     signed char interval;
 
-    activeObject = obj;
-    objectIndex = activeObject;
-    acTurnRegulatorsArray[objectIndex] = 1;
-    interval = (signed char)anPilotTurnInterval[aiPilotLevel[objectIndex]];
-    acTurnIntervalArray[objectIndex] = interval;
-    obj = 1;
+    acTurnRegulatorsArray[obj] = 1;
+    interval = (signed char)anPilotTurnInterval[aiPilotLevel[obj]];
+    acTurnIntervalArray[obj] = interval;
+    other = 1;
     do {
-        if (aeObjectClass[obj] == OBJECT_CLASS_SHIP &&
-            obj != activeObject &&
-            acTurnRegulatorsArray[obj] == acTurnRegulatorsArray[objectIndex] &&
-            acTurnIntervalArray[obj] == interval) {
-            acTurnRegulatorsArray[objectIndex]++;
-            obj = 1;
-            if (interval < acTurnRegulatorsArray[objectIndex])
+        if (aeObjectClass[other] == OBJECT_CLASS_SHIP &&
+            other != obj &&
+            acTurnRegulatorsArray[other] == acTurnRegulatorsArray[obj] &&
+            acTurnIntervalArray[other] == interval) {
+            acTurnRegulatorsArray[obj]++;
+            other = 1;
+            if (interval < acTurnRegulatorsArray[obj])
                 break;
         }
-        obj++;
-    } while (obj <= 9);
+        other++;
+    } while (other <= 9);
     return 0;
 }
 
@@ -1135,6 +1137,13 @@ void nav_getxy(short *x, short *y, int worldX, int worldZ)
         ScaleNavMapCoordinates(x, y, *x, mapY);
 #endif
 }
+
+/* Map-extent and objective helpers from other modules. */
+short MinShort(short a, short b);
+short MaxShort(short a, short b, ...);
+short find_ship_index(short missionShip);
+short mobile_objective(short objective);
+int set_new_objective(short pathIndex);
 
 /* Function start: 0x40CC80 */
 void CheckPoint(short x, short y)
