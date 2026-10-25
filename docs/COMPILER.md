@@ -47,6 +47,30 @@ Evidence that constrains these settings:
   their existing users produce both pairs byte for byte under `/Od /Oi`.
   No explicit constructor, exception handling, or extra compiler flag is needed.
 
+## Backend diagnostics
+
+The installed `C2.EXE` has SHA-256
+`674fb9e410481378c6980c3f21914e513128c85001e8337aca73b587b6273ae9`.
+Its option table contains `-norecy`, `-nosched` and `-nocombine`; CL forwards
+them through `/d2norecy`, `/d2nosched` and `/d2nocombine`. Temporary
+`CFLAGS_CORE` overrides allow individual units to be rebuilt for diagnosis.
+These controls are not part of the retained compiler profile.
+
+In this backend image, the recycling control word is at `0x0047A98C`,
+initially one, and is tested at `0x00422F27`. The scheduling control is at
+`0x0047A994`, also initially one, and is tested at `0x00401480`. These
+addresses come from the option table and disassembly of the compiler itself.
+
+Binary-comp probes on the 32-byte-frame carrier candidate distinguish two
+remaining differences. Disabling scheduling leaves the escape reset after
+the first two indexed word stores, in source order, but still doubles the
+index with `ADD` instead of the original `LEA`. Disabling recycling also
+retains the destructive doubling and changes other registers and scheduling.
+Disabling combining leaves the complete carrier comparison unchanged.
+The target-list sorter's register exchange likewise survives disabling
+recycling. These probes give no reason to change the production flags; the
+carrier's index calculation still needs a source-level explanation.
+
 ## Hand-written assembly
 
 Three regions were written in assembly, through different tools:

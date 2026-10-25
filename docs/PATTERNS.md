@@ -8794,3 +8794,18 @@ Session findings that are not yet retained because they change span sizes:
   and 2,308 differences from the original in 531 runs. The full function
   report is unchanged; source sorting, address audits and unit-order checks
   pass.
+- Compiler-pass probes are recorded in `docs/COMPILER.md`. Separating the
+  carrier's short object from an integer array index, with a qualified read
+  of the object word at the original promotion point, also leaves the
+  destructive doubled-index calculation. It reduces the candidate's frame
+  to 28 bytes and changes its slots, so it is discarded. Initializing the
+  high-score routine's short counter and scale in their declarations instead
+  of subsequent assignments reproduces the preceding executable exactly;
+  the counter's stack-slot discrepancy remains.
+  All source and header probes are restored. A forced rebuild with the
+  normal compiler flags is literally identical to the previously verified
+  executable, retaining SHA-256
+  `c9c59efbbe84ec74d1d9da3418580d61d2c60cd932c1bce1cd18598c4592ced5`
+  and 2,308 original-image differences in 531 runs. The full function report
+  is unchanged; sorting, address audits and compilation-unit-order checks
+  pass.
