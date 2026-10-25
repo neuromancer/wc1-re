@@ -8512,3 +8512,40 @@ Session findings that are not yet retained because they change span sizes:
   - Qualifying the two scene-buffer pointer reads in `free_viewport`
     reproduces the preceding executable and leaves both comparison operands
     reversed.
+- Further answer-loader, carrier, flight-input and allocator probes yield
+  no retained source change:
+  - In `LoadAnswerPromptAndResponse`, reusing either destination parameter
+    as the scan cursor adds a four-byte spill and changes the span. Reusing
+    `entry` as the line counter after saving the doubled selection instead
+    exchanges the counter and selection registers without recovering the
+    cursor. A promoted selection capture also fails.
+  - In the carrier's earlier 32-byte-frame candidate, using either the frame
+    counter or approach-distance local for the initial word-array indices
+    returns to a 28-byte frame. Both variants emit the same wrong doubled
+    index and stack allocation; neither is retained.
+  - Taking `nPitchInput`'s address in `players_flight_dynamics` makes that
+    function exact but shrinks `player_input` by sixteen bytes. A plain
+    const-qualified read has the same effect as a volatile-qualified read:
+    address-taking affects the entire compilation unit. Capturing the three
+    previous controls in existing locals does not recover the original
+    schedule. Qualifying the previous-roll store restores the input span
+    but leaves six more file differences than the baseline. Qualifying the
+    key-release updates recovers their memory operations while losing much
+    more code elsewhere in the unit. A signed-char mask leaves output
+    unchanged. Qualifying the yaw-rate field, or replacing the dynamics
+    type local with a pitch capture and direct type indices, also produces
+    the baseline executable exactly.
+  - Changing `PollJoystickButtonEvents`' double-click local from short to
+    int or signed char does not recover its load and argument schedule.
+    Inverting `perform_maneuver`'s final branch changes block placement and
+    loses matches; negating the equivalent comparison leaves it unchanged.
+  - `AllocateGuardedMemory` still uses EDX for the final allocated-byte
+    total after capturing it in the consumed size parameter. Capturing the
+    allocation-tail pointer for the return leaves this function unchanged
+    and loses nineteen positions in neighboring code.
+  Every experimental source/header edit is restored. A forced native rebuild
+  reproduces the previously verified executable byte for byte, with SHA-256
+  `c3a83a9673e8871093b2669e9cc1d99b4af7960d4a541e25f9212720952953f9`.
+  Strict matching remains 516,228 of 518,656 bytes (99.5319%), leaving 2,428
+  differing positions in 565 runs. The complete normalized report is
+  unchanged; source sorting, address audits and compilation-unit order pass.
