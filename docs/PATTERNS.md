@@ -8032,3 +8032,45 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. Rebuilding and verification preserve SHA-256
   `ea9ce7bf9d17a6b72c9b5dd6e967912d1f24e53c165efa2d3836c2d648318d01`.
+- `bin/symbolIndex.py local` must end a void-function probe with `return;`.
+  Its former unconditional `return 0;` was accepted by the
+  C frontend but rejected by the C++ frontend. The tool now distinguishes
+  void definitions, checks the compiler exit status, and includes stderr in
+  failures. The answer loader's scan local measures index 36,629, residue
+  21 modulo 32.
+  The existing C probes still give 27,440 for the high-score slot and
+  27,604 for the turn-slot active object. An intentional probe of the
+  unsupported multiline `evaluate_damage` initializer now exposes the
+  compiler's syntax diagnostics instead of hiding them. This tooling fix
+  changes no reconstructed instructions.
+- Further source probes at this checkpoint are discarded:
+  - In the answer loader, a register hint, an explicit guarded scan loop,
+    a separate end-of-line pointer, and const prompt/response pointers all
+    reproduce the preceding executable. Splitting the prefix through
+    `SceneEnterHook` into a C unit and the following console wrappers into
+    a C++ unit also reproduces every executable byte. The two listings
+    confirm their respective source languages. This does not establish the
+    historical boundary, so the split is restored.
+  - Unsigned word-array indices in the 32-byte-frame carrier candidate
+    leave its doubled-index calculation unchanged. Qualifying the setup
+    stores preserves their order but introduces a shifted quadrupled index
+    and a reload before doubling; qualifying the shape store too gives no
+    further change. Neither recovers the original index calculations.
+  - Declaring the font-colour local volatile prevents reuse of its cached
+    translation-entry pointer and reduces the frame from 24 to 20 bytes.
+    It does not repair the palette-restoration tail.
+  - An earlier scoped source-position pointer leaves the empty-save
+    writer's objective copy unchanged while losing matches elsewhere.
+    Reusing its byte pointers for that copy, or qualifying the position
+    structure assignment, reproduces the preceding executable.
+  - Unsigned scale factors in `animate_shape` leave its factor order
+    unchanged. Reusing the command local for the animation countdown,
+    with an ordinary or qualified read, also emits the preceding code.
+    An unsigned active-object snapshot and word comparison leave the
+    turn-slot routine's final reversed comparison unchanged.
+  All reconstructed source, header, and build-file probes are restored.
+  A forced native rebuild reproduces the preceding checkpoint's SHA-256
+  and complete function and section reports. Sorting and address checks
+  pass. Strict matching remains 515,887 of 518,656 bytes, with 2,769
+  differences; the preceding full verification applies to this unchanged
+  executable.

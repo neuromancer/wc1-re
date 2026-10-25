@@ -76,8 +76,8 @@ def compile_probe(path, unit, include):
             '/Fo' + os.path.relpath(os.path.join(WORK, 'probe.obj'), ROOT).replace('/', '\\'),
             '/Fa' + os.path.relpath(asm, ROOT).replace('/', '\\')])
     r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, env=env)
-    if not os.path.exists(asm):
-        sys.exit('probe compile failed:\n' + r.stdout[-2000:])
+    if r.returncode != 0 or not os.path.exists(asm):
+        sys.exit('probe compile failed:\n' + (r.stdout + r.stderr)[-4000:])
     return open(asm, errors='replace').read()
 
 
@@ -178,8 +178,12 @@ def cmd_local(unit, func, name):
     closing = ''
     for is_do in reversed(stack[1:]):
         closing += '} while (0);\n' if is_do else '}\n'
+    returns_void = re.match(
+        r'^\s*(?:(?:static|inline|extern)\s+)*void(?:\s+__\w+)*\s+' +
+        re.escape(func) + r'\s*\(', ''.join(lines[start:decl + 1]))
+    return_statement = 'return;' if returns_void else 'return 0;'
     text = (''.join(lines[:decl + 1]) + '\n    ' + PROBE_BLOCK + '\n' + closing +
-            '    return 0;\n}\n')
+            '    ' + return_statement + '\n}\n')
     path = probe_unit_copy(unit, text)
     try:
         asm = compile_probe(path, unit, 'include')
