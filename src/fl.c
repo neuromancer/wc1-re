@@ -779,11 +779,12 @@ void Mget_distance(short ship, short target)
 {
     short amount;
 
-    if (nTgtRange > 2000) {
+    amount = nTgtRange;
+    if (amount > 2000) {
         maneuver_complete(ship);
         return;
     }
-    if (nTgtRange < 700 && normal_speed(ship) != 0)
+    if (amount < 700 && normal_speed(ship) != 0)
         fire_afterburner(ship, 10);
     else
         approach_full_speed(ship);
@@ -892,7 +893,8 @@ void Mveer_away(short ship, short target)
             veer_random(ship, 16);
         }
     }
-    if ((nManeuverProximityRange >= nTgtRange ||
+    target = *(volatile short *)&nTgtRange;
+    if ((*(volatile short *)&nManeuverProximityRange >= target ||
          RandomBelowOrEqual(100) < 10) &&
         normal_speed(ship) != 0) {
         fire_afterburner(ship, 10);
@@ -1070,7 +1072,8 @@ void perform_maneuver(short obj)
         maneuver_complete(obj);
     }
 
-    if (nManeuverProximityRange > range) {
+    target = *(volatile short *)&nManeuverProximityRange;
+    if (target > *(volatile short *)&range) {
         try2reset_maneuver(obj, 2);
     } else if (aeShipManeuversTable[obj] == previous &&
                RandomBelowOrEqual(100) <

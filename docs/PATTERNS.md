@@ -8458,3 +8458,57 @@ Session findings that are not yet retained because they change span sizes:
   distance and bound registers and shortens the body. An int return capture
   with a qualified global store recovers the comparison but still places
   the store after sign extension. Neither improves strict matching.
+- `Mveer_away` reads the target range into its consumed `target` parameter,
+  then compares it with the maneuver-proximity limit. Qualify both reads
+  to keep the range load before the memory comparison. All 272 bytes now
+  match, recovering seven positions. An ordinary capture leaves the old
+  comparison unchanged; qualifying only the range read also fails.
+  The qualified global reads change code generation elsewhere in `fl.c`.
+  `Mget_distance` must capture its initial range in the existing `amount`
+  local for both bounds tests, then reuse that local for the steering amount.
+  This restores its original single range load, all 144 bytes, and the
+  relocation count. Without the capture CL emits two memory comparisons.
+  `perform_maneuver` captures the proximity limit in its consumed `target`
+  local and qualifies the saved range's stack read. This restores the
+  original load order and instruction positions, but reverses the final
+  comparison and branch: `CMP [range],AX; JGE` instead of
+  `CMP AX,[range]; JLE`. Those two differing bytes are a retained tradeoff
+  for the seven-byte gain. Ordinary threshold captures, a declared-volatile
+  range, scoped short/int threshold captures, reversed comparison spelling,
+  an early return, and reuse of the range local do not improve the result.
+  Only these two function-report rows change; `Mget_distance` remains exact.
+  Strict matching gains five positions overall, reaching 516,228 of
+  518,656 bytes (99.5319%), with 2,428 differences: 2,325 in `.text` and
+  the unchanged 103 in `.reloc`. Nine file positions change, with seven
+  gains and two losses. The header and other sections remain exact.
+  All 1,539 mapped functions keep their original addresses; 1,476 remain
+  literally identical. The normalized counts remain 1,491 exact, 58
+  same-size differences and the unchanged sample-converter boundary
+  discrepancy; 1,524 functions retain perfect mnemonic similarity.
+  These read qualifiers and local reuses are measured matching choices,
+  not recovered original source spelling. The forced native rebuild,
+  modern build, source sorting/address checks, compilation-unit-order
+  audit and `make verify` pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-reference diagnostics
+  remain 11/55. Rebuilding and verification preserve SHA-256
+  `c3a83a9673e8871093b2669e9cc1d99b4af7960d4a541e25f9212720952953f9`.
+- Further index, coordinate and damage-score probes are restored:
+  - An explicit promoted index in `get_front_spot` leaves its ESI/EDI
+    exchange unchanged while disturbing later functions. A captured
+    forward-vector pointer additionally changes the address calculations
+    and instruction schedule.
+  - In `draw_sorted_objects_to_buffer`, saving the scaled path's object
+    index in the existing special-object local and reusing the object
+    local for Y introduces a sign extension and changes the doubled-index
+    calculation and span. Narrowing the special-object local to a short
+    reproduces the preceding executable exactly.
+  - A scoped short accumulator with sequenced, qualified armor reads in
+    `evaluate_damage` preserves contribution order but still exchanges the
+    armor index and accumulator. A promoted object index and an unsigned
+    short accumulator do not fix that exchange. An int accumulator restores
+    those registers but widens the additions; explicitly truncating each
+    update adds sign extensions. Capturing a subtotal through front armor,
+    as either an int or a short, also changes registers and scheduling.
+  - Qualifying the two scene-buffer pointer reads in `free_viewport`
+    reproduces the preceding executable and leaves both comparison operands
+    reversed.
