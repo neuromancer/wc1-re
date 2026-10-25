@@ -8549,3 +8549,45 @@ Session findings that are not yet retained because they change span sizes:
   Strict matching remains 516,228 of 518,656 bytes (99.5319%), leaving 2,428
   differing positions in 565 runs. The complete normalized report is
   unchanged; source sorting, address audits and compilation-unit order pass.
+- Navigation, mission-reset, formatter and arithmetic probes at this
+  checkpoint also leave the retained executable unchanged:
+  - `IsPointInNavMapLabel` still reverses its two lower-bound comparisons
+    when a promoted index preserves the input and the consumed label
+    parameter holds X. Saving the incoming coordinates and reusing their
+    parameters for the label bounds extends live ranges and changes the
+    register allocation. Scoping the Y snapshot after the width test
+    restores the prologue but exchanges the Y loads and does not repair the
+    comparisons. In `SelectNavObjectiveAtPoint`, exchanging the two
+    absolute-value terms, accumulating them in a scoped short, or qualifying
+    the saved-navigation-point comparison gives no strict matching gain.
+  - Qualifying `prepare_mission`'s player-kill clear restores its position
+    relative to the other clears, but the promoted-index calculation and
+    first argument push still move too early. This loses twelve file
+    positions. An explicit promoted index produces the same result; a
+    captured mission-record pointer changes registers and addressing.
+  - Unsigned width arithmetic and separate line pointers leave
+    `DebugOverlayPrintf`'s multiplication operands reversed. A targeted build
+    as a variadic console member preserves its stack argument layout and
+    all six differing
+    encodings, while regressing the worker routine. This supplies no
+    matching evidence for changing the current declaration; it does not
+    establish whether the original source used a member or free function.
+  - Nested short subtotal casts and spelling the front-armor numerator as
+    twenty-four times armor minus armor leave `evaluate_damage`'s contribution
+    order unchanged and give no strict matching gain. An explicit object-type
+    snapshot in the sequenced short-accumulator
+    candidate retains the EBX/EDI exchange and disturbs neighboring code.
+  - A separate approach counter does not recover `scramble`'s phase-specific
+    counter registers. Removing the initial canopy-clear qualifier changes
+    the reset order without fixing the canopy update. Swapping the canopy
+    and backdrop externs does not repair the canopy update.
+    Moving the qualifier to the backdrop initialization recovers the canopy
+    read but changes first-loop instructions and later positions. Qualifying
+    both coordinate reads enlarges the routine. Named first-phase X/Y
+    steps also leave the strict mismatch count unchanged.
+  All source and header edits are restored. A forced native rebuild is
+  literally identical to the preceding verified executable, retaining
+  SHA-256 `c3a83a9673e8871093b2669e9cc1d99b4af7960d4a541e25f9212720952953f9`.
+  Binary-comp still reports 2,428 differences from the original in 565 runs
+  and zero differences from the preceding build. The full function report
+  is unchanged; source sorting, address audits and unit-order checks pass.
