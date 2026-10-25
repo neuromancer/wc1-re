@@ -8313,3 +8313,45 @@ Session findings that are not yet retained because they change span sizes:
     the executable unchanged; qualifying that capture changes the pointer
     addition order instead. Qualifying both multiplicands also fails to
     restore the original schedule. None of these printf changes is retained.
+- At the 2,695-byte checkpoint, the following calibration, input and
+  navigation probes also fail to improve strict matching and are restored:
+  - In `CalibrateJoystickInteractive`, placing the minimum-X calculation
+    between the up and right products now restores the original horizontal
+    range in EBX and right scale in EDI. The division and clamp sequence
+    matches, but the centre-X load remains late, the right/down products
+    move ahead of the minimum store, and the final Y accumulator and
+    comparison order still differ. This leaves 3,043 file differences,
+    despite retaining the 1,040-byte aligned span. The earlier conclusion
+    that this interleaving produces identical output applied to an older
+    compiler context.
+  - An ordinary minimum-X capture before the right/down scale stores leaves
+    that candidate unchanged. Qualifying the capture also disturbs the
+    earlier sample code. Qualifying the minimum-X destination loses the
+    retained value and adds an absolute reload; qualifying all four bound
+    stores is worse. Reusing the consumed up/left scale locals for the final
+    X/Y maxima does not improve the candidate. Qualifying only the initial
+    horizontal-range read preserves the checkpoint executable. Exchanging
+    the range/right-scale declarations or moving the right scale after both
+    ranges does not recover the original allocation and schedule together.
+  - `PollJoystickButtonEvents` still does not improve with separate
+    double-click locals at branch or function scope. Scoping its one flag
+    around both event blocks has the same first-button register problem.
+    An explicit promoted first-button device index leaves the checkpoint
+    executable unchanged. A conditional-expression flag emits an
+    `ADC`/`AND` sequence instead of the original branch and word assignment.
+  - In `hostile_sphere`, saving the navigation point and reusing its
+    parameter as the scan counter changes the prologue and register choices.
+    A short snapshot adds a separate word load and sign extension; an int
+    snapshot removes those extra bytes but keeps the wrong counter/base
+    registers. Using the consumed parameter for the fetched mission-ship
+    index instead does not recover the original allocation either.
+  - `DrawNavSquareOutline`'s reversed sum operands are independent of their
+    source spelling: exchanging `y + size` for `size + y` preserves the
+    checkpoint executable. An explicit bottom-coordinate local emits a
+    32-bit `LEA` and changes argument scheduling. Qualifying either input
+    read prevents the original register reuse and introduces reloads.
+  All four source files are restored. Binary-comp confirms complete
+  equality with the preceding executable: 518,656 matching positions and
+  zero differences. The SHA-256 remains
+  `eb7da3ab4bc4f0f7111e9132bd30a1fb5c23379d8155adf0bc46bf2bb14fbae4`;
+  strict comparison with the original still leaves 2,695 differences.
