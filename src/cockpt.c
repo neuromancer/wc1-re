@@ -2410,6 +2410,8 @@ void malf_noise(short vdu, int effect, unsigned short colour,
 /* Function start: 0x416E90 */
 void build_your_target_list(short *hasEnemy)
 {
+    short distance;
+    enum Side playerSide;
     signed char object;
     signed char targetIndex;
 
@@ -2421,15 +2423,14 @@ void build_your_target_list(short *hasEnemy)
             aeSpecialManeuvers[(int)object] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             asObjectScreenXList[(int)object] != (short)0x8001 &&
-            (unsigned short)asObjDistancesTable[(int)object] <
+            (unsigned short)(distance = asObjDistancesTable[(int)object]) <
                 12000) {
             targetIndex = cViableTargetCount;
-            asViableTgtDistList[(int)targetIndex] =
-                asObjDistancesTable[(int)object];
+            asViableTgtDistList[(int)targetIndex] = distance;
             acViableTargetList[(int)targetIndex] = object;
             cViableTargetCount++;
-            if (aeShipSide[(int)object] !=
-                aeShipSide[0])
+            playerSide = aeShipSide[0];
+            if (aeShipSide[(int)object] != playerSide)
                 *hasEnemy = 1;
         }
         object++;
@@ -2443,22 +2444,24 @@ void cycle_onscreen_targets(void)
 {
     short previousTarget;
     signed char index;
+    signed char count;
     short hasEnemy;
 
     previousTarget = acShipTargetTable[0];
     build_your_target_list(&hasEnemy);
-    if (cViableTargetCount == 0) {
+    count = *(volatile signed char *)&cViableTargetCount;
+    if (count == 0) {
         acShipTargetTable[0] = -1;
     } else {
         for (index = 0;
-             index < cViableTargetCount &&
+             index < count &&
              acViableTargetList[(int)index] !=
                  acShipTargetTable[0];
              index++)
             ;
         do {
             index = (signed char)((index + 1) %
-                                  cViableTargetCount);
+                                  count);
             acShipTargetTable[0] =
                 acViableTargetList[(int)index];
             if (hasEnemy == 0)
@@ -2478,6 +2481,7 @@ void check_target(void)
     short oldTarget;
     short targetIndex;
     short hasEnemy;
+    signed char count;
 
     selectNewTarget = 1;
     oldTarget = acShipTargetTable[0];
@@ -2503,7 +2507,8 @@ void check_target(void)
         nTargetLockMode = 0;
 
     build_your_target_list(&hasEnemy);
-    if (cViableTargetCount == 0) {
+    count = *(volatile signed char *)&cViableTargetCount;
+    if (count == 0) {
         if (nTargetLockMode != 0)
             acShipTargetTable[0] = oldTarget;
         else
@@ -2519,7 +2524,7 @@ void check_target(void)
         }
         if (selectNewTarget != 0) {
             for (targetIndex = 0;
-                 targetIndex < cViableTargetCount &&
+                 targetIndex < count &&
                  aeShipSide[
                      (short)acViableTargetList[targetIndex]] ==
                      aeShipSide[0];
@@ -2527,7 +2532,7 @@ void check_target(void)
                 ;
             acShipTargetTable[0] =
                 acViableTargetList[
-                    targetIndex % (short)cViableTargetCount];
+                    targetIndex % (short)count];
         }
     }
     if (acShipTargetTable[0] != oldTarget) {

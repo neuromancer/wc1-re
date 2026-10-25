@@ -8736,3 +8736,35 @@ Session findings that are not yet retained because they change span sizes:
   zero mismatches or skips; existing call/global-access diagnostics remain
   11/55. Verification preserves SHA-256
   `5201e8cfa087f5cba29c11a73aa73c9606c69400fcb91559cd03bb9b9d5ed1c2`.
+- `send_message` now matches all 208 bytes at its original address through
+  the preceding target-selection routines' declaration context. The target
+  builder names its loaded distance and player side. Both target-selection
+  readers capture the signed-byte target count after building the list and
+  reuse that value through their searches and remainder calculations.
+  Qualifying those two count reads preserves the original single load in
+  each reader. These four actual values move `send_message`'s last parameter
+  from C1 index 28,030 (mod 32 = 30) to 28,034 (mod 32 = 2). Its object
+  parameter takes CX, the object class takes EDI, and the promoted object
+  index and scaled offset retain EDX and ESI. The target builder's existing
+  mismatch is unchanged; both readers remain exact. This is a measured
+  reconstruction context, not evidence of the original local declarations.
+  Additional class, maneuver and scoped-index captures are unnecessary and
+  are removed. Capturing only distance and side leaves a reversed comparison
+  in target cycling. A plain count capture or reordered cycling locals does
+  not fix it. Qualifying only the cycling capture makes `check_target`
+  reload the count and increases its aligned span by sixteen bytes; its own
+  qualified capture restores the original cached count and complete span.
+  Only the messaging routine's full-report row changes, from eight differing
+  encodings to exact. Normalized exact functions rise to 1,494 of 1,550,
+  leaving 55 same-size differences and the existing converter boundary
+  discrepancy. All 1,539 mapped functions remain at their original addresses;
+  1,479 are literally identical. Strict comparison recovers exactly eight
+  code bytes without losing any matches, reaching 516,348 of 518,656 bytes
+  (99.5550%). There are 2,308 differences in 531 runs: 2,214 in `.text` and
+  the unchanged 94 in `.reloc`. A forced native rebuild reproduces the
+  candidate byte for byte. The modern build, sorting, address audits and
+  compilation-unit-order checks pass.
+  Full verification passes: both value checks cover all 1,550 functions
+  with zero mismatches or skips, and the existing call/global-access
+  diagnostics remain 11/55. Verification preserves SHA-256
+  `c9c59efbbe84ec74d1d9da3418580d61d2c60cd932c1bce1cd18598c4592ced5`.
