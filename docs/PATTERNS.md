@@ -8591,3 +8591,40 @@ Session findings that are not yet retained because they change span sizes:
   Binary-comp still reports 2,428 differences from the original in 565 runs
   and zero differences from the preceding build. The full function report
   is unchanged; source sorting, address audits and unit-order checks pass.
+- Further carrier, packet, collision and raster probes leave that baseline
+  unchanged:
+  - The earlier 32-byte-frame carrier candidate leaves 2,971 file
+    differences at this checkpoint. Moving both initial fighter-coordinate
+    assignments after `initialize_scripted_view` recovers its opening
+    instruction sequence and reduces that candidate to 2,931 differences.
+    It still loses to the retained implementation. The destructive doubled
+    index is five bytes shorter than the original LEA, while the first
+    loop's scroll-coordinate loads add two bytes. Neither the zero-object
+    store qualifiers nor a later fighter-shape store fixes these differences.
+    Applying the coordinate move alone to the retained implementation loses
+    one position instead.
+  - In the 32-byte-frame candidate, an unsigned scale, unsigned promoted
+    word-array indices, plain-char parameter, existing point-coordinate
+    temporaries and a block-scoped sound local reproduce the preceding
+    candidate executable. A volatile sound local prevents stack-slot reuse
+    and increases the frame to 36 bytes. Swapping the initial view and flip
+    stores does not recover the original index calculation.
+  - Reusing the consumed packet-search index for the pushed-status result
+    leaves `IsPushedPacketHandle`'s final POP/XOR order unchanged. Scoping
+    both promoted collision indices to the collision branch also leaves
+    its two initial loads reversed. Narrowing the object index to short
+    increases the collision frame from 92 to 96 bytes and changes its span.
+  - In `PrepareShapeRLEData`, using the remaining-pixel local for bitmap
+    area changes argument scheduling without fixing the operand loads.
+    Serializing each bound immediately after calculating it removes the
+    original stack stores and changes the span. A four-element bounds
+    array also changes code in later routines. Reversing or qualifying
+    the multiplication operands gives no gain. Long bound locals and a
+    long multiplication cast each reproduce the baseline executable exactly.
+    The scoped, empty-body viewport search also gives no net improvement
+    in the current unit context.
+  All source and header experiments are restored. A forced native rebuild
+  reproduces the previously verified executable byte for byte, retaining
+  SHA-256 `c3a83a9673e8871093b2669e9cc1d99b4af7960d4a541e25f9212720952953f9`
+  and 2,428 differences from the original. The complete function report is
+  unchanged; source sorting, address audits and compilation-unit order pass.
