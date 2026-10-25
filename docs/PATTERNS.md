@@ -8074,3 +8074,58 @@ Session findings that are not yet retained because they change span sizes:
   pass. Strict matching remains 515,887 of 518,656 bytes, with 2,769
   differences; the preceding full verification applies to this unchanged
   executable.
+- `report_kilrathi_rout` retains the incoming query in a separate `int`
+  after its short object counter. A qualified parameter read keeps that
+  snapshot distinct from the parameter's register lifetime: the counter
+  takes SI and the query EDI, recovering the original prologue and all
+  subsequent instructions. An ordinary copy reproduces the old ESI/DI
+  exchange. The snapshot alone fixes this routine but changes later
+  routines; a `do` loop with the eligibility guard enclosing the switch
+  preserves their preceding compiler context. The complete 208-byte span
+  is exact, recovering sixteen literal positions.
+  `find_ships_sphere` similarly saves the requested ship as `targetShip`
+  and reuses its consumed parameter for each navigation point's ship-slot
+  counter. Initialize the navigation counter before taking that snapshot;
+  reversing those assignments moves the parameter load ahead of the
+  original prologue. The selected order recovers CX for the requested ship
+  and DX for the counter. Its complete 144-byte span is exact, recovering
+  six more positions.
+  Only these two rows change in the full function report. Normalized exact
+  functions rise to 1,482 of 1,550, with 1,522 perfect mnemonic scores and
+  the unchanged converter boundary discrepancy. All 1,539 mapped functions
+  retain their original addresses; 1,467 are literally identical. Strict
+  matching reaches 515,909 of 518,656 bytes (99.4704%), leaving 2,747
+  differences: 2,635 in `.text` and 112 in `.reloc`. The header and other
+  sections remain exact. A forced native rebuild, the modern build, and
+  sorting/address and compilation-unit-order checks preserve this result.
+  `make verify` passes: both value checks cover all 1,550 functions with
+  zero mismatches or skips, and existing call/global-access diagnostics
+  remain 11/56. Verification preserves SHA-256
+  `c4ece7c84fb49dbff66a5770d74a31e2286f61be866265ce6373bf68659c498e`.
+- Other probes in this session are restored:
+  - Separate button double-click locals, at function or branch scope, and
+    an explicit first-button device snapshot change the joystick poller's
+    first register allocation without repairing it. An unsigned flag
+    retains its preceding comparison and gives no strict matching gain.
+  - An unsigned bunk-row local and a scoped row initializer retain the
+    division/push scheduling difference and give no strict matching gain.
+  - An explicit objective-type snapshot leaves `objective_lost` unchanged
+    while disturbing its neighbors. Saving the objective index and reusing
+    the parameter for its state changes the initial copy without recovering
+    the state/type registers.
+  - Separate actor-coordinate shorts in the 32-byte carrier candidate
+    retain its unresolved index calculations. Omitting the six object-array
+    bounds from their extern declarations retains that candidate's index
+    calculation and strict mismatch count, so this does not repair its
+    scheduling.
+  - Saving the navigation point and reusing its parameter for the object
+    counter in `set_up_action_sphere` retains the scratch-register exchange
+    and exchanges the counter with its promoted index. An explicit
+    next-navigation-point integer has the same effect.
+  - A qualified target-list output-pointer snapshot, with direct use of
+    the target-count global, leaves its register allocation unchanged.
+    Qualifying its two output stores also leaves that comparison unchanged;
+    neither improves strict matching.
+  - A qualified object snapshot or consumed-parameter counter in
+    `hostile_sphere` changes its prologue, index allocation and side
+    comparison without recovering the original registers.

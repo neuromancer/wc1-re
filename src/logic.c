@@ -377,34 +377,39 @@ int trim_goals(short obj, short amount)
 int report_kilrathi_rout(int mode)
 {
     short obj;
+    int queryMode;
 
-    for (obj = 0; obj < 10; obj++) {
-        if (aeObjectClass[obj] < OBJECT_CLASS_SHIP ||
-            aeSpecialManeuvers[obj] ==
-                SPECIAL_MANEUVER_UNKNOWN_9)
-            continue;
-        switch (mode) {
-        case 0:
-            if (aeShipSide[obj] == SIDE_KILRATHI)
-                return 1;
-            break;
-        case 1:
-            if (aeShipSide[obj] == SIDE_KILRATHI &&
-                aeShipMissionType[obj] != MISSION_TYPE_ROUT &&
-                distance_from_object(0, obj) < 16000)
-                return 1;
-            break;
-        case 2:
-            if (aeShipSide[obj] == SIDE_KILRATHI &&
-                (aeShipObjectiveList[obj] ==
-                     OBJECTIVE_ENGAGE_ENEMY ||
-                 aeShipObjectiveList[obj] ==
-                     OBJECTIVE_DESTROY_SHIP))
-                return 1;
-            break;
+    /* Preserve the query snapshot separately from the parameter lifetime. */
+    queryMode = *(int volatile *)&mode;
+    obj = 0;
+    do {
+        if (aeObjectClass[obj] >= OBJECT_CLASS_SHIP &&
+            aeSpecialManeuvers[obj] !=
+                SPECIAL_MANEUVER_UNKNOWN_9) {
+            switch (queryMode) {
+            case 0:
+                if (aeShipSide[obj] == SIDE_KILRATHI)
+                    return 1;
+                break;
+            case 1:
+                if (aeShipSide[obj] == SIDE_KILRATHI &&
+                    aeShipMissionType[obj] != MISSION_TYPE_ROUT &&
+                    distance_from_object(0, obj) < 16000)
+                    return 1;
+                break;
+            case 2:
+                if (aeShipSide[obj] == SIDE_KILRATHI &&
+                    (aeShipObjectiveList[obj] ==
+                         OBJECTIVE_ENGAGE_ENEMY ||
+                     aeShipObjectiveList[obj] ==
+                         OBJECTIVE_DESTROY_SHIP))
+                    return 1;
+                break;
+            }
         }
-    }
-    if (mode == 1 && nCurrentWave != -1)
+        obj++;
+    } while (obj < 10);
+    if (queryMode == 1 && nCurrentWave != -1)
         check_next_wave();
     return 0;
 }
@@ -1100,16 +1105,17 @@ short find_ships_sphere(short missionShip)
 {
     MissionNavPoint *navPoint;
     short fallback;
-    short shipIndex;
+    short targetShip;
     short navIndex;
 
     navIndex = 0;
+    targetShip = missionShip;
     navPoint = aMissionNavPoints;
     fallback = -1;
     for (; navIndex < ACTIVE_MISSION_NAV_POINT_COUNT;
          navIndex++, navPoint++) {
-        for (shipIndex = 0; shipIndex < 10; shipIndex++) {
-            if (navPoint->missionShips[shipIndex] == missionShip) {
+        for (missionShip = 0; missionShip < 10; missionShip++) {
+            if (navPoint->missionShips[missionShip] == targetShip) {
                 if (navPoint->type == 1)
                     return navIndex;
                 if (fallback == -1)
