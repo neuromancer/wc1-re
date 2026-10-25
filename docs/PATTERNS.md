@@ -7948,3 +7948,37 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. Rebuilding and verification preserve SHA-256
   `fa235a92bc94f241c9dff731d842cb35586ab37b112d2ba42af7dbfa7def8c5b`.
+- Further scheduling probes at this checkpoint are discarded:
+  - In the 32-byte-frame carrier candidate, an `int` index scoped to the
+    object-setup stores still doubles ECX in place. A pretested approach
+    loop also retains that calculation and the later index/scroll exchange.
+    Neither repairs the candidate's five-byte deficit and two-byte excess.
+  - In `set_up_action_sphere`, a promoted navigation index, a next-nav
+    pointer, or a branch-local shape-slot pointer retains the EAX/ECX
+    exchange and also exchanges the object counter with its promoted index.
+    The shape-slot capture additionally moves the pointer adjustment before
+    the zero argument. Pointer spelling of the next-nav access retains the
+    scratch-register exchange. Reversing the two object guards changes
+    their evaluation order without fixing it.
+  - A short running condition sum with separately qualified armor reads
+    preserves `evaluate_damage`'s original contribution order. Explicitly
+    adding the final 26 to that word restores a word addition and return,
+    but the accumulator and armor index still exchange EBX and EDI, and
+    the last division and register pops remain differently scheduled.
+    Either declaration order gives the same result. Saving the object
+    index and reusing the parameter for the sum changes the prologue and
+    more registers. Qualifying every field read in the original expression,
+    or narrowing its subtotal through the front-armor term, does not recover
+    the contribution order. None improves complete-file matching.
+  - Splitting the answer loader's fetch and packet store, or capturing its
+    scanned byte in the loop condition, retains the scan/prompt exchange.
+    An explicit line-difference local adds a stack slot and changes the
+    counter, comparison, and pointer registers.
+  - Unsigned cursor operands or a qualified left-bound read in the
+    volatile-X pilot-field candidate still load the viewport bound before
+    X. The resulting addition remains one byte shorter than the original.
+  All source and header probes are restored. A forced native rebuild
+  reproduces the preceding checkpoint's SHA-256 and complete function and
+  section reports. Sorting and address checks pass; strict matching remains
+  515,855 of 518,656 bytes, with 2,801 differences. The preceding full
+  verification remains applicable to this unchanged executable.
