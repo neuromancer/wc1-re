@@ -7813,3 +7813,35 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/56. The full rebuild and verification preserve SHA-256
   `1794057881a0fdfb3ee12c8a5c0188e694836cb2aad34062c7c02a8911673a00`.
+
+- Further carrier probes at this checkpoint are not retained. With separate
+  launch coordinates, an actor point, the uninitialized sound argument,
+  and exchanged backdrop externs, the 32-byte-frame candidate still forms
+  its doubled index with `ADD ECX,ECX`. An explicit `int objectIndex` used
+  for the array accesses leaves that calculation unchanged and rotates the
+  later phases' registers. Its whole-file mismatch count remains 3,557,
+  versus the retained 3,014; equal counts do not mean equal instructions.
+  Capturing a short index before the scripted-view assignment instead
+  returns the frame to 28 bytes and moves the cached indices. A qualified
+  first-loop scroll read changes register allocation and layout; qualifying
+  the escape-flag clear likewise fails to recover the original store order.
+  Moving the fighter-shape load before the viewport assignment helps the
+  candidate's setup registers, but does not repair either index difference.
+- `set_up_action_sphere`'s scratch-register exchange has a larger effect
+  than its 100% mnemonic score suggests. Its pointer adjustment is
+  `ADD ECX,imm32` instead of the original shorter `ADD EAX,imm32`. That
+  extra byte forces the backward object-loop branch into its long form,
+  leaving the following instructions five bytes late. Capturing the class
+  in an enum local and replacing the explode branch's `else` with an early
+  `continue` still leaves that exchange and also swaps the object counter
+  with its promoted index. Capturing the next navigation type in the
+  existing trigger byte, qualifying that type read, or spelling its equality
+  as an unsigned-byte subtraction/range test all reproduce the preceding
+  instruction comparison exactly. None is retained.
+- Replacing `GetShipAccelerationRate`'s object-type local with a promoted
+  ship index preserves the declaration count but leaves its five register
+  differences. A qualified short input capture, used for both the bounds
+  test and array accesses, gives the same instruction comparison. Both
+  probes are discarded. After restoring all source and header changes,
+  the full function report and executable SHA-256 match the preceding
+  checkpoint; strict matching remains 515,642 of 518,656 bytes.
