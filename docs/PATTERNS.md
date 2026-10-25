@@ -8768,3 +8768,29 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips, and the existing call/global-access
   diagnostics remain 11/55. Verification preserves SHA-256
   `c9c59efbbe84ec74d1d9da3418580d61d2c60cd932c1bce1cd18598c4592ced5`.
+- Further sorter, ship-search, high-score and carrier probes are discarded:
+  - Swapping the target-distance array's extern with either the target-byte
+    array or target-count extern leaves the sorter's register exchange and
+    comparison unchanged. These are target-unit probes, not whole-project
+    header validations. An explicit integer `count - 1` bound also leaves
+    the sorter unchanged while disturbing later routines. An integer
+    distance with a signed-short comparison adds a sign-extending load and
+    moves the inner-index conversion; it does not recover the registers.
+    An unsigned-short distance with that comparison reproduces the entire
+    preceding executable exactly.
+  - A named object-class capture in `find_ship_index`, with either an
+    ordinary or qualified array read, leaves its parameter/class register
+    exchange unchanged and worsens neighboring routines.
+  - A `register` hint on `AddRandomTrainSimHighScores`' short counter
+    reproduces the preceding executable exactly. Its two stack references
+    remain two bytes above the original slot.
+  - In the earlier 32-byte-frame carrier candidate, exchanging the escape
+    flag's extern with either the frame-skip counter or object-flip array
+    changes none of the function comparison. The premature escape reset
+    and destructive doubled-index calculation remain unresolved.
+  All source and header edits are restored. A forced native rebuild is
+  literally identical to the previously verified executable, retaining
+  SHA-256 `c9c59efbbe84ec74d1d9da3418580d61d2c60cd932c1bce1cd18598c4592ced5`
+  and 2,308 differences from the original in 531 runs. The full function
+  report is unchanged; source sorting, address audits and unit-order checks
+  pass.
