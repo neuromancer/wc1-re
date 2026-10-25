@@ -359,7 +359,9 @@ void MonoDebug_install(void)
 void MonoDebug_remove(void)
 {
     if (bMonoDebugAvailable != 0) {
-        CloseHandle(hMonoDebugDriver);
+        BOOL (WINAPI *closeDriver)(HANDLE handle) = CloseHandle;
+
+        closeDriver(hMonoDebugDriver);
         bMonoDebugAvailable = 0;
     }
 }
@@ -371,7 +373,17 @@ void MonoDebug_remove(void)
 void SendMonoDebugCommand3(void)
 {
     if (bMonoDebugAvailable != 0) {
-        if (!DeviceIoControl(hMonoDebugDriver, 3, 0, 0, 0, 0, 0, 0))
+        BOOL (WINAPI *controlDevice)(HANDLE device, DWORD code,
+                                    LPVOID input, DWORD inputBytes,
+                                    LPVOID output, DWORD outputBytes,
+                                    DWORD *returnedBytes,
+#ifdef SDL_PORT
+                                    LPVOID overlap) = DeviceIoControl;
+#else
+                                    LPOVERLAPPED overlap) = DeviceIoControl;
+#endif
+
+        if (!controlDevice(hMonoDebugDriver, 3, 0, 0, 0, 0, 0, 0))
             MonoDebug_remove();
     }
 }
@@ -395,8 +407,18 @@ void SoundDebugPrintf(const char *fmt, ...)
 void MonoDebug_print(const char *text)
 {
     if (bMonoDebugAvailable != 0) {
-        if (!DeviceIoControl(hMonoDebugDriver, 9,
-                             (void *)text, 0xfa0, 0, 0, 0, 0)) {
+        BOOL (WINAPI *controlDevice)(HANDLE device, DWORD code,
+                                    LPVOID input, DWORD inputBytes,
+                                    LPVOID output, DWORD outputBytes,
+                                    DWORD *returnedBytes,
+#ifdef SDL_PORT
+                                    LPVOID overlap) = DeviceIoControl;
+#else
+                                    LPOVERLAPPED overlap) = DeviceIoControl;
+#endif
+
+        if (!controlDevice(hMonoDebugDriver, 9,
+                           (void *)text, 0xfa0, 0, 0, 0, 0)) {
             exit_squadron("MonoDebug::print failed (buffer possibly on stack?!)");
             MonoDebug_remove();
         }
@@ -406,7 +428,9 @@ void MonoDebug_print(const char *text)
 /* Function start: 0x403E30 */
 void ReadPerformanceCounter(LARGE_INTEGER *p)
 {
-    QueryPerformanceCounter(p);
+    BOOL (WINAPI *readCounter)(LARGE_INTEGER *counter) = QueryPerformanceCounter;
+
+    readCounter(p);
 }
 
 /* Function start: 0x403E40 */

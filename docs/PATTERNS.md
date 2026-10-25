@@ -8850,3 +8850,19 @@ Session findings that are not yet retained because they change span sizes:
   The full function report is unchanged, retaining 2,308 original-image
   differences in 531 runs. Sorting, address audits and compilation-unit
   order checks pass.
+- `ResetStringBuilder` now matches its complete sixteen-byte span. Four
+  preceding console/clock routines capture their existing Windows API calls
+  in correctly typed `WINAPI` function pointers. Naming the prototype
+  parameters moves the reset helper's parameter from C1 index 27,401 to
+  27,423 (mod 32 = 31), recovering ECX for the context and EAX for its text.
+  The captures retain every original call and compile away in their callers;
+  all nineteen functions in `mono.c` are now exact. The SDL declarations
+  retain that port's opaque overlapped argument type. This is a measured
+  compiler context, not evidence of the original declaration spelling.
+  Strict comparison gains four bytes without losing any previous matches:
+  516,352 of 518,656 bytes match (99.5558%), leaving 2,304 differences in
+  527 runs. The full report changes only the reset helper, reaching 1,495
+  normalized exact functions. A forced MSVC rebuild, sorting, address/order
+  audits and full verification pass. Both value checks cover all 1,550
+  functions with zero mismatches. The verified executable has SHA-256
+  `140328a14d52319eb4211d51046f41fd8a8255db400a7c52e7782b4865fc4b08`.
