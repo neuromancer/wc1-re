@@ -115,6 +115,113 @@ and relinking reproduces all 518,656 bytes of the previously verified
 executable. The object itself differs only in its COFF timestamp at offset
 four. A host debugger is unnecessary for retaining and replaying this input.
 
+### Expression IL
+
+The `ex` intermediate is a postfix stream of one-byte opcodes. The first
+record (opcode `0x5B`) holds the file offset of the first expression; the
+bytes before it are zero. `FUN_0041328C` builds a node for each opcode and
+dispatches on a per-opcode operand class, a byte table at `0x00480300`
+(jump table `0x00413560`). The classes read, in order:
+
+| Class | Opcodes | Operands |
+| --- | --- | --- |
+| 0, 16 | arithmetic, comparisons, statement ends | none |
+| 1 | loads (`0x30`), assignment (`0x32`), arguments (`0x55`), ... | type |
+| 2 | symbol (`0x26`), labels and branches (`0x29`, `0x38`, `0x39`, `0x3A`) | symbol |
+| 5 | conversion (`0x2C`), `0x34` | type, byte |
+| 6 | constant (`0x33`) | type, value |
+| 7 | switch dispatch (`0x3C`) | type, symbol |
+| 8 | case label (`0x3D`) | symbol |
+| 9 | call (`0x3E`, `0x7E`) | type, byte |
+| 12 | metadata (`0x4F`) | 16-bit subtype, then the subtype's format |
+| 13 | `0x50`-`0x54`, `0x5B` | 32-bit value |
+
+A type is one byte, or two (`((b & 0x7F) << 8) | next`) when the first has
+bit 7 set; a structure type of size zero is followed by its 32-bit size. A
+16-bit value is one signed byte, or `0x80` and two raw bytes
+(`FUN_00402106`); a 32-bit value is the same with four bytes
+(`FUN_004021A2`). Symbol numbers are two raw bytes (`FUN_00403244`).
+Metadata subtypes take their operand formats from the string table at
+`0x00480700`: subtype 1 is a line number, 2 a symbol.
+
+Operand counts come from the flag word table at `0x004803B8` (`flags & 3`:
+0 binary, 1 unary, 2 leaf, 3 an argument-list form closed by `0x4C`).
+Calls, intrinsic block operations (`0x3F`, `0x40`), switch dispatches and
+function definitions (`0x46`) open such a list. A function definition's
+`0x2D` children are its parameters. Statement roots are `0x4B` (expression
+statement), `0x38`/`0x39` (branch if false/true), `0x41` (return) and `0x3B`
+(switch).
+
+The symbol numbers in this stream are the keys that C2 hashes (record
+offset `+0x24`, read from the `sy` file). They are the C1 symbol counter
+that numbers `/Fa` labels. C1 allocates a function's exit label immediately
+after its last parameter, before its locals; `bin/symbolIndex.py param`
+accounts for it.
+
+### Operand canonicalization
+
+`FUN_004193F8` canonicalizes an expression tree, repeating until nothing
+changes. It is called after the tree is read and again after later
+optimizations, so the last pass before code generation decides the
+operand order. Its walker `FUN_0040B4CE` visits a node's right child, then
+its left child, then computes the node's signature with `FUN_0040A609`.
+For a commutative operator (flag `0x08`, which includes the comparisons
+`0x1F`-`0x24`), `FUN_0040EBE2` exchanges the operands when the left
+signature is smaller, so the larger signature ends up on the left; a
+reversible operator (flag `0x10`) is replaced by its mirror image. An
+associative operator (flag `0x04`: `ADD`, `MUL`, `AND`, `OR`, `XOR`) whose
+left child has the same opcode is first reassociated by `FUN_0040EB6D`
+when the left child's smaller operand sorts below the right operand,
+giving a chain in descending signature order. Equal signatures keep the
+existing order.
+
+A signature is a 16-bit value, a weight in bits 4 and above plus a 4-bit
+hash:
+
+- symbol leaf (`0x26`): `0x10 | h(key)` with
+  `h(k) = (((((k >> 8) - k) mod 2^32) >> 4) - (k >> 8) + k) & 0xF`; a
+  temporary (symbol kind `0x18`) gives `0x10`. The offset folded into a
+  symbol node does not contribute.
+- integer constant: a 4-bit hash of the value with weight zero, so
+  constants sort right.
+- load (`0x30`): `((c - 0x2D) & 0xF) | ((c + 0x10) & 0xFFF0)` for child
+  signature `c`; a scalar variable read is therefore
+  `0x20 | ((h(key) + 3) & 0xF)`.
+- other unary nodes: `(((op >> 4) - op + c) & 0xF) | ((c + 0x20) & 0xFFF0)`.
+- binary nodes: `(((op >> 4) - op + l + r) & 0xF) | ((l + r + 0x20) & 0xFFF0)`;
+  the comma operator (`0x44`) takes its right operand's signature.
+
+Because the hash of consecutive keys rises by one except where `k - (k >> 8)`
+crosses a multiple of 16, two adjacent symbols compare in index order except
+at those duplicate points and where the hash wraps; this is the source of
+the period-16 and period-17 comparison windows measured earlier, and of
+the extra slip every 256 keys. The first operand of the emitted `CMP` or
+arithmetic instruction is the left operand.
+
+This model reproduces all 32 key positions of a two-local comparison
+calibrated with tiny synthetic files. It also predicts the earlier
+measurement that `IsPointInNavMapLabel` becomes exact when five symbols
+are hidden: CSE replaces the label coordinates with temporaries, and the
+parameter reads sort below them only for shifts of -6 to -4. Shifting
+`perform_maneuver`'s symbols by +10, as predicted, reverses its final
+comparison to the original operand order. The emitted instruction then
+loads the stack operand instead of the global, so that routine needs
+another change as well.
+
+Intermediate trees can be inspected without changing the compiler used for
+the build. A copy of `C2.EXE` whose call to `FUN_0040A609` at `0x0040B516`
+is redirected through a short routine in the `.text` slack prints each
+node's address, opcode, signature, key and child pointers with the
+imported `printf`. C2 redirects standard output into the `/Fa` listing, so
+each function's records precede its `PROC` line. For
+`check_for_lost_control`, the log shows the three rate fields as
+`LD(ADD(ADD(MUL(type, 135), aObjectTypeData), offset))` with signatures
+`0xC3`, `0xC1` and `0xBF` for offsets 36, 38 and 40, so the sum is
+emitted in ascending offset order. Later passes fold the offsets into the
+symbol and the terms tie. For terms of this shape, no base signature
+produces the original descending order, so that routine needs a different
+expression tree, not a different symbol index.
+
 ## Hand-written assembly
 
 Three regions were written in assembly, through different tools:

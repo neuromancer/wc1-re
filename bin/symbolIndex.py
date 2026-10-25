@@ -19,8 +19,11 @@ and variables out of the count. The block extern takes NAME + 1 and the
 loop's first label NAME + 2.
 Forward goto targets omitted by the truncation are defined after the probe.
 
-`param` replaces FUNC's body with the same probe, so the label is the last
-parameter + 2 (or the last local + 2 when FUNC has locals; use `local` then).
+`param` replaces FUNC's body with the same probe.  C1 allocates the
+function's exit label right after the last parameter, so the probe loop's
+label is the last parameter + 3 (use `local` for locals, which follow the exit
+label).  The expression IL that CL keeps with /Bk confirms these numbers: they
+are the symbol keys C2 hashes.
 
 `global` copies include/ to out/symbolIndex/inc, truncates the header that
 declares NAME right after that declaration (keeping only the preprocessor
@@ -232,7 +235,7 @@ def cmd_param(unit, func):
         asm = compile_probe(path, unit, 'include')
     finally:
         os.remove(path)
-    report('%s (last parameter)' % func, first_label(asm, proc_name(lines, start, func)) - 2)
+    report('%s (last parameter)' % func, probe_label(asm, proc_name(lines, start, func)) - 3)
 
 
 def global_hits(name):
