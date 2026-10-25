@@ -259,14 +259,16 @@ void DebugOverlayConsole::Scroll(void)
 void DebugOverlayConsole::DrawPendingLines(void)
 {
 #ifndef SDL_PORT
-    HDC deviceContext;
     int row;
+    HDC deviceContext;
 
     deviceContext = GetDC(window);
     row = 0;
     while (row < rows) {
+        BOOL (WINAPI *drawText)(HDC, int, int, LPCSTR, int) = TextOutA;
+
         if (dirtyLines[row] != 0) {
-            TextOutA(deviceContext, 0, characterHeight * row,
+            drawText(deviceContext, 0, characterHeight * row,
                      textBuffer + row * columns, columns);
         }
         row++;
@@ -296,6 +298,8 @@ char DebugOverlayConsole::WaitForKey(void)
     RECT clip;
     MSG message;
     HANDLE process;
+    int (WINAPI *showCursor)(BOOL);
+    BOOL (WINAPI *setPriorityClass)(HANDLE, DWORD);
     int minimized;
     int complete;
 
@@ -303,6 +307,8 @@ char DebugOverlayConsole::WaitForKey(void)
     complete = 0;
     if (busyWait == 0) {
         while (dwDebugOverlayKey == 0) {
+            showCursor = ShowCursor;
+            setPriorityClass = SetPriorityClass;
             while (complete == 0) {
                 if (minimized != 0) {
                     if (GetMessageA(&message, 0, 0, 0) != 0) {
@@ -320,9 +326,9 @@ char DebugOverlayConsole::WaitForKey(void)
                         clip.right = 320;
                         clip.bottom = 200;
                         ClipCursor(&clip);
-                        ShowCursor(0);
+                        showCursor(0);
                         process = GetCurrentProcess();
-                        SetPriorityClass(process, HIGH_PRIORITY_CLASS);
+                        setPriorityClass(process, HIGH_PRIORITY_CLASS);
                         SetActiveWindow(hMainWindow);
                         SetForegroundWindow(hMainWindow);
                         DIBreInstall();
@@ -346,9 +352,9 @@ char DebugOverlayConsole::WaitForKey(void)
                 if (IsIconic(hMainWindow) != 0) {
                     if (minimized == 0) {
                         ClipCursor(0);
-                        ShowCursor(1);
+                        showCursor(1);
                         process = GetCurrentProcess();
-                        SetPriorityClass(process, 0x40);
+                        setPriorityClass(process, 0x40);
                     }
                     minimized = 1;
                 }

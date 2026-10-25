@@ -8259,3 +8259,57 @@ Session findings that are not yet retained because they change span sizes:
   `ADD ECX,ECX` instead of `LEA EAX,[ECX*2]`; the earlier multi-store
   qualifier probe had changed the calculation but did not match it.
   The launch source and global header are restored.
+- `DebugOverlayConsole::DrawPendingLines` declares the row before the device
+  context and captures `TextOutA` in a correctly typed `WINAPI` function
+  pointer inside the existing `while` loop. CL hoists the import load past
+  the empty-loop guard, as in the original, and assigns the row EDI, the
+  context EBX and the cached call target EBP. All 128 bytes now match.
+  A guarded `do` loop also matches this routine, but its extra label changes
+  the following routine's compiler context. The function-pointer declaration
+  itself consumes six symbols, including its five prototype parameters.
+  Removing `WaitForKey`'s process-handle local does not offset the change
+  successfully and is not retained.
+- `DebugOverlayConsole::WaitForKey` similarly captures `ShowCursor` and
+  `SetPriorityClass` in typed `WINAPI` pointers. Declare them before the two
+  state flags and assign them at the start of the outer polling loop. The
+  original caches these imports in ESI and EDI, while the minimized and
+  completed flags occupy EBX and EBP. Explicit captures recover those
+  allocations and both import-load positions without changing the calling
+  conventions or introducing wrappers. All 448 bytes now match. These
+  source forms recover the original instruction sequence; they do not
+  establish whether its source spelled out the cached pointers.
+  Only these two report rows change. Normalized exact functions rise to
+  1,489 of 1,550, with 60 same-size differences and the unchanged converter
+  boundary discrepancy. All 1,539 mapped functions retain their original
+  addresses; 1,474 are literally identical. Strict matching reaches
+  515,961 of 518,656 bytes (99.4804%), leaving 2,695 differences: 2,585 in
+  `.text` and 110 in `.reloc`. The header and other sections remain exact.
+  Binary-comp confirms that the complete executable changes in exactly
+  thirty positions from the preceding checkpoint, all recovered matches.
+  The forced native rebuild, modern build, sorting/address checks and
+  compilation-unit-order audit preserve this result. `make verify` passes:
+  both value checks cover all 1,550 functions with zero mismatches or skips,
+  and the existing call/global-reference diagnostics remain 11/56.
+  Verification preserves SHA-256
+  `eb7da3ab4bc4f0f7111e9132bd30a1fb5c23379d8155adf0bc46bf2bb14fbae4`.
+- Further ship and console probes are restored:
+  - `find_child_object` matches all 64 bytes when its counter is initialized
+    in its declaration, followed by a saved parent and a qualified class
+    capture. The parent capture can be ordinary. Initializing the counter
+    later loads the parent too early; using an ordinary class capture
+    changes its register. Qualified parameter self-assignments introduce
+    unwanted memory tests instead of preserving the snapshots.
+  - These two added locals disturb `find_child_ship`, `fire_turrets` and
+    `replenish_shields`. Three ordered input captures recover the child-ship
+    search, but the shield loop loses an absolute reference and can shrink
+    its aligned span. A promoted ship-index local restores its span and
+    most of its loop, but changes the guard's incoming ship and divisor
+    registers. The best combined candidate still leaves 2,728 file
+    differences against the preceding 2,725-byte checkpoint. Reusing the
+    ship parameter for the shield level, using a separate early capture,
+    and mixing promoted and unpromoted indices do not finish the recovery.
+  - Qualifying `DebugOverlayPrintf`'s width read does not reverse its two
+    remaining multiplication operands. An ordinary row-offset local leaves
+    the executable unchanged; qualifying that capture changes the pointer
+    addition order instead. Qualifying both multiplicands also fails to
+    restore the original schedule. None of these printf changes is retained.
