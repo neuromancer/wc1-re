@@ -59,7 +59,7 @@ extern char *pszPendingHudMessage; /* 0x00469004 */
 extern unsigned char *pCockpitExplosionBackground; /* 0x00469060 */
 extern short nNavPointerObject; /* 0x00469208 */
 extern unsigned char *pCockpitExplosionShape; /* 0x00469064 */
-extern short nCockpitExplosionFrame; /* 0x00469068 */
+extern short nStartNavPointOverride; /* 0x0046a010 */
 extern unsigned char *pReleaseWeaponDisplayBackground; /* 0x0046906c */
 extern unsigned char *pConfedCommBackground; /* 0x00469278 */
 extern unsigned char *pCommStaticShape; /* 0x0046927c */
@@ -119,8 +119,8 @@ extern int bPlayerVulnerable; /* 0x00469ffc */
 extern int bPlayerCollisionResponse; /* 0x0046a000 */
 #endif
 extern int bViewBufferEnabled; /* 0x0046a004 */
+extern short nCockpitExplosionFrame; /* 0x00469068 */
 extern int bCockpitlessView; /* 0x0046a008 */
-extern short nStartNavPointOverride; /* 0x0046a010 */
 extern short nArcadeBonusCountdown; /* 0x0046a014 */
 extern int bMouseCursorVisible; /* 0x0046a018 */
 extern unsigned char bInputPollingGuard; /* 0x0046a01c */

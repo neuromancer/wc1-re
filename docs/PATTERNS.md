@@ -8663,3 +8663,49 @@ Session findings that are not yet retained because they change span sizes:
   byte-for-byte identical to the preceding verified executable; its SHA-256,
   2,428 original-image differences and complete function report are unchanged.
   Source sorting, address audits and compilation-unit-order checks pass.
+- Further local-expression probes at that checkpoint are discarded:
+  - Reusing the shield routine's consumed ship parameter for its current
+    shield value disturbs the guard without fixing the loop. An explicit
+    element pointer shortens the span by sixteen bytes. A register hint and
+    a qualified current-value read leave its register exchange unresolved.
+    Using the promoted ship-index local for the guard's recharge period
+    leaves the earlier child-search combination three bytes worse overall.
+    Reusing the child-search parent parameter as its counter moves the
+    initial parent load ahead of the zero; a class-only capture still
+    exchanges the parent and index registers.
+  - An unsigned cast in the navigation-square bottom sum and a void-typed
+    viewport allocation local each reproduce the baseline executable.
+    Replacing the viewport's saved allocation count with a postdecrement
+    leaves its two scene-buffer comparisons reversed. Replacing the
+    acceleration routine's type local with a data pointer also reproduces
+    the baseline; a rating snapshot does not fix its input registers.
+- `RestoreTransientCockpitGraphics` now matches all 304 bytes at its
+  original address. Its remaining frame/flag register exchange came from
+  shared declaration order. In `globals.h`, move `nStartNavPointOverride`
+  to the former `nCockpitExplosionFrame` slot, put the frame declaration
+  immediately before `bCockpitlessView`, and move that flag one slot later.
+  The frame and flag then have C1 indices 23,232 and 23,233 in `cockpt.c`
+  (mod-32 residues zero and one), instead of 23,182 and 23,232. The frame
+  loads into AX and the flag into ECX, recovering the following argument
+  schedule and the previously missing instruction byte. This is a measured
+  declaration context, not a claim about the original header text.
+  A direct frame/flag swap also fixes this routine, but changes 420
+  encodings in `set_eye_direction_and_position`; the three-declaration
+  rotation preserves that routine. Moving only the frame to the following
+  navigation-override slot leaves the cockpit mismatch. Explicit frame or
+  flag locals do not recover the allocation; qualifying the frame capture
+  also changes later code sizes. None of these alternatives is retained.
+  Only the cockpit helper's full-report row changes, from 32 differing
+  encodings to exact. Normalized exact functions rise to 1,492 of 1,550,
+  with 57 same-size differences and the unchanged converter boundary
+  discrepancy. All 1,539 mapped functions retain their original addresses;
+  1,477 are literally identical. Strict matching gains 105 positions:
+  96 code bytes and nine relocation bytes, with no lost matches. It reaches
+  516,333 of 518,656 bytes (99.5521%), leaving 2,323 differences in 546 runs:
+  2,229 in `.text` and 94 in `.reloc`. The headers and other sections remain
+  exact. A forced native rebuild reproduces the candidate byte for byte;
+  the modern build, source sorting, address audits and unit-order checks pass.
+  Full verification passes: both value checks cover all 1,550 functions with
+  zero mismatches or skips, and the existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `22ddb3cc789d977cd76cc8de6c5490580cb3778efe787fcaaf6e66ba9c74b2e4`.
