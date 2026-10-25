@@ -7910,3 +7910,41 @@ Session findings that are not yet retained because they change span sizes:
   reproduces the preceding checkpoint's SHA-256 and complete function
   report. Sorting/address checks pass; strict matching remains 515,709
   of 518,656 bytes, with 2,947 differences.
+- `DrawFontGlyph` computes each destination pointer directly in the
+  top-row/high-bit branches. This lets CL keep the row-table load after the
+  top-row comparison in EDX, then form the destination in EDI. The old
+  explicit offset and row-table locals loaded the table early into EBX and
+  changed the first pixel loop's registers. Remove those obsolete locals.
+  Give the translated-pixel branch its own destination pointer and capture
+  its top-row predicate in a loop-local `int`. Together these recover the
+  font-index setup, both complete drawing loops, and the cursor advance
+  instruction for instruction. The predicate is used by the branch; neither
+  declaration is padding. These are measured source choices, not evidence
+  of the original local names or spelling.
+  Sharing the destination between the branches gives the second row's
+  induction value EDI instead of ESI, adding five bytes for its initial
+  `LEA` and forcing the preceding jump into its long form. A separate row
+  variable changes the prologue; reusing the character-data pointer or
+  changing the loops to `while` does not fix the destination exchange.
+  Removing the predicate also changes scratch-register allocation and
+  enlarges the function. None of those alternatives is retained.
+  The selected form keeps the original 24-byte frame and 512-byte span.
+  Literal matching rises from 357 to 503 bytes, and differing encodings
+  fall from 57 to five of 162. Mnemonic similarity reaches 100%; the nine
+  remaining literal differences are in the final palette-entry restoration.
+  Qualified colour reads, explicit restoration pointers, and reuse of the
+  consumed colour locals leave that tail unchanged. Reversing the stores
+  or exchanging the colour declarations does not improve the file.
+  No other function-report row changes. Strict matching gains 146 code
+  bytes and reaches 515,855 of 518,656 (99.4600%), leaving 2,801 differences:
+  2,689 in `.text` and 112 in `.reloc`. The header and other sections remain
+  exact, with all mapped functions at their original addresses.
+  Separate `RestoreSpriteBackground` probes are discarded. Expanding its
+  run-end expressions changes the stack frame and clipping instructions;
+  scoping the three run-end locals changes clipping registers and subsequent
+  layout. Neither improves on the retained sprite implementation.
+  The forced native rebuild, modern build, sorting/address and unit-order
+  checks, and `make verify` pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. Rebuilding and verification preserve SHA-256
+  `fa235a92bc94f241c9dff731d842cb35586ab37b112d2ba42af7dbfa7def8c5b`.

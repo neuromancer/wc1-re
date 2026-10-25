@@ -31,6 +31,7 @@ When forcing a compile without removing outputs, keep the object rebuild and
 relink in separate commands:
 
 ```sh
+set -e
 make -W src/nav.c out/nav.obj
 make -W out/nav.obj WC1.EXE
 ```
@@ -38,6 +39,9 @@ make -W out/nav.obj WC1.EXE
 Do not pass both `-W src/nav.c` and `-W out/nav.obj` to the same invocation:
 Make treats the object as already updated and can relink its stale contents.
 Check that the object and listing were regenerated before judging a probe.
+Scripted probes must stop on compilation or link errors before running a
+comparison. Otherwise a later successful command can hide the failure and
+score the preceding executable instead of the edited source.
 
 Keep `nop` out of `padding_mnemonics` in `config/checkValuesCapstone.json`.
 The original high-score routine contains a reachable `NOP` at `0x00426BAD`.

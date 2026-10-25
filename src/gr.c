@@ -572,7 +572,6 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                    int width, int y)
 {
     int row;
-    unsigned int destinationOffset;
     unsigned char background;
     unsigned char *characterData;
     unsigned char *destination;
@@ -583,7 +582,6 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     Viewport *viewport;
     int column;
     unsigned char translated;
-    unsigned short rowOffset;
     short characterIndex;
 
     row = y;
@@ -612,18 +610,16 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                   characterData[0x104]);
         if (fontColour == colour && fontBackground == background) {
             for (; height-- != 0; row++) {
-                unsigned short *rowOffsets = viewport->rowOffsets;
-
                 if (viewport->top == row) {
-                    destinationOffset = (unsigned int)context->cursorX;
-                    rowOffset = rowOffsets[row];
-                    if ((rowOffset & 0x8000) == 0)
-                        destinationOffset += rowOffset;
+                    if ((viewport->rowOffsets[row] & 0x8000) != 0)
+                        destination = context->cursorX + viewport->pixels;
+                    else
+                        destination = viewport->rowOffsets[row] +
+                                      context->cursorX + viewport->pixels;
                 } else {
-                    destinationOffset = rowOffsets[row] +
-                                        (unsigned int)context->cursorX;
+                    destination = viewport->rowOffsets[row] +
+                                  context->cursorX + viewport->pixels;
                 }
-                destination = viewport->pixels + destinationOffset;
                 for (column = width; column-- != 0;) {
                     if (*source != 0xff)
                         *destination = *source;
@@ -632,25 +628,28 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                 }
             }
         } else {
-            for (; height-- != 0; row++) {
-                unsigned short *rowOffsets = viewport->rowOffsets;
+            unsigned char *translatedDestination;
 
-                if (viewport->top == row) {
-                    destinationOffset = (unsigned int)context->cursorX;
-                    rowOffset = rowOffsets[row];
-                    if ((rowOffset & 0x8000) == 0)
-                        destinationOffset += rowOffset;
+            for (; height-- != 0; row++) {
+                int isTopRow = viewport->top == row;
+
+                if (isTopRow) {
+                    if ((viewport->rowOffsets[row] & 0x8000) != 0)
+                        translatedDestination =
+                            context->cursorX + viewport->pixels;
+                    else
+                        translatedDestination = viewport->rowOffsets[row] +
+                                                context->cursorX + viewport->pixels;
                 } else {
-                    destinationOffset = rowOffsets[row] +
-                                        (unsigned int)context->cursorX;
+                    translatedDestination = viewport->rowOffsets[row] +
+                                            context->cursorX + viewport->pixels;
                 }
-                destination = viewport->pixels + destinationOffset;
                 for (column = width; column-- != 0;) {
                     translated = abPaletteTranslation[*source];
                     if (translated != 0xff)
-                        *destination = translated;
+                        *translatedDestination = translated;
                     source++;
-                    destination++;
+                    translatedDestination++;
                 }
             }
         }
