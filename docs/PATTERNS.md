@@ -7569,6 +7569,11 @@ definition costs one symbol plus its parameters when a prototype precedes it
 and two plus its parameters otherwise; its locals follow in declaration
 order, then its labels.
 
+The local probe completes multiline declarators but omits the queried
+variable's initializer and later declarators. This keeps initializer literals
+and labels out of that variable's index. Forward goto targets omitted by the
+truncation are defined after the probe, preserving their earlier references.
+
 Callee-saved allocation, measured on small synthetic units:
 
 - Candidates that are all live together are assigned in ascending
@@ -8628,3 +8633,33 @@ Session findings that are not yet retained because they change span sizes:
   SHA-256 `c3a83a9673e8871093b2669e9cc1d99b4af7960d4a541e25f9212720952953f9`
   and 2,428 differences from the original. The complete function report is
   unchanged; source sorting, address audits and compilation-unit order pass.
+- Local-lifetime probes still give no retained game-code change:
+  - Capturing a promoted carrier index after the setup stores leaves the
+    destructive doubled index unchanged. Combining a separate short object
+    with a volatile sound handle restores a 32-byte frame, but puts the
+    object word in the wrong slot and changes later registers and size.
+  - An armor snapshot and a word accumulator declared before the type-data
+    pointer both retain `evaluate_damage`'s EBX/EDI exchange. Writing the
+    damage term as a subtraction from 26 does not recover contribution order.
+  - Reordering `perform_maneuver`'s locals changes which comparison operand
+    is loaded or changes earlier registers; no tested order improves the
+    executable. An unsigned range local with the existing signed qualified
+    comparison reproduces the baseline executable exactly.
+  - Separate, block-scoped counters for all three scramble phases change
+    only that function's report, from 34 to 35 differing encodings. Scoping
+    the actor-shape pointer does not fix the allocation. Post-tested loops
+    also leave the strict mismatch count unchanged.
+  - Putting the attacker's global range assignment inside its comparison
+    does not recover the sign-extension register. Capturing the input bound
+    as an int instead changes the post-call instruction schedule and length.
+  `bin/symbolIndex.py` now handles multiline initializers and forward gotos.
+  The damage type-data pointer measures 27,775 both with its original
+  initializer and with an uninitialized declaration; an initializer containing
+  a conditional and a string also preserves that index. In the discarded
+  scoped-counter candidate, the taxi and canopy counters measure 27,377 and
+  27,384 with either the synthesized forward target or an already-defined
+  target. Existing scalar and array declaration probes also compile.
+  All game-code experiments are restored. The forced native build is
+  byte-for-byte identical to the preceding verified executable; its SHA-256,
+  2,428 original-image differences and complete function report are unchanged.
+  Source sorting, address audits and compilation-unit-order checks pass.

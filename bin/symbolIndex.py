@@ -12,9 +12,12 @@ This script reads it directly with one compile per query:
     bin/symbolIndex.py file   src/fl.c nManeuverProximityRange
     bin/symbolIndex.py labels launch
 
-`local` copies the unit next to itself, truncates FUNC right after the line
-declaring NAME and appends `{ extern int v; do { v++; } while (v); }`.  The
-block extern takes NAME + 1 and the loop's first label NAME + 2.
+`local` copies the unit next to itself, completes NAME's declarator without
+its initializer and appends `{ extern int v; do { v++; } while (v); }`.
+Omitting the initializer and later declarators keeps their literals, labels
+and variables out of the count. The block extern takes NAME + 1 and the
+loop's first label NAME + 2.
+Forward goto targets omitted by the truncation are defined after the probe.
 
 `param` replaces FUNC's body with the same probe, so the label is the last
 parameter + 2 (or the last local + 2 when FUNC has locals; use `local` then).
@@ -165,10 +168,30 @@ def cmd_local(unit, func, name):
             break
     if decl is None:
         sys.exit('declaration of %s not found in %s' % (name, func))
+    first_decl_line = decl
+    while True:
+        declaration = re.sub(
+            r'/\*.*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"', '',
+            ''.join(lines[first_decl_line:decl + 1]), flags=re.S)
+        if ';' in declaration:
+            break
+        decl += 1
+        if decl == len(lines):
+            sys.exit('unterminated declaration of %s in %s' % (name, func))
+    declaration = ''.join(lines[first_decl_line:decl + 1])
+    declarator = re.search(
+        r'\b' + re.escape(name) + r'(?:\s*\[[^\]]*\])*\s*([=,;])',
+        declaration)
+    if not declarator:
+        sys.exit('unsupported declarator for %s in %s' % (name, func))
+    declaration = declaration[:declarator.start(1)] + ';\n'
+    prefix = ''.join(lines[:first_decl_line]) + declaration
+    function_prefix = ''.join(lines[start:first_decl_line]) + declaration
     # Close every block still open at the truncation point; a block opened by
     # `do` needs its `while`, and a value-returning function a return.
-    body = re.sub(r'/\*.*?\*/', '', ''.join(lines[start:decl + 1]), flags=re.S)
+    body = re.sub(r'/\*.*?\*/', '', function_prefix, flags=re.S)
     body = re.sub(r'"(?:\\.|[^"\\])*"', '""', body)
+    body = re.sub(r'//[^\n]*', '', body)
     stack = []
     for m in re.finditer(r'\{|\}', body):
         if m.group(0) == '{':
@@ -180,10 +203,15 @@ def cmd_local(unit, func, name):
         closing += '} while (0);\n' if is_do else '}\n'
     returns_void = re.match(
         r'^\s*(?:(?:static|inline|extern)\s+)*void(?:\s+__\w+)*\s+' +
-        re.escape(func) + r'\s*\(', ''.join(lines[start:decl + 1]))
+        re.escape(func) + r'\s*\(', function_prefix)
     return_statement = 'return;' if returns_void else 'return 0;'
-    text = (''.join(lines[:decl + 1]) + '\n    ' + PROBE_BLOCK + '\n' + closing +
-            '    ' + return_statement + '\n}\n')
+    defined_labels = set(re.findall(r'^\s*(\w+)\s*:', body, flags=re.M))
+    missing_labels = dict.fromkeys(
+        label for label in re.findall(r'\bgoto\s+(\w+)\s*;', body)
+        if label not in defined_labels)
+    forward_targets = ''.join(label + ':\n' for label in missing_labels)
+    text = (prefix + '\n    ' + PROBE_BLOCK + '\n' + closing +
+            forward_targets + '    ' + return_statement + '\n}\n')
     path = probe_unit_copy(unit, text)
     try:
         asm = compile_probe(path, unit, 'include')
