@@ -563,8 +563,8 @@ int new_sphere_shapes(MissionNavPoint *navPoint)
 int set_up_action_sphere(short navPoint)
 {
     MissionNavPoint *nav;
+    int objectIndex;
     short obj;
-    short entry;
     short trigger;
     short objective;
     signed char triggerType;
@@ -584,18 +584,19 @@ int set_up_action_sphere(short navPoint)
 
     obj = 1;
     do {
-        if (aeObjectClass[obj] != OBJECT_CLASS_NULL &&
-            acShipSpawnNavPt[obj] != -1) {
-            if (aeObjectClass[obj] >= OBJECT_CLASS_SHIP &&
-                aeShipMissionType[obj] == MISSION_TYPE_ROUT) {
+        objectIndex = obj;
+        if (aeObjectClass[objectIndex] != OBJECT_CLASS_NULL &&
+            acShipSpawnNavPt[objectIndex] != -1) {
+            if (aeObjectClass[objectIndex] >= OBJECT_CLASS_SHIP &&
+                aeShipMissionType[objectIndex] == MISSION_TYPE_ROUT) {
                 aMissionShips[
-                    nShipMissionIndices[obj]].state = 3;
+                    nShipMissionIndices[objectIndex]].state = 3;
             }
-            if (aeObjectClass[obj] ==
+            if (aeObjectClass[objectIndex] ==
                 OBJECT_CLASS_CAPITAL_SHIP) {
-                FreePacketAndClear(&apObjShapeArray[obj], 0);
+                FreePacketAndClear(&apObjShapeArray[objectIndex], 0);
             }
-            if (asObjectScreenXList[obj] != -0x7fff)
+            if (asObjectScreenXList[objectIndex] != -0x7fff)
                 explode(-1, obj);
             else
                 remove_object(obj);
@@ -606,12 +607,12 @@ int set_up_action_sphere(short navPoint)
     nCurrentHazardFieldTotal = 0;
     new_sphere_shapes(nav);
 
-    entry = 0;
+    obj = 0;
     do {
-        if (nav->missionShips[entry] != -1)
-            init_ship(nav->missionShips[entry], navPoint);
-        entry++;
-    } while (entry < 10);
+        if (nav->missionShips[obj] != -1)
+            init_ship(nav->missionShips[obj], navPoint);
+        obj++;
+    } while (obj < 10);
 
     trigger = 0;
     do {

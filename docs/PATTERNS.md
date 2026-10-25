@@ -8355,3 +8355,69 @@ Session findings that are not yet retained because they change span sizes:
   zero differences. The SHA-256 remains
   `eb7da3ab4bc4f0f7111e9132bd30a1fb5c23379d8155adf0bc46bf2bb14fbae4`;
   strict comparison with the original still leaves 2,695 differences.
+- `set_up_action_sphere` shares its short counter between the object-removal
+  loop and the following mission-ship-entry loop. Capture its promoted
+  object index in an `int` declared before that short counter, and use the
+  promoted index for the first loop's array accesses while retaining the
+  short counter in calls. The separate `entry` local is removed. Together
+  these choices recover the class value in ECX, quadrupled index in EAX,
+  promoted object in EBX and short counter in BP. The shorter EAX pointer
+  adjustment lets the backward branch use its original short encoding;
+  all 352 bytes now match, including padding. Only this function's report
+  row changes, from 73 differing encodings to exact.
+  Sharing the counter alone restores the class/index scratch registers and
+  gains 215 file positions, but exchanges the counter and promoted index.
+  Declaring the explicit index after the counter or after the other locals
+  retains that exchange. Sharing all four loop counters loses the recovered
+  scratch-register choices; initializing the object counter in its declaration
+  loads it too early and also retains the longer pointer instruction.
+  None of those alternatives is retained.
+  Strict matching gains 225 positions: 218 in code and seven in relocations.
+  Binary-comp also finds exactly 225 changed positions against the previous
+  executable, so every changed position is a recovered match. The file now
+  matches 516,186 of 518,656 bytes (99.5238%), leaving 2,470 differences:
+  2,367 in `.text` and 103 in `.reloc`. The header and other sections remain
+  exact. Normalized exact functions rise to 1,490 of 1,550, with 59 same-size
+  differences and the unchanged sample-converter boundary discrepancy.
+  All 1,539 mapped functions remain at their original addresses; 1,475 are
+  literally identical.
+  The forced native rebuild, modern build, source sorting/address checks,
+  compilation-unit-order audit and `make verify` pass. Both value checks
+  cover all 1,550 functions with zero mismatches or skips; existing
+  call/global-reference diagnostics remain 11/56. Rebuilding and verification
+  preserve SHA-256
+  `e2867366ce461676a3f7eda30466a49b79a6589eae36ae85a3b2f3ab202bfb5f`.
+- Further carrier, HUD and load-order probes at the preceding 2,695-byte
+  checkpoint are restored:
+  - The 32-byte-frame carrier candidate still leaves 3,238 file differences.
+    Qualifying its first two object-word stores, additionally qualifying the
+    escape clear or shape-pointer store, and explicitly casting its array
+    indices to short do not recover the original non-destructive doubled
+    index. Reusing the later launch coordinates for first-loop coordinate
+    temporaries also leaves the index and scroll-register differences.
+    Saving the scene object in either launch-coordinate local for the whole
+    first phase produces the desired doubled-index LEA, but moves the cached
+    indices and returns to a 28-byte frame. Restricting that capture to the
+    initial word-array stores instead changes the live register set and span.
+    The approach-scale local cannot serve as disposable coordinate scratch:
+    its first-phase value remains live if the second phase renders no frame
+    before the third phase uses it.
+  - `draw_target_box` keeps its BX/BP exchange after moving the valid flag,
+    moving the segment-length declaration to function scope, replacing the
+    explicit colour-value local with its expression, using an unsigned valid
+    flag, or qualifying the initial X read. Combined declaration variants
+    also fail. Exchanging the valid/X declarations changes the unset-X path's
+    scheduling; four explicit shape-argument captures additionally exchange
+    colour and saved-bounds registers. No tested variant improves the file.
+  - Qualifying `object_collision`'s promoted object read exchanges its two
+    index registers and adds a later sound-argument reload. In
+    `set_objects_data`, reusing the existing value local for the scale does
+    not fix the scale/owner load order. A qualified owner-byte capture back
+    into its parameter introduces a sign extension and stack write, whether
+    or not the scale capture is also qualified.
+  - `UnionRectBounds`'s qualified left-bound snapshots and equivalent ternary
+    comparisons retain the original mismatch. An imperative first-left
+    accumulator recovers the two input-pointer loads and first field load,
+    but reverses the comparison and moves the destination load after the
+    branch. Two explicit result branches, two destination stores, and a
+    second-left accumulator do not recover the complete instruction schedule.
