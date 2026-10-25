@@ -7737,3 +7737,29 @@ Session findings that are not yet retained because they change span sizes:
   changes. A first prototype with five named parameters cost seven symbols
   in a synthetic unit but six here.
 
+- `SelectNavObjectiveAtPoint` declares `pathIndex` between `x` and `y`,
+  giving X, the path index, and Y the original ESI, EDI, and EBX. Both
+  coordinate reads are volatile so they remain ordered: X is
+  loaded before the last saved-register push, followed by its subtraction,
+  the path-index clear, and the Y load/subtraction. Qualifying only one read
+  does not constrain that order. The qualifiers are matching choices, not
+  recovered source spelling; they do not change the function's calling
+  convention or argument widths. Qualifying the parameters produces the
+  same bytes, but the individual read qualifiers avoid VC++ 4.20's C4028
+  warnings against the unchanged shared prototype.
+  Only this function's report row changes: 97.65% and fifteen differing
+  encodings become 100% and five, at the original 272-byte span. Literal
+  matching rises from 249 to 267 bytes, adding eighteen whole-file matches
+  without moving any relocation operands. The remaining differences are
+  the order of the two absolute coordinate differences, their corresponding
+  stack slots, and the final path-index comparison's operand order. Moving
+  Y among the later locals, swapping the mapped-coordinate declarations,
+  or qualifying their reads does not repair them. A `ShortPoint` local
+  changes the stack layout and is not retained.
+  The forced native rebuild, modern build, sorting/address and unit-order
+  audits, and `make verify` pass. Both value checks cover 1,550 functions
+  with zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/56. Strict file matching reaches 515,594 of
+  518,656 bytes (99.4096%), with 3,062 differences remaining. The full
+  rebuild and verification preserve SHA-256
+  `ccbe12322ba1b76ad7308ca31a303247dc824f253589fd97a9cd3e0381fb3b87`.

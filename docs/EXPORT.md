@@ -27,6 +27,18 @@ confirming that its retained source and measured executable agreed. Run
 reports and verification with `--no-build` after an explicit build, and check
 the executable hash before and after validation.
 
+When forcing a compile without removing outputs, keep the object rebuild and
+relink in separate commands:
+
+```sh
+make -W src/nav.c out/nav.obj
+make -W out/nav.obj WC1.EXE
+```
+
+Do not pass both `-W src/nav.c` and `-W out/nav.obj` to the same invocation:
+Make treats the object as already updated and can relink its stale contents.
+Check that the object and listing were regenerated before judging a probe.
+
 Keep `nop` out of `padding_mnemonics` in `config/checkValuesCapstone.json`.
 The original high-score routine contains a reachable `NOP` at `0x00426BAD`.
 Filtering it creates a gap in the decoded control flow and drops the following

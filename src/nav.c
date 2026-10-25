@@ -695,17 +695,17 @@ void BriefingMap_DisplayMap(void)
 short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
 {
     short x;
+    short pathIndex;
     short y;
     short mapY;
     short mapX;
     short oldNavPoint;
     short selected;
-    short pathIndex;
 
     oldNavPoint = (short)cCurrentNavPtIdx;
-    x = (short)(mouseX - 30);
+    x = (short)(*(volatile short *)&mouseX - 30);
     pathIndex = 0;
-    y = (short)(mouseY - 22);
+    y = (short)(*(volatile short *)&mouseY - 22);
     selected = 0;
     while (abFlightPathList[pathIndex] != -1) {
         if (hidden_objective((short)abFlightPathList[pathIndex]) == 0) {
