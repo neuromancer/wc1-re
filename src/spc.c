@@ -1317,17 +1317,21 @@ unsigned int animate_object(short obj)
 /* Function start: 0x413030 */
 unsigned int hit_asteroid(short asteroid, short destructionChance)
 {
-    short fragments;
+    short sourceAsteroid;
 
     if (RandomBelowOrEqual((short)(destructionChance - 1)) == 0) {
-        fragments = (short)(RandomBelowOrEqual(1) + 2);
-        while (fragments > 0) {
-            make_shard(asteroid, aShipVelocity[asteroid]);
-            fragments--;
+        /* Reuse the consumed parameters for the fragment count. */
+        destructionChance = (short)(RandomBelowOrEqual(1) + 2);
+        sourceAsteroid = asteroid;
+        asteroid = destructionChance;
+        while (asteroid > 0) {
+            make_shard(sourceAsteroid, aShipVelocity[sourceAsteroid]);
+            asteroid--;
         }
-        explode(-1, asteroid);
+        explode(-1, sourceAsteroid);
     } else if (RandomBelowOrEqual(7) == 0) {
-        make_shard(asteroid, vCollisionDelta);
+        sourceAsteroid = asteroid;
+        make_shard(sourceAsteroid, vCollisionDelta);
     }
     return 0;
 }

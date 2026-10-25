@@ -7763,3 +7763,53 @@ Session findings that are not yet retained because they change span sizes:
   518,656 bytes (99.4096%), with 3,062 differences remaining. The full
   rebuild and verification preserve SHA-256
   `ccbe12322ba1b76ad7308ca31a303247dc824f253589fd97a9cd3e0381fb3b87`.
+
+- A consumed parameter can hold a later value while a local preserves its
+  original input. This changes the compiler's allocation candidates without
+  adding a declaration or moving the following functions' symbol indices.
+  These equivalent source forms recover register lifetimes; they do not
+  establish the original parameter names or source spelling.
+  `attacker_in_range` saves its input in `defendedObject`, then uses `obj`
+  as the scan index. The index takes SI and the defended object DI, matching
+  the original. Keeping the returned distance in a scoped `short`, instead
+  of an `int`, also restores the range store before the argument load and
+  sign extension. The routine rises from 87.50% to 97.92% mnemonic
+  similarity, with three differing encodings instead of sixteen, at its
+  unchanged 160-byte aligned span. The remaining differences are the
+  promoted distance register and the equivalent reversed comparison/branch.
+- `UpdateInflightNavText` saves the incoming flag in `colonVisible` after
+  drawing the time label, then reuses `showColon` for the saved cursor X.
+  This assigns the cursor to SI and the flag to DI. All 208 bytes now match,
+  recovering five literal positions. The format strings and both tests of
+  the incoming flag retain their original behavior.
+- In `hit_asteroid`, capture the random fragment count in the consumed
+  `destructionChance` parameter, save the asteroid in `sourceAsteroid`,
+  then transfer the count to the consumed `asteroid` parameter. This keeps
+  the asteroid load after the random call and gives the destruction loop
+  its original SI counter and DI source object. Saving the source at entry
+  hoists its load before the first random call; saving it before the second
+  call restores the registers but still loads too early. Neither variant
+  is retained. The selected form improves literal matching from 151 to 158
+  of 160 bytes and reduces differing encodings from nine to two. The other
+  branch still forwards the asteroid through EAX where the original uses
+  EDI. The routine remains at 100% mnemonic similarity.
+- Further probes are discarded. Reusing parameters in `find_ship_index`
+  and `find_child_object` worsens their register allocation and scheduling.
+  In `evaluate_damage`, a short running sum with separately qualified
+  armor reads preserves the original contribution order but changes the
+  registers and final instructions. Qualifying the reads in the existing
+  single return expression leaves its previous evaluation order unchanged.
+  Capturing a pointer to the armor row shortens the span and moves later code.
+  The preceding `evaluate_damage` implementation is retained.
+  Only the three selected report rows change. Strict matching improves by
+  48 positions: 47 in code and one in relocations. The executable matches
+  515,642 of 518,656 bytes (99.4189%), leaving 3,014 differences: 2,896 in
+  `.text` and 118 in `.reloc`. The other sections remain exact. Normalized
+  exact functions rise to 1,479 of 1,550, with 70 same-size differences
+  and the unchanged sample-converter boundary discrepancy. Only
+  `evaluate_damage` remains below 90% mnemonic similarity.
+  The forced native rebuild, modern build, sorting/address and unit-order
+  audits, and `make verify` pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. The full rebuild and verification preserve SHA-256
+  `1794057881a0fdfb3ee12c8a5c0188e694836cb2aad34062c7c02a8911673a00`.

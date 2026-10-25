@@ -915,19 +915,19 @@ unsigned int ships_within_range(short obj, short other, short range)
 /* Function start: 0x4232B0 */
 int attacker_in_range(short obj, unsigned short range)
 {
-    short other;
+    short defendedObject = obj;
 
-    for (other = 0; other < 10; other++) {
-        if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
-            aeSpecialManeuvers[other] !=
+    for (obj = 0; obj < 10; obj++) {
+        if (aeObjectClass[obj] >= OBJECT_CLASS_SHIP &&
+            aeSpecialManeuvers[obj] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            aeShipSide[obj] != aeShipSide[other] &&
-            acShipTargetTable[other] == obj) {
-            int distance = distance_from_object(other, obj);
+            aeShipSide[defendedObject] != aeShipSide[obj] &&
+            acShipTargetTable[obj] == defendedObject) {
+            short distance = distance_from_object(obj, defendedObject);
 
             nTgtRange = (short)distance;
             if (range > distance) {
-                nTargetShip = other;
+                nTargetShip = obj;
                 return 1;
             }
         }

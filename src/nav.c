@@ -523,7 +523,7 @@ void BuildMap(short showPlayer)
 void UpdateInflightNavText(short showColon)
 {
     char time[12];
-    short cursorX;
+    short colonVisible;
 
     SetTextContext(&stCurrentNavMapTxtCtx);
     sprintf(time, "%02d",
@@ -533,8 +533,10 @@ void UpdateInflightNavText(short showColon)
         (int)(short)(stCurrentNavMapTxtCtx.viewport->left + 150),
         (int)(short)(stCurrentNavMapTxtCtx.viewport->top + 140),
         time);
-    cursorX = stCurrentNavMapTxtCtx.cursorX;
-    if (showColon == 0) {
+    /* Keep the flag while reusing its parameter for the saved cursor. */
+    colonVisible = showColon;
+    showColon = stCurrentNavMapTxtCtx.cursorX;
+    if (colonVisible == 0) {
         DrawFormattedText(" ");
     } else {
         stCurrentNavMapTxtCtx.cursorX =
@@ -543,8 +545,8 @@ void UpdateInflightNavText(short showColon)
     sprintf(time, "%02d  ",
             (int)((signed char *)pElapsedCampaignDatePtr)[1]);
     DrawFormattedText(time);
-    stCurrentNavMapTxtCtx.cursorX = cursorX;
-    if (showColon != 0)
+    stCurrentNavMapTxtCtx.cursorX = showColon;
+    if (colonVisible != 0)
         DrawFormattedText(":");
 }
 
