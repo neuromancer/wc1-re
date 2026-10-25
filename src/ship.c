@@ -703,58 +703,59 @@ int internal_damage(short attacker, short victim, short damage,
 {
     enum ObjectType type;
     short damageCapacity;
-    short events;
+    int victimIndex;
     short system;
     signed char weaponCount;
 
     if (victim == 0)
         return your_internal_damage(attacker, damage, quadrant);
-    type = aeObjectTypeList[victim];
+    victimIndex = victim;
+    type = aeObjectTypeList[victimIndex];
     damageCapacity = aObjectTypeData[type].damageCapacity;
-    if (aeObjectClass[victim] == OBJECT_CLASS_CAPITAL_SHIP) {
-        if (aeShipSide[victim] == SIDE_KILRATHI) {
-            asShipAccumulatedDmg[victim] = (short)(
-                asShipAccumulatedDmg[victim] +
+    if (aeObjectClass[victimIndex] == OBJECT_CLASS_CAPITAL_SHIP) {
+        if (aeShipSide[victimIndex] == SIDE_KILRATHI) {
+            asShipAccumulatedDmg[victimIndex] = (short)(
+                asShipAccumulatedDmg[victimIndex] +
                 MaxShort(1, (short)(damage >> 3)));
             if (attacker != -1 && attacker < 10 &&
                 any_enemy(attacker, 10000) == 0)
                 call_enemy(attacker);
         } else {
-            asShipAccumulatedDmg[victim] = (short)(
-                asShipAccumulatedDmg[victim] +
+            asShipAccumulatedDmg[victimIndex] = (short)(
+                asShipAccumulatedDmg[victimIndex] +
                 MaxShort(1, (short)(damage / 10)));
             if (RandomBelowOrEqual(1000) < 35 && attacker != 0)
                 send_message(victim, 4);
         }
-        if (asShipAccumulatedDmg[victim] >= damageCapacity)
+        if (asShipAccumulatedDmg[victimIndex] >= damageCapacity)
             return explode(attacker, victim);
         else
             onboard_explosion(victim);
         return 0;
     }
 
-    if (acShipRating[victim] != -1) {
-        events = MaxShort(1, (short)(damage / 40));
-        events = MinShort(RandomInRange(3, 4), events);
+    if (acShipRating[victimIndex] != -1) {
+        damage = MaxShort(1, (short)(damage / 40));
+        damage = MinShort(RandomInRange(3, 4), damage);
     } else {
-        events = MaxShort(1, (short)(damage / 6));
+        damage = MaxShort(1, (short)(damage / 6));
     }
-    asShipAccumulatedDmg[victim] = (short)(
-        asShipAccumulatedDmg[victim] + events);
+    asShipAccumulatedDmg[victimIndex] = (short)(
+        asShipAccumulatedDmg[victimIndex] + damage);
 
-    while (events > 0) {
-        if (events == 1 && acShipRating[victim] != -1)
+    while (damage > 0) {
+        if (damage == 1 && acShipRating[victimIndex] != -1)
             system = 4;
         else
             system = RandomBelowOrEqual(9);
         switch (system) {
         case 0:
-            events--;
+            damage--;
             pilot_hit(victim);
             break;
         case 1:
             if (quadrant == 1) {
-                events--;
+                damage--;
                 damage_ion_drive(victim, 1, 3);
             }
             break;
@@ -763,53 +764,53 @@ int internal_damage(short attacker, short victim, short damage,
                 return explode(attacker, victim);
             break;
         case 3:
-            aasShipMaximumShieldTable[victim][0] = 0;
-            aasShipShield[victim][0] = 0;
-            aasShipMaximumShieldTable[victim][1] = 0;
-            aasShipShield[victim][1] = 0;
+            aasShipMaximumShieldTable[victimIndex][0] = 0;
+            aasShipShield[victimIndex][0] = 0;
+            aasShipMaximumShieldTable[victimIndex][1] = 0;
+            aasShipShield[victimIndex][1] = 0;
             break;
         case 4:
-            events--;
-            acShipDmg[victim]++;
-            if ((short)acShipDmg[victim] >
+            damage--;
+            acShipDmg[victimIndex]++;
+            if ((short)acShipDmg[victimIndex] >
                 damageCapacity)
                 return explode(attacker, victim);
             break;
         case 5:
             if (quadrant == 0) {
                 weaponCount = (signed char)
-                    aShipWeaponsTable[victim][0];
+                    aShipWeaponsTable[victimIndex][0];
                 if (weaponCount > 0) {
-                    events--;
+                    system = (short)(weaponCount - 1);
+                    damage--;
                     remove_weapon(victim,
-                        (short)(signed char)RandomBelowOrEqual(
-                            (short)(weaponCount - 1)));
+                        (short)(signed char)RandomBelowOrEqual(system));
                 }
             }
             break;
         case 6:
             if (quadrant == 0 &&
-                acShipDestroyedWeaponCountArray[victim] < 5) {
-                events--;
-                acShipDestroyedWeaponCountArray[victim]++;
+                acShipDestroyedWeaponCountArray[victimIndex] < 5) {
+                damage--;
+                acShipDestroyedWeaponCountArray[victimIndex]++;
             }
             break;
         case 7:
             if (quadrant == 1) {
-                events--;
+                damage--;
                 drain_fuel(victim,
                            (short)(aObjectTypeData[
                                        type].lifetime / 4));
                 if (RandomBelowOrEqual(1) != 0 ||
-                    anShipFuelsTable[victim] < 0)
+                    anShipFuelsTable[victimIndex] < 0)
                     return explode(attacker, victim);
             }
             break;
         case 8:
             if (quadrant == 0 &&
-                acShipCommunicatorArray[victim] != -1) {
-                acShipCommunicatorArray[victim] = -1;
-                events--;
+                acShipCommunicatorArray[victimIndex] != -1) {
+                acShipCommunicatorArray[victimIndex] = -1;
+                damage--;
             }
             break;
         }

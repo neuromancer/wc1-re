@@ -8421,3 +8421,40 @@ Session findings that are not yet retained because they change span sizes:
     but reverses the comparison and moves the destination load after the
     branch. Two explicit result branches, two destination stores, and a
     second-left accumulator do not recover the complete instruction schedule.
+- `internal_damage` uses its consumed `damage` parameter for the remaining
+  event count after calculating the damage events. Replace the old `events`
+  local with an explicit promoted victim index, captured after the player
+  victim's early return and used for array accesses; calls still use the
+  short victim parameter. This restores the index in EBX and event count in
+  SI while preserving BP for the victim and DI for the quadrant. Parameter
+  reuse alone instead changes the quadrant and event registers and leaves
+  the index in ESI. Declaring the promoted index first or in the former
+  event local's position recovers the original allocation; the latter is
+  retained and keeps the unit's declaration count unchanged.
+  The weapon-removal case also computes its short maximum weapon index in
+  the consumed `system` local before decrementing the event count. This
+  puts `MOVSX AX,AL; DEC AX` before `DEC SI`, as in the original, and
+  recovers the last six differing bytes. All 896 bytes now match, including
+  its switch table and padding. No other function-report row changes.
+  Strict comparison gains 37 code bytes and changes exactly 37 file
+  positions from the preceding executable. Matching reaches 516,223 of
+  518,656 bytes (99.5309%), leaving 2,433 differences: 2,330 in `.text`
+  and the unchanged 103 in `.reloc`. The header and other sections remain
+  exact. Normalized exact functions rise to 1,491 of 1,550, with 58
+  same-size differences and the unchanged sample-converter boundary
+  discrepancy. There are 1,524 mnemonic-perfect functions.
+  All 1,539 mapped functions remain at their original addresses; 1,476 are
+  literally identical. The forced native rebuild, modern build, source
+  sorting/address checks, compilation-unit-order audit and `make verify`
+  pass. Both value checks cover all 1,550 functions with zero mismatches or
+  skips. Call-target diagnostics remain 11; global-reference diagnostics
+  fall from 56 to 55. Rebuilding and verification preserve SHA-256
+  `5128239c0554a4ffcbab760f67c87eb1c9c9c530e332ad2ca60a195e98a4de74`.
+  Two neighboring probes are restored. In `sort_viable_target_list`, a
+  separate inner-distance capture and reuse of the consumed outer-distance
+  local for the target byte shrink the stack frame from eight to four bytes
+  and change the loop allocation and span. In `attacker_in_range`, storing
+  the returned distance to its global before an int capture exchanges the
+  distance and bound registers and shortens the body. An int return capture
+  with a qualified global store recovers the comparison but still places
+  the store after sign extension. Neither improves strict matching.
