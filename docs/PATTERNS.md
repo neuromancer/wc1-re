@@ -8173,3 +8173,54 @@ Session findings that are not yet retained because they change span sizes:
     parameter chooses EAX instead of the required ECX. The shorter absolute
     load and store then leave the tail two bytes early. The ordinary copy
     still retains the previously documented EDX allocation.
+- `select_guns` reuses its unused object parameter as the remaining-weapon
+  counter. This gives the counter CX and the selected gun DX, recovering
+  all 112 bytes and seven literal positions. Keep the final failure return
+  in an explicit `else`: removing the count local without this branch
+  changes the later compiler context and loses two bytes in the otherwise
+  exact `select_new_release_weapon`. The explicit return branches preserve
+  that neighbor.
+- `draw_cockpit_lights` gives the cockpitless path its own Y local. Its
+  original BP coordinate and AX frame return, making all 288 bytes exact
+  and recovering five literal positions. A `for` loop with `continue` after
+  the cockpit-present path replaces the outer `else`; together with the
+  scoped local this preserves the following functions' compiler context.
+  Only these two function-report rows change. There are now 1,486 normalized
+  exact functions out of 1,550, with 63 same-size differences and the
+  unchanged converter boundary discrepancy. Strict matching reaches
+  515,930 of 518,656 bytes (99.4744%), leaving 2,726 differences: 2,614
+  in `.text` and 112 in `.reloc`. The header and other sections stay exact.
+  All 1,539 mapped functions retain their original addresses, with 1,471
+  literally identical. A forced native rebuild, the modern build, and
+  sorting/address and compilation-unit-order checks preserve this result.
+  `make verify` passes: both value checks cover all 1,550 functions with
+  zero mismatches or skips, and the existing call/global-reference
+  diagnostics remain 11/56. The full rebuild and verification preserve SHA-256
+  `f4ebc914a14ff3ea4c8668a2c753d5b6de8f5bebf5c10229a7425e4575b31b32`.
+- Further probes are restored:
+  - Reusing the wave-removal parameter as the list cursor recovers its
+    comparison operands but hoists the incoming target load before the
+    empty-list guard. A conditional target capture adds an unwanted stack
+    slot and control flow. Reusing the maneuver target parameter for the
+    proximity distance leaves the preceding executable unchanged.
+  - Separating `OpenPacketSection`'s section size from its file size changes
+    the stack slots and retains the final size in EBP, unlike the original
+    spill. A qualified compression read or unsigned compression local leaves
+    the old output unchanged; qualified offset/compression stores disturb
+    the final instruction schedule.
+  - Separating the decompressor's workspace size and packet allocation size
+    adds four frame bytes. Scoping the allocation size to its read branch
+    restores the twelve-byte frame and packet slot, but exchanges the
+    workspace pointer and workspace-size slots and changes initialization
+    scheduling. Scoping both size locals does not finish the recovery.
+    An integer workspace value instead of the pointer leaves output unchanged.
+  - A qualified outer-distance read in `sort_viable_target_list` leaves its
+    register exchange unchanged. An explicit promoted inner index also
+    leaves that routine unchanged and disturbs later code.
+  - An explicit class snapshot in `send_message` recovers the object/class
+    registers but exchanges the unscaled and scaled indices, changing the
+    store/pop schedule. Qualifying the snapshot does not help. A promoted
+    object index alone leaves output unchanged; combining it with the class
+    local or nesting the class snapshot under the training guard is worse.
+  - Reversing the VDU extent product or qualifying its percentage-parameter
+    read leaves its four differing encodings unchanged.

@@ -53,15 +53,14 @@ short find_next_gun(short obj, enum ObjectType currentGun)
 /* Function start: 0x42ADA0 */
 int select_guns(short obj, short selectedGun)
 {
-    short weaponCount;
     ShipWeaponSlot *weaponSlot;
     int found;
 
-    (void)obj;
-    weaponCount = (signed char)aShipWeaponsTable[0][0];
+    /* The incoming object is unused; reuse its word for the count. */
+    obj = (signed char)aShipWeaponsTable[0][0];
     found = 0;
     weaponSlot = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
-    if (weaponCount > 0) {
+    if (obj > 0) {
         do {
             if (aObjectTypeData[weaponSlot->type].objectClass ==
                     OBJECT_CLASS_PROJECTILE) {
@@ -73,12 +72,13 @@ int select_guns(short obj, short selectedGun)
                 }
             }
             weaponSlot++;
-            weaponCount--;
-        } while (weaponCount != 0);
+            obj--;
+        } while (obj != 0);
     }
     if (found != 0)
         return selectedGun;
-    return -1;
+    else
+        return -1;
 }
 
 /* Function start: 0x42AE10 */

@@ -682,8 +682,7 @@ void draw_cockpit_lights(void)
         else
             abCockpitLightGoalArray[4] = 0;
     }
-    light = 0;
-    do {
+    for (light = 0; light < 7; light++) {
         if (bCockpitlessView == 0) {
             if (abCockpitIndicatorStatesArray[(int)light] !=
                 abCockpitLightGoalArray[(int)light]) {
@@ -702,10 +701,14 @@ void draw_cockpit_lights(void)
                 abCockpitIndicatorStatesArray[(int)light] =
                     abCockpitLightGoalArray[(int)light];
             }
-        } else {
+            continue;
+        }
+        {
+            short cockpitlessY;
+
             x = aasCockpitLightX[
                 (int)cCurrentCockpitView][(int)light];
-            y = aasCockpitLightY[
+            cockpitlessY = aasCockpitLightY[
                 (int)cCurrentCockpitView][(int)light];
             if (abCockpitLightGoalArray[(int)light] == 1)
                 frame = aacCockpitLightOnFrame[
@@ -713,13 +716,12 @@ void draw_cockpit_lights(void)
             else
                 frame = aacCockpitLightOffFrame[
                     (int)cCurrentCockpitView][(int)light];
-            DrawSpriteDefault(&stScreenView, x, y,
+            DrawSpriteDefault(&stScreenView, x, cockpitlessY,
                               pCockpitDamageShape, frame);
             abCockpitIndicatorStatesArray[(int)light] =
                 abCockpitLightGoalArray[(int)light];
         }
-        light++;
-    } while (light < 7);
+    }
 }
 
 /* Function start: 0x4145B0 */
