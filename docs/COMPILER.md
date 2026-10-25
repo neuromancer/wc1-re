@@ -91,6 +91,30 @@ useful while still being incomplete predictors for computed expressions.
 An isolated analysis of the unchanged compiler supplied these addresses;
 the compiler executable and production flags remain unchanged.
 
+CL's `/BkPREFIX` option retains the frontend's intermediate files. For
+example, the normal core profile plus `/Bkout\c2trace\ship` leaves
+`shipin`, `shipgl`, `shipex` and `shipsy` under an existing `out/c2trace`
+directory, while still producing the requested object and assembly listing.
+These files supply a repeatable backend input for investigating allocation
+and scheduling. They are generated diagnostics, not source inputs to keep
+in version control.
+
+CL invokes `C2.EXE` with its options in the `MSC_CMD_FLAGS` environment
+variable. This invocation replays the saved `ship.c` intermediates using
+the same backend options observed in the normal core compilation:
+
+```sh
+env MSC_CMD_FLAGS='-ef compilers\msvc420\bin\c23.err -il out\c2trace\ship -f src/ship.c -W 1 -G4 -dos -Fdvc40.idb -MTd -Gs4096 -Foout\c2trace\ship.obj -FAa -Fa out\c2trace\ship.asm' \
+    ./wibo compilers/msvc420/bin/C2.EXE
+```
+
+The optimization settings are carried in the frontend intermediates;
+their absence from this backend command is not a change to the compiler
+profile. Binary-comp confirms that substituting the replayed ship object
+and relinking reproduces all 518,656 bytes of the previously verified
+executable. The object itself differs only in its COFF timestamp at offset
+four. A host debugger is unnecessary for retaining and replaying this input.
+
 ## Hand-written assembly
 
 Three regions were written in assembly, through different tools:
