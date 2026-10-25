@@ -7845,3 +7845,36 @@ Session findings that are not yet retained because they change span sizes:
   probes are discarded. After restoring all source and header changes,
   the full function report and executable SHA-256 match the preceding
   checkpoint; strict matching remains 515,642 of 518,656 bytes.
+- `RestoreTransientCockpitGraphics` captures the displayed HUD message
+  through a qualified pointer read before comparing it with the pending
+  message. This gives the comparison ECX, restoring its six-byte absolute
+  load and the following instruction addresses. An ordinary local capture
+  and nested `if` statements leave the preceding executable unchanged;
+  the read qualifier is the necessary matching choice, not evidence of
+  the original source spelling. The message comparison now matches
+  instruction for instruction; the explosion-rendering tail still differs.
+  The routine keeps its 304-byte span and 97.65% mnemonic score, while
+  differing encodings fall from 46 to 32 of 85. Literal matching rises
+  from 147 to 208 bytes. No other function-report row changes.
+  Strict whole-file matching gains 67 positions: 61 code bytes and six
+  relocation bytes. It reaches 515,709 of 518,656 (99.4318%), leaving
+  2,947 differences: 2,835 in `.text` and 112 in `.reloc`. The header,
+  `.rdata`, `.data`, and `.idata` remain exact, and all mapped function
+  addresses and section sizes remain unchanged.
+  Further frame snapshots and qualified frame/view-state reads alter
+  argument scheduling, branch destinations, or later functions without
+  improving the complete-file result; none is retained. A qualified
+  object-class snapshot in `set_up_action_sphere` also retains its scratch
+  register exchange and swaps the loop counter with its promoted index.
+- Additional answer-loader lifetime probes are discarded. Reusing its
+  prompt parameter requires an extra spill; reusing its entry parameter
+  for the line counter changes the setup and registers; a qualified
+  promoted entry capture changes scheduling and comparison order without
+  repairing the scan/prompt exchange. Moving the scan increment into the
+  terminating-byte store reproduces the preceding executable exactly.
+  The retained HUD change passes a forced native rebuild, the modern build,
+  sorting/address and unit-order audits, and `make verify`. Both value
+  checks cover all 1,550 functions with zero mismatches or skips; existing
+  call/global-access diagnostics remain 11/56. Rebuilding and verification
+  preserve SHA-256
+  `d0478d3903c044deccc65119aff1bf3e71776fd4843c7292400b9a5060354c0a`.

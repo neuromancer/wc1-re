@@ -2328,6 +2328,8 @@ void RestoreCockpitExplosionIfVisible(void)
 /* Function start: 0x416CB0 */
 unsigned int RestoreTransientCockpitGraphics(void)
 {
+    char *displayedMessage;
+
     if (bMouseCursorVisible == 1) {
         RestoreSpriteBackground(stMouseCursorState.viewport,
                                 abMouseCursorBackground,
@@ -2346,7 +2348,10 @@ unsigned int RestoreTransientCockpitGraphics(void)
     draw_target_box(cPrimaryViewBufferColour, acShipTargetTable[0],
                     nTargetLockMode, 1, 1,
                     &stTargetBracketBounds);
-    if (pszDisplayedHudMessage != pszPendingHudMessage && pszDisplayedHudMessage != 0)
+    /* Keep this read separate from the following pointer comparison. */
+    displayedMessage = *(char *volatile *)&pszDisplayedHudMessage;
+    if (displayedMessage != pszPendingHudMessage &&
+        displayedMessage != 0)
         SetHudTextColour(0);
     if (IsCockpitExplosionActive() &&
         pCockpitExplosionBackground != 0) {
