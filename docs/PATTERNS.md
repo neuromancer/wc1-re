@@ -7878,3 +7878,35 @@ Session findings that are not yet retained because they change span sizes:
   call/global-access diagnostics remain 11/56. Rebuilding and verification
   preserve SHA-256
   `d0478d3903c044deccc65119aff1bf3e71776fd4843c7292400b9a5060354c0a`.
+- Further probes against that checkpoint are discarded:
+  - In the 32-byte-frame carrier candidate, moving the carrier-shape store
+    after all the object-word stores still doubles the index in place and
+    reloads the promoted index for the shape store. An ordinary first-loop
+    backdrop-X snapshot produces the preceding candidate exactly; a
+    qualified snapshot changes register allocation and shrinks the span.
+    Splitting each screen coordinate into an assignment and subtraction
+    retains two stores, unlike the original. Exchanging the view-centre
+    extern declarations leaves this routine unchanged and loses matches
+    elsewhere. None repairs the candidate's five-byte index deficit and
+    two-byte first-loop excess together.
+  - Splitting `DrawFontGlyph`'s font reload and character-index addition
+    into two statements produces the preceding executable exactly.
+    Qualifying that font-pointer read separates the pointer from the index,
+    but rotates the viewport/source scratch registers, changes the character
+    comparisons and enlarges the function. It is not a matching recovery.
+  - A qualified context-pointer capture in `ResetStringBuilder` retains
+    the EAX/ECX exchange and introduces an extra text-pointer reload.
+  - In `SelectPreviousExternalViewObject`, a selected-object local changes
+    the initial constant width and store placement. A qualified input read
+    obtains DX for the loop index but prevents the original cached-byte
+    comparison and also changes neighboring code. An explicit minimum-class
+    local leaves the target unchanged while losing matches elsewhere;
+    folding the decrement into its negative test leaves the complete
+    executable unchanged.
+  - Saving `get_front_spot`'s destination and reusing its pointer parameter
+    for the object's position does not exchange ESI and EDI. It changes
+    the address calculations and shortens the body by four bytes instead.
+  After restoring all source and header probes, a forced native rebuild
+  reproduces the preceding checkpoint's SHA-256 and complete function
+  report. Sorting/address checks pass; strict matching remains 515,709
+  of 518,656 bytes, with 2,947 differences.
