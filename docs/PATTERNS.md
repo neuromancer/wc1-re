@@ -7982,3 +7982,53 @@ Session findings that are not yet retained because they change span sizes:
   section reports. Sorting and address checks pass; strict matching remains
   515,855 of 518,656 bytes, with 2,801 differences. The preceding full
   verification remains applicable to this unchanged executable.
+- `UpdateTrainSimHighScores` captures the incoming score after selecting the
+  previous score, then uses that snapshot for insertion and the result
+  message. Qualify this one parameter read so CL does not coalesce the
+  snapshot with the incoming parameter. The slot then takes SI and the
+  submitted score EDI, and the comparison gets the original operand and
+  branch order. A plain copy emits the preceding code. The qualified read
+  is a measured matching choice, not recovered source spelling; the calling
+  convention and parameter width are unchanged. All 192 bytes now match,
+  recovering nine literal positions and all nine differing encodings.
+- `find_next_ship_turn_slot` saves its input in `activeObject`, then reuses
+  `obj` as the collision-search counter. Keep the promoted `objectIndex` and
+  captured signed-byte interval. Initialize the counter after the interval
+  stores, and reset it after incrementing the regulator. CL still schedules
+  both counter assignments before those stores/increments, but now emits
+  the original immediate-one store and `INC DL`. Assigning the counter
+  earlier instead reuses CL as the constant, changing the store or emitting
+  `ADD DL,CL`. The retained form restores DI for the active object, ESI for
+  its promoted index, and CX for the counter, including the original
+  prologue. Literal matching rises from 104 to 127 of 128 bytes; differing
+  encodings fall from thirteen to one, with 100% mnemonic similarity.
+  Only the object-equality comparison's equivalent reversed operands remain.
+  Reversing its source operands or exchanging the active-object and interval
+  declarations does not change the result.
+  A separate qualified input snapshot with the old counter changes the
+  promoted-index and counter registers instead. Combining that qualified
+  read with parameter reuse forces the counter onto the stack. Neither is
+  retained; the consumed-parameter form uses an ordinary input copy.
+- Related probes are discarded. In `draw_sorted_objects_to_buffer`, giving
+  the scaled path its own coordinate and shape locals recovers its shape
+  and argument registers, but retains the X/Y exchange and load schedule
+  and loses matches elsewhere. Coordinate-read qualifiers, separate raw
+  coordinate assignments, declaration swaps, and a `ShortPoint` do not
+  finish that recovery. A qualified mission-ship snapshot in
+  `find_ship_index` changes its prologue and several registers. A qualified
+  destination snapshot in `get_front_spot` retains the ESI/EDI exchange
+  and moves the pointer load early; an explicit position pointer can recover
+  those registers but changes the address calculations. All these source
+  probes are restored.
+  Only the high-score and turn-slot rows change in the full function report.
+  Strict matching gains 32 code bytes, reaching 515,887 of 518,656
+  (99.4661%), with 2,769 differences: 2,657 in `.text` and 112 in `.reloc`.
+  The header and other sections remain exact, and all mapped functions keep
+  their original addresses. Normalized exact functions rise to 1,480 of
+  1,550; 1,521 have perfect mnemonic similarity. The unchanged converter
+  boundary discrepancy remains, and `evaluate_damage` is still below 90%.
+  The forced native rebuild, modern build, sorting/address and unit-order
+  checks, and `make verify` pass. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/56. Rebuilding and verification preserve SHA-256
+  `ea9ce7bf9d17a6b72c9b5dd6e967912d1f24e53c165efa2d3836c2d648318d01`.

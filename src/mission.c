@@ -879,26 +879,27 @@ unsigned int is_team_member(short missionShip)
 unsigned int find_next_ship_turn_slot(short obj)
 {
     int objectIndex;
-    short other;
+    short activeObject;
     signed char interval;
 
-    objectIndex = obj;
-    other = 1;
+    activeObject = obj;
+    objectIndex = activeObject;
     acTurnRegulatorsArray[objectIndex] = 1;
     interval = (signed char)anPilotTurnInterval[aiPilotLevel[objectIndex]];
     acTurnIntervalArray[objectIndex] = interval;
+    obj = 1;
     do {
-        if (aeObjectClass[other] == OBJECT_CLASS_SHIP &&
-            other != obj &&
-            acTurnRegulatorsArray[other] == acTurnRegulatorsArray[objectIndex] &&
-            acTurnIntervalArray[other] == interval) {
-            other = 1;
+        if (aeObjectClass[obj] == OBJECT_CLASS_SHIP &&
+            obj != activeObject &&
+            acTurnRegulatorsArray[obj] == acTurnRegulatorsArray[objectIndex] &&
+            acTurnIntervalArray[obj] == interval) {
             acTurnRegulatorsArray[objectIndex]++;
+            obj = 1;
             if (interval < acTurnRegulatorsArray[objectIndex])
                 break;
         }
-        other++;
-    } while (other <= 9);
+        obj++;
+    } while (obj <= 9);
     return 0;
 }
 

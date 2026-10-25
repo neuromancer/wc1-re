@@ -555,15 +555,18 @@ void UpdateTrainSimHighScores(int score)
     short slot;
     unsigned int previousScore;
     char message[100];
+    int submittedScore;
 
     slot = FindTrainSimHighScore(8);
     if (slot == -1)
         previousScore = aHighScoreEntriesArray[5].score;
     else
         previousScore = aHighScoreEntriesArray[slot].score;
+    /* Keep this snapshot distinct from the parameter's register lifetime. */
+    submittedScore = *(int volatile *)&score;
     slot = -1;
-    if (score > (int)previousScore)
-        slot = InsertTrainSimHighScore(8, (unsigned int)score);
+    if (submittedScore > (int)previousScore)
+        slot = InsertTrainSimHighScore(8, (unsigned int)submittedScore);
 
     if (bCampaignStartupMode != 0) {
         EnterPilotNameAndCallsign();
@@ -581,7 +584,7 @@ void UpdateTrainSimHighScores(int score)
         sprintf(message, "> SORRY <\n\n"
                          "YOUR SCORE IS ONLY\n"
                          "%ld0\n\n"
-                         "PLEASE PLAY AGAIN!", score);
+                         "PLEASE PLAY AGAIN!", submittedScore);
     ShowTrainSimTextMessage(message);
     SetEventManagerPump(PollJoystickButtonEvents);
     DIBslam();
