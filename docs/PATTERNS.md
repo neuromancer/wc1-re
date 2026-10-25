@@ -8224,3 +8224,38 @@ Session findings that are not yet retained because they change span sizes:
     local or nesting the class snapshot under the training guard is worse.
   - Reversing the VDU extent product or qualifying its percentage-parameter
     read leaves its four differing encodings unchanged.
+- `RemoveWaveTableEntry` saves the requested entry inside its nonempty-list
+  branch, reuses the consumed parameter as the cursor, and copies the final
+  cursor back to the entry local. Unlike the earlier unconditional capture,
+  this keeps the target load after the empty-list guard. The comparison now
+  uses the original `CMP EAX,ESI`, making all 112 bytes exact. A guarded
+  `do` loop with an equality break and a guarded `while` both recover it;
+  the latter is retained. The extra source context initially reverses the
+  corresponding comparison in `RemoveActiveSoundEntry`. Applying the same
+  guarded capture there preserves its complete 96-byte match. Only the
+  wave-removal row changes in the full report, gaining one literal byte.
+  Freeing the original target instead of the found entry changes the
+  registers and instruction schedule; a simple equality break with the
+  old cursor leaves the original comparison difference. Neither is retained.
+  Normalized exact functions rise to 1,487 of 1,550, with 62 same-size
+  differences and the unchanged converter boundary discrepancy. All 1,539
+  mapped functions keep their original addresses, with 1,472 literally
+  identical. Strict matching reaches 515,931 of 518,656 bytes (99.4746%),
+  leaving 2,725 differences: 2,613 in `.text` and 112 in `.reloc`.
+  The header and other sections stay exact. The forced native rebuild,
+  modern build, sorting/address checks and compilation-unit-order audit pass.
+  `make verify` passes both value checks over all 1,550 functions with zero
+  mismatches or skips; existing call/global-reference diagnostics remain
+  11/56. Binary-comp also confirms that the complete executable differs
+  from the preceding checkpoint in exactly one byte. Verification preserves
+  SHA-256 `10b6266e87b3fc664c03530b56837f49446cd59ab2d6946bf931903594b19a17`.
+- The 32-byte-frame carrier candidate still does not improve the executable.
+  At this checkpoint it leaves 3,269 differing file positions, versus the
+  retained 2,726 before the wave fix. Exchanging `asObjectFlipArray`'s extern
+  with each of the view-frame, angle, screen-scale, distance, shape-pointer
+  and class arrays leaves the candidate's output unchanged. Independently
+  qualifying only the initial flip, view-frame, angle, screen-scale or
+  distance store also leaves it unchanged. All probes retain the shorter
+  `ADD ECX,ECX` instead of `LEA EAX,[ECX*2]`; the earlier multi-store
+  qualifier probe had changed the calculation but did not match it.
+  The launch source and global header are restored.

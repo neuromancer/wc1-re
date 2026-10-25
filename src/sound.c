@@ -77,9 +77,15 @@ void RemoveWaveTableEntry(WaveTableEntry *target)
     WaveTableEntry *previous = 0;
     WaveTableEntry *entry = pWaveTableHead;
 
-    while (entry != 0 && target != entry) {
-        previous = entry;
-        entry = entry->next;
+    if (entry != 0) {
+        WaveTableEntry *searchTarget = target;
+
+        target = entry;
+        while (target != 0 && target != searchTarget) {
+            previous = target;
+            target = target->next;
+        }
+        entry = target;
     }
     if (entry != 0) {
         if (previous != 0)
@@ -131,9 +137,15 @@ void RemoveActiveSoundEntry(ActiveSoundEntry *target)
     ActiveSoundEntry *entry = pActiveSoundHead;
     ActiveSoundEntry *previous = 0;
 
-    while (entry != 0 && entry != target) {
-        previous = entry;
-        entry = entry->next;
+    if (entry != 0) {
+        ActiveSoundEntry *searchTarget = target;
+
+        target = entry;
+        while (target != 0 && target != searchTarget) {
+            previous = target;
+            target = target->next;
+        }
+        entry = target;
     }
     if (entry != 0) {
         if (previous != 0)
