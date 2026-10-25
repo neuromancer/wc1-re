@@ -8129,3 +8129,47 @@ Session findings that are not yet retained because they change span sizes:
   - A qualified object snapshot or consumed-parameter counter in
     `hostile_sphere` changes its prologue, index allocation and side
     comparison without recovering the original registers.
+- `trim_goals` saves its incoming object as an integer index, then reuses
+  the consumed short parameter for each yaw/pitch goal. Both positive-limit
+  comparisons now use the original `CMP CX,AX` / `JGE`, instead of the
+  equivalent reversed comparison and branch. Its complete 128-byte span
+  is exact, recovering four literal positions.
+  `reset_tactic` reads its tactic through a qualified parameter lvalue
+  directly into the object table. This gives the tactic ECX and the
+  promoted ship index EAX, recovering its complete 48-byte span and five
+  literal positions. A separate qualified snapshot also matches this
+  routine but changes the later compiler context; using the read directly
+  preserves the following functions. Assigning the qualified read back to
+  the same parameter instead emits a spurious memory `TEST` and changes
+  store ordering, so that form is discarded.
+  Only these two function-report rows change. There are now 1,484 normalized
+  exact functions out of 1,550 and 1,523 perfect mnemonic scores; the
+  converter boundary discrepancy remains unchanged. All 1,539 mapped
+  functions retain their original addresses, with 1,469 literally identical.
+  Strict matching reaches 515,918 of 518,656 bytes (99.4721%), leaving
+  2,738 differences: 2,626 in `.text` and 112 in `.reloc`. The header and
+  other sections remain exact. A forced native rebuild, the modern build,
+  and sorting/address and compilation-unit-order checks preserve the result.
+  `make verify` passes: both value checks cover all 1,550 functions with
+  zero mismatches or skips; the existing 11 call and 56 global-reference
+  diagnostics are unchanged. The final executable SHA-256 is
+  `65a7a4e292d04acbae6b970ce996b3b51c5b9467c2ff5334bf485e12e450df0e`.
+- Further register and stack-slot probes are restored:
+  - Reusing the shield routine's ship parameter for the current shield
+    value changes its guard registers but retains the loop's index/value
+    exchange. Swapping the two shield locals or qualifying the current
+    shield read also leaves that exchange unchanged.
+  - An integer class local or a qualified class-table read leaves
+    `get_color`'s allocation unchanged. Switch dispatch recovers its initial
+    EDX/EAX/ECX registers, but both the two-case and single-case forms put
+    the branch bodies in the wrong order.
+  - Qualifying the font renderer's palette-restoration stores or initial
+    font-colour/background reads leaves its restoration tail unchanged.
+  - A volatile short high-score counter, decremented in the loop condition,
+    retains the incorrect stack offset while exchanging the pilot and scale
+    registers. A wider counter with word casts changes allocation and adds
+    sixteen bytes to the aligned span; neither recovers the original slot.
+  - A qualified allocated-byte snapshot in the consumed allocation-size
+    parameter chooses EAX instead of the required ECX. The shorter absolute
+    load and store then leave the tail two bytes early. The ordinary copy
+    still retains the previously documented EDX allocation.

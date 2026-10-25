@@ -359,17 +359,19 @@ int are_alive(short obj)
 /* Function start: 0x4225C0 */
 int trim_goals(short obj, short amount)
 {
-    short goal = anYawTarget[obj];
+    int objectIndex = obj;
 
-    if (amount < goal)
-        anYawTarget[obj] = amount;
-    else if (goal < -amount)
-        anYawTarget[obj] = -amount;
-    goal = anPitchGoal[obj];
-    if (amount < goal)
-        anPitchGoal[obj] = amount;
-    else if (goal < -amount)
-        anPitchGoal[obj] = -amount;
+    obj = anYawTarget[objectIndex];
+
+    if (amount < obj)
+        anYawTarget[objectIndex] = amount;
+    else if (obj < -amount)
+        anYawTarget[objectIndex] = -amount;
+    obj = anPitchGoal[objectIndex];
+    if (amount < obj)
+        anPitchGoal[objectIndex] = amount;
+    else if (obj < -amount)
+        anPitchGoal[objectIndex] = -amount;
     return 0;
 }
 
@@ -668,7 +670,8 @@ unsigned int alter_objective(short ship, enum ShipObjective objective)
 unsigned int reset_tactic(short ship, enum ShipTactic tactic)
 {
     reset_maneuver(ship, MANEUVER_NONE);
-    aeShipTacticArray[ship] = tactic;
+    /* Keep the tactic read distinct from the promoted ship index. */
+    aeShipTacticArray[ship] = *(enum ShipTactic volatile *)&tactic;
     acShipTargetTable[ship] = -1;
     return 0;
 }
