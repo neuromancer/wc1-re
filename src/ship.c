@@ -2358,18 +2358,21 @@ unsigned int replenish_shields(short ship)
     shield = 0;
     do {
         short maximum;
+        enum ObjectType type;
+        short rechargeDelay;
         short current;
 
         maximum = aasShipMaximumShieldTable[ship][shield];
         if (aasShipShield[ship][shield] > maximum)
             aasShipShield[ship][shield] = maximum;
         current = aasShipShield[ship][shield];
-        if (current < maximum &&
-            nCurrentSpaceFrameValue %
-                aObjectTypeData[
-                    aeObjectTypeList[ship]].animationDelay == 0) {
-            aasShipShield[ship][shield] =
-                (short)(current + 1);
+        if (current < maximum) {
+            type = aeObjectTypeList[ship];
+            rechargeDelay = aObjectTypeData[type].animationDelay;
+            if (nCurrentSpaceFrameValue % rechargeDelay == 0) {
+                aasShipShield[ship][shield] =
+                    (short)(current + 1);
+            }
         }
         shield++;
     } while (shield <= 1);

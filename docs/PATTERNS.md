@@ -8709,3 +8709,30 @@ Session findings that are not yet retained because they change span sizes:
   zero mismatches or skips, and the existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `22ddb3cc789d977cd76cc8de6c5490580cb3778efe787fcaaf6e66ba9c74b2e4`.
+- `replenish_shields` names the ship type and its short recharge delay
+  inside the deficient-shield branch. Declare those two values between
+  `maximum` and `current` in the loop's local list. The type lookup and
+  divisor still fold into the original loads and memory-operand division;
+  the local `current` moves from C1 index 28,062 (mod 32 = 30) to 28,064
+  (mod 32 = 0). It takes SI while the shared shield offset takes EBX,
+  recovering all 176 bytes without changing the guard or introducing an
+  explicit promoted ship index.
+  Swapping the shield array's extern with either the maximum-shield or
+  scale array leaves this register exchange unchanged and is not retained.
+  Combining the new shield locals with the earlier exact child-search
+  captures still folds the shield base into a pointer and changes its loop;
+  that combination is discarded. Reusing the child-search class parameter
+  for the saved parent also changes its opening loads and is discarded.
+  Only the shield routine's full-report row changes, from seven differing
+  encodings to exact. Normalized exact functions rise to 1,493 of 1,550,
+  leaving 56 same-size differences and the existing converter boundary
+  discrepancy. All 1,539 mapped functions remain at their original addresses,
+  and 1,478 are literally identical. Strict matching gains exactly seven
+  code bytes with no losses, reaching 516,340 of 518,656 bytes (99.5535%).
+  There are 2,316 differences in 539 runs: 2,222 in `.text` and the unchanged
+  94 in `.reloc`. A forced native rebuild reproduces the candidate byte for
+  byte. The modern build, sorting, address audits and unit-order checks pass.
+  Full verification passes: both value checks cover all 1,550 functions with
+  zero mismatches or skips; existing call/global-access diagnostics remain
+  11/55. Verification preserves SHA-256
+  `5201e8cfa087f5cba29c11a73aa73c9606c69400fcb91559cd03bb9b9d5ed1c2`.
