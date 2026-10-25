@@ -71,6 +71,26 @@ The target-list sorter's register exchange likewise survives disabling
 recycling. These probes give no reason to change the production flags; the
 carrier's index calculation still needs a source-level explanation.
 
+The backend also exposes the expression hash used to discover global
+register candidates. In this same image, `0x0041DA38` calls `0x0041DC26`,
+masks the result with `0x1F`, and searches one of 32 linked lists at
+`0x004861C0`. New entries go at the head of their bucket. `0x0041DC26`
+combines the root's hash with those of its immediate operands, using
+`0x0041DB5B` for each contribution. The latter reads the node opcode and
+type, handles integer constants directly, and incorporates a named
+symbol's key at record offset `+0x24`; opcode `0x26` has a separate
+address/value path. These details are visible in the compiler's assembly.
+
+`0x0041F1EA` walks the buckets in ascending order when numbering candidate
+live ranges. The use accounting in `0x0041DED6` includes a block weight of
+four times the signed word at block offset `+0x46`, plus one. An assertion
+in that routine refers to `d:\backend\src\P2\nglobreg.c`. This identifies
+candidate discovery and numbering; physical-register selection is a later
+step. The hash explains why the measured modulo-32 symbol windows are
+useful while still being incomplete predictors for computed expressions.
+An isolated analysis of the unchanged compiler supplied these addresses;
+the compiler executable and production flags remain unchanged.
+
 ## Hand-written assembly
 
 Three regions were written in assembly, through different tools:

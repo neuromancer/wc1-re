@@ -2443,6 +2443,10 @@ fragment consumes, independent of the code it generates:
 | `&&`, `!`, `?:`, casts, `return`, `break`, `continue`, calls to declared functions, bare blocks | 0 |
 | `switch` | 4 + 1 per `case` or `default` |
 
+These periods describe the measured source-offset sweeps. The backend's
+[candidate hash](COMPILER.md#backend-diagnostics) also includes expression
+nodes, so a local's residue alone does not predict its physical register.
+
 Consequences: an `else` after a returning branch, a temporary local, or a
 `||` condition shifts every later function in the unit even when the code is
 unchanged, and the order of a function's local declarations moves its own
@@ -8809,3 +8813,40 @@ Session findings that are not yet retained because they change span sizes:
   and 2,308 original-image differences in 531 runs. The full function report
   is unchanged; sorting, address audits and compilation-unit-order checks
   pass.
+- Further viewport, damage-score and disk-prompt probes are discarded:
+  - A row-offset pointer captured before `free_viewport`'s allocation local
+    preserves the two remaining scene-buffer comparisons and the overall
+    difference count. Reversing those comparisons in the source, or naming
+    the scene pointers in a reused local, reproduces the preceding executable
+    exactly. Moving the `Viewport` type before the IX declarations in
+    `wc1.h` also leaves the linked game-flow code unchanged; only that unit
+    was rebuilt for the header probe.
+  - Removing the quotient casts from the scoped short damage accumulator,
+    or adding a `register` hint, leaves its entire function comparison
+    unchanged. Replacing `find_ratio`'s second guard with a conditional
+    return keeps that helper exact and moves the following accumulator to
+    C1 index 27,776 (mod 32 = 0). It still leaves the damage accumulator and
+    armor index exchanged. Balancing that removed guard label with the new
+    accumulator limits the complete-file regression to nine bytes, but
+    supplies no gain.
+  - Chaining the disk prompt's two rectangle assignments reverses the
+    destination-store order without correcting the temporary registers.
+    Two explicit eight-byte `memcpy` calls add copy instructions and grow
+    the aligned span by sixteen bytes. A named rectangle snapshot keeps
+    the original frame but leaves the two load registers reversed. Copying
+    the second rectangle from the freshly assigned background rectangle
+    reproduces the preceding executable exactly.
+  - The scoped allocation counter and empty-bodied `for` search in
+    `ValidateViewportBounds` leave its complete comparison unchanged in
+    the current context, including the counter/pointer register exchange.
+    Swapping the next-row and row-stride declarations also has no effect
+    on this function. Later graphics routines regress, so both variants
+    are restored.
+  The candidate-hash routines found in the compiler are documented in
+  `docs/COMPILER.md`. All game-source and header changes are restored.
+  A forced native rebuild reproduces the previously verified executable
+  byte for byte, with SHA-256
+  `c9c59efbbe84ec74d1d9da3418580d61d2c60cd932c1bce1cd18598c4592ced5`.
+  The full function report is unchanged, retaining 2,308 original-image
+  differences in 531 runs. Sorting, address audits and compilation-unit
+  order checks pass.
