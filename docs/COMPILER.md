@@ -334,6 +334,18 @@ also becomes `CMP DI,[saved point]`. All 272 bytes then match. This is an
 indirect stack-layout effect through the generated operations; symbol keys
 do not themselves order the stack slots.
 
+`build_your_target_list` needs its parameter key moved from 27,990 to
+28,005 to recover ECX for the output pointer and ESI for the scaled
+enum-array index. The compiler model predicts the exchange; `binary-comp`
+confirms the complete 160-byte span. In the preceding cockpit restore
+routine, two used call-pointer captures with twelve named parameters and
+one scoped X-coordinate capture supply the fifteen symbols. CL folds the
+call pointers to the same direct calls and preserves every byte of that
+routine. Declaring `cycle_onscreen_targets`' index before its saved target
+also preserves its array-address operand order under the new context.
+The executable changes only in the target-list routine. These declarations
+reproduce a measured compiler context, not recovered original source text.
+
 `PollJoystickButtonEvents` becomes exact with 25 more symbols
 before it. Scoped input, button and timing snapshots in
 `UpdateInputDeviceTransitions`, together with correctly typed captures of

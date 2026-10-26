@@ -2354,25 +2354,31 @@ void RestoreCockpitExplosionIfVisible(void)
 unsigned int RestoreTransientCockpitGraphics(void)
 {
     char *displayedMessage;
+    void (*restoreBackground)(Viewport *viewport, unsigned char *background,
+                               short x, short y, unsigned char *shape,
+                               short frame) = RestoreSpriteBackground;
+    void (*drawTargetBracket)(unsigned short colour, signed char object,
+                             short solid, short drawLockMarker, short padding,
+                             ShortRect *savedBounds) = draw_target_box;
 
     if (bMouseCursorVisible == 1) {
-        RestoreSpriteBackground(stMouseCursorState.viewport,
-                                abMouseCursorBackground,
-                                (short)nStoredMouseCursorPosX,
-                                (short)nSavedMouseCursorY,
-                                stMouseCursorState.shape,
-                                (short)stMouseCursorState.frame);
+        restoreBackground(stMouseCursorState.viewport,
+                          abMouseCursorBackground,
+                          (short)nStoredMouseCursorPosX,
+                          (short)nSavedMouseCursorY,
+                          stMouseCursorState.shape,
+                          (short)stMouseCursorState.frame);
     }
     if (cLastTargetObject != -1) {
-        draw_target_box(cPrimaryViewBufferColour,
-                        cLastTargetObject,
-                        0, 0, 2,
-                        &stPreviousTargetBracketBounds);
+        drawTargetBracket(cPrimaryViewBufferColour,
+                          cLastTargetObject,
+                          0, 0, 2,
+                          &stPreviousTargetBracketBounds);
         cLastTargetObject = -1;
     }
-    draw_target_box(cPrimaryViewBufferColour, acShipTargetTable[0],
-                    nTargetLockMode, 1, 1,
-                    &stTargetBracketBounds);
+    drawTargetBracket(cPrimaryViewBufferColour, acShipTargetTable[0],
+                      nTargetLockMode, 1, 1,
+                      &stTargetBracketBounds);
     /* Keep this read separate from the following pointer comparison. */
     displayedMessage = *(char *volatile *)&pszDisplayedHudMessage;
     if (displayedMessage != pszPendingHudMessage &&
@@ -2381,10 +2387,11 @@ unsigned int RestoreTransientCockpitGraphics(void)
     if (IsCockpitExplosionActive() &&
         pCockpitExplosionBackground != 0) {
         if (bCockpitlessView == 0) {
+            short x = stCockpitExplosionPosition.x;
+
             CaptureSpriteBackground(
                 &stScreenView, pCockpitExplosionBackground,
-                stCockpitExplosionPosition.x,
-                stCockpitExplosionPosition.y,
+                x, stCockpitExplosionPosition.y,
                 pCockpitExplosionShape,
                 nCockpitExplosionFrame);
         }
@@ -2465,8 +2472,8 @@ void build_your_target_list(short *hasEnemy)
 /* Function start: 0x416F30 */
 void cycle_onscreen_targets(void)
 {
-    short previousTarget;
     signed char index;
+    short previousTarget;
     signed char count;
     short hasEnemy;
 

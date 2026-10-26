@@ -9110,3 +9110,35 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   preserves SHA-256
   `97cf9cf8cedc3b544879f5c35b92dc496bb63b33a199eb1ce99f607f06bad5a0`.
+- `build_your_target_list` retains its body and gains the original register
+  allocation through the preceding cockpit restore routine's declarations.
+  The compiler model predicts that moving its output-pointer parameter key
+  from 27,990 to 28,005 exchanges only ECX and ESI in the final allocation.
+  Two used call-pointer captures, their twelve named parameters, and one
+  scoped explosion X-coordinate capture supply the fifteen symbols. CL
+  folds both pointers to direct calls and preserves the restore routine
+  byte for byte. Declaring the target-cycle index before its saved target
+  preserves the later loop's array-address operand order. These are measured
+  compiler-context choices, not recovered original source spelling.
+  The target-list routine's eleven differing encodings disappear, and its
+  complete 160-byte span is exact. Only this row changes in the full report,
+  reaching 1,508 normalized-exact functions of 1,550; 1,528 have 100%
+  mnemonic similarity, and all 1,550 remain at least 90%. All 1,539 mapped
+  functions retain their original addresses, with 1,494 byte-identical
+  spans. Exactly nineteen executable bytes change, all toward the original:
+  516,532 of 518,656 match (99.5905%), leaving 2,124 differences in 435 runs.
+  Earlier argument-value captures are discarded: short cursor-coordinate
+  captures narrow the original dword loads, while native-width captures and
+  reversed declaration order still change cursor and bracket scheduling.
+  The retained call-pointer form avoids those changes.
+  An additional `InflightComputer` probe is also discarded. Sharing the
+  flag/input-mode short and widening the saved navigation point to int
+  restores the original 72-byte frame and desired offsets, but emits a
+  dword store where the original writes a word, while retaining the loop
+  register and scheduling differences. The preceding implementation remains.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both
+  value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  preserves SHA-256
+  `5955b635d6f3528b6531bdb6a8b3e07d360a40a0967b7ab347f31bf3386a530c`.
