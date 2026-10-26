@@ -323,6 +323,17 @@ compiler and `binary-comp` confirm both predictions: all 1,472 bytes match,
 with no change anywhere else in the executable. Initializations, arithmetic
 and control flow are unchanged; the declaration order is a matching choice.
 
+`SelectNavObjectiveAtPoint` shows how expression ordering can also repair
+stack slots without changing types or adding storage. Of the permutations
+of its seven short locals, the model finds 35 that preserve register
+colouring while reversing the coordinate-sum and saved-point comparisons.
+The selected order is `mapY`, `oldNavPoint`, `x`, `pathIndex`, `mapX`, `y`,
+`selected`. Computing the X distance before Y restores both coordinate
+argument offsets as well as the original arithmetic order. The final test
+also becomes `CMP DI,[saved point]`. All 272 bytes then match. This is an
+indirect stack-layout effect through the generated operations; symbol keys
+do not themselves order the stack slots.
+
 `PollJoystickButtonEvents` becomes exact with 25 more symbols
 before it. Scoped input, button and timing snapshots in
 `UpdateInputDeviceTransitions`, together with correctly typed captures of

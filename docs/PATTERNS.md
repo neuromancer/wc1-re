@@ -9081,3 +9081,32 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   preserves SHA-256
   `aa2b15d7ce5dbdbeb5ff469dff7e45a9a90f5d0b8066eb344edd93ee8f0a4e29`.
+- `SelectNavObjectiveAtPoint` declares its short locals as `mapY`,
+  `oldNavPoint`, `x`, `pathIndex`, `mapX`, `y`, then `selected`. The compiler
+  model finds 35 declaration orders that preserve the existing register
+  colouring while reversing the two relevant operand decisions. The selected
+  order moves X from key 27,538 to 27,540, the path index from 27,539 to
+  27,541, and Y from 27,540 to 27,543. The original ESI/EDI/EBX assignments
+  and qualified input-read schedule remain intact. The X distance is now
+  calculated before Y; their mapped-coordinate stack slots follow that
+  order. The final comparison becomes `CMP DI,[saved navigation point]`.
+  These are measured compiler-context choices, not recovered source spelling.
+  All five differing encodings disappear, and the complete 272-byte span
+  is exact. Only this row changes in the full report, reaching 1,507
+  normalized-exact functions of 1,550. All 1,539 mapped functions retain
+  their original addresses, with 1,493 byte-identical spans. Exactly five
+  executable bytes change, all toward the original: 516,513 of 518,656
+  match (99.5868%), leaving 2,143 differences in 440 runs.
+  `InflightComputer` trials are discarded. The original objective flag
+  and saved input mode occupy the same stack word at different times.
+  Reusing one volatile short gives a 68-byte frame instead of 72, hoists a
+  loop constant, and exchanges the loop registers. Qualifying only the
+  later saved-mode store and read also gives the smaller frame. Scoping the
+  separate saved mode to the interactive branch leaves the five stack-offset
+  discrepancies unresolved. The preceding inflight implementation is retained.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both
+  value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  preserves SHA-256
+  `97cf9cf8cedc3b544879f5c35b92dc496bb63b33a199eb1ce99f607f06bad5a0`.
