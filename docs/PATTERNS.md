@@ -9475,7 +9475,40 @@ Session findings that are not yet retained because they change span sizes:
   non-code bytes are unchanged.
   A fresh native build reproduces the candidate byte for byte. The modern
   build, sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes: both value checks cover all 1,550 functions
+  with zero mismatches or skips, and call/global-access diagnostics remain
+  11/55. Verification preserves SHA-256
+  `1b3c8f3e3ec4bc0e991a2b75b844a8baeda5457d146094dd0a22697974d96eff`.
   Full verification passes: both value checks cover all 1,550 functions
   with zero mismatches or skips, and the existing call/global-access
   diagnostics remain 11/55. Verification preserves SHA-256
   `b954d5dc803e8ceb85f473c174273497c3c1bcd341167362e1584735b8fcb3bd`.
+- `draw_sorted_objects_to_buffer` gives the scaled-object branch its own
+  short X/Y coordinates and shape pointer. The unscaled branch retains the
+  function-scope values. These separate lifetimes restore EAX for the
+  doubled array index, EDI for the shape and the original argument registers.
+  Read X before Y, then add the X origin before loading the shape. Qualify
+  only the Y-coordinate and shape-pointer reads to retain the original
+  access order; the other coordinate reads and stores remain ordinary.
+  Removing either remaining qualifier loses literal matches. These are
+  measured compiler constraints, not recovered original qualifier spelling.
+  The additional three declarations initially exchange ECX and EDX in
+  `GetViewportIntersection`. In `shrink_vector`, passing the Y/Z field
+  addresses directly instead of through two pointer locals leaves its
+  complete 64-byte span unchanged and restores the rectangle routine's
+  original allocation. Removing `shrink`'s fraction snapshot as well
+  regresses that function, so the snapshot stays. An explicit first-left
+  value in the intersection routine changes its span; a qualified first
+  pointer adds an unwanted memory test. Both probes are discarded.
+  All nineteen renderer encoding differences disappear, and its complete
+  304-byte span is literally exact. All 93 event-manager report rows now
+  compare exactly. Only the renderer row changes in the complete report:
+  1,517 normalized-exact functions of 1,550, with 1,534 at 100% mnemonic
+  similarity. All 1,539 mapped functions retain their original addresses;
+  1,503 mapped spans are byte-identical. Exactly 31 executable bytes change,
+  all toward the original: thirty code bytes and one relocation byte.
+  Strict matching reaches 516,695 of 518,656 bytes (99.6219%), leaving
+  1,961 differences in 358 runs. Of those differences, 1,871 are in code
+  and ninety in relocations. Section sizes and entry point remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address audit and compilation-unit-order checks pass.

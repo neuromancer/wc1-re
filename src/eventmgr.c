@@ -955,32 +955,39 @@ void draw_sorted_objects_to_buffer(void)
 #endif
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
-            default:
-                screenY = asObjectScreenYArray[obj];
-                screenX = (short)(asObjectScreenXList[obj] +
+            default: {
+                short objectX;
+                short objectY;
+                unsigned char *objectShape;
+
+                objectX = asObjectScreenXList[obj];
+                objectY = *(short volatile *)&asObjectScreenYArray[obj];
+                objectX = (short)(objectX +
                                   nCurrentViewCenterPosX);
-                shape = apObjShapeArray[obj];
-                asObjectDrawPosX[obj] = screenX;
-                screenY = (short)(screenY + nCurrentViewCenterPosY);
-                asObjectDrawPosY[obj] = screenY;
-                if (shape != 0) {
+                objectShape = *(unsigned char *volatile *)&apObjShapeArray[obj];
+                asObjectDrawPosX[obj] = objectX;
+                objectY = (short)(objectY +
+                                  nCurrentViewCenterPosY);
+                asObjectDrawPosY[obj] = objectY;
+                if (objectShape != 0) {
 #ifdef SDL_PORT
                     if (!SdlRecordSpaceSprite(
                             &stSpaceBufferViewport, enhancedScreenX, enhancedScreenY,
-                            shape,
+                            objectShape,
                             asObjectViewFrames[obj],
                             asObjScreenAngles[obj],
                             asObjScreenScalesArray[obj],
                             asObjectFlipArray[obj]))
 #endif
                     DrawSpriteScaled(
-                        &stSpaceBufferViewport, screenX, screenY, shape,
+                        &stSpaceBufferViewport, objectX, objectY, objectShape,
                         asObjectViewFrames[obj],
                         asObjScreenAngles[obj],
                         asObjScreenScalesArray[obj],
                         asObjectFlipArray[obj]);
                 }
                 break;
+            }
             case OBJECT_CLASS_STAR:
 #ifdef SDL_PORT
                 /* WCDX fix: planets use the per-object scaled path above. */
@@ -1296,15 +1303,11 @@ unsigned int IsVectorWithinRange(FixedVector *vector, short range)
 unsigned int shrink_vector(FixedVector *vector)
 {
     unsigned int shrinking;
-    int *z;
-    int *y;
 
-    y = &vector->y;
-    z = &vector->z;
     do {
         shrinking = shrink(&vector->x);
-        shrinking |= shrink(y);
-        shrinking |= shrink(z);
+        shrinking |= shrink(&vector->y);
+        shrinking |= shrink(&vector->z);
     } while (shrinking != 0);
     return 0;
 }
