@@ -1202,13 +1202,15 @@ unsigned int animate_shape(short obj)
 {
     enum ObjectType type;
     unsigned char *animation;
+    short delay;
     short command;
 
     type = aeObjectTypeList[obj];
     animation = aObjectTypeData[type].animation;
     if (animation == 0)
         return 0;
-    if (--asObjectAnimationDelay[obj] > 0)
+    delay = --asObjectAnimationDelay[obj];
+    if (delay > 0)
         return 0;
     asObjectAnimationDelay[obj] = aObjectTypeData[type].yawRate;
     command = *(unsigned short *)(animation + asObjectAnimIndexes[obj] * 4);
@@ -1243,10 +1245,13 @@ unsigned int animate_shape(short obj)
         awObjectScales[obj] +=
             (command & 0x3f) * ((unsigned short)awObjectScales[obj] >> 6);
         break;
-    case 0x0800:
-        awObjectScales[obj] -=
-            (command & 0x3f) * ((unsigned short)awObjectScales[obj] >> 6);
+    case 0x0800: {
+        unsigned short scale = awObjectScales[obj];
+
+        awObjectScales[obj] =
+            scale - (command & 0x3f) * (scale >> 6);
         break;
+    }
     default:
         command &= 0x3f;
         asObjectViewFrames[obj] = command;

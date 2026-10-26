@@ -9445,3 +9445,37 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `d2696219c2e01c3bedb5bcb3c8e597bce263edce9e8955b8cc7cc22addb3574c`.
+- `animate_shape` captures the decremented animation delay in a separate
+  short before testing it. CL retains the original DI countdown and EAX
+  type-data offset instead of exchanging them, recovering six bytes. Reusing
+  the command for the countdown did not do this in earlier trials. Declaring
+  the delay before the command moves the command key from 27,558 to 27,559,
+  reversing the scale-product operand order as predicted by the compiler's
+  expression signatures. The increase path becomes exact, but the direct
+  shrink expression then chooses CX for its result and merges the stores.
+  Capturing the shrink path's original scale in an unsigned short keeps its
+  result in DX and restores the separate stores. Both captures are consumed
+  by the existing computations and require no stack storage or extra
+  instructions. The shrink multiplication still has reversed operands and
+  a different instruction schedule.
+  Narrowing the product, changing the scale snapshot to signed short with
+  unsigned casts, or capturing a separate factor produces the same retained
+  executable. Signed and unsigned int scale snapshots lose matches. Moving
+  the scale to function scope does not help. Scoped command/scale lifetimes,
+  a qualified scale read, a captured shifted scale and an unsigned shrink
+  index do not recover the remaining operand order without other losses.
+  Only the animation row changes in the complete report: differing encodings
+  fall from fifteen to five of 104, and mnemonic similarity rises from
+  96.15% to 98.08%. Its aligned span remains 352 bytes, with eleven literal
+  differences. The totals remain 1,516 normalized-exact functions of 1,550
+  and 1,502 byte-identical mapped spans; all 1,539 mapped functions retain
+  their original addresses. Exactly fourteen executable code bytes change,
+  all toward the original. Strict matching reaches 516,664 of 518,656 bytes
+  (99.6159%), leaving 1,992 differences in 374 runs. Relocations and all
+  non-code bytes are unchanged.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address audit and compilation-unit-order checks pass.
+  Full verification passes: both value checks cover all 1,550 functions
+  with zero mismatches or skips, and the existing call/global-access
+  diagnostics remain 11/55. Verification preserves SHA-256
+  `b954d5dc803e8ceb85f473c174273497c3c1bcd341167362e1584735b8fcb3bd`.
