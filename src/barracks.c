@@ -610,6 +610,7 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
 /* Function start: 0x41B710 */
 int LoadGame(short slot, SaveGameRecord *gameRecord)
 {
+    int index;
     SaveGameDiskRecord diskRecord;
     SaveGameDiskObjective *diskObjective;
     MissionObjective *gameObjective;
@@ -618,7 +619,6 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     short *diskDeathMission;
     short file;
     short fileOpen;
-    int index;
     int read;
 
     PromptInsertNumberedDisk(0x10);

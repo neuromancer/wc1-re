@@ -8895,3 +8895,25 @@ Session findings that are not yet retained because they change span sizes:
   checks cover all 1,550 functions with zero mismatches or skips; the existing
   call/global-access diagnostics remain 11/55. Verification preserves SHA-256
   `6f3d2719c2109f9b2786e74397459046d9aebdcec62da8fed0462c2dc313160a`.
+- `LoadGame` declares its existing loop index before the disk record and
+  pointer locals, matching the declaration-order choice in `SaveGame`.
+  This restores the original base/index encoding in the medal, badge,
+  series-history and ace-flag stores without changing the frame, registers,
+  instruction order or function size. Declaring the index only three slots
+  earlier leaves those encodings unchanged. These are measured compiler
+  choices, not recovered original local declarations.
+  Binary-comp reports five differing encodings instead of nine in the
+  624-byte loader; the remaining differences are description-tail and
+  objective-pointer scheduling. The complete function report changes only
+  this row and retains 1,500 normalized-exact functions of 1,550. Exactly
+  four file bytes change, all toward the original: 516,415 of 518,656 bytes
+  now match (99.5679%), leaving 2,241 differences in 484 runs.
+  The pilot-input argument and qualified-access probes do not improve
+  `PromptForPilotField`; exposing the empty save writer's position source
+  through its existing byte pointer leaves that writer unchanged. All of
+  those probes are restored.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both value
+  checks cover all 1,550 functions with zero mismatches or skips; existing
+  call/global-access diagnostics remain 11/55. Verification preserves SHA-256
+  `a37f710e0e71f31beb3c6418ad7e7827dfd610f14ac8e561f07d38590b4c3a95`.
