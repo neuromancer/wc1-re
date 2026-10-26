@@ -1308,10 +1308,13 @@ short find_ratio(short inputMinimum, short inputMaximum,
 /* Function start: 0x423C00 */
 short evaluate_damage(short obj)
 {
-    ObjectTypeData *typeData =
-        &aObjectTypeData[aeObjectTypeList[obj]];
+    enum ObjectType objectType = aeObjectTypeList[obj];
+    enum ObjectClass objectClass;
+    ObjectTypeData *typeData = &aObjectTypeData[objectType];
 
-    if (aeObjectClass[obj] < OBJECT_CLASS_SHIP)
+    objectClass = aeObjectClass[obj];
+
+    if (objectClass < OBJECT_CLASS_SHIP)
         return 100;
     return (short)((acShipDmg[obj] * -26) /
                        typeData->damageCapacity +
@@ -1335,17 +1338,14 @@ short mine_available(short obj)
 int LoadShapeSet(PacketResourceDescriptor *resources,
                  unsigned short flags, short defaultLogicalFile)
 {
-    short logicalFile;
-
     while (resources->resource != 0) {
         if (*resources->resource == 0) {
-            logicalFile = resources->logicalFile;
-            if (logicalFile == -1)
+            if (resources->logicalFile == -1)
                 *resources->resource = FetchDiskPacketRetrying(
                     defaultLogicalFile, resources->section, flags);
             else
                 *resources->resource = FetchDiskPacketRetrying(
-                    logicalFile, resources->section, flags);
+                    resources->logicalFile, resources->section, flags);
             if (*resources->resource == 0)
                 return 0;
         }
@@ -1423,8 +1423,8 @@ unsigned int initialize_cockpit(int requestedMode)
 {
     Viewport savedScreen;
     unsigned char *backdrop;
-    unsigned int result;
     signed char mode;
+    unsigned int result;
 
     if (message_showing())
         EndCommMenu();
@@ -1552,12 +1552,10 @@ unsigned int initialize_cockpit(int requestedMode)
                 DrawSpriteDefault(&stScreenView, 0, 0,
                                   pLogicRearViewBackdropPtr, 0);
         } else {
-            unsigned char *rearBackdrop;
-
-            rearBackdrop = FetchDiskPacketRetrying(8, 7, 0);
+            backdrop = FetchDiskPacketRetrying(8, 7, 0);
             if (bCockpitlessView == 0)
-                DrawSpriteDefault(&stScreenView, 0, 0, rearBackdrop, 0);
-            ReleasePacketHandle(rearBackdrop);
+                DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
+            ReleasePacketHandle(backdrop);
         }
         set_up_screen_viewport(0);
         break;

@@ -289,12 +289,28 @@ one symbol per named parameter. `cockpt.c` (+17 before `check_sighting`,
 +15 before `print_message_text`) and `main.c` (+17 before
 `SelectPreviousExternalViewObject`) were fixed this way.
 
-Some units are locked. In `logic.c`, `scan_for_enemy` tolerates only 0, 17,
-34 or 96 and `UpdateSceneAnimationObject`, later in the unit, only 0, -32,
--64 or -96, so every function between them stays at 0. That excludes the
+Some units constrain insertion-only profiles. In `logic.c`,
+`scan_for_enemy` tolerates only 0, 17, 34 or 96 and
+`UpdateSceneAnimationObject`, later in the unit, only 0, -32, -64 or -96,
+so such a profile leaves the interval between them at 0. That excludes the
 targets of `attacker_in_range` and `hostile_sphere`, and any route to
 `find_ship_index` or `get_front_spot` needs four to six steps of 64 or more
-symbols. `PollJoystickButtonEvents` becomes exact with 25 more symbols
+symbols.
+
+Global-key changes combined with balanced local-count changes can escape
+that constraint. In `evaluate_damage`, neither an armor-array key change nor
+a local-pointer key change alone produces the original armor-term order.
+Swapping `aasShipArmor` with `aeShipTacticArray` only for `logic.c` moves
+the armor key from 23,517 to 23,529. Capturing the object type and class
+before declaring `typeData` moves its key from 27,775 to 27,777. Together
+they recover rear, front, left, right evaluation and the exact 208-byte
+span. Removing the redundant logical-file local in `LoadShapeSet` and
+reusing the backdrop pointer for cockpit case 7 balance those two added
+symbols. Declaring the cockpit mode before its result preserves the
+comparison order. All other executable bytes remain unchanged; these are
+measured matching declarations, not recovered original source spelling.
+
+`PollJoystickButtonEvents` becomes exact with 25 more symbols
 before it. Scoped input, button and timing snapshots in
 `UpdateInputDeviceTransitions`, together with correctly typed captures of
 its two sampling calls, now supply that context. The 22 used locals and

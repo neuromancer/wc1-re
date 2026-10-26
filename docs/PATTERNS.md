@@ -9020,3 +9020,36 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   preserves SHA-256
   `1d89d142fee9573a65a9f345ad4926aa7de6bcfea90bc048e3a8d2b31d541416`.
+- `evaluate_damage` captures the object type and class before declaring its
+  type-data pointer. The captures compile away and move `typeData`'s key
+  from 27,775 to 27,777. In `logic.c`'s header context only, swapping the
+  armor and tactic array declarations moves `aasShipArmor`'s key from
+  23,517 to 23,529. The instrumented compiler's expression signatures
+  predict the combined change: the armor terms sort rear, front, left,
+  right. Neither key change alone gives that order. The unchanged damage
+  formula now recovers every instruction, including the final EBX divisor,
+  and the complete 208-byte span is exact.
+  Two later local reductions balance the added symbols: `LoadShapeSet`
+  reads its descriptor's logical-file field directly, and cockpit case 7
+  reuses the existing backdrop pointer. Declaring the cockpit mode before
+  the result preserves its comparison order. The loader and cockpit code
+  retain their exact bytes, and every other function remains unchanged.
+  These are measured compiler-context choices, not recovered original
+  source spelling.
+  A first variant with both captures and no balancing changes regresses
+  later scene-animation and cockpit routines. Reusing the existing pointer
+  in both alternate cockpit cases restores the later context but leaves three
+  differing bytes in two comparisons. The retained local choices remove
+  those regressions; reversing the comparison expressions alone does not.
+  Only the damage routine changes in the full report, reaching 1,505
+  normalized-exact functions of 1,550. All 1,550 now have at least 90%
+  mnemonic similarity, with 1,527 at 100%. All 1,539 mapped functions retain
+  their original addresses, with 1,491 byte-identical spans. Exactly 31
+  executable bytes change, all toward the original: 516,503 of 518,656
+  match (99.5849%), leaving 2,153 differences in 450 runs.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both
+  value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  preserves SHA-256
+  `aeacdd434d697165aec0fb7e76a1d832b01562e46dab138bd9c7338a5650de25`.

@@ -426,7 +426,13 @@ extern unsigned char *apObjShapeArray[SPACE_OBJECT_COUNT]; /* 0x0059d2f0 */
 extern short nPitchInput; /* 0x0059d3f0 */
 extern short nYawInputValue; /* 0x0059d3f2 */
 extern short nCurrentRollInputValue; /* 0x0059d3f4 */
+/* Logic's armor-term ordering depends on this declaration pair being reversed.
+ * See docs/PATTERNS.md for the measured compiler context. */
+#ifdef WC1_LOGIC_SOURCE
+extern enum ShipTactic aeShipTacticArray[12]; /* 0x0059d5e0 */
+#else
 extern short aasShipArmor[10][4]; /* 0x0059d420 */
+#endif
 extern short asShipWingLeaderArray[16]; /* 0x0059d400 */
 extern short asShipWpnEnergyList[10]; /* 0x0059d470 */
 extern signed char acFormationMemberLists[16]; /* 0x0059d490 */
@@ -438,7 +444,11 @@ extern short asObjectCollisionRadius[64]; /* 0x0059d710 */
 extern char acShipSequence[10]; /* 0x0059d520 */
 extern short nTargetFacingValue; /* 0x0059d52a */
 extern FixedVector aShipDestinationsArray[10]; /* 0x0059d530 */
+#ifdef WC1_LOGIC_SOURCE
+extern short aasShipArmor[10][4]; /* 0x0059d420 */
+#else
 extern enum ShipTactic aeShipTacticArray[12]; /* 0x0059d5e0 */
+#endif
 extern short aasShipShield[10][2]; /* 0x0059d5b0 */
 extern signed char abShipExhaustHeatList[10]; /* 0x0059d610 */
 extern short nRenderedSpaceFrame; /* 0x0059d61a */
