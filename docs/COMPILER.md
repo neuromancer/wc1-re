@@ -222,6 +222,81 @@ symbol and the terms tie. For terms of this shape, no base signature
 produces the original descending order, so that routine needs a different
 expression tree, not a different symbol index.
 
+### Register colouring
+
+`0x0041F1EA` numbers live ranges (webs) from 32 upward, walking the 32
+candidate buckets in ascending order and taking each bucket's newest
+candidate first. A variable's bucket is its key plus offset, masked with
+`0x1F`; compiler temporaries have fixed buckets. The colourer keeps its nodes
+in 96 lists at `0x00486F20` (precoloured nodes, `0x4000 | web`,
+`0x8000 | n`), indexed by web number modulo 32. `FUN_0041CAD1` repeatedly
+removes the colourable node of highest degree (ties: the first in its
+prepended traversal), or else the node of lowest priority. `FUN_0041CC26`
+then colours the nodes in reverse removal order with the preference table at
+`0x0047B370`: EAX, ECX, EDX, ESI, EDI, EBX, EBP. Byte-sized webs get
+precoloured edges to ESI, EDI and EBP. Replaying this on the logged
+interference graphs reproduces all 73 colouring rounds of `mission.c`.
+Statement-local scratch registers (for example `AllocateGuardedMemory`'s
+EDX, or the two-dword copy in `PromptInsertNumberedDisk`) are chosen later
+by the code generator and are not covered by this model.
+
+### Stack frame layout
+
+With `/Og`, `FUN_00421A14` lays out the locals after register allocation.
+It scans every instruction of every block, second operand first, and calls
+`FUN_004326D8` for each memory operand that names an automatic variable or a
+temporary on the frame. That routine keeps one list sorted by size
+ascending. Within a size, entries are sorted by reference count descending,
+and an entry whose count grows moves ahead of entries with an equal count.
+`FUN_00432E9F` then packs the list in order: each variable joins the first
+slot none of whose members interferes with it. The slots are merge-sorted
+(stable) by the comparator at `0x00436F7D`. When both slots are at least
+four bytes, the one with the higher density (`weight * 1000 / size`) comes
+first, then the larger one. Otherwise the smaller slot comes first.
+`FUN_0040E19E` hands out the slots from the frame top down, aligning
+two-byte slots to two and larger ones to four. A flag passed in by the
+allocation driver `FUN_0041B4D6` reverses the sorted order and places each
+member at its slot's base rather than its top. The frames checked so far
+behave as if it is set, so `ReadTextInput`'s eight offsets follow from its
+reference counts. Other
+frames still differ from the prediction made from the final listing,
+because the instruction order and counts seen at layout time are not
+exactly those of the listing. Symbol keys do not enter this layout at all;
+a slot-order difference therefore needs a different reference pattern,
+size or lifetime, not a symbol shift. The SEH and C++ EH records
+(`__$SEHRec`, `__$EHRec`, via `0x00440268`) are allocated before every
+local.
+
+### Planning symbol shifts
+
+The logs of an instrumented `C2.EXE` copy (signatures, candidates, webs,
+interference graphs and colours) let the operand-order and colouring models
+predict, offline, each function's decisions when its own keys move by
+`s`. For each differing function, the change set that turns our code into
+the original is read off the aligned diff: a register rotation must equal
+the model's predicted web moves. All shifts producing exactly that set are
+its target. Every exact function in the unit gets a tolerance window of
+shifts that change nothing. Additions can only raise the shift of all later
+functions, so a fewest-step nondecreasing profile through the windows and
+targets says where symbols must be added. Before writing any source, one
+scratch compile with placeholder `extern`s at those points confirms the
+prediction. The model was wrong twice: `DrawNavSquareOutline` at +12 also
+reverses its additions, and `perform_maneuver` at +30 keeps its comparison.
+The confirmed profiles are realized with local prototypes of external
+callees first used after the insertion point; a redundant prototype costs
+one symbol per named parameter. `cockpt.c` (+17 before `check_sighting`,
++15 before `print_message_text`) and `main.c` (+17 before
+`SelectPreviousExternalViewObject`) were fixed this way.
+
+Some units are locked. In `logic.c`, `scan_for_enemy` tolerates only 0, 17,
+34 or 96 and `UpdateSceneAnimationObject`, later in the unit, only 0, -32,
+-64 or -96, so every function between them stays at 0. That excludes the
+targets of `attacker_in_range` and `hostile_sphere`, and any route to
+`find_ship_index` or `get_front_spot` needs four to six steps of 64 or more
+symbols. `PollJoystickButtonEvents` becomes exact with 25 more symbols
+before it (confirmed by a scratch compile), but its unit offers no natural
+source for them. `UnionRectBounds` needs +12 (or -5) and has no callees.
+
 ## Hand-written assembly
 
 Three regions were written in assembly, through different tools:
