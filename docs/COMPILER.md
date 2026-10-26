@@ -258,10 +258,11 @@ two-byte slots to two and larger ones to four. A flag passed in by the
 allocation driver `FUN_0041B4D6` reverses the sorted order and places each
 member at its slot's base rather than its top. The frames checked so far
 behave as if it is set, so `ReadTextInput`'s eight offsets follow from its
-reference counts. Other
-frames still differ from the prediction made from the final listing,
-because the instruction order and counts seen at layout time are not
-exactly those of the listing. Symbol keys do not enter this layout at all;
+reference counts, as do `DecompressPacketSection`'s three dwords.
+Predicting from the final listing reproduces 31 of the 83 temporary-free
+frames with at least two locals; the rest differ because some sizes are
+not recovered from the `sy` file and because the instruction order and
+counts seen at layout time are not exactly those of the listing. Symbol keys do not enter this layout at all;
 a slot-order difference therefore needs a different reference pattern,
 size or lifetime, not a symbol shift. The SEH and C++ EH records
 (`__$SEHRec`, `__$EHRec`, via `0x00440268`) are allocated before every
