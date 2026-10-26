@@ -1420,6 +1420,20 @@ void flag_reached(short objective, short reached)
         set_next_destination();
 }
 
+/* Objective tracking, scanner, and target-lock callees from other modules. */
+void ComputeVectorDelta(FixedVector *from, FixedVector *to,
+                        FixedVector *delta);
+short FixedToShortSaturating(int value);
+void transform_to_objects_frame(const FixedVector *source,
+                                FixedVector *destination,
+                                short obj);
+void rectangular_to_spherical(const FixedVector *rectangular,
+                              SphericalVector *spherical);
+void DrawViewportPixel(Viewport *viewport, short x, short y,
+                       short colour);
+int GetViewportPixel(Viewport *viewport, short x, short y);
+short RandomBelowOrEqual(short n);
+
 /* Function start: 0x4156D0 */
 void check_sighting(short objective, short range, short object)
 {
@@ -1924,6 +1938,15 @@ short GetRectHeight(const Viewport *viewport)
 {
     return viewport->right - viewport->left;
 }
+
+/* Target-box callees from other modules. */
+short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
+                              unsigned char *shape, short frame,
+                              short angle, short scale, short flip,
+                              short *bounds);
+void DrawViewportBorder(Viewport *viewport, short left, short top,
+                        short right, short bottom,
+                        short colour);
 
 /* Function start: 0x416260 */
 void print_message_text(char *text, unsigned short colour)
