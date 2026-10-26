@@ -9294,3 +9294,34 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `ea2b8d5c39acd198ddf408dd7a521aa7db384c24b9ac11a0a02fc5f9ece70e6c`.
+- `DebugOverlayPrintf` now matches its complete 336-byte span. Capturing
+  the constructor's existing `CreateMutexA` callee with three named
+  parameters advances the formatter's compilation context by four symbols
+  without changing the constructor's instructions. The native formatter
+  forms its variadic argument address directly from `format`; the SDL build
+  keeps `va_list`. Removing that native local preserves the later methods'
+  operand and register choices. Both row-offset multiplications now load
+  `columns` first and multiply by `cursorRow`, as the original does.
+  The thread worker captures its console through a qualified read of the
+  generic thread argument. This preserves its original pointer/index
+  addition order after the context change, with no new load or stack slot.
+  These are measured compiler-context choices, not recovered source spelling.
+  All fifteen functions in `debug.cpp` are now exact. Only the formatter's
+  row changes in the complete report: 1,513 normalized-exact functions of
+  1,550 and 1,499 byte-identical mapped spans. All 1,539 mapped functions
+  retain their original addresses. Exactly sixteen executable bytes change,
+  all toward the original: 516,620 of 518,656 match (99.6074%), leaving
+  2,036 differences in 400 runs.
+  Earlier captures are discarded. A formatter-local output pointer recovers
+  the two multiplies but either hoists the console load before the formatting
+  branch or adds a later reload. Column-value captures, including qualified
+  reads, reproduce the preceding executable. Capturing the hook-forwarding
+  callee or its four arguments changes the keyboard hook even though it
+  makes the formatter exact. Moving the asteroid source capture before the
+  single-fragment probability call also leaves its preceding bytes unchanged.
+  A fresh native build reproduces the candidate byte for byte; the modern
+  build, sorting, address audit and unit-order checks pass. Full verification
+  also passes, with both value checks covering all 1,550 functions and
+  reporting zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `c98a064e8e843c2efedec8e26d076e77748baa7afd277665257b28f9d4cd4193`.

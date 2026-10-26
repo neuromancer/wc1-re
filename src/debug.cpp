@@ -74,7 +74,10 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
 #ifdef SDL_PORT
     mutex = 0;
 #else
-    mutex = CreateMutexA(0, FALSE, 0);
+    HANDLE (WINAPI *createMutex)(LPSECURITY_ATTRIBUTES attributes,
+                                BOOL initialOwner, LPCSTR name) = CreateMutexA;
+
+    mutex = createMutex(0, FALSE, 0);
 #endif
     spinnerIndex = 0;
     animationState = 1;
@@ -108,7 +111,7 @@ extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
     HDC deviceContext;
 #endif
 
-    console = (DebugOverlayConsole *)parameter;
+    console = (DebugOverlayConsole *)*(void *volatile *)&parameter;
 #ifdef SDL_PORT
     while (console->animationState != 2)
         SDL_Delay(10);
@@ -175,15 +178,21 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
 extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
                                      const char *format, ...)
 {
+#ifdef SDL_PORT
     va_list arguments;
+#endif
     int index;
     int length;
     signed char character;
 
     if (format != 0) {
+#ifdef SDL_PORT
         va_start(arguments, format);
         vsprintf(console->formatBuffer, format, arguments);
         va_end(arguments);
+#else
+        vsprintf(console->formatBuffer, format, (char *)(&format + 1));
+#endif
     } else {
         strcpy(console->formatBuffer, "\n");
     }
