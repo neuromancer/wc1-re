@@ -576,8 +576,12 @@ void AddFixedVectors(const FixedVector *left, const FixedVector *right,
                      FixedVector *sum);                               /* 0x00418620 */
 void SubtractFixedVectors(FixedVector *left, FixedVector *right,
                           FixedVector *difference);                    /* 0x00418650 */
+#ifdef WC1_GEOM_SOURCE
+void ComputeVectorDelta(FixedVector *, FixedVector *, FixedVector *);   /* 0x00418680 */
+#else
 void ComputeVectorDelta(FixedVector *from, FixedVector *to,
                         FixedVector *delta);                            /* 0x00418680 */
+#endif
 void ScaleFixedVector(FixedVector *vector, int scale,
                       FixedVector *result);                            /* 0x004186B0 */
 void divide_vector(FixedVector *vector, int divisor,
@@ -616,7 +620,11 @@ void rotate_about_k(short angle, FixedVector *i,
                     FixedVector *j);                            /* 0x00418E40 */
 void init_ijk(short obj);                                       /* 0x00418F60 */
 void copy_frame(short source, short destination);                    /* 0x00418FD0 */
+#ifdef WC1_GEOM_SOURCE
+void fix_objects_ijk(short);                                     /* 0x00419050 */
+#else
 void fix_objects_ijk(short obj);                                 /* 0x00419050 */
+#endif
 void transform_to_objects_frame(const FixedVector *source,
                                 FixedVector *destination,
                                 short obj);                           /* 0x004190B0 */
@@ -1493,7 +1501,11 @@ unsigned short __stdcall GetShutdownErrorCode(
 void FinishPacketDecompressionHook(void);                              /* 0x004369D0 */
 void ExitCleanupHook(void);                                           /* 0x004369E0 */
 unsigned int IsVectorWithinRange(FixedVector *vector, short range);    /* 0x00436A00 */
+#ifdef WC1_GEOM_SOURCE
+unsigned int shrink_vector(FixedVector *);                             /* 0x00436A30 */
+#else
 unsigned int shrink_vector(FixedVector *vector);                       /* 0x00436A30 */
+#endif
 unsigned int shrink(int *component);                                   /* 0x00436A70 */
 #ifdef WC1_EVENTMGR_SOURCE
 /* Parameter names here perturb other CL 4.20 event-manager functions. */

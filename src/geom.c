@@ -5,6 +5,7 @@
  *  The modal-panel block at 41a9d0 belongs with the barracks data and
  *  save/load routines; get_right_shape closes this geometry range.
  */
+#define WC1_GEOM_SOURCE
 #include "wc1.h"
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
@@ -139,17 +140,17 @@ void drain_fuel(short ship, short amount)
 /* Function start: 0x4182B0 */
 void damage_ion_drive(short ship, short amount, short maximum)
 {
-    volatile signed char *ionDriveDamage;
+    int damageLimit;
     int damage;
 
-    ionDriveDamage = &acShipIonDriveDmg[ship];
-    damage = (int)*ionDriveDamage;
+    damage = (int)*(volatile signed char *)&acShipIonDriveDmg[ship];
     damage += amount;
-    if (damage >= maximum)
-        damage = maximum;
+    damageLimit = maximum;
+    if (damage >= damageLimit)
+        damage = damageLimit;
     if (damage <= 0)
         damage = 0;
-    *ionDriveDamage = (signed char)damage;
+    *(volatile signed char *)&acShipIonDriveDmg[ship] = (signed char)damage;
     recalc_max_velocity(ship);
 }
 
@@ -174,9 +175,12 @@ int GetShipAccelerationRate(short ship)
 void point_at(short obj, FixedVector point)
 {
     FixedVector direction;
+    void (*computeDelta)(FixedVector *from, FixedVector *to,
+                         FixedVector *delta) = ComputeVectorDelta;
+    unsigned int (*shrink)(FixedVector *) = shrink_vector;
 
-    ComputeVectorDelta(&aShipPositionsArray[obj], &point, &direction);
-    shrink_vector(&direction);
+    computeDelta(&aShipPositionsArray[obj], &point, &direction);
+    shrink(&direction);
     aShipFwdVec[obj] = direction;
     fix_objects_ijk(obj);
 }

@@ -9357,3 +9357,44 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `42ff804e3a455949a50e71ae4b598d85a0d1a37450720942f940c201bf2ebe8e`.
+- Geometry omits parameter names from its local declarations of
+  `ComputeVectorDelta`, `fix_objects_ijk` and `shrink_vector`. Other units
+  keep their existing declarations. The five-symbol reduction moves
+  `GetShipAccelerationRate`'s input from key 27,300 to 27,295. The compiler's
+  allocation model predicts the resulting CX input and EAX promoted index;
+  `binary-comp` confirms that all 64 bytes now match the original.
+  `point_at` captures its existing delta and shrink callees. Three named
+  parameters on the first capture, and the two pointer names, restore the
+  following functions' preceding symbol context. Both calls remain direct,
+  and the complete point-at body is unchanged. A destination-pointer capture
+  in place of the shrink capture instead interleaves the vector loads and
+  stores and is discarded.
+  `damage_ion_drive` captures its promoted maximum in `damageLimit`, replacing
+  its pointer local with direct qualified accesses to the same damage byte.
+  This preserves the pointer calculation and restores the original
+  `CMP EDX,EAX; JL` clamp after the declaration change, without an extra
+  load or stack slot. Reusing the consumed amount parameter for an ordinary
+  or qualified maximum read leaves that comparison reversed. These are
+  measured compiler-context choices, not recovered source spelling.
+  All 95 geometry functions are exact. Only the acceleration row changes
+  in the full report: 1,515 normalized-exact functions of 1,550 and 1,533
+  with 100% mnemonic similarity. All 1,539 mapped functions retain their
+  original addresses, with 1,501 byte-identical spans. Exactly seven
+  executable bytes change, all toward the original: 516,641 of 518,656
+  match (99.6115%), leaving 2,015 differences in 393 runs.
+  Earlier object-initializer and calibration probes are restored. Inlined
+  owner, mass, scale and afterburner copies leave the initializer's two
+  reversed loads unchanged. Moving its owner store loses matches; a byte
+  owner parameter leaves the initializer unchanged and regresses its callers.
+  Moving calibration's vertical-range store after its minimum-X calculation
+  retains the earlier interleaved candidate's loss. Replacing the modal
+  result local with an explicit minimum-X capture emits that same candidate;
+  taking the centre-X global's address changes earlier sample allocation and
+  the function span. Both units were rebuilt and proved identical to the
+  preceding executable before retaining the geometry change.
+  A fresh native build reproduces the candidate byte for byte; the modern
+  build, sorting, address audit and unit-order checks pass.
+  Full verification also passes. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `9d4251e8c4ee311164fc3383dad6546f89abb591e6c222a77d25d076e9c61ec2`.
