@@ -1357,8 +1357,13 @@ unsigned int someone_coming(void)
 /* Function start: 0x415510 */
 short escorting_a_ship(void)
 {
-    if (aeShipMissionType[0] != MISSION_TYPE_ESCORT) {
-        if (someone_coming() == 0)
+    enum ShipMissionType missionType = aeShipMissionType[0];
+    unsigned int (*checkArrivingShips)(void) = someone_coming;
+
+    if (missionType != MISSION_TYPE_ESCORT) {
+        unsigned int arriving = checkArrivingShips();
+
+        if (arriving == 0)
             return 0;
     }
     return 1;
@@ -1421,8 +1426,7 @@ void flag_reached(short objective, short reached)
 }
 
 /* Objective tracking, scanner, and target-lock callees from other modules. */
-void ComputeVectorDelta(FixedVector *from, FixedVector *to,
-                        FixedVector *delta);
+void ComputeVectorDelta(FixedVector *, FixedVector *, FixedVector *);
 short FixedToShortSaturating(int value);
 void transform_to_objects_frame(const FixedVector *source,
                                 FixedVector *destination,
@@ -2057,7 +2061,11 @@ void SetHudTextColour(short v)
 {
     if (v != 0)
         EndCommMenu();
-    print_message_text(pszDisplayedHudMessage, (unsigned char)cPrimaryViewBufferColour);
+    {
+        char *text = pszDisplayedHudMessage;
+
+        print_message_text(text, (unsigned char)cPrimaryViewBufferColour);
+    }
 }
 
 /* Function start: 0x4164B0 */
@@ -2356,7 +2364,7 @@ unsigned int RestoreTransientCockpitGraphics(void)
     char *displayedMessage;
     void (*restoreBackground)(Viewport *viewport, unsigned char *background,
                                short x, short y, unsigned char *shape,
-                               short frame) = RestoreSpriteBackground;
+                               short) = RestoreSpriteBackground;
     void (*drawTargetBracket)(unsigned short colour, signed char object,
                              short solid, short drawLockMarker, short padding,
                              ShortRect *savedBounds) = draw_target_box;

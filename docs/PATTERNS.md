@@ -9142,3 +9142,41 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   preserves SHA-256
   `5955b635d6f3528b6531bdb6a8b3e07d360a40a0967b7ab347f31bf3386a530c`.
+- `flag_reached` gains the original ESI objective and EDI objective-table
+  index through three used captures in `escorting_a_ship`: the player
+  mission type, the arrival-check call target, and its result. They compile
+  away in the escort helper and move the following objective parameter key
+  from 27,645 to 27,648. The model predicts the register exchange, and the
+  compiler also restores the original prologue and load schedule. Omitting
+  the three parameter names from the redundant `ComputeVectorDelta`
+  prototype immediately afterwards balances the symbol count. The public
+  header still has the named prototype. All eighteen differing encodings
+  disappear, and the full 416-byte objective-arrival span is exact.
+  `SetHudTextColour` also captures its displayed-text pointer immediately
+  before the print call. This adds one symbol before `draw_target_box`,
+  restoring the marker-colour comparison's signed-colour load to EAX and
+  unsigned-background-colour load to ECX. Omitting the frame parameter name
+  from the later restore-call pointer balances this addition. Both helper
+  routines retain their exact bytes, as do all following functions. The
+  target bracket reaches 100% mnemonic similarity and 980 of 1,008 literal
+  bytes, with 28 register-encoding differences remaining. These are measured
+  compiler-context choices, not recovered original source spelling.
+  A percentage capture in `vdu_polygon` is discarded. Copy propagation
+  leaves its four instruction differences intact, while the added symbol
+  disturbs two later routines. Its effect on the target bracket identifies
+  the narrower balanced change retained above. Local permutations and
+  symbol-shift models for the bracket's remaining BX/BP exchange do not
+  produce a source candidate in this pass; its body remains unchanged.
+  Only the objective-arrival and target-bracket rows change in the full
+  report, reaching 1,509 normalized-exact functions of 1,550; 1,530 have
+  100% mnemonic similarity, and all remain at least 90%. All 1,539 mapped
+  functions retain their original addresses, with 1,495 byte-identical
+  spans. Exactly 42 executable bytes change toward the original: 41 in
+  code and one relocation byte. Matching reaches 516,574 of 518,656
+  (99.5986%), leaving 2,082 differences in 422 runs.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both
+  value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  preserves SHA-256
+  `d66a12aa1c03fda7f757e679c3875edc28484fc8455bcb9cee4045ea415e84d6`.

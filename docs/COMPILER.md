@@ -338,13 +338,23 @@ do not themselves order the stack slots.
 28,005 to recover ECX for the output pointer and ESI for the scaled
 enum-array index. The compiler model predicts the exchange; `binary-comp`
 confirms the complete 160-byte span. In the preceding cockpit restore
-routine, two used call-pointer captures with twelve named parameters and
-one scoped X-coordinate capture supply the fifteen symbols. CL folds the
-call pointers to the same direct calls and preserves every byte of that
-routine. Declaring `cycle_onscreen_targets`' index before its saved target
-also preserves its array-address operand order under the new context.
-The executable changes only in the target-list routine. These declarations
-reproduce a measured compiler context, not recovered original source text.
+routine, two used call-pointer captures with eleven named parameters and
+one scoped X-coordinate capture supply fourteen symbols. A scoped HUD-text
+capture in `SetHudTextColour` supplies the fifteenth and also restores the
+target bracket's marker-colour comparison order. CL folds the call pointers
+to the same direct calls and preserves both helper routines byte for byte.
+Declaring `cycle_onscreen_targets`' index before its saved target preserves
+its array-address operand order under the new context. These declarations
+reproduce measured compiler contexts, not recovered original source text.
+
+`flag_reached` demonstrates a balanced change confined to one function's
+context. Three used captures in `escorting_a_ship` move its objective
+parameter key from 27,645 to 27,648. The model predicts the ESI/EDI exchange;
+the compiler also recovers the original prologue and load schedule, making
+the complete 416-byte span exact. Omitting three parameter names from the
+existing redundant `ComputeVectorDelta` prototype immediately afterwards
+restores the following functions' symbol keys. The public prototype retains
+its parameter names, and the escort helper's instructions remain unchanged.
 
 `PollJoystickButtonEvents` becomes exact with 25 more symbols
 before it. Scoped input, button and timing snapshots in
