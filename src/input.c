@@ -30,44 +30,79 @@ short __stdcall UpdateInputDeviceTransitions(short raw)
     short device;
 
     device = nCurrentActiveInputDevice;
-    if (raw == 0)
-        ReadCalibratedJoystick();
-    else
-        SampleJoystickDevice(&aInputDevSamples[device],
-                             device, 0);
+    if (raw == 0) {
+        short (*readCalibrated)(void) = ReadCalibratedJoystick;
+
+        readCalibrated();
+    } else {
+        int (__stdcall *sampleDevice)(InputDeviceSample *samples,
+                                      short joystick,
+                                      unsigned short fallback) =
+            SampleJoystickDevice;
+        short sampledDevice = device;
+
+        sampleDevice(&aInputDevSamples[sampledDevice], sampledDevice, 0);
+    }
 
     asInputButton2DoubleClick[device] = 0;
     asInputButton1DoubleClicksList[device] = 0;
     asInputButton2ChangedTable[device] = 0;
     asInputBtn1ChangedTable[device] = 0;
-    buttons = (unsigned short)aInputDevSamples[device].buttons;
-    previous = (unsigned short)asPreviousInputButtons[device];
+    {
+        unsigned int sampledButtons = aInputDevSamples[device].buttons;
+        short previousButtons = asPreviousInputButtons[device];
+
+        buttons = (unsigned short)sampledButtons;
+        previous = (unsigned short)previousButtons;
+    }
     if (buttons != previous) {
         changed = buttons ^ previous;
         now = nTickCount60Hz;
-        if ((changed & 1) != 0) {
-            asInputBtn1ChangedTable[device] = 1;
-            if ((buttons & 1) != 0) {
-                if ((int)(now -
-                    anInputButton1PressTimes[device]) <=
-                        nInputDoubleClickInterval *
-                        nInputTickScale)
-                    asInputButton1DoubleClicksList[device] = 1;
-                anInputButton1PressTimes[device] = now;
+        {
+            unsigned short transitions = changed;
+            unsigned short pressed = buttons;
+
+            if ((transitions & 1) != 0) {
+                asInputBtn1ChangedTable[device] = 1;
+                if ((pressed & 1) != 0) {
+                    short primaryDevice = device;
+                    int previousPress = anInputButton1PressTimes[primaryDevice];
+                    int elapsed = now - previousPress;
+                    short interval = nInputDoubleClickInterval;
+                    int tickScale = nInputTickScale;
+                    int threshold = interval * tickScale;
+
+                    if (elapsed <= threshold)
+                        asInputButton1DoubleClicksList[device] = 1;
+                    anInputButton1PressTimes[device] = now;
+                }
             }
         }
-        if ((changed & 2) != 0) {
-            asInputButton2ChangedTable[device] = 1;
-            if ((buttons & 2) != 0) {
-                if ((int)(now -
-                    anInputButton2PressTime[device]) <=
-                        nInputDoubleClickInterval *
-                        nInputTickScale)
-                    asInputButton2DoubleClick[device] = 1;
-                anInputButton2PressTime[device] = now;
+        {
+            unsigned short transitions = changed;
+            unsigned short pressed = buttons;
+
+            if ((transitions & 2) != 0) {
+                asInputButton2ChangedTable[device] = 1;
+                if ((pressed & 2) != 0) {
+                    short secondaryDevice = device;
+                    int previousPress = anInputButton2PressTime[secondaryDevice];
+                    int elapsed = now - previousPress;
+                    short interval = nInputDoubleClickInterval;
+                    int tickScale = nInputTickScale;
+                    int threshold = interval * tickScale;
+
+                    if (elapsed <= threshold)
+                        asInputButton2DoubleClick[device] = 1;
+                    anInputButton2PressTime[device] = now;
+                }
             }
         }
-        asPreviousInputButtons[device] = (short)buttons;
+        {
+            short currentButtons = (short)buttons;
+
+            asPreviousInputButtons[device] = currentButtons;
+        }
     }
     return 1;
 }
@@ -206,4 +241,3 @@ void PollMenuInputDevices(void)
         bInputPollingGuard--;
     }
 }
-

@@ -295,8 +295,14 @@ Some units are locked. In `logic.c`, `scan_for_enemy` tolerates only 0, 17,
 targets of `attacker_in_range` and `hostile_sphere`, and any route to
 `find_ship_index` or `get_front_spot` needs four to six steps of 64 or more
 symbols. `PollJoystickButtonEvents` becomes exact with 25 more symbols
-before it (confirmed by a scratch compile), but its unit offers no natural
-source for them. `UnionRectBounds` needs +12 (or -5) and has no callees.
+before it. Scoped input, button and timing snapshots in
+`UpdateInputDeviceTransitions`, together with correctly typed captures of
+its two sampling calls, now supply that context. The 22 used locals and
+three named call-pointer parameters move the poller's `doubleClick` key
+from 27,256 to 27,281. They compile away, preserving the transition routine
+and both other functions in the unit; the poller's first event block gains
+the original AX flag, ECX index and argument-push schedule.
+`UnionRectBounds` needs +12 (or -5) and has no callees.
 Its +12 context is now supplied by scoped sample, center and scale captures
 in the four axis-normalization branches of `ReadCalibratedJoystick`.
 Those captures compile away without changing either joystick routine,

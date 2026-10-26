@@ -8990,3 +8990,33 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   preserves SHA-256
   `113106e11c87f0160a09ce1d311c1aff44439206367c5eb5c0eed8a3b73491f0`.
+- `UpdateInputDeviceTransitions` captures its sampling calls with their
+  original return types and calling conventions, and takes scoped snapshots
+  of the device, button words and double-click calculations. All 22 used
+  locals compile away. Together with the three named parameters in the
+  sampling call pointer, they supply the previously measured +25 symbol
+  context for `PollJoystickButtonEvents`: its `doubleClick` key moves from
+  27,256 to 27,281. The first event block then uses AX for the double-click
+  flag and ECX for the button-table index, with the original push order.
+  These are matching declarations, not recovered original source text.
+  All four routines in `input.c` are now exact, including the poller's
+  complete 224-byte span. Only that routine changes in the full report,
+  reaching 1,504 normalized-exact functions of 1,550. All 1,539 mapped
+  functions retain their original addresses, with 1,490 byte-identical spans.
+  Exactly eleven executable bytes change, all toward the original:
+  516,472 of 518,656 match (99.5789%), leaving 2,184 differences in 458 runs.
+  An earlier snapshot variant takes addresses of the history fields and
+  saves already-masked button values; it adds time reloads and sixteen
+  aligned bytes to the transition routine and is discarded. Capturing the
+  button words before masking and keeping the history stores direct
+  preserves that routine. An unsigned poller flag produces the preceding
+  executable unchanged, while a switch for its first flag regresses the
+  match. A volatile high-score counter and a pointer used for its accesses
+  both leave its two stack-offset discrepancies unchanged; those probes
+  are restored.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both
+  value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  preserves SHA-256
+  `1d89d142fee9573a65a9f345ad4926aa7de6bcfea90bc048e3a8d2b31d541416`.
