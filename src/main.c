@@ -913,8 +913,9 @@ unsigned int player_input(void)
 
     cPreviousKey = bCurrentKey;
     *(volatile short *)&nPrevYawInput = nYawInputValue;
-    nPrevPitchInputValue = nPitchInput;
-    nPreviousRollInputValue = nCurrentRollInputValue;
+    memcpy(&nPrevPitchInputValue, &nPitchInput, sizeof(nPrevPitchInputValue));
+    memcpy(&nPreviousRollInputValue, &nCurrentRollInputValue,
+           sizeof(nPreviousRollInputValue));
     keyboardRoll = 0;
     eventType = PollInputEvent(&event, 0xff);
     wCurrentInputModifiers = (unsigned short)event.modifiers;

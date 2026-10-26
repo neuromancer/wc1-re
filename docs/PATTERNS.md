@@ -9325,3 +9325,35 @@ Session findings that are not yet retained because they change span sizes:
   reporting zero mismatches or skips. Existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `c98a064e8e843c2efedec8e26d076e77748baa7afd277665257b28f9d4cd4193`.
+- `player_input` copies the pitch and roll inputs into their previous-value
+  globals with two word-sized `memcpy` calls. `/Oi` inlines both copies into
+  the existing word loads and stores, preserving every byte of that routine.
+  Taking the pitch input's address also changes the preceding
+  `players_flight_dynamics`: its pitch-rate calculation now uses the original
+  load and multiply order, making its complete 256-byte span exact. The
+  destination addresses keep the input routine's original snapshot registers
+  and scheduling. No new local, runtime call, qualifier, or compiler flag is
+  needed. These are measured compiler-context choices, not recovered source
+  spelling.
+  A qualified pitch read alone made the dynamics routine exact but disturbed
+  its neighbor. Qualifying the previous-roll store recovered the input span;
+  taking the previous-pitch destination's address then recovered DX for pitch
+  and AX for roll. A volatile previous-pitch store delayed the stores, while
+  an ordinary address-based store retained their order. The two inlined
+  copies reproduce that candidate exactly and make the explicit read/store
+  casts unnecessary. A qualified pitch snapshot in an existing local instead
+  delays the load, and a const-qualified snapshot leaves the register swap.
+  A separate ship-logic probe that preserves the range limit and reuses the
+  range parameter for the returned distance changes registers and comparison
+  behavior; it was restored before this change.
+  Only the dynamics row changes in the full report: 1,514 normalized-exact
+  functions of 1,550 and 1,533 with 100% mnemonic similarity. All 1,539 mapped
+  functions retain their original addresses, with 1,500 byte-identical spans.
+  Exactly fourteen executable bytes change, all toward the original:
+  516,634 of 518,656 match (99.6101%), leaving 2,022 differences in 398 runs.
+  A fresh native build reproduces the candidate byte for byte; the modern
+  build, sorting, address audit and unit-order checks pass.
+  Full verification also passes. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `42ff804e3a455949a50e71ae4b598d85a0d1a37450720942f940c201bf2ebe8e`.
