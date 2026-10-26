@@ -9522,6 +9522,46 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips, and call/global-access diagnostics remain
   11/55. Verification preserves SHA-256
   `d24dcfbac06eee38221e414a20aaa83a28efcd453170aa59e46b8e88c0be6061`.
+- `LoadGame` reads the occupied flag through its existing disk-copy cursor,
+  cast back to `SaveGameDiskRecord`. The description is the record's first
+  member, so this retains the same field address and access width. CL now
+  completes the description's final byte transfer before loading the flag,
+  recovering nine bytes. Initialize the disk-objective pointer before the
+  runtime-objective pointer to recover the other eleven: the runtime address
+  calculation then follows the mission-score load instead of preceding it.
+  The complete 624-byte loader is exact, with its frame and remaining
+  instructions unchanged. Splitting the description into a sixteen-byte
+  intrinsic copy and a separate last byte adds sixteen aligned bytes.
+  An occupied-flag local leaves the target unchanged and regresses a later
+  routine. A mission-score snapshot with the objective initialization
+  between its load and store also regresses the file. Those probes are
+  discarded.
+- In the current compilation-unit context, `DrawBarracksBunks` can inline
+  the row calculation while retaining the intermediate short cast. This
+  recovers the original `PUSH ECX` before `SUB EAX,EDX` and the full
+  192-byte span; the older inline probes' size loss no longer applies.
+  Removing the row declaration initially exchanges the following
+  `DrawBarracksStaticDetails` routine's registers. Capturing the scene-buffer
+  argument in a scoped pointer after the loop emits no extra instructions
+  and restores that routine's declaration context. A captured occupied-bunk
+  frame instead loses sixteen aligned bytes. Calculating the full row
+  coordinate in the old local, or making the frame unsigned, leaves the
+  old instruction order unchanged. These are measured source choices,
+  not recovered original declaration spelling.
+  All 29 barracks report rows now compare exactly. Only the loader and bunk
+  renderer change in the full report: 1,522 normalized-exact functions of
+  1,550, with 1,538 at 100% mnemonic similarity. All 1,539 mapped functions
+  retain their original addresses, and 1,508 mapped spans are byte-identical.
+  Exactly 23 executable bytes change, all in code and all toward the
+  original. Strict matching reaches 516,831 of 518,656 bytes (99.6481%),
+  leaving 1,825 differences in 341 runs: 1,739 code bytes and 86 relocation
+  bytes. Section sizes and the entry point remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes: both value checks cover all 1,550 functions
+  with zero mismatches or skips, and call/global-access diagnostics remain
+  11/55. Verification preserves SHA-256
+  `57580559660e030aced71c89b0a32e1ca49cf67f36126e7f4f8a7746be654635`.
   Full verification passes: both value checks cover all 1,550 functions
   with zero mismatches or skips, and the existing call/global-access
   diagnostics remain 11/55. Verification preserves SHA-256

@@ -634,7 +634,7 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     diskBytes = (unsigned char *)diskRecord.description;
     memcpy(gameRecord->description, diskBytes,
            sizeof(gameRecord->description));
-    gameRecord->occupied = diskRecord.occupied;
+    gameRecord->occupied = ((SaveGameDiskRecord *)diskBytes)->occupied;
     memcpy(gameRecord->pilots, diskRecord.pilots,
            sizeof(gameRecord->pilots));
     *(PilotRecord *volatile *)&gameRecord->campaign.currentPilot =
@@ -688,8 +688,8 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     *(short volatile *)&gameRecord->campaign.campaignIndex =
         *(short volatile *)&diskRecord.campaign.campaignIndex;
 
-    gameObjective = gameRecord->objectives;
     diskObjective = diskRecord.objectives;
+    gameObjective = gameRecord->objectives;
     for (; diskObjective < diskRecord.objectives + 16;
          diskObjective++, gameObjective++) {
         gameObjective->mapX = diskObjective->mapX;
@@ -798,7 +798,6 @@ void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
 {
     short frame;
     short bunk;
-    short row;
 
     DrawSpriteDefault(viewport, 0, 0, shape, 0);
     bunk = 0;
@@ -811,15 +810,18 @@ void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
                 shape, (short)(bunk + 1));
             frame = 9;
         }
-        row = (short)(bunk / 2);
         DrawSpriteDefault(viewport,
                           (short)((bunk % 2) * 31 + 143),
-                          (short)(row * 5 + 167),
+                          (short)((short)(bunk / 2) * 5 + 167),
                           shape, frame);
         bunk++;
     } while (bunk < 8);
-    CopyViewportContents(&stSceneBuffer,
-                         &stRoomScreenViewport);
+    {
+        Viewport *sceneBuffer;
+
+        sceneBuffer = &stSceneBuffer;
+        CopyViewportContents(sceneBuffer, &stRoomScreenViewport);
+    }
 }
 
 /* Function start: 0x41BC90 */
