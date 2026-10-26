@@ -481,8 +481,8 @@ unsigned int fix_velocity(short obj)
 unsigned int sort_viable_target_list(void)
 {
     short outer;
-    short distance;
     signed char target;
+    short innerDistance;
     short count;
     short inner;
 
@@ -490,14 +490,21 @@ unsigned int sort_viable_target_list(void)
         count = cViableTargetCount;
         for (outer = 0; outer < count - 1; outer++) {
             for (inner = outer + 1; inner < count; inner++) {
-                distance = asViableTgtDistList[outer];
-                if (distance > asViableTgtDistList[inner]) {
-                    target = acViableTargetList[outer];
-                    asViableTgtDistList[outer] =
-                        asViableTgtDistList[inner];
-                    acViableTargetList[outer] = acViableTargetList[inner];
-                    asViableTgtDistList[inner] = distance;
-                    acViableTargetList[inner] = target;
+                int innerIndex;
+                short distance;
+                int outerIndex;
+
+                outerIndex = outer;
+                innerIndex = inner;
+                distance = asViableTgtDistList[outerIndex];
+                innerDistance = asViableTgtDistList[innerIndex];
+                if (distance > innerDistance) {
+                    target = acViableTargetList[outerIndex];
+                    asViableTgtDistList[outerIndex] = innerDistance;
+                    acViableTargetList[outerIndex] =
+                        acViableTargetList[innerIndex];
+                    asViableTgtDistList[innerIndex] = distance;
+                    acViableTargetList[innerIndex] = target;
                 }
             }
         }
@@ -826,15 +833,12 @@ int internal_damage(short attacker, short victim, short damage,
 /* Function start: 0x41F1A0 */
 void revise_shields(short obj)
 {
-    short maximum;
-
     aasShipMaximumShieldTable[obj][0] =
         MaxShort(0, (short)(aasShipMaximumShieldTable[obj][0] -
             (aObjectTypeData[
                 aeObjectTypeList[obj]].shieldFore >> 2)));
-    maximum = aasShipMaximumShieldTable[obj][0];
     aasShipMaximumShieldTable[obj][1] =
-        MaxShort(0, (short)(maximum -
+        MaxShort(0, (short)(aasShipMaximumShieldTable[obj][0] -
             (aObjectTypeData[
                 aeObjectTypeList[obj]].shieldAft >> 2)));
 }
@@ -842,19 +846,16 @@ void revise_shields(short obj)
 /* Function start: 0x41F220 */
 int your_internal_damage(short attacker, short damage, short quadrant)
 {
-    enum ObjectClass attackerClass;
     enum ObjectType playerType;
     short tableGroup;
     short events;
-    short system;
     signed char severity;
 
-    attackerClass = aeObjectClass[attacker];
-    if (attackerClass == OBJECT_CLASS_PROJECTILE) {
+    if (aeObjectClass[attacker] == OBJECT_CLASS_PROJECTILE) {
         tableGroup = quadrant == 1 ? 2 : 0;
         events = MaxShort(1, (short)(damage >> 4));
-    } else if (attackerClass == OBJECT_CLASS_ASTEROID ||
-               attackerClass >= OBJECT_CLASS_SHIP) {
+    } else if (aeObjectClass[attacker] == OBJECT_CLASS_ASTEROID ||
+               aeObjectClass[attacker] >= OBJECT_CLASS_SHIP) {
         tableGroup = 4;
         events = MaxShort(1, (short)(damage >> 7));
     } else {
@@ -877,10 +878,9 @@ int your_internal_damage(short attacker, short damage, short quadrant)
 
     while (events > 0) {
         events--;
-        system = *(const signed char *)(const void *)
+        switch ((short)*(const signed char *)(const void *)
             &asPlayerDamageSystemTable[
-                tableGroup * 10 + RandomBelowOrEqual(9)];
-        switch (system) {
+                tableGroup * 10 + RandomBelowOrEqual(9)]) {
         case 0:
             if (severity < 4)
                 pilot_hit(0);
@@ -1286,7 +1286,6 @@ short Explosion(short obj)
 {
     enum ObjectClass objectClass;
     enum ObjectType explosionType;
-    signed char rating;
     short missionShip;
     short explosion;
 
@@ -1303,9 +1302,9 @@ short Explosion(short obj)
              RandomBelow(100) < 3)) {
             send_message(obj, 7);
         }
-        rating = acShipRating[obj];
-        if (rating != -1 && rating != RATING_ACE_ICEMAN)
-            personality_killed((short)rating);
+        if (acShipRating[obj] != -1 &&
+            acShipRating[obj] != RATING_ACE_ICEMAN)
+            personality_killed((short)acShipRating[obj]);
         if (nYourWingman == obj) {
             nCurrentWingmanKilledThisMission = 1;
             missionShip = 0;
@@ -1425,8 +1424,6 @@ int explosion_shock_wave(short obj, short blastDamage)
 /* Function start: 0x420040 */
 int explode(short attacker, short victim)
 {
-    short creator;
-
     if (victim < 10) {
         if (acShipRating[victim] != -1 &&
             acShipRating[victim] != RATING_ACE_ICEMAN) {
@@ -1478,10 +1475,10 @@ int explode(short attacker, short victim)
 
     if (nExternalViewShip == victim)
         nExternalViewShip = -1;
-    creator = the_creator(attacker);
-    if (creator != -1 &&
+    attacker = the_creator(attacker);
+    if (attacker != -1 &&
         aeObjectClass[victim] >= OBJECT_CLASS_SHIP)
-        analyze_kill(creator, victim);
+        analyze_kill(attacker, victim);
     Explosion(victim);
     return 1;
 }
@@ -1499,12 +1496,14 @@ int send_at_point(short obj, FixedVector *point, short speed)
 /* Function start: 0x4201D0 */
 short find_child_object(short parent, enum ObjectClass objectClass)
 {
-    short obj;
+    short obj = 0;
+    short wantedParent = parent;
+    enum ObjectClass wantedClass =
+        *(enum ObjectClass volatile *)&objectClass;
 
-    obj = 0;
     do {
-        if ((short)acObjOwnersTable[obj] == parent &&
-            aeObjectClass[obj] == objectClass)
+        if ((short)acObjOwnersTable[obj] == wantedParent &&
+            aeObjectClass[obj] == wantedClass)
             return obj;
         obj++;
     } while (obj < SPACE_OBJECT_COUNT);

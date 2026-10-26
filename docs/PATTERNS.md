@@ -9180,3 +9180,52 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   preserves SHA-256
   `d66a12aa1c03fda7f757e679c3875edc28484fc8455bcb9cee4045ea415e84d6`.
+- `sort_viable_target_list` captures both promoted array indices and both
+  distances before comparing them. Declare the inner distance at function
+  scope, between the target byte and count, and declare the inner index,
+  outer distance, then outer index inside the inner loop. The compiler model
+  finds nine orders with the required allocation and comparison direction;
+  this order moves the fewest symbol keys. The resulting outer index uses
+  EBP, inner index EAX, outer distance SI and inner distance BX. All eight
+  differing encodings disappear, and the complete 160-byte span matches
+  with its original eight-byte frame.
+  Three redundant locals later in the unit balance the added declarations:
+  `revise_shields` reads the stored maximum directly, and
+  `your_internal_damage` reads the attacker class and selected damage system
+  directly. The switch expression keeps an explicit short cast to preserve
+  the original word-sized selector. These routines retain their exact bytes,
+  and the balancing changes preserve every following routine.
+  Moving only the outer distance into the loop reverses the distance
+  comparison but also reverses the inner-loop guard and leaves the wrong
+  index registers. The first four-capture order also fails; the instrumented
+  compiler's actual scoped symbol keys, rather than the source-level key
+  probe, identify the successful declaration order.
+- `find_child_object` initializes its counter in the declaration, then
+  captures the parent normally and the object class through a qualified
+  read. This restores the original XOR/load order, DX parent, ESI class,
+  and DI owner comparison. Its six differing encodings disappear, and the
+  complete 64-byte span matches. Two earlier local reductions balance these
+  captures: `Explosion` reads the rating array directly, and `explode`
+  reuses its consumed attacker parameter for the creator result. Both
+  routines retain their exact bytes. Unlike the earlier unbalanced capture
+  probe, this form also preserves `find_child_ship`, `fire_turrets` and
+  `replenish_shields`. These are measured compiler-context choices, not
+  recovered original source spelling.
+  A further `set_objects_data` probe reuses the shield-value local for a
+  qualified scale read and captures the owner byte separately. It restores
+  the two loads' order but schedules the scale store too early, leaving two
+  differing encodings and disturbing later functions. The probe is discarded;
+  the preceding implementation retains the unit's only two encoding
+  differences. All other 63 ship functions are exact.
+  Only the sorter and child-object rows change in the full report, reaching
+  1,511 normalized-exact functions of 1,550; 1,531 have 100% mnemonic
+  similarity, and all remain at least 90%. All 1,539 mapped functions retain
+  their original addresses, with 1,497 byte-identical spans. Exactly sixteen
+  executable bytes change, all toward the original: 516,590 of 518,656
+  match (99.6017%), leaving 2,066 differences in 409 runs.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both
+  value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  preserves SHA-256
+  `0c99a82220ffd17744247d4692fcc7f1df8e595fff43540882d0741bfc80a845`.
