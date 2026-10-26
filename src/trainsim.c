@@ -238,7 +238,12 @@ short IsHighScoreSlotUsed(short i)
 /* Function start: 0x426000 */
 void AddRandomTrainSimHighScores(void)
 {
+#ifdef SDL_PORT
     short remaining;
+#else
+    /* The word counter occupies the low half of a four-byte stack slot. */
+    int remaining;
+#endif
     short pilot;
     short scale;
     short slot;
@@ -246,7 +251,7 @@ void AddRandomTrainSimHighScores(void)
     unsigned int score;
     int baseScore;
 
-    remaining = 3;
+    *(short *)&remaining = 3;
     scale = 1;
     do {
         do {
@@ -270,8 +275,8 @@ void AddRandomTrainSimHighScores(void)
                                    scale +
                                baseScore + 50);
         InsertTrainSimHighScore(pilot, score);
-        remaining--;
-    } while (remaining != 0);
+        (*(short *)&remaining)--;
+    } while (*(short *)&remaining != 0);
 }
 
 /* Function start: 0x4260E0 */

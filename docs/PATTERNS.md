@@ -9595,3 +9595,46 @@ Session findings that are not yet retained because they change span sizes:
   and ninety in relocations. Section sizes and entry point remain exact.
   A fresh native build reproduces the candidate byte for byte. The modern
   build, sorting, address audit and compilation-unit-order checks pass.
+
+- `AddRandomTrainSimHighScores` keeps its loop counter in a four-byte native
+  stack slot and accesses it through short lvalues. CL places those word
+  accesses at the slot's low half, recovering the original initialization
+  and decrement offsets. The operations remain sixteen bits wide, and the
+  frame remains four bytes. The SDL build declares the counter as a short,
+  so its accesses use the declared type directly. This storage choice is
+  measured from the original instructions, not recovered source spelling.
+  All 224 bytes now match. Only this function's row changes in the full
+  report: 1,523 normalized-exact functions of 1,550, with 26 same-size
+  differences and the unchanged converter boundary discrepancy. All 1,539
+  mapped functions retain their original addresses; 1,509 mapped spans are
+  byte-identical. Exactly two code bytes change, both toward the original.
+  Strict matching reaches 516,833 of 518,656 bytes (99.6485%), leaving
+  1,823 differences in 339 runs: 1,737 code bytes and 86 relocation bytes.
+  Section sizes and the entry point remain exact.
+  Other probes at this checkpoint are restored:
+  - A captured flip-array base in the earlier carrier candidate changes the
+    quadrupled index to a destructive shift and reloads the doubled index.
+    It still moves the escape clear too early and changes later lifetimes
+    and the function span. Qualifying the preceding shape-pointer store
+    does not repair it.
+  - The answer loader's instrumented C2 trace, compiled with its required
+    `/GX`, reproduces all seven logged coloring rounds under the identity
+    model. Uniform local-key shifts do not recover the desired scan/prompt
+    exchange. Reversing the fetch assignment chain, carrying its first
+    result through the prompt local, using unsigned difference arithmetic,
+    and moving the scan increment into the loop body all reproduce the
+    preceding native executable exactly.
+  - Spelling the maneuver range comparison as an integer subtraction
+    worsens matching. Moving the asteroid source capture before the second
+    branch's random call leaves the native executable unchanged.
+  - In the inflight computer, accessing the objective flag through the
+    saved-mode pointer and giving the saved navigation point a four-byte
+    slot with word accesses restores the original frame and stack offsets.
+    It still hoists the loop's constant one and changes the input-mode
+    setup schedule, adding sixteen aligned bytes. Qualifying the flag
+    declaration does not change that output. This probe is discarded.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks
+  pass. Full `make verify` passes; both value checks cover all 1,550
+  functions with zero mismatches or skips. Verification preserves SHA-256
+  `e8b434e255bb4030f097895187ade86c64d8d71e7e0a620645806743e9159cb0`.
