@@ -4,6 +4,7 @@
  *  Address range 4408a0-44269f (provisional -- see docs/ORDER.md).
  *  Boundary evidence: PROVEN by name: shadow_draw, fizzle_fade, snow_viewport.
  */
+#define WC1_GR_SOURCE
 #include <stdio.h>
 #include "wc1.h"
 
@@ -168,13 +169,13 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
                           short *leftExtent, short *topExtent)
 {
     int rightExtent;
-#ifndef SDL_PORT
-    short *frameHeader;
-#endif
+    int bottom;
     int frameOffset;
     int left;
     int top;
-    int bottom;
+#ifndef SDL_PORT
+    short *frameHeader;
+#endif
 #ifdef SDL_PORT
     short frameExtents[4];
 #endif
@@ -207,24 +208,24 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
                       unsigned char *bitmap, int width, int height,
                       int leftExtent, int topExtent)
 {
-    unsigned char colour;
-    unsigned short rowCode;
     int y;
-    short runCopyLength;
-    int runRight;
-    short rowCopyLength;
-    unsigned char *commands;
-    int rowRight;
+    unsigned short rowCode;
     int x;
-    int frameOffset;
     short maximumY;
-    unsigned char code;
     short maximumX;
-    short sourceX;
-    unsigned char *destination;
     short sourceY;
+    unsigned char code;
+    unsigned char *destination;
+    unsigned char colour;
+    int frameOffset;
     int skip;
     unsigned short runLength;
+    unsigned char *commands;
+    short sourceX;
+    short rowCopyLength;
+    short runCopyLength;
+    int rowRight;
+    int runRight;
 
     if (shape == 0 || frame < 0)
         return;
@@ -406,6 +407,12 @@ void SetSolidColourTranslation(unsigned char colour)
 /* Function start: 0x440D50 */
 void PrepareShapeRLEData(unsigned char *shape)
 {
+    void (*getExtents)(unsigned char *data, short index,
+                       short *width, short *height,
+                       short *left, short *top) = GetShapeFrameExtents;
+    void (*decodeFrame)(unsigned char *, short,
+                        unsigned char *pixels, int width, int height,
+                        int left, int top) = DecodeShapeFrame;
     unsigned char *bitmap;
     unsigned char *pixel;
     unsigned char *output;
@@ -441,8 +448,8 @@ void PrepareShapeRLEData(unsigned char *shape)
 
         memcpy(frameOffset, &frameStart, sizeof(frameStart));
         frameOffset += 2;
-        GetShapeFrameExtents(shape, (short)frame, &width, &height,
-                             &leftExtent, &topExtent);
+        getExtents(shape, (short)frame, &width, &height,
+                   &leftExtent, &topExtent);
         memcpy(output, &height, sizeof(height));
         output += sizeof(height);
         memcpy(output, &width, sizeof(width));
@@ -468,8 +475,8 @@ void PrepareShapeRLEData(unsigned char *shape)
             (unsigned int)((int)width * height), 0);
         pixel = bitmap;
         memset(bitmap, 0xff, (unsigned int)((int)width * height));
-        DecodeShapeFrame(shape, (short)frame, bitmap, width, height,
-                         leftExtent, topExtent);
+        decodeFrame(shape, (short)frame, bitmap, width, height,
+                    leftExtent, topExtent);
         for (row = 0; row < height; row++) {
             remaining = width;
             while (remaining > 0) {

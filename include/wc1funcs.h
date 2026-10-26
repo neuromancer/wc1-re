@@ -1695,12 +1695,20 @@ short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
 void CheckHeapBlockSignature(unsigned char *shape);                  /* 0x004408A0 */
 unsigned char *GetPreparedShapeData(unsigned char *shape);           /* 0x004408C0 */
 short __stdcall GetShapeFrameCount(unsigned char *shape);            /* 0x004408D0 */
+/* Graphics keeps these prototype names out of its local symbol context. */
+#ifdef WC1_GR_SOURCE
+void GetShapeFrameExtents(unsigned char *, short,
+                          short *, short *, short *, short *);        /* 0x004408F0 */
+void DecodeShapeFrame(unsigned char *, short, unsigned char *,
+                      int, int, int, int);                            /* 0x00440960 */
+#else
 void GetShapeFrameExtents(unsigned char *shape, short frame,
                           short *width, short *height,
                           short *leftExtent, short *topExtent);       /* 0x004408F0 */
 void DecodeShapeFrame(unsigned char *shape, short frame,
                       unsigned char *bitmap, int width, int height,
                       int leftExtent, int topExtent);                 /* 0x00440960 */
+#endif
 int SignExtendClipCoord(volatile short v);                             /* 0x00440BE0 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip);                         /* 0x00440C00 */

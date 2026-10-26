@@ -9398,3 +9398,50 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips; existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `9d4251e8c4ee311164fc3383dad6546f89abb591e6c222a77d25d076e9c61ec2`.
+- Graphics omits the thirteen parameter names from its declarations of
+  `GetShapeFrameExtents` and `DecodeShapeFrame`. Other units retain their
+  preceding declarations. This moves `ValidateViewportBounds`'s allocation
+  counter from key 27,333 to 27,320 and recovers EDX for the counter and ECX
+  for the allocation-table pointer. Swapping the screen-viewport and up-vector
+  externs in the graphics context moves `stScreenView` from key 23,600 to
+  23,607; the first comparison then uses the original `CMP EAX,[global]`.
+  The validator's complete 240-byte span is exact.
+  Moving the extents helper's bottom local before its frame offset and its
+  frame-header pointer after the top local preserves both address-addition
+  encodings. The decoder's declaration permutation preserves its preceding
+  registers, operand order and stack layout. These choices were guided by
+  the compiler's allocation and expression models and confirmed with native
+  `binary-comp` comparisons. In the encoder, captures of the existing
+  extents and decoder callees restore thirteen symbols before its original
+  locals. Seven come from the extents pointer and its named parameters; six
+  come from the decoder pointer and its five named parameters. Both calls
+  remain direct, the encoder's bytes are unchanged, and subsequent routines
+  retain their preceding compiler context. These are measured matching
+  choices, not recovered original source spelling.
+  An earlier nine-symbol reduction recovers the validator but leaves two
+  additions reversed in the extents helper. Seventeen- and fifteen-symbol
+  reductions preserve that helper, but the tested decoder permutations do
+  not recover its registers. The thirteen-symbol form preserves both.
+  Qualifying the validator's first pixel read changes its instruction layout
+  and is discarded; the extern-order change fixes that comparison alone.
+  Earlier logic and input-wait probes are restored. Local word/pointer copies
+  introduce stack storage in the ship helpers; a qualified mission capture
+  with an explicit object class still changes the search's registers.
+  Poll-callee captures, a guarded while loop, a promoted event-key capture
+  and an explicit outer back edge do not improve the input-wait routine.
+  Encoder probes also retain the preceding implementation. Correcting one
+  anonymous candidate's diagnostic identity makes its register model agree
+  with all seven recorded allocation rounds. Local permutations, all orders
+  of the four bound assignments, promoted extent captures and qualified bound
+  stores do not improve the native byte comparison.
+  Only the validator's row changes in the full report: 1,516 normalized-exact
+  functions of 1,550, with 1,533 at 100% mnemonic similarity. All 1,539 mapped
+  functions retain their original addresses, with 1,502 byte-identical spans.
+  Exactly nine executable bytes change, all toward the original: 516,650 of
+  518,656 match (99.6132%), leaving 2,006 differences in 384 runs.
+  A fresh native build reproduces the candidate byte for byte; the modern
+  build, sorting, address audit and unit-order checks pass.
+  Full verification also passes. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `d2696219c2e01c3bedb5bcb3c8e597bce263edce9e8955b8cc7cc22addb3574c`.

@@ -548,7 +548,13 @@ extern short nCurrentExternalViewDistance; /* 0x005a6b5c */
 extern Viewport stPilotHandView; /* 0x005a6b60 */
 extern Viewport stLeftVdu; /* 0x005a6b80 */
 extern ScreenViewportPacket *pCurrentScreenViewportPkt; /* 0x005a6b94 */
+/* Graphics' first viewport comparison depends on this declaration pair. */
+#ifdef WC1_GR_SOURCE
+extern FixedVector aDirectionViewUpVectorArray[ /* 0x005a6f10 */
+    DIRECTION_VIEW_COUNT];
+#else
 extern Viewport stScreenView; /* 0x005a6ba0 */
+#endif
 extern Viewport stCockpitBar; /* 0x005a6be0 */
 extern TextContext stHudMessageTextContext; /* 0x005a6bc0 */
 extern unsigned char *pTgtLockShapePtr; /* 0x005a6bf4 */
@@ -556,8 +562,12 @@ extern unsigned char *apTextFonts[4]; /* 0x005a6c00 */
 extern FontWorkspace **apFontWorkspaces[4]; /* 0x005a6c10 */
 extern FixedVector aDirectionViewRightVector[ /* 0x005a6c20 */
     DIRECTION_VIEW_COUNT];
+#ifdef WC1_GR_SOURCE
+extern Viewport stScreenView; /* 0x005a6ba0 */
+#else
 extern FixedVector aDirectionViewUpVectorArray[ /* 0x005a6f10 */
     DIRECTION_VIEW_COUNT];
+#endif
 extern FixedVector aDirectionViewForwardVector[ /* 0x005a7200 */
     DIRECTION_VIEW_COUNT];
 extern TextContext stLeftVduTextContext; /* 0x005a74f0 */
