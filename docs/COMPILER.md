@@ -297,6 +297,10 @@ targets of `attacker_in_range` and `hostile_sphere`, and any route to
 symbols. `PollJoystickButtonEvents` becomes exact with 25 more symbols
 before it (confirmed by a scratch compile), but its unit offers no natural
 source for them. `UnionRectBounds` needs +12 (or -5) and has no callees.
+Its +12 context is now supplied by scoped sample, center and scale captures
+in the four axis-normalization branches of `ReadCalibratedJoystick`.
+Those captures compile away without changing either joystick routine,
+while the rectangle helper becomes byte-exact.
 
 ## Hand-written assembly
 

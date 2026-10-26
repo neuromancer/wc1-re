@@ -8966,3 +8966,27 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   preserves SHA-256
   `4770da73bfecafc8bf3c672b6e6a52c2abc8fc79a0c154793c6568bcd94f5262`.
+- `ReadCalibratedJoystick` captures the sample, center and scale in scoped
+  integer locals for each of its four axis-normalization expressions. All
+  twelve captures compile away, leaving both joystick routines byte-exact.
+  They move `UnionRectBounds`'s final parameter key from 27,326 to 27,338,
+  the previously measured +12 context. The rectangle helper then loads its
+  first pointer before its second and compares the first left edge first,
+  recovering all 96 bytes. These are matching declarations, not recovered
+  original variable names or source text.
+  All three routines in `joycal.c` are exact. The full function report
+  changes only the rectangle helper, reaching 1,503 normalized-exact
+  functions of 1,550. All 1,539 mapped functions retain their original
+  addresses, with 1,489 byte-identical spans. Exactly six executable bytes
+  change, all toward the original: 516,461 of 518,656 match (99.5768%),
+  leaving 2,195 differences in 464 runs.
+  Capturing the polled event type in `WaitForInputKey`, with either a
+  `while` or `for` drain, reproduces the preceding executable. A qualified
+  scanned-byte read in the answer loader also produces identical output.
+  Those probes are restored.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both
+  value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  preserves SHA-256
+  `113106e11c87f0160a09ce1d311c1aff44439206367c5eb5c0eed8a3b73491f0`.

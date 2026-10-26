@@ -191,9 +191,14 @@ short ReadCalibratedJoystick(void)
     normalizedY = 0;
     normalizedX = normalizedY;
     if (aInputDevSamples[device].x < nJoystickCentreX) {
-        normalizedX = (short)((nJoystickCentreX -
-            aInputDevSamples[device].x) /
-            nCurrentJoystickLeftScale);
+        int sample;
+        int centre;
+        int scale;
+
+        sample = aInputDevSamples[device].x;
+        centre = nJoystickCentreX;
+        scale = nCurrentJoystickLeftScale;
+        normalizedX = (short)((centre - sample) / scale);
         if (nJoystickHorizontalDeadZone < normalizedX) {
             if (normalizedX != 0)
                 normalizedX = (short)-normalizedX;
@@ -201,17 +206,27 @@ short ReadCalibratedJoystick(void)
             normalizedX = 0;
         }
     } else if (aInputDevSamples[device].x > nJoystickCentreX) {
-        normalizedX = (short)((aInputDevSamples[device].x -
-            nJoystickCentreX) /
-            nJoystickRightScale);
+        int sample;
+        int centre;
+        int scale;
+
+        sample = aInputDevSamples[device].x;
+        centre = nJoystickCentreX;
+        scale = nJoystickRightScale;
+        normalizedX = (short)((sample - centre) / scale);
         if (normalizedX <= nJoystickHorizontalDeadZone)
             normalizedX = 0;
     }
 
     if (aInputDevSamples[device].y < nJoystickCentreY) {
-        normalizedY = (short)((nJoystickCentreY -
-            aInputDevSamples[device].y) /
-            nJoystickUpScale);
+        int sample;
+        int centre;
+        int scale;
+
+        sample = aInputDevSamples[device].y;
+        centre = nJoystickCentreY;
+        scale = nJoystickUpScale;
+        normalizedY = (short)((centre - sample) / scale);
         if (nJoystickVertDeadZoneValue < normalizedY) {
             if (normalizedY != 0)
                 normalizedY = (short)-normalizedY;
@@ -219,9 +234,14 @@ short ReadCalibratedJoystick(void)
             normalizedY = 0;
         }
     } else if (aInputDevSamples[device].y > nJoystickCentreY) {
-        normalizedY = (short)((aInputDevSamples[device].y -
-            nJoystickCentreY) /
-            nJoystickDownScaleValue);
+        int sample;
+        int centre;
+        int scale;
+
+        sample = aInputDevSamples[device].y;
+        centre = nJoystickCentreY;
+        scale = nJoystickDownScaleValue;
+        normalizedY = (short)((sample - centre) / scale);
         if (normalizedY <= nJoystickVertDeadZoneValue)
             normalizedY = 0;
     }
