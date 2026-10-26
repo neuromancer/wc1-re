@@ -1182,6 +1182,19 @@ unsigned int SelectNextExternalViewObject(void)
     return 0;
 }
 
+/* Fleet-overview, modal-message, and HUD-text callees from other modules. */
+void rotate_about_i(short angle, FixedVector *j,
+                    FixedVector *k);
+void rotate_about_j(short angle, FixedVector *i,
+                    FixedVector *k);
+short MinShort(short a, short b);
+short __stdcall DosStrlen(const char *s);
+short ShowModalTextPanel(short fontIndex, const char *format, ...);
+void FatalErrorAndExit(const char *format, ...);
+void SetHudMessageText(char *text, unsigned short colour,
+                       unsigned short duration);
+void ShowHudTextLine(char *s, unsigned short b);
+
 /* Function start: 0x428CD0 */
 unsigned int SelectPreviousExternalViewObject(void)
 {
