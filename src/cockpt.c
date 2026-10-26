@@ -364,11 +364,13 @@ void vdu_polygon(signed char bar, short percent)
     short top;
     short bottom;
     short right;
-    short length;
+    short inputPercent;
     short extent;
 
-    extent = (short)((percent * (length =
-        aaCockpitBars[(int)cCurrentCockpitView][(int)bar].length)) / 100);
+    /* Preserve the input percentage before using its parameter for bar length. */
+    inputPercent = percent;
+    percent = aaCockpitBars[(int)cCurrentCockpitView][(int)bar].length;
+    extent = (short)((inputPercent * percent) / 100);
     left = stCockpitBar.left =
         aaCockpitBars[(int)cCurrentCockpitView][(int)bar].left;
     if (left != -99) {
@@ -386,7 +388,7 @@ void vdu_polygon(signed char bar, short percent)
 
         if (direction < 2) {
             if (direction == 1) {
-                extent = (short)(length - extent);
+                extent = (short)(percent - extent);
                 swapFrame = emptyFrame;
                 emptyFrame = filledFrame;
                 filledFrame = swapFrame;
@@ -404,7 +406,7 @@ void vdu_polygon(signed char bar, short percent)
                                   emptyFrame);
         } else {
             if (direction == 3) {
-                extent = (short)(length - extent);
+                extent = (short)(percent - extent);
                 swapFrame = emptyFrame;
                 emptyFrame = filledFrame;
                 filledFrame = swapFrame;

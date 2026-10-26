@@ -9264,3 +9264,33 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   preserves SHA-256
   `01bec276b7a686aa5250ce915e2b3fcb1409a2fbdc8373a58c0c55b186511241`.
+- `vdu_polygon` preserves the incoming percentage in `inputPercent`, then
+  reuses the consumed parameter for the unscaled bar length. The extent
+  multiplication and both reverse-fill branches use those separate values.
+  This exchanges the parameter/local value roles without adding declarations
+  or changing any arithmetic width. CL now loads the percentage into EAX,
+  promotes the length into EDX, and places the constant-100 setup before the
+  bar-index LEA, as the original does. All four differing encodings disappear;
+  the complete 464-byte span, including its four-byte frame, is exact.
+  This is a measured value-lifetime choice, not recovered original spelling.
+  Carrier and flight-input probes are discarded. A scratch-only compiler
+  trace confirms that the carrier's destructive doubled-index instruction
+  comes from a same-register LEA peephole, after temporary allocation; the
+  earlier 32-byte-frame candidate still loses strict file matches. The
+  qualified flight-dynamics pitch read makes that function exact, but its
+  neighboring input routine still loses six net file bytes. Reordering the
+  opening state snapshots does not remove that regression. Both source and
+  header experiments were restored and their native rebuild proved identical
+  to the preceding executable before the cockpit change.
+  Only the cockpit-bar row changes in the complete function report. There
+  are now 1,512 normalized-exact functions of 1,550, 1,532 with 100% mnemonic
+  similarity, and 1,498 byte-identical mapped spans. All 1,539 mapped functions
+  retain their original addresses. Exactly ten executable bytes change, all
+  toward the original: 516,604 of 518,656 match (99.6044%), leaving 2,052
+  differences in 402 runs. A fresh native build reproduces the candidate
+  byte for byte; the modern build, sorting, address audit and unit-order
+  checks pass.
+  Full verification also passes. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `ea2b8d5c39acd198ddf408dd7a521aa7db384c24b9ac11a0a02fc5f9ece70e6c`.
