@@ -175,7 +175,8 @@ extern short nEjectedPilotObject; /* 0x0046c044 */
 extern short nClosestVisibleObject; /* 0x0046c048 */
 extern short nPlayerCollisionObject; /* 0x0046c050 */
 extern enum ObjectType eSelectedGunType; /* 0x0046c054 */
-#if !defined(WC1_SHIP_SOURCE) && !defined(WC1_BRAINS_SOURCE)
+#if !defined(WC1_SHIP_SOURCE) && !defined(WC1_BRAINS_SOURCE) && \
+    !defined(WC1_AUTO_SOURCE)
 extern short nYourWingman; /* 0x0046c04c */
 #endif
 extern int nSelectedReleaseWeaponIndex; /* 0x0046c058 */
@@ -193,6 +194,10 @@ extern int bMissileCameraEnabled; /* 0x0046c07c */
 extern short nYourWingman; /* 0x0046c04c */
 #endif
 extern int bEngageAllowed; /* 0x0046c080 */
+#ifdef WC1_AUTO_SOURCE
+/* Autopilot's ship/wingman comparison uses this later declaration. */
+extern short nYourWingman; /* 0x0046c04c */
+#endif
 extern short nAutoEngageTimer; /* 0x0046c084 */
 extern MissionNavPoint aMissionNavPoints[MISSION_NAV_POINT_COUNT]; /* 0x0046c2f0 */
 extern MissionShipRecord

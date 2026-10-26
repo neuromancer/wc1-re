@@ -310,6 +310,19 @@ symbols. Declaring the cockpit mode before its result preserves the
 comparison order. All other executable bytes remain unchanged; these are
 measured matching declarations, not recovered original source spelling.
 
+Local permutations can also recover a register exchange without shifting
+later functions. For `auto_pilot_sequence`, the existing interference graph
+predicts six orders of its final six short locals that exchange only the
+destination distance and hoisted ship-class constant registers. The selected
+order is destination distance, other ship, ship, initial distance, cruise
+speed, nearest-ship distance. It moves `destinationRange` from key 27,277
+to 27,274 and `ship` from 27,274 to 27,276, recovering four encodings.
+Moving `nYourWingman` eleven declarations later only for `auto.c`, from key
+23,288 to 23,299, reverses the remaining ship/wingman comparison. The
+compiler and `binary-comp` confirm both predictions: all 1,472 bytes match,
+with no change anywhere else in the executable. Initializations, arithmetic
+and control flow are unchanged; the declaration order is a matching choice.
+
 `PollJoystickButtonEvents` becomes exact with 25 more symbols
 before it. Scoped input, button and timing snapshots in
 `UpdateInputDeviceTransitions`, together with correctly typed captures of

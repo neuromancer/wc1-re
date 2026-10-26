@@ -9053,3 +9053,31 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   preserves SHA-256
   `aeacdd434d697165aec0fb7e76a1d832b01562e46dab138bd9c7338a5650de25`.
+- `auto_pilot_sequence` declares its final six short locals as destination
+  range, other ship, ship, initial distance, cruise speed, then nearest-ship
+  range. The compiler's register-colouring model predicts this order from
+  the existing interference graph. It exchanges only the destination range
+  and hoisted ship-class constant registers, recovering four instruction
+  encodings without changing initialization order. `auto.c` also declares
+  `nYourWingman` after `bEngageAllowed`, eleven positions later than before.
+  Its key moves from 23,288 to 23,299, reversing the one remaining comparison
+  to the original `CMP SI,CX`. Other units keep their preceding declarations.
+  Both predictions are confirmed by `binary-comp`; these are measured
+  compiler contexts, not recovered original source spelling.
+  The complete 1,472-byte autopilot span is exact, and only its row changes
+  in the full report. All six functions in `auto.c` are exact. The report
+  reaches 1,506 normalized-exact functions of 1,550; all 1,539 mapped
+  functions retain their original addresses, with 1,492 byte-identical
+  spans. Exactly five executable bytes change, all toward the original:
+  516,508 of 518,656 match (99.5859%), leaving 2,148 differences in 445 runs.
+  Position-helper probes are discarded. Capturing the forward or position
+  pointer before `get_front_spot`'s first call changes its address calculations
+  and scheduling. Removing the redundant half-speed local and capturing the
+  position only before the final vector addition reproduces the preceding
+  executable exactly, leaving the original ESI/EDI discrepancy unresolved.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both
+  value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  preserves SHA-256
+  `aa2b15d7ce5dbdbeb5ff469dff7e45a9a90f5d0b8066eb344edd93ee8f0a4e29`.

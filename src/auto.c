@@ -7,6 +7,7 @@
  *  exact order. The palette-file loader follows in this unit: its "rb"
  *  literal follows the initialized formation count in the original data.
  */
+#define WC1_AUTO_SOURCE
 #include "wc1.h"
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
@@ -114,10 +115,10 @@ void auto_pilot_sequence(void)
     FixedVector destination;
     signed char travelMode[10];
     FixedVector travelStep;
+    short destinationRange;
+    short other;
     short ship;
     short initialDistance;
-    short other;
-    short destinationRange;
     short cruiseSpeed;
     short nearestShipRange;
 #ifdef SDL_PORT
