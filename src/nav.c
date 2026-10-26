@@ -766,11 +766,16 @@ void InflightComputer(void)
 {
     short done;
     short hasObjectives;
-    volatile short savedInputMode;
+    short savedInputMode;
     short objective;
     short displayedNavPoint;
     short eventType;
+#ifdef SDL_PORT
     short savedNavPoint;
+#else
+    /* Original storage is four bytes; the saved value uses its low word. */
+    int savedNavPoint;
+#endif
     int frame;
     unsigned char *background;
     InputEventState event;
@@ -781,10 +786,10 @@ void InflightComputer(void)
     unsigned int savedInputState[7];
 #endif
 
-    savedNavPoint = (short)cCurrentNavPtIdx;
+    *(short *)&savedNavPoint = (short)cCurrentNavPtIdx;
     done = 0;
     hasObjectives = 0;
-    displayedNavPoint = savedNavPoint;
+    displayedNavPoint = *(short *)&savedNavPoint;
     bInflightComputerActive = 1;
 #ifdef SDL_PORT
     memcpy(&savedInputState,
@@ -825,7 +830,8 @@ void InflightComputer(void)
         pointerViewport = stScreenView;
         SetRectBounds(&pointerViewport, 32, 24, 182, 159);
         stMouseCursorState.viewport = &pointerViewport;
-        savedInputMode = (short)(signed char)bInputModeState;
+        *(volatile short *)&savedInputMode =
+            (short)(signed char)bInputModeState;
         bInputModeState = 1;
         SetEventManagerPump(PollMenuInputDevices);
         EventManagerHook(ResetMouseCursorFrame);
@@ -881,14 +887,18 @@ void InflightComputer(void)
         if (bEscapePressedFlag != 0) {
             bEscapePressedFlag = 0;
             cCurrentNavPtIdx =
+#ifdef SDL_PORT
                 (signed char)savedNavPoint;
+#else
+                *(signed char *)&savedNavPoint;
+#endif
             set_new_objective(cCurrentNavPtIdx);
         }
         free_viewport(&stSceneBuffer);
         LeaveAllocationScope();
         EventManagerHook(0);
         SetEventManagerPump(get_player_input);
-        bInputModeState = (unsigned char)savedInputMode;
+        bInputModeState = (unsigned char)*(volatile short *)&savedInputMode;
     }
 
     ReleasePacketHandle(pNavMapShape);

@@ -9638,3 +9638,41 @@ Session findings that are not yet retained because they change span sizes:
   pass. Full `make verify` passes; both value checks cover all 1,550
   functions with zero mismatches or skips. Verification preserves SHA-256
   `e8b434e255bb4030f097895187ade86c64d8d71e7e0a620645806743e9159cb0`.
+
+- `InflightComputer` keeps the objective flag and saved input mode as
+  separate short locals, but qualifies only the saved-mode accesses rather
+  than its declaration. CL can then share their stack word, as the original
+  does. Give the saved navigation point a four-byte native slot with word
+  initialization and reads; the SDL build retains a short. Together these
+  changes restore the original 72-byte frame and all five displaced stack
+  references without the earlier shared-variable probe's constant hoist.
+  Read the saved navigation point through its byte representation when
+  restoring the global. This retains `MOVSX CX,AL` and the argument push
+  before the global store. Reading its word and then narrowing instead
+  selects AX and stores the global first, leaving eleven literal
+  differences. The SDL branch retains the ordinary signed-char conversion.
+  These are measured storage and access choices, not recovered original
+  source declarations.
+  The entire 1,040-byte function is exact. Only this row changes in the full
+  report, reaching 1,524 normalized-exact functions of 1,550 and 1,510
+  byte-identical mapped spans. All 1,539 mapped functions retain their
+  original addresses. Exactly five executable bytes change, all in code
+  and all toward the original. Strict matching reaches 516,838 of 518,656
+  bytes (99.6495%), leaving 1,818 differences in 334 runs: 1,732 code bytes
+  and 86 relocation bytes. Section sizes and the entry point remain exact.
+  Further probes are restored. In the packet decompressor, combining the
+  initial zero assignments, qualifying the packet read passed to the
+  result helper, or using a one-element packet-pointer array each produces
+  the preceding executable exactly. Excluding the unused WinMain prototype
+  from the navigation unit restores the label routine's lower-bound
+  comparison directions, but exchanges its Y registers and regresses other
+  routines, including a sixteen-byte growth in label placement. In the
+  square outline, capturing either the radius or centre Y and reusing the
+  consumed parameter for the other value leaves every executable byte
+  unchanged.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks
+  pass.
+  Full `make verify` also passes: both value checks cover all 1,550
+  functions with zero mismatches or skips. Verification preserves SHA-256
+  `4f95e1015d1e5c33297b3960b871c9fd3efbef206868a373f2964ee326d8c729`.
