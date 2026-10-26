@@ -440,10 +440,17 @@ int Title_Sequence(void)
                     mouseX, mouseY, aTitleMenuRegions);
             }
             selection = selectedIndex;
-            if (selection < 0 || selection > 3)
-                state = 0;
-            else
+            switch (selection) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
                 state = (signed char)(menuOptions[selection] + 1);
+                break;
+            default:
+                state = 0;
+                break;
+            }
             break;
         }
         default:

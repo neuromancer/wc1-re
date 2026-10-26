@@ -8940,3 +8940,29 @@ Session findings that are not yet retained because they change span sizes:
   zero mismatches or skips; existing call/global-access diagnostics remain
   11/55. Verification preserves SHA-256
   `4f1bfa4d82ad275d4c7d556c5131137c1de1235f70cfee434deb757831bae4a1`.
+- `Title_Sequence` dispatches valid menu selections through four grouped
+  switch cases, zero through three. CL emits the original signed lower and
+  upper bounds, followed by the invalid-selection clear and then the valid
+  option load. The equivalent range `if` and explicit labels both put those
+  final blocks in the opposite order. All 1,856 bytes now match, including
+  the switch data and padding; all four routines in `title.c` are exact.
+  Only this row changes in the full function report, reaching 1,502
+  normalized-exact functions of 1,550. All 1,539 mapped functions retain
+  their original addresses, with 1,488 byte-identical spans. The executable
+  gains fourteen matching positions: 516,455 of 518,656 bytes (99.5756%),
+  leaving 2,201 differences in 470 runs.
+  Further probes are discarded. Narrowing the packet decompressor's
+  workspace-pointer scope reproduces the preceding executable. A wide
+  damage accumulator with partial-word updates introduces a stack slot;
+  a separate first quotient and a short subtotal through rear armor also
+  regress the file. In `WaitForInputKey`, a default-first switch with a
+  plain drain loop restores the clear-block order but loses the initial
+  polling guard and sixteen aligned bytes. Retaining the guarded loop
+  restores the old output; switching on the guard result instead adds an
+  unwanted sign extension. No changes from those probes remain.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both
+  value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  preserves SHA-256
+  `4770da73bfecafc8bf3c672b6e6a52c2abc8fc79a0c154793c6568bcd94f5262`.
