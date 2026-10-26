@@ -9229,3 +9229,38 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   preserves SHA-256
   `0c99a82220ffd17744247d4692fcc7f1df8e595fff43540882d0741bfc80a845`.
+- `PrepareShapeRLEData` declares its short extents as `topExtent`,
+  `height`, `leftExtent`, then `width`. Exchanging the width and top-extent
+  declarations moves width's symbol key from 27,353 to 27,356. The compiler's
+  expression model predicts the width/height multiplication operand reversal;
+  the native comparison confirms the original load order in both the bitmap
+  allocation and initialization. Their stack slots remain unchanged. Only
+  four instruction-displacement bytes change, all toward the original.
+  Differing encodings fall from fourteen to ten of 217, at unchanged 97.70%
+  mnemonic similarity, 44-byte frame and 656-byte span. These are measured
+  declaration choices, not recovered original source spelling.
+  Further graphics probes are discarded. Computing the right bound before
+  the bottom bound loses two of the gained bytes. Deriving those bounds
+  from the already-negated left/top values changes more of the calculation
+  and store sequence. In `ValidateViewportBounds`, explicit pixel and scan
+  pointers change the initial load schedule and loop registers. Keeping
+  only the pixel capture and reusing the row-stride local for the scan
+  counter preserves later functions, but still worsens the validator.
+  For `RestoreSpriteBackground`, model searches over local moves, two
+  exchanges, and permutations of the first eight declarations do not
+  recover the six required register changes without others. A named
+  promoted left-bound capture, balanced by removing the unused colour
+  capture, changes register spills, stack slots and row-code handling.
+  Its native comparison also regresses, so the preceding implementation
+  is retained.
+  Only the encoder's row changes in the full report. All 1,511 normalized
+  exact functions and 1,497 byte-identical mapped spans remain intact, and
+  all 1,539 mapped functions retain their original addresses. Strict file
+  matching reaches 516,594 of 518,656 bytes (99.6024%), leaving 2,062
+  differences in 405 runs.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both
+  value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  preserves SHA-256
+  `01bec276b7a686aa5250ce915e2b3fcb1409a2fbdc8373a58c0c55b186511241`.

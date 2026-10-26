@@ -411,10 +411,10 @@ void PrepareShapeRLEData(unsigned char *shape)
     unsigned char *output;
     int *frameOffset;
     int frameCount;
-    short width;
+    short topExtent;
     short height;
     short leftExtent;
-    short topExtent;
+    short width;
     int frame;
     int row;
     int remaining;
