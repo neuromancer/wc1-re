@@ -551,13 +551,18 @@ extern Viewport stRightVduViewport; /* 0x005a7530 */
 extern Viewport stPilotHandBackdropView; /* 0x005a7550 */
 extern unsigned char *pCockpitWeaponShapePtr; /* 0x005a7564 */
 extern Viewport stCurrentConvTextViewport; /* 0x005a7570 */
+#ifdef WC1_GAMEFLOW_SOURCE
+extern Viewport stSceneBuffer; /* 0x005a76b0 */
+#endif
 extern char szDefaultTxtBuf[0xc8]; /* 0x005a7590 */
 extern Viewport stModalSrcViewport; /* 0x005a7670 */
 extern unsigned char *pCockpitIndicatorShape; /* 0x005a7658 */
 extern unsigned char *pCommMenuPointerShape; /* 0x005a7660 */
 extern unsigned char *pCurrentPilotHandShapePtr; /* 0x005a7684 */
 extern Viewport stPilotHandComposite; /* 0x005a7690 */
+#ifndef WC1_GAMEFLOW_SOURCE
 extern Viewport stSceneBuffer; /* 0x005a76b0 */
+#endif
 extern unsigned char *pCockpitDamageShape; /* 0x005a76f4 */
 extern short aPaletteFadeEntries[6][3]; /* 0x005a76d0 */
 extern TextContext stRightVduTxtContext; /* 0x005a7700 */

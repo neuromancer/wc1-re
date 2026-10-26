@@ -423,8 +423,8 @@ short GameFlow(void)
 /* Function start: 0x40F940 */
 void __stdcall free_viewport(Viewport *viewport)
 {
-    unsigned char *allocation;
     int i;
+    unsigned char *allocation;
     int oldCount;
 
     nFreeViewCallsValue++;

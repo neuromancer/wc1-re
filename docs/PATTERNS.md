@@ -8866,3 +8866,32 @@ Session findings that are not yet retained because they change span sizes:
   audits and full verification pass. Both value checks cover all 1,550
   functions with zero mismatches. The verified executable has SHA-256
   `140328a14d52319eb4211d51046f41fd8a8255db400a7c52e7782b4865fc4b08`.
+- `free_viewport` needs coordinated local and global declaration order to
+  recover its last two comparison operands. In the game-flow unit only,
+  move `stSceneBuffer` six declarations earlier, before `szDefaultTxtBuf`,
+  and declare the search index before the saved allocation pointer. The
+  scene-buffer key moves from 23,613 to 23,607 and the allocation key from
+  27,342 to 27,343. C2's load signatures then order the screen-buffer fields
+  (`0x22`) above the allocation (`0x21`), and the allocation above the
+  scene-buffer fields (`0x20`). This retains the original memory-first
+  screen comparisons and restores the register-first scene comparisons.
+  Changing the scene-buffer key alone leaves the operands unchanged.
+  These are matching declarations, not recovered original header text.
+  Binary-comp now finds the full 240-byte routine exact at its original
+  address. The complete function report changes only this routine, reaching
+  1,500 normalized-exact functions of 1,550. Strict file matching gains two
+  bytes, reaching 516,411 of 518,656 (99.5672%), with 2,245 differences in
+  488 runs.
+  Additional packet and damage probes are discarded: localized volatile
+  allocation-size accesses, returning the initialized packet on early errors,
+  and a separate answer-line scanner leave their targets unchanged. Reusing
+  the section-end value for the packet length worsens its stack/register
+  layout. A short front-armor quotient leaves damage evaluation unchanged;
+  reusing its object parameter as the accumulator still allows reassociation,
+  while qualified armor reads restore the order but exchange registers and
+  alter the final instructions. No changes from these probes remain.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address/order audits and full verification pass. Both value
+  checks cover all 1,550 functions with zero mismatches or skips; the existing
+  call/global-access diagnostics remain 11/55. Verification preserves SHA-256
+  `6f3d2719c2109f9b2786e74397459046d9aebdcec62da8fed0462c2dc313160a`.
