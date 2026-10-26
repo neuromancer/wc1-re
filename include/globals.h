@@ -475,8 +475,15 @@ extern signed char acShipIonDriveDmg[16]; /* 0x0059d4a0 */
 extern short asObjectAnimationDelay[SPACE_OBJECT_COUNT]; /* 0x0059b660 */
 extern short asObjectAnimIndexes[SPACE_OBJECT_COUNT]; /* 0x0059da30 */
 extern short nEyeRollTargetValue; /* 0x0059c8f0 */
-extern short nEyeYawGoalValue; /* 0x0059c944 */
+#ifndef WC1_VIEW_SOURCE
+/* The flight unit needs the pitch goal declared before the yaw goal; the
+ * scripted-view unit sees them in the other order. */
 extern short nEyePitchTargetValue; /* 0x0059d61c */
+#endif
+extern short nEyeYawGoalValue; /* 0x0059c944 */
+#ifdef WC1_VIEW_SOURCE
+extern short nEyePitchTargetValue; /* 0x0059d61c */
+#endif
 extern signed char acVduModeStackDepth[16]; /* 0x0059dec0 */
 extern signed char acShipSpawnNavPt[16]; /* 0x0059ded0 */
 /* Calibration bounds are used only by joycal.c. */
