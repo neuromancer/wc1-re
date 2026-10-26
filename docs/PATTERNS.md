@@ -8917,3 +8917,26 @@ Session findings that are not yet retained because they change span sizes:
   checks cover all 1,550 functions with zero mismatches or skips; existing
   call/global-access diagnostics remain 11/55. Verification preserves SHA-256
   `a37f710e0e71f31beb3c6418ad7e7827dfd610f14ac8e561f07d38590b4c3a95`.
+- `OpenPacketSection` now matches its complete 320-byte span. Give the
+  file-header length and computed section length separate scopes, and
+  qualify only the latter's memory accesses. C2 then shares their stack
+  slot and recovers the original 24-byte frame and local offsets. Declaring
+  the entire section-length local volatile instead grows the frame to
+  28 bytes. Assigning the final handle fields in structure order restores
+  AX for the compression value, ECX for the section entry, and the original
+  store schedule. These are measured source choices, not recovered original
+  declarations.
+  The complete function report changes only this routine, reaching 1,501
+  normalized-exact functions of 1,550. All 1,539 mapped functions retain
+  their original addresses, and 1,487 have byte-identical spans. Exactly
+  26 file bytes change, all toward the original: 516,441 of 518,656 bytes
+  now match (99.5729%), leaving 2,215 differences in 472 runs.
+  Splitting the decompressor's workspace and allocation sizes into separate
+  scopes, with qualified workspace-size accesses, leaves its eleven stack
+  encodings unchanged and regresses two following routines. That probe is
+  restored. A fresh native build reproduces the retained executable byte
+  for byte, and the modern build passes. Sorting, address/order audits and
+  full verification pass. Both value checks cover all 1,550 functions with
+  zero mismatches or skips; existing call/global-access diagnostics remain
+  11/55. Verification preserves SHA-256
+  `4f1bfa4d82ad275d4c7d556c5131137c1de1235f70cfee434deb757831bae4a1`.

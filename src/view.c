@@ -398,7 +398,6 @@ short __stdcall OpenPacketSection(const char *filename, short section,
                                   PacketSectionHandle *handle)
 {
     unsigned int sectionEntry;
-    unsigned int fileSize;
     unsigned int sectionEnd;
     int sectionIndex;
     int directoryOffset;
@@ -407,46 +406,54 @@ short __stdcall OpenPacketSection(const char *filename, short section,
     short sectionCount;
     short file;
 
-    file = OpenDataFileOrDie(filename);
-    if (file == -1)
-        goto failed;
-    if (ReadDataFileAtOffset(file, 0, 4, &fileSize) == 0)
-        goto failed;
-    if (ReadDataFileAtOffset(file, 4, 4, &directorySize) == 0)
-        goto failed;
-    sectionCount = (short)(directorySize >> 2) - 1;
-    if (section >= sectionCount) {
-        nPacketError = 3;
-        goto failed;
-    }
-    sectionIndex = (int)section;
-    directoryOffset = sectionIndex * 4 + 4;
-    if (ReadDataFileAtOffset(file, directoryOffset, 4,
-                             &sectionEntry) == 0)
-        goto failed;
-    compression = (short)(sectionEntry >> 24) & 0xff;
-    handle->finalSection = 0;
-    sectionEntry &= 0x00ffffff;
-    if (sectionCount - sectionIndex == 1) {
-        handle->finalSection = 1;
-        sectionEnd = fileSize;
-    } else {
-        directoryOffset += 4;
-        if (ReadDataFileAtOffset(file, directoryOffset, 4,
-                                 &sectionEnd) == 0)
+    {
+        unsigned int fileSize;
+
+        file = OpenDataFileOrDie(filename);
+        if (file == -1)
             goto failed;
-        /* Discard the next directory entry's compression byte. */
-        ((unsigned char *)&sectionEnd)[3] = 0;
+        if (ReadDataFileAtOffset(file, 0, 4, &fileSize) == 0)
+            goto failed;
+        if (ReadDataFileAtOffset(file, 4, 4, &directorySize) == 0)
+            goto failed;
+        sectionCount = (short)(directorySize >> 2) - 1;
+        if (section >= sectionCount) {
+            nPacketError = 3;
+            goto failed;
+        }
+        sectionIndex = (int)section;
+        directoryOffset = sectionIndex * 4 + 4;
+        if (ReadDataFileAtOffset(file, directoryOffset, 4,
+                                 &sectionEntry) == 0)
+            goto failed;
+        compression = (short)(sectionEntry >> 24) & 0xff;
+        handle->finalSection = 0;
+        sectionEntry &= 0x00ffffff;
+        if (sectionCount - sectionIndex == 1) {
+            handle->finalSection = 1;
+            sectionEnd = fileSize;
+        } else {
+            directoryOffset += 4;
+            if (ReadDataFileAtOffset(file, directoryOffset, 4,
+                                     &sectionEnd) == 0)
+                goto failed;
+            /* Discard the next directory entry's compression byte. */
+            ((unsigned char *)&sectionEnd)[3] = 0;
+        }
     }
-    fileSize = sectionEnd - sectionEntry;
-    if (SeekDataFile(file, sectionEntry, 0) != 0) {
-        handle->file = file;
-        handle->dataOffset = sectionEntry;
-        handle->sectionCount = sectionCount;
-        handle->compression = compression;
-        handle->dataSize = fileSize;
-        handle->position = 0;
-        return 1;
+    {
+        unsigned int sectionSize;
+
+        *(volatile unsigned int *)&sectionSize = sectionEnd - sectionEntry;
+        if (SeekDataFile(file, sectionEntry, 0) != 0) {
+            handle->file = file;
+            handle->sectionCount = sectionCount;
+            handle->compression = compression;
+            handle->dataOffset = sectionEntry;
+            handle->position = 0;
+            handle->dataSize = *(volatile unsigned int *)&sectionSize;
+            return 1;
+        }
     }
 failed:
     CloseDataFile((unsigned short)file);
