@@ -344,8 +344,17 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
 
     savedTextContext = pCurTextContext;
     SetTextContext(&stDiskPromptTextContext);
-    *(ShortRect *)&stDiskPromptBgView.left = stDiskPromptBounds;
-    *(ShortRect *)&stDiskPromptViewport.left = stDiskPromptBounds;
+    {
+        unsigned int leftTop;
+        unsigned int rightBottom;
+
+        leftTop = *(unsigned int *)&stDiskPromptBounds.left;
+        rightBottom = *(unsigned int *)&stDiskPromptBounds.right;
+        *(unsigned int *)&stDiskPromptBgView.left = leftTop;
+        *(unsigned int *)&stDiskPromptViewport.left = leftTop;
+        *(unsigned int *)&stDiskPromptBgView.right = rightBottom;
+        *(unsigned int *)&stDiskPromptViewport.right = rightBottom;
+    }
 
     if (stSpaceBufferViewport.pixels != 0) {
         stDiskPromptBgView = stSpaceBufferViewport;
@@ -465,7 +474,7 @@ short WaitForInputKey(void)
 
     savedMode = bInputModeState;
     bInputModeState = 1;
-    do {
+    while (key == 0) {
         switch (PollInputEvent(&event, 0xff)) {
         case 2:
         case 10:
@@ -481,15 +490,13 @@ short WaitForInputKey(void)
                 key = 0;
                 break;
             default:
-                if (PollInputEvent(&event, 0xff) != 0) {
-                    do {
-                    } while (PollInputEvent(&event, 0xff) != 0);
-                }
+                while (PollInputEvent(&event, 0xff) != 0)
+                    ;
                 break;
             }
             break;
         }
-    } while (key == 0);
+    }
     ClearInputKeyStatePreservingModifiers();
     bInputModeState = savedMode;
     FlushInputEvents();

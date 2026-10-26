@@ -312,7 +312,11 @@ void CreateEmptySaveGameFile(void)
                 diskObjective->displayName =
                     (short)(int)gameObjective->displayName;
                 diskObjective->name = (short)(int)gameObjective->name;
-                diskObjective->position = gameObjective->position;
+                gameBytes = (unsigned char *)&gameObjective->position;
+                diskBytes = (unsigned char *)&diskObjective->position;
+                ((FixedVector *)diskBytes)->x = ((FixedVector *)gameBytes)->x;
+                ((FixedVector *)diskBytes)->y = ((FixedVector *)gameBytes)->y;
+                ((FixedVector *)diskBytes)->z = ((FixedVector *)gameBytes)->z;
             }
 
             WriteDataFileAtOffset((unsigned short)file,

@@ -9479,6 +9479,49 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips, and call/global-access diagnostics remain
   11/55. Verification preserves SHA-256
   `1b3c8f3e3ec4bc0e991a2b75b844a8baeda5457d146094dd0a22697974d96eff`.
+- `PromptInsertNumberedDisk` captures the bounds' left/top and right/bottom
+  pairs as two native words before copying them to the two viewports. The
+  word accesses use the existing fields' addresses; the rectangle type and
+  layout stay unchanged. This restores EAX for the first word and ECX for
+  the second, including the shorter absolute EAX loads/stores. Capturing
+  the words with `memcpy` first recovers those registers but leaves eight
+  unwanted frame bytes; native-word lvalues remove those slots. The complete
+  592-byte routine is now exact, gaining 29 executable bytes.
+- `WaitForInputKey` needs a pre-tested outer `while (key == 0)`, together
+  with a plain polling `while` in the inner switch's default case. CL then
+  keeps the zero-key clear before the drain loop and emits both the initial
+  polling guard and the loop's second call. The outer `do`/`while` was the
+  missing distinction in the earlier inner-loop probes. An early `break`
+  for an empty queue with that old outer loop leaves its output unchanged.
+  All 256 bytes, including switch data and padding, now match. This gains
+  another 46 executable bytes, and all eighteen disk-unit report rows are
+  exact.
+- `CreateEmptySaveGameFile` copies the objective position's three fields
+  through its existing byte-copy cursors, cast to `FixedVector` pointers.
+  Separate field transfers recover the original source-address calculation
+  before the name-field copies, ECX/EDI allocation and final store schedule.
+  The complete 640-byte routine is exact, gaining another 38 bytes.
+  Separate position pointers and coordinate snapshots also match this
+  routine but disturb later functions through their added declarations.
+  Removing the coordinate snapshots keeps the target exact but still
+  regresses two neighbors. Reusing the existing cursors avoids those
+  changes. Direct nested-field assignments without the cursors regress the
+  target; qualifying the aggregate source copy leaves it unchanged.
+  These source choices are measured matching idioms, not recovered original
+  declarations. Only these three rows change in the full report: 1,520
+  normalized-exact functions of 1,550, with 1,536 at 100% mnemonic similarity.
+  All 1,539 mapped functions retain their original addresses, and 1,506
+  mapped spans are byte-identical. Exactly 113 executable positions change,
+  all toward the original: 109 code bytes and four relocation bytes.
+  Strict matching reaches 516,808 of 518,656 bytes (99.6437%), leaving
+  1,848 differences in 344 runs: 1,762 code bytes and 86 relocation bytes.
+  Section sizes and the entry point remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes: both value checks cover all 1,550 functions
+  with zero mismatches or skips, and call/global-access diagnostics remain
+  11/55. Verification preserves SHA-256
+  `d24dcfbac06eee38221e414a20aaa83a28efcd453170aa59e46b8e88c0be6061`.
   Full verification passes: both value checks cover all 1,550 functions
   with zero mismatches or skips, and the existing call/global-access
   diagnostics remain 11/55. Verification preserves SHA-256
