@@ -807,9 +807,16 @@ extern int nJoystickHorizontalDeadZone; /* 0x005a81a4 */
 #endif
 extern int nJoystickUpScale; /* 0x005a81a8 */
 extern int nCurrentJoystickLeftScale; /* 0x005a81ac */
+/* Interactive calibration's bounds use a distinct declaration order. */
+#ifdef WC1_JOYSTICK_SOURCE
+extern int nStickMinimumPositionX; /* 0x005a81b8 */
+extern int nCurrentJoystickFailureValue; /* 0x005a81e0 */
+extern int nStickMaxX; /* 0x005a81b0 */
+#else
 extern int nStickMaxX; /* 0x005a81b0 */
 extern int nStickMaxY; /* 0x005a81b4 */
 extern int nStickMinimumPositionX; /* 0x005a81b8 */
+#endif
 extern int nStickMinimumPositionY; /* 0x005a81bc */
 #ifndef WC1_MAIN_SOURCE
 extern int nCurrentJoystickRawCoordX; /* 0x005a81c0 */
@@ -822,7 +829,11 @@ extern int nJoystickDownScaleValue; /* 0x005a81d4 */
 extern int nJoystickCentreY; /* 0x005a81d8 */
 extern int nJoystickCentreX; /* 0x005a81dc */
 extern short nMenuInputRepeatDelay; /* 0x005a8208 */
+#ifdef WC1_JOYSTICK_SOURCE
+extern int nStickMaxY; /* 0x005a81b4 */
+#else
 extern int nCurrentJoystickFailureValue; /* 0x005a81e0 */
+#endif
 extern int nHostMouseMessageX; /* 0x005a8990 */
 extern int nHostMouseMessageY; /* 0x005a8994 */
 extern int bHostPrimaryMouseButton; /* 0x005a8998 */

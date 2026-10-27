@@ -9676,3 +9676,33 @@ Session findings that are not yet retained because they change span sizes:
   Full `make verify` also passes: both value checks cover all 1,550
   functions with zero mismatches or skips. Verification preserves SHA-256
   `4f95e1015d1e5c33297b3960b871c9fd3efbef206868a373f2964ee326d8c729`.
+
+- `CalibrateJoystickInteractive` pairs each scale multiplication with the
+  corresponding bound assignment. This lets the native compiler retain the
+  horizontal range in EBX and the right scale in EDI, then interleave the
+  minimum-bound stores with the remaining products in the original order.
+  Its unit-specific declarations exchange the maximum-Y/failure-value
+  positions and the maximum-X/minimum-X positions. The first exchange puts
+  the final Y bound in ECX and the failure value in EAX; the second restores
+  the original `CMP ESI,EDX; JLE` validity check. These guards reproduce a
+  measured compiler context, not recovered original header text.
+  The routine retains its 36-byte frame and 1,040-byte aligned span.
+  Differing instruction encodings fall from 31 to three, and mnemonic
+  similarity reaches 100%. The remaining difference is one center-X load
+  scheduled after the right/down-scale stores instead of before them.
+  Both button-wait routines remain exact. Explicit center captures through
+  a local or global, qualified individual scale stores, and fifteen later
+  scale-publication orders give no additional gain and are discarded.
+  Only calibration's row changes in the full report: 1,524 normalized-exact
+  functions of 1,550, with 1,539 at 100% mnemonic similarity. All 1,539 mapped
+  functions retain their original addresses; 1,510 spans are byte-identical.
+  Eighty-four executable bytes change for a net gain of eighty matching
+  positions: 73 in code and seven in relocations. Strict matching reaches
+  516,918 of 518,656 bytes (99.6649%), leaving 1,738 differences in 309 runs:
+  1,659 code bytes and 79 relocation bytes. Section sizes and entry point
+  remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks
+  pass. Full `make verify` passes; both value checks cover all 1,550
+  functions with zero mismatches or skips. Verification preserves SHA-256
+  `b219bfb0126f3df58b59276bfb2450a17b5035495f568c422dc981d366aa7896`.

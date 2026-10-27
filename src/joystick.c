@@ -122,12 +122,12 @@ void CalibrateJoystickInteractive()
     nJoystickVerticalRange = verticalRange;
 
     leftScale *= horizontalRange;
-    upScale *= verticalRange;
-    rightScale *= horizontalRange;
-    downScale *= verticalRange;
     nStickMinimumPositionX = nJoystickCentreX - leftScale;
+    upScale *= verticalRange;
     nStickMinimumPositionY = nJoystickCentreY - upScale;
+    rightScale *= horizontalRange;
     nStickMaxX = nJoystickCentreX + rightScale;
+    downScale *= verticalRange;
     nStickMaxY = nJoystickCentreY + downScale;
     nCurrentJoystickFailureValue = nStickMaxX * 2;
 
