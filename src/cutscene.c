@@ -587,20 +587,28 @@ unsigned int DrawScrambleFrame(void)
     return 0;
 }
 
+/* Preserve the scramble actor and sound declaration context. */
+unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
+                                    short deltaY, unsigned char *shape,
+                                    short scale, short angle,
+                                    signed char flip, short actorIndex);
+void FlushSoundEffectsAndLog(int soundHandle, short fadeTicks);
+
 /* Function start: 0x408200 (Mac symbol: scramble) */
 unsigned int scramble(void)
 {
     unsigned char *actorShape;
     short frame;
-    short animationOffset;
-    int soundHandle; /* Unset in the original; ignored by the Win32 callee. */
+    int scrambleSound;
+    int canopySound; /* Unset after the Win32 sound-call replacements. */
 
 #ifdef SDL_PORT
-    soundHandle = 0;
+    scrambleSound = 0;
+    canopySound = 0;
 #endif
-    *(volatile short *)&nScrambleCanopyOffset = 0;
-    *(volatile short *)&stScrambleOverlay.x = -1000;
+    nScrambleCanopyOffset = 0;
     nSceneScrambleCanopyFrameValue = 0;
+    *(volatile short *)&stScrambleOverlay.x = -1000;
     nSceneScrambleShipDetailCountValue = 0;
     if (bEscapePressedFlag == 0) {
         InitializeConversationViewport();
@@ -634,7 +642,7 @@ unsigned int scramble(void)
         switch (stCampaignState.playerShipType) {
         case OBJECT_TYPE_HORNET:
             nCurrentScrambleShipPositionX = -40;
-            nScrambleShipY = 96;
+            *(short volatile *)&nScrambleShipY = 96;
             stScrambleCockpitDetail.x = nCurrentScrambleShipPositionX - 55;
             stScrambleCockpitDetail.y = nScrambleShipY - 25;
             nScrambleCockpitAngle = 316;
@@ -663,7 +671,6 @@ unsigned int scramble(void)
         for (frame = 0; frame < 10; frame++) {
             PumpWindowMessages();
             DrawScrambleFrame();
-            animationOffset = (short)(nScrambleBackgroundRightCoordX - 1);
             nScrambleShipY =
                 (short)(nScrambleShipY - 2);
             stScrambleCockpitDetail.y =
@@ -672,7 +679,7 @@ unsigned int scramble(void)
                 (short)(nCurrentScrambleShipPositionX + 4);
             stScrambleCockpitDetail.x =
                 (short)(stScrambleCockpitDetail.x + 4);
-            nScrambleBackgroundRightCoordX = animationOffset;
+            nScrambleBackgroundRightCoordX--;
             if (bEscapePressedFlag == 1)
                 goto releaseScrambleResources;
         }
@@ -682,13 +689,10 @@ unsigned int scramble(void)
             for (frame = 0; frame < 27; frame++) {
                 PumpWindowMessages();
                 DrawScrambleFrame();
-                animationOffset = (short)(nScrambleCanopyOffset + 1);
-                nCurrentScrambleShipPositionX =
-                    (short)(nCurrentScrambleShipPositionX + 4);
-                stScrambleCockpitDetail.x =
-                    (short)(stScrambleCockpitDetail.x + 4);
-                nScrambleCanopyOffset = animationOffset;
+                nCurrentScrambleShipPositionX += 4;
+                stScrambleCockpitDetail.x += 4;
                 nScrambleBackgroundRightCoordX--;
+                nScrambleCanopyOffset++;
                 if (nSceneScrambleCanopyFrameValue < 25)
                     nSceneScrambleCanopyFrameValue++;
                 if (bEscapePressedFlag == 1)
@@ -697,7 +701,7 @@ unsigned int scramble(void)
         }
 
         if (bEscapePressedFlag != 1) {
-            FlushSoundEffectsAndLog(soundHandle, 0);
+            FlushSoundEffectsAndLog(scrambleSound, 0);
             nScrambleCanopyOffset--;
             PlaySfxWaveFileByNumber(15, -1, 0);
             nFrameSkipCounter = 1;
@@ -730,7 +734,7 @@ unsigned int scramble(void)
                     break;
             }
 
-            FlushSoundEffectsAndLog(soundHandle, 0);
+            FlushSoundEffectsAndLog(canopySound, 0);
             PlaySfxWaveFileByNumber(16, -1, 0);
             if (bEscapePressedFlag != 1)
                 WaitForSceneAdvance(60, 0);
@@ -753,6 +757,11 @@ releaseScrambleResources:
     }
     return 0;
 }
+
+/* Preserve the landing resource and event declaration context. */
+void *FetchDiskPacketRetrying(short logicalFile, short section, short flags);
+unsigned int spacetrack(int track, int mode, short enabled);
+void __stdcall SetEventManagerPump(void (*pump)(void));
 
 /* Function start: 0x408650 (Mac symbol: landing) */
 unsigned int landing(signed char damageLevel)
@@ -1043,6 +1052,17 @@ unsigned int funeral_wingman(char *text, short duration)
     }
     return 0;
 }
+
+/* Preserve the funeral resource and scene declaration context. */
+void *FetchDiskPacketRetrying(short logicalFile, short section, short flags);
+void FreePacketAndClear(void *slot, unsigned short releaseFlags);
+unsigned int InitializeConstellationField(Viewport *viewport,
+                                          short direction, short density);
+void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
+                                           unsigned short colour,
+                                           short enabled);
+unsigned int SceneDirector(short sceneType, unsigned char *sceneData,
+                           unsigned char *textData);
 
 /* Function start: 0x408DE0 (Mac symbol: funeral_sequence) */
 unsigned int funeral_sequence(int playerFuneral)

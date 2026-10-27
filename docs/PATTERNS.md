@@ -10444,3 +10444,44 @@ Session findings that are not yet retained because they change span sizes:
   existing call/global-access diagnostics remain 11/55. Verification
   reproduces the candidate byte for byte, preserving SHA-256
   `bdab2428bcbb4b9fd0c2333932a42e8c6fd933f504a8cb4b75bc176996bf4797`.
+
+- DOS `scramble` reserves twelve local bytes at file offset `0x397F8`:
+  the actor-shape pointer and two distinct far sound handles. The first
+  sound result is stored at BP-8/BP-6 at `0x3998C`, and the second at
+  BP-12/BP-10 at `0x39B04`; the later stops read their respective slots.
+  Restore the two sound locals instead of sharing one. Their Win32 sound
+  calls leave them unset, and the native stop routine ignores the argument;
+  SDL initializes both. The compiler shares their four-byte native slot.
+  DOS also initializes canopy offset, canopy frame, overlay X and detail
+  count in that order. Retaining that order allows an ordinary canopy
+  offset store. In the second animation phase, update ship X, detail X,
+  background X and canopy offset in DOS order, with direct coordinate
+  updates rather than an extra short temporary. Together these recover
+  the original canopy load/increment/store and background decrement.
+  A volatile-qualified Hornet Y initialization takes that global out of
+  C2's register candidates. This qualification is a measured matching
+  choice, not recovered original source spelling.
+  Two declarations of actual actor/sound callees add eleven named
+  parameters before `scramble`, selecting BX for its first frame counter
+  and DI for the later counters. Three resource/event declarations before
+  `landing` bring the context shift to eighteen, and five resource/scene
+  declarations before `funeral_sequence` bring it to thirty-two. These
+  restore every later cutscene function; all signatures agree with their
+  public declarations. The declaration text is measured compiler context,
+  not recovered original headers. A model-predicted common shift of
+  thirty-five did not preserve the funeral routine in the native build;
+  only native compilation and `binary-comp` establish these results.
+  The complete 1,104-byte `scramble` span now has 27 differing bytes and
+  100% mnemonic similarity. The executable changes at 33 positions for a
+  net gain of ten matches, reaching 518,590 of 518,656 bytes (99.9873%).
+  Sixty-six positions still differ in forty runs: 27 in `scramble`, 32 in
+  `player_input`, three in `AllocateGuardedMemory`, and four relocations.
+  The complete report has 1,549 functions at 100% mnemonic similarity,
+  1,546 normalized exact entries and three same-size nonexact entries;
+  the existing IEEE-converter boundary remains the sole size diagnostic.
+  Native and modern builds, sorting, address and compilation-unit-order
+  audits, and full `make verify` pass. Both value checks cover all 1,550
+  functions with zero mismatches or skips; existing call/global-access
+  diagnostics remain 11/55. The verification rebuild reproduces the
+  candidate byte for byte, preserving SHA-256
+  `b75df210fb9b61510261eb7718697e380129463fa2e53220e42587019606b0ff`.
