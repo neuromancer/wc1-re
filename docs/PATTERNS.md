@@ -9794,3 +9794,29 @@ Session findings that are not yet retained because they change span sizes:
   functions with zero mismatches or skips. Existing call/global-access
   diagnostics remain 11/55. Verification preserves SHA-256
   `f78272c92c14b6e92d84bde661b29e7ff619d4b09950dd00aefb6b4d38b2f95f`.
+
+- `IsPointInNavMapLabel` captures the label's left edge in a short before
+  checking the point. Reuse that value in the text-width bound. This restores
+  the original `CMP BX,SI` and `JG` while retaining the cached word across
+  the intrinsic `strlen`. Its 112-byte span and every other instruction stay
+  unchanged. The Y comparison still has reversed operands and the equivalent
+  opposite branch; the function improves from 94.87% to 97.44% mnemonic
+  similarity, with two remaining instruction-encoding differences.
+  Reusing one coordinate local for both label edges restores both comparison
+  directions but exchanges the Y registers. Separate edge locals also disturb
+  later navigation functions. Qualified Y reads, consumed parameters and a
+  wider coordinate accessed through word lvalues do not improve the retained
+  result. Square-outline coordinate captures and argument-assignment variants
+  likewise leave its two differences or introduce new ones; none is retained.
+  Exactly two executable bytes change, both toward the original. Strict
+  matching reaches 516,984 of 518,656 bytes (99.6776%), leaving 1,672
+  differences in 298 runs: 1,596 code bytes and 76 relocation bytes. The
+  full report retains 1,527 normalized-exact functions of 1,550, with 1,541
+  at 100% mnemonic similarity. All 1,539 mapped functions remain at their
+  original addresses, and 1,513 complete spans are byte-identical.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions with
+  zero mismatches or skips. Existing call/global-access diagnostics remain
+  11/55. Verification preserves SHA-256
+  `6cdf5a3fae355ad40186d7dece8af08b8bbb6522f79de4e26595123cae177940`.

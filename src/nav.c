@@ -229,9 +229,12 @@ void AddUniqueObjectiveNavLabel(short x, short y,
 /* Function start: 0x40D490 */
 short IsPointInNavMapLabel(short labelIndex, short x, short y)
 {
-    if (aNavMapLabels[labelIndex].x <= x &&
+    short left;
+
+    left = aNavMapLabels[labelIndex].x;
+    if (left <= x &&
         (unsigned int)x <=
-            (unsigned int)(aNavMapLabels[labelIndex].x +
+            (unsigned int)(left +
                            strlen(aNavMapLabels[
                                labelIndex].text) * 4) &&
         aNavMapLabels[labelIndex].y <= y &&
