@@ -10661,3 +10661,14 @@ Session findings that are not yet retained because they change span sizes:
   `size` parameters, array or structure counters with either comparison
   spelling, and changed source paths or environment size (the backend
   output is byte-identical).
+  C2 also converts guard-fill loops into the same `mov eax, 0xABABABAB;
+  mov ecx, 256; rep stosd`, for byte or dword loops, `for`, `do`/`while`
+  or `goto` loops, as long as the pointer is a loop-invariant local.
+  Such a loop leaves the end-guard pointer's `lea edi` as a web definition,
+  which makes the recent pair (EAX, EDI) and would select ECX. However, the
+  loop's label then resets the pair, so the current-byte load takes its
+  own colour, EAX: every such loop matches the original except for EAX.
+  A loop that reads the block through the tail pointer inside its body is
+  not converted at all. The original's third fill therefore needs the
+  web definition without a following label, which neither `memset` nor a
+  loop provides.
