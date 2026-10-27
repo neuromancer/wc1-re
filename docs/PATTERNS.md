@@ -10152,3 +10152,31 @@ Session findings that are not yet retained because they change span sizes:
   functions with zero mismatches or skips. Existing call/global-access
   diagnostics remain 11/55. Verification preserves SHA-256
   `c22f47d4415e94776826a8aa827da806193404385b6307df4ebf59c2b68a37db`.
+
+- `player_input` keeps both mouse magnitudes in unsigned-short locals and
+  reads them as signed shorts in the threshold loops. The signed reads
+  preserve the original word comparisons, including the wrapped result of
+  the absolute-value calculation. Changing both declarations restores the
+  original memory-first operands and `JG` branches in the initial threshold
+  tests. The indexed loop comparisons, registers, frame and code addresses
+  stay unchanged. These are measured type choices, not recovered spelling.
+  Changing either magnitude alone worsens matching. Reintroducing the key
+  access qualifiers recovers the keyboard memory operations but still
+  regresses the fleet and flight-control handlers. Unsigned declarations for
+  the flight-control repeat and control flags do not repair those regressions;
+  none of those qualifier or flag-type probes is retained.
+  Only the input row changes in the complete report: differing encodings fall
+  from twelve to eight of 397, and mnemonic similarity rises from 98.00% to
+  98.50%. The remaining differences concern keyboard memory operations.
+  Normalized exact matches remain 1,534 of 1,550, with 1,544 mnemonic-perfect
+  functions. All 1,539 mapped functions retain their original addresses;
+  1,521 complete spans remain byte-identical. Exactly four code bytes change,
+  all toward the original. Strict matching reaches 517,069 of 518,656 bytes
+  (99.6940%), leaving 1,587 differences in 247 runs: 1,513 code bytes and
+  74 relocation bytes. The header and other sections remain exact.
+  A fresh native build reproduces the retained executable byte for byte.
+  The modern build, source sorting, address audit and compilation-unit-order
+  checks pass. Full `make verify` passes; both value checks cover all 1,550
+  functions with zero mismatches or skips. Existing call/global-access
+  diagnostics remain 11/55. Verification preserves SHA-256
+  `cbf9148d6a5e85a49eb948cc266768b56328233bc77cc7705d5e6ca8f5fc66bc`.

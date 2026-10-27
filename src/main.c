@@ -900,8 +900,8 @@ unsigned int player_input(void)
     short queuedKeyEvent;
     short horizontal;
     short vertical;
-    short horizontalMagnitude;
-    short verticalMagnitude;
+    unsigned short horizontalMagnitude;
+    unsigned short verticalMagnitude;
     short yawInput;
     short pitchInput;
     int keyboardRoll;
@@ -1099,14 +1099,14 @@ unsigned int player_input(void)
             verticalMagnitude = (short)abs((int)vertical);
             for (yawInput = 0;
                  asMouseYawThresholds[yawInput] <=
-                     horizontalMagnitude;
+                     (short)horizontalMagnitude;
                  yawInput++)
                 ;
             if (horizontal < 0)
                 yawInput = (short)-yawInput;
             for (pitchInput = 0;
                  asMousePitchThresholds[pitchInput] <=
-                     verticalMagnitude;
+                     (short)verticalMagnitude;
                  pitchInput++)
                 ;
             if (vertical < 0)
