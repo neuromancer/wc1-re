@@ -1214,16 +1214,15 @@ unsigned int get_first_follow_point(short obj, FixedVector *point)
 /* Function start: 0x423970 */
 int hostile_sphere(short obj, short navPoint)
 {
-    short missionShip;
     short index;
 
     for (index = 0; index < 10; index++) {
-        missionShip =
-            aMissionNavPoints[navPoint].missionShips[index];
-        if (missionShip != -1 &&
-            aeShipSide[obj] !=
-                aMissionShips[missionShip].side)
+        short checkedObject = obj;
+        obj = aMissionNavPoints[navPoint].missionShips[index];
+        if (obj != -1 &&
+            aeShipSide[checkedObject] != aMissionShips[obj].side)
             return 1;
+        obj = checkedObject;
     }
     return 0;
 }

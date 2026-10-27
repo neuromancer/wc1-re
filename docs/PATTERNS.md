@@ -9939,3 +9939,34 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips. Existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `bf98b693c6cd132a68c3b7ca1c75bc3fd58ea2943e92b4761788d1ea3b86b371`.
+
+- `hostile_sphere` saves its object in a short `checkedObject` declared
+  inside the scan loop, then reuses `obj` for the fetched mission-ship
+  index. Compare the saved object's side with that mission ship's side,
+  and restore `obj` before continuing the loop. This replaces the old
+  function-scope mission index without adding a local or runtime copies.
+  The navigation-table offset now occupies ECX and the checked object SI,
+  matching the original two `LEA`s, word load and later sign extension.
+  Capturing the object at entry instead hoists its load and changes the
+  prologue. Saving and restoring it per iteration with a function-scope
+  local leaves the preceding register allocation unchanged; the loop scope
+  is needed. These are measured source choices, not recovered spelling.
+  Moving `find_ship_index`'s counter inside its guard, with or without an
+  initializer, does not improve it. Saving `get_front_spot`'s destination
+  after its scale call and reusing its pointer parameter for the position
+  also leaves its register exchange unchanged. Capturing the destination
+  before that call worsens matching. Those follow-up probes are restored.
+  All 96 bytes, including padding, now match. Only the hostile-sphere row
+  changes in the full report: 1,532 normalized-exact functions of 1,550,
+  with 1,544 at 100% mnemonic similarity. All 1,539 mapped functions retain
+  their original addresses; 1,518 complete spans are byte-identical.
+  Exactly six code bytes change, all toward the original. Strict matching
+  reaches 517,008 of 518,656 bytes (99.6823%), leaving 1,648 differences in
+  283 runs: 1,572 code bytes and 76 relocation bytes. The header and other
+  sections remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions
+  with zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `a19e4c96848463b371b75afc7230f68f4a6e3a8c745c1740e0e4e3ba348077be`.
