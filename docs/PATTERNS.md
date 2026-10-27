@@ -9734,3 +9734,29 @@ Session findings that are not yet retained because they change span sizes:
   functions with zero mismatches or skips. Existing call/global-access
   diagnostics remain 11/55. Verification preserves SHA-256
   `8db405b078a6bc902647f5f17eca7966c2eaaa03c03f8b60d00090e1fda12a64`.
+
+- `PrepareShapeRLEData` computes the right bound before the bottom bound.
+  With the current graphics-unit declaration context, this preserves the
+  original ECX/EDX extent registers and restores the bound calculations,
+  stack stores and output-pointer increments. The earlier negative test
+  predated the graphics-unit header guard and the two callee captures;
+  its conclusion no longer applies to the current source. Splitting the
+  subtractions and decrements into separate statements produces the same
+  result, so only the assignment-order change is retained.
+  All 656 bytes, including padding, now match. Only the encoder's row
+  changes in the full report: 1,526 normalized-exact functions of 1,550,
+  with 1,540 at 100% mnemonic similarity. All 1,539 mapped functions retain
+  their original addresses; 1,512 spans are byte-identical. Exactly 23
+  code bytes change, all toward the original. Strict matching reaches
+  516,953 of 518,656 bytes (99.6717%), leaving 1,703 differences in 302
+  runs: 1,625 code bytes and 78 relocation bytes. Section sizes and entry
+  point remain exact.
+  Two earlier declarations of the font palette table, before either
+  registry constant, leave the executable unchanged. The incomplete-array
+  declaration is rejected by the native compiler. These probes are restored.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks
+  pass. Full `make verify` passes; both value checks cover all 1,550
+  functions with zero mismatches or skips. Existing call/global-access
+  diagnostics remain 11/55. Verification preserves SHA-256
+  `98a639c4ac05679262346a11089c1b6db229ee19dcdeeaa108ac7624e0c0ab03`.

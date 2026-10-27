@@ -460,8 +460,8 @@ void PrepareShapeRLEData(unsigned char *shape)
         output += sizeof(leftExtent);
         frameLeft = -leftExtent;
         frameTop = -topExtent;
-        frameBottom = height - topExtent - 1;
         frameRight = width - leftExtent - 1;
+        frameBottom = height - topExtent - 1;
         memcpy(output, &frameLeft, sizeof(frameLeft));
         output += sizeof(frameLeft);
         memcpy(output, &frameTop, sizeof(frameTop));
