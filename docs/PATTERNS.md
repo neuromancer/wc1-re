@@ -10288,3 +10288,17 @@ Session findings that are not yet retained because they change span sizes:
   result is stored from EAX, the next statement's scratch registers start
   at ECX, but any preceding constant assignment to a register variable
   makes them start at EAX again.
+
+- `check_for_lost_control` follows WC2's statement shape: accumulate the
+  turn rate as pitch, then `yaw + rate`, then `roll + rate`; compute the
+  rotation overshoot in its own statement; divide it by the rate in a second
+  statement; and pass the quotient to `skill_check`. CL folds the three
+  accumulations into one tree whose canonical order now emits the roll rate
+  first, as the original does, with BP for the rate and BX for the overshoot.
+  The single-expression sum could not produce that order at any symbol key.
+  WC2's scaled turn rate (`turnScale`) is absent from WC1. The object-type
+  index stays inline (CSE'd) rather than in a local, so the routine adds only
+  one symbol; merging `explode`'s leading `victim < 10` test into the
+  following `&&` condition removes the nested `if` label and restores every
+  later key in `ship.c`. Both routines keep their bytes otherwise. Strict
+  matching leaves 1,558 differences (1,484 code, 74 relocation).

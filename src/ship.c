@@ -398,20 +398,21 @@ int rotate_object_to_goal(short obj)
 /* Function start: 0x41E650 */
 unsigned int check_for_lost_control(short obj)
 {
-    enum ObjectType type;
+    short overshoot;
+    short turnRate;
 
     if (obj != 0 && aeSpecialManeuvers[obj] !=
                         SPECIAL_MANEUVER_UNKNOWN_9) {
-        type = aeObjectTypeList[obj];
-        if (skill_check(
-                obj,
-                (short)((short)(abs(anObjPitchRot[obj]) +
-                                abs(anObjectRollRotationList[obj]) +
-                                abs(anObjectYawRotation[obj])) /
-                        (short)(aObjectTypeData[type].rollRate +
-                                aObjectTypeData[type].yawRate +
-                                aObjectTypeData[type].pitchRate))) ==
-            0) {
+        turnRate = aObjectTypeData[aeObjectTypeList[obj]].pitchRate;
+        turnRate = (short)(aObjectTypeData[aeObjectTypeList[obj]].yawRate +
+                           turnRate);
+        turnRate = (short)(aObjectTypeData[aeObjectTypeList[obj]].rollRate +
+                           turnRate);
+        overshoot = (short)(abs(anObjPitchRot[obj]) +
+                            abs(anObjectRollRotationList[obj]) +
+                            abs(anObjectYawRotation[obj]));
+        overshoot = (short)(overshoot / turnRate);
+        if (skill_check(obj, overshoot) == 0) {
             set_special(obj, SPECIAL_MANEUVER_BLOWING_UP);
             asObjectCounterArray[obj] =
                 (short)(RandomBelowOrEqual(6) + 5);
@@ -1424,30 +1425,28 @@ int explosion_shock_wave(short obj, short blastDamage)
 /* Function start: 0x420040 */
 int explode(short attacker, short victim)
 {
-    if (victim < 10) {
-        if (acShipRating[victim] != -1 &&
-            acShipRating[victim] != RATING_ACE_ICEMAN) {
-            if (acShipRating[victim] > RATING_ACE_ICEMAN) {
-                if (ace_status(
-                        (short)(acShipRating[victim] -
-                                RATING_ACE_ANGEL),
-                                      0x20) != 0) {
-                    unflag_ace(
-                        (short)(acShipRating[victim] -
-                                RATING_ACE_ANGEL),
-                        0x20);
-                    acShipStressList[victim] = -25;
-                    reset_maneuver(victim, MANEUVER_OUTA_HERE);
-                    acShipDmg[victim] =
-                        (signed char)(acShipDmg[victim] / 2);
-                    send_message(victim, 6);
-                    return 0;
-                }
-                if (RandomBelowOrEqual(1) == 0)
-                    return 0;
-            } else if (RandomBelowOrEqual(1) == 0)
+    if (victim < 10 && acShipRating[victim] != -1 &&
+        acShipRating[victim] != RATING_ACE_ICEMAN) {
+        if (acShipRating[victim] > RATING_ACE_ICEMAN) {
+            if (ace_status(
+                    (short)(acShipRating[victim] -
+                            RATING_ACE_ANGEL),
+                    0x20) != 0) {
+                unflag_ace(
+                    (short)(acShipRating[victim] -
+                            RATING_ACE_ANGEL),
+                    0x20);
+                acShipStressList[victim] = -25;
+                reset_maneuver(victim, MANEUVER_OUTA_HERE);
+                acShipDmg[victim] =
+                    (signed char)(acShipDmg[victim] / 2);
+                send_message(victim, 6);
                 return 0;
-        }
+            }
+            if (RandomBelowOrEqual(1) == 0)
+                return 0;
+        } else if (RandomBelowOrEqual(1) == 0)
+            return 0;
     }
 #ifdef SDL_PORT
     /* Special-maneuver state exists only for the twelve ship slots.  The
