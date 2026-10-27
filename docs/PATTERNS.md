@@ -10004,3 +10004,37 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips. Existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `640f1b9f359dde9720c17fa47c31b307be265d85271165201bc0083b2ad588a7`.
+
+- `RestoreSpriteBackground` recovers its original register allocation by
+  reordering its eighteen existing local declarations. The body, local
+  types, 40-byte stack frame and 768-byte aligned span remain unchanged.
+  Register, stack-slot and instruction-address differences are resolved;
+  six horizontal clipping comparisons still reverse their operands and
+  use the equivalent opposite branch. Those account for the twelve
+  remaining literal bytes. Differing instruction encodings fall from
+  23 to twelve, while mnemonic similarity falls from 100% to 97.32%.
+  Retain this measured improvement in literal executable matching; the
+  declaration order is not recovered original source spelling.
+  Modeling only the final allocation round misses earlier spill changes:
+  one candidate keeps the row code in BX and shortens the body. Preserving
+  spills across all four allocation rounds produces viable orders, but
+  some still combine the row address differently and remove two bytes.
+  Native compilation and binary-comp distinguish the retained order from
+  those regressions. A signed-long run endpoint leaves the result unchanged;
+  unsigned endpoints with signed casts, nearby declaration swaps, and
+  subtraction-based bounds tests fail to improve it. Those probes are
+  restored. No compiler, header, function body or unit boundary changes.
+  Only this function's row changes in the complete report. Normalized exact
+  matches remain 1,532 of 1,550, with 1,543 at 100% mnemonic similarity and
+  all 1,550 at or above 90%. All 1,539 mapped functions retain their original
+  addresses; 1,519 complete spans remain byte-identical. Twenty-six file
+  positions change, all within this function, for a net gain of eleven
+  matching bytes. Strict matching reaches 517,025 of 518,656 bytes
+  (99.6855%), leaving 1,631 differences in 264 runs: 1,555 code bytes and
+  76 relocation bytes. The header and other sections remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions
+  with zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `2ce28a5a228938e3806b8afce4d91a61bc573aee342d0e38f4f9353febb9db5a`.

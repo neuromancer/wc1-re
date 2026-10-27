@@ -870,22 +870,22 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
 {
     unsigned char *commands;
     short copyLength;
-    unsigned char *save;
     unsigned char *screen;
+    int drawX;
+    short maximumY;
+    unsigned char colour;
+    short minimumX;
+    short xOffset;
+    int skip;
     int runRight;
+    short yOffset;
+    int drawY;
+    short minimumY;
+    short maximumX;
+    unsigned short rowCode;
+    unsigned char *save;
     unsigned char *pixels;
     unsigned char code;
-    unsigned char colour;
-    unsigned short rowCode;
-    short xOffset;
-    short yOffset;
-    short minimumX;
-    short maximumX;
-    short minimumY;
-    short maximumY;
-    int drawX;
-    int drawY;
-    int skip;
 
     save = background;
     if (save == 0)
