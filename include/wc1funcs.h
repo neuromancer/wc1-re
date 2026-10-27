@@ -862,6 +862,53 @@ unsigned int LoadSpaceflightResources(void);                           /* 0x0042
 unsigned int GetFxDriverInitResult(void);                                      /* 0x00421FE0 */
 unsigned int GetMessagePumpResult(void);                                      /* 0x00421FF0 */
 unsigned int GetFxDriverStatus(void);                                      /* 0x00422000 */
+/* Logic omits these prototype parameter names to preserve CL 4.20's
+ * measured declaration context; the signatures remain identical. */
+#ifdef WC1_LOGIC_SOURCE
+short ace_status(short, unsigned char);                                /* 0x00422010 */
+void unflag_ace(short, unsigned char);                                 /* 0x00422030 */
+void flag_ace(short, unsigned char);                                   /* 0x00422050 */
+void kill_ace(short);                                                  /* 0x00422060 */
+void ace_greeting(short);                                              /* 0x00422090 */
+void prepare_ace(short);                                               /* 0x004220D0 */
+short signed_random(short);                                            /* 0x004220F0 */
+int alert_flag(short, unsigned int);                                   /* 0x00422110 */
+unsigned int HasSpeechBuffer(void);                                    /* 0x00422130 */
+unsigned short set_alert(short, unsigned int);                         /* 0x00422140 */
+void clear_alert(short);                                               /* 0x00422160 */
+void start_collision_alert(short, short);                              /* 0x00422180 */
+void try2end_collision_alert(short);                                   /* 0x004221E0 */
+short normal_speed(short);                                             /* 0x00422220 */
+short real_crash_time(short, short);                                   /* 0x00422260 */
+void clear_crash_cache(void);                                          /* 0x00422440 */
+short crash_time(short, short);                                        /* 0x00422460 */
+short detect_collisions(short);                                        /* 0x004224F0 */
+unsigned int unactive(short);                                          /* 0x00422560 */
+int are_alive(short);                                                  /* 0x00422590 */
+int trim_goals(short, short);                                          /* 0x004225C0 */
+int report_kilrathi_rout(int);                                         /* 0x00422640 */
+short find_ship_index(short);                                          /* 0x00422710 */
+short try2rout(short);                                                 /* 0x00422780 */
+signed char no_goal(short);                                            /* 0x00422830 */
+int being_tailed(short, short);                                        /* 0x00422860 */
+int any_enemy_tail(short);                                             /* 0x004228A0 */
+short detect_enemy_tail(short);                                        /* 0x00422930 */
+int is_ship_tailing_player_target(short);                              /* 0x004229B0 */
+int missile_on_tail(short);                                            /* 0x004229F0 */
+short select_weighted_value(short *);                                  /* 0x00422A30 */
+unsigned int build_squad_list(short);                                  /* 0x00422A70 */
+unsigned int find_squad_center(FixedVector *);                         /* 0x00422AC0 */
+unsigned int init_formation_burst(short);                              /* 0x00422B30 */
+unsigned int reset_mission_type(short, enum ShipMissionType);          /* 0x00422BE0 */
+unsigned int change_mission_type(short, enum ShipMissionType);         /* 0x00422C30 */
+unsigned int reset_objective(short, enum ShipObjective);               /* 0x00422C70 */
+unsigned int alter_objective(short, enum ShipObjective);               /* 0x00422CA0 */
+unsigned int reset_tactic(short, enum ShipTactic);                     /* 0x00422CD0 */
+unsigned int alter_tactic(short, enum ShipTactic);                     /* 0x00422D00 */
+void reset_maneuver(short, short);                                     /* 0x00422D30 */
+void try2reset_maneuver(short, short);                                 /* 0x00422D60 */
+unsigned int set_special(short, enum SpecialManeuver);                 /* 0x00422D90 */
+#else
 short ace_status(short ace, unsigned char bits);                     /* 0x00422010 */
 void unflag_ace(short ace, unsigned char bits);                       /* 0x00422030 */
 void flag_ace(short ace, unsigned char bits);                         /* 0x00422050 */
@@ -907,16 +954,22 @@ unsigned int alter_tactic(short ship, enum ShipTactic tactic);          /* 0x004
 void reset_maneuver(short ship, short maneuver);                      /* 0x00422D30 */
 void try2reset_maneuver(short obj, short maneuver);                    /* 0x00422D60 */
 unsigned int set_special(short ship, enum SpecialManeuver special);     /* 0x00422D90 */
+#endif
 unsigned int approach_zero_speed(short ship);                          /* 0x00422DD0 */
 unsigned int approach_min_speed(short obj);                            /* 0x00422DF0 */
 unsigned int approach_half_speed(short obj);                           /* 0x00422E10 */
 unsigned int approach_cruise_speed(short ship);                         /* 0x00422E50 */
 unsigned int approach_full_speed(short ship);                           /* 0x00422E80 */
 unsigned int approach_ship_speed(short obj, short other);             /* 0x00422EA0 */
+#ifdef WC1_LOGIC_SOURCE
+unsigned int get_front_spot(short, unsigned short, FixedVector *);     /* 0x00422EC0 */
+unsigned int get_rear_spot(short, unsigned short, FixedVector *);      /* 0x00422F10 */
+#else
 unsigned int get_front_spot(short obj, unsigned short distance,
                             FixedVector *point);                       /* 0x00422EC0 */
 unsigned int get_rear_spot(short obj, unsigned short distance,
                            FixedVector *point);                        /* 0x00422F10 */
+#endif
 #ifdef SDL_PORT
 unsigned int close_behind(short range);
 #else

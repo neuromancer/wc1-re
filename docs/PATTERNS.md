@@ -10212,3 +10212,47 @@ Session findings that are not yet retained because they change span sizes:
   functions with zero mismatches or skips. Existing call/global-access
   diagnostics remain 11/55. Verification preserves SHA-256
   `8800462d2a9c20854088b25fc430c0db0bab1ccca22c5ff324e8a93c4e5cf5af`.
+
+- `find_ship_index` and `get_front_spot` now match all 112 and 80 bytes,
+  respectively. The ship search keeps its mission index in DX and the
+  loaded object class in ECX. The forward-position helper keeps its output
+  pointer in EDI and its object-position pointer in ESI. All 109 functions
+  in `logic.c` now match exactly.
+  The logic owner omits 66 optional parameter names from its public
+  prototypes: sixty from the mission/tactic group and six from the front
+  and rear position helpers. Source declarations for real callees then
+  add named parameters before their first use. The measured local-symbol shifts
+  are -66 at the unit start, -65 before `detect_collisions`, -54 before
+  `find_ship_index`, -52 before `try2rout`, -50 before `detect_enemy_tail`,
+  and zero before `scan_for_enemy` and the remaining functions. Every
+  signature and calling convention agrees with the public declaration;
+  function bodies, storage, types and compiler flags are unchanged.
+  These are measured declaration contexts, not recovered original headers.
+  The earlier insertion-only model required a final shift of 387, including
+  a large unsupported jump before the scene-animation updater. Searching
+  negative starting contexts avoids that jump. Fresh compiler traces
+  reproduce every logged allocation round in all 109 functions and confirm
+  the retained shifts. Native compilation and `binary-comp`, rather than
+  the model, establish the complete match.
+  Separate native probes are discarded. Thirty-one actual-callee declaration
+  contexts for the earlier 32-byte-frame carrier candidate leave its
+  destructive doubled-index calculation and never beat the retained build.
+  Eleven scramble coordinate/counter type variants likewise give no gain:
+  the unsigned coordinate temporary is unchanged, while two or three
+  phase-specific counters add six differing file bytes. All discarded
+  sources were restored and their native images verified against baseline.
+  Only the two logic rows change in the complete report. Normalized exact
+  matches rise to 1,537 of 1,550; 1,545 functions retain 100% mnemonic
+  similarity. All 1,539 mapped functions retain their original addresses;
+  1,524 complete spans are byte-identical. Exactly fourteen code bytes
+  change, all toward the original. Strict matching reaches 517,085 of
+  518,656 bytes (99.6971%), leaving 1,571 differences in 234 runs: 1,497
+  code bytes and 74 relocation bytes. The header and other sections remain
+  exact. A fresh native build reproduces the retained executable byte for
+  byte; the modern build, source sorting, address audit and unit-order
+  checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions
+  with zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/55. Post-verification comparisons reproduce the candidate and
+  the fresh native build byte for byte, preserving SHA-256
+  `b5761b12bfbadfac35198917b76386cd95d538bf20cd64e4df9849366f27d628`.

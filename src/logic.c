@@ -309,6 +309,11 @@ short crash_time(short obj, short other)
     return real_crash_time(obj, other);
 }
 
+/* CL 4.20 uses declaration indices to break register-allocation ties.
+ * These and the later callee declarations preserve the measured context;
+ * each declaration precedes the callee's first use in this unit. */
+unsigned int unactive(short ship);
+
 /* Function start: 0x4224F0 */
 short detect_collisions(short obj)
 {
@@ -416,6 +421,16 @@ int report_kilrathi_rout(int mode)
     return 0;
 }
 
+/* Mission and formation callees. */
+void maneuver_complete(short ship);
+int being_tailed(short obj, short other);
+unsigned int build_squad_list(short leader);
+unsigned int find_squad_center(FixedVector *center);
+unsigned int reset_objective(short ship, enum ShipObjective objective);
+int report_kilrathi_rout(int mode);
+unsigned int reset_tactic(short ship, enum ShipTactic tactic);
+void zero_vector(FixedVector *vector);
+
 /* Function start: 0x422710 */
 short find_ship_index(short missionShip)
 {
@@ -436,6 +451,10 @@ short find_ship_index(short missionShip)
     }
     return -1;
 }
+
+/* Routed-ship mission selection. */
+unsigned int reset_mission_type(short obj,
+                                enum ShipMissionType missionType);
 
 /* Function start: 0x422780 */
 short try2rout(short obj)
@@ -506,6 +525,9 @@ int any_enemy_tail(short obj)
     nTargetShip = -1;
     return 0;
 }
+
+/* Tactic selection. */
+unsigned int alter_tactic(short ship, enum ShipTactic tactic);
 
 /* Function start: 0x422930 */
 short detect_enemy_tail(short obj)
@@ -794,6 +816,39 @@ unsigned int close_behind(volatile short range)
         return 1;
     return 0;
 }
+
+/* Range, objective, resource, and display callees. */
+short distance_from_point(short obj, const FixedVector *point);
+void get_facing_range_from_object(short obj, short other);
+short MinShort(short a, short b);
+void fire(short obj, short target);
+unsigned int IsVectorWithinRange(FixedVector *vector, short range);
+unsigned int ships_within_range(short obj, short other, short range);
+short build_target_list(short obj, short range);
+int in_danger(short obj);
+void inherit_leader_mission(short obj);
+short skill_rating(short obj);
+short find_ship_index(short missionShip);
+unsigned int dead_ship(short missionShip);
+short find_ships_sphere(short missionShip);
+unsigned int get_follow_point(short obj, FixedVector *point);
+short FindNearestNavPoint(short ship);
+int hostile_sphere(short obj, short navPoint);
+int explode(short attacker, short victim);
+void ace_greeting(short obj);
+short visited(short objective);
+short find_weapon(short obj, enum ObjectType weaponType);
+void *FetchDiskPacketRetrying(short logicalFile, short section,
+                              short flags);
+void FreePacketAndClear(void *slot, unsigned short releaseFlags);
+void __stdcall PromptInsertNumberedDisk(short logicalFile);
+unsigned int __stdcall GetPacketSize(const char *filename,
+                                     short section);
+void __stdcall SetPaletteEntry(short index, short *rgb);
+void ClearViewport(Viewport *viewport, short colour);
+void DrawSpriteDefault(Viewport *viewport, short x, short y,
+                       unsigned char *shape, short frame);
+void ReleasePacketHandle(void *handle);
 
 /* Function start: 0x422F80 */
 short scan_for_enemy(short obj, unsigned short range)
