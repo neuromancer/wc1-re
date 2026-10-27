@@ -1378,7 +1378,6 @@ int object_collision(short obj)
     int forceMagnitude;
     int totalMass;
     int objectIndex;
-    int partnerIndex;
     short partner;
     short projectileDamage;
     short damage;
@@ -1390,9 +1389,8 @@ int object_collision(short obj)
             return 0;
 
         NormalizeFixedVector(&vCollisionDelta);
-        partnerIndex = partner;
         objectIndex = obj;
-        ComputeVectorDelta(&aShipVelocity[partnerIndex],
+        ComputeVectorDelta(&aShipVelocity[partner],
                            &aShipVelocity[objectIndex],
                            &relativeVelocity);
         NormalizeFixedVector(&relativeVelocity);
@@ -1400,7 +1398,7 @@ int object_collision(short obj)
         case OBJECT_CLASS_PROJECTILE:
             if (acObjOwnersTable[objectIndex] == partner)
                 break;
-            if (aeObjectClass[partnerIndex] >= OBJECT_CLASS_MISSILE) {
+            if (aeObjectClass[partner] >= OBJECT_CLASS_MISSILE) {
                 if (partner == 0) {
                     rectangular_to_spherical(
                         &aObjectViewPositionsList[objectIndex], &impact);
@@ -1420,8 +1418,8 @@ int object_collision(short obj)
                     else
                         aPaletteFadeEntries[4][0] = 0x38;
                 }
-                acPreviousAttackers[partnerIndex] = acObjOwnersTable[objectIndex];
-                acShipAiCooldowns[partnerIndex] += 4;
+                acPreviousAttackers[partner] = acObjOwnersTable[objectIndex];
+                acShipAiCooldowns[partner] += 4;
                 projectileDamage = (short)(asShipAccumulatedDmg[objectIndex] -
                                            asObjectCounterArray[objectIndex] / 2);
                 response = aShipVelocity[objectIndex];
@@ -1439,15 +1437,15 @@ int object_collision(short obj)
                              acObjOwnersTable[objectIndex]);
             awObjectScales[objectIndex] = (short)(savedScale * 2);
             aShipVelocity[objectIndex] =
-                aShipVelocity[partnerIndex];
-            if (aeObjectClass[partnerIndex] == OBJECT_CLASS_ASTEROID) {
+                aShipVelocity[partner];
+            if (aeObjectClass[partner] == OBJECT_CLASS_ASTEROID) {
                 hit_asteroid(partner, 3);
                 return 0;
             }
             break;
 
         case OBJECT_CLASS_ASTEROID:
-            if (aeObjectClass[partnerIndex] ==
+            if (aeObjectClass[partner] ==
                     OBJECT_CLASS_ASTEROID) {
                 if (asObjectScreenXList[objectIndex] == (short)0x8001) {
                     remove_object(obj);
@@ -1487,32 +1485,32 @@ int object_collision(short obj)
 
         case OBJECT_CLASS_SHIP:
         case OBJECT_CLASS_CAPITAL_SHIP:
-            if ((aeObjectClass[partnerIndex] == OBJECT_CLASS_ASTEROID ||
-                 (aeObjectClass[partnerIndex] == OBJECT_CLASS_MINE &&
-                  acObjOwnersTable[partnerIndex] == -1)) &&
+            if ((aeObjectClass[partner] == OBJECT_CLASS_ASTEROID ||
+                 (aeObjectClass[partner] == OBJECT_CLASS_MINE &&
+                  acObjOwnersTable[partner] == -1)) &&
                 easy2see(partner) == 0 &&
                 (nCameraViewMode == 0 || obj != 0)) {
                 remove_object(partner);
             }
-            if ((aeObjectClass[partnerIndex] == OBJECT_CLASS_ASTEROID ||
-                 aeObjectClass[partnerIndex] == OBJECT_CLASS_SHIP ||
-                 aeObjectClass[partnerIndex] == OBJECT_CLASS_CAPITAL_SHIP) &&
+            if ((aeObjectClass[partner] == OBJECT_CLASS_ASTEROID ||
+                 aeObjectClass[partner] == OBJECT_CLASS_SHIP ||
+                 aeObjectClass[partner] == OBJECT_CLASS_CAPITAL_SHIP) &&
                 acLastCollisionObjects[objectIndex] != partner) {
                 PlaySfxWaveFileByNumber(0x1c, obj, 0, 0);
-                acLastCollisionObjects[partnerIndex] =
+                acLastCollisionObjects[partner] =
                     (signed char)obj;
                 acLastCollisionObjects[objectIndex] =
                     (signed char)partner;
 
                 separationScale = DivideFixed(
                     (asObjectCollisionRadius[objectIndex] +
-                     asObjectCollisionRadius[partnerIndex]) << 8,
+                     asObjectCollisionRadius[partner]) << 8,
                     Vector_magnitude(&vCollisionDelta));
                 separationScale = MinInt(separationScale, 0x7d000);
                 ScaleFixedVector(&vCollisionDelta,
                                  separationScale, &response);
                 AddFixedVectors(&aShipPositionsArray[objectIndex], &response,
-                                &aShipPositionsArray[partnerIndex]);
+                                &aShipPositionsArray[partner]);
 
                 vector_component_in_dir(
                     &aShipVelocity[objectIndex],
@@ -1520,7 +1518,7 @@ int object_collision(short obj)
                 SubtractFixedVectors(&aShipVelocity[objectIndex],
                                      &response, &tangent);
                 vector_component_in_dir(
-                    &aShipVelocity[partnerIndex],
+                    &aShipVelocity[partner],
                     &vCollisionDelta, &partnerComponent);
                 ComputeVectorDelta(&partnerComponent, &response,
                                    &componentDelta);
@@ -1532,10 +1530,10 @@ int object_collision(short obj)
                 damage = (short)((damage * damage) >> 1);
 
                 totalMass =
-                    awObjMassArray[objectIndex] + awObjMassArray[partnerIndex];
+                    awObjMassArray[objectIndex] + awObjMassArray[partner];
                 responseScale =
                     ((awObjMassArray[objectIndex] -
-                      awObjMassArray[partnerIndex]) * 256) /
+                      awObjMassArray[partner]) * 256) /
                     totalMass;
                 responseScale = MinInt(MaxInt(0x40, responseScale), 0x400);
                 ScaleFixedVector(&componentDelta, responseScale, &response);
@@ -1557,7 +1555,7 @@ int object_collision(short obj)
                     negate_vector(&relativeVelocity);
                 }
 
-                SubtractFixedVectors(&aShipVelocity[partnerIndex],
+                SubtractFixedVectors(&aShipVelocity[partner],
                                      &partnerComponent, &tangent);
                 responseScale = MinInt(MaxInt(0x40,
                     (awObjMassArray[objectIndex] << 9) / totalMass),
@@ -1565,9 +1563,9 @@ int object_collision(short obj)
                 ScaleFixedVector(&componentDelta, responseScale, &response);
                 AddFixedVectors(&response, &partnerComponent, &response);
                 AddFixedVectors(&response,
-                                &aShipVelocity[partnerIndex],
-                                &aShipVelocity[partnerIndex]);
-                if (aeObjectClass[partnerIndex] == OBJECT_CLASS_SHIP) {
+                                &aShipVelocity[partner],
+                                &aShipVelocity[partner]);
+                if (aeObjectClass[partner] == OBJECT_CLASS_SHIP) {
                     NormalizeFixedVector(&tangent);
                     negate_vector(&tangent);
                     ScaleFixedVector(&tangent, forceMagnitude, &tangent);
@@ -1576,13 +1574,13 @@ int object_collision(short obj)
                                             &tangent, partner);
                     inflict_damage(obj, partner, damage, &relativeVelocity);
                 }
-                if (aeObjectClass[partnerIndex] == OBJECT_CLASS_CAPITAL_SHIP) {
+                if (aeObjectClass[partner] == OBJECT_CLASS_CAPITAL_SHIP) {
                     SubtractFixedVectors(&aShipPositionsArray[objectIndex],
                                          &aShipVelocity[objectIndex],
                                          &aShipPositionsArray[objectIndex]);
                     anShipSpeed[objectIndex] = 0;
                     aShipVelocity[objectIndex] =
-                        aShipVelocity[partnerIndex];
+                        aShipVelocity[partner];
                 }
             }
             break;

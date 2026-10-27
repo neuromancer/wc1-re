@@ -10327,3 +10327,15 @@ Session findings that are not yet retained because they change span sizes:
   is scheduled, which reproduces the original order. Explicit zero stores in
   the same order give identical bytes. All 736 bytes match; strict matching
   leaves 1,522 differences (1,448 code, 74 relocation).
+
+- `object_collision` keeps the promoted object index in its `int` local but
+  indexes the partner arrays with the short `partner` directly, so CL's CSE
+  creates the partner's sign extension itself. The IL then defines the object
+  index before the partner extension, and the scheduler leaves
+  `MOVSX EDI,[obj]` ahead of `MOVSX ESI,BX`, as in the original; registers,
+  the 92-byte frame and all 1,968 bytes match. Two int locals gave the
+  reversed loads in either statement order, and indexing both directly
+  reproduced the load order but exchanged ESI/EDI and spilled four more
+  bytes. Removing the local shifts `object_intelligence` by one symbol, which
+  it tolerates. Strict matching leaves 1,516 differences (1,442 code,
+  74 relocation).
