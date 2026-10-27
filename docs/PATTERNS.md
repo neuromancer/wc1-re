@@ -9848,3 +9848,37 @@ Session findings that are not yet retained because they change span sizes:
   zero mismatches or skips. Existing call/global-access diagnostics remain
   11/55. Verification preserves SHA-256
   `9020332ea59a9e85f3ea7f8d4a68bdad22fcd7ecddf0437d1da22d2a4035ee30`.
+
+- `animate_shape` shares the scale/frame dispatch through the command
+  switch's default arm; the animation-loop command falls through to it.
+  Declare the existing unsigned scale snapshot in that outer switch.
+  Its symbol key moves from 27,576 to 27,566, reversing the shrink-product
+  operand order without moving later functions' symbols. Reuse the consumed
+  short delay local for the scale input, then copy its unsigned value to
+  the snapshot. The subtraction retains that snapshot while the product
+  shifts the input. CL now emits AX for the input, DX for the saved scale
+  and CX for the product, with the original instruction schedule and two
+  separate scale stores. No additional local, instruction or stack slot is
+  needed. These are measured source and compiler-context choices, not
+  recovered original spelling.
+  Moving the snapshot alone reverses the multiplication but merges the
+  stores and changes the result register. A read qualifier, a wider snapshot
+  and a separate masked-factor capture do not repair it. Saving the input
+  in the delay local while replacing the snapshot with the product restores
+  the schedule but rotates three registers. Keeping the delay as the input
+  and the snapshot as the unshifted value resolves all remaining differences.
+  All 352 bytes, including padding, now match. Only the animation row changes
+  in the full report: 1,529 normalized-exact functions of 1,550, with 1,543
+  at 100% mnemonic similarity. Every function in `spc.c` has perfect mnemonic
+  similarity; seventeen of its nineteen functions are byte-exact.
+  All 1,539 mapped functions retain their original addresses; 1,515 complete
+  spans are byte-identical. Exactly eleven executable bytes change, all
+  toward the original. Strict matching reaches 516,997 of 518,656 bytes
+  (99.6801%), leaving 1,659 differences in 292 runs: 1,583 code bytes and
+  76 relocation bytes. The header and other sections remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions
+  with zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `6ce68febd0650fd87000a390b7409ce6afb50fbdf0074ca10e334adac4f745b4`.

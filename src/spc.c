@@ -1225,6 +1225,8 @@ unsigned int animate_shape(short obj)
     }
 #endif
     switch (command & 0xf000) {
+        unsigned short scale;
+
     case 0x9000:
         asObjectAnimIndexes[obj] = command & 0x0fff;
         command = *(unsigned short *)(animation +
@@ -1234,28 +1236,30 @@ unsigned int animate_shape(short obj)
              type == OBJECT_TYPE_DEBRIS_METAL_SHEET)) {
             PlaySfxWaveFileByNumber(13, obj, 0);
         }
+        /* fall through */
+    default: {
+        switch (command & 0x0c00) {
+        case 0x0400:
+            awObjectScales[obj] +=
+                (command & 0x3f) * ((unsigned short)awObjectScales[obj] >> 6);
+            break;
+        case 0x0800: {
+            delay = (short)awObjectScales[obj];
+            scale = (unsigned short)delay;
+            awObjectScales[obj] =
+                scale - (command & 0x3f) * ((unsigned short)delay >> 6);
+            break;
+        }
+        default:
+            command &= 0x3f;
+            asObjectViewFrames[obj] = command;
+            break;
+        }
         break;
+    }
     case 0xa000:
         remove_object(obj);
         return 0;
-    }
-
-    switch (command & 0x0c00) {
-    case 0x0400:
-        awObjectScales[obj] +=
-            (command & 0x3f) * ((unsigned short)awObjectScales[obj] >> 6);
-        break;
-    case 0x0800: {
-        unsigned short scale = awObjectScales[obj];
-
-        awObjectScales[obj] =
-            scale - (command & 0x3f) * (scale >> 6);
-        break;
-    }
-    default:
-        command &= 0x3f;
-        asObjectViewFrames[obj] = command;
-        break;
     }
     asObjectFlipArray[obj] = (command & 0xc0) >> 2;
     asObjectAnimIndexes[obj]++;
