@@ -9706,3 +9706,31 @@ Session findings that are not yet retained because they change span sizes:
   pass. Full `make verify` passes; both value checks cover all 1,550
   functions with zero mismatches or skips. Verification preserves SHA-256
   `b219bfb0126f3df58b59276bfb2450a17b5035495f568c422dc981d366aa7896`.
+
+- `CalibrateJoystickInteractive` computes the minimum-X product inside its
+  bound expression. Under the retained declaration context, this moves the
+  center-X load ahead of the right/down-scale stores and removes the final
+  three differing encodings.
+  Inlining any of the other three products alone changes no bytes; all
+  tested combinations containing the inline left product give the same
+  gain. Only that expression change is retained.
+  All 1,040 bytes of the calibration routine, including padding, now match.
+  All three joystick routines are exact. Only calibration's row changes
+  in the full report: 1,525 normalized-exact functions of 1,550, with 24
+  same-size differences and the unchanged converter boundary discrepancy.
+  All 1,539 mapped functions retain their original addresses; 1,511 spans
+  are byte-identical. Exactly twelve executable bytes change, all toward
+  the original: eleven code bytes and one relocation byte. Strict matching
+  reaches 516,930 of 518,656 bytes (99.6672%), leaving 1,726 differences in
+  306 runs: 1,648 code bytes and 78 relocation bytes. Section sizes and
+  entry point remain exact.
+  Navigation-square probes are restored. A separate short bottom coordinate
+  with a compound addition still selects a 32-bit `LEA`; a four-byte slot
+  accessed through short lvalues introduces a stack frame. Reusing Y as
+  either vertical bound or negating the radius also worsens matching.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks
+  pass. Full `make verify` passes; both value checks cover all 1,550
+  functions with zero mismatches or skips. Existing call/global-access
+  diagnostics remain 11/55. Verification preserves SHA-256
+  `8db405b078a6bc902647f5f17eca7966c2eaaa03c03f8b60d00090e1fda12a64`.
