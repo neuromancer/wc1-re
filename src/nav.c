@@ -294,7 +294,7 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
 
 /* Function start: 0x40D640 */
 void DrawNavSquareOutline(Viewport *viewport, short x, short y,
-                          short size, signed char colour)
+                          unsigned short size, signed char colour)
 {
     DrawViewportBorder(viewport, (short)(x - size), (short)(y - size),
                        (short)(x + size), (short)(y + size),

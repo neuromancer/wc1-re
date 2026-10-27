@@ -9882,3 +9882,29 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips. Existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `6ce68febd0650fd87000a390b7409ce6afb50fbdf0074ca10e334adac4f745b4`.
+
+- `DrawNavSquareOutline` takes its size as an unsigned short in both the
+  definition and public prototype. The coordinate expressions still narrow
+  to words. CL now starts the bottom-coordinate addition with Y in AX and
+  adds the size in SI, matching the original `MOV AX,DX; ADD AX,SI` instead
+  of the equivalent reversed operands. Its caller and argument layout are
+  unchanged. All 64 bytes, including padding, now match.
+  An unsigned Y parameter, alone or together with the unsigned size, does
+  not recover that sequence. Paired coordinate snapshots in the label
+  hit-test, unsigned coordinate parameters with signed casts, and corresponding
+  range/index parameter probes in ship logic do not improve strict matching;
+  those probes are restored.
+  Only the square-outline row changes in the full report: 1,530
+  normalized-exact functions of 1,550, with 1,543 at 100% mnemonic similarity.
+  Thirty-three of the thirty-four navigation functions are now byte-exact.
+  All 1,539 mapped functions retain their original addresses; 1,516 complete
+  spans are byte-identical. Exactly two code bytes change, both toward the
+  original. Strict matching reaches 516,999 of 518,656 bytes (99.6805%),
+  leaving 1,657 differences in 290 runs: 1,581 code bytes and 76 relocation
+  bytes. The header and other sections remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions
+  with zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `e4f865c996a42d677b09ac1be1836c89d1714e550c8003a5f4be891ed0c1f693`.

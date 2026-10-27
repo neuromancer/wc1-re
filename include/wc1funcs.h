@@ -317,7 +317,7 @@ void DrawNavMapLabels(void);                                          /* 0x0040D
 void DrawNavRectangleMarker(short x, short y, short size, short shadow,
                             unsigned short colour, short reserve);    /* 0x0040D5A0 */
 void DrawNavSquareOutline(Viewport *viewport, short x, short y,
-                          short size, signed char colour);            /* 0x0040D640 */
+                          unsigned short size, signed char colour);            /* 0x0040D640 */
 void DrawNavSquareMarker(short x, short y, short size,
                          short shadow, short colour,
                          short reserve);                              /* 0x0040D680 */
