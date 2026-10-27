@@ -10313,3 +10313,17 @@ Session findings that are not yet retained because they change span sizes:
   the navigation-pointer callees that follow, supply the three named
   parameters and restore every later key in `cockpt.c`. Strict matching
   leaves 1,530 differences (1,456 code, 74 relocation).
+
+- `set_objects_data` clears the accumulated damage, flip and screen angle as a
+  chain in WC2's order (`flip = damage; angle = flip`) before storing the
+  owner byte and resetting the last collision, and reads the object class
+  after them. The original's owner-byte load sits between the scale load and
+  its store. C2's Pentium scheduler (`FUN_0042a6b0`, 486 path unused) fills
+  pairing slots from a forward window of at most `DAT_0047d680` + 1 ready
+  instructions; that limit is 5 in this block, taken from the last label's
+  block flags. With the owner statement directly after the damage clear, its
+  load was the fifth instruction after the scale load and was pulled ahead of
+  it. The two extra stores push it out of that window until the scale store
+  is scheduled, which reproduces the original order. Explicit zero stores in
+  the same order give identical bytes. All 736 bytes match; strict matching
+  leaves 1,522 differences (1,448 code, 74 relocation).

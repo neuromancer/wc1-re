@@ -253,11 +253,11 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     asObjAfterburnerVelocities[obj] =
         typeData->afterburnerVelocity;
     asShipAccumulatedDmg[obj] = 0;
+    asObjectFlipArray[obj] = asShipAccumulatedDmg[obj];
+    asObjScreenAngles[obj] = asObjectFlipArray[obj];
     acObjOwnersTable[obj] = (signed char)owner;
-    objectClass = aeObjectClass[obj];
-    asObjectFlipArray[obj] = 0;
     acLastCollisionObjects[obj] = -1;
-    asObjScreenAngles[obj] = 0;
+    objectClass = aeObjectClass[obj];
 
     if (objectClass >= OBJECT_CLASS_MISSILE) {
         asObjectViewFrames[obj] = 0;
