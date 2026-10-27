@@ -471,7 +471,7 @@ void * __stdcall DecompressPacketSection(
     PacketSectionHandle *handle, void *destination, unsigned short flags,
     void *decompressionWorkspace)
 {
-    volatile unsigned int allocationSize;
+    unsigned int allocationSize;
     void *packet;
     void *workspace;
     void *largeScratch;
@@ -535,8 +535,6 @@ void * __stdcall DecompressPacketSection(
     if (wPacketDecompressionInputSizeOverride != 0)
         wPacketDecompressInputSize =
             wPacketDecompressionInputSizeOverride;
-    largeScratch = (void *)allocationSize;
-    smallScratch = (void *)allocationSize;
 
 initializeDecompressor:
     nPktDecompressSourceFile = handle->file;
@@ -577,11 +575,14 @@ initializeDecompressor:
             FinishPacketDecompressionHook();
     }
     if (decompressionWorkspace == 0) {
-        ReleasePacketHandle(smallScratch);
-        if (fallbackAllocations != 0)
+        /* DOS near and far frees both map to ReleasePacketHandle in Win32. */
+        if (fallbackAllocations != 0) {
+            ReleasePacketHandle(smallScratch);
             ReleasePacketHandle(largeScratch);
-        else
+        } else {
+            ReleasePacketHandle(smallScratch);
             ReleasePacketHandle(largeScratch);
+        }
     }
     return packet;
 }

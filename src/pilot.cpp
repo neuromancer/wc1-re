@@ -85,6 +85,15 @@ void ApplyAnswerTextCipher(char *text, signed char direction)
     }
 }
 
+/* Preserve the answer-resource declaration context; see docs/PATTERNS.md. */
+void __stdcall PromptInsertNumberedDisk(short logicalFile);
+void *FetchDiskPacketRetrying(short logicalFile, short section, short flags);
+char *__stdcall DosStrcpy(char *dst, const char *src);
+void FreePacketAndClear(void *slot, unsigned short releaseFlags);
+short PromptForTextInput(short x, short y, const char *prompt,
+                         char *destination, short maximumLength,
+                         short inputMode);
+
 /* Function start: 0x425910 */
 void LoadAnswerPromptAndResponse(short entry, char *prompt,
                                  char *response)
@@ -93,13 +102,11 @@ void LoadAnswerPromptAndResponse(short entry, char *prompt,
     char *promptLine;
     char *scan;
     char *responseLine;
-    char *volatile packet;
+    char *packet;
 
     packet = 0;
     PromptInsertNumberedDisk(0x3c);
-    packet = scan = (char *)FetchDiskPacketRetrying(0x3c, 0, 0);
-    responseLine = packet;
-    promptLine = packet;
+    scan = packet = (char *)FetchDiskPacketRetrying(0x3c, 0, 0);
     for (line = 0; line < 20; line++, scan++) {
         if (entry * 2 == line)
             promptLine = scan;

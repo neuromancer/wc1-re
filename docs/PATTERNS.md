@@ -10405,3 +10405,42 @@ Session findings that are not yet retained because they change span sizes:
   mismatches or skips; the existing call/global-access diagnostics remain
   11/55. Verification reproduces the candidate byte for byte, preserving
   SHA-256 `b1ba698486cf0687d4faf3facae5e441e3a23782d49f9852bc7d8143c348172e`.
+
+- `DecompressPacketSection` keeps both scratch-buffer releases inside each
+  allocator branch, as DOS does at file offsets `0x111F3` through `0x11231`.
+  DOS uses distinct near and far frees; both become `ReleasePacketHandle`
+  in Win32. With that branch structure, remove the two forced scratch-handle
+  assignments in the supplied-workspace path and use an ordinary size local.
+  The original EDI/EBP reloads are compiler-generated spills of scratch handles
+  that are unset on this path and never used there: cleanup only reads them
+  when the routine allocated its own workspace. Both spill slots share the
+  size local at frame offset -12; the packet moves to -8 and workspace stays
+  at -4. This supersedes the earlier interpretation that the reloads required
+  volatile reads of the size. All 752 bytes now match. Only the eleven stack
+  displacement bytes change in the complete image, leaving 188 differences.
+
+- `LoadAnswerPromptAndResponse` has the same spill pattern. Leave the two
+  line pointers unset before the loop, as DOS does, use an ordinary packet
+  pointer, and assign the fetch result to packet before scan. The two
+  original reloads are compiler-generated reads of the unset line-pointer
+  slots, both sharing packet's four-byte slot; they are not port-added
+  initializations. This supersedes the earlier interpretation of those loads.
+  With this source shape, a local-symbol shift of thirteen through sixteen
+  selects EAX for the prompt line, EDX for the doubled entry and ECX for the
+  promoted counter, while retaining EBX/ESI/DI for scan/response/line.
+  Five declarations of actual callees before the loader supply fourteen
+  named parameters and preserve every later function. This is measured
+  compiler context, not recovered original header text. Native compilation
+  and `binary-comp` confirm all 160 bytes including padding. The full image
+  gains 112 matching positions, leaving 76 differences.
+  Together, the decompressor and answer-loader fixes change exactly 123
+  file positions, all toward the original. Strict matching reaches 518,580
+  of 518,656 bytes (99.9853%), with 72 code bytes and four relocation bytes
+  still different. The complete report has 1,546 normalized exact entries
+  and three same-size nonexact entries; the existing IEEE-converter boundary
+  remains the sole size diagnostic. Native and modern builds, sorting,
+  address annotations, compilation-unit order, and `make verify` pass.
+  Both value checks cover all 1,550 functions with zero mismatches or skips;
+  existing call/global-access diagnostics remain 11/55. Verification
+  reproduces the candidate byte for byte, preserving SHA-256
+  `bdab2428bcbb4b9fd0c2333932a42e8c6fd933f504a8cb4b75bc176996bf4797`.
