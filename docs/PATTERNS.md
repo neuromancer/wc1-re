@@ -10073,3 +10073,41 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips. Existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `5ea082acdb726cb2f40cd57498a780cbc2d6c74d31a681065cedcd982eedac49`.
+
+- `prepare_mission` now needs only the qualified mission-score clear and
+  player-mission-index read in its current compiler context. Remove the
+  volatile casts from the wingman-killed, player-destroyed, medal-score
+  and wingman-kill clears. Their values and source order stay unchanged.
+  CL restores the original word read between the two state-flag clears,
+  interleaves the index promotion and address calculation with the remaining
+  clears, and leaves the player-kill clear immediately before the first
+  argument push. All 416 bytes, including padding, now match.
+  The 63 alternatives to the preceding store qualifiers were measured with
+  the player-index read still qualified. Qualifying every store worsens
+  matching. Removing only the player-destroyed qualifier from that form
+  gains fifteen bytes, but moves that clear too early. Keeping just the
+  mission-score store qualified gives the complete match; several less
+  minimal combinations give the same bytes. Qualifying the read alone
+  loses the original opening schedule. These are measured access choices,
+  not evidence of the original source qualifiers.
+  Decompressor probes are restored: qualified individual size accesses,
+  pointer copies through `memcpy`, a one-element size buffer and captured
+  read-buffer pointers do not repair its exchanged stack slots. Target-box
+  coordinate reuse changes its frame or register allocation; unsigned or
+  promoted X-coordinate locals also fail to improve it. No changes from
+  either investigation remain.
+  Only the mission-preparation row changes in the complete report, removing
+  five differing encodings. Normalized exact matches reach 1,533 of 1,550;
+  1,543 retain 100% mnemonic similarity and all remain at or above 90%.
+  All 1,539 mapped functions retain their original addresses; 1,520 complete
+  spans are byte-identical. Exactly 28 file positions change, all toward
+  the original: 26 code bytes and two relocation bytes. Strict matching
+  reaches 517,059 of 518,656 bytes (99.6921%), leaving 1,597 differences
+  in 254 runs: 1,523 code bytes and 74 relocation bytes. The header and
+  other sections remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions
+  with zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `a899d698ac92934626d77e741fe4b803d77d0205b6aaea28e7680bfc28f12f62`.

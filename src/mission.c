@@ -129,11 +129,11 @@ void prepare_mission(void)
     short pilot;
 
     *(volatile short *)&stCampaignState.missionScore = 0;
-    *(volatile int *)&nCurrentWingmanKilledThisMission = 0;
+    nCurrentWingmanKilledThisMission = 0;
     playerShip = *(volatile short *)&stCurrentMissionHeader.playerMissionShip;
-    *(volatile int *)&bCurrentPlayerDestroyed = 0;
-    *(volatile short *)&nMissionMedalScoreValue = 0;
-    *(volatile short *)&nWingmanKillCount = 0;
+    bCurrentPlayerDestroyed = 0;
+    nMissionMedalScoreValue = 0;
+    nWingmanKillCount = 0;
     nPlayerKillTotal = 0;
 
     stCampaignState.playerShipType = aMissionShips[playerShip].type;
