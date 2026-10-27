@@ -10180,3 +10180,35 @@ Session findings that are not yet retained because they change span sizes:
   functions with zero mismatches or skips. Existing call/global-access
   diagnostics remain 11/55. Verification preserves SHA-256
   `cbf9148d6a5e85a49eb948cc266768b56328233bc77cc7705d5e6ca8f5fc66bc`.
+
+- `IsPointInNavMapLabel` now matches all 112 bytes. Repeating existing
+  callee prototypes in `nav.c` moves its local-symbol context by 64 and
+  restores the original Y-bound `CMP AX,CX` / `JG`. Further declaration
+  groups bring the shifts to 69 before `DrawNavSquareOutline`, 72 before
+  `DrawNavSquareMarker`, and 96 before `DrawNavCrossMarker`. All 34 navigation
+  functions then match exactly. Every declaration names a real callee used
+  later in the unit and agrees with its public prototype; these positions
+  are measured matching choices, not recovered original header placement.
+  Function bodies, calling conventions and data definitions are unchanged.
+  The compiler model validates every logged allocation round for the
+  baseline and retained source. Its smaller profile with a shift of 68
+  before the square outline repairs the label check but loses two bytes
+  in the outline, despite predicting unchanged signatures and colours.
+  The native compiler and `binary-comp` establish 69 as the matching choice.
+  Moving the label-table definition among nine earlier declaration positions
+  leaves the executable unchanged. Target-bracket flag-width, flag/length
+  reuse, saved-bounds copy-order and coordinate-assignment probes yield no
+  gain and are restored.
+  Only the label-check row changes in the complete report. Normalized exact
+  matches rise to 1,535 of 1,550, with 1,545 mnemonic-perfect functions.
+  All 1,539 mapped functions retain their original addresses; 1,522 complete
+  spans are byte-identical. Exactly two code bytes change, both toward the
+  original. Strict matching reaches 517,071 of 518,656 bytes (99.6944%),
+  leaving 1,585 differences in 246 runs: 1,511 code bytes and 74 relocation
+  bytes. The header and other sections remain exact.
+  A fresh native build reproduces the retained executable byte for byte.
+  The modern build, source sorting, address audit and compilation-unit-order
+  checks pass. Full `make verify` passes; both value checks cover all 1,550
+  functions with zero mismatches or skips. Existing call/global-access
+  diagnostics remain 11/55. Verification preserves SHA-256
+  `8800462d2a9c20854088b25fc430c0db0bab1ccca22c5ff324e8a93c4e5cf5af`.

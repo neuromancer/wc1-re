@@ -226,6 +226,51 @@ void AddUniqueObjectiveNavLabel(short x, short y,
         PlaceNavMapLabel(x, y, colour, text);
 }
 
+/* Shared display and input declarations preserve this unit's measured
+ * compiler context. Their placement is documented in docs/PATTERNS.md. */
+void DrawFormattedText(const char *format, ...);
+void DrawViewportEllipse(Viewport *viewport, short x, short y,
+                         short verticalRadius, short horizontalRadius,
+                         short colour);
+void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
+                               short verticalRadius,
+                               short horizontalRadius,
+                               short colour);
+void DrawViewportBorder(Viewport *viewport, short left, short top,
+                        short right, short bottom,
+                        short colour);
+void DrawViewportLine(Viewport *viewport, short x1, short y1,
+                      short x2, short y2, short colour);
+short achieved(short objective);
+short hidden_objective(short objective);
+short visited(short objective);
+const char *objective_name(short objective);
+void DrawNavTextLine(unsigned char alignment, unsigned short colour,
+                     const char *format, ...);
+void ClearViewport(Viewport *viewport, short colour);
+void CopyViewportContents(Viewport *source, Viewport *destination);
+unsigned short __stdcall AllocateViewport(Viewport *viewport,
+                                          short clearColour,
+                                          short flags);
+void *FetchDiskPacketRetrying(short logicalFile, short section,
+                              short flags);
+void ReportOutOfMemoryAndExit(const char *resource);
+short LocateMobileObjective(short objective);
+void __stdcall free_viewport(Viewport *viewport);
+void ReleasePacketHandle(void *handle);
+unsigned int ReleaseTextFont(short fontIndex);
+int set_new_objective(short pathIndex);
+void __stdcall WarpMouseTo(short x, short y);
+void __stdcall SetEventManagerPump(void (*pump)(void));
+void __stdcall SetFrameTimerAndWait(short period);
+void DrawViewportPixel(Viewport *viewport, short x, short y,
+                       short colour);
+void MoveMenuPointerFromKeyboard(InputEventState *event);
+unsigned int force_view(int view, short obj);
+void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
+                               unsigned short top, unsigned short right,
+                               unsigned short bottom);
+
 /* Function start: 0x40D490 */
 short IsPointInNavMapLabel(short labelIndex, short x, short y)
 {
@@ -292,6 +337,11 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
                           (short)(size * 2 + 1));
 }
 
+/* Viewport bounds used by SetScreenClipRect. */
+void SetRectBounds(Viewport *viewport, unsigned short left,
+                   unsigned short top, unsigned short right,
+                   unsigned short bottom);
+
 /* Function start: 0x40D640 */
 void DrawNavSquareOutline(Viewport *viewport, short x, short y,
                           unsigned short size, signed char colour)
@@ -300,6 +350,10 @@ void DrawNavSquareOutline(Viewport *viewport, short x, short y,
                        (short)(x + size), (short)(y + size),
                        (short)colour);
 }
+
+/* Map-vector addition used by hazard markers. */
+void AddFixedVectors(const FixedVector *left, const FixedVector *right,
+                     FixedVector *sum);
 
 /* Function start: 0x40D680 */
 void DrawNavSquareMarker(short x, short y, short size, short shadow,
@@ -352,6 +406,22 @@ void DrawNavTriangleMarker(short x, short y, short size, short shadow,
                           (short)(size * 2 + 1));
     (void)shadow;
 }
+
+/* Map geometry, text, sprites, and event input. */
+void __stdcall SetMouseCursorShape(unsigned char *shape, short frame);
+short __stdcall PollInputEvent(InputEventState *event, short filter);
+void ScaleNavMapCoordinates(short *x, short *y,
+                            short mapX, short mapY);
+void ScaleNavMapMarkerSize(short *size);
+void nav_getxy(short *x, short *y, int worldX, int worldZ);
+void DrawSpriteDefault(Viewport *viewport, short x, short y,
+                       unsigned char *shape, short frame);
+unsigned int InitializeTextContextFromFont(TextContext *context,
+                                           short fontIndex,
+                                           unsigned char colour,
+                                           signed char background);
+void __stdcall SetTextContext(TextContext *context);
+short mobile_objective(short objective);
 
 /* Function start: 0x40D830 */
 void DrawNavCrossMarker(short x, short y, short size, short shadow,
