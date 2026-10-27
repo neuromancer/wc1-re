@@ -722,8 +722,8 @@ extern signed char acScrambleShipDetailSlots[24]; /* 0x005a86d0 */
 extern signed char cCutsceneScrambleWalkTime; /* 0x005a86e8 */
 extern unsigned char *pSceneScrambleBgShapePtr; /* 0x005a870c */
 extern short nFuneralParticleDistance; /* 0x005a8710 */
-extern short nScrambleBackdropPositionY; /* 0x005a8712 */
 extern short nScrambleBackgroundRightCoordX; /* 0x005a8714 */
+extern short nScrambleBackdropPositionY; /* 0x005a8712 */
 extern ShortPoint stCutsceneFuneralForeground; /* 0x005a8718 */
 extern short nSceneFuneralMainScale; /* 0x005a871c */
 extern short nFuneralRifleFrame; /* 0x005a871e */

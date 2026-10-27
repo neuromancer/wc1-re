@@ -162,18 +162,23 @@ void LaunchPlayerShip(void)
 /* Function start: 0x42BC00 */
 unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
 {
+    short launchX;
+    short launchY;
     unsigned char *carrierShape;
-    unsigned char *actorShape;
+    ShortPoint actor;
     unsigned char *fighterShape;
     short fighterScreenY;
     short approachScale;
     short approachDistance;
     short fighterScreenX;
     short carrierScreenX;
-    short actorX;
-    short object;
+    unsigned char *actorShape;
     short frame;
+    int soundHandle; /* Unset in the original; ignored by the Win32 callee. */
 
+#ifdef SDL_PORT
+    soundHandle = 0;
+#endif
     bIntroSceneResourcesActive = 0;
     carrierScreenX = 180;
     free_ship(1);
@@ -187,35 +192,34 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         (unsigned char *)FetchDiskPacketRetrying(1, 8, 0);
     actorShape =
         (unsigned char *)FetchDiskPacketRetrying(1, 4, 0);
-    pScrambleView = &stSpaceBufferViewport;
-    object = (short)sceneObject;
-    fighterScreenY = 64;
     fighterShape = aObjectTypeData[
         stCampaignState.playerShipType].shapeSet;
-    nScriptedViewObject = object;
-    fighterScreenX = 20;
+    pScrambleView = &stSpaceBufferViewport;
+    nScriptedViewObject = sceneObject;
     initialize_scripted_view(asCarrierLaunchViewData);
+    fighterScreenY = 64;
+    fighterScreenX = 20;
     nScrambleBackdropPositionY = 64;
+    apObjShapeArray[0] = fighterShape;
     nScrambleBackgroundRightCoordX = 520;
     asObjectFlipArray[0] = 0;
     asObjectViewFrames[0] = 36;
     asObjScreenAngles[0] = 180;
     asObjDistancesTable[0] = 300;
-    apObjShapeArray[0] = fighterShape;
-    apObjShapeArray[object] = carrierShape;
-    asObjectFlipArray[object] = 0;
-    asObjectViewFrames[object] = 3;
-    bEscapePressedFlag = 0;
-    asObjScreenAngles[object] = 0;
-    asObjScreenScalesArray[object] = 0x100;
-    asObjDistancesTable[object] = 2000;
+    apObjShapeArray[sceneObject] = carrierShape;
+    asObjectFlipArray[sceneObject] = 0;
+    asObjectViewFrames[sceneObject] = 3;
+    asObjScreenAngles[sceneObject] = 0;
+    asObjScreenScalesArray[sceneObject] = 0x100;
+    asObjDistancesTable[sceneObject] = 2000;
     nFrameSkipCounter = 1;
+    bEscapePressedFlag = 0;
     frame = 0;
     approachDistance = 20;
     do {
         PumpWindowMessages();
         aeObjectClass[0] = OBJECT_CLASS_NULL;
-        aeObjectClass[object] = OBJECT_CLASS_NULL;
+        aeObjectClass[sceneObject] = OBJECT_CLASS_NULL;
         set_eye_direction_and_position();
         nFrameSkipCounter--;
         if (nFrameSkipCounter < 1) {
@@ -242,16 +246,16 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             approachScale = (short)(
                 ((int)awObjectScales[0]
                     << 4) / approachDistance);
-            aeObjectClass[object] = OBJECT_CLASS_SHIP;
+            aeObjectClass[sceneObject] = OBJECT_CLASS_SHIP;
             asObjectScreenXList[0] =
                 (short)(fighterScreenX - nCurrentViewCenterPosX);
             asObjectScreenYArray[0] =
                 (short)(fighterScreenY - nCurrentViewCenterPosY);
             asObjScreenScalesArray[0] = approachScale;
-            asObjectScreenXList[object] =
+            asObjectScreenXList[sceneObject] =
                 (short)(nScrambleBackgroundRightCoordX -
                         nCurrentViewCenterPosX);
-            asObjectScreenYArray[object] =
+            asObjectScreenYArray[sceneObject] =
                 (short)(nScrambleBackdropPositionY -
                         nCurrentViewCenterPosY);
             sort_object_depth();
@@ -283,18 +287,16 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     } while (frame < 100);
 
     aeObjectClass[0] = OBJECT_CLASS_NULL;
-    aeObjectClass[object] = OBJECT_CLASS_NULL;
+    aeObjectClass[sceneObject] = OBJECT_CLASS_NULL;
     if (bEscapePressedFlag != 1) {
-        short actorY;
-
-        copy_frame(object, 61);
-        aShipPositionsArray[61] = aShipPositionsArray[object];
-        nScrambleBackgroundRightCoordX = 0;
-        fighterScreenX = 200;
-        fighterScreenY = 32;
-        nScrambleBackdropPositionY = 0;
+        copy_frame(sceneObject, 61);
+        aShipPositionsArray[61] = aShipPositionsArray[sceneObject];
         asObjectCollisionRadius[61] =
-            asObjectCollisionRadius[object];
+            asObjectCollisionRadius[sceneObject];
+        nScrambleBackgroundRightCoordX = 0;
+        nScrambleBackdropPositionY = 0;
+        launchX = 200;
+        launchY = 32;
         approachDistance = 100;
         ConfigureScrambleActor(100, 80, 1, 0, actorShape,
                                0x100, 0, 0, 0);
@@ -306,8 +308,8 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                                0xc0, 0, 0x10, 4);
         PlaySfxWaveFileByNumber(18, -1, 0);
         frame = 0;
-        actorX = 60;
-        actorY = 10;
+        actor.x = 60;
+        actor.y = 10;
         nFrameSkipCounter = 1;
         do {
             PumpWindowMessages();
@@ -325,8 +327,8 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                     carrierShape, 1);
                 DrawScrambleActor(0);
                 approachScale = (short)(0x6000L / approachDistance);
-                DrawSpriteScaled(&stSpaceBufferViewport, fighterScreenX,
-                                 fighterScreenY, fighterShape, 16, 0,
+                DrawSpriteScaled(&stSpaceBufferViewport, launchX,
+                                 launchY, fighterShape, 16, 0,
                                  approachScale, 0);
                 DrawScrambleActor(3);
                 DrawScrambleActor(4);
@@ -350,12 +352,12 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             nScrambleBackgroundRightCoordX =
                 (short)(nScrambleBackgroundRightCoordX + 2);
             carrierScreenX = (short)(carrierScreenX + 4);
-            fighterScreenX = (short)(fighterScreenX - 2);
-            fighterScreenY++;
+            launchX = (short)(launchX - 2);
+            launchY++;
             approachDistance--;
-            if (sceneObject != 0) {
+            if (soundHandle != 0) {
                 ((void (__cdecl *)(int, int, short, int))PaletteFadeHook)(
-                    (int)sceneObject, 10, (short)(frame * 4), 0);
+                    soundHandle, 10, (short)(frame * 4), 0);
             }
             if (bEscapePressedFlag == 1)
                 break;
@@ -381,16 +383,16 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                         nScrambleBackdropPositionY,
                         carrierShape, 1);
                     DrawScrambleActor(0);
-                    DrawSpriteScaled(&stSpaceBufferViewport, fighterScreenX,
-                                     fighterScreenY, fighterShape, 16, 0,
+                    DrawSpriteScaled(&stSpaceBufferViewport, launchX,
+                                     launchY, fighterShape, 16, 0,
                                      approachScale, 0);
                     DrawScrambleActor(3);
                     DrawScrambleActor(4);
                     DrawScrambleActor(1);
                     DrawSpriteDefault(
                         &stSpaceBufferViewport,
-                        (short)(nScrambleBackgroundRightCoordX + actorX),
-                        (short)(nScrambleBackdropPositionY + actorY),
+                        (short)(nScrambleBackgroundRightCoordX + actor.x),
+                        (short)(nScrambleBackdropPositionY + actor.y),
                         actorShape, 16);
                     DrawSpriteDefault(
                         &stSpaceBufferViewport,
@@ -405,23 +407,23 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                 }
                 frame++;
                 if (frame < 9) {
-                    fighterScreenX = (short)(fighterScreenX +
+                    launchX = (short)(launchX +
                         aCarrierLaunchFighterPath[frame].x);
-                    fighterScreenY = (short)(fighterScreenY +
+                    launchY = (short)(launchY +
                         aCarrierLaunchFighterPath[frame].y);
                 } else if (frame < 23) {
                     if (frame == 9)
                         PlaySfxWaveFileByNumber(11, -1, 0);
-                    fighterScreenY = (short)(fighterScreenY +
+                    launchY = (short)(launchY +
                         asCarrierLaunchFighterDeltaY[frame - 9]);
                 }
                 if (frame == 23) {
-                    FlushSoundEffectsAndLog((int)sceneObject, 0);
+                    FlushSoundEffectsAndLog(soundHandle, 0);
                     PlaySfxWaveFileByNumber(19, -1, 0);
                 }
-                actorX++;
+                actor.x++;
                 if (frame % 7 == 0)
-                    actorY--;
+                    actor.y--;
                 DIBslam();
                 DIBslamReal();
                 if (bEscapePressedFlag == 1)

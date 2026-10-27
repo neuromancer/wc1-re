@@ -10339,3 +10339,27 @@ Session findings that are not yet retained because they change span sizes:
   bytes. Removing the local shifts `object_intelligence` by one symbol, which
   it tolerates. Strict matching leaves 1,516 differences (1,442 code,
   74 relocation).
+
+- `ShowCarrierLaunchSequence` is decided by statement order through two
+  late C2 passes. After global colouring, the recycler (`FUN_00422F24`,
+  disabled by `/d2norecy`) renames statement-local temporaries: for each
+  definition it tries its hints (MOV source, LEA base/index, cached load),
+  then registers 0-7 except the two most recently defined ones
+  (`0x00487290`/`0x004872A4`) and except colours defined between the
+  definition and its use; a busy source register may be reused only when the
+  instruction is its last use. The ship-shape lookup must therefore come
+  before `pScrambleView = &stSpaceBufferViewport` (whose folded address temp
+  would make EAX recent), and the 64/20 fighter coordinates come after
+  `initialize_scripted_view`. In the second phase the collision-radius copy
+  precedes the two position resets and the `launchX`/`launchY` constants,
+  so ESI/EDI, not EAX, are recent when `actorShape` is reloaded, and the
+  colourer then gives the scaled index reload EDX as in the original.
+  `bEscapePressedFlag = 0` follows `nFrameSkipCounter = 1`: the scheduler
+  only pulls a later store into a stall when it is within the 5-instruction
+  window of this block, which places it after the second view-frame store.
+  The function also needs `nScrambleBackgroundRightCoordX`'s extern ahead of
+  `nScrambleBackdropPositionY` in `globals.h` (an index swap only these two
+  globals' users see; `cutscene.c` is unchanged). The second-phase sound
+  handle is the original's unset dword at the short scene-object slot. All
+  2,064 bytes match; strict matching leaves 202 differences (198 code,
+  4 relocation).
