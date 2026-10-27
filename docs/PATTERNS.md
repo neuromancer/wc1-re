@@ -9820,3 +9820,31 @@ Session findings that are not yet retained because they change span sizes:
   zero mismatches or skips. Existing call/global-access diagnostics remain
   11/55. Verification preserves SHA-256
   `6cdf5a3fae355ad40186d7dece8af08b8bbb6522f79de4e26595123cae177940`.
+
+- `perform_maneuver` keeps its final proximity-limit snapshot in an `int`
+  declared immediately after the saved short range. Cast the snapshot back
+  to `short` in the comparison and retain the two qualified reads. CL folds
+  the conversion into the original word load, then emits `CMP AX,[range]`
+  and `JLE`. No extra instruction or stack slot remains. This recovers the
+  two differences introduced when `Mveer_away`'s reads were reconstructed.
+  A short snapshot in the final block leaves the comparison reversed. Moving
+  that short to function scope reverses the branch but loads the saved range
+  first and compares against the global, making the sequence one byte longer.
+  An unsigned-short snapshot or removing either read qualifier from that
+  short candidate gives the same regression. The promoted snapshot with the
+  explicit narrowing comparison is the source distinction that restores both
+  operand order and load selection; it is not recovered original spelling.
+  All 320 bytes, including padding, now match. All 47 functions in `fl.c`
+  compare exactly. Only this row changes in the full report: 1,528
+  normalized-exact functions of 1,550, with 1,542 at 100% mnemonic similarity.
+  All 1,539 mapped functions retain their original addresses; 1,514 complete
+  spans are byte-identical. Exactly two code bytes change, both toward the
+  original. Strict matching reaches 516,986 of 518,656 bytes (99.6780%),
+  leaving 1,670 differences in 296 runs: 1,594 code bytes and 76 relocation
+  bytes. Section sizes and the entry point remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions with
+  zero mismatches or skips. Existing call/global-access diagnostics remain
+  11/55. Verification preserves SHA-256
+  `9020332ea59a9e85f3ea7f8d4a68bdad22fcd7ecddf0437d1da22d2a4035ee30`.
