@@ -656,7 +656,9 @@ extern int bPtrMovedByKeyboardState; /* 0x005a7d54 */
 extern FixedVector vNormalizedToTarget; /* 0x005a7db0 */
 extern ShortPoint stReleaseWeaponDisplayPosition; /* 0x005a7dbc */
 extern enum ObjectType eReleaseWpnDisplayType; /* 0x005a7dc0 */
+#ifndef WC1_COCKPT_SOURCE
 extern signed char bStickIndicatorFrameState; /* 0x005a7dc8 */
+#endif
 extern short nCurrentNoticeTimer; /* 0x005a7dca */
 extern short nPendingCockpitDamageValue; /* 0x005a7dcc */
 extern signed char cLastTargetObject; /* 0x005a7df2 */

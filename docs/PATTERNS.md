@@ -9970,3 +9970,37 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips. Existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `a19e4c96848463b371b75afc7230f68f4a6e3a8c745c1740e0e4e3ba348077be`.
+
+- `animate_pilot` had six literal differences hidden by normalized `EXACT`:
+  it loaded the saved frame and compared the desired frame, while the
+  original loads the desired frame and compares the saved frame. Qualify
+  the read of the private `cRenderedPilotHandFrame` byte as volatile and
+  omit `bStickIndicatorFrameState`'s redundant extern from its cockpit
+  owner through `WC1_COCKPT_SOURCE`. The owner still defines that global
+  before its functions; other units retain the shared declaration.
+  Together these recover `MOV AL,[desired frame]; CMP [saved frame],AL`.
+  The qualified read alone leaves the reverse `CMP AL,[saved frame]`
+  encoding, recovering five bytes. The owner exclusion alone worsens
+  literal matching by 22 bytes. Unsigned-byte comparisons, reversed
+  comparisons, subtraction tests, and alternate byte declarations do not
+  recover the complete sequence. These are measured compiler-context
+  choices, not recovered original source spelling.
+  All 48 bytes, including padding, now match. Exactly six executable bytes
+  change, all toward the original; no other function or section changes.
+  The normalized report remains unchanged at 1,532 exact functions of
+  1,550, with 1,544 at 100% mnemonic similarity. All 1,539 mapped functions
+  retain their original addresses; 1,519 complete spans are byte-identical.
+  Strict matching reaches 517,014 of 518,656 bytes (99.6834%), leaving
+  1,642 differences in 281 runs: 1,566 code bytes and 76 relocation bytes.
+  The header and other sections remain exact.
+  The two literal rate-sum differences in `check_for_lost_control` remain.
+  Unsigned casts on the rate fields, word-sized intermediate pair sums,
+  and qualified field reads all reproduce the preceding code. Replacing
+  its type-index local with a turn-rate accumulator changes scheduling
+  and worsens matching. Every rate-sum probe is restored.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions
+  with zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `640f1b9f359dde9720c17fa47c31b307be265d85271165201bc0083b2ad588a7`.

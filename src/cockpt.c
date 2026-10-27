@@ -7,6 +7,7 @@
  *  functions throughout this Win32 range; port-specific split helpers remain
  *  interleaved in their original address order.
  */
+#define WC1_COCKPT_SOURCE
 #include "wc1.h"
 
 static short asVduSelectionSound[2] = { 0x7f, 0 }; /* 0x00469000 */
@@ -2674,7 +2675,8 @@ void animate_pilot(void)
 {
     if (pCurrentPilotHandShapePtr != 0) {
         determine_pilot_hand();
-        if (cRenderedPilotHandFrame != bStickIndicatorFrameState)
+        if (*(volatile signed char *)&cRenderedPilotHandFrame !=
+            bStickIndicatorFrameState)
             DrawPilotHandFrame();
     }
 }
