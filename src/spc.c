@@ -1323,27 +1323,46 @@ unsigned int animate_object(short obj)
     return 0;
 }
 
+/* CL 4.20 breaks register-allocation ties by symbol index.  These
+ * collision callees precede their first use and give hit_asteroid's
+ * asteroid and fragment registers their measured context. */
+void make_shard(short asteroid, FixedVector direction);
+short check_for_collision(short obj);
+void rectangular_to_spherical(const FixedVector *rectangular,
+                              SphericalVector *spherical);
+void apply_force_to_object(FixedVector *point, FixedVector *force,
+                           short obj);
+int inflict_damage(short attacker, short victim, short damage,
+                   const FixedVector *impactDirection);
+int MaxInt(int a, int b);
+void rotational_acceleration(FixedVector *point, FixedVector *force,
+                             short obj);
+
 /* Function start: 0x413030 */
 unsigned int hit_asteroid(short asteroid, short destructionChance)
 {
-    short sourceAsteroid;
+    short fragments;
 
     if (RandomBelowOrEqual((short)(destructionChance - 1)) == 0) {
-        /* Reuse the consumed parameters for the fragment count. */
-        destructionChance = (short)(RandomBelowOrEqual(1) + 2);
-        sourceAsteroid = asteroid;
-        asteroid = destructionChance;
-        while (asteroid > 0) {
-            make_shard(sourceAsteroid, aShipVelocity[sourceAsteroid]);
-            asteroid--;
+        fragments = (short)(RandomBelowOrEqual(1) + 2);
+        while (fragments > 0) {
+            make_shard(asteroid, aShipVelocity[asteroid]);
+            fragments--;
         }
-        explode(-1, sourceAsteroid);
+        explode(-1, asteroid);
     } else if (RandomBelowOrEqual(7) == 0) {
-        sourceAsteroid = asteroid;
-        make_shard(sourceAsteroid, vCollisionDelta);
+        make_shard(asteroid, vCollisionDelta);
     }
     return 0;
 }
+
+/* Collision and per-class intelligence callees. */
+short easy2see(short obj);
+unsigned int update_canned_sequence(short obj);
+void mine_intelligence(short obj);
+short get_ship_max_velocity(short obj);
+void heat_seeking_missile_intelligence(short obj);
+void FF_missile_intelligence(short obj);
 
 /* Function start: 0x4130D0 */
 int object_collision(short obj)

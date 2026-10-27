@@ -10256,3 +10256,21 @@ Session findings that are not yet retained because they change span sizes:
   remain 11/55. Post-verification comparisons reproduce the candidate and
   the fresh native build byte for byte, preserving SHA-256
   `b5761b12bfbadfac35198917b76386cd95d538bf20cd64e4df9849366f27d628`.
+
+- `hit_asteroid` now uses the shape of WC2's reconstruction: a short
+  fragment counter counts down from `RandomBelowOrEqual(1) + 2`, and both
+  branches pass the asteroid parameter directly. The former consumed-parameter
+  device is gone. That shape reproduces every instruction except an ESI/EDI
+  exchange between the parameter and the counter; the colouring model
+  predicts exactly that exchange for key shifts of +16 to +18 (or -14 to
+  -16). Seven collision callee prototypes (17 named parameters) placed before
+  the routine move it by +17, and six collision/intelligence callee
+  prototypes before `object_collision` bring the later functions to +23,
+  inside their model windows. A placeholder compile confirmed the profile
+  before the declarations were written. All 160 bytes match; every other
+  function in `spc.c` keeps its bytes. Strict matching reaches 517,087 of
+  518,656 bytes, leaving 1,569 differences (1,495 code, 74 relocation).
+  `object_collision`'s two index loads stay reversed: without scheduling
+  the code generator follows source statement order, but the scheduler
+  emits `MOVSX ESI,BX` first in either order, and swapping the index
+  declarations changes the frame.
