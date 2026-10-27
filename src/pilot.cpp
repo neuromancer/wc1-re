@@ -101,9 +101,9 @@ void LoadAnswerPromptAndResponse(short entry, char *prompt,
     responseLine = packet;
     promptLine = packet;
     for (line = 0; line < 20; line++, scan++) {
-        if (entry * 2 - line == 0)
+        if (entry * 2 == line)
             promptLine = scan;
-        if (entry * 2 - line == -1)
+        if (entry * 2 + 1 == line)
             responseLine = scan;
         while (*scan != '\n')
             scan++;

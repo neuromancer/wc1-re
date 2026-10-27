@@ -10363,3 +10363,16 @@ Session findings that are not yet retained because they change span sizes:
   handle is the original's unset dword at the short scene-object slot. All
   2,064 bytes match; strict matching leaves 202 differences (198 code,
   4 relocation).
+
+- The unpacked DOS build (`data/dos/WC.EXE`, 16-bit MSC code with overlays
+  in the file) is direct evidence of statement shapes; routines can be found
+  by searching the file for distinctive immediate stores and disassembled
+  in 16-bit mode at the file offset. `LoadAnswerPromptAndResponse` (file
+  offset 0x4A126, after `ApplyAnswerTextCipher` at 0x4A0F0) selects the
+  lines with `entry * 2 == line` and `entry * 2 + 1 == line`; CL
+  canonicalises the second test to `entry*2 - line == -1`, so the Win32
+  bytes are unchanged. The DOS routine declares packet, scan, prompt and
+  response pointers and does not pre-initialise the two line pointers, so
+  the Win32 reloads from `packet` are a port addition. The remaining
+  difference is the colourer coalescing `scan` with the fetch result in EAX
+  before colouring (strict matching still leaves 202 differences).
