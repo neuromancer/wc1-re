@@ -634,6 +634,7 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                     destination++;
                 }
             }
+            context->cursorX += context->font[4 + characterIndex];
         } else {
             unsigned char *translatedDestination;
 
@@ -659,8 +660,8 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                     translatedDestination++;
                 }
             }
+            context->cursorX += context->font[4 + characterIndex];
         }
-        context->cursorX += context->font[4 + characterIndex];
         abPaletteTranslation[fontColour] = fontColour;
         abPaletteTranslation[fontBackground] = fontBackground;
 #ifndef SDL_PORT

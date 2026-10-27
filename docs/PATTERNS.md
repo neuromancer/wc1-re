@@ -10274,3 +10274,17 @@ Session findings that are not yet retained because they change span sizes:
   the code generator follows source statement order, but the scheduler
   emits `MOVSX ESI,BX` first in either order, and swapping the index
   declarations changes the frame.
+
+- `DrawFontGlyph` advances the text cursor at the end of each colour branch,
+  as WC2's reconstruction does, instead of once after the branches. CL merges
+  the two identical tails into the original single cursor update, but the
+  palette restore that follows now starts after a join, where the code
+  generator's scratch-register state is reset: the font colour loads into AL
+  and the background into CL, as in the original. With a single update in the
+  same block, the previously used EAX is avoided and the two bytes swap
+  registers. All 512 bytes match; nothing else changes. Strict matching
+  leaves 1,560 differences (1,486 code, 74 relocation).
+  The same code-generator effect appears in synthetic tests: after a call
+  result is stored from EAX, the next statement's scratch registers start
+  at ECX, but any preceding constant assignment to a register variable
+  makes them start at EAX again.
