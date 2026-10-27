@@ -713,7 +713,7 @@ extern short nSceneScrambleShipDetailCountValue; /* 0x005a86cc */
 extern Viewport *pScrambleView; /* 0x005a86b4 */
 extern short nSceneScrambleCanopyFrameValue; /* 0x005a86b8 */
 extern unsigned char *pScrambleDetailShape; /* 0x005a86bc */
-extern short nScrambleCockpitAngle; /* 0x005a86c0 */
+extern short nCurrentScrambleShipPositionX; /* 0x005a8724 */
 extern ShortPoint stScrambleCockpitDetail; /* 0x005a86c4 */
 extern unsigned char *pCurrentConversationSpecialShape; /* 0x005a86ec */
 extern short nFuneralCasketPositionX; /* 0x005a86c8 */
@@ -729,7 +729,7 @@ extern short nSceneFuneralMainScale; /* 0x005a871c */
 extern short nFuneralRifleFrame; /* 0x005a871e */
 extern short nCutsceneFuneralBaseX; /* 0x005a8720 */
 extern short nCutsceneFuneralBasePosY; /* 0x005a8722 */
-extern short nCurrentScrambleShipPositionX; /* 0x005a8724 */
+extern short nScrambleCockpitAngle; /* 0x005a86c0 */
 extern signed char cScrambleWalkerPair; /* 0x005a8748 */
 extern short nScrambleShipY; /* 0x005a8726 */
 extern short nFuneralParticleScale; /* 0x005a8728 */

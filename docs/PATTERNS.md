@@ -10558,3 +10558,35 @@ Session findings that are not yet retained because they change span sizes:
   diagnostics remain 11/55. Verification reproduces the isolated candidate
   byte for byte, preserving SHA-256
   `27e8f250b8469a90f47732654027ee18c17c3d13ef743152c0f99876fc60f436`.
+
+- `scramble` qualifies both Hornet coordinate initializers, retaining the
+  existing X qualification and adding Y. Removing both globals' register
+  candidates raises the first loop's -2 constant cost from 400 to 900 in
+  C2's allocation graph. With the existing two sound handles and declaration
+  context, the compiler now assigns EBP to the actor pointer and the original
+  ESI/EDI registers to every loop constant. This removes fourteen of the
+  routine's 24 differing bytes. Earlier two-coordinate trials used a different
+  local/context combination and did not establish this result.
+  The remaining third-phase values need BX for the canopy frame, EDX for the
+  ship type and CX for the angle. Exchanging the `nScrambleCockpitAngle` and
+  `nCurrentScrambleShipPositionX` extern positions in `globals.h` moves the
+  angle's symbol key by sixteen without changing declaration count, types,
+  definitions or storage. Native compilation recovers all ten remaining bytes
+  and preserves every other function. Swapping the angle with the funeral
+  particle array or overlay point instead produces the predicted colours but
+  leaves two instruction differences; the native comparison remains decisive.
+  These qualifiers and declaration positions are measured matching choices,
+  not recovered original header text.
+  All 1,104 bytes of `scramble` now match. A complete rebuild of the header's
+  users reproduces the isolated candidate exactly: 518,653 of 518,656 bytes
+  match (99.9994%). The three remaining differences are the allocator's late
+  current-byte load, comparison and peak store using EDX instead of ECX.
+  Only the scramble row changes in the full report: all 1,550 entries retain
+  100% mnemonic similarity, 1,548 are normalized exact, and the existing
+  IEEE-converter boundary remains the sole size diagnostic.
+  Source sorting, address and order audits, the modern build and full
+  `make verify` pass. Both value checks cover all 1,550 functions with zero
+  mismatches or skips; the existing call/global-access diagnostics remain
+  11/55. Verification reproduces the isolated candidate byte for byte,
+  preserving SHA-256
+  `30a673a2dadb6f972ec82c421c0d95e62da61e229cbd75f1b3488f7a9cc26ab5`.
