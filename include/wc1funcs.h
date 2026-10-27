@@ -1034,7 +1034,7 @@ short ReadTextInput(char *destination, short maximumLength,
 void ReadRequiredPilotField(short x, short y, const char *label,
                             char *destination,
                             short maximumLength);                    /* 0x004265A0 */
-void PromptForPilotField(short x, short y, const char *label,
+void PromptForPilotField(volatile short x, short y, const char *label,
                          char *destination, short maximumLength,
                          const char *defaultText);                    /* 0x00426600 */
 void InitializeTrainSimTextPanel(void);                               /* 0x00426660 */

@@ -10,6 +10,7 @@
 /* Nothing in the shipped executable references this word. The panel that
  * follows is eight-byte aligned, which accounts for the next four zeros. */
 int DAT_00469da0 = 10; /* 0x00469da0 */
+extern ShortRect stTrainSimPanelBounds;
 Viewport stTrainSimPanelViewport = {0}; /* 0x00469da8 */
 ShortRect stTrainSimPanelBounds = {
     0x30, 0x1d, 0x110, 0x6d
@@ -469,9 +470,12 @@ redraw:
 void ReadRequiredPilotField(short x, short y, const char *label,
                             char *destination, short maximumLength)
 {
+    short cursorX;
+
     stTrainSimTxtContext.alignment = 0;
-    SetTextCursor((unsigned short)(stTrainSimPanelViewport.left + x),
-                  (unsigned short)y);
+    cursorX = *(volatile short *)&stTrainSimPanelViewport.left;
+    cursorX += *(volatile short *)&x;
+    SetTextCursor((unsigned short)cursorX, (unsigned short)y);
     DrawFormattedText(label);
     do {
         DosStrcpy(destination, "");
@@ -479,13 +483,13 @@ void ReadRequiredPilotField(short x, short y, const char *label,
 }
 
 /* Function start: 0x426600 */
-void PromptForPilotField(short x, short y, const char *label,
+void PromptForPilotField(volatile short x, short y, const char *label,
                          char *destination, short maximumLength,
                          const char *defaultText)
 {
     stTrainSimTxtContext.alignment = 0;
-    x += stTrainSimPanelViewport.left;
-    SetTextCursor((unsigned short)x, (unsigned short)y);
+    SetTextCursor((unsigned short)(x + stTrainSimPanelViewport.left),
+                  (unsigned short)y);
     DrawFormattedText(label);
     do {
         DosStrcpy(destination, defaultText);

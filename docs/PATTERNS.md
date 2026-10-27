@@ -9760,3 +9760,37 @@ Session findings that are not yet retained because they change span sizes:
   functions with zero mismatches or skips. Existing call/global-access
   diagnostics remain 11/55. Verification preserves SHA-256
   `98a639c4ac05679262346a11089c1b6db229ee19dcdeeaa108ac7624e0c0ab03`.
+
+- `PromptForPilotField` calculates its cursor X argument inline and qualifies
+  the incoming X word. This retains the original Y load and push before the
+  X calculation. Its declaration and definition use the same qualifier;
+  omitting it from the prototype causes native warning C4028 without changing
+  the emitted bytes.
+  Forward-declare the existing `stTrainSimPanelBounds` before defining
+  `stTrainSimPanelViewport`. This moves the viewport's compiler symbol key
+  from 27,238 to 27,239 without changing either object's storage. The
+  expression model predicts the required word-add operand reversal, and
+  the native comparison confirms the stack-X load followed by the viewport
+  left-bound addition. Qualifying X alone loads the bound first and makes
+  the body one byte too short.
+  Preserve `ReadRequiredPilotField`'s existing match with a short `cursorX`:
+  initialize it from a qualified left-bound read, then add a qualified input
+  X read. An unqualified capture leaves Y in EDX instead of EAX; qualifying
+  only the input reverses the addition operands. Qualifying both reads
+  restores the entire original sequence. These are measured source and
+  declaration choices, not recovered original spelling or a calling-convention
+  change.
+  Both 96-byte input routines and all 26 functions in `trainsim.c` are exact.
+  Only the prompt's row changes in the complete report: 1,527 normalized-exact
+  functions of 1,550, with 1,541 at 100% mnemonic similarity. All 1,539 mapped
+  functions retain their original addresses; 1,513 spans are byte-identical.
+  Exactly 29 executable bytes change, all toward the original: 27 code bytes
+  and two relocation bytes. Strict matching reaches 516,982 of 518,656 bytes
+  (99.6772%), leaving 1,674 differences in 299 runs: 1,598 code bytes and 76
+  relocation bytes. Section sizes and entry point remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks
+  pass. Full `make verify` passes; both value checks cover all 1,550
+  functions with zero mismatches or skips. Existing call/global-access
+  diagnostics remain 11/55. Verification preserves SHA-256
+  `f78272c92c14b6e92d84bde661b29e7ff619d4b09950dd00aefb6b4d38b2f95f`.
