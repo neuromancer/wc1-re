@@ -928,14 +928,22 @@ unsigned int player_input(void)
     queuedKeyEvent |= IsInputEventQueued(4);
     bCurrentKeyboardEvtQueued = queuedKeyEvent;
     bMouseButtonEventQueuedFlag = IsInputEventQueued(2);
+#ifdef SDL_PORT
     if (bMouseMoveEvtQueued == 0)
-        bCurrentKey |= 0x80;
-    bCurrentKey |= 0x80;
+        *(volatile signed char *)&bCurrentKey |= 0x80;
+    *(volatile signed char *)&bCurrentKey |= 0x80;
+#else
+    /* CL 4.20 preserves these memory updates with lvalue casts, without
+     * marking the key's address as taken throughout this unit. */
+    if (bMouseMoveEvtQueued == 0)
+        ((volatile signed char)bCurrentKey) |= 0x80;
+    ((volatile signed char)bCurrentKey) |= 0x80;
+#endif
 
     if (bMouseCursorVisible == 0) {
         key = PollKeyboardState();
         bCurrentKey = (signed char)key;
-        if (bCurrentKey == 0) {
+        if ((volatile signed char)bCurrentKey == 0) {
             nCurrentRollInputValue = 0;
             bFlightRollLatch = 0;
             nPitchInput = 0;

@@ -10530,3 +10530,31 @@ Session findings that are not yet retained because they change span sizes:
   diagnostics remain 11/55. The verification rebuild reproduces the
   isolated combined candidate byte for byte, preserving SHA-256
   `9062735dfe17f675ae9280b91adabcfb7602b877cd934a03c0ec95f4baf740f7`.
+
+- `player_input` uses CL 4.20's cast-as-lvalue extension for its two
+  current-key ORs. Qualifying the lvalue directly preserves the two original
+  memory updates without marking the global's address as taken. The earlier
+  pointer casts removed its register candidates throughout `main.c`, making
+  `HandleSpaceFlightControls` use AL instead of CL and shortening that
+  function. The new compiler trace retains the current-key candidate in the
+  initial subtraction, and every other main function stays exact. The SDL
+  branch uses ordinary pointer-based volatile lvalues because modern C
+  compilers do not accept the extension.
+  Qualify the current-key value in the following zero comparison as well:
+  this selects the original `CMP AL,BL` instead of `TEST AL,AL`. Qualifying
+  only the OR inputs, results or masks does not reproduce the memory updates;
+  putting the key assignment inside its condition leaves the final test
+  unchanged. The complete 1,728-byte input span now matches.
+  Exactly 21 file positions change, all toward the original: nineteen code
+  bytes and two relocations. Strict matching reaches 518,629 of 518,656 bytes
+  (99.9948%), leaving 27 differences in 27 runs: 24 in `scramble` and three
+  in `AllocateGuardedMemory`. Every non-code section is exact. Only the input
+  row changes in the full report; all 1,550 entries reach 100% mnemonic
+  similarity, 1,547 are normalized exact, and the existing IEEE-converter
+  boundary remains the sole size diagnostic.
+  Native and modern builds, source sorting, address and compilation-unit
+  audits, and full `make verify` pass. Both value checks cover all 1,550
+  functions with zero mismatches or skips; the existing call/global-access
+  diagnostics remain 11/55. Verification reproduces the isolated candidate
+  byte for byte, preserving SHA-256
+  `27e8f250b8469a90f47732654027ee18c17c3d13ef743152c0f99876fc60f436`.
