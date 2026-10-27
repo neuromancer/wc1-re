@@ -10644,3 +10644,20 @@ Session findings that are not yet retained because they change span sizes:
   updates of signed candidate globals (`inc [g]`) appear only in functions
   without pointer stores. Neither applies here. The DOS build has no paired
   32-bit counter updates to copy.
+  Further backend facts close the remaining routes. Any memory reference
+  through a pointer (`0x004264F9` sets `DAT_00486610`) excludes every
+  global from register candidates, static or extern, signed or unsigned.
+  The recycler may only use scratch registers plus registers the colourer
+  assigned in the function (`DAT_00487378 | DAT_00486DD8`, here EAX, ECX,
+  EDX and ESI), so EDX can never be excluded. The walker's memory-operand
+  split (`0x00467C27`) would choose EDX and leave ECX for the load, but it
+  needs per-function optimisation bit 23. Only `/G5` enables it here, and
+  that rewrites the whole routine (`cmp [head], 0` becomes `mov`/`test`).
+  No source construct produces the walker's kind-2 nodes. Also refuted:
+  per-function `#pragma optimize` letters (`a`/`w` give ECX only by caching
+  the counter, `g`, `s`/`t` and `y` change code, `p` changes nothing),
+  compiling the routine as C++, `static const` fill bytes (visible
+  replication), byte-pointer `block` fields, `register`, `const` and K&R
+  `size` parameters, array or structure counters with either comparison
+  spelling, and changed source paths or environment size (the backend
+  output is byte-identical).
