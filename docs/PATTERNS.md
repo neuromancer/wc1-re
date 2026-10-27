@@ -10376,3 +10376,32 @@ Session findings that are not yet retained because they change span sizes:
   the Win32 reloads from `packet` are a port addition. The remaining
   difference is the colourer coalescing `scan` with the fetch result in EAX
   before colouring (strict matching still leaves 202 differences).
+
+- The DOS `scramble` ship-selection block (file offsets `0x399B0` through
+  `0x39A2B`) computes cockpit-detail positions from the ship coordinates.
+  The Hornet uses offsets -55/-25, the Rapier +15/-4, the Scimitar +44/-3,
+  and the Raptor +18/-13. Retain those expressions instead of their folded
+  constants. VC++ 4.20 folds all eight expressions to the original Win32
+  immediate stores; `binary-comp` confirms that the complete executable is
+  unchanged. This recovers the relationship between the coordinates without
+  claiming a closer byte match: 202 file positions still differ.
+
+- `IsPushedPacketHandle` assigns its result through explicit negative-offset
+  and nonnegative-offset branches. This produces the original final
+  `POP ESI; XOR EAX,EAX; RET`, while the failed-search path retains
+  `XOR EAX,EAX; POP ESI; RET`. Initializing the result to one before the
+  test instead puts the final zeroing ahead of the pop.
+  The six memory-service declarations before `FrameStartHook` add seven
+  named parameters to the compiler context. The colouring model predicts
+  that shifts of six or seven recover ESI for the index and EDX for the
+  handle-table cursor; seven also retains the original `CMP ESI,EAX; JL`
+  loop test. These are declarations of existing functions with their
+  existing signatures, not recovered original header text. Native
+  compilation and `binary-comp` confirm all 64 bytes, including padding.
+  Only the three bytes of the return sequence change in the complete
+  executable; strict matching leaves 199 differences in 62 runs.
+  Native and modern builds, sorting, address and unit-order audits, and
+  `make verify` pass. Both value checks cover all 1,550 functions with zero
+  mismatches or skips; the existing call/global-access diagnostics remain
+  11/55. Verification reproduces the candidate byte for byte, preserving
+  SHA-256 `b1ba698486cf0687d4faf3facae5e441e3a23782d49f9852bc7d8143c348172e`.

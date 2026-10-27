@@ -635,27 +635,27 @@ unsigned int scramble(void)
         case OBJECT_TYPE_HORNET:
             nCurrentScrambleShipPositionX = -40;
             nScrambleShipY = 96;
-            stScrambleCockpitDetail.x = -95;
-            stScrambleCockpitDetail.y = 71;
+            stScrambleCockpitDetail.x = nCurrentScrambleShipPositionX - 55;
+            stScrambleCockpitDetail.y = nScrambleShipY - 25;
             nScrambleCockpitAngle = 316;
             break;
         case OBJECT_TYPE_RAPIER:
             nCurrentScrambleShipPositionX = -30;
             nScrambleShipY = 80;
-            stScrambleCockpitDetail.x = -15;
-            stScrambleCockpitDetail.y = 76;
+            stScrambleCockpitDetail.x = nCurrentScrambleShipPositionX + 15;
+            stScrambleCockpitDetail.y = nScrambleShipY - 4;
             break;
         case OBJECT_TYPE_SCIMITAR:
             nCurrentScrambleShipPositionX = -40;
             nScrambleShipY = 86;
-            stScrambleCockpitDetail.x = 4;
-            stScrambleCockpitDetail.y = 83;
+            stScrambleCockpitDetail.x = nCurrentScrambleShipPositionX + 44;
+            stScrambleCockpitDetail.y = nScrambleShipY - 3;
             break;
         case OBJECT_TYPE_RAPTOR:
             nCurrentScrambleShipPositionX = -40;
             nScrambleShipY = 80;
-            stScrambleCockpitDetail.x = -22;
-            stScrambleCockpitDetail.y = 67;
+            stScrambleCockpitDetail.x = nCurrentScrambleShipPositionX + 18;
+            stScrambleCockpitDetail.y = nScrambleShipY - 13;
             break;
         }
 

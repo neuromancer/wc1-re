@@ -436,6 +436,14 @@ int GetLargestFreeNearHeapBlock(void)
     return largestBytes;
 }
 
+/* Preserve the memory-service declaration context; see docs/PATTERNS.md. */
+void FrameStartHook(int mode);
+unsigned short IsSoundHardwarePresent(short device);
+void MessagePumpHook(int mode);
+void *PushMemoryStackFrame(void *memory, int offset);
+int IsPushedPacketHandle(void *handle);
+void *MapPacketHandleToBlock(void *handle);
+
 /* Function start: 0x42F930 */
 void FrameStartHook(int mode)
 {
@@ -485,8 +493,9 @@ int IsPushedPacketHandle(void *handle)
     if (nPacketHandleTotal > 0) {
         do {
             if (apPacketHandlesList[index] == handle) {
-                pushed = 1;
-                if (aiPktHandleDeltas[index] >= 0)
+                if (aiPktHandleDeltas[index] < 0)
+                    pushed = 1;
+                else
                     pushed = 0;
                 return pushed;
             }
