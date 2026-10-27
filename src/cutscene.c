@@ -641,8 +641,8 @@ unsigned int scramble(void)
 
         switch (stCampaignState.playerShipType) {
         case OBJECT_TYPE_HORNET:
-            nCurrentScrambleShipPositionX = -40;
-            *(short volatile *)&nScrambleShipY = 96;
+            *(volatile short *)&nCurrentScrambleShipPositionX = -40;
+            nScrambleShipY = 96;
             stScrambleCockpitDetail.x = nCurrentScrambleShipPositionX - 55;
             stScrambleCockpitDetail.y = nScrambleShipY - 25;
             nScrambleCockpitAngle = 316;

@@ -10485,3 +10485,48 @@ Session findings that are not yet retained because they change span sizes:
   diagnostics remain 11/55. The verification rebuild reproduces the
   candidate byte for byte, preserving SHA-256
   `b75df210fb9b61510261eb7718697e380129463fa2e53220e42587019606b0ff`.
+
+- `scramble`'s qualified Hornet coordinate store now applies to ship X,
+  leaving the Y store ordinary. This supersedes the preceding Y choice:
+  with the retained declaration context, removing the X register candidates
+  instead gains three matching positions. Its complete 1,104-byte span
+  has 24 differences, all register encodings; mnemonic similarity remains
+  100%. No other cutscene function changes. Qualifying additional shape
+  stores, changing the loop syntax, adding `register`, and nesting the
+  phase guards yield no further native improvement.
+  Diagnostic colourer searches also show why declaration counts alone
+  are insufficient for the remaining actor register: varying individual
+  global keys and local contexts in the preceding Y-qualified graph never
+  selected the original EBP in the tested cases. The desired assignment
+  has no interference conflict, but the compiler's ordering and priorities
+  do not select it in those searches. This is a limit of those tested
+  contexts, not proof that the function cannot be matched.
+
+- `player_input` qualifies the previous-key zero store, reproducing the
+  original conditional memory store and subsequent memory comparison.
+  On its own, this changes the viewport top/bottom registers from EBP/EBX
+  to EBX/EBP. The later address sum then uses EBP as its base and gains a
+  displacement byte, shifting the remaining instructions. The colourer
+  trace reproduces all four allocation rounds and predicts that exchanging
+  the existing `modifiers` and `pitchInput` declaration positions restores
+  those registers without changing other local allocations. Native
+  compilation confirms that exchange, the original stack offsets and
+  every other function in `main.c`.
+  The input span gains thirteen matching code bytes and two relocations,
+  leaving nineteen raw differences in its 1,728 bytes. Its report improves
+  from eight differing instruction encodings at 98.50% mnemonic similarity
+  to five at 99.25%. Qualifying the current-key ORs still regresses the
+  flight-control comparison; those stores remain ordinary.
+  Together these changes affect 21 file positions for a net gain of
+  eighteen matches. Strict matching reaches 518,608 of 518,656 bytes
+  (99.9907%), leaving 48 differences in 32 runs: 24 in `scramble`, nineteen
+  in `player_input`, three in `AllocateGuardedMemory`, and two relocations.
+  Only the scramble and input rows change in the full 1,550-function report;
+  1,546 normalized exact entries and the existing IEEE-converter boundary
+  diagnostic are unchanged.
+  Native and modern builds, source sorting, address and compilation-unit
+  audits, and full `make verify` pass. Both value checks cover all 1,550
+  functions with zero mismatches or skips; existing call/global-access
+  diagnostics remain 11/55. The verification rebuild reproduces the
+  isolated combined candidate byte for byte, preserving SHA-256
+  `9062735dfe17f675ae9280b91adabcfb7602b877cd934a03c0ec95f4baf740f7`.

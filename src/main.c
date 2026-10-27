@@ -895,7 +895,7 @@ unsigned int player_input(void)
 #else
     InputEventState event;
 #endif
-    short modifiers;
+    short pitchInput;
     short eventType;
     short queuedKeyEvent;
     short horizontal;
@@ -903,7 +903,7 @@ unsigned int player_input(void)
     unsigned short horizontalMagnitude;
     unsigned short verticalMagnitude;
     short yawInput;
-    short pitchInput;
+    short modifiers;
     int keyboardRoll;
     int viewportLeft;
     int mouseX;
@@ -964,7 +964,7 @@ unsigned int player_input(void)
                 fire_players_lasers();
             }
             if ((buttons & 2) == 0)
-                cPreviousKey = 0;
+                *(volatile signed char *)&cPreviousKey = 0;
             if (cPreviousKey == 0x0f && buttons == 2) {
                 bCurrentKey = 0x0f;
                 if (buttons == 1)
