@@ -10590,3 +10590,47 @@ Session findings that are not yet retained because they change span sizes:
   11/55. Verification reproduces the isolated candidate byte for byte,
   preserving SHA-256
   `30a673a2dadb6f972ec82c421c0d95e62da61e229cbd75f1b3488f7a9cc26ab5`.
+
+- `AllocateGuardedMemory`'s remaining three bytes are a recycler decision,
+  not a colouring tie. The current-byte load is a single-use pseudo (8046)
+  with own colour EAX. When the recycler (`0x00422F24`) reaches it, the two
+  most recent pseudo definitions are the third guard fill's tail load (ECX)
+  and block load (EAX). The fixed-register `LEA EDI`, `MOV EAX, 0xABABABAB`
+  and `MOV ECX, 0x100` definitions, `rep stosd` and the two memory-form
+  `ADD`s do not update that pair. `0x0042E5CB` therefore builds the list
+  EDX, EBX, ESP, EBP, ESI, EDI, ECX, EAX. EDX is neither busy nor in the
+  conflict mask, so it wins. No own colour, busy state or symbol shift can
+  put ECX first while the pair is (ECX, EAX): an own colour of EAX or ECX
+  yields EDX, and any other own colour keeps itself. A plain reset (label
+  or kind-1 node) between the block load and the current-byte load would
+  give EAX instead. ECX needs a value-cache hint for `[current]` in ECX
+  (no ECX load or store of that global exists in the block). Otherwise it
+  needs one more pseudo or web definition, coloured other than ECX and
+  deleted before emission (a folded copy, constant temp or redundant
+  reload), after the block load or between the tail and block loads.
+  A call-class node there would also work.
+  None of the following source forms produce such a definition; each keeps
+  the IL and the EDX choice, or changes visible code: `g = g + size`,
+  `g = size + g`, the compound assignment inside the condition, `max()`,
+  comma-joined updates, `int`/`long`/`unsigned long` counters or `size`,
+  `static` counters, a standalone allocator unit, a global statistics
+  structure (changes code), swapped `Bytes`/`Peak` keys (flips the
+  comparison), `volatile` counters or tail pointer, volatile and signedness
+  cast-as-lvalue updates, `tail->size` operands (visible loads), WC2's
+  `block + size + 0x400` order, parenthesised or integer-cast destinations,
+  member-array destinations, a guard pointer local, a guard-size local,
+  current-byte locals, dead locals and expression statements, an inlined
+  fill or counting routine, a peak pointer local, and an address-taken
+  `size` (visible stack reloads). `/Zd`, `/Z7`, `/Zi`, `/d2nocombine`
+  and the MSVC 4.1 backend also leave EDX. WC2's port has no counter
+  updates. Its unoptimised allocator confirms the remaining statement
+  order and the third fill's `block + size + 0x400` expression, now used
+  in the source; VC++ 4.20 compiles it identically to the earlier
+  `block + 0x400 + size` spelling.
+  Signedness does change candidacy here. An unsigned global is excluded
+  from register candidates in a function that stores through pointers,
+  while a signed `int` current-byte counter is not: its two reads become
+  one CSE temporary web, coloured by the graph colourer rather than
+  recycled. That web still receives EAX in this unit, because no
+  EAX-coloured node overlaps it, and the unsigned `jae` comparison rules
+  out signed peak and current counters together.

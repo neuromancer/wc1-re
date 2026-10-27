@@ -1162,7 +1162,7 @@ void *AllocateGuardedMemory(unsigned int size)
                0x400,
            0, size);
     memset((unsigned char *)pGuardedAllocationTail->block +
-               0x400 + size,
+               size + 0x400,
            0xab, 0x400);
     nGuardedAllocationTotalBytes += size;
     nGuardedAllocationBytes += size;
