@@ -10633,4 +10633,14 @@ Session findings that are not yet retained because they change span sizes:
   one CSE temporary web, coloured by the graph colourer rather than
   recycled. That web still receives EAX in this unit, because no
   EAX-coloured node overlaps it, and the unsigned `jae` comparison rules
-  out signed peak and current counters together.
+  out signed peak and current counters together. A signed `size` (as
+  `AllocateTaggedMemory` passes it) with signed total and current counters
+  and an unsigned peak reproduces every other instruction of the routine,
+  leaving only that EAX. A signed total with an unsigned current counter
+  instead adds a visible `size` conversion copy to the zero fill.
+  An instrumented compile of every core unit catalogues 1,725 deleted
+  definitions. Variable-to-variable copies survive only when the
+  destination is later modified (`slot = weapon; slot++`), and memory-form
+  updates of signed candidate globals (`inc [g]`) appear only in functions
+  without pointer stores. Neither applies here. The DOS build has no paired
+  32-bit counter updates to copy.
