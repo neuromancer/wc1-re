@@ -2087,13 +2087,8 @@ void draw_target_box(unsigned short colour, signed char object,
         valid = savedBounds->left != -0x7fff;
         bounds = *savedBounds;
     } else {
-        if (object == -1) {
-            valid = 0;
-        } else {
-            valid = 1;
-            if (asObjectScreenXList[object] == -0x7fff)
-                valid = 0;
-        }
+        valid = object != -1 &&
+                asObjectScreenXList[object] != -0x7fff;
         if (valid != 0) {
             centerX = (short)(asObjectScreenXList[object] +
                               nCurrentViewCenterPosX);
@@ -2192,6 +2187,10 @@ void draw_target_box(unsigned short colour, signed char object,
         savedBounds->left = -0x7fff;
     }
 }
+
+/* Navigation-pointer callees. */
+void remove_object(short obj);
+long DivideFixed(int numerator, int denominator);
 
 /* Function start: 0x4168A0 */
 void remove_nav_pointer(void)

@@ -10302,3 +10302,14 @@ Session findings that are not yet retained because they change span sizes:
   following `&&` condition removes the nested `if` label and restores every
   later key in `ship.c`. Both routines keep their bytes otherwise. Strict
   matching leaves 1,558 differences (1,484 code, 74 relocation).
+
+- `draw_target_box` computes its validity flag as WC2's reconstruction does,
+  `valid = object != -1 && asObjectScreenXList[object] != -0x7fff;`, instead
+  of an if/else chain with a separate store of one. CL then keeps the flag in
+  BP and the screen-X sum in BX, as in the original; every instruction of the
+  1,008-byte span matches. The simpler condition drops three label symbols
+  (`if`, `else` and the nested `if`), which reversed one comparison in
+  `send_message`. Redundant prototypes of `remove_object` and `DivideFixed`,
+  the navigation-pointer callees that follow, supply the three named
+  parameters and restore every later key in `cockpt.c`. Strict matching
+  leaves 1,530 differences (1,456 code, 74 relocation).
