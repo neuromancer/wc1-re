@@ -10111,3 +10111,44 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips. Existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `a899d698ac92934626d77e741fe4b803d77d0205b6aaea28e7680bfc28f12f62`.
+
+- `RestoreSpriteBackground` stores its accepted run endpoint in an unsigned
+  integer, then casts it back to signed integer for the upper-bound comparison
+  and clipping subtraction. Keep the preceding endpoint calculation in
+  `skip`, which already gives the original lower-bound comparisons. Reordering
+  the eighteen existing locals restores the register allocation after this
+  type change. All 768 bytes, including padding, now match; the three remaining
+  reversed comparisons and branches disappear. The frame stays forty bytes.
+  These are measured declaration choices, not recovered original spelling.
+  Changing only the endpoint type fixes the comparison direction but exchanges
+  the copy-length, endpoint and bound registers, losing 26 file matches. The
+  unsigned-int and unsigned-long trials give identical native output. An
+  unsigned-short upper bound with signed uses, and removal of the unused colour
+  capture, also worsen matching. Neither is retained.
+  Fresh diagnostic traces reproduce all four allocation rounds for both
+  endpoint types. Their intermediate graphs differ, so compiler-generated
+  temporary keys cannot all be identified across the traces merely by number.
+  A search of 502 declaration permutations predicts the required source-variable
+  registers while preserving spill choices and comparison decisions. The
+  ordinary native compiler and `binary-comp` confirm the complete match;
+  the installed compiler is unchanged.
+  Only the sprite-restoration row changes in the full report. Normalized exact
+  matches reach 1,534 of 1,550; 1,544 have 100% mnemonic similarity and all remain
+  at or above 90%. All 1,539 mapped functions retain their original addresses;
+  1,521 complete spans are byte-identical. Exactly six code bytes change, all
+  toward the original. Strict matching reaches 517,065 of 518,656 bytes
+  (99.6932%), leaving 1,591 differences in 251 runs: 1,517 code bytes and
+  74 relocation bytes. The header and other sections remain exact.
+  Additional isolated diagnostics do not justify production changes. Shifting
+  the logic unit's local-symbol context to repair its two remaining register
+  exchanges also disturbs already-matching routines. All eight signed/unsigned
+  combinations of the target bracket's coordinate and validity locals, with
+  all 120 orders of its five function-scope locals, yield no model solution
+  for its remaining register exchange. No native matching claim is made for
+  those diagnostic searches.
+  A fresh native build reproduces the retained executable byte for byte.
+  The modern build, source sorting, address audit and compilation-unit-order
+  checks pass. Full `make verify` passes; both value checks cover all 1,550
+  functions with zero mismatches or skips. Existing call/global-access
+  diagnostics remain 11/55. Verification preserves SHA-256
+  `c22f47d4415e94776826a8aa827da806193404385b6307df4ebf59c2b68a37db`.

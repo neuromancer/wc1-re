@@ -868,24 +868,24 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame)
 {
-    unsigned char *commands;
     short copyLength;
-    unsigned char *screen;
-    int drawX;
-    short maximumY;
+    unsigned int runRight;
     unsigned char colour;
     short minimumX;
-    short xOffset;
-    int skip;
-    int runRight;
-    short yOffset;
     int drawY;
-    short minimumY;
-    short maximumX;
-    unsigned short rowCode;
-    unsigned char *save;
+    int skip;
     unsigned char *pixels;
+    short xOffset;
+    short maximumX;
+    short maximumY;
+    unsigned char *save;
+    short yOffset;
+    short minimumY;
+    unsigned short rowCode;
     unsigned char code;
+    unsigned char *screen;
+    unsigned char *commands;
+    int drawX;
 
     save = background;
     if (save == 0)
@@ -948,8 +948,8 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                                 copyLength -= minimumX - drawX;
                                 skip += minimumX - drawX;
                             }
-                            if (maximumX < runRight)
-                                copyLength -= runRight - maximumX;
+                            if (maximumX < (int)runRight)
+                                copyLength -= (int)runRight - maximumX;
                             memcpy(skip + screen, save, copyLength);
                             save += copyLength;
                         }
@@ -970,8 +970,8 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                                 copyLength -= minimumX - drawX;
                                 skip += minimumX - drawX;
                             }
-                            if (maximumX < runRight)
-                                copyLength -= runRight - maximumX;
+                            if (maximumX < (int)runRight)
+                                copyLength -= (int)runRight - maximumX;
                             memcpy(skip + screen, save, copyLength);
                             save += copyLength;
                         }
@@ -993,8 +993,8 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                         copyLength -= minimumX - drawX;
                         skip += minimumX - drawX;
                     }
-                    if (maximumX < runRight)
-                        copyLength -= runRight - maximumX;
+                    if (maximumX < (int)runRight)
+                        copyLength -= (int)runRight - maximumX;
                     memcpy(skip + screen, save, copyLength);
                     save += copyLength;
                 }
