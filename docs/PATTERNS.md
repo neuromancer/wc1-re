@@ -10038,3 +10038,38 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips. Existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `2ce28a5a228938e3806b8afce4d91a61bc573aee342d0e38f4f9353febb9db5a`.
+
+- `RestoreSpriteBackground` evaluates each run endpoint into the existing
+  `skip` local before its horizontal visibility test. After accepting the
+  run, transfer that endpoint to `runRight`, then reset `skip` for left
+  clipping as before. The transfer compiles away. The lower-bound tests
+  now use the original comparison operands and `JG` branches in all three
+  copying paths. Registers, stack slots, instruction addresses and the
+  768-byte span stay fixed. No declaration, type or calling convention
+  changes. This is a measured source choice, not recovered spelling.
+  Capturing the lower bound in `skip` instead changes allocation and
+  scheduling; qualified captures also change size. Exchanging endpoint
+  and offset roles throughout clipping fixes the comparison directions
+  but rotates three registers. Reusing a coordinate for the endpoint,
+  capturing a promoted upper bound, or consuming the offset into a
+  destination pointer does not improve matching. Seventeen other endpoint
+  declaration positions fail natively; a subsequent 35,707-order compiler
+  model search finds no further improvement. All those probes are restored.
+  Signed casts on an unsigned ship-search counter and unsigned-word
+  mission-index equality tests likewise give no improvement.
+  Only the sprite restoration row changes in the complete report: differing
+  encodings fall from twelve to six and mnemonic similarity rises from
+  97.32% to 98.66%. The three upper-bound comparisons remain reversed.
+  Exactly six file positions change, all toward the original. Strict
+  matching reaches 517,031 of 518,656 bytes (99.6867%), leaving 1,625
+  differences in 261 runs: 1,549 code bytes and 76 relocation bytes.
+  The header and other sections remain exact. All 1,539 mapped functions
+  retain their original addresses; 1,519 complete spans are byte-identical.
+  Normalized exact matches remain 1,532, with 1,543 functions at 100%
+  mnemonic similarity and all 1,550 at or above 90%.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions
+  with zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `5ea082acdb726cb2f40cd57498a780cbc2d6c74d31a681065cedcd982eedac49`.

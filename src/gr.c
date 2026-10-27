@@ -938,10 +938,11 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                     colour = *commands;
                     commands++;
                     if (minimumY <= drawY && maximumY >= drawY) {
-                        runRight = code + drawX - 1;
+                        skip = code + drawX - 1;
                         if (maximumX >= drawX &&
-                            minimumX <= runRight) {
+                            minimumX <= skip) {
                             copyLength = code;
+                            runRight = skip;
                             skip = 0;
                             if (minimumX > drawX) {
                                 copyLength -= minimumX - drawX;
@@ -959,10 +960,11 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                     code >>= 1;
                     rowCode = (unsigned short)(rowCode - code);
                     if (minimumY <= drawY && maximumY >= drawY) {
-                        runRight = code + drawX - 1;
+                        skip = code + drawX - 1;
                         if (maximumX >= drawX &&
-                            minimumX <= runRight) {
+                            minimumX <= skip) {
                             copyLength = code;
+                            runRight = skip;
                             skip = 0;
                             if (minimumX > drawX) {
                                 copyLength -= minimumX - drawX;
@@ -982,9 +984,10 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
         } else {
             rowCode >>= 1;
             if (minimumY <= drawY && maximumY >= drawY) {
-                runRight = rowCode + drawX - 1;
-                if (maximumX >= drawX && minimumX <= runRight) {
+                skip = rowCode + drawX - 1;
+                if (maximumX >= drawX && minimumX <= skip) {
                     copyLength = rowCode;
+                    runRight = skip;
                     skip = 0;
                     if (minimumX > drawX) {
                         copyLength -= minimumX - drawX;
