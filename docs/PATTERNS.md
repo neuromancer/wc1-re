@@ -9908,3 +9908,34 @@ Session findings that are not yet retained because they change span sizes:
   with zero mismatches or skips. Existing call/global-access diagnostics
   remain 11/55. Verification preserves SHA-256
   `e4f865c996a42d677b09ac1be1836c89d1714e550c8003a5f4be891ed0c1f693`.
+
+- `attacker_in_range` keeps the scan index in a short `attacker` local
+  while reusing `obj` for the returned distance. Store that distance to
+  `nTgtRange`, compare it with the unsigned word range, and restore the scan
+  index before continuing the loop. Declare `attacker` before the existing
+  `defendedObject` capture. This preserves SI for the scan and DI for the
+  defended ship while giving the distance the parameter's operand signature.
+  The final promotion and branch become the original `MOVSX EAX,AX;
+  CMP ECX,EAX; JG`. No additional instructions, locals, stack space, or
+  argument changes survive; the former scoped distance local is replaced.
+  These are measured compiler choices, not recovered source spelling.
+  Keeping the saved scan index inside the qualifying branch recovers that
+  comparison but exchanges SI and DI. Saving and restoring the range
+  parameter instead hoists the bound into BX and changes the loop; folding
+  the global store or call into the comparison leaves the preceding output
+  unchanged. Collision-index declaration swaps and qualified input captures
+  likewise fail to improve matching. All those probes are restored.
+  All 160 bytes, including padding, now match. Only the attacker-range row
+  changes in the full report: 1,531 normalized-exact functions of 1,550,
+  with 1,544 at 100% mnemonic similarity. All 1,539 mapped functions retain
+  their original addresses; 1,517 complete spans are byte-identical.
+  Exactly three executable bytes change, all toward the original. Strict
+  matching reaches 517,002 of 518,656 bytes (99.6811%), leaving 1,654
+  differences in 288 runs: 1,578 code bytes and 76 relocation bytes. The
+  header and other sections remain exact.
+  A fresh native build reproduces the candidate byte for byte. The modern
+  build, source sorting, address audit and compilation-unit-order checks pass.
+  Full `make verify` passes; both value checks cover all 1,550 functions
+  with zero mismatches or skips. Existing call/global-access diagnostics
+  remain 11/55. Verification preserves SHA-256
+  `bf98b693c6cd132a68c3b7ca1c75bc3fd58ea2943e92b4761788d1ea3b86b371`.

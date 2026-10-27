@@ -923,6 +923,7 @@ unsigned int ships_within_range(short obj, short other, short range)
 /* Function start: 0x4232B0 */
 int attacker_in_range(short obj, unsigned short range)
 {
+    short attacker;
     short defendedObject = obj;
 
     for (obj = 0; obj < 10; obj++) {
@@ -931,13 +932,15 @@ int attacker_in_range(short obj, unsigned short range)
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             aeShipSide[defendedObject] != aeShipSide[obj] &&
             acShipTargetTable[obj] == defendedObject) {
-            short distance = distance_from_object(obj, defendedObject);
+            attacker = obj;
 
-            nTgtRange = (short)distance;
-            if (range > distance) {
-                nTargetShip = obj;
+            obj = distance_from_object(obj, defendedObject);
+            nTgtRange = obj;
+            if (range > obj) {
+                nTargetShip = attacker;
                 return 1;
             }
+            obj = attacker;
         }
     }
     nTargetShip = -1;
