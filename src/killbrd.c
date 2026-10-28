@@ -211,7 +211,7 @@ void ClearRoomMenuLabel(void)
 /* Function start: 0x43F6A0 */
 char IsRoomMenuLabelEmpty(void)
 {
-    return *(const char *volatile *)&stCurrentRoomMenu.currentLabel == 0;
+    return stCurrentRoomMenu.currentLabel == 0;
 }
 
 /* Function start: 0x43F6B0 */

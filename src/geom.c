@@ -150,7 +150,7 @@ void damage_ion_drive(short ship, short amount, short maximum)
         damage = damageLimit;
     if (damage <= 0)
         damage = 0;
-    *(volatile signed char *)&acShipIonDriveDmg[ship] = (signed char)damage;
+    acShipIonDriveDmg[ship] = (signed char)damage;
     recalc_max_velocity(ship);
 }
 

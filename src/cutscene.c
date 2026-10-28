@@ -608,7 +608,7 @@ unsigned int scramble(void)
 #endif
     nScrambleCanopyOffset = 0;
     nSceneScrambleCanopyFrameValue = 0;
-    *(volatile short *)&stScrambleOverlay.x = -1000;
+    stScrambleOverlay.x = -1000;
     nSceneScrambleShipDetailCountValue = 0;
     if (bEscapePressedFlag == 0) {
         InitializeConversationViewport();

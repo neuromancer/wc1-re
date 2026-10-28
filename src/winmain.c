@@ -933,7 +933,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                 *(volatile unsigned int *)&bF1KeyLatch = 1;
                 bF1KeyLatch = 0;
             } else {
-                *(volatile unsigned int *)&bF1KeyLatch = 1;
+                bF1KeyLatch = 1;
             }
         }
         scanCode = ((unsigned long)lParam & 0xff0000) >> 16;

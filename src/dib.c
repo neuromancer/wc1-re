@@ -162,7 +162,7 @@ void ReportSpaceFlightMaxFps(float adjustment)
     float frameRate;
 
     frameRate = *(float volatile *)&fSpaceFlightFrameRate;
-    frameRate += *(float volatile *)&adjustment;
+    frameRate += adjustment;
     fSpaceFlightFrameRate = frameRate;
     if (fSpaceFlightFrameRate < 8.0)
         fSpaceFlightFrameRate = 8.0f;

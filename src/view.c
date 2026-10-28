@@ -444,7 +444,7 @@ short __stdcall OpenPacketSection(const char *filename, short section,
     {
         unsigned int sectionSize;
 
-        *(volatile unsigned int *)&sectionSize = sectionEnd - sectionEntry;
+        sectionSize = sectionEnd - sectionEntry;
         if (SeekDataFile(file, sectionEntry, 0) != 0) {
             handle->file = file;
             handle->sectionCount = sectionCount;
@@ -526,7 +526,7 @@ void * __stdcall DecompressPacketSection(
     }
 
     workspace = IdentityHandle(decompressionWorkspace);
-    *(volatile unsigned short *)&wPacketDecompressInputSize = 0x400;
+    wPacketDecompressInputSize = 0x400;
     allocationSize = 0x3020;
     pPktDecompInput =
         ((PacketDecompressionWorkspace *)decompressionWorkspace)->input;

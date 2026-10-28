@@ -10672,3 +10672,32 @@ Session findings that are not yet retained because they change span sizes:
   not converted at all. The original's third fill therefore needs the
   web definition without a following label, which neither `memset` nor a
   loop provides.
+
+- Recheck access qualifiers after fixing the surrounding types and compiler
+  context. An audit of the current 145 volatile casts removes 46 without
+  changing any executable byte. Forty-five become ordinary accesses,
+  including eighteen save-game field accesses, both saved input-mode accesses,
+  all four cockpit-bar bound accesses, both objective-status reads and the
+  child-object class snapshot. Two of those removals are in the SDL key-mask
+  path. The native key path only needs its final mask update qualified; the
+  preceding conditional update can be ordinary C.
+  `report_kilrathi_rout` also uses an ordinary parameter read when its query
+  snapshot is unsigned. The selector only tests equality with 0, 1 and 2;
+  converting any other incoming int to unsigned still leaves it unmatched.
+  This preserves the original register allocation without a volatile cast
+  or any change to the function signature. Its original local type spelling
+  is not established.
+  The other 99 casts still change code when removed in the tested context.
+  These remaining qualifiers are matching devices, not proof of original
+  volatile declarations. Ordinary field copies, individual inlined memcpy
+  transfers, const snapshots and selected declaration/expression alternatives
+  did not remove the remaining save-game and parameter-read constraints.
+  The combined native rebuild matches all 518,656 bytes of the preceding
+  checkpoint, retaining SHA-256
+  `30a673a2dadb6f972ec82c421c0d95e62da61e229cbd75f1b3488f7a9cc26ab5`.
+  The original executable comparison remains 518,653 matching bytes and
+  three differing bytes in `AllocateGuardedMemory`. The modern build,
+  source sorting, address audit and compilation-unit order check pass.
+  Full `make verify` passes. Both value checks cover all 1,550 functions
+  with zero mismatches or skips; the existing call/global-access diagnostics
+  remain 11/55. Verification preserves the same executable hash.

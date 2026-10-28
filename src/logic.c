@@ -384,10 +384,9 @@ int trim_goals(short obj, short amount)
 int report_kilrathi_rout(int mode)
 {
     short obj;
-    int queryMode;
+    unsigned int queryMode;
 
-    /* Preserve the query snapshot separately from the parameter lifetime. */
-    queryMode = *(int volatile *)&mode;
+    queryMode = mode;
     obj = 0;
     do {
         if (aeObjectClass[obj] >= OBJECT_CLASS_SHIP &&

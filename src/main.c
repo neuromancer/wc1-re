@@ -928,15 +928,13 @@ unsigned int player_input(void)
     queuedKeyEvent |= IsInputEventQueued(4);
     bCurrentKeyboardEvtQueued = queuedKeyEvent;
     bMouseButtonEventQueuedFlag = IsInputEventQueued(2);
+    if (bMouseMoveEvtQueued == 0)
+        bCurrentKey |= 0x80;
 #ifdef SDL_PORT
-    if (bMouseMoveEvtQueued == 0)
-        *(volatile signed char *)&bCurrentKey |= 0x80;
-    *(volatile signed char *)&bCurrentKey |= 0x80;
+    bCurrentKey |= 0x80;
 #else
-    /* CL 4.20 preserves these memory updates with lvalue casts, without
-     * marking the key's address as taken throughout this unit. */
-    if (bMouseMoveEvtQueued == 0)
-        ((volatile signed char)bCurrentKey) |= 0x80;
+    /* Preserve the separate memory update without marking the key's address
+     * as taken throughout this unit. */
     ((volatile signed char)bCurrentKey) |= 0x80;
 #endif
 
@@ -1039,8 +1037,7 @@ unsigned int player_input(void)
                     SPECIAL_MANEUVER_AFTERBURNER)
                 buttons = 0;
             if (buttons != 0) {
-                *(volatile short *)&nCurrentRollInputValue =
-                    (short)stLastPolledFlightInput.x;
+                nCurrentRollInputValue = (short)stLastPolledFlightInput.x;
                 accelerate((short)-(
                     stLastPolledFlightInput.y / 2));
             } else {
@@ -1534,7 +1531,7 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x23:
-            if (notRepeated && (wingman = *(volatile short *)&nYourWingman) != -1 &&
+            if (notRepeated && (wingman = nYourWingman) != -1 &&
                 aeShipObjectiveList[wingman] !=
                     OBJECTIVE_HOLD_FORMATION) {
                 request(0, wingman, 9);
@@ -1565,7 +1562,7 @@ int HandleSpaceFlightControls(void)
             }
             break;
         case 0x30:
-            if (notRepeated && (wingman = *(volatile short *)&nYourWingman) != -1 &&
+            if (notRepeated && (wingman = nYourWingman) != -1 &&
                 aeShipObjectiveList[wingman] ==
                     OBJECTIVE_HOLD_FORMATION &&
                 any_enemy(0, 14000) != 0) {

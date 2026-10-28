@@ -903,8 +903,7 @@ void InflightComputer(void)
         pointerViewport = stScreenView;
         SetRectBounds(&pointerViewport, 32, 24, 182, 159);
         stMouseCursorState.viewport = &pointerViewport;
-        *(volatile short *)&savedInputMode =
-            (short)(signed char)bInputModeState;
+        savedInputMode = (short)(signed char)bInputModeState;
         bInputModeState = 1;
         SetEventManagerPump(PollMenuInputDevices);
         EventManagerHook(ResetMouseCursorFrame);
@@ -971,7 +970,7 @@ void InflightComputer(void)
         LeaveAllocationScope();
         EventManagerHook(0);
         SetEventManagerPump(get_player_input);
-        bInputModeState = (unsigned char)*(volatile short *)&savedInputMode;
+        bInputModeState = (unsigned char)savedInputMode;
     }
 
     ReleasePacketHandle(pNavMapShape);

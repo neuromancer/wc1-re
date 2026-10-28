@@ -394,8 +394,8 @@ void vdu_polygon(signed char bar, short percent)
                 emptyFrame = filledFrame;
                 filledFrame = swapFrame;
             }
-            *(volatile short *)&stCockpitBar.bottom -= extent;
-            if (*(volatile short *)&stCockpitBar.top <= stCockpitBar.bottom)
+            stCockpitBar.bottom -= extent;
+            if (stCockpitBar.top <= stCockpitBar.bottom)
                 DrawSpriteDefault(&stCockpitBar, left, top,
                                   pCockpitDamageShape,
                                   filledFrame);
@@ -412,8 +412,8 @@ void vdu_polygon(signed char bar, short percent)
                 emptyFrame = filledFrame;
                 filledFrame = swapFrame;
             }
-            *(volatile short *)&stCockpitBar.right -= extent;
-            if (*(volatile short *)&stCockpitBar.left <= stCockpitBar.right)
+            stCockpitBar.right -= extent;
+            if (stCockpitBar.left <= stCockpitBar.right)
                 DrawSpriteDefault(&stCockpitBar, left, top,
                                   pCockpitDamageShape,
                                   filledFrame);
@@ -1495,9 +1495,9 @@ unsigned int objective_lost(short objective)
 {
     unsigned short state;
 
-    state = *(signed char volatile *)&aMissionShips[
+    state = aMissionShips[
         aMissionObjectivesArray[objective].index].state;
-    switch (*(int volatile *)&aMissionObjectivesArray[objective].type) {
+    switch (aMissionObjectivesArray[objective].type) {
         case 2:
         case 3:
             return state >= 1;

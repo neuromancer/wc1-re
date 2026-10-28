@@ -988,10 +988,10 @@ short ReportComponentRepaired(short component, short minimumDamage)
 
     if (minimumDamage <
         (short)acPlayerComponentDamageList[component]) {
-        *(signed char volatile *)&acPlayerComponentDamageList[component] =
+        acPlayerComponentDamageList[component] =
             (signed char)(acPlayerComponentDamageList[component] - 1);
         sprintf(message, "%s FIXD",
-                *(const char *volatile *)&apszComponentNames[component]);
+                apszComponentNames[component]);
         ShowComponentHitHudMessage(message, cRedColour, 8);
         return 1;
     }
@@ -1497,8 +1497,7 @@ short find_child_object(short parent, enum ObjectClass objectClass)
 {
     short obj = 0;
     short wantedParent = parent;
-    enum ObjectClass wantedClass =
-        *(enum ObjectClass volatile *)&objectClass;
+    enum ObjectClass wantedClass = objectClass;
 
     do {
         if ((short)acObjOwnersTable[obj] == wantedParent &&

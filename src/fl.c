@@ -894,7 +894,7 @@ void Mveer_away(short ship, short target)
         }
     }
     target = *(volatile short *)&nTgtRange;
-    if ((*(volatile short *)&nManeuverProximityRange >= target ||
+    if ((nManeuverProximityRange >= target ||
          RandomBelowOrEqual(100) < 10) &&
         normal_speed(ship) != 0) {
         fire_afterburner(ship, 10);
