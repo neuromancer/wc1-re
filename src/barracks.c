@@ -599,8 +599,7 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
     if (PromptForTextInput(40, 24, "Game Name: ",
                            gameRecord.description, 16, 1) != 0) {
         gameRecord.occupied = 1;
-        memcpy(&gameRecord.campaign, campaign,
-               sizeof(gameRecord.campaign));
+        gameRecord.campaign = *campaign;
         memcpy(gameRecord.pilots, pilots,
                sizeof(gameRecord.pilots));
         DosMemcpy(gameRecord.objectives, objectives, 0x1f0);
@@ -725,8 +724,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
         if (loaded != 0) {
             memcpy(pilots, gameRecord.pilots,
                    sizeof(gameRecord.pilots));
-            memcpy(campaign, &gameRecord.campaign,
-                   sizeof(gameRecord.campaign));
+            *campaign = gameRecord.campaign;
             nCampaignDataSet = campaign->campaignIndex;
             nQueuedCampaignIndex = nCampaignDataSet;
             LoadPacketIntoBuffer(
@@ -744,7 +742,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
         if (loaded == 0) {
             ShowModalMessage("Error: Game %d not loaded.", (int)slot);
         } else if (nOriginDevUnlock != 0) {
-            memcpy(campaign->currentPilot->callsign, "CHEATER", 8);
+            strcpy(campaign->currentPilot->callsign, "CHEATER");
         }
     }
     EnterAllocationScope();
@@ -966,7 +964,7 @@ int ConfirmReplaceFaultyData(short slot)
         return 0;
     }
     if (LoadGame(slot, &gameRecord) == 0)
-        memcpy(gameRecord.description, "FAULTY DATA", 12);
+        strcpy(gameRecord.description, "FAULTY DATA");
     LeaveAllocationScope();
     if (ShowModalTextPanel(0, "Replace %s? (Y/N)",
                            gameRecord.description) != 0) {

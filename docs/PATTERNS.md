@@ -11087,3 +11087,48 @@ The production compiler is unchanged. Wine was not used.
 Both instruction-value checks cover all 1,550 functions with zero mismatches
 or skips. The existing call/global-access diagnostic counts remain 11/55.
 The complete executable remains byte-identical after verification.
+
+## Barracks copy cleanup and DOS copy-count review
+
+Four `memcpy` calls in `barracks.c` now use ordinary typed operations:
+`SaveGameWithNamePrompt` (`0x0041B5C0`) and `LoadGameFromSlot`
+(`0x0041B980`) assign the existing `CampaignState` records directly.
+The latter routine copies `"CHEATER"` with `strcpy`, and
+`ConfirmReplaceFaultyData` (`0x0041BFE0`) copies `"FAULTY DATA"` the same
+way. The literal copies still include their terminating zero, respectively
+eight and twelve bytes. MSVC 4.20 inlines these forms into the exact original
+instructions. No record layout, copy extent, or string-pool entry changes.
+
+The separate barracks-only `DosMemcpy` declaration remains a constraint.
+`SetAwakenBarracksMenuLabel` (`0x0041B110`) has `INC ECX` for the allocation
+length but `INC CX` for the later copy length; it pushes ECX without a
+zero-extension. `DosMemcpy` (`0x004354F0`) itself forwards the complete
+dword argument to `memmove`. These instructions establish the two widths,
+but do not recover the original header spelling.
+
+Using the shared `size_t` declaration changes the copy increment to
+`INC ECX`, leaving 22 differing executable bytes even with unnamed
+parameters. Explicit signed/unsigned word locals introduce extensions and
+do not match. Changing the definition to accept a word instead adds a mask
+or sign-extension before forwarding the length; an old-style C definition
+does not remove that difference. The modern build keeps its consistent
+`size_t` interface.
+
+Restoring all three optional names in the narrow native prototype leaves
+17 differing bytes: eleven in `LoadGame` and six in
+`DrawBarracksStaticDetails`. Restoring only one or two names leaves six or
+ten differences. These are effects of MSVC's declaration context, not
+evidence that the original prototype omitted its names. Direct description
+copies and the empty-save objective-position struct assignment also fail
+to preserve the complete image. None of those variants is retained.
+
+The four retained copy simplifications together preserve all 518,656
+executable bytes and SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The native build uses wibo; the compiler and flags are unchanged. Wine was
+not used.
+
+`make modern`, `make sort audit-addresses order`, and `make verify` pass.
+Both instruction-value checks cover all 1,550 functions with zero mismatches
+or skips; the existing call/global-access diagnostic counts remain 11/55.
+The post-verification full-file comparison and SHA-256 are still exact.
