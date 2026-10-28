@@ -751,11 +751,10 @@ unsigned int CloseLook(unsigned char *shape, short shot,
     short escaped;
     short finished;
     short frame;
-    short frameCounter;
-    short *cursor;
+    short frameDelay;
     short *start;
 
-    frameCounter = 0;
+    frameDelay = 0;
     finished = 0;
     AddPCName(text);
     ClearViewport(&stCurrentConvTextViewport,
@@ -764,22 +763,21 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                               0, 160,
                               nConvTextColorValue,
                               szTxtWorkspaceBuffer);
-    cursor = animation;
     start = animation;
     nFrameSkipCounter = 1;
     if (shot == 2 || shot == 11) {
-        if (*cursor != -1) {
+        if (*animation != -1) {
             do {
-                if (frameCounter-- == 0) {
-                    if (*cursor != -1)
-                        cursor += 2;
-                    switch (*cursor) {
+                if (frameDelay-- == 0) {
+                    if (*animation != -1)
+                        animation += 2;
+                    switch (*animation) {
                     case -2:
-                        cursor = *(short *volatile *)&start;
+                        animation = start;
                         /* Restart also loads the first frame and its delay. */
                     default:
-                        frame = *cursor;
-                        frameCounter = (short)(cursor[1] * 2);
+                        frame = *animation;
+                        frameDelay = (short)(animation[1] * 2);
                         break;
                     case -1:
                         frame = -1;
@@ -820,10 +818,12 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                     return 0;
                 DIBslam();
                 DIBslamReal();
-            } while (*cursor != -1);
+            } while (*animation != -1);
         }
     } else if (shot == 0) {
-        for (; frameCounter < 22; frameCounter++) {
+        short sceneFrame;
+
+        for (sceneFrame = 0; sceneFrame < 22; sceneFrame++) {
             nFrameSkipCounter--;
             if (nFrameSkipCounter < 1) {
                 nFrameSkipCounter = nFrameSkip;
@@ -832,14 +832,14 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                     pCurrentConversationBackdropShapePtr, 0);
                 DrawSpriteDefault(&stSceneBuffer, 241, 60,
                                   pCurrentBriefingAnimShape,
-                                  frameCounter);
+                                  sceneFrame);
                 DrawSpriteDefault(&stSceneBuffer, 241, 64,
                                   pCurrentBriefingAnimShape, 22);
                 for (character = 0; character < 14; character++) {
                     DrawBriefingCharacter(
                         character, 0,
                         aBriefingCharacters[character]
-                            .animation[frameCounter],
+                            .animation[sceneFrame],
                         0, 0);
                 }
                 RefreshMemoryStatusOverlay();
@@ -847,8 +847,8 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                 DIBslamReal();
             }
             if (CheckEscaped() != 0)
-                frameCounter = 20;
-            if (frameCounter == 20)
+                sceneFrame = 20;
+            if (sceneFrame == 20)
                 nFrameSkipCounter = 1;
             DIBslam();
             DIBslamReal();

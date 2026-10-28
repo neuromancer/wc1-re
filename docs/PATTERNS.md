@@ -1178,6 +1178,8 @@ do not reject a recovered size solely because its positional count is larger.
   86.00% and 165 differing instruction encodings. The shared prototype change
   leaves every other function's report unchanged. The original fourteen-
   character loop is retained despite the ten-record character array.
+  The later [ordinary animation restart cleanup](#ordinary-animation-restart)
+  removes this qualified read and separates the two counters.
 - `IsRoomMenuLabelEmpty` returns a byte: the original uses `SBB AL,AL`
   and `NEG AL`, and `RefreshRoomMenuLabel` tests AL after its call. Declare
   the predicate as returning `char`; its zero/one result does not establish
@@ -11281,3 +11283,38 @@ The compiler and flags are unchanged. Wine was not used.
 with zero mismatches or skips; the existing call/global-access diagnostic
 counts remain 11/55. The complete executable comparison and hash remain
 exact after verification.
+
+## Ordinary animation restart
+
+`CloseLook` (`0x00405DE0`, `cmpgn.c`) advances its `animation` parameter
+and saves the initial address in an ordinary `start` local. Restarting an
+animation now uses a plain assignment. The separate cursor local and the
+volatile-qualified pointer read are removed. The compiler still emits
+the original saved-pointer store and reload in the four-byte frame.
+
+The animation delay and scene frame index also have separate locals:
+`frameDelay` belongs to the animation countdown, while `sceneFrame` is
+scoped to the scene branch and initialized in its `for` loop. Their
+disjoint lifetimes produce the original register reuse. Keeping one shared
+counter after removing the cursor leaves seven differing bytes: the
+character index and promoted frame index exchange DI/EBP. Initializing
+both counters at entry also fails to preserve the instruction schedule.
+The scoped counter form preserves every instruction in the complete
+704-byte span and every byte of the executable. This is a matching ordinary
+C form, not proof of the original variable names or declarations.
+
+One volatile access cast is removed, leaving 35 access casts and four
+volatile object/parameter definitions. The timer callback's shared flag
+remains qualified. The two preferred-weapon count reads in
+`select_new_release_weapon` remain unresolved: ordinary reads reuse CL
+instead of the original memory comparisons. Tested unsigned count/index
+forms and ordinary loadout pointers do not recover the complete image;
+none of those variants is retained.
+
+The native wibo build preserves all 518,656 original bytes and SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`,
+before and after `make verify`. `make modern` and
+`make sort audit-addresses order verify-hash` also pass. Both instruction-
+value checks cover all 1,550 functions with zero mismatches or skips;
+the existing call/global-access diagnostic counts remain 11/55.
+The compiler and flags are unchanged. Wine was not used.
