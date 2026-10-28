@@ -11132,3 +11132,41 @@ not used.
 Both instruction-value checks cover all 1,550 functions with zero mismatches
 or skips; the existing call/global-access diagnostic counts remain 11/55.
 The post-verification full-file comparison and SHA-256 are still exact.
+
+## Allocator revisit through surrounding source cleanup
+
+Retest `AllocateGuardedMemory` (`0x00402BB0`) without its authorized inline
+assembly after the recent cleanup passes. The ordinary C peak update still
+leaves exactly three differing executable bytes: its load, comparison, and
+store use EDX where the original uses ECX.
+
+Thirty-one C-only probe builds test the baseline and changes to the
+surrounding `winmain.c` context. These include removing process-handle
+captures in four Windows routines, removing the promoted object index in
+`easy2see`, simplifying joystick device/index locals and the hazard movement
+snapshot, ordinary F1-latch control flow and repeat-bit snapshots, removing
+the minimized-window qualifier, and combinations of these changes. Header
+probes remove the extra `stdio.h` include or the public counter/head
+declarations. Every tested unsigned-counter form still selects EDX at the
+allocator's peak update. The signed-size/total/current-counter form selects
+EAX in all seven tested surrounding contexts; it also remains inexact.
+No failed source, header, type, or qualifier variant is retained.
+
+The observations agree with the earlier recycler diagnosis. The trailing
+guard fill still defines its tail load in ECX and block load in EAX.
+Removing preceding functions' locals or declarations does not change those
+recent definitions within the allocator. Further work needs evidence for a
+different guard-fill or accounting source form inside this function.
+These experiments do not establish that the original used assembly.
+
+One nearby simplification is exact: `easy2see` (`0x00401040`) indexes the
+existing object arrays with its short parameter directly, removing the
+redundant `objectIndex` local. With the allocator's existing assembly block
+retained, all 518,656 executable bytes still match, with SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The production compiler and flags are unchanged. The native build uses
+wibo; Wine was not used.
+
+The retained change passes `make modern` and
+`make sort audit-addresses order verify-hash`. Binary-comp's complete
+positional comparison reports zero differing bytes.

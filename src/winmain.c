@@ -83,20 +83,19 @@ short easy2see(short obj)
     short x;
     short screenX;
     short y;
-    int objectIndex = obj;
 
-    screenX = asObjectScreenXList[objectIndex];
+    screenX = asObjectScreenXList[obj];
     if (screenX == (short)0x8001)
         return 0;
     x = (short)(screenX + nCurrentViewCenterPosX);
-    y = (short)(asObjectScreenYArray[objectIndex] + nCurrentViewCenterPosY);
+    y = (short)(asObjectScreenYArray[obj] + nCurrentViewCenterPosY);
     return (short)GetTransformedShapeBounds(
         &stSpaceBufferViewport, x, y,
-        apObjShapeArray[objectIndex],
-        asObjectViewFrames[objectIndex],
-        asObjScreenAngles[objectIndex],
-        asObjScreenScalesArray[objectIndex],
-        asObjectFlipArray[objectIndex], bounds);
+        apObjShapeArray[obj],
+        asObjectViewFrames[obj],
+        asObjScreenAngles[obj],
+        asObjScreenScalesArray[obj],
+        asObjectFlipArray[obj], bounds);
 }
 
 /* Function start: 0x4010C0 */
