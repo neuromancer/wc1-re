@@ -483,7 +483,7 @@ void ReadRequiredPilotField(short x, short y, const char *label,
 }
 
 /* Function start: 0x426600 */
-void PromptForPilotField(volatile short x, short y, const char *label,
+void PromptForPilotField(short x, short y, const char *label,
                          char *destination, short maximumLength,
                          const char *defaultText)
 {

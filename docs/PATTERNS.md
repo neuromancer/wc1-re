@@ -10728,3 +10728,51 @@ The native build uses wibo. `make verify`, `make modern`, `make sort`,
 cover all 1,550 functions with zero mismatches or skips. The existing
 call-target and global-access diagnostic counts remain 11 and 55; the
 complete executable comparison is exact before and after verification.
+
+## Volatile cleanup after the exact match
+
+A second audit removes volatility from seven globals and one parameter, plus
+one remaining access cast. Ordinary declarations suffice for `nNearHeapActive`,
+`pCurrentNearHeapAlloc`, both in-flight music slots,
+`stCockpitExplosionPosition`, and `PromptForPilotField`'s X parameter.
+The public declarations are updated with their definitions.
+
+Two global types also need corrected signedness to keep the original code.
+The near-heap relocation byte count is an ordinary `unsigned int`; it is used
+in address arithmetic and passed to the copy routine without a signed range
+comparison. The initial free-memory snapshot is an ordinary `int`, matching
+its signed arithmetic and comparisons. Its only assignment reads the
+stand-in returning `0x3E8000`, which fits either signed or unsigned 32 bits.
+The weapon-selection snapshot likewise becomes unsigned, retaining the
+all-one-bits no-selection value and valid nonnegative slot indices, and no
+longer needs a volatile access to `nSelectedReleaseWeaponIndex`.
+These types reproduce the original instructions without establishing the
+original source spelling.
+
+All 98 remaining casts were retested individually and in function/unit groups
+against the complete exact executable. None can be removed directly in the
+retained context. Further ordinary expression, signedness, snapshot, and
+store-order alternatives also change bytes. The 54 save-game casts still
+preserve field-transfer scheduling: individual and grouped scalar memcpy
+forms, ordinary copies, and alternative optimization profiles do not match.
+No replacement qualifiers, extra assembly, or compiler flag changes are kept.
+
+The frame-tick flag remains volatile for a concrete reason: the timer callback
+updates it while the event-manager wait loop repeatedly reads it. The other
+five retained volatile declarations still change native code when removed;
+they are not evidence of original qualifiers.
+
+The combined build still matches all 518,656 original bytes and SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The new Makefile hash gate accepts this file and rejects isolated copies with
+one changed byte or one appended byte. Negative checks also verify that every
+normal build entry point and `make verify` fails on a corrupted up-to-date
+image, and that the post-link check fails with a deliberately wrong expected
+hash.
+
+An unconditional second double-colon recipe also checks direct `WC1.EXE`
+requests without forcing a relink. Serial and parallel requests reject a
+corrupted up-to-date file; a valid file keeps its modification time.
+`make verify`, `make modern`, source sorting, the address audit, and unit-order
+checks pass. Both value checks cover all 1,550 functions with zero mismatches
+or skips; the existing call/global-access diagnostics remain 11/55.

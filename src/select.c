@@ -101,12 +101,12 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
 {
     signed char weapon;
     signed char weaponCount;
-    int currentWeapon;
+    unsigned int currentWeapon;
     short firstWeapon;
     ShipWeaponSlot *weaponSlots;
 
     weaponCount = (signed char)aShipWeaponsTable[0][0];
-    currentWeapon = *(volatile int *)&nSelectedReleaseWeaponIndex;
+    currentWeapon = nSelectedReleaseWeaponIndex;
     weapon = (signed char)(currentWeapon + 1);
     weaponSlots = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
 

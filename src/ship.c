@@ -58,7 +58,7 @@ signed char acGunRefireDelay[4] = {6, 10, 4, 0}; /* 0x0046995c */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 int nMemoryConfig; /* 0x005a7cd4 */
-volatile unsigned int dwOriginalFreeMem; /* 0x005a7cd8 */
+int dwOriginalFreeMem; /* 0x005a7cd8 */
 unsigned char *pMouseCursorResource; /* 0x005a7cdc */
 int nAvailableGameMemory; /* 0x005a7ce0 */
 int nSceneResourceBudgetValue; /* 0x005a7ce4 */

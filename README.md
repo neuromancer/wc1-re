@@ -222,6 +222,12 @@ submodule on first use:
 make -j
 ```
 
+Each link checks the complete executable against the original SHA-256 recorded
+in the Makefile and fails on a mismatch. The default build also checks an
+up-to-date executable, as does a direct `make WC1.EXE` request. Run
+`make verify-hash` to repeat this check without
+needing binary-comp or a local copy of the retail executable.
+
 To run it, provide a Kilrathi Saga disc image. The Makefile extracts the game
 data, substitutes the reconstructed executable, downloads DREAMM when needed,
 and launches it in an emulated Windows 95 environment:
@@ -234,8 +240,8 @@ Use `make debug GAME_ISO=/path/to/kilrathi-saga.iso` to start DREAMM's debugger.
 
 ## Reconstruction workflow
 
-[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) is required only for
-comparison and verification commands:
+[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) is required for
+assembly/layout comparisons and the full verification suite:
 
 ```sh
 python3 -m pip install "binary-comp[all] @ git+https://github.com/gg-sl-oss/binary-comp.git"

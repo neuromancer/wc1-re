@@ -16,6 +16,7 @@
 #   make report          # per-function similarity report
 #   make order           # compilation-unit boundary hints
 #   make verify          # primary recovery verification checklist
+#   make verify-hash     # reject any byte difference from the retail executable
 
 # ---------------------------------------------------------------------------
 # Original toolchain
@@ -809,15 +810,21 @@ $(MSVCRT_SOURCE):
 # LINK writes the current time into the header; stamp the original's link time
 # (1996-09-24 16:33:00 UTC) so a matching build is byte-identical.
 ORIGINAL_TIMESTAMP = 0x32480D3C
+ORIGINAL_SHA256 = d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4
 
 REFERENCE_HEADERS = include/wc1.h include/wcdata.h include/globals.h \
 	include/wc1funcs.h include/wc1extern.h
 
-$(TARGET): $(LINK_OBJS) $(IX_LIBS) Makefile bin/appendStaticSymbols.py | $(MSVCRT_DLL)
+# Ordered double-colon rules link only when needed, then always check the hash.
+# A direct request for an up-to-date WC1.EXE must also reject a changed file.
+$(TARGET):: $(LINK_OBJS) $(IX_LIBS) Makefile bin/appendStaticSymbols.py | $(MSVCRT_DLL)
 	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(LINKMAPFILE) $(LINK_OBJS) $(GAME_LIBS) /OUT:$@
 	@python3 bin/stampPeTimestamp.py $@ $(ORIGINAL_TIMESTAMP)
 	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
 		--rebuilt $@ --output $(MAPFILE) $(OUT_DIR)/winmain.obj $(OUT_DIR)/winsys.obj $(OUT_DIR)/mono.obj $(OUT_DIR)/auto.obj $(OUT_DIR)/eject.obj $(OUT_DIR)/cmpgn.obj $(OUT_DIR)/fl.obj $(OUT_DIR)/cutscene.obj $(OUT_DIR)/mission.obj $(OUT_DIR)/objdata.obj $(OUT_DIR)/nav.obj $(OUT_DIR)/nearheap.obj $(OUT_DIR)/gameflow.obj $(OUT_DIR)/title.obj $(OUT_DIR)/spc.obj $(OUT_DIR)/cockpt.obj $(OUT_DIR)/trainsim.obj $(OUT_DIR)/main.obj $(OUT_DIR)/sound.obj $(OUT_DIR)/launch.obj $(OUT_DIR)/damage.obj $(OUT_DIR)/view.obj $(OUT_DIR)/music.obj $(OUT_DIR)/ending.obj $(OUT_DIR)/comm.obj $(OUT_DIR)/joycal.obj $(OUT_DIR)/dib.obj $(OUT_DIR)/game.obj $(OUT_DIR)/eventmgr.obj $(OUT_DIR)/screens.obj $(OUT_DIR)/killbrd.obj $(OUT_DIR)/gr.obj
+
+$(TARGET)::
+	@printf '%s  %s\n' '$(ORIGINAL_SHA256)' '$(TARGET)' | shasum -a 256 -c -
 
 $(IX_LZO_LIB): $(call objects_of,$(SRCS_IX_LZO))
 $(IX_FILE_LIB): $(call objects_of,$(SRCS_IX_FILE))
@@ -1006,6 +1013,7 @@ compare-full-functions: compare-functions
 # ---------------------------------------------------------------------------
 
 verify:
+	@$(MAKE) verify-hash
 	@$(MAKE) audit-compiler-glue
 	@$(MAKE) verify-array-initializers
 	@$(MAKE) verify-code-pointers
@@ -1020,6 +1028,8 @@ verify:
 	@$(MAKE) verify-values
 	@$(MAKE) verify-values-stack-locals
 	@$(MAKE) verify-vtables
+
+verify-hash: $(TARGET)
 
 verify-array-initializers: $(TARGET) | $(ORIGINAL_EXE)
 	@python3 bin/verifyArrayInitializers.py \
@@ -1249,6 +1259,7 @@ clean-modern:
 	seh \
 	sort \
 	verify \
+	verify-hash \
 	verify-array-initializers \
 	verify-code-pointers \
 	verify-mixer-references \

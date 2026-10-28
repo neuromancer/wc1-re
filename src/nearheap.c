@@ -8,15 +8,15 @@
 #define WC1_NEARHEAP_SOURCE
 #include "wc1.h"
 
-static volatile short nNearHeapActive = 0; /* 0x004688c0 */
+static short nNearHeapActive = 0; /* 0x004688c0 */
 short nNearHeapMaxDescriptors = 0x80; /* 0x004688c4 */
-static volatile int nNearHeapRelocationBytes = 0; /* 0x004688c8 */
+static unsigned int nNearHeapRelocationBytes = 0; /* 0x004688c8 */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 int nNearHeapSize; /* 0x005a811c */
 int nNearHeapBase; /* 0x005a8120 */
 int nCurrentNearHeapFirstDescriptor; /* 0x005a8124 */
-void * volatile pCurrentNearHeapAlloc; /* 0x005a8128 */
+void *pCurrentNearHeapAlloc; /* 0x005a8128 */
 short nNavMapMaximumPositionX; /* 0x005a812c */
 short nNavigationMapMinimumCoordX; /* 0x005a812e */
 unsigned short awMapNavObjectiveLabelIndex[16]; /* 0x005a8130 */

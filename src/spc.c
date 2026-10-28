@@ -16,7 +16,7 @@ int bAlternateChaseView = 0; /* 0x00468ffc */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 short asScannerObjectY[11]; /* 0x005a7e80 */
-volatile ShortPoint stCockpitExplosionPosition; /* 0x005a7e98 */
+ShortPoint stCockpitExplosionPosition; /* 0x005a7e98 */
 short asScannerObjectPositionX[11]; /* 0x005a7ea0 */
 unsigned char abCockpitLightGoalArray[7]; /* 0x005a7eb8 */
 int nCurrentDamageAlarmSfxHandle; /* 0x005a7ec0 */

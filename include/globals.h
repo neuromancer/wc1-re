@@ -129,8 +129,8 @@ extern const char *apszComponentNames[9]; /* 0x0046a778 */
 extern short nMusicTrackComplete; /* 0x0046aa04 */
 extern short nFuneralSequenceActive; /* 0x0046aa10 */
 extern int nCurrentMusicTrack; /* 0x0046aa14 */
-extern volatile int nInFlightMusicSlotA; /* 0x0046aa24 */
-extern volatile int nInFlightMusicSlotB; /* 0x0046aa2c */
+extern int nInFlightMusicSlotA; /* 0x0046aa24 */
+extern int nInFlightMusicSlotB; /* 0x0046aa2c */
 extern int nWaitForMusicEnabled; /* 0x0046aa30 */
 extern int nFlightSoundEffectsEnabled; /* 0x0046aa34 */
 extern int nInitialFlightMusicPending; /* 0x0046aa38 */
@@ -640,7 +640,7 @@ extern unsigned char *pLogicRearViewBackdropPtr; /* 0x005a7c94 */
 extern int bCurrentPlayerDestroyed; /* 0x005a7c98 */
 extern short nPlayerKillTotal; /* 0x005a7c9c */
 extern short asCollisionPartnerTable[10]; /* 0x005a7cc0 */
-extern volatile unsigned int dwOriginalFreeMem; /* 0x005a7cd8 */
+extern int dwOriginalFreeMem; /* 0x005a7cd8 */
 extern short asCollisionTimes[10]; /* 0x005a7ca0 */
 extern int nCurrentWingmanKilledThisMission; /* 0x005a7cb4 */
 extern short nWingmanKillCount; /* 0x005a7cb8 */
@@ -672,7 +672,7 @@ extern CockpitReadout aCockpitReadouts[6]; /* 0x005a7e30 */
 extern short nScannerCursorX; /* 0x005a7e6c */
 extern int nViewAllocTotal; /* 0x005a7f0c */
 extern short asScannerObjectY[11]; /* 0x005a7e80 */
-extern volatile ShortPoint stCockpitExplosionPosition; /* 0x005a7e98 */
+extern ShortPoint stCockpitExplosionPosition; /* 0x005a7e98 */
 extern short asScannerObjectPositionX[11]; /* 0x005a7ea0 */
 extern short asScannerBackgroundColour[10]; /* 0x005a7ed0 */
 extern int nCurrentDamageAlarmSfxHandle; /* 0x005a7ec0 */
@@ -688,7 +688,7 @@ extern int nNearHeapBase; /* 0x005a8120 */
 extern short nCampaignDataSet; /* 0x005a8118 */
 extern int nNearHeapSize; /* 0x005a811c */
 extern int nCurrentNearHeapFirstDescriptor; /* 0x005a8124 */
-extern void * volatile pCurrentNearHeapAlloc; /* 0x005a8128 */
+extern void *pCurrentNearHeapAlloc; /* 0x005a8128 */
 extern short nNavMapMaximumPositionX; /* 0x005a812c */
 extern unsigned short awMapNavObjectiveLabelIndex[16]; /* 0x005a8130 */
 extern short nNavMapMaximumPosY; /* 0x005a8150 */

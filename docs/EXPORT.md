@@ -16,6 +16,14 @@ disassembly needed by `compare-func`, `report`, and `order`.
 Keep `--discover` when overriding the default export flags: discovered CRT
 and thunk boundaries also delimit the byte spans of adjacent source functions.
 
+The native link now ends with a full-file SHA-256 check against
+`ORIGINAL_SHA256` in the Makefile. Ordered
+[double-colon rules](https://www.gnu.org/software/make/manual/html_node/Double_002dColon.html)
+run the check even when a direct `make WC1.EXE` request needs no relink.
+`make verify-hash` runs the same check, and `make verify` runs it before its
+detailed audits. A mismatch returns a nonzero status; the hash check needs
+neither binary-comp nor the staged original.
+
 Rapid source probes need a forced rebuild of their generated outputs. With
 the local GNU Make 3.81, `make -W src/ix/sound.cpp WC1.EXE` can leave a stale
 archive or executable when writes fall within one timestamp interval. Remove
