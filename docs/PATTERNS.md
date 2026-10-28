@@ -11214,3 +11214,35 @@ bytes of `WC1.EXE` still match, with SHA-256
 The installed compiler hash is unchanged. All native probes use wibo;
 Wine was not used. Full verification was not rerun for this
 documentation-only result.
+
+## Palette and packet volatile cleanup attempts
+
+The next pass removes the redundant local array declaration from
+`GetPaletteEntryAsWords` (`0x00433020`). `abDIBPaletteQuads` is already
+defined with private storage earlier in `dib.c`; the function needs no
+second declaration. The complete executable remains byte-identical.
+
+The neighboring `DIBsetPalette` (`0x00432F10`) still needs its qualified
+RGB-pointer read in the current compiler context. Replacing it with an
+ordinary assignment leaves 200 differing executable bytes: the incoming
+pointer loads earlier, the pointer and cache-offset registers exchange,
+and later stores and call setup are rescheduled. Tested pointer/element
+types, channel snapshots, and include-context simplifications do not
+preserve the complete image. No failed variant is retained.
+
+In `OpenPacketSection` (`0x0042D730`), reusing the existing address-taken
+file-size local for the computed section length removes the volatile cast
+and separate size local, but leaves eight differing executable bytes.
+The instruction sequence and 24-byte frame match; the file-size and
+section-end stack slots exchange. Local declaration order, signedness,
+32-bit type spellings, scopes, arithmetic forms, and handle-store order
+do not recover the original offsets together with the original schedule.
+The existing implementation remains unchanged. These results constrain
+the current reconstruction; they do not establish original volatile use.
+
+The retained declaration cleanup passes the native wibo build,
+`make modern`, and `make sort audit-addresses order verify-hash`.
+Binary-comp reports all 518,656 executable bytes identical, with SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The compiler hash and flags are unchanged. Wine was not used. Full
+verification was not rerun for the redundant-declaration removal.

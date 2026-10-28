@@ -956,7 +956,6 @@ void DIBsetPalette(short index, short *rgb)
 /* Function start: 0x433020 */
 void GetPaletteEntryAsWords(short i, unsigned short *rgb)
 {
-    extern unsigned char abDIBPaletteQuads[];
     int k = i * 4;
 
     rgb[0] = abDIBPaletteQuads[k + 2];
