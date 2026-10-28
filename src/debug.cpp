@@ -109,9 +109,10 @@ extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
     int timer;
     DWORD waitResult;
     HDC deviceContext;
+    char *spinnerText;
 #endif
 
-    console = (DebugOverlayConsole *)*(void *volatile *)&parameter;
+    console = (DebugOverlayConsole *)parameter;
 #ifdef SDL_PORT
     while (console->animationState != 2)
         SDL_Delay(10);
@@ -131,10 +132,11 @@ extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
             }
             if (console->animationState != 0) {
                 deviceContext = GetDC(console->window);
+                spinnerText = console->spinnerCharacters;
                 TextOutA(deviceContext,
                          console->characterWidth * console->cursorColumn,
                          console->characterHeight * console->cursorRow,
-                         console->spinnerCharacters + console->spinnerIndex,
+                         spinnerText + console->spinnerIndex,
                          1);
                 console->spinnerIndex++;
                 if ((int)strlen(console->spinnerCharacters) ==

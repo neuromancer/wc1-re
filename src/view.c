@@ -267,9 +267,8 @@ unsigned int InitializeConstellationField(Viewport *viewport,
                                           short direction,
                                           short density)
 {
-    /* The saved height is cached once for stars and reloaded for particles. */
-    volatile short viewportHeight;
-    short starHeight;
+    short viewportHeight;
+    unsigned short starHeight;
     short index;
     int particleOffset;
     short randomIndex;

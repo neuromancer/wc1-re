@@ -2482,28 +2482,27 @@ void build_your_target_list(short *hasEnemy)
 /* Function start: 0x416F30 */
 void cycle_onscreen_targets(void)
 {
-    signed char index;
+    unsigned char index;
     short previousTarget;
     signed char count;
     short hasEnemy;
 
     previousTarget = acShipTargetTable[0];
     build_your_target_list(&hasEnemy);
-    count = *(volatile signed char *)&cViableTargetCount;
+    count = cViableTargetCount;
     if (count == 0) {
         acShipTargetTable[0] = -1;
     } else {
         for (index = 0;
-             index < count &&
-             acViableTargetList[(int)index] !=
+             (signed char)index < count &&
+             acViableTargetList[(signed char)index] !=
                  acShipTargetTable[0];
              index++)
             ;
         do {
-            index = (signed char)((index + 1) %
-                                  count);
+            index = ((signed char)index + 1) % count;
             acShipTargetTable[0] =
-                acViableTargetList[(int)index];
+                acViableTargetList[(signed char)index];
             if (hasEnemy == 0)
                 break;
         } while (aeShipSide[

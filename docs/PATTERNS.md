@@ -10913,3 +10913,71 @@ wibo, without Wine.
 with zero mismatches or skips. The existing call/global-access diagnostic
 counts remain 11/55. The complete executable comparison and hash are still
 exact after verification.
+
+## Ordinary target, console, and height snapshots
+
+The next cleanup removes three volatile casts and one volatile local,
+leaving 36 casts and four volatile object/parameter definitions. The
+callback-updated frame-tick flag remains qualified.
+
+- `cycle_onscreen_targets` (`0x00416F30`, `cockpt.c`) reads the target count
+  normally. Its index is an unsigned byte, interpreted as signed for the
+  loop comparison, remainder, and target-list indexing. This preserves
+  the original signed byte operations and their operand order. Making
+  the count unsigned instead leaves two differing comparison bytes.
+- `DebugOverlayWorkerProc` (`0x0041C960`, `debug.cpp`) converts the ordinary
+  thread parameter to its console pointer. A used `spinnerText` pointer
+  snapshots the text after `GetDC`, before the `TextOutA` call. This
+  reproduces the original index load followed by the pointer addition,
+  without the qualified read of the generic parameter. The entire unit
+  remains exact, including the later functions.
+- `ReportSpaceFlightMaxFps` (`0x00432050`, `dib.c`) uses a `double`
+  adjustment temporary and an ordinary read of the float global. The
+  original keeps the addition in the x87 stack, writes the float global,
+  and spills eight bytes for its bounds checks. This source form preserves
+  that complete sequence without volatility.
+- `InitializeConstellationField` (`0x0042D390`, `view.c`) uses an ordinary
+  short `viewportHeight` and an unsigned-short `starHeight`. The saved
+  height stays in its original stack word, with the star-loop snapshot in
+  DI and the particle-loop reload unchanged. The random-range callee's
+  signed-short parameter preserves the original interpretation of the
+  snapshot's bits.
+
+These are ordinary source forms that match the instructions, not proof
+of the original local type spellings or declaration order. No signatures,
+calling conventions, compiler flags, or assembly blocks change.
+
+The two train-simulator cleanup targets remain unresolved:
+
+- `AddRandomTrainSimHighScores` (`0x00426000`) still uses its four-byte
+  native counter slot through short lvalues. A plain short moves the
+  initialization from `[ESP]` to `[ESP+2]` and the decrement from
+  `[ESP+0x10]` to `[ESP+0x12]`. Unsigned score/slot/scale alternatives
+  do not fix those two bytes. Ordinary int counters, including narrowing
+  their decrement or test, change the instruction sequence. The compiler's
+  stack-layout rules explain why declaration order alone cannot repair a
+  sole two-byte slot.
+- `ReadRequiredPilotField` (`0x004265A0`) still needs both qualified reads
+  in the retained source. An ordinary unsigned-short X snapshot recovers
+  the word addition, but loads and pushes Y through EDX rather than EAX,
+  leaving two differing bytes. Parameter signedness/width, separate Y
+  snapshots, existing viewport/context pointers, and alignment-store
+  placement do not recover the complete image. None is retained.
+
+`Mveer_away` (`0x00407450`) also retains its qualified range read. Direct
+global comparisons, ordinary range/limit snapshots, and an unsigned limit
+still reverse the original comparison operands and signed branch. Other
+typed record, coordinate, and maneuver variants do not provide
+another exact cleanup. The input/joystick captures and earlier header
+constraints are unchanged.
+
+The combined native rebuild uses wibo and matches all 518,656 original
+bytes, retaining SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The MSVC 4.20 compiler is unchanged. Wine was not used.
+
+`make verify`, `make modern`, `make sort`, `make audit-addresses`, and
+`make order` pass. Both instruction-value checks cover all 1,550 functions
+with zero mismatches or skips. The existing call/global-access diagnostic
+counts remain 11/55. The complete executable is still byte-identical
+after verification.

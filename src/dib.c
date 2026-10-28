@@ -159,9 +159,9 @@ void ThrottleFrameAndDrawFps(HDC dc)
 /* Function start: 0x432050 */
 void ReportSpaceFlightMaxFps(float adjustment)
 {
-    float frameRate;
+    double frameRate;
 
-    frameRate = *(float volatile *)&fSpaceFlightFrameRate;
+    frameRate = fSpaceFlightFrameRate;
     frameRate += adjustment;
     fSpaceFlightFrameRate = frameRate;
     if (fSpaceFlightFrameRate < 8.0)
