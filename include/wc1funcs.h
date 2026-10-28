@@ -1363,16 +1363,12 @@ void DIBerror(const char *tag, int hr);                                 /* 0x004
 void DIBpositionWindow(void);                                           /* 0x00432230 */
 void DIBreInstall(void);                                                /* 0x004322B0 */
 void DIBinstall(HWND window);                                           /* 0x00432310 */
-#ifndef WC1_DIB_SOURCE
 int DIBcascade(int mode, int *reportedResult);                          /* 0x00432410 */
-#endif
 void DIBunInstall(void);                                              /* 0x00432680 */
 void DIBmakeDIB(void);                                                  /* 0x004326E0 */
 void DIBdestroyDIB(void);                                             /* 0x004328A0 */
 void DIBslam(void);                                               /* 0x00432960 */
-#ifndef WC1_DIB_SOURCE
 void DIBslamReal(void);                                           /* 0x00432970 */
-#endif
 void DIBupdate(int left, int top, int right, int bottom);               /* 0x00432C60 */
 unsigned char *GetDIBPixelBuffer(void);                                  /* 0x00432DE0 */
 HWND GetDIBWindowHandle(void);                                           /* 0x00432E00 */

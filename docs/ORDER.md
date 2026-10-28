@@ -417,6 +417,12 @@ helper remains in `gameflow.c` provisionally. Its diagnostic ends before the
 title's initialized data at `0x00468910`, proving another object boundary.
 The unreferenced constant helper at `0x0040FA30` remains with title provisionally.
 
+Removing the near-heap source marker preserves this boundary and all data
+addresses. Its initialized state now follows the first two descriptor
+helpers, which use none of it; no literals intervene. This is a matching
+source placement, not evidence of the original declaration position. See
+the three-marker cleanup in `docs/PATTERNS.md`.
+
 The title data includes the previously omitted 279-byte Secret Missions
 message at `0x00468918`, including its terminator. No surviving code or data
 relocation targets it. A writable named character array reproduces those
@@ -789,6 +795,12 @@ smaller objects 4-aligned. Declaration order cannot recover these layouts.
 The identifier spellings do. Each static in this range is named so that its
 key follows the original addresses. `szDIBFailureString` and
 `hDIBParentWindow` share key 867, so the failure string is declared first.
+
+DIB's frame height, frame width, and image pointer are grouped before its
+other BSS declarations when removing `WC1_DIB_SOURCE`. Their hash keys keep
+the storage order unchanged while the declaration order restores the
+original multiplication operands. The complete executable remains exact;
+this does not recover the original header or declaration text.
 
 | Range | Owner | Contents |
 | --- | --- | --- |
@@ -2318,7 +2330,10 @@ clean-build and post-verification SHA-256 hashes agree:
 ## Input-state declaration checkpoint
 
 The keyboard polling variables are now `winsys.c` statics (see
-"Static `.bss`: `winsys.c` through `gr.c`"). The event-list and calibration exclusions below still apply.
+"Static `.bss`: `winsys.c` through `gr.c`"). The event-list and calibration
+exclusions below remain for `mono.c` and `view.c`. Flight's exclusions and
+its source marker have since been removed with exact matching; see the
+three-marker cleanup in `docs/PATTERNS.md`.
 
 Three groups have only one observed native user unit each: the three
 input-event list globals are referenced within eventmgr, the four joystick
@@ -2457,6 +2472,10 @@ post-verification SHA-256 hashes agree:
 `ef3713080970987a3284340e6b4a0adf67d6f6ae2e3ca882fa14932b7e1f28a8`.
 
 ## Button and screen declaration checkpoint
+
+The DIB and near-heap button-history exclusions recorded below have since
+been removed with exact matching. The fade, logic, and main exclusions
+remain. See [WORKAROUNDS.md](WORKAROUNDS.md) for the current worklist.
 
 Six button-history globals have eighteen original relocated references,
 all in `input.c`. Four raw-coordinate/dead-zone globals have eight references,

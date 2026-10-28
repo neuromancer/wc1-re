@@ -22,6 +22,9 @@ allocator. This is a documented matching workaround; it does not establish
 that the original source used assembly there. See the
 [allocator matching exception](docs/PATTERNS.md#guarded-allocator-inline-assembly).
 
+The [workaround removal workflow](docs/WORKAROUNDS.md) tracks the remaining
+header exceptions and the exact-match checks required for each cleanup.
+
 `make report` calculates per-function machine-code similarity to the retail
 executable. It covers annotated functions and can miss unreconstructed code
 between them. Use `make compare` to check executable layout as well, and

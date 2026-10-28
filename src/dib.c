@@ -8,12 +8,9 @@
  *  szFrameRateLabel and fSampledFps, and its 1000.0 constant follows
  *  the unit's DirectDraw GUIDs in .rdata.
  */
-#define WC1_DIB_SOURCE
 #include "wc1.h"
 #ifndef SDL_PORT
-#include <memory.h>
 #include <sys/stat.h>
-#include <sys/utime.h>
 #endif
 
 static LPDIRECTDRAW2 pDirectDraw2 = 0; /* 0x0046b1a4 */
@@ -70,15 +67,15 @@ const GUID IID_IDirectDrawClipper = {
 /* Frame buffers, DirectDraw window and palette state, and frame-rate text.
  * CL places these statics by identifier hash, so their spellings reproduce
  * the original order. The unused entries are unreferenced original storage;
- * the window handle is also read by the SDL event adapter. The frame height
- * is declared first: its symbol index decides an operand-order tie in
- * DIBslamReal, and the hash order keeps its storage at 0x00476650. */
+ * the window handle is also read by the SDL event adapter. Group the frame
+ * dimensions and image pointer first; this preserves the native operand
+ * order as well as the hash-ordered storage (see docs/PATTERNS.md). */
 static unsigned int nDIBFrameHeight; /* 0x00476650 */
+static unsigned int nDIBFrameWidth; /* 0x0047664c */
+static unsigned char *pDIBImage; /* 0x00476648 */
 static unsigned char szFrameRateLabel[32]; /* 0x00476620 */
 static unsigned int DAT_00476640; /* 0x00476640 */
 static unsigned int DAT_00476644; /* 0x00476644 */
-static unsigned char *pDIBImage; /* 0x00476648 */
-static unsigned int nDIBFrameWidth; /* 0x0047664c */
 static unsigned char abDIBPixelBackup[0xfa00]; /* 0x00476658 */
 static int DAT_00486058; /* 0x00486058 */
 static int nUnusedDIBData; /* 0x0048605c */
@@ -113,9 +110,8 @@ short asObjAfterburnerVelocities[SPACE_OBJECT_COUNT]; /* 0x0059c9d0 */
 CampaignState stCampaignState; /* 0x0059ca50 */
 unsigned char aShipWeaponsTable[10][0x47]; /* 0x0059cab0 */
 
-/* DIBreInstall calls these before their definitions. */
+/* DIBreInstall calls DIBcascade before its definition. */
 int DIBcascade(int mode, int *reportedResult);
-void DIBslamReal(void);
 
 /* Function start: 0x431F00 */
 void ThrottleFrameAndDrawFps(HDC dc)

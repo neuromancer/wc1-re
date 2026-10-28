@@ -5,12 +5,7 @@
 #ifndef SDL_PORT
 #include <process.h>
 #endif
-#define WC1_NEARHEAP_SOURCE
 #include "wc1.h"
-
-static short nNearHeapActive = 0; /* 0x004688c0 */
-short nNearHeapMaxDescriptors = 0x80; /* 0x004688c4 */
-static unsigned int nNearHeapRelocationBytes = 0; /* 0x004688c8 */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 int nNearHeapSize; /* 0x005a811c */
@@ -53,19 +48,21 @@ unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress)
 int ReleaseNearHeapBlock(int descriptorAddress)
 {
     NearHeapBlock *block;
-    int nextDescriptorAddress;
 
     block = DosNearPtrToFar(descriptorAddress);
     block->sizeAndFlags &= 0x7fffffff;
-    nextDescriptorAddress = descriptorAddress + 8;
-    if (nextDescriptorAddress <
+    if (descriptorAddress + 8 <
             nNearHeapBase + nNearHeapSize &&
         MergeAdjacentNearHeapBlocks(descriptorAddress) != 0)
-        descriptorAddress = nextDescriptorAddress;
+        descriptorAddress += 8;
     if (descriptorAddress > nCurrentNearHeapFirstDescriptor)
         MergeAdjacentNearHeapBlocks(descriptorAddress - 8);
     return descriptorAddress;
 }
+
+static short nNearHeapActive = 0; /* 0x004688c0 */
+short nNearHeapMaxDescriptors = 0x80; /* 0x004688c4 */
+static unsigned int nNearHeapRelocationBytes = 0; /* 0x004688c8 */
 
 /* Function start: 0x40E950 */
 void PurgeNearHeapBlocks(unsigned short flags)
@@ -155,10 +152,10 @@ void ShutdownNearHeap(void)
 void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
 {
     int descriptorAddress;
+    int shiftAddress;
     int blockSize;
     NearHeapBlock *block;
     NearHeapBlock *lastBlock;
-    int shiftAddress;
     int allocationAddress;
     unsigned int allocationFlags;
     unsigned short alignment;
@@ -345,8 +342,8 @@ void FreeNearHeapBlock(void *pointer)
 {
     int descriptorAddress;
     NearHeapBlock *block;
-    int blockAddress;
     int address;
+    int blockAddress;
 
     address = DosFarPtrToNear(pointer);
     descriptorAddress =

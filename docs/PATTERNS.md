@@ -11420,3 +11420,68 @@ before and after `make verify`. Both instruction-value checks cover all 1,550
 functions with zero mismatches or skips. `make modern` and
 `make sort audit-addresses order verify-hash` also pass. The installed
 compiler and flags are unchanged. Wine was not used.
+
+## Three source-marker removals with exact matching required
+
+The current process and remaining worklist are maintained in
+[WORKAROUNDS.md](WORKAROUNDS.md). This batch removes `WC1_DIB_SOURCE`,
+`WC1_NEARHEAP_SOURCE`, and `WC1_FL_SOURCE`, including their dead header
+branches. There are now 21 active source markers. Each candidate and the
+combined production build preserve all 518,656 bytes of the retail EXE.
+
+For DIB, removing only the marker changes fourteen bytes in `DIBupdate`.
+Removing the unused `<memory.h>` and `<sys/utime.h>` includes restores that
+function but leaves four operand-address bytes in `DIBdestroyDIB`: the
+width/height multiply loads the other operand first. Grouping the existing
+frame height, frame width, and image pointer before the remaining private
+BSS declarations restores the original operand order. CL's identifier-hash
+storage order keeps every global at its original address. The redundant
+local `DIBslamReal` declaration can also be deleted. The local `DIBcascade`
+declaration remains: deleting it changes the compiler context again and
+does not preserve the complete image.
+
+The grouping requires two additional reviewed source-order notes in the
+global-layout audit, for the image pointer and width. An ascending-address
+group still changes four executable bytes; reversing the multiply factors
+or changing the release-result type does not repair it. The notes explain
+the known distinction between declaration order and hash-ordered BSS; the
+65,416-byte DIB storage check and full-executable hash gate are unchanged.
+
+For near-heap allocation, the marker-only removal changes twelve bytes in
+`ReleaseNearHeapBlock`, `AllocateNearHeapBlockFromEnd`, and
+`FreeNearHeapBlock`. The initialized heap-state declarations can follow the
+first two descriptor helpers, which do not use that state. Their data order
+and addresses remain unchanged. `ReleaseNearHeapBlock` also needs no saved
+`nextDescriptorAddress`: it can compare `descriptorAddress + 8` and advance
+the address directly after a successful merge. Declaring `shiftAddress`
+beside `descriptorAddress` in the end allocator, and `address` before
+`blockAddress` in the free routine, completes the exact candidate. No
+function body gains a temporary or assembly block.
+
+For flight maneuvers, the marker alone changes 42 bytes across
+`Mtarget_missile`, `Mveer_away`, and `perform_maneuver`. `Mfish_hook` can use
+its `ship` parameter directly instead of copying it into `shipIndex`.
+Together with declaring the existing promoted scan index before its short
+counter in `Mtarget_missile`, this restores the original register choices
+in the scan and the later dispatcher. `Mveer_away` can compare
+`nManeuverProximityRange` directly with `nTgtRange`, deleting its volatile
+capture into the reused `target` parameter. The original load, comparison,
+and branch bytes are preserved. This removes one volatile access cast,
+leaving 34 access casts and four volatile object/parameter definitions.
+
+These are matching ordinary C forms, not recovered original declaration
+text. A useful failed group experiment concerned `init_3Space_objects`:
+one common unnamed short prototype makes ENDING exact, but CUTSCENE and
+MISSION then differ by sixteen and 88 executable bytes respectively.
+The original mission caller sign-extends the series word before pushing
+it; the typed prototype elides that instruction. This group needs an
+explanation covering every caller before either source marker can be
+removed. The shared-prototype probe is not retained.
+
+The final native wibo build and binary-comp preserve every original byte
+and SHA-256 `d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`
+before and after `make verify`. Both instruction-value checks cover all
+1,550 functions with zero mismatches or skips. `make modern` and
+`make sort audit-addresses order verify-hash` also pass. The compiler and
+flags are unchanged. The existing call/global-access diagnostic counts
+remain 11/55. Wine was not used.

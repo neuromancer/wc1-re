@@ -3,7 +3,6 @@
  * the cutscene data. Exact original file boundaries remain provisional.
  * Placement evidence is recorded in docs/ORDER.md.
  */
-#define WC1_FL_SOURCE
 #include "wc1.h"
 
 typedef void (*ShipManeuverHandler)(short, short);
@@ -478,12 +477,11 @@ void Mhard_turn(short ship)
 void Mfish_hook(short ship, short target)
 {
     short advanceSequence = 1;
-    int shipIndex = ship;
 
     (void)target;
-    switch (acShipSequence[shipIndex]) {
+    switch (acShipSequence[ship]) {
     case 0:
-        anYawTarget[shipIndex] =
+        anYawTarget[ship] =
             RandomBelowOrEqual(2) * 240 - 120;
         fire_afterburner(ship, 5);
         break;
@@ -493,13 +491,13 @@ void Mfish_hook(short ship, short target)
         break;
     case 2:
         fire_super_brake(ship);
-        anYawTarget[shipIndex] =
+        anYawTarget[ship] =
             RandomBelowOrEqual(2) * 90 - 45;
         break;
     case 3:
         advanceSequence =
             aObjectTypeData[
-                aeObjectTypeList[shipIndex]].cruiseVelocity >=
+                aeObjectTypeList[ship]].cruiseVelocity >=
             real_velocity(ship);
         break;
     case 4:
@@ -621,8 +619,8 @@ void Mzip_past(short ship, short target)
 /* Function start: 0x406E10 */
 void Mtarget_missile(short ship, short target)
 {
-    short object;
     int objectIndex;
+    short object;
 
     if (no_goal(ship) != 0)
         point_ship_at_object(ship, target);
@@ -893,8 +891,7 @@ void Mveer_away(short ship, short target)
             veer_random(ship, 16);
         }
     }
-    target = *(volatile short *)&nTgtRange;
-    if ((nManeuverProximityRange >= target ||
+    if ((nManeuverProximityRange >= nTgtRange ||
          RandomBelowOrEqual(100) < 10) &&
         normal_speed(ship) != 0) {
         fire_afterburner(ship, 10);

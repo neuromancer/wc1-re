@@ -211,8 +211,7 @@ extern signed char acDirectionShapeFlip[ /* 0x0046dbe8 */
     DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT];
 /* Event-list state is private to eventmgr.c. These owners omit its unused
  * declarations; the code-selection evidence is in docs/PATTERNS.md. */
-#if !defined(WC1_FL_SOURCE) && !defined(WC1_MONO_SOURCE) && \
-    !defined(WC1_VIEW_SOURCE)
+#if !defined(WC1_MONO_SOURCE) && !defined(WC1_VIEW_SOURCE)
 extern InputEvent *pInputEventHead; /* 0x0046da90 */
 extern InputEvent *pInputEventTail; /* 0x0046da94 */
 extern int bInputEventPoolInitialized; /* 0x0046da98 */
@@ -502,7 +501,7 @@ extern short nEyePitchTargetValue; /* 0x0059d61c */
 extern signed char acVduModeStackDepth[16]; /* 0x0059dec0 */
 extern signed char acShipSpawnNavPt[16]; /* 0x0059ded0 */
 /* Calibration bounds are used only by joycal.c. */
-#if !defined(WC1_FL_SOURCE) && !defined(WC1_VIEW_SOURCE)
+#ifndef WC1_VIEW_SOURCE
 extern int nJoystickCalibrationMinimumY; /* 0x0059df64 */
 extern int nJoystickCalibrationMinimumX; /* 0x0059df68 */
 extern int nJoystickCalibrationMaximumX; /* 0x0059df6c */
@@ -789,8 +788,7 @@ extern int bViewportDirty; /* 0x00469fc4 */
 extern int nInputTickScale; /* 0x0059af90 */
 /* These button-history fields are private to input.c. Selected owners omit
  * their unused declarations; docs/PATTERNS.md records the matching evidence. */
-#if !defined(WC1_DIB_SOURCE) && !defined(WC1_FADE_SOURCE) && \
-    !defined(WC1_MAIN_SOURCE) && !defined(WC1_NEARHEAP_SOURCE) && \
+#if !defined(WC1_FADE_SOURCE) && !defined(WC1_MAIN_SOURCE) && \
     !defined(WC1_LOGIC_SOURCE)
 extern short asInputButton1DoubleClicksList[2]; /* 0x0059e508 */
 extern short asInputBtn1ChangedTable[2]; /* 0x0059e50c */
