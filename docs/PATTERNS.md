@@ -11170,3 +11170,47 @@ wibo; Wine was not used.
 The retained change passes `make modern` and
 `make sort audit-addresses order verify-hash`. Binary-comp's complete
 positional comparison reports zero differing bytes.
+
+## Geometry and graphics callee-capture cleanup attempts
+
+Both capture-removal tasks remain pending. Isolated builds tested direct
+calls in `point_at` (`0x00418330`) and `PrepareShapeRLEData` (`0x00440D50`);
+none of the inexact candidates below is retained.
+
+The geometry candidate removes both callee captures, restores the five parameter
+names in the shared declarations of `ComputeVectorDelta`,
+`fix_objects_ijk`, and `shrink_vector`, and removes `WC1_GEOM_SOURCE`.
+The complete `point_at` span and the other following functions still match.
+Only `GetShipAccelerationRate` differs: its short input uses AX and its
+promoted index uses ECX, instead of CX and EAX. Binary-comp reports exactly
+seven differing executable bytes, with 94 of 95 geometry functions exact
+and no size changes. Ordinary index/type locals, declaration order, casts,
+and equivalent arithmetic do not recover the input registers. Keeping the
+header exceptions while removing the captures instead changes six later
+functions, including the rotation helpers; the tested local permutations
+do not recover the complete module.
+
+The graphics candidate removes both callee captures and restores all thirteen
+parameter names in the shared declarations of `GetShapeFrameExtents` and
+`DecodeShapeFrame`. Restoring the decoder's local declaration order from
+before the capture workaround recovers that function. The best candidate
+then leaves 33 differing executable bytes, confined to
+`ValidateViewportBounds` and `PrepareShapeRLEData`, with no size changes.
+The viewport allocation counter and table pointer exchange ECX/EDX. The
+encoder's left/top extent registers and bound-calculation scheduling also
+change. Tested loop forms, local declaration permutations and scopes, and
+equivalent bound expressions do not recover both routines. The graphics
+global-declaration ordering exception is separate and remains in place.
+
+These failures concern compiler allocation and scheduling, not indirect
+calls in the shipped executable: the existing captures already compile
+to direct calls. Do not replace them with unused locals or duplicate
+prototypes merely to restore the preceding symbol counts.
+
+The tracked C sources and headers are unchanged. `make verify-hash` and
+binary-comp's complete positional comparison confirm that all 518,656
+bytes of `WC1.EXE` still match, with SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The installed compiler hash is unchanged. All native probes use wibo;
+Wine was not used. Full verification was not rerun for this
+documentation-only result.
