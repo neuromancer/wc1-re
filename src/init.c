@@ -4,7 +4,6 @@
  *  Address range 4219c0-42200f (see docs/ORDER.md). The initialized
  *  colour and memory tables precede this unit's startup string pool.
  */
-#define WC1_INIT_SOURCE
 #include "wc1.h"
 
 short bSlowSceneAnimation = 0; /* 0x00469998 */

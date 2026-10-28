@@ -4,7 +4,6 @@
  *  The original function window is recorded in docs/ORDER.md.
  *  Room state precedes the rank, menu-label, and chalk-board literals.
  */
-#define WC1_KILLBRD_SOURCE
 #include "wc1.h"
 
 /* 0x00470090 */

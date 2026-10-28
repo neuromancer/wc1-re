@@ -1,7 +1,6 @@
 /* Gun and release-weapon selection.
  * Mac select symbols corroborate the 42ad00-42af9f range.
  */
-#define WC1_SELECT_SOURCE
 #include <assert.h>
 #include "wc1.h"
 #ifndef SDL_PORT

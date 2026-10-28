@@ -4,7 +4,6 @@
  *  Address range 42c800-42cdaf (see docs/ORDER.md).
  *  Initialized damage tables follow the preceding sound/configuration literals.
  */
-#define WC1_DAMAGE_SOURCE
 #include "wc1.h"
 
 unsigned char *pDamageDisplayBackground = 0; /* 0x0046a748 */

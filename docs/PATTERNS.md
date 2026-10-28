@@ -11318,3 +11318,74 @@ before and after `make verify`. `make modern` and
 value checks cover all 1,550 functions with zero mismatches or skips;
 the existing call/global-access diagnostic counts remain 11/55.
 The compiler and flags are unchanged. Wine was not used.
+
+## Header source-marker cleanup with exact matching required
+
+The complete `WC1_*_SOURCE` inventory contained 37 markers. Twelve had no
+remaining consumers and are removed from `cmpgn.c`, `damage.c`, `eject.c`,
+`init.c`, `killbrd.c`, `launch.c`, `music.c`, `nav.c`, `screens.c`, `select.c`,
+`trainsim.c`, and `video.c`.
+
+Two active header exceptions are also removed. `GetViewportIntersection`
+needs no forward declaration in its defining event-manager unit. The early
+`aVoices` and `nVoicesAllocated` externs in the DSP voice context are redundant
+with the definitions preceding their uses in `dspv.cpp`. Neither deletion
+needs a replacement declaration or changes a function body. Removing both
+event-manager-only forward declarations together, however, changes seven
+executable bytes; the `ResetInputKeyStatePreservingModifiers` declaration
+therefore remains.
+
+Every active marker was tested independently with its definition removed,
+using the normal compiler, flags, object order, and wibo. These are positional
+differences across the **complete executable**, measured by binary-comp;
+they are not function-only byte counts or similarity percentages. Large
+counts can include address and relocation changes following a size change.
+
+| Remaining marker | Differing executable bytes when removed |
+| --- | ---: |
+| `WC1_AUTO_SOURCE` | 1 |
+| `WC1_BARRACKS_SOURCE` | 39 |
+| `WC1_BRAINS_SOURCE` | 460 |
+| `WC1_COCKPT_SOURCE` | 1 |
+| `WC1_CUTSCENE_SOURCE` | 546 |
+| `WC1_DIB_SOURCE` | 14 |
+| `WC1_ENDING_SOURCE` | 798 |
+| `WC1_EVENTMGR_SOURCE` | 5 |
+| `WC1_FADE_SOURCE` | 391 |
+| `WC1_FL_SOURCE` | 42 |
+| `WC1_GAMEFLOW_SOURCE` | 20 |
+| `WC1_GEOM_SOURCE` | 165 |
+| `WC1_GR_SOURCE` | 135,464 |
+| `WC1_IX_DSPS_SOURCE` | 2,829 |
+| `WC1_IX_DSPV_SOURCE` | 2,373 |
+| `WC1_IX_SOUND_SOURCE` | 2,783 |
+| `WC1_IX_SYSTEM_SOURCE` | 54 |
+| `WC1_JOYSTICK_SOURCE` | 405 |
+| `WC1_LOGIC_SOURCE` | 259,057 |
+| `WC1_MAIN_SOURCE` | Compile error: `DosInterruptHandlerHook` undeclared |
+| `WC1_MONO_SOURCE` | 385,589 |
+| `WC1_NEARHEAP_SOURCE` | 12 |
+| `WC1_SHIP_SOURCE` | 11,952 |
+| `WC1_VIEW_SOURCE` | 32 |
+| `WC1_WINMAIN_SOURCE` | 394,412 |
+
+The one-byte autopilot and cockpit differences are operand-order changes
+in `auto_pilot_sequence` and `animate_pilot`. Moving the autopilot's ship
+local among its existing declarations does not recover the match; removing
+the cockpit's volatile frame read along with its marker leaves six bytes.
+Removing unused standard includes, redundant local prototypes, selected
+volatile casts, or intermediate offset locals also fails to make any of the
+remaining marker removals exact. The closest combined DIB and ship include
+cleanups leave four and eleven bytes respectively, and are not retained.
+
+The 25 remaining markers are reconstruction workarounds, not recovered
+original feature switches. Replacing all of them with a single native header
+context remains unfinished. Their removal must continue to pass the complete
+executable hash gate; no per-source replacement headers or dummy declarations
+are introduced by this cleanup. SDL port selection remains unchanged.
+
+The native wibo build and binary-comp preserve all 518,656 original bytes and
+SHA-256 `d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`
+before and after `make verify`. `make modern` and
+`make sort audit-addresses order verify-hash` also pass. The compiler and
+flags are unchanged. Wine was not used.

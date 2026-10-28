@@ -5,7 +5,6 @@
  *  table follows eject.c's literals; fl.c begins at 4060a0. LoadMissionData
  *  at 4059b0 is corroborated by the Mac cmpgn segment names.
  */
-#define WC1_CMPGN_SOURCE
 #include "wc1.h"
 
 static short asMouthFramesByPhoneme[26] = {

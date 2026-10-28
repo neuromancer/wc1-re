@@ -2,7 +2,6 @@
  * Address range 42b9a0-42c40f. The following installation helpers remain
  * a provisional internal boundary; see docs/ORDER.md.
  */
-#define WC1_LAUNCH_SOURCE
 #include "wc1.h"
 
 /* 0x0046a550 */

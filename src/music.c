@@ -4,7 +4,6 @@
  *  The provisional address range is recorded in docs/ORDER.md.
  *  Boundary evidence: PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ....
  */
-#define WC1_MUSIC_SOURCE
 #include "wc1.h"
 
 /* The DAT_ words in this block are zero-initialized original data that

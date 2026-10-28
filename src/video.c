@@ -3,7 +3,6 @@
  *
  *  Address range 4318f0-431a0f (see docs/ORDER.md).
  */
-#define WC1_VIDEO_SOURCE
 #include "wc1.h"
 #ifndef SDL_PORT
 #include <dos.h>

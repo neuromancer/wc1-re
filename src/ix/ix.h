@@ -214,13 +214,6 @@ extern CRITICAL_SECTION csMixer;    /* 0x005985E8 */
 
 #define IX_MIXER_BASE_RATE 22050    /* 0x5622, the divisor in set_frequency */
 
-/* The voice owner sees its state before the stream declarations; other DSP
- * users see stream state first. Preserve this compilation-unit distinction. */
-#ifdef WC1_IX_DSPV_SOURCE
-extern IxVoice aVoices[];           /* 0x005981A8 */
-extern int     nVoicesAllocated;   /* 0x00598604 */
-#endif
-
 /* The ix source tree lived on D: -- each assert site carries its own copy of
  * this literal (the build did not use /Gf, so identical strings are not
  * merged; writing it out per site is what matches). */

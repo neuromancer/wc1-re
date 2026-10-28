@@ -5,7 +5,6 @@
  *  Briefing and medal state precedes this unit's text-format literals;
  *  the hand-written raster library in src/raster.asm follows.
  */
-#define WC1_SCREENS_SOURCE
 #include "wc1.h"
 
 /* 0x0046e188 */

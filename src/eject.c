@@ -4,7 +4,6 @@
  *  Address range 4046a0-404ccf. The ejection data and literals precede the
  *  campaign unit's mouth-animation table; see docs/ORDER.md.
  */
-#define WC1_EJECT_SOURCE
 #include "wc1.h"
 
 static short asEjectionPrimaryFrames[8] = {

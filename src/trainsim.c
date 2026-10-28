@@ -4,7 +4,6 @@
  *  Address range 425c30-4272ef (see docs/ORDER.md). The initialized panel,
  *  resource tables, and state precede this unit's name and UI literal pool.
  */
-#define WC1_TRAINSIM_SOURCE
 #include "wc1.h"
 
 /* Nothing in the shipped executable references this word. The panel that
