@@ -11246,3 +11246,38 @@ Binary-comp reports all 518,656 executable bytes identical, with SHA-256
 `d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
 The compiler hash and flags are unchanged. Wine was not used. Full
 verification was not rerun for the redundant-declaration removal.
+
+## Inflight computer cursor-state copies
+
+`InflightComputer` (`0x0040E480`) now saves and restores its
+`MouseCursorState` with ordinary structure assignments. Both assignments
+produce the original seven-dword `REP MOVSD` copies, including their
+register setup and scheduling. The two `memcpy` calls and their `void *`
+casts are unnecessary in the current typed context. Each replacement
+individually, and the combined change, preserve the complete executable.
+
+The saved navigation point's forced-width local remains unresolved.
+An ordinary short preserves the entire instruction sequence but shrinks
+the frame from 72 to 68 bytes, leaving 19 differing executable bytes in
+frame sizes and stack offsets. Unsigned-short storage, byte access,
+natural scopes for interactive-loop state, and the structure assignments
+do not recover the original layout. An ordinary int changes the original
+word operations. None of these local-storage variants is retained.
+
+The next two qualified accesses in `prepare_mission` (`0x0040B7A0`) also
+remain. Removing either or both leaves 62 differing bytes: the player-ship
+read moves before the state clears, and the following clear/index schedule
+changes. Ordinary signedness/width variants leave the same differences;
+typed campaign/header pointers increase the complete-image differences.
+No failed variant is retained, and the volatile count is unchanged.
+
+The combined native build uses wibo and matches all 518,656 original
+bytes, retaining SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The compiler and flags are unchanged. Wine was not used.
+
+`make modern`, `make sort audit-addresses order verify-hash`, and
+`make verify` pass. Both instruction-value checks cover all 1,550 functions
+with zero mismatches or skips; the existing call/global-access diagnostic
+counts remain 11/55. The complete executable comparison and hash remain
+exact after verification.

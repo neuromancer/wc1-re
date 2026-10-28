@@ -860,9 +860,7 @@ void InflightComputer(void)
     hasObjectives = 0;
     displayedNavPoint = *(short *)&savedNavPoint;
     bInflightComputerActive = 1;
-    memcpy(&savedInputState,
-           (const void *)&stMouseCursorState,
-           sizeof(savedInputState));
+    savedInputState = stMouseCursorState;
 
     if (message_showing() != 0)
         EndCommMenu();
@@ -967,8 +965,7 @@ void InflightComputer(void)
     ReleasePacketHandle(pNavMapShape);
     SetTextContext(&stDefaultTxtContext);
     PlaySfxWaveFileByNumber(0x19, -1, 0);
-    memcpy((void *)&stMouseCursorState,
-           &savedInputState, sizeof(savedInputState));
+    stMouseCursorState = savedInputState;
     WarpMouseTo(savedInputState.x, savedInputState.y);
     if (bCockpitlessView == 0) {
         force_view(0, 0);
