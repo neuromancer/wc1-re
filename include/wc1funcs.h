@@ -99,7 +99,7 @@ void MonoDebug_remove(void);                                            /* 0x004
 void SoundDebugPrintf(const char *fmt, ...);                          /* 0x00403DB0 */
 void MonoDebug_print(const char *text);                                  /* 0x00403DE0 */
 void ReadPerformanceCounter(LARGE_INTEGER *p);                           /* 0x00403E30 */
-void __stdcall ResetStringBuilder(TextContext *context);               /* 0x00403E40 */
+char *__stdcall ResetStringBuilder(TextContext *context);              /* 0x00403E40 */
 void visit_the_cinema(int view, int obj, short frames);                  /* 0x00403E50 */
 unsigned int player_wingman(short obj);                                  /* 0x00403EE0 */
 void set_speed(short obj, short speed);                                  /* 0x00403F10 */

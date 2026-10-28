@@ -8870,6 +8870,8 @@ Session findings that are not yet retained because they change span sizes:
   audits and full verification pass. Both value checks cover all 1,550
   functions with zero mismatches. The verified executable has SHA-256
   `140328a14d52319eb4211d51046f41fd8a8255db400a7c52e7782b4865fc4b08`.
+  The later [console-capture cleanup](#console-captures-and-ordinary-snapshots)
+  supersedes these four call-pointer captures with a returned text snapshot.
 - `free_viewport` needs coordinated local and global declaration order to
   recover its last two comparison operands. In the game-flow unit only,
   move `stSceneBuffer` six declarations earlier, before `szDefaultTxtBuf`,
@@ -10851,3 +10853,63 @@ The combined wibo build matches all 518,656 original bytes, before and after
 `make order` pass. Both value checks cover all 1,550 functions with zero
 mismatches or skips; the existing call/global-access diagnostics remain
 11/55. The MSVC 4.20 compiler is unchanged. Wine was not used.
+
+## Console captures and ordinary snapshots
+
+Two further volatile casts can be removed, leaving 39 casts and the same
+five volatile object/parameter definitions:
+
+- `UpdateTrainSimHighScores` (`0x00426820`, `trainsim.c`) uses an ordinary
+  unsigned score snapshot. Its comparison explicitly converts both scores
+  to signed int, preserving the original signed branch and the incoming
+  score's bits. It no longer needs a qualified parameter read.
+- `check_target` (`0x00416FD0`, `cockpt.c`) uses an ordinary unsigned-byte
+  target-count snapshot. The loop bound and remainder still interpret it
+  as a signed byte, preserving the original promotions and instructions.
+  Merely widening the count or changing all its uses to unsigned does not
+  match. Neither type choice establishes the original local type spelling.
+
+In `mono.c`, `MonoDebug_remove` (`0x00403D60`), `SendMonoDebugCommand3`
+(`0x00403D80`), `MonoDebug_print` (`0x00403DE0`), and
+`ReadPerformanceCounter` (`0x00403E30`) now call their Windows APIs directly.
+All four function-pointer locals and their eighteen prototype-scope parameter
+names are removed. The complete unit still matches.
+
+This becomes possible when `ResetStringBuilder` (`0x00403E40`) returns a saved
+copy of the text pointer. The original five instructions load the context
+into ECX, load its text pointer into EAX, store EAX as the cursor, clear the
+pointed byte, and return with four-byte argument cleanup. Returning the saved
+pointer naturally requires the original EAX result and ECX context without
+the preceding functions' artificial declaration context.
+
+The public declaration returns `char *`; the `__stdcall` convention and
+argument remain unchanged. This return type is an inference consistent with
+the original register state, not proven source information: all six observed
+call sites ignore the result. Returning a freshly read `context->text` or
+`context->textCursor` does not reproduce it, because the byte store can alias
+the context and the compiler emits another load. The saved pointer avoids
+that load and preserves the exact sixteen-byte span.
+
+The remaining forced-width locals in `AddRandomTrainSimHighScores` and
+`InflightComputer`, the captures in `input.c` and `joycal.c`, and the barracks
+prototype constraint are unchanged. Further counter scheduling, scoped input
+samples, event-code snapshots, rectangle operand/control-flow forms, and
+individual capture removals did not preserve the complete executable.
+Removing a single input capture leaves seven differing bytes in the tested
+forms; removing a single joystick capture leaves six. Ordinary forms of
+`ReadRequiredPilotField`, `Mveer_away`, `cycle_onscreen_targets`, and
+`DebugOverlayWorkerProc` come within two differing bytes, respectively in the
+Y-argument register, range-comparison order, loop-comparison order, and spinner
+pointer-addition order. None of those incomplete variants is retained.
+
+After combining the retained source and header changes, binary-comp reports
+all 518,656 bytes identical and SHA-256 remains
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The compiler and optimization flags are unchanged; the native build uses
+wibo, without Wine.
+
+`make verify`, `make modern`, `make sort`, `make audit-addresses`, and
+`make order` pass. Both instruction-value checks cover all 1,550 functions
+with zero mismatches or skips. The existing call/global-access diagnostic
+counts remain 11/55. The complete executable comparison and hash are still
+exact after verification.

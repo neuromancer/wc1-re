@@ -564,18 +564,17 @@ void UpdateTrainSimHighScores(int score)
     short slot;
     unsigned int previousScore;
     char message[100];
-    int submittedScore;
+    unsigned int submittedScore;
 
     slot = FindTrainSimHighScore(8);
     if (slot == -1)
         previousScore = aHighScoreEntriesArray[5].score;
     else
         previousScore = aHighScoreEntriesArray[slot].score;
-    /* Keep this snapshot distinct from the parameter's register lifetime. */
-    submittedScore = *(int volatile *)&score;
+    submittedScore = score;
     slot = -1;
-    if (submittedScore > (int)previousScore)
-        slot = InsertTrainSimHighScore(8, (unsigned int)submittedScore);
+    if ((int)submittedScore > (int)previousScore)
+        slot = InsertTrainSimHighScore(8, submittedScore);
 
     if (bCampaignStartupMode != 0) {
         EnterPilotNameAndCallsign();

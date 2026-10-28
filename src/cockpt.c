@@ -2521,7 +2521,7 @@ void check_target(void)
     short oldTarget;
     short targetIndex;
     short hasEnemy;
-    signed char count;
+    unsigned char count;
 
     selectNewTarget = 1;
     oldTarget = acShipTargetTable[0];
@@ -2547,7 +2547,7 @@ void check_target(void)
         nTargetLockMode = 0;
 
     build_your_target_list(&hasEnemy);
-    count = *(volatile signed char *)&cViableTargetCount;
+    count = cViableTargetCount;
     if (count == 0) {
         if (nTargetLockMode != 0)
             acShipTargetTable[0] = oldTarget;
@@ -2564,7 +2564,7 @@ void check_target(void)
         }
         if (selectNewTarget != 0) {
             for (targetIndex = 0;
-                 targetIndex < count &&
+                 targetIndex < (signed char)count &&
                  aeShipSide[
                      (short)acViableTargetList[targetIndex]] ==
                      aeShipSide[0];
@@ -2572,7 +2572,7 @@ void check_target(void)
                 ;
             acShipTargetTable[0] =
                 acViableTargetList[
-                    targetIndex % (short)count];
+                    targetIndex % (signed char)count];
         }
     }
     if (acShipTargetTable[0] != oldTarget) {
