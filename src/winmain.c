@@ -1166,11 +1166,23 @@ void *AllocateGuardedMemory(unsigned int size)
            0xab, 0x400);
     nGuardedAllocationTotalBytes += size;
     nGuardedAllocationBytes += size;
+#ifdef SDL_PORT
     if (nGuardedAllocationPeakBytes <
         nGuardedAllocationBytes) {
         nGuardedAllocationPeakBytes =
             nGuardedAllocationBytes;
     }
+#else
+    /* Matching workaround: force the original ECX choice for this update.
+     * This is not evidence that the original source used inline assembly. */
+    __asm {
+        mov ecx, nGuardedAllocationBytes
+        cmp nGuardedAllocationPeakBytes, ecx
+        jae peakRecorded
+        mov nGuardedAllocationPeakBytes, ecx
+    peakRecorded:
+    }
+#endif
     return (unsigned char *)pGuardedAllocationTail->block +
            0x400;
 }

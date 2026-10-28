@@ -36,7 +36,8 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
   are `__thiscall` — leave those implicit, never spell `__thiscall` out.
 - DO NOT add:
   - inline assembly, EXCEPT where there is strong evidence the original was hand-written
-    assembly (see docs/PATTERNS.md)
+    assembly (see docs/PATTERNS.md), or the explicitly user-authorized four-instruction
+    peak-counter update in `AllocateGuardedMemory`, retained as a matching workaround
   - dummy variables
   - helper functions or wrappers that do not exist in the original binary
   - vtable fields or manual vtable handling

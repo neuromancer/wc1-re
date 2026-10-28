@@ -10701,3 +10701,30 @@ Session findings that are not yet retained because they change span sizes:
   Full `make verify` passes. Both value checks cover all 1,550 functions
   with zero mismatches or skips; the existing call/global-access diagnostics
   remain 11/55. Verification preserves the same executable hash.
+
+## Guarded allocator inline assembly
+
+The final three register-encoding differences in `AllocateGuardedMemory`
+are resolved by a user-authorized inline assembly exception. Its native
+peak-counter update uses the original four instructions at
+`0x00402C73`–`0x00402C86`: load the current byte count into ECX, compare
+the peak against it, branch on unsigned greater-or-equal, and store ECX
+otherwise. The rest of the function remains C, including both preceding
+counter increments and the return. The SDL build retains the ordinary C
+comparison and assignment.
+
+This is an explicit matching workaround, not evidence that the original
+allocator contained assembly. The compiler investigation above still
+describes why the current C expression selects EDX instead. The block
+generates ordinary references to the existing named globals and needs no
+padding, extra storage, helper, or compiler change. Binary-comp's complete
+file comparison reports all 518,656 bytes identical, with zero differing
+positions. This includes headers, code, data, imports, and relocations.
+Both files have SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+
+The native build uses wibo. `make verify`, `make modern`, `make sort`,
+`make audit-addresses`, and `make order` pass. Both instruction-value checks
+cover all 1,550 functions with zero mismatches or skips. The existing
+call-target and global-access diagnostic counts remain 11 and 55; the
+complete executable comparison is exact before and after verification.

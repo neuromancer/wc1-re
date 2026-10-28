@@ -3,7 +3,7 @@
 This project recreates the source of **Wing Commander** as shipped in *Wing
 Commander: The Kilrathi Saga* (1996). The reconstructed game core is C, the
 `ix` audio library is C++, and the reference build uses Microsoft Visual C++
-4.20 to reproduce the original Win32 executable as closely as possible.
+4.20 to reproduce the original Win32 executable.
 
 A native SDL2 port is available for Windows, Linux, and macOS. It supports
 Kilrathi Saga data and has partial support for the original DOS game data.
@@ -15,14 +15,18 @@ GitHub Sponsors](https://github.com/sponsors/neuromancer).
 
 ## Status
 
-The reference build works, but byte-for-byte reconstruction is incomplete.
-Unreferenced routines found between previously mapped functions are still
-being recovered.
+The reference build matches the original executable byte for byte: all
+518,656 bytes are identical. The final three register-encoding differences
+are resolved by a four-instruction inline assembly block in the guarded
+allocator. This is a documented matching workaround; it does not establish
+that the original source used assembly there. See the
+[allocator matching exception](docs/PATTERNS.md#guarded-allocator-inline-assembly).
 
 `make report` calculates per-function machine-code similarity to the retail
 executable. It covers annotated functions and can miss unreconstructed code
-between them. Use `make compare` to check executable layout as well; neither
-score measures gameplay completeness.
+between them. Use `make compare` to check executable layout as well, and
+`binary-comp byte-compare data/full/WC1.ORI.EXE WC1.EXE` to verify the complete
+file. These checks do not measure SDL port gameplay completeness.
 
 ## Similarity
 
