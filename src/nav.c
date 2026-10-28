@@ -853,25 +853,16 @@ void InflightComputer(void)
     unsigned char *background;
     InputEventState event;
     Viewport pointerViewport;
-#ifdef SDL_PORT
     MouseCursorState savedInputState;
-#else
-    unsigned int savedInputState[7];
-#endif
 
     *(short *)&savedNavPoint = (short)cCurrentNavPtIdx;
     done = 0;
     hasObjectives = 0;
     displayedNavPoint = *(short *)&savedNavPoint;
     bInflightComputerActive = 1;
-#ifdef SDL_PORT
     memcpy(&savedInputState,
            (const void *)&stMouseCursorState,
            sizeof(savedInputState));
-#else
-    memcpy(savedInputState, (const void *)&stMouseCursorState,
-           sizeof(savedInputState));
-#endif
 
     if (message_showing() != 0)
         EndCommMenu();
@@ -976,16 +967,9 @@ void InflightComputer(void)
     ReleasePacketHandle(pNavMapShape);
     SetTextContext(&stDefaultTxtContext);
     PlaySfxWaveFileByNumber(0x19, -1, 0);
-#ifdef SDL_PORT
     memcpy((void *)&stMouseCursorState,
            &savedInputState, sizeof(savedInputState));
     WarpMouseTo(savedInputState.x, savedInputState.y);
-#else
-    memcpy((void *)&stMouseCursorState, savedInputState,
-           sizeof(savedInputState));
-    WarpMouseTo(((short *)savedInputState)[0],
-                ((short *)savedInputState)[1]);
-#endif
     if (bCockpitlessView == 0) {
         force_view(0, 0);
     } else {

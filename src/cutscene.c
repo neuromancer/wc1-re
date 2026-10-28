@@ -770,14 +770,17 @@ unsigned int landing(signed char damageLevel)
     short frame;
     signed char detail;
     signed char prior;
-    /* The native routine saves this table byte offset in its four-byte frame. */
-    volatile int damageOffset;
+    int landingSound;
+    int canopySound; /* Unset after the Win32 sound-call replacements. */
 
+#ifdef SDL_PORT
+    landingSound = 0;
+    canopySound = 0;
+#endif
     PreloadMusicTrackHook(0x1d);
     spacetrack(0x1d, 2, 1);
     SetEventManagerPump(PollJoystickButtonEvents);
     InitializeConversationViewport();
-    damageOffset = damageLevel * 4;
     nSceneScrambleShipDetailCountValue =
         anLandingDamageDetailCounts[damageLevel];
     for (frame = 0;
@@ -870,20 +873,14 @@ unsigned int landing(signed char damageLevel)
             break;
     }
 
-    FlushSoundEffectsAndLog(damageOffset, 0);
+    FlushSoundEffectsAndLog(landingSound, 0);
     if (bEscapePressedFlag != 1) {
         short canopyFrame;
         const signed char *canopyFrames;
 
         stScrambleOverlay.x =
             (short)(nCurrentScrambleShipPositionX + 180);
-#ifdef SDL_PORT
         canopyFrames = apLandingCanopyFrames[damageLevel];
-#else
-        canopyFrames = *(const signed char **)
-            ((unsigned char *)apLandingCanopyFrames +
-             damageOffset);
-#endif
         stScrambleOverlay.y =
             (short)(nScrambleShipY + 50);
         PlaySfxWaveFileByNumber(15, -1, 0);
@@ -922,20 +919,14 @@ unsigned int landing(signed char damageLevel)
                 break;
         }
 
-        FlushSoundEffectsAndLog(damageOffset, 0);
+        FlushSoundEffectsAndLog(canopySound, 0);
         if (bEscapePressedFlag != 1) {
             ClearViewport(&stCurrentConvTextViewport,
                           cBlackColour);
             FormatTextBufferFromStart(
                 "%X%Y%F%s%P", 0, 160,
                 cBlueColour,
-#ifdef SDL_PORT
                 apszLandingDamageComments[damageLevel]);
-#else
-                *(const char **)
-                    ((unsigned char *)apszLandingDamageComments +
-                     damageOffset));
-#endif
             DIBslam();
             DIBslamReal();
             ReleaseTextFont(0);

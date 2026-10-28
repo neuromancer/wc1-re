@@ -319,7 +319,8 @@ do not reject a recovered size solely because its positional count is larger.
   `replenish_shields` from eleven differing encodings to nine. `fire_turrets`
   rises from 96.52% to 97.39% mnemonic similarity but still differs in 107
   of 115 instruction encodings; the other ship results are unchanged.
-- `landing` keeps the damage-level table byte offset in its four-byte frame,
+- `landing` initially kept the damage-level table byte offset in its four-byte
+  frame,
   reloading it for the sound hooks, canopy table, and final comment. A volatile
   offset local restores that storage and frees EBP for the actor shape. The
   canopy phase has its own short counter and scoped frame-table pointer;
@@ -333,6 +334,9 @@ do not reject a recovered size solely because its positional count is larger.
   source spelling is unknown. Scoping only the canopy pointer still leaves
   fourteen differing instructions; a separate counter reduces that to eight,
   and its later initialization removes the remaining eight.
+  The later [typed-access cleanup](#typed-accesses-and-dos-sound-handle-evidence)
+  supersedes the volatile offset: two sound-handle locals reproduce the spill
+  naturally.
 - `SetFleetOverviewView` leaves its player-range local uninitialized on entry
   to the descending ship loop. CL 4.20 overlays that local with the X field of
   the initialized orientation vector, at `[ESP+0x1C]` after the four register
@@ -10776,3 +10780,74 @@ corrupted up-to-date file; a valid file keeps its modification time.
 `make verify`, `make modern`, source sorting, the address audit, and unit-order
 checks pass. Both value checks cover all 1,550 functions with zero mismatches
 or skips; the existing call/global-access diagnostics remain 11/55.
+
+## Typed accesses and DOS sound-handle evidence
+
+The next cleanup removes 57 of the remaining 98 volatile casts, leaving 41.
+It also removes `landing`'s volatile local, leaving five volatile object or
+parameter definitions, including the callback-updated frame-tick flag.
+
+- In `barracks.c`, `CreateEmptySaveGameFile` (`0x0041ADA0`), `SaveGame`
+  (`0x0041B1E0`), and `LoadGame` (`0x0041B710`) use ordinary typed pointers
+  to the campaign records. These preserve the original field-transfer
+  scheduling without all 54 volatile access casts. The pointers reference
+  existing records without changing their types or layouts.
+  `CreateEmptySaveGameFile` uses both memory and disk campaign pointers;
+  the other two functions only need the disk campaign pointer.
+  `DrawBarracksBunks` (`0x0041BBD0`) also passes the scene viewport directly,
+  removing its matching-only pointer capture.
+- The existing barracks-only `DosMemcpy` prototype omits its three optional
+  parameter names. Its types and calling convention are unchanged. This
+  declaration context and the placement of the campaign pointer locals
+  matter to the unit's generated code. They are measured compiler context,
+  not evidence of the original header text or local declaration order.
+- In `init.c`, `InitializeEventManagerResources` (`0x00421A60`) uses an
+  ordinary `MouseCursorState` pointer for its three cursor field writes,
+  removing three casts without changing the resource assignment or stores.
+- In `nav.c`, `InflightComputer` (`0x0040E480`) saves and restores the mouse
+  state using the existing `MouseCursorState` type in both builds. The
+  native seven-word array and casts for reading its X/Y coordinates are
+  unnecessary. Its separate forced-width saved-navigation-point local
+  still remains.
+
+In `cutscene.c`, `landing` (`0x00408650`) now uses ordinary damage-table
+indexing and two separate sound-handle locals. The native compiler reuses
+their storage for the scaled table index, preserving the original four-byte
+frame and all instructions. This removes the volatile `damageOffset` local
+and both manual byte-offset table lookups.
+
+The DOS executable supplies evidence for those handles. In
+`../releases/dos/WC.EXE`, the routine immediately following `scramble` starts
+at file offset `0x39C55`, reserves 16 local bytes, and returns at `0x3A14D`.
+Its sound call at `0x39F22` stores AX and DX at BP-16 and BP-14;
+the stop call at `0x39F64` receives those words. The next sound call at
+`0x39FB4` stores its result at BP-12 and BP-10, passed to the stop call at
+`0x3A047`. Both sound calls target `0x18:0x7A5`, and both stop calls target
+`0x18:0x7D4`. These are two distinct locals, not a table offset used as a
+sound handle. These addresses are raw DOS file offsets, not Win32 VAs.
+
+The Win32 port's playback replacements return no handle, and the stop
+replacement `FlushSoundEffectsAndLog` ignores the incoming handle on its
+reachable path. Keeping the native handles uninitialized reproduces the
+observed stack reuse; SDL initializes both to zero, as the adjacent
+`scramble` implementation already does. One shared handle instead leaves
+five differing bytes and an eight-byte frame in the isolated probe.
+
+Remaining work includes the 41 volatile casts, the forced-width locals in
+`InflightComputer` and `AddRandomTrainSimHighScores`, and the call-argument
+captures in `input.c`, `joycal.c`, and `mono.c`. Tested ordinary forms
+still change executable bytes: the train-simulator short counter leaves
+two differences, removing the input captures leaves eleven, removing the
+joystick captures leaves six, and removing the mono captures leaves four
+in isolated whole-image comparisons. Several differences occur in later
+functions of the same unit. The barracks prototype context above also
+remains a reconstruction constraint, not recovered source evidence.
+No failed variants, new assembly, or compiler flag changes are retained.
+
+The combined wibo build matches all 518,656 original bytes, before and after
+`make verify`, retaining SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+`make verify`, `make modern`, `make sort`, `make audit-addresses`, and
+`make order` pass. Both value checks cover all 1,550 functions with zero
+mismatches or skips; the existing call/global-access diagnostics remain
+11/55. The MSVC 4.20 compiler is unchanged. Wine was not used.

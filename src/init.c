@@ -96,13 +96,15 @@ unsigned int EMShutDown(void)
 /* Function start: 0x421A60 */
 unsigned short InitializeEventManagerResources(void)
 {
+    MouseCursorState *cursor = &stMouseCursorState;
+
     DAT_0059a9f0 = 20;
     nInputTickScale = 20;
     nUnusedInputTimerFlag = 1;
-    *(unsigned char *volatile *)&stMouseCursorState.shape = pMouseCursorResource =
+    cursor->shape = pMouseCursorResource =
         FetchDiskPacketRetrying(14, 0, 0x10);
-    *(unsigned short volatile *)&stMouseCursorState.frame = 0;
-    *(Viewport *volatile *)&stMouseCursorState.viewport = &stScreenView;
+    cursor->frame = 0;
+    cursor->viewport = &stScreenView;
     return 0;
 }
 
