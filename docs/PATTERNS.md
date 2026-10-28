@@ -10981,3 +10981,56 @@ The MSVC 4.20 compiler is unchanged. Wine was not used.
 with zero mismatches or skips. The existing call/global-access diagnostic
 counts remain 11/55. The complete executable is still byte-identical
 after verification.
+
+## Input captures removed; joystick captures still constrained
+
+`UpdateInputDeviceTransitions` (`0x00430710`, `input.c`) no longer needs
+its 22 matching-only captures or the three parameter names in its local
+sampling-call pointer declaration. Both sampling calls are direct. Also
+remove the four redundant `previous`, `buttons`, `changed`, and `now`
+snapshots: button comparisons and masks read the existing records with
+explicit 16-bit interpretation, while the elapsed-time checks use the
+tick global directly. The compiler still retains the original register
+snapshots and complete instruction schedule, including the shared tick
+value used for both button transitions. The saved device index remains
+necessary because sampling can change the active-device global.
+
+Removing only the 22 captures and three prototype names leaves 11 differing
+bytes in the following `PollJoystickButtonEvents` (`0x00430840`), although
+the transition routine itself stays exact. Removing the four additional
+locals moves the poller's `doubleClick` symbol from 27,281 to 27,252,
+another matching register-allocation window. Its first event block then
+uses the original AX flag, ECX doubled index, and argument-push schedule;
+the second event block and the following menu poller remain exact. No
+replacement captures, header declarations, or compiler changes are needed.
+The complete input unit now matches with 26 fewer locals and three fewer
+prototype parameter names.
+
+The corresponding joystick cleanup is not retained. Removing all 12
+sample/center/scale captures from `ReadCalibratedJoystick` (`0x00431D20`,
+`joycal.c`) preserves both joystick routines but changes six bytes in
+`UnionRectBounds` (`0x00431EA0`). Further removal of the calibration
+loader's `rangeY` snapshot comes within three differing bytes: the final
+Y-bound addition reverses its LEA operands, and the rectangle helper
+exchanges its two input-pointer stack offsets. The complete executable
+must remain exact, so those changes stay in scratch experiments.
+
+Individual and cumulative capture removals, ordinary rectangle-coordinate
+snapshots, commuted min/max expressions, register-qualified parameters,
+and further range/scale simplifications do not recover the complete image.
+Using the existing point type for the stored calibration center or reusing
+the sampling result changes additional instructions. The 12 joystick
+captures and the provisional rectangle-helper unit boundary remain open
+cleanup work. This pass does not change the remaining volatile count of
+36 access casts and four object/parameter definitions.
+
+The retained native change builds with wibo and matches all 518,656 bytes
+of the original executable, retaining SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The MSVC 4.20 compiler is unchanged. Wine was not used.
+
+`make verify`, `make modern`, `make sort`, `make audit-addresses`, and
+`make order` pass. Both instruction-value checks cover all 1,550 functions
+with zero mismatches or skips. The existing call/global-access diagnostic
+counts remain 11/55. The complete executable remains byte-identical after
+verification.

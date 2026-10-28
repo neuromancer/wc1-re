@@ -356,14 +356,23 @@ existing redundant `ComputeVectorDelta` prototype immediately afterwards
 restores the following functions' symbol keys. The public prototype retains
 its parameter names, and the escort helper's instructions remain unchanged.
 
-`PollJoystickButtonEvents` becomes exact with 25 more symbols
+`PollJoystickButtonEvents` first became exact with 25 more symbols
 before it. Scoped input, button and timing snapshots in
 `UpdateInputDeviceTransitions`, together with correctly typed captures of
-its two sampling calls, now supply that context. The 22 used locals and
-three named call-pointer parameters move the poller's `doubleClick` key
-from 27,256 to 27,281. They compile away, preserving the transition routine
-and both other functions in the unit; the poller's first event block gains
+its two sampling calls, supplied that context. The 22 used locals and
+three named call-pointer parameters moved the poller's `doubleClick` key
+from 27,256 to 27,281. They compiled away, preserving the transition routine
+and both other functions in the unit; the poller's first event block gained
 the original AX flag, ECX index and argument-push schedule.
+Those captures are now removed. Removing the transition routine's four
+redundant `previous`, `buttons`, `changed`, and `now` snapshots as well
+moves the key to 27,252, another matching register-allocation window.
+Ordinary direct calls and explicitly word-sized button expressions preserve
+every instruction in the unit. The only remaining local in the transition
+routine is the device index saved before sampling, which can change the
+active-device global. This removes 26 locals and three prototype parameter
+names without replacement context declarations.
+
 `UnionRectBounds` needs +12 (or -5) and has no callees.
 Its +12 context is now supplied by scoped sample, center and scale captures
 in the four axis-normalization branches of `ReadCalibratedJoystick`.
