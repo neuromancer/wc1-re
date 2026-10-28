@@ -1429,7 +1429,6 @@ void flag_reached(short objective, short reached)
 }
 
 /* Objective tracking, scanner, and target-lock callees from other modules. */
-void ComputeVectorDelta(FixedVector *, FixedVector *, FixedVector *);
 short FixedToShortSaturating(int value);
 void transform_to_objects_frame(const FixedVector *source,
                                 FixedVector *destination,
@@ -1946,15 +1945,6 @@ short GetRectHeight(const Viewport *viewport)
     return viewport->right - viewport->left;
 }
 
-/* Target-box callees from other modules. */
-short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
-                              unsigned char *shape, short frame,
-                              short angle, short scale, short flip,
-                              short *bounds);
-void DrawViewportBorder(Viewport *viewport, short left, short top,
-                        short right, short bottom,
-                        short colour);
-
 /* Function start: 0x416260 */
 void print_message_text(char *text, unsigned short colour)
 {
@@ -2064,11 +2054,8 @@ void SetHudTextColour(short v)
 {
     if (v != 0)
         EndCommMenu();
-    {
-        char *text = pszDisplayedHudMessage;
-
-        print_message_text(text, (unsigned char)cPrimaryViewBufferColour);
-    }
+    print_message_text(pszDisplayedHudMessage,
+                       (unsigned char)cPrimaryViewBufferColour);
 }
 
 /* Function start: 0x4164B0 */
@@ -2187,10 +2174,6 @@ void draw_target_box(unsigned short colour, signed char object,
         savedBounds->left = -0x7fff;
     }
 }
-
-/* Navigation-pointer callees. */
-void remove_object(short obj);
-long DivideFixed(int numerator, int denominator);
 
 /* Function start: 0x4168A0 */
 void remove_nav_pointer(void)
@@ -2364,31 +2347,25 @@ void RestoreCockpitExplosionIfVisible(void)
 unsigned int RestoreTransientCockpitGraphics(void)
 {
     char *displayedMessage;
-    void (*restoreBackground)(Viewport *viewport, unsigned char *background,
-                               short x, short y, unsigned char *shape,
-                               short) = RestoreSpriteBackground;
-    void (*drawTargetBracket)(unsigned short colour, signed char object,
-                             short solid, short drawLockMarker, short padding,
-                             ShortRect *savedBounds) = draw_target_box;
 
     if (bMouseCursorVisible == 1) {
-        restoreBackground(stMouseCursorState.viewport,
-                          abMouseCursorBackground,
-                          (short)nStoredMouseCursorPosX,
-                          (short)nSavedMouseCursorY,
-                          stMouseCursorState.shape,
-                          (short)stMouseCursorState.frame);
+        RestoreSpriteBackground(stMouseCursorState.viewport,
+                                 abMouseCursorBackground,
+                                 (short)nStoredMouseCursorPosX,
+                                 (short)nSavedMouseCursorY,
+                                 stMouseCursorState.shape,
+                                 (short)stMouseCursorState.frame);
     }
     if (cLastTargetObject != -1) {
-        drawTargetBracket(cPrimaryViewBufferColour,
-                          cLastTargetObject,
-                          0, 0, 2,
-                          &stPreviousTargetBracketBounds);
+        draw_target_box(cPrimaryViewBufferColour,
+                        cLastTargetObject,
+                        0, 0, 2,
+                        &stPreviousTargetBracketBounds);
         cLastTargetObject = -1;
     }
-    drawTargetBracket(cPrimaryViewBufferColour, acShipTargetTable[0],
-                      nTargetLockMode, 1, 1,
-                      &stTargetBracketBounds);
+    draw_target_box(cPrimaryViewBufferColour, acShipTargetTable[0],
+                    nTargetLockMode, 1, 1,
+                    &stTargetBracketBounds);
     /* Keep this read separate from the following pointer comparison. */
     displayedMessage = *(char *volatile *)&pszDisplayedHudMessage;
     if (displayedMessage != pszPendingHudMessage &&
@@ -2397,11 +2374,9 @@ unsigned int RestoreTransientCockpitGraphics(void)
     if (IsCockpitExplosionActive() &&
         pCockpitExplosionBackground != 0) {
         if (bCockpitlessView == 0) {
-            short x = stCockpitExplosionPosition.x;
-
             CaptureSpriteBackground(
                 &stScreenView, pCockpitExplosionBackground,
-                x, stCockpitExplosionPosition.y,
+                stCockpitExplosionPosition.x, stCockpitExplosionPosition.y,
                 pCockpitExplosionShape,
                 nCockpitExplosionFrame);
         }

@@ -334,27 +334,36 @@ also becomes `CMP DI,[saved point]`. All 272 bytes then match. This is an
 indirect stack-layout effect through the generated operations; symbol keys
 do not themselves order the stack slots.
 
-`build_your_target_list` needs its parameter key moved from 27,990 to
-28,005 to recover ECX for the output pointer and ESI for the scaled
-enum-array index. The compiler model predicts the exchange; `binary-comp`
-confirms the complete 160-byte span. In the preceding cockpit restore
-routine, two used call-pointer captures with eleven named parameters and
-one scoped X-coordinate capture supply fourteen symbols. A scoped HUD-text
-capture in `SetHudTextColour` supplies the fifteenth and also restores the
-target bracket's marker-colour comparison order. CL folds the call pointers
-to the same direct calls and preserves both helper routines byte for byte.
-Declaring `cycle_onscreen_targets`' index before its saved target preserves
-its array-address operand order under the new context. These declarations
-reproduce measured compiler contexts, not recovered original source text.
+`build_your_target_list` first became exact by moving its parameter key
+from 27,990 to 28,005, recovering ECX for the output pointer and ESI for
+the scaled enum-array index. Two call-pointer captures with eleven named
+parameters, one explosion-coordinate capture, and one HUD-text capture
+supplied those fifteen symbols. They were measured compiler context,
+not recovered original source text.
+
+Those four captures are now removed, along with the redundant local
+prototypes for `GetTransformedShapeBounds`, `DrawViewportBorder`,
+`remove_object`, and `DivideFixed`. The existing public declarations supply
+the same types and calling conventions. Removing these eighteen additional
+parameter names moves the target-list parameter key to 27,972, another
+exact context. `SetHudTextColour` passes its global directly, and
+`RestoreTransientCockpitGraphics` uses direct calls and the explosion's
+coordinate field. `draw_target_box`, the target-list routines, and every
+other function in the unit remain byte-exact without replacement captures
+or declarations.
 
 `flag_reached` demonstrates a balanced change confined to one function's
 context. Three used captures in `escorting_a_ship` move its objective
 parameter key from 27,645 to 27,648. The model predicts the ESI/EDI exchange;
 the compiler also recovers the original prologue and load schedule, making
-the complete 416-byte span exact. Omitting three parameter names from the
-existing redundant `ComputeVectorDelta` prototype immediately afterwards
-restores the following functions' symbol keys. The public prototype retains
-its parameter names, and the escort helper's instructions remain unchanged.
+the complete 416-byte span exact. The original balancing change omitted
+three parameter names from a redundant `ComputeVectorDelta` prototype
+immediately afterwards. That unnamed duplicate has now been removed;
+the public named prototype is sufficient and every byte is unchanged.
+The three escort captures remain: direct-call and ordinary local/type
+alternatives still change the objective-arrival register allocation and
+later functions. They remain a cleanup constraint, not evidence of the
+original source form.
 
 `PollJoystickButtonEvents` first became exact with 25 more symbols
 before it. Scoped input, button and timing snapshots in

@@ -11034,3 +11034,56 @@ The MSVC 4.20 compiler is unchanged. Wine was not used.
 with zero mismatches or skips. The existing call/global-access diagnostic
 counts remain 11/55. The complete executable remains byte-identical after
 verification.
+
+## Direct cockpit rendering calls
+
+The cockpit rendering cleanup removes four matching-only locals:
+the two call pointers and explosion X-coordinate snapshot in
+`RestoreTransientCockpitGraphics` (`0x00416CB0`), and the displayed-text
+snapshot in `SetHudTextColour` (`0x00416480`). Both drawing calls are now
+direct, and the coordinate and message arguments use their existing fields
+and globals.
+
+Capture removal alone leaves 23 differing executable bytes in
+`draw_target_box` and `build_your_target_list`. Also remove the redundant
+local prototypes for `GetTransformedShapeBounds`, `DrawViewportBorder`,
+`remove_object`, and `DivideFixed`; their unchanged public prototypes are
+already visible through `wc1.h`. Those eighteen parameter names, combined
+with the four locals and eleven call-pointer parameter names, account for
+33 fewer frontend symbols before the target-list routine. Its parameter
+key moves from 28,005 to 27,972. The target bracket's first parameter moves
+from 27,894 to 27,878, and the restore routine's base moves from 27,966 to
+27,947. The entire compilation unit becomes exact with these ordinary
+direct calls and no replacement declarations, captures, or qualifiers.
+
+The redundant unnamed `ComputeVectorDelta` declaration after `flag_reached`
+is also removed independently without changing any executable byte. Its
+public named declaration remains. This makes five removed local prototypes
+in addition to the four removed captures.
+
+The three captures in `escorting_a_ship` (`0x00415510`) remain unresolved.
+Removing them preserves the escort helper itself but exchanges the
+objective parameter and scaled objective index between ESI and EDI in
+`flag_reached` (`0x00415530`), changing its prologue and load schedule.
+The compiler model finds no repair through permutations of its existing
+five local declarations. Ordinary index snapshots, record pointers,
+signedness/width alternatives, flag assignment order, and equivalent escort
+conditions do not produce an exact complete image. Partial removals also
+fail after the rendering cleanup; none of those variants is retained.
+The remaining objective/scanner prototype block stays in place.
+
+Removing the restore routine's qualified message read still changes code,
+including when the read is direct, const-qualified, or replaced by a
+pending-message snapshot. The remaining volatile count stays at 36 access
+casts and four object/parameter definitions. No calling convention, public
+signature, compiler flag, or assembly block changes.
+
+The native build uses wibo and matches all 518,656 bytes of the original
+executable, preserving SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The production compiler is unchanged. Wine was not used.
+
+`make modern`, `make sort audit-addresses order`, and `make verify` pass.
+Both instruction-value checks cover all 1,550 functions with zero mismatches
+or skips. The existing call/global-access diagnostic counts remain 11/55.
+The complete executable remains byte-identical after verification.
