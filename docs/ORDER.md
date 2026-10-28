@@ -1249,12 +1249,17 @@ key-array clear, retained Ctrl/Alt bytes, and debug-pause reset establish the
 forwarder's behavior. A normal C call lets CL emit the tail jump; no assembly
 is written by hand. Binary-comp verifies all sixteen bytes, including padding,
 literally, and its decoded rebuilt target resolves to the existing reset
-routine. The entry has no identified callers elsewhere. Its prototype remains
-in `wc1funcs.h`, visible only to `eventmgr.c` through `WC1_EVENTMGR_SOURCE`.
+routine. The entry has no identified callers elsewhere. Its prototype was
+initially visible only to `eventmgr.c` through `WC1_EVENTMGR_SOURCE`.
 Exposing that unused declaration to every unit changed 57 report rows and
-lost five net exact matches; scoping the declaration preserves all other
+lost five net exact matches; scoping the declaration preserved all other
 units and every pre-existing event-manager result. The recovered boundary
 now comes from the source annotation rather than the supplement.
+The later header cleanup removes the unused prototype and source marker
+entirely. `PeekInputEvent` uses the common named prototype, and
+`IsVectorWithinRange` no longer stores its single-use range expression in
+a temporary. This combination preserves the complete original executable;
+see the event-manager header cleanup in `docs/PATTERNS.md`.
 
 The empty entry at `0x004368D0` is now `DosInterruptHandlerHook`, retained
 in `eventmgr.c` between `MouseIdleHook` and `GetNavRangeSentinel`. Its role

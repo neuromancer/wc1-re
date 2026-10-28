@@ -5,7 +5,6 @@
  *  The FM Towns executable preserves the original source name
  *  "source\\eventmgr.c" for this unit.
  */
-#define WC1_EVENTMGR_SOURCE
 #include "wc1.h"
 #ifndef SDL_PORT
 #include <malloc.h>
@@ -1292,9 +1291,8 @@ short ExitStatusHook(void)
 unsigned int IsVectorWithinRange(FixedVector *vector, short range)
 {
     int magnitude = Vector_magnitude(vector);
-    int fixedRange = abs((int)range << 8);
 
-    if (fixedRange >= magnitude)
+    if (abs((int)range << 8) >= magnitude)
         return 1;
     return 0;
 }

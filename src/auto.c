@@ -70,16 +70,15 @@ static short nAutopilotFormationShipCount = 0; /* 0x00465544 */
 /* Function start: 0x403F40 */
 void auto_position(short obj, short *formationSlot)
 {
-    short ship = obj;
     short lateral;
     short vertical;
     short forward;
 
-    if (player_wingman(ship) != 0) {
-        position_relative_ijk(&aShipPositionsArray[ship], 0,
-                              aShipFormationDeltaList[ship].x,
-                              aShipFormationDeltaList[ship].y,
-                              aShipFormationDeltaList[ship].z);
+    if (player_wingman(obj) != 0) {
+        position_relative_ijk(&aShipPositionsArray[obj], 0,
+                              aShipFormationDeltaList[obj].x,
+                              aShipFormationDeltaList[obj].y,
+                              aShipFormationDeltaList[obj].z);
         return;
     }
 
@@ -94,7 +93,7 @@ void auto_position(short obj, short *formationSlot)
         int radii;
         int separation;
 
-        radii = asObjectCollisionRadius[ship] +
+        radii = asObjectCollisionRadius[obj] +
                 asObjectCollisionRadius[nYourWingman];
         separation = abs(
             aShipFormationDeltaList[nYourWingman].z -
@@ -102,7 +101,7 @@ void auto_position(short obj, short *formationSlot)
         if (radii > separation)
             vertical = 500;
     }
-    position_relative_ijk(&aShipPositionsArray[ship], 0,
+    position_relative_ijk(&aShipPositionsArray[obj], 0,
                           lateral, vertical, forward);
 }
 

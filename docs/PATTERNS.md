@@ -11378,14 +11378,45 @@ volatile casts, or intermediate offset locals also fails to make any of the
 remaining marker removals exact. The closest combined DIB and ship include
 cleanups leave four and eleven bytes respectively, and are not retained.
 
-The 25 remaining markers are reconstruction workarounds, not recovered
-original feature switches. Replacing all of them with a single native header
-context remains unfinished. Their removal must continue to pass the complete
-executable hash gate; no per-source replacement headers or dummy declarations
-are introduced by this cleanup. SDL port selection remains unchanged.
+The 25 markers remaining at this checkpoint are reconstruction workarounds,
+not recovered original feature switches. Replacing them with a single native
+header context remains unfinished. Their removal must continue to pass the
+complete executable hash gate; no per-source replacement headers or dummy
+declarations are introduced by this cleanup. SDL port selection remains
+unchanged.
 
 The native wibo build and binary-comp preserve all 518,656 original bytes and
 SHA-256 `d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`
 before and after `make verify`. `make modern` and
 `make sort audit-addresses order verify-hash` also pass. The compiler and
 flags are unchanged. Wine was not used.
+
+## Event-manager header cleanup with exact matching required
+
+`WC1_EVENTMGR_SOURCE` and its two remaining header exceptions are removed.
+`PeekInputEvent` now has the same named prototype in every compilation unit.
+The unused forward declaration of `ResetInputKeyStatePreservingModifiers`
+is deleted; its annotated definition and compiler-generated tail jump remain.
+There are now 24 active `WC1_*_SOURCE` markers.
+
+Removing the marker alone changes five bytes in `shrink_vector`, exchanging
+EBX and EDI for its saved Z-component pointer and accumulated result.
+The preceding `IsVectorWithinRange` can compare its range expression directly
+against the saved magnitude. Removing its single-use `fixedRange` local
+preserves that function's instructions and restores the original register
+assignment in `shrink_vector`. Together these changes preserve every byte
+of the executable. No replacement declaration or special header is needed.
+
+`auto_position` also uses its `obj` parameter directly, removing the redundant
+`ship` copy. This preserves the entire image with the existing autopilot
+header context. Removing `WC1_AUTO_SOURCE` still leaves the one reversed
+comparison operand at `0x004041D4`; tested local-order, scope, and preceding
+temporary reductions do not recover it, so that marker remains. These are
+matching ordinary C simplifications, not proof of original source spelling.
+
+The native wibo build and binary-comp preserve all 518,656 original bytes and
+SHA-256 `d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`
+before and after `make verify`. Both instruction-value checks cover all 1,550
+functions with zero mismatches or skips. `make modern` and
+`make sort audit-addresses order verify-hash` also pass. The installed
+compiler and flags are unchanged. Wine was not used.
