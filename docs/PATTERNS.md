@@ -11861,3 +11861,37 @@ and final whole-file byte/hash checks pass. Both instruction-value gates
 cover 1,550 functions with zero mismatches or skips. Existing call/global
 diagnostics remain 11/55. The compiler and flags are unchanged; all native
 compiles use wibo, without Wine.
+
+## Sequential compiler input cleanup: LOGIC
+
+The pass from `23e263d` removes the redundant pointer cast in
+`aCockpitResourceDescriptors`: the explosion shape already has the same
+pointer type as the other entries. The table contents, storage addresses,
+and complete executable remain identical.
+
+LOGIC's prototype-name exception and repeated local declarations form one
+dependency. Restoring the 66 common parameter names while deleting those
+local prototypes preserves every function from `scan_for_enemy` onward.
+Only `find_ship_index` and `get_front_spot` regress, by six and eight file
+bytes. Their register assignments are the same blockers that originally
+motivated these declaration-context changes. This candidate also permits
+an ordinary, nonvolatile `close_behind` parameter, but the fourteen-byte
+group still fails mandatory equality and is discarded.
+
+Separate probes localize the other workarounds. The target-range declaration
+exception controls two load positions in `scan_for_enemy`; the armor/tactic
+swap controls damage-term ordering. The radius qualifier controls the first
+two argument loads in `real_crash_time`, and the tactic qualifier controls
+the tactic/index registers in `reset_tactic`. Removing either special-state
+capture keeps its own function exact but changes later functions. A scene
+count-capture removal exchanges rotation/divisor registers, while sharing
+the two scene loop counters changes the skip-loop pointer/counter registers.
+Ordinary expression and declaration-order follow-ups do not resolve these
+differences. The attempted groups, byte counts, and next entry, MAIN, are
+recorded in [WORKAROUNDS.md](WORKAROUNDS.md).
+
+The native and modern builds, source/address/order audits, and full
+verification pass. Both instruction-value checks cover 1,550 functions
+with zero mismatches or skips; existing call/global diagnostics remain
+11/55. All 518,656 executable bytes and the mandatory hash still match.
+The compiler and flags are unchanged; native compiles use wibo, without Wine.

@@ -145,7 +145,7 @@ MONO and MAIN include the supporting changes described below.
 | 10 | `BARRACKS` — `0x41A9D0` | 22 after cleanup | Partially cleaned: prototype names restored, two unused includes and the animation-frame copy removed. Only the copy-count type remains different; the caller increments CX while the callee forwards a dword. |
 | 11 | `FADE` — `0x41C510` | 391 | Partially cleaned: countdown snapshot removed. Restoring the packet, screen, or input-history declarations separately still leaves nine, nine, or two bytes. |
 | 12 | `SHIP` — `0x41DEE0` | 11,952 | Partially cleaned: weapon record accesses, damage-table cast, and afterburner frame copy. Restoring `call_enemy` with the unused assertion header removed leaves eight bytes in `replenish_shields`; the wingman exception separately leaves two. |
-| 13 | `LOGIC` — `0x422010` | 259,057 | Range/armor/tactic declaration order, prototype names, and shared unused-global groups. |
+| 13 | `LOGIC` — `0x422010` | 259,057 | Reviewed: removing duplicate local prototypes while restoring common parameter names leaves 14 bytes in `find_ship_index` and `get_front_spot`. The resource-table cast is removed; header and volatile blockers remain. |
 | 14 | `MAIN` — `0x4272F0` | 546 with shared hook | A common `DosInterruptHandlerHook` declaration resolves compilation, but six functions differ. Also has input/screen/joystick omissions. |
 | 15 | `VIEW` — `0x42CDB0` | 32 | Event/calibration omissions, pitch/yaw order, and two omitted prototypes; three functions differ. |
 | 16 | `ENDING` — `0x42FA90` | 798 | Scene-initialization prototype, with unnamed parameter; grouped with CUTSCENE. |
@@ -161,15 +161,96 @@ The accepted temporary removals below also leave those counts unchanged.
 Revisit these markers when there is a new declaration-context or source
 idiom hypothesis, rather than repeating local permutations.
 
-The ordered pass has reviewed WINMAIN through SHIP and partially cleaned
-MONO, JOYSTICK, GEOM, BARRACKS, FADE, and SHIP. AUTO, CUTSCENE, BRAINS, and
-COCKPT remain blocked; their probes below retain no source changes.
+The ordered pass has reviewed WINMAIN through LOGIC and partially cleaned
+MONO, JOYSTICK, GEOM, BARRACKS, FADE, SHIP, and LOGIC. AUTO, CUTSCENE,
+BRAINS, and COCKPT remain blocked; their probes below retain no source changes.
 GAMEFLOW's preceding follow-up already covers its current source and
 headers. The next entry is
-LOGIC, starting with its header declaration order, prototype names, and
-shared unused-global omissions, then its function bodies.
+MAIN, starting with its interrupt-hook declaration and shared input,
+screen, and joystick omissions, then its function bodies.
 Revisit a blocked entry only with new evidence or a relevant dependency
 change, rather than repeating the recorded probes.
+
+## Compiler input pass: LOGIC
+
+This pass starts from `23e263d`. The isolated baseline is exact. Probes keep
+the normal include graph and save the real compiler's `/Bk` intermediates.
+Counts below are differing positions in the complete executable; every
+nonzero candidate is discarded.
+
+| Input entry / attempted removal | File difference | First affected function / result |
+| --- | ---: | --- |
+| `WC1_LOGIC_SOURCE` | 259,057 | `crash_time`; it and `change_mission_type` change size. |
+| Unused `<sys/types.h>` | 340 | `find_ship_index`. |
+| Early target-range declaration | 6 | `scan_for_enemy`; the target and range loads at `0x00422FF7` and `0x00422FFE` exchange order. |
+| Armor/tactic declaration swap | 31 | `evaluate_damage`; armor-term instruction ordering changes. |
+| Packet or screen declaration omissions | 266 each | `detect_collisions`; thirteen functions differ. |
+| Input-history declaration omissions | 906 | `detect_collisions`; eighteen functions differ. |
+| Omitted mission/tactic prototype names | 389 | `find_ship_index`; seventeen functions differ. |
+| Omitted front/rear-position prototype names | 906 | `detect_collisions`; eighteen functions differ. |
+| Unused `<crtdbg.h>` | 280 | `detect_collisions`. Removing both unused includes leaves 367 bytes, starting in `trim_goals`. |
+| Cockpit explosion-resource cast | 0 | Accepted: `pCockpitExplosionShape` already has the required `unsigned char *` type. |
+| `real_crash_time` radius qualifier | 6 | `real_crash_time`; the argument loads and radius operands exchange order. |
+| Redundant `unactive` declaration | 77 | `detect_collisions`. |
+| `report_kilrathi_rout` mode copy | 91 | `report_kilrathi_rout`. |
+| Mission/formation declaration group | 827 | `find_ship_index`. |
+| Routed-mission declaration | 302 | `try2rout`. |
+| Tactic-selection declaration | 301 | `set_special`. |
+| `reset_tactic` qualified parameter read | 5 | `reset_tactic`; EAX and ECX exchange the promoted index and tactic. |
+| Either `set_special` pointer/value capture | 69 | `any_enemy`; the edited function stays exact, but later functions change. |
+| `close_behind` volatile parameter | 256,507 | `close_behind`; its global load uses CX instead of AX, growing its body by one byte and its aligned span by sixteen. |
+| Range/resource callee declaration group | 246 | `scan_for_enemy`. |
+| `get_follow_point` type capture, or either damage type/class capture | 38 each | `evaluate_damage`. |
+| Animation object-count capture | 8 | `UpdateSceneAnimationObject`; the rotation value and divisor exchange CX/DI. |
+| Animation object-index capture | 520 | `UpdateSceneAnimationObject`. |
+| Animation goal-flags capture | 350 | `UpdateSceneAnimationObject`. |
+| Separate skip-loop counter | 5 | `PlaySceneAnimation`; reusing `remaining` exchanges the skip counter and object pointer between BP/EDI. |
+
+The strongest grouped candidate restores all 66 omitted prototype parameter
+names and removes the duplicate local declarations that contributed those
+66 names later in the unit. Only two functions then differ: six bytes in
+`find_ship_index`, where the mission index and class use CX/EDX in place of
+DX/ECX, and
+eight in `get_front_spot`, where the destination and position pointers
+exchange ESI/EDI. The actual first-parameter keys move from 27,345 to
+27,399 and from 27,484 to 27,534, respectively. From `scan_for_enemy`
+onward, the keys and generated bytes return to the exact baseline.
+
+Removing `close_behind`'s volatile qualifier under that grouped context
+adds no differences: the same fourteen bytes remain. Removing the radius
+or tactic qualifier instead raises the total to twenty or nineteen.
+Ordinary multiply/shift spellings in `get_front_spot` leave fourteen;
+flattening the ship search's initial guard leaves 99. Moving the existing
+resource definitions beside their users preserves their source order but
+leaves 163. Removing the mode copy while retaining its unsigned switch
+conversion and one existing later prototype leaves 34; also removing the
+special-state pointer and retaining the existing two-parameter release
+prototype leaves the same count. None of these grouped variants is retained.
+
+Other bounded follow-ups also fail. Combining named spot prototypes with
+the unused types-header removal leaves 239 bytes. Reversing the range
+comparison leaves six, while a separate range rejection leaves 235.
+Combining the radius terms into one sum, in either tested grouping, leaves
+six. Reversing `close_behind`'s comparison leaves 256,507 positions; a direct
+Boolean return leaves 256,509. The common armor order plus a direct tactic
+read leaves 36, and removing both damage captures with that order leaves
+227. Exchanging the existing animation property/value declarations does
+not fix the eight-byte regression after removing the count capture,
+despite the diagnostic model's prediction.
+
+Only the redundant resource-table cast is removed. The marker, two volatile
+access casts, and volatile parameter in this unit remain, as do its
+header-context and declaration workarounds. Project totals remain 21 source
+markers, 34 volatile access casts, and four volatile object/parameter
+definitions. MAIN is next; revisit LOGIC with evidence that explains the
+two remaining register assignments rather than repeating these probes.
+
+The native rebuild, source/address/order audits, full `make verify`, and
+`make modern` pass. Both value checks cover 1,550 functions with zero
+mismatches or skips; existing call/global diagnostics remain 11/55.
+The final complete byte comparison and mandatory SHA-256 still match all
+518,656 bytes. The installed compiler and flags are unchanged. All native
+compiles use wibo; Wine was not used.
 
 ## Compiler input pass: SHIP
 

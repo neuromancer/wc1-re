@@ -45,7 +45,7 @@ PacketResourceDescriptor aCockpitResourceDescriptors[19] = {
     { &pConfedCommBackground, 11, 0 },
     { &pCommStaticShape, 11, 11 },
     { &pKilrathiCommBackground, 11, 9 },
-    { (unsigned char **)&pCockpitExplosionShape, 8, 5 },
+    { &pCockpitExplosionShape, 8, 5 },
     { &pCockpitIndicatorShape, 8, 4 },
     { &pCinematicViewBackdropPtr, 8, 6 },
     { &pLogicRearViewBackdropPtr, 8, 7 },
