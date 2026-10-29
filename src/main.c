@@ -2,7 +2,6 @@
  * The initialized state and complete literal order identify this group.
  * Its trailing cursor/palette helpers remain provisional; see docs/ORDER.md.
  */
-#include <stdio.h>
 #define WC1_MAIN_SOURCE
 #ifndef SDL_PORT
 #include <dos.h>
@@ -184,7 +183,6 @@ int main(short argc, char **argv)
     short animationIndex;
     short mission;
     short series;
-    short gameFlowResult;
 
     mission = 0;
     launchMission = 0;
@@ -359,9 +357,8 @@ int main(short argc, char **argv)
             default:
                 break;
             }
-            gameFlowResult = GameFlow();
-            while (gameFlowResult != 0)
-                gameFlowResult = GameFlow();
+            while (GameFlow() != 0)
+                ;
         }
     }
 
@@ -1333,16 +1330,12 @@ void WaitForKeyAcknowledge(int mode)
 void ShowModalMessage(const char *format, ...)
 {
     char text[52];
-
-#ifdef SDL_PORT
     va_list arguments;
 
     va_start(arguments, format);
     vsprintf(text, format, arguments);
     va_end(arguments);
-#else
-    vsprintf(text, format, (char *)(&format + 1));
-#endif
+
     if (ShowModalTextPanel(1, text) != 0) {
         WaitForKeyAcknowledge(0);
         ReleaseModalTextPanel();
@@ -1363,38 +1356,32 @@ void ReportOutOfMemoryAndExit(const char *resource)
 void ShowOnScreenMessage(int flags, short duration,
                          const char *format, ...)
 {
-    short messageDuration;
     short modalShown;
     char text[52];
-
-#ifdef SDL_PORT
     va_list arguments;
 
     va_start(arguments, format);
     vsprintf(text, format, arguments);
     va_end(arguments);
-#else
-    vsprintf(text, format, (char *)(&format + 1));
-#endif
+
     modalShown = 0;
     FlushInputEvents();
-    messageDuration = duration;
-    if (messageDuration == 9999)
+    if (duration == 9999)
         modalShown = ShowModalTextPanel(1, text);
     if (modalShown == 0) {
-        if (messageDuration == 0)
-            messageDuration = MeasureMessageWidth(text);
+        if (duration == 0)
+            duration = MeasureMessageWidth(text);
         SetHudTextColour(1);
         DosStrcpy(szHudMessageBuf, text);
         SetHudMessageText(szHudMessageBuf,
-                          cRedColour, messageDuration);
-        if (messageDuration == 9999) {
+                          cRedColour, duration);
+        if (duration == 9999) {
             ShowHudTextLine(szHudMessageBuf,
                             (unsigned short)cRedColour);
             dump_buffer_to_screen();
         }
     }
-    if (messageDuration == 9999) {
+    if (duration == 9999) {
         if (flags != 0)
             WaitForKeyAcknowledge(1);
         else
@@ -1404,7 +1391,7 @@ void ShowOnScreenMessage(int flags, short duration,
         ReleaseModalTextPanel();
         return;
     }
-    if (messageDuration == 9999)
+    if (duration == 9999)
         SetHudMessageText("", cRedColour, 2);
 }
 

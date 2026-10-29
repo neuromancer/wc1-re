@@ -146,7 +146,7 @@ MONO and MAIN include the supporting changes described below.
 | 11 | `FADE` — `0x41C510` | 391 | Partially cleaned: countdown snapshot removed. Restoring the packet, screen, or input-history declarations separately still leaves nine, nine, or two bytes. |
 | 12 | `SHIP` — `0x41DEE0` | 11,952 | Partially cleaned: weapon record accesses, damage-table cast, and afterburner frame copy. Restoring `call_enemy` with the unused assertion header removed leaves eight bytes in `replenish_shields`; the wingman exception separately leaves two. |
 | 13 | `LOGIC` — `0x422010` | 259,057 | Reviewed: removing duplicate local prototypes while restoring common parameter names leaves 14 bytes in `find_ship_index` and `get_front_spot`. The resource-table cast is removed; header and volatile blockers remain. |
-| 14 | `MAIN` — `0x4272F0` | 546 with shared hook | A common `DosInterruptHandlerHook` declaration resolves compilation, but six functions differ. Also has input/screen/joystick omissions. |
+| 14 | `MAIN` — `0x4272F0` | 553 after cleanup, with shared hook | Partially cleaned: both message functions use standard varargs; two copies and the early stdio include are removed. Header omissions and input qualifiers remain blocked. Continue at `HandleSpaceFlightControls`. |
 | 15 | `VIEW` — `0x42CDB0` | 32 | Event/calibration omissions, pitch/yaw order, and two omitted prototypes; three functions differ. |
 | 16 | `ENDING` — `0x42FA90` | 798 | Scene-initialization prototype, with unnamed parameter; grouped with CUTSCENE. |
 | 17 | `GR` — `0x4408A0` | 135,464 | Viewport declaration order and prototype names; separate layout propagation from the first code difference. |
@@ -161,15 +161,86 @@ The accepted temporary removals below also leave those counts unchanged.
 Revisit these markers when there is a new declaration-context or source
 idiom hypothesis, rather than repeating local permutations.
 
-The ordered pass has reviewed WINMAIN through LOGIC and partially cleaned
-MONO, JOYSTICK, GEOM, BARRACKS, FADE, SHIP, and LOGIC. AUTO, CUTSCENE,
+The ordered pass has reviewed WINMAIN through LOGIC and MAIN through its
+message functions. It has partially cleaned MONO, JOYSTICK, GEOM, BARRACKS,
+FADE, SHIP, LOGIC, and MAIN. AUTO, CUTSCENE,
 BRAINS, and COCKPT remain blocked; their probes below retain no source changes.
 GAMEFLOW's preceding follow-up already covers its current source and
-headers. The next entry is
-MAIN, starting with its interrupt-hook declaration and shared input,
-screen, and joystick omissions, then its function bodies.
+headers. Continue within MAIN at `HandleSpaceFlightControls` (`0x429160`),
+then its remaining flight, damage, cursor, and palette functions.
 Revisit a blocked entry only with new evidence or a relevant dependency
 change, rather than repeating the recorded probes.
+
+## Compiler input pass: MAIN
+
+This pass starts from `de15577`. The isolated baseline is exact. Probes keep
+the normal include graph and save the real compiler's `/Bk` intermediates.
+Counts below are differing positions in the complete executable; every
+nonzero candidate is discarded.
+
+Three groups are accepted. The redundant early `<stdio.h>` include can be
+removed because `wc1.h` supplies it. `ShowModalMessage` now uses the standard
+`va_list` sequence already used by SDL, paired with removing `main`'s
+`gameFlowResult` copy and testing `GameFlow()` directly in the loop.
+`ShowOnScreenMessage` also shares its standard varargs sequence between
+builds, paired with using its by-value `duration` parameter directly instead
+of copying it into `messageDuration`. Each accepted group is byte-exact.
+
+Adding the modal `va_list` alone leaves four bytes in
+`calculate_damage_level`: the left/rear armor loads exchange their address
+operands. The normalized function byte report labels this exact, but the
+complete file comparison and detailed instruction comparison expose the
+changed operands. Removing the GameFlow copy alongside it restores equality.
+The original message functions' argument-address calculation and 52-byte
+text buffers remain unchanged; these ordinary C spellings need no new
+instructions. This does not prove the original author's exact spelling.
+
+| Input entry / attempted removal | File difference | First affected function / result |
+| --- | ---: | --- |
+| `WC1_MAIN_SOURCE`, with the existing interrupt-hook declaration made common in scratch | 546 before cleanup; 553 after | `house_keep` before; `FadeFlightPaletteEntry` after. Six functions still differ after cleanup. Without the hook declaration, the marker removal does not compile. |
+| Early `<stdio.h>` | 0 | Accepted. |
+| Native `<dos.h>` | 1,291 | `player_input`. |
+| Packet or screen declaration omissions | 573 each | `get_player_input`. |
+| Input-history declaration omissions | 1,568 | PE layout also changes; first code regression is in `house_keep`. |
+| Joystick dead zones, raw coordinates, or wait-prototype omissions | 236 each | `get_player_input`, then `RunSpaceFlight`. |
+| `main` argument-slot, selection, or GameFlow result copy, individually | 281 each | `RunSpaceFlight`; only the GameFlow copy is accepted as part of the varargs group. |
+| `house_keep` frame snapshot | 157 | `house_keep`. |
+| `get_player_input` device-index copy | 281 | `RunSpaceFlight`. |
+| `player_input` previous-yaw access qualifier | 73 | `player_input`. |
+| Pitch word `memcpy` replaced with assignment | 14 | The preceding `players_flight_dynamics`; the edited input function itself stays exact. |
+| Roll word `memcpy` replaced with assignment | 930 | `player_input`. |
+| Key-OR, key-test, or previous-key access qualifier | 19 / 2 / 15 | `player_input`; the two-byte candidate changes `CMP AL,BL` to `TEST AL,AL` at `0x4286B7`. |
+| Afterburner access qualifier | 1,338 | PE layout also changes; first code regression is in `player_input`. |
+| Joystick-yaw access qualifier | 821 | The preceding `players_flight_dynamics`. |
+| Cursor-visible, cockpitless-view, or view-center access qualifier | 1,292 / 1,259 / 1,298 | `player_input`. |
+| Viewport-left, mouse-X, or key-value copy | 1,421 each | `player_input`. |
+| Eight repeated prototypes before `SelectPreviousExternalViewObject` | 21 | `SelectPreviousExternalViewObject`; object and view/sentinel registers exchange DX/BX and BL/DL. |
+
+The header and local-prototype omissions were also tested as a group.
+Restoring all eighteen omitted declaration keys while removing seventeen
+local prototype parameter names leaves 529 bytes, starting in `house_keep`.
+Also removing any one of the three tested `main` copies leaves 532, starting
+in `FadeFlightPaletteEntry`. Returning later local keys to their baseline
+does not undo the changed global declaration context.
+
+Without the eight local prototypes, folding the decrement into the loop
+test still leaves 21 bytes. Moving the existing sentinel reset into the
+loop leaves twelve, also rejected. Replacing the qualified key test with
+a test of the existing key copy or a switch leaves 141 or 349 bytes.
+All nine input access qualifiers and both word-copy probes were rechecked
+after the accepted varargs cleanup; their difference counts are unchanged.
+
+The marker and all header exceptions remain. Project totals stay at 21
+source markers, 34 volatile access casts, and four volatile object/parameter
+definitions. This checkpoint ends at the message functions; the next body
+is `HandleSpaceFlightControls` at `0x429160`.
+
+The native rebuild, source/address/order audits, full `make verify`, and
+`make modern` pass. Both value checks cover 1,550 functions with zero
+mismatches or skips; existing call/global diagnostics remain 11/55.
+The complete byte comparison and mandatory SHA-256 still match all
+518,656 bytes. The installed compiler and flags are unchanged. All native
+compiles use wibo; Wine was not used.
 
 ## Compiler input pass: LOGIC
 

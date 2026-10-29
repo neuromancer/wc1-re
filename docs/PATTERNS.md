@@ -11895,3 +11895,39 @@ verification pass. Both instruction-value checks cover 1,550 functions
 with zero mismatches or skips; existing call/global diagnostics remain
 11/55. All 518,656 executable bytes and the mandatory hash still match.
 The compiler and flags are unchanged; native compiles use wibo, without Wine.
+
+## Sequential compiler input cleanup: MAIN messages
+
+The pass from `de15577` removes manual varargs stack traversal from
+`ShowModalMessage` and `ShowOnScreenMessage`. Both now use the standard
+`va_list`, `va_start`, `vsprintf`, and `va_end` sequence previously selected
+only by SDL. MSVC 4.20 emits the same argument-address calculation and
+52-byte text buffers as the original. No additional runtime code is needed.
+
+The cleanup is paired with removing two redundant copies. `main` tests
+`GameFlow()` directly instead of storing its result, and
+`ShowOnScreenMessage` uses its by-value duration parameter directly. Removing
+the GameFlow copy balances the modal function's new local in the compiler
+input; replacing the duration copy with `va_list` likewise preserves the
+later symbol context. The early `<stdio.h>` include is also redundant and
+can be removed. The combined complete executable remains byte-identical.
+
+The modal varargs change alone leaves four differing bytes in
+`calculate_damage_level`, exchanging the left/rear armor address operands.
+Its normalized byte report still says exact. Use the full-file comparison
+and detailed instruction operands to catch this case; normalized reports
+cannot replace the mandatory executable hash.
+
+The header exceptions, eight repeated prototypes, nine input qualifiers,
+and two input word copies remain blocked. In particular, replacing the
+pitch `memcpy` changes fourteen bytes in the preceding flight-dynamics
+function, and removing the key-test qualifier substitutes `TEST AL,AL` for
+`CMP AL,BL`. Rechecking these probes after the accepted cleanup leaves the
+same differences. The attempt ledger and next body,
+`HandleSpaceFlightControls`, are in [WORKAROUNDS.md](WORKAROUNDS.md).
+
+The native and modern builds, source/address/order audits, and full
+verification pass. Both instruction-value checks cover 1,550 functions
+with zero mismatches or skips; existing call/global diagnostics remain
+11/55. All 518,656 executable bytes and the mandatory hash still match.
+The compiler and flags are unchanged; native compiles use wibo, without Wine.
