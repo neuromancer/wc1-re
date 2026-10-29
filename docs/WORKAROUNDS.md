@@ -11,6 +11,25 @@ Acceptance requires all **518,656 bytes** of `WC1.EXE` to match
 Use the installed MSVC 4.20 toolchain through **wibo**, with the existing
 flags and link order. Do not use Wine.
 
+## Execution order
+
+Work **from start to end**: follow the compilation-unit order in
+[ORDER.md](ORDER.md), then increasing function address within each unit.
+The queue below follows that order. Include the unit's remaining access
+casts, captures, and redundant declarations when investigating its header
+exception; the marker count alone is not a complete workaround inventory.
+
+Earlier declarations and locals can change CL's choices in later functions
+of the same unit. Starting at the beginning avoids repeatedly disturbing
+later cleanups. A shared-header change can affect any unit, so process that
+dependency as a group at its first affected entry and check every dependent
+unit, including ones already reviewed.
+
+Accept only exact changes. When a bounded investigation is blocked, retain
+the matching source, record the cause and rejected attempts, and advance to
+the next entry. A reviewed entry is not necessarily free of workarounds;
+revisit a blocker when new evidence or a relevant header change warrants it.
+
 ## Procedure for each removal
 
 1. **Record the dependency.** Find the source definition and every header
@@ -89,34 +108,34 @@ may become unnecessary after a real simplification in the same unit.
 ## Current worklist: 21 active markers
 
 Names below omit the common `WC1_` prefix and `_SOURCE` suffix. Counts are
-historical whole-executable positional differences from independent
-marker-only probes at the preceding exact checkpoint, `05937f6`; remeasure
-before using them to judge a new candidate. They are not remaining bytes
-in the retained build, which is exact.
+whole-executable positional differences from scratch probes, not remaining
+bytes in the retained build, which is exact. Most are historical marker-only
+measurements at `05937f6`; remeasure before using them to judge a candidate.
+MONO and MAIN include the supporting changes described below.
 
-| Marker | Probe difference | Dependency / next investigation |
-| --- | ---: | --- |
-| `AUTO` | 1 | Wingman declaration order; `auto_pilot_sequence` comparison. Existing local-order and temporary-removal attempts failed. |
-| `BARRACKS` | 39 | `DosMemcpy` count width and prototype names; investigate caller arithmetic with the full-width callee. |
-| `BRAINS` | 460 | Wingman declaration order and omitted core/audio prototypes; shares the wingman group with AUTO and SHIP. |
-| `COCKPT` | 1 | Omitted indicator-state declaration; `animate_pilot` operand order. Removing its volatile read also does not match. |
-| `CUTSCENE` | 546 | Typed `init_3Space_objects` prototype; group with ENDING and all scene-initialization callers. |
-| `ENDING` | 798 | Same scene prototype, with unnamed parameter. |
-| `FADE` | 391 | Omitted input-history and screen-storage declarations; shared group with MAIN and LOGIC. |
-| `GAMEFLOW` | 20 | Omitted room globals and scene-buffer declaration order; `PostMission` and `free_viewport`. |
-| `GEOM` | 165 | Omitted prototype parameter names; inspect with the existing call captures. |
-| `GR` | 135,464 | Viewport declaration order and prototype names; separate layout propagation from the first code difference. |
-| `IX_DSPS` | 2,829 | Shared `ix.h` record/API omissions and count declarations. |
-| `IX_DSPV` | 2,373 | Shared `ix.h` record/API omissions and count declarations. |
-| `IX_SOUND` | 2,783 | Shared `ix.h` sound/voice declaration order and omissions. |
-| `IX_SYSTEM` | 54 | Shared `ix.h` omissions; currently only `ix_system_assign_voice` and `ix_system_find_free_voice` differ. |
-| `JOYSTICK` | 405 | Calibration-bound declaration order. |
-| `LOGIC` | 259,057 | Range/armor/tactic declaration order, prototype names, and shared unused-global groups. |
-| `MAIN` | Compile error | Restore a common declaration for the real `DosInterruptHandlerHook` first; also has input/screen/joystick omissions. |
-| `MONO` | 385,589 | Event-list and sprite-prototype omissions; inspect the first size/layout divergence. |
-| `SHIP` | 11,952 | Wingman declaration order and omitted `call_enemy` prototype. |
-| `VIEW` | 32 | Event/calibration omissions, pitch/yaw order, and two omitted prototypes; three functions differ. |
-| `WINMAIN` | 394,412 | Byte declarations of three integer-backed configuration flags; requires an access-width investigation across owners. |
+| Order | Marker / unit start | Probe difference | Dependency / next investigation |
+| ---: | --- | ---: | --- |
+| 1 | `WINMAIN` — `0x401000` | 394,412 | Reviewed: three flags have original byte writes here and integer accesses elsewhere. Common integer declarations enlarge `CheckLauncherAndConfig` by 16 bytes. |
+| 2 | `MONO` — `0x403500` | 6 with cleanup | Partially cleaned: the event-list omission is removed. Restoring the shared sprite prototype and removing the local declaration still swaps registers in `SeekDataFile`. |
+| 3 | `AUTO` — `0x403E50` | 1 | Wingman declaration order; `auto_pilot_sequence` comparison. Existing local-order and temporary-removal attempts failed. |
+| 4 | `CUTSCENE` — `0x407710` | 546 | Typed `init_3Space_objects` prototype; group with ENDING and all scene-initialization callers. |
+| 5 | `BRAINS` — `0x409760` | 460 | Wingman declaration order and omitted core/audio prototypes; shares the wingman group with AUTO and SHIP. |
+| 6 | `GAMEFLOW` — `0x40EFE0` | 20 | Omitted room globals and scene-buffer declaration order; `PostMission` and `free_viewport`. |
+| 7 | `JOYSTICK` — `0x4102B0` | 405 | Calibration-bound declaration order. |
+| 8 | `COCKPT` — `0x413A10` | 1 | Omitted indicator-state declaration; `animate_pilot` operand order. Removing its volatile read also does not match. |
+| 9 | `GEOM` — `0x418080` | 165 | Omitted prototype parameter names; inspect with the existing call captures. |
+| 10 | `BARRACKS` — `0x41A9D0` | 39 | `DosMemcpy` count width and prototype names; investigate caller arithmetic with the full-width callee. |
+| 11 | `FADE` — `0x41C510` | 391 | Omitted input-history and screen-storage declarations; shared group with MAIN and LOGIC. |
+| 12 | `SHIP` — `0x41DEE0` | 11,952 | Wingman declaration order and omitted `call_enemy` prototype. |
+| 13 | `LOGIC` — `0x422010` | 259,057 | Range/armor/tactic declaration order, prototype names, and shared unused-global groups. |
+| 14 | `MAIN` — `0x4272F0` | 546 with shared hook | A common `DosInterruptHandlerHook` declaration resolves compilation, but six functions differ. Also has input/screen/joystick omissions. |
+| 15 | `VIEW` — `0x42CDB0` | 32 | Event/calibration omissions, pitch/yaw order, and two omitted prototypes; three functions differ. |
+| 16 | `ENDING` — `0x42FA90` | 798 | Scene-initialization prototype, with unnamed parameter; grouped with CUTSCENE. |
+| 17 | `GR` — `0x4408A0` | 135,464 | Viewport declaration order and prototype names; separate layout propagation from the first code difference. |
+| 18 | `IX_DSPS` — `0x445190` | 2,829 | Shared `ix.h` record/API omissions and count declarations. |
+| 19 | `IX_DSPV` — `0x4467A0` | 2,373 | Shared `ix.h` record/API omissions and count declarations. |
+| 20 | `IX_SYSTEM` — `0x447200` | 54 | Shared `ix.h` omissions; currently only `ix_system_assign_voice` and `ix_system_find_free_voice` differ. |
+| 21 | `IX_SOUND` — `0x447A20` | 2,783 | Shared `ix.h` sound/voice declaration order and omissions. |
 
 VIEW, GAMEFLOW, and IX_SYSTEM have now had a bounded follow-up investigation
 at `5d8b643`; their marker-only differences remain 32, 20, and 54 bytes.
@@ -124,11 +143,43 @@ The accepted temporary removals below also leave those counts unchanged.
 Revisit these markers when there is a new declaration-context or source
 idiom hypothesis, rather than repeating local permutations.
 
-The next investigation is MAIN's missing common declaration of the real
-`DosInterruptHandlerHook`, followed by the input-history and screen-storage
-omissions shared with FADE and LOGIC. Measure each affected unit before
-attempting a common header layout. Keep the one-byte AUTO and COCKPT cases
-on the list, with the same requirement for a new hypothesis.
+The ordered pass has reviewed WINMAIN and partially cleaned MONO. The next
+entry is AUTO, followed by CUTSCENE and BRAINS. AUTO's existing one-byte
+blocker should not trigger another identical local-permutation sweep: look
+for a new shared wingman-declaration hypothesis or advance to CUTSCENE.
+
+## Ordered pass: WINMAIN and MONO
+
+WINMAIN's marker-only probe still differs in `CheckLauncherAndConfig`,
+whose span grows by sixteen bytes. The original writes one byte to each of
+three integer-backed flags. Changing their common storage types would also
+need to explain the integer accesses in MAIN, AUTO, SHIP, and other callers.
+The previously tested byte casts change register allocation. No replacement
+cast or per-source declaration is introduced; this marker remains blocked.
+
+MONO now sees the three common event-list declarations. Its existing console
+buffer, availability flag, and driver handle are declared beside
+`MonoDebug_install`. Their storage, spelling, visibility, and addresses are
+unchanged. The three existing linker-common definitions follow that state,
+keeping the storage declarations in ascending address order. This removes
+MONO's exception in `globals.h`; the complete executable remains exact and
+the layout audit needs no new exception.
+
+The remaining `WC1_MONO_SOURCE` consumer only omits `DrawSpriteDefault` from
+the shared function header in favor of its existing local declaration.
+Removing that exception and the redundant local declaration initially leaves
+45 bytes in four functions. With the console-state placement, only six bytes
+remain: `SeekDataFile` swaps ESI and EDI for its offset and result. File-buffer
+placement, ordinary result type spellings, assignment in the condition, and
+16-bit seek-origin declarations do not resolve it. Those probes are discarded.
+
+Before adopting the ordered pass, the MAIN/FADE/LOGIC probes reproduced their
+blockers. A common DOS interrupt-hook declaration permits MAIN to compile
+without its marker but leaves 546 bytes in six functions. FADE still differs
+by 391 bytes after removing its palette snapshot, countdown snapshot, and
+byte-count temporary individually or together. LOGIC's marker removal still
+changes two function sizes and leaves 259,057 positional differences. None
+of these failed source or header variants is retained.
 
 ## Follow-up: VIEW, GAMEFLOW, IX_SYSTEM
 

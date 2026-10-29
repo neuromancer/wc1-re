@@ -209,9 +209,9 @@ extern signed char acDirectionShapeFrame[ /* 0x0046db28 */
     DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT];
 extern signed char acDirectionShapeFlip[ /* 0x0046dbe8 */
     DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT];
-/* Event-list state is private to eventmgr.c. These owners omit its unused
- * declarations; the code-selection evidence is in docs/PATTERNS.md. */
-#if !defined(WC1_MONO_SOURCE) && !defined(WC1_VIEW_SOURCE)
+/* The view unit omits these unused event-list declarations for its
+ * measured compiler context; see docs/PATTERNS.md. */
+#ifndef WC1_VIEW_SOURCE
 extern InputEvent *pInputEventHead; /* 0x0046da90 */
 extern InputEvent *pInputEventTail; /* 0x0046da94 */
 extern int bInputEventPoolInitialized; /* 0x0046da98 */

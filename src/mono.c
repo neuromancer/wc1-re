@@ -10,23 +10,12 @@
 #include "wc1.h"
 
 short nPacketError = 0; /* 0x00465460 */
-/* File-error buffers and MONODEBG state. CL places these statics by
+/* File-error buffers. CL places these and the console statics by
  * identifier hash, so their spellings reproduce the original order. */
 static char szDataFileReadError[0x40]; /* 0x00475d20 */
 static char szDataCreateError[0x40]; /* 0x00475d60 */
 static char szWriteDataError[0x40]; /* 0x00475da0 */
 static char szSeekDataError[0x40]; /* 0x00475de0 */
-/* Nothing in the shipped executable references this buffer. */
-static unsigned char abUnusedMonoBuffer[0x50]; /* 0x00475e20 */
-static int bMonoDebugAvailable; /* 0x00475e70 */
-static HANDLE hMonoDebugDriver; /* 0x00475e74 */
-
-
-/* Linker commons defined here; LINK orders them by identifier hash. */
-int nHostMouseMessageY; /* 0x005a8994 */
-int bHostPrimaryMouseButton; /* 0x005a8998 */
-int bHostSecondaryMouseButton; /* 0x005a899c */
-
 /* Function start: 0x403500 */
 void __stdcall CloseDataFile(unsigned short fd)
 {
@@ -324,6 +313,16 @@ void __stdcall SplitGameClockTicks(unsigned char *parts)
     ticks = ticks / 60;
     parts[3] = (unsigned char)(ticks % 24);
 }
+
+/* Nothing in the shipped executable references this buffer. */
+static unsigned char abUnusedMonoBuffer[0x50]; /* 0x00475e20 */
+static int bMonoDebugAvailable; /* 0x00475e70 */
+static HANDLE hMonoDebugDriver; /* 0x00475e74 */
+
+/* Linker commons defined here; LINK orders them by identifier hash. */
+int nHostMouseMessageY; /* 0x005a8994 */
+int bHostPrimaryMouseButton; /* 0x005a8998 */
+int bHostSecondaryMouseButton; /* 0x005a899c */
 
 /* Function start: 0x403C90 */
 void MonoDebug_install(void)

@@ -11534,3 +11534,58 @@ The native wibo build, `make modern`, source/address/order audits, and
 with zero mismatches or skips. The complete byte and hash checks also pass
 after verification. The installed compiler and flags are unchanged;
 Wine was not used.
+
+## Ordered cleanup and MONO's shared event declarations
+
+The active queue in [WORKAROUNDS.md](WORKAROUNDS.md) now follows unit order
+and function address, from the start of the executable to the end. Earlier
+source changes can affect later code selection in the same unit. Shared
+headers still require checking every dependent unit, and blocked entries
+remain documented when the pass moves forward.
+
+WINMAIN's marker-only probe reproduces the 16-byte growth in
+`CheckLauncherAndConfig` (`0x00401D10`). The original stores bytes to
+`nOriginDevUnlock`, `bPlayerVulnerable`, and `bPlayerCollisionResponse`, while
+other units use integer accesses to the same storage. A common type must
+explain both access widths; neither the source switch nor the previously
+rejected byte casts is evidence of the original declaration text. This
+entry remains blocked without introducing another access workaround.
+
+MONO no longer omits `pInputEventHead`, `pInputEventTail`, or
+`bInputEventPoolInitialized` from the common globals header. Its private
+console buffer, availability flag, and driver handle can be declared
+immediately before `MonoDebug_install` (`0x00403C90`). The three existing
+linker-common definitions follow them so source declaration order agrees
+with storage addresses. All names, types, visibility, storage ownership,
+and addresses are unchanged. The complete executable is byte-identical,
+and MONO's layout audit passes without a new reviewed dependency.
+
+The sprite-prototype exception is separate. Removing `WC1_MONO_SOURCE`
+and its redundant local `DrawSpriteDefault` declaration initially leaves
+45 differing executable bytes in four routines. With the console-state
+placement, only `SeekDataFile` (`0x004036B0`) differs: six bytes exchange ESI
+and EDI between its saved offset and result. Moving file-error buffers near
+their users, ordinary long/unsigned result types, an assignment condition,
+and a word-sized seek-origin parameter do not recover the original register
+assignment. Those candidates are discarded; the remaining marker selects
+only the sprite-prototype omission.
+
+Earlier probes in this pass established MAIN's concrete blocker: making
+`DosInterruptHandlerHook` common allows marker removal to compile, but leaves
+546 differing bytes across six functions. Moving that prototype into address
+order does not improve the result. FADE's palette, countdown, and byte-count
+temporary removals leave its 391-byte marker difference, separately and
+together. LOGIC's 259,057 positional differences start with size changes in
+`crash_time` and `change_mission_type`. None of these probes is retained.
+
+There are still 21 active source markers, but MONO has one fewer header
+exception. The volatile inventory remains 34 access casts and four
+object/parameter definitions. No new cast, assembly, temporary, or
+per-source header substitute is introduced.
+
+The native wibo rebuild, modern build, source/address/order audits, and full
+`make verify` pass. Both instruction-value checks cover all 1,550 functions
+with zero mismatches or skips. The final complete comparison still matches
+all 518,656 bytes, with SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The installed compiler and flags are unchanged. Wine was not used.
