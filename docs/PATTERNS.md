@@ -11735,3 +11735,49 @@ comparison and mandatory hash confirm all 518,656 bytes and SHA-256
 `d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
 The compiler hash and flags are unchanged. All native compiles use wibo;
 Wine was not used.
+
+## Sequential compiler input cleanup: barracks
+
+The pass from `46c8e7c` removes BARRACKS's omission of the three `DosMemcpy`
+parameter names. Delete its unused `<dos.h>` and `<assert.h>` includes at
+the same time. The names add three frontend symbols, while the includes
+contribute one and two respectively. The grouped removal preserves every
+recorded function parameter key and all executable bytes. Naming the
+parameters alone leaves seventeen bytes in `LoadGame` and
+`DrawBarracksStaticDetails`; removing the headers independently leaves six
+and 44 bytes. The full ledger is in [WORKAROUNDS.md](WORKAROUNDS.md).
+
+`AnimateBarracks` (`0x0041BCE0`) also reads `bunkState->animationFrame`
+directly when choosing the sprite frame. Remove its short snapshot and
+the now-unnecessary enclosing block. The compiler retains the original
+single field load and both `MOV DX,24` instructions. This independent
+cleanup is exact despite moving the following bunk-selection parameter
+key from 27,638 to 27,637. These results establish simpler matching forms,
+not the original author's exact spelling.
+
+The BARRACKS header exception now only changes the count type. Removing
+the marker leaves 22 differing executable bytes; `SetAwakenBarracksMenuLabel`
+is the only affected function. The common `size_t` declaration changes
+`INC CX` at `0x0041B164` to `INC ECX` and shortens the code by one byte.
+Both declarations now use
+`dst`, `src`, and `n`, so the recorded function keys do not change. The
+callee still forwards the complete dword count to `memmove`. Do not infer
+a common short-count signature from the caller alone.
+
+The remaining unused process/stat headers and pointer-based rectangle,
+save-position, and occupied-byte accesses still fail exact matching when
+simplified. In particular, using the ordinary occupied field moves its
+load before the preceding description-byte store, while simplifying both
+description and occupied accesses increases `LoadGame`'s aligned span by
+sixteen bytes. No failing variant is retained. There remain 21 markers,
+34 volatile access casts, and four volatile object/parameter definitions;
+BARRACKS itself has no volatile qualifiers.
+
+The production rebuild of the shared-header dependents, source/address/order
+audits, full `make verify`, and `make modern` pass. Both instruction-value
+checks cover all 1,550 functions with zero mismatches or skips. Existing
+call/global-access diagnostic counts remain 11/55. The final full-file
+comparison preserves all 518,656 bytes and SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The installed compiler hash and flags are unchanged. All native builds use
+wibo; Wine was not used.

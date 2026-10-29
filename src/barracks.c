@@ -9,11 +9,9 @@
 #define WC1_BARRACKS_SOURCE
 #include "wc1.h"
 #ifndef SDL_PORT
-#include <dos.h>
 #include <process.h>
 #endif
 #include <sys/stat.h>
-#include <assert.h>
 
 const TitleMenuRegion aBarracksMenuRegions[21] = {
     { 1, 137, 88, 149, 94 },
@@ -850,15 +848,10 @@ void AnimateBarracks(Viewport *viewport, unsigned char *shape,
                         (int)bunkState->animationPeriod == 0)
                     bunkState->animationFrame = 0;
             }
-            {
-                short animationFrame;
-
-                animationFrame = bunkState->animationFrame;
-                if (animationFrame < 13)
-                    frame = (short)(24 - animationFrame);
-                else
-                    frame = 24;
-            }
+            if (bunkState->animationFrame < 13)
+                frame = (short)(24 - bunkState->animationFrame);
+            else
+                frame = 24;
         }
         DrawSpriteDefault(viewport,
                           (short)((bunk % 2) * 14 + 148),

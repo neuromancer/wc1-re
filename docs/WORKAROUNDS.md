@@ -142,7 +142,7 @@ MONO and MAIN include the supporting changes described below.
 | 7 | `JOYSTICK` — `0x4102B0` | 405 | Partially cleaned: three direct bound products are exact. The X-bound declaration swap still causes two bytes; the maximum-Y/failure-value swap causes 405. |
 | 8 | `COCKPT` — `0x413A10` | 1 | Reviewed: indicator omission, escort captures, six repeated prototypes, and both volatile reads remain blocked. Removing the indicator declaration globally also changes WINMAIN. |
 | 9 | `GEOM` — `0x418080` | 297,911 after cleanup | Partially cleaned: `fix_objects_ijk` has one common named prototype; the redundant text-scan pointer is removed. Either remaining direct-call/prototype group still leaves seven bytes in `GetShipAccelerationRate`. |
-| 10 | `BARRACKS` — `0x41A9D0` | 39 | `DosMemcpy` count width and prototype names; investigate caller arithmetic with the full-width callee. |
+| 10 | `BARRACKS` — `0x41A9D0` | 22 after cleanup | Partially cleaned: prototype names restored, two unused includes and the animation-frame copy removed. Only the copy-count type remains different; the caller increments CX while the callee forwards a dword. |
 | 11 | `FADE` — `0x41C510` | 391 | Omitted input-history and screen-storage declarations; shared group with MAIN and LOGIC. |
 | 12 | `SHIP` — `0x41DEE0` | 11,952 | Wingman declaration order and omitted `call_enemy` prototype. |
 | 13 | `LOGIC` — `0x422010` | 259,057 | Range/armor/tactic declaration order, prototype names, and shared unused-global groups. |
@@ -161,14 +161,70 @@ The accepted temporary removals below also leave those counts unchanged.
 Revisit these markers when there is a new declaration-context or source
 idiom hypothesis, rather than repeating local permutations.
 
-The ordered pass has reviewed WINMAIN through GEOM and partially cleaned
-MONO, JOYSTICK, and GEOM. AUTO, CUTSCENE, BRAINS, and COCKPT remain blocked;
-their probes below retain no source changes. GAMEFLOW's preceding follow-up
-already covers its current source and headers. The next entry is BARRACKS,
-starting with its `DosMemcpy` declaration exception, then the remaining
-access casts in source order.
+The ordered pass has reviewed WINMAIN through BARRACKS and partially cleaned
+MONO, JOYSTICK, GEOM, and BARRACKS. AUTO, CUTSCENE, BRAINS, and COCKPT remain
+blocked; their probes below retain no source changes. GAMEFLOW's preceding
+follow-up already covers its current source and headers. The next entry is
+FADE, starting with its shared input-history and screen-storage omissions.
 Revisit a blocked entry only with new evidence or a relevant dependency
 change, rather than repeating the recorded probes.
+
+## Compiler input pass: BARRACKS
+
+This pass starts from `46c8e7c`. The isolated baseline is exact, and actual
+`/Bk` intermediates preserve the compiler's input structure. BARRACKS already
+has no volatile qualifiers; its remaining candidates are declaration
+context, pointer-based field accesses, and the animation-frame snapshot.
+All counts below are whole-executable positional differences from
+binary-comp, not the number of unmatched instructions.
+
+| Input entry / attempted removal | File difference | First affected function / result |
+| --- | ---: | --- |
+| `WC1_BARRACKS_SOURCE` before cleanup | 39 | `SetAwakenBarracksMenuLabel`; two later functions also change. |
+| Omitted `DosMemcpy` parameter names alone | 17 | `LoadGame`, then `DrawBarracksStaticDetails`. |
+| Narrow copy-count type alone | 22 | `SetAwakenBarracksMenuLabel`; the copy increment becomes `INC ECX`. |
+| Unused `<dos.h>` alone | 6 | `DrawBarracksStaticDetails`. |
+| Unused `<process.h>` alone | 12 | `FreeBarracksMenuLabel`; two later functions also change. |
+| Unused `<sys/stat.h>` alone | 286,937 | `CreateEmptySaveGameFile`; a later bunk-rendering span shrinks by sixteen bytes. |
+| Unused `<assert.h>` alone | 44 | `SaveGame`; two later functions also change. |
+| Panel rectangle overlay replaced by four field assignments | 290,531 | `InitializeModalTextPanel`; its span grows by sixteen bytes. |
+| Viewport rectangle overlays replaced by field assignments | 270 | `InitializeModalTextPanel`; instruction selection and scheduling change. |
+| Empty-save position byte-pointer casts replaced by direct vector fields | 130 | `CreateEmptySaveGameFile`. |
+| Loaded occupied-byte cast replaced by `diskRecord.occupied` | 9 | `LoadGame`; the occupied-byte load moves before the last description-byte store. |
+| `AnimateBarracks` frame snapshot | 0 | Accepted: use the existing bunk-state field directly. |
+| Prototype names restored with `<dos.h>` and `<assert.h>` removed | 0 | Accepted on top of the animation cleanup. |
+| Both initial load-record accesses simplified together | 287,220 | `LoadGame`; its span grows by sixteen bytes. |
+| Remaining marker after cleanup | 22 | `SetAwakenBarracksMenuLabel` is the only affected function; instruction positions and relocations change. |
+
+Restoring the three prototype names adds three symbols before the bodies.
+Removing `<dos.h>` subtracts one, and removing `<assert.h>` subtracts two.
+Together they retain the original parameter keys: 27,330 for
+`InitializeModalTextPanel`, 27,423 for `SetAwakenBarracksMenuLabel`, 27,508
+for `LoadGame`, and 27,583 for `DrawBarracksStaticDetails`. The frame-copy
+removal independently moves `HandleBarracksBunkSelection` from 27,638 to
+27,637 without changing any executable byte. The native source and shared
+header retain no replacement declarations or captures.
+
+The unused process and stat includes remain blocked with the accepted
+changes too, leaving twelve and 286,937 bytes respectively. Removing the
+marker now preserves every recorded function base: both `DosMemcpy`
+branches have the same parameter names. Its sole remaining dependency is
+the unsigned-short count type. At `0x0041B164`, the original uses `INC CX`
+and then pushes ECX; the common `size_t` declaration emits `INC ECX`, making
+the instruction one byte shorter. The callee at `0x004354F0` forwards the
+whole dword to `memmove`. Earlier short-count definition/local probes still
+apply; this pass does not replace the mismatch with a different type trick.
+
+The retained cleanup removes two unused includes, the prototype-name
+omission, and one redundant local. There remain 21 source markers,
+34 volatile access casts, and four volatile object/parameter definitions.
+FADE is the next entry.
+
+The native rebuild, mandatory hash, source/address/order audits, full
+`make verify`, and `make modern` pass. Both instruction-value checks cover
+all 1,550 functions with zero mismatches or skips. The final binary-comp
+comparison confirms all 518,656 bytes still match. The installed compiler
+hash and flags are unchanged; all native compiles use wibo, without Wine.
 
 ## Compiler input pass: COCKPT and GEOM
 

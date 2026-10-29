@@ -1455,7 +1455,7 @@ short __stdcall DosStrlen(const char *s);                                   /* 0
 #if defined(WC1_BARRACKS_SOURCE) && !defined(SDL_PORT)
 /* The retail barracks caller retains word-sized copy-count arithmetic.
  * DosMemcpy itself forwards the complete dword stack slot to memmove. */
-void __stdcall DosMemcpy(void *, const void *, unsigned short); /* 0x004354F0 */
+void __stdcall DosMemcpy(void *dst, const void *src, unsigned short n); /* 0x004354F0 */
 #else
 void __stdcall DosMemcpy(void *dst, const void *src, size_t n);               /* 0x004354F0 */
 #endif
