@@ -16,15 +16,14 @@ FixedVector vNormalizedToTarget; /* 0x005a7db0 */
 short __stdcall MeasureTextPixelWidthClamped(const char *text)
 {
     short width = 0;
-    const char *scan = text;
 
-    while (*scan != 0) {
-        width = (short)(width + GetFontCharWidth(*scan++));
+    while (*text != 0) {
+        width = (short)(width + GetFontCharWidth(*text++));
         if (width >= 320)
             break;
     }
-    if (*scan-- != 0) {
-        width = (short)(width - GetFontCharWidth(*scan));
+    if (*text-- != 0) {
+        width = (short)(width - GetFontCharWidth(*text));
     }
     return width;
 }

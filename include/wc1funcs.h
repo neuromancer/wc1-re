@@ -620,11 +620,7 @@ void rotate_about_k(short angle, FixedVector *i,
                     FixedVector *j);                            /* 0x00418E40 */
 void init_ijk(short obj);                                       /* 0x00418F60 */
 void copy_frame(short source, short destination);                    /* 0x00418FD0 */
-#ifdef WC1_GEOM_SOURCE
-void fix_objects_ijk(short);                                     /* 0x00419050 */
-#else
 void fix_objects_ijk(short obj);                                 /* 0x00419050 */
-#endif
 void transform_to_objects_frame(const FixedVector *source,
                                 FixedVector *destination,
                                 short obj);                           /* 0x004190B0 */

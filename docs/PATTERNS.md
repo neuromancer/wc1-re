@@ -11669,3 +11669,69 @@ bytes and SHA-256
 The installed compiler and flags are unchanged. There are still 21 source
 markers, 34 volatile access casts, and four volatile object/parameter
 definitions. All native compiles use wibo; Wine was not used.
+
+## Sequential compiler input cleanup: cockpit and geometry
+
+The pass from `949669e` continues through COCKPT and GEOM with their normal
+include structure and saved `/Bk` intermediates. The attempt ledger and
+first affected functions are in [WORKAROUNDS.md](WORKAROUNDS.md).
+
+`MeasureTextPixelWidthClamped` (`0x00418080`) can advance its existing
+`text` parameter instead of copying it into a separate `scan` local.
+Pair this removal with restoring the named `fix_objects_ijk(short obj)`
+prototype for GEOM. All units now use that one declaration; its
+`WC1_GEOM_SOURCE` branch is deleted. The other two GEOM prototype exceptions
+and both `point_at` call captures remain.
+
+The restored prototype adds one frontend symbol before the first function;
+the removed local consumes one fewer symbol before the second. The first
+function's parameter key moves from 27,232 to 27,233, while
+`SeekPacketSection` stays at 27,241 and `GetShipAccelerationRate` at 27,295.
+The complete executable is exact. Removing the scan copy alone leaves
+618 differing bytes, starting in `CollectActivePaletteIndices`; restoring
+the prototype alone leaves 297,664, including later code-size changes.
+The accepted pair is a simpler matching source form, without new locals,
+casts, special headers, or assembly. It does not establish the original
+author's exact source spelling.
+
+COCKPT yields no accepted removal. Its indicator byte has no users outside
+the owner, but removing its declaration from the shared header changes
+`WarpMouseTo` in WINMAIN, leaving 22 differing bytes when only that unit is
+rebuilt. The isolated COCKPT owner remains exact. Restoring the declaration
+for COCKPT instead leaves its known one-byte `animate_pilot` comparison
+difference. Removing the marker moves the indicator key from 27,262 to
+23,688 while the recorded function bases remain unchanged.
+
+Removing any one escort capture shifts `flag_reached`'s parameter key from
+27,648 to 27,647 and leaves 63 bytes. The six redundant prototypes after
+that function also remain necessary in the present context: individual
+removals leave 25, 181, or 183 bytes, and removing the entire block leaves
+993. A one-parameter removal moves `ShowHudTextLine` from key 27,872 to
+27,871 and exchanges its argument registers. Reusing its stored global
+or assigning that global inside the call does not repair the exchange.
+
+The HUD-message qualified read still forces ECX instead of EAX for the
+displayed pointer. Removing it, moving an ordinary snapshot into block
+scope, or using the global directly leaves 177 bytes. The shorter EAX load
+moves subsequent instructions by one byte. Removing the pilot-frame
+qualifier leaves 28 bytes; removing its header exception too leaves six
+bytes, exchanging which global is loaded and which is compared despite
+normalized similarity remaining exact.
+
+After the accepted GEOM cleanup, the remaining marker alone leaves 297,911
+bytes because later function spans change. Removing either call capture
+with its corresponding remaining prototype group leaves only the seven
+acceleration-register bytes. The damage-read qualifier, promoted damage
+limit, and low-word facing reads also remain blocked. These larger scratch
+counts do not describe a regression in the retained executable, which is
+still byte-identical. There remain 21 source markers, 34 volatile access
+casts, and four volatile object/parameter definitions.
+
+The production rebuild of the shared-header dependents, source/address/order
+audits, full `make verify`, and `make modern` pass. Both instruction-value
+checks cover all 1,550 functions with zero mismatches or skips. The existing
+call/global-access diagnostics remain 11/55. The final complete-file
+comparison and mandatory hash confirm all 518,656 bytes and SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The compiler hash and flags are unchanged. All native compiles use wibo;
+Wine was not used.

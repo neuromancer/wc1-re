@@ -140,8 +140,8 @@ MONO and MAIN include the supporting changes described below.
 | 5 | `BRAINS` — `0x409760` | 460 | Reviewed: grouped core/audio prototype restoration reaches 17 bytes in three functions, with the wingman exception retained. |
 | 6 | `GAMEFLOW` — `0x40EFE0` | 20 | Omitted room globals and scene-buffer declaration order; `PostMission` and `free_viewport`. |
 | 7 | `JOYSTICK` — `0x4102B0` | 405 | Partially cleaned: three direct bound products are exact. The X-bound declaration swap still causes two bytes; the maximum-Y/failure-value swap causes 405. |
-| 8 | `COCKPT` — `0x413A10` | 1 | Omitted indicator-state declaration; `animate_pilot` operand order. Removing its volatile read also does not match. |
-| 9 | `GEOM` — `0x418080` | 165 | Omitted prototype parameter names; inspect with the existing call captures. |
+| 8 | `COCKPT` — `0x413A10` | 1 | Reviewed: indicator omission, escort captures, six repeated prototypes, and both volatile reads remain blocked. Removing the indicator declaration globally also changes WINMAIN. |
+| 9 | `GEOM` — `0x418080` | 297,911 after cleanup | Partially cleaned: `fix_objects_ijk` has one common named prototype; the redundant text-scan pointer is removed. Either remaining direct-call/prototype group still leaves seven bytes in `GetShipAccelerationRate`. |
 | 10 | `BARRACKS` — `0x41A9D0` | 39 | `DosMemcpy` count width and prototype names; investigate caller arithmetic with the full-width callee. |
 | 11 | `FADE` — `0x41C510` | 391 | Omitted input-history and screen-storage declarations; shared group with MAIN and LOGIC. |
 | 12 | `SHIP` — `0x41DEE0` | 11,952 | Wingman declaration order and omitted `call_enemy` prototype. |
@@ -161,14 +161,97 @@ The accepted temporary removals below also leave those counts unchanged.
 Revisit these markers when there is a new declaration-context or source
 idiom hypothesis, rather than repeating local permutations.
 
-The ordered pass has reviewed WINMAIN through JOYSTICK and partially cleaned
-MONO and JOYSTICK. AUTO, CUTSCENE, and BRAINS remain blocked; their probes
-below retain no source changes. GAMEFLOW's preceding follow-up already
-covers its current source and headers. The next entry is COCKPT, with its
-indicator declaration omission followed by the HUD-message and pilot-frame
-volatile reads in source order.
+The ordered pass has reviewed WINMAIN through GEOM and partially cleaned
+MONO, JOYSTICK, and GEOM. AUTO, CUTSCENE, BRAINS, and COCKPT remain blocked;
+their probes below retain no source changes. GAMEFLOW's preceding follow-up
+already covers its current source and headers. The next entry is BARRACKS,
+starting with its `DosMemcpy` declaration exception, then the remaining
+access casts in source order.
 Revisit a blocked entry only with new evidence or a relevant dependency
 change, rather than repeating the recorded probes.
+
+## Compiler input pass: COCKPT and GEOM
+
+This pass starts from `949669e`. Both isolated unit baselines reproduce the
+complete executable. Every count below comes from binary-comp on a freshly
+linked scratch executable; no failing candidate is retained.
+
+COCKPT is traversed from its header exception through the escort helper,
+the repeated local prototypes, and the two qualified reads:
+
+| Input entry / attempted removal | File difference | First affected function / result |
+| --- | ---: | --- |
+| `WC1_COCKPT_SOURCE` | 1 | `animate_pilot`; reversed comparison encoding. |
+| Indicator declaration removed from the shared header entirely | 0 for COCKPT; 22 for WINMAIN | Owner remains exact, but the first other unit changes `WarpMouseTo`; wider rebuild is unnecessary to reject this candidate. |
+| Each of the three `escorting_a_ship` captures, independently | 63 each | `flag_reached`; removing all three leaves 221 bytes. |
+| Repeated `FixedToShortSaturating` or `RandomBelowOrEqual` prototype | 25 each | `ShowHudTextLine`; its two argument registers exchange. |
+| Repeated `transform_to_objects_frame`, `DrawViewportPixel`, or `GetViewportPixel` prototype | 183 each | `draw_3d_scanner`; additional later functions differ. |
+| Repeated `rectangular_to_spherical` prototype | 181 | `draw_target_box`. |
+| Entire six-prototype block | 993 | `objective_lost`. |
+| HUD-message volatile access cast | 177 | `RestoreTransientCockpitGraphics`; ECX becomes EAX and shortens the absolute load by one byte. |
+| Pilot-frame volatile access cast | 28 | `animate_pilot`; removing its marker too leaves six bytes with the two globals exchanged. |
+
+The indicator is only referenced by COCKPT, but removing its unused shared
+declaration still changes WINMAIN's compiler context. The two module
+measurements above each substitute only that module's rebuilt object; they
+are not a full rebuild with the declaration removed. In COCKPT, removing
+the marker moves the indicator's frontend key from 27,262 to 23,688 without
+changing the recorded function bases. Removing one escort capture instead shifts
+`flag_reached` from 27,648 to 27,647. Removing a one-parameter repeated
+prototype shifts `ShowHudTextLine` from 27,872 to 27,871. The expression
+intermediate confirms the keys used by the actual compilation.
+
+Giving the ordinary HUD snapshot block scope, or removing the snapshot
+entirely, still leaves 177 bytes. Using the stored pending-message global
+or an assignment argument in `ShowHudTextLine` does not repair the
+one-prototype removal's 25 bytes. These variants are rejected.
+
+GEOM's accepted group removes `MeasureTextPixelWidthClamped`'s redundant
+`scan` copy and restores the named `fix_objects_ijk(short obj)` declaration
+for its owner. The existing `text` parameter supplies the cursor. Restoring
+the prototype adds one frontend symbol before the first function; removing
+the copy removes one before the next function. The first function's
+parameter key changes from 27,232 to 27,233, while `SeekPacketSection`
+retains 27,241 and `GetShipAccelerationRate` retains 27,295. Every executable
+byte matches. Other units already saw the named prototype.
+
+| GEOM input entry / attempted removal | File difference | First affected function / result |
+| --- | ---: | --- |
+| Marker before this pass's accepted cleanup | 165 | `GetShipAccelerationRate`. |
+| `ComputeVectorDelta` prototype omission alone | 303,827 | `GetShipAccelerationRate`; later rotation spans also grow. |
+| Either one-parameter prototype omission alone | 297,664 each | `GetShipAccelerationRate`; later code shifts. |
+| Text-scan copy alone | 618 | `CollectActivePaletteIndices`. |
+| Text-scan copy plus `fix_objects_ijk` prototype exception | 0 | Accepted; the shared named prototype is now unconditional. |
+| Damage-limit copy plus either one-parameter prototype exception | 2 | `damage_ion_drive`; `CMP EDX,EAX; JL` becomes `CMP EAX,EDX; JG`. |
+| Marker after the accepted cleanup | 297,911 | `GetShipAccelerationRate`; remaining declaration shifts change later code sizes. |
+| Damage-read volatile cast after cleanup | 30 | `damage_ion_drive`; load scheduling and registers change. |
+| Damage-limit copy after cleanup | 297,905 | `damage_ion_drive`; later code shifts too. |
+| Delta-call capture alone after cleanup | 297,933 | `MinInt`. |
+| Shrink-call capture alone after cleanup | 297,903 | `rotate_about_j`. |
+| Delta-call capture plus both remaining prototype exceptions | 7 | `GetShipAccelerationRate`; the input and promoted-index registers exchange. |
+| Shrink-call capture plus its prototype exception | 7 | Same acceleration-register exchange. |
+| Facing low-word pointer read replaced by a cast, point variant | 125 | `get_facing_range_from_point`; original stack behavior is lost. |
+| Facing low-word pointer read replaced by a cast, object variant | 297,168 | `get_facing_range_from_object`; its span shrinks by sixteen bytes. |
+
+Restoring `shrink_vector`'s parameter name instead of `fix_objects_ijk`'s
+also pairs exactly with the text-scan removal, but the accepted change uses
+the earlier header entry. Restoring all names and removing both call
+captures before the text cleanup leaves seven bytes; adding the text
+cleanup leaves 297,910. The counts demonstrate that removing more symbols
+is not a monotonic route to matching. No alternative header placement,
+new capture, or replacement workaround is retained.
+
+This checkpoint removes one header exception and one redundant local. It
+does not remove a source marker or volatile qualifier: 21 markers, 34 access
+casts, and four volatile object/parameter definitions remain. The next
+entry is BARRACKS.
+
+The shared-header dependents were rebuilt with wibo. The production link,
+complete binary-comp byte comparison, mandatory hash, source/address/order
+audits, full `make verify`, and `make modern` pass. Both instruction-value
+checks cover 1,550 functions with zero mismatches or skips. The final image
+still matches all 518,656 bytes; the installed compiler hash is unchanged.
+Wine was not used.
 
 ## Compiler input pass: JOYSTICK
 
