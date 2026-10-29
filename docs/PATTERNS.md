@@ -11817,3 +11817,47 @@ The native and modern builds, source/address/order audits, full verification,
 and final whole-file byte/hash checks pass. Both instruction-value gates
 check 1,550 functions with zero mismatches or skips. The compiler and flags
 are unchanged; all native compiles use wibo, without Wine.
+
+## Sequential compiler input cleanup: ship weapons and afterburner
+
+The SHIP pass from `db2b5f0` replaces explicit seven-byte indexing in
+`any_selected` and `remove_weapon`'s type lookup with indexing through
+`ShipWeaponSlot`. Its existing packed layout is seven bytes: a dword type,
+word hardpoint, and byte disabled flag. Copying those named fields in
+`remove_weapon` preserves the original three load/store pairs. The record
+handles unaligned fields, so this copy can serve the SDL build too and its
+separate `memcpy` branch is unnecessary.
+
+Retain the existing byte-based entry pointer. A whole-record assignment
+changes the copy's register use and leaves 199 differing executable
+positions. Changing that pointer to a record pointer leaves 136 bytes with
+field copies and 223 with whole-record assignment. These are rejected
+source forms, not evidence that the original author used scalar casts.
+
+`fire_weapon` also uses the record's type and hardpoint fields in place of
+scalar pointer reinterpretations. Both builds can share those accesses,
+removing the SDL-only pointer capture and two access branches. Its existing
+integer byte offset still matters: replacing it with a typed pointer leaves
+1,204 differing positions. `your_internal_damage` can convert its short
+damage-table entry to signed char and then short, preserving the original
+sign-extending byte load without reinterpreting the entry's address.
+`your_afterburner` reads the frame global directly, removing its redundant
+integer snapshot. The combined production executable remains byte-identical.
+
+The remaining header dependence is localized. Restoring `call_enemy`'s
+common named prototype while removing unused `<assert.h>` preserves the
+early function keys but shifts later ones down by one. Only
+`replenish_shields` then differs, by eight executable bytes: its shield
+offset and current-value registers exchange and a comparison reverses.
+Several otherwise exact index-local removals hit that same later blocker.
+The wingman declaration exception independently changes two comparison
+encodings in `inflict_damage`. Its two volatile casts still enforce the
+armor-store/screen-test order, and the weapon-count qualifier also remains
+necessary in this context. Failed candidates are restored. The full ledger
+and the next entry, LOGIC, are in [WORKAROUNDS.md](WORKAROUNDS.md).
+
+The native and modern builds, source/address/order audits, full verification,
+and final whole-file byte/hash checks pass. Both instruction-value gates
+cover 1,550 functions with zero mismatches or skips. Existing call/global
+diagnostics remain 11/55. The compiler and flags are unchanged; all native
+compiles use wibo, without Wine.

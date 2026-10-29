@@ -122,9 +122,9 @@ short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
     for (weapon = 0; weapon < (signed char)loadout[0] && selected == 0;
          weapon++) {
         if (aObjectTypeData[
-                ((ShipWeaponSlot *)(loadout + weapon * 7 + 1))->type]
+                ((ShipWeaponSlot *)(loadout + 1))[weapon].type]
                 .objectClass == objectClass &&
-            ((ShipWeaponSlot *)(loadout + weapon * 7 + 1))->disabled == 0)
+            ((ShipWeaponSlot *)(loadout + 1))[weapon].disabled == 0)
             selected = 1;
     }
     return selected;
@@ -157,20 +157,18 @@ unsigned int remove_weapon(short obj, short weapon)
 #endif
     loadout = aShipWeaponsTable[obj];
     preferredType =
-        ((ShipWeaponSlot *)&aShipWeaponsTable[obj][weapon * 7 + 1])->type;
+        ((ShipWeaponSlot *)&aShipWeaponsTable[obj][1])[weapon].type;
     objectClass = aObjectTypeData[preferredType].objectClass;
     if (weapon < (signed char)loadout[0] - 1) {
         for (slot = weapon; slot < (signed char)loadout[0] - 1; slot++) {
             unsigned char *entry = loadout + slot * 7;
 
-#ifdef SDL_PORT
-            /* The seven-byte records are intentionally unaligned. */
-            memcpy(entry + 1, entry + 8, sizeof(ShipWeaponSlot));
-#else
-            *(int *)(entry + 1) = *(int *)(entry + 8);
-            *(short *)(entry + 5) = *(short *)(entry + 12);
-            entry[7] = entry[14];
-#endif
+            ((ShipWeaponSlot *)(entry + 1))[0].type =
+                ((ShipWeaponSlot *)(entry + 1))[1].type;
+            ((ShipWeaponSlot *)(entry + 1))[0].hardpoint =
+                ((ShipWeaponSlot *)(entry + 1))[1].hardpoint;
+            ((ShipWeaponSlot *)(entry + 1))[0].disabled =
+                ((ShipWeaponSlot *)(entry + 1))[1].disabled;
         }
 #ifdef SDL_PORT
         /* Mac +0x0250 guards this spare-slot write for full ten-slot
@@ -879,8 +877,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
 
     while (events > 0) {
         events--;
-        switch ((short)*(const signed char *)(const void *)
-            &asPlayerDamageSystemTable[
+        switch ((short)(signed char)asPlayerDamageSystemTable[
                 tableGroup * 10 + RandomBelowOrEqual(9)]) {
         case 0:
             if (severity < 4)
@@ -1845,9 +1842,6 @@ int fire_turrets(short obj)
 int fire_weapon(short obj, short weapon)
 {
     ObjectTypeData *weaponData;
-#ifdef SDL_PORT
-    ShipWeaponSlot *weaponSlot;
-#endif
     enum ObjectType weaponType;
     enum ObjectClass weaponClass;
     FixedVector vector;
@@ -1861,14 +1855,8 @@ int fire_weapon(short obj, short weapon)
     projectileSpeed = 10;
     weaponOffset = (int)obj * sizeof(aShipWeaponsTable[0]) +
                    (int)weapon * sizeof(ShipWeaponSlot);
-#ifdef SDL_PORT
-    weaponSlot = (ShipWeaponSlot *)((unsigned char *)aShipWeaponsTable +
-                                   weaponOffset + 1);
-    weaponType = weaponSlot->type;
-#else
-    weaponType = *(enum ObjectType *)(void *)
-        ((unsigned char *)aShipWeaponsTable + weaponOffset + 1);
-#endif
+    weaponType = ((ShipWeaponSlot *)((unsigned char *)
+        aShipWeaponsTable + weaponOffset + 1))->type;
     weaponClass = aObjectTypeData[weaponType].objectClass;
     if (weaponType == OBJECT_TYPE_TURRET) {
         weaponClass = OBJECT_CLASS_PROJECTILE;
@@ -1892,14 +1880,10 @@ int fire_weapon(short obj, short weapon)
                 (short)(asShipWpnEnergyList[obj] -
                         weaponData->animationDelay);
         }
-#ifdef SDL_PORT
-        child_object(weaponSlot->hardpoint, projectile, obj);
-#else
-        child_object(*(short *)(void *)
-                         ((unsigned char *)aShipWeaponsTable +
-                          weaponOffset + 5),
-                     projectile, obj);
-#endif
+        child_object(
+            ((ShipWeaponSlot *)((unsigned char *)aShipWeaponsTable +
+                               weaponOffset + 1))->hardpoint,
+            projectile, obj);
         asObjectCounterArray[projectile] =
             aObjectTypeData[weaponType].lifetime;
         vector_component_in_dir(&aShipVelocity[obj],
@@ -2428,7 +2412,6 @@ void your_afterburner(void)
 {
     short time;
     int nextSoundFrame;
-    int frame;
 
     if (anShipFuelsTable[0] <= 0)
         return;
@@ -2447,11 +2430,10 @@ void your_afterburner(void)
         time = 2;
     }
     fire_afterburner(0, time);
-    frame = (int)nCurrentSpaceFrameValue;
-    nextSoundFrame = frame + 6;
+    nextSoundFrame = nCurrentSpaceFrameValue + 6;
     if (nextSoundFrame < nAfterburnerSoundDeadline)
         nAfterburnerSoundDeadline = 0;
-    if (frame > nAfterburnerSoundDeadline) {
+    if (nCurrentSpaceFrameValue > nAfterburnerSoundDeadline) {
         nAfterburnerSoundDeadline = nextSoundFrame;
         PlaySfxWaveFileByNumber(12, -1, 0);
     }

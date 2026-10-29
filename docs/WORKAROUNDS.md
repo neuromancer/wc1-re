@@ -144,7 +144,7 @@ MONO and MAIN include the supporting changes described below.
 | 9 | `GEOM` — `0x418080` | 297,911 after cleanup | Partially cleaned: `fix_objects_ijk` has one common named prototype; the redundant text-scan pointer is removed. Either remaining direct-call/prototype group still leaves seven bytes in `GetShipAccelerationRate`. |
 | 10 | `BARRACKS` — `0x41A9D0` | 22 after cleanup | Partially cleaned: prototype names restored, two unused includes and the animation-frame copy removed. Only the copy-count type remains different; the caller increments CX while the callee forwards a dword. |
 | 11 | `FADE` — `0x41C510` | 391 | Partially cleaned: countdown snapshot removed. Restoring the packet, screen, or input-history declarations separately still leaves nine, nine, or two bytes. |
-| 12 | `SHIP` — `0x41DEE0` | 11,952 | Wingman declaration order and omitted `call_enemy` prototype. |
+| 12 | `SHIP` — `0x41DEE0` | 11,952 | Partially cleaned: weapon record accesses, damage-table cast, and afterburner frame copy. Restoring `call_enemy` with the unused assertion header removed leaves eight bytes in `replenish_shields`; the wingman exception separately leaves two. |
 | 13 | `LOGIC` — `0x422010` | 259,057 | Range/armor/tactic declaration order, prototype names, and shared unused-global groups. |
 | 14 | `MAIN` — `0x4272F0` | 546 with shared hook | A common `DosInterruptHandlerHook` declaration resolves compilation, but six functions differ. Also has input/screen/joystick omissions. |
 | 15 | `VIEW` — `0x42CDB0` | 32 | Event/calibration omissions, pitch/yaw order, and two omitted prototypes; three functions differ. |
@@ -161,14 +161,76 @@ The accepted temporary removals below also leave those counts unchanged.
 Revisit these markers when there is a new declaration-context or source
 idiom hypothesis, rather than repeating local permutations.
 
-The ordered pass has reviewed WINMAIN through FADE and partially cleaned
-MONO, JOYSTICK, GEOM, BARRACKS, and FADE. AUTO, CUTSCENE, BRAINS, and COCKPT
-remain blocked; their probes below retain no source changes. GAMEFLOW's preceding
-follow-up already covers its current source and headers. The next entry is
-SHIP, starting with its wingman declaration order and omitted `call_enemy`
-prototype, then its function bodies.
+The ordered pass has reviewed WINMAIN through SHIP and partially cleaned
+MONO, JOYSTICK, GEOM, BARRACKS, FADE, and SHIP. AUTO, CUTSCENE, BRAINS, and
+COCKPT remain blocked; their probes below retain no source changes.
+GAMEFLOW's preceding follow-up already covers its current source and
+headers. The next entry is
+LOGIC, starting with its header declaration order, prototype names, and
+shared unused-global omissions, then its function bodies.
 Revisit a blocked entry only with new evidence or a relevant dependency
 change, rather than repeating the recorded probes.
+
+## Compiler input pass: SHIP
+
+This pass starts from `db2b5f0`. The isolated baseline is exact. The two
+header exceptions, unused includes, and body candidates are measured with
+the normal include graph and saved `/Bk` intermediates. Counts below are
+whole-executable differing positions; failed candidates are discarded.
+
+| Input entry / attempted removal | File difference | First affected function / result |
+| --- | ---: | --- |
+| `WC1_SHIP_SOURCE` | 11,952 | `sort_viable_target_list`; five other functions also differ. |
+| Wingman declaration-order exception | 2 | `inflict_damage`; comparisons at `0x0041EA74` and `0x0041EB98` reverse their operands. |
+| Omitted `call_enemy` prototype | 11,950 | `sort_viable_target_list`; four other functions also differ. |
+| Unused `<sys/stat.h>` | 192 | `match_rotation_goal`; ten later functions also differ. |
+| Unused `<setjmp.h>` | 376 | `rotate_object_to_goal`; five later functions also differ. |
+| Unused `<assert.h>` | 272 | `rotate_object_to_goal`; five later functions also differ. |
+| Common `call_enemy` prototype with `<assert.h>` removed | 8 | Only `replenish_shields` differs. Removing the whole marker with this header cleanup leaves eleven bytes, including `inflict_damage` and `Explosion`. |
+| Slot byte arithmetic in `any_selected` and the preferred-type lookup in `remove_weapon` | 0 | Accepted: index the existing packed record type. |
+| Scalar overlay copy in `remove_weapon` | 0 | Accepted: copy the named type, hardpoint, and disabled fields, preserving the original dword/word/byte sequence. |
+| Whole-record assignment in that copy | 199 | `remove_weapon`; making the existing entry pointer typed leaves 136 bytes for field copies and 223 for whole-record assignment. |
+| Target-sort outer/inner promoted indices, individually | 16 / 8 | Removing the outer index changes the sorter and `replenish_shields`; removing the inner index changes only the latter. |
+| Either or both damage-path volatile casts | 14 | `inflict_damage`; the armor store and screen-X test exchange order. Also restoring the wingman declaration leaves sixteen bytes. |
+| `call_enemy` promoted index | 22 | `call_enemy`, then `replenish_shields`. |
+| `internal_damage` promoted victim index | 51 | `internal_damage`, then `replenish_shields`. |
+| Damage-table pointer reinterpretation | 0 | Accepted: convert the table value to signed char and then short. The original sign-extending byte load remains. |
+| Player weapon-count volatile read | 473 | `your_internal_damage`; instruction selection and positions change. |
+| Either child-search parameter snapshot | 15 | `find_child_object`, then `replenish_shields`. |
+| Each `fire` offset, turret loadout offset, mine/exhaust promoted index, or either repositioning index | 8 each | The edited function stays exact; `replenish_shields` differs later. |
+| Raw type/hardpoint scalar accesses in `fire_weapon` | 0 | Accepted: use the packed record's fields. |
+| Replace `fire_weapon`'s byte offset with a typed slot pointer | 1,204 | `fire_weapon`; retain the existing offset calculation. |
+| Fixed-projectile loadout offset | 25 | `fire_fixed_projectile_weapon`, then `replenish_shields`. |
+| Afterburner frame snapshot | 0 | Accepted: read the frame global directly in both expressions. |
+
+Restoring `call_enemy` adds two frontend symbols before the bodies. Removing
+`<assert.h>` removes two, preserving the parameter bases of
+`initialize_object` (27,265), `sort_viable_target_list` (27,395), and
+`call_enemy` (27,464). Its definition then needs one fewer new symbol:
+`internal_damage` moves from 27,473 to 27,472 and `replenish_shields` from
+28,054 to 28,053. The latter's `current` local moves from 28,064 to 28,063;
+SI and BX exchange roles and its comparison/jump reverse, leaving eight
+bytes. Removing its type, delay, or current captures, combining the first
+two, flattening the recharge condition, or grouping its value declarations
+does not make this header candidate exact. The flattened condition with
+the original headers separately leaves seven bytes.
+
+The accepted record accesses use the existing seven-byte packed type, so
+the SDL-only copy/access alternatives can be removed too. No new pointer
+capture, declaration substitute, helper, or assembly is introduced. The
+remaining marker still differs by 11,952 bytes after the accepted changes;
+the prototype/assertion group still differs by eight. There remain 21
+source markers, 34 volatile access casts, and four volatile object/parameter
+definitions. SHIP retains its three access qualifiers. LOGIC is next.
+
+The native rebuild, source/address/order audits, full `make verify`, and
+`make modern` pass. Both instruction-value checks cover 1,550 functions
+with zero mismatches or skips; existing call/global diagnostics remain
+11/55. The final binary-comp comparison confirms all 518,656 bytes match,
+with SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The installed compiler and flags are unchanged. All native compiles use
+wibo; Wine was not used.
 
 ## Compiler input pass: FADE
 
