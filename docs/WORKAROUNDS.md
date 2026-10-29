@@ -117,9 +117,9 @@ MONO and MAIN include the supporting changes described below.
 | ---: | --- | ---: | --- |
 | 1 | `WINMAIN` — `0x401000` | 394,412 | Reviewed: three flags have original byte writes here and integer accesses elsewhere. Common integer declarations enlarge `CheckLauncherAndConfig` by 16 bytes. |
 | 2 | `MONO` — `0x403500` | 6 with cleanup | Partially cleaned: the event-list omission is removed. Restoring the shared sprite prototype and removing the local declaration still swaps registers in `SeekDataFile`. |
-| 3 | `AUTO` — `0x403E50` | 1 | Wingman declaration order; `auto_pilot_sequence` comparison. Existing local-order and temporary-removal attempts failed. |
-| 4 | `CUTSCENE` — `0x407710` | 546 | Typed `init_3Space_objects` prototype; group with ENDING and all scene-initialization callers. |
-| 5 | `BRAINS` — `0x409760` | 460 | Wingman declaration order and omitted core/audio prototypes; shares the wingman group with AUTO and SHIP. |
+| 3 | `AUTO` — `0x403E50` | 1 | Reviewed: wingman comparison still differs after removing either or both clearance temporaries from `auto_position`. |
+| 4 | `CUTSCENE` — `0x407710` | 546 | Reviewed with ENDING/MISSION: a common short scene prototype still removes MISSION's original sign extension. Removing the three local landing prototypes separately leaves two bytes. |
+| 5 | `BRAINS` — `0x409760` | 460 | Reviewed: grouped core/audio prototype restoration reaches 17 bytes in three functions, with the wingman exception retained. |
 | 6 | `GAMEFLOW` — `0x40EFE0` | 20 | Omitted room globals and scene-buffer declaration order; `PostMission` and `free_viewport`. |
 | 7 | `JOYSTICK` — `0x4102B0` | 405 | Calibration-bound declaration order. |
 | 8 | `COCKPT` — `0x413A10` | 1 | Omitted indicator-state declaration; `animate_pilot` operand order. Removing its volatile read also does not match. |
@@ -143,10 +143,49 @@ The accepted temporary removals below also leave those counts unchanged.
 Revisit these markers when there is a new declaration-context or source
 idiom hypothesis, rather than repeating local permutations.
 
-The ordered pass has reviewed WINMAIN and partially cleaned MONO. The next
-entry is AUTO, followed by CUTSCENE and BRAINS. AUTO's existing one-byte
-blocker should not trigger another identical local-permutation sweep: look
-for a new shared wingman-declaration hypothesis or advance to CUTSCENE.
+The ordered pass has reviewed WINMAIN through BRAINS and partially cleaned
+MONO. AUTO, CUTSCENE, and BRAINS remain blocked; the latest probes below
+retain no source changes. GAMEFLOW's preceding follow-up already covers its
+current source and headers, so the next unreviewed entry is JOYSTICK.
+Revisit a blocked entry only with new evidence or a relevant dependency
+change, rather than repeating the recorded probes.
+
+## Ordered pass: AUTO, CUTSCENE, and BRAINS
+
+AUTO's marker removal still reverses the comparison at `0x004041D4`.
+Inlining `auto_position`'s collision-radius sum, separation expression, or
+both into its clearance test leaves that one-byte difference unchanged.
+The existing local-order probes are not repeated. The marker remains.
+
+The shared scene prototype still needs to explain MISSION as well as
+CUTSCENE and ENDING. Under a common unnamed short prototype, casting
+MISSION's series argument to `int`, `long`, or `unsigned short` still
+removes the original `MOVSX ECX,SI` and leaves 88 differing file positions.
+Removing CUTSCENE's unused `<dos.h>` with that prototype reduces its
+sixteen-byte difference to fourteen, but the caller group is still inexact.
+
+Separately, CUTSCENE's three redundant declarations before `landing`
+(`FetchDiskPacketRetrying`, `spacetrack`, and `SetEventManagerPump`) each
+cause the same two-byte regression when removed, alone or together, with
+the existing scene prototype retained. The loop comparison at `0x0040869A`
+reverses operands and its branch condition. Moving the existing frame local
+among its declarations or also removing `<dos.h>` does not fix it. No
+replacement declaration or capture is introduced.
+
+BRAINS' full marker removal still differs by 460 bytes. Restoring the
+formation/wingman and music-control prototype groups together, while
+removing unused `<sys/types.h>`, reduces the difference to seventeen:
+seven register bytes in `cruise_home`, three wingman-comparison bytes in
+`imperial_formation`, and seven register bytes in `strike_mission`.
+Swapping `cruise_home`'s existing locals does not help. Giving this candidate
+the common wingman declaration instead of its exception increases the
+difference to 397 bytes. Other tested prototype groups also remain inexact.
+
+All candidates were isolated wibo builds compared by binary-comp; none is
+retained. The production source, headers, compiler, marker count, and
+volatile inventory are unchanged. The mandatory hash and complete byte
+comparison still pass: all 518,656 bytes match. No full verification rerun
+is needed for this documentation-only checkpoint.
 
 ## Ordered pass: WINMAIN and MONO
 

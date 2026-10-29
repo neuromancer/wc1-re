@@ -11589,3 +11589,41 @@ with zero mismatches or skips. The final complete comparison still matches
 all 518,656 bytes, with SHA-256
 `d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
 The installed compiler and flags are unchanged. Wine was not used.
+
+## Ordered cleanup: autopilot, scene callers, and pilot intelligence
+
+The follow-up at `e278e84` retains no source or header change. Its detailed
+blockers and the next entry are recorded in [WORKAROUNDS.md](WORKAROUNDS.md).
+
+Removing AUTO's header marker still reverses the wingman comparison at
+`0x004041D4`. Removing either or both preceding clearance temporaries does
+not change that result. A common short `init_3Space_objects` prototype also
+remains blocked by MISSION: explicit integer or unsigned-word argument casts
+do not preserve its original `MOVSX ECX,SI`; all three forms still differ
+by 88 executable positions. CUTSCENE's unused DOS include removal lowers
+its grouped prototype difference from sixteen to fourteen, without making
+the caller group exact.
+
+With CUTSCENE's existing header context retained, deleting any combination
+of the three local declarations before `landing` leaves two differing
+bytes. The count comparison at `0x0040869A` reverses operands and its
+conditional jump. Existing frame-local ordering and DOS include removal
+do not restore it. The redundant declarations therefore remain.
+
+BRAINS' closest tested partial cleanup restores the four formation/wingman
+prototypes and five music-control prototypes, and removes `<sys/types.h>`.
+It leaves seventeen differing bytes: register exchanges in `cruise_home`
+and `strike_mission`, and three comparisons in `imperial_formation`.
+Restoring the common wingman declaration raises the difference to 397;
+reordering the first routine's two locals leaves seventeen. These ordinary
+source and header variants are rejected rather than replaced with new
+compiler-context workarounds.
+
+All probes use the installed compiler through wibo and binary-comp as the
+comparison authority. The retained executable still matches all 518,656
+bytes and SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The installed compiler's hash is unchanged. There are still 21 source
+markers, 34 volatile access casts, and four volatile object/parameter
+definitions. Only documentation changes in this checkpoint; the full
+verification result from `e278e84` is not presented as a new test run.
