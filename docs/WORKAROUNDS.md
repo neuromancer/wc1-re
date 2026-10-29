@@ -35,13 +35,15 @@ can qualify the group for integration.
 | Types or argument promotions | Check the original caller and callee before choosing a common declaration. WINMAIN's flag widths, BARRACKS' copy count, and the CUTSCENE/ENDING scene prototype require this evidence. |
 | Shared `ix` records/APIs | Treat the four audio markers as one header dependency graph; preserve record layout and compiler-generated array initialization while testing each affected library member. |
 
-The best new shared-wingman candidate is five file bytes away from exact
-matching, across AUTO, LOGIC, and MUSIC. It removes AUTO's marker and the
-wingman branches for AUTO/BRAINS/SHIP in scratch. The next investigation is
-the three functions identified below, under that fixed common header.
-Use their actual compiler intermediates and original instructions to form
-a new hypothesis; repeating condition inversions or unrelated local
-cleanup has not resolved these differences.
+The best shared-wingman candidate is now three file bytes away from exact
+matching, across AUTO and SHIP. It groups `nYourWingman`, `bEngageAllowed`,
+and `nAutoEngageTimer` immediately before `nSelectedReleaseWeaponIndex` in
+one common header, removing AUTO's marker and the three wingman branches
+in scratch. All 57 core units have been rebuilt with this candidate.
+The remaining functions are `auto_pilot_sequence` and `inflict_damage`;
+their attempted cleanups and the compiler evidence are recorded below.
+No source change is accepted yet. Revisit these blockers with a new source
+hypothesis, rather than repeating the recorded declaration permutations.
 
 ## Execution order
 
@@ -167,7 +169,7 @@ MONO and MAIN include the supporting changes described below.
 | ---: | --- | ---: | --- |
 | 1 | `WINMAIN` — `0x401000` | 394,412 | Reviewed: three flags have original byte writes here and integer accesses elsewhere. Common integer declarations enlarge `CheckLauncherAndConfig` by 16 bytes. |
 | 2 | `MONO` — `0x403500` | 6 with cleanup | Partially cleaned: the event-list omission is removed. Restoring the shared sprite prototype and removing the local declaration still swaps registers in `SeekDataFile`. |
-| 3 | `AUTO` — `0x403E50` | 1 | Shared-wingman follow-up: one common targeting-state declaration leaves five bytes across AUTO, LOGIC, and MUSIC; BRAINS and SHIP remain exact. See the dependency pass below. |
+| 3 | `AUTO` — `0x403E50` | 1 | Shared-wingman follow-up: a common wingman/engagement declaration group leaves three bytes across AUTO and SHIP. Every other core unit is exact. See the dependency pass below. |
 | 4 | `CUTSCENE` — `0x407710` | 546 | Reviewed with ENDING/MISSION: a common short scene prototype still removes MISSION's original sign extension. Removing the three local landing prototypes separately leaves two bytes. |
 | 5 | `BRAINS` — `0x409760` | 460 | Reviewed: grouped core/audio prototype restoration reaches 17 bytes in three functions, with the wingman exception retained. |
 | 6 | `GAMEFLOW` — `0x40EFE0` | 20 | Omitted room globals and scene-buffer declaration order; `PostMission` and `free_viewport`. |
@@ -220,10 +222,11 @@ whole-executable differences, measured by binary-comp.
 | Declare `nYourWingman` once after `nClosestVisibleObject`, following its storage order | 5: AUTO, BRAINS, SHIP, MUSIC, SMART | 390 |
 | Declare `nYourWingman` once after `bEngageAllowed`, using AUTO's existing position | 7: BRAINS, COCKPT, GEOM, SHIP, LOGIC, MUSIC, SMART | 379 |
 | Declare `nYourWingman` once before `bEngageAllowed`, using the existing BRAINS/SHIP position | 3: AUTO, LOGIC, MUSIC | 5 |
+| Group `nYourWingman`, `bEngageAllowed`, and `nAutoEngageTimer` before `nSelectedReleaseWeaponIndex` | 2: AUTO, SHIP | 3 |
 
 The wingman experiments remove all three conditional declaration locations
 and AUTO's source marker. BRAINS and SHIP retain their markers for their
-unrelated prototype exceptions. The closest complete candidate has no
+unrelated prototype exceptions. The initial five-byte candidate has no
 layout displacement and only these three functions differ:
 
 | Unit / function | Differing file bytes | Remaining difference |
@@ -253,6 +256,75 @@ The unchanged production executable still matches all 518,656 bytes and the
 mandatory SHA-256. The installed compiler hash is unchanged; all native
 probes use wibo, without Wine. This documentation-only checkpoint does not
 claim a new full `make verify` or modern-build run.
+
+## Shared-wingman follow-up: engagement declarations
+
+The follow-up from `8a5103c` improves the complete scratch candidate from
+five differing bytes to three. Declare `nYourWingman`, `bEngageAllowed`,
+and `nAutoEngageTimer` together, in that order, immediately before
+`nSelectedReleaseWeaponIndex`. Remove their old declarations, the three
+wingman conditional blocks, and AUTO's marker. BRAINS and SHIP retain
+their markers for their unrelated prototype exceptions. Storage definitions,
+types, function bodies, compiler flags, and link order stay unchanged.
+
+All 57 core units were compiled with this common header and linked together.
+The 518,656-byte candidate has 518,653 matching positions, with no layout
+displacement. BRAINS, LOGIC, MUSIC, and every other core unit except the two
+below are exact. These are whole-executable binary-comp results, not a sum
+of normalized function scores.
+
+| Function | Differing bytes | Remaining original instruction |
+| --- | ---: | --- |
+| `auto_pilot_sequence` (`0x404050`) | 1 | `CMP SI,CX` at `0x4041D4`; the candidate reverses the operands. |
+| `inflict_damage` (`0x41E9B0`) | 2 | Memory-first wingman comparisons at `0x41EA74` and `0x41EB98`; the candidate puts SI/DI first. |
+
+Replaying the real `/Bk` intermediates through a separate diagnostic C2
+copy explains the earlier five-byte candidate's difficulty. AUTO's wingman
+key changes from 23,299 in the matching control to 23,298, giving its short
+load signature `0x2f`, the highest rank for that kind of load. Reversing
+the equality spelling does not bypass this operand ordering. The new group
+gives AUTO key 23,288 and restores LOGIC's and MUSIC's control keys, 23,296
+and 23,288 respectively. Named globals can be resolved from the actual
+`gl` intermediate; do not expect their names in the `sy` file. These compiler
+records diagnose decisions; only the installed compiler and binary-comp
+establish matching.
+
+Nearby single-declaration positions were also checked in AUTO, BRAINS,
+SHIP, LOGIC, and MUSIC. None makes those five units exact. For example,
+placing wingman before `bMissileCameraEnabled` preserves BRAINS and SHIP
+but retains the original one/one/three-byte failures. Placing it before
+`DAT_0046c05c` repairs LOGIC and MUSIC but leaves 382 bytes in BRAINS,
+two in SHIP, and one in AUTO. BRAINS' changes are confined to
+`imperial_formation`: altered wingman/timer registers also change reload
+placement. Grouping the related engagement declarations repairs this
+regression. Do not treat a single declaration's position independently of
+the other state used by the same function.
+
+The following body probes use the new grouped header. Counts substitute
+only the edited object into the exact production link; none is accepted.
+
+| Attempt | File difference | Result |
+| --- | ---: | --- |
+| Move AUTO's ship declaration first or before the formation slot, with either separate or shared loop counters | 9 | Repairs the wingman comparison but changes registers in the nearby-ship scan. |
+| Exchange the ship declaration with each existing vector/array declaration | 9 | Same comparison repair and scan regression. |
+| Permute the scan's range, counter, and nearest-range declarations after that repair | Best 4 | BX/ESI still exchange the destination range and ship-class constant at `0x4043C9`, `0x4043D3`, `0x4043DC`, and `0x40440C`. |
+| Exchange that range declaration with each remaining eligible local | Best 4 | Does not resolve the register exchange. |
+| Remove both promoted indices from SHIP's target sorter | 39 | The sorter is exact; later routines, including the two wingman comparisons, differ. |
+| Also remove the sorter's count snapshot | 29 | `inflict_damage` becomes exact, but the sorter and six other functions differ. |
+
+Under the preceding five-byte header, removing MUSIC's streamer-command
+temporary still leaves three bytes. Grouping identical track-map returns
+shrinks that routine by 112 bytes and leaves 214,021 file differences;
+that source shape contradicts the original instruction layout. Moving
+AUTO's ship declaration to the tied-rank position while also reversing its
+comparison leaves ten bytes. These probes are discarded too.
+
+The best complete candidate remains the grouped header with unchanged
+bodies, three bytes short of acceptance. The production sources retain all
+21 markers. Its complete binary-comp comparison and mandatory SHA-256 pass,
+and the installed C2 hash remains unchanged. All native probes use wibo;
+Wine was not used. This documentation-only checkpoint does not claim a new
+full verification or modern-build run.
 
 ## Compiler input pass: MAIN
 

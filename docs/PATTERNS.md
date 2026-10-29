@@ -11955,7 +11955,40 @@ BRAINS and SHIP remain exact. Other tested common placements leave 390 or
 
 Condition inversions and the recorded ordinary source simplifications do
 not resolve those five bytes. No candidate is integrated; the production
-source retains all 21 markers and the exact executable hash. Continue with
-the fixed common-header candidate and the three affected functions, using
-the ledger in [WORKAROUNDS.md](WORKAROUNDS.md). The compiler and flags are
-unchanged, and all native probes use wibo without Wine.
+source retains all 21 markers and the exact executable hash. The next
+follow-up below improves this scratch candidate; the full attempt ledger
+is in [WORKAROUNDS.md](WORKAROUNDS.md). The compiler and flags are unchanged,
+and all native probes use wibo without Wine.
+
+## Shared wingman and engagement declarations
+
+The follow-up from `8a5103c` reduces the complete common-header candidate
+from five differing bytes to three. Group `nYourWingman`, `bEngageAllowed`,
+and `nAutoEngageTimer`, in that order, before
+`nSelectedReleaseWeaponIndex`. This removes AUTO's marker and all three
+wingman-specific header branches in scratch. Definitions and storage stay
+unchanged. All 57 core units were rebuilt; the combined executable matches
+518,653 of 518,656 positions. Only AUTO's comparison at `0x4041D4` and
+SHIP's comparisons at `0x41EA74` and `0x41EB98` reverse their operands.
+
+The neighboring engagement declarations matter because C2's symbol-key
+hashes influence both operand sorting and register allocation. Moving only
+wingman into this earlier area changes registers and reload placement in
+`imperial_formation`; grouping the three related globals restores that
+function. LOGIC and MUSIC also become exact. The real `/Bk` `gl` records
+identify named global keys; the `ex` stream and diagnostic C2 trace expose
+their uses. Do not infer the keys from a flattened translation unit or
+expect global names in the `sy` file.
+
+AUTO's local-order follow-ups repair its comparison but disturb the later
+nearby-ship scan; the closest leaves four bytes exchanging BX and ESI for
+the range and ship-class constant. Removing SHIP's promoted sorter indices
+and count snapshot repairs `inflict_damage` but leaves 29 bytes elsewhere
+in that unit. Neither group meets mandatory equality, and no production
+code or header changes are retained. The precise rejected probes are in
+[WORKAROUNDS.md](WORKAROUNDS.md).
+
+The production executable still matches all 518,656 bytes and its required
+SHA-256. The installed compiler is unchanged. Native probes use wibo,
+without Wine. Full verification and the modern build were not rerun for
+this documentation-only checkpoint.
