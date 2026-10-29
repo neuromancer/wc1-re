@@ -11,10 +11,42 @@ Acceptance requires all **518,656 bytes** of `WC1.EXE` to match
 Use the installed MSVC 4.20 toolchain through **wibo**, with the existing
 flags and link order. Do not use Wine.
 
+## Current focus: remove source markers
+
+The active task is eliminating `WC1_*_SOURCE` definitions and their header
+branches. Count progress by removed markers and branches. Keep a target
+marker absent throughout its source experiments; body changes belong in
+this pass when they help complete that removal. The broader linear body
+review is paused at MAIN's `HandleSpaceFlightControls` (`0x429160`).
+
+Work on one declaration dependency at a time. Choose the proposed common
+header first, identify every affected unit, and measure the complete group.
+Unused declarations still affect MSVC's symbol numbering, so the dependency
+set includes units that never reference the declared name. For a shared
+header experiment, compile an unchanged control under the same scratch
+layout, substitute each candidate object separately to locate regressions,
+then link all changed objects together. Only the combined exact executable
+can qualify the group for integration.
+
+| Exception kind | Removal approach |
+| --- | --- |
+| Declaration omissions/order | Establish common visibility and order, then resolve the resulting code differences in every affected unit. Private-state removal needs the same complete dependency check. |
+| Prototype parameter names | Restore one common named prototype and remove redundant local prototypes as a group; diagnose the actual frontend keys of the affected functions. |
+| Types or argument promotions | Check the original caller and callee before choosing a common declaration. WINMAIN's flag widths, BARRACKS' copy count, and the CUTSCENE/ENDING scene prototype require this evidence. |
+| Shared `ix` records/APIs | Treat the four audio markers as one header dependency graph; preserve record layout and compiler-generated array initialization while testing each affected library member. |
+
+The best new shared-wingman candidate is five file bytes away from exact
+matching, across AUTO, LOGIC, and MUSIC. It removes AUTO's marker and the
+wingman branches for AUTO/BRAINS/SHIP in scratch. The next investigation is
+the three functions identified below, under that fixed common header.
+Use their actual compiler intermediates and original instructions to form
+a new hypothesis; repeating condition inversions or unrelated local
+cleanup has not resolved these differences.
+
 ## Execution order
 
-Work **from start to end**: follow the compilation-unit order in
-[ORDER.md](ORDER.md), then the actual compiler input order within each unit:
+Within the chosen dependency group, work **from start to end**: follow the
+compilation-unit order in [ORDER.md](ORDER.md), then the actual compiler input order within each unit:
 the source preamble, recursively included headers, and the function bodies.
 Function address order locates the bodies but does not describe the earlier
 header dependencies. Include access casts, captures, context-only includes,
@@ -135,12 +167,12 @@ MONO and MAIN include the supporting changes described below.
 | ---: | --- | ---: | --- |
 | 1 | `WINMAIN` — `0x401000` | 394,412 | Reviewed: three flags have original byte writes here and integer accesses elsewhere. Common integer declarations enlarge `CheckLauncherAndConfig` by 16 bytes. |
 | 2 | `MONO` — `0x403500` | 6 with cleanup | Partially cleaned: the event-list omission is removed. Restoring the shared sprite prototype and removing the local declaration still swaps registers in `SeekDataFile`. |
-| 3 | `AUTO` — `0x403E50` | 1 | Reviewed: wingman comparison still differs after removing either or both clearance temporaries from `auto_position`. |
+| 3 | `AUTO` — `0x403E50` | 1 | Shared-wingman follow-up: one common targeting-state declaration leaves five bytes across AUTO, LOGIC, and MUSIC; BRAINS and SHIP remain exact. See the dependency pass below. |
 | 4 | `CUTSCENE` — `0x407710` | 546 | Reviewed with ENDING/MISSION: a common short scene prototype still removes MISSION's original sign extension. Removing the three local landing prototypes separately leaves two bytes. |
 | 5 | `BRAINS` — `0x409760` | 460 | Reviewed: grouped core/audio prototype restoration reaches 17 bytes in three functions, with the wingman exception retained. |
 | 6 | `GAMEFLOW` — `0x40EFE0` | 20 | Omitted room globals and scene-buffer declaration order; `PostMission` and `free_viewport`. |
 | 7 | `JOYSTICK` — `0x4102B0` | 405 | Partially cleaned: three direct bound products are exact. The X-bound declaration swap still causes two bytes; the maximum-Y/failure-value swap causes 405. |
-| 8 | `COCKPT` — `0x413A10` | 1 | Reviewed: indicator omission, escort captures, six repeated prototypes, and both volatile reads remain blocked. Removing the indicator declaration globally also changes WINMAIN. |
+| 8 | `COCKPT` — `0x413A10` | 1 | Reviewed: indicator omission, escort captures, six repeated prototypes, and both volatile reads remain blocked. Removing the private indicator declaration from the shared header changes 32 other core units. |
 | 9 | `GEOM` — `0x418080` | 297,911 after cleanup | Partially cleaned: `fix_objects_ijk` has one common named prototype; the redundant text-scan pointer is removed. Either remaining direct-call/prototype group still leaves seven bytes in `GetShipAccelerationRate`. |
 | 10 | `BARRACKS` — `0x41A9D0` | 22 after cleanup | Partially cleaned: prototype names restored, two unused includes and the animation-frame copy removed. Only the copy-count type remains different; the caller increments CX while the callee forwards a dword. |
 | 11 | `FADE` — `0x41C510` | 391 | Partially cleaned: countdown snapshot removed. Restoring the packet, screen, or input-history declarations separately still leaves nine, nine, or two bytes. |
@@ -166,10 +198,61 @@ message functions. It has partially cleaned MONO, JOYSTICK, GEOM, BARRACKS,
 FADE, SHIP, LOGIC, and MAIN. AUTO, CUTSCENE,
 BRAINS, and COCKPT remain blocked; their probes below retain no source changes.
 GAMEFLOW's preceding follow-up already covers its current source and
-headers. Continue within MAIN at `HandleSpaceFlightControls` (`0x429160`),
-then its remaining flight, damage, cursor, and palette functions.
+headers. That body-review checkpoint remains at MAIN's
+`HandleSpaceFlightControls` (`0x429160`). The active marker-removal work
+instead follows the shared-wingman dependency described above.
 Revisit a blocked entry only with new evidence or a relevant dependency
 change, rather than repeating the recorded probes.
+
+## Source-marker dependency pass: cockpit and wingman declarations
+
+This pass starts from `77c4b4f`. All 57 core C/C++ units were rebuilt
+independently under an unchanged copied header tree. Every isolated object
+substitution and the combined control executable match the original.
+The same compiler flags, include structure, and link order are used for
+the proposed common headers. The separately assembled code and `ix`
+members do not include the changed header. Counts below are literal
+whole-executable differences, measured by binary-comp.
+
+| Proposed common header | Core units with code differences | Combined file difference |
+| --- | ---: | ---: |
+| Remove the COCKPT-private indicator declaration from `globals.h` and remove `WC1_COCKPT_SOURCE` | 32; COCKPT itself remains exact | 383,072 |
+| Declare `nYourWingman` once after `nClosestVisibleObject`, following its storage order | 5: AUTO, BRAINS, SHIP, MUSIC, SMART | 390 |
+| Declare `nYourWingman` once after `bEngageAllowed`, using AUTO's existing position | 7: BRAINS, COCKPT, GEOM, SHIP, LOGIC, MUSIC, SMART | 379 |
+| Declare `nYourWingman` once before `bEngageAllowed`, using the existing BRAINS/SHIP position | 3: AUTO, LOGIC, MUSIC | 5 |
+
+The wingman experiments remove all three conditional declaration locations
+and AUTO's source marker. BRAINS and SHIP retain their markers for their
+unrelated prototype exceptions. The closest complete candidate has no
+layout displacement and only these three functions differ:
+
+| Unit / function | Differing file bytes | Remaining difference |
+| --- | ---: | --- |
+| AUTO / `auto_pilot_sequence` (`0x404050`) | 1 | Comparison operands reverse at `0x4041D4`. |
+| LOGIC / `fire_when_ready` (`0x423210`) | 1 | Comparison operands reverse at `0x423216`. |
+| MUSIC / `new_space_music_changes` (`0x42E9E0`) | 3 | Victim's word value uses CX instead of the original AX. |
+
+Ordinary source follow-ups under that fixed header do not finish the group.
+Moving AUTO's private formation count before the functions leaves 383,317
+bytes in its isolated-object probe. Reusing the ship loop counter for the
+nearby-object scan leaves eight; removing the early formation-slot assignment
+leaves 1,405. In LOGIC, removing the unused-parameter void cast or reversing
+the comparison still leaves one; nesting the two conditions leaves 230.
+MUSIC's direct side lookup and early-return guard each leave three.
+These counts are isolated substitutions, not combined-group totals.
+
+Separate marker-only condition tests also remain blocked. COCKPT's reversed
+comparison and early-return forms leave one byte with the existing access
+qualifier, or six without it. AUTO's reversed comparison, early continue,
+and nested conditions each leave one byte; reversing the condition order
+leaves four. These results distinguish an operand-selection dependency from
+a simple source-order fix.
+
+No production source or header change is retained. All 21 markers remain.
+The unchanged production executable still matches all 518,656 bytes and the
+mandatory SHA-256. The installed compiler hash is unchanged; all native
+probes use wibo, without Wine. This documentation-only checkpoint does not
+claim a new full `make verify` or modern-build run.
 
 ## Compiler input pass: MAIN
 

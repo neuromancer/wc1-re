@@ -11931,3 +11931,31 @@ verification pass. Both instruction-value checks cover 1,550 functions
 with zero mismatches or skips; existing call/global diagnostics remain
 11/55. All 518,656 executable bytes and the mandatory hash still match.
 The compiler and flags are unchanged; native compiles use wibo, without Wine.
+
+## Shared-header dependency checks for source-marker removal
+
+The follow-up from `77c4b4f` holds the target marker absent while testing its
+replacement common declaration context. Rebuilding all 57 core C/C++ units
+under an unchanged copied header tree first reproduces the complete original
+executable, both by isolated object substitution and by a combined link.
+
+Removing the COCKPT-only indicator's shared declaration preserves its owner
+but changes 32 other units. The combined executable differs at 383,072
+positions. A declaration can therefore be unused by a unit and still be a
+code-generation dependency. Ownership analysis alone cannot establish that
+a shared-header cleanup is byte-neutral.
+
+A single wingman declaration before `bEngageAllowed`, the existing
+BRAINS/SHIP location, removes the three wingman-specific header branches
+and AUTO's marker in scratch. The complete combined build differs by five
+bytes: reversed comparisons in `auto_pilot_sequence` and `fire_when_ready`,
+plus CX in place of AX for the victim word in `new_space_music_changes`.
+BRAINS and SHIP remain exact. Other tested common placements leave 390 or
+379 bytes, so the shared declaration order must be measured across all users.
+
+Condition inversions and the recorded ordinary source simplifications do
+not resolve those five bytes. No candidate is integrated; the production
+source retains all 21 markers and the exact executable hash. Continue with
+the fixed common-header candidate and the three affected functions, using
+the ledger in [WORKAROUNDS.md](WORKAROUNDS.md). The compiler and flags are
+unchanged, and all native probes use wibo without Wine.
