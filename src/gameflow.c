@@ -425,7 +425,6 @@ void __stdcall free_viewport(Viewport *viewport)
 {
     int i;
     unsigned char *allocation;
-    int oldCount;
 
     nFreeViewCallsValue++;
     allocation = viewport->allocation;
@@ -433,10 +432,8 @@ void __stdcall free_viewport(Viewport *viewport)
         i = 0;
         while (i < nViewAllocTotal) {
             if (apViewportAllocations[i] == viewport->allocation) {
-                oldCount = nViewAllocTotal;
-                nViewAllocTotal--;
                 apViewportAllocations[i] =
-                    apViewportAllocations[oldCount];
+                    apViewportAllocations[nViewAllocTotal--];
                 break;
             }
             i++;

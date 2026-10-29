@@ -212,11 +212,10 @@ void initialize_scripted_view(const short *script)
 /* Function start: 0x42D270 */
 unsigned int InitializeFireworks(void)
 {
-    int empty = -1;
     short i = 0;
 
     do {
-        aFireworksList[i].frame = (short)empty;
+        aFireworksList[i].frame = -1;
         i = i + 1;
     } while (i < 0x1e);
     return 0;

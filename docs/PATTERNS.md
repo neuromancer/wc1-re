@@ -11485,3 +11485,52 @@ before and after `make verify`. Both instruction-value checks cover all
 `make sort audit-addresses order verify-hash` also pass. The compiler and
 flags are unchanged. The existing call/global-access diagnostic counts
 remain 11/55. Wine was not used.
+
+## VIEW, GAMEFLOW, and IX_SYSTEM follow-up
+
+The next isolated marker removals reproduce 32, 20, and 54 differing bytes
+respectively. VIEW differs in `OpenPacketSection`, `AllocateViewport`, and
+`AlignSpriteFrameToRectCorner`; GAMEFLOW in `PostMission` and `free_viewport`;
+IX_SYSTEM in `ix_system_assign_voice` and `ix_system_find_free_voice`.
+The three markers remain. The current worklist records these results in
+[WORKAROUNDS.md](WORKAROUNDS.md).
+
+Two temporary removals are exact with the retained header context.
+`InitializeFireworks` (`0x0042D270`) assigns `-1` to each frame directly,
+without a separate constant `empty` local. CL still loads ECX with
+`0xffffffff` once and stores CX to each frame. `free_viewport`
+(`0x0040F940`) uses the previous value of `nViewAllocTotal` as its allocation-
+table index through post-decrement, without `oldCount`. Its original load,
+decrement, indexed load, and indexed store remain in the same order.
+Both candidates and their combined production build match the complete EXE.
+
+Removing VIEW's command snapshot, counter snapshot, or promoted section
+index also matches independently while the marker remains. Combining the
+command/counter/constant removals, however, leaves six differing bytes in
+the later `DrawConstellationField` loop comparison and `CalcRectangleArea`
+multiply operands. Removing the section index as well leaves eight bytes.
+Selected existing local-order changes do not make the combination exact.
+Only the constant removal is retained.
+
+With VIEW's marker removed, moving the private packet/target state closer
+to its uses fixes the packet comparison, but changes `TheEndFireWorks`
+and `DrawConstellationField` while the two viewport helpers still differ.
+Removing the packet-size volatile cast or the viewport row-count local
+also regresses. GAMEFLOW's private-state placement and existing local-order
+changes do not fix its two addition operand orders and scene-buffer
+comparisons. IX_SYSTEM's multiply factor order and grouping, voice-loop
+forms, and existing local scopes do not recover the original code either.
+None of these failed candidates is retained.
+
+The source-marker and volatile inventories are unchanged: 21 markers,
+34 access casts, and four volatile object/parameter definitions. No
+replacement header exception, temporary, assembly, or compiler change is
+introduced. Exact matching remains mandatory; the retained build preserves
+all 518,656 original bytes and SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+
+The native wibo build, `make modern`, source/address/order audits, and
+`make verify` pass. Both instruction-value checks cover all 1,550 functions
+with zero mismatches or skips. The complete byte and hash checks also pass
+after verification. The installed compiler and flags are unchanged;
+Wine was not used.

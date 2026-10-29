@@ -118,11 +118,45 @@ in the retained build, which is exact.
 | `VIEW` | 32 | Event/calibration omissions, pitch/yaw order, and two omitted prototypes; three functions differ. |
 | `WINMAIN` | 394,412 | Byte declarations of three integer-backed configuration flags; requires an access-width investigation across owners. |
 
-The next bounded investigations are VIEW, GAMEFLOW, and IX_SYSTEM. VIEW's
-differences are in `OpenPacketSection`, `AllocateViewport`, and
-`AlignSpriteFrameToRectCorner`. Keep the one-byte AUTO and COCKPT cases on
-the list, but do not repeat the same local permutations without a new
-source or compiler-context hypothesis.
+VIEW, GAMEFLOW, and IX_SYSTEM have now had a bounded follow-up investigation
+at `5d8b643`; their marker-only differences remain 32, 20, and 54 bytes.
+The accepted temporary removals below also leave those counts unchanged.
+Revisit these markers when there is a new declaration-context or source
+idiom hypothesis, rather than repeating local permutations.
+
+The next investigation is MAIN's missing common declaration of the real
+`DosInterruptHandlerHook`, followed by the input-history and screen-storage
+omissions shared with FADE and LOGIC. Measure each affected unit before
+attempting a common header layout. Keep the one-byte AUTO and COCKPT cases
+on the list, with the same requirement for a new hypothesis.
+
+## Follow-up: VIEW, GAMEFLOW, IX_SYSTEM
+
+Two ordinary C simplifications are accepted with the existing headers:
+
+- `InitializeFireworks` writes `-1` directly, removing the constant `empty`
+  temporary. The original full-width constant load and word stores remain.
+- `free_viewport` indexes the allocation table with `nViewAllocTotal--`,
+  removing `oldCount`. The original pre-decrement index and decrement-before-
+  table-load instruction order remain.
+
+Both isolated candidates and the combined production build preserve all
+518,656 executable bytes. No source marker or volatile qualification is
+removed in this follow-up: 21 markers, 34 access casts, and four volatile
+object/parameter definitions remain.
+
+| Marker | Remaining functions | Follow-up result |
+| --- | --- | --- |
+| `VIEW` | `OpenPacketSection`, `AllocateViewport`, `AlignSpriteFrameToRectCorner` | Removing selected temporaries individually still leaves 32 bytes. Moving private packet/target state fixes the packet comparison but introduces differences in earlier effects routines and leaves the viewport differences. |
+| `GAMEFLOW` | `PostMission`, `free_viewport` | Private-state placement and existing local ordering leave 20 bytes. The accepted count simplification also leaves 20 bytes when the marker is removed. |
+| `IX_SYSTEM` | `ix_system_assign_voice`, `ix_system_find_free_voice` | Multiplication order/grouping, loop forms, and existing local scopes do not remove the 54-byte difference. |
+
+VIEW's command snapshot, counter snapshot, and promoted section index can
+each be removed independently with its marker retained. They cannot simply
+be combined with the accepted constant removal: later constellation-loop
+and rectangle-area instructions then differ. Those additional removals are
+not retained. This is why an individually exact function or cleanup is not
+enough to accept a group.
 
 ## Accepted batch: DIB, NEARHEAP, FL
 
