@@ -143,7 +143,7 @@ MONO and MAIN include the supporting changes described below.
 | 8 | `COCKPT` — `0x413A10` | 1 | Reviewed: indicator omission, escort captures, six repeated prototypes, and both volatile reads remain blocked. Removing the indicator declaration globally also changes WINMAIN. |
 | 9 | `GEOM` — `0x418080` | 297,911 after cleanup | Partially cleaned: `fix_objects_ijk` has one common named prototype; the redundant text-scan pointer is removed. Either remaining direct-call/prototype group still leaves seven bytes in `GetShipAccelerationRate`. |
 | 10 | `BARRACKS` — `0x41A9D0` | 22 after cleanup | Partially cleaned: prototype names restored, two unused includes and the animation-frame copy removed. Only the copy-count type remains different; the caller increments CX while the callee forwards a dword. |
-| 11 | `FADE` — `0x41C510` | 391 | Omitted input-history and screen-storage declarations; shared group with MAIN and LOGIC. |
+| 11 | `FADE` — `0x41C510` | 391 | Partially cleaned: countdown snapshot removed. Restoring the packet, screen, or input-history declarations separately still leaves nine, nine, or two bytes. |
 | 12 | `SHIP` — `0x41DEE0` | 11,952 | Wingman declaration order and omitted `call_enemy` prototype. |
 | 13 | `LOGIC` — `0x422010` | 259,057 | Range/armor/tactic declaration order, prototype names, and shared unused-global groups. |
 | 14 | `MAIN` — `0x4272F0` | 546 with shared hook | A common `DosInterruptHandlerHook` declaration resolves compilation, but six functions differ. Also has input/screen/joystick omissions. |
@@ -161,13 +161,61 @@ The accepted temporary removals below also leave those counts unchanged.
 Revisit these markers when there is a new declaration-context or source
 idiom hypothesis, rather than repeating local permutations.
 
-The ordered pass has reviewed WINMAIN through BARRACKS and partially cleaned
-MONO, JOYSTICK, GEOM, and BARRACKS. AUTO, CUTSCENE, BRAINS, and COCKPT remain
-blocked; their probes below retain no source changes. GAMEFLOW's preceding
+The ordered pass has reviewed WINMAIN through FADE and partially cleaned
+MONO, JOYSTICK, GEOM, BARRACKS, and FADE. AUTO, CUTSCENE, BRAINS, and COCKPT
+remain blocked; their probes below retain no source changes. GAMEFLOW's preceding
 follow-up already covers its current source and headers. The next entry is
-FADE, starting with its shared input-history and screen-storage omissions.
+SHIP, starting with its wingman declaration order and omitted `call_enemy`
+prototype, then its function bodies.
 Revisit a blocked entry only with new evidence or a relevant dependency
 change, rather than repeating the recorded probes.
+
+## Compiler input pass: FADE
+
+This pass starts from `9995022`. The isolated baseline reproduces all
+518,656 bytes. Traverse the three shared-header omission groups before
+the captures in `StepPaletteTransition` and `DosStrcat`. FADE has no
+volatile qualifiers, extra includes, or repeated local prototypes.
+
+| Input entry / attempted removal | File difference | First affected function / result |
+| --- | ---: | --- |
+| `WC1_FADE_SOURCE` | 391 | `StepPaletteTransition`; address-operand order changes shorten an instruction and move subsequent instructions within its unchanged aligned span. |
+| Packet-handle declaration omission | 9 | `StepPaletteTransition`; maximum/loop comparisons and one indexed address change operand order. |
+| Screen-storage declaration omission | 9 | `StepPaletteTransition`; the same comparison/address differences. |
+| Six input-history declaration omissions | 2 | `StepPaletteTransition`; the comparison at `0x0041C5CC` and its conditional jump reverse. |
+| Allocation byte-count temporary | 446 | `StepPaletteTransition`; first-loop index and difference registers change. |
+| Palette pointer snapshot | 402 | `StepPaletteTransition`; the component-count load moves before the initialization test. |
+| Countdown snapshot | 0 | Accepted: test the existing countdown's post-decrement directly. |
+| Accumulator element pointer | 64 | `StepPaletteTransition`; final-loop register allocation and instruction positions change. |
+| String-end temporary | 18 | `DosStrcat`; nesting the search call changes argument evaluation and push order. |
+
+The accepted countdown removal preserves the original word load, memory
+decrement, and test of the saved value at `0x0041C688`. It removes one
+frontend symbol: `StepPaletteTransition` still starts at key 27,231, its
+accumulator moves from 27,240 to 27,239, and `DosStrcat` starts at 27,261
+instead of 27,262. The actual `/Bk` expression references confirm these
+keys; binary-comp confirms the complete executable.
+
+Restoring either three-declaration group shifts the first function's
+parameter key by three; the six-declaration history group shifts it by six.
+The complete marker removal shifts it by twelve. Removing the countdown
+snapshot does not resolve any of these header differences. Writing the
+history candidate's maximum comparison with `difference` on the left also
+leaves the same two bytes. No failed header variant is retained.
+
+The other four capture removals were measured again on the accepted
+countdown baseline and retain the counts above. Keep their matching source
+forms; the assembly does not establish that each capture was absent from
+the original source. There remain 21 source markers, 34 volatile access
+casts, and four volatile object/parameter definitions. SHIP is next.
+
+The native rebuild, source/address/order audits, full `make verify`, and
+`make modern` pass. Both instruction-value checks cover all 1,550 functions
+with zero mismatches or skips. The final binary-comp comparison confirms
+all 518,656 bytes match, and the mandatory SHA-256 remains
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The installed compiler hash and flags are unchanged. All native compiles
+use wibo; Wine was not used.
 
 ## Compiler input pass: BARRACKS
 

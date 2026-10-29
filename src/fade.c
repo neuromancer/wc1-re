@@ -24,7 +24,6 @@ unsigned short __stdcall StepPaletteTransition(short *current,
     short index;
     short difference;
     short *palette;
-    short previousCountdown;
     short *accumulator;
 
     if (nPaletteTransitionInitialise != 0) {
@@ -73,9 +72,7 @@ unsigned short __stdcall StepPaletteTransition(short *current,
         palette = current;
     }
 
-    previousCountdown = nPaletteTransitionCountdown;
-    nPaletteTransitionCountdown--;
-    if (previousCountdown == 0) {
+    if (nPaletteTransitionCountdown-- == 0) {
         ReleasePacketHandle(pPaletteTransitionAccumulatorPtr);
         ReleasePacketHandle(pPaletteTransitionDelta);
         ReleasePacketHandle(pPaletteTransDirection);
