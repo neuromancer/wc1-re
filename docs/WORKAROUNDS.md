@@ -14,10 +14,28 @@ flags and link order. Do not use Wine.
 ## Execution order
 
 Work **from start to end**: follow the compilation-unit order in
-[ORDER.md](ORDER.md), then increasing function address within each unit.
-The queue below follows that order. Include the unit's remaining access
-casts, captures, and redundant declarations when investigating its header
-exception; the marker count alone is not a complete workaround inventory.
+[ORDER.md](ORDER.md), then the actual compiler input order within each unit:
+the source preamble, recursively included headers, and the function bodies.
+Function address order locates the bodies but does not describe the earlier
+header dependencies. Include access casts, captures, context-only includes,
+and redundant declarations in the inventory; source markers alone are not
+the complete list.
+
+Keep the original file/include structure during compilation. A flattened
+preprocessed file is useful for reading, but opening a header itself affects
+CL's symbol numbering, so compiling that flattened file would change the
+experiment. When a declaration-context change needs diagnosis, retain the
+real compilation's `/Bk` intermediates and inspect the global/local symbol
+keys and expression stream. These are diagnostic evidence; binary-comp and
+the complete executable hash still decide acceptance.
+
+Record each attempted removal's input location, first affected function,
+whole-file difference, and accepted/blocked status. A source marker selects
+its header branches; do not count deleting the marker and deleting those
+branches as independent cleanups. Related branches may encode a pair of
+declaration moves that must be tested together. After a blocked item, restore
+it and continue forward; after an accepted item, use the simplified source
+as the baseline for the next removal.
 
 Earlier declarations and locals can change CL's choices in later functions
 of the same unit. Starting at the beginning avoids repeatedly disturbing
@@ -121,7 +139,7 @@ MONO and MAIN include the supporting changes described below.
 | 4 | `CUTSCENE` — `0x407710` | 546 | Reviewed with ENDING/MISSION: a common short scene prototype still removes MISSION's original sign extension. Removing the three local landing prototypes separately leaves two bytes. |
 | 5 | `BRAINS` — `0x409760` | 460 | Reviewed: grouped core/audio prototype restoration reaches 17 bytes in three functions, with the wingman exception retained. |
 | 6 | `GAMEFLOW` — `0x40EFE0` | 20 | Omitted room globals and scene-buffer declaration order; `PostMission` and `free_viewport`. |
-| 7 | `JOYSTICK` — `0x4102B0` | 405 | Calibration-bound declaration order. |
+| 7 | `JOYSTICK` — `0x4102B0` | 405 | Partially cleaned: three direct bound products are exact. The X-bound declaration swap still causes two bytes; the maximum-Y/failure-value swap causes 405. |
 | 8 | `COCKPT` — `0x413A10` | 1 | Omitted indicator-state declaration; `animate_pilot` operand order. Removing its volatile read also does not match. |
 | 9 | `GEOM` — `0x418080` | 165 | Omitted prototype parameter names; inspect with the existing call captures. |
 | 10 | `BARRACKS` — `0x41A9D0` | 39 | `DosMemcpy` count width and prototype names; investigate caller arithmetic with the full-width callee. |
@@ -143,12 +161,59 @@ The accepted temporary removals below also leave those counts unchanged.
 Revisit these markers when there is a new declaration-context or source
 idiom hypothesis, rather than repeating local permutations.
 
-The ordered pass has reviewed WINMAIN through BRAINS and partially cleaned
-MONO. AUTO, CUTSCENE, and BRAINS remain blocked; the latest probes below
-retain no source changes. GAMEFLOW's preceding follow-up already covers its
-current source and headers, so the next unreviewed entry is JOYSTICK.
+The ordered pass has reviewed WINMAIN through JOYSTICK and partially cleaned
+MONO and JOYSTICK. AUTO, CUTSCENE, and BRAINS remain blocked; their probes
+below retain no source changes. GAMEFLOW's preceding follow-up already
+covers its current source and headers. The next entry is COCKPT, with its
+indicator declaration omission followed by the HUD-message and pilot-frame
+volatile reads in source order.
 Revisit a blocked entry only with new evidence or a relevant dependency
 change, rather than repeating the recorded probes.
+
+## Compiler input pass: JOYSTICK
+
+This pass starts from `7224617`. The unmodified isolated compile reproduces
+the exact executable before any removal is attempted. Its normal include
+structure is retained, and `/Bk` supplies the actual symbol records.
+All differences below are complete-file byte counts from binary-comp.
+The first affected function for every rejected candidate is
+`CalibrateJoystickInteractive` (`0x004102B0`).
+
+| Input entry | File difference | Result |
+| --- | ---: | --- |
+| `WC1_JOYSTICK_SOURCE`, selecting both header swaps | 405 | Blocked; identifies the combined declaration dependency. |
+| `<sys/types.h>` before `wc1.h` | 333,245 | Blocked; calibration's aligned span grows by sixteen bytes. |
+| `<crtdbg.h>` before `wc1.h` | 333,269 | Blocked; calibration's aligned span grows by sixteen bytes. |
+| X-bound declaration swap in `globals.h` | 2 | Blocked; `CMP ESI,EDX; JLE` becomes `CMP EDX,ESI; JGE` at `0x0041054E`. |
+| Maximum-Y/failure-value declaration swap in `globals.h` | 405 | Blocked; register choices and instruction positions change. |
+| Upper-bound in-place scale multiplication | 0 | Accepted: calculate the product directly in the bound expression. |
+| Right-bound in-place scale multiplication | 0 | Accepted on top of the upper-bound cleanup. |
+| Lower-bound in-place scale multiplication | 0 | Accepted on top of both earlier cleanups. |
+
+The three accepted edits remove destructive updates to scale locals after
+their scale values have been published. Each bound now expresses its centre
+plus or minus scale times range, as the minimum-X bound already did. There
+are no new locals, casts, calls, or assembly instructions.
+
+The baseline symbol records assign minimum-X/maximum-X keys 23,872/23,874
+and failure-value/maximum-Y keys 23,873/23,885. The two header exceptions
+exchange those pairs. Removing `<sys/types.h>` shifts the observed global
+and local keys by seven; removing `<crtdbg.h>` shifts the observed globals
+by 36 and locals by 35. This is why a single uniform offset is insufficient
+to describe every include removal. All recorded keys remain unchanged for
+the three accepted expression simplifications.
+
+Rechecking both header swaps and the complete marker removal with the
+simplified source leaves their two/405/405-byte differences unchanged.
+They remain documented blockers. This batch removes no source marker or
+volatile qualifier: 21 markers, 34 access casts, and four volatile
+object/parameter definitions remain.
+
+The native rebuild, `make modern`, source/address/order audits, and full
+`make verify` pass. Both instruction-value checks cover 1,550 functions
+with zero mismatches or skips. The final full-file byte comparison and
+mandatory hash still pass; the installed compiler is unchanged. Wine was
+not used.
 
 ## Ordered pass: AUTO, CUTSCENE, and BRAINS
 

@@ -11627,3 +11627,45 @@ The installed compiler's hash is unchanged. There are still 21 source
 markers, 34 volatile access casts, and four volatile object/parameter
 definitions. Only documentation changes in this checkpoint; the full
 verification result from `e278e84` is not presented as a new test run.
+
+## Sequential compiler input cleanup: joystick calibration
+
+The pass from `7224617` follows source/include input order inside the
+joystick unit. The isolated baseline is first required to reproduce the
+complete executable. `/Bk` keeps the actual frontend intermediates without
+flattening the includes or altering the production compiler. The attempt
+ledger is in [WORKAROUNDS.md](WORKAROUNDS.md).
+
+`CalibrateJoystickInteractive` can compute its upper, right, and lower
+bounds directly from centre, scale, and range. Its existing minimum-X bound
+already uses this form. Remove the three preceding compound assignments
+that overwrite the scale locals with their products. Each removal is exact
+individually on top of the previously accepted removals, and the combined
+production build preserves all 518,656 original bytes. This establishes a
+simpler matching C spelling, not the original author's exact source text.
+
+The frontend's global and local symbol records keep the same keys after
+these three simplifications. The header exceptions act differently:
+restoring the common X-bound order exchanges keys 23,872 and 23,874 and
+reverses the comparison and conditional jump at `0x0041054E`, leaving two
+differing bytes. Restoring the maximum-Y/failure-value order exchanges keys
+23,873 and 23,885 and leaves 405 bytes. These results persist with the three
+accepted expression cleanups, so both header dependencies remain.
+
+Removing the unused `<sys/types.h>` or `<crtdbg.h>` include grows the
+calibration function's aligned span by sixteen bytes and shifts later
+code. The first shifts the observed global and local keys by seven; the
+second shifts the observed globals by 36 and locals by 35. The symbol
+records are checked against references in the expression intermediate.
+This gives a more precise explanation than treating every include removal
+as one uniform change to all subsequent symbols. No rejected include or
+header removal is retained.
+
+The native rebuild, `make modern`, source/address/order audits, and full
+`make verify` pass. Both instruction-value checks cover all 1,550 functions
+with zero mismatches or skips. The final comparison preserves all 518,656
+bytes and SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`.
+The installed compiler and flags are unchanged. There are still 21 source
+markers, 34 volatile access casts, and four volatile object/parameter
+definitions. All native compiles use wibo; Wine was not used.
