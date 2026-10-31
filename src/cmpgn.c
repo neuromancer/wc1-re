@@ -765,59 +765,56 @@ unsigned int CloseLook(unsigned char *shape, short shot,
     start = animation;
     nFrameSkipCounter = 1;
     if (shot == 2 || shot == 11) {
-        if (*animation != -1) {
-            do {
-                if (frameDelay-- == 0) {
-                    if (*animation != -1)
-                        animation += 2;
-                    switch (*animation) {
-                    case -2:
-                        animation = start;
-                        /* Restart also loads the first frame and its delay. */
-                    default:
-                        frame = *animation;
-                        frameDelay = (short)(animation[1] * 2);
-                        break;
-                    case -1:
-                        frame = -1;
-                        if (finished == 0) {
-                            finished++;
-                            SetFrameTimerPeriodDirect(duration);
-                        }
-                        break;
+        while (*animation != -1) {
+            if (frameDelay-- == 0) {
+                if (*animation != -1)
+                    animation += 2;
+                switch (*animation) {
+                case -2:
+                    animation = start;
+                    /* Restart also loads the first frame and its delay. */
+                default:
+                    frame = *animation;
+                    frameDelay = (short)(animation[1] * 2);
+                    break;
+                case -1:
+                    frame = -1;
+                    if (finished == 0) {
+                        finished++;
+                        SetFrameTimerPeriodDirect(duration);
                     }
+                    break;
                 }
-                nFrameSkipCounter--;
-                if (nFrameSkipCounter < 1) {
-                    nFrameSkipCounter = nFrameSkip;
-                    if (shot == 11) {
-                        DrawDebriefingLongShot();
-                        if (frame > -1)
-                            DrawSpriteDefault(
-                                &stSceneBuffer,
-                                nDebriefingPodiumX, 53,
-                                pCurrentConversationBackdropShapePtr,
-                                (short)(frame + 17));
-                    } else if (frame > -1) {
-                        DrawSpriteDefault(&stSceneBuffer, 225, 34,
-                                          shape, frame);
-                    }
-                    RefreshMemoryStatusOverlay();
-                    DIBslam();
-                    DIBslamReal();
+            }
+            nFrameSkipCounter--;
+            if (nFrameSkipCounter < 1) {
+                nFrameSkipCounter = nFrameSkip;
+                if (shot == 11) {
+                    DrawDebriefingLongShot();
+                    if (frame > -1)
+                        DrawSpriteDefault(
+                            &stSceneBuffer,
+                            nDebriefingPodiumX, 53,
+                            pCurrentConversationBackdropShapePtr,
+                            (short)(frame + 17));
+                } else if (frame > -1) {
+                    DrawSpriteDefault(&stSceneBuffer, 225, 34,
+                                      shape, frame);
                 }
-                escaped = CheckEscaped();
-                if (escaped != 0) {
-                    do {
-                        escaped = CheckEscaped();
-                    } while (escaped != 0);
-                    return 0;
-                }
-                if (finished != 0 && (short)IsFrameTickElapsed() != 0)
-                    return 0;
+                RefreshMemoryStatusOverlay();
                 DIBslam();
                 DIBslamReal();
-            } while (*animation != -1);
+            }
+            escaped = CheckEscaped();
+            if (escaped != 0) {
+                while (escaped != 0)
+                    escaped = CheckEscaped();
+                return 0;
+            }
+            if (finished != 0 && (short)IsFrameTickElapsed() != 0)
+                return 0;
+            DIBslam();
+            DIBslamReal();
         }
     } else if (shot == 0) {
         short sceneFrame;

@@ -521,9 +521,8 @@ void WaitForSceneAdvance(short duration, short unused)
     } else {
         escaped = CheckEscaped();
         if (escaped != 0) {
-            do {
+            while (escaped != 0)
                 escaped = CheckEscaped();
-            } while (escaped != 0);
             SetFrameTimerPeriodDirect(0);
         }
     }

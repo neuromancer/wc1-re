@@ -1377,19 +1377,15 @@ void BlitViewportScanlineRuns(Viewport *source, Viewport *destination,
         run = &geometry->originX;
         sourceLeft = *run++;
         sourceTop = *run++;
-        destinationX = *run++;
-        if (destinationX != -1) {
-            do {
-                sourceY = *run++;
-                width = (unsigned short)*run++;
-                sourcePixels = source->pixels +
-                    source->rowOffsets[sourceY - sourceTop] - sourceLeft +
-                    destinationX;
-                destinationPixels = destination->pixels +
-                    destination->rowOffsets[sourceY] + destinationX;
-                memcpy(destinationPixels, sourcePixels, width);
-                destinationX = *run++;
-            } while (destinationX != -1);
+        while ((destinationX = *run++) != -1) {
+            sourceY = *run++;
+            width = (unsigned short)*run++;
+            sourcePixels = source->pixels +
+                source->rowOffsets[sourceY - sourceTop] - sourceLeft +
+                destinationX;
+            destinationPixels = destination->pixels +
+                destination->rowOffsets[sourceY] + destinationX;
+            memcpy(destinationPixels, sourcePixels, width);
         }
         if (destination->pixels == stScreenView.pixels)
             DIBslam();

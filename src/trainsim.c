@@ -103,23 +103,21 @@ int AnimateTrainSimTitle(void)
     stCurrentTrainSimTitleDisplayViewport.bottom =
         (short)(stCurrentTrainSimTitleDisplayViewport.top +
             FontHeight(stTrainSimTxtContext.font) + 2);
-    if (CheckEscaped() == 0) {
-        do {
-            SetFrameTimerPeriodDirect(3);
-            if (stCurrentTrainSimTitleDisplayViewport.top <=
-                stTrainSimPanelBounds.top) {
-                completed = 1;
-                break;
-            }
-            stCurrentTrainSimTitleDisplayViewport.top--;
-            stCurrentTrainSimTitleDisplayViewport.bottom--;
-            CopyViewportContents(
-                &stTrainSimPanelViewport,
-                &stCurrentTrainSimTitleDisplayViewport);
-            DIBslam();
-            DIBslamReal();
-            WaitForFrameTick();
-        } while (CheckEscaped() == 0);
+    while (CheckEscaped() == 0) {
+        SetFrameTimerPeriodDirect(3);
+        if (stCurrentTrainSimTitleDisplayViewport.top <=
+            stTrainSimPanelBounds.top) {
+            completed = 1;
+            break;
+        }
+        stCurrentTrainSimTitleDisplayViewport.top--;
+        stCurrentTrainSimTitleDisplayViewport.bottom--;
+        CopyViewportContents(
+            &stTrainSimPanelViewport,
+            &stCurrentTrainSimTitleDisplayViewport);
+        DIBslam();
+        DIBslamReal();
+        WaitForFrameTick();
     }
     return completed;
 }
@@ -227,6 +225,9 @@ short IsHighScoreSlotUsed(short i)
 {
     return aHighScoreEntriesArray[i].pilotIndex != -1;
 }
+
+/* Random-pilot callee of the score generator below. */
+short RandomBelow(short n);
 
 /* Function start: 0x426000 */
 void AddRandomTrainSimHighScores(void)

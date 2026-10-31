@@ -198,81 +198,77 @@ unsigned int AnimateScrambleWalk(short ticks)
     signed char elapsed;
 
     nFrameSkipCounter = 1;
-    elapsed = 0;
-    if (ticks > 0) {
-        do {
-            PumpWindowMessages();
-            nFrameSkipCounter--;
-            if (nFrameSkipCounter < 1) {
-                nFrameSkipCounter = nFrameSkip;
-                DrawSpriteDefault(&stSceneBuffer,
-                                  nScrambleBackgroundX, 0,
-                                  pCurrentScrambleHangarShape, 0);
-                DrawSpriteDefault(&stSceneBuffer,
-                                  (short)(nScrambleBackgroundX +
-                                          320),
-                                  0, pCurrentScrambleHangarShape, 1);
-                DrawSpriteDefault(&stSceneBuffer,
-                                  (short)(nScrambleBackgroundX +
-                                          640),
-                                  0, pCurrentScrambleHangarShape, 0);
-                DrawSpriteDefault(&stSceneBuffer,
-                                  (short)(nScrambleBackgroundX +
-                                          960),
-                                  0, pCurrentScrambleHangarShape, 1);
+    for (elapsed = 0; elapsed < ticks; elapsed++) {
+        PumpWindowMessages();
+        nFrameSkipCounter--;
+        if (nFrameSkipCounter < 1) {
+            nFrameSkipCounter = nFrameSkip;
+            DrawSpriteDefault(&stSceneBuffer,
+                              nScrambleBackgroundX, 0,
+                              pCurrentScrambleHangarShape, 0);
+            DrawSpriteDefault(&stSceneBuffer,
+                              (short)(nScrambleBackgroundX +
+                                      320),
+                              0, pCurrentScrambleHangarShape, 1);
+            DrawSpriteDefault(&stSceneBuffer,
+                              (short)(nScrambleBackgroundX +
+                                      640),
+                              0, pCurrentScrambleHangarShape, 0);
+            DrawSpriteDefault(&stSceneBuffer,
+                              (short)(nScrambleBackgroundX +
+                                      960),
+                              0, pCurrentScrambleHangarShape, 1);
 
-                nSceneScrambleWalkerPositionY =
-                    127 - GetShapeFrameExtent(
-                        0, 0, pCurrentScrambleHangarShape,
-                        cScrambleLeftWalkerFrame, 3);
-                DrawSpriteDefault(&stSceneBuffer,
-                                  nScrambleLeftWalkerX,
-                                  nSceneScrambleWalkerPositionY,
-                                  pCurrentScrambleHangarShape,
-                                  cScrambleLeftWalkerFrame);
-                DrawSpriteDefault(
-                    &stSceneBuffer, nScrambleLeftWalkerX,
-                    nSceneScrambleWalkerPositionY,
-                    pCurrentScrambleHangarShape,
-                    acScrambleWalkerOverlayFrames[
-                        cScrambleWalkerPair * 2]);
+            nSceneScrambleWalkerPositionY =
+                127 - GetShapeFrameExtent(
+                    0, 0, pCurrentScrambleHangarShape,
+                    cScrambleLeftWalkerFrame, 3);
+            DrawSpriteDefault(&stSceneBuffer,
+                              nScrambleLeftWalkerX,
+                              nSceneScrambleWalkerPositionY,
+                              pCurrentScrambleHangarShape,
+                              cScrambleLeftWalkerFrame);
+            DrawSpriteDefault(
+                &stSceneBuffer, nScrambleLeftWalkerX,
+                nSceneScrambleWalkerPositionY,
+                pCurrentScrambleHangarShape,
+                acScrambleWalkerOverlayFrames[
+                    cScrambleWalkerPair * 2]);
 
-                nSceneScrambleWalkerPositionY =
-                    137 - GetShapeFrameExtent(
-                        0, 0, pCurrentScrambleHangarShape,
-                        cScrambleRightWalkerFrame, 3);
-                DrawSpriteDefault(&stSceneBuffer,
-                                  nScrambleRightWalkerX,
-                                  nSceneScrambleWalkerPositionY,
-                                  pCurrentScrambleHangarShape,
-                                  cScrambleRightWalkerFrame);
-                DrawSpriteDefault(
-                    &stSceneBuffer, nScrambleRightWalkerX,
-                    nSceneScrambleWalkerPositionY,
-                    pCurrentScrambleHangarShape,
-                    acScrambleWalkerOverlayFrames[
-                        cScrambleWalkerPair * 2 + 1]);
-                RefreshMemoryStatusOverlay();
-                DIBslam();
-                DIBslamReal();
+            nSceneScrambleWalkerPositionY =
+                137 - GetShapeFrameExtent(
+                    0, 0, pCurrentScrambleHangarShape,
+                    cScrambleRightWalkerFrame, 3);
+            DrawSpriteDefault(&stSceneBuffer,
+                              nScrambleRightWalkerX,
+                              nSceneScrambleWalkerPositionY,
+                              pCurrentScrambleHangarShape,
+                              cScrambleRightWalkerFrame);
+            DrawSpriteDefault(
+                &stSceneBuffer, nScrambleRightWalkerX,
+                nSceneScrambleWalkerPositionY,
+                pCurrentScrambleHangarShape,
+                acScrambleWalkerOverlayFrames[
+                    cScrambleWalkerPair * 2 + 1]);
+            RefreshMemoryStatusOverlay();
+            DIBslam();
+            DIBslamReal();
 
-                cScrambleLeftWalkerFrame++;
-                if (cScrambleLeftWalkerFrame > 19)
-                    cScrambleLeftWalkerFrame = 7;
-                cScrambleRightWalkerFrame++;
-                if (cScrambleRightWalkerFrame > 19)
-                    cScrambleRightWalkerFrame = 7;
-            }
-            nScrambleBackgroundX =
-                nScrambleBackgroundX - 12;
-            nScrambleRightWalkerX =
-                nScrambleRightWalkerX + 3;
-            nScrambleLeftWalkerX =
-                nScrambleLeftWalkerX + 2;
-            if (bEscapePressedFlag == 1)
-                break;
-            elapsed++;
-        } while (elapsed < ticks);
+            cScrambleLeftWalkerFrame++;
+            if (cScrambleLeftWalkerFrame > 19)
+                cScrambleLeftWalkerFrame = 7;
+            cScrambleRightWalkerFrame++;
+            if (cScrambleRightWalkerFrame > 19)
+                cScrambleRightWalkerFrame = 7;
+        }
+        nScrambleBackgroundX =
+            nScrambleBackgroundX - 12;
+        nScrambleRightWalkerX =
+            nScrambleRightWalkerX + 3;
+        nScrambleLeftWalkerX =
+            nScrambleLeftWalkerX + 2;
+        if (bEscapePressedFlag == 1)
+            break;
     }
     return 0;
 }
@@ -595,6 +591,7 @@ unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
                                     short scale, short angle,
                                     signed char flip, short actorIndex);
 void FlushSoundEffectsAndLog(int soundHandle, short fadeTicks);
+unsigned int ReleaseMusicTrackHook(short track);
 
 /* Function start: 0x408200 (Mac symbol: scramble) */
 unsigned int scramble(void)
