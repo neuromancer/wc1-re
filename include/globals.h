@@ -353,10 +353,7 @@ extern FixedVector aShipVelocity[SPACE_OBJECT_COUNT]; /* 0x0059c010 */
 extern HazardField *pActiveHazardField; /* 0x0059bfe0 */
 extern short anYawTarget[16]; /* 0x0059c310 */
 extern short asObjectCounterArray[SPACE_OBJECT_COUNT]; /* 0x0059c330 */
-#ifdef WC1_LOGIC_SOURCE
-/* Logic's range-comparison operands depend on this earlier declaration. */
 extern short nTgtRange; /* 0x0059ce10 */
-#endif
 extern short nTargetShip; /* 0x0059c3b0 */
 extern enum SpecialManeuver aeSpecialManeuvers[12]; /* 0x0059c3c0 */
 extern enum ShipMissionType aeShipMissionType[12]; /* 0x0059c3f0 */
@@ -371,9 +368,6 @@ extern short nShipMissionIndices[10]; /* 0x0059c830 */
 extern signed char acShipCommunicatorArray[16]; /* 0x0059c850 */
 extern signed char cCurrentNavPtIdx; /* 0x0059c86c */
 extern FixedVector vStarFieldMotion; /* 0x0059c860 */
-#ifndef WC1_LOGIC_SOURCE
-extern short nTgtRange; /* 0x0059ce10 */
-#endif
 extern short asObjectFlipArray[SPACE_OBJECT_COUNT]; /* 0x0059c870 */
 extern signed char acPreviousAttackers[16]; /* 0x0059c910 */
 extern signed char acViableTargetList[16]; /* 0x0059c920 */

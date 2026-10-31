@@ -4,6 +4,11 @@
  * Placement evidence is recorded in docs/ORDER.md.
  */
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <malloc.h>
+#include <float.h>
+#include <assert.h>
+#endif
 
 typedef void (*ShipManeuverHandler)(short, short);
 
