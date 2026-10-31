@@ -6,8 +6,12 @@
  *  Boundary evidence: MonoDebug_install/MonoDebug_print anchor the final block;
  *  the Mac auto unit starts at visit_the_cinema (403e50).
  */
-#define WC1_MONO_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <sys/stat.h>
+#include <sys/utime.h>
+#include <share.h>
+#endif
 
 short nPacketError = 0; /* 0x00465460 */
 /* File-error buffers. CL places these and the console statics by
@@ -186,7 +190,7 @@ short GetLineLength(const char *text)
     return width;
 }
 
-/* print_subtitle's glyph blitter (gr.c); wc1funcs.h omits it for this unit. */
+/* print_subtitle declares its glyph blitter (gr.c) locally. */
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
                        unsigned char *shape, short frame);
 

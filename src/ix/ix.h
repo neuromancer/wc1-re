@@ -43,13 +43,6 @@ void ix_log_printf(const char *fmt, ...);      /* 0x004426A0 */
  * DSP voice.  Array at 0x005981A8, stride 32 bytes; count at 0x00598600.
  * Field offsets are confirmed from the accessor bodies.
  * -------------------------------------------------------------------------- */
-/* These owners retain their count declarations before the voice types. */
-#ifdef WC1_IX_DSPS_SOURCE
-extern int nStreamCount;          /* 0x00598130 */
-#elif defined(WC1_IX_DSPV_SOURCE)
-extern int nVoiceCount;           /* 0x00598600 */
-#endif
-
 enum IxVoiceFlags {
     IX_VOICE_ACTIVE   = 0x02,
     IX_VOICE_FLAG4    = 0x04,   /* set elsewhere; meaning not yet established */
@@ -103,9 +96,10 @@ private:
     friend int ix_dsps_get_buffer_free(int);
 };
 
-/* Voice control retains its own records and shared counts, without the
- * unused sound, stream, and file-streaming declarations below. */
-#ifndef WC1_IX_DSPV_SOURCE
+/* Voice and stream counts, defined by dspv.cpp and dsps.cpp. */
+extern int nVoiceCount;           /* 0x00598600 */
+extern int nStreamCount;          /* 0x00598130 */
+
 /* Sample and sound layouts are fixed by system.cpp/sound.cpp field accesses. */
 struct IxSample {
     unsigned int flags;           /* +0x00 */
@@ -179,28 +173,17 @@ struct IxSound {
     void ix_sound_set_delete_on_stop(int enabled);
 };
 
-#endif
 
-/* Keep each owner's unused external state out of its declaration scope:
- * VC++ 4.20's code selection also depends on these declarations and their
- * order. Sound uses only the two voice counts and three list heads here. */
-#ifndef WC1_IX_DSPS_SOURCE
-#ifdef WC1_IX_SOUND_SOURCE
-extern int nActiveVoices;                    /* 0x00598614 */
-extern int nSystemVoices;                    /* 0x00598618 */
+/* Sound-system state (system.cpp). The voice counts and list heads come
+ * first: VC++ 4.20 orders the sound member's list-head comparisons by these
+ * declaration positions. */
 extern IxSound *pIdleSoundList;               /* 0x0059860C */
 extern IxSound *pPlayingSoundList;            /* 0x0059861C */
 extern IxSound *pQueuedSoundList;             /* 0x00598620 */
-#else
-#ifndef WC1_IX_DSPV_SOURCE
+extern int nActiveVoices;                    /* 0x00598614 */
+extern int nSystemVoices;                    /* 0x00598618 */
 extern unsigned int dwSoundStateFlags;       /* 0x00598608 */
-extern IxSound *pIdleSoundList;               /* 0x0059860C */
 extern IxSample *pSamples;                   /* 0x00598610 */
-extern int nActiveVoices;                    /* 0x00598614 */
-extern int nSystemVoices;                    /* 0x00598618 */
-extern IxSound *pPlayingSoundList;            /* 0x0059861C */
-extern IxSound *pQueuedSoundList;             /* 0x00598620 */
-#endif
 
 extern void *(__cdecl *pIxMalloc)(unsigned int);
 extern void (__cdecl *pIxFree)(void *);
@@ -209,8 +192,6 @@ extern void (__cdecl *pIxFree)(void *);
 extern unsigned short nMasterVolume; /* 0x0047198C */
 extern short          asPanGains[];  /* 0x00597D28 */
 extern CRITICAL_SECTION csMixer;    /* 0x005985E8 */
-#endif
-#endif
 
 #define IX_MIXER_BASE_RATE 22050    /* 0x5622, the divisor in set_frequency */
 
@@ -239,8 +220,6 @@ void ix_dspv_recalc_mix(int voice);                            /* 0x00446EBF */
  * Streams occupy voice slots AFTER the regular voices:
  * voice[voice_count + stream_index].
  * -------------------------------------------------------------------------- */
-/* Voice and sound-system controls do not use the stream records or APIs. */
-#if !defined(WC1_IX_DSPV_SOURCE) && !defined(WC1_IX_SYSTEM_SOURCE)
 enum IxStreamFlags {
     IX_STREAM_ALLOCATED = 0x01,
     IX_STREAM_PLAYING   = 0x02,
@@ -272,30 +251,14 @@ private:
     friend void ix_dsps_unlock(int);
 };
 
-#endif
 
-#if !defined(WC1_IX_SOUND_SOURCE) && !defined(WC1_IX_SYSTEM_SOURCE)
-#ifndef WC1_IX_DSPV_SOURCE
 extern IxStream streams[];         /* 0x00598138 */
-#endif
-#ifndef WC1_IX_DSPS_SOURCE
-extern int      nStreamCount;      /* 0x00598130 */
-#endif
-#ifndef WC1_IX_DSPV_SOURCE
 extern int      nAllocatedStreams; /* 0x00598134 */
-#endif
-#endif
 
-#if !defined(WC1_IX_DSPV_SOURCE) && !defined(WC1_IX_SOUND_SOURCE)
 extern IxVoice aVoices[];           /* 0x005981A8 */
-extern int     nVoiceCount;        /* 0x00598600 */
-#ifndef WC1_IX_DSPS_SOURCE
 extern int     nVoicesAllocated;   /* 0x00598604 */
-#endif
-#endif
 
 #define IX_DSPS_FILE "D:\\rnd\\prj\\ix\\win95\\dsp\\dsps.cpp"
-#if !defined(WC1_IX_DSPV_SOURCE) && !defined(WC1_IX_SYSTEM_SOURCE)
 void ix_dsps_alloc(int stream, unsigned int size, int frequency,
                    int bitsPerSample, int channels); /* 0x004451B5 */
 void ix_dsps_free(int stream);                   /* 0x0044546B */
@@ -309,7 +272,6 @@ void ix_dsps_lock(int stream, unsigned int requestedBytes,
                   unsigned char **buffer, unsigned int *lockedBytes); /* 0x00445CDB */
 void ix_dsps_unlock(int stream);                 /* 0x00445E3C */
 
-#endif
 
 /* --------------------------------------------------------------------------
  * Mixer (DirectSound), DSP core, system, sound, sample.
@@ -337,8 +299,6 @@ void *ix_dsp_copy(void *destination, const void *source,
                   unsigned int bytes);           /* 0x00445140 */
 void ix_dsp_free(void *memory);                  /* 0x00445164 */
 
-/* Stream and voice controls do not use these sound-system interfaces. */
-#if !defined(WC1_IX_DSPS_SOURCE) && !defined(WC1_IX_DSPV_SOURCE)
 extern "C" int  ix_system_init(void);            /* 0x00447200 */
 extern "C" void ix_system_service_sounds(void); /* 0x004472A7 */
 extern "C" void ix_system_shutdown(void);        /* 0x004473F3 */
@@ -366,14 +326,12 @@ extern "C" void __fastcall ix_sound_release(IxSound *sound); /* 0x0044801E */
 void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x00447B7A */
 extern "C" void __fastcall ix_sound_stop(IxSound *sound);   /* 0x004480CF */
 extern "C" int __fastcall ix_sound_is_playing(IxSound *sound); /* 0x00448678 */
-#endif
 
 /* --------------------------------------------------------------------------
  * Streamer.  Global state word at 0x00597CD0; wake event at 0x00597CD4.
  *   bit2 0x004 playing      bit3 0x008 paused
  *   bit7 0x080 has audio    bit10 0x400 request flag (meaning TBD)
  * -------------------------------------------------------------------------- */
-#if !defined(WC1_IX_DSPV_SOURCE) && !defined(WC1_IX_SYSTEM_SOURCE)
 enum IxStreamFileFlags {
     IX_STREAM_FILE_OPEN    = 0x01,
     IX_STREAM_FILE_READING = 0x02
@@ -538,11 +496,8 @@ extern "C" unsigned int ix_file_write(FILE *file, const void *source,
                                        unsigned int bytes); /* 0x0046173E */
 extern "C" long ix_file_size(FILE *file);        /* 0x00461764 */
 
-#endif
 
-/* Voice control and sound-system voice allocation do not use streamer state. */
-#if !defined(WC1_IX_DSPS_SOURCE) && !defined(WC1_IX_SOUND_SOURCE) && \
-    !defined(WC1_IX_SYSTEM_SOURCE) && !defined(WC1_IX_DSPV_SOURCE)
+/* Streamer state. */
 extern unsigned int *pStreamerPacketOffsetTable;
 extern unsigned int dwStreamThreadTick;
 extern FILE *pStreamerPackFile;
@@ -573,6 +528,5 @@ extern char cStreamerBranchTag;
 extern unsigned int nStreamCallStackIndex;
 extern CRITICAL_SECTION csStreamer;
 extern IxStreamerTrigger *pStreamTriggerList;
-#endif
 
 #endif /* IX_H */

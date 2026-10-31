@@ -4,13 +4,8 @@
  *  Address range 4408a0-44269f (provisional -- see docs/ORDER.md).
  *  Boundary evidence: PROVEN by name: shadow_draw, fizzle_fade, snow_viewport.
  */
-#define WC1_GR_SOURCE
 #include <stdio.h>
 #include "wc1.h"
-
-const char szGameRegistryKey[42] =
-    "Software\\Origin Systems\\WC: Kilrathi Saga"; /* 0x004631c8 */
-const char szCheaterRegistryValue[8] = "Cheater"; /* 0x004631f8 */
 
 /* 0x00470678 */
 static unsigned char abPaletteTranslation[256] = {
@@ -48,7 +43,10 @@ static unsigned char abPaletteTranslation[256] = {
     248, 249, 250, 251, 252, 253, 254, 255
 };
 /* 0x00470778 */
-static unsigned short awAbsoluteCosine[360] = {
+/* Absolute cosine row, then the sine row at 0x00470a48, indexed by angle in
+ * degrees. One table keeps the unit's symbol count (docs/WORKAROUNDS.md). */
+static unsigned short aawAbsoluteTrig[2][360] = {
+  {
     255, 255, 255, 255, 255, 255, 255, 254, 254, 253, 252, 251,
     250, 250, 248, 247, 246, 245, 243, 242, 241, 239, 237, 236,
     234, 232, 230, 228, 226, 224, 221, 219, 217, 215, 212, 210,
@@ -79,9 +77,8 @@ static unsigned short awAbsoluteCosine[360] = {
     207, 210, 212, 215, 217, 219, 221, 224, 226, 228, 230, 232,
     234, 236, 237, 239, 241, 242, 243, 245, 246, 247, 248, 250,
     250, 251, 252, 253, 254, 254, 255, 255, 255, 255, 255, 255
-};
-/* 0x00470a48 */
-static unsigned short awAbsoluteSine[360] = {
+  },
+  {
       0,   4,   9,  13,  18,  22,  27,  31,  36,  40,  45,  49,
      53,  58,  62,  66,  71,  75,  79,  83,  88,  92,  96, 100,
     104, 108, 112, 116, 120, 124, 128, 131, 136, 139, 143, 147,
@@ -112,38 +109,20 @@ static unsigned short awAbsoluteSine[360] = {
     150, 147, 143, 139, 136, 131, 128, 124, 120, 116, 112, 108,
     104, 100,  96,  92,  88,  83,  79,  74,  71,  66,  62,  58,
      53,  49,  45,  40,  36,  31,  27,  22,  18,  13,   9,   4
+  }
 };
 
-/* Raster targets and shape work buffers. CL places these statics by
- * identifier hash, so their spellings reproduce the original order. */
-static RasterSurface stRasterTarget; /* 0x004875a8 */
-static unsigned char abShapeTransformPixels[0xfa00]; /* 0x004875c0 */
-static RasterClip stRasterClip; /* 0x00496fc0 */
-/* Nothing in the shipped executable references this table. */
-static unsigned char abUnusedGrTable[0x670]; /* 0x00496fd8 */
-static unsigned char abSolidColourLookup[256]; /* 0x00497648 */
-static unsigned char abShapeRLEBuffer[0x100000]; /* 0x00497748 */
-static int bStreamerAudioRunning; /* 0x00597748 */
-static char szStreamerPathBuffer[128]; /* 0x00597750 */
-
-/* Linker commons defined here; LINK orders them by identifier hash. */
-int nUnusedFlightProfileTicksA; /* 0x00598888 */
-int nUnusedFlightProfileTicksB; /* 0x0059888c */
-int nUnusedFlightProfileTicksC; /* 0x00598890 */
-Viewport stRoomScreenViewport; /* 0x005988a0 */
-short nSavedRoomCtrlX; /* 0x005988b4 */
-unsigned char *pRecRoomRoster; /* 0x005988b8 */
-unsigned char *pMissionCampaignInfo; /* 0x005988bc */
-unsigned char *apRecRoomFigureShapes[3]; /* 0x005988c0 */
-PilotRecord aPilotEntriesList[9]; /* 0x005988d0 */
-ConstellationObjectDefinition *pConstellationDefinitionsPtr; /* 0x00598a28 */
-PilotRecord *apWingmanPilotsList[8]; /* 0x00598a30 */
+/* The raster, shape, streamer and registry definitions below are declared
+ * near their first users, in address order, and the linker commons at the end
+ * of the unit. CL places static .bss storage by identifier hash, so this
+ * changes no address. */
 
 /* Function start: 0x4408A0 */
 void CheckHeapBlockSignature(unsigned char *shape)
 {
-    if (*(int *)(shape - 8) != 0x6666656a)
-        exit_squadron("not jefftep");
+    /* Expression statement rather than if: same code, one label fewer. */
+    *(int *)(shape - 8) != 0x6666656a &&
+        (exit_squadron("not jefftep"), 0);
 }
 
 /* Function start: 0x4408C0 */
@@ -181,26 +160,33 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
 #endif
 
     frameOffset = (int)(short)(frame * 4 + 4);
-    if (frameOffset < (int)*(unsigned short *)(shape + 4)) {
 #ifdef SDL_PORT
+    if (frameOffset < (int)*(unsigned short *)(shape + 4)) {
         memcpy(frameExtents, shape + *(int *)(shape + frameOffset),
                sizeof(frameExtents));
         rightExtent = frameExtents[0];
         left = frameExtents[1];
         top = frameExtents[2];
         bottom = frameExtents[3];
-#else
-        frameHeader = (short *)(shape + *(int *)(shape + frameOffset));
-        rightExtent = *frameHeader++;
-        left = *frameHeader++;
-        top = *frameHeader++;
-        bottom = *frameHeader;
-#endif
         *width = (short)(left + rightExtent + 1);
         *height = (short)(top + bottom + 1);
         *leftExtent = (short)left;
         *topExtent = (short)top;
     }
+#else
+    /* One expression statement, like CheckHeapBlockSignature's test: CL 4.20
+     * gives it no label, which keeps DecodeShapeFrame's symbol context. */
+    frameOffset < (int)*(unsigned short *)(shape + 4) &&
+        (frameHeader = (short *)(shape + *(int *)(shape + frameOffset)),
+         rightExtent = *frameHeader++,
+         left = *frameHeader++,
+         top = *frameHeader++,
+         bottom = *frameHeader,
+         *width = (short)(left + rightExtent + 1),
+         *height = (short)(top + bottom + 1),
+         *leftExtent = (short)left,
+         *topExtent = (short)top);
+#endif
 }
 
 /* Function start: 0x440960 */
@@ -389,12 +375,20 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
     clip->bottom = viewport->bottom - viewport->top;
 }
 
+static RasterSurface stRasterTarget; /* 0x004875a8 */
+static unsigned char abShapeTransformPixels[0xfa00]; /* 0x004875c0 */
+static RasterClip stRasterClip; /* 0x00496fc0 */
+/* Nothing in the shipped executable references this table. */
+static unsigned char abUnusedGrTable[0x670]; /* 0x00496fd8 */
+
 /* Function start: 0x440CF0 */
 void ClipViewportToScreen(Viewport *viewport)
 {
     ValidateViewportBounds(viewport, &stRasterTarget,
                            &stRasterClip);
 }
+
+static unsigned char abSolidColourLookup[256]; /* 0x00497648 */
 
 /* Function start: 0x440D10 */
 void SetSolidColourTranslation(unsigned char colour)
@@ -404,15 +398,16 @@ void SetSolidColourTranslation(unsigned char colour)
     SetPaletteTranslationTable(abSolidColourLookup);
 }
 
+static unsigned char abShapeRLEBuffer[0x100000]; /* 0x00497748 */
+
 /* Function start: 0x440D50 */
 void PrepareShapeRLEData(unsigned char *shape)
 {
-    void (*getExtents)(unsigned char *data, short index,
+    void (*getExtents)(unsigned char *, short index,
                        short *width, short *height,
                        short *left, short *top) = GetShapeFrameExtents;
-    void (*decodeFrame)(unsigned char *, short,
-                        unsigned char *pixels, int width, int height,
-                        int left, int top) = DecodeShapeFrame;
+    void (*decodeFrame)(unsigned char *, short, unsigned char *,
+                        int, int, int, int) = DecodeShapeFrame;
     unsigned char *bitmap;
     unsigned char *pixel;
     unsigned char *output;
@@ -1322,9 +1317,9 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
         frameLeft = *(short *)cursor;
         frameTop = *(short *)(cursor + 4);
         frameBottom = *(short *)(cursor + 6);
-        cosine = awAbsoluteCosine[angle] * scale;
+        cosine = aawAbsoluteTrig[0][angle] * scale;
         cosine >>= 8;
-        sine = awAbsoluteSine[angle] * scale;
+        sine = aawAbsoluteTrig[1][angle] * scale;
         sine >>= 8;
         if (cosine == 0)
             cosine++;
@@ -1458,6 +1453,9 @@ void InitializeAudioStreamer(HWND window)
     }
 }
 
+static int bStreamerAudioRunning; /* 0x00597748 */
+static char szStreamerPathBuffer[128]; /* 0x00597750 */
+
 /* Function start: 0x4423B0 */
 void Streamer_open(const char *streamName)
 {
@@ -1583,6 +1581,10 @@ void ShutdownAudioStreamer(void)
         ix_streamer_destroy();
 }
 
+const char szGameRegistryKey[42] =
+    "Software\\Origin Systems\\WC: Kilrathi Saga"; /* 0x004631c8 */
+const char szCheaterRegistryValue[8] = "Cheater"; /* 0x004631f8 */
+
 /* Function start: 0x442600 */
 int ReadCheaterFlagFromRegistry(void)
 {
@@ -1606,3 +1608,16 @@ int ReadCheaterFlagFromRegistry(void)
         OutputDebugStringA("reg not cheating\n");
     return enabled;
 }
+
+/* Linker commons defined here; LINK orders them by identifier hash. */
+int nUnusedFlightProfileTicksA; /* 0x00598888 */
+int nUnusedFlightProfileTicksB; /* 0x0059888c */
+int nUnusedFlightProfileTicksC; /* 0x00598890 */
+Viewport stRoomScreenViewport; /* 0x005988a0 */
+short nSavedRoomCtrlX; /* 0x005988b4 */
+unsigned char *pRecRoomRoster; /* 0x005988b8 */
+unsigned char *pMissionCampaignInfo; /* 0x005988bc */
+unsigned char *apRecRoomFigureShapes[3]; /* 0x005988c0 */
+PilotRecord aPilotEntriesList[9]; /* 0x005988d0 */
+ConstellationObjectDefinition *pConstellationDefinitionsPtr; /* 0x00598a28 */
+PilotRecord *apWingmanPilotsList[8]; /* 0x00598a30 */

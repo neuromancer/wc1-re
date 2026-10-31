@@ -283,6 +283,7 @@ Special thanks to:
   to run and study the original release, and
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's
   AdLib emulation.
+- DaisenryakuFan for providing very advanced source reconstructions for the DOS releases of several *Wing Commander* titles.
 
 ## License
 

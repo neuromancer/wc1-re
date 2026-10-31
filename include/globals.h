@@ -37,7 +37,7 @@ extern int bDirectDrawModeCascadeEnabled; /* 0x00465074 */
 extern int bCockpitEnabled; /* 0x0046507c */
 extern volatile int bMainWindowMinimized; /* 0x00465080 */
 extern int bWindowMessagePumpActive; /* 0x004650a8 */
-extern unsigned int bF1KeyLatch; /* 0x004650ac */
+extern volatile unsigned int bF1KeyLatch; /* 0x004650ac */
 extern GuardedAllocation *pGuardedAllocationHead; /* 0x004650b0 */
 extern short nDebriefingPersonality; /* 0x00465c80 */
 extern void *aapPacketReferences[4][0x25]; /* 0x00465c88 */
@@ -122,7 +122,7 @@ extern int bViewBufferEnabled; /* 0x0046a004 */
 extern short nCockpitExplosionFrame; /* 0x00469068 */
 extern int bCockpitlessView; /* 0x0046a008 */
 extern short nArcadeBonusCountdown; /* 0x0046a014 */
-extern int bMouseCursorVisible; /* 0x0046a018 */
+extern volatile int bMouseCursorVisible; /* 0x0046a018 */
 extern unsigned char bInputPollingGuard; /* 0x0046a01c */
 extern unsigned char *pDamageDisplayBackground; /* 0x0046a748 */
 extern const char *apszComponentNames[9]; /* 0x0046a778 */
@@ -159,7 +159,7 @@ extern signed char aacCockpitLightOnFrame[5][7]; /* 0x0046dd60 */
 extern CockpitBarDefinition aaCockpitBars[5][8]; /* 0x0046dd88 */
 extern const GUID guidDirectDraw2; /* 0x00463118 */
 extern signed char bCurrentKey; /* 0x0046c014 */
-extern signed char cPreviousKey; /* 0x0046c018 */
+extern volatile signed char cPreviousKey; /* 0x0046c018 */
 extern short nExternalViewShip; /* 0x0046c040 */
 extern signed char cViewObject; /* 0x0046c000 */
 extern int bIntroSecondaryScene; /* 0x0046c024 */
@@ -175,8 +175,8 @@ extern short nEjectedPilotObject; /* 0x0046c044 */
 extern short nClosestVisibleObject; /* 0x0046c048 */
 extern short nPlayerCollisionObject; /* 0x0046c050 */
 extern enum ObjectType eSelectedGunType; /* 0x0046c054 */
-#if !defined(WC1_SHIP_SOURCE) && !defined(WC1_BRAINS_SOURCE) && \
-    !defined(WC1_AUTO_SOURCE)
+#ifdef WC1_LOGIC_SOURCE
+/* Logic's wingman comparison depends on this earlier declaration. */
 extern short nYourWingman; /* 0x0046c04c */
 #endif
 extern int nSelectedReleaseWeaponIndex; /* 0x0046c058 */
@@ -189,15 +189,10 @@ extern signed char cTargetDisplayObject; /* 0x0046c06c */
 extern int bTargetLockAcquired; /* 0x0046c074 */
 extern short nTargetLockMode; /* 0x0046c078 */
 extern int bMissileCameraEnabled; /* 0x0046c07c */
-#if defined(WC1_SHIP_SOURCE) || defined(WC1_BRAINS_SOURCE)
-/* These units need the wingman declaration after the targeting state. */
+#ifndef WC1_LOGIC_SOURCE
 extern short nYourWingman; /* 0x0046c04c */
 #endif
 extern int bEngageAllowed; /* 0x0046c080 */
-#ifdef WC1_AUTO_SOURCE
-/* Autopilot's ship/wingman comparison uses this later declaration. */
-extern short nYourWingman; /* 0x0046c04c */
-#endif
 extern short nAutoEngageTimer; /* 0x0046c084 */
 extern MissionNavPoint aMissionNavPoints[MISSION_NAV_POINT_COUNT]; /* 0x0046c2f0 */
 extern MissionShipRecord
@@ -209,13 +204,9 @@ extern signed char acDirectionShapeFrame[ /* 0x0046db28 */
     DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT];
 extern signed char acDirectionShapeFlip[ /* 0x0046dbe8 */
     DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT];
-/* The view unit omits these unused event-list declarations for its
- * measured compiler context; see docs/PATTERNS.md. */
-#ifndef WC1_VIEW_SOURCE
 extern InputEvent *pInputEventHead; /* 0x0046da90 */
 extern InputEvent *pInputEventTail; /* 0x0046da94 */
 extern int bInputEventPoolInitialized; /* 0x0046da98 */
-#endif
 extern short nScreenWidth; /* 0x0046daa4 */
 extern short nScreenHeight; /* 0x0046daa8 */
 extern ScreenViewportGeometry aScreenViewportGeometry[7]; /* 0x0046dab8 */
@@ -284,10 +275,8 @@ extern RoomMenu stCurrentRoomMenu; /* 0x00598ab0 */
 extern unsigned char *apRecRoomSceneDataList[3]; /* 0x00598ae0 */
 extern unsigned char *pBriefingPacket; /* 0x00598aec */
 extern unsigned char *pCurrentBriefingTextData; /* 0x00598af0 */
-#ifndef WC1_GAMEFLOW_SOURCE
 extern short *pSceneMouthAnimCmds; /* 0x00598af4 */
 extern unsigned char *pRoomMedalTextData; /* 0x00598af8 */
-#endif
 extern unsigned char *pDebriefingSceneDataPtr; /* 0x00598afc */
 extern unsigned char *pBriefingSceneInfo; /* 0x00598c00 */
 extern unsigned char *pCurrentConversationBackdropShapePtr; /* 0x00598c04 */
@@ -296,16 +285,12 @@ extern short nTalkSceneType; /* 0x00598c0a */
 extern unsigned char *pTalkHeadShape; /* 0x00598c0c */
 extern short nConvTextColorValue; /* 0x00598c10 */
 extern unsigned char *pCurrentBriefingAnimShape; /* 0x00598c14 */
-#ifndef WC1_GAMEFLOW_SOURCE
 extern short *pFaceAnimationCmds; /* 0x00598c18 */
 extern unsigned char *pSceneBriefingBodyShape; /* 0x00598c1c */
 extern unsigned char *pMedalSceneData; /* 0x00598c20 */
 extern unsigned char *pSceneBriefingPortraitShape; /* 0x00598c24 */
-#endif
 extern unsigned char *pDebriefingTxtInfo; /* 0x00598c28 */
-#ifndef WC1_GAMEFLOW_SOURCE
 extern unsigned char *pBriefingCloseupShape; /* 0x00598c2c */
-#endif
 extern unsigned char *pConvOverlayShapePtr; /* 0x00598c30 */
 extern unsigned char bFilteredKeyDelayStartedState; /* 0x00598c34 */
 extern InputEvent aInputEvtPool[0x100]; /* 0x00598c40 */
@@ -406,7 +391,7 @@ extern unsigned int anVduModeCache[2]; /* 0x0059ce18 */
 extern signed char acObjOwnersTable[64]; /* 0x0059ce20 */
 extern signed char acShipTargetTable[16]; /* 0x0059ce60 */
 extern short nPrevPitchInputValue; /* 0x0059ce70 */
-extern short nPrevYawInput; /* 0x0059ce72 */
+extern volatile short nPrevYawInput; /* 0x0059ce72 */
 extern short nPreviousRollInputValue; /* 0x0059ce74 */
 extern signed char acTurnRegulatorsArray[16]; /* 0x0059cf10 */
 extern unsigned char abCollisionAlertTargets[0x10]; /* 0x0059cf20 */
@@ -489,24 +474,16 @@ extern signed char acShipIonDriveDmg[16]; /* 0x0059d4a0 */
 extern short asObjectAnimationDelay[SPACE_OBJECT_COUNT]; /* 0x0059b660 */
 extern short asObjectAnimIndexes[SPACE_OBJECT_COUNT]; /* 0x0059da30 */
 extern short nEyeRollTargetValue; /* 0x0059c8f0 */
-#ifndef WC1_VIEW_SOURCE
-/* The flight unit needs the pitch goal declared before the yaw goal; the
- * scripted-view unit sees them in the other order. */
+/* The flight unit needs the pitch goal declared before the yaw goal. */
 extern short nEyePitchTargetValue; /* 0x0059d61c */
-#endif
 extern short nEyeYawGoalValue; /* 0x0059c944 */
-#ifdef WC1_VIEW_SOURCE
-extern short nEyePitchTargetValue; /* 0x0059d61c */
-#endif
 extern signed char acVduModeStackDepth[16]; /* 0x0059dec0 */
 extern signed char acShipSpawnNavPt[16]; /* 0x0059ded0 */
 /* Calibration bounds are used only by joycal.c. */
-#ifndef WC1_VIEW_SOURCE
 extern int nJoystickCalibrationMinimumY; /* 0x0059df64 */
 extern int nJoystickCalibrationMinimumX; /* 0x0059df68 */
 extern int nJoystickCalibrationMaximumX; /* 0x0059df6c */
 extern int nJoystickCalibrationMaxY; /* 0x0059df70 */
-#endif
 extern unsigned short awPalEntryAllocation[256]; /* 0x0059df80 */
 extern unsigned char *apCommunicationPortraitShapesTable[16]; /* 0x0059e180 */
 extern char szHudMessageBuf[0x60]; /* 0x0059e1c0 */
@@ -516,15 +493,13 @@ extern const char *pszCommMenuHeading; /* 0x0059e490 */
 extern char szCommMenuHeadingBuf[0x40]; /* 0x0059e4a0 */
 extern const char *apszCommMenuChoiceTextTable[7]; /* 0x0059e4e0 */
 /* Packet-handle tables and screen row storage have only screen.c users. */
-#if !defined(WC1_FADE_SOURCE) && !defined(WC1_MAIN_SOURCE) && \
-    !defined(WC1_LOGIC_SOURCE)
+#ifndef WC1_LOGIC_SOURCE
 extern void *apPacketHandlesList[0x1000]; /* 0x0059e530 */
 extern int aiPktHandleDeltas[0x1000]; /* 0x005a2530 */
 extern int nPacketHandleTotal; /* 0x005a6530 */
 #endif
 extern Viewport *pAllocatedScreenViewport; /* 0x005a6534 */
-#if !defined(WC1_FADE_SOURCE) && !defined(WC1_MAIN_SOURCE) && \
-    !defined(WC1_LOGIC_SOURCE)
+#ifndef WC1_LOGIC_SOURCE
 extern unsigned short awScreenRowOffsets[202]; /* 0x005a6540 */
 extern ScreenAllocation stCurrentScreenAlloc; /* 0x005a66e0 */
 extern ScreenAllocation *pScreenAllocPtr; /* 0x005a66ec */
@@ -547,13 +522,8 @@ extern short nCurrentExternalViewDistance; /* 0x005a6b5c */
 extern Viewport stPilotHandView; /* 0x005a6b60 */
 extern Viewport stLeftVdu; /* 0x005a6b80 */
 extern ScreenViewportPacket *pCurrentScreenViewportPkt; /* 0x005a6b94 */
-/* Graphics' first viewport comparison depends on this declaration pair. */
-#ifdef WC1_GR_SOURCE
 extern FixedVector aDirectionViewUpVectorArray[ /* 0x005a6f10 */
     DIRECTION_VIEW_COUNT];
-#else
-extern Viewport stScreenView; /* 0x005a6ba0 */
-#endif
 extern Viewport stCockpitBar; /* 0x005a6be0 */
 extern TextContext stHudMessageTextContext; /* 0x005a6bc0 */
 extern unsigned char *pTgtLockShapePtr; /* 0x005a6bf4 */
@@ -561,12 +531,7 @@ extern unsigned char *apTextFonts[4]; /* 0x005a6c00 */
 extern FontWorkspace **apFontWorkspaces[4]; /* 0x005a6c10 */
 extern FixedVector aDirectionViewRightVector[ /* 0x005a6c20 */
     DIRECTION_VIEW_COUNT];
-#ifdef WC1_GR_SOURCE
 extern Viewport stScreenView; /* 0x005a6ba0 */
-#else
-extern FixedVector aDirectionViewUpVectorArray[ /* 0x005a6f10 */
-    DIRECTION_VIEW_COUNT];
-#endif
 extern FixedVector aDirectionViewForwardVector[ /* 0x005a7200 */
     DIRECTION_VIEW_COUNT];
 extern TextContext stLeftVduTextContext; /* 0x005a74f0 */
@@ -575,23 +540,18 @@ extern Viewport stRightVduViewport; /* 0x005a7530 */
 extern Viewport stPilotHandBackdropView; /* 0x005a7550 */
 extern unsigned char *pCockpitWeaponShapePtr; /* 0x005a7564 */
 extern Viewport stCurrentConvTextViewport; /* 0x005a7570 */
-#ifdef WC1_GAMEFLOW_SOURCE
-extern Viewport stSceneBuffer; /* 0x005a76b0 */
-#endif
 extern char szDefaultTxtBuf[0xc8]; /* 0x005a7590 */
 extern Viewport stModalSrcViewport; /* 0x005a7670 */
 extern unsigned char *pCockpitIndicatorShape; /* 0x005a7658 */
 extern unsigned char *pCommMenuPointerShape; /* 0x005a7660 */
 extern unsigned char *pCurrentPilotHandShapePtr; /* 0x005a7684 */
 extern Viewport stPilotHandComposite; /* 0x005a7690 */
-#ifndef WC1_GAMEFLOW_SOURCE
-extern Viewport stSceneBuffer; /* 0x005a76b0 */
-#endif
+extern TextContext stDefaultTxtContext; /* 0x005a7740 */
 extern unsigned char *pCockpitDamageShape; /* 0x005a76f4 */
 extern short aPaletteFadeEntries[6][3]; /* 0x005a76d0 */
 extern TextContext stRightVduTxtContext; /* 0x005a7700 */
 extern TextContext stCurrentCockpitReadoutTextCtx; /* 0x005a7720 */
-extern TextContext stDefaultTxtContext; /* 0x005a7740 */
+extern Viewport stSceneBuffer; /* 0x005a76b0 */
 extern TextContext stCurrentConvTxtCtx; /* 0x005a7760 */
 extern short asDamageFlashColour[3]; /* 0x005a7780 */
 extern short nCurrentDmgDispTicks; /* 0x005a7786 */
@@ -617,13 +577,13 @@ extern char *pCurrentStartupArgumentsPtr[30]; /* 0x005a7b10 */
 extern short bJoystickEventQueued; /* 0x005a7b88 */
 extern short nMainArcadeStartupParameterValue; /* 0x005a7b8a */
 extern Viewport stTrainSimulatorHighScoreBufView; /* 0x005a7bb0 */
-extern int nCurrentArcadeScore; /* 0x005a7bc4 */
+extern int nArcadeWaveBonusValue; /* 0x005a7c50 */
 extern TextContext stTrainSimTxtContext; /* 0x005a7bd0 */
 extern Viewport stTrainSimHighScoreDisplayViewport; /* 0x005a7bf0 */
 extern TextContext stTrainSimHighScoreTextContext; /* 0x005a7c10 */
 extern short nArcadeTimeRemaining; /* 0x005a7c2c */
 extern HighScoreEntry aHighScoreEntriesArray[6]; /* 0x005a7c30 */
-extern int nArcadeWaveBonusValue; /* 0x005a7c50 */
+extern int nCurrentArcadeScore; /* 0x005a7bc4 */
 extern unsigned char *pSceneAnimationSceneDataPtr; /* 0x005a7c54 */
 extern unsigned char *pCurrentSceneAnimationPrimaryShape; /* 0x005a7c58 */
 extern unsigned char *pSceneAnimationTextData; /* 0x005a7c5c */
@@ -637,7 +597,7 @@ extern unsigned char *apCockpitShapesList[4]; /* 0x005a7c80 */
 extern unsigned char *pCinematicViewBackdropPtr; /* 0x005a7c90 */
 extern unsigned char *pLogicRearViewBackdropPtr; /* 0x005a7c94 */
 extern int bCurrentPlayerDestroyed; /* 0x005a7c98 */
-extern short nPlayerKillTotal; /* 0x005a7c9c */
+extern unsigned char *pMouseCursorResource; /* 0x005a7cdc */
 extern short asCollisionPartnerTable[10]; /* 0x005a7cc0 */
 extern int dwOriginalFreeMem; /* 0x005a7cd8 */
 extern short asCollisionTimes[10]; /* 0x005a7ca0 */
@@ -646,7 +606,7 @@ extern short nWingmanKillCount; /* 0x005a7cb8 */
 extern HudMessageSlot aCockpitHudMessageSlotsTable[2]; /* 0x005a7dd0 */
 extern short nLogicLastFoundShipValue; /* 0x005a7cba */
 extern int nMemoryConfig; /* 0x005a7cd4 */
-extern unsigned char *pMouseCursorResource; /* 0x005a7cdc */
+extern short nPlayerKillTotal; /* 0x005a7c9c */
 extern int nAvailableGameMemory; /* 0x005a7ce0 */
 extern int nSceneResourceBudgetValue; /* 0x005a7ce4 */
 extern unsigned char *pRadarMarkerBackground; /* 0x005a7dc4 */
@@ -655,14 +615,12 @@ extern int bPtrMovedByKeyboardState; /* 0x005a7d54 */
 extern FixedVector vNormalizedToTarget; /* 0x005a7db0 */
 extern ShortPoint stReleaseWeaponDisplayPosition; /* 0x005a7dbc */
 extern enum ObjectType eReleaseWpnDisplayType; /* 0x005a7dc0 */
-#ifndef WC1_COCKPT_SOURCE
-extern signed char bStickIndicatorFrameState; /* 0x005a7dc8 */
-#endif
+extern int nSavedMouseCursorY; /* 0x005a7df4 */
 extern short nCurrentNoticeTimer; /* 0x005a7dca */
 extern short nPendingCockpitDamageValue; /* 0x005a7dcc */
 extern signed char cLastTargetObject; /* 0x005a7df2 */
 extern int nAfterburnerSoundDeadline; /* 0x005a7ce8 */
-extern int nSavedMouseCursorY; /* 0x005a7df4 */
+extern signed char bStickIndicatorFrameState; /* 0x005a7dc8 */
 extern int nStoredMouseCursorPosX; /* 0x005a7df8 */
 extern char szComponentHitMessage[40]; /* 0x005a7e00 */
 extern short nTargetLockMarkerY; /* 0x005a7e28 */
@@ -788,8 +746,7 @@ extern int bViewportDirty; /* 0x00469fc4 */
 extern int nInputTickScale; /* 0x0059af90 */
 /* These button-history fields are private to input.c. Selected owners omit
  * their unused declarations; docs/PATTERNS.md records the matching evidence. */
-#if !defined(WC1_FADE_SOURCE) && !defined(WC1_MAIN_SOURCE) && \
-    !defined(WC1_LOGIC_SOURCE)
+#ifndef WC1_LOGIC_SOURCE
 extern short asInputButton1DoubleClicksList[2]; /* 0x0059e508 */
 extern short asInputBtn1ChangedTable[2]; /* 0x0059e50c */
 extern short asInputButton2ChangedTable[2]; /* 0x0059e510 */
@@ -800,28 +757,16 @@ extern int anInputButton2PressTime[2]; /* 0x0059e500 */
 extern short asInputButton2DoubleClick[2]; /* 0x0059e520 */
 
 extern short nCurrentActiveInputDevice; /* 0x005a819c */
-/* Dead zones and raw coordinates are used only by joycal.c. */
-#ifndef WC1_MAIN_SOURCE
 extern int nJoystickVertDeadZoneValue; /* 0x005a81a0 */
 extern int nJoystickHorizontalDeadZone; /* 0x005a81a4 */
-#endif
 extern int nJoystickUpScale; /* 0x005a81a8 */
 extern int nCurrentJoystickLeftScale; /* 0x005a81ac */
-/* Interactive calibration's bounds use a distinct declaration order. */
-#ifdef WC1_JOYSTICK_SOURCE
 extern int nStickMinimumPositionX; /* 0x005a81b8 */
-extern int nCurrentJoystickFailureValue; /* 0x005a81e0 */
+extern int nHostMouseMessageX; /* 0x005a8990 */
 extern int nStickMaxX; /* 0x005a81b0 */
-#else
-extern int nStickMaxX; /* 0x005a81b0 */
-extern int nStickMaxY; /* 0x005a81b4 */
-extern int nStickMinimumPositionX; /* 0x005a81b8 */
-#endif
 extern int nStickMinimumPositionY; /* 0x005a81bc */
-#ifndef WC1_MAIN_SOURCE
 extern int nCurrentJoystickRawCoordX; /* 0x005a81c0 */
 extern int nCurrentJoystickRawCoordY; /* 0x005a81c4 */
-#endif
 extern int nJoystickVerticalRange; /* 0x005a81c8 */
 extern int nJoystickHorizontalRangeValue; /* 0x005a81cc */
 extern int nJoystickRightScale; /* 0x005a81d0 */
@@ -829,12 +774,8 @@ extern int nJoystickDownScaleValue; /* 0x005a81d4 */
 extern int nJoystickCentreY; /* 0x005a81d8 */
 extern int nJoystickCentreX; /* 0x005a81dc */
 extern short nMenuInputRepeatDelay; /* 0x005a8208 */
-#ifdef WC1_JOYSTICK_SOURCE
-extern int nStickMaxY; /* 0x005a81b4 */
-#else
 extern int nCurrentJoystickFailureValue; /* 0x005a81e0 */
-#endif
-extern int nHostMouseMessageX; /* 0x005a8990 */
+extern int nStickMaxY; /* 0x005a81b4 */
 extern int nHostMouseMessageY; /* 0x005a8994 */
 extern int bHostPrimaryMouseButton; /* 0x005a8998 */
 extern int bHostSecondaryMouseButton; /* 0x005a899c */

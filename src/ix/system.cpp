@@ -8,8 +8,9 @@
  *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
  *  list below is the original source order of this file.
  */
-#define WC1_IX_SYSTEM_SOURCE
 #include "ix.h"
+#include <assert.h>
+#include <limits.h>
 
 unsigned int dwSoundStateFlags;       /* 0x00598608 */
 IxSound *pIdleSoundList;               /* 0x0059860C */

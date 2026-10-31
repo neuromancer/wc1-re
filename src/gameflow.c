@@ -3,7 +3,6 @@
  * The viewport helper remains here provisionally.
  * Placement and boundary evidence are recorded in docs/ORDER.md.
  */
-#define WC1_GAMEFLOW_SOURCE
 #include "wc1.h"
 
 int bOfficeVisitPending = 0; /* 0x004688cc */

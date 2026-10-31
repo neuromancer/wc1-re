@@ -98,10 +98,10 @@ unsigned int select_new_gun(void)
 /* Function start: 0x42AE50 */
 unsigned int select_new_release_weapon(enum ObjectType preferredType)
 {
-    signed char weapon;
     signed char weaponCount;
     unsigned int currentWeapon;
     short firstWeapon;
+    signed char weapon;
     ShipWeaponSlot *weaponSlots;
 
     weaponCount = aShipWeaponsTable[0][0];
@@ -116,7 +116,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
             weapon = 0;
             if (aShipWeaponsTable[0][0] > weapon) {
                 for (; weapon <
-                           *(volatile signed char *)&aShipWeaponsTable[0][0];
+                           aShipWeaponsTable[0][0];
                      weapon++) {
                     if (weaponSlots[weapon].type == preferredType) {
                         currentWeapon = weapon;

@@ -8,11 +8,8 @@
  *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
  *  list below is the original source order of this file.
  */
-#define WC1_IX_SOUND_SOURCE
 #include "ix.h"
-#ifndef SDL_PORT
-#include <dos.h>
-#endif
+#include <assert.h>
 
 #define IX_SOUND_FILE "D:\\Rnd\\prj\\ix\\src\\sound\\sound.cpp"
 

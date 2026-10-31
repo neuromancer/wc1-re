@@ -27,7 +27,7 @@ unsigned int anVduModeCache[2]; /* 0x0059ce18 */
 signed char acObjOwnersTable[64]; /* 0x0059ce20 */
 signed char acShipTargetTable[16]; /* 0x0059ce60 */
 short nPrevPitchInputValue; /* 0x0059ce70 */
-short nPrevYawInput; /* 0x0059ce72 */
+volatile short nPrevYawInput; /* 0x0059ce72 */
 short nPreviousRollInputValue; /* 0x0059ce74 */
 short anObjectYawRotation[SPACE_OBJECT_COUNT]; /* 0x0059ce80 */
 signed char acPilotHitPointsArray[16]; /* 0x0059cf00 */

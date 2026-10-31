@@ -204,14 +204,10 @@ void disallow_engage(void);                                             /* 0x004
 void allow_engage(void);                                                /* 0x00409CF0 */
 void try2allow_engage(int pilotLevel);                                  /* 0x00409D10 */
 void imperial_formation(short obj);                                     /* 0x00409D60 */
-/* The NPC intelligence module defines these without a preceding
- * prototype. */
-#ifndef WC1_BRAINS_SOURCE
 void formation_break(short obj);                                        /* 0x00409F00 */
 void imperial_wingman(short obj);                                       /* 0x00409F80 */
 void kilrathi_wingman(short obj);                                       /* 0x0040A030 */
 void wingman_mission(short obj);                                        /* 0x0040A130 */
-#endif
 short dist_from_home(short obj);                                        /* 0x0040A160 */
 short scan_and_lock(short obj, int scanRange,
                     enum ShipTactic newTactic);                         /* 0x0040A180 */
@@ -241,9 +237,7 @@ void stationary_intelligence(short obj);                                /* 0x004
 void capital_ship_intelligence(short obj);                              /* 0x0040B140 */
 void futurion_intelligence(short obj);                                  /* 0x0040B320 */
 void mine_intelligence(short obj);                                      /* 0x0040B3A0 */
-#ifndef WC1_BRAINS_SOURCE
 void heat_seeking_missile_intelligence(short obj);                      /* 0x0040B430 */
-#endif
 void FF_missile_intelligence(short obj);                                /* 0x0040B570 */
 void set_sphere_point(const MissionShipRecord *record,
                       FixedVector *position);                           /* 0x0040B670 */
@@ -369,10 +363,8 @@ void DrawTitleLogo(short distance, short y);                            /* 0x004
 void UpdateTitleMenuCursor(void);                                      /* 0x0040FB10 */
 int Title_Sequence(void);                                               /* 0x0040FB70 */
 void CalibrateJoystickInteractive();                                  /* 0x004102B0 */
-#ifndef WC1_MAIN_SOURCE
 void WaitForJoystickButtonRelease(void);                               /* 0x004106C0 */
 void WaitForJoystickButtonPress(void);                                 /* 0x00410700 */
-#endif
 void SetFleetOverviewView(int initializeCockpit);                     /* 0x00410740 */
 unsigned int rotate_eye_to_goal(void);                                 /* 0x00410A30 */
 short GetVectorMagnitude(const FixedVector *vector);                   /* 0x00410AD0 */
@@ -1014,10 +1006,7 @@ unsigned int free_constellation(void);                            /* 0x00424490 
 void init_vdus(void);                                                  /* 0x004244E0 */
 unsigned int InitializeCockpitResources(signed char mode);             /* 0x004245B0 */
 unsigned int free_cockpit(void);                                       /* 0x004249A0 */
-#if defined(WC1_ENDING_SOURCE) && !defined(SDL_PORT)
-unsigned int init_3Space_objects(short);
-#elif defined(SDL_PORT) || defined(WC1_CUTSCENE_SOURCE)
-/* These native scene callers sign-extend their series bytes to words. */
+#ifdef SDL_PORT
 unsigned int init_3Space_objects(short scene);
 #else
 unsigned int init_3Space_objects();                                    /* 0x00424A80 */
@@ -1208,16 +1197,10 @@ short TheEndFireWorks(Viewport *viewport, short count);                /* 0x0042
 unsigned int InitializeConstellationField(Viewport *viewport,
                                           short direction,
                                           short density);             /* 0x0042D390 */
-/* The view module defines this and CloseDataFileByHandle without a
- * preceding prototype. */
-#ifndef WC1_VIEW_SOURCE
 unsigned int DrawConstellationField(void);                             /* 0x0042D500 */
-#endif
 short __stdcall OpenPacketSection(const char *filename, short section,
                                   PacketSectionHandle *handle);        /* 0x0042D730 */
-#ifndef WC1_VIEW_SOURCE
 void __stdcall CloseDataFileByHandle(PacketSectionHandle *p);                       /* 0x0042D870 */
-#endif
 void * __stdcall DecompressPacketSection(
     PacketSectionHandle *handle, void *destination, unsigned short flags,
     void *decompressionWorkspace);                                    /* 0x0042D880 */
@@ -1447,12 +1430,13 @@ char *__stdcall DosStrcpy(char *dst, const char *src);               /* 0x004354
 char *__stdcall CopyFarString(char *destination,
                               const char *source);                   /* 0x004354A0 */
 short __stdcall DosStrlen(const char *s);                                   /* 0x004354D0 */
-#if defined(WC1_BARRACKS_SOURCE) && !defined(SDL_PORT)
-/* The retail barracks caller retains word-sized copy-count arithmetic.
- * DosMemcpy itself forwards the complete dword stack slot to memmove. */
-void __stdcall DosMemcpy(void *dst, const void *src, unsigned short n); /* 0x004354F0 */
+/* The DOS-era prototype keeps a word copy count (the barracks caller computes
+ * it in CX). The Win32 definition takes size_t and forwards the complete
+ * dword stack slot to memmove, so CL 4.20 reports C4028 for it. */
+#ifdef SDL_PORT
+void __stdcall DosMemcpy(void *dst, const void *src, size_t n);
 #else
-void __stdcall DosMemcpy(void *dst, const void *src, size_t n);               /* 0x004354F0 */
+void __stdcall DosMemcpy(void *dst, const void *src, unsigned short n); /* 0x004354F0 */
 #endif
 void __stdcall DosMemset(void *destination, unsigned int count,
                          short value);                               /* 0x00435510 */
@@ -1717,20 +1701,6 @@ short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
 void CheckHeapBlockSignature(unsigned char *shape);                  /* 0x004408A0 */
 unsigned char *GetPreparedShapeData(unsigned char *shape);           /* 0x004408C0 */
 short __stdcall GetShapeFrameCount(unsigned char *shape);            /* 0x004408D0 */
-/* Graphics keeps these prototype names out of its local symbol context. */
-#ifdef WC1_GR_SOURCE
-void GetShapeFrameExtents(unsigned char *, short,
-                          short *, short *, short *, short *);        /* 0x004408F0 */
-void DecodeShapeFrame(unsigned char *, short, unsigned char *,
-                      int, int, int, int);                            /* 0x00440960 */
-#else
-void GetShapeFrameExtents(unsigned char *shape, short frame,
-                          short *width, short *height,
-                          short *leftExtent, short *topExtent);       /* 0x004408F0 */
-void DecodeShapeFrame(unsigned char *shape, short frame,
-                      unsigned char *bitmap, int width, int height,
-                      int leftExtent, int topExtent);                 /* 0x00440960 */
-#endif
 int SignExtendClipCoord(volatile short v);                             /* 0x00440BE0 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip);                         /* 0x00440C00 */
@@ -1750,11 +1720,8 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
                                          unsigned char *active);       /* 0x00441370 */
 void __stdcall GetPaletteEntry(short index, short *rgb);                  /* 0x004413C0 */
 void __stdcall SetPaletteEntry(short index, short *rgb);                  /* 0x004413E0 */
-/* The subtitle renderer declares this itself, just before its definition. */
-#ifndef WC1_MONO_SOURCE
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
                        unsigned char *shape, short frame);          /* 0x00441400 */
-#endif
 void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
                              short x, short y, unsigned char *shape,
                              short frame);                          /* 0x00441450 */
@@ -1852,18 +1819,20 @@ void ix_streamer_close_stream_file(void);                             /* 0x00443
 void ix_streamer_audio_play(void);                                    /* 0x004431F3 */
 void ix_streamer_audio_stop(void);                                    /* 0x00443253 */
 void ix_streamer_set_intensity(unsigned char intensity);              /* 0x0044336B */
-/* The NPC intelligence module never sees the music trigger and volume
- * controls; VC++ 4.20's register ties there depend on its symbol count. */
-#ifndef WC1_BRAINS_SOURCE
 void ix_streamer_set_trigger(char trigger);                           /* 0x004433C1 */
 char ix_streamer_get_trigger(void);                                   /* 0x00443419 */
 void ix_streamer_force_trigger(char trigger);                         /* 0x0044342E */
 void ix_streamer_set_volume(unsigned short volume);                   /* 0x004435BE */
 unsigned short ix_streamer_get_volume(void);                          /* 0x0044363B */
-#endif
 
-#ifdef WC1_MAIN_SOURCE
-void DosInterruptHandlerHook(void);                                 /* 0x004368D0 */
-#endif
+/* Graphics-private shape decoders (gr.c takes their addresses). Declared last:
+ * their parameter names then precede only the units' own symbols, which every
+ * unit but gr.c tolerates and gr.c balances (docs/WORKAROUNDS.md). */
+void GetShapeFrameExtents(unsigned char *shape, short frame,
+                          short *width, short *height,
+                          short *leftExtent, short *topExtent);       /* 0x004408F0 */
+void DecodeShapeFrame(unsigned char *shape, short frame,
+                      unsigned char *bitmap, int width, int height,
+                      int leftExtent, int topExtent);                 /* 0x00440960 */
 
 #endif /* GAME_FUNCS_H */

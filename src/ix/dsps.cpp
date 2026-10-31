@@ -8,10 +8,9 @@
  *  A "stream" is a ring buffer fed by the streamer thread and played through a
  *  voice slot allocated after the regular voices: voice[voice_count + index].
  */
-#define WC1_IX_DSPS_SOURCE
+#include <signal.h>
 #include "ix.h"
 #include <stdlib.h>
-#include <assert.h>
 
 int      nStreamCount;           /* 0x00598130 */
 int      nAllocatedStreams;      /* 0x00598134 */

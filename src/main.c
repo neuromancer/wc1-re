@@ -2,11 +2,16 @@
  * The initialized state and complete literal order identify this group.
  * Its trailing cursor/palette helpers remain provisional; see docs/ORDER.md.
  */
-#define WC1_MAIN_SOURCE
 #ifndef SDL_PORT
 #include <dos.h>
 #endif
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <malloc.h>
+#endif
+
+/* Startup installs this event-manager hook for DOS vector 0x21. */
+void DosInterruptHandlerHook(void);
 
 /* Legacy overlay setting: named in the WINGLEADER source screenshot and
  * retained, without references, before game mode/status in the Win32 image. */
@@ -35,13 +40,18 @@ int bCockpitlessView = 0; /* 0x0046a008 */
 static int nShowMemoryStatus = 0; /* 0x0046a00c */
 short nStartNavPointOverride = -1; /* 0x0046a010 */
 short nArcadeBonusCountdown = 0; /* 0x0046a014 */
-int bMouseCursorVisible = 0; /* 0x0046a018 */
+volatile int bMouseCursorVisible = 0; /* 0x0046a018 */
 unsigned char bInputPollingGuard = 0; /* 0x0046a01c */
 static InputDeviceSample stLastPolledFlightInput = {0}; /* 0x0046a020 */
 #ifndef SDL_PORT
 static
 #endif
 int bMouseAfterburnerControl = 0; /* 0x0046a02c */
+
+/* Input-queue callees of the flight-input routines below. */
+short __stdcall PollInputEvent(InputEventState *event, short filter);
+short __stdcall IsInputEventQueued(short type);
+
 /* 0x0046a030 */
 static short asMouseYawThresholds[6] = {
     10, 37, 52, 57, 62, 1070
@@ -55,7 +65,7 @@ static unsigned int dwLastSecondaryButtonPress = 0; /* 0x0046a04c */
 static
 #endif
 unsigned char bFlightRollLatch = 0; /* 0x0046a050 */
-static unsigned char bAfterburnerButtonLatched = 0; /* 0x0046a054 */
+static volatile unsigned char bAfterburnerButtonLatched = 0; /* 0x0046a054 */
 #ifndef SDL_PORT
 static
 #endif
@@ -909,7 +919,7 @@ unsigned int player_input(void)
     unsigned int key;
 
     cPreviousKey = bCurrentKey;
-    *(volatile short *)&nPrevYawInput = nYawInputValue;
+    nPrevYawInput = nYawInputValue;
     memcpy(&nPrevPitchInputValue, &nPitchInput, sizeof(nPrevPitchInputValue));
     memcpy(&nPreviousRollInputValue, &nCurrentRollInputValue,
            sizeof(nPreviousRollInputValue));
@@ -967,7 +977,7 @@ unsigned int player_input(void)
                 fire_players_lasers();
             }
             if ((buttons & 2) == 0)
-                *(volatile signed char *)&cPreviousKey = 0;
+                cPreviousKey = 0;
             if (cPreviousKey == 0x0f && buttons == 2) {
                 bCurrentKey = 0x0f;
                 if (buttons == 1)
@@ -994,7 +1004,7 @@ unsigned int player_input(void)
             if ((short)event.value == 3)
                 bCurrentKey = 0x1c;
             if ((short)event.value == 2 &&
-                *(volatile unsigned char *)&bAfterburnerButtonLatched == 0) {
+                bAfterburnerButtonLatched == 0) {
                 if ((int)(nTickCount60Hz -
                         dwLastSecondaryButtonPress) <=
                         nInputTickScale)
@@ -1069,7 +1079,7 @@ unsigned int player_input(void)
                 aeSpecialManeuvers[0] ==
                     SPECIAL_MANEUVER_AFTERBURNER)
                 afterburnerControl = 0;
-            if (*(volatile int *)&bMouseCursorVisible == 0) {
+            if (bMouseCursorVisible == 0) {
                 bMouseCursorVisible = 1;
                 stMouseCursorState.frame = 2;
             }

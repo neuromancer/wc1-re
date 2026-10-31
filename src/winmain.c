@@ -43,7 +43,7 @@ char szMainWindowClassName[] = "Wing Commander"; /* 0x00465088 */
 char szMainWindowTitle[] = "Wing Commander"; /* 0x00465098 */
 
 int bWindowMessagePumpActive = 0; /* 0x004650A8 */
-unsigned int bF1KeyLatch = 0; /* 0x004650AC */
+volatile unsigned int bF1KeyLatch = 0; /* 0x004650AC */
 GuardedAllocation *pGuardedAllocationHead = 0; /* 0x004650B0 */
 
 HDC hMainWindowDC; /* 0x005a8a30 */
@@ -929,7 +929,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                             0, 0, 0);
         if (wParam == VK_F1) {
             if ((lParam & 0x40000000) != 0) {
-                *(volatile unsigned int *)&bF1KeyLatch = 1;
+                bF1KeyLatch = 1;
                 bF1KeyLatch = 0;
             } else {
                 bF1KeyLatch = 1;

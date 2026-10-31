@@ -7,13 +7,12 @@
  *  functions throughout this Win32 range; port-specific split helpers remain
  *  interleaved in their original address order.
  */
-#define WC1_COCKPT_SOURCE
 #include "wc1.h"
 
 static short asVduSelectionSound[2] = { 0x7f, 0 }; /* 0x00469000 */
 char *pszPendingHudMessage = 0; /* 0x00469004 */
-static char *pszDisplayedHudMessage = 0; /* 0x00469008 */
-static signed char cRenderedPilotHandFrame = -1; /* 0x0046900c */
+static char *volatile pszDisplayedHudMessage = 0; /* 0x00469008 */
+static volatile signed char cRenderedPilotHandFrame = -1; /* 0x0046900c */
 /* Nothing in the shipped executable references these eight zero bytes. */
 static int DAT_00469010[2] = { 0, 0 }; /* 0x00469010 */
 /* 0x00469018 */
@@ -2371,8 +2370,7 @@ unsigned int RestoreTransientCockpitGraphics(void)
     draw_target_box(cPrimaryViewBufferColour, acShipTargetTable[0],
                     nTargetLockMode, 1, 1,
                     &stTargetBracketBounds);
-    /* Keep this read separate from the following pointer comparison. */
-    displayedMessage = *(char *volatile *)&pszDisplayedHudMessage;
+    displayedMessage = pszDisplayedHudMessage;
     if (displayedMessage != pszPendingHudMessage &&
         displayedMessage != 0)
         SetHudTextColour(0);
@@ -2652,7 +2650,7 @@ void animate_pilot(void)
 {
     if (pCurrentPilotHandShapePtr != 0) {
         determine_pilot_hand();
-        if (*(volatile signed char *)&cRenderedPilotHandFrame !=
+        if (cRenderedPilotHandFrame !=
             bStickIndicatorFrameState)
             DrawPilotHandFrame();
     }

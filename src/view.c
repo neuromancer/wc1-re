@@ -4,8 +4,11 @@
  *  Address range 42cdb0-42e31f (see docs/ORDER.md).
  *  Packet and viewport helpers remain in this provisional contiguous unit.
  */
-#define WC1_VIEW_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <sys/stat.h>
+#include <sys/utime.h>
+#endif
 
 short nScriptedViewObject = -1; /* 0x0046a8d0 */
 int bScriptedView = 0; /* 0x0046a8d4 */
@@ -16,15 +19,6 @@ static short asConstellationFrame[16] = { /* 0x0046a8f8 */
     0, 16, 16, 0, 4, 4, 20, 20, 24, 8, 8, 24, 28, 12, 12, 28
 };
 static short nConstellationDirection = -1; /* 0x0046a918 */
-static unsigned char *pPacketDecompressionWorkspace = 0; /* 0x0046a91c */
-static unsigned short wPacketDecompressionInputSizeOverride = 0; /* 0x0046a920 */
-static unsigned short wPacketCompressionFormatFlags = 0; /* 0x0046a924 */
-static ShortRect aTargetArmorClipRects[4] = { /* 0x0046a928 */
-    { 12, -20, 29, 20 },
-    { -11, 1, 11, 20 },
-    { -11, -20, 11, 0 },
-    { -29, -20, -12, 20 }
-};
 
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
@@ -390,6 +384,17 @@ unsigned int DrawConstellationField(void)
     }
     return 0;
 }
+
+static unsigned char *pPacketDecompressionWorkspace = 0; /* 0x0046a91c */
+static unsigned short wPacketDecompressionInputSizeOverride = 0; /* 0x0046a920 */
+static unsigned short wPacketCompressionFormatFlags = 0; /* 0x0046a924 */
+/* 0x0046a928 */
+static ShortRect aTargetArmorClipRects[4] = {
+    { 12, -20, 29, 20 },
+    { -11, 1, 11, 20 },
+    { -11, -20, 11, 0 },
+    { -29, -20, -12, 20 }
+};
 
 /* Function start: 0x42D730 */
 short __stdcall OpenPacketSection(const char *filename, short section,

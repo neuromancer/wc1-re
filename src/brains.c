@@ -2,13 +2,18 @@
  * The surviving WINGLEADER module and Mac brain symbol run corroborate the
  * cruise_home through FF_missile_intelligence group. See docs/ORDER.md.
  */
-#define WC1_BRAINS_SOURCE
 #include "wc1.h"
 #ifndef SDL_PORT
 #include <dos.h>
 #endif
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <assert.h>
+
+/* The leaked BRAINS.C declares this logic routine locally. The other local
+ * callee declarations below follow that style; their parameter names are
+ * part of the measured compiler context. */
+unsigned int change_mission_type(short obj, enum ShipMissionType missionType);
 
 short nEnemySighting = 0x7fff; /* 0x00465c7c */
 
@@ -217,6 +222,8 @@ void try2allow_engage(int pilotLevel)
     nAutoEngageTimer = -40;
 }
 
+int attacker_in_range(short obj, unsigned short range);
+
 /* Function start: 0x409D60 */
 void imperial_formation(short obj)
 {
@@ -366,6 +373,8 @@ short dist_from_home(short obj)
 {
     return distance_from_point(obj, &aShipMissionSpotArray[obj]);
 }
+
+short scan_for_enemy(short obj, unsigned short range);
 
 /* Function start: 0x40A180 */
 short scan_and_lock(short obj, int scanRange, enum ShipTactic newTactic)
@@ -1011,6 +1020,9 @@ void mine_intelligence(short obj)
         }
     }
 }
+
+unsigned int sort_viable_target_list(void);
+short get_ship_max_velocity(short obj);
 
 /* Function start: 0x40B430 */
 void heat_seeking_missile_intelligence(short obj)

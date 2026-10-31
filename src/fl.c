@@ -63,7 +63,7 @@ static ShipManeuverHandler apShipAiManeuverHandlers[47] = {
     /* 46 */ (void (*)(short, short))Mreset
 }; /* 0x004656a8 */
 
-static short nManeuverProximityRange; /* 0x00475e78 */
+static volatile short nManeuverProximityRange; /* 0x00475e78 */
 static unsigned char bCurrentManeuverReroll; /* 0x00475e7c */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
@@ -1064,7 +1064,7 @@ void perform_maneuver(short obj)
         maneuver_complete(obj);
     }
 
-    proximityLimit = *(volatile short *)&nManeuverProximityRange;
+    proximityLimit = nManeuverProximityRange;
     if ((short)proximityLimit > *(volatile short *)&range) {
         try2reset_maneuver(obj, 2);
     } else if (aeShipManeuversTable[obj] == previous &&

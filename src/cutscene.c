@@ -2,7 +2,6 @@
  * The initialized scene tables precede their diagnostic and subtitle literals,
  * which end before the following AI state. See docs/ORDER.md for boundaries.
  */
-#define WC1_CUTSCENE_SOURCE
 #ifndef SDL_PORT
 #include <signal.h>
 #include <dos.h>
@@ -10,6 +9,9 @@
 #include <sys/types.h>
 #include "wc1.h"
 #include <memory.h>
+
+/* The scene callers pass their series byte as a word. */
+unsigned int init_3Space_objects(short scene);
 
 static signed char cScrambleLeftWalkerFrame = 7; /* 0x00465768 */
 static signed char cScrambleRightWalkerFrame = 10; /* 0x0046576c */

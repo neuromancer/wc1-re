@@ -5,8 +5,9 @@
  *  follows the barracks literal pool. Ownership of the string entry remains
  *  provisional within this range.
  */
-#define WC1_FADE_SOURCE
 #include "wc1.h"
+
+#include <sys/types.h>
 
 short nPaletteTransitionInitialise = 1; /* 0x00469640 */
 short *pPaletteTransDirection; /* 0x005a7d88 */
@@ -20,20 +21,16 @@ unsigned short __stdcall StepPaletteTransition(short *current,
                                                 const short *target,
                                                 short componentCount)
 {
-    unsigned int byteCount;
     short index;
     short difference;
-    short *palette;
-    short *accumulator;
 
     if (nPaletteTransitionInitialise != 0) {
-        byteCount = componentCount * 2;
         pPaletteTransitionAccumulatorPtr =
-            AllocateTaggedMemory(byteCount, 0);
+            AllocateTaggedMemory(componentCount * 2, 0);
         pPaletteTransitionDelta =
-            AllocateTaggedMemory(byteCount, 0);
+            AllocateTaggedMemory(componentCount * 2, 0);
         pPaletteTransDirection =
-            AllocateTaggedMemory(byteCount, 0);
+            AllocateTaggedMemory(componentCount * 2, 0);
         if (pPaletteTransitionAccumulatorPtr == 0 ||
             pPaletteTransitionDelta == 0 ||
             pPaletteTransDirection == 0) {
@@ -47,9 +44,8 @@ unsigned short __stdcall StepPaletteTransition(short *current,
         }
 
         nPaletteTransMaxDelta = 0;
-        palette = current;
         for (index = 0; index < componentCount; index++) {
-            difference = palette[index] - target[index];
+            difference = current[index] - target[index];
             if (difference < 0) {
                 difference = -difference;
                 pPaletteTransDirection[index] = 4;
@@ -68,8 +64,6 @@ unsigned short __stdcall StepPaletteTransition(short *current,
         nPaletteTransitionInitialise = 0;
         nPaletteTransitionCountdown =
             nPaletteTransMaxDelta / 4;
-    } else {
-        palette = current;
     }
 
     if (nPaletteTransitionCountdown-- == 0) {
@@ -81,13 +75,12 @@ unsigned short __stdcall StepPaletteTransition(short *current,
     }
 
     for (index = 0; index < componentCount; index++) {
-        pPaletteTransitionAccumulatorPtr[index] +=
-            pPaletteTransitionDelta[index];
-        accumulator = &pPaletteTransitionAccumulatorPtr[index];
-        if (*accumulator >
+        if ((pPaletteTransitionAccumulatorPtr[index] +=
+                 pPaletteTransitionDelta[index]) >
             nPaletteTransMaxDelta) {
-            *accumulator -= nPaletteTransMaxDelta;
-            palette[index] += pPaletteTransDirection[index];
+            pPaletteTransitionAccumulatorPtr[index] -=
+                nPaletteTransMaxDelta;
+            current[index] += pPaletteTransDirection[index];
         }
     }
     return 1;

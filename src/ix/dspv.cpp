@@ -10,10 +10,11 @@
  *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
  *  list below is the original source order of this file.
  */
-#define WC1_IX_DSPV_SOURCE
+#include <signal.h>
 #include "ix.h"
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 IxVoice aVoices[34];             /* 0x005981A8 */
 CRITICAL_SECTION csMixer;       /* 0x005985E8 */

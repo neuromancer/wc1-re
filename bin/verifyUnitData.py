@@ -670,10 +670,11 @@ UNITS = {
     ), frozenset((0x000, *range(0x008, 0x01C, 4),
                   *range(0x3C8, 0x3E8, 4), *range(0x3EC, 0x3FC, 4),
                   0x458, 0x45C, 0x460, 0x474, 0x478, 0x47C))),
+    # The absolute cosine and sine rows form one table; its sine row starts
+    # at 0x3D0 (0x00470a48).
     'gr': UnitData(0x00470678, 2030, (
         ('abPaletteTranslation', 0x000),
-        ('awAbsoluteCosine', 0x100),
-        ('awAbsoluteSine', 0x3D0),
+        ('aawAbsoluteTrig', 0x100),
     ), frozenset()),
     'gr-rdata': UnitData(0x004631C8, 56, (
         ('szGameRegistryKey', 0x00),

@@ -7,6 +7,7 @@
  *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
  *  list below is the original source order of this file.
  */
+#include <limits.h>
 #include "ix.h"
 #ifndef SDL_PORT
 #include <dsound.h>

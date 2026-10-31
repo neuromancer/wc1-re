@@ -7,8 +7,12 @@
  *  exact order. The palette-file loader follows in this unit: its "rb"
  *  literal follows the initialized formation count in the original data.
  */
-#define WC1_AUTO_SOURCE
 #include "wc1.h"
+#ifndef SDL_PORT
+#include <malloc.h>
+#include <float.h>
+#include <assert.h>
+#endif
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 unsigned int nSystemKeyDown; /* 0x005a8964 */

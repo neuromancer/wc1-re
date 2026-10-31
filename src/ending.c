@@ -4,9 +4,11 @@
  *  Address range 42fa90-43070f (see docs/ORDER.md).
  *  The adjacent tagged-allocation helpers remain in this provisional unit.
  */
-#define WC1_ENDING_SOURCE
 #include "wc1.h"
 #include <sys/types.h>
+
+/* The ending passes the series byte as a word. */
+unsigned int init_3Space_objects(short);
 
 /* 0x0046ad88 */
 static unsigned char abTaggedAllocationPrefix[8] = {

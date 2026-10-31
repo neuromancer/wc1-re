@@ -5,6 +5,7 @@
  *  Boundary evidence: PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ....
  */
 #include "wc1.h"
+#include <limits.h>
 
 /* The DAT_ words in this block are zero-initialized original data that
  * nothing in the shipped executable references. */
@@ -465,15 +466,22 @@ void WaitForMusicOrInput(void)
     }
 }
 
+/* Flight-music callees declared locally, as in the leaked WINGLEADER
+ * modules; their parameter names are part of the measured context. */
+int report_kilrathi_rout(int mode);
+short __stdcall RandomInRange(short lo, short hi);
+unsigned int triumph(short obj);
+int missile_on_tail(short obj);
+int any_enemy_tail(short obj);
+int is_ship_tailing_player_target(short obj);
+int calculate_damage_level(void);
+
 /* Function start: 0x42E9E0 */
 void new_space_music_changes(short attacker, short victim)
 {
-    enum Side side;
-
     if (nInFlightMusicActive != 0 &&
         nTrainSimActive == 0) {
-        side = aeShipSide[victim];
-        if (side == SIDE_KILRATHI) {
+        if (aeShipSide[victim] == SIDE_KILRATHI) {
             if (report_kilrathi_rout(1) == 0) {
                 spacetrack(10, 1, 0);
                 return;
@@ -492,7 +500,7 @@ void new_space_music_changes(short attacker, short victim)
                 spacetrack(8, 3, 0);
                 return;
             }
-            if (side == SIDE_IMPERIAL) {
+            if (aeShipSide[victim] == SIDE_IMPERIAL) {
                 if ((aeShipMissionType[0] ==
                          MISSION_TYPE_DEFEND ||
                      aeShipMissionType[0] ==

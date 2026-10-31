@@ -26,7 +26,7 @@ short DAT_0046c010 = -1;
 signed char bCurrentKey = (signed char)0x80;
 
 /* 0x0046c018 */
-signed char cPreviousKey = (signed char)0x80;
+volatile signed char cPreviousKey = (signed char)0x80;
 
 /* 0x0046c01c */
 short nCurrentWave = -1;
