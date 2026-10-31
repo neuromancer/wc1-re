@@ -1067,13 +1067,11 @@ void check_next_wave(void)
 
     if (nCurrentWave == -1)
         return;
-    obj = 0;
-    do {
+    for (obj = 0; obj < 10; obj++) {
         if (aeObjectClass[obj] == OBJECT_CLASS_SHIP &&
             aeShipSide[obj] == SIDE_KILRATHI)
             return;
-        obj++;
-    } while (obj < 10);
+    }
     set_up_next_wave();
 }
 
@@ -1507,15 +1505,13 @@ short find_child_ship(short parent, enum ObjectClass objectClass,
 {
     short obj;
 
-    obj = 0;
-    do {
+    for (obj = 0; obj < 10; obj++) {
         if ((short)acObjOwnersTable[obj] == parent &&
             aeObjectClass[obj] == objectClass &&
             (target == -1 ||
              acShipTargetTable[obj] == target))
             return obj;
-        obj++;
-    } while (obj < 10);
+    }
     return -1;
 }
 
@@ -2137,8 +2133,7 @@ unsigned int place_exhaust_on_ships(void)
     short object;
     short ship;
 
-    ship = 0;
-    do {
+    for (ship = 0; ship < 10; ship++) {
         if (aeObjectClass[ship] >= OBJECT_CLASS_MISSILE &&
             anShipSpeed[ship] != 0 &&
             aeSpecialManeuvers[ship] !=
@@ -2182,8 +2177,7 @@ unsigned int place_exhaust_on_ships(void)
                 }
             }
         }
-        ship++;
-    } while (ship < 10);
+    }
     /* The original leaves EAX incidental after scanning every ship. */
 }
 

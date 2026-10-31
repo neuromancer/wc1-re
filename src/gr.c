@@ -684,13 +684,11 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
     int index;
 
     (void)viewport;
-    index = 0;
-    do {
+    for (index = 0; index < 256; index++) {
         GetPaletteEntry((short)index, rgb);
         if (rgb[0] != 0 || rgb[1] != 0 || rgb[2] != 0)
             active[index] = 1;
-        index++;
-    } while (index < 256);
+    }
 }
 
 /* Function start: 0x4413C0 */

@@ -387,8 +387,7 @@ int report_kilrathi_rout(int mode)
     unsigned int queryMode;
 
     queryMode = mode;
-    obj = 0;
-    do {
+    for (obj = 0; obj < 10; obj++) {
         if (aeObjectClass[obj] >= OBJECT_CLASS_SHIP &&
             aeSpecialManeuvers[obj] !=
                 SPECIAL_MANEUVER_UNKNOWN_9) {
@@ -413,8 +412,7 @@ int report_kilrathi_rout(int mode)
                 break;
             }
         }
-        obj++;
-    } while (obj < 10);
+    }
     if (queryMode == 1 && nCurrentWave != -1)
         check_next_wave();
     return 0;
@@ -465,8 +463,7 @@ short try2rout(short obj)
     if (nTrainSimActive != 0) {
         canContinue = 1;
     } else {
-        other = 0;
-        do {
+        for (other = 0; other < 10; other++) {
             if (aeObjectClass[other] ==
                     OBJECT_CLASS_CAPITAL_SHIP &&
                 aeSpecialManeuvers[other] !=
@@ -474,8 +471,7 @@ short try2rout(short obj)
                 aeShipSide[obj] ==
                     aeShipSide[other])
                 canContinue = 1;
-            other++;
-        } while (other < 10);
+        }
     }
     if (canContinue != 0) {
         acShipStressList[obj] = 0;
@@ -909,15 +905,13 @@ short nearest_enemy_range(short obj)
 
     nTargetShip = -1;
     range = 0x7fff;
-    other = 0;
-    do {
+    for (other = 0; other < 10; other++) {
         if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
             aeSpecialManeuvers[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             aeShipSide[obj] != aeShipSide[other])
             range = MinShort(range, distance_from_object(obj, other));
-        other++;
-    } while (other < 10);
+    }
     return range;
 }
 
@@ -1673,8 +1667,7 @@ unsigned int init_constellation(short scene)
     if (nTrainSimActive != 0 || scene < 0)
         return;
 
-    slot = 0;
-    do {
+    for (slot = 0; slot < 4; slot++) {
         if (pConstellationDefinitionsPtr[scene * 4 + slot].shapePacket !=
             -1) {
             object = find_vacant_3d_object();
@@ -1687,8 +1680,7 @@ unsigned int init_constellation(short scene)
         } else {
             asConstellationObjectIndices[slot] = -1;
         }
-        slot++;
-    } while (slot < 4);
+    }
     /* The successful path returns the last expression left in EAX. */
 }
 

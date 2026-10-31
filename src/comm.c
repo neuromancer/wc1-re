@@ -92,11 +92,9 @@ void ResetCommMenuChoices(short reuse)
     if (reuse == 0) {
         memset(abCommMenuChoiceCommands, -1,
                sizeof(abCommMenuChoiceCommands));
-        choice = 0;
-        do {
+        for (choice = 0; choice < 7; choice++) {
             apszCommMenuChoiceTextTable[choice] = 0;
-            choice++;
-        } while (choice < 7);
+        }
     }
     nCommMenuChoiceCount = 0;
     nCommMenuReuseMode = reuse;

@@ -118,8 +118,7 @@ void LaunchPlayerShip(void)
         PlaySfxWaveFileByNumber(20, -1, 0);
         nFrameSkipCounter = 1;
         bEscapePressedFlag = 0;
-        frame = 0;
-        do {
+        for (frame = 0; frame < 25; frame++) {
             PumpWindowMessages();
             if (RefreshCockpitStatus() != 0) {
                 door = 0;
@@ -138,8 +137,7 @@ void LaunchPlayerShip(void)
                 break;
             if (frame % 5 == 0)
                 distanceStep++;
-            frame++;
-        } while (frame < 25);
+        }
 
         if (bEscapePressedFlag != 0) {
             StopMusicUnlessSuppressed();

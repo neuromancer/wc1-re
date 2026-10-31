@@ -532,8 +532,7 @@ unsigned int ShowTheEndScreen(short enableFireworks)
         ClearViewport(&stSceneBuffer, cBlackColour);
         if (enableFireworks != 0 && activeFireworks != 0 &&
             (RandomBelowOrEqual(100) < 40 || frame > 280)) {
-            slot = 0;
-            do {
+            for (slot = 0; slot < 30; slot++) {
                 if (aFireworksList[slot].frame == -1) {
                     aFireworksList[slot].frame = 0;
                     aFireworksList[slot].x =
@@ -543,8 +542,7 @@ unsigned int ShowTheEndScreen(short enableFireworks)
                     aFireworksList[slot].variant = RandomInRange(0, 2);
                     break;
                 }
-                slot++;
-            } while (slot < 30);
+            }
         }
         activeFireworks = TheEndFireWorks(&stSceneBuffer, 30);
         if (frame < 160) {

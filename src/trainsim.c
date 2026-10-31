@@ -668,8 +668,7 @@ void ShowTrainSimHighScores(void)
             stTrainSimulatorHighScoreBufView.top + 1));
     FormatTextBufferFromStart("%JHIGH SCORES%P", 2);
     stTrainSimHighScoreTextContext.alignment = 0;
-    row = 0;
-    do {
+    for (row = 0; row < 6; row++) {
         if (IsHighScoreSlotUsed(row)) {
             ResetStringBuilder(&stTrainSimHighScoreTextContext);
             sprintf(score, "%0ld",
@@ -682,8 +681,7 @@ void ShowTrainSimHighScores(void)
                 stTrainSimulatorHighScoreBufView.left + 150,
                 score);
         }
-        row++;
-    } while (row < 6);
+    }
     FlushInputEvents();
     DIBslam();
     DIBslamReal();

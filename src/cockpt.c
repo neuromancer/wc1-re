@@ -611,16 +611,14 @@ short kilrathi_near(short obj, short range)
 {
     short ship;
 
-    ship = 0;
-    do {
+    for (ship = 0; ship < 10; ship++) {
         if (aeObjectClass[ship] >= OBJECT_CLASS_SHIP &&
             aeShipSide[ship] == SIDE_KILRATHI &&
             (short)IsPointWithinRange(&aShipPositionsArray[obj],
                                       &aShipPositionsArray[ship],
                                       range) != 0)
             return 1;
-        ship++;
-    } while (ship < 10);
+    }
     return 0;
 }
 
@@ -2751,8 +2749,7 @@ void explosion_draw(void)
         pCockpitPilotShape =
             FetchDiskPacketRetrying(
                 (short)cCockpitLogicalFile, 4, 0);
-    damage = 0;
-    do {
+    for (damage = 0; damage < 4; damage++) {
         if (anCockpitDamageState[damage] == 1) {
             DrawSpriteDefault(
                 &stScreenView,
@@ -2762,8 +2759,7 @@ void explosion_draw(void)
                     cCurrentCockpitView][damage].y,
                 pCockpitPilotShape, damage);
         }
-        damage++;
-    } while (damage < 4);
+    }
     FreePacketAndClear(&pCockpitPilotShape, 0);
 }
 

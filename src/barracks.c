@@ -188,15 +188,13 @@ short AnySavedGames(void)
     short found;
 
     found = 0;
-    slot = 0;
-    do {
+    for (slot = 0; slot < 8; slot++) {
         if (LoadGame(slot, &gameRecord) != 0) {
             found = 1;
             if (gameRecord.campaign.campaignIndex > 0)
                 DAT_005a7d9c = 1;
         }
-        slot++;
-    } while (slot < 8);
+    }
     return found;
 }
 
@@ -341,15 +339,13 @@ void InitializeBarracksAnimation(BarracksAnimationState *state)
 {
     short bunk;
 
-    bunk = 0;
-    do {
+    for (bunk = 0; bunk < 8; bunk++) {
         state->bunks[bunk].animationFrame =
             RandomInRange(0, 13);
         state->bunks[bunk].animationPeriod =
             (short)(RandomInRange(0, 12) + 13);
         state->bunks[bunk].animationTick = 0;
-        bunk++;
-    } while (bunk < 8);
+    }
     state->fallingY = -99;
     state->fallingDelay = 20;
     state->impactFrame = 49;
@@ -395,8 +391,7 @@ void FreeBarracksMenuLabels(void)
     short bunk;
 
     saveCampaignLabel = apszSaveCampaignMenuLabels[0];
-    bunk = 0;
-    do {
+    for (bunk = 0; bunk < 8; bunk++) {
         if (apszBarracksMenuLabels[bunk * 2] !=
             saveCampaignLabel) {
             FreeBarracksMenuLabel(
@@ -406,8 +401,7 @@ void FreeBarracksMenuLabels(void)
             saveCampaignLabel =
                 apszSaveCampaignMenuLabels[0];
         }
-        bunk++;
-    } while (bunk < 8);
+    }
     stCurrentRoomMenu.currentLabel = 0;
 }
 
@@ -762,8 +756,7 @@ void GetBunkInfo(BarracksAnimationState *state)
     short bunk;
 
     FreeBarracksMenuLabels();
-    bunk = 0;
-    do {
+    for (bunk = 0; bunk < 8; bunk++) {
         state->bunks[bunk].occupied =
             (short)LoadGame(bunk, &gameRecord);
         SetBunkMenuLabel(
@@ -778,8 +771,7 @@ void GetBunkInfo(BarracksAnimationState *state)
             gameRecord.campaign.currentSeries,
             gameRecord.campaign.currentMission,
             gameRecord.description);
-        bunk++;
-    } while (bunk < 8);
+    }
 }
 
 /* Function start: 0x41BBD0 */
@@ -790,8 +782,7 @@ void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
     short bunk;
 
     DrawSpriteDefault(viewport, 0, 0, shape, 0);
-    bunk = 0;
-    do {
+    for (bunk = 0; bunk < 8; bunk++) {
         frame = 10;
         if (state->bunks[bunk].occupied != 0) {
             DrawSpriteDefault(
@@ -804,8 +795,7 @@ void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
                           (short)((bunk % 2) * 31 + 143),
                           (short)((short)(bunk / 2) * 5 + 167),
                           shape, frame);
-        bunk++;
-    } while (bunk < 8);
+    }
     CopyViewportContents(&stSceneBuffer, &stRoomScreenViewport);
 }
 

@@ -113,11 +113,9 @@ int FullMissionScore(void)
     scores = (signed char *)(pMissionCampaignInfo +
         (int)stCampaignState.currentMission * 0x14 +
         (int)stCampaignState.currentSeries * 0x5a - 0x50);
-    objective = 0;
-    do {
+    for (objective = 0; objective < 16; objective++) {
         score = (short)(score + scores[objective + 4]);
-        objective++;
-    } while (objective < 16);
+    }
     return score;
 }
 

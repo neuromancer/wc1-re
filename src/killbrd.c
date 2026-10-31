@@ -187,12 +187,10 @@ void CorrectPointers(void)
 {
     short pilot;
 
-    pilot = 0;
-    do {
+    for (pilot = 0; pilot < 8; pilot++) {
         apWingmanPilotsList[pilot] =
             &aPilotEntriesList[pilot];
-        pilot++;
-    } while (pilot < 8);
+    }
     stCampaignState.currentPilot =
         &aPilotEntriesList[8];
     pCurrentCampaignDate =

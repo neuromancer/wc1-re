@@ -171,11 +171,9 @@ int Title_Sequence(void)
 
         while (state == 0) {
             PumpWindowMessages();
-            missionShip = 32;
-            do {
+            for (missionShip = 32; missionShip < 46; missionShip++) {
                 aMissionShips[missionShip].state = 0;
-                missionShip++;
-            } while (missionShip < 46);
+            }
             titleDistance = 200;
             remove_all_hazards();
             bIntroSecondaryScene = 0;
@@ -186,8 +184,7 @@ int Title_Sequence(void)
             initialize_scripted_view(asIntroCameraSequence);
             nFrameSkipCounter = 1;
 
-            frame = 0;
-            do {
+            for (frame = 0; frame < 25; frame++) {
                 Update_3Space();
                 if (Draw_3Space_Frame() != 0) {
                     print_subtitle(&stSpaceBufferViewport, 0x32,
@@ -201,8 +198,7 @@ int Title_Sequence(void)
                         break;
                     }
                 }
-                frame++;
-            } while (frame < 25);
+            }
             clear_view_buffer();
             if (state != 0)
                 break;
@@ -222,8 +218,7 @@ int Title_Sequence(void)
             if (state != 0)
                 break;
 
-            frame = 0;
-            do {
+            for (frame = 0; frame < 100; frame++) {
                 Update_3Space();
                 if (Draw_3Space_Frame() != 0) {
                     DrawTitleLogo(titleDistance,
@@ -239,8 +234,7 @@ int Title_Sequence(void)
                     state++;
                     break;
                 }
-                frame++;
-            } while (frame < 100);
+            }
             FreePacketAndClear(&pTitleShape, 0);
             if (state != 0)
                 break;
@@ -256,8 +250,7 @@ int Title_Sequence(void)
 
             credit = 0;
             for (; credit < nIntroCreditCount; credit++) {
-                frame = 0;
-                do {
+                for (frame = 0; frame < 70; frame++) {
                     Update_3Space();
                     if (Draw_3Space_Frame() != 0) {
                         print_subtitle(&stSpaceBufferViewport, 0x32,
@@ -271,13 +264,11 @@ int Title_Sequence(void)
                         state++;
                         break;
                     }
-                    frame++;
-                } while (frame < 70);
+                }
                 if (state != 0)
                     break;
 
-                frame = 0;
-                do {
+                for (frame = 0; frame < 40; frame++) {
                     Update_3Space();
                     RenderSpaceViewFrame();
                     DIBslam();
@@ -286,14 +277,12 @@ int Title_Sequence(void)
                         state++;
                         break;
                     }
-                    frame++;
-                } while (frame < 40);
+                }
             }
             if (state != 0)
                 break;
 
-            frame = 0;
-            do {
+            for (frame = 0; frame < 150; frame++) {
                 Update_3Space();
                 RenderSpaceViewFrame();
                 DIBslam();
@@ -302,8 +291,7 @@ int Title_Sequence(void)
                     state++;
                     break;
                 }
-                frame++;
-            } while (frame < 150);
+            }
         }
 
         state = 0;
@@ -341,8 +329,7 @@ int Title_Sequence(void)
     for (; optionCount < 4; optionCount++)
         menuOptions[optionCount] = -1;
 
-    menuIndex = 0;
-    do {
+    for (menuIndex = 0; menuIndex < 4; menuIndex++) {
         if (menuOptions[menuIndex] != -1) {
             aTitleMenuRegions[menuIndex].frame = 1;
             if (menuOptions[menuIndex] < 3) {
@@ -361,12 +348,10 @@ int Title_Sequence(void)
         } else {
             aTitleMenuRegions[menuIndex].frame = -1;
         }
-        menuIndex++;
-    } while (menuIndex < 4);
+    }
 
     ClearViewport(&stScreenView, cBlackColour);
-    menuIndex = 0;
-    do {
+    for (menuIndex = 0; menuIndex < 4; menuIndex++) {
         if (menuOptions[menuIndex] != -1) {
             if (menuOptions[menuIndex] < 3) {
                 DrawSpriteDefault(&stScreenView,
@@ -380,8 +365,7 @@ int Title_Sequence(void)
                     alternateMenuShape, 0);
             }
         }
-        menuIndex++;
-    } while (menuIndex < 4);
+    }
     DIBslam();
     DIBslamReal();
 

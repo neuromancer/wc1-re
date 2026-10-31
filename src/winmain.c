@@ -429,14 +429,12 @@ void update_hazards(void)
         match_ship_to_eye();
     else
         nHazardReferenceSpeed = real_velocity(0);
-    slot = 0;
-    do {
+    for (slot = 0; slot < 20; slot++) {
         if (abHazardObjects[slot] != -1)
             manage_hazard((short)abHazardObjects[slot], slot);
         else
             emptySlot = slot;
-        slot++;
-    } while (slot < 20);
+    }
     if (emptySlot != -1 &&
         RandomBelowOrEqual(215) <
             (short)nHazardReferenceSpeed + 30)

@@ -52,24 +52,20 @@ void SetFleetOverviewView(int initializeCockpit)
         zero_vector(&aShipVelocity[EYE_OBJECT]);
     }
 
-    object = 0;
-    do {
+    for (object = 0; object < 10; object++) {
         if (aeObjectClass[object] >= OBJECT_CLASS_SHIP)
             shipCount++;
-        object++;
-    } while (object < 10);
+    }
 
     if (shipCount > 1) {
         zero_vector(&centre);
-        object = 0;
-        do {
+        for (object = 0; object < 10; object++) {
             if (aeObjectClass[object] >= OBJECT_CLASS_SHIP) {
                 centre.x += aShipPositionsArray[object].x / shipCount;
                 centre.y += aShipPositionsArray[object].y / shipCount;
                 centre.z += aShipPositionsArray[object].z / shipCount;
             }
-            object++;
-        } while (object < 10);
+        }
 
         maximumRange = 0x4b000;
 #ifdef SDL_PORT
@@ -713,8 +709,7 @@ unsigned int generate_stars(void)
     origin.x = 0;
     origin.y = 0;
     origin.z = 0;
-    obj = 34;
-    do {
+    for (obj = 34; obj < 49; obj++) {
         if (obj < 42) {
             distance = RandomInRange(0, 1400);
 #ifdef SDL_PORT
@@ -743,8 +738,7 @@ unsigned int generate_stars(void)
             asObjectViewFrames[obj] =
                 (short)(RandomInRange(0, 5) + 32);
         }
-        obj++;
-    } while (obj < 49);
+    }
     return 0;
 }
 

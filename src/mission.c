@@ -188,15 +188,13 @@ int release_all_capital_ship_shapes(void)
 {
     short obj;
 
-    obj = 0;
-    do {
+    for (obj = 0; obj < 10; obj++) {
         if (aeObjectClass[obj] ==
             OBJECT_CLASS_CAPITAL_SHIP) {
             FreePacketAndClear(&apObjShapeArray[obj], 0);
             asCapitalShipViewFramesTable[obj] = -1;
         }
-        obj++;
-    } while (obj < 10);
+    }
     return 0;
 }
 
@@ -207,14 +205,12 @@ int release_capital_ship_shapes(enum ObjectType type)
 
     if (aObjectTypeData[type].objectClass ==
         OBJECT_CLASS_CAPITAL_SHIP) {
-        obj = 1;
-        do {
+        for (obj = 1; obj < 10; obj++) {
             if (aeObjectTypeList[obj] == type) {
                 FreePacketAndClear(&apObjShapeArray[obj], 0);
                 asCapitalShipViewFramesTable[obj] = -1;
             }
-            obj++;
-        } while (obj < 10);
+        }
     }
     return 0;
 }
@@ -365,13 +361,11 @@ int free_ship(short slot)
     if (aObjectTypeData[type].objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
         release_capital_ship_shapes(type);
         if (bCurrentExpandedMemoryAvail != 0) {
-            section = 0;
-            do {
+            for (section = 0; section < 0x25; section++) {
                 FreePacketAndClear(
                     &aapPacketReferences[slot][section],
                     4);
-                section++;
-            } while (section < 0x25);
+            }
         }
         FreePacketAndClear(&aObjectResourceSlotsArray[slot].shape, 0);
         aObjectTypeData[type].shape = 0;
@@ -501,12 +495,10 @@ int shape_needed(const MissionNavPoint *navPoint, enum ObjectType type)
     short preload;
 
     if (type != (enum ObjectType)-1) {
-        preload = 0;
-        do {
+        for (preload = 0; preload < 2; preload++) {
             if (navPoint->preloadObjectTypes[preload] == type)
                 return 1;
-            preload++;
-        } while (preload < 2);
+        }
     }
     return 0;
 }
@@ -538,8 +530,7 @@ int new_sphere_shapes(MissionNavPoint *navPoint)
         slot++;
     } while (slot < 3);
 
-    preload = 0;
-    do {
+    for (preload = 0; preload < 2; preload++) {
         type = navPoint->preloadObjectTypes[preload];
         if (type != (enum ObjectType)-1) {
             if (!shape_loaded(type)) {
@@ -548,8 +539,7 @@ int new_sphere_shapes(MissionNavPoint *navPoint)
                     load_ship(type, slot);
             }
         }
-        preload++;
-    } while (preload < 2);
+    }
     initialize_view_buffer();
     return 0;
 }
@@ -577,8 +567,7 @@ int set_up_action_sphere(short navPoint)
         aMissionNavPoints[navPoint + 1].type == 2 ? 2 : -1;
     nEnemySighting = 0x7fff;
 
-    obj = 1;
-    do {
+    for (obj = 1; obj < 10; obj++) {
         objectIndex = obj;
         if (aeObjectClass[objectIndex] != OBJECT_CLASS_NULL &&
             acShipSpawnNavPt[objectIndex] != -1) {
@@ -596,18 +585,15 @@ int set_up_action_sphere(short navPoint)
             else
                 remove_object(obj);
         }
-        obj++;
-    } while (obj < 10);
+    }
     remove_all_hazards();
     nCurrentHazardFieldTotal = 0;
     new_sphere_shapes(nav);
 
-    obj = 0;
-    do {
+    for (obj = 0; obj < 10; obj++) {
         if (nav->missionShips[obj] != -1)
             init_ship(nav->missionShips[obj], navPoint);
-        obj++;
-    } while (obj < 10);
+    }
 
     trigger = 0;
     do {
@@ -635,8 +621,7 @@ void free_pilot_talk(short personality)
 {
     short line;
 
-    line = 0;
-    do {
+    for (line = 0; line < 11; line++) {
         if (aapszPilotSpeeches[personality][line] != 0) {
             FreePacketAndClear(
                 &aapszPilotSpeeches[personality][line], 0);
@@ -645,8 +630,7 @@ void free_pilot_talk(short personality)
             FreePacketAndClear(
                 &apCommunicationPortraitShapesTable[personality], 8);
         }
-        line++;
-    } while (line < 11);
+    }
 }
 
 /* Function start: 0x40C1A0 */

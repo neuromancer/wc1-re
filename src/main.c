@@ -591,13 +591,11 @@ unsigned int house_keep(void)
             check_hazards();
     }
     if (nCameraViewMode == 0) {
-        count = 0;
-        do {
+        for (count = 0; count < 6; count++) {
             FadeFlightPaletteEntry(aPaletteFadeEntries[count]);
             SetPaletteEntry((short)(count + 0xb9),
                             aPaletteFadeEntries[count]);
-            count++;
-        } while (count < 6);
+        }
         return 0;
     }
     if (nCurrentDamageAlarmSfxHandle != 0) {
