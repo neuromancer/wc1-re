@@ -221,7 +221,7 @@ int main(short argc, char **argv)
     if (sizeof(int) != sizeof(short *))
         SystemDebugPrintf("Sizeof int(enum) != sizeof short *\n");
 #endif
-    DAT_005a7d9c = 1;
+    bSavedGameExists = 1;
     nMusicPlaybackMode = 4;
     bCurrentExpandedMemoryAvail = 1;
     ResetCampaignData();
@@ -295,7 +295,7 @@ int main(short argc, char **argv)
             break;
         case 'Z':
         case 'z':
-            DAT_005a7d9c = 1;
+            bSavedGameExists = 1;
             break;
         case 'l':
             if (nOriginDevUnlock != 0)

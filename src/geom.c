@@ -1008,17 +1008,12 @@ void child_object(short hardpoint, short child, short parent)
 /* Function start: 0x419B70 */
 short get_ship_slot(void)
 {
-    short slot = 1;
+    short slot;
 
-    do {
-        if (aeObjectClass[slot] == OBJECT_CLASS_NULL) {
-            DAT_0046c010 = slot;
-            return slot;
-        }
-        slot++;
-    } while (slot <= 9);
-    DAT_0046c010 = -1;
-    return -1;
+    for (slot = 1; slot <= 9; slot++)
+        if (aeObjectClass[slot] == OBJECT_CLASS_NULL)
+            return nFreeShipSlot = slot;
+    return nFreeShipSlot = -1;
 }
 
 /* Function start: 0x419BA0 */

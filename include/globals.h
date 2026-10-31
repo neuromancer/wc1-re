@@ -164,7 +164,7 @@ extern short nExternalViewShip; /* 0x0046c040 */
 extern signed char cViewObject; /* 0x0046c000 */
 extern int bIntroSecondaryScene; /* 0x0046c024 */
 extern signed char abHazardObjects[0x14]; /* 0x0046c028 */
-extern short DAT_0046c010;
+extern short nFreeShipSlot; /* 0x0046c010 */
 extern short nEyePitchRate; /* 0x0046c004 */
 extern short nEyeYawRate; /* 0x0046c008 */
 extern short nEyeRollRate; /* 0x0046c00c */
@@ -654,7 +654,7 @@ extern short nNavigationMapMinimumPositionY; /* 0x005a8154 */
 extern TextContext stCurrentNavMapTxtCtx; /* 0x005a8160 */
 extern short nNavMapCenterPositionY; /* 0x005a817c */
 extern TextContext stMapNavigationLabelTextContext; /* 0x005a8180 */
-extern int DAT_005a7d9c;
+extern int bSavedGameExists; /* 0x005a7d9c */
 extern DiskFileRecord *pDiskFileRecords; /* 0x005a7cf0 */
 extern Viewport stDiskPromptBgView; /* 0x005a7d00 */
 extern unsigned char abDiskPromptDriveStates[0x20]; /* 0x005a7d20 */

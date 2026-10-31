@@ -20,7 +20,7 @@ short nEyeYawRate = 1;
 short nEyeRollRate = 1;
 
 /* 0x0046c010 */
-short DAT_0046c010 = -1;
+short nFreeShipSlot = -1; /* 0x0046c010 */
 
 /* 0x0046c014 */
 signed char bCurrentKey = (signed char)0x80;

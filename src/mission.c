@@ -154,7 +154,7 @@ void prepare_mission(void)
                 init_ship(missionShip, stCurrentMissionHeader.entryNavPoint);
                 if (nYourWingman == -1 &&
                     pilot > 4 && pilot < 14)
-                    nYourWingman = DAT_0046c010;
+                    nYourWingman = nFreeShipSlot;
             }
         }
     }

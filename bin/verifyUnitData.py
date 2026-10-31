@@ -505,7 +505,7 @@ UNITS = {
         ('nEyePitchRate', 0x0004),
         ('nEyeYawRate', 0x0008),
         ('nEyeRollRate', 0x000C),
-        ('DAT_0046c010', 0x0010),
+        ('nFreeShipSlot', 0x0010),
         ('bCurrentKey', 0x0014),
         ('cPreviousKey', 0x0018),
         ('nCurrentWave', 0x001C),
