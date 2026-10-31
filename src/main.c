@@ -621,19 +621,17 @@ void init_player_input(void)
 /* Function start: 0x427E40 */
 void get_player_input(void)
 {
-    int device;
 
     if (nCurrentActiveInputDevice != -1 &&
         bInputPollingGuard == 0) {
         bInputPollingGuard++;
         UpdateInputDeviceTransitions(0);
-        device = (int)nCurrentActiveInputDevice;
-        if (aInputDevSamples[device].x == 0 &&
-            aInputDevSamples[device].y == 0 &&
-            aInputDevSamples[device].buttons == 0) {
-            if (aInputDevSamples[device].x != stLastPolledFlightInput.x ||
-                aInputDevSamples[device].y != stLastPolledFlightInput.y ||
-                aInputDevSamples[device].buttons !=
+        if (aInputDevSamples[nCurrentActiveInputDevice].x == 0 &&
+            aInputDevSamples[nCurrentActiveInputDevice].y == 0 &&
+            aInputDevSamples[nCurrentActiveInputDevice].buttons == 0) {
+            if (aInputDevSamples[nCurrentActiveInputDevice].x != stLastPolledFlightInput.x ||
+                aInputDevSamples[nCurrentActiveInputDevice].y != stLastPolledFlightInput.y ||
+                aInputDevSamples[nCurrentActiveInputDevice].buttons !=
                     stLastPolledFlightInput.buttons) {
                 TranslatePolledInputEvent(6, 0);
                 stLastPolledFlightInput = aInputDevSamples[nCurrentActiveInputDevice];

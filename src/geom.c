@@ -1226,7 +1226,6 @@ void transform_objects_to_your_view(void)
     FixedVector direction;
     int objectRadius;
     short dustSize;
-    int objectIndex;
     int distance;
     int scaleFactor;
     short screenScale;
@@ -1235,89 +1234,88 @@ void transform_objects_to_your_view(void)
     nClosestVisibleObject = -1;
     draw_nav_pointer();
     for (obj = 0; obj <= SPACE_LAST_MOVING_OBJECT; obj++) {
-        objectIndex = (int)obj;
-        if (aeObjectClass[objectIndex] != OBJECT_CLASS_NULL &&
-            aeObjectClass[objectIndex] !=
+        if (aeObjectClass[obj] != OBJECT_CLASS_NULL &&
+            aeObjectClass[obj] !=
                 OBJECT_CLASS_FIXED_OBJECT &&
             obj != nNavPointerObject) {
-            asPreviousObjectDistance[objectIndex] =
-                asObjDistancesTable[objectIndex];
-            asObjDistancesTable[objectIndex] = 0;
-            if (aeObjectClass[objectIndex] ==
+            asPreviousObjectDistance[obj] =
+                asObjDistancesTable[obj];
+            asObjDistancesTable[obj] = 0;
+            if (aeObjectClass[obj] ==
                 OBJECT_CLASS_FUTURION) {
-                asObjectScreenXList[objectIndex] = (short)0x8001;
+                asObjectScreenXList[obj] = (short)0x8001;
                 continue;
             }
-            if (aeObjectClass[objectIndex] ==
+            if (aeObjectClass[obj] ==
                     OBJECT_CLASS_PLANET ||
-                aeObjectClass[objectIndex] == OBJECT_CLASS_STAR) {
-                direction = aShipPositionsArray[objectIndex];
+                aeObjectClass[obj] == OBJECT_CLASS_STAR) {
+                direction = aShipPositionsArray[obj];
             } else {
                 ComputeVectorDelta(&aShipPositionsArray[EYE_OBJECT],
-                                   &aShipPositionsArray[objectIndex],
+                                   &aShipPositionsArray[obj],
                                    &direction);
             }
             distance = Vector_magnitude(&direction);
             if (distance <
                 asObjectCollisionRadius[EYE_OBJECT] * 0x100) {
-                asObjectScreenXList[objectIndex] = (short)0x8001;
+                asObjectScreenXList[obj] = (short)0x8001;
                 continue;
             }
-            if (aeObjectClass[objectIndex] == OBJECT_CLASS_DUST &&
+            if (aeObjectClass[obj] == OBJECT_CLASS_DUST &&
                 distance > (1400 << 8)) {
-                asObjectScreenXList[objectIndex] = (short)0x8001;
+                asObjectScreenXList[obj] = (short)0x8001;
                 continue;
             }
             transform_to_objects_frame(&direction,
                                        &aObjectViewPositionsList[
-                                           objectIndex],
+                                           obj],
                                        EYE_OBJECT);
-            if (aObjectViewPositionsList[objectIndex].z <
+            if (aObjectViewPositionsList[obj].z <
                 asObjectCollisionRadius[EYE_OBJECT] * 0x100) {
-                asObjectScreenXList[objectIndex] = (short)0x8001;
+                asObjectScreenXList[obj] = (short)0x8001;
                 continue;
             }
-            if (DivideFixed(aObjectViewPositionsList[objectIndex].z,
+            if (DivideFixed(aObjectViewPositionsList[obj].z,
                             distance) < 0x94) {
-                asObjectScreenXList[objectIndex] = (short)0x8001;
+                asObjectScreenXList[obj] = (short)0x8001;
                 continue;
             }
             objectRadius =
-                asObjectCollisionRadius[objectIndex] * 0x100;
+                asObjectCollisionRadius[obj] * 0x100;
             if (distance <= objectRadius)
                 distance = objectRadius + 1;
-            if (aeObjectClass[objectIndex] >= OBJECT_CLASS_EXPLOSION) {
+            if (aeObjectClass[obj] >= OBJECT_CLASS_EXPLOSION) {
                 scaleFactor = DivideFixed(
                     (short)(nScreenWidth & ~1) << 15,
                     distance - objectRadius);
                 screenScale = (short)(
                     MultiplyFixed((unsigned short)
-                                      awObjectScales[objectIndex],
+                                      awObjectScales[obj],
                                   scaleFactor) >> 8);
                 if ((unsigned short)screenScale >= 0x2000)
                     screenScale = 0x2000;
-                asObjScreenScalesArray[objectIndex] = screenScale;
+                asObjScreenScalesArray[obj] = screenScale;
                 if ((unsigned short)screenScale <= 4) {
-                    asObjectScreenXList[objectIndex] =
+                    asObjectScreenXList[obj] =
                         (short)0x8001;
                     continue;
                 }
             }
-            asObjDistancesTable[objectIndex] =
+            asObjDistancesTable[obj] =
                 (unsigned short)(distance >> 8);
-            asObjectScreenXList[objectIndex] = (short)(DivideFixed(
+            asObjectScreenXList[obj] = (short)(DivideFixed(
                 MultiplyFixed(
                     (short)(nScreenWidth & ~1) << 7,
-                    aObjectViewPositionsList[objectIndex].x),
-                aObjectViewPositionsList[objectIndex].z) >> 8);
-            asObjectScreenYArray[objectIndex] = (short)(DivideFixed(
+                    aObjectViewPositionsList[obj].x),
+                aObjectViewPositionsList[obj].z) >> 8);
+            asObjectScreenYArray[obj] = (short)(DivideFixed(
                 MultiplyFixed(
                     (short)(nScreenWidth & ~1) << 7,
-                    aObjectViewPositionsList[objectIndex].y),
-                aObjectViewPositionsList[objectIndex].z) >> 8);
-            switch (aeObjectClass[objectIndex]) {
+                    aObjectViewPositionsList[obj].y),
+                aObjectViewPositionsList[obj].z) >> 8);
+            switch (aeObjectClass[obj]) {
             case OBJECT_CLASS_PLANET:
-                if (asObjScreenScalesArray[objectIndex] == 0xff)
+                if (asObjScreenScalesArray[obj] == 0xff)
                     set_background_objects_rotation(obj, &direction);
                 break;
             case OBJECT_CLASS_DUST:
@@ -1328,10 +1326,10 @@ void transform_objects_to_your_view(void)
                 if (dustSize > 3)
                     dustSize = 3;
                 dustSize = (short)(
-                    (asObjScreenAngles[objectIndex] & 0x10) +
+                    (asObjScreenAngles[obj] & 0x10) +
                     (3 - dustSize) * 4);
-                asObjectViewFrames[objectIndex] =
-                    (short)(((asObjectCounterArray[objectIndex] +
+                asObjectViewFrames[obj] =
+                    (short)(((asObjectCounterArray[obj] +
                               nCurrentSpaceFrameValue) & 3) +
                             dustSize);
                 break;

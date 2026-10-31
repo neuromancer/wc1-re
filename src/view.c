@@ -594,7 +594,6 @@ void DrawFormattedText(const char *format, ...);
 void show_target_disp(void)
 {
     short target;
-    int targetIndex;
     ObjectTypeData *typeData;
     enum ObjectType objectType;
     signed char rating;
@@ -632,10 +631,9 @@ void show_target_disp(void)
         DrawFormattedText(" None");
         return;
     }
-    targetIndex = (int)target;
-    objectType = aeObjectTypeList[targetIndex];
+    objectType = aeObjectTypeList[target];
     typeData = &aObjectTypeData[objectType];
-    rating = acShipRating[targetIndex];
+    rating = acShipRating[target];
     if (rating >= 0 && rating <= 7) {
         DrawFormattedText(
             " %s",
@@ -650,14 +648,14 @@ void show_target_disp(void)
     }
     DrawFormattedText("\nRange : ");
     InitializeCockpitReadout(1, &stRightVduTxtContext);
-    if (asObjectScreenXList[targetIndex] == (short)0x8001) {
+    if (asObjectScreenXList[target] == (short)0x8001) {
         cTargetDisplayObject = -1;
         return;
     }
 
     x = (short)(stRightVduViewport.left + 0x25);
     y = (short)(stRightVduViewport.top + 0x26);
-    frame = (short)((aasShipShield[targetIndex][1] * 6) /
+    frame = (short)((aasShipShield[target][1] * 6) /
                     typeData->shieldAft);
     frame = (short)((3 - MinShort(frame, 3)) * 2);
     if (frame < 6)
@@ -675,7 +673,7 @@ void show_target_disp(void)
             (short)(aTargetArmorClipRects[armor].right + x);
         targetViewport.bottom =
             (short)(aTargetArmorClipRects[armor].bottom + y);
-        if (aasShipArmor[targetIndex][armor] >
+        if (aasShipArmor[target][armor] >
             (short)(maximumArmor[armor] >> 1)) {
             DrawSpriteDefault(&targetViewport, x, y,
                               typeData->shape, 0);
@@ -686,7 +684,7 @@ void show_target_disp(void)
     }
 
     DrawSpriteDefault(&stRightVduViewport, x, y, typeData->shape, 2);
-    frame = (short)((aasShipShield[targetIndex][0] * 6) /
+    frame = (short)((aasShipShield[target][0] * 6) /
                     typeData->shieldFore);
     frame = (short)((3 - MinShort(frame, 3)) * 2);
     if (frame < 6)
@@ -694,6 +692,9 @@ void show_target_disp(void)
                           pCockpitIndicatorShape,
                           (short)(frame + 1));
 }
+
+/* VDU mode callee of the range readout below. */
+void set_new_vdu(short vdu);
 
 /* Function start: 0x42DEA0 */
 void DrawTargetRangeReadout(void)

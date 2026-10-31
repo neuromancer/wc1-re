@@ -1091,22 +1091,19 @@ void intro_drawbackgroundships(void)
 /* Function start: 0x436740 */
 void set_up_screen_viewport(signed char mode)
 {
-    int modeIndex;
-
     cScreenViewMode = mode;
-    modeIndex = (int)mode;
-    switch (modeIndex) {
+    switch (mode) {
     case 4:
     case 5:
         pScreenViewGeometry =
-            &aScreenViewportGeometry[modeIndex];
+            &aScreenViewportGeometry[mode];
         break;
     default:
         pScreenViewGeometry =
             (const ScreenViewportGeometry *)(
                 (const unsigned char *)pCurrentScreenViewportPkt +
                 pCurrentScreenViewportPkt
-                    ->geometryOffsets[modeIndex]);
+                    ->geometryOffsets[mode]);
         break;
     }
 
