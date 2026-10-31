@@ -2249,11 +2249,9 @@ void UpdateTrainSimMenuCursor(void)
     frame = 0;
     mouseX = stMouseCursorState.x;
     mouseY = stMouseCursorState.y;
-    region = aTrainSimMissionRegions;
-    while (region->frame != -1) {
+    for (region = aTrainSimMissionRegions; region->frame != -1; region++) {
         if (IsPointInRect(mouseX, mouseY, &region->left) != 0)
             frame = region->frame;
-        region++;
     }
     SetMouseCursorShape(stMouseCursorState.shape, frame);
 }

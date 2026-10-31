@@ -25,15 +25,13 @@ short find_objective(int type, short index)
 {
     short objective;
 
-    objective = 0;
-    while (objective < (short)cMissionObjectiveCountValue) {
+    for (objective = 0; objective < (short)cMissionObjectiveCountValue; objective++) {
         if (aMissionObjectivesArray[objective].type == type) {
             if (index == -1)
                 return objective;
             if (aMissionObjectivesArray[objective].index == index)
                 return objective;
         }
-        objective++;
     }
     return -1;
 }

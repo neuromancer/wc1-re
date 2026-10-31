@@ -2702,8 +2702,7 @@ void npc_communication(void)
 
     if (nCannedSceneMode == 0 &&
         nTrainSimActive == 0) {
-        obj = 1;
-        while (message_showing() == 0 && obj <= 9) {
+        for (obj = 1; message_showing() == 0 && obj <= 9; obj++) {
             if (aeObjectClass[(short)obj] >=
                     OBJECT_CLASS_SHIP &&
                 acWingmanMessageStatesArray[(short)obj] != -1) {
@@ -2711,7 +2710,6 @@ void npc_communication(void)
                           (short)acWingmanMessageStatesArray[(short)obj]);
                 acWingmanMessageStatesArray[(short)obj] = -1;
             }
-            obj++;
         }
         if (RandomBelowOrEqual(5000) > 4998) {
             for (obj = 1; nCommSpeakerObject == -1 && obj <= 9; obj++) {

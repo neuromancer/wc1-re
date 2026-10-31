@@ -626,15 +626,13 @@ void Mtarget_missile(short ship, short target)
         point_ship_at_object(ship, target);
     approach_cruise_speed(ship);
 
-    object = 0;
-    while (object < 10) {
+    for (object = 0; object < 10; object++) {
         objectIndex = object;
         if (acObjOwnersTable[objectIndex] == ship &&
             aeObjectClass[objectIndex] == OBJECT_CLASS_MISSILE) {
             reset_maneuver(ship, MANEUVER_STRAFE_ENEMY);
             return;
         }
-        object++;
     }
 
     if (nFacingToTargetValue > 85 &&

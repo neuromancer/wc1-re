@@ -346,12 +346,10 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
     int allocation;
 
     if (viewport->pixels != stScreenView.pixels) {
-        allocation = 0;
-        while (allocation < nViewAllocTotal) {
+        for (allocation = 0; allocation < nViewAllocTotal; allocation++) {
             if (apViewportAllocations[allocation] ==
                 viewport->pixels)
                 break;
-            allocation++;
         }
         if (allocation >= nViewAllocTotal)
             exit_squadron("bad vport");

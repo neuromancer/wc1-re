@@ -911,11 +911,9 @@ short no_objectives_achieved(void)
 {
     short objective;
 
-    objective = 0;
-    while (objective < cMissionObjectiveCountValue) {
+    for (objective = 0; objective < cMissionObjectiveCountValue; objective++) {
         if (achieved(objective) != 0)
             break;
-        objective++;
     }
     return objective >= cMissionObjectiveCountValue;
 }

@@ -265,8 +265,7 @@ char FindCdRomDriveByVolumeLabel(const char *label,
     }
 
     result = 0;
-    i = 0;
-    while (i < driveCount) {
+    for (i = 0; i < driveCount; i++) {
         drive = drives[i];
         sprintf(root, "%c:\\", drive);
         GetVolumeInformationA(root, volume, 0xff, 0,
@@ -283,7 +282,6 @@ char FindCdRomDriveByVolumeLabel(const char *label,
                 break;
             }
         }
-        i++;
     }
     return result;
 }

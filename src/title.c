@@ -120,12 +120,10 @@ void UpdateTitleMenuCursor(void)
     frame = 0;
     mouseX = stHostMouseState.x;
     mouseY = stHostMouseState.y;
-    region = aTitleMenuRegions;
-    while (region->frame != -1) {
+    for (region = aTitleMenuRegions; region->frame != -1; region++) {
         if (IsPointInRect(mouseX, mouseY,
                           &region->left) != 0)
             frame = region->frame;
-        region++;
     }
     SetMouseCursorShape(stMouseCursorState.shape, frame);
 }

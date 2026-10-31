@@ -273,12 +273,9 @@ int FindMenuRegionAtPoint(short x, short y,
 {
     short index;
 
-    index = 0;
-    while (regions->frame != -1) {
+    for (index = 0; regions->frame != -1; index++, regions++) {
         if (IsPointInRect(x, y, &regions->left) != 0)
             return index;
-        regions++;
-        index++;
     }
     return -1;
 }

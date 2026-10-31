@@ -213,11 +213,9 @@ void AddUniqueObjectiveNavLabel(short x, short y,
         PlaceNavMapLabel(x, y, colour, text);
         return;
     }
-    previous = 0;
-    while (previous < objective) {
+    for (previous = 0; previous < objective; previous++) {
         if (aMissionObjectivesArray[previous].index == missionShip)
             break;
-        previous++;
     }
     if (previous < objective)
         return;
@@ -307,14 +305,12 @@ void DrawNavMapLabels(void)
 {
     short label;
 
-    label = 0;
-    while (label < (short)nNavMapLabelCount) {
+    for (label = 0; label < (short)nNavMapLabelCount; label++) {
         DrawFormattedText("%X%Y%F%s",
                           aNavMapLabels[label].x,
                           aNavMapLabels[label].y,
                           aNavMapLabels[label].colour,
                           aNavMapLabels[label].text);
-        label++;
     }
 }
 
@@ -647,11 +643,9 @@ void DrawNavMapLegend(void)
 {
     short objective;
 
-    objective = 0;
-    while (objective < (short)cMissionObjectiveCountValue) {
+    for (objective = 0; objective < (short)cMissionObjectiveCountValue; objective++) {
         if (visited(objective) == 0 && hidden_objective(objective) == 0)
             break;
-        objective++;
     }
     SetTextCursor((unsigned short)stSceneBuffer.left, 120);
     DrawSelectedNavLegendEntry("MISSION FLIGHT PATH",
@@ -740,10 +734,8 @@ void BriefingMap_LoadShapes(void)
     if (AllocateViewport(&stSceneBuffer,
                          (short)cBlackColour, 0) == 0)
         ReportOutOfMemoryAndExit("VSCREEN");
-    objective = 0;
-    while (objective < (short)cMissionObjectiveCountValue) {
+    for (objective = 0; objective < (short)cMissionObjectiveCountValue; objective++) {
         LocateMobileObjective(objective);
-        objective++;
     }
 }
 

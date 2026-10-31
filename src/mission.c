@@ -606,10 +606,8 @@ int set_up_action_sphere(short navPoint)
         trigger += 2;
     } while (trigger < 8);
 
-    objective = 0;
-    while (objective < cMissionObjectiveCountValue) {
+    for (objective = 0; objective < cMissionObjectiveCountValue; objective++) {
         LocateMobileObjective(objective);
-        objective++;
     }
     clean_up_cockpit();
     bLandingAuthorized = 0;
@@ -846,11 +844,9 @@ unsigned int is_team_member(short missionShip)
 
     if (missionShip == stCurrentMissionHeader.playerMissionShip)
         return 1;
-    index = 0;
-    while (index < 8) {
+    for (index = 0; index < 8; index++) {
         if (missionShip == stCurrentMissionHeader.initialMissionShips[index])
             return 1;
-        index++;
     }
     return 0;
 }
@@ -1160,8 +1156,7 @@ void SetScale(void)
     nNavMapMaximumPositionX = aMissionObjectivesArray[0].mapX;
     nNavigationMapMinimumPositionY = aMissionObjectivesArray[0].mapY;
     nNavMapMaximumPosY = aMissionObjectivesArray[0].mapY;
-    objectiveIndex = 0;
-    while (objectiveIndex < (short)cMissionObjectiveCountValue) {
+    for (objectiveIndex = 0; objectiveIndex < (short)cMissionObjectiveCountValue; objectiveIndex++) {
         if (mobile_objective(objectiveIndex) != 0) {
             ship = find_ship_index((short)
                 aMissionObjectivesArray[objectiveIndex].index);
@@ -1176,7 +1171,6 @@ void SetScale(void)
             aMissionObjectivesArray[objectiveIndex].position.z);
         CheckPoint(aMissionObjectivesArray[objectiveIndex].mapX,
                    aMissionObjectivesArray[objectiveIndex].mapY);
-        objectiveIndex++;
     }
     IncludeNavMapWorldPoint(aShipPositionsArray[0].x,
                             aShipPositionsArray[0].z);

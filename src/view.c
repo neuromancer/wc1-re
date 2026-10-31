@@ -288,8 +288,7 @@ unsigned int InitializeConstellationField(Viewport *viewport,
             index++;
         } while (index < nViewConstellationStarCount);
     }
-    index = 0;
-    while (index < nConstellationParticleTotal) {
+    for (index = 0; index < nConstellationParticleTotal; index++) {
         randomIndex = RandomInRange(0, 15);
         aConstellationParticlesList[index].x =
             (short)(pConstellationViewportPtr->left +
@@ -303,7 +302,6 @@ unsigned int InitializeConstellationField(Viewport *viewport,
         aConstellationParticlesList[index].frame =
             (short)(asConstellationFrame[randomIndex] +
                     RandomInRange(0, 3));
-        index++;
     }
     return 0;
 }
@@ -820,11 +818,9 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
     }
 
     rowCount = height + 2;
-    row = 0;
-    while ((int)row < rowCount) {
+    for (row = 0; (int)row < rowCount; row++) {
         viewport->rowOffsets[top + row] = offset - left;
         offset += width;
-        row++;
     }
     if (clearColour != -1)
         ClearViewport(viewport, clearColour);

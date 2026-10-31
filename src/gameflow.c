@@ -426,14 +426,12 @@ void __stdcall free_viewport(Viewport *viewport)
     nFreeViewCallsValue++;
     allocation = viewport->allocation;
     if (allocation != 0) {
-        i = 0;
-        while (i < nViewAllocTotal) {
+        for (i = 0; i < nViewAllocTotal; i++) {
             if (apViewportAllocations[i] == viewport->allocation) {
                 apViewportAllocations[i] =
                     apViewportAllocations[nViewAllocTotal--];
                 break;
             }
-            i++;
         }
         if (viewport->rowOffsets != 0) {
             ReleasePacketHandle(viewport->rowOffsets);

@@ -209,12 +209,10 @@ void InitializeTrainSimHighScores(void)
             do {
                 candidate = (short)RandomInRange(0, 14);
             } while (candidate == 8);
-            previous = 0;
-            while (previous < slot) {
+            for (previous = 0; previous < slot; previous++) {
                 if (aHighScoreEntriesArray[previous].pilotIndex ==
                     candidate)
                     candidate = -1;
-                previous++;
             }
         } while (candidate == -1);
         score -= (short)RandomBelowOrEqual(1500) + 100;

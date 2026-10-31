@@ -171,12 +171,10 @@ unsigned short LoadInstallDat(void)
     ReadDataFileAtOffset(file, 0, size, records);
     CloseDataFile(file);
 
-    record = records;
-    while (record->name[0] != 0) {
+    for (record = records; record->name[0] != 0; record++) {
         if (maximumId < record->logicalFile &&
             record->logicalFile != 0xff)
             maximumId = record->logicalFile;
-        record++;
     }
     maximumId++;
 
@@ -209,11 +207,9 @@ unsigned short LoadInstallDat(void)
         maximumId--;
     }
 
-    record = records;
-    while (record->name[0] != 0) {
+    for (record = records; record->name[0] != 0; record++) {
         if (record->logicalFile != 0xff)
             pDiskFileRecords[record->logicalFile] = *record;
-        record++;
     }
     ReleasePacketHandle(records);
     pDiskFileRecords++;

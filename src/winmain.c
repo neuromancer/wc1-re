@@ -480,16 +480,13 @@ void check_hazards(void)
     if (bIntroSecondaryScene != 0)
         return;
     if (pActiveHazardField == 0) {
-        region = 0;
-        field = aHazardFields;
-        while (region < nCurrentHazardFieldTotal) {
+        for (region = 0, field = aHazardFields;
+             region < nCurrentHazardFieldTotal; region++, field++) {
             if (field != pActiveHazardField &&
                 near_field(field, &aShipPositionsArray[0]) != 0) {
                 start_hazard_field(region);
                 return;
             }
-            region++;
-            field++;
         }
     } else if (near_field(pActiveHazardField,
                           &aShipPositionsArray[0]) == 0) {
