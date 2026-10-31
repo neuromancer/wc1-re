@@ -812,8 +812,9 @@ $(MSVCRT_SOURCE):
 ORIGINAL_TIMESTAMP = 0x32480D3C
 ORIGINAL_SHA256 = d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4
 
-REFERENCE_HEADERS = include/wc1.h include/wcdata.h include/globals.h \
-	include/wc1funcs.h include/wc1extern.h
+REFERENCE_HEADERS = include/wc1.h include/wc1base.h include/wcdata.h \
+	include/globals.h include/main.h include/winmain.h include/wc1funcs.h \
+	include/wc1extern.h
 
 # Ordered double-colon rules link only when needed, then always check the hash.
 # A direct request for an up-to-date WC1.EXE must also reject a changed file.

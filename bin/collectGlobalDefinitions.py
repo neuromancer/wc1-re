@@ -11,7 +11,7 @@ from pathlib import Path
 
 FUNCTION_MARKER = "/* Function start:"
 GAME_INCLUDE = '#include "wc1.h"'
-OWNER_INCLUDES = (GAME_INCLUDE, '#include "ix.h"')
+OWNER_INCLUDES = (GAME_INCLUDE, '#include "winmain.h"', '#include "ix.h"')
 BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
 LINE_COMMENT_RE = re.compile(r"//[^\r\n]*")
 DEFINE_RE = re.compile(

@@ -19,7 +19,10 @@
 #ifndef GAME_GLOBALS_H
 #define GAME_GLOBALS_H
 
+#ifdef SDL_PORT
+/* The portable RLE renderer reads the quarter-cosine table directly. */
 extern const int anRLEQuarterCosine[901]; /* 0x0043d4bf */
+#endif
 extern const unsigned char abIffBmhdChunkId[4]; /* 0x0043e778 */
 extern const unsigned char abIffCmapChunkId[4]; /* 0x0043e77c */
 extern const unsigned char abIffBodyChunkId[4]; /* 0x0043e780 */
@@ -104,20 +107,10 @@ extern int nCannedSceneMode; /* 0x00469fac */
 extern int nArcadeState; /* 0x00469fb0 */
 extern short nFrameSkipCounter; /* 0x00469fb4 */
 extern short nFrameSkip; /* 0x00469fb8 */
-#ifdef WC1_WINMAIN_SOURCE
-/* The Win32 configuration reader declares three of main.c's int flags as
- * bytes: it stores single bytes, and only byte-typed globals give its 0 and
- * '-' constants their original register allocation. */
-extern char nOriginDevUnlock; /* 0x00469ff4 */
-extern int bPlayerCollisionsEnabled; /* 0x00469ff8 */
-extern char bPlayerVulnerable; /* 0x00469ffc */
-extern char bPlayerCollisionResponse; /* 0x0046a000 */
-#else
-extern int nOriginDevUnlock; /* 0x00469ff4 */
-extern int bPlayerCollisionsEnabled; /* 0x00469ff8 */
-extern int bPlayerVulnerable; /* 0x00469ffc */
-extern int bPlayerCollisionResponse; /* 0x0046a000 */
-#endif
+extern InputDeviceSample aInputDevSamples[2]; /* 0x005a81f0 */
+extern ShortPoint aWeaponDisplayOrigins[5]; /* 0x004684c0 */
+extern unsigned char bMessageSpeed; /* 0x0046af68 */
+extern ShortVector aShipFormationDeltaList[10]; /* 0x0059b520 */
 extern int bViewBufferEnabled; /* 0x0046a004 */
 extern short nCockpitExplosionFrame; /* 0x00469068 */
 extern int bCockpitlessView; /* 0x0046a008 */
@@ -714,7 +707,7 @@ extern GuardedAllocation *pGuardedAllocationTail; /* 0x005a89ac */
 extern char szMemoryUsage[0x80]; /* 0x005a89b0 */
 extern HWND hMainWindow; /* 0x005a89a0 */
 extern HANDLE hSingleInstanceSemaphore; /* 0x005a89a4 */
-extern HDC hMainWindowDC; /* 0x005a8a30 */
+extern ShortPoint aWeaponDisplayPositions[32]; /* 0x00468440 */
 extern HCURSOR hPrevPointer; /* 0x005a8a34 */
 extern unsigned int nSessionEndTime; /* 0x005a8a38 */
 extern int bMainWindowAlive; /* 0x005a8a3c */
@@ -779,12 +772,5 @@ extern ShortVector aChildOffsets[56]; /* 0x004682f0 */
 #ifdef SDL_PORT
 extern const ShortVector aSwcChildOffsets[63];
 #endif
-extern ShortPoint aWeaponDisplayPositions[32]; /* 0x00468440 */
-extern InputDeviceSample aInputDevSamples[2]; /* 0x005a81f0 */
-extern ShortPoint aWeaponDisplayOrigins[5]; /* 0x004684c0 */
-
-extern unsigned char bMessageSpeed; /* 0x0046af68 */
-
-extern ShortVector aShipFormationDeltaList[10]; /* 0x0059b520 */
 
 #endif /* GAME_GLOBALS_H */
