@@ -1820,7 +1820,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     pReleaseWeaponDisplayBackground = 0;
     maximumSize = 0;
     for (weapon = 0;
-         weapon < (signed char)aShipWeaponsTable[0][0];
+         weapon < aShipWeaponsTable[0][0];
          weapon++) {
         if (aObjectTypeData[((ShipWeaponSlot *)&aShipWeaponsTable[0][1])[weapon].type].objectClass ==
                 OBJECT_CLASS_MISSILE) {

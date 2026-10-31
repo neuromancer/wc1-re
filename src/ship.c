@@ -10,7 +10,6 @@
 #include "wc1.h"
 #include <sys/stat.h>
 #include <setjmp.h>
-#include <assert.h>
 
 short asPlayerDamageSystemTable[50] = {
     0, 8, 6, 5, 0, 3, 5, 5, 7, 6,
@@ -113,13 +112,13 @@ short initialize_ship(enum ObjectType type, short owner)
 }
 
 /* Function start: 0x41DFE0 */
-short any_selected(unsigned char *loadout, enum ObjectClass objectClass)
+short any_selected(signed char *loadout, enum ObjectClass objectClass)
 {
     short selected;
     short weapon;
 
     selected = 0;
-    for (weapon = 0; weapon < (signed char)loadout[0] && selected == 0;
+    for (weapon = 0; weapon < loadout[0] && selected == 0;
          weapon++) {
         if (aObjectTypeData[
                 ((ShipWeaponSlot *)(loadout + 1))[weapon].type]
@@ -135,7 +134,7 @@ unsigned int remove_weapon(short obj, short weapon)
 {
     enum ObjectType preferredType;
     enum ObjectClass objectClass;
-    unsigned char *loadout;
+    signed char *loadout;
     short slot;
 
 #ifdef SDL_PORT
@@ -143,25 +142,25 @@ unsigned int remove_weapon(short obj, short weapon)
         /* CODE_05 remove_weapon +0x019a consumes the native slot's
            quantity before removing it. WC1 has no quantity byte. */
         if (obj < 0 || obj >= 10 || weapon < 0 ||
-            (signed char)aShipWeaponsTable[obj][0] > 10 ||
-            weapon >= (signed char)aShipWeaponsTable[obj][0])
+            aShipWeaponsTable[obj][0] > 10 ||
+            weapon >= aShipWeaponsTable[obj][0])
             return 0;
         if (aSwcWeaponAmmo[obj][weapon] > 1) {
             aSwcWeaponAmmo[obj][weapon]--;
             return 0;
         }
         memmove(&aSwcWeaponAmmo[obj][weapon], &aSwcWeaponAmmo[obj][weapon + 1],
-                (signed char)aShipWeaponsTable[obj][0] - weapon - 1);
-        aSwcWeaponAmmo[obj][(signed char)aShipWeaponsTable[obj][0] - 1] = 0;
+                aShipWeaponsTable[obj][0] - weapon - 1);
+        aSwcWeaponAmmo[obj][aShipWeaponsTable[obj][0] - 1] = 0;
     }
 #endif
     loadout = aShipWeaponsTable[obj];
     preferredType =
         ((ShipWeaponSlot *)&aShipWeaponsTable[obj][1])[weapon].type;
     objectClass = aObjectTypeData[preferredType].objectClass;
-    if (weapon < (signed char)loadout[0] - 1) {
-        for (slot = weapon; slot < (signed char)loadout[0] - 1; slot++) {
-            unsigned char *entry = loadout + slot * 7;
+    if (weapon < loadout[0] - 1) {
+        for (slot = weapon; slot < loadout[0] - 1; slot++) {
+            signed char *entry = loadout + slot * 7;
 
             ((ShipWeaponSlot *)(entry + 1))[0].type =
                 ((ShipWeaponSlot *)(entry + 1))[1].type;
@@ -173,9 +172,9 @@ unsigned int remove_weapon(short obj, short weapon)
 #ifdef SDL_PORT
         /* Mac +0x0250 guards this spare-slot write for full ten-slot
            loadouts. */
-        if (!SdlSwcFlightActive() || (signed char)loadout[0] < 10)
+        if (!SdlSwcFlightActive() || loadout[0] < 10)
 #endif
-            loadout[(signed char)loadout[0] * 7 + 7] = 1;
+            loadout[loadout[0] * 7 + 7] = 1;
     }
     loadout[0]--;
     if (obj == 0) {
@@ -287,7 +286,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
             if (obj == 0) {
                 nSelectedReleaseWeaponIndex = -1;
                 eSelectedGunType = (enum ObjectType)-1;
-                for (weapon = (short)(signed char)aShipWeaponsTable[obj][0];
+                for (weapon = (short)aShipWeaponsTable[obj][0];
                      weapon-- > 0;) {
                     if (((ShipWeaponSlot *)&aShipWeaponsTable[obj][1])[weapon]
                             .disabled == 0) {
@@ -489,21 +488,19 @@ unsigned int sort_viable_target_list(void)
         count = cViableTargetCount;
         for (outer = 0; outer < count - 1; outer++) {
             for (inner = outer + 1; inner < count; inner++) {
-                int innerIndex;
                 short distance;
                 int outerIndex;
 
                 outerIndex = outer;
-                innerIndex = inner;
                 distance = asViableTgtDistList[outerIndex];
-                innerDistance = asViableTgtDistList[innerIndex];
+                innerDistance = asViableTgtDistList[inner];
                 if (distance > innerDistance) {
                     target = acViableTargetList[outerIndex];
                     asViableTgtDistList[outerIndex] = innerDistance;
                     acViableTargetList[outerIndex] =
-                        acViableTargetList[innerIndex];
-                    asViableTgtDistList[innerIndex] = distance;
-                    acViableTargetList[innerIndex] = target;
+                        acViableTargetList[inner];
+                    asViableTgtDistList[inner] = distance;
+                    acViableTargetList[inner] = target;
                 }
             }
         }
@@ -544,6 +541,7 @@ void send_appropriate_message(short attacker, short victim)
 int inflict_damage(short attacker, short victim, short damage,
                    const FixedVector *impactDirection)
 {
+    short *strength;
     short quadrant;
     short destroyed;
     int sideDot;
@@ -587,10 +585,10 @@ int inflict_damage(short attacker, short victim, short damage,
 
         quadrant = (short)(dot_product(impactDirection,
             &aShipFwdVec[victim]) > 0);
-        damage = (short)(damage -
-                         aasShipShield[victim][quadrant]);
+        strength = &aasShipShield[victim][quadrant];
+        damage = (short)(damage - *strength);
         if (damage > 0) {
-            aasShipShield[victim][quadrant] = 0;
+            *strength = 0;
             if (attacker != -1 &&
                 aeObjectClass[attacker] ==
                     OBJECT_CLASS_PROJECTILE)
@@ -602,12 +600,12 @@ int inflict_damage(short attacker, short victim, short damage,
                 quadrant = 3;
             else if (sideDot < -0xb5)
                 quadrant = 2;
-            damage = (short)(damage -
-                             aasShipArmor[victim][quadrant]);
+            strength = &aasShipArmor[victim][quadrant];
+            damage = (short)(damage - *strength);
             if (damage > 0) {
-                *(short volatile *)&aasShipArmor[victim][quadrant] = 0;
+                *strength = 0;
 
-                if (*(short volatile *)&asObjectScreenXList[victim] !=
+                if (asObjectScreenXList[victim] !=
                         (short)0x8001 &&
                     aeObjectClass[victim] !=
                         OBJECT_CLASS_CAPITAL_SHIP &&
@@ -631,9 +629,9 @@ int inflict_damage(short attacker, short victim, short damage,
                     send_appropriate_message(attacker, victim);
                 return destroyed;
             }
-            aasShipArmor[victim][quadrant] = (short)-damage;
+            *strength = (short)-damage;
         } else {
-            aasShipShield[victim][quadrant] = (short)-damage;
+            *strength = (short)-damage;
             if (attacker != -1 &&
                 aeObjectClass[attacker] ==
                     OBJECT_CLASS_PROJECTILE)
@@ -784,8 +782,7 @@ int internal_damage(short attacker, short victim, short damage,
             break;
         case 5:
             if (quadrant == 0) {
-                weaponCount = (signed char)
-                    aShipWeaponsTable[victimIndex][0];
+                weaponCount = aShipWeaponsTable[victimIndex][0];
                 if (weaponCount > 0) {
                     system = (short)(weaponCount - 1);
                     damage--;
@@ -927,10 +924,10 @@ int your_internal_damage(short attacker, short damage, short quadrant)
             if (quadrant != 0) {
                 events++;
             } else {
-                if (*(volatile signed char *)&aShipWeaponsTable[0][0] > 0) {
+                if (aShipWeaponsTable[0][0] > 0) {
                     remove_weapon(0,
                         (signed char)RandomBelowOrEqual(
-                            (short)((signed char)aShipWeaponsTable[0][0] - 1)));
+                            (short)(aShipWeaponsTable[0][0] - 1)));
                     ShowComponentHitHudMessage(
                         "Weapon destroyed",
                         cRedColour, 8);
@@ -1484,7 +1481,7 @@ int send_at_point(short obj, FixedVector *point, short speed)
 {
     ComputeVectorDelta(&aShipPositionsArray[obj], point,
                        &aShipVelocity[obj]);
-    SetVectorFixedPoint((unsigned int *)&aShipVelocity[obj],
+    SetVectorFixedPoint(&aShipVelocity[obj],
                         speed);
     return 0;
 }
@@ -1790,18 +1787,14 @@ int fire_turrets(short obj)
     short targetIndex;
     short target;
     short targetHemisphere;
-    int loadoutOffset;
 
     lastTarget = build_target_list(obj, 5000);
     if (lastTarget-- == 0)
         return 0;
 
-    loadoutOffset = (int)obj * sizeof(aShipWeaponsTable[0]);
-    slot = (ShipWeaponSlot *)((unsigned char *)
-        aShipWeaponsTable + loadoutOffset + 1);
+    slot = (ShipWeaponSlot *)&aShipWeaponsTable[obj][1];
     for (weapon = 0;
-         weapon < *(signed char *)((unsigned char *)
-             aShipWeaponsTable + loadoutOffset);
+         weapon < aShipWeaponsTable[obj][0];
          weapon++, slot++) {
         if (RandomBelowOrEqual(2) == 0) {
             position_child(obj, slot->hardpoint, &hardpoint);
@@ -2018,7 +2011,7 @@ short find_weapon(short obj, enum ObjectType weaponType)
     short weapon;
 
     for (weapon = 0;
-         weapon < (signed char)aShipWeaponsTable[obj][0];
+         weapon < aShipWeaponsTable[obj][0];
          weapon++) {
         ShipWeaponSlot *weaponSlot =
             &((ShipWeaponSlot *)&aShipWeaponsTable[obj][1])[weapon];
@@ -2036,7 +2029,7 @@ int fire_missile(short ship)
     ShipWeaponSlot *slot;
 
     slot = (ShipWeaponSlot *)&aShipWeaponsTable[ship][1];
-    for (weapon = 0; weapon < (signed char)aShipWeaponsTable[ship][0];
+    for (weapon = 0; weapon < aShipWeaponsTable[ship][0];
          weapon++, slot++) {
         if (aObjectTypeData[slot->type].objectClass ==
                 OBJECT_CLASS_MISSILE) {
@@ -2093,7 +2086,6 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
 {
     ShipWeaponSlot *weaponSlot;
     short mine;
-    int mineIndex;
 
     mine = new_object(type, obj);
     if (mine == -1)
@@ -2104,15 +2096,13 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
     child_object(weaponSlot->hardpoint, mine, obj);
     if (lifetime == -1)
         lifetime = 20;
-    mineIndex = mine;
-    acObjCollisionGraceTicks[mineIndex] =
-        (signed char)lifetime;
-    asObjectCounterArray[mineIndex] = (short)(signed char)lifetime;
+    acObjCollisionGraceTicks[mine] = (signed char)lifetime;
+    asObjectCounterArray[mine] = (short)(signed char)lifetime;
     if (obj == 0)
         RemovePlayerReleaseWeapon(weapon);
     else
         remove_weapon(obj, weapon);
-    return mineIndex;
+    return mine;
 }
 
 /* Function start: 0x421350 */
@@ -2159,7 +2149,6 @@ short flip_angle(short ship, short angle)
 /* Function start: 0x421430 */
 unsigned int place_exhaust_on_ships(void)
 {
-    int shipIndex;
     short *animation;
     short frame;
     short scale;
@@ -2168,16 +2157,15 @@ unsigned int place_exhaust_on_ships(void)
 
     ship = 0;
     do {
-        shipIndex = (int)ship;
-        if (aeObjectClass[shipIndex] >= OBJECT_CLASS_MISSILE &&
-            anShipSpeed[shipIndex] != 0 &&
-            aeSpecialManeuvers[shipIndex] !=
+        if (aeObjectClass[ship] >= OBJECT_CLASS_MISSILE &&
+            anShipSpeed[ship] != 0 &&
+            aeSpecialManeuvers[ship] !=
                 SPECIAL_MANEUVER_KILL_ENGINES &&
-            asObjectScreenXList[shipIndex] != (short)0x8001) {
+            asObjectScreenXList[ship] != (short)0x8001) {
             animation = (short *)aObjectTypeData[
-                aeObjectTypeList[shipIndex]].animation;
+                aeObjectTypeList[ship]].animation;
             if (animation != 0) {
-                object = animation[asObjectViewFrames[shipIndex]];
+                object = animation[asObjectViewFrames[ship]];
                 if (object != -1) {
                     animation = (short *)((unsigned char *)animation + object);
                     while (*animation != -1) {
@@ -2189,7 +2177,7 @@ unsigned int place_exhaust_on_ships(void)
                         frame = *animation++;
                         scale = *animation++;
                         scale -= RandomInRange(0, 32);
-                        if (abShipExhaustHeatList[shipIndex] == 0)
+                        if (abShipExhaustHeatList[ship] == 0)
                             scale = (short)(scale - 32);
                         awObjectScales[object] = scale;
                         asObjDistancesTable[object] = *animation++;
@@ -2198,7 +2186,7 @@ unsigned int place_exhaust_on_ships(void)
                         asObjectFlipArray[object] = 0;
                         asObjectScreenXList[object] = *animation++;
                         asObjectScreenYArray[object] = *animation++;
-                        if (aeSpecialManeuvers[shipIndex] ==
+                        if (aeSpecialManeuvers[ship] ==
                                 SPECIAL_MANEUVER_AFTERBURNER) {
                             asObjectViewFrames[object] =
                                 (short)(frame * 3 +
@@ -2220,13 +2208,10 @@ unsigned int place_exhaust_on_ships(void)
 /* Function start: 0x4215E0 */
 unsigned int reposition_fixed_child_objects(void)
 {
-    int objectIndex;
-    int parentIndex;
     int right;
     int up;
     long sine;
     long cosine;
-    short parentScale;
     short angle;
     short parent;
     short object;
@@ -2241,43 +2226,39 @@ unsigned int reposition_fixed_child_objects(void)
     float sineFloat;
 #endif
 
-    object = 10;
-    do {
-        objectIndex = (int)object;
-        if (aeObjectClass[objectIndex] ==
+    for (object = 10; object <= SPACE_LAST_MOVING_OBJECT; object++) {
+        if (aeObjectClass[object] ==
                 OBJECT_CLASS_FIXED_OBJECT) {
-            parent = (short)acObjOwnersTable[objectIndex];
-            if (aeObjectTypeList[objectIndex] ==
+            parent = (short)acObjOwnersTable[object];
+            if (aeObjectTypeList[object] ==
                     OBJECT_TYPE_TURRET ||
-                aeObjectTypeList[objectIndex] ==
+                aeObjectTypeList[object] ==
                     OBJECT_TYPE_THRUSTERS) {
                 angle = asObjScreenAngles[parent];
                 sine = SinFixed(angle);
                 cosine = CosFixed(angle);
-                parentScale =
-                    asObjScreenScalesArray[parent];
-                right = (int)asObjectScreenXList[objectIndex] *
-                        (unsigned short)parentScale;
-                asObjDistancesTable[objectIndex] +=
+                right = (int)asObjectScreenXList[object] *
+                        (unsigned short)asObjScreenScalesArray[parent];
+                asObjDistancesTable[object] +=
                     asObjDistancesTable[parent];
                 if ((asObjectFlipArray[parent] & 0x10) != 0)
                     right = -right;
-                up = (int)asObjectScreenYArray[objectIndex] *
-                     (unsigned short)parentScale;
+                up = (int)asObjectScreenYArray[object] *
+                     (unsigned short)asObjScreenScalesArray[parent];
                 if ((asObjectFlipArray[parent] & 0x20) != 0)
                     up = -up;
-                asObjectScreenXList[objectIndex] = (short)(
+                asObjectScreenXList[object] = (short)(
                     (MultiplyFixed(right, (int)cosine) -
                      MultiplyFixed(up, (int)sine)) >> 8);
-                asObjectScreenYArray[objectIndex] = (short)(
+                asObjectScreenYArray[object] = (short)(
                     (MultiplyFixed(up, (int)cosine) +
                      MultiplyFixed(right, (int)sine)) >> 8);
-                asObjectScreenXList[objectIndex] +=
+                asObjectScreenXList[object] +=
                     asObjectScreenXList[parent];
-                asObjectScreenYArray[objectIndex] +=
+                asObjectScreenYArray[object] +=
                     asObjectScreenYArray[parent];
 #ifdef SDL_PORT
-                if (aeObjectTypeList[objectIndex] ==
+                if (aeObjectTypeList[object] ==
                         OBJECT_TYPE_THRUSTERS) {
                     /* Match the anchor to the enhanced parent transform. */
                     parentScreenX =
@@ -2307,15 +2288,13 @@ unsigned int reposition_fixed_child_objects(void)
                 }
 #endif
             }
-            parentIndex = (int)parent;
-            asObjScreenScalesArray[objectIndex] = (short)(
+            asObjScreenScalesArray[object] = (short)(
                 (unsigned short)
-                    asObjScreenScalesArray[parentIndex] *
+                    asObjScreenScalesArray[parent] *
                 (unsigned short)
-                    awObjectScales[objectIndex] >> 8);
+                    awObjectScales[object] >> 8);
         }
-        object++;
-    } while (object <= SPACE_LAST_MOVING_OBJECT);
+    }
     return 0;
 }
 
@@ -2336,27 +2315,17 @@ unsigned int replenish_shields(short ship)
         nCurrentSpaceFrameValue %
             (acPlayerComponentDamageList[1] + 1) != 0)
         return 0;
-    shield = 0;
-    do {
-        short maximum;
-        enum ObjectType type;
-        short rechargeDelay;
-        short current;
-
-        maximum = aasShipMaximumShieldTable[ship][shield];
-        if (aasShipShield[ship][shield] > maximum)
-            aasShipShield[ship][shield] = maximum;
-        current = aasShipShield[ship][shield];
-        if (current < maximum) {
-            type = aeObjectTypeList[ship];
-            rechargeDelay = aObjectTypeData[type].animationDelay;
-            if (nCurrentSpaceFrameValue % rechargeDelay == 0) {
-                aasShipShield[ship][shield] =
-                    (short)(current + 1);
-            }
-        }
-        shield++;
-    } while (shield <= 1);
+    for (shield = 0; shield <= 1; shield++) {
+        if (aasShipShield[ship][shield] >
+                aasShipMaximumShieldTable[ship][shield])
+            aasShipShield[ship][shield] =
+                aasShipMaximumShieldTable[ship][shield];
+        if (aasShipShield[ship][shield] <
+                aasShipMaximumShieldTable[ship][shield] &&
+            nCurrentSpaceFrameValue %
+                aObjectTypeData[aeObjectTypeList[ship]].animationDelay == 0)
+            aasShipShield[ship][shield]++;
+    }
     return 0;
 }
 
@@ -2411,7 +2380,6 @@ void accelerate(short amount)
 void your_afterburner(void)
 {
     short time;
-    int nextSoundFrame;
 
     if (anShipFuelsTable[0] <= 0)
         return;
@@ -2430,11 +2398,10 @@ void your_afterburner(void)
         time = 2;
     }
     fire_afterburner(0, time);
-    nextSoundFrame = nCurrentSpaceFrameValue + 6;
-    if (nextSoundFrame < nAfterburnerSoundDeadline)
+    if (nCurrentSpaceFrameValue + 6 < nAfterburnerSoundDeadline)
         nAfterburnerSoundDeadline = 0;
     if (nCurrentSpaceFrameValue > nAfterburnerSoundDeadline) {
-        nAfterburnerSoundDeadline = nextSoundFrame;
+        nAfterburnerSoundDeadline = nCurrentSpaceFrameValue + 6;
         PlaySfxWaveFileByNumber(12, -1, 0);
     }
 }

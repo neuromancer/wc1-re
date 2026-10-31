@@ -172,9 +172,9 @@ void __stdcall SetWholePaletteFromTriplets(unsigned char *palette)
 }
 
 /* Function start: 0x434FE0 */
-unsigned short __stdcall ReadWord(unsigned short *p)
+unsigned short __stdcall FontHeight(const void *p)
 {
-    return *p;
+    return *(const unsigned short *)p;
 }
 
 /* Function start: 0x434FF0 */

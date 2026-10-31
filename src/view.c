@@ -459,9 +459,9 @@ failed:
 }
 
 /* Function start: 0x42D870 */
-void __stdcall CloseDataFileByHandle(unsigned short *handle)
+void __stdcall CloseDataFileByHandle(PacketSectionHandle *handle)
 {
-    CloseDataFile(*handle);
+    CloseDataFile(handle->file);
 }
 
 /* Function start: 0x42D880 */
@@ -789,7 +789,6 @@ short __stdcall CalcRectangleArea(const Viewport *viewport)
 unsigned short __stdcall AllocateViewport(Viewport *viewport,
                                           short clearColour, short flags)
 {
-    unsigned short *rowOffsets;
     unsigned short top;
     short left;
     unsigned short width;
@@ -798,9 +797,9 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
     short offset;
     int rowCount;
 
-    top = (unsigned short)viewport->top;
-    height = (unsigned short)(viewport->bottom - top + 1);
-    width = (unsigned short)(viewport->right - viewport->left + 1);
+    top = viewport->top;
+    height = viewport->bottom - top + 1;
+    width = viewport->right - viewport->left + 1;
     left = viewport->left;
     nAllocateViewportCallsValue++;
     if (nVideoMode != 0x13)
@@ -814,11 +813,10 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
     viewport->pixels = viewport->allocation;
 
     offset = 0;
-    rowOffsets = AllocateTaggedMemory(
+    viewport->rowOffsets = AllocateTaggedMemory(
         (top + (unsigned int)height) * sizeof(unsigned short) + 4,
         0);
-    viewport->rowOffsets = rowOffsets;
-    if (rowOffsets == 0) {
+    if (viewport->rowOffsets == 0) {
         if (nVideoMode != 0x13)
             ReleasePacketHandle(viewport->allocation);
         return 0;
@@ -827,8 +825,8 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
     rowCount = height + 2;
     row = 0;
     while ((int)row < rowCount) {
-        viewport->rowOffsets[top + row] = (unsigned short)(offset - left);
-        offset = (short)(offset + width);
+        viewport->rowOffsets[top + row] = offset - left;
+        offset += width;
         row++;
     }
     if (clearColour != -1)

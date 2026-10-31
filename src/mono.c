@@ -89,7 +89,7 @@ int __stdcall SeekDataFile(unsigned short fd, int offset,
 /* Function start: 0x403710 */
 int MeasureScaledIntroTextWidth(const char *text, short scale)
 {
-    short bounds[4];
+    ShortRect bounds;
     short width = 0;
 
     for (;;) {
@@ -103,8 +103,8 @@ int MeasureScaledIntroTextWidth(const char *text, short scale)
 
             GetTransformedShapeBounds(&stSpaceBufferViewport, 0, 0,
                                       pIntroFont, (short)c, 0,
-                                      scale, 0, bounds);
-            width = (short)(width + bounds[2] + 1);
+                                      scale, 0, &bounds);
+            width = (short)(width + bounds.right + 1);
             width = (short)(width + ((int)scale * 2 >> 8));
         } else if (c == ' ') {
             width = (short)(width + ((int)scale * 6 >> 8));
@@ -119,7 +119,7 @@ int MeasureScaledIntroTextWidth(const char *text, short scale)
 int DrawCenteredScaledIntroText(const char *text, short centreX,
                                 short baselineY, short scale)
 {
-    short bounds[4];
+    ShortRect bounds;
     short x;
     short y;
     char c;
@@ -140,8 +140,8 @@ int DrawCenteredScaledIntroText(const char *text, short centreX,
                              scale, 0);
             GetTransformedShapeBounds(&stSpaceBufferViewport, 0, 0,
                                       pIntroFont, (short)c, 0,
-                                      scale, 0, bounds);
-            x = (short)(x + bounds[2] + 1);
+                                      scale, 0, &bounds);
+            x = (short)(x + bounds.right + 1);
             x = (short)(x + ((int)scale * 2 >> 8));
         } else if (c == ' ') {
             x = (short)(x + ((int)scale * 6 >> 8));
@@ -378,15 +378,11 @@ void SendMonoDebugCommand3(void)
 /* Function start: 0x403DB0 */
 void SoundDebugPrintf(const char *fmt, ...)
 {
-#ifdef SDL_PORT
     va_list arguments;
 
     va_start(arguments, fmt);
     vsprintf(szSoundDebugMsg, fmt, arguments);
     va_end(arguments);
-#else
-    vsprintf(szSoundDebugMsg, fmt, (char *)(&fmt + 1));
-#endif
     MonoDebug_print(szSoundDebugMsg);
 }
 

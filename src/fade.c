@@ -27,7 +27,7 @@ unsigned short __stdcall StepPaletteTransition(short *current,
     short *accumulator;
 
     if (nPaletteTransitionInitialise != 0) {
-        byteCount = (unsigned int)(componentCount * 2);
+        byteCount = componentCount * 2;
         pPaletteTransitionAccumulatorPtr =
             AllocateTaggedMemory(byteCount, 0);
         pPaletteTransitionDelta =
@@ -49,9 +49,9 @@ unsigned short __stdcall StepPaletteTransition(short *current,
         nPaletteTransMaxDelta = 0;
         palette = current;
         for (index = 0; index < componentCount; index++) {
-            difference = (short)(palette[index] - target[index]);
+            difference = palette[index] - target[index];
             if (difference < 0) {
-                difference = (short)-difference;
+                difference = -difference;
                 pPaletteTransDirection[index] = 4;
             } else {
                 pPaletteTransDirection[index] = -4;
@@ -61,13 +61,13 @@ unsigned short __stdcall StepPaletteTransition(short *current,
                 nPaletteTransMaxDelta = difference;
         }
 
-        difference = (short)(nPaletteTransMaxDelta / 4);
+        difference = nPaletteTransMaxDelta / 4;
         for (index = 0; index < componentCount; index++) {
             pPaletteTransitionAccumulatorPtr[index] = difference;
         }
         nPaletteTransitionInitialise = 0;
         nPaletteTransitionCountdown =
-            (short)(nPaletteTransMaxDelta / 4);
+            nPaletteTransMaxDelta / 4;
     } else {
         palette = current;
     }
@@ -81,18 +81,13 @@ unsigned short __stdcall StepPaletteTransition(short *current,
     }
 
     for (index = 0; index < componentCount; index++) {
-        pPaletteTransitionAccumulatorPtr[index] =
-            (short)(pPaletteTransitionAccumulatorPtr[index] +
-                    pPaletteTransitionDelta[index]);
+        pPaletteTransitionAccumulatorPtr[index] +=
+            pPaletteTransitionDelta[index];
         accumulator = &pPaletteTransitionAccumulatorPtr[index];
         if (*accumulator >
             nPaletteTransMaxDelta) {
-            *accumulator =
-                (short)(*accumulator -
-                        nPaletteTransMaxDelta);
-            palette[index] =
-                (short)(palette[index] +
-                        pPaletteTransDirection[index]);
+            *accumulator -= nPaletteTransMaxDelta;
+            palette[index] += pPaletteTransDirection[index];
         }
     }
     return 1;

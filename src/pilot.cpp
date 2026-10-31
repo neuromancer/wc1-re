@@ -48,7 +48,7 @@ void ShowMeanwhileTransition(short scene, short variant)
         (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
     print_subtitle(&stSceneBuffer, 0x40, "Meanwhile...");
     PanToScreen(&stSceneBuffer, &stScreenView);
-    FreePacketAndClear((int *)&pIntroFont, 0);
+    FreePacketAndClear(&pIntroFont, 0);
     WaitForSceneAdvance(100, 0);
     ClearViewport(&stModalSrcViewport, cBlackColour);
     DIBslam();
@@ -119,7 +119,7 @@ void LoadAnswerPromptAndResponse(short entry, char *prompt,
     }
     DosStrcpy(prompt, promptLine);
     DosStrcpy(response, responseLine);
-    FreePacketAndClear((int *)&packet, 0);
+    FreePacketAndClear(&packet, 0);
 }
 
 /* Function start: 0x4259B0 */
@@ -146,7 +146,7 @@ short PromptForAnswerText(short entry)
                        szHudMessageBuf);
     szComponentHitMessage[20] =
         ""[0];
-    PromptForTextInput(65, 125, (char *)"Answer: ",
+    PromptForTextInput(65, 125, "Answer: ",
                        &szComponentHitMessage[20], 10, 2);
     RestoreModalTextPanel(&panel);
     ApplyAnswerTextCipher(&szComponentHitMessage[20], -1);

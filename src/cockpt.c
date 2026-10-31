@@ -126,7 +126,6 @@ void FormatTextTokens(void (__stdcall *writer)(int),
 {
     short character;
     char number[64];
-    char *text;
 
     character = (signed char)*format++;
     while (character != 0) {
@@ -148,11 +147,14 @@ void FormatTextTokens(void (__stdcall *writer)(int),
                 break;
             case 'D':
 #ifdef SDL_PORT
-                text = ltoa(va_arg(*arguments, long), number, 10);
+                EmitTextString(writer,
+                               ltoa(va_arg(*arguments, long),
+                                     number, 10));
 #else
-                text = ltoa(va_arg(arguments, long), number, 10);
+                EmitTextString(writer,
+                               ltoa(va_arg(arguments, long),
+                                     number, 10));
 #endif
-                EmitTextString(writer, text);
                 break;
             case 'F':
 #ifdef SDL_PORT
@@ -177,11 +179,14 @@ void FormatTextTokens(void (__stdcall *writer)(int),
                 break;
             case 'U':
 #ifdef SDL_PORT
-                text = ultoa(va_arg(*arguments, unsigned long), number, 10);
+                EmitTextString(writer,
+                               ultoa(va_arg(*arguments, unsigned long),
+                                     number, 10));
 #else
-                text = ultoa(va_arg(arguments, unsigned long), number, 10);
+                EmitTextString(writer,
+                               ultoa(va_arg(arguments, unsigned long),
+                                     number, 10));
 #endif
-                EmitTextString(writer, text);
                 break;
             case 'X':
 #ifdef SDL_PORT
@@ -210,37 +215,45 @@ void FormatTextTokens(void (__stdcall *writer)(int),
                 break;
             case 'd':
 #ifdef SDL_PORT
-                text = itoa((short)va_arg(*arguments, int), number, 10);
+                EmitTextString(writer,
+                               itoa((short)va_arg(*arguments, int),
+                                     number, 10));
 #else
-                text = itoa((int)va_arg(arguments, short), number, 10);
+                EmitTextString(writer,
+                               itoa((int)va_arg(arguments, short),
+                                     number, 10));
 #endif
-                EmitTextString(writer, text);
                 break;
             case 's':
 #ifdef SDL_PORT
-                text = va_arg(*arguments, char *);
+                EmitTextString(writer, va_arg(*arguments, char *));
 #else
-                text = va_arg(arguments, char *);
+                EmitTextString(writer, va_arg(arguments, char *));
 #endif
-                EmitTextString(writer, text);
                 break;
             case 'u':
 #ifdef SDL_PORT
-                text = ultoa((unsigned short)va_arg(*arguments, unsigned int),
-                             number, 10);
+                EmitTextString(writer,
+                               ultoa((unsigned short)va_arg(*arguments, unsigned int),
+                                     number, 10));
 #else
-                text = ultoa(va_arg(arguments, unsigned short), number, 10);
+                EmitTextString(writer,
+                               ultoa(va_arg(arguments, unsigned short),
+                                     number, 10));
 #endif
-                EmitTextString(writer, text);
                 break;
             case 'x':
 #ifdef SDL_PORT
-                text = ultoa((unsigned short)va_arg(*arguments, unsigned int),
-                             number, 16);
+                EmitTextString(writer,
+                               strupr(ultoa(
+                                   (unsigned short)va_arg(*arguments, unsigned int),
+                                   number, 16)));
 #else
-                text = ultoa(va_arg(arguments, unsigned short), number, 16);
+                EmitTextString(writer,
+                               strupr(ultoa(
+                                   va_arg(arguments, unsigned short),
+                                   number, 16)));
 #endif
-                EmitTextString(writer, strupr(text));
                 break;
             default:
                 writer((short)character);
@@ -255,17 +268,17 @@ void FormatTextTokens(void (__stdcall *writer)(int),
 /* Function start: 0x413C40 */
 void DrawFormattedText(const char *format, ...)
 {
-#ifdef SDL_PORT
     va_list arguments;
 
     va_start(arguments, format);
+#ifdef SDL_PORT
     FormatTextTokens((void (__stdcall *)(int))DrawTextCharacter,
                      format, &arguments);
-    va_end(arguments);
 #else
     FormatTextTokens((void (__stdcall *)(int))DrawTextCharacter,
-                     format, (va_list)(&format + 1));
+                     format, arguments);
 #endif
+    va_end(arguments);
     if (pCurTextContext->viewport->pixels ==
         stScreenView.pixels)
         DIBslam();
@@ -274,21 +287,19 @@ void DrawFormattedText(const char *format, ...)
 /* Function start: 0x413C70 */
 void FormatTextBufferFromStart(const char *format, ...)
 {
+    va_list arguments;
+
+    va_start(arguments, format);
     pCurTextContext->textCursor =
         pCurTextContext->text;
 #ifdef SDL_PORT
-    {
-        va_list arguments;
-
-        va_start(arguments, format);
-        FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
-                         format, &arguments);
-        va_end(arguments);
-    }
+    FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
+                     format, &arguments);
 #else
     FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
-                     format, (va_list)(&format + 1));
+                     format, arguments);
 #endif
+    va_end(arguments);
     if (pCurTextContext->viewport->pixels ==
         stScreenView.pixels)
         DIBslam();
@@ -365,13 +376,11 @@ void vdu_polygon(signed char bar, short percent)
     short top;
     short bottom;
     short right;
-    short inputPercent;
     short extent;
 
-    /* Preserve the input percentage before using its parameter for bar length. */
-    inputPercent = percent;
+    extent = (short)((percent *
+        aaCockpitBars[(int)cCurrentCockpitView][(int)bar].length) / 100);
     percent = aaCockpitBars[(int)cCurrentCockpitView][(int)bar].length;
-    extent = (short)((inputPercent * percent) / 100);
     left = stCockpitBar.left =
         aaCockpitBars[(int)cCurrentCockpitView][(int)bar].left;
     if (left != -99) {
@@ -1133,7 +1142,7 @@ void show_weapon_disp(void)
                       pCockpitWeaponShapePtr, 0);
     weapons = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
     count = 0;
-    if ((signed char)aShipWeaponsTable[0][0] > 0)
+    if (aShipWeaponsTable[0][0] > 0)
         do {
             count++;
             frame = (short)((int)weapons->type * 2 +
@@ -1148,7 +1157,7 @@ void show_weapon_disp(void)
                             weapons->hardpoint].y),
                 pCockpitWeaponShapePtr, frame);
             weapons++;
-        } while (count < (signed char)aShipWeaponsTable[0][0]);
+        } while (count < aShipWeaponsTable[0][0]);
 }
 
 /* Function start: 0x415040 */
@@ -1899,13 +1908,9 @@ void target_locking(signed char target)
             lock_off();
             return;
         }
+#endif
         weaponType = ((ShipWeaponSlot *)&aShipWeaponsTable[0][1])[
             nSelectedReleaseWeaponIndex].type;
-#else
-        weaponType = *(enum ObjectType *)(
-            &aShipWeaponsTable[0][1] +
-            nSelectedReleaseWeaponIndex * 7);
-#endif
         switch (weaponType) {
         default:
             lock_off();
@@ -2088,7 +2093,7 @@ void draw_target_box(unsigned short colour, signed char object,
                     asObjScreenAngles[object],
                     asObjScreenScalesArray[object],
                     asObjectFlipArray[object],
-                    (short *)&bounds) != 0) {
+                    &bounds) != 0) {
                 bounds.left = (short)(bounds.left - padding);
                 bounds.top = (short)(bounds.top - padding);
                 bounds.right = (short)(bounds.right + padding);
@@ -2602,11 +2607,10 @@ void determine_pilot_hand(void)
 /* Function start: 0x417260 */
 void DrawPilotHandFrame(void)
 {
-    int view = (int)cCurrentCockpitView;
-    short x = (short)(asPilotHandOrigins[view * 2] -
-                      stPilotHandView.left);
-    short y = (short)(asPilotHandOrigins[view * 2 + 1] -
-                      stPilotHandView.top);
+    short x = asPilotHandOrigins[cCurrentCockpitView * 2] -
+              stPilotHandView.left;
+    short y = asPilotHandOrigins[cCurrentCockpitView * 2 + 1] -
+              stPilotHandView.top;
 
     CopyViewportContents(&stPilotHandBackdropView,
                          &stPilotHandComposite);

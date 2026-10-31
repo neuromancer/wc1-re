@@ -366,7 +366,7 @@ static int SwcDrawComputerLoadout(SDL_Renderer *renderer, SDL_Texture *canvas,
     const ShipWeaponSlot *slots = (const ShipWeaponSlot *)&aShipWeaponsTable[0][1];
     const short *placement;
     char text[96];
-    int count = (signed char)aShipWeaponsTable[0][0];
+    int count = aShipWeaponsTable[0][0];
     int index;
     int type;
     int row = 0;

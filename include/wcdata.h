@@ -330,7 +330,7 @@ FixedVector;
  * downward from the end of the managed region. */
 typedef struct NearHeapBlock {
     int address;
-    unsigned int sizeAndFlags;
+    int sizeAndFlags;
 } NearHeapBlock;
 
 /* One of the 30 fireworks animated by TheEndFireWorks.  The 0x0C-byte stride

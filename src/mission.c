@@ -128,13 +128,10 @@ void prepare_mission(void)
     short missionShip;
     short pilot;
 
-    *(volatile short *)&stCampaignState.missionScore = 0;
-    nCurrentWingmanKilledThisMission = 0;
-    playerShip = *(volatile short *)&stCurrentMissionHeader.playerMissionShip;
-    bCurrentPlayerDestroyed = 0;
-    nMissionMedalScoreValue = 0;
-    nWingmanKillCount = 0;
-    nPlayerKillTotal = 0;
+    nMissionMedalScoreValue = stCampaignState.missionScore = 0;
+    nPlayerKillTotal = nWingmanKillCount = 0;
+    bCurrentPlayerDestroyed = nCurrentWingmanKilledThisMission = 0;
+    playerShip = stCurrentMissionHeader.playerMissionShip;
 
     stCampaignState.playerShipType = aMissionShips[playerShip].type;
     load_ship(stCampaignState.playerShipType, 0);
@@ -148,11 +145,10 @@ void prepare_mission(void)
            sizeof(acPlayerComponentDamageList));
     bInitialFormationSetup = 1;
     nYourWingman = -1;
-    initial = 0;
-    do {
+    for (initial = 0; initial < 8; initial++) {
         missionShip = stCurrentMissionHeader.initialMissionShips[initial];
         if (missionShip != -1) {
-            pilot = (short)aMissionShips[missionShip].behaviour.pilot;
+            pilot = aMissionShips[missionShip].behaviour.pilot;
             if (is_alive(pilot) != 0 &&
                 find_ships_sphere(missionShip) == -1) {
                 init_ship(missionShip, stCurrentMissionHeader.entryNavPoint);
@@ -161,8 +157,7 @@ void prepare_mission(void)
                     nYourWingman = DAT_0046c010;
             }
         }
-        initial++;
-    } while (initial < 8);
+    }
     bInitialFormationSetup = 0;
 
     Build_objective_list();
@@ -1016,11 +1011,11 @@ unsigned int init_intelligence_data(short obj)
 short __stdcall SampleBothJoysticks(InputDeviceSample *samples,
                                     short fallback)
 {
-    GetJoystickPosition((unsigned int *)&samples[0].x,
-                        (unsigned int *)&samples[0].y,
+    GetJoystickPosition(&samples[0].x,
+                        &samples[0].y,
                         &samples[0].buttons, 0, fallback);
-    GetJoystickPosition((unsigned int *)&samples[1].x,
-                        (unsigned int *)&samples[1].y,
+    GetJoystickPosition(&samples[1].x,
+                        &samples[1].y,
                         &samples[1].buttons, 1, fallback);
     return 1;
 }
@@ -1039,8 +1034,8 @@ int __stdcall SampleJoystickDevice(InputDeviceSample *samples,
     else
         sampleIndex = 0;
     sample = &samples[sampleIndex];
-    result = GetJoystickPosition((unsigned int *)&sample->x,
-                                 (unsigned int *)&sample->y,
+    result = GetJoystickPosition(&sample->x,
+                                 &sample->y,
                                  &sample->buttons, joystick, fallback);
     if (result != 0)
         nCurrentActiveInputDevice = -1;
@@ -1072,23 +1067,21 @@ void SampleActiveJoystickDevice(void)
 void DrawNavTextLine(unsigned char alignment, unsigned short colour,
                      const char *format, ...)
 {
+    va_list arguments;
+
+    va_start(arguments, format);
     pCurTextContext->colour = colour;
     pCurTextContext->alignment = alignment;
     pCurTextContext->textCursor =
         pCurTextContext->text;
 #ifdef SDL_PORT
-    {
-        va_list arguments;
-
-        va_start(arguments, format);
-        FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
-                         format, &arguments);
-        va_end(arguments);
-    }
+    FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
+                     format, &arguments);
 #else
     FormatTextTokens((void (__stdcall *)(int))AppendTextCharacter,
-                     format, (va_list)(&format + 1));
+                     format, arguments);
 #endif
+    va_end(arguments);
     DrawTextString(pCurTextContext->text);
 }
 

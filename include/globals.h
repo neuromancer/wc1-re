@@ -399,7 +399,7 @@ extern short nCurrentHazardFieldTotal; /* 0x0059c90c */
 extern unsigned short awObjMassArray[SPACE_OBJECT_COUNT]; /* 0x0059c790 */
 extern short asObjAfterburnerVelocities[SPACE_OBJECT_COUNT]; /* 0x0059c9d0 */
 extern short asObjScreenScalesArray[SPACE_OBJECT_COUNT]; /* 0x0059c950 */
-extern unsigned char aShipWeaponsTable[10][0x47]; /* 0x0059cab0 */
+extern signed char aShipWeaponsTable[10][0x47]; /* 0x0059cab0 */
 extern signed char acShipRating[16]; /* 0x0059cd80 */
 extern short asObjScreenAngles[SPACE_OBJECT_COUNT]; /* 0x0059cd90 */
 extern unsigned int anVduModeCache[2]; /* 0x0059ce18 */
@@ -532,7 +532,7 @@ extern ScreenAllocation *pScreenAllocPtr; /* 0x005a66ec */
 extern int aiSoundEffectSourceActiveArray[0x40]; /* 0x005a66f0 */
 extern unsigned char abAudioPlaybackSlots[0xf8]; /* 0x005a67f0 */
 extern int nPassingShipAudioCooldown; /* 0x005a68e8 */
-extern int *pFullScreenRecord; /* 0x005a6538 */
+extern Viewport *pFullScreenRecord; /* 0x005a6538 */
 extern int nAllocateViewportCallsValue; /* 0x005a68ec */
 extern void *pLastPacketAllocation; /* 0x005a68f0 */
 extern FireworkState aFireworksList[30]; /* 0x005a6900 */
@@ -768,7 +768,7 @@ extern unsigned int nSessionEndTime; /* 0x005a8a38 */
 extern int bMainWindowAlive; /* 0x005a8a3c */
 extern HINSTANCE hCurrentAppInstance; /* 0x005a8a40 */
 extern unsigned int nSessionStartTime; /* 0x005a8a44 */
-extern unsigned short awPaletteRgbWordsList[0x300]; /* 0x005a8a50 */
+extern short awPaletteRgbWordsList[0x300]; /* 0x005a8a50 */
 extern const char *apszKilrathiAceNames[4]; /* 0x0046af80 */
 extern unsigned long dwGameClockBaseValue; /* 0x005a89a8 */
 

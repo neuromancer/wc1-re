@@ -357,9 +357,9 @@ unsigned short __stdcall InitializeDIBScreenViewport(
 
 /* Function start: 0x42F7E0 */
 /* Initialises a 320x200 viewport record (0x13F == 319, 199) then validates it. */
-void __stdcall InitFullScreenViewport(int *record, short arg)
+void __stdcall InitFullScreenViewport(Viewport *record, short arg)
 {
-    Viewport *viewport = (Viewport *)record;
+    Viewport *viewport = record;
 
     pFullScreenRecord = record;
     viewport->left = 0;
@@ -390,7 +390,7 @@ unsigned int __stdcall GetPacketSize(const char *filename, short section)
             size = handle.dataSize;
             break;
         }
-        CloseDataFileByHandle((unsigned short *)&handle);
+        CloseDataFileByHandle(&handle);
     }
     return size;
 }
@@ -430,7 +430,7 @@ int GetLargestFreeNearHeapBlock(void)
          descriptorAddress -= 8) {
         block = DosNearPtrToFar(descriptorAddress);
         if ((block->sizeAndFlags & 0x80000000) == 0 &&
-            largestBytes < (int)(block->sizeAndFlags & 0xfffff))
+            largestBytes < (block->sizeAndFlags & 0xfffff))
             largestBytes = block->sizeAndFlags & 0xfffff;
     }
     return largestBytes;

@@ -74,7 +74,7 @@ unsigned short GetPaletteReadyUnused(void)
 /* Function start: 0x40FA40 */
 void DrawTitleLogo(short distance, short y)
 {
-    short bounds[4];
+    ShortRect bounds;
     short scale;
 
     if (distance <= 10)
@@ -83,13 +83,13 @@ void DrawTitleLogo(short distance, short y)
     GetTransformedShapeBounds(&stSpaceBufferViewport,
                               (short)(nScreenWidth >> 1), y,
                               pTitleShape, 1, 0, scale, 0,
-                              bounds);
+                              &bounds);
 #ifdef SDL_PORT
     if (!SdlRecordSpaceSprite(
-            &stSpaceBufferViewport, (short)(bounds[0] - 1), y,
+            &stSpaceBufferViewport, (short)(bounds.left - 1), y,
             pTitleShape, 0, 0, scale, 0))
 #endif
-        DrawSpriteScaled(&stSpaceBufferViewport, (short)(bounds[0] - 1), y,
+        DrawSpriteScaled(&stSpaceBufferViewport, (short)(bounds.left - 1), y,
                          pTitleShape, 0, 0, scale, 0);
 #ifdef SDL_PORT
     if (!SdlRecordSpaceSprite(
@@ -102,10 +102,10 @@ void DrawTitleLogo(short distance, short y)
                          pTitleShape, 1, 0, scale, 0);
 #ifdef SDL_PORT
     if (!SdlRecordSpaceSprite(
-            &stSpaceBufferViewport, bounds[2], y,
+            &stSpaceBufferViewport, bounds.right, y,
             pTitleShape, 2, 0, scale, 0))
 #endif
-        DrawSpriteScaled(&stSpaceBufferViewport, bounds[2], y,
+        DrawSpriteScaled(&stSpaceBufferViewport, bounds.right, y,
                          pTitleShape, 2, 0, scale, 0);
 }
 

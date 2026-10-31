@@ -111,7 +111,7 @@ int drop_player_mine(short obj)
     enum ObjectType type;
     short weapon;
 
-    for (weapon = 0; weapon < (signed char)aShipWeaponsTable[obj][0]; weapon++) {
+    for (weapon = 0; weapon < aShipWeaponsTable[obj][0]; weapon++) {
         type = ((ShipWeaponSlot *)&aShipWeaponsTable[obj][1])[weapon].type;
         if (aObjectTypeData[type].objectClass == OBJECT_CLASS_MINE &&
             ((ShipWeaponSlot *)&aShipWeaponsTable[obj][1])[weapon].disabled == 0)

@@ -244,7 +244,7 @@ static void SwcUpdateFlightCamera(void)
             ComputeVectorDelta(&aShipPositionsArray[EYE_OBJECT],
                 &aShipPositionsArray[cViewObject], &direction);
             destination = aShipFwdVec[0];
-            SetVectorFixedPoint((unsigned int *)&destination,
+            SetVectorFixedPoint(&destination,
                 (short)(bAlternateChaseView ? -500 : -700));
             AddFixedVectors(&destination, &aShipPositionsArray[cViewObject], &destination);
             ComputeVectorDelta(&aShipPositionsArray[EYE_OBJECT], &destination, &delta);

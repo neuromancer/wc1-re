@@ -1541,15 +1541,15 @@ void ShowOffscreenBuffer(void)
     case 7:
     case 9:
     case 0x13:
-        CopyViewportContents((Viewport *)pFullScreenRecord,
+        CopyViewportContents(pFullScreenRecord,
                              pAllocatedScreenViewport);
         break;
     case 0xd:
-        pixels = (unsigned short)((Viewport *)pFullScreenRecord)->pixels;
-        rowOffsets = ((Viewport *)pFullScreenRecord)->rowOffsets;
-        ((Viewport *)pFullScreenRecord)->pixels =
+        pixels = (unsigned short)pFullScreenRecord->pixels;
+        rowOffsets = pFullScreenRecord->rowOffsets;
+        pFullScreenRecord->pixels =
             pAllocatedScreenViewport->pixels;
-        ((Viewport *)pFullScreenRecord)->rowOffsets =
+        pFullScreenRecord->rowOffsets =
             pAllocatedScreenViewport->rowOffsets;
         pAllocatedScreenViewport->pixels = (unsigned char *)pixels;
         pAllocatedScreenViewport->rowOffsets = rowOffsets;
@@ -1572,7 +1572,7 @@ void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
 /* Function start: 0x439430 */
 void __stdcall PanToScreen(Viewport *source, Viewport *destination)
 {
-    unsigned short target[3];
+    short target[3];
     short *originalPalette;
     short *transitionPalette;
     unsigned int paletteBytes;
@@ -1610,7 +1610,7 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
         for (index = 0; index < activeCount; index++) {
             GetPaletteEntry(
                 (short)indices[index],
-                (unsigned short *)&originalPalette[index * 3]);
+                &originalPalette[index * 3]);
             CachePaletteEntryFromWords((short)indices[index], target);
             memcpy(&transitionPalette[index * 3], target, 6);
         }
@@ -1627,7 +1627,7 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
             for (index = 0; index < activeCount; index++) {
                 CachePaletteEntryFromWords(
                     (short)indices[index],
-                    (unsigned short *)&transitionPalette[index * 3]);
+                    &transitionPalette[index * 3]);
             }
             WaitForVerticalBlankThunk();
             DIBramPalette();

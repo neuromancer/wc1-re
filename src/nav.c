@@ -770,35 +770,29 @@ short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
 {
     short mapY;
     short oldNavPoint;
-    short x;
     short pathIndex;
     short mapX;
-    short y;
     short selected;
 
-    oldNavPoint = (short)cCurrentNavPtIdx;
-    x = (short)(*(volatile short *)&mouseX - 30);
-    pathIndex = 0;
-    y = (short)(*(volatile short *)&mouseY - 22);
     selected = 0;
-    while (abFlightPathList[pathIndex] != -1) {
-        if (hidden_objective((short)abFlightPathList[pathIndex]) == 0) {
-            ScaleNavMapCoordinates(
-                &mapX, &mapY,
-                aMissionObjectivesArray[abFlightPathList[pathIndex]].mapX,
-                aMissionObjectivesArray[abFlightPathList[pathIndex]].mapY);
-            if ((short)(abs((int)x - mapX) +
-                        abs((int)y - mapY)) < 6 ||
-                IsPointInNavMapLabel(
-                    (short)awMapNavObjectiveLabelIndex[pathIndex],
-                    x, y) != 0) {
-                selected = 1;
-                set_new_objective(pathIndex);
-                if (pathIndex == oldNavPoint)
-                    return selected;
-            }
+    oldNavPoint = cCurrentNavPtIdx;
+    mouseX -= 30;
+    mouseY -= 22;
+    for (pathIndex = 0; abFlightPathList[pathIndex] != -1; pathIndex++) {
+        if (hidden_objective(abFlightPathList[pathIndex]))
+            continue;
+        ScaleNavMapCoordinates(
+            &mapX, &mapY,
+            aMissionObjectivesArray[abFlightPathList[pathIndex]].mapX,
+            aMissionObjectivesArray[abFlightPathList[pathIndex]].mapY);
+        if ((short)(abs(mouseX - mapX) + abs(mouseY - mapY)) < 6 ||
+            IsPointInNavMapLabel(awMapNavObjectiveLabelIndex[pathIndex],
+                                mouseX, mouseY)) {
+            selected = 1;
+            set_new_objective(pathIndex);
+            if (pathIndex == oldNavPoint)
+                return selected;
         }
-        pathIndex++;
     }
     return selected;
 }

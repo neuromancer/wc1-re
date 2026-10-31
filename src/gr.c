@@ -685,7 +685,7 @@ void __wipeline(void)
 void __stdcall MarkActivePaletteEntries(Viewport *viewport,
                                          unsigned char *active)
 {
-    unsigned short rgb[3];
+    short rgb[3];
     int index;
 
     (void)viewport;
@@ -699,7 +699,7 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
 }
 
 /* Function start: 0x4413C0 */
-void __stdcall GetPaletteEntry(short index, unsigned short *rgb)
+void __stdcall GetPaletteEntry(short index, short *rgb)
 {
     GetPaletteEntryAsWords(index, rgb);
 }
@@ -1280,7 +1280,7 @@ void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
 short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               unsigned char *shape, short frame,
                               short angle, short scale, short flip,
-                              short *bounds)
+                              ShortRect *bounds)
 {
     unsigned char *cursor;
     int frameOffset;
@@ -1358,10 +1358,10 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
             viewport->top > bottom || top > viewport->bottom) {
             inside = 0;
         } else {
-            bounds[0] = left;
-            bounds[2] = right;
-            bounds[1] = top;
-            bounds[3] = bottom;
+            bounds->left = left;
+            bounds->right = right;
+            bounds->top = top;
+            bounds->bottom = bottom;
             inside = 1;
         }
     }

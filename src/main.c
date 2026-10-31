@@ -1016,8 +1016,7 @@ unsigned int player_input(void)
             process_player_input();
             break;
         case 6:
-            bMouseAfterburnerControl = 0;
-            bMouseCursorVisible = 0;
+            bMouseCursorVisible = bMouseAfterburnerControl = 0;
             if (((unsigned char)
                     stLastPolledFlightInput.buttons & 3) == 3) {
                 if (aeSpecialManeuvers[0] ==
@@ -1077,23 +1076,23 @@ unsigned int player_input(void)
             if (*(volatile int *)&bCockpitlessView != 0) {
                 switch (cCurrentCockpitView) {
                 case 0:
-                    event.y = (short)(event.y - 10);
+                    event.y -= 10;
                     break;
                 case 1:
-                    event.y = (short)(event.y - 25);
+                    event.y -= 25;
                     break;
                 }
-                horizontal = (short)(event.x +
+                horizontal = event.x +
                     (stSpaceBufferViewport.left -
-                     stSpaceBufferViewport.right) / 2 + 1);
-                vertical = (short)(event.y -
-                    *(volatile short *)&nCurrentViewCenterPosY);
+                     stSpaceBufferViewport.right) / 2 + 1;
+                vertical = event.y -
+                    *(volatile short *)&nCurrentViewCenterPosY;
             } else {
-                horizontal = (short)(event.x +
+                horizontal = event.x +
                     (stSpaceBufferViewport.left -
-                     stSpaceBufferViewport.right) / 2 + 1);
-                vertical = (short)(event.y +
-                    (stSpaceBufferViewport.top - stSpaceBufferViewport.bottom) / 2);
+                     stSpaceBufferViewport.right) / 2 + 1;
+                vertical = event.y +
+                    (stSpaceBufferViewport.top - stSpaceBufferViewport.bottom) / 2;
             }
             stMouseCursorState.x = event.x;
             stMouseCursorState.y = event.y;
@@ -1105,16 +1104,16 @@ unsigned int player_input(void)
                  yawInput++)
                 ;
             if (horizontal < 0)
-                yawInput = (short)-yawInput;
+                yawInput = -yawInput;
             for (pitchInput = 0;
                  asMousePitchThresholds[pitchInput] <=
                      (short)verticalMagnitude;
                  pitchInput++)
                 ;
             if (vertical < 0)
-                pitchInput = (short)-pitchInput;
+                pitchInput = -pitchInput;
             mouseX = event.x;
-            viewportLeft = (int)stSpaceBufferViewport.left;
+            viewportLeft = stSpaceBufferViewport.left;
             if (mouseX - 4 <= viewportLeft)
                 yawInput = -8;
             if ((int)stSpaceBufferViewport.right <= mouseX + 4)
@@ -1133,28 +1132,23 @@ unsigned int player_input(void)
                 pitchInput = -8;
             if (afterburnerControl != 0) {
                 bMouseAfterburnerControl = 1;
-                pitchInput = (short)-pitchInput;
-                nMouseYawInput = yawInput;
-                nCurrentRollInputValue = yawInput;
+                pitchInput = -pitchInput;
+                nCurrentRollInputValue = nMouseYawInput = yawInput;
                 nMousePitchInput = pitchInput;
                 accelerate((short)(pitchInput / 2));
             } else if (bMouseAfterburnerControl == 1) {
                 nCurrentRollInputValue = 0;
                 bMouseAfterburnerControl = 0;
-                nMouseYawInput = 0;
-                nYawInputValue = 0;
-                nMousePitchInput = 0;
-                nPitchInput = 0;
+                nYawInputValue = nMouseYawInput = 0;
+                nPitchInput = nMousePitchInput = 0;
                 WarpMouseTo(
                     (short)((viewportLeft + stSpaceBufferViewport.right) / 2),
                     (short)((stSpaceBufferViewport.bottom +
                              stSpaceBufferViewport.top) / 2));
             } else {
                 nCurrentRollInputValue = 0;
-                nMouseYawInput = yawInput;
-                nYawInputValue = yawInput;
-                nMousePitchInput = pitchInput;
-                nPitchInput = pitchInput;
+                nYawInputValue = nMouseYawInput = yawInput;
+                nPitchInput = nMousePitchInput = pitchInput;
             }
             break;
         }
@@ -2083,7 +2077,7 @@ int RunSpaceFlight(short entryNavPoint)
     SdlSetMouseGrab(1);
 #endif
     SetEventManagerPump(get_player_input);
-    savedViewport = (Viewport *)stMouseCursorState.viewport;
+    savedViewport = stMouseCursorState.viewport;
     stMouseCursorState.viewport = &stSpaceBufferViewport;
     init_inflight_music();
 
@@ -2300,7 +2294,7 @@ void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
                                            short enabled)
 {
     unsigned char *indices;
-    unsigned short target[3];
+    short target[3];
     short *currentPalette;
     short *targetPalette;
     unsigned int paletteBytes;
@@ -2333,7 +2327,7 @@ void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
         GetPaletteEntry((short)colour, target);
         for (index = 0; index < activeCount; index++) {
             GetPaletteEntry((short)indices[index],
-                            (unsigned short *)&currentPalette[index * 3]);
+                            &currentPalette[index * 3]);
             memcpy(&targetPalette[index * 3], target, 6);
         }
 

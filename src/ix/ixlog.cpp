@@ -13,9 +13,7 @@
  *      ix_log_printf("human readable message");
  */
 #include "ix.h"
-#ifdef SDL_PORT
 #include <stdarg.h>
-#endif
 #include <stdio.h>
 #include <string.h>
 #ifndef SDL_PORT
@@ -33,15 +31,11 @@ extern "C" void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
 void ix_log_printf(const char *fmt, ...)
 {
     if (fmt != 0) {
-#ifdef SDL_PORT
         va_list arguments;
 
         va_start(arguments, fmt);
         vsprintf(szLogBuf, fmt, arguments);
         va_end(arguments);
-#else
-        vsprintf(szLogBuf, fmt, (char *)(&fmt + 1));
-#endif
     } else {
         strcpy(szLogBuf, "(null)");
     }

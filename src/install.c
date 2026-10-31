@@ -41,10 +41,7 @@ unsigned short InitializeDiskPromptTextContext(void)
                     "Press any key when ready") +
                 10);
     textHeight =
-        (short)((ReadWord((unsigned short *)
-                              stDiskPromptTextContext.font) +
-                 1) *
-                3);
+        (short)((FontHeight(stDiskPromptTextContext.font) + 1) * 3);
     stDiskPromptBounds.top =
         (short)(100 - textHeight / 2);
     stDiskPromptBounds.left =

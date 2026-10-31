@@ -220,7 +220,7 @@ unsigned int set_eye_direction_and_position(void)
                 &viewDirection);
             desiredPosition = aShipFwdVec[0];
             SetVectorFixedPoint(
-                (unsigned int *)&desiredPosition,
+                &desiredPosition,
                 (short)(bAlternateChaseView == 0 ? -700 : -500));
             AddFixedVectors(
                 &desiredPosition,

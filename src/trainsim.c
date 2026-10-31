@@ -98,11 +98,11 @@ int AnimateTrainSimTitle(void)
         cBlackColour);
     DIBslam();
     DIBslamReal();
-    stCurrentTrainSimTitleDisplayViewport.top = (short)(0x6b - ReadWord(
-        (unsigned short *)stTrainSimTxtContext.font));
+    stCurrentTrainSimTitleDisplayViewport.top = (short)(0x6b -
+        FontHeight(stTrainSimTxtContext.font));
     stCurrentTrainSimTitleDisplayViewport.bottom =
-        (short)(stCurrentTrainSimTitleDisplayViewport.top + ReadWord(
-            (unsigned short *)stTrainSimTxtContext.font) + 2);
+        (short)(stCurrentTrainSimTitleDisplayViewport.top +
+            FontHeight(stTrainSimTxtContext.font) + 2);
     if (CheckEscaped() == 0) {
         do {
             SetFrameTimerPeriodDirect(3);
@@ -289,7 +289,7 @@ void DrawTextInputCursor(char character)
     char cursor[2] = { character, 0 };
 
     savedX = pCurTextContext->cursorX;
-    pCurTextContext->cursorX = (short)(savedX + 1);
+    pCurTextContext->cursorX++;
     pCurTextContext->backgroundColour = colour;
     DrawFormattedText(cursor);
     pCurTextContext->backgroundColour = savedBackground;
@@ -308,7 +308,7 @@ void ClearTextInputCharacter(short character)
     clearArea.right = (short)(clearArea.left + characterWidth - 1);
     clearArea.top = pCurTextContext->cursorY;
     clearArea.bottom = (short)(clearArea.top +
-        ReadWord((unsigned short *)pCurTextContext->font) - 1);
+        FontHeight(pCurTextContext->font) - 1);
     LeaveAllocationScope();
     ClearViewport(&clearArea,
                   pCurTextContext->backgroundColour);
@@ -361,7 +361,7 @@ short ReadTextInput(char *destination, short maximumLength,
     inputViewport.left = savedX;
     inputViewport.top = savedY;
     inputViewport.bottom = (short)(inputViewport.top +
-        ReadWord((unsigned short *)pCurTextContext->font));
+        FontHeight(pCurTextContext->font));
     inputViewport.right = (short)(inputViewport.left +
         MeasureTextPixelWidthClamped(input));
     ClearViewport(&inputViewport,
@@ -391,8 +391,7 @@ short ReadTextInput(char *destination, short maximumLength,
                 inputViewport.left = savedX;
                 inputViewport.top = savedY;
                 inputViewport.bottom = (short)(inputViewport.top +
-                    ReadWord((unsigned short *)
-                        pCurTextContext->font));
+                    FontHeight(pCurTextContext->font));
                 inputViewport.right = (short)(inputViewport.left +
                     MeasureTextPixelWidthClamped(input));
                 ClearViewport(&inputViewport,
@@ -424,13 +423,7 @@ short ReadTextInput(char *destination, short maximumLength,
                                 key = 0;
                             break;
                         default:
-#ifdef SDL_PORT
-                            if (isalpha((unsigned char)key)) {
-#else
-                            if (__mb_cur_max > 1
-                                    ? _isctype(key, _ALPHA)
-                                    : (_pctype[key] & _ALPHA)) {
-#endif
+                            if (isalpha(key)) {
                                 key = (unsigned char)(key | 0x20);
                                 if (GetShiftKeyState() != 0)
                                     key &= 0xdf;
@@ -628,8 +621,7 @@ void ShowTrainSimHighScores(void)
         szTrainSimTitle) & 0xfff8) + 8);
     stTrainSimPanelViewport.right = titleWidth;
     stTrainSimPanelViewport.bottom =
-        (short)(ReadWord((unsigned short *)
-            stTrainSimTxtContext.font) + 2);
+        (short)(FontHeight(stTrainSimTxtContext.font) + 2);
     AllocateViewport(&stTrainSimPanelViewport,
                      cBlackColour, 0);
     stTrainSimTxtContext.viewport =
@@ -637,8 +629,7 @@ void ShowTrainSimHighScores(void)
     EraseTextContextBackground(&stTrainSimTxtContext);
     SetTextCursor(0, 1);
     DrawFormattedText(szTrainSimTitle);
-    lineHeight = (short)ReadWord((unsigned short *)
-        stTrainSimTxtContext.font);
+    lineHeight = (short)FontHeight(stTrainSimTxtContext.font);
 
     stCurrentTrainSimTitleDisplayViewport = stScreenView;
     *(ShortRect *)&stCurrentTrainSimTitleDisplayViewport.left =

@@ -463,4 +463,15 @@ char *SdlStrupr(char *text);
 #define TRUE 1
 #endif
 
+/* The C core uses Win32 min/max; leave C++ standard-library names intact. */
+#ifndef __cplusplus
+#ifndef max
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+#endif
+
 #endif /* SDL_PORT_H */

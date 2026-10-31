@@ -634,8 +634,7 @@ void EraseLastTextInputCharacter(void)
         clearArea.right = (short)(clearArea.left + characterWidth - 1);
         clearArea.top = pCurTextContext->cursorY;
         clearArea.bottom = (short)(clearArea.top +
-            ReadWord((unsigned short *)
-                pCurTextContext->font) - 1);
+            FontHeight(pCurTextContext->font) - 1);
         LeaveAllocationScope();
         ClearViewport(&clearArea,
                       pCurTextContext->backgroundColour);

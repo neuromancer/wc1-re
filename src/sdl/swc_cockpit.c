@@ -686,7 +686,7 @@ static void SwcUpdateTargetLock(void)
     } else {
         y = asObjectScreenYArray[target];
         if (x * x + y * y > 3600 || nSelectedReleaseWeaponIndex < 0 ||
-            nSelectedReleaseWeaponIndex >= (signed char)aShipWeaponsTable[0][0]) {
+            nSelectedReleaseWeaponIndex >= aShipWeaponsTable[0][0]) {
             SdlSwcLockOff();
             return;
         }
@@ -774,7 +774,7 @@ static void SwcCheckTarget(void)
 static int SwcIttsRangeCheck(short targetRange)
 {
     const ShipWeaponSlot *weapons = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
-    int remaining = (signed char)aShipWeaponsTable[0][0];
+    int remaining = aShipWeaponsTable[0][0];
 
     while (remaining-- > 0) {
         const ObjectTypeData *type;
@@ -822,7 +822,7 @@ static void SwcUpdateItts(void)
         /* Mac set_global_message +0x3f4e only writes DATA+0x4712/+0x4716.
          * Neither global is read anywhere in this executable. */
     }
-    weapon = (signed char)aShipWeaponsTable[0][0];
+    weapon = aShipWeaponsTable[0][0];
     while (weapon-- > 0) {
         const ObjectTypeData *type;
 
@@ -1438,7 +1438,7 @@ int SdlDrawSwcHud(void)
     }
     if (swcWeaponNoticeVisible[1]) {
         if (nSelectedReleaseWeaponIndex >= 0 &&
-            nSelectedReleaseWeaponIndex < (signed char)aShipWeaponsTable[0][0])
+            nSelectedReleaseWeaponIndex < aShipWeaponsTable[0][0])
             weapon = loadout[nSelectedReleaseWeaponIndex].type;
         SwcDrawCockpitText(51, baseline, 0x81, "WEAP: ");
         SwcDrawCockpitText(51 + SdlSwcTextWidth(&swcCockpitFont, "WEAP: "), baseline, 0xb0,

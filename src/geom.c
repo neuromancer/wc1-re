@@ -5,7 +5,6 @@
  *  The modal-panel block at 41a9d0 belongs with the barracks data and
  *  save/load routines; get_right_shape closes this geometry range.
  */
-#define WC1_GEOM_SOURCE
 #include "wc1.h"
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
@@ -139,17 +138,8 @@ void drain_fuel(short ship, short amount)
 /* Function start: 0x4182B0 */
 void damage_ion_drive(short ship, short amount, short maximum)
 {
-    int damageLimit;
-    int damage;
-
-    damage = (int)*(volatile signed char *)&acShipIonDriveDmg[ship];
-    damage += amount;
-    damageLimit = maximum;
-    if (damage >= damageLimit)
-        damage = damageLimit;
-    if (damage <= 0)
-        damage = 0;
-    acShipIonDriveDmg[ship] = (signed char)damage;
+    acShipIonDriveDmg[ship] = (signed char)max(0,
+        min(acShipIonDriveDmg[ship] + amount, maximum));
     recalc_max_velocity(ship);
 }
 
@@ -174,7 +164,7 @@ int GetShipAccelerationRate(short ship)
 void point_at(short obj, FixedVector point)
 {
     FixedVector direction;
-    void (*computeDelta)(FixedVector *from, FixedVector *to,
+    void (*computeDelta)(const FixedVector *from, const FixedVector *to,
                          FixedVector *delta) = ComputeVectorDelta;
     unsigned int (*shrink)(FixedVector *) = shrink_vector;
 
@@ -337,7 +327,7 @@ void SubtractFixedVectors(FixedVector *left, FixedVector *right,
 }
 
 /* Function start: 0x418680 */
-void ComputeVectorDelta(FixedVector *from, FixedVector *to, FixedVector *delta)
+void ComputeVectorDelta(const FixedVector *from, const FixedVector *to, FixedVector *delta)
 {
     delta->x = to->x - from->x;
     delta->y = to->y - from->y;
@@ -345,7 +335,7 @@ void ComputeVectorDelta(FixedVector *from, FixedVector *to, FixedVector *delta)
 }
 
 /* Function start: 0x4186B0 */
-void ScaleFixedVector(FixedVector *vector, int scale, FixedVector *result)
+void ScaleFixedVector(const FixedVector *vector, int scale, FixedVector *result)
 {
     result->x = MultiplyFixed(vector->x, scale);
     result->y = MultiplyFixed(vector->y, scale);
@@ -536,7 +526,7 @@ void vector_component_in_dir(const FixedVector *vector,
     int length;
 
     length = vector_length_in_dir(vector, direction);
-    ScaleFixedVector((FixedVector *)direction, length, component);
+    ScaleFixedVector(direction, length, component);
 }
 
 /* Function start: 0x418BE0 */
@@ -681,7 +671,7 @@ short distance_between_points(const FixedVector *from,
     FixedVector delta;
     long magnitude;
 
-    ComputeVectorDelta((FixedVector *)from, (FixedVector *)to, &delta);
+    ComputeVectorDelta(from, to, &delta);
     magnitude = Vector_magnitude(&delta);
     return FixedToShortSaturating((int)magnitude);
 }
@@ -692,7 +682,7 @@ short distance_from_point(short obj, const FixedVector *point)
     long magnitude;
 
     ComputeVectorDelta(&aShipPositionsArray[obj],
-                       (FixedVector *)point, &vToTgt);
+                       point, &vToTgt);
     magnitude = Vector_magnitude(&vToTgt);
     return FixedToShortSaturating((int)magnitude) -
            asObjectCollisionRadius[obj];
@@ -839,7 +829,7 @@ void point_ship_at_point(short obj, const FixedVector *point)
     FixedVector direction;
 
     ComputeVectorDelta(&aShipPositionsArray[obj],
-                       (FixedVector *)point, &direction);
+                       point, &direction);
     point_ship(obj, 0, &direction);
 }
 
@@ -911,7 +901,7 @@ void MoveObjectAlongDirection(short obj, const FixedVector *direction,
     FixedVector offset;
 
     offset = *direction;
-    SetVectorFixedPoint((unsigned int *)&offset, distance);
+    SetVectorFixedPoint(&offset, distance);
     AddFixedVectors(&aShipPositionsArray[obj], &offset,
                     &aShipPositionsArray[obj]);
 }
@@ -939,17 +929,17 @@ void NormalizeAndScaleVector(FixedVector *vector, int scale)
 }
 
 /* Function start: 0x419970 */
-void SetVectorFixedPoint(unsigned int *p, short v)
+void SetVectorFixedPoint(FixedVector *p, short v)
 {
 #ifdef SDL_PORT
-    NormalizeAndScaleVector((FixedVector *)p, (int)v * 0x100);
+    NormalizeAndScaleVector(p, (int)v * 0x100);
 #else
-    NormalizeAndScaleVector((FixedVector *)p, (int)v << 8);
+    NormalizeAndScaleVector(p, (int)v << 8);
 #endif
 }
 
 /* Function start: 0x419990 */
-unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
+unsigned int IsPointWithinRange(const FixedVector *from, const FixedVector *to, short range)
 {
     FixedVector delta;
 
@@ -1215,7 +1205,7 @@ unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
     long projection;
 
     ComputeVectorDelta(&aShipPositionsArray[EYE_OBJECT],
-                       (FixedVector *)point, &direction);
+                       point, &direction);
     distance = Vector_magnitude(&direction);
     if (asObjectCollisionRadius[EYE_OBJECT] * 0x100 >
         distance)

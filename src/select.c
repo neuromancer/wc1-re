@@ -20,7 +20,7 @@ unsigned char *pCockpitDamageShape; /* 0x005a76f4 */
 short find_next_gun(short obj, enum ObjectType currentGun)
 {
     short firstGun;
-    unsigned char *loadout;
+    signed char *loadout;
     short weapon;
     short weaponCount;
     ShipWeaponSlot *weaponSlot;
@@ -29,7 +29,7 @@ short find_next_gun(short obj, enum ObjectType currentGun)
     loadout = aShipWeaponsTable[obj];
     foundCurrent = 0;
     firstGun = -1;
-    weaponCount = (signed char)loadout[0];
+    weaponCount = loadout[0];
     weaponSlot = (ShipWeaponSlot *)&loadout[1];
     for (weapon = 0; weapon < weaponCount; weapon++, weaponSlot++) {
         if (aObjectTypeData[weaponSlot->type].objectClass ==
@@ -56,7 +56,7 @@ int select_guns(short obj, short selectedGun)
     int found;
 
     /* The incoming object is unused; reuse its word for the count. */
-    obj = (signed char)aShipWeaponsTable[0][0];
+    obj = aShipWeaponsTable[0][0];
     found = 0;
     weaponSlot = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
     if (obj > 0) {
@@ -104,7 +104,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
     short firstWeapon;
     ShipWeaponSlot *weaponSlots;
 
-    weaponCount = (signed char)aShipWeaponsTable[0][0];
+    weaponCount = aShipWeaponsTable[0][0];
     currentWeapon = nSelectedReleaseWeaponIndex;
     weapon = (signed char)(currentWeapon + 1);
     weaponSlots = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
@@ -114,7 +114,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
     if (currentWeapon == -1) {
         if (preferredType != -1) {
             weapon = 0;
-            if (*(volatile signed char *)&aShipWeaponsTable[0][0] > weapon) {
+            if (aShipWeaponsTable[0][0] > weapon) {
                 for (; weapon <
                            *(volatile signed char *)&aShipWeaponsTable[0][0];
                      weapon++) {

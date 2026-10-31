@@ -52,13 +52,13 @@ unsigned int nSessionEndTime; /* 0x005a8a38 */
 int bMainWindowAlive; /* 0x005a8a3c */
 HINSTANCE hCurrentAppInstance; /* 0x005a8a40 */
 unsigned int nSessionStartTime; /* 0x005a8a44 */
-unsigned short awPaletteRgbWordsList[0x300]; /* 0x005a8a50 */
+short awPaletteRgbWordsList[0x300]; /* 0x005a8a50 */
 
 /* Function start: 0x401000 */
 void SaveGamePalette(void)
 {
     int index;
-    unsigned short *entry;
+    short *entry;
 
     index = 0;
     entry = awPaletteRgbWordsList;
@@ -79,7 +79,7 @@ void RestoreGamePalette(void)
 /* Function start: 0x401040 */
 short easy2see(short obj)
 {
-    short bounds[4];
+    ShortRect bounds;
     short x;
     short screenX;
     short y;
@@ -95,7 +95,7 @@ short easy2see(short obj)
         asObjectViewFrames[obj],
         asObjScreenAngles[obj],
         asObjScreenScalesArray[obj],
-        asObjectFlipArray[obj], bounds);
+        asObjectFlipArray[obj], &bounds);
 }
 
 /* Function start: 0x4010C0 */
@@ -110,7 +110,7 @@ void make_shard(short asteroid, FixedVector direction)
     set_objects_data(fragment, OBJECT_TYPE_ROCK_CHUNK, asteroid);
     asObjectCounterArray[fragment] = 40;
     acObjOwnersTable[fragment] = (signed char)asteroid;
-    SetVectorFixedPoint((unsigned int *)&direction,
+    SetVectorFixedPoint(&direction,
                         (short)(asObjectCollisionRadius[asteroid] >> 1));
     AddFixedVectors(&aShipPositionsArray[asteroid], &direction,
                     &aShipPositionsArray[fragment]);
@@ -122,7 +122,7 @@ void make_shard(short asteroid, FixedVector direction)
         aShipFwdVec[fragment];
     speed = (short)(real_velocity(asteroid) + RandomInRange(0, 5));
     SetVectorFixedPoint(
-        (unsigned int *)&aShipVelocity[fragment], speed);
+        &aShipVelocity[fragment], speed);
 }
 
 /* Function start: 0x4011D0 */
@@ -276,16 +276,16 @@ void init_hazard(short obj, FixedVector position, short moving)
 /* Function start: 0x401680 */
 short near_field(const HazardField *field, const FixedVector *point)
 {
-    return IsPointWithinRange((FixedVector *)&field->center,
-                              (FixedVector *)point,
+    return IsPointWithinRange(&field->center,
+                              point,
                               (short)(field->innerRadius + 4300));
 }
 
 /* Function start: 0x4016A0 */
 short within_field(const HazardField *field, const FixedVector *point)
 {
-    return IsPointWithinRange((FixedVector *)&field->center,
-                              (FixedVector *)point, field->innerRadius);
+    return IsPointWithinRange(&field->center,
+                              point, field->innerRadius);
 }
 
 /* Function start: 0x4016C0 */
@@ -1026,7 +1026,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
 #endif
 
 /* Function start: 0x402A20 */
-int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
+int __stdcall GetJoystickPosition(int *x, int *y,
                                   unsigned int *buttons, short joystick,
                                   unsigned short fallback)
 {
@@ -1081,8 +1081,9 @@ short GetJoystickButtons(void)
 }
 
 /* Function start: 0x402AE0 */
-void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
-                        short *yMin, short *yMax)
+void GetJoystickDevCaps(short joystick,
+                        unsigned short *xMin, unsigned short *xMax,
+                        unsigned short *yMin, unsigned short *yMax)
 {
 #ifdef SDL_PORT
     unsigned int hostXMin;
@@ -1106,15 +1107,15 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
     }
 
 #ifdef SDL_PORT
-    *xMin = (short)hostXMin;
-    *xMax = (short)hostXMax;
-    *yMin = (short)hostYMin;
-    *yMax = (short)hostYMax;
+    *xMin = (unsigned short)hostXMin;
+    *xMax = (unsigned short)hostXMax;
+    *yMin = (unsigned short)hostYMin;
+    *yMax = (unsigned short)hostYMax;
 #else
-    *xMin = (short)caps.wXmin;
-    *xMax = (short)caps.wXmax;
-    *yMin = (short)caps.wYmin;
-    *yMax = (short)caps.wYmax;
+    *xMin = (unsigned short)caps.wXmin;
+    *xMax = (unsigned short)caps.wXmax;
+    *yMin = (unsigned short)caps.wYmin;
+    *yMax = (unsigned short)caps.wYmax;
 #endif
 }
 

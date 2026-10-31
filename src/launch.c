@@ -50,7 +50,7 @@ Viewport stCockpitBar; /* 0x005a6be0 */
 /* Function start: 0x42B9A0 */
 void DrawLaunchDoorFrame(short distance)
 {
-    short bounds[4];
+    ShortRect bounds;
     short scale;
 
     if (distance > 10) {
@@ -59,15 +59,15 @@ void DrawLaunchDoorFrame(short distance)
             &stSpaceBufferViewport,
             (short)((short)nScreenWidth >> 1),
             (short)((short)nScreenHeight >> 1),
-            pLaunchDoorShape, 1, 0, scale, 0, bounds);
+            pLaunchDoorShape, 1, 0, scale, 0, &bounds);
 #ifdef SDL_PORT
         if (!SdlRecordSpaceSprite(
-                &stSpaceBufferViewport, (short)(bounds[0] - 1),
+                &stSpaceBufferViewport, (short)(bounds.left - 1),
                 (short)((short)nScreenHeight >> 1),
                 pLaunchDoorShape, 0, 0, scale, 0))
 #endif
         DrawSpriteScaled(
-            &stSpaceBufferViewport, (short)(bounds[0] - 1),
+            &stSpaceBufferViewport, (short)(bounds.left - 1),
             (short)((short)nScreenHeight >> 1),
             pLaunchDoorShape, 0, 0, scale, 0);
 #ifdef SDL_PORT
@@ -84,12 +84,12 @@ void DrawLaunchDoorFrame(short distance)
             pLaunchDoorShape, 1, 0, scale, 0);
 #ifdef SDL_PORT
         if (!SdlRecordSpaceSprite(
-                &stSpaceBufferViewport, bounds[2],
+                &stSpaceBufferViewport, bounds.right,
                 (short)((short)nScreenHeight >> 1),
                 pLaunchDoorShape, 2, 0, scale, 0))
 #endif
         DrawSpriteScaled(
-            &stSpaceBufferViewport, bounds[2],
+            &stSpaceBufferViewport, bounds.right,
             (short)((short)nScreenHeight >> 1),
             pLaunchDoorShape, 2, 0, scale, 0);
     }

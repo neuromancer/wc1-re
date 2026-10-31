@@ -183,9 +183,9 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
         blockSize = block->sizeAndFlags & 0xfffff;
         if ((block->sizeAndFlags & 0x80000000) != 0)
             continue;
-        if ((int)blockSize < size)
+        if (blockSize < size)
             continue;
-        if ((int)blockSize > size) {
+        if (blockSize > size) {
             if (nNearHeapBase -
                     nNearHeapMaxDescriptors * 8 +
                     nNearHeapSize >=
@@ -197,7 +197,7 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
                     blockSize = lastBlock->sizeAndFlags & 0xfffff;
                     if (lastBlock->address + blockSize ==
                             nCurrentNearHeapFirstDescriptor &&
-                        (int)blockSize > 8) {
+                        blockSize > 8) {
                         lastBlock->sizeAndFlags -= 8;
                         nNearHeapMaxDescriptors++;
                     }
@@ -353,7 +353,7 @@ void FreeNearHeapBlock(void *pointer)
         block = DosNearPtrToFar(descriptorAddress);
         blockAddress = block->address;
         if (blockAddress <= address &&
-            blockAddress + (int)(block->sizeAndFlags & 0xfffff) >
+            blockAddress + (block->sizeAndFlags & 0xfffff) >
                 address) {
             ReleaseNearHeapBlock(descriptorAddress);
             break;
@@ -379,7 +379,7 @@ int GetNearHeapBlockSize(void *pointer)
          descriptorAddress -= 8) {
         block = DosNearPtrToFar(descriptorAddress);
         if (address >= block->address &&
-            block->address + (int)(block->sizeAndFlags & 0xfffff) >
+            block->address + (block->sizeAndFlags & 0xfffff) >
                 address) {
             size = block->sizeAndFlags & 0xfffff;
             if ((block->sizeAndFlags & 0x10000000) != 0)

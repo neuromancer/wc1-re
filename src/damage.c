@@ -46,7 +46,7 @@ void *apPacketHandlesList[0x1000]; /* 0x0059e530 */
 int aiPktHandleDeltas[0x1000]; /* 0x005a2530 */
 int nPacketHandleTotal; /* 0x005a6530 */
 Viewport *pAllocatedScreenViewport; /* 0x005a6534 */
-int *pFullScreenRecord; /* 0x005a6538 */
+Viewport *pFullScreenRecord; /* 0x005a6538 */
 unsigned short awScreenRowOffsets[202]; /* 0x005a6540 */
 ScreenAllocation stCurrentScreenAlloc; /* 0x005a66e0 */
 

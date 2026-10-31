@@ -101,15 +101,11 @@ void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
 {
     char text[84];
 
-#ifdef SDL_PORT
     va_list arguments;
 
     va_start(arguments, format);
     vsprintf(text, format, arguments);
     va_end(arguments);
-#else
-    vsprintf(text, format, (char *)(&format + 1));
-#endif
     SetTextCursor((unsigned short)(panel->left + x),
                   (unsigned short)(panel->top + y));
     panel->context.alignment = alignment;
@@ -210,7 +206,6 @@ void CreateEmptySaveGameFile(void)
 {
     SaveGameDiskRecord diskRecord;
     SaveGameRecord gameRecord;
-    CampaignState *gameCampaign = &gameRecord.campaign;
     SaveGameDiskObjective *diskObjective;
     MissionObjective *gameObjective;
     unsigned char *diskBytes;
@@ -236,38 +231,38 @@ void CreateEmptySaveGameFile(void)
             memcpy(diskRecord.pilots, gameRecord.pilots,
                    sizeof(diskRecord.pilots));
             diskCampaign->currentPilot =
-                (short)(int)gameCampaign->currentPilot;
+                (short)(int)gameRecord.campaign.currentPilot;
             diskCampaign->playerShipType =
-                (short)gameCampaign->playerShipType;
+                (short)gameRecord.campaign.playerShipType;
 
             diskBytes = diskCampaign->medals;
-            gameBytes = gameCampaign->medals;
+            gameBytes = gameRecord.campaign.medals;
             for (index = 0; index < 5; index++) {
                 diskBytes[index] = gameBytes[index];
             }
 
             diskBytes = diskCampaign->badges;
-            gameBytes = gameCampaign->badges;
+            gameBytes = gameRecord.campaign.badges;
             for (index = 0; index < 12; index++) {
                 diskBytes[index] = gameBytes[index];
             }
 
             diskCampaign->currentMission =
-                gameCampaign->currentMission;
+                gameRecord.campaign.currentMission;
             diskCampaign->currentSeries =
-                gameCampaign->currentSeries;
+                gameRecord.campaign.currentSeries;
             diskCampaign->seriesHistoryCount =
-                gameCampaign->seriesHistoryCount;
+                gameRecord.campaign.seriesHistoryCount;
             diskBytes = (unsigned char *)
                 diskCampaign->seriesHistory;
             gameBytes = (unsigned char *)
-                gameCampaign->seriesHistory;
+                gameRecord.campaign.seriesHistory;
             for (index = 0; index < 8; index++) {
                 diskBytes[index] = gameBytes[index];
             }
 
             gameDeathMission =
-                gameCampaign->personalityDeathMission;
+                gameRecord.campaign.personalityDeathMission;
             diskDeathMission =
                 diskCampaign->personalityDeathMission;
             for (; diskDeathMission <
@@ -277,24 +272,24 @@ void CreateEmptySaveGameFile(void)
             }
 
             diskBytes = diskCampaign->aceFlags;
-            gameBytes = gameCampaign->aceFlags;
+            gameBytes = gameRecord.campaign.aceFlags;
             for (index = 0; index < 4; index++) {
                 diskBytes[index] = gameBytes[index];
             }
             diskCampaign->currentDate =
-                gameCampaign->currentDate;
+                gameRecord.campaign.currentDate;
             diskCampaign->elapsedDate.day =
-                gameCampaign->elapsedDate.day;
+                gameRecord.campaign.elapsedDate.day;
             diskCampaign->elapsedDate.year =
-                gameCampaign->elapsedDate.year;
+                gameRecord.campaign.elapsedDate.year;
             diskCampaign->promotionScore =
-                gameCampaign->promotionScore;
+                gameRecord.campaign.promotionScore;
             diskCampaign->missionScore =
-                gameCampaign->missionScore;
+                gameRecord.campaign.missionScore;
             diskCampaign->seriesScore =
-                gameCampaign->seriesScore;
+                gameRecord.campaign.seriesScore;
             diskCampaign->campaignIndex =
-                gameCampaign->campaignIndex;
+                gameRecord.campaign.campaignIndex;
 
             gameObjective = gameRecord.objectives;
             diskObjective = diskRecord.objectives;

@@ -119,7 +119,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
             }
             break;
         }
-        CloseDataFileByHandle((unsigned short *)&handle);
+        CloseDataFileByHandle(&handle);
     }
     return packet;
 }

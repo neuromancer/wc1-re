@@ -46,12 +46,13 @@ unsigned int PumpWindowMessages(void);                                /* 0x00402
 unsigned int GetF1KeyLatch(void);                                     /* 0x00402520 */
 LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                                 WPARAM wParam, LPARAM lParam);         /* 0x00402530 */
-int __stdcall GetJoystickPosition(unsigned int *x, unsigned int *y,
+int __stdcall GetJoystickPosition(int *x, int *y,
                                   unsigned int *buttons, short joystick,
                                   unsigned short fallback);            /* 0x00402A20 */
 short GetJoystickButtons(void);                                                   /* 0x00402AC0 */
-void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
-                        short *yMin, short *yMax);                    /* 0x00402AE0 */
+void GetJoystickDevCaps(short joystick,
+                        unsigned short *xMin, unsigned short *xMax,
+                        unsigned short *yMin, unsigned short *yMax); /* 0x00402AE0 */
 HINSTANCE GetApplicationInstance(void);                               /* 0x00402B80 */
 HWND GetMainWindowHandle(void);                                       /* 0x00402B90 */
 HDC GetMainWindowDeviceContext(void);                                 /* 0x00402BA0 */
@@ -162,9 +163,9 @@ void Mstrafe_n_roll(short ship, short target);                          /* 0x004
 void Mkill_missile(short ship, short target);                           /* 0x00407100 */
 void Msuicide_run(short ship, short target);                            /* 0x004071B0 */
 void Mget_distance(short ship, short target);                           /* 0x004071E0 */
-void general_zig(short ship, unsigned int target, short pitch);         /* 0x00407270 */
-void Mzig_zag(short ship, unsigned int target);                         /* 0x00407350 */
-void Mzig_zag_pitch(short ship, unsigned int target);                   /* 0x00407370 */
+void general_zig(short ship, short target, short pitch);                /* 0x00407270 */
+void Mzig_zag(short ship, short target);                               /* 0x00407350 */
+void Mzig_zag_pitch(short ship, short target);                         /* 0x00407370 */
 void Mcorkscrew(short ship);                                            /* 0x00407390 */
 void Mveer_away(short ship, short target);                              /* 0x00407450 */
 void ShipAiState44(short ship);                                         /* 0x00407560 */
@@ -576,13 +577,9 @@ void AddFixedVectors(const FixedVector *left, const FixedVector *right,
                      FixedVector *sum);                               /* 0x00418620 */
 void SubtractFixedVectors(FixedVector *left, FixedVector *right,
                           FixedVector *difference);                    /* 0x00418650 */
-#ifdef WC1_GEOM_SOURCE
-void ComputeVectorDelta(FixedVector *, FixedVector *, FixedVector *);   /* 0x00418680 */
-#else
-void ComputeVectorDelta(FixedVector *from, FixedVector *to,
+void ComputeVectorDelta(const FixedVector *from, const FixedVector *to,
                         FixedVector *delta);                            /* 0x00418680 */
-#endif
-void ScaleFixedVector(FixedVector *vector, int scale,
+void ScaleFixedVector(const FixedVector *vector, int scale,
                       FixedVector *result);                            /* 0x004186B0 */
 void divide_vector(FixedVector *vector, int divisor,
                    FixedVector *result);                              /* 0x00418700 */
@@ -655,8 +652,8 @@ void point_parallel(short obj, short other);                           /* 0x0041
 void MoveObjectAlongDirection(short obj, const FixedVector *direction,
                               short distance);                        /* 0x004198A0 */
 void NormalizeAndScaleVector(FixedVector *vector, int scale);         /* 0x00419950 */
-void SetVectorFixedPoint(unsigned int *p, short v);                           /* 0x00419970 */
-unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to,
+void SetVectorFixedPoint(FixedVector *p, short v);                            /* 0x00419970 */
+unsigned int IsPointWithinRange(const FixedVector *from, const FixedVector *to,
                                 short range);                          /* 0x00419990 */
 short check_for_collision(short obj);                                 /* 0x004199C0 */
 void position_child(short parent, short hardpoint,
@@ -772,7 +769,7 @@ short initialize_object(short obj, enum ObjectType type,
 short borrow_dust(void);                                             /* 0x0041DF40 */
 short new_object(enum ObjectType type, short owner);                 /* 0x0041DF70 */
 short initialize_ship(enum ObjectType type, short owner);            /* 0x0041DFA0 */
-short any_selected(unsigned char *loadout,
+short any_selected(signed char *loadout,
                    enum ObjectClass objectClass);                    /* 0x0041DFE0 */
 unsigned int remove_weapon(short obj, short weapon);                 /* 0x0041E040 */
 void set_objects_data(short obj, enum ObjectType type,
@@ -792,9 +789,7 @@ int inflict_damage(short attacker, short victim, short damage,
                    const FixedVector *impactDirection);                /* 0x0041E9B0 */
 short pilot_hit(short obj);                                           /* 0x0041EC60 */
 int onboard_explosion(short obj);                                     /* 0x0041ECE0 */
-#ifndef WC1_SHIP_SOURCE
 void call_enemy(short obj);                                           /* 0x0041EDB0 */
-#endif
 int internal_damage(short attacker, short victim, short damage,
                     short quadrant);                                  /* 0x0041EE20 */
 void revise_shields(short obj);                                       /* 0x0041F1A0 */
@@ -1221,7 +1216,7 @@ unsigned int DrawConstellationField(void);                             /* 0x0042
 short __stdcall OpenPacketSection(const char *filename, short section,
                                   PacketSectionHandle *handle);        /* 0x0042D730 */
 #ifndef WC1_VIEW_SOURCE
-void __stdcall CloseDataFileByHandle(unsigned short *p);                       /* 0x0042D870 */
+void __stdcall CloseDataFileByHandle(PacketSectionHandle *p);                       /* 0x0042D870 */
 #endif
 void * __stdcall DecompressPacketSection(
     PacketSectionHandle *handle, void *destination, unsigned short flags,
@@ -1284,7 +1279,7 @@ unsigned short __stdcall ShouldSuspendCursorForRect(
     const ShortRect *bounds);                                           /* 0x0042F730 */
 unsigned short __stdcall InitializeDIBScreenViewport(
     Viewport *viewport, unsigned short colour);                       /* 0x0042F740 */
-void __stdcall InitFullScreenViewport(int *vp, short arg);                          /* 0x0042F7E0 */
+void __stdcall InitFullScreenViewport(Viewport *vp, short arg);                          /* 0x0042F7E0 */
 unsigned int __stdcall GetPacketSize(const char *filename,
                                      short section);                  /* 0x0042F810 */
 int GetFreeNearHeapBytes(void);                                       /* 0x0042F890 */
@@ -1368,12 +1363,12 @@ void DIBslamReal(void);                                           /* 0x00432970 
 void DIBupdate(int left, int top, int right, int bottom);               /* 0x00432C60 */
 unsigned char *GetDIBPixelBuffer(void);                                  /* 0x00432DE0 */
 HWND GetDIBWindowHandle(void);                                           /* 0x00432E00 */
-void CachePaletteEntryFromWords(short index, unsigned short *rgb);        /* 0x00432E30 */
+void CachePaletteEntryFromWords(short index, short *rgb);                 /* 0x00432E30 */
 void DIBramPalette(void);                                                 /* 0x00432EA0 */
 void DIBsetPalette(short index, short *rgb);                              /* 0x00432F10 */
-void GetPaletteEntryAsWords(short i, unsigned short *rgb);                /* 0x00433020 */
+void GetPaletteEntryAsWords(short i, short *rgb);                         /* 0x00433020 */
 void DIBwholePaletteFromTriplets(unsigned char *palette);             /* 0x00433060 */
-void DIBwholePaletteFromWords(unsigned short *palette);                /* 0x00433120 */
+void DIBwholePaletteFromWords(short *palette);                         /* 0x00433120 */
 void DIBwaitForVerticalBlank(void);                                      /* 0x004331E0 */
 char *DirectDrawResultToText(int result);                              /* 0x004331F0 */
 void show_info_disp(void);                                             /* 0x00433910 */
@@ -1431,7 +1426,7 @@ void __stdcall SetTextContext(TextContext *context);                  /* 0x00434
 void WaitForVerticalBlankThunk(void);                                  /* 0x00434FB0 */
 void *__stdcall IdentityHandle(void *v);                               /* 0x00434FC0 */
 void __stdcall SetWholePaletteFromTriplets(unsigned char *palette);               /* 0x00434FD0 */
-unsigned short __stdcall ReadWord(unsigned short *p);                        /* 0x00434FE0 */
+unsigned short __stdcall FontHeight(const void *p);                    /* 0x00434FE0 */
 unsigned short __stdcall GetFontCharWidth(char i);                                     /* 0x00434FF0 */
 void ReleaseVideoResourcesHook(void);                                           /* 0x00435010 */
 short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
@@ -1537,11 +1532,7 @@ unsigned short __stdcall GetShutdownErrorCode(
 void FinishPacketDecompressionHook(void);                              /* 0x004369D0 */
 void ExitCleanupHook(void);                                           /* 0x004369E0 */
 unsigned int IsVectorWithinRange(FixedVector *vector, short range);    /* 0x00436A00 */
-#ifdef WC1_GEOM_SOURCE
-unsigned int shrink_vector(FixedVector *);                             /* 0x00436A30 */
-#else
 unsigned int shrink_vector(FixedVector *vector);                       /* 0x00436A30 */
-#endif
 unsigned int shrink(int *component);                                   /* 0x00436A70 */
 void __stdcall FillGraphicSuffix(char *path, short number,
                                  short digits);                        /* 0x00436C70 */
@@ -1757,7 +1748,7 @@ void __copyline(void);                                                 /* 0x0044
 void __wipeline(void);                                                 /* 0x00441360 */
 void __stdcall MarkActivePaletteEntries(Viewport *viewport,
                                          unsigned char *active);       /* 0x00441370 */
-void __stdcall GetPaletteEntry(short index, unsigned short *rgb);         /* 0x004413C0 */
+void __stdcall GetPaletteEntry(short index, short *rgb);                  /* 0x004413C0 */
 void __stdcall SetPaletteEntry(short index, short *rgb);                  /* 0x004413E0 */
 /* The subtitle renderer declares this itself, just before its definition. */
 #ifndef WC1_MONO_SOURCE
@@ -1816,7 +1807,7 @@ void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
 short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               unsigned char *shape, short frame,
                               short angle, short scale, short flip,
-                              short *bounds);                         /* 0x00442050 */
+                              ShortRect *bounds);                    /* 0x00442050 */
 void BlitViewportScanlineRuns(Viewport *source, Viewport *destination,
                               const ScreenViewportGeometry *geometry); /* 0x00442200 */
 void fizzle_fade(Viewport *source, Viewport *destination);             /* 0x004422D0 */

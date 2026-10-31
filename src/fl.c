@@ -16,50 +16,50 @@ static unsigned char abManeuverRerollChance[47] = {
 static ShipManeuverHandler apShipAiManeuverHandlers[47] = {
     /* 00 */ (void (*)(short, short))Mnone,
     /* 01 */ (void (*)(short, short))Mnone,
-    /* 02 */ (void (*)(short, short))Mveer_away,
+    /* 02 */ Mveer_away,
     /* 03 */ (void (*)(short, short))Mreset,
     /* 04 */ (void (*)(short, short))Mfull_ahead,
     /* 05 */ (void (*)(short, short))Mthink,
-    /* 06 */ (void (*)(short, short))Mram_missile,
+    /* 06 */ Mram_missile,
     /* 07 */ (void (*)(short, short))Mturn_n_kick,
     /* 08 */ (void (*)(short, short))Mtight_loop,
     /* 09 */ (void (*)(short, short))Mhard_break,
-    /* 10 */ (void (*)(short, short))Msit_n_spin,
-    /* 11 */ (void (*)(short, short))Mturn_n_spin,
-    /* 12 */ (void (*)(short, short))Mburnout,
+    /* 10 */ Msit_n_spin,
+    /* 11 */ Mturn_n_spin,
+    /* 12 */ Mburnout,
     /* 13 */ (void (*)(short, short))Mwabble,
     /* 14 */ (void (*)(short, short))Mroll_over,
     /* 15 */ (void (*)(short, short))Mhard_turn,
-    /* 16 */ (void (*)(short, short))Mfish_hook,
+    /* 16 */ Mfish_hook,
     /* 17 */ (void (*)(short, short))Msplit_left,
-    /* 18 */ (void (*)(short, short))Msit_n_fire,
+    /* 18 */ Msit_n_fire,
     /* 19 */ (void (*)(short, short))Mkickit,
     /* 20 */ (void (*)(short, short))Mturn_n_kick,
     /* 21 */ (void (*)(short, short))Mrout_me,
     /* 22 */ (void (*)(short, short))Mdrop_a_mine,
     /* 23 */ (void (*)(short, short))Msplit_right,
-    /* 24 */ (void (*)(short, short))Mzig_zag,
-    /* 25 */ (void (*)(short, short))Mgloat,
-    /* 26 */ (void (*)(short, short))Mtail_fire,
-    /* 27 */ (void (*)(short, short))Mtarget_laser,
-    /* 28 */ (void (*)(short, short))Mtarget_missile,
-    /* 29 */ (void (*)(short, short))Mstrafe_enemy,
-    /* 30 */ (void (*)(short, short))Mbest_strafe,
-    /* 31 */ (void (*)(short, short))Mstrafe_n_roll,
-    /* 32 */ (void (*)(short, short))Mkill_missile,
-    /* 33 */ (void (*)(short, short))Msuicide_run,
-    /* 34 */ (void (*)(short, short))Mzig_zag_pitch,
-    /* 35 */ (void (*)(short, short))ShipAiState35,
-    /* 36 */ (void (*)(short, short))Mbest_strafe,
-    /* 37 */ (void (*)(short, short))Mget_distance,
+    /* 24 */ Mzig_zag,
+    /* 25 */ Mgloat,
+    /* 26 */ Mtail_fire,
+    /* 27 */ Mtarget_laser,
+    /* 28 */ Mtarget_missile,
+    /* 29 */ Mstrafe_enemy,
+    /* 30 */ Mbest_strafe,
+    /* 31 */ Mstrafe_n_roll,
+    /* 32 */ Mkill_missile,
+    /* 33 */ Msuicide_run,
+    /* 34 */ Mzig_zag_pitch,
+    /* 35 */ ShipAiState35,
+    /* 36 */ Mbest_strafe,
+    /* 37 */ Mget_distance,
     /* 38 */ (void (*)(short, short))Mcorkscrew,
-    /* 39 */ (void (*)(short, short))Mtry2tail,
-    /* 40 */ (void (*)(short, short))Mzip_past,
+    /* 39 */ Mtry2tail,
+    /* 40 */ Mzip_past,
     /* 41 */ (void (*)(short, short))Mbuzz_debris,
-    /* 42 */ (void (*)(short, short))Mline_up_drop,
-    /* 43 */ (void (*)(short, short))Mchill,
+    /* 42 */ Mline_up_drop,
+    /* 43 */ Mchill,
     /* 44 */ (void (*)(short, short))ShipAiState44,
-    /* 45 */ (void (*)(short, short))Mbest_strafe,
+    /* 45 */ Mbest_strafe,
     /* 46 */ (void (*)(short, short))Mreset
 }; /* 0x004656a8 */
 
@@ -793,7 +793,7 @@ void Mget_distance(short ship, short target)
 }
 
 /* Function start: 0x407270 */
-void general_zig(short ship, unsigned int target, short pitch)
+void general_zig(short ship, short target, short pitch)
 {
     short complete = 1;
 
@@ -826,13 +826,13 @@ void general_zig(short ship, unsigned int target, short pitch)
 }
 
 /* Function start: 0x407350 */
-void Mzig_zag(short ship, unsigned int target)
+void Mzig_zag(short ship, short target)
 {
     general_zig(ship, target, 0);
 }
 
 /* Function start: 0x407370 */
-void Mzig_zag_pitch(short ship, unsigned int target)
+void Mzig_zag_pitch(short ship, short target)
 {
     general_zig(ship, target, 0x23);
 }
@@ -988,8 +988,8 @@ void perform_maneuver(short obj)
                aeShipManeuversTable[obj] < 47) {
 #ifdef SDL_PORT
         /* The original x86 dispatcher pushes both values for every handler.
-           Several handlers consume only the ship, and two consume an unsigned
-           target.  Call those through their real C types in the native port. */
+           Several handlers consume fewer arguments. Call those through their
+           real C types in the native port. */
         switch (aeShipManeuversTable[obj]) {
         case MANEUVER_WARPING_IN:
         case MANEUVER_WARPING_OUT:
@@ -1039,14 +1039,8 @@ void perform_maneuver(short obj)
         case MANEUVER_SPLIT_RIGHT:
             Msplit_right(obj);
             break;
-        case MANEUVER_ZIG_ZAG:
-            Mzig_zag(obj, (unsigned int)target);
-            break;
         case MANEUVER_GLOAT:
             Mgloat(obj, target);
-            break;
-        case MANEUVER_SAFE_BRAKE:
-            Mzig_zag_pitch(obj, (unsigned int)target);
             break;
         case MANEUVER_INTERCEPT:
             Mcorkscrew(obj);

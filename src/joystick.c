@@ -49,10 +49,10 @@ void CalibrateJoystickInteractive()
         DIBslamReal();
         WaitForJoystickButtonPress();
         SampleJoystickDevice(samples, nCurrentActiveInputDevice, 0x7fff);
-        calibration[0] = (short)(nStickMinimumPositionX =
-            samples[nCurrentActiveInputDevice].x);
-        calibration[1] = (short)(nStickMinimumPositionY =
-            samples[nCurrentActiveInputDevice].y);
+        calibration[0] = nStickMinimumPositionX =
+            samples[nCurrentActiveInputDevice].x;
+        calibration[1] = nStickMinimumPositionY =
+            samples[nCurrentActiveInputDevice].y;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
@@ -63,10 +63,10 @@ void CalibrateJoystickInteractive()
         DIBslamReal();
         WaitForJoystickButtonPress();
         SampleJoystickDevice(samples, nCurrentActiveInputDevice, 0x7fff);
-        calibration[2] = (short)(nStickMaxX =
-            samples[nCurrentActiveInputDevice].x);
-        calibration[3] = (short)(nStickMaxY =
-            samples[nCurrentActiveInputDevice].y);
+        calibration[2] = nStickMaxX =
+            samples[nCurrentActiveInputDevice].x;
+        calibration[3] = nStickMaxY =
+            samples[nCurrentActiveInputDevice].y;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
@@ -77,10 +77,10 @@ void CalibrateJoystickInteractive()
         DIBslamReal();
         WaitForJoystickButtonPress();
         SampleJoystickDevice(samples, nCurrentActiveInputDevice, 0x7fff);
-        calibration[4] = (short)(nJoystickCentreX =
-            samples[nCurrentActiveInputDevice].x);
-        calibration[5] = (short)(nJoystickCentreY =
-            samples[nCurrentActiveInputDevice].y);
+        calibration[4] = nJoystickCentreX =
+            samples[nCurrentActiveInputDevice].x;
+        calibration[5] = nJoystickCentreY =
+            samples[nCurrentActiveInputDevice].y;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }

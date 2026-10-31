@@ -95,10 +95,10 @@ void LoadJoystickCalibrationFile(short horizontalRange,
 
         if (failed != 0) {
             GetJoystickDevCaps(activeDevice,
-                               (short *)&minimumX,
-                               (short *)&maximumX,
-                               (short *)&minimumY,
-                               (short *)&maximumY);
+                               &minimumX,
+                               &maximumX,
+                               &minimumY,
+                               &maximumY);
             centreX = ((int)minimumX + (int)maximumX) / 2;
             centreY = ((int)maximumY + (int)minimumY) / 2;
         } else {

@@ -108,7 +108,7 @@ short nEyeYawGoalValue; /* 0x0059c944 */
 short asObjScreenScalesArray[SPACE_OBJECT_COUNT]; /* 0x0059c950 */
 short asObjAfterburnerVelocities[SPACE_OBJECT_COUNT]; /* 0x0059c9d0 */
 CampaignState stCampaignState; /* 0x0059ca50 */
-unsigned char aShipWeaponsTable[10][0x47]; /* 0x0059cab0 */
+signed char aShipWeaponsTable[10][0x47]; /* 0x0059cab0 */
 
 /* DIBreInstall calls DIBcascade before its definition. */
 int DIBcascade(int mode, int *reportedResult);
@@ -864,7 +864,7 @@ unsigned int GetDIBHeight(void)
 }
 
 /* Function start: 0x432E30 */
-void CachePaletteEntryFromWords(short index, unsigned short *rgb)
+void CachePaletteEntryFromWords(short index, short *rgb)
 {
     awPaletteRgbWordsList[index * 3] =
         abDIBPaletteQuads[index * 4 + 2] = (unsigned char)rgb[0];
@@ -950,7 +950,7 @@ void DIBsetPalette(short index, short *rgb)
 }
 
 /* Function start: 0x433020 */
-void GetPaletteEntryAsWords(short i, unsigned short *rgb)
+void GetPaletteEntryAsWords(short i, short *rgb)
 {
     int k = i * 4;
 
@@ -1014,7 +1014,7 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
 }
 
 /* Function start: 0x433120 */
-void DIBwholePaletteFromWords(unsigned short *palette)
+void DIBwholePaletteFromWords(short *palette)
 {
 #ifndef SDL_PORT
     unsigned char entries[0x400];
@@ -1029,19 +1029,19 @@ void DIBwholePaletteFromWords(unsigned short *palette)
     SdlWaitForVerticalBlank();
 #endif
     do {
-        unsigned char value = *(unsigned char *)palette;
+        unsigned char value = (unsigned char)palette[0];
 
         palette = palette + 3;
         abDIBPaletteQuads[offset + 2] = value;
 #ifndef SDL_PORT
         entries[offset] = value;
 #endif
-        value = *(unsigned char *)(palette - 2);
+        value = (unsigned char)palette[-2];
         abDIBPaletteQuads[offset + 1] = value;
 #ifndef SDL_PORT
         entries[offset + 1] = value;
 #endif
-        value = *(unsigned char *)(palette - 1);
+        value = (unsigned char)palette[-1];
         abDIBPaletteQuads[offset] = value;
 #ifndef SDL_PORT
         entries[offset + 2] = value;
