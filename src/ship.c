@@ -1555,8 +1555,6 @@ void fire(short obj, short target)
     int fireMissile;
     int minePresent = 0;
     int targetInRange;
-    int loadoutOffset;
-    int weaponOffset;
 
     canFire = asObjectCounterArray[obj] <= 0;
     get_facing_range_from_object(obj, target);
@@ -1571,14 +1569,9 @@ void fire(short obj, short target)
     if (find_child_object(obj, OBJECT_CLASS_MINE) != -1)
         minePresent = 1;
 
-    loadoutOffset = (int)obj * sizeof(aShipWeaponsTable[0]);
-    for (weapon = 0;
-         weapon < *(signed char *)((unsigned char *)
-             aShipWeaponsTable + loadoutOffset);
-         weapon++) {
-        weaponOffset = weapon * sizeof(ShipWeaponSlot) + loadoutOffset;
-        weaponType = ((ShipWeaponSlot *)((unsigned char *)
-            aShipWeaponsTable + weaponOffset + 1))->type;
+    for (weapon = 0; weapon < aShipWeaponsTable[obj][0]; weapon++) {
+        weaponType =
+            ((ShipWeaponSlot *)&aShipWeaponsTable[obj][1])[weapon].type;
         weaponData = &aObjectTypeData[weaponType];
         weaponVelocity = weaponData->maximumVelocity;
         if (closingSpeed < 0)
@@ -1606,8 +1599,7 @@ void fire(short obj, short target)
                     break;
                 }
             }
-            ((ShipWeaponSlot *)((unsigned char *)
-                aShipWeaponsTable + weaponOffset + 1))->disabled =
+            ((ShipWeaponSlot *)&aShipWeaponsTable[obj][1])[weapon].disabled =
                 (signed char)!shouldFire;
             if (shouldFire) {
                 firedObject = (short)fire_weapon(obj, weapon);
@@ -1774,6 +1766,9 @@ short pop_flack(short obj, short range, FixedVector *hardpoint)
     }
     return explosion;
 }
+
+/* Turret target-list callee. */
+short build_target_list(short obj, short range);
 
 /* Function start: 0x420AA0 */
 int fire_turrets(short obj)
@@ -2054,28 +2049,16 @@ int fire_missile(short ship)
 /* Function start: 0x421220 */
 int fire_fixed_projectile_weapon(short obj)
 {
-    int loadoutOffset;
     short weapon;
     ShipWeaponSlot *slot;
 
-    loadoutOffset = obj * sizeof(aShipWeaponsTable[0]);
-    weapon = 0;
-    slot = (ShipWeaponSlot *)((unsigned char *)aShipWeaponsTable +
-                              loadoutOffset + 1);
-    if (*(signed char *)((unsigned char *)aShipWeaponsTable +
-                         loadoutOffset) <= 0)
-        return;
-    do {
+    slot = (ShipWeaponSlot *)&aShipWeaponsTable[obj][1];
+    for (weapon = 0; weapon < aShipWeaponsTable[obj][0]; weapon++, slot++)
         if (aObjectTypeData[slot->type].objectClass ==
                 OBJECT_CLASS_PROJECTILE &&
-            slot->disabled == 0) {
+            slot->disabled == 0)
             if (fire_weapon(obj, weapon) == -1)
                 return -1;
-        }
-        weapon++;
-        slot++;
-    } while ((short)*(signed char *)((unsigned char *)aShipWeaponsTable +
-                                     loadoutOffset) > weapon);
     /* The original leaves EAX incidental on successful and empty paths. */
 }
 

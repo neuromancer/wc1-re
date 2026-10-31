@@ -761,8 +761,6 @@ unsigned int update_star_field(void)
     unsigned char shift;
     int rightOffset;
     int upOffset;
-    int objectIndex;
-    int objectOffset;
     short obj;
     unsigned int hazardActive;
 
@@ -777,16 +775,13 @@ unsigned int update_star_field(void)
     ComputeVectorDelta(&vPreviousStarFieldMotion,
                        &vStarFieldMotion, &origin);
     for (obj = 34; obj < 49; obj++) {
-        objectIndex = (int)obj;
-        objectOffset = objectIndex * sizeof(short);
-        if (*(short *)((unsigned char *)asObjectScreenXList +
-                       objectOffset) == (short)0x8001) {
+        if (asObjectScreenXList[obj] == (short)0x8001) {
             randomChoice = RandomInRange(0, 7);
             if (hazardActive == 0) {
-                if (aeObjectClass[objectIndex] ==
+                if (aeObjectClass[obj] ==
                         OBJECT_CLASS_ASTEROID ||
-                    (int)aeObjectClass[objectIndex] == 0x21 ||
-                    aeObjectClass[objectIndex] ==
+                    (int)aeObjectClass[obj] == 0x21 ||
+                    aeObjectClass[obj] ==
                         OBJECT_CLASS_NULL) {
                     set_objects_data(obj, OBJECT_TYPE_SPACE_DUST, -1);
                     randomChoice = 0;
@@ -794,7 +789,7 @@ unsigned int update_star_field(void)
             } else if (obj < 42) {
                 extra_hazard(obj);
             }
-            if (aeObjectClass[objectIndex] == OBJECT_CLASS_STAR &&
+            if (aeObjectClass[obj] == OBJECT_CLASS_STAR &&
                 randomChoice == 0) {
                 if ((anObjectYawRotation[0] |
                      anObjPitchRot[0]) == 0)
@@ -821,13 +816,12 @@ unsigned int update_star_field(void)
                                &aShipFwdVec[63]);
                 ScaleFixedVector(&aShipFwdVec[63],
                                  15000 << 8,
-                                 &aShipPositionsArray[objectIndex]);
-                *(short *)((unsigned char *)asObjectViewFrames +
-                           objectOffset) =
+                                 &aShipPositionsArray[obj]);
+                asObjectViewFrames[obj] =
                     (short)(RandomInRange(0, 5) + 32);
                 break;
             }
-            if (aeObjectClass[objectIndex] == OBJECT_CLASS_DUST &&
+            if (aeObjectClass[obj] == OBJECT_CLASS_DUST &&
                 randomChoice < 2) {
                 transform_to_objects_frame(
                     &aShipVelocity[EYE_OBJECT],
@@ -874,6 +868,9 @@ short count_down(short obj)
         asObjectCounterArray[obj]--;
     return asObjectCounterArray[obj];
 }
+
+/* Destruction callee of the object housekeeping below. */
+int explode(short attacker, short victim);
 
 /* Function start: 0x412430 */
 unsigned int house_keep_objects(void)

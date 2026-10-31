@@ -338,6 +338,7 @@ UNITS = {
         ('cPrimaryViewBufferColour', 0x40),
         ('abLegacyVideoModeColours', 0x48),
         ('asConversationTextColours', 0x58),
+        ('asLegacyConversationTextColours', 0x70),
         ('bGraphicsActive', 0x88),
         ('szInsufficientMemory', 0x90),
         ('anBaseMemoryReservationByVideoMode', 0xF8),

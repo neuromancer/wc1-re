@@ -263,7 +263,6 @@ unsigned int InitializeConstellationField(Viewport *viewport,
     short viewportHeight;
     unsigned short starHeight;
     short index;
-    int particleOffset;
     short randomIndex;
     short width;
     int population;
@@ -292,24 +291,19 @@ unsigned int InitializeConstellationField(Viewport *viewport,
     index = 0;
     while (index < nConstellationParticleTotal) {
         randomIndex = RandomInRange(0, 15);
-        particleOffset = (int)index * sizeof(ConstellationParticle);
-        index++;
-        ((ConstellationParticle *)((unsigned char *)aConstellationParticlesList +
-                                  particleOffset))->x =
+        aConstellationParticlesList[index].x =
             (short)(pConstellationViewportPtr->left +
                     RandomInRange(0, width));
-        ((ConstellationParticle *)((unsigned char *)aConstellationParticlesList +
-                                  particleOffset))->y =
+        aConstellationParticlesList[index].y =
             (short)(pConstellationViewportPtr->top +
                     RandomInRange(0, viewportHeight));
-        ((ConstellationParticle *)((unsigned char *)aConstellationParticlesList +
-                                  particleOffset))->velocity =
+        aConstellationParticlesList[index].velocity =
             (short)(asConstellationVelocity[randomIndex] *
                     nConstellationDirection);
-        ((ConstellationParticle *)((unsigned char *)aConstellationParticlesList +
-                                  particleOffset))->frame =
+        aConstellationParticlesList[index].frame =
             (short)(asConstellationFrame[randomIndex] +
                     RandomInRange(0, 3));
+        index++;
     }
     return 0;
 }
@@ -767,6 +761,9 @@ range_ready:
         bTargetLockReadoutDirty = 0;
     }
 }
+
+/* Debug-console callee of the display-mode check below. */
+void SystemDebugPrintf(const char *format, ...);
 
 /* Function start: 0x42E020 */
 void LogDisplayMode(const char *mode)

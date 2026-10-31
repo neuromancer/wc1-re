@@ -509,7 +509,6 @@ int IsPushedPacketHandle(void *handle)
 void *MapPacketHandleToBlock(void *handle)
 {
     int count = nPacketHandleTotal;
-    int bytes = count * 4;
     int i;
     void **entry;
     int offset;
@@ -517,7 +516,7 @@ void *MapPacketHandleToBlock(void *handle)
     for (;;) {
         i = 0;
         nPacketHandleTotal = count;
-        if (bytes <= 0)
+        if (count <= 0)
             return handle;
         entry = apPacketHandlesList;
         while (*entry != handle) {
@@ -532,16 +531,8 @@ void *MapPacketHandleToBlock(void *handle)
             handle = (unsigned char *)handle + offset;
         else
             handle = (unsigned char *)handle - offset;
-#ifdef SDL_PORT
-        apPacketHandlesList[i] =
-            apPacketHandlesList[count - 1];
-#else
-        apPacketHandlesList[i] =
-            *(void **)((unsigned char *)apPacketHandlesList + bytes - 4);
-#endif
-        bytes = bytes - 4;
+        apPacketHandlesList[i] = apPacketHandlesList[count - 1];
         count = count - 1;
-        aiPktHandleDeltas[i] =
-            *(int *)((unsigned char *)aiPktHandleDeltas + bytes);
+        aiPktHandleDeltas[i] = aiPktHandleDeltas[count];
     }
 }

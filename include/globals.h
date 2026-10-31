@@ -86,7 +86,7 @@ extern unsigned char cMagentaColour; /* 0x004699c8 */
 extern unsigned char cDefaultTextColour; /* 0x004699cc */
 extern unsigned char cAsteroidColour; /* 0x004699d4 */
 extern unsigned char cPrimaryViewBufferColour; /* 0x004699d8 */
-extern short asConversationTextColours[24]; /* 0x004699f0 */
+extern short asConversationTextColours[12]; /* 0x004699f0 */
 extern int bGraphicsActive; /* 0x00469a20 */
 extern PacketResourceDescriptor aCommon3SpaceResources[12]; /* 0x00469bc0 */
 extern int nCapitalShipViewDistance; /* 0x00468ff4 */

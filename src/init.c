@@ -26,11 +26,14 @@ unsigned char cPrimaryViewBufferColour = 0xbf; /* 0x004699d8 */
 unsigned char abLegacyVideoModeColours[14] = {
     9, 14, 4, 2, 10, 12, 15, 8, 7, 5, 2, 6, 7, 0
 }; /* 0x004699e0 */
-short asConversationTextColours[24] = {
+short asConversationTextColours[12] = {
     0x25, 0xb6, 0x9a, 0x50, 0x94, 0x85, 0x27, 0xa6,
-    0xfd, 0x47, 0xaa, 0x0b, 0x09, 0x0d, 0x03, 0x04,
-    0x0b, 0x0c, 0x01, 0x0a, 0x06, 0x0e, 0x02, 0x07
+    0xfd, 0x47, 0xaa, 0x0b
 }; /* 0x004699f0 */
+short asLegacyConversationTextColours[12] = {
+    0x09, 0x0d, 0x03, 0x04, 0x0b, 0x0c, 0x01, 0x0a,
+    0x06, 0x0e, 0x02, 0x07
+}; /* 0x00469a08 */
 int bGraphicsActive = 0; /* 0x00469a20 */
 char szInsufficientMemory[100] =
     "You do not have enough memory to play Wing Commander.\n"
@@ -62,18 +65,14 @@ unsigned int LoadGamePaletteFile(void)
     switch (nVideoMode) {
     case 9:
     case 13:
-        index = 0;
-        do {
-            ((unsigned char *)&cBlueColour)[index] =
-                abLegacyVideoModeColours[index];
-            index++;
-        } while ((unsigned int)(int)index < 14);
-        index = 0;
-        do {
+        for (index = 0; index < sizeof(abLegacyVideoModeColours); index++)
+            (&cBlueColour)[index] = abLegacyVideoModeColours[index];
+        for (index = 0;
+             index < sizeof(asLegacyConversationTextColours) /
+                         sizeof(asLegacyConversationTextColours[0]);
+             index++)
             asConversationTextColours[index] =
-                asConversationTextColours[index + 12];
-            index++;
-        } while ((unsigned int)(int)index < 12);
+                asLegacyConversationTextColours[index];
         return 0;
     case 0x13:
         LoadPaletteTripletsFile("game.pal");
