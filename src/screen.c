@@ -484,18 +484,14 @@ int IsPushedPacketHandle(void *handle)
     int index;
     int pushed;
 
-    index = 0;
-    if (nPacketHandleTotal > 0) {
-        do {
-            if (apPacketHandlesList[index] == handle) {
-                if (aiPktHandleDeltas[index] < 0)
-                    pushed = 1;
-                else
-                    pushed = 0;
-                return pushed;
-            }
-            index++;
-        } while (index < nPacketHandleTotal);
+    for (index = 0; index < nPacketHandleTotal; index++) {
+        if (apPacketHandlesList[index] == handle) {
+            if (aiPktHandleDeltas[index] < 0)
+                pushed = 1;
+            else
+                pushed = 0;
+            return pushed;
+        }
     }
     return 0;
 }

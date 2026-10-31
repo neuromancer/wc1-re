@@ -464,9 +464,9 @@ short RecRoom(void)
 
     animations[0] = abShotglassIdleAnimation;
     animations[1] =
-        apRecRoomAnimations[(int)animationIds[1]];
+        apRecRoomAnimations[animationIds[1]];
     animations[2] =
-        apRecRoomAnimations[(int)animationIds[2]];
+        apRecRoomAnimations[animationIds[2]];
     InitializeRoomMenu(aRecRoomMenuRegions,
                        apszRecRoomMenuLabels,
                        &stRoomScreenViewport,
@@ -551,7 +551,7 @@ short RecRoom(void)
                             animationId = animationIds[index];
                         }
                         animations[index] =
-                            apRecRoomAnimations[(int)animationId];
+                            apRecRoomAnimations[animationId];
                     }
 
                     if (index > 0) {

@@ -867,13 +867,9 @@ void InflightComputer(void)
     objective = 0;
     BriefingMap_LoadShapes();
     ShowConfedNavScan();
-    if (cMissionObjectiveCountValue > 0) {
-        do {
-            if (hidden_objective(objective) == 0)
-                hasObjectives = 1;
-            objective++;
-        } while (objective <
-                 (short)cMissionObjectiveCountValue);
+    for (; objective < (short)cMissionObjectiveCountValue; objective++) {
+        if (hidden_objective(objective) == 0)
+            hasObjectives = 1;
     }
 
     if (hasObjectives == 0) {

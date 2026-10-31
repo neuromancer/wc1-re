@@ -150,7 +150,7 @@ void UpdateDamageDisplay(void)
                 "%s\nDamage: %s",
                 apszComponentNames[
                     cDamageDisplayComponentValue],
-                apszDamageSeverityNames[(int)damage]);
+                apszDamageSeverityNames[damage]);
             DrawTextAt(&stLeftVduTextContext,
                        (short)(stLeftVdu.left + 1),
                        (short)(stLeftVdu.top + 7),

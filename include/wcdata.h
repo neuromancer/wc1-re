@@ -598,7 +598,7 @@ typedef struct PacketResourceDescriptor {
 #pragma pack(push, 1)
 typedef struct HighScoreEntry {
     signed char pilotIndex;
-    unsigned int score;
+    int score;
 } HighScoreEntry;
 #pragma pack(pop)
 

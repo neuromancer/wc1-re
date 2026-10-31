@@ -80,13 +80,9 @@ short __stdcall CollectActivePaletteIndices(Viewport *viewport,
 
     memset(active, 0, (unsigned int)capacity);
     MarkActivePaletteEntries(viewport, active);
-    index = 0;
-    if (capacity > 0) {
-        do {
-            if (active[index] != 0)
-                indices[count++] = (unsigned char)index;
-            index++;
-        } while (index < capacity);
+    for (index = 0; index < capacity; index++) {
+        if (active[index] != 0)
+            indices[count++] = (unsigned char)index;
     }
     ReleasePacketHandle(active);
     return count;
@@ -418,6 +414,9 @@ void rectangular_to_spherical(const FixedVector *rectangular,
     spherical->pitch = (short)(ArcCos(
         DivideFixed(rectangular->y, spherical->radius)) - 90);
 }
+
+/* Fixed-point trigonometry callee of the orientation routines below. */
+long SinFixed(short degrees);
 
 /* Function start: 0x418900 */
 /* Nothing in the shipped executable calls this routine. */

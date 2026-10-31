@@ -353,25 +353,20 @@ void show_communications_disp(void)
         set_new_vdu(1);
         DrawTextAt(&stRightVduTxtContext, stRightVduViewport.left,
                    stRightVduViewport.top, pszCommMenuHeading, 2);
-        choice = 0;
 #ifdef SDL_PORT
         selectedChoice = SdlGetCommunicationMenuSelection();
         normalColour = stRightVduTxtContext.colour;
 #endif
-        if (nCommMenuChoiceCount > 0) {
-            do {
+        for (choice = 0; choice < nCommMenuChoiceCount; choice++) {
 #ifdef SDL_PORT
-                if ((int)choice == selectedChoice)
-                    stRightVduTxtContext.colour = cYellowColour;
+            if ((int)choice == selectedChoice)
+                stRightVduTxtContext.colour = cYellowColour;
 #endif
-                DrawFormattedText("\n%d %s", (int)choice + 1,
-                                  apszCommMenuChoiceTextTable[
-                                      (int)choice]);
+            DrawFormattedText("\n%d %s", choice + 1,
+                              apszCommMenuChoiceTextTable[choice]);
 #ifdef SDL_PORT
-                stRightVduTxtContext.colour = normalColour;
+            stRightVduTxtContext.colour = normalColour;
 #endif
-                choice++;
-            } while (choice < nCommMenuChoiceCount);
         }
         DrawSpriteDefault(&stRightVduViewport,
                           (short)(stRightVduViewport.left + 36),

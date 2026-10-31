@@ -54,25 +54,22 @@ int select_guns(short obj, short selectedGun)
 {
     ShipWeaponSlot *weaponSlot;
     int found;
+    short count;
+    short weapon;
 
-    /* The incoming object is unused; reuse its word for the count. */
-    obj = aShipWeaponsTable[0][0];
     found = 0;
-    weaponSlot = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
-    if (obj > 0) {
-        do {
-            if (aObjectTypeData[weaponSlot->type].objectClass ==
-                    OBJECT_CLASS_PROJECTILE) {
-                if (selectedGun == weaponSlot->type || selectedGun == 0x80) {
-                    weaponSlot->disabled = 0;
-                    found = 1;
-                } else {
-                    weaponSlot->disabled = 1;
-                }
+    count = aShipWeaponsTable[0][0];
+    for (weapon = 0, weaponSlot = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
+         weapon < count; weapon++, weaponSlot++) {
+        if (aObjectTypeData[weaponSlot->type].objectClass ==
+                OBJECT_CLASS_PROJECTILE) {
+            if (selectedGun == weaponSlot->type || selectedGun == 0x80) {
+                weaponSlot->disabled = 0;
+                found = 1;
+            } else {
+                weaponSlot->disabled = 1;
             }
-            weaponSlot++;
-            obj--;
-        } while (obj != 0);
+        }
     }
     if (found != 0)
         return selectedGun;

@@ -1775,38 +1775,38 @@ unsigned int InitializeCockpitResources(signed char mode)
     SetTextContext(&stCurrentCockpitReadoutTextCtx);
 
     SetTextCursor(
-        (unsigned short)stCockpitLayout.readoutOrigins[0][(int)cCurrentCockpitView].x,
-        (unsigned short)stCockpitLayout.readoutOrigins[0][(int)cCurrentCockpitView].y);
+        (unsigned short)stCockpitLayout.readoutOrigins[0][cCurrentCockpitView].x,
+        (unsigned short)stCockpitLayout.readoutOrigins[0][cCurrentCockpitView].y);
     InitializeCockpitReadout(4, &stCurrentCockpitReadoutTextCtx);
     SetTextCursor(
-        (unsigned short)stCockpitLayout.readoutOrigins[1][(int)cCurrentCockpitView].x,
-        (unsigned short)stCockpitLayout.readoutOrigins[1][(int)cCurrentCockpitView].y);
+        (unsigned short)stCockpitLayout.readoutOrigins[1][cCurrentCockpitView].x,
+        (unsigned short)stCockpitLayout.readoutOrigins[1][cCurrentCockpitView].y);
     InitializeCockpitReadout(5, &stCurrentCockpitReadoutTextCtx);
     SetTextCursor(
-        (unsigned short)stCockpitLayout.readoutOrigins[2][(int)cCurrentCockpitView].x,
-        (unsigned short)stCockpitLayout.readoutOrigins[2][(int)cCurrentCockpitView].y);
+        (unsigned short)stCockpitLayout.readoutOrigins[2][cCurrentCockpitView].x,
+        (unsigned short)stCockpitLayout.readoutOrigins[2][cCurrentCockpitView].y);
     InitializeCockpitReadout(2, &stCurrentCockpitReadoutTextCtx);
     SetTextCursor(
-        (unsigned short)stCockpitLayout.readoutOrigins[3][(int)cCurrentCockpitView].x,
-        (unsigned short)stCockpitLayout.readoutOrigins[3][(int)cCurrentCockpitView].y);
+        (unsigned short)stCockpitLayout.readoutOrigins[3][cCurrentCockpitView].x,
+        (unsigned short)stCockpitLayout.readoutOrigins[3][cCurrentCockpitView].y);
     InitializeCockpitReadout(3, &stCurrentCockpitReadoutTextCtx);
 
     *(ShortRect *)&stLeftVdu.left =
-        stCockpitLayout.leftVduBounds[(int)cCurrentCockpitView];
+        stCockpitLayout.leftVduBounds[cCurrentCockpitView];
     *(ShortRect *)&stRightVduViewport.left =
-        stCockpitLayout.rightVduBounds[(int)cCurrentCockpitView];
+        stCockpitLayout.rightVduBounds[cCurrentCockpitView];
 
     if (pCurrentPilotHandShapePtr != 0) {
         stPilotHandView = stScreenView;
         *(ShortRect *)&stPilotHandView.left =
-            stCockpitLayout.pilotHandBounds[(int)cCurrentCockpitView];
+            stCockpitLayout.pilotHandBounds[cCurrentCockpitView];
         SetViewportRect(&stPilotHandComposite, 0, 0,
             (unsigned short)(
-                stCockpitLayout.pilotHandBounds[(int)cCurrentCockpitView].right -
-                stCockpitLayout.pilotHandBounds[(int)cCurrentCockpitView].left),
+                stCockpitLayout.pilotHandBounds[cCurrentCockpitView].right -
+                stCockpitLayout.pilotHandBounds[cCurrentCockpitView].left),
             (unsigned short)(
-                stCockpitLayout.pilotHandBounds[(int)cCurrentCockpitView].bottom -
-                stCockpitLayout.pilotHandBounds[(int)cCurrentCockpitView].top));
+                stCockpitLayout.pilotHandBounds[cCurrentCockpitView].bottom -
+                stCockpitLayout.pilotHandBounds[cCurrentCockpitView].top));
         stPilotHandBackdropView = stPilotHandComposite;
         AllocateViewport(&stPilotHandComposite, cBlackColour, 0);
         AllocateViewport(&stPilotHandBackdropView, cBlackColour, 0);

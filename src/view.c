@@ -641,11 +641,11 @@ void show_target_disp(void)
     if (rating >= 0 && rating <= 7) {
         DrawFormattedText(
             " %s",
-            apWingmanPilotsList[(int)rating]->callsign);
+            apWingmanPilotsList[rating]->callsign);
     } else if (rating >= 9 && rating <= 12) {
         DrawFormattedText(
             " %s",
-            apszKilrathiAceNames[(int)rating - 9]);
+            apszKilrathiAceNames[rating - 9]);
     } else {
         DrawFormattedText(" %s",
                           typeData->displayName);

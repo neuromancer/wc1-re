@@ -378,22 +378,22 @@ void vdu_polygon(signed char bar, short percent)
     short extent;
 
     extent = (short)((percent *
-        aaCockpitBars[(int)cCurrentCockpitView][(int)bar].length) / 100);
-    percent = aaCockpitBars[(int)cCurrentCockpitView][(int)bar].length;
+        aaCockpitBars[cCurrentCockpitView][bar].length) / 100);
+    percent = aaCockpitBars[cCurrentCockpitView][bar].length;
     left = stCockpitBar.left =
-        aaCockpitBars[(int)cCurrentCockpitView][(int)bar].left;
+        aaCockpitBars[cCurrentCockpitView][bar].left;
     if (left != -99) {
         right = stCockpitBar.right =
-            aaCockpitBars[(int)cCurrentCockpitView][(int)bar].right;
+            aaCockpitBars[cCurrentCockpitView][bar].right;
         top = stCockpitBar.top =
-            aaCockpitBars[(int)cCurrentCockpitView][(int)bar].top;
+            aaCockpitBars[cCurrentCockpitView][bar].top;
         bottom = stCockpitBar.bottom =
-            aaCockpitBars[(int)cCurrentCockpitView][(int)bar].bottom;
+            aaCockpitBars[cCurrentCockpitView][bar].bottom;
         emptyFrame = (signed char)
-            aaCockpitBars[(int)cCurrentCockpitView][(int)bar].emptyFrame;
+            aaCockpitBars[cCurrentCockpitView][bar].emptyFrame;
         filledFrame = (signed char)
-            aaCockpitBars[(int)cCurrentCockpitView][(int)bar].filledFrame;
-        direction = aaCockpitBars[(int)cCurrentCockpitView][(int)bar].direction;
+            aaCockpitBars[cCurrentCockpitView][bar].filledFrame;
+        direction = aaCockpitBars[cCurrentCockpitView][bar].direction;
 
         if (direction < 2) {
             if (direction == 1) {
@@ -439,10 +439,10 @@ void vdu_polygon(signed char bar, short percent)
 unsigned int InitializeCockpitReadout(signed char slot,
                                       TextContext *context)
 {
-    aCockpitReadouts[(int)slot].context = context;
-    aCockpitReadouts[(int)slot].x = context->cursorX;
-    aCockpitReadouts[(int)slot].y = context->cursorY;
-    aCockpitReadouts[(int)slot].previousRight = 0;
+    aCockpitReadouts[slot].context = context;
+    aCockpitReadouts[slot].x = context->cursorX;
+    aCockpitReadouts[slot].y = context->cursorY;
+    aCockpitReadouts[slot].previousRight = 0;
     return 0;
 }
 
@@ -666,15 +666,15 @@ unsigned int SetCockpitLightBlink(signed char light, short interval)
 {
     if (interval < 20) {
         if (interval == 0) {
-            abCockpitLightGoalArray[(int)light] ^= 1;
+            abCockpitLightGoalArray[light] ^= 1;
             return 0;
         }
         if (nCurrentSpaceFrameValue % interval == 0) {
-            abCockpitLightGoalArray[(int)light] ^= 1;
+            abCockpitLightGoalArray[light] ^= 1;
             return 0;
         }
     } else {
-        abCockpitLightGoalArray[(int)light] = 0;
+        abCockpitLightGoalArray[light] = 0;
     }
     return 0;
 }
@@ -695,22 +695,22 @@ void draw_cockpit_lights(void)
     }
     for (light = 0; light < 7; light++) {
         if (bCockpitlessView == 0) {
-            if (abCockpitIndicatorStatesArray[(int)light] !=
-                abCockpitLightGoalArray[(int)light]) {
+            if (abCockpitIndicatorStatesArray[light] !=
+                abCockpitLightGoalArray[light]) {
                 x = aasCockpitLightX[
-                    (int)cCurrentCockpitView][(int)light];
+                    cCurrentCockpitView][light];
                 y = aasCockpitLightY[
-                    (int)cCurrentCockpitView][(int)light];
-                if (abCockpitLightGoalArray[(int)light] == 1)
+                    cCurrentCockpitView][light];
+                if (abCockpitLightGoalArray[light] == 1)
                     frame = aacCockpitLightOnFrame[
-                        (int)cCurrentCockpitView][(int)light];
+                        cCurrentCockpitView][light];
                 else
                     frame = aacCockpitLightOffFrame[
-                        (int)cCurrentCockpitView][(int)light];
+                        cCurrentCockpitView][light];
                 DrawSpriteDefault(&stScreenView, x, y,
                                   pCockpitDamageShape, frame);
-                abCockpitIndicatorStatesArray[(int)light] =
-                    abCockpitLightGoalArray[(int)light];
+                abCockpitIndicatorStatesArray[light] =
+                    abCockpitLightGoalArray[light];
             }
             continue;
         }
@@ -718,19 +718,19 @@ void draw_cockpit_lights(void)
             short cockpitlessY;
 
             x = aasCockpitLightX[
-                (int)cCurrentCockpitView][(int)light];
+                cCurrentCockpitView][light];
             cockpitlessY = aasCockpitLightY[
-                (int)cCurrentCockpitView][(int)light];
-            if (abCockpitLightGoalArray[(int)light] == 1)
+                cCurrentCockpitView][light];
+            if (abCockpitLightGoalArray[light] == 1)
                 frame = aacCockpitLightOnFrame[
-                    (int)cCurrentCockpitView][(int)light];
+                    cCurrentCockpitView][light];
             else
                 frame = aacCockpitLightOffFrame[
-                    (int)cCurrentCockpitView][(int)light];
+                    cCurrentCockpitView][light];
             DrawSpriteDefault(&stScreenView, x, cockpitlessY,
                               pCockpitDamageShape, frame);
-            abCockpitIndicatorStatesArray[(int)light] =
-                abCockpitLightGoalArray[(int)light];
+            abCockpitIndicatorStatesArray[light] =
+                abCockpitLightGoalArray[light];
         }
     }
 }
@@ -947,7 +947,7 @@ void malf_sound(void)
 /* Function start: 0x414AF0 */
 short malf(char component)
 {
-    int damage = acPlayerComponentDamageList[(int)component];
+    int damage = acPlayerComponentDamageList[component];
 
 #ifdef SDL_PORT
     if (SdlSwcFlightActive())
@@ -1131,32 +1131,28 @@ void show_weapon_disp(void)
     stWpnDispOrigin.x =
         (short)(stLeftVdu.left +
                 aWeaponDisplayOrigins[
-                    (int)cCurrentCockpitView].x);
+                    cCurrentCockpitView].x);
     stWpnDispOrigin.y =
         (short)(stLeftVdu.top +
                 aWeaponDisplayOrigins[
-                    (int)cCurrentCockpitView].y);
+                    cCurrentCockpitView].y);
     DrawSpriteDefault(&stLeftVdu, stWpnDispOrigin.x,
                       stWpnDispOrigin.y,
                       pCockpitWeaponShapePtr, 0);
     weapons = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
-    count = 0;
-    if (aShipWeaponsTable[0][0] > 0)
-        do {
-            count++;
-            frame = (short)((int)weapons->type * 2 +
-                            weapons->disabled - 0x2f);
-            DrawSpriteDefault(
-                &stLeftVdu,
-                (short)(stWpnDispOrigin.x +
-                        aWeaponDisplayPositions[
-                            weapons->hardpoint].x),
-                (short)(stWpnDispOrigin.y +
-                        aWeaponDisplayPositions[
-                            weapons->hardpoint].y),
-                pCockpitWeaponShapePtr, frame);
-            weapons++;
-        } while (count < aShipWeaponsTable[0][0]);
+    for (count = 0; aShipWeaponsTable[0][0] > count; count++, weapons++) {
+        frame = (short)((int)weapons->type * 2 +
+                        weapons->disabled - 0x2f);
+        DrawSpriteDefault(
+            &stLeftVdu,
+            (short)(stWpnDispOrigin.x +
+                    aWeaponDisplayPositions[
+                        weapons->hardpoint].x),
+            (short)(stWpnDispOrigin.y +
+                    aWeaponDisplayPositions[
+                        weapons->hardpoint].y),
+            pCockpitWeaponShapePtr, frame);
+    }
 }
 
 /* Function start: 0x415040 */
@@ -1228,6 +1224,9 @@ void show_navigation_disp(void)
     DrawFormattedText("\n\n(N)ew Objective");
     DrawCalculatingLabel();
 }
+
+/* Mission-ship lookup callee of the objective routines below. */
+short find_ship_index(short missionShip);
 
 /* Function start: 0x4151F0 */
 short hidden_objective(short objective)
@@ -1538,7 +1537,7 @@ void rotational_pos_to_scanner_pos(signed char object,
     const CockpitScannerGeometry *scanner;
 
     scanner = SdlSwcFlightActive() ? &stSwcCockpitScanner :
-        &stCockpitLayout.scanner[(int)cCurrentCockpitView];
+        &stCockpitLayout.scanner[cCurrentCockpitView];
 #endif
 
     horizontal = position->yaw;
@@ -1548,7 +1547,7 @@ void rotational_pos_to_scanner_pos(signed char object,
             scanner->centerX + horizontal / 4);
 #else
             stCockpitLayout.scanner[
-                (int)cCurrentCockpitView].centerX + horizontal / 4);
+                cCurrentCockpitView].centerX + horizontal / 4);
 #endif
     else
         nScannerCursorX = (short)(
@@ -1556,7 +1555,7 @@ void rotational_pos_to_scanner_pos(signed char object,
             scanner->centerX + horizontal / 6);
 #else
             stCockpitLayout.scanner[
-                (int)cCurrentCockpitView].centerX + horizontal / 6);
+                cCurrentCockpitView].centerX + horizontal / 6);
 #endif
 
     nScannerCursorY = (short)(
@@ -1571,27 +1570,27 @@ void rotational_pos_to_scanner_pos(signed char object,
     nScannerCursorY = MaxShort(scanner->minimumY, nScannerCursorY);
 #else
         stCockpitLayout.scanner[
-            (int)cCurrentCockpitView].centerY + position->pitch / -3);
+            cCurrentCockpitView].centerY + position->pitch / -3);
     nScannerCursorX =
         MinShort(stCockpitLayout.scanner[
-                     (int)cCurrentCockpitView].maximumX,
+                     cCurrentCockpitView].maximumX,
                  nScannerCursorX);
     nScannerCursorX =
         MaxShort(stCockpitLayout.scanner[
-                     (int)cCurrentCockpitView].minimumX,
+                     cCurrentCockpitView].minimumX,
                  nScannerCursorX);
     nScannerCursorY =
         MinShort(stCockpitLayout.scanner[
-                     (int)cCurrentCockpitView].maximumY,
+                     cCurrentCockpitView].maximumY,
                  nScannerCursorY);
     nScannerCursorY =
         MaxShort(stCockpitLayout.scanner[
-                     (int)cCurrentCockpitView].minimumY,
+                     cCurrentCockpitView].minimumY,
                  nScannerCursorY);
 #endif
-    asScannerObjectPositionX[(int)object] =
+    asScannerObjectPositionX[object] =
         nScannerCursorX;
-    asScannerObjectY[(int)object] =
+    asScannerObjectY[object] =
         nScannerCursorY;
 }
 
@@ -1727,27 +1726,27 @@ unsigned int draw_3d_scanner(void)
                 } else {
                     DrawViewportPixel(&stScreenView,
                         (short)(stCockpitLayout.scanner[
-                            (int)cCurrentCockpitView].centerX + row),
+                            cCurrentCockpitView].centerX + row),
                         (short)(stCockpitLayout.scanner[
-                            (int)cCurrentCockpitView].centerY + gridValue), 0xaa);
+                            cCurrentCockpitView].centerY + gridValue), 0xaa);
                     if (gridValue != 0)
                         DrawViewportPixel(&stScreenView,
                             (short)(stCockpitLayout.scanner[
-                                (int)cCurrentCockpitView].centerX + row),
+                                cCurrentCockpitView].centerX + row),
                             (short)(stCockpitLayout.scanner[
-                                (int)cCurrentCockpitView].centerY - gridValue), 0xaa);
+                                cCurrentCockpitView].centerY - gridValue), 0xaa);
                     if (row != 0) {
                         DrawViewportPixel(&stScreenView,
                             (short)(stCockpitLayout.scanner[
-                                (int)cCurrentCockpitView].centerX - row),
+                                cCurrentCockpitView].centerX - row),
                             (short)(stCockpitLayout.scanner[
-                                (int)cCurrentCockpitView].centerY + gridValue), 0xaa);
+                                cCurrentCockpitView].centerY + gridValue), 0xaa);
                         if (gridValue != 0)
                             DrawViewportPixel(&stScreenView,
                                 (short)(stCockpitLayout.scanner[
-                                    (int)cCurrentCockpitView].centerX - row),
+                                    cCurrentCockpitView].centerX - row),
                                 (short)(stCockpitLayout.scanner[
-                                    (int)cCurrentCockpitView].centerY - gridValue), 0xaa);
+                                    cCurrentCockpitView].centerY - gridValue), 0xaa);
                     }
                 }
                 grid++;
@@ -1974,15 +1973,15 @@ void print_message_text(char *text, unsigned short colour)
 
     SetRectBounds(&viewport,
                   (unsigned short)asHudMessageOrigins[
-                      (int)cCurrentCockpitView * 2],
+                      cCurrentCockpitView * 2],
                   (unsigned short)asHudMessageOrigins[
-                      (int)cCurrentCockpitView * 2 + 1],
+                      cCurrentCockpitView * 2 + 1],
                   (unsigned short)(
                       319 - asHudMessageOrigins[
-                                (int)cCurrentCockpitView * 2]),
+                                cCurrentCockpitView * 2]),
                   (unsigned short)(
                       asHudMessageOrigins[
-                          (int)cCurrentCockpitView * 2 + 1] + 60));
+                          cCurrentCockpitView * 2 + 1] + 60));
     context.backgroundColour = 0xff;
     context.colour = colour;
     charactersPerLine = GetRectHeight(&viewport) / 6;
@@ -2009,29 +2008,29 @@ void print_message_text(char *text, unsigned short colour)
         switch ((int)cCurrentCockpitView) {
         case 0:
             DrawTextAt(&context,
-                       asHudMessageOrigins[(int)cCurrentCockpitView * 2],
+                       asHudMessageOrigins[cCurrentCockpitView * 2],
                        (short)(asHudMessageOrigins[
-                                   (int)cCurrentCockpitView * 2 + 1] + 10),
+                                   cCurrentCockpitView * 2 + 1] + 10),
                        wrapped, 2);
             break;
         case 1:
             DrawTextAt(&context,
-                       asHudMessageOrigins[(int)cCurrentCockpitView * 2],
+                       asHudMessageOrigins[cCurrentCockpitView * 2],
                        (short)(asHudMessageOrigins[
-                                   (int)cCurrentCockpitView * 2 + 1] + 25),
+                                   cCurrentCockpitView * 2 + 1] + 25),
                        wrapped, 2);
             break;
         case 2:
             DrawTextAt(&context,
-                       asHudMessageOrigins[(int)cCurrentCockpitView * 2],
+                       asHudMessageOrigins[cCurrentCockpitView * 2],
                        (short)(asHudMessageOrigins[
-                                   (int)cCurrentCockpitView * 2 + 1] + 50),
+                                   cCurrentCockpitView * 2 + 1] + 50),
                        wrapped, 2);
             break;
         case 3:
             DrawTextAt(&context,
-                       asHudMessageOrigins[(int)cCurrentCockpitView * 2],
-                       asHudMessageOrigins[(int)cCurrentCockpitView * 2 + 1],
+                       asHudMessageOrigins[cCurrentCockpitView * 2],
+                       asHudMessageOrigins[cCurrentCockpitView * 2 + 1],
                        wrapped, 2);
             break;
         default:
@@ -2039,8 +2038,8 @@ void print_message_text(char *text, unsigned short colour)
         }
     } else {
         DrawTextAt(&context,
-                   asHudMessageOrigins[(int)cCurrentCockpitView * 2],
-                   asHudMessageOrigins[(int)cCurrentCockpitView * 2 + 1],
+                   asHudMessageOrigins[cCurrentCockpitView * 2],
+                   asHudMessageOrigins[cCurrentCockpitView * 2 + 1],
                    wrapped, 2);
     }
     pszDisplayedHudMessage = pszPendingHudMessage;
@@ -2438,18 +2437,18 @@ void build_your_target_list(short *hasEnemy)
     cViableTargetCount = 0;
     object = 1;
     do {
-        if (aeObjectClass[(int)object] >= OBJECT_CLASS_SHIP &&
-            aeSpecialManeuvers[(int)object] !=
+        if (aeObjectClass[object] >= OBJECT_CLASS_SHIP &&
+            aeSpecialManeuvers[object] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            asObjectScreenXList[(int)object] != (short)0x8001 &&
-            (unsigned short)(distance = asObjDistancesTable[(int)object]) <
+            asObjectScreenXList[object] != (short)0x8001 &&
+            (unsigned short)(distance = asObjDistancesTable[object]) <
                 12000) {
             targetIndex = cViableTargetCount;
-            asViableTgtDistList[(int)targetIndex] = distance;
-            acViableTargetList[(int)targetIndex] = object;
+            asViableTgtDistList[targetIndex] = distance;
+            acViableTargetList[targetIndex] = object;
             cViableTargetCount++;
             playerSide = aeShipSide[0];
-            if (aeShipSide[(int)object] != playerSide)
+            if (aeShipSide[object] != playerSide)
                 *hasEnemy = 1;
         }
         object++;
@@ -2758,9 +2757,9 @@ void explosion_draw(void)
             DrawSpriteDefault(
                 &stScreenView,
                 aaCockpitDamagePositions[
-                    (int)cCurrentCockpitView][damage].x,
+                    cCurrentCockpitView][damage].x,
                 aaCockpitDamagePositions[
-                    (int)cCurrentCockpitView][damage].y,
+                    cCurrentCockpitView][damage].y,
                 pCockpitPilotShape, damage);
         }
         damage++;
@@ -2965,24 +2964,24 @@ void update_VDUs(void)
         DrawFilledViewportRect(
             &stScreenView,
             stCockpitLayout.leftVduBounds[
-                (int)cCurrentCockpitView].left,
+                cCurrentCockpitView].left,
             stCockpitLayout.leftVduBounds[
-                (int)cCurrentCockpitView].top,
+                cCurrentCockpitView].top,
             stCockpitLayout.leftVduBounds[
-                (int)cCurrentCockpitView].right,
+                cCurrentCockpitView].right,
             stCockpitLayout.leftVduBounds[
-                (int)cCurrentCockpitView].bottom,
+                cCurrentCockpitView].bottom,
             0);
         DrawFilledViewportRect(
             &stScreenView,
             stCockpitLayout.rightVduBounds[
-                (int)cCurrentCockpitView].left,
+                cCurrentCockpitView].left,
             stCockpitLayout.rightVduBounds[
-                (int)cCurrentCockpitView].top,
+                cCurrentCockpitView].top,
             stCockpitLayout.rightVduBounds[
-                (int)cCurrentCockpitView].right,
+                cCurrentCockpitView].right,
             stCockpitLayout.rightVduBounds[
-                (int)cCurrentCockpitView].bottom,
+                cCurrentCockpitView].bottom,
             0);
     }
     changed = update_vid_disp(0);

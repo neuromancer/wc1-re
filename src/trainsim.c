@@ -154,23 +154,15 @@ void SortTrainSimHighScores(void)
     short outer;
     short inner;
 
-    outer = 0;
-    do {
-        inner = (short)(outer + 1);
-        if (inner < 6) {
-            do {
-                if ((int)aHighScoreEntriesArray[outer].score <
-                    (int)aHighScoreEntriesArray[inner].score) {
-                    temporary = aHighScoreEntriesArray[inner];
-                    aHighScoreEntriesArray[inner] =
-                        aHighScoreEntriesArray[outer];
-                    aHighScoreEntriesArray[outer] = temporary;
-                }
-                inner++;
-            } while (inner < 6);
-        }
-        outer++;
-    } while (outer < 6);
+    for (outer = 0; outer < 6; outer++)
+        for (inner = (short)(outer + 1); inner < 6; inner++)
+            if (aHighScoreEntriesArray[inner].score >
+                aHighScoreEntriesArray[outer].score) {
+                temporary = aHighScoreEntriesArray[inner];
+                aHighScoreEntriesArray[inner] =
+                    aHighScoreEntriesArray[outer];
+                aHighScoreEntriesArray[outer] = temporary;
+            }
 }
 
 /* Function start: 0x425ED0 */
@@ -198,6 +190,9 @@ short InsertTrainSimHighScore(short pilot, unsigned int score)
     SortTrainSimHighScores();
     return FindTrainSimHighScore(pilot);
 }
+
+/* Random-score callee of the high-score table setup below. */
+short RandomBelowOrEqual(short n);
 
 /* Function start: 0x425F40 */
 void InitializeTrainSimHighScores(void)
@@ -265,9 +260,9 @@ void AddRandomTrainSimHighScores(void)
         slot = FindTrainSimHighScore(pilot);
         if (slot == -1)
             slot = RandomInRange(0, 5);
-        baseScore = (int)aHighScoreEntriesArray[slot].score;
+        baseScore = aHighScoreEntriesArray[slot].score;
         scoreRange =
-            (int)aHighScoreEntriesArray[0].score - baseScore + 2000;
+            aHighScoreEntriesArray[0].score - baseScore + 2000;
         while (scoreRange / scale > 30000)
             scale = (short)(scale * 2);
         score = (unsigned int)((int)RandomBelowOrEqual(
