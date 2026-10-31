@@ -488,52 +488,47 @@ void * __stdcall DecompressPacketSection(
         return 0;
     }
 
-    if (decompressionWorkspace == 0) {
-        if (pPacketDecompressionWorkspace != 0) {
-            wPacketDecompressionInputSizeOverride = 0;
-            decompressionWorkspace =
-                pPacketDecompressionWorkspace;
-        }
-        if (decompressionWorkspace == 0) {
-            largeScratch = AllocateTaggedMemory(0x3020, 0);
-            smallScratch = AllocateTaggedMemory(0x410, 0);
-            if (largeScratch == 0 || smallScratch == 0) {
-                if (largeScratch != 0)
-                    ReleasePacketHandle(largeScratch);
-                if (smallScratch != 0)
-                    ReleasePacketHandle(smallScratch);
-                fallbackAllocations = 1;
-                largeScratch = AllocateTaggedMemory(0x3000, 0x22);
-                if (largeScratch == 0) {
-                    nPacketError = 1;
-                    return 0;
-                }
-                smallScratch = AllocateTaggedMemory(0x400, 0x22);
-                if (smallScratch == 0) {
-                    ReleasePacketHandle(largeScratch);
-                    nPacketError = 2;
-                    return 0;
-                }
-            }
-            workspace = IdentityHandle(largeScratch);
-            pPktDecompInput = IdentityHandle(smallScratch);
-            wPacketDecompressInputSize = 0x400;
-            goto initializeDecompressor;
-        }
+    if (decompressionWorkspace == 0 &&
+        pPacketDecompressionWorkspace != 0) {
+        wPacketDecompressionInputSizeOverride = 0;
+        decompressionWorkspace = pPacketDecompressionWorkspace;
     }
-
-    workspace = IdentityHandle(decompressionWorkspace);
-    wPacketDecompressInputSize = 0x400;
-    allocationSize = 0x3020;
-    pPktDecompInput =
-        ((PacketDecompressionWorkspace *)decompressionWorkspace)->input;
-    pPktDecompInput =
-        IdentityHandle(pPktDecompInput);
-    if (wPacketDecompressionInputSizeOverride != 0)
-        wPacketDecompressInputSize =
-            wPacketDecompressionInputSizeOverride;
-
-initializeDecompressor:
+    if (decompressionWorkspace == 0) {
+        largeScratch = AllocateTaggedMemory(0x3020, 0);
+        smallScratch = AllocateTaggedMemory(0x410, 0);
+        if (largeScratch == 0 || smallScratch == 0) {
+            if (largeScratch != 0)
+                ReleasePacketHandle(largeScratch);
+            if (smallScratch != 0)
+                ReleasePacketHandle(smallScratch);
+            fallbackAllocations = 1;
+            largeScratch = AllocateTaggedMemory(0x3000, 0x22);
+            if (largeScratch == 0) {
+                nPacketError = 1;
+                return 0;
+            }
+            smallScratch = AllocateTaggedMemory(0x400, 0x22);
+            if (smallScratch == 0) {
+                ReleasePacketHandle(largeScratch);
+                nPacketError = 2;
+                return 0;
+            }
+        }
+        workspace = IdentityHandle(largeScratch);
+        pPktDecompInput = IdentityHandle(smallScratch);
+        wPacketDecompressInputSize = 0x400;
+    } else {
+        workspace = IdentityHandle(decompressionWorkspace);
+        wPacketDecompressInputSize = 0x400;
+        allocationSize = 0x3020;
+        pPktDecompInput =
+            ((PacketDecompressionWorkspace *)decompressionWorkspace)->input;
+        pPktDecompInput =
+            IdentityHandle(pPktDecompInput);
+        if (wPacketDecompressionInputSizeOverride != 0)
+            wPacketDecompressInputSize =
+                wPacketDecompressionInputSizeOverride;
+    }
     nPktDecompressSourceFile = handle->file;
     nPacketDecompressInputPositionValue = 0;
     nPacketDecompressPending = 0;
@@ -593,6 +588,9 @@ short GetTargetColourIndex(void)
         v = 0x13;
     return v;
 }
+
+/* Formatted VDU text callee of the target display below. */
+void DrawFormattedText(const char *format, ...);
 
 /* Function start: 0x42DB90 */
 void show_target_disp(void)
@@ -732,19 +730,16 @@ void DrawTargetRangeReadout(void)
         return;
 
     if (asObjectScreenXList[target] != (short)0x8001) {
-        if ((unsigned short)asObjDistancesTable[target] <= 30000)
-            goto format_range;
-        strcpy(szTxtWorkspaceBuffer, "TOO FAR");
-        goto range_ready;
-format_range:
-        strcpy(szTxtWorkspaceBuffer + strlen(
-            itoa((unsigned short)asObjDistancesTable[target],
-                 szTxtWorkspaceBuffer, 10)), " m");
+        if (asObjDistancesTable[target] > 30000 ||
+            asObjDistancesTable[target] < 0)
+            strcpy(szTxtWorkspaceBuffer, "TOO FAR");
+        else
+            strcpy(szTxtWorkspaceBuffer + strlen(
+                itoa(asObjDistancesTable[target],
+                     szTxtWorkspaceBuffer, 10)), " m");
     } else {
         strcpy(szTxtWorkspaceBuffer, "----- m");
     }
-
-range_ready:
     DrawCockpitReadout(1, szTxtWorkspaceBuffer);
     if (nTargetLockCountdown == 0) {
         if (bTargetLockAcquired == 1) {

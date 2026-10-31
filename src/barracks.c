@@ -969,28 +969,18 @@ void HandleBarracksBunkSelection(Viewport *viewport,
                                   BarracksAnimationState *state,
                                   short region)
 {
-    short slot;
-
     LeaveAllocationScope();
-    slot = (short)(region / 2);
-    if (state->bunks[slot].occupied != 0) {
-        if (region % 2 == 0) {
-            if (ConfirmAwakenAfterBadData(slot) != 0) {
-                LoadGameFromSlot(
-                    slot, &stCampaignState,
-                    aPilotEntriesList,
-                    aMissionObjectivesArray);
-            }
-            goto refresh;
-        }
-        if (ConfirmReplaceFaultyData(slot) == 0)
-            goto refresh;
+    if (state->bunks[region / 2].occupied == 0) {
+        SaveGameWithNamePrompt(region / 2, &stCampaignState,
+                               aPilotEntriesList, aMissionObjectivesArray);
+    } else if (region % 2 == 0) {
+        if (ConfirmAwakenAfterBadData(region / 2) != 0)
+            LoadGameFromSlot(region / 2, &stCampaignState,
+                             aPilotEntriesList, aMissionObjectivesArray);
+    } else if (ConfirmReplaceFaultyData(region / 2) != 0) {
+        SaveGameWithNamePrompt(region / 2, &stCampaignState,
+                               aPilotEntriesList, aMissionObjectivesArray);
     }
-    SaveGameWithNamePrompt(slot, &stCampaignState,
-                           aPilotEntriesList,
-                           aMissionObjectivesArray);
-
-refresh:
     GetBunkInfo(state);
     DrawBarracksBunks(viewport, shape, state);
     EnterAllocationScope();

@@ -1228,10 +1228,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
     FlushInputEvents();
     SetEventManagerPump(PollJoystickButtonEvents);
     bEscapePressedFlag = 0;
-    for (;;) {
-        shot = (short)record->shot;
-        if (shot == -2)
-            goto scene_complete;
+    while ((shot = (short)record->shot) != -2) {
         if (shot != -1) {
             if ((shot & 0x40) != 0) {
                 bConversationOverlay = 1;
@@ -1412,7 +1409,6 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         if (bEscapePressedFlag == 1)
             break;
     }
-scene_complete:
     ClearViewport(&stCurrentConvTextViewport,
                   cBlackColour);
     FreeTalker();

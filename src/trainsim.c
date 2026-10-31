@@ -431,7 +431,7 @@ short ReadTextInput(char *destination, short maximumLength,
                             break;
                         }
                         if (key == 0)
-                            goto redraw;
+                            break;
                         ClearNextTextInputCharacter(' ');
                         input[inputLength++] = (char)key;
                         input[inputLength] = 0;
@@ -444,7 +444,6 @@ short ReadTextInput(char *destination, short maximumLength,
                 }
                 break;
             }
-redraw:
             DIBslam();
             DIBslamReal();
         } while (handled == 0);
@@ -809,14 +808,8 @@ short SelectTrainSimMission(short *mission)
             break;
         eventType = PollInputEvent(&event, 0xff);
         switch (eventType) {
-        case 2:
-select_region:
-            region = (signed char)FindMenuRegionAtPoint(
-                event.x, event.y,
-                aTrainSimMissionRegions);
-            regionIndex = region;
-            if (regionIndex >= 0 && regionIndex <= 3)
-                selection = (signed char)(region + 1);
+        case 13:
+            UpdateTrainSimMenuCursor();
             break;
         case 3:
         case 5:
@@ -828,11 +821,16 @@ select_region:
             } else {
                 MoveMenuPointerFromKeyboard(&event);
             }
-            if (activate != 0)
-                goto select_region;
-            break;
-        case 13:
-            UpdateTrainSimMenuCursor();
+            if (activate == 0)
+                break;
+            /* Enter and Space select the region under the pointer. */
+        case 2:
+            region = (signed char)FindMenuRegionAtPoint(
+                event.x, event.y,
+                aTrainSimMissionRegions);
+            regionIndex = region;
+            if (regionIndex >= 0 && regionIndex <= 3)
+                selection = (signed char)(region + 1);
             break;
         }
         DIBslam();

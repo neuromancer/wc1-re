@@ -154,34 +154,29 @@ int bad_target(short ship, short target)
 /* Function start: 0x42F2B0 */
 short can_land(void)
 {
-    int *objectiveType;
-    short result;
     short index;
+    short result;
 
     result = 0;
     if (any_enemy(0, 20000) == 0) {
         if (evaluate_damage(0) < 50 || nPlayerKillTotal > 0 ||
             anShipFuelsTable[0] < 1000)
             result = 1;
-        index = 0;
-        if (cMissionObjectiveCountValue > 0) {
-            do {
-                objectiveType =
-                    &aMissionObjectivesArray[index].type;
-                if (*objectiveType != 1) {
-                    if (achieved(index) == 0) {
-                        if (visited(index) == 0 || *objectiveType == 2)
-                            goto next_objective;
-                    }
-                    result = 1;
-                }
-next_objective:
-                index++;
-            } while (index < cMissionObjectiveCountValue);
+        for (index = 0; index < cMissionObjectiveCountValue; index++) {
+            if (aMissionObjectivesArray[index].type == 1)
+                continue;
+            if (achieved(index) != 0 ||
+                (visited(index) != 0 &&
+                 aMissionObjectivesArray[index].type != 2))
+                result = 1;
         }
     }
     return result;
 }
+
+/* Rout and engagement callees of the order routines below. */
+unsigned int triumph(short obj);
+void engage(short obj, short target, enum ShipObjective objective);
 
 /* Function start: 0x42F350 */
 short i_wanna_rout(short ship, int pilot)

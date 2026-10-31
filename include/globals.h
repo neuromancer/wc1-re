@@ -340,7 +340,7 @@ extern short anObjPitchRot[SPACE_OBJECT_COUNT]; /* 0x0059b2a0 */
 extern int anShipSpeed[64]; /* 0x0059b320 */
 extern short nCurrentSpaceFrameValue; /* 0x0059b420 */
 extern FixedVector vPlayerAccel; /* 0x0059b460 */
-extern short asObjDistancesTable[SPACE_OBJECT_COUNT]; /* 0x0059b4a0 */
+extern unsigned short asObjDistancesTable[SPACE_OBJECT_COUNT]; /* 0x0059b4a0 */
 extern FixedVector aShipRightVector[64]; /* 0x0059b6e0 */
 extern FixedVector aShipUpVector[64]; /* 0x0059b9e0 */
 extern FixedVector aShipFwdVec[64]; /* 0x0059bce0 */

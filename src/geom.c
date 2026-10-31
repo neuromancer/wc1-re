@@ -1305,7 +1305,7 @@ void transform_objects_to_your_view(void)
                 }
             }
             asObjDistancesTable[objectIndex] =
-                (short)(distance >> 8);
+                (unsigned short)(distance >> 8);
             asObjectScreenXList[objectIndex] = (short)(DivideFixed(
                 MultiplyFixed(
                     (short)(nScreenWidth & ~1) << 7,

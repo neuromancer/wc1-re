@@ -629,7 +629,7 @@ void servicetrack(void)
             case OBJECT_CLASS_SHIP:
             case OBJECT_CLASS_CAPITAL_SHIP:
                 if (asObjectScreenXList[object] != (short)0x8001 &&
-                    (unsigned short)asObjDistancesTable[object] < 0x55a) {
+                    asObjDistancesTable[object] < 0x55a) {
                     if (nPassingShipSoundObject == -1) {
                         ScaleFixedVector(&aShipVelocity[object],
                                          0x1400, &travel);

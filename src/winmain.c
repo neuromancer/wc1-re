@@ -400,7 +400,7 @@ void manage_hazard(short obj, short slot)
     }
     if (aeObjectTypeList[obj] == OBJECT_TYPE_SPACE_MINE &&
         asObjectScreenXList[obj] != (short)0x8001 &&
-        (unsigned short)asObjDistancesTable[obj] > 1500 &&
+        asObjDistancesTable[obj] > 1500 &&
         real_velocity(obj) < 20)
         approach(obj);
 }

@@ -683,7 +683,7 @@ unsigned int scramble(void)
                 (short)(stScrambleCockpitDetail.x + 4);
             nScrambleBackgroundRightCoordX--;
             if (bEscapePressedFlag == 1)
-                goto releaseScrambleResources;
+                break;
         }
 
         if (bEscapePressedFlag != 1) {
@@ -700,49 +700,48 @@ unsigned int scramble(void)
                 if (bEscapePressedFlag == 1)
                     break;
             }
-        }
-
-        if (bEscapePressedFlag != 1) {
-            FlushSoundEffectsAndLog(scrambleSound, 0);
-            nScrambleCanopyOffset--;
-            PlaySfxWaveFileByNumber(15, -1, 0);
-            nFrameSkipCounter = 1;
-            for (frame = 0; frame < 23; frame++) {
-                PumpWindowMessages();
-                if (frame == 22)
-                    nFrameSkipCounter = 1;
-                DrawScrambleFrame();
-                switch (stCampaignState.playerShipType) {
-                case OBJECT_TYPE_HORNET:
-                    nScrambleCockpitAngle =
-                        (short)(nScrambleCockpitAngle + 2);
-                    break;
-                case OBJECT_TYPE_RAPIER:
-                case OBJECT_TYPE_RAPTOR:
-                    stScrambleCockpitDetail.x =
-                        (short)(stScrambleCockpitDetail.x - 2);
-                    break;
-                case OBJECT_TYPE_SCIMITAR:
-                    if (frame == 21)
-                        stScrambleCockpitDetail.y++;
-                    else
+            if (bEscapePressedFlag != 1) {
+                FlushSoundEffectsAndLog(scrambleSound, 0);
+                nScrambleCanopyOffset--;
+                PlaySfxWaveFileByNumber(15, -1, 0);
+                nFrameSkipCounter = 1;
+                for (frame = 0; frame < 23; frame++) {
+                    PumpWindowMessages();
+                    if (frame == 22)
+                        nFrameSkipCounter = 1;
+                    DrawScrambleFrame();
+                    switch (stCampaignState.playerShipType) {
+                    case OBJECT_TYPE_HORNET:
+                        nScrambleCockpitAngle =
+                            (short)(nScrambleCockpitAngle + 2);
+                        break;
+                    case OBJECT_TYPE_RAPIER:
+                    case OBJECT_TYPE_RAPTOR:
                         stScrambleCockpitDetail.x =
                             (short)(stScrambleCockpitDetail.x - 2);
-                    break;
+                        break;
+                    case OBJECT_TYPE_SCIMITAR:
+                        if (frame == 21)
+                            stScrambleCockpitDetail.y++;
+                        else
+                            stScrambleCockpitDetail.x =
+                                (short)(stScrambleCockpitDetail.x - 2);
+                        break;
+                    }
+                    if (nSceneScrambleCanopyFrameValue < 35)
+                        nSceneScrambleCanopyFrameValue++;
+                    if (bEscapePressedFlag == 1)
+                        break;
                 }
-                if (nSceneScrambleCanopyFrameValue < 35)
-                    nSceneScrambleCanopyFrameValue++;
-                if (bEscapePressedFlag == 1)
-                    break;
+
+                FlushSoundEffectsAndLog(canopySound, 0);
+                PlaySfxWaveFileByNumber(16, -1, 0);
+                if (bEscapePressedFlag != 1)
+                    WaitForSceneAdvance(60, 0);
             }
 
-            FlushSoundEffectsAndLog(canopySound, 0);
-            PlaySfxWaveFileByNumber(16, -1, 0);
-            if (bEscapePressedFlag != 1)
-                WaitForSceneAdvance(60, 0);
         }
 
-releaseScrambleResources:
         bEscapePressedFlag = 0;
         ReleasePacketHandle(pScrambleCockpitShapePtr);
         ReleasePacketHandle(pSceneScrambleBgShapePtr);
@@ -764,6 +763,7 @@ releaseScrambleResources:
 void *FetchDiskPacketRetrying(short logicalFile, short section, short flags);
 unsigned int spacetrack(int track, int mode, short enabled);
 void __stdcall SetEventManagerPump(void (*pump)(void));
+unsigned int ReleaseTextFont(short fontIndex);
 
 /* Function start: 0x408650 (Mac symbol: landing) */
 unsigned int landing(signed char damageLevel)

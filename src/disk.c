@@ -566,32 +566,32 @@ void MoveMenuPointerFromKeyboard(InputEventState *event)
             /* fall through */
         case 0x4b:
             stMouseCursorState.x -= delta;
+            moved = 1;
             break;
         case 0x49:
             stMouseCursorState.x += delta;
             /* fall through */
         case 0x48:
             stMouseCursorState.y -= delta;
+            moved = 1;
             break;
         case 0x4f:
             stMouseCursorState.x -= delta;
             /* fall through */
         case 0x50:
             stMouseCursorState.y += delta;
+            moved = 1;
             break;
         case 0x51:
             stMouseCursorState.y += delta;
             /* fall through */
         case 0x4d:
             stMouseCursorState.x += delta;
+            moved = 1;
             break;
-        default:
-            goto clamp_pointer;
         }
-        moved = 1;
     }
 
-clamp_pointer:
     if (stMouseCursorState.x < 0)
         stMouseCursorState.x = 0;
     else if (stMouseCursorState.x > 320)

@@ -2292,7 +2292,11 @@ unsigned int overlay_head_up_display(void)
         switch (cCurrentCockpitView) {
         case 0:
         case 2:
-            goto centered_sight;
+            DrawSpriteDefault(&stSpaceBufferViewport,
+                              nCurrentViewCenterPosX,
+                              nCurrentViewCenterPosY,
+                              pTgtLockShapePtr, 0);
+            break;
         case 1:
             DrawSpriteDefault(&stSpaceBufferViewport,
                               nCurrentViewCenterPosX,
@@ -2306,17 +2310,14 @@ unsigned int overlay_head_up_display(void)
                               pTgtLockShapePtr, 0);
             break;
         default:
-            goto no_sight;
+            break;
         }
-        goto no_sight;
+    } else {
+        DrawSpriteDefault(&stSpaceBufferViewport,
+                          nCurrentViewCenterPosX,
+                          nCurrentViewCenterPosY,
+                          pTgtLockShapePtr, 0);
     }
-centered_sight:
-    DrawSpriteDefault(&stSpaceBufferViewport,
-                      nCurrentViewCenterPosX,
-                      nCurrentViewCenterPosY,
-                      pTgtLockShapePtr, 0);
-
-no_sight:
     DAT_0046c05c = 0;
     if (pszPendingHudMessage != 0)
         ShowHudTextLine(pszPendingHudMessage, nPendingHudMessageColour);

@@ -274,7 +274,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             (short)(nScrambleBackgroundRightCoordX - 2);
         approachDistance = (short)(approachDistance + 2);
         asObjDistancesTable[0] =
-            (short)(asObjDistancesTable[0] + 10);
+            (unsigned short)(asObjDistancesTable[0] + 10);
         AddFixedVectors(&aShipPositionsArray[61],
                         &aShipVelocity[61],
                         &aShipPositionsArray[61]);

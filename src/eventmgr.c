@@ -853,7 +853,7 @@ void sort_object_depth(void)
            sizeof(anEventObjectDepthPlacedList));
     obj = 0;
     for (; obj < SPACE_OBJECT_COUNT; obj++) {
-        distance = (unsigned short)asObjDistancesTable[obj];
+        distance = asObjDistancesTable[obj];
         if (previous < (int)distance) {
             previous = (int)distance;
             bestObject = obj;

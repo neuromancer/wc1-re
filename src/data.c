@@ -246,7 +246,7 @@ short nCurrentSpaceFrameValue; /* 0x0059b420 */
 unsigned int anShipAlertFlags[12]; /* 0x0059b430 */
 FixedVector vPlayerAccel; /* 0x0059b460 */
 int anShipFuelsTable[12]; /* 0x0059b470 */
-short asObjDistancesTable[SPACE_OBJECT_COUNT]; /* 0x0059b4a0 */
+unsigned short asObjDistancesTable[SPACE_OBJECT_COUNT]; /* 0x0059b4a0 */
 ShortVector aShipFormationDeltaList[10]; /* 0x0059b520 */
 enum ObjectType aeObjectTypeList[SPACE_OBJECT_COUNT]; /* 0x0059b560 */
 short asObjectAnimationDelay[SPACE_OBJECT_COUNT]; /* 0x0059b660 */
