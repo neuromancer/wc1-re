@@ -940,7 +940,6 @@ void perform_maneuver(short obj)
     short target = acShipTargetTable[obj];
     enum ShipManeuver previous = aeShipManeuversTable[obj];
     short range;
-    int proximityLimit;
 
 #ifdef SDL_PORT
     /* The original performs this lookup before validating the maneuver.
@@ -1067,8 +1066,7 @@ void perform_maneuver(short obj)
         maneuver_complete(obj);
     }
 
-    proximityLimit = nManeuverProximityRange;
-    if ((short)proximityLimit > *(volatile short *)&range) {
+    if (range < nManeuverProximityRange) {
         try2reset_maneuver(obj, 2);
     } else if (aeShipManeuversTable[obj] == previous &&
                RandomBelowOrEqual(100) <
