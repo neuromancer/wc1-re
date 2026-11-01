@@ -240,6 +240,93 @@ done:
     return result;
 }
 
+/* CODE_01 DoAdjustVolumes +0x5016 draws PICT/128 ("SoundControl") off
+ * screen: one 66x118 one-bit PackBitsRect, index 0 white and 1 black. */
+int SwcReadSoundControl(const char *resourceFork, SwcBuffer *pixels)
+{
+    static const uint8_t rectangle[8] = {0, 0, 0, 0, 0, 118, 0, 66};
+    SwcBuffer picture = {0};
+    uint8_t packed[10];
+    size_t cursor = 0x90;
+    size_t end;
+    size_t output;
+    size_t count;
+    unsigned int control;
+    int row;
+    int x;
+    int result = -1;
+
+    memset(pixels, 0, sizeof(*pixels));
+    if (SwcReadResource(resourceFork, "PICT", 128, &picture) != 0)
+        return -1;
+    if (picture.size < cursor ||
+        memcmp(picture.data + 2, rectangle, sizeof(rectangle)) != 0 ||
+        memcmp(picture.data + 0x0a, "\x00\x11\x02\xff\x0c\x00", 6) != 0 ||
+        memcmp(picture.data + 0x36, "\x00\x98\x80\x0a", 4) != 0 ||
+        memcmp(picture.data + 0x3a, rectangle, sizeof(rectangle)) != 0 ||
+        memcmp(picture.data + 0x54, "\x00\x01\x00\x01\x00\x01", 6) != 0 ||
+        memcmp(picture.data + 0x6c, "\x00\x01", 2) != 0 ||
+        memcmp(picture.data + 0x70, "\xff\xff\xff\xff\xff\xff", 6) != 0 ||
+        memcmp(picture.data + 0x78, "\x00\x00\x00\x00\x00\x00", 6) != 0 ||
+        memcmp(picture.data + 0x7e, rectangle, sizeof(rectangle)) != 0 ||
+        memcmp(picture.data + 0x86, rectangle, sizeof(rectangle)) != 0)
+        goto invalid;
+    pixels->size = 66 * 118;
+    pixels->data = SDL_malloc(pixels->size);
+    if (pixels->data == NULL) {
+        SDL_OutOfMemory();
+        goto done;
+    }
+    /* Ten-byte rows are below 251 bytes, so each has a one-byte count. */
+    for (row = 0; row < 118; row++) {
+        if (cursor == picture.size)
+            goto invalid;
+        count = picture.data[cursor++];
+        if (count > picture.size - cursor)
+            goto invalid;
+        end = cursor + count;
+        output = 0;
+        while (cursor < end) {
+            control = picture.data[cursor++];
+            if (control == 128)
+                continue;
+            count = control < 128 ? control + 1 : 257 - control;
+            if (count > sizeof(packed) - output)
+                goto invalid;
+            if (control < 128) {
+                if (count > end - cursor)
+                    goto invalid;
+                memcpy(packed + output, picture.data + cursor, count);
+                cursor += count;
+            } else {
+                if (cursor == end)
+                    goto invalid;
+                memset(packed + output, picture.data[cursor++], count);
+            }
+            output += count;
+        }
+        if (output != sizeof(packed))
+            goto invalid;
+        for (x = 0; x < 66; x++)
+            pixels->data[row * 66 + x] = packed[x >> 3] >> (7 - (x & 7)) & 1;
+    }
+    cursor += cursor & 1;
+    if (cursor > picture.size || picture.size - cursor != 2 ||
+        memcmp(picture.data + cursor, "\x00\xff", 2) != 0)
+        goto invalid;
+    result = 0;
+    goto done;
+invalid:
+    SDL_SetError("Unsupported or malformed SWC volume controls PICT/128");
+done:
+    if (result != 0) {
+        SDL_free(pixels->data);
+        memset(pixels, 0, sizeof(*pixels));
+    }
+    SDL_free(picture.data);
+    return result;
+}
+
 int SwcReadPalette(const char *resourceFork, int16_t id, SDL_Color colors[256])
 {
     SwcBuffer resource = {0};

@@ -425,6 +425,8 @@ int SdlHandleSwcEvent(SDL_Window *window, SDL_Event *event, int flight)
                 SdlToggleFullscreen(SDL_GetWindowID(window));
             return 1;
         }
+        if (SdlHandleSwcOptionKey(window, &event->key))
+            return 1;
         if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_q &&
             (event->key.keysym.mod & KMOD_GUI))
             event->type = SDL_QUIT;

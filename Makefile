@@ -543,6 +543,7 @@ MODERN_GAME_HOST_SRCS = \
 	src/sdl/swc_music.c \
 	src/sdl/swc_text.c \
 	src/sdl/swc_rooms.c \
+	src/sdl/swc_options.c \
 	src/sdl/swc_movie.c \
 	src/swc/speech.c \
 	src/swc/sound.c \

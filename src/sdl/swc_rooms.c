@@ -468,6 +468,7 @@ static int SwcPresentRoom(SwcCarrier *carrier, int brightness)
         (SDL_SetTextureAlphaMod(carrier->dimPicture, 255 - brightness) != 0 ||
          SDL_RenderCopy(carrier->renderer, carrier->dimPicture, NULL, NULL) != 0))
         return -1;
+    SdlDrawSwcOptionNotice(carrier->renderer);
     SDL_RenderPresent(carrier->renderer);
     carrier->pictureVisible = brightness != 0;
     return 0;
@@ -607,6 +608,7 @@ int SdlShowSwcSplash(SDL_Window *window, SDL_Renderer *renderer, const char *res
         if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) != 0 ||
             SDL_RenderClear(renderer) != 0 || SDL_RenderCopy(renderer, texture, NULL, NULL) != 0)
             goto done;
+        SdlDrawSwcOptionNotice(renderer);
         SDL_RenderPresent(renderer);
         if (elapsed >= 25 * frequency &&
             carrier.armedKey == SDL_SCANCODE_UNKNOWN && !carrier.mouseDown) {
@@ -795,6 +797,7 @@ int SdlPlaySwcIntroSpeech(SDL_Window *window, SDL_Renderer *renderer,
                 SwcDrawRoomArt(&carrier, packId, "TKHD", 13, mouth + 1, 0, 10);
             if (carrier.drawResult != 0)
                 goto done;
+            SdlDrawSwcOptionNotice(renderer);
             SDL_RenderPresent(renderer);
             if (elapsed >= duration && !SdlSwcPcmPlaying() &&
                 carrier.armedKey == SDL_SCANCODE_UNKNOWN && !carrier.mouseDown)
@@ -1408,8 +1411,9 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
                 SDL_RenderClear(carrier->renderer) != 0)
                 goto done;
             SwcDrawScene(carrier, shot, colour, talker, -1, -1, 0);
-            if (carrier->drawResult != 0 ||
-                SdlDrawSwcRoomSubtitle(carrier->renderer, &carrier->roomFont, text) != 0)
+            /* print_subtitle +0x112e draws nothing while text is off. */
+            if (carrier->drawResult != 0 || SdlDrawSwcRoomSubtitle(carrier->renderer,
+                    &carrier->roomFont, swcOptions.text ? text : "") != 0)
                 goto done;
             result = SwcFadeRoom(carrier, 1);
             if (result != 0)
@@ -1423,7 +1427,8 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
         for (;;) {
             current = SDL_GetTicks();
             if (wasPlaying) {
-                elapsed += current - previous;
+                /* Cap a stall, such as the modal Volume Controls dialog. */
+                elapsed += SDL_min(current - previous, 250U);
                 /* Only redraws that show the window update its shards. */
                 if (carrier->parallax.visible)
                     parallaxTime += SDL_min(current - previous, 250U);
@@ -1478,7 +1483,8 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
             SwcDrawScene(carrier, shot, colour, talker, mouthFrame,
                 SwcSceneAnimationFrame(face, (Uint32)((uint64_t)elapsed * 30 / 1000), 1), elapsed);
             if (carrier->drawResult != 0 || SdlDrawSwcRoomSubtitle(carrier->renderer, &carrier->roomFont,
-                carrier->paused ? "Paused - P to resume" : elapsed < leadIn ? "" : text) != 0 ||
+                carrier->paused ? "Paused - P to resume" :
+                elapsed < leadIn || !swcOptions.text ? "" : text) != 0 ||
                 SwcPresentRoom(carrier, 255) != 0)
                 goto done;
             SDL_Delay(16);
@@ -1817,6 +1823,7 @@ int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
                 160 - SdlSwcTextWidth(&carrier.roomFont, "THE END") / 2,
                 110, ink, "THE END") != 0))
             break;
+        SdlDrawSwcOptionNotice(renderer);
         SDL_RenderPresent(renderer);
         if (ticks < 127)
             ticks++;
@@ -2009,6 +2016,9 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
         if (input.back)
             carrier.paused = 0;
         if (!carrier.focused || carrier.paused) {
+            /* Repaint the retained picture over option notices and dialogs. */
+            if (!fadeIn && SwcPresentRoom(&carrier, 255) != 0)
+                break;
             SDL_Delay(16);
             continue;
         }
@@ -2223,8 +2233,10 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                     SDL_RenderDrawRect(renderer, &highlight) != 0)
                     break;
             }
+            /* RecRoom +0x0f12 and BarracksScreen name hotspots through
+             * print_subtitle, so text off hides them too. */
             if (SdlDrawSwcRoomSubtitle(renderer, &carrier.roomFont,
-                selected >= 0 ? labels[selected] : "") != 0)
+                selected >= 0 && swcOptions.text ? labels[selected] : "") != 0)
                 break;
         }
         result = fadeIn ? SwcFadeRoom(&carrier, 1) : SwcPresentRoom(&carrier, 255);

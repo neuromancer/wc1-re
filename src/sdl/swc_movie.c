@@ -62,8 +62,10 @@ static int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
     previous = SDL_GetPerformanceCounter();
     while (1) {
         current = SDL_GetPerformanceCounter();
+        /* Cap a stall, such as the modal Volume Controls dialog, which
+         * also holds the movie's audio. */
         if (playing)
-            elapsed += current - previous;
+            elapsed += SDL_min(current - previous, frequency / 4);
         previous = current;
         while (SDL_PollEvent(&event)) {
             if (SdlHandleSwcEvent(window, &event, 0))
@@ -138,6 +140,7 @@ static int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
             if (SDL_RenderClear(renderer) != 0 ||
                 SDL_RenderCopy(renderer, texture, NULL, NULL) != 0)
                 goto done;
+            SdlDrawSwcOptionNotice(renderer);
             SDL_RenderPresent(renderer);
             redraw = 0;
         }

@@ -1166,6 +1166,7 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
                 result = -1;
                 goto done;
             }
+            SdlDrawSwcOptionNotice(swcCinemaRenderer);
             SDL_RenderPresent(swcCinemaRenderer);
         }
         if (frames > 0 && elapsed >= interval) {
@@ -1185,6 +1186,7 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
                 result = -1;
                 goto done;
             }
+            SdlDrawSwcOptionNotice(swcCinemaRenderer);
             SDL_RenderPresent(swcCinemaRenderer);
             nRenderedSpaceFrame++;
             frames--;
@@ -1550,6 +1552,7 @@ draw_scene:
         if ((!focused || paused) &&
             SwcDrawPauseMessage(swcCinemaRenderer, swcCinemaColors, titleMenu, paused) != 0)
             goto done;
+        SdlDrawSwcOptionNotice(swcCinemaRenderer);
         SDL_RenderPresent(swcCinemaRenderer);
         if (titleMenu && ticks > 10000) {
             result = SWC_MOVIE_SKIPPED;
@@ -1686,6 +1689,8 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless)
     shipCount = SwcStartMissionShips();
     if (shipCount < 0)
         goto done;
+    /* CODE_12 SetupSWStuff +0x4926 loads preferences before sound starts. */
+    SdlLoadSwcOptions(path);
     if (SdlInitSwcSound(path) != 0)
         goto done;
     SetEventManagerPump(NULL);
@@ -2143,6 +2148,7 @@ title_menu:
             goto done;
         if ((!focused || paused) && SwcDrawPauseMessage(renderer, colors, 1, paused) != 0)
             goto done;
+        SdlDrawSwcOptionNotice(renderer);
         SDL_RenderPresent(renderer);
         SDL_Delay(8);
     }
@@ -2185,6 +2191,7 @@ done:
     swcRasterCanvas = NULL;
     SDL_DestroyTexture(swcPauseFont.texture);
     SDL_zero(swcPauseFont);
+    SdlFreeSwcOptions();
     for (view = 0; view < (int)SDL_arraysize(swcStarTextures); view++) {
         SDL_DestroyTexture(swcStarTextures[view]);
         swcStarTextures[view] = NULL;

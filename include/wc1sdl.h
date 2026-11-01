@@ -248,6 +248,8 @@ int SdlReadSwcJoystickFlightSample(struct InputDeviceSample *sample);
 void SdlTranslateSwcJoystickEvent(SDL_Event *event, int flight);
 /* Consume host shortcuts/device events; translate controller buttons in place. */
 int SdlHandleSwcEvent(SDL_Window *window, SDL_Event *event, int flight);
+/* SWC Options commands: Cmd (Ctrl on other hosts) with U, N, B or V; 1 when consumed. */
+int SdlHandleSwcOptionKey(SDL_Window *window, const SDL_KeyboardEvent *key);
 void SdlEnableJoystickDebug(void);
 void SdlEnableJoystickRumble(void);
 void SdlLogJoystickEvent(const SDL_Event *event);

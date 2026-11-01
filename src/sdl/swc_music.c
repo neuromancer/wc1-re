@@ -39,6 +39,9 @@ static SwcMusicTrack swcMusicTracks[] = {
 
 static tsf *swcSynth;
 static SwcMusicTrack *swcMusicTrack;
+/* Main thread only: the scene's track and level, kept while music is off. */
+static SwcMusicTrack *swcMusicRequest;
+static int swcMusicLevel;
 static size_t swcMusicEvent;
 static uint64_t swcMusicFrame;
 static int swcMusicNav = -1;
@@ -50,6 +53,7 @@ void SdlFreeSwcMusic(void)
     size_t index;
 
     swcMusicTrack = NULL;
+    swcMusicRequest = NULL;
     if (swcSynth != NULL)
         tsf_close(swcSynth);
     swcSynth = NULL;
@@ -171,6 +175,7 @@ void SdlStopSwcMusic(void)
     if (swcAudioDevice != 0)
         SDL_LockAudioDevice(swcAudioDevice);
     swcMusicTrack = NULL;
+    swcMusicRequest = NULL;
     if (swcAudioDevice != 0)
         SDL_UnlockAudioDevice(swcAudioDevice);
 }
@@ -199,15 +204,31 @@ void SdlPlaySwcMusic(const char *name, int volume)
         track->warned = 1;
     }
     SDL_LockAudioDevice(swcAudioDevice);
-    /* Leave headroom for the four effects and foreground speech/movie. */
+    swcMusicRequest = track;
+    swcMusicLevel = volume;
+    /* Leave headroom for the four effects and foreground speech/movie.
+     * DoAdjustVolumes +0x5464 scales the scene level by DATA/0 +0xa7f6. */
     tsf_set_volume(swcSynth, 0.25f * SDL_clamp(volume, 0, 50) / 50.0f *
-                   SDL_clamp(nMusicVolumeSetting, 0, 20) / 20.0f);
-    if (swcMusicTrack != track) {
+                   SDL_clamp(nMusicVolumeSetting, 0, 20) / 20.0f *
+                   swcOptions.musicVolume / 100.0f);
+    /* gametrack +0x1190 and spacetrack +0x0d42 play nothing while music is off. */
+    if (!swcOptions.music) {
+        swcMusicTrack = NULL;
+    } else if (swcMusicTrack != track) {
         swcMusicTrack = track->music.events != NULL ? track : NULL;
         if (swcMusicTrack != NULL)
             SwcRestartMusic();
     }
     SDL_UnlockAudioDevice(swcAudioDevice);
+}
+
+/* DoOptionsMenu +0x2db8 disposes of the movie for Turn Music Off; Turn
+ * Music On reopens the current track (QTSound) from its start. Volume
+ * changes keep the playing position. */
+void SdlRefreshSwcMusic(void)
+{
+    if (swcMusicRequest != NULL)
+        SdlPlaySwcMusic(swcMusicRequest->name, swcMusicLevel);
 }
 
 /* Audio callback only: render up to each event boundary at 48 kHz. All event

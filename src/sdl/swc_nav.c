@@ -763,6 +763,7 @@ int SdlShowSwcComputer(SDL_Window *window, SDL_Renderer *renderer, const char *r
         }
         if (SDL_RenderSetClipRect(renderer, NULL) != 0)
             goto done;
+        SdlDrawSwcOptionNotice(renderer);
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }

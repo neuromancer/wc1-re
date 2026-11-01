@@ -92,6 +92,8 @@ int SwcDecodeFrame(const SwcFrame *frame, uint8_t *pixels, size_t capacity);
 int SwcReadPalette(const char *resourceFork, int16_t id, SDL_Color colors[256]);
 /* Original startup PICT/129: one indexed 320x240 PackBits rectangle. */
 int SwcReadSplash(const char *resourceFork, SwcBuffer *pixels, SDL_Color colors[256]);
+/* Original Volume Controls art PICT/128: 66x118 one-bit pixels, 1 = black. */
+int SwcReadSoundControl(const char *resourceFork, SwcBuffer *pixels);
 int SwcReadResource(const char *resourceFork, const char type[4], int16_t id,
                     SwcBuffer *resource);
 int SwcReadSound(const SwcBuffer *resource, SwcSound *sound);
@@ -143,6 +145,29 @@ int SdlPlaySwcSound(int sound, int volume);
 void SdlStopSwcSound(int sound);
 int SdlSwcSoundPlaying(int sound);
 void SdlStopSwcAfterburnerSound(void);
+/* Applies swcOptions' sound switch and volume to effects and PCM. */
+void SdlApplySwcSoundOptions(void);
+/* Freezes playing effects and PCM while the volume dialog is open. */
+void SdlHoldSwcSound(int held);
+/* Applies swcOptions' music switch and volume; turning music on restarts
+ * the last requested track. */
+void SdlRefreshSwcMusic(void);
+
+/* CODE_01 DoOptionsMenu +0x2b30 state, saved by CODE_12 SavePreferences:
+ * DATA/0 +0x4b7f music, +0x4b7e sound, +0x8c4c text (print_subtitle), and
+ * +0xa7f6/+0xa7f2 music/sound volume percentages in DoAdjustVolumes' steps. */
+typedef struct SwcOptions {
+    int music;
+    int sound;
+    int text;
+    int musicVolume;
+    int soundVolume;
+} SwcOptions;
+extern SwcOptions swcOptions;
+void SdlLoadSwcOptions(const char *resourceFork);
+void SdlFreeSwcOptions(void);
+/* Draws a recent toggle notice; callers use it just before presenting. */
+void SdlDrawSwcOptionNotice(SDL_Renderer *renderer);
 
 int SwcMovieOpen(const char *path, SwcMovie *movie);
 void SwcMovieClose(SwcMovie *movie);

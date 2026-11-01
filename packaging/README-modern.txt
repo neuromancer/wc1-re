@@ -55,7 +55,10 @@ use the same launcher controls and command-line switches as WC1. EGA dithering
 is WC1-only. In demo menus, use the D-pad to browse, A to confirm, B/Back to go
 back or skip, and Start to pause. Escape and P toggle pause during gameplay;
 Escape skips cutscenes, while P pauses them. Escape or Backspace goes back
-from carrier panels; Backspace also skips scenes.
+from carrier panels; Backspace also skips scenes. Cmd+U and Cmd+N (Ctrl+U and
+Ctrl+N on Windows and Linux) turn the demo's music and sound off or on, as in
+its Options menu. Cmd+B/Ctrl+B toggles text messages (subtitles and room
+labels); Cmd+V/Ctrl+V opens Volume Controls. These settings are remembered.
 
 The macOS archives are ad-hoc signed, not notarized with an Apple developer
 certificate. macOS may therefore require the usual confirmation for software

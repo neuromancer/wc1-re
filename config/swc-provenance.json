@@ -734,6 +734,56 @@
       "symbol": "SdlPlaySwcMovie",
       "relationship": "partial-presentation-adaptation",
       "differences": "Immediate RGB halving for all 256 entries at native movie-group endings; skip handling separately halves entries 1..254, preventing a second dim. SDL reblits and presents the indexed final frame. Funeral room/end-screen transitions retain their existing palette path."
+    },
+    {
+      "original_name": "init_parralax_shards",
+      "resource": "CODE_05.bin",
+      "entry_offset": "0x484e",
+      "end_offset": "0x49b8",
+      "source": "src/sdl/swc_rooms.c",
+      "symbol": "SwcInitParallax",
+      "relationship": "algorithm-adaptation",
+      "differences": "density*45/100 still stars (PLNT/1 32..41) and shards; DATA/0 +0x2ede frame groups and +0x2eee speeds share a Random3DO(0,15) index. Every demo caller passes direction -1. RecRoom +0x0a1a uses (0,0)-(320,120) and density 100; SceneDirector +0x26a6 uses (0,0)-(320,150) and density 16; RecRoom +0x0ffc/+0x107a refill density 100 in SceneDirector's rectangle. Host RNG."
+    },
+    {
+      "original_name": "update_parralax_shards",
+      "resource": "CODE_05.bin",
+      "entry_offset": "0x49d0",
+      "end_offset": "0x4c18",
+      "source": "src/sdl/swc_rooms.c",
+      "symbol": "SwcStepParallax/SwcDrawParallax",
+      "relationship": "algorithm-and-presentation-adaptation",
+      "differences": "MacDraw2 offsets by the rectangle origin and clips only to the screen. Shards move by their speed, spin (frame+1)%4+(frame&~3) and restart within their speed of the right edge. RecRoom +0x0a92 draws before RCRM/49; CloseLook/CloseTalk draw only while SceneDirector's +0xa4e0 is set (talkers 2, 3, 8). SDL advances on the 15 Hz room clock instead of once per Mac redraw."
+    },
+    {
+      "original_name": "DoOptionsMenu",
+      "resource": "CODE_01.bin",
+      "entry_offset": "0x2b30",
+      "end_offset": "0x3042",
+      "source": "src/sdl/swc_options.c",
+      "symbol": "SdlHandleSwcOptionKey",
+      "relationship": "partial-behavior-adaptation",
+      "differences": "Items 11 (Turn Music Off/On, Cmd-U), 12 (Turn Sound Off/On, Cmd-N), 13 (Volume Controls) and 15 (Turn Text Off/On). No menu bar: Cmd (Ctrl elsewhere) with U/N keeps the original keys; B and V are host keys. A host notice replaces the changed item text. Music off stops the track and music on restarts it; sound off stops flight channels and mutes effects, speech and movie PCM; text off hides print_subtitle output (dialogue and bar/barracks hotspot names). Graphics-size, QuickDraw and odd-line items are Mac display options."
+    },
+    {
+      "original_name": "DoAdjustVolumes",
+      "resource": "CODE_01.bin",
+      "entry_offset": "0x4f80",
+      "end_offset": "0x5510",
+      "source": "src/sdl/swc_options.c",
+      "symbol": "SwcRunVolumeControls",
+      "relationship": "behavior-and-presentation-adaptation",
+      "differences": "DLOG/DITL 132 layout, OK default and Cancel restore. Click heights <12,24,35,47,59,71,83 select 100,84,70,56,42,28,14,0 percent; a new sound level plays selection_bing (snd/31, 255); music volume applies live. Runs modally inside the caller's event poll; speech, movie PCM and playing effects are held while music continues. Arrow keys/Tab are host additions; the dialog is centred over a black screen at 320x240 scale."
+    },
+    {
+      "original_name": "DRAWVOLUMECONTROLS",
+      "resource": "CODE_01.bin",
+      "entry_offset": "0x5522",
+      "end_offset": "0x56d8",
+      "source": "src/sdl/swc_options.c",
+      "symbol": "SwcDrawVolumeSlider",
+      "relationship": "presentation-adaptation",
+      "differences": "PICT/128 face (0,0)-(47,105), clean track (48,1)-(66,105) copied to x=28, knob (23,107)-(46,118) at tops 6,18,29,41,53,65,77,89 or pointer-5 clamped to 3..89 while dragging. SDL textures replace the offscreen GWorld."
     }
   ],
   "shared_wc1_evidence": [
@@ -1275,6 +1325,6 @@
   },
   "classic_font_resource": {"source": "src/sdl/swc_text.c", "location": "SWC_MAC_FONT_RESOURCE or game-root Fonts/Helvetica.rsrc", "format": "FOND 21 plain-style association -> exact-size NFNT/FONT; FONT-only family*128+size fallback. Monochrome FontRec pixels, per-glyph bearings/advances and ascent. Raw resource fork, explicit macOS ..namedfork/rsrc path, or AppleDouble accepted.", "references": ["https://developer.apple.com/library/archive/documentation/mac/Text/Text-250.html", "https://developer.apple.com/library/archive/documentation/mac/Text/Text-271.html"], "limits": "No bundled font data; no actual classic Helvetica resource available for validation. Printable ASCII only, with existing platform fallback for missing/unsupported strikes."},
   "target_message_evidence": {"source": "src/sdl/swc_cockpit.c", "original": "CODE_13 set_global_message +0x3f4e only writes DATA+0x4712/+0x4716; an all-CODE operand search found no readers. CODE_05 fire_missile +0x38b0 rejects unlocked shots silently.", "implementation": "Remove WC1 ITTS/out-of-range, Need Lock and MISSILE LOCKED bottom banners from SWC. Preserve shared damage notices via CockpitMessage at native status positions/lifetimes. Native reticle, converging/blinking missile-lock markers and search/acquired sounds supply targeting feedback; host communications acknowledgments use the native queue."},
-  "host_only_sources": ["src/swc/rsrc.c", "src/swc/speech.c", "src/swc/sound.c", "src/swc/music.c", "src/sdl/swc_sound.c", "src/sdl/swc_music.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c", "src/sdl/swc_raster.c", "src/sdl/swc_cockpit.c", "src/sdl/swc_nav.c", "src/sdl/swc_text.c", "src/sdl/swc_rooms.c", "src/sdl/swc_movie.c"],
+  "host_only_sources": ["src/swc/rsrc.c", "src/swc/speech.c", "src/swc/sound.c", "src/swc/music.c", "src/sdl/swc_sound.c", "src/sdl/swc_music.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c", "src/sdl/swc_raster.c", "src/sdl/swc_cockpit.c", "src/sdl/swc_nav.c", "src/sdl/swc_text.c", "src/sdl/swc_rooms.c", "src/sdl/swc_movie.c", "src/sdl/swc_options.c"],
   "palette_resource_fork_sha256": "24b707f9e024d86bf8ce996e2bc45521f36f75582b7e7410bef6467c49cb7c2b"
 }

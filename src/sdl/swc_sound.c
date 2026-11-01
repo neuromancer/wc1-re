@@ -9,6 +9,7 @@
 typedef struct SwcSoundChannel {
     int sound;
     int volume;
+    int held;
     uint64_t position; /* 16.16 sample position. */
 } SwcSoundChannel;
 
@@ -20,6 +21,8 @@ static SwcBuffer swcPcm;
 static uint64_t swcPcmPosition; /* 32.32 mono sample position. */
 static uint64_t swcPcmStep;
 static int swcPcmSampleBytes;
+static int swcPcmHeld;
+static float swcSoundGain = 1.0f;
 
 /* Sound Manager completion and sample scheduling are owned by SDL here.
  * No game state, allocation, resource lookup or renderer calls on this thread. */
@@ -42,7 +45,7 @@ static void SwcMixSound(void *context, Uint8 *stream, int bytes)
             SwcSound *sample;
             uint64_t end;
 
-            if (voice->sound == 0)
+            if (voice->sound == 0 || voice->held)
                 continue;
             sample = &swcSounds[voice->sound];
             end = (uint64_t)sample->samples.size << 16;
@@ -62,7 +65,7 @@ static void SwcMixSound(void *context, Uint8 *stream, int bytes)
             voice->position += sample->rate / 48000U;
         }
         position = (size_t)(swcPcmPosition >> 32) * swcPcmSampleBytes;
-        if (position < swcPcm.size) {
+        if (!swcPcmHeld && position < swcPcm.size) {
             if (swcPcmSampleBytes == 1)
                 mixed += ((int)swcPcm.data[position] - 128) / 128.0f;
             else
@@ -70,6 +73,7 @@ static void SwcMixSound(void *context, Uint8 *stream, int bytes)
                                     swcPcm.data[position + 1]) / 32768.0f;
             swcPcmPosition += swcPcmStep;
         }
+        mixed *= swcSoundGain;
         output[frame * 2] = SDL_clamp(output[frame * 2] + mixed, -1.0f, 1.0f);
         output[frame * 2 + 1] = SDL_clamp(output[frame * 2 + 1] + mixed, -1.0f, 1.0f);
     }
@@ -166,6 +170,33 @@ void SdlPauseSwcSound(int paused)
 {
     if (swcAudioDevice != 0)
         SDL_PauseAudioDevice(swcAudioDevice, paused != 0);
+}
+
+/* CODE_01 play_sound +0x62dc, TalkerInit +0x422c, MovieDisplay +0x05da and
+ * IntroFilm +0x14a0 give Sound Manager channels DATA/0 +0xa7f2 percent of
+ * their level, or none while sound is off; music has its own volume. */
+void SdlApplySwcSoundOptions(void)
+{
+    if (swcAudioDevice != 0)
+        SDL_LockAudioDevice(swcAudioDevice);
+    swcSoundGain = swcOptions.sound ? swcOptions.soundVolume / 100.0f : 0.0f;
+    if (swcAudioDevice != 0)
+        SDL_UnlockAudioDevice(swcAudioDevice);
+}
+
+/* ModalDialog suspends the game loops; speech, movie audio and playing
+ * effects wait for the dialog while music and its own sounds continue. */
+void SdlHoldSwcSound(int held)
+{
+    int channel;
+
+    if (swcAudioDevice == 0)
+        return;
+    SDL_LockAudioDevice(swcAudioDevice);
+    swcPcmHeld = held;
+    for (channel = 0; channel < 4; channel++)
+        swcSoundChannels[channel].held = held && swcSoundChannels[channel].sound != 0;
+    SDL_UnlockAudioDevice(swcAudioDevice);
 }
 
 /* CODE_01 stop_all_sounds +0x65e8 only stops the flight sound channels. */
@@ -278,6 +309,7 @@ int SdlPlaySwcSound(int sound, int volume)
     if (idle != -1) {
         swcSoundChannels[idle].sound = sound;
         swcSoundChannels[idle].volume = SDL_clamp(volume, 0, 255);
+        swcSoundChannels[idle].held = 0;
         swcSoundChannels[idle].position = 0;
     }
     SDL_UnlockAudioDevice(swcAudioDevice);
