@@ -657,7 +657,9 @@ extern short nSceneScrambleShipDetailCountValue; /* 0x005a86cc */
 extern Viewport *pScrambleView; /* 0x005a86b4 */
 extern short nSceneScrambleCanopyFrameValue; /* 0x005a86b8 */
 extern unsigned char *pScrambleDetailShape; /* 0x005a86bc */
-extern short nCurrentScrambleShipPositionX; /* 0x005a8724 */
+/* The object tables here and below hold the slots of the scramble ship's
+ * two coordinates, which cutscene.c now keeps as one private point. */
+extern ObjectTypeData aObjectTypeData[OBJECT_TYPE_COUNT]; /* 0x00466458 */
 extern ShortPoint stScrambleCockpitDetail; /* 0x005a86c4 */
 extern unsigned char *pCurrentConversationSpecialShape; /* 0x005a86ec */
 extern short nFuneralCasketPositionX; /* 0x005a86c8 */
@@ -675,7 +677,7 @@ extern short nCutsceneFuneralBaseX; /* 0x005a8720 */
 extern short nCutsceneFuneralBasePosY; /* 0x005a8722 */
 extern short nScrambleCockpitAngle; /* 0x005a86c0 */
 extern signed char cScrambleWalkerPair; /* 0x005a8748 */
-extern short nScrambleShipY; /* 0x005a8726 */
+extern ShortVector aChildOffsets[56]; /* 0x004682f0 */
 extern short nFuneralParticleScale; /* 0x005a8728 */
 extern unsigned char *pCurrentScrambleHangarShape; /* 0x005a872c */
 extern unsigned char *pScrambleCockpitShapePtr; /* 0x005a8730 */
@@ -767,8 +769,6 @@ extern int nHostMouseMessageY; /* 0x005a8994 */
 extern int bHostPrimaryMouseButton; /* 0x005a8998 */
 extern int bHostSecondaryMouseButton; /* 0x005a899c */
 
-extern ObjectTypeData aObjectTypeData[OBJECT_TYPE_COUNT]; /* 0x00466458 */
-extern ShortVector aChildOffsets[56]; /* 0x004682f0 */
 #ifdef SDL_PORT
 extern const ShortVector aSwcChildOffsets[63];
 #endif

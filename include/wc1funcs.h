@@ -1391,7 +1391,7 @@ void handle_stress(short obj, int event);                              /* 0x0043
 void intelligence_events(short obj);                                    /* 0x00434A80 */
 unsigned int chase_speed(short obj, short range);                      /* 0x00434C70 */
 short RandomBelow(short n);                                           /* 0x00434CD0 */
-void __stdcall SeedRandomFromClock(int);                               /* 0x00434CF0 */
+void __stdcall SeedRandomFromClock(int seed);                          /* 0x00434CF0 */
 unsigned short RandomWord(void);                                        /* 0x00434D10 */
 short __stdcall RandomInRange(short lo, short hi);                      /* 0x00434D20 */
 short RandomBelowOrEqual(short n);                                      /* 0x00434D50 */
@@ -1450,6 +1450,7 @@ unsigned short __stdcall ConfigureEventManagerPointer(
     unsigned char *shape, short frame);                               /* 0x004355A0 */
 void __stdcall EventManagerHook(void (*callback)(void));               /* 0x004355C0 */
 void __stdcall SetEventManagerPump(void (*pump)(void));                /* 0x004355D0 */
+void EventManagerControlHook(void);                                    /* 0x004355E0 */
 void TranslatePolledInputEvent(unsigned short type,
                                unsigned int value);                   /* 0x004355F0 */
 void QueueInputEventAtCursor(unsigned short type, short primaryButton,
