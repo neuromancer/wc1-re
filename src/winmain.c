@@ -131,7 +131,14 @@ void make_shard(short asteroid, FixedVector direction)
 /* Function start: 0x4011D0 */
 void remove_hazard(signed char hazard)
 {
+#ifdef SDL_PORT
+    /* remove_all_hazards also passes empty (-1) slots. Retail's write then
+       clears pScreenAllocPtr (0x005a66ec), which nothing reads. */
+    if (hazard >= 0)
+        aiSoundEffectSourceActiveArray[(short)hazard] = 0;
+#else
     aiSoundEffectSourceActiveArray[(short)hazard] = 0;
+#endif
     remove_object((short)hazard);
     nActiveHazards =
         MaxShort(0, (short)(nActiveHazards - 1));
