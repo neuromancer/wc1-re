@@ -5,6 +5,13 @@
 
 #include <string.h>
 
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <dirent.h>
+#include <sys/stat.h>
+#endif
+
 const char *const swcApplicationForks[SWC_APPLICATION_FORKS] = {
     "SuperWingCommanderDemo.rsrc",
     "Super Wing Commander Demo.rsrc",
@@ -456,4 +463,81 @@ done:
         SDL_RWclose(reader);
     SDL_free(resource.data);
     return result;
+}
+
+/* The application's signature resource and the palette the game needs. */
+static int SwcIsApplicationFork(const char *path)
+{
+    SwcBuffer signature;
+    SDL_Color colors[256];
+
+    if (SwcReadResource(path, "MoeT", 0, &signature) != 0)
+        return 0;
+    SDL_free(signature.data);
+    return SwcReadPalette(path, 251, colors) == 0;
+}
+
+static int SwcTryApplicationFork(const char *directory, const char *name,
+                                 char *path, size_t capacity)
+{
+    int length;
+
+    length = SDL_snprintf(path, capacity, "%s/%s", directory, name);
+    if (length < 0 || (size_t)length >= capacity)
+        return 0;
+    if (SwcIsApplicationFork(path))
+        return 1;
+#ifdef __APPLE__
+    length = SDL_snprintf(path, capacity, "%s/%s/..namedfork/rsrc", directory, name);
+    if (length >= 0 && (size_t)length < capacity && SwcIsApplicationFork(path))
+        return 1;
+#endif
+    return 0;
+}
+
+int SwcFindApplicationFork(const char *directory, char *path, size_t capacity)
+{
+    /* Every known copy of the application is below 1 MB; skip large files. */
+    const long long sizeLimit = 16 * 1024 * 1024;
+    int found = 0;
+#ifdef _WIN32
+    struct _finddata_t entry;
+    intptr_t search;
+    char *pattern;
+    size_t patternSize = SDL_strlen(directory) + 3;
+
+    pattern = SDL_malloc(patternSize);
+    if (pattern == NULL)
+        return 0;
+    SDL_snprintf(pattern, patternSize, "%s/*", directory);
+    search = _findfirst(pattern, &entry);
+    SDL_free(pattern);
+    if (search != -1) {
+        do {
+            if ((entry.attrib & _A_SUBDIR) == 0 && entry.size <= sizeLimit)
+                found = SwcTryApplicationFork(directory, entry.name, path, capacity);
+        } while (!found && _findnext(search, &entry) == 0);
+        _findclose(search);
+    }
+#else
+    DIR *listing = opendir(directory);
+    struct dirent *entry;
+    struct stat status;
+    int length;
+
+    while (listing != NULL && !found && (entry = readdir(listing)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+            continue;
+        length = SDL_snprintf(path, capacity, "%s/%s", directory, entry->d_name);
+        if (length < 0 || (size_t)length >= capacity || stat(path, &status) != 0 ||
+            !S_ISREG(status.st_mode) || status.st_size > sizeLimit)
+            continue;
+        found = SwcTryApplicationFork(directory, entry->d_name, path, capacity);
+    }
+    if (listing != NULL)
+        closedir(listing);
+#endif
+    if (!found)
+        SDL_SetError("No SWC demo application resources in %s", directory);
+    return found;
 }

@@ -115,7 +115,8 @@ int main(int argc, char **argv)
         }
     }
     result = 1;
-    pathSize = strlen(dataDirectory) + 96;
+    /* Room for a 255-byte host name and "/..namedfork/rsrc". */
+    pathSize = strlen(dataDirectory) + 288;
     path = SDL_malloc(pathSize);
     if (path == NULL) {
         SDL_OutOfMemory();
@@ -133,7 +134,9 @@ int main(int argc, char **argv)
             if (SwcReadPalette(path, 251, colors) == 0)
                 break;
         }
-        if (fork == SWC_APPLICATION_FORKS) {
+        if (fork == SWC_APPLICATION_FORKS &&
+            (!SwcFindApplicationFork(dataDirectory, path, pathSize) ||
+             SwcReadPalette(path, 251, colors) != 0)) {
             SDL_SetError("Cannot load clut/251; use --rsrc with the demo's "
                          "extracted raw resource fork");
             goto done;

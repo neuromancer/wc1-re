@@ -94,10 +94,15 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
             if (!path || !has_readable_file(*cmfs, name))
                 return {false, std::string("SWC needs CMFs/") + name + ".", true};
             std::ifstream file(*path, std::ios::binary);
-            std::array<char, 28> header = {};
+            std::array<char, 156> header = {};
             file.read(header.data(), header.size());
-            if (file.gcount() != static_cast<std::streamsize>(header.size()) ||
-                std::string_view(header.data(), 4) != "CMF1")
+            // Some disc extractions wrap every file in MacBinary; its data
+            // fork follows the 128-byte header (the game checks the rest).
+            const auto read = file.gcount();
+            const bool plain = read >= 28 && std::string_view(header.data(), 4) == "CMF1";
+            const bool macBinary = read == static_cast<std::streamsize>(header.size()) &&
+                header[0] == 0 && std::string_view(header.data() + 128, 4) == "CMF1";
+            if (!plain && !macBinary)
                 return {false, std::string("Invalid SWC archive: ") + name + ".", true};
         }
         // The game's own search: raw forks, the named fork, AppleDouble or a

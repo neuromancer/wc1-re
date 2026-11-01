@@ -25,8 +25,8 @@ int SwcMovieOpen(const char *path, SwcMovie *movie)
     size_t count;
 
     memset(movie, 0, sizeof(*movie));
-    movie->file.data = SDL_LoadFile(path, &movie->file.size);
-    if (movie->file.data == NULL)
+    /* Some disc extractions wrap even single-fork files in MacBinary. */
+    if (SwcLoadDataFork(path, &movie->file) != 0)
         return -1;
     if (movie->file.size < 184 || movie->file.size > 64 * 1024 * 1024 ||
         memcmp(movie->file.data, "LMov", 4) != 0) {
@@ -160,18 +160,25 @@ void SwcMovieClose(SwcMovie *movie)
 }
 
 /* CODE_12 +0x2898 LMovieDrawFrameMinRect. Keep the preceding frame for skip
- * commands. The host adds bounds/exact-consumption checks and uploads the
- * whole image instead of returning a QuickDraw dirty rectangle. */
+ * commands. The original checks neither line width nor input: a run longer
+ * than its line spills into the next one, each end-of-line command restarts
+ * at the next line, and the frame ends after its last line whatever input
+ * remains. Damaged copies rely on that (Multimedia Mania 06's OPEN1 has one
+ * altered byte), so the host keeps the spill but stops at the end of the
+ * image and of the record, and reports such frames as damaged. It uploads
+ * the whole image instead of returning a QuickDraw dirty rectangle. */
 static int SwcMovieDrawFrame(SwcMovie *movie, const SwcMovieRecord *record)
 {
     const uint8_t *source = movie->file.data + record->offset;
+    size_t imageSize = (size_t)movie->width * movie->height;
     size_t input = 0;
     size_t count;
-    unsigned int x = 0;
+    size_t line = 0;
+    size_t position = 0;
+    size_t drawn;
     unsigned int y = 0;
     uint8_t command;
     uint8_t operation;
-    uint8_t *destination;
 
     while (y < movie->height) {
         if (input == record->size)
@@ -179,7 +186,8 @@ static int SwcMovieDrawFrame(SwcMovie *movie, const SwcMovieRecord *record)
         command = source[input++];
         operation = command & 0xe0;
         if (operation == 0) {
-            x = 0;
+            line += movie->width;
+            position = line;
             y++;
             continue;
         }
@@ -192,20 +200,18 @@ static int SwcMovieDrawFrame(SwcMovie *movie, const SwcMovieRecord *record)
             count = (count << 8) | source[input++];
         }
         count++;
-        if (count > movie->width - x)
-            return SDL_SetError("SWC movie run exceeds scanline");
-        destination = movie->pixels + (size_t)y * movie->width + x;
+        drawn = position < imageSize ? SDL_min(count, imageSize - position) : 0;
         if (operation == 0x60 || operation == 0x80) {
             if (count > record->size - input)
                 return SDL_SetError("Truncated SWC movie literal");
-            memcpy(destination, source + input, count);
+            memcpy(movie->pixels + position, source + input, drawn);
             input += count;
         } else if (operation == 0xa0 || operation == 0xc0) {
             if (input == record->size)
                 return SDL_SetError("Truncated SWC movie repeat");
-            memset(destination, source[input++], count);
+            memset(movie->pixels + position, source[input++], drawn);
         }
-        x += (unsigned int)count;
+        position += count;
     }
     if (input != record->size)
         return SDL_SetError("Trailing bytes in SWC movie frame");
@@ -221,8 +227,9 @@ int SwcMovieNextFrame(SwcMovie *movie)
     while (movie->nextRecord < movie->recordCount) {
         record = &movie->records[movie->nextRecord++];
         if (record->flags == 2) {
+            /* A damaged frame keeps what it drew, as on the Mac. */
             if (SwcMovieDrawFrame(movie, record) != 0)
-                return -1;
+                movie->damagedFrames++;
             return 1;
         }
     }

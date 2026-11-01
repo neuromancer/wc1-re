@@ -84,8 +84,19 @@ The [Super Wing Commander Mac demo](docs/SWC.md) also supports OpenGL,
 cockpitless view, cheat mode, the joystick modes and axis layouts, and rumble.
 Select its directory in the launcher, or run the game from inside that directory; the same
 switches apply. A directory that also holds WC1's `GAMEDAT` starts WC1.
-Copies that keep the Mac files as MacBinary, such as the `SuperWing DEMO` folder from
-discmaster's archive of the original disc, work without further extraction.
+The cleanest copy is the `SuperWing DEMO` folder of CD-ROM Today's June 1995 disc
+(v1.0.2): open
+[its discmaster page](https://discmaster.textfiles.com/browse/998/CD-ROM_Today_-_The_Disc_12_June_1995.iso/mac/SuperWing%20DEMO)
+in a browser, click "download all originals", unzip, and select the folder. Its
+MacBinary files need no further extraction. On archive.org,
+[Electronic Entertainment's June 1995 sampler](https://archive.org/details/Electronic_Entertainment_CD-ROM_Sampler_Disc_June_1995)
+carries the same data in `SuperWing`, and
+[Inside Mac Games 27](https://archive.org/details/IMG27May1995) the v1.0.2 application
+with earlier art in `Demos:SuperWing CD`. Copy the folder out of the HFS image with a
+tool that keeps resource forks (MacBinary, AppleDouble, `.rsrc` files or native forks).
+Avoid Multimedia Mania 06 (`cdmm-06`): 28 of its files are damaged. Earlier builds
+and renamed copies also run; see
+[the known demo discs](docs/SWC.md#demo-builds-discs-and-data-sets-2026-11-01).
 EGA dithering applies only to WC1 data. The demo's Options menu commands keep their
 original keys: `Cmd+U` and `Cmd+N` (`Ctrl+U` and `Ctrl+N` on Windows and Linux) turn
 music and sound off or on. `Cmd+B`/`Ctrl+B` toggles text messages (subtitles and room

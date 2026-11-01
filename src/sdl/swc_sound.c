@@ -133,10 +133,15 @@ int SdlInitSwcSound(const char *resourceFork)
         SDL_free(resource.data);
         SDL_zero(resource);
     }
-    /* stop_afterburner_sound +0x67fc uses GetResource, not the CMF bank. */
-    if (SwcReadResource(resourceFork, "snd ", 500, &resource) != 0 ||
-        SwcReadSound(&resource, &swcSounds[500]) != 0)
-        goto done;
+    /* stop_afterburner_sound +0x67fc uses GetResource, not the CMF bank.
+     * The February 1995 build (Mac Magazin 08) has neither that routine
+     * nor snd/500; its afterburner loop just stops. */
+    if (SwcReadResource(resourceFork, "snd ", 500, &resource) == 0) {
+        if (SwcReadSound(&resource, &swcSounds[500]) != 0)
+            goto done;
+    } else {
+        SDL_ClearError();
+    }
     if (swcSounds[12].samples.size < 0x32f5) {
         SDL_SetError("SWC afterburner sample is shorter than its loop");
         goto done;
@@ -358,7 +363,7 @@ void SdlStopSwcAfterburnerSound(void)
     SDL_LockAudioDevice(swcAudioDevice);
     for (channel = 0; channel < 4; channel++) {
         if (swcSoundChannels[channel].sound == 12) {
-            swcSoundChannels[channel].sound = 500;
+            swcSoundChannels[channel].sound = swcSounds[500].samples.data != NULL ? 500 : 0;
             swcSoundChannels[channel].position = 0;
         }
     }

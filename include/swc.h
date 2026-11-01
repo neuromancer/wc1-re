@@ -68,6 +68,7 @@ typedef struct SwcMovie {
     uint32_t nextRecord;
     uint32_t frameCount;
     uint32_t framesPerSecond;
+    uint32_t damagedFrames;
     int sampleRate;
     uint16_t width;
     uint16_t height;
@@ -103,6 +104,10 @@ int SwcLoadDataFork(const char *path, SwcBuffer *data);
  * then the application itself as MacBinary (as served by discmaster). */
 #define SWC_APPLICATION_FORKS 5
 extern const char *const swcApplicationForks[SWC_APPLICATION_FORKS];
+/* Discs also renamed the application (MacFormat 4 in Spain: "SuperWing
+ * Commander Demo"). Searches the directory's top-level files, in any of the
+ * forms above, for the demo's MoeT/0 signature and clut/251. */
+int SwcFindApplicationFork(const char *directory, char *path, size_t capacity);
 int SwcReadSound(const SwcBuffer *resource, SwcSound *sound);
 
 /* QuickTime music events, timed in the source media's ticks. */
@@ -178,7 +183,8 @@ void SdlDrawSwcOptionNotice(SDL_Renderer *renderer);
 
 int SwcMovieOpen(const char *path, SwcMovie *movie);
 void SwcMovieClose(SwcMovie *movie);
-/* Advances the retained indexed image: 1 = frame, 0 = end, -1 = error. */
+/* Advances the retained indexed image: 1 = frame (damaged ones count in
+ * damagedFrames and keep what they drew), 0 = end. */
 int SwcMovieNextFrame(SwcMovie *movie);
 /* Splash, logo and prologue before the title menu; replayIntro omits splash/logo. */
 int SdlPlaySwcStartup(SDL_Window *window, SDL_Renderer *renderer,

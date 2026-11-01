@@ -20,8 +20,9 @@ int SdlFindSwcMissionData(char *path, unsigned long capacity)
     return 1;
 }
 
-/* The first application fork form whose clut/251 palette loads; directory
- * NULL searches the current (demo) directory. */
+/* The first application fork form whose clut/251 palette loads, then any
+ * renamed copy of the application; directory NULL searches the current
+ * (demo) directory. */
 int SdlFindSwcResources(const char *directory, char *path, unsigned long capacity)
 {
     SDL_Color colors[256];
@@ -37,7 +38,7 @@ int SdlFindSwcResources(const char *directory, char *path, unsigned long capacit
         if (SdlResolvePath(relative, path, capacity) && SwcReadPalette(path, 251, colors) == 0)
             return 1;
     }
-    return 0;
+    return SwcFindApplicationFork(directory != NULL ? directory : ".", path, capacity);
 }
 
 int SdlLoadSwcMissionData(const char *path, short series, short mission)

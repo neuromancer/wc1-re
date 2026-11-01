@@ -47,8 +47,16 @@ The experimental Super Wing Commander Mac demo path includes sequence music
 for its first-mission scenes and flight. Keep swc-music.sf2 beside the
 executable. The demo's resource forks (the application, MIDI/*.MooV and
 AIFF/Stranded.aif) may stay native, come as raw .rsrc or AppleDouble ._
-sidecars, or remain MacBinary as archives of the original disc serve them:
-discmaster's "SuperWing DEMO" folder works without further extraction.
+sidecars, or remain MacBinary as archives of the original disc serve them;
+other files may be MacBinary too, and a renamed application is found by its
+resources. The cleanest copy is the "SuperWing DEMO" folder of CD-ROM Today's
+June 1995 disc on discmaster (archive 998; use "download all originals" in a
+browser and unzip). On archive.org, Electronic Entertainment's June 1995
+sampler (folder SuperWing) has the same data and Inside Mac Games 27 (folder
+Demos:SuperWing CD) the v1.0.2 application with earlier art; copy the folder
+out of the HFS image with a tool that keeps resource forks. Avoid Multimedia
+Mania 06, which has 28 damaged files. Earlier builds (Mac Magazin 08, Inside
+Mac Games 25) and MacFormat 4's renamed copy also run.
 WC1_SWC_SOUNDFONT can select another complete General MIDI SoundFont. The
 bundled bank is a host substitute for the original QuickTime instruments.
 Select the demo directory in the launcher, or run the game from inside it. Its

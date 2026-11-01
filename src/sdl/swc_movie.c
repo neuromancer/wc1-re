@@ -173,6 +173,9 @@ done:
             SDL_RenderPresent(renderer);
     }
     SDL_strlcpy(failure, SDL_GetError(), sizeof(failure));
+    if (movie.damagedFrames != 0)
+        fprintf(stderr, "SWC movie %s: %u damaged frame(s) shown as decoded\n",
+                path, movie.damagedFrames);
     SdlClearSwcPcm();
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(rgba);
@@ -306,6 +309,7 @@ static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
     char relative[64];
     SDL_RWops *reader;
     size_t index;
+    size_t available;
     int cursorVisible;
     int result = SWC_MOVIE_FINISHED;
 
@@ -347,22 +351,28 @@ static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
     default:
         return SDL_SetError("Unsupported SWC movie sequence");
     }
-    /* Movies are optional for an existing minimal flight installation. Check
-     * the entire sequence before showing it; malformed present movies still
-     * report a decoding error instead of silently starting partial playback. */
+    /* CODE_12 MovieDisplay +0x0580/+0x08c6 returns quietly when a clip is
+     * missing from the folder and from STR/128's disc path, so the sequence
+     * goes on: the March 1995 data (IMG 25, MacFormat 4) lacks LANDING1.dcMov.
+     * With no clip at all (a minimal flight installation) music and cursor
+     * stay untouched. Malformed present movies still report a decoding error. */
+    available = 0;
     for (index = 0; index < count; index++) {
         SDL_snprintf(relative, sizeof(relative), "Movies/%s.dcMov", names[index]);
-        if (!SdlResolvePath(relative, paths[index], sizeof(paths[index])))
+        if (!SdlResolvePath(relative, paths[available], sizeof(paths[available])))
             return SDL_SetError("SWC movie path is too long: %s", relative);
-        reader = SDL_RWFromFile(paths[index], "rb");
+        reader = SDL_RWFromFile(paths[available], "rb");
         if (reader == NULL) {
-            fprintf(stderr, "Skipping SWC %s: cannot read %s (%s)\n",
+            fprintf(stderr, "Skipping SWC %s clip: cannot read %s (%s)\n",
                     title, relative, SDL_GetError());
             SDL_ClearError();
-            return SWC_MOVIE_FINISHED;
+            continue;
         }
         SDL_RWclose(reader);
+        available++;
     }
+    if (available == 0)
+        return SWC_MOVIE_FINISHED;
     cursorVisible = SDL_ShowCursor(SDL_QUERY);
     SDL_ShowCursor(SDL_DISABLE);
     SdlPauseSwcSound(1);
@@ -376,9 +386,9 @@ static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
         SdlPlaySwcMusic("LASTRITE.MooV", 50);
     /* Funeral music spans the movies and both room speeches. Its lifetime
      * belongs to SdlRunSwcCarrier, as in CODE_03 funeral_sequence. */
-    for (index = 0; index < count; index++) {
+    for (index = 0; index < available; index++) {
         result = SdlPlaySwcMovie(window, renderer, paths[index],
-            index + 1 == count && sequence != SWC_MOVIES_FUNERAL_START &&
+            index + 1 == available && sequence != SWC_MOVIES_FUNERAL_START &&
             sequence != SWC_MOVIES_FUNERAL_FAREWELL);
         if (result != SWC_MOVIE_FINISHED)
             break;

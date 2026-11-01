@@ -6,6 +6,7 @@
 
 int SwcCMOpen(const char *path, SwcCmf *cmf)
 {
+    SwcBuffer file;
     SDL_RWops *reader;
     uint32_t tocOffset;
     uint32_t tocSize;
@@ -23,9 +24,11 @@ int SwcCMOpen(const char *path, SwcCmf *cmf)
     SwcChunkInfo *chunk;
 
     memset(cmf, 0, sizeof(*cmf));
-    cmf->data = SDL_LoadFile(path, &cmf->size);
-    if (cmf->data == NULL)
+    /* Some disc extractions wrap even single-fork files in MacBinary. */
+    if (SwcLoadDataFork(path, &file) != 0)
         return -1;
+    cmf->data = file.data;
+    cmf->size = file.size;
     if (cmf->size < 28 || cmf->size > INT32_MAX ||
         memcmp(cmf->data, "CMF1", 4) != 0) {
         SDL_SetError("Invalid CMF1 header: %s", path);
