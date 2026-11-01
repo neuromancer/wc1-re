@@ -737,15 +737,15 @@ void SdlApplyJoystickFlightControls(void)
         if (SdlReadJoystickButton(
                 &g_aSdlJoystickDevices[activeSlot], 3)) {
             g_bSdlTwoAxisModifierActive = 1;
-            nYawInputValue = 0;
-            nPitchInput = 0;
-            nCurrentRollInputValue = (short)sample->x;
+            stRotationInput.y = 0;
+            stRotationInput.x = 0;
+            stRotationInput.z = (short)sample->x;
             accelerate((short)-(sample->y / 2));
         } else if (g_bSdlTwoAxisModifierActive) {
             g_bSdlTwoAxisModifierActive = 0;
-            nCurrentRollInputValue = 0;
-            nYawInputValue = (short)sample->x;
-            nPitchInput = (short)-sample->y;
+            stRotationInput.z = 0;
+            stRotationInput.y = (short)sample->x;
+            stRotationInput.x = (short)-sample->y;
         }
         return;
     }
@@ -758,24 +758,24 @@ void SdlApplyJoystickFlightControls(void)
 
     switch (g_eSdlJoystickAxesMode) {
     case SDL_PORT_JOYSTICK_AXES_TWIN_STICK_ROLL:
-        nCurrentRollInputValue = first;
+        stRotationInput.z = first;
         if (axisCount > 1)
             accelerate((short)-(second / 2));
         break;
     case SDL_PORT_JOYSTICK_AXES_TWIN_STICK_YAW:
-        nCurrentRollInputValue = (short)sample->x;
-        nYawInputValue = first;
+        stRotationInput.z = (short)sample->x;
+        stRotationInput.y = first;
         if (axisCount > 1)
             accelerate((short)-(second / 2));
         break;
     case SDL_PORT_JOYSTICK_AXES_HOTAS_YAW:
-        nCurrentRollInputValue = (short)sample->x;
-        nYawInputValue = first;
+        stRotationInput.z = (short)sample->x;
+        stRotationInput.y = first;
         if (axisCount > 1)
             SdlApplyLinearThrottle(secondRaw);
         break;
     case SDL_PORT_JOYSTICK_AXES_HOTAS_ROLL:
-        nCurrentRollInputValue = first;
+        stRotationInput.z = first;
         if (axisCount > 1)
             SdlApplyLinearThrottle(secondRaw);
         break;
@@ -787,11 +787,11 @@ void SdlApplyJoystickFlightControls(void)
             SdlApplyLinearThrottle(firstRaw);
         break;
     case SDL_PORT_JOYSTICK_AXES_RUDDER_YAW:
-        nCurrentRollInputValue = (short)sample->x;
-        nYawInputValue = first;
+        stRotationInput.z = (short)sample->x;
+        stRotationInput.y = first;
         break;
     case SDL_PORT_JOYSTICK_AXES_RUDDER_ROLL:
-        nCurrentRollInputValue = first;
+        stRotationInput.z = first;
         break;
     }
 }

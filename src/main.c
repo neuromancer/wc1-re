@@ -695,39 +695,39 @@ int process_player_input(void)
         case 0x33:
         case 0x52:
             bMouseCursorVisible = 0;
-            if (nCurrentRollInputValue > 0) {
-                nCurrentRollInputValue = 0;
+            if (stRotationInput.z > 0) {
+                stRotationInput.z = 0;
             } else {
                 if (shift != 0)
-                    nCurrentRollInputValue = -9;
-                if (nCurrentRollInputValue > -9)
-                    nCurrentRollInputValue--;
+                    stRotationInput.z = -9;
+                if (stRotationInput.z > -9)
+                    stRotationInput.z--;
                 else if (cPreviousKey < 0)
-                    nCurrentRollInputValue--;
+                    stRotationInput.z--;
                 else
-                    nCurrentRollInputValue++;
+                    stRotationInput.z++;
             }
             break;
         case 0x34:
         case 0x53:
             bMouseCursorVisible = 0;
-            if (nCurrentRollInputValue < 0) {
-                nCurrentRollInputValue = 0;
+            if (stRotationInput.z < 0) {
+                stRotationInput.z = 0;
             } else {
                 if (shift != 0)
-                    nCurrentRollInputValue = 9;
-                if (nCurrentRollInputValue < 9)
-                    nCurrentRollInputValue++;
+                    stRotationInput.z = 9;
+                if (stRotationInput.z < 9)
+                    stRotationInput.z++;
                 else if (cPreviousKey < 0)
-                    nCurrentRollInputValue++;
+                    stRotationInput.z++;
                 else
-                    nCurrentRollInputValue--;
+                    stRotationInput.z--;
             }
             break;
         case 0x48:
             bMouseCursorVisible = 0;
-            if (nPitchInput < 0) {
-                nPitchInput = 0;
+            if (stRotationInput.x < 0) {
+                stRotationInput.x = 0;
             } else if (control != 0) {
                 nSfxVolumeSetting++;
                 if (nSfxVolumeSetting > 20)
@@ -739,19 +739,19 @@ int process_player_input(void)
                                     nSfxVolumeSetting / 2);
             } else {
                 if (shift != 0)
-                    nPitchInput = 9;
-                if (nPitchInput < 9)
-                    nPitchInput++;
+                    stRotationInput.x = 9;
+                if (stRotationInput.x < 9)
+                    stRotationInput.x++;
                 else if (cPreviousKey < 0)
-                    nPitchInput++;
+                    stRotationInput.x++;
                 else
-                    nPitchInput--;
+                    stRotationInput.x--;
             }
             break;
         case 0x50:
             bMouseCursorVisible = 0;
-            if (nPitchInput > 0) {
-                nPitchInput = 0;
+            if (stRotationInput.x > 0) {
+                stRotationInput.x = 0;
             } else if (control != 0) {
                 nSfxVolumeSetting--;
                 if (nSfxVolumeSetting < 0)
@@ -763,13 +763,13 @@ int process_player_input(void)
                                     nSfxVolumeSetting / 2);
             } else {
                 if (shift != 0)
-                    nPitchInput = -9;
-                if (nPitchInput > -9)
-                    nPitchInput--;
+                    stRotationInput.x = -9;
+                if (stRotationInput.x > -9)
+                    stRotationInput.x--;
                 else if (cPreviousKey < 0)
-                    nPitchInput--;
+                    stRotationInput.x--;
                 else
-                    nPitchInput++;
+                    stRotationInput.x++;
             }
             break;
         case 0x4d:
@@ -786,17 +786,17 @@ int process_player_input(void)
                 return;
             }
             bMouseCursorVisible = 0;
-            if (nYawInputValue < 0) {
-                nYawInputValue = 0;
+            if (stRotationInput.y < 0) {
+                stRotationInput.y = 0;
             } else {
                 if (shift != 0)
-                    nYawInputValue = 9;
-                if (nYawInputValue < 9)
-                    nYawInputValue++;
+                    stRotationInput.y = 9;
+                if (stRotationInput.y < 9)
+                    stRotationInput.y++;
                 else if (cPreviousKey < 0)
-                    nYawInputValue++;
+                    stRotationInput.y++;
                 else
-                    nYawInputValue--;
+                    stRotationInput.y--;
             }
             break;
         case 0x4b:
@@ -813,17 +813,17 @@ int process_player_input(void)
                 return;
             }
             bMouseCursorVisible = 0;
-            if (nYawInputValue > 0) {
-                nYawInputValue = 0;
+            if (stRotationInput.y > 0) {
+                stRotationInput.y = 0;
             } else {
                 if (shift != 0)
-                    nYawInputValue = -9;
-                if (nYawInputValue > -9)
-                    nYawInputValue--;
+                    stRotationInput.y = -9;
+                if (stRotationInput.y > -9)
+                    stRotationInput.y--;
                 else if (cPreviousKey < 0)
-                    nYawInputValue--;
+                    stRotationInput.y--;
                 else
-                    nYawInputValue++;
+                    stRotationInput.y++;
             }
             break;
         case 0x4c:
@@ -832,9 +832,9 @@ int process_player_input(void)
                          stSpaceBufferViewport.right) / 2),
                 (short)((stSpaceBufferViewport.top +
                          stSpaceBufferViewport.bottom) / 2));
-            nCurrentRollInputValue = 0;
-            nPitchInput = 0;
-            nYawInputValue = 0;
+            stRotationInput.z = 0;
+            stRotationInput.x = 0;
+            stRotationInput.y = 0;
             init_player_input();
             break;
         case -1:
@@ -872,8 +872,8 @@ unsigned int players_flight_dynamics(void)
                 anObjectRollRotationList[0] < aObjectTypeData[type].rollRate) {
                 aeSpecialManeuvers[0] = SPECIAL_MANEUVER_NONE;
             } else {
-                anObjectYawRotation[0] -= nYawInputValue;
-                anObjPitchRot[0] -= nPitchInput;
+                anObjectYawRotation[0] -= stRotationInput.y;
+                anObjPitchRot[0] -= stRotationInput.x;
             }
         }
         return 0;
@@ -881,11 +881,11 @@ unsigned int players_flight_dynamics(void)
 
     type = stCampaignState.playerShipType;
     anObjPitchRot[0] =
-        (short)((aObjectTypeData[type].yawRate * nPitchInput) / 8);
+        (short)((aObjectTypeData[type].yawRate * stRotationInput.x) / 8);
     anObjectYawRotation[0] =
-        (short)-((aObjectTypeData[type].pitchRate * nYawInputValue) / 8);
+        (short)-((aObjectTypeData[type].pitchRate * stRotationInput.y) / 8);
     anObjectRollRotationList[0] =
-        (short)-((aObjectTypeData[type].rollRate * nCurrentRollInputValue) / 8);
+        (short)-((aObjectTypeData[type].rollRate * stRotationInput.z) / 8);
     return 0;
 }
 
@@ -915,10 +915,9 @@ unsigned int player_input(void)
     unsigned int key;
 
     cPreviousKey = bCurrentKey;
-    nPrevYawInput = nYawInputValue;
-    memcpy(&nPrevPitchInputValue, &nPitchInput, sizeof(nPrevPitchInputValue));
-    memcpy(&nPreviousRollInputValue, &nCurrentRollInputValue,
-           sizeof(nPreviousRollInputValue));
+    stPreviousRotationInput.y = stRotationInput.y;
+    stPreviousRotationInput.x = stRotationInput.x;
+    stPreviousRotationInput.z = stRotationInput.z;
     keyboardRoll = 0;
     eventType = PollInputEvent(&event, 0xff);
     wCurrentInputModifiers = (unsigned short)event.modifiers;
@@ -945,10 +944,10 @@ unsigned int player_input(void)
         key = PollKeyboardState();
         bCurrentKey = (signed char)key;
         if ((volatile signed char)bCurrentKey == 0) {
-            nCurrentRollInputValue = 0;
+            stRotationInput.z = 0;
             bFlightRollLatch = 0;
-            nPitchInput = 0;
-            nYawInputValue = 0;
+            stRotationInput.x = 0;
+            stRotationInput.y = 0;
         } else {
             bMouseAfterburnerControl = 0;
             process_player_input();
@@ -1039,15 +1038,15 @@ unsigned int player_input(void)
                     SPECIAL_MANEUVER_AFTERBURNER)
                 buttons = 0;
             if (buttons != 0) {
-                nCurrentRollInputValue = (short)stLastPolledFlightInput.x;
+                stRotationInput.z = (short)stLastPolledFlightInput.x;
                 accelerate((short)-(
                     stLastPolledFlightInput.y / 2));
             } else {
-                if (nCurrentRollInputValue != 0 &&
+                if (stRotationInput.z != 0 &&
                     bFlightRollLatch == 0 &&
                     keyboardRoll == 0) {
                     stPreviousFlightInput.x = -1;
-                    nCurrentRollInputValue = 0;
+                    stRotationInput.z = 0;
                 }
                 if (stPreviousFlightInput.x !=
                         stLastPolledFlightInput.x ||
@@ -1055,9 +1054,9 @@ unsigned int player_input(void)
                         stLastPolledFlightInput.y ||
                     stLastPolledFlightInput.x != 0 ||
                     stLastPolledFlightInput.y != 0) {
-                    *(volatile short *)&nYawInputValue =
+                    stRotationInput.y =
                         (short)stLastPolledFlightInput.x;
-                    nPitchInput =
+                    stRotationInput.x =
                         (short)-stLastPolledFlightInput.y;
                 }
             }
@@ -1139,22 +1138,22 @@ unsigned int player_input(void)
             if (afterburnerControl != 0) {
                 bMouseAfterburnerControl = 1;
                 pitchInput = -pitchInput;
-                nCurrentRollInputValue = nMouseYawInput = yawInput;
+                stRotationInput.z = nMouseYawInput = yawInput;
                 nMousePitchInput = pitchInput;
                 accelerate((short)(pitchInput / 2));
             } else if (bMouseAfterburnerControl == 1) {
-                nCurrentRollInputValue = 0;
+                stRotationInput.z = 0;
                 bMouseAfterburnerControl = 0;
-                nYawInputValue = nMouseYawInput = 0;
-                nPitchInput = nMousePitchInput = 0;
+                stRotationInput.y = nMouseYawInput = 0;
+                stRotationInput.x = nMousePitchInput = 0;
                 WarpMouseTo(
                     (short)((viewportLeft + stSpaceBufferViewport.right) / 2),
                     (short)((stSpaceBufferViewport.bottom +
                              stSpaceBufferViewport.top) / 2));
             } else {
-                nCurrentRollInputValue = 0;
-                nYawInputValue = nMouseYawInput = yawInput;
-                nPitchInput = nMousePitchInput = pitchInput;
+                stRotationInput.z = 0;
+                stRotationInput.y = nMouseYawInput = yawInput;
+                stRotationInput.x = nMousePitchInput = pitchInput;
             }
             break;
         }

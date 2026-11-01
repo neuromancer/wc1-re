@@ -44,9 +44,8 @@ short nCommPortraitIndex = -1; /* 0x0046afd0 */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 unsigned char *apObjShapeArray[SPACE_OBJECT_COUNT]; /* 0x0059d2f0 */
-short nPitchInput; /* 0x0059d3f0 */
-short nYawInputValue; /* 0x0059d3f2 */
-short nCurrentRollInputValue; /* 0x0059d3f4 */
+/* The pitch, yaw and roll control inputs (DOS g_inputPitch/Yaw/Roll). */
+ShortVector stRotationInput; /* 0x0059d3f0 */
 short asShipWingLeaderArray[16]; /* 0x0059d400 */
 /* The Win32 object allocator reserves slots 0 through 9 for live ships. */
 short aasShipArmor[10][4]; /* 0x0059d420 */

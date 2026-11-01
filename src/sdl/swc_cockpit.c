@@ -1042,8 +1042,8 @@ void SdlUpdateSwcCockpit(void)
         (swcCockpitOffset.y > vertical);
     /* determine_pilot_hand +0x14e2: horizontal input wins over vertical.
        PC00/6 contains the sixteen Hornet hand frames at their own offsets. */
-    horizontal = SDL_clamp(nYawInputValue, -8, 8) / 2;
-    vertical = SDL_clamp(nPitchInput, -8, 8) / 2;
+    horizontal = SDL_clamp(stRotationInput.y, -8, 8) / 2;
+    vertical = SDL_clamp(stRotationInput.x, -8, 8) / 2;
     swcPilotHand = horizontal > 0 ? horizontal - 1 : horizontal < 0 ? 3 - horizontal :
         vertical < 0 ? 11 - vertical : vertical > 0 ? 7 + vertical : -1;
 

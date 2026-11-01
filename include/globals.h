@@ -377,9 +377,10 @@ extern short asObjScreenAngles[SPACE_OBJECT_COUNT]; /* 0x0059cd90 */
 extern unsigned int anVduModeCache[2]; /* 0x0059ce18 */
 extern signed char acObjOwnersTable[64]; /* 0x0059ce20 */
 extern signed char acShipTargetTable[16]; /* 0x0059ce60 */
-extern short nPrevPitchInputValue; /* 0x0059ce70 */
-extern volatile short nPrevYawInput; /* 0x0059ce72 */
-extern short nPreviousRollInputValue; /* 0x0059ce74 */
+extern ShortVector stPreviousRotationInput; /* 0x0059ce70 */
+/* data.c's unreferenced words, declared with its other globals. */
+extern int DAT_0046daac; /* 0x0046daac */
+extern int DAT_0046dab0; /* 0x0046dab0 */
 extern signed char acTurnRegulatorsArray[16]; /* 0x0059cf10 */
 extern unsigned char abCollisionAlertTargets[0x10]; /* 0x0059cf20 */
 extern short anObjectYawRotation[SPACE_OBJECT_COUNT]; /* 0x0059ce80 */
@@ -399,9 +400,9 @@ extern signed char acWingmanMessageStatesArray[16]; /* 0x0059d2c0 */
 extern short asCollisionDelayList[16]; /* 0x0059d2d0 */
 extern int nCurObjectiveRangeValue; /* 0x0059d2b0 */
 extern unsigned char *apObjShapeArray[SPACE_OBJECT_COUNT]; /* 0x0059d2f0 */
-extern short nPitchInput; /* 0x0059d3f0 */
-extern short nYawInputValue; /* 0x0059d3f2 */
-extern short nCurrentRollInputValue; /* 0x0059d3f4 */
+extern ShortVector stRotationInput; /* 0x0059d3f0 */
+extern int DAT_0046dab4; /* 0x0046dab4 */
+extern short DAT_0046e138[10]; /* 0x0046e138 */
 /* Logic's armor-term ordering depends on this declaration pair being reversed.
  * See docs/PATTERNS.md for the measured compiler context. */
 #ifdef WC1_LOGIC_SOURCE

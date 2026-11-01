@@ -2575,8 +2575,8 @@ void determine_pilot_hand(void)
     short yaw;
     short pitch;
 
-    yaw = nYawInputValue / 2;
-    pitch = nPitchInput / 2;
+    yaw = stRotationInput.y / 2;
+    pitch = stRotationInput.x / 2;
     if (yaw > 0) {
         bStickIndicatorFrameState =
             (signed char)MinShort((short)(yaw + 8), 12);

@@ -651,9 +651,9 @@ static void SwcResetFlightInput(void)
 {
     bCurrentKey = 0;
     cPreviousKey = 0;
-    nPitchInput = 0;
-    nYawInputValue = 0;
-    nCurrentRollInputValue = 0;
+    stRotationInput.x = 0;
+    stRotationInput.y = 0;
+    stRotationInput.z = 0;
     bFlightRollLatch = 0;
     bMouseCursorVisible = 0;
     bMouseAfterburnerControl = 0;
@@ -725,9 +725,9 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         swcJoystickSteering = 1;
         bMouseCursorVisible = 0;
         bMouseAfterburnerControl = 0;
-        nYawInputValue = joystickModifier ? 0 : (short)joystick.x;
-        nPitchInput = joystickModifier ? 0 : (short)-joystick.y;
-        nCurrentRollInputValue = joystickModifier ? (short)joystick.x : 0;
+        stRotationInput.y = joystickModifier ? 0 : (short)joystick.x;
+        stRotationInput.x = joystickModifier ? 0 : (short)-joystick.y;
+        stRotationInput.z = joystickModifier ? (short)joystick.x : 0;
         if (joystickModifier)
             accelerate((short)-(joystick.y / 2));
     } else if (bCurrentKey == 0 && bMouseCursorVisible) {
@@ -748,13 +748,13 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
            Release each keyboard axis independently, even if another is held. */
         if (!(nUpArrowKeyState || nDownArrowKeyState || nHomeState ||
               nPageUpKeyState || nEndKeyDown || nPageDownKeyHeld))
-            nPitchInput = 0;
+            stRotationInput.x = 0;
         if (!(nLeftArrowKeyState || nRightArrowKeyHeld || nHomeState ||
               nPageUpKeyState || nEndKeyDown || nPageDownKeyHeld))
-            nYawInputValue = 0;
+            stRotationInput.y = 0;
         if (!(nInsertKeyDown || nDeleteKeyDown ||
               nOemCommaKeyPressed || nOemPeriodKeyStatus))
-            nCurrentRollInputValue = 0;
+            stRotationInput.z = 0;
         if (bCurrentKey == 0x4c) {
             SwcCentreFlightMouse();
         } else if (bCurrentKey != 0) {
