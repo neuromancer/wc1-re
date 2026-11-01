@@ -138,6 +138,10 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         }
         window->set_game_directory(slint::SharedString(absoluteText));
         accepted = true;
+        /* Hide while the event loop still runs: on Linux the request takes
+           effect only when the loop processes it, so hiding after the loop
+           left the launcher on screen during the game. */
+        window->hide();
         slint::quit_event_loop();
     });
     window->on_cancel_requested([]() {
