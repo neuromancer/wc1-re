@@ -273,6 +273,7 @@ int SdlTranslateScanCode(SDL_Scancode scanCode);
 void SdlWaitForVerticalBlank(void);
 int SdlUsingDosData(void);
 int SdlFindSwcMissionData(char *path, unsigned long capacity);
+int SdlFindSwcResources(const char *directory, char *path, unsigned long capacity);
 int SdlLoadSwcMissionData(const char *path, short series, short mission);
 int SdlRunSwcMission(const char *missionPath, int cockpitless);
 int SdlSwcFlightActive(void);

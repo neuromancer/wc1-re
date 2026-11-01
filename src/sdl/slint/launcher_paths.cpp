@@ -98,14 +98,10 @@ DirectoryStatus validate_game_directory(std::string_view directoryText, bool swc
                 std::string_view(header.data(), 4) != "CMF1")
                 return {false, std::string("Invalid SWC archive: ") + name + ".", true};
         }
-        bool palette = has_readable_file(directory, "SuperWingCommanderDemo.rsrc");
-        const auto executable = find_child_case_insensitive(directory, "Super Wing Commander Demo");
-        if (!palette && executable) {
-            std::ifstream fork(*executable / "..namedfork" / "rsrc", std::ios::binary);
-            palette = fork.peek() != std::ifstream::traits_type::eof();
-        }
-        if (!palette)
-            return {false, "SWC palette missing: preserve the demo's resource fork or add SuperWingCommanderDemo.rsrc.", true};
+        // The game's own search: raw forks, the named fork, AppleDouble or a
+        // MacBinary application such as discmaster serves.
+        if (!SdlHasSwcResources(std::string(directoryText).c_str()))
+            return {false, "SWC resources missing: keep the demo application with its resource fork (a MacBinary copy also works) or add SuperWingCommanderDemo.rsrc.", true};
         return {true, "Mac demo", true};
     }
     if (swcRequested)

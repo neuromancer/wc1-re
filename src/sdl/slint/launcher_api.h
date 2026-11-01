@@ -57,6 +57,9 @@ extern "C" {
 
 /* Accepting also sets the working directory to the selected installation. */
 int SdlRunLauncherGui(SdlLauncherOptions *options);
+/* Game-side check that a directory holds the SWC demo application's
+ * resources in any supported form, including a MacBinary application. */
+int SdlHasSwcResources(const char *directory);
 
 #ifdef __cplusplus
 }

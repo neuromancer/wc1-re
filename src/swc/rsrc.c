@@ -1,12 +1,89 @@
 /* SDL replacement for Resource Manager/GetCTable, not recovered game code.
- * Accept a raw resource fork, macOS's ..namedfork/rsrc, or AppleDouble. */
+ * Accept a raw resource fork, macOS's ..namedfork/rsrc, AppleDouble, or a
+ * MacBinary file. */
 #include "swc.h"
 
 #include <string.h>
 
+const char *const swcApplicationForks[SWC_APPLICATION_FORKS] = {
+    "SuperWingCommanderDemo.rsrc",
+    "Super Wing Commander Demo.rsrc",
+    "Super Wing Commander Demo/..namedfork/rsrc",
+    "._Super Wing Commander Demo",
+    "Super Wing Commander Demo"
+};
+
+/* MacBinary I/II/III, the form archives of HFS discs (such as discmaster's
+ * copy of the demo) give files with resource forks: a 128-byte header, then
+ * the data and resource forks, each padded to 128 bytes. II and III protect
+ * bytes 0..123 with CRC-16/XMODEM; I leaves bytes 99..125 zero. */
+static int SwcMacBinaryForks(const uint8_t *file, size_t size,
+                             SwcBuffer *dataFork, SwcBuffer *resourceFork)
+{
+    uint32_t dataSize;
+    uint32_t resourceSize;
+    size_t dataOffset;
+    size_t resourceOffset;
+    unsigned int crc = 0;
+    size_t index;
+    int bit;
+
+    if (size < 128 || file[0] != 0 || file[1] < 1 || file[1] > 63 ||
+        file[74] != 0 || file[82] != 0)
+        return 0;
+    for (index = 2; index < 2 + (size_t)file[1]; index++) {
+        if (file[index] < 0x20 || file[index] == ':')
+            return 0;
+    }
+    for (index = 0; index < 124; index++) {
+        crc ^= (unsigned int)file[index] << 8;
+        for (bit = 0; bit < 8; bit++)
+            crc = (crc & 0x8000 ? crc << 1 ^ 0x1021 : crc << 1) & 0xffff;
+    }
+    if (crc != ((unsigned int)file[124] << 8 | file[125])) {
+        for (index = 99; index < 126; index++) {
+            if (file[index] != 0)
+                return 0;
+        }
+    }
+    dataSize = (uint32_t)file[83] << 24 | (uint32_t)file[84] << 16 |
+               (uint32_t)file[85] << 8 | file[86];
+    resourceSize = (uint32_t)file[87] << 24 | (uint32_t)file[88] << 16 |
+                   (uint32_t)file[89] << 8 | file[90];
+    /* MacBinary II's secondary header length; zero in MacBinary I. */
+    dataOffset = 128 + (((size_t)file[120] << 8 | file[121]) + 127) / 128 * 128;
+    if (dataOffset > size || dataSize > size - dataOffset)
+        return 0;
+    resourceOffset = dataOffset + ((size_t)dataSize + 127) / 128 * 128;
+    if (resourceSize != 0 && (resourceOffset > size || resourceSize > size - resourceOffset))
+        return 0;
+    *dataFork = (SwcBuffer){(uint8_t *)file + dataOffset, dataSize};
+    *resourceFork = (SwcBuffer){(uint8_t *)file + resourceOffset, resourceSize};
+    return 1;
+}
+
+int SwcLoadDataFork(const char *path, SwcBuffer *data)
+{
+    SwcBuffer dataFork;
+    SwcBuffer resourceFork;
+
+    data->data = SDL_LoadFile(path, &data->size);
+    if (data->data == NULL) {
+        data->size = 0;
+        return -1;
+    }
+    if (SwcMacBinaryForks(data->data, data->size, &dataFork, &resourceFork)) {
+        memmove(data->data, dataFork.data, dataFork.size);
+        data->size = dataFork.size;
+    }
+    return 0;
+}
+
 int SwcReadResource(const char *resourceFork, const char typeName[4], int16_t id,
                     SwcBuffer *resource)
 {
+    SwcBuffer dataFork;
+    SwcBuffer macBinaryFork;
     uint8_t *data;
     uint8_t *fileData;
     size_t size;
@@ -65,6 +142,15 @@ int SwcReadResource(const char *resourceFork, const char typeName[4], int16_t id
         }
         if (reference == referenceCount)
             goto malformed;
+        SDL_RWclose(reader);
+        reader = SDL_RWFromConstMem(data, (int)size);
+        if (reader == NULL)
+            goto done;
+    } else if (SwcMacBinaryForks(data, size, &dataFork, &macBinaryFork)) {
+        if (macBinaryFork.size < 16)
+            goto malformed;
+        data = macBinaryFork.data;
+        size = macBinaryFork.size;
         SDL_RWclose(reader);
         reader = SDL_RWFromConstMem(data, (int)size);
         if (reader == NULL)

@@ -112,6 +112,15 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
     return 1;
 }
 
+int SdlHasSwcResources(const char *directory)
+{
+    char path[PATH_MAX];
+    int found = SdlFindSwcResources(directory, path, sizeof(path));
+
+    SDL_ClearError();
+    return found;
+}
+
 static int SdlOpenLauncherGui(SdlLauncherOptions *options)
 {
 #ifdef WC1_STATIC_GUI

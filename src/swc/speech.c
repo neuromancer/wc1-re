@@ -1,13 +1,29 @@
 /* Host reader for the demo's AIFF speech; Sound Manager is replaced by SDL.
  * CODE_03 SpoolSoundFile +0x6b02 consumes the original recording names.
- * COMM/SSND layouts and format were checked against all 92 demo recordings. */
+ * COMM/SSND layouts and formats were checked against all 102 demo recordings:
+ * the 92 conversation lines and intro.11 are 16-bit at 11025 Hz, intro.03..10
+ * 8-bit at the Mac's 22254.545 Hz and Stranded.aif 8-bit at 11025 Hz. */
 #include "swc.h"
 
 #include <string.h>
 
-int SwcReadSpeech(const char *path, SwcBuffer *pcm)
+/* COMM stores the sample rate as an 80-bit IEEE 754 extended value; the
+ * integer part is kept (22254 Hz for the Mac's 22254.545 Hz rate). */
+static int SwcAiffRate(const uint8_t extended[10])
 {
-    static const uint8_t sampleRate[10] = {0x40, 0x0c, 0xac, 0x44, 0, 0, 0, 0, 0, 0};
+    int exponent = ((extended[0] & 0x7f) << 8 | extended[1]) - 16383;
+    uint64_t mantissa = 0;
+    int index;
+
+    for (index = 2; index < 10; index++)
+        mantissa = mantissa << 8 | extended[index];
+    if ((extended[0] & 0x80) != 0 || exponent < 10 || exponent > 16)
+        return 0;
+    return (int)(mantissa >> (63 - exponent));
+}
+
+int SwcReadSpeech(const char *path, SwcBuffer *pcm, int *rate)
+{
     SwcBuffer file = {0};
     SDL_RWops *reader = NULL;
     uint32_t formSize;
@@ -24,8 +40,9 @@ int SwcReadSpeech(const char *path, SwcBuffer *pcm)
     int result = -1;
 
     memset(pcm, 0, sizeof(*pcm));
-    file.data = SDL_LoadFile(path, &file.size);
-    if (file.data == NULL)
+    *rate = 0;
+    /* Archives of the HFS disc serve Stranded.aif as MacBinary. */
+    if (SwcLoadDataFork(path, &file) != 0)
         return -1;
     if (file.size < 12 || file.size > INT32_MAX ||
         memcmp(file.data, "FORM", 4) != 0 || memcmp(file.data + 8, "AIFF", 4) != 0) {
@@ -64,8 +81,8 @@ int SwcReadSpeech(const char *path, SwcBuffer *pcm)
             channels = SDL_ReadBE16(reader);
             samples = SDL_ReadBE32(reader);
             bits = SDL_ReadBE16(reader);
-            if (channels != 1 || bits != 16 ||
-                memcmp(file.data + cursor + 8, sampleRate, sizeof(sampleRate)) != 0) {
+            *rate = SwcAiffRate(file.data + cursor + 8);
+            if (channels != 1 || (bits != 8 && bits != 16) || *rate == 0) {
                 SDL_SetError("Unsupported SWC speech format: %s", path);
                 goto done;
             }
@@ -80,7 +97,7 @@ int SwcReadSpeech(const char *path, SwcBuffer *pcm)
             soundSize = size - 8 - offset;
         }
     }
-    if (!haveFormat || soundOffset == 0 || samples == 0 || samples > soundSize / 2)
+    if (!haveFormat || soundOffset == 0 || samples == 0 || samples > soundSize / (bits / 8))
         goto invalid;
     pcm->size = (size_t)samples * 2;
     pcm->data = SDL_malloc(pcm->size);
@@ -88,7 +105,16 @@ int SwcReadSpeech(const char *path, SwcBuffer *pcm)
         SDL_OutOfMemory();
         goto done;
     }
-    memcpy(pcm->data, file.data + soundOffset, pcm->size);
+    if (bits == 16) {
+        memcpy(pcm->data, file.data + soundOffset, pcm->size);
+    } else {
+        /* CODE_14 stranded_sequence spools the 8-bit Stranded.aif. Widen its
+         * signed samples to the 16-bit big-endian PCM every caller queues. */
+        for (cursor = 0; cursor < samples; cursor++) {
+            pcm->data[cursor * 2] = file.data[soundOffset + cursor];
+            pcm->data[cursor * 2 + 1] = 0;
+        }
+    }
     result = 0;
     goto done;
 invalid:
@@ -103,7 +129,7 @@ done:
 /* CODE_12 ParseMarks +0x00de/GetMouthPos +0x036a. The phoneme table is
  * expanded DATA/0 +0x0908. Each character advances five 60 Hz ticks;
  * "th" and "ch" consume two letters, h retains the preceding mouth. */
-int SwcReadSpeechMarks(const char *path, SwcSpeechMark **marks, size_t *count)
+int SwcReadSpeechMarks(const char *path, int rate, SwcSpeechMark **marks, size_t *count)
 {
     static const int phonemes[26] = {
         0, 1, 8, 7, 1, 5, 8, 0, 0, 8, 0, 9, 6,
@@ -127,8 +153,7 @@ int SwcReadSpeechMarks(const char *path, SwcSpeechMark **marks, size_t *count)
 
     *marks = NULL;
     *count = 0;
-    file.data = SDL_LoadFile(path, &file.size);
-    if (file.data == NULL)
+    if (SwcLoadDataFork(path, &file) != 0)
         return -1;
     if (file.size < 12 || file.size > INT32_MAX ||
         memcmp(file.data, "FORM", 4) != 0 || memcmp(file.data + 8, "AIFF", 4) != 0)
@@ -169,7 +194,7 @@ int SwcReadSpeechMarks(const char *path, SwcSpeechMark **marks, size_t *count)
             cursor += 7;
             if (length + ((length + 1) & 1) > end - cursor)
                 goto invalid;
-            tick = (uint64_t)sample * 60 / 11025;
+            tick = (uint64_t)sample * 60 / (unsigned int)rate;
             for (letter = 0; letter < length; letter++) {
                 character = SDL_tolower(file.data[cursor + letter]);
                 if ((character == 't' || character == 'c') && letter + 1 < length &&

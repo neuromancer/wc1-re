@@ -83,6 +83,8 @@ in a per-user `launcher.ini` for the next GUI launch. See
 The [Super Wing Commander Mac demo](docs/SWC.md) also supports OpenGL,
 cockpitless view, cheat mode, the joystick modes and axis layouts, and rumble.
 Select its directory in the launcher or use `--swc-demo DIRECTORY` with the same switches.
+Copies that keep the Mac files as MacBinary, such as the `SuperWing DEMO` folder from
+discmaster's archive of the original disc, work without further extraction.
 EGA dithering applies only to WC1 data. The demo's Options menu commands keep their
 original keys: `Cmd+U` and `Cmd+N` (`Ctrl+U` and `Ctrl+N` on Windows and Linux) turn
 music and sound off or on. `Cmd+B`/`Ctrl+B` toggles text messages (subtitles and room

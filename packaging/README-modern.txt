@@ -45,8 +45,10 @@ spaceflight, Ctrl+M toggles music and Ctrl+S toggles sound effects.
 
 The experimental Super Wing Commander Mac demo path includes sequence music
 for its first-mission scenes and flight. Keep swc-music.sf2 beside the
-executable. Preserve the original MIDI/*.MooV resource forks, or supply their
-raw .rsrc or AppleDouble ._ sidecars when copying the demo across platforms.
+executable. The demo's resource forks (the application, MIDI/*.MooV and
+AIFF/Stranded.aif) may stay native, come as raw .rsrc or AppleDouble ._
+sidecars, or remain MacBinary as archives of the original disc serve them:
+discmaster's "SuperWing DEMO" folder works without further extraction.
 WC1_SWC_SOUNDFONT can select another complete General MIDI SoundFont. The
 bundled bank is a host substitute for the original QuickTime instruments.
 Select the demo directory in the launcher or use --swc-demo DIRECTORY. Its

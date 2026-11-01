@@ -96,6 +96,13 @@ int SwcReadSplash(const char *resourceFork, SwcBuffer *pixels, SDL_Color colors[
 int SwcReadSoundControl(const char *resourceFork, SwcBuffer *pixels);
 int SwcReadResource(const char *resourceFork, const char type[4], int16_t id,
                     SwcBuffer *resource);
+/* Loads a file's data fork, unwrapping MacBinary copies of forked files. */
+int SwcLoadDataFork(const char *path, SwcBuffer *data);
+/* Places copies of the demo keep the application's resource fork, relative
+ * to the demo directory: raw .rsrc files, macOS's named fork, AppleDouble,
+ * then the application itself as MacBinary (as served by discmaster). */
+#define SWC_APPLICATION_FORKS 5
+extern const char *const swcApplicationForks[SWC_APPLICATION_FORKS];
 int SwcReadSound(const SwcBuffer *resource, SwcSound *sound);
 
 /* QuickTime music events, timed in the source media's ticks. */
@@ -200,14 +207,16 @@ enum SwcCarrierVisit {
 /* First-mission carrier visit; returns a SwcMovieResult. */
 int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                       const char *missionPath, const char *resourceFork, enum SwcCarrierVisit visit);
-/* Demo speech is AIFF, mono signed 16-bit big-endian PCM at 11025 Hz. */
-int SwcReadSpeech(const char *path, SwcBuffer *pcm);
+/* Demo speech is mono AIFF, 16-bit or 8-bit, at 11025 or 22254 Hz. Returns
+ * signed 16-bit big-endian PCM and its sample rate. */
+int SwcReadSpeech(const char *path, SwcBuffer *pcm, int *rate);
 /* CODE_12 ParseMarks/GetMouthPos: 60 Hz mouth frames from AIFF MARK words. */
 typedef struct SwcSpeechMark {
     uint32_t tick;
     int frame;
 } SwcSpeechMark;
-int SwcReadSpeechMarks(const char *path, SwcSpeechMark **marks, size_t *count);
+/* rate is the recording's, from SwcReadSpeech. */
+int SwcReadSpeechMarks(const char *path, int rate, SwcSpeechMark **marks, size_t *count);
 
 /* Shared SDL text presentation for the cockpit and carrier. */
 SDL_Texture *SdlCreateSwcFont(SDL_Renderer *renderer);

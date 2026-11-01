@@ -669,6 +669,7 @@ int SdlPlaySwcIntroSpeech(SDL_Window *window, SDL_Renderer *renderer,
     int line;
     int index;
     int distance;
+    int rate;
     int playing = 0;
     int result = SWC_MOVIE_ERROR;
     char relative[64];
@@ -700,11 +701,12 @@ int SdlPlaySwcIntroSpeech(SDL_Window *window, SDL_Renderer *renderer,
             SDL_SetError("Cannot resolve SWC intro speech %s", relative);
             goto done;
         }
-        if (SwcReadSpeech(path, &pcm) != 0 ||
-            SwcReadSpeechMarks(path, &marks, &markCount) != 0 ||
-            SdlQueueSwcPcm(&pcm, 11025, AUDIO_S16MSB) != 0)
+        /* intro.03..10 are 8-bit at 22254.545 Hz; intro.11 is 16-bit. */
+        if (SwcReadSpeech(path, &pcm, &rate) != 0 ||
+            SwcReadSpeechMarks(path, rate, &marks, &markCount) != 0 ||
+            SdlQueueSwcPcm(&pcm, rate, AUDIO_S16MSB) != 0)
             goto done;
-        duration = (Uint64)pcm.size * frequency / (11025 * 2);
+        duration = (Uint64)pcm.size * frequency / ((Uint64)rate * 2);
         if (swcAudioDevice != 0)
             duration += 512 * frequency / 48000;
         SDL_free(pcm.data);
@@ -1038,6 +1040,7 @@ static int SwcStartSpeech(SwcCarrier *carrier, int section, int line, Uint32 *du
     char path[PATH_MAX];
     Uint32 speechDuration;
     int mission = carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL ? 0 : 4;
+    int rate;
     int result = 0;
 
     SdlClearSwcPcm();
@@ -1059,16 +1062,16 @@ static int SwcStartSpeech(SwcCarrier *carrier, int section, int line, Uint32 *du
         return 0; /* Optional speech: subtitles retain a readable duration. */
     }
     SDL_RWclose(file);
-    if (SwcReadSpeech(path, &pcm) != 0)
+    if (SwcReadSpeech(path, &pcm, &rate) != 0)
         return -1;
-    if (SwcReadSpeechMarks(path, &carrier->marks, &carrier->markCount) != 0) {
+    if (SwcReadSpeechMarks(path, rate, &carrier->marks, &carrier->markCount) != 0) {
         SDL_free(pcm.data);
         return -1;
     }
     carrier->haveSpeech = 1;
-    speechDuration = (Uint32)((uint64_t)pcm.size * 1000 / (11025 * 2)) + 250;
+    speechDuration = (Uint32)((uint64_t)pcm.size * 1000 / ((uint64_t)rate * 2)) + 250;
     if (swcAudioDevice != 0) {
-        result = SdlQueueSwcPcm(&pcm, 11025, AUDIO_S16MSB);
+        result = SdlQueueSwcPcm(&pcm, rate, AUDIO_S16MSB);
         *duration = speechDuration + 512 * 1000 / 48000;
     } else {
         *duration = SDL_max(*duration, speechDuration);
@@ -1724,6 +1727,7 @@ int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
     Uint32 elapsed = 50;
     unsigned int ticks = 0;
     int speech = 0;
+    int rate;
     int index;
     int cursorVisible = SDL_ShowCursor(SDL_QUERY);
     int result = SWC_MOVIE_ERROR;
@@ -1753,8 +1757,9 @@ int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
         reader = SDL_RWFromFile(path, "rb");
         if (reader != NULL) {
             SDL_RWclose(reader);
-            if (SwcReadSpeech(path, &pcm) != 0 ||
-                SdlQueueSwcPcm(&pcm, 11025, AUDIO_S16MSB) != 0)
+            /* Stranded.aif is 8-bit; SwcReadSpeech widens it. */
+            if (SwcReadSpeech(path, &pcm, &rate) != 0 ||
+                SdlQueueSwcPcm(&pcm, rate, AUDIO_S16MSB) != 0)
                 goto done;
         } else {
             SDL_ClearError();

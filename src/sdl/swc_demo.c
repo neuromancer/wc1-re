@@ -84,6 +84,7 @@ int main(int argc, char **argv)
     const char *snapshotPath;
     char *path = NULL;
     size_t pathSize;
+    size_t fork;
     char title[192];
     int argument;
     int shipIndex;
@@ -127,15 +128,15 @@ int main(int argc, char **argv)
     if (SwcCMOpen(path, &flightCmf) != 0)
         goto done;
     if (resourceFork == NULL) {
-        SDL_snprintf(path, pathSize, "%s/SuperWingCommanderDemo.rsrc", dataDirectory);
-        if (SwcReadPalette(path, 251, colors) != 0) {
-            SDL_snprintf(path, pathSize,
-                         "%s/Super Wing Commander Demo/..namedfork/rsrc", dataDirectory);
-            if (SwcReadPalette(path, 251, colors) != 0) {
-                SDL_SetError("Cannot load clut/251; use --rsrc with the demo's "
-                             "extracted raw resource fork");
-                goto done;
-            }
+        for (fork = 0; fork < SWC_APPLICATION_FORKS; fork++) {
+            SDL_snprintf(path, pathSize, "%s/%s", dataDirectory, swcApplicationForks[fork]);
+            if (SwcReadPalette(path, 251, colors) == 0)
+                break;
+        }
+        if (fork == SWC_APPLICATION_FORKS) {
+            SDL_SetError("Cannot load clut/251; use --rsrc with the demo's "
+                         "extracted raw resource fork");
+            goto done;
         }
     } else if (SwcReadPalette(resourceFork, 251, colors) != 0) {
         goto done;

@@ -191,6 +191,8 @@ int SwcReadMusic(const char *path, SwcMusic *music)
     uint32_t offset;
     uint32_t length;
     size_t capacity;
+    int candidate;
+    int written;
     int found;
     int result = -1;
 
@@ -199,38 +201,36 @@ int SwcReadMusic(const char *path, SwcMusic *music)
     if (reader == NULL)
         return -1;
     fileSize = SDL_RWsize(reader);
-    if (fileSize < 8 || fileSize > 8 * 1024 * 1024) {
-        SDL_RWclose(reader);
+    SDL_RWclose(reader);
+    if (fileSize < 8 || fileSize > 8 * 1024 * 1024)
         goto malformed;
-    }
-    file.data = SDL_LoadFile_RW(reader, &file.size, 1);
-    if (file.data == NULL)
+    if (SwcLoadDataFork(path, &file) != 0)
         return -1;
     found = SwcMusicAtom(&file, "moov", &movie);
     if (found < 0)
         goto malformed;
     if (!found) {
         /* Flattened movies can carry moov in the data fork. Original demo
-         * files instead keep it in resource 128; portable copies may retain
-         * that fork as a raw .rsrc sidecar or an AppleDouble ._ file. */
-        if (SDL_snprintf(forkPath, sizeof(forkPath), "%s.rsrc", path) >= (int)sizeof(forkPath))
-            goto malformed;
-        if (SwcReadResource(forkPath, "moov", 128, &resource) != 0) {
-            if (SDL_snprintf(forkPath, sizeof(forkPath), "%s/..namedfork/rsrc", path) >=
-                (int)sizeof(forkPath))
+         * files instead keep it in resource 128. Portable copies keep that
+         * fork in the file itself as MacBinary (archives of the HFS disc),
+         * a raw .rsrc sidecar, macOS's named fork or an AppleDouble ._ file. */
+        base = strrchr(path, '/');
+        separator = strrchr(path, '\\');
+        if (separator != NULL && (base == NULL || separator > base))
+            base = separator;
+        base = base == NULL ? path : base + 1;
+        for (candidate = 0; candidate < 4; candidate++) {
+            written = candidate == 0 ? SDL_snprintf(forkPath, sizeof(forkPath), "%s", path) :
+                candidate == 1 ? SDL_snprintf(forkPath, sizeof(forkPath), "%s.rsrc", path) :
+                candidate == 2 ? SDL_snprintf(forkPath, sizeof(forkPath), "%s/..namedfork/rsrc", path) :
+                SDL_snprintf(forkPath, sizeof(forkPath), "%.*s._%s", (int)(base - path), path, base);
+            if (written >= (int)sizeof(forkPath))
                 goto malformed;
-            if (SwcReadResource(forkPath, "moov", 128, &resource) != 0) {
-                base = strrchr(path, '/');
-                separator = strrchr(path, '\\');
-                if (separator != NULL && (base == NULL || separator > base))
-                    base = separator;
-                base = base == NULL ? path : base + 1;
-                if (SDL_snprintf(forkPath, sizeof(forkPath), "%.*s._%s",
-                    (int)(base - path), path, base) >= (int)sizeof(forkPath) ||
-                    SwcReadResource(forkPath, "moov", 128, &resource) != 0)
-                    goto done;
-            }
+            if (SwcReadResource(forkPath, "moov", 128, &resource) == 0)
+                break;
         }
+        if (candidate == 4)
+            goto done;
         if (SwcMusicAtom(&resource, "moov", &movie) != 1)
             goto malformed;
     }

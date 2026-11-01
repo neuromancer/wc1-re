@@ -1636,14 +1636,12 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless)
     if (!SdlResolvePath("CMFs/Spaceflight.CMF", path, sizeof(path)) ||
         SwcCMOpen(path, &spaceCmf) != 0)
         goto done;
-    SdlResolvePath("SuperWingCommanderDemo.rsrc", path, sizeof(path));
-    if (SwcReadPalette(path, 251, colors) != 0) {
-        SdlResolvePath("Super Wing Commander Demo/..namedfork/rsrc", path, sizeof(path));
-        if (SwcReadPalette(path, 251, colors) != 0) {
-            SDL_SetError("Cannot read the SWC palette. Preserve the demo's resource fork "
-                         "or place the raw fork in SuperWingCommanderDemo.rsrc.");
-            goto done;
-        }
+    if (!SdlFindSwcResources(NULL, path, sizeof(path)) ||
+        SwcReadPalette(path, 251, colors) != 0) {
+        SDL_SetError("Cannot read the SWC palette. Keep the demo application with its "
+                     "resource fork (a MacBinary copy also works) or place the raw fork "
+                     "in SuperWingCommanderDemo.rsrc.");
+        goto done;
     }
     SDL_SetMainReady();
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER |
