@@ -68,7 +68,7 @@ static ShipManeuverHandler apShipAiManeuverHandlers[47] = {
     /* 46 */ (void (*)(short, short))Mreset
 }; /* 0x004656a8 */
 
-static volatile short nManeuverProximityRange; /* 0x00475e78 */
+static short nManeuverProximityRange; /* 0x00475e78 */
 static unsigned char bCurrentManeuverReroll; /* 0x00475e7c */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
