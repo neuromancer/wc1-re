@@ -9,13 +9,13 @@ No copyrighted game data is included. Extract every file in this archive and
 start wc1-modern (wc1-modern.exe on Windows) without arguments to open the
 graphical launcher. Keep the bundled runtime libraries beside the executable.
 Choose the installed WC1 directory containing GAMEDAT, select the graphics and
-joystick options, and click Launch WC1. Kilrathi Saga also needs the sibling
+joystick options, and click Start game. Kilrathi Saga also needs the sibling
 STREAMS directory with PREFLITE.STR, POSFLITE.STR, and MISSION.STR.
 
 The launcher offers enhanced OpenGL rendering, EGA dithering, cockpitless
 campaign flight, cheat mode, joystick modes and axis layouts, and rumble.
-Clicking Launch remembers the directory and options in launcher.ini for the
-next GUI launch.
+Clicking Start game remembers the directory and options in launcher.ini for
+the next GUI launch.
 Cancel leaves the saved settings unchanged. The file is stored in:
 
   macOS: ~/Library/Application Support/Origin Systems/WC Kilrathi Saga/

@@ -44,11 +44,11 @@ Download the archive for your platform from
 and keep the bundled runtime libraries beside the executable. Started without
 arguments, it opens a graphical launcher: use **Browse…** to select a Kilrathi
 Saga or DOS Wing Commander directory containing `GAMEDAT`, choose the graphics
-and joystick options, and select **Launch WC1**. Kilrathi Saga installations
+and joystick options, and select **Start game**. Kilrathi Saga installations
 also need `STREAMS/PREFLITE.STR`, `POSFLITE.STR`, and `MISSION.STR`. With DOS
 data, compressed resources, OriginFX/AdLib music, and synthesized sound effects
-work; other DOS-specific data or behavior may not. Launch saves the directory
-and options for the next session.
+work; other DOS-specific data or behavior may not. Starting the game saves the
+directory and options for the next session.
 
 With command-line arguments the game starts directly from the working
 directory; add `--gui` to review the options in the launcher first:
