@@ -6,7 +6,8 @@ Commander: The Kilrathi Saga* (1996). The reconstructed game core is C, the
 4.20 to reproduce the original Win32 executable.
 
 A native SDL2 port is available for Windows, Linux, and macOS. It supports
-Kilrathi Saga data and has partial support for the original DOS game data.
+Kilrathi Saga data, has partial support for the original DOS game data, and
+also runs the Super Wing Commander Mac demo.
 
 No copyrighted game data is included.
 
@@ -15,27 +16,16 @@ GitHub Sponsors](https://github.com/sponsors/neuromancer).
 
 ## Status
 
-The reference build matches the original executable byte for byte: all
-518,656 bytes are identical. The final three register-encoding differences
-are resolved by a four-instruction inline assembly block in the guarded
-allocator. This is a documented matching workaround; it does not establish
-that the original source used assembly there. See the
-[allocator matching exception](docs/PATTERNS.md#guarded-allocator-inline-assembly).
+The reconstruction has reached **100% executable similarity**: the rebuilt
+`WC1.EXE` matches the original byte for byte (all 518,656 bytes, SHA-256
+`d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4`).
+A few matching workarounds remain in the source:
 
-The [workaround removal workflow](docs/WORKAROUNDS.md) tracks the remaining
-header exceptions and the exact-match checks required for each cleanup.
-
-`make report` calculates per-function machine-code similarity to the retail
-executable. It covers annotated functions and can miss unreconstructed code
-between them. Use `make compare` to check executable layout as well, and
-`binary-comp byte-compare data/full/WC1.ORI.EXE WC1.EXE` to verify the complete
-file. These checks do not measure SDL port gameplay completeness.
-
-## Similarity
-
-Run `make report` for the current per-function results. Generated report output
-is not stored in this repository.
-
+- one compilation unit (LOGIC) still selects its own header context;
+- a four-instruction inline assembly block in the guarded memory allocator;
+- some `volatile` qualifiers and access casts; and
+- header declaration order and include placement chosen to reproduce the
+  compiler's internal symbol ordering.
 
 ## Screenshots
 
@@ -50,70 +40,36 @@ is not stored in this repository.
 ## Download and run the SDL2 port
 
 Download the archive for your platform from
-[GitHub Releases](https://github.com/neuromancer/wc1-re/releases). Extract its
-contents and keep the bundled runtime libraries beside the executable. New
-release builds open a graphical launcher when started without arguments. Use
-**Browse…** to select an installed Kilrathi Saga or DOS Wing Commander directory
-containing `GAMEDAT`, choose the graphics and joystick options, and select
-**Launch WC1**. Older releases require the game directory as the working
-directory:
+[GitHub Releases](https://github.com/neuromancer/wc1-re/releases), extract it,
+and keep the bundled runtime libraries beside the executable. Started without
+arguments, it opens a graphical launcher: use **Browse…** to select a Kilrathi
+Saga or DOS Wing Commander directory containing `GAMEDAT`, choose the graphics
+and joystick options, and select **Launch WC1**. Kilrathi Saga installations
+also need `STREAMS/PREFLITE.STR`, `POSFLITE.STR`, and `MISSION.STR`. With DOS
+data, compressed resources, OriginFX/AdLib music, and synthesized sound effects
+work; other DOS-specific data or behavior may not. Launch saves the directory
+and options for the next session.
+
+With command-line arguments the game starts directly from the working
+directory; add `--gui` to review the options in the launcher first:
 
 ```sh
-# macOS or Linux
 cd /path/to/WC1
-./wc1-modern
+./wc1-modern --enhanced --joystick-rumble
 ```
 
-```powershell
-# Windows PowerShell
-cd C:\path\to\WC1
-.\wc1-modern.exe
-```
-
-With DOS data, compressed packet resources, OriginFX/AdLib music, and
-synthesized sound effects work; other DOS-specific data or behavior may not.
-
-The launcher follows WC2's layout, with WC1's enhanced OpenGL renderer, EGA
-dithering, cockpitless view, cheat mode, joystick modes, axis layouts, and
-rumble. Kilrathi Saga installations also need `STREAMS/PREFLITE.STR`, `POSFLITE.STR`, and
-`MISSION.STR`. Clicking Launch saves the selected directory and these options
-in a per-user `launcher.ini` for the next GUI launch. See
-[launcher settings](docs/SDL2.md#launcher-settings) for the file location and format.
-
-The [Super Wing Commander Mac demo](docs/SWC.md) also supports OpenGL,
-cockpitless view, cheat mode, the joystick modes and axis layouts, and rumble.
-Select its directory in the launcher, or run the game from inside that directory; the same
-switches apply. A directory that also holds WC1's `GAMEDAT` starts WC1.
-To play it, download the zip from
+The Super Wing Commander Mac demo supports the same options except EGA
+dithering. To play it, download the zip from
 [archive.org](https://archive.org/details/super-wing-commander-demo-1.0.2-mac), unzip it,
-and select its `SuperWing DEMO` folder in the launcher.
-The cleanest copy is the `SuperWing DEMO` folder of CD-ROM Today's June 1995 disc
-(v1.0.2): open
-[its discmaster page](https://discmaster.textfiles.com/browse/998/CD-ROM_Today_-_The_Disc_12_June_1995.iso/mac/SuperWing%20DEMO)
-in a browser, click "download all originals", unzip, and select the folder. Its
-MacBinary files need no further extraction. On archive.org,
-[Electronic Entertainment's June 1995 sampler](https://archive.org/details/Electronic_Entertainment_CD-ROM_Sampler_Disc_June_1995)
-carries the same data in `SuperWing`, and
-[Inside Mac Games 27](https://archive.org/details/IMG27May1995) the v1.0.2 application
-with earlier art in `Demos:SuperWing CD`. Copy the folder out of the HFS image with a
-tool that keeps resource forks (MacBinary, AppleDouble, `.rsrc` files or native forks).
-Avoid Multimedia Mania 06 (`cdmm-06`): 28 of its files are damaged. Earlier builds
-and renamed copies also run; see
-[the known demo discs](docs/SWC.md#demo-builds-discs-and-data-sets-2026-11-01).
-EGA dithering applies only to WC1 data. The demo's Options menu commands keep their
-original keys: `Cmd+U` and `Cmd+N` (`Ctrl+U` and `Ctrl+N` on Windows and Linux) turn
-music and sound off or on. `Cmd+B`/`Ctrl+B` toggles text messages (subtitles and room
-labels), and `Cmd+V`/`Ctrl+V` opens Volume Controls. These settings are remembered.
-
-Providing command-line arguments starts the game directly from the working
-directory. Add `--gui` to review those options in the launcher first; changing
-a control overrides its command-line default. Explicit command-line options
-override remembered settings; direct launches do not read or write the INI file.
+and select its `SuperWing DEMO` folder in the launcher. Its Options commands keep
+their original keys: `Cmd+U`/`Cmd+N` (`Ctrl+U`/`Ctrl+N` on Windows and Linux) turn
+music and sound off or on, `Cmd+B`/`Ctrl+B` toggles text messages, and
+`Cmd+V`/`Ctrl+V` opens Volume Controls.
 
 ### Fixes and features
 
-What the port adds on top of the reconstructed game. The first group is always
-active; the rest need a switch, and switches can be combined.
+The first group is always active; the rest need a switch, and switches can be
+combined.
 
 | Fix or feature | Enable with |
 | --- | --- |
@@ -137,66 +93,41 @@ active; the rest need a switch, and switches can be combined.
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
 | Alternate twin-stick, HOTAS, throttle, and rudder axis layouts | `--joystick-axes=<layout>` |
 | Joystick diagnostics on stderr | `--joystick-debug` |
-| Legacy frame-rate flag (SDL text overlay is not implemented) | `-f` |
 | Cockpitless view | `-c` |
-| Cheat mode: player invulnerability and no player collisions (DOS, Saga, SWC demo) | GUI checkbox or `--cheats` |
+| Cheat mode: player invulnerability and no player collisions | GUI checkbox or `--cheats` |
 
-```sh
-./wc1-modern --enhanced --joystick-rumble
-```
-
-### Enhanced renderer
-
-The OpenGL renderer keeps the original indexed artwork, palettes, cockpit, and
-HUD; only space objects are redrawn at output resolution. The software renderer
-remains the default.
+The enhanced renderer keeps the original indexed artwork, palettes, cockpit,
+and HUD; only space objects are redrawn at output resolution.
 
 | Output-resolution ships | Cockpit combat |
 | --- | --- |
 | [![Enhanced renderer showing two ships at output resolution](screenshots/enhanced-space-objects.webp)](screenshots/enhanced-space-objects.webp) | [![Enhanced renderer during cockpit combat](screenshots/enhanced-cockpit-combat.webp)](screenshots/enhanced-cockpit-combat.webp) |
 
-### SDL2 port controls
+### Controls
 
 | Shortcut | Action |
 | --- | --- |
-| `Cmd+Enter` (macOS) | Toggle fullscreen |
-| `Alt+Enter` (Windows and Linux) | Toggle fullscreen |
+| `Cmd+Enter` (macOS), `Alt+Enter` (Windows and Linux) | Toggle fullscreen |
 | `Cmd+Q` (macOS) | Quit the game |
-| `Ctrl+S` (spaceflight) | Toggle sound effects |
-| `Ctrl+M` (spaceflight) | Toggle music |
+| `Ctrl+S` / `Ctrl+M` (spaceflight) | Toggle sound effects / music |
+| `Esc` (spaceflight) | Pause; press any key to resume |
+| Mouse wheel (spaceflight) | Increase or decrease speed |
 | Gamepad Start (spaceflight) | Pause or resume |
 | Gamepad Back | Escape/back |
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
-| Mouse wheel (spaceflight) | Increase or decrease speed |
-| `Esc` (spaceflight) | Pause; press any key to resume |
 
-`Esc` pausing is a port addition. The original leaves it inert during
-spaceflight, and there is no in-flight quit or restart: a mission ends only
-by landing on the *Tiger's Claw*, ejecting, or dying. Quitting is done from
-the barracks menu (*Quit Wing Commander*), and retrying a mission means
-saving to a bunk beforehand and reloading it from there.
+As in the original, a mission ends only by landing on the *Tiger's Claw*,
+ejecting, or dying; quit from the barracks menu.
 
 The default `--joystick-mode=original` keeps the original two-axis, two-button
-controls. Two WCAT-style layouts are also available:
-
-| Option | Spaceflight controls |
-| --- | --- |
-| `--joystick-mode=4button-2axis` | Buttons 1–4: fire, missile, afterburner, roll/throttle modifier |
-| `--joystick-mode=4button-4axis` | Buttons 1–4: fire, missile, afterburner, cycle target; extra axes control roll and throttle |
-
-On mapped controllers, buttons 1–4 correspond to A, B, X, and Y; hold X to
-engage the afterburner.
-
-In either WCAT-style mode, LB/RB cycle guns and missiles, LT/RT or the
-left/right stick clicks open navigation/map and engage autopilot, and the
-D-pad provides full speed, stop, communications, and target lock.
-
-With communications open, D-pad Up/Down moves the highlighted choice, Right
-selects it, and Left closes the list. Flight and weapon controls remain active.
-
-The four-axis mode defaults to `--joystick-axes=twin-stick-roll`. Additional
-twin-stick, HOTAS, throttle, and rudder layouts are described in
-[the SDL2 port documentation](docs/SDL2.md#joystick-input).
+controls. The WCAT-style layouts use buttons 1–4 (A, B, X, Y on mapped
+controllers) for fire, missile, afterburner, and either a roll/throttle
+modifier (`4button-2axis`) or target cycling with extra roll and throttle axes
+(`4button-4axis`). LB/RB cycle guns and missiles, LT/RT open the navigation map
+and engage autopilot, and the D-pad provides full speed, stop, communications,
+and target lock. `--joystick-axes=` selects `twin-stick-roll` (the default),
+`twin-stick-yaw`, `hotas-yaw`, `hotas-roll`, `linear-throttle`, `rudder-yaw`, or
+`rudder-roll`.
 
 ## Build from source
 
@@ -208,82 +139,39 @@ git submodule update --init --recursive
 
 ### SDL2 port
 
-Install a C/C++ compiler plus the SDL2 and LZO2 development packages, then run:
+Install a C/C++ compiler plus the SDL2 and LZO2 development packages, then run
+`make -j modern`. The executable is written to `out-modern/wc1-modern` (`.exe`
+on Windows); `make run-modern` launches it with Kilrathi Saga data in
+`data/full`, and `make run-modern-dos` with DOS data in `data/dos`.
 
-```sh
-make -j modern
-```
-
-The executable is written to `out-modern/wc1-modern` (or
-`out-modern/wc1-modern.exe` on Windows). `make run-modern` launches it with
-Kilrathi Saga data in `data/full`; `make run-modern-dos` uses DOS data in
-`data/dos`.
-
-To build the graphical launcher, also install CMake 3.21+, Rust 1.88+, and a
-C++20 compiler. Linux builds need the D-Bus and Fontconfig development packages
-(`libdbus-1-dev` and `libfontconfig1-dev` on Debian/Ubuntu), and the folder picker
-uses the desktop's XDG portal. Then build:
-
-```sh
-make -j modern-gui
-```
-
-This produces `out-modern/wc1-modern-gui` (`.exe` on Windows). The first build
-downloads the pinned Slint and Native File Dialog Extended sources. Both are
-linked into the executable; `make modern` keeps its existing dependencies.
-`make run-modern-gui` opens the launcher with `data/full` selected, or use
-`MODERN_RUN_DIR=/path/to/WC1` to select another installation. Release archives
-include this GUI build under the usual `wc1-modern` name.
+The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
+1.88+, and a C++20 compiler; Linux builds need the D-Bus and Fontconfig
+development packages. It produces `out-modern/wc1-modern-gui`, which release
+archives ship as `wc1-modern`.
 
 ### Reconstructed Win32 build
 
-The default target builds `WC1.EXE` with the original MSVC 4.20 toolchain under
-wibo, and assembles the hand-written raster library with UASM, built from its
-submodule on first use:
-
-```sh
-make -j
-```
-
-Each link checks the complete executable against the original SHA-256 recorded
-in the Makefile and fails on a mismatch. The default build also checks an
-up-to-date executable, as does a direct `make WC1.EXE` request. Run
-`make verify-hash` to repeat this check without
-needing binary-comp or a local copy of the retail executable.
-
-To run it, provide a Kilrathi Saga disc image. The Makefile extracts the game
-data, substitutes the reconstructed executable, downloads DREAMM when needed,
-and launches it in an emulated Windows 95 environment:
+`make -j` builds `WC1.EXE` with the original MSVC 4.20 toolchain under wibo and
+assembles the hand-written raster library with UASM. Each link checks the
+executable against the original SHA-256; `make verify-hash` repeats the check.
+To run it in an emulated Windows 95 environment through DREAMM, provide a
+Kilrathi Saga disc image:
 
 ```sh
 make run GAME_ISO=/path/to/kilrathi-saga.iso
 ```
 
-Use `make debug GAME_ISO=/path/to/kilrathi-saga.iso` to start DREAMM's debugger.
+### Reconstruction workflow
 
-## Reconstruction workflow
-
-[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) is required for
-assembly/layout comparisons and the full verification suite:
+[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) is required for the
+assembly and layout comparisons. These commands also need the retail executable
+at `data/full/WC1.ORI.EXE` and the original-code exports under `code-full/`:
 
 ```sh
 python3 -m pip install "binary-comp[all] @ git+https://github.com/gg-sl-oss/binary-comp.git"
 make compare-func FUNC=perform_maneuver
 make verify
 ```
-
-These commands require the retail executable at `data/full/WC1.ORI.EXE` and the
-original-code exports under `code-full/`.
-
-Contributor references are intentionally limited to:
-
-- [compiler and flag evidence](docs/COMPILER.md);
-- [matching patterns](docs/PATTERNS.md);
-- [disassembly export workflow](docs/EXPORT.md);
-- [compilation-unit order](docs/ORDER.md);
-- [function naming policy](docs/LABELS.md);
-- [SDL2 port architecture](docs/SDL2.md); and
-- [release process](docs/RELEASING.md).
 
 ## Acknowledgements
 
@@ -298,12 +186,13 @@ Special thanks to:
 - AllTinker for the [W.C.A.T. overhaul](https://alltinker.itch.io/wcat), whose
   fixes and analysis of the DOS release have been valuable references;
 - the [WCDX project](https://github.com/Bekenn/wcdx) for its pioneering
-  compatibility work on the *Kilrathi Saga* release; and
+  compatibility work on the *Kilrathi Saga* release;
 - Aaron Giles for the [DREAMM emulator](https://dreamm.aarongiles.com/), used
   to run and study the original release, and
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's
-  AdLib emulation.
-- DaisenryakuFan for providing very advanced source reconstructions for the DOS releases of several *Wing Commander* titles.
+  AdLib emulation; and
+- DaisenryakuFan for providing very advanced source reconstructions for the DOS
+  releases of several *Wing Commander* titles.
 
 ## License
 
