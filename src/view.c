@@ -311,7 +311,7 @@ unsigned int DrawConstellationField(void)
 {
     short height;
     short index;
-    int tableOffset;
+    short randomIndex;
     short speed;
 
     height = (short)(pConstellationViewportPtr->bottom -
@@ -341,38 +341,38 @@ unsigned int DrawConstellationField(void)
             (aConstellationParticlesList[index].frame & 0xfc) +
             (aConstellationParticlesList[index].frame + 1) % 4);
         if (nConstellationDirection < 0) {
-            if (aConstellationParticlesList[index].x >=
-                pConstellationViewportPtr->left)
-                continue;
-            tableOffset = (int)RandomInRange(0, 15) * sizeof(short);
-            speed = *(short *)((unsigned char *)asConstellationVelocity +
-                              tableOffset);
-            aConstellationParticlesList[index].x = (short)(
-                pConstellationViewportPtr->right -
-                RandomInRange(0, speed));
-            aConstellationParticlesList[index].y = (short)(
-                pConstellationViewportPtr->top +
-                RandomInRange(0, height));
-            aConstellationParticlesList[index].velocity = (short)-speed;
+            if (aConstellationParticlesList[index].x <
+                pConstellationViewportPtr->left) {
+                randomIndex = RandomInRange(0, 15);
+                speed = asConstellationVelocity[randomIndex];
+                aConstellationParticlesList[index].x = (short)(
+                    pConstellationViewportPtr->right -
+                    RandomInRange(0, speed));
+                aConstellationParticlesList[index].y = (short)(
+                    pConstellationViewportPtr->top +
+                    RandomInRange(0, height));
+                aConstellationParticlesList[index].velocity = (short)-speed;
+                aConstellationParticlesList[index].frame =
+                    (short)(asConstellationFrame[randomIndex] +
+                            RandomInRange(0, 3));
+            }
         } else {
-            if (aConstellationParticlesList[index].x <=
-                pConstellationViewportPtr->right)
-                continue;
-            tableOffset = (int)RandomInRange(0, 15) * sizeof(short);
-            speed = *(short *)((unsigned char *)asConstellationVelocity +
-                              tableOffset);
-            aConstellationParticlesList[index].velocity = speed;
-            aConstellationParticlesList[index].x = (short)(
-                pConstellationViewportPtr->left +
-                RandomInRange(0, speed));
-            aConstellationParticlesList[index].y = (short)(
-                pConstellationViewportPtr->top +
-                RandomInRange(0, height));
+            if (aConstellationParticlesList[index].x >
+                pConstellationViewportPtr->right) {
+                randomIndex = RandomInRange(0, 15);
+                aConstellationParticlesList[index].velocity = speed =
+                    asConstellationVelocity[randomIndex];
+                aConstellationParticlesList[index].x = (short)(
+                    pConstellationViewportPtr->left +
+                    RandomInRange(0, speed));
+                aConstellationParticlesList[index].y = (short)(
+                    pConstellationViewportPtr->top +
+                    RandomInRange(0, height));
+                aConstellationParticlesList[index].frame =
+                    (short)(asConstellationFrame[randomIndex] +
+                            RandomInRange(0, 3));
+            }
         }
-        aConstellationParticlesList[index].frame = (short)(
-            *(short *)((unsigned char *)asConstellationFrame +
-                       tableOffset) +
-            RandomInRange(0, 3));
     }
     return 0;
 }
