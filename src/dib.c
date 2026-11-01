@@ -907,25 +907,21 @@ void DIBramPalette(void)
 /* Function start: 0x432F10 */
 void DIBsetPalette(short index, short *rgb)
 {
-    int cacheOffset;
-    short *components;
 #ifndef SDL_PORT
     PALETTEENTRY entry;
     HRESULT result;
 #endif
 
-    cacheOffset = index * 4;
-    components = *(short *volatile *)&rgb;
-    if (abDIBPaletteQuads[cacheOffset + 2] != components[0] ||
-        abDIBPaletteQuads[cacheOffset + 1] != components[1] ||
-        abDIBPaletteQuads[cacheOffset] != components[2]) {
-        awPaletteRgbWordsList[index * 3] =
-            abDIBPaletteQuads[cacheOffset + 2] = (unsigned char)components[0];
-        awPaletteRgbWordsList[index * 3 + 1] =
-            abDIBPaletteQuads[cacheOffset + 1] = (unsigned char)components[1];
-        awPaletteRgbWordsList[index * 3 + 2] =
-            abDIBPaletteQuads[cacheOffset] = (unsigned char)components[2];
-        abDIBPaletteQuads[cacheOffset + 3] = 1;
+    if (abDIBPaletteQuads[index * 4 + 2] != rgb[0] ||
+        abDIBPaletteQuads[index * 4 + 1] != rgb[1] ||
+        abDIBPaletteQuads[index * 4] != rgb[2]) {
+        abDIBPaletteQuads[index * 4 + 2] = (unsigned char)rgb[0];
+        awPaletteRgbWordsList[index * 3] = abDIBPaletteQuads[index * 4 + 2];
+        abDIBPaletteQuads[index * 4 + 1] = (unsigned char)rgb[1];
+        awPaletteRgbWordsList[index * 3 + 1] = abDIBPaletteQuads[index * 4 + 1];
+        abDIBPaletteQuads[index * 4] = (unsigned char)rgb[2];
+        awPaletteRgbWordsList[index * 3 + 2] = abDIBPaletteQuads[index * 4];
+        abDIBPaletteQuads[index * 4 + 3] = 1;
 
         /* SDL_PORT consumes this cache on the next normal frame submission.
            A DirectDraw palette entry update did not blit or wait for vertical
