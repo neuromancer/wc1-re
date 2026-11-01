@@ -9,6 +9,10 @@
 #ifndef SDL_PORT
 #include <crtdbg.h>
 #include <assert.h>
+#include <dos.h>
+/* WarpMouseTo keeps the DOS SetMousePos interrupt bracket; the 32-bit CRT
+ * also has called versions, so ask for the inline cli/sti. */
+#pragma intrinsic(_disable, _enable)
 #endif
 
 short nHazardReferenceSpeed = 0; /* 0x00465040 */
@@ -496,17 +500,13 @@ void check_hazards(void)
 /* Function start: 0x401CE0 */
 void __stdcall WarpMouseTo(short x, short y)
 {
-#ifndef SDL_PORT
-    __asm cli
-#endif
+    _disable();
     stHostMouseState.x = x;
     stHostMouseState.y = y;
     stMouseCursorState.x = x;
     stMouseCursorState.y = y;
     SetMouseHomePosition(x, y);
-#ifndef SDL_PORT
-    __asm sti
-#endif
+    _enable();
 }
 
 /* Function start: 0x401D10 */

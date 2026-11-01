@@ -413,6 +413,10 @@ char *SdlStrupr(char *text);
 #define cprintf _cprintf
 #define chdir _chdir
 
+/* <dos.h>'s interrupt switches; the host has no interrupt flag to clear. */
+#define _disable()
+#define _enable()
+
 #define CREATE_ALWAYS 2
 #define DRIVE_CDROM 5
 #define ERROR_FILE_NOT_FOUND 2
