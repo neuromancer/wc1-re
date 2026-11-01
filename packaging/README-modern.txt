@@ -51,7 +51,7 @@ sidecars, or remain MacBinary as archives of the original disc serve them:
 discmaster's "SuperWing DEMO" folder works without further extraction.
 WC1_SWC_SOUNDFONT can select another complete General MIDI SoundFont. The
 bundled bank is a host substitute for the original QuickTime instruments.
-Select the demo directory in the launcher or use --swc-demo DIRECTORY. Its
+Select the demo directory in the launcher, or run the game from inside it. Its
 OpenGL rendering, cockpitless view, joystick modes and axis layouts, and rumble
 use the same launcher controls and command-line switches as WC1. EGA dithering
 is WC1-only. In demo menus, use the D-pad to browse, A to confirm, B/Back to go

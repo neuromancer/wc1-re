@@ -19,10 +19,10 @@ namespace fs = std::filesystem;
 
 using namespace wc1_launcher;
 
-void refresh_window(LauncherWindow &window, bool swcRequested)
+void refresh_window(LauncherWindow &window)
 {
     const std::string directory(window.get_game_directory());
-    const DirectoryStatus status = validate_game_directory(directory, swcRequested);
+    const DirectoryStatus status = validate_game_directory(directory);
 
     window.set_picker_error(false);
     window.set_path_valid(status.valid);
@@ -41,7 +41,7 @@ void report_picker_error(LauncherWindow &window, std::string message,
     window.set_status_text(slint::SharedString(message));
 }
 
-void browse_for_game_directory(LauncherWindow &window, bool swcRequested)
+void browse_for_game_directory(LauncherWindow &window)
 {
     const std::string currentDirectory(window.get_game_directory());
     std::string defaultDirectory;
@@ -71,7 +71,7 @@ void browse_for_game_directory(LauncherWindow &window, bool swcRequested)
     const std::string selection(selectedDirectory);
     NFD_FreePathU8(selectedDirectory);
     window.set_game_directory(slint::SharedString(selection));
-    refresh_window(window, swcRequested);
+    refresh_window(window);
 }
 
 } // namespace
@@ -83,7 +83,6 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
 
     if (options == nullptr)
         return SDL_LAUNCHER_ERROR;
-    const bool swcRequested = options->swcDemo != 0;
     const auto configPath = launcher_config_path();
     load_launcher_config(configPath, *options);
 
@@ -109,13 +108,13 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_joystick_rumble(options->joystickRumble != 0);
     window->set_joystick_mode_index(options->joystickMode);
     window->set_joystick_axes_index(options->joystickAxes);
-    refresh_window(*window, swcRequested);
+    refresh_window(*window);
 
-    window->on_configuration_changed([&window, swcRequested]() {
-        refresh_window(*window, swcRequested);
+    window->on_configuration_changed([&window]() {
+        refresh_window(*window);
     });
-    window->on_launch_requested([&window, &accepted, swcRequested]() {
-        refresh_window(*window, swcRequested);
+    window->on_launch_requested([&window, &accepted]() {
+        refresh_window(*window);
         if (!window->get_path_valid())
             return;
         std::error_code error;
@@ -149,7 +148,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     /* NFD_Init records Cocoa's activation policy. Initialize it from the
      * callback, after winit launches NSApplication, so NFD_Quit cannot restore
      * the temporary pre-launch Prohibited policy before SDL takes over. */
-    window->on_browse_requested([&window, &pickerInitialized, swcRequested]() {
+    window->on_browse_requested([&window, &pickerInitialized]() {
         if (!pickerInitialized) {
             if (NFD_Init() != NFD_OKAY) {
                 report_picker_error(
@@ -159,7 +158,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
             }
             pickerInitialized = true;
         }
-        browse_for_game_directory(*window, swcRequested);
+        browse_for_game_directory(*window);
     });
     slint::run_event_loop();
     if (pickerInitialized)

@@ -82,7 +82,8 @@ in a per-user `launcher.ini` for the next GUI launch. See
 
 The [Super Wing Commander Mac demo](docs/SWC.md) also supports OpenGL,
 cockpitless view, cheat mode, the joystick modes and axis layouts, and rumble.
-Select its directory in the launcher or use `--swc-demo DIRECTORY` with the same switches.
+Select its directory in the launcher, or run the game from inside that directory; the same
+switches apply. A directory that also holds WC1's `GAMEDAT` starts WC1.
 Copies that keep the Mac files as MacBinary, such as the `SuperWing DEMO` folder from
 discmaster's archive of the original disc, work without further extraction.
 EGA dithering applies only to WC1 data. The demo's Options menu commands keep their

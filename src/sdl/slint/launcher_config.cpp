@@ -112,8 +112,7 @@ void load_launcher_config(const std::filesystem::path &path,
              * punctuation inside the path are literal, including on Windows. */
             if (value.size() >= 2 && value.front() == '"' && value.back() == '"')
                 value = value.substr(1, value.size() - 2);
-            if (!(options.explicitOptions & SDL_LAUNCHER_EXPLICIT_DIRECTORY) &&
-                !value.empty() && value.size() < sizeof(options.gameDirectory) &&
+            if (!value.empty() && value.size() < sizeof(options.gameDirectory) &&
                 value.find_first_of("\r\n") == std::string_view::npos &&
                 valid_setting_utf8(value) &&
                 path_from_utf8(value).is_absolute()) {

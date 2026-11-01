@@ -66,7 +66,7 @@ static bool has_readable_file(const fs::path &directory, std::string_view name)
         std::ifstream(*path, std::ios::binary).peek() != std::ifstream::traits_type::eof();
 }
 
-DirectoryStatus validate_game_directory(std::string_view directoryText, bool swcRequested)
+DirectoryStatus validate_game_directory(std::string_view directoryText)
 {
     if (directoryText.empty())
         return {false, "Choose a Wing Commander directory."};
@@ -80,9 +80,11 @@ DirectoryStatus validate_game_directory(std::string_view directoryText, bool swc
         return {false, "The selected path is not a directory."};
     const auto gameData = find_child_case_insensitive(directory, "GAMEDAT");
     const auto cmfs = find_child_case_insensitive(directory, "CMFs");
-    // Preserve WC1 selection in mixed directories unless SWC was requested.
-    if ((swcRequested || !gameData || !fs::is_directory(*gameData, error)) &&
-        cmfs && fs::is_directory(*cmfs, error)) {
+    // WC1 data (GAMEDAT/MODULE.000) wins over the demo's CMFs in a mixed
+    // directory; the command line applies the same rule to its directory.
+    const bool wc1Data = gameData && fs::is_directory(*gameData, error) &&
+        has_readable_file(*gameData, "MODULE.000");
+    if (!wc1Data && cmfs && fs::is_directory(*cmfs, error)) {
         for (const auto name : {"Data.CMF", "Spaceflight.CMF", "PCShipV00.CMF",
                                 "RecRoomScene.CMF", "Barracks.CMF", "ViewMedals.CMF",
                                 "Head10.CMF", "RRTalkingHeads.CMF", "Briefing.CMF",
@@ -104,8 +106,6 @@ DirectoryStatus validate_game_directory(std::string_view directoryText, bool swc
             return {false, "SWC resources missing: keep the demo application with its resource fork (a MacBinary copy also works) or add SuperWingCommanderDemo.rsrc.", true};
         return {true, "Mac demo", true};
     }
-    if (swcRequested)
-        return {false, "Choose the SWC demo directory containing CMFs.", true};
     if (!gameData || !fs::is_directory(*gameData, error))
         return {false, "Choose a WC1 directory containing GAMEDAT or the SWC demo directory containing CMFs."};
 

@@ -27,7 +27,6 @@ enum SdlLauncherJoystickAxes {
 };
 
 enum SdlLauncherExplicitOption {
-    SDL_LAUNCHER_EXPLICIT_DIRECTORY = 1 << 0,
     SDL_LAUNCHER_EXPLICIT_ENHANCED = 1 << 1,
     SDL_LAUNCHER_EXPLICIT_EGA = 1 << 2,
     SDL_LAUNCHER_EXPLICIT_COCKPITLESS = 1 << 3,

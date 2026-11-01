@@ -54,16 +54,6 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--check") == 0) {
             fprintf(stderr, "The --check runtime mode has been removed.\n");
             return 0;
-        } else if (strcmp(argument, "--swc-demo") == 0) {
-            if (argumentIndex + 1 >= *argumentCount ||
-                strlen(arguments[argumentIndex + 1]) >= sizeof(options->gameDirectory)) {
-                fprintf(stderr, "--swc-demo requires a demo directory.\n");
-                return 0;
-            }
-            SDL_strlcpy(options->gameDirectory, arguments[++argumentIndex],
-                        sizeof(options->gameDirectory));
-            options->swcDemo = 1;
-            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_DIRECTORY;
         } else if (strcmp(argument, "--enhanced") == 0) {
             options->enhancedRenderer = 1;
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_ENHANCED;
@@ -110,6 +100,25 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
     *argumentCount = outputArgumentIndex;
     arguments[outputArgumentIndex] = 0;
     return 1;
+}
+
+/* WC1 data, DOS or Kilrathi Saga, always has GAMEDAT/MODULE.000. */
+static int SdlHasWc1GameData(void)
+{
+    char path[PATH_MAX];
+    SDL_RWops *file;
+    Sint64 size;
+
+    if (!SdlResolvePath("GAMEDAT/MODULE.000", path, sizeof(path)))
+        return 0;
+    file = SDL_RWFromFile(path, "rb");
+    if (file == NULL) {
+        SDL_ClearError();
+        return 0;
+    }
+    size = SDL_RWsize(file);
+    SDL_RWclose(file);
+    return size > 0;
 }
 
 int SdlHasSwcResources(const char *directory)
@@ -220,10 +229,11 @@ int main(int argumentCount, char **arguments)
             return 0;
         if (launcherResult != SDL_LAUNCHER_ACCEPTED)
             return 1;
-    } else if (launcherOptions.gameDirectory[0] != '\0' &&
-               SdlChangeDirectory(launcherOptions.gameDirectory) != 0) {
-        fprintf(stderr, "Cannot open SWC demo directory: %s\n", SDL_GetError());
-        return 1;
+    } else {
+        /* Like the launcher's check, the working directory selects the SWC
+         * demo when it holds CMFs/Data.CMF and no WC1 game data. */
+        launcherOptions.swcDemo = SdlFindSwcMissionData(swcPath, sizeof(swcPath)) &&
+                                  !SdlHasWc1GameData();
     }
     if (!SdlApplyLauncherOptions(&launcherOptions))
         return 1;
