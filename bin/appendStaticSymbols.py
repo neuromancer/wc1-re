@@ -4,7 +4,6 @@
 Resolve COFF section bases from public symbols and linked DIR32 relocations.
 This supplies address metadata to binary-comp; it never changes the executable
 or compares it with the original. Keep LINK's unmodified map as a separate file.
-Without binary-comp (release builds), no map is written and the build goes on.
 """
 from __future__ import annotations
 
@@ -12,13 +11,9 @@ import argparse
 from pathlib import Path
 import re
 import struct
-import sys
 
-try:
-    from binary_comp.core.mapfile import parse_msvc_map_symbols
-    from binary_comp.core.pe import PEImage
-except ModuleNotFoundError:
-    parse_msvc_map_symbols = PEImage = None
+from binary_comp.core.mapfile import parse_msvc_map_symbols
+from binary_comp.core.pe import PEImage
 
 
 def require(condition: bool, message: str) -> None:
@@ -121,12 +116,6 @@ def main() -> None:
     args = parser.parse_args()
     require(Path(args.map).resolve() != Path(args.output).resolve(),
             'the output must preserve the original LINK map')
-    if PEImage is None:
-        # Only binary-comp reads this map; never leave a stale one behind.
-        Path(args.output).unlink(missing_ok=True)
-        print(f'binary-comp is not installed; {args.output} was not written '
-              '(relink after installing it)', file=sys.stderr)
-        return
     image = PEImage(args.rebuilt)
     entries = parse_msvc_map_symbols(args.map)
     names = {entry.symbol for entry in entries}

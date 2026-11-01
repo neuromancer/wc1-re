@@ -819,14 +819,18 @@ REFERENCE_HEADERS = include/wc1.h include/wc1base.h include/wcdata.h \
 
 # Ordered double-colon rules link only when needed, then always check the hash.
 # A direct request for an up-to-date WC1.EXE must also reject a changed file.
-$(TARGET):: $(LINK_OBJS) $(IX_LIBS) Makefile bin/appendStaticSymbols.py | $(MSVCRT_DLL)
+$(TARGET):: $(LINK_OBJS) $(IX_LIBS) Makefile | $(MSVCRT_DLL)
 	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(LINKMAPFILE) $(LINK_OBJS) $(GAME_LIBS) /OUT:$@
 	@python3 bin/stampPeTimestamp.py $@ $(ORIGINAL_TIMESTAMP)
-	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
-		--rebuilt $@ --output $(MAPFILE) $(OUT_DIR)/winmain.obj $(OUT_DIR)/winsys.obj $(OUT_DIR)/mono.obj $(OUT_DIR)/auto.obj $(OUT_DIR)/eject.obj $(OUT_DIR)/cmpgn.obj $(OUT_DIR)/fl.obj $(OUT_DIR)/cutscene.obj $(OUT_DIR)/mission.obj $(OUT_DIR)/objdata.obj $(OUT_DIR)/nav.obj $(OUT_DIR)/nearheap.obj $(OUT_DIR)/gameflow.obj $(OUT_DIR)/title.obj $(OUT_DIR)/spc.obj $(OUT_DIR)/cockpt.obj $(OUT_DIR)/trainsim.obj $(OUT_DIR)/main.obj $(OUT_DIR)/sound.obj $(OUT_DIR)/launch.obj $(OUT_DIR)/damage.obj $(OUT_DIR)/view.obj $(OUT_DIR)/music.obj $(OUT_DIR)/ending.obj $(OUT_DIR)/comm.obj $(OUT_DIR)/joycal.obj $(OUT_DIR)/dib.obj $(OUT_DIR)/game.obj $(OUT_DIR)/eventmgr.obj $(OUT_DIR)/screens.obj $(OUT_DIR)/killbrd.obj $(OUT_DIR)/gr.obj
 
 $(TARGET)::
 	@printf '%s  %s\n' '$(ORIGINAL_SHA256)' '$(TARGET)' | shasum -a 256 -c -
+
+# binary-comp's map: LINK's map plus the compiler-private (static) data LINK
+# leaves out.  Only the comparison targets need it, never WC1.EXE itself.
+$(MAPFILE): $(TARGET) bin/appendStaticSymbols.py
+	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
+		--rebuilt $(TARGET) --output $@ $(OUT_DIR)/winmain.obj $(OUT_DIR)/winsys.obj $(OUT_DIR)/mono.obj $(OUT_DIR)/auto.obj $(OUT_DIR)/eject.obj $(OUT_DIR)/cmpgn.obj $(OUT_DIR)/fl.obj $(OUT_DIR)/cutscene.obj $(OUT_DIR)/mission.obj $(OUT_DIR)/objdata.obj $(OUT_DIR)/nav.obj $(OUT_DIR)/nearheap.obj $(OUT_DIR)/gameflow.obj $(OUT_DIR)/title.obj $(OUT_DIR)/spc.obj $(OUT_DIR)/cockpt.obj $(OUT_DIR)/trainsim.obj $(OUT_DIR)/main.obj $(OUT_DIR)/sound.obj $(OUT_DIR)/launch.obj $(OUT_DIR)/damage.obj $(OUT_DIR)/view.obj $(OUT_DIR)/music.obj $(OUT_DIR)/ending.obj $(OUT_DIR)/comm.obj $(OUT_DIR)/joycal.obj $(OUT_DIR)/dib.obj $(OUT_DIR)/game.obj $(OUT_DIR)/eventmgr.obj $(OUT_DIR)/screens.obj $(OUT_DIR)/killbrd.obj $(OUT_DIR)/gr.obj
 
 $(IX_LZO_LIB): $(call objects_of,$(SRCS_IX_LZO))
 $(IX_FILE_LIB): $(call objects_of,$(SRCS_IX_FILE))
@@ -958,14 +962,14 @@ $(GLOBALS_DATA_AUDIT_SOURCE): $(GLOBALS_AUDIT_SOURCE) config/data-literals.h
 # to the mnemonic similarity.
 REPORT_FLAGS ?= --bytes
 
-report: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
+report: $(TARGET) $(MAPFILE) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) report $(BC) $(REPORT_FLAGS) $(if $(FILTER),--filter $(FILTER))
 
 # Compare a single rebuilt function against the original.  This is the inner
 # loop while implementing:  make compare-func FUNC=MinShort
 # Exports are named FUN_<ADDRESS>.disassembled.txt (see ExportToCompile.java),
 # so resolve the file from the `Function:` header rather than the symbol name.
-compare-func: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
+compare-func: $(TARGET) $(MAPFILE) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@test -n "$(FUNC)" || (echo "usage: make compare-func FUNC=<FunctionName>" >&2 && exit 1)
 	@f=$$(grep -lE "^Function: $(FUNC)$$" $(CODE_DIR)/*.disassembled.txt 2>/dev/null | head -1); \
 	test -n "$$f" || (echo "no export for $(FUNC) in $(CODE_DIR)/ -- run 'make export-asm'" >&2 && exit 1); \
@@ -976,21 +980,21 @@ export-asm: | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) export-asm $(BC) --map "$(abspath config/original-boundaries.map.txt)" $(EXPORT_ASM_FLAGS)
 
 # Split near-miss functions into source-reachable vs allocator churn.
-triage: $(TARGET) | code-full $(ORIGINAL_EXE)
+triage: $(TARGET) $(MAPFILE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) triage $(BC) $(if $(FILTER),--filter $(FILTER))
 
 # Original-address compilation-unit ordering and boundary evidence.  This is the
 # main tool for recovering game-core module boundaries, which are still unknown.
-order: $(TARGET) | code-full $(ORIGINAL_EXE)
+order: $(TARGET) $(MAPFILE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) order $(BC) --no-build $(if $(FILTER),--filter $(FILTER)) $(ORDER_FLAGS)
 
-seh: $(TARGET) | code-full $(ORIGINAL_EXE)
+seh: $(TARGET) $(MAPFILE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) seh $(BC) --report $(if $(FILTER),--filter $(FILTER)) || true
 
-globals-data: $(TARGET) $(GLOBALS_DATA_AUDIT_SOURCE) | $(ORIGINAL_EXE)
+globals-data: $(TARGET) $(MAPFILE) $(GLOBALS_DATA_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) data $(BC) --globals-source $(GLOBALS_DATA_AUDIT_SOURCE)
 
-globals-data-verbose: $(TARGET) $(GLOBALS_DATA_AUDIT_SOURCE) | $(ORIGINAL_EXE)
+globals-data-verbose: $(TARGET) $(MAPFILE) $(GLOBALS_DATA_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) data $(BC) --globals-source $(GLOBALS_DATA_AUDIT_SOURCE) --verbose
 
 missing-data: $(GLOBALS_DATA_AUDIT_SOURCE) | $(ORIGINAL_EXE)
@@ -1000,10 +1004,10 @@ missing-data: $(GLOBALS_DATA_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 		--min-address $(GLOBALS_MISSING_MIN_ADDRESS) \
 		--max-address $(GLOBALS_MISSING_MAX_ADDRESS)
 
-compare: $(TARGET) | $(ORIGINAL_EXE)
+compare: $(TARGET) $(MAPFILE) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) exe $(BC)
 
-compare-functions: $(TARGET) | $(ORIGINAL_EXE)
+compare-functions: $(TARGET) $(MAPFILE) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) exe $(BC) --functions
 
 compare-full: compare
@@ -1033,34 +1037,34 @@ verify:
 
 verify-hash: $(TARGET)
 
-verify-array-initializers: $(TARGET) | $(ORIGINAL_EXE)
+verify-array-initializers: $(TARGET) $(MAPFILE) | $(ORIGINAL_EXE)
 	@python3 bin/verifyArrayInitializers.py \
 		--original "$(ORIGINAL_EXE)" --rebuilt "$(TARGET)" \
 		--map "$(MAPFILE)" --binary-comp "$(BINARY_COMP)"
 
-verify-code-pointers: $(TARGET) | code-full $(ORIGINAL_EXE)
+verify-code-pointers: $(TARGET) $(MAPFILE) | code-full $(ORIGINAL_EXE)
 	@python3 bin/verifyCodePointers.py $(BC)
 
-verify-mixer-references: $(TARGET) | code-full $(ORIGINAL_EXE)
+verify-mixer-references: $(TARGET) $(MAPFILE) | code-full $(ORIGINAL_EXE)
 	@python3 bin/verifyMixerReferences.py $(BC)
 
-verify-barracks-data: $(TARGET) out/barracks.obj | $(ORIGINAL_EXE)
+verify-barracks-data: $(TARGET) $(MAPFILE) out/barracks.obj | $(ORIGINAL_EXE)
 	@python3 bin/verifyUnitData.py --unit barracks \
 		--original "$(ORIGINAL_EXE)" --rebuilt "$(TARGET)" \
 		--map "$(MAPFILE)" --objects-root "$(OUT_DIR)"
 
-verify-unit-data: $(TARGET) | $(ORIGINAL_EXE)
+verify-unit-data: $(TARGET) $(MAPFILE) | $(ORIGINAL_EXE)
 	@python3 bin/verifyUnitData.py \
 		--original "$(ORIGINAL_EXE)" --rebuilt "$(TARGET)" \
 		--map "$(MAPFILE)" --objects-root "$(OUT_DIR)"
 
-verify-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
+verify-globals: $(TARGET) $(MAPFILE) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) --no-source-order --fail-on-issues --fail-on-warnings
 
 # The source-level globals audit cannot serialize every nested or symbolic
 # initializer.  Compare the linked bytes too, but keep the normal verify output
 # to the actionable mismatches and summary.
-verify-globals-data: $(TARGET) $(GLOBALS_DATA_AUDIT_SOURCE) | $(ORIGINAL_EXE)
+verify-globals-data: $(TARGET) $(MAPFILE) $(GLOBALS_DATA_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 	@audit_output=$$(mktemp "$${TMPDIR:-/tmp}/wc1-globals-data.XXXXXX"); \
 		trap 'rm -f "$$audit_output"' 0 1 2 15; \
 		status=0; \
@@ -1070,7 +1074,7 @@ verify-globals-data: $(TARGET) $(GLOBALS_DATA_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 			"$$audit_output"; \
 		exit $$status
 
-verify-globals-code: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
+verify-globals-code: $(TARGET) $(MAPFILE) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) \
 		--no-source-order \
 		--include-code-globals \
@@ -1086,12 +1090,12 @@ globals: globals-data
 
 globals-verbose: globals-data-verbose
 
-audit-auto-complete-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
+audit-auto-complete-globals: $(TARGET) $(MAPFILE) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) --no-source-order --show-auto-complete-reviewed
 
 # The generated manifest concatenates independent owners, so its order is not
 # an original declaration order. Check source order in each real unit instead.
-audit-rebuilt-global-layout: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
+audit-rebuilt-global-layout: $(TARGET) $(MAPFILE) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@set -e; for global_source in $(GLOBALS_DISTRIBUTED_SOURCES); do \
 		$(BINARY_COMP) globals $(BC) \
 			--globals-source $$global_source \
@@ -1103,7 +1107,7 @@ audit-rebuilt-global-layout: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORI
 
 # WC1's own code is C and has no vtables, but the DirectDraw/DirectSound COM
 # interfaces are dispatched through vtables, so this stays in the checklist.
-verify-vtables: $(TARGET) | code-full $(ORIGINAL_EXE)
+verify-vtables: $(TARGET) $(MAPFILE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) vtables $(BC)
 
 verify-calls: | code-full $(ORIGINAL_EXE)
@@ -1112,10 +1116,10 @@ verify-calls: | code-full $(ORIGINAL_EXE)
 verify-global-access: $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) global-access $(BC) $(GLOBAL_ACCESS_FLAGS) $(if $(FILTER),$(FILTER))
 
-verify-values: $(TARGET) | code-full $(ORIGINAL_EXE)
+verify-values: $(TARGET) $(MAPFILE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) values $(BC) --min-similarity $(VALUE_MIN_SIMILARITY) $(VALUES_FLAGS)
 
-verify-values-stack-locals: $(TARGET) | code-full $(ORIGINAL_EXE)
+verify-values-stack-locals: $(TARGET) $(MAPFILE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) values $(BC) \
 		--min-similarity $(STACK_LOCAL_VALUE_MIN_SIMILARITY) \
 		--include-stack-locals \

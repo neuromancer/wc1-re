@@ -421,7 +421,7 @@
       },
       "build": {
         "clean": "make clean",
-        "build": "make WC1.EXE"
+        "build": "make WC1.EXE WC1.map"
       }
     }
   },
@@ -430,7 +430,7 @@
     "full": {
       "recompiled_exe": "WC1.EXE",
       "map": "WC1.map",
-      "build_target": "WC1.EXE"
+      "build_target": "WC1.EXE WC1.map"
     }
   },
   "paths": {
