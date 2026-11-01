@@ -102,7 +102,12 @@ int ix_dspv_get_position(int voice)
     }
     IxVoice *v = &aVoices[voice];
 
+#ifdef SDL_PORT
+    /* unsigned long cannot hold a pointer on 64-bit Windows. */
+    return (int)(v->cursor - v->start);
+#else
     return (int)((unsigned long)v->cursor - (unsigned long)v->start);
+#endif
 }
 
 /* Function start: 0x446AA0 */   /* source line 77 */
