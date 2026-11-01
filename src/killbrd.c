@@ -152,12 +152,26 @@ static TitleMenuRegion aRecRoomMenuRegions[7] = {
     { 1, 0, 100, 120, 190 },
     { -1, 0, 0, 0, 0 }
 };
+#ifdef SDL_PORT
+/* MSVC 4.20 kept string literals writable, and RecRoom formats the pilots'
+   callsigns (up to 14 characters) into the last two labels. */
+static char aszRecRoomPilotLabels[2][24] = {
+    "Talk to ??????????????",
+    "Talk to ??????????????"
+};
+static char *apszRecRoomBaseLabels[3] = {
+    "Talk to SHOTGLASS.",
+    aszRecRoomPilotLabels[0],
+    aszRecRoomPilotLabels[1]
+};
+#else
 /* 0x004704e8 */
 static char *apszRecRoomBaseLabels[3] = {
     "Talk to SHOTGLASS.",
     "Talk to ??????????????",
     "Talk to ??????????????"
 };
+#endif
 /* 0x004704f8 */
 static char *apszRecRoomMenuLabels[6] = {
     0, 0, 0,
