@@ -1636,7 +1636,10 @@ int HandleSpaceFlightControls(void)
                             (short)(nScreenHeight - 1));
             initialize_view_buffer();
             new_view(2, 0);
-            goto restore_normal_viewport;
+            GetScreenUpdateFlag();
+            SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
+            initialize_view_buffer();
+            break;
         case 0x3d:
             bMouseCursorVisible = 0;
             if (bCockpitlessView == 0) {
@@ -1649,7 +1652,10 @@ int HandleSpaceFlightControls(void)
                             (short)(nScreenHeight - 1));
             initialize_view_buffer();
             new_view(1, 0);
-            goto restore_normal_viewport;
+            GetScreenUpdateFlag();
+            SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
+            initialize_view_buffer();
+            break;
         case 0x3e:
             bMouseCursorVisible = 0;
             if (bCockpitlessView == 0) {
@@ -1662,7 +1668,10 @@ int HandleSpaceFlightControls(void)
                             (short)(nScreenHeight - 1));
             initialize_view_buffer();
             new_view(3, 0);
-            goto restore_normal_viewport;
+            GetScreenUpdateFlag();
+            SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
+            initialize_view_buffer();
+            break;
         case 0x3f:
             bMouseCursorVisible = 0;
             if (bCockpitlessView == 0) {
@@ -1675,7 +1684,10 @@ int HandleSpaceFlightControls(void)
                             (short)(nScreenHeight - 1));
             initialize_view_buffer();
             new_view(4, 0);
-            goto restore_normal_viewport;
+            GetScreenUpdateFlag();
+            SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
+            initialize_view_buffer();
+            break;
         case 0x40:
             bMouseCursorVisible = 0;
             if (bCockpitlessView == 0) {
@@ -1688,7 +1700,10 @@ int HandleSpaceFlightControls(void)
                             (short)(nScreenHeight - 1));
             initialize_view_buffer();
             new_view(14, 0);
-            goto restore_normal_viewport;
+            GetScreenUpdateFlag();
+            SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
+            initialize_view_buffer();
+            break;
         case 0x41:
             if (acShipTargetTable[0] == -1)
                 break;
@@ -1703,7 +1718,10 @@ int HandleSpaceFlightControls(void)
                             (short)(nScreenHeight - 1));
             initialize_view_buffer();
             new_view(7, 0);
-            goto restore_normal_viewport;
+            GetScreenUpdateFlag();
+            SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
+            initialize_view_buffer();
+            break;
         case 0x42:
             if (notRepeated) {
                 int missileCameraEnabled;
@@ -1734,19 +1752,15 @@ int HandleSpaceFlightControls(void)
                     (short)(nScreenHeight - 1));
                 initialize_view_buffer();
                 force_view(4, (short)cViewObject);
-                goto restore_normal_viewport;
+                GetScreenUpdateFlag();
+                SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
+                initialize_view_buffer();
+                break;
             }
             break;
         }
     }
-    goto primary_controls_complete;
 
-restore_normal_viewport:
-    GetScreenUpdateFlag();
-    SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
-    initialize_view_buffer();
-
-primary_controls_complete:
     switch (bCurrentKey) {
     case 1:
         bEscapePressedFlag = 0;
@@ -2201,6 +2215,9 @@ int RunSpaceFlight(short entryNavPoint)
     SetMouseCursorShape(stMouseCursorState.shape, 0);
     return nArcadeState;
 }
+
+/* Objective-flag callee of the damage evaluation below. */
+void flag_objective(short objective, unsigned char flags);
 
 /* Function start: 0x42A520 */
 int calculate_damage_level(void)
