@@ -38,6 +38,21 @@ typedef struct SwcRoomPack {
     int count;
 } SwcRoomPack;
 
+/* CODE_05 init_parralax_shards +0x484e / update_parralax_shards +0x49d0:
+ * DATA/0 +0x9530 still stars and +0x9260 drifting shards, up to 45 each,
+ * in the DATA/0 +0x9758 rectangle. Every demo caller passes direction -1,
+ * so the shards drift left. visible is SceneDirector's DATA/0 +0xa4e0. */
+typedef struct SwcParallax {
+    SDL_Rect area;
+    int count;
+    int visible;
+    SDL_Point stars[45];
+    int starFrames[45];
+    SDL_Point shards[45];
+    int shardSpeeds[45];
+    int shardFrames[45];
+} SwcParallax;
+
 typedef struct SwcRoomInput {
     int quit;
     int back;
@@ -74,6 +89,7 @@ typedef struct SwcCarrier {
     int paused;
     int drawResult;
     enum SwcCarrierVisit visit;
+    SwcParallax parallax;
 } SwcCarrier;
 
 typedef struct SwcRoomScene {
@@ -282,6 +298,77 @@ static void SwcDrawRoomArt(SwcCarrier *carrier, enum SwcRoomPackId packId,
     carrier->picturePalette = packId;
     carrier->drawResult = SDL_RenderCopy(carrier->renderer, art->textures[frame],
                                          NULL, &destination);
+}
+
+/* DATA/0 +0x2ede: first PLNT/1 frame of a shard's four-frame spin, shared
+ * by the 3D and parallax shards; +0x2eee: parallax drift for the same index. */
+static const unsigned char swcShardFrames[15] = {
+    20, 0, 4, 24, 28, 28, 20, 20, 24, 8, 8, 24, 28, 12, 12
+};
+static const unsigned char swcShardSpeeds[15] = {8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1};
+
+/* init_parralax_shards: density*45/100 still stars (PLNT/1 frames 32..41)
+ * and as many shards; Random3DO's upper bounds are exclusive. */
+static void SwcInitParallax(SwcParallax *parallax, int height, int density)
+{
+    int index;
+    int kind;
+
+    parallax->area = (SDL_Rect){0, 0, SWC_FRAME_WIDTH, height};
+    parallax->count = density * 45 / 100;
+    for (index = 0; index < parallax->count; index++) {
+        parallax->stars[index].x = RandomBelow((short)parallax->area.w);
+        parallax->stars[index].y = RandomBelow((short)parallax->area.h);
+        parallax->starFrames[index] = 32 + RandomBelow(10);
+    }
+    for (index = 0; index < parallax->count; index++) {
+        kind = RandomBelow(15);
+        parallax->shards[index].x = parallax->area.x + RandomBelow((short)parallax->area.w);
+        parallax->shards[index].y = parallax->area.y + RandomBelow((short)parallax->area.h);
+        parallax->shardSpeeds[index] = -swcShardSpeeds[kind];
+        parallax->shardFrames[index] = swcShardFrames[kind] + RandomBelow(3);
+    }
+}
+
+/* update_parralax_shards after drawing: each shard moves by its speed and
+ * spins through its four frames. One that passes the left edge restarts
+ * within its speed of the right edge with a new size, speed and height. */
+static void SwcStepParallax(SwcParallax *parallax)
+{
+    SDL_Point *shard;
+    int *frame;
+    int index;
+    int kind;
+
+    for (index = 0; index < parallax->count; index++) {
+        shard = &parallax->shards[index];
+        frame = &parallax->shardFrames[index];
+        shard->x += parallax->shardSpeeds[index];
+        *frame = (*frame + 1) % 4 + (*frame & ~3);
+        if (shard->x < parallax->area.x) {
+            kind = RandomBelow(15);
+            shard->x = parallax->area.x + parallax->area.w - RandomBelow(swcShardSpeeds[kind]);
+            shard->y = parallax->area.y + RandomBelow((short)parallax->area.h);
+            parallax->shardSpeeds[index] = -swcShardSpeeds[kind];
+            *frame = swcShardFrames[kind] + RandomBelow(3);
+        }
+    }
+}
+
+/* CODE_01 MacDraw2 +0x0ef4 offsets each sprite by the rectangle's origin
+ * and clips it only to the screen; the room picture drawn next leaves the
+ * stars visible through its window. */
+static void SwcDrawParallax(SwcCarrier *carrier, enum SwcRoomPackId pack)
+{
+    const SwcParallax *parallax = &carrier->parallax;
+    int index;
+
+    for (index = 0; index < parallax->count; index++)
+        SwcDrawRoomArt(carrier, pack, "PLNT", 1, parallax->starFrames[index],
+            parallax->area.x + parallax->stars[index].x, parallax->area.y + parallax->stars[index].y);
+    for (index = 0; index < parallax->count; index++)
+        SwcDrawRoomArt(carrier, pack, "PLNT", 1, parallax->shardFrames[index],
+            parallax->area.x + parallax->shards[index].x, parallax->area.y + parallax->shards[index].y);
 }
 
 static SwcRoomInput SwcPollCarrier(SwcCarrier *carrier)
@@ -546,8 +633,6 @@ done:
 int SdlPlaySwcIntroSpeech(SDL_Window *window, SDL_Renderer *renderer,
                            const char *resourceFork, int afterAttack)
 {
-    /* CODE_05 generate_new_3d_shard, expanded DATA/0 +0x2ede. */
-    static const int shardFrames[15] = {20, 0, 4, 24, 28, 28, 20, 20, 24, 8, 8, 24, 28, 12, 12};
     SwcCarrier carrier = {0};
     SwcRoomInput input;
     enum SwcRoomPackId packId = afterAttack ? SWC_INTRO_AFTER_ATTACK : SWC_INTRO_BEFORE_ATTACK;
@@ -659,8 +744,9 @@ int SdlPlaySwcIntroSpeech(SDL_Window *window, SDL_Renderer *renderer,
                     if (animationTick != 1 &&
                         (stars[index].x != INT_MIN || RandomBelowOrEqual(3) != 0))
                         continue;
+                    /* CODE_05 generate_new_3d_shard picks a DATA/0 +0x2ede group. */
                     FillFixedVectorWithRandomComponents(4095, &shard);
-                    starFrames[index] = shardFrames[RandomBelowOrEqual(14)];
+                    starFrames[index] = swcShardFrames[RandomBelowOrEqual(14)];
                     shard.x = -shard.x;
                     shard.z = -shard.z;
                     distance = Vector_magnitude(&shard);
@@ -1109,6 +1195,9 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
             carrier->drawResult = SDL_SetError("Unsupported SWC carrier portrait %d", shot);
             return;
         }
+        /* CloseLook +0x307e and CloseTalk +0x3276 draw the window first. */
+        if (carrier->parallax.visible)
+            SwcDrawParallax(carrier, pack);
         SwcDrawRoomArt(carrier, pack, background, backgroundId, backgroundFrame, 0, 0);
         /* CloseTalk +0x3292 uses base frame 21 in debriefing, otherwise 0. */
         SwcDrawRoomArt(carrier, pack, "TKHD", (uint32_t)(shot - 19),
@@ -1242,6 +1331,8 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
     Uint32 duration;
     Uint32 speechTicks;
     Uint32 leadIn;
+    Uint32 parallaxTime = 0;
+    Uint32 parallaxSteps = 0;
     size_t mark;
     size_t index = 0;
     size_t commands = 0;
@@ -1256,6 +1347,11 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
 
     if (SwcLoadRoomScene(carrier, section, &scene) != 0)
         return -1;
+    /* SceneDirector +0x26a6: a 320x150 window with a sparse field. Talkers
+     * 2 and 3 refill it densely only when they change CMF (+0x287e/+0x28cc);
+     * the bar has already selected the heads' CMF before the conversation. */
+    SwcInitParallax(&carrier->parallax, 150, 16);
+    carrier->parallax.visible = 0;
     result = SwcFadeRoom(carrier, 0);
     if (result != 0)
         return result;
@@ -1287,6 +1383,11 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
             shot = record->shot & 0x3f;
         if (record->talker != -2)
             talker = record->talker;
+        /* SceneDirector +0x2760..+0x294a: talkers 2, 3 and 8 open the
+         * window; a negative talker keeps the previous background. */
+        if (record->talker >= 0)
+            carrier->parallax.visible = record->talker == 2 || record->talker == 3 ||
+                record->talker == 8;
         if (record->textColour != -1)
             colour = record->textColour;
         ParseMouthAnimation((char *)scene.text + record->mouthAnimationOffset, mouth);
@@ -1321,8 +1422,12 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
         wasPlaying = 0;
         for (;;) {
             current = SDL_GetTicks();
-            if (wasPlaying)
+            if (wasPlaying) {
                 elapsed += current - previous;
+                /* Only redraws that show the window update its shards. */
+                if (carrier->parallax.visible)
+                    parallaxTime += SDL_min(current - previous, 250U);
+            }
             previous = current;
             input = SwcPollCarrier(carrier);
             if (input.quit) {
@@ -1365,6 +1470,11 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
              * portrait: its mouth must stay still during another voice. */
             if (shot >= 20 && shot <= 30 && shot - 20 != colour)
                 mouthFrame = -1;
+            /* The bar's room clock also paces these window shards. */
+            while (parallaxSteps < (Uint32)((uint64_t)parallaxTime * SWC_ROOM_ANIMATION_HZ / 1000)) {
+                SwcStepParallax(&carrier->parallax);
+                parallaxSteps++;
+            }
             SwcDrawScene(carrier, shot, colour, talker, mouthFrame,
                 SwcSceneAnimationFrame(face, (Uint32)((uint64_t)elapsed * 30 / 1000), 1), elapsed);
             if (carrier->drawResult != 0 || SdlDrawSwcRoomSubtitle(carrier->renderer, &carrier->roomFont,
@@ -1517,9 +1627,6 @@ typedef struct SwcEndShards {
 /* CODE_05 generate_new_3d_shard +0x4362; DATA/0 +0x2ede is a byte table. */
 static void SwcGenerateEndShard(SwcEndShards *shards, int index)
 {
-    static const unsigned char frames[15] = {
-        20, 0, 4, 24, 28, 28, 20, 20, 24, 8, 8, 24, 28, 12, 12
-    };
     FixedVector offset;
     int ahead = SDL_max(0, MultiplyFixed(shards->right.x, 0x1400));
 
@@ -1530,7 +1637,7 @@ static void SwcGenerateEndShard(SwcEndShards *shards, int index)
     AddFixedVectors(&shards->positions[index], &offset, &shards->positions[index]);
     shards->x[index] = 0;
     shards->y[index] = 0;
-    shards->frame[index] = frames[RandomBelow(15)];
+    shards->frame[index] = swcShardFrames[RandomBelow(15)];
     shards->age[index] = 0;
 }
 
@@ -1882,6 +1989,8 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
         result = SwcPlayRoomScene(&carrier, 2);
         goto done;
     }
+    /* RecRoom +0x0a1a: SetRect3DO(0, 0, 320, 120), then a dense field. */
+    SwcInitParallax(&carrier.parallax, 120, 100);
     previous = SDL_GetTicks();
     while (1) {
         SdlPlaySwcMusic(room == 0 || room == 2 ? "RECROOM.MooV" : "BARRACKS.MooV", 50);
@@ -1946,6 +2055,9 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                             result = sceneResult;
                             break;
                         }
+                        /* RecRoom +0x0ffc/+0x107a refill the rectangle
+                         * that SceneDirector left at 320x150. */
+                        SwcInitParallax(&carrier.parallax, carrier.parallax.area.h, 100);
                         fadeIn = 1;
                     } else if (room == 0) {
                         if (selected == 3)
@@ -1977,8 +2089,12 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
             result = -1;
             fadeIn = 1;
             previous = SDL_GetTicks();
-            if (room == 0 && previousRoom == 1)
+            /* Leaving the barracks re-enters RecRoom; the rankings
+             * board returns to the same RecRoom loop and field. */
+            if (room == 0 && previousRoom == 1) {
                 incidentalX = 321;
+                SwcInitParallax(&carrier.parallax, 120, 100);
+            }
             if (room == 1 && previousRoom == 0) {
                 SDL_zero(bunkAnimation);
                 previousBunk = -1;
@@ -1993,6 +2109,8 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                 incidentalX = -75;
             else if (incidentalX <= 320)
                 incidentalX += (int)roomSteps;
+            for (entry = 0; entry < (int)roomSteps; entry++)
+                SwcStepParallax(&carrier.parallax);
         }
         if (room == 1) {
             /* +0x6656/+0x6736 reset the old/new program cursor on hover
@@ -2023,7 +2141,9 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) != 0 || SDL_RenderClear(renderer) != 0)
             break;
         if (room == 0) {
-            /* RecRoom +0x0a96: RCRM/49 crosses behind the room/window. */
+            /* RecRoom +0x0a92 draws the window field, then +0x0a96's
+             * RCRM/49 crosses behind the room/window. */
+            SwcDrawParallax(&carrier, SWC_RECROOM);
             if (incidentalX <= 320)
                 SwcDrawRoomArt(&carrier, SWC_RECROOM, "RCRM", 49, tick % 13, incidentalX, 40);
             SwcDrawRoomArt(&carrier, SWC_RECROOM, "RCRM", 1, 0, 0, 0);
