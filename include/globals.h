@@ -772,5 +772,7 @@ extern ShortVector aChildOffsets[56]; /* 0x004682f0 */
 #ifdef SDL_PORT
 extern const ShortVector aSwcChildOffsets[63];
 #endif
+/* main.c's collision flag; its other option flags are in main.h. */
+extern int bPlayerCollisionsEnabled; /* 0x00469ff8 */
 
 #endif /* GAME_GLOBALS_H */

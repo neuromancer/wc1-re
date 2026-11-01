@@ -5,6 +5,15 @@
  *  remain provisional; the preceding startup unit has a separate pool
  *  of initialized data and string literals.
  */
+/* LOGIC was built against an older arrangement of the shared headers than
+ * every other module: nYourWingman is declared earlier, the armor and
+ * tactic arrays in the opposite order, the packet-handle, screen-row and
+ * input-button declarations are absent, and LOGIC's own routines are
+ * prototyped without parameter names.  WC1_LOGIC_SOURCE selects that view
+ * in globals.h and wc1funcs.h.  It is the one remaining source marker:
+ * giving LOGIC the common view needs symbol-key planning across LOGIC,
+ * SHIP, BRAINS and MUSIC, and splitting the headers for it would need about
+ * thirty compensating declaration moves (docs/WORKAROUNDS.md). */
 #define WC1_LOGIC_SOURCE
 #ifndef SDL_PORT
 #include <sys/types.h>

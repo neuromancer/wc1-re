@@ -17,7 +17,6 @@ extern HDC hMainWindowDC; /* 0x005a8a30 */
 
 /* main.c option flags, as the shell's configuration reader stores them. */
 extern char nOriginDevUnlock; /* 0x00469ff4 */
-extern int bPlayerCollisionsEnabled; /* 0x00469ff8 */
 extern char bPlayerVulnerable; /* 0x00469ffc */
 extern char bPlayerCollisionResponse; /* 0x0046a000 */
 
