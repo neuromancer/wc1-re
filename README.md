@@ -84,6 +84,9 @@ The [Super Wing Commander Mac demo](docs/SWC.md) also supports OpenGL,
 cockpitless view, cheat mode, the joystick modes and axis layouts, and rumble.
 Select its directory in the launcher, or run the game from inside that directory; the same
 switches apply. A directory that also holds WC1's `GAMEDAT` starts WC1.
+To play it, download the zip from
+[archive.org](https://archive.org/details/super-wing-commander-demo-1.0.2-mac), unzip it,
+and select its `SuperWing DEMO` folder in the launcher.
 The cleanest copy is the `SuperWing DEMO` folder of CD-ROM Today's June 1995 disc
 (v1.0.2): open
 [its discmaster page](https://discmaster.textfiles.com/browse/998/CD-ROM_Today_-_The_Disc_12_June_1995.iso/mac/SuperWing%20DEMO)

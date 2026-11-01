@@ -49,7 +49,9 @@ executable. The demo's resource forks (the application, MIDI/*.MooV and
 AIFF/Stranded.aif) may stay native, come as raw .rsrc or AppleDouble ._
 sidecars, or remain MacBinary as archives of the original disc serve them;
 other files may be MacBinary too, and a renamed application is found by its
-resources. The cleanest copy is the "SuperWing DEMO" folder of CD-ROM Today's
+resources. To play it, download the zip from
+https://archive.org/details/super-wing-commander-demo-1.0.2-mac, unzip it, and
+select its "SuperWing DEMO" folder in the launcher. The cleanest copy is the "SuperWing DEMO" folder of CD-ROM Today's
 June 1995 disc on discmaster (archive 998; use "download all originals" in a
 browser and unzip). On archive.org, Electronic Entertainment's June 1995
 sampler (folder SuperWing) has the same data and Inside Mac Games 27 (folder
