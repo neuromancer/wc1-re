@@ -1,16 +1,19 @@
-/*
- * LZO1X decoder used by the packed ix streamer.
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief Hand-written LZO1X decoder for packed streams.
  *
- * The retail routine is hand-written x86: it keeps input/token state in EBX
- * and EDX and performs overlapping copies with REP MOVS.  It was an /Od
- * function around an __asm block; its ALIGN 4 directives account for the
- * padding inside it (nop, lea ecx,[ecx]).  Preserve that code directly so
- * packed stream chunks decode exactly as they did originally.
+ * Address range 4614c0-46162f. The retail routine is hand-written x86: it
+ * keeps input and token state in EBX and EDX and performs overlapping copies
+ * with REP MOVS. It was an /Od function around an __asm block; its ALIGN 4
+ * directives account for the padding inside it (nop, lea ecx,[ecx]).
+ * Preserve that code directly so packed stream chunks decode exactly as they
+ * did originally.
  *
- * The decoder (0x004614C0) came from a library of its own, searched before
- * the file module's (ixfile.cpp): both are pulled only on LINK's second search
- * pass, after the RtlUnwind thunk and before the CRT members reached through
- * OLDNAMES (docs/ORDER.md).
+ * The decoder came from a library of its own, searched before the file
+ * module's (ixfile.cpp): both are pulled only on LINK's second search pass,
+ * after the RtlUnwind thunk and before the CRT members reached through
+ * OLDNAMES.
  */
 #include "ix.h"
 #include <stdlib.h>

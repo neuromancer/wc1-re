@@ -1,10 +1,12 @@
-/*
- * ix file module: stdio wrappers used by the streamer and its thread.
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief stdio wrappers used by the streamer and its thread.
  *
- * A separate object from the LZO decoder before it: the linker pads to its
- * 16-byte boundary (0x00461630) with INT3 between the two, in WC1 and WC2
- * alike.  Like the decoder it came from a library of its own, pulled only on
- * LINK's second search pass (docs/ORDER.md).
+ * Address range 461630-4617bf. A separate object from the LZO decoder before
+ * it: the linker pads to its 16-byte boundary with INT3 between the two, in
+ * WC1 and WC2 alike. Like the decoder it came from a library of its own,
+ * pulled only on LINK's second search pass.
  */
 #include "ix.h"
 #include <stdlib.h>

@@ -1,9 +1,11 @@
-/*
- *  Ship collision avoidance, formation following, and maneuver selection.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Collision avoidance, formation flying and manoeuvre selection.
  *
- *  Address range 0x433ac0-0x434ccf.  The boundary is corroborated by the
- *  ordered MacsBug symbols in the Super Wing Commander `smart` unit: its
- *  final routine is chase_speed, immediately followed by the random unit.
+ * Address range 433ac0-434ccf. The ordered MacsBug symbols of the Super Wing
+ * Commander smart unit corroborate the boundary: its final routine is
+ * chase_speed, immediately followed by the random unit.
  */
 #include "wc1.h"
 #ifndef SDL_PORT

@@ -1,6 +1,9 @@
-/*
- * Interactive joystick calibration and button waits.
- * Placement and boundary evidence are recorded in docs/ORDER.md.
+/**
+ * @file
+ * @ingroup shell
+ * @brief Interactive joystick calibration and button waits.
+ *
+ * Address range 4102b0-41073f.
  */
 #include <sys/types.h>
 #ifndef SDL_PORT

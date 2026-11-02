@@ -1,8 +1,11 @@
-/*
- *  ix stream-file methods, original range 0x00444700 - 0x0044490F.
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief Stream-file methods.
  *
- *  This object's six methods follow ten INT3 bytes after the worker-thread
- *  helpers. Its original filename is not present in the diagnostic strings.
+ * Address range 444700-44490f. The six methods follow ten INT3 bytes after
+ * the worker thread's helpers. The original file name is not in the
+ * diagnostic strings.
  */
 #include "ix.h"
 

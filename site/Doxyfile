@@ -3,7 +3,7 @@
 PROJECT_NAME           = "Wing Commander"
 PROJECT_BRIEF          = "Reconstructed Win32 source (1996)"
 OUTPUT_DIRECTORY       = out/site
-INPUT                  = out/site/source
+INPUT                  = out/site/source site/groups.dox
 RECURSIVE              = YES
 FILE_PATTERNS          = *.c *.cpp *.h *.md
 USE_MDFILE_AS_MAINPAGE = out/site/source/mainpage.md

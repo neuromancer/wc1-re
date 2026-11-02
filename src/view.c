@@ -1,8 +1,10 @@
-/*
- *  Scripted views, constellation effects, and cockpit target rendering.
+/**
+ * @file
+ * @ingroup graphics
+ * @brief Scripted views, constellation effects and cockpit target rendering.
  *
- *  Address range 42cdb0-42e31f (see docs/ORDER.md).
- *  Packet and viewport helpers remain in this provisional contiguous unit.
+ * Address range 42cdb0-42e31f. The packet and viewport helpers stay in this
+ * contiguous unit provisionally.
  */
 #include "wc1.h"
 #ifndef SDL_PORT

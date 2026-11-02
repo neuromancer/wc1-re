@@ -1,5 +1,9 @@
-/* Objective arrival, warp transitions, mines, and cockpit cleanup.
- * Mac targ symbols corroborate the 42a8f0-42acff range.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Objective arrival, warp transitions, mines and cockpit cleanup.
+ *
+ * Address range 42a8f0-42acff, corroborated by the Mac targ symbols.
  */
 #include "wc1.h"
 #ifndef SDL_PORT

@@ -1,14 +1,14 @@
-/*
- *  ix / D:\rnd\prj\ix\win95\dsp\dspv.cpp
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief Voice control.
  *
- *  Voice-control functions, followed by the separately assembled sample mixer
- *  in dspmix.asm. Source anchors and object boundaries are in docs/ORDER.md.
+ * Originally `D:\rnd\prj\ix\win95\dsp\dspv.cpp`, address range
+ * 4467a0-446f73: compiler-generated initializers, then the voice-control
+ * functions. The separately assembled sample mixer, dspmix.asm, follows.
  *
- *  Built /Od like the rest of ix: full EBP frame, EBX/ESI/EDI saved whether used
- *  or not, one shared epilogue.  Do not optimise this file.
- *
- *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
- *  list below is the original source order of this file.
+ * Built /Od like the rest of ix: a full EBP frame, EBX, ESI and EDI saved
+ * whether used or not, and one shared epilogue.
  */
 #include <signal.h>
 #include "ix.h"

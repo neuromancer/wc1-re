@@ -1,8 +1,10 @@
-/*
- *  Joystick calibration and graphics setup data.
+/**
+ * @file
+ * @ingroup shell
+ * @brief Joystick calibration and graphics setup data.
  *
- *  Address range 431a10-431eff (see docs/ORDER.md).
- *  The adjacent rectangle helper remains in this provisional unit.
+ * Address range 431a10-431eff. The rectangle helper at its end stays in
+ * this unit provisionally.
  */
 #include <signal.h>
 #include "wc1.h"

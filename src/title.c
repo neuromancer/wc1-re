@@ -1,6 +1,9 @@
-/*
- * Opening cinematic, credits, and title menu.
- * Placement and boundary evidence are recorded in docs/ORDER.md.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief Opening cinematic, credits and title menu.
+ *
+ * Address range 40fa30-4102af.
  */
 #include "wc1.h"
 #include <sys/stat.h>

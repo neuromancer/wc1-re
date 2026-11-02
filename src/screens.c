@@ -1,9 +1,12 @@
-/*
- *  Full-screen presentation screens.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief Briefing, debriefing, medal and funeral screens, and the conversation
+ * scene director.
  *
- *  The original function window is recorded in docs/ORDER.md.
- *  Briefing and medal state precedes this unit's text-format literals;
- *  the hand-written raster library in src/raster.asm follows.
+ * Address range 436d00-439c3f. The briefing and medal state precedes this
+ * unit's text-format literals; the hand-written raster library in raster.asm
+ * follows.
  */
 #include "wc1.h"
 
@@ -33,8 +36,9 @@ static signed char abBriefingLargeCharacterAnimation[24] = {
     0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0
 };
-/* Eight populated records in ten slots; see docs/ORDER.md for the
- * activity-array and data-layout evidence for the zero-initialized tail. */
+/* Eight populated records in ten slots: ReturnToBriefingLongShot clears ten
+ * activity bytes, and the two zero records fill the data up to the medal
+ * positions. */
 /* 0x0046e218 */
 BriefingCharacterLayout aBriefingCharacters[10] = {
     { 60, 123,  10, 95, 176, 1, 0, 2,

@@ -1,6 +1,12 @@
-/* WINGLEADER main game module: process services, flight control, and HUD.
- * The initialized state and complete literal order identify this group.
- * Its trailing cursor/palette helpers remain provisional; see docs/ORDER.md.
+/**
+ * @file
+ * @ingroup flight
+ * @brief WINGLEADER's main module: process services, flight control and the
+ * HUD.
+ *
+ * Address range 4272f0-42a8ef. The initialized state and the complete
+ * literal order identify this group; its trailing cursor and palette helpers
+ * are provisional.
  */
 #ifndef SDL_PORT
 #include <dos.h>

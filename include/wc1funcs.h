@@ -1,8 +1,10 @@
-/*
- *  Prototypes for every reimplemented function, in address order.
+/**
+ * @file
+ * @ingroup headers
+ * @brief Prototypes of every reconstructed function, in address order.
  *
- *  Address order is link order, so this list doubles as the reconstruction
- *  inventory: see src/map for the same list with the original addresses.
+ * Address order is link order, so this list doubles as the reconstruction
+ * inventory; src/map gives the same list with the original addresses.
  */
 #ifndef GAME_FUNCS_H
 #define GAME_FUNCS_H
@@ -1828,7 +1830,7 @@ unsigned short ix_streamer_get_volume(void);                          /* 0x00443
 
 /* Graphics-private shape decoders (gr.c takes their addresses). Declared last:
  * their parameter names then precede only the units' own symbols, which every
- * unit but gr.c tolerates and gr.c balances (docs/WORKAROUNDS.md). */
+ * unit but gr.c tolerates and gr.c balances. */
 void GetShapeFrameExtents(unsigned char *shape, short frame,
                           short *width, short *height,
                           short *leftExtent, short *topExtent);       /* 0x004408F0 */

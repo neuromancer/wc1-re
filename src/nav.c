@@ -1,6 +1,9 @@
-/*
- * Navigation map, objective labels, and the in-flight computer.
- * Placement and boundary evidence are recorded in docs/ORDER.md.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Navigation map, objective labels and the in-flight computer.
+ *
+ * Address range 40d090-40e88f.
  */
 #include "wc1.h"
 #ifndef SDL_PORT
@@ -223,8 +226,8 @@ void AddUniqueObjectiveNavLabel(short x, short y,
         PlaceNavMapLabel(x, y, colour, text);
 }
 
-/* Shared display and input declarations preserve this unit's measured
- * compiler context. Their placement is documented in docs/PATTERNS.md. */
+/* Shared display and input declarations, repeated here: their placement
+ * reproduces this unit's compiler context. */
 void DrawFormattedText(const char *format, ...);
 void DrawViewportEllipse(Viewport *viewport, short x, short y,
                          short verticalRadius, short horizontalRadius,

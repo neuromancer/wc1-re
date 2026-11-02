@@ -1,8 +1,11 @@
-/*
- *  Kill board, conversation scenes, and initial campaign state.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief The bar, the kill board, conversation scenes and the initial campaign
+ * state.
  *
- *  The original function window is recorded in docs/ORDER.md.
- *  Room state precedes the rank, menu-label, and chalk-board literals.
+ * Address range 43f640-44089f. The room state precedes the rank, menu-label
+ * and chalk-board literals.
  */
 #include "wc1.h"
 

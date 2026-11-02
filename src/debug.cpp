@@ -1,10 +1,12 @@
-/*
- *  Win32 developer overlay console.
+/**
+ * @file
+ * @ingroup shell
+ * @brief The Win32 developer overlay console.
  *
- *  Address range 41c760-41d0bf (exact).  The new/delete call sites,
- *  implicit ECX object parameter, and callee-cleanup member arguments prove
- *  this isolated utility was compiled as C++ despite the surrounding game
- *  sources being C.
+ * Address range 41c760-41d0bf. The new and delete call sites, the implicit
+ * ECX object parameter and the callee-cleanup member arguments show that
+ * this isolated utility was compiled as C++, although the surrounding game
+ * sources are C.
  */
 #ifndef SDL_PORT
 #include <malloc.h>

@@ -1,8 +1,11 @@
-/*
- *  Common types, macros and utility prototypes for the Wing Commander
- *  reconstruction.  wc1.h adds the data headers after these; the Win32
- *  shell (winmain.c) includes them itself because it declares main.c's
- *  option flags with its own types.
+/**
+ * @file
+ * @ingroup headers
+ * @brief Common types, macros and utility prototypes.
+ *
+ * wc1.h adds the data headers after these; the Win32 shell (winmain.c)
+ * includes them itself because it declares main.c's option flags with its
+ * own types.
  */
 #ifndef WC1BASE_H
 #define WC1BASE_H

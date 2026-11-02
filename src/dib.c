@@ -1,12 +1,13 @@
-/*
- *  DirectDraw back end.
+/**
+ * @file
+ * @ingroup graphics
+ * @brief DirectDraw back end: frame buffer, palette and screen updates.
  *
- *  Address range 431f00-43390f (see docs/ORDER.md).
- *  Boundary evidence: PROVEN: the named DirectDraw routines are followed by
- *  DirectDrawResultToText and its compiler-generated switch tables.
- *  ThrottleFrameAndDrawFps belongs here: it uses this unit's statics
- *  szFrameRateLabel and fSampledFps, and its 1000.0 constant follows
- *  the unit's DirectDraw GUIDs in .rdata.
+ * Address range 431f00-43390f. The named DirectDraw routines are followed by
+ * DirectDrawResultToText and its compiler-generated switch tables.
+ * ThrottleFrameAndDrawFps belongs here: it uses this unit's statics
+ * szFrameRateLabel and fSampledFps, and its 1000.0 constant follows the
+ * unit's DirectDraw GUIDs in .rdata.
  */
 #include "wc1.h"
 #ifndef SDL_PORT
@@ -69,7 +70,7 @@ const GUID IID_IDirectDrawClipper = {
  * the original order. The unused entries are unreferenced original storage;
  * the window handle is also read by the SDL event adapter. Group the frame
  * dimensions and image pointer first; this preserves the native operand
- * order as well as the hash-ordered storage (see docs/PATTERNS.md). */
+ * order as well as the hash-ordered storage. */
 static unsigned int nDIBFrameHeight; /* 0x00476650 */
 static unsigned int nDIBFrameWidth; /* 0x0047664c */
 static unsigned char *pDIBImage; /* 0x00476648 */

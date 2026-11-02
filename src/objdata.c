@@ -1,7 +1,11 @@
-/* Object definitions, animation streams, and weapon display coordinates.
- * The initialized tables precede their name literals between the pilot-speech
- * diagnostic and navigation state. The original object filename and associated
- * code are unresolved; docs/ORDER.md records the recovered data boundary.
+/**
+ * @file
+ * @ingroup data
+ * @brief Object definitions, animation streams and weapon display coordinates.
+ *
+ * Data only. The initialized tables precede their name literals, between the
+ * pilot-speech diagnostic and the navigation state. The original object
+ * name, and any code it had, are unknown.
  */
 #include "wc1.h"
 

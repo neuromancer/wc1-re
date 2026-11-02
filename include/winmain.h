@@ -1,9 +1,12 @@
-/*
- *  Declarations for the Win32 shell (winmain.c).  The shell includes the
- *  common headers itself instead of wc1.h: it does not use main.h, because
- *  its configuration reader stores single bytes into three of main.c's
- *  option flags and declares those flags as bytes, as the original port
- *  did.
+/**
+ * @file
+ * @ingroup headers
+ * @brief Declarations for the Win32 shell.
+ *
+ * The shell (winmain.c) includes the common headers itself instead of wc1.h.
+ * It does not use main.h, because its configuration reader stores single
+ * bytes into three of main.c's option flags and declares those flags as
+ * bytes, as the original port did.
  */
 #ifndef WINMAIN_H
 #define WINMAIN_H

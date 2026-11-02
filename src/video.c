@@ -1,7 +1,9 @@
-/*
- *  Video resource shutdown and palette allocation.
+/**
+ * @file
+ * @ingroup graphics
+ * @brief Video resource shutdown and palette allocation.
  *
- *  Address range 4318f0-431a0f (see docs/ORDER.md).
+ * Address range 4318f0-431a0f.
  */
 #include "wc1.h"
 #ifndef SDL_PORT

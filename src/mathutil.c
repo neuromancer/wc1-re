@@ -1,11 +1,13 @@
-/*
- *  Integer min/max used across the game core, and the single-precision
- *  angular constants.
+/**
+ * @file
+ * @ingroup data
+ * @brief Integer min and max, a packet-release helper, and the
+ * single-precision angular constants.
  *
- *  Address range 41d0c0-41d11f (provisional -- see docs/ORDER.md).
- *  Boundary evidence: MinShort/MaxShort pair, 94 call sites, no other content in the gap.
- *  The constants' read-only data follows barracks' menu regions and precedes
- *  the DirectDraw GUIDs, as only a unit linked between those two can place it.
+ * Address range 41d0c0-41d11f. MinShort and MaxShort have 94 call sites
+ * across the game core. The constants' read-only data follows the barracks
+ * menu regions and precedes the DirectDraw GUIDs, as only a unit linked
+ * between those two can place it.
  */
 #include "wc1.h"
 

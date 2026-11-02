@@ -1,5 +1,9 @@
-/* Win32 frame timer and developer step waiting.
- * The 42afa0-42b04f range remains provisional; see docs/ORDER.md.
+/**
+ * @file
+ * @ingroup shell
+ * @brief Win32 frame timer and developer step waiting.
+ *
+ * Address range 42afa0-42b04f.
  */
 #include "wc1.h"
 

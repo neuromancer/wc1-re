@@ -1,7 +1,9 @@
-/*
- *  Joystick transitions and menu input polling.
+/**
+ * @file
+ * @ingroup shell
+ * @brief Joystick transitions and menu input polling.
  *
- *  Address range 430710-430bbf (see docs/ORDER.md).
+ * Address range 430710-430bbf.
  */
 #include "wc1.h"
 

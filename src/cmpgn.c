@@ -1,9 +1,11 @@
-/*
- *  Conversation animation and campaign mission packet decoding.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief Conversation animation, the briefing, debriefing and office scenes,
+ * and campaign mission packet decoding.
  *
- *  Address range 404cd0-40609f (see docs/ORDER.md). The mouth-animation
- *  table follows eject.c's literals; fl.c begins at 4060a0. LoadMissionData
- *  at 4059b0 is corroborated by the Mac cmpgn segment names.
+ * Address range 404cd0-40609f. The mouth-animation table follows eject.c's
+ * literals. The Mac cmpgn segment names corroborate LoadMissionData (4059b0).
  */
 #include "wc1.h"
 

@@ -1,11 +1,12 @@
-/*
- *  Cockpit HUD (Mac `cockpt` compilation unit): weapon, damage, target,
- *  objective, message, and pilot displays.
+/**
+ * @file
+ * @ingroup cockpit
+ * @brief Cockpit HUD: weapon, damage, target, objective, message and pilot
+ * displays.
  *
- *  Address range 413a10-41807f (provisional -- see docs/ORDER.md).
- *  Boundary evidence: the Mac `cockpt` symbol list identifies the surviving
- *  functions throughout this Win32 range; port-specific split helpers remain
- *  interleaved in their original address order.
+ * Address range 413a10-41807f, the Mac cockpt compilation unit: its symbol
+ * list identifies the surviving functions throughout this range, with the
+ * port-specific helpers interleaved in their original address order.
  */
 #include "wc1.h"
 

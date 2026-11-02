@@ -1,6 +1,11 @@
-/* Wave/sample ownership, playback, and persisted volume settings.
- * Address range 42b160-42b99f. The following launch data establishes
- * the unit boundary; see docs/ORDER.md.
+/**
+ * @file
+ * @ingroup audio
+ * @brief Sound-effect samples, playback and saved volume settings.
+ *
+ * Address range 42b160-42b99f; the launch data that follows marks the unit
+ * boundary. Compiled as C++ (/TP), since it calls ix member functions
+ * directly.
  */
 #include "wc1.h"
 #ifndef SDL_PORT

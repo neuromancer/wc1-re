@@ -1,7 +1,10 @@
-/*
- * Space-object simulation and the fleet overview camera.
- * The Mac spc symbol run identifies rotate_eye_to_goal through
- * object_intelligence. Placement evidence is recorded in docs/ORDER.md.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Space-object simulation and the fleet overview camera.
+ *
+ * Address range 410740-413a0f. The Mac spc symbol run identifies
+ * rotate_eye_to_goal through object_intelligence.
  */
 #include <signal.h>
 #include <sys/stat.h>

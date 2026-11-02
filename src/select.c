@@ -1,5 +1,9 @@
-/* Gun and release-weapon selection.
- * Mac select symbols corroborate the 42ad00-42af9f range.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Gun and missile selection.
+ *
+ * Address range 42ad00-42af9f, corroborated by the Mac select symbols.
  */
 #include <assert.h>
 #include "wc1.h"

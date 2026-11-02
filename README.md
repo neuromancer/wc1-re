@@ -25,7 +25,8 @@ A few matching workarounds remain in the source:
 - a four-instruction inline assembly block in the guarded memory allocator;
 - some `volatile` qualifiers and access casts; and
 - header declaration order and include placement chosen to reproduce the
-  compiler's internal symbol ordering.
+  compiler's internal symbol ordering, plus three prototypes that nothing
+  calls but that ordering still needs.
 
 ## Screenshots
 

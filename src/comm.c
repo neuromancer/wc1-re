@@ -1,7 +1,9 @@
-/*
- *  Communication menus and video transmissions.
+/**
+ * @file
+ * @ingroup cockpit
+ * @brief Communication menus and video transmissions.
  *
- *  Address range 430bc0-4318ef (see docs/ORDER.md).
+ * Address range 430bc0-4318ef.
  */
 #include "wc1.h"
 

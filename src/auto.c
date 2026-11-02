@@ -1,11 +1,12 @@
-/*
- *  Autopilot travel and interstitial flight sequences.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Autopilot travel and interstitial flight sequences.
  *
- *  Address range 403e50-40469f (provisional -- see docs/ORDER.md).
- *  Boundary evidence: the Mac auto unit preserves visit_the_cinema,
- *  player_wingman, set_speed, auto_position, and auto_pilot_sequence in this
- *  exact order. The palette-file loader follows in this unit: its "rb"
- *  literal follows the initialized formation count in the original data.
+ * Address range 403e50-40469f. The Mac auto unit preserves visit_the_cinema,
+ * player_wingman, set_speed, auto_position and auto_pilot_sequence in this
+ * order. The palette-file loader that follows belongs here too: its "rb"
+ * literal follows the initialized formation count in the original data.
  */
 #include "wc1.h"
 #ifndef SDL_PORT

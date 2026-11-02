@@ -1,10 +1,12 @@
-/*
- *  Inter-scene transitions, answer prompts, and ownership of
- *  the Win32 developer overlay console.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief Inter-scene transitions, answer prompts, and the developer console's
+ * instance and wrappers.
  *
- *  Address range 425730-425c2f (see docs/ORDER.md).
- *  The remaining internal boundary between the C scene routines and
- *  Win32 console wrappers is provisional.
+ * Address range 425730-425c2f. Compiled as C++ with /GX: the console
+ * allocation wrapper needs construction cleanup. The boundary between the C
+ * scene routines and the Win32 console wrappers is provisional.
  */
 #include "wc1.h"
 
@@ -85,7 +87,8 @@ void ApplyAnswerTextCipher(char *text, signed char direction)
     }
 }
 
-/* Preserve the answer-resource declaration context; see docs/PATTERNS.md. */
+/* Repeated answer-resource declarations: their placement reproduces this
+ * unit's compiler context. */
 void __stdcall PromptInsertNumberedDisk(short logicalFile);
 void *FetchDiskPacketRetrying(short logicalFile, short section, short flags);
 char *__stdcall DosStrcpy(char *dst, const char *src);

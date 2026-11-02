@@ -1,8 +1,10 @@
-/*
- *  Game startup, graphics defaults, and Origin-FX initialization.
+/**
+ * @file
+ * @ingroup shell
+ * @brief Game startup, graphics defaults and Origin FX initialization.
  *
- *  Address range 4219c0-42200f (see docs/ORDER.md). The initialized
- *  colour and memory tables precede this unit's startup string pool.
+ * Address range 4219c0-42200f. The initialized colour and memory tables
+ * precede this unit's startup string pool.
  */
 #include "wc1.h"
 

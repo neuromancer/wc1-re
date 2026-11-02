@@ -1,6 +1,10 @@
-/* Scramble, landing, funeral scenes, and the animation demo.
- * The initialized scene tables precede their diagnostic and subtitle literals,
- * which end before the following AI state. See docs/ORDER.md for boundaries.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief Scramble, landing and funeral scenes, and the animation demo.
+ *
+ * Address range 407710-40975f. The initialized scene tables precede their
+ * diagnostic and subtitle literals, which end before the following AI state.
  */
 #ifndef SDL_PORT
 #include <signal.h>

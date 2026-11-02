@@ -1,11 +1,10 @@
-/*
- *  ix / D:\rnd\prj\ix\win95\dsp\dsp.cpp
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief DirectSound device control and shared configuration.
  *
- *  DSP device control and shared configuration. Source anchors and original
- *  storage placement are recorded in docs/ORDER.md.
- *
- *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
- *  list below is the original source order of this file.
+ * Originally `D:\rnd\prj\ix\win95\dsp\dsp.cpp`, address range
+ * 444910-44518f.
  */
 #include <limits.h>
 #include "ix.h"

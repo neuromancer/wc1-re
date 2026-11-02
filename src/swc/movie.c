@@ -1,6 +1,6 @@
 /* SWC Mac LMov data/codec adaptation. CODE_12 owns the original movie
  * engine; SDL presentation replaces QuickDraw and Sound Manager separately.
- * See docs/SWC.md and config/swc-provenance.json for evidence and limits. */
+ * config/swc-provenance.json records the evidence and limits. */
 #include "swc.h"
 
 #include <string.h>

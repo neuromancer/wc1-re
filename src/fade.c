@@ -1,9 +1,11 @@
-/*
- *  Incremental palette transitions and the adjacent DOS string append entry.
+/**
+ * @file
+ * @ingroup graphics
+ * @brief Incremental palette transitions, and the DOS string-append shim
+ * beside them.
  *
- *  Address range 41c510-41c75f (see docs/ORDER.md). The initialization flag
- *  follows the barracks literal pool. Ownership of the string entry remains
- *  provisional within this range.
+ * Address range 41c510-41c75f. The initialization flag follows the barracks
+ * literal pool. Which unit owned DosStrcat is provisional.
  */
 #include "wc1.h"
 

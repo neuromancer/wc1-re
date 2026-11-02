@@ -7,16 +7,20 @@
  *  |                                                                          |
  *  |          (c)1989,1990 Chris Roberts.  All rights reserved.               |
  *  ============================================================================
+ */
+/**
+ * @file
+ * @ingroup headers
+ * @brief Umbrella header for the game core.
  *
- *  Shared declarations for the Wing Commander (Kilrathi Saga, Win32)
- *  reconstruction.  The banner above is reproduced from the leaked original
- *  main-module header; the module name in that file was
- *  "MAIN GAME C SOURCE MODULE (Main loop etc.)".
+ * The banner at the top of this file is reproduced from the leaked original
+ * main-module header, whose module name was "MAIN GAME C SOURCE MODULE (Main
+ * loop etc.)".
  *
- *  The core is C, ported from 16-bit DOS sources.  `int` was 16 bits in the
- *  original, so nearly all game state is `short` here.  Using `int` where the
- *  original used a 16-bit type produces 32-bit operations and breaks the
- *  instruction comparison -- see AGENTS.md.
+ * The core is C, ported from 16-bit DOS sources. `int` was 16 bits in the
+ * original, so nearly all game state is `short` here: using `int` where the
+ * original used a 16-bit type produces 32-bit operations and breaks the
+ * instruction comparison.
  */
 #ifndef GAME_H
 #define GAME_H

@@ -1,16 +1,19 @@
-/*
- *  ix diagnostic printer.
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief The diagnostic printer, ix_log_printf.
  *
- *  ix_log_printf sits immediately before streamer.cpp. Unlike the rest of
- *  ix it was linked as an object, not from a library: its CRT
- *  references (_CrtDbgReport, strncmp) are resolved before the entry point,
- *  and those of every ix library member after it (docs/ORDER.md). Its short
- *  branches, scheduled loads and POP EBP epilogue match the core optimizer
- *  profile, unlike the unoptimized ix library members.
+ * Address range 4426a0-44274f, immediately before streamer.cpp. Unlike the
+ * rest of ix it was linked as an object, not from a library: its CRT
+ * references (_CrtDbgReport, strncmp) are resolved before the entry point,
+ * and those of every ix library member after it. Its short branches,
+ * scheduled loads and POP EBP epilogue match the core optimizer profile,
+ * unlike the unoptimized ix library members.
  *
- *  Every ix diagnostic goes through here, 107 call sites, always in pairs:
- *      ix_log_printf("Fatal [%s - %d]:\n", __FILE__, __LINE__);
- *      ix_log_printf("human readable message");
+ * Every ix diagnostic goes through here, 107 call sites, always in pairs:
+ *
+ *     ix_log_printf("Fatal [%s - %d]:\n", __FILE__, __LINE__);
+ *     ix_log_printf("human readable message");
  */
 #include "ix.h"
 #include <stdarg.h>

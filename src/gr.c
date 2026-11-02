@@ -1,8 +1,11 @@
-/*
- *  Rasteriser primitives and screen-space effects.
+/**
+ * @file
+ * @ingroup graphics
+ * @brief Rasteriser primitives, screen-space effects and the music streamer's
+ * wrappers.
  *
- *  Address range 4408a0-44269f (provisional -- see docs/ORDER.md).
- *  Boundary evidence: PROVEN by name: shadow_draw, fizzle_fade, snow_viewport.
+ * Address range 4408a0-44269f. The routines print some of their names:
+ * shadow_draw, fizzle_fade and snow_viewport.
  */
 #include <stdio.h>
 #include "wc1.h"
@@ -44,7 +47,7 @@ static unsigned char abPaletteTranslation[256] = {
 };
 /* 0x00470778 */
 /* Absolute cosine row, then the sine row at 0x00470a48, indexed by angle in
- * degrees. One table keeps the unit's symbol count (docs/WORKAROUNDS.md). */
+ * degrees. One table keeps the unit's symbol count. */
 static unsigned short aawAbsoluteTrig[2][360] = {
   {
     255, 255, 255, 255, 255, 255, 255, 254, 254, 253, 252, 251,

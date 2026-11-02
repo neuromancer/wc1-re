@@ -1,8 +1,10 @@
-/*
- *  Cockpit component-damage display.
+/**
+ * @file
+ * @ingroup cockpit
+ * @brief The cockpit's component-damage display.
  *
- *  Address range 42c800-42cdaf (see docs/ORDER.md).
- *  Initialized damage tables follow the preceding sound/configuration literals.
+ * Address range 42c800-42cdaf. Its initialized damage tables follow the
+ * preceding sound and configuration literals.
  */
 #include "wc1.h"
 

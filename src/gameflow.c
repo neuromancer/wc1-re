@@ -1,7 +1,10 @@
-/*
- * Campaign scoring and mission flow, followed by viewport disposal.
- * The viewport helper remains here provisionally.
- * Placement and boundary evidence are recorded in docs/ORDER.md.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief Campaign flow and mission scoring.
+ *
+ * Address range 40efe0-40fa2f. The viewport-disposal helper at its end,
+ * free_viewport, stays here provisionally.
  */
 #include "wc1.h"
 

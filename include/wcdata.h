@@ -1,24 +1,26 @@
-/*
- *  Game data enumerations and on-disk record layouts.
+/**
+ * @file
+ * @ingroup headers
+ * @brief Game data enumerations and on-disk record layouts.
  *
- *  Sources, in descending order of trust:
+ * Sources, in descending order of trust:
  *
- *  1. THIS BINARY.  Anything marked "verified" was read out of WC1.EXE itself,
- *     usually from an ordered string table.  Where the community documentation
- *     and the binary disagree, the binary wins and the difference is noted.
- *  2. WCMissionTools (../WCMissionTools), a MODULE/CAMP/BRIEFING parser built
- *     from the data files.  It names the fields the game loads; it does not
- *     know what the code calls them.
- *  3. WingCommanderArduinoBridge (../WingCommanderArduinoBridge), which reads
- *     the DOS build's memory live.  Its offsets are DOS-segment relative and do
- *     NOT apply here, but the field ORDER within the pilot record does, because
- *     both builds compile the same struct.
+ * 1. THIS BINARY. Anything marked "verified" was read out of WC1.EXE itself,
+ *    usually from an ordered string table. Where the community documentation
+ *    and the binary disagree, the binary wins and the difference is noted.
+ * 2. WCMissionTools, a MODULE/CAMP/BRIEFING parser built from the data files.
+ *    It names the fields the game loads; it does not know what the code calls
+ *    them.
+ * 3. WingCommanderArduinoBridge, which reads the DOS build's memory live. Its
+ *    offsets are DOS-segment relative and do NOT apply here, but the field
+ *    ORDER within the pilot record does, because both builds compile the same
+ *    struct.
  *
- *  The MODULE record layouts below are the ON-DISK format.  The in-memory
- *  tables are different sizes -- the per-object table at 0x0046C97A has a
- *  0x36-byte stride against the 42-byte disk ship record, and the nav table has
- *  a 0x1F-byte stride against the 77-byte disk nav record -- so a disk field
- *  offset is a hint about what exists, never about where it lives at runtime.
+ * The MODULE record layouts below are the ON-DISK format. The in-memory
+ * tables are different sizes (the per-object table at 0x0046C97A has a
+ * 0x36-byte stride against the 42-byte disk ship record, and the nav table a
+ * 0x1F-byte stride against the 77-byte disk nav record), so a disk field
+ * offset is a hint about what exists, never about where it lives at runtime.
  */
 #ifndef GAME_DATA_H
 #define GAME_DATA_H

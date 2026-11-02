@@ -1,8 +1,10 @@
-/*
- *  Packet loader.
+/**
+ * @file
+ * @ingroup data
+ * @brief The packet loader.
  *
- *  Address range 42b050-42b15f (see docs/ORDER.md).
- *  Boundary evidence: PROVEN: PacketLoad prints "Library\\Source\\Pload.c PacketLoad".
+ * Address range 42b050-42b15f. PacketLoad's diagnostic names its source,
+ * `Library\Source\Pload.c`, the only original path the game core keeps.
  */
 #include "wc1.h"
 

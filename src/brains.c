@@ -1,6 +1,10 @@
-/* NPC pilot intelligence (BRAINS.C).
- * The surviving WINGLEADER module and Mac brain symbol run corroborate the
- * cruise_home through FF_missile_intelligence group. See docs/ORDER.md.
+/**
+ * @file
+ * @ingroup flight
+ * @brief NPC pilot intelligence (the original BRAINS.C).
+ *
+ * Address range 409760-40b66f. The surviving WINGLEADER module and the Mac
+ * brain symbol run both cover cruise_home through FF_missile_intelligence.
  */
 #include "wc1.h"
 #ifndef SDL_PORT

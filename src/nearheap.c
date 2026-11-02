@@ -1,6 +1,9 @@
-/*
- * DOS near-heap descriptor allocation and compaction.
- * Placement and boundary evidence are recorded in docs/ORDER.md.
+/**
+ * @file
+ * @ingroup data
+ * @brief Near-heap descriptor allocation and compaction carried over from DOS.
+ *
+ * Address range 40e890-40efdf.
  */
 #ifndef SDL_PORT
 #include <process.h>

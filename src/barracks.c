@@ -1,10 +1,11 @@
-/*
- *  Barracks and campaign save/load room.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief The barracks: campaign save and load.
  *
- *  Address range 41a9d0-41c50f (see docs/ORDER.md).
- *  Boundary evidence: the menu tables precede the modal renderer's "%P"
- *  literal, then the SAVEGAME.WLD literals; the following palette flag
- *  starts a separate unit after this file's string pool.
+ * Address range 41a9d0-41c50f. The menu tables precede the modal renderer's
+ * literals, then the SAVEGAME.WLD literals; the palette flag that follows
+ * starts a separate unit after this file's string pool.
  */
 #include "wc1.h"
 #ifndef SDL_PORT

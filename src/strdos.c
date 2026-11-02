@@ -1,8 +1,11 @@
-/*
- *  16-bit DOS C string and memory shims.
+/**
+ * @file
+ * @ingroup data
+ * @brief 16-bit DOS C string and memory shims, and the event manager's set-up
+ * entries.
  *
- *  Address range 0x435400-0x4355ff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: all __stdcall with short-width arguments, each forwarding to one CRT routine.
+ * Address range 435410-4355ef. The shims are all __stdcall with short-width
+ * arguments, each forwarding to one CRT routine.
  */
 #include "wc1.h"
 

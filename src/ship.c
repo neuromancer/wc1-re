@@ -1,10 +1,10 @@
-/*
- *  Ship object, damage, explosion, and weapon logic from the Mac `ship`
- *  compilation unit.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Ships: damage, explosions and weapons.
  *
- *  Address range 41dee0-4219bf (see docs/ORDER.md).
- *  Boundary evidence: the Mac `ship` symbols, initialize_object through
- *  your_afterburner, map in order onto this Win32 run.
+ * Address range 41dee0-4219bf, the Mac ship compilation unit: its symbols,
+ * initialize_object through your_afterburner, map in order onto this range.
  */
 #include "wc1.h"
 #include <sys/stat.h>

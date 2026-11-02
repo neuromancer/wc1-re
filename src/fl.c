@@ -1,7 +1,10 @@
-/* Flight maneuver handlers and their dispatch state.
- * The Mac fl symbol run corroborates this group; its dispatch tables precede
- * the cutscene data. Exact original file boundaries remain provisional.
- * Placement evidence is recorded in docs/ORDER.md.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Flight manoeuvre handlers and their dispatch.
+ *
+ * Address range 4060a0-40770f. The Mac fl symbol run corroborates this
+ * group; its dispatch tables precede the cutscene data.
  */
 #include "wc1.h"
 #ifndef SDL_PORT

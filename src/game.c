@@ -1,9 +1,11 @@
-/*
- *  Shared game state, mission and maneuver tables, and information display.
+/**
+ * @file
+ * @ingroup data
+ * @brief Shared game state, mission and manoeuvre tables, and the information
+ * display.
  *
- *  Address range 433910-433abf (see docs/ORDER.md).
- *  The data ownership follows the declarations-before-literals layout.
- *  The original source filename is not known.
+ * Address range 433910-433abf. The data ownership follows the
+ * declarations-before-literals layout. The original source name is unknown.
  */
 #include "wc1.h"
 

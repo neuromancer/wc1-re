@@ -1,20 +1,18 @@
-/*
- *  Globals shared by the reconstruction.
+/**
+ * @file
+ * @ingroup headers
+ * @brief Globals shared between compilation units.
  *
- *  Names carry no address (AGENTS.md): a global renamed from DAT_<addr> to
- *  <hungarian><Name> keeps its address in the trailing 0x004xxxxx comment on
- *  this declaration and on its definition, so it stays checkable against the
- *  original image without cluttering the use sites.
+ * Names carry no address (AGENTS.md): a global renamed from `DAT_<addr>` to a
+ * Hungarian-prefixed name keeps its address in the trailing 0x004xxxxx
+ * comment on this declaration and on its definition, so it stays checkable
+ * against the original image without cluttering the use sites. Each global
+ * is defined in the unit that owns it.
  *
- *  These live in one place only because the game-core compilation-unit
- *  boundaries are still unknown; each global belongs in whichever module
- *  defines it, and moves there as docs/ORDER.md is filled in.
- *
- *  Declarations follow address order except where code requires otherwise.
- *  CL 4.20 breaks register and operand-order ties by symbol index, and a
- *  global keeps its own index in every function that uses it, so a few
- *  externs sit where the original header must have had them
- *  (docs/PATTERNS.md, "Symbol-index costs").
+ * Declarations follow address order except where code requires otherwise.
+ * CL 4.20 breaks register and operand-order ties by symbol index, and a
+ * global keeps its own index in every function that uses it, so a few
+ * externs sit where the original header must have had them.
  */
 #ifndef GAME_GLOBALS_H
 #define GAME_GLOBALS_H
@@ -403,8 +401,7 @@ extern unsigned char *apObjShapeArray[SPACE_OBJECT_COUNT]; /* 0x0059d2f0 */
 extern ShortVector stRotationInput; /* 0x0059d3f0 */
 extern int DAT_0046dab4; /* 0x0046dab4 */
 extern short DAT_0046e138[10]; /* 0x0046e138 */
-/* Logic's armor-term ordering depends on this declaration pair being reversed.
- * See docs/PATTERNS.md for the measured compiler context. */
+/* Logic's armor-term ordering depends on this declaration pair being reversed. */
 #ifdef WC1_LOGIC_SOURCE
 extern enum ShipTactic aeShipTacticArray[12]; /* 0x0059d5e0 */
 #else
@@ -734,8 +731,8 @@ extern int nSfxVolumeSetting; /* 0x00469fbc */
 extern int nMusicVolumeSetting; /* 0x00469fc0 */
 extern int bViewportDirty; /* 0x00469fc4 */
 extern int nInputTickScale; /* 0x0059af90 */
-/* These button-history fields are private to input.c. Selected owners omit
- * their unused declarations; docs/PATTERNS.md records the matching evidence. */
+/* These button-history fields are used only by input.c; LOGIC's older
+ * header view lacks their declarations. */
 #ifndef WC1_LOGIC_SOURCE
 extern short asInputButton1DoubleClicksList[2]; /* 0x0059e508 */
 extern short asInputBtn1ChangedTable[2]; /* 0x0059e50c */

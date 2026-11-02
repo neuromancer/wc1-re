@@ -1,12 +1,11 @@
-/*
- *  ix / D:\Rnd\prj\ix\src\sound\system.cpp
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief Sound-system state and voice allocation.
  *
- *  Sound-system state and voice allocation (19 functions). Assert paths
- *  identify the source; linker INT3 fill establishes the object boundaries
- *  recorded in docs/ORDER.md.
- *
- *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
- *  list below is the original source order of this file.
+ * Originally `D:\Rnd\prj\ix\src\sound\system.cpp`, address range
+ * 447200-447a1f. The assert paths identify the source; linker INT3 fill marks
+ * the object boundaries.
  */
 #include "ix.h"
 #include <assert.h>

@@ -1,7 +1,11 @@
-/*
- * Version data follows the cockpit literal pool and precedes barracks data.
- * The original object name and its position among the data-free geometry
- * functions remain unknown; see docs/ORDER.md.
+/**
+ * @file
+ * @ingroup shell
+ * @brief The game's version string.
+ *
+ * Data only. It follows the cockpit literal pool and precedes the barracks
+ * data; the original object name, and where it sat among the data-free
+ * geometry functions, are unknown.
  */
 #include "wc1.h"
 

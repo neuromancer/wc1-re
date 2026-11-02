@@ -1,5 +1,8 @@
-; ix software sample mixer, originally assembled as a separate object.
+; @file
+; @ingroup ixlib
+; @brief Hand-written software sample mixer.
 ;
+; Address range 446f74-4471ff, originally assembled as a separate object.
 ; The retail routine uses MASM's D1 shift-by-one encodings and short
 ; branches. INT3 fill before it aligns the object to four bytes.
 ; Keep the C++ names of the shared state; the callable entry uses C linkage.

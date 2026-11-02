@@ -379,13 +379,16 @@ def comment(text: str | None, indent: str = '') -> list[str]:
 def render(generator: Generator) -> str:
     image = generator.image
     out = [
-        '; Raster library of the Win32 Wing Commander.',
+        '; @file',
+        '; @ingroup graphics',
+        '; @brief Hand-written raster library: RLE sprites, clipped lines, fills',
+        '; and ellipses, and IFF, PCX and GIF image decoding.',
         ';',
-        '; Hand-written assembly, assembled rather than compiled: its shifts by',
-        '; one use the D1/D0 encodings and it keeps tables in its code segment.',
-        '; It was linked between screens.obj and killbrd.obj: code',
-        '; 0x00439C40-0x0043F635, data 0x0046E69C-0x0047008B.  FillRasterBytes,',
-        '; just before it, is compiled C at the end of src/screens.c.',
+        '; Assembled rather than compiled: its shifts by one use the D1/D0',
+        '; encodings and it keeps tables in its code segment. It was linked',
+        '; between screens.obj and killbrd.obj: code 439c40-43f635, data',
+        '; 46e69c-47008b. FillRasterBytes, just before it, is compiled C at the',
+        '; end of src/screens.c.',
         ';',
         '; Extracted from the retail executable by bin/extractRasterLibrary.py,',
         '; which also checks that UASM reproduces its bytes and relocations.',

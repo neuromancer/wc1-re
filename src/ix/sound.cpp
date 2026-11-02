@@ -1,12 +1,11 @@
-/*
- *  ix / D:\Rnd\prj\ix\src\sound\sound.cpp
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief Sound objects: initialization, volume, pan, frequency and priority.
  *
- *  Original address range: 0x00447A20 - 0x004486AF   (14 functions)
- *  Assert paths identify the source; linker INT3 fill establishes the object
- *  boundaries (see docs/ORDER.md).
- *
- *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
- *  list below is the original source order of this file.
+ * Originally `D:\Rnd\prj\ix\src\sound\sound.cpp`, address range
+ * 447a20-4486af. The assert paths identify the source; linker INT3 fill marks
+ * the object boundaries.
  */
 #include "ix.h"
 #include <assert.h>

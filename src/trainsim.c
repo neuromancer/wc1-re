@@ -1,8 +1,11 @@
-/*
- *  Training-simulator menus, pilot text input, high scores, and mission loop.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief Training simulator: menus, pilot name entry, high scores and the
+ * mission loop.
  *
- *  Address range 425c30-4272ef (see docs/ORDER.md). The initialized panel,
- *  resource tables, and state precede this unit's name and UI literal pool.
+ * Address range 425c30-4272ef. The initialized panel, resource tables and
+ * state precede this unit's name and UI literal pool.
  */
 #include "wc1.h"
 

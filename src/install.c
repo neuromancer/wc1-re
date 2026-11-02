@@ -1,6 +1,10 @@
-/* Installation-file loading, startup arguments, and disk-prompt setup.
- * Address range 42c410-42c7ff. The leading empty shutdown hook's exact
- * original ownership remains provisional; see docs/ORDER.md.
+/**
+ * @file
+ * @ingroup shell
+ * @brief Installation-file loading, start-up arguments and disk-prompt setup.
+ *
+ * Address range 42c410-42c7ff. Which unit owned the leading empty shutdown
+ * hook is provisional.
  */
 #include "wc1.h"
 

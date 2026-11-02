@@ -1,5 +1,5 @@
-/* SDL host adaptation of CODE_09's CMF manager. See docs/SWC.md for the
- * original entry offsets and the intentionally different host API. */
+/* SDL host adaptation of CODE_09's CMF manager. Its host API intentionally
+ * differs from the original entry points. */
 #include "swc.h"
 
 #include <string.h>

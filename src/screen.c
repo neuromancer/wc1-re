@@ -1,7 +1,9 @@
-/*
- *  Mission requests, viewport setup, and packet-memory management.
+/**
+ * @file
+ * @ingroup graphics
+ * @brief Mission requests, viewport setup and packet-memory management.
  *
- *  Address range 42efc0-42fa8f (see docs/ORDER.md).
+ * Address range 42efc0-42fa8f.
  */
 #ifndef SDL_PORT
 #include <malloc.h>
@@ -431,7 +433,8 @@ int GetLargestFreeNearHeapBlock(void)
     return largestBytes;
 }
 
-/* Preserve the memory-service declaration context; see docs/PATTERNS.md. */
+/* Repeated memory-service declarations: their placement reproduces this
+ * unit's compiler context. */
 void FrameStartHook(int mode);
 unsigned short IsSoundHardwarePresent(short device);
 void MessagePumpHook(int mode);

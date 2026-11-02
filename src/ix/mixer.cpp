@@ -1,12 +1,10 @@
-/*
- *  ix / D:\rnd\prj\ix\win95\dsp\mixer.cpp
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief DirectSound driver opening and the mixer service thread.
  *
- *  Original address range: 0x00445F60 - 0x0044679F   (2 functions)
- *  Range is exact: recovered from this module's own assert __FILE__ anchors in
- *  the shipped debug build (see docs/ORDER.md).
- *
- *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
- *  list below is the original source order of this file.
+ * Originally `D:\rnd\prj\ix\win95\dsp\mixer.cpp`, address range
+ * 445f60-44679f, recovered from the module's own assert `__FILE__` anchors.
  */
 #include "ix.h"
 #ifndef SDL_PORT

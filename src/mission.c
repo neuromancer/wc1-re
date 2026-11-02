@@ -1,6 +1,11 @@
-/* Mission setup, ship resources, formation placement, and pilot speech.
- * The following joystick and navigation helpers remain here provisionally;
- * their exact original object boundaries are unresolved. See docs/ORDER.md.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Mission setup, ship resources, formation placement and pilot speech.
+ *
+ * Address range 40b670-40d08f. The joystick and navigation-map helpers at its
+ * end stay here provisionally: where their original object began is
+ * unresolved.
  */
 #ifndef SDL_PORT
 #include <process.h>

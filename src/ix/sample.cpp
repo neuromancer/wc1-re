@@ -1,12 +1,10 @@
-/*
- *  ix / D:\Rnd\prj\ix\src\sound\sample.cpp
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief Sample objects: AIFF, WAV and raw loading.
  *
- *  Original address range: 0x004486B0 - 0x004492C5   (6 functions)
- *  Assert paths identify the source; linker INT3 fill establishes the object
- *  boundaries (see docs/ORDER.md).
- *
- *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
- *  list below is the original source order of this file.
+ * Originally `D:\Rnd\prj\ix\src\sound\sample.cpp`, address range
+ * 4486b0-4492c5, the last ix code before the import thunks and the CRT.
  */
 #include "ix.h"
 #include <math.h>

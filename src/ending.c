@@ -1,8 +1,10 @@
-/*
- *  Campaign victory, retreat, and ending scenes.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief Campaign victory, retreat and ending scenes.
  *
- *  Address range 42fa90-43070f (see docs/ORDER.md).
- *  The adjacent tagged-allocation helpers remain in this provisional unit.
+ * Address range 42fa90-43070f. The tagged-allocation helpers at its start
+ * stay in this unit provisionally.
  */
 #include "wc1.h"
 #include <sys/types.h>

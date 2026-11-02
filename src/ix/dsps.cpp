@@ -1,12 +1,14 @@
-/*
- *  ix / D:\rnd\prj\ix\win95\dsp\dsps.cpp
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief Sample stream control.
  *
- *  Ten stream-control functions; source anchors and storage bounds are
- *  recorded in docs/ORDER.md.
- *  Built /Od /Oi like the rest of ix -- do not optimise this file.
+ * Originally `D:\rnd\prj\ix\win95\dsp\dsps.cpp`, address range
+ * 445190-445f5f: compiler-generated initializers, then ten stream-control
+ * functions. Built /Od /Oi like the rest of ix.
  *
- *  A "stream" is a ring buffer fed by the streamer thread and played through a
- *  voice slot allocated after the regular voices: voice[voice_count + index].
+ * A stream is a ring buffer fed by the streamer thread and played through a
+ * voice slot allocated after the regular voices: voice[voice_count + index].
  */
 #include <signal.h>
 #include "ix.h"

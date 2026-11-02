@@ -1,12 +1,13 @@
-/*
- *  Win32 system services: mouse, keyboard and clock wrappers, font
- *  workspaces, CD-ROM location and disc-swap prompting.
+/**
+ * @file
+ * @ingroup shell
+ * @brief Win32 system services: mouse, keyboard and clock wrappers, font
+ * workspaces, CD-ROM location and disc-swap prompts.
  *
- *  Address range 402e80-4034ff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: one unit, not two. PollKeyboardState's statics and
- *  LocateStreamsDirOnDisc's szStreamsDir interleave in the original's
- *  .bss (475B68-475D1F), and statics are private to one object; string
- *  band 46535C-4653FC.
+ * Address range 402e80-4034ff. It is one unit, not two: PollKeyboardState's
+ * statics and LocateStreamsDirOnDisc's szStreamsDir interleave in the
+ * original's .bss (475b68-475d1f), and statics are private to one object.
+ * Its string literals occupy 46535c-4653fc.
  */
 #include "wc1.h"
 

@@ -1,9 +1,11 @@
-/*
- *  Ship mission logic, resource ownership, and scene animation.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Ship mission logic, resource ownership and scene animation.
  *
- *  Address range 422010-42572f (see docs/ORDER.md). Interior boundaries
- *  remain provisional; the preceding startup unit has a separate pool
- *  of initialized data and string literals.
+ * Address range 422010-42572f; its interior boundaries are provisional. The
+ * preceding startup unit has a separate pool of initialized data and string
+ * literals.
  */
 /* LOGIC was built against an older arrangement of the shared headers than
  * every other module: nYourWingman is declared earlier, the armor and
@@ -13,7 +15,7 @@
  * in globals.h and wc1funcs.h.  It is the one remaining source marker:
  * giving LOGIC the common view needs symbol-key planning across LOGIC,
  * SHIP, BRAINS and MUSIC, and splitting the headers for it would need about
- * thirty compensating declaration moves (docs/WORKAROUNDS.md). */
+ * thirty compensating declaration moves. */
 #define WC1_LOGIC_SOURCE
 #ifndef SDL_PORT
 #include <sys/types.h>

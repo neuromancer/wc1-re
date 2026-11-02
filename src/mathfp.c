@@ -1,8 +1,11 @@
-/*
- *  Floating-point helpers and the random-number generator.
+/**
+ * @file
+ * @ingroup data
+ * @brief Random numbers, fixed-point arithmetic and trigonometry computed in
+ * floating point, and text-cursor and shape-frame helpers.
  *
- *  Address range 0x434cd0-0x4353ff (provisional -- see docs/ORDER.md).
- *  The preceding smart unit ends at chase_speed (0x434c70).
+ * Address range 434cd0-43540f. The preceding smart unit ends at chase_speed
+ * (434c70).
  */
 #include "wc1.h"
 

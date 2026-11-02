@@ -1,9 +1,11 @@
-/*
- *  Disk data files and packet fetching with retry.
+/**
+ * @file
+ * @ingroup data
+ * @brief Data files and packet fetching with retries, text-font setup and
+ * input waits.
  *
- *  Address range 41d120-41dedf (provisional -- see docs/ORDER.md).
- *  Boundary evidence: OpenDiskDataFile/FetchDiskPacketRetrying/PromptInsertNumberedDisk;
- *  the Mac `ship` unit begins with initialize_object at 41dee0.
+ * Address range 41d120-41dedf; the Mac ship unit begins right after it,
+ * with initialize_object at 41dee0.
  */
 #include "wc1.h"
 

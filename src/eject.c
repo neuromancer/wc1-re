@@ -1,8 +1,10 @@
-/*
- *  Ejection and stranded-pilot sequences.
+/**
+ * @file
+ * @ingroup flight
+ * @brief Ejection and stranded-pilot sequences.
  *
- *  Address range 4046a0-404ccf. The ejection data and literals precede the
- *  campaign unit's mouth-animation table; see docs/ORDER.md.
+ * Address range 4046a0-404ccf. The ejection data and literals precede the
+ * campaign unit's mouth-animation table.
  */
 #include "wc1.h"
 

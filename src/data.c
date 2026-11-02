@@ -1,13 +1,17 @@
-/*
- *  Shared initialized state and display tables: the event queue, cursor and
- *  screen geometry used by the event manager, the direction-frame tables used
- *  by the 3-D object code, and the cockpit light, bar, layout and pilot-hand
- *  tables.
+/**
+ * @file
+ * @ingroup data
+ * @brief Shared initialized data: event queue, cursor and screen geometry,
+ * direction-frame tables and cockpit display tables.
  *
- *  Data only. This block lies between game.c's literals and the following
- *  units' literal-only data, so it is a separate object linked before the
- *  random/fixed-point unit; the Super Wing Commander symbols also name a
- *  `data` module. The code that owned it, if any, is unknown.
+ * The event queue, cursor and screen geometry are the event manager's; the
+ * direction-frame tables serve the 3-D object code; the light, bar, layout
+ * and pilot-hand tables are the cockpit's.
+ *
+ * Data only. This block lies between game.c's literals and the following
+ * units' literal-only data, so it is a separate object linked before
+ * mathfp.c; the Super Wing Commander symbols also name a `data` module. The
+ * code that owned it, if any, is unknown.
  */
 #include "wc1.h"
 

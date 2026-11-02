@@ -1,23 +1,31 @@
-/*
- *  ix -- Origin Systems audio library (C++), original dev tree D:\Rnd\Prj\ix.
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief The library's classes and shared declarations.
  *
- *  The shipped debug build preserves assert __FILE__/__LINE__ anchors for
- *  these source groups. They do not establish every object boundary;
- *  docs/ORDER.md records the independently established boundaries.
+ * ix is Origin Systems' audio library, in C++; its development tree was
+ * `D:\Rnd\Prj\ix`. The shipped debug build preserves assert `__FILE__` and
+ * `__LINE__` anchors for most of its source files, but they do not establish
+ * every object boundary; linker INT3 fill and library order do. In link
+ * order:
  *
- *      streamer.cpp  0x00442750 - 0x00443B0F
- *      thread.cpp    0x00443B10 - 0x004446FF
- *      streamfile.cpp 0x00444700 - 0x0044490F
- *      dsp.cpp       0x00444910 - 0x0044518F
- *      dsps.cpp      0x00445190 - 0x00445F5F
- *      mixer.cpp     0x00445F60 - 0x0044679F
- *      dspv.cpp      0x004467A0 - 0x00446F73
- *      dspmix.asm    0x00446F74 - 0x004471FF
- *      system.cpp    0x00447200 - 0x00447A1F
- *      sound.cpp     0x00447A20 - 0x004486AF
- *      sample.cpp    0x004486B0 - 0x004492C5
+ *     ixlog.cpp      4426a0-44274f
+ *     streamer.cpp   442750-443b0f
+ *     thread.cpp     443b10-4446ff
+ *     streamfile.cpp 444700-44490f
+ *     dsp.cpp        444910-44518f
+ *     dsps.cpp       445190-445f5f
+ *     mixer.cpp      445f60-44679f
+ *     dspv.cpp       4467a0-446f73
+ *     dspmix.asm     446f74-4471ff
+ *     system.cpp     447200-447a1f
+ *     sound.cpp      447a20-4486af
+ *     sample.cpp     4486b0-4492c5
+ *     lzo1x.cpp      4614c0-46162f
+ *     ixfile.cpp     461630-4617bf
  *
- *  Everything from 0x004492E0 upward is the MSVC 4.2 static debug CRT.
+ * The static debug CRT follows from 4492e0; LINK's second library pass
+ * places the LZO decoder and the file module between two of its members.
  */
 #ifndef IX_H
 #define IX_H

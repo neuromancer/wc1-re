@@ -1,8 +1,10 @@
-/*
- *  Win32 shell: window creation, message loop, exit paths.
+/**
+ * @file
+ * @ingroup shell
+ * @brief Win32 shell (window creation, message loop, exit paths and the
+ * guarded debug allocator) and the asteroid and mine hazard fields.
  *
- *  Address range 401000-402e7f (see docs/ORDER.md).
- *  Boundary evidence: CreateMainWindow/MainWindowProc/AbortToDesktop cluster; string band 465048-465354.
+ * Address range 401000-402e7f; its string literals occupy 465048-465354.
  */
 #include <stdio.h>
 #include "winmain.h"

@@ -1,9 +1,11 @@
-/*
- *  ix streamer worker thread.
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief The streamer's worker thread.
  *
- *  Original object range: 0x00443B10 - 0x004446FF (seven functions).
- *  INT3 fill separates this group from the streamer API and stream-file
- *  methods. The thread.cpp assert paths anchor its interior; see ORDER.md.
+ * Originally `D:\Rnd\Prj\ix\Src\Streamer\thread.cpp`, address range
+ * 443b10-4446ff. INT3 fill separates it from the streamer API and the
+ * stream-file methods; its assert paths anchor the interior.
  */
 #include "ix.h"
 #include <stdlib.h>

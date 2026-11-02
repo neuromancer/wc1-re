@@ -1,12 +1,11 @@
-/*
- *  ix / D:\Rnd\Prj\ix\Src\Streamer\streamer.cpp
+/**
+ * @file
+ * @ingroup ixlib
+ * @brief Streamer API and package management.
  *
- *  Streamer API and package management (23 functions). Assert paths identify
- *  the source; INT3 fill before the worker thread fixes the object boundary
- *  recorded in docs/ORDER.md.
- *
- *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
- *  list below is the original source order of this file.
+ * Originally `D:\Rnd\Prj\ix\Src\Streamer\streamer.cpp`, address range
+ * 442750-443b0f. The assert paths identify the source; INT3 fill before the
+ * worker thread marks the object's end.
  */
 #include "ix.h"
 #include <stdlib.h>

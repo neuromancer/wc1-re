@@ -1,6 +1,10 @@
-/* Carrier departure and cockpit launch sequences.
- * Address range 42b9a0-42c40f. The following installation helpers remain
- * a provisional internal boundary; see docs/ORDER.md.
+/**
+ * @file
+ * @ingroup campaign
+ * @brief Carrier departure and cockpit launch sequences.
+ *
+ * Address range 42b9a0-42c40f. Its boundary with the installation helpers
+ * in install.c, which follow, is provisional.
  */
 #include "wc1.h"
 

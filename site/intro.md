@@ -6,3 +6,5 @@ Built with Microsoft Visual C++ 4.20, it reproduces the original Win32
 `WC1.EXE` byte for byte.
 
 ## Source files
+Each group lists its files in link order, the order of their code in
+`WC1.EXE`.

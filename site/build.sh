@@ -71,22 +71,84 @@ function listing(path,    count, parts, name) {
     return name "_source.html"
 }'
 
-# The main page: site/intro.md, then one table per group of modules.tsv.
+# Each file describes itself in its header comment, which Doxygen reads too:
+#     /**
+#      * @file
+#      * @ingroup <group>
+#      * @brief <one sentence, possibly wrapped>
+#      */
+# The assembly modules carry the same lines as ";" comments. Print each
+# file's group and sentence.
+describe_awk='
+{
+    line = $0
+    if (FILENAME ~ /\.asm$/) {
+        if (line !~ /^;/)
+            exit
+        sub(/^;/, "", line)
+    } else {
+        if (!open && line !~ /^[ \t]*\/\*\*/)
+            next
+        open = 1
+        closing = line ~ /\*\//
+        sub(/^[ \t]*\/\*\*/, "", line)
+        sub(/\*\/.*/, "", line)
+        sub(/^[ \t]*\*/, "", line)
+    }
+    gsub(/^[ \t]+|[ \t]+$/, "", line)
+    if (collecting && (line == "" || line ~ /^[@\\]/))
+        collecting = 0
+    if (collecting)
+        brief = brief " " line
+    if (line ~ /^[@\\]ingroup[ \t]/) {
+        group = line
+        sub(/^[@\\]ingroup[ \t]+/, "", group)
+    }
+    if (line ~ /^[@\\]brief[ \t]/) {
+        brief = line
+        sub(/^[@\\]brief[ \t]+/, "", brief)
+        collecting = 1
+    }
+    if (closing)
+        exit
+}
+END { printf "%s\t%s\n", group, brief }'
+
+# Sources in link order, then the headers alphabetically.
+for file in "$@" $(printf '%s\n' $headers | sort); do
+    printf '%s\t' "$file"
+    awk "$describe_awk" "$file"
+done > "$out/files.tsv"
+
+# The groups, in site/groups.dox order.
+sed -n 's/^[^@]*@defgroup[[:space:]]\{1,\}\([^[:space:]]\{1,\}\)[[:space:]]\{1,\}\(.*[^[:space:]]\)[[:space:]]*\*\/.*$/\1	\2/p' \
+    "$site/groups.dox" > "$out/groups.tsv"
+
+# The main page: site/intro.md, then one table per group.
 cp "$site/intro.md" "$stage/mainpage.md"
 awk -F '\t' "$listing_awk"'
-{
-    if ($1 != group) {
-        group = $1
-        printf "\n### %s\n\n| File | Contents |\n| --- | --- |\n", group
+NR == FNR { title[$1] = $2; order[++groups] = $1; next }
+!($2 in title) || $3 == "" {
+    printf "error: %s needs @ingroup with a group of site/groups.dox and a @brief\n", $1 > "/dev/stderr"
+    failed = 1
+}
+{ path[++files] = $1; group[files] = $2; brief[files] = $3 }
+END {
+    if (failed)
+        exit 1
+    for (g = 1; g <= groups; g++) {
+        shown = 0
+        for (f = 1; f <= files; f++) {
+            if (group[f] != order[g])
+                continue
+            if (!shown)
+                printf "\n### %s\n\n| File | Contents |\n| --- | --- |\n", title[order[g]]
+            shown = 1
+            count = split(path[f], parts, "/")
+            printf "| [%s](%s) | %s |\n", parts[count], listing(path[f]), brief[f]
+        }
     }
-    count = split($2, parts, "/")
-    printf "| [%s](%s) | %s |\n", parts[count], listing($2), $3
-}' "$site/modules.tsv" >> "$stage/mainpage.md"
-
-for file in "$@" $headers; do
-    grep -q "	$file	" "$site/modules.tsv" ||
-        echo "warning: $file has no description in site/modules.tsv" >&2
-done
+}' "$out/groups.tsv" "$out/files.tsv" >> "$stage/mainpage.md"
 
 doxygen "$site/Doxyfile"
 
@@ -121,7 +183,7 @@ touch "$out/html/.nojekyll"
 
 # Every link in the file list must reach a generated page.
 missing=0
-for page in $(awk -F '\t' "$listing_awk"'{ print listing($2) }' "$site/modules.tsv"); do
+for page in $(awk -F '\t' "$listing_awk"'{ print listing($1) }' "$out/files.tsv"); do
     if [ ! -f "$out/html/$page" ]; then
         echo "error: the file list links to missing page $page" >&2
         missing=1

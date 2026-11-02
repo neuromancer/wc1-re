@@ -1,9 +1,10 @@
-/*
- *  Event manager, mouse pointer, and frame timer.
+/**
+ * @file
+ * @ingroup shell
+ * @brief Event manager, mouse pointer and frame timer.
  *
- *  The provisional address range is recorded in docs/ORDER.md.
- *  The FM Towns executable preserves the original source name
- *  "source\\eventmgr.c" for this unit.
+ * Address range 4355f0-436cff. The FM Towns executable preserves this unit's
+ * original source name, `source\eventmgr.c`.
  */
 #include "wc1.h"
 #ifndef SDL_PORT

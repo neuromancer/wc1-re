@@ -1,8 +1,10 @@
-/*
- *  Music state machine and the streaming music script.
+/**
+ * @file
+ * @ingroup audio
+ * @brief Music state machine and the streaming music script.
  *
- *  The provisional address range is recorded in docs/ORDER.md.
- *  Boundary evidence: PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ....
+ * Address range 42e320-42efbf. The routines print their own names:
+ * StopMusic, FadeMusic, SetMusicOn and others.
  */
 #include "wc1.h"
 #include <limits.h>
