@@ -39,8 +39,9 @@ GENERATE_TREEVIEW      = YES
 DISABLE_INDEX          = NO
 FULL_SIDEBAR           = NO
 HTML_COLORSTYLE        = LIGHT
-HTML_HEADER            = site/header.html
-HTML_EXTRA_FILES       = third_party/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js
+HTML_HEADER            = out/site/header.html
+HTML_EXTRA_FILES       = third_party/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js \
+                         site/social-preview.png
 HTML_EXTRA_STYLESHEET  = third_party/doxygen-awesome-css/doxygen-awesome.css \
                          third_party/doxygen-awesome-css/doxygen-awesome-sidebar-only.css \
                          third_party/doxygen-awesome-css/doxygen-awesome-sidebar-only-darkmode-toggle.css \

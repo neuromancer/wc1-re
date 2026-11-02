@@ -150,6 +150,10 @@ END {
     }
 }' "$out/groups.tsv" "$out/files.tsv" >> "$stage/mainpage.md"
 
+# Link previews need absolute URLs; the Pages workflow passes the address.
+site_url=${SITE_URL:-https://neuromancer.github.io/wc1-re}
+sed "s|@SITE_URL@|${site_url%/}|g" "$site/header.html" > "$out/header.html"
+
 doxygen "$site/Doxyfile"
 
 # Doxygen cannot parse MASM; Pygments highlights the assembly modules,
@@ -163,6 +167,9 @@ for file in "$@"; do
             printf '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
             printf '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             printf '<title>%s - Wing Commander</title>\n' "$file"
+            grep -e 'name="description"' -e 'name="theme-color"' \
+                -e 'property="og:' -e 'name="twitter:' "$out/header.html" |
+                sed "s|[\$]title|$file|"
             printf '<link rel="stylesheet" href="../wc1.css">\n'
             printf '<link rel="stylesheet" href="asm.css">\n'
             printf '<script src="../doxygen-awesome-darkmode-toggle.js"></script>\n'
