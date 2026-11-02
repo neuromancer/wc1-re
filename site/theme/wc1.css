@@ -1,0 +1,119 @@
+/* Wing Commander source browser: a light documentation look (Roboto text,
+   Cousine code, Monokai Light highlighting) on top of doxygen-awesome-css. */
+@import url("https://fonts.googleapis.com/css2?family=Cousine:wght@400;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&display=swap");
+
+html {
+    --font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-family-monospace: Cousine, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --page-font-size: 16px;
+    --code-font-size: 14px;
+    --content-line-height: 1.6;
+    --content-maxwidth: 1080px;
+    --side-nav-fixed-width: 270px;
+
+    --primary-color: #1a6fd8;
+    --primary-dark-color: #10529f;
+    --primary-light-color: #4a8fe3;
+    --page-background-color: #ffffff;
+    --page-foreground-color: #111111;
+    --page-secondary-foreground-color: #595959;
+    --separator-color: #ececec;
+    --side-nav-background: #ffffff;
+    --side-nav-foreground: #111111;
+    --header-background: #ffffff;
+    --header-foreground: #111111;
+
+    --code-background: #f2f2f2;
+    --code-foreground: #111111;
+    --fragment-background: #fafafa;
+    --fragment-foreground: #111111;
+    --fragment-keyword: #00a8c8;
+    --fragment-keywordtype: #00a8c8;
+    --fragment-keywordflow: #00a8c8;
+    --fragment-token: #d88200;
+    --fragment-comment: #75715e;
+    --fragment-link: #111111;
+    --fragment-preprocessor: #f92672;
+    --fragment-linenumber-color: #a0a0a0;
+    --fragment-linenumber-background: #fafafa;
+    --fragment-linenumber-border: #ececec;
+}
+
+@media (prefers-color-scheme: dark) {
+    html:not(.light-mode) {
+        --page-background-color: #1e1f1c;
+        --page-foreground-color: #f8f8f2;
+        --side-nav-background: #1e1f1c;
+        --side-nav-foreground: #f8f8f2;
+        --header-background: #1e1f1c;
+        --header-foreground: #f8f8f2;
+        --separator-color: #3a3b36;
+        --code-background: #2d2e29;
+        --code-foreground: #f8f8f2;
+        --fragment-background: #272822;
+        --fragment-foreground: #f8f8f2;
+        --fragment-keyword: #66d9ef;
+        --fragment-keywordtype: #66d9ef;
+        --fragment-keywordflow: #66d9ef;
+        --fragment-token: #e6db74;
+        --fragment-comment: #75715e;
+        --fragment-link: #f8f8f2;
+        --fragment-preprocessor: #f92672;
+        --fragment-linenumber-color: #75715e;
+        --fragment-linenumber-background: #272822;
+        --fragment-linenumber-border: #3a3b36;
+    }
+}
+
+/* Sidebar: a plain list under the title, as on documentation sites. */
+#side-nav, #nav-tree {
+    border-right: 1px solid var(--separator-color);
+}
+#projectname {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+#projectbrief {
+    color: var(--page-secondary-foreground-color);
+}
+#nav-tree .label a {
+    font-size: 15px;
+}
+
+/* Code: links read as text until hovered; keep them discoverable. */
+div.fragment a.code, div.fragment a.codeRef, pre.fragment a.code {
+    text-decoration: underline dotted;
+    text-decoration-color: var(--separator-color);
+    text-underline-offset: 3px;
+}
+div.fragment a.code:hover, div.fragment a.codeRef:hover {
+    color: var(--primary-color);
+    text-decoration-color: currentColor;
+}
+
+/* Headings and prose spacing closer to a long-form documentation page. */
+div.contents h1, div.contents h2 {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+div.header .title {
+    font-weight: 700;
+}
+
+/* File tables on the main page: one width (the theme's full_width_table
+   rules, with a selector that outranks its inline-block tables) and
+   left-aligned headings. */
+.contents table.markdownTable:not(.memberdecls):not(.mlabels):not(.fieldtable):not(.memname) {
+    display: block;
+}
+.contents table.markdownTable:not(.memberdecls):not(.mlabels):not(.fieldtable):not(.memname) tbody {
+    display: table;
+    width: 100%;
+}
+table.markdownTable th {
+    text-align: left;
+}
+table.markdownTable td:first-child {
+    width: 9em;
+    white-space: nowrap;
+}

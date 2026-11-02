@@ -1,0 +1,53 @@
+# Doxygen settings for the source browser; site/build.sh runs doxygen from
+# the repository root, so paths are relative to it.
+PROJECT_NAME           = "Wing Commander"
+PROJECT_BRIEF          = "Reconstructed Win32 source (1996)"
+OUTPUT_DIRECTORY       = out/site
+INPUT                  = out/site/source
+RECURSIVE              = YES
+FILE_PATTERNS          = *.c *.cpp *.h *.md
+USE_MDFILE_AS_MAINPAGE = out/site/source/mainpage.md
+FULL_PATH_NAMES        = YES
+STRIP_FROM_PATH        = out/site/source
+STRIP_FROM_INC_PATH    = out/site/source/include
+OPTIMIZE_OUTPUT_FOR_C  = YES
+MARKDOWN_SUPPORT       = YES
+
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_ANON_NSPACES   = YES
+
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = NO
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+REFERENCES_LINK_SOURCE = YES
+SOURCE_TOOLTIPS        = YES
+VERBATIM_HEADERS       = YES
+
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = NO
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           = out/site/source/include out/site/source/src/ix
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+HTML_COLORSTYLE        = LIGHT
+HTML_EXTRA_STYLESHEET  = third_party/doxygen-awesome-css/doxygen-awesome.css \
+                         third_party/doxygen-awesome-css/doxygen-awesome-sidebar-only.css \
+                         site/theme/wc1.css
+SEARCHENGINE           = YES
+SERVER_BASED_SEARCH    = NO
+GENERATE_LATEX         = NO
+HAVE_DOT               = NO
+TIMESTAMP              = NO
+
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_LOGFILE           = out/site/doxygen-warnings.log

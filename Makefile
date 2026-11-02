@@ -1204,6 +1204,16 @@ debug: $(TARGET) run-check | $(DREAMM_BIN)
 		-launch WC1.EXE > debug.log
 
 # ---------------------------------------------------------------------------
+# Source browser
+# ---------------------------------------------------------------------------
+
+# Static, cross-referenced browser of the Win32 build's sources, with the SDL
+# port's code stripped, as deployed to GitHub Pages by .github/workflows/
+# pages.yml. Needs doxygen, unifdef and pygmentize; writes out/site/html.
+site:
+	@sh site/build.sh $(SRCS)
+
+# ---------------------------------------------------------------------------
 # Cleanup and phony declarations
 # ---------------------------------------------------------------------------
 
@@ -1222,6 +1232,7 @@ clean-modern:
 
 .PHONY: \
 	modern-swc run-modern-swc \
+	site \
 	all \
 	audit-addresses \
 	audit-compiler-glue \

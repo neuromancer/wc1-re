@@ -1,0 +1,85 @@
+/* Assembly listings (Pygments) in the same look as the Doxygen pages; the
+   colours come from wc1.css's variables, including its dark palette. */
+body {
+    margin: 0;
+    background: var(--page-background-color);
+    color: var(--page-foreground-color);
+    font: var(--page-font-size)/1.6 var(--font-family);
+}
+main.asm {
+    max-width: var(--content-maxwidth);
+    margin: 0 auto;
+    padding: 28px 32px 64px;
+}
+main.asm a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+main.asm a:hover {
+    text-decoration: underline;
+}
+main.asm h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 6px 0 18px;
+}
+main.asm .breadcrumb {
+    color: var(--page-secondary-foreground-color);
+    font-size: 14px;
+    margin: 0;
+}
+.highlighttable {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    background: var(--fragment-background);
+    border: 1px solid var(--separator-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.highlighttable td {
+    vertical-align: top;
+    padding: 12px 16px;
+}
+.highlighttable pre {
+    margin: 0;
+    font: var(--code-font-size)/1.5 var(--font-family-monospace);
+    color: var(--fragment-foreground);
+}
+.highlighttable td.linenos {
+    width: 1%;
+    text-align: right;
+    color: var(--fragment-linenumber-color);
+    background: var(--fragment-linenumber-background);
+    border-right: 1px solid var(--fragment-linenumber-border);
+    user-select: none;
+}
+.highlighttable td.linenos pre, .highlighttable td.linenos span {
+    color: var(--fragment-linenumber-color);
+    background: none;
+}
+.highlight .c, .highlight .c1, .highlight .cm, .highlight .cs {
+    color: var(--fragment-comment);
+    font-style: italic;
+}
+.highlight .k, .highlight .kd, .highlight .kt, .highlight .kr, .highlight .nb {
+    color: var(--fragment-keyword);
+}
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sc {
+    color: var(--fragment-token);
+}
+.highlight .m, .highlight .mi, .highlight .mh, .highlight .mf, .highlight .mo {
+    color: #ae81ff;
+}
+.highlight .cp, .highlight .cpf {
+    color: var(--fragment-preprocessor);
+}
+.highlight .nl, .highlight .nf {
+    color: #75af00;
+}
+.highlight .err {
+    color: inherit;
+    background: none;
+    border: none;
+}
