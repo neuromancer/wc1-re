@@ -518,10 +518,10 @@ void ShowTrainSimTextMessage(const char *message)
 /* Function start: 0x426750 */
 void EnterPilotNameAndCallsign(void)
 {
-    unsigned char *backdrop;
+    struct Shape *backdrop;
 
     ClearViewport(&stScreenView, 0);
-    backdrop = (unsigned char *)FetchDiskPacketRetrying(
+    backdrop = FetchDiskPacketRetrying(
         (short)cCockpitLogicalFile, 0, 0);
     DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
     InitializeTrainSimTextPanel();
@@ -592,7 +592,7 @@ void UpdateTrainSimHighScores(int score)
 /* Function start: 0x4268E0 */
 void ShowTrainSimHighScores(void)
 {
-    unsigned char *backdrop;
+    struct Shape *backdrop;
     char score[20];
     short titleWidth;
     short lineHeight;
@@ -601,7 +601,7 @@ void ShowTrainSimHighScores(void)
 
     SetEventManagerPump(PollJoystickButtonEvents);
     ClearViewport(&stScreenView, 0);
-    backdrop = (unsigned char *)FetchDiskPacketRetrying(
+    backdrop = FetchDiskPacketRetrying(
         (short)cCockpitLogicalFile, 0, 0);
     DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
     InitializeTextContextFromFont(&stTrainSimTxtContext, 1,
@@ -698,11 +698,11 @@ void ShowTrainSimHighScores(void)
 }
 
 /* Function start: 0x426C50 */
-unsigned char *LoadTrainSimOpponentShape(int opponent)
+struct Shape *LoadTrainSimOpponentShape(int opponent)
 {
     cCurrentObjResourceLogicalFile =
         (signed char)(opponent + 0x16);
-    return (unsigned char *)FetchDiskPacketRetrying(
+    return FetchDiskPacketRetrying(
         (short)cCurrentObjResourceLogicalFile, 1, 0);
 }
 
@@ -712,7 +712,7 @@ short SelectTrainSimMission(short *mission)
     InputEventState event;
     Viewport menuViewport;
     ShortPoint positions[4];
-    unsigned char *shapes[4];
+    struct Shape *shapes[4];
     unsigned short cancelled;
     short savedInputMode;
     short eventType;

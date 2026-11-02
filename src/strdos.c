@@ -105,7 +105,7 @@ void ShutdownEventManager(void)
 
 /* Function start: 0x4355A0 */
 unsigned short __stdcall ConfigureEventManagerPointer(
-    unsigned char *shape, short frame)
+    struct Shape *shape, short frame)
 {
     return 0;
 }

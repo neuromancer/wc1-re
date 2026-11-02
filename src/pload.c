@@ -9,7 +9,7 @@
 #include "wc1.h"
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
-unsigned char *pTgtLockShapePtr; /* 0x005a6bf4 */
+struct Shape *pTgtLockShapePtr; /* 0x005a6bf4 */
 unsigned char *apTextFonts[4]; /* 0x005a6c00 */
 FontWorkspace **apFontWorkspaces[4]; /* 0x005a6c10 */
 FixedVector aDirectionViewRightVector[DIRECTION_VIEW_COUNT]; /* 0x005a6c20 */

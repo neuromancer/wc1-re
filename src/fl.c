@@ -80,7 +80,7 @@ short nFuneralMainDist; /* 0x005a8738 */
 signed char bScrambleCanopyClosed; /* 0x005a873a */
 short nCutsceneFuneralGuardFrame; /* 0x005a873c */
 ShortPoint stScrambleOverlay; /* 0x005a8740 */
-unsigned char *pScrambleOverlayShape; /* 0x005a8744 */
+struct Shape *pScrambleOverlayShape; /* 0x005a8744 */
 
 /* Function start: 0x4060A0 */
 void SetManeuverProximityRange(unsigned short v)

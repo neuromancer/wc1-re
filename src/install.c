@@ -16,7 +16,7 @@ int nPassingShipAudioCooldown; /* 0x005a68e8 */
 int nAllocateViewportCallsValue; /* 0x005a68ec */
 void *pLastPacketAllocation; /* 0x005a68f0 */
 FireworkState aFireworksList[30]; /* 0x005a6900 */
-unsigned char *pFireworkShape; /* 0x005a6a68 */
+struct Shape *pFireworkShape; /* 0x005a6a68 */
 ConstellationStar aConstellationStarsTable[10]; /* 0x005a6a70 */
 
 /* Function start: 0x42C410 */

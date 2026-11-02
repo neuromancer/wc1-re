@@ -31,7 +31,7 @@ static NavMapObjectiveStyle aNavMapObjectiveStyles[10] = {
     { 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
-static unsigned char *pNavMapShape = 0; /* 0x00468708 */
+static struct Shape *pNavMapShape = 0; /* 0x00468708 */
 static short nNavMapLabelCount = 0; /* 0x0046870c */
 static short nNavMapReservedAreaCount = 0; /* 0x00468710 */
 static char szCampaignSector[16] = "Vega XR-231.3"; /* 0x00468718 */
@@ -406,14 +406,14 @@ void DrawNavTriangleMarker(short x, short y, short size, short shadow,
 }
 
 /* Map geometry, text, sprites, and event input. */
-void __stdcall SetMouseCursorShape(unsigned char *shape, short frame);
+void __stdcall SetMouseCursorShape(struct Shape *shape, short frame);
 short __stdcall PollInputEvent(InputEventState *event, short filter);
 void ScaleNavMapCoordinates(short *x, short *y,
                             short mapX, short mapY);
 void ScaleNavMapMarkerSize(short *size);
 void nav_getxy(short *x, short *y, int worldX, int worldZ);
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
-                       unsigned char *shape, short frame);
+                       struct Shape *shape, short frame);
 unsigned int InitializeTextContextFromFont(TextContext *context,
                                            short fontIndex,
                                            unsigned char colour,
@@ -838,7 +838,7 @@ void InflightComputer(void)
     int savedNavPoint;
 #endif
     int frame;
-    unsigned char *background;
+    struct Shape *background;
     InputEventState event;
     Viewport pointerViewport;
     MouseCursorState savedInputState;

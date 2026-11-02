@@ -66,7 +66,7 @@ static int bTitleMenuSceneInitialized = 0; /* 0x00468ad8 */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 short nExternalViewAngle; /* 0x005a7f06 */
-unsigned char *pTitleShape; /* 0x005a7f08 */
+struct Shape *pTitleShape; /* 0x005a7f08 */
 
 /* Function start: 0x40FA30 */
 unsigned short GetPaletteReadyUnused(void)
@@ -142,8 +142,8 @@ int Title_Sequence(void)
     int optionCount;
     short eventType;
     short menuOptions[4];
-    unsigned char *menuShape;
-    unsigned char *alternateMenuShape;
+    struct Shape *menuShape;
+    struct Shape *alternateMenuShape;
     InputEventState event;
     int activate;
     signed char state;

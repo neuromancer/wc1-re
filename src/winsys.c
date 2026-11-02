@@ -73,7 +73,7 @@ int nLeftArrowKeyState; /* 0x00475d1c */
 HWND hMainWindow; /* 0x005a89a0 */
 HANDLE hSingleInstanceSemaphore; /* 0x005a89a4 */
 unsigned long dwGameClockBaseValue; /* 0x005a89a8 */
-GuardedAllocation *pGuardedAllocationTail; /* 0x005a89ac */
+struct GuardedAllocation *pGuardedAllocationTail; /* 0x005a89ac */
 char szMemoryUsage[0x80]; /* 0x005a89b0 */
 
 /* Function start: 0x402E80 */

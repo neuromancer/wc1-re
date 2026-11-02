@@ -22,9 +22,9 @@ static short asPilotHandOffsets[34] = {
     -4, -1, -6, -1, 6, 0, 8, 0, 10, 0, 13, 3, 8, -7,
     6, -9, 5, -11, 5, -14
 };
-unsigned char *pCockpitPilotShape = 0; /* 0x0046905c */
+struct Shape *pCockpitPilotShape = 0; /* 0x0046905c */
 unsigned char *pCockpitExplosionBackground = 0; /* 0x00469060 */
-unsigned char *pCockpitExplosionShape = 0; /* 0x00469064 */
+struct Shape *pCockpitExplosionShape = 0; /* 0x00469064 */
 short nCockpitExplosionFrame = 8; /* 0x00469068 */
 unsigned char *pReleaseWeaponDisplayBackground = 0; /* 0x0046906c */
 static signed char cReleaseWeaponDisplayFrame = -1; /* 0x00469070 */
@@ -82,9 +82,9 @@ static ShortPoint aaCockpitDamagePositions[5][4] = {
     {{74, 10}, {294, 19}, {197, 105}, {105, 134}},
     {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
 };
-unsigned char *pConfedCommBackground = 0; /* 0x00469278 */
-unsigned char *pCommStaticShape = 0; /* 0x0046927c */
-unsigned char *pKilrathiCommBackground = 0; /* 0x00469280 */
+struct Shape *pConfedCommBackground = 0; /* 0x00469278 */
+struct Shape *pCommStaticShape = 0; /* 0x0046927c */
+struct Shape *pKilrathiCommBackground = 0; /* 0x00469280 */
 static int nCommPortraitFrame = -1; /* 0x00469284 */
 static int bForceDamageDisplayRedraw = 0; /* 0x00469288 */
 

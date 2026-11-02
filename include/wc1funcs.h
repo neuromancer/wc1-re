@@ -115,10 +115,10 @@ unsigned int ParseFaceAnimation(char *text, short *commands);           /* 0x004
 unsigned int ParseMouthAnimation(char *text, short *commands);          /* 0x00404D70 */
 char *AddPCName(const char *text);                                      /* 0x00404E10 */
 unsigned int LoadFace(short face);                                      /* 0x004050B0 */
-unsigned int LongTalk(unsigned char *talker, char *text,
+unsigned int LongTalk(struct Shape *talker, char *text,
                       short *mouthCommands, short *faceCommands,
                       short duration);                                 /* 0x00405290 */
-unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
+unsigned int CloseTalk(struct Shape *talker, short mouthFrame,
                        short faceFrame);                               /* 0x004054B0 */
 unsigned int Briefing(short series, short mission);                    /* 0x00405660 */
 unsigned int DeBriefing(short series, short mission);                  /* 0x004056F0 */
@@ -126,7 +126,7 @@ unsigned int Office(void);                                             /* 0x0040
 unsigned int LoadBriefingData(short series, short mission);             /* 0x00405910 */
 unsigned int LoadMissionData(short series, short mission);              /* 0x004059B0 */
 unsigned int UpdateMap(char *text, short duration);                     /* 0x00405CC0 */
-unsigned int CloseLook(unsigned char *shape, short shot,
+unsigned int CloseLook(struct Shape *shape, short shot,
                        short *animation, char *text, short duration,
                        int unused);                                    /* 0x00405DE0 */
 void SetManeuverProximityRange(unsigned short v);                                 /* 0x004060A0 */
@@ -177,13 +177,13 @@ void Mnone(void);                                                       /* 0x004
 void Mreset(short ship);                                                /* 0x004075C0 */
 void perform_maneuver(short obj);                                       /* 0x004075D0 */
 short __stdcall GetShapeFrameExtent(short x, short y,
-                                    unsigned char *shape, short frame,
+                                    struct Shape *shape, short frame,
                                     short extent);                       /* 0x00407710 */
 unsigned int AnimateScrambleWalk(short ticks);                          /* 0x00407750 */
 unsigned int PlayScrambleHangarScene(void);                            /* 0x004079C0 */
 unsigned int DrawScrambleActor(short actorIndex);                      /* 0x00407C90 */
 unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
-                                    short deltaY, unsigned char *shape,
+                                    short deltaY, struct Shape *shape,
                                     short scale, short angle,
                                     signed char flip,
                                     short actorIndex);                 /* 0x00407D90 */
@@ -702,20 +702,20 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
 void SetBunkMenuLabel(short occupied, short side, char **label,
                       short series, short mission, char *description);     /* 0x0041BAD0 */
 void GetBunkInfo(BarracksAnimationState *state);                       /* 0x0041BB20 */
-void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
+void DrawBarracksBunks(Viewport *viewport, struct Shape *shape,
                        BarracksAnimationState *state);                 /* 0x0041BBD0 */
 void DrawBarracksStaticDetails(Viewport *viewport,
-                               unsigned char *shape);                  /* 0x0041BC90 */
-void AnimateBarracks(Viewport *viewport, unsigned char *shape,
+                               struct Shape *shape);                  /* 0x0041BC90 */
+void AnimateBarracks(Viewport *viewport, struct Shape *shape,
                      BarracksAnimationState *state);                   /* 0x0041BCE0 */
 int ConfirmQuitWingCommander(void);                                   /* 0x0041BF10 */
 int ConfirmAwakenAfterBadData(short slot);                             /* 0x0041BF60 */
 int ConfirmReplaceFaultyData(short slot);                              /* 0x0041BFE0 */
 void HandleBarracksBunkSelection(Viewport *viewport,
-                                 unsigned char *shape,
+                                 struct Shape *shape,
                                  BarracksAnimationState *state,
                                  short region);                        /* 0x0041C090 */
-void UpdateBarracksScreen(Viewport *viewport, unsigned char *shape,
+void UpdateBarracksScreen(Viewport *viewport, struct Shape *shape,
                           BarracksAnimationState *state);              /* 0x0041C140 */
 short BarracksScreen(void);                                            /* 0x0041C170 */
 unsigned short __stdcall StepPaletteTransition(short *current,
@@ -1077,7 +1077,7 @@ void ShowTrainSimTextMessage(const char *message);                    /* 0x00426
 void EnterPilotNameAndCallsign(void);                                 /* 0x00426750 */
 void UpdateTrainSimHighScores(int score);                             /* 0x00426820 */
 void ShowTrainSimHighScores(void);                                    /* 0x004268E0 */
-unsigned char *LoadTrainSimOpponentShape(int opponent);               /* 0x00426C50 */
+struct Shape *LoadTrainSimOpponentShape(int opponent);               /* 0x00426C50 */
 short SelectTrainSimMission(short *mission);                           /* 0x00426C70 */
 void RunTrainSim(void);                                                /* 0x00427080 */
 short LogMemoryUsage(void);                                               /* 0x004272F0 */
@@ -1216,7 +1216,7 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
                                           short flags);                /* 0x0042E090 */
 void __stdcall AlignSpriteFrameToRectCorner(
     const ShortRect *rectangle, ShortPoint *position, short corner,
-    unsigned char *shape, short frame);                                /* 0x0042E1D0 */
+    struct Shape *shape, short frame);                                /* 0x0042E1D0 */
 void FadeMusic(void);                                                  /* 0x0042E320 */
 void SetMusicOn(short enabled);                                         /* 0x0042E330 */
 void StopMusic(short unused);                                          /* 0x0042E350 */
@@ -1279,7 +1279,7 @@ void ReleasePacketHandle(void *handle);                               /* 0x0042F
 unsigned int GetFixedOneMillionThunk(short memoryType);                /* 0x0042FB20 */
 unsigned int GetFixedOneMillionThunkAlt(short memoryType);             /* 0x0042FB30 */
 void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
-                             short distance, unsigned char *shape,
+                             short distance, struct Shape *shape,
                              short frame, short type,
                              short scale);                         /* 0x0042FB40 */
 unsigned int ShowCampaignVictorySequence(void);                    /* 0x0042FC00 */
@@ -1415,13 +1415,13 @@ unsigned short __stdcall FontHeight(const void *p);                    /* 0x0043
 unsigned short __stdcall GetFontCharWidth(char i);                                     /* 0x00434FF0 */
 void ReleaseVideoResourcesHook(void);                                           /* 0x00435010 */
 short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
-                                    unsigned char *shape, short frame); /* 0x00435020 */
+                                    struct Shape *shape, short frame); /* 0x00435020 */
 short __stdcall IsPointInRect(short x, short y, const short *rect);       /* 0x00435090 */
 void __stdcall SplitPackedPoint(ShortPoint point, short *p);             /* 0x004350D0 */
 void __stdcall DrawTextString(const char *text);                       /* 0x004350F0 */
 void __stdcall DrawTextCharacter(char character);                    /* 0x00435290 */
 void __stdcall AppendTextCharacter(char character);                  /* 0x00435310 */
-int __stdcall MeasureShapeFrameStorage(unsigned char *shape,
+int __stdcall MeasureShapeFrameStorage(struct Shape *shape,
                                        short frame);                   /* 0x00435340 */
 void ResetTextCursor(void);                                           /* 0x004353F0 */
 unsigned int __stdcall DosFarPtrToNear(void *v);                       /* 0x00435410 */
@@ -1449,7 +1449,7 @@ short __stdcall InitializeEventManager(short period,
                                        void *configuration);           /* 0x00435570 */
 void ShutdownEventManager(void);                                      /* 0x00435590 */
 unsigned short __stdcall ConfigureEventManagerPointer(
-    unsigned char *shape, short frame);                               /* 0x004355A0 */
+    struct Shape *shape, short frame);                               /* 0x004355A0 */
 void __stdcall EventManagerHook(void (*callback)(void));               /* 0x004355C0 */
 void __stdcall SetEventManagerPump(void (*pump)(void));                /* 0x004355D0 */
 void EventManagerControlHook(void);                                    /* 0x004355E0 */
@@ -1478,7 +1478,7 @@ void RestoreMouseCursorBackground(void);                           /* 0x00435FA0
 void RefreshMouseCursorDisplay(void);                              /* 0x00436060 */
 void EnterAllocationScope(void);                                                 /* 0x004360D0 */
 void LeaveAllocationScope(void);                                                 /* 0x004360E0 */
-void __stdcall SetMouseCursorShape(unsigned char *shape, short frame); /* 0x004360F0 */
+void __stdcall SetMouseCursorShape(struct Shape *shape, short frame); /* 0x004360F0 */
 void __stdcall SetMouseHomePosition(short x, short y);                /* 0x00436160 */
 void __stdcall ApplyPackedMousePosition(ShortPoint point);             /* 0x00436190 */
 void __stdcall GetMouseCursorPosition(ShortPoint *point);              /* 0x004361C0 */
@@ -1577,30 +1577,30 @@ unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1, int x2, int y2,
 int FillRasterClipCheckerboard(RasterClip *clip, int left, int top,
                                int right, int bottom,
                                unsigned char colour);                 /* 0x0043A83B */
-int DrawRLEImage(RasterClip *clip, unsigned char *shape, int frame,
+int DrawRLEImage(RasterClip *clip, struct RLEShape *shape, int frame,
                  int x, int y);                                      /* 0x0043A974 */
 int DrawRLEImageUnclipped(RasterClip *clip, RLEFrameHeader *frameHeader,
                           int x, int y,
                           int strideScratch);                         /* 0x0043AD78 */
 void SetPaletteTranslationTable(const unsigned char *translation);    /* 0x0043AE3F */
-int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
+int DrawRLEImageColor(RasterClip *clip, struct RLEShape *shape, int frame,
                       int x, int y);                                 /* 0x0043AE5E */
 int DrawRLEImageColorUnclipped(RasterClip *clip,
                                RLEFrameHeader *frameHeader,
                                int x, int y,
                                int strideScratch);                    /* 0x0043B336 */
-int RotateRLEImage(RasterClip *clip, unsigned char *shape, int frame,
+int RotateRLEImage(RasterClip *clip, struct RLEShape *shape, int frame,
                    int x, int y, unsigned char *scratch,
                    unsigned int angleTenths, int scaleX, int scaleY,
                    unsigned int flags);                              /* 0x0043B469 */
-unsigned int GetRLEFrameBounds(unsigned char *shape, int frame,
+unsigned int GetRLEFrameBounds(struct RLEShape *shape, int frame,
                                int x, int y, unsigned int flags,
                                int *bounds);                          /* 0x0043C015 */
 int EncodeRasterClipToRLEFrame(RasterClip *clip,
                                unsigned char transparentColour,
                                int originX, int originY,
                                unsigned char *output);                /* 0x0043C18D */
-unsigned int TranslateRLEFramePalette(unsigned char *shape,
+unsigned int TranslateRLEFramePalette(struct RLEShape *shape,
                                       int frame);                     /* 0x0043C410 */
 void EncodeRLEScanline(int pixelCount, unsigned char transparentColour,
                        int sourceX);                                  /* 0x0043C4A2 */
@@ -1659,22 +1659,22 @@ unsigned int ExpandGIFLZWImage(RasterClip *clip,
 void CopyGIFPalette(const unsigned char *gifData,
                     unsigned char *palette);                          /* 0x0043EE42 */
 unsigned int GetGIFImageSize(const unsigned char *gifData);           /* 0x0043EEA3 */
-unsigned int GetRLEFrameDimensions(unsigned char *shape,
+unsigned int GetRLEFrameDimensions(struct RLEShape *shape,
                                     int frame);                        /* 0x0043EEDB */
-unsigned int GetRLEFrameExtents(unsigned char *shape,
+unsigned int GetRLEFrameExtents(struct RLEShape *shape,
                                 int frame);                           /* 0x0043EEFD */
-unsigned int GetRLEImageSize(unsigned char *shape, int frame);         /* 0x0043EF20 */
-unsigned int GetRLEImageOrigin(unsigned char *shape, int frame);       /* 0x0043EF54 */
-void ApplyRLEFramePalette(unsigned char *shape, int frame,
+unsigned int GetRLEImageSize(struct RLEShape *shape, int frame);         /* 0x0043EF20 */
+unsigned int GetRLEImageOrigin(struct RLEShape *shape, int frame);       /* 0x0043EF54 */
+void ApplyRLEFramePalette(struct RLEShape *shape, int frame,
                           unsigned char *palette);                    /* 0x0043EF7E */
-unsigned int CopyRLEFramePalette(unsigned char *shape, int frame,
+unsigned int CopyRLEFramePalette(struct RLEShape *shape, int frame,
                                  unsigned char *entries);             /* 0x0043EFC9 */
-unsigned int SetRLEFramePalette(unsigned char *shape, int frame,
+unsigned int SetRLEFramePalette(struct RLEShape *shape, int frame,
                                 const unsigned char *entries);        /* 0x0043F011 */
-unsigned int GetRLEFrameCount(const unsigned char *shape);            /* 0x0043F05B */
-int CollectUniqueRLEImageFrames(const unsigned char *shape,
+unsigned int GetRLEFrameCount(const struct RLEShape *shape);            /* 0x0043F05B */
+int CollectUniqueRLEImageFrames(const struct RLEShape *shape,
                                 unsigned int *frames);                /* 0x0043F06E */
-int CollectUniqueRLEPaletteFrames(const unsigned char *shape,
+int CollectUniqueRLEPaletteFrames(const struct RLEShape *shape,
                                   unsigned int *frames);              /* 0x0043F0D0 */
 void FadeRasterPaletteToPalette(RasterSurface *surface,
                                 const unsigned char *targetPalette,
@@ -1701,17 +1701,17 @@ void ResetCampaignData(void);                                         /* 0x00440
 short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
                                       void *destination,
                                       unsigned int length);            /* 0x00440840 */
-void CheckHeapBlockSignature(unsigned char *shape);                  /* 0x004408A0 */
-unsigned char *GetPreparedShapeData(unsigned char *shape);           /* 0x004408C0 */
-short __stdcall GetShapeFrameCount(unsigned char *shape);            /* 0x004408D0 */
+void CheckHeapBlockSignature(struct Shape *shape);                  /* 0x004408A0 */
+struct RLEShape *GetPreparedShapeData(struct Shape *shape);           /* 0x004408C0 */
+short __stdcall GetShapeFrameCount(struct Shape *shape);            /* 0x004408D0 */
 int SignExtendClipCoord(volatile short v);                             /* 0x00440BE0 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip);                         /* 0x00440C00 */
 void ClipViewportToScreen(Viewport *viewport);                         /* 0x00440CF0 */
 void SetSolidColourTranslation(unsigned char colour);                 /* 0x00440D10 */
-void PrepareShapeRLEData(unsigned char *shape);                        /* 0x00440D50 */
+void PrepareShapeRLEData(struct Shape *shape);                        /* 0x00440D50 */
 void DrawSpriteTransformed(Viewport *viewport, int x, int y,
-                           unsigned char *shape, int frame,
+                           struct Shape *shape, int frame,
                            int angle, int scaleX, int scaleY,
                            int flip, int blendMode);                /* 0x00440FE0 */
 void RasterLineHook(const void *marker);                              /* 0x00441140 */
@@ -1724,15 +1724,15 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
 void __stdcall GetPaletteEntry(short index, short *rgb);                  /* 0x004413C0 */
 void __stdcall SetPaletteEntry(short index, short *rgb);                  /* 0x004413E0 */
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
-                       unsigned char *shape, short frame);          /* 0x00441400 */
+                       struct Shape *shape, short frame);          /* 0x00441400 */
 void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
-                             short x, short y, unsigned char *shape,
+                             short x, short y, struct Shape *shape,
                              short frame);                          /* 0x00441450 */
 void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
-                             short x, short y, unsigned char *shape,
+                             short x, short y, struct Shape *shape,
                              short frame);                          /* 0x00441740 */
 void DrawSolidColourSprite(Viewport *viewport, short x, short y,
-                           unsigned char *shape, short frame,
+                           struct Shape *shape, short frame,
                            short colour);                            /* 0x00441A40 */
 void CopyViewportContents(Viewport *source, Viewport *destination);    /* 0x00441A90 */
 void ClearViewport(Viewport *viewport, short colour);                  /* 0x00441AE0 */
@@ -1762,20 +1762,20 @@ void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
                                short horizontalRadius,
                                short colour);                         /* 0x00441E70 */
 void shadow_draw(Viewport *viewport);                                 /* 0x00441EC0 */
-void DrawShapeFrameScaled(Viewport *viewport, unsigned char *shape,
+void DrawShapeFrameScaled(Viewport *viewport, struct Shape *shape,
                           int frame, int x, int y, int angle,
                           int scale);                                /* 0x00441EF0 */
 void GetShapeFrameCorners(unsigned char *shape, int frame, int x, int y,
                           ShortPoint *corners, int *cornerCount);     /* 0x00441F30 */
 void DrawSpriteScaled(Viewport *viewport, short x, short y,
-                      unsigned char *shape, short frame, short angle,
+                      struct Shape *shape, short frame, short angle,
                       short scale, short flip);                       /* 0x00441FC0 */
 void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
-                                 unsigned char *shape, short frame,
+                                 struct Shape *shape, short frame,
                                  short angle, short scale, short flip,
                                  short colour);                        /* 0x00442000 */
 short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
-                              unsigned char *shape, short frame,
+                              struct Shape *shape, short frame,
                               short angle, short scale, short flip,
                               ShortRect *bounds);                    /* 0x00442050 */
 void BlitViewportScanlineRuns(Viewport *source, Viewport *destination,
@@ -1831,10 +1831,10 @@ unsigned short ix_streamer_get_volume(void);                          /* 0x00443
 /* Graphics-private shape decoders (gr.c takes their addresses). Declared last:
  * their parameter names then precede only the units' own symbols, which every
  * unit but gr.c tolerates and gr.c balances. */
-void GetShapeFrameExtents(unsigned char *shape, short frame,
+void GetShapeFrameExtents(struct Shape *shape, short frame,
                           short *width, short *height,
                           short *leftExtent, short *topExtent);       /* 0x004408F0 */
-void DecodeShapeFrame(unsigned char *shape, short frame,
+void DecodeShapeFrame(struct Shape *shape, short frame,
                       unsigned char *bitmap, int width, int height,
                       int leftExtent, int topExtent);                 /* 0x00440960 */
 

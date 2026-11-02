@@ -198,7 +198,7 @@ int FillRasterClipCheckerboard(RasterClip *clip, int left, int top,
     return 0;
 }
 
-int DrawRLEImage(RasterClip *clip, unsigned char *shape, int frame,
+int DrawRLEImage(RasterClip *clip, struct RLEShape *shape, int frame,
                  int x, int y)
 {
     RasterSurface *surface;
@@ -224,7 +224,7 @@ int DrawRLEImage(RasterClip *clip, unsigned char *shape, int frame,
     clipBottom = clip->bottom < height - 1 ? clip->bottom : height - 1;
     if (clipRight < clipLeft || clipBottom < clipTop)
         return -2;
-    header = (RLEFrameHeader *)(shape + *(int *)(shape + 8 + frame * 8));
+    header = (RLEFrameHeader *)((unsigned char *)shape + shape->frameOffsets[frame][0]);
     if (header->right < header->left || header->bottom < header->top)
         return -4;
     x += clip->left;
@@ -332,7 +332,7 @@ void SetPaletteTranslationTable(const unsigned char *translation)
     memcpy(abRasterPaletteTranslation, translation, 256);
 }
 
-int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
+int DrawRLEImageColor(RasterClip *clip, struct RLEShape *shape, int frame,
                       int x, int y)
 {
     RasterSurface *surface;
@@ -358,7 +358,7 @@ int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
     clipBottom = clip->bottom < height - 1 ? clip->bottom : height - 1;
     if (clipRight < clipLeft || clipBottom < clipTop)
         return -2;
-    header = (RLEFrameHeader *)(shape + *(int *)(shape + 8 + frame * 8));
+    header = (RLEFrameHeader *)((unsigned char *)shape + shape->frameOffsets[frame][0]);
     if (header->right < header->left || header->bottom < header->top)
         return -4;
     x += clip->left;
@@ -513,7 +513,7 @@ void TransformRLEPoint(int *point, int *result, int *origin,
                 (int)((scaledX * sine + scaledY * cosine + 0x8000) >> 16);
 }
 
-int RotateRLEImage(RasterClip *clip, unsigned char *shape, int frame,
+int RotateRLEImage(RasterClip *clip, struct RLEShape *shape, int frame,
                    int x, int y, unsigned char *scratch,
                    unsigned int angleTenths, int scaleX, int scaleY,
                    unsigned int flags)
@@ -560,7 +560,7 @@ int RotateRLEImage(RasterClip *clip, unsigned char *shape, int frame,
                      clip->bottom : destinationHeight - 1;
     if (clipRight < clipLeft || clipBottom < clipTop)
         return -2;
-    header = (RLEFrameHeader *)(shape + *(int *)(shape + 8 + frame * 8));
+    header = (RLEFrameHeader *)((unsigned char *)shape + shape->frameOffsets[frame][0]);
     sourceWidth = header->right - header->left + 1;
     sourceHeight = header->bottom - header->top + 1;
     if (sourceWidth <= 0 || sourceHeight <= 0)
@@ -909,55 +909,55 @@ unsigned int FillRasterEllipse(RasterClip *clip, int x, int y,
     return 0;
 }
 
-unsigned int GetRLEFrameDimensions(unsigned char *shape, int frame)
+unsigned int GetRLEFrameDimensions(struct RLEShape *shape, int frame)
 {
     RLEFrameHeader *header;
     unsigned int dimensions;
 
-    header = (RLEFrameHeader *)(shape + *(int *)(shape + 8 + frame * 8));
+    header = (RLEFrameHeader *)((unsigned char *)shape + shape->frameOffsets[frame][0]);
     memcpy(&dimensions, header, sizeof(dimensions));
     return dimensions;
 }
 
-unsigned int GetRLEFrameExtents(unsigned char *shape, int frame)
+unsigned int GetRLEFrameExtents(struct RLEShape *shape, int frame)
 {
     RLEFrameHeader *header;
     unsigned int extents;
 
-    header = (RLEFrameHeader *)(shape + *(int *)(shape + 8 + frame * 8));
+    header = (RLEFrameHeader *)((unsigned char *)shape + shape->frameOffsets[frame][0]);
     memcpy(&extents, &header->topExtent, sizeof(extents));
     return extents;
 }
 
-unsigned int GetRLEImageSize(unsigned char *shape, int frame)
+unsigned int GetRLEImageSize(struct RLEShape *shape, int frame)
 {
     RLEFrameHeader *header;
     unsigned int width;
     unsigned int height;
 
-    header = (RLEFrameHeader *)(shape + *(int *)(shape + 8 + frame * 8));
+    header = (RLEFrameHeader *)((unsigned char *)shape + shape->frameOffsets[frame][0]);
     width = (unsigned int)(header->right - header->left + 1);
     height = (unsigned int)(header->bottom - header->top + 1);
     return (width << 16) | (height & 0xffff);
 }
 
-unsigned int GetRLEImageOrigin(unsigned char *shape, int frame)
+unsigned int GetRLEImageOrigin(struct RLEShape *shape, int frame)
 {
     RLEFrameHeader *header;
 
-    header = (RLEFrameHeader *)(shape + *(int *)(shape + 8 + frame * 8));
+    header = (RLEFrameHeader *)((unsigned char *)shape + shape->frameOffsets[frame][0]);
     return ((unsigned int)header->left << 16) |
            ((unsigned int)header->top & 0xffff);
 }
 
-void ApplyRLEFramePalette(unsigned char *shape, int frame,
+void ApplyRLEFramePalette(struct RLEShape *shape, int frame,
                           unsigned char *palette)
 {
     unsigned char *entries;
     unsigned int count;
 
-    entries = shape + *(int *)(shape + 12 + frame * 8);
-    if (entries == shape)
+    entries = (unsigned char *)shape + shape->frameOffsets[frame][1];
+    if (entries == (unsigned char *)shape)
         return;
     count = *(unsigned int *)entries;
     entries += 4;
@@ -970,14 +970,14 @@ void ApplyRLEFramePalette(unsigned char *shape, int frame,
     }
 }
 
-unsigned int CopyRLEFramePalette(unsigned char *shape, int frame,
+unsigned int CopyRLEFramePalette(struct RLEShape *shape, int frame,
                                  unsigned char *entries)
 {
     unsigned char *source;
     unsigned int count;
 
-    source = shape + *(int *)(shape + 12 + frame * 8);
-    if (source == shape)
+    source = (unsigned char *)shape + shape->frameOffsets[frame][1];
+    if (source == (unsigned char *)shape)
         return 0;
     count = *(unsigned int *)source;
     if (entries != 0)
@@ -985,14 +985,14 @@ unsigned int CopyRLEFramePalette(unsigned char *shape, int frame,
     return count;
 }
 
-unsigned int SetRLEFramePalette(unsigned char *shape, int frame,
+unsigned int SetRLEFramePalette(struct RLEShape *shape, int frame,
                                 const unsigned char *entries)
 {
     unsigned char *destination;
     unsigned int count;
 
-    destination = shape + *(int *)(shape + 12 + frame * 8);
-    if (destination == shape)
+    destination = (unsigned char *)shape + shape->frameOffsets[frame][1];
+    if (destination == (unsigned char *)shape)
         return 0;
     count = *(unsigned int *)destination;
     if (entries != 0)
@@ -1000,7 +1000,7 @@ unsigned int SetRLEFramePalette(unsigned char *shape, int frame,
     return count;
 }
 
-unsigned int GetRLEFrameCount(const unsigned char *shape)
+unsigned int GetRLEFrameCount(const struct RLEShape *shape)
 {
-    return *(const unsigned int *)(shape + 4);
+    return shape->frameCount;
 }

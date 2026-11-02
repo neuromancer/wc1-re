@@ -45,7 +45,7 @@ short nCommPortraitIndex = -1; /* 0x0046afd0 */
 
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
-unsigned char *apObjShapeArray[SPACE_OBJECT_COUNT]; /* 0x0059d2f0 */
+struct Shape *apObjShapeArray[SPACE_OBJECT_COUNT]; /* 0x0059d2f0 */
 /* The pitch, yaw and roll control inputs (DOS g_inputPitch/Yaw/Roll). */
 ShortVector stRotationInput; /* 0x0059d3f0 */
 short asShipWingLeaderArray[16]; /* 0x0059d400 */

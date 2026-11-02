@@ -13,11 +13,11 @@ TextContext stLeftVduTextContext; /* 0x005a74f0 */
 Viewport stSpaceBufferViewport; /* 0x005a7510 */
 Viewport stRightVduViewport; /* 0x005a7530 */
 Viewport stPilotHandBackdropView; /* 0x005a7550 */
-unsigned char *pCockpitWeaponShapePtr; /* 0x005a7564 */
+struct Shape *pCockpitWeaponShapePtr; /* 0x005a7564 */
 Viewport stCurrentConvTextViewport; /* 0x005a7570 */
 char szDefaultTxtBuf[0xc8]; /* 0x005a7590 */
-unsigned char *pCockpitIndicatorShape; /* 0x005a7658 */
-unsigned char *pCurrentConstellationShape; /* 0x005a765c */
+struct Shape *pCockpitIndicatorShape; /* 0x005a7658 */
+struct Shape *pCurrentConstellationShape; /* 0x005a765c */
 
 /* Function start: 0x42AFA0 */
 void WaitForDebugStep(void)

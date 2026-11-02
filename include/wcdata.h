@@ -393,8 +393,8 @@ typedef struct ObjectTypeData {
     short armorRear;                  /* +0x79 */
     short armorLeft;                  /* +0x7B */
     short armorRight;                 /* +0x7D */
-    unsigned char *shapeSet;          /* +0x7F */
-    unsigned char *shape;             /* +0x83 */
+    struct Shape *shapeSet;          /* +0x7F */
+    struct Shape *shape;             /* +0x83 */
 } ObjectTypeData;
 #pragma pack(pop)
 
@@ -580,17 +580,10 @@ typedef struct MissionHeaderDisk {
 typedef char MissionHeaderDisk_size_must_be_0x18[
     sizeof(MissionHeaderDisk) == 0x18 ? 1 : -1];
 
-/* One packet-backed pointer slot in a scene resource list. */
-#ifdef SDL_PORT
-typedef unsigned char *PackedResourcePointer
-    __attribute__((aligned(1)));
-#endif
+/* Resource lists hold the address of either a shape pointer or another
+ * packet-data pointer. Some slots belong to packed runtime records. */
 typedef struct PacketResourceDescriptor {
-#ifdef SDL_PORT
-    PackedResourcePointer *resource;
-#else
-    unsigned char **resource;
-#endif
+    void *resource;
     short logicalFile;
     short section;
 } PacketResourceDescriptor;
@@ -664,7 +657,7 @@ typedef struct SceneAnimationObject {
     signed char *repeatCursor;        /* +0x0C */
     unsigned short goalFlags;         /* +0x10 */
     short delay;                      /* +0x12 */
-    unsigned char *shape;             /* +0x14 */
+    struct Shape *shape;             /* +0x14 */
     short x;                          /* +0x18 */
     short y;                          /* +0x1A */
     short rotation;                   /* +0x1C */
@@ -694,7 +687,7 @@ typedef struct ScrambleAnimationActor {
     signed char animationFrame;       /* +0x09; -1 disables the script */
     signed char animationState;       /* +0x0A */
     const unsigned short *animation;  /* +0x0B */
-    unsigned char *shape;             /* +0x0F */
+    struct Shape *shape;             /* +0x0F */
     short angle;                      /* +0x13 */
     short scale;                      /* +0x15 */
     signed char flip;                 /* +0x17 */
@@ -929,9 +922,9 @@ typedef struct MissionObjectiveSource {
 /* Four packed resource-cache entries at 0x0059DDF0. */
 typedef struct ObjectResourceSlot {
     signed char type;                 /* +0x00 */
-    unsigned char *shapeSet;          /* +0x01: archive section 0 */
+    struct Shape *shapeSet;          /* +0x01: archive section 0 */
     unsigned char *animation;         /* +0x05: archive section 2 */
-    unsigned char *shape;             /* +0x09: archive section 1 */
+    struct Shape *shape;             /* +0x09: archive section 1 */
 } ObjectResourceSlot;
 #pragma pack(pop)
 

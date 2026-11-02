@@ -30,31 +30,21 @@ signed char acShipPointingModeList[16]; /* 0x0059d790 */
 /* Function start: 0x42FA90 */
 void *AllocateTaggedMemory(int size, unsigned short flags)
 {
-    unsigned int *memory;
+    struct TaggedAllocationHeader *memory;
     unsigned short tagged;
 
     tagged = flags & 0x40;
-#ifdef SDL_PORT
     if (tagged != 0)
-        size += 8 + sizeof(unsigned char *);
-#else
-    if (tagged != 0)
-        size += 8;
-#endif
+        size += sizeof(struct TaggedAllocationHeader);
     memory = AllocateGuardedMemory(size);
     if (tagged != 0) {
 #ifdef SDL_PORT
-        *(unsigned char **)memory = 0;
-        memcpy((unsigned char *)memory + sizeof(unsigned char *),
-               abTaggedAllocationPrefix,
+        memory->preparedShape = 0;
+#endif
+        memcpy(&memory->signature, abTaggedAllocationPrefix,
                sizeof(abTaggedAllocationPrefix));
         memory = PushMemoryStackFrame(
-            memory, -(int)(8 + sizeof(unsigned char *)));
-#else
-        memcpy(memory, abTaggedAllocationPrefix,
-               sizeof(abTaggedAllocationPrefix));
-        memory = PushMemoryStackFrame(memory, -8);
-#endif
+            memory, -(int)sizeof(struct TaggedAllocationHeader));
     }
     return memory;
 }
@@ -96,7 +86,7 @@ unsigned int GetFixedOneMillionThunkAlt(short memoryType)
 
 /* Function start: 0x42FB40 */
 void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
-                             short distance, unsigned char *shape,
+                             short distance, struct Shape *shape,
                              short frame, short type, short scale)
 {
     (void)unusedPitch;
@@ -146,8 +136,8 @@ unsigned int ShowCampaignVictorySequence(void)
 {
     short slot;
     CampaignVictoryProjectile projectiles[16];
-    unsigned char *planetShape;
-    unsigned char *projectileShape;
+    struct Shape *planetShape;
+    struct Shape *projectileShape;
     const ShortVector *origin;
     short planetObject;
     short spawnCountdown;
@@ -380,7 +370,7 @@ unsigned int ShowCampaignVictorySequence(void)
 /* Function start: 0x430150 */
 unsigned int ShowTigerClawEscapeScene(void)
 {
-    unsigned char *escapeShape;
+    struct Shape *escapeShape;
     FixedVector jumpOffset;
     short approachStep;
     short frame;

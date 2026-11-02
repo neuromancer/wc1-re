@@ -162,6 +162,6 @@ unsigned char abGifInterlaceRowStarts[5] = { /* 0x0046ff23 */
 };
 RasterClip *pGifRasterTarget; /* 0x0046ff28 */
 unsigned char abRasterPaletteTranslation[256]; /* 0x0046ff2c */
-RLETransformVertex aRLETransformVertices[4]; /* 0x0047002c */
+struct RLETransformVertex aRLETransformVertices[4]; /* 0x0047002c */
 int anRLESourceSteps[4]; /* 0x0047007c */
 #endif

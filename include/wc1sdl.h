@@ -229,9 +229,10 @@ void SdlCompleteSpaceFrame(void);
 void SdlCancelSpaceFrame(void);
 void SdlSetThrusterScreenPosition(short object, float x, float y);
 void SdlGetThrusterScreenPosition(short object, float *x, float *y);
+struct Shape;
 int SdlRecordSpaceSprite(
     const struct Viewport *viewport, float x, float y,
-    unsigned char *shape, short frame, short angle, short scale,
+    struct Shape *shape, short frame, short angle, short scale,
     short flip);
 int SdlSetCursorPosition(int x, int y);
 BOOL SdlReadJoystick(unsigned int device, JOYINFO *information);

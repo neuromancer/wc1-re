@@ -101,17 +101,17 @@ short bSceneAnimationWaitCommand = 0; /* 0x00469d70 */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 unsigned char *pSceneAnimationSceneDataPtr; /* 0x005a7c54 */
-unsigned char *pCurrentSceneAnimationPrimaryShape; /* 0x005a7c58 */
+struct Shape *pCurrentSceneAnimationPrimaryShape; /* 0x005a7c58 */
 unsigned char *pSceneAnimationTextData; /* 0x005a7c5c */
 unsigned char *pSceneAnimationPacketPtr; /* 0x005a7c60 */
 SceneAnimationObject *pSceneAnimationObjects; /* 0x005a7c64 */
 short nSceneAnimationDelayFrames; /* 0x005a7c68 */
 unsigned char *pSceneAnimationDefinitionsPtr; /* 0x005a7c6c */
-unsigned char *pSceneAnimationSecondaryShape; /* 0x005a7c70 */
+struct Shape *pSceneAnimationSecondaryShape; /* 0x005a7c70 */
 signed char cCockpitLogicalFile; /* 0x005a7c74 */
-unsigned char *apCockpitShapesList[4]; /* 0x005a7c80 */
-unsigned char *pCinematicViewBackdropPtr; /* 0x005a7c90 */
-unsigned char *pLogicRearViewBackdropPtr; /* 0x005a7c94 */
+struct Shape *apCockpitShapesList[4]; /* 0x005a7c80 */
+struct Shape *pCinematicViewBackdropPtr; /* 0x005a7c90 */
+struct Shape *pLogicRearViewBackdropPtr; /* 0x005a7c94 */
 int bCurrentPlayerDestroyed; /* 0x005a7c98 */
 short nPlayerKillTotal; /* 0x005a7c9c */
 
@@ -853,7 +853,7 @@ unsigned int __stdcall GetPacketSize(const char *filename,
 void __stdcall SetPaletteEntry(short index, short *rgb);
 void ClearViewport(Viewport *viewport, short colour);
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
-                       unsigned char *shape, short frame);
+                       struct Shape *shape, short frame);
 void ReleasePacketHandle(void *handle);
 
 /* Function start: 0x422F80 */
@@ -1400,14 +1400,16 @@ int LoadShapeSet(PacketResourceDescriptor *resources,
                  unsigned short flags, short defaultLogicalFile)
 {
     while (resources->resource != 0) {
-        if (*resources->resource == 0) {
+        if (*(PackedResourcePointer *)resources->resource == 0) {
             if (resources->logicalFile == -1)
-                *resources->resource = FetchDiskPacketRetrying(
-                    defaultLogicalFile, resources->section, flags);
+                *(PackedResourcePointer *)resources->resource =
+                    FetchDiskPacketRetrying(
+                        defaultLogicalFile, resources->section, flags);
             else
-                *resources->resource = FetchDiskPacketRetrying(
-                    resources->logicalFile, resources->section, flags);
-            if (*resources->resource == 0)
+                *(PackedResourcePointer *)resources->resource =
+                    FetchDiskPacketRetrying(
+                        resources->logicalFile, resources->section, flags);
+            if (*(PackedResourcePointer *)resources->resource == 0)
                 return 0;
         }
         resources++;
@@ -1420,7 +1422,7 @@ int FreeShapeSet(PacketResourceDescriptor *resources,
                  unsigned short releaseFlags)
 {
     while (resources->resource != 0) {
-        if (*resources->resource != 0)
+        if (*(PackedResourcePointer *)resources->resource != 0)
             FreePacketAndClear(resources->resource, releaseFlags);
         resources++;
     }
@@ -1434,18 +1436,18 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
     int packetSize;
 
     while (resources->resource != 0) {
-        if (*resources->resource == 0) {
+        if (*(PackedResourcePointer *)resources->resource == 0) {
             PromptInsertNumberedDisk(resources->logicalFile);
             packetSize = (int)GetPacketSize(
                 pDiskFileRecords[
                     resources->logicalFile].name,
                 resources->section);
             if (packetSize < availableBytes) {
-                *resources->resource =
+                *(PackedResourcePointer *)resources->resource =
                     FetchDiskPacketRetrying(
                         resources->logicalFile, resources->section,
                         (unsigned short)flags);
-                if (*resources->resource == 0)
+                if (*(PackedResourcePointer *)resources->resource == 0)
                     return availableBytes;
                 availableBytes -= packetSize;
             }
@@ -1483,7 +1485,7 @@ unsigned int ResetCockpitPaletteEntries(void)
 unsigned int initialize_cockpit(int requestedMode)
 {
     Viewport savedScreen;
-    unsigned char *backdrop;
+    struct Shape *backdrop;
     signed char mode;
     unsigned int result;
 
@@ -1588,7 +1590,7 @@ unsigned int initialize_cockpit(int requestedMode)
                     DIBslamReal();
                 }
             } else {
-                unsigned char *cinematicBackdrop;
+                struct Shape *cinematicBackdrop;
 
                 cinematicBackdrop = FetchDiskPacketRetrying(8, 6, 0);
                 DrawSpriteDefault(&stScreenView, 0, 0, cinematicBackdrop, 0);

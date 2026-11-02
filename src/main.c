@@ -100,7 +100,7 @@ static int nDrawDelta; /* 0x00476548 */
 /* Linker commons defined here; LINK orders them by identifier hash. */
 int nDmgDispState; /* 0x005a77e0 */
 int nDamageDisplayPhase; /* 0x005a77e4 */
-unsigned char *pLaunchDoorShape; /* 0x005a77e8 */
+struct Shape *pLaunchDoorShape; /* 0x005a77e8 */
 unsigned int nCurrentFrameTimerIdValue; /* 0x005a77ec */
 unsigned char abPaletteTripletsArray[256][3]; /* 0x005a77f0 */
 InputDeviceSample stPreviousFlightInput; /* 0x005a7af0 */

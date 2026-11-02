@@ -43,12 +43,18 @@
     do { if ((surface) != 0) { IDirectDrawSurface_Release(surface); (surface) = 0; } } while (0)
 
 /* --------------------------------------------------------------------------
- * Original 16-bit-era type spellings.
+ * Shared packet declarations and the retained DOS word spelling.
  * -------------------------------------------------------------------------- */
-typedef short          INT16;
+struct RLEShape;
 typedef unsigned short UINT16;
-typedef unsigned char  UINT8;
-typedef signed char    INT8;
+/* Heterogeneous packet lists hold pointer slots, including unaligned slots
+ * in packed runtime records. Shapes are opaque to the C++ audio/console units. */
+typedef void *PackedResourcePointer
+#ifdef SDL_PORT
+    __attribute__((aligned(1)))
+#endif
+;
+struct Shape;
 
 typedef struct IxSound IxSound;
 typedef struct IxSample IxSample;
@@ -96,6 +102,17 @@ typedef struct Viewport {
 #define SPRITE_ROW_OFFSET(viewport, row) viewport->rowOffsets[row]
 #endif
 
+/* Loaded shape packet: a leading dword followed by a variable-length offset
+ * table. Offsets are relative to the packet, and the low word of its first
+ * entry also marks the end of the table. The one-element tail is the
+ * variable-array spelling supported by VC++ 4.20. */
+#ifndef __cplusplus
+struct Shape {
+    unsigned int field_0;            /* +0x00: not read by the shape helpers */
+    int frameOffsets[1];             /* +0x04 */
+};
+#endif
+
 /* The event manager snapshots these 28 bytes with seven MOVSD operations.
  * The unaligned pointer fields and reserved spans are fixed by the original
  * addresses at 0x0059AB10-0x0059AB2B. */
@@ -107,7 +124,7 @@ typedef struct MouseCursorState {
     unsigned char secondaryButton;       /* +0x05 */
     unsigned char reserved;              /* +0x06 */
     unsigned short flags;                /* +0x07 */
-    unsigned char *shape;                /* +0x09 */
+    struct Shape *shape;                 /* +0x09 */
     unsigned short frame;                /* +0x0D */
     unsigned int reservedAfterFrame;     /* +0x0F */
     Viewport *viewport;                  /* +0x13 */
@@ -174,16 +191,40 @@ typedef struct RasterClip {
     int bottom;
 } RasterClip;
 
+/* The packet's frames start with four signed extents; their byte offsets
+ * need not be aligned. The encoded scanline stream follows these eight bytes. */
+#pragma pack(push, 1)
+#ifndef __cplusplus
+struct ShapeFrame {
+    short right;                    /* +0x00 */
+    short left;                     /* +0x02 */
+    short top;                      /* +0x04 */
+    short bottom;                   /* +0x06 */
+};
+#endif
+#pragma pack(pop)
+
 /* One transformed corner used by the hand-written RLE scan converter.  The
  * third word is deliberately unused; the retail workspace advances through
  * these records with a 20-byte stride. */
-typedef struct RLETransformVertex {
+struct RLETransformVertex {
     int destinationX;
     int destinationY;
     int reserved;
     int sourceX;
     int sourceY;
-} RLETransformVertex;
+};
+
+/* Prepared renderer cache, identified by the literal "1.00" at 0x00470D30.
+ * Each frame has an image offset followed by an optional palette offset.
+ * Both offsets are relative to the cache, not native pointers. */
+#ifndef __cplusplus
+struct RLEShape {
+    char version[4];                 /* +0x00 */
+    int frameCount;                  /* +0x04 */
+    int frameOffsets[1][2];          /* +0x08: image, palette */
+};
+#endif
 
 /* Cached shape frames use the renderer's row-oriented RLE representation.
  * The four signed bounds are relative to the shape origin; the byte stream
@@ -309,13 +350,29 @@ typedef struct ActiveSoundEntry {
     struct ActiveSoundEntry *next;
 } ActiveSoundEntry;
 
+/* Metadata preceding a tagged allocation, outside the on-disk packet.
+ * The SDL port stores its wider cache pointer before the legacy prefix. */
+#ifndef __cplusplus
+struct TaggedAllocationHeader {
+#ifdef SDL_PORT
+    struct RLEShape *preparedShape;
+#endif
+    unsigned int signature;         /* packet - 8: 'jeff' */
+#ifdef SDL_PORT
+    unsigned int reserved;
+#else
+    struct RLEShape *preparedShape;   /* packet - 4 */
+#endif
+};
+#endif
+
 /* Metadata for allocations surrounded by the 0x400-byte 0xAB guard regions
  * checked by ReportHeapGuardCorruption. */
-typedef struct GuardedAllocation {
+struct GuardedAllocation {
     void *block;
     unsigned int size;
     struct GuardedAllocation *next;
-} GuardedAllocation;
+};
 
 /* Win32 developer console.  The constructor/destructor and member-call ABI in
  * the shipped image identify this small utility as C++ even though the game

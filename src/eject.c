@@ -26,16 +26,16 @@ static const char *pStrandedMessage =
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 char szSoundDebugMsg[512]; /* 0x005a8760 */
-unsigned char *pIntroFont; /* 0x005a8960 */
+struct Shape *pIntroFont; /* 0x005a8960 */
 
 /* Function start: 0x4046A0 */
 unsigned int ejection_sequence(void)
 {
     FixedVector viewOffset;
     short frame;
-    unsigned char *background;
+    struct Shape *background;
     short y;
-    unsigned char *ejectionShape;
+    struct Shape *ejectionShape;
     short descentSpeed;
     short spriteFrame;
 

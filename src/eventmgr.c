@@ -563,7 +563,7 @@ void LeaveAllocationScope(void)
 }
 
 /* Function start: 0x4360F0 */
-void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
+void __stdcall SetMouseCursorShape(struct Shape *shape, short frame)
 {
     stMouseCursorState.shapeChanged = 1;
     if (stMouseCursorState.viewport != 0 &&
@@ -896,7 +896,7 @@ void draw_sorted_objects_to_buffer(void)
     int *sortedEntry;
     int obj;
     int objectClass;
-    unsigned char *shape;
+    struct Shape *shape;
     short screenY;
     short screenX;
     int specialObject;
@@ -958,13 +958,13 @@ void draw_sorted_objects_to_buffer(void)
             default: {
                 short objectX;
                 short objectY;
-                unsigned char *objectShape;
+                struct Shape *objectShape;
 
                 objectX = asObjectScreenXList[obj];
                 objectY = *(short volatile *)&asObjectScreenYArray[obj];
                 objectX = (short)(objectX +
                                   nCurrentViewCenterPosX);
-                objectShape = *(unsigned char *volatile *)&apObjShapeArray[obj];
+                objectShape = *(struct Shape *volatile *)&apObjShapeArray[obj];
                 asObjectDrawPosX[obj] = objectX;
                 objectY = (short)(objectY +
                                   nCurrentViewCenterPosY);
@@ -1034,7 +1034,7 @@ void draw_sorted_objects_to_buffer(void)
 /* Function start: 0x436650 */
 void intro_drawbackgroundships(void)
 {
-    unsigned char *shape;
+    struct Shape *shape;
     int objectClass;
     int obj;
 

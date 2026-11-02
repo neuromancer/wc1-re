@@ -95,7 +95,7 @@ int nJoystickCalibrationMinimumX; /* 0x0059df68 */
 int nJoystickCalibrationMaximumX; /* 0x0059df6c */
 int nJoystickCalibrationMaxY; /* 0x0059df70 */
 unsigned short awPalEntryAllocation[256]; /* 0x0059df80 */
-unsigned char *apCommunicationPortraitShapesTable[16]; /* 0x0059e180 */
+struct Shape *apCommunicationPortraitShapesTable[16]; /* 0x0059e180 */
 char szHudMessageBuf[0x60]; /* 0x0059e1c0 */
 char *aapszPilotSpeeches[14][11]; /* 0x0059e220 */
 signed char abCommMenuChoiceCommands[7]; /* 0x0059e488 */

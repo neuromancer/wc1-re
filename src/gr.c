@@ -121,32 +121,32 @@ static unsigned short aawAbsoluteTrig[2][360] = {
  * changes no address. */
 
 /* Function start: 0x4408A0 */
-void CheckHeapBlockSignature(unsigned char *shape)
+void CheckHeapBlockSignature(struct Shape *shape)
 {
     /* Expression statement rather than if: same code, one label fewer. */
-    *(int *)(shape - 8) != 0x6666656a &&
+    ((struct TaggedAllocationHeader *)shape)[-1].signature != 0x6666656a &&
         (exit_squadron("not jefftep"), 0);
 }
 
 /* Function start: 0x4408C0 */
-unsigned char *GetPreparedShapeData(unsigned char *shape)
+struct RLEShape *GetPreparedShapeData(struct Shape *shape)
 {
-#ifdef SDL_PORT
-    return *(unsigned char **)(shape - 8 - sizeof(unsigned char *));
-#else
-    return *(unsigned char **)(shape - 4);
-#endif
+    return ((struct TaggedAllocationHeader *)shape)[-1].preparedShape;
 }
 
 /* Function start: 0x4408D0 */
-short __stdcall GetShapeFrameCount(unsigned char *shape)
+short __stdcall GetShapeFrameCount(struct Shape *shape)
 {
     CheckHeapBlockSignature(shape);
-    return (short)((*(unsigned short *)(shape + 4) >> 2) - 1);
+#ifdef SDL_PORT
+    return (short)(((unsigned short)shape->frameOffsets[0] >> 2) - 1);
+#else
+    return (short)((*(unsigned short *)&shape->frameOffsets[0] >> 2) - 1);
+#endif
 }
 
 /* Function start: 0x4408F0 */
-void GetShapeFrameExtents(unsigned char *shape, short frame,
+void GetShapeFrameExtents(struct Shape *shape, short frame,
                           short *width, short *height,
                           short *leftExtent, short *topExtent)
 {
@@ -159,18 +159,19 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
     short *frameHeader;
 #endif
 #ifdef SDL_PORT
-    short frameExtents[4];
+    struct ShapeFrame frameExtents;
 #endif
 
     frameOffset = (int)(short)(frame * 4 + 4);
 #ifdef SDL_PORT
-    if (frameOffset < (int)*(unsigned short *)(shape + 4)) {
-        memcpy(frameExtents, shape + *(int *)(shape + frameOffset),
+    if (frameOffset < (int)(unsigned short)shape->frameOffsets[0]) {
+        memcpy(&frameExtents, (unsigned char *)shape +
+               *(int *)((unsigned char *)shape + frameOffset),
                sizeof(frameExtents));
-        rightExtent = frameExtents[0];
-        left = frameExtents[1];
-        top = frameExtents[2];
-        bottom = frameExtents[3];
+        rightExtent = frameExtents.right;
+        left = frameExtents.left;
+        top = frameExtents.top;
+        bottom = frameExtents.bottom;
         *width = (short)(left + rightExtent + 1);
         *height = (short)(top + bottom + 1);
         *leftExtent = (short)left;
@@ -178,9 +179,12 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
     }
 #else
     /* One expression statement, like CheckHeapBlockSignature's test: CL 4.20
-     * gives it no label, which keeps DecodeShapeFrame's symbol context. */
-    frameOffset < (int)*(unsigned short *)(shape + 4) &&
-        (frameHeader = (short *)(shape + *(int *)(shape + frameOffset)),
+     * gives it no label, which keeps DecodeShapeFrame's symbol context.
+     * Walk the contiguous extent words: the original retains two cursor
+     * increments even after loading all four values. */
+    frameOffset < (int)(unsigned short)shape->frameOffsets[0] &&
+        (frameHeader = &((struct ShapeFrame *)((unsigned char *)shape +
+            *(int *)((unsigned char *)shape + frameOffset)))->right,
          rightExtent = *frameHeader++,
          left = *frameHeader++,
          top = *frameHeader++,
@@ -193,7 +197,7 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
 }
 
 /* Function start: 0x440960 */
-void DecodeShapeFrame(unsigned char *shape, short frame,
+void DecodeShapeFrame(struct Shape *shape, short frame,
                       unsigned char *bitmap, int width, int height,
                       int leftExtent, int topExtent)
 {
@@ -219,12 +223,13 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
     if (shape == 0 || frame < 0)
         return;
     frameOffset = (int)(short)(frame * 4 + 4);
-    if (frameOffset >= (int)*(unsigned short *)(shape + 4))
+    if (frameOffset >= (int)(unsigned short)shape->frameOffsets[0])
         return;
 
     maximumX = (short)(width - 1);
     maximumY = (short)(height - 1);
-    commands = shape + *(int *)(shape + frameOffset) + 8;
+    commands = (unsigned char *)shape +
+        *(int *)((unsigned char *)shape + frameOffset) + sizeof(struct ShapeFrame);
 #ifdef SDL_PORT
     memcpy(&rowCode, commands, sizeof(rowCode));
 #else
@@ -402,12 +407,12 @@ void SetSolidColourTranslation(unsigned char colour)
 static unsigned char abShapeRLEBuffer[0x100000]; /* 0x00497748 */
 
 /* Function start: 0x440D50 */
-void PrepareShapeRLEData(unsigned char *shape)
+void PrepareShapeRLEData(struct Shape *shape)
 {
-    void (*getExtents)(unsigned char *, short index,
+    void (*getExtents)(struct Shape *, short index,
                        short *width, short *height,
                        short *left, short *top) = GetShapeFrameExtents;
-    void (*decodeFrame)(unsigned char *, short, unsigned char *,
+    void (*decodeFrame)(struct Shape *, short, unsigned char *,
                         int, int, int, int) = DecodeShapeFrame;
     unsigned char *bitmap;
     unsigned char *pixel;
@@ -510,25 +515,20 @@ void PrepareShapeRLEData(unsigned char *shape)
     if ((int)(output - abShapeRLEBuffer) > (int)sizeof(abShapeRLEBuffer))
         exit_squadron("qq copy overflow");
     {
-        unsigned char *preparedShape;
+        struct RLEShape *preparedShape;
 
         preparedShape = AllocateTaggedMemory(
             (int)(output - abShapeRLEBuffer), 0);
         memcpy(preparedShape, abShapeRLEBuffer,
                (int)(output - abShapeRLEBuffer));
-#ifdef SDL_PORT
-        memcpy(shape - 8 - sizeof(unsigned char *), &preparedShape,
-               sizeof(preparedShape));
-#else
-        memcpy(shape - sizeof(preparedShape), &preparedShape,
-               sizeof(preparedShape));
-#endif
+        memcpy(&((struct TaggedAllocationHeader *)shape)[-1].preparedShape,
+               &preparedShape, sizeof(preparedShape));
     }
 }
 
 /* Function start: 0x440FE0 */
 void DrawSpriteTransformed(Viewport *viewport, int x, int y,
-                           unsigned char *shape, int frame,
+                           struct Shape *shape, int frame,
                            int angle, int scaleX, int scaleY,
                            int flip, int blendMode)
 {
@@ -706,7 +706,7 @@ void __stdcall SetPaletteEntry(short index, short *rgb)
 
 /* Function start: 0x441400 */
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
-                       unsigned char *shape, short frame)
+                       struct Shape *shape, short frame)
 {
     if (shape != 0 && frame >= 0)
         DrawSpriteTransformed(viewport, x, y, shape, frame,
@@ -715,7 +715,7 @@ void DrawSpriteDefault(Viewport *viewport, short x, short y,
 
 /* Function start: 0x441450 */
 void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
-                             short x, short y, unsigned char *shape,
+                             short x, short y, struct Shape *shape,
                              short frame)
 {
     short copyLength;
@@ -746,13 +746,14 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
         return;
     frame++;
     frame <<= 2;
-    if (*(unsigned short *)(shape + 4) > frame) {
+    if ((unsigned short)shape->frameOffsets[0] > frame) {
         minimumX = viewport->left;
         maximumX = viewport->right;
         minimumY = viewport->top;
         maximumY = viewport->bottom;
-        commands = shape + *(int *)(frame + shape);
-        commands += 8;
+        commands = (unsigned char *)shape +
+            *(int *)(frame + (unsigned char *)shape);
+        commands += sizeof(struct ShapeFrame);
         pixels = viewport->pixels;
 #ifdef SDL_PORT
         memcpy(&rowCode, commands, sizeof(rowCode));
@@ -860,7 +861,7 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
 
 /* Function start: 0x441740 */
 void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
-                             short x, short y, unsigned char *shape,
+                             short x, short y, struct Shape *shape,
                              short frame)
 {
     short copyLength;
@@ -891,14 +892,15 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
         return;
     frame++;
     frame <<= 2;
-    if (*(unsigned short *)(shape + 4) <= frame)
+    if ((unsigned short)shape->frameOffsets[0] <= frame)
         goto refreshScreen;
     minimumX = viewport->left;
     maximumX = viewport->right;
     minimumY = viewport->top;
     maximumY = viewport->bottom;
-    commands = shape + *(int *)(frame + shape);
-    commands += 8;
+    commands = (unsigned char *)shape +
+        *(int *)(frame + (unsigned char *)shape);
+    commands += sizeof(struct ShapeFrame);
     pixels = viewport->pixels;
 #ifdef SDL_PORT
     memcpy(&rowCode, commands, sizeof(rowCode));
@@ -1011,7 +1013,7 @@ refreshScreen:
 
 /* Function start: 0x441A40 */
 void DrawSolidColourSprite(Viewport *viewport, short x, short y,
-                           unsigned char *shape, short frame,
+                           struct Shape *shape, short frame,
                            short colour)
 {
     SetSolidColourTranslation((unsigned char)colour);
@@ -1194,7 +1196,7 @@ void shadow_draw(Viewport *viewport)
 }
 
 /* Function start: 0x441EF0 */
-void DrawShapeFrameScaled(Viewport *viewport, unsigned char *shape,
+void DrawShapeFrameScaled(Viewport *viewport, struct Shape *shape,
                           int frame, int x, int y, int angle, int scale)
 {
     if (shape != 0 && frame >= 0)
@@ -1217,7 +1219,7 @@ void GetShapeFrameCorners(unsigned char *shape, int frame, int x, int y,
     int frameOffset;
 
     *cornerCount = 0;
-    CheckHeapBlockSignature(shape);
+    CheckHeapBlockSignature((struct Shape *)shape);
     frame++;
     frame <<= 2;
     frameOffset = frame;
@@ -1252,7 +1254,7 @@ void GetShapeFrameCorners(unsigned char *shape, int frame, int x, int y,
 
 /* Function start: 0x441FC0 */
 void DrawSpriteScaled(Viewport *viewport, short x, short y,
-                      unsigned char *shape, short frame, short angle,
+                      struct Shape *shape, short frame, short angle,
                       short scale, short flip)
 {
     DrawSpriteTransformed(viewport, x, y, shape, frame, angle,
@@ -1261,7 +1263,7 @@ void DrawSpriteScaled(Viewport *viewport, short x, short y,
 
 /* Function start: 0x442000 */
 void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
-                                 unsigned char *shape, short frame,
+                                 struct Shape *shape, short frame,
                                  short angle, short scale, short flip,
                                  short colour)
 {
@@ -1272,11 +1274,11 @@ void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
 
 /* Function start: 0x442050 */
 short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
-                              unsigned char *shape, short frame,
+                              struct Shape *shape, short frame,
                               short angle, short scale, short flip,
                               ShortRect *bounds)
 {
-    unsigned char *cursor;
+    struct ShapeFrame *cursor;
     int frameOffset;
     int frameLeft;
     int frameRight;
@@ -1307,15 +1309,16 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
     }
     CheckHeapBlockSignature(shape);
     frameOffset = frame;
-    cursor = shape;
+    cursor = (struct ShapeFrame *)shape;
     frameOffset++;
     frameOffset <<= 2;
-    if (*(unsigned short *)(cursor + 4) >= frameOffset) {
-        cursor += *(int *)(frameOffset + cursor);
-        frameRight = *(short *)(cursor + 2);
-        frameLeft = *(short *)cursor;
-        frameTop = *(short *)(cursor + 4);
-        frameBottom = *(short *)(cursor + 6);
+    if ((unsigned short)shape->frameOffsets[0] >= frameOffset) {
+        cursor = (struct ShapeFrame *)((unsigned char *)cursor +
+            *(int *)(frameOffset + (unsigned char *)cursor));
+        frameRight = cursor->left;
+        frameLeft = cursor->right;
+        frameTop = cursor->top;
+        frameBottom = cursor->bottom;
         cosine = aawAbsoluteTrig[0][angle] * scale;
         cosine >>= 8;
         sine = aawAbsoluteTrig[1][angle] * scale;
@@ -1612,7 +1615,7 @@ Viewport stRoomScreenViewport; /* 0x005988a0 */
 short nSavedRoomCtrlX; /* 0x005988b4 */
 unsigned char *pRecRoomRoster; /* 0x005988b8 */
 unsigned char *pMissionCampaignInfo; /* 0x005988bc */
-unsigned char *apRecRoomFigureShapes[3]; /* 0x005988c0 */
+struct Shape *apRecRoomFigureShapes[3]; /* 0x005988c0 */
 PilotRecord aPilotEntriesList[9]; /* 0x005988d0 */
 ConstellationObjectDefinition *pConstellationDefinitionsPtr; /* 0x00598a28 */
 PilotRecord *apWingmanPilotsList[8]; /* 0x00598a30 */

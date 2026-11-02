@@ -49,7 +49,7 @@ char szMainWindowTitle[] = "Wing Commander"; /* 0x00465098 */
 
 int bWindowMessagePumpActive = 0; /* 0x004650A8 */
 volatile unsigned int bF1KeyLatch = 0; /* 0x004650AC */
-GuardedAllocation *pGuardedAllocationHead = 0; /* 0x004650B0 */
+struct GuardedAllocation *pGuardedAllocationHead = 0; /* 0x004650B0 */
 
 HDC hMainWindowDC; /* 0x005a8a30 */
 HCURSOR hPrevPointer; /* 0x005a8a34 */
@@ -1149,11 +1149,11 @@ void *AllocateGuardedMemory(unsigned int size)
 {
     if (pGuardedAllocationHead == 0) {
         pGuardedAllocationHead =
-            malloc(sizeof(GuardedAllocation));
+            malloc(sizeof(struct GuardedAllocation));
         pGuardedAllocationTail = pGuardedAllocationHead;
     } else {
         pGuardedAllocationTail->next =
-            malloc(sizeof(GuardedAllocation));
+            malloc(sizeof(struct GuardedAllocation));
         pGuardedAllocationTail = pGuardedAllocationTail->next;
     }
     pGuardedAllocationTail->next = 0;
@@ -1208,7 +1208,7 @@ void ReportHeapGuardCorruption(void *memory, int count, int overrun)
 /* Function start: 0x402D40 */
 void CheckAllGuardedAllocations(void)
 {
-    GuardedAllocation *allocation = pGuardedAllocationHead;
+    struct GuardedAllocation *allocation = pGuardedAllocationHead;
     void *block;
 #ifdef SDL_PORT
     unsigned char *guard;
@@ -1275,8 +1275,8 @@ void CheckAllGuardedAllocations(void)
 /* Function start: 0x402DB0 */
 void FreeGuardedAllocation(void *memory)
 {
-    GuardedAllocation *allocation = pGuardedAllocationHead;
-    GuardedAllocation *previous = 0;
+    struct GuardedAllocation *allocation = pGuardedAllocationHead;
+    struct GuardedAllocation *previous = 0;
     void *block = (unsigned char *)memory - 0x400;
     int i;
 #ifdef SDL_PORT

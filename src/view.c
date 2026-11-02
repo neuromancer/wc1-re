@@ -833,7 +833,7 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
 /* Function start: 0x42E1D0 */
 void __stdcall AlignSpriteFrameToRectCorner(
     const ShortRect *rectangle, ShortPoint *position, short corner,
-    unsigned char *shape, short frame)
+    struct Shape *shape, short frame)
 {
     ShortRect frameBounds;
     short x;

@@ -157,7 +157,7 @@ typedef struct GlVertex {
 } GlVertex;
 
 typedef struct GlCachedFrame {
-    unsigned char *shape;
+    struct Shape *shape;
     int dataOffset;
     int width;
     int height;
@@ -607,7 +607,7 @@ static void UploadIndexTexture(GLuint texture, int width, int height,
                              GL_UNSIGNED_BYTE, pixels);
 }
 
-static unsigned int GetCachedFrameHash(const unsigned char *shape, short frame,
+static unsigned int GetCachedFrameHash(const struct Shape *shape, short frame,
                                        int dataOffset)
 {
     uintptr_t pointerHash;
@@ -622,7 +622,7 @@ static unsigned int GetCachedFrameHash(const unsigned char *shape, short frame,
 }
 
 static GlCachedFrame *FindCachedFrameSlot(
-    unsigned char *shape, short frame, int dataOffset,
+    struct Shape *shape, short frame, int dataOffset,
     unsigned short shapeTableEnd, int width, int height, short leftExtent,
     short topExtent, int *cacheHit)
 {
@@ -693,7 +693,7 @@ static int ReserveSpriteAtlasRect(int width, int height, short *atlasLayer,
 }
 
 static const GlCachedFrame *CacheShapeFrame(
-    unsigned char *shape, short frame, int dataOffset,
+    struct Shape *shape, short frame, int dataOffset,
     unsigned short shapeTableEnd, int width, int height, short leftExtent,
     short topExtent, size_t pixelCount)
 {
@@ -1218,7 +1218,7 @@ void SdlGlRendererCancelSpaceFrame(void)
 }
 
 int SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
-                                      float y, unsigned char *shape,
+                                      float y, struct Shape *shape,
                                       short frame, short angle, short scale,
                                       short flip)
 {
@@ -1262,8 +1262,8 @@ int SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
     if (pixelCount > 0xfa00 && !(angle == 0 && scale == 0x100 && flip == 0))
         return 0;
     frameTableOffset = frame * 4 + 4;
-    memcpy(&shapeTableEnd, shape + 4, sizeof(shapeTableEnd));
-    memcpy(&dataOffset, shape + frameTableOffset, sizeof(dataOffset));
+    shapeTableEnd = (unsigned short)shape->frameOffsets[0];
+    memcpy(&dataOffset, (unsigned char *)shape + frameTableOffset, sizeof(dataOffset));
     cachedFrame = CacheShapeFrame(
         shape, frame, dataOffset, shapeTableEnd, width, height, leftExtent,
         topExtent, pixelCount);

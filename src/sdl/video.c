@@ -227,7 +227,7 @@ void SdlCancelSpaceFrame(void)
 
 int SdlRecordSpaceSprite(
     const struct Viewport *viewport, float x, float y,
-    unsigned char *shape, short frame, short angle, short scale,
+    struct Shape *shape, short frame, short angle, short scale,
     short flip)
 {
     /* DOS EGA mode composes converted EGA shapes into its 320x200 indexed

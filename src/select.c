@@ -12,13 +12,13 @@
 #endif
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
-unsigned char *pCommMenuPointerShape; /* 0x005a7660 */
+struct Shape *pCommMenuPointerShape; /* 0x005a7660 */
 Viewport stModalSrcViewport; /* 0x005a7670 */
-unsigned char *pCurrentPilotHandShapePtr; /* 0x005a7684 */
+struct Shape *pCurrentPilotHandShapePtr; /* 0x005a7684 */
 Viewport stPilotHandComposite; /* 0x005a7690 */
 Viewport stSceneBuffer; /* 0x005a76b0 */
 short aPaletteFadeEntries[6][3]; /* 0x005a76d0 */
-unsigned char *pCockpitDamageShape; /* 0x005a76f4 */
+struct Shape *pCockpitDamageShape; /* 0x005a76f4 */
 
 /* Function start: 0x42AD00 */
 short find_next_gun(short obj, enum ObjectType currentGun)

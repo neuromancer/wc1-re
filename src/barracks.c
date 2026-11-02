@@ -776,7 +776,7 @@ void GetBunkInfo(BarracksAnimationState *state)
 }
 
 /* Function start: 0x41BBD0 */
-void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
+void DrawBarracksBunks(Viewport *viewport, struct Shape *shape,
                        BarracksAnimationState *state)
 {
     short frame;
@@ -802,7 +802,7 @@ void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
 
 /* Function start: 0x41BC90 */
 void DrawBarracksStaticDetails(Viewport *viewport,
-                               unsigned char *shape)
+                               struct Shape *shape)
 {
     DrawSpriteDefault(viewport, 147, 167, shape, 25);
     CheckCursor();
@@ -811,7 +811,7 @@ void DrawBarracksStaticDetails(Viewport *viewport,
 }
 
 /* Function start: 0x41BCE0 */
-void AnimateBarracks(Viewport *viewport, unsigned char *shape,
+void AnimateBarracks(Viewport *viewport, struct Shape *shape,
                      BarracksAnimationState *state)
 {
     BarracksBunkState *bunkState;
@@ -956,7 +956,7 @@ int ConfirmReplaceFaultyData(short slot)
 
 /* Function start: 0x41C090 */
 void HandleBarracksBunkSelection(Viewport *viewport,
-                                  unsigned char *shape,
+                                  struct Shape *shape,
                                   BarracksAnimationState *state,
                                   short region)
 {
@@ -978,7 +978,7 @@ void HandleBarracksBunkSelection(Viewport *viewport,
 }
 
 /* Function start: 0x41C140 */
-void UpdateBarracksScreen(Viewport *viewport, unsigned char *shape,
+void UpdateBarracksScreen(Viewport *viewport, struct Shape *shape,
                           BarracksAnimationState *state)
 {
     DrawBarracksStaticDetails(viewport, shape);
@@ -994,7 +994,7 @@ short BarracksScreen(void)
     int lastMedalsTick;
     short clicked;
     short result;
-    unsigned char *background;
+    struct Shape *background;
     short eventType;
     short region;
 

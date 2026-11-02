@@ -16,8 +16,8 @@ static short asMouthFramesByPhoneme[26] = {
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 signed char cScrambleWalkerPair; /* 0x005a8748 */
-unsigned char *pScrambleCanopyShape; /* 0x005a874c */
-unsigned char *pScrambleShipShape; /* 0x005a8750 */
+struct Shape *pScrambleCanopyShape; /* 0x005a874c */
+struct Shape *pScrambleShipShape; /* 0x005a8750 */
 short nTalkingHeadFaceX; /* 0x005a8754 */
 short nTalkingHeadFaceCoordY; /* 0x005a8756 */
 short nTalkingHeadMouthY; /* 0x005a8758 */
@@ -257,7 +257,7 @@ unsigned int LoadFace(short face)
 }
 
 /* Function start: 0x405290 */
-unsigned int LongTalk(unsigned char *talker, char *text,
+unsigned int LongTalk(struct Shape *talker, char *text,
                       short *mouthCommands, short *faceCommands,
                       short duration)
 {
@@ -350,7 +350,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
 }
 
 /* Function start: 0x4054B0 */
-unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
+unsigned int CloseTalk(struct Shape *talker, short mouthFrame,
                        short faceFrame)
 {
     if (bConversationConstellation == 1)
@@ -744,7 +744,7 @@ unsigned int UpdateMap(char *text, short duration)
 }
 
 /* Function start: 0x405DE0 */
-unsigned int CloseLook(unsigned char *shape, short shot,
+unsigned int CloseLook(struct Shape *shape, short shot,
                        short *animation, char *text, short duration,
                        int unused)
 {

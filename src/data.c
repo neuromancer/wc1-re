@@ -25,7 +25,7 @@ InputEvent *pInputEventTail = 0;
 int bInputEventPoolInitialized = 0;
 
 /* 0x0046da9c */
-unsigned char *pDrawnMouseCursorShape = 0;
+struct Shape *pDrawnMouseCursorShape = 0;
 
 /* 0x0046daa0 */
 int nMouseCursorShowCount = 0;

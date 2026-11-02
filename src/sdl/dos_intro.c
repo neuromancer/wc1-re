@@ -42,8 +42,8 @@ static const char g_szSdlDosIntroConductorFrames[] =
     "opoqopoqopoqopoqqrstrq";
 
 static void SdlDrawDosIntroSky(Viewport *viewport,
-                                   unsigned char *titleShape,
-                                   unsigned char *planetShape,
+                                   struct Shape *titleShape,
+                                   struct Shape *planetShape,
                                    int planetY)
 {
     ClearViewport(viewport, (unsigned char)cBlackColour);
@@ -53,7 +53,7 @@ static void SdlDrawDosIntroSky(Viewport *viewport,
 }
 
 static void SdlDrawDosIntroLogo(Viewport *viewport,
-                                    unsigned char *titleShape,
+                                    struct Shape *titleShape,
                                     short y, short scale)
 {
     short left;
@@ -83,8 +83,8 @@ static int SdlPresentDosIntroFrame(Viewport *viewport)
 }
 
 static int SdlDrawDosIntroOrchestra(
-    Viewport *viewport, unsigned char **titleSections,
-    unsigned char *planetShape, int sequenceFrame)
+    Viewport *viewport, struct Shape **titleSections,
+    struct Shape *planetShape, int sequenceFrame)
 {
     const SdlDosIntroActor *actor;
     int actorIndex;
@@ -103,8 +103,8 @@ static int SdlDrawDosIntroOrchestra(
 }
 
 static int SdlDrawDosIntroConductorCue(
-    Viewport *viewport, unsigned char **titleSections,
-    unsigned char *planetShape, int cueFrame)
+    Viewport *viewport, struct Shape **titleSections,
+    struct Shape *planetShape, int cueFrame)
 {
     const SdlDosIntroActor *actor;
     int actorIndex;
@@ -127,8 +127,8 @@ static int SdlDrawDosIntroConductorCue(
 }
 
 static int SdlDrawDosIntroOrchestraPush(
-    Viewport *viewport, unsigned char **titleSections,
-    unsigned char *planetShape, int distance)
+    Viewport *viewport, struct Shape **titleSections,
+    struct Shape *planetShape, int distance)
 {
     const SdlDosIntroActor *actor;
     int actorIndex;
@@ -158,8 +158,8 @@ static int SdlDrawDosIntroOrchestraPush(
 }
 
 static int SdlDrawDosIntroLogoReveal(
-    Viewport *viewport, unsigned char *titleShape,
-    unsigned char *planetShape, short logoY, int distance)
+    Viewport *viewport, struct Shape *titleShape,
+    struct Shape *planetShape, short logoY, int distance)
 {
     int logoBottom;
     int planetY;
@@ -209,8 +209,8 @@ static void SdlStartDosIntroFirework(
 }
 
 static int SdlDrawDosIntroFireworks(
-    Viewport *viewport, unsigned char *titleShape,
-    unsigned char *fireworkShape, SdlDosIntroFirework *fireworks,
+    Viewport *viewport, struct Shape *titleShape,
+    struct Shape *fireworkShape, SdlDosIntroFirework *fireworks,
     short logoY)
 {
     SdlDosIntroFirework *firework;
@@ -238,8 +238,8 @@ static int SdlDrawDosIntroFireworks(
 
 void SdlPlayDosStartupIntro(void)
 {
-    unsigned char *titleSections[SDL_PORT_DOS_INTRO_TITLE_SECTION_COUNT];
-    unsigned char *planetShape;
+    struct Shape *titleSections[SDL_PORT_DOS_INTRO_TITLE_SECTION_COUNT];
+    struct Shape *planetShape;
     SdlDosIntroFirework fireworks[SDL_PORT_DOS_INTRO_FIREWORK_COUNT];
     Viewport introViewport;
     int actorDirection;

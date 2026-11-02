@@ -191,7 +191,7 @@ static short asChalkBoardPilotOrder[9] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8
 };
 
-unsigned char *pRecRoomBgShape; /* 0x00598a50 */
+struct Shape *pRecRoomBgShape; /* 0x00598a50 */
 Viewport stRoomDisplayView; /* 0x00598a60 */
 Viewport stCurrentRoomMouseView; /* 0x00598a80 */
 unsigned char *apRecRoomTxtDataArray[3]; /* 0x00598aa0 */
@@ -802,7 +802,7 @@ void ShowChalkBoard(void)
     InputEventState event;
     TextContext context;
     TextContext *previousContext;
-    unsigned char *background;
+    struct Shape *background;
     unsigned char done;
     unsigned char savedInputMode;
     char pilotName[20];

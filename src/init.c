@@ -273,7 +273,7 @@ unsigned int initialize_direction_view_frames(void)
 /* Function start: 0x421F50 */
 unsigned int LoadSpaceflightResources(void)
 {
-    unsigned char *debrisShapeSet;
+    struct Shape *debrisShapeSet;
 
     if (bCurrentExpandedMemoryAvail == 0)
         return 0;

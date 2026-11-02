@@ -167,9 +167,9 @@ static int bFuneralShowTheEnd = 0; /* 0x00465b54 */
 short nSceneScrambleShipDetailCountValue; /* 0x005a86cc */
 signed char acScrambleShipDetailSlots[24]; /* 0x005a86d0 */
 signed char cCutsceneScrambleWalkTime; /* 0x005a86e8 */
-unsigned char *pCurrentConversationSpecialShape; /* 0x005a86ec */
+struct Shape *pCurrentConversationSpecialShape; /* 0x005a86ec */
 ShortPoint aFuneralParticlesArray[7]; /* 0x005a86f0 */
-unsigned char *pSceneScrambleBgShapePtr; /* 0x005a870c */
+struct Shape *pSceneScrambleBgShapePtr; /* 0x005a870c */
 short nFuneralParticleDistance; /* 0x005a8710 */
 short nScrambleBackdropPositionY; /* 0x005a8712 */
 short nScrambleBackgroundRightCoordX; /* 0x005a8714 */
@@ -181,13 +181,13 @@ short nCutsceneFuneralBasePosY; /* 0x005a8722 */
 /* The player's ship on the flight deck (DOS g_deckShipX/g_deckShipY). */
 ShortPoint stScramblePlayerShipPos; /* 0x005a8724 */
 short nFuneralParticleScale; /* 0x005a8728 */
-unsigned char *pCurrentScrambleHangarShape; /* 0x005a872c */
-unsigned char *pScrambleCockpitShapePtr; /* 0x005a8730 */
+struct Shape *pCurrentScrambleHangarShape; /* 0x005a872c */
+struct Shape *pScrambleCockpitShapePtr; /* 0x005a8730 */
 short nSceneScrambleWalkerPositionY; /* 0x005a8734 */
 
 /* Function start: 0x407710 */
 short __stdcall GetShapeFrameExtent(short x, short y,
-                                    unsigned char *shape, short frame,
+                                    struct Shape *shape, short frame,
                                     short extent)
 {
     short bounds[4];
@@ -435,7 +435,7 @@ unsigned int DrawScrambleActor(short actorIndex)
 
 /* Function start: 0x407D90 */
 unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
-                                    short deltaY, unsigned char *shape,
+                                    short deltaY, struct Shape *shape,
                                     short scale, short angle,
                                     signed char flip, short actorIndex)
 {
@@ -591,7 +591,7 @@ unsigned int DrawScrambleFrame(void)
 
 /* Preserve the scramble actor and sound declaration context. */
 unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
-                                    short deltaY, unsigned char *shape,
+                                    short deltaY, struct Shape *shape,
                                     short scale, short angle,
                                     signed char flip, short actorIndex);
 void FlushSoundEffectsAndLog(int soundHandle, short fadeTicks);
@@ -600,7 +600,7 @@ unsigned int ReleaseMusicTrackHook(short track);
 /* Function start: 0x408200 (Mac symbol: scramble) */
 unsigned int scramble(void)
 {
-    unsigned char *actorShape;
+    struct Shape *actorShape;
     short frame;
     int scrambleSound;
     int canopySound; /* Unset after the Win32 sound-call replacements. */
@@ -769,7 +769,7 @@ unsigned int ReleaseTextFont(short fontIndex);
 /* Function start: 0x408650 (Mac symbol: landing) */
 unsigned int landing(signed char damageLevel)
 {
-    unsigned char *actorShape;
+    struct Shape *actorShape;
     short frame;
     signed char detail;
     signed char prior;

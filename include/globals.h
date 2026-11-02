@@ -39,7 +39,7 @@ extern int bCockpitEnabled; /* 0x0046507c */
 extern volatile int bMainWindowMinimized; /* 0x00465080 */
 extern int bWindowMessagePumpActive; /* 0x004650a8 */
 extern volatile unsigned int bF1KeyLatch; /* 0x004650ac */
-extern GuardedAllocation *pGuardedAllocationHead; /* 0x004650b0 */
+extern struct GuardedAllocation *pGuardedAllocationHead; /* 0x004650b0 */
 extern short nDebriefingPersonality; /* 0x00465c80 */
 extern void *aapPacketReferences[4][0x25]; /* 0x00465c88 */
 #ifdef SDL_PORT
@@ -59,12 +59,12 @@ extern int bCampaignActive; /* 0x004688f0 */
 extern char *pszPendingHudMessage; /* 0x00469004 */
 extern unsigned char *pCockpitExplosionBackground; /* 0x00469060 */
 extern short nNavPointerObject; /* 0x00469208 */
-extern unsigned char *pCockpitExplosionShape; /* 0x00469064 */
+extern struct Shape *pCockpitExplosionShape; /* 0x00469064 */
 extern short nStartNavPointOverride; /* 0x0046a010 */
 extern unsigned char *pReleaseWeaponDisplayBackground; /* 0x0046906c */
-extern unsigned char *pConfedCommBackground; /* 0x00469278 */
-extern unsigned char *pCommStaticShape; /* 0x0046927c */
-extern unsigned char *pKilrathiCommBackground; /* 0x00469280 */
+extern struct Shape *pConfedCommBackground; /* 0x00469278 */
+extern struct Shape *pCommStaticShape; /* 0x0046927c */
+extern struct Shape *pKilrathiCommBackground; /* 0x00469280 */
 extern short asCampaignPilotFiles[3]; /* 0x00469450 */
 extern short asCampaignBriefingFiles[3]; /* 0x00469458 */
 extern short asMissionDataFiles[3]; /* 0x00469460 */
@@ -92,7 +92,7 @@ extern int bGraphicsActive; /* 0x00469a20 */
 extern PacketResourceDescriptor aCommon3SpaceResources[12]; /* 0x00469bc0 */
 extern int nCapitalShipViewDistance; /* 0x00468ff4 */
 extern unsigned char bLandingAuthorized; /* 0x00468ff8 */
-extern unsigned char *pCockpitPilotShape; /* 0x0046905c */
+extern struct Shape *pCockpitPilotShape; /* 0x0046905c */
 extern char szInsufficientMemory[100]; /* 0x00469a28 */
 extern unsigned int bIntroSceneResourcesActive; /* 0x00469d48 */
 extern PacketResourceDescriptor aMissionResourceDescriptors[5]; /* 0x00469c20 */
@@ -208,7 +208,7 @@ extern ManeuverChoice aRatedManeuverChoices[13][9][3]; /* 0x0046d3e8 */
 extern ManeuverChoice aKilrathiManeuverChoices[5][9][3]; /* 0x0046d808 */
 extern signed char acPilotAggression[24]; /* 0x0046d9a0 */
 extern signed char acPilotRecovery[20]; /* 0x0046d9b8 */
-extern unsigned char *pDrawnMouseCursorShape; /* 0x0046da9c */
+extern struct Shape *pDrawnMouseCursorShape; /* 0x0046da9c */
 extern int nMouseCursorShowCount; /* 0x0046daa0 */
 extern short asPilotHandOrigins[10]; /* 0x0046e120 */
 extern CampaignDate stSavedCampaignDate; /* 0x0046e188 */
@@ -240,7 +240,7 @@ extern unsigned char abGifInterlaceRowSteps[5]; /* 0x0046ff1e */
 extern unsigned char abGifInterlaceRowStarts[5]; /* 0x0046ff23 */
 extern RasterClip *pGifRasterTarget; /* 0x0046ff28 */
 extern unsigned char abRasterPaletteTranslation[256]; /* 0x0046ff2c */
-extern RLETransformVertex aRLETransformVertices[4]; /* 0x0047002c */
+extern struct RLETransformVertex aRLETransformVertices[4]; /* 0x0047002c */
 extern int anRLESourceSteps[4]; /* 0x0047007c */
 extern unsigned char *pMissionCampaignInfo; /* 0x005988bc */
 extern const char *apszPilotRankNames[5]; /* 0x00470098 */
@@ -252,12 +252,12 @@ extern int nUnusedFlightProfileTicksC; /* 0x00598890 */
 extern Viewport stRoomScreenViewport; /* 0x005988a0 */
 extern short nSavedRoomCtrlX; /* 0x005988b4 */
 extern unsigned char *pRecRoomRoster; /* 0x005988b8 */
-extern unsigned char *apRecRoomFigureShapes[3]; /* 0x005988c0 */
+extern struct Shape *apRecRoomFigureShapes[3]; /* 0x005988c0 */
 extern PilotRecord aPilotEntriesList[9]; /* 0x005988d0 */
 extern ConstellationObjectDefinition
     *pConstellationDefinitionsPtr; /* 0x00598a28 */
 extern PilotRecord *apWingmanPilotsList[8]; /* 0x00598a30 */
-extern unsigned char *pRecRoomBgShape; /* 0x00598a50 */
+extern struct Shape *pRecRoomBgShape; /* 0x00598a50 */
 extern Viewport stRoomDisplayView; /* 0x00598a60 */
 extern Viewport stCurrentRoomMouseView; /* 0x00598a80 */
 extern unsigned char *apRecRoomTxtDataArray[3]; /* 0x00598aa0 */
@@ -270,19 +270,19 @@ extern short *pSceneMouthAnimCmds; /* 0x00598af4 */
 extern unsigned char *pRoomMedalTextData; /* 0x00598af8 */
 extern unsigned char *pDebriefingSceneDataPtr; /* 0x00598afc */
 extern unsigned char *pBriefingSceneInfo; /* 0x00598c00 */
-extern unsigned char *pCurrentConversationBackdropShapePtr; /* 0x00598c04 */
+extern struct Shape *pCurrentConversationBackdropShapePtr; /* 0x00598c04 */
 extern short nCurrentConversationMedalIndex; /* 0x00598c08 */
 extern short nTalkSceneType; /* 0x00598c0a */
-extern unsigned char *pTalkHeadShape; /* 0x00598c0c */
+extern struct Shape *pTalkHeadShape; /* 0x00598c0c */
 extern short nConvTextColorValue; /* 0x00598c10 */
-extern unsigned char *pCurrentBriefingAnimShape; /* 0x00598c14 */
+extern struct Shape *pCurrentBriefingAnimShape; /* 0x00598c14 */
 extern short *pFaceAnimationCmds; /* 0x00598c18 */
-extern unsigned char *pSceneBriefingBodyShape; /* 0x00598c1c */
+extern struct Shape *pSceneBriefingBodyShape; /* 0x00598c1c */
 extern unsigned char *pMedalSceneData; /* 0x00598c20 */
-extern unsigned char *pSceneBriefingPortraitShape; /* 0x00598c24 */
+extern struct Shape *pSceneBriefingPortraitShape; /* 0x00598c24 */
 extern unsigned char *pDebriefingTxtInfo; /* 0x00598c28 */
-extern unsigned char *pBriefingCloseupShape; /* 0x00598c2c */
-extern unsigned char *pConvOverlayShapePtr; /* 0x00598c30 */
+extern struct Shape *pBriefingCloseupShape; /* 0x00598c2c */
+extern struct Shape *pConvOverlayShapePtr; /* 0x00598c30 */
 extern unsigned char bFilteredKeyDelayStartedState; /* 0x00598c34 */
 extern InputEvent aInputEvtPool[0x100]; /* 0x00598c40 */
 extern int nMouseCursorSavedCoordY; /* 0x0059a840 */
@@ -397,7 +397,7 @@ extern short asObjectViewFrames[SPACE_OBJECT_COUNT]; /* 0x0059d230 */
 extern signed char acWingmanMessageStatesArray[16]; /* 0x0059d2c0 */
 extern short asCollisionDelayList[16]; /* 0x0059d2d0 */
 extern int nCurObjectiveRangeValue; /* 0x0059d2b0 */
-extern unsigned char *apObjShapeArray[SPACE_OBJECT_COUNT]; /* 0x0059d2f0 */
+extern struct Shape *apObjShapeArray[SPACE_OBJECT_COUNT]; /* 0x0059d2f0 */
 extern ShortVector stRotationInput; /* 0x0059d3f0 */
 extern int DAT_0046dab4; /* 0x0046dab4 */
 extern short DAT_0046e138[10]; /* 0x0046e138 */
@@ -470,7 +470,7 @@ extern int nJoystickCalibrationMinimumX; /* 0x0059df68 */
 extern int nJoystickCalibrationMaximumX; /* 0x0059df6c */
 extern int nJoystickCalibrationMaxY; /* 0x0059df70 */
 extern unsigned short awPalEntryAllocation[256]; /* 0x0059df80 */
-extern unsigned char *apCommunicationPortraitShapesTable[16]; /* 0x0059e180 */
+extern struct Shape *apCommunicationPortraitShapesTable[16]; /* 0x0059e180 */
 extern char szHudMessageBuf[0x60]; /* 0x0059e1c0 */
 extern char *aapszPilotSpeeches[14][11]; /* 0x0059e220 */
 extern signed char abCommMenuChoiceCommands[7]; /* 0x0059e488 */
@@ -496,7 +496,7 @@ extern Viewport *pFullScreenRecord; /* 0x005a6538 */
 extern int nAllocateViewportCallsValue; /* 0x005a68ec */
 extern void *pLastPacketAllocation; /* 0x005a68f0 */
 extern FireworkState aFireworksList[30]; /* 0x005a6900 */
-extern unsigned char *pFireworkShape; /* 0x005a6a68 */
+extern struct Shape *pFireworkShape; /* 0x005a6a68 */
 extern ConstellationStar aConstellationStarsTable[10]; /* 0x005a6a70 */
 extern Viewport *pConstellationViewportPtr; /* 0x005a6aac */
 extern short nViewConstellationStarCount; /* 0x005a6ab0 */
@@ -511,7 +511,7 @@ extern FixedVector aDirectionViewUpVectorArray[ /* 0x005a6f10 */
     DIRECTION_VIEW_COUNT];
 extern Viewport stCockpitBar; /* 0x005a6be0 */
 extern TextContext stHudMessageTextContext; /* 0x005a6bc0 */
-extern unsigned char *pTgtLockShapePtr; /* 0x005a6bf4 */
+extern struct Shape *pTgtLockShapePtr; /* 0x005a6bf4 */
 extern unsigned char *apTextFonts[4]; /* 0x005a6c00 */
 extern FontWorkspace **apFontWorkspaces[4]; /* 0x005a6c10 */
 extern FixedVector aDirectionViewRightVector[ /* 0x005a6c20 */
@@ -523,16 +523,16 @@ extern TextContext stLeftVduTextContext; /* 0x005a74f0 */
 extern Viewport stSpaceBufferViewport; /* 0x005a7510 */
 extern Viewport stRightVduViewport; /* 0x005a7530 */
 extern Viewport stPilotHandBackdropView; /* 0x005a7550 */
-extern unsigned char *pCockpitWeaponShapePtr; /* 0x005a7564 */
+extern struct Shape *pCockpitWeaponShapePtr; /* 0x005a7564 */
 extern Viewport stCurrentConvTextViewport; /* 0x005a7570 */
 extern char szDefaultTxtBuf[0xc8]; /* 0x005a7590 */
 extern Viewport stModalSrcViewport; /* 0x005a7670 */
-extern unsigned char *pCockpitIndicatorShape; /* 0x005a7658 */
-extern unsigned char *pCommMenuPointerShape; /* 0x005a7660 */
-extern unsigned char *pCurrentPilotHandShapePtr; /* 0x005a7684 */
+extern struct Shape *pCockpitIndicatorShape; /* 0x005a7658 */
+extern struct Shape *pCommMenuPointerShape; /* 0x005a7660 */
+extern struct Shape *pCurrentPilotHandShapePtr; /* 0x005a7684 */
 extern Viewport stPilotHandComposite; /* 0x005a7690 */
 extern TextContext stDefaultTxtContext; /* 0x005a7740 */
-extern unsigned char *pCockpitDamageShape; /* 0x005a76f4 */
+extern struct Shape *pCockpitDamageShape; /* 0x005a76f4 */
 extern short aPaletteFadeEntries[6][3]; /* 0x005a76d0 */
 extern TextContext stRightVduTxtContext; /* 0x005a7700 */
 extern TextContext stCurrentCockpitReadoutTextCtx; /* 0x005a7720 */
@@ -550,7 +550,7 @@ extern signed char cDamageDisplayFrame; /* 0x005a77dd */
 extern signed char cDamagedComponentCount; /* 0x005a77de */
 extern int nDmgDispState; /* 0x005a77e0 */
 extern int nDamageDisplayPhase; /* 0x005a77e4 */
-extern unsigned char *pLaunchDoorShape; /* 0x005a77e8 */
+extern struct Shape *pLaunchDoorShape; /* 0x005a77e8 */
 extern unsigned int nCurrentFrameTimerIdValue; /* 0x005a77ec */
 extern unsigned char abPaletteTripletsArray[256][3]; /* 0x005a77f0 */
 extern Viewport stCurrentTrainSimTitleDisplayViewport; /* 0x005a7b90 */
@@ -570,19 +570,19 @@ extern short nArcadeTimeRemaining; /* 0x005a7c2c */
 extern HighScoreEntry aHighScoreEntriesArray[6]; /* 0x005a7c30 */
 extern int nCurrentArcadeScore; /* 0x005a7bc4 */
 extern unsigned char *pSceneAnimationSceneDataPtr; /* 0x005a7c54 */
-extern unsigned char *pCurrentSceneAnimationPrimaryShape; /* 0x005a7c58 */
+extern struct Shape *pCurrentSceneAnimationPrimaryShape; /* 0x005a7c58 */
 extern unsigned char *pSceneAnimationTextData; /* 0x005a7c5c */
 extern unsigned char *pSceneAnimationPacketPtr; /* 0x005a7c60 */
 extern SceneAnimationObject *pSceneAnimationObjects; /* 0x005a7c64 */
 extern short nSceneAnimationDelayFrames; /* 0x005a7c68 */
 extern unsigned char *pSceneAnimationDefinitionsPtr; /* 0x005a7c6c */
-extern unsigned char *pSceneAnimationSecondaryShape; /* 0x005a7c70 */
+extern struct Shape *pSceneAnimationSecondaryShape; /* 0x005a7c70 */
 extern signed char cCockpitLogicalFile; /* 0x005a7c74 */
-extern unsigned char *apCockpitShapesList[4]; /* 0x005a7c80 */
-extern unsigned char *pCinematicViewBackdropPtr; /* 0x005a7c90 */
-extern unsigned char *pLogicRearViewBackdropPtr; /* 0x005a7c94 */
+extern struct Shape *apCockpitShapesList[4]; /* 0x005a7c80 */
+extern struct Shape *pCinematicViewBackdropPtr; /* 0x005a7c90 */
+extern struct Shape *pLogicRearViewBackdropPtr; /* 0x005a7c94 */
 extern int bCurrentPlayerDestroyed; /* 0x005a7c98 */
-extern unsigned char *pMouseCursorResource; /* 0x005a7cdc */
+extern struct Shape *pMouseCursorResource; /* 0x005a7cdc */
 extern short asCollisionPartnerTable[10]; /* 0x005a7cc0 */
 extern int dwOriginalFreeMem; /* 0x005a7cd8 */
 extern short asCollisionTimes[10]; /* 0x005a7ca0 */
@@ -654,17 +654,17 @@ extern ShortPoint aFuneralParticlesArray[7]; /* 0x005a86f0 */
 extern short nSceneScrambleShipDetailCountValue; /* 0x005a86cc */
 extern Viewport *pScrambleView; /* 0x005a86b4 */
 extern short nSceneScrambleCanopyFrameValue; /* 0x005a86b8 */
-extern unsigned char *pScrambleDetailShape; /* 0x005a86bc */
+extern struct Shape *pScrambleDetailShape; /* 0x005a86bc */
 /* The object tables here and below hold the slots of the scramble ship's
  * two coordinates, which cutscene.c now keeps as one private point. */
 extern ObjectTypeData aObjectTypeData[OBJECT_TYPE_COUNT]; /* 0x00466458 */
 extern ShortPoint stScrambleCockpitDetail; /* 0x005a86c4 */
-extern unsigned char *pCurrentConversationSpecialShape; /* 0x005a86ec */
+extern struct Shape *pCurrentConversationSpecialShape; /* 0x005a86ec */
 extern short nFuneralCasketPositionX; /* 0x005a86c8 */
 extern short nFuneralCasketPosY; /* 0x005a86ca */
 extern signed char acScrambleShipDetailSlots[24]; /* 0x005a86d0 */
 extern signed char cCutsceneScrambleWalkTime; /* 0x005a86e8 */
-extern unsigned char *pSceneScrambleBgShapePtr; /* 0x005a870c */
+extern struct Shape *pSceneScrambleBgShapePtr; /* 0x005a870c */
 extern short nFuneralParticleDistance; /* 0x005a8710 */
 extern short nScrambleBackgroundRightCoordX; /* 0x005a8714 */
 extern short nScrambleBackdropPositionY; /* 0x005a8712 */
@@ -677,17 +677,17 @@ extern short nScrambleCockpitAngle; /* 0x005a86c0 */
 extern signed char cScrambleWalkerPair; /* 0x005a8748 */
 extern ShortVector aChildOffsets[56]; /* 0x004682f0 */
 extern short nFuneralParticleScale; /* 0x005a8728 */
-extern unsigned char *pCurrentScrambleHangarShape; /* 0x005a872c */
-extern unsigned char *pScrambleCockpitShapePtr; /* 0x005a8730 */
+extern struct Shape *pCurrentScrambleHangarShape; /* 0x005a872c */
+extern struct Shape *pScrambleCockpitShapePtr; /* 0x005a8730 */
 extern short nSceneScrambleWalkerPositionY; /* 0x005a8734 */
 extern short nScrambleCanopyOffset; /* 0x005a8736 */
 extern short nFuneralMainDist; /* 0x005a8738 */
 extern signed char bScrambleCanopyClosed; /* 0x005a873a */
 extern short nCutsceneFuneralGuardFrame; /* 0x005a873c */
 extern ShortPoint stScrambleOverlay; /* 0x005a8740 */
-extern unsigned char *pScrambleOverlayShape; /* 0x005a8744 */
-extern unsigned char *pScrambleCanopyShape; /* 0x005a874c */
-extern unsigned char *pScrambleShipShape; /* 0x005a8750 */
+extern struct Shape *pScrambleOverlayShape; /* 0x005a8744 */
+extern struct Shape *pScrambleCanopyShape; /* 0x005a874c */
+extern struct Shape *pScrambleShipShape; /* 0x005a8750 */
 extern short nTalkingHeadFaceX; /* 0x005a8754 */
 extern short nTalkingHeadFaceCoordY; /* 0x005a8756 */
 extern short nTalkingHeadMouthY; /* 0x005a8758 */
@@ -697,13 +697,13 @@ extern MissionHeaderDisk stCurrentMissionHeader; /* 0x005a8690 */
 extern unsigned char abMissionAuxData[0x28]; /* 0x005a8210 */
 extern unsigned char abSeriesAuxData[0x28]; /* 0x005a8240 */
 extern MissionObjectiveSource aMissionObjectiveSources[16]; /* 0x005a8270 */
-extern unsigned char *pTitleShape; /* 0x005a7f08 */
-extern unsigned char *pCurrentConstellationShape; /* 0x005a765c */
+extern struct Shape *pTitleShape; /* 0x005a7f08 */
+extern struct Shape *pCurrentConstellationShape; /* 0x005a765c */
 extern const short *pCurrentViewScriptPtr; /* 0x005a6b58 */
-extern unsigned char *pIntroFont; /* 0x005a8960 */
+extern struct Shape *pIntroFont; /* 0x005a8960 */
 extern unsigned int nSystemKeyDown; /* 0x005a8964 */
 extern JOYINFO aJoystickInfos[2]; /* 0x005a8970 */
-extern GuardedAllocation *pGuardedAllocationTail; /* 0x005a89ac */
+extern struct GuardedAllocation *pGuardedAllocationTail; /* 0x005a89ac */
 extern char szMemoryUsage[0x80]; /* 0x005a89b0 */
 extern HWND hMainWindow; /* 0x005a89a0 */
 extern HANDLE hSingleInstanceSemaphore; /* 0x005a89a4 */

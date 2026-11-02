@@ -116,7 +116,7 @@ void LaunchPlayerShip(void)
     spacetrack(changetrack(), 1, 0);
     if (bEscapePressedFlag == 0) {
         pLaunchDoorShape =
-            (unsigned char *)FetchDiskPacketRetrying(1, 7, 0);
+            FetchDiskPacketRetrying(1, 7, 0);
         nCannedSceneMode = 1;
         force_view(0, 0);
         PlaySfxWaveFileByNumber(20, -1, 0);
@@ -165,15 +165,15 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
 {
     short launchX;
     short launchY;
-    unsigned char *carrierShape;
+    struct Shape *carrierShape;
     ShortPoint actor;
-    unsigned char *fighterShape;
+    struct Shape *fighterShape;
     short fighterScreenY;
     short approachScale;
     short approachDistance;
     short fighterScreenX;
     short carrierScreenX;
-    unsigned char *actorShape;
+    struct Shape *actorShape;
     short frame;
     int soundHandle; /* Unset in the original; ignored by the Win32 callee. */
 
@@ -190,9 +190,9 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     PreloadMusicTrackHook(0x1c);
     spacetrack(0x1c, 2, 1);
     carrierShape =
-        (unsigned char *)FetchDiskPacketRetrying(1, 8, 0);
+        FetchDiskPacketRetrying(1, 8, 0);
     actorShape =
-        (unsigned char *)FetchDiskPacketRetrying(1, 4, 0);
+        FetchDiskPacketRetrying(1, 4, 0);
     fighterShape = aObjectTypeData[
         stCampaignState.playerShipType].shapeSet;
     pScrambleView = &stSpaceBufferViewport;

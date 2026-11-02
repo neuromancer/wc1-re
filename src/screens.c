@@ -69,7 +69,7 @@ const char *apszMedalNames[5] = {
     "Terran Medal of Valor"
 };
 /* 0x0046e2f4 */
-static unsigned char *pMedalSceneShape = 0;
+static struct Shape *pMedalSceneShape = 0;
 /* 0x0046e2f8 */
 static const char *pszMedalsPilotSummary =
     "$R $N, aka $C.\n$S system, dateline $D.";
@@ -163,19 +163,19 @@ unsigned char *pRoomMedalTextData; /* 0x00598af8 */
 unsigned char *pDebriefingSceneDataPtr; /* 0x00598afc */
 char szTxtWorkspaceBuffer[256]; /* 0x00598b00 */
 unsigned char *pBriefingSceneInfo; /* 0x00598c00 */
-unsigned char *pCurrentConversationBackdropShapePtr; /* 0x00598c04 */
+struct Shape *pCurrentConversationBackdropShapePtr; /* 0x00598c04 */
 short nCurrentConversationMedalIndex; /* 0x00598c08 */
 short nTalkSceneType; /* 0x00598c0a */
-unsigned char *pTalkHeadShape; /* 0x00598c0c */
+struct Shape *pTalkHeadShape; /* 0x00598c0c */
 short nConvTextColorValue; /* 0x00598c10 */
-unsigned char *pCurrentBriefingAnimShape; /* 0x00598c14 */
+struct Shape *pCurrentBriefingAnimShape; /* 0x00598c14 */
 short *pFaceAnimationCmds; /* 0x00598c18 */
-unsigned char *pSceneBriefingBodyShape; /* 0x00598c1c */
+struct Shape *pSceneBriefingBodyShape; /* 0x00598c1c */
 unsigned char *pMedalSceneData; /* 0x00598c20 */
-unsigned char *pSceneBriefingPortraitShape; /* 0x00598c24 */
+struct Shape *pSceneBriefingPortraitShape; /* 0x00598c24 */
 unsigned char *pDebriefingTxtInfo; /* 0x00598c28 */
-unsigned char *pBriefingCloseupShape; /* 0x00598c2c */
-unsigned char *pConvOverlayShapePtr; /* 0x00598c30 */
+struct Shape *pBriefingCloseupShape; /* 0x00598c2c */
+struct Shape *pConvOverlayShapePtr; /* 0x00598c30 */
 unsigned char bFilteredKeyDelayStartedState; /* 0x00598c34 */
 
 /* Function start: 0x436D00 */
@@ -1644,8 +1644,8 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
 /* Function start: 0x439660 (Mac symbol: death_sequence) */
 unsigned int death_sequence(void)
 {
-    unsigned char *deathShape;
-    unsigned char *cockpitBackground;
+    struct Shape *deathShape;
+    struct Shape *cockpitBackground;
     signed char frame;
 
     nCannedSceneMode = 1;

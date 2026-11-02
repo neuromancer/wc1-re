@@ -193,7 +193,7 @@ short GetLineLength(const char *text)
 
 /* print_subtitle declares its glyph blitter (gr.c) locally. */
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
-                       unsigned char *shape, short frame);
+                       struct Shape *shape, short frame);
 
 /* Function start: 0x403920 */
 int print_subtitle(Viewport *viewport, short colour, const char *text)

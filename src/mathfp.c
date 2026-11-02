@@ -198,28 +198,21 @@ void ReleaseVideoResourcesHook(void)
 
 /* Function start: 0x435020 */
 short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
-                                    unsigned char *shape, short frame)
+                                    struct Shape *shape, short frame)
 {
     short frameTableOffset;
-#ifdef SDL_PORT
-    short frameData[4];
-#else
-    short *frameData;
-#endif
+    struct ShapeFrame *frameData;
 
     frameTableOffset = (short)(frame * 4);
-    if ((int)frameTableOffset < (int)*(unsigned short *)(shape + 4)) {
+    if ((int)frameTableOffset < (int)(unsigned short)shape->frameOffsets[0]) {
         frameTableOffset = (short)(frameTableOffset + 4);
-        shape += *(unsigned short *)(shape + frameTableOffset);
-#ifdef SDL_PORT
-        memcpy(frameData, shape, sizeof(frameData));
-#else
-        frameData = (short *)shape;
-#endif
-        bounds[2] = (short)(frameData[0] + x);
-        bounds[0] = (short)(x - frameData[1]);
-        bounds[1] = (short)(y - frameData[2]);
-        bounds[3] = (short)(frameData[3] + y);
+        shape = (struct Shape *)((unsigned char *)shape +
+            *(unsigned short *)((unsigned char *)shape + frameTableOffset));
+        frameData = (struct ShapeFrame *)shape;
+        bounds[2] = (short)(frameData->right + x);
+        bounds[0] = (short)(x - frameData->left);
+        bounds[1] = (short)(y - frameData->top);
+        bounds[3] = (short)(frameData->bottom + y);
         return -1;
     }
     return 0;
@@ -374,7 +367,7 @@ void __stdcall AppendTextCharacter(char character)
 }
 
 /* Function start: 0x435340 */
-int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
+int __stdcall MeasureShapeFrameStorage(struct Shape *shape, short frame)
 {
     unsigned char *run;
     unsigned short rowLength;
@@ -385,9 +378,15 @@ int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
     size = 0;
     if (shape != 0 && frame >= 0) {
         frameTableOffset = frame * 4 + 4;
-        if (frameTableOffset < *(unsigned short *)(shape + 4)) {
-            run = shape + *(int *)(shape + frameTableOffset) + 8;
+        if (frameTableOffset < (unsigned short)shape->frameOffsets[0]) {
+            run = (unsigned char *)shape +
+                *(int *)((unsigned char *)shape + frameTableOffset) +
+                sizeof(struct ShapeFrame);
+#ifdef SDL_PORT
+            memcpy(&rowLength, run, sizeof(rowLength));
+#else
             rowLength = *(unsigned short *)run;
+#endif
             run += 2;
             while (rowLength != 0) {
                 run += 4;
@@ -415,7 +414,11 @@ int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
                     size += rowLength;
                     run += rowLength;
                 }
+#ifdef SDL_PORT
+                memcpy(&rowLength, run, sizeof(rowLength));
+#else
                 rowLength = *(unsigned short *)run;
+#endif
                 run += 2;
             }
         }

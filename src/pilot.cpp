@@ -47,7 +47,7 @@ void ShowMeanwhileTransition(short scene, short variant)
                   cBlackColour);
     SetTextContext(&stCurrentConvTxtCtx);
     pIntroFont =
-        (unsigned char *)FetchDiskPacketRetrying(9, 1, 0);
+        (struct Shape *)FetchDiskPacketRetrying(9, 1, 0);
     print_subtitle(&stSceneBuffer, 0x40, "Meanwhile...");
     PanToScreen(&stSceneBuffer, &stScreenView);
     FreePacketAndClear(&pIntroFont, 0);
