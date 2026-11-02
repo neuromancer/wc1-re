@@ -65,6 +65,31 @@ html {
     }
 }
 
+/* The light/dark switch sets html.dark-mode or html.light-mode. */
+html.dark-mode {
+    --page-background-color: #1e1f1c;
+    --page-foreground-color: #f8f8f2;
+    --side-nav-background: #1e1f1c;
+    --side-nav-foreground: #f8f8f2;
+    --header-background: #1e1f1c;
+    --header-foreground: #f8f8f2;
+    --separator-color: #3a3b36;
+    --code-background: #2d2e29;
+    --code-foreground: #f8f8f2;
+    --fragment-background: #272822;
+    --fragment-foreground: #f8f8f2;
+    --fragment-keyword: #66d9ef;
+    --fragment-keywordtype: #66d9ef;
+    --fragment-keywordflow: #66d9ef;
+    --fragment-token: #e6db74;
+    --fragment-comment: #75715e;
+    --fragment-link: #f8f8f2;
+    --fragment-preprocessor: #f92672;
+    --fragment-linenumber-color: #75715e;
+    --fragment-linenumber-background: #272822;
+    --fragment-linenumber-border: #3a3b36;
+}
+
 /* Sidebar: a plain list under the title, as on documentation sites. */
 #side-nav, #nav-tree {
     border-right: 1px solid var(--separator-color);

@@ -83,3 +83,27 @@ main.asm .breadcrumb {
     background: none;
     border: none;
 }
+
+/* The light/dark switch, as doxygen-awesome.css styles it next to the
+   search box of the other pages. */
+main.asm .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+doxygen-awesome-dark-mode-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    cursor: pointer;
+    user-select: none;
+}
+doxygen-awesome-dark-mode-toggle:hover {
+    background-color: rgba(0, 0, 0, .05);
+}
+html.dark-mode doxygen-awesome-dark-mode-toggle:hover {
+    background-color: rgba(255, 255, 255, .08);
+}

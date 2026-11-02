@@ -102,9 +102,14 @@ for file in "$@"; do
             printf '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             printf '<title>%s - Wing Commander</title>\n' "$file"
             printf '<link rel="stylesheet" href="../wc1.css">\n'
-            printf '<link rel="stylesheet" href="asm.css">\n</head>\n<body>\n<main class="asm">\n'
+            printf '<link rel="stylesheet" href="asm.css">\n'
+            printf '<script src="../doxygen-awesome-darkmode-toggle.js"></script>\n'
+            printf '</head>\n<body>\n<main class="asm">\n<div class="topbar">\n'
             printf '<p class="breadcrumb"><a href="../index.html">Wing Commander</a> / %s</p>\n' \
                 "$(dirname "$file")"
+            printf '<doxygen-awesome-dark-mode-toggle title="Toggle Light/Dark Mode">'
+            printf '</doxygen-awesome-dark-mode-toggle>\n</div>\n'
+            printf '<script>document.querySelector("doxygen-awesome-dark-mode-toggle").updateIcon()</script>\n'
             printf '<h1>%s</h1>\n' "$(basename "$file")"
             pygmentize -l tasm -f html -O linenos=table "$stage/$file"
             printf '</main>\n</body>\n</html>\n'
