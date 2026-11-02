@@ -192,7 +192,8 @@ typedef struct RasterClip {
 } RasterClip;
 
 /* The packet's frames start with four signed extents; their byte offsets
- * need not be aligned. The encoded scanline stream follows these eight bytes. */
+ * need not be aligned. The one-element tail names the variable-length
+ * encoded scanline stream beginning at +8. */
 #pragma pack(push, 1)
 #ifndef __cplusplus
 struct ShapeFrame {
@@ -200,6 +201,7 @@ struct ShapeFrame {
     short left;                     /* +0x02 */
     short top;                      /* +0x04 */
     short bottom;                   /* +0x06 */
+    unsigned char commands[1];      /* +0x08 */
 };
 #endif
 #pragma pack(pop)

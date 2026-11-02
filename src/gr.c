@@ -167,7 +167,7 @@ void GetShapeFrameExtents(struct Shape *shape, short frame,
     if (frameOffset < (int)(unsigned short)shape->frameOffsets[0]) {
         memcpy(&frameExtents, (unsigned char *)shape +
                *(int *)((unsigned char *)shape + frameOffset),
-               sizeof(frameExtents));
+               offsetof(struct ShapeFrame, commands));
         rightExtent = frameExtents.right;
         left = frameExtents.left;
         top = frameExtents.top;
@@ -228,8 +228,8 @@ void DecodeShapeFrame(struct Shape *shape, short frame,
 
     maximumX = (short)(width - 1);
     maximumY = (short)(height - 1);
-    commands = (unsigned char *)shape +
-        *(int *)((unsigned char *)shape + frameOffset) + sizeof(struct ShapeFrame);
+    commands = ((struct ShapeFrame *)((unsigned char *)shape +
+        *(int *)((unsigned char *)shape + frameOffset)))->commands;
 #ifdef SDL_PORT
     memcpy(&rowCode, commands, sizeof(rowCode));
 #else
@@ -751,9 +751,8 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
         maximumX = viewport->right;
         minimumY = viewport->top;
         maximumY = viewport->bottom;
-        commands = (unsigned char *)shape +
-            *(int *)(frame + (unsigned char *)shape);
-        commands += sizeof(struct ShapeFrame);
+        commands = ((struct ShapeFrame *)((unsigned char *)shape +
+            *(int *)(frame + (unsigned char *)shape)))->commands;
         pixels = viewport->pixels;
 #ifdef SDL_PORT
         memcpy(&rowCode, commands, sizeof(rowCode));
@@ -898,9 +897,8 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
     maximumX = viewport->right;
     minimumY = viewport->top;
     maximumY = viewport->bottom;
-    commands = (unsigned char *)shape +
-        *(int *)(frame + (unsigned char *)shape);
-    commands += sizeof(struct ShapeFrame);
+    commands = ((struct ShapeFrame *)((unsigned char *)shape +
+        *(int *)(frame + (unsigned char *)shape)))->commands;
     pixels = viewport->pixels;
 #ifdef SDL_PORT
     memcpy(&rowCode, commands, sizeof(rowCode));

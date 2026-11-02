@@ -379,9 +379,8 @@ int __stdcall MeasureShapeFrameStorage(struct Shape *shape, short frame)
     if (shape != 0 && frame >= 0) {
         frameTableOffset = frame * 4 + 4;
         if (frameTableOffset < (unsigned short)shape->frameOffsets[0]) {
-            run = (unsigned char *)shape +
-                *(int *)((unsigned char *)shape + frameTableOffset) +
-                sizeof(struct ShapeFrame);
+            run = ((struct ShapeFrame *)((unsigned char *)shape +
+                *(int *)((unsigned char *)shape + frameTableOffset)))->commands;
 #ifdef SDL_PORT
             memcpy(&rowLength, run, sizeof(rowLength));
 #else
