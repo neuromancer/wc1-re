@@ -130,7 +130,7 @@ unsigned int rotate_eye_to_goal(void)
 {
     short totalError;
 
-    totalError = (short)(abs(anObjPitchRot[61] -
+    totalError = (abs(anObjPitchRot[61] -
                             nEyePitchTargetValue) +
                          abs(anObjectYawRotation[61] -
                             nEyeYawGoalValue) +
@@ -220,7 +220,7 @@ unsigned int set_eye_direction_and_position(void)
             desiredPosition = aShipFwdVec[0];
             SetVectorFixedPoint(
                 &desiredPosition,
-                (short)(bAlternateChaseView == 0 ? -700 : -500));
+                (bAlternateChaseView == 0 ? -700 : -500));
             AddFixedVectors(
                 &desiredPosition,
                 &aShipPositionsArray[cViewObject],
@@ -239,9 +239,9 @@ unsigned int set_eye_direction_and_position(void)
                 &aShipFwdVec[EYE_OBJECT]);
             fix_objects_ijk(EYE_OBJECT);
             nEyeRollTargetValue = match_roll_orientation(
-                EYE_OBJECT, (short)cViewObject);
+                EYE_OBJECT, cViewObject);
             if (nEyeRollTargetValue != 0) {
-                if (abs((int)nEyeRollTargetValue) > 4) {
+                if (abs(nEyeRollTargetValue) > 4) {
                     nEyeRollRate = 4;
                     rotate_eye_to_goal();
                     rotate_object(EYE_OBJECT);
@@ -308,8 +308,8 @@ unsigned int set_eye_direction_and_position(void)
                     GetScreenUpdateFlag();
                     SetViewportRect(
                         &stSpaceBufferViewport, 0, 0,
-                        (unsigned short)(nScreenWidth - 1),
-                        (unsigned short)(nScreenHeight - 1));
+                        (nScreenWidth - 1),
+                        (nScreenHeight - 1));
                     initialize_view_buffer();
                     new_view(0, 0);
                     GetScreenUpdateFlag();
@@ -328,11 +328,11 @@ unsigned int set_eye_direction_and_position(void)
                 if (magnitude > 0xfa00) {
                     divide_vector(
                         &vector,
-                        (int)(short)(nCurrentExternalViewDistance &
+                        (short)(nCurrentExternalViewDistance &
                                      0xfffe) << 7,
                         &aShipVelocity[EYE_OBJECT]);
                     nCurrentExternalViewDistance = MaxShort(
-                        (short)(nCurrentExternalViewDistance - 1), 8);
+                        (nCurrentExternalViewDistance - 1), 8);
                 } else {
                     adjustment = vector;
                     NormalizeFixedVector(&adjustment);
@@ -376,8 +376,8 @@ unsigned int set_eye_direction_and_position(void)
         GetScreenUpdateFlag();
         SetViewportRect(
             &stSpaceBufferViewport, 0, 0,
-            (unsigned short)(nScreenWidth - 1),
-            (unsigned short)(nScreenHeight - 1));
+            (nScreenWidth - 1),
+            (nScreenHeight - 1));
         initialize_view_buffer();
         bCockpitlessView = 0;
         new_view(0, 0);
@@ -410,7 +410,7 @@ unsigned int set_eye_direction_and_position(void)
             aShipPositionsArray[0];
         return 0;
     case 10:
-        copy_frame((short)cViewObject, EYE_OBJECT);
+        copy_frame(cViewObject, EYE_OBJECT);
         aShipVelocity[EYE_OBJECT] =
             aShipVelocity[cViewObject];
         aShipPositionsArray[EYE_OBJECT] =
@@ -488,7 +488,7 @@ unsigned int new_view(int view, short obj)
     if (view == 6 && nExternalViewShip == -1)
         return 0;
 
-    cViewObject = (signed char)obj;
+    cViewObject = obj;
     if (view == 4 &&
         aeObjectClass[cViewObject] ==
             OBJECT_CLASS_CAPITAL_SHIP)
@@ -683,7 +683,7 @@ unsigned int start_dust(short obj, FixedVector origin,
 
     set_objects_data(obj, OBJECT_TYPE_SPACE_DUST, -1);
     ScaleFixedVector(&aShipFwdVec[EYE_OBJECT],
-                     (int)forwardDistance << 8, &offset);
+                     forwardDistance << 8, &offset);
     AddFixedVectors(&origin, &offset, &origin);
     ScaleFixedVector(&aShipRightVector[EYE_OBJECT],
                      rightOffset, &offset);
@@ -695,7 +695,7 @@ unsigned int start_dust(short obj, FixedVector origin,
                     &aShipPositionsArray[EYE_OBJECT],
                     &aShipPositionsArray[obj]);
     FillFixedVectorWithRandomComponents(2, &aShipVelocity[obj]);
-    streak = MaxShort((short)(1 - RandomInRange(0, 3)), 0);
+    streak = MaxShort((1 - RandomInRange(0, 3)), 0);
     streak <<= 4;
     streak += RandomInRange(0, 3);
     asObjScreenAngles[obj] = streak;
@@ -739,7 +739,7 @@ unsigned int generate_stars(void)
                              15000 << 8,
                              &aShipPositionsArray[obj]);
             asObjectViewFrames[obj] =
-                (short)(RandomInRange(0, 5) + 32);
+                (RandomInRange(0, 5) + 32);
         }
     }
     return 0;
@@ -815,7 +815,7 @@ unsigned int update_star_field(void)
                                  15000 << 8,
                                  &aShipPositionsArray[obj]);
                 asObjectViewFrames[obj] =
-                    (short)(RandomInRange(0, 5) + 32);
+                    (RandomInRange(0, 5) + 32);
                 break;
             }
             if (aeObjectClass[obj] == OBJECT_CLASS_DUST &&
@@ -827,7 +827,7 @@ unsigned int update_star_field(void)
                 if (viewMotion.z >= 0) {
                     distance =
                         (unsigned short)RandomInRange(
-                            0, (short)(viewMotion.z >> 8));
+                            0, (viewMotion.z >> 8));
                     distance += asObjectCollisionRadius[EYE_OBJECT];
                     distance *= 2;
                     distance += (unsigned short)RandomInRange(0, 350);
@@ -835,18 +835,18 @@ unsigned int update_star_field(void)
                     distance = (unsigned short)RandomInRange(0, 40) +
                         asObjectCollisionRadius[EYE_OBJECT];
                 }
-                rightRandom = signed_random((short)(distance >> 1));
-                upRandom = signed_random((short)(distance >> 1));
-                shift = (unsigned char)(viewMotion.z <= 0 ? 9 : 8);
+                rightRandom = signed_random((distance >> 1));
+                upRandom = signed_random((distance >> 1));
+                shift = (viewMotion.z <= 0 ? 9 : 8);
 #ifdef SDL_PORT
                 rightOffset =
-                    viewMotion.x + (int)rightRandom * (1 << shift);
+                    viewMotion.x + rightRandom * (1 << shift);
                 upOffset =
-                    viewMotion.y + (int)upRandom * (1 << shift);
+                    viewMotion.y + upRandom * (1 << shift);
 #else
                 rightOffset =
-                    viewMotion.x + ((int)rightRandom << shift);
-                upOffset = viewMotion.y + ((int)upRandom << shift);
+                    viewMotion.x + (rightRandom << shift);
+                upOffset = viewMotion.y + (upRandom << shift);
 #endif
                 start_dust(obj, origin, distance, rightOffset, upOffset);
                 break;
@@ -894,7 +894,7 @@ unsigned int house_keep_objects(void)
         case OBJECT_CLASS_PROJECTILE:
             if (count_down(obj) == 0) {
                 if (aeObjectTypeList[obj] == OBJECT_TYPE_TURRET)
-                    explode((short)acObjOwnersTable[obj], obj);
+                    explode(acObjOwnersTable[obj], obj);
                 else
                     remove_object(obj);
             }
@@ -1235,11 +1235,11 @@ unsigned int animate_shape(short obj)
         switch (command & 0x0c00) {
         case 0x0400:
             awObjectScales[obj] +=
-                (command & 0x3f) * ((unsigned short)awObjectScales[obj] >> 6);
+                (command & 0x3f) * (awObjectScales[obj] >> 6);
             break;
         case 0x0800: {
-            delay = (short)awObjectScales[obj];
-            scale = (unsigned short)delay;
+            delay = awObjectScales[obj];
+            scale = delay;
             awObjectScales[obj] =
                 scale - (command & 0x3f) * ((unsigned short)delay >> 6);
             break;
@@ -1294,7 +1294,7 @@ unsigned int animate_object(short obj)
         if (effect == -1)
             break;
         ScaleFixedVector(&aShipFwdVec[obj],
-                         -((int)asObjectCollisionRadius[obj]
+                         -(asObjectCollisionRadius[obj]
                              << 8),
                          &offset);
         AddFixedVectors(&aShipPositionsArray[obj], &offset,
@@ -1337,8 +1337,8 @@ unsigned int hit_asteroid(short asteroid, short destructionChance)
 {
     short fragments;
 
-    if (RandomBelowOrEqual((short)(destructionChance - 1)) == 0) {
-        fragments = (short)(RandomBelowOrEqual(1) + 2);
+    if (RandomBelowOrEqual((destructionChance - 1)) == 0) {
+        fragments = (RandomBelowOrEqual(1) + 2);
         while (fragments > 0) {
             make_shard(asteroid, aShipVelocity[asteroid]);
             fragments--;
@@ -1414,11 +1414,11 @@ int object_collision(short obj)
                 }
                 acPreviousAttackers[partner] = acObjOwnersTable[objectIndex];
                 acShipAiCooldowns[partner] += 4;
-                projectileDamage = (short)(asShipAccumulatedDmg[objectIndex] -
+                projectileDamage = (asShipAccumulatedDmg[objectIndex] -
                                            asObjectCounterArray[objectIndex] / 2);
                 response = aShipVelocity[objectIndex];
                 NormalizeFixedVector(&response);
-                ScaleFixedVector(&response, (int)projectileDamage << 8,
+                ScaleFixedVector(&response, projectileDamage << 8,
                                  &response);
                 negate_vector(&vCollisionDelta);
                 apply_force_to_object(&vCollisionDelta,
@@ -1429,7 +1429,7 @@ int object_collision(short obj)
             savedScale = awObjectScales[objectIndex];
             set_objects_data(obj, OBJECT_TYPE_LASER_SPARK,
                              acObjOwnersTable[objectIndex]);
-            awObjectScales[objectIndex] = (short)(savedScale * 2);
+            awObjectScales[objectIndex] = (savedScale * 2);
             aShipVelocity[objectIndex] =
                 aShipVelocity[partner];
             if (aeObjectClass[partner] == OBJECT_CLASS_ASTEROID) {
@@ -1492,9 +1492,9 @@ int object_collision(short obj)
                 acLastCollisionObjects[objectIndex] != partner) {
                 PlaySfxWaveFileByNumber(0x1c, obj, 0, 0);
                 acLastCollisionObjects[partner] =
-                    (signed char)obj;
+                    obj;
                 acLastCollisionObjects[objectIndex] =
-                    (signed char)partner;
+                    partner;
 
                 separationScale = DivideFixed(
                     (asObjectCollisionRadius[objectIndex] +
@@ -1516,12 +1516,12 @@ int object_collision(short obj)
                     &vCollisionDelta, &partnerComponent);
                 ComputeVectorDelta(&partnerComponent, &response,
                                    &componentDelta);
-                damage = (short)(Vector_magnitude(&componentDelta) >> 8);
+                damage = (Vector_magnitude(&componentDelta) >> 8);
 #ifdef SDL_PORT
                 if (obj == 0 || partner == 0)
                     SdlQueueJoystickCollisionRumble(damage);
 #endif
-                damage = (short)((damage * damage) >> 1);
+                damage = ((damage * damage) >> 1);
 
                 totalMass =
                     awObjMassArray[objectIndex] + awObjMassArray[partner];

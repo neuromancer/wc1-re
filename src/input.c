@@ -60,7 +60,7 @@ short __stdcall UpdateInputDeviceTransitions(short raw)
             }
         }
         asPreviousInputButtons[device] =
-            (short)aInputDevSamples[device].buttons;
+            aInputDevSamples[device].buttons;
     }
     return 1;
 }
@@ -101,7 +101,7 @@ void PollJoystickButtonEvents(void)
             1, doubleClick);
     }
     stHostMouseState.secondaryButton =
-        (unsigned char)aInputDevSamples[nCurrentActiveInputDevice].buttons;
+        aInputDevSamples[nCurrentActiveInputDevice].buttons;
     stHostMouseState.primaryButton = stHostMouseState.secondaryButton;
     bInputPollingGuard--;
 }
@@ -133,7 +133,7 @@ void PollMenuInputDevices(void)
                 doubleClick = 3;
             QueueInputEventAtCursor(
                 (aInputDevSamples[nCurrentActiveInputDevice].buttons & 1) + 1,
-                0, (short)doubleClick);
+                0, doubleClick);
             changes++;
         }
         if (asInputButton2ChangedTable[nCurrentActiveInputDevice] != 0) {
@@ -149,7 +149,7 @@ void PollMenuInputDevices(void)
             QueueInputEventAtCursor(
                 ((aInputDevSamples[nCurrentActiveInputDevice].buttons >> 1) &
                  1) + 1,
-                1, (short)doubleClick);
+                1, doubleClick);
             changes++;
         }
         if (changes == 0) {
@@ -159,7 +159,7 @@ void PollMenuInputDevices(void)
             stHostMouseState.y +=
                 aInputDevSamples[nCurrentActiveInputDevice].y *
                 nMenuPointerSpeed;
-            changes = (unsigned char)(
+            changes = (
                 aInputDevSamples[nCurrentActiveInputDevice].y |
                 aInputDevSamples[nCurrentActiveInputDevice].x);
             if (changes != 0) {
@@ -177,7 +177,7 @@ void PollMenuInputDevices(void)
         }
 
         stHostMouseState.secondaryButton =
-            (unsigned char)aInputDevSamples[nCurrentActiveInputDevice].buttons;
+            aInputDevSamples[nCurrentActiveInputDevice].buttons;
         stHostMouseState.primaryButton = stHostMouseState.secondaryButton;
         stHostMouseState.x = stHostMouseState.x > 0 ?
             stHostMouseState.x : 0;

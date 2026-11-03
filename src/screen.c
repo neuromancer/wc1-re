@@ -51,7 +51,7 @@ void cleanup_objectives(void)
          objective++,
          objectiveType = aMissionObjectivesArray[objective].type) {
         if (achieved(objective) == 0) {
-            index = (short)aMissionObjectivesArray[objective].index;
+            index = aMissionObjectivesArray[objective].index;
             switch (objectiveType) {
             case 0:
             case 1:
@@ -195,7 +195,7 @@ short i_wanna_rout(short ship, int pilot)
         return aeShipMissionType[ship] ==
                MISSION_TYPE_CANNED_SEQUENCE;
     case 9:
-        return (short)triumph(0);
+        return triumph(0);
     case 10:
         return any_enemy(0, 10000) == 0;
     }
@@ -213,7 +213,7 @@ void request(short requester, short ship, short command)
     requesterTarget = &acShipTargetTable[requester];
 
     for (;;) {
-        target = (short)*requesterTarget;
+        target = *requesterTarget;
         switch (command) {
         case 1:
             allow_engage();
@@ -259,8 +259,8 @@ void request(short requester, short ship, short command)
         case 5:
         case 6:
             if (RandomBelow(100) < 70 ||
-                ((signed char)acShipRating[ship] >= 9 &&
-                 (signed char)acShipRating[ship] <= 12))
+                (acShipRating[ship] >= 9 &&
+                 acShipRating[ship] <= 12))
                 send_message(ship, command - 2);
             if (acShipTargetTable[ship] != requester &&
                 too_busy(ship) == 0) {
@@ -342,7 +342,7 @@ unsigned short __stdcall InitializeDIBScreenViewport(
     viewport->top = 0;
     if (nVideoMode != 0x13) {
         SystemDebugPrintf("== BAD alloc_screen == : type: '%d'\n",
-                          (int)nVideoMode);
+                          nVideoMode);
         exit(1);
     }
     viewport->pixels = GetDIBPixelBuffer();
@@ -372,13 +372,13 @@ unsigned int __stdcall GetPacketSize(const char *filename, short section)
     PacketSectionHandle handle;
     unsigned int size;
 
-    size = (unsigned int)-1;
+    size = -1;
     if (OpenPacketSection(filename, section, &handle) != 0) {
         switch (handle.compression) {
         case 1:
             ReadPacketSectionData(&handle, &size, 4);
             if (nPacketError != 0)
-                size = (unsigned int)-1;
+                size = -1;
             break;
         case 2:
             size = handle.dataSize;

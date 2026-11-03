@@ -26,7 +26,7 @@ static int SdlFindLauncherChoice(const char *name,
 
     for (choice = 0; choice < choiceCount; choice++) {
         if (strcmp(name, choices[choice]) == 0)
-            return (int)choice;
+            return choice;
     }
     return -1;
 }
@@ -289,8 +289,8 @@ int main(int argumentCount, char **arguments)
                 "Experimental enhanced rendering enabled "
                 "(GL sharp bilinear).\n");
 
-    DIBinstall((HWND)window);
-    hMainWindow = (HWND)window;
+    DIBinstall(window);
+    hMainWindow = window;
     SdlStartEventPump();
     CheckLauncherAndConfig();
     usingDosData = SdlUsingDosData();
@@ -313,15 +313,15 @@ int main(int argumentCount, char **arguments)
     if (useLauncherGui)
         bCockpitEnabled = !launcherOptions.cockpitlessView;
     MonoDebug_install();
-    InitializeAudioSystem((HWND)window);
-    InitializeAudioStreamer((HWND)window);
-    srand((unsigned int)time(0));
+    InitializeAudioSystem(window);
+    InitializeAudioStreamer(window);
+    srand(time(0));
     InitGameClockEpoch();
-    CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
-    nSessionStartTime = (unsigned int)time(0);
+    CreateDebugOverlayConsole(0, window, 60, 20);
+    nSessionStartTime = time(0);
     pCurrentEventManagerPump = 0;
     SDL_ShowCursor(SDL_DISABLE);
-    gameResult = GameMain((short)(argumentCount - 1), arguments);
+    gameResult = GameMain((argumentCount - 1), arguments);
     SdlSetMouseGrab(0);
     SDL_ShowCursor(SDL_ENABLE);
     DestroyGlobalDebugOverlayConsole();

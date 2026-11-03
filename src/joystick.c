@@ -35,7 +35,7 @@ void CalibrateJoystickInteractive()
         fontLoaded = 1;
 
     InitializeTextContextFromFont(&stDefaultTxtContext, 1,
-        cViewportClearColour, (signed char)cBlackColour);
+        cViewportClearColour, cBlackColour);
     shown = ShowModalTextPanel(1,
         "Turn AUTO FIRE off if present, press a button");
     if (shown != 0) {

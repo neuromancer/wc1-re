@@ -71,8 +71,8 @@ void ReportPacketLoadError(void *packet, short logicalFile,
             pszPacketLoadErrorFormat,
             operation,
             pDiskFileRecords[logicalFile].name,
-            (int)section, (int)error, packetSize,
-            GetFixedOneMillionThunkAlt(retry), (int)retry, sourceTag);
+            section, error, packetSize,
+            GetFixedOneMillionThunkAlt(retry), retry, sourceTag);
     FatalErrorAndExit(szDefaultTxtBuf);
 }
 
@@ -158,7 +158,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
                 break;
         } while (nPacketError != 8);
         if (AllocateViewport(&stSpaceBufferViewport,
-                             (short)cPrimaryViewBufferColour, 0x20) == 0) {
+                             cPrimaryViewBufferColour, 0x20) == 0) {
             ReportPacketLoadError(0, logicalFile, flags, flags,
                                   "LP2");
         }
@@ -174,7 +174,7 @@ void *FetchDiskPacketRetrying(short logicalFile, short section,
                 break;
         } while (nPacketError != 8);
         if (AllocateViewport(&stSceneBuffer,
-                             (short)cBlackColour, 0) == 0) {
+                             cBlackColour, 0) == 0) {
             ReportPacketLoadError(0, logicalFile, flags, section,
                                   "LP3");
         }
@@ -208,11 +208,11 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
                                                          0);
         }
         apFontWorkspaces[index] =
-            AllocateFontWorkspace((short)index);
+            AllocateFontWorkspace(index);
     }
     context->font = apTextFonts[index];
     context->colour = colour;
-    context->backgroundColour = (unsigned char)background;
+    context->backgroundColour = background;
     context->fontWorkspace = apFontWorkspaces[index];
     SetTextContext(context);
     return 0;
@@ -243,7 +243,7 @@ unsigned int DrawTextAt(TextContext *context, short x, short y,
     unsigned char savedAlignment = context->alignment;
 
     SetTextContext(context);
-    SetTextCursor((unsigned short)x, (unsigned short)y);
+    SetTextCursor(x, y);
     context->text = (char *)text;
     context->alignment = alignment;
     DrawTextString(text);
@@ -265,8 +265,8 @@ unsigned int SortSignedByteValuesAscending(signed char *values,
     outer = 0;
     if (0 < count - 1) {
         do {
-            inner = (signed char)(outer + 1);
-            next = (short)inner;
+            inner = (outer + 1);
+            next = inner;
             if ((short)inner < count) {
                 do {
                     signed char value = values[outer];
@@ -279,7 +279,7 @@ unsigned int SortSignedByteValuesAscending(signed char *values,
                 } while ((short)inner < count);
             }
             outer++;
-        } while ((int)next < count - 1);
+        } while (next < count - 1);
     }
     return 0;
 }
@@ -295,13 +295,13 @@ short OpenDiskDataFile(short logicalFile)
                       3);
     file = OpenDataFileOrDie(szDiskMarkerFile);
     if (file != -1) {
-        CloseDataFile((unsigned short)file);
+        CloseDataFile(file);
         return 1;
     }
     if (bCurrentRunningFromHardDiskFlag != 0)
         return 1;
     if (GetCurrentDiskDriveHook() == 'A') {
-        if (toupper((int)(signed char)
+        if (toupper((signed char)
                         abDiskPromptDriveStates[1]) == 'B') {
             SelectDiskDriveHook('B');
         } else {
@@ -312,7 +312,7 @@ short OpenDiskDataFile(short logicalFile)
     }
     file = OpenDataFileOrDie(szDiskMarkerFile);
     if (file != -1) {
-        CloseDataFile((unsigned short)file);
+        CloseDataFile(file);
         return 1;
     }
     return 0;
@@ -338,7 +338,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
             DiskPromptDrawHook();
             ResetDiskPromptTimerHook(2, 10);
             cprintf("Please Insert Disk %d. Press any key to continue",
-                    (int)diskNumber);
+                    diskNumber);
             WaitForInputKey();
         } while (OpenDiskDataFile(logicalFile) == 0);
         return;
@@ -360,14 +360,14 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
 
     if (stSpaceBufferViewport.pixels != 0) {
         stDiskPromptBgView = stSpaceBufferViewport;
-        backgroundColour = (unsigned char)cPrimaryViewBufferColour;
+        backgroundColour = cPrimaryViewBufferColour;
     } else if (stSceneBuffer.pixels != 0) {
         stDiskPromptBgView = stSceneBuffer;
-        backgroundColour = (unsigned char)cBlackColour;
+        backgroundColour = cBlackColour;
     } else {
-        savedViewportMode = (signed char)AllocateViewport(
+        savedViewportMode = AllocateViewport(
             &stDiskPromptBgView, -1, 0);
-        backgroundColour = (short)(unsigned int)savedTextContext;
+        backgroundColour = (unsigned int)savedTextContext;
     }
 
     *(ShortRect *)&stDiskPromptBgView.left = stDiskPromptBounds;
@@ -380,8 +380,8 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
         ClearViewport(&stDiskPromptViewport,
                       cViewportClearColour);
         SetTextCursor(
-            (unsigned short)(stDiskPromptViewport.left + 2),
-            (unsigned short)(stDiskPromptViewport.top + 2));
+            (stDiskPromptViewport.left + 2),
+            (stDiskPromptViewport.top + 2));
         DrawViewportBorder(
             &stDiskPromptViewport,
             stDiskPromptViewport.left,
@@ -391,7 +391,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
             nDiskPromptBorderColour);
         FormatTextBufferFromStart(
             "Please insert disk %d\ninto any drive\nPress any key when ready.",
-            (int)pDiskFileRecords[logicalFile].diskNumber);
+            pDiskFileRecords[logicalFile].diskNumber);
         DrawTextString(szTxtWorkspaceBuffer);
         WaitForInputKey();
         if (OpenDiskDataFile(logicalFile) != 0)
@@ -486,7 +486,7 @@ short WaitForInputKey(void)
             break;
         case 3:
         case 5:
-            key = (signed char)event.value;
+            key = event.value;
             switch (key) {
             case 0x1d:
                 key = 0;
@@ -628,19 +628,19 @@ void EraseLastTextInputCharacter(void)
     textWidth = MeasureTextPixelWidthClamped(text);
     length = DosStrlen(text);
     if (length != 0) {
-        characterWidth = (short)GetFontCharWidth(text[length - 1]);
+        characterWidth = GetFontCharWidth(text[length - 1]);
         clearArea = *pCurTextContext->viewport;
-        clearArea.left = (short)(clearArea.left +
+        clearArea.left = (clearArea.left +
                                  textWidth - characterWidth);
-        clearArea.right = (short)(clearArea.left + characterWidth - 1);
+        clearArea.right = (clearArea.left + characterWidth - 1);
         clearArea.top = pCurTextContext->cursorY;
-        clearArea.bottom = (short)(clearArea.top +
+        clearArea.bottom = (clearArea.top +
             FontHeight(pCurTextContext->font) - 1);
         LeaveAllocationScope();
         ClearViewport(&clearArea,
                       pCurTextContext->backgroundColour);
         EnterAllocationScope();
-        pCurTextContext->cursorX = (short)(
+        pCurTextContext->cursorX = (
             pCurTextContext->cursorX - characterWidth);
     }
 }

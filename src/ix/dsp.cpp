@@ -98,7 +98,7 @@ void ix_dsp_configure(int option, void *value)
 {
     switch (option) {
     case 0:
-        hPlaybackWindow = (HWND)value;
+        hPlaybackWindow = value;
         break;
     case 1:
         pDspDevice = (LPDIRECTSOUND)value;
@@ -242,7 +242,7 @@ void ix_dsp_set_master_volume(unsigned short volume)
     int voice;
 
     if ((volume & 0xffff) >= 0) {
-        nMasterVolume = (unsigned short)(
+        nMasterVolume = (
             (volume & 0xffff) < 0xffff ? (volume & 0xffff) : 0xffff);
     } else {
         nMasterVolume = 0;
@@ -265,25 +265,25 @@ void ix_dsp_build_pan_tables(void)
     volumeStep = 0x3ff;
     left = 0x7fff;
     for (panPosition = 0; panPosition < 0x40; panPosition++) {
-        panDistance = (short)(0x20 - panPosition);
-        right = (short)(panDistance * volumeStep);
+        panDistance = (0x20 - panPosition);
+        right = (panDistance * volumeStep);
         asPanGains[panPosition * 2] = left;
         asPanGains[panPosition * 2 + 1] = right;
         asPanGains[0x100 + panPosition * 2] =
-            (short)(left * -1);
+            (left * -1);
         asPanGains[0x100 + panPosition * 2 + 1] =
-            (short)(right * -1);
+            (right * -1);
     }
-    right = (short)0x8001;
+    right = 0x8001;
     for (panPosition = 0x40; panPosition < 0x80; panPosition++) {
-        panDistance = (short)(0x60 - panPosition);
-        left = (short)(panDistance * volumeStep);
+        panDistance = (0x60 - panPosition);
+        left = (panDistance * volumeStep);
         asPanGains[panPosition * 2] = left;
         asPanGains[panPosition * 2 + 1] = right;
         asPanGains[0x100 + panPosition * 2] =
-            (short)(left * -1);
+            (left * -1);
         asPanGains[0x100 + panPosition * 2 + 1] =
-            (short)(right * -1);
+            (right * -1);
     }
 }
 

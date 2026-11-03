@@ -109,7 +109,7 @@ void FadeMusic(void)
 /* Function start: 0x42E330 */
 void SetMusicOn(short enabled)
 {
-    SoundDebugPrintf("SetMusicOn %d\n", (int)enabled);
+    SoundDebugPrintf("SetMusicOn %d\n", enabled);
 }
 
 /* Function start: 0x42E350 */
@@ -372,7 +372,7 @@ int ProcessMusicScriptCommand(int track, int command, short enabled)
         if ((track >= 0 && track <= 5) ||
             (track >= 12 && track <= 18)) {
             SoundDebugPrintf("flight_intensity %d ", track);
-            SetStreamerIntensity((unsigned char)track);
+            SetStreamerIntensity(track);
         } else {
             SoundDebugPrintf("flight_trigger %d ", track);
             Streamer_trigger(track);
@@ -584,7 +584,7 @@ void gametrack(void)
                 } else if (is_ship_tailing_player_target(0) != 0) {
                     track = 2;
                 } else {
-                    damage = (short)calculate_damage_level();
+                    damage = calculate_damage_level();
                     if (damage >= 2)
                         track = 4;
                     else
@@ -753,7 +753,7 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
             ComputeVectorDelta(
                 &aShipPositionsArray[EYE_OBJECT],
                 &aShipPositionsArray[sourceObject], &delta);
-            distance = (int)((Vector_magnitude(&delta) / 500L) >> 8);
+            distance = ((Vector_magnitude(&delta) / 500L) >> 8);
             volume -= distance;
             if (volume < 0)
                 volume = 0;

@@ -248,8 +248,8 @@ void playWAVE(const char *filename, int looping, int volume)
             exit(1);
         }
         fileSize = filelength(file);
-        fileData = (unsigned char *)malloc((unsigned int)fileSize);
-        _read(file, fileData, (unsigned int)fileSize);
+        fileData = (unsigned char *)malloc(fileSize);
+        _read(file, fileData, fileSize);
         _close(file);
 
         wave = AllocateWaveTableEntry();
@@ -313,8 +313,8 @@ void PlaySnowStaticSound(void)
                 exit(1);
             }
             fileSize = filelength(file);
-            fileData = (unsigned char *)malloc((unsigned int)fileSize);
-            _read(file, fileData, (unsigned int)fileSize);
+            fileData = (unsigned char *)malloc(fileSize);
+            _read(file, fileData, fileSize);
             _close(file);
 
             pSnowStaticWave = AllocateWaveTableEntry();
@@ -347,7 +347,7 @@ void ServiceSoundSystem(void)
 void SetSoundEffectsVolume(int volume)
 {
     if (volume >= 0 && volume < 65000)
-        ix_system_set_master_volume((unsigned short)volume);
+        ix_system_set_master_volume(volume);
     SoundDebugPrintf("Setting SFX Volume to %d\n", volume);
 }
 

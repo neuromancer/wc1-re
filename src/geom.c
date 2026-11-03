@@ -20,12 +20,12 @@ short __stdcall MeasureTextPixelWidthClamped(const char *text)
     short width = 0;
 
     while (*text != 0) {
-        width = (short)(width + GetFontCharWidth(*text++));
+        width = (width + GetFontCharWidth(*text++));
         if (width >= 320)
             break;
     }
     if (*text-- != 0) {
-        width = (short)(width - GetFontCharWidth(*text));
+        width = (width - GetFontCharWidth(*text));
     }
     return width;
 }
@@ -38,14 +38,14 @@ int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
     int sectionEnd;
     int result;
 
-    result = (int)handle->dataOffset;
-    sectionEnd = (int)((unsigned int)result + handle->dataSize);
+    result = handle->dataOffset;
+    sectionEnd = ((unsigned int)result + handle->dataSize);
     switch (origin) {
     case 0:
         position = result;
         break;
     case 1:
-        position = (int)((unsigned int)result + handle->position);
+        position = ((unsigned int)result + handle->position);
         break;
     case 2:
         position = sectionEnd;
@@ -56,9 +56,9 @@ int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
         position = result;
     if (sectionEnd < position && handle->finalSection == 0)
         position = sectionEnd;
-    result = SeekDataFile((unsigned short)handle->file, position, 0);
+    result = SeekDataFile(handle->file, position, 0);
     if (result != -1)
-        handle->position = (unsigned int)(result - handle->dataOffset);
+        handle->position = (result - handle->dataOffset);
 }
 
 /* Function start: 0x418130 */
@@ -81,11 +81,11 @@ short __stdcall CollectActivePaletteIndices(Viewport *viewport,
     if (active == 0)
         return 0;
 
-    memset(active, 0, (unsigned int)capacity);
+    memset(active, 0, capacity);
     MarkActivePaletteEntries(viewport, active);
     for (index = 0; index < capacity; index++) {
         if (active[index] != 0)
-            indices[count++] = (unsigned char)index;
+            indices[count++] = index;
     }
     ReleasePacketHandle(active);
     return count;
@@ -112,7 +112,7 @@ short recalc_max_velocity(short ship)
         asShipMaximumSpeedArray[ship] = 5;
     } else {
         asShipMaximumSpeedArray[ship] =
-            (short)((get_ship_max_velocity(ship) *
+            ((get_ship_max_velocity(ship) *
                      (4 - acShipIonDriveDmg[ship])) >> 2);
     }
     if (asShipMaximumSpeedArray[ship] != oldVelocity)
@@ -123,7 +123,7 @@ short recalc_max_velocity(short ship)
 /* Function start: 0x418280 */
 void drain_fuel(short ship, short amount)
 {
-    anShipFuelsTable[ship] -= (int)amount;
+    anShipFuelsTable[ship] -= amount;
 #ifdef SDL_PORT
     /* SWC CODE_04 +0x1944 tests the ship's remaining fuel. WC1 retail tests
        the array address instead; retain that behavior outside SWC flight. */
@@ -137,7 +137,7 @@ void drain_fuel(short ship, short amount)
 /* Function start: 0x4182B0 */
 void damage_ion_drive(short ship, short amount, short maximum)
 {
-    acShipIonDriveDmg[ship] = (signed char)max(0,
+    acShipIonDriveDmg[ship] = max(0,
         min(acShipIonDriveDmg[ship] + amount, maximum));
     recalc_max_velocity(ship);
 }
@@ -186,9 +186,9 @@ void position_relative(FixedVector *position, FixedVector direction,
     if (distance != 0) {
         NormalizeFixedVector(&direction);
 #ifdef SDL_PORT
-        ScaleFixedVector(&direction, (int)distance * 0x100, &direction);
+        ScaleFixedVector(&direction, distance * 0x100, &direction);
 #else
-        ScaleFixedVector(&direction, (int)distance << 8, &direction);
+        ScaleFixedVector(&direction, distance << 8, &direction);
 #endif
         AddFixedVectors(position, &direction, position);
     }
@@ -211,7 +211,7 @@ short FixedToShortSaturating(int value)
         return -0x7fff;
     if (value > 0x7fff00)
         return 0x7fff;
-    return (short)(value >> 8);
+    return (value >> 8);
 }
 
 /* Function start: 0x4184E0 */
@@ -254,7 +254,7 @@ unsigned short SignShort(short v)
 {
     if (v < 0)
         return 0xffff;
-    return (unsigned short)(0 < v);
+    return (0 < v);
 }
 
 /* Function start: 0x418540 */
@@ -410,11 +410,11 @@ void rectangular_to_spherical(const FixedVector *rectangular,
     if (spherical->radius == 0)
         return;
     z = rectangular->z;
-    spherical->yaw = (short)ArcCos(
+    spherical->yaw = ArcCos(
         DivideFixed(z, PlanarMagnitude(rectangular->x, z)));
     if (rectangular->x < 0)
         spherical->yaw = -spherical->yaw;
-    spherical->pitch = (short)(ArcCos(
+    spherical->pitch = (ArcCos(
         DivideFixed(rectangular->y, spherical->radius)) - 90);
 }
 
@@ -443,13 +443,13 @@ void ConvertShortVectorToFixedVector(const ShortVector *source,
                                      FixedVector *destination)
 {
 #ifdef SDL_PORT
-    destination->x = (int)source->x * 0x100;
-    destination->y = (int)source->y * 0x100;
-    destination->z = (int)source->z * 0x100;
+    destination->x = source->x * 0x100;
+    destination->y = source->y * 0x100;
+    destination->z = source->z * 0x100;
 #else
-    destination->x = (int)source->x << 8;
-    destination->y = (int)source->y << 8;
-    destination->z = (int)source->z << 8;
+    destination->x = source->x << 8;
+    destination->y = source->y << 8;
+    destination->z = source->z << 8;
 #endif
 }
 
@@ -459,9 +459,9 @@ void ConvertShortVectorToFixedVector(const ShortVector *source,
 void ConvertFixedVectorToShortVector(const FixedVector *source,
                                      ShortVector *destination)
 {
-    destination->x = (short)(source->x >> 8);
-    destination->y = (short)(source->y >> 8);
-    destination->z = (short)(source->z >> 8);
+    destination->x = (source->x >> 8);
+    destination->y = (source->y >> 8);
+    destination->z = (source->z >> 8);
 }
 
 /* Function start: 0x4189E0 */
@@ -479,7 +479,7 @@ short vector_angle(FixedVector left, FixedVector right)
 {
     NormalizeFixedVector(&left);
     NormalizeFixedVector(&right);
-    return (short)(((short)dot_product(&left, &right) * 100) / 0x100);
+    return (((short)dot_product(&left, &right) * 100) / 0x100);
 }
 
 /* Function start: 0x418A80 */
@@ -675,7 +675,7 @@ short distance_between_points(const FixedVector *from,
 
     ComputeVectorDelta(from, to, &delta);
     magnitude = Vector_magnitude(&delta);
-    return FixedToShortSaturating((int)magnitude);
+    return FixedToShortSaturating(magnitude);
 }
 
 /* Function start: 0x419210 */
@@ -686,7 +686,7 @@ short distance_from_point(short obj, const FixedVector *point)
     ComputeVectorDelta(&aShipPositionsArray[obj],
                        point, &vToTgt);
     magnitude = Vector_magnitude(&vToTgt);
-    return FixedToShortSaturating((int)magnitude) -
+    return FixedToShortSaturating(magnitude) -
            asObjectCollisionRadius[obj];
 }
 
@@ -711,7 +711,7 @@ void get_facing_range_from_point(short obj, const FixedVector *point)
     NormalizeFixedVector(&vNormalizedToTarget);
     facing = dot_product(&vNormalizedToTarget,
                          &aShipFwdVec[obj]);
-    nFacingToTargetValue = (short)((*(short *)&facing * 100) >> 8);
+    nFacingToTargetValue = ((*(short *)&facing * 100) >> 8);
 }
 
 /* Function start: 0x419310 */
@@ -724,7 +724,7 @@ void get_facing_range_from_object(short obj, short other)
     negate_vector(&vNormalizedToTarget);
     facing = dot_product(&vNormalizedToTarget,
                          &aShipFwdVec[other]);
-    nTargetFacingValue = (short)((*(short *)&facing * 100) >> 8);
+    nTargetFacingValue = ((*(short *)&facing * 100) >> 8);
 }
 
 /* Function start: 0x419390 */
@@ -748,7 +748,7 @@ short facing_to_object(short obj, FixedVector *point)
                        point, &direction);
     NormalizeFixedVector(&direction);
     nFacingToTargetValue =
-        (short)(((short)dot_product(
+        (((short)dot_product(
             &direction, &aShipFwdVec[obj]) * 100) >> 8);
     return nFacingToTargetValue;
 }
@@ -765,7 +765,7 @@ short match_roll_orientation(short obj, short reference)
                          &aShipUpVector[reference]);
     roll.z = 0;
     NormalizeFixedVector(&roll);
-    angle = (short)ArcCos(roll.y);
+    angle = ArcCos(roll.y);
     if (roll.x >= 0)
         angle = 360 - angle;
     return WrapDegrees(angle);
@@ -787,32 +787,32 @@ int set_ship_rotation_goals(short obj, short turnRate,
         if (spherical.radius == 0)
             return 1;
         if (spherical.yaw > 0)
-            spherical.yaw = (short)(spherical.yaw - turnRate);
+            spherical.yaw = (spherical.yaw - turnRate);
         else
-            spherical.yaw = (short)(spherical.yaw + turnRate);
+            spherical.yaw = (spherical.yaw + turnRate);
     } else {
         magnitude = Vector_magnitude(&localDirection);
         if (magnitude == 0)
             return 1;
-        spherical.yaw = (short)ArcSin(DivideFixed(
+        spherical.yaw = ArcSin(DivideFixed(
             localDirection.x,
             PlanarMagnitude(localDirection.x, localDirection.z)));
-        spherical.pitch = (short)-ArcSin(
+        spherical.pitch = -ArcSin(
             DivideFixed(localDirection.y, magnitude));
         if (localDirection.z < 0) {
-            spherical.yaw = (short)-spherical.yaw;
+            spherical.yaw = -spherical.yaw;
             if (spherical.pitch > 0)
-                spherical.pitch = (short)(spherical.pitch + 180);
+                spherical.pitch = (spherical.pitch + 180);
             else
-                spherical.pitch = (short)(spherical.pitch - 180);
+                spherical.pitch = (spherical.pitch - 180);
         }
         if (spherical.pitch > 0)
-            spherical.pitch = (short)(spherical.pitch - turnRate);
+            spherical.pitch = (spherical.pitch - turnRate);
         else
-            spherical.pitch = (short)(spherical.pitch + turnRate);
+            spherical.pitch = (spherical.pitch + turnRate);
     }
-    *yawGoal = WrapDegrees((short)-spherical.yaw);
-    *pitchGoal = WrapDegrees((short)-spherical.pitch);
+    *yawGoal = WrapDegrees(-spherical.yaw);
+    *pitchGoal = WrapDegrees(-spherical.pitch);
     return 0;
 }
 
@@ -857,7 +857,7 @@ void point_ship_behind_object(short obj, short other)
     FixedVector point = aShipPositionsArray[other];
 
     position_relative(&point, aShipFwdVec[other],
-                      (short)(-500 -
+                      (-500 -
                           asObjectCollisionRadius[other]));
     point_ship_at_point(obj, &point);
 }
@@ -868,7 +868,7 @@ void point_ship_below_object(short obj, short other)
     FixedVector point = aShipPositionsArray[other];
 
     position_relative(&point, aShipUpVector[other],
-                      (short)(asObjectCollisionRadius[other] +
+                      (asObjectCollisionRadius[other] +
                               500));
     point_ship_at_point(obj, &point);
 }
@@ -934,9 +934,9 @@ void NormalizeAndScaleVector(FixedVector *vector, int scale)
 void SetVectorFixedPoint(FixedVector *p, short v)
 {
 #ifdef SDL_PORT
-    NormalizeAndScaleVector(p, (int)v * 0x100);
+    NormalizeAndScaleVector(p, v * 0x100);
 #else
-    NormalizeAndScaleVector(p, (int)v << 8);
+    NormalizeAndScaleVector(p, v << 8);
 #endif
 }
 
@@ -1005,7 +1005,7 @@ void position_child(short parent, short hardpoint, FixedVector *position)
 void child_object(short hardpoint, short child, short parent)
 {
     position_child(parent, hardpoint, &aShipPositionsArray[child]);
-    acObjOwnersTable[child] = (signed char)parent;
+    acObjOwnersTable[child] = parent;
 }
 
 /* Function start: 0x419B70 */
@@ -1026,7 +1026,7 @@ short find_vacant_3d_object(void)
 
     do {
         if (aeObjectClass[i] == OBJECT_CLASS_NULL) {
-            asObjectScreenXList[i] = (short)0x8001;
+            asObjectScreenXList[i] = 0x8001;
             return i;
         }
         i = i + 1;
@@ -1041,7 +1041,7 @@ void remove_object(short obj)
 
     if (obj == -1)
         return;
-    asObjectScreenXList[obj] = (short)0x8001;
+    asObjectScreenXList[obj] = 0x8001;
     asObjDistancesTable[obj] = 0;
     if (obj == nNavPointerObject)
         nNavPointerObject = -1;
@@ -1093,7 +1093,7 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
     rotationalMass = DivideFixed(
         (unsigned short)asObjAfterburnerVelocities[obj]
             << 8,
-        (int)asObjectCollisionRadius[obj] << 8);
+        asObjectCollisionRadius[obj] << 8);
 
     anObjectRollRotationList[obj] += (short)(DivideFixed(
         MultiplyFixed(localPoint.x, localForce.y) -
@@ -1147,7 +1147,7 @@ void rotational_acceleration(FixedVector *point, FixedVector *force,
         (unsigned short)asObjAfterburnerVelocities[obj]
             << 8,
         MultiplyFixed(
-            (int)asObjectCollisionRadius[obj] << 8,
+            asObjectCollisionRadius[obj] << 8,
             0x123c));
 
     anObjectRollRotationList[obj] += (short)(DivideFixed(
@@ -1241,7 +1241,7 @@ void transform_objects_to_your_view(void)
             asObjDistancesTable[obj] = 0;
             if (aeObjectClass[obj] ==
                 OBJECT_CLASS_FUTURION) {
-                asObjectScreenXList[obj] = (short)0x8001;
+                asObjectScreenXList[obj] = 0x8001;
                 continue;
             }
             if (aeObjectClass[obj] ==
@@ -1256,12 +1256,12 @@ void transform_objects_to_your_view(void)
             distance = Vector_magnitude(&direction);
             if (distance <
                 asObjectCollisionRadius[EYE_OBJECT] * 0x100) {
-                asObjectScreenXList[obj] = (short)0x8001;
+                asObjectScreenXList[obj] = 0x8001;
                 continue;
             }
             if (aeObjectClass[obj] == OBJECT_CLASS_DUST &&
                 distance > (1400 << 8)) {
-                asObjectScreenXList[obj] = (short)0x8001;
+                asObjectScreenXList[obj] = 0x8001;
                 continue;
             }
             transform_to_objects_frame(&direction,
@@ -1270,12 +1270,12 @@ void transform_objects_to_your_view(void)
                                        EYE_OBJECT);
             if (aObjectViewPositionsList[obj].z <
                 asObjectCollisionRadius[EYE_OBJECT] * 0x100) {
-                asObjectScreenXList[obj] = (short)0x8001;
+                asObjectScreenXList[obj] = 0x8001;
                 continue;
             }
             if (DivideFixed(aObjectViewPositionsList[obj].z,
                             distance) < 0x94) {
-                asObjectScreenXList[obj] = (short)0x8001;
+                asObjectScreenXList[obj] = 0x8001;
                 continue;
             }
             objectRadius =
@@ -1286,8 +1286,8 @@ void transform_objects_to_your_view(void)
                 scaleFactor = DivideFixed(
                     (short)(nScreenWidth & ~1) << 15,
                     distance - objectRadius);
-                screenScale = (short)(
-                    MultiplyFixed((unsigned short)
+                screenScale = (
+                    MultiplyFixed(
                                       awObjectScales[obj],
                                   scaleFactor) >> 8);
                 if ((unsigned short)screenScale >= 0x2000)
@@ -1295,18 +1295,18 @@ void transform_objects_to_your_view(void)
                 asObjScreenScalesArray[obj] = screenScale;
                 if ((unsigned short)screenScale <= 4) {
                     asObjectScreenXList[obj] =
-                        (short)0x8001;
+                        0x8001;
                     continue;
                 }
             }
             asObjDistancesTable[obj] =
-                (unsigned short)(distance >> 8);
-            asObjectScreenXList[obj] = (short)(DivideFixed(
+                (distance >> 8);
+            asObjectScreenXList[obj] = (DivideFixed(
                 MultiplyFixed(
                     (short)(nScreenWidth & ~1) << 7,
                     aObjectViewPositionsList[obj].x),
                 aObjectViewPositionsList[obj].z) >> 8);
-            asObjectScreenYArray[obj] = (short)(DivideFixed(
+            asObjectScreenYArray[obj] = (DivideFixed(
                 MultiplyFixed(
                     (short)(nScreenWidth & ~1) << 7,
                     aObjectViewPositionsList[obj].y),
@@ -1317,17 +1317,17 @@ void transform_objects_to_your_view(void)
                     set_background_objects_rotation(obj, &direction);
                 break;
             case OBJECT_CLASS_DUST:
-                dustSize = (short)(MultiplyFixed(
+                dustSize = (MultiplyFixed(
                     0x900, DivideFixed(
                         asObjectCollisionRadius[EYE_OBJECT] << 8,
                         distance)) >> 8);
                 if (dustSize > 3)
                     dustSize = 3;
-                dustSize = (short)(
+                dustSize = (
                     (asObjScreenAngles[obj] & 0x10) +
                     (3 - dustSize) * 4);
                 asObjectViewFrames[obj] =
-                    (short)(((asObjectCounterArray[obj] +
+                    (((asObjectCounterArray[obj] +
                               nCurrentSpaceFrameValue) & 3) +
                             dustSize);
                 break;
@@ -1357,15 +1357,15 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
     negate_vector(direction);
     rectangular_to_spherical(direction, &spherical);
     init_ijk(63);
-    alter_yaw((short)-spherical.yaw, 63);
-    alter_pitch((short)-spherical.pitch, 63);
+    alter_yaw(-spherical.yaw, 63);
+    alter_pitch(-spherical.pitch, 63);
     projectedUp.z = 0;
     projectedUp.x = dot_product(&aShipUpVector[EYE_OBJECT],
                                 &aShipRightVector[63]);
     projectedUp.y = dot_product(&aShipUpVector[EYE_OBJECT],
                                 &aShipUpVector[63]);
     NormalizeFixedVector(&projectedUp);
-    angle = (short)ArcCos(projectedUp.y);
+    angle = ArcCos(projectedUp.y);
     angle %= 360;
     if (projectedUp.x >= 0)
         angle = 360 - angle;
@@ -1395,27 +1395,27 @@ void get_right_shape(short obj, FixedVector *direction)
 
     negate_vector(direction);
     rectangular_to_spherical(direction, &spherical);
-    rotate_about_j((short)-spherical.yaw, &right, &forward);
-    rotate_about_i((short)-spherical.pitch, &up, &forward);
+    rotate_about_j(-spherical.yaw, &right, &forward);
+    rotate_about_i(-spherical.pitch, &up, &forward);
     NormalizeFixedVector(&up);
     NormalizeFixedVector(&forward);
     transform_to_objects_frame(&forward, &objectForward, obj);
     transform_to_objects_frame(&aShipUpVector[EYE_OBJECT],
                                &eyeUp, obj);
     rectangular_to_spherical(&objectForward, &spherical);
-    pitchBand = (short)(spherical.pitch / 30 + 3);
-    remainder = (short)(spherical.pitch % 30);
+    pitchBand = (spherical.pitch / 30 + 3);
+    remainder = (spherical.pitch % 30);
     if (remainder > 15) {
-        pitchBand = (short)(pitchBand + 1 < 6 ? pitchBand + 1 : 6);
+        pitchBand = (pitchBand + 1 < 6 ? pitchBand + 1 : 6);
     } else if (remainder < -15) {
-        pitchBand = (short)(pitchBand - 1 > 0 ? pitchBand - 1 : 0);
+        pitchBand = (pitchBand - 1 > 0 ? pitchBand - 1 : 0);
     }
-    yawSector = (short)((12 - spherical.yaw / 30) % 12);
-    remainder = (short)(spherical.yaw % 30);
+    yawSector = ((12 - spherical.yaw / 30) % 12);
+    remainder = (spherical.yaw % 30);
     if (remainder > 15)
-        yawSector = (short)((yawSector + 11) % 12);
+        yawSector = ((yawSector + 11) % 12);
     else if (remainder < -15)
-        yawSector = (short)((yawSector + 1) % 12);
+        yawSector = ((yawSector + 1) % 12);
     /* The original leaves directionIndex unset outside the seven pitch bands. */
     switch (pitchBand) {
     case 0:
@@ -1426,7 +1426,7 @@ void get_right_shape(short obj, FixedVector *direction)
     case 3:
     case 4:
     case 5:
-        directionIndex = (short)(pitchBand * 12 + yawSector - 11);
+        directionIndex = (pitchBand * 12 + yawSector - 11);
         break;
     case 6:
         directionIndex = 61;
@@ -1439,9 +1439,9 @@ void get_right_shape(short obj, FixedVector *direction)
     projectedUp.y = dot_product(
         &eyeUp, &aDirectionViewUpVectorArray[directionIndex]);
     NormalizeFixedVector(&projectedUp);
-    angle = (short)ArcCos(projectedUp.y);
+    angle = ArcCos(projectedUp.y);
     if (projectedUp.x >= 0)
-        angle = (short)(360 - angle);
+        angle = (360 - angle);
 
     objectClass = (short)aeObjectClass[obj];
     if (objectClass == OBJECT_CLASS_MISSILE ||
@@ -1457,7 +1457,7 @@ void get_right_shape(short obj, FixedVector *direction)
         objectClass != OBJECT_CLASS_MISSILE)
         angle -= 90;
     asObjectFlipArray[obj] =
-        (short)(acDirectionShapeFlip[directionIndex] << 4);
+        (acDirectionShapeFlip[directionIndex] << 4);
     angle %= 360;
     if (angle < 0)
         angle += 360;
@@ -1492,10 +1492,10 @@ void get_right_shape(short obj, FixedVector *direction)
                 if (stSpaceBufferViewport.pixels != 0)
                     GetScreenUpdateFlag();
                 cCapitalShipLogicalFile =
-                    (signed char)(type + 22);
+                    (type + 22);
                 apObjShapeArray[obj] =
                     FetchDiskPacketRetrying(
-                        (short)cCapitalShipLogicalFile,
+                        cCapitalShipLogicalFile,
                         asCapitalShipViewFramesTable[obj], 0);
             }
             initialize_view_buffer();

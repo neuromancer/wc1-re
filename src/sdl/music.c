@@ -42,7 +42,7 @@ static unsigned char *SdlLoadDosMusicFile(
     while (candidateIndex < candidateCount) {
         if (SdlResolvePath(
                 candidates[candidateIndex], resolved, sizeof(resolved))) {
-            fileData = (unsigned char *)SDL_LoadFile(resolved, fileSize);
+            fileData = SDL_LoadFile(resolved, fileSize);
             if (fileData != 0)
                 return fileData;
         }
@@ -62,12 +62,12 @@ static void SdlMixDosAdlibMusic(void *stream, unsigned int byteCount)
     frameCount = byteCount / (sizeof(short) * 2U);
     if (g_pSdlOriginFxPlayer != 0) {
         SdlRenderOriginFxPlayer(
-            g_pSdlOriginFxPlayer, (short *)stream,
+            g_pSdlOriginFxPlayer, stream,
             frameCount, g_nSdlDosMusicGain);
     }
     if (g_pSdlOriginFxSoundPlayer != 0) {
         SdlMixOriginFxSoundEffects(
-            g_pSdlOriginFxSoundPlayer, (short *)stream,
+            g_pSdlOriginFxSoundPlayer, stream,
             frameCount, g_nSdlDosSoundGain);
     }
     SDL_UnlockMutex(g_pSdlDosMusicMutex);
@@ -95,7 +95,7 @@ static unsigned int SdlCalculateDosAudioGain(int volumeSetting)
         level = 0;
     else if (level > 64000)
         level = 64000;
-    return (unsigned int)((long)level * 0x7fffL / 64000L);
+    return ((long)level * 0x7fffL / 64000L);
 }
 
 static void SdlUpdateDosAdlibMusicVolume(void)
@@ -210,7 +210,7 @@ int SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
     }
     result = SdlPlayOriginFxSoundEffect(
         g_pSdlOriginFxSoundPlayer,
-        (unsigned int)soundNumber, volume, pan, tag, priority);
+        soundNumber, volume, pan, tag, priority);
     SDL_UnlockMutex(g_pSdlDosMusicMutex);
     return result;
 }
@@ -326,7 +326,7 @@ int SdlGetOriginFxMusicSequencePosition(void)
     if (g_pSdlOriginFxPlayer == 0) {
         position = -1;
     } else {
-        position = (int)SdlOriginFxPlayerSequencePosition(
+        position = SdlOriginFxPlayerSequencePosition(
             g_pSdlOriginFxPlayer);
     }
     SDL_UnlockMutex(g_pSdlDosMusicMutex);
@@ -378,7 +378,7 @@ void SdlServiceOriginFxMusic(void)
     if (!SdlExtractOriginPacketSection(
             g_pSdlDosMusicArchive,
             g_nSdlDosMusicArchiveSize,
-            (unsigned int)desiredTrack, &midi, &midiSize)) {
+            desiredTrack, &midi, &midiSize)) {
         fprintf(stderr, "Unable to decode OriginFX music track %d.\n",
                 desiredTrack);
         nCurrentMusicTrack = -1;

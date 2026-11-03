@@ -128,7 +128,7 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
             ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 96);
             ix_log_printf("Failed to CreateSoundBuffer, %s",
                           ix_dsp_result_to_text(resultCode));
-            return (DWORD)-1;
+            return -1;
         }
         dwSoundBufferSize = 0x8000;
         ix_log_printf("secondary buffer, size = %d\n",

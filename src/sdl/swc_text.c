@@ -53,7 +53,7 @@ int SdlDrawSwcText(SDL_Renderer *renderer, SDL_Texture *font, int x,
     if (SDL_SetTextureColorMod(font, ink.r, ink.g, ink.b) != 0)
         return -1;
     while (*text != 0 && destination.x < SWC_FRAME_WIDTH) {
-        character = (unsigned char)*text++;
+        character = *text++;
         if (character < 32 || character > 126)
             character = '?';
         character -= 32;
@@ -150,11 +150,11 @@ static int SwcLoadClassicFont(SDL_Renderer *renderer, SwcTextFont *font, int siz
     if (SwcReadResource(resourcePath, "FOND", 21, &family) == 0) {
         if (family.size < 54)
             goto malformed;
-        reader = SDL_RWFromConstMem(family.data, (int)family.size);
+        reader = SDL_RWFromConstMem(family.data, family.size);
         if (reader == NULL)
             goto done;
         SDL_RWseek(reader, 52, RW_SEEK_SET);
-        count = (int)SDL_ReadBE16(reader) + 1;
+        count = SDL_ReadBE16(reader) + 1;
         if ((size_t)count > (family.size - 54) / 6)
             goto malformed;
         id = -1;
@@ -171,12 +171,12 @@ static int SwcLoadClassicFont(SDL_Renderer *renderer, SwcTextFont *font, int siz
         if (id == -1)
             goto done;
     }
-    if (SwcReadResource(resourcePath, "NFNT", (int16_t)id, &bitmap) != 0 &&
-        SwcReadResource(resourcePath, "FONT", (int16_t)id, &bitmap) != 0)
+    if (SwcReadResource(resourcePath, "NFNT", id, &bitmap) != 0 &&
+        SwcReadResource(resourcePath, "FONT", id, &bitmap) != 0)
         goto done;
     if (bitmap.size < 26)
         goto malformed;
-    reader = SDL_RWFromConstMem(bitmap.data, (int)bitmap.size);
+    reader = SDL_RWFromConstMem(bitmap.data, bitmap.size);
     if (reader == NULL)
         goto done;
     if (SDL_ReadBE16(reader) & 0xc)
@@ -221,14 +221,14 @@ static int SwcLoadClassicFont(SDL_Renderer *renderer, SwcTextFont *font, int siz
     for (character = 0; character < 95; character++) {
         glyph = character + 32;
         glyph = glyph >= first && glyph <= last ? glyph - first : last - first + 1;
-        SDL_RWseek(reader, (Sint64)(widths + (size_t)glyph * 2), RW_SEEK_SET);
+        SDL_RWseek(reader, (widths + (size_t)glyph * 2), RW_SEEK_SET);
         metrics = SDL_ReadBE16(reader);
         if (metrics == 0xffff) {
             glyph = last - first + 1;
-            SDL_RWseek(reader, (Sint64)(widths + (size_t)glyph * 2), RW_SEEK_SET);
+            SDL_RWseek(reader, (widths + (size_t)glyph * 2), RW_SEEK_SET);
             metrics = SDL_ReadBE16(reader);
         }
-        SDL_RWseek(reader, (Sint64)(locations + (size_t)glyph * 2), RW_SEEK_SET);
+        SDL_RWseek(reader, (locations + (size_t)glyph * 2), RW_SEEK_SET);
         left = SDL_ReadBE16(reader);
         right = SDL_ReadBE16(reader);
         if (right < left || right > surface->w || metrics == 0xffff)
@@ -305,12 +305,12 @@ int SdlCreateSwcTextFont(SDL_Renderer *renderer, SwcTextFont *font, int size)
     font->baseline = size + 4;
     for (character = 0; character < 95; character++) {
         font->bearings[character] = 2;
-        code = (UniChar)(character + 32);
+        code = (character + 32);
         CTFontGetGlyphsForCharacters(face, &code, &glyph, 1);
         CTFontGetAdvancesForGlyphs(face, kCTFontOrientationHorizontal, &glyph, &advance, 1);
         font->glyphs[character] = (SDL_Rect){character % 16 * 24,
             character / 16 * 24, 24, 24};
-        font->advances[character] = (int)(advance.width + 0.5);
+        font->advances[character] = (advance.width + 0.5);
         origin = CGPointMake(font->glyphs[character].x + 2,
             surface->h - font->glyphs[character].y - font->baseline);
         CTFontDrawGlyphs(face, &glyph, &origin, 1, context);
@@ -350,7 +350,7 @@ int SdlSwcTextWidth(const SwcTextFont *font, const char *text)
     unsigned char character;
 
     while (*text != 0) {
-        character = (unsigned char)*text++;
+        character = *text++;
         character = character < 32 || character > 126 ? '?' - 32 : character - 32;
         width += font->advances[character];
     }
@@ -366,7 +366,7 @@ int SdlDrawSwcProportionalText(SDL_Renderer *renderer, const SwcTextFont *font,
     if (SDL_SetTextureColorMod(font->texture, ink.r, ink.g, ink.b) != 0)
         return -1;
     while (*text != 0 && x < SWC_FRAME_WIDTH) {
-        character = (unsigned char)*text++;
+        character = *text++;
         character = character < 32 || character > 126 ? '?' - 32 : character - 32;
         destination = font->glyphs[character];
         destination.x = x - font->bearings[character];

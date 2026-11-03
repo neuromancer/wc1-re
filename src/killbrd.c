@@ -381,12 +381,12 @@ short RecRoom(void)
     PreloadMusicTrackHook(30);
     spacetrack(30, 2, 1);
     FlushInputEvents();
-    LoadBriefingData((short)stCampaignState.currentSeries,
-                     (short)stCampaignState.currentMission);
+    LoadBriefingData(stCampaignState.currentSeries,
+                     stCampaignState.currentMission);
     pRecRoomRoster = LoadPacketAllocated(
         asCampaignPilotFiles[nCampaignDataSet], 2);
 
-    animationIds[0] = (signed char)(RandomInRange(0, 3) + 9);
+    animationIds[0] = (RandomInRange(0, 3) + 9);
     apRecRoomFigureShapes[2] = 0;
     apRecRoomFigureShapes[1] = 0;
     apRecRoomFigureShapes[0] = 0;
@@ -406,16 +406,16 @@ short RecRoom(void)
                         aRecRoomCharacterOrigins[0].y,
                         apRecRoomFigureShapes[0], 0);
 
-    animationIds[1] = (signed char)pRecRoomRoster[
+    animationIds[1] = pRecRoomRoster[
         (stCampaignState.currentSeries * 4 +
          stCampaignState.currentMission) * 2 - 8];
     if (animationIds[1] != -1) {
-        personality = (short)animationIds[1];
+        personality = animationIds[1];
         if (stCampaignState
                 .personalityDeathMission[personality] == 0) {
             apRecRoomFigureShapes[1] =
                 FetchDiskPacketRetrying(
-                    5, (short)(personality + 3), 0);
+                    5, (personality + 3), 0);
             GetShapeFrameBounds(
                 &aRecRoomMenuRegions[1].left,
                 aRecRoomCharacterOrigins[1].x,
@@ -430,17 +430,17 @@ short RecRoom(void)
         }
     }
 
-    animationIds[2] = (signed char)pRecRoomRoster[
+    animationIds[2] = pRecRoomRoster[
         (stCampaignState.currentSeries * 4 +
          stCampaignState.currentMission) * 2 - 7];
     /* The original tests the first pilot's sentinel here too. */
     if (animationIds[1] != -1) {
-        personality = (short)animationIds[2];
+        personality = animationIds[2];
         if (stCampaignState
                 .personalityDeathMission[personality] == 0) {
             apRecRoomFigureShapes[2] =
                 FetchDiskPacketRetrying(
-                    5, (short)(personality + 3), 0);
+                    5, (personality + 3), 0);
             GetShapeFrameBounds(
                 &aRecRoomMenuRegions[2].left,
                 aRecRoomCharacterOrigins[2].x,
@@ -505,7 +505,7 @@ short RecRoom(void)
             aRecRoomCharacterOrigins[2].x,
             aRecRoomCharacterOrigins[2].y,
             apRecRoomFigureShapes[2],
-            (short)*animations[2]);
+            *animations[2]);
     }
     if (apRecRoomFigureShapes[1] != 0) {
         GetShapeFrameBounds(
@@ -513,7 +513,7 @@ short RecRoom(void)
             aRecRoomCharacterOrigins[1].x,
             aRecRoomCharacterOrigins[1].y,
             apRecRoomFigureShapes[1],
-            (short)*animations[1]);
+            *animations[1]);
     }
     if (apRecRoomFigureShapes[1] != 0) {
         *(ShortRect *)&pilotWork.left = firstPilotBounds;
@@ -533,7 +533,7 @@ short RecRoom(void)
         aRecRoomCharacterOrigins[0].x,
         aRecRoomCharacterOrigins[0].y,
         apRecRoomFigureShapes[0],
-        (short)*animations[0]);
+        *animations[0]);
 
     while (result == 0) {
         if (firstFrame == 0) {
@@ -555,7 +555,7 @@ short RecRoom(void)
                     if (*animations[index] == -1) {
                         if (index == 0) {
                             animationId =
-                                (signed char)(RandomInRange(0, 3) + 9);
+                                (RandomInRange(0, 3) + 9);
                             if (animationId == 11 &&
                                 RandomInRange(0, 3) != 0)
                                 animationId--;
@@ -577,7 +577,7 @@ short RecRoom(void)
                             aRecRoomCharacterOrigins[index].x,
                             aRecRoomCharacterOrigins[index].y,
                             apRecRoomFigureShapes[index],
-                            (short)*animations[index]++);
+                            *animations[index]++);
                     } else {
                         UnionRectBounds(
                             (ShortRect *)&shotglassWork.left,
@@ -592,13 +592,13 @@ short RecRoom(void)
                             aRecRoomCharacterOrigins[index].x,
                             aRecRoomCharacterOrigins[index].y,
                             apRecRoomFigureShapes[index],
-                            (short)*animations[index]++);
+                            *animations[index]++);
                         GetShapeFrameBounds(
                             &nextFrameBounds.left,
                             aRecRoomCharacterOrigins[index].x,
                             aRecRoomCharacterOrigins[index].y,
                             apRecRoomFigureShapes[index],
-                            (short)*animations[index]);
+                            *animations[index]);
                         if (firstFrame != 0) {
                             *(ShortRect *)&shotglassDestination.left =
                                 *(ShortRect *)&shotglassWork.left;
@@ -723,11 +723,11 @@ short RecRoom(void)
                 break;
             case 3:
                 FlushInputEvents();
-                if ((int)(nTickCount60Hz - lastChalkboardTick) >
+                if ((nTickCount60Hz - lastChalkboardTick) >
                     nInputTickScale) {
                     ShowChalkBoard();
                     ClearViewport(&stSceneBuffer, cBlackColour);
-                    lastChalkboardTick = (int)nTickCount60Hz;
+                    lastChalkboardTick = nTickCount60Hz;
                 }
                 break;
             case 4:
@@ -857,7 +857,7 @@ void ShowChalkBoard(void)
                           185, 24);
         rowY = 46;
         index = 0;
-        for (; index < 9; index++, rowY = (short)(rowY + 16)) {
+        for (; index < 9; index++, rowY = (rowY + 16)) {
             pilot = asChalkBoardPilotOrder[index];
             DosStrcpy(pilotName, aPilotEntriesList[pilot].name);
             strupr(pilotName);
@@ -912,13 +912,13 @@ short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
     int end;
     int offset;
 
-    offset = (int)(handle->dataOffset + handle->position);
-    end = (int)(handle->dataOffset + handle->dataSize);
+    offset = (handle->dataOffset + handle->position);
+    end = (handle->dataOffset + handle->dataSize);
     if (destination == 0)
         return 0;
     if (end < (int)(offset + length) || length == (unsigned int)-1)
-        length = (unsigned int)(end - offset);
-    if (ReadDataFileAtOffset((unsigned short)handle->file, offset,
+        length = (end - offset);
+    if (ReadDataFileAtOffset(handle->file, offset,
                              length, destination) == 0)
         return 0;
     handle->position += length;

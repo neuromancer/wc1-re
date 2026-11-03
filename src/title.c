@@ -82,9 +82,9 @@ void DrawTitleLogo(short distance, short y)
 
     if (distance <= 10)
         return;
-    scale = (short)(0x1000 / distance);
+    scale = (0x1000 / distance);
     GetTransformedShapeBounds(&stSpaceBufferViewport,
-                              (short)(nScreenWidth >> 1), y,
+                              (nScreenWidth >> 1), y,
                               pTitleShape, 1, 0, scale, 0,
                               &bounds);
 #ifdef SDL_PORT
@@ -92,7 +92,7 @@ void DrawTitleLogo(short distance, short y)
             &stSpaceBufferViewport, (short)(bounds.left - 1), y,
             pTitleShape, 0, 0, scale, 0))
 #endif
-        DrawSpriteScaled(&stSpaceBufferViewport, (short)(bounds.left - 1), y,
+        DrawSpriteScaled(&stSpaceBufferViewport, (bounds.left - 1), y,
                          pTitleShape, 0, 0, scale, 0);
 #ifdef SDL_PORT
     if (!SdlRecordSpaceSprite(
@@ -101,7 +101,7 @@ void DrawTitleLogo(short distance, short y)
             pTitleShape, 1, 0, scale, 0))
 #endif
         DrawSpriteScaled(&stSpaceBufferViewport,
-                         (short)(nScreenWidth >> 1), y,
+                         (nScreenWidth >> 1), y,
                          pTitleShape, 1, 0, scale, 0);
 #ifdef SDL_PORT
     if (!SdlRecordSpaceSprite(
@@ -223,7 +223,7 @@ int Title_Sequence(void)
                 Update_3Space();
                 if (Draw_3Space_Frame() != 0) {
                     DrawTitleLogo(titleDistance,
-                                  (short)(nCurrentViewCenterPosY - 6));
+                                  (nCurrentViewCenterPosY - 6));
                     dump_buffer_to_screen();
                     DIBslam();
                     DIBslamReal();
@@ -430,7 +430,7 @@ int Title_Sequence(void)
             case 1:
             case 2:
             case 3:
-                state = (signed char)(menuOptions[selection] + 1);
+                state = (menuOptions[selection] + 1);
                 break;
             default:
                 state = 0;

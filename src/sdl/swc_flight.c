@@ -74,7 +74,7 @@ static void SwcGenerateStars(void)
             rotate_about_j(yaw, &aShipRightVector[63], &aShipFwdVec[63]);
             rotate_about_i(pitch, &aShipUpVector[63], &aShipFwdVec[63]);
             ScaleFixedVector(&aShipFwdVec[63], 15000 * 256, &aShipPositionsArray[object]);
-            asObjectViewFrames[object] = (short)(32 + RandomBelowOrEqual(9));
+            asObjectViewFrames[object] = (32 + RandomBelowOrEqual(9));
         }
     }
 }
@@ -126,7 +126,7 @@ static void SwcUpdateStarField(void)
             rotate_about_i(pitch, &aShipUpVector[63], &aShipFwdVec[63]);
             rotate_about_j(yaw, &aShipRightVector[63], &aShipFwdVec[63]);
             ScaleFixedVector(&aShipFwdVec[63], 15000 * 256, &aShipPositionsArray[object]);
-            asObjectViewFrames[object] = (short)(32 + RandomBelowOrEqual(4));
+            asObjectViewFrames[object] = (32 + RandomBelowOrEqual(4));
             break;
         }
         if (aeObjectClass[object] == OBJECT_CLASS_DUST && choice < 2) {
@@ -136,11 +136,11 @@ static void SwcUpdateStarField(void)
                 distance = asObjectCollisionRadius[EYE_OBJECT] + RandomBelowOrEqual(141);
             else
                 distance = asObjectCollisionRadius[EYE_OBJECT] * 2 + RandomBelowOrEqual(1249) +
-                    RandomBelowOrEqual((short)SDL_max(0, (viewMotion.z >> 8) - 1)) * 2;
+                    RandomBelowOrEqual(SDL_max(0, (viewMotion.z >> 8) - 1)) * 2;
             shift = viewMotion.z <= 0 ? 512 : 256;
-            start_dust(object, origin, (short)distance,
-                viewMotion.x + signed_random((short)(distance >> 1)) * shift,
-                viewMotion.y + signed_random((short)(distance >> 1)) * shift);
+            start_dust(object, origin, distance,
+                viewMotion.x + signed_random((distance >> 1)) * shift,
+                viewMotion.y + signed_random((distance >> 1)) * shift);
             break;
         }
     }
@@ -245,7 +245,7 @@ static void SwcUpdateFlightCamera(void)
                 &aShipPositionsArray[cViewObject], &direction);
             destination = aShipFwdVec[0];
             SetVectorFixedPoint(&destination,
-                (short)(bAlternateChaseView ? -500 : -700));
+                (bAlternateChaseView ? -500 : -700));
             AddFixedVectors(&destination, &aShipPositionsArray[cViewObject], &destination);
             ComputeVectorDelta(&aShipPositionsArray[EYE_OBJECT], &destination, &delta);
             divide_vector(&delta, (bAlternateChaseView ? 7 : 25) * 256,
@@ -255,7 +255,7 @@ static void SwcUpdateFlightCamera(void)
             fix_objects_ijk(EYE_OBJECT);
             nEyeRollTargetValue = match_roll_orientation(EYE_OBJECT, cViewObject);
             if (nEyeRollTargetValue != 0) {
-                if (abs((int)nEyeRollTargetValue) < 5) {
+                if (abs(nEyeRollTargetValue) < 5) {
                     aShipUpVector[EYE_OBJECT] = aShipUpVector[0];
                     nEyeRollTargetValue = 0;
                 } else {
@@ -599,7 +599,7 @@ static int SwcStartMissionShips(void)
                 aiPilotLevel[index] > 4 && aiPilotLevel[index] < 14)
                 nYourWingman = index;
         }
-        asObjectScreenXList[index] = (short)0x8001;
+        asObjectScreenXList[index] = 0x8001;
         if (aMissionShips[record].type == OBJECT_TYPE_TIGERS_CLAW)
             nCarrierMissionShipIndexValue = record;
     }
@@ -676,7 +676,7 @@ static void SwcCentreFlightMouse(void)
     SwcResetFlightInput();
     nHostMouseMessageX = (stSpaceBufferViewport.left + stSpaceBufferViewport.right) / 2;
     nHostMouseMessageY = (stSpaceBufferViewport.top + stSpaceBufferViewport.bottom) / 2;
-    WarpMouseTo((short)nHostMouseMessageX, (short)nHostMouseMessageY);
+    WarpMouseTo(nHostMouseMessageX, nHostMouseMessageY);
     bMouseCursorVisible = 1;
 }
 
@@ -700,7 +700,7 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
     haveJoystick = SdlReadSwcJoystickFlightSample(&joystick);
     if (!enhancedJoystick && (joystick.buttons & 2) && !(swcJoystickButtons & 2)) {
         swcJoystickAfterburner = swcJoystickClickPending &&
-            (Uint32)(now - swcLastJoystickClick) <= 20 * 1000 / 60;
+            (now - swcLastJoystickClick) <= 20 * 1000 / 60;
         swcLastJoystickClick = now;
         swcJoystickClickPending = 1;
     }
@@ -719,7 +719,7 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
        tick, including modifiers. */
     SdlSetKeyboardSnapshot(keys);
     cPreviousKey = bCurrentKey;
-    bCurrentKey = (signed char)PollKeyboardState();
+    bCurrentKey = PollKeyboardState();
     if (bCurrentKey == 0 && haveJoystick &&
         (joystick.x != 0 || joystick.y != 0 || swcJoystickSteering || joystickModifier)) {
         swcJoystickSteering = 1;
@@ -729,7 +729,7 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         stRotationInput.x = joystickModifier ? 0 : (short)-joystick.y;
         stRotationInput.z = joystickModifier ? (short)joystick.x : 0;
         if (joystickModifier)
-            accelerate((short)-(joystick.y / 2));
+            accelerate(-(joystick.y / 2));
     } else if (bCurrentKey == 0 && bMouseCursorVisible) {
         /* Feed the original mouse branch in player_input. A held position is
            sampled each tick, so right-button throttle is independent of SDL
@@ -770,7 +770,7 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
 
     /* Movement commands from WC1's HandleSpaceFlightControls. Poll held keys
        separately so thrust can change while steering, without host key repeat. */
-    throttle = (short)((keys[SDL_SCANCODE_EQUALS] || keys[SDL_SCANCODE_KP_PLUS]) -
+    throttle = ((keys[SDL_SCANCODE_EQUALS] || keys[SDL_SCANCODE_KP_PLUS]) -
                        (keys[SDL_SCANCODE_MINUS] || keys[SDL_SCANCODE_KP_MINUS]));
     if (keys[SDL_SCANCODE_BACKSPACE])
         anShipSpeed[0] = 0;
@@ -800,7 +800,7 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
             if (slot->type == OBJECT_TYPE_SPACE_MINE)
                 drop_player_mine(0);
             else if (nExternalViewShip == -1)
-                nExternalViewShip = (short)fire_missile(0);
+                nExternalViewShip = fire_missile(0);
         }
     }
     players_flight_dynamics();
@@ -830,10 +830,10 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
     /* CODE_13 update_cockpit checks one objective per frame, including
        unselected objectives; flag_reached owns the escort-wait latch. */
     if (cCurrentObjective >= 0 && cCurrentObjective < cMissionObjectiveCountValue &&
-        objective_lost((short)cCurrentObjective))
+        objective_lost(cCurrentObjective))
         cycle_next_objective();
     if (cMissionObjectiveCountValue > 0)
-        update_objective_location((short)((unsigned short)nCurrentSpaceFrameValue % cMissionObjectiveCountValue));
+        update_objective_location(((unsigned short)nCurrentSpaceFrameValue % cMissionObjectiveCountValue));
     SwcUpdateFlightCamera();
     SwcUpdateStarField();
     /* CODE_09 Draw_3Space_Frame projects objects before CODE_13 checks
@@ -879,7 +879,7 @@ static void SwcTransformObjectsToView(void)
             continue;
         asPreviousObjectDistance[object] = asObjDistancesTable[object];
         asObjDistancesTable[object] = 0;
-        asObjectScreenXList[object] = (short)0x8001;
+        asObjectScreenXList[object] = 0x8001;
         if (aeObjectClass[object] == OBJECT_CLASS_FUTURION)
             continue;
         if (aeObjectClass[object] == OBJECT_CLASS_STAR ||
@@ -903,13 +903,13 @@ static void SwcTransformObjectsToView(void)
              * Widen before multiplying so nearby sprites cannot wrap. */
             scale = INT64_C(0xa0000000) / (distance - radius);
             scale = ((int64_t)awObjectScales[object] * scale) >> 16;
-            asObjScreenScalesArray[object] = (short)SDL_clamp(scale, 0, 8192);
+            asObjScreenScalesArray[object] = SDL_clamp(scale, 0, 8192);
             if (asObjScreenScalesArray[object] <= 4)
                 continue;
         }
         swcObjectDistances[object] = distance >> 8;
-        asObjectScreenXList[object] = (short)(((int64_t)view->x * 0xa000 / view->z) >> 8);
-        asObjectScreenYArray[object] = (short)(((int64_t)view->y * 0xa000 / view->z) >> 8);
+        asObjectScreenXList[object] = (((int64_t)view->x * 0xa000 / view->z) >> 8);
+        asObjectScreenYArray[object] = (((int64_t)view->y * 0xa000 / view->z) >> 8);
         switch (aeObjectClass[object]) {
         case OBJECT_CLASS_STAR:
             swcObjectDistances[object] = 0x7ffe;
@@ -920,9 +920,9 @@ static void SwcTransformObjectsToView(void)
                 set_background_objects_rotation(object, &direction);
             break;
         case OBJECT_CLASS_DUST:
-            dustSize = (short)(MultiplyFixed(0x2100, DivideFixed(eyeRadius, distance)) >> 8);
+            dustSize = (MultiplyFixed(0x2100, DivideFixed(eyeRadius, distance)) >> 8);
             dustSize = SDL_min(dustSize, 3);
-            asObjectViewFrames[object] = (short)(((asObjectCounterArray[object] + nCurrentSpaceFrameValue) & 3) +
+            asObjectViewFrames[object] = (((asObjectCounterArray[object] + nCurrentSpaceFrameValue) & 3) +
                 (asObjScreenAngles[object] & 0x10) + (3 - dustSize) * 4);
             break;
         case OBJECT_CLASS_MISSILE:
@@ -996,16 +996,16 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
             continue;
         }
         if (aeObjectClass[object] == OBJECT_CLASS_STAR) {
-            frame = (short)(asObjectViewFrames[object] - 32);
+            frame = (asObjectViewFrames[object] - 32);
             if (frame < 0 || frame >= (short)SDL_arraysize(swcStarTextures))
                 return SDL_SetError("Invalid SWC star frame %d", asObjectViewFrames[object]);
             if (swcStarTextures[frame] == NULL) {
                 if (SwcCMGetChunk(cockpitCmf, "PLNT", 1, &stars) != 0)
                     return -1;
-                if (SwcGetFramePtr(&stars, (uint32_t)(frame + 32), &star) == 0) {
+                if (SwcGetFramePtr(&stars, (frame + 32), &star) == 0) {
                     swcStarBounds[frame] = (SDL_Rect){star.x, star.y, star.width, star.height};
                     swcStarTextures[frame] = SdlCreateSwcTexture(renderer, &stars,
-                        (uint32_t)(frame + 32), colors);
+                        (frame + 32), colors);
                 }
                 SDL_free(stars.data);
                 SDL_zero(stars);
@@ -1093,7 +1093,7 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
     Uint32 previous;
     Uint32 current;
     Uint32 elapsed = 0;
-    Uint32 interval = (Uint32)SDL_max(1, nFrameIntervalMs);
+    Uint32 interval = SDL_max(1, nFrameIntervalMs);
     int savedView = nCameraViewMode;
     signed char savedViewObject = cViewObject;
     signed char savedCockpit = cCurrentCockpitView;
@@ -1105,7 +1105,7 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
         return SDL_SetError("SWC autopilot camera is unavailable");
     SwcResetFlightInput();
     nCameraViewMode = view;
-    cViewObject = (signed char)obj;
+    cViewObject = obj;
     cCurrentCockpitView = 4;
     asObjectCollisionRadius[EYE_OBJECT] = MaxShort(10, asObjectCollisionRadius[obj]);
     copy_frame(0, EYE_OBJECT);
@@ -1177,10 +1177,10 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
             /* CODE_13 update_cockpit +0x0316..+0x034e also runs during
                external views and checks one objective per space frame. */
             if (cCurrentObjective >= 0 && cCurrentObjective < cMissionObjectiveCountValue &&
-                objective_lost((short)cCurrentObjective))
+                objective_lost(cCurrentObjective))
                 cycle_next_objective();
             if (cMissionObjectiveCountValue > 0)
-                update_objective_location((short)((unsigned short)nCurrentSpaceFrameValue % cMissionObjectiveCountValue));
+                update_objective_location(((unsigned short)nCurrentSpaceFrameValue % cMissionObjectiveCountValue));
             if (SwcDrawFlight(swcCinemaRenderer, NULL, swcCinemaCockpitCmf,
                               swcCinemaSpaceCmf, swcCinemaColors, swcCinemaImages, 1) != 0) {
                 result = -1;
@@ -1215,17 +1215,17 @@ static void SwcUpdateSceneCamera(void)
     FixedVector adjustment;
     int object;
 
-    if (aeObjectClass[(int)cViewObject] == OBJECT_CLASS_NULL) {
+    if (aeObjectClass[cViewObject] == OBJECT_CLASS_NULL) {
         for (object = 1; object < 10; object++) {
             if (aeObjectClass[object] >= OBJECT_CLASS_SHIP) {
-                cViewObject = (signed char)object;
+                cViewObject = object;
                 break;
             }
         }
         return;
     }
     ComputeVectorDelta(&aShipPositionsArray[EYE_OBJECT],
-        &aShipPositionsArray[(int)cViewObject], &delta);
+        &aShipPositionsArray[cViewObject], &delta);
     adjustment = delta;
     NormalizeFixedVector(&adjustment);
     ComputeVectorDelta(&aShipFwdVec[EYE_OBJECT], &adjustment, &adjustment);
@@ -1318,11 +1318,11 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
         if (SwcCMGetChunk(swcCinemaSpaceCmf, "RCRM", 47, &menu) != 0)
             goto done;
         for (index = 0; index < 2; index++) {
-            if (SwcGetFramePtr(&menu, (uint32_t)index, &frame) != 0)
+            if (SwcGetFramePtr(&menu, index, &frame) != 0)
                 goto done;
             bounds[index] = (SDL_Rect){frame.x, frame.y, frame.width, frame.height};
             menuTextures[index] = SdlCreateSwcTexture(swcCinemaRenderer,
-                &menu, (uint32_t)index, swcCinemaColors);
+                &menu, index, swcCinemaColors);
             if (menuTextures[index] == NULL)
                 goto done;
         }
@@ -1348,9 +1348,9 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
         nArcadeState = 0;
         bInitialFormationSetup = 1;
         for (index = 0; index < 4; index++) {
-            set_objects_data((short)(index + 1), titleShips[index].type, -1);
-            Set_up_ship_info((short)(index + 1), (short)(index + 32), 16);
-            find_next_ship_turn_slot((short)(index + 1));
+            set_objects_data((index + 1), titleShips[index].type, -1);
+            Set_up_ship_info((index + 1), (index + 32), 16);
+            find_next_ship_turn_slot((index + 1));
         }
         bInitialFormationSetup = 0;
         cViewObject = 1;
@@ -1383,7 +1383,7 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
                         (aeObjectClass[object] == OBJECT_CLASS_EXPLOSION ||
                          aeObjectClass[object] == OBJECT_CLASS_DEBRIS ||
                          aeObjectClass[object] == OBJECT_CLASS_PROJECTILE)) {
-                        pilot = (short)object;
+                        pilot = object;
                         remove_object(pilot);
                         break;
                     }
@@ -1399,7 +1399,7 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
             aShipPositionsArray[pilot] = aShipPositionsArray[0];
             ScaleFixedVector(&aShipUpVector[pilot], -0x500, &aShipVelocity[pilot]);
             AddFixedVectors(&aShipVelocity[pilot], &aShipVelocity[0], &aShipVelocity[pilot]);
-            cViewObject = (signed char)pilot;
+            cViewObject = pilot;
             /* The pilot has left the ship; later ship damage must not
              * change the already-selected ejection into a player death. */
             bPlayerVulnerable = 0;
@@ -1411,7 +1411,7 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
     nCameraViewMode = 16;
     cCurrentCockpitView = 4;
     asObjectCollisionRadius[EYE_OBJECT] = MaxShort(10,
-        asObjectCollisionRadius[(int)cViewObject]);
+        asObjectCollisionRadius[cViewObject]);
     copy_frame(cViewObject, EYE_OBJECT);
     position_relative_ijk(&aShipPositionsArray[EYE_OBJECT], cViewObject, 500, 0, 2000);
     zero_vector(&aShipVelocity[EYE_OBJECT]);
@@ -1514,12 +1514,12 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
                 if (aeObjectClass[object] == OBJECT_CLASS_SHIP &&
                     (Vector_magnitude(&aShipPositionsArray[object]) >> 8) > 100000 &&
                     aeSpecialManeuvers[object] != SPECIAL_MANEUVER_UNKNOWN_9)
-                    Explosion((short)object);
+                    Explosion(object);
             }
             for (index = 0; index < 4; index++) {
                 if (sides[titleShips[index].side != SIDE_IMPERIAL] == 0) {
                     aMissionShips[index + 32].state = 0;
-                    init_ship((short)(index + 32), 16);
+                    init_ship((index + 32), 16);
                 }
             }
         } else if (ticks == 40) {
@@ -1783,7 +1783,7 @@ title_menu:
     SwcTransformObjectsToView();
     SdlUpdateSwcCockpit();
     SetSpaceFlightFrameTiming();
-    tickInterval = (Uint32)nFrameIntervalMs;
+    tickInterval = nFrameIntervalMs;
     for (object = 1; object < shipCount; object++) {
         if (SwcLoadFlightImages(&cockpitCmf, &spaceCmf,
                                 aeObjectTypeList[object], &images[aeObjectTypeList[object]]) != 0)
@@ -1864,7 +1864,7 @@ title_menu:
                         /* WC1 uses a timing-only window of 20 ticks at 60 Hz.
                            Recentring after the first click must not cancel it. */
                         swcMouseAfterburner = swcRightClickPending &&
-                            (Uint32)(event.button.timestamp - swcLastRightClick) <=
+                            (event.button.timestamp - swcLastRightClick) <=
                                 20 * 1000 / 60;
                         swcLastRightClick = event.button.timestamp;
                         swcRightClickPending = 1;
@@ -1886,7 +1886,7 @@ title_menu:
                     break;
                 case SDLK_BACKSLASH:
                     if (focused && !paused)
-                        celerate(0, (int)asShipMaximumSpeedArray[0] * 256 - anShipSpeed[0]);
+                        celerate(0, asShipMaximumSpeedArray[0] * 256 - anShipSpeed[0]);
                     break;
                 case SDLK_n:
                     if (focused && !paused)
@@ -1930,7 +1930,7 @@ title_menu:
                     break;
                 case SDLK_l:
                     if (focused && !paused)
-                        nTargetLockMode = (short)(nTargetLockMode == 0);
+                        nTargetLockMode = (nTargetLockMode == 0);
                     break;
                 case SDLK_t:
                     if (focused && !paused)
@@ -1966,7 +1966,7 @@ title_menu:
                          * ejector succeeds; damaged ejectors use Random3DO
                          * (0, damage), with its exclusive upper bound. */
                         if (acPlayerComponentDamageList[7] <= 1 ||
-                            RandomBelowOrEqual((short)(acPlayerComponentDamageList[7] - 1)) == 0)
+                            RandomBelowOrEqual((acPlayerComponentDamageList[7] - 1)) == 0)
                             nArcadeState = 2;
                         else
                             SdlPlaySwcSound(25, 127);
@@ -1979,12 +1979,12 @@ title_menu:
                 case SDLK_5:
                 case SDLK_6:
                 case SDLK_7:
-                    choice = (int)(event.key.keysym.sym - SDLK_1);
+                    choice = (event.key.keysym.sym - SDLK_1);
                     if (focused && !paused && !bCurrentPlayerDestroyed && IsCommChoiceMenuOpen() &&
                         choice < nCommMenuChoiceCount) {
                         command = GetPendingMenuAction() == 2 ? abCommMenuChoiceCommands[choice] : -1;
                         recipient = cCommMenuRecipient;
-                        Chosen_communicate_option((short)choice);
+                        Chosen_communicate_option(choice);
                         if (command > 0)
                             SdlSwcVocalizeMessage(command);
                         if (command == 12)
@@ -2077,7 +2077,7 @@ title_menu:
                     nArcadeState = 0;
                     bPlayerEjectedThisMission = 1;
                     stCampaignState.promotionScore = MaxShort(0,
-                        (short)(stCampaignState.promotionScore - 1));
+                        (stCampaignState.promotionScore - 1));
                     stCampaignState.elapsedDate.year++;
                     if (stCampaignState.elapsedDate.year == 1)
                         nPendingMedalIndex = 3;

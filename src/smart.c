@@ -58,7 +58,7 @@ void steer_away_from_predicted_object(short obj, short other,
 
     anRollGoal[obj] = 0;
     ScaleFixedVector(&aShipVelocity[other],
-                     (int)predictionTicks << 8, &predicted);
+                     predictionTicks << 8, &predicted);
     AddFixedVectors(&aShipPositionsArray[other],
                     &predicted, &predicted);
     ComputeVectorDelta(&aShipPositionsArray[obj],
@@ -83,7 +83,7 @@ void prevent_collision(short obj)
     short amount;
     short facing;
 
-    other = (short)(signed char)abCollisionAlertTargets[obj];
+    other = (signed char)abCollisionAlertTargets[obj];
     if (other == -1) {
         clear_alert(obj);
         return;
@@ -116,7 +116,7 @@ void prevent_collision(short obj)
         amount = MinShort(facing, 25);
         amount = MaxShort(0, amount);
         steer_away_from_predicted_object(obj, other,
-                                         (short)(collisionTime >> 1), amount);
+                                         (collisionTime >> 1), amount);
     }
 }
 
@@ -166,7 +166,7 @@ unsigned int select_target(short obj)
         }
     }
     acShipTargetTable[obj] =
-        (signed char)scan_for_enemy(obj, 16000);
+        scan_for_enemy(obj, 16000);
     return 0;
 }
 
@@ -273,7 +273,7 @@ unsigned int chase_location(short obj, const FixedVector *destination,
     } else if (nTgtRange > 175 && no_goal(obj) != 0) {
         pointAtDestination = 1;
     }
-    control_speed(obj, (unsigned short)nTgtRange,
+    control_speed(obj, nTgtRange,
                   desiredSpeed);
     if (nFacingToTargetValue > 85 &&
         nTgtRange > 175)
@@ -341,7 +341,7 @@ unsigned int goto_formation(short obj, const FixedVector *destination,
             nFacingToTargetValue > 70 && normal_speed(obj) != 0)
             fire_afterburner(obj, 5);
     } else if (nTgtRange > 200) {
-        control_speed(obj, (unsigned short)nTgtRange,
+        control_speed(obj, nTgtRange,
                       anShipSpeed[leader]);
     } else {
         approach_ship_speed(obj, leader);
@@ -397,7 +397,7 @@ unsigned int reset_stress(short obj)
         } else {
             damage = find_ratio(75, 100, damage, 14, 0);
         }
-        acShipStressList[obj] = (signed char)damage;
+        acShipStressList[obj] = damage;
     }
     return 0;
 }
@@ -534,7 +534,7 @@ unsigned int process_maneuver_node(short obj, int event)
     int objectIndex;
 
     objectIndex = obj;
-    rating = (short)acShipRating[objectIndex];
+    rating = acShipRating[objectIndex];
     if (rating == -1) {
         if (aeShipSide[objectIndex] == SIDE_KILRATHI)
             maneuver = pick_kilrathi_maneuver(obj, event);
@@ -584,12 +584,12 @@ void handle_stress(short obj, int event)
         acShipStressList[obj] += aggression * 2;
     } else if (damage < 75) {
         acShipStressList[obj] =
-            (signed char)MinShort(
-                (short)((short)acShipStressList[obj] + aggression),
+            MinShort(
+                ((short)acShipStressList[obj] + aggression),
                 28);
     } else {
         acShipStressList[obj] =
-            (signed char)MinShort(acShipStressList[obj], 7);
+            MinShort(acShipStressList[obj], 7);
     }
     if (event == 6 && acShipStressList[obj] >= 30)
         acShipStressList[obj] = 29;
@@ -608,7 +608,7 @@ void intelligence_events(short obj)
 
     event = -1;
     target = acShipTargetTable[obj];
-    previousStress = (short)acShipStressList[obj];
+    previousStress = acShipStressList[obj];
     targetGone = 0;
     if (missile_on_tail(obj) != 0) {
         event = 6;

@@ -46,7 +46,7 @@ unsigned int ejection_sequence(void)
     frame = 0;
     new_view(9, 0);
     background = FetchDiskPacketRetrying(
-        (short)cCockpitLogicalFile, 3, 0);
+        cCockpitLogicalFile, 3, 0);
     ejectionShape = FetchDiskPacketRetrying(2, 1, 0);
     PlaySfxWaveFileByNumber(0x21, -1, 0);
     y = 199;
@@ -64,13 +64,13 @@ unsigned int ejection_sequence(void)
                 DrawSpriteDefault(
                     &stSpaceBufferViewport, 160, y, ejectionShape,
                     asEjectionSecondaryFrames[spriteFrame]);
-            DrawSpriteDefault(&stSpaceBufferViewport, 160, (short)(y + 1),
+            DrawSpriteDefault(&stSpaceBufferViewport, 160, (y + 1),
                               ejectionShape, 5);
             dump_buffer_to_screen();
         }
         if (frame > 1) {
-            y = (short)(y - descentSpeed);
-            descentSpeed = MinShort((short)(descentSpeed + 4), 20);
+            y = (y - descentSpeed);
+            descentSpeed = MinShort((descentSpeed + 4), 20);
         }
         if (bEscapePressedFlag == 1)
             break;
@@ -115,9 +115,9 @@ unsigned int ejection_sequence(void)
         new_view(10, nEjectedPilotObject);
 
         background = FetchDiskPacketRetrying(
-            (short)cCockpitLogicalFile, 0, 0);
+            cCockpitLogicalFile, 0, 0);
         ejectionShape = FetchDiskPacketRetrying(
-            (short)cCockpitLogicalFile, 5, 0);
+            cCockpitLogicalFile, 5, 0);
         PlaySfxWaveFileByNumber(0x22, -1, 0);
         y = 40;
         frame = 0;
@@ -126,13 +126,13 @@ unsigned int ejection_sequence(void)
             if (RefreshCockpitStatus() != 0) {
                 DrawSpriteDefault(&stSpaceBufferViewport, 0, y,
                                   background, 0);
-                DrawSpriteDefault(&stSpaceBufferViewport, 0, (short)(y - 1),
+                DrawSpriteDefault(&stSpaceBufferViewport, 0, (y - 1),
                                   ejectionShape, 0);
                 dump_buffer_to_screen();
             }
             if (bEscapePressedFlag == 1)
                 break;
-            y = (short)(y + descentSpeed);
+            y = (y + descentSpeed);
             DIBslam();
             frame++;
             DIBslamReal();

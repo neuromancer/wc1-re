@@ -40,8 +40,8 @@ void * __stdcall PacketLoad(const char *filename, short section,
             int allocatedPacket;
 
             if (handle.dataSize < 4 ||
-                ReadDataFileAtOffset((unsigned short)handle.file,
-                                     (int)handle.dataOffset, 4,
+                ReadDataFileAtOffset(handle.file,
+                                     handle.dataOffset, 4,
                                      sizeBytes) == 0) {
                 nPacketError = 6;
                 break;
@@ -51,7 +51,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
                 ((unsigned int)sizeBytes[2] << 16) |
                 ((unsigned int)sizeBytes[3] << 24);
             compressedSize = handle.dataSize - 4;
-            compressedData = (unsigned char *)malloc(
+            compressedData = malloc(
                 compressedSize != 0 ? compressedSize : 1);
             if (compressedData == 0) {
                 nPacketError = 1;
@@ -105,7 +105,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
                 if (packet == 0) {
                     packet = AllocateTaggedMemory(
                         handle.dataSize,
-                        (unsigned short)(flags | 0x40));
+                        (flags | 0x40));
                     pLastPacketAllocation = packet;
                     if (packet == 0)
                         nPacketError = 4;

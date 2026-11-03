@@ -122,7 +122,7 @@ int SwcReadResource(const char *resourceFork, const char typeName[4], int16_t id
     reader = NULL;
     if (size < 16 || size > INT32_MAX)
         goto malformed;
-    reader = SDL_RWFromConstMem(data, (int)size);
+    reader = SDL_RWFromConstMem(data, size);
     if (reader == NULL)
         goto done;
     if (SDL_ReadBE32(reader) == UINT32_C(0x00051607)) {
@@ -150,7 +150,7 @@ int SwcReadResource(const char *resourceFork, const char typeName[4], int16_t id
         if (reference == referenceCount)
             goto malformed;
         SDL_RWclose(reader);
-        reader = SDL_RWFromConstMem(data, (int)size);
+        reader = SDL_RWFromConstMem(data, size);
         if (reader == NULL)
             goto done;
     } else if (SwcMacBinaryForks(data, size, &dataFork, &macBinaryFork)) {
@@ -159,7 +159,7 @@ int SwcReadResource(const char *resourceFork, const char typeName[4], int16_t id
         data = macBinaryFork.data;
         size = macBinaryFork.size;
         SDL_RWclose(reader);
-        reader = SDL_RWFromConstMem(data, (int)size);
+        reader = SDL_RWFromConstMem(data, size);
         if (reader == NULL)
             goto done;
     }
@@ -177,13 +177,13 @@ int SwcReadResource(const char *resourceFork, const char typeName[4], int16_t id
     if (typeOffset < 28 || typeOffset > mapSize - 2)
         goto malformed;
     typeOffset += mapOffset;
-    SDL_RWseek(reader, (Sint64)typeOffset, RW_SEEK_SET);
+    SDL_RWseek(reader, typeOffset, RW_SEEK_SET);
     typeCount = SDL_ReadBE16(reader);
     typeCount = typeCount == UINT16_MAX ? 0 : typeCount + 1;
     if (typeCount > (mapEnd - typeOffset - 2) / 8)
         goto malformed;
     for (type = 0; type < typeCount; type++) {
-        SDL_RWseek(reader, (Sint64)(typeOffset + 2 + type * 8), RW_SEEK_SET);
+        SDL_RWseek(reader, (typeOffset + 2 + type * 8), RW_SEEK_SET);
         SDL_RWread(reader, resourceType, 1, 4);
         referenceCount = (uint32_t)SDL_ReadBE16(reader) + 1;
         referenceOffset = SDL_ReadBE16(reader);
@@ -196,8 +196,8 @@ int SwcReadResource(const char *resourceFork, const char typeName[4], int16_t id
             continue;
         for (reference = 0; reference < referenceCount; reference++) {
             position = referenceOffset + reference * 12;
-            SDL_RWseek(reader, (Sint64)position, RW_SEEK_SET);
-            resourceId = (int16_t)SDL_ReadBE16(reader);
+            SDL_RWseek(reader, position, RW_SEEK_SET);
+            resourceId = SDL_ReadBE16(reader);
             if (resourceId != id)
                 continue;
             SDL_RWseek(reader, 2, RW_SEEK_CUR);
@@ -264,15 +264,15 @@ int SwcReadSplash(const char *resourceFork, SwcBuffer *pixels, SDL_Color colors[
         memcmp(picture.data + 0x876, rectangle, sizeof(rectangle)) != 0 ||
         memcmp(picture.data + 0x87e, "\x00\x40", 2) != 0)
         goto invalid;
-    reader = SDL_RWFromConstMem(picture.data, (int)picture.size);
+    reader = SDL_RWFromConstMem(picture.data, picture.size);
     if (reader == NULL)
         goto done;
     SDL_RWseek(reader, 0x6e, RW_SEEK_SET);
     for (color = 0; color < 256; color++) {
         SDL_ReadBE16(reader); /* ctFlags 0x8000 selects table order. */
-        colors[color].r = (uint8_t)(SDL_ReadBE16(reader) >> 8);
-        colors[color].g = (uint8_t)(SDL_ReadBE16(reader) >> 8);
-        colors[color].b = (uint8_t)(SDL_ReadBE16(reader) >> 8);
+        colors[color].r = (SDL_ReadBE16(reader) >> 8);
+        colors[color].g = (SDL_ReadBE16(reader) >> 8);
+        colors[color].b = (SDL_ReadBE16(reader) >> 8);
         colors[color].a = SDL_ALPHA_OPAQUE;
     }
     pixels->size = SWC_FRAME_WIDTH * SWC_FRAME_HEIGHT;
@@ -434,7 +434,7 @@ int SwcReadPalette(const char *resourceFork, int16_t id, SDL_Color colors[256])
         return -1;
     if (resource.size < 8)
         goto malformed;
-    reader = SDL_RWFromConstMem(resource.data, (int)resource.size);
+    reader = SDL_RWFromConstMem(resource.data, resource.size);
     if (reader == NULL)
         goto done;
     SDL_RWseek(reader, 4, RW_SEEK_SET);
@@ -447,12 +447,12 @@ int SwcReadPalette(const char *resourceFork, int16_t id, SDL_Color colors[256])
     for (color = 0; color <= count; color++) {
         index = SDL_ReadBE16(reader);
         if (flags & 0x8000)
-            index = (uint16_t)color;
+            index = color;
         if (index > 255)
             goto malformed;
-        colors[index].r = (uint8_t)(SDL_ReadBE16(reader) >> 8);
-        colors[index].g = (uint8_t)(SDL_ReadBE16(reader) >> 8);
-        colors[index].b = (uint8_t)(SDL_ReadBE16(reader) >> 8);
+        colors[index].r = (SDL_ReadBE16(reader) >> 8);
+        colors[index].g = (SDL_ReadBE16(reader) >> 8);
+        colors[index].b = (SDL_ReadBE16(reader) >> 8);
     }
     result = 0;
     goto done;

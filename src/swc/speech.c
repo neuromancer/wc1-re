@@ -19,7 +19,7 @@ static int SwcAiffRate(const uint8_t extended[10])
         mantissa = mantissa << 8 | extended[index];
     if ((extended[0] & 0x80) != 0 || exponent < 10 || exponent > 16)
         return 0;
-    return (int)(mantissa >> (63 - exponent));
+    return (mantissa >> (63 - exponent));
 }
 
 int SwcReadSpeech(const char *path, SwcBuffer *pcm, int *rate)
@@ -49,7 +49,7 @@ int SwcReadSpeech(const char *path, SwcBuffer *pcm, int *rate)
         SDL_SetError("Invalid SWC AIFF header: %s", path);
         goto done;
     }
-    reader = SDL_RWFromConstMem(file.data, (int)file.size);
+    reader = SDL_RWFromConstMem(file.data, file.size);
     if (reader == NULL)
         goto done;
     SDL_RWseek(reader, 4, RW_SEEK_SET);
@@ -158,7 +158,7 @@ int SwcReadSpeechMarks(const char *path, int rate, SwcSpeechMark **marks, size_t
     if (file.size < 12 || file.size > INT32_MAX ||
         memcmp(file.data, "FORM", 4) != 0 || memcmp(file.data + 8, "AIFF", 4) != 0)
         goto invalid;
-    reader = SDL_RWFromConstMem(file.data, (int)file.size);
+    reader = SDL_RWFromConstMem(file.data, file.size);
     if (reader == NULL)
         goto done;
     /* SwcReadSpeech validates COMM/SSND before this optional metadata read.
@@ -209,10 +209,10 @@ int SwcReadSpeechMarks(const char *path, int rate, SwcSpeechMark **marks, size_t
                 }
                 previous = mouth;
                 tick += 5;
-                (*marks)[*count].tick = (uint32_t)tick;
+                (*marks)[*count].tick = tick;
                 (*marks)[(*count)++].frame = mouth <= 9 ? mouth : -1;
             }
-            (*marks)[*count].tick = (uint32_t)(tick + 5);
+            (*marks)[*count].tick = (tick + 5);
             (*marks)[(*count)++].frame = -1;
             cursor += length + ((length + 1) & 1);
         }

@@ -34,7 +34,7 @@ int SwcCMOpen(const char *path, SwcCmf *cmf)
         SDL_SetError("Invalid CMF1 header: %s", path);
         goto fail;
     }
-    reader = SDL_RWFromConstMem(cmf->data, (int)cmf->size);
+    reader = SDL_RWFromConstMem(cmf->data, cmf->size);
     if (reader == NULL)
         goto fail;
     SDL_RWseek(reader, 12, RW_SEEK_SET);
@@ -56,7 +56,7 @@ int SwcCMOpen(const char *path, SwcCmf *cmf)
      * flag is interpreted as a live host pointer. */
     for (pass = 0; pass < 2; pass++) {
         cursor = (size_t)tocOffset + typeOffset;
-        SDL_RWseek(reader, (Sint64)cursor, RW_SEEK_SET);
+        SDL_RWseek(reader, cursor, RW_SEEK_SET);
         groupCount = SDL_ReadLE32(reader);
         cursor += 4;
         if (groupCount > (tocEnd - cursor) / 8) {

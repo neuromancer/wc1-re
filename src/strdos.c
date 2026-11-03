@@ -36,13 +36,13 @@ void *__stdcall DosNearPtrToFar(unsigned int v)
 /* Function start: 0x435430 */
 char *__stdcall DosStrrchr(char *s, short c)
 {
-    return strrchr(s, (int)c);
+    return strrchr(s, c);
 }
 
 /* Function start: 0x435450 */
 char *__stdcall DosStrchr(const char *s, short c)
 {
-    return strchr(s, (int)c);
+    return strchr(s, c);
 }
 
 /* Function start: 0x435470 */
@@ -60,7 +60,7 @@ char *__stdcall CopyFarString(char *destination, const char *source)
 /* Function start: 0x4354D0 */
 short __stdcall DosStrlen(const char *s)
 {
-    return (short)strlen(s);
+    return strlen(s);
 }
 
 /* Function start: 0x4354F0 */

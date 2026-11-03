@@ -38,8 +38,8 @@ int SwcGetFramePtr(const SwcBuffer *set, uint32_t index, SwcFrame *frame)
         if (reader == NULL)
             return -1;
         frame->encoding = SDL_ReadBE16(reader);
-        frame->x = (int16_t)SDL_ReadBE16(reader);
-        frame->y = (int16_t)SDL_ReadBE16(reader);
+        frame->x = SDL_ReadBE16(reader);
+        frame->y = SDL_ReadBE16(reader);
         frame->width = SDL_ReadBE16(reader);
         frame->height = SDL_ReadBE16(reader);
         payloadSize = SDL_ReadBE32(reader);

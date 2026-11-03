@@ -89,11 +89,11 @@ int SdlLoadSwcMissionData(const char *path, short series, short mission)
         }
         blocks[chunk] = chunks[chunk].data + offset;
     }
-    reader = SDL_RWFromConstMem(blocks[0], (int)blockSizes[0]);
+    reader = SDL_RWFromConstMem(blocks[0], blockSizes[0]);
     if (reader == NULL)
         goto done;
     for (index = 0; index < 12; index++)
-        header[index] = (int16_t)SDL_ReadBE16(reader);
+        header[index] = SDL_ReadBE16(reader);
     SDL_RWclose(reader);
     reader = NULL;
     if (header[0] < 0 || header[0] >= ACTIVE_MISSION_NAV_POINT_COUNT ||
@@ -109,7 +109,7 @@ int SdlLoadSwcMissionData(const char *path, short series, short mission)
         }
     }
 
-    reader = SDL_RWFromConstMem(blocks[1], (int)blockSizes[1]);
+    reader = SDL_RWFromConstMem(blocks[1], blockSizes[1]);
     if (reader == NULL)
         goto done;
     for (index = 0; index < ACTIVE_MISSION_NAV_POINT_COUNT; index++) {
@@ -121,21 +121,21 @@ int SdlLoadSwcMissionData(const char *path, short series, short mission)
         }
         SDL_RWread(reader, navPoints[index].name, 1, sizeof(navPoints[index].name));
         SDL_RWseek(reader, (Sint64)index * 88 + 32, RW_SEEK_SET);
-        value = (int32_t)SDL_ReadBE32(reader);
+        value = SDL_ReadBE32(reader);
         if (value < SCHAR_MIN || value > SCHAR_MAX) {
             SDL_SetError("SWC nav %d type exceeds WC1 storage", index);
             goto done;
         }
-        navPoints[index].type = (signed char)value;
-        navPoints[index].position.x = (int32_t)SDL_ReadBE32(reader);
-        navPoints[index].position.y = (int32_t)SDL_ReadBE32(reader);
-        navPoints[index].position.z = (int32_t)SDL_ReadBE32(reader);
-        value = (int32_t)SDL_ReadBE32(reader);
+        navPoints[index].type = value;
+        navPoints[index].position.x = SDL_ReadBE32(reader);
+        navPoints[index].position.y = SDL_ReadBE32(reader);
+        navPoints[index].position.z = SDL_ReadBE32(reader);
+        value = SDL_ReadBE32(reader);
         if (value < SHRT_MIN || value > SHRT_MAX) {
             SDL_SetError("SWC nav %d radius exceeds WC1 storage", index);
             goto done;
         }
-        navPoints[index].proximityRadius = (short)value;
+        navPoints[index].proximityRadius = value;
         SDL_RWread(reader, navPoints[index].triggers, 1, sizeof(navPoints[index].triggers));
         for (item = 0; item < 4; item++) {
             if (navPoints[index].triggers[item][0] != -1 &&
@@ -146,7 +146,7 @@ int SdlLoadSwcMissionData(const char *path, short series, short mission)
             }
         }
         for (item = 0; item < 2; item++) {
-            value = (int32_t)SDL_ReadBE32(reader);
+            value = SDL_ReadBE32(reader);
             if (value < -1 || value >= OBJECT_TYPE_COUNT) {
                 SDL_SetError("SWC nav %d uses an unsupported object type %d", index, value);
                 goto done;
@@ -159,17 +159,17 @@ int SdlLoadSwcMissionData(const char *path, short series, short mission)
                 SDL_SetError("SWC nav %d references an invalid mission ship", index);
                 goto done;
             }
-            navPoints[index].missionShips[item] = (short)value;
+            navPoints[index].missionShips[item] = value;
         }
     }
     SDL_RWclose(reader);
-    reader = SDL_RWFromConstMem(blocks[2], (int)blockSizes[2]);
+    reader = SDL_RWFromConstMem(blocks[2], blockSizes[2]);
     if (reader == NULL)
         goto done;
     objectiveEnd = 0;
     for (index = 0; index < MISSION_OBJECTIVE_COUNT; index++) {
-        objectives[index].type = (int32_t)SDL_ReadBE32(reader);
-        objectives[index].index = (int16_t)SDL_ReadBE16(reader);
+        objectives[index].type = SDL_ReadBE32(reader);
+        objectives[index].index = SDL_ReadBE16(reader);
         SDL_RWread(reader, objectives[index].description, 1, sizeof(objectives[index].description));
         SDL_RWseek(reader, 2, RW_SEEK_CUR);
         if (objectives[index].type == -1)
@@ -190,12 +190,12 @@ int SdlLoadSwcMissionData(const char *path, short series, short mission)
         goto done;
     }
     SDL_RWclose(reader);
-    reader = SDL_RWFromConstMem(blocks[3], (int)blockSizes[3]);
+    reader = SDL_RWFromConstMem(blocks[3], blockSizes[3]);
     if (reader == NULL)
         goto done;
     for (index = 0; index < ACTIVE_MISSION_SHIP_COUNT; index++) {
         for (field = 0; field < SDL_arraysize(values); field++)
-            values[field] = (int32_t)SDL_ReadBE32(reader);
+            values[field] = SDL_ReadBE32(reader);
         for (field = 0; field < SDL_arraysize(byteFields); field++) {
             value = values[byteFields[field]];
             if (value < SCHAR_MIN || value > SCHAR_MAX) {
@@ -214,23 +214,23 @@ int SdlLoadSwcMissionData(const char *path, short series, short mission)
         }
         ships[index].type = (enum ObjectType)values[0];
         ships[index].side = (enum Side)values[1];
-        ships[index].leader = (signed char)values[2];
-        ships[index].field_9 = (signed char)values[3];
+        ships[index].leader = values[2];
+        ships[index].field_9 = values[3];
         ships[index].missionType = (enum ShipMissionType)values[4];
-        ships[index].navPoint = (signed char)values[5];
+        ships[index].navPoint = values[5];
         ships[index].position.x = values[6];
         ships[index].position.y = values[7];
         ships[index].position.z = values[8];
         /* WC1 calls alter_yaw with its field named pitch, just like SWC's
          * +0x24 field; preserve consumer behavior rather than swapping names. */
-        ships[index].pitch = (short)values[9];
-        ships[index].yaw = (short)values[10];
-        ships[index].roll = (short)values[11];
-        ships[index].formationSpot = (signed char)values[12];
-        ships[index].speed = (short)values[13];
+        ships[index].pitch = values[9];
+        ships[index].yaw = values[10];
+        ships[index].roll = values[11];
+        ships[index].formationSpot = values[12];
+        ships[index].speed = values[13];
         ships[index].rating = values[14];
         ships[index].behaviour.pilot = values[15];
-        ships[index].field_2c = (short)values[16];
+        ships[index].field_2c = values[16];
         ships[index].field_2e = values[17];
         SDL_RWread(reader, &ships[index].state, 1, 1);
         SDL_RWread(reader, &ships[index].leaderMissionIndex, 1, 1);

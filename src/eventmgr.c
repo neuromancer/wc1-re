@@ -160,8 +160,8 @@ void QueueInputEvent(int type, int x, int y, int value,
     pInputEventTail->x = x;
     pInputEventTail->y = y;
     pInputEventTail->value = value;
-    pInputEventTail->primaryButton = (short)primaryButton;
-    pInputEventTail->secondaryButton = (short)secondaryButton;
+    pInputEventTail->primaryButton = primaryButton;
+    pInputEventTail->secondaryButton = secondaryButton;
 }
 
 /* Function start: 0x4358B0 */
@@ -258,7 +258,7 @@ short __stdcall GetNextInputEvent(InputEventState *state)
         }
 
         state->modifiers =
-            (short)pInputEventHead->modifiers;
+            pInputEventHead->modifiers;
         switch (pInputEventHead->type) {
         case 1:
             stMouseCursorState.x = pInputEventHead->x;
@@ -272,15 +272,15 @@ short __stdcall GetNextInputEvent(InputEventState *state)
             stMouseCursorState.x = pInputEventHead->x;
             stMouseCursorState.y = pInputEventHead->y;
             stMouseCursorState.primaryButton =
-                (unsigned char)pInputEventHead->primaryButton;
+                pInputEventHead->primaryButton;
             stMouseCursorState.secondaryButton =
-                (unsigned char)pInputEventHead->secondaryButton;
+                pInputEventHead->secondaryButton;
             state->x = pInputEventHead->x;
             state->y = pInputEventHead->y;
             type = 2;
             state->value =
-                (int)pInputEventHead->secondaryButton * 2 |
-                (int)pInputEventHead->primaryButton;
+                pInputEventHead->secondaryButton * 2 |
+                pInputEventHead->primaryButton;
             break;
         case 3:
             state->value = pInputEventHead->value;
@@ -358,12 +358,12 @@ short __stdcall PeekInputEvent(InputEventState *state, short type)
         state->type = event->type;
         state->value = event->modifiers;
         state->timestamp = event->timestamp;
-        eventType = (int)event->type;
+        eventType = event->type;
         if (eventType == 2 || eventType == 1)
             modifiers = 1;
         modifiers |= ((unsigned short)event->primaryButton < 1 ? 0 : -1) & 2;
         modifiers |= ((unsigned short)event->secondaryButton < 1 ? 0 : -1) & 4;
-        state->modifiers = (short)modifiers;
+        state->modifiers = modifiers;
         state->x = event->x;
         state->y = event->y;
         return 1;
@@ -508,8 +508,8 @@ void RestoreMouseCursorBackground(void)
 
     RestoreSpriteBackground(stMouseCursorState.viewport,
                             abCursorSaveArea,
-                            (short)nMousePointerDrawnX,
-                            (short)nMousePointerDrawnY,
+                            nMousePointerDrawnX,
+                            nMousePointerDrawnY,
                             stMouseCursorState.shape,
                             stMouseCursorState.frame);
     x = nMousePointerDrawnX;
@@ -571,10 +571,10 @@ void __stdcall SetMouseCursorShape(struct Shape *shape, short frame)
         pDrawnMouseCursorShape != 0) {
         RestoreSpriteBackground(stMouseCursorState.viewport,
                                 abCursorSaveArea,
-                                (short)nMouseCursorSavedX,
-                                (short)nMouseCursorSavedCoordY,
+                                nMouseCursorSavedX,
+                                nMouseCursorSavedCoordY,
                                 pDrawnMouseCursorShape,
-                                (short)stMouseCursorState.frame);
+                                stMouseCursorState.frame);
         pDrawnMouseCursorShape = 0;
     }
     stMouseCursorState.shape = shape;
@@ -607,7 +607,7 @@ void __stdcall GetMouseCursorPosition(ShortPoint *point)
 /* Function start: 0x4361E0 */
 void SetFrameTimerPeriod(short period)
 {
-    SetMultimediaTimerCallback((int)period);
+    SetMultimediaTimerCallback(period);
 }
 
 /* Function start: 0x4361F0 */
@@ -620,7 +620,7 @@ void __stdcall SetFrameTimerAndWait(short period)
 /* Function start: 0x436210 */
 void __stdcall SetFrameTimerPeriodDirect(short p)
 {
-    SetMultimediaTimerCallback((int)p);
+    SetMultimediaTimerCallback(p);
 }
 
 /* Function start: 0x436230 */
@@ -856,7 +856,7 @@ void sort_object_depth(void)
     for (; obj < SPACE_OBJECT_COUNT; obj++) {
         distance = asObjDistancesTable[obj];
         if (previous < (int)distance) {
-            previous = (int)distance;
+            previous = distance;
             bestObject = obj;
         }
     }
@@ -883,7 +883,7 @@ void sort_object_depth(void)
                     screenOffset);
                 if (best < (int)distance && previous >= (int)distance) {
                     bestObject = obj;
-                    best = (int)distance;
+                    best = distance;
                 }
             }
         }
@@ -916,20 +916,20 @@ void draw_sorted_objects_to_buffer(void)
             return;
         objectClass = aeObjectClass[obj];
 #ifdef SDL_PORT
-        enhancedScreenX = (float)(short)(
+        enhancedScreenX = (short)(
             asObjectScreenXList[obj] + nCurrentViewCenterPosX);
-        enhancedScreenY = (float)(short)(
+        enhancedScreenY = (short)(
             asObjectScreenYArray[obj] + nCurrentViewCenterPosY);
         if (objectClass != OBJECT_CLASS_NULL &&
             objectClass != OBJECT_CLASS_FIXED_OBJECT &&
             obj != nNavPointerObject &&
             aObjectViewPositionsList[obj].z != 0) {
-            projectedScreenX = (short)(DivideFixed(
+            projectedScreenX = (DivideFixed(
                 MultiplyFixed(
                     (short)(nScreenWidth & ~1) << 7,
                     aObjectViewPositionsList[obj].x),
                 aObjectViewPositionsList[obj].z) >> 8);
-            projectedScreenY = (short)(DivideFixed(
+            projectedScreenY = (DivideFixed(
                 MultiplyFixed(
                     (short)(nScreenWidth & ~1) << 7,
                     aObjectViewPositionsList[obj].y),
@@ -950,7 +950,7 @@ void draw_sorted_objects_to_buffer(void)
         } else if (objectClass == OBJECT_CLASS_FIXED_OBJECT &&
                    aeObjectTypeList[obj] == OBJECT_TYPE_THRUSTERS) {
             SdlGetThrusterScreenPosition(
-                (short)obj, &enhancedScreenX, &enhancedScreenY);
+                obj, &enhancedScreenX, &enhancedScreenY);
         }
 #endif
         if (objectClass != OBJECT_CLASS_NULL) {
@@ -962,11 +962,11 @@ void draw_sorted_objects_to_buffer(void)
 
                 objectX = asObjectScreenXList[obj];
                 objectY = *(short volatile *)&asObjectScreenYArray[obj];
-                objectX = (short)(objectX +
+                objectX = (objectX +
                                   nCurrentViewCenterPosX);
                 objectShape = *(struct Shape *volatile *)&apObjShapeArray[obj];
                 asObjectDrawPosX[obj] = objectX;
-                objectY = (short)(objectY +
+                objectY = (objectY +
                                   nCurrentViewCenterPosY);
                 asObjectDrawPosY[obj] = objectY;
                 if (objectShape != 0) {
@@ -995,12 +995,12 @@ void draw_sorted_objects_to_buffer(void)
             case OBJECT_CLASS_PLANET:
 #endif
             case OBJECT_CLASS_DUST:
-                specialObject = (int)nNavPointerObject;
+                specialObject = nNavPointerObject;
                 screenY = asObjectScreenYArray[obj];
-                screenX = (short)(asObjectScreenXList[obj] +
+                screenX = (asObjectScreenXList[obj] +
                                   nCurrentViewCenterPosX);
                 asObjectDrawPosX[obj] = screenX;
-                screenY = (short)(screenY + nCurrentViewCenterPosY);
+                screenY = (screenY + nCurrentViewCenterPosY);
                 asObjectDrawPosY[obj] = screenY;
                 if (specialObject == obj) {
                     shape = apObjShapeArray[obj];
@@ -1110,12 +1110,12 @@ void set_up_screen_viewport(signed char mode)
 
     if (bCockpitlessView != 0 && bCockpitlessView != -2) {
         nScreenWidth = pScreenViewGeometry->width;
-        nCurrentViewCenterPosX = (short)(nScreenWidth / 2);
+        nCurrentViewCenterPosX = (nScreenWidth / 2);
         nScreenHeight = pScreenViewGeometry->height;
-        nCurrentViewCenterPosY = (short)(nScreenHeight / 2);
+        nCurrentViewCenterPosY = (nScreenHeight / 2);
         nViewportOriginPositionX = pScreenViewGeometry->originX;
         nViewportOriginPositionY = pScreenViewGeometry->originY;
-        switch ((int)cCurrentCockpitView) {
+        switch (cCurrentCockpitView) {
         case 0:
             nViewportOriginPositionY += 10;
             nCurrentViewCenterPosY += 10;
@@ -1135,9 +1135,9 @@ void set_up_screen_viewport(signed char mode)
     }
 
     nScreenWidth = pScreenViewGeometry->width;
-    nCurrentViewCenterPosX = (short)(nScreenWidth / 2);
+    nCurrentViewCenterPosX = (nScreenWidth / 2);
     nScreenHeight = pScreenViewGeometry->height;
-    nCurrentViewCenterPosY = (short)(nScreenHeight / 2);
+    nCurrentViewCenterPosY = (nScreenHeight / 2);
     nViewportOriginPositionX = pScreenViewGeometry->originX;
     nViewportOriginPositionY = pScreenViewGeometry->originY;
 }
@@ -1290,7 +1290,7 @@ unsigned int IsVectorWithinRange(FixedVector *vector, short range)
 {
     int magnitude = Vector_magnitude(vector);
 
-    if (abs((int)range << 8) >= magnitude)
+    if (abs(range << 8) >= magnitude)
         return 1;
     return 0;
 }
@@ -1320,7 +1320,7 @@ unsigned int shrink(int *component)
     *component = value;
     fraction = value;
     integerPart = (unsigned int)value >> 16;
-    signedIntegerPart = (short)integerPart;
+    signedIntegerPart = integerPart;
     if (signedIntegerPart == 0)
         return (unsigned short)fraction > 0x0f00;
     if (signedIntegerPart == -1)
@@ -1418,21 +1418,21 @@ short __stdcall GetViewportIntersection(ShortRect *intersection,
         return 0;
 
     intersection->left = MinShort(
-        (short)xCoordinates[inside[0]],
-        MinShort((short)xCoordinates[inside[1]],
-                 (short)xCoordinates[inside[2]]));
+        xCoordinates[inside[0]],
+        MinShort(xCoordinates[inside[1]],
+                 xCoordinates[inside[2]]));
     intersection->top = MinShort(
-        (short)yCoordinates[inside[0]],
-        MinShort((short)yCoordinates[inside[1]],
-                 (short)yCoordinates[inside[2]]));
+        yCoordinates[inside[0]],
+        MinShort(yCoordinates[inside[1]],
+                 yCoordinates[inside[2]]));
     intersection->left = MaxShort(
-        (short)xCoordinates[inside[0]],
-        MaxShort((short)xCoordinates[inside[1]],
-                 (short)xCoordinates[inside[2]]));
+        xCoordinates[inside[0]],
+        MaxShort(xCoordinates[inside[1]],
+                 xCoordinates[inside[2]]));
     intersection->top = MaxShort(
-        (short)yCoordinates[inside[0]],
-        MaxShort((short)yCoordinates[inside[1]],
-                 (short)yCoordinates[inside[2]]));
+        yCoordinates[inside[0]],
+        MaxShort(yCoordinates[inside[1]],
+                 yCoordinates[inside[2]]));
     return 1;
 }
 

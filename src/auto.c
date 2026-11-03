@@ -66,7 +66,7 @@ unsigned int player_wingman(short obj)
 /* Function start: 0x403F10 */
 void set_speed(short obj, short speed)
 {
-    anShipSpeed[obj] = (int)speed << 8;
+    anShipSpeed[obj] = speed << 8;
     fix_velocity(obj);
 }
 
@@ -92,8 +92,8 @@ void auto_position(short obj, short *formationSlot)
     if (nAutopilotFormationShipCount == *formationSlot)
         lateral = 0;
     vertical = 0;
-    forward = MaxShort(1, (short)(*formationSlot >> 1));
-    forward = (short)(forward * -1800);
+    forward = MaxShort(1, (*formationSlot >> 1));
+    forward = (forward * -1800);
     if (nYourWingman != -1) {
         int radii;
         int separation;
@@ -129,7 +129,7 @@ void auto_pilot_sequence(void)
     FixedVector previousPosition;
 #endif
 
-    savedCannedSceneMode = (short)nCannedSceneMode;
+    savedCannedSceneMode = nCannedSceneMode;
     destination = aMissionObjectivesArray[
         abFlightPathList[cCurrentNavPtIdx]].position;
     formationSlot = 0;
@@ -319,8 +319,8 @@ void auto_pilot_sequence(void)
         } else {
             GetScreenUpdateFlag();
             SetViewportRect(&stSpaceBufferViewport, 0, 0,
-                            (unsigned short)(nScreenWidth - 1),
-                            (unsigned short)(nScreenHeight - 1));
+                            (nScreenWidth - 1),
+                            (nScreenHeight - 1));
             initialize_view_buffer();
             bCockpitlessView = 1;
             force_view(0, 0);

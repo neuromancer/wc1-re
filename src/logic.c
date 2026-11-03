@@ -163,7 +163,7 @@ void prepare_ace(short ace)
 /* Function start: 0x4220F0 */
 short signed_random(short range)
 {
-    return RandomBelowOrEqual((short)(range * 2)) - range;
+    return RandomBelowOrEqual((range * 2)) - range;
 }
 
 /* Function start: 0x422110 */
@@ -201,7 +201,7 @@ void clear_alert(short i)
 void start_collision_alert(short obj, short other)
 {
     if ((short)(signed char)abCollisionAlertTargets[obj] != other) {
-        abCollisionAlertTargets[obj] = (unsigned char)other;
+        abCollisionAlertTargets[obj] = other;
         steady_object(obj);
     }
     asCollisionDelayList[obj] = 3;
@@ -265,11 +265,11 @@ short real_crash_time(short obj, short other)
         return 0x7fbc;
 
     time = FixedToShortSaturating(
-        DivideFixed((int)distance, (int)relativeSpeed));
+        DivideFixed(distance, relativeSpeed));
     if (time >= 30)
         return time;
 
-    ScaleFixedVector(&relativeVelocity, (int)time << 8, &travel);
+    ScaleFixedVector(&relativeVelocity, time << 8, &travel);
     AddFixedVectors(&relativePosition, &travel, &separation);
     range = FixedToShortSaturating(
         Vector_magnitude(&separation));
@@ -283,9 +283,9 @@ short real_crash_time(short obj, short other)
     do {
         if (elapsed >= time)
             break;
-        step = MaxShort(1, (short)((time - elapsed) >> 1));
+        step = MaxShort(1, ((time - elapsed) >> 1));
         elapsed += step;
-        ScaleFixedVector(&relativeVelocity, (int)elapsed << 8, &travel);
+        ScaleFixedVector(&relativeVelocity, elapsed << 8, &travel);
         AddFixedVectors(&relativePosition, &travel, &separation);
         range = FixedToShortSaturating(
             Vector_magnitude(&separation));
@@ -599,11 +599,11 @@ unsigned int build_squad_list(short leader)
     short obj;
     short index = 1;
 
-    acFormationMemberLists[0] = (signed char)leader;
+    acFormationMemberLists[0] = leader;
     acFormationMemberLists[1] = -1;
     for (obj = 0; obj < 10; obj++) {
         if (asShipWingLeaderArray[obj] == leader) {
-            acFormationMemberLists[index++] = (signed char)obj;
+            acFormationMemberLists[index++] = obj;
             acFormationMemberLists[index] = -1;
         }
     }
@@ -623,7 +623,7 @@ unsigned int find_squad_center(FixedVector *center)
         count++;
     }
     if (count != 0)
-        divide_vector(center, (int)count << 8, center);
+        divide_vector(center, count << 8, center);
     return 0;
 }
 
@@ -766,7 +766,7 @@ unsigned int approach_half_speed(short obj)
     short speed = aObjectTypeData[
         aeObjectTypeList[obj]].cruiseVelocity;
 
-    approach_speed(obj, (int)(short)(speed & 0xfffe) << 7);
+    approach_speed(obj, (short)(speed & 0xfffe) << 7);
     return 0;
 }
 
@@ -774,7 +774,7 @@ unsigned int approach_half_speed(short obj)
 unsigned int approach_cruise_speed(short ship)
 {
     approach_speed(ship,
-        (int)aObjectTypeData[
+        aObjectTypeData[
             aeObjectTypeList[ship]].cruiseVelocity << 8);
     return 0;
 }
@@ -783,7 +783,7 @@ unsigned int approach_cruise_speed(short ship)
 unsigned int approach_full_speed(short ship)
 {
     approach_speed(ship,
-                      (int)asShipMaximumSpeedArray[ship] << 8);
+                      asShipMaximumSpeedArray[ship] << 8);
     return 0;
 }
 
@@ -799,7 +799,7 @@ unsigned int get_front_spot(short obj, unsigned short distance,
                             FixedVector *point)
 {
     ScaleFixedVector(&aShipFwdVec[obj],
-                     (int)distance << 8, point);
+                     distance << 8, point);
     AddFixedVectors(&aShipPositionsArray[obj], point, point);
     return 0;
 }
@@ -809,7 +809,7 @@ unsigned int get_rear_spot(short obj, unsigned short distance,
                            FixedVector *point)
 {
     ScaleFixedVector(&aShipFwdVec[obj],
-                     -((int)distance << 8), point);
+                     -(distance << 8), point);
     AddFixedVectors(&aShipPositionsArray[obj], point, point);
     return 0;
 }
@@ -1022,11 +1022,11 @@ int in_danger(short obj)
             nTargetShip = target;
             if (acShipTargetTable[other] != obj)
                 continue;
-            range = (unsigned short)distance_from_object(other, obj);
+            range = distance_from_object(other, obj);
             target = nTargetShip;
             if (target == -1 || range < nTgtRange) {
                 target = other;
-                nTgtRange = (short)range;
+                nTgtRange = range;
             }
         }
     }
@@ -1060,7 +1060,7 @@ short build_target_list(short obj, short range)
             distance = distance_from_object(obj, other);
             if (distance < range) {
                 acFormationMemberLists[count] =
-                    (signed char)other;
+                    other;
                 asTargetListRangesArray[count] = distance;
                 count++;
             }
@@ -1080,13 +1080,13 @@ int select_safe_target(short obj)
     index = -1;
     do {
         index++;
-        target = (short)acFormationMemberLists[index];
+        target = acFormationMemberLists[index];
         if (target == -1)
             break;
     } while (in_danger(target) != 0);
     if (target == -1 && index > 0) {
         index--;
-        target = (short)acFormationMemberLists[
+        target = acFormationMemberLists[
             RandomBelowOrEqual(index)];
     }
     nTargetShip = target;
@@ -1150,11 +1150,11 @@ short skill_rating(short obj)
     int rating = aiPilotLevel[obj];
 
     if (rating <= 4)
-        return MaxShort(2, (short)rating);
+        return MaxShort(2, rating);
     if (rating == 13)
         return 5;
     if (rating < 14)
-        return (short)((rating - 5 >> 1) + 4);
+        return ((rating - 5 >> 1) + 4);
     return (short)rating - 10;
 }
 
@@ -1237,23 +1237,23 @@ unsigned int get_follow_point(short obj, FixedVector *point)
             anShipMissionShips[obj]].position;
         return 0;
     }
-    pathIndex = (short)abShipNavPtIdx[obj];
+    pathIndex = abShipNavPtIdx[obj];
     while (++pathIndex < 16) {
-        objective = (short)abFlightPathList[pathIndex];
+        objective = abFlightPathList[pathIndex];
         type = aMissionObjectivesArray[objective].type;
         switch (type) {
         case 0:
             *point = aMissionObjectivesArray[objective].position;
-            abShipNavPtIdx[obj] = (signed char)pathIndex;
+            abShipNavPtIdx[obj] = pathIndex;
             return 0;
         case 1:
-            missionShip = (short)aMissionObjectivesArray[objective].index;
+            missionShip = aMissionObjectivesArray[objective].index;
             objective = find_ship_index(missionShip);
             if (objective == -1)
                 *point = aMissionNavPoints[missionShip].position;
             else
                 *point = aShipPositionsArray[objective];
-            abShipNavPtIdx[obj] = (signed char)pathIndex;
+            abShipNavPtIdx[obj] = pathIndex;
             return 0;
         }
     }
@@ -1313,7 +1313,7 @@ void engage(short obj, short target, enum ShipObjective objective)
         reset_objective(obj, objective);
         if (acShipRating[obj] > 8 &&
             ace_status(
-                (short)((short)aiPilotLevel[obj] - 14), 8) == 0)
+                ((short)aiPilotLevel[obj] - 14), 8) == 0)
             ace_greeting(obj);
     }
     acShipTargetTable[obj] = target;
@@ -1339,7 +1339,7 @@ unsigned int triumph(short obj)
         objective = 0;
         while (abFlightPathList[objective] != -1 &&
                visited(
-                   (short)abFlightPathList[objective]) != 0)
+                   abFlightPathList[objective]) != 0)
             objective++;
         return 1;
     case MISSION_TYPE_ESCORT:
@@ -1361,9 +1361,9 @@ short find_ratio(short inputMinimum, short inputMaximum,
         return outputMinimum;
     if (input > inputMaximum)
         return outputMaximum;
-    return (short)(((int)(outputMaximum - outputMinimum) *
-                   (int)(input - inputMinimum)) /
-                   (int)(inputMaximum - inputMinimum)) + outputMinimum;
+    return (short)(((outputMaximum - outputMinimum) *
+                   (input - inputMinimum)) /
+                   (inputMaximum - inputMinimum)) + outputMinimum;
 }
 
 /* Function start: 0x423C00 */
@@ -1377,7 +1377,7 @@ short evaluate_damage(short obj)
 
     if (objectClass < OBJECT_CLASS_SHIP)
         return 100;
-    return (short)((acShipDmg[obj] * -26) /
+    return ((acShipDmg[obj] * -26) /
                        typeData->damageCapacity +
                    (aasShipArmor[obj][1] * 27) /
                        typeData->armorRear +
@@ -1438,7 +1438,7 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
     while (resources->resource != 0) {
         if (*(PackedResourcePointer *)resources->resource == 0) {
             PromptInsertNumberedDisk(resources->logicalFile);
-            packetSize = (int)GetPacketSize(
+            packetSize = GetPacketSize(
                 pDiskFileRecords[
                     resources->logicalFile].name,
                 resources->section);
@@ -1446,7 +1446,7 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
                 *(PackedResourcePointer *)resources->resource =
                     FetchDiskPacketRetrying(
                         resources->logicalFile, resources->section,
-                        (unsigned short)flags);
+                        flags);
                 if (*(PackedResourcePointer *)resources->resource == 0)
                     return availableBytes;
                 availableBytes -= packetSize;
@@ -1470,13 +1470,13 @@ unsigned int ResetCockpitPaletteEntries(void)
     do {
         memcpy(aPaletteFadeEntries[index], black,
                sizeof(black));
-        SetPaletteEntry((short)(index + 185),
+        SetPaletteEntry((index + 185),
                         aPaletteFadeEntries[index]);
         index++;
     } while (index < 6);
     memcpy(asDamageFlashColour, black, sizeof(black));
     asDamageFlashColour[2] = 32;
-    SetPaletteEntry((short)cPrimaryViewBufferColour,
+    SetPaletteEntry(cPrimaryViewBufferColour,
                     asDamageFlashColour);
     return 0;
 }
@@ -1492,7 +1492,7 @@ unsigned int initialize_cockpit(int requestedMode)
     if (message_showing())
         EndCommMenu();
 
-    mode = (signed char)requestedMode;
+    mode = requestedMode;
 
     if (bCockpitlessView == 0 && mode == cScreenViewMode) {
         if (stSpaceBufferViewport.pixels != 0)
@@ -1511,7 +1511,7 @@ unsigned int initialize_cockpit(int requestedMode)
     ClearViewport(&stModalSrcViewport, cBlackColour);
 
     cCockpitLogicalFile =
-        (unsigned char)(cCurrentCockpitView + 17);
+        (cCurrentCockpitView + 17);
     cScreenViewMode = mode;
     switch (mode) {
     case 0:
@@ -1521,7 +1521,7 @@ unsigned int initialize_cockpit(int requestedMode)
                                   apCockpitShapesList[0], 0);
         } else {
             backdrop = FetchDiskPacketRetrying(
-                (short)cCockpitLogicalFile, 0, 0);
+                cCockpitLogicalFile, 0, 0);
             if (bCockpitlessView == 0)
                 DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
             ReleasePacketHandle(backdrop);
@@ -1545,7 +1545,7 @@ unsigned int initialize_cockpit(int requestedMode)
                                   apCockpitShapesList[1], 0);
         } else {
             backdrop = FetchDiskPacketRetrying(
-                (short)cCockpitLogicalFile, 1, 0);
+                cCockpitLogicalFile, 1, 0);
             if (bCockpitlessView == 0)
                 DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
             ReleasePacketHandle(backdrop);
@@ -1559,7 +1559,7 @@ unsigned int initialize_cockpit(int requestedMode)
                                   apCockpitShapesList[2], 0);
         } else {
             backdrop = FetchDiskPacketRetrying(
-                (short)cCockpitLogicalFile, 2, 0);
+                cCockpitLogicalFile, 2, 0);
             if (bCockpitlessView == 0)
                 DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
             ReleasePacketHandle(backdrop);
@@ -1573,7 +1573,7 @@ unsigned int initialize_cockpit(int requestedMode)
                                   apCockpitShapesList[3], 0);
         } else {
             backdrop = FetchDiskPacketRetrying(
-                (short)cCockpitLogicalFile, 3, 0);
+                cCockpitLogicalFile, 3, 0);
             if (bCockpitlessView == 0)
                 DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
             ReleasePacketHandle(backdrop);
@@ -1626,8 +1626,8 @@ unsigned int initialize_cockpit(int requestedMode)
 
     bViewBufferEnabled = 1;
     SetViewportRect(&stSpaceBufferViewport, 0, 0,
-                    (unsigned short)(nScreenWidth - 1),
-                    (unsigned short)(nScreenHeight - 1));
+                    (nScreenWidth - 1),
+                    (nScreenHeight - 1));
     result = initialize_view_buffer();
     stScreenView = savedScreen;
     return result;
@@ -1641,8 +1641,8 @@ unsigned int InitializeConstellationObject(
 
     aeObjectClass[object] = OBJECT_CLASS_PLANET;
     init_ijk(63);
-    alter_yaw((short)-definition->yaw, 63);
-    alter_pitch((short)-definition->pitch, 63);
+    alter_yaw(-definition->yaw, 63);
+    alter_pitch(-definition->pitch, 63);
     alter_roll(definition->roll, 63);
     ScaleFixedVector(&aShipFwdVec[63],
                      0x753000, &position);
@@ -1653,7 +1653,7 @@ unsigned int InitializeConstellationObject(
     aeObjectTypeList[object] = OBJECT_TYPE_HORNET;
     apObjShapeArray[object] =
         FetchDiskPacketRetrying(
-            12, (short)(definition->shapePacket + 1), 0);
+            12, (definition->shapePacket + 1), 0);
     return 0;
 }
 
@@ -1725,7 +1725,7 @@ void init_vdus(void)
     InitializeTextContextFromFont(
         &stLeftVduTextContext, 2,
         cPrimaryTextColour,
-        (signed char)cBlackColour);
+        cBlackColour);
     stLeftVduTextContext.viewport = &stLeftVdu;
     stLeftVduTextContext.text = szDefaultTxtBuf;
     set_mode(0, 1);
@@ -1734,7 +1734,7 @@ void init_vdus(void)
     InitializeTextContextFromFont(
         &stRightVduTxtContext, 2,
         cPrimaryTextColour,
-        (signed char)cBlackColour);
+        cBlackColour);
     stRightVduTxtContext.viewport = &stRightVduViewport;
     stRightVduTxtContext.text = szDefaultTxtBuf;
     set_mode(1, nTrainSimActive == 0 ? 5 : 3);
@@ -1758,42 +1758,42 @@ unsigned int InitializeCockpitResources(signed char mode)
 
     bCockpitResourcesActive = 1;
     cCurrentCockpitView = mode;
-    cCockpitLogicalFile = (unsigned char)(mode + 17);
+    cCockpitLogicalFile = (mode + 17);
     clear_cockpit_damage();
     ClearHudGunReadouts();
     reset_cockpit();
     GetScreenUpdateFlag();
 
     LoadShapeSet(aCockpitPrimaryResources, 4,
-                 (short)cCockpitLogicalFile);
+                 cCockpitLogicalFile);
     pCurrentScreenViewportPkt =
         LoadPacketAllocated(
-            (short)cCockpitLogicalFile, 6);
+            cCockpitLogicalFile, 6);
     stCockpitBar = stScreenView;
     init_vdus();
 
     InitializeTextContextFromFont(
         &stCurrentCockpitReadoutTextCtx, 2,
         cPrimaryTextColour,
-        (signed char)cBlackColour);
+        cBlackColour);
     stCurrentCockpitReadoutTextCtx.viewport = &stScreenView;
     SetTextContext(&stCurrentCockpitReadoutTextCtx);
 
     SetTextCursor(
-        (unsigned short)stCockpitLayout.readoutOrigins[0][cCurrentCockpitView].x,
-        (unsigned short)stCockpitLayout.readoutOrigins[0][cCurrentCockpitView].y);
+        stCockpitLayout.readoutOrigins[0][cCurrentCockpitView].x,
+        stCockpitLayout.readoutOrigins[0][cCurrentCockpitView].y);
     InitializeCockpitReadout(4, &stCurrentCockpitReadoutTextCtx);
     SetTextCursor(
-        (unsigned short)stCockpitLayout.readoutOrigins[1][cCurrentCockpitView].x,
-        (unsigned short)stCockpitLayout.readoutOrigins[1][cCurrentCockpitView].y);
+        stCockpitLayout.readoutOrigins[1][cCurrentCockpitView].x,
+        stCockpitLayout.readoutOrigins[1][cCurrentCockpitView].y);
     InitializeCockpitReadout(5, &stCurrentCockpitReadoutTextCtx);
     SetTextCursor(
-        (unsigned short)stCockpitLayout.readoutOrigins[2][cCurrentCockpitView].x,
-        (unsigned short)stCockpitLayout.readoutOrigins[2][cCurrentCockpitView].y);
+        stCockpitLayout.readoutOrigins[2][cCurrentCockpitView].x,
+        stCockpitLayout.readoutOrigins[2][cCurrentCockpitView].y);
     InitializeCockpitReadout(2, &stCurrentCockpitReadoutTextCtx);
     SetTextCursor(
-        (unsigned short)stCockpitLayout.readoutOrigins[3][cCurrentCockpitView].x,
-        (unsigned short)stCockpitLayout.readoutOrigins[3][cCurrentCockpitView].y);
+        stCockpitLayout.readoutOrigins[3][cCurrentCockpitView].x,
+        stCockpitLayout.readoutOrigins[3][cCurrentCockpitView].y);
     InitializeCockpitReadout(3, &stCurrentCockpitReadoutTextCtx);
 
     *(ShortRect *)&stLeftVdu.left =
@@ -1806,10 +1806,10 @@ unsigned int InitializeCockpitResources(signed char mode)
         *(ShortRect *)&stPilotHandView.left =
             stCockpitLayout.pilotHandBounds[cCurrentCockpitView];
         SetViewportRect(&stPilotHandComposite, 0, 0,
-            (unsigned short)(
+            (
                 stCockpitLayout.pilotHandBounds[cCurrentCockpitView].right -
                 stCockpitLayout.pilotHandBounds[cCurrentCockpitView].left),
-            (unsigned short)(
+            (
                 stCockpitLayout.pilotHandBounds[cCurrentCockpitView].bottom -
                 stCockpitLayout.pilotHandBounds[cCurrentCockpitView].top));
         stPilotHandBackdropView = stPilotHandComposite;
@@ -1818,7 +1818,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     }
 
     LoadShapeSet(aCockpitSecondaryResources, 0,
-                 (short)cCockpitLogicalFile);
+                 cCockpitLogicalFile);
     pRadarMarkerBackground =
         AllocateTaggedMemory(MeasureShapeFrameStorage(pTgtLockShapePtr, 2), 0);
 
@@ -1831,8 +1831,8 @@ unsigned int InitializeCockpitResources(signed char mode)
                 OBJECT_CLASS_MISSILE) {
             backgroundSize = MeasureShapeFrameStorage(
                 pCockpitWeaponShapePtr,
-                (short)(((ShipWeaponSlot *)&aShipWeaponsTable[0][1])[weapon].type * 2 - 0x2f));
-            maximumSize = MaxShort(maximumSize, (short)backgroundSize);
+                (((ShipWeaponSlot *)&aShipWeaponsTable[0][1])[weapon].type * 2 - 0x2f));
+            maximumSize = MaxShort(maximumSize, backgroundSize);
         }
     }
     if (maximumSize != 0)
@@ -1845,7 +1845,7 @@ unsigned int InitializeCockpitResources(signed char mode)
         for (frame = 0; frame < 8; frame++) {
             backgroundSize = MeasureShapeFrameStorage(
                 pCockpitExplosionShape, frame);
-            maximumSize = MaxShort(maximumSize, (short)backgroundSize);
+            maximumSize = MaxShort(maximumSize, backgroundSize);
         }
         if (maximumSize != 0)
             pCockpitExplosionBackground =
@@ -1857,7 +1857,7 @@ unsigned int InitializeCockpitResources(signed char mode)
     for (frame = 0; frame < 9; frame++) {
         /* The original passes an unused third zero to MaxShort. */
         maximumSize = MaxShort(maximumSize,
-            (short)MeasureShapeFrameStorage(pCockpitWeaponShapePtr, frame), 0);
+            MeasureShapeFrameStorage(pCockpitWeaponShapePtr, frame), 0);
     }
     if (maximumSize != 0)
         pDamageDisplayBackground =
@@ -1893,7 +1893,7 @@ unsigned int free_cockpit(void)
         free_viewport(&stPilotHandBackdropView);
     }
     cCockpitLogicalFile =
-        (signed char)(cCurrentCockpitView + 17);
+        (cCurrentCockpitView + 17);
     FreeShapeSet(aCockpitPrimaryResources, 4);
     FreeShapeSet(aCockpitSecondaryResources, 0);
     FreePacketAndClear(&pCockpitPilotShape, 0);
@@ -2069,12 +2069,12 @@ unsigned short LoadSceneAnimationResources(short scene, short variant)
         FetchDiskPacketRetrying(logicalFile, 0, 0);
     pSceneAnimationDefinitionsPtr =
         FetchDiskPacketRetrying(
-            logicalFile, (short)(variant + 1), 0);
+            logicalFile, (variant + 1), 0);
     pSceneAnimationSecondaryShape =
         FetchDiskPacketRetrying(
-            logicalFile, (short)(variant + 3), 0);
+            logicalFile, (variant + 3), 0);
     packet = FetchDiskPacketRetrying(
-        logicalFile, (short)(variant + 5), 0);
+        logicalFile, (variant + 5), 0);
     pSceneAnimationPacketPtr = packet;
     pSceneAnimationSceneDataPtr =
         packet + *(unsigned int *)(packet + 0);
@@ -2189,24 +2189,24 @@ unsigned short __stdcall UpdateSceneAnimationObject(
             cursor += 2;
             switch (property) {
             case 'F':
-                object->frame = (short)(object->frame + value);
+                object->frame = (object->frame + value);
                 object->deltaFrame = value;
                 break;
             case 'R':
-                object->rotation = (short)(object->rotation + value);
+                object->rotation = (object->rotation + value);
                 object->deltaRotation = value;
                 if (object->rotation < 0)
-                    object->rotation = (short)(
+                    object->rotation = (
                         ((unsigned short)(0x167 - object->rotation) /
                          0x168) * 0x168 + object->rotation);
                 if (object->rotation >= 0x168)
-                    object->rotation = (short)(
+                    object->rotation = (
                         object->rotation -
                         ((unsigned short)object->rotation / 0x168) *
                             0x168);
                 break;
             case 'S':
-                object->scale = (short)(object->scale + value);
+                object->scale = (object->scale + value);
                 object->deltaScale = value;
                 if (object->scale < 0x40)
                     object->scale = 0x40;
@@ -2214,14 +2214,14 @@ unsigned short __stdcall UpdateSceneAnimationObject(
                     object->scale = 0x1fff;
                 break;
             case 'T':
-                delay = (short)(delay + value);
+                delay = (delay + value);
                 break;
             case 'X':
-                object->x = (short)(object->x + value);
+                object->x = (object->x + value);
                 object->deltaX = value;
                 break;
             case 'Y':
-                object->y = (short)(object->y + value);
+                object->y = (object->y + value);
                 object->deltaY = value;
                 break;
             }
@@ -2240,11 +2240,11 @@ unsigned short __stdcall UpdateSceneAnimationObject(
             while (frame != -1) {
                 if (layer != 2 && nFrameSkipCounter <= 0)
                     DrawSpriteScaled(
-                        viewport, (short)(object->x + xOffset), object->y,
+                        viewport, (object->x + xOffset), object->y,
                         object->shape, frame, object->rotation,
                         object->scale, object->frame);
                 if (layer == 0)
-                    xOffset = (short)(xOffset + 320);
+                    xOffset = (xOffset + 320);
                 frame = *cursor++;
             }
             stop++;
@@ -2259,10 +2259,10 @@ unsigned short __stdcall UpdateSceneAnimationObject(
             while (frame != -1) {
                 if (layer != 2 && nFrameSkipCounter <= 0)
                     DrawSpriteScaled(
-                        viewport, (short)(object->x + xOffset), object->y,
+                        viewport, (object->x + xOffset), object->y,
                         object->shape, frame, object->rotation,
                         object->scale, object->frame);
-                xOffset = (short)(xOffset + 320);
+                xOffset = (xOffset + 320);
                 frame = *cursor++;
             }
             cursor = commandStart;
@@ -2295,11 +2295,11 @@ unsigned short __stdcall UpdateSceneAnimationObject(
             case 'R':
                 object->rotation = value;
                 if (object->rotation < 0)
-                    object->rotation = (short)(
+                    object->rotation = (
                         ((unsigned short)(0x167 - object->rotation) /
                          0x168) * 0x168 + object->rotation);
                 if (object->rotation >= 0x168)
-                    object->rotation = (short)(
+                    object->rotation = (
                         object->rotation -
                         ((unsigned short)object->rotation / 0x168) *
                             0x168);
@@ -2357,8 +2357,8 @@ unsigned short __stdcall UpdateSceneAnimationObject(
 
         case 'R':
             objectCount = *(short *)pSceneAnimationDefinitionsPtr;
-            objectSet = (short)*cursor++;
-            objectIndex = (short)*cursor++;
+            objectSet = *cursor++;
+            objectIndex = *cursor++;
             source = &pSceneAnimationObjects[
                 (short)(objectCount * objectSet) + objectIndex];
             object->x = source->x;
@@ -2512,7 +2512,7 @@ void PlaySceneAnimation(char *text, short animation, short duration)
         } while (complete == 0);
 
         if (nSceneAnimationDelayFrames == -1) {
-            SetFrameTimerPeriodDirect((short)(duration / 2));
+            SetFrameTimerPeriodDirect((duration / 2));
             do {
                 if ((short)IsFrameTickElapsed() != 0 || CheckEscaped() != 0)
                     break;

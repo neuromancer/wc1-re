@@ -28,7 +28,7 @@ int nMousePointerDamageTopValue; /* 0x0059ab60 */
 /* Function start: 0x434CD0 */
 short RandomBelow(short n)
 {
-    return (short)(rand() % (int)n);
+    return (rand() % n);
 }
 
 /* Function start: 0x434CF0 */
@@ -36,13 +36,13 @@ short RandomBelow(short n)
  * argument is never read. */
 void __stdcall SeedRandomFromClock(int seed)
 {
-    srand((unsigned int)time(0));
+    srand(time(0));
 }
 
 /* Function start: 0x434D10 */
 unsigned short RandomWord(void)
 {
-    return (unsigned short)rand();
+    return rand();
 }
 
 /* Function start: 0x434D20 */
@@ -59,93 +59,93 @@ short __stdcall RandomInRange(short lo, short hi)
 short RandomBelowOrEqual(short n)
 {
     if (n != -1 && n != 0)
-        return (short)(rand() % (n + 1));
+        return (rand() % (n + 1));
     return 0;
 }
 
 /* Function start: 0x434D80 */
 long MultiplyFixed(int left, int right)
 {
-    double leftValue = (double)left * (1.0 / 256.0);
-    double rightValue = (double)right * (1.0 / 256.0);
+    double leftValue = left * (1.0 / 256.0);
+    double rightValue = right * (1.0 / 256.0);
 
-    return (long)(leftValue * rightValue * 256.0);
+    return (leftValue * rightValue * 256.0);
 }
 
 /* Function start: 0x434DB0 */
 long DivideFixed(int numerator, int denominator)
 {
-    float numeratorValue = (float)((double)numerator * (1.0 / 256.0));
+    float numeratorValue = (numerator * (1.0 / 256.0));
     float denominatorValue;
 
     if (denominator != 0)
-        denominatorValue = (float)((double)denominator * (1.0 / 256.0));
+        denominatorValue = (denominator * (1.0 / 256.0));
     else
         denominatorValue = 1.0f;
-    return (long)(numeratorValue / denominatorValue * 256.0);
+    return (numeratorValue / denominatorValue * 256.0);
 }
 
 /* Function start: 0x434E00 */
 long SinFixed(short degrees)
 {
-    return (long)(sin((double)degrees * DEGREES_TO_RADIANS) * 256.0);
+    return (sin(degrees * DEGREES_TO_RADIANS) * 256.0);
 }
 
 /* Function start: 0x434E30 */
 long CosFixed(short degrees)
 {
-    return (long)(cos((double)degrees * DEGREES_TO_RADIANS) * 256.0);
+    return (cos(degrees * DEGREES_TO_RADIANS) * 256.0);
 }
 
 /* Function start: 0x434E60 */
 long ArcSin(int value)
 {
-    return (long)(asin(value * 0.00390625f) *
+    return (asin(value * 0.00390625f) *
                   57.295779513082323);
 }
 
 /* Function start: 0x434E90 */
 long ArcCos(int value)
 {
-    return (long)(acos(value * 0.00390625f) *
+    return (acos(value * 0.00390625f) *
                   57.295779513082323);
 }
 
 /* Function start: 0x434EC0 */
 long Magnitude(int value)
 {
-    return (long)(sqrt(value * 0.00390625f) * 256.0);
+    return (sqrt(value * 0.00390625f) * 256.0);
 }
 
 /* Function start: 0x434EE0 */
 long PlanarMagnitude(int x, int y)
 {
-    double scaledX = (double)x * (1.0 / 256.0);
-    double scaledY = (double)y * (1.0 / 256.0);
+    double scaledX = x * (1.0 / 256.0);
+    double scaledY = y * (1.0 / 256.0);
 
     scaledX *= scaledX;
     scaledY *= scaledY;
-    return (long)(sqrt(scaledX + scaledY) * 256.0);
+    return (sqrt(scaledX + scaledY) * 256.0);
 }
 
 /* Function start: 0x434F20 */
 long Vector_magnitude(const FixedVector *vector)
 {
-    double x = (double)vector->x * (1.0 / 256.0);
-    double y = (double)vector->y * (1.0 / 256.0);
-    double z = (double)vector->z * (1.0 / 256.0);
+    double x = vector->x * (1.0 / 256.0);
+    double y = vector->y * (1.0 / 256.0);
+    double z = vector->z * (1.0 / 256.0);
 
     x *= x;
     y *= y;
     z *= z;
-    return (long)(sqrt(x + y + z) * 256.0);
+    return (sqrt(x + y + z) * 256.0);
 }
 
 /* Function start: 0x434F70 */
 void __stdcall SetTextCursor(unsigned short a, unsigned short b)
 {
-    pCurTextContext->cursorX = (short)a;
-    pCurTextContext->cursorY = (short)b;
+    pCurTextContext->cursorX = a;
+    pCurTextContext->cursorY = b;
 }
 
 /* Function start: 0x434FA0 */
@@ -187,7 +187,7 @@ unsigned short __stdcall GetFontCharWidth(char i)
     /* The packed format reserves one width entry for every byte value. */
     return pCurTextContext->font[4 + (unsigned char)i];
 #else
-    return pCurTextContext->font[4 + (int)i];
+    return pCurTextContext->font[4 + i];
 #endif
 }
 
@@ -203,16 +203,16 @@ short __stdcall GetShapeFrameBounds(short *bounds, short x, short y,
     short frameTableOffset;
     struct ShapeFrame *frameData;
 
-    frameTableOffset = (short)(frame * 4);
-    if ((int)frameTableOffset < (int)(unsigned short)shape->frameOffsets[0]) {
-        frameTableOffset = (short)(frameTableOffset + 4);
+    frameTableOffset = (frame * 4);
+    if (frameTableOffset < (unsigned short)shape->frameOffsets[0]) {
+        frameTableOffset = (frameTableOffset + 4);
         shape = (struct Shape *)((unsigned char *)shape +
             *(unsigned short *)((unsigned char *)shape + frameTableOffset));
         frameData = (struct ShapeFrame *)shape;
-        bounds[2] = (short)(frameData->right + x);
-        bounds[0] = (short)(x - frameData->left);
-        bounds[1] = (short)(y - frameData->top);
-        bounds[3] = (short)(frameData->bottom + y);
+        bounds[2] = (frameData->right + x);
+        bounds[0] = (x - frameData->left);
+        bounds[1] = (y - frameData->top);
+        bounds[3] = (frameData->bottom + y);
         return -1;
     }
     return 0;
@@ -304,7 +304,7 @@ void __stdcall DrawTextString(const char *text)
 
         if (pCurTextContext->alignment == 2) {
             savedX = pCurTextContext->cursorX;
-            pCurTextContext->cursorX = (short)(
+            pCurTextContext->cursorX = (
                 pCurTextContext->viewport->left +
                 ((pCurTextContext->viewport->right -
                   pCurTextContext->viewport->left) -
@@ -315,7 +315,7 @@ void __stdcall DrawTextString(const char *text)
             lineStart++;
         }
         if (pCurTextContext->alignment == 2)
-            pCurTextContext->cursorX = (short)savedX;
+            pCurTextContext->cursorX = savedX;
         if (wrapped != 0) {
             pCurTextContext->cursorX =
                 pCurTextContext->viewport->left;
@@ -339,7 +339,7 @@ void __stdcall DrawTextCharacter(char character)
         pCurTextContext->cursorX =
             pCurTextContext->viewport->left;
         pCurTextContext->cursorY =
-            (short)(pCurTextContext->cursorY +
+            (pCurTextContext->cursorY +
                     *(short *)pCurTextContext->font);
     } else if (character == '\r') {
         pCurTextContext->cursorX =
@@ -350,7 +350,7 @@ void __stdcall DrawTextCharacter(char character)
 #ifdef SDL_PORT
         glyphWidth = font[4 + (unsigned char)character];
 #else
-        glyphWidth = font[4 + (int)(signed char)character];
+        glyphWidth = font[4 + (signed char)character];
 #endif
         context = pCurTextContext;
         cursorY = context->cursorY;
@@ -398,12 +398,12 @@ int __stdcall MeasureShapeFrameStorage(struct Shape *shape, short frame)
                             command >>= 1;
                             run++;
                             rowLength =
-                                (unsigned short)(rowLength - command);
+                                (rowLength - command);
                             size += command;
                         } else {
                             command >>= 1;
                             rowLength =
-                                (unsigned short)(rowLength - command);
+                                (rowLength - command);
                             size += command;
                             run += command;
                         }

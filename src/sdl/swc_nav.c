@@ -70,7 +70,7 @@ void SdlBuildSwcMap(SwcNavMap *map, const SwcTextFont *font, int navigation)
     SwcNavCheckPoint(map, aShipPositionsArray[0]);
     for (index = 0; index < cMissionObjectiveCountValue; index++) {
         objective = &aMissionObjectivesArray[index];
-        if (mobile_objective((short)index)) {
+        if (mobile_objective(index)) {
             object = find_ship_index(objective->index);
             if (object >= 0 && object < 10)
                 objective->position = aShipPositionsArray[object];
@@ -100,10 +100,10 @@ void SdlBuildSwcMap(SwcNavMap *map, const SwcTextFont *font, int navigation)
     }
     for (index = 0; index < cMissionObjectiveCountValue; index++) {
         objective = &aMissionObjectivesArray[index];
-        if (objective->type < 0 || objective->type > 4 || hidden_objective((short)index))
+        if (objective->type < 0 || objective->type > 4 || hidden_objective(index))
             continue;
-        if (mobile_objective((short)index)) {
-            if (objective_lost((short)index))
+        if (mobile_objective(index)) {
+            if (objective_lost(index))
                 continue;
             /* BuildMap +0x18ec calls find_ships_sphere (CODE_05 +0x6498),
              * whose active-nav preference and wave fallback match WC1. */
@@ -119,7 +119,7 @@ void SdlBuildSwcMap(SwcNavMap *map, const SwcTextFont *font, int navigation)
         entry->objective = index;
         entry->frame = objective->type < 2 ? objective->type : 2;
         if (objective->type == 0)
-            entry->color = visited((short)index) ? 0xf8 : 0xf9;
+            entry->color = visited(index) ? 0xf8 : 0xf9;
         else
             entry->color = objective->type == 1 ? 0xfa : objective->type == 4 ? 0xfb : 0xfc;
         SDL_strlcpy(entry->text, objective->displayName, sizeof(entry->text));
@@ -183,10 +183,10 @@ static void SwcSelectNavObjective(int direction, int objective)
         if (abFlightPathList[index] < 0 || abFlightPathList[index] >= count ||
             (objective >= 0 && abFlightPathList[index] != objective))
             continue;
-        if (set_new_objective((short)index))
+        if (set_new_objective(index))
             return;
     }
-    cCurrentNavPtIdx = (signed char)previousIndex;
+    cCurrentNavPtIdx = previousIndex;
 }
 
 static int SwcLoadNavArt(SDL_Renderer *renderer, const SwcCmf *cmf,
@@ -196,14 +196,14 @@ static int SwcLoadNavArt(SDL_Renderer *renderer, const SwcCmf *cmf,
     SwcFrame shape;
     int result = -1;
 
-    if (SwcCMGetChunk(cmf, "CKPT", (uint32_t)id, &set) == 0 &&
-        SwcGetFramePtr(&set, (uint32_t)frame, &shape) == 0) {
+    if (SwcCMGetChunk(cmf, "CKPT", id, &set) == 0 &&
+        SwcGetFramePtr(&set, frame, &shape) == 0) {
         art->bounds = (SDL_Rect){shape.x, shape.y, shape.width, shape.height};
         /* CKPT/3's comm/gun/weapon backgrounds are deliberately empty. */
         if (shape.width == 0 && shape.height == 0) {
             result = 0;
         } else {
-            art->texture = SdlCreateSwcTexture(renderer, &set, (uint32_t)frame, colors);
+            art->texture = SdlCreateSwcTexture(renderer, &set, frame, colors);
             if (art->texture != NULL)
                 result = 0;
         }
@@ -314,7 +314,7 @@ static int SwcBuildComputerComms(int recipient, int options[10], const char *nam
     if (aeShipSide[recipient] == aeShipSide[0]) {
         if (aeObjectTypeList[recipient] == OBJECT_TYPE_TIGERS_CLAW && !bLandingAuthorized)
             options[count++] = 12;
-        if (target > 0 && target < 10 && !unactive((short)target) &&
+        if (target > 0 && target < 10 && !unactive(target) &&
             aeShipSide[target] == SIDE_KILRATHI)
             options[count++] = 1;
         if (evaluate_damage(0) < 50 && any_enemy(0, 14000))
@@ -495,11 +495,11 @@ int SdlShowSwcComputer(SDL_Window *window, SDL_Renderer *renderer, const char *r
             goto done;
     }
     for (index = 0; index < (int)SDL_arraysize(weapons); index++) {
-        if (SwcGetFramePtr(&weaponSet, (uint32_t)index, &shape) != 0)
+        if (SwcGetFramePtr(&weaponSet, index, &shape) != 0)
             goto done;
         if (shape.width == 0 && shape.height == 0)
             continue;
-        if (SdlLoadSwcRasterImage(&weaponSet, (uint32_t)index, &weapons[index]) != 0)
+        if (SdlLoadSwcRasterImage(&weaponSet, index, &weapons[index]) != 0)
             goto done;
     }
     canvas = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
@@ -593,7 +593,7 @@ int SdlShowSwcComputer(SDL_Window *window, SDL_Renderer *renderer, const char *r
                     if (page == SWC_COMPUTER_COMM && event.key.keysym.sym >= SDLK_1 &&
                         event.key.keysym.sym <= SDLK_9 &&
                         event.key.keysym.sym - SDLK_1 < count) {
-                        selected = (int)(event.key.keysym.sym - SDLK_1);
+                        selected = (event.key.keysym.sym - SDLK_1);
                         pendingKey = event.key.keysym.sym;
                     }
                     break;
@@ -704,7 +704,7 @@ int SdlShowSwcComputer(SDL_Window *window, SDL_Renderer *renderer, const char *r
                 } else {
                     command = options[selected];
                     SdlSwcVocalizeMessage(command);
-                    request(0, (short)recipient, (short)command);
+                    request(0, recipient, command);
                     result = SWC_MOVIE_FINISHED;
                     goto done;
                 }
@@ -713,7 +713,7 @@ int SdlShowSwcComputer(SDL_Window *window, SDL_Renderer *renderer, const char *r
                 /* +0x34e6..+0x351c: selection alone never ejects. Activation
                  * uses the same exclusive Random3DO bound as Ctrl+E. */
                 if (acPlayerComponentDamageList[7] <= 1 ||
-                    RandomBelowOrEqual((short)(acPlayerComponentDamageList[7] - 1)) == 0)
+                    RandomBelowOrEqual((acPlayerComponentDamageList[7] - 1)) == 0)
                     nArcadeState = 2;
                 else
                     SdlPlaySwcSound(25, 127);

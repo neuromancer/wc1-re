@@ -181,7 +181,7 @@ FontWorkspace **AllocateFontWorkspace(short fontIndex)
     FontWorkspace **workspace;
     int index;
 
-    workspace = (FontWorkspace **)malloc(sizeof(*workspace));
+    workspace = malloc(sizeof(*workspace));
     *workspace = malloc(sizeof(**workspace));
     for (index = 0; index < 1; index++) {
         (*workspace)[index].width = 5;
@@ -260,7 +260,7 @@ char FindCdRomDriveByVolumeLabel(const char *label,
     for (scanDrive = 'a'; scanDrive <= 'z'; scanDrive++) {
         sprintf(scanRoot, "%c:\\", (char)scanDrive);
         if (GetDriveTypeA(scanRoot) == DRIVE_CDROM) {
-            drives[driveCount] = (char)scanDrive;
+            drives[driveCount] = scanDrive;
             driveCount++;
         }
     }
@@ -325,8 +325,8 @@ int PromptInsertCorrectCd(void)
 /* Function start: 0x4034D0 */
 short __stdcall OpenDataFileOrDie(const char *path)
 {
-    short fd = (short)_open(path, 0x8002);
+    short fd = _open(path, 0x8002);
 
-    nPacketError = (short)errno;
+    nPacketError = errno;
     return fd;
 }

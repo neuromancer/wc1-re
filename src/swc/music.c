@@ -77,7 +77,7 @@ static int SwcReadMusicEvents(const SwcBuffer *bytes, SwcMusic *music,
                 !((instrument >= 1 && instrument <= 128) ||
                   (instrument >= 0x4001 && instrument <= 0x4080)))
                 return -1;
-            music->instruments[part] = (uint16_t)instrument;
+            music->instruments[part] = instrument;
             position += (length - 1) * 4;
             continue;
         }

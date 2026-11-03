@@ -250,7 +250,7 @@ int SdlSetCursorPosition(int x, int y)
     if (logicalWidth > 0 && logicalHeight > 0) {
         /* SWC uses SDL's 320x240 logical renderer, including letterboxing.
            WC1's renderer keeps its existing 320x200 coordinate conversion. */
-        SDL_RenderLogicalToWindow(renderer, (float)x, (float)y, &windowX, &windowY);
+        SDL_RenderLogicalToWindow(renderer, x, y, &windowX, &windowY);
     } else if (!SdlMapLogicalToWindow(
             window, x, y, &windowX, &windowY))
         return FALSE;

@@ -304,7 +304,7 @@ char DebugOverlayConsole::WaitForKey(void)
     }
     if (dwDebugOverlayKey == 0)
         return 0x1b;
-    key = (char)dwDebugOverlayKey;
+    key = dwDebugOverlayKey;
     dwDebugOverlayKey = 0;
     return key;
 #else
@@ -380,7 +380,7 @@ char DebugOverlayConsole::WaitForKey(void)
             ;
     }
     {
-        char key = (char)dwDebugOverlayKey;
+        char key = dwDebugOverlayKey;
 
         dwDebugOverlayKey = 0;
         return key;

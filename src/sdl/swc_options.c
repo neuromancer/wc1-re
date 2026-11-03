@@ -97,7 +97,7 @@ static void SwcSaveOptions(void)
         swcOptions.musicVolume, swcOptions.soundVolume);
     file = SDL_RWFromFile(path, "wb");
     if (file != NULL) {
-        SDL_RWwrite(file, contents, 1, (size_t)length);
+        SDL_RWwrite(file, contents, 1, length);
         SDL_RWclose(file);
     }
     SDL_free(path);

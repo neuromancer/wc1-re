@@ -268,14 +268,14 @@ void SdlDrawViewportStatic(struct Viewport *viewport, int effect,
         return;
     /* The two call sites use effect 1 for a damaged display and 3 for the
      * heavier comm dropout, so the busier pattern goes to the latter. */
-    bright = (short)(effect >= 3 ? 1 : 2);
+    bright = (effect >= 3 ? 1 : 2);
     for (y = viewport->top; y <= viewport->bottom; y++) {
         for (x = viewport->left; x <= viewport->right; x++) {
             sample = SdlNextStaticNoise() >> 16;
             if ((short)(sample & 3) > bright)
                 continue;
             DrawViewportPixel(viewport, x, y,
-                              (short)((sample & 4) != 0 ? colour
+                              ((sample & 4) != 0 ? colour
                                                         : cBlackColour));
         }
     }

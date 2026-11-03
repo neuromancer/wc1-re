@@ -107,7 +107,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
 
     weaponCount = aShipWeaponsTable[0][0];
     currentWeapon = nSelectedReleaseWeaponIndex;
-    weapon = (signed char)(currentWeapon + 1);
+    weapon = (currentWeapon + 1);
     weaponSlots = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
 
     if (weaponCount <= weapon)

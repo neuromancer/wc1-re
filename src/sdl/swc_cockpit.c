@@ -188,8 +188,8 @@ void SdlSwcTransmit(short object, short message)
         (face == 12 && message == 6))
         sound += stCampaignState.currentPilot->rank + 1;
     nCommSpeakerObject = object;
-    nCommSpeakerRating = (short)rating;
-    nCommPortraitIndex = (short)face;
+    nCommSpeakerRating = rating;
+    nCommPortraitIndex = face;
     swcCommSound = sound;
     swcCommStarted = 0;
     swcCommTicks = 40;
@@ -243,11 +243,11 @@ static void SwcUpdateCommunication(void)
             continue;
         acWingmanMessageStatesArray[object] = -1;
         if (message == swcPreviousCommMessage[object] && (message == 4 || message == 10) &&
-            (unsigned int)(nTickCount60Hz - swcPreviousCommTick[object]) < 30U * 60U)
+            (nTickCount60Hz - swcPreviousCommTick[object]) < 30U * 60U)
             continue;
-        swcPreviousCommMessage[object] = (signed char)message;
+        swcPreviousCommMessage[object] = message;
         swcPreviousCommTick[object] = nTickCount60Hz;
-        SdlSwcTransmit((short)object, (short)message);
+        SdlSwcTransmit(object, message);
     }
     if (nCommSpeakerObject == -1 && RandomBelowOrEqual(4999) > 4950) {
         for (object = 1; object < 10; object++) {
@@ -256,7 +256,7 @@ static void SwcUpdateCommunication(void)
                 (aeShipObjectiveList[object] == OBJECTIVE_ENGAGE_ENEMY ||
                  aeShipObjectiveList[object] == OBJECTIVE_DESTROY_SHIP) &&
                 (acShipRating[object] != -1 || RandomBelowOrEqual(99) < 20)) {
-                acWingmanMessageStatesArray[object] = (signed char)RandomInRange(2, 4);
+                acWingmanMessageStatesArray[object] = RandomInRange(2, 4);
                 break;
             }
         }
@@ -379,7 +379,7 @@ short SdlSwcAutopilotValid(short showReason)
         }
         return 0;
     } else if (distance_from_point(0,
-                   &aMissionObjectivesArray[(int)cCurrentObjective].position) < 8000) {
+                   &aMissionObjectivesArray[cCurrentObjective].position) < 8000) {
         reason = "Already Near";
         voice = 1;
     }
@@ -393,7 +393,7 @@ short SdlSwcAutopilotValid(short showReason)
 void SdlSwcFlagReached(short objective, short reached)
 {
     short carrierMissionShip = anShipMissionShips[0];
-    short objectiveType = (short)aMissionObjectivesArray[objective].type;
+    short objectiveType = aMissionObjectivesArray[objective].type;
     short carrierObject = find_ship_index(carrierMissionShip);
     short markVisited = objective != cCurrentObjective;
     short advanceDestination = 0;
@@ -692,7 +692,7 @@ static void SwcUpdateTargetLock(void)
         }
         weapon = weapons[nSelectedReleaseWeaponIndex].type;
         if (weapon == OBJECT_TYPE_HEAT_SEEKING_MISSILE) {
-            get_facing_range_from_object(0, (short)target);
+            get_facing_range_from_object(0, target);
             if (nTargetFacingValue > -65) {
                 SdlSwcLockOff();
                 return;
@@ -705,7 +705,7 @@ static void SwcUpdateTargetLock(void)
             return;
         }
         if (nTargetLockCountdown == -1) {
-            nTargetLockCountdown = (short)duration;
+            nTargetLockCountdown = duration;
             bTargetLockReadoutDirty = 0;
         } else if (nTargetLockCountdown > 0) {
             /* +0x3766 explicitly passes signed projected X * 2 / 5 as
@@ -734,7 +734,7 @@ static void SwcCheckTarget(void)
     short hasEnemy;
 
     if (acShipTargetTable[0] != oldTarget) {
-        acShipTargetTable[0] = (signed char)oldTarget;
+        acShipTargetTable[0] = oldTarget;
         nTargetLockCountdown = -1;
     }
     if (oldTarget == -1 || (nTargetLockMode == 0 &&
@@ -816,7 +816,7 @@ static void SwcUpdateItts(void)
         return;
     }
     if (!swcIttsActive) {
-        if (!SwcIttsRangeCheck(distance_from_object(0, (short)target)))
+        if (!SwcIttsRangeCheck(distance_from_object(0, target)))
             return;
         swcIttsActive = 1;
         /* Mac set_global_message +0x3f4e only writes DATA+0x4712/+0x4716.
@@ -839,7 +839,7 @@ static void SwcUpdateItts(void)
                      &projectileVelocity);
     AddFixedVectors(&projectileVelocity, &combinedVelocity, &combinedVelocity);
     projectileSpeed = (Vector_magnitude(&combinedVelocity) >> 8) + 1;
-    interceptFrames = distance_from_object(0, (short)target) / projectileSpeed;
+    interceptFrames = distance_from_object(0, target) / projectileSpeed;
     zero_vector(&targetOffset);
     if (interceptFrames > 0)
         ScaleFixedVector(&aShipVelocity[target], interceptFrames << 8,
@@ -921,7 +921,7 @@ static void SwcUpdateCockpitScanner(void)
         /* SWC's scanner cutoff is 30,000; WC1's draw_3d_scanner uses 60,000. */
         if (spherical.radius >= 30000 * 256)
             continue;
-        rotational_pos_to_scanner_pos((signed char)object, &spherical);
+        rotational_pos_to_scanner_pos(object, &spherical);
         if (object == swcScannerEnemy)
             enemyVisible = 1;
         if (target == object) {
@@ -1068,7 +1068,7 @@ void SdlUpdateSwcCockpit(void)
         swcVduDead[vdu] = 0;
         if (anCockpitDamageState[vdu + 1])
             continue;
-        mode = get_mode((short)vdu);
+        mode = get_mode(vdu);
         swcVduDead[vdu] = mode == 0 ||
             (vdu == 0 && mode == 1 && malf(3)) ||
             (vdu == 1 && mode == 3 && malf(5)) ||
@@ -1470,7 +1470,7 @@ int SdlDrawSwcHud(void)
         SwcDrawCockpitText(200, 110, 0x81, "Target: ");
         SwcDrawCockpitText(200 + SdlSwcTextWidth(&swcCockpitFont, "Target: "),
             110, 0x84, name);
-        range = distance_from_object(0, (short)target);
+        range = distance_from_object(0, target);
         SwcDrawCockpitText(200, 121, 0x81, "Range:");
         SDL_snprintf(text, sizeof(text), " %d", range);
         SwcDrawCockpitText(200 + SdlSwcTextWidth(&swcCockpitFont, "Range:"),
@@ -1481,7 +1481,7 @@ int SdlDrawSwcHud(void)
            at 32,000. Name visibility and distance remain WC1 core logic. */
         SwcDrawCockpitText(200, 94, 0x81, "Dest: ");
         SwcDrawCockpitText(200 + SdlSwcTextWidth(&swcCockpitFont, "Dest: "),
-            94, 0x84, objective_name((short)cCurrentObjective));
+            94, 0x84, objective_name(cCurrentObjective));
         /* CODE_06 tprintf +0x2214 advances by font size + 2 (9 + 2). */
         SwcDrawCockpitText(200, 105, 0x81, "Range:");
         if (nCurObjectiveRangeValue < 32000)

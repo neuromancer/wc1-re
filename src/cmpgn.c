@@ -32,7 +32,7 @@ unsigned int ParseFaceAnimation(char *text, short *commands)
     short sequenceIndex;
 
     sequenceIndex = 0;
-    frame = (short)*text++;
+    frame = *text++;
     while (frame != 0) {
         if (frame == 'R') {
             *commands = -2;
@@ -40,22 +40,22 @@ unsigned int ParseFaceAnimation(char *text, short *commands)
             commands[-1] = sequenceIndex;
         } else {
             if (frame >= 'A' && frame <= 'F')
-                frame = (short)(frame - 'A' + 10);
+                frame = (frame - 'A' + 10);
             else
-                frame = (short)(frame - '0');
+                frame = (frame - '0');
             *commands = frame;
             durationCursor = duration;
-            frame = (short)*text++;
+            frame = *text++;
             while (frame != ',') {
-                *durationCursor++ = (char)frame;
-                frame = (short)*text++;
+                *durationCursor++ = frame;
+                frame = *text++;
             }
             *durationCursor = '\0';
-            commands[1] = (short)atoi(duration);
+            commands[1] = atoi(duration);
             commands += 2;
             sequenceIndex++;
         }
-        frame = (short)*text++;
+        frame = *text++;
     }
     *commands = -1;
     return 0;
@@ -88,7 +88,7 @@ unsigned int ParseMouthAnimation(char *text, short *commands)
             durationLength++;
             text++;
             duration[durationLength] = '\0';
-            ticks = (short)atoi(duration);
+            ticks = atoi(duration);
             character = *text;
         }
         commands[1] = ticks;
@@ -173,8 +173,8 @@ char *AddPCName(const char *text)
             break;
         case 'T':
             sprintf(formatted, "%02d:%02d",
-                    (int)((signed char *)pElapsedCampaignDatePtr)[0],
-                    (int)((signed char *)pElapsedCampaignDatePtr)[1]);
+                    ((signed char *)pElapsedCampaignDatePtr)[0],
+                    ((signed char *)pElapsedCampaignDatePtr)[1]);
             DosStrcat(szTxtWorkspaceBuffer, formatted);
             break;
         case 'W':
@@ -304,7 +304,7 @@ unsigned int LongTalk(struct Shape *talker, char *text,
                 mouthCommands = mouthStart;
             default:
                 mouthFrame = *mouthCommands;
-                mouthCountdown = (short)(mouthCommands[1] * 2);
+                mouthCountdown = (mouthCommands[1] * 2);
                 break;
             case -1:
                 mouthFrame = -1;
@@ -325,7 +325,7 @@ unsigned int LongTalk(struct Shape *talker, char *text,
                 faceFrame = *faceCommands;
                 if (faceFrame == 10)
                     faceFrame = -1;
-                faceCountdown = (short)(faceCommands[1] * 2);
+                faceCountdown = (faceCommands[1] * 2);
                 break;
             case -1:
                 faceFrame = -1;
@@ -381,12 +381,12 @@ unsigned int CloseTalk(struct Shape *talker, short mouthFrame,
         DrawSpriteDefault(&stSceneBuffer,
                           nTalkingHeadFaceX,
                           nTalkingHeadFaceCoordY,
-                          talker, (short)(faceFrame + 11));
+                          talker, (faceFrame + 11));
     if (mouthFrame > -1)
         DrawSpriteDefault(&stSceneBuffer,
                           nTalkingHeadMouthX,
                           nTalkingHeadMouthY,
-                          talker, (short)(mouthFrame + 1));
+                          talker, (mouthFrame + 1));
     if (bConversationOverlay != 0)
         DrawSpriteDefault(&stSceneBuffer, 0, 0,
                           pConvOverlayShapePtr,
@@ -437,8 +437,8 @@ unsigned int DeBriefing(short series, short mission)
     short playerScore;
 
     bEscapePressedFlag = 0;
-    fullScore = (short)FullMissionScore();
-    playerScore = (short)PlayersMissionScore();
+    fullScore = FullMissionScore();
+    playerScore = PlayersMissionScore();
     if (fullScore == 0) {
         PreloadMusicTrackHook(0x21);
         spacetrack(0x21, 2, 1);
@@ -516,7 +516,7 @@ unsigned int LoadBriefingData(short series, short mission)
 
     pBriefingPacket = FetchDiskPacketRetrying(
         asCampaignBriefingFiles[nCampaignDataSet],
-        (short)(mission + series * 4), 0);
+        (mission + series * 4), 0);
     header = (BriefingPacketHeader *)pBriefingPacket;
     pBriefingSceneInfo = pBriefingPacket +
         header->briefingScene;
@@ -601,7 +601,7 @@ unsigned int LoadMissionData(short series, short mission)
 
     logicalFile = asMissionDataFiles[nCampaignDataSet];
     packet = FetchDiskPacketRetrying(logicalFile, 0, 0);
-    missionIndex = (int)mission + (int)series * 4;
+    missionIndex = mission + series * 4;
 #ifdef SDL_PORT
     /* The original developer path assumes an occupied one-of-64 header.  An
      * empty header marks its player ship as -1, which cannot be represented
@@ -777,7 +777,7 @@ unsigned int CloseLook(struct Shape *shape, short shot,
                     /* Restart also loads the first frame and its delay. */
                 default:
                     frame = *animation;
-                    frameDelay = (short)(animation[1] * 2);
+                    frameDelay = (animation[1] * 2);
                     break;
                 case -1:
                     frame = -1;
@@ -798,7 +798,7 @@ unsigned int CloseLook(struct Shape *shape, short shot,
                             &stSceneBuffer,
                             nDebriefingPodiumX, 53,
                             pCurrentConversationBackdropShapePtr,
-                            (short)(frame + 17));
+                            (frame + 17));
                 } else if (frame > -1) {
                     DrawSpriteDefault(&stSceneBuffer, 225, 34,
                                       shape, frame);

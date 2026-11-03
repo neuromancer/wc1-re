@@ -94,7 +94,7 @@ int SdlResolvePath(const char *path, char *resolved,
         end = cursor;
         while (*end != '\0' && *end != '/')
             end++;
-        componentLength = (size_t)(end - cursor);
+        componentLength = (end - cursor);
         if (componentLength >= sizeof(component))
             return 0;
         memcpy(component, cursor, componentLength);
@@ -170,7 +170,7 @@ long SdlFileLength(int file)
 
     if (fstat(file, &status) != 0)
         return -1;
-    return (long)status.st_size;
+    return status.st_size;
 }
 
 static char *SdlLowercaseDigits(char *text)
@@ -179,7 +179,7 @@ static char *SdlLowercaseDigits(char *text)
 
     cursor = text;
     while (*cursor != '\0') {
-        *cursor = (char)tolower((unsigned char)*cursor);
+        *cursor = tolower((unsigned char)*cursor);
         cursor++;
     }
     return text;
@@ -187,7 +187,7 @@ static char *SdlLowercaseDigits(char *text)
 
 char *SdlItoa(int value, char *text, int radix)
 {
-    return SdlLtoa((long)value, text, radix);
+    return SdlLtoa(value, text, radix);
 }
 
 char *SdlLtoa(long value, char *text, int radix)
@@ -196,7 +196,7 @@ char *SdlLtoa(long value, char *text, int radix)
         return SDL_ltoa(value, text, radix);
     else if (radix == 16)
         return SdlLowercaseDigits(
-            SDL_ultoa((unsigned long)value, text, radix));
+            SDL_ultoa(value, text, radix));
     text[0] = '\0';
     return text;
 }
@@ -217,7 +217,7 @@ char *SdlStrupr(char *text)
 
     cursor = text;
     while (*cursor != '\0') {
-        *cursor = (char)toupper((unsigned char)*cursor);
+        *cursor = toupper((unsigned char)*cursor);
         cursor++;
     }
     return text;

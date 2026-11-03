@@ -55,7 +55,7 @@ void arrive_from_warp(short obj)
     approve_xyz(obj, 2000, 5000);
     unwarp(obj);
     anShipSpeed[obj] =
-        (int)asShipMaximumSpeedArray[obj] << 8;
+        asShipMaximumSpeedArray[obj] << 8;
     fix_velocity(obj);
     if (aeShipSide[obj] == SIDE_IMPERIAL)
         reset_mission_type(obj, MISSION_TYPE_COME_HOME);
@@ -117,7 +117,7 @@ int drop_player_mine(short obj)
         type = ((ShipWeaponSlot *)&aShipWeaponsTable[obj][1])[weapon].type;
         if (aObjectTypeData[type].objectClass == OBJECT_CLASS_MINE &&
             ((ShipWeaponSlot *)&aShipWeaponsTable[obj][1])[weapon].disabled == 0)
-            return drop_mine(obj, (signed char)weapon, type, 20);
+            return drop_mine(obj, weapon, type, 20);
     }
     return -1;
 }
@@ -127,13 +127,13 @@ unsigned int personality_killed(short personality)
 {
     if (personality < 8) {
         stCampaignState.personalityDeathMission[personality] =
-            (int)stCampaignState.currentMission +
-            (int)stCampaignState.currentSeries * 4;
+            stCampaignState.currentMission +
+            stCampaignState.currentSeries * 4;
         stCampaignState.promotionScore = MaxShort(
-            0, (short)(stCampaignState.promotionScore - 1));
+            0, (stCampaignState.promotionScore - 1));
         return 0;
     }
-    kill_ace((short)(personality - 9));
+    kill_ace((personality - 9));
     stCampaignState.promotionScore++;
     stCampaignState.missionScore += 25;
     return 0;

@@ -96,7 +96,7 @@ void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
         init_ijk(63);
         alter_yaw(yaw, 63);
         ScaleFixedVector(&aShipFwdVec[63],
-                         (int)distance << 8,
+                         distance << 8,
                          &aShipPositionsArray[*object]);
         asObjectViewFrames[*object] = frame;
         asObjScreenAngles[*object] = type;
@@ -221,21 +221,21 @@ unsigned int ShowCampaignVictorySequence(void)
                         asObjectCollisionRadius[61] <
                             projectile->depth) {
                         projectile->screenX =
-                            (short)(projectile->x / projectile->depth);
+                            (projectile->x / projectile->depth);
                         projectile->screenY =
-                            (short)(projectile->y / projectile->depth);
+                            (projectile->y / projectile->depth);
                         projectile->scale = 0x10000L / projectile->depth;
                         if (projectile->scale < 16) {
                             projectile->scale = -1;
                         } else {
                             DrawSpriteScaled(
                                 &stSpaceBufferViewport,
-                                (short)(projectile->screenX +
+                                (projectile->screenX +
                                         nCurrentViewCenterPosX),
-                                (short)(projectile->screenY +
+                                (projectile->screenY +
                                         nCurrentViewCenterPosY),
                                 projectileShape, 1, 0,
-                                (short)projectile->scale,
+                                projectile->scale,
                                 projectile->flip);
                             projectile->depth += 100;
                             projectile->y += 4000;
@@ -294,8 +294,8 @@ unsigned int ShowCampaignVictorySequence(void)
                 projectedY = verticalOffset / planetDepth;
                 DrawSpriteScaled(
                     &stSpaceBufferViewport, nCurrentViewCenterPosX,
-                    (short)(nCurrentViewCenterPosY + projectedY),
-                    projectileShape, 0, 0, (short)planetScale, 0);
+                    (nCurrentViewCenterPosY + projectedY),
+                    projectileShape, 0, 0, planetScale, 0);
                 verticalOffset += 200;
             }
             dump_buffer_to_screen();
@@ -383,7 +383,7 @@ unsigned int ShowTigerClawEscapeScene(void)
     approachStep = 15;
     PreloadMusicTrackHook(0x22);
     spacetrack(0x22, 2, 1);
-    init_3Space_objects((short)stCampaignState.currentSeries);
+    init_3Space_objects(stCampaignState.currentSeries);
     nCannedSceneMode = 2;
     bIntroSceneResourcesActive = 0;
     InitializeConversationText();
@@ -418,8 +418,8 @@ unsigned int ShowTigerClawEscapeScene(void)
                 projectedY = verticalOffset / depth;
                 DrawSpriteScaled(
                     &stSpaceBufferViewport, nCurrentViewCenterPosX,
-                    (short)(nCurrentViewCenterPosY + projectedY),
-                    escapeShape, 0, 0, (short)scale, 0);
+                    (nCurrentViewCenterPosY + projectedY),
+                    escapeShape, 0, 0, scale, 0);
             }
             dump_buffer_to_screen();
             clear_view_buffer();
@@ -428,7 +428,7 @@ unsigned int ShowTigerClawEscapeScene(void)
             verticalOffset += 400;
         depth += approachStep;
         if (frame > 170)
-            approachStep = (short)(approachStep + 10);
+            approachStep = (approachStep + 10);
 
         switch (frame) {
         case 150:
@@ -448,7 +448,7 @@ unsigned int ShowTigerClawEscapeScene(void)
                 ScaleFixedVector(&aShipFwdVec[61],
                                  0x271000, &jumpOffset);
                 awObjectScales[effect] =
-                    (short)(awObjectScales[effect] << 2);
+                    (awObjectScales[effect] << 2);
                 zero_vector(&aShipVelocity[effect]);
                 AddFixedVectors(&aShipPositionsArray[61],
                                 &jumpOffset,
@@ -541,7 +541,7 @@ unsigned int ShowTheEndScreen(short enableFireworks)
             print_subtitle(&stSceneBuffer, 0x3a,
                            pszTheEnd);
         } else if (frame > 190) {
-            StopMusic((short)(320 - frame));
+            StopMusic((320 - frame));
             print_subtitle(&stSceneBuffer, 0x3a,
                            pszForNow);
         }

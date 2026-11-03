@@ -412,7 +412,7 @@ unsigned int ix_thread_get_audio_chunk_size(void)
 {
     unsigned int fileOffset;
 
-    if (nStreamerAudioBlock != (unsigned int)-1) {
+    if (nStreamerAudioBlock != -1) {
         fileOffset = pStreamedMusicAudioChunks[
             nStreamerAudioBlock].fileOffset;
         return pStreamedMusicAudioChunks[

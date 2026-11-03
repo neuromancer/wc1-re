@@ -668,7 +668,7 @@ static const unsigned char *OriginFxNextTimbre(
 
     if (timbre[38] == 0)
         return 0;
-    offset = (size_t)(timbre - player->timbres);
+    offset = (timbre - player->timbres);
     if (offset > player->timbreSize ||
         player->timbreSize - offset < ORIGINFX_TIMBRE_SIZE * 2U)
         return 0;
@@ -759,7 +759,7 @@ static unsigned int OriginFxCalculatePannedLevel(
         scale = 127 - pan;
         divisor = 63;
     }
-    totalLevel = (int)(registerValue & 0x3fU);
+    totalLevel = (registerValue & 0x3fU);
     totalLevel = 63 - (int)(scale * (63 - totalLevel) / divisor);
     return OriginFxClampTotalLevel(registerValue, totalLevel);
 }
@@ -838,14 +838,14 @@ static void OriginFxWriteVoiceFrequency(SdlOriginFxPlayer *player,
 
     voice = &player->voices[voiceIndex];
     channel = &player->channels[voice->channel];
-    bend = (int)channel->pitchBend - 0x2000;
-    keyPitch = ((int)voice->note - 60) * 256;
+    bend = channel->pitchBend - 0x2000;
+    keyPitch = (voice->note - 60) * 256;
     keyTracking = (signed char)voice->timbre[39];
     if (keyTracking < 0) {
         keyPitch = -keyPitch;
-        trackingShift = (unsigned int)(unsigned char)~keyTracking;
+        trackingShift = (unsigned char)~keyTracking;
     } else {
-        trackingShift = (unsigned int)keyTracking;
+        trackingShift = keyTracking;
     }
     keyPitch = OriginFxArithmeticShiftRight(
         keyPitch, trackingShift) + 60 * 256;
@@ -879,7 +879,7 @@ static void OriginFxWriteVoiceFrequency(SdlOriginFxPlayer *player,
     if (frequency > 0x3ff)
         frequency = 0x3ff;
 
-    voice->frequencyHigh = (unsigned char)(
+    voice->frequencyHigh = (
         ((frequency >> 8) & 3) | (block << 2));
     oplVoice = OriginFxGetOplVoice(voiceIndex);
     OriginFxWriteRegister(player, 0xa0 + oplVoice, frequency & 0xff);
@@ -973,7 +973,7 @@ static void OriginFxStartTimbre(SdlOriginFxPlayer *player,
             voiceIndex >= ORIGINFX_VOICE_STATE_COUNT)
             return;
         rhythmBit = OriginFxGetRhythmBit(voiceIndex);
-        player->rhythmRegister = (unsigned char)(
+        player->rhythmRegister = (
             player->rhythmRegister & ~rhythmBit);
         OriginFxWriteRegister(
             player, 0xbd, player->rhythmRegister);
@@ -989,9 +989,9 @@ static void OriginFxStartTimbre(SdlOriginFxPlayer *player,
     }
     voice->timbre = timbre;
     voice->age = player->nextVoiceAge++;
-    voice->channel = (unsigned char)channelIndex;
-    voice->note = (unsigned char)note;
-    voice->velocity = (unsigned char)velocity;
+    voice->channel = channelIndex;
+    voice->note = note;
+    voice->velocity = velocity;
     voice->envelopeState = 2;
     voice->modulationPhase = 0;
     voice->envelopePitch =
@@ -1004,7 +1004,7 @@ static void OriginFxStartTimbre(SdlOriginFxPlayer *player,
     } else {
         if (voiceIndex == 6)
             OriginFxWriteVoiceFrequency(player, voiceIndex, 0);
-        player->rhythmRegister = (unsigned char)(
+        player->rhythmRegister = (
             player->rhythmRegister | rhythmBit);
         OriginFxWriteRegister(
             player, 0xbd, player->rhythmRegister);
@@ -1044,7 +1044,7 @@ static void OriginFxStopTimbre(SdlOriginFxPlayer *player,
             player->voices[voiceIndex].timbre == timbre) {
             rhythmBit = OriginFxGetRhythmBit(voiceIndex);
             if (timbre[11] != 0 && rhythmBit != 0) {
-                player->rhythmRegister = (unsigned char)(
+                player->rhythmRegister = (
                     player->rhythmRegister & ~rhythmBit);
                 OriginFxWriteRegister(
                     player, 0xbd, player->rhythmRegister);
@@ -1094,7 +1094,7 @@ static void OriginFxAllNotesOff(SdlOriginFxPlayer *player,
             if (player->voices[voiceIndex].timbre != 0 &&
                 player->voices[voiceIndex].timbre[11] != 0 &&
                 rhythmBit != 0) {
-                player->rhythmRegister = (unsigned char)(
+                player->rhythmRegister = (
                     player->rhythmRegister & ~rhythmBit);
                 OriginFxWriteRegister(
                     player, 0xbd, player->rhythmRegister);
@@ -1174,7 +1174,7 @@ static void OriginFxSetProgram(SdlOriginFxPlayer *player,
         voiceIndex++;
     }
     channel = &player->channels[channelIndex];
-    channel->program = (unsigned char)program;
+    channel->program = program;
     timbre = OriginFxFindTimbre(player, program);
     channel->modulationRate = timbre[16];
     channel->modulationDepth = timbre[17];
@@ -1216,7 +1216,7 @@ static void OriginFxService(SdlOriginFxPlayer *player)
             envelopeTargetOffsets[state] != 0) {
             target = OriginFxReadLittleEndian16(
                 timbre + envelopeTargetOffsets[state]);
-            rate = (unsigned int)(uint16_t)
+            rate = (uint16_t)
                 OriginFxReadLittleEndian16(
                     timbre + envelopeRateOffsets[state]);
             distance = target - voice->envelopePitch;
@@ -1237,7 +1237,7 @@ static void OriginFxService(SdlOriginFxPlayer *player)
         if (channel->modulationRate != 0) {
             phase = (voice->modulationPhase +
                      channel->modulationRate) & 0xffU;
-            voice->modulationPhase = (unsigned char)phase;
+            voice->modulationPhase = phase;
             triangle = phase < 0x80U ? (int)phase : (int)phase - 0x100;
             if (triangle > 63 || triangle < -64) {
                 phase = (0x80U - phase) & 0xffU;
@@ -1245,7 +1245,7 @@ static void OriginFxService(SdlOriginFxPlayer *player)
                     ? (int)phase : (int)phase - 0x100;
             }
             voice->modulationPitch = OriginFxArithmeticShiftRight(
-                (int)channel->modulationDepth * triangle, 4);
+                channel->modulationDepth * triangle, 4);
             changed = 1;
         }
         if (changed != 0)
@@ -1294,14 +1294,14 @@ static void OriginFxApplyControlChange(
     channel = &player->channels[channelIndex];
     if (controller == 1) {
         timbre = OriginFxFindTimbre(player, channel->program);
-        channel->modulationDepth = (unsigned short)(
+        channel->modulationDepth = (
             ((unsigned int)timbre[15] * value >> 7) + timbre[17]);
     } else if (controller == 7) {
-        channel->volume = (unsigned short)(value + 0x80U);
+        channel->volume = (value + 0x80U);
     } else if (controller == 10 && player->stereoPanningEnabled != 0) {
         if (value > 127)
             value = 127;
-        channel->pan = (unsigned char)value;
+        channel->pan = value;
         OriginFxUpdateChannelVoices(
             player, channelIndex, 0, 1);
     } else if (controller == 123) {
@@ -1375,7 +1375,7 @@ static int OriginFxStartSoundEffectRecord(
     OriginFxControlChange(
         player, effect->channel, 10, effect->pan);
     effect->currentNote = record[2];
-    effect->remainingTicks = (unsigned short)(
+    effect->remainingTicks = (
         record[4] | ((unsigned int)record[5] << 8));
     OriginFxNoteOn(
         player, effect->channel, effect->currentNote, record[3]);
@@ -1404,7 +1404,7 @@ static int OriginFxChooseSoundEffectChannel(
     channel = 0;
     while (channel < ORIGINFX_SOUND_CHANNEL_COUNT) {
         if (channelUsed[channel] == 0)
-            return (int)(channel + ORIGINFX_FIRST_SOUND_CHANNEL);
+            return (channel + ORIGINFX_FIRST_SOUND_CHANNEL);
         channel++;
     }
 
@@ -1416,14 +1416,14 @@ static int OriginFxChooseSoundEffectChannel(
             (victim < 0 ||
              player->soundEffects[effectIndex].age <
                  player->soundEffects[victim].age))
-            victim = (int)effectIndex;
+            victim = effectIndex;
         effectIndex++;
     }
     if (victim < 0)
         return -1;
     channel = player->soundEffects[victim].channel;
     OriginFxStopSoundEffect(player, (unsigned int)victim, 0);
-    return (int)channel;
+    return channel;
 }
 
 static void OriginFxServiceSoundEffects(
@@ -1481,7 +1481,7 @@ static void OriginFxServiceSoundEffects(
         if (restart != 0) {
             OriginFxNoteOn(
                 player, effect->channel, effect->currentNote, record[3]);
-            effect->remainingTicks = (unsigned short)(
+            effect->remainingTicks = (
                 record[4] | ((unsigned int)record[5] << 8));
         } else if ((flags & 1U) != 0 &&
                    record + 8 < recordsEnd &&
@@ -1539,7 +1539,7 @@ static void OriginFxDispatchEvent(SdlOriginFxPlayer *player,
         OriginFxSetProgram(player, channelIndex, event->data1);
         break;
     case 0xe0:
-        channel->pitchBend = (unsigned short)(
+        channel->pitchBend = (
             event->data1 | ((unsigned int)event->data2 << 7));
         OriginFxUpdateChannelVoices(player, channelIndex, 1, 0);
         break;
@@ -1589,8 +1589,8 @@ static void OriginFxGenerateOutputSample(
         *leftSample = player->lastNativeSample;
         *rightSample = player->lastNativeRightSample;
     } else {
-        *leftSample = (int32_t)(leftSampleTotal / sampleCount);
-        *rightSample = (int32_t)(rightSampleTotal / sampleCount);
+        *leftSample = (leftSampleTotal / sampleCount);
+        *rightSample = (rightSampleTotal / sampleCount);
     }
 }
 
@@ -1606,19 +1606,19 @@ static short OriginFxScaleOutputSample(int32_t sample,
         scaled = -32768;
     else if (scaled > 32767)
         scaled = 32767;
-    return (short)scaled;
+    return scaled;
 }
 
 static short OriginFxMixOutputSample(short destination, short source)
 {
     int mixed;
 
-    mixed = (int)destination + source;
+    mixed = destination + source;
     if (mixed < -32768)
         mixed = -32768;
     else if (mixed > 32767)
         mixed = 32767;
-    return (short)mixed;
+    return mixed;
 }
 
 static int OriginFxInitializePlayer(
@@ -1747,9 +1747,9 @@ int SdlPlayOriginFxSoundEffect(
     }
     effect->tag = tag;
     effect->priority = channelPriority;
-    effect->channel = (unsigned char)channel;
-    effect->volume = (unsigned char)volume;
-    effect->pan = (unsigned char)pan;
+    effect->channel = channel;
+    effect->volume = volume;
+    effect->pan = pan;
     effect->active = 1;
     return OriginFxStartSoundEffectRecord(player, effect);
 }

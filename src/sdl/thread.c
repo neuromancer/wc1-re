@@ -22,9 +22,9 @@ static int SdlThreadEntry(void *parameter)
 {
     SdlHandle *handle;
 
-    handle = (SdlHandle *)parameter;
+    handle = parameter;
     handle->result = handle->startRoutine(handle->parameter);
-    return (int)handle->result;
+    return handle->result;
 }
 
 HANDLE CreateEventA(LPVOID security, BOOL manualReset, BOOL initialState,

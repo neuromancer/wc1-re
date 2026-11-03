@@ -153,7 +153,7 @@ short PromptForAnswerText(short entry)
                        &szComponentHitMessage[20], 10, 2);
     RestoreModalTextPanel(&panel);
     ApplyAnswerTextCipher(&szComponentHitMessage[20], -1);
-    matches = (short)(strcmp(&szComponentHitMessage[20],
+    matches = (strcmp(&szComponentHitMessage[20],
                              szComponentHitMessage) == 0);
     ReleaseTextFont(0);
     return matches;
@@ -204,7 +204,7 @@ char PumpMessagesDuringWait(void)
 /* Function start: 0x425BD0 */
 unsigned char TakeDebugStepFlag(void)
 {
-    unsigned char value = (unsigned char)dwDebugOverlayKeyLatch;
+    unsigned char value = dwDebugOverlayKeyLatch;
 
     dwDebugOverlayKeyLatch = 0;
     return value;

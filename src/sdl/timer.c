@@ -25,9 +25,9 @@ static Uint32 SdlTimerCallback(Uint32 interval, void *parameter)
     UINT period;
 
     (void)interval;
-    timer = (SdlTimer *)parameter;
+    timer = parameter;
     if (timer == 0)
-        timer = (SdlTimer *)SDL_AtomicGetPtr(
+        timer = SDL_AtomicGetPtr(
             &g_pSdlTimerFallback);
     if (timer == 0)
         return 0;

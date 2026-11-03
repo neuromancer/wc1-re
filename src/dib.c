@@ -201,7 +201,7 @@ void DIBerror(const char *tag, int hr)
     SdlShutdownVideo();
     OutputDebugStringA(szDIBFailureString);
     if (hDIBParentWindow != 0)
-        SDL_SetWindowSize((SDL_Window *)hDIBParentWindow, 320, 200);
+        SDL_SetWindowSize(hDIBParentWindow, 320, 200);
     MessageBoxA(0, szDIBFailureString, "SDL Video Error",
                 MB_ICONERROR);
     exit(1);
@@ -232,7 +232,7 @@ void DIBpositionWindow(void)
 #ifdef SDL_PORT
     SdlShutdownVideo();
     if (hDIBParentWindow != 0)
-        SDL_SetWindowSize((SDL_Window *)hDIBParentWindow, 320, 200);
+        SDL_SetWindowSize(hDIBParentWindow, 320, 200);
 #else
     COM_RELEASE(pSecondarySurface);
     COM_RELEASE(pPrimarySurface);
@@ -258,7 +258,7 @@ void DIBreInstall(void)
         nDIBCascadeLevel = -1;
     }
 #else
-    if (!SdlInitializeVideo((SDL_Window *)hDIBParentWindow))
+    if (!SdlInitializeVideo(hDIBParentWindow))
         DIBerror("DIBreInstall", -1);
 #endif
     DIBslam();
@@ -276,7 +276,7 @@ void DIBinstall(HWND window)
 
     hDIBParentWindow = window;
 #ifdef SDL_PORT
-    if (!SdlInitializeVideo((SDL_Window *)window))
+    if (!SdlInitializeVideo(window))
         DIBerror("DIBinstall", -1);
     nDIBCascadeLevel = 0;
 #else
@@ -868,11 +868,11 @@ unsigned int GetDIBHeight(void)
 void CachePaletteEntryFromWords(short index, short *rgb)
 {
     awPaletteRgbWordsList[index * 3] =
-        abDIBPaletteQuads[index * 4 + 2] = (unsigned char)rgb[0];
+        abDIBPaletteQuads[index * 4 + 2] = rgb[0];
     awPaletteRgbWordsList[index * 3 + 1] =
-        abDIBPaletteQuads[index * 4 + 1] = (unsigned char)rgb[1];
+        abDIBPaletteQuads[index * 4 + 1] = rgb[1];
     awPaletteRgbWordsList[index * 3 + 2] =
-        abDIBPaletteQuads[index * 4] = (unsigned char)rgb[2];
+        abDIBPaletteQuads[index * 4] = rgb[2];
     abDIBPaletteQuads[index * 4 + 3] = 1;
 }
 
@@ -916,11 +916,11 @@ void DIBsetPalette(short index, short *rgb)
     if (abDIBPaletteQuads[index * 4 + 2] != rgb[0] ||
         abDIBPaletteQuads[index * 4 + 1] != rgb[1] ||
         abDIBPaletteQuads[index * 4] != rgb[2]) {
-        abDIBPaletteQuads[index * 4 + 2] = (unsigned char)rgb[0];
+        abDIBPaletteQuads[index * 4 + 2] = rgb[0];
         awPaletteRgbWordsList[index * 3] = abDIBPaletteQuads[index * 4 + 2];
-        abDIBPaletteQuads[index * 4 + 1] = (unsigned char)rgb[1];
+        abDIBPaletteQuads[index * 4 + 1] = rgb[1];
         awPaletteRgbWordsList[index * 3 + 1] = abDIBPaletteQuads[index * 4 + 1];
-        abDIBPaletteQuads[index * 4] = (unsigned char)rgb[2];
+        abDIBPaletteQuads[index * 4] = rgb[2];
         awPaletteRgbWordsList[index * 3 + 2] = abDIBPaletteQuads[index * 4];
         abDIBPaletteQuads[index * 4 + 3] = 1;
 
@@ -928,9 +928,9 @@ void DIBsetPalette(short index, short *rgb)
            A DirectDraw palette entry update did not blit or wait for vertical
            blank, so flight fades must not submit additional SDL frames. */
 #ifndef SDL_PORT
-        entry.peRed = (unsigned char)awPaletteRgbWordsList[index * 3];
-        entry.peGreen = (unsigned char)awPaletteRgbWordsList[index * 3 + 1];
-        entry.peBlue = (unsigned char)awPaletteRgbWordsList[index * 3 + 2];
+        entry.peRed = awPaletteRgbWordsList[index * 3];
+        entry.peGreen = awPaletteRgbWordsList[index * 3 + 1];
+        entry.peBlue = awPaletteRgbWordsList[index * 3 + 2];
         entry.peFlags = 0;
         result = IDirectDrawPalette_SetEntries(
             pDirectDrawPalette, 0, index, 1, &entry);
@@ -1026,19 +1026,19 @@ void DIBwholePaletteFromWords(short *palette)
     SdlWaitForVerticalBlank();
 #endif
     do {
-        unsigned char value = (unsigned char)palette[0];
+        unsigned char value = palette[0];
 
         palette = palette + 3;
         abDIBPaletteQuads[offset + 2] = value;
 #ifndef SDL_PORT
         entries[offset] = value;
 #endif
-        value = (unsigned char)palette[-2];
+        value = palette[-2];
         abDIBPaletteQuads[offset + 1] = value;
 #ifndef SDL_PORT
         entries[offset + 1] = value;
 #endif
-        value = (unsigned char)palette[-1];
+        value = palette[-1];
         abDIBPaletteQuads[offset] = value;
 #ifndef SDL_PORT
         entries[offset + 2] = value;

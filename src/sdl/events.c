@@ -52,7 +52,7 @@ static int SdlTranslateVirtualKey(SDL_Keycode key)
     case SDLK_PERIOD:
         return 0xbe;
     default:
-        return key >= 0 && key <= 0xffff ? (int)key : 0;
+        return key >= 0 && key <= 0xffff ? key : 0;
     }
 }
 
@@ -257,10 +257,10 @@ static void SdlQueueMouseMotion(unsigned short x, unsigned short y,
 
     queued = pInputEventTail;
     if (queued != 0 && queued->type == 13) {
-        queued->x = (short)x;
-        queued->y = (short)y;
-        queued->primaryButton = (short)primaryButton;
-        queued->secondaryButton = (short)secondaryButton;
+        queued->x = x;
+        queued->y = y;
+        queued->primaryButton = primaryButton;
+        queued->secondaryButton = secondaryButton;
         queued->modifiers &= ~6U;
         if (primaryButton != 0)
             queued->modifiers |= 2;
@@ -283,7 +283,7 @@ static void SdlApplyMouseGrab(void)
 {
     SDL_Window *window;
 
-    window = (SDL_Window *)hMainWindow;
+    window = hMainWindow;
     if (window == 0)
         return;
     SDL_SetWindowMouseGrab(
@@ -350,9 +350,9 @@ static SDL_Window *SdlGetFullscreenWindow(Uint32 windowId)
     if (window == 0)
         window = SDL_GetKeyboardFocus();
     if (window == 0)
-        window = (SDL_Window *)hDIBParentWindow;
+        window = hDIBParentWindow;
     if (window == 0)
-        window = (SDL_Window *)hMainWindow;
+        window = hMainWindow;
     return window;
 }
 
@@ -471,11 +471,11 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         }
         QueueInputEvent(pressed ? 3 : 4, 0, 0,
                         (unsigned short)scanCode, 0, 0, 0);
-        SetInputKeyState(scanCode, (unsigned char)pressed);
+        SetInputKeyState(scanCode, pressed);
     }
     if (!pressed) {
-        dwDebugOverlayKey = (DWORD)virtualKey;
-        dwDebugOverlayKeyLatch = (DWORD)virtualKey;
+        dwDebugOverlayKey = virtualKey;
+        dwDebugOverlayKeyLatch = virtualKey;
     }
     return 0;
 }
@@ -539,8 +539,8 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
             bPtrMovedByKeyboardState = 0;
             return;
         }
-        SdlQueueMouseMotion((unsigned short)mouseX,
-                               (unsigned short)mouseY,
+        SdlQueueMouseMotion(mouseX,
+                               mouseY,
                                primaryButton, secondaryButton);
     } else {
         QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 2 : 1,

@@ -76,8 +76,8 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
     if (fontIndex == -1)
         fontIndex = 1;
     InitializeTextContextFromFont(&panel->context, fontIndex,
-                                  (unsigned char)clearColour,
-                                  (signed char)backgroundColour);
+                                  clearColour,
+                                  backgroundColour);
     panel->viewport = stModalSrcViewport;
     *(ShortRect *)&panel->viewport.left =
         *(ShortRect *)&panel->savedBackground.left =
@@ -106,8 +106,8 @@ void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
     va_start(arguments, format);
     vsprintf(text, format, arguments);
     va_end(arguments);
-    SetTextCursor((unsigned short)(panel->left + x),
-                  (unsigned short)(panel->top + y));
+    SetTextCursor((panel->left + x),
+                  (panel->top + y));
     panel->context.alignment = alignment;
     strcat(text, "%P");
     FormatTextBufferFromStart(text);
@@ -152,10 +152,10 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
         return 0;
     }
     halfWidth = MeasureTextPixelWidthClamped(text);
-    halfWidth = (short)((int)halfWidth * 8 / 16);
+    halfWidth = (halfWidth * 8 / 16);
     RestoreModalTextPanel(pModalTextPanel);
-    bounds.left = (short)(159 - halfWidth);
-    bounds.right = (short)(161 + halfWidth);
+    bounds.left = (159 - halfWidth);
+    bounds.right = (161 + halfWidth);
     if (InitializeModalTextPanel(pModalTextPanel, fontIndex,
                                  bounds, cViewportClearColour,
                                  cBlueColour, cRedColour) == 0) {
@@ -221,7 +221,7 @@ void CreateEmptySaveGameFile(void)
     file = CreateDataFile("SAVEGAME.WLD");
     if (file >= 0) {
         for (; slot < 8; slot++) {
-            sprintf(gameRecord.description, "game %d", (int)slot + 1);
+            sprintf(gameRecord.description, "game %d", slot + 1);
             diskBytes = (unsigned char *)diskRecord.description;
             gameBytes = (unsigned char *)gameRecord.description;
             memcpy(diskBytes, gameBytes, sizeof(diskRecord.description));
@@ -229,7 +229,7 @@ void CreateEmptySaveGameFile(void)
             memcpy(diskRecord.pilots, gameRecord.pilots,
                    sizeof(diskRecord.pilots));
             diskCampaign->currentPilot =
-                (short)(int)gameRecord.campaign.currentPilot;
+                (int)gameRecord.campaign.currentPilot;
             diskCampaign->playerShipType =
                 (short)gameRecord.campaign.playerShipType;
 
@@ -266,7 +266,7 @@ void CreateEmptySaveGameFile(void)
             for (; diskDeathMission <
                        diskCampaign->personalityDeathMission + 8;
                  gameDeathMission++, diskDeathMission++) {
-                *diskDeathMission = (short)*gameDeathMission;
+                *diskDeathMission = *gameDeathMission;
             }
 
             diskBytes = diskCampaign->aceFlags;
@@ -296,12 +296,12 @@ void CreateEmptySaveGameFile(void)
                 diskObjective->mapX = gameObjective->mapX;
                 diskObjective->mapY = gameObjective->mapY;
                 diskObjective->field_4 = gameObjective->field_4;
-                diskObjective->type = (short)gameObjective->type;
+                diskObjective->type = gameObjective->type;
                 diskObjective->index = gameObjective->index;
                 diskObjective->flags = gameObjective->flags;
                 diskObjective->displayName =
-                    (short)(int)gameObjective->displayName;
-                diskObjective->name = (short)(int)gameObjective->name;
+                    (int)gameObjective->displayName;
+                diskObjective->name = (int)gameObjective->name;
                 gameBytes = (unsigned char *)&gameObjective->position;
                 diskBytes = (unsigned char *)&diskObjective->position;
                 ((FixedVector *)diskBytes)->x = ((FixedVector *)gameBytes)->x;
@@ -309,11 +309,11 @@ void CreateEmptySaveGameFile(void)
                 ((FixedVector *)diskBytes)->z = ((FixedVector *)gameBytes)->z;
             }
 
-            WriteDataFileAtOffset((unsigned short)file,
-                                  (int)slot * 0x33c, 0x33c,
+            WriteDataFileAtOffset(file,
+                                  slot * 0x33c, 0x33c,
                                   &diskRecord);
         }
-        CloseDataFile((unsigned short)file);
+        CloseDataFile(file);
     }
 }
 
@@ -329,8 +329,8 @@ void EnsureSaveGameFile(void)
         CreateEmptySaveGameFile();
         return;
     }
-    length = filelength((int)file);
-    CloseDataFile((unsigned short)file);
+    length = filelength(file);
+    CloseDataFile(file);
     if (length != 0x19e0)
         CreateEmptySaveGameFile();
 }
@@ -344,7 +344,7 @@ void InitializeBarracksAnimation(BarracksAnimationState *state)
         state->bunks[bunk].animationFrame =
             RandomInRange(0, 13);
         state->bunks[bunk].animationPeriod =
-            (short)(RandomInRange(0, 12) + 13);
+            (RandomInRange(0, 12) + 13);
         state->bunks[bunk].animationTick = 0;
     }
     state->fallingY = -99;
@@ -428,7 +428,7 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
     memcpy(diskRecord.pilots, gameRecord->pilots,
            sizeof(diskRecord.pilots));
     diskCampaign->currentPilot =
-        (short)(int)gameRecord->campaign.currentPilot;
+        (int)gameRecord->campaign.currentPilot;
     diskCampaign->playerShipType =
         (short)gameRecord->campaign.playerShipType;
     diskBytes = diskCampaign->medals;
@@ -449,7 +449,7 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
     diskBytes = (unsigned char *)diskCampaign->seriesHistory;
     for (index = 0; index < 8; index++) {
         diskBytes[index] =
-            (unsigned char)gameRecord->campaign.seriesHistory[index];
+            gameRecord->campaign.seriesHistory[index];
     }
 
     gameDeathMission = gameRecord->campaign.personalityDeathMission;
@@ -457,7 +457,7 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
     for (; diskDeathMission <
                diskCampaign->personalityDeathMission + 8;
          gameDeathMission++, diskDeathMission++) {
-        *diskDeathMission = (short)*gameDeathMission;
+        *diskDeathMission = *gameDeathMission;
     }
 
     diskBytes = diskCampaign->aceFlags;
@@ -486,20 +486,20 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
         diskObjective->mapX = gameObjective->mapX;
         diskObjective->mapY = gameObjective->mapY;
         diskObjective->field_4 = gameObjective->field_4;
-        diskObjective->type = (short)gameObjective->type;
+        diskObjective->type = gameObjective->type;
         diskObjective->index = gameObjective->index;
         diskObjective->flags = gameObjective->flags;
         diskObjective->displayName =
-            (short)(int)gameObjective->displayName;
-        diskObjective->name = (short)(int)gameObjective->name;
+            (int)gameObjective->displayName;
+        diskObjective->name = (int)gameObjective->name;
         diskObjective->position = gameObjective->position;
     }
 
     file = OpenDataFileOrDie("SAVEGAME.WLD");
-    written = WriteDataFileAtOffset((unsigned short)file,
-                                    (int)slot * 0x33c, 0x33c,
+    written = WriteDataFileAtOffset(file,
+                                    slot * 0x33c, 0x33c,
                                     &diskRecord);
-    CloseDataFile((unsigned short)file);
+    CloseDataFile(file);
     return ((written != 0) & (file >= 0)) & 1;
 }
 
@@ -515,14 +515,14 @@ short PromptForTextInput(short x, short y, const char *prompt,
     result = 0;
     bounds.top = y;
     bounds.left = x;
-    bounds.bottom = (short)(y + 20);
+    bounds.bottom = (y + 20);
     InitializeModalTextPanel(&panel, 0,
                              stModalTextBounds,
                              cBlackColour, cBlackColour,
                              cBlackColour);
-    bounds.right = (short)(x +
-        ((int)MeasureTextPixelWidthClamped("M") * (int)maximumLength +
-         (int)MeasureTextPixelWidthClamped(prompt)) * 16 / 15);
+    bounds.right = (x +
+        (MeasureTextPixelWidthClamped("M") * maximumLength +
+         MeasureTextPixelWidthClamped(prompt)) * 16 / 15);
     RestoreModalTextPanel(&panel);
     if (InitializeModalTextPanel(&panel, 0,
                                  bounds,
@@ -555,7 +555,7 @@ int WarnLoadGameFirst(void)
         ReleaseModalTextPanel();
     }
     EnterAllocationScope();
-    return (int)key;
+    return key;
 }
 
 /* Function start: 0x41B5C0 */
@@ -614,8 +614,8 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     PromptInsertNumberedDisk(0x10);
     file = OpenDataFileOrDie("SAVEGAME.WLD");
     fileOpen = (file >= 0) & 1;
-    read = ReadDataFileAtOffset((unsigned short)file,
-                                (int)slot * 0x33c, 0x33c,
+    read = ReadDataFileAtOffset(file,
+                                slot * 0x33c, 0x33c,
                                 &diskRecord);
     diskBytes = (unsigned char *)diskRecord.description;
     memcpy(gameRecord->description, diskBytes,
@@ -652,7 +652,7 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     for (; diskDeathMission <
                diskCampaign->personalityDeathMission + 8;
          diskDeathMission++, gameDeathMission++) {
-        *gameDeathMission = (int)*diskDeathMission;
+        *gameDeathMission = *diskDeathMission;
     }
 
     diskBytes = diskCampaign->aceFlags;
@@ -681,7 +681,7 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
         gameObjective->mapX = diskObjective->mapX;
         gameObjective->mapY = diskObjective->mapY;
         gameObjective->field_4 = diskObjective->field_4;
-        gameObjective->type = (int)diskObjective->type;
+        gameObjective->type = diskObjective->type;
         gameObjective->index = diskObjective->index;
         gameObjective->flags = diskObjective->flags;
         gameObjective->displayName =
@@ -691,7 +691,7 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     }
 
     fileOpen &= read != 0;
-    CloseDataFile((unsigned short)file);
+    CloseDataFile(file);
     if (fileOpen != 0 && gameRecord->occupied != 0)
         return 1;
     return 0;
@@ -727,7 +727,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
         }
         ReleaseModalTextPanel();
         if (loaded == 0) {
-            ShowModalMessage("Error: Game %d not loaded.", (int)slot);
+            ShowModalMessage("Error: Game %d not loaded.", slot);
         } else if (nOriginDevUnlock != 0) {
             strcpy(campaign->currentPilot->callsign, "CHEATER");
         }
@@ -759,7 +759,7 @@ void GetBunkInfo(BarracksAnimationState *state)
     FreeBarracksMenuLabels();
     for (bunk = 0; bunk < 8; bunk++) {
         state->bunks[bunk].occupied =
-            (short)LoadGame(bunk, &gameRecord);
+            LoadGame(bunk, &gameRecord);
         SetBunkMenuLabel(
             state->bunks[bunk].occupied, 0,
             &apszBarracksMenuLabels[bunk * 2],
@@ -789,12 +789,12 @@ void DrawBarracksBunks(Viewport *viewport, struct Shape *shape,
             DrawSpriteDefault(
                 viewport, aBarracksBunkOrigins[bunk].x,
                 aBarracksBunkOrigins[bunk].y,
-                shape, (short)(bunk + 1));
+                shape, (bunk + 1));
             frame = 9;
         }
         DrawSpriteDefault(viewport,
-                          (short)((bunk % 2) * 31 + 143),
-                          (short)((short)(bunk / 2) * 5 + 167),
+                          ((bunk % 2) * 31 + 143),
+                          ((short)(bunk / 2) * 5 + 167),
                           shape, frame);
     }
     CopyViewportContents(&stSceneBuffer, &stRoomScreenViewport);
@@ -820,7 +820,7 @@ void AnimateBarracks(Viewport *viewport, struct Shape *shape,
     short bunk;
     short frame;
 
-    frameTick = (int)nTickCount60Hz / 3;
+    frameTick = nTickCount60Hz / 3;
     for (bunk = 0; bunk < 8; bunk++) {
         frame = 11;
         bunkState = &state->bunks[bunk];
@@ -830,22 +830,22 @@ void AnimateBarracks(Viewport *viewport, struct Shape *shape,
                 bunkState->animationTick = bunkTick;
                 bunkState->animationFrame++;
                 if (bunkState->animationTick %
-                        (int)bunkState->animationPeriod == 0)
+                        bunkState->animationPeriod == 0)
                     bunkState->animationFrame = 0;
             }
             if (bunkState->animationFrame < 13)
-                frame = (short)(24 - bunkState->animationFrame);
+                frame = (24 - bunkState->animationFrame);
             else
                 frame = 24;
         }
         DrawSpriteDefault(viewport,
-                          (short)((bunk % 2) * 14 + 148),
-                          (short)((bunk / 2) * 5 + 166),
+                          ((bunk % 2) * 14 + 148),
+                          ((bunk / 2) * 5 + 166),
                           shape, frame);
     }
 
-    if ((int)state->animationTick != frameTick) {
-        state->animationTick = (short)frameTick;
+    if (state->animationTick != frameTick) {
+        state->animationTick = frameTick;
         state->fallingDelay--;
         if (state->fallingDelay == 0) {
             state->fallingY = -5;
@@ -863,9 +863,9 @@ void AnimateBarracks(Viewport *viewport, struct Shape *shape,
         }
     }
     if (state->fallingY != -99) {
-        DrawSpriteDefault(viewport, 298, (short)state->fallingY,
+        DrawSpriteDefault(viewport, 298, state->fallingY,
                           shape,
-                          (short)(state->fallingY / 40 + 27));
+                          (state->fallingY / 40 + 27));
         DrawSpriteDefault(viewport, 305, 46, shape, 35);
     }
     frame = state->impactFrame;
@@ -875,13 +875,13 @@ void AnimateBarracks(Viewport *viewport, struct Shape *shape,
     }
 
     if (state->blinkDelay != 0) {
-        state->eyesOpen = (short)(state->eyesOpen == 0);
+        state->eyesOpen = (state->eyesOpen == 0);
         state->blinkDelay--;
         if (state->blinkDelay == 0 &&
             (unsigned short)RandomInRange(0, 100) < 90)
             state->eyesOpen = 1;
     } else if (RandomInRange(0, 70) == 0) {
-        state->blinkDelay = (short)(RandomInRange(0, 15) + 2);
+        state->blinkDelay = (RandomInRange(0, 15) + 2);
     }
     if (state->eyesOpen != 0)
         DrawSpriteDefault(viewport, 45, 0, shape, 49);
@@ -902,12 +902,12 @@ int ConfirmQuitWingCommander(void)
     LeaveAllocationScope();
     confirmed = 0;
     if (ShowModalTextPanel(0, "Quit Wing Commander? (Y/N)") != 0) {
-        confirmed = (short)((short)toupper(
+        confirmed = ((short)toupper(
             WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
     EnterAllocationScope();
-    return (int)confirmed;
+    return confirmed;
 }
 
 /* Function start: 0x41BF60 */
@@ -922,12 +922,12 @@ int ConfirmAwakenAfterBadData(short slot)
     LeaveAllocationScope();
     if (ShowModalTextPanel(0, "Awaken %s? (Y/N)",
                            gameRecord.description) != 0) {
-        confirmed = (short)((short)toupper(
+        confirmed = ((short)toupper(
             WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
     EnterAllocationScope();
-    return (int)confirmed;
+    return confirmed;
 }
 
 /* Function start: 0x41BFE0 */
@@ -946,12 +946,12 @@ int ConfirmReplaceFaultyData(short slot)
     LeaveAllocationScope();
     if (ShowModalTextPanel(0, "Replace %s? (Y/N)",
                            gameRecord.description) != 0) {
-        confirmed = (short)((short)toupper(
+        confirmed = ((short)toupper(
             WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
     EnterAllocationScope();
-    return (int)confirmed;
+    return confirmed;
 }
 
 /* Function start: 0x41C090 */
@@ -1083,10 +1083,10 @@ short BarracksScreen(void)
                         WarnLoadGameFirst();
                     } else {
                         LoadMissionData(
-                            (short)stCampaignState.currentSeries,
-                            (short)stCampaignState.currentMission);
+                            stCampaignState.currentSeries,
+                            stCampaignState.currentMission);
                         FlushInputEvents();
-                        if ((int)(nTickCount60Hz - lastMedalsTick) >
+                        if ((nTickCount60Hz - lastMedalsTick) >
                             nInputTickScale) {
                             LeaveAllocationScope();
                             ClearViewport(&stRoomScreenViewport,
@@ -1095,7 +1095,7 @@ short BarracksScreen(void)
                             stScreenView.top = 24;
                             stScreenView.bottom = 151;
                             ViewMedals();
-                            lastMedalsTick = (int)nTickCount60Hz;
+                            lastMedalsTick = nTickCount60Hz;
                             ClearViewport(&stRoomScreenViewport,
                                           cBlackColour);
                             stScreenView.top = 0;

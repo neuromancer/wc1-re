@@ -15,7 +15,7 @@ int SwcReadSound(const SwcBuffer *resource, SwcSound *sound)
     memset(sound, 0, sizeof(*sound));
     if (resource->size < 42 || resource->size > INT32_MAX)
         return SDL_SetError("Truncated SWC sound resource");
-    reader = SDL_RWFromConstMem(resource->data, (int)resource->size);
+    reader = SDL_RWFromConstMem(resource->data, resource->size);
     if (reader == NULL)
         return -1;
     if (SDL_ReadBE16(reader) != 1 || SDL_ReadBE16(reader) != 1 ||

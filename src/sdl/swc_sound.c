@@ -60,14 +60,14 @@ static void SwcMixSound(void *context, Uint8 *stream, int bytes)
                 voice->sound = 0;
                 continue;
             }
-            mixed += ((int)sample->samples.data[voice->position >> 16] - 128) *
+            mixed += (sample->samples.data[voice->position >> 16] - 128) *
                 voice->volume / 32768.0f;
             voice->position += sample->rate / 48000U;
         }
         position = (size_t)(swcPcmPosition >> 32) * swcPcmSampleBytes;
         if (!swcPcmHeld && position < swcPcm.size) {
             if (swcPcmSampleBytes == 1)
-                mixed += ((int)swcPcm.data[position] - 128) / 128.0f;
+                mixed += (swcPcm.data[position] - 128) / 128.0f;
             else
                 mixed += (int16_t)((swcPcm.data[position] << 8) |
                                     swcPcm.data[position + 1]) / 32768.0f;

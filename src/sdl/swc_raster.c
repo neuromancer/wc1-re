@@ -342,9 +342,9 @@ static SDL_Rect SwcMacSpriteBounds(const SwcRasterImage *image, int x, int y,
     for (corner = 0; corner < 4; corner++) {
         dx = corner == 1 || corner == 2 ? halfWidth : -halfWidth;
         dy = corner >= 2 ? halfHeight : -halfHeight;
-        px = (int)(((int64_t)x * 65536 + ((dx * cosine) >> 8) +
+        px = (((int64_t)x * 65536 + ((dx * cosine) >> 8) +
             ((dy * sine) >> 8)) >> 16);
-        py = (int)(((int64_t)y * 65536 + ((dy * cosine) >> 8) +
+        py = (((int64_t)y * 65536 + ((dy * cosine) >> 8) +
             ((dx * -sine) >> 8)) >> 16);
         if (corner == 0) {
             bounds.x = right = px;

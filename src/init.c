@@ -149,7 +149,7 @@ unsigned int LoadOriginFxDrivers(void)
     SetFrameTimerPeriodDirect(0x78);
     if ((int)GetFixedOneMillionThunk(4) > memoryThreshold) {
         nAvailableGameMemory =
-            (int)dwOriginalFreeMem -
+            dwOriginalFreeMem -
             anExpandedMemoryReservationByVideoMode[
                 bSlowSceneAnimation];
         if (nAvailableGameMemory < 0)
@@ -158,7 +158,7 @@ unsigned int LoadOriginFxDrivers(void)
         SystemDebugPrintf("Expanded Memory fully used.\n");
     } else {
         nAvailableGameMemory =
-            (int)dwOriginalFreeMem -
+            dwOriginalFreeMem -
             anBaseMemoryReservationByVideoMode[
                 bSlowSceneAnimation];
         if (nAvailableGameMemory < 0)
@@ -168,10 +168,10 @@ unsigned int LoadOriginFxDrivers(void)
             videoModeMemory =
                 anFullMusicMemoryReservationByVideoMode[
                     bSlowSceneAnimation];
-            if ((int)dwOriginalFreeMem > videoModeMemory) {
+            if (dwOriginalFreeMem > videoModeMemory) {
                 nMemoryConfig = 1;
                 nAvailableGameMemory =
-                    (int)dwOriginalFreeMem - videoModeMemory;
+                    dwOriginalFreeMem - videoModeMemory;
                 SystemDebugPrintf("Full");
             } else {
                 SystemDebugPrintf("Limited");
@@ -209,14 +209,14 @@ unsigned int LoadOriginFxDrivers(void)
 unsigned int InitializeGameTextContexts(void)
 {
     InitializeDIBScreenViewport(&stScreenView,
-                                (unsigned char)cBlackColour);
+                                cBlackColour);
     stModalSrcViewport = stScreenView;
     stDefaultTxtContext.viewport =
         &stModalSrcViewport;
     stDefaultTxtContext.text =
         szDefaultTxtBuf;
     InitializeTextContextFromFont(&stDefaultTxtContext, 1,
-                                  (unsigned char)cPrimaryTextColour,
+                                  cPrimaryTextColour,
                                   cBlackColour);
     SetTextContext(&stDefaultTxtContext);
 
@@ -224,7 +224,7 @@ unsigned int InitializeGameTextContexts(void)
     stHudMessageTextContext.text = szDefaultTxtBuf;
     stHudMessageTextContext.alignment = 2;
     InitializeTextContextFromFont(&stHudMessageTextContext, 1,
-                                  (unsigned char)cRedColour, -1);
+                                  cRedColour, -1);
     return 0;
 }
 
@@ -239,7 +239,7 @@ unsigned int initialize_direction_view_frame(short yaw, short pitch,
 
     rotate_about_j(yaw, &right, &forward);
     rotate_about_i(pitch, &up, &forward);
-    index = (short)frame;
+    index = frame;
     aDirectionViewRightVector[index] = right;
     aDirectionViewUpVectorArray[index] = up;
     aDirectionViewForwardVector[index] = forward;

@@ -139,9 +139,9 @@ short __stdcall GetShapeFrameCount(struct Shape *shape)
 {
     CheckHeapBlockSignature(shape);
 #ifdef SDL_PORT
-    return (short)(((unsigned short)shape->frameOffsets[0] >> 2) - 1);
+    return (((unsigned short)shape->frameOffsets[0] >> 2) - 1);
 #else
-    return (short)((*(unsigned short *)&shape->frameOffsets[0] >> 2) - 1);
+    return ((*(unsigned short *)&shape->frameOffsets[0] >> 2) - 1);
 #endif
 }
 
@@ -162,9 +162,9 @@ void GetShapeFrameExtents(struct Shape *shape, short frame,
     struct ShapeFrame frameExtents;
 #endif
 
-    frameOffset = (int)(short)(frame * 4 + 4);
+    frameOffset = (short)(frame * 4 + 4);
 #ifdef SDL_PORT
-    if (frameOffset < (int)(unsigned short)shape->frameOffsets[0]) {
+    if (frameOffset < (unsigned short)shape->frameOffsets[0]) {
         memcpy(&frameExtents, (unsigned char *)shape +
                *(int *)((unsigned char *)shape + frameOffset),
                offsetof(struct ShapeFrame, commands));
@@ -172,27 +172,27 @@ void GetShapeFrameExtents(struct Shape *shape, short frame,
         left = frameExtents.left;
         top = frameExtents.top;
         bottom = frameExtents.bottom;
-        *width = (short)(left + rightExtent + 1);
-        *height = (short)(top + bottom + 1);
-        *leftExtent = (short)left;
-        *topExtent = (short)top;
+        *width = (left + rightExtent + 1);
+        *height = (top + bottom + 1);
+        *leftExtent = left;
+        *topExtent = top;
     }
 #else
     /* One expression statement, like CheckHeapBlockSignature's test: CL 4.20
      * gives it no label, which keeps DecodeShapeFrame's symbol context.
      * Walk the contiguous extent words: the original retains two cursor
      * increments even after loading all four values. */
-    frameOffset < (int)(unsigned short)shape->frameOffsets[0] &&
+    frameOffset < (unsigned short)shape->frameOffsets[0] &&
         (frameHeader = &((struct ShapeFrame *)((unsigned char *)shape +
             *(int *)((unsigned char *)shape + frameOffset)))->right,
          rightExtent = *frameHeader++,
          left = *frameHeader++,
          top = *frameHeader++,
          bottom = *frameHeader,
-         *width = (short)(left + rightExtent + 1),
-         *height = (short)(top + bottom + 1),
-         *leftExtent = (short)left,
-         *topExtent = (short)top);
+         *width = (left + rightExtent + 1),
+         *height = (top + bottom + 1),
+         *leftExtent = left,
+         *topExtent = top);
 #endif
 }
 
@@ -343,7 +343,7 @@ int SignExtendClipCoord(volatile short v)
 {
     if ((unsigned short)v < 0xfdc0)
         return (unsigned short)v;
-    return (int)(short)v;
+    return v;
 }
 /* Function start: 0x440C00 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
@@ -446,7 +446,7 @@ void PrepareShapeRLEData(struct Shape *shape)
     output = abShapeRLEBuffer + 8 + (frameCount << 3);
 
     for (frame = 0; frame < frameCount; frame++) {
-        int frameStart = (int)(output - abShapeRLEBuffer);
+        int frameStart = (output - abShapeRLEBuffer);
 
         memcpy(frameOffset, &frameStart, sizeof(frameStart));
         frameOffset += 2;
@@ -474,9 +474,9 @@ void PrepareShapeRLEData(struct Shape *shape)
         output += sizeof(frameBottom);
 
         bitmap = AllocateTaggedMemory(
-            (unsigned int)((int)width * height), 0);
+            (unsigned int)(width * height), 0);
         pixel = bitmap;
-        memset(bitmap, 0xff, (unsigned int)((int)width * height));
+        memset(bitmap, 0xff, (width * height));
         decodeFrame(shape, (short)frame, bitmap, width, height,
                     leftExtent, topExtent);
         for (row = 0; row < height; row++) {
@@ -495,7 +495,7 @@ void PrepareShapeRLEData(struct Shape *shape)
                         output++;
                         pixel++;
                     }
-                    *runCode = (unsigned char)(runLength * 2 + 1);
+                    *runCode = (runLength * 2 + 1);
                     continue;
                 }
                 runLength = 0;
@@ -506,22 +506,22 @@ void PrepareShapeRLEData(struct Shape *shape)
                     pixel++;
                 }
                 *output++ = 1;
-                *output++ = (unsigned char)runLength;
+                *output++ = runLength;
             }
             *output++ = 0;
         }
         ReleasePacketHandle(bitmap);
     }
 
-    if ((int)(output - abShapeRLEBuffer) > (int)sizeof(abShapeRLEBuffer))
+    if ((output - abShapeRLEBuffer) > (int)sizeof(abShapeRLEBuffer))
         exit_squadron("qq copy overflow");
     {
         struct RLEShape *preparedShape;
 
         preparedShape = AllocateTaggedMemory(
-            (int)(output - abShapeRLEBuffer), 0);
+            (output - abShapeRLEBuffer), 0);
         memcpy(preparedShape, abShapeRLEBuffer,
-               (int)(output - abShapeRLEBuffer));
+               (output - abShapeRLEBuffer));
         memcpy(&((struct TaggedAllocationHeader *)shape)[-1].preparedShape,
                &preparedShape, sizeof(preparedShape));
     }
@@ -600,9 +600,9 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     abPaletteTranslation[fontBackground] = background;
 #ifdef SDL_PORT
     /* Packed fonts provide lookup entries for the complete byte range. */
-    characterIndex = (short)(unsigned char)character;
+    characterIndex = (unsigned char)character;
 #else
-    characterIndex = (short)(signed char)character;
+    characterIndex = (signed char)character;
     if (characterIndex != 0x81 && characterIndex != 0x84 &&
         characterIndex != 0x8e && characterIndex != 0x94 &&
         characterIndex != 0x99 && characterIndex != 0x9a &&
@@ -687,7 +687,7 @@ void __stdcall MarkActivePaletteEntries(Viewport *viewport,
 
     (void)viewport;
     for (index = 0; index < 256; index++) {
-        GetPaletteEntry((short)index, rgb);
+        GetPaletteEntry(index, rgb);
         if (rgb[0] != 0 || rgb[1] != 0 || rgb[2] != 0)
             active[index] = 1;
     }
@@ -784,7 +784,7 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
                     commands++;
                     if ((code & 1) != 0) {
                         code >>= 1;
-                        rowCode = (unsigned short)(rowCode - code);
+                        rowCode = (rowCode - code);
                         colour = *commands;
                         commands++;
                         if (minimumY <= drawY && maximumY >= drawY) {
@@ -807,7 +807,7 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
                         drawX += code;
                     } else {
                         code >>= 1;
-                        rowCode = (unsigned short)(rowCode - code);
+                        rowCode = (rowCode - code);
                         if (minimumY <= drawY && maximumY >= drawY) {
                             runRight = code + drawX - 1;
                             if (maximumX >= drawX &&
@@ -930,7 +930,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                 commands++;
                 if ((code & 1) != 0) {
                     code >>= 1;
-                    rowCode = (unsigned short)(rowCode - code);
+                    rowCode = (rowCode - code);
                     colour = *commands;
                     commands++;
                     if (minimumY <= drawY && maximumY >= drawY) {
@@ -954,7 +954,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                     drawX += code;
                 } else {
                     code >>= 1;
-                    rowCode = (unsigned short)(rowCode - code);
+                    rowCode = (rowCode - code);
                     if (minimumY <= drawY && maximumY >= drawY) {
                         skip = code + drawX - 1;
                         if (maximumX >= drawX &&
@@ -1015,7 +1015,7 @@ void DrawSolidColourSprite(Viewport *viewport, short x, short y,
                            struct Shape *shape, short frame,
                            short colour)
 {
-    SetSolidColourTranslation((unsigned char)colour);
+    SetSolidColourTranslation(colour);
     DrawSpriteTransformed(viewport, x, y, shape, frame, 0,
                           0x100, 0x100, 0, 1);
 }
@@ -1057,8 +1057,8 @@ void DrawViewportPixel(Viewport *viewport, short x, short y,
 {
     ClipViewportToScreen(viewport);
     SetRasterClipPixel(&stRasterClip,
-                       (int)x - viewport->left,
-                       (int)y - viewport->top, colour);
+                       x - viewport->left,
+                       y - viewport->top, colour);
 }
 
 /* Function start: 0x441B60 */
@@ -1066,8 +1066,8 @@ int GetViewportPixel(Viewport *viewport, short x, short y)
 {
     ClipViewportToScreen(viewport);
     return ReadRasterClipPixel(&stRasterClip,
-                               (int)x - viewport->left,
-                               (int)y - viewport->top);
+                               x - viewport->left,
+                               y - viewport->top);
 }
 
 /* Function start: 0x441BA0 */
@@ -1222,7 +1222,7 @@ void GetShapeFrameCorners(unsigned char *shape, int frame, int x, int y,
     frame++;
     frame <<= 2;
     frameOffset = frame;
-    if ((int)*(unsigned short *)(shape + 4) >= frameOffset) {
+    if (*(unsigned short *)(shape + 4) >= frameOffset) {
         ShapeFrameExtents *extents;
         int left;
         int top;
@@ -1239,14 +1239,14 @@ void GetShapeFrameCorners(unsigned char *shape, int frame, int x, int y,
         top += y;
         bottom = extents->bottom;
         bottom += y;
-        corners[0].x = (short)left;
-        corners[0].y = (short)top;
-        corners[1].x = (short)left;
-        corners[1].y = (short)bottom;
-        corners[2].x = (short)right;
-        corners[2].y = (short)bottom;
-        corners[3].x = (short)right;
-        corners[3].y = (short)top;
+        corners[0].x = left;
+        corners[0].y = top;
+        corners[1].x = left;
+        corners[1].y = bottom;
+        corners[2].x = right;
+        corners[2].y = bottom;
+        corners[3].x = right;
+        corners[3].y = top;
         *cornerCount = 4;
     }
 }
@@ -1266,7 +1266,7 @@ void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
                                  short angle, short scale, short flip,
                                  short colour)
 {
-    SetSolidColourTranslation((unsigned char)colour);
+    SetSolidColourTranslation(colour);
     DrawSpriteTransformed(viewport, x, y, shape, frame, angle,
                           scale, scale, flip, 1);
 }
@@ -1304,7 +1304,7 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
             inside = 0;
         else
             inside = 1;
-        return (short)inside;
+        return inside;
     }
     CheckHeapBlockSignature(shape);
     frameOffset = frame;
@@ -1342,14 +1342,14 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
             sine = 1;
         leftEdge = (sine * frameTop >> 8) + x - (cosine * frameRight >> 8);
         topEdge = y - (cosine * frameTop >> 8) - (sine * frameRight >> 8);
-        top = (short)topEdge;
-        bottom = (short)(top + transformedHeight);
+        top = topEdge;
+        bottom = (top + transformedHeight);
         extentY = sine * extentY;
         extentY >>= 8;
         extentY++;
         extentY = leftEdge - extentY;
-        left = (short)extentY;
-        right = (short)(extentY + transformedWidth);
+        left = extentY;
+        right = (extentY + transformedWidth);
         if (viewport->left > right || viewport->right < left ||
             viewport->top > bottom || top > viewport->bottom) {
             inside = 0;
@@ -1362,7 +1362,7 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
         }
     }
     (void)flip;
-    return (short)inside;
+    return inside;
 }
 
 /* Function start: 0x442200 */
@@ -1384,7 +1384,7 @@ void BlitViewportScanlineRuns(Viewport *source, Viewport *destination,
         sourceTop = *run++;
         while ((destinationX = *run++) != -1) {
             sourceY = *run++;
-            width = (unsigned short)*run++;
+            width = *run++;
             sourcePixels = source->pixels +
                 source->rowOffsets[sourceY - sourceTop] - sourceLeft +
                 destinationX;
@@ -1519,7 +1519,7 @@ void Streamer_trigger(int trigger)
         }
         SoundDebugPrintf("Streamer_trigger %d", trigger);
         if (trigger >= 0)
-            ix_streamer_set_trigger((char)trigger);
+            ix_streamer_set_trigger(trigger);
         if (bStreamerAudioRunning == 0)
             Streamer_play();
     }
@@ -1541,7 +1541,7 @@ void ForceStreamerTrigger(int trigger)
     if (bIxAudioEnabled != 0) {
         SoundDebugPrintf("FORCE");
         if (trigger >= 0)
-            ix_streamer_force_trigger((char)trigger);
+            ix_streamer_force_trigger(trigger);
         if (bStreamerAudioRunning == 0)
             Streamer_play();
     }

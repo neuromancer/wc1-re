@@ -109,7 +109,7 @@ int SdlInitSwcMusic(void)
     bank.data = SDL_LoadFile_RW(reader, &bank.size, 1);
     if (bank.data == NULL)
         goto unavailable;
-    swcSynth = tsf_load_memory(bank.data, (int)bank.size);
+    swcSynth = tsf_load_memory(bank.data, bank.size);
     SDL_free(bank.data);
     if (swcSynth == NULL) {
         SDL_SetError("Cannot load SWC SoundFont: %s", path);
@@ -266,7 +266,7 @@ void SdlMixSwcMusic(float *samples, int frames)
         }
         boundary = swcMusicEvent < music->count
             ? (uint64_t)music->events[swcMusicEvent].tick * 48000 / music->timeScale : end;
-        count = (int)SDL_min((uint64_t)frames, boundary - swcMusicFrame);
+        count = SDL_min((uint64_t)frames, boundary - swcMusicFrame);
         tsf_render_float(swcSynth, samples, count, 1);
         samples += count * 2;
         frames -= count;
@@ -299,7 +299,7 @@ void SdlUpdateSwcFlightMusic(void)
     } else if (swcMusicNav != nCurrentNavigationPoint) {
         swcFlightTrack = 0;
         if (cCurrentObjective >= 0 && cCurrentObjective < cMissionObjectiveCountValue &&
-            aMissionObjectivesArray[(int)cCurrentObjective].type == OBJECTIVE_HOME_BASE) {
+            aMissionObjectivesArray[cCurrentObjective].type == OBJECTIVE_HOME_BASE) {
             if (aeShipMissionType[0] == MISSION_TYPE_PATROL) {
                 /* CODE_05 triumph +0x69a2..+0x69ce returns zero at the
                  * first unvisited objective; WC1's patrol branch differs. */
@@ -310,7 +310,7 @@ void SdlUpdateSwcFlightMusic(void)
                         complete = 1;
                         break;
                     }
-                    if (objective < 0 || objective >= cMissionObjectiveCountValue || !visited((short)objective))
+                    if (objective < 0 || objective >= cMissionObjectiveCountValue || !visited(objective))
                         break;
                 }
             } else {

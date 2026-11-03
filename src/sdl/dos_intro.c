@@ -46,10 +46,10 @@ static void SdlDrawDosIntroSky(Viewport *viewport,
                                    struct Shape *planetShape,
                                    int planetY)
 {
-    ClearViewport(viewport, (unsigned char)cBlackColour);
+    ClearViewport(viewport, cBlackColour);
     DrawSpriteDefault(viewport, 0, 0, titleShape, 0);
     if (planetShape != 0)
-        DrawSpriteDefault(viewport, 160, (short)planetY, planetShape, 0);
+        DrawSpriteDefault(viewport, 160, planetY, planetShape, 0);
 }
 
 static void SdlDrawDosIntroLogo(Viewport *viewport,
@@ -60,8 +60,8 @@ static void SdlDrawDosIntroLogo(Viewport *viewport,
     short right;
 
     /* Frame 2 is 118 pixels wide around an origin 57 pixels from its left. */
-    left = (short)(161 - 57 * scale / 0x100);
-    right = (short)(162 + 61 * scale / 0x100);
+    left = (161 - 57 * scale / 0x100);
+    right = (162 + 61 * scale / 0x100);
     DrawSpriteScaled(viewport, left, y, titleShape, 1, 0, scale, 0);
     DrawSpriteScaled(viewport, 162, y, titleShape, 2, 0, scale, 0);
     DrawSpriteScaled(viewport, right, y, titleShape, 3, 0, scale, 0);
@@ -96,7 +96,7 @@ static int SdlDrawDosIntroOrchestra(
         actor = &g_aSdlDosIntroActors[actorIndex];
         frame = actor->frames[sequenceFrame] - 'a';
         DrawSpriteDefault(viewport, actor->x, actor->y,
-                          titleSections[actorIndex + 1], (short)frame);
+                          titleSections[actorIndex + 1], frame);
         actorIndex++;
     }
     return SdlPresentDosIntroFrame(viewport);
@@ -116,13 +116,13 @@ static int SdlDrawDosIntroConductorCue(
         actor = &g_aSdlDosIntroActors[actorIndex];
         frame = actor->frames[31] - 'a';
         DrawSpriteDefault(viewport, actor->x, actor->y,
-                          titleSections[actorIndex + 1], (short)frame);
+                          titleSections[actorIndex + 1], frame);
         actorIndex++;
     }
     actor = &g_aSdlDosIntroActors[actorIndex];
     frame = g_szSdlDosIntroConductorFrames[cueFrame] - 'a';
     DrawSpriteDefault(viewport, actor->x, actor->y,
-                      titleSections[actorIndex + 1], (short)frame);
+                      titleSections[actorIndex + 1], frame);
     return SdlPresentDosIntroFrame(viewport);
 }
 
@@ -168,14 +168,14 @@ static int SdlDrawDosIntroLogoReveal(
     planetY = 120000 / distance;
     scale = 256000 / distance;
     logoBottom = logoY + 34 * scale / 0x100;
-    ClearViewport(viewport, (unsigned char)cBlackColour);
+    ClearViewport(viewport, cBlackColour);
     DrawSpriteDefault(viewport, 0, 0, titleShape, 0);
     if (logoBottom < planetY) {
-        DrawSpriteDefault(viewport, 160, (short)planetY, planetShape, 0);
-        SdlDrawDosIntroLogo(viewport, titleShape, logoY, (short)scale);
+        DrawSpriteDefault(viewport, 160, planetY, planetShape, 0);
+        SdlDrawDosIntroLogo(viewport, titleShape, logoY, scale);
     } else {
-        SdlDrawDosIntroLogo(viewport, titleShape, logoY, (short)scale);
-        DrawSpriteDefault(viewport, 160, (short)planetY, planetShape, 0);
+        SdlDrawDosIntroLogo(viewport, titleShape, logoY, scale);
+        DrawSpriteDefault(viewport, 160, planetY, planetShape, 0);
     }
     return SdlPresentDosIntroFrame(viewport);
 }
@@ -216,7 +216,7 @@ static int SdlDrawDosIntroFireworks(
     SdlDosIntroFirework *firework;
     int index;
 
-    ClearViewport(viewport, (unsigned char)cBlackColour);
+    ClearViewport(viewport, cBlackColour);
     DrawSpriteDefault(viewport, 0, 0, titleShape, 0);
     SdlDrawDosIntroLogo(viewport, titleShape, logoY, 0x100);
     index = 0;
@@ -225,7 +225,7 @@ static int SdlDrawDosIntroFireworks(
         if (firework->frame >= 0) {
             DrawSpriteDefault(viewport, firework->x, firework->y,
                               fireworkShape,
-                              (short)(firework->frame +
+                              (firework->frame +
                                       firework->variant * 8));
             firework->frame++;
             if (firework->frame == 8)
@@ -267,7 +267,7 @@ void SdlPlayDosStartupIntro(void)
     introViewport.top = 0;
     introViewport.right = 319;
     introViewport.bottom = 127;
-    if (AllocateViewport(&introViewport, (short)cBlackColour, 0) == 0) {
+    if (AllocateViewport(&introViewport, cBlackColour, 0) == 0) {
         free_viewport(&introViewport);
         return;
     }
@@ -277,13 +277,13 @@ void SdlPlayDosStartupIntro(void)
     sectionIndex = 0;
     while (sectionIndex < SDL_PORT_DOS_INTRO_TITLE_SECTION_COUNT) {
         titleSections[sectionIndex] =
-            FetchDiskPacketRetrying(9, (short)(sectionIndex + 6), 0);
+            FetchDiskPacketRetrying(9, (sectionIndex + 6), 0);
         sectionIndex++;
     }
     planetShape = FetchDiskPacketRetrying(9, 3, 0);
 
     DrawFilledViewportRect(&stScreenView, 0, 0, 319, 199,
-                           (short)cBlackColour);
+                           cBlackColour);
     ClearInputKeyStatePreservingModifiers();
     FlushInputEvents();
     previousMusicTrack = nCurrentMusicTrack;
@@ -465,7 +465,7 @@ void SdlPlayDosStartupIntro(void)
         nCurrentMusicTrack = previousMusicTrack;
         SdlServiceOriginFxMusic();
     }
-    ClearViewport(&stScreenView, (unsigned char)cBlackColour);
+    ClearViewport(&stScreenView, cBlackColour);
     free_viewport(&introViewport);
     ReleasePacketHandle(planetShape);
     sectionIndex = SDL_PORT_DOS_INTRO_TITLE_SECTION_COUNT;

@@ -68,7 +68,7 @@ void SaveGamePalette(void)
     index = 0;
     entry = awPaletteRgbWordsList;
     do {
-        GetPaletteEntry((short)index, entry);
+        GetPaletteEntry(index, entry);
         entry += 3;
         index++;
     } while (entry < awPaletteRgbWordsList + 0x300);
@@ -92,9 +92,9 @@ short easy2see(short obj)
     screenX = asObjectScreenXList[obj];
     if (screenX == (short)0x8001)
         return 0;
-    x = (short)(screenX + nCurrentViewCenterPosX);
-    y = (short)(asObjectScreenYArray[obj] + nCurrentViewCenterPosY);
-    return (short)GetTransformedShapeBounds(
+    x = (screenX + nCurrentViewCenterPosX);
+    y = (asObjectScreenYArray[obj] + nCurrentViewCenterPosY);
+    return GetTransformedShapeBounds(
         &stSpaceBufferViewport, x, y,
         apObjShapeArray[obj],
         asObjectViewFrames[obj],
@@ -114,9 +114,9 @@ void make_shard(short asteroid, FixedVector direction)
         return;
     set_objects_data(fragment, OBJECT_TYPE_ROCK_CHUNK, asteroid);
     asObjectCounterArray[fragment] = 40;
-    acObjOwnersTable[fragment] = (signed char)asteroid;
+    acObjOwnersTable[fragment] = asteroid;
     SetVectorFixedPoint(&direction,
-                        (short)(asObjectCollisionRadius[asteroid] >> 1));
+                        (asObjectCollisionRadius[asteroid] >> 1));
     AddFixedVectors(&aShipPositionsArray[asteroid], &direction,
                     &aShipPositionsArray[fragment]);
     aShipFwdVec[fragment] = direction;
@@ -125,7 +125,7 @@ void make_shard(short asteroid, FixedVector direction)
     alter_pitch(signed_random(20), fragment);
     aShipVelocity[fragment] =
         aShipFwdVec[fragment];
-    speed = (short)(real_velocity(asteroid) + RandomInRange(0, 5));
+    speed = (real_velocity(asteroid) + RandomInRange(0, 5));
     SetVectorFixedPoint(
         &aShipVelocity[fragment], speed);
 }
@@ -141,9 +141,9 @@ void remove_hazard(signed char hazard)
 #else
     aiSoundEffectSourceActiveArray[(short)hazard] = 0;
 #endif
-    remove_object((short)hazard);
+    remove_object(hazard);
     nActiveHazards =
-        MaxShort(0, (short)(nActiveHazards - 1));
+        MaxShort(0, (nActiveHazards - 1));
 }
 
 /* Function start: 0x401210 */
@@ -162,13 +162,13 @@ void remove_all_hazards(void)
 /* Function start: 0x401250 */
 short difficulty(void)
 {
-    return (short)(abs(25 - (int)nHazardReferenceSpeed) * 2);
+    return (abs(25 - nHazardReferenceSpeed) * 2);
 }
 
 /* Function start: 0x401270 */
 short asteroid_velocity(void)
 {
-    return MinShort(20, (short)(RandomBelowOrEqual(7) + 10));
+    return MinShort(20, (RandomBelowOrEqual(7) + 10));
 }
 
 /* Function start: 0x401290 */
@@ -201,7 +201,7 @@ void align(short *value, short quantum)
     short current;
 
     current = *value;
-    current = (short)(current - current % quantum);
+    current = (current - current % quantum);
     *value = current;
 }
 
@@ -230,28 +230,28 @@ void init_hazard(short obj, FixedVector position, short moving)
         speed = 2;
         hazardMoves = 0;
     } else if (hazardMoves != 0) {
-        travelTime = (short)((cCurrentCockpitView < 4
+        travelTime = ((cCurrentCockpitView < 4
                                   ? acHazardTravelTimeByView[cCurrentCockpitView]
                                   : 65) +
                              RandomBelowOrEqual(15));
         if (bIntroSecondaryScene != 0) {
-            travelTime = (short)(travelTime -
+            travelTime = (travelTime -
                                  RandomBelowOrEqual(difficulty()));
             travelTime = MaxShort(45, travelTime);
         } else {
-            travelTime = (short)(travelTime -
+            travelTime = (travelTime -
                                  RandomBelowOrEqual(difficulty()));
             travelTime = MaxShort(7, travelTime);
         }
         ScaleFixedVector(&aShipVelocity[0],
-                         (int)travelTime << 8, &vector);
+                         travelTime << 8, &vector);
         AddFixedVectors(&aShipPositionsArray[0], &vector, &vector);
         point_at(obj, vector);
         speed = distance_between_points(
             &vector, &aShipPositionsArray[obj]);
         travelTime = MaxShort(3,
-            (short)(travelTime - RandomBelow(5)));
-        speed = (short)(speed / travelTime);
+            (travelTime - RandomBelow(5)));
+        speed = (speed / travelTime);
     } else {
         point_at(obj, pActiveHazardField->center);
         skew_randomly(obj, 1);
@@ -263,7 +263,7 @@ void init_hazard(short obj, FixedVector position, short moving)
     if (kilrathi_near(0, 16000) != 0)
         speed = 0;
     ScaleFixedVector(&aShipFwdVec[obj],
-                     (int)speed << 8, &aShipVelocity[obj]);
+                     speed << 8, &aShipVelocity[obj]);
 
     if (hazardMoves == 0) {
         if (type == OBJECT_TYPE_ASTEROID_FIELD)
@@ -290,7 +290,7 @@ short near_field(const HazardField *field, const FixedVector *point)
 {
     return IsPointWithinRange(&field->center,
                               point,
-                              (short)(field->innerRadius + 4300));
+                              (field->innerRadius + 4300));
 }
 
 /* Function start: 0x4016A0 */
@@ -332,9 +332,9 @@ short try_far_spot(FixedVector *spot, short *moving)
         else
             *moving = 0;
     }
-    pitch = (short)(pitch + find_ratio(
+    pitch = (pitch + find_ratio(
         -15, 15, anObjPitchRot[0], -150, 150));
-    yaw = (short)(yaw + find_ratio(
+    yaw = (yaw + find_ratio(
         -15, 15, anObjectYawRotation[0], -150, 150));
     rotate_about_j(yaw, &aShipRightVector[63],
                    &aShipFwdVec[63]);
@@ -350,7 +350,7 @@ short try_far_spot(FixedVector *spot, short *moving)
 /* Function start: 0x401870 */
 short rear_sphere(void)
 {
-    return find_ratio(0, 20, (short)nHazardReferenceSpeed,
+    return find_ratio(0, 20, nHazardReferenceSpeed,
                       4300, 3100);
 }
 
@@ -363,7 +363,7 @@ short ok_hazard_spot(short obj)
         range = rear_sphere();
     return IsPointWithinRange(&aShipPositionsArray[0],
                               &aShipPositionsArray[obj],
-                              (short)range);
+                              range);
 }
 
 /* Function start: 0x4018D0 */
@@ -407,7 +407,7 @@ void manage_hazard(short obj, short slot)
     if (nRenderedSpaceFrame % 20 != slot)
         return;
     if (ok_hazard_spot(obj) == 0) {
-        remove_hazard((signed char)obj);
+        remove_hazard(obj);
         return;
     }
     if (aeObjectTypeList[obj] == OBJECT_TYPE_SPACE_MINE &&
@@ -443,14 +443,14 @@ void update_hazards(void)
         nHazardReferenceSpeed = real_velocity(0);
     for (slot = 0; slot < 20; slot++) {
         if (abHazardObjects[slot] != -1)
-            manage_hazard((short)abHazardObjects[slot], slot);
+            manage_hazard(abHazardObjects[slot], slot);
         else
             emptySlot = slot;
     }
     if (emptySlot != -1 &&
         RandomBelowOrEqual(215) <
-            (short)nHazardReferenceSpeed + 30)
-        abHazardObjects[emptySlot] = (signed char)make_hazard();
+            nHazardReferenceSpeed + 30)
+        abHazardObjects[emptySlot] = make_hazard();
 }
 
 /* Function start: 0x401BC0 */
@@ -462,7 +462,7 @@ void start_hazard_field(short region)
     pActiveHazardField = &aHazardFields[region];
     slot = 1;
     do {
-        abHazardObjects[slot] = (signed char)make_hazard();
+        abHazardObjects[slot] = make_hazard();
     } while (slot++ < 3);
 }
 
@@ -629,10 +629,10 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
         InitializeAudioSystem(hMainWindow);
         InitializeAudioStreamer(hMainWindow);
     }
-    srand((unsigned int)time(0));
+    srand(time(0));
     InitGameClockEpoch();
     CreateDebugOverlayConsole(instance, hMainWindow, 60, 20);
-    nSessionStartTime = (unsigned int)time(0);
+    nSessionStartTime = time(0);
     ShowCursor(FALSE);
     pCurrentEventManagerPump = 0;
     clip.left = 0;
@@ -646,7 +646,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
 
     ClipCursor(0);
     ShowCursor(TRUE);
-    nSessionEndTime = (unsigned int)time(0);
+    nSessionEndTime = time(0);
     DestroyGlobalDebugOverlayConsole();
     ServiceAudioStream();
     DestroyWindow(hMainWindow);
@@ -665,7 +665,7 @@ void ShutdownGameWindow(void)
     HANDLE process;
 #endif
 
-    nSessionEndTime = (unsigned int)time(0);
+    nSessionEndTime = time(0);
 #ifdef SDL_PORT
     {
         SDL_Window *window;
@@ -675,7 +675,7 @@ void ShutdownGameWindow(void)
             ix_streamer_destroy();
         ServiceAudioStream();
         DestroyGlobalDebugOverlayConsole();
-        window = (SDL_Window *)hMainWindow;
+        window = hMainWindow;
         DIBunInstall();
         SdlShutdownJoysticks();
         if (window != 0)
@@ -896,8 +896,8 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     HANDLE process;
 
     mouseEvent = 0;
-    primaryButton = (unsigned int)wParam & 1;
-    secondaryButton = ((unsigned int)wParam & 2) >> 1;
+    primaryButton = wParam & 1;
+    secondaryButton = (wParam & 2) >> 1;
     mouseX = (unsigned short)lParam;
     command = (unsigned short)wParam;
     mouseY = (unsigned short)((unsigned long)lParam >> 16);
@@ -928,7 +928,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         break;
     case WM_KEYDOWN:
         if (bKeyEventQueueEnabled != 0)
-            QueueInputEvent(3, 0, 0, (int)wParam,
+            QueueInputEvent(3, 0, 0, wParam,
                             0, 0, 0);
         if (wParam == VK_F1) {
             if ((lParam & 0x40000000) != 0) {
@@ -941,23 +941,23 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
         if (scanCode == 1)
             bEscapePressedFlag = 1;
-        QueueInputEvent(3, 0, 0, (int)scanCode,
+        QueueInputEvent(3, 0, 0, scanCode,
                         0, 0, 0);
-        SetInputKeyState((int)scanCode, 1);
+        SetInputKeyState(scanCode, 1);
         break;
     case WM_KEYUP:
         if (bKeyEventQueueEnabled != 0)
-            QueueInputEvent(4, 0, 0, (int)wParam,
+            QueueInputEvent(4, 0, 0, wParam,
                             0, 0, 0);
         if (wParam == VK_F1)
             bF1KeyLatch = 0;
         scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
-        QueueInputEvent(4, 0, 0, (int)scanCode,
+        QueueInputEvent(4, 0, 0, scanCode,
                         0, 0, 0);
-        SetInputKeyState((int)scanCode, 0);
+        SetInputKeyState(scanCode, 0);
         break;
     case WM_SYSKEYDOWN:
-        nSystemKeyDown = (unsigned int)wParam;
+        nSystemKeyDown = wParam;
         if (wParam == 'X') {
             if (((unsigned long)lParam & 0x20000000) != 0) {
                 PostQuitMessage(0);
@@ -992,8 +992,8 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     case WM_MOUSEMOVE:
         if (bPtrMovedByKeyboardState == 0) {
             eventType = 13;
-            QueueInputEvent(eventType, (int)mouseX,
-                            (int)mouseY, 0,
+            QueueInputEvent(eventType, mouseX,
+                            mouseY, 0,
                             primaryButton, secondaryButton, 0);
             mouseEvent = 1;
         } else {
@@ -1003,16 +1003,16 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
         eventType = 2;
-        QueueInputEvent(eventType, (int)mouseX,
-                        (int)mouseY, 0,
+        QueueInputEvent(eventType, mouseX,
+                        mouseY, 0,
                         primaryButton, secondaryButton, 0);
         mouseEvent = 1;
         break;
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
         eventType = 1;
-        QueueInputEvent(eventType, (int)mouseX,
-                        (int)mouseY, 0,
+        QueueInputEvent(eventType, mouseX,
+                        mouseY, 0,
                         primaryButton, secondaryButton, 0);
         mouseEvent = 1;
         break;
@@ -1110,15 +1110,15 @@ void GetJoystickDevCaps(short joystick,
     }
 
 #ifdef SDL_PORT
-    *xMin = (unsigned short)hostXMin;
-    *xMax = (unsigned short)hostXMax;
-    *yMin = (unsigned short)hostYMin;
-    *yMax = (unsigned short)hostYMax;
+    *xMin = hostXMin;
+    *xMax = hostXMax;
+    *yMin = hostYMin;
+    *yMax = hostYMax;
 #else
-    *xMin = (unsigned short)caps.wXmin;
-    *xMax = (unsigned short)caps.wXmax;
-    *yMin = (unsigned short)caps.wYmin;
-    *yMax = (unsigned short)caps.wYmax;
+    *xMin = caps.wXmin;
+    *xMax = caps.wXmax;
+    *yMin = caps.wYmin;
+    *yMax = caps.wYmax;
 #endif
 }
 
@@ -1223,9 +1223,9 @@ void CheckAllGuardedAllocations(void)
     while (allocation != 0) {
         block = allocation->block;
 #ifdef SDL_PORT
-        guard = (unsigned char *)block;
+        guard = block;
 #else
-        guard = (unsigned int *)block;
+        guard = block;
 #endif
         prefixCorrupt = 0;
         i = 0x100;
@@ -1288,9 +1288,9 @@ void FreeGuardedAllocation(void *memory)
     int corrupt;
 
 #ifdef SDL_PORT
-    guard = (unsigned char *)block;
+    guard = block;
 #else
-    guard = (unsigned int *)block;
+    guard = block;
 #endif
     if (allocation == 0)
         return;

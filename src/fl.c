@@ -598,7 +598,7 @@ void Mtail_fire(short ship, short target)
     if (no_goal(ship) != 0)
         point_ship_at_object(ship, target);
     chase_speed(ship,
-        (short)((asObjectCollisionRadius[target] +
+        ((asObjectCollisionRadius[target] +
                  asObjectCollisionRadius[ship] * 6) >> 1));
     fire_when_ready(ship, 1);
 }
@@ -708,7 +708,7 @@ void Mstrafe_enemy(short ship, short target)
         ship_vs_ship(ship, target);
         point_ship_at_object(ship, target);
     }
-    fire_when_ready(ship, (short)(aimed == 0));
+    fire_when_ready(ship, (aimed == 0));
 }
 
 /* Function start: 0x407030 */
@@ -968,10 +968,10 @@ void perform_maneuver(short obj)
     ship_vs_ship(obj, target);
     range = nTgtRange;
     if (nTargetFacingValue < 0)
-        SetManeuverProximityRange((unsigned short)((asObjectCollisionRadius[target] +
+        SetManeuverProximityRange(((asObjectCollisionRadius[target] +
                                    asObjectCollisionRadius[obj] * 4) >> 1));
     else
-        SetManeuverProximityRange((unsigned short)((asObjectCollisionRadius[target] +
+        SetManeuverProximityRange(((asObjectCollisionRadius[target] +
                                    asObjectCollisionRadius[obj] * 6) >> 1));
 
     if (unactive(target) != 0) {

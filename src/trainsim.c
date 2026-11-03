@@ -101,10 +101,10 @@ int AnimateTrainSimTitle(void)
         cBlackColour);
     DIBslam();
     DIBslamReal();
-    stCurrentTrainSimTitleDisplayViewport.top = (short)(0x6b -
+    stCurrentTrainSimTitleDisplayViewport.top = (0x6b -
         FontHeight(stTrainSimTxtContext.font));
     stCurrentTrainSimTitleDisplayViewport.bottom =
-        (short)(stCurrentTrainSimTitleDisplayViewport.top +
+        (stCurrentTrainSimTitleDisplayViewport.top +
             FontHeight(stTrainSimTxtContext.font) + 2);
     while (CheckEscaped() == 0) {
         SetFrameTimerPeriodDirect(3);
@@ -128,7 +128,7 @@ int AnimateTrainSimTitle(void)
 /* Function start: 0x425DF0 */
 unsigned char *GetHighScoreEntry(short i)
 {
-    short k = (short)aHighScoreEntriesArray[i].pilotIndex;
+    short k = aHighScoreEntriesArray[i].pilotIndex;
 
     if (8 < k)
         return apszBuiltInHighScoreNames[k - 9];
@@ -144,7 +144,7 @@ unsigned int GetHighScoreValue(short i)
 /* Function start: 0x425E30 */
 unsigned int SetHighScoreEntry(short i, unsigned char b, unsigned int v)
 {
-    aHighScoreEntriesArray[i].pilotIndex = (signed char)b;
+    aHighScoreEntriesArray[i].pilotIndex = b;
     return aHighScoreEntriesArray[i].score = v;
 }
 
@@ -156,7 +156,7 @@ void SortTrainSimHighScores(void)
     short inner;
 
     for (outer = 0; outer < 6; outer++)
-        for (inner = (short)(outer + 1); inner < 6; inner++)
+        for (inner = (outer + 1); inner < 6; inner++)
             if (aHighScoreEntriesArray[inner].score >
                 aHighScoreEntriesArray[outer].score) {
                 temporary = aHighScoreEntriesArray[inner];
@@ -185,9 +185,9 @@ short InsertTrainSimHighScore(short pilot, unsigned int score)
 {
     if (FindTrainSimHighScore(pilot) != -1)
         SetHighScoreEntry(FindTrainSimHighScore(pilot),
-                          (unsigned char)pilot, score);
+                          pilot, score);
     else
-        SetHighScoreEntry(5, (unsigned char)pilot, score);
+        SetHighScoreEntry(5, pilot, score);
     SortTrainSimHighScores();
     return FindTrainSimHighScore(pilot);
 }
@@ -204,11 +204,11 @@ void InitializeTrainSimHighScores(void)
     int score;
 
     slot = 0;
-    score = (short)RandomBelowOrEqual(2000) + 10000;
+    score = RandomBelowOrEqual(2000) + 10000;
     do {
         do {
             do {
-                candidate = (short)RandomInRange(0, 14);
+                candidate = RandomInRange(0, 14);
             } while (candidate == 8);
             for (previous = 0; previous < slot; previous++) {
                 if (aHighScoreEntriesArray[previous].pilotIndex ==
@@ -216,8 +216,8 @@ void InitializeTrainSimHighScores(void)
                     candidate = -1;
             }
         } while (candidate == -1);
-        score -= (short)RandomBelowOrEqual(1500) + 100;
-        SetHighScoreEntry(slot, (unsigned char)candidate, score);
+        score -= RandomBelowOrEqual(1500) + 100;
+        SetHighScoreEntry(slot, candidate, score);
         slot++;
     } while (slot < 5);
     SetHighScoreEntry(5, 8, 0);
@@ -266,9 +266,9 @@ void AddRandomTrainSimHighScores(void)
         scoreRange =
             aHighScoreEntriesArray[0].score - baseScore + 2000;
         while (scoreRange / scale > 30000)
-            scale = (short)(scale * 2);
-        score = (unsigned int)((int)RandomBelowOrEqual(
-                                   (short)(scoreRange / scale)) *
+            scale = (scale * 2);
+        score = (RandomBelowOrEqual(
+                                   (scoreRange / scale)) *
                                    scale +
                                baseScore + 50);
         InsertTrainSimHighScore(pilot, score);
@@ -299,12 +299,12 @@ void ClearTextInputCharacter(short character)
     Viewport clearArea;
     short characterWidth;
 
-    characterWidth = (short)GetFontCharWidth(character);
+    characterWidth = GetFontCharWidth(character);
     clearArea = *pCurTextContext->viewport;
     clearArea.left = pCurTextContext->cursorX;
-    clearArea.right = (short)(clearArea.left + characterWidth - 1);
+    clearArea.right = (clearArea.left + characterWidth - 1);
     clearArea.top = pCurTextContext->cursorY;
-    clearArea.bottom = (short)(clearArea.top +
+    clearArea.bottom = (clearArea.top +
         FontHeight(pCurTextContext->font) - 1);
     LeaveAllocationScope();
     ClearViewport(&clearArea,
@@ -357,9 +357,9 @@ short ReadTextInput(char *destination, short maximumLength,
 
     inputViewport.left = savedX;
     inputViewport.top = savedY;
-    inputViewport.bottom = (short)(inputViewport.top +
+    inputViewport.bottom = (inputViewport.top +
         FontHeight(pCurTextContext->font));
-    inputViewport.right = (short)(inputViewport.left +
+    inputViewport.right = (inputViewport.left +
         MeasureTextPixelWidthClamped(input));
     ClearViewport(&inputViewport,
                   pCurTextContext->backgroundColour);
@@ -374,7 +374,7 @@ short ReadTextInput(char *destination, short maximumLength,
         do {
             DIBslam();
             DIBslamReal();
-            key = (unsigned char)WaitForStreamInputKey();
+            key = WaitForStreamInputKey();
             switch (key) {
             case 13:
                 handled++;
@@ -387,9 +387,9 @@ short ReadTextInput(char *destination, short maximumLength,
                 ClearNextTextInputCharacter(' ');
                 inputViewport.left = savedX;
                 inputViewport.top = savedY;
-                inputViewport.bottom = (short)(inputViewport.top +
+                inputViewport.bottom = (inputViewport.top +
                     FontHeight(pCurTextContext->font));
-                inputViewport.right = (short)(inputViewport.left +
+                inputViewport.right = (inputViewport.left +
                     MeasureTextPixelWidthClamped(input));
                 ClearViewport(&inputViewport,
                               pCurTextContext->backgroundColour);
@@ -413,7 +413,7 @@ short ReadTextInput(char *destination, short maximumLength,
                          (key == ' ' && inputLength != 0))) {
                         switch (mode) {
                         case 1:
-                            key = (unsigned char)toupper(key);
+                            key = toupper(key);
                             break;
                         case 2:
                             if (key < '0' || key > '9')
@@ -421,7 +421,7 @@ short ReadTextInput(char *destination, short maximumLength,
                             break;
                         default:
                             if (isalpha(key)) {
-                                key = (unsigned char)(key | 0x20);
+                                key = (key | 0x20);
                                 if (GetShiftKeyState() != 0)
                                     key &= 0xdf;
                             }
@@ -430,10 +430,10 @@ short ReadTextInput(char *destination, short maximumLength,
                         if (key == 0)
                             break;
                         ClearNextTextInputCharacter(' ');
-                        input[inputLength++] = (char)key;
+                        input[inputLength++] = key;
                         input[inputLength] = 0;
-                        SetTextCursor((unsigned short)savedX,
-                                      (unsigned short)savedY);
+                        SetTextCursor(savedX,
+                                      savedY);
                         DrawFormattedText(input);
                         DrawTextInputCursor(' ');
                     }
@@ -463,7 +463,7 @@ void ReadRequiredPilotField(short x, short y, const char *label,
     stTrainSimTxtContext.alignment = 0;
     cursorX = *(volatile short *)&stTrainSimPanelViewport.left;
     cursorX += *(volatile short *)&x;
-    SetTextCursor((unsigned short)cursorX, (unsigned short)y);
+    SetTextCursor(cursorX, y);
     DrawFormattedText(label);
     do {
         DosStrcpy(destination, "");
@@ -476,8 +476,8 @@ void PromptForPilotField(short x, short y, const char *label,
                          const char *defaultText)
 {
     stTrainSimTxtContext.alignment = 0;
-    SetTextCursor((unsigned short)(x + stTrainSimPanelViewport.left),
-                  (unsigned short)y);
+    SetTextCursor((x + stTrainSimPanelViewport.left),
+                  y);
     DrawFormattedText(label);
     do {
         DosStrcpy(destination, defaultText);
@@ -496,7 +496,7 @@ void InitializeTrainSimTextPanel(void)
     SetTextContext(&stTrainSimTxtContext);
     InitializeTextContextFromFont(&stTrainSimTxtContext, 1,
                                   cDefaultTextColour,
-                                  (signed char)cBlackColour);
+                                  cBlackColour);
     stTrainSimTxtContext.viewport =
         &stTrainSimPanelViewport;
     EraseTextContextBackground(&stTrainSimTxtContext);
@@ -506,8 +506,8 @@ void InitializeTrainSimTextPanel(void)
 void ShowTrainSimTextMessage(const char *message)
 {
     SetTextCursor(
-        (unsigned short)stTrainSimPanelViewport.left,
-        (unsigned short)(stTrainSimPanelViewport.top + 2));
+        stTrainSimPanelViewport.left,
+        (stTrainSimPanelViewport.top + 2));
     stTrainSimTxtContext.alignment = 2;
     FormatTextBufferFromStart(message);
     FormatTextBufferFromStart("%P");
@@ -522,7 +522,7 @@ void EnterPilotNameAndCallsign(void)
 
     ClearViewport(&stScreenView, 0);
     backdrop = FetchDiskPacketRetrying(
-        (short)cCockpitLogicalFile, 0, 0);
+        cCockpitLogicalFile, 0, 0);
     DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
     InitializeTrainSimTextPanel();
     ShowTrainSimTextMessage("CONGRATULATIONS!\n"
@@ -530,12 +530,12 @@ void EnterPilotNameAndCallsign(void)
                             "PLEASE ENTER YOUR\n"
                             "NAME AND CALLSIGN:\n");
     PromptForPilotField(10,
-                        (short)(stTrainSimTxtContext.cursorY + 2),
+                        (stTrainSimTxtContext.cursorY + 2),
                         "LAST NAME: ",
                         stCampaignState.currentPilot->name,
                         13, "Blair");
     PromptForPilotField(10,
-                        (short)(stTrainSimTxtContext.cursorY + 10),
+                        (stTrainSimTxtContext.cursorY + 10),
                         "CALLSIGN : ",
                         stCampaignState.currentPilot->callsign,
                         13, "Maverick");
@@ -602,22 +602,22 @@ void ShowTrainSimHighScores(void)
     SetEventManagerPump(PollJoystickButtonEvents);
     ClearViewport(&stScreenView, 0);
     backdrop = FetchDiskPacketRetrying(
-        (short)cCockpitLogicalFile, 0, 0);
+        cCockpitLogicalFile, 0, 0);
     DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
     InitializeTextContextFromFont(&stTrainSimTxtContext, 1,
                                   cDefaultTextColour,
-                                  (signed char)cBlackColour);
+                                  cBlackColour);
     SetTextContext(&stTrainSimTxtContext);
     SetViewportRect(&stTrainSimPanelViewport,
                     0, 0, 319, 199);
     stTrainSimTxtContext.text =
         szDefaultTxtBuf;
     ResetStringBuilder(&stTrainSimTxtContext);
-    titleWidth = (short)((MeasureTextPixelWidthClamped(
+    titleWidth = ((MeasureTextPixelWidthClamped(
         szTrainSimTitle) & 0xfff8) + 8);
     stTrainSimPanelViewport.right = titleWidth;
     stTrainSimPanelViewport.bottom =
-        (short)(FontHeight(stTrainSimTxtContext.font) + 2);
+        (FontHeight(stTrainSimTxtContext.font) + 2);
     AllocateViewport(&stTrainSimPanelViewport,
                      cBlackColour, 0);
     stTrainSimTxtContext.viewport =
@@ -625,21 +625,21 @@ void ShowTrainSimHighScores(void)
     EraseTextContextBackground(&stTrainSimTxtContext);
     SetTextCursor(0, 1);
     DrawFormattedText(szTrainSimTitle);
-    lineHeight = (short)FontHeight(stTrainSimTxtContext.font);
+    lineHeight = FontHeight(stTrainSimTxtContext.font);
 
     stCurrentTrainSimTitleDisplayViewport = stScreenView;
     *(ShortRect *)&stCurrentTrainSimTitleDisplayViewport.left =
         stTrainSimPanelBounds;
     ClearViewport(&stCurrentTrainSimTitleDisplayViewport,
                   cBlackColour);
-    titleLeft = (short)((160 - titleWidth / 2) & 0xfffe);
+    titleLeft = ((160 - titleWidth / 2) & 0xfffe);
     stCurrentTrainSimTitleDisplayViewport.left = titleLeft;
     stCurrentTrainSimTitleDisplayViewport.right =
-        (short)(titleLeft + titleWidth);
+        (titleLeft + titleWidth);
     stCurrentTrainSimTitleDisplayViewport.top =
-        (short)(RandomInRange(0, 0x4e) + 0x1d);
+        (RandomInRange(0, 0x4e) + 0x1d);
     stCurrentTrainSimTitleDisplayViewport.bottom =
-        (short)(stCurrentTrainSimTitleDisplayViewport.top +
+        (stCurrentTrainSimTitleDisplayViewport.top +
                 lineHeight + 2);
     if (stCurrentTrainSimTitleDisplayViewport.bottom > 109) {
         stCurrentTrainSimTitleDisplayViewport.bottom = 109;
@@ -648,7 +648,7 @@ void ShowTrainSimHighScores(void)
     InitializeTextContextFromFont(
         &stTrainSimHighScoreTextContext, 1,
         cDefaultTextColour,
-        (signed char)cBlackColour);
+        cBlackColour);
     *(ShortRect *)&stTrainSimulatorHighScoreBufView.left =
         stTrainSimPanelBounds;
     AllocateViewport(&stTrainSimulatorHighScoreBufView,
@@ -660,13 +660,13 @@ void ShowTrainSimHighScores(void)
         szDefaultTxtBuf;
     *(ShortRect *)&stTrainSimHighScoreDisplayViewport.left =
         stTrainSimPanelBounds;
-    lineHeight = (short)(lineHeight + 3);
+    lineHeight = (lineHeight + 3);
     SetTextContext(&stTrainSimHighScoreTextContext);
     ResetStringBuilder(&stTrainSimHighScoreTextContext);
     EraseTextContextBackground(&stTrainSimHighScoreTextContext);
     SetTextCursor(
-        (unsigned short)stTrainSimulatorHighScoreBufView.left,
-        (unsigned short)(
+        stTrainSimulatorHighScoreBufView.left,
+        (
             stTrainSimulatorHighScoreBufView.top + 1));
     FormatTextBufferFromStart("%JHIGH SCORES%P", 2);
     stTrainSimHighScoreTextContext.alignment = 0;
@@ -701,9 +701,9 @@ void ShowTrainSimHighScores(void)
 struct Shape *LoadTrainSimOpponentShape(int opponent)
 {
     cCurrentObjResourceLogicalFile =
-        (signed char)(opponent + 0x16);
+        (opponent + 0x16);
     return FetchDiskPacketRetrying(
-        (short)cCurrentObjResourceLogicalFile, 1, 0);
+        cCurrentObjResourceLogicalFile, 1, 0);
 }
 
 /* Function start: 0x426C70 */
@@ -727,15 +727,15 @@ short SelectTrainSimMission(short *mission)
     SetTextContext(&stTrainSimTxtContext);
     InitializeTextContextFromFont(
         &stTrainSimTxtContext, 1,
-        cDefaultTextColour, (signed char)cBlackColour);
+        cDefaultTextColour, cBlackColour);
     *(ShortRect *)&stCurrentTrainSimTitleDisplayViewport.left =
         stTrainSimPanelBounds;
     stTrainSimTxtContext.viewport =
         &stCurrentTrainSimTitleDisplayViewport;
     EraseTextContextBackground(&stTrainSimTxtContext);
     SetTextCursor(
-        (unsigned short)stCurrentTrainSimTitleDisplayViewport.left,
-        (unsigned short)(
+        stCurrentTrainSimTitleDisplayViewport.left,
+        (
             stCurrentTrainSimTitleDisplayViewport.top + 30));
     stTrainSimTxtContext.alignment = 2;
     FormatTextBufferFromStart("SELECT\nENEMY%P");
@@ -820,12 +820,12 @@ short SelectTrainSimMission(short *mission)
                 break;
             /* Enter and Space select the region under the pointer. */
         case 2:
-            region = (signed char)FindMenuRegionAtPoint(
+            region = FindMenuRegionAtPoint(
                 event.x, event.y,
                 aTrainSimMissionRegions);
             regionIndex = region;
             if (regionIndex >= 0 && regionIndex <= 3)
-                selection = (signed char)(region + 1);
+                selection = (region + 1);
             break;
         }
         DIBslam();
@@ -838,12 +838,12 @@ short SelectTrainSimMission(short *mission)
     ReleasePacketHandle(shapes[1]);
     ReleasePacketHandle(shapes[2]);
     ReleasePacketHandle(shapes[3]);
-    bInputModeState = (unsigned char)savedInputMode;
+    bInputModeState = savedInputMode;
     SetEventManagerPump(0);
     EventManagerHook(0);
     LeaveAllocationScope();
     ReleaseTextFont(1);
-    *mission = (short)(selection - 1);
+    *mission = (selection - 1);
     return cancelled == 0;
 }
 
@@ -901,7 +901,7 @@ void RunTrainSim(void)
                 aasShipMaximumShieldTable[0][1] = 0;
                 nArcadeTimeRemaining = 100;
                 nCurrentWave = 2;
-                acShipDmg[0] = (signed char)(
+                acShipDmg[0] = (
                     aObjectTypeData[
                         aeObjectTypeList[0]].damageCapacity + 1);
                 set_up_next_wave();

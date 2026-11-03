@@ -114,10 +114,10 @@ int FullMissionScore(void)
 
     score = 0;
     scores = (signed char *)(pMissionCampaignInfo +
-        (int)stCampaignState.currentMission * 0x14 +
-        (int)stCampaignState.currentSeries * 0x5a - 0x50);
+        stCampaignState.currentMission * 0x14 +
+        stCampaignState.currentSeries * 0x5a - 0x50);
     for (objective = 0; objective < 16; objective++) {
-        score = (short)(score + scores[objective + 4]);
+        score = (score + scores[objective + 4]);
     }
     return score;
 }
@@ -131,11 +131,11 @@ int PlayersMissionScore(void)
 
     score = 0;
     scores = (signed char *)(pMissionCampaignInfo +
-        (int)stCampaignState.currentSeries * 0x5a +
-        (int)stCampaignState.currentMission * 0x14 - 0x50);
+        stCampaignState.currentSeries * 0x5a +
+        stCampaignState.currentMission * 0x14 - 0x50);
     for (objective = 0; objective < 16; objective++) {
         if (achieved(objective) != 0)
-            score = (short)(score + scores[objective + 4]);
+            score = (score + scores[objective + 4]);
     }
     return score;
 }
@@ -149,15 +149,15 @@ unsigned int UpdateSeries(void)
 
     stSavedCampaignDate = *pCurrentCampaignDate;
     seriesData = pMissionCampaignInfo +
-        (int)stCampaignState.currentSeries * 0x5a - 0x5a;
+        stCampaignState.currentSeries * 0x5a - 0x5a;
     medalData = (short *)(pMissionCampaignInfo +
-        (int)stCampaignState.currentSeries * 0x5a +
-        (int)stCampaignState.currentMission * 0x14 - 0x50);
+        stCampaignState.currentSeries * 0x5a +
+        stCampaignState.currentMission * 0x14 - 0x50);
 
-    playerScore = (short)PlayersMissionScore();
+    playerScore = PlayersMissionScore();
     if ((short)FullMissionScore() == playerScore)
         stCampaignState.promotionScore++;
-    stCampaignState.seriesScore = (short)(
+    stCampaignState.seriesScore = (
         stCampaignState.seriesScore + playerScore);
     stCampaignState.currentMission++;
 
@@ -166,7 +166,7 @@ unsigned int UpdateSeries(void)
         nPreviousPlayerShipType =
             (short)stCampaignState.playerShipType;
         nPostSeriesSequence =
-            (short)(signed char)seriesData[5];
+            (signed char)seriesData[5];
         stCampaignState.seriesHistory[
             stCampaignState.seriesHistoryCount] =
             stCampaignState.currentSeries;
@@ -174,13 +174,13 @@ unsigned int UpdateSeries(void)
         if (stCampaignState.seriesScore >=
             *(short *)(seriesData + 3)) {
             stCampaignState.currentSeries =
-                (signed char)seriesData[6];
+                seriesData[6];
             stCampaignState.playerShipType =
                 (enum ObjectType)(signed char)seriesData[7];
             bSeriesFailed = 0;
         } else {
             stCampaignState.currentSeries =
-                (signed char)seriesData[8];
+                seriesData[8];
             stCampaignState.playerShipType =
                 (enum ObjectType)(signed char)seriesData[9];
             bSeriesFailed = 1;
@@ -193,7 +193,7 @@ unsigned int UpdateSeries(void)
         stCampaignState.seriesScore = 0;
         stCampaignState.currentMission = 0;
         if ((signed char)pMissionCampaignInfo[
-                (int)stCampaignState.currentSeries *
+                stCampaignState.currentSeries *
                 0x5a + 5] ==
                 nPostSeriesSequence &&
             nPostSeriesSequence < 0x40)
@@ -202,7 +202,7 @@ unsigned int UpdateSeries(void)
 
     if (nCurrentWingmanKilledThisMission != 0)
         nMissionMedalScoreValue =
-            MaxShort(0, (short)(
+            MaxShort(0, (
                 stCampaignState.missionScore - 15));
     if (medalData[1] <= nMissionMedalScoreValue &&
         nPendingMedalIndex == -1) {
@@ -292,15 +292,15 @@ short GameFlow(void)
     nDebriefingPersonality = *(short *)(
         pMissionCampaignInfo +
         (short)stCampaignState.currentSeries * 0x5a - 0x5a);
-    Briefing((short)stCampaignState.currentSeries,
-             (short)stCampaignState.currentMission);
+    Briefing(stCampaignState.currentSeries,
+             stCampaignState.currentMission);
     PlayScrambleHangarScene();
     stCampaignState.playerShipType =
         aMissionShips[
             stCurrentMissionHeader.playerMissionShip].type;
     scramble();
-    flownSeries = (short)stCampaignState.currentSeries;
-    flownMission = (short)stCampaignState.currentMission;
+    flownSeries = stCampaignState.currentSeries;
+    flownMission = stCampaignState.currentMission;
     init_mission(flownSeries, flownMission);
     LaunchPlayerShip();
     flightResult = RunSpaceFlight(-1);
@@ -309,12 +309,12 @@ short GameFlow(void)
     case 1:
         free_cockpit();
         ShowCarrierLaunchSequence(
-            (signed char)nPlayerCollisionObject);
+            nPlayerCollisionObject);
         nArcadeState = 0;
         nPlayerCollisionObject = -1;
         free_3Space();
         flightResult = calculate_damage_level();
-        landing((signed char)flightResult);
+        landing(flightResult);
         break;
     case 2:
         ejection_sequence();
@@ -327,7 +327,7 @@ short GameFlow(void)
         nArcadeState = 0;
         bPlayerEjectedThisMission = 1;
         stCampaignState.promotionScore = MaxShort(
-            0, (short)(stCampaignState.promotionScore - 1));
+            0, (stCampaignState.promotionScore - 1));
         stCampaignState.elapsedDate.year++;
         if (stCampaignState.elapsedDate.year == 1)
             nPendingMedalIndex = 3;
@@ -352,10 +352,10 @@ short GameFlow(void)
 
     PostMission();
     UpdateSeries();
-    nextSeries = (short)stCampaignState.currentSeries;
-    nextMission = (short)stCampaignState.currentMission;
-    stCampaignState.currentSeries = (signed char)flownSeries;
-    stCampaignState.currentMission = (signed char)flownMission;
+    nextSeries = stCampaignState.currentSeries;
+    nextMission = stCampaignState.currentMission;
+    stCampaignState.currentSeries = flownSeries;
+    stCampaignState.currentMission = flownMission;
 
     if (bPlayerEjectedThisMission == 0) {
         if ((unsigned short)RandomInRange(0, 5) +
@@ -393,7 +393,7 @@ short GameFlow(void)
             break;
         default:
             ShowMeanwhileTransition(nPostSeriesSequence,
-                                    (short)bSeriesFailed);
+                                    bSeriesFailed);
             ShowTheEndScreen(!bSeriesFailed);
             break;
         }
@@ -411,9 +411,9 @@ short GameFlow(void)
     }
     if (nPostSeriesSequence != -1)
         ShowMeanwhileTransition(nPostSeriesSequence,
-                                (short)bSeriesFailed);
-    stCampaignState.currentSeries = (signed char)nextSeries;
-    stCampaignState.currentMission = (signed char)nextMission;
+                                bSeriesFailed);
+    stCampaignState.currentSeries = nextSeries;
+    stCampaignState.currentMission = nextMission;
     MoveNewCampaign();
     AddRandomTrainSimHighScores();
     bPanRoomTransition = 1;

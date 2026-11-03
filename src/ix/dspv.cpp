@@ -104,9 +104,9 @@ int ix_dspv_get_position(int voice)
 
 #ifdef SDL_PORT
     /* unsigned long cannot hold a pointer on 64-bit Windows. */
-    return (int)(v->cursor - v->start);
+    return (v->cursor - v->start);
 #else
-    return (int)((unsigned long)v->cursor - (unsigned long)v->start);
+    return ((unsigned long)v->cursor - (unsigned long)v->start);
 #endif
 }
 
@@ -152,7 +152,7 @@ void ix_dspv_set_pan(int voice, unsigned short angle)
                     exit(-1);
                 }
                 state = &aVoices[voice];
-                step = (short)((unsigned short)angle >> 9);
+                step = ((unsigned short)angle >> 9);
                 delta = step - state->panAngle;
                 if (delta > 0x40)
                     delta = delta - 0x80;
@@ -230,15 +230,15 @@ void ix_dspv_recalc_mix(int voice)
 
     voiceState = &aVoices[voice];
     panPosition = voiceState->panPos;
-    scaledVolume = ((unsigned int)voiceState->volume
+    scaledVolume = (voiceState->volume
                     * (unsigned int)nMasterVolume) / 0xffff;
     EnterCriticalSection(&csMixer);
     voiceState->leftGain =
-        (short)((int)asPanGains[panPosition * 2] * scaledVolume >> 0x10);
+        (asPanGains[panPosition * 2] * scaledVolume >> 0x10);
     voiceState->rightGain =
-        (short)((int)asPanGains[panPosition * 2 + 1] * scaledVolume >> 0x10);
-    voiceState->leftGainHi = (unsigned char)(voiceState->leftGain >> 8);
-    voiceState->rightGainHi = (unsigned char)(voiceState->rightGain >> 8);
+        (asPanGains[panPosition * 2 + 1] * scaledVolume >> 0x10);
+    voiceState->leftGainHi = (voiceState->leftGain >> 8);
+    voiceState->rightGainHi = (voiceState->rightGain >> 8);
     LeaveCriticalSection(&csMixer);
 }
 
@@ -291,8 +291,8 @@ void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
                         memcpy(&sampleRight, cursor + 2, sizeof(sampleRight));
                     else
                         sampleRight = sampleLeft;
-                    left = ((int)sampleLeft * state->leftGain) >> 16;
-                    right = ((int)sampleRight * state->rightGain) >> 16;
+                    left = (sampleLeft * state->leftGain) >> 16;
+                    right = (sampleRight * state->rightGain) >> 16;
                 } else {
                     signed char sampleLeft;
                     signed char sampleRight;
@@ -310,19 +310,19 @@ void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
                     mixed = 0x7fff;
                 else if (mixed < -0x8000)
                     mixed = -0x8000;
-                output[frame * 2] = (short)mixed;
+                output[frame * 2] = mixed;
                 mixed = output[frame * 2 + 1] + right;
                 if (mixed > 0x7fff)
                     mixed = 0x7fff;
                 else if (mixed < -0x8000)
                     mixed = -0x8000;
-                output[frame * 2 + 1] = (short)mixed;
+                output[frame * 2 + 1] = mixed;
                 frame++;
                 if (frame == frameCount)
                     break;
                 phase = (unsigned short)state->field_10 +
                         (unsigned short)state->rate;
-                state->field_10 = (short)(phase & 0xff);
+                state->field_10 = (phase & 0xff);
                 advance = phase >> 8;
                 if (advance != 0) {
                     cursor += advance * bytesPerFrame;

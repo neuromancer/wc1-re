@@ -33,7 +33,7 @@ int SwcMovieOpen(const char *path, SwcMovie *movie)
         SDL_SetError("Invalid SWC LMov header: %s", path);
         goto fail;
     }
-    reader = SDL_RWFromConstMem(movie->file.data, (int)movie->file.size);
+    reader = SDL_RWFromConstMem(movie->file.data, movie->file.size);
     if (reader == NULL)
         goto fail;
     SDL_RWseek(reader, 4, RW_SEEK_SET);
@@ -78,7 +78,7 @@ int SwcMovieOpen(const char *path, SwcMovie *movie)
             SDL_SetError("Unsupported SWC LMov audio: %s", path);
             goto fail;
         }
-        movie->sampleRate = (int)(((uint64_t)sampleRate + 32768) >> 16);
+        movie->sampleRate = (((uint64_t)sampleRate + 32768) >> 16);
         movie->audio.size = audioSize;
         movie->audio.data = SDL_malloc(movie->audio.size);
         if (movie->audio.data == NULL) {
@@ -94,9 +94,9 @@ int SwcMovieOpen(const char *path, SwcMovie *movie)
     for (index = 0; index < 256; index++) {
         /* LMovieOpen +0x2590 uses table order, not ColorSpec.value. */
         SDL_ReadBE16(reader);
-        movie->colors[index].r = (uint8_t)(SDL_ReadBE16(reader) >> 8);
-        movie->colors[index].g = (uint8_t)(SDL_ReadBE16(reader) >> 8);
-        movie->colors[index].b = (uint8_t)(SDL_ReadBE16(reader) >> 8);
+        movie->colors[index].r = (SDL_ReadBE16(reader) >> 8);
+        movie->colors[index].g = (SDL_ReadBE16(reader) >> 8);
+        movie->colors[index].b = (SDL_ReadBE16(reader) >> 8);
         movie->colors[index].a = 255;
     }
     movie->records = SDL_calloc(movie->recordCount, sizeof(*movie->records));

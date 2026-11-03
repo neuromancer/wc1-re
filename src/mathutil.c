@@ -48,7 +48,7 @@ void FreePacketAndClear(void *slot, unsigned short releaseFlags)
 #else
     void **p;
 
-    p = (void **)slot;
+    p = slot;
     if (*p != 0) {
         ReleasePacketHandle(*p);
         *p = 0;

@@ -25,10 +25,10 @@ short nEyeRollRate = 1;
 short nFreeShipSlot = -1; /* 0x0046c010 */
 
 /* 0x0046c014 */
-signed char bCurrentKey = (signed char)0x80;
+signed char bCurrentKey = 0x80;
 
 /* 0x0046c018 */
-volatile signed char cPreviousKey = (signed char)0x80;
+volatile signed char cPreviousKey = 0x80;
 
 /* 0x0046c01c */
 short nCurrentWave = -1;
@@ -574,18 +574,18 @@ void show_info_disp(void)
                " INFO DISPLAY \n", 0);
     DrawFormattedText("Version: %s\n", pGameVersion);
     DrawFormattedText("Series %d Misn %d\n",
-                      (int)stCampaignState.currentSeries,
-                      (int)stCampaignState.currentMission);
+                      stCampaignState.currentSeries,
+                      stCampaignState.currentMission);
     DrawFormattedText("PC Kills   =%d\nWing Kills =%d\n",
-                      (int)nPlayerKillTotal,
-                      (int)nWingmanKillCount);
+                      nPlayerKillTotal,
+                      nWingmanKillCount);
     DrawFormattedText("Series Score   =%d\n",
-                      (int)stCampaignState.seriesScore);
+                      stCampaignState.seriesScore);
     DrawFormattedText("Miss Score %d, Medal %d\n",
-                      (int)stCampaignState.missionScore,
-                      (int)nMissionMedalScoreValue);
+                      stCampaignState.missionScore,
+                      nMissionMedalScoreValue);
     DrawFormattedText("Promotion Score=%d\n",
-                      (int)stCampaignState.promotionScore);
+                      stCampaignState.promotionScore);
     DrawFormattedText("OBJECTIVES\n");
     strcpy(objectiveSummary, "");
     for (objective = 0; objective < 16; objective++) {

@@ -362,9 +362,9 @@ long IxSample::ix_sample_convert_from_ieee_extended(unsigned char *bytes)
                                exponent -= 32);
             }
             if ((source[0] & 0x80) != 0)
-                return (long)-value;
+                return -value;
             else
-                return (long)value;
+                return value;
         }
     }
 }

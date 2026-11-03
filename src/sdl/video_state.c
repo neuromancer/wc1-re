@@ -68,12 +68,12 @@ void SdlCalculateOutputViewport(int width, int height, int *left,
         (Sint64)height * SDL_PORT_DISPLAY_ASPECT_WIDTH) {
         *viewportHeight = height;
         *viewportWidth =
-            (int)((Sint64)height * SDL_PORT_DISPLAY_ASPECT_WIDTH /
+            ((Sint64)height * SDL_PORT_DISPLAY_ASPECT_WIDTH /
                   SDL_PORT_DISPLAY_ASPECT_HEIGHT);
     } else {
         *viewportWidth = width;
         *viewportHeight =
-            (int)((Sint64)width * SDL_PORT_DISPLAY_ASPECT_HEIGHT /
+            ((Sint64)width * SDL_PORT_DISPLAY_ASPECT_HEIGHT /
                   SDL_PORT_DISPLAY_ASPECT_WIDTH);
     }
     if (*viewportWidth < 1)
@@ -110,7 +110,7 @@ static int SdlScaleCoordinate(int coordinate, int sourceExtent,
         numerator -= sourceExtent / 2;
     else
         numerator += sourceExtent / 2;
-    return (int)(numerator / sourceExtent);
+    return (numerator / sourceExtent);
 }
 
 int SdlMapLogicalToWindow(SDL_Window *window, int logicalX, int logicalY,

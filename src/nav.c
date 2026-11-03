@@ -114,7 +114,7 @@ short NavMapLabelPositionAvailable(short x, short y,
             while (checkX < x + width && available != 0) {
                 checkY = y;
                 while (checkY < y + height && available != 0) {
-                    available = (short)((unsigned short)
+                    available = ((unsigned short)
                         NavMapPointInsideReservedArea(area, checkX, checkY) == 0);
                     checkY++;
                 }
@@ -140,8 +140,8 @@ void ReserveNavMapArea(short x, short y, short width, short height)
     area = nNavMapReservedAreaCount;
     aNavMapExclusionRects[area].left = x;
     aNavMapExclusionRects[area].top = y;
-    aNavMapExclusionRects[area].right = (short)(x + width);
-    aNavMapExclusionRects[area].bottom = (short)(y + height);
+    aNavMapExclusionRects[area].right = (x + width);
+    aNavMapExclusionRects[area].bottom = (y + height);
     area++;
     nNavMapReservedAreaCount = area;
 }
@@ -174,27 +174,27 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
     short width;
     short offset;
 
-    width = (short)(strlen(text) * 4 + 2);
+    width = (strlen(text) * 4 + 2);
     aNavMapLabels[nNavMapLabelCount].colour = colour;
     aNavMapLabels[nNavMapLabelCount].text = text;
     offset = -1;
     do {
         offset++;
-        if (TryPlaceNavMapLabel((short)(x + offset + 4), y,
+        if (TryPlaceNavMapLabel((x + offset + 4), y,
                                 width, 0) != 0)
             break;
-        if (TryPlaceNavMapLabel((short)(x - width / 2),
-                                (short)(y + offset + 5),
+        if (TryPlaceNavMapLabel((x - width / 2),
+                                (y + offset + 5),
                                 width, offset == 12) != 0)
             break;
-        if (TryPlaceNavMapLabel((short)(x - offset - width - 3), y,
+        if (TryPlaceNavMapLabel((x - offset - width - 3), y,
                                 width, offset == 12) != 0)
             break;
-        if (TryPlaceNavMapLabel(x, (short)(y + offset + 5),
+        if (TryPlaceNavMapLabel(x, (y + offset + 5),
                                 width, offset == 12) != 0)
             break;
-        if (TryPlaceNavMapLabel((short)(x - width / 2),
-                                (short)(y - offset - 9),
+        if (TryPlaceNavMapLabel((x - width / 2),
+                                (y - offset - 9),
                                 width, offset == 12) != 0)
             break;
     } while (offset != 12);
@@ -279,7 +279,7 @@ short IsPointInNavMapLabel(short labelIndex, short x, short y)
     left = aNavMapLabels[labelIndex].x;
     if (left <= x &&
         (unsigned int)x <=
-            (unsigned int)(left +
+            (left +
                            strlen(aNavMapLabels[
                                labelIndex].text) * 4) &&
         aNavMapLabels[labelIndex].y <= y &&
@@ -308,7 +308,7 @@ void DrawNavMapLabels(void)
 {
     short label;
 
-    for (label = 0; label < (short)nNavMapLabelCount; label++) {
+    for (label = 0; label < nNavMapLabelCount; label++) {
         DrawFormattedText("%X%Y%F%s",
                           aNavMapLabels[label].x,
                           aNavMapLabels[label].y,
@@ -323,16 +323,16 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
 {
     if (shadow == 0)
         DrawViewportEllipse(stMapNavigationLabelTextContext.viewport,
-                            x, y, size, (short)((size * 7) / 8),
-                            (short)colour);
+                            x, y, size, ((size * 7) / 8),
+                            colour);
     else
         DrawViewportEllipseShadow(
             stMapNavigationLabelTextContext.viewport,
-            x, y, size, (short)((size * 7) / 8), (short)colour);
+            x, y, size, ((size * 7) / 8), colour);
     if (reserve != 0 && size < 5)
-        ReserveNavMapArea((short)(x - size), (short)(y - size),
-                          (short)(size * 2 + 1),
-                          (short)(size * 2 + 1));
+        ReserveNavMapArea((x - size), (y - size),
+                          (size * 2 + 1),
+                          (size * 2 + 1));
 }
 
 /* Viewport bounds used by SetScreenClipRect. */
@@ -344,9 +344,9 @@ void SetRectBounds(Viewport *viewport, unsigned short left,
 void DrawNavSquareOutline(Viewport *viewport, short x, short y,
                           unsigned short size, signed char colour)
 {
-    DrawViewportBorder(viewport, (short)(x - size), (short)(y - size),
-                       (short)(x + size), (short)(y + size),
-                       (short)colour);
+    DrawViewportBorder(viewport, (x - size), (y - size),
+                       (x + size), (y + size),
+                       colour);
 }
 
 /* Map-vector addition used by hazard markers. */
@@ -361,21 +361,21 @@ void DrawNavSquareMarker(short x, short y, short size, short shadow,
         DrawViewportPixel(stMapNavigationLabelTextContext.viewport,
                           x, y, colour);
         DrawViewportPixel(stMapNavigationLabelTextContext.viewport,
-                          (short)(x + 1), y, colour);
+                          (x + 1), y, colour);
         DrawViewportPixel(stMapNavigationLabelTextContext.viewport,
-                          x, (short)(y + 1), colour);
+                          x, (y + 1), colour);
         DrawViewportPixel(stMapNavigationLabelTextContext.viewport,
-                          (short)(x + 1),
-                          (short)(y + 1), colour);
+                          (x + 1),
+                          (y + 1), colour);
     } else {
         DrawNavSquareOutline(stMapNavigationLabelTextContext.viewport,
                              x, y, size,
-                             (signed char)colour);
+                             colour);
     }
     if (reserve != 0 && size < 5)
-        ReserveNavMapArea((short)(x - size), (short)(y - size),
-                          (short)(size * 2 + 1),
-                          (short)(size * 2 + 1));
+        ReserveNavMapArea((x - size), (y - size),
+                          (size * 2 + 1),
+                          (size * 2 + 1));
     (void)shadow;
 }
 
@@ -383,12 +383,12 @@ void DrawNavSquareMarker(short x, short y, short size, short shadow,
 void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
                             short size, signed char colour)
 {
-    DrawViewportLine(viewport, x, (short)(y - size),
-                     (short)(x + size), (short)(y + size), colour);
-    DrawViewportLine(viewport, (short)(x + size), (short)(y + size),
-                     (short)(x - size), (short)(y + size), colour);
-    DrawViewportLine(viewport, (short)(x - size), (short)(y + size),
-                     x, (short)(y - size), colour);
+    DrawViewportLine(viewport, x, (y - size),
+                     (x + size), (y + size), colour);
+    DrawViewportLine(viewport, (x + size), (y + size),
+                     (x - size), (y + size), colour);
+    DrawViewportLine(viewport, (x - size), (y + size),
+                     x, (y - size), colour);
 }
 
 /* Function start: 0x40D7D0 */
@@ -397,11 +397,11 @@ void DrawNavTriangleMarker(short x, short y, short size, short shadow,
 {
     DrawNavTriangleOutline(stMapNavigationLabelTextContext.viewport,
                            x, y, size,
-                           (signed char)colour);
+                           colour);
     if (reserve != 0 && size < 5)
-        ReserveNavMapArea((short)(x - size), (short)(y - size),
-                          (short)(size * 2 + 1),
-                          (short)(size * 2 + 1));
+        ReserveNavMapArea((x - size), (y - size),
+                          (size * 2 + 1),
+                          (size * 2 + 1));
     (void)shadow;
 }
 
@@ -426,17 +426,17 @@ void DrawNavCrossMarker(short x, short y, short size, short shadow,
                         unsigned short colour, short reserve)
 {
     DrawViewportLine(stMapNavigationLabelTextContext.viewport,
-                     (short)(x - size), (short)(y - size),
-                     (short)(x + size), (short)(y + size),
-                     (short)colour);
+                     (x - size), (y - size),
+                     (x + size), (y + size),
+                     colour);
     DrawViewportLine(stMapNavigationLabelTextContext.viewport,
-                     (short)(x - size), (short)(y + size),
-                     (short)(x + size), (short)(y - size),
-                     (short)colour);
+                     (x - size), (y + size),
+                     (x + size), (y - size),
+                     colour);
     if (reserve != 0 && size < 5)
-        ReserveNavMapArea((short)(x - size), (short)(y - size),
-                          (short)(size * 2 + 1),
-                          (short)(size * 2 + 1));
+        ReserveNavMapArea((x - size), (y - size),
+                          (size * 2 + 1),
+                          (size * 2 + 1));
     (void)shadow;
 }
 
@@ -470,8 +470,8 @@ void DrawNavPlayerMarker(short colour, short reserve)
 
     nav_getxy(&x, &y, aShipPositionsArray[0].x,
               aShipPositionsArray[0].z);
-    x = (short)(x + stMapNavigationLabelTextContext.viewport->left);
-    y = (short)(y + stMapNavigationLabelTextContext.viewport->top);
+    x = (x + stMapNavigationLabelTextContext.viewport->left);
+    y = (y + stMapNavigationLabelTextContext.viewport->top);
     DrawViewportPixel(stMapNavigationLabelTextContext.viewport,
                       x, y, colour);
     DrawNavSquareMarker(x, y, 0, 0, colour, reserve);
@@ -535,7 +535,7 @@ void BuildMap(short showPlayer)
          objectiveIndex++) {
         if (mobile_objective(objectiveIndex) == 0 ||
             (aMissionShips[
-                 (signed char)aMissionObjectivesArray[objectiveIndex].index]
+                 aMissionObjectivesArray[objectiveIndex].index]
                      .state == 0 &&
              achieved(objectiveIndex) == 0)) {
             ScaleNavMapCoordinates(&x, &y,
@@ -574,7 +574,7 @@ void BuildMap(short showPlayer)
                 AddUniqueObjectiveNavLabel(
                     x, y, labelColour, objective_name(objectiveIndex),
                     objectiveIndex,
-                    (short)aMissionObjectivesArray[objectiveIndex].index);
+                    aMissionObjectivesArray[objectiveIndex].index);
             }
         }
     }
@@ -598,11 +598,11 @@ void UpdateInflightNavText(short showColon)
 
     SetTextContext(&stCurrentNavMapTxtCtx);
     sprintf(time, "%02d",
-            (int)((signed char *)pElapsedCampaignDatePtr)[0]);
+            ((signed char *)pElapsedCampaignDatePtr)[0]);
     DrawFormattedText(
         "%X%YStandard time %s",
-        (int)(short)(stCurrentNavMapTxtCtx.viewport->left + 150),
-        (int)(short)(stCurrentNavMapTxtCtx.viewport->top + 140),
+        (short)(stCurrentNavMapTxtCtx.viewport->left + 150),
+        (short)(stCurrentNavMapTxtCtx.viewport->top + 140),
         time);
     /* Keep the flag while reusing its parameter for the saved cursor. */
     colonVisible = showColon;
@@ -611,10 +611,10 @@ void UpdateInflightNavText(short showColon)
         DrawFormattedText(" ");
     } else {
         stCurrentNavMapTxtCtx.cursorX =
-            (short)(stCurrentNavMapTxtCtx.cursorX + 4);
+            (stCurrentNavMapTxtCtx.cursorX + 4);
     }
     sprintf(time, "%02d  ",
-            (int)((signed char *)pElapsedCampaignDatePtr)[1]);
+            ((signed char *)pElapsedCampaignDatePtr)[1]);
     DrawFormattedText(time);
     stCurrentNavMapTxtCtx.cursorX = showColon;
     if (colonVisible != 0)
@@ -635,8 +635,8 @@ void FormatNavCoordinates(unsigned char *out)
 void DrawSelectedNavLegendEntry(const char *text, short navPoint)
 {
     if ((short)cCurrentNavPtIdx == navPoint) {
-        DrawNavTextLine(0, (unsigned short)cYellowColour, text);
-        DrawNavTextLine(0, (unsigned short)cYellowColour,
+        DrawNavTextLine(0, cYellowColour, text);
+        DrawNavTextLine(0, cYellowColour,
                         "\n");
     }
 }
@@ -650,12 +650,12 @@ void DrawNavMapLegend(void)
         if (visited(objective) == 0 && hidden_objective(objective) == 0)
             break;
     }
-    SetTextCursor((unsigned short)stSceneBuffer.left, 120);
+    SetTextCursor(stSceneBuffer.left, 120);
     DrawSelectedNavLegendEntry("MISSION FLIGHT PATH",
                                objective);
     DrawSelectedNavLegendEntry(
         "HOME BASE",
-        (short)((short)cMissionObjectiveCountValue - 1));
+        ((short)cMissionObjectiveCountValue - 1));
 }
 
 /* Function start: 0x40DF50 */
@@ -707,7 +707,7 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
                     "\nNotes\n");
     DrawNavTextLine(0, cDefaultTextColour,
                     "%s\n",
-                    nav_note((short)cCurrentObjective));
+                    nav_note(cCurrentObjective));
     if (showFlightData != 0)
         DrawNavMapLegend();
     BuildMap(showFlightData);
@@ -735,7 +735,7 @@ void BriefingMap_LoadShapes(void)
         FetchDiskPacketRetrying(8, 2, 0);
     SetScreenClipRect(0, 0, 259, 155);
     if (AllocateViewport(&stSceneBuffer,
-                         (short)cBlackColour, 0) == 0)
+                         cBlackColour, 0) == 0)
         ReportOutOfMemoryAndExit("VSCREEN");
     for (objective = 0; objective < (short)cMissionObjectiveCountValue; objective++) {
         LocateMobileObjective(objective);
@@ -757,7 +757,7 @@ void BriefingMap_DisplayMap(void)
     ReleaseTextFont(2);
     ReleaseTextFont(1);
     stSceneBuffer = savedViewport;
-    AllocateViewport(&stSceneBuffer, (short)cBlackColour, 0);
+    AllocateViewport(&stSceneBuffer, cBlackColour, 0);
 }
 
 /* Function start: 0x40E2B0 */
@@ -805,8 +805,8 @@ void CentreMouseOnCurrentNavObjective(void)
         &x, &y,
         aMissionObjectivesArray[objective].mapX,
         aMissionObjectivesArray[objective].mapY);
-    x = (short)(x + 30);
-    y = (short)(y + 22);
+    x = (x + 30);
+    y = (y + 22);
     LeaveAllocationScope();
     WarpMouseTo(x, y);
     EnterAllocationScope();
@@ -843,10 +843,10 @@ void InflightComputer(void)
     Viewport pointerViewport;
     MouseCursorState savedInputState;
 
-    *(short *)&savedNavPoint = (short)cCurrentNavPtIdx;
+    *(short *)&savedNavPoint = cCurrentNavPtIdx;
     done = 0;
     hasObjectives = 0;
-    displayedNavPoint = *(short *)&savedNavPoint;
+    displayedNavPoint = *&savedNavPoint;
     bInflightComputerActive = 1;
     savedInputState = stMouseCursorState;
 
@@ -876,7 +876,7 @@ void InflightComputer(void)
         pointerViewport = stScreenView;
         SetRectBounds(&pointerViewport, 32, 24, 182, 159);
         stMouseCursorState.viewport = &pointerViewport;
-        savedInputMode = (short)(signed char)bInputModeState;
+        savedInputMode = (signed char)bInputModeState;
         bInputModeState = 1;
         SetEventManagerPump(PollMenuInputDevices);
         EventManagerHook(ResetMouseCursorFrame);
@@ -888,7 +888,7 @@ void InflightComputer(void)
             if (displayedNavPoint !=
                 (short)cCurrentNavPtIdx) {
                 displayedNavPoint =
-                    (short)cCurrentNavPtIdx;
+                    cCurrentNavPtIdx;
                 PlaySfxWaveFileByNumber(0x19, -1, 0);
                 ShowConfedNavScan();
             }
@@ -897,11 +897,11 @@ void InflightComputer(void)
             FormatNavCoordinates(
                 (unsigned char *)pElapsedCampaignDatePtr);
             stMapNavigationLabelTextContext.viewport = &stScreenView;
-            frame = (int)nTickCount60Hz / 15;
+            frame = nTickCount60Hz / 15;
             DrawNavPlayerMarker(frame % 2 != 0 ? cViewportClearColour
                                                : cDarkGreyColour, 0);
             stCurrentNavMapTxtCtx.viewport = &stScreenView;
-            UpdateInflightNavText((short)((frame / 4) % 2));
+            UpdateInflightNavText(((frame / 4) % 2));
             SetRectBounds(&stScreenView, 0, 0, 319, 199);
 
             eventType = PollInputEvent(&event, 0xff);
@@ -933,7 +933,7 @@ void InflightComputer(void)
             bEscapePressedFlag = 0;
             cCurrentNavPtIdx =
 #ifdef SDL_PORT
-                (signed char)savedNavPoint;
+                savedNavPoint;
 #else
                 *(signed char *)&savedNavPoint;
 #endif
@@ -943,7 +943,7 @@ void InflightComputer(void)
         LeaveAllocationScope();
         EventManagerHook(0);
         SetEventManagerPump(get_player_input);
-        bInputModeState = (unsigned char)savedInputMode;
+        bInputModeState = savedInputMode;
     }
 
     ReleasePacketHandle(pNavMapShape);
@@ -956,8 +956,8 @@ void InflightComputer(void)
     } else {
         GetScreenUpdateFlag();
         SetViewportRect(&stSpaceBufferViewport, 0, 0,
-                        (unsigned short)(nScreenWidth - 1),
-                        (unsigned short)(nScreenHeight - 1));
+                        (nScreenWidth - 1),
+                        (nScreenHeight - 1));
         initialize_view_buffer();
         force_view(0, 0);
         bCockpitlessView = 1;

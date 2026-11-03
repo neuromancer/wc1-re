@@ -335,9 +335,9 @@ unsigned int DrawMedalChest(char *text, short duration)
     do {
         DrawSpriteDefault(&stSceneBuffer, 0, 0,
                           pMedalSceneShape, 41);
-        DrawSpriteDefault(&stSceneBuffer, (short)(92 - offset), 64,
+        DrawSpriteDefault(&stSceneBuffer, (92 - offset), 64,
                           pMedalSceneShape, 43);
-        DrawSpriteDefault(&stSceneBuffer, (short)(228 + offset), 64,
+        DrawSpriteDefault(&stSceneBuffer, (228 + offset), 64,
                           pMedalSceneShape, 44);
         DrawSpriteDefault(&stSceneBuffer, 0, 64,
                           pMedalSceneShape, 42);
@@ -350,7 +350,7 @@ unsigned int DrawMedalChest(char *text, short duration)
             duration = -1;
             break;
         }
-        offset = (short)(offset + 2);
+        offset = (offset + 2);
         DIBslam();
         DIBslamReal();
     } while (offset < 162);
@@ -399,7 +399,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
                 /* fall through */
             default:
                 frame = *animation;
-                countdown = (short)(animation[1] * 2);
+                countdown = (animation[1] * 2);
                 break;
             case -1:
                 frame = -1;
@@ -413,7 +413,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
         if (frame > -1)
             DrawSpriteDefault(&stSceneBuffer, 121, 8,
                               pMedalSceneShape,
-                              (short)(frame + 1));
+                              (frame + 1));
         RefreshMemoryStatusOverlay();
         escaped = CheckEscaped();
         if (escaped != 0) {
@@ -456,8 +456,8 @@ unsigned int MedalEstablish(char *text, short duration)
     y = 87;
     for (frame = 0; frame < 32; frame++) {
         DrawMedals();
-        scale = (short)(0xc800L / distance);
-        DrawSpriteScaled(&stSceneBuffer, (short)x, (short)y,
+        scale = (0xc800L / distance);
+        DrawSpriteScaled(&stSceneBuffer, x, y,
                          pMedalSceneShape, 12,
                          0, scale, 0);
         distance--;
@@ -501,7 +501,7 @@ unsigned int PinMedal(char *text, short duration)
                           pMedalSceneShape, 0);
         DrawSpriteDefault(&stSceneBuffer, 0, 0,
                           pMedalSceneShape,
-                          (short)(frame % 3 + 38));
+                          (frame % 3 + 38));
         RefreshMemoryStatusOverlay();
         escaped = CheckEscaped();
         if (escaped != 0) {
@@ -535,26 +535,26 @@ unsigned int DrawMedals(void)
                       pMedalSceneShape, 11);
     DrawSpriteDefault(&stSceneBuffer, 253, 38,
                       pMedalSceneShape,
-                      (short)(stCampaignState.currentPilot->rank +
+                      (stCampaignState.currentPilot->rank +
                               33));
     DrawSpriteScaled(&stSceneBuffer, 67, 38,
                      pMedalSceneShape,
-                     (short)(stCampaignState.currentPilot->rank +
+                     (stCampaignState.currentPilot->rank +
                              33),
                      0, 255, 16);
     for (badge = 0; badge < 12; badge++) {
         if (stCampaignState.badges[badge] != 0) {
             if (x >= 232) {
-                rowY = (short)(rowY + 3);
+                rowY = (rowY + 3);
                 x = 188;
             }
             DrawSpriteDefault(&stSceneBuffer, x, rowY,
                               pMedalSceneShape,
-                              (short)(badge + 13));
-            x = (short)(x + 11);
+                              (badge + 13));
+            x = (x + 11);
         }
     }
-    rowY = (short)(rowY + 5);
+    rowY = (rowY + 5);
     medalRowY = rowY;
     for (medal = 0; medal < 5; medal++) {
         if (stCampaignState.medals[medal] != 0) {
@@ -566,13 +566,13 @@ unsigned int DrawMedals(void)
                      medalCount++) {
                     DrawSpriteDefault(&stSceneBuffer, x, stack,
                                       pMedalSceneShape,
-                                      (short)(medal + 25));
-                    stack = (short)(stack + 2);
+                                      (medal + 25));
+                    stack = (stack + 2);
                 }
             }
             DrawSpriteDefault(&stSceneBuffer, x, stack,
                               pMedalSceneShape,
-                              (short)(medal + 28));
+                              (medal + 28));
         }
     }
     DIBslam();
@@ -772,7 +772,7 @@ unsigned int Dismissed(char *text, short duration)
             nFrameSkipCounter = nFrameSkip;
             DrawSpriteDefault(&stSceneBuffer, leftX, 0,
                               pCurrentConversationBackdropShapePtr, 1);
-            DrawSpriteDefault(&stSceneBuffer, (short)(leftX + 320), 0,
+            DrawSpriteDefault(&stSceneBuffer, (leftX + 320), 0,
                               pCurrentConversationBackdropShapePtr, 2);
             DrawSpriteDefault(&stSceneBuffer, podiumX, 127,
                               pTalkHeadShape,
@@ -786,19 +786,19 @@ unsigned int Dismissed(char *text, short duration)
             podiumFrame++;
         if (frame < 12) {
             leftDelta =
-                (short)aiBriefingLeftPanelVelocity[frame];
+                aiBriefingLeftPanelVelocity[frame];
             podiumDelta =
-                (short)aiBriefingPodiumVelocity[frame];
+                aiBriefingPodiumVelocity[frame];
             rightDelta =
-                (short)aiBriefingRightPanelVelocity[frame];
+                aiBriefingRightPanelVelocity[frame];
         }
         if (frame > 24)
-            leftDelta = (short)aiBriefingLeftPanelVelocity[
+            leftDelta = aiBriefingLeftPanelVelocity[
                 11 - (frame - 24)];
-        podiumX = (short)(podiumX + podiumDelta);
-        rightX = (short)(rightX + rightDelta);
+        podiumX = (podiumX + podiumDelta);
+        rightX = (rightX + rightDelta);
         frame++;
-        leftX = (short)(leftX + leftDelta);
+        leftX = (leftX + leftDelta);
         DIBslam();
         DIBslamReal();
     } while (frame < 32);
@@ -814,10 +814,10 @@ unsigned int DrawDebriefingLongShot(void)
     DrawSpriteDefault(&stSceneBuffer, nDebriefingLeftX, 0,
                       pCurrentConversationBackdropShapePtr, 2);
     DrawSpriteDefault(&stSceneBuffer,
-                      (short)(nDebriefingLeftX + 320), 0,
+                      (nDebriefingLeftX + 320), 0,
                       pCurrentConversationBackdropShapePtr, 3);
     DrawSpriteDefault(&stSceneBuffer,
-                      (short)(nDebriefingPilotX - 1), 127,
+                      (nDebriefingPilotX - 1), 127,
                       pCurrentConversationBackdropShapePtr, 4);
     DrawSpriteDefault(&stSceneBuffer, nDebriefingPilotX, 127,
                       pCurrentConversationBackdropShapePtr, 5);
@@ -829,7 +829,7 @@ unsigned int DrawDebriefingLongShot(void)
             DrawSpriteDefault(
                 &stSceneBuffer, nDebriefingOfficerX, 32,
                 pCurrentConversationBackdropShapePtr,
-                (short)(nDebriefingPersonality + 9));
+                (nDebriefingPersonality + 9));
         DrawSpriteDefault(&stSceneBuffer,
                           nDebriefingOfficerX, 32,
                           pCurrentConversationBackdropShapePtr, 6);
@@ -837,7 +837,7 @@ unsigned int DrawDebriefingLongShot(void)
             DrawSpriteDefault(
                 &stSceneBuffer, nDebriefingOfficerX, 32,
                 pCurrentConversationBackdropShapePtr,
-                (short)(nDebriefingPersonality + 9));
+                (nDebriefingPersonality + 9));
     }
     DrawSpriteDefault(&stSceneBuffer, nDebriefingRightX, 127,
                       pCurrentConversationBackdropShapePtr, 7);
@@ -871,20 +871,20 @@ unsigned int DebriefingEstablishingShot(char *text, short duration)
     for (;;) {
         delta = &abDebriefingEstablishDeltas[frame];
         nDebriefingLeftX =
-            (short)(nDebriefingLeftX -
-                    MaxShort((short)delta[0], 0));
+            (nDebriefingLeftX -
+                    MaxShort(delta[0], 0));
         nDebriefingPilotX =
-            (short)(nDebriefingPilotX -
-                    MaxShort((short)(delta[0] + 1), 0));
+            (nDebriefingPilotX -
+                    MaxShort((delta[0] + 1), 0));
         nDebriefingPodiumX =
-            (short)(nDebriefingPodiumX -
-                    MaxShort((short)(delta[0] + 2), 0));
+            (nDebriefingPodiumX -
+                    MaxShort((delta[0] + 2), 0));
         nDebriefingOfficerX =
-            (short)(nDebriefingOfficerX -
-                    MaxShort((short)(delta[0] + 3), 0));
+            (nDebriefingOfficerX -
+                    MaxShort((delta[0] + 3), 0));
         nDebriefingRightX =
-            (short)(nDebriefingRightX -
-                    MaxShort((short)(delta[0] + 3), 0));
+            (nDebriefingRightX -
+                    MaxShort((delta[0] + 3), 0));
         skip = nFrameSkipCounter;
         if (frame == 47)
             skip = 1;
@@ -948,7 +948,7 @@ short int_value(char **text)
     short character;
 
     destination = number;
-    character = (short)**text;
+    character = **text;
     while (character != ',' && character != ')') {
         (*text)++;
         *destination = character;
@@ -957,7 +957,7 @@ short int_value(char **text)
     }
     *destination = '\0';
     (*text)++;
-    return (short)atoi(number);
+    return atoi(number);
 }
 
 /* Function start: 0x438160 */
@@ -971,7 +971,7 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
     short testCode;
 
     test = (char *)textData + record->testsOffset;
-    while ((testCode = (short)*test++) != 0) {
+    while ((testCode = *test++) != 0) {
         switch (testCode) {
         case 1:
             return sceneData + int_value(&test);
@@ -1230,7 +1230,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
     FlushInputEvents();
     SetEventManagerPump(PollJoystickButtonEvents);
     bEscapePressedFlag = 0;
-    while ((shot = (short)record->shot) != -2) {
+    while ((shot = record->shot) != -2) {
         if (shot != -1) {
             if ((shot & 0x40) != 0) {
                 bConversationOverlay = 1;
@@ -1281,7 +1281,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
             break;
         case 4:
             previousShot = 4;
-            cCurrentObjective = (signed char)abs(nConversationCharacter);
+            cCurrentObjective = abs(nConversationCharacter);
             nTalkingHeadFace = -1;
             break;
         case 12:
@@ -1310,7 +1310,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         case 29:
         case 30:
             if (previousShot != shot) {
-                LoadFace((short)(shot - 20));
+                LoadFace((shot - 20));
                 previousShot = shot;
             }
             break;
@@ -1397,7 +1397,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 funeral_wingman(text, duration);
                 break;
             case 50:
-                PlaySceneAnimation(text, (short)(shot - 50), duration);
+                PlaySceneAnimation(text, (shot - 50), duration);
                 break;
             default:
                 LongTalk(pTalkHeadShape, text,
@@ -1460,19 +1460,19 @@ unsigned int DrawBriefingCharacter(short character, short pose,
         frame = aBriefingCharacters[character].firstPortraitFrame;
         if (animationFrame <
             aBriefingCharacters[character].portraitFrameCount)
-            frame = (short)(frame + animationFrame);
+            frame = (frame + animationFrame);
         DrawSpriteScaled(
             &stSceneBuffer,
-            (short)(aBriefingCharacters[character].portraitX +
+            (aBriefingCharacters[character].portraitX +
                     aBriefingPortraitOffsetX[character][pose]),
-            (short)(aBriefingCharacters[character].portraitY +
+            (aBriefingCharacters[character].portraitY +
                     aBriefingPortraitOffsetY[character][pose]),
             pSceneBriefingPortraitShape, frame,
             aBriefingPortraitScale[character][pose],
             aBriefingCharacters[character].scale, 0);
         DrawSpriteScaled(&stSceneBuffer,
                          aBriefingCharacters[character].bodyX,
-                         (short)(aBriefingCharacters[character].bodyY +
+                         (aBriefingCharacters[character].bodyY +
                                  10),
                          pSceneBriefingBodyShape, pose,
                          0, aBriefingCharacters[character].scale, 0);
@@ -1512,7 +1512,7 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
                           pCurrentConversationBackdropShapePtr, 3);
         DrawSpriteDefault(&stSceneBuffer, 0, 0,
                           pCurrentConversationBackdropShapePtr,
-                          (short)(shot - 8));
+                          (shot - 8));
         DrawSpriteDefault(&stSceneBuffer, 80, 127,
                           pCurrentConversationBackdropShapePtr, 8);
         RefreshMemoryStatusOverlay();
@@ -1561,10 +1561,10 @@ void __stdcall SetViewportRect(Viewport *viewport, unsigned short left,
                                unsigned short top, unsigned short right,
                                unsigned short bottom)
 {
-    viewport->left = (short)left;
-    viewport->top = (short)top;
-    viewport->right = (short)right;
-    viewport->bottom = (short)bottom;
+    viewport->left = left;
+    viewport->top = top;
+    viewport->right = right;
+    viewport->bottom = bottom;
 }
 
 /* Function start: 0x439430 */
@@ -1584,7 +1584,7 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
             return;
         memset(indices, 0, 256);
         activeCount = CollectActivePaletteIndices(source, indices, 256);
-        paletteBytes = (unsigned int)(activeCount * 6);
+        paletteBytes = (activeCount * 6);
         originalPalette =
             AllocateTaggedMemory(paletteBytes, 0);
         transitionPalette =
@@ -1601,15 +1601,15 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
         memset(originalPalette, 0, paletteBytes);
         memset(transitionPalette, 0, paletteBytes);
         GetPaletteEntry(
-            (short)GetViewportPixel(destination,
+            GetViewportPixel(destination,
                                     destination->left,
                                     destination->top),
             target);
         for (index = 0; index < activeCount; index++) {
             GetPaletteEntry(
-                (short)indices[index],
+                indices[index],
                 &originalPalette[index * 3]);
-            CachePaletteEntryFromWords((short)indices[index], target);
+            CachePaletteEntryFromWords(indices[index], target);
             memcpy(&transitionPalette[index * 3], target, 6);
         }
 
@@ -1621,10 +1621,10 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
 
         while (StepPaletteTransition(
                    transitionPalette, originalPalette,
-                   (short)(activeCount * 3)) != 0) {
+                   (activeCount * 3)) != 0) {
             for (index = 0; index < activeCount; index++) {
                 CachePaletteEntryFromWords(
-                    (short)indices[index],
+                    indices[index],
                     &transitionPalette[index * 3]);
             }
             WaitForVerticalBlankThunk();
@@ -1659,7 +1659,7 @@ unsigned int death_sequence(void)
     frame = 0;
     deathShape = FetchDiskPacketRetrying(2, 0, 0);
     cockpitBackground = FetchDiskPacketRetrying(
-        (short)cCockpitLogicalFile, 3, 0);
+        cCockpitLogicalFile, 3, 0);
     PlaySfxWaveFileByNumber(4, -1, 0);
     new_view(9, 0);
     bEscapePressedFlag = 0;
@@ -1674,7 +1674,7 @@ unsigned int death_sequence(void)
                               cockpitBackground, 0);
         }
         DrawSpriteDefault(&stSpaceBufferViewport, 160, 199,
-                          deathShape, (short)frame);
+                          deathShape, frame);
         dump_buffer_to_screen();
         DIBslam();
         DIBslamReal();
@@ -1735,11 +1735,11 @@ unsigned int ShowGetReadyScreen(void)
             DrawCenteredScaledIntroText(
                 "Get Ready", nCurrentViewCenterPosX,
                 nCurrentViewCenterPosY,
-                (short)(0xc800 / (int)distance));
+                (0xc800 / distance));
             dump_buffer_to_screen();
         }
         if (distance > 100)
-            distance = (short)(distance - 10);
+            distance = (distance - 10);
         if (bEscapePressedFlag == 1)
             break;
         frame++;
@@ -1792,13 +1792,13 @@ unsigned int ShowVictoryScreen(void)
             DrawCenteredScaledIntroText(
                 "Victory", nCurrentViewCenterPosX,
                 nCurrentViewCenterPosY,
-                (short)(0xc800 / (int)distance));
+                (0xc800 / distance));
             dump_buffer_to_screen();
         }
         if (bEscapePressedFlag == 1)
             break;
         if (distance > 100)
-            distance = (short)(distance - 10);
+            distance = (distance - 10);
         frame++;
         DIBslam();
         DIBslamReal();
@@ -1819,7 +1819,7 @@ unsigned int ShowGameOverScreen(void)
     frame = 0;
     pIntroFont =
         FetchDiskPacketRetrying(9, 1, 0);
-    cViewObject = (signed char)Explosion(0);
+    cViewObject = Explosion(0);
     nCameraViewMode = 4;
     asObjectCollisionRadius[EYE_OBJECT] = 100;
     ScaleFixedVector(
@@ -1845,13 +1845,13 @@ unsigned int ShowGameOverScreen(void)
                 DrawCenteredScaledIntroText(
                     "Game Over", nCurrentViewCenterPosX,
                     nCurrentViewCenterPosY,
-                    (short)(0xc800 / (int)distance));
+                    (0xc800 / distance));
             dump_buffer_to_screen();
         }
         if (bEscapePressedFlag == 1)
             break;
         if (distance > 100)
-            distance = (short)(distance - 10);
+            distance = (distance - 10);
         frame++;
         DIBslam();
         DIBslamReal();

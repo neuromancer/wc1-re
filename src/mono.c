@@ -24,7 +24,7 @@ static char szSeekDataError[0x40]; /* 0x00475de0 */
 /* Function start: 0x403500 */
 void __stdcall CloseDataFile(unsigned short fd)
 {
-    nPacketError = (short)_close(fd & 0xffff);
+    nPacketError = _close(fd & 0xffff);
 }
 
 /* Function start: 0x403520 */
@@ -34,12 +34,12 @@ short __stdcall WriteDataFileAtOffset(unsigned short fd, int offset,
     nPacketError = 0;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
         sprintf(szWriteDataError, "!lseek %d\n", offset);
-        nPacketError = (short)errno;
+        nPacketError = errno;
         return 0;
     }
     if (_write(fd, data, length) == -1) {
         sprintf(szWriteDataError, "!write %d\n", offset);
-        nPacketError = (short)errno;
+        nPacketError = errno;
         return 0;
     }
     return 1;
@@ -50,13 +50,13 @@ short __stdcall CreateDataFile(const char *path)
 {
     unsigned short fd;
 
-    fd = (unsigned short)_open(path, 0x8101, 0x180);
+    fd = _open(path, 0x8101, 0x180);
     if ((unsigned int)fd == (unsigned int)-1) {
         sprintf(szDataCreateError, "!_open '%s'\n", path);
-        nPacketError = (short)errno;
+        nPacketError = errno;
         return 0;
     }
-    return (short)fd;
+    return fd;
 }
 
 /* Function start: 0x403610 */
@@ -66,12 +66,12 @@ int __stdcall ReadDataFileAtOffset(unsigned short fd, int offset,
     nPacketError = 0;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
         sprintf(szDataFileReadError, "!lseek %d\n", offset);
-        nPacketError = (short)errno;
+        nPacketError = errno;
         return 0;
     }
     if (_read(fd, data, length) == -1) {
         sprintf(szDataFileReadError, "!lseek %d\n", offset);
-        nPacketError = (short)errno;
+        nPacketError = errno;
         return 0;
     }
     return 1;
@@ -86,7 +86,7 @@ int __stdcall SeekDataFile(unsigned short fd, int offset,
     position = _lseek(fd, offset, origin & 0xffff);
     if (position == -1) {
         sprintf(szSeekDataError, "!lseek %d\n", offset);
-        nPacketError = (short)errno;
+        nPacketError = errno;
     }
     return position;
 }
@@ -107,12 +107,12 @@ int MeasureScaledIntroTextWidth(const char *text, short scale)
             c -= 'A';
 
             GetTransformedShapeBounds(&stSpaceBufferViewport, 0, 0,
-                                      pIntroFont, (short)c, 0,
+                                      pIntroFont, c, 0,
                                       scale, 0, &bounds);
-            width = (short)(width + bounds.right + 1);
-            width = (short)(width + ((int)scale * 2 >> 8));
+            width = (width + bounds.right + 1);
+            width = (width + (scale * 2 >> 8));
         } else if (c == ' ') {
-            width = (short)(width + ((int)scale * 6 >> 8));
+            width = (width + (scale * 6 >> 8));
         } else if (c == '\n') {
             break;
         }
@@ -129,8 +129,8 @@ int DrawCenteredScaledIntroText(const char *text, short centreX,
     short y;
     char c;
 
-    x = (short)(centreX - MeasureScaledIntroTextWidth(text, scale) / 2);
-    y = (short)(baselineY - ((int)scale * 16 >> 9));
+    x = (centreX - MeasureScaledIntroTextWidth(text, scale) / 2);
+    y = (baselineY - (scale * 16 >> 9));
     for (;;) {
         c = *text++;
 
@@ -141,15 +141,15 @@ int DrawCenteredScaledIntroText(const char *text, short centreX,
             c -= 'A';
 
             DrawSpriteScaled(&stSpaceBufferViewport, x, y,
-                             pIntroFont, (short)c, 0,
+                             pIntroFont, c, 0,
                              scale, 0);
             GetTransformedShapeBounds(&stSpaceBufferViewport, 0, 0,
-                                      pIntroFont, (short)c, 0,
+                                      pIntroFont, c, 0,
                                       scale, 0, &bounds);
-            x = (short)(x + bounds.right + 1);
-            x = (short)(x + ((int)scale * 2 >> 8));
+            x = (x + bounds.right + 1);
+            x = (x + (scale * 2 >> 8));
         } else if (c == ' ') {
-            x = (short)(x + ((int)scale * 6 >> 8));
+            x = (x + (scale * 6 >> 8));
         } else if (c == '\n') {
             break;
         }
@@ -170,7 +170,7 @@ short GetLineLength(const char *text)
         if (c == 0)
             break;
         if (c >= 'A' && c <= 'z') {
-            c = (char)(c - 'A');
+            c = (c - 'A');
             width = width + GetShapeFrameExtent(
                 0, 0, pIntroFont, c, 2);
             width = width + 2;
@@ -210,10 +210,10 @@ int print_subtitle(Viewport *viewport, short colour, const char *text)
         if (c == '\n')
             lines++;
     }
-    lines = (short)(lines * 16);
-    y = (short)((128 - lines) / 2);
+    lines = (lines * 16);
+    y = ((128 - lines) / 2);
     x = GetLineLength(text);
-    x = (short)((320 - x) >> 1);
+    x = ((320 - x) >> 1);
     scan = text;
     while ((c = *scan++) != 0) {
         if (c >= 'A' && c <= 'z') {
@@ -236,7 +236,7 @@ int print_subtitle(Viewport *viewport, short colour, const char *text)
         } else if (c == '\n') {
             y = y + 16;
             x = GetLineLength(scan);
-            x = (short)((320 - x) >> 1);
+            x = ((320 - x) >> 1);
         }
     }
     if (viewport->pixels == stScreenView.pixels)
@@ -259,7 +259,7 @@ int advance_canned_sequence(short obj)
         anYawTarget[obj] = *command++;
         anPitchGoal[obj] = *command++;
         anRollGoal[obj] = *command++;
-        anShipSpeed[obj] = (int)*command++ << 8;
+        anShipSpeed[obj] = *command++ << 8;
         break;
     case 2:
         explode(-1, obj);
@@ -308,15 +308,15 @@ unsigned int update_canned_sequence(short obj)
 /* Function start: 0x403C40 */
 void __stdcall SplitGameClockTicks(unsigned char *parts)
 {
-    int ticks = (int)GetGameClockTicks();
+    int ticks = GetGameClockTicks();
 
-    parts[0] = (unsigned char)(ticks % 60);
+    parts[0] = (ticks % 60);
     ticks = ticks / 60;
-    parts[1] = (unsigned char)(ticks % 60);
+    parts[1] = (ticks % 60);
     ticks = ticks / 60;
-    parts[2] = (unsigned char)(ticks % 60);
+    parts[2] = (ticks % 60);
     ticks = ticks / 60;
-    parts[3] = (unsigned char)(ticks % 24);
+    parts[3] = (ticks % 24);
 }
 
 /* Nothing in the shipped executable references this buffer. */

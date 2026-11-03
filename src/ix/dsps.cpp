@@ -188,11 +188,11 @@ void ix_dsps_set_volume(int stream, unsigned short vol)
     }
     v = &aVoices[nVoiceCount + stream];
     v->volume =
-        (unsigned short)(((int)(vol & 0xffff) * 0x7fff) / 0xffff);
+        (((vol & 0xffff) * 0x7fff) / 0xffff);
     v->leftGain = v->volume;
     v->rightGain = v->volume;
-    v->leftGainHi = (unsigned short)v->volume >> 8;
-    v->rightGainHi = (unsigned short)v->volume >> 8;
+    v->leftGainHi = v->volume >> 8;
+    v->rightGainHi = v->volume >> 8;
 }
 
 /* Function start: 0x445A0B */   /* source line 122 */

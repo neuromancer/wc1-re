@@ -287,7 +287,7 @@ static void SwcDrawRoomArt(SwcCarrier *carrier, enum SwcRoomPackId packId,
         return;
     if (art->textures[frame] == NULL) {
         art->textures[frame] = SdlCreateSwcTexture(carrier->renderer, &art->shape,
-            (uint32_t)frame, carrier->packs[packId].colors);
+            frame, carrier->packs[packId].colors);
         if (art->textures[frame] == NULL) {
             carrier->drawResult = -1;
             return;
@@ -317,14 +317,14 @@ static void SwcInitParallax(SwcParallax *parallax, int height, int density)
     parallax->area = (SDL_Rect){0, 0, SWC_FRAME_WIDTH, height};
     parallax->count = density * 45 / 100;
     for (index = 0; index < parallax->count; index++) {
-        parallax->stars[index].x = RandomBelow((short)parallax->area.w);
-        parallax->stars[index].y = RandomBelow((short)parallax->area.h);
+        parallax->stars[index].x = RandomBelow(parallax->area.w);
+        parallax->stars[index].y = RandomBelow(parallax->area.h);
         parallax->starFrames[index] = 32 + RandomBelow(10);
     }
     for (index = 0; index < parallax->count; index++) {
         kind = RandomBelow(15);
-        parallax->shards[index].x = parallax->area.x + RandomBelow((short)parallax->area.w);
-        parallax->shards[index].y = parallax->area.y + RandomBelow((short)parallax->area.h);
+        parallax->shards[index].x = parallax->area.x + RandomBelow(parallax->area.w);
+        parallax->shards[index].y = parallax->area.y + RandomBelow(parallax->area.h);
         parallax->shardSpeeds[index] = -swcShardSpeeds[kind];
         parallax->shardFrames[index] = swcShardFrames[kind] + RandomBelow(3);
     }
@@ -348,7 +348,7 @@ static void SwcStepParallax(SwcParallax *parallax)
         if (shard->x < parallax->area.x) {
             kind = RandomBelow(15);
             shard->x = parallax->area.x + parallax->area.w - RandomBelow(swcShardSpeeds[kind]);
-            shard->y = parallax->area.y + RandomBelow((short)parallax->area.h);
+            shard->y = parallax->area.y + RandomBelow(parallax->area.h);
             parallax->shardSpeeds[index] = -swcShardSpeeds[kind];
             *frame = swcShardFrames[kind] + RandomBelow(3);
         }
@@ -552,7 +552,7 @@ static int SwcFadeRoom(SwcCarrier *carrier, int entering)
             carrier->pendingInput = input;
             elapsed = 167;
         }
-        brightness = (int)(SDL_min(elapsed, 167U) * 255 / 167);
+        brightness = (SDL_min(elapsed, 167U) * 255 / 167);
         if (SwcPresentRoom(carrier, entering ? brightness : 255 - brightness) != 0)
             return -1;
         if (elapsed >= 167)
@@ -840,7 +840,7 @@ static uint32_t SwcSceneOffset(const uint8_t *bytes)
 
 static short SwcSceneWord(const uint8_t *bytes)
 {
-    return (short)(bytes[0] | (unsigned int)bytes[1] << 8);
+    return (bytes[0] | (unsigned int)bytes[1] << 8);
 }
 
 static int SwcValidateSceneTests(const unsigned char *text, size_t count, enum SwcCarrierVisit visit)
@@ -938,7 +938,7 @@ static int SwcLoadRoomScene(SwcCarrier *carrier, int section, SwcRoomScene *scen
             (index > 0 && offsets[index] < offsets[index - 1]))
             return SDL_SetError("Invalid SWC briefing directory");
     }
-    offsets[sections] = (uint32_t)carrier->script.size;
+    offsets[sections] = carrier->script.size;
     length = offsets[section + 1] - offsets[section];
     scene->count = length / 13;
     scene->text = carrier->script.data + offsets[section + 1];
@@ -949,9 +949,9 @@ static int SwcLoadRoomScene(SwcCarrier *carrier, int section, SwcRoomScene *scen
     for (index = 0; index < scene->count; index++) {
         bytes = carrier->script.data + offsets[section] + index * 13;
         record = &scene->records[index];
-        record->shot = (signed char)bytes[0];
-        record->textColour = (signed char)bytes[1];
-        record->talker = (signed char)bytes[2];
+        record->shot = bytes[0];
+        record->textColour = bytes[1];
+        record->talker = bytes[2];
         record->duration = SwcSceneWord(bytes + 3);
         record->testsOffset = strings[0] = SwcSceneWord(bytes + 5);
         record->textOffset = strings[1] = SwcSceneWord(bytes + 7);
@@ -1024,7 +1024,7 @@ static int SwcSceneAnimationFrame(const short *commands, Uint32 ticks, int eyes)
     for (cursor = commands; *cursor != -1; cursor += 2) {
         if (*cursor == -2)
             continue;
-        duration = (Uint32)(eyes ? SDL_max(24, cursor[1]) + 1 : SDL_max(1, cursor[1]));
+        duration = (eyes ? SDL_max(24, cursor[1]) + 1 : SDL_max(1, cursor[1]));
         if (ticks < duration)
             return *cursor == 10 ? -1 : *cursor;
         ticks -= duration;
@@ -1136,7 +1136,7 @@ static void SwcDrawBriefingMap(SwcCarrier *carrier, int objective, Uint32 ticks,
         ink = carrier->packs[SWC_BRIEFING_MAP].colors[entry->color];
         if (markers->textures[entry->frame] == NULL)
             markers->textures[entry->frame] = SdlCreateSwcTexture(renderer,
-                &markers->shape, (uint32_t)entry->frame, markerColors);
+                &markers->shape, entry->frame, markerColors);
         if (markers->textures[entry->frame] == NULL ||
             SDL_SetTextureColorMod(markers->textures[entry->frame], ink.r, ink.g, ink.b) != 0) {
             carrier->drawResult = -1;
@@ -1206,12 +1206,12 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
             SwcDrawParallax(carrier, pack);
         SwcDrawRoomArt(carrier, pack, background, backgroundId, backgroundFrame, 0, 0);
         /* CloseTalk +0x3292 uses base frame 21 in debriefing, otherwise 0. */
-        SwcDrawRoomArt(carrier, pack, "TKHD", (uint32_t)(shot - 19),
+        SwcDrawRoomArt(carrier, pack, "TKHD", (shot - 19),
                         carrier->visit == SWC_CARRIER_DEBRIEFING ? 21 : 0, 0, 0);
         if (face >= 0 && face < 10)
-            SwcDrawRoomArt(carrier, pack, "TKHD", (uint32_t)(shot - 19), face + 11, 0, 0);
+            SwcDrawRoomArt(carrier, pack, "TKHD", (shot - 19), face + 11, 0, 0);
         if (mouth >= 0)
-            SwcDrawRoomArt(carrier, pack, "TKHD", (uint32_t)(shot - 19), mouth + 1, 0, 0);
+            SwcDrawRoomArt(carrier, pack, "TKHD", (shot - 19), mouth + 1, 0, 0);
     } else if (shot == 0 || shot == 1) {
         SwcDrawRoomArt(carrier, SWC_BRIEFING, "BRFG", 1, 0, 0, 0);
         /* DrawBriefingLongShot +0x1e54; DATA/0 +0x4306/+0x430a. */
@@ -1228,7 +1228,7 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
             11 + (int)((uint64_t)elapsed * 60 / 8000), 25, 50);
     } else if (shot == 3 || shot == 4) {
         SwcDrawBriefingMap(carrier, talker,
-            (Uint32)((uint64_t)(elapsed - (shot == 3 ? 800 : 0)) * 30 / 1000), shot == 3);
+            ((uint64_t)(elapsed - (shot == 3 ? 800 : 0)) * 30 / 1000), shot == 3);
     } else if (shot == 5) {
         /* CODE_03 Dismissed +0x1eba: this is a separate reverse angle,
          * not the ordinary briefing long shot. */
@@ -1283,7 +1283,7 @@ static int SwcPlayDismissal(SwcCarrier *carrier, Uint32 speechTicks)
         playing = carrier->focused && !carrier->paused;
         if (input.back || (playing && (input.activate || input.clicked)))
             return SWC_MOVIE_SKIPPED;
-        nextTick = (Uint32)((uint64_t)elapsed * 30 / 1000);
+        nextTick = ((uint64_t)elapsed * 30 / 1000);
         while (tick < nextTick) {
             tick++;
             if (!walking) {
@@ -1382,7 +1382,7 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
         }
         selected = ParseTests(record, scene.records, scene.text);
         if (selected != record) {
-            index = (size_t)(selected - scene.records);
+            index = (selected - scene.records);
             continue;
         }
         if (record->shot != -1)
@@ -1403,7 +1403,7 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
             index++;
             continue;
         }
-        duration = (Uint32)SDL_max(2000, (int)strlen(text) * 50 + 1000);
+        duration = SDL_max(2000, (int)strlen(text) * 50 + 1000);
         leadIn = shot == 3 ? 800 : 0;
         speechStarted = 0;
         mark = 0;
@@ -1448,7 +1448,7 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
             }
             wasPlaying = carrier->focused && !carrier->paused;
             if (wasPlaying && !speechStarted && elapsed >= leadIn) {
-                if (SwcStartSpeech(carrier, section, (int)index, &duration) != 0)
+                if (SwcStartSpeech(carrier, section, index, &duration) != 0)
                     goto done;
                 if (shot == 3)
                     duration = SDL_max(duration, 1767U);
@@ -1484,7 +1484,7 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
                 parallaxSteps++;
             }
             SwcDrawScene(carrier, shot, colour, talker, mouthFrame,
-                SwcSceneAnimationFrame(face, (Uint32)((uint64_t)elapsed * 30 / 1000), 1), elapsed);
+                SwcSceneAnimationFrame(face, ((uint64_t)elapsed * 30 / 1000), 1), elapsed);
             if (carrier->drawResult != 0 || SdlDrawSwcRoomSubtitle(carrier->renderer, &carrier->roomFont,
                 carrier->paused ? "Paused - P to resume" :
                 elapsed < leadIn || !swcOptions.text ? "" : text) != 0 ||
@@ -1496,7 +1496,7 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
         if (shot == 3)
             shot = 4;
         else if (shot == 5) {
-            result = SwcPlayDismissal(carrier, (Uint32)((uint64_t)elapsed * 30 / 1000));
+            result = SwcPlayDismissal(carrier, ((uint64_t)elapsed * 30 / 1000));
             if (result == SWC_MOVIE_SKIPPED) {
                 result = 0;
                 goto done;
@@ -2116,7 +2116,7 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                 barracksTick = 0;
             }
         }
-        tick = (Uint32)((uint64_t)elapsed * SWC_ROOM_ANIMATION_HZ / 1000);
+        tick = ((uint64_t)elapsed * SWC_ROOM_ANIMATION_HZ / 1000);
         steps = SDL_min(8U, tick / 2 - animationTick / 2);
         roomSteps = SDL_min(16U, tick - animationTick);
         if (room == 0) {

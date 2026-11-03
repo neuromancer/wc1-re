@@ -82,7 +82,7 @@ void LoadCommPortraitShape(short face, signed char alternate)
     if (section != -1)
         apCommunicationPortraitShapesTable[face] =
             FetchDiskPacketRetrying(11, section,
-                                                     (short)alternate);
+                                                     alternate);
 }
 
 /* Function start: 0x430C50 */
@@ -119,7 +119,7 @@ void AppendCommMenuChoice(const char *text, short command)
     }
     index = nCommMenuChoiceCount++;
     apszCommMenuChoiceTextTable[index] = text;
-    abCommMenuChoiceCommands[index] = (signed char)command;
+    abCommMenuChoiceCommands[index] = command;
 }
 
 /* Function start: 0x430D30 */
@@ -144,13 +144,13 @@ short IsCommChoiceMenuOpen(void)
 /* Function start: 0x430DA0 */
 short GetPendingMenuAction(void)
 {
-    return (short)cPendingCommMenuAction;
+    return cPendingCommMenuAction;
 }
 
 /* Function start: 0x430DB0 */
 void SetPendingMenuAction(unsigned char v)
 {
-    cPendingCommMenuAction = (signed char)v;
+    cPendingCommMenuAction = v;
 }
 
 /* Function start: 0x430DC0 */
@@ -219,7 +219,7 @@ void BuildCommunicationRecipientMenu(void)
     }
     AppendCommMenuChoice(
         apWingmanPilotsList[
-            (signed char)acShipRating[
+            acShipRating[
                 nYourWingman]]->callsign,
         1);
     target = acShipTargetTable[0];
@@ -358,7 +358,7 @@ void show_communications_disp(void)
 #endif
         for (choice = 0; choice < nCommMenuChoiceCount; choice++) {
 #ifdef SDL_PORT
-            if ((int)choice == selectedChoice)
+            if (choice == selectedChoice)
                 stRightVduTxtContext.colour = cYellowColour;
 #endif
             DrawFormattedText("\n%d %s", choice + 1,
@@ -368,8 +368,8 @@ void show_communications_disp(void)
 #endif
         }
         DrawSpriteDefault(&stRightVduViewport,
-                          (short)(stRightVduViewport.left + 36),
-                          (short)(stRightVduViewport.top + 10),
+                          (stRightVduViewport.left + 36),
+                          (stRightVduViewport.top + 10),
                           pCommMenuPointerShape, 0x19);
         nCommMenuReuseMode = 1;
     }
@@ -401,8 +401,8 @@ unsigned int Chosen_communicate_option(short choice)
         return 0;
     case 2:
         CloseCommChoiceMenu();
-        request(0, (short)cCommMenuRecipient,
-                (short)abCommMenuChoiceCommands[choice]);
+        request(0, cCommMenuRecipient,
+                abCommMenuChoiceCommands[choice]);
         return 0;
     }
     return 0;
@@ -550,7 +550,7 @@ void real_vid_transmit(short obj, short message)
 #endif
     nCommSpeakerObject = obj;
     nCommSpeakerRating =
-        (short)acShipRating[obj];
+        acShipRating[obj];
     nCommPortraitIndex =
         get_face(nCommSpeakerRating,
                  aeShipSide[obj]);
@@ -624,5 +624,5 @@ void real_vid_transmit(short obj, short message)
 #endif
     }
     expandedText = ExpandCommMessageTokens(text);
-    ShowCentredPrompt(expandedText, (unsigned short)MeasureMessageWidth(text));
+    ShowCentredPrompt(expandedText, MeasureMessageWidth(text));
 }

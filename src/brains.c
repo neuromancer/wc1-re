@@ -157,7 +157,7 @@ short check_destroy_target(short obj)
                gone_ship(anShipMissionShips[obj]) != 0) {
         check_engage_target(obj);
     } else if (evaluate_damage(obj) > 70 - MaxShort(
-                   0, MinShort(4, (short)aiPilotLevel[obj])) * 15) {
+                   0, MinShort(4, aiPilotLevel[obj])) * 15) {
         acShipTargetTable[obj] = destroyTarget;
         if (aeShipSide[destroyTarget] ==
             aeShipSide[obj])
@@ -650,19 +650,19 @@ void streak_toward(short obj, short goal, short range)
 /* Function start: 0x40A9B0 */
 void approach_and_engage(short obj, short goal)
 {
-    unsigned short range = (unsigned short)distance_from_object(obj, goal);
+    unsigned short range = distance_from_object(obj, goal);
     unsigned short possibleRange;
     short possibleTarget;
 
     if (aeObjectClass[goal] != OBJECT_CLASS_FUTURION &&
         evaluate_damage(obj) > 70 - MaxShort(
-            0, MinShort(4, (short)aiPilotLevel[obj])) * 15 &&
+            0, MinShort(4, aiPilotLevel[obj])) * 15 &&
         range > 5000) {
-        streak_toward(obj, goal, (short)range);
+        streak_toward(obj, goal, range);
         return;
     }
     possibleTarget = scan_for_enemy(obj, 10000);
-    possibleRange = (unsigned short)nTgtRange;
+    possibleRange = nTgtRange;
     if (possibleTarget != -1 &&
         (possibleRange * 3 < range ||
          aeObjectClass[goal] == OBJECT_CLASS_FUTURION)) {
@@ -671,7 +671,7 @@ void approach_and_engage(short obj, short goal)
     } else if (range < 5000) {
         engage(obj, goal, OBJECTIVE_DESTROY_SHIP);
     } else {
-        streak_toward(obj, goal, (short)range);
+        streak_toward(obj, goal, range);
     }
 }
 
@@ -982,7 +982,7 @@ void capital_ship_intelligence(short obj)
         if (nTargetShip != -1) {
             approach_full_speed(obj);
             aeShipTacticArray[obj] = TACTIC_SELF_DEFENSE;
-            acShipTargetTable[obj] = (signed char)nTargetShip;
+            acShipTargetTable[obj] = nTargetShip;
             fire_turrets(obj);
         } else
             approach_cruise_speed(obj);

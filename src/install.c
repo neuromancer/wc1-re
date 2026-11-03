@@ -41,22 +41,22 @@ unsigned short InitializeDiskPromptTextContext(void)
     stDiskPromptTextContext.alignment = 2;
     stDiskPromptViewport = stScreenView;
     textWidth =
-        (short)(MeasureTextPixelWidthClamped(
+        (MeasureTextPixelWidthClamped(
                     "Press any key when ready") +
                 10);
     textHeight =
-        (short)((FontHeight(stDiskPromptTextContext.font) + 1) * 3);
+        ((FontHeight(stDiskPromptTextContext.font) + 1) * 3);
     stDiskPromptBounds.top =
-        (short)(100 - textHeight / 2);
+        (100 - textHeight / 2);
     stDiskPromptBounds.left =
-        (short)(160 - textWidth / 2);
+        (160 - textWidth / 2);
     stDiskPromptBounds.bottom =
-        (short)(stDiskPromptBounds.top + textHeight);
+        (stDiskPromptBounds.top + textHeight);
     stDiskPromptBounds.right =
-        (short)(stDiskPromptBounds.left + textWidth);
+        (stDiskPromptBounds.left + textWidth);
     InitializeTextContextFromFont(&stDiskPromptTextContext, 1,
                                   cBlackColour,
-                                  (signed char)cViewportClearColour);
+                                  cViewportClearColour);
     bGraphicsActive = 1;
     return 0;
 }
@@ -86,12 +86,12 @@ unsigned short RewriteDiskFileGraphicsExtensions(short videoMode)
 #ifdef SDL_PORT
         if (extensionPosition != 0) {
             extensionPosition++;
-            if (toupper((int)*extensionPosition) == 'V')
+            if (toupper(*extensionPosition) == 'V')
                 *extensionPosition = extension;
         }
 #else
         if (extensionPosition++ != 0 &&
-            toupper((int)*extensionPosition) == 'V')
+            toupper(*extensionPosition) == 'V')
             *extensionPosition = extension;
 #endif
         record++;
@@ -138,7 +138,7 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
         argumentIndex++;
         destination = strchr(destination, 0) + 1;
     }
-    return (short)(argumentCount - 1);
+    return (argumentCount - 1);
 }
 
 /* Function start: 0x42C660 */
@@ -162,8 +162,8 @@ unsigned short LoadInstallDat(void)
         PumpMessagesDuringWait();
         exit(0);
     }
-    size = (unsigned int)filelength(file);
-    records = (DiskFileRecord *)AllocateTaggedMemory(size, 0);
+    size = filelength(file);
+    records = AllocateTaggedMemory(size, 0);
     if (records == 0) {
         SystemDebugPrintf("Unable to load INSTALL.DAT\n");
         SystemDebugPrintf(
@@ -184,14 +184,14 @@ unsigned short LoadInstallDat(void)
 
 #ifdef SDL_PORT
     pDiskFileRecords =
-        (DiskFileRecord *)AllocateTaggedMemory(
+        AllocateTaggedMemory(
             sizeof(DiskFileRecord) * 78, 0);
     if (pDiskFileRecords != 0)
         memset(pDiskFileRecords, 0,
                sizeof(DiskFileRecord) * 78);
 #else
     pDiskFileRecords =
-        (DiskFileRecord *)AllocateTaggedMemory(0x4b0, 0);
+        AllocateTaggedMemory(0x4b0, 0);
     memset(pDiskFileRecords, 0,
            (maximumId + 1) * sizeof(DiskFileRecord));
 #endif

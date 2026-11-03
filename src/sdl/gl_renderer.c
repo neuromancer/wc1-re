@@ -385,10 +385,10 @@ static void CopyBaseWithoutMouse(unsigned char *destination,
     viewport.pixels = destination;
     viewport.allocation = destination;
     RestoreSpriteBackground(&viewport, abCursorSaveArea,
-                            (short)nMousePointerDrawnX,
-                            (short)nMousePointerDrawnY,
+                            nMousePointerDrawnX,
+                            nMousePointerDrawnY,
                             stMouseCursorState.shape,
-                            (short)stMouseCursorState.frame);
+                            stMouseCursorState.frame);
 }
 
 static void *LoadGlFunction(const char *name, int *functionsAvailable)
@@ -489,7 +489,7 @@ static void TerminateGlInfoLog(GLchar *log, size_t logSize, GLsizei length)
     if (length <= 0)
         end = 0;
     else if ((size_t)length < logSize)
-        end = (size_t)length;
+        end = length;
     else
         end = logSize - 1;
     log[end] = 0;
@@ -614,7 +614,7 @@ static unsigned int GetCachedFrameHash(const struct Shape *shape, short frame,
     unsigned int hash;
 
     pointerHash = (uintptr_t)shape;
-    hash = (unsigned int)(pointerHash ^ (pointerHash >> 16));
+    hash = (pointerHash ^ (pointerHash >> 16));
     hash ^= (unsigned int)(unsigned short)frame * 0x9e3779b1U;
     hash ^= (unsigned int)dataOffset * 0x85ebca6bU;
     hash ^= hash >> 16;
@@ -678,9 +678,9 @@ static int ReserveSpriteAtlasRect(int width, int height, short *atlasLayer,
             y += layer->rowHeight;
         }
         if (y + packedHeight <= g_renderer.spriteAtlasSize) {
-            *atlasLayer = (short)layerIndex;
-            *atlasLeft = (short)(x + GL_RENDERER_SPRITE_ATLAS_PADDING);
-            *atlasTop = (short)(y + GL_RENDERER_SPRITE_ATLAS_PADDING);
+            *atlasLayer = layerIndex;
+            *atlasLeft = (x + GL_RENDERER_SPRITE_ATLAS_PADDING);
+            *atlasTop = (y + GL_RENDERER_SPRITE_ATLAS_PADDING);
             layer->nextX = x + packedWidth;
             layer->nextY = y;
             if (x == 0 || packedHeight > layer->rowHeight)
@@ -724,7 +724,7 @@ static const GlCachedFrame *CacheShapeFrame(
         return 0;
     if (g_renderer.decodeScratchCapacity < pixelCount) {
         resizedScratch =
-            (unsigned char *)realloc(g_renderer.decodeScratch, pixelCount);
+            realloc(g_renderer.decodeScratch, pixelCount);
         if (resizedScratch == 0)
             return 0;
         g_renderer.decodeScratch = resizedScratch;
@@ -830,10 +830,10 @@ static void SetSpriteVertexMetadata(GlVertex *vertex,
     const GlCachedFrame *cachedFrame;
 
     cachedFrame = sprite->cachedFrame;
-    vertex->atlasLeft = (float)cachedFrame->atlasLeft;
-    vertex->atlasTop = (float)cachedFrame->atlasTop;
-    vertex->atlasWidth = (float)cachedFrame->width;
-    vertex->atlasHeight = (float)cachedFrame->height;
+    vertex->atlasLeft = cachedFrame->atlasLeft;
+    vertex->atlasTop = cachedFrame->atlasTop;
+    vertex->atlasWidth = cachedFrame->width;
+    vertex->atlasHeight = cachedFrame->height;
     vertex->clipLeft = (float)sprite->clipLeft - 0.5f;
     vertex->clipTop = (float)sprite->clipTop - 0.5f;
     vertex->clipRight = (float)sprite->clipRight + 0.5f;
@@ -842,7 +842,7 @@ static void SetSpriteVertexMetadata(GlVertex *vertex,
         outputScale *
         (sprite->scale < 0 ? -(float)sprite->scale : (float)sprite->scale) /
         256.0f;
-    vertex->atlasLayer = (float)cachedFrame->atlasLayer;
+    vertex->atlasLayer = cachedFrame->atlasLayer;
 }
 
 static void BuildRecordedSpriteVertices(const GlSprite *sprite,
@@ -864,7 +864,7 @@ static void BuildRecordedSpriteVertices(const GlSprite *sprite,
     int corner;
 
     cachedFrame = sprite->cachedFrame;
-    GetRLETransformTrig((int)sprite->angle * 10, &fixedCosine, &fixedSine);
+    GetRLETransformTrig(sprite->angle * 10, &fixedCosine, &fixedSine);
     cosine = (float)fixedCosine / 65536.0f;
     sine = (float)fixedSine / 65536.0f;
     scaleX = (float)sprite->scale / 256.0f;
@@ -878,16 +878,16 @@ static void BuildRecordedSpriteVertices(const GlSprite *sprite,
     right = left + (float)cachedFrame->width;
     bottom = top + (float)cachedFrame->height;
     TransformSpriteVertex(&corners[0], left, top, 0.0f, 0.0f,
-                          (float)sprite->x, (float)sprite->y, cosine, sine,
+                          sprite->x, sprite->y, cosine, sine,
                           scaleX, scaleY);
     TransformSpriteVertex(&corners[1], left, bottom, 0.0f, 1.0f,
-                          (float)sprite->x, (float)sprite->y, cosine, sine,
+                          sprite->x, sprite->y, cosine, sine,
                           scaleX, scaleY);
     TransformSpriteVertex(&corners[2], right, top, 1.0f, 0.0f,
-                          (float)sprite->x, (float)sprite->y, cosine, sine,
+                          sprite->x, sprite->y, cosine, sine,
                           scaleX, scaleY);
     TransformSpriteVertex(&corners[3], right, bottom, 1.0f, 1.0f,
-                          (float)sprite->x, (float)sprite->y, cosine, sine,
+                          sprite->x, sprite->y, cosine, sine,
                           scaleX, scaleY);
     corner = 0;
     while (corner < 4) {
@@ -1095,19 +1095,19 @@ int SdlGlRendererInitialize(SDL_Window *window)
     g_renderer.gl.EnableVertexAttribArray(1);
     g_renderer.gl.VertexAttribPointer(
         1, 2, GL_FLOAT, GL_FALSE, sizeof(GlVertex),
-        (const void *)(uintptr_t)offsetof(GlVertex, u));
+        (const void *)offsetof(GlVertex, u));
     g_renderer.gl.EnableVertexAttribArray(2);
     g_renderer.gl.VertexAttribPointer(
         2, 4, GL_FLOAT, GL_FALSE, sizeof(GlVertex),
-        (const void *)(uintptr_t)offsetof(GlVertex, atlasLeft));
+        (const void *)offsetof(GlVertex, atlasLeft));
     g_renderer.gl.EnableVertexAttribArray(3);
     g_renderer.gl.VertexAttribPointer(
         3, 4, GL_FLOAT, GL_FALSE, sizeof(GlVertex),
-        (const void *)(uintptr_t)offsetof(GlVertex, clipLeft));
+        (const void *)offsetof(GlVertex, clipLeft));
     g_renderer.gl.EnableVertexAttribArray(4);
     g_renderer.gl.VertexAttribPointer(
         4, 2, GL_FLOAT, GL_FALSE, sizeof(GlVertex),
-        (const void *)(uintptr_t)offsetof(GlVertex, magnification));
+        (const void *)offsetof(GlVertex, magnification));
 
     g_renderer.gl.GenTextures(4, textures);
     g_renderer.baseTexture = textures[0];
@@ -1262,7 +1262,7 @@ int SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
     if (pixelCount > 0xfa00 && !(angle == 0 && scale == 0x100 && flip == 0))
         return 0;
     frameTableOffset = frame * 4 + 4;
-    shapeTableEnd = (unsigned short)shape->frameOffsets[0];
+    shapeTableEnd = shape->frameOffsets[0];
     memcpy(&dataOffset, (unsigned char *)shape + frameTableOffset, sizeof(dataOffset));
     cachedFrame = CacheShapeFrame(
         shape, frame, dataOffset, shapeTableEnd, width, height, leftExtent,
@@ -1280,12 +1280,12 @@ int SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
     sprite->angle = angle;
     sprite->scale = scale;
     sprite->flip = flip;
-    sprite->clipLeft = (short)(viewport->left + g_renderer.spaceLayerOffsetX);
-    sprite->clipTop = (short)(viewport->top + g_renderer.spaceLayerOffsetY);
+    sprite->clipLeft = (viewport->left + g_renderer.spaceLayerOffsetX);
+    sprite->clipTop = (viewport->top + g_renderer.spaceLayerOffsetY);
     sprite->clipRight =
-        (short)(viewport->right + g_renderer.spaceLayerOffsetX);
+        (viewport->right + g_renderer.spaceLayerOffsetX);
     sprite->clipBottom =
-        (short)(viewport->bottom + g_renderer.spaceLayerOffsetY);
+        (viewport->bottom + g_renderer.spaceLayerOffsetY);
     g_renderer.spriteCount++;
     return 1;
 }

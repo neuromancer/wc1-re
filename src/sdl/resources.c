@@ -52,7 +52,7 @@ static int SdlReadOriginLzwCode(SdlOriginLzwBitReader *reader,
         bytePosition = reader->bitPosition >> 3;
         if (bytePosition >= reader->byteCount)
             return 0;
-        sourceShift = (unsigned int)(reader->bitPosition & 7);
+        sourceShift = (reader->bitPosition & 7);
         bitsAvailable = 8 - sourceShift;
         bitsNeeded = width - bitsRead;
         bitsTaken = bitsAvailable < bitsNeeded
@@ -63,7 +63,7 @@ static int SdlReadOriginLzwCode(SdlOriginLzwBitReader *reader,
         reader->bitPosition += bitsTaken;
         bitsRead += bitsTaken;
     }
-    *code = (uint16_t)value;
+    *code = value;
     return 1;
 }
 
@@ -85,7 +85,7 @@ static int SdlWriteOriginLzwCode(
     }
     if (code > 0xff || *destinationPosition >= destinationSize)
         return 0;
-    *firstValue = (unsigned char)code;
+    *firstValue = code;
     destination[(*destinationPosition)++] = *firstValue;
     while (reverseSize != 0) {
         if (*destinationPosition >= destinationSize)
@@ -234,7 +234,7 @@ int SdlExtractOriginPacketSection(const unsigned char *archive,
         outputSize = sectionEnd - sectionOffset;
         if (outputSize > ORIGIN_PACKET_MAX_SECTION_SIZE)
             return 0;
-        output = (unsigned char *)malloc(outputSize != 0 ? outputSize : 1);
+        output = malloc(outputSize != 0 ? outputSize : 1);
         if (output == 0)
             return 0;
         memcpy(output, archive + sectionOffset, outputSize);
@@ -248,7 +248,7 @@ int SdlExtractOriginPacketSection(const unsigned char *archive,
     outputSize = SdlReadLittleEndian32(archive + sectionOffset);
     if (outputSize == 0 || outputSize > ORIGIN_PACKET_MAX_SECTION_SIZE)
         return 0;
-    output = (unsigned char *)malloc(outputSize);
+    output = malloc(outputSize);
     if (output == 0)
         return 0;
     if (!SdlDecompressOriginLzw(
@@ -277,7 +277,7 @@ int SdlUsingDosData(void)
     if (file == -1)
         return 0;
     g_nSdlDosData = 0;
-    bytesRead = (int)_read(file, header, sizeof(header));
+    bytesRead = _read(file, header, sizeof(header));
     _close(file);
     if (bytesRead == (int)sizeof(header) && header[7] == 1)
         g_nSdlDosData = 1;
