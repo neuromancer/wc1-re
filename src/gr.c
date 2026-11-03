@@ -233,17 +233,20 @@ void DecodeShapeFrame(struct Shape *shape, short frame,
     if (shape == 0 || frame < 0)
         return;
     /* The original narrows the table byte offset before checking it. */
-    frame = (short)(frame * sizeof(shape->frameOffsets[0]) +
-                    offsetof(struct Shape, frameOffsets));
-    if ((int)frame >= (int)(unsigned short)shape->frameOffsets[0])
+    frame = frame * sizeof(shape->frameOffsets[0]) +
+            offsetof(struct Shape, frameOffsets);
+    if (frame >= (unsigned short)shape->frameOffsets[0])
         return;
 
-    maximumX = (short)(width - 1);
-    maximumY = (short)(height - 1);
-    commands = ((struct ShapeFrame *)((unsigned char *)shape +
-        *(int *)((unsigned char *)shape + frame)))->commands;
+    maximumX = width - 1;
+    maximumY = height - 1;
+    /* frame now holds the signed table byte offset. The tested frameOffsets
+     * subscripts make VC++ 4.20 emit extra instructions for this load. */
+    commands = (unsigned char *)shape;
+    commands += *(int *)(commands + frame);
+    commands += offsetof(struct ShapeFrame, commands);
     rowCode = ((struct ShapeScanline *)commands)->code;
-    commands = (unsigned char *)((struct ShapeScanline *)commands)->offsets;
+    commands += offsetof(struct ShapeScanline, offsets);
     while (rowCode != 0) {
         /* Retain the two word reads and cursor steps from the original. */
 #ifdef SDL_PORT
@@ -271,20 +274,18 @@ void DecodeShapeFrame(struct Shape *shape, short frame,
                     colour = commands[0];
                     commands++;
                     runLength = code;
-                    rowCode = (unsigned short)(rowCode - runLength);
+                    rowCode -= runLength;
                     if (y >= 0 && y <= maximumY) {
                         runRight = x + runLength - 1;
                         if (x <= maximumX && runRight >= 0) {
                             skip = 0;
-                            runCopyLength = (short)runLength;
+                            runCopyLength = runLength;
                             if (x < 0) {
-                                runCopyLength =
-                                    (short)(runCopyLength + (short)x);
+                                runCopyLength += x;
                                 skip = -x;
                             }
                             if (maximumX < runRight)
-                                runCopyLength =
-                                    (short)(runCopyLength - runRight + maximumX);
+                                runCopyLength -= runRight - maximumX;
                             memset(&destination[skip], colour, runCopyLength);
                         }
                     }
@@ -293,20 +294,18 @@ void DecodeShapeFrame(struct Shape *shape, short frame,
                 } else {
                     code >>= 1;
                     runLength = code;
-                    rowCode = (unsigned short)(rowCode - runLength);
+                    rowCode -= runLength;
                     if (y >= 0 && y <= maximumY) {
                         runRight = x + runLength - 1;
                         if (x <= maximumX && runRight >= 0) {
                             skip = 0;
-                            runCopyLength = (short)runLength;
+                            runCopyLength = runLength;
                             if (x < 0) {
-                                runCopyLength =
-                                    (short)(runCopyLength + (short)x);
+                                runCopyLength += x;
                                 skip = -x;
                             }
                             if (maximumX < runRight)
-                                runCopyLength =
-                                    (short)(runCopyLength - runRight + maximumX);
+                                runCopyLength -= runRight - maximumX;
                             memcpy(&destination[skip], &commands[skip],
                                    runCopyLength);
                         }
@@ -322,21 +321,20 @@ void DecodeShapeFrame(struct Shape *shape, short frame,
                 rowRight = x + rowCode - 1;
                 if (x <= maximumX && rowRight >= 0) {
                     skip = 0;
-                    rowCopyLength = (short)rowCode;
+                    rowCopyLength = rowCode;
                     if (x < 0) {
-                        rowCopyLength = (short)(rowCopyLength + (short)x);
+                        rowCopyLength += x;
                         skip = -x;
                     }
                     if (maximumX < rowRight)
-                        rowCopyLength =
-                            (short)(rowCopyLength - rowRight + maximumX);
+                        rowCopyLength -= rowRight - maximumX;
                     memcpy(&destination[skip], &commands[skip], rowCopyLength);
                 }
             }
             commands += rowCode;
         }
         rowCode = ((struct ShapeScanline *)commands)->code;
-        commands = (unsigned char *)((struct ShapeScanline *)commands)->offsets;
+        commands += offsetof(struct ShapeScanline, offsets);
     }
 }
 
