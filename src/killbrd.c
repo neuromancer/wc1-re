@@ -652,15 +652,15 @@ short RecRoom(void)
             SetFrameTimerPeriodDirect(9);
         }
 
-        eventType = PollInputEvent(&event, 0xff);
+        eventType = PollInputEvent(&event, INPUT_EVENT_FILTER_ALL);
         switch (eventType) {
-        case 3:
-        case 5:
+        case INPUT_EVENT_KEY_DOWN:
+        case INPUT_EVENT_KEY_REPEAT:
             clicked = 0;
             ClearInputKeyStatePreservingModifiers();
             switch ((short)event.value) {
-            case 0x1c:
-            case 0x39:
+            case SCAN_RETURN:
+            case SCAN_SPACE:
                 clicked = 1;
                 break;
             default:
@@ -670,8 +670,8 @@ short RecRoom(void)
             if (clicked == 0)
                 break;
             /* Fall through to the shared mouse/keyboard activation. */
-        case 2:
-        case 10:
+        case INPUT_EVENT_BUTTON_DOWN:
+        case INPUT_EVENT_LEGACY_ACTIVATE:
             refreshRoom = 1;
             region = FindMenuRegionAtPoint(
                 event.x, event.y, aRecRoomMenuRegions);
@@ -746,7 +746,7 @@ short RecRoom(void)
             if (refreshRoom != 0)
                 firstFrame = 0;
             break;
-        case 13:
+        case INPUT_EVENT_MOUSE_MOVE:
             UpdateRoomMenuCursor();
             break;
         }
@@ -840,9 +840,9 @@ void ShowChalkBoard(void)
     bInputModeState = 1;
     do {
         PumpWindowMessages();
-        if (PeekInputEvent(&event, 10) != 0 ||
-            PeekInputEvent(&event, 2) != 0 ||
-            PeekInputEvent(&event, 3) != 0)
+        if (PeekInputEvent(&event, INPUT_EVENT_LEGACY_ACTIVATE) != 0 ||
+            PeekInputEvent(&event, INPUT_EVENT_BUTTON_DOWN) != 0 ||
+            PeekInputEvent(&event, INPUT_EVENT_KEY_DOWN) != 0)
             done = 1;
 
         DrawSpriteDefault(&stModalSrcViewport,

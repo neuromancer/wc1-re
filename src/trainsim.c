@@ -376,14 +376,14 @@ short ReadTextInput(char *destination, short maximumLength,
             DIBslamReal();
             key = WaitForStreamInputKey();
             switch (key) {
-            case 13:
+            case VK_RETURN:
                 handled++;
                 if (input[0] == 0)
                     return 0;
                 accepted++;
                 ClearNextTextInputCharacter(' ');
                 break;
-            case 27:
+            case VK_ESCAPE:
                 ClearNextTextInputCharacter(' ');
                 inputViewport.left = savedX;
                 inputViewport.top = savedY;
@@ -398,7 +398,7 @@ short ReadTextInput(char *destination, short maximumLength,
                 pCurTextContext->viewport = savedViewport;
                 return 0;
             default:
-                if (key == 8 && inputLength != 0) {
+                if (key == VK_BACK && inputLength != 0) {
                     inputLength--;
                     handled++;
                     ClearNextTextInputCharacter(' ');
@@ -801,17 +801,17 @@ short SelectTrainSimMission(short *mission)
     do {
         if (bEscapePressedFlag != 0)
             break;
-        eventType = PollInputEvent(&event, 0xff);
+        eventType = PollInputEvent(&event, INPUT_EVENT_FILTER_ALL);
         switch (eventType) {
-        case 13:
+        case INPUT_EVENT_MOUSE_MOVE:
             UpdateTrainSimMenuCursor();
             break;
-        case 3:
-        case 5:
+        case INPUT_EVENT_KEY_DOWN:
+        case INPUT_EVENT_KEY_REPEAT:
             ClearInputKeyStatePreservingModifiers();
             activate = 0;
             key = (short)event.value;
-            if (key == 0x1c || key == 0x39) {
+            if (key == SCAN_RETURN || key == SCAN_SPACE) {
                 activate = 1;
             } else {
                 MoveMenuPointerFromKeyboard(&event);
@@ -819,7 +819,7 @@ short SelectTrainSimMission(short *mission)
             if (activate == 0)
                 break;
             /* Enter and Space select the region under the pointer. */
-        case 2:
+        case INPUT_EVENT_BUTTON_DOWN:
             region = FindMenuRegionAtPoint(
                 event.x, event.y,
                 aTrainSimMissionRegions);

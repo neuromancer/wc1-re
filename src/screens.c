@@ -233,9 +233,9 @@ unsigned int ViewMedals(void)
     bInputModeState = 1;
     do {
         PumpWindowMessages();
-        if (PeekInputEvent(&event, 10) != 0 ||
-            PeekInputEvent(&event, 2) != 0 ||
-            PeekInputEvent(&event, 3) != 0)
+        if (PeekInputEvent(&event, INPUT_EVENT_LEGACY_ACTIVATE) != 0 ||
+            PeekInputEvent(&event, INPUT_EVENT_BUTTON_DOWN) != 0 ||
+            PeekInputEvent(&event, INPUT_EVENT_KEY_DOWN) != 0)
             clicked = 1;
         DrawMedals();
         AddPCName(pszMedalsPilotSummary);

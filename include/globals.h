@@ -300,7 +300,7 @@ extern short nEventManagerActive; /* 0x0059a850 */
 extern short nCurrentViewCenterPosX; /* 0x0059a852 */
 extern short nCurrentViewCenterPosY; /* 0x0059a854 */
 extern short nPktDecompressSourceFile; /* 0x0059a858 */
-extern unsigned char abInputKeyStateArray[0x80]; /* 0x0059a860 */
+extern unsigned char abInputKeyStateArray[SCAN_CODE_COUNT]; /* 0x0059a860 */
 extern short nPacketDecompressInputPositionValue; /* 0x0059ab00 */
 extern void *pPktDecompInput; /* 0x0059ab04 */
 extern unsigned short wCurrentInputModifiers; /* 0x0059ab08 */

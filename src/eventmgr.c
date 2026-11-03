@@ -30,7 +30,7 @@ short nCurrentViewCenterPosX; /* 0x0059a852 */
 short nCurrentViewCenterPosY; /* 0x0059a854 */
 short bCurrentExpandedMemoryAvail; /* 0x0059a856 */
 short nPktDecompressSourceFile; /* 0x0059a858 */
-unsigned char abInputKeyStateArray[0x80]; /* 0x0059a860 */
+unsigned char abInputKeyStateArray[SCAN_CODE_COUNT]; /* 0x0059a860 */
 int nMousePointerDrawnY; /* 0x0059a8e0 */
 int nMousePointerDrawnX; /* 0x0059a8e4 */
 int anEventObjectDepthPlacedList[SPACE_OBJECT_COUNT]; /* 0x0059a8f0 */
@@ -43,7 +43,7 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
     unsigned int state;
 
     switch (type) {
-    case 2:
+    case INPUT_EVENT_BUTTON_DOWN:
         state = (value >> 2) |
                 (bHostSecondaryMouseButton << 1) |
                 bHostPrimaryMouseButton;
@@ -51,12 +51,12 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
                         bHostPrimaryMouseButton, bHostSecondaryMouseButton,
                         state);
         return;
-    case 6:
+    case INPUT_EVENT_JOYSTICK_MOVE:
         samples = aInputDevSamples;
         QueueInputEvent(type, samples[nCurrentActiveInputDevice].x,
                         samples[nCurrentActiveInputDevice].y, 0, 0, 0, 0);
         return;
-    case 13:
+    case INPUT_EVENT_MOUSE_MOVE:
         QueueInputEvent(type, nHostMouseMessageX, nHostMouseMessageY,
                         0, 0, 0, 0);
         return;
@@ -124,15 +124,15 @@ void QueueInputEvent(int type, int x, int y, int value,
 
     modifiers = 0;
     if (GetShiftKeyState() != 0)
-        modifiers = 0xe0;
+        modifiers = INPUT_MOD_SHIFT;
     if (GetControlKeyState() != 0)
-        modifiers |= 0x2000;
+        modifiers |= INPUT_MOD_CONTROL;
     if (GetKeyboardModifiers() != 0)
-        modifiers |= 0x700;
+        modifiers |= INPUT_MOD_ALT;
     if (primaryButton != 0)
-        modifiers |= 2;
+        modifiers |= INPUT_MOD_PRIMARY_BUTTON;
     if (secondaryButton != 0)
-        modifiers |= 4;
+        modifiers |= INPUT_MOD_SECONDARY_BUTTON;
 
     if (pInputEventHead == 0) {
         pInputEventHead = AllocateInputEvent();
@@ -236,7 +236,7 @@ short __stdcall GetNextInputEvent(InputEventState *state)
     short limit;
     int type;
 
-    type = 0;
+    type = INPUT_EVENT_NONE;
     if (pInputEventHead != 0) {
         eventX = pInputEventHead->x;
         eventY = pInputEventHead->y;
@@ -260,15 +260,15 @@ short __stdcall GetNextInputEvent(InputEventState *state)
         state->modifiers =
             pInputEventHead->modifiers;
         switch (pInputEventHead->type) {
-        case 1:
+        case INPUT_EVENT_BUTTON_UP:
             stMouseCursorState.x = pInputEventHead->x;
             stMouseCursorState.y = pInputEventHead->y;
             stMouseCursorState.primaryButton = 0;
             state->x = pInputEventHead->x;
             state->y = pInputEventHead->y;
-            type = 1;
+            type = INPUT_EVENT_BUTTON_UP;
             break;
-        case 2:
+        case INPUT_EVENT_BUTTON_DOWN:
             stMouseCursorState.x = pInputEventHead->x;
             stMouseCursorState.y = pInputEventHead->y;
             stMouseCursorState.primaryButton =
@@ -277,58 +277,58 @@ short __stdcall GetNextInputEvent(InputEventState *state)
                 pInputEventHead->secondaryButton;
             state->x = pInputEventHead->x;
             state->y = pInputEventHead->y;
-            type = 2;
+            type = INPUT_EVENT_BUTTON_DOWN;
             state->value =
-                pInputEventHead->secondaryButton * 2 |
+                pInputEventHead->secondaryButton * INPUT_BUTTON_SECONDARY |
                 pInputEventHead->primaryButton;
             break;
-        case 3:
+        case INPUT_EVENT_KEY_DOWN:
             state->value = pInputEventHead->value;
             state->x = stMouseCursorState.x;
             state->y = stMouseCursorState.y;
-            type = 3;
+            type = INPUT_EVENT_KEY_DOWN;
             break;
-        case 4:
+        case INPUT_EVENT_KEY_UP:
             state->x = pInputEventHead->value;
             state->x = stMouseCursorState.x;
             state->y = stMouseCursorState.y;
-            type = 4;
+            type = INPUT_EVENT_KEY_UP;
             break;
-        case 5:
+        case INPUT_EVENT_KEY_REPEAT:
             state->x = pInputEventHead->value;
-            type = 5;
+            type = INPUT_EVENT_KEY_REPEAT;
             break;
-        case 6:
+        case INPUT_EVENT_JOYSTICK_MOVE:
             state->x = pInputEventHead->x;
             state->y = pInputEventHead->y;
-            type = 6;
+            type = INPUT_EVENT_JOYSTICK_MOVE;
             break;
-        case 7:
+        case INPUT_EVENT_LEGACY_7:
             state->x = pInputEventHead->x;
             state->y = pInputEventHead->y;
-            type = 7;
+            type = INPUT_EVENT_LEGACY_7;
             break;
-        case 8:
+        case INPUT_EVENT_LEGACY_8:
             state->x = pInputEventHead->x;
             state->y = pInputEventHead->y;
-            type = 8;
+            type = INPUT_EVENT_LEGACY_8;
             break;
-        case 9:
+        case INPUT_EVENT_LEGACY_9:
             state->x = pInputEventHead->x;
             state->y = pInputEventHead->y;
-            type = 9;
+            type = INPUT_EVENT_LEGACY_9;
             break;
-        case 10:
+        case INPUT_EVENT_LEGACY_ACTIVATE:
             state->x = pInputEventHead->x;
             state->y = pInputEventHead->y;
-            type = 10;
+            type = INPUT_EVENT_LEGACY_ACTIVATE;
             break;
-        case 13:
+        case INPUT_EVENT_MOUSE_MOVE:
             stMouseCursorState.x = pInputEventHead->x;
             stMouseCursorState.y = pInputEventHead->y;
             state->x = pInputEventHead->x;
             state->y = pInputEventHead->y;
-            type = 13;
+            type = INPUT_EVENT_MOUSE_MOVE;
             break;
         }
         RemoveInputEvent(pInputEventHead);
@@ -359,10 +359,13 @@ short __stdcall PeekInputEvent(InputEventState *state, short type)
         state->value = event->modifiers;
         state->timestamp = event->timestamp;
         eventType = event->type;
-        if (eventType == 2 || eventType == 1)
-            modifiers = 1;
-        modifiers |= ((unsigned short)event->primaryButton < 1 ? 0 : -1) & 2;
-        modifiers |= ((unsigned short)event->secondaryButton < 1 ? 0 : -1) & 4;
+        if (eventType == INPUT_EVENT_BUTTON_DOWN ||
+            eventType == INPUT_EVENT_BUTTON_UP)
+            modifiers = INPUT_MOD_BUTTON_EVENT;
+        modifiers |= ((unsigned short)event->primaryButton < 1 ? 0 : -1) &
+                     INPUT_MOD_PRIMARY_BUTTON;
+        modifiers |= ((unsigned short)event->secondaryButton < 1 ? 0 : -1) &
+                     INPUT_MOD_SECONDARY_BUTTON;
         state->modifiers = modifiers;
         state->x = event->x;
         state->y = event->y;
@@ -790,13 +793,13 @@ void ResetInputKeyStatePreservingModifiers(void)
 /* Function start: 0x4363A0 */
 void ClearInputKeyStatePreservingModifiers(void)
 {
-    unsigned int control = abInputKeyStateArray[0x1d];
-    unsigned int alt = abInputKeyStateArray[0x38];
+    unsigned int control = abInputKeyStateArray[SCAN_CONTROL];
+    unsigned int alt = abInputKeyStateArray[SCAN_ALT];
 
     memset(abInputKeyStateArray, 0,
            sizeof(abInputKeyStateArray));
-    abInputKeyStateArray[0x1d] = control;
-    abInputKeyStateArray[0x38] = alt;
+    abInputKeyStateArray[SCAN_CONTROL] = control;
+    abInputKeyStateArray[SCAN_ALT] = alt;
     ClearDebugPauseFlags();
 }
 
@@ -825,7 +828,7 @@ void KeyboardScanHook(void)
 /* Function start: 0x436420 */
 void SetInputKeyState(int scanCode, unsigned char pressed)
 {
-    if (scanCode >= 0 && scanCode < 0x80) {
+    if (scanCode >= 0 && scanCode < SCAN_CODE_COUNT) {
         abInputKeyStateArray[scanCode] = pressed;
         return;
     }

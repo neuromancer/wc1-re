@@ -95,40 +95,40 @@ unsigned int PollKeyboardState(void)
     nDownArrowKeyState = GetAsyncKeyState(VK_DOWN);
     nPageDownKeyHeld = GetAsyncKeyState(VK_NEXT);
     nClearKeyState = GetAsyncKeyState(VK_CLEAR);
-    nOemPeriodKeyStatus = GetAsyncKeyState(0xbe);
-    nOemCommaKeyPressed = GetAsyncKeyState(0xbc);
+    nOemPeriodKeyStatus = GetAsyncKeyState(VK_OEM_PERIOD);
+    nOemCommaKeyPressed = GetAsyncKeyState(VK_OEM_COMMA);
     nInsertKeyDown = GetAsyncKeyState(VK_INSERT);
     nDeleteKeyDown = GetAsyncKeyState(VK_DELETE);
 
     if (nHomeState != 0)
-        return 0x47;
+        return SCAN_HOME;
     if (nPageUpKeyState != 0)
-        return 0x49;
+        return SCAN_PAGEUP;
     if (nEndKeyDown != 0)
-        return 0x4f;
+        return SCAN_END;
     if (nPageDownKeyHeld != 0)
-        return 0x51;
+        return SCAN_PAGEDOWN;
     if (nInsertKeyDown != 0 ||
         nOemCommaKeyPressed != 0)
-        return 0x52;
+        return SCAN_INSERT;
     if (nDeleteKeyDown != 0 ||
         nOemPeriodKeyStatus != 0)
-        return 0x53;
+        return SCAN_DELETE;
     if (nClearKeyState != 0)
-        return 0x4c;
+        return SCAN_KP_5;
     if (nUpArrowKeyState != 0) {
         if (nLeftArrowKeyState != 0)
-            return 0x47;
-        return nRightArrowKeyHeld != 0 ? 0x49 : 0x48;
+            return SCAN_HOME;
+        return nRightArrowKeyHeld != 0 ? SCAN_PAGEUP : SCAN_UP;
     }
     if (nDownArrowKeyState != 0) {
         if (nLeftArrowKeyState != 0)
-            return 0x4f;
-        return nRightArrowKeyHeld != 0 ? 0x51 : 0x50;
+            return SCAN_END;
+        return nRightArrowKeyHeld != 0 ? SCAN_PAGEDOWN : SCAN_DOWN;
     }
     if (nLeftArrowKeyState != 0)
-        return 0x4b;
-    return nRightArrowKeyHeld != 0 ? 0x4d : 0;
+        return SCAN_LEFT;
+    return nRightArrowKeyHeld != 0 ? SCAN_RIGHT : SCAN_NONE;
 }
 
 /* Function start: 0x403060 */

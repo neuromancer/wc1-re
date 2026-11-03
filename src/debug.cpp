@@ -160,7 +160,7 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
 {
 #ifdef SDL_PORT
     (void)code;
-    if ((flags & 0x40000000) != 0) {
+    if ((flags & (KF_REPEAT << 16)) != 0) {
         dwDebugOverlayKey = (DWORD)key;
         dwDebugOverlayKeyLatch = (DWORD)key;
     }
@@ -169,7 +169,7 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
     if (code < 0)
         return CallNextHookEx(hDebugKeyboardHook,
                               code, key, flags);
-    if ((flags & 0x40000000) != 0) {
+    if ((flags & (KF_REPEAT << 16)) != 0) {
         dwDebugOverlayKey = key;
         dwDebugOverlayKeyLatch = key;
     }
@@ -303,7 +303,7 @@ char DebugOverlayConsole::WaitForKey(void)
             SDL_Delay(1);
     }
     if (dwDebugOverlayKey == 0)
-        return 0x1b;
+        return VK_ESCAPE;
     key = dwDebugOverlayKey;
     dwDebugOverlayKey = 0;
     return key;

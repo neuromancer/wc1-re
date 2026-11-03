@@ -40,9 +40,9 @@ short __stdcall UpdateInputDeviceTransitions(short raw)
     if ((short)aInputDevSamples[device].buttons !=
         asPreviousInputButtons[device]) {
         if ((((unsigned short)aInputDevSamples[device].buttons ^
-              (unsigned short)asPreviousInputButtons[device]) & 1) != 0) {
+              (unsigned short)asPreviousInputButtons[device]) & JOY_BUTTON1) != 0) {
             asInputBtn1ChangedTable[device] = 1;
-            if (((unsigned short)aInputDevSamples[device].buttons & 1) != 0) {
+            if (((unsigned short)aInputDevSamples[device].buttons & JOY_BUTTON1) != 0) {
                 if (nTickCount60Hz - anInputButton1PressTimes[device] <=
                     nInputDoubleClickInterval * nInputTickScale)
                     asInputButton1DoubleClicksList[device] = 1;
@@ -50,9 +50,9 @@ short __stdcall UpdateInputDeviceTransitions(short raw)
             }
         }
         if ((((unsigned short)aInputDevSamples[device].buttons ^
-              (unsigned short)asPreviousInputButtons[device]) & 2) != 0) {
+              (unsigned short)asPreviousInputButtons[device]) & JOY_BUTTON2) != 0) {
             asInputButton2ChangedTable[device] = 1;
-            if (((unsigned short)aInputDevSamples[device].buttons & 2) != 0) {
+            if (((unsigned short)aInputDevSamples[device].buttons & JOY_BUTTON2) != 0) {
                 if (nTickCount60Hz - anInputButton2PressTime[device] <=
                     nInputDoubleClickInterval * nInputTickScale)
                     asInputButton2DoubleClick[device] = 1;
@@ -86,18 +86,19 @@ void PollJoystickButtonEvents(void)
     if (asInputBtn1ChangedTable[nCurrentActiveInputDevice] != 0) {
         doubleClick = 0;
         if (asInputButton1DoubleClicksList[nCurrentActiveInputDevice] != 0)
-            doubleClick = 3;
+            doubleClick = INPUT_DOUBLE_CLICK;
         QueueInputEventAtCursor(
-            (aInputDevSamples[nCurrentActiveInputDevice].buttons & 1) + 1,
+            (aInputDevSamples[nCurrentActiveInputDevice].buttons &
+             JOY_BUTTON1) + INPUT_EVENT_BUTTON_UP,
             0, doubleClick);
     }
     if (asInputButton2ChangedTable[nCurrentActiveInputDevice] != 0) {
         doubleClick = 0;
         if (asInputButton2DoubleClick[nCurrentActiveInputDevice] != 0)
-            doubleClick = 3;
+            doubleClick = INPUT_DOUBLE_CLICK;
         QueueInputEventAtCursor(
             ((aInputDevSamples[nCurrentActiveInputDevice].buttons >> 1) &
-             1) + 1,
+             1) + INPUT_EVENT_BUTTON_UP,
             1, doubleClick);
     }
     stHostMouseState.secondaryButton =
@@ -130,9 +131,10 @@ void PollMenuInputDevices(void)
                 nMenuPointerSpeed;
             doubleClick = 0;
             if (asInputButton1DoubleClicksList[nCurrentActiveInputDevice] != 0)
-                doubleClick = 3;
+                doubleClick = INPUT_DOUBLE_CLICK;
             QueueInputEventAtCursor(
-                (aInputDevSamples[nCurrentActiveInputDevice].buttons & 1) + 1,
+                (aInputDevSamples[nCurrentActiveInputDevice].buttons &
+                 JOY_BUTTON1) + INPUT_EVENT_BUTTON_UP,
                 0, doubleClick);
             changes++;
         }
@@ -145,10 +147,10 @@ void PollMenuInputDevices(void)
                 nMenuPointerSpeed;
             doubleClick = 0;
             if (asInputButton1DoubleClicksList[nCurrentActiveInputDevice] != 0)
-                doubleClick = 3;
+                doubleClick = INPUT_DOUBLE_CLICK;
             QueueInputEventAtCursor(
                 ((aInputDevSamples[nCurrentActiveInputDevice].buttons >> 1) &
-                 1) + 1,
+                 1) + INPUT_EVENT_BUTTON_UP,
                 1, doubleClick);
             changes++;
         }

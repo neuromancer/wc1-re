@@ -25,10 +25,10 @@ short nEyeRollRate = 1;
 short nFreeShipSlot = -1; /* 0x0046c010 */
 
 /* 0x0046c014 */
-signed char bCurrentKey = 0x80;
+signed char bCurrentKey = SCAN_RELEASE_FLAG;
 
 /* 0x0046c018 */
-volatile signed char cPreviousKey = 0x80;
+volatile signed char cPreviousKey = SCAN_RELEASE_FLAG;
 
 /* 0x0046c01c */
 short nCurrentWave = -1;

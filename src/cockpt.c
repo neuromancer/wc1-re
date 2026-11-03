@@ -3161,7 +3161,7 @@ void SelectCockpitVduMode(short vdu, int mode)
     }
     switch (mode) {
     case 1:
-        if (bCurrentKey == 0x22)
+        if (bCurrentKey == SCAN_G)
             select_new_gun();
         else
             select_new_release_weapon((enum ObjectType)-1);

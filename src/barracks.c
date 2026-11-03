@@ -547,10 +547,10 @@ int WarnLoadGameFirst(void)
     LeaveAllocationScope();
     key = 0;
     if (ShowModalTextPanel(0, "Load a game first.") != 0) {
-        while (PollInputEvent(&event, 0xff) != 0) {
+        while (PollInputEvent(&event, INPUT_EVENT_FILTER_ALL) != 0) {
         }
         key = WaitForInputKey();
-        while (PollInputEvent(&event, 0xff) != 0) {
+        while (PollInputEvent(&event, INPUT_EVENT_FILTER_ALL) != 0) {
         }
         ReleaseModalTextPanel();
     }
@@ -1029,18 +1029,18 @@ short BarracksScreen(void)
                                  background, &animation);
             SetFrameTimerPeriodDirect(2);
         }
-        eventType = PollInputEvent(&event, 0xff);
+        eventType = PollInputEvent(&event, INPUT_EVENT_FILTER_ALL);
         switch (eventType) {
-        case 3:
-        case 5:
+        case INPUT_EVENT_KEY_DOWN:
+        case INPUT_EVENT_KEY_REPEAT:
             clicked = 0;
             ClearInputKeyStatePreservingModifiers();
             switch ((short)event.value) {
-            case 0x1c:
-            case 0x39:
+            case SCAN_RETURN:
+            case SCAN_SPACE:
                 clicked = 1;
                 break;
-            case 0x24:
+            case SCAN_J:
                 CalibrateJoystickInteractive();
                 break;
             default:
@@ -1050,8 +1050,8 @@ short BarracksScreen(void)
             if (clicked == 0)
                 break;
             /* Fall through to the shared mouse/keyboard activation. */
-        case 2:
-        case 10:
+        case INPUT_EVENT_BUTTON_DOWN:
+        case INPUT_EVENT_LEGACY_ACTIVATE:
             region = FindMenuRegionAtPoint(
                 event.x, event.y, aBarracksMenuRegions);
             if (region >= 0 && region < 16) {
@@ -1113,7 +1113,7 @@ short BarracksScreen(void)
                 }
             }
             break;
-        case 13:
+        case INPUT_EVENT_MOUSE_MOVE:
             UpdateRoomMenuCursor();
             break;
         }

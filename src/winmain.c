@@ -896,8 +896,8 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     HANDLE process;
 
     mouseEvent = 0;
-    primaryButton = wParam & 1;
-    secondaryButton = (wParam & 2) >> 1;
+    primaryButton = wParam & MK_LBUTTON;
+    secondaryButton = (wParam & MK_RBUTTON) >> 1;
     mouseX = (unsigned short)lParam;
     command = (unsigned short)wParam;
     mouseY = (unsigned short)((unsigned long)lParam >> 16);
@@ -928,38 +928,38 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         break;
     case WM_KEYDOWN:
         if (bKeyEventQueueEnabled != 0)
-            QueueInputEvent(3, 0, 0, wParam,
+            QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, wParam,
                             0, 0, 0);
         if (wParam == VK_F1) {
-            if ((lParam & 0x40000000) != 0) {
+            if ((lParam & (KF_REPEAT << 16)) != 0) {
                 bF1KeyLatch = 1;
                 bF1KeyLatch = 0;
             } else {
                 bF1KeyLatch = 1;
             }
         }
-        scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
-        if (scanCode == 1)
+        scanCode = ((unsigned long)lParam & KEY_MESSAGE_SCAN_MASK) >> 16;
+        if (scanCode == SCAN_ESCAPE)
             bEscapePressedFlag = 1;
-        QueueInputEvent(3, 0, 0, scanCode,
+        QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, scanCode,
                         0, 0, 0);
         SetInputKeyState(scanCode, 1);
         break;
     case WM_KEYUP:
         if (bKeyEventQueueEnabled != 0)
-            QueueInputEvent(4, 0, 0, wParam,
+            QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, wParam,
                             0, 0, 0);
         if (wParam == VK_F1)
             bF1KeyLatch = 0;
-        scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
-        QueueInputEvent(4, 0, 0, scanCode,
+        scanCode = ((unsigned long)lParam & KEY_MESSAGE_SCAN_MASK) >> 16;
+        QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, scanCode,
                         0, 0, 0);
         SetInputKeyState(scanCode, 0);
         break;
     case WM_SYSKEYDOWN:
         nSystemKeyDown = wParam;
         if (wParam == 'X') {
-            if (((unsigned long)lParam & 0x20000000) != 0) {
+            if (((unsigned long)lParam & (KF_ALTDOWN << 16)) != 0) {
                 PostQuitMessage(0);
                 sprintf(szMemoryUsage,
                         "Current: %i\nMax    : %i\nTotal : %i\n",
@@ -991,7 +991,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         break;
     case WM_MOUSEMOVE:
         if (bPtrMovedByKeyboardState == 0) {
-            eventType = 13;
+            eventType = INPUT_EVENT_MOUSE_MOVE;
             QueueInputEvent(eventType, mouseX,
                             mouseY, 0,
                             primaryButton, secondaryButton, 0);
@@ -1002,7 +1002,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         break;
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
-        eventType = 2;
+        eventType = INPUT_EVENT_BUTTON_DOWN;
         QueueInputEvent(eventType, mouseX,
                         mouseY, 0,
                         primaryButton, secondaryButton, 0);
@@ -1010,7 +1010,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         break;
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
-        eventType = 1;
+        eventType = INPUT_EVENT_BUTTON_UP;
         QueueInputEvent(eventType, mouseX,
                         mouseY, 0,
                         primaryButton, secondaryButton, 0);
@@ -1058,7 +1058,7 @@ int __stdcall GetJoystickPosition(int *x, int *y,
         if (joystick != 0)
             *buttons = buttonState >> 2;
         else
-            *buttons = buttonState & 3;
+            *buttons = buttonState & (JOY_BUTTON1 | JOY_BUTTON2);
         return 0;
     }
 

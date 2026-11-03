@@ -446,16 +446,16 @@ short CheckEscaped(void)
 
     PumpWindowMessages();
     escaped = 0;
-    if (IsInputEventQueued(10) != 0) {
-        PeekInputEvent(&event, 10);
+    if (IsInputEventQueued(INPUT_EVENT_LEGACY_ACTIVATE) != 0) {
+        PeekInputEvent(&event, INPUT_EVENT_LEGACY_ACTIVATE);
         escaped = (short)event.value + 1;
-    } else if (IsInputEventQueued(2) != 0) {
-        PeekInputEvent(&event, 2);
+    } else if (IsInputEventQueued(INPUT_EVENT_BUTTON_DOWN) != 0) {
+        PeekInputEvent(&event, INPUT_EVENT_BUTTON_DOWN);
         escaped = (short)event.value + 1;
-    } else if (IsInputEventQueued(3) != 0) {
-        PeekInputEvent(&event, 3);
+    } else if (IsInputEventQueued(INPUT_EVENT_KEY_DOWN) != 0) {
+        PeekInputEvent(&event, INPUT_EVENT_KEY_DOWN);
         escaped = (short)event.value + 1;
-        while (PollInputEvent(&event, 0xff) != 0)
+        while (PollInputEvent(&event, INPUT_EVENT_FILTER_ALL) != 0)
             ;
     }
     if (escaped != 0)
@@ -477,22 +477,22 @@ short WaitForInputKey(void)
     savedMode = bInputModeState;
     bInputModeState = 1;
     while (key == 0) {
-        switch (PollInputEvent(&event, 0xff)) {
-        case 2:
-        case 10:
-            key = 0x1c;
-            while (PollInputEvent(&event, 0xff) != 0)
+        switch (PollInputEvent(&event, INPUT_EVENT_FILTER_ALL)) {
+        case INPUT_EVENT_BUTTON_DOWN:
+        case INPUT_EVENT_LEGACY_ACTIVATE:
+            key = SCAN_RETURN;
+            while (PollInputEvent(&event, INPUT_EVENT_FILTER_ALL) != 0)
                 ;
             break;
-        case 3:
-        case 5:
+        case INPUT_EVENT_KEY_DOWN:
+        case INPUT_EVENT_KEY_REPEAT:
             key = event.value;
             switch (key) {
-            case 0x1d:
+            case SCAN_CONTROL:
                 key = 0;
                 break;
             default:
-                while (PollInputEvent(&event, 0xff) != 0)
+                while (PollInputEvent(&event, INPUT_EVENT_FILTER_ALL) != 0)
                     ;
                 break;
             }
@@ -529,17 +529,17 @@ void WaitForSceneAdvance(short duration, short unused)
         }
     }
     while ((short)IsFrameTickElapsed() == 0 && advanced == 0) {
-        eventType = PollInputEvent(&event, 0xff);
+        eventType = PollInputEvent(&event, INPUT_EVENT_FILTER_ALL);
         switch (eventType) {
-        case 2:
-        case 3:
-        case 5:
-        case 10:
+        case INPUT_EVENT_BUTTON_DOWN:
+        case INPUT_EVENT_KEY_DOWN:
+        case INPUT_EVENT_KEY_REPEAT:
+        case INPUT_EVENT_LEGACY_ACTIVATE:
             advanced++;
             bInputModeState = savedMode;
             FlushInputEvents();
             do {
-                eventType = PollInputEvent(&event, 0xff);
+                eventType = PollInputEvent(&event, INPUT_EVENT_FILTER_ALL);
             } while (eventType != 0);
             ClearInputKeyStatePreservingModifiers();
             break;
@@ -555,38 +555,38 @@ void MoveMenuPointerFromKeyboard(InputEventState *event)
 
     delta = nKeyboardPointerStep * 2;
     moved = 0;
-    if ((short)event->value == 0x4c) {
+    if ((short)event->value == SCAN_KP_5) {
         if (nKeyboardPointerStep == 1)
             nKeyboardPointerStep = 4;
         else
             nKeyboardPointerStep = 1;
     } else {
         switch ((short)event->value) {
-        case 0x47:
+        case SCAN_HOME:
             stMouseCursorState.y -= delta;
             /* fall through */
-        case 0x4b:
+        case SCAN_LEFT:
             stMouseCursorState.x -= delta;
             moved = 1;
             break;
-        case 0x49:
+        case SCAN_PAGEUP:
             stMouseCursorState.x += delta;
             /* fall through */
-        case 0x48:
+        case SCAN_UP:
             stMouseCursorState.y -= delta;
             moved = 1;
             break;
-        case 0x4f:
+        case SCAN_END:
             stMouseCursorState.x -= delta;
             /* fall through */
-        case 0x50:
+        case SCAN_DOWN:
             stMouseCursorState.y += delta;
             moved = 1;
             break;
-        case 0x51:
+        case SCAN_PAGEDOWN:
             stMouseCursorState.y += delta;
             /* fall through */
-        case 0x4d:
+        case SCAN_RIGHT:
             stMouseCursorState.x += delta;
             moved = 1;
             break;
@@ -605,8 +605,8 @@ void MoveMenuPointerFromKeyboard(InputEventState *event)
     stHostMouseState.x = stMouseCursorState.x;
     stHostMouseState.y = stMouseCursorState.y;
     if (moved != 0) {
-        RetainInputEventsOfType(3);
-        QueueInputEvent(13, stMouseCursorState.x,
+        RetainInputEventsOfType(INPUT_EVENT_KEY_DOWN);
+        QueueInputEvent(INPUT_EVENT_MOUSE_MOVE, stMouseCursorState.x,
                         stMouseCursorState.y,
                         0, 0, 0, 0);
         bPtrMovedByKeyboardState = 1;

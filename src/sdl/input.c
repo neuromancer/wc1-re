@@ -146,7 +146,7 @@ int SdlGetAsyncKeyState(int virtualKey)
     switch (virtualKey) {
     case VK_SHIFT:
         return (keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT])
-            ? 0x8000 : 0;
+            ? KEY_STATE_DOWN : 0;
     case VK_CONTROL:
         if (!keys[SDL_SCANCODE_LCTRL] && !keys[SDL_SCANCODE_RCTRL])
             return 0;
@@ -162,7 +162,7 @@ int SdlGetAsyncKeyState(int virtualKey)
             keys[SDL_SCANCODE_KP_6] || keys[SDL_SCANCODE_KP_7] ||
             keys[SDL_SCANCODE_KP_8] || keys[SDL_SCANCODE_KP_9])
             return 0;
-        return 0x8000;
+        return KEY_STATE_DOWN;
     case VK_CLEAR:
         scanCode = SDL_SCANCODE_KP_5;
         break;
@@ -206,10 +206,10 @@ int SdlGetAsyncKeyState(int virtualKey)
         scanCode = SDL_SCANCODE_DELETE;
         keypadCode = SDL_SCANCODE_KP_PERIOD;
         break;
-    case 0xbc:
+    case VK_OEM_COMMA:
         scanCode = SDL_SCANCODE_COMMA;
         break;
-    case 0xbe:
+    case VK_OEM_PERIOD:
         scanCode = SDL_SCANCODE_PERIOD;
         break;
     default:
@@ -217,7 +217,7 @@ int SdlGetAsyncKeyState(int virtualKey)
     }
     return (keys[scanCode] ||
             (keypadCode != SDL_SCANCODE_UNKNOWN && keys[keypadCode]))
-        ? 0x8000 : 0;
+        ? KEY_STATE_DOWN : 0;
 }
 
 void SdlOutputDebugString(const char *text)

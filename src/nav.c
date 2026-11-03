@@ -904,18 +904,18 @@ void InflightComputer(void)
             UpdateInflightNavText(((frame / 4) % 2));
             SetRectBounds(&stScreenView, 0, 0, 319, 199);
 
-            eventType = PollInputEvent(&event, 0xff);
+            eventType = PollInputEvent(&event, INPUT_EVENT_FILTER_ALL);
             switch (eventType) {
-            case 2:
-            case 10:
+            case INPUT_EVENT_BUTTON_DOWN:
+            case INPUT_EVENT_LEGACY_ACTIVATE:
                 done = 1;
                 break;
-            case 3:
-            case 5:
-                if ((short)event.value == 0x1c ||
-                    (short)event.value == 0x39) {
+            case INPUT_EVENT_KEY_DOWN:
+            case INPUT_EVENT_KEY_REPEAT:
+                if ((short)event.value == SCAN_RETURN ||
+                    (short)event.value == SCAN_SPACE) {
                     done = 1;
-                } else if ((short)event.value == 0x31) {
+                } else if ((short)event.value == SCAN_N) {
                     cycle_next_objective();
                     CentreMouseOnCurrentNavObjective();
                 } else {

@@ -361,9 +361,14 @@ int SdlChangeDirectory(const char *path);
 int SdlResolvePath(const char *path, char *resolved,
                       unsigned long resolvedSize);
 
+#define VK_BACK 0x08
+#define VK_TAB 0x09
 #define VK_CLEAR 0x0c
+#define VK_RETURN 0x0d
 #define VK_SHIFT 0x10
 #define VK_CONTROL 0x11
+#define VK_MENU 0x12
+#define VK_ESCAPE 0x1b
 #define VK_F1 0x70
 #define VK_F12 0x7b
 #define VK_PRIOR 0x21
@@ -376,6 +381,14 @@ int SdlResolvePath(const char *path, char *resolved,
 #define VK_DOWN 0x28
 #define VK_INSERT 0x2d
 #define VK_DELETE 0x2e
+#define VK_OEM_COMMA 0xbc
+#define VK_OEM_PERIOD 0xbe
+
+#define KF_ALTDOWN 0x2000
+#define KF_REPEAT 0x4000
+#define JOY_BUTTON1 0x0001
+#define JOY_BUTTON2 0x0002
+#define KEY_STATE_DOWN 0x8000
 
 #ifndef _WIN32
 int SdlOpen(const char *path, int flags, ...);

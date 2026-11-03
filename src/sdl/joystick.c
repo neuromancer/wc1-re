@@ -587,7 +587,7 @@ BOOL SdlReadJoystick(unsigned int deviceIndex, JOYINFO *information)
     if (pCurrentEventManagerPump == get_player_input &&
         g_eSdlJoystickMode != SDL_PORT_JOYSTICK_ORIGINAL) {
         if (SdlReadJoystickButton(device, 0))
-            buttonState = 1;
+            buttonState = JOY_BUTTON1;
     } else {
         buttonIndex = 0;
         while (buttonIndex < 2) {
@@ -846,8 +846,8 @@ static void SdlQueueScanCodePress(unsigned short scanCode)
 {
     /* player_input samples one transition before consuming the remaining
        queue, so lead with the release for this impulse. */
-    QueueInputEvent(4, 0, 0, scanCode, 0, 0, 0);
-    QueueInputEvent(3, 0, 0, scanCode, 0, 0, 0);
+    QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, scanCode, 0, 0, 0);
+    QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, scanCode, 0, 0, 0);
 }
 
 int SdlGetCommunicationMenuSelection(void)
@@ -889,12 +889,12 @@ static int SdlHandleCommunicationDpad(int button)
         }
         return 1;
     case SDL_PORT_JOYSTICK_BUTTON_DPAD_LEFT:
-        SdlQueueScanCodePress(0x01);
+        SdlQueueScanCodePress(SCAN_ESCAPE);
         return 1;
     case SDL_PORT_JOYSTICK_BUTTON_DPAD_RIGHT:
         if (selection != -1)
             SdlQueueScanCodePress(
-                (selection + 2));
+                (selection + SCAN_1));
         return 1;
     default:
         return 0;
@@ -905,30 +905,30 @@ static unsigned short SdlFlightScanCodeForButton(int button)
 {
     switch ((SdlJoystickButton)button) {
     case SDL_PORT_JOYSTICK_BUTTON_B:
-        return 0x1c;
+        return SCAN_RETURN;
     case SDL_PORT_JOYSTICK_BUTTON_Y:
         if (g_eSdlJoystickMode ==
                 SDL_PORT_JOYSTICK_FOUR_BUTTON_FOUR_AXIS)
-            return 0x14;
+            return SCAN_T;
         break;
     case SDL_PORT_JOYSTICK_BUTTON_LEFT_SHOULDER:
-        return 0x22;
+        return SCAN_G;
     case SDL_PORT_JOYSTICK_BUTTON_RIGHT_SHOULDER:
-        return 0x11;
+        return SCAN_W;
     case SDL_PORT_JOYSTICK_BUTTON_LEFT_TRIGGER:
     case SDL_PORT_JOYSTICK_BUTTON_LEFT_STICK:
-        return 0x31;
+        return SCAN_N;
     case SDL_PORT_JOYSTICK_BUTTON_RIGHT_TRIGGER:
     case SDL_PORT_JOYSTICK_BUTTON_RIGHT_STICK:
-        return 0x1e;
+        return SCAN_A;
     case SDL_PORT_JOYSTICK_BUTTON_DPAD_UP:
-        return 0x2b;
+        return SCAN_BACKSLASH;
     case SDL_PORT_JOYSTICK_BUTTON_DPAD_DOWN:
-        return 0x0e;
+        return SCAN_BACKSPACE;
     case SDL_PORT_JOYSTICK_BUTTON_DPAD_LEFT:
-        return 0x2e;
+        return SCAN_C;
     case SDL_PORT_JOYSTICK_BUTTON_DPAD_RIGHT:
-        return 0x26;
+        return SCAN_L;
     default:
         break;
     }
@@ -1041,27 +1041,27 @@ void SdlTranslateSwcJoystickEvent(SDL_Event *event, int flight)
                 else if (button == SDL_PORT_JOYSTICK_BUTTON_DPAD_DOWN)
                     g_nSdlCommunicationMenuSelection = (selection + 1) % nCommMenuChoiceCount;
                 else if (button == SDL_PORT_JOYSTICK_BUTTON_DPAD_RIGHT)
-                    scanCode = (selection + 2);
+                    scanCode = (selection + SCAN_1);
             }
             if (button == SDL_PORT_JOYSTICK_BUTTON_DPAD_LEFT)
                 key = SDLK_c;
         } else {
             scanCode = SdlFlightScanCodeForButton(button);
         }
-        if (scanCode >= 2 && scanCode <= 8)
-            key = SDLK_1 + scanCode - 2;
+        if (scanCode >= SCAN_1 && scanCode <= SCAN_7)
+            key = SDLK_1 + scanCode - SCAN_1;
         else {
             switch (scanCode) {
-            case 0x0e: key = SDLK_BACKSPACE; break;
-            case 0x11: key = SDLK_w; break;
-            case 0x14: key = SDLK_t; break;
-            case 0x1c: key = SDLK_RETURN; break;
-            case 0x1e: key = SDLK_a; break;
-            case 0x22: key = SDLK_g; break;
-            case 0x26: key = SDLK_l; break;
-            case 0x2b: key = SDLK_BACKSLASH; break;
-            case 0x2e: key = SDLK_c; break;
-            case 0x31: key = SDLK_n; break;
+            case SCAN_BACKSPACE: key = SDLK_BACKSPACE; break;
+            case SCAN_W: key = SDLK_w; break;
+            case SCAN_T: key = SDLK_t; break;
+            case SCAN_RETURN: key = SDLK_RETURN; break;
+            case SCAN_A: key = SDLK_a; break;
+            case SCAN_G: key = SDLK_g; break;
+            case SCAN_L: key = SDLK_l; break;
+            case SCAN_BACKSLASH: key = SDLK_BACKSLASH; break;
+            case SCAN_C: key = SDLK_c; break;
+            case SCAN_N: key = SDLK_n; break;
             default: break;
             }
         }
@@ -1102,26 +1102,26 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     spaceflightActive = g_bSdlJoystickSpaceflightActive &&
         pCurrentEventManagerPump == get_player_input &&
         nArcadeState == 0;
-    eventType = pressed ? 3 : 4;
+    eventType = pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP;
     if (button == SDL_PORT_JOYSTICK_BUTTON_BACK) {
         if (pressed)
             bEscapePressedFlag = 1;
         if (bKeyEventQueueEnabled != 0)
-            QueueInputEvent(eventType, 0, 0, 0x1b, 0, 0, 0);
-        QueueInputEvent(eventType, 0, 0, 0x01, 0, 0, 0);
+            QueueInputEvent(eventType, 0, 0, VK_ESCAPE, 0, 0, 0);
+        QueueInputEvent(eventType, 0, 0, SCAN_ESCAPE, 0, 0, 0);
         return;
     }
     if (button == SDL_PORT_JOYSTICK_BUTTON_START) {
         if (spaceflightActive && pressed)
-            SdlQueueScanCodePress(0x19);
+            SdlQueueScanCodePress(SCAN_P);
         return;
     }
     if (!pressed)
         return;
     if (button == SDL_PORT_JOYSTICK_BUTTON_Y &&
         !spaceflightActive && bKeyEventQueueEnabled != 0) {
-        QueueInputEvent(3, 0, 0, 'Y', 0, 0, 0);
-        QueueInputEvent(3, 0, 0, 0x15, 0, 0, 0);
+        QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, 'Y', 0, 0, 0);
+        QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, SCAN_Y, 0, 0, 0);
         return;
     }
     if (!spaceflightActive ||

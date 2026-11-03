@@ -380,28 +380,28 @@ int Title_Sequence(void)
     while (state == 0) {
         selectedIndex = -1;
         UpdateTitleMenuCursor();
-        eventType = PollInputEvent(&event, 0xff);
+        eventType = PollInputEvent(&event, INPUT_EVENT_FILTER_ALL);
         switch (eventType) {
-        case 3:
-        case 5:
+        case INPUT_EVENT_KEY_DOWN:
+        case INPUT_EVENT_KEY_REPEAT:
             activate = 0;
             ClearInputKeyStatePreservingModifiers();
             switch ((short)event.value) {
-            case 0x1c:
-            case 0x1f:
-            case 0x2e:
-            case 0x39:
-                if ((short)event.value == 0x1f)
+            case SCAN_RETURN:
+            case SCAN_S:
+            case SCAN_C:
+            case SCAN_SPACE:
+                if ((short)event.value == SCAN_S)
                     selectedIndex = 0;
-                if ((short)event.value == 0x2e &&
+                if ((short)event.value == SCAN_C &&
                     menuOptions[2] != -1)
                     selectedIndex = 1;
-                if ((short)event.value == 0x32 &&
+                if ((short)event.value == SCAN_M &&
                     menuOptions[2] != -1)
                     selectedIndex = 2;
                 activate = 1;
                 break;
-            case 0x24:
+            case SCAN_J:
                 CalibrateJoystickInteractive(9, 9, 1, 1);
                 break;
             default:
@@ -411,7 +411,7 @@ int Title_Sequence(void)
             if (activate == 0)
                 break;
             /* Fall through to the shared mouse/keyboard activation. */
-        case 2:
+        case INPUT_EVENT_BUTTON_DOWN:
         {
             int selection;
 

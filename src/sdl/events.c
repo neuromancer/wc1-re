@@ -11,13 +11,13 @@ static int SdlTranslateVirtualKey(SDL_Keycode key)
     switch (key) {
     case SDLK_RETURN:
     case SDLK_KP_ENTER:
-        return 0x0d;
+        return VK_RETURN;
     case SDLK_ESCAPE:
-        return 0x1b;
+        return VK_ESCAPE;
     case SDLK_BACKSPACE:
-        return 0x08;
+        return VK_BACK;
     case SDLK_TAB:
-        return 0x09;
+        return VK_TAB;
     case SDLK_LSHIFT:
     case SDLK_RSHIFT:
         return VK_SHIFT;
@@ -26,7 +26,7 @@ static int SdlTranslateVirtualKey(SDL_Keycode key)
         return VK_CONTROL;
     case SDLK_LALT:
     case SDLK_RALT:
-        return 0x12;
+        return VK_MENU;
     case SDLK_PAGEUP:
         return VK_PRIOR;
     case SDLK_PAGEDOWN:
@@ -48,9 +48,9 @@ static int SdlTranslateVirtualKey(SDL_Keycode key)
     case SDLK_DELETE:
         return VK_DELETE;
     case SDLK_COMMA:
-        return 0xbc;
+        return VK_OEM_COMMA;
     case SDLK_PERIOD:
-        return 0xbe;
+        return VK_OEM_PERIOD;
     default:
         return key >= 0 && key <= 0xffff ? key : 0;
     }
@@ -60,192 +60,192 @@ int SdlTranslateScanCode(SDL_Scancode scanCode)
 {
     switch (scanCode) {
     case SDL_SCANCODE_ESCAPE:
-        return 0x01;
+        return SCAN_ESCAPE;
     case SDL_SCANCODE_1:
-        return 0x02;
+        return SCAN_1;
     case SDL_SCANCODE_2:
-        return 0x03;
+        return SCAN_2;
     case SDL_SCANCODE_3:
-        return 0x04;
+        return SCAN_3;
     case SDL_SCANCODE_4:
-        return 0x05;
+        return SCAN_4;
     case SDL_SCANCODE_5:
-        return 0x06;
+        return SCAN_5;
     case SDL_SCANCODE_6:
-        return 0x07;
+        return SCAN_6;
     case SDL_SCANCODE_7:
-        return 0x08;
+        return SCAN_7;
     case SDL_SCANCODE_8:
-        return 0x09;
+        return SCAN_8;
     case SDL_SCANCODE_9:
-        return 0x0a;
+        return SCAN_9;
     case SDL_SCANCODE_0:
-        return 0x0b;
+        return SCAN_0;
     case SDL_SCANCODE_MINUS:
-        return 0x0c;
+        return SCAN_MINUS;
     case SDL_SCANCODE_EQUALS:
-        return 0x0d;
+        return SCAN_EQUALS;
     case SDL_SCANCODE_BACKSPACE:
-        return 0x0e;
+        return SCAN_BACKSPACE;
     case SDL_SCANCODE_TAB:
-        return 0x0f;
+        return SCAN_TAB;
     case SDL_SCANCODE_Q:
-        return 0x10;
+        return SCAN_Q;
     case SDL_SCANCODE_W:
-        return 0x11;
+        return SCAN_W;
     case SDL_SCANCODE_E:
-        return 0x12;
+        return SCAN_E;
     case SDL_SCANCODE_R:
-        return 0x13;
+        return SCAN_R;
     case SDL_SCANCODE_T:
-        return 0x14;
+        return SCAN_T;
     case SDL_SCANCODE_Y:
-        return 0x15;
+        return SCAN_Y;
     case SDL_SCANCODE_U:
-        return 0x16;
+        return SCAN_U;
     case SDL_SCANCODE_I:
-        return 0x17;
+        return SCAN_I;
     case SDL_SCANCODE_O:
-        return 0x18;
+        return SCAN_O;
     case SDL_SCANCODE_P:
-        return 0x19;
+        return SCAN_P;
     case SDL_SCANCODE_LEFTBRACKET:
-        return 0x1a;
+        return SCAN_LEFTBRACKET;
     case SDL_SCANCODE_RIGHTBRACKET:
-        return 0x1b;
+        return SCAN_RIGHTBRACKET;
     case SDL_SCANCODE_RETURN:
     case SDL_SCANCODE_KP_ENTER:
-        return 0x1c;
+        return SCAN_RETURN;
     case SDL_SCANCODE_LCTRL:
     case SDL_SCANCODE_RCTRL:
-        return 0x1d;
+        return SCAN_CONTROL;
     case SDL_SCANCODE_A:
-        return 0x1e;
+        return SCAN_A;
     case SDL_SCANCODE_S:
-        return 0x1f;
+        return SCAN_S;
     case SDL_SCANCODE_D:
-        return 0x20;
+        return SCAN_D;
     case SDL_SCANCODE_F:
-        return 0x21;
+        return SCAN_F;
     case SDL_SCANCODE_G:
-        return 0x22;
+        return SCAN_G;
     case SDL_SCANCODE_H:
-        return 0x23;
+        return SCAN_H;
     case SDL_SCANCODE_J:
-        return 0x24;
+        return SCAN_J;
     case SDL_SCANCODE_K:
-        return 0x25;
+        return SCAN_K;
     case SDL_SCANCODE_L:
-        return 0x26;
+        return SCAN_L;
     case SDL_SCANCODE_SEMICOLON:
-        return 0x27;
+        return SCAN_SEMICOLON;
     case SDL_SCANCODE_APOSTROPHE:
-        return 0x28;
+        return SCAN_APOSTROPHE;
     case SDL_SCANCODE_GRAVE:
-        return 0x29;
+        return SCAN_GRAVE;
     case SDL_SCANCODE_LSHIFT:
-        return 0x2a;
+        return SCAN_LSHIFT;
     case SDL_SCANCODE_BACKSLASH:
-        return 0x2b;
+        return SCAN_BACKSLASH;
     case SDL_SCANCODE_Z:
-        return 0x2c;
+        return SCAN_Z;
     case SDL_SCANCODE_X:
-        return 0x2d;
+        return SCAN_X;
     case SDL_SCANCODE_C:
-        return 0x2e;
+        return SCAN_C;
     case SDL_SCANCODE_V:
-        return 0x2f;
+        return SCAN_V;
     case SDL_SCANCODE_B:
-        return 0x30;
+        return SCAN_B;
     case SDL_SCANCODE_N:
-        return 0x31;
+        return SCAN_N;
     case SDL_SCANCODE_M:
-        return 0x32;
+        return SCAN_M;
     case SDL_SCANCODE_COMMA:
-        return 0x33;
+        return SCAN_COMMA;
     case SDL_SCANCODE_PERIOD:
-        return 0x34;
+        return SCAN_PERIOD;
     case SDL_SCANCODE_SLASH:
-        return 0x35;
+        return SCAN_SLASH;
     case SDL_SCANCODE_RSHIFT:
-        return 0x36;
+        return SCAN_RSHIFT;
     case SDL_SCANCODE_KP_MULTIPLY:
-        return 0x37;
+        return SCAN_KP_MULTIPLY;
     case SDL_SCANCODE_LALT:
     case SDL_SCANCODE_RALT:
-        return 0x38;
+        return SCAN_ALT;
     case SDL_SCANCODE_SPACE:
-        return 0x39;
+        return SCAN_SPACE;
     case SDL_SCANCODE_CAPSLOCK:
-        return 0x3a;
+        return SCAN_CAPSLOCK;
     case SDL_SCANCODE_F1:
-        return 0x3b;
+        return SCAN_F1;
     case SDL_SCANCODE_F2:
-        return 0x3c;
+        return SCAN_F2;
     case SDL_SCANCODE_F3:
-        return 0x3d;
+        return SCAN_F3;
     case SDL_SCANCODE_F4:
-        return 0x3e;
+        return SCAN_F4;
     case SDL_SCANCODE_F5:
-        return 0x3f;
+        return SCAN_F5;
     case SDL_SCANCODE_F6:
-        return 0x40;
+        return SCAN_F6;
     case SDL_SCANCODE_F7:
-        return 0x41;
+        return SCAN_F7;
     case SDL_SCANCODE_F8:
-        return 0x42;
+        return SCAN_F8;
     case SDL_SCANCODE_F9:
-        return 0x43;
+        return SCAN_F9;
     case SDL_SCANCODE_F10:
-        return 0x44;
+        return SCAN_F10;
     case SDL_SCANCODE_NUMLOCKCLEAR:
-        return 0x45;
+        return SCAN_NUMLOCK;
     case SDL_SCANCODE_SCROLLLOCK:
-        return 0x46;
+        return SCAN_SCROLLLOCK;
     case SDL_SCANCODE_HOME:
     case SDL_SCANCODE_KP_7:
-        return 0x47;
+        return SCAN_HOME;
     case SDL_SCANCODE_UP:
     case SDL_SCANCODE_KP_8:
-        return 0x48;
+        return SCAN_UP;
     case SDL_SCANCODE_PAGEUP:
     case SDL_SCANCODE_KP_9:
-        return 0x49;
+        return SCAN_PAGEUP;
     case SDL_SCANCODE_KP_MINUS:
-        return 0x4a;
+        return SCAN_KP_MINUS;
     case SDL_SCANCODE_LEFT:
     case SDL_SCANCODE_KP_4:
-        return 0x4b;
+        return SCAN_LEFT;
     case SDL_SCANCODE_KP_5:
-        return 0x4c;
+        return SCAN_KP_5;
     case SDL_SCANCODE_RIGHT:
     case SDL_SCANCODE_KP_6:
-        return 0x4d;
+        return SCAN_RIGHT;
     case SDL_SCANCODE_KP_PLUS:
-        return 0x4e;
+        return SCAN_KP_PLUS;
     case SDL_SCANCODE_END:
     case SDL_SCANCODE_KP_1:
-        return 0x4f;
+        return SCAN_END;
     case SDL_SCANCODE_DOWN:
     case SDL_SCANCODE_KP_2:
-        return 0x50;
+        return SCAN_DOWN;
     case SDL_SCANCODE_PAGEDOWN:
     case SDL_SCANCODE_KP_3:
-        return 0x51;
+        return SCAN_PAGEDOWN;
     case SDL_SCANCODE_INSERT:
     case SDL_SCANCODE_KP_0:
-        return 0x52;
+        return SCAN_INSERT;
     case SDL_SCANCODE_DELETE:
     case SDL_SCANCODE_KP_PERIOD:
-        return 0x53;
+        return SCAN_DELETE;
     case SDL_SCANCODE_NONUSBACKSLASH:
-        return 0x56;
+        return SCAN_NONUS_BACKSLASH;
     case SDL_SCANCODE_F11:
-        return 0x57;
+        return SCAN_F11;
     case SDL_SCANCODE_F12:
-        return 0x58;
+        return SCAN_F12;
     default:
-        return 0;
+        return SCAN_NONE;
     }
 }
 
@@ -256,19 +256,21 @@ static void SdlQueueMouseMotion(unsigned short x, unsigned short y,
     InputEvent *queued;
 
     queued = pInputEventTail;
-    if (queued != 0 && queued->type == 13) {
+    if (queued != 0 && queued->type == INPUT_EVENT_MOUSE_MOVE) {
         queued->x = x;
         queued->y = y;
         queued->primaryButton = primaryButton;
         queued->secondaryButton = secondaryButton;
-        queued->modifiers &= ~6U;
+        queued->modifiers &= ~(unsigned int)(INPUT_MOD_PRIMARY_BUTTON |
+                                            INPUT_MOD_SECONDARY_BUTTON);
         if (primaryButton != 0)
-            queued->modifiers |= 2;
+            queued->modifiers |= INPUT_MOD_PRIMARY_BUTTON;
         if (secondaryButton != 0)
-            queued->modifiers |= 4;
+            queued->modifiers |= INPUT_MOD_SECONDARY_BUTTON;
         return;
     }
-    QueueInputEvent(13, x, y, 0, primaryButton, secondaryButton, 0);
+    QueueInputEvent(INPUT_EVENT_MOUSE_MOVE, x, y, 0,
+                    primaryButton, secondaryButton, 0);
 }
 
 /* The pointer is confined only while spaceflight is running, unpaused, and
@@ -371,7 +373,7 @@ static int SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
 #else
     modifierPressed = (event->keysym.mod & KMOD_ALT) != 0 ||
         (SDL_GetModState() & KMOD_ALT) != 0 ||
-        abInputKeyStateArray[0x38] != 0;
+        abInputKeyStateArray[SCAN_ALT] != 0;
 #endif
     return enterPressed && modifierPressed;
 }
@@ -462,14 +464,16 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         nSystemKeyDown = pressed ? (unsigned int)virtualKey : 0;
     if (event->keysym.scancode == SDL_SCANCODE_F1)
         bF1KeyLatch = pressed && event->repeat == 0;
-    if (pressed && scanCode == 1)
+    if (pressed && scanCode == SCAN_ESCAPE)
         bEscapePressedFlag = 1;
-    if (scanCode != 0) {
+    if (scanCode != SCAN_NONE) {
         if (bKeyEventQueueEnabled != 0) {
-            QueueInputEvent(pressed ? 3 : 4, 0, 0,
+            QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
+                            0, 0,
                             (unsigned short)virtualKey, 0, 0, 0);
         }
-        QueueInputEvent(pressed ? 3 : 4, 0, 0,
+        QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
+                        0, 0,
                         (unsigned short)scanCode, 0, 0, 0);
         SetInputKeyState(scanCode, pressed);
     }
@@ -490,11 +494,11 @@ static void SdlHandleMouseWheelEvent(const SDL_MouseWheelEvent *event)
         wheelY = -wheelY;
     if (wheelY == 0)
         return;
-    scanCode = wheelY > 0 ? 0x0d : 0x0c;
+    scanCode = wheelY > 0 ? SCAN_EQUALS : SCAN_MINUS;
     /* player_input samples one transition before consuming the remaining
        queue, so lead with the release for this impulse. */
-    QueueInputEvent(4, 0, 0, (unsigned short)scanCode, 0, 0, 0);
-    QueueInputEvent(3, 0, 0, (unsigned short)scanCode, 0, 0, 0);
+    QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, (unsigned short)scanCode, 0, 0, 0);
+    QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, (unsigned short)scanCode, 0, 0, 0);
 }
 
 static void SdlHandleMouseEvent(const SDL_Event *event)
@@ -543,7 +547,8 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
                                mouseY,
                                primaryButton, secondaryButton);
     } else {
-        QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 2 : 1,
+        QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ?
+                        INPUT_EVENT_BUTTON_DOWN : INPUT_EVENT_BUTTON_UP,
                         (unsigned short)mouseX, (unsigned short)mouseY,
                         0, primaryButton, secondaryButton, 0);
     }

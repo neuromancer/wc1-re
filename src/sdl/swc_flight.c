@@ -649,8 +649,8 @@ static int SwcStartMissionShips(void)
 
 static void SwcResetFlightInput(void)
 {
-    bCurrentKey = 0;
-    cPreviousKey = 0;
+    bCurrentKey = SCAN_NONE;
+    cPreviousKey = SCAN_NONE;
     stRotationInput.x = 0;
     stRotationInput.y = 0;
     stRotationInput.z = 0;
@@ -698,29 +698,35 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         return;
     }
     haveJoystick = SdlReadSwcJoystickFlightSample(&joystick);
-    if (!enhancedJoystick && (joystick.buttons & 2) && !(swcJoystickButtons & 2)) {
+    if (!enhancedJoystick && (joystick.buttons & JOY_BUTTON2) &&
+        !(swcJoystickButtons & JOY_BUTTON2)) {
         swcJoystickAfterburner = swcJoystickClickPending &&
             (now - swcLastJoystickClick) <= 20 * 1000 / 60;
         swcLastJoystickClick = now;
         swcJoystickClickPending = 1;
     }
-    if (!(joystick.buttons & 2))
+    if (!(joystick.buttons & JOY_BUTTON2))
         swcJoystickAfterburner = 0;
-    if (!enhancedJoystick && (joystick.buttons & 3) == 3 &&
-        (swcJoystickButtons & 3) != 3 && !swcJoystickAfterburner)
+    if (!enhancedJoystick &&
+        (joystick.buttons & (JOY_BUTTON1 | JOY_BUTTON2)) ==
+            (JOY_BUTTON1 | JOY_BUTTON2) &&
+        (swcJoystickButtons & (JOY_BUTTON1 | JOY_BUTTON2)) !=
+            (JOY_BUTTON1 | JOY_BUTTON2) && !swcJoystickAfterburner)
         swcReleaseWeaponPending = 1;
     swcJoystickButtons = joystick.buttons;
-    joystickModifier = !enhancedJoystick && (joystick.buttons & 2) &&
+    joystickModifier = !enhancedJoystick && (joystick.buttons & JOY_BUTTON2) &&
         !swcJoystickAfterburner;
-    joystickGuns = (joystick.buttons & 1) &&
-        (enhancedJoystick || (joystick.buttons & 3) != 3 || swcJoystickAfterburner);
+    joystickGuns = (joystick.buttons & JOY_BUTTON1) &&
+        (enhancedJoystick ||
+         (joystick.buttons & (JOY_BUTTON1 | JOY_BUTTON2)) !=
+             (JOY_BUTTON1 | JOY_BUTTON2) || swcJoystickAfterburner);
     /* Retain WC1's key priority, diagonal keys, ramp and direction reversal.
        Its Win32 key polling is supplied by the same SDL sample for the whole
        tick, including modifiers. */
     SdlSetKeyboardSnapshot(keys);
     cPreviousKey = bCurrentKey;
     bCurrentKey = PollKeyboardState();
-    if (bCurrentKey == 0 && haveJoystick &&
+    if (bCurrentKey == SCAN_NONE && haveJoystick &&
         (joystick.x != 0 || joystick.y != 0 || swcJoystickSteering || joystickModifier)) {
         swcJoystickSteering = 1;
         bMouseCursorVisible = 0;
@@ -730,13 +736,13 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         stRotationInput.z = joystickModifier ? (short)joystick.x : 0;
         if (joystickModifier)
             accelerate(-(joystick.y / 2));
-    } else if (bCurrentKey == 0 && bMouseCursorVisible) {
+    } else if (bCurrentKey == SCAN_NONE && bMouseCursorVisible) {
         /* Feed the original mouse branch in player_input. A held position is
            sampled each tick, so right-button throttle is independent of SDL
            motion-event frequency. Button actions that fire weapons stay out
            of the queue; the right button is only a motion modifier here. */
         secondaryButton = (mouseButtons & SDL_BUTTON_RMASK) != 0;
-        QueueInputEvent(13, (unsigned short)nHostMouseMessageX,
+        QueueInputEvent(INPUT_EVENT_MOUSE_MOVE, (unsigned short)nHostMouseMessageX,
                         (unsigned short)nHostMouseMessageY, 0, 0, secondaryButton, 0);
         player_input();
         sampledMouse = 1; /* player_input also applies the enhanced axes. */
@@ -755,9 +761,9 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         if (!(nInsertKeyDown || nDeleteKeyDown ||
               nOemCommaKeyPressed || nOemPeriodKeyStatus))
             stRotationInput.z = 0;
-        if (bCurrentKey == 0x4c) {
+        if (bCurrentKey == SCAN_KP_5) {
             SwcCentreFlightMouse();
-        } else if (bCurrentKey != 0) {
+        } else if (bCurrentKey != SCAN_NONE) {
             bMouseAfterburnerControl = 0;
             process_player_input();
         } else {
@@ -787,7 +793,9 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
     swcBothButtonsHeld = bothButtons;
     if (keys[SDL_SCANCODE_SPACE] || joystickGuns ||
         (swcGunFirePending && !bothButtons &&
-         (enhancedJoystick || (joystick.buttons & 3) != 3 || swcJoystickAfterburner)) ||
+         (enhancedJoystick ||
+          (joystick.buttons & (JOY_BUTTON1 | JOY_BUTTON2)) !=
+              (JOY_BUTTON1 | JOY_BUTTON2) || swcJoystickAfterburner)) ||
         ((mouseButtons & SDL_BUTTON_LMASK) && (!bothButtons || swcMouseAfterburner)))
         fire_players_lasers();
     swcGunFirePending = 0;
