@@ -196,6 +196,17 @@ void GetShapeFrameExtents(struct Shape *shape, short frame,
 #endif
 }
 
+/* A nonzero scanline code is followed by signed offsets and pixel runs.
+ * A zero code terminates the stream; the following fields are absent.
+ * Byte-length runs can leave the next header unaligned. */
+#pragma pack(push, 1)
+struct ShapeScanline {
+    unsigned short code;           /* +0x00: pixel count << 1, low bit = RLE */
+    short offsets[2];              /* +0x02: signed X and Y offsets */
+    unsigned char pixels[1];       /* +0x06: literal pixels or encoded runs */
+};
+#pragma pack(pop)
+
 /* Function start: 0x440960 */
 void DecodeShapeFrame(struct Shape *shape, short frame,
                       unsigned char *bitmap, int width, int height,
@@ -210,7 +221,6 @@ void DecodeShapeFrame(struct Shape *shape, short frame,
     unsigned char code;
     unsigned char *destination;
     unsigned char colour;
-    int frameOffset;
     int skip;
     unsigned short runLength;
     unsigned char *commands;
@@ -222,44 +232,43 @@ void DecodeShapeFrame(struct Shape *shape, short frame,
 
     if (shape == 0 || frame < 0)
         return;
-    frameOffset = (int)(short)(frame * 4 + 4);
-    if (frameOffset >= (int)(unsigned short)shape->frameOffsets[0])
+    /* The original narrows the table byte offset before checking it. */
+    frame = (short)(frame * sizeof(shape->frameOffsets[0]) +
+                    offsetof(struct Shape, frameOffsets));
+    if ((int)frame >= (int)(unsigned short)shape->frameOffsets[0])
         return;
 
     maximumX = (short)(width - 1);
     maximumY = (short)(height - 1);
     commands = ((struct ShapeFrame *)((unsigned char *)shape +
-        *(int *)((unsigned char *)shape + frameOffset)))->commands;
-#ifdef SDL_PORT
-    memcpy(&rowCode, commands, sizeof(rowCode));
-#else
-    rowCode = *(unsigned short *)commands;
-#endif
-    commands += 2;
+        *(int *)((unsigned char *)shape + frame)))->commands;
+    rowCode = ((struct ShapeScanline *)commands)->code;
+    commands = (unsigned char *)((struct ShapeScanline *)commands)->offsets;
     while (rowCode != 0) {
+        /* Retain the two word reads and cursor steps from the original. */
 #ifdef SDL_PORT
         memcpy(&sourceX, commands, sizeof(sourceX));
 #else
         sourceX = *(short *)commands;
 #endif
-        commands += 2;
+        commands += sizeof(sourceX);
 #ifdef SDL_PORT
         memcpy(&sourceY, commands, sizeof(sourceY));
 #else
         sourceY = *(short *)commands;
 #endif
-        commands += 2;
+        commands += sizeof(sourceY);
         x = leftExtent + sourceX;
         y = topExtent + sourceY;
-        destination = bitmap + y * width + x;
+        destination = &bitmap[y * width + x];
         if ((rowCode & 1) != 0) {
             rowCode >>= 1;
             while (rowCode != 0) {
-                code = *commands;
+                code = commands[0];
                 commands++;
                 if ((code & 1) != 0) {
                     code >>= 1;
-                    colour = *commands;
+                    colour = commands[0];
                     commands++;
                     runLength = code;
                     rowCode = (unsigned short)(rowCode - runLength);
@@ -276,8 +285,7 @@ void DecodeShapeFrame(struct Shape *shape, short frame,
                             if (maximumX < runRight)
                                 runCopyLength =
                                     (short)(runCopyLength - runRight + maximumX);
-                            memset(destination + skip, colour,
-                                   (short)runCopyLength);
+                            memset(&destination[skip], colour, runCopyLength);
                         }
                     }
                     x += runLength;
@@ -299,8 +307,8 @@ void DecodeShapeFrame(struct Shape *shape, short frame,
                             if (maximumX < runRight)
                                 runCopyLength =
                                     (short)(runCopyLength - runRight + maximumX);
-                            memcpy(destination + skip, commands + skip,
-                                   (short)runCopyLength);
+                            memcpy(&destination[skip], &commands[skip],
+                                   runCopyLength);
                         }
                     }
                     commands += runLength;
@@ -322,18 +330,13 @@ void DecodeShapeFrame(struct Shape *shape, short frame,
                     if (maximumX < rowRight)
                         rowCopyLength =
                             (short)(rowCopyLength - rowRight + maximumX);
-                    memcpy(destination + skip, commands + skip,
-                           (short)rowCopyLength);
+                    memcpy(&destination[skip], &commands[skip], rowCopyLength);
                 }
             }
             commands += rowCode;
         }
-#ifdef SDL_PORT
-        memcpy(&rowCode, commands, sizeof(rowCode));
-#else
-        rowCode = *(unsigned short *)commands;
-#endif
-        commands += 2;
+        rowCode = ((struct ShapeScanline *)commands)->code;
+        commands = (unsigned char *)((struct ShapeScanline *)commands)->offsets;
     }
 }
 
