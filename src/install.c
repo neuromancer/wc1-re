@@ -183,12 +183,14 @@ unsigned short LoadInstallDat(void)
     maximumId++;
 
 #ifdef SDL_PORT
+    size = (maximumId + 1) * sizeof(DiskFileRecord);
+    /* The DOS expansion completion writes through runtime slot 76. */
+    if (size < sizeof(DiskFileRecord) * 78)
+        size = sizeof(DiskFileRecord) * 78;
     pDiskFileRecords =
-        AllocateTaggedMemory(
-            sizeof(DiskFileRecord) * 78, 0);
+        AllocateTaggedMemory(size, 0);
     if (pDiskFileRecords != 0)
-        memset(pDiskFileRecords, 0,
-               sizeof(DiskFileRecord) * 78);
+        memset(pDiskFileRecords, 0, size);
 #else
     pDiskFileRecords =
         AllocateTaggedMemory(0x4b0, 0);
