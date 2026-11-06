@@ -19,10 +19,21 @@ namespace fs = std::filesystem;
 
 using namespace wc1_launcher;
 
-void refresh_window(LauncherWindow &window)
+void refresh_window(LauncherWindow &window,
+                    std::vector<GameInstallation> &installations)
 {
     const std::string directory(window.get_game_directory());
     const DirectoryStatus status = validate_game_directory(directory);
+    const int selected = add_game_installation(installations, directory);
+    std::vector<slint::SharedString> choices;
+    choices.emplace_back(installations.empty()
+        ? "No game data found — add a path" : "Select game data…");
+    for (const auto &installation : installations)
+        choices.emplace_back(installation.edition + " — " + installation.directory);
+
+    window.set_installations(std::make_shared<slint::VectorModel<slint::SharedString>>(choices));
+    window.set_installation_index(selected + 1);
+    window.set_has_installations(!installations.empty());
 
     window.set_picker_error(false);
     window.set_path_valid(status.valid);
@@ -41,7 +52,8 @@ void report_picker_error(LauncherWindow &window, std::string message,
     window.set_status_text(slint::SharedString(message));
 }
 
-void browse_for_game_directory(LauncherWindow &window)
+void browse_for_game_directory(LauncherWindow &window,
+                               std::vector<GameInstallation> &installations)
 {
     const std::string currentDirectory(window.get_game_directory());
     std::string defaultDirectory;
@@ -71,7 +83,7 @@ void browse_for_game_directory(LauncherWindow &window)
     const std::string selection(selectedDirectory);
     NFD_FreePathU8(selectedDirectory);
     window.set_game_directory(slint::SharedString(selection));
-    refresh_window(window);
+    refresh_window(window, installations);
 }
 
 } // namespace
@@ -85,22 +97,21 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         return SDL_LAUNCHER_ERROR;
     const auto configPath = launcher_config_path();
     load_launcher_config(configPath, *options);
+    auto installations = discover_game_installations();
 
-    if (options->gameDirectory[0] == '\0') {
+    std::string initialDirectory(options->gameDirectory);
+    if (!validate_game_directory(initialDirectory).valid && !installations.empty()) {
+        initialDirectory = installations.front().directory;
+    } else if (initialDirectory.empty()) {
         std::error_code error;
         const auto currentDirectory = fs::current_path(error);
-        const std::string initialDirectory =
-            error ? "." : path_to_utf8(currentDirectory);
-        if (initialDirectory.size() >= sizeof(options->gameDirectory))
-            return SDL_LAUNCHER_ERROR;
-        std::memcpy(options->gameDirectory, initialDirectory.c_str(),
-                    initialDirectory.size() + 1);
+        initialDirectory = error ? "." : path_to_utf8(currentDirectory);
     }
 
     auto window = LauncherWindow::create();
     accepted = false;
     pickerInitialized = false;
-    window->set_game_directory(slint::SharedString(options->gameDirectory));
+    window->set_game_directory(slint::SharedString(initialDirectory));
     window->set_enhanced_renderer(options->enhancedRenderer != 0);
     window->set_ega_dither(options->egaDither != 0);
     window->set_cockpitless_view(options->cockpitlessView != 0);
@@ -108,13 +119,15 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_joystick_rumble(options->joystickRumble != 0);
     window->set_joystick_mode_index(options->joystickMode);
     window->set_joystick_axes_index(options->joystickAxes);
-    refresh_window(*window);
+    refresh_window(*window, installations);
 
-    window->on_configuration_changed([&window]() {
-        refresh_window(*window);
+    window->on_installation_selected([&window, &installations](int index) {
+        if (index > 0 && static_cast<size_t>(index) <= installations.size())
+            window->set_game_directory(slint::SharedString(installations[index - 1].directory));
+        refresh_window(*window, installations);
     });
-    window->on_launch_requested([&window, &accepted]() {
-        refresh_window(*window);
+    window->on_launch_requested([&window, &accepted, &installations]() {
+        refresh_window(*window, installations);
         if (!window->get_path_valid())
             return;
         std::error_code error;
@@ -152,7 +165,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     /* NFD_Init records Cocoa's activation policy. Initialize it from the
      * callback, after winit launches NSApplication, so NFD_Quit cannot restore
      * the temporary pre-launch Prohibited policy before SDL takes over. */
-    window->on_browse_requested([&window, &pickerInitialized]() {
+    window->on_browse_requested([&window, &pickerInitialized, &installations]() {
         if (!pickerInitialized) {
             if (NFD_Init() != NFD_OKAY) {
                 report_picker_error(
@@ -162,7 +175,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
             }
             pickerInitialized = true;
         }
-        browse_for_game_directory(*window);
+        browse_for_game_directory(*window, installations);
     });
     slint::run_event_loop();
     if (pickerInitialized)
