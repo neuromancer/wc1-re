@@ -86,7 +86,7 @@ jobs:
           - runner: macos-15-intel
             platform: macos
             architecture: x86_64
-          - runner: macos-15
+          - runner: macos-26
             platform: macos
             architecture: arm64
     runs-on: ${{ matrix.runner }}
@@ -109,7 +109,19 @@ jobs:
             libsdl2-dev make patchelf pkg-config zip
       - name: Install macOS dependencies
         if: matrix.platform == 'macos'
-        run: brew install cmake lzo pkg-config sdl2
+        env:
+          MACOSX_DEPLOYMENT_TARGET: "15.0"
+        run: |
+          brew install cmake pkg-config
+          echo "MACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET" >> "$GITHUB_ENV"
+          if [[ "${{ matrix.architecture }}" == arm64 ]]; then
+            deps_prefix="$RUNNER_TEMP/wc1-macos-deps"
+            packaging/build-macos-deps.sh "$deps_prefix"
+            echo "$deps_prefix/bin" >> "$GITHUB_PATH"
+            echo "PKG_CONFIG_PATH=$deps_prefix/lib/pkgconfig" >> "$GITHUB_ENV"
+          else
+            brew install lzo sdl2
+          fi
       - name: Build SDL2 release port
         run: make -j2 modern-gui MODERN_RELEASE=1
       - name: Validate native release binary
@@ -145,6 +157,24 @@ jobs:
             "${{ matrix.platform }}" \
             "${{ matrix.architecture }}" \
             out-modern/wc1-modern-gui
+      - name: Validate macOS deployment targets
+        if: matrix.platform == 'macos'
+        run: |
+          for binary in dist/*/wc1-modern dist/*/*.dylib; do
+            if ! otool -l "$binary" | awk '
+              $1 == "minos" {
+                found = 1
+                split($2, version, ".")
+                if (version[1] > 15 ||
+                    (version[1] == 15 && (version[2] > 0 || version[3] > 0)))
+                  unsupported = 1
+              }
+              END { exit (!found || unsupported) }
+            '; then
+              echo "$binary does not declare support for macOS 15.0." >&2
+              exit 1
+            fi
+          done
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
