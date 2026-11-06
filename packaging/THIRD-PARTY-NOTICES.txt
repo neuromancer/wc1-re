@@ -11,8 +11,8 @@ The SDL2 release archives may include these components:
   GCC-exception-3.1: https://gcc.gnu.org/
 - YMFM, under the BSD-3-Clause license:
   https://github.com/aaronsgiles/ymfm
-- Slint 1.16.1, statically linked under GPL-3.0 for this GPL application:
-  https://github.com/slint-ui/slint/tree/v1.16.1
+- Slint 1.18.1, statically linked under GPL-3.0 for this GPL application:
+  https://github.com/slint-ui/slint/tree/v1.18.1
 - Native File Dialog Extended 1.3.0, statically linked under the zlib license:
   https://github.com/btzy/nativefiledialog-extended/tree/v1.3.0
   See NFD-LICENSE.txt for its license notice.

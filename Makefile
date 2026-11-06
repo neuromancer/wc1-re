@@ -652,7 +652,7 @@ $(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile | $(SW
 		exit 1; \
 	}
 	@command -v cargo >/dev/null 2>&1 || { \
-		echo "Rust 1.88 or newer is required to build Slint." >&2; \
+		echo "Rust 1.92 or newer is required to build Slint." >&2; \
 		exit 1; \
 	}
 	$(MODERN_CMAKE) -S $(MODERN_GUI_SOURCE_DIR) \

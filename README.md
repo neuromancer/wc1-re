@@ -146,7 +146,7 @@ on Windows); `make run-modern` launches it with Kilrathi Saga data in
 `data/full`, and `make run-modern-dos` with DOS data in `data/dos`.
 
 The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
-1.88+, and a C++20 compiler; Linux builds need the D-Bus and Fontconfig
+1.92+, and a C++20 compiler; Linux builds need the D-Bus and Fontconfig
 development packages. It produces `out-modern/wc1-modern-gui`, which release
 archives ship as `wc1-modern`.
 

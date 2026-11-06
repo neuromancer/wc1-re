@@ -3,7 +3,7 @@
 
 #include <private/slint_config.h>
 
-/* Slint 1.16.1 marks its item accessors dllimport even for a static build.
+/* Slint marks its Windows item accessors dllimport even for a static build.
  * Load its configuration first, then use ordinary declarations in every
  * launcher translation unit, including the generated Slint source. */
 #ifdef _WIN32
