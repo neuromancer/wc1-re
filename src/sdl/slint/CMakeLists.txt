@@ -57,6 +57,7 @@ add_library(wc1-slint-gui STATIC
     slint_static.h
     launcher_paths.cpp
     launcher_paths.h
+    wc1_logo.h
 )
 target_link_libraries(wc1-slint-gui PRIVATE Slint::Slint nfd::nfd PkgConfig::WC1_SDL2)
 slint_target_sources(wc1-slint-gui launcher.slint)

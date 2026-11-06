@@ -150,6 +150,11 @@ The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
 development packages. It produces `out-modern/wc1-modern-gui`, which release
 archives ship as `wc1-modern`.
 
+The launcher header uses the original Wing Commander title artwork from
+`TITLE.VGA` packet 0, with colours from `GAME.PAL`. Its three frames are joined
+at native resolution into a 314x111 PNG and embedded in the executable, so the
+header is visible before selecting a game-data directory.
+
 ### Reconstructed Win32 build
 
 `make -j` builds `WC1.EXE` with the original MSVC 4.20 toolchain under wibo and

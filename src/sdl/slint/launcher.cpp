@@ -2,6 +2,7 @@
 #include "launcher_api.h"
 #include "launcher_config.h"
 #include "launcher_paths.h"
+#include "wc1_logo.h"
 
 #include <nfd.h>
 #include <slint.h>
@@ -111,6 +112,8 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     auto window = LauncherWindow::create();
     accepted = false;
     pickerInitialized = false;
+    window->set_title_artwork(slint::Image::load_from_data(
+        wc1_launcher_artwork::kWingCommanderLogoPng, "png"));
     window->set_game_directory(slint::SharedString(initialDirectory));
     window->set_enhanced_renderer(options->enhancedRenderer != 0);
     window->set_ega_dither(options->egaDither != 0);

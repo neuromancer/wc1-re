@@ -15,6 +15,7 @@ export component LauncherWindow inherits Window {
     min-height: 520px;
     background: Palette.background;
 
+    in property <image> title-artwork;
     in-out property <string> game-directory;
     in property <[string]> installations;
     in property <bool> has-installations;
@@ -47,29 +48,14 @@ export component LauncherWindow inherits Window {
             background: #000018;
             border-radius: 6px;
 
-            VerticalLayout {
-                padding: 10px;
-                spacing: 6px;
-                alignment: center;
-
-                Text {
-                    text: "WING COMMANDER";
-                    color: #eee2bf;
-                    font-size: 30px;
-                    font-weight: 800;
-                    horizontal-alignment: center;
-                    vertical-alignment: center;
-                    vertical-stretch: 0;
-                }
-
-                Text {
-                    text: "DOS · THE KILRATHI SAGA · SUPER WING COMMANDER";
-                    color: #b1bfd5;
-                    font-size: 12px;
-                    horizontal-alignment: center;
-                    vertical-alignment: center;
-                    vertical-stretch: 0;
-                }
+            Image {
+                x: 12px;
+                y: 7px;
+                width: parent.width - 24px;
+                height: parent.height - 14px;
+                source: root.title-artwork;
+                image-fit: contain;
+                image-rendering: pixelated;
             }
         }
 
