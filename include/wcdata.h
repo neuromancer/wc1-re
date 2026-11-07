@@ -675,6 +675,37 @@ typedef struct SceneAnimationObject {
     short goalFrame;                  /* +0x34 */
 } SceneAnimationObject;
 
+#ifdef SDL_PORT
+/* MIDGAME's records retain the original 32-bit pointer slots on disk.
+ * These slots are runtime scratch space, not pointers that can be loaded on
+ * a 64-bit host. Keep the packet layout separate from SceneAnimationObject. */
+typedef struct SceneAnimationDiskObject {
+    short layer;                     /* +0x00 */
+    short scriptOffset;              /* +0x02 */
+    uint32_t scriptStart;             /* +0x04 */
+    uint32_t scriptCursor;            /* +0x08 */
+    uint32_t repeatCursor;            /* +0x0C */
+    unsigned short goalFlags;        /* +0x10 */
+    short delay;                     /* +0x12 */
+    uint32_t shape;                   /* +0x14 */
+    short x;                         /* +0x18 */
+    short y;                         /* +0x1A */
+    short rotation;                  /* +0x1C */
+    short scale;                     /* +0x1E */
+    short frame;                     /* +0x20 */
+    short deltaX;                    /* +0x22 */
+    short deltaY;                    /* +0x24 */
+    short deltaRotation;             /* +0x26 */
+    short deltaScale;                /* +0x28 */
+    short deltaFrame;                /* +0x2A */
+    short goalX;                     /* +0x2C */
+    short goalY;                     /* +0x2E */
+    short goalRotation;              /* +0x30 */
+    short goalScale;                 /* +0x32 */
+    short goalFrame;                 /* +0x34 */
+} SceneAnimationDiskObject;
+#endif
+
 /* SCRAMBLE.VGA uses five compact actors while the pilot approaches and
  * boards the selected fighter.  The two pointers are deliberately unaligned:
  * the retail Win32 table at 0x004657B0 has a packed 0x18-byte stride. */
@@ -779,6 +810,10 @@ typedef char SaveGameDiskCampaignState_size_must_be_0x44[
     sizeof(SaveGameDiskCampaignState) == 0x44 ? 1 : -1];
 typedef char ConversationSceneRecord_size_must_be_0x0d[
     sizeof(ConversationSceneRecord) == 0x0d ? 1 : -1];
+#ifdef SDL_PORT
+typedef char SceneAnimationDiskObject_size_must_be_0x36[
+    sizeof(SceneAnimationDiskObject) == 0x36 ? 1 : -1];
+#endif
 #ifndef SDL_PORT
 typedef char BriefingCharacterLayout_size_must_be_0x12[
     sizeof(BriefingCharacterLayout) == 0x12 ? 1 : -1];

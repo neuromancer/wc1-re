@@ -2063,6 +2063,16 @@ unsigned short LoadSceneAnimationResources(short scene, short variant)
 {
     unsigned char *packet;
     short logicalFile;
+#ifdef SDL_PORT
+    const SceneAnimationDiskObject *diskObjects;
+    const SceneAnimationDiskObject *source;
+    SceneAnimationObject *object;
+    unsigned int packetSize;
+    unsigned int tableSize;
+    int objectsPerAnimation;
+    int objectCount;
+    int index;
+#endif
 
     logicalFile = asSceneAnimationLogicalFiles[scene];
     pCurrentSceneAnimationPrimaryShape =
@@ -2080,14 +2090,68 @@ unsigned short LoadSceneAnimationResources(short scene, short variant)
         packet + *(unsigned int *)(packet + 0);
     pSceneAnimationTextData =
         packet + *(unsigned int *)(packet + 4);
+#ifdef SDL_PORT
+    packetSize = GetPacketSize(pDiskFileRecords[logicalFile].name,
+                               (variant + 1));
+    if (packetSize == (unsigned int)-1 ||
+        packetSize < 2 + sizeof(SceneAnimationDiskObject))
+        FatalErrorAndExit("Scene animation definitions are missing or truncated.");
+    diskObjects = (const SceneAnimationDiskObject *)(
+        pSceneAnimationDefinitionsPtr + 2);
+    objectsPerAnimation = *(short *)pSceneAnimationDefinitionsPtr;
+    /* The first bytecode stream follows all animation object sets. Keep
+     * bytecode in the original packet so its stored offsets remain valid. */
+    if (objectsPerAnimation <= 0 || diskObjects[0].scriptOffset < 2 ||
+        (unsigned int)diskObjects[0].scriptOffset >= packetSize)
+        FatalErrorAndExit("Invalid scene animation object table.");
+    tableSize = diskObjects[0].scriptOffset - 2;
+    objectCount = tableSize / sizeof(SceneAnimationDiskObject);
+    if (objectCount == 0 || tableSize % sizeof(SceneAnimationDiskObject) != 0 ||
+        objectCount % objectsPerAnimation != 0)
+        FatalErrorAndExit("Invalid scene animation object table.");
+    pSceneAnimationObjects = AllocateGuardedMemory(
+        objectCount * sizeof(SceneAnimationObject));
+    for (index = 0; index < objectCount; index++) {
+        source = &diskObjects[index];
+        object = &pSceneAnimationObjects[index];
+        if (source->scriptOffset < diskObjects[0].scriptOffset ||
+            (unsigned int)source->scriptOffset >= packetSize)
+            FatalErrorAndExit("Invalid scene animation script offset.");
+        /* Allocation clears the runtime pointers; PlaySceneAnimation binds
+         * them before use. Never copy pointer scratch slots from the file. */
+        object->layer = source->layer;
+        object->scriptOffset = source->scriptOffset;
+        object->goalFlags = source->goalFlags;
+        object->delay = source->delay;
+        object->x = source->x;
+        object->y = source->y;
+        object->rotation = source->rotation;
+        object->scale = source->scale;
+        object->frame = source->frame;
+        object->deltaX = source->deltaX;
+        object->deltaY = source->deltaY;
+        object->deltaRotation = source->deltaRotation;
+        object->deltaScale = source->deltaScale;
+        object->deltaFrame = source->deltaFrame;
+        object->goalX = source->goalX;
+        object->goalY = source->goalY;
+        object->goalRotation = source->goalRotation;
+        object->goalScale = source->goalScale;
+        object->goalFrame = source->goalFrame;
+    }
+#else
     pSceneAnimationObjects =
         (SceneAnimationObject *)(pSceneAnimationDefinitionsPtr + 2);
+#endif
     return 0;
 }
 
 /* Function start: 0x424DA0 */
 void ReleaseSceneAnimationResources(void)
 {
+#ifdef SDL_PORT
+    FreePacketAndClear(&pSceneAnimationObjects, 0);
+#endif
     ReleasePacketHandle(pCurrentSceneAnimationPrimaryShape);
     ReleasePacketHandle(pSceneAnimationPacketPtr);
     ReleasePacketHandle(pSceneAnimationSecondaryShape);
