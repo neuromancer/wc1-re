@@ -16,6 +16,12 @@ The SDL2 release packages may include these components:
 - Native File Dialog Extended 1.3.0, statically linked under the zlib license:
   https://github.com/btzy/nativefiledialog-extended/tree/v1.3.0
   See NFD-LICENSE.txt for its license notice.
+- WCAT data corrections by Lance Burns (AllTinker), under the MIT license:
+  https://alltinker.itch.io/wcat
+  See the WCAT scope statement and full license below.
+- WCDX fixes by James Touton, under the MIT license:
+  https://github.com/Bekenn/wcdx
+  See the full WCDX license below.
 - SWC HUD Bitmap, derived from Anonymous Pro Regular by Mark Simonson,
   under the SIL Open Font License 1.1:
   https://github.com/google/fonts/tree/main/ofl/anonymouspro
@@ -30,3 +36,79 @@ The SDL2 release packages may include these components:
 
 The exact set is platform-dependent. System libraries supplied by Windows,
 macOS, or the Linux distribution are not copied into these packages.
+
+WCAT contributor notice
+=======================
+
+License Notice for Wing Commander AllTinker Mod Artifacts
+
+Wing Commander and all original Wing Commander software, artwork, audio, text,
+trademarks, trade names, and other related materials are owned or controlled by
+Electronic Arts Inc., its affiliates, and/or their licensors ("EA Materials").
+This notice does NOT grant any rights to these EA Materials.
+
+This distribution may include executable files, binary files, data files,
+patches, fixes, configuration changes, documentation, and/or other materials
+that incorporate, are derived from, or are intended to operate with EA
+Materials ("Modified Materials").
+
+Lance Burns makes no claim of ownership in the Modified Materials as
+complete works, and makes no claim of ownership in any EA Materials.
+
+To the extent, if any, that Lance Burns owns or controls copyright or
+similar rights in any modifications, fixes, patches, data changes, selection,
+arrangement, documentation, packaging, or other original contributions included
+in or used to produce the Modified Materials, excluding all EA Materials and
+third-party materials ("Contributor Rights"), those Contributor Rights are
+licensed under the MIT License below.
+
+For purposes of the MIT License below, "Software" means only the Contributor
+Rights and does not mean the Modified Materials as complete works, any EA
+Materials, any EA trademarks, or any third-party materials.
+
+== MIT License ==
+
+Copyright (c) 2026 Lance Burns
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of the Contributor Materials and associated documentation files (the
+"Software"), to deal in the Software without restriction, including without
+limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom
+the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+WCDX license
+============
+
+The MIT License (MIT)
+
+Copyright (c) 2014-2020 James Touton
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
