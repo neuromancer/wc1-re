@@ -40,12 +40,21 @@ A few matching workarounds remain in the source:
 
 ## Download and run the SDL2 port
 
-Download the archive for your platform from
-[GitHub Releases](https://github.com/neuromancer/wc1-re/releases), extract it,
-and keep the bundled runtime libraries beside the executable. Started without
-arguments, it opens a graphical launcher: use **Browse…** to select a Kilrathi
-Saga or DOS Wing Commander directory containing `GAMEDAT`, choose the graphics
-and joystick options, and select **Start game**. Kilrathi Saga installations
+Download the package for your platform from
+[GitHub Releases](https://github.com/neuromancer/wc1-re/releases):
+
+- **macOS:** open the `.dmg` for Apple Silicon (`arm64`) or Intel (`x86_64`)
+  and drag **Wing Commander** into **Applications**. Requires macOS 15 or later.
+- **Windows:** run the `-setup.exe` installer, then open **Wing Commander**
+  from the Start Menu. It installs for the current user without administrator
+  privileges and includes an uninstaller in Windows Settings.
+- **Portable ZIPs:** available for Windows, macOS, and Linux. Extract the
+  archive and keep the bundled libraries and sound bank beside the executable.
+
+Game data is not included. Open the app to choose a detected installation, or
+use **Add path…** to select a Kilrathi Saga or DOS Wing Commander directory
+containing `GAMEDAT`. Choose the graphics and joystick options, then select
+**Start game**. Kilrathi Saga installations
 also need `STREAMS/PREFLITE.STR`, `POSFLITE.STR`, and `MISSION.STR`. With DOS
 data, compressed resources, OriginFX/AdLib music, and synthesized sound effects
 work; other DOS-specific data or behavior may not. Starting the game saves the
@@ -149,6 +158,12 @@ The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
 1.92+, and a C++20 compiler; Linux builds need the D-Bus and Fontconfig
 development packages. It produces `out-modern/wc1-modern-gui`, which release
 archives ship as `wc1-modern`.
+
+Installer build instructions are in
+[packaging/README-macos-build.txt](packaging/README-macos-build.txt) and
+[packaging/README-windows-build.txt](packaging/README-windows-build.txt).
+Tagged releases publish both macOS DMGs and the Windows setup executable
+alongside the portable ZIPs and their SHA-256 checksums.
 
 The launcher header uses the original Wing Commander title artwork from
 `TITLE.VGA` packet 0, with colours from `GAME.PAL`. Its three frames are joined

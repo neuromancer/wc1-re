@@ -11,7 +11,8 @@ permissions:
 
 concurrency:
   group: release-${{ github.ref }}
-  cancel-in-progress: false
+  # Rebuilding a moved tag supersedes its previous run.
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 jobs:
   metadata:
@@ -122,6 +123,13 @@ jobs:
           else
             brew install lzo sdl2
           fi
+      - name: Install macOS packaging tools
+        if: matrix.platform == 'macos'
+        run: |
+          packaging_venv="$RUNNER_TEMP/wc1-macos-packaging"
+          python3 -m venv "$packaging_venv"
+          "$packaging_venv/bin/python" -m pip install -r packaging/requirements-macos.txt
+          echo "DMGBUILD=$packaging_venv/bin/dmgbuild" >> "$GITHUB_ENV"
       - name: Build SDL2 release port
         run: make -j2 modern-gui MODERN_RELEASE=1
       - name: Validate native release binary
@@ -175,11 +183,20 @@ jobs:
               exit 1
             fi
           done
+      - name: Package macOS app and disk image
+        if: matrix.platform == 'macos'
+        run: |
+          packaging/package-macos.sh \
+            "${{ needs.metadata.outputs.version }}" \
+            "${{ matrix.architecture }}" \
+            out-modern/wc1-modern-gui
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-${{ matrix.platform }}-${{ matrix.architecture }}
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/*.dmg
           if-no-files-found: error
           retention-days: 7
 
@@ -209,6 +226,14 @@ jobs:
             mingw-w64-clang-x86_64-pkgconf
             mingw-w64-clang-x86_64-rust
             mingw-w64-clang-x86_64-SDL2
+      - name: Install NSIS packaging tools
+        shell: pwsh
+        run: |
+          choco install nsis --version=3.13.0 --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $compiler = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
+          if (!(Test-Path $compiler)) { throw "NSIS compiler not found: $compiler" }
+          "MAKENSIS=$compiler" >> $env:GITHUB_ENV
       - name: Build SDL2 release port
         shell: msys2 {0}
         run: >-
@@ -251,11 +276,20 @@ jobs:
           windows
           x86_64
           out-modern/wc1-modern-gui.exe
+      - name: Package Windows installer
+        shell: msys2 {0}
+        env:
+          RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+        run: |
+          packaging/package-windows.sh "$RELEASE_VERSION" x86_64 \
+            "dist/wc1-re-$RELEASE_VERSION-windows-x86_64-sdl2"
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-windows-x86_64
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/*-setup.exe
           if-no-files-found: error
           retention-days: 7
 
@@ -280,17 +314,21 @@ jobs:
         working-directory: release-assets
         run: |
           test "$(find . -maxdepth 1 -name '*.zip' | wc -l)" -eq 5
-          sha256sum -- *.zip | sort -k2 > SHA256SUMS
+          test "$(find . -maxdepth 1 -name '*.dmg' | wc -l)" -eq 2
+          test "$(find . -maxdepth 1 -name '*-setup.exe' | wc -l)" -eq 1
+          sha256sum -- *.zip *.dmg *-setup.exe | sort -k2 > SHA256SUMS
       - name: Publish GitHub Release
         working-directory: release-assets
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.metadata.outputs.version }}
-        run: >-
-          gh release create "$RELEASE_TAG"
-          ./*.zip
-          ./SHA256SUMS
-          --verify-tag
-          --generate-notes
-          --title "$RELEASE_TAG"
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" \
+              ./*.zip ./*.dmg ./*-setup.exe ./SHA256SUMS --clobber
+          else
+            gh release create "$RELEASE_TAG" \
+              ./*.zip ./*.dmg ./*-setup.exe ./SHA256SUMS \
+              --verify-tag --generate-notes --title "$RELEASE_TAG"
+          fi

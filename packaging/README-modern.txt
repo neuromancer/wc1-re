@@ -1,15 +1,24 @@
 Wing Commander SDL2 port
 ========================
 
-This archive contains the work-in-progress native SDL2 port. Release binaries
+This package contains the work-in-progress native SDL2 port. Release binaries
 are optimized and do not include the AddressSanitizer or
 UndefinedBehaviorSanitizer instrumentation used by development builds.
 
-No copyrighted game data is included. Extract every file in this archive and
-start wc1-modern (wc1-modern.exe on Windows) without arguments to open the
-graphical launcher. Keep the bundled runtime libraries beside the executable.
-Choose the installed WC1 directory containing GAMEDAT, select the graphics and
-joystick options, and click Start game. Kilrathi Saga also needs the sibling
+No copyrighted game data is included.
+
+On macOS, open the disk image for your architecture and drag Wing Commander
+into Applications. The app requires macOS 15 or later.
+On Windows, run the setup executable and open Wing Commander from the Start
+Menu. The installer does not need administrator privileges. Windows Settings
+provides an uninstaller; it preserves game data, saves, and launcher settings.
+For portable ZIPs, extract every file and start wc1-modern (wc1-modern.exe on
+Windows) without arguments. Keep the bundled libraries and swc-music.sf2
+beside the executable.
+
+In the launcher, choose a detected installation or use Add path... to select
+the installed WC1 directory containing GAMEDAT. Select the graphics and
+joystick options, then click Start game. Kilrathi Saga also needs the sibling
 STREAMS directory with PREFLITE.STR, POSFLITE.STR, and MISSION.STR.
 
 The launcher offers enhanced OpenGL rendering, EGA dithering, cockpitless
@@ -27,8 +36,7 @@ to reset the GUI preferences. Command-line arguments start the game directly
 from the working directory; add --gui to review them in the launcher before
 starting. Explicit arguments override saved settings. Direct launches do not
 read or write the INI file.
-Linux's Browse button uses an installed XDG desktop portal. The directory can
-also be entered directly.
+Linux's Add path... button uses an installed XDG desktop portal.
 
 Cheat mode enables player invulnerability and disables player collisions in
 DOS, Kilrathi Saga, and the SWC Mac demo. Use the GUI checkbox or --cheats.
@@ -44,8 +52,9 @@ Kilrathi Saga sound effects are balanced against the streamed music. During
 spaceflight, Ctrl+M toggles music and Ctrl+S toggles sound effects.
 
 The experimental Super Wing Commander Mac demo path includes sequence music
-for its first-mission scenes and flight. Keep swc-music.sf2 beside the
-executable. The demo's resource forks (the application, MIDI/*.MooV and
+for its first-mission scenes and flight. The macOS app keeps swc-music.sf2 in
+Contents/Resources; other packages keep it beside the executable.
+The demo's resource forks (the application, MIDI/*.MooV and
 AIFF/Stranded.aif) may stay native, come as raw .rsrc or AppleDouble ._
 sidecars, or remain MacBinary as archives of the original disc serve them;
 other files may be MacBinary too, and a renamed application is found by its
@@ -72,7 +81,7 @@ Ctrl+N on Windows and Linux) turn the demo's music and sound off or on, as in
 its Options menu. Cmd+B/Ctrl+B toggles text messages (subtitles and room
 labels); Cmd+V/Ctrl+V opens Volume Controls. These settings are remembered.
 
-The macOS archives are ad-hoc signed, not notarized with an Apple developer
+The macOS packages are ad-hoc signed, not notarized with an Apple developer
 certificate. macOS may therefore require the usual confirmation for software
 downloaded outside the App Store.
 
