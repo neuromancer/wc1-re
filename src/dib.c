@@ -126,6 +126,26 @@ void ThrottleFrameAndDrawFps(HDC dc)
                  strlen((char *)szFrameRateLabel));
     }
 
+#ifdef SDL_PORT
+    if (stMouseCursorState.viewport != 0 &&
+        stMouseCursorState.viewport->pixels == pDIBImage) {
+        while (timeGetTime() < (DWORD)nFrameDeadlineMs) {
+            /* The original redraws the cursor here without reading input,
+             * leaving it at the last 16 Hz menu-frame position.  Poll only
+             * the host events: game input and joystick movement still run
+             * once per game frame, and clicks remain queued for the menu. */
+            if (nMouseCursorShowCount != 0 &&
+                stMouseCursorState.shape != 0) {
+                SdlPumpEvents();
+                RefreshMouseCursorDisplay();
+            }
+            Sleep(1);
+        }
+    } else {
+        while (timeGetTime() < (DWORD)nFrameDeadlineMs)
+            Sleep(1);
+    }
+#else
     if (stMouseCursorState.viewport->pixels ==
             pDIBImage) {
         while (timeGetTime() < (DWORD)nFrameDeadlineMs) {
@@ -136,6 +156,7 @@ void ThrottleFrameAndDrawFps(HDC dc)
         while (timeGetTime() < (DWORD)nFrameDeadlineMs)
             Sleep(0);
     }
+#endif
 
     if (bShowFrameRate != 0) {
         if (nPreviousFrameTimeMs != 0) {

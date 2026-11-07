@@ -440,12 +440,44 @@ void CaptureMouseCursorBackground(void)
 {
     int x;
     int y;
+#ifdef SDL_PORT
+    InputEvent *event;
+#endif
 
     if (nMouseCursorShowCount == 0 ||
         stMouseCursorState.viewport == 0 ||
         stMouseCursorState.shape == 0)
         return;
 
+#ifdef SDL_PORT
+    /* Draw at the newest queued mouse position, including during the frame
+     * limiter's idle redraws.  Do not consume events or change the position
+     * used by game logic: a queued click must keep its original coordinates.
+     * Keyboard and joystick pointer moves use this same event queue. */
+    x = stMouseCursorState.x;
+    y = stMouseCursorState.y;
+    for (event = pInputEventTail; event != 0; event = event->previous) {
+        if (event->type == INPUT_EVENT_MOUSE_MOVE ||
+            event->type == INPUT_EVENT_BUTTON_DOWN ||
+            event->type == INPUT_EVENT_BUTTON_UP) {
+            x = event->x;
+            y = event->y;
+            break;
+        }
+    }
+    if (x < stMouseCursorState.viewport->left)
+        x = stMouseCursorState.viewport->left;
+    else if (x > stMouseCursorState.viewport->right)
+        x = stMouseCursorState.viewport->right;
+    if (y < stMouseCursorState.viewport->top)
+        y = stMouseCursorState.viewport->top;
+    else if (y > stMouseCursorState.viewport->bottom)
+        y = stMouseCursorState.viewport->bottom;
+    CaptureSpriteBackground(stMouseCursorState.viewport,
+                            abCursorSaveArea, x, y,
+                            stMouseCursorState.shape,
+                            stMouseCursorState.frame);
+#else
     CaptureSpriteBackground(stMouseCursorState.viewport,
                             abCursorSaveArea,
                             stMouseCursorState.x,
@@ -454,6 +486,7 @@ void CaptureMouseCursorBackground(void)
                             stMouseCursorState.frame);
     x = stMouseCursorState.x;
     y = stMouseCursorState.y;
+#endif
     if (nMouseCursorDamageLeft > x - 16)
         nMouseCursorDamageLeft = x - 16;
     nMousePointerDrawnX = x;
@@ -479,17 +512,31 @@ void DrawMouseCursor(void)
         stMouseCursorState.shape == 0)
         return;
 
+#ifdef SDL_PORT
+    /* Both callers capture the background immediately before drawing.  Use
+     * that same position so the subsequent restore cannot leave a trail. */
+    x = nMousePointerDrawnX;
+    DrawSpriteDefault(stMouseCursorState.viewport,
+                      x, nMousePointerDrawnY,
+                      stMouseCursorState.shape,
+                      stMouseCursorState.frame);
+#else
     DrawSpriteDefault(stMouseCursorState.viewport,
                       stMouseCursorState.x,
                       stMouseCursorState.y,
                       stMouseCursorState.shape,
                       stMouseCursorState.frame);
     x = stMouseCursorState.x;
+#endif
     if (nMouseCursorDamageLeft > x - 16)
         nMouseCursorDamageLeft = x - 16;
     if (nMouseCursorDamageRight < x + 16)
         nMouseCursorDamageRight = x + 16;
+#ifdef SDL_PORT
+    y = nMousePointerDrawnY;
+#else
     y = stMouseCursorState.y;
+#endif
     if (nMousePointerDamageTopValue > y - 16)
         nMousePointerDamageTopValue = y - 16;
     if (nEventMousePointerDamageBottom < y + 16)
