@@ -797,6 +797,11 @@ typedef struct PacketSectionHandle {
     unsigned int dataOffset;
     unsigned int position;
     unsigned int dataSize;
+#ifdef SDL_PORT
+    /* Owned by this handle until CloseDataFileByHandle. The original archive
+     * stays on disk; reads and size queries see this corrected section. */
+    unsigned char *patchedData;
+#endif
 } PacketSectionHandle;
 #pragma pack(pop)
 
@@ -824,8 +829,10 @@ typedef char ScrambleAnimationActor_size_must_be_0x18[
 #endif
 typedef char ScrambleShipDetail_size_must_be_0x05[
     sizeof(ScrambleShipDetail) == 0x05 ? 1 : -1];
+#ifndef SDL_PORT
 typedef char PacketSectionHandle_size_must_be_0x14[
     sizeof(PacketSectionHandle) == 0x14 ? 1 : -1];
+#endif
 
 /* Polar form used by the original 3D orientation routines. */
 typedef struct SphericalVector {

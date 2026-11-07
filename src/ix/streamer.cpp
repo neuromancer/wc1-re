@@ -180,10 +180,20 @@ extern "C" int ix_streamer_open_stream_file(char *path)
         }
         ix_file_seek(pStreamerPackFile,
                      pStreamerPackageInfo->audioChunkTableOffset);
+#ifdef SDL_PORT
+        /* WCDX's victory-fanfare correction uses the shared data-patch engine.
+         * Patch only bytes actually read, before the worker can use the table. */
+        SdlPatchStreamData(path, pStreamerPackageInfo->audioChunkTableOffset,
+            pStreamedMusicAudioChunks,
+            ix_file_read(pStreamerPackFile, pStreamedMusicAudioChunks,
+                pStreamerPackageInfo->audioChunkCount *
+                sizeof(IxStreamerAudioChunk)));
+#else
         ix_file_read(pStreamerPackFile,
                      pStreamedMusicAudioChunks,
                      pStreamerPackageInfo->audioChunkCount *
                      sizeof(IxStreamerAudioChunk));
+#endif
         dwIxStreamerStatus |= IX_STREAMER_HAS_AUDIO;
     }
     if (pStreamerPackageInfo->branchCount != 0) {

@@ -316,6 +316,11 @@ int SdlExtractOriginPacketSection(const unsigned char *archive,
                                      unsigned int sectionIndex,
                                      unsigned char **section,
                                      size_t *sectionSize);
+struct PacketSectionHandle;
+int SdlPatchPacketSection(const char *filename, short section,
+                         struct PacketSectionHandle *handle);
+void SdlPatchStreamData(const char *filename, unsigned int fileOffset,
+                        void *data, size_t size);
 SdlOriginFxPlayer *SdlCreateOriginFxPlayer(
     const unsigned char *midi, size_t midiSize,
     const unsigned char *timbres, size_t timbreSize);

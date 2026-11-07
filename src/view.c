@@ -449,6 +449,11 @@ short __stdcall OpenPacketSection(const char *filename, short section,
             handle->dataOffset = sectionEntry;
             handle->position = 0;
             handle->dataSize = *(volatile unsigned int *)&sectionSize;
+#ifdef SDL_PORT
+            handle->patchedData = 0;
+            if (!SdlPatchPacketSection(filename, section, handle))
+                goto failed;
+#endif
             return 1;
         }
     }
@@ -460,6 +465,10 @@ failed:
 /* Function start: 0x42D870 */
 void __stdcall CloseDataFileByHandle(PacketSectionHandle *handle)
 {
+#ifdef SDL_PORT
+    free(handle->patchedData);
+    handle->patchedData = 0;
+#endif
     CloseDataFile(handle->file);
 }
 

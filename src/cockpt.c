@@ -2759,7 +2759,10 @@ void explosion_draw(void)
                 pCockpitPilotShape, damage);
         }
     }
+    /* WCDX cockpit-damage fix: retain the scars until cockpit teardown. */
+#ifndef SDL_PORT
     FreePacketAndClear(&pCockpitPilotShape, 0);
+#endif
 }
 
 /* Function start: 0x4176C0 */
@@ -2783,7 +2786,10 @@ unsigned int DrawPendingCockpitDamage(void)
                           pCockpitPilotShape,
                           nPendingCockpitDamageValue);
     }
+    /* WCDX cockpit-damage fix: retain the scars until cockpit teardown. */
+#ifndef SDL_PORT
     FreePacketAndClear(&pCockpitPilotShape, 0);
+#endif
     return 0;
 }
 
@@ -2833,7 +2839,11 @@ void cockpit_explosion(void)
         }
         return;
     }
+    /* WCDX cockpit-damage fix: an idle frame must not unload the animation.
+     * aMissionResourceDescriptors releases it when the mission ends. */
+#ifndef SDL_PORT
     FreePacketAndClear(&pCockpitExplosionShape, 0);
+#endif
 }
 
 /* Function start: 0x4178A0 */

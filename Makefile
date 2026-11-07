@@ -528,6 +528,7 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/compat.c \
 	src/sdl/input.c \
 	src/sdl/resources.c \
+	src/sdl/data_patches.c \
 	src/sdl/swc_mission.c \
 	src/swc/cmf.c \
 	src/sdl/registry.c \

@@ -1433,23 +1433,33 @@ int FreeShapeSet(PacketResourceDescriptor *resources,
 int LoadPacketResourceList(PacketResourceDescriptor *resources,
                            short flags, int availableBytes)
 {
+#ifndef SDL_PORT
     int packetSize;
+#endif
 
     while (resources->resource != 0) {
         if (*(PackedResourcePointer *)resources->resource == 0) {
             PromptInsertNumberedDisk(resources->logicalFile);
+#ifndef SDL_PORT
             packetSize = GetPacketSize(
                 pDiskFileRecords[
                     resources->logicalFile].name,
                 resources->section);
-            if (packetSize < availableBytes) {
+            if (packetSize < availableBytes)
+#endif
+            {
+                /* WCDX cockpit-damage fix: the old DOS memory budget must
+                 * not omit effects on the SDL host. Allocation still reports
+                 * real failures through FetchDiskPacketRetrying. */
                 *(PackedResourcePointer *)resources->resource =
                     FetchDiskPacketRetrying(
                         resources->logicalFile, resources->section,
                         flags);
                 if (*(PackedResourcePointer *)resources->resource == 0)
                     return availableBytes;
+#ifndef SDL_PORT
                 availableBytes -= packetSize;
+#endif
             }
         }
         resources++;

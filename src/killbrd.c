@@ -146,13 +146,17 @@ static ShortPoint aRecRoomCharacterOrigins[3] = {
 /* 0x0047049c */
 static ShortPoint stRecRoomPanelOrigin = {158, 28};
 /* 0x004704a0 */
-static TitleMenuRegion aRecRoomMenuRegions[7] = {
+static TitleMenuRegion aRecRoomMenuRegions[] = {
     { 1, 94, 59, 130, 95 },
     { 1, 161, 79, 180, 95 },
     { 1, 210, 79, 240, 95 },
     { 1, 180, 50, 250, 75 },
     { 1, 275, 50, 319, 135 },
     { 1, 0, 100, 120, 190 },
+#ifdef SDL_PORT
+    /* WCDX's poster hotspot; disabled below if TITLE1.VGA is absent. */
+    { 1, 70, 44, 85, 68 },
+#endif
     { -1, 0, 0, 0, 0 }
 };
 #ifdef SDL_PORT
@@ -176,11 +180,14 @@ static char *apszRecRoomBaseLabels[3] = {
 };
 #endif
 /* 0x004704f8 */
-static char *apszRecRoomMenuLabels[6] = {
+static char *apszRecRoomMenuLabels[] = {
     0, 0, 0,
     "Check pilot scores",
     "Enter barracks",
-    "Fly training mission"
+    "Fly training mission",
+#ifdef SDL_PORT
+    "Check poster out",
+#endif
 };
 /* 0x00470510 */
 int bPanRoomTransition = 0;
@@ -367,6 +374,21 @@ short RecRoom(void)
     short region;
     short result;
     int lastChalkboardTick;
+#ifdef SDL_PORT
+    struct Shape *poster;
+    short savedPacketError;
+
+    /* WCDX restores this interaction using TITLE1.VGA section 1. Load it
+     * through the normal packet path (including the shared data patches),
+     * but do not prompt for optional artwork in a base-game installation. */
+    poster = 0;
+    savedPacketError = nPacketError;
+    if (pDiskFileRecords[75].name[0] != '\0' &&
+        pDiskFileRecords[75].name[0] != ' ')
+        poster = PacketLoad(pDiskFileRecords[75].name, 1, 0, 0, 0);
+    nPacketError = savedPacketError;
+    aRecRoomMenuRegions[6].frame = poster != 0 ? 1 : -1;
+#endif
 
     result = 0;
     lastChalkboardTick = 0;
@@ -734,6 +756,19 @@ short RecRoom(void)
             case 5:
                 result = region;
                 break;
+#ifdef SDL_PORT
+            case 6:
+                /* WCDX poster view: keep the room palette, hide the cursor,
+                 * and accept either a key or a click to return to the room. */
+                FlushInputEvents();
+                ClearViewport(&stScreenView, cBlackColour);
+                DrawSpriteDefault(&stScreenView, 0, 0, poster, 0);
+                DIBslam();
+                DIBslamReal();
+                WaitForInputKey();
+                ClearViewport(&stSceneBuffer, cBlackColour);
+                break;
+#endif
             default:
                 refreshRoom = 0;
                 EnterAllocationScope();
@@ -767,6 +802,9 @@ short RecRoom(void)
     ReleasePacketHandle(pRecRoomBgShape);
     ReleaseTextFont(0);
     ReleasePacketHandle(pBriefingPacket);
+#ifdef SDL_PORT
+    ReleasePacketHandle(poster);
+#endif
     ClearViewport(&stScreenView, cBlackColour);
     free_viewport(&stSceneBuffer);
     bEscapePressedFlag = 0;
@@ -912,6 +950,18 @@ short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
     int end;
     int offset;
 
+#ifdef SDL_PORT
+    if (handle->patchedData != 0) {
+        if (destination == 0 || handle->position > handle->dataSize)
+            return 0;
+        if (length > handle->dataSize - handle->position)
+            length = handle->dataSize - handle->position;
+        memcpy(destination, handle->patchedData + handle->position, length);
+        handle->position += length;
+        nPacketError = 0;
+        return 1;
+    }
+#endif
     offset = (handle->dataOffset + handle->position);
     end = (handle->dataOffset + handle->dataSize);
     if (destination == 0)
