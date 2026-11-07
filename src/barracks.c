@@ -496,9 +496,16 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
     }
 
     file = OpenDataFileOrDie("SAVEGAME.WLD");
+#ifdef SDL_PORT
+    /* An automatic checkpoint must not report a short write as a success. */
+    written = file >= 0 &&
+        _lseek(file, slot * sizeof(diskRecord), SEEK_SET) != -1 &&
+        _write(file, &diskRecord, sizeof(diskRecord)) == sizeof(diskRecord);
+#else
     written = WriteDataFileAtOffset(file,
                                     slot * 0x33c, 0x33c,
                                     &diskRecord);
+#endif
     CloseDataFile(file);
     return ((written != 0) & (file >= 0)) & 1;
 }
@@ -567,6 +574,16 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
     char oldLabel[40];
     char *separator;
 
+#ifdef SDL_PORT
+    if (slot == SDL_AUTOSAVE_SLOT) {
+        if (ShowModalTextPanel(1, "Slot 8 is reserved for autosave.") != 0) {
+            FlushInputEvents();
+            WaitForInputKey();
+            ReleaseModalTextPanel();
+        }
+        return;
+    }
+#endif
     if (bCampaignActive == 0) {
         WarnLoadGameFirst();
         return;
@@ -733,6 +750,13 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
         } else if (nOriginDevUnlock != 0) {
             strcpy(campaign->currentPilot->callsign, "CHEATER");
         }
+#ifdef SDL_PORT
+        if (loaded != 0) {
+            SdlResumeAutosave(slot == SDL_AUTOSAVE_SLOT &&
+                memcmp(gameRecord.description, "autosave", sizeof("autosave")) == 0);
+            SdlAutosaveCampaign();
+        }
+#endif
     }
     EnterAllocationScope();
 }
@@ -774,6 +798,20 @@ void GetBunkInfo(BarracksAnimationState *state)
             gameRecord.campaign.currentSeries,
             gameRecord.campaign.currentMission,
             gameRecord.description);
+#ifdef SDL_PORT
+        if (bunk == SDL_AUTOSAVE_SLOT) {
+            /* Both overwritten labels are shared save-action strings, not
+             * allocations. FreeBarracksMenuLabels owns the replacements. */
+            if (state->bunks[bunk].occupied == 0) {
+                apszBarracksMenuLabels[bunk * 2] =
+                    AllocateTaggedMemory(sizeof("Autosave (empty)"), 0);
+                strcpy(apszBarracksMenuLabels[bunk * 2], "Autosave (empty)");
+            }
+            apszBarracksMenuLabels[bunk * 2 + 1] =
+                AllocateTaggedMemory(sizeof("Reserved for autosave"), 0);
+            strcpy(apszBarracksMenuLabels[bunk * 2 + 1], "Reserved for autosave");
+        }
+#endif
     }
 }
 
@@ -963,6 +1001,20 @@ void HandleBarracksBunkSelection(Viewport *viewport,
                                   short region)
 {
     LeaveAllocationScope();
+#ifdef SDL_PORT
+    if (region / 2 == SDL_AUTOSAVE_SLOT &&
+        (region % 2 != 0 || state->bunks[SDL_AUTOSAVE_SLOT].occupied == 0)) {
+        if (ShowModalTextPanel(1, "Slot 8 is reserved for autosave.") != 0) {
+            /* Require fresh input, then consume the dismissing click so it
+             * cannot also activate a bunk underneath the message. */
+            FlushInputEvents();
+            WaitForInputKey();
+            ReleaseModalTextPanel();
+        }
+        EnterAllocationScope();
+        return;
+    }
+#endif
     if (state->bunks[region / 2].occupied == 0) {
         SaveGameWithNamePrompt(region / 2, &stCampaignState,
                                aPilotEntriesList, aMissionObjectivesArray);

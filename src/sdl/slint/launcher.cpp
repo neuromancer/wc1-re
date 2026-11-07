@@ -96,6 +96,10 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
 
     if (options == nullptr)
         return SDL_LAUNCHER_ERROR;
+    /* First GUI launch defaults to autosave; saved choices and explicit
+     * command-line options take precedence. */
+    if (!(options->explicitOptions & SDL_LAUNCHER_EXPLICIT_AUTOSAVE))
+        options->autosave = 1;
     const auto configPath = launcher_config_path();
     load_launcher_config(configPath, *options);
     auto installations = discover_game_installations();
@@ -115,6 +119,8 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_title_artwork(slint::Image::load_from_data(
         wc1_launcher_artwork::kWingCommanderLogoPng, "png"));
     window->set_game_directory(slint::SharedString(initialDirectory));
+    window->set_start_fullscreen(options->fullscreen != 0);
+    window->set_autosave(options->autosave != 0);
     window->set_enhanced_renderer(options->enhancedRenderer != 0);
     window->set_ega_dither(options->egaDither != 0);
     window->set_cockpitless_view(options->cockpitlessView != 0);
@@ -192,6 +198,8 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         return SDL_LAUNCHER_ERROR;
     std::memcpy(options->gameDirectory, gameDirectory.c_str(),
                 gameDirectory.size() + 1);
+    options->fullscreen = window->get_start_fullscreen();
+    options->autosave = window->get_autosave();
     options->enhancedRenderer = window->get_enhanced_renderer();
     options->egaDither = window->get_ega_dither();
     options->cockpitlessView = window->get_cockpitless_view();

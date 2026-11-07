@@ -58,7 +58,8 @@ containing `GAMEDAT`. Choose the graphics and joystick options, then select
 also need `STREAMS/PREFLITE.STR`, `POSFLITE.STR`, and `MISSION.STR`. With DOS
 data, compressed resources, OriginFX/AdLib music, and synthesized sound effects
 work; other DOS-specific data or behavior may not. Starting the game saves the
-directory and options for the next session.
+directory and options for the next session. Enable **Start in fullscreen** under
+**Graphics** to open the game in desktop fullscreen mode.
 
 With command-line arguments the game starts directly from the working
 directory; add `--gui` to review the options in the launcher first:
@@ -68,8 +69,30 @@ cd /path/to/WC1
 ./wc1-modern --enhanced --joystick-rumble
 ```
 
+Use `--fullscreen` or `--windowed` to choose the startup display mode. With
+`--gui`, these also override the saved fullscreen setting in the launcher.
+
+**Autosave (slot 8)** under **Gameplay** defaults to on the first time you use the
+launcher, which remembers your choice afterward. It saves a checkpoint named
+`autosave` after starting or loading a campaign and after each surviving mission's
+debriefing, awards, and transition to the next mission. Death or a campaign ending
+keeps the previous checkpoint.
+The last bunk is always reserved: manual saves use slots 1-7 even when autosave
+is off. Load the autosave from the last bunk as usual; an older manual save
+already in that slot also remains loadable.
+
+Before a new or manually loaded campaign replaces an occupied last slot, the
+game asks **Overwrite autosave? (Y/N)** in its text box, including when the pilot
+uses the same name. Answering **N** keeps the existing save and disables autosave
+for the current game, even if another save is loaded. It becomes available again
+when you return to the title screen after death or ending the game, or restart
+the application, provided the launcher option is enabled. When autosave is
+active, loading the autosave itself resumes it without a replacement prompt.
+The command-line options are `--autosave` and `--no-autosave`.
+
 The Super Wing Commander Mac demo supports the same options except EGA
-dithering. To play it, download the zip from
+dithering and autosave (SWC saving/loading is not implemented yet). To play it,
+download the zip from
 [archive.org](https://archive.org/details/super-wing-commander-demo-1.0.2-mac), unzip it,
 and select its `SuperWing DEMO` folder in the launcher. Its Options commands keep
 their original keys: `Cmd+U`/`Cmd+N` (`Ctrl+U`/`Ctrl+N` on Windows and Linux) turn
@@ -95,6 +118,8 @@ combined.
 | `Esc` pauses during spaceflight, where the original left it inert | always on |
 | Pointer confined only during unpaused, focused spaceflight | always on |
 | Gamepad support with automatic SDL mappings and hot-plug | always on |
+| Start in fullscreen | GUI checkbox or `--fullscreen` |
+| Automatic campaign checkpoints in reserved save slot 8 | GUI checkbox or `--autosave` |
 | OpenGL renderer drawing space objects at output resolution | `--enhanced` |
 | EGA 16-colour dithering | `--ega` |
 | Restored, music-synchronized startup intro | `--enhanced`, or automatic with DOS data |

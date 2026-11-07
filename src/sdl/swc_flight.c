@@ -1598,7 +1598,7 @@ done:
     return result;
 }
 
-int SdlRunSwcMission(const char *missionPath, int cockpitless)
+int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
 {
     SwcCmf cockpitCmf = {0};
     SwcCmf spaceCmf = {0};
@@ -1614,6 +1614,7 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless)
     void (*savedInputPump)(void) = pCurrentEventManagerPump;
     int savedCockpitlessView = bCockpitlessView;
     SDL_Event event;
+    Uint32 windowFlags;
     Uint32 previous;
     Uint32 current;
     Uint32 tickInterval;
@@ -1657,9 +1658,12 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless)
         goto done;
     savedCursorVisible = SDL_ShowCursor(SDL_QUERY);
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+    windowFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+    if (fullscreen)
+        windowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     window = SDL_CreateWindow("Super Wing Commander",
                                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 720,
-                               SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+                               windowFlags);
     if (window == NULL)
         goto done;
     renderer = SdlCreateSwcRenderer(window);

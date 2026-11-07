@@ -20,6 +20,8 @@ export component LauncherWindow inherits Window {
     in property <[string]> installations;
     in property <bool> has-installations;
     in-out property <int> installation-index;
+    in-out property <bool> start-fullscreen;
+    in-out property <bool> autosave;
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
     in-out property <bool> cockpitless-view;
@@ -123,6 +125,12 @@ export component LauncherWindow inherits Window {
 
                     CheckBox {
                         height: 26px;
+                        text: "Start in fullscreen";
+                        checked <=> root.start-fullscreen;
+                    }
+
+                    CheckBox {
+                        height: 26px;
                         text: "Enhanced OpenGL";
                         checked <=> root.enhanced-renderer;
                     }
@@ -143,6 +151,13 @@ export component LauncherWindow inherits Window {
                 VerticalLayout {
                     spacing: 8px;
                     alignment: start;
+
+                    CheckBox {
+                        height: 26px;
+                        text: root.swc-demo ? "Autosave (WC1 only)" : "Autosave (slot 8)";
+                        enabled: !root.swc-demo;
+                        checked <=> root.autosave;
+                    }
 
                     CheckBox {
                         height: 26px;

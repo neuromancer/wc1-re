@@ -535,6 +535,7 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/timer.c \
 	src/sdl/video_state.c
 MODERN_GAME_HOST_SRCS = \
+	src/sdl/autosave.c \
 	src/sdl/swc_flight.c \
 	src/sdl/swc_raster.c \
 	src/sdl/swc_cockpit.c \

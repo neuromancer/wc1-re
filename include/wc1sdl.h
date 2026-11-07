@@ -186,6 +186,12 @@ void SdlStopAudio(void);
  * diagnostic build defines SDL_PORT_LEGACY_DEBUG_OUTPUT. */
 void SdlOutputDebugString(const char *text);
 void SdlPumpEvents(void);
+/* Slot 8 is always reserved in the SDL barracks, even with autosave off. */
+#define SDL_AUTOSAVE_SLOT 7
+void SdlConfigureAutosave(int enabled);
+void SdlResetAutosave(void);
+void SdlResumeAutosave(int resumeAutosave);
+void SdlAutosaveCampaign(void);
 /* Buffers private to the original units, shared with SDL adapters here. */
 extern int nInsertKeyDown; /* 0x00475b68 */
 extern int nOemPeriodKeyStatus; /* 0x00475bf0 */
@@ -276,7 +282,7 @@ int SdlUsingDosData(void);
 int SdlFindSwcMissionData(char *path, unsigned long capacity);
 int SdlFindSwcResources(const char *directory, char *path, unsigned long capacity);
 int SdlLoadSwcMissionData(const char *path, short series, short mission);
-int SdlRunSwcMission(const char *missionPath, int cockpitless);
+int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen);
 int SdlSwcFlightActive(void);
 int SdlSwcSoundEffect(int sound, int object);
 short SdlSwcMessageShowing(void);

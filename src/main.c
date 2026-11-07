@@ -357,6 +357,11 @@ int main(short argc, char **argv)
 #endif
         bEscapePressedFlag = 0;
         for (;;) {
+#ifdef SDL_PORT
+            /* Death, stranding, or ending a game returns here. A declined
+             * autosave overwrite applies only until this new title session. */
+            SdlResetAutosave();
+#endif
             FrameStartHook(0);
             bCampaignStartupMode = 1;
             selection = Title_Sequence();

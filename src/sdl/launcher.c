@@ -51,6 +51,14 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         argument = arguments[argumentIndex];
         if (strcmp(argument, "--gui") == 0) {
             *useLauncherGui = 1;
+        } else if (strcmp(argument, "--fullscreen") == 0 ||
+                   strcmp(argument, "--windowed") == 0) {
+            options->fullscreen = strcmp(argument, "--fullscreen") == 0;
+            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_FULLSCREEN;
+        } else if (strcmp(argument, "--autosave") == 0 ||
+                   strcmp(argument, "--no-autosave") == 0) {
+            options->autosave = strcmp(argument, "--autosave") == 0;
+            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_AUTOSAVE;
         } else if (strcmp(argument, "--check") == 0) {
             fprintf(stderr, "The --check runtime mode has been removed.\n");
             return 0;
@@ -154,6 +162,7 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     }
     SdlSetJoystickMode(g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
+    SdlConfigureAutosave(options->autosave && !options->swcDemo);
     /* Apply these only after the dialog so checked command-line defaults can
      * be turned off before the video and input systems are initialized. */
     if (options->joystickRumble)
@@ -245,7 +254,8 @@ int main(int argumentCount, char **arguments)
             fprintf(stderr, "The SWC demo needs CMFs/Data.CMF.\n");
             return 1;
         }
-        gameResult = SdlRunSwcMission(swcPath, launcherOptions.cockpitlessView);
+        gameResult = SdlRunSwcMission(swcPath, launcherOptions.cockpitlessView,
+                                     launcherOptions.fullscreen);
         if (gameResult != 0) {
             fprintf(stderr, "Cannot start SWC Enyo 1: %s\n", SDL_GetError());
             if (useLauncherGui)
@@ -264,6 +274,8 @@ int main(int argumentCount, char **arguments)
     }
 
     windowFlags = SDL_WINDOW_RESIZABLE;
+    if (launcherOptions.fullscreen)
+        windowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     if (!SdlConfigureVideoWindow(&windowFlags)) {
         fprintf(stderr, "SDL video configuration failed: %s\n",
                 SDL_GetError());

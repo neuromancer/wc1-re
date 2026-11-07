@@ -241,6 +241,10 @@ unsigned int StartNewCampaign(short campaign)
                          pMissionCampaignInfo);
     bPanRoomTransition = 0;
     nQueuedCampaignIndex = -1;
+#ifdef SDL_PORT
+    SdlResetAutosave();
+    SdlAutosaveCampaign();
+#endif
     return 0;
 }
 
@@ -417,6 +421,11 @@ short GameFlow(void)
     MoveNewCampaign();
     AddRandomTrainSimHighScores();
     bPanRoomTransition = 1;
+#ifdef SDL_PORT
+    /* Save only after debriefing, awards, and the next mission/date are final.
+     * Death, stranding, and campaign endings retain the preceding checkpoint. */
+    SdlAutosaveCampaign();
+#endif
     return 1;
 }
 
