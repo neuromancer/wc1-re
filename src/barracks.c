@@ -589,7 +589,8 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
         gameRecord.campaign = *campaign;
         memcpy(gameRecord.pilots, pilots,
                sizeof(gameRecord.pilots));
-        DosMemcpy(gameRecord.objectives, objectives, 0x1f0);
+        DosMemcpy(gameRecord.objectives, objectives,
+                  sizeof(gameRecord.objectives));
         if (SaveGame(slot, &gameRecord) == 0)
             ShowModalMessage("Error: Game %s not saved.",
                              gameRecord.description);
@@ -721,7 +722,8 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
                 asCampaignPilotFiles[
                     nCampaignDataSet],
                 1, pMissionCampaignInfo);
-            DosMemcpy(objectives, gameRecord.objectives, 0x1f0);
+            DosMemcpy(objectives, gameRecord.objectives,
+                      sizeof(gameRecord.objectives));
             CorrectPointers();
             bCampaignActive = 1;
         }
