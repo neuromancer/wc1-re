@@ -13,6 +13,37 @@ import re
 import struct
 
 
+FORMAT_TOKEN = r"%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:hh|ll|[hljztL])?[A-Za-z%]"
+KEY_LABEL = r"\([A-Z](?:/[A-Z])?\)"
+REQUIRED_TOKEN = r"\$[A-Z](?:[0-9])?|" + FORMAT_TOKEN + "|" + KEY_LABEL
+MESSAGE_ID = re.compile(r"\n*wc1:[0-9a-f]{16}(?: (?:" + REQUIRED_TOKEN + r"))*\n*\Z")
+
+
+def message_key(source):
+    """Content ID plus format requirements, without the original prose."""
+    if MESSAGE_ID.fullmatch(source):
+        return source
+    encoded = source.encode("cp437")
+    if b"\0" in encoded or len(encoded) > 32766:
+        raise ValueError("Invalid source string")
+    value = 14695981039346656037
+    for byte in encoded:
+        value = ((value ^ byte) * 1099511628211) & 0xffffffffffffffff
+    tokens = re.findall(REQUIRED_TOKEN, source)
+    # Gettext checks matching leading/trailing newlines even with opaque IDs.
+    leading = source[:len(source) - len(source.lstrip("\n"))]
+    trailing = source[len(source.rstrip("\n")):]
+    return leading + " ".join([f"wc1:{value:016x}", *tokens]) + trailing
+
+
+def keyed_po(document):
+    def replace(match):
+        lines = match.group().splitlines()
+        source = ast.literal_eval(lines[0][6:]) + "".join(ast.literal_eval(line) for line in lines[1:])
+        return "msgid " + json.dumps(message_key(source)) if source else match.group()
+    return re.sub(r'^msgid "[^\n]*"(?:\n"[^\n]*")*', replace, document, flags=re.MULTILINE)
+
+
 def compile_artwork(path):
     data = json.loads(path.read_text())
     if data.get("schema") != 1 or not 1 <= len(data["packets"]) <= 256:
@@ -90,7 +121,8 @@ def build_catalog(directory):
     for path in sorted(directory.glob("*.po")):
         for entry, fuzzy, font, capacity in read_po(path):
             context = entry.get("msgctxt", "")
-            key = (context.encode("ascii"), entry["msgid"].encode("cp437"))
+            source = message_key(entry["msgid"])
+            key = (context.encode("ascii"), source.strip()[:20].encode("ascii"))
             if key in seen_keys:
                 raise ValueError(f"Duplicate message key: {context!r}, {entry['msgid']!r}")
             seen_keys.add(key)
@@ -99,15 +131,13 @@ def build_catalog(directory):
             if fuzzy or not entry["msgstr"]:
                 skipped += 1
                 continue
-            source, translated = entry["msgid"], entry["msgstr"]
+            translated = entry["msgstr"]
             if path.name == "ui.po":
                 # Both printf and the WC1 formatter consume arguments in order.
                 # Keep exact directives, including WC1's %X/%Y/%F/%P commands.
-                keys = r"\([A-Z](?:/[A-Z])?\)"
-                if Counter(re.findall(keys, source)) != Counter(re.findall(keys, translated)):
+                if Counter(re.findall(KEY_LABEL, source)) != Counter(re.findall(KEY_LABEL, translated)):
                     raise ValueError(f"Keyboard shortcut labels differ: {source!r}")
-                directives = r"%[-+ #0]*[0-9]*(?:\.[0-9]+)?(?:hh|ll|[hljztL])?[A-Za-z%]"
-                if re.findall(directives, source) != re.findall(directives, translated):
+                if re.findall(FORMAT_TOKEN, source) != re.findall(FORMAT_TOKEN, translated):
                     raise ValueError(f"Format directives differ: {source!r}")
                 if re.search(r"%[0-9]+\$|%[^A-Za-z%]*\*", translated):
                     raise ValueError(f"Unsupported positional/dynamic format: {source!r}")
@@ -136,7 +166,7 @@ def build_catalog(directory):
                     raise ValueError(f"Unsupported title-font character: {source!r}")
             elif font not in (0, 1, 2, 3):
                 raise ValueError(f"Unsupported text font {font}: {context}")
-            fields = (context.encode("ascii"), source.encode("cp437"), translated.encode("cp1252"))
+            fields = (*key, translated.encode("cp1252"))
             if capacity is not None and len(fields[2]) > capacity:
                 raise ValueError(f"Translation exceeds {capacity} encoded bytes: {context}")
             if any(b"\0" in field or len(field) > 32766 for field in fields):
@@ -147,7 +177,7 @@ def build_catalog(directory):
     fonts = json.loads((directory / "glyphs.json").read_text())
     if fonts.get("schema") != 1:
         raise ValueError("Unsupported glyph schema")
-    output = bytearray(b"WCT1" + struct.pack("<II", len(messages), len(fonts["fonts"])))
+    output = bytearray(b"WCT2" + struct.pack("<II", len(messages), len(fonts["fonts"])))
     for key in sorted(messages):
         fields = tuple(field + b"\0" for field in messages[key])
         output.extend(struct.pack("<3H", *(len(field) for field in fields)))

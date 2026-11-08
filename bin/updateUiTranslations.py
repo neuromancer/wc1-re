@@ -10,8 +10,10 @@ from pathlib import Path
 import subprocess
 import tempfile
 
+from compileTranslations import keyed_po
 
-def extract(root):
+
+def extract(root, plain=False):
     sources = sorted(path.relative_to(root).as_posix()
                      for path in (root / "src").rglob("*")
                      if path.suffix in (".c", ".cpp", ".h"))
@@ -31,7 +33,7 @@ def extract(root):
               '"MIME-Version: 1.0\\n"\n'
               '"Content-Type: text/plain; charset=UTF-8\\n"\n'
               '"Content-Transfer-Encoding: 8bit\\n"\n\n')
-    return header + body
+    return header + body if plain else keyed_po(header + body)
 
 
 def main():

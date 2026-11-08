@@ -14,345 +14,345 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "common/MIDGAME.V00/packet/5/scene/0/record/0"
-msgid "Terran Research Colony,\nMcAuliffe VI."
+msgid "wc1:891bd141bc4b046b"
 msgstr "Colonia Terrestre de Investigación,\nMcAuliffe VI."
 
 msgctxt "common/MIDGAME.V00/packet/5/scene/0/record/1"
-msgid "Kilrathi Marines invading McAuliffe's civilian research installation..."
+msgid "wc1:f2304ec0906cd6ee"
 msgstr "Los Marines Kilrathi se encuentran con unos científicos humanos desesperados e ingeniosos..."
 
 msgctxt "common/MIDGAME.V00/packet/5/scene/0/record/2"
-msgid "...met desperate and resourceful human scientists."
+msgid "wc1:b4285b37be6bf4f4"
 msgstr "...al invadir una instalación civil de investigación en McAuliffe."
 
 msgctxt "common/MIDGAME.V00/packet/5/scene/0/record/3"
-msgid "Armed with improvised weapons and remarkable courage..."
+msgid "wc1:457b11e80a9d97fe"
 msgstr "Usando un armamento improvisado y coraje extraordinarios..."
 
 msgctxt "common/MIDGAME.V00/packet/5/scene/0/record/4"
-msgid "The researchers manage to kill or capture the entire Kilrathi platoon."
+msgid "wc1:2e8936b71241c2a3"
 msgstr "los investigadores consiguen matar o capturar a todo el pelotón Kilrathi."
 
 msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/0"
-msgid "Terran Research Colony,\nMcAuliffe VI."
+msgid "wc1:891bd141bc4b046b"
 msgstr "Colonia Terrestre de Investigación,\nMcAuliffe VI."
 
 msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/1"
-msgid "Terran Research Colony,\nMcAuliffe VI."
+msgid "wc1:891bd141bc4b046b"
 msgstr "Colonia Terrestre de Investigación,\nMcAuliffe VI."
 
 msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/2"
-msgid "As the Tiger's Claw and other Terran warships meet defeat in space..."
+msgid "wc1:69cc45a689fa561f"
 msgstr "Mientras la Garra de Tigre y otras naves de guerra Terrestres sufren una derrota en el espacio..."
 
 msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/3"
-msgid "...Kilrathi marines invade the scientific colony on McAuliffe VI."
+msgid "wc1:d7285f0e0c78695b"
 msgstr "...los marines Kilrathi invaden la colonia científica en McAuliffe VI."
 
 msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/4"
-msgid "Dozens of humanity's most brilliant scientists are murdered..."
+msgid "wc1:6d2e1760ef7708f1"
 msgstr "Son asesinados decenas de los más brillantes científicos de la humanidad..."
 
 msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/5"
-msgid "...as the ruthless Kilrathi storm the peaceful harmless installation."
+msgid "wc1:386b4af4ed43f84a"
 msgstr "...mientras los despiadados Kilrathi asaltan la pacífica e inofensiva instalación."
 
 msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/0"
-msgid "Outside a Kilrathi Military Installation,\nBrimstone System."
+msgid "wc1:7c570e395fcb9ad4"
 msgstr "En las afueras de la Instalación Militar Kilrathi,\nSistema Brimstone."
 
 msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/1"
-msgid "As Terran starfighters gain control in space at Brimstone..."
+msgid "wc1:ba745a78a8dc474c"
 msgstr "A medida que los cazas estelares Terrestres obtienen el control del espacio en Brimstone..."
 
 msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/2"
-msgid "...a daring band of human saboteurs strikes a major Kilrathi base."
+msgid "wc1:db3796ac75bd2912"
 msgstr "...un grupo de atrevidos saboteadores humanos ataca una base importante Kilrathi."
 
 msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/3"
-msgid "...a daring band of human sabateurs strikes a major Kilrathi base."
+msgid "wc1:45204e90c936ba9c"
 msgstr "...un grupo de atrevidos saboteadores humanos ataca una base importante Kilrathi."
 
 msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/4"
-msgid "With the destruction of this installation..."
+msgid "wc1:3b1be60ac6957533"
 msgstr "Con la destrucción de esta instalación..."
 
 msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/5"
-msgid "...the Kilrathi hold on the strategic Brimstone System is broken."
+msgid "wc1:a0235e55e751d5aa"
 msgstr "...se ha roto el control estratégico de los Kilrathi en el Sistema Brimstone."
 
 msgctxt "common/MIDGAME.V01/packet/6/scene/0/record/0"
-msgid "Outside a Kilrathi Military Installation,\nBrimstone System."
+msgid "wc1:7c570e395fcb9ad4"
 msgstr "En las afueras de la Instalación Militar Kilrathi,\nSistema Brimstone."
 
 msgctxt "common/MIDGAME.V01/packet/6/scene/0/record/1"
-msgid "As Kilrathi starships defeat the Terran Confederate fleet in space..."
+msgid "wc1:652bb799d8f61d71"
 msgstr "A medida que las naves estelares Kilrathi derrotan la flota de la Confederación Terrestre en el espacio..."
 
 msgctxt "common/MIDGAME.V01/packet/6/scene/0/record/2"
-msgid "...human commandoes make a daring raid to sabotage the Kilrathi base."
+msgid "wc1:d31d5cc8999c7ea3"
 msgstr "...los comandos humanos realizan un osado ataque para sabotear la base Kilrathi."
 
 msgctxt "common/MIDGAME.V01/packet/6/scene/0/record/3"
-msgid "But their desperate mission fails..."
+msgid "wc1:ad9d982db83da3d0"
 msgstr "Pero su desesperada misión fracasa..."
 
 msgctxt "common/MIDGAME.V01/packet/6/scene/0/record/4"
-msgid "...when they are discovered by a patrol of Kilrathi soldiers!"
+msgid "wc1:80a01736077bf90a"
 msgstr "...¡cuando los descubre una patrulla de soldados Kilrathi!"
 
 msgctxt "common/MIDGAME.V02/packet/5/scene/0/record/0"
-msgid "Human Colony on the water planet, Hurricane,\nPort Hedland System,"
+msgid "wc1:fccfa5fae7f43c5a"
 msgstr "Colonia Humana del planeta de agua, Hurricane,\nSistema Puerto Hedland,"
 
 msgctxt "common/MIDGAME.V02/packet/5/scene/0/record/1"
-msgid "After the Terran fleet has defeated the Kilrathi at Port Hedland..."
+msgid "wc1:07150131b6ad58b9"
 msgstr "Después de que la flota Terrestre derrotara a los Kilrathi en Puerto Hedland..."
 
 msgctxt "common/MIDGAME.V02/packet/5/scene/0/record/2"
-msgid "... Hurricane's planetary defenses head off a last-ditch Kilrathi assault."
+msgid "wc1:2b1e2e114eec9521"
 msgstr "...las defensas planetarias de Hurricane interceptaban un último ataque desesperado de los Kilrathi."
 
 msgctxt "common/MIDGAME.V02/packet/5/scene/0/record/3"
-msgid "... Hurricane's planetary defenses head off a last-ditch Kilrathi assault."
+msgid "wc1:2b1e2e114eec9521"
 msgstr "...las defensas planetarias de Hurricane interceptaban un último ataque desesperado de los Kilrathi."
 
 msgctxt "common/MIDGAME.V02/packet/6/scene/0/record/0"
-msgid "Human Colony on the water planet, Hurricane,\nPort Hedland System,"
+msgid "wc1:fccfa5fae7f43c5a"
 msgstr "Colonia Humana del planeta de agua, Hurricane,\nSistema Puerto Hedland,"
 
 msgctxt "common/MIDGAME.V02/packet/6/scene/0/record/1"
-msgid "While Kilrathi vessels over Hurricane gain control of Port Hedland space..."
+msgid "wc1:94c7837c07c452a8"
 msgstr "Mientras las naves Kilrathi sobre Hurricane obtenían el control espacial de Puerto Hedland..."
 
 msgctxt "common/MIDGAME.V02/packet/6/scene/0/record/2"
-msgid "...a wing of Dralthi fighters descend to attack settlements on the surface."
+msgid "wc1:089c921fd36d83b8"
 msgstr "...un ala de cazas Dralthi descendió a la superficie para atacar los asentamientos."
 
 msgctxt "common/MIDGAME.V02/packet/6/scene/0/record/3"
-msgid "...a wing of Dralthi fighters descend to attack settlements on the surface."
+msgid "wc1:089c921fd36d83b8"
 msgstr "...un ala de cazas Dralthi descendió a la superficie para atacar los asentamientos."
 
 msgctxt "common/MIDGAME.V02/packet/6/scene/0/record/4"
-msgid "The defeat of Hurricane's colonists is swift and complete."
+msgid "wc1:0b8149d2a15ea600"
 msgstr "La derrota de los colonos de Hurricane ha sido rápida y total."
 
 msgctxt "common/MIDGAME.V03/packet/5/scene/0/record/0"
-msgid "Primitive alien village,\nRostov System."
+msgid "wc1:d315b4e9a794cb07"
 msgstr "Aldea alienígena primitiva,\nSistema Rostov."
 
 msgctxt "common/MIDGAME.V03/packet/5/scene/0/record/1"
-msgid "As the Kilrathi fleet flees Rostov before the advancing human warships..."
+msgid "wc1:0e26ab85d12e6aa9"
 msgstr "Mientras la flota Kilrathi huye de Rostov ante el avance de las naves de guerra humanas..."
 
 msgctxt "common/MIDGAME.V03/packet/5/scene/0/record/2"
-msgid "...a handful of Kilrathi marines are stranded on Rostov's jungle world..."
+msgid "wc1:fec45e7cffee52ae"
 msgstr "...un puñado de marines Kilrathi quedan atrapados en el mundo salvaje de Rostov..."
 
 msgctxt "common/MIDGAME.V03/packet/5/scene/0/record/3"
-msgid "...where they are captured by the native sentients, the Mopoks."
+msgid "wc1:52d384f5675afe5c"
 msgstr "...donde son capturados por los seres inteligentes nativos, los Mopoks."
 
 msgctxt "common/MIDGAME.V03/packet/6/scene/0/record/0"
-msgid "Primitive alien village,\nRostov System."
+msgid "wc1:d315b4e9a794cb07"
 msgstr "Aldea alienígena primitiva,\nSistema Rostov."
 
 msgctxt "common/MIDGAME.V03/packet/6/scene/0/record/1"
-msgid "While the Kilrathi starships conquer the human fleet at Rostov..."
+msgid "wc1:8000a4b43f7c66c9"
 msgstr "Mientras las naves estelares Kilrathi conquistan la flota humana en Rostov..."
 
 msgctxt "common/MIDGAME.V03/packet/6/scene/0/record/2"
-msgid "...Kilrathi marines round up the native sentients, the Mopoks..."
+msgid "wc1:052d4e55cd847db8"
 msgstr "...los marines Kilrathi rodean a los seres inteligentes nativos, los Mopoks..."
 
 msgctxt "common/MIDGAME.V03/packet/6/scene/0/record/3"
-msgid "...and execute the human scientists and soldiers who defended them."
+msgid "wc1:0d516015a35c116f"
 msgstr "...y ejecutan a los científicos y soldados humanos que los defendían."
 
 msgctxt "common/MIDGAME.V04/packet/6/scene/0/record/0"
-msgid "The Goddard Colony: $D $T"
+msgid "wc1:23e1d63dc24c896f $D $T"
 msgstr "La Colonia Goddard: $D $T"
 
 msgctxt "common/MIDGAME.V04/packet/6/scene/0/record/1"
-msgid "After the devastating attack by the Kilrathi secret weapon..."
+msgid "wc1:c5957c4ea858543a"
 msgstr "Después del devastador ataque del arma secreta Kilrathi..."
 
 msgctxt "common/MIDGAME.V04/packet/6/scene/0/record/2"
-msgid "...all that remains of the once proud human colony are skeletons of buildings."
+msgid "wc1:c0ae953d19129af6"
 msgstr "...lo único que queda de la otrora orgullosa colonia humana, son esqueletos y edificios."
 
 msgctxt "common/MIDGAME.V04/packet/6/scene/0/record/3"
-msgid "There are no survivors on Goddard...only wreckage and ruins."
+msgid "wc1:e13de607ba683590"
 msgstr "No quedan supervivientes en Goddard... solo destrozos y ruinas."
 
 msgctxt "common/MIDGAME.V04/packet/6/scene/0/record/4"
-msgid "Testament to the shift in the balance of power now held by the Kilrathi."
+msgid "wc1:b16291994c5c88a7"
 msgstr "Es el testimonio del giro en el equilibrio de poder que ahora sostienen los Kilrathi."
 
 msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/0"
-msgid "In the Throne Chamber of the Emperor of Kilrah..."
+msgid "wc1:707c02bea692bcf3"
 msgstr "En la Sala del Trono del Emperador de los Kilrah..."
 
 msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/1"
-msgid "...the former Grand Admiral of the Kilrathi Empire stands before his master."
+msgid "wc1:c284cce0d93583d5"
 msgstr "...el antiguo Gran Almirante del Imperio Kilrathi se presenta ante su maestro."
 
 msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/2"
-msgid "There is nothing to be said.  The Admiral is loyal to Kilrah, and his Emperor---"
+msgid "wc1:c951052d40384421"
 msgstr "No hay nada que decir.  El Almirante es leal a los Kilrah, y a su Emperador..."
 
 msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/3"
-msgid "---and he knows the price of his failure."
+msgid "wc1:bde9c4ee2cdaae2f"
 msgstr "...y sabe cuál es el precio de su fracaso."
 
 msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/4"
-msgid "His Emperor has demanded an apology for the defeat of the Kilrathi strike fleet..."
+msgid "wc1:29f5405e4fcba17a"
 msgstr "Su Emperador le ha exigido una justificación por la derrota de la flota de ataque Kilrathi..."
 
 msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/5"
-msgid "...And an apology must be given."
+msgid "wc1:bfc914f7791ba2dd"
 msgstr "...Y hay que dar esa justificación."
 
 msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/6"
-msgid "An echo of the Admiral's dying scream lingers in the air..."
+msgid "wc1:cfe9e73960b4d5f5"
 msgstr "El eco del grito agónico del Almirante persiste en el aire..."
 
 msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/7"
-msgid "...then silence."
+msgid "wc1:fb0932275f61302d"
 msgstr "...y después se hace el silencio."
 
 msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/0"
-msgid "The Kilrathi Slave Mines: $D $T"
+msgid "wc1:f927d833f3773d9b $D $T"
 msgstr "Las Minas de Esclavos Kilrathi: $D $T"
 
 msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/1"
-msgid "With the retreat of the Tiger's Claw and the failure of her mission..."
+msgid "wc1:a5a07272e41abe1d"
 msgstr "Con la retirada de la Garra de Tigre y el fracaso de su misión..."
 
 msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/2"
-msgid "...the Kilrathi use their new weapon to establish dominance over Confederate defenders."
+msgid "wc1:db10ef2a7d835ecf"
 msgstr "...los Kilrathi usan sus nuevas armas para establecer el dominio sobre los defensores Confederados."
 
 msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/3"
-msgid "Thousands of humans are enslaved and taken to the Kilrathi Illudium mines..."
+msgid "wc1:7a5b7d9e2469de3c"
 msgstr "Miles de humanos son esclavizados y llevados a las minas Kilrathi de Ilidio..."
 
 msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/4"
-msgid "...forced to work in misery until dying from the radiation in the ore..."
+msgid "wc1:75e8763038d964ad"
 msgstr "...forzados a trabajar en la miseria hasta que mueren por la radiación del mineral..."
 
 msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/5"
-msgid "...their toil fueling the Kilrathi advance toward the Human homeworlds."
+msgid "wc1:6991656151056fbd"
 msgstr "...que sirve de combustible y alimenta el avance Kilrathi hacia los mundos natales Humanos."
 
 msgctxt "common/MIDGAME.V06/packet/5/scene/0/record/0"
-msgid "Fnchirr Settlement, Northern Continent, Firekka."
+msgid "wc1:5f8cc874b48eb367"
 msgstr "Asentamiento Fnchirr, Continente Norte, Firekka."
 
 msgctxt "common/MIDGAME.V06/packet/5/scene/0/record/1"
-msgid "After escorting the diplomats to the planet---"
+msgid "wc1:0b187de924c5d4ee"
 msgstr "Después de escoltar a los diplomáticos hasta el planeta..."
 
 msgctxt "common/MIDGAME.V06/packet/5/scene/0/record/2"
-msgid "---you watch as the alien leader and human ambassador sign the Terran-Firekka treaty."
+msgid "wc1:dc347461abe7e1c9"
 msgstr "...observas cómo el líder alienígena y el embajador humano firman el tratado Terrestre-Firekkan."
 
 msgctxt "common/MIDGAME.V06/packet/5/scene/0/record/3"
-msgid "This is a moment of joy and hope for Firekka and human alike..."
+msgid "wc1:646b5b6984005ce0"
 msgstr "Es un momento de júbilo y esperanza tanto para los Firekkan como para los humanos..."
 
 msgctxt "common/MIDGAME.V06/packet/5/scene/0/record/4"
-msgid "...in the midst of the desperate war against\n the Kilrathi."
+msgid "wc1:4301483be42bf1b5"
 msgstr "...en medio de una guerra desesperada contra los Kilrathi."
 
 msgctxt "common/MIDGAME.V07/packet/5/scene/0/record/0"
-msgid "Sharrhi Settlement, Southern Hemisphere, Firekka."
+msgid "wc1:11fd4db8e475ce02"
 msgstr "Asentamiento Sharrhi, Hemisferio Sur, Firekka."
 
 msgctxt "common/MIDGAME.V07/packet/5/scene/0/record/1"
-msgid "The human and Firekkan soldiers launch their assault---"
+msgid "wc1:4b22bc0f1ccaf73d"
 msgstr "Los soldados humanos y Firekkan lanzan su asalto..."
 
 msgctxt "common/MIDGAME.V07/packet/5/scene/0/record/2"
-msgid "---upon the warrior-priestesses of the Kilrathi religious ceremony."
+msgid "wc1:e0fde150733f67e9"
 msgstr "...sobre las sacerdotisas guerreras de la ceremonia religiosa Kilrathi."
 
 msgctxt "common/MIDGAME.V07/packet/5/scene/0/record/3"
-msgid "The assault team accomplishes their mission..."
+msgid "wc1:51e1afb9b2445bb1"
 msgstr "El equipo de asalto cumple la misión..."
 
 msgctxt "common/MIDGAME.V07/packet/5/scene/0/record/4"
-msgid "...but only at a terrible cost."
+msgid "wc1:a74460d53f5d289a"
 msgstr "...pero únicamente a cambio de un coste terrible."
 
 msgctxt "common/MIDGAME.V07/packet/6/scene/0/record/0"
-msgid "Sharrhi Settlement, Southern Hemisphere, Firekka."
+msgid "wc1:11fd4db8e475ce02"
 msgstr "Asentamiento Sharrhi, Hemisferio Sur, Firekka."
 
 msgctxt "common/MIDGAME.V07/packet/6/scene/0/record/1"
-msgid "The human and Firekkan soldiers launch their assault upon the Kilrathi religious ceremony---"
+msgid "wc1:6aaea6e536a738bf"
 msgstr "Los soldados humanos y Firekkan lanzan su asalto..."
 
 msgctxt "common/MIDGAME.V07/packet/6/scene/0/record/2"
-msgid "---even though they know they are hopelessly outnumbered."
+msgid "wc1:903a1acd2a93fd7e"
 msgstr "...aún sabiendo que los superan totalmente en número ."
 
 msgctxt "common/MIDGAME.V07/packet/6/scene/0/record/3"
-msgid "Their desperate attempt ends in failure..."
+msgid "wc1:939c044ce499ecea"
 msgstr "Su desesperado intento acaba siendo un fracaso..."
 
 msgctxt "common/MIDGAME.V07/packet/6/scene/0/record/4"
-msgid "...and their deaths."
+msgid "wc1:7a6f35e64eae7069"
 msgstr "...y con sus muertes."
 
 msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/0"
-msgid "Lkhi Settlement, Northern Hemisphere, Firekka."
+msgid "wc1:b9feac2054544219"
 msgstr "Asentamiento Lkhi, Hemisferio Norte, Firekka."
 
 msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/1"
-msgid "The Firekka shout their triumph --"
+msgid "wc1:ebc8afef89f9da9f"
 msgstr "Los Firekkan celebran gritando su triunfo..."
 
 msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/2"
-msgid "-- as the Kilrathi warships leave their planet."
+msgid "wc1:353d920ebd752220"
 msgstr "...mientras las naves de guerra Kilrathi se marchan del planeta."
 
 msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/3"
-msgid "The Tiger's Claw pilots have inflicted enough damage..."
+msgid "wc1:cdcea8889cf916ea"
 msgstr "Los pilotos de la Garra de Tigre han infligido el daño suficiente..."
 
 msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/4"
-msgid "...that the Kilrathi must abandon the Antares sector."
+msgid "wc1:d4666296fe1c36a2"
 msgstr "...como para que los Kilrathi decidan abandonar el Sector Antares."
 
 msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/5"
-msgid "The Firekka raise their guns in defiance --"
+msgid "wc1:ea5ccabf49688f66"
 msgstr "Los Firekkan alzan las armas con rebeldía..."
 
 msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/6"
-msgid "-- A proud, brave new ally of the Terran Confederation."
+msgid "wc1:c403bf07be248f7b"
 msgstr "...son un nuevo aliado orgulloso y valiente de la Confederación Terrestre."
 
 msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/0"
-msgid "Lkhi Settlement, Northern Hemisphere, Firekka."
+msgid "wc1:b9feac2054544219"
 msgstr "Asentamiento Lkhi, Hemisferio Norte, Firekka."
 
 msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/1"
-msgid "The Firekka stand before their Kilrathi\ncaptors --"
+msgid "wc1:a71175af8fb27242"
 msgstr "Los Firekkan están de pie ante sus captores Kilrathi..."
 
 msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/2"
-msgid "-- as the first slave ships depart with their living cargo."
+msgid "wc1:4b0101b518aed49b"
 msgstr "...mientras la primera nave de esclavos despega con el cargamento viviente."
 
 msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/3"
-msgid "The Confederation forces have been helpless to save them..."
+msgid "wc1:17d4a3a2778e8205"
 msgstr "Las fuerzas de la Confederación han sido incapaces de salvarlos..."
 
 msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/4"
-msgid "...and now another race has been enslaved..."
+msgid "wc1:1b58eadba7a8a108"
 msgstr "...y ahora se ha esclavizado otra raza..."
 
 msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/5"
-msgid "...destined to die in the service of Kilrah."
+msgid "wc1:c19617aaa48d8105"
 msgstr "...destinada a morir al servicio de Kilrah."

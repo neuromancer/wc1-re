@@ -70,7 +70,6 @@ static void CheckUiTranslations(const char *catalogPath,
         }
         if (*fields[0] && strcmp(fields[0], "font0") && strcmp(fields[0], "font3") && strcmp(fields[0], "intro"))
             continue;
-        Require(strcmp(SdlTranslateText(fields[0], fields[1]), fields[2]) == 0, "UI context and source lookup");
         if (strcmp(fields[0], "intro") == 0) {
             const char *line = fields[2];
             Require(pIntroFont != 0, "title sprite alphabet loaded");

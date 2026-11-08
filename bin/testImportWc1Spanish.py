@@ -113,6 +113,14 @@ class ImportSpanishTests(unittest.TestCase):
         self.assertEqual(entries[0]["translation"], "Hola $C")
         self.assertFalse(issues)
 
+    def test_debug_extraction_uses_original_encoding_without_spanish(self):
+        entries, issues = [], []
+        original = b"Hello \x8d $C"
+        importer.scene_entries(entries, issues, "scene", scene(original), None, 1)
+        importer.fixed_entries(entries, issues, "label", original + b"\0", None,
+                               len(original) + 1, 0, len(original) + 1)
+        self.assertEqual([e["source"] for e in entries], [original.decode("cp437")] * 2)
+
     def test_changed_speaker_rejected(self):
         with self.assertRaises(ValueError):
             importer.scene_entries([], [], "test", scene(b"Hello"), scene(b"Hola", speaker=2), 1)
@@ -148,9 +156,10 @@ class ImportSpanishTests(unittest.TestCase):
             po.write_text(importer.po_document(entries), encoding="utf-8")
             subprocess.run(["msgfmt", "--check", "-o", str(mo), str(po)], check=True, capture_output=True)
             translations = gettext.GNUTranslations(io.BytesIO(mo.read_bytes()))
-        self.assertEqual(translations.pgettext("radio", "Yes"), "Sí")
-        self.assertEqual(translations.pgettext("menu", "Yes"), "Aceptar")
-        self.assertEqual(translations.pgettext("review", "Hello $C"), "Hello $C")
+        self.assertEqual(translations.pgettext("radio", importer.message_key("Yes")), "Sí")
+        self.assertEqual(translations.pgettext("menu", importer.message_key("Yes")), "Aceptar")
+        key = importer.message_key("Hello $C")
+        self.assertEqual(translations.pgettext("review", key), key)
 
 
 class CompileSpanishTests(unittest.TestCase):
@@ -174,7 +183,40 @@ class CompileSpanishTests(unittest.TestCase):
         data, count, skipped = self.compiler.build_catalog(self.root)
         self.assertIn("¡Cañón!".encode("cp1252") + b"\0", data)
         self.assertEqual((count, skipped), (1, 0))
-        self.assertEqual(data[:4], b"WCT1")
+        self.assertEqual(data[:4], b"WCT2")
+        self.assertNotIn(b"Cannon!", data)
+
+    def test_content_ids_preserve_format_requirements_without_prose(self):
+        self.assertEqual(self.compiler.message_key("hello"), "wc1:a430d84680aabd0b")
+        original = "\nHello $R $N: %X%d (Y/N)\n"
+        key = self.compiler.message_key(original)
+        self.assertTrue(key.startswith("\nwc1:"))
+        self.assertTrue(key.endswith(" $R $N %X %d (Y/N)\n"))
+        self.assertNotIn("Hello", key)
+        self.assertEqual(self.compiler.message_key(key), key)
+        document = 'msgid "Hello "\n"$C"\nmsgstr "Hola $C"\n'
+        converted = self.compiler.keyed_po(document)
+        self.assertNotIn("Hello", converted)
+        self.assertEqual(self.compiler.keyed_po(converted), converted)
+
+    def test_keyed_and_local_plaintext_inputs_compile_identically(self):
+        self.catalog("Hola $C", "Hello $C")
+        expected = self.compiler.build_catalog(self.root)
+        path = self.root / "test.po"
+        path.write_text(self.compiler.keyed_po(path.read_text()))
+        self.assertEqual(self.compiler.build_catalog(self.root), expected)
+
+    def test_published_game_catalogs_contain_only_content_ids(self):
+        root = Path(__file__).resolve().parent.parent / "translations"
+        for path in [*(root / "es").glob("*.po"), *(root / "templates").glob("*.pot")]:
+            for entry, *_ in self.compiler.read_po(path):
+                self.assertIsNotNone(self.compiler.MESSAGE_ID.fullmatch(entry["msgid"]), path)
+
+    def test_rejects_source_strings_that_cannot_match_at_runtime(self):
+        for source in ("Hello\0world", "x" * 32767):
+            self.catalog(source=source)
+            with self.assertRaisesRegex(ValueError, "Invalid source string"):
+                self.compiler.build_catalog(self.root)
 
     def test_rejects_changed_campaign_tokens(self):
         self.catalog("Hola", "Hello $C")

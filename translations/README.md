@@ -13,6 +13,9 @@ Only translation text, changed glyphs, and sparse artwork edits are included.
 
 Edit `es/*.po` (game) or `es/LC_MESSAGES/launcher.po` (GUI). Preserve `msgctxt`,
 `msgid`, `$C`-style substitutions, format directives, and displayed key names.
+Game `msgid` values contain content IDs and required tokens, not original prose.
+English fallback comes from the game data or code. Rebuild the executable and
+catalog together when upgrading from the older WCT1 format.
 One malformed SM1 record remains fuzzy; unknown entries fall back to English.
 Proper names and artwork without translations retain their original wording.
 
@@ -35,7 +38,11 @@ simulator displays. The probe writes `out-modern/spanish-preview.bmp` and needs
 original WC1/Secret Missions data. It is not a full campaign playthrough.
 Packages include `translations/es.dat`; source game files are never rewritten.
 
-To reimport the pinned upstream archive into a new directory:
+For local debugging, export English text with its contexts and IDs (needs xgettext):
+`python3 bin/importWc1Spanish.py --english /path/to/GAMEDAT --debug-english`.
+This writes `out/english-strings.json`, which Git ignores.
+
+To reimport the pinned upstream archive into a new directory (needs xgettext):
 
 ```sh
 python3 bin/importWc1Spanish.py --english /path/to/DOS/GAMEDAT \

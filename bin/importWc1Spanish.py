@@ -16,11 +16,14 @@ import json
 from pathlib import Path
 import re
 import struct
+import subprocess
 import sys
+import tempfile
 import zipfile
 import zlib
 
-from compileTranslations import read_po
+from compileTranslations import message_key, read_po
+from updateUiTranslations import extract
 
 
 SPANISH_SHA256 = "b4b5bccb3eb6489b8694333c32b7a164bfa74734a9c88bcfbe917653088e9f9d"
@@ -235,6 +238,9 @@ def add_entry(entries, issues, context, english, spanish, font=0, capacity=None)
 
 
 def scene_entries(entries, issues, context, english, spanish, pairs):
+    source_only = spanish is None
+    if source_only:
+        spanish = english
     for pair in range(pairs):
         es, et = unpack(english, "<II", pair * 8)
         ss, st = unpack(spanish, "<II", pair * 8)
@@ -271,18 +277,18 @@ def scene_entries(entries, issues, context, english, spanish, pairs):
             # Test expressions and animation strings are scripts, not dialogue.
             original_test = string_at(english, et + original[4])
             localized_test = string_at(spanish, st + localized[4])
-            if key == "sm1/BRIEFING.001/packet/24/scene/1/record/9" and original_test and not localized_test:
+            if key == "sm1/BRIEFING.001/packet/24/scene/1/record/9" and original_test and (source_only or not localized_test):
                 # The English resource points textOffset at mouth-animation
                 # syllables and testsOffset at the actual spoken sentence.
                 add_entry(entries, issues, key, original_test,
-                          string_at(spanish, st + localized[5]))
+                          b"" if source_only else string_at(spanish, st + localized[5]))
                 warning = "English data has misplaced text/test offsets; source taken from testsOffset"
                 entries[-1]["warnings"].append(warning)
                 issues.append({"context": key, "warning": warning})
                 continue
             add_entry(entries, issues, key,
                       string_at(english, et + original[5]),
-                      string_at(spanish, st + localized[5]))
+                      b"" if source_only else string_at(spanish, st + localized[5]))
             if original_test != localized_test:
                 warning = "Scene conditions differ between editions; text pairing requires review"
                 entries[-1]["warnings"].append(warning)
@@ -292,7 +298,7 @@ def scene_entries(entries, issues, context, english, spanish, pairs):
 
 
 def fixed_entries(entries, issues, context, english, spanish, stride, offset, capacity, per_group=None, group="mission"):
-    if len(english) != len(spanish) or len(english) % stride:
+    if (spanish is not None and len(english) != len(spanish)) or len(english) % stride:
         raise ValueError(f"Fixed records do not align: {context}")
     for index in range(len(english) // stride):
         position = index * stride + offset
@@ -300,17 +306,17 @@ def fixed_entries(entries, issues, context, english, spanish, stride, offset, ca
         if per_group:
             key = f"{context}/{group}/{index // per_group}/record/{index % per_group}"
         add_entry(entries, issues, key, string_at(english, position, capacity),
-                  string_at(spanish, position, capacity), font=1, capacity=capacity - 1)
+                  b"" if spanish is None else string_at(spanish, position, capacity), font=1, capacity=capacity - 1)
 
 
-def import_resources(english_root, spanish):
+def import_resources(english_root, spanish=None):
     entries = []
     issues = []
     sources = {}
 
     def load(name):
         original = (english_root / name).read_bytes()
-        translated = spanish["GAMEDAT/" + name]
+        translated = spanish["GAMEDAT/" + name] if spanish is not None else original
         sources[name] = {"english_sha256": digest(original), "spanish_sha256": digest(translated)}
         return original, translated
 
@@ -323,7 +329,8 @@ def import_resources(english_root, spanish):
             if not en and not es:
                 continue
             count = 7 if index == 0 else 1 if index < 3 else 5
-            scene_entries(entries, issues, f"{campaign}/{name}/packet/{index}", en, es, count)
+            scene_entries(entries, issues, f"{campaign}/{name}/packet/{index}",
+                          en, es if spanish is not None else None, count)
         name = f"MODULE.{suffix}"
         original, translated = map(packets, load(name))
         if len(original) != 6 or len(translated) != 6:
@@ -335,10 +342,12 @@ def import_resources(english_root, spanish):
             (5, "series-name", 40, 0, 40, None),
         ):
             fixed_entries(entries, issues, f"{campaign}/{name}/{label}",
-                          original[packet], translated[packet], stride, offset, capacity, per_mission)
+                          original[packet], translated[packet] if spanish is not None else None,
+                          stride, offset, capacity, per_mission)
     for name, domain in (("COMMUNIC.DAT", "common"), ("COMMSM2.DAT", "sm2")):
         original, translated = load(name)
-        fixed_entries(entries, issues, f"{domain}/{name}", original, translated, 80, 0, 80, 11, "speaker")
+        fixed_entries(entries, issues, f"{domain}/{name}", original,
+                      translated if spanish is not None else None, 80, 0, 80, 11, "speaker")
     return entries, issues, sources
 
 
@@ -450,6 +459,21 @@ def delta(source, target):
     return edits
 
 
+def cinematic_entries(english, spanish=None):
+    entries, issues, sources = [], [], {}
+    for i in range(9):
+        name = f'MIDGAME.V0{i}'
+        source = (english / name).read_bytes()
+        target = spanish['GAMEDAT/' + name] if spanish is not None else source
+        sources[name] = {'english_sha256': digest(source), 'spanish_sha256': digest(target)}
+        original, translated = packets(source), packets(target)
+        for section in (5, 6):
+            if original[section]:
+                scene_entries(entries, issues, f'common/{name}/packet/{section}',
+                              original[section], translated[section] if spanish is not None else None, 1)
+    return entries, sources
+
+
 def import_extras(english, spanish, template):
     inventory, sources = {}, {}
     for name in ('Tools/_EXE_WORK/patch_work.txt', 'Tools/_EXE_WORKSM2/patch_worksm2.txt'):
@@ -469,17 +493,8 @@ def import_extras(english, spanish, template):
                    'capacity': None, 'warnings': [],
                    'notes': [f"Source: {record['file']}:{record['line']}" if record
                              else 'Translation: wc1-re contributors.']})
-    entries, issues = [], []
-    for i in range(9):
-        name = f'MIDGAME.V0{i}'
-        source = (english / name).read_bytes()
-        target = spanish['GAMEDAT/' + name]
-        sources[name] = {'english_sha256': digest(source), 'spanish_sha256': digest(target)}
-        original, translated = packets(source), packets(target)
-        for section in (5, 6):
-            if original[section]:
-                scene_entries(entries, issues, f'common/{name}/packet/{section}',
-                              original[section], translated[section], 1)
+    entries, cinematic_sources = cinematic_entries(english, spanish)
+    sources.update(cinematic_sources)
     assets = []
     for name, sections in ART.items():
         source = (english / name).read_bytes()
@@ -526,7 +541,7 @@ def po_document(entries, template=False):
         if entry["warnings"] and not template:
             lines.append("#, fuzzy")
         lines.extend(["msgctxt " + quote(entry["context"]),
-                      "msgid " + quote(entry["source"]),
+                      "msgid " + quote(message_key(entry["source"])),
                       "msgstr " + quote("" if template else entry["translation"])])
     return "\n".join(lines) + "\n"
 
@@ -534,20 +549,44 @@ def po_document(entries, template=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--english", type=Path, required=True, help="Original DOS installation or GAMEDAT directory")
-    parser.add_argument("--spanish", type=Path, required=True, help="Unmodified WC1_SMIyII_V1.1.zip")
-    parser.add_argument("--output", type=Path, required=True, help="New catalog directory; must not exist")
+    parser.add_argument("--spanish", type=Path, help="Unmodified WC1_SMIyII_V1.1.zip")
+    parser.add_argument("--output", type=Path, help="New catalog directory; must not exist")
+    parser.add_argument("--debug-english", action="store_true", help="Export local English text/IDs to ignored out/english-strings.json; no Spanish archive needed")
     args = parser.parse_args()
     try:
+        root = args.english / "GAMEDAT" if (args.english / "GAMEDAT").is_dir() else args.english
+        repo = Path(__file__).resolve().parent.parent
+        if args.debug_english:
+            entries, _, _ = import_resources(root)
+            captions, _ = cinematic_entries(root)
+            entries.extend(captions)
+            with tempfile.TemporaryDirectory() as directory:
+                template = Path(directory) / "ui.pot"
+                template.write_text(extract(repo, plain=True), encoding="utf-8")
+                entries.extend({"context": e.get("msgctxt", ""), "source": e["msgid"]}
+                               for e, *_ in read_po(template))
+            output = repo / "out/english-strings.json"
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(json.dumps([
+                {"context": e["context"], "id": message_key(e["source"]), "english": e["source"]}
+                for e in entries], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            print(f"Exported {len(entries)} English strings for local debugging: {output}")
+            return
+        if args.spanish is None or args.output is None:
+            parser.error("--spanish and --output are required unless --debug-english is used")
         if args.output.exists():
             raise ValueError("Output already exists; use a new directory to protect edited catalogs")
-        root = args.english / "GAMEDAT" if (args.english / "GAMEDAT").is_dir() else args.english
         spanish = read_spanish(args.spanish)
         entries, issues, sources = import_resources(root, spanish)
         contexts = [entry["context"] for entry in entries]
         if len(contexts) != len(set(contexts)):
             raise ValueError("Duplicate catalog contexts")
-        template = Path(__file__).resolve().parent.parent / "translations/templates/ui.pot"
-        documents, extra_sources = import_extras(root, spanish, template)
+        # English UI keys exist only in this temporary extraction, for pairing
+        # executable patches. Published catalogs contain content IDs instead.
+        with tempfile.TemporaryDirectory() as directory:
+            template = Path(directory) / "ui.pot"
+            template.write_text(extract(repo, plain=True), encoding="utf-8")
+            documents, extra_sources = import_extras(root, spanish, template)
         sources.update(extra_sources)
         for domain in ("common",) + CAMPAIGNS:
             selected = [e for e in entries if e["context"].startswith(domain + "/")]
@@ -574,7 +613,7 @@ def main():
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_text(text, encoding="utf-8")
         print(f"Imported {len(entries)} entries; {report['review_required']} require review. Output: {args.output}")
-    except (OSError, ValueError, KeyError, zipfile.BadZipFile, zlib.error, EOFError) as error:
+    except (OSError, ValueError, KeyError, zipfile.BadZipFile, zlib.error, EOFError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"Import failed: {error}\n")
 
 

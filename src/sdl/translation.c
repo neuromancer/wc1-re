@@ -7,7 +7,7 @@
 
 typedef struct TranslationMessage {
     const char *context;
-    const char *source;
+    const char *id;
     const char *text;
 } TranslationMessage;
 
@@ -105,7 +105,7 @@ int SdlLoadTranslationCatalog(const char *path)
         goto invalid;
     }
     SDL_RWclose(file);
-    if (memcmp(catalog, "WCT1", 4) != 0)
+    if (memcmp(catalog, "WCT2", 4) != 0)
         goto invalid;
     messageCount = ReadTranslation32(catalog + 4);
     fontCount = ReadTranslation32(catalog + 8);
@@ -132,12 +132,15 @@ int SdlLoadTranslationCatalog(const char *path)
             fields[field] = (const char *)catalog + position;
             position += length;
         }
+        if (lengths[1] != 21 || strncmp(fields[1], "wc1:", 4) != 0 ||
+            strspn(fields[1] + 4, "0123456789abcdef") != 16)
+            goto invalid;
         messages[index].context = fields[0];
-        messages[index].source = fields[1];
+        messages[index].id = fields[1];
         messages[index].text = fields[2];
         if (index) {
             int order = strcmp(messages[index - 1].context, fields[0]);
-            if (order > 0 || (order == 0 && strcmp(messages[index - 1].source, fields[1]) >= 0))
+            if (order > 0 || (order == 0 && strcmp(messages[index - 1].id, fields[1]) >= 0))
                 goto invalid;
         }
     }
@@ -169,8 +172,8 @@ int SdlLoadTranslationCatalog(const char *path)
             position += pixels + 2;
         }
     }
-    /* Optional sparse image changes. Older text-only WCT1 catalogs remain
-     * valid. Validate every splice before retaining pointers into the file. */
+    /* Optional sparse image changes. Validate every splice before retaining
+     * pointers into the file. */
     if (position != (size_t)size) {
         if ((size_t)size - position < 8 || memcmp(catalog + position, "WCA1", 4))
             goto invalid;
@@ -259,13 +262,23 @@ static const char *FindTranslation(const char *context, const char *source)
 {
     size_t first = 0;
     size_t end = messageCount;
-    if (!source || (introFontUnavailable && strcmp(context, "intro") == 0))
+    Uint64 hash = 14695981039346656037ULL;
+    const unsigned char *byte = (const unsigned char *)source;
+    char id[21];
+    if (!messageCount || !source || (introFontUnavailable && strcmp(context, "intro") == 0))
         return source;
+    /* FNV-1a over the original CP437 bytes, matching message_key(). */
+    for (; *byte; byte++) {
+        hash ^= *byte;
+        hash *= 1099511628211ULL;
+    }
+    SDL_snprintf(id, sizeof(id), "wc1:%08x%08x",
+                 (unsigned int)(hash >> 32), (unsigned int)hash);
     while (first < end) {
         size_t middle = first + (end - first) / 2;
         int order = strcmp(context, messages[middle].context);
         if (order == 0)
-            order = strcmp(source, messages[middle].source);
+            order = strcmp(id, messages[middle].id);
         if (order < 0)
             end = middle;
         else if (order > 0)
