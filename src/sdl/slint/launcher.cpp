@@ -29,6 +29,7 @@ void refresh_installations(LauncherWindow &window,
     choices.emplace_back(window.get_installation_prompt());
     for (const auto &installation : installations)
         choices.emplace_back(std::string(window.invoke_edition_text(installation.edition))
+                             + (installation.segaCdVoices ? " · " + std::string(window.get_voice_label()) : "")
                              + " — " + installation.directory);
 
     window.set_installations(std::make_shared<slint::VectorModel<slint::SharedString>>(choices));

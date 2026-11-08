@@ -30,6 +30,11 @@ code-full/
 # data/full/: disc images land directly in data/ and one of them is 605 MB.
 data/
 
+# User-supplied voice packs; only PO mappings belong in the repository.
+/WingLoader/
+**/[Dd][Aa][Tt][Aa]/[Vv][Oo][Ii][Cc][Ee]/
+/voices/**/*.[Ww][Aa][Vv]
+
 # Third-party SDK libs the user must supply
 3rdparty/dx/lib/*.lib
 3rdparty/dx/include/*

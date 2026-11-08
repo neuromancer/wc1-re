@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Compile an NSIS installer from package-modern.sh's Windows staging directory.
-# See README-windows-build.txt for dependencies and usage.
+# See the main README for dependencies and usage.
 set -euo pipefail
 
 version=${1:?usage: package-windows.sh VERSION ARCH PACKAGE_DIRECTORY}
@@ -20,7 +20,7 @@ if test "$architecture" != x86_64; then
 fi
 package_dir=$(cd "$package_dir" && pwd)
 for required in wc1-modern.exe SDL2.dll liblzo2-2.dll swc-music.sf2 \
-                translations/es.dat SPANISH-TRANSLATION-NOTICE.txt; do
+                translations/es.dat voices/segacd.dat SPANISH-TRANSLATION-NOTICE.txt; do
     if test ! -f "$package_dir/$required"; then
         echo "Missing Windows release file: $package_dir/$required" >&2
         exit 1
@@ -62,10 +62,12 @@ mkdir "$work/payload"
 cp "$package_dir/wc1-modern.exe" "$package_dir/"*.dll "$work/payload/"
 cp "$package_dir/"*.txt "$package_dir/swc-music.sf2" "$work/payload/"
 cp -R "$package_dir/translations" "$work/payload/"
+mkdir "$work/payload/voices"
+cp "$package_dir/voices/segacd.dat" "$work/payload/voices/"
 
 # Generate exact install/uninstall lists from the same payload. Never remove
 # arbitrary DLLs, game data, saves, or launcher preferences during uninstall.
-for file in "$work/payload/"* "$work/payload/translations/"*; do
+for file in "$work/payload/"* "$work/payload/translations/"* "$work/payload/voices/"*; do
     test -f "$file" || continue
     name=${file#"$work/payload/"}
     case "$name" in
@@ -88,6 +90,7 @@ done
 # Remove only empty directories, after checking deletion errors. User-added
 # translation files are preserved and must not make uninstall fail.
 printf 'RMDir "$INSTDIR\\translations"\n' >> "$work/uninstall-directories.nsh"
+printf 'RMDir "$INSTDIR\\voices"\n' >> "$work/uninstall-directories.nsh"
 installed_size=$(du -sk "$work/payload" | awk '{print $1}')
 (
     cd "$work"

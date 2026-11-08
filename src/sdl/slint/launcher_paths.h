@@ -20,6 +20,7 @@ struct DirectoryStatus {
 struct GameInstallation {
     std::string directory;
     LauncherMessage edition;
+    bool segaCdVoices = false;
 };
 
 std::string path_to_utf8(const std::filesystem::path &path);

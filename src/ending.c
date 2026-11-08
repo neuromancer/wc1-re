@@ -56,6 +56,9 @@ void ReleasePacketHandle(void *handle)
     int group;
     int i;
 
+#ifdef SDL_PORT
+    SdlForgetVoicePacket(handle);
+#endif
     reference = (void **)aapPacketReferences;
     for (group = 0; group < 4; group++) {
         for (i = 0; i < 0x25; i++) {

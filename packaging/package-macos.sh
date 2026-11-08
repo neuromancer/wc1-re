@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# See README-macos-build.txt for the build environment and dependencies.
+# See the main README for build dependencies and packaging.
 set -euo pipefail
 
 version=${1:?usage: package-macos.sh VERSION ARCH GUI_BINARY}
@@ -73,6 +73,7 @@ cp "$portable/"*.txt "$app/Contents/Resources/"
 # SDL_GetBasePath() resolves to Contents/Resources for an application bundle.
 mv "$portable/swc-music.sf2" "$app/Contents/Resources/"
 mv "$portable/translations" "$app/Contents/Resources/"
+mv "$portable/voices" "$app/Contents/Resources/"
 
 for library in "$app/Contents/Frameworks/"*.dylib; do
     install_name_tool -id "@rpath/$(basename "$library")" "$library"

@@ -24,6 +24,9 @@ void * __stdcall PacketLoad(const char *filename, short section,
     unsigned char *packet;
     PacketSectionHandle handle;
     int compression;
+#ifdef SDL_PORT
+    size_t voicePacketSize = 0;
+#endif
 
     packet = 0;
     if (OpenPacketSection(filename, section, &handle) != 0) {
@@ -50,6 +53,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
                 ((unsigned int)sizeBytes[1] << 8) |
                 ((unsigned int)sizeBytes[2] << 16) |
                 ((unsigned int)sizeBytes[3] << 24);
+            voicePacketSize = outputSize;
             compressedSize = handle.dataSize - 4;
             compressedData = malloc(
                 compressedSize != 0 ? compressedSize : 1);
@@ -98,6 +102,9 @@ void * __stdcall PacketLoad(const char *filename, short section,
             break;
 #endif
         default:
+#ifdef SDL_PORT
+            voicePacketSize = handle.dataSize;
+#endif
             if (handle.dataSize == 0) {
                 nPacketError = 8;
             } else {
@@ -121,6 +128,10 @@ void * __stdcall PacketLoad(const char *filename, short section,
             }
             break;
         }
+#ifdef SDL_PORT
+        if (packet)
+            SdlRegisterVoicePacket(filename, section, packet, voicePacketSize);
+#endif
         CloseDataFileByHandle(&handle);
     }
     return packet;

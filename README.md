@@ -9,7 +9,7 @@ A native SDL2 port is available for Windows, Linux, and macOS. It supports
 Kilrathi Saga data, has partial support for the original DOS game data, and
 also runs the Super Wing Commander Mac demo.
 
-No original game archives are included.
+No original game archives or Sega CD voice recordings are included.
 
 If you find this project useful, you can [support its development through
 GitHub Sponsors](https://github.com/sponsors/neuromancer).
@@ -49,7 +49,8 @@ Download the package for your platform from
   from the Start Menu. It installs for the current user without administrator
   privileges and includes an uninstaller in Windows Settings.
 - **Portable ZIPs:** available for Windows, macOS, and Linux. Extract the
-  archive and keep the bundled libraries and sound bank beside the executable.
+  archive and keep the bundled libraries, sound bank, `translations/`, and
+  `voices/` mapping beside the executable.
 
 Game data is not included. Open the app to choose a detected installation, or
 use **Add path…** to select a Kilrathi Saga or DOS Wing Commander directory
@@ -69,29 +70,27 @@ cd /path/to/WC1
 ./wc1-modern --enhanced --joystick-rumble
 ```
 
-For Spanish, choose **Language → Español** or use `--language=es`.
-See [translations](translations/README.md) for PO editing and credits.
+For Spanish, choose **Language → Español** or use `--language=es`. The launcher
+switches immediately; WC1 and Secret Missions support Spanish with DOS or
+Kilrathi Saga data. Super Wing Commander remains English.
+
+**Sega CD voices:** supply your own recordings in `Data/Voice` beside `GAMEDAT`,
+or keep WingLoader's original `Games/WC1/GAMEDAT` and `Data/Voice` layout. A
+`WingLoader/` folder inside the game directory also works. Detected installations
+show **Sega CD voices** in the game list. Only the PO filename mapping ships;
+recordings and WingLoader scripts are never bundled. Currently covers mapped WC1
+dialogue with approximate lip sync, plus in-flight radio with rank variants.
+Endings, dynamic rank/kill variants in scenes, and Secret Missions remain unsupported.
 
 Use `--fullscreen` or `--windowed` to choose the startup display mode. With
 `--gui`, these also override the saved fullscreen setting in the launcher.
 
-**Autosave (slot 8)** under **Gameplay** defaults to on the first time you use the
-launcher, which remembers your choice afterward. It saves a checkpoint named
-`autosave` after starting or loading a campaign and after each surviving mission's
-debriefing, awards, and transition to the next mission. Death or a campaign ending
-keeps the previous checkpoint.
-The last bunk is always reserved: manual saves use slots 1-7 even when autosave
-is off. Load the autosave from the last bunk as usual; an older manual save
-already in that slot also remains loadable.
-
-Before a new or manually loaded campaign replaces an occupied last slot, the
-game asks **Overwrite autosave? (Y/N)** in its text box, including when the pilot
-uses the same name. Answering **N** keeps the existing save and disables autosave
-for the current game, even if another save is loaded. It becomes available again
-when you return to the title screen after death or ending the game, or restart
-the application, provided the launcher option is enabled. When autosave is
-active, loading the autosave itself resumes it without a replacement prompt.
-The command-line options are `--autosave` and `--no-autosave`.
+**Autosave (slot 8)** under **Gameplay** defaults to on. It saves after starting
+or loading a campaign and after surviving missions; death and endings preserve
+the previous checkpoint. Manual saves use slots 1–7; load autosaves from the last
+bunk. Declining **Overwrite autosave?** preserves that save and disables autosave
+until returning to the title screen or restarting. Use `--autosave` or
+`--no-autosave` to override the setting.
 
 The Super Wing Commander Mac demo supports the same options except EGA
 dithering and autosave (SWC saving/loading is not implemented yet). To play it,
@@ -177,7 +176,7 @@ git submodule update --init --recursive
 
 ### SDL2 port
 
-Install a C/C++ compiler plus the SDL2 and LZO2 development packages, then run
+Install Python 3.10+, a C/C++ compiler, and SDL2/LZO2 development packages, then run
 `make -j modern`. The executable is written to `out-modern/wc1-modern` (`.exe`
 on Windows); `make run-modern` launches it with Kilrathi Saga data in
 `data/full`, and `make run-modern-dos` with DOS data in `data/dos`.
@@ -187,22 +186,56 @@ The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
 development packages. It produces `out-modern/wc1-modern-gui`, which release
 archives ship as `wc1-modern`.
 
-Installer build instructions are in
-[packaging/README-macos-build.txt](packaging/README-macos-build.txt) and
-[packaging/README-windows-build.txt](packaging/README-windows-build.txt).
-Tagged releases publish both macOS DMGs and the Windows setup executable
-alongside the portable ZIPs and their SHA-256 checksums.
+### Translation and voice mappings
 
-The launcher header uses the original Wing Commander title artwork from
-`TITLE.VGA` packet 0, with colours from `GAME.PAL`. Its three frames are joined
-at native resolution into a 314x111 PNG and embedded in the executable, so the
-header is visible before selecting a game-data directory.
+Edit `translations/es/*.po` for the game, `translations/es/LC_MESSAGES/launcher.po`
+for the GUI, and `voices/segacd.po` for voice filenames. Preserve contexts, IDs,
+format directives and `$C`-style substitutions. Empty/fuzzy entries use the
+original text or remain unvoiced. Game IDs contain no original English prose.
+Use `_()`/`C_()` in C, `N_()`/`NC_()` for static strings, and `@tr()` in Slint.
+The reference build keeps the original English expressions.
+
+```sh
+make update-translations update-launcher-translations # needs gettext and slint-tr-extractor
+make modern modern-gui                               # compiles mappings; no recordings needed
+make check-translations MODERN_RUN_DIR=/path/to/WC1
+make check-launcher check-voices                     # synthetic GUI/audio checks
+```
+
+For debugging, `python3 bin/importWc1Spanish.py --english /path/to/GAMEDAT --debug-english`
+exports English strings to ignored `out/english-strings.json`; do not commit it.
+For recordings outside the installation, compile a local index with
+`python3 bin/compileVoices.py --voice-root /path/to/Data/Voice --output out-modern/voices.dat`
+and launch with `--voices=/absolute/path/to/voices.dat`.
+
+### Release packaging
+
+Build with `MODERN_RELEASE=1 MODERN_OUT_DIR=out/release` to keep optimized release
+objects separate from development builds. Packages contain only executables,
+runtime dependencies, mappings and notices; copyrighted recordings stay external.
+
+```sh
+make modern-gui MODERN_RELEASE=1 MODERN_OUT_DIR=out/release
+packaging/package-modern.sh VERSION PLATFORM ARCH out/release/wc1-modern-gui
+packaging/package-macos.sh VERSION ARCH out/release/wc1-modern-gui
+packaging/package-windows.sh VERSION x86_64 dist/wc1-re-VERSION-windows-x86_64-sdl2
+```
+
+Use the `.exe` suffix on Windows. macOS packaging needs Xcode command-line tools,
+dependencies targeting macOS 15 (`packaging/build-macos-deps.sh`), and the Python
+packages in `packaging/requirements-macos.txt`; `DMGBUILD` can select its executable.
+Windows installers need NSIS 3.13 (`MAKENSIS` overrides its path). Outputs go to
+`dist/`; `DIST_DIR` overrides it. macOS apps are ad-hoc signed, not notarized;
+Windows installers are unsigned. The release workflow provides platform build
+environments and publishes only on release tags.
 
 ### Reconstructed Win32 build
 
 `make -j` builds `WC1.EXE` with the original MSVC 4.20 toolchain under wibo and
 assembles the hand-written raster library with UASM. Each link checks the
 executable against the original SHA-256; `make verify-hash` repeats the check.
+The reference release can replace `WC1.EXE` in a Kilrathi Saga installation;
+back up the existing executable first. It requires compatible 32-bit Windows.
 To run it in an emulated Windows 95 environment through DREAMM, provide a
 Kilrathi Saga disc image:
 
@@ -236,6 +269,10 @@ Special thanks to:
   fixes and analysis of the DOS release have been valuable references;
 - the [WCDX project](https://github.com/Bekenn/wcdx) for its pioneering
   compatibility work on the *Kilrathi Saga* release;
+- L@Zar0 and darkpadawan for the Spanish translation v1.1; its
+  [original terms](translations/upstream/Leeme.txt) specify GPLv3 with an additional
+  no-charge condition. [Provenance](translations/provenance.json) records the import;
+- WingLoader v0.91 for the initial associations between dialogue and recording filenames;
 - Aaron Giles for the [DREAMM emulator](https://dreamm.aarongiles.com/), used
   to run and study the original release, and
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's

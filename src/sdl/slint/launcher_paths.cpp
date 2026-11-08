@@ -163,11 +163,15 @@ int add_game_installation(std::vector<GameInstallation> &installations,
     const auto text = path_to_utf8(canonical);
     if (text.size() >= SDL_LAUNCHER_DIRECTORY_CAPACITY)
         return -1;
+    char voiceDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
+    const bool voices = !status.swcDemo && SdlFindVoiceDirectory(text.c_str(), voiceDirectory, sizeof(voiceDirectory));
     for (size_t index = 0; index < installations.size(); ++index) {
-        if (fs::equivalent(canonical, path_from_utf8(installations[index].directory), error))
+        if (fs::equivalent(canonical, path_from_utf8(installations[index].directory), error)) {
+            installations[index].segaCdVoices = voices;
             return static_cast<int>(index);
+        }
     }
-    installations.push_back({text, status.message});
+    installations.push_back({text, status.message, voices});
     return static_cast<int>(installations.size() - 1);
 }
 
@@ -202,7 +206,7 @@ static bool is_wc1_installation_name(const fs::path &directory)
                 return true;
         }
     }
-    return name == "wing" || name == "wc" || name == "wcks" ||
+    return name == "wing" || name == "wc" || name == "wcks" || name == "wingloader" ||
         name == "kilrathisaga" || name == "thekilrathisaga";
 }
 
@@ -216,7 +220,7 @@ static void scan_game_directory(std::vector<GameInstallation> &installations,
         return;
     // Only descend through known package layouts, never through arbitrary
     // user folders, Wine prefixes, or another game's data.
-    for (const auto name : {"Kilrathi_Saga", "Kilrathi Saga", "DOS", "WC", "WC1", "WING"}) {
+    for (const auto name : {"Kilrathi_Saga", "Kilrathi Saga", "DOS", "WC", "WC1", "WING", "Games"}) {
         const auto child = find_child_case_insensitive(directory, name);
         if (child)
             scan_game_directory(installations, *child, depth + 1);

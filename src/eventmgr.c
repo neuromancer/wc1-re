@@ -682,6 +682,10 @@ void WaitForFrameTick(void)
 /* Function start: 0x436240 */
 int IsFrameTickElapsed(void)
 {
+#ifdef SDL_PORT
+    if (SdlSceneVoicePlaying())
+        return 0;
+#endif
     return bFrameTickPendingFlag == 0;
 }
 

@@ -38,6 +38,97 @@ static void SavePreview(const char *path, SDL_Surface *surface)
     Require(SDL_SaveBMP(surface, path) == 0, "save preview");
 }
 
+static void SilentAudio(void *stream, unsigned int size)
+{
+    memset(stream, 0, size);
+}
+
+static void CheckVoicePacketLoad(const char *root)
+{
+    char path[4096];
+    unsigned char *packet;
+    const unsigned char *scene, *record;
+    size_t text;
+    int played = 0;
+    SDL_snprintf(path, sizeof(path), "%s/BRIEFING.000", root);
+    packet = PacketLoad(path, 4, 0, 0, 0);
+    Require(packet != 0, "load actual dialogue packet through game loader");
+    scene = packet + Read32(packet);
+    text = Read32(packet + 4);
+    for (record = scene; record < packet + text; record += 13) {
+        if ((signed char)*record != -2 && SdlPlaySceneVoice(scene, record)) {
+            played = 1;
+            break;
+        }
+    }
+    Require(played, "game loader registers voice scene addresses");
+    SdlStopVoice();
+    ReleasePacketHandle(packet);
+    Require(!SdlPlaySceneVoice(scene, record), "game release unregisters voice scene addresses");
+}
+
+static void CheckRadioVoices(const char *root)
+{
+    DiskFileRecord files[14] = {0};
+    DiskFileRecord *savedFiles = pDiskFileRecords;
+    unsigned int count = 0;
+    size_t size;
+    unsigned char *archive = ReadResource(root, "COMMUNIC.DAT", &size);
+    Require(size == 14 * 11 * 80, "complete radio resource");
+    strcpy(files[13].name, "COMMUNIC.DAT");
+    pDiskFileRecords = files;
+    bCommVideoEnabled = 0;
+    bInflightComputerActive = 0;
+    for (int language = 0; language < 2; language++) {
+        SdlSetLanguage(language);
+        for (short speaker = 0; speaker < 14; speaker++) {
+            acShipRating[1] = speaker < 8 ? speaker : speaker < 12 ? speaker + 1 : -1;
+            aeShipSide[1] = speaker < 8 || speaker == 12 ? SIDE_IMPERIAL : SIDE_KILRATHI;
+            for (short record = 0; record < 11; record++) {
+                char line[84];
+                const char *original = (const char *)archive + (speaker * 11 + record) * 80;
+                int ranks = strstr(original, "$R") ? 5 : 1;
+                SDL_strlcpy(line, original, sizeof(line));
+                SdlTranslateRadio(files[13].name, speaker, record, line, sizeof(line));
+                aapszPilotSpeeches[speaker][record] = line;
+                for (short rank = 0; rank < ranks; rank++) {
+                    stCampaignState.currentPilot->rank = rank;
+                    real_vid_transmit(1, record);
+                    Require(SdlRadioVoicePlaying() == (*original != 0), "actual radio transmission plays in either language");
+                    Require(!SdlSceneVoicePlaying(), "radio uses its own timer");
+                    if (*original) {
+                        bFrameTickPendingFlag = 0;
+                        Require(IsFrameTickElapsed(), "radio leaves frame timers running");
+                        nCurrentNoticeTimer = 1;
+                        check_message();
+                        Require(message_showing(), "radio subtitle waits for recording completion");
+                        count++;
+                    }
+                    SdlStopRadioVoice();
+                    nCurrentNoticeTimer = 1;
+                    check_message();
+                    Require(!message_showing(), "completed transmission releases the message queue");
+                    real_vid_transmit(1, record);
+                    if (rank & 1)
+                        FreeCommDisplayResources();
+                    else
+                        clear_message_time();
+                    Require(!SdlVoicePlaying(), "closing radio interrupts playback");
+                    clear_message_time();
+                }
+                aapszPilotSpeeches[speaker][record] = 0;
+            }
+        }
+    }
+    Require(count == 386, "all 193 radio recordings with English and Spanish subtitles");
+    printf("PASS: 193 radio recordings through game transmissions in both languages; ranks, timers and cleanup.\n");
+    stCampaignState.currentPilot->rank = 0;
+    bCommVideoEnabled = 1;
+    bInflightComputerActive = 1;
+    pDiskFileRecords = savedFiles;
+    SDL_free(archive);
+}
+
 static void CheckUiTranslations(const char *catalogPath,
                                  TextContext *context, unsigned char **fontData,
                                  SDL_Surface *surface)
@@ -298,12 +389,19 @@ int main(int argc, char **argv)
     unsigned int packetsChecked = 0;
     unsigned int tallCount = 0;
     unsigned int maxHeight = 0;
+    unsigned int voicedCount = 0;
+    CRITICAL_SECTION voiceLock;
     char sample[256] = "";
     char radio[84] = "";
 
-    if (argc != 4) {
-        fprintf(stderr, "Usage: %s CATALOG GAMEDAT PREVIEW.bmp\n", argv[0]);
+    if (argc != 4 && argc != 5) {
+        fprintf(stderr, "Usage: %s CATALOG GAMEDAT PREVIEW.bmp [VOICES]\n", argv[0]);
         return 1;
+    }
+    if (argc == 5) {
+        SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
+        InitializeCriticalSection(&voiceLock);
+        Require(SdlLoadVoiceCatalog(argv[4]) && SdlStartAudio(SilentAudio, &voiceLock, 0), "load local voices and silent audio device");
     }
     Require(SdlLoadTranslationCatalog(argv[1]), "load catalog");
     surface = SDL_CreateRGBSurfaceWithFormat(0, 320, 200, 8, SDL_PIXELFORMAT_INDEX8);
@@ -379,6 +477,10 @@ int main(int argc, char **argv)
                 free(original);
                 continue;
             }
+            if (argc == 5) {
+                SdlRegisterVoicePacket(name, section, original, size);
+                SdlRegisterVoicePacket(name, section, translated, newSize);
+            }
             for (pair = 0; pair < pairs; pair++) {
                 size_t scene = Read32(original + pair * 8);
                 size_t text = Read32(original + pair * 8 + 4);
@@ -396,6 +498,18 @@ int main(int argc, char **argv)
                     Require(memcmp(a, b, 7) == 0 && memcmp(a + 9, b + 9, 4) == 0, "preserve scene timing/conditions/animation");
                     if ((signed char)a[0] == -2)
                         continue;
+                    if (argc == 5) {
+                        int englishVoice = SdlPlaySceneVoice(original + scene, a);
+                        int spanishVoice = SdlPlaySceneVoice(translated + newScene, b);
+                        Require(englishVoice == spanishVoice, "same voice coverage with Spanish subtitles");
+                        if (spanishVoice) {
+                            bFrameTickPendingFlag = 0;
+                            Require(!IsFrameTickElapsed(), "timed scene waits for voice completion");
+                            voicedCount++;
+                        }
+                        SdlStopVoice();
+                        Require(IsFrameTickElapsed(), "skip releases the scene timer");
+                    }
                     en = (const char *)original + text + Read16(a + 7);
                     es = (const char *)translated + newText + Read16(b + 7);
                     if (strcmp(en, es) == 0)
@@ -416,6 +530,8 @@ int main(int argc, char **argv)
                         SDL_strlcpy(sample, AddPCName(es), sizeof(sample));
                 }
             }
+            SdlForgetVoicePacket(translated);
+            SdlForgetVoicePacket(original);
             free(translated);
             free(original);
         }
@@ -493,9 +609,15 @@ int main(int argc, char **argv)
     CheckExtraResources(argv[2], &context, surface);
     CheckUiTranslations(argv[1], &context, fontData, surface);
     CheckSimulatorDisplays(&context, fontData, surface);
+    if (argc == 5)
+        CheckRadioVoices(argv[2]);
     ReleasePacketHandle(pIntroFont);
     pIntroFont = 0;
+    if (argc == 5)
+        CheckVoicePacketLoad(argv[2]);
     SdlSetLanguage(0);
+    if (argc == 5)
+        CheckVoicePacketLoad(argv[2]);
     Require(strcmp(_("GAME PAUSED"), "GAME PAUSED") == 0, "English macro bypass");
     {
         unsigned char *unchanged;
@@ -505,5 +627,12 @@ int main(int argc, char **argv)
     for (index = 0; index < 4; index++)
         free(fontData[index]);
     SDL_FreeSurface(surface);
+    if (argc == 5) {
+        Require(voicedCount > 0, "voice catalog matches installed game resources");
+        printf("PASS: %u real dialogue recordings decoded with English/Spanish subtitles; timing and skip.\n", voicedCount);
+        SdlShutdownVoices();
+        SdlStopAudio();
+        DeleteCriticalSection(&voiceLock);
+    }
     return 0;
 }

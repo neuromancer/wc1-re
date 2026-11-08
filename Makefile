@@ -530,6 +530,7 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/resources.c \
 	src/sdl/data_patches.c \
 	src/sdl/translation.c \
+	src/sdl/speech.c \
 	src/sdl/swc_mission.c \
 	src/swc/cmf.c \
 	src/sdl/registry.c \
@@ -624,6 +625,10 @@ build-full: $(TARGET)
 # The native port is deliberately built in a separate output tree.  It must
 # never supply objects to the assembly-comparison target above.
 MODERN_TRANSLATIONS = $(MODERN_OUT_DIR)/translations/es.dat
+MODERN_VOICES = $(MODERN_OUT_DIR)/voices/segacd.dat
+
+$(MODERN_VOICES): bin/compileVoices.py bin/compileTranslations.py voices/segacd.po $(wildcard translations/es/*.po)
+	python3 bin/compileVoices.py --output $@
 
 $(MODERN_TRANSLATIONS): bin/compileTranslations.py $(wildcard translations/es/*.po) $(wildcard translations/es/*.json)
 	python3 bin/compileTranslations.py --source translations/es --output $@
@@ -670,7 +675,7 @@ $(SWC_MUSIC_SOUNDFONT): third_party/generaluser/GeneralUser-GS.sf2
 
 # Slint enables full Rust LTO upstream; the small launcher does not need its
 # substantial clean-build cost.
-$(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile | $(SWC_MUSIC_SOUNDFONT) $(MODERN_TRANSLATIONS)
+$(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile | $(SWC_MUSIC_SOUNDFONT) $(MODERN_TRANSLATIONS) $(MODERN_VOICES)
 	@command -v $(MODERN_CMAKE) >/dev/null 2>&1 || { \
 		echo "CMake 3.21 or newer is required for modern-gui." >&2; \
 		exit 1; \
@@ -756,7 +761,7 @@ $(MODERN_TARGET): \
 		$(MODERN_BASE_HOST_OBJS) \
 		$(MODERN_GAME_HOST_OBJS) \
 		$(MODERN_GAMEPLAY_OBJS) \
-		$(MODERN_IX_OBJS) | $(SWC_MUSIC_SOUNDFONT) $(MODERN_TRANSLATIONS)
+		$(MODERN_IX_OBJS) | $(SWC_MUSIC_SOUNDFONT) $(MODERN_TRANSLATIONS) $(MODERN_VOICES)
 	@mkdir -p $(dir $@)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
@@ -1331,3 +1336,11 @@ check-translations: $(MODERN_OUT_DIR)/translation-probe
 	python3 bin/testImportWc1Spanish.py
 	$(MODERN_OUT_DIR)/translation-probe $(MODERN_TRANSLATIONS) \
 		"$(MODERN_RUN_DIR)/GAMEDAT" $(MODERN_OUT_DIR)/spanish-preview.bmp
+
+$(MODERN_OUT_DIR)/voice-probe: bin/checkVoices.c src/sdl/audio.c src/sdl/speech.c src/sdl/compat.c include/wc1sdl.h | modern-check-sdl $(MODERN_VOICES)
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) $(MODERN_SECTION_FLAGS) $< src/sdl/compat.c $(MODERN_SDL_LIBS) $(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-voices
+check-voices: $(MODERN_OUT_DIR)/voice-probe
+	WC1_VOICE_PROBE="$(abspath $(MODERN_OUT_DIR)/voice-probe)" python3 bin/testVoices.py

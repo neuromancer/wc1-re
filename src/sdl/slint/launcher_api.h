@@ -41,6 +41,7 @@ enum SdlLauncherExplicitOption {
 
 typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
+    char voiceCatalog[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     int fullscreen;
     int autosave;
     int language; /* 0: English, 1: Spanish */
@@ -65,6 +66,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options);
 /* Game-side check that a directory holds the SWC demo application's
  * resources in any supported form, including a MacBinary application. */
 int SdlHasSwcResources(const char *directory);
+int SdlFindVoiceDirectory(const char *directory, char *root, unsigned long capacity);
 
 #ifdef __cplusplus
 }

@@ -182,6 +182,22 @@ int SdlStartAudio(SdlAudioMixer mixer,
                      CRITICAL_SECTION *criticalSection,
                      unsigned int *tick);
 void SdlStopAudio(void);
+int SdlPlayVoiceWav(const char *path);
+int SdlVoicePlaying(void);
+short SdlVoiceMouthFrame(const short *commands, short fallback);
+void SdlStopVoice(void);
+int SdlLoadVoiceCatalog(const char *path);
+int SdlFindVoiceDirectory(const char *directory, char *root, unsigned long capacity);
+int SdlLoadInstalledVoices(const char *directory);
+void SdlShutdownVoices(void);
+void SdlRegisterVoicePacket(const char *filename, short section,
+                            const unsigned char *data, size_t size);
+void SdlForgetVoicePacket(const void *data);
+int SdlPlaySceneVoice(const unsigned char *scene, const unsigned char *record);
+int SdlPlayRadioVoice(const char *filename, short speaker, short record, short rank, const char *text);
+int SdlSceneVoicePlaying(void);
+int SdlRadioVoicePlaying(void);
+void SdlStopRadioVoice(void);
 /* Windows developer-channel output stays off in the SDL2 port unless a
  * diagnostic build defines SDL_PORT_LEGACY_DEBUG_OUTPUT. */
 void SdlOutputDebugString(const char *text);

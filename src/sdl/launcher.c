@@ -51,6 +51,12 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         argument = arguments[argumentIndex];
         if (strcmp(argument, "--gui") == 0) {
             *useLauncherGui = 1;
+        } else if (strncmp(argument, "--voices=", 9) == 0) {
+            if (!argument[9] || SDL_strlcpy(options->voiceCatalog, argument + 9,
+                                           sizeof(options->voiceCatalog)) >= sizeof(options->voiceCatalog)) {
+                fprintf(stderr, "Invalid voice catalog path.\n");
+                return 0;
+            }
         } else if (strcmp(argument, "--fullscreen") == 0 ||
                    strcmp(argument, "--windowed") == 0) {
             options->fullscreen = strcmp(argument, "--fullscreen") == 0;
@@ -163,6 +169,7 @@ static int SdlOpenLauncherGui(SdlLauncherOptions *options)
 
 static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
 {
+    char directory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     if (options->joystickMode < SDL_LAUNCHER_JOYSTICK_ORIGINAL ||
         options->joystickMode > SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS ||
         options->joystickAxes < SDL_LAUNCHER_AXES_TWIN_STICK_ROLL ||
@@ -173,6 +180,16 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     SdlSetJoystickMode(g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
     SdlConfigureAutosave(options->autosave && !options->swcDemo);
+    if (*options->voiceCatalog && !options->swcDemo && !SdlLoadVoiceCatalog(options->voiceCatalog)) {
+        fprintf(stderr, "Cannot load voices: %s\n", SDL_GetError());
+        return 0;
+    }
+    if (!*options->voiceCatalog && !options->swcDemo) {
+        if (!GetCurrentDirectoryA(sizeof(directory), directory) || !SdlLoadInstalledVoices(directory)) {
+            fprintf(stderr, "Cannot load voices: %s\n", SDL_GetError());
+            return 0;
+        }
+    }
     if (!SdlSetLanguage(options->swcDemo ? 0 : options->language)) {
         fprintf(stderr, "Cannot load game language: %s\n", SDL_GetError());
         return 0;
@@ -360,6 +377,7 @@ int main(int argumentCount, char **arguments)
     SdlShutdownJoysticks();
     SDL_DestroyWindow(window);
     SdlShutdownTranslations();
+    SdlShutdownVoices();
     SDL_Quit();
     return gameResult;
 }

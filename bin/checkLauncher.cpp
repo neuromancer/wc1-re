@@ -12,6 +12,12 @@ extern "C" int SdlHasSwcResources(const char *)
     return 0;
 }
 
+// Detection/playback are tested with real files by check-voices.
+extern "C" int SdlFindVoiceDirectory(const char *, char *, unsigned long)
+{
+    return 0;
+}
+
 struct TestWindow : slint::platform::WindowAdapter {
     slint::platform::SoftwareRenderer pixels {slint::platform::SoftwareRenderer::RepaintBufferType::NewBuffer};
     slint::PhysicalSize dimensions {{760, 660}};
@@ -55,7 +61,7 @@ int main(int argc, char **argv)
     auto window = LauncherWindow::create();
     std::vector<GameInstallation> installations = {
         {"/Games/Edición española", LauncherMessage::MacDemo},
-        {"/Games/WC1", LauncherMessage::Dos}
+        {"/Games/WC1", LauncherMessage::Dos, true}
     };
     window->set_title_artwork(slint::Image::load_from_data(
         wc1_launcher_artwork::kWingCommanderLogoPng, "png"));
@@ -79,9 +85,11 @@ int main(int argc, char **argv)
         require(window->get_status_text() == "STREAMS/MISSION.STR no existe o no se puede leer.", "live error translation");
         require(window->get_installation_prompt() == "Selecciona los datos del juego…", "live installation prompt");
         require(std::string(*window->get_installations()->row_data(1)).starts_with("Demo de SWC para Mac"), "live edition label");
+        require(std::string(*window->get_installations()->row_data(2)).find("Voces de Sega CD") != std::string::npos, "live voice detection label");
         platform->view->pixels.render(spanish, 760);
         set_language(*window, installations, 0);
         require(window->get_status_text() == originalError, "English restored");
+        require(std::string(*window->get_installations()->row_data(2)).find("Sega CD voices") != std::string::npos, "English voice label restored");
         platform->view->pixels.render(restored, 760);
     }
     require(std::memcmp(english.data(), spanish.data(), english.size() * sizeof(english[0])) != 0, "window redraws in Spanish");

@@ -883,6 +883,9 @@ void InvalidateVduMode(short i)
 /* Function start: 0x4149E0 */
 void clear_message_time(void)
 {
+#ifdef SDL_PORT
+    SdlStopRadioVoice();
+#endif
     nCurrentNoticeTimer = 0;
 }
 
@@ -906,6 +909,10 @@ unsigned short set_message_time(unsigned short v)
 /* Function start: 0x414A20 */
 void check_message(void)
 {
+#ifdef SDL_PORT
+    if (SdlRadioVoicePlaying() && nCurrentNoticeTimer == 1)
+        return;
+#endif
     if (message_showing() &&
         (nCurrentNoticeTimer = nCurrentNoticeTimer - 1,
          nCurrentNoticeTimer <= 0))

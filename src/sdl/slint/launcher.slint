@@ -44,6 +44,7 @@ export component LauncherWindow inherits Window {
     in property <LauncherMessage> status;
     in property <string> status-detail;
     out property <string> status-text: message-text(root.status, root.status-detail);
+    out property <string> voice-label: @tr("Sega CD voices");
     out property <string> installation-prompt: root.has-installations
         ? @tr("Select game data…") : @tr("No game data found — add a path");
 

@@ -418,6 +418,7 @@ void talk_equiv(void)
 void FreeCommDisplayResources(void)
 {
 #ifdef SDL_PORT
+    SdlStopRadioVoice();
     /* The original indexes the portrait table with its -1 inactive sentinel,
        aliasing the final two palette-allocation words at 0x0059E17C. */
     if (nCommPortraitIndex != -1)
@@ -630,4 +631,9 @@ void real_vid_transmit(short obj, short message)
     }
     expandedText = ExpandCommMessageTokens(text);
     ShowCentredPrompt(expandedText, MeasureMessageWidth(text));
+#ifdef SDL_PORT
+    if (!bInflightComputerActive)
+        SdlPlayRadioVoice(pDiskFileRecords[13].name, nCommPortraitIndex, message,
+                          stCampaignState.currentPilot->rank, speech);
+#endif
 }

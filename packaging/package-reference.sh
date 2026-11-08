@@ -22,7 +22,7 @@ fi
 mkdir -p "$stage_dir"
 cp WC1.EXE "$stage_dir/WC1.EXE"
 cp LICENSE "$stage_dir/LICENSE.txt"
-cp packaging/README-win32.txt "$stage_dir/README.txt"
+cp README.md "$stage_dir/README.txt"
 
 (
     cd "$stage_dir"

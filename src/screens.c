@@ -379,6 +379,9 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     short countdown;
     short escaped;
     short frame;
+#ifdef SDL_PORT
+    int voiced = SdlVoicePlaying();
+#endif
 
     countdown = 0;
     AddPCName(text);
@@ -389,7 +392,16 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
                               nConvTextColorValue,
                               szTxtWorkspaceBuffer);
     start = animation;
-    while (*animation != -1) {
+    while (
+#ifdef SDL_PORT
+           voiced ||
+#endif
+           *animation != -1) {
+#ifdef SDL_PORT
+        if (voiced)
+            frame = SdlVoiceMouthFrame(start, 9);
+        else
+#endif
         if (countdown-- == 0) {
             if (*animation != -1)
                 animation += 2;
@@ -422,6 +434,10 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
         }
         DIBslam();
         DIBslamReal();
+#ifdef SDL_PORT
+        if (voiced && frame == 9 && !SdlVoicePlaying())
+            break;
+#endif
     }
     DrawSpriteDefault(&stSceneBuffer, 0, 0,
                       pCurrentConversationBackdropShapePtr, 0);
@@ -430,6 +446,10 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     RefreshMemoryStatusOverlay();
     DIBslam();
     DIBslamReal();
+#ifdef SDL_PORT
+    if (voiced)
+        return 0;
+#endif
     WaitForSceneAdvance(duration, 0);
     return 0;
 }
@@ -1347,6 +1367,9 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         FlushInputEvents();
         text = (char *)textData + record->textOffset;
         if (*text != '\0') {
+#ifdef SDL_PORT
+            SdlPlaySceneVoice(sceneBytes, (const unsigned char *)record);
+#endif
             switch (previousShot) {
             case 0:
                 EstablishingShot(text, duration);
@@ -1406,6 +1429,9 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                          duration);
                 break;
             }
+#ifdef SDL_PORT
+            SdlStopVoice();
+#endif
         }
         record++;
         if (bEscapePressedFlag == 1)

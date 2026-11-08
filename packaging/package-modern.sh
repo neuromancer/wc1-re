@@ -43,8 +43,12 @@ cp LICENSE "$stage_dir/LICENSE.txt"
 # Editable sources and import tools remain in the release's source archive.
 test -s "$(dirname "$binary")/translations/es.dat"
 cp "$(dirname "$binary")/translations/es.dat" "$stage_dir/translations/"
+# The portable voice mapping contains IDs/filenames only, never recordings.
+mkdir -p "$stage_dir/voices"
+test -s "$(dirname "$binary")/voices/segacd.dat"
+cp "$(dirname "$binary")/voices/segacd.dat" "$stage_dir/voices/"
 cp translations/upstream/Leeme.txt "$stage_dir/SPANISH-TRANSLATION-NOTICE.txt"
-cp packaging/README-modern.txt "$stage_dir/README.txt"
+cp README.md "$stage_dir/README.txt"
 cp packaging/THIRD-PARTY-NOTICES.txt \
     "$stage_dir/THIRD-PARTY-NOTICES.txt"
 cp third_party/ymfm/LICENSE "$stage_dir/YMFM-LICENSE.txt"

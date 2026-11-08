@@ -268,6 +268,9 @@ unsigned int LongTalk(struct Shape *talker, char *text,
     short mouthCountdown;
     short mouthFrame;
     short waiting;
+#ifdef SDL_PORT
+    int voiced = SdlVoicePlaying();
+#endif
 
     waiting = 0;
     AddPCName(text);
@@ -285,7 +288,11 @@ unsigned int LongTalk(struct Shape *talker, char *text,
                               szTxtWorkspaceBuffer);
     nFrameSkipCounter = 1;
     for (;;) {
-        if (*mouthCommands == -1 && *faceCommands == -1) {
+        if (*mouthCommands == -1 && *faceCommands == -1
+#ifdef SDL_PORT
+            && !voiced
+#endif
+        ) {
             if (waiting == 0) {
                 CloseTalk(talker, -1, -1);
                 DIBslam();
@@ -296,6 +303,12 @@ unsigned int LongTalk(struct Shape *talker, char *text,
             IsFrameTickElapsed();
             return 0;
         }
+#ifdef SDL_PORT
+        if (voiced) {
+            mouthFrame = SdlVoiceMouthFrame(mouthStart, 9);
+            nFrameSkipCounter = 1;
+        } else
+#endif
         if (mouthCountdown-- == 0) {
             if (*mouthCommands != -1)
                 mouthCommands += 2;
@@ -341,6 +354,10 @@ unsigned int LongTalk(struct Shape *talker, char *text,
         }
         if (CheckEscaped() != 0)
             break;
+#ifdef SDL_PORT
+        if (voiced && mouthFrame == 9 && !SdlVoicePlaying())
+            return 0;
+#endif
         if (waiting != 0 && (short)IsFrameTickElapsed() != 0)
             return 0;
     }
@@ -754,6 +771,9 @@ unsigned int CloseLook(struct Shape *shape, short shot,
     short frame;
     short frameDelay;
     short *start;
+#ifdef SDL_PORT
+    int voiced = SdlVoicePlaying();
+#endif
 
     frameDelay = 0;
     finished = 0;
@@ -767,7 +787,17 @@ unsigned int CloseLook(struct Shape *shape, short shot,
     start = animation;
     nFrameSkipCounter = 1;
     if (shot == 2 || shot == 11) {
-        while (*animation != -1) {
+        while (
+#ifdef SDL_PORT
+               voiced ||
+#endif
+               *animation != -1) {
+#ifdef SDL_PORT
+            if (voiced) {
+                frame = SdlVoiceMouthFrame(start, 9);
+                nFrameSkipCounter = 1;
+            } else
+#endif
             if (frameDelay-- == 0) {
                 if (*animation != -1)
                     animation += 2;
@@ -815,6 +845,10 @@ unsigned int CloseLook(struct Shape *shape, short shot,
             }
             if (finished != 0 && (short)IsFrameTickElapsed() != 0)
                 return 0;
+#ifdef SDL_PORT
+            if (voiced && frame == 9 && !SdlVoicePlaying())
+                return 0;
+#endif
             DIBslam();
             DIBslamReal();
         }
