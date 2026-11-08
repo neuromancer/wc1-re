@@ -32,6 +32,7 @@ strip_file() {
     *)
         unifdef -x2 -B -USDL_PORT -USDL_PORT_LEGACY_DEBUG_OUTPUT \
             -UANALYSIS_BUILD -o "$stage/$1" "$1"
+        python3 "$site/stripTranslations.py" "$stage/$1"
         ;;
     esac
 }
