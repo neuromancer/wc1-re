@@ -1233,7 +1233,7 @@ debug: $(TARGET) run-check | $(DREAMM_BIN)
 
 # Static, cross-referenced browser of the Win32 build's sources, with the SDL
 # port's code stripped, as deployed to GitHub Pages by .github/workflows/
-# pages.yml. Needs doxygen, unifdef and pygmentize; writes out/site/html.
+# pages.yml. Needs clang, doxygen, unifdef and pygmentize; writes out/site/html.
 site:
 	@sh site/build.sh $(SRCS)
 

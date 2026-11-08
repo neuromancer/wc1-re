@@ -24,7 +24,7 @@ jobs:
       - name: Install site tools
         run: |
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends python3-pygments unifdef
+          sudo apt-get install --yes --no-install-recommends clang python3-pygments unifdef
       - name: Install Doxygen
         env:
           DOXYGEN_URL: https://github.com/doxygen/doxygen/releases/download/Release_1_18_0/doxygen-1.18.0.linux.bin.tar.gz
@@ -42,9 +42,7 @@ jobs:
       - name: Build source browser
         env:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
-        run: |
-          python3 site/testStripTranslations.py
-          make site
+        run: make site
       - name: Upload site
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
