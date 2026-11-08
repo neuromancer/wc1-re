@@ -69,7 +69,7 @@ cd /path/to/WC1
 ./wc1-modern --enhanced --joystick-rumble
 ```
 
-For Spanish, choose **Game language → Español** or use `--language=es`.
+For Spanish, choose **Language → Español** or use `--language=es`.
 See [translations](translations/README.md) for PO editing and credits.
 
 Use `--fullscreen` or `--windowed` to choose the startup display mode. With

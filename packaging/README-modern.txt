@@ -89,6 +89,6 @@ The corresponding source is available from the Git tag attached to the same
 GitHub Release. See LICENSE.txt for the project license and
 THIRD-PARTY-NOTICES.txt for bundled runtime components.
 
-For Spanish, choose Game language > Español or use --language=es.
+For Spanish, choose Language > Español or use --language=es.
 Keep the translations folder beside the executable; see translations/README.md
 for editing and credits. Super Wing Commander remains English.

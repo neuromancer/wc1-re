@@ -1,3 +1,4 @@
+#include "launcher.h"
 #include "launcher_paths.h"
 #include "launcher_api.h"
 
@@ -77,15 +78,15 @@ static bool has_readable_file(const fs::path &directory, std::string_view name)
 DirectoryStatus validate_game_directory(std::string_view directoryText)
 {
     if (directoryText.empty())
-        return {false, "Choose a Wing Commander directory."};
+        return {false, LauncherMessage::ChooseDirectory};
     if (directoryText.size() >= SDL_LAUNCHER_DIRECTORY_CAPACITY)
-        return {false, "The directory path is too long."};
+        return {false, LauncherMessage::PathTooLong};
 
     const fs::path directory = path_from_utf8(directoryText);
     std::error_code error;
 
     if (!fs::is_directory(directory, error))
-        return {false, "The selected path is not a directory."};
+        return {false, LauncherMessage::NotDirectory};
     const auto gameData = find_child_case_insensitive(directory, "GAMEDAT");
     const auto cmfs = find_child_case_insensitive(directory, "CMFs");
     // WC1 data (GAMEDAT/MODULE.000) wins over the demo's CMFs in a mixed
@@ -100,7 +101,7 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
                                 "DeBriefing.CMF", "DeBriefingHeads.CMF", "Funeral.CMF"}) {
             const auto path = find_child_case_insensitive(*cmfs, name);
             if (!path || !has_readable_file(*cmfs, name))
-                return {false, std::string("SWC needs CMFs/") + name + ".", true};
+                return {false, LauncherMessage::MissingSwcFile, true, name};
             std::ifstream file(*path, std::ios::binary);
             std::array<char, 156> header = {};
             file.read(header.data(), header.size());
@@ -111,42 +112,42 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
             const bool macBinary = read == static_cast<std::streamsize>(header.size()) &&
                 header[0] == 0 && std::string_view(header.data() + 128, 4) == "CMF1";
             if (!plain && !macBinary)
-                return {false, std::string("Invalid SWC archive: ") + name + ".", true};
+                return {false, LauncherMessage::InvalidSwcArchive, true, name};
         }
         // The game's own search: raw forks, the named fork, AppleDouble or a
         // MacBinary application such as discmaster serves.
         if (!SdlHasSwcResources(std::string(directoryText).c_str()))
-            return {false, "SWC resources missing: keep the demo application with its resource fork (a MacBinary copy also works) or add SuperWingCommanderDemo.rsrc.", true};
-        return {true, "Mac demo", true};
+            return {false, LauncherMessage::MissingSwcResources, true};
+        return {true, LauncherMessage::MacDemo, true};
     }
     if (!gameData || !fs::is_directory(*gameData, error))
-        return {false, "Choose a WC1 directory containing GAMEDAT or the SWC demo directory containing CMFs."};
+        return {false, LauncherMessage::ChooseDataDirectory};
 
     const auto module = find_child_case_insensitive(*gameData, "MODULE.000");
     if (!module || !fs::is_regular_file(*module, error))
-        return {false, "GAMEDAT/MODULE.000 is missing. Select a WC1 installation."};
+        return {false, LauncherMessage::MissingModule};
     std::ifstream moduleFile(*module, std::ios::binary);
     std::array<unsigned char, 8> header = {};
 
     moduleFile.read(reinterpret_cast<char *>(header.data()), header.size());
     if (moduleFile.gcount() != static_cast<std::streamsize>(header.size()))
-        return {false, "GAMEDAT/MODULE.000 is unreadable or too small to identify."};
+        return {false, LauncherMessage::UnreadableModule};
     for (const auto name : {"CAMP.000", "INSTALL.DAT"}) {
         if (!has_readable_file(*gameData, name))
-            return {false, std::string("GAMEDAT/") + name + " is missing or unreadable."};
+            return {false, LauncherMessage::MissingGameFile, false, name};
     }
 
     // Match SdlUsingDosData: compressed DOS MODULE.000 has flag 1 in byte 7.
     if (header[7] == 1)
-        return {true, "DOS"};
+        return {true, LauncherMessage::Dos};
     const auto streams = find_child_case_insensitive(directory, "STREAMS");
     if (!streams || !fs::is_directory(*streams, error))
-        return {false, "Kilrathi Saga data needs a sibling STREAMS directory."};
+        return {false, LauncherMessage::NeedsStreams};
     for (const auto name : {"PREFLITE.STR", "POSFLITE.STR", "MISSION.STR"}) {
         if (!has_readable_file(*streams, name))
-            return {false, std::string("STREAMS/") + name + " is missing or unreadable."};
+            return {false, LauncherMessage::MissingStreamFile, false, name};
     }
-    return {true, "Kilrathi Saga"};
+    return {true, LauncherMessage::KilrathiSaga};
 }
 
 int add_game_installation(std::vector<GameInstallation> &installations,
@@ -166,7 +167,7 @@ int add_game_installation(std::vector<GameInstallation> &installations,
         if (fs::equivalent(canonical, path_from_utf8(installations[index].directory), error))
             return static_cast<int>(index);
     }
-    installations.push_back({text, status.swcDemo ? "SWC Mac demo" : status.message});
+    installations.push_back({text, status.message});
     return static_cast<int>(installations.size() - 1);
 }
 

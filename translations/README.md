@@ -1,7 +1,8 @@
 # Spanish translation
 
-Choose **Game language → Español** or use `--language=es`; `--language=en`
-selects English. Restart to change language. Supports WC1 and Secret Missions
+Choose **Language → Español** or use `--language=es`; `--language=en`
+selects English. The launcher updates immediately and uses that language for WC1
+when starting the game. Supports WC1 and Secret Missions
 with DOS or Kilrathi Saga data; Super Wing Commander remains English.
 
 Translation: **L@Zar0**, revision: **darkpadawan**, version 1.1 (2021-04-13).
@@ -10,20 +11,23 @@ no-charge term. [provenance.json](provenance.json) records the source URL, hashe
 and import findings. PO comments identify local edits and executable sources.
 Only translation text, changed glyphs, and sparse artwork edits are included.
 
-Edit `es/*.po` with gettext or a translation service. Preserve `msgctxt`,
+Edit `es/*.po` (game) or `es/LC_MESSAGES/launcher.po` (GUI). Preserve `msgctxt`,
 `msgid`, `$C`-style substitutions, format directives, and displayed key names.
 One malformed SM1 record remains fuzzy; unknown entries fall back to English.
 Proper names and artwork without translations retain their original wording.
 
-Mark C strings with `_()` or `C_(context, text)`. Use `N_()`/`NC_()` for static
-initializers, then translate at display time. `intro` selects the title sprite
+Mark C strings with `_()` or `C_(context, text)`, and Slint strings with `@tr()`.
+Use `N_()`/`NC_()` for static initializers, then translate at display time.
+`intro` selects the title sprite
 alphabet; other text uses CP1252 with compatible menu/cockpit accent glyphs.
 The reference build retains the original English expressions.
 
 ```sh
 make update-translations  # extract UI markers and merge es/ui.po; needs gettext
-make modern modern-gui   # compile catalogs automatically; Python only
+make update-launcher-translations # needs slint-tr-extractor and gettext
+make modern modern-gui   # compile catalogs automatically
 make check-translations MODERN_RUN_DIR=/path/to/WC1
+make check-launcher      # live GUI switching; no game data needed
 ```
 
 Checks cover tokens, buffer limits, glyphs, artwork CRCs, dialogue layout, and

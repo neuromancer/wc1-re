@@ -147,7 +147,7 @@ MODERN_GUI_SOURCE_DIR = src/sdl/slint
 MODERN_GUI_BUILD_DIR = $(MODERN_OUT_DIR)/slint-gui
 MODERN_GUI_BUILD_TYPE ?= Release
 MODERN_GUI_CMAKE_ARGS ?=
-MODERN_GUI_SRCS = $(wildcard $(MODERN_GUI_SOURCE_DIR)/*)
+MODERN_GUI_SRCS = $(wildcard $(MODERN_GUI_SOURCE_DIR)/* translations/*/LC_MESSAGES/*.po)
 MODERN_EMPTY :=
 MODERN_SPACE := $(MODERN_EMPTY) $(MODERN_EMPTY)
 MODERN_RUN_DIR ?= data/full
@@ -632,6 +632,13 @@ $(MODERN_TRANSLATIONS): bin/compileTranslations.py $(wildcard translations/es/*.
 update-translations:
 	python3 bin/updateUiTranslations.py
 
+.PHONY: update-launcher-translations
+SLINT_TR_EXTRACTOR ?= slint-tr-extractor
+update-launcher-translations:
+	@mkdir -p $(MODERN_OUT_DIR)
+	$(SLINT_TR_EXTRACTOR) --package-name wc1-re -o $(MODERN_OUT_DIR)/launcher.pot $(MODERN_GUI_SOURCE_DIR)/launcher.slint
+	msgmerge --update --backup=none --no-fuzzy-matching --no-wrap translations/es/LC_MESSAGES/launcher.po $(MODERN_OUT_DIR)/launcher.pot
+
 modern: $(MODERN_TARGET)
 
 modern-swc: $(SWC_TARGET)
@@ -651,6 +658,11 @@ run-modern-swc: modern-swc
 
 # Optional native launcher; the ordinary modern target does not need Slint.
 modern-gui: $(MODERN_GUI_TARGET)
+
+.PHONY: check-launcher
+check-launcher: modern-gui
+	CARGO_PROFILE_RELEASE_LTO=false $(MODERN_CMAKE) --build $(MODERN_GUI_BUILD_DIR) --config $(MODERN_GUI_BUILD_TYPE) --target wc1-launcher-check
+	ctest --test-dir $(MODERN_GUI_BUILD_DIR) -C $(MODERN_GUI_BUILD_TYPE) --output-on-failure
 
 $(SWC_MUSIC_SOUNDFONT): third_party/generaluser/GeneralUser-GS.sf2
 	@mkdir -p $(dir $@)

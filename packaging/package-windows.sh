@@ -65,7 +65,7 @@ cp -R "$package_dir/translations" "$work/payload/"
 # Generate exact install/uninstall lists from the same payload. Never remove
 # arbitrary DLLs, game data, saves, or launcher preferences during uninstall.
 for file in "$work/payload/"* "$work/payload/translations/"* \
-            "$work/payload/translations/"*/*; do
+            "$work/payload/translations/"*/* "$work/payload/translations/"*/*/*; do
     test -f "$file" || continue
     name=${file#"$work/payload/"}
     case "$name" in
@@ -87,7 +87,7 @@ for file in "$work/payload/"* "$work/payload/translations/"* \
 done
 # Remove only empty directories, after checking deletion errors. User-added
 # translation files are preserved and must not make uninstall fail.
-for directory in es templates upstream; do
+for directory in 'es\LC_MESSAGES' es templates upstream; do
     printf 'RMDir "$INSTDIR\\translations\\%s"\n' "$directory" >> "$work/uninstall-directories.nsh"
 done
 printf 'RMDir "$INSTDIR\\translations"\n' >> "$work/uninstall-directories.nsh"

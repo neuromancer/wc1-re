@@ -6,17 +6,20 @@
 #include <string_view>
 #include <vector>
 
+enum class LauncherMessage;
+
 namespace wc1_launcher {
 
 struct DirectoryStatus {
     bool valid;
-    std::string message;
+    LauncherMessage message;
     bool swcDemo = false;
+    std::string detail = {};
 };
 
 struct GameInstallation {
     std::string directory;
-    std::string edition;
+    LauncherMessage edition;
 };
 
 std::string path_to_utf8(const std::filesystem::path &path);
