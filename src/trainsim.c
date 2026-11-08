@@ -17,7 +17,7 @@ Viewport stTrainSimPanelViewport = {0}; /* 0x00469da8 */
 ShortRect stTrainSimPanelBounds = {
     0x30, 0x1d, 0x110, 0x6d
 }; /* 0x00469dc0 */
-char szTrainSimTitle[24] = "SQUADRON: TRAINSIM"; /* 0x00469dc8 */
+char szTrainSimTitle[24] = N_("SQUADRON: TRAINSIM"); /* 0x00469dc8 */
 unsigned char *apszBuiltInHighScoreNames[6] = {
     "BISHOP", "GOBLIN", "JEFFTEP", "MANGLER", "THE MAN", "MONGO"
 }; /* 0x00469de0 */
@@ -525,18 +525,18 @@ void EnterPilotNameAndCallsign(void)
         cCockpitLogicalFile, 0, 0);
     DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
     InitializeTrainSimTextPanel();
-    ShowTrainSimTextMessage("CONGRATULATIONS!\n"
+    ShowTrainSimTextMessage(_("CONGRATULATIONS!\n"
                             "YOU HAVE A TOP SCORE!\n"
                             "PLEASE ENTER YOUR\n"
-                            "NAME AND CALLSIGN:\n");
+                            "NAME AND CALLSIGN:\n"));
     PromptForPilotField(10,
                         (stTrainSimTxtContext.cursorY + 2),
-                        "LAST NAME: ",
+                        _("LAST NAME: "),
                         stCampaignState.currentPilot->name,
                         13, "Blair");
     PromptForPilotField(10,
                         (stTrainSimTxtContext.cursorY + 10),
-                        "CALLSIGN : ",
+                        _("CALLSIGN : "),
                         stCampaignState.currentPilot->callsign,
                         13, "Maverick");
     if (nOriginDevUnlock != 0) {
@@ -570,17 +570,17 @@ void UpdateTrainSimHighScores(int score)
     }
     InitializeTrainSimTextPanel();
     if (slot != -1)
-        sprintf(message, "*******\n"
+        sprintf(message, _("*******\n"
                          "CONGRATULATIONS!\n"
                          "YOU HAVE SCORE NUMBER\n"
                          ">>>> %d <<<<\n"
-                         "*******",
+                         "*******"),
                 slot + 1);
     else
-        sprintf(message, "> SORRY <\n\n"
+        sprintf(message, _("> SORRY <\n\n"
                          "YOUR SCORE IS ONLY\n"
                          "%ld0\n\n"
-                         "PLEASE PLAY AGAIN!", submittedScore);
+                         "PLEASE PLAY AGAIN!"), submittedScore);
     ShowTrainSimTextMessage(message);
     SetEventManagerPump(PollJoystickButtonEvents);
     DIBslam();
@@ -614,7 +614,7 @@ void ShowTrainSimHighScores(void)
         szDefaultTxtBuf;
     ResetStringBuilder(&stTrainSimTxtContext);
     titleWidth = ((MeasureTextPixelWidthClamped(
-        szTrainSimTitle) & 0xfff8) + 8);
+        _(szTrainSimTitle)) & 0xfff8) + 8);
     stTrainSimPanelViewport.right = titleWidth;
     stTrainSimPanelViewport.bottom =
         (FontHeight(stTrainSimTxtContext.font) + 2);
@@ -624,7 +624,7 @@ void ShowTrainSimHighScores(void)
         &stTrainSimPanelViewport;
     EraseTextContextBackground(&stTrainSimTxtContext);
     SetTextCursor(0, 1);
-    DrawFormattedText(szTrainSimTitle);
+    DrawFormattedText(_(szTrainSimTitle));
     lineHeight = FontHeight(stTrainSimTxtContext.font);
 
     stCurrentTrainSimTitleDisplayViewport = stScreenView;
@@ -668,7 +668,7 @@ void ShowTrainSimHighScores(void)
         stTrainSimulatorHighScoreBufView.left,
         (
             stTrainSimulatorHighScoreBufView.top + 1));
-    FormatTextBufferFromStart("%JHIGH SCORES%P", 2);
+    FormatTextBufferFromStart(_("%JHIGH SCORES%P"), 2);
     stTrainSimHighScoreTextContext.alignment = 0;
     for (row = 0; row < 6; row++) {
         if (IsHighScoreSlotUsed(row)) {
@@ -738,7 +738,7 @@ short SelectTrainSimMission(short *mission)
         (
             stCurrentTrainSimTitleDisplayViewport.top + 30));
     stTrainSimTxtContext.alignment = 2;
-    FormatTextBufferFromStart("SELECT\nENEMY%P");
+    FormatTextBufferFromStart(_("SELECT\nENEMY%P"));
 
     menuViewport = stScreenView;
     *(ShortRect *)&menuViewport.left = stTrainSimPanelBounds;

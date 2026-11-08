@@ -14,11 +14,11 @@ static const char *pszBlankRoomMenuLabel =
     " ";
 /* 0x00470098 */
 const char *apszPilotRankNames[5] = {
-    "2ND LT.",
-    "1ST LT.",
-    "CAPTAIN",
-    "MAJOR",
-    "LT. COL."
+    N_("2ND LT."),
+    N_("1ST LT."),
+    N_("CAPTAIN"),
+    N_("MAJOR"),
+    N_("LT. COL.")
 };
 /* 0x004700b0 */
 CampaignState stInitialCampaignState = {
@@ -162,19 +162,19 @@ static TitleMenuRegion aRecRoomMenuRegions[] = {
 #ifdef SDL_PORT
 /* MSVC 4.20 kept string literals writable, and RecRoom formats the pilots'
    callsigns (up to 14 characters) into the last two labels. */
-static char aszRecRoomPilotLabels[2][24] = {
+static char aszRecRoomPilotLabels[2][64] = {
     "Talk to ??????????????",
     "Talk to ??????????????"
 };
 static char *apszRecRoomBaseLabels[3] = {
-    "Talk to SHOTGLASS.",
+    NC_("font0", "Talk to SHOTGLASS."),
     aszRecRoomPilotLabels[0],
     aszRecRoomPilotLabels[1]
 };
 #else
 /* 0x004704e8 */
 static char *apszRecRoomBaseLabels[3] = {
-    "Talk to SHOTGLASS.",
+    NC_("font0", "Talk to SHOTGLASS."),
     "Talk to ??????????????",
     "Talk to ??????????????"
 };
@@ -182,11 +182,11 @@ static char *apszRecRoomBaseLabels[3] = {
 /* 0x004704f8 */
 static char *apszRecRoomMenuLabels[] = {
     0, 0, 0,
-    "Check pilot scores",
-    "Enter barracks",
-    "Fly training mission",
+    NC_("font0", "Check pilot scores"),
+    NC_("font0", "Enter barracks"),
+    NC_("font0", "Fly training mission"),
 #ifdef SDL_PORT
-    "Check poster out",
+    NC_("font0", "Check poster out"),
 #endif
 };
 /* 0x00470510 */
@@ -238,7 +238,7 @@ char IsRoomMenuLabelEmpty(void)
 /* Function start: 0x43F6B0 */
 void DrawRoomMenuLabel(TextContext *context, const char *label)
 {
-    DosStrcpy(szTxtWorkspaceBuffer, label);
+    DosStrcpy(szTxtWorkspaceBuffer, C_("font0", label));
     SetTextContext(context);
     FormatTextBufferFromStart("%X%Y%s%P",
                               0, 188,
@@ -444,7 +444,7 @@ short RecRoom(void)
                 aRecRoomCharacterOrigins[1].y,
                 apRecRoomFigureShapes[1], 0);
             sprintf(apszRecRoomBaseLabels[1],
-                    "Talk to %s.",
+                    C_("font0", "Talk to %s."),
                     apWingmanPilotsList[personality]->callsign);
         } else {
             sprintf(apszRecRoomBaseLabels[1],
@@ -469,7 +469,7 @@ short RecRoom(void)
                 aRecRoomCharacterOrigins[2].y,
                 apRecRoomFigureShapes[2], 0);
             sprintf(apszRecRoomBaseLabels[2],
-                    "Talk to %s.",
+                    C_("font0", "Talk to %s."),
                     apWingmanPilotsList[personality]->callsign);
         } else {
             sprintf(apszRecRoomBaseLabels[2],
@@ -887,11 +887,11 @@ void ShowChalkBoard(void)
                           0, 0, background, 0);
         context.alignment = 2;
         SetTextContext(&context);
-        FormatTextBufferFromStart("%X%YCARRIER - TIGER'S CLAW%P",
+        FormatTextBufferFromStart(C_("font3", "%X%YCARRIER - TIGER'S CLAW%P"),
                                   0, 10);
-        DrawFormattedText("%X%YPILOT",
+        DrawFormattedText(C_("font3", "%X%YPILOT"),
                           60, 24);
-        DrawFormattedText("%X%YSORTIES KILLS",
+        DrawFormattedText(C_("font3", "%X%YSORTIES KILLS"),
                           185, 24);
         rowY = 46;
         index = 0;
@@ -901,7 +901,7 @@ void ShowChalkBoard(void)
             strupr(pilotName);
             DrawFormattedText("%X%Y%s %s",
                               10, rowY,
-                              apszPilotRankNames[aPilotEntriesList[pilot].rank],
+                              _(apszPilotRankNames[aPilotEntriesList[pilot].rank]),
                               pilotName);
             if (pilot == 8 ||
                 stCampaignState
@@ -914,7 +914,7 @@ void ShowChalkBoard(void)
             } else {
                 DrawFormattedText("%X%Y     %s",
                                   230, rowY,
-                                  "KIA");
+                                  C_("font3", "KIA"));
             }
         }
         DIBslam();

@@ -60,21 +60,37 @@ trap cleanup EXIT
 mkdir "$work/payload"
 cp "$package_dir/wc1-modern.exe" "$package_dir/"*.dll "$work/payload/"
 cp "$package_dir/"*.txt "$package_dir/swc-music.sf2" "$work/payload/"
+cp -R "$package_dir/translations" "$work/payload/"
 
 # Generate exact install/uninstall lists from the same payload. Never remove
 # arbitrary DLLs, game data, saves, or launcher preferences during uninstall.
-for file in "$work/payload/"*; do
-    name=$(basename "$file")
+for file in "$work/payload/"* "$work/payload/translations/"* \
+            "$work/payload/translations/"*/*; do
+    test -f "$file" || continue
+    name=${file#"$work/payload/"}
     case "$name" in
-        *[!A-Za-z0-9._+-]*)
+        *[!A-Za-z0-9._+/-]*)
             echo "Unsupported package filename: $name" >&2
             exit 1
             ;;
     esac
-    # NSIS resolves source files using its host platform's path separator.
-    printf 'File "payload%s%s"\n' "$path_separator" "$name" >> "$work/install-files.nsh"
-    printf 'Delete "$INSTDIR\\%s"\n' "$name" >> "$work/uninstall-files.nsh"
+    windows_name=${name//\//\\}
+    # dirname on the build host does not recognize Windows separators.
+    case "$name" in
+        */*) windows_directory=${windows_name%\\*} ;;
+        *) windows_directory= ;;
+    esac
+    source_name=${name//\//$path_separator}
+    printf 'SetOutPath "$INSTDIR\\%s"\n' "$windows_directory" >> "$work/install-files.nsh"
+    printf 'File "payload%s%s"\n' "$path_separator" "$source_name" >> "$work/install-files.nsh"
+    printf 'Delete "$INSTDIR\\%s"\n' "$windows_name" >> "$work/uninstall-files.nsh"
 done
+# Remove only empty directories, after checking deletion errors. User-added
+# translation files are preserved and must not make uninstall fail.
+for directory in es templates upstream; do
+    printf 'RMDir "$INSTDIR\\translations\\%s"\n' "$directory" >> "$work/uninstall-directories.nsh"
+done
+printf 'RMDir "$INSTDIR\\translations"\n' >> "$work/uninstall-directories.nsh"
 installed_size=$(du -sk "$work/payload" | awk '{print $1}')
 (
     cd "$work"

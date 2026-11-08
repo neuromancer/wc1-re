@@ -62,17 +62,17 @@ BriefingCharacterLayout aBriefingCharacters[10] = {
 static short asMedalDisplayX[5] = {191, 199, 207, 216, 228};
 /* 0x0046e2e0 */
 const char *apszMedalNames[5] = {
-    "Bronze Star",
-    "Silver Star",
-    "Gold Star",
-    "Golden Sun",
-    "Terran Medal of Valor"
+    NC_("font0", "Bronze Star"),
+    NC_("font0", "Silver Star"),
+    NC_("font0", "Gold Star"),
+    NC_("font0", "Golden Sun"),
+    NC_("font0", "Terran Medal of Valor")
 };
 /* 0x0046e2f4 */
 static struct Shape *pMedalSceneShape = 0;
 /* 0x0046e2f8 */
 static const char *pszMedalsPilotSummary =
-    "$R $N, aka $C.\n$S system, dateline $D.";
+    NC_("font0", "$R $N, aka $C.\n$S system, dateline $D.");
 /* 0x0046e300 */
 static signed char aBriefingPortraitOffsetX[8][12] = {
     {  0,  0, -2, -2, -1, -2, -4, -3, -5, -7, -7, -4},
@@ -238,7 +238,7 @@ unsigned int ViewMedals(void)
             PeekInputEvent(&event, INPUT_EVENT_KEY_DOWN) != 0)
             clicked = 1;
         DrawMedals();
-        AddPCName(pszMedalsPilotSummary);
+        AddPCName(C_("font0", pszMedalsPilotSummary));
         RefreshMemoryStatusOverlay();
         ClearViewport(&stCurrentConvTextViewport,
                       cBlackColour);
@@ -1733,7 +1733,7 @@ unsigned int ShowGetReadyScreen(void)
     do {
         if (RefreshCockpitStatus() != 0) {
             DrawCenteredScaledIntroText(
-                "Get Ready", nCurrentViewCenterPosX,
+                C_("intro", "Get Ready"), nCurrentViewCenterPosX,
                 nCurrentViewCenterPosY,
                 (0xc800 / distance));
             dump_buffer_to_screen();
@@ -1790,7 +1790,7 @@ unsigned int ShowVictoryScreen(void)
         if (RefreshCockpitStatus() != 0) {
             emptyCount = TheEndFireWorks(&stSpaceBufferViewport, 30);
             DrawCenteredScaledIntroText(
-                "Victory", nCurrentViewCenterPosX,
+                C_("intro", "Victory"), nCurrentViewCenterPosX,
                 nCurrentViewCenterPosY,
                 (0xc800 / distance));
             dump_buffer_to_screen();
@@ -1843,7 +1843,7 @@ unsigned int ShowGameOverScreen(void)
         if (RefreshCockpitStatus() != 0) {
             if (frame > 20)
                 DrawCenteredScaledIntroText(
-                    "Game Over", nCurrentViewCenterPosX,
+                    C_("intro", "Game Over"), nCurrentViewCenterPosX,
                     nCurrentViewCenterPosY,
                     (0xc800 / distance));
             dump_buffer_to_screen();

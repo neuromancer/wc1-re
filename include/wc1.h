@@ -43,4 +43,18 @@ extern "C" {
 }
 #endif
 
+/* Gettext-style UI markers. Keep these in this existing header: introducing
+ * another include changes VC++ 4.20's symbol keys and register allocation.
+ * N_/NC_ only mark static initializers; translate those when displaying them.
+ * The reference build sees exactly the original string expressions. */
+#ifdef SDL_PORT
+#define _(text) SdlTranslateText("", (text))
+#define C_(context, text) SdlTranslateText((context), (text))
+#else
+#define _(text) text
+#define C_(context, text) text
+#endif
+#define N_(text) text
+#define NC_(context, text) text
+
 #endif /* GAME_H */

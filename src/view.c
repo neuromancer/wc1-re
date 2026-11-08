@@ -453,6 +453,11 @@ short __stdcall OpenPacketSection(const char *filename, short section,
             handle->patchedData = 0;
             if (!SdlPatchPacketSection(filename, section, handle))
                 goto failed;
+            if (!SdlTranslatePacketSection(filename, section, handle)) {
+                free(handle->patchedData);
+                handle->patchedData = 0;
+                goto failed;
+            }
 #endif
             return 1;
         }
@@ -621,12 +626,12 @@ void show_target_disp(void)
     if (nTargetLockMode != 0) {
         DrawFormattedText("%F%s%F",
                           (unsigned int)cRedColour,
-                          "   LOCKED TARGET",
+                          _("   LOCKED TARGET"),
                           (unsigned int)cDefaultTextColour);
     } else {
         DrawFormattedText("%F%s",
                           (unsigned int)cDefaultTextColour,
-                          "  AUTO TARGETTING");
+                          _("  AUTO TARGETTING"));
     }
     target = acShipTargetTable[0];
     if (target != -1 &&
@@ -637,9 +642,9 @@ void show_target_disp(void)
         acShipTargetTable[0] = -1;
     }
     cTargetDisplayObject = target;
-    DrawFormattedText("\nTarget:");
+    DrawFormattedText(_("\nTarget:"));
     if (target == -1) {
-        DrawFormattedText(" None");
+        DrawFormattedText(_(" None"));
         return;
     }
     objectType = aeObjectTypeList[target];
@@ -655,9 +660,9 @@ void show_target_disp(void)
             apszKilrathiAceNames[rating - 9]);
     } else {
         DrawFormattedText(" %s",
-                          typeData->displayName);
+                          _(typeData->displayName));
     }
-    DrawFormattedText("\nRange : ");
+    DrawFormattedText(_("\nRange : "));
     InitializeCockpitReadout(1, &stRightVduTxtContext);
     if (asObjectScreenXList[target] == (short)0x8001) {
         cTargetDisplayObject = -1;
@@ -742,7 +747,7 @@ void DrawTargetRangeReadout(void)
     if (asObjectScreenXList[target] != (short)0x8001) {
         if (asObjDistancesTable[target] > 30000 ||
             asObjDistancesTable[target] < 0)
-            strcpy(szTxtWorkspaceBuffer, "TOO FAR");
+            strcpy(szTxtWorkspaceBuffer, _("TOO FAR"));
         else
             strcpy(szTxtWorkspaceBuffer + strlen(
                 itoa(asObjDistancesTable[target],

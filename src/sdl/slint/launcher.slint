@@ -10,9 +10,9 @@ import {
 export component LauncherWindow inherits Window {
     title: "Wing Commander";
     preferred-width: 760px;
-    preferred-height: 620px;
+    preferred-height: 660px;
     min-width: 640px;
-    min-height: 520px;
+    min-height: 560px;
     background: Palette.background;
 
     in property <image> title-artwork;
@@ -22,6 +22,7 @@ export component LauncherWindow inherits Window {
     in-out property <int> installation-index;
     in-out property <bool> start-fullscreen;
     in-out property <bool> autosave;
+    in-out property <int> language-index;
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
     in-out property <bool> cockpitless-view;
@@ -87,6 +88,24 @@ export component LauncherWindow inherits Window {
                         text: "Add path…";
                         clicked => {
                             root.browse-requested();
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+                    height: 34px;
+                    Text {
+                        text: "Game language";
+                        vertical-alignment: center;
+                    }
+                    ComboBox {
+                        horizontal-stretch: 1;
+                        enabled: !root.swc-demo;
+                        model: ["English", "Español"];
+                        current-index: root.swc-demo ? 0 : root.language-index;
+                        selected(_) => {
+                            root.language-index = self.current-index;
                         }
                     }
                 }

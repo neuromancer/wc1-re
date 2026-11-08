@@ -59,6 +59,16 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                    strcmp(argument, "--no-autosave") == 0) {
             options->autosave = strcmp(argument, "--autosave") == 0;
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_AUTOSAVE;
+        } else if (strncmp(argument, "--language=", 11) == 0) {
+            if (strcmp(argument + 11, "en") == 0)
+                options->language = 0;
+            else if (strcmp(argument + 11, "es") == 0)
+                options->language = 1;
+            else {
+                fprintf(stderr, "Unknown language: %s (use en or es).\n", argument + 11);
+                return 0;
+            }
+            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_LANGUAGE;
         } else if (strcmp(argument, "--check") == 0) {
             fprintf(stderr, "The --check runtime mode has been removed.\n");
             return 0;
@@ -163,6 +173,10 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     SdlSetJoystickMode(g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
     SdlConfigureAutosave(options->autosave && !options->swcDemo);
+    if (!SdlSetLanguage(options->swcDemo ? 0 : options->language)) {
+        fprintf(stderr, "Cannot load game language: %s\n", SDL_GetError());
+        return 0;
+    }
     /* Apply these only after the dialog so checked command-line defaults can
      * be turned off before the video and input systems are initialized. */
     if (options->joystickRumble)
@@ -345,6 +359,7 @@ int main(int argumentCount, char **arguments)
     DIBunInstall();
     SdlShutdownJoysticks();
     SDL_DestroyWindow(window);
+    SdlShutdownTranslations();
     SDL_Quit();
     return gameResult;
 }

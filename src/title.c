@@ -10,8 +10,8 @@
 
 /* 0x00468910 */
 static char *pszIntroOpeningText =
-    "In the distant future,\n"
-    "mankind is locked in a deadly war...";
+    NC_("intro", "In the distant future,\n"
+    "mankind is locked in a deadly war...");
 /* Retained original message; no references survive in the shipped code. */
 /* 0x00468918 */
 char szMissingSecretMissionsMessage[279] =
@@ -22,25 +22,25 @@ char szMissingSecretMissionsMessage[279] =
 static int nIntroCreditCount = 11; /* 0x00468a30 */
 /* 0x00468a38 */
 static char *apszIntroCredits[20] = {
-    "Design\nby\nChris Roberts",
-    "Software Engineers\nChris Roberts\nKen Demarest III\nPaul C. Isaac\nSteve Muchow\nHerman Miller\nSteve Beeman\n",
-    "Dogfight Intelligence\nKen Demarest III\n\nDogfight Choreography\nSteve Beeman\nErin Roberts",
-    "3Space System\nby\nChris Roberts\n\nOriginFX Graphic System\nChris Roberts\nJohn Miles",
-    "OriginFX Sound System\nby\nHerman Miller",
-    "Artwork\nDenis Loubet\nGlen Johnson\nDaniel Bourbonnais\nKeith Berdak\nJohn Watson",
-    "Screenplay by Jeff George\n\nAdditional Writing\nSteve Cantrell\nPhilip Brogden",
-    "Soundtrack by\nGeorge A. Sanger and Dave Govett",
-    "Sound Effects by Marc Schaefgen",
-    "Produced by\nChris Roberts and Warren Spector",
-    "Directed by\nChris Roberts",
-    "Windows 95 Team",
-    "Combat Programmers\n\nJeff Mangler Everett\nJeff jefftep Grills\nChuck Bishop Karpiak\nKris Goblin Pelley",
-    "Sound System\n\nRichard Cupcake Lyle",
-    "Soundtrack Rescored by\n\nI Need Names",
-    "Head Whiner\n\nAnthony Sommers",
-    "Whiners\n\nMonte Mathis\nHal Milton\nDieter Martin",
-    "Richard Zinser\nKanon Lillemon\n",
-    "Special Thanks To\n\nSocks\nand\nCaffeine",
+    NC_("intro", "Design\nby\nChris Roberts"),
+    NC_("intro", "Software Engineers\nChris Roberts\nKen Demarest III\nPaul C. Isaac\nSteve Muchow\nHerman Miller\nSteve Beeman\n"),
+    NC_("intro", "Dogfight Intelligence\nKen Demarest III\n\nDogfight Choreography\nSteve Beeman\nErin Roberts"),
+    NC_("intro", "3Space System\nby\nChris Roberts\n\nOriginFX Graphic System\nChris Roberts\nJohn Miles"),
+    NC_("intro", "OriginFX Sound System\nby\nHerman Miller"),
+    NC_("intro", "Artwork\nDenis Loubet\nGlen Johnson\nDaniel Bourbonnais\nKeith Berdak\nJohn Watson"),
+    NC_("intro", "Screenplay by Jeff George\n\nAdditional Writing\nSteve Cantrell\nPhilip Brogden"),
+    NC_("intro", "Soundtrack by\nGeorge A. Sanger and Dave Govett"),
+    NC_("intro", "Sound Effects by Marc Schaefgen"),
+    NC_("intro", "Produced by\nChris Roberts and Warren Spector"),
+    NC_("intro", "Directed by\nChris Roberts"),
+    NC_("intro", "Windows 95 Team"),
+    NC_("intro", "Combat Programmers\n\nJeff Mangler Everett\nJeff jefftep Grills\nChuck Bishop Karpiak\nKris Goblin Pelley"),
+    NC_("intro", "Sound System\n\nRichard Cupcake Lyle"),
+    NC_("intro", "Soundtrack Rescored by\n\nI Need Names"),
+    NC_("intro", "Head Whiner\n\nAnthony Sommers"),
+    NC_("intro", "Whiners\n\nMonte Mathis\nHal Milton\nDieter Martin"),
+    NC_("intro", "Richard Zinser\nKanon Lillemon\n"),
+    NC_("intro", "Special Thanks To\n\nSocks\nand\nCaffeine"),
     0
 };
 
@@ -189,7 +189,7 @@ int Title_Sequence(void)
                 Update_3Space();
                 if (Draw_3Space_Frame() != 0) {
                     print_subtitle(&stSpaceBufferViewport, 0x32,
-                                   pszIntroOpeningText);
+                                   C_("intro", pszIntroOpeningText));
                     dump_buffer_to_screen();
                     DIBslam();
                     DIBslamReal();
@@ -255,7 +255,7 @@ int Title_Sequence(void)
                     Update_3Space();
                     if (Draw_3Space_Frame() != 0) {
                         print_subtitle(&stSpaceBufferViewport, 0x32,
-                            apszIntroCredits[credit]);
+                            C_("intro", apszIntroCredits[credit]));
                         dump_buffer_to_screen();
                         DIBslam();
                         DIBslamReal();

@@ -571,22 +571,22 @@ void show_info_disp(void)
     set_new_vdu(0);
     DrawTextAt(&stLeftVduTextContext,
                stLeftVdu.left, stLeftVdu.top,
-               " INFO DISPLAY \n", 0);
-    DrawFormattedText("Version: %s\n", pGameVersion);
-    DrawFormattedText("Series %d Misn %d\n",
+               _(" INFO DISPLAY \n"), 0);
+    DrawFormattedText(_("Version: %s\n"), pGameVersion);
+    DrawFormattedText(_("Series %d Misn %d\n"),
                       stCampaignState.currentSeries,
                       stCampaignState.currentMission);
-    DrawFormattedText("PC Kills   =%d\nWing Kills =%d\n",
+    DrawFormattedText(_("PC Kills   =%d\nWing Kills =%d\n"),
                       nPlayerKillTotal,
                       nWingmanKillCount);
-    DrawFormattedText("Series Score   =%d\n",
+    DrawFormattedText(_("Series Score   =%d\n"),
                       stCampaignState.seriesScore);
-    DrawFormattedText("Miss Score %d, Medal %d\n",
+    DrawFormattedText(_("Miss Score %d, Medal %d\n"),
                       stCampaignState.missionScore,
                       nMissionMedalScoreValue);
-    DrawFormattedText("Promotion Score=%d\n",
+    DrawFormattedText(_("Promotion Score=%d\n"),
                       stCampaignState.promotionScore);
-    DrawFormattedText("OBJECTIVES\n");
+    DrawFormattedText(_("OBJECTIVES\n"));
     strcpy(objectiveSummary, "");
     for (objective = 0; objective < 16; objective++) {
         marker = " ";

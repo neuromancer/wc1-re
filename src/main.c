@@ -746,7 +746,7 @@ int process_player_input(void)
                 SaveVolumeSettingsToRegistry();
                 SetSoundEffectsVolume(anVolumeLevels[
                     nSfxVolumeSetting / 2]);
-                ShowOnScreenMessage(0, 0, "SFX VOLUME: %d.",
+                ShowOnScreenMessage(0, 0, _("SFX VOLUME: %d."),
                                     nSfxVolumeSetting / 2);
             } else {
                 if (shift != 0)
@@ -770,7 +770,7 @@ int process_player_input(void)
                 SetSoundEffectsVolume(anVolumeLevels[
                     nSfxVolumeSetting / 2]);
                 SaveVolumeSettingsToRegistry();
-                ShowOnScreenMessage(0, 0, "SFX VOLUME: %d.",
+                ShowOnScreenMessage(0, 0, _("SFX VOLUME: %d."),
                                     nSfxVolumeSetting / 2);
             } else {
                 if (shift != 0)
@@ -792,7 +792,7 @@ int process_player_input(void)
                 SetMusicStreamVolume(
                     anVolumeLevels[
                         nMusicVolumeSetting / 2]);
-                ShowOnScreenMessage(0, 0, "MUSIC VOLUME: %d.",
+                ShowOnScreenMessage(0, 0, _("MUSIC VOLUME: %d."),
                                     nMusicVolumeSetting / 2);
                 return;
             }
@@ -819,7 +819,7 @@ int process_player_input(void)
                 SetMusicStreamVolume(
                     anVolumeLevels[
                         nMusicVolumeSetting / 2]);
-                ShowOnScreenMessage(0, 0, "MUSIC VOLUME: %d.",
+                ShowOnScreenMessage(0, 0, _("MUSIC VOLUME: %d."),
                                     nMusicVolumeSetting / 2);
                 return;
             }
@@ -1412,7 +1412,7 @@ void ShowOnScreenMessage(int flags, short duration,
 void ShowGamePausedBanner(short showBanner)
 {
     if (showBanner != 0) {
-        ShowOnScreenMessage(1, 9999, "GAME PAUSED");
+        ShowOnScreenMessage(1, 9999, _("GAME PAUSED"));
         return;
     }
     WaitForKeyAcknowledge(1);
@@ -1421,7 +1421,7 @@ void ShowGamePausedBanner(short showBanner)
 /* Function start: 0x4290D0 */
 void ShowVersionBanner(void)
 {
-    ShowOnScreenMessage(1, 9999, "WING COMMANDER VER. %s",
+    ShowOnScreenMessage(1, 9999, _("WING COMMANDER VER. %s"),
                         pGameVersion);
 }
 
@@ -1430,7 +1430,7 @@ void SetMessageDisplaySpeed(void)
 {
     bMessageSpeed =
         (((signed char)bMessageSpeed + 1) % 5);
-    ShowOnScreenMessage(0, 0, "MESSAGES SPEED IS NOW %d.",
+    ShowOnScreenMessage(0, 0, _("MESSAGES SPEED IS NOW %d."),
                         (signed char)bMessageSpeed + 1);
 }
 
@@ -1439,7 +1439,7 @@ void ReportFramesSkipped(short adjustment)
 {
     nFrameSkip = MinShort(
         MaxShort((nFrameSkip + adjustment), 1), 5);
-    ShowOnScreenMessage(0, 0, "%d FRAMES SKIPPED.",
+    ShowOnScreenMessage(0, 0, _("%d FRAMES SKIPPED."),
                         nFrameSkip - 1);
 }
 
@@ -1554,10 +1554,10 @@ int HandleSpaceFlightControls(void)
                 bVideoImagesSuppressed =
                     bVideoImagesSuppressed == 0;
                 if (bVideoImagesSuppressed != 0)
-                    SetHudMessageText("VIDEO IMAGES SUPRESSED",
+                    SetHudMessageText(_("VIDEO IMAGES SUPRESSED"),
                                       cRedColour, 20);
                 else
-                    SetHudMessageText("VIDEO IMAGES ENABLED",
+                    SetHudMessageText(_("VIDEO IMAGES ENABLED"),
                                       cPrimaryTextColour, 20);
             }
             break;
@@ -1743,10 +1743,10 @@ int HandleSpaceFlightControls(void)
                 bMouseCursorVisible = 0;
                 bMissileCameraEnabled = missileCameraEnabled;
                 if (missileCameraEnabled != 0)
-                    SetHudMessageText("MISSILE CAMERA ON",
+                    SetHudMessageText(_("MISSILE CAMERA ON"),
                                       cRedColour, 20);
                 else
-                    SetHudMessageText("MISSILE CAMERA OFF",
+                    SetHudMessageText(_("MISSILE CAMERA OFF"),
                                       cPrimaryTextColour, 20);
             }
             break;
@@ -1858,7 +1858,7 @@ int HandleSpaceFlightControls(void)
             SetMusicStreamVolume(
                 anVolumeLevels[
                     nMusicVolumeSetting / 2]);
-            ShowOnScreenMessage(0, 0, "MUSIC VOLUME: %d.",
+            ShowOnScreenMessage(0, 0, _("MUSIC VOLUME: %d."),
                                 nMusicVolumeSetting / 2);
             return 0;
         }
@@ -1872,7 +1872,7 @@ int HandleSpaceFlightControls(void)
             SetSoundEffectsVolume(
                 anVolumeLevels[
                     nSfxVolumeSetting / 2]);
-            ShowOnScreenMessage(0, 0, "SFX VOLUME: %d.",
+            ShowOnScreenMessage(0, 0, _("SFX VOLUME: %d."),
                                 nSfxVolumeSetting / 2);
             return 0;
         }
@@ -1975,7 +1975,7 @@ void DrawArcadeScorePanel(short x, short y)
     char score[20];
 
     sprintf(score, "%0ld", nCurrentArcadeScore);
-    DrawFormattedText("%X%YScore: %s0 %XTime: %u %X1 UP",
+    DrawFormattedText(_("%X%YScore: %s0 %XTime: %u %X1 UP"),
                       x, y, score, x + 0x82,
                       nArcadeTimeRemaining, x + 0xbe);
 }
@@ -2002,12 +2002,12 @@ void UpdateArcadeScoreDisplay(void)
                                             stSpaceBufferViewport.bottom) / 2 - 5));
             if (nCurrentWave != -1) {
                 FormatTextBufferFromStart(
-                    "Wave %d complete.\n\nBonus Points: %s0%P",
+                    _("Wave %d complete.\n\nBonus Points: %s0%P"),
                     nArcadeWave + 1, bonus);
                 return;
             }
             FormatTextBufferFromStart(
-                "Mission %d complete.\n\nBonus Points: %s0%P",
+                _("Mission %d complete.\n\nBonus Points: %s0%P"),
                 nTrainSimMission + 1, bonus);
         }
     }

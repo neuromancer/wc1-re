@@ -1,0 +1,183 @@
+{
+  "schema": 1,
+  "language": "es",
+  "upstream_version": "1.1",
+  "upstream_date": "2021-04-13",
+  "authors": [
+    "L@Zar0",
+    "darkpadawan"
+  ],
+  "upstream_url": "https://www.mediafire.com/file/dqqj341ayh0jsj2/WC1_SMIyII_V1.1.zip/file",
+  "upstream_zip_sha256": "b4b5bccb3eb6489b8694333c32b7a164bfa74734a9c88bcfbe917653088e9f9d",
+  "catalog_entries": 6793,
+  "review_required": 9,
+  "domains": {
+    "wc1": 3339,
+    "sm1": 1633,
+    "sm2": 1672,
+    "common": 149
+  },
+  "sources": {
+    "BRIEFING.000": {
+      "english_sha256": "b4f4c6047283368d2e8d87263dee64a760b8a93f786a6f30c7cab3e3397abc99",
+      "spanish_sha256": "9808c0bff38d4a4a1aae4ee06796ab2a231060997e0dd3478bdf246de735d542"
+    },
+    "MODULE.000": {
+      "english_sha256": "9716449031350096895bba114a374a1e469348a2353f764ef35a2900be4b0e4f",
+      "spanish_sha256": "adf828cd7ff5cd3ca265f4d946e1d72c6b3e301c9136fcae863bc751fda7dcd1"
+    },
+    "BRIEFING.001": {
+      "english_sha256": "105b08f08c8ca4cf013513a6d09d2f2c1f63c264e1bdf5f0c65b8075c97b6802",
+      "spanish_sha256": "3727c49367dc30565a67861cb8aeac46b954b774088facae1808ced53f0fb452"
+    },
+    "MODULE.001": {
+      "english_sha256": "24db96ae4741abd9ebd5d29d025d9f73f9c3a32701f048d422584e78744a4e97",
+      "spanish_sha256": "24b9a59ca94aba2f0aa10a751229ac1e6488be8a25284a293bb2912984c6754b"
+    },
+    "BRIEFING.002": {
+      "english_sha256": "83b194074a8af0c3ff4226a87e5f973d5bb1fbfbff4ec484bb01004ede2af64c",
+      "spanish_sha256": "0a84ea0128d6f0491794dbdecb42c2ba8199e83a6217e917e655243eb46d4e61"
+    },
+    "MODULE.002": {
+      "english_sha256": "ccfd628591690475710f6360a9bd75f15e627d18eae8590b0c2380c3da072f46",
+      "spanish_sha256": "05d26e23f264ce44dd516736584f1e46b7f3c22fd87d9d0b0e814a6ca02827be"
+    },
+    "COMMUNIC.DAT": {
+      "english_sha256": "32e80cfd7afde1689a2752caf76cd1b464733d15ace1febb35a4eaa7f38020c5",
+      "spanish_sha256": "d3d30ca633934f31260c094d4212099447fa878b7184854e41da92559bdbb1db"
+    },
+    "COMMSM2.DAT": {
+      "english_sha256": "b1e4768653ed5d87af73e5b1ea27bcc6de322abb3bbda18b910d58108159ee5e",
+      "spanish_sha256": "c44a960be5c3c3d7aaeb0d55a85cba8b9716e407a7257a09c673ebb9b40e82e3"
+    },
+    "Tools/_EXE_WORK/patch_work.txt": "053072067b99f5136c02ffa83c0876196d6c4c016110a0e70eef1db2d82f1be1",
+    "Tools/_EXE_WORKSM2/patch_worksm2.txt": "ba9d3978e1bb680b77b95dd8beb65e9caed19315c0bfa052d11d975921389e3e",
+    "MIDGAME.V00": {
+      "english": "4ead7142d5917966acecaf91596cf09620e54ab7902958a29fce6dde44239930",
+      "spanish": "a72b0a985566cfd404b55e0a25b3fd52d1ce5e2f825d7a8237d562fd38976943"
+    },
+    "MIDGAME.V01": {
+      "english": "9eaddf3d00fca27232be1efd713d1f7f388e9d1025a9818e96bfe3b8a62d0027",
+      "spanish": "ac9c4a5300fda95cc18a6004d036add1ae8bb3e6742e522c9acf25e59b7afb5b"
+    },
+    "MIDGAME.V02": {
+      "english": "ad6ebf6ee15a60afce7295ef88ce3de3f6de8ffad7d82f1920dd5017f834bbe9",
+      "spanish": "89618ef397f0e5184ddd5aefe21a6b6fd8c7f60698288f8501da4013e7d414e0"
+    },
+    "MIDGAME.V03": {
+      "english": "1cf7720ccb2f8e25c06ac9ee3d929198b9ceaf95d35ae6c3df59b6661ccb0763",
+      "spanish": "f3cd36d2546605e99896abc456ef9ee2e39337c32ed0e811cfd85b007b118124"
+    },
+    "MIDGAME.V04": {
+      "english": "4f6c4b940feb172fb4e0ec5e024540678950e0e3f0f7790b88911930b8f19c8c",
+      "spanish": "c87b89939635dc9620e00553a59c1ec81c55fc70580c46c6ef2f44db612640c7"
+    },
+    "MIDGAME.V05": {
+      "english": "4d52d5b4b67c1f0df68ca0245e8518228c531d9ca9689087431a0fda34ccd2b3",
+      "spanish": "a1f7d164687fcb9c090bf3923309f934df9141504aeae6f5a9c8b7b9aea0964b"
+    },
+    "MIDGAME.V06": {
+      "english": "03c52961ddd71ac6a8cfa2b2bd9c59b6fae6134348c02983a79ed9961c27b19e",
+      "spanish": "e044e0a6b9eae6436ca502285df6e53ef3f8eb3c58701a740ca3aa8d86bf45d4"
+    },
+    "MIDGAME.V07": {
+      "english": "c96d5f4d3df573f7ffb11c34e24ba4ccabc843ba83afdef38cc3205977cb8190",
+      "spanish": "928e40adf72ad82af4c3da6f11a3674bae8f1f8aa8bf47a6ec12c6b65981a779"
+    },
+    "MIDGAME.V08": {
+      "english": "a78a84d16dd4e318bc166712685f7b076f0b3462444b5cd2ad7336be072f99ab",
+      "spanish": "34e017410086f464d23468ec096027da8301feaf7d44ea4e1273b6dc50904db9"
+    },
+    "TITLE.VGA": {
+      "english": "3312707060db343eb60b1504f0dd485a11201f11362c279816df92ee0da5501f",
+      "spanish": "f9c6a3aeb9e16487f1aba63b118ce18eeb5600ee2f7d15e4cc41ab73ea422d39"
+    },
+    "TITLE1.VGA": {
+      "english": "b574029dce5015839050ffbf1a48ad6c96c1a2746692ec8a4a80e26376e2758f",
+      "spanish": "94434ca81387db9facf9b30623568fc34f657be1e8854d491fc389b354bfef40"
+    },
+    "COCKPIT.VGA": {
+      "english": "952043984b9bfae2c412a9488e0bbcdc76d474d35b35f3b190fac420d3dd45be",
+      "spanish": "647ea13d25d3a54d77872ecc4500e3eca122242d050eababde9a5b8a5bdf32e7"
+    },
+    "RECROOM.VGA": {
+      "english": "b03d22e20ee53e63fbb0b4c86bb219ffa64063653d45ff8bfe74b3ee06175b9f",
+      "spanish": "4cf1e819ca6cf60a7a95d1e1aeccf81804ac480cbf05d73eec7342a2b3b4328e"
+    },
+    "SERIES.VGA": {
+      "english": "b03ed1d052d7cd75cc74a3ab1a59d893e60317f1a8c5adabe78f12391623511a",
+      "spanish": "501dc8f4dc2fa33ef28c79b12623a377108bd2488240d0fb9740eabb5b20e8b4"
+    }
+  },
+  "issues": [
+    {
+      "context": "wc1/BRIEFING.000/packet/1/scene/0/record/0",
+      "warning": "Campaign substitution tokens differ; review before use"
+    },
+    {
+      "context": "wc1/BRIEFING.000/packet/44/scene/1/record/18",
+      "warning": "Campaign substitution tokens differ; review before use"
+    },
+    {
+      "context": "sm1/BRIEFING.001/packet/13/scene/0/record/1",
+      "warning": "Upstream text colour differs; import text only"
+    },
+    {
+      "context": "sm1/BRIEFING.001/packet/24/scene/1/record/9",
+      "warning": "English data has misplaced text/test offsets; source taken from testsOffset"
+    },
+    {
+      "context": "sm2/BRIEFING.002/packet/4/scene/4",
+      "warning": "Upstream replaces the Eight-Ball scene; not paired with unrelated English dialogue",
+      "unmapped_spanish": [
+        "$C. Justo acabo de volver de escoltar la TCS Tsiolkovsky en el sistema.",
+        "Están aquí para investigar algunos efectos gravitatorios extraños en este sector.",
+        "He hablado con su Oficial Científica, la Teniente Lawrence. Dijo que...",
+        "...solo hay unos pocos puntos de salto en todo el sector, son muchos menos que en cualquier otra zona normal.",
+        "Pero se pueden hacer muchos minisaltos dentro del sistema. No se parece en nada al famoso Sector Enigma...",
+        "...donde puedes cruzar todo el sector de un único salto.",
+        "Sin embargo esto es útil si se quiere hacer una pequeña visita turística.",
+        "Y he oído que la TCS Austin se nos unirá aquí, como parte de la Guardia de Honor para el Cuerpo Diplomático.",
+        "La Austin es una buena nave... es un destructor de clase Exeter. Ya he conocido algunos de sus pilotos.",
+        "Ice, me estaba preguntando... ¿hay noticias de Maniac?",
+        "Todavía está en la Enfermería. Está de baja médica, o eso dicen.",
+        "El chico está más loco que un cabra. Al menos no tendré que volar con él otra vez.",
+        "Cierto. Ahora mismo me alegro de que no lo necesitemos como piloto."
+      ]
+    },
+    {
+      "context": "sm2/BRIEFING.002/packet/4/scene/4/record/0",
+      "warning": "Empty upstream translation"
+    },
+    {
+      "context": "sm2/BRIEFING.002/packet/4/scene/4/record/1",
+      "warning": "Empty upstream translation"
+    },
+    {
+      "context": "sm2/BRIEFING.002/packet/4/scene/4/record/2",
+      "warning": "Empty upstream translation"
+    },
+    {
+      "context": "sm2/BRIEFING.002/packet/4/scene/4/record/3",
+      "warning": "Empty upstream translation"
+    },
+    {
+      "context": "sm2/BRIEFING.002/packet/4/scene/4/record/4",
+      "warning": "Empty upstream translation"
+    },
+    {
+      "context": "sm2/COMMSM2.DAT/speaker/2/record/10",
+      "warning": "Campaign substitution tokens differ; review before use"
+    }
+  ],
+  "not_imported": [
+    "intro copy-protection questions",
+    "DOS diagnostics",
+    "installer/transfer utilities"
+  ],
+  "font_sources": {
+    "english_sha256": "1533d1b7f63534cf35e0795a9b7aa2cfd9dde4047a503da5eb6ce8d2be5c4230",
+    "spanish_sha256": "d8ede93a7632ee34793f87e204f1262f80eeb1a6d5e529904bc04d3be899d9fd"
+  },
+  "review_note": "Initial import findings; local corrections and source lines are recorded in the PO comments. One SM1 entry remains fuzzy."
+}

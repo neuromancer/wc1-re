@@ -928,7 +928,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                         (signed char)RandomBelowOrEqual(
                             (aShipWeaponsTable[0][0] - 1)));
                     ShowComponentHitHudMessage(
-                        "Weapon destroyed",
+                        _("Weapon destroyed"),
                         cRedColour, 8);
                 }
             }
@@ -948,7 +948,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
             if (RandomBelowOrEqual(1) != 0 ||
                 anShipFuelsTable[0] < 0)
                 return explode(attacker, 0);
-            ShowComponentHitHudMessage("Fuel tanks hit",
+            ShowComponentHitHudMessage(_("Fuel tanks hit"),
                                        cRedColour, 8);
             break;
         case 8:
@@ -983,8 +983,8 @@ short ReportComponentRepaired(short component, short minimumDamage)
         (short)acPlayerComponentDamageList[component]) {
         acPlayerComponentDamageList[component] =
             (acPlayerComponentDamageList[component] - 1);
-        sprintf(message, "%s FIXD",
-                apszComponentNames[component]);
+        sprintf(message, _("%s FIXD"),
+                _(apszComponentNames[component]));
         ShowComponentHitHudMessage(message, cRedColour, 8);
         return 1;
     }
@@ -2031,7 +2031,7 @@ int fire_missile(short ship)
                     nTargetLockCountdown != 0) {
                     if (get_mode(0) == 1)
                         ShowComponentHitHudMessage(
-                            "Need Lock",
+                            _("Need Lock"),
                             cYellowColour, 3);
                     return -1;
                 }

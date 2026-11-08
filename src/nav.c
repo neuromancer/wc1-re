@@ -40,16 +40,16 @@ static
 #endif
 /* 0x00468728 */
 char *apszShipMissionTypeNames[11] = {
-    "Patrol",
-    "Escort",
-    "Strike",
-    "Defend",
-    "Wingman",
-    "Flee",
-    "Goto Warp",
+    N_("Patrol"),
+    N_("Escort"),
+    N_("Strike"),
+    N_("Defend"),
+    N_("Wingman"),
+    N_("Flee"),
+    N_("Goto Warp"),
     "err",
     "err",
-    "Rendezvous",
+    N_("Rendezvous"),
     "err"
 };
 int bInflightComputerActive = 0; /* 0x00468754 */
@@ -516,14 +516,14 @@ void BuildMap(short showPlayer)
                                         missionShip->position,
                                         missionShip->speed,
                                         cAsteroidColour, cAsteroidColour,
-                                        "Asteroids");
+                                        _("Asteroids"));
                     break;
                 case OBJECT_TYPE_MINE_FIELD:
                     DrawNavHazardMarker(navPoint->position,
                                         missionShip->position,
                                         missionShip->speed,
                                         cRedColour, cRedColour,
-                                        "Mines");
+                                        _("Mines"));
                     break;
                 }
             }
@@ -600,7 +600,7 @@ void UpdateInflightNavText(short showColon)
     sprintf(time, "%02d",
             ((signed char *)pElapsedCampaignDatePtr)[0]);
     DrawFormattedText(
-        "%X%YStandard time %s",
+        _("%X%YStandard time %s"),
         (short)(stCurrentNavMapTxtCtx.viewport->left + 150),
         (short)(stCurrentNavMapTxtCtx.viewport->top + 140),
         time);
@@ -651,10 +651,10 @@ void DrawNavMapLegend(void)
             break;
     }
     SetTextCursor(stSceneBuffer.left, 120);
-    DrawSelectedNavLegendEntry("MISSION FLIGHT PATH",
+    DrawSelectedNavLegendEntry(_("MISSION FLIGHT PATH"),
                                objective);
     DrawSelectedNavLegendEntry(
-        "HOME BASE",
+        _("HOME BASE"),
         ((short)cMissionObjectiveCountValue - 1));
 }
 
@@ -689,10 +689,10 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
     DrawNavTextLine(2, cDefaultTextColour,
                     "%s\n\n", title);
     DrawNavTextLine(0, cDefaultTextColour,
-                    "Sector: %s\n",
+                    _("Sector: %s\n"),
                     szCampaignSector);
     DrawNavTextLine(0, cDefaultTextColour,
-                    "System: %s\n\n",
+                    _("System: %s\n\n"),
                     abSeriesAuxData);
     DrawNavTextLine(2, cDefaultTextColour,
                     "* %s *\n",
@@ -701,10 +701,10 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
         stCurrentMissionHeader.playerMissionShip].missionType;
     DrawNavTextLine(2, cDefaultTextColour,
                     "* %s *\n",
-                    apszShipMissionTypeNames[
-                        playerMissionType]);
+                    _(apszShipMissionTypeNames[
+                        playerMissionType]));
     DrawNavTextLine(2, cDefaultTextColour,
-                    "\nNotes\n");
+                    _("\nNotes\n"));
     DrawNavTextLine(0, cDefaultTextColour,
                     "%s\n",
                     nav_note(cCurrentObjective));
@@ -715,7 +715,7 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
         SetScreenClipRect(0, 0, 259, 155);
         SetTextContext(&stCurrentNavMapTxtCtx);
         DrawNavTextLine(0, cDefaultTextColour,
-                        "%X%Y                         Location: %d.%d.%d",
+                        _("%X%Y                         Location: %d.%d.%d"),
                         8, 142,
                         aShipPositionsArray[0].x,
                         aShipPositionsArray[0].y,
@@ -751,7 +751,7 @@ void BriefingMap_DisplayMap(void)
     free_viewport(&stSceneBuffer);
     BriefingMap_LoadShapes();
     stScreenView.top = 4;
-    DrawNavLocationReadout("Briefing Nav Map", 0);
+    DrawNavLocationReadout(_("Briefing Nav Map"), 0);
     free_viewport(&stSceneBuffer);
     ReleasePacketHandle(pNavMapShape);
     ReleaseTextFont(2);
@@ -817,7 +817,7 @@ void ShowConfedNavScan(void)
 {
     SetRectBounds(&stScreenView, 30, 22, 289, 177);
     LeaveAllocationScope();
-    DrawNavLocationReadout("ConFed Nav Scan", 1);
+    DrawNavLocationReadout(_("ConFed Nav Scan"), 1);
     EnterAllocationScope();
     SetRectBounds(&stScreenView, 0, 0, 319, 199);
 }

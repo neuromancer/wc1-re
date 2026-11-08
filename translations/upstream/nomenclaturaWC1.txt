@@ -1,0 +1,76 @@
+Longitud module:		59
+
+Falta:
+* Interrogante abertura letra pequeña Set 2?
+
+
+bogie					->				avión enemigo
+bugbears				->				espantajos
+durasteel				->				duracero
+get a crack				->				echarle el guante
+downside leave			->				baja por permiso
+downtime				->				tiempo libre
+to have a fix (about ships)	->			tener la posición
+fleabag					->				piojoso
+flight recorder			->				caja negra
+furball					->				bola de pelos
+fuzzball				->				pelusas
+gray towns				->				ciudades grises
+hairballs				->				peludos
+holopics				->				holoimágenes
+HQ						->				Cuartel General
+last detail				->				último destacamento
+launch tube				->				lanzadera
+medical leave			->				baja médica
+mini-jump				->				minisalto
+nail					->				acabar (kill in a fight)
+parakeet				->				periquito
+praises (Way of Sivar)	->				ensalmos
+record					->				historial
+sector command			->				mando del sector
+ski-nose				->				ska-nasal
+skragged				->				liquidado
+the brass				->				altos mandos
+trank-chem				->				químicos tranquilizantes
+two-point 'touch and go' landing	->	aterrizaje en dos pasos 'toma y despegue'
+vidlink					->				videolink
+
+
+
+Nombre propios
+
+Accord					->				Accord (planeta)
+Alliance System			->				Sistema Alliance
+Bhurak Starkiller		->				Starkiller Bhurak
+Black Lion Squadron		->				Escuadrón León Negro
+Blue Devil Squadron		->				Escuadrón Diablo Azul
+Border Zone				->				Zona Fronteriza
+Briefing				->				Sesión Informativa (cuando se menciona como lugar, no como "Resumen de la Misión")
+Centaurian				->				Cantauriano
+Conservation Forest		->				Reserva Forestal
+Courier					->				Correo
+Flying Pancakes			->				Tortas Voladoras (hablando de naves Kilrathi desde el punto de vista humano)
+Galaxy Network News		->				Noticias de la Red Galáctica
+HQ (Headquarters)		->				CG (Cuartel General)
+Illidium				->				Ilidio
+Khajja the Fang			->				Khajja el Colmillo
+Killer Bees				->				Abejas Asesinas
+Killie-cats				->				liquigatos
+Mission Briefing		->				Resumen de Misión
+Mission debriefing		->				Después de la Misión
+Rec Room				->				Salón de juegos
+Rostov Hairball			->				Pelusa Rostov (bebida)
+Society of Mandarins	->				Sociedad Mandarín
+Star Slayer Squadron	->				Escuadrón Cazador Estelar
+TCSO (Terran Confederation Service Organization)		->	OSCT (Organización de Servicios de la Confederación Terrestre)
+Terran Confederation	->				Confederación Terrestre
+Tiger's Claw			->				Garra de Tigre
+VID-COM SYSTEM			->				VIDEO-COM
+Way of Lord Sivar		->				Senda de Lord Sivar
+Yellow Jacket			->				Chaqueta Amarilla
+
+
+
+Medallas
+
+Golden Sun				->				Sol Dorado

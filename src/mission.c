@@ -665,6 +665,10 @@ void get_pilot_talk(short personality)
                                         (personality * 11 + line) * 80,
                                         80, speech) != 0);
         if (loaded != 0) {
+#ifdef SDL_PORT
+            SdlTranslateRadio(pDiskFileRecords[13].name, personality, line,
+                              speech, sizeof(speech));
+#endif
             aapszPilotSpeeches[personality][line] =
                 AllocateTaggedMemory(strlen(speech) + 1, 0);
             DosStrcpy(aapszPilotSpeeches[personality][line], speech);
@@ -673,7 +677,7 @@ void get_pilot_talk(short personality)
 
     CloseDataFile(file);
     if (loaded == 0)
-        ShowModalMessage("Error loading pilot speech");
+        ShowModalMessage(_("Error loading pilot speech"));
     LoadCommPortraitShape(personality, 4);
 }
 

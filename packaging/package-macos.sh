@@ -72,6 +72,7 @@ mv "$portable/"*.dylib "$app/Contents/Frameworks/"
 cp "$portable/"*.txt "$app/Contents/Resources/"
 # SDL_GetBasePath() resolves to Contents/Resources for an application bundle.
 mv "$portable/swc-music.sf2" "$app/Contents/Resources/"
+mv "$portable/translations" "$app/Contents/Resources/"
 
 for library in "$app/Contents/Frameworks/"*.dylib; do
     install_name_tool -id "@rpath/$(basename "$library")" "$library"

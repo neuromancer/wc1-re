@@ -1,0 +1,40 @@
+FONTS.FNT
+
+SET 00
+SET 02
+
+a (097/0x61)	->	á (225/0xE1)
+e (101/0x65)	->	é (233/0xE9)
+i (105/0x69)	->	í (237/0xED)
+n (110/0x6E)	->	ñ (241/0xF1)
+o (111/0x6F)	->	ó (243/0xF3)
+u (117/0x75)	->	ú (250/0xFA)
+u (117/0x75)	->	ü (252/0xFC)
+! (033/0x21)	->  ¡ (161/0xA1)
+? (063/0x3F)	->	¿ (191/0xBF)
+A (065/0x41)	->	Á (193/0xC1)
+E (069/0x45)	->	É (201/0xC9)
+N (078/0x4E)	->	Ñ (209/0xC1)
+
+
+SET 01 (MODULE.000 & COMMUNIC.DAT)
+a (097/0x61)	->	á (225/0xE1)
+e (101/0x65)	->	é (233/0xE9)
+i (105/0x69)	->	í (237/0xED)
+
+n (110/0x6E)	->	à (224/0xE0)  (original occupied by other char)
+o (111/0x6F)	->	ë (235/0xEB)  (original occupied by other char)
+u (117/0x75)	->	ï (239/0xEF)  (original occupied by other char)
+
+! (033/0x21)	->  ¡ (161/0xA1)
+E (069/0x45)	->	É (201/0xC9)
+O (079/0x4F)	->	Ó (211/0xD3)
+
+
+TITLE.VGA
+[ = á
+\ = é
+] = í
+^ = ñ
+_ = ó
+` = ú

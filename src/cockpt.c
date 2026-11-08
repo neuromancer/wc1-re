@@ -30,7 +30,7 @@ unsigned char *pReleaseWeaponDisplayBackground = 0; /* 0x0046906c */
 static signed char cReleaseWeaponDisplayFrame = -1; /* 0x00469070 */
 static signed char cReleaseWeaponDisplayTicks = 0; /* 0x00469074 */
 static signed char cReleaseWeaponDisplayState = 0; /* 0x00469078 */
-static char szNoWeaponName[5] = "None"; /* 0x00469080 */
+static char szNoWeaponName[5] = N_("None"); /* 0x00469080 */
 static int nDisplayedObjectiveRange = 40000; /* 0x00469088 */
 #ifdef SDL_PORT
 static char *pszObjectiveStatusMessage = szObjectiveStatusMessage;
@@ -63,7 +63,7 @@ static int aiScannerGridRows[79] = {
     -2
 };
 /* 0x004691d4 */
-static const char *pszMissileLockedMessage = "MISSILE LOCKED ";
+static const char *pszMissileLockedMessage = N_("MISSILE LOCKED ");
 static unsigned char bTargetBracketVisible = 1; /* 0x004691d8 */
 /* 0x004691e0 */
 static short asHudMessageOrigins[10] = {
@@ -639,11 +639,11 @@ short auto_pilot_valid(short showReason)
             0,
             &aMissionObjectivesArray[
                 cCurrentObjective].position) < 8000) {
-        reason = "Already Near";
+        reason = _("Already Near");
     } else if (kilrathi_near(0, 16000) != 0) {
-        reason = "Enemy Near";
+        reason = _("Enemy Near");
     } else if (pActiveHazardField != 0) {
-        reason = "Hazard Near";
+        reason = _("Hazard Near");
     }
     if (showReason != 0 && reason != 0)
         set_global_message(reason, cYellowColour, 3);
@@ -999,8 +999,8 @@ int damage_your_component(char component, char amount, char maximum)
         vdu_malf(1, 0x18);
     }
     if (get_mode(0) == 2 || get_mode(0) == 1) {
-        sprintf(text, "%s HIT",
-                apszComponentNames[index]);
+        sprintf(text, _("%s HIT"),
+                _(apszComponentNames[index]));
         ShowComponentHitHudMessage(text, cRedColour, 5);
     }
     return acPlayerComponentDamageList[index];
@@ -1100,32 +1100,32 @@ void show_weapon_disp(void)
     set_new_vdu(0);
     DrawTextAt(&stLeftVduTextContext,
                stLeftVdu.left, stLeftVdu.top,
-               "WEAPON DISPLAY", 2);
+               _("WEAPON DISPLAY"), 2);
     DrawViewportLine(&stLeftVdu, (stLeftVdu.left + 2),
                      (stLeftVdu.top + 5),
                      (stLeftVdu.right - 2),
                      (stLeftVdu.top + 5),
                      cPrimaryTextColour);
 
-    releaseName = szNoWeaponName;
+    releaseName = _(szNoWeaponName);
     if (nSelectedReleaseWeaponIndex != -1)
-        releaseName = aObjectTypeData[
-            selectedWeapon->type].displayName;
+        releaseName = _(aObjectTypeData[
+            selectedWeapon->type].displayName);
     selectedGunType = eSelectedGunType;
     switch ((int)selectedGunType) {
     case -1:
-        gunName = szNoWeaponName;
+        gunName = _(szNoWeaponName);
         break;
     case 0x80:
-        gunName = "Full Guns";
+        gunName = _("Full Guns");
         break;
     default:
-        gunName = aObjectTypeData[
-            selectedGunType].displayName;
+        gunName = _(aObjectTypeData[
+            selectedGunType].displayName);
         break;
     }
-    DrawFormattedText("\nWeapon: %s", releaseName);
-    DrawFormattedText("\nGun: %s", gunName);
+    DrawFormattedText(_("\nWeapon: %s"), releaseName);
+    DrawFormattedText(_("\nGun: %s"), gunName);
 
     stWpnDispOrigin.x =
         (stLeftVdu.left +
@@ -1187,7 +1187,7 @@ void flag_objective(short objective, unsigned char flags)
 void DrawCalculatingLabel(void)
 {
     if (nCurObjectiveRangeValue <= 0) {
-        DrawCockpitReadout(0, "CALCULATING");
+        DrawCockpitReadout(0, _("CALCULATING"));
     } else {
         strcpy(szTxtWorkspaceBuffer +
                    strlen(ltoa(nCurObjectiveRangeValue,
@@ -1203,11 +1203,11 @@ void DrawCalculatingLabel(void)
 const char *objective_name(short objective)
 {
     if (objective >= (short)cMissionObjectiveCountValue)
-        return "NONE";
+        return _("NONE");
     if (*aMissionObjectivesArray[objective].name == '?' &&
         sighted(objective) == 0)
-        return "UNKNOWN";
-    return aMissionObjectivesArray[objective].displayName;
+        return _("UNKNOWN");
+    return _(aMissionObjectivesArray[objective].displayName);
 }
 
 /* Function start: 0x415180 */
@@ -1215,12 +1215,12 @@ void show_navigation_disp(void)
 {
     DrawTextAt(&stRightVduTxtContext,
                stRightVduViewport.left, stRightVduViewport.top,
-               "COMP NAVIGATION", 2);
-    DrawFormattedText("\n\nDESTINATION\n  %s",
+               _("COMP NAVIGATION"), 2);
+    DrawFormattedText(_("\n\nDESTINATION\n  %s"),
                       objective_name(cCurrentObjective));
-    DrawFormattedText("\n\nRANGE\n  ");
+    DrawFormattedText(_("\n\nRANGE\n  "));
     InitializeCockpitReadout(0, &stRightVduTxtContext);
-    DrawFormattedText("\n\n(N)ew Objective");
+    DrawFormattedText(_("\n\n(N)ew Objective"));
     DrawCalculatingLabel();
 }
 
@@ -1404,18 +1404,18 @@ void flag_reached(short objective, short reached)
             aMissionObjectivesArray[objective].index ==
                 anShipMissionShips[0]) {
             if (visited(objective) != 0)
-                CockpitMessage("Already Visited", cYellowColour, 4);
+                CockpitMessage(_("Already Visited"), cYellowColour, 4);
             else
-                CockpitMessage("Objective Reached", cYellowColour, 4);
+                CockpitMessage(_("Objective Reached"), cYellowColour, 4);
             advanceDestination = markVisited = 1;
         } else {
             if (objectiveType != 1 ||
                 aMissionShips[carrierMissionShip].state != 1) {
                 sprintf(pszObjectiveStatusMessage,
-                        "Wait for %s",
-                        aObjectTypeData[
+                        _("Wait for %s"),
+                        _(aObjectTypeData[
                             aeObjectTypeList[carrierObject]].
-                                displayName);
+                                displayName));
                 CockpitMessage(pszObjectiveStatusMessage,
                                cYellowColour, 4);
             }
@@ -1827,7 +1827,7 @@ void lock_off(void)
 {
     if (nTargetLockCountdown > -1)
         bTargetLockReadoutDirty = 1;
-    remove_message(pszMissileLockedMessage);
+    remove_message(_(pszMissileLockedMessage));
     nTargetLockCountdown = -1;
 }
 
@@ -1859,7 +1859,7 @@ short decrement_lock_time(short screenX)
             if (bTargetLockAcquired != 0) {
                 if (CheckTargetLockMalfunction() == 0)
                     PlaySfxWaveFileByNumber(0x16, -1, 0);
-                CockpitMessage(pszMissileLockedMessage,
+                CockpitMessage(_(pszMissileLockedMessage),
                                cRedColour, 2);
                 return 1;
             }
@@ -1952,8 +1952,14 @@ void print_message_text(char *text, unsigned short colour)
 {
     TextContext context;
     Viewport viewport;
+#ifdef SDL_PORT
+    /* Match the expanded localization workspace and allow inserted newlines. */
+    char wrapped[512];
+    char source[256];
+#else
     char wrapped[84];
     char source[84];
+#endif
     short charactersPerLine;
     short lastSpace = -1;
     short position;

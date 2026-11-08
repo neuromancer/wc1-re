@@ -126,10 +126,10 @@ static int anLandingDamageDetailCounts[4] = {
 };
 /* 0x00465ab8 */
 static const char *apszLandingDamageComments[4] = {
-    "You got away pretty clean, sir!",
-    "Looks like it got a little hot out there, sir!",
-    "You sure got yourself shot up, sir!",
-    "Glad to see you made it back alive, sir."
+    NC_("font0", "You got away pretty clean, sir!"),
+    NC_("font0", "Looks like it got a little hot out there, sir!"),
+    NC_("font0", "You sure got yourself shot up, sir!"),
+    NC_("font0", "Glad to see you made it back alive, sir.")
 };
 /* 0x00465ac8 */
 static signed char acLandingCanopyFramesHeavy[24] = {
@@ -929,7 +929,7 @@ unsigned int landing(signed char damageLevel)
             FormatTextBufferFromStart(
                 "%X%Y%F%s%P", 0, 160,
                 cBlueColour,
-                apszLandingDamageComments[damageLevel]);
+                C_("font0", apszLandingDamageComments[damageLevel]));
             DIBslam();
             DIBslamReal();
             ReleaseTextFont(0);
@@ -1016,7 +1016,7 @@ unsigned int funeral_player(void)
                           pCurrentConversationSpecialShape, 6);
         if (bFuneralShowTheEnd != 0)
             print_subtitle(&stSceneBuffer, 56,
-                           "THE END");
+                           C_("intro", "THE END"));
         RefreshMemoryStatusOverlay();
         DIBslam();
         DIBslamReal();
@@ -1144,7 +1144,7 @@ unsigned int funeral_sequence(int playerFuneral)
 
         if (bEscapePressedFlag != 1) {
             FormatTextBufferFromStart(
-                "%X%Y%FCompany...%P", 0, 160,
+                C_("font0", "%X%Y%FCompany...%P"), 0, 160,
                 cBlueColour);
             nFrameSkipCounter = 1;
             for (frame = 0; frame < 15; frame++) {
@@ -1160,7 +1160,7 @@ unsigned int funeral_sequence(int playerFuneral)
                 frame = 0;
                 nFrameSkipCounter = 1;
                 FormatTextBufferFromStart(
-                    "%X%YAtten-SHUN!%P", 0, 160);
+                    C_("font0", "%X%YAtten-SHUN!%P"), 0, 160);
                 for (; frame < 10; frame++) {
                     PumpWindowMessages();
                     funeral_player();
@@ -1187,7 +1187,7 @@ unsigned int funeral_sequence(int playerFuneral)
                             cBlackColour);
                         nFrameSkipCounter = 1;
                         FormatTextBufferFromStart(
-                            "%X%YPrepare arms!%P",
+                            C_("font0", "%X%YPrepare arms!%P"),
                             0, 160);
                         for (frame = 10; frame != 0; frame--) {
                             PumpWindowMessages();
@@ -1218,7 +1218,7 @@ unsigned int funeral_sequence(int playerFuneral)
                                         &stCurrentConvTextViewport,
                                         cBlackColour);
                                     FormatTextBufferFromStart(
-                                        "%X%Y%FFire!%P",
+                                        C_("font0", "%X%Y%FFire!%P"),
                                         0, 160, cBlueColour);
                                     if (volley == 1)
                                         PlaySfxWaveFileByNumber(

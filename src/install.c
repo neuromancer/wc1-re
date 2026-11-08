@@ -42,7 +42,7 @@ unsigned short InitializeDiskPromptTextContext(void)
     stDiskPromptViewport = stScreenView;
     textWidth =
         (MeasureTextPixelWidthClamped(
-                    "Press any key when ready") +
+                    _("Press any key when ready")) +
                 10);
     textHeight =
         ((FontHeight(stDiskPromptTextContext.font) + 1) * 3);

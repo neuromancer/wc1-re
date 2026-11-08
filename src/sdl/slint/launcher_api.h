@@ -35,13 +35,15 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES = 1 << 6,
     SDL_LAUNCHER_EXPLICIT_CHEATS = 1 << 7,
     SDL_LAUNCHER_EXPLICIT_FULLSCREEN = 1 << 8,
-    SDL_LAUNCHER_EXPLICIT_AUTOSAVE = 1 << 9
+    SDL_LAUNCHER_EXPLICIT_AUTOSAVE = 1 << 9,
+    SDL_LAUNCHER_EXPLICIT_LANGUAGE = 1 << 10
 };
 
 typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     int fullscreen;
     int autosave;
+    int language; /* 0: English, 1: Spanish */
     int enhancedRenderer;
     int egaDither;
     int cockpitlessView;

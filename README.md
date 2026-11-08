@@ -9,7 +9,7 @@ A native SDL2 port is available for Windows, Linux, and macOS. It supports
 Kilrathi Saga data, has partial support for the original DOS game data, and
 also runs the Super Wing Commander Mac demo.
 
-No copyrighted game data is included.
+No original game archives are included.
 
 If you find this project useful, you can [support its development through
 GitHub Sponsors](https://github.com/sponsors/neuromancer).
@@ -68,6 +68,9 @@ directory; add `--gui` to review the options in the launcher first:
 cd /path/to/WC1
 ./wc1-modern --enhanced --joystick-rumble
 ```
+
+For Spanish, choose **Game language → Español** or use `--language=es`.
+See [translations](translations/README.md) for PO editing and credits.
 
 Use `--fullscreen` or `--windowed` to choose the startup display mode. With
 `--gui`, these also override the saved fullscreen setting in the launcher.

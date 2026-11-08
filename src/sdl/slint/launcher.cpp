@@ -121,6 +121,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_game_directory(slint::SharedString(initialDirectory));
     window->set_start_fullscreen(options->fullscreen != 0);
     window->set_autosave(options->autosave != 0);
+    window->set_language_index(options->language);
     window->set_enhanced_renderer(options->enhancedRenderer != 0);
     window->set_ega_dither(options->egaDither != 0);
     window->set_cockpitless_view(options->cockpitlessView != 0);
@@ -200,6 +201,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
                 gameDirectory.size() + 1);
     options->fullscreen = window->get_start_fullscreen();
     options->autosave = window->get_autosave();
+    options->language = window->get_language_index() == 1 ? 1 : 0;
     options->enhancedRenderer = window->get_enhanced_renderer();
     options->egaDither = window->get_ega_dither();
     options->cockpitlessView = window->get_cockpitless_view();

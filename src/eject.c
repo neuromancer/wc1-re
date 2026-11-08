@@ -21,8 +21,8 @@ static short asEjectionViewScript[12] = {
 }; /* 0x00465570 */
 
 static const char *pStrandedMessage =
-    "\nWith your carrier\ndestroyed, you drift\nendlessly through\n"
-    "the void..."; /* 0x00465588 */
+    NC_("intro", "\nWith your carrier\ndestroyed, you drift\nendlessly through\n"
+    "the void..."); /* 0x00465588 */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 char szSoundDebugMsg[512]; /* 0x005a8760 */
@@ -212,10 +212,10 @@ void stranded_sequence(void)
         if (RefreshCockpitStatus() != 0) {
             if (frame >= 300)
                 print_subtitle(&stSpaceBufferViewport, 56,
-                               "THE END");
+                               C_("intro", "THE END"));
             else if (frame >= 160)
                 print_subtitle(&stSpaceBufferViewport, 50,
-                               pStrandedMessage);
+                               C_("intro", pStrandedMessage));
             dump_buffer_to_screen();
         }
         if (bEscapePressedFlag != 0)

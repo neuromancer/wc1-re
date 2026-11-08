@@ -109,27 +109,27 @@ void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
 
 /* 0x0046ad90 */
 static const char *apszCampaignVictoryText[4] = {
-    "Destroying the remains of the Kilrathi naval power in the sector...",
-    "The Tiger's Claw closes in for the kill...",
-    "And the last Kilrathi planet in the sector falls!",
+    NC_("font0", "Destroying the remains of the Kilrathi naval power in the sector..."),
+    NC_("font0", "The Tiger's Claw closes in for the kill..."),
+    NC_("font0", "And the last Kilrathi planet in the sector falls!"),
     0
 };
 /* 0x0046ada0 */
 static const char *pszTigerClawEscapeOpening =
-    "Fleeing from the overwelming Kilrathi forces in the sector...";
+    NC_("font0", "Fleeing from the overwelming Kilrathi forces in the sector...");
 /* 0x0046ada4 */
 static const char *pszTigerClawEscapeJump =
-    "The Tiger's Claw manages to jump out. Barely.";
+    NC_("font0", "The Tiger's Claw manages to jump out. Barely.");
 /* 0x0046ada8 */
 static const char *pszTigerClawEscapeClosing =
-    "There'll be other sectors, other battles...";
+    NC_("font0", "There'll be other sectors, other battles...");
 /* 0x0046adb0 */
 static ShortVector aCampaignVictoryProjectileOrigins[4] = {
     { -55, 42, 0 }, { -68, 46, 0 },
     { 60, 42, 16 }, { 73, 46, 16 }
 };
-static const char *pszTheEnd = "The End"; /* 0x0046adc8 */
-static const char *pszForNow = "For Now..."; /* 0x0046adcc */
+static const char *pszTheEnd = NC_("intro", "The End"); /* 0x0046adc8 */
+static const char *pszForNow = NC_("intro", "For Now..."); /* 0x0046adcc */
 
 /* Function start: 0x42FC00 */
 unsigned int ShowCampaignVictorySequence(void)
@@ -206,7 +206,7 @@ unsigned int ShowCampaignVictorySequence(void)
             SetTextContext(&stCurrentConvTxtCtx);
             FormatTextBufferFromStart(
                 "%X%Y%s%P", 0, 160,
-                apszCampaignVictoryText[textIndex]);
+                C_("font0", apszCampaignVictoryText[textIndex]));
         }
 
         Update_3Space();
@@ -403,7 +403,7 @@ unsigned int ShowTigerClawEscapeScene(void)
     SetTextContext(&stCurrentConvTxtCtx);
     FormatTextBufferFromStart(
         "%X%Y%s%P", 0, 160,
-        pszTigerClawEscapeOpening);
+        C_("font0", pszTigerClawEscapeOpening));
     depth = -1000;
     verticalOffset = -70000;
     nFrameSkipCounter = 1;
@@ -437,7 +437,7 @@ unsigned int ShowTigerClawEscapeScene(void)
             SetTextContext(&stCurrentConvTxtCtx);
             FormatTextBufferFromStart(
                 "%X%Y%s%P", 0, 160,
-                pszTigerClawEscapeJump);
+                C_("font0", pszTigerClawEscapeJump));
             break;
         case 190:
             effect = find_vacant_3d_object();
@@ -466,7 +466,7 @@ unsigned int ShowTigerClawEscapeScene(void)
             SetTextContext(&stCurrentConvTxtCtx);
             FormatTextBufferFromStart(
                 "%X%Y%s%P", 0, 160,
-                pszTigerClawEscapeClosing);
+                C_("font0", pszTigerClawEscapeClosing));
             break;
         }
         if (bEscapePressedFlag == 1)
@@ -515,7 +515,7 @@ unsigned int ShowTheEndScreen(short enableFireworks)
         FetchDiskPacketRetrying(9, 0x11, 0);
     pIntroFont =
         FetchDiskPacketRetrying(9, 1, 0);
-    print_subtitle(&stSceneBuffer, 0x3a, pszTheEnd);
+    print_subtitle(&stSceneBuffer, 0x3a, C_("intro", pszTheEnd));
     PanToScreen(&stSceneBuffer, &stScreenView);
     bEscapePressedFlag = 0;
     frame = 0;
@@ -539,11 +539,11 @@ unsigned int ShowTheEndScreen(short enableFireworks)
         activeFireworks = TheEndFireWorks(&stSceneBuffer, 30);
         if (frame < 160) {
             print_subtitle(&stSceneBuffer, 0x3a,
-                           pszTheEnd);
+                           C_("intro", pszTheEnd));
         } else if (frame > 190) {
             StopMusic((320 - frame));
             print_subtitle(&stSceneBuffer, 0x3a,
-                           pszForNow);
+                           C_("intro", pszForNow));
         }
         frame++;
         RefreshMemoryStatusOverlay();

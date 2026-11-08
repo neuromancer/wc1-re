@@ -98,6 +98,7 @@ Section "Uninstall"
         SetErrorLevel 1
         Abort
     ${EndIf}
+    !include "uninstall-directories.nsh"
     Delete "$SMPROGRAMS\WC1-re\Wing Commander.lnk"
     RMDir "$SMPROGRAMS\WC1-re"
     DeleteRegKey HKCU "${UNINSTALL_KEY}"

@@ -122,8 +122,8 @@ char *AddPCName(const char *text)
         switch (*marker++) {
         case 'A':
             DosStrcat(szTxtWorkspaceBuffer,
-                      apszMedalNames[
-                          nCurrentConversationMedalIndex]);
+                      C_("font0", apszMedalNames[
+                          nCurrentConversationMedalIndex]));
             break;
         case 'C':
             DosStrcat(szTxtWorkspaceBuffer,
@@ -159,8 +159,8 @@ char *AddPCName(const char *text)
             break;
         case 'R':
             DosStrcat(szTxtWorkspaceBuffer,
-                      apszPilotRankNames[
-                          stCampaignState.currentPilot->rank]);
+                      _(apszPilotRankNames[
+                          stCampaignState.currentPilot->rank]));
             length = DosStrlen(szTxtWorkspaceBuffer);
             if (szTxtWorkspaceBuffer[length - 1] == '.' &&
                 *marker == '.')

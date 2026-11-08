@@ -39,6 +39,8 @@ fi
 
 mkdir -p "$stage_dir"
 cp LICENSE "$stage_dir/LICENSE.txt"
+cp -R translations "$stage_dir/"
+cp "$(dirname "$binary")/translations/es.dat" "$stage_dir/translations/"
 cp packaging/README-modern.txt "$stage_dir/README.txt"
 cp packaging/THIRD-PARTY-NOTICES.txt \
     "$stage_dir/THIRD-PARTY-NOTICES.txt"

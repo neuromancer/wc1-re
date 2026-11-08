@@ -24,19 +24,19 @@ const char *apszKilrathiAceNames[4] = {
 };
 /* 0x0046af90 */
 static const char *apszCommMenuText[13] = {
-    "Never mind...",
-    "Attack my target!",
-    "Help me out here",
-    "Return to base.",
-    "Die furball!",
-    "Slag off!",
-    "Bite it cat face.",
-    "Break and attack.",
-    "Keep formation!",
-    "Form on my wing.",
-    "Keep radio silence",
-    "Broadcast freely",
-    "Request Landing"
+    N_("Never mind..."),
+    N_("Attack my target!"),
+    N_("Help me out here"),
+    N_("Return to base."),
+    N_("Die furball!"),
+    N_("Slag off!"),
+    N_("Bite it cat face."),
+    N_("Break and attack."),
+    N_("Keep formation!"),
+    N_("Form on my wing."),
+    N_("Keep radio silence"),
+    N_("Broadcast freely"),
+    N_("Request Landing")
 };
 signed char cCommMenuRecipient = -1; /* 0x0046afc4 */
 short nCommSpeakerObject = 0; /* 0x0046afc8 */
@@ -125,7 +125,7 @@ void AppendCommMenuChoice(const char *text, short command)
 /* Function start: 0x430D30 */
 void SendCommMenuChoice(short i)
 {
-    AppendCommMenuChoice(apszCommMenuText[i], i);
+    AppendCommMenuChoice(_(apszCommMenuText[i]), i);
 }
 
 /* Function start: 0x430D50 */
@@ -206,8 +206,8 @@ void BuildCommunicationRecipientMenu(void)
     short target;
 
     ResetCommMenuChoices(nCommMenuReuseMode);
-    OpenCommMenuForTarget("VID-COM SYSTEM\n\nSend message to?\n\n",
-                          "SELECT");
+    OpenCommMenuForTarget(_("VID-COM SYSTEM\n\nSend message to?\n\n"),
+                          _("SELECT"));
     if (wingman_dead() != 0) {
         SelectCommRecipient(acShipTargetTable[0]);
         return;
@@ -226,15 +226,15 @@ void BuildCommunicationRecipientMenu(void)
     if (target != -1) {
         if (aeShipSide[target] == SIDE_KILRATHI &&
             aeObjectClass[target] == OBJECT_CLASS_SHIP)
-            AppendCommMenuChoice("ENEMY TARGET", 2);
+            AppendCommMenuChoice(_("ENEMY TARGET"), 2);
         else if (aeShipSide[target] == SIDE_IMPERIAL &&
                  ((aeObjectClass[target] == OBJECT_CLASS_SHIP &&
                    any_enemy(0, 14000) != 0) ||
                   aeObjectTypeList[target] ==
                       OBJECT_TYPE_TIGERS_CLAW))
             AppendCommMenuChoice(
-                aObjectTypeData[
-                    aeObjectTypeList[acShipTargetTable[0]]].displayName,
+                _(aObjectTypeData[
+                    aeObjectTypeList[acShipTargetTable[0]]].displayName),
                 3);
     }
     SendCommMenuChoice(0);
@@ -293,12 +293,12 @@ void BuildCommunicationCommandMenu(void)
 
     if (IsCommChoiceMenuOpen() != 0) {
         strcpy(szCommMenuHeadingBuf,
-               "VID-COM SYSTEM\n\nTo: ");
+               _("VID-COM SYSTEM\n\nTo: "));
         rating = acShipRating[cCommMenuRecipient];
         if (rating == -1) {
-            name = aObjectTypeData[
+            name = _(aObjectTypeData[
                 aeObjectTypeList[
-                    cCommMenuRecipient]].displayName;
+                    cCommMenuRecipient]].displayName);
         } else if (rating < 8) {
             name = apWingmanPilotsList[rating]->callsign;
         } else {
@@ -307,7 +307,7 @@ void BuildCommunicationCommandMenu(void)
         strcat(szCommMenuHeadingBuf, name);
         strcat(szCommMenuHeadingBuf, "\n");
         OpenCommMenuForTarget(szCommMenuHeadingBuf,
-                              "CHOOSE");
+                              _("CHOOSE"));
     }
 }
 
@@ -519,8 +519,8 @@ char *ExpandCommMessageTokens(const char *text)
             break;
         case 'R':
             DosStrcat(szTxtWorkspaceBuffer,
-                      apszPilotRankNames[
-                          stCampaignState.currentPilot->rank]);
+                      _(apszPilotRankNames[
+                          stCampaignState.currentPilot->rank]));
             length = DosStrlen(szTxtWorkspaceBuffer);
             if (szTxtWorkspaceBuffer[length - 1] == '.' &&
                 *marker == '.') {
@@ -538,7 +538,12 @@ char *ExpandCommMessageTokens(const char *text)
 /* Function start: 0x4316E0 */
 void real_vid_transmit(short obj, short message)
 {
+#ifdef SDL_PORT
+    /* Localized speech plus a speaker prefix can exceed the DOS buffer. */
+    char text[256];
+#else
     char text[84];
+#endif
     char *expandedText;
     char *speech;
 
@@ -589,7 +594,7 @@ void real_vid_transmit(short obj, short message)
         nCommSpeakerRating <= 7) {
 #ifdef SDL_PORT
         /* MSVC 4.20 accepts %Fs as its legacy far-string conversion. */
-        sprintf(text, "%s: %s",
+        snprintf(text, sizeof(text), "%s: %s",
                 apWingmanPilotsList[
                     nCommSpeakerRating]->callsign,
                 speech);
@@ -602,7 +607,7 @@ void real_vid_transmit(short obj, short message)
     } else if (nCommSpeakerRating >= 9 &&
                nCommSpeakerRating <= 12) {
 #ifdef SDL_PORT
-        sprintf(text, "%s: %s",
+        snprintf(text, sizeof(text), "%s: %s",
                 apszKilrathiAceNames[
                     nCommSpeakerRating - 9],
                 speech);
@@ -614,12 +619,12 @@ void real_vid_transmit(short obj, short message)
 #endif
     } else {
 #ifdef SDL_PORT
-        sprintf(text, "%s: %s",
-                aObjectTypeData[aeObjectTypeList[obj]].displayName,
+        snprintf(text, sizeof(text), "%s: %s",
+                _(aObjectTypeData[aeObjectTypeList[obj]].displayName),
                 speech);
 #else
         sprintf(text, "%s: %Fs",
-                aObjectTypeData[aeObjectTypeList[obj]].displayName,
+                _(aObjectTypeData[aeObjectTypeList[obj]].displayName),
                 speech);
 #endif
     }

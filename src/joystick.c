@@ -37,7 +37,7 @@ void CalibrateJoystickInteractive()
     InitializeTextContextFromFont(&stDefaultTxtContext, 1,
         cViewportClearColour, cBlackColour);
     shown = ShowModalTextPanel(1,
-        "Turn AUTO FIRE off if present, press a button");
+        _("Turn AUTO FIRE off if present, press a button"));
     if (shown != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
@@ -46,7 +46,7 @@ void CalibrateJoystickInteractive()
     }
 
     shown = ShowModalTextPanel(1,
-        "Move stick to the UPPER LEFT, press a button");
+        _("Move stick to the UPPER LEFT, press a button"));
     if (shown != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
@@ -60,7 +60,7 @@ void CalibrateJoystickInteractive()
     }
 
     shown = ShowModalTextPanel(1,
-        "Move stick to the LOWER RIGHT, press a button");
+        _("Move stick to the LOWER RIGHT, press a button"));
     if (shown != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
@@ -74,7 +74,7 @@ void CalibrateJoystickInteractive()
     }
 
     shown = ShowModalTextPanel(1,
-        "Center Joystick, press a button");
+        _("Center Joystick, press a button"));
     if (shown != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
@@ -132,7 +132,7 @@ void CalibrateJoystickInteractive()
     if (nStickMaxX <= nStickMinimumPositionX ||
         nStickMaxY <= nStickMinimumPositionY) {
         shown = ShowModalTextPanel(1,
-            "FAILED! Center Joystick, press a button");
+            _("FAILED! Center Joystick, press a button"));
         if (shown != 0) {
             DIBslamReal();
             WaitForJoystickButtonPress();

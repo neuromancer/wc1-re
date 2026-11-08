@@ -316,7 +316,20 @@ int SdlExtractOriginPacketSection(const unsigned char *archive,
                                      unsigned int sectionIndex,
                                      unsigned char **section,
                                      size_t *sectionSize);
+/* 0 = English, 1 = Spanish; catalogs live beside the executable. */
+int SdlSetLanguage(int language);
+/* gettext-compatible return type; callers must treat the text as read-only. */
+char *SdlTranslateText(const char *context, const char *source);
+int SdlLoadTranslationCatalog(const char *path);
+void SdlShutdownTranslations(void);
+int SdlTranslatePacketData(const char *filename, short section,
+                          const unsigned char *source, size_t size,
+                          unsigned char **output, size_t *outputSize);
+void SdlTranslateRadio(const char *filename, short speaker, short line,
+                       char *text, size_t capacity);
 struct PacketSectionHandle;
+int SdlTranslatePacketSection(const char *filename, short section,
+                              struct PacketSectionHandle *handle);
 int SdlPatchPacketSection(const char *filename, short section,
                          struct PacketSectionHandle *handle);
 void SdlPatchStreamData(const char *filename, unsigned int fileOffset,

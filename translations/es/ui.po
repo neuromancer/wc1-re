@@ -1,0 +1,1369 @@
+# Hardcoded UI text. Imported strings: L@Zar0; revision: darkpadawan.
+# Win32 calibration, audio and save prompts: wc1-re contributors.
+# Upstream GPLv3 notice and import details: ../README.md and ../provenance.json.
+msgid ""
+msgstr ""
+"Project-Id-Version: wc1-re\n"
+"PO-Revision-Date: 2026-11-08 00:00+0000\n"
+"Last-Translator: wc1-re contributors\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:859
+#: src/barracks.c:45 src/barracks.c:46
+msgctxt "font0"
+msgid "Save this campaign  "
+msgstr "Guardar la campaña  "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:870
+#: src/barracks.c:51
+msgctxt "font0"
+msgid "Mission Hangar"
+msgstr "Hangar de la misión"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:875
+#: src/barracks.c:52
+msgctxt "font0"
+msgid "Return to the Bar"
+msgstr "Volver al Bar"
+
+# Translation: wc1-re contributors.
+#: src/barracks.c:53
+msgctxt "font0"
+msgid "Quit Wing Commander"
+msgstr "Salir de Wing Commander"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:885
+#: src/barracks.c:54
+msgctxt "font0"
+msgid "View your medals"
+msgstr "Ver tus medallas"
+
+# Translation: wc1-re contributors.
+#: src/barracks.c:378
+#, c-format
+msgctxt "font0"
+msgid "Awaken %s."
+msgstr "Despertar %s."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:920
+#: src/barracks.c:556
+msgctxt "font0"
+msgid "Load a game first."
+msgstr " Primero carga una partida. "
+
+# Translation: wc1-re contributors.
+#: src/barracks.c:579 src/barracks.c:1007
+msgid "Slot 8 is reserved for autosave."
+msgstr "Casilla 8 reservada para autoguardado."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:924
+#: src/barracks.c:603
+msgid "Game Name: "
+msgstr "Nombre: "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:928
+#: src/barracks.c:612
+#, c-format
+msgid "Error: Game %s not saved."
+msgstr "Error: Partida %s no guardada."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:936
+#: src/barracks.c:727
+msgctxt "font0"
+msgid "Loading Game..."
+msgstr " Cargando partida... "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:940
+#: src/barracks.c:749
+#, c-format
+msgid "Error: Game %d not loaded."
+msgstr "Error: Partida %d no cargada."
+
+# Translation: wc1-re contributors.
+#: src/barracks.c:807 src/barracks.c:808
+msgctxt "font0"
+msgid "Autosave (empty)"
+msgstr "Autoguardado (vacío)"
+
+# Translation: wc1-re contributors.
+#: src/barracks.c:811 src/barracks.c:812
+msgctxt "font0"
+msgid "Reserved for autosave"
+msgstr "Reservado para autoguardado"
+
+# Translation: wc1-re contributors.
+#: src/barracks.c:944
+msgctxt "font0"
+msgid "Quit Wing Commander? (Y/N)"
+msgstr "¿Salir de Wing Commander? (Y/N)"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:948
+#: src/barracks.c:961
+msgid "Error: data may be bad."
+msgstr "Error: datos corruptos."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:952
+#: src/barracks.c:963
+#, c-format
+msgctxt "font0"
+msgid "Awaken %s? (Y/N)"
+msgstr " ¿Despertar %s? (Y/N) "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:956
+#: src/barracks.c:985
+msgctxt "font0"
+msgid "FAULTY DATA"
+msgstr "DATOS ERRONEOS"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:960
+#: src/barracks.c:987
+#, c-format
+msgctxt "font0"
+msgid "Replace %s? (Y/N)"
+msgstr " ¿Reemplazar %s? (Y/N) "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:964
+#: src/barracks.c:1132
+msgid "You step out of the airlock and into..."
+msgstr "Sales por la esclusa hacia..."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:79
+#: src/cockpt.c:33
+msgid "None"
+msgstr "Nada"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:184
+#: src/cockpt.c:66
+msgid "MISSILE LOCKED "
+msgstr "MISIL FIJADO "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:84
+#: src/cockpt.c:642
+msgid "Already Near"
+msgstr "Ya estás cerca"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:88
+#: src/cockpt.c:644
+msgid "Enemy Near"
+msgstr "Enemigo cerca"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:92
+#: src/cockpt.c:646
+msgid "Hazard Near"
+msgstr "Peligro cerca"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:96
+#: src/cockpt.c:1002
+#, c-format
+msgid "%s HIT"
+msgstr "IMP %s"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:100
+#: src/cockpt.c:1103
+msgid "WEAPON DISPLAY"
+msgstr "VISOR DE ARMAS"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:104
+#: src/cockpt.c:1120
+msgid "Full Guns"
+msgstr "Todos"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:109
+#: src/cockpt.c:1127
+#, c-format
+msgid ""
+"\n"
+"Weapon: %s"
+msgstr ""
+"\n"
+"Arma: %s"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:114
+#: src/cockpt.c:1128
+#, c-format
+msgid ""
+"\n"
+"Gun: %s"
+msgstr ""
+"\n"
+"Cañón: %s"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:118
+#: src/cockpt.c:1190
+msgid "CALCULATING"
+msgstr "CALCULANDO"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:126
+#: src/cockpt.c:1206
+msgid "NONE"
+msgstr "NADA"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:130
+#: src/cockpt.c:1209
+msgid "UNKNOWN"
+msgstr "DESCONOCIDO"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:134
+#: src/cockpt.c:1218
+msgid "COMP NAVIGATION"
+msgstr "NAVEGACION"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:141
+#: src/cockpt.c:1219
+#, c-format
+msgid ""
+"\n"
+"\n"
+"DESTINATION\n"
+"  %s"
+msgstr ""
+"\n"
+"\n"
+"DESTINO\n"
+"  %s"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:148
+#: src/cockpt.c:1221
+msgid ""
+"\n"
+"\n"
+"RANGE\n"
+"  "
+msgstr ""
+"\n"
+"\n"
+"DISTANCIA\n"
+"  "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:154
+#: src/cockpt.c:1223
+msgid ""
+"\n"
+"\n"
+"(N)ew Objective"
+msgstr ""
+"\n"
+"\n"
+"(N)uevo Objetivo"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:163
+#: src/cockpt.c:1407
+msgid "Already Visited"
+msgstr "Ya visitado"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:167
+#: src/cockpt.c:1409
+msgid "Objective Reached"
+msgstr "Objetivo alcanzado"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:171
+#: src/cockpt.c:1415
+#, c-format
+msgid "Wait for %s"
+msgstr "Esperar: %s"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:385
+#: src/comm.c:27
+msgid "Never mind..."
+msgstr "No importa..."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:390
+# Shortened to fit the cockpit display.
+#: src/comm.c:28
+msgid "Attack my target!"
+msgstr "Ataca mi obj."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:395
+#: src/comm.c:29
+msgid "Help me out here"
+msgstr "Ayúdame aquí"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:400
+#: src/comm.c:30
+msgid "Return to base."
+msgstr "Vuelve a la base"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:405
+#: src/comm.c:31
+msgid "Die furball!"
+msgstr "¡Muere peludo!"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:410
+#: src/comm.c:32
+msgid "Slag off!"
+msgstr "¡Escoria!"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:415
+#: src/comm.c:33
+msgid "Bite it cat face."
+msgstr "Traga esto gatito"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:420
+#: src/comm.c:34
+msgid "Break and attack."
+msgstr "Romper y atacar"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:425
+#: src/comm.c:35
+msgid "Keep formation!"
+msgstr "Seguir formación"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:430
+#: src/comm.c:36
+msgid "Form on my wing."
+msgstr "Formación en ala"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:435
+#: src/comm.c:37
+msgid "Keep radio silence"
+msgstr "Silencio de radio"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:440
+#: src/comm.c:38
+msgid "Broadcast freely"
+msgstr "Radio abierta"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:445
+#: src/comm.c:39
+msgid "Request Landing"
+msgstr "Solicito aterrizar"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:456
+# Shortened to fit the cockpit display.
+#: src/comm.c:209
+msgid ""
+"VID-COM SYSTEM\n"
+"\n"
+"Send message to?\n"
+"\n"
+msgstr "VIDEO-COM\n\n¿Para quién?\n\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:460
+#: src/comm.c:210
+msgid "SELECT"
+msgstr "SELECCIONAR"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:464
+#: src/comm.c:229
+msgid "ENEMY TARGET"
+msgstr "ENEMIGO"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:470
+#: src/comm.c:296
+msgid ""
+"VID-COM SYSTEM\n"
+"\n"
+"To: "
+msgstr ""
+"VIDEO-COM\n"
+"\n"
+"Para: "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:478
+#: src/comm.c:310
+msgid "CHOOSE"
+msgstr "ELEGIR"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:993
+#: src/cutscene.c:129
+msgctxt "font0"
+msgid "You got away pretty clean, sir!"
+msgstr "¡Una salida limpia, Señor!"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:998
+#: src/cutscene.c:130
+msgctxt "font0"
+msgid "Looks like it got a little hot out there, sir!"
+msgstr "¡Esto parece que está un poco caldeado, Señor!"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1003
+#: src/cutscene.c:131
+msgctxt "font0"
+msgid "You sure got yourself shot up, sir!"
+msgstr "¡Vaya cantidad de disparos, Señor!"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1008
+#: src/cutscene.c:132
+msgctxt "font0"
+msgid "Glad to see you made it back alive, sir."
+msgstr "Me alegro de que volviera vivo, Señor."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1086
+#: src/cutscene.c:1019 src/eject.c:215
+msgctxt "intro"
+msgid "THE END"
+msgstr "F I N"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1024
+#: src/cutscene.c:1147
+msgctxt "font0"
+msgid "%X%Y%FCompany...%P"
+msgstr "%X%Y%FCompañía...%P"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1028
+#: src/cutscene.c:1163
+msgctxt "font0"
+msgid "%X%YAtten-SHUN!%P"
+msgstr "%X%Y¡Aten-CION!%P"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1032
+#: src/cutscene.c:1190
+msgctxt "font0"
+msgid "%X%YPrepare arms!%P"
+msgstr "%X%Y¡Preparen armas!%P"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1036
+#: src/cutscene.c:1221
+msgctxt "font0"
+msgid "%X%Y%FFire!%P"
+msgstr "%X%Y%F¡Fuego!%P"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:232
+#: src/damage.c:19
+msgid "Ion drive"
+msgstr "Motor Iones"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:237
+#: src/damage.c:20
+msgid "Power plant"
+msgstr "Generador"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:242
+#: src/damage.c:21
+msgid "Shield gen'r"
+msgstr "Escudo"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:247
+#: src/damage.c:22
+msgid "Computer sys"
+msgstr "Ordenador"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:252
+#: src/damage.c:23
+msgid "InterCom unit"
+msgstr "InterCom"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:257
+#: src/damage.c:24
+msgid "Target track"
+msgstr "Rastreador"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:262
+#: src/damage.c:25
+msgid "Accel absorbers"
+msgstr "Amortiguador"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:267
+#: src/damage.c:26
+msgid "Ejector system"
+msgstr "Eyector"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:272
+#: src/damage.c:27
+msgid "Repair systems"
+msgstr "Reparaciones"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:291
+#: src/damage.c:35
+msgid "Ok"
+msgstr "Ok"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:296
+#: src/damage.c:36
+msgid "Light"
+msgstr "Leve"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:301
+#: src/damage.c:37
+msgid "Moderate"
+msgstr "Moderado"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:306
+#: src/damage.c:38
+msgid "Heavy"
+msgstr "Grave"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:311
+#: src/damage.c:39
+msgid "Destroyed"
+msgstr "Destruido"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:276
+#: src/damage.c:71
+msgid "DAMAGE REPORT"
+msgstr "INFORME DE DAÑOS"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:282
+#: src/damage.c:81
+msgid ""
+"NO INTERNAL\n"
+"\n"
+"DAMAGE"
+msgstr "SIN DAÑOS\n\nINTERNOS"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:286
+#: src/damage.c:97
+#, c-format
+msgid "%d Unit%c Damaged"
+msgstr "Daños: %d Módulo%c"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:316
+#: src/damage.c:152 src/damage.c:238
+#, c-format
+msgid ""
+"%s\n"
+"Damage: %s"
+msgstr "%s\nDaño: %s"
+
+# Translation: wc1-re contributors.
+#: src/dib.c:190
+#, c-format
+msgid "Space Flight Max FPS : %.1f"
+msgstr "FPS máximos de vuelo: %.1f"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1082
+#: src/eject.c:24
+msgctxt "intro"
+msgid ""
+"\n"
+"With your carrier\n"
+"destroyed, you drift\n"
+"endlessly through\n"
+"the void..."
+msgstr "\nCon el portanaves\ndestruido, vagas en\nuna eterna deriva\npor el vacío..."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1231
+#: src/ending.c:112
+msgctxt "font0"
+msgid "Destroying the remains of the Kilrathi naval power in the sector..."
+msgstr "Destruyendo los restos del poder espacial Kilrathi del sector..."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1236
+#: src/ending.c:113
+msgctxt "font0"
+msgid "The Tiger's Claw closes in for the kill..."
+msgstr "la Garra de Tigre se acerca hacia la presa..."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1241
+#: src/ending.c:114
+msgctxt "font0"
+msgid "And the last Kilrathi planet in the sector falls!"
+msgstr "¡y cae el último planeta Kilrathi del sector!"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1246
+#: src/ending.c:119
+msgctxt "font0"
+msgid "Fleeing from the overwelming Kilrathi forces in the sector..."
+msgstr "Huyendo de las abrumadoras fuerzas Kilrathi del sector..."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1251
+#: src/ending.c:122
+msgctxt "font0"
+msgid "The Tiger's Claw manages to jump out. Barely."
+msgstr "la Garra de Tigre consigue saltar. A duras penas."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1256
+#: src/ending.c:125
+msgctxt "font0"
+msgid "There'll be other sectors, other battles..."
+msgstr "Ya habrán otros sectores, otras batallas..."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1272
+#: src/ending.c:131
+msgctxt "intro"
+msgid "The End"
+msgstr "Fin"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1277
+#: src/ending.c:132
+msgctxt "intro"
+msgid "For Now..."
+msgstr "Por ahora..."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1391
+#: src/game.c:574
+msgid " INFO DISPLAY \n"
+msgstr " INFO VISUAL \n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1395
+#: src/game.c:575
+#, c-format
+msgid "Version: %s\n"
+msgstr "Versión: %s\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1399
+#: src/game.c:576
+#, c-format
+msgid "Series %d Misn %d\n"
+msgstr "Serie %d Mis %d\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1404
+#: src/game.c:579
+#, c-format
+msgid ""
+"PC Kills   =%d\n"
+"Wing Kills =%d\n"
+msgstr "Muertes PJ  =%d\nMuertes Ala =%d\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1408
+#: src/game.c:582
+#, c-format
+msgid "Series Score   =%d\n"
+msgstr "Ptos. Serie  =%d\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1412
+#: src/game.c:584
+#, c-format
+msgid "Miss Score %d, Medal %d\n"
+msgstr "Ptos. perdidos %d, Medalla %d\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1416
+#: src/game.c:587
+#, c-format
+msgid "Promotion Score=%d\n"
+msgstr "Ptos. Ascenso=%d\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1420
+#: src/game.c:589
+msgid "OBJECTIVES\n"
+msgstr "OBJETIVOS\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:194
+#: src/install.c:45
+msgid "Press any key when ready"
+msgstr "Pulsa una tecla..."
+
+# Translation: wc1-re contributors.
+#: src/joystick.c:40
+msgid "Turn AUTO FIRE off if present, press a button"
+msgstr "Desactive el autodisparo y pulse un botón"
+
+# Translation: wc1-re contributors.
+#: src/joystick.c:49
+msgid "Move stick to the UPPER LEFT, press a button"
+msgstr "Palanca ARRIBA A LA IZQUIERDA; pulse un botón"
+
+# Translation: wc1-re contributors.
+#: src/joystick.c:63
+msgid "Move stick to the LOWER RIGHT, press a button"
+msgstr "Palanca ABAJO A LA DERECHA; pulse un botón"
+
+# Translation: wc1-re contributors.
+#: src/joystick.c:77
+msgid "Center Joystick, press a button"
+msgstr "Centre la palanca y pulse un botón"
+
+# Translation: wc1-re contributors.
+#: src/joystick.c:135
+msgid "FAILED! Center Joystick, press a button"
+msgstr "¡FALLO! Centre la palanca y pulse un botón"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:729
+#: src/killbrd.c:17
+msgid "2ND LT."
+msgstr "ALFEREZ"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:734
+#: src/killbrd.c:18
+msgid "1ST LT."
+msgstr "TENIENTE"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:739
+#: src/killbrd.c:19
+msgid "CAPTAIN"
+msgstr "CAPITAN"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:744
+#: src/killbrd.c:20
+msgid "MAJOR"
+msgstr "MAYOR"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:749
+#: src/killbrd.c:21
+msgid "LT. COL."
+msgstr "CORONEL"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:774
+#: src/killbrd.c:170 src/killbrd.c:177
+msgctxt "font0"
+msgid "Talk to SHOTGLASS."
+msgstr "Hablar con SHOTGLASS"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:789
+#: src/killbrd.c:185
+msgctxt "font0"
+msgid "Check pilot scores"
+msgstr "Puntuaciones de pilotos"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:794
+#: src/killbrd.c:186
+msgctxt "font0"
+msgid "Enter barracks"
+msgstr "Barracones"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:799
+#: src/killbrd.c:187
+msgctxt "font0"
+msgid "Fly training mission"
+msgstr "Simulador de vuelo"
+
+# Source: Tools/_EXE_WORKSM2/patch_worksm2.txt:879
+#: src/killbrd.c:189
+msgctxt "font0"
+msgid "Check poster out"
+msgstr "Ver pósters"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:811
+#: src/killbrd.c:447 src/killbrd.c:472
+#, c-format
+msgctxt "font0"
+msgid "Talk to %s."
+msgstr "Hablar con %s"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:824
+#: src/killbrd.c:890
+msgctxt "font3"
+msgid "%X%YCARRIER - TIGER'S CLAW%P"
+msgstr "%X%YPORTANAVES - GARRA DE TIGRE%P"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:829
+#: src/killbrd.c:892
+msgctxt "font3"
+msgid "%X%YPILOT"
+msgstr "%X%YPILOTO"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:833
+#: src/killbrd.c:894
+msgctxt "font3"
+msgid "%X%YSORTIES KILLS"
+msgstr "%X%YSALIDAS BAJAS"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:848
+#: src/killbrd.c:917
+msgctxt "font3"
+msgid "KIA"
+msgstr "MEC"
+
+# Translation: wc1-re contributors.
+#: src/main.c:749 src/main.c:773 src/main.c:1875
+#, c-format
+msgid "SFX VOLUME: %d."
+msgstr "VOLUMEN DE EFECTOS: %d."
+
+# Translation: wc1-re contributors.
+#: src/main.c:795 src/main.c:822 src/main.c:1861
+#, c-format
+msgid "MUSIC VOLUME: %d."
+msgstr "VOLUMEN DE MUSICA: %d."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:14
+#: src/main.c:1415
+msgid "GAME PAUSED"
+msgstr " PAUSA "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:18
+#: src/main.c:1424
+#, c-format
+msgid "WING COMMANDER VER. %s"
+msgstr " WING COMMANDER VER. %s "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:22
+#: src/main.c:1433
+#, c-format
+msgid "MESSAGES SPEED IS NOW %d."
+msgstr "VELOCIDAD DEL TEXTO %d."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:26
+#: src/main.c:1442
+#, c-format
+msgid "%d FRAMES SKIPPED."
+msgstr "SALTO DE FRAMES %d."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:30
+#: src/main.c:1557
+msgid "VIDEO IMAGES SUPRESSED"
+msgstr "VIDEOS SUPRIMIDOS"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:34
+#: src/main.c:1560
+msgid "VIDEO IMAGES ENABLED"
+msgstr "VIDEOS ACTIVADOS"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:38
+#: src/main.c:1746
+msgid "MISSILE CAMERA ON"
+msgstr "CAMARA DE MISIL SI"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:42
+#: src/main.c:1749
+msgid "MISSILE CAMERA OFF"
+msgstr "CAMARA DE MISIL NO"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:52
+#: src/main.c:1978
+msgid "%X%YScore: %s0 %XTime: %u %X1 UP"
+msgstr "%X%YPuntos: %s0 %XTiempo: %u %X1 UP"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:62
+#: src/main.c:2005
+msgid ""
+"Wave %d complete.\n"
+"\n"
+"Bonus Points: %s0%P"
+msgstr ""
+"Oleada %d completa.\n"
+"\n"
+"Puntos Extra: %s0%P"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:68
+#: src/main.c:2010
+msgid ""
+"Mission %d complete.\n"
+"\n"
+"Bonus Points: %s0%P"
+msgstr ""
+"Misión %d completa.\n"
+"\n"
+"Puntos Extra: %s0%P"
+
+# Translation: wc1-re contributors.
+#: src/mission.c:680
+msgid "Error loading pilot speech"
+msgstr "Error al cargar la voz del piloto"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:543
+#: src/nav.c:43
+msgid "Patrol"
+msgstr "Patrulla"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:548
+#: src/nav.c:44
+msgid "Escort"
+msgstr "Escolta"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:553
+#: src/nav.c:45
+msgid "Strike"
+msgstr "Ataque"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:558
+#: src/nav.c:46
+msgid "Defend"
+msgstr "Defensa"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:563
+#: src/nav.c:47
+msgid "Wingman"
+msgstr "Ala"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:568
+#: src/nav.c:48
+msgid "Flee"
+msgstr "Huir"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:573
+#: src/nav.c:49
+msgid "Goto Warp"
+msgstr "Ir a salto"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:590
+#: src/nav.c:52
+msgid "Rendezvous"
+msgstr "Encuentro"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:514
+#: src/nav.c:519
+msgid "Asteroids"
+msgstr "Asteroides"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:518
+#: src/nav.c:526
+msgid "Mines"
+msgstr "Minas"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:526
+#: src/nav.c:603
+msgid "%X%YStandard time %s"
+msgstr "%X%YHora estándar %s"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:604
+#: src/nav.c:654
+msgid "MISSION FLIGHT PATH"
+msgstr "RUTA DE LA MISION"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:608
+#: src/nav.c:657
+msgid "HOME BASE"
+msgstr "BASE PRINCIPAL"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:621
+#: src/nav.c:692
+#, c-format
+msgid "Sector: %s\n"
+msgstr " Sector: %s\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:626
+#: src/nav.c:695
+#, c-format
+msgid ""
+"System: %s\n"
+"\n"
+msgstr "Sistema: %s\n\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:640
+#: src/nav.c:707
+msgid ""
+"\n"
+"Notes\n"
+msgstr "\nNotas\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:648
+#: src/nav.c:718
+msgid "%X%Y                         Location: %d.%d.%d"
+msgstr "%X%Y                         Posición: %d.%d.%d"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:656
+#: src/nav.c:754
+msgid "Briefing Nav Map"
+msgstr "Informe Mapa Nav"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:660
+#: src/nav.c:820
+msgid "ConFed Nav Scan"
+msgstr "ConFed Barrido Nav"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1470
+#: src/objdata.c:209
+msgid "Tiger's Claw"
+msgstr "Garra de Tigre"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1476
+#: src/objdata.c:408
+msgid "Star post"
+msgstr "Base estelar"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1481
+#: src/objdata.c:428
+msgid "Laser cannon"
+msgstr "Láser"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1486
+#: src/objdata.c:433
+msgid "Neutron gun"
+msgstr "Neutrones"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1491
+# Shortened to fit the cockpit display.
+#: src/objdata.c:436
+msgid "Mass driver"
+msgstr "Masa"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1501
+#: src/objdata.c:442
+msgid "Dart DF"
+msgstr "Dardo DF"
+
+# Translation: wc1-re contributors.
+#: src/objdata.c:445
+msgid "Javelin HS"
+msgstr "Jabalina HS"
+
+# Translation: wc1-re contributors.
+#: src/objdata.c:448
+msgid "Pilum FF"
+msgstr "Pilum FF"
+
+# Translation: wc1-re contributors.
+#: src/objdata.c:451
+msgid "Spiculum IR"
+msgstr "Spiculum IR"
+
+# Translation: wc1-re contributors.
+#: src/objdata.c:457
+msgid "Porcupine"
+msgstr "Puercoespín"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1431
+#: src/pilot.cpp:51
+msgctxt "intro"
+msgid "Meanwhile..."
+msgstr "Mientras..."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1440
+#: src/pilot.cpp:152
+msgctxt "font0"
+msgid "Answer: "
+msgstr "Respuesta: "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:673
+#: src/screens.c:65
+msgctxt "font0"
+msgid "Bronze Star"
+msgstr "la Estrella de bronce"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:678
+#: src/screens.c:66
+msgctxt "font0"
+msgid "Silver Star"
+msgstr "la Estrella de plata"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:683
+#: src/screens.c:67
+msgctxt "font0"
+msgid "Gold Star"
+msgstr "la Estrella de oro"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:688
+#: src/screens.c:68
+msgctxt "font0"
+msgid "Golden Sun"
+msgstr "el Sol Dorado"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:693
+#: src/screens.c:69
+msgctxt "font0"
+msgid "Terran Medal of Valor"
+msgstr "la Medalla Terrestre al Valor"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:706
+#: src/screens.c:75
+msgctxt "font0"
+msgid ""
+"$R $N, aka $C.\n"
+"$S system, dateline $D."
+msgstr "$R $N, alias $C.\nSistema $S, fecha $D."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1052
+#: src/screens.c:1736
+msgctxt "intro"
+msgid "Get Ready"
+msgstr "Listo"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1056
+#: src/screens.c:1793
+msgctxt "intro"
+msgid "Victory"
+msgstr "Victoria"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1060
+#: src/screens.c:1846
+msgctxt "intro"
+msgid "Game Over"
+msgstr "F I N"
+
+# Translation: wc1-re contributors.
+#: src/sdl/autosave.c:70
+msgctxt "font0"
+msgid "Overwrite autosave? (Y/N)"
+msgstr "¿Reemplazar autoguardado? (Y/N)"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:490
+#: src/ship.c:931
+msgid "Weapon destroyed"
+msgstr "Arma destruida"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:494
+#: src/ship.c:951
+msgid "Fuel tanks hit"
+msgstr "Impacto: Depósito"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:498
+#: src/ship.c:986
+#, c-format
+msgid "%s FIXD"
+msgstr "%s RPDO"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:502
+#: src/ship.c:2034
+msgid "Need Lock"
+msgstr "Sin Fijar"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1116
+#: src/title.c:13
+msgctxt "intro"
+msgid ""
+"In the distant future,\n"
+"mankind is locked in a deadly war..."
+msgstr "En un futuro distante,\nla humanidad está atrapada\nen una guerra mortal..."
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1123
+#: src/title.c:25
+msgctxt "intro"
+msgid ""
+"Design\n"
+"by\n"
+"Chris Roberts"
+msgstr "Diseño\nChris Roberts"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1134
+#: src/title.c:26
+msgctxt "intro"
+msgid ""
+"Software Engineers\n"
+"Chris Roberts\n"
+"Ken Demarest III\n"
+"Paul C. Isaac\n"
+"Steve Muchow\n"
+"Herman Miller\n"
+"Steve Beeman\n"
+msgstr "Programadores\nChris Roberts\nKen Demarest III\nPaul C. Isaac\nSteve Muchow\nHerman Miller\nSteve Beeman\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1144
+#: src/title.c:27
+msgctxt "intro"
+msgid ""
+"Dogfight Intelligence\n"
+"Ken Demarest III\n"
+"\n"
+"Dogfight Choreography\n"
+"Steve Beeman\n"
+"Erin Roberts"
+msgstr "Combate espacial\nKen Demarest III\n\nCoreografía en combate\nSteve Beeman\nErin Roberts"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1155
+#: src/title.c:28
+msgctxt "intro"
+msgid ""
+"3Space System\n"
+"by\n"
+"Chris Roberts\n"
+"\n"
+"OriginFX Graphic System\n"
+"Chris Roberts\n"
+"John Miles"
+msgstr "Sistema 3Space\nChris Roberts\n\nGráficos OriginFX\nChris Roberts\nJohn Miles"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1162
+#: src/title.c:29
+msgctxt "intro"
+msgid ""
+"OriginFX Sound System\n"
+"by\n"
+"Herman Miller"
+msgstr "Sonido OriginFX\nHerman Miller"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1172
+#: src/title.c:30
+msgctxt "intro"
+msgid ""
+"Artwork\n"
+"Denis Loubet\n"
+"Glen Johnson\n"
+"Daniel Bourbonnais\n"
+"Keith Berdak\n"
+"John Watson"
+msgstr "Grafismo\nDenis Loubet\nGlen Johnson\nDaniel Bourbonnais\nKeith Berdak\nJohn Watson"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1181
+#: src/title.c:31
+msgctxt "intro"
+msgid ""
+"Screenplay by Jeff George\n"
+"\n"
+"Additional Writing\n"
+"Steve Cantrell\n"
+"Philip Brogden"
+msgstr "Guión por Jeff George\n\nGuión adicional\nSteve Cantrell\nPhilip Brogden"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1187
+#: src/title.c:32
+msgctxt "intro"
+msgid ""
+"Soundtrack by\n"
+"George A. Sanger and Dave Govett"
+msgstr "Banda Sonora\nGeorge A. Sanger y Dave Govett"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1192
+#: src/title.c:33
+msgctxt "intro"
+msgid "Sound Effects by Marc Schaefgen"
+msgstr "Efectos de sonido\nMarc Schaefgen"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1198
+#: src/title.c:34
+msgctxt "intro"
+msgid ""
+"Produced by\n"
+"Chris Roberts and Warren Spector"
+msgstr "Productores\nChris Roberts y Warren Spector"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1204
+#: src/title.c:35
+msgctxt "intro"
+msgid ""
+"Directed by\n"
+"Chris Roberts"
+msgstr "Director\nChris Roberts"
+
+# Translation: wc1-re contributors.
+#: src/title.c:36
+msgctxt "intro"
+msgid "Windows 95 Team"
+msgstr "Equipo de Windows 95"
+
+# Translation: wc1-re contributors.
+#: src/title.c:37
+msgctxt "intro"
+msgid ""
+"Combat Programmers\n"
+"\n"
+"Jeff Mangler Everett\n"
+"Jeff jefftep Grills\n"
+"Chuck Bishop Karpiak\n"
+"Kris Goblin Pelley"
+msgstr "Programadores de combate\n\nJeff Mangler Everett\nJeff jefftep Grills\nChuck Bishop Karpiak\nKris Goblin Pelley"
+
+# Translation: wc1-re contributors.
+#: src/title.c:38
+msgctxt "intro"
+msgid ""
+"Sound System\n"
+"\n"
+"Richard Cupcake Lyle"
+msgstr "Sistema de sonido\n\nRichard Cupcake Lyle"
+
+# Translation: wc1-re contributors.
+#: src/title.c:39
+msgctxt "intro"
+msgid ""
+"Soundtrack Rescored by\n"
+"\n"
+"I Need Names"
+msgstr "Banda sonora adaptada por\n\nFaltan los nombres"
+
+# Translation: wc1-re contributors.
+#: src/title.c:40
+msgctxt "intro"
+msgid ""
+"Head Whiner\n"
+"\n"
+"Anthony Sommers"
+msgstr "Jefe de quejas\n\nAnthony Sommers"
+
+# Translation: wc1-re contributors.
+#: src/title.c:41
+msgctxt "intro"
+msgid ""
+"Whiners\n"
+"\n"
+"Monte Mathis\n"
+"Hal Milton\n"
+"Dieter Martin"
+msgstr "Quejas\n\nMonte Mathis\nHal Milton\nDieter Martin"
+
+# Translation: wc1-re contributors.
+#: src/title.c:42
+msgctxt "intro"
+msgid ""
+"Richard Zinser\n"
+"Kanon Lillemon\n"
+msgstr "Richard Zinser\nKanon Lillemon\n"
+
+# Translation: wc1-re contributors.
+#: src/title.c:43
+msgctxt "intro"
+msgid ""
+"Special Thanks To\n"
+"\n"
+"Socks\n"
+"and\n"
+"Caffeine"
+msgstr "Agradecimientos especiales\n\nCalcetines\ny\ncafeína"
+
+# Translation: wc1-re contributors.
+#: src/trainsim.c:20
+msgid "SQUADRON: TRAINSIM"
+msgstr "ESCUADRON: SIMULADOR"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1338
+#: src/trainsim.c:528
+msgid ""
+"CONGRATULATIONS!\n"
+"YOU HAVE A TOP SCORE!\n"
+"PLEASE ENTER YOUR\n"
+"NAME AND CALLSIGN:\n"
+msgstr "¡FELICIDADES!\n¡HAS LOGRADO UN RECORD!\nPOR FAVOR, INTRODUCE\nTU APELLIDO Y ALIAS:\n"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1342
+#: src/trainsim.c:534
+msgid "LAST NAME: "
+msgstr "APELLIDO: "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1346
+#: src/trainsim.c:539
+msgid "CALLSIGN : "
+msgstr "    ALIAS: "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1354
+#: src/trainsim.c:573
+#, c-format
+msgid ""
+"*******\n"
+"CONGRATULATIONS!\n"
+"YOU HAVE SCORE NUMBER\n"
+">>>> %d <<<<\n"
+"*******"
+msgstr "*******\n¡FELICIDADES!\nTU POSICION ES\n>>>> %d <<<<\n*******"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1363
+#: src/trainsim.c:580
+#, c-format
+msgid ""
+"> SORRY <\n"
+"\n"
+"YOUR SCORE IS ONLY\n"
+"%ld0\n"
+"\n"
+"PLEASE PLAY AGAIN!"
+msgstr "> LO SIENTO <\n\nSOLO HAS PUNTUADO\n%ld0\n\n¡VUELVE A PROBAR!"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1367
+#: src/trainsim.c:671
+msgid "%JHIGH SCORES%P"
+msgstr "%JRECORDS%P"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:1380
+#: src/trainsim.c:741
+msgid ""
+"SELECT\n"
+"ENEMY%P"
+msgstr "SELECCIONA\nENEMIGO%P"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:326
+#: src/view.c:629
+msgid "   LOCKED TARGET"
+msgstr "  OBJETIVO FIJADO"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:334
+#: src/view.c:634
+msgid "  AUTO TARGETTING"
+msgstr "    AUTOFIJADO"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:339
+#: src/view.c:645
+msgid ""
+"\n"
+"Target:"
+msgstr "\nObj.:"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:343
+#: src/view.c:647
+msgid " None"
+msgstr " Ninguno"
+
+# Source: Tools/_EXE_WORK/patch_work.txt:362
+#: src/view.c:665
+msgid ""
+"\n"
+"Range : "
+msgstr "\nDist.: "
+
+# Source: Tools/_EXE_WORK/patch_work.txt:366
+#: src/view.c:750
+msgid "TOO FAR"
+msgstr "MUY LEJOS"

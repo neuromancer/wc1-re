@@ -1,0 +1,759 @@
+# WC1 and Secret Missions text imported from Spanish version 1.1 (2021).
+# Translation: L@Zar0. Text revision: darkpadawan.
+# Upstream declares GPL v3.0; see upstream/Leeme.txt for its complete notice.
+msgid ""
+msgstr ""
+"Project-Id-Version: wc1-re\n"
+"Language: es\n"
+"Last-Translator: L@Zar0; text revision by darkpadawan\n"
+"Language-Team: Spanish\n"
+"PO-Revision-Date: 2021-04-13 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/0"
+msgid "My honor is to obey."
+msgstr "Es un honor obedecer."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/1"
+msgid "I humbly ask your apologies, but I cannot."
+msgstr "Le pido disculpas, pero no puedo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/2"
+msgid "Excuse me commander, I have noticed enemy ships."
+msgstr "Comandante, he detectado naves enemigas."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/3"
+msgid "Ready to engage, commander."
+msgstr "Lista para atacar, comandante."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/4"
+msgid "I regretfully ask for assistance."
+msgstr "Solicito ayuda."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/5"
+msgid "I have managed to kill one, Dommo!"
+msgstr "¡He conseguido matar a uno!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/6"
+msgid "Your skill is obvious, I bow to your talents."
+msgstr "Qué gran habilidad, menudo talento."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/7"
+msgid "It has been an honor! My ancestors await me..."
+msgstr "¡Ha sido un honor! Me esperan mis antepasados..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/8"
+msgid "We must leave, commander. There will be other times."
+msgstr "Hay que irse, comandante. Ya tendremos otra ocasión."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/9"
+msgid "I will report your bravery.  Good luck, $C."
+msgstr "Informaré de su valentía. Buena suerte, $C."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/10"
+msgid "I respectfully request that you attack the enemy."
+msgstr "Con todo respeto, solicito que ataque al enemigo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/0"
+msgid "You got it boss."
+msgstr "Ya lo tiene jefe."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/1"
+msgid "No can do..."
+msgstr "No puedo..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/2"
+msgid "$C!  I've got enemy ships on screen!"
+msgstr "¡$C! ¡Tengo naves enemigas en pantalla!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/3"
+msgid "Let's take out those bogeys..."
+msgstr "Acabemos con esos cazas..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/4"
+msgid "$C, I'm in trouble!  Lend me a hand!"
+msgstr "¡$C, estoy en un lío! ¡Echeme una mano!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/5"
+msgid "Yeee hooo!  Got 'im!"
+msgstr "¡Yuujuu! ¡Acabé con él!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/6"
+msgid "Way to go $C; nice shootin'"
+msgstr "Así se hace $C; buen disparo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/7"
+msgid "I'm hit!  I'm breaking up!  The cockpit's cra..."
+msgstr "¡Me han dado! ¡Rompo la formación! La cabina está..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/8"
+msgid "Commander, they're too tough for us!  Take us home!"
+msgstr "Comandante, ¡son demasiado fuertes! ¡Llévenos a casa!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/9"
+msgid "You gave 'em a run for their money, friend..."
+msgstr "Ha sido un buen reto, amigo..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/10"
+msgid "Watch it bucko!"
+msgstr "¡Cuidado, vaquero!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/0"
+msgid "Affirmative, I am complying."
+msgstr "Afirmativo, cumpliendo órdenes."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/1"
+msgid "Negative, cannot comply."
+msgstr "Negativo, no puedo hacerlo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/2"
+msgid "Enemy sighted."
+msgstr "Enemigo avistado."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/3"
+msgid "Confirm my attack, $R."
+msgstr "Confirme mi ataque, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/4"
+msgid "Can't shake these runts..."
+msgstr "No me puedo deshacer de estos alfeñiques..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/5"
+msgid "There's one for the chalkboard!"
+msgstr "¡Uno más para la pizarra!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/6"
+msgid "Good job $R $N."
+msgstr "Buen trabajo $R $N."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/7"
+msgid "Sorry, $C, you're on your own."
+msgstr "Lo siento, $C, se queda solo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/8"
+msgid "Lets break for home, $C."
+msgstr "Volvamos a casa, $C."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/9"
+msgid "Sorry, $C, I must return to base."
+msgstr "Lo siento, $C, tengo que volver a la base."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/10"
+msgid "Careful, $R."
+msgstr "Cuidado, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/0"
+msgid "Wilco."
+msgstr "Procedo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/1"
+msgid "Unable to comply."
+msgstr "No puedo cumplir esa orden."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/2"
+msgid "Enemy ships sighted."
+msgstr "Naves enemigas avistadas."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/3"
+msgid "Ready to engage."
+msgstr "Listo para atacar."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/4"
+msgid "Mayday.  Request assistance."
+msgstr "Socorro. Solicito ayuda."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/5"
+msgid "That was for Vega nine."
+msgstr "Esto es por lo de Vega 9."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/6"
+msgid "Good."
+msgstr "Bien."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/7"
+msgid "Avenge my planet, for I cannot..."
+msgstr "Vengad mi planeta, porque yo no puedo..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/8"
+msgid "$R, the odds are against us."
+msgstr "$R, la probabilidad está en nuestra contra."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/9"
+msgid "I must scorn death."
+msgstr "Desprecio la muerte."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/10"
+msgid "Watch your target."
+msgstr "Vigile su objetivo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/0"
+msgid "Oui. I am complying."
+msgstr "Oui. Cumpliendo la orden."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/1"
+msgid "Non. I respectfully disobey."
+msgstr "Non. Con todo respeto, no puedo hacerlo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/2"
+msgid "Enemy sighted mon capitaine."
+msgstr "Enemigo avistado, mon capitaine."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/3"
+msgid "It is our duty to engage."
+msgstr "Tenemos el deber de atacar."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/4"
+msgid "Aidez-moi!  I am nearly destroyed!"
+msgstr "¡Aidez-moi! ¡Casi me han destruido!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/5"
+msgid "Devereaux reporting enemy fighter destroyed."
+msgstr "Devereaux informando de un caza enemigo destruido."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/6"
+msgid "You perform your duty well, mon capitaine."
+msgstr "Un trabajo excelente, mon capitaine."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/7"
+msgid "Au revoir commander.  You must continue without me."
+msgstr "Au revoir comandante. Tendrá que continuar sin mí."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/8"
+msgid "Capitaine, your wingman respectfully suggests retreat."
+msgstr "Capitaine, su ala le sugiere, con todo respeto, la retirada."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/9"
+msgid "Au'revoir. I must leave you now."
+msgstr "Au'revoir. Ahora tengo que dejarle."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/10"
+msgid "Zut! Watch it, s'il vous plait. "
+msgstr "¡Zut! Vigile, s'il vous plait. "
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/0"
+msgid "Gotcha covered, laddy."
+msgstr "Le cubro, muchacho."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/1"
+msgid "'fraid I cannot, $C."
+msgstr "Me temo que no puedo, $C."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/2"
+msgid "Blast! The enemy are upon us!"
+msgstr "¡Una ráfaga! ¡Tenemos enemigos encima!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/3"
+msgid "Laddy, let me loose, will ya?"
+msgstr "Muchacho, déjeme atacar, ¿vale?"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/4"
+msgid "Ach!  They caught me with me kilt down!"
+msgstr "¡Uf! ¡Me han cogido con la guardia baja!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/5"
+msgid "That one was for me father!"
+msgstr "¡Esa ha sido por mi padre!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/6"
+msgid "Aye! Good shot commander."
+msgstr "¡Sí! Buen disparo comandante."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/7"
+msgid "Commander, she's breakin' up!"
+msgstr "¡Comandante, se está desmoronando!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/8"
+msgid "This melee's too thick for even a Highlander!"
+msgstr "¡Esta lucha es muy pesada incluso para un Escocés!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/9"
+msgid "I've been routed!  Good luck, lad."
+msgstr "¡Me han cambiado la ruta! Buena suerte muchacho."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/10"
+msgid "Blast, laddy!  Watch it!"
+msgstr "¡Una ráfaga, muchacho! ¡Cuidado!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/0"
+msgid "You got it, baby."
+msgstr "Ya lo tiene, hijo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/1"
+msgid "Forget it, bud."
+msgstr "Olvídelo, compañero."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/2"
+msgid "There're the bastards."
+msgstr "Ahí están esos bastardos."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/3"
+msgid "Off I go!  Watch my smoke!"
+msgstr "¡Allá voy! ¡Id con cuidado!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/4"
+msgid "They're blowin' me to pieces! Help!"
+msgstr "¡Estoy volando en pedazos! ¡Ayuda!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/5"
+msgid "Ha ha!  Got another!"
+msgstr "¡Ja ja! ¡Otro más!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/6"
+msgid "Sure took you long enough!"
+msgstr "¡Ha tardado demasiado!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/7"
+msgid "Arrrrrghhhh! "
+msgstr "¡Arrrrrghhhh! "
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/8"
+msgid "Lets get out of here, man!"
+msgstr "¡Salgamos de aquí, hombre!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/9"
+msgid "Later, bud!  Too hot for me!"
+msgstr "¡Luego, muchacho! ¡Esto es demasiado para mí!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/10"
+msgid "Watch out, idiot!  I mean $R..."
+msgstr "¡Vigile, idiota! Digo, $R..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/0"
+msgid "Affirmative, $R."
+msgstr "Afirmativo, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/1"
+msgid "Negative, $R."
+msgstr "Negativo, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/2"
+msgid "Enemy ahead, $R."
+msgstr "Enemigo en frente, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/3"
+msgid "Permission to break and attack, sir?"
+msgstr "¿Permiso para romper la formación y atacar, Señor?"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/4"
+msgid "$C, please assist me."
+msgstr "$C, ayúdeme, por favor."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/5"
+msgid "One down, $C."
+msgstr "Uno menos, $C."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/6"
+msgid "Good shooting, $R."
+msgstr "Buena puntería, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/7"
+msgid "Avenge my death..."
+msgstr "Vengad mi muerte..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/8"
+msgid "Advise strategic withdrawal, sir."
+msgstr "Aconsejo una retirada estratégica, Señor."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/9"
+msgid "Breaking off pusuit; heading home."
+msgstr "Abandono la persecución y vuelvo a casa."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/10"
+msgid "Be careful, $R $N."
+msgstr "¡Cuidado, $R $N!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/0"
+msgid "Ape! I hope you are a better target than the last five."
+msgstr "¡Simio! Espero que seas mejor objetivo que los otros."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/1"
+msgid "Bhurak greets you again, oh noble target."
+msgstr "Bhurak te saluda de nuevo, noble objetivo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/2"
+msgid "You Terrans fight like primates!"
+msgstr "¡Los Terrestres lucháis como primates!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/3"
+msgid "Do apes send their neuters to fight warriors?"
+msgstr "¿Los simios envían a los castrados a luchar con guerreros?"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/4"
+msgid "Perhaps I have played too long with my prey..."
+msgstr "Quizás haya rezado demasiado con mi plegaria..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/5"
+msgid "Your friend provided me with little amusement."
+msgstr "Su amigo me ha proporcionado algo de diversión."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/6"
+msgid "Only an ape could have such luck!"
+msgstr "¡Solo un mono podría tener tanta suerte!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/7"
+msgid "Ape!  Wha..   rrowww..."
+msgstr "¡Mono! Gr.. rraaa..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/8"
+msgid "Ape, only now do you see Kilra's natural superiority."
+msgstr "Mono, ahora verás la superioridad natural de los Kilrah."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/9"
+msgid "Ape, you are an opponent worthy of another battle."
+msgstr "Mono, eres un oponente digno de otra batalla."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/0"
+msgid "You shall both breathe vacuum soon!"
+msgstr "¡Pronto estaréis los dos respirando el vacío!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/1"
+msgid "Kharang, I have met this vermin before..."
+msgstr "Kharang, ya me he encontrado antes con esta alimaña..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/2"
+msgid "What fun to watch Terrans implode in space!"
+msgstr "¡Qué gracia ver cómo explotan los Terrestres en el espacio!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/3"
+msgid "You shall eject, and I shall sever your miserable life."
+msgstr "Eyecta y cortaré en dos tu miserable vida."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/4"
+msgid "I have heard Terran blood boils in space."
+msgstr "He oído que la sangre Terrestre hierve en el espacio."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/5"
+msgid "That ape squealed when it popped!"
+msgstr "¡Ese mono chilló cuando explotó!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/6"
+msgid "You shall not put me in that vacuum"
+msgstr "No me pongas en ese vacío..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/7"
+msgid "The void!  The voi..."
+msgstr "¡El vacío! El vac..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/8"
+msgid "Death to the ape!  Death now!"
+msgstr "¡Muerte al simio! ¡Muerte ya!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/9"
+msgid "Ape!  Hairless groveller!  Vermin!"
+msgstr "¡Mono! ¡Lameculos sin pelo! ¡Alimaña!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/0"
+msgid "Welcome to your funeral, ape."
+msgstr "Bienvenido a tu funeral, simio."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/1"
+msgid "This time, ape, it shall be different."
+msgstr "Esta vez, mono, será diferente."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/2"
+msgid "Terrans panic too easily, like mice."
+msgstr "Los Terrestres se asustan fácilmente, como los ratones."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/3"
+msgid "I see this ape is cracking."
+msgstr "Veo que este mono se está agrietando."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/4"
+msgid "That tactic will fail like all your others."
+msgstr "Esa táctica fracasará como todas las demás."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/5"
+msgid "My mate would purr to see that."
+msgstr "Mi pareja ronronearía viendo eso."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/6"
+msgid "This ape seems to have fangs!"
+msgstr "¡Este mono parece que tiene garras!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/7"
+msgid "No sacrifice is too great in my duty to the Empire."
+msgstr "Ningún sacrificio es bastante grande para el Imperio."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/8"
+msgid "The empire shall inevitably triumph.  Flee or die."
+msgstr "El triunfo del Imperio es inevitable. Huir o morir."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/9"
+msgid "We shall meet again, hairless one."
+msgstr "Ya nos volveremos a ver, sin pelo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/0"
+msgid "Sad, that I must litter space with ape corpses."
+msgstr "Es triste que llene el espacio con cadáveres de simios."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/1"
+msgid "Only luck saved you last time."
+msgstr "La última vez solo te salvó la suerte."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/2"
+msgid "I wonder if Terrans would make good slaves.."
+msgstr "Me pregunto si los Terrestres serían buenos esclavos.."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/3"
+msgid "You shall never enjoy your planet again, ape."
+msgstr "Nunca volverás a disfrutar de tu planeta, mono."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/4"
+msgid "Soon Kilra shall conquer the wealth Terra itself!"
+msgstr "¡Kilra pronto conquistará las riquezas de la Tierra!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/5"
+msgid "That ape did not live long enough to serve the empire!"
+msgstr "¡Ese mono no vivió lo suficiente para servir al Imperio!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/6"
+msgid "How rare!  A primate actually shot me!  Amusing."
+msgstr "¡Qué raro! ¡Un primate que me ha disparado! Divertido."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/7"
+msgid "It cannot be!  No ape could do this to me!"
+msgstr "¡No puede ser! ¡Ningún mono puede hacerme esto!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/8"
+msgid "Be comforted, ape.  Your death honors the worthy."
+msgstr "Consuélate, mono. Tu muerte honra a los dignos."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/9"
+msgid "Next time you shall not be so lucky."
+msgstr "La próxima vez no tendrás tanta suerte."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/0"
+msgid "Affirmative."
+msgstr "Afirmativo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/1"
+msgid "Negative."
+msgstr "Negativo."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/2"
+msgid "Enemy sighted, sir."
+msgstr "Enemigo avistado, Señor."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/3"
+msgid "Shall I attack, sir?"
+msgstr "¿Ataco, Señor?"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/4"
+msgid "Mayday, all Confederate craft please assist."
+msgstr "Socorro, todas las naves de la Confederación, ayuden."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/5"
+msgid "I've blown up an enemy fighter!"
+msgstr "¡He derribado un caza enemigo!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/6"
+msgid "Glad to have you with us, $R $N."
+msgstr "Me alegro de tenerle con nosotros, $R $N."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/7"
+msgid "Fight on, $C, I'm done for!"
+msgstr "Siga luchando, $C, ¡para mí se ha terminado!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/8"
+msgid "$C, you are clear to land."
+msgstr "$C, tiene permiso para aterrizar."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/9"
+msgid "Negative, $C.  Do not land."
+msgstr "Negativo, $C. No aterrice."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/10"
+msgid "Careful, that's me!"
+msgstr "¡Cuidado, soy yo!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/0"
+msgid "Die, hairless scum!"
+msgstr "¡Muere, escoria simia!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/1"
+msgid "Hairless scum, die!"
+msgstr "¡Escoria sin pelo, muere!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/2"
+msgid "Is this the best the apes can offer?"
+msgstr "¿Esto es lo mejor que pueden ofrecer los monos?"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/3"
+msgid "You fight like a stillborn kitten."
+msgstr "Luchas como un gatito recién nacido."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/4"
+msgid "I shall feast upon your offspring."
+msgstr "¡Me daré un festín con tus entrañas!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/5"
+msgid "A proper fate for a coward."
+msgstr "El destino adecuado para un cobarde."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/6"
+msgid "Ah! So the monkey boy can fight!"
+msgstr "¡Ah! ¡Así que el niño simio puede luchar!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/7"
+msgid "My offspring shall avenge me!"
+msgstr "¡Mi prole me vengará!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/8"
+msgid "Your people will soon be but a memory..."
+msgstr "Tu gente pronto será un recuerdo..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/9"
+msgid "The battle is yours, but Kilra's shall have war!"
+msgstr "Has ganado la batalla, ¡pero Kilrah irá a la guerra!"

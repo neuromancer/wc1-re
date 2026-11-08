@@ -16,15 +16,15 @@ static ShortPoint aDamageDisplayPositions[9] = {
 };
 /* 0x0046a778 */
 const char *apszComponentNames[9] = {
-    "Ion drive",
-    "Power plant",
-    "Shield gen'r",
-    "Computer sys",
-    "InterCom unit",
-    "Target track",
-    "Accel absorbers",
-    "Ejector system",
-    "Repair systems"
+    N_("Ion drive"),
+    N_("Power plant"),
+    N_("Shield gen'r"),
+    N_("Computer sys"),
+    N_("InterCom unit"),
+    N_("Target track"),
+    N_("Accel absorbers"),
+    N_("Ejector system"),
+    N_("Repair systems")
 };
 /* 0x0046a7a0 */
 static unsigned char abDamageDisplayFrames[9] = {
@@ -32,11 +32,11 @@ static unsigned char abDamageDisplayFrames[9] = {
 };
 /* 0x0046a7b0 */
 static const char *apszDamageSeverityNames[5] = {
-    "Ok",
-    "Light",
-    "Moderate",
-    "Heavy",
-    "Destroyed"
+    N_("Ok"),
+    N_("Light"),
+    N_("Moderate"),
+    N_("Heavy"),
+    N_("Destroyed")
 };
 
 static int nDisplayedComponentDamage; /* 0x00476554 */
@@ -68,7 +68,7 @@ void show_damage_disp(void)
     set_new_vdu(0);
     DrawTextAt(&stLeftVduTextContext,
                stLeftVdu.left, stLeftVdu.top,
-               "DAMAGE REPORT", 2);
+               _("DAMAGE REPORT"), 2);
     DrawViewportLine(&stLeftVdu,
                      (stLeftVdu.left + 2),
                      (stLeftVdu.top + 6),
@@ -78,7 +78,7 @@ void show_damage_disp(void)
     if (cDamagedComponentCount == 0) {
         DrawTextAt(&stLeftVduTextContext, stLeftVdu.left,
                    (stLeftVdu.top + 20),
-                   "NO INTERNAL\n\nDAMAGE", 2);
+                   _("NO INTERNAL\n\nDAMAGE"), 2);
         return;
     }
 
@@ -94,7 +94,7 @@ void show_damage_disp(void)
                       stWpnDispOrigin.x,
                       stWpnDispOrigin.y,
                       pCockpitWeaponShapePtr, 0);
-    sprintf(message, "%d Unit%c Damaged",
+    sprintf(message, _("%d Unit%c Damaged"),
             cDamagedComponentCount,
             (signed char)(cDamagedComponentCount == 1 ? ' ' : 's'));
     ShowComponentHitHudMessage(message, cPrimaryTextColour, -1);
@@ -149,10 +149,10 @@ void UpdateDamageDisplay(void)
 
             sprintf(
                 szDmgStateText,
-                "%s\nDamage: %s",
-                apszComponentNames[
-                    cDamageDisplayComponentValue],
-                apszDamageSeverityNames[damage]);
+                _("%s\nDamage: %s"),
+                _(apszComponentNames[
+                    cDamageDisplayComponentValue]),
+                _(apszDamageSeverityNames[damage]));
             DrawTextAt(&stLeftVduTextContext,
                        (stLeftVdu.left + 1),
                        (stLeftVdu.top + 7),
@@ -235,10 +235,10 @@ void UpdateDamageDisplay(void)
 
     sprintf(
         szDmgStateText,
-        "%s\nDamage: %s",
-        apszComponentNames[cDamageDisplayComponentValue],
-        apszDamageSeverityNames[
-            nDisplayedComponentDamage]);
+        _("%s\nDamage: %s"),
+        _(apszComponentNames[cDamageDisplayComponentValue]),
+        _(apszDamageSeverityNames[
+            nDisplayedComponentDamage]));
     DrawTextAt(&stLeftVduTextContext, (stLeftVdu.left + 1),
                (stLeftVdu.top + 7),
                szDmgStateText, 2);

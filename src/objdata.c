@@ -206,7 +206,7 @@ ObjectTypeData aObjectTypeData[OBJECT_TYPE_COUNT] = {
     },
     /* 8: Tiger's Claw */
     {
-        "Tiger's Claw",
+        N_("Tiger's Claw"),
         OBJECT_CLASS_CAPITAL_SHIP, 700, 10000, 4096, 1, 200000,
         560, 30000, 0, 0, 0, 256, 1, 1, 1, 20000,
         {
@@ -405,7 +405,7 @@ ObjectTypeData aObjectTypeData[OBJECT_TYPE_COUNT] = {
     },
     /* 21: Kilrathi base */
     {
-        "Star post",
+        N_("Star post"),
         OBJECT_CLASS_CAPITAL_SHIP, 400, 20000, 2048, 4, 200000, 120,
         32000, 0, 0, 0, 0, 0, 0, 0, 10000,
         {
@@ -425,36 +425,36 @@ ObjectTypeData aObjectTypeData[OBJECT_TYPE_COUNT] = {
     { 0 }, /* 23: mine field */
     /* 24: laser cannon bolt */
     {
-        "Laser cannon",
+        N_("Laser cannon"),
         OBJECT_CLASS_PROJECTILE, 10, 0, 512, 7, 30, 25, 0,
         160, 0, 0, 0, 0, 0, 0, 0, { 0 },
         0, 0, 0, 0, 0, 0, 0, 0
     },
-    { "Neutron gun",
+    { N_("Neutron gun"),
       OBJECT_CLASS_PROJECTILE, 10, 1, 832, 14, 20, 40, 0,
       140, 0 }, /* 25: neutron particle gun */
-    { "Mass driver",
+    { N_("Mass driver"),
       OBJECT_CLASS_PROJECTILE, 10, 0, 512, 9, 25, 30, 0,
       120, 0 }, /* 26: mass driver cannon */
     { "",
       OBJECT_CLASS_PROJECTILE, 15, 0, 832, 15, 40, 50, 1000,
       150, 0 }, /* 27: turret bolt; resources alias laser */
-    { "Dart DF",
+    { N_("Dart DF"),
       OBJECT_CLASS_MISSILE, 20, 5, 768, 500, 120, 4, 14500,
       130, 0, 0, 1433, 15, 15, 15, 100 }, /* 28 */
-    { "Javelin HS",
+    { N_("Javelin HS"),
       OBJECT_CLASS_MISSILE, 20, 5, 768, 400, 140, 4, 13500,
       110, 0, 0, 1689, 11, 11, 11, 100 }, /* 29 */
-    { "Pilum FF",
+    { N_("Pilum FF"),
       OBJECT_CLASS_MISSILE, 20, 5, 768, 400, 160, 4, 10500,
       90, 0, 0, 1689, 11, 11, 11, 100 }, /* 30 */
-    { "Spiculum IR",
+    { N_("Spiculum IR"),
       OBJECT_CLASS_MISSILE, 20, 5, 768, 400, 110, 4, 11500,
       110, 0, 0, 1689, 11, 11, 11, 100 }, /* 31 */
     { "",
       OBJECT_CLASS_MISSILE, 25, 10, 768, 400, 200, 4, 30000,
       50, 0, 0, 1280, 10, 10, 10, 100 }, /* 32 */
-    { "Porcupine",
+    { N_("Porcupine"),
       OBJECT_CLASS_MINE, 20, 5, 768, 110, 120, 4, 10000,
       20, 20, (unsigned char *)anAnimMine,
       0, 0, 2, 2 },

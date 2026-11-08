@@ -42,16 +42,16 @@ ShortPoint aBarracksBunkOrigins[8] = {
     {78, 110}, {176, 110}, {42, 136}, {183, 136}
 }; /* 0x004693c8 */
 const char *apszSaveCampaignMenuLabels[2] = {
-    "Save this campaign  ",
-    "Save this campaign  "
+    NC_("font0", "Save this campaign  "),
+    NC_("font0", "Save this campaign  ")
 }; /* 0x004693e8 */
 char *apszBarracksMenuLabels[20] = {
     0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
-    "Mission Hangar",
-    "Return to the Bar",
-    "Quit Wing Commander",
-    "View your medals"
+    NC_("font0", "Mission Hangar"),
+    NC_("font0", "Return to the Bar"),
+    NC_("font0", "Quit Wing Commander"),
+    NC_("font0", "View your medals")
 }; /* 0x004693f0 */
 ShortRect stModalTextBounds = { 24, 40, 296, 60 }; /* 0x00469440 */
 ModalTextPanel *pModalTextPanel = 0; /* 0x00469448 */
@@ -375,7 +375,7 @@ void SetAwakenBarracksMenuLabel(char **label, short series, short mission,
     FreeBarracksMenuLabel(label);
 #ifdef SDL_PORT
     /* MSVC 4.20 accepts %Fs as its legacy far-string conversion. */
-    sprintf(szTxtWorkspaceBuffer, "Awaken %s.", description);
+    sprintf(szTxtWorkspaceBuffer, C_("font0", "Awaken %s."), description);
 #else
     sprintf(szTxtWorkspaceBuffer, "Awaken %Fs.", description);
 #endif
@@ -553,7 +553,7 @@ int WarnLoadGameFirst(void)
 
     LeaveAllocationScope();
     key = 0;
-    if (ShowModalTextPanel(0, "Load a game first.") != 0) {
+    if (ShowModalTextPanel(0, C_("font0", "Load a game first.")) != 0) {
         while (PollInputEvent(&event, INPUT_EVENT_FILTER_ALL) != 0) {
         }
         key = WaitForInputKey();
@@ -576,7 +576,7 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
 
 #ifdef SDL_PORT
     if (slot == SDL_AUTOSAVE_SLOT) {
-        if (ShowModalTextPanel(1, "Slot 8 is reserved for autosave.") != 0) {
+        if (ShowModalTextPanel(1, _("Slot 8 is reserved for autosave.")) != 0) {
             FlushInputEvents();
             WaitForInputKey();
             ReleaseModalTextPanel();
@@ -600,7 +600,7 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
     if (separator != 0)
         *separator = 0;
     DosStrcpy(gameRecord.description, oldLabel);
-    if (PromptForTextInput(40, 24, "Game Name: ",
+    if (PromptForTextInput(40, 24, _("Game Name: "),
                            gameRecord.description, 16, 1) != 0) {
         gameRecord.occupied = 1;
         gameRecord.campaign = *campaign;
@@ -609,7 +609,7 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
         DosMemcpy(gameRecord.objectives, objectives,
                   sizeof(gameRecord.objectives));
         if (SaveGame(slot, &gameRecord) == 0)
-            ShowModalMessage("Error: Game %s not saved.",
+            ShowModalMessage(_("Error: Game %s not saved."),
                              gameRecord.description);
     }
 }
@@ -724,7 +724,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
     SaveGameRecord gameRecord;
 
     LeaveAllocationScope();
-    if (ShowModalTextPanel(0, "Loading Game...") != 0) {
+    if (ShowModalTextPanel(0, C_("font0", "Loading Game...")) != 0) {
         loaded = LoadGame(slot, &gameRecord);
         if (loaded != 0) {
             memcpy(pilots, gameRecord.pilots,
@@ -746,7 +746,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
         }
         ReleaseModalTextPanel();
         if (loaded == 0) {
-            ShowModalMessage("Error: Game %d not loaded.", slot);
+            ShowModalMessage(_("Error: Game %d not loaded."), slot);
         } else if (nOriginDevUnlock != 0) {
             strcpy(campaign->currentPilot->callsign, "CHEATER");
         }
@@ -804,12 +804,12 @@ void GetBunkInfo(BarracksAnimationState *state)
              * allocations. FreeBarracksMenuLabels owns the replacements. */
             if (state->bunks[bunk].occupied == 0) {
                 apszBarracksMenuLabels[bunk * 2] =
-                    AllocateTaggedMemory(sizeof("Autosave (empty)"), 0);
-                strcpy(apszBarracksMenuLabels[bunk * 2], "Autosave (empty)");
+                    AllocateTaggedMemory(strlen(C_("font0", "Autosave (empty)")) + 1, 0);
+                strcpy(apszBarracksMenuLabels[bunk * 2], C_("font0", "Autosave (empty)"));
             }
             apszBarracksMenuLabels[bunk * 2 + 1] =
-                AllocateTaggedMemory(sizeof("Reserved for autosave"), 0);
-            strcpy(apszBarracksMenuLabels[bunk * 2 + 1], "Reserved for autosave");
+                AllocateTaggedMemory(strlen(C_("font0", "Reserved for autosave")) + 1, 0);
+            strcpy(apszBarracksMenuLabels[bunk * 2 + 1], C_("font0", "Reserved for autosave"));
         }
 #endif
     }
@@ -941,7 +941,7 @@ int ConfirmQuitWingCommander(void)
 
     LeaveAllocationScope();
     confirmed = 0;
-    if (ShowModalTextPanel(0, "Quit Wing Commander? (Y/N)") != 0) {
+    if (ShowModalTextPanel(0, C_("font0", "Quit Wing Commander? (Y/N)")) != 0) {
         confirmed = ((short)toupper(
             WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
@@ -958,9 +958,9 @@ int ConfirmAwakenAfterBadData(short slot)
 
     confirmed = 0;
     if (LoadGame(slot, &gameRecord) == 0)
-        ShowModalMessage("Error: data may be bad.");
+        ShowModalMessage(_("Error: data may be bad."));
     LeaveAllocationScope();
-    if (ShowModalTextPanel(0, "Awaken %s? (Y/N)",
+    if (ShowModalTextPanel(0, C_("font0", "Awaken %s? (Y/N)"),
                            gameRecord.description) != 0) {
         confirmed = ((short)toupper(
             WaitForStreamInputKey()) == 'Y');
@@ -982,9 +982,9 @@ int ConfirmReplaceFaultyData(short slot)
         return 0;
     }
     if (LoadGame(slot, &gameRecord) == 0)
-        strcpy(gameRecord.description, "FAULTY DATA");
+        strcpy(gameRecord.description, C_("font0", "FAULTY DATA"));
     LeaveAllocationScope();
-    if (ShowModalTextPanel(0, "Replace %s? (Y/N)",
+    if (ShowModalTextPanel(0, C_("font0", "Replace %s? (Y/N)"),
                            gameRecord.description) != 0) {
         confirmed = ((short)toupper(
             WaitForStreamInputKey()) == 'Y');
@@ -1004,7 +1004,7 @@ void HandleBarracksBunkSelection(Viewport *viewport,
 #ifdef SDL_PORT
     if (region / 2 == SDL_AUTOSAVE_SLOT &&
         (region % 2 != 0 || state->bunks[SDL_AUTOSAVE_SLOT].occupied == 0)) {
-        if (ShowModalTextPanel(1, "Slot 8 is reserved for autosave.") != 0) {
+        if (ShowModalTextPanel(1, _("Slot 8 is reserved for autosave.")) != 0) {
             /* Require fresh input, then consume the dismissing click so it
              * cannot also activate a bunk underneath the message. */
             FlushInputEvents();
@@ -1129,7 +1129,7 @@ short BarracksScreen(void)
                     if (ConfirmQuitWingCommander() != 0) {
                         ShutdownEventManager();
                         exit_squadron(
-                            "You step out of the airlock and into...");
+                            _("You step out of the airlock and into..."));
                     }
                     break;
                 case 19:

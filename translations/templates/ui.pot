@@ -1,0 +1,1118 @@
+# UI strings extracted from _(), N_(), C_() and NC_().
+msgid ""
+msgstr ""
+"Project-Id-Version: wc1-re\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/barracks.c:45 src/barracks.c:46
+msgctxt "font0"
+msgid "Save this campaign  "
+msgstr ""
+
+#: src/barracks.c:51
+msgctxt "font0"
+msgid "Mission Hangar"
+msgstr ""
+
+#: src/barracks.c:52
+msgctxt "font0"
+msgid "Return to the Bar"
+msgstr ""
+
+#: src/barracks.c:53
+msgctxt "font0"
+msgid "Quit Wing Commander"
+msgstr ""
+
+#: src/barracks.c:54
+msgctxt "font0"
+msgid "View your medals"
+msgstr ""
+
+#: src/barracks.c:378
+#, c-format
+msgctxt "font0"
+msgid "Awaken %s."
+msgstr ""
+
+#: src/barracks.c:556
+msgctxt "font0"
+msgid "Load a game first."
+msgstr ""
+
+#: src/barracks.c:579 src/barracks.c:1007
+msgid "Slot 8 is reserved for autosave."
+msgstr ""
+
+#: src/barracks.c:603
+msgid "Game Name: "
+msgstr ""
+
+#: src/barracks.c:612
+#, c-format
+msgid "Error: Game %s not saved."
+msgstr ""
+
+#: src/barracks.c:727
+msgctxt "font0"
+msgid "Loading Game..."
+msgstr ""
+
+#: src/barracks.c:749
+#, c-format
+msgid "Error: Game %d not loaded."
+msgstr ""
+
+#: src/barracks.c:807 src/barracks.c:808
+msgctxt "font0"
+msgid "Autosave (empty)"
+msgstr ""
+
+#: src/barracks.c:811 src/barracks.c:812
+msgctxt "font0"
+msgid "Reserved for autosave"
+msgstr ""
+
+#: src/barracks.c:944
+msgctxt "font0"
+msgid "Quit Wing Commander? (Y/N)"
+msgstr ""
+
+#: src/barracks.c:961
+msgid "Error: data may be bad."
+msgstr ""
+
+#: src/barracks.c:963
+#, c-format
+msgctxt "font0"
+msgid "Awaken %s? (Y/N)"
+msgstr ""
+
+#: src/barracks.c:985
+msgctxt "font0"
+msgid "FAULTY DATA"
+msgstr ""
+
+#: src/barracks.c:987
+#, c-format
+msgctxt "font0"
+msgid "Replace %s? (Y/N)"
+msgstr ""
+
+#: src/barracks.c:1132
+msgid "You step out of the airlock and into..."
+msgstr ""
+
+#: src/cockpt.c:33
+msgid "None"
+msgstr ""
+
+#: src/cockpt.c:66
+msgid "MISSILE LOCKED "
+msgstr ""
+
+#: src/cockpt.c:642
+msgid "Already Near"
+msgstr ""
+
+#: src/cockpt.c:644
+msgid "Enemy Near"
+msgstr ""
+
+#: src/cockpt.c:646
+msgid "Hazard Near"
+msgstr ""
+
+#: src/cockpt.c:1002
+#, c-format
+msgid "%s HIT"
+msgstr ""
+
+#: src/cockpt.c:1103
+msgid "WEAPON DISPLAY"
+msgstr ""
+
+#: src/cockpt.c:1120
+msgid "Full Guns"
+msgstr ""
+
+#: src/cockpt.c:1127
+#, c-format
+msgid ""
+"\n"
+"Weapon: %s"
+msgstr ""
+
+#: src/cockpt.c:1128
+#, c-format
+msgid ""
+"\n"
+"Gun: %s"
+msgstr ""
+
+#: src/cockpt.c:1190
+msgid "CALCULATING"
+msgstr ""
+
+#: src/cockpt.c:1206
+msgid "NONE"
+msgstr ""
+
+#: src/cockpt.c:1209
+msgid "UNKNOWN"
+msgstr ""
+
+#: src/cockpt.c:1218
+msgid "COMP NAVIGATION"
+msgstr ""
+
+#: src/cockpt.c:1219
+#, c-format
+msgid ""
+"\n"
+"\n"
+"DESTINATION\n"
+"  %s"
+msgstr ""
+
+#: src/cockpt.c:1221
+msgid ""
+"\n"
+"\n"
+"RANGE\n"
+"  "
+msgstr ""
+
+#: src/cockpt.c:1223
+msgid ""
+"\n"
+"\n"
+"(N)ew Objective"
+msgstr ""
+
+#: src/cockpt.c:1407
+msgid "Already Visited"
+msgstr ""
+
+#: src/cockpt.c:1409
+msgid "Objective Reached"
+msgstr ""
+
+#: src/cockpt.c:1415
+#, c-format
+msgid "Wait for %s"
+msgstr ""
+
+#: src/comm.c:27
+msgid "Never mind..."
+msgstr ""
+
+#: src/comm.c:28
+msgid "Attack my target!"
+msgstr ""
+
+#: src/comm.c:29
+msgid "Help me out here"
+msgstr ""
+
+#: src/comm.c:30
+msgid "Return to base."
+msgstr ""
+
+#: src/comm.c:31
+msgid "Die furball!"
+msgstr ""
+
+#: src/comm.c:32
+msgid "Slag off!"
+msgstr ""
+
+#: src/comm.c:33
+msgid "Bite it cat face."
+msgstr ""
+
+#: src/comm.c:34
+msgid "Break and attack."
+msgstr ""
+
+#: src/comm.c:35
+msgid "Keep formation!"
+msgstr ""
+
+#: src/comm.c:36
+msgid "Form on my wing."
+msgstr ""
+
+#: src/comm.c:37
+msgid "Keep radio silence"
+msgstr ""
+
+#: src/comm.c:38
+msgid "Broadcast freely"
+msgstr ""
+
+#: src/comm.c:39
+msgid "Request Landing"
+msgstr ""
+
+#: src/comm.c:209
+msgid ""
+"VID-COM SYSTEM\n"
+"\n"
+"Send message to?\n"
+"\n"
+msgstr ""
+
+#: src/comm.c:210
+msgid "SELECT"
+msgstr ""
+
+#: src/comm.c:229
+msgid "ENEMY TARGET"
+msgstr ""
+
+#: src/comm.c:296
+msgid ""
+"VID-COM SYSTEM\n"
+"\n"
+"To: "
+msgstr ""
+
+#: src/comm.c:310
+msgid "CHOOSE"
+msgstr ""
+
+#: src/cutscene.c:129
+msgctxt "font0"
+msgid "You got away pretty clean, sir!"
+msgstr ""
+
+#: src/cutscene.c:130
+msgctxt "font0"
+msgid "Looks like it got a little hot out there, sir!"
+msgstr ""
+
+#: src/cutscene.c:131
+msgctxt "font0"
+msgid "You sure got yourself shot up, sir!"
+msgstr ""
+
+#: src/cutscene.c:132
+msgctxt "font0"
+msgid "Glad to see you made it back alive, sir."
+msgstr ""
+
+#: src/cutscene.c:1019 src/eject.c:215
+msgctxt "intro"
+msgid "THE END"
+msgstr ""
+
+#: src/cutscene.c:1147
+msgctxt "font0"
+msgid "%X%Y%FCompany...%P"
+msgstr ""
+
+#: src/cutscene.c:1163
+msgctxt "font0"
+msgid "%X%YAtten-SHUN!%P"
+msgstr ""
+
+#: src/cutscene.c:1190
+msgctxt "font0"
+msgid "%X%YPrepare arms!%P"
+msgstr ""
+
+#: src/cutscene.c:1221
+msgctxt "font0"
+msgid "%X%Y%FFire!%P"
+msgstr ""
+
+#: src/damage.c:19
+msgid "Ion drive"
+msgstr ""
+
+#: src/damage.c:20
+msgid "Power plant"
+msgstr ""
+
+#: src/damage.c:21
+msgid "Shield gen'r"
+msgstr ""
+
+#: src/damage.c:22
+msgid "Computer sys"
+msgstr ""
+
+#: src/damage.c:23
+msgid "InterCom unit"
+msgstr ""
+
+#: src/damage.c:24
+msgid "Target track"
+msgstr ""
+
+#: src/damage.c:25
+msgid "Accel absorbers"
+msgstr ""
+
+#: src/damage.c:26
+msgid "Ejector system"
+msgstr ""
+
+#: src/damage.c:27
+msgid "Repair systems"
+msgstr ""
+
+#: src/damage.c:35
+msgid "Ok"
+msgstr ""
+
+#: src/damage.c:36
+msgid "Light"
+msgstr ""
+
+#: src/damage.c:37
+msgid "Moderate"
+msgstr ""
+
+#: src/damage.c:38
+msgid "Heavy"
+msgstr ""
+
+#: src/damage.c:39
+msgid "Destroyed"
+msgstr ""
+
+#: src/damage.c:71
+msgid "DAMAGE REPORT"
+msgstr ""
+
+#: src/damage.c:81
+msgid ""
+"NO INTERNAL\n"
+"\n"
+"DAMAGE"
+msgstr ""
+
+#: src/damage.c:97
+#, c-format
+msgid "%d Unit%c Damaged"
+msgstr ""
+
+#: src/damage.c:152 src/damage.c:238
+#, c-format
+msgid ""
+"%s\n"
+"Damage: %s"
+msgstr ""
+
+#: src/dib.c:190
+#, c-format
+msgid "Space Flight Max FPS : %.1f"
+msgstr ""
+
+#: src/eject.c:24
+msgctxt "intro"
+msgid ""
+"\n"
+"With your carrier\n"
+"destroyed, you drift\n"
+"endlessly through\n"
+"the void..."
+msgstr ""
+
+#: src/ending.c:112
+msgctxt "font0"
+msgid "Destroying the remains of the Kilrathi naval power in the sector..."
+msgstr ""
+
+#: src/ending.c:113
+msgctxt "font0"
+msgid "The Tiger's Claw closes in for the kill..."
+msgstr ""
+
+#: src/ending.c:114
+msgctxt "font0"
+msgid "And the last Kilrathi planet in the sector falls!"
+msgstr ""
+
+#: src/ending.c:119
+msgctxt "font0"
+msgid "Fleeing from the overwelming Kilrathi forces in the sector..."
+msgstr ""
+
+#: src/ending.c:122
+msgctxt "font0"
+msgid "The Tiger's Claw manages to jump out. Barely."
+msgstr ""
+
+#: src/ending.c:125
+msgctxt "font0"
+msgid "There'll be other sectors, other battles..."
+msgstr ""
+
+#: src/ending.c:131
+msgctxt "intro"
+msgid "The End"
+msgstr ""
+
+#: src/ending.c:132
+msgctxt "intro"
+msgid "For Now..."
+msgstr ""
+
+#: src/game.c:574
+msgid " INFO DISPLAY \n"
+msgstr ""
+
+#: src/game.c:575
+#, c-format
+msgid "Version: %s\n"
+msgstr ""
+
+#: src/game.c:576
+#, c-format
+msgid "Series %d Misn %d\n"
+msgstr ""
+
+#: src/game.c:579
+#, c-format
+msgid ""
+"PC Kills   =%d\n"
+"Wing Kills =%d\n"
+msgstr ""
+
+#: src/game.c:582
+#, c-format
+msgid "Series Score   =%d\n"
+msgstr ""
+
+#: src/game.c:584
+#, c-format
+msgid "Miss Score %d, Medal %d\n"
+msgstr ""
+
+#: src/game.c:587
+#, c-format
+msgid "Promotion Score=%d\n"
+msgstr ""
+
+#: src/game.c:589
+msgid "OBJECTIVES\n"
+msgstr ""
+
+#: src/install.c:45
+msgid "Press any key when ready"
+msgstr ""
+
+#: src/joystick.c:40
+msgid "Turn AUTO FIRE off if present, press a button"
+msgstr ""
+
+#: src/joystick.c:49
+msgid "Move stick to the UPPER LEFT, press a button"
+msgstr ""
+
+#: src/joystick.c:63
+msgid "Move stick to the LOWER RIGHT, press a button"
+msgstr ""
+
+#: src/joystick.c:77
+msgid "Center Joystick, press a button"
+msgstr ""
+
+#: src/joystick.c:135
+msgid "FAILED! Center Joystick, press a button"
+msgstr ""
+
+#: src/killbrd.c:17
+msgid "2ND LT."
+msgstr ""
+
+#: src/killbrd.c:18
+msgid "1ST LT."
+msgstr ""
+
+#: src/killbrd.c:19
+msgid "CAPTAIN"
+msgstr ""
+
+#: src/killbrd.c:20
+msgid "MAJOR"
+msgstr ""
+
+#: src/killbrd.c:21
+msgid "LT. COL."
+msgstr ""
+
+#: src/killbrd.c:170 src/killbrd.c:177
+msgctxt "font0"
+msgid "Talk to SHOTGLASS."
+msgstr ""
+
+#: src/killbrd.c:185
+msgctxt "font0"
+msgid "Check pilot scores"
+msgstr ""
+
+#: src/killbrd.c:186
+msgctxt "font0"
+msgid "Enter barracks"
+msgstr ""
+
+#: src/killbrd.c:187
+msgctxt "font0"
+msgid "Fly training mission"
+msgstr ""
+
+#: src/killbrd.c:189
+msgctxt "font0"
+msgid "Check poster out"
+msgstr ""
+
+#: src/killbrd.c:447 src/killbrd.c:472
+#, c-format
+msgctxt "font0"
+msgid "Talk to %s."
+msgstr ""
+
+#: src/killbrd.c:890
+msgctxt "font3"
+msgid "%X%YCARRIER - TIGER'S CLAW%P"
+msgstr ""
+
+#: src/killbrd.c:892
+msgctxt "font3"
+msgid "%X%YPILOT"
+msgstr ""
+
+#: src/killbrd.c:894
+msgctxt "font3"
+msgid "%X%YSORTIES KILLS"
+msgstr ""
+
+#: src/killbrd.c:917
+msgctxt "font3"
+msgid "KIA"
+msgstr ""
+
+#: src/main.c:749 src/main.c:773 src/main.c:1875
+#, c-format
+msgid "SFX VOLUME: %d."
+msgstr ""
+
+#: src/main.c:795 src/main.c:822 src/main.c:1861
+#, c-format
+msgid "MUSIC VOLUME: %d."
+msgstr ""
+
+#: src/main.c:1415
+msgid "GAME PAUSED"
+msgstr ""
+
+#: src/main.c:1424
+#, c-format
+msgid "WING COMMANDER VER. %s"
+msgstr ""
+
+#: src/main.c:1433
+#, c-format
+msgid "MESSAGES SPEED IS NOW %d."
+msgstr ""
+
+#: src/main.c:1442
+#, c-format
+msgid "%d FRAMES SKIPPED."
+msgstr ""
+
+#: src/main.c:1557
+msgid "VIDEO IMAGES SUPRESSED"
+msgstr ""
+
+#: src/main.c:1560
+msgid "VIDEO IMAGES ENABLED"
+msgstr ""
+
+#: src/main.c:1746
+msgid "MISSILE CAMERA ON"
+msgstr ""
+
+#: src/main.c:1749
+msgid "MISSILE CAMERA OFF"
+msgstr ""
+
+#: src/main.c:1978
+msgid "%X%YScore: %s0 %XTime: %u %X1 UP"
+msgstr ""
+
+#: src/main.c:2005
+msgid ""
+"Wave %d complete.\n"
+"\n"
+"Bonus Points: %s0%P"
+msgstr ""
+
+#: src/main.c:2010
+msgid ""
+"Mission %d complete.\n"
+"\n"
+"Bonus Points: %s0%P"
+msgstr ""
+
+#: src/mission.c:680
+msgid "Error loading pilot speech"
+msgstr ""
+
+#: src/nav.c:43
+msgid "Patrol"
+msgstr ""
+
+#: src/nav.c:44
+msgid "Escort"
+msgstr ""
+
+#: src/nav.c:45
+msgid "Strike"
+msgstr ""
+
+#: src/nav.c:46
+msgid "Defend"
+msgstr ""
+
+#: src/nav.c:47
+msgid "Wingman"
+msgstr ""
+
+#: src/nav.c:48
+msgid "Flee"
+msgstr ""
+
+#: src/nav.c:49
+msgid "Goto Warp"
+msgstr ""
+
+#: src/nav.c:52
+msgid "Rendezvous"
+msgstr ""
+
+#: src/nav.c:519
+msgid "Asteroids"
+msgstr ""
+
+#: src/nav.c:526
+msgid "Mines"
+msgstr ""
+
+#: src/nav.c:603
+msgid "%X%YStandard time %s"
+msgstr ""
+
+#: src/nav.c:654
+msgid "MISSION FLIGHT PATH"
+msgstr ""
+
+#: src/nav.c:657
+msgid "HOME BASE"
+msgstr ""
+
+#: src/nav.c:692
+#, c-format
+msgid "Sector: %s\n"
+msgstr ""
+
+#: src/nav.c:695
+#, c-format
+msgid ""
+"System: %s\n"
+"\n"
+msgstr ""
+
+#: src/nav.c:707
+msgid ""
+"\n"
+"Notes\n"
+msgstr ""
+
+#: src/nav.c:718
+msgid "%X%Y                         Location: %d.%d.%d"
+msgstr ""
+
+#: src/nav.c:754
+msgid "Briefing Nav Map"
+msgstr ""
+
+#: src/nav.c:820
+msgid "ConFed Nav Scan"
+msgstr ""
+
+#: src/objdata.c:209
+msgid "Tiger's Claw"
+msgstr ""
+
+#: src/objdata.c:408
+msgid "Star post"
+msgstr ""
+
+#: src/objdata.c:428
+msgid "Laser cannon"
+msgstr ""
+
+#: src/objdata.c:433
+msgid "Neutron gun"
+msgstr ""
+
+#: src/objdata.c:436
+msgid "Mass driver"
+msgstr ""
+
+#: src/objdata.c:442
+msgid "Dart DF"
+msgstr ""
+
+#: src/objdata.c:445
+msgid "Javelin HS"
+msgstr ""
+
+#: src/objdata.c:448
+msgid "Pilum FF"
+msgstr ""
+
+#: src/objdata.c:451
+msgid "Spiculum IR"
+msgstr ""
+
+#: src/objdata.c:457
+msgid "Porcupine"
+msgstr ""
+
+#: src/pilot.cpp:51
+msgctxt "intro"
+msgid "Meanwhile..."
+msgstr ""
+
+#: src/pilot.cpp:152
+msgctxt "font0"
+msgid "Answer: "
+msgstr ""
+
+#: src/screens.c:65
+msgctxt "font0"
+msgid "Bronze Star"
+msgstr ""
+
+#: src/screens.c:66
+msgctxt "font0"
+msgid "Silver Star"
+msgstr ""
+
+#: src/screens.c:67
+msgctxt "font0"
+msgid "Gold Star"
+msgstr ""
+
+#: src/screens.c:68
+msgctxt "font0"
+msgid "Golden Sun"
+msgstr ""
+
+#: src/screens.c:69
+msgctxt "font0"
+msgid "Terran Medal of Valor"
+msgstr ""
+
+#: src/screens.c:75
+msgctxt "font0"
+msgid ""
+"$R $N, aka $C.\n"
+"$S system, dateline $D."
+msgstr ""
+
+#: src/screens.c:1736
+msgctxt "intro"
+msgid "Get Ready"
+msgstr ""
+
+#: src/screens.c:1793
+msgctxt "intro"
+msgid "Victory"
+msgstr ""
+
+#: src/screens.c:1846
+msgctxt "intro"
+msgid "Game Over"
+msgstr ""
+
+#: src/sdl/autosave.c:70
+msgctxt "font0"
+msgid "Overwrite autosave? (Y/N)"
+msgstr ""
+
+#: src/ship.c:931
+msgid "Weapon destroyed"
+msgstr ""
+
+#: src/ship.c:951
+msgid "Fuel tanks hit"
+msgstr ""
+
+#: src/ship.c:986
+#, c-format
+msgid "%s FIXD"
+msgstr ""
+
+#: src/ship.c:2034
+msgid "Need Lock"
+msgstr ""
+
+#: src/title.c:13
+msgctxt "intro"
+msgid ""
+"In the distant future,\n"
+"mankind is locked in a deadly war..."
+msgstr ""
+
+#: src/title.c:25
+msgctxt "intro"
+msgid ""
+"Design\n"
+"by\n"
+"Chris Roberts"
+msgstr ""
+
+#: src/title.c:26
+msgctxt "intro"
+msgid ""
+"Software Engineers\n"
+"Chris Roberts\n"
+"Ken Demarest III\n"
+"Paul C. Isaac\n"
+"Steve Muchow\n"
+"Herman Miller\n"
+"Steve Beeman\n"
+msgstr ""
+
+#: src/title.c:27
+msgctxt "intro"
+msgid ""
+"Dogfight Intelligence\n"
+"Ken Demarest III\n"
+"\n"
+"Dogfight Choreography\n"
+"Steve Beeman\n"
+"Erin Roberts"
+msgstr ""
+
+#: src/title.c:28
+msgctxt "intro"
+msgid ""
+"3Space System\n"
+"by\n"
+"Chris Roberts\n"
+"\n"
+"OriginFX Graphic System\n"
+"Chris Roberts\n"
+"John Miles"
+msgstr ""
+
+#: src/title.c:29
+msgctxt "intro"
+msgid ""
+"OriginFX Sound System\n"
+"by\n"
+"Herman Miller"
+msgstr ""
+
+#: src/title.c:30
+msgctxt "intro"
+msgid ""
+"Artwork\n"
+"Denis Loubet\n"
+"Glen Johnson\n"
+"Daniel Bourbonnais\n"
+"Keith Berdak\n"
+"John Watson"
+msgstr ""
+
+#: src/title.c:31
+msgctxt "intro"
+msgid ""
+"Screenplay by Jeff George\n"
+"\n"
+"Additional Writing\n"
+"Steve Cantrell\n"
+"Philip Brogden"
+msgstr ""
+
+#: src/title.c:32
+msgctxt "intro"
+msgid ""
+"Soundtrack by\n"
+"George A. Sanger and Dave Govett"
+msgstr ""
+
+#: src/title.c:33
+msgctxt "intro"
+msgid "Sound Effects by Marc Schaefgen"
+msgstr ""
+
+#: src/title.c:34
+msgctxt "intro"
+msgid ""
+"Produced by\n"
+"Chris Roberts and Warren Spector"
+msgstr ""
+
+#: src/title.c:35
+msgctxt "intro"
+msgid ""
+"Directed by\n"
+"Chris Roberts"
+msgstr ""
+
+#: src/title.c:36
+msgctxt "intro"
+msgid "Windows 95 Team"
+msgstr ""
+
+#: src/title.c:37
+msgctxt "intro"
+msgid ""
+"Combat Programmers\n"
+"\n"
+"Jeff Mangler Everett\n"
+"Jeff jefftep Grills\n"
+"Chuck Bishop Karpiak\n"
+"Kris Goblin Pelley"
+msgstr ""
+
+#: src/title.c:38
+msgctxt "intro"
+msgid ""
+"Sound System\n"
+"\n"
+"Richard Cupcake Lyle"
+msgstr ""
+
+#: src/title.c:39
+msgctxt "intro"
+msgid ""
+"Soundtrack Rescored by\n"
+"\n"
+"I Need Names"
+msgstr ""
+
+#: src/title.c:40
+msgctxt "intro"
+msgid ""
+"Head Whiner\n"
+"\n"
+"Anthony Sommers"
+msgstr ""
+
+#: src/title.c:41
+msgctxt "intro"
+msgid ""
+"Whiners\n"
+"\n"
+"Monte Mathis\n"
+"Hal Milton\n"
+"Dieter Martin"
+msgstr ""
+
+#: src/title.c:42
+msgctxt "intro"
+msgid ""
+"Richard Zinser\n"
+"Kanon Lillemon\n"
+msgstr ""
+
+#: src/title.c:43
+msgctxt "intro"
+msgid ""
+"Special Thanks To\n"
+"\n"
+"Socks\n"
+"and\n"
+"Caffeine"
+msgstr ""
+
+#: src/trainsim.c:20
+msgid "SQUADRON: TRAINSIM"
+msgstr ""
+
+#: src/trainsim.c:528
+msgid ""
+"CONGRATULATIONS!\n"
+"YOU HAVE A TOP SCORE!\n"
+"PLEASE ENTER YOUR\n"
+"NAME AND CALLSIGN:\n"
+msgstr ""
+
+#: src/trainsim.c:534
+msgid "LAST NAME: "
+msgstr ""
+
+#: src/trainsim.c:539
+msgid "CALLSIGN : "
+msgstr ""
+
+#: src/trainsim.c:573
+#, c-format
+msgid ""
+"*******\n"
+"CONGRATULATIONS!\n"
+"YOU HAVE SCORE NUMBER\n"
+">>>> %d <<<<\n"
+"*******"
+msgstr ""
+
+#: src/trainsim.c:580
+#, c-format
+msgid ""
+"> SORRY <\n"
+"\n"
+"YOUR SCORE IS ONLY\n"
+"%ld0\n"
+"\n"
+"PLEASE PLAY AGAIN!"
+msgstr ""
+
+#: src/trainsim.c:671
+msgid "%JHIGH SCORES%P"
+msgstr ""
+
+#: src/trainsim.c:741
+msgid ""
+"SELECT\n"
+"ENEMY%P"
+msgstr ""
+
+#: src/view.c:629
+msgid "   LOCKED TARGET"
+msgstr ""
+
+#: src/view.c:634
+msgid "  AUTO TARGETTING"
+msgstr ""
+
+#: src/view.c:645
+msgid ""
+"\n"
+"Target:"
+msgstr ""
+
+#: src/view.c:647
+msgid " None"
+msgstr ""
+
+#: src/view.c:665
+msgid ""
+"\n"
+"Range : "
+msgstr ""
+
+#: src/view.c:750
+msgid "TOO FAR"
+msgstr ""

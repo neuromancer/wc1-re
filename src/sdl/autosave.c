@@ -67,7 +67,7 @@ void SdlAutosaveCampaign(void)
          * Preserve its visibility across the same text panel used by saves. */
         nMouseCursorShowCount = 0;
         SdlSuspendMouseGrab();
-        if (ShowModalTextPanel(0, "Overwrite autosave? (Y/N)") != 0) {
+        if (ShowModalTextPanel(0, C_("font0", "Overwrite autosave? (Y/N)")) != 0) {
             FlushInputEvents();
             confirmed = toupper((unsigned char)WaitForStreamInputKey()) == 'Y';
             ReleaseModalTextPanel();

@@ -1,0 +1,108 @@
+############################################################################
+#########   Traducción  Wing Commander + Secret Missions I & II    #########
+############################################################################
+Autor................: L@Zar0
+Revisión de textos...: darkpadawan
+Fecha................: 13/04/2021
+Versión:.............: 1.1
+
+
+1.- INTRODUCCIÓN
+2.- INSTALACIÓN
+3.- DESINSTALACIÓN
+4.- ASPECTOS Y LIMITACIONES DE LA TRADUCCIÓN
+5.- TRANSFERENCIA DE PERSONAJES
+4.- AGRADECIMIENTOS
+5.- LICENCIA
+
+
+
+1.- INTRODUCCIÓN
+
+Una de las sagas precursoras que más impacto ha tenido en cuanto a juegos de simulación espacial fue la saga de Wing Commander. Es una saga que siempre me ha gustado, pero realmente la disfruté a partir del Wing Commander III y nunca había visto las dos partes anteriores.
+
+Esta traducción incluye la traducción tanto de textos como de gráficos al castellano, para el Wing Commander 1 con sus dos expansiones, Secret Missions I y II. La expansión Secret Missions II para mí ha sido una gozada. La recomiendo totalmente. La traducción se ha realizado sobre la versión original en diskettes, pero tendría que servir igualmente para la versión GOG, por ejemplo. Ver el apartado correspondiente indicando los aspectos y limitaciones de la traducción.
+
+Aparte de esto, inicialmente el juego original incluía una protección anticopia donde hay ciertos datos en los manuales por los que nos pregunta el juego. He incluido los ejecutables tanto para la versión con protección como la versión sin protección por si alguien tiene curiosidad. Los podéis seleccionar al instalar la traducción.
+
+IMPORTANTE: Existe un bug conocido (en la versión original) cuando se juega las dos expansiones de Secret Missions, donde algunos pilotos mueren sin motivo aparente. Esto es por un bug en los programas de transferencia. He añadido una utilidad que se usa bajo DOS para evitar esto (WCSAV.EXE) y está dentro del directorio "GAMEDAT". Solo hay que ejecutarla -para Secret Missions 2 ejecutar (C:\>WCSAV.EXE CRUSADER)-, y salir con ESC (graba la partida). Actualiza automáticamente los saves solucionando el bug. (https://www.wcnews.com/wcpedia/WCSAV)
+
+La traducción se ha probado bastante, pero como las misiones pueden terminar en derrota o en victoria, y hay diferentes caminos para llegar al final, no se ha comprobado al 100% el juego. Si hay algún problema, postead en los foros de http://www.clandlan.net.
+
+De nuevo, gracias por usar esta traducción.
+
+
+
+2.- INSTALACIÓN
+
+La traducción del juego está pensada para la versión MS-DOS en diskettes, pero debería servir igualmente para otras versiones como la de GOG.
+
+El instalador en principio copia todos los archivos, los de Wing Commander y los de las Secret Missions 1 y 2, pero se puede jugar habiendo solo instalado Wing Commander sin las expansiones.
+
+Una vez ejecutado el instalador, solo hay que seleccionar la carpeta donde se encuentra instalado Wing Commander y seleccionar la versión que queremos (con Protección anticopia o sin ella).
+
+Si se usa DOSBox, es recomendable usar estos parámetros donde cabe:
+
+output=ddraw
+core=normal
+cputype=auto
+cycles=4000
+
+todo y así, es posible que cuando hayan muchas naves en pantalla, se ralentice el juego. Es normal por usar DOSBox.
+
+
+3.- DESINSTALACIÓN
+
+Mejor volver a instalar la versión original en inglés. ;)
+Las partidas guardadas sirven igual.
+
+
+
+4.- ASPECTOS Y LIMITACIONES DE LA TRADUCCIÓN
+
+Ahora se han puesto a disposición unas herramientas (WCToolbox) que permiten extraer e importar los textos (y gráficos). Así que he decidido empezar la traducción de esta saga al castellano, saga que aunque salió en nuestro país con la caja y manuales traducidos, no fue así con el juego.
+
+Aunque WCToolbox permite también la traducción del ejecutable, limita los textos, y he decidido usar mi propia herramienta para traducir los ejecutables. Hay 4 ejecutables, el WC.EXE (para el Wing Commander 1 y las Misiones Secretas 1), el SM2.EXE (para las Misiones Secretas 2), el TRANSFER.EXE (que pasa el personaje de WC1 a SM1) y el TRANS2.EXE (pasa el personaje de WC1 ó SM1 a SM2).
+
+Aparte de todo esto, hay algunos aspectos o limitaciones que me gustaría mencionar:
+
+* Las mayúsculas de todas las fuentes se han dejado sin acentos. Aunque es posible añadirlos reduciendo el tamaño de la letra, con el acento queda muy pequeña y no me gusta el resultado.
+
+* El set 1 de fuentes (hay 4 sets 0-3), tiene caracteres como la 'ñ', 'ó' y 'ú' que se han puesto en una posición diferente del carácter estándar de MS-DOS porque ya estaban ocupados por otros glifos. Al desconocer su uso, he preferido mantener los glifos originales.
+
+* En el trato de nuestro personaje tanto con el resto de compañeros del escuadrón como viceversa he decidido usar la terminología de 'usted', sobretodo por el respeto que presupone hablar con un superior en jerga militar, aún sabiendo que lo ascienden y posiblemente ya no tiene sentido, pero como no podemos determinar si el rango de nuestro personaje es mayor o menor que el rango del personaje con el que habla, he dejado dicha terminología de forma generalizada.
+
+* La gran mayoría de nombres propios, diría que un 98-99%, los he dejado en inglés, como el original. Nombres de sistemas o planetas, nombres de armamento, naves, clases de naves, etc...
+
+* He encontrado los diálogos con los personajes muy rápidos, sobre todo en las Sesiones Informativas (Briefings), y era algo difícil leer los textos. Así que he decidido aumentar el retraso de estos diálogos, y es posible que los gráficos del movimiento de boca y labios finalice antes de que cambie la secuencia de texto.
+
+* La traducción está basada en la última versión inglesa conocida, la F3.1, aunque tiene un arreglo no oficial donde el radio de impacto de los asteroides en nuestra nave es mucho menor y es más sencillo atravesar los capos de asteroides.
+
+
+
+5.- TRANSFERENCIA DE PERSONAJES
+
+El orden lógico de jugabilidad sería WC1, Secret Missions 1 y Secret Missions 2. Normalmente, es lógico empezar las Secret Missions justo antes de acabar (ya sea con victoria o derrota) la parte anterior.
+
+Entonces, se transfiere el personaje con la utilidad del juego a la expansión deseada. Es decir, cuando hayamos acabado WC1, se usa el TRANSFER.EXE para pasar la última partida a Secret Missions 1. Y cuando hayamos acabado las Secret Missions 1, usamos la utilidad TRANS2.EXE para pasar la última partida a Secret Missions 2.
+
+Ambas utilidades, TRANSFER.EXE y TRANS2.EXE también se han traducido.
+
+Cabe mencionar que en Wing Commander II también podremos importar los personajes de Wing Commander, incluidas las Secret Missions.
+
+
+
+6.- AGRADECIMIENTOS
+
+- A UnnamedCharacter por las WCToolbox. La usada para esta traducción es la 6.0.0beta.
+  https://www.wcnews.com/chatzone/threads/wing-commander-toolbox.27769/
+- EA y Origin: Por la distribución y creación de este juego tan adictivo.
+- www.clandlan.net por dejarme colgar las traducciones.
+
+
+
+7.- LICENCIA
+
+Esta traducción es gratuita y cualquiera la puede usar o modificar como quiera. Se encuentra bajo licencia GPL v3.0. Agradecería que se pidiera permiso para cualquier tipo de modificación, podéis encontrarme como L@Zar0 en www.clandlan.net que ofrece traducciones de videojuegos (NO videojuegos completos) de forma gratuita. En cualquier caso, no se debe cobrar por esta traducción.
+
+Ni el autor ni el lugar de descarga se responsabilizan de los posibles problemas o inconvenientes que puedan surgir por el uso de este software.
