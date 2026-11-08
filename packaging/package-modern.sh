@@ -37,10 +37,13 @@ if test -e "$stage_dir" || test -e "${dist_dir}/${archive}.zip"; then
     exit 1
 fi
 
-mkdir -p "$stage_dir"
+mkdir -p "$stage_dir/translations"
 cp LICENSE "$stage_dir/LICENSE.txt"
-cp -R translations "$stage_dir/"
+# Game text, glyphs and artwork deltas are in this catalog; GUI text is embedded.
+# Editable sources and import tools remain in the release's source archive.
+test -s "$(dirname "$binary")/translations/es.dat"
 cp "$(dirname "$binary")/translations/es.dat" "$stage_dir/translations/"
+cp translations/upstream/Leeme.txt "$stage_dir/SPANISH-TRANSLATION-NOTICE.txt"
 cp packaging/README-modern.txt "$stage_dir/README.txt"
 cp packaging/THIRD-PARTY-NOTICES.txt \
     "$stage_dir/THIRD-PARTY-NOTICES.txt"

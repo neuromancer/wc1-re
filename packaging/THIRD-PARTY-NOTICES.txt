@@ -33,6 +33,9 @@ The SDL2 release packages may include these components:
   https://www.schristiancollins.com/generaluser.php
   See GENERALUSER-GS-LICENSE.txt. This General MIDI bank supplies SWC's host
   music instruments; it is not the original QuickTime synthesizer bank.
+- Spanish translation by L@Zar0, text revision by darkpadawan (v1.1, 2021).
+  Adapted to wc1-re catalogs with local corrections in 2026.
+  See SPANISH-TRANSLATION-NOTICE.txt for the original credits and terms.
 
 The exact set is platform-dependent. System libraries supplied by Windows,
 macOS, or the Linux distribution are not copied into these packages.

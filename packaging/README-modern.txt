@@ -90,5 +90,6 @@ GitHub Release. See LICENSE.txt for the project license and
 THIRD-PARTY-NOTICES.txt for bundled runtime components.
 
 For Spanish, choose Language > Español or use --language=es.
-Keep the translations folder beside the executable; see translations/README.md
-for editing and credits. Super Wing Commander remains English.
+Keep the supplied translations folder. Credits and original terms are in
+SPANISH-TRANSLATION-NOTICE.txt; editable PO files and instructions are in the
+source release's translations directory. Super Wing Commander remains English.

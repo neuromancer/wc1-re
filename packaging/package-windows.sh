@@ -19,7 +19,8 @@ if test "$architecture" != x86_64; then
     exit 1
 fi
 package_dir=$(cd "$package_dir" && pwd)
-for required in wc1-modern.exe SDL2.dll liblzo2-2.dll swc-music.sf2; do
+for required in wc1-modern.exe SDL2.dll liblzo2-2.dll swc-music.sf2 \
+                translations/es.dat SPANISH-TRANSLATION-NOTICE.txt; do
     if test ! -f "$package_dir/$required"; then
         echo "Missing Windows release file: $package_dir/$required" >&2
         exit 1
@@ -64,8 +65,7 @@ cp -R "$package_dir/translations" "$work/payload/"
 
 # Generate exact install/uninstall lists from the same payload. Never remove
 # arbitrary DLLs, game data, saves, or launcher preferences during uninstall.
-for file in "$work/payload/"* "$work/payload/translations/"* \
-            "$work/payload/translations/"*/* "$work/payload/translations/"*/*/*; do
+for file in "$work/payload/"* "$work/payload/translations/"*; do
     test -f "$file" || continue
     name=${file#"$work/payload/"}
     case "$name" in
@@ -87,9 +87,6 @@ for file in "$work/payload/"* "$work/payload/translations/"* \
 done
 # Remove only empty directories, after checking deletion errors. User-added
 # translation files are preserved and must not make uninstall fail.
-for directory in 'es\LC_MESSAGES' es templates upstream; do
-    printf 'RMDir "$INSTDIR\\translations\\%s"\n' "$directory" >> "$work/uninstall-directories.nsh"
-done
 printf 'RMDir "$INSTDIR\\translations"\n' >> "$work/uninstall-directories.nsh"
 installed_size=$(du -sk "$work/payload" | awk '{print $1}')
 (
