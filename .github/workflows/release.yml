@@ -217,6 +217,7 @@ jobs:
           update: true
           install: >-
             make
+            python
             zip
             mingw-w64-clang-x86_64-clang
             mingw-w64-clang-x86_64-cmake

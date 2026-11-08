@@ -17,7 +17,7 @@ passes that same staging directory to the installer packager:
 
     packaging/package-windows.sh "$version" x86_64 "dist/wc1-re-$version-windows-x86_64-sdl2"
 
-The payload includes the SWC demo sound bank and all license and readme files
+The payload includes the SWC sound bank, Spanish catalog, and license/readme files
 from the portable package, in addition to the executable and runtime DLLs.
 
 MAKENSIS can point to makensis.exe when it is not on PATH. The wrapper runs
