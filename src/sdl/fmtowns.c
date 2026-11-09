@@ -146,7 +146,7 @@ static int TownsLoadSample(const char *name, TownsSample *sample)
     size_t size;
     int result;
     /* Validate the fixed-size filename slots read from WC.EXP. */
-    if (!*name || strnlen(name, 20) == 20 || strstr(name, ".."))
+    if (!*name || !memchr(name, 0, 20) || strstr(name, ".."))
         return 0;
     if (SDL_snprintf(path, sizeof(path), "%s/%s", townsData, name) >= sizeof(path) ||
         !SdlResolvePath(path, resolved, sizeof(resolved)))
@@ -405,7 +405,7 @@ int SdlPlayTownsRadio(short speaker, short record, short rank)
     name = radioNames[bank][speaker][record][0];
     if (!*name && rank >= 0 && rank < 5)
         name = radioNames[bank][speaker][record][rank + 1];
-    if (strnlen(name, 20) == 20)
+    if (!memchr(name, 0, 20))
         return 0;
     if (!SDL_strcasecmp(name, "s2\\ja_11_00.fmp"))
         name = "s2/ja/ja_11_00.fmp";
