@@ -257,7 +257,7 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
             pan = 127;
     }
 
-    if (SdlUsingDosData()) {
+    if (SdlUsingDosData() || SdlUsingTownsData()) {
         volume = SDL_SOUND_FULL_VOLUME;
         if (sourceObject != -1) {
             volume -= (int)((magnitude /
@@ -267,6 +267,8 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
             volume = 0;
         if (volume < SDL_SOUND_AUDIBLE_VOLUME)
             return 0;
+        if (SdlUsingTownsData())
+            return SdlPlayTownsEffect(soundNumber, volume, pan, sourceObject, looping) != 0;
         if (!SdlPlayDosSoundEffect(
                 soundNumber, volume, pan, sourceObject, looping))
             return 0;
@@ -291,6 +293,7 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
 
 void SdlStopDosSoundEffects(void)
 {
+    SdlStopTownsEffects();
     bAfterburnerSfxEnabled = 0;
     if (g_pSdlDosMusicMutex == 0 ||
         g_pSdlOriginFxSoundPlayer == 0)
@@ -341,6 +344,7 @@ void SdlServiceOriginFxMusic(void)
     int desiredTrack;
     int finishedTrack;
 
+    SdlServiceTownsAudio();
     if (g_bSdlDosMusicInitialized == 0)
         return;
     SDL_LockMutex(g_pSdlDosMusicMutex);

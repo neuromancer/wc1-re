@@ -954,26 +954,26 @@ msgstr ""
 msgid "wc1:f73da679ed0323ae %P"
 msgstr ""
 
-#: src/view.c:629
+#: src/view.c:636
 msgid "wc1:07a035d723c0a256"
 msgstr ""
 
-#: src/view.c:634
+#: src/view.c:641
 msgid "wc1:215bf7c9a8268573"
 msgstr ""
 
-#: src/view.c:645
+#: src/view.c:652
 msgid "\nwc1:72185237b1eb2dae"
 msgstr ""
 
-#: src/view.c:647
+#: src/view.c:654
 msgid "wc1:c8ecf3fec5bbf9c1"
 msgstr ""
 
-#: src/view.c:665
+#: src/view.c:672
 msgid "\nwc1:76b0a402b4b69fa4"
 msgstr ""
 
-#: src/view.c:750
+#: src/view.c:757
 msgid "wc1:b348d97fa79f7ad8"
 msgstr ""

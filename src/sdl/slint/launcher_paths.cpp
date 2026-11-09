@@ -132,6 +132,13 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
     moduleFile.read(reinterpret_cast<char *>(header.data()), header.size());
     if (moduleFile.gcount() != static_cast<std::streamsize>(header.size()))
         return {false, LauncherMessage::UnreadableModule};
+    if (header[7] == 2 && has_readable_file(*gameData, "COMMUNIC.JAT")) {
+        for (const auto name : {"CAMP.000", "BRIEFING.000", "FONTS.FNT", "TITLES.VGA"}) {
+            if (!has_readable_file(*gameData, name))
+                return {false, LauncherMessage::MissingGameFile, false, name};
+        }
+        return {true, LauncherMessage::FmTowns};
+    }
     for (const auto name : {"CAMP.000", "INSTALL.DAT"}) {
         if (!has_readable_file(*gameData, name))
             return {false, LauncherMessage::MissingGameFile, false, name};

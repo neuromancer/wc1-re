@@ -2208,7 +2208,7 @@ int RunSpaceFlight(short entryNavPoint)
 #ifdef SDL_PORT
     SdlSetMouseGrab(0);
     SdlCancelSpaceFrame();
-    if (SdlUsingDosData())
+    if (SdlUsingDosData() || SdlUsingTownsData())
         SdlStopDosSoundEffects();
 #endif
     SetCinematicFrameTiming();

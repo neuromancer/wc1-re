@@ -259,7 +259,7 @@ void SdlPlayDosStartupIntro(void)
     int sectionIndex;
     int synchronizedMusic;
 
-    if (!SdlUsingDosData() && !SdlUsingGlRenderer())
+    if (SdlUsingTownsData() || (!SdlUsingDosData() && !SdlUsingGlRenderer()))
         return;
 
     memset(&introViewport, 0, sizeof(introViewport));

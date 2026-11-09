@@ -1113,7 +1113,11 @@ unsigned int accelerate_and_move_object(short obj)
                 if (asShipAfterburnerTimer[obj] == 0) {
                     aeSpecialManeuvers[obj] =
                         SPECIAL_MANEUVER_NONE;
-                    if (bAfterburnerSfxEnabled != 0) {
+                    if (bAfterburnerSfxEnabled != 0
+#ifdef SDL_PORT
+                        && (!SdlUsingTownsData() || obj == 0)
+#endif
+                    ) {
                         FlushSoundEffectsAndLog(
                             bAfterburnerSfxEnabled, 0);
                         bAfterburnerSfxEnabled = 0;

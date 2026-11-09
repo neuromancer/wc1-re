@@ -10,6 +10,25 @@ static Uint32 VoiceTestClock(void)
 #undef SDL_GetTicks
 #include "../src/sdl/speech.c"
 
+int SdlUsingTownsData(void)
+{
+    return 0;
+}
+
+int SdlTownsRadioPlaying(void)
+{
+    return 0;
+}
+
+void SdlStopTownsRadio(void)
+{
+}
+
+int SdlPlayTownsRadio(short speaker, short record, short rank)
+{
+    return 0;
+}
+
 void EnterCriticalSection(CRITICAL_SECTION *section)
 {
     SDL_LockMutex(section->mutex);

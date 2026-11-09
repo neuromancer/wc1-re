@@ -12,7 +12,7 @@ export enum LauncherMessage {
     invalid-swc-archive, missing-swc-resources, choose-data-directory,
     missing-module, unreadable-module, missing-game-file, needs-streams,
     missing-stream-file, picker-failed, picker-init-failed,
-    cannot-resolve-directory, cannot-open-directory, dos, kilrathi-saga, mac-demo
+    cannot-resolve-directory, cannot-open-directory, dos, kilrathi-saga, mac-demo, fm-towns
 }
 
 export component LauncherWindow inherits Window {
@@ -49,11 +49,13 @@ export component LauncherWindow inherits Window {
         ? @tr("Select game data…") : @tr("No game data found — add a path");
 
     public pure function edition-text(edition: LauncherMessage) -> string {
+        if edition == LauncherMessage.fm-towns { return "FM Towns (POC)"; }
         if edition == LauncherMessage.mac-demo { return @tr("SWC Mac demo"); }
         return edition == LauncherMessage.dos ? "DOS" : "Kilrathi Saga";
     }
 
     public pure function message-text(message: LauncherMessage, detail: string) -> string {
+        if message == LauncherMessage.fm-towns { return @tr("FM Towns POC: English text; experimental audio."); }
         if message == LauncherMessage.choose-directory { return @tr("Choose a Wing Commander directory."); }
         if message == LauncherMessage.path-too-long { return @tr("The directory path is too long."); }
         if message == LauncherMessage.not-directory { return @tr("The selected path is not a directory."); }

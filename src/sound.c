@@ -302,6 +302,12 @@ void PlaySnowStaticSound(void)
     int file;
     long fileSize;
 
+#ifdef SDL_PORT
+    if (SdlUsingTownsData()) {
+        SdlPlayTownsEffect(23, 100, 64, -1, 0);
+        return;
+    }
+#endif
     if (bIxAudioEnabled != 0) {
         ReleaseFinishedSoundEntries();
         if (pSnowStaticSound == 0) {

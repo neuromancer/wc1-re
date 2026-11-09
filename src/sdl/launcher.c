@@ -190,7 +190,7 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
             return 0;
         }
     }
-    if (!SdlSetLanguage(options->swcDemo ? 0 : options->language)) {
+    if (!SdlSetLanguage(options->swcDemo || SdlUsingTownsData() ? 0 : options->language)) {
         fprintf(stderr, "Cannot load game language: %s\n", SDL_GetError());
         return 0;
     }
@@ -337,11 +337,13 @@ int main(int argumentCount, char **arguments)
     SdlStartEventPump();
     CheckLauncherAndConfig();
     usingDosData = SdlUsingDosData();
-    if (usingDosData) {
-        /* DOS audio drivers cannot be used by the native SDL2 host. */
+    if (usingDosData || SdlUsingTownsData()) {
+        /* Only Saga supplies the ix audio streams. */
         bIxAudioEnabled = 0;
     }
-    if (usingDosData || useEnhancedRenderer) {
+    if (SdlUsingTownsData() && !SdlInitializeTownsAudio())
+        fprintf(stderr, "FM Towns audio unavailable: %s\n", SDL_GetError());
+    if (usingDosData || (useEnhancedRenderer && !SdlUsingTownsData())) {
         if (!SdlInitializeOriginFxAudio(usingDosData)) {
             if (usingDosData) {
                 fprintf(stderr,
@@ -372,6 +374,7 @@ int main(int argumentCount, char **arguments)
         ix_streamer_destroy();
     ServiceAudioStream();
     SdlShutdownOriginFxAudio();
+    SdlShutdownTownsAudio();
 
     DIBunInstall();
     SdlShutdownJoysticks();

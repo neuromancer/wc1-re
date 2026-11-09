@@ -357,6 +357,13 @@ int ProcessMusicScriptCommand(int track, int command, short enabled)
         return;
     }
 
+#ifdef SDL_PORT
+    if (SdlUsingTownsData()) {
+        nCurrentMusicTrack = track;
+        SdlTownsMusicCommand(track, command);
+        return 1;
+    }
+#endif
     SoundDebugPrintf("track_%02d ", track);
     if ((nCurrentMusicTrack == 25 && track == 25) ||
         (nCurrentMusicTrack == 38 && track == 38) ||
@@ -716,6 +723,10 @@ unsigned int SoundFxTick(void)
 void FlushSoundEffectsAndLog(int soundHandle, short fadeTicks)
 {
     (void)fadeTicks;
+#ifdef SDL_PORT
+    if (SdlStopTownsEffect(soundHandle))
+        return;
+#endif
     FlushSoundEffects();
     return;
     /* Unreachable: only its wave-name literal survives, at 0x0046ad04. */

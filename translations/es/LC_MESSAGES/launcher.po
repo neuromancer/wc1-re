@@ -12,6 +12,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "LauncherWindow"
+msgid "FM Towns POC: English text; experimental audio."
+msgstr "POC de FM Towns: texto en inglés; audio experimental."
+
 #: src/sdl/slint/launcher.slint:47
 msgctxt "LauncherWindow"
 msgid "Sega CD voices"

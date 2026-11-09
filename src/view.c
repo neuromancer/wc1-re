@@ -240,6 +240,13 @@ short TheEndFireWorks(Viewport *viewport, short count)
                 FlushSoundEffectsAndLog(
                     aFireworksList[index].soundHandle, index);
             } else if (aFireworksList[index].frame == 1) {
+#ifdef SDL_PORT
+                if (SdlUsingTownsData()) {
+                    aFireworksList[index].soundHandle = SdlPlayTownsEffect(
+                        37, 127, 127 - aFireworksList[index].x * 127 / 319, -1, 0);
+                    continue;
+                }
+#endif
                 aFireworksList[index].soundHandle =
                     ((unsigned int (__cdecl *)(
                         const unsigned char *, int, int, short, short,

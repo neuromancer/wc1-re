@@ -83,6 +83,13 @@ void PollJoystickButtonEvents(void)
         return;
     bInputPollingGuard++;
     UpdateInputDeviceTransitions(1);
+#ifdef SDL_PORT
+    /* Host device discovery can remove the active joystick while sampling. */
+    if (nCurrentActiveInputDevice == -1) {
+        bInputPollingGuard--;
+        return;
+    }
+#endif
     if (asInputBtn1ChangedTable[nCurrentActiveInputDevice] != 0) {
         doubleClick = 0;
         if (asInputButton1DoubleClicksList[nCurrentActiveInputDevice] != 0)

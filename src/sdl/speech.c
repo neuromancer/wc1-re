@@ -296,11 +296,14 @@ int SdlSceneVoicePlaying(void)
 
 int SdlRadioVoicePlaying(void)
 {
+    if (SdlUsingTownsData())
+        return SdlTownsRadioPlaying();
     return radioVoice && SdlVoicePlaying();
 }
 
 void SdlStopRadioVoice(void)
 {
+    SdlStopTownsRadio();
     if (radioVoice)
         SdlStopVoice();
 }
@@ -312,6 +315,8 @@ int SdlPlayRadioVoice(const char *filename, short speaker, short record, short r
     int length;
     SdlStopVoice();
     radioVoice = 1;
+    if (SdlUsingTownsData())
+        return SdlPlayTownsRadio(speaker, record, rank);
     for (cursor = filename; *cursor; cursor++)
         if (*cursor == '/' || *cursor == '\\')
             name = cursor + 1;
@@ -334,6 +339,7 @@ int SdlPlaySceneVoice(const unsigned char *scene, const unsigned char *record)
 
     SdlStopVoice();
     radioVoice = 0;
+    SdlStopTownsRadio();
     for (packet = voicePackets; packet; packet = packet->next) {
         for (pair = 0; pair < packet->pairs; pair++) {
             size_t start = Voice32(packet->data + pair * 8);

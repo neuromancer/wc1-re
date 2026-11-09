@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <cmath>
 #include <cstdlib>
+#include <fstream>
 
 // The fixture doesn't open SWC data; directory discovery stays outside the test.
 extern "C" int SdlHasSwcResources(const char *)
@@ -121,5 +122,26 @@ int main(int argc, char **argv)
         SDL_FreeSurface(surface);
     }
     window->hide();
+    const auto fixture = fs::temp_directory_path() /
+        ("wc1-towns-check-" + std::to_string(SDL_GetPerformanceCounter()));
+    fs::create_directories(fixture / "GAMEDAT");
+    const auto gameData = fixture / "GAMEDAT";
+    const char moduleHeader[8] = {28, 0, 0, 0, 28, 0, 0, 2};
+    std::ofstream(gameData / "MODULE.000", std::ios::binary).write(moduleHeader, 8);
+    for (const auto name : {"COMMUNIC.JAT", "CAMP.000", "BRIEFING.000", "FONTS.FNT", "TITLES.VGA"})
+        std::ofstream(gameData / name).put('x');
+    const auto towns = validate_game_directory(path_to_utf8(fixture));
+    require(towns.valid && towns.message == LauncherMessage::FmTowns,
+            "Towns detected without INSTALL.DAT or STREAMS");
+    window->set_status(towns.message);
+    set_language(*window, installations, 1);
+    require(window->get_status_text() == "POC de FM Towns: texto en inglés; audio experimental.",
+            "Towns limitations translated in launcher");
+    fs::remove(gameData / "FONTS.FNT");
+    require(!validate_game_directory(path_to_utf8(fixture)).valid, "incomplete Towns data rejected");
+    fs::remove(gameData / "COMMUNIC.JAT");
+    require(validate_game_directory(path_to_utf8(fixture)).message != LauncherMessage::FmTowns,
+            "raw packet flag alone does not identify Towns");
+    fs::remove_all(fixture);
     std::puts("PASS: live English/Spanish switching, redraw, errors, installation labels, settings and SWC selection.");
 }

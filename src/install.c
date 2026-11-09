@@ -151,6 +151,12 @@ unsigned short LoadInstallDat(void)
     short file;
     short maximumId;
 
+#ifdef SDL_PORT
+    if (SdlUsingTownsData()) {
+        SdlLoadTownsInstallTable();
+        return 0;
+    }
+#endif
     maximumId = 0;
     SystemDebugPrintf("Loading INSTALL.DAT\n");
     file = OpenDataFileOrDie("install.dat");
