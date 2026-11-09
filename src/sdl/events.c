@@ -574,6 +574,8 @@ void SdlPumpEvents(void)
 
     SdlServiceOriginFxMusic();
     while (SDL_PollEvent(&event)) {
+        if (SdlHandleTownsTextInputEvent(&event))
+            continue;
         SdlLogJoystickEvent(&event);
         switch (event.type) {
         case SDL_QUIT:

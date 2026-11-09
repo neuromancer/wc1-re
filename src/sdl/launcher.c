@@ -6,10 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef _WIN32
-extern __declspec(dllimport) BOOL __stdcall ImmDisableIME(DWORD threadId);
-#endif
-
 static const char *const g_apszSdlLauncherJoystickModes[] = {
     "original", "4button-2axis", "4button-4axis"
 };
@@ -263,9 +259,6 @@ int main(int argumentCount, char **arguments)
     char swcPath[PATH_MAX];
     SdlLauncherOptions launcherOptions;
 
-#ifdef _WIN32
-    ImmDisableIME((DWORD)-1);
-#endif
     if (!SdlParsePortArguments(&argumentCount, arguments,
                                &useLauncherGui, &launcherOptions))
         return 1;
@@ -327,6 +320,12 @@ int main(int argumentCount, char **arguments)
         SDL_Quit();
         return 1;
     }
+    /* Preserve Windows' no-IME game controls without disabling Japanese entry
+     * process-wide. Other hosts change only for Japanese text fields. */
+#ifndef _WIN32
+    if (SdlUsingTownsJapanese())
+#endif
+    SDL_StopTextInput();
     if (useLauncherGui) {
         /* Hand focus from Slint's native event loop to the SDL game window. */
         SDL_ShowWindow(window);

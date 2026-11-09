@@ -307,6 +307,8 @@ const char *SdlTranslateTownsText(const char *text);
 int SdlMeasureTownsText(const char *text);
 int SdlDrawTownsText(const char *text);
 int SdlDrawTownsCharacter(unsigned char character);
+short SdlReadTownsTextInput(char *destination, short maximumLength, short mode);
+int SdlHandleTownsTextInputEvent(const SDL_Event *event);
 void SdlLoadTownsInstallTable(void);
 int SdlInitializeTownsAudio(void);
 void SdlShutdownTownsAudio(void);

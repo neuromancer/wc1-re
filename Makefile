@@ -1396,3 +1396,18 @@ $(MODERN_OUT_DIR)/towns-probe: $(MODERN_OUT_DIR)/obj/towns_probe.o \
 .PHONY: check-towns
 check-towns: $(MODERN_OUT_DIR)/towns-probe
 	SDL_AUDIODRIVER=dummy $(MODERN_OUT_DIR)/towns-probe $(if $(TOWNS_DATA),"$(TOWNS_DATA)")
+
+$(MODERN_OUT_DIR)/obj/towns_input_probe.o: bin/checkTownsInput.c src/sdl/towns_text.c | modern-check-sdl
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/towns-input-probe: $(MODERN_OUT_DIR)/obj/towns_input_probe.o \
+		$(MODERN_BASE_HOST_OBJS) $(filter-out $(MODERN_OUT_DIR)/obj/sdl/towns_text.o,$(MODERN_GAME_HOST_OBJS)) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-towns-input
+check-towns-input: $(MODERN_OUT_DIR)/towns-input-probe
+	$(MODERN_OUT_DIR)/towns-input-probe

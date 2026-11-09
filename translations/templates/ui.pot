@@ -559,7 +559,7 @@ msgctxt "font3"
 msgid "wc1:0090ce0efffa0a04 %X %Y"
 msgstr ""
 
-#: src/killbrd.c:917
+#: src/killbrd.c:921
 msgctxt "font3"
 msgid "wc1:50af9a19d1695fa8"
 msgstr ""
@@ -929,33 +929,33 @@ msgstr ""
 msgid "wc1:b4c571e3055c45eb"
 msgstr ""
 
-#: src/trainsim.c:528
+#: src/trainsim.c:532
 msgid "wc1:9a0a811d69a429a1\n"
 msgstr ""
 
-#: src/trainsim.c:534
+#: src/trainsim.c:538
 msgid "wc1:b0d5adda5697536a"
 msgstr ""
 
-#: src/trainsim.c:539
+#: src/trainsim.c:543
 msgid "wc1:020fb3f53c53c342"
 msgstr ""
 
-#: src/trainsim.c:573
+#: src/trainsim.c:577
 #, c-format
 msgid "wc1:a7f9c81997797b94 %d"
 msgstr ""
 
-#: src/trainsim.c:580
+#: src/trainsim.c:584
 #, c-format
 msgid "wc1:8b8d1b3e16f50329 %ld"
 msgstr ""
 
-#: src/trainsim.c:671
+#: src/trainsim.c:675
 msgid "wc1:f11c1d9c8596947c %J %P"
 msgstr ""
 
-#: src/trainsim.c:741
+#: src/trainsim.c:745
 msgid "wc1:f73da679ed0323ae %P"
 msgstr ""
 

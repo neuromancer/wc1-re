@@ -1704,6 +1704,9 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
                                windowFlags);
     if (window == NULL)
         goto done;
+#ifdef _WIN32
+    SDL_StopTextInput();
+#endif
     renderer = SdlCreateSwcRenderer(window);
     if (renderer == NULL || SDL_RenderSetLogicalSize(renderer, 320, 240) != 0)
         goto done;

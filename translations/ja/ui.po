@@ -163,3 +163,15 @@ msgstr "戦死"
 msgctxt "font0"
 msgid "wc1:c49c1b105b4018ae"
 msgstr "Enter/A/1: 再挑戦  Esc/B/2: 物語を進める"
+
+# Translation: wc1-re contributors.
+msgid "wc1:9a0a811d69a429a1\n"
+msgstr "おめでとう！\nハイスコアを達成しました！\n名前とコールサインを\n入力してください：\n"
+
+# Translation: wc1-re contributors.
+msgid "wc1:b0d5adda5697536a"
+msgstr "姓： "
+
+# Translation: wc1-re contributors.
+msgid "wc1:020fb3f53c53c342"
+msgstr "コールサイン： "

@@ -340,6 +340,10 @@ short ReadTextInput(char *destination, short maximumLength,
     unsigned char key;
     char input[40];
 
+#ifdef SDL_PORT
+    if (SdlUsingTownsJapanese())
+        return SdlReadTownsTextInput(destination, maximumLength, mode);
+#endif
     accepted = 0;
     savedBackground = pCurTextContext->backgroundColour;
     if (savedBackground == 0xff) {

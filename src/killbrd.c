@@ -898,6 +898,10 @@ void ShowChalkBoard(void)
         for (; index < 9; index++, rowY = (rowY + 16)) {
             pilot = asChalkBoardPilotOrder[index];
             DosStrcpy(pilotName, aPilotEntriesList[pilot].name);
+#ifdef SDL_PORT
+            /* Uppercasing individual Shift-JIS bytes can change the kanji. */
+            if (SdlMeasureTownsText(pilotName) < 0)
+#endif
             strupr(pilotName);
             DrawFormattedText("%X%Y%s %s",
                               10, rowY,
