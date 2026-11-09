@@ -75,6 +75,10 @@ int main(int argc, char **argv)
     window->set_picker_error(true);
     window->set_status(LauncherMessage::MissingStreamFile);
     window->set_status_detail("MISSION.STR");
+    require(window->get_language_choices()->row_count() == 3 &&
+            *window->get_language_choices()->row_data(2) == "Français", "Japanese hidden without Towns data");
+    set_language(*window, installations, 2);
+    require(window->get_language_index() == 0, "saved Japanese selection falls back outside Towns");
     window->show();
     window->window().dispatch_resize_event(slint::LogicalSize {{760, 660}});
     std::vector<slint::Rgb8Pixel> english(760 * 660), spanish(760 * 660), restored(760 * 660);
@@ -133,7 +137,10 @@ int main(int argc, char **argv)
     const auto towns = validate_game_directory(path_to_utf8(fixture));
     require(towns.valid && towns.message == LauncherMessage::FmTowns,
             "Towns detected without INSTALL.DAT or STREAMS");
-    window->set_status(towns.message);
+    window->set_game_directory(slint::SharedString(path_to_utf8(fixture)));
+    refresh_window(*window, installations);
+    require(window->get_language_choices()->row_count() == 4 &&
+            *window->get_language_choices()->row_data(2) == "Japanese (FM Towns)", "Japanese offered for detected Towns data");
     set_language(*window, installations, 1);
     require(window->get_status_text() == "FM Towns: texto en inglés/japonés.",
             "Towns status translated in launcher");
@@ -144,6 +151,31 @@ int main(int argc, char **argv)
     require(save_launcher_config(fixture / "launcher.ini", saved), "save Japanese selection");
     load_launcher_config(fixture / "launcher.ini", loaded);
     require(loaded.language == 2, "restore Japanese selection");
+    for (const bool dos : {true, false}) {
+        const auto pc = fixture / (dos ? "dos" : "saga");
+        fs::create_directories(pc / "GAMEDAT");
+        char pcHeader[8] = {28, 0, 0, 0, 28, 0, 0, static_cast<char>(dos ? 1 : 0)};
+        std::ofstream(pc / "GAMEDAT/MODULE.000", std::ios::binary).write(pcHeader, 8);
+        for (const auto name : {"CAMP.000", "INSTALL.DAT"})
+            std::ofstream(pc / "GAMEDAT" / name).put('x');
+        fs::create_directories(pc / "STREAMS");
+        for (const auto name : {"PREFLITE.STR", "POSFLITE.STR", "MISSION.STR"})
+            std::ofstream(pc / "STREAMS" / name).put('x');
+        window->set_game_directory(slint::SharedString(path_to_utf8(pc)));
+        refresh_window(*window, installations);
+        require(window->get_path_valid() && window->get_status() ==
+                (dos ? LauncherMessage::Dos : LauncherMessage::KilrathiSaga), "PC edition detected");
+        require(window->get_language_choices()->row_count() == 3 && window->get_language_index() == 0,
+                "switching from Towns removes Japanese and selects English");
+        set_language(*window, installations, loaded.language);
+        require(window->get_language_index() == 0, "Japanese setting rejected for PC edition");
+        set_language(*window, installations, 3);
+        window->set_game_directory(slint::SharedString(path_to_utf8(fixture)));
+        refresh_window(*window, installations);
+        require(window->get_language_index() == 3, "French ID survives language-list change");
+        set_language(*window, installations, 2);
+        require(window->get_language_index() == 2, "Japanese available again after returning to Towns");
+    }
     set_language(*window, installations, 3);
     require(window->get_language_index() == 3, "French selection retained");
     require(window->get_installation_prompt() == "Sélectionner les données du jeu…", "live French prompt");

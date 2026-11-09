@@ -46,6 +46,9 @@ void refresh_window(LauncherWindow &window,
     window.set_picker_error(false);
     window.set_path_valid(status.valid);
     window.set_swc_demo(status.swcDemo);
+    window.set_towns_data(status.valid && status.message == LauncherMessage::FmTowns);
+    if (!window.get_towns_data() && window.get_language_index() == 2)
+        window.set_language_index(0);
     window.set_status(status.message);
     window.set_status_detail(slint::SharedString(status.detail));
 }
@@ -53,6 +56,8 @@ void refresh_window(LauncherWindow &window,
 void set_language(LauncherWindow &window,
                   const std::vector<GameInstallation> &installations, int language)
 {
+    if (language == 2 && !window.get_towns_data())
+        language = 0;
     if (slint::select_bundled_translation(language == 1 ? "es" : language == 3 ? "fr" : "en")) {
         window.set_language_index(std::clamp(language, 0, 3));
         refresh_installations(window, installations);

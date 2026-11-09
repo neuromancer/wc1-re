@@ -30,6 +30,10 @@ export component LauncherWindow inherits Window {
     in-out property <bool> start-fullscreen;
     in-out property <bool> autosave;
     in-out property <int> language-index;
+    in property <bool> towns-data: false;
+    out property <[string]> language-choices: root.towns-data
+        ? ["English", "Español", "Japanese (FM Towns)", "Français"]
+        : ["English", "Español", "Français"];
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
     in-out property <bool> cockpitless-view;
@@ -142,10 +146,10 @@ export component LauncherWindow inherits Window {
                     }
                     ComboBox {
                         horizontal-stretch: 1;
-                        model: ["English", "Español", "Japanese (FM Towns)", "Français"];
-                        current-index: root.language-index;
+                        model: root.language-choices;
+                        current-index: !root.towns-data && root.language-index == 3 ? 2 : root.language-index;
                         selected(_) => {
-                            root.language-selected(self.current-index);
+                            root.language-selected(!root.towns-data && self.current-index == 2 ? 3 : self.current-index);
                         }
                     }
                 }
