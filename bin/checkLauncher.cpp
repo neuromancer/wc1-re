@@ -144,11 +144,23 @@ int main(int argc, char **argv)
     require(save_launcher_config(fixture / "launcher.ini", saved), "save Japanese selection");
     load_launcher_config(fixture / "launcher.ini", loaded);
     require(loaded.language == 2, "restore Japanese selection");
+    set_language(*window, installations, 3);
+    require(window->get_language_index() == 3, "French selection retained");
+    require(window->get_installation_prompt() == "Sélectionner les données du jeu…", "live French prompt");
+    require(std::string(*window->get_installations()->row_data(2)).find("Voix Sega CD") != std::string::npos,
+            "live French voice label");
+    platform->view->pixels.render(small, 640);
+    saved.language = 3;
+    require(save_launcher_config(fixture / "launcher.ini", saved), "save French selection");
+    load_launcher_config(fixture / "launcher.ini", loaded);
+    require(loaded.language == 3, "restore French selection");
+    set_language(*window, installations, 0);
+    require(window->get_installation_prompt() == "Select game data…", "English restored after French");
     fs::remove(gameData / "FONTS.FNT");
     require(!validate_game_directory(path_to_utf8(fixture)).valid, "incomplete Towns data rejected");
     fs::remove(gameData / "COMMUNIC.JAT");
     require(validate_game_directory(path_to_utf8(fixture)).message != LauncherMessage::FmTowns,
             "raw packet flag alone does not identify Towns");
     fs::remove_all(fixture);
-    std::puts("PASS: live English/Spanish switching, redraw, errors, installation labels, settings and SWC selection.");
+    std::puts("PASS: live English/Spanish/French switching, redraw, errors, installation labels and language settings.");
 }

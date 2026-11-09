@@ -783,17 +783,17 @@ msgctxt "font0"
 msgid "wc1:ddc5643a1d5c4c0f $R $N $C $S $D"
 msgstr ""
 
-#: src/screens.c:1762
+#: src/screens.c:1770
 msgctxt "intro"
 msgid "wc1:b997643f68ab8e84"
 msgstr ""
 
-#: src/screens.c:1819
+#: src/screens.c:1827
 msgctxt "intro"
 msgid "wc1:78589f6aa7482f15"
 msgstr ""
 
-#: src/screens.c:1872
+#: src/screens.c:1880
 msgctxt "intro"
 msgid "wc1:ae517f2f44c29baf"
 msgstr ""

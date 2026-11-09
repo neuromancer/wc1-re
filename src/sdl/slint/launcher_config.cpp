@@ -24,7 +24,7 @@ struct IntegerSetting {
 
 constexpr IntegerSetting integerSettings[] = {
     {"language", &SdlLauncherOptions::language,
-     SDL_LAUNCHER_EXPLICIT_LANGUAGE, 2},
+     SDL_LAUNCHER_EXPLICIT_LANGUAGE, 3},
     {"fullscreen", &SdlLauncherOptions::fullscreen,
      SDL_LAUNCHER_EXPLICIT_FULLSCREEN, 1},
     {"autosave", &SdlLauncherOptions::autosave,

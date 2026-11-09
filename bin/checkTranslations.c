@@ -4,6 +4,7 @@
 
 /* Private game storage observed only by this integration probe. */
 extern const char *apszSaveCampaignMenuLabels[2];
+static int french;
 
 static unsigned int Read16(const unsigned char *p)
 {
@@ -185,10 +186,12 @@ static void CheckUiTranslations(const char *catalogPath,
         translated++;
     }
     SDL_free(bytes);
-    Require(translated >= 217, "UI catalog coverage");
+    Require(translated >= (french ? 200 : 217), "UI catalog coverage");
     Require(strcmp(_("Not a catalog message"), "Not a catalog message") == 0, "missing UI fallback");
     Require(strcmp(C_("wrong-context", "GAME PAUSED"), "GAME PAUSED") == 0, "context mismatch fallback");
-    Require(strcmp(_("Center Joystick, press a button"), "Centre la palanca y pulse un bot\xf3n") == 0, "shared accent encoding through macro");
+    Require(strcmp(_("Center Joystick, press a button"), french ?
+                   "Centrez le manche, appuyez sur un bouton" :
+                   "Centre la palanca y pulse un bot\xf3n") == 0, "shared text through macro");
     Require(strcmp(N_("GAME PAUSED"), "GAME PAUSED") == 0, "static marker stays English");
     Require(strcmp(_(N_("GAME PAUSED")), "GAME PAUSED") != 0, "static marker translated at use");
     Require(snprintf(formatted, sizeof(formatted), _("Error: Game %d not loaded."), 32767) < (int)sizeof(formatted), "integer error fits modal buffer");
@@ -210,7 +213,20 @@ static void CheckExtraResources(const char *root,
 
     apViewportAllocations[0] = surface->pixels;
     nViewAllocTotal = 1;
+    if (french) {
+        size_t archiveSize, size;
+        unsigned char *archive = ReadResource(root, "TITLE.VGA", &archiveSize);
+        unsigned char *original, *tagged;
+        Require(SdlExtractOriginPacketSection(archive, archiveSize, 1, &original, &size), "original title alphabet");
+        tagged = AllocateTaggedMemory((int)size, 0x40);
+        memcpy(tagged, original, size);
+        pIntroFont = (struct Shape *)tagged;
+        free(original);
+        SDL_free(archive);
+    }
     for (i = 0; i < SDL_arraysize(files); i++) {
+        if (french && i != 1)
+            continue;
         size_t archiveSize, originalSize, translatedSize, ignoredSize;
         unsigned char *archive = ReadResource(root, files[i], &archiveSize);
         unsigned char *original, *translated, *ignored;
@@ -218,6 +234,12 @@ static void CheckExtraResources(const char *root,
         Require(SdlExtractOriginPacketSection(archive, archiveSize, sections[i], &original, &originalSize), "decode translated artwork");
         Require(SdlTranslatePacketData(files[i], sections[i], original, originalSize, &translated, &translatedSize) && translated, "apply artwork delta");
         Require(Read32(translated) == translatedSize, "translated shape allocation size");
+        if (french) {
+            size_t originalFrame = Read32(original + 12), translatedFrame = Read32(translated + 12);
+            Require(originalSize - originalFrame == translatedSize - translatedFrame &&
+                    memcmp(original + originalFrame, translated + translatedFrame,
+                           originalSize - originalFrame) == 0, "French menu preserves expansion frame");
+        }
         SDL_snprintf(path, sizeof(path), "%s/%s", root, files[i]);
         Require(OpenPacketSection(path, sections[i], &handle) && handle.patchedData, "artwork through game packet loader");
         Require(handle.dataSize == translatedSize && memcmp(handle.patchedData, translated, translatedSize) == 0, "game loads same translated artwork");
@@ -248,6 +270,10 @@ static void CheckExtraResources(const char *root,
         }
         free(original);
         SDL_free(archive);
+    }
+    if (french) {
+        printf("PASS: French main-menu artwork, game packet loader, CRC fallback and original intro alphabet.\n");
+        return;
     }
     for (i = 0; i < 9; i++) {
         char name[20];
@@ -352,20 +378,20 @@ static void CheckSimulatorDisplays(TextContext *context, unsigned char **fontDat
         SDL_memset(surface->pixels, 0, 64000);
         show_weapon_disp();
         Require(stLeftVduTextContext.cursorY == stLeftVdu.top + 2 * Read16(fontData[2]), "weapon heading stays on one line above divider");
-        Require(strcmp(_(aObjectTypeData[OBJECT_TYPE_LASER_CANNON].displayName), "L\xe1ser") == 0, "translated weapon name");
+        Require(strcmp(_(aObjectTypeData[OBJECT_TYPE_LASER_CANNON].displayName), french ? "Laser" : "L\xe1ser") == 0, "translated weapon name");
         Require(stLeftVduTextContext.cursorY + Read16(fontData[2]) <= stLeftVdu.bottom, "weapon display fits every cockpit");
         show_target_disp();
-        Require(strcmp(_(" None"), " Ninguno") == 0, "translated target fallback");
+        Require(strcmp(_(" None"), french ? " Aucun" : " Ninguno") == 0, "translated target fallback");
         Require(stRightVduTxtContext.cursorY + Read16(fontData[2]) <= stRightVduViewport.bottom, "target display fits every cockpit");
         show_damage_disp();
-        Require(strstr(_("NO INTERNAL\n\nDAMAGE"), "INTERNOS") != 0, "translated damage report");
+        Require(strstr(_("NO INTERNAL\n\nDAMAGE"), french ? "INTER." : "INTERNOS") != 0, "translated damage report");
         Require(stLeftVduTextContext.cursorY + Read16(fontData[2]) <= stLeftVdu.bottom, "damage display fits every cockpit");
     }
     nTrainSimActive = 0;
     context->font = fontData[0];
     context->text = szDefaultTxtBuf;
     DrawRoomMenuLabel(context, apszSaveCampaignMenuLabels[0]);
-    Require(strstr(szTxtWorkspaceBuffer, "Guardar") != 0, "shared save label translates at display");
+    Require(strstr(szTxtWorkspaceBuffer, french ? "Sauvegarder" : "Guardar") != 0, "shared save label translates at display");
     Require(strcmp(apszSaveCampaignMenuLabels[0], "Save this campaign  ") == 0, "shared save-label ownership remains intact");
     context->font = fontData[1];
     printf("PASS: real simulator weapon/target/damage screens in all 5 cockpit layouts and shared room labels.\n");
@@ -390,15 +416,23 @@ int main(int argc, char **argv)
     unsigned int tallCount = 0;
     unsigned int maxHeight = 0;
     unsigned int voicedCount = 0;
+    int voices, audioEnabled;
     CRITICAL_SECTION voiceLock;
     char sample[256] = "";
     char radio[84] = "";
 
     if (argc != 4 && argc != 5) {
-        fprintf(stderr, "Usage: %s CATALOG GAMEDAT PREVIEW.bmp [VOICES]\n", argv[0]);
+        fprintf(stderr, "Usage: %s CATALOG GAMEDAT PREVIEW.bmp [VOICES|fr]\n", argv[0]);
         return 1;
     }
-    if (argc == 5) {
+    french = argc == 5 && strcmp(argv[4], "fr") == 0;
+    voices = argc == 5 && !french;
+    /* Room transitions play non-positional effects with source object -1. */
+    audioEnabled = bIxAudioEnabled;
+    bIxAudioEnabled = 0;
+    Require(SdlPlayGameSoundEffect(1, -1, 0), "non-positional effect accepts the no-object sentinel");
+    bIxAudioEnabled = audioEnabled;
+    if (voices) {
         SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
         InitializeCriticalSection(&voiceLock);
         Require(SdlLoadVoiceCatalog(argv[4]) && SdlStartAudio(SilentAudio, &voiceLock, 0), "load local voices and silent audio device");
@@ -435,13 +469,16 @@ int main(int argc, char **argv)
         unsigned char *original;
         size_t size;
         Require(SdlExtractOriginPacketSection(archive, archiveSize, index, &original, &size), "decode font");
-        Require(SdlTranslatePacketData("FONTS.FNT", index, original, size, &fontData[index], &fontSize[index]) && fontData[index], "translate font");
-        free(original);
+        Require(SdlTranslatePacketData("FONTS.FNT", index, original, size, &fontData[index], &fontSize[index]), "translate font");
+        if (fontData[index])
+            free(original);
+        else
+            fontData[index] = original;
     }
     SDL_free(archive);
     /* Shared objective names and UI literals must render ñ/ó/ú in either
      * font. Compare the normalized menu slots with the imported glyphs. */
-    for (index = 0; index < 3; index++) {
+    for (index = 0; index < (french ? 0 : 3); index++) {
         static const unsigned char originalSlots[3] = {0xe0, 0xeb, 0xef};
         static const unsigned char normalizedSlots[3] = {0xf1, 0xf3, 0xfa};
         unsigned char *font = fontData[1];
@@ -453,7 +490,7 @@ int main(int argc, char **argv)
                 "same Spanish accent glyph in shared font encoding");
     }
     context.font = fontData[0];
-    for (campaign = 0; campaign < 3; campaign++) {
+    for (campaign = 0; campaign < (french ? 1 : 3); campaign++) {
         char name[32];
         unsigned int count;
         SDL_snprintf(name, sizeof(name), "BRIEFING.00%u", campaign);
@@ -477,7 +514,7 @@ int main(int argc, char **argv)
                 free(original);
                 continue;
             }
-            if (argc == 5) {
+            if (voices) {
                 SdlRegisterVoicePacket(name, section, original, size);
                 SdlRegisterVoicePacket(name, section, translated, newSize);
             }
@@ -498,7 +535,7 @@ int main(int argc, char **argv)
                     Require(memcmp(a, b, 7) == 0 && memcmp(a + 9, b + 9, 4) == 0, "preserve scene timing/conditions/animation");
                     if ((signed char)a[0] == -2)
                         continue;
-                    if (argc == 5) {
+                    if (voices) {
                         int englishVoice = SdlPlaySceneVoice(original + scene, a);
                         int spanishVoice = SdlPlaySceneVoice(translated + newScene, b);
                         Require(englishVoice == spanishVoice, "same voice coverage with Spanish subtitles");
@@ -526,7 +563,7 @@ int main(int argc, char **argv)
                         tallCount++;
                         fprintf(stderr, "OVERFLOW %s packet %u scene %zu record %zu (%u px)\n", name, section, pair, record, height);
                     }
-                    if (!sample[0] && strlen(es) > 60 && strlen(es) < 130 && strchr(es, (char)0xf3))
+                    if (!sample[0] && strlen(es) > 60 && strlen(es) < 130 && strchr(es, (char)(french ? 0x82 : 0xf3)))
                         SDL_strlcpy(sample, AddPCName(es), sizeof(sample));
                 }
             }
@@ -551,7 +588,7 @@ int main(int argc, char **argv)
         SDL_free(archive);
     }
     bInflightComputerActive = 1; /* Exercise message storage without a game timer. */
-    for (campaign = 0; campaign < 2; campaign++) {
+    for (campaign = 0; campaign < (french ? 1 : 2); campaign++) {
         const char *radioName = campaign ? "COMMSM2.DAT" : "COMMUNIC.DAT";
         archive = ReadResource(argv[2], radioName, &archiveSize);
         for (index = 0; index < archiveSize / 80; index++) {
@@ -588,35 +625,35 @@ int main(int argc, char **argv)
         CloseDataFileByHandle(&handle);
     }
     SDL_memset(surface->pixels, 0, 64000);
-    DrawTextAt(&context, 0, 4, "ESPANOL - WC1 TEXT RENDERER", 2);
+    DrawTextAt(&context, 0, 4, french ? "FRANCAIS - WC1 TEXT RENDERER" : "ESPANOL - WC1 TEXT RENDERER", 2);
     context.colour = 2;
-    DrawTextAt(&context, 0, 24, "\241Atenci\363n, se\361or! \277Listo?", 2);
-    DrawTextAt(&context, 0, 38, "\301 \311 \315 \323 \332 \321 / \341 \351 \355 \363 \372 \361", 2);
+    DrawTextAt(&context, 0, 24, french ? "Pr\x88t pour le d\x82part, commandant?" : "\241Atenci\363n, se\361or! \277Listo?", 2);
+    DrawTextAt(&context, 0, 38, french ? "\x80 \x90 / \x85 \x83 \x87 \x82 \x8a \x88 \x8b \x8c \x93 \x97 \x96" : "\301 \311 \315 \323 \332 \321 / \341 \351 \355 \363 \372 \361", 2);
     context.colour = 1;
     DrawTextAt(&context, 0, 62, sample, 2);
     context.font = fontData[1];
     context.colour = 2;
     DrawTextAt(&context, 0, 112, "RADIO / NAV - FONT 1", 2);
-    DrawTextAt(&context, 0, 126, "\241Ca\361\363n! \277D\363nde est\341s t\372?", 2);
+    DrawTextAt(&context, 0, 126, french ? "D\x82g\x83ts, bouclier, fus\x82" "e, entra\x8cnement" : "\241Ca\361\363n! \277D\363nde est\341s t\372?", 2);
     context.colour = 1;
     DrawTextAt(&context, 0, 144, ExpandCommMessageTokens(radio), 2);
     SavePreview(argv[3], surface);
     printf("PASS: %u packets; %u translated dialogue lines rendered; max height %u; %u exceed 40px.\n", packetsChecked, translatedCount, maxHeight, tallCount);
     printf("Preview: %s\n", argv[3]);
-    Require(translatedCount > 5000 && sample[0] && radio[0], "substantial Spanish coverage");
+    Require(translatedCount > (french ? 2500 : 5000) && sample[0] && radio[0], "substantial dialogue coverage");
     Require(tallCount == 0, "dialogue fits with maximum-width pilot names");
     context.font = fontData[0];
     CheckExtraResources(argv[2], &context, surface);
     CheckUiTranslations(argv[1], &context, fontData, surface);
     CheckSimulatorDisplays(&context, fontData, surface);
-    if (argc == 5)
+    if (voices)
         CheckRadioVoices(argv[2]);
     ReleasePacketHandle(pIntroFont);
     pIntroFont = 0;
-    if (argc == 5)
+    if (voices)
         CheckVoicePacketLoad(argv[2]);
     SdlSetLanguage(0);
-    if (argc == 5)
+    if (voices)
         CheckVoicePacketLoad(argv[2]);
     Require(strcmp(_("GAME PAUSED"), "GAME PAUSED") == 0, "English macro bypass");
     {
@@ -627,7 +664,7 @@ int main(int argc, char **argv)
     for (index = 0; index < 4; index++)
         free(fontData[index]);
     SDL_FreeSurface(surface);
-    if (argc == 5) {
+    if (voices) {
         Require(voicedCount > 0, "voice catalog matches installed game resources");
         printf("PASS: %u real dialogue recordings decoded with English/Spanish subtitles; timing and skip.\n", voicedCount);
         SdlShutdownVoices();

@@ -72,8 +72,10 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                 options->language = 1;
             else if (strcmp(argument + 11, "ja") == 0)
                 options->language = 2;
+            else if (strcmp(argument + 11, "fr") == 0)
+                options->language = 3;
             else {
-                fprintf(stderr, "Unknown language: %s (use en, es or ja).\n", argument + 11);
+                fprintf(stderr, "Unknown language: %s (use en, es, ja or fr).\n", argument + 11);
                 return 0;
             }
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_LANGUAGE;

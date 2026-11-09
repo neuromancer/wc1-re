@@ -1,0 +1,753 @@
+# WC1 French text based on Greg14's translation.
+# Conversion authorized by Greg14, as confirmed by the project maintainer.
+msgid ""
+msgstr ""
+"Project-Id-Version: wc1-re\n"
+"Language: fr\n"
+"Last-Translator: Greg14; wc1-re contributors\n"
+"Language-Team: French\n"
+"PO-Revision-Date: 2026-11-09 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/0"
+msgid "wc1:8cd491d512773aa1"
+msgstr "j'obéis avec honneur."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/1"
+msgid "wc1:883a1f3c5d421ff1"
+msgstr "Je m'excuse, mais je ne peux pas."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/2"
+msgid "wc1:c7768ffa8fa984a6"
+msgstr "Commandant, j'ai remarqué des vaisseaux ennemis."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/3"
+msgid "wc1:116c0f296ebbd924"
+msgstr "Prête à engager commandant."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/4"
+msgid "wc1:941e41023c9ce80b"
+msgstr "Je demande de l'aide à regret."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/5"
+msgid "wc1:dc308f8380ce940f"
+msgstr "J'ai réussi à en tuer un, Dommo!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/6"
+msgid "wc1:0cb2aaaf77e6382e"
+msgstr "Quelle habileté, je m'incline devant ton talent."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/7"
+msgid "wc1:0a4901809f91ec7e"
+msgstr "C'était un honneur! Mes ancêtres m'attendent..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/8"
+msgid "wc1:5f6ab8883444a7f8"
+msgstr "Nous devons partir, commandant. Ce sera pour une autre fois."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/9"
+msgid "wc1:0ab064e0840119cf $C"
+msgstr "Je relaterai ta bravoure. Bonne chance, $C."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/0/record/10"
+msgid "wc1:48c58208b036f890"
+msgstr "Je demande avec respect de l'aide."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/0"
+msgid "wc1:71b7298c01142e7a"
+msgstr "Je le fais boss."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/1"
+msgid "wc1:797c3bae914fb0e9"
+msgstr "J'peux pas..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/2"
+msgid "wc1:ed55ecfe2ba91f33 $C"
+msgstr "$C! J'ai des vaisseaux ennemis à l'écran!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/3"
+msgid "wc1:5e51ab6c43f0aac1"
+msgstr "Eliminons ces affreux..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/4"
+msgid "wc1:b3c6a6d886811a0e $C"
+msgstr "$C, J'suis dans la merde! aide moi!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/5"
+msgid "wc1:02bac5afd430639f"
+msgstr "Yeee hooo! J'en ai eu un!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/6"
+msgid "wc1:9a526c29a1134515 $C"
+msgstr "Pas mal $C. dans l'mille"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/7"
+msgid "wc1:5090931f42c62cbe"
+msgstr "J'suis touché! tout est perdu! le cockpit br.."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/8"
+msgid "wc1:53a87bce9eb1ec93"
+msgstr "Commandant, ils sont trop forts pour nous! Rentrons!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/9"
+msgid "wc1:51c33244e2493f17"
+msgstr "Tu lui en a mis plein la gueule, mon pote..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/1/record/10"
+msgid "wc1:8b21ad6c62368998"
+msgstr "Fais gaffe, Bordel!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/0"
+msgid "wc1:5492c990dc8f0dc2"
+msgstr "Affirmatif, Je le fais."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/1"
+msgid "wc1:163a1d61fdace767"
+msgstr "Négatif, Je ne peux pas."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/2"
+msgid "wc1:0d2ede188462ff77"
+msgstr "Signal ennemi."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/3"
+msgid "wc1:5c2a7bc506830a0f $R"
+msgstr "Confirme mon attaque, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/4"
+msgid "wc1:494edfa60a4d3ef3"
+msgstr "J'peux pas semer ces nazes."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/5"
+msgid "wc1:410e2307e70838ef"
+msgstr "Un de plus à mon tableau de chasse!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/6"
+msgid "wc1:4ac24b6d3f4dbd2b $R $N"
+msgstr "Bon travail $R $N."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/7"
+msgid "wc1:2ec84e519e2c9e64 $C"
+msgstr "Désolé, je te laisse $C."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/8"
+msgid "wc1:5e0e82ea3e5f3f03 $C"
+msgstr "Rentrons, $C."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/9"
+msgid "wc1:6f4cd55b1da09585 $C"
+msgstr "Désolé, $C, je dois rentrer."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/2/record/10"
+msgid "wc1:d61e8c4123facfe1 $R"
+msgstr "Fais attention, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/0"
+msgid "wc1:b5826d95fbc03f19"
+msgstr "Ok."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/1"
+msgid "wc1:446c8159aa56af95"
+msgstr "Impossible."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/2"
+msgid "wc1:07fe5a96a60b8ae2"
+msgstr "Signal ennemi."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/3"
+msgid "wc1:f63f86e8d445f686"
+msgstr "Prêt à engager."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/4"
+msgid "wc1:3899ac98154e4699"
+msgstr "Mayday. Demande assistance."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/5"
+msgid "wc1:129371bfaa990a19"
+msgstr "C'est pour Vega neuf."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/6"
+msgid "wc1:4bae01305e208ca2"
+msgstr "Bien."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/7"
+msgid "wc1:8c21facfc7d0d070"
+msgstr "Venge ma planète pour moi..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/8"
+msgid "wc1:8146357e75a13687 $R"
+msgstr "$R, la chance est contre nous."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/9"
+msgid "wc1:dfa600c047968252"
+msgstr "Je méprise la mort."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/3/record/10"
+msgid "wc1:a80c7a5befe00a56"
+msgstr "Surveille ta cible."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/0"
+msgid "wc1:3dfdfbd3a72bd431"
+msgstr "Oui. J'y vais."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/1"
+msgid "wc1:4b998075e6cd8e8c"
+msgstr "Non. Je refuse respectueusement."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/2"
+msgid "wc1:9496cd5074d3cf6b"
+msgstr "Ennemi en vue mon capitaine."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/3"
+msgid "wc1:f9dc3709763e9638"
+msgstr "C'est notre devoir de les engager."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/4"
+msgid "wc1:1d6db63207356df1"
+msgstr "Aide-moi! Je vais être détruite!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/5"
+msgid "wc1:a18deaa2fd833186"
+msgstr "Devereaux reporte un vaisseau détruit."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/6"
+msgid "wc1:e1eb34356b54b1a6"
+msgstr "Tu es vraiment compétent, mon capitaine."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/7"
+msgid "wc1:e668f0c22e180a91"
+msgstr "Au revoir commandant. Continue sans moi."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/8"
+msgid "wc1:f648caef84229189"
+msgstr "Capitaine, je suggère un repli stratégique."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/9"
+msgid "wc1:599801e1e5511743"
+msgstr "Au revoir. Je dois partir."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/4/record/10"
+msgid "wc1:3ad47e4ecf24ed05"
+msgstr "Zut! Fais attention."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/0"
+msgid "wc1:4f6a47972ea35d23"
+msgstr "J'te couvre, gamin."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/1"
+msgid "wc1:5113d47d5ab6c33f $C"
+msgstr "J'ai peur de ne pas pouvoir, $C."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/2"
+msgid "wc1:fe6b80c7569e59d4"
+msgstr "L'ennemi est sur nous!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/3"
+msgid "wc1:cf693601ccaea4ed"
+msgstr "Gamin, ne me lâche pas."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/4"
+msgid "wc1:59665e8f8fa05413"
+msgstr "Ach! Ils m'ont attrapé le kilt!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/5"
+msgid "wc1:16e038f387b32dc9"
+msgstr "Celui-la c'était pour mon père!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/6"
+msgid "wc1:1ba0586094b9506e"
+msgstr "Aye! Joli tir commandant."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/7"
+msgid "wc1:c88a0679609959b4"
+msgstr "Commandant je dois décrocher!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/8"
+msgid "wc1:4c4ebcc19702bb73"
+msgstr "Cette mélée est trop violente même pour moi!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/9"
+msgid "wc1:a44faeb14e3ec5d3"
+msgstr "J'dois rentrer! Bonne chance gamin."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/5/record/10"
+msgid "wc1:25c3b9399c09e533"
+msgstr "Regardes ou tu tires gamin!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/0"
+msgid "wc1:87254c3fd998902f"
+msgstr "Comme si c'était fait, bébé."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/1"
+msgid "wc1:f9304df84c660ade"
+msgstr "Oublie ça, petit."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/2"
+msgid "wc1:6f6ecbb034f72316"
+msgstr "Voila ces bâtards."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/3"
+msgid "wc1:a245b92764f5e669"
+msgstr "J'y vais! ca va chauffer!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/4"
+msgid "wc1:eb5d0542694294ca"
+msgstr "Ils sont derrière moi! aide moi!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/5"
+msgid "wc1:635eb1725fe430c4"
+msgstr "Ha ha! Et un autre!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/6"
+msgid "wc1:7ebb400ffc2b21b1"
+msgstr "T'as mis le temps!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/8"
+msgid "wc1:e968117ad3865ba9"
+msgstr "Tirons nous d'ici, mec !"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/9"
+msgid "wc1:808216553bd5e19e"
+msgstr "A plus tard, petit! Ca chauffe ici!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/6/record/10"
+msgid "wc1:d5718ceca2c0b5de $R"
+msgstr "Fais gaffe, idiot, j'veux dire $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/0"
+msgid "wc1:b81f8f96e6195585 $R"
+msgstr "Affirmatif, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/1"
+msgid "wc1:e7f3ffad243efbb6 $R"
+msgstr "Négatif, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/2"
+msgid "wc1:68ec3963871bc85e $R"
+msgstr "Ennemi en vu $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/3"
+msgid "wc1:210c5af338b9d004"
+msgstr "Permission d'attaquer, monsieur ?"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/4"
+msgid "wc1:f91a2ff2a7aab231 $C"
+msgstr "$C, aide moi vite."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/5"
+msgid "wc1:6399747307047356 $C"
+msgstr "Un de moins $C."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/6"
+msgid "wc1:2d35796b505cb797 $R"
+msgstr "Joli tir, $R."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/7"
+msgid "wc1:9aeb0899ae44c46b"
+msgstr "Venge ma mort..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/8"
+msgid "wc1:358c7e4d730deca2"
+msgstr "Je conseille un repli, commandant."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/9"
+msgid "wc1:92b876361e38c6ff"
+msgstr "J'arrête la poursuite, je rentre."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/7/record/10"
+msgid "wc1:9c844314d4d5d1e2 $R $N"
+msgstr "Fais attention, $R $N."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/0"
+msgid "wc1:f9e1ad87d89e8dd6"
+msgstr "J'espère que tu seras meilleur que les 5 derniers."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/1"
+msgid "wc1:bca061bbf45fab73"
+msgstr "Bhurak te salue encore, oh noble cible."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/2"
+msgid "wc1:8ced0a9a578bca36"
+msgstr "Tu te bats comme un primate!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/3"
+msgid "wc1:2823e4a2cde456fc"
+msgstr "Les singes envoient des lâches contre nous?"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/4"
+msgid "wc1:8f1f2739bd7c5e90"
+msgstr "J'ai joué trop longtemps avec ma proie..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/5"
+msgid "wc1:736bccc703175c72"
+msgstr "Ton ami m'a un peu amusé."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/6"
+msgid "wc1:95c95199fac3271a"
+msgstr "Seul un singe peut avoir une telle chance!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/7"
+msgid "wc1:5eee03733fc9191a"
+msgstr "Singe! tu..   rrowww..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/8"
+msgid "wc1:e6c1294a209eea31"
+msgstr "Tu vas voir la supériorité de Kilrah, singe."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/8/record/9"
+msgid "wc1:424a0bd54faa0883"
+msgstr "T'es un adversaire digne d'une autre bataille."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/0"
+msgid "wc1:513256fe225f29f9"
+msgstr "Vous deux allez suffoquer dans le vide!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/1"
+msgid "wc1:4882e243ef06ed2a"
+msgstr "Kharang, je t'ai déjà rencontré vermine..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/2"
+msgid "wc1:6c29e249ebb95f55"
+msgstr "Quel plaisir de voir les terriens imploser dans l'espace!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/3"
+msgid "wc1:3c83918bfc59aeab"
+msgstr "Ejecte-toi, et je te laisse vivre."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/4"
+msgid "wc1:a490cceb4725a550"
+msgstr "J'aime voir le sang terrien dans l'espace."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/5"
+msgid "wc1:65d967f7a5e830f8"
+msgstr "Ce singe a crié quand il a eclaté!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/6"
+msgid "wc1:724be225a7e61873"
+msgstr "Tu ne m'enverras pas dans le vide"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/7"
+msgid "wc1:b685445733e2280c"
+msgstr "Le vide!   Le vid..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/8"
+msgid "wc1:f9edc04b2add30ed"
+msgstr "Mort pour tous les singes!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/9/record/9"
+msgid "wc1:315a80bd27075df4"
+msgstr "Pitoyable créature! Vermine!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/0"
+msgid "wc1:22627528d109834a"
+msgstr "Bienvenue à tes funerailles, singe."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/1"
+msgid "wc1:f878616e0fcaa383"
+msgstr "Cette fois, singe, ce sera différent."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/2"
+msgid "wc1:fa5149666662d253"
+msgstr "Les Terriens paniquent, comme des souris."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/3"
+msgid "wc1:fa4702967a6d9707"
+msgstr "Je vois que le singe craque."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/4"
+msgid "wc1:ec438efc661c7c3c"
+msgstr "Cette tactique échouera comme toutes les autres."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/5"
+msgid "wc1:c93a9b599076d753"
+msgstr "Mon second serait fier de voir ca."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/6"
+msgid "wc1:ff2693d3168e10e7"
+msgstr "Le singe semble avoir des crocs!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/7"
+msgid "wc1:c98ba4712e19e3b5"
+msgstr "Aucun sacrifice n'est trop grand pour l'empire."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/8"
+msgid "wc1:d3829a1d1d36e601"
+msgstr "L'empire triomphera inévitablement. Fui ou meurs."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/10/record/9"
+msgid "wc1:271bdf63b1d16b1f"
+msgstr "On se reverra, singe sans fourure."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/0"
+msgid "wc1:b594056180f34bbd"
+msgstr "Triste, que je doive joncher l'espace avec des cadavres de singes."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/1"
+msgid "wc1:b46f7d3992fa48b5"
+msgstr "Seule la chance t'a sauvé la dernière fois."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/2"
+msgid "wc1:68fa80884b41660b"
+msgstr "Je me demande si les Terriens feraient de bons esclaves.."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/3"
+msgid "wc1:407c1cf4428c30aa"
+msgstr "Tu ne reveras plus jamais ta planète, singe."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/4"
+msgid "wc1:81b740d6c71c9ed0"
+msgstr "Bientôt Kilrah va conquerir la Terre elle-même!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/5"
+msgid "wc1:555f1482dff1192e"
+msgstr "Le singe ne vivra pas assez longtemps pour servir l'empire!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/6"
+msgid "wc1:36f54d4a26b1d833"
+msgstr "Comme c'est rare ! Un primate m'a vraiment tiré dessus ! Amusant."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/7"
+msgid "wc1:573869487c6fe3c6"
+msgstr "C'est pas possible! Aucun singe ne pourrait me faire ça!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/8"
+msgid "wc1:42e0bfa2d3e1c687"
+msgstr "Sois rassuré, singe. Ta mort sera honorée."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/11/record/9"
+msgid "wc1:e6b1fad00ba4436e"
+msgstr "La prochaine fois tu n'auras pas autant de chance."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/0"
+msgid "wc1:846a2ac0278970df"
+msgstr "Affirmatif."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/1"
+msgid "wc1:1e28c86e3c9d73fc"
+msgstr "Négatif."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/2"
+msgid "wc1:b0210a1bba5b5b2b"
+msgstr "Signal ennemi, monsieur."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/3"
+msgid "wc1:a0b3fca1a3e0d87d"
+msgstr "Dois-je attaquer, monsieur?"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/4"
+msgid "wc1:85475d853f78a746"
+msgstr "Mayday, tous les chasseurs conféderés, aidez-nous."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/5"
+msgid "wc1:2cd6f7e6f1651eb6"
+msgstr "J'ai eu un combattant ennemi!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/6"
+msgid "wc1:cf5360964ed54b2f $R $N"
+msgstr "Content de vous avoir parmi nous, $R $N."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/7"
+msgid "wc1:27621f6ff8b6856c $C"
+msgstr "Bats-toi, $C, c'est la fin!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/8"
+msgid "wc1:504f95e45ec2f088 $C"
+msgstr "$C, vous pouvez atterrir."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/9"
+msgid "wc1:22e9ff73ab041fae $C"
+msgstr "Négatif $C. Atterrisage interdit."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/12/record/10"
+msgid "wc1:63399c33ee4c5ea9"
+msgstr "Attention, c'est moi!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/0"
+msgid "wc1:2e15033ca49d3aeb"
+msgstr "Crève singe sans fourrure."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/1"
+msgid "wc1:85b1c3fa4df4f8f1"
+msgstr "Rebut sans poils, meurs!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/2"
+msgid "wc1:505fd1102c40a863"
+msgstr "C'est tout ce que les singes peuvent envoyer?"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/3"
+msgid "wc1:fd386e54098a6b18"
+msgstr "Tu te bats comme un lâche."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/4"
+msgid "wc1:3d3d12165f4db0b0"
+msgstr "Je me régalerai de tes entrailles."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/5"
+msgid "wc1:f2b21b1c0960640e"
+msgstr "La mort d'un autre lâche."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/6"
+msgid "wc1:c057755f174cce36"
+msgstr "Ah! Le singe veut se battre!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/7"
+msgid "wc1:0c66be7d974a0f66"
+msgstr "Ma descendance me vengera!"
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/8"
+msgid "wc1:c04f38329f09c28c"
+msgstr "Ton peuple ne sera bientôt plus qu'un souvenir..."
+
+#. Original field capacity: 79 encoded bytes before NUL.
+msgctxt "common/COMMUNIC.DAT/speaker/13/record/9"
+msgid "wc1:9a2ce318303596e7"
+msgstr "Tu as gagné la bataille, mais Kilrah gagnera la guerre!"

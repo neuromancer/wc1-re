@@ -41,7 +41,7 @@ mkdir -p "$stage_dir/translations"
 cp LICENSE "$stage_dir/LICENSE.txt"
 # Game text, glyphs and artwork deltas use compiled catalogs; GUI text is embedded.
 # Editable sources and import tools remain in the release's source archive.
-for language in es ja; do
+for language in es ja fr; do
     test -s "$(dirname "$binary")/translations/$language.dat"
     cp "$(dirname "$binary")/translations/$language.dat" "$stage_dir/translations/"
 done

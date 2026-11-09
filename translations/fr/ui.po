@@ -1,0 +1,1126 @@
+# WC1 French text based on Greg14's translation.
+# Conversion authorized by Greg14, as confirmed by the project maintainer.
+msgid ""
+msgstr ""
+"Project-Id-Version: wc1-re\n"
+"Language: fr\n"
+"Last-Translator: Greg14; wc1-re contributors\n"
+"Language-Team: French\n"
+"PO-Revision-Date: 2026-11-09 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:e45a31169ab96ca6"
+msgstr "Sauvegarder la campagne"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:f31a78266fd7c1f8"
+msgstr "Partir en mission"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:8f48f9aca472643a"
+msgstr "Retour au Bar"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:038f9dc881913fdf"
+msgstr "Quitter Wing Commander"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:8577f76ec10c92d1"
+msgstr "Voir vos médailles"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:9648b4a7ac06f8a4 %s"
+msgstr "Réveiller %s."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:3863f9e780087cc8"
+msgstr "Chargez d'abord une partie."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:e16e1695deccb9d6"
+msgstr "Case 8 réservée à la sauvegarde auto."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:52fe85008e83bdfc"
+msgstr "Nom : "
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:216b48db726c99b5 %s"
+msgstr "Erreur : partie %s non sauvée."
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:df2ce16b45edf2f3"
+msgstr "Chargement..."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:f692ea4044771586 %d"
+msgstr "Erreur : partie %d non chargée."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:cc95bfcae21f576b"
+msgstr "Sauvegarde auto (vide)"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:57220d1bf60bc37c"
+msgstr "Réservé à la sauvegarde auto"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:3cff74eed5b4a445 (Y/N)"
+msgstr "Quitter Wing Commander ? (Y/N)"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:851dada7b265d8ee"
+msgstr "Erreur : données incorrectes."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:b83a6a252a86f05e %s (Y/N)"
+msgstr "Réveiller %s ? (Y/N)"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:cd7de0d2d7c2bf56"
+msgstr "DONNEES INCORRECTES"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:04feff32b592afa3 %s (Y/N)"
+msgstr "Remplacer %s ? (Y/N)"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:5767bc1abd18e93e"
+msgstr "Vous sortez du sas et entrez dans..."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:669b18c6d2d9c95b"
+msgstr "Aucun"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:ad462f34674b4855"
+msgstr "MISSILE VERROUILLE "
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:77813da41d3ec97f"
+msgstr "Trop proche"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:13843d4d945ec24b"
+msgstr "Ennemi proche"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:ac044f783ed2be09"
+msgstr "Danger proche"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:8d7e12aa5b8e4a6c %s"
+msgstr "%s TOUCHE"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:e130dea33f624d63"
+msgstr "ARMEMENT"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:fbc28c35662989a7"
+msgstr "Toutes"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "\nwc1:3ab58b72a607ba6b %s"
+msgstr "\nMissile:%s"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "\nwc1:734c9f2cb607c487 %s"
+msgstr "\nArme:%s"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:17c1c291f7a56678"
+msgstr "CALCUL"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:50fed8c6357d587b"
+msgstr "RIEN"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:08c643c98b44bb79"
+msgstr "INCONNU"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:a5c7e05076d51f14"
+msgstr "NAVIGATION"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "\n\nwc1:03e72b72f7f9b93f %s"
+msgstr ""
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "\n\nwc1:eb20506a5010ef58"
+msgstr "\n\nDIST.\n  "
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "\n\nwc1:de52ee517128c9c1 (N)"
+msgstr "\n\n(N)ouv. objectif"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:9c6b3241d550d3fd"
+msgstr "Déjà Visité"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:5794134af3122832"
+msgstr "Objectif atteint"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:409e9fd0bb4a6821 %s"
+msgstr "Attendre %s"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:056f3adc29b9c727"
+msgstr "Rien..."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:93e35ab4dfe7bdb9"
+msgstr "Attaque cible!"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:19cb3acf37db26de"
+msgstr "Aidez-moi!"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:e473fd1c4c70b37d"
+msgstr "Retour base"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:beca39f02992b0f8"
+msgstr "Meurs, matou!"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:8b720c573d185326"
+msgstr "Dégage!"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:b401a88d48f7f5c1"
+msgstr "Mange ça."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:491fb15531f4b61f"
+msgstr "Rompez, feu!"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:284100c20a32326a"
+msgstr "En formation!"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:4e65f851e20260c9"
+msgstr "Sur mon aile"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:e82d97241da27350"
+msgstr "Silence radio"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:6c5276513f4a25b9"
+msgstr "Parlez libre"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:96926b482a810181"
+msgstr "Atterrissage"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:374942ee28d568f6\n\n"
+msgstr "SYSTEME VIDCOM\n\nMessage pour ?\n\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:7da73cc0f538da0d"
+msgstr "CHOIX"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:09a2c2983b0bb2e4"
+msgstr "CIBLE ENNEMIE"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:45c8c14f96417eaa"
+msgstr "SYSTEME VIDCOM\n\nA : "
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:170722454a11ffa0"
+msgstr "CHOIX "
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:598079d9cd5e8b34"
+msgstr "Pas une égratignure, monsieur!"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:6cce92c6bed7ec06"
+msgstr "On dirait que vous avez eu chaud, monsieur!"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:136ce2429db38910"
+msgstr "Vous avez pris de méchants tirs, monsieur!"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:44819e9824ff6a04"
+msgstr "Heureux de vous revoir vivant, monsieur."
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:215adc640451e149"
+msgstr "FIN"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:28f9690fc4b74dc3 %X %Y %F %P"
+msgstr "%X%Y%FCompagnie.%P"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:4707dcab076f2cb5 %X %Y %P"
+msgstr "%X%YGarde à vous!%P"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:3057d9ad4b019b56 %X %Y %P"
+msgstr "%X%Y   En joue!  %P"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:3aec82c5b1ad2881 %X %Y %F %P"
+msgstr "%X%Y%FFeu! %P"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:646c9b67995535dd"
+msgstr "Moteur ion."
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:a85920ea4e3b7f57"
+msgstr "Cent. Elec."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:5cf2a727d5ea630f"
+msgstr "Gén. boucl."
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:5dea61c44c5a85e1"
+msgstr "Informatique"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:e3d7514660a78828"
+msgstr "Communicat."
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:ad6e2333546b139f"
+msgstr "Ciblage"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:4286a89f2b379550"
+msgstr "Anti-accél."
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:d60267286951e990"
+msgstr "Ejection"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:5821014e8b82aa72"
+msgstr "Réparations"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:091d5d07b5b33dcf"
+msgstr "OK"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:3b0ab4b52326316f"
+msgstr "Léger"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:0f3b0ae12a710300"
+msgstr "Modéré"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:47534eace1cc3220"
+msgstr "Lourd"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:25a147555f2c106c"
+msgstr "Détruit"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:1d0480830133829a"
+msgstr "RAPPORT DEGAT"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:f542a57c72848d02"
+msgstr "AUCUN DEGAT\n\nINTER."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:e7010562db525ecd %d %c"
+msgstr "%d unité%c touchée"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:bf18aab7f6f517f6 %s %s"
+msgstr "%s\nDégât: %s"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:4861a28f71cae832 %.1f"
+msgstr "FPS max. en vol : %.1f"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "\nwc1:641ad0a9afb96ad6"
+msgstr "\nVotre porte vaisseaux\nest detruit. Vous\nderivez sans fin\ndans le vide..."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:32c7e8147834e826"
+msgstr "Détruisant les restes de la puissance navale kilrathie dans le secteur..."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:0c112b9959463052"
+msgstr "Le Griffe du Tigre approche pour l'assaut..."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:172534b48b1894e8"
+msgstr "Et la dernière planète kilrathie du secteur tombe!"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:774faa1ba66f54ff"
+msgstr "Fuyant les forces écrasantes des Kilrathis dans le secteur..."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:e112dba44e63a92c"
+msgstr "Le Griffe du Tigre arrive à fuir. De justesse."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:b6c1476da941ad2f"
+msgstr "D'autres secteurs, d'autres batailles suivront..."
+
+# Source: Greg14 WC.EXE.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:4a70e8116cd4fd09"
+msgstr "Fin"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:87fa38e99fba3c4e"
+msgstr "Pour le moment..."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:ef3babc8aaffd353\n"
+msgstr " INFORMATIONS \n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:51d1b75aa290b069 %s\n"
+msgstr "Version : %s\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:20e6e08c14750ac1 %d %d\n"
+msgstr "Série %d Mission %d\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:408cff449914be93 %d %d\n"
+msgstr "Victoires pilote =%d\nVictoires ailier =%d\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:b3671feeebbb3426 %d\n"
+msgstr "Score série =%d\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:c319ba6c317d0d26 %d %d\n"
+msgstr "Score mission %d, médaille %d\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:39ca7da78978cdf8 %d\n"
+msgstr "Score promotion=%d\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:b365a1b1a023ed41\n"
+msgstr "OBJECTIFS\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:46be57d5381f3b64"
+msgstr "Appuyez sur une touche pour continuer"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:2335b57e73dbf9d6"
+msgstr "Désactivez le tir auto, puis appuyez sur un bouton"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:8d808d60a9f85743"
+msgstr "Manche en haut à gauche, appuyez sur un bouton"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:1d959c9914aa0ab9"
+msgstr "Manche en bas à droite, appuyez sur un bouton"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:6a456bc0bb92e5a6"
+msgstr "Centrez le manche, appuyez sur un bouton"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:dacf22cfd04ca91e"
+msgstr "ECHEC! Centrez le manche et appuyez sur un bouton"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:1d5c70c65b2275d1"
+msgstr "SOUS-LT."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:16aa23ac5eb0c885"
+msgstr "LIEUTENANT"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:3734423899e3cc0b"
+msgstr "CAPITAINE"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:a9dfcc16de5cac22"
+msgstr "COMMANDANT"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:432ec6df13549d1f"
+msgstr "LT-COL."
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:599bb5df9206c322"
+msgstr "Parler à SHOTGLASS."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:ccc78d3643567fb4"
+msgstr "Consulter le tableau de chasse"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:e2426812cd208a70"
+msgstr "Entrer dans la caserne"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:04d8327dd2ad0392"
+msgstr "Vol d'entraînement"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:83f42060a593f638"
+msgstr "Regarder l'affiche"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:89bef5d023e6b84a %s"
+msgstr "Parler à %s."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font3"
+msgid "wc1:8afe202d83fefd4e %X %Y %P"
+msgstr "%X%YGRIFFE DU TIGRE%P"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font3"
+msgid "wc1:6d0dd43d80468628 %X %Y"
+msgstr "%X%YPILOTE"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font3"
+msgid "wc1:0090ce0efffa0a04 %X %Y"
+msgstr "%X%YSORTIES VICTOIRES"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font3"
+msgid "wc1:50af9a19d1695fa8"
+msgstr "MORT"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:216c83b2ec0fd159 %d"
+msgstr "VOLUME EFFETS : %d."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:e4679c2e5587e161 %d"
+msgstr "VOLUME MUSIQUE : %d."
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:80c2f43f7c22212b"
+msgstr "PAUSE"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:9292cae61e079007 %s"
+msgstr ""
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:78b9576c7ab1a847 %d"
+msgstr "VITESSE DES MESSAGES : %d."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:d5445962e13677dc %d"
+msgstr "%d IMAGES SAUTEES."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:5e2c649b7ce98d28"
+msgstr "IMAGES VIDEO DESACTIVEES"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:c4a0a904e2dd287f"
+msgstr "IMAGES VIDEO ACTIVEES"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:6e03d9124173780f"
+msgstr "CAMERA MISSILE ACTIVE"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:641d5305374c7d53"
+msgstr "CAMERA MISSILE INACTIVE"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:ca81a1bc5093cfbf %X %Y %s %X %u %X"
+msgstr "%X%YScore: %s0 %XDurée: %u %X1 UP"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:5b93a2eb152856a7 %d %s %P"
+msgstr "Vague %d terminée.\n\nPoints bonus : %s0%P"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:52192f5029385626 %d %s %P"
+msgstr "Mission %d terminée.\n\nPoints bonus : %s0%P"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:e3b7c9eebb973343"
+msgstr "Erreur de chargement des paroles du pilote"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:1c182e1c2529027b"
+msgstr "Patrouille"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:a3c9ae5839fab735"
+msgstr "Escorte"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:58a3c1ecd4dd06cf"
+msgstr "Assaut"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:5859bb2031491281"
+msgstr "Défense"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:28e73d8b57e91956"
+msgstr "Ailier"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:fd0cf385070d5261"
+msgstr "Fuir"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:0631067e57b93858"
+msgstr "Saut"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:16b3606b313c03d2"
+msgstr "Rendez-vous"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:ff0b8c840efc1379"
+msgstr "Astéroïd."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:414c8fc929d85e7f"
+msgstr ""
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:7d0c217f4860383c %X %Y %s"
+msgstr "%X%YTemps Std.    %s"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:3d9938cacbaa8834"
+msgstr "PLAN DE VOL MISSION"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:7f9e657585eeb7e7"
+msgstr "BASE"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:bdc101cc853f8931 %s\n"
+msgstr "Secteur : %s\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:90267bffbebb8ff2 %s\n\n"
+msgstr "Système : %s\n\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "\nwc1:40492dafc2f85e28\n"
+msgstr ""
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:483f21e3318ed17c %X %Y %d %d %d"
+msgstr "%X%Y                          Coord.   %d.%d.%d"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:887303767b6676a2"
+msgstr "Carte de Nav    "
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:453506620052447c"
+msgstr "Scan Nav ConFed"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:e9113e77b0787275"
+msgstr "Griffe du T."
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:692ee92f22291885"
+msgstr "Poste spatial"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:2c0f9e664e8927e1"
+msgstr "Laser"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:e08e83371e653e02"
+msgstr "Neutrons"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:9faae5eb1f89c1f1"
+msgstr "Masse"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:0dbe005c12363e96"
+msgstr ""
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:c060984334b85fbd"
+msgstr ""
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:f523e12b0516a9ac"
+msgstr ""
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:f84fc8638dff8e58"
+msgstr ""
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:f8d322bc14c77180"
+msgstr ""
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:3f52e6e120cb00cd"
+msgstr "Entre temps..."
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:6729d72106bc1fed"
+msgstr "Réponse : "
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:96a92fa429163c3f"
+msgstr "Etoile de bronze"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:d988641049f55960"
+msgstr "Etoile d'argent"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:495a4d4237d87e7d"
+msgstr "Etoile d'or"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:d5d03f261ad7f152"
+msgstr "Soleil d'or"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:336cd370fc1c0355"
+msgstr "Médaille du mérite"
+
+# Source: Greg14 WC.EXE.
+msgctxt "font0"
+msgid "wc1:ddc5643a1d5c4c0f $R $N $C $S $D"
+msgstr "$R $N, alias $C.\nsystème $S, date $D."
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:b997643f68ab8e84"
+msgstr "Preparez vous"
+
+# Source: Greg14 WC.EXE.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:78589f6aa7482f15"
+msgstr "Victoire"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:ae517f2f44c29baf"
+msgstr "Partie terminee"
+
+# Adaptation: wc1-re contributors.
+msgctxt "font0"
+msgid "wc1:33a94eaf14393f50 (Y/N)"
+msgstr "Remplacer la sauvegarde auto ? (Y/N)"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:4a6f83d15b2d33ea"
+msgstr "Arme détruite"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:2fb234bf5051ca4d"
+msgstr "Réservoir touché"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:c40a7fcd3dcd0fe6 %s"
+msgstr "%s REPARE"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:0ae715aa6be3d120"
+msgstr "Verrou requis"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:c56c97e5b5247be6"
+msgstr "Dans un futur lointain,\nles humains sont pris\ndans une guerre meurtriere..."
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:593a6ad63ddb1c02"
+msgstr "Conception\npar\nChris Roberts"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:463fb950f2af5d21\n"
+msgstr "Ingenieurs logiciel\nChris Roberts\nKen Demarest III\nPaul C. Isaac\nSteve Muchow\nHerman Miller\nSteve Beeman\n"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:78340ec56c0c24d1"
+msgstr "Intelligence des combats\nKen Demarest III\n\nChoregraphie des combats\nSteve Beeman\nErin Roberts"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:1370872b0235c8aa"
+msgstr "Systeme 3Space\npar\nChris Roberts\n\nSysteme graphique OriginFX\nChris Roberts\nJohn Miles"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:711bb97bd6e24c62"
+msgstr "Systeme sonore OriginFX\npar\nHerman Miller"
+
+# Source: Greg14 WC.EXE.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:4a81b738535c61fe"
+msgstr "Graphismes\nDenis Loubet\nGlen Johnson\nDaniel Bourbonnais\nKeith Berdak\nJohn Watson"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:763779a2df869be0"
+msgstr "Scenario de Jeff George\n\nTextes additionnels\nSteve Cantrell\nPhilip Brogden"
+
+# Source: Greg14 WC.EXE.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:a8211021196a4b22"
+msgstr "Bande Son\nGeorge A. Sanger et Dave Govett"
+
+# Source: Greg14 WC.EXE.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:ea81913e008ae774"
+msgstr "Effets Sonores\nMarc Schaefgen  "
+
+# Source: Greg14 WC.EXE.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:cd7dbfc3b107472a"
+msgstr "Produit par\nChris Roberts et Warren Spector"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:4745d98728b4cd4a"
+msgstr "Realisation\nChris Roberts"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:4bff93afd3493869"
+msgstr "Equipe Windows 95"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:92dc3326396b3031"
+msgstr "Programmation des combats\n\nJeff Mangler Everett\nJeff jefftep Grills\nChuck Bishop Karpiak\nKris Goblin Pelley"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:fb0141956a2ae9c0"
+msgstr "Systeme sonore\n\nRichard Cupcake Lyle"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:c79c5bfb9ac571ba"
+msgstr "Reorchestration par\n\nI Need Names"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:4a699f771665f557"
+msgstr "Raleur en chef\n\nAnthony Sommers"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:df9304335aff9cb6"
+msgstr "Raleurs\n\nMonte Mathis\nHal Milton\nDieter Martin"
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:40e964fce1c5cf22\n"
+msgstr ""
+
+# Adaptation: wc1-re contributors.
+# ASCII title alphabet; no original artwork included.
+msgctxt "intro"
+msgid "wc1:3dd873aad6ee67e1"
+msgstr "Remerciements\n\nSocks\net\nCafeine"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:b4c571e3055c45eb"
+msgstr "Simulateur"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:9a0a811d69a429a1\n"
+msgstr "FELICITATIONS!\nVOUS AVEZ UN BON SCORE!\nENTREZ VOTRE\nNOM ET INDICATIF :\n"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:b0d5adda5697536a"
+msgstr "NOM : "
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:020fb3f53c53c342"
+msgstr "INDICATIF : "
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:a7f9c81997797b94 %d"
+msgstr "*******\nFELICITATIONS!\nVOTRE SCORE EST CLASSE\n>>>> %d <<<<\n*******"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:8b8d1b3e16f50329 %ld"
+msgstr "> DESOLE <\n\nVOTRE SCORE EST DE\n%ld0\n\nREESSAYEZ!"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:f11c1d9c8596947c %J %P"
+msgstr "%J   SCORES  %P"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:f73da679ed0323ae %P"
+msgstr "CHOISISSEZ\nUN ENNEMI%P"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:07a035d723c0a256"
+msgstr "CIBLE ACCROCHEE."
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:215bf7c9a8268573"
+msgstr "  AUTO CIBLAGE"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "\nwc1:72185237b1eb2dae"
+msgstr "\nCible:"
+
+# Adaptation: wc1-re contributors.
+msgctxt ""
+msgid "wc1:c8ecf3fec5bbf9c1"
+msgstr " Aucun"
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "\nwc1:76b0a402b4b69fa4"
+msgstr "\nDist. : "
+
+# Source: Greg14 WC.EXE.
+msgctxt ""
+msgid "wc1:b348d97fa79f7ad8"
+msgstr "ELOIGNE"

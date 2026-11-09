@@ -627,7 +627,7 @@ build-full: $(TARGET)
 
 # The native port is deliberately built in a separate output tree.  It must
 # never supply objects to the assembly-comparison target above.
-MODERN_TRANSLATIONS = $(MODERN_OUT_DIR)/translations/es.dat $(MODERN_OUT_DIR)/translations/ja.dat
+MODERN_TRANSLATIONS = $(addprefix $(MODERN_OUT_DIR)/translations/,es.dat ja.dat fr.dat)
 MODERN_VOICES = $(MODERN_OUT_DIR)/voices/segacd.dat
 
 $(MODERN_VOICES): bin/compileVoices.py bin/compileTranslations.py voices/segacd.po $(wildcard translations/es/*.po)
@@ -635,6 +635,9 @@ $(MODERN_VOICES): bin/compileVoices.py bin/compileTranslations.py voices/segacd.
 
 $(MODERN_OUT_DIR)/translations/es.dat: bin/compileTranslations.py $(wildcard translations/es/*.po) $(wildcard translations/es/*.json)
 	python3 bin/compileTranslations.py --source translations/es --output $@
+
+$(MODERN_OUT_DIR)/translations/fr.dat: bin/compileTranslations.py $(wildcard translations/fr/*.po) $(wildcard translations/fr/*.json)
+	python3 bin/compileTranslations.py --source translations/fr --encoding cp437 --output $@
 
 $(MODERN_OUT_DIR)/translations/ja.dat: bin/compileTranslations.py translations/ja/ui.po
 	python3 bin/compileTranslations.py --source translations/ja --encoding cp932 --output $@
@@ -649,6 +652,7 @@ update-launcher-translations:
 	@mkdir -p $(MODERN_OUT_DIR)
 	$(SLINT_TR_EXTRACTOR) --package-name wc1-re -o $(MODERN_OUT_DIR)/launcher.pot $(MODERN_GUI_SOURCE_DIR)/launcher.slint
 	msgmerge --update --backup=none --no-fuzzy-matching --no-wrap translations/es/LC_MESSAGES/launcher.po $(MODERN_OUT_DIR)/launcher.pot
+	msgmerge --update --backup=none --no-fuzzy-matching --no-wrap translations/fr/LC_MESSAGES/launcher.po $(MODERN_OUT_DIR)/launcher.pot
 
 modern: $(MODERN_TARGET)
 
@@ -1345,11 +1349,15 @@ $(MODERN_OUT_DIR)/translation-probe: $(MODERN_OUT_DIR)/obj/translation_probe.o \
 		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
-.PHONY: check-translations
+.PHONY: check-translations check-french
 check-translations: $(MODERN_OUT_DIR)/translation-probe
 	python3 bin/testImportWc1Spanish.py
 	$(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations/es.dat \
 		"$(MODERN_RUN_DIR)/GAMEDAT" $(MODERN_OUT_DIR)/spanish-preview.bmp
+
+check-french: $(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations/fr.dat
+	$(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations/fr.dat \
+		"$(MODERN_RUN_DIR)/GAMEDAT" $(MODERN_OUT_DIR)/french-preview.bmp fr
 
 $(MODERN_OUT_DIR)/voice-probe: bin/checkVoices.c src/sdl/audio.c src/sdl/speech.c src/sdl/compat.c include/wc1sdl.h | modern-check-sdl $(MODERN_VOICES)
 	@mkdir -p $(dir $@)

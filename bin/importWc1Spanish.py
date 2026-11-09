@@ -219,9 +219,9 @@ def tokens(text):
     return Counter(re.findall(r"\$[A-Z](?:[0-9])?", text))
 
 
-def add_entry(entries, issues, context, english, spanish, font=0, capacity=None):
+def add_entry(entries, issues, context, english, spanish, font=0, capacity=None, decoder=decode_text):
     source = decode_text(english)
-    translated = decode_text(spanish, True, font)
+    translated = decoder(spanish, True, font)
     if not source:
         if translated:
             raise ValueError(f"Spanish text has no English source: {context}")
@@ -237,7 +237,7 @@ def add_entry(entries, issues, context, english, spanish, font=0, capacity=None)
                     "font": font, "capacity": capacity, "warnings": warnings})
 
 
-def scene_entries(entries, issues, context, english, spanish, pairs):
+def scene_entries(entries, issues, context, english, spanish, pairs, decoder=decode_text):
     source_only = spanish is None
     if source_only:
         spanish = english
@@ -267,7 +267,7 @@ def scene_entries(entries, issues, context, english, spanish, pairs):
             if original[0] == -2:
                 continue
             if changed_scene:
-                add_entry(entries, issues, key, string_at(english, et + original[5]), b"")
+                add_entry(entries, issues, key, string_at(english, et + original[5]), b"", decoder=decoder)
                 continue
             localized = unpack(spanish, "<bbb5h", ss + index * 13)
             if (original[0], original[2]) != (localized[0], localized[2]):
@@ -281,14 +281,14 @@ def scene_entries(entries, issues, context, english, spanish, pairs):
                 # The English resource points textOffset at mouth-animation
                 # syllables and testsOffset at the actual spoken sentence.
                 add_entry(entries, issues, key, original_test,
-                          b"" if source_only else string_at(spanish, st + localized[5]))
+                          b"" if source_only else string_at(spanish, st + localized[5]), decoder=decoder)
                 warning = "English data has misplaced text/test offsets; source taken from testsOffset"
                 entries[-1]["warnings"].append(warning)
                 issues.append({"context": key, "warning": warning})
                 continue
             add_entry(entries, issues, key,
                       string_at(english, et + original[5]),
-                      b"" if source_only else string_at(spanish, st + localized[5]))
+                      b"" if source_only else string_at(spanish, st + localized[5]), decoder=decoder)
             if original_test != localized_test:
                 warning = "Scene conditions differ between editions; text pairing requires review"
                 entries[-1]["warnings"].append(warning)
@@ -297,7 +297,7 @@ def scene_entries(entries, issues, context, english, spanish, pairs):
                                "spanish_condition": localized_test.decode("ascii")})
 
 
-def fixed_entries(entries, issues, context, english, spanish, stride, offset, capacity, per_group=None, group="mission"):
+def fixed_entries(entries, issues, context, english, spanish, stride, offset, capacity, per_group=None, group="mission", decoder=decode_text):
     if (spanish is not None and len(english) != len(spanish)) or len(english) % stride:
         raise ValueError(f"Fixed records do not align: {context}")
     for index in range(len(english) // stride):
@@ -306,10 +306,10 @@ def fixed_entries(entries, issues, context, english, spanish, stride, offset, ca
         if per_group:
             key = f"{context}/{group}/{index // per_group}/record/{index % per_group}"
         add_entry(entries, issues, key, string_at(english, position, capacity),
-                  b"" if spanish is None else string_at(spanish, position, capacity), font=1, capacity=capacity - 1)
+                  b"" if spanish is None else string_at(spanish, position, capacity), font=1, capacity=capacity - 1, decoder=decoder)
 
 
-def import_resources(english_root, spanish=None):
+def import_resources(english_root, spanish=None, campaigns=CAMPAIGNS, decoder=decode_text):
     entries = []
     issues = []
     sources = {}
@@ -321,6 +321,8 @@ def import_resources(english_root, spanish=None):
         return original, translated
 
     for campaign, suffix in zip(CAMPAIGNS, ("000", "001", "002")):
+        if campaign not in campaigns:
+            continue
         name = f"BRIEFING.{suffix}"
         original, translated = map(packets, load(name))
         if len(original) != len(translated):
@@ -330,7 +332,7 @@ def import_resources(english_root, spanish=None):
                 continue
             count = 7 if index == 0 else 1 if index < 3 else 5
             scene_entries(entries, issues, f"{campaign}/{name}/packet/{index}",
-                          en, es if spanish is not None else None, count)
+                          en, es if spanish is not None else None, count, decoder=decoder)
         name = f"MODULE.{suffix}"
         original, translated = map(packets, load(name))
         if len(original) != 6 or len(translated) != 6:
@@ -343,11 +345,13 @@ def import_resources(english_root, spanish=None):
         ):
             fixed_entries(entries, issues, f"{campaign}/{name}/{label}",
                           original[packet], translated[packet] if spanish is not None else None,
-                          stride, offset, capacity, per_mission)
+                          stride, offset, capacity, per_mission, decoder=decoder)
     for name, domain in (("COMMUNIC.DAT", "common"), ("COMMSM2.DAT", "sm2")):
+        if domain == "sm2" and domain not in campaigns:
+            continue
         original, translated = load(name)
         fixed_entries(entries, issues, f"{domain}/{name}", original,
-                      translated if spanish is not None else None, 80, 0, 80, 11, "speaker")
+                      translated if spanish is not None else None, 80, 0, 80, 11, "speaker", decoder=decoder)
     return entries, issues, sources
 
 
@@ -515,20 +519,26 @@ def import_extras(english, spanish, template):
             'es/artwork.json': artwork + '\n'}, sources
 
 
-def po_document(entries, template=False):
+def po_document(entries, template=False, language="es"):
     lines = [
         "# WC1 and Secret Missions text imported from Spanish version 1.1 (2021).",
         "# Translation: L@Zar0. Text revision: darkpadawan.",
         "# Upstream declares GPL v3.0; see upstream/Leeme.txt for its complete notice.",
         'msgid ""', 'msgstr ""',
     ]
+    if language == "fr":
+        lines[:3] = ["# WC1 French text based on Greg14's translation.",
+                     "# Conversion authorized by Greg14, as confirmed by the project maintainer."]
     for line in (
-        "Project-Id-Version: wc1-re\n", f"Language: {'' if template else 'es'}\n",
+        "Project-Id-Version: wc1-re\n", f"Language: {'' if template else language}\n",
+        "Last-Translator: Greg14; wc1-re contributors\n" if language == "fr" else
         "Last-Translator: L@Zar0; text revision by darkpadawan\n",
-        "Language-Team: Spanish\n",
+        f"Language-Team: {'French' if language == 'fr' else 'Spanish'}\n",
+        "PO-Revision-Date: 2026-11-09 00:00+0000\n" if language == "fr" else
         "PO-Revision-Date: 2021-04-13 00:00+0000\n",
         "MIME-Version: 1.0\n", "Content-Type: text/plain; charset=UTF-8\n",
-        "Content-Transfer-Encoding: 8bit\n", "Plural-Forms: nplurals=2; plural=(n != 1);\n",
+        "Content-Transfer-Encoding: 8bit\n",
+        f"Plural-Forms: nplurals=2; plural=(n {'>' if language == 'fr' else '!='} 1);\n",
     ):
         lines.append(quote(line))
     for entry in entries:

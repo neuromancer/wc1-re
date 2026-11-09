@@ -12,6 +12,7 @@ import tempfile
 import unittest
 
 import importWc1Spanish as importer
+from importWc1French import french_text, menu_artwork
 
 
 def packed_codes(codes):
@@ -70,6 +71,25 @@ class ImportSpanishTests(unittest.TestCase):
         self.assertEqual([entry['translation'] for entry in entries], ['Hola'])
         self.assertFalse(issues)
 
+    def test_french_menu_keeps_expansion_frame(self):
+        def archive(sections):
+            offsets, size = [], 4 * (len(sections) + 1)
+            for section in sections:
+                offsets.append(size)
+                size += len(section)
+            return struct.pack('<' + 'I' * (len(sections) + 1), size, *offsets) + b''.join(sections)
+        source = archive([b'start', b'continue', b'expansion'])
+        target = archive([b'demarrer', b'continuer', b'expansion-change'])
+        patch, = menu_artwork(archive([b''] * 4 + [source]),
+                              archive([b''] * 4 + [target]))['packets']
+        result, position = bytearray(), 0
+        for offset, removed, inserted in patch['edits']:
+            result.extend(source[position:offset])
+            result.extend(bytes.fromhex(inserted))
+            position = offset + removed
+        result.extend(source[position:])
+        self.assertEqual(importer.packets(result), [b'demarrer', b'continuer', b'expansion'])
+
     def test_lzw_dictionary_reference_and_special_code(self):
         data = packed_codes([(256, 9), (65, 9), (66, 9), (258, 9), (260, 9), (257, 9)])
         self.assertEqual(importer.origin_lzw(data, 7), b"ABABABA")
@@ -103,6 +123,33 @@ class ImportSpanishTests(unittest.TestCase):
         encoded = b"ca\xe0\xebn, t\xef, s\xed, \xa1bien!"
         self.assertEqual(importer.decode_text(encoded, True, 1), "cañón, tú, sí, ¡bien!")
         self.assertEqual(importer.decode_text(b"\xe0\xeb\xef", True, 0), "àëï")
+
+    def test_french_import_does_not_require_secret_missions(self):
+        def archive(sections):
+            offsets, size = [], 4 * (len(sections) + 1)
+            for section in sections:
+                offsets.append(size)
+                size += len(section)
+            return struct.pack('<' + 'I' * (len(sections) + 1), size, *offsets) + b''.join(sections)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = {'BRIEFING.000': archive([b'']),
+                      'MODULE.000': archive([b'', b'Waypoint\0'.ljust(77, b'\0'), b'', b'', b'', b'']),
+                      'COMMUNIC.DAT': b'Ready\0'.ljust(80, b'\0')}
+            for name, data in source.items():
+                (root / name).write_bytes(data)
+            translated = {'GAMEDAT/' + name: data for name, data in source.items()}
+            translated['GAMEDAT/COMMUNIC.DAT'] = 'Prêt'.encode('cp437').ljust(80, b'\0')
+            entries, issues, sources = importer.import_resources(
+                root, translated, campaigns=('wc1',), decoder=french_text)
+            self.assertEqual(entries[-1]['translation'], 'Prêt')
+            self.assertEqual(set(sources), set(source))
+            self.assertFalse(issues)
+        entries, issues = [], []
+        importer.scene_entries(entries, issues, 'wc1/test', scene(b'Ready $C'),
+                               scene('Prêt, $C'.encode('cp437')), 1, decoder=french_text)
+        self.assertEqual(entries[0]['translation'], 'Prêt, $C')
+        self.assertNotIn('GPL', importer.po_document(entries, language='fr'))
 
     def test_scene_offsets_timing_and_script_separation(self):
         entries, issues = [], []
@@ -306,6 +353,30 @@ class CompileSpanishTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'workspace'):
             self.compiler.build_catalog(self.root, 'cp932')
 
+    def test_french_uses_cp437_without_spanish_font_aliases(self):
+        self.catalog('Prêt, déjà là')
+        (self.root / 'glyphs.json').write_text(json.dumps({'schema': 1, 'fonts': [
+            {'font': 1, 'height': 1, 'ink': 1, 'background': 0, 'source_crc32': 0,
+             'glyphs': [{'character': 0xe0, 'width': 1, 'pixels': '01'}]}]}))
+        data, count, _ = self.compiler.build_catalog(self.root, 'cp437')
+        self.assertEqual(count, 1)
+        self.assertIn('Prêt, déjà là'.encode('cp437') + b'\0', data)
+        self.assertTrue(data.endswith(bytes((1, 0, 0xe0, 1, 1))))
+        (self.root / 'ui.po').write_text('msgctxt "intro"\nmsgid "Ready"\nmsgstr "Prêt"\n', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'title-font'):
+            self.compiler.build_catalog(self.root, 'cp437')
+
+    def test_french_catalog_scope_and_opaque_source_ids(self):
+        root = Path(__file__).resolve().parent.parent / 'translations/fr'
+        data, count, skipped = self.compiler.build_catalog(root, 'cp437')
+        self.assertGreater(count, 3400)
+        self.assertLess(skipped, 20)
+        for path in root.glob('*.po'):
+            for entry, _, _, _ in self.compiler.read_po(path):
+                self.assertTrue(self.compiler.MESSAGE_ID.fullmatch(entry['msgid']))
+                self.assertNotIn('sm1/', entry.get('msgctxt', ''))
+                self.assertNotIn('sm2/', entry.get('msgctxt', ''))
+
     def test_artwork_splices_are_bounded_and_size_checked(self):
         packet = {'file': 'TITLE.VGA', 'section': 1, 'source_size': 8,
                   'source_crc32': 123, 'target_size': 9, 'target_crc32': 456,
@@ -328,7 +399,7 @@ class CompileSpanishTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which('msgfmt'), 'GNU gettext is optional')
     def test_ui_catalog_passes_gettext_format_validation(self):
-        for language in ('es', 'ja'):
+        for language in ('es', 'ja', 'fr'):
             path = Path(__file__).resolve().parent.parent / 'translations' / language / 'ui.po'
             subprocess.run(['msgfmt', '--check', '-o', str(self.root / 'ui.mo'), str(path)], check=True, capture_output=True)
 

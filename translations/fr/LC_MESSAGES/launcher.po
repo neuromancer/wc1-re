@@ -1,0 +1,224 @@
+# Launcher translations, wc1-re contributors. See ../../../LICENSE.
+msgid ""
+msgstr ""
+"Project-Id-Version: wc1-re\n"
+"Language: fr\n"
+"Last-Translator: wc1-re contributors\n"
+"Language-Team: French\n"
+"PO-Revision-Date: 2026-11-09 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgctxt "LauncherWindow"
+msgid "FM Towns: English/Japanese text."
+msgstr "FM Towns : textes anglais/japonais."
+
+msgctxt "LauncherWindow"
+msgid "Sega CD voices"
+msgstr "Voix Sega CD"
+
+msgctxt "LauncherWindow"
+msgid "Select game data…"
+msgstr "Sélectionner les données du jeu…"
+
+msgctxt "LauncherWindow"
+msgid "No game data found — add a path"
+msgstr "Aucune installation trouvée — ajoutez un dossier"
+
+msgctxt "LauncherWindow"
+msgid "SWC Mac demo"
+msgstr "Démo SWC pour Mac"
+
+msgctxt "LauncherWindow"
+msgid "Choose a Wing Commander directory."
+msgstr "Choisissez un dossier Wing Commander."
+
+msgctxt "LauncherWindow"
+msgid "The directory path is too long."
+msgstr "Le chemin du dossier est trop long."
+
+msgctxt "LauncherWindow"
+msgid "The selected path is not a directory."
+msgstr "Le chemin choisi n'est pas un dossier."
+
+msgctxt "LauncherWindow"
+msgid "SWC needs CMFs/{}."
+msgstr "SWC nécessite CMFs/{}."
+
+msgctxt "LauncherWindow"
+msgid "Invalid SWC archive: {}."
+msgstr "Archive SWC incorrecte : {}."
+
+msgctxt "LauncherWindow"
+msgid "SWC resources missing: keep the demo application with its resource fork (a MacBinary copy also works) or add SuperWingCommanderDemo.rsrc."
+msgstr "Ressources SWC manquantes : conservez l’application de démo et sa fourche de ressources (une copie MacBinary convient aussi), ou ajoutez SuperWingCommanderDemo.rsrc."
+
+msgctxt "LauncherWindow"
+msgid "Choose a WC1 directory containing GAMEDAT or the SWC demo directory containing CMFs."
+msgstr "Choisissez un dossier WC1 contenant GAMEDAT ou un dossier de démo SWC contenant CMFs."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/MODULE.000 is missing. Select a WC1 installation."
+msgstr "GAMEDAT/MODULE.000 est absent. Sélectionnez une installation WC1."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/MODULE.000 is unreadable or too small to identify."
+msgstr "GAMEDAT/MODULE.000 est illisible ou trop petit pour être identifié."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/{} is missing or unreadable."
+msgstr "GAMEDAT/{} est absent ou illisible."
+
+msgctxt "LauncherWindow"
+msgid "Kilrathi Saga data needs a sibling STREAMS directory."
+msgstr "Les données Kilrathi Saga nécessitent un dossier STREAMS à côté de GAMEDAT."
+
+msgctxt "LauncherWindow"
+msgid "STREAMS/{} is missing or unreadable."
+msgstr "STREAMS/{} est absent ou illisible."
+
+msgctxt "LauncherWindow"
+msgid "The folder picker failed"
+msgstr "Échec du sélecteur de dossiers"
+
+msgctxt "LauncherWindow"
+msgid "The folder picker could not be initialized"
+msgstr "Impossible d’initialiser le sélecteur de dossiers"
+
+msgctxt "LauncherWindow"
+msgid "Cannot resolve the game directory"
+msgstr "Impossible de résoudre le chemin du jeu"
+
+msgctxt "LauncherWindow"
+msgid "Cannot open the game directory"
+msgstr "Impossible d’ouvrir le dossier du jeu"
+
+msgctxt "LauncherWindow"
+msgid "Game installation"
+msgstr "Installation du jeu"
+
+msgctxt "LauncherWindow"
+msgid "Add path…"
+msgstr "Ajouter un dossier…"
+
+msgctxt "LauncherWindow"
+msgid "Language"
+msgstr "Langue"
+
+msgctxt "LauncherWindow"
+msgid "Graphics"
+msgstr "Graphismes"
+
+msgctxt "LauncherWindow"
+msgid "Start in fullscreen"
+msgstr "Démarrer en plein écran"
+
+msgctxt "LauncherWindow"
+msgid "Enhanced OpenGL"
+msgstr "OpenGL amélioré"
+
+msgctxt "LauncherWindow"
+msgid "EGA dithering (WC1 only)"
+msgstr "Tramage EGA (WC1 uniquement)"
+
+msgctxt "LauncherWindow"
+msgid "EGA 16-colour dithering"
+msgstr "Tramage EGA 16 couleurs"
+
+msgctxt "LauncherWindow"
+msgid "Gameplay"
+msgstr "Jeu"
+
+msgctxt "LauncherWindow"
+msgid "Autosave (WC1 only)"
+msgstr "Sauvegarde auto (WC1 uniquement)"
+
+msgctxt "LauncherWindow"
+msgid "Autosave (slot 8)"
+msgstr "Sauvegarde auto (case 8)"
+
+msgctxt "LauncherWindow"
+msgid "Cockpitless view"
+msgstr "Vue sans cockpit"
+
+msgctxt "LauncherWindow"
+msgid "Cheat mode"
+msgstr "Mode triche"
+
+msgctxt "LauncherWindow"
+msgid "Invulnerability and no collisions"
+msgstr "Invulnérabilité et aucune collision"
+
+msgctxt "LauncherWindow"
+msgid "Joystick"
+msgstr "Joystick"
+
+msgctxt "LauncherWindow"
+msgid "Control mode"
+msgstr "Mode de contrôle"
+
+msgctxt "LauncherWindow"
+msgid "Original — two axes / two buttons"
+msgstr "Original — deux axes / deux boutons"
+
+msgctxt "LauncherWindow"
+msgid "WCAT — four buttons / two axes"
+msgstr "WCAT — quatre boutons / deux axes"
+
+msgctxt "LauncherWindow"
+msgid "WCAT — four buttons / four axes"
+msgstr "WCAT — quatre boutons / quatre axes"
+
+msgctxt "LauncherWindow"
+msgid "Axis layout"
+msgstr "Affectation des axes"
+
+msgctxt "LauncherWindow"
+msgid "Twin-stick roll"
+msgstr "Deux manches : roulis"
+
+msgctxt "LauncherWindow"
+msgid "Twin-stick yaw"
+msgstr "Deux manches : lacet"
+
+msgctxt "LauncherWindow"
+msgid "HOTAS yaw"
+msgstr "HOTAS : lacet"
+
+msgctxt "LauncherWindow"
+msgid "HOTAS roll"
+msgstr "HOTAS : roulis"
+
+msgctxt "LauncherWindow"
+msgid "Linear throttle"
+msgstr "Gaz linéaires"
+
+msgctxt "LauncherWindow"
+msgid "Rudder yaw"
+msgstr "Palonnier : lacet"
+
+msgctxt "LauncherWindow"
+msgid "Rudder roll"
+msgstr "Palonnier : roulis"
+
+msgctxt "LauncherWindow"
+msgid "Rumble"
+msgstr "Vibrations"
+
+msgctxt "LauncherWindow"
+msgid "Mouse/arrows: steer · Right-drag: roll/throttle"
+msgstr "Souris/flèches : direction · Glisser avec bouton droit : roulis/gaz"
+
+msgctxt "LauncherWindow"
+msgid "Close this window to cancel."
+msgstr "Fermez cette fenêtre pour annuler."
+
+msgctxt "LauncherWindow"
+msgid "Cancel"
+msgstr "Annuler"
+
+msgctxt "LauncherWindow"
+msgid "Start game"
+msgstr "Lancer le jeu"

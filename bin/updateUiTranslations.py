@@ -49,10 +49,11 @@ def main():
                 parser.exit(1, "UI template is stale; run make update-translations.\n")
         else:
             template.write_text(text, encoding="utf-8")
-            catalog = root / "translations/es/ui.po"
-            if catalog.exists():
-                subprocess.run(["msgmerge", "--update", "--backup=none",
-                                "--no-fuzzy-matching", "--no-wrap", str(catalog), str(template)], check=True)
+            for language in ("es", "fr"):
+                catalog = root / "translations" / language / "ui.po"
+                if catalog.exists():
+                    subprocess.run(["msgmerge", "--update", "--backup=none",
+                                    "--no-fuzzy-matching", "--no-wrap", str(catalog), str(template)], check=True)
         print("UI translation markers and template agree." if args.check else "Updated UI translation template and merged existing translations.")
     except (OSError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"UI extraction failed: {error}\n")

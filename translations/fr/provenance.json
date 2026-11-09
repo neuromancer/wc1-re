@@ -1,0 +1,74 @@
+{
+  "language": "fr",
+  "scope": "WC1 base game",
+  "authors": [
+    "Greg14"
+  ],
+  "author_url": "https://www.wcnews.com/chatzone/members/greg14.11738/",
+  "permission": "Maintainer confirmed Greg14's permission to convert and use this translation on 2026-11-09.",
+  "encoding": "cp437",
+  "domains": {
+    "wc1": 3124,
+    "common": 148
+  },
+  "sources": {
+    "BRIEFING.000": {
+      "english_sha256": "b4f4c6047283368d2e8d87263dee64a760b8a93f786a6f30c7cab3e3397abc99",
+      "french_sha256": "d1ab1d965e596cbddf0e4c23ee3da82c51fcea6b33ce401258ddbb667577aaeb"
+    },
+    "MODULE.000": {
+      "english_sha256": "9716449031350096895bba114a374a1e469348a2353f764ef35a2900be4b0e4f",
+      "french_sha256": "0eec83260ef82ebcc0f5958d1986736291341765d3d9ad6eef5146738b2b84ea"
+    },
+    "COMMUNIC.DAT": {
+      "english_sha256": "32e80cfd7afde1689a2752caf76cd1b464733d15ace1febb35a4eaa7f38020c5",
+      "french_sha256": "833c98cae03f56d968fa25135a33f42c949602a073340f0cf3438c77d033acb6"
+    },
+    "WC.EXE": {
+      "french_sha256": "c561eb8789dba4de522def4949e1aca4b4a1e74595d4890c7cdf325e9dec009b",
+      "english_sha256": "c37d085909175abc95b4a51ffc884913c7d4ea52ba66ca932619ce1f67fa91ca"
+    },
+    "GAMEDAT/FONTS.FNT": {
+      "french_sha256": "1216bb8e9fb3a81be97cacc15c8dec18e5cc7bb9f8a5f7ce6e52d1fa031554c3"
+    },
+    "TITLE.VGA": {
+      "english_sha256": "3312707060db343eb60b1504f0dd485a11201f11362c279816df92ee0da5501f",
+      "french_sha256": "7f3a45430da38791cacefc24a3f9bd57b377dcf1d2461d0a074a6746cfc6b629"
+    }
+  },
+  "issues": [
+    {
+      "context": "wc1/BRIEFING.000/packet/21/scene/1/record/2",
+      "warning": "Campaign substitution tokens differ; review before use"
+    },
+    {
+      "context": "wc1/BRIEFING.000/packet/34/scene/2/record/0",
+      "warning": "Campaign substitution tokens differ; review before use"
+    },
+    {
+      "context": "wc1/BRIEFING.000/packet/46/scene/1/record/8",
+      "warning": "Campaign substitution tokens differ; review before use"
+    },
+    {
+      "context": "wc1/BRIEFING.000/packet/46/scene/1/record/15",
+      "warning": "Campaign substitution tokens differ; review before use"
+    },
+    {
+      "context": "wc1/BRIEFING.000/packet/51/scene/1/record/12",
+      "warning": "Campaign substitution tokens differ; review before use"
+    },
+    {
+      "context": "wc1/BRIEFING.000/packet/54/scene/3/record/2",
+      "warning": "Scene conditions differ between editions; text pairing requires review",
+      "english_condition": "\u00053,3,",
+      "french_condition": "\u00055,3,"
+    }
+  ],
+  "not_imported": [
+    "Secret Missions",
+    "original English prose",
+    "game binaries",
+    "artwork other than base-game menu-label deltas"
+  ],
+  "review_note": "Initial findings retained above. Published catalogs repair campaign placeholders, verify the changed-condition text pairing, and shorten one subtitle. Executable UI is reviewed and supplemented by wc1-re contributors. Intro captions use the existing ASCII alphabet; main-menu Start/Continue frames use sparse deltas from Greg14; other artwork is not imported."
+}

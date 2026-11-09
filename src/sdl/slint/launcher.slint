@@ -142,7 +142,7 @@ export component LauncherWindow inherits Window {
                     }
                     ComboBox {
                         horizontal-stretch: 1;
-                        model: ["English", "Español", "Japanese (FM Towns)"];
+                        model: ["English", "Español", "Japanese (FM Towns)", "Français"];
                         current-index: root.language-index;
                         selected(_) => {
                             root.language-selected(self.current-index);

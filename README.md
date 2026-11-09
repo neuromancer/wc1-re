@@ -73,6 +73,8 @@ cd /path/to/WC1
 For Spanish, choose **Language → Español** or use `--language=es`. The launcher
 switches immediately; WC1 and Secret Missions support Spanish with DOS or
 Kilrathi Saga data. Super Wing Commander remains English.
+For French, choose **Français** or `--language=fr`. The WC1 base-game text, main menu
+and launcher are translated; Secret Missions and other artwork are not included yet.
 
 **Sega CD voices:** supply your own recordings in `Data/Voice` beside `GAMEDAT`,
 or keep WingLoader's original `Games/WC1/GAMEDAT` and `Data/Voice` layout. A
@@ -200,8 +202,8 @@ archives ship as `wc1-modern`.
 
 ### Translation and voice mappings
 
-Edit `translations/es/*.po` or `translations/ja/ui.po` for the game,
-`translations/es/LC_MESSAGES/launcher.po` for the GUI, and `voices/segacd.po`
+Edit `translations/{es,fr}/*.po` or `translations/ja/ui.po` for the game,
+`translations/{es,fr}/LC_MESSAGES/launcher.po` for the GUI, and `voices/segacd.po`
 for voice filenames. Preserve contexts, IDs,
 format directives and `$C`-style substitutions. Empty/fuzzy entries use the
 original text or remain unvoiced. Game IDs contain no original English prose.
@@ -212,6 +214,7 @@ The reference build keeps the original English expressions.
 make update-translations update-launcher-translations # needs gettext and slint-tr-extractor
 make modern modern-gui                               # compiles mappings; no recordings needed
 make check-translations MODERN_RUN_DIR=/path/to/WC1
+make check-french MODERN_RUN_DIR=/path/to/WC1
 make check-launcher check-voices                     # synthetic GUI/audio checks
 ```
 
@@ -286,6 +289,8 @@ Special thanks to:
   [original terms](translations/upstream/Leeme.txt) specify GPLv3 with an additional
   no-charge condition. [Provenance](translations/provenance.json) records the import;
 - WingLoader v0.91 for the initial associations between dialogue and recording filenames;
+- [Greg14](https://www.wcnews.com/chatzone/members/greg14.11738/) for the French
+  translation, adapted with permission; [provenance](translations/fr/provenance.json);
 - Aaron Giles for the [DREAMM emulator](https://dreamm.aarongiles.com/), used
   to run and study the original release, and
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's

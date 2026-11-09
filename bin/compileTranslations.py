@@ -161,8 +161,10 @@ def build_catalog(directory, encoding="cp1252"):
             if context == "intro":
                 # TITLE.VGA's sprite alphabet has six Spanish glyphs in the
                 # ASCII gap between uppercase and lowercase letters.
-                translated = translated.translate(str.maketrans("áéíñóú", "[\\]^_`"))
-                if re.search(r"[^A-Za-z0-9\[\\\]^`_., \n]", translated):
+                if encoding == "cp1252":
+                    translated = translated.translate(str.maketrans("áéíñóú", "[\\]^_`"))
+                alphabet = r"[^A-Za-z0-9\[\\\]^`_., \n]" if encoding == "cp1252" else r"[^A-Za-z0-9., \n]"
+                if re.search(alphabet, translated):
                     raise ValueError(f"Unsupported title-font character: {source!r}")
             elif font not in (0, 1, 2, 3):
                 raise ValueError(f"Unsupported text font {font}: {context}")
@@ -187,7 +189,7 @@ def build_catalog(directory, encoding="cp1252"):
         if not 0 <= font["font"] < 4 or not 1 <= font["height"] <= 32:
             raise ValueError("Invalid font index or height")
         glyphs = list(font["glyphs"])
-        if font["font"] == 1:
+        if font["font"] == 1 and encoding == "cp1252":
             # Resource names and UI strings are shared between menu font 1
             # and cockpit font 2. Give font 1 the same CP1252 accent slots as
             # the other fonts, while retaining the upstream alternate slots.
@@ -217,7 +219,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=Path("translations/es"))
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--encoding", choices=("cp1252", "cp932"), default="cp1252")
+    parser.add_argument("--encoding", choices=("cp1252", "cp437", "cp932"), default="cp1252")
     args = parser.parse_args()
     try:
         output, count, skipped = build_catalog(args.source, args.encoding)

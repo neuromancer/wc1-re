@@ -53,8 +53,8 @@ void refresh_window(LauncherWindow &window,
 void set_language(LauncherWindow &window,
                   const std::vector<GameInstallation> &installations, int language)
 {
-    if (slint::select_bundled_translation(language == 1 ? "es" : "en")) {
-        window.set_language_index(std::clamp(language, 0, 2));
+    if (slint::select_bundled_translation(language == 1 ? "es" : language == 3 ? "fr" : "en")) {
+        window.set_language_index(std::clamp(language, 0, 3));
         refresh_installations(window, installations);
     }
 }
@@ -218,7 +218,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
                 gameDirectory.size() + 1);
     options->fullscreen = window->get_start_fullscreen();
     options->autosave = window->get_autosave();
-    options->language = std::clamp(window->get_language_index(), 0, 2);
+    options->language = std::clamp(window->get_language_index(), 0, 3);
     options->enhancedRenderer = window->get_enhanced_renderer();
     options->egaDither = window->get_ega_dither();
     options->cockpitlessView = window->get_cockpitless_view();
