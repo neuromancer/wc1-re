@@ -1359,6 +1359,21 @@ check-french: $(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations
 	$(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations/fr.dat \
 		"$(MODERN_RUN_DIR)/GAMEDAT" $(MODERN_OUT_DIR)/french-preview.bmp fr
 
+$(MODERN_OUT_DIR)/obj/retry_probe.o: bin/checkMissionRetry.c src/sdl/autosave.c | modern-check-sdl
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/retry-probe: $(MODERN_OUT_DIR)/obj/retry_probe.o \
+		$(MODERN_BASE_HOST_OBJS) $(filter-out $(MODERN_OUT_DIR)/obj/sdl/autosave.o,$(MODERN_GAME_HOST_OBJS)) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-mission-retry
+check-mission-retry: $(MODERN_OUT_DIR)/retry-probe
+	$(MODERN_OUT_DIR)/retry-probe
+
 $(MODERN_OUT_DIR)/voice-probe: bin/checkVoices.c src/sdl/audio.c src/sdl/speech.c src/sdl/compat.c include/wc1sdl.h | modern-check-sdl $(MODERN_VOICES)
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) $(MODERN_SECTION_FLAGS) $< src/sdl/compat.c $(MODERN_SDL_LIBS) $(MODERN_DEAD_STRIP_FLAGS) -o $@

@@ -798,7 +798,12 @@ msgctxt "intro"
 msgid "wc1:ae517f2f44c29baf"
 msgstr ""
 
-#: src/sdl/autosave.c:70
+#: src/sdl/autosave.c:56 src/sdl/swc_flight.c:1099
+msgctxt "font0"
+msgid "wc1:c49c1b105b4018ae"
+msgstr ""
+
+#: src/sdl/autosave.c:134
 msgctxt "font0"
 msgid "wc1:33a94eaf14393f50 (Y/N)"
 msgstr ""

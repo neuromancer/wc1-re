@@ -1228,3 +1228,9 @@ msgstr "\nDist.: "
 #: src/view.c:757
 msgid "wc1:b348d97fa79f7ad8"
 msgstr "MUY LEJOS"
+
+# Translation: wc1-re contributors.
+#. Original field capacity: 51 bytes.
+msgctxt "font0"
+msgid "wc1:c49c1b105b4018ae"
+msgstr "Intro/A/1: Repetir  Esc/B/2: Seguir la historia"

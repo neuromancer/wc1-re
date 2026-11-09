@@ -157,3 +157,9 @@ msgstr "%X%Y出撃数  撃墜数"
 msgctxt "font3"
 msgid "wc1:50af9a19d1695fa8"
 msgstr "戦死"
+
+# Translation: wc1-re contributors.
+#. Original field capacity: 51 bytes.
+msgctxt "font0"
+msgid "wc1:c49c1b105b4018ae"
+msgstr "Enter/A/1: 再挑戦  Esc/B/2: 物語を進める"

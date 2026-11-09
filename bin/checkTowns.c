@@ -193,6 +193,10 @@ static void CheckJapaneseRoomLabels(TextContext *context)
     Require(strlen(text) < 52, "Japanese replace confirmation fits original buffer");
     Require(strlen(C_("font0", "Quit Wing Commander? (Y/N)")) < 52,
             "Japanese quit confirmation fits original buffer");
+    Require(strlen(C_("font0", "Enter/A/1: Retry  Esc/B/2: Continue story")) < 52 &&
+            SdlMeasureTownsText(C_("font0", "Enter/A/1: Retry  Esc/B/2: Continue story")) > 0 &&
+            SdlMeasureTownsText(C_("font0", "Enter/A/1: Retry  Esc/B/2: Continue story")) < 300,
+            "Japanese retry prompt fits modal buffer and screen");
     context->text = 0;
     context->alignment = 0;
     puts("PASS: Japanese room hotspots, pilot/save labels and confirmation bounds through PO lookup.");

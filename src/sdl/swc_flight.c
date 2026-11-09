@@ -1091,6 +1091,44 @@ static int SwcDrawPauseMessage(SDL_Renderer *renderer, const SDL_Color colors[25
     return 0;
 }
 
+static int SwcConfirmMissionRetry(SDL_Window *window, SDL_Renderer *renderer,
+                                  const SDL_Color colors[256])
+{
+    SDL_Event event;
+    int result = SWC_MOVIE_ERROR;
+    const char *prompt = C_("font0", "Enter/A/1: Retry  Esc/B/2: Continue story");
+
+    SDL_FlushEvents(SDL_KEYDOWN, SDL_KEYUP);
+    SdlSetJoystickRetryMode(1);
+    for (;;) {
+        if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) != 0 ||
+            SDL_RenderClear(renderer) != 0 ||
+            SdlDrawSwcProportionalText(renderer, &swcPauseFont,
+                160 - SdlSwcTextWidth(&swcPauseFont, prompt) / 2, 120,
+                colors[0x81], prompt) != 0)
+            break;
+        SDL_RenderPresent(renderer);
+        if (!SDL_WaitEventTimeout(&event, 16) || SdlHandleSwcEvent(window, &event, 0))
+            continue;
+        if (event.type == SDL_QUIT) {
+            result = SWC_MOVIE_QUIT;
+            break;
+        }
+        if (event.type == SDL_KEYDOWN && !event.key.repeat) {
+            if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER) {
+                result = SWC_MOVIE_FINISHED;
+                break;
+            }
+            if (event.key.keysym.sym == SDLK_ESCAPE) {
+                result = SWC_MOVIE_SKIPPED;
+                break;
+            }
+        }
+    }
+    SdlSetJoystickRetryMode(0);
+    return result;
+}
+
 /* SWC CODE_14 +0x000c: visit_the_cinema. CODE_02 new_view's case 12
  * (+0x3474) supplies the camera setup; the shared case-12 camera update
  * matches CODE_02 +0x29f0. SDL owns pacing, window events and presentation. */
@@ -1770,6 +1808,8 @@ title_menu:
         result = 0;
         goto done;
     }
+    SdlCaptureMissionCheckpoint();
+launch_mission:
     movieResult = SdlPlaySwcLaunch(window, renderer);
     if (movieResult == SWC_MOVIE_ERROR)
         goto done;
@@ -2084,6 +2124,13 @@ title_menu:
                 nArcadeState = 2;
                 check_stranded();
                 if (nArcadeState != 3) {
+                    choice = SwcConfirmMissionRetry(window, renderer, colors);
+                    if (choice == SWC_MOVIE_FINISHED)
+                        goto retry_mission;
+                    if (choice != SWC_MOVIE_SKIPPED) {
+                        result = choice == SWC_MOVIE_QUIT ? 0 : -1;
+                        goto done;
+                    }
                     /* CODE_09 GameFlow +0x1ec0..+0x1ef2: rescue costs one
                      * promotion point; first ejection queues medal 3. */
                     nArcadeState = 0;
@@ -2101,9 +2148,17 @@ title_menu:
                 movieResult = SwcRunFlightScene(SWC_FLIGHT_DEATH);
                 if (movieResult == SWC_MOVIE_ERROR)
                     goto done;
-                if (movieResult != SWC_MOVIE_QUIT)
+                if (movieResult != SWC_MOVIE_QUIT) {
+                    choice = SwcConfirmMissionRetry(window, renderer, colors);
+                    if (choice == SWC_MOVIE_FINISHED)
+                        goto retry_mission;
+                    if (choice != SWC_MOVIE_SKIPPED) {
+                        result = choice == SWC_MOVIE_QUIT ? 0 : -1;
+                        goto done;
+                    }
                     movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path,
                                                     SWC_CARRIER_PLAYER_FUNERAL);
+                }
                 if (movieResult == SWC_MOVIE_ERROR)
                     goto done;
                 if (movieResult != SWC_MOVIE_QUIT)
@@ -2115,8 +2170,16 @@ title_menu:
                 movieResult = SdlShowSwcEnding(window, renderer, path, 1);
                 if (movieResult == SWC_MOVIE_ERROR)
                     goto done;
-                if (movieResult != SWC_MOVIE_QUIT)
+                if (movieResult != SWC_MOVIE_QUIT) {
+                    choice = SwcConfirmMissionRetry(window, renderer, colors);
+                    if (choice == SWC_MOVIE_FINISHED)
+                        goto retry_mission;
+                    if (choice != SWC_MOVIE_SKIPPED) {
+                        result = choice == SWC_MOVIE_QUIT ? 0 : -1;
+                        goto done;
+                    }
                     goto title_menu;
+                }
                 result = 0;
                 goto done;
             }
@@ -2163,6 +2226,21 @@ title_menu:
         SDL_Delay(8);
     }
     result = 0;
+    goto done;
+retry_mission:
+    SdlRestoreMissionCheckpoint();
+    if (SdlLoadSwcMissionData(missionPath, stCampaignState.currentSeries,
+                            stCampaignState.currentMission) != 0)
+        goto done;
+    shipCount = SwcStartMissionShips();
+    if (shipCount < 0 || SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf,
+            colors, swcRasterCanvas) != 0)
+        goto done;
+    paused = 0;
+    elapsed = 0;
+    bSwcWaitingForEscort = 0;
+    nSwcCinemaResult = 0;
+    goto launch_mission;
 done:
     SDL_strlcpy(failure, SDL_GetError(), sizeof(failure));
     SdlFreeSwcSound();

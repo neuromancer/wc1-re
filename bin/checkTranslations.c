@@ -198,6 +198,10 @@ static void CheckUiTranslations(const char *catalogPath,
     Require(snprintf(formatted, sizeof(formatted), _("Error: Game %s not saved."), "WWWWWWWWWWWWWWWW") < (int)sizeof(formatted), "save error fits modal buffer");
     Require(snprintf(formatted, sizeof(formatted), C_("font0", "Replace %s? (Y/N)"), "WWWWWWWWWWWWWWWW") < (int)sizeof(formatted), "confirmation fits modal buffer");
     Require(strstr(formatted, "(Y/N)") != 0, "confirmation matches accepted keys");
+    context->font = fontData[0];
+    Require(strlen(C_("font0", "Enter/A/1: Retry  Esc/B/2: Continue story")) < 52 &&
+            MeasureTextPixelWidthClamped(C_("font0", "Enter/A/1: Retry  Esc/B/2: Continue story")) < 300,
+            "retry prompt fits modal buffer and screen");
     for (index = 0; index < SDL_arraysize(calibration); index++)
         Require(strlen(_(calibration[index])) < 52, "calibration fits modal buffer");
     printf("PASS: %u UI messages, static/runtime/context macros, accents, formatting and key labels.\n", translated);

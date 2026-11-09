@@ -48,6 +48,7 @@ static int g_bSdlJoystickDebug;
 static int g_bSdlJoystickInputStarted;
 static int g_bSdlJoystickRumbleEnabled;
 static int g_bSdlJoystickSpaceflightActive;
+static int joystickRetryMode;
 static int g_bSdlTwoAxisModifierActive;
 static int g_nSdlCommunicationMenuSelection;
 static int g_nSdlRumblingJoystick = -1;
@@ -481,6 +482,16 @@ static void SdlRefreshJoysticks(void)
            SdlFindFreeJoystickSlot() != -1) {
         SdlOpenJoystick(deviceIndex);
         deviceIndex++;
+    }
+}
+
+void SdlSetJoystickRetryMode(int enabled)
+{
+    joystickRetryMode = enabled != 0;
+    if (enabled) {
+        SdlRefreshJoysticks();
+        SDL_FlushEvents(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLERBUTTONUP);
+        SDL_FlushEvents(SDL_JOYBUTTONDOWN, SDL_JOYBUTTONUP);
     }
 }
 
@@ -972,9 +983,10 @@ void SdlTranslateSwcJoystickEvent(SDL_Event *event, int flight)
     instance = controller ? event->cbutton.which :
         event->type == SDL_JOYHATMOTION ? event->jhat.which : event->jbutton.which;
     SdlRefreshJoysticks();
-    SdlSelectSwcJoystick();
+    if (!joystickRetryMode)
+        SdlSelectSwcJoystick();
     slot = SdlFindJoystick(instance);
-    if (slot < 0 || slot != nCurrentActiveInputDevice) {
+    if (slot < 0 || (!joystickRetryMode && slot != nCurrentActiveInputDevice)) {
         event->type = 0;
         return;
     }
@@ -1014,7 +1026,13 @@ void SdlTranslateSwcJoystickEvent(SDL_Event *event, int flight)
             return;
         }
     }
-    if (button == SDL_PORT_JOYSTICK_BUTTON_BACK)
+    if (joystickRetryMode) {
+        if (button == SDL_PORT_JOYSTICK_BUTTON_A)
+            key = SDLK_RETURN;
+        else if (button == SDL_PORT_JOYSTICK_BUTTON_B ||
+                 button == SDL_PORT_JOYSTICK_BUTTON_BACK)
+            key = SDLK_ESCAPE;
+    } else if (button == SDL_PORT_JOYSTICK_BUTTON_BACK)
         key = flight ? SDLK_ESCAPE : SDLK_BACKSPACE;
     else if (button == SDL_PORT_JOYSTICK_BUTTON_START)
         key = SDLK_p;
@@ -1087,7 +1105,7 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     int slot;
 
     slot = SdlFindJoystick(instanceId);
-    if (slot == -1 || slot != nCurrentActiveInputDevice)
+    if (slot == -1 || (!joystickRetryMode && slot != nCurrentActiveInputDevice))
         return;
     device = &g_aSdlJoystickDevices[slot];
     if (controllerEvent) {
@@ -1096,6 +1114,17 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
         button = SdlControllerButtonIndex(button);
     } else if (device->controller != 0 &&
                SdlControllerMapsRawButton(device, button)) {
+        return;
+    }
+
+    if (joystickRetryMode) {
+        if (pressed) {
+            if (button == SDL_PORT_JOYSTICK_BUTTON_A)
+                QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, VK_RETURN, 0, 0, 0);
+            else if (button == SDL_PORT_JOYSTICK_BUTTON_B ||
+                     button == SDL_PORT_JOYSTICK_BUTTON_BACK)
+                QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, VK_ESCAPE, 0, 0, 0);
+        }
         return;
     }
 
@@ -1223,4 +1252,5 @@ void SdlShutdownJoysticks(void)
     g_bSdlJoystickSpaceflightActive = 0;
     g_bSdlTwoAxisModifierActive = 0;
     g_nSdlCommunicationMenuSelection = 0;
+    joystickRetryMode = 0;
 }

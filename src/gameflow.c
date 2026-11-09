@@ -305,6 +305,10 @@ short GameFlow(void)
     scramble();
     flownSeries = stCampaignState.currentSeries;
     flownMission = stCampaignState.currentMission;
+#ifdef SDL_PORT
+    SdlCaptureMissionCheckpoint();
+retry_mission:
+#endif
     init_mission(flownSeries, flownMission);
     LaunchPlayerShip();
     flightResult = RunSpaceFlight(-1);
@@ -326,6 +330,10 @@ short GameFlow(void)
         if (nArcadeState == 3)
             stranded_sequence();
         free_3Space();
+#ifdef SDL_PORT
+        if (SdlRetryMission())
+            goto retry_mission;
+#endif
         if (nArcadeState == 3)
             return 0;
         nArcadeState = 0;
@@ -340,10 +348,18 @@ short GameFlow(void)
     case 3:
         stranded_sequence();
         free_3Space();
+#ifdef SDL_PORT
+        if (SdlRetryMission())
+            goto retry_mission;
+#endif
         return 0;
     case 4:
         death_sequence();
         free_3Space();
+#ifdef SDL_PORT
+        if (SdlRetryMission())
+            goto retry_mission;
+#endif
         funeral_sequence(1);
         bCampaignActive = 0;
         return 0;

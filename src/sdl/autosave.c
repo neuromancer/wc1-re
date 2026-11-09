@@ -8,6 +8,69 @@ static int autosaveEnabled;
 /* 0: ask before replacing an occupied slot; 1: this campaign owns it;
  * -1: disabled for the current game, including any saves loaded within it. */
 static int autosavePermission;
+static CampaignState missionCheckpoint;
+static PilotRecord missionPilots[9];
+static int missionCheckpointValid;
+
+void SdlCaptureMissionCheckpoint(void)
+{
+    missionCheckpointValid = !nTrainSimActive && stCampaignState.currentSeries > 0;
+    missionCheckpoint = stCampaignState;
+    memcpy(missionPilots, aPilotEntriesList, sizeof(missionPilots));
+}
+
+void SdlRestoreMissionCheckpoint(void)
+{
+    if (!missionCheckpointValid)
+        return;
+    stCampaignState = missionCheckpoint;
+    memcpy(aPilotEntriesList, missionPilots, sizeof(missionPilots));
+    CorrectPointers();
+    /* Ships, damage, ammunition and objectives are rebuilt by mission setup.
+     * Restore campaign changes (including deaths/ace flags) before that setup. */
+    bPlayerEjectedThisMission = 0;
+    bPromotionPending = 0;
+    bOfficeVisitPending = 0;
+    bPlayerShipTypeChanged = 0;
+    nPendingMedalIndex = -1;
+    nPostSeriesSequence = -1;
+    nPlayerCollisionObject = -1;
+    nArcadeState = 0;
+    bEscapePressedFlag = 0;
+}
+
+int SdlRetryMission(void)
+{
+    int key = 0;
+    int savedCursorShowCount = nMouseCursorShowCount;
+    void (*savedPump)(void) = pCurrentEventManagerPump;
+
+    if (!missionCheckpointValid)
+        return 0;
+    SdlStopVoice();
+    SdlSuspendMouseGrab();
+    /* Read discrete choices without the legacy joystick-to-mouse polling. */
+    SetEventManagerPump(NULL);
+    SdlSetJoystickRetryMode(1);
+    nMouseCursorShowCount = 0;
+    if (ShowModalTextPanel(0, C_("font0", "Enter/A/1: Retry  Esc/B/2: Continue story")) != 0) {
+        FlushInputEvents();
+        do {
+            key = WaitForStreamInputKey();
+        } while (key != VK_RETURN && key != VK_ESCAPE);
+        ReleaseModalTextPanel();
+    }
+    FlushInputEvents();
+    ClearDebugPauseFlags();
+    SdlSetJoystickRetryMode(0);
+    SetEventManagerPump(savedPump);
+    nMouseCursorShowCount = savedCursorShowCount;
+    SdlResumeMouseGrab();
+    if (key != VK_RETURN)
+        return 0;
+    SdlRestoreMissionCheckpoint();
+    return 1;
+}
 
 void SdlConfigureAutosave(int enabled)
 {
@@ -20,6 +83,7 @@ void SdlResetAutosave(void)
     /* A return to the title screen or a new campaign starts a fresh game.
      * Keep the launcher's persistent enabled/disabled preference intact. */
     autosavePermission = 0;
+    missionCheckpointValid = 0;
 }
 
 void SdlResumeAutosave(int resumeAutosave)

@@ -1124,3 +1124,9 @@ msgstr "\nDist. : "
 msgctxt ""
 msgid "wc1:b348d97fa79f7ad8"
 msgstr "ELOIGNE"
+
+# Translation: wc1-re contributors.
+#. Original field capacity: 51 bytes.
+msgctxt "font0"
+msgid "wc1:c49c1b105b4018ae"
+msgstr "Entrée/A/1: Rejouer  Échap/B/2: Voir la suite"

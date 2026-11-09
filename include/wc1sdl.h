@@ -208,6 +208,9 @@ void SdlConfigureAutosave(int enabled);
 void SdlResetAutosave(void);
 void SdlResumeAutosave(int resumeAutosave);
 void SdlAutosaveCampaign(void);
+void SdlCaptureMissionCheckpoint(void);
+void SdlRestoreMissionCheckpoint(void);
+int SdlRetryMission(void);
 /* Buffers private to the original units, shared with SDL adapters here. */
 extern int nInsertKeyDown; /* 0x00475b68 */
 extern int nOemPeriodKeyStatus; /* 0x00475bf0 */
@@ -267,6 +270,7 @@ int SdlSetJoystickMode(const char *name);
 int SdlSetJoystickAxesMode(const char *name);
 struct InputDeviceSample;
 int SdlJoystickHasEnhancedControls(void);
+void SdlSetJoystickRetryMode(int enabled);
 int SdlReadSwcJoystickFlightSample(struct InputDeviceSample *sample);
 void SdlTranslateSwcJoystickEvent(SDL_Event *event, int flight);
 /* Consume host shortcuts/device events; translate controller buttons in place. */
