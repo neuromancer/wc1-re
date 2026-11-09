@@ -13,8 +13,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "LauncherWindow"
-msgid "FM Towns POC: English text; experimental audio."
-msgstr "POC de FM Towns: texto en inglés; audio experimental."
+msgid "FM Towns: English/Japanese text."
+msgstr "FM Towns: texto en inglés/japonés."
 
 #: src/sdl/slint/launcher.slint:47
 msgctxt "LauncherWindow"

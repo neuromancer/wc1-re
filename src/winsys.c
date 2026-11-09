@@ -325,7 +325,11 @@ int PromptInsertCorrectCd(void)
 /* Function start: 0x4034D0 */
 short __stdcall OpenDataFileOrDie(const char *path)
 {
+#ifdef SDL_PORT
+    short fd = _open(SdlTownsFilename(path), 0x8002);
+#else
     short fd = _open(path, 0x8002);
+#endif
 
     nPacketError = errno;
     return fd;

@@ -295,6 +295,17 @@ class CompileSpanishTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'title-font'):
             self.compiler.build_catalog(self.root)
 
+    def test_japanese_ui_without_font_patches(self):
+        (self.root / 'glyphs.json').unlink()
+        (self.root / 'ui.po').write_text('msgid "Ready"\nmsgstr "準備完了"\n', encoding='utf-8')
+        data, count, skipped = self.compiler.build_catalog(self.root, 'cp932')
+        self.assertEqual((count, skipped), (1, 0))
+        self.assertEqual(struct.unpack_from('<I', data, 8)[0], 0)
+        self.assertIn('準備完了'.encode('cp932') + b'\0', data)
+        (self.root / 'ui.po').write_text('msgid "Ready"\nmsgstr "' + 'あ' * 128 + '"\n', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'workspace'):
+            self.compiler.build_catalog(self.root, 'cp932')
+
     def test_artwork_splices_are_bounded_and_size_checked(self):
         packet = {'file': 'TITLE.VGA', 'section': 1, 'source_size': 8,
                   'source_crc32': 123, 'target_size': 9, 'target_crc32': 456,
@@ -317,8 +328,9 @@ class CompileSpanishTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which('msgfmt'), 'GNU gettext is optional')
     def test_ui_catalog_passes_gettext_format_validation(self):
-        path = Path(__file__).resolve().parent.parent / 'translations/es/ui.po'
-        subprocess.run(['msgfmt', '--check', '-o', str(self.root / 'ui.mo'), str(path)], check=True, capture_output=True)
+        for language in ('es', 'ja'):
+            path = Path(__file__).resolve().parent.parent / 'translations' / language / 'ui.po'
+            subprocess.run(['msgfmt', '--check', '-o', str(self.root / 'ui.mo'), str(path)], check=True, capture_output=True)
 
     @unittest.skipUnless(shutil.which("xgettext"), "GNU gettext is optional")
     def test_ui_template_matches_decorated_source(self):

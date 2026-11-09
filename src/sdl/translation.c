@@ -109,7 +109,7 @@ int SdlLoadTranslationCatalog(const char *path)
         goto invalid;
     messageCount = ReadTranslation32(catalog + 4);
     fontCount = ReadTranslation32(catalog + 8);
-    if (!messageCount || messageCount > (size_t)size / 12 || fontCount != 4)
+    if (!messageCount || messageCount > (size_t)size / 12 || fontCount > 4)
         goto invalid;
     messages = calloc(messageCount, sizeof(*messages));
     if (!messages)
@@ -246,12 +246,13 @@ int SdlSetLanguage(int language)
         SdlShutdownTranslations();
         return 1;
     }
-    if (language != 1)
+    if (language != 1 && (language != 2 || !SdlUsingTownsJapanese()))
         return 0;
     base = SDL_GetBasePath();
     if (!base)
         return 0;
-    result = SDL_snprintf(path, sizeof(path), "%stranslations/es.dat", base);
+    result = SDL_snprintf(path, sizeof(path), "%stranslations/%s.dat", base,
+                          language == 1 ? "es" : "ja");
     SDL_free(base);
     if (result < 0 || result >= (int)sizeof(path))
         return 0;
@@ -291,7 +292,7 @@ static const char *FindTranslation(const char *context, const char *source)
 
 char *SdlTranslateText(const char *context, const char *source)
 {
-    return (char *)FindTranslation(context, source);
+    return (char *)SdlTranslateTownsText(FindTranslation(context, source));
 }
 
 static int TranslateFont(short section, const unsigned char *source, size_t size,
@@ -303,6 +304,8 @@ static int TranslateFont(short section, const unsigned char *source, size_t size
     size_t total = size;
     size_t index;
 
+    if (!font->glyphs)
+        return 1;
     if (size < 772 || ReadTranslation16(source) != font->height ||
         source[2] != font->ink || source[3] != font->background ||
         SDL_crc32(0, source, size) != font->crc) {

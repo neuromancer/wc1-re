@@ -539,6 +539,7 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/video_state.c
 MODERN_GAME_HOST_SRCS = \
 	src/sdl/fmtowns.c \
+	src/sdl/towns_text.c \
 	src/sdl/autosave.c \
 	src/sdl/swc_flight.c \
 	src/sdl/swc_raster.c \
@@ -581,6 +582,7 @@ MODERN_IX_OBJS = \
 MODERN_BASE_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_BASE_HOST_SRCS))
 MODERN_YMFM_OBJS = $(patsubst %.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_YMFM_SRCS))
 MODERN_GAME_HOST_OBJS = \
+	$(MODERN_OUT_DIR)/obj/towns_font.o \
 	$(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_SRCS)) \
 	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_CXX_SRCS)) \
 	$(MODERN_YMFM_OBJS)
@@ -625,14 +627,17 @@ build-full: $(TARGET)
 
 # The native port is deliberately built in a separate output tree.  It must
 # never supply objects to the assembly-comparison target above.
-MODERN_TRANSLATIONS = $(MODERN_OUT_DIR)/translations/es.dat
+MODERN_TRANSLATIONS = $(MODERN_OUT_DIR)/translations/es.dat $(MODERN_OUT_DIR)/translations/ja.dat
 MODERN_VOICES = $(MODERN_OUT_DIR)/voices/segacd.dat
 
 $(MODERN_VOICES): bin/compileVoices.py bin/compileTranslations.py voices/segacd.po $(wildcard translations/es/*.po)
 	python3 bin/compileVoices.py --output $@
 
-$(MODERN_TRANSLATIONS): bin/compileTranslations.py $(wildcard translations/es/*.po) $(wildcard translations/es/*.json)
+$(MODERN_OUT_DIR)/translations/es.dat: bin/compileTranslations.py $(wildcard translations/es/*.po) $(wildcard translations/es/*.json)
 	python3 bin/compileTranslations.py --source translations/es --output $@
+
+$(MODERN_OUT_DIR)/translations/ja.dat: bin/compileTranslations.py translations/ja/ui.po
+	python3 bin/compileTranslations.py --source translations/ja --encoding cp932 --output $@
 
 .PHONY: update-translations
 update-translations:
@@ -718,6 +723,14 @@ $(MODERN_STATIC_GUI_LAUNCHER_OBJ): $(MODERN_LAUNCHER_SRC) Makefile | modern-chec
 	$(MODERN_CC) $(MODERN_CPPFLAGS) -DWC1_STATIC_GUI=1 $(MODERN_CFLAGS) \
 		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/towns_font.c: third_party/misaki/misaki.bin bin/compileTownsFont.py
+	@mkdir -p $(dir $@)
+	python3 bin/compileTownsFont.py $< $@
+
+$(MODERN_OUT_DIR)/obj/towns_font.o: $(MODERN_OUT_DIR)/towns_font.c | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 
 $(MODERN_OUT_DIR)/obj/%.o: src/%.c | modern-check-deps
 	@mkdir -p $(dir $@)
@@ -1335,7 +1348,7 @@ $(MODERN_OUT_DIR)/translation-probe: $(MODERN_OUT_DIR)/obj/translation_probe.o \
 .PHONY: check-translations
 check-translations: $(MODERN_OUT_DIR)/translation-probe
 	python3 bin/testImportWc1Spanish.py
-	$(MODERN_OUT_DIR)/translation-probe $(MODERN_TRANSLATIONS) \
+	$(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations/es.dat \
 		"$(MODERN_RUN_DIR)/GAMEDAT" $(MODERN_OUT_DIR)/spanish-preview.bmp
 
 $(MODERN_OUT_DIR)/voice-probe: bin/checkVoices.c src/sdl/audio.c src/sdl/speech.c src/sdl/compat.c include/wc1sdl.h | modern-check-sdl $(MODERN_VOICES)
@@ -1352,7 +1365,7 @@ $(MODERN_OUT_DIR)/obj/towns_probe.o: bin/checkTowns.c src/sdl/fmtowns.c | modern
 
 $(MODERN_OUT_DIR)/towns-probe: $(MODERN_OUT_DIR)/obj/towns_probe.o \
 		$(MODERN_BASE_HOST_OBJS) $(filter-out $(MODERN_OUT_DIR)/obj/sdl/fmtowns.o,$(MODERN_GAME_HOST_OBJS)) \
-		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS) | $(MODERN_OUT_DIR)/translations/ja.dat
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
 		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@

@@ -44,7 +44,7 @@ typedef struct SdlLauncherOptions {
     char voiceCatalog[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     int fullscreen;
     int autosave;
-    int language; /* 0: English, 1: Spanish */
+    int language; /* 0: English, 1: Spanish, 2: Japanese (FM Towns) */
     int enhancedRenderer;
     int egaDither;
     int cockpitlessView;

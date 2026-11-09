@@ -115,3 +115,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Misaki Gothic 2nd (Japanese font)
+================================
+
+Misaki Gothic 2nd, 2021-05-05
+https://littlelimit.net/misaki.htm
+https://littlelimit.net/arc/misaki/misaki_bdf_2021-05-05.zip
+
+Copyright(C) 2002-2021 Num Kadoma
+
+These fonts are free softwares.
+Unlimited permission is granted to use, copy, and distribute it, with or without modification, either commercially and noncommercially.
+THESE FONTS ARE PROVIDED "AS IS" WITHOUT WARRANTY.

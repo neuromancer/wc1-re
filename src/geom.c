@@ -19,6 +19,11 @@ short __stdcall MeasureTextPixelWidthClamped(const char *text)
 {
     short width = 0;
 
+#ifdef SDL_PORT
+    int townsWidth = SdlMeasureTownsText(text);
+    if (townsWidth >= 0)
+        return townsWidth;
+#endif
     while (*text != 0) {
         width = (width + GetFontCharWidth(*text++));
         if (width >= 320)

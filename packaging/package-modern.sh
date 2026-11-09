@@ -39,10 +39,12 @@ fi
 
 mkdir -p "$stage_dir/translations"
 cp LICENSE "$stage_dir/LICENSE.txt"
-# Game text, glyphs and artwork deltas are in this catalog; GUI text is embedded.
+# Game text, glyphs and artwork deltas use compiled catalogs; GUI text is embedded.
 # Editable sources and import tools remain in the release's source archive.
-test -s "$(dirname "$binary")/translations/es.dat"
-cp "$(dirname "$binary")/translations/es.dat" "$stage_dir/translations/"
+for language in es ja; do
+    test -s "$(dirname "$binary")/translations/$language.dat"
+    cp "$(dirname "$binary")/translations/$language.dat" "$stage_dir/translations/"
+done
 # The portable voice mapping contains IDs/filenames only, never recordings.
 mkdir -p "$stage_dir/voices"
 test -s "$(dirname "$binary")/voices/segacd.dat"

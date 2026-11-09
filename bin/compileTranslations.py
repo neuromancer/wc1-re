@@ -114,7 +114,7 @@ def read_po(path):
     return entries
 
 
-def build_catalog(directory):
+def build_catalog(directory, encoding="cp1252"):
     messages = {}
     skipped = 0
     seen_keys = set()
@@ -145,11 +145,11 @@ def build_catalog(directory):
                 raise ValueError(f"Campaign placeholders differ: {context}")
             # AddPCName/ExpandCommMessageTokens share a 256-byte workspace.
             # These bounds cover full pilot fields, fixed mission names and
-            # numeric expansions; font encoding uses one byte per character.
+            # numeric expansions; count bytes for multibyte encodings too.
             token_limits = {"A": 32, "C": 13, "N": 13, "P": 13, "R": 16,
                             "S": 39, "W": 13, "D": 11, "E": 11,
                             "T": 9, "K": 6, "L": 6}
-            expanded_length = len(translated)
+            expanded_length = len(translated.encode(encoding))
             for marker in re.findall(r"\$[A-Z](?:[0-9])?", translated):
                 if marker[1] not in token_limits:
                     raise ValueError(f"Unsupported placeholder {marker}: {context}")
@@ -166,7 +166,7 @@ def build_catalog(directory):
                     raise ValueError(f"Unsupported title-font character: {source!r}")
             elif font not in (0, 1, 2, 3):
                 raise ValueError(f"Unsupported text font {font}: {context}")
-            fields = (*key, translated.encode("cp1252"))
+            fields = (*key, translated.encode(encoding))
             if capacity is not None and len(fields[2]) > capacity:
                 raise ValueError(f"Translation exceeds {capacity} encoded bytes: {context}")
             if any(b"\0" in field or len(field) > 32766 for field in fields):
@@ -174,7 +174,8 @@ def build_catalog(directory):
             messages[key] = fields
     if not messages:
         raise ValueError("No translations found")
-    fonts = json.loads((directory / "glyphs.json").read_text())
+    glyphs_path = directory / "glyphs.json"
+    fonts = json.loads(glyphs_path.read_text()) if glyphs_path.exists() else {"schema": 1, "fonts": []}
     if fonts.get("schema") != 1:
         raise ValueError("Unsupported glyph schema")
     output = bytearray(b"WCT2" + struct.pack("<II", len(messages), len(fonts["fonts"])))
@@ -216,12 +217,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=Path("translations/es"))
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--encoding", choices=("cp1252", "cp932"), default="cp1252")
     args = parser.parse_args()
     try:
-        output, count, skipped = build_catalog(args.source)
+        output, count, skipped = build_catalog(args.source, args.encoding)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_bytes(output)
-        print(f"Compiled {count} Spanish messages; {skipped} untranslated/review entries fall back to English.")
+        print(f"Compiled {count} messages ({args.encoding}); {skipped} untranslated/review entries fall back to English.")
     except (OSError, ValueError, KeyError, SyntaxError, UnicodeError, struct.error) as error:
         parser.exit(1, f"Translation compilation failed: {error}\n")
 

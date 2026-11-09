@@ -49,13 +49,13 @@ export component LauncherWindow inherits Window {
         ? @tr("Select game data…") : @tr("No game data found — add a path");
 
     public pure function edition-text(edition: LauncherMessage) -> string {
-        if edition == LauncherMessage.fm-towns { return "FM Towns (POC)"; }
+        if edition == LauncherMessage.fm-towns { return "FM Towns"; }
         if edition == LauncherMessage.mac-demo { return @tr("SWC Mac demo"); }
         return edition == LauncherMessage.dos ? "DOS" : "Kilrathi Saga";
     }
 
     public pure function message-text(message: LauncherMessage, detail: string) -> string {
-        if message == LauncherMessage.fm-towns { return @tr("FM Towns POC: English text; experimental audio."); }
+        if message == LauncherMessage.fm-towns { return @tr("FM Towns: English/Japanese text."); }
         if message == LauncherMessage.choose-directory { return @tr("Choose a Wing Commander directory."); }
         if message == LauncherMessage.path-too-long { return @tr("The directory path is too long."); }
         if message == LauncherMessage.not-directory { return @tr("The selected path is not a directory."); }
@@ -142,7 +142,7 @@ export component LauncherWindow inherits Window {
                     }
                     ComboBox {
                         horizontal-stretch: 1;
-                        model: ["English", "Español"];
+                        model: ["English", "Español", "Japanese (FM Towns)"];
                         current-index: root.language-index;
                         selected(_) => {
                             root.language-selected(self.current-index);

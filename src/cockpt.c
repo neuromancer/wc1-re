@@ -1999,6 +1999,15 @@ void print_message_text(char *text, unsigned short colour)
     charactersPerLine = GetRectHeight(&viewport) / 6;
     input = source;
     output = wrapped;
+#ifdef SDL_PORT
+    /* The Japanese renderer wraps whole Shift-JIS glyphs. Byte-based HUD
+     * wrapping can split a two-byte character, so pass those lines intact. */
+    if (SdlMeasureTownsText(source) >= 0) {
+        DosStrcpy(wrapped, source);
+        input += strlen(source);
+        output += strlen(source);
+    }
+#endif
     for (position = 0; *input != 0; position++, input++, output++) {
         *output = *input;
         if (*output == ' ')

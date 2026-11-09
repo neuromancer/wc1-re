@@ -70,8 +70,10 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                 options->language = 0;
             else if (strcmp(argument + 11, "es") == 0)
                 options->language = 1;
+            else if (strcmp(argument + 11, "ja") == 0)
+                options->language = 2;
             else {
-                fprintf(stderr, "Unknown language: %s (use en or es).\n", argument + 11);
+                fprintf(stderr, "Unknown language: %s (use en, es or ja).\n", argument + 11);
                 return 0;
             }
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_LANGUAGE;
@@ -190,7 +192,9 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
             return 0;
         }
     }
-    if (!SdlSetLanguage(options->swcDemo || SdlUsingTownsData() ? 0 : options->language)) {
+    if (!SdlSetTownsLanguage(options->language == 2) ||
+        !SdlSetLanguage(options->language != 2 && (options->swcDemo || SdlUsingTownsData()) ?
+                       0 : options->language)) {
         fprintf(stderr, "Cannot load game language: %s\n", SDL_GetError());
         return 0;
     }
@@ -375,6 +379,7 @@ int main(int argumentCount, char **arguments)
     ServiceAudioStream();
     SdlShutdownOriginFxAudio();
     SdlShutdownTownsAudio();
+    SdlSetTownsLanguage(0);
 
     DIBunInstall();
     SdlShutdownJoysticks();

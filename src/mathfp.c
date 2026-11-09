@@ -245,6 +245,10 @@ void __stdcall DrawTextString(const char *text)
     int savedX;
     int finished;
 
+#ifdef SDL_PORT
+    if (SdlDrawTownsText(text))
+        return;
+#endif
     finished = 0;
     wrapped = 0;
     cursor = text;
@@ -335,6 +339,10 @@ void __stdcall DrawTextCharacter(char character)
     unsigned int glyphWidth;
     int cursorY;
 
+#ifdef SDL_PORT
+    if (SdlDrawTownsCharacter((unsigned char)character))
+        return;
+#endif
     if (character == '\n') {
         pCurTextContext->cursorX =
             pCurTextContext->viewport->left;

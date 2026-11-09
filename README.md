@@ -6,8 +6,8 @@ Commander: The Kilrathi Saga* (1996). The reconstructed game core is C, the
 4.20 to reproduce the original Win32 executable.
 
 A native SDL2 port is available for Windows, Linux, and macOS. It supports
-Kilrathi Saga data, has partial support for the original DOS game data, and
-also runs the Super Wing Commander Mac demo.
+Kilrathi Saga and FM Towns data, has partial support for the original DOS game
+data, and also runs the Super Wing Commander Mac demo.
 
 No original game archives or Sega CD voice recordings are included.
 
@@ -53,8 +53,8 @@ Download the package for your platform from
   `voices/` mapping beside the executable.
 
 Game data is not included. Open the app to choose a detected installation, or
-use **Add path…** to select a Kilrathi Saga or DOS Wing Commander directory
-containing `GAMEDAT`. Choose the graphics and joystick options, then select
+use **Add path…** to select a Kilrathi Saga, DOS, or FM Towns Wing Commander
+directory containing `GAMEDAT`. Choose the graphics and joystick options, then select
 **Start game**. Kilrathi Saga installations
 also need `STREAMS/PREFLITE.STR`, `POSFLITE.STR`, and `MISSION.STR`. With DOS
 data, compressed resources, OriginFX/AdLib music, and synthesized sound effects
@@ -101,6 +101,18 @@ their original keys: `Cmd+U`/`Cmd+N` (`Ctrl+U`/`Ctrl+N` on Windows and Linux) tu
 music and sound off or on, `Cmd+B`/`Ctrl+B` toggles text messages, and
 `Cmd+V`/`Ctrl+V` opens Volume Controls.
 
+### FM Towns data
+
+Extract `WC.EXP` and the complete `GAMEDAT/` folder from your original FM Towns
+CD into a writable game folder. Preserve the subdirectories, including `S1/`
+and `S2/`, and all `.FMP` sound files. Select the folder containing `WC.EXP` in
+the launcher; choose **Japanese (FM Towns)** or use `--language=ja` for Japanese
+text. Towns OS files and a font ROM are not needed.
+
+For CD music, also keep the original raw `.bin`/`.img` disc image and its CUE
+sheet. Place the sheet beside `WC.EXP` as `TOWNS.CUE` (or set `WC1_TOWNS_CUE`
+to its path), keeping its `FILE` entries pointed at the image files.
+
 ### Fixes and features
 
 The first group is always active; the rest need a switch, and switches can be
@@ -108,7 +120,7 @@ combined.
 
 | Fix or feature | Enable with |
 | --- | --- |
-| Runs from either Kilrathi Saga or DOS game data, detected automatically | always on |
+| Runs from Kilrathi Saga, DOS, or FM Towns game data, detected automatically | always on |
 | Resizable window, fullscreen toggle, and mouse capture | always on |
 | Aspect-correct 4:3 presentation and pointer mapping | always on |
 | Camera-relative left/right panning for in-flight sound effects | always on |
@@ -188,8 +200,9 @@ archives ship as `wc1-modern`.
 
 ### Translation and voice mappings
 
-Edit `translations/es/*.po` for the game, `translations/es/LC_MESSAGES/launcher.po`
-for the GUI, and `voices/segacd.po` for voice filenames. Preserve contexts, IDs,
+Edit `translations/es/*.po` or `translations/ja/ui.po` for the game,
+`translations/es/LC_MESSAGES/launcher.po` for the GUI, and `voices/segacd.po`
+for voice filenames. Preserve contexts, IDs,
 format directives and `$C`-style substitutions. Empty/fuzzy entries use the
 original text or remain unvoiced. Game IDs contain no original English prose.
 Use `_()`/`C_()` in C, `N_()`/`NC_()` for static strings, and `@tr()` in Slint.

@@ -1,0 +1,12 @@
+Misaki Gothic 2nd, 2021-05-05
+https://littlelimit.net/misaki.htm
+https://littlelimit.net/arc/misaki/misaki_bdf_2021-05-05.zip
+
+Copyright(C) 2002-2021 Num Kadoma
+
+These fonts are free softwares.
+Unlimited permission is granted to use, copy, and distribute it, with or without modification, either commercially and noncommercially.
+THESE FONTS ARE PROVIDED "AS IS" WITHOUT WARRANTY.
+
+misaki.bin contains the single-byte and JIS glyphs, eight bitmap rows each:
+python3 bin/compileTownsFont.py misaki_gothic_2nd.bdf third_party/misaki/misaki.bin

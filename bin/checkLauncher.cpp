@@ -135,8 +135,15 @@ int main(int argc, char **argv)
             "Towns detected without INSTALL.DAT or STREAMS");
     window->set_status(towns.message);
     set_language(*window, installations, 1);
-    require(window->get_status_text() == "POC de FM Towns: texto en inglés; audio experimental.",
-            "Towns limitations translated in launcher");
+    require(window->get_status_text() == "FM Towns: texto en inglés/japonés.",
+            "Towns status translated in launcher");
+    set_language(*window, installations, 2);
+    require(window->get_language_index() == 2, "Japanese selection retained");
+    SdlLauncherOptions saved = {}, loaded = {};
+    saved.language = window->get_language_index();
+    require(save_launcher_config(fixture / "launcher.ini", saved), "save Japanese selection");
+    load_launcher_config(fixture / "launcher.ini", loaded);
+    require(loaded.language == 2, "restore Japanese selection");
     fs::remove(gameData / "FONTS.FNT");
     require(!validate_game_directory(path_to_utf8(fixture)).valid, "incomplete Towns data rejected");
     fs::remove(gameData / "COMMUNIC.JAT");

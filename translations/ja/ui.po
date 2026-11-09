@@ -1,0 +1,159 @@
+# New Japanese UI translations by wc1-re contributors; project GPLv3 license.
+# Conversations and original Towns text are read from the user's game files.
+msgid ""
+msgstr ""
+"Project-Id-Version: wc1-re\n"
+"PO-Revision-Date: 2026-11-09 00:00+0000\n"
+"Last-Translator: wc1-re contributors\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/killbrd.c:170 src/killbrd.c:177
+msgctxt "font0"
+msgid "wc1:599bb5df9206c322"
+msgstr "ショットグラスに話しかける"
+
+#: src/killbrd.c:447 src/killbrd.c:472
+#, c-format
+msgctxt "font0"
+msgid "wc1:89bef5d023e6b84a %s"
+msgstr "%sに話しかける"
+
+#: src/killbrd.c:185
+msgctxt "font0"
+msgid "wc1:ccc78d3643567fb4"
+msgstr "戦績を確認する"
+
+#: src/killbrd.c:186
+msgctxt "font0"
+msgid "wc1:e2426812cd208a70"
+msgstr "居住区へ移動する"
+
+#: src/killbrd.c:187
+msgctxt "font0"
+msgid "wc1:04d8327dd2ad0392"
+msgstr "訓練飛行を開始する"
+
+#: src/killbrd.c:189
+msgctxt "font0"
+msgid "wc1:83f42060a593f638"
+msgstr "ポスターを眺める"
+
+#: src/barracks.c:45 src/barracks.c:46
+msgctxt "font0"
+msgid "wc1:e45a31169ab96ca6"
+msgstr "現在の戦役を保存"
+
+#: src/barracks.c:51
+msgctxt "font0"
+msgid "wc1:f31a78266fd7c1f8"
+msgstr "出撃格納庫へ移動する"
+
+#: src/barracks.c:52
+msgctxt "font0"
+msgid "wc1:8f48f9aca472643a"
+msgstr "バーへ戻る"
+
+#: src/barracks.c:53
+msgctxt "font0"
+msgid "wc1:038f9dc881913fdf"
+msgstr "Wing Commanderを終了"
+
+#: src/barracks.c:54
+msgctxt "font0"
+msgid "wc1:8577f76ec10c92d1"
+msgstr "勲章を確認する"
+
+#: src/barracks.c:378
+#, c-format
+msgctxt "font0"
+msgid "wc1:9648b4a7ac06f8a4 %s"
+msgstr "セーブ「%s」を読み込む"
+
+#: src/barracks.c:807 src/barracks.c:808
+msgctxt "font0"
+msgid "wc1:cc95bfcae21f576b"
+msgstr "自動保存（データなし）"
+
+#: src/barracks.c:811 src/barracks.c:812
+msgctxt "font0"
+msgid "wc1:57220d1bf60bc37c"
+msgstr "自動保存用のスロット"
+
+#: src/barracks.c:579 src/barracks.c:1007
+msgid "wc1:e16e1695deccb9d6"
+msgstr "スロット8は自動保存専用です。"
+
+#: src/barracks.c:603
+msgid "wc1:52fe85008e83bdfc"
+msgstr "セーブ名： "
+
+#: src/barracks.c:556
+msgctxt "font0"
+msgid "wc1:3863f9e780087cc8"
+msgstr "最初にセーブを読み込んでください。"
+
+#: src/barracks.c:727
+msgctxt "font0"
+msgid "wc1:df2ce16b45edf2f3"
+msgstr "読み込み中…"
+
+#: src/barracks.c:944
+msgctxt "font0"
+msgid "wc1:3cff74eed5b4a445 (Y/N)"
+msgstr "Wing Commanderを終了しますか？ (Y/N)"
+
+#: src/barracks.c:963
+#, c-format
+msgctxt "font0"
+msgid "wc1:b83a6a252a86f05e %s (Y/N)"
+msgstr "%sを読み込みますか？ (Y/N)"
+
+#: src/barracks.c:987
+#, c-format
+msgctxt "font0"
+msgid "wc1:04feff32b592afa3 %s (Y/N)"
+msgstr "%sを上書きしますか？ (Y/N)"
+
+#: src/barracks.c:985
+msgctxt "font0"
+msgid "wc1:cd7de0d2d7c2bf56"
+msgstr "破損データ"
+
+#: src/barracks.c:961
+msgid "wc1:851dada7b265d8ee"
+msgstr "データを読み込めません。"
+
+#: src/barracks.c:612
+#, c-format
+msgid "wc1:216b48db726c99b5 %s"
+msgstr "%sを保存できません。"
+
+#: src/barracks.c:749
+#, c-format
+msgid "wc1:f692ea4044771586 %d"
+msgstr "セーブ%dを読み込めません。"
+
+#: src/killbrd.c:890
+msgctxt "font3"
+msgid "wc1:8afe202d83fefd4e %X %Y %P"
+msgstr "%X%Y空母タイガーズ・クロー%P"
+
+#: src/killbrd.c:892
+msgctxt "font3"
+msgid "wc1:6d0dd43d80468628 %X %Y"
+msgstr "%X%Y操縦士"
+
+#: src/killbrd.c:894
+msgctxt "font3"
+msgid "wc1:0090ce0efffa0a04 %X %Y"
+msgstr "%X%Y出撃数  撃墜数"
+
+#: src/killbrd.c:917
+msgctxt "font3"
+msgid "wc1:50af9a19d1695fa8"
+msgstr "戦死"

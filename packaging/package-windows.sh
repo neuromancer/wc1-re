@@ -20,7 +20,7 @@ if test "$architecture" != x86_64; then
 fi
 package_dir=$(cd "$package_dir" && pwd)
 for required in wc1-modern.exe SDL2.dll liblzo2-2.dll swc-music.sf2 \
-                translations/es.dat voices/segacd.dat SPANISH-TRANSLATION-NOTICE.txt; do
+                translations/es.dat translations/ja.dat voices/segacd.dat SPANISH-TRANSLATION-NOTICE.txt; do
     if test ! -f "$package_dir/$required"; then
         echo "Missing Windows release file: $package_dir/$required" >&2
         exit 1

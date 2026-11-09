@@ -141,6 +141,13 @@ char *AddPCName(const char *text)
             DosStrcat(szTxtWorkspaceBuffer, formatted);
             break;
         case 'D':
+#ifdef SDL_PORT
+            if (SdlUsingTownsJapanese()) {
+                sprintf(formatted, "%03d", pCurrentCampaignDate->day);
+                DosStrcat(szTxtWorkspaceBuffer, formatted);
+                break;
+            }
+#endif
             sprintf(formatted, "%03d.%03d",
                     pCurrentCampaignDate->year,
                     pCurrentCampaignDate->day);
@@ -169,7 +176,11 @@ char *AddPCName(const char *text)
             break;
         case 'S':
             DosStrcat(szTxtWorkspaceBuffer,
+#ifdef SDL_PORT
+                      SdlTranslateTownsText((char *)abSeriesAuxData));
+#else
                       (char *)abSeriesAuxData);
+#endif
             break;
         case 'T':
             sprintf(formatted, "%02d:%02d",
@@ -181,6 +192,14 @@ char *AddPCName(const char *text)
             DosStrcat(szTxtWorkspaceBuffer,
                       apWingmanPilotsList[*marker++ - '0']->name);
             break;
+#ifdef SDL_PORT
+        case 'Y':
+            if (SdlUsingTownsJapanese()) {
+                sprintf(formatted, "%03d", pCurrentCampaignDate->year);
+                DosStrcat(szTxtWorkspaceBuffer, formatted);
+            }
+            break;
+#endif
         }
         text = marker;
     }
