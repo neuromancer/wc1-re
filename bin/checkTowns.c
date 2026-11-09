@@ -198,6 +198,40 @@ static void CheckJapaneseRoomLabels(TextContext *context)
     puts("PASS: Japanese room hotspots, pilot/save labels and confirmation bounds through PO lookup.");
 }
 
+static void CheckSceneColours(int towns)
+{
+    ConversationSceneRecord scene[2] = {{0, 13, -2, 0, 0, 0, 0, 0}, {-2}};
+    unsigned char text[] = {0};
+    unsigned char *image = 0;
+    size_t size;
+    int language, colour;
+    Require(SdlUsingTownsData() == towns, "detect scene colour edition");
+    if (towns) {
+        image = SDL_LoadFile("WC.EXP", &size);
+        Require(image && size == 743037, "read original Towns colour table");
+    }
+    for (language = 0; language <= towns; language++) {
+        Require(SdlSetTownsLanguage(language), "select scene language");
+        /* Start with the reported ID; cover every signed scene colour byte. */
+        for (colour = 0; colour < 256; colour++) {
+            int id = (signed char)(colour + 13);
+            int expected = 0xa8;
+            if (towns && id >= 0 && id < 14)
+                expected = Towns32(image + 0x200 + 0x63028 + id * 4);
+            else if (id >= 0 && id < 12)
+                expected = asConversationTextColours[id];
+            scene[0].textColour = id;
+            nConvTextColorValue = 0xa8;
+            SceneDirector(0, (unsigned char *)scene, text);
+            Require(nConvTextColorValue == expected,
+                    "SceneDirector selects edition colour and preserves it for invalid IDs");
+        }
+    }
+    SDL_free(image);
+    Require(SdlSetTownsLanguage(0), "reset scene language");
+    puts("PASS: SceneDirector colour table, inherited colour and invalid IDs.");
+}
+
 static void CheckJapaneseText(void)
 {
     unsigned char pixels[64000], expected[64000], *font, *archive, *packet;
@@ -348,10 +382,12 @@ int main(int argc, char **argv)
     CheckPcm();
     CheckInactiveAudio();
     if (argc < 2) {
+        CheckSceneColours(0);
         puts("PASS: Towns PCM decoding, bounds, pan and looping.");
         return 0;
     }
     Require(chdir(argv[1]) == 0, "enter supplied Towns installation");
+    CheckSceneColours(1);
     CheckJapaneseText();
     Require(SdlInitializeTownsAudio(), "initialize real Towns audio");
     SDL_PauseAudioDevice(townsDevice, 1);

@@ -1351,6 +1351,14 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         if (previousColour != (short)record->textColour &&
             record->textColour != -1) {
             previousColour = record->textColour;
+#ifdef SDL_PORT
+            if (SdlUsingTownsData() && previousColour >= 11 && previousColour <= 13) {
+                /* WC.EXP's table at load-image 0x63028 has 14 entries;
+                 * only the last three differ from the PC table. */
+                static const short townsColours[] = {0x07, 0x50, 0x0b};
+                nConvTextColorValue = townsColours[previousColour - 11];
+            } else if ((unsigned short)previousColour < SDL_arraysize(asConversationTextColours))
+#endif
             nConvTextColorValue =
                 asConversationTextColours[previousColour];
         }
