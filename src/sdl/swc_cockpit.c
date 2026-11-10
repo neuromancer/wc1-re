@@ -1,4 +1,4 @@
-/* SDL presentation of the SWC Mac demo's Hornet instruments.
+/* SDL presentation of the retail SWC cockpits.
  * CODE_13 and the expanded DATA/0 tables provide the layout and sprite
  * selection. WC1 supplies flight state, speed readouts and scanner maths.
  * QuickDraw Helvetica is supplied by the host text adapter. */
@@ -41,9 +41,92 @@ enum SwcCockpitInstrument {
     SWC_COCKPIT_INSTRUMENT_COUNT
 };
 
-/* Expanded DATA/0 +0x300, Hornet entry. Original words are BE32. */
-const CockpitScannerGeometry stSwcCockpitScanner = {
-    159, 171, 148, 160, 169, 181
+/* Retail expanded DATA/0: six cockpit rows, selected by initialize_cockpit.
+ * Models 0..3 are Hornet/Rapier/Scimitar/Raptor, 4 simulator, 5 captured Dralthi. */
+static int swcCockpitModel;
+SDL_Point swcCockpitViewCenter = {160, 100};
+CockpitScannerGeometry stSwcCockpitScanner = {159, 171, 148, 160, 169, 181};
+static const CockpitScannerGeometry swcScannerLayouts[6] = {
+    {159, 171, 148, 160, 169, 181},
+    {159, 171, 148, 160, 169, 181},
+    {159, 171, 148, 160, 170, 182},
+    {159, 173, 148, 162, 169, 183},
+    {159, 171, 148, 160, 169, 181},
+    {163, 190, 152, 179, 174, 201},
+};
+/* DATA/0 +0x03e0. */
+static const SDL_Point swcScannerOrigins[6] = {
+    {139, 151}, {139, 151}, {139, 151}, {139, 153}, {139, 151}, {143, 170}
+};
+/* DATA/0 +0x0428. */
+static const SDL_Point swcDamageLightOrigins[6] = {
+    {156, 45}, {157, 30}, {156, 45}, {157, 44}, {156, 45}, {0, 0}
+};
+/* DATA/0 +0x06b6. */
+static const SDL_Point swcActualSpeedOrigins[6] = {
+    {96, 32}, {103, 47}, {105, 162}, {64, 19}, {96, 32}, {99, 17}
+};
+/* DATA/0 +0x06e6. */
+static const SDL_Point swcCommandSpeedOrigins[6] = {
+    {205, 32}, {200, 47}, {195, 162}, {239, 19}, {205, 32}, {201, 17}
+};
+/* DATA/0 +0x0776. */
+static const SDL_Point swcStatusTextOrigins[6] = {
+    {51, 84}, {41, 89}, {51, 84}, {51, 84}, {51, 84}, {51, 84}
+};
+/* DATA/0 +0x07a6. */
+static const SDL_Point swcTargetHullOrigins[6] = {
+    {230, 136}, {230, 132}, {230, 133}, {236, 134}, {230, 136}, {230, 136}
+};
+/* DATA/0 +0x07e2. */
+static const SDL_Point swcViewCenters[6] = {
+    {160, 100}, {160, 90}, {160, 80}, {160, 70}, {160, 100}, {160, 100}
+};
+/* DATA/0 +0x0812. */
+static const SDL_Point swcPilotOrigins[6] = {
+    {0, 0}, {133, 172}, {130, 175}, {0, 0}, {0, 0}, {0, 0}
+};
+/* DATA/0 +0x0842: radar, left VDU, right VDU. */
+static const SDL_Point swcDamagePositions[6][3] = {
+    {{142, 153}, {33, 134}, {231, 132}},
+    {{141, 154}, {31, 132}, {230, 131}},
+    {{0, 0}, {0, 0}, {0, 0}},
+    {{141, 156}, {24, 135}, {235, 133}},
+    {{142, 153}, {33, 134}, {231, 132}},
+    {{146, 172}, {33, 134}, {231, 132}},
+};
+/* DATA/0 +0x0476/+0x05f6/+0x0536: left, right and communication VDUs. */
+static const SDL_Point swcVduPolygons[6][3][4] = {
+    {
+        {{33, 134}, {90, 132}, {90, 188}, {33, 189}},
+        {{231, 132}, {288, 134}, {288, 189}, {231, 188}},
+        {{231, 132}, {287, 135}, {287, 188}, {231, 189}},
+    },
+    {
+        {{34, 134}, {88, 133}, {89, 185}, {34, 186}},
+        {{232, 132}, {288, 133}, {287, 186}, {232, 185}},
+        {{232, 132}, {286, 134}, {286, 184}, {232, 185}},
+    },
+    {
+        {{35, 134}, {89, 132}, {89, 184}, {35, 185}},
+        {{232, 134}, {285, 136}, {285, 186}, {232, 185}},
+        {{231, 134}, {285, 136}, {285, 184}, {231, 186}},
+    },
+    {
+        {{25, 135}, {84, 133}, {84, 190}, {25, 191}},
+        {{236, 133}, {295, 135}, {295, 191}, {236, 190}},
+        {{234, 132}, {297, 134}, {297, 194}, {234, 196}},
+    },
+    {
+        {{33, 134}, {90, 132}, {90, 188}, {33, 189}},
+        {{231, 132}, {288, 134}, {288, 189}, {231, 188}},
+        {{231, 132}, {287, 135}, {287, 188}, {231, 189}},
+    },
+    {
+        {{34, 133}, {90, 132}, {90, 187}, {34, 187}},
+        {{232, 133}, {287, 134}, {287, 187}, {232, 186}},
+        {{231, 133}, {286, 134}, {286, 186}, {231, 189}},
+    },
 };
 
 static SwcCockpitShape swcCockpitShapes[SWC_COCKPIT_INSTRUMENT_COUNT];
@@ -429,11 +512,6 @@ void SdlSwcFlagReached(short objective, short reached)
         set_next_destination();
 }
 
-/* DATA/0 +0x7f2: radar, left VDU, right VDU. */
-static const SDL_Point swcDamagePositions[3] = {
-    {142, 153}, {33, 134}, {231, 132}
-};
-
 static void SwcFreeCockpitShape(SwcCockpitShape *shape)
 {
     uint32_t frame;
@@ -550,17 +628,31 @@ void SdlFreeSwcCockpit(void)
 }
 
 int SdlInitSwcCockpit(SDL_Renderer *renderer, const SwcCmf *cockpit,
-                       const SwcCmf *space, const SDL_Color colors[256], SDL_Texture *canvas)
+                       const SwcCmf *space, const SDL_Color colors[256], SDL_Texture *canvas,
+                       int model)
 {
-    /* DATA/0 +0x433e/+0x43e6 resource lists, and +0x420/+0x786/+0x78c
-       frame maxima: energy 10, throttle 13, fuel 13 for the Hornet. */
+    /* Retail LoadShapeSet lists, DATA/0 +0x42f0/+0x4398. Bar maxima are
+       DATA/0 +0x470/+0x7d6/+0x7dc; the captured fighter has a throttle hand. */
     static const uint32_t chunks[] = {10, 15, 16, 17, 18, 31, 9, 1, 12, 13, 14, 7, 6, 6, 19, 36, 5};
-    static const uint32_t counts[] = {7, 11, 14, 14, 1, 13, 2, 14, 1, 1, 2, 3, 8, 16, 1, 4, 4};
+    uint32_t counts[] = {7, 11, 14, 14, 1, 13, 2, 14, 1, 1, 2, 3, 8, 16, 1, 4, 4};
+    char chunkType[5];
     size_t index;
     int shared;
     int result = -1;
 
+    if (model < 0 || model >= 6)
+        return SDL_SetError("Invalid SWC cockpit model %d", model);
     SdlFreeSwcCockpit();
+    swcCockpitModel = model;
+    stSwcCockpitScanner = swcScannerLayouts[model];
+    swcCockpitViewCenter = swcViewCenters[model];
+    SDL_snprintf(chunkType, sizeof(chunkType), "PC%02d", model == 4 ? 0 : model);
+    if (model != 0 && model != 4) {
+        counts[SWC_WEAPON_ENERGY] = model == 5 ? 11 : 10;
+        counts[SWC_FUEL] = counts[SWC_THROTTLE] = 15;
+        counts[SWC_MISSILE_LIGHT] = 1;
+        counts[SWC_PILOT_HAND] = model == 5 ? 24 : 16;
+    }
     swcCockpitRenderer = renderer;
     swcCockpitCanvas = canvas;
     swcCockpitCmf = cockpit;
@@ -569,7 +661,7 @@ int SdlInitSwcCockpit(SDL_Renderer *renderer, const SwcCmf *cockpit,
         shared = index == SWC_SCANNER_CONTACTS || index == SWC_RETICLE ||
             index == SWC_COCKPIT_SPARKS || index == SWC_TARGET_BRACKETS ||
             index == SWC_MISSILE_LOCK;
-        if (SwcLoadCockpitShape(shared ? space : cockpit, shared ? "CKPT" : "PC00",
+        if (SwcLoadCockpitShape(shared ? space : cockpit, shared ? "CKPT" : chunkType,
                                chunks[index], counts[index], &swcCockpitShapes[index]) != 0)
             goto done;
     }
@@ -626,14 +718,16 @@ static void SwcDrawCockpitText(int x, int baseline, unsigned char color,
 void SdlDrawSwcCockpitReadout(signed char slot, const char *text)
 {
     char padded[16];
+    SDL_Point position;
 
     /* Only the shared speed routine draws here. Other WC1 readout calls can
        occur while changing objectives, outside cockpit composition. */
     if (!swcCockpitDrawing || (slot != 2 && slot != 3))
         return;
     SDL_snprintf(padded, sizeof(padded), "%04d", SDL_atoi(text));
-    /* CODE_13 update_digital_readouts +0x0660; DATA/0 +0x666/+0x696. */
-    SwcDrawCockpitText(slot == 3 ? 96 : 205, 32, 0x84, padded);
+    position = slot == 3 ? swcActualSpeedOrigins[swcCockpitModel] :
+                          swcCommandSpeedOrigins[swcCockpitModel];
+    SwcDrawCockpitText(position.x, position.y, 0x84, padded);
 }
 
 static int SwcCockpitTarget(void)
@@ -932,8 +1026,9 @@ static void SwcUpdateCockpitScanner(void)
         swcScannerFrames[object] = frame;
     }
     if (enemyVisible) {
-        x = asScannerObjectPositionX[swcScannerEnemy];
-        y = asScannerObjectY[swcScannerEnemy];
+        /* Keep the threat sectors relative to each ship's scanner center. */
+        x = asScannerObjectPositionX[swcScannerEnemy] - stSwcCockpitScanner.centerX + 159;
+        y = asScannerObjectY[swcScannerEnemy] - stSwcCockpitScanner.centerY + 171;
         if (y < 169)
             swcHostileArrow = 0;
         if (x > 163)
@@ -967,8 +1062,8 @@ static void SwcDrawCockpitScanner(void)
         SwcDrawInstrument(SWC_SCANNER_CONTACTS, 0,
                              asScannerObjectPositionX[10] - 3, asScannerObjectY[10] - 3);
     }
-    /* CODE_13 draw_3d_scanner +0x285a, DATA/0 +0x390: grid over contacts. */
-    SwcDrawInstrument(SWC_SCANNER_GRID, 0, 139, 151);
+    SwcDrawInstrument(SWC_SCANNER_GRID, 0,
+        swcScannerOrigins[swcCockpitModel].x, swcScannerOrigins[swcCockpitModel].y);
 }
 
 short SdlSwcComponentMalfunction(char component)
@@ -996,12 +1091,12 @@ void SdlSwcCockpitDamage(short region)
 {
     /* CODE_13 cockpit_explosion +0x4222. A running spark sequence blocks
        another impact; an already damaged region can spark again later. */
-    if (region < 0 || region >= (short)SDL_arraysize(swcDamagePositions) ||
+    if (region < 0 || region >= 3 ||
         nCameraViewMode != 0 || nTrainSimActive != 0 || swcSparkFrame != -1)
         return;
     anCockpitDamageState[region] = 1;
     swcSparkRegion = region;
-    swcSparkPosition = swcDamagePositions[region];
+    swcSparkPosition = swcDamagePositions[swcCockpitModel][region];
     swcSparkFrame = 0;
     swcSparkStartFrame = nCurrentSpaceFrameValue;
     SdlPlaySwcSound(24, 255); /* CODE_13 malf_sound +0x19e4. */
@@ -1041,7 +1136,7 @@ void SdlUpdateSwcCockpit(void)
     swcCockpitOffset.y += (swcCockpitOffset.y < vertical) -
         (swcCockpitOffset.y > vertical);
     /* determine_pilot_hand +0x14e2: horizontal input wins over vertical.
-       PC00/6 contains the sixteen Hornet hand frames at their own offsets. */
+       The first sixteen PCnn/6 frames follow the steering input. */
     horizontal = SDL_clamp(stRotationInput.y, -8, 8) / 2;
     vertical = SDL_clamp(stRotationInput.x, -8, 8) / 2;
     swcPilotHand = horizontal > 0 ? horizontal - 1 : horizontal < 0 ? 3 - horizontal :
@@ -1114,10 +1209,10 @@ void SdlUpdateSwcCockpit(void)
         if ((unsigned short)RandomInRange(0, 9) < 3) {
             swcSparkFrame = 0;
             offset = RandomInRange(0, 9);
-            swcSparkPosition.x = swcDamagePositions[swcSparkRegion].x +
+            swcSparkPosition.x = swcDamagePositions[swcCockpitModel][swcSparkRegion].x +
                 RandomInRange(0, 19) - offset;
             offset = RandomInRange(0, 6);
-            swcSparkPosition.y = swcDamagePositions[swcSparkRegion].y +
+            swcSparkPosition.y = swcDamagePositions[swcCockpitModel][swcSparkRegion].y +
                 RandomInRange(0, 14) - offset;
         } else {
             swcSparkFrame = -1;
@@ -1128,6 +1223,7 @@ void SdlUpdateSwcCockpit(void)
 static void SwcDrawTargetStatus(void)
 {
     int target = SwcCockpitTarget();
+    SDL_Point origin = swcTargetHullOrigins[swcCockpitModel];
     enum ObjectType objectType;
     const ObjectTypeData *type;
     SwcCockpitShape *shape;
@@ -1141,20 +1237,19 @@ static void SwcDrawTargetStatus(void)
     capital = type->objectClass == OBJECT_CLASS_CAPITAL_SHIP;
     SDL_snprintf(chunk, sizeof(chunk), "%s%02d", capital ? "SH" : "ST", objectType);
     shape = &swcTargetShapes[objectType];
-    /* CODE_03 cockpit resource loading: fighter STnn/2, capital SHnn/38.
-       CODE_13 show_target_disp +0x1270; DATA/0 +0x756 origin (230,136). */
+    /* CODE_03 cockpit resource loading: fighter STnn/2, capital SHnn/38. */
     swcCockpitDrawResult = SwcLoadCockpitShape(swcCockpitCmf, chunk,
                                                capital ? 38 : 2, 5, shape);
-    SwcDrawCockpitShape(shape, 4, 230, 136);
+    SwcDrawCockpitShape(shape, 4, origin.x, origin.y);
     if (nCurrentSpaceFrameValue % 10 < 5) {
         if (aasShipArmor[target][0] < type->armorFront / 2)
-            SwcDrawCockpitShape(shape, 0, 230, 136);
+            SwcDrawCockpitShape(shape, 0, origin.x, origin.y);
         if (aasShipArmor[target][3] < type->armorRight / 2)
-            SwcDrawCockpitShape(shape, 1, 230, 136);
+            SwcDrawCockpitShape(shape, 1, origin.x, origin.y);
         if (aasShipArmor[target][2] < type->armorLeft / 2)
-            SwcDrawCockpitShape(shape, 2, 230, 136);
+            SwcDrawCockpitShape(shape, 2, origin.x, origin.y);
         if (aasShipArmor[target][1] < type->armorRear / 2)
-            SwcDrawCockpitShape(shape, 3, 230, 136);
+            SwcDrawCockpitShape(shape, 3, origin.x, origin.y);
     }
     if (type->shieldFore > 0 && aasShipShield[target][0] * 11 / type->shieldFore > 0)
         SwcDrawInstrument(SWC_TARGET_SHIELDS, 0, 0, 0);
@@ -1165,22 +1260,15 @@ static void SwcDrawTargetStatus(void)
 /* CODE_01 MacDrawcel2 maps the complete frame into the VDU quadrilateral. */
 static void SwcDrawVduShape(int polygon, SwcCockpitShape *shape, int frame)
 {
-    /* CODE_13 vdu_polygon +0x0b7a uses DATA/0 +0x426/+0x5a6 for static;
-       update_vid_disp +0x0d2c uses the separate +0x4e6 portrait polygon.
-       MacDrawcel2 maps the full frame onto the quad, ignoring sprite x/y. */
-    static const SDL_Point polygons[3][4] = {
-        {{33, 134}, {90, 132}, {90, 188}, {33, 189}},
-        {{231, 132}, {288, 134}, {288, 189}, {231, 188}},
-        {{231, 132}, {287, 135}, {287, 188}, {231, 189}}
-    };
+    const SDL_Point *corners = swcVduPolygons[swcCockpitModel][polygon];
     SDL_Point vertices[4];
     int corner;
 
     if (swcCockpitDrawResult != 0)
         return;
     for (corner = 0; corner < 4; corner++) {
-        vertices[corner].x = (polygons[polygon][corner].x + swcCockpitDrawOffset.x) * 256;
-        vertices[corner].y = (polygons[polygon][corner].y + swcCockpitDrawOffset.y) * 256;
+        vertices[corner].x = (corners[corner].x + swcCockpitDrawOffset.x) * 256;
+        vertices[corner].y = (corners[corner].y + swcCockpitDrawOffset.y) * 256;
     }
     swcCockpitDrawResult = SdlDrawSwcPolygon(swcCockpitRenderer, swcCockpitCanvas,
         &shape->frames[frame].image, swcCockpitColors, vertices);
@@ -1215,6 +1303,7 @@ int SdlDrawSwcCockpit(void)
     TextContext *savedTextContext = pCurTextContext;
     int fuelCapacity;
     int frame;
+    int maximum;
 
     swcCockpitDrawResult = 0;
     swcCockpitDrawOffset = swcCockpitOffset;
@@ -1224,7 +1313,8 @@ int SdlDrawSwcCockpit(void)
     if (swcMissileLight)
         SwcDrawInstrument(SWC_MISSILE_LIGHT, 0, 0, 0);
     if (swcDamageLight && nCurrentSpaceFrameValue % 30 != 0)
-        SwcDrawInstrument(SWC_DAMAGE_LIGHT, 0, 156, 45);
+        SwcDrawInstrument(SWC_DAMAGE_LIGHT, 0,
+            swcDamageLightOrigins[swcCockpitModel].x, swcDamageLightOrigins[swcCockpitModel].y);
     if (!anCockpitDamageState[0])
         SwcDrawCockpitScanner();
     /* CODE_13 update_VDUs +0x0aa8. Physical damage suppresses its VDU;
@@ -1255,15 +1345,18 @@ int SdlDrawSwcCockpit(void)
     }
     /* CODE_13 update_bars +0x0520. The original uses separate animated
        shape sets for energy, commanded throttle and fuel, not WC1's bars. */
-    frame = SDL_clamp(asShipWpnEnergyList[0] * 10 / 100, 0, 10);
+    maximum = swcCockpitShapes[SWC_WEAPON_ENERGY].count - 1;
+    frame = SDL_clamp(asShipWpnEnergyList[0] * maximum / 100, 0, maximum);
     SwcDrawInstrument(SWC_WEAPON_ENERGY, frame, 0, 0);
+    maximum = swcCockpitShapes[SWC_THROTTLE].count - 1;
     frame = asShipMaximumSpeedArray[0] > 0 ?
-        (anShipSpeed[0] >> 8) * 13 / asShipMaximumSpeedArray[0] : 0;
-    SwcDrawInstrument(SWC_THROTTLE, SDL_clamp(frame, 0, 13), 0, 0);
+        (anShipSpeed[0] >> 8) * maximum / asShipMaximumSpeedArray[0] : 0;
+    SwcDrawInstrument(SWC_THROTTLE, SDL_clamp(frame, 0, maximum), 0, 0);
     fuelCapacity = type->lifetime;
+    maximum = swcCockpitShapes[SWC_FUEL].count - 1;
     frame = anShipFuelsTable[0] < 0 || fuelCapacity <= 0 ? 0 :
-        (int)((int64_t)anShipFuelsTable[0] * 13 / fuelCapacity) + 1;
-    SwcDrawInstrument(SWC_FUEL, SDL_clamp(frame, 0, 13), 0, 0);
+        (int)((int64_t)anShipFuelsTable[0] * maximum / fuelCapacity) + 1;
+    SwcDrawInstrument(SWC_FUEL, SDL_clamp(frame, 0, maximum), 0, 0);
     swcCockpitDrawing = 1;
     update_digital_readouts();
     swcCockpitDrawing = 0;
@@ -1274,6 +1367,8 @@ int SdlDrawSwcCockpit(void)
 int SdlDrawSwcCockpitDamage(void)
 {
     int region;
+    int frame;
+    SDL_Point pilot = swcPilotOrigins[swcCockpitModel];
 
     swcCockpitDrawResult = 0;
     swcCockpitDrawOffset = swcCockpitOffset;
@@ -1282,19 +1377,26 @@ int SdlDrawSwcCockpitDamage(void)
     for (region = 0; region < 3; region++) {
         if (anCockpitDamageState[region])
             SwcDrawInstrument(SWC_COCKPIT_DAMAGE, region,
-                swcDamagePositions[region].x, swcDamagePositions[region].y);
+                swcDamagePositions[swcCockpitModel][region].x,
+                swcDamagePositions[swcCockpitModel][region].y);
     }
     /* CODE_13 animate_pilot +0x1574 follows panel damage, before sparks. */
     if (swcPilotHand >= 0)
-        SwcDrawInstrument(SWC_PILOT_HAND, swcPilotHand, 0, 0);
+        SwcDrawInstrument(SWC_PILOT_HAND, swcPilotHand, pilot.x, pilot.y);
+    /* Retail animate_pilot +0x15be: the Dralthi also animates the throttle hand. */
+    if (swcCockpitModel == 5) {
+        frame = asShipMaximumSpeedArray[0] > 0 ?
+            (int)((int64_t)anShipSpeed[0] * 7 / (asShipMaximumSpeedArray[0] * 256)) : 0;
+        SwcDrawInstrument(SWC_PILOT_HAND, 16 + SDL_clamp(frame, 0, 7), pilot.x, pilot.y);
+    }
     if (swcSparkFrame >= 0)
         SwcDrawInstrument(SWC_COCKPIT_SPARKS, swcSparkFrame,
             swcSparkPosition.x - 20, swcSparkPosition.y - 20);
     return swcCockpitDrawResult;
 }
 
-/* CODE_09 draws glare before sorted space objects and the cockpit. This
- * is a colored PC00/19 mask at the banking origin, not a camera shake. */
+/* CODE_09 draws glare before sorted space objects and the cockpit, using
+ * the selected PCnn/19 mask at the banking origin. */
 int SdlDrawSwcSpaceGlare(void)
 {
     SDL_Color color;
@@ -1313,7 +1415,7 @@ int SdlDrawSwcSpaceGlare(void)
  * selected ship or current speaker. CKPT/5 is a separate missile-lock
  * overlay, closing inward by one pixel per countdown update. */
 static void SwcDrawTargetBox(int object, const SDL_Rect *bounds,
-                              unsigned char ink, int missileLock)
+                              unsigned char ink, int missileLock, SDL_Point center)
 {
     SDL_Color color;
     SDL_Point corners[4];
@@ -1348,40 +1450,42 @@ static void SwcDrawTargetBox(int object, const SDL_Rect *bounds,
     if (!missileLock || nTargetLockCountdown < 0 ||
         (bTargetLockAcquired && !(nCurrentSpaceFrameValue & 1)))
         return;
-    x = 160 + asObjectScreenXList[object] - 14;
-    y = 100 + asObjectScreenYArray[object] - 14;
+    x = center.x + asObjectScreenXList[object] - 14;
+    y = center.y + asObjectScreenYArray[object] - 14;
     SwcDrawInstrument(SWC_MISSILE_LOCK, 0, x, y - nTargetLockCountdown);
     SwcDrawInstrument(SWC_MISSILE_LOCK, 1, x + nTargetLockCountdown, y);
     SwcDrawInstrument(SWC_MISSILE_LOCK, 2, x, y + nTargetLockCountdown);
     SwcDrawInstrument(SWC_MISSILE_LOCK, 3, x - nTargetLockCountdown, y);
 }
 
-int SdlDrawSwcSpaceHud(const SDL_Rect objectBounds[10])
+int SdlDrawSwcSpaceHud(const SDL_Rect objectBounds[10], int cockpitless)
 {
     int target = SwcCockpitTarget();
     int object = nNavPointerObject;
     int reticle = 0;
+    SDL_Point center = cockpitless ? (SDL_Point){160, 100} : swcCockpitViewCenter;
 
     swcCockpitDrawResult = 0;
     swcCockpitDrawOffset = (SDL_Point){0, 0};
-    /* CODE_13 overlay_head_up_display +0x2f56: scene center (160,100),
+    /* CODE_13 overlay_head_up_display +0x2f56: ship-specific scene center,
        normal reticle at (center.x-16, center.y-4), including frame offsets.
        update_cockpit draws this layer before the opaque cockpit artwork. */
     if (swcIttsActive && target != -1 && nTargetLockMode != 0 &&
         swcIttsPosition.x != 0x7fff) {
-        SwcDrawInstrument(SWC_RETICLE, 5, swcIttsPosition.x, swcIttsPosition.y);
+        SwcDrawInstrument(SWC_RETICLE, 5, swcIttsPosition.x + center.x - 160,
+            swcIttsPosition.y + center.y - 100);
         if (swcIttsPosition.x + 20 >= 155 && swcIttsPosition.x + 10 <= 163 &&
             swcIttsPosition.y + 20 >= 107 && swcIttsPosition.y + 10 <= 115)
             reticle = 4;
     }
     if (target != -1)
-        SwcDrawTargetBox(target, &objectBounds[target], 0xd4, 1);
+        SwcDrawTargetBox(target, &objectBounds[target], 0xd4, 1, center);
     if (SdlSwcMessageShowing() && nCommSpeakerObject > 0 && nCommSpeakerObject < 10)
-        SwcDrawTargetBox(nCommSpeakerObject, &objectBounds[nCommSpeakerObject], 0x81, 0);
+        SwcDrawTargetBox(nCommSpeakerObject, &objectBounds[nCommSpeakerObject], 0x81, 0, center);
     swcCockpitDrawOffset = swcCockpitOffset;
-    SwcDrawInstrument(SWC_RETICLE, reticle, 144, 96);
+    SwcDrawInstrument(SWC_RETICLE, reticle, center.x - 16, center.y - 4);
     if (!anCockpitDamageState[0] && swcHostileArrow != -1)
-        SwcDrawInstrument(SWC_RETICLE, 6 + swcHostileArrow, 144, 96);
+        SwcDrawInstrument(SWC_RETICLE, 6 + swcHostileArrow, center.x - 16, center.y - 4);
     swcCockpitDrawOffset = (SDL_Point){0, 0};
     if (object >= 0 && asObjectScreenXList[object] != (short)0x8001) {
         const SDL_Rect *bounds = &swcCockpitShapes[SWC_RETICLE].frames[3].bounds;
@@ -1389,8 +1493,8 @@ int SdlDrawSwcSpaceHud(const SDL_Rect objectBounds[10])
         /* The shared nav pointer is a centered space object, not an
            instrument placed by MacDraw2's sprite-origin offsets. */
         SwcDrawInstrument(SWC_RETICLE, 3,
-            160 + asObjectScreenXList[object] - bounds->x - bounds->w / 2,
-            100 + asObjectScreenYArray[object] - bounds->y - bounds->h / 2);
+            center.x + asObjectScreenXList[object] - bounds->x - bounds->w / 2,
+            center.y + asObjectScreenYArray[object] - bounds->y - bounds->h / 2);
     }
     return swcCockpitDrawResult;
 }
@@ -1409,7 +1513,8 @@ int SdlDrawSwcHud(void)
     int gun = (int)eSelectedGunType;
     int index;
     int range;
-    int baseline = 84;
+    int textX = swcStatusTextOrigins[swcCockpitModel].x;
+    int baseline = swcStatusTextOrigins[swcCockpitModel].y;
     int damage = SDL_clamp(acPlayerComponentDamageList[swcDamageComponent], 0, 4);
     char text[64];
 
@@ -1425,12 +1530,12 @@ int SdlDrawSwcHud(void)
         };
 
         SDL_snprintf(text, sizeof(text), "%s %s", components[swcDamageComponent], conditions[damage]);
-        SwcDrawCockpitText(51, baseline, colors[damage], text);
+        SwcDrawCockpitText(textX, baseline, colors[damage], text);
         baseline += 11;
     }
     if (swcWeaponNoticeVisible[0]) {
-        SwcDrawCockpitText(51, baseline, 0x81, "GUNS: ");
-        SwcDrawCockpitText(51 + SdlSwcTextWidth(&swcCockpitFont, "GUNS: "), baseline, 0xb0,
+        SwcDrawCockpitText(textX, baseline, 0x81, "GUNS: ");
+        SwcDrawCockpitText(textX + SdlSwcTextWidth(&swcCockpitFont, "GUNS: "), baseline, 0xb0,
             gun == -1 ? "NONE" : (gun & 0x80) ? "FULL" :
             gun >= OBJECT_TYPE_LASER_CANNON && gun <= OBJECT_TYPE_MASS_DRIVER_CANNON ?
                 guns[gun - OBJECT_TYPE_LASER_CANNON] : "NONE");
@@ -1440,14 +1545,14 @@ int SdlDrawSwcHud(void)
         if (nSelectedReleaseWeaponIndex >= 0 &&
             nSelectedReleaseWeaponIndex < aShipWeaponsTable[0][0])
             weapon = loadout[nSelectedReleaseWeaponIndex].type;
-        SwcDrawCockpitText(51, baseline, 0x81, "WEAP: ");
-        SwcDrawCockpitText(51 + SdlSwcTextWidth(&swcCockpitFont, "WEAP: "), baseline, 0xb0,
+        SwcDrawCockpitText(textX, baseline, 0x81, "WEAP: ");
+        SwcDrawCockpitText(textX + SdlSwcTextWidth(&swcCockpitFont, "WEAP: "), baseline, 0xb0,
             weapon >= OBJECT_TYPE_DUMB_FIRE_MISSILE && weapon <= OBJECT_TYPE_SPACE_MINE ?
                 weapons[weapon - OBJECT_TYPE_DUMB_FIRE_MISSILE] : "NONE");
         baseline += 11;
     }
     if (swcMessageActive && swcMessageVisible && swcCurrentMessage.color != 0xfd)
-        SwcDrawCockpitText(51, baseline, swcCurrentMessage.color, swcCurrentMessage.text);
+        SwcDrawCockpitText(textX, baseline, swcCurrentMessage.color, swcCurrentMessage.text);
 
     if (target != -1) {
         /* CODE_13 update_digital_readouts +0x0660; ace strings are in

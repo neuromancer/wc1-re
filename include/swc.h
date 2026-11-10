@@ -283,15 +283,17 @@ int SdlDrawSwcRotatedImage(SDL_Renderer *renderer, SDL_Texture *canvas,
 SDL_Texture *SdlCreateSwcTexture(SDL_Renderer *renderer, const SwcBuffer *set,
                                  uint32_t index, const SDL_Color colors[256]);
 int SdlInitSwcCockpit(SDL_Renderer *renderer, const SwcCmf *cockpit,
-                       const SwcCmf *space, const SDL_Color colors[256], SDL_Texture *canvas);
+                       const SwcCmf *space, const SDL_Color colors[256], SDL_Texture *canvas,
+                       int model);
 void SdlUpdateSwcCockpit(void);
 void SdlSwcLockOff(void);
 int SdlDrawSwcCockpit(void);
 int SdlDrawSwcCockpitDamage(void);
-int SdlDrawSwcSpaceHud(const SDL_Rect objectBounds[10]);
+int SdlDrawSwcSpaceHud(const SDL_Rect objectBounds[10], int cockpitless);
 int SdlDrawSwcSpaceGlare(void);
 int SdlDrawSwcHud(void);
 extern SDL_Point swcCockpitOffset; /* SWC DATA/A5+0x47d4/+0x47d8. */
+extern SDL_Point swcCockpitViewCenter; /* Retail DATA/0 +0x07e2, selected row. */
 void SdlSwcCockpitMessage(const char *text, unsigned char color, int flash, int voice);
 void SdlFreeSwcCockpit(void);
 

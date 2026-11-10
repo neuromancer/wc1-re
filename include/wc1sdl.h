@@ -351,7 +351,7 @@ extern int nSwcSpaceGlareTicks; /* SWC DATA/A5+0x8c62. */
 extern int bSwcExplosionGlare; /* SWC DATA/A5+0x8c6a. */
 void SdlDrawSwcCockpitReadout(signed char slot, const char *text);
 struct CockpitScannerGeometry;
-extern const struct CockpitScannerGeometry stSwcCockpitScanner;
+extern struct CockpitScannerGeometry stSwcCockpitScanner;
 void SdlPlayDosStartupIntro(void);
 int SdlDecompressOriginLzw(const unsigned char *source,
                               size_t sourceSize,

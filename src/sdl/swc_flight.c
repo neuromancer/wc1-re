@@ -39,11 +39,13 @@ static Uint32 swcLastJoystickClick;
 /* Borrowed only while SdlRunSwcMission owns these presentation resources. */
 static SDL_Window *swcCinemaWindow;
 static SDL_Renderer *swcCinemaRenderer;
-static const SwcCmf *swcCinemaCockpitCmf;
+static SwcCmf *swcCinemaCockpitCmf;
 static const SwcCmf *swcCinemaSpaceCmf;
-static const SDL_Color *swcCinemaColors;
+static SDL_Color *swcCinemaColors;
 static SwcFlightImages *swcCinemaImages;
 static SDL_Texture *swcRasterCanvas;
+static SDL_Texture *swcCockpitTexture;
+static int swcFlightCockpitModel = -1;
 static SwcTextFont swcPauseFont;
 static SDL_Texture *swcStarTextures[10];
 static SDL_Rect swcStarBounds[10];
@@ -468,7 +470,10 @@ static int SwcLoadFlightImages(const SwcCmf *cockpit, const SwcCmf *space,
         return -1;
     if (SwcGetFrameCount(&set, &count) != 0)
         goto done;
-    if (count != expected) {
+    /* PCShipV01 carries an extra frame for the Krant and Gratha. Retail
+     * load_ship uses the shape set directly; the 37 directional views stay
+     * at the same indices. Keep validating every decoded frame. */
+    if (count != expected && !(cmf == cockpit && expected == 37 && count == 38)) {
         SDL_SetError("Unexpected SWC frame count in %s/%u", chunkType, chunk);
         goto done;
     }
@@ -491,6 +496,57 @@ static int SwcLoadFlightImages(const SwcCmf *cockpit, const SwcCmf *space,
 done:
     SDL_free(set.data);
     return result;
+}
+
+/* Retail initialize_cockpit 0x01030964 and GameMode 0x01037046:
+ * select PCShipV00..05 and clut 251..256; player type 10 uses cockpit 5.
+ * Indexed space images also acquire the selected palette when cached. */
+static int SwcInitializeCockpit(int model, const char *resourceFork)
+{
+    SwcBuffer set = {0};
+    char path[PATH_MAX];
+    char relative[64];
+    char chunkType[5];
+    int object;
+    uint32_t frame;
+
+    if (model == OBJECT_TYPE_DRALTHI)
+        model = 5;
+    if (model < 0 || model > 5)
+        return SDL_SetError("Unsupported SWC cockpit model %d", model);
+    if (model != swcFlightCockpitModel) {
+        SdlFreeSwcCockpit();
+        SDL_DestroyTexture(swcCockpitTexture);
+        swcCockpitTexture = NULL;
+        swcFlightCockpitModel = -1;
+        SwcCMClose(swcCinemaCockpitCmf);
+        for (object = 0; object < OBJECT_TYPE_COUNT; object++) {
+            for (frame = 0; frame < swcCinemaImages[object].count; frame++)
+                SdlFreeSwcRasterImage(&swcCinemaImages[object].views[frame]);
+            SDL_free(swcCinemaImages[object].views);
+            SDL_zero(swcCinemaImages[object]);
+        }
+        for (frame = 0; frame < SDL_arraysize(swcStarTextures); frame++) {
+            SDL_DestroyTexture(swcStarTextures[frame]);
+            swcStarTextures[frame] = NULL;
+        }
+        SDL_snprintf(relative, sizeof(relative), "CMFs/PCShipV%02d.CMF", model);
+        if (!SdlResolvePath(relative, path, sizeof(path)) ||
+            SwcCMOpen(path, swcCinemaCockpitCmf) != 0 ||
+            SwcReadPalette(resourceFork, 251 + model, swcCinemaColors) != 0)
+            return -1;
+        /* Retail simulator chunks retain the Hornet's PC00 tag. */
+        SDL_snprintf(chunkType, sizeof(chunkType), "PC%02d", model == 4 ? 0 : model);
+        if (SwcCMGetChunk(swcCinemaCockpitCmf, chunkType, 1, &set) != 0)
+            return -1;
+        swcCockpitTexture = SdlCreateSwcTexture(swcCinemaRenderer, &set, 0, swcCinemaColors);
+        SDL_free(set.data);
+        if (swcCockpitTexture == NULL)
+            return -1;
+        swcFlightCockpitModel = model;
+    }
+    return SdlInitSwcCockpit(swcCinemaRenderer, swcCinemaCockpitCmf,
+        swcCinemaSpaceCmf, swcCinemaColors, swcRasterCanvas, model);
 }
 
 static void SwcInitCharacters(void)
@@ -985,9 +1041,9 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
     short sorted[SPACE_OBJECT_COUNT];
     short count = 0;
     short index;
-    /* CODE_02 draw_sorted_objects_to_buffer uses (160,100) + projected XY
-       in both cockpit modes. Positive view Y also points down in WC1. */
-    int centreY = 100;
+    /* Retail draw_sorted_objects_to_buffer +0x00c0 selects the cockpit's
+       forward origin; external/cockpitless views retain (160,100). */
+    int centreY = !cockpitless && nCameraViewMode <= 3 ? swcCockpitViewCenter.y : 100;
 
     SwcTransformObjectsToView();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -1065,7 +1121,7 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
        cockpit views. External views include the player's own ship. */
     if (nCameraViewMode > 3)
         goto border;
-    if (SdlDrawSwcSpaceHud(objectBounds) != 0)
+    if (SdlDrawSwcSpaceHud(objectBounds, cockpitless) != 0)
         return -1;
     if (!cockpitless) {
         rectangle = (SDL_Rect){swcCockpitOffset.x, swcCockpitOffset.y, 320, 240};
@@ -1696,7 +1752,6 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
 {
     SwcCmf cockpitCmf = {0};
     SwcCmf spaceCmf = {0};
-    SwcBuffer cockpitSet = {0};
     SwcBuffer campaignData = {0};
     unsigned char *savedCampaignData = pMissionCampaignInfo;
     SwcFlightImages images[OBJECT_TYPE_COUNT] = {{0}};
@@ -1726,7 +1781,6 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
     SDL_Color colors[256];
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
-    SDL_Texture *cockpit = NULL;
     Viewport savedSpaceBuffer = stSpaceBufferViewport;
     Viewport *savedMouseViewport = stMouseCursorState.viewport;
     void (*savedInputPump)(void) = pCurrentEventManagerPump;
@@ -1768,9 +1822,6 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
         }
         SDL_ClearError();
     }
-    if (!SdlResolvePath("CMFs/PCShipV00.CMF", path, sizeof(path)) ||
-        SwcCMOpen(path, &cockpitCmf) != 0)
-        goto done;
     if (!SdlResolvePath("CMFs/Spaceflight.CMF", path, sizeof(path)) ||
         SwcCMOpen(path, &spaceCmf) != 0)
         goto done;
@@ -1801,18 +1852,12 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
     renderer = SdlCreateSwcRenderer(window);
     if (renderer == NULL || SDL_RenderSetLogicalSize(renderer, 320, 240) != 0)
         goto done;
-    if (SwcCMGetChunk(&cockpitCmf, "PC00", 1, &cockpitSet) != 0)
-        goto done;
-    cockpit = SdlCreateSwcTexture(renderer, &cockpitSet, 0, colors);
-    if (cockpit == NULL)
-        goto done;
     swcRasterCanvas = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
         SDL_TEXTUREACCESS_STREAMING, SWC_FRAME_WIDTH, SWC_FRAME_HEIGHT);
     if (swcRasterCanvas == NULL ||
         SDL_SetTextureBlendMode(swcRasterCanvas, SDL_BLENDMODE_BLEND) != 0)
         goto done;
-    if (SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf, colors, swcRasterCanvas) != 0 ||
-        SdlCreateSwcTextFont(renderer, &swcPauseFont, 10) != 0)
+    if (SdlCreateSwcTextFont(renderer, &swcPauseFont, 10) != 0)
         goto done;
     /* Prepare shared mission state for the briefing map. No flight ticks or
        player input run while visiting the carrier or watching launch. */
@@ -1829,7 +1874,7 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
     objectsConfigured = 1;
     srand(1);
     shipCount = SwcStartMissionShips();
-    if (shipCount < 0)
+    if (shipCount < 0 || SwcInitializeCockpit(stCampaignState.playerShipType, path) != 0)
         goto done;
     /* CODE_12 SetupSWStuff +0x4926 loads preferences before sound starts. */
     SdlLoadSwcOptions(path);
@@ -1868,7 +1913,8 @@ title_menu:
      * Recreate the campaign on each menu visit and again on New Game. */
     SwcInitCharacters();
     nCampaignDataSet = 0;
-    if (SdlLoadSwcMissionData(missionPath, 1, 0) != 0 || SwcStartMissionShips() < 0)
+    if (SdlLoadSwcMissionData(missionPath, 1, 0) != 0 || SwcStartMissionShips() < 0 ||
+        SwcInitializeCockpit(stCampaignState.playerShipType, path) != 0)
         goto done;
     movieResult = SwcRunFlightScene(SWC_FLIGHT_TITLE, canContinue || nSwcContinueSlot >= 0);
     if (movieResult == SWC_MOVIE_ERROR)
@@ -1914,8 +1960,7 @@ prepare_mission:
                             stCampaignState.currentMission) != 0)
         goto done;
     shipCount = SwcStartMissionShips();
-    if (shipCount < 0 || SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf,
-            colors, swcRasterCanvas) != 0)
+    if (shipCount < 0 || SwcInitializeCockpit(stCampaignState.playerShipType, path) != 0)
         goto done;
     /* CODE_09 squadron +0x84 calls opening_scene before StartNewCampaign
        and GameFlow. Continue skips the opening and restores the session. */
@@ -1985,7 +2030,7 @@ begin_flight:
     SwcResetFlightInput();
     SetEventManagerPump(NULL);
     stMouseCursorState.viewport = &stSpaceBufferViewport;
-    /* SWC uses the same (160,100) scene center in either cockpit mode. */
+    /* Input retains Win32's 320x200 viewport, independent of cockpit layout. */
     bCockpitlessView = 0;
     SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
     bHostPrimaryMouseButton = 0;
@@ -2292,8 +2337,7 @@ begin_flight:
                         stCampaignState.currentMission) != 0)
                     goto done;
                 shipCount = SwcStartMissionShips();
-                if (shipCount < 0 || SdlInitSwcCockpit(renderer, &cockpitCmf,
-                        &spaceCmf, colors, swcRasterCanvas) != 0)
+                if (shipCount < 0 || SwcInitializeCockpit(stCampaignState.playerShipType, path) != 0)
                     goto done;
                 carrierVisit = SWC_CARRIER_SIMULATOR_RESULTS;
                 goto carrier_room;
@@ -2551,7 +2595,7 @@ begin_flight:
            rasterize the same CMF sprites again between simulation ticks.
            Periodic redraws also expire option notices while paused. */
         if (redraw || current - lastDraw >= tickInterval) {
-            if (SwcDrawFlight(renderer, cockpit, &cockpitCmf, &spaceCmf, colors,
+            if (SwcDrawFlight(renderer, swcCockpitTexture, &cockpitCmf, &spaceCmf, colors,
                               images, cockpitless) != 0)
                 goto done;
             if ((!focused || paused) && SwcDrawPauseMessage(renderer, colors, 1, paused) != 0)
@@ -2576,11 +2620,9 @@ simulator_mission:
     if (SdlLoadSwcMissionData(missionPath, 0, nTrainSimMission) != 0)
         goto done;
     shipCount = SwcStartMissionShips();
-    if (shipCount < 0 || SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf,
-            colors, swcRasterCanvas) != 0)
+    if (shipCount < 0 || SwcInitializeCockpit(4, path) != 0)
         goto done;
-    /* Retail PCShipV04 is byte-identical to PCShipV00 (PC00 chunks).
-     * SwcStartMissionShips already loads the first action sphere's ships. */
+    /* SwcStartMissionShips already loads the first action sphere's ships. */
     nTrainSimActive = 1;
     nArcadeWave = 0;
     nArcadeBonusCountdown = 0;
@@ -2593,8 +2635,7 @@ retry_mission:
                             stCampaignState.currentMission) != 0)
         goto done;
     shipCount = SwcStartMissionShips();
-    if (shipCount < 0 || SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf,
-            colors, swcRasterCanvas) != 0)
+    if (shipCount < 0 || SwcInitializeCockpit(stCampaignState.playerShipType, path) != 0)
         goto done;
     paused = 0;
     elapsed = 0;
@@ -2642,7 +2683,9 @@ done:
         SDL_free(images[object].views);
     }
     SdlFreeSwcCockpit();
-    SDL_DestroyTexture(cockpit);
+    SDL_DestroyTexture(swcCockpitTexture);
+    swcCockpitTexture = NULL;
+    swcFlightCockpitModel = -1;
     SDL_DestroyTexture(swcRasterCanvas);
     swcRasterCanvas = NULL;
     SDL_DestroyTexture(swcPauseFont.texture);
@@ -2656,7 +2699,6 @@ done:
     SdlShutdownJoysticks();
     SDL_DestroyWindow(window);
     SDL_Quit();
-    SDL_free(cockpitSet.data);
     SwcCMClose(&spaceCmf);
     SwcCMClose(&cockpitCmf);
     if (result != 0)
