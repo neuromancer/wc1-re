@@ -62,6 +62,12 @@ work; other DOS-specific data or behavior may not. Starting the game saves the
 directory and options for the next session. Enable **Start in fullscreen** under
 **Graphics** to open the game in desktop fullscreen mode.
 
+**Secret Missions 1 (Kilrathi Saga):** add `CAMP.001`, `MODULE.001`,
+`BRIEFING.001`, `MIDGAME.V04` and `MIDGAME.V05` to the base game's `GAMEDAT`.
+Choose **Secret Missions** on the title screen. New pilots begin with the original
+simulator prologue; **Transfer pilot to SM1** uses an existing WC1 save and retains
+the pilot's statistics and awards. Secret Missions 2 is not required or supported.
+
 With command-line arguments the game starts directly from the working
 directory; add `--gui` to review the options in the launcher first:
 
@@ -201,6 +207,9 @@ The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
 1.92+, and a C++20 compiler; Linux builds need the D-Bus and Fontconfig
 development packages. It produces `out-modern/wc1-modern-gui`, which release
 archives ship as `wc1-modern`.
+
+Run the SM1 integration checks with `make check-sm1 SM1_DATA=/path/to/WC1`.
+They use temporary copies of your game data and leave existing saves untouched.
 
 ### Translation and voice mappings
 

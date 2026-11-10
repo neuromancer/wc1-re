@@ -528,6 +528,7 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/compat.c \
 	src/sdl/input.c \
 	src/sdl/resources.c \
+	src/sdl/campaign.c \
 	src/sdl/data_patches.c \
 	src/sdl/translation.c \
 	src/sdl/speech.c \
@@ -1374,6 +1375,21 @@ $(MODERN_OUT_DIR)/retry-probe: $(MODERN_OUT_DIR)/obj/retry_probe.o \
 .PHONY: check-mission-retry
 check-mission-retry: $(MODERN_OUT_DIR)/retry-probe
 	$(MODERN_OUT_DIR)/retry-probe
+
+$(MODERN_OUT_DIR)/obj/sm1_probe.o: bin/checkSm1.c src/gameflow.c src/title.c src/barracks.c src/killbrd.c | modern-check-sdl
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/sm1-probe: $(MODERN_OUT_DIR)/obj/sm1_probe.o \
+		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+		$(filter-out $(addprefix $(MODERN_OUT_DIR)/obj/,gameflow.o title.o barracks.o killbrd.o),$(MODERN_GAMEPLAY_OBJS)) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-sm1
+check-sm1: $(MODERN_OUT_DIR)/sm1-probe
+	python3 bin/checkSm1.py $(MODERN_OUT_DIR)/sm1-probe "$(if $(SM1_DATA),$(SM1_DATA),$(MODERN_RUN_DIR))"
 
 $(MODERN_OUT_DIR)/voice-probe: bin/checkVoices.c src/sdl/audio.c src/sdl/speech.c src/sdl/compat.c include/wc1sdl.h | modern-check-sdl $(MODERN_VOICES)
 	@mkdir -p $(dir $@)

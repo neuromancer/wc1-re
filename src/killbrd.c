@@ -456,7 +456,11 @@ short RecRoom(void)
         (stCampaignState.currentSeries * 4 +
          stCampaignState.currentMission) * 2 - 7];
     /* The original tests the first pilot's sentinel here too. */
+#ifdef SDL_PORT
+    if (animationIds[2] != -1) {
+#else
     if (animationIds[1] != -1) {
+#endif
         personality = animationIds[2];
         if (stCampaignState
                 .personalityDeathMission[personality] == 0) {
@@ -497,10 +501,16 @@ short RecRoom(void)
                                  -1, 6);
 
     animations[0] = abShotglassIdleAnimation;
+#ifdef SDL_PORT
+    /* Several SM1 missions leave both pilot seats empty. */
+    animations[1] = animationIds[1] < 0 ? 0 : apRecRoomAnimations[animationIds[1]];
+    animations[2] = animationIds[2] < 0 ? 0 : apRecRoomAnimations[animationIds[2]];
+#else
     animations[1] =
         apRecRoomAnimations[animationIds[1]];
     animations[2] =
         apRecRoomAnimations[animationIds[2]];
+#endif
     InitializeRoomMenu(aRecRoomMenuRegions,
                        apszRecRoomMenuLabels,
                        &stRoomScreenViewport,

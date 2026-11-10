@@ -25,6 +25,26 @@ typedef struct SdlOriginLzwBitReader {
 
 static int g_nSdlDosData = -1;
 
+int SdlHasSecretMissions1(void)
+{
+    /* Kilrathi Saga SM1 uses these five additional archives. Empty final
+     * sections are valid; a missing archive/section returns -1. */
+    static const short files[] = {61, 62, 52, 67, 68};
+    static const short sections[] = {2, 35, 5, 6, 6};
+    short savedError = nPacketError;
+    int index;
+
+    if (!pDiskFileRecords || SdlUsingDosData() || SdlUsingTownsData())
+        return 0;
+    for (index = 0; index < SDL_arraysize(files); index++) {
+        if (GetPacketSize(pDiskFileRecords[files[index]].name,
+                          sections[index]) == (unsigned int)-1)
+            break;
+    }
+    nPacketError = savedError;
+    return index == SDL_arraysize(files);
+}
+
 static uint32_t SdlReadLittleEndian32(const unsigned char *bytes)
 {
     return (uint32_t)bytes[0] |

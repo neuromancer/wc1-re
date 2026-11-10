@@ -1234,3 +1234,23 @@ msgstr "MUY LEJOS"
 msgctxt "font0"
 msgid "wc1:c49c1b105b4018ae"
 msgstr "Intro/A/1: Repetir  Esc/B/2: Seguir la historia"
+
+msgctxt "font0"
+msgid "wc1:0ddf30d9bb4b263a"
+msgstr "Transferir piloto a SM1"
+
+msgctxt "font0"
+msgid "wc1:ddafd647ef79996a %s"
+msgstr "Transferir a %s a SM1."
+
+msgctxt "font0"
+msgid "wc1:938bc952b5cf66c4 %s (Y/N)"
+msgstr "Transferir a %s a SM1? (Y/N)"
+
+msgctxt "font0"
+msgid "wc1:7d0c315b2543514d"
+msgstr "No hay piloto de WC1."
+
+msgctxt "font0"
+msgid "wc1:14ca20954376880d"
+msgstr "Volver al título"

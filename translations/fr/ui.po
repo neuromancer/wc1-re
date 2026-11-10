@@ -1130,3 +1130,23 @@ msgstr "ELOIGNE"
 msgctxt "font0"
 msgid "wc1:c49c1b105b4018ae"
 msgstr "Entrée/A/1: Rejouer  Échap/B/2: Voir la suite"
+
+msgctxt "font0"
+msgid "wc1:0ddf30d9bb4b263a"
+msgstr "Transférer un pilote vers SM1"
+
+msgctxt "font0"
+msgid "wc1:ddafd647ef79996a %s"
+msgstr "Transférer %s vers SM1."
+
+msgctxt "font0"
+msgid "wc1:938bc952b5cf66c4 %s (Y/N)"
+msgstr "Transférer %s vers SM1 ? (Y/N)"
+
+msgctxt "font0"
+msgid "wc1:7d0c315b2543514d"
+msgstr "Aucun pilote WC1 ici."
+
+msgctxt "font0"
+msgid "wc1:14ca20954376880d"
+msgstr "Retour au titre"

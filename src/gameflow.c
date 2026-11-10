@@ -207,7 +207,12 @@ unsigned int UpdateSeries(void)
         }
         stCampaignState.seriesScore = 0;
         stCampaignState.currentMission = 0;
-        if ((signed char)pMissionCampaignInfo[
+        if (
+#ifdef SDL_PORT
+            /* A terminal series is -1; it has no following scene record. */
+            stCampaignState.currentSeries > 0 &&
+#endif
+            (signed char)pMissionCampaignInfo[
                 stCampaignState.currentSeries *
                 0x5a + 5] ==
                 nPostSeriesSequence &&
@@ -252,6 +257,10 @@ unsigned int StartNewCampaign(short campaign)
     stCampaignState.campaignIndex = campaign;
     nCampaignDataSet = campaign;
     bCampaignStartupMode = 0;
+#ifdef SDL_PORT
+    LoadPacketIntoBuffer(asCampaignPilotFiles[campaign], 0,
+                         pConstellationDefinitionsPtr);
+#endif
     LoadPacketIntoBuffer(asCampaignPilotFiles[campaign], 1,
                          pMissionCampaignInfo);
     bPanRoomTransition = 0;

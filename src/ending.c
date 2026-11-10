@@ -57,6 +57,9 @@ void ReleasePacketHandle(void *handle)
     int i;
 
 #ifdef SDL_PORT
+    /* Empty MIDGAME sections have no allocation to release. */
+    if (handle == 0)
+        return;
     SdlForgetVoicePacket(handle);
 #endif
     reference = (void **)aapPacketReferences;

@@ -373,7 +373,15 @@ int main(short argc, char **argv)
                 StartNewCampaign(1);
                 break;
             case 3:
+#ifdef SDL_PORT
+                nSm1TransferState = 1;
+                selection = BarracksScreen();
+                nSm1TransferState = 0;
+                if (selection != 7)
+                    continue;
+#else
                 StartNewCampaign(2);
+#endif
                 break;
             default:
                 break;

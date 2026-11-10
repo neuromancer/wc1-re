@@ -2259,7 +2259,11 @@ unsigned short __stdcall UpdateSceneAnimationObject(
         switch (*cursor++) {
         case 'A':
             property = *cursor++;
+#ifdef SDL_PORT
+            memcpy(&value, cursor, sizeof(value));
+#else
             value = *(short *)cursor;
+#endif
             cursor += 2;
             switch (property) {
             case 'F':
@@ -2347,12 +2351,20 @@ unsigned short __stdcall UpdateSceneAnimationObject(
             stop++;
             /* Fall through to the label search. */
         case 'G':
+#ifdef SDL_PORT
+            memcpy(&labelNumber, cursor, sizeof(labelNumber));
+#else
             labelNumber = *(short *)cursor;
+#endif
             label = object->scriptStart;
             do {
                 label = FindSceneAnimationCommand(label, 'B');
                 label++;
+#ifdef SDL_PORT
+                memcpy(&value, label, sizeof(value));
+#else
                 value = *(short *)label;
+#endif
                 label += 2;
             } while (value != labelNumber);
             cursor = label;
@@ -2360,7 +2372,11 @@ unsigned short __stdcall UpdateSceneAnimationObject(
 
         case 'L':
             property = *cursor++;
+#ifdef SDL_PORT
+            memcpy(&value, cursor, sizeof(value));
+#else
             value = *(short *)cursor;
+#endif
             cursor += 2;
             switch (property) {
             case 'F':
@@ -2403,7 +2419,11 @@ unsigned short __stdcall UpdateSceneAnimationObject(
 
         case 'Q':
             property = *cursor++;
+#ifdef SDL_PORT
+            memcpy(&value, cursor, sizeof(value));
+#else
             value = *(short *)cursor;
+#endif
             cursor += 2;
             switch (property) {
             case 'F':
@@ -2443,12 +2463,25 @@ unsigned short __stdcall UpdateSceneAnimationObject(
             break;
 
         case 'W':
+#ifdef SDL_PORT
+            memcpy(&nSceneAnimationDelayFrames, cursor, sizeof(nSceneAnimationDelayFrames));
+#else
             nSceneAnimationDelayFrames = *(short *)cursor;
+#endif
             cursor += 2;
             bSceneAnimationWaitCommand = 1;
             break;
 
         case 'X':
+#ifdef SDL_PORT
+            /* Animation bytecode words need not be aligned. */
+            memcpy(&object->x, cursor, 2);
+            memcpy(&object->y, cursor + 2, 2);
+            memcpy(&object->rotation, cursor + 4, 2);
+            memcpy(&object->scale, cursor + 6, 2);
+            memcpy(&object->frame, cursor + 8, 2);
+            cursor += 10;
+#else
             object->x = *(short *)cursor;
             cursor += 2;
             object->y = *(short *)cursor;
@@ -2459,6 +2492,7 @@ unsigned short __stdcall UpdateSceneAnimationObject(
             cursor += 2;
             object->frame = *(short *)cursor;
             cursor += 2;
+#endif
             break;
         }
     }

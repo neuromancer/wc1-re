@@ -637,6 +637,7 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     SaveGameDiskCampaignState *diskCampaign = &diskRecord.campaign;
 
 #ifdef SDL_PORT
+    memset(&diskRecord, 0, sizeof(diskRecord));
     if (SdlSwcFlightActive()) {
         if (!SdlReadSwcSaveGame(slot, &diskRecord))
             return 0;
@@ -649,6 +650,10 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
         PromptInsertNumberedDisk(0x10);
         file = OpenDataFileOrDie("SAVEGAME.WLD");
         fileOpen = (file >= 0) & 1;
+#ifdef SDL_PORT
+        if (fileOpen && _filelength(file) < (slot + 1) * (long)sizeof(diskRecord))
+            fileOpen = 0;
+#endif
         read = ReadDataFileAtOffset(file,
                                     slot * 0x33c, 0x33c,
                                     &diskRecord);
@@ -731,6 +736,13 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     if (!SdlSwcFlightActive())
 #endif
         CloseDataFile(file);
+#ifdef SDL_PORT
+    if (gameRecord->campaign.campaignIndex < 0 ||
+        gameRecord->campaign.campaignIndex >= 3 ||
+        (!SdlSwcFlightActive() && gameRecord->campaign.campaignIndex == 1 &&
+         !SdlValidateSm1Save(&gameRecord->campaign)))
+        return 0;
+#endif
     if (fileOpen != 0 && gameRecord->occupied != 0)
         return 1;
     return 0;
@@ -786,6 +798,18 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
 void SetBunkMenuLabel(short occupied, short side, char **label,
                       short series, short mission, char *description)
 {
+#ifdef SDL_PORT
+    if (nSm1TransferState) {
+        char text[84];
+        if (occupied)
+            snprintf(text, sizeof(text), C_("font0", "Transfer %s to SM1."), description);
+        else
+            snprintf(text, sizeof(text), "%s", C_("font0", "No WC1 pilot here."));
+        *label = AllocateTaggedMemory(strlen(text) + 1, 0);
+        strcpy(*label, text);
+        return;
+    }
+#endif
     if (occupied == 0) {
         *label = (char *)apszSaveCampaignMenuLabels[0];
         return;
@@ -807,6 +831,10 @@ void GetBunkInfo(BarracksAnimationState *state)
     for (bunk = 0; bunk < 8; bunk++) {
         state->bunks[bunk].occupied =
             LoadGame(bunk, &gameRecord);
+#ifdef SDL_PORT
+        if (nSm1TransferState && gameRecord.campaign.campaignIndex != 0)
+            state->bunks[bunk].occupied = 0;
+#endif
         SetBunkMenuLabel(
             state->bunks[bunk].occupied, 0,
             &apszBarracksMenuLabels[bunk * 2],
@@ -820,7 +848,7 @@ void GetBunkInfo(BarracksAnimationState *state)
             gameRecord.campaign.currentMission,
             gameRecord.description);
 #ifdef SDL_PORT
-        if (bunk == SDL_AUTOSAVE_SLOT) {
+        if (bunk == SDL_AUTOSAVE_SLOT && !nSm1TransferState) {
             /* Both overwritten labels are shared save-action strings, not
              * allocations. FreeBarracksMenuLabels owns the replacements. */
             if (state->bunks[bunk].occupied == 0) {
@@ -1023,6 +1051,18 @@ void HandleBarracksBunkSelection(Viewport *viewport,
 {
     LeaveAllocationScope();
 #ifdef SDL_PORT
+    if (nSm1TransferState) {
+        SaveGameRecord source;
+        if (LoadGame(region / 2, &source) && source.campaign.campaignIndex == 0 &&
+            ShowModalTextPanel(0, C_("font0", "Transfer %s to SM1? (Y/N)"), source.description)) {
+            int confirmed = toupper((unsigned char)WaitForStreamInputKey()) == 'Y';
+            ReleaseModalTextPanel();
+            if (confirmed && SdlTransferSm1Pilot(region / 2))
+                nSm1TransferState = 2;
+        }
+        EnterAllocationScope();
+        return;
+    }
     if (region / 2 == SDL_AUTOSAVE_SLOT &&
         (region % 2 != 0 || state->bunks[SDL_AUTOSAVE_SLOT].occupied == 0)) {
         if (ShowModalTextPanel(1, _("Slot 8 is reserved for autosave.")) != 0) {
@@ -1072,6 +1112,15 @@ short BarracksScreen(void)
     struct Shape *background;
     short eventType;
     short region;
+#ifdef SDL_PORT
+    char *savedLabels[4];
+
+    if (nSm1TransferState) {
+        memcpy(savedLabels, apszBarracksMenuLabels + 16, sizeof(savedLabels));
+        for (region = 16; region < 20; region++)
+            apszBarracksMenuLabels[region] = (char *)C_("font0", "Back to title");
+    }
+#endif
 
     result = 0;
     lastMedalsTick = 0;
@@ -1083,7 +1132,10 @@ short BarracksScreen(void)
                        apszBarracksMenuLabels,
                        &stRoomScreenViewport,
                        szDefaultTxtBuf, 2);
-    EnsureSaveGameFile();
+#ifdef SDL_PORT
+    if (!nSm1TransferState)
+#endif
+        EnsureSaveGameFile();
     InitializeBarracksAnimation(&animation);
     GetBunkInfo(&animation);
     DrawBarracksBunks(&stSceneBuffer, background, &animation);
@@ -1111,6 +1163,12 @@ short BarracksScreen(void)
             clicked = 0;
             ClearInputKeyStatePreservingModifiers();
             switch ((short)event.value) {
+#ifdef SDL_PORT
+            case SCAN_ESCAPE:
+                if (nSm1TransferState)
+                    result = 6;
+                break;
+#endif
             case SCAN_RETURN:
             case SCAN_SPACE:
                 clicked = 1;
@@ -1132,7 +1190,17 @@ short BarracksScreen(void)
             if (region >= 0 && region < 16) {
                 HandleBarracksBunkSelection(
                     &stSceneBuffer, background, &animation, region);
+#ifdef SDL_PORT
+                if (nSm1TransferState == 2)
+                    result = 7;
+#endif
             } else {
+#ifdef SDL_PORT
+                if (nSm1TransferState && region >= 16 && region < 20) {
+                    result = 6;
+                    break;
+                }
+#endif
                 switch (region) {
                 case 16:
                     if (bCampaignActive == 0)
@@ -1208,5 +1276,9 @@ short BarracksScreen(void)
     free_viewport(&stSceneBuffer);
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(35);
+#ifdef SDL_PORT
+    if (nSm1TransferState)
+        memcpy(apszBarracksMenuLabels + 16, savedLabels, sizeof(savedLabels));
+#endif
     return result;
 }

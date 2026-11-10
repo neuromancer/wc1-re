@@ -1722,7 +1722,11 @@ int rnd_aim(short radius, short speed, short maximum)
 
     aim = MinShort(maximum,
                    (RandomBelowOrEqual(radius) + speed));
+#ifdef SDL_PORT
+    return rnd_sign(aim) * 256;
+#else
     return rnd_sign(aim) << 8;
+#endif
 }
 
 /* Function start: 0x420920 */

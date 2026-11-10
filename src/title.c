@@ -148,6 +148,10 @@ int Title_Sequence(void)
     int activate;
     signed char state;
     signed char selectedIndex;
+#ifdef SDL_PORT
+    SaveGameRecord transferSave;
+    TextContext transferText;
+#endif
 
     state = 0;
     if (bShowKilrathiSagaCredits != 0)
@@ -319,14 +323,30 @@ int Title_Sequence(void)
         bTitleMenuSceneInitialized = 1;
     }
     menuShape = FetchDiskPacketRetrying(9, 4, 0);
+#ifdef SDL_PORT
+    alternateMenuShape = 0;
+#else
     alternateMenuShape =
         FetchDiskPacketRetrying(0x4b, 0, 0);
+#endif
     menuOptions[0] = 0;
     optionCount = 1;
     if (AnySavedGames() != 0) {
         optionCount = 2;
         menuOptions[1] = 1;
     }
+#ifdef SDL_PORT
+    if (SdlHasSecretMissions1()) {
+        menuOptions[optionCount++] = 2;
+        for (menuIndex = 0; menuIndex < 8; menuIndex++) {
+            if (LoadGame(menuIndex, &transferSave) &&
+                transferSave.campaign.campaignIndex == 0) {
+                menuOptions[optionCount++] = 3;
+                break;
+            }
+        }
+    }
+#endif
     for (; optionCount < 4; optionCount++)
         menuOptions[optionCount] = -1;
 
@@ -340,11 +360,17 @@ int Title_Sequence(void)
                     aTitleMenuRegions[menuIndex].top,
                     menuShape, menuOptions[menuIndex]);
             } else {
+#ifdef SDL_PORT
+                aTitleMenuRegions[menuIndex].right = 283;
+                aTitleMenuRegions[menuIndex].bottom =
+                    aTitleMenuRegions[menuIndex].top + 18;
+#else
                 GetShapeFrameBounds(
                     &aTitleMenuRegions[menuIndex].left,
                     aTitleMenuRegions[menuIndex].left,
                     aTitleMenuRegions[menuIndex].top,
                     alternateMenuShape, 0);
+#endif
             }
         } else {
             aTitleMenuRegions[menuIndex].frame = -1;
@@ -360,10 +386,23 @@ int Title_Sequence(void)
                     aTitleMenuRegions[menuIndex].top,
                     menuShape, menuOptions[menuIndex]);
             } else {
+#ifdef SDL_PORT
+                TextContext *previousContext = pCurTextContext;
+                transferText = stDefaultTxtContext;
+                transferText.viewport = &stScreenView;
+                InitializeTextContextFromFont(&transferText, 0, cPrimaryTextColour, cBlackColour);
+                DrawViewportBorder(&stScreenView, aTitleMenuRegions[menuIndex].left,
+                    aTitleMenuRegions[menuIndex].top, aTitleMenuRegions[menuIndex].right,
+                    aTitleMenuRegions[menuIndex].bottom, cPrimaryTextColour);
+                DrawTextAt(&transferText, 166, aTitleMenuRegions[menuIndex].top + 5,
+                           C_("font0", "Transfer pilot to SM1"), 2);
+                SetTextContext(previousContext);
+#else
                 DrawSpriteDefault(&stScreenView,
                     aTitleMenuRegions[menuIndex].left,
                     aTitleMenuRegions[menuIndex].top,
                     alternateMenuShape, 0);
+#endif
             }
         }
     }
@@ -391,6 +430,24 @@ int Title_Sequence(void)
             case SCAN_S:
             case SCAN_C:
             case SCAN_SPACE:
+#ifdef SDL_PORT
+            case SCAN_M:
+            case SCAN_T:
+                if ((short)event.value == SCAN_S ||
+                    (short)event.value == SCAN_C ||
+                    (short)event.value == SCAN_M ||
+                    (short)event.value == SCAN_T) {
+                    int option = (short)event.value == SCAN_S ? 0 :
+                        (short)event.value == SCAN_C ? 1 :
+                        (short)event.value == SCAN_M ? 2 : 3;
+                    for (menuIndex = 0; menuIndex < 4; menuIndex++) {
+                        if (menuOptions[menuIndex] == option)
+                            selectedIndex = menuIndex;
+                    }
+                    if (selectedIndex == -1)
+                        break;
+                }
+#else
                 if ((short)event.value == SCAN_S)
                     selectedIndex = 0;
                 if ((short)event.value == SCAN_C &&
@@ -399,6 +456,7 @@ int Title_Sequence(void)
                 if ((short)event.value == SCAN_M &&
                     menuOptions[2] != -1)
                     selectedIndex = 2;
+#endif
                 activate = 1;
                 break;
             case SCAN_J:

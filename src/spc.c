@@ -1422,7 +1422,12 @@ int object_collision(short obj)
                                            asObjectCounterArray[objectIndex] / 2);
                 response = aShipVelocity[objectIndex];
                 NormalizeFixedVector(&response);
-                ScaleFixedVector(&response, projectileDamage << 8,
+                ScaleFixedVector(&response,
+#ifdef SDL_PORT
+                                 projectileDamage * 256,
+#else
+                                 projectileDamage << 8,
+#endif
                                  &response);
                 negate_vector(&vCollisionDelta);
                 apply_force_to_object(&vCollisionDelta,

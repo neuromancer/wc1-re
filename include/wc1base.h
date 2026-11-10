@@ -414,6 +414,10 @@ typedef struct CockpitReadout {
 
 /* Saved background and text state for the centred modal message panel.  The
  * unaligned Viewports are inherited from the packed DOS layout. */
+#ifdef SDL_PORT
+/* Runtime-only state: pointers passed to viewport routines need host alignment. */
+#pragma pack(push, 8)
+#endif
 typedef struct ModalTextPanel {
     TextContext context;              /* +0x00 */
     Viewport savedBackground;         /* +0x1B */
@@ -424,6 +428,9 @@ typedef struct ModalTextPanel {
     short right;                      /* +0x4B */
     short bottom;                     /* +0x4D */
 } ModalTextPanel;
+#ifdef SDL_PORT
+#pragma pack(pop)
+#endif
 
 /* One flashing cockpit/VDU message.  Two adjacent records begin at
  * 0x005A7DD0; the unaligned text pointer at +0x0D is intentional. */
