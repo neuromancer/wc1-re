@@ -526,9 +526,23 @@ unsigned int Update_3Space(void)
 {
     house_keep();
     house_keep_objects();
+#ifdef SDL_PORT
+    /* Docking ends SWC flight before another movement/collision pass. */
+    if (SdlSwcFlightActive() && nCannedSceneMode == 0 && nArcadeState == 1)
+        return 0;
+#endif
     update_objects_in_space();
-    set_eye_direction_and_position();
-    servicetrack();
+#ifdef SDL_PORT
+    if (SdlSwcFlightActive()) {
+        SdlUpdateSwcFlightCamera();
+        if (nCameraViewMode != 16)
+            SdlUpdateSwcFlightMusic();
+    } else
+#endif
+    {
+        set_eye_direction_and_position();
+        servicetrack();
+    }
     nCurrentSpaceFrameValue++;
     return 0;
 }
@@ -601,6 +615,11 @@ unsigned int house_keep(void)
             (count & 0xf) == 0)
             check_hazards();
     }
+#ifdef SDL_PORT
+    /* The CMF renderer owns SWC cockpit lights and damage flashes. */
+    if (SdlSwcFlightActive())
+        return 0;
+#endif
     if (nCameraViewMode == 0) {
         for (count = 0; count < 6; count++) {
             FadeFlightPaletteEntry(aPaletteFadeEntries[count]);
@@ -632,7 +651,14 @@ void init_player_input(void)
 /* Function start: 0x427E40 */
 void get_player_input(void)
 {
-
+#ifdef SDL_PORT
+    if (SdlSwcFlightActive() && nCurrentActiveInputDevice >= 0) {
+        /* The SWC host already sampled normalized SDL axes this tick. */
+        stLastPolledFlightInput = aInputDevSamples[nCurrentActiveInputDevice];
+        TranslatePolledInputEvent(INPUT_EVENT_JOYSTICK_MOVE, 0);
+        return;
+    }
+#endif
     if (nCurrentActiveInputDevice != -1 &&
         bInputPollingGuard == 0) {
         bInputPollingGuard++;

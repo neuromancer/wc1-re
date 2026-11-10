@@ -1,5 +1,5 @@
-/* SDL2 campaign and retail simulator host. Mission state, ship setup, flight dynamics,
- * navigation and player weapons belong to the existing WC1 core. Mac
+/* SDL2 campaign and retail simulator host. Mission state, input, world updates,
+ * flight dynamics, navigation and player weapons use the existing WC1 core. Mac
  * projection, cinematic cameras and object definitions live at this boundary. */
 #include "wc1.h"
 #include "swc.h"
@@ -233,7 +233,7 @@ static void SwcBattleView(void)
 
 /* CODE_02 set_eye_direction_and_position +0x25d8, views 4 and 14.
  * Keep the shared cockpit/autopilot cases; scene view 16 has its own updater. */
-static void SwcUpdateFlightCamera(void)
+void SdlUpdateSwcFlightCamera(void)
 {
     FixedVector direction;
     FixedVector destination;
@@ -295,26 +295,8 @@ static void SwcSelectFlightView(int view)
     }
     zero_vector(&aShipVelocity[EYE_OBJECT]);
     remove_nav_pointer();
-    SwcUpdateFlightCamera();
+    SdlUpdateSwcFlightCamera();
     SwcGenerateStars();
-}
-
-/* SWC CODE_09 +0x00c2: Update_3Space. Mac house_keep (+0x01d0)
- * has only the periodic nav/hazard checks, without WC1 palette rendering. */
-void SdlSwcUpdateSpace(void)
-{
-    if (nCannedSceneMode == 0 && nTrainSimActive == 0) {
-        if ((nCurrentSpaceFrameValue & 0x1f) == 0)
-            ReleaseStaleNavTarget();
-        if (nCurrentHazardFieldTotal != 0 && (nCurrentSpaceFrameValue & 0xf) == 0)
-            check_hazards();
-    }
-    house_keep_objects();
-    update_objects_in_space();
-    SwcUpdateFlightCamera();
-    if (nCameraViewMode != 16)
-        SdlUpdateSwcFlightMusic();
-    nCurrentSpaceFrameValue++;
 }
 
 static void SwcSetObjectData(ObjectTypeData saved[OBJECT_TYPE_COUNT])
@@ -676,6 +658,10 @@ static int SwcStartMissionShips(void)
 
 static void SwcResetFlightInput(void)
 {
+    FlushInputEvents();
+    SDL_zero(stPreviousFlightInput);
+    bHostPrimaryMouseButton = 0;
+    bHostSecondaryMouseButton = 0;
     bCurrentKey = SCAN_NONE;
     cPreviousKey = SCAN_NONE;
     stRotationInput.x = 0;
@@ -716,7 +702,7 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
     int enhancedJoystick = SdlJoystickHasEnhancedControls();
     int joystickModifier;
     int joystickGuns;
-    int sampledMouse = 0;
+    int steeringKey;
     int secondaryButton;
     int bothButtons;
 
@@ -747,23 +733,22 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         (enhancedJoystick ||
          (joystick.buttons & (JOY_BUTTON1 | JOY_BUTTON2)) !=
              (JOY_BUTTON1 | JOY_BUTTON2) || swcJoystickAfterburner);
-    /* Retain WC1's key priority, diagonal keys, ramp and direction reversal.
-       Its Win32 key polling is supplied by the same SDL sample for the whole
-       tick, including modifiers. */
+    /* All steering uses Win32 player_input. The SDL adapter selects the
+       active device and supplies one stable sample, including modifiers. */
     SdlSetKeyboardSnapshot(keys);
-    cPreviousKey = bCurrentKey;
-    bCurrentKey = PollKeyboardState();
-    if (bCurrentKey == SCAN_NONE && haveJoystick &&
+    steeringKey = PollKeyboardState();
+    if (steeringKey == SCAN_NONE && haveJoystick &&
         (joystick.x != 0 || joystick.y != 0 || swcJoystickSteering || joystickModifier)) {
         swcJoystickSteering = 1;
         bMouseCursorVisible = 0;
-        bMouseAfterburnerControl = 0;
-        stRotationInput.y = joystickModifier ? 0 : (short)joystick.x;
-        stRotationInput.x = joystickModifier ? 0 : (short)-joystick.y;
-        stRotationInput.z = joystickModifier ? (short)joystick.x : 0;
-        if (joystickModifier)
-            accelerate(-(joystick.y / 2));
-    } else if (bCurrentKey == SCAN_NONE && bMouseCursorVisible) {
+        /* Weapons/double clicks are sampled below, also retaining taps
+           between ticks. Only the original roll/throttle modifier goes
+           through the legacy joystick branch. */
+        aInputDevSamples[nCurrentActiveInputDevice].buttons = joystickModifier ? JOY_BUTTON2 : 0;
+        asInputButton2DoubleClick[nCurrentActiveInputDevice] = 0;
+        get_player_input();
+        aInputDevSamples[nCurrentActiveInputDevice] = joystick;
+    } else if (steeringKey == SCAN_NONE && bMouseCursorVisible) {
         /* Feed the original mouse branch in player_input. A held position is
            sampled each tick, so right-button throttle is independent of SDL
            motion-event frequency. Button actions that fire weapons stay out
@@ -771,11 +756,6 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         secondaryButton = (mouseButtons & SDL_BUTTON_RMASK) != 0;
         QueueInputEvent(INPUT_EVENT_MOUSE_MOVE, (unsigned short)nHostMouseMessageX,
                         (unsigned short)nHostMouseMessageY, 0, 0, secondaryButton, 0);
-        player_input();
-        sampledMouse = 1; /* player_input also applies the enhanced axes. */
-        /* WC1 recentres the pointer when right-button roll/throttle ends. */
-        nHostMouseMessageX = stMouseCursorState.x;
-        nHostMouseMessageY = stMouseCursorState.y;
     } else {
         /* Keyboard steering takes over until the next mouse movement.
            Release each keyboard axis independently, even if another is held. */
@@ -788,18 +768,15 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         if (!(nInsertKeyDown || nDeleteKeyDown ||
               nOemCommaKeyPressed || nOemPeriodKeyStatus))
             stRotationInput.z = 0;
-        if (bCurrentKey == SCAN_KP_5) {
-            SwcCentreFlightMouse();
-        } else if (bCurrentKey != SCAN_NONE) {
-            bMouseAfterburnerControl = 0;
-            process_player_input();
-        } else {
-            bFlightRollLatch = 0;
-        }
+        bMouseCursorVisible = 0;
+    }
+    player_input();
+    /* WC1 recentres the pointer when right-button roll/throttle ends. */
+    if (bMouseCursorVisible) {
+        nHostMouseMessageX = stMouseCursorState.x;
+        nHostMouseMessageY = stMouseCursorState.y;
     }
     SdlSetKeyboardSnapshot(NULL);
-    if (!sampledMouse)
-        SdlApplyJoystickFlightControls();
 
     /* Movement commands from WC1's HandleSpaceFlightControls. Poll held keys
        separately so thrust can change while steering, without host key repeat. */
@@ -839,16 +816,14 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         }
     }
     players_flight_dynamics();
-    /* Shared object lifetimes, cooldowns, collisions/damage, animations,
-       missile guidance, energy recharge, shields and movement. */
-    house_keep_objects();
+    /* Use the same world update and periodic hazard checks as Win32. */
+    Update_3Space();
     if (nArcadeState == 1) {
         /* Landing ends FlyingLoop in SWC GameFlow. Do not let another
            movement/collision pass damage the ship after docking. */
         SwcResetFlightInput();
         return;
     }
-    update_objects_in_space();
     /* CODE_13 check_stranded +0x1630: losing the carrier ends flight once
        there are no enemies within 30,000 units. Death takes precedence. */
     if (!bCurrentPlayerDestroyed && nArcadeState == 0 && nCannedSceneMode == 0 &&
@@ -859,8 +834,6 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         SdlPlaySwcSound(12, 127);
     else
         SdlStopSwcAfterburnerSound();
-    ReleaseStaleNavTarget();
-    check_hazards();
     check_next_wave();
     /* Retail CODE_09 check_arcade_waves +0x04d6 and Draw_3Space_Frame
      * +0x0694. Advance on simulation ticks, including in cockpitless views;
@@ -888,8 +861,7 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         objective_lost(cCurrentObjective))
         cycle_next_objective();
     if (cMissionObjectiveCountValue > 0)
-        update_objective_location(((unsigned short)nCurrentSpaceFrameValue % cMissionObjectiveCountValue));
-    SwcUpdateFlightCamera();
+        update_objective_location(((unsigned short)(nCurrentSpaceFrameValue - 1) % cMissionObjectiveCountValue));
     SwcUpdateStarField();
     /* CODE_09 Draw_3Space_Frame projects objects before CODE_13 checks
      * targets. Catch-up simulation ticks must not reuse the last render. */
@@ -905,8 +877,6 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
             RefreshCommunicationMenu();
     }
     SdlUpdateSwcCockpit();
-    SdlUpdateSwcFlightMusic();
-    nCurrentSpaceFrameValue++;
     nRenderedSpaceFrame++;
 }
 
@@ -1284,7 +1254,7 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
         }
         if (frames > 0 && elapsed >= interval) {
             nTickCount60Hz = (unsigned int)((uint64_t)current * 60 / 1000);
-            SdlSwcUpdateSpace();
+            Update_3Space();
             SwcUpdateStarField();
             check_next_wave();
             /* CODE_13 update_cockpit +0x0316..+0x034e also runs during
@@ -1313,7 +1283,7 @@ done:
     nCameraViewMode = savedView;
     cViewObject = savedViewObject;
     cCurrentCockpitView = savedCockpit;
-    SwcUpdateFlightCamera();
+    SdlUpdateSwcFlightCamera();
     SwcGenerateStars();
     SwcResetFlightInput();
     return result;
@@ -1658,7 +1628,7 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
             aeShipMissionType[nYourWingman] = MISSION_TYPE_COME_HOME;
         }
         nTickCount60Hz = (unsigned int)((uint64_t)now * 60 / 1000);
-        SdlSwcUpdateSpace();
+        Update_3Space();
         SwcUpdateSceneCamera();
         SwcUpdateStarField();
         nRenderedSpaceFrame++;
@@ -1767,6 +1737,8 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
     Uint32 current;
     Uint32 tickInterval;
     Uint32 elapsed = 0;
+    Uint32 lastDraw = 0;
+    int redraw = 1;
     char path[PATH_MAX];
     char failure[256];
     int shipCount;
@@ -1888,7 +1860,6 @@ title_menu:
     SdlStopSwcSounds();
     SdlStopSwcMusic();
     SwcResetFlightInput();
-    FlushInputEvents();
     paused = 0;
     elapsed = 0;
     bSwcWaitingForEscort = 0;
@@ -2007,11 +1978,11 @@ begin_flight:
     /* Carrier/movie input never advances shared WC1 flight state. */
     paused = 0;
     elapsed = 0;
+    redraw = 1;
     focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
     SdlUpdateSwcFlightMusic();
     SdlPauseSwcSound(!focused);
     SwcResetFlightInput();
-    FlushInputEvents();
     SetEventManagerPump(NULL);
     stMouseCursorState.viewport = &stSpaceBufferViewport;
     /* SWC uses the same (160,100) scene center in either cockpit mode. */
@@ -2044,8 +2015,13 @@ begin_flight:
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_JOYDEVICEREMOVED)
                 SwcResetFlightInput();
-            if (SdlHandleSwcEvent(window, &event, 1))
+            if (SdlHandleSwcEvent(window, &event, 1)) {
+                redraw = 1;
                 continue;
+            }
+            if (event.type == SDL_WINDOWEVENT || event.type == SDL_KEYDOWN ||
+                event.type == SDL_MOUSEWHEEL)
+                redraw = 1;
             if (event.type == SDL_QUIT)
                 done = 1;
             if (event.type == SDL_WINDOWEVENT) {
@@ -2293,13 +2269,13 @@ begin_flight:
             nTickCount60Hz = (unsigned int)((uint64_t)SDL_GetTicks() * 60 / 1000);
             SwcFlightTick(SDL_GetKeyboardState(NULL), SDL_GetMouseState(NULL, NULL));
             elapsed -= tickInterval;
+            redraw = 1;
         }
         if ((nArcadeState >= 1 && nArcadeState <= 4) || bCurrentPlayerDestroyed) {
             SdlStopSwcSounds();
             SdlStopSwcMusic();
             SDL_SetWindowMouseGrab(window, SDL_FALSE);
             SwcResetFlightInput();
-            FlushInputEvents();
             if (IsCommChoiceMenuOpen())
                 CloseCommChoiceMenu();
             if (simulatorActive) {
@@ -2571,14 +2547,27 @@ begin_flight:
             result = 0;
             goto done;
         }
-        if (SwcDrawFlight(renderer, cockpit, &cockpitCmf, &spaceCmf, colors,
-                          images, cockpitless) != 0)
-            goto done;
-        if ((!focused || paused) && SwcDrawPauseMessage(renderer, colors, 1, paused) != 0)
-            goto done;
-        SdlDrawSwcOptionNotice(renderer);
-        SDL_RenderPresent(renderer);
-        SDL_Delay(8);
+        /* Like Win32, draw after updating the world. Polling input need not
+           rasterize the same CMF sprites again between simulation ticks.
+           Periodic redraws also expire option notices while paused. */
+        if (redraw || current - lastDraw >= tickInterval) {
+            if (SwcDrawFlight(renderer, cockpit, &cockpitCmf, &spaceCmf, colors,
+                              images, cockpitless) != 0)
+                goto done;
+            if ((!focused || paused) && SwcDrawPauseMessage(renderer, colors, 1, paused) != 0)
+                goto done;
+            SdlDrawSwcOptionNotice(renderer);
+            SDL_RenderPresent(renderer);
+            lastDraw = SDL_GetTicks();
+            redraw = 0;
+        }
+        /* Do not add another polling delay when rendering used the time
+           remaining until the next physics tick. */
+        current = elapsed + (SDL_GetTicks() - previous);
+        if (!focused || paused)
+            SDL_Delay(8);
+        else if (current < tickInterval)
+            SDL_Delay(SDL_min(8, tickInterval - current));
     }
     result = 0;
     goto done;
@@ -2626,7 +2615,6 @@ done:
     SdlSetKeyboardSnapshot(NULL);
     SwcResetFlightInput();
     if (swcFlightActive) {
-        FlushInputEvents();
         SdlEndJoystickSpaceflight();
         SetCinematicFrameTiming();
     }

@@ -146,7 +146,6 @@ int SdlInitSwcMusic(void);
 void SdlFreeSwcMusic(void);
 void SdlPlaySwcMusic(const char *name, int volume);
 void SdlStopSwcMusic(void);
-void SdlUpdateSwcFlightMusic(void);
 /* Called only by the shared SWC audio callback: interleaved stereo float. */
 void SdlMixSwcMusic(float *samples, int frames);
 

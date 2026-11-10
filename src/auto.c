@@ -306,7 +306,7 @@ void auto_pilot_sequence(void)
 #ifdef SDL_PORT
         if (SdlSwcFlightActive()) {
             /* CODE_14 +0x077e advances one final frame after travel. */
-            SdlSwcUpdateSpace();
+            Update_3Space();
             return;
         }
 #endif

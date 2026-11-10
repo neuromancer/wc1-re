@@ -336,7 +336,8 @@ void SdlSwcTransmit(short object, short message);
 void SdlSwcVocalizeMessage(int command);
 short SdlSwcAutopilotValid(short showReason);
 void SdlSwcFlagReached(short objective, short reached);
-void SdlSwcUpdateSpace(void);
+void SdlUpdateSwcFlightCamera(void);
+void SdlUpdateSwcFlightMusic(void);
 int SdlSwcVisitCinema(int view, int obj, short frames);
 extern unsigned char bSwcWaitingForEscort; /* SWC DATA/A5+0x46ec */
 extern int nSwcCinemaResult; /* SDL presentation: 0 complete, 1 quit, -1 error. */
