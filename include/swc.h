@@ -21,6 +21,10 @@ typedef struct SwcBuffer {
     size_t size;
 } SwcBuffer;
 
+/* Owns a converted WC1 campaign packet, with one leading guard record;
+ * publishes pMissionCampaignInfo on success. Restore that pointer on exit. */
+int SdlLoadSwcCampaignData(const char *path, SwcBuffer *campaign);
+
 typedef struct SwcChunkInfo {
     char type[4];
     uint32_t id;
@@ -194,9 +198,12 @@ int SdlPlaySwcIntroSpeech(SDL_Window *window, SDL_Renderer *renderer,
                            const char *resourceFork, int afterAttack);
 /* New-campaign opening before the carrier; returns a SwcMovieResult. */
 int SdlPlaySwcOpening(SDL_Window *window, SDL_Renderer *renderer);
-/* Hornet launch for the Enyo 1 host; returns a SwcMovieResult. */
-int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer);
-int SdlPlaySwcLanding(SDL_Window *window, SDL_Renderer *renderer, int health);
+/* Retail HandleMidGame / next_campaign_movie; sequence -1 enters a campaign. */
+int SdlPlaySwcCampaignTransition(SDL_Window *window, SDL_Renderer *renderer,
+                                  int sequence, int outcome, int campaign);
+/* Ship-specific launch/landing sequences; returns a SwcMovieResult. */
+int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer, int ship);
+int SdlPlaySwcLanding(SDL_Window *window, SDL_Renderer *renderer, int ship, int health);
 /* Original funeral clips, before the eulogy (0) or before the farewell (1). */
 int SdlPlaySwcFuneralMovies(SDL_Window *window, SDL_Renderer *renderer, int farewell);
 int SdlPlaySwcStrandedMovie(SDL_Window *window, SDL_Renderer *renderer);
@@ -207,10 +214,16 @@ enum SwcCarrierVisit {
     SWC_CARRIER_PREFLIGHT,
     SWC_CARRIER_DEBRIEFING,
     SWC_CARRIER_PLAYER_FUNERAL,
-    SWC_CARRIER_WINGMAN_FUNERAL
+    SWC_CARRIER_WINGMAN_FUNERAL,
+    SWC_CARRIER_OFFICE,
+    SWC_CARRIER_MEDAL,
+    SWC_CARRIER_SIMULATOR_RESULTS
 };
 
-/* First-mission carrier visit; returns a SwcMovieResult. */
+/* Carrier action, distinct from the movie results used by room scenes. */
+enum { SWC_CARRIER_SIMULATOR = 3, SWC_CARRIER_TITLE = 4 };
+/* Carrier/story visit; returns a SwcMovieResult or carrier action.
+ * Medal visits use nCurrentConversationMedalIndex and award it on completion/skip. */
 int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                       const char *missionPath, const char *resourceFork, enum SwcCarrierVisit visit);
 /* Demo speech is mono AIFF, 16-bit or 8-bit, at 11025 or 22254 Hz. Returns

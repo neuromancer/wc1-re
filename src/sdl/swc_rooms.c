@@ -1,4 +1,4 @@
-/* SDL carrier presentation for the Mac demo's first mission.
+/* SDL carrier presentation for the campaign, ceremonies and simulator.
  * Room routing: CODE_09 GameFlow +0x1b8e; CODE_07 RecRoom +0x059a;
  * CODE_03 BarracksScreen +0x5c70 and SceneDirector +0x254c.
  * WC1 owns pilot/campaign state, scene tests, substitutions and animation
@@ -13,7 +13,9 @@
 enum SwcRoomPackId {
     SWC_RECROOM, SWC_BARRACKS, SWC_MEDALS, SWC_SHOTGLASS, SWC_BAR_HEADS,
     SWC_BRIEFING, SWC_COMMANDER, SWC_WINGMEN, SWC_BRIEFING_MAP,
-    SWC_DEBRIEFING, SWC_DEBRIEFING_HEADS, SWC_FUNERAL,
+    SWC_DEBRIEFING, SWC_DEBRIEFING_HEADS, SWC_FUNERAL, SWC_SIMULATOR,
+    SWC_OFFICE, SWC_MEDAL_LONG, SWC_MEDAL_COMMANDER, SWC_MEDAL_PINNING, SWC_MEDAL_HEADS,
+    SWC_WINGMEN2, SWC_WINGMEN3, SWC_WINGMEN4,
     SWC_INTRO_BEFORE_ATTACK, SWC_INTRO_AFTER_ATTACK, SWC_ROOM_PACKS
 };
 
@@ -61,6 +63,8 @@ typedef struct SwcRoomInput {
     int moved;
     int step;
     int incidental;
+    SDL_Keycode direction;
+    int space;
 } SwcRoomInput;
 
 typedef struct SwcCarrier {
@@ -194,15 +198,19 @@ static const char *const swcBunkLabels[] = {
 static SwcRoomArt *SwcGetRoomArt(SwcCarrier *carrier, enum SwcRoomPackId packId,
                                  const char type[4], uint32_t id)
 {
-    /* Expanded DATA/0 +0x4046 (filenames), +0x3fd2 (clut IDs). */
+    /* Retail DATA/0 +0x3ff8 (filenames), +0x3f84 (clut IDs). */
     static const char *const files[SWC_ROOM_PACKS] = {
         "RecRoomScene.CMF", "Barracks.CMF", "ViewMedals.CMF", "Head10.CMF",
         "RRTalkingHeads.CMF", "Briefing.CMF", "BriefingCommander.CMF",
         "BRTH1.CMF", "BRInterface.CMF", "DeBriefing.CMF", "DeBriefingHeads.CMF",
-        "Funeral.CMF", "IntroFilm1.CMF", "IntroFilm2.CMF"
+        "Funeral.CMF", "Simulator.CMF", "Office.CMF", "MedalLongShot.CMF",
+        "MedalCommander.CMF", "MedalPinning.CMF", "MedalTalkingHeads.CMF",
+        "BRTH2.CMF", "BRTH3.CMF", "BRTH4.CMF",
+        "IntroFilm1.CMF", "IntroFilm2.CMF"
     };
     static const short palettes[SWC_ROOM_PACKS] = {
-        135, 150, 151, 137, 136, 170, 171, 173, 172, 190, 191, 193, 130, 131
+        135, 150, 151, 137, 136, 170, 171, 173, 172, 190, 191, 193, 139,
+        192, 194, 195, 196, 197, 174, 175, 176, 130, 131
     };
     SwcRoomPack *pack = &carrier->packs[packId];
     SwcRoomArt *art;
@@ -428,10 +436,12 @@ static SwcRoomInput SwcPollCarrier(SwcCarrier *carrier)
             case SDLK_RIGHT:
             case SDLK_DOWN:
                 input.step = 1;
+                input.direction = event.key.keysym.sym;
                 break;
             case SDLK_LEFT:
             case SDLK_UP:
                 input.step = -1;
+                input.direction = event.key.keysym.sym;
                 break;
             case SDLK_p:
                 carrier->paused = !carrier->paused;
@@ -447,6 +457,7 @@ static SwcRoomInput SwcPollCarrier(SwcCarrier *carrier)
             input.back = event.key.keysym.sym == SDLK_ESCAPE ||
                          event.key.keysym.sym == SDLK_BACKSPACE;
             input.activate = !input.back;
+            input.space = event.key.keysym.sym == SDLK_SPACE;
             carrier->armedKey = SDL_SCANCODE_UNKNOWN;
         }
     }
@@ -843,7 +854,7 @@ static short SwcSceneWord(const uint8_t *bytes)
     return (bytes[0] | (unsigned int)bytes[1] << 8);
 }
 
-static int SwcValidateSceneTests(const unsigned char *text, size_t count, enum SwcCarrierVisit visit)
+static int SwcValidateSceneTests(unsigned char *text, size_t count, enum SwcCarrierVisit visit)
 {
     unsigned int command;
     unsigned int value;
@@ -851,18 +862,19 @@ static int SwcValidateSceneTests(const unsigned char *text, size_t count, enum S
     int arguments;
     int argument;
     int digits;
+    unsigned char *operand;
 
-    /* Validate before entering WC1's original, unbounded int_value parser.
-     * Enyo 1 uses pilot status, kills and full/partial mission score tests;
-     * the funeral adds command 30 (pilot lost on this mission).
-     * Other campaign scripts need their own state/operand validation. */
+    /* Bound every operand before entering WC1's original int_value parser.
+     * Retail ParseTests uses the same 36 commands as the Win32 director. */
     while ((command = *text++) != 0) {
-        if (command < 1 || (command > 10 && command != 30 && command != 35 && command != 36) ||
+        if (command < 1 || command > 36 ||
             ((command == 35 || command == 36) && visit != SWC_CARRIER_DEBRIEFING))
             return SDL_SetError("Unsupported SWC carrier branch %u", command);
-        arguments = (command >= 2 && command <= 5) || command == 30 ? 2 : 1;
+        arguments = (command >= 2 && command <= 5) || command == 11 || command == 12 ||
+            (command >= 27 && command <= 34) ? 2 : 1;
         first = 0;
         for (argument = 0; argument < arguments; argument++) {
+            operand = text;
             value = 0;
             digits = 0;
             while (*text >= '0' && *text <= '9') {
@@ -875,8 +887,20 @@ static int SwcValidateSceneTests(const unsigned char *text, size_t count, enum S
             text++;
             if (argument == 0)
                 first = value;
+            /* Retail wing_status 0x0103397e maps the two replacement
+             * pilots onto existing slots. Normalize this private decoded
+             * test in place so the shared WC1 parser remains unchanged. */
+            if (argument == 0 && (command == 4 || command == 5 || command == 29 || command == 30) &&
+                (first == 11 || first == 12)) {
+                memset(operand, '0', digits);
+                first = first == 11 ? 5 : 2;
+                operand[digits - 1] = '0' + first;
+            }
         }
-        if (value >= count || ((command == 4 || command == 5 || command == 30) && first >= 8))
+        if (value >= count ||
+            ((command == 4 || command == 5 || command == 29 || command == 30) && first >= 8) ||
+            ((command == 11 || command == 12 || command == 27 || command == 28) && first >= 16) ||
+            (command >= 31 && command <= 34 && first >= 4))
             return SDL_SetError("SWC scene branch target or pilot is out of range");
     }
     return 0;
@@ -895,8 +919,12 @@ static int SwcValidateAnimation(const char *text, int face)
             if (!((*text >= '0' && *text <= '9') || (*text >= 'A' && *text <= 'F')))
                 return SDL_SetError("Invalid SWC face command");
         } else if (*text != '$' && !(*text >= 'a' && *text <= 'z')) {
-            return SDL_SetError("Invalid SWC mouth command");
+            /* ParseMouthAnimation ignores punctuation and uppercase text. */
+            text++;
+            continue;
         }
+        /* Retail medal scripts contain capitalized phonemes. WC1's parser
+         * ignores capitals; voiced lines use the AIFF mouth marks instead. */
         text++;
         digits = 0;
         while (*text >= '0' && *text <= '9') {
@@ -924,17 +952,23 @@ static int SwcLoadRoomScene(SwcCarrier *carrier, int section, SwcRoomScene *scen
     size_t index;
     size_t length;
     size_t expanded;
-    size_t sections = carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL ? 14 : 10;
+    size_t sections = carrier->visit == SWC_CARRIER_PLAYER_FUNERAL ||
+        carrier->visit == SWC_CARRIER_WINGMAN_FUNERAL ? 14 : 10;
+    size_t headerSize = sections * 4;
     int field;
 
     /* LoadBriefingData +0x1556 and scene_ptr +0x39c6: unlike Mac sprites,
      * these directory entries and the five record shorts are little-endian. */
-    if (carrier->script.size < sections * 4 || section < 0 ||
+    /* Office/medal files reserve the usual 40-byte header, but only the
+     * first scene/text pair is initialized. The remaining bytes are padding. */
+    if (carrier->visit == SWC_CARRIER_OFFICE || carrier->visit == SWC_CARRIER_MEDAL)
+        sections = 2;
+    if (carrier->script.size < headerSize || section < 0 ||
         (size_t)section + 1 >= sections || (section & 1))
         return SDL_SetError("Invalid SWC scene section");
     for (index = 0; index < sections; index++) {
         offsets[index] = SwcSceneOffset(carrier->script.data + index * 4);
-        if (offsets[index] > carrier->script.size || offsets[index] < sections * 4 ||
+        if (offsets[index] > carrier->script.size || offsets[index] < headerSize ||
             (index > 0 && offsets[index] < offsets[index - 1]))
             return SDL_SetError("Invalid SWC briefing directory");
     }
@@ -943,7 +977,7 @@ static int SwcLoadRoomScene(SwcCarrier *carrier, int section, SwcRoomScene *scen
     scene->count = length / 13;
     scene->text = carrier->script.data + offsets[section + 1];
     scene->textSize = offsets[section + 2] - offsets[section + 1];
-    if (offsets[0] != sections * 4 || length % 13 != 0 || scene->count == 0 ||
+    if (offsets[0] != headerSize || length % 13 != 0 || scene->count == 0 ||
         scene->count > SDL_arraysize(scene->records))
         return SDL_SetError("Invalid SWC scene record count");
     for (index = 0; index < scene->count; index++) {
@@ -957,6 +991,16 @@ static int SwcLoadRoomScene(SwcCarrier *carrier, int section, SwcRoomScene *scen
         record->textOffset = strings[1] = SwcSceneWord(bytes + 7);
         record->mouthAnimationOffset = strings[2] = SwcSceneWord(bytes + 9);
         record->faceAnimationOffset = strings[3] = SwcSceneWord(bytes + 11);
+        /* Empty conversations contain only this sentinel, with unused
+         * offsets that are not valid strings. SceneDirector stops here. */
+        if (record->shot == -2) {
+            scene->count = index + 1;
+            break;
+        }
+        /* Retail ParseTests 0x01033c26 repairs this original data typo. */
+        if (nCampaignDataSet == 1 && stCampaignState.currentSeries == 6 &&
+            stCampaignState.currentMission == 0 && record->testsOffset == 0x338)
+            strings[0] = --record->testsOffset;
         for (field = 0; field < 4; field++) {
             if (strings[field] < 0 || (size_t)strings[field] >= scene->textSize)
                 return SDL_SetError("SWC scene string offset is out of range");
@@ -982,7 +1026,13 @@ static int SwcLoadRoomScene(SwcCarrier *carrier, int section, SwcRoomScene *scen
                     if ((unsigned int)stCampaignState.currentPilot->rank >= SDL_arraysize(apszPilotRankNames))
                         return SDL_SetError("Invalid SWC pilot rank in scene substitution");
                     expanded += strlen(apszPilotRankNames[stCampaignState.currentPilot->rank]);
-                } else if (*text == 'K' || *text == 'L')
+                } else if (*text == 'A') {
+                    if ((unsigned int)nCurrentConversationMedalIndex >= 5)
+                        return SDL_SetError("Invalid SWC medal in scene substitution");
+                    expanded += strlen(apszMedalNames[nCurrentConversationMedalIndex]);
+                } else if (*text == 'D' || *text == 'E')
+                    expanded += 13;
+                else if (*text == 'T' || *text == 'K' || *text == 'L')
                     expanded += 6;
                 else
                     return SDL_SetError("Unsupported SWC carrier text substitution");
@@ -1032,14 +1082,16 @@ static int SwcSceneAnimationFrame(const short *commands, Uint32 ticks, int eyes)
     return -1;
 }
 
-static int SwcStartSpeech(SwcCarrier *carrier, int section, int line, Uint32 *duration)
+static int SwcStartSpeech(SwcCarrier *carrier, int section, int line,
+                            const char *text, Uint32 *duration)
 {
     SwcBuffer pcm = {0};
     SDL_RWops *file;
     char relative[96];
     char path[PATH_MAX];
     Uint32 speechDuration;
-    int mission = carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL ? 0 : 4;
+    int mission = stCampaignState.currentSeries * 4 + stCampaignState.currentMission;
+    int variant = 0;
     int rate;
     int result = 0;
 
@@ -1048,12 +1100,20 @@ static int SwcStartSpeech(SwcCarrier *carrier, int section, int line, Uint32 *du
     carrier->marks = NULL;
     carrier->markCount = 0;
     carrier->haveSpeech = 0;
-    /* SceneDirector +0x2cb6; DATA/0 +0x4322/+0x4326:
-     * "%s%d:%2.2d%2.2d%2.2d%2.2d.AIF", "camp.". The archive groups files
-     * by mission: 04 for Enyo 1, 00 for funerals. Keep original record indices.
-     * The fresh demo pilot has rank 0, including the $R speech variant. */
-    SDL_snprintf(relative, sizeof(relative), "AIFF/camp.0/%02d/%02d%02d%02d00.AIF",
-                 mission, mission, section, line);
+    /* Retail SceneDirector 0x01032600: special groups 00/01/02 are funeral,
+     * office and medal. Substituted ranks/awards select alternate recordings. */
+    if (carrier->visit == SWC_CARRIER_PLAYER_FUNERAL || carrier->visit == SWC_CARRIER_WINGMAN_FUNERAL)
+        mission = 0;
+    else if (carrier->visit == SWC_CARRIER_OFFICE)
+        mission = 1;
+    else if (carrier->visit == SWC_CARRIER_MEDAL)
+        mission = 2;
+    if (strstr(text, "$R") != NULL)
+        variant = stCampaignState.currentPilot->rank;
+    else if (strstr(text, "$A") != NULL)
+        variant = nCurrentConversationMedalIndex;
+    SDL_snprintf(relative, sizeof(relative), "AIFF/camp.%d/%02d/%02d%02d%02d%02d.AIF",
+                 stCampaignState.campaignIndex, mission, mission, section, line, variant);
     if (!SdlResolvePath(relative, path, sizeof(path)))
         return SDL_SetError("Cannot resolve SWC speech %s", relative);
     file = SDL_RWFromFile(path, "rb");
@@ -1164,36 +1224,50 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
     const char *background;
     uint32_t backgroundId;
     int backgroundFrame;
+    int wingman;
 
-    if (shot >= 20 && shot <= 30) {
+    if (shot >= 20 && shot <= 32) {
         background = "RCRM";
         backgroundId = 2;
         if (shot == 30) {
             pack = SWC_SHOTGLASS;
             backgroundFrame = 0;
-        } else if (shot == 25 || shot == 26) {
+        } else if (talker == 3 || talker == 4) {
             pack = SWC_BAR_HEADS;
             backgroundFrame = talker == 4 ? 2 : 1;
-        } else if (carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL && (shot == 20 || shot == 29)) {
+        } else if ((carrier->visit == SWC_CARRIER_PLAYER_FUNERAL ||
+                    carrier->visit == SWC_CARRIER_WINGMAN_FUNERAL) && (shot == 20 || shot == 29)) {
             /* SceneDirector +0x29b0: BRFG/20 frame depends on text colour. */
             pack = SWC_FUNERAL;
             background = "BRFG";
             backgroundId = 20;
             backgroundFrame = textColour == 0 ? 0 : 1;
-        } else if (carrier->visit == SWC_CARRIER_DEBRIEFING && (shot == 20 || shot == 21 || shot == 29)) {
+        } else if (talker == 8 || talker == 9) {
+            /* Retail SceneDirector 0x010329f4/0x01032a08. */
+            pack = SWC_OFFICE;
+            background = "BRFG";
+            backgroundId = 16;
+            backgroundFrame = talker == 8 ? 0 : 1;
+        } else if (carrier->visit == SWC_CARRIER_MEDAL && (shot == 20 || shot == 29)) {
+            pack = SWC_MEDAL_HEADS;
+            background = "BRFG";
+            backgroundId = 11;
+            backgroundFrame = 0;
+        } else if (talker == 10 || talker == 11) {
             /* SceneDirector +0x2960/+0x2988: commander talker 10 uses
              * BRFG/15 frame 1; player/wingman talker 11 uses frame 0. */
             pack = SWC_DEBRIEFING_HEADS;
             background = "BRFG";
             backgroundId = 15;
             backgroundFrame = talker == 10 ? 1 : 0;
-        } else if (shot == 20) {
+        } else if (talker == 0 && (shot == 20 || shot == 21 || shot == 29)) {
             pack = SWC_COMMANDER;
             background = "BRFG";
             backgroundId = 6;
             backgroundFrame = 0;
-        } else if (shot == 21 || shot == 29) {
-            pack = SWC_WINGMEN;
+        } else if (talker == 1) {
+            pack = shot == 24 ? SWC_WINGMEN2 : shot == 26 ? SWC_WINGMEN3 :
+                shot == 28 ? SWC_WINGMEN4 : SWC_WINGMEN;
             background = "BRFG";
             backgroundId = 6;
             backgroundFrame = textColour == 9 ? 2 : 1;
@@ -1206,12 +1280,14 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
             SwcDrawParallax(carrier, pack);
         SwcDrawRoomArt(carrier, pack, background, backgroundId, backgroundFrame, 0, 0);
         /* CloseTalk +0x3292 uses base frame 21 in debriefing, otherwise 0. */
-        SwcDrawRoomArt(carrier, pack, "TKHD", (shot - 19),
+        SwcDrawRoomArt(carrier, pack, shot > 30 ? "TKH1" : "TKHD", shot > 30 ? shot - 30 : shot - 19,
                         carrier->visit == SWC_CARRIER_DEBRIEFING ? 21 : 0, 0, 0);
         if (face >= 0 && face < 10)
-            SwcDrawRoomArt(carrier, pack, "TKHD", (shot - 19), face + 11, 0, 0);
+            SwcDrawRoomArt(carrier, pack, shot > 30 ? "TKH1" : "TKHD", shot > 30 ? shot - 30 : shot - 19,
+                face + 11, 0, 0);
         if (mouth >= 0)
-            SwcDrawRoomArt(carrier, pack, "TKHD", (shot - 19), mouth + 1, 0, 0);
+            SwcDrawRoomArt(carrier, pack, shot > 30 ? "TKH1" : "TKHD", shot > 30 ? shot - 30 : shot - 19,
+                mouth + 1, 0, 0);
     } else if (shot == 0 || shot == 1) {
         SwcDrawRoomArt(carrier, SWC_BRIEFING, "BRFG", 1, 0, 0, 0);
         /* DrawBriefingLongShot +0x1e54; DATA/0 +0x4306/+0x430a. */
@@ -1236,17 +1312,67 @@ static void SwcDrawScene(SwcCarrier *carrier, int shot, int textColour, int talk
         if (mouth >= 0)
             SwcDrawRoomArt(carrier, SWC_BRIEFING, "BRFG", 31, mouth, 240, 0);
         SwcDrawRoomArt(carrier, SWC_BRIEFING, "BRFG", 32, 0, 10, 85);
+    } else if (shot == 9 || (shot >= 12 && shot <= 15)) {
+        /* Retail EstablishingShot 0x01033550. */
+        if (shot != 9)
+            SwcDrawParallax(carrier, SWC_OFFICE);
+        SwcDrawRoomArt(carrier, SWC_OFFICE, "BRFG", shot == 9 ? 8 : 18, 0, 0, 0);
+    } else if (carrier->visit == SWC_CARRIER_MEDAL && (shot == 8 || shot == 16)) {
+        SwcDrawRoomArt(carrier, SWC_MEDAL_LONG, "BRFG", 24, 0, 0, 0);
+    } else if (carrier->visit == SWC_CARRIER_MEDAL && shot == 6) {
+        SwcDrawRoomArt(carrier, SWC_MEDAL_COMMANDER, "BRFG", 21, 0, 0, 0);
+        if (mouth >= 0)
+            SwcDrawRoomArt(carrier, SWC_MEDAL_COMMANDER, "BRFG", 21, mouth + 1, 0, 0);
+    } else if (carrier->visit == SWC_CARRIER_MEDAL && shot == 7) {
+        /* Retail DrawMedalChest/PinMedal 0x01031956/0x010337d6. The arm
+         * advances every eleven 60 Hz ticks, pins the award, then withdraws.
+         * Show the new medal here; commit it only once after the whole scene. */
+        static const int medalFrames[5] = {13, 16, 19, 22, 23};
+        unsigned int step = (uint64_t)elapsed * 60 / 11000;
+        int arm = step < 6 ? (int)step - 1 : step < 10 ? 10 - (int)step : 1;
+        int index;
+        int count;
+        int medals;
+
+        SwcDrawRoomArt(carrier, SWC_MEDAL_PINNING, "BRFG", 11, 0, 0, 0);
+        SwcDrawRoomArt(carrier, SWC_MEDAL_PINNING, "BRFG", 22, 0, 0, 0);
+        for (index = 0; index < 12; index++) {
+            if (stCampaignState.badges[index] != 0)
+                SwcDrawRoomArt(carrier, SWC_MEDAL_PINNING, "BRFG", 22, index + 1, 0, 0);
+        }
+        for (index = 0; index < 5; index++) {
+            medals = stCampaignState.medals[index] + (step >= 6 && index == nCurrentConversationMedalIndex);
+            for (count = 0; count < SDL_min(3, medals); count++)
+                SwcDrawRoomArt(carrier, SWC_MEDAL_PINNING, "BRFG", 22, medalFrames[index] + count, 0, 0);
+        }
+        SwcDrawRoomArt(carrier, SWC_MEDAL_PINNING, "BRFG", 23, 0, 0, 0);
+        if (arm >= 0)
+            SwcDrawRoomArt(carrier, SWC_MEDAL_PINNING, "BRFG", 23, arm + 1, 0, 0);
     } else if (shot == 10 || shot == 11) {
-        /* MountGraphics +0x23b8 and DrawDebriefingLongShot +0x1b8c. */
+        /* Retail DrawDebriefingLongShot 0x01031c40. */
         SwcDrawRoomArt(carrier, SWC_DEBRIEFING, "BRFG", 11, 0, 0, 0);
         SwcDrawRoomArt(carrier, SWC_DEBRIEFING, "BRFG", 12, 0, 40, 45);
         SwcDrawRoomArt(carrier, SWC_DEBRIEFING, "BRFG", 14,
                         shot == 10 ? 0 : mouth + 1, 140, 60);
-        if (nDebriefingPersonality >= 0 && nDebriefingPersonality < 8 &&
-            stCampaignState.personalityDeathMission[nDebriefingPersonality] == 0)
-            SwcDrawRoomArt(carrier, SWC_DEBRIEFING, "BRFG", 13,
-                            nDebriefingPersonality, 195, 40);
-    } else if (shot == 17 && carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL) {
+        wingman = -1;
+        if (nCampaignDataSet == 2 && stCampaignState.currentSeries == 1 &&
+            stCampaignState.currentMission == 1)
+            wingman = 10;
+        else if (nCampaignDataSet == 2 &&
+                 (nDebriefingPersonality == 2 || nDebriefingPersonality == 12) &&
+                 stCampaignState.personalityDeathMission[2] == 0)
+            wingman = 9;
+        else if (nCampaignDataSet == 2 &&
+                 (nDebriefingPersonality == 5 || nDebriefingPersonality == 11) &&
+                 stCampaignState.personalityDeathMission[5] == 0)
+            wingman = 8;
+        else if (nDebriefingPersonality >= 0 && nDebriefingPersonality < 8 &&
+                 stCampaignState.personalityDeathMission[nDebriefingPersonality] == 0)
+            wingman = nDebriefingPersonality;
+        if (wingman >= 0)
+            SwcDrawRoomArt(carrier, SWC_DEBRIEFING, "BRFG", 13, wingman, 195, 40);
+    } else if (shot == 17 && (carrier->visit == SWC_CARRIER_PLAYER_FUNERAL ||
+                             carrier->visit == SWC_CARRIER_WINGMAN_FUNERAL)) {
         /* CODE_03 DrawFuneralLongShot +0x1af8 and MountGraphics +0x2484. */
         SwcDrawRoomArt(carrier, SWC_FUNERAL, "BRFG", 19, 0, 0, 0);
     } else {
@@ -1433,7 +1559,8 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
                 /* Cap a stall, such as the modal Volume Controls dialog. */
                 elapsed += SDL_min(current - previous, 250U);
                 /* Only redraws that show the window update its shards. */
-                if (carrier->parallax.visible)
+                if (carrier->parallax.visible || (carrier->visit == SWC_CARRIER_OFFICE &&
+                        shot >= 12 && shot <= 15))
                     parallaxTime += SDL_min(current - previous, 250U);
             }
             previous = current;
@@ -1448,10 +1575,13 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
             }
             wasPlaying = carrier->focused && !carrier->paused;
             if (wasPlaying && !speechStarted && elapsed >= leadIn) {
-                if (SwcStartSpeech(carrier, section, index, &duration) != 0)
+                if (SwcStartSpeech(carrier, section, index,
+                        (char *)scene.text + record->textOffset, &duration) != 0)
                     goto done;
                 if (shot == 3)
                     duration = SDL_max(duration, 1767U);
+                else if (shot == 7)
+                    duration = SDL_max(duration, 1834U);
                 speechStarted = 1;
             }
             if (wasPlaying && (input.activate || input.clicked ||
@@ -1525,19 +1655,30 @@ done:
 
 static int SwcBarIdleFrame(int character, Uint32 ticks, int hovered)
 {
-    /* Original byte programs: DATA/0 +0x27ae, +0x2816, +0x27da. A high
-     * bit encodes a delay, 255 repeats. WC1's idle frame sets differ. */
-    static const uint8_t shotglass[] = {0, 1, 0, 1, 0, 1, 0, 1, 2, 1, 133, 2, 2, 1, 255};
-    static const uint8_t paladin[] = {1, 2, 3, 178, 2, 1, 2, 3, 148, 2, 1, 2, 3, 255};
-    static const uint8_t angel[] = {2, 138, 3, 4, 148, 3, 4, 3, 4, 138, 0, 1, 255};
-    static const uint8_t *const programs[] = {shotglass, paladin, angel};
-    /* Hover programs: DATA/0 +0x2782/+0x2788/+0x278a. */
-    static const int hoverFrames[] = {3, 4, 5};
+    /* Retail DATA/0 +0x26f0 idle and +0x26b0 hover programs. A high
+     * bit encodes a delay, 255 repeats. WC1's frame sets differ. */
+    static const uint8_t programs[13][22] = {
+        {1, 203, 2, 3, 4, 5, 6, 7, 8, 178, 9, 10, 255},
+        {0, 133, 1, 129, 2, 130, 3, 131, 4, 130, 5, 255},
+        {0, 1, 2, 3, 4, 5, 6, 7, 150, 255},
+        {0, 203, 1, 2, 3, 4, 5, 6, 148, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 255},
+        {2, 138, 3, 4, 148, 3, 4, 3, 4, 138, 0, 1, 255},
+        {1, 2, 3, 178, 2, 1, 2, 3, 148, 2, 1, 2, 3, 255},
+        {0, 1, 130, 2, 135, 3, 148, 4, 133, 5, 130, 6, 132, 7, 131, 0, 130, 255},
+        {0, 138, 1, 133, 0, 138, 1, 133, 255}, {255}, {255},
+        {0, 1, 0, 1, 0, 1, 0, 1, 2, 1, 133, 2, 2, 1, 255},
+        {0, 248, 1, 2, 3, 4, 5, 6, 148, 5, 4, 3, 2, 1, 255},
+        {1, 163, 2, 3, 4, 138, 4, 3, 2, 255}
+    };
+    static const int hoverFrames[] = {11, 7, 9, 19, 5, 4, 10, 3, 0, 0, 3, 7, 5};
     const uint8_t *cursor;
     Uint32 period = 0;
     Uint32 duration;
     int frame = 0;
 
+    if (character == 13) character = 4;
+    if (character == 14) character = 7;
+    if (character == 15) character = 1;
     if (hovered)
         return hoverFrames[character];
     for (cursor = programs[character]; *cursor != 255; cursor++)
@@ -1859,6 +2000,173 @@ done:
     return result;
 }
 
+/* Retail CODE_14 DisplayGameScores +0x248a / PrintGameScores +0x23d2.
+ * Keep six name[24]/big-endian score records in the SDL preferences folder;
+ * never overwrite the original Mac preferences or WC1's pilot-index table. */
+static int SwcDisplayGameScores(SwcCarrier *carrier, int recordScore)
+{
+    unsigned char scores[6][28] = {{0}};
+    unsigned char entry[28] = {0};
+    char *directory = SDL_GetPrefPath("Origin Systems", "WC Kilrathi Saga");
+    char path[PATH_MAX] = {0};
+    char text[80];
+    SDL_RWops *file;
+    SwcRoomInput input;
+    SDL_Color ink = {245, 225, 135, 255};
+    Uint32 score;
+    int index;
+
+    if (directory != NULL) {
+        SDL_snprintf(path, sizeof(path), "%sswc-scores.dat", directory);
+        SDL_free(directory);
+        file = SDL_RWFromFile(path, "rb");
+        if (file != NULL) {
+            if (SDL_RWsize(file) != sizeof(scores) ||
+                SDL_RWread(file, scores, sizeof(scores), 1) != 1)
+                memset(scores, 0, sizeof(scores));
+            SDL_RWclose(file);
+        }
+    }
+    for (index = 0; index < 6; index++) {
+        if (memchr(scores[index], 0, 24) == NULL || (scores[index][24] & 0x80))
+            memset(scores[index], 0, sizeof(scores[index]));
+    }
+    if (recordScore && nCurrentArcadeScore > 0) {
+        SDL_strlcpy((char *)entry, stCampaignState.currentPilot->callsign, 24);
+        score = SDL_SwapBE32((Uint32)nCurrentArcadeScore);
+        memcpy(entry + 24, &score, 4);
+        for (index = 0; index < 6; index++) {
+            memcpy(&score, scores[index] + 24, 4);
+            if ((Uint32)nCurrentArcadeScore > SDL_SwapBE32(score)) {
+                if (index < 5)
+                    memmove(scores[index + 1], scores[index], (5 - index) * sizeof(entry));
+                memcpy(scores[index], entry, sizeof(entry));
+                break;
+            }
+        }
+        if (path[0] && (file = SDL_RWFromFile(path, "wb")) != NULL) {
+            if (SDL_RWwrite(file, scores, sizeof(scores), 1) != 1)
+                SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Cannot save SWC simulator scores: %s", SDL_GetError());
+            SDL_RWclose(file);
+        }
+    }
+    SDL_ClearError();
+    SdlPlaySwcMusic("MEDALCE1.MooV", 50);
+    if (SDL_SetRenderTarget(carrier->renderer, carrier->picture) != 0 ||
+        SDL_SetRenderDrawColor(carrier->renderer, 0, 0, 0, 255) != 0 ||
+        SDL_RenderClear(carrier->renderer) != 0)
+        return SWC_MOVIE_ERROR;
+    SwcDrawRoomArt(carrier, SWC_RECROOM, "RCRM", 9, 0, 0, 0);
+    if (carrier->drawResult != 0 ||
+        SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
+            (320 - SdlSwcTextWidth(&carrier->roomFont, "HIGH SCORES")) / 2, 40, ink, "HIGH SCORES") != 0)
+        return SWC_MOVIE_ERROR;
+    for (index = 0; index < 6; index++) {
+        memcpy(&score, scores[index] + 24, 4);
+        SDL_snprintf(text, sizeof(text), "%d. %s", index + 1,
+            scores[index][0] ? (char *)scores[index] : "-");
+        if (SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
+                20, 66 + index * 20, ink, text) != 0)
+            return SWC_MOVIE_ERROR;
+        SDL_snprintf(text, sizeof(text), "%u", SDL_SwapBE32(score));
+        if (SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
+                210, 66 + index * 20, ink, text) != 0)
+            return SWC_MOVIE_ERROR;
+    }
+    if (SdlDrawSwcText(carrier->renderer, carrier->font, 40, 222, ink,
+            "Enter / Space / A to continue") != 0)
+        return SWC_MOVIE_ERROR;
+    for (;;) {
+        input = SwcPollCarrier(carrier);
+        if (input.quit)
+            return SWC_MOVIE_QUIT;
+        if (carrier->focused && !carrier->paused && (input.activate || input.back || input.clicked))
+            return SWC_MOVIE_FINISHED;
+        if (SwcPresentRoom(carrier, 255) != 0)
+            return SWC_MOVIE_ERROR;
+        SDL_Delay(16);
+    }
+}
+
+/* Retail CODE_14 ChooseArcadeMission +0x2660, DATA/0 +0x25a..+0x2aa.
+ * The second page uses the disc's enemy statistics, including its lettering. */
+static int SwcChooseArcadeMission(SwcCarrier *carrier)
+{
+    static const SDL_Point positions[] = {{20, 15}, {20, 105}, {170, 15}, {170, 105}};
+    int frames[] = {7, 10, 4, 2};
+    int selected = 0;
+    int details = 0;
+    int index;
+    Uint32 previous = SDL_GetTicks();
+    Uint32 elapsed = 0;
+    Uint32 current;
+    SDL_Color ink = {245, 225, 135, 255};
+    SwcRoomInput input;
+
+    for (;;) {
+        input = SwcPollCarrier(carrier);
+        if (input.quit)
+            return SWC_MOVIE_QUIT;
+        current = SDL_GetTicks();
+        if (carrier->focused && !carrier->paused) {
+            if (input.back || input.space)
+                return SWC_MOVIE_SKIPPED;
+            if (!details) {
+                if (input.direction == SDLK_RIGHT)
+                    selected |= 2;
+                else if (input.direction == SDLK_LEFT)
+                    selected &= 1;
+                else if (input.direction == SDLK_DOWN)
+                    selected |= 1;
+                else if (input.direction == SDLK_UP)
+                    selected &= 2;
+                else if (input.step)
+                    selected = (selected + input.step + 4) % 4;
+                if (input.moved || input.clicked) {
+                    for (index = 0; index < 4; index++) {
+                        if (carrier->mouseX >= positions[index].x && carrier->mouseX < positions[index].x + 130 &&
+                            carrier->mouseY >= positions[index].y && carrier->mouseY < positions[index].y + 85)
+                            selected = index;
+                    }
+                }
+            }
+            if (input.activate || input.clicked) {
+                if (details) {
+                    nTrainSimMission = selected;
+                    return SWC_CARRIER_SIMULATOR;
+                }
+                details = 1;
+            }
+            elapsed += SDL_min(current - previous, 250);
+            if (elapsed >= 100) {
+                frames[selected] = (frames[selected] + elapsed / 100) % 12;
+                elapsed %= 100;
+            }
+        }
+        previous = current;
+        if (SDL_SetRenderTarget(carrier->renderer, carrier->picture) != 0 ||
+            SDL_SetRenderDrawColor(carrier->renderer, 0, 0, 0, 255) != 0 ||
+            SDL_RenderClear(carrier->renderer) != 0)
+            return SWC_MOVIE_ERROR;
+        SwcDrawRoomArt(carrier, SWC_SIMULATOR, "RCRM", 9, 0, 0, 0);
+        for (index = 0; index < 4; index++) {
+            if (!details || index == selected)
+                SwcDrawRoomArt(carrier, SWC_SIMULATOR, "RCRM", 5 + index,
+                    index == selected ? frames[index] : 12, positions[index].x, positions[index].y);
+        }
+        if (details)
+            SwcDrawRoomArt(carrier, SWC_SIMULATOR, "RCRM", 41 + selected, 0, selected < 2 ? 170 : 20, 15);
+        if (!details && (SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
+                (320 - SdlSwcTextWidth(&carrier->roomFont, "CHOOSE ENEMY")) / 2, 205, ink, "CHOOSE ENEMY") != 0 ||
+            SdlDrawSwcText(carrier->renderer, carrier->font, 75, 228, ink,
+                "Enter / A: select   Esc / B: cancel") != 0))
+            return SWC_MOVIE_ERROR;
+        if (carrier->drawResult != 0 || SwcPresentRoom(carrier, 255) != 0)
+            return SWC_MOVIE_ERROR;
+        SDL_Delay(16);
+    }
+}
+
 int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                       const char *missionPath, const char *resourceFork, enum SwcCarrierVisit visit)
 {
@@ -1866,8 +2174,13 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
     SwcCmf data = {0};
     SwcBuffer roster = {0};
     SwcBuffer campaign = {0};
-    unsigned char campaignData[90] = {0};
     unsigned char *savedCampaignData = pMissionCampaignInfo;
+    TitleMenuRegion barRegions[SDL_arraysize(swcBarRegions)];
+    const char *barLabels[SDL_arraysize(swcBarLabels)];
+    char pilotLabels[2][40];
+    int barPilots[3] = {10, -1, -1};
+    int pilot;
+    size_t rosterOffset;
     SwcRoomInput input;
     SwcRoomArt *art;
     SDL_Cursor *savedCursor = SDL_GetCursor();
@@ -1906,7 +2219,15 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
     int oldCursorVisible = SDL_ShowCursor(SDL_QUERY);
     uint32_t frame;
     int result = -1;
+    int simulatorResults = visit == SWC_CARRIER_SIMULATOR_RESULTS;
+    int funeral = visit == SWC_CARRIER_PLAYER_FUNERAL || visit == SWC_CARRIER_WINGMAN_FUNERAL;
+    int medalCount = 0;
+    char scriptType[5];
+    char simulatorPath[PATH_MAX];
+    SDL_RWops *simulatorFile;
 
+    if (simulatorResults)
+        visit = SWC_CARRIER_PREFLIGHT;
     carrier.window = window;
     if (savedCursor == NULL)
         savedCursor = SDL_GetDefaultCursor();
@@ -1917,22 +2238,86 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
     carrier.focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
     SdlPauseSwcSound(!carrier.focused);
     carrier.mouseX = carrier.mouseY = -1;
-    if (visit < SWC_CARRIER_PREFLIGHT || visit > SWC_CARRIER_WINGMAN_FUNERAL) {
+    if (visit < SWC_CARRIER_PREFLIGHT || visit > SWC_CARRIER_MEDAL) {
         SDL_SetError("Unsupported SWC carrier visit");
         goto done;
     }
+    if (visit == SWC_CARRIER_MEDAL) {
+        if ((unsigned int)nCurrentConversationMedalIndex >= 5) {
+            SDL_SetError("Invalid SWC ceremony medal");
+            goto done;
+        }
+        /* Retail MedalSequence 0x01033638 caps ordinary awards at three,
+         * and the Golden Sun/Terran Medal of Valor at one. */
+        medalCount = stCampaignState.medals[nCurrentConversationMedalIndex];
+        if (medalCount >= 3 || (nCurrentConversationMedalIndex >= 3 && medalCount != 0)) {
+            result = SWC_MOVIE_FINISHED;
+            goto done;
+        }
+    }
+    if ((unsigned int)nCampaignDataSet > 2) {
+        SDL_SetError("Invalid SWC story data set");
+        goto done;
+    }
+    SDL_snprintf(scriptType, sizeof(scriptType), "BRF%d", nCampaignDataSet);
     if (SwcCMOpen(missionPath, &data) != 0 ||
-        SwcCMGetChunk(&data, "BRF0", visit >= SWC_CARRIER_PLAYER_FUNERAL ? 1 : 5,
+        SwcCMGetChunk(&data, scriptType, funeral ? 1 :
+                      visit == SWC_CARRIER_OFFICE ? 2 : visit == SWC_CARRIER_MEDAL ? 3 :
+                      stCampaignState.currentSeries * 4 + stCampaignState.currentMission + 1,
                       &carrier.script) != 0)
         goto done;
-    /* RecRoom indexes CMP0/3 by (series-1)*8 + mission*2. This host is
-     * deliberately Enyo 1 only: validate its Paladin/Angel roster. */
-    if (visit < SWC_CARRIER_PLAYER_FUNERAL) {
-        if (SwcCMGetChunk(&data, "CMP0", 3, &roster) != 0)
+    memcpy(barRegions, swcBarRegions, sizeof(barRegions));
+    memcpy(barLabels, swcBarLabels, sizeof(barLabels));
+    /* Retail RecRoom 0x010706e8: two portraits per mission; dead and
+     * absent pilots have neither a figure nor an active hotspot. */
+    if (visit == SWC_CARRIER_PREFLIGHT || visit == SWC_CARRIER_DEBRIEFING) {
+        if (SdlLoadSwcCampaignData(missionPath, &campaign) != 0)
             goto done;
-        if (roster.size < 2 || roster.data[0] != 5 || roster.data[1] != 4) {
-            SDL_SetError("Unsupported SWC carrier roster (expected Enyo 1)");
+        if (stCampaignState.currentSeries < 1 || stCampaignState.currentSeries > 13 ||
+            stCampaignState.currentMission < 0 || stCampaignState.currentMission >=
+                pMissionCampaignInfo[(stCampaignState.currentSeries - 1) * 90 + 2]) {
+            SDL_SetError("Invalid SWC carrier mission");
             goto done;
+        }
+        memcpy(&nDebriefingPersonality, pMissionCampaignInfo +
+            (stCampaignState.currentSeries - 1) * 90, sizeof(nDebriefingPersonality));
+        SDL_snprintf(scriptType, sizeof(scriptType), "CMP%d", nCampaignDataSet);
+        if (SwcCMGetChunk(&data, scriptType, 3, &roster) != 0)
+            goto done;
+        rosterOffset = (stCampaignState.currentSeries - 1) * 8 + stCampaignState.currentMission * 2;
+        if (rosterOffset + 2 > roster.size) {
+            SDL_SetError("Truncated SWC carrier roster");
+            goto done;
+        }
+        for (entry = 1; entry < 3 && visit == SWC_CARRIER_PREFLIGHT; entry++) {
+            barPilots[entry] = (signed char)roster.data[rosterOffset + entry - 1];
+            pilot = barPilots[entry];
+            /* RecRoom's alternate art still refers to the same pilot slot. */
+            if (pilot == 11) pilot = 5;
+            if (pilot == 12) pilot = 2;
+            if (pilot == 13) pilot = 0;
+            if (pilot == 14) pilot = 7;
+            if (pilot == 15) pilot = 1;
+            if (pilot < -1 || pilot >= 8) {
+                SDL_SetError("Invalid SWC bar pilot");
+                goto done;
+            }
+            if (pilot == -1 || stCampaignState.personalityDeathMission[pilot] != 0) {
+                barPilots[entry] = -1;
+                barRegions[entry].left = barRegions[entry].right = -1;
+                barLabels[entry] = "";
+                continue;
+            }
+            art = SwcGetRoomArt(&carrier, SWC_RECROOM, "RCRM", 24 + barPilots[entry]);
+            if (art == NULL)
+                goto done;
+            barRegions[entry].left = art->bounds[0].x;
+            barRegions[entry].top = art->bounds[0].y;
+            barRegions[entry].right = art->bounds[0].x + art->bounds[0].w;
+            barRegions[entry].bottom = art->bounds[0].y + art->bounds[0].h;
+            SDL_snprintf(pilotLabels[entry - 1], sizeof(pilotLabels[0]), "Talk to %s",
+                apWingmanPilotsList[pilot]->callsign);
+            barLabels[entry] = pilotLabels[entry - 1];
         }
     }
     carrier.font = SdlCreateSwcFont(renderer);
@@ -1952,19 +2337,33 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
     hand = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
     SDL_ShowCursor(SDL_ENABLE);
     SDL_SetWindowMouseGrab(window, SDL_FALSE);
-    if (visit >= SWC_CARRIER_PLAYER_FUNERAL) {
-        /* CODE_03 funeral_sequence +0x4a08 interleaves three movies with
-         * BRF0/1: Enyo player's eulogy/farewell 2/0, Spirit's 12/10. */
-        if (stCampaignState.currentSeries != 1 || stCampaignState.currentMission != 0 ||
-            stCampaignState.currentPilot->rank != 0) {
-            SDL_SetError("Unsupported SWC funeral (expected fresh Enyo 1 pilot)");
+    if (visit == SWC_CARRIER_OFFICE || visit == SWC_CARRIER_MEDAL) {
+        /* Retail Office 0x01031530 and MedalEstablish 0x01033740. */
+        SdlPlaySwcMusic(visit == SWC_CARRIER_OFFICE ? "COMMANDE.MooV" :
+            nCurrentConversationMedalIndex == 3 ? "MEDALCE1.MooV" :
+            nCurrentConversationMedalIndex == 2 || nCurrentConversationMedalIndex == 4 ?
+                "MEDALCER.MooV" : "MEDALCE0.MooV", 50);
+        result = SwcPlayRoomScene(&carrier, 0);
+        if (visit == SWC_CARRIER_MEDAL &&
+            (result == SWC_MOVIE_FINISHED || result == SWC_MOVIE_SKIPPED))
+            stCampaignState.medals[nCurrentConversationMedalIndex] = medalCount + 1;
+        goto done;
+    }
+    if (funeral) {
+        /* Retail funeral_player 0x010347a0 chooses the eulogy by series,
+         * using DATA/0 +0x4270. Rank only selects the spoken $R variant. */
+        static const unsigned char eulogies[13] = {0, 1, 1, 1, 1, 1, 2, 3, 2, 3, 3, 2, 3};
+
+        if (stCampaignState.currentSeries < 1 || stCampaignState.currentSeries > 13) {
+            SDL_SetError("Invalid SWC funeral series");
             goto done;
         }
         SdlPlaySwcMusic("FUNERAL.MooV", 50);
         result = SdlPlaySwcFuneralMovies(window, renderer, 0);
         if (result != SWC_MOVIE_FINISHED)
             goto done;
-        result = SwcPlayRoomScene(&carrier, visit == SWC_CARRIER_PLAYER_FUNERAL ? 2 : 12);
+        result = SwcPlayRoomScene(&carrier, visit == SWC_CARRIER_PLAYER_FUNERAL ?
+            2 + eulogies[stCampaignState.currentSeries - 1] * 2 : 12);
         if (result != SWC_MOVIE_FINISHED)
             goto done;
         result = SdlPlaySwcFuneralMovies(window, renderer, 1);
@@ -1978,21 +2377,6 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
         goto done;
     }
     if (visit == SWC_CARRIER_DEBRIEFING) {
-        if (SwcCMGetChunk(&data, "CMP0", 2, &campaign) != 0)
-            goto done;
-        if (stCampaignState.currentSeries != 1 || stCampaignState.currentMission != 0 ||
-            campaign.size < 128 || campaign.data[0] != 0 || campaign.data[1] != 0 ||
-            campaign.data[2] != 0 || campaign.data[3] != 0) {
-            SDL_SetError("Unsupported SWC debriefing campaign (expected Enyo 1/Spirit)");
-            goto done;
-        }
-        /* CODE_09 FullMissionScore +0x17e2 and PlayersMissionScore +0x1840
-         * read 16 signed weights at CMP0/2 +(series-1)*128+mission*24+40.
-         * Supply WC1's corresponding first-mission score window so its
-         * ParseTests cases 35/36 run unchanged. This is not a campaign loader. */
-        memcpy(campaignData + 14, campaign.data + 40, 16);
-        pMissionCampaignInfo = campaignData;
-        nDebriefingPersonality = 0;
         /* CODE_03 DeBriefing +0x13e4: the zero-score cue is a distinct
          * filename (DEBRIEF1), absent from the supplied demo. */
         count = FullMissionScore();
@@ -2000,6 +2384,11 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
             PlayersMissionScore() * 100 / count > 70 ? "DEBRIEFI.MooV" : "DEBRIEF0.MooV", 50);
         result = SwcPlayRoomScene(&carrier, 2);
         goto done;
+    }
+    if (simulatorResults) {
+        result = SwcDisplayGameScores(&carrier, 1);
+        if (result != SWC_MOVIE_FINISHED)
+            goto done;
     }
     /* RecRoom +0x0a1a: SetRect3DO(0, 0, 320, 120), then a dense field. */
     SwcInitParallax(&carrier.parallax, 120, 100);
@@ -2015,9 +2404,12 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
             result = SWC_MOVIE_QUIT;
             break;
         }
-        /* RecRoom does not use the Mac cancel flag to leave the bar. */
-        if (room == 0 && notice == NULL)
-            input.back = 0;
+        /* SDL has no Mac application menu. Esc/B at the bar returns to
+         * Title_Sequence; its Continue choice preserves this session. */
+        if (room == 0 && notice == NULL && input.back && !carrier.paused) {
+            result = SWC_CARRIER_TITLE;
+            break;
+        }
         if (input.back)
             carrier.paused = 0;
         if (!carrier.focused || carrier.paused) {
@@ -2037,7 +2429,7 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                 selected = -1;
             }
         } else {
-            regions = room == 0 ? swcBarRegions : swcBunkRegions;
+            regions = room == 0 ? barRegions : swcBunkRegions;
             count = room == 0 ? 6 : 11;
             if (input.back) {
                 room = 0;
@@ -2056,8 +2448,10 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                     keyboard = 0;
                 }
                 if (input.step != 0) {
-                    selected = selected < 0 ? (input.step > 0 ? 0 : count - 1) :
-                        (selected + input.step + count) % count;
+                    do {
+                        selected = selected < 0 ? (input.step > 0 ? 0 : count - 1) :
+                            (selected + input.step + count) % count;
+                    } while (room == 0 && selected < 3 && barPilots[selected] < 0);
                     keyboard = 1;
                 }
                 if ((input.activate || input.clicked) && selected >= 0) {
@@ -2079,8 +2473,22 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                             room = 1;
                         else if (selected == 4)
                             room = 2;
-                        else
-                            notice = "Sorry! The flight simulator is not available in this demo.";
+                        else {
+                            if (SdlResolvePath("CMFs/Simulator.CMF", simulatorPath, sizeof(simulatorPath)) &&
+                                (simulatorFile = SDL_RWFromFile(simulatorPath, "rb")) != NULL) {
+                                SDL_RWclose(simulatorFile);
+                                result = SwcDisplayGameScores(&carrier, 0);
+                                if (result == SWC_MOVIE_FINISHED)
+                                    result = SwcChooseArcadeMission(&carrier);
+                                if (result != SWC_MOVIE_SKIPPED)
+                                    break;
+                                fadeIn = 1;
+                                previous = SDL_GetTicks();
+                            } else {
+                                SDL_ClearError();
+                                notice = "Sorry! The flight simulator is not available in this demo.";
+                            }
+                        }
                     } else if (selected == 0) {
                         result = SwcPlayRoomScene(&carrier, 0);
                         break;
@@ -2164,9 +2572,11 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
             SwcDrawRoomArt(&carrier, SWC_RECROOM, "RCRM", 1, 0, 0, 0);
             if (selected == 3)
                 SwcDrawRoomArt(&carrier, SWC_RECROOM, "RCRM", 1, 1, 0, 0);
-            SwcDrawRoomArt(&carrier, SWC_RECROOM, "RCRM", 34, SwcBarIdleFrame(0, tick, selected == 0), 0, 0);
-            SwcDrawRoomArt(&carrier, SWC_RECROOM, "RCRM", 29, SwcBarIdleFrame(1, tick, selected == 1), 0, 0);
-            SwcDrawRoomArt(&carrier, SWC_RECROOM, "RCRM", 28, SwcBarIdleFrame(2, tick, selected == 2), 0, 0);
+            for (entry = 0; entry < 3; entry++) {
+                if (barPilots[entry] >= 0)
+                    SwcDrawRoomArt(&carrier, SWC_RECROOM, "RCRM", 24 + barPilots[entry],
+                        SwcBarIdleFrame(barPilots[entry], tick, selected == entry), 0, 0);
+            }
             SwcDrawRoomArt(&carrier, SWC_RECROOM, "RCRM", 11, simulatorFrame, 0, 85);
             if (selected == 4)
                 SwcDrawRoomArt(&carrier, SWC_RECROOM, "RCRM", 12, 0, 245, 15);
@@ -2228,8 +2638,8 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
             if (SdlDrawSwcRoomSubtitle(renderer, &carrier.roomFont, notice) != 0)
                 break;
         } else if (room < 2) {
-            regions = room == 0 ? swcBarRegions : swcBunkRegions;
-            labels = room == 0 ? swcBarLabels : swcBunkLabels;
+            regions = room == 0 ? barRegions : swcBunkRegions;
+            labels = room == 0 ? barLabels : swcBunkLabels;
             if (selected >= 0 && keyboard) {
                 highlight = (SDL_Rect){regions[selected].left, regions[selected].top,
                     regions[selected].right - regions[selected].left,

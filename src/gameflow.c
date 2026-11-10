@@ -56,7 +56,14 @@ void PostMission(void)
         stCampaignState.badges[
             CAMPAIGN_BADGE_TWENTY_FIVE_KILLS] = 1;
 
-    if (stCampaignState.badges[
+    if (
+#ifdef SDL_PORT
+        /* SWC can assign a captured Salthi (type 10). There is no badge
+         * slot for it; the legacy unchecked index overwrites mission state. */
+        (unsigned int)stCampaignState.playerShipType <
+            sizeof(stCampaignState.badges) - CAMPAIGN_BADGE_SHIP_TYPE_BASE &&
+#endif
+        stCampaignState.badges[
             CAMPAIGN_BADGE_SHIP_TYPE_BASE +
             stCampaignState.playerShipType] == 0)
         stCampaignState.badges[
@@ -146,6 +153,9 @@ unsigned int UpdateSeries(void)
     unsigned char *seriesData;
     short *medalData;
     short playerScore;
+#ifdef SDL_PORT
+    short requiredScore;
+#endif
 
     stSavedCampaignDate = *pCurrentCampaignDate;
     seriesData = pMissionCampaignInfo +
@@ -171,8 +181,13 @@ unsigned int UpdateSeries(void)
             stCampaignState.seriesHistoryCount] =
             stCampaignState.currentSeries;
         stCampaignState.seriesHistoryCount++;
-        if (stCampaignState.seriesScore >=
-            *(short *)(seriesData + 3)) {
+#ifdef SDL_PORT
+        /* The original packet puts this word at an odd address. */
+        memcpy(&requiredScore, seriesData + 3, sizeof(requiredScore));
+        if (stCampaignState.seriesScore >= requiredScore) {
+#else
+        if (stCampaignState.seriesScore >= *(short *)(seriesData + 3)) {
+#endif
             stCampaignState.currentSeries =
                 seriesData[6];
             stCampaignState.playerShipType =

@@ -41,6 +41,96 @@ int SdlFindSwcResources(const char *directory, char *path, unsigned long capacit
     return SwcFindApplicationFork(directory != NULL ? directory : ".", path, capacity);
 }
 
+/* Retail CODE_09 StartNewCampaign/MoveNewCampaign load CMPn/2. Convert
+ * its 128-byte, big-endian records to the 90-byte WC1 packet consumed by
+ * FullMissionScore, PlayersMissionScore and UpdateSeries. The spare leading
+ * record makes UpdateSeries's terminal-series (-1) look-ahead safe. */
+int SdlLoadSwcCampaignData(const char *path, SwcBuffer *campaign)
+{
+    SwcCmf cmf = {0};
+    SwcBuffer source = {0};
+    unsigned char converted[15 * 90] = {0};
+    unsigned char *record;
+    SDL_RWops *reader = NULL;
+    int32_t fields[8];
+    int32_t value;
+    short word;
+    int series;
+    int mission;
+    int field;
+    int result = -1;
+    char type[5];
+
+    if ((unsigned int)nCampaignDataSet > 2)
+        return SDL_SetError("Invalid SWC campaign data set");
+    SDL_snprintf(type, sizeof(type), "CMP%d", nCampaignDataSet);
+    if (SwcCMOpen(path, &cmf) != 0 || SwcCMGetChunk(&cmf, type, 2, &source) != 0)
+        goto done;
+    if (source.size < 13 * 128) {
+        SDL_SetError("Truncated SWC campaign table");
+        goto done;
+    }
+    reader = SDL_RWFromConstMem(source.data, 13 * 128);
+    if (reader == NULL)
+        goto done;
+    for (series = 0; series < 13; series++) {
+        record = converted + (series + 1) * 90;
+        for (field = 0; field < 8; field++)
+            fields[field] = (int32_t)SDL_ReadBE32(reader);
+        if (fields[0] < 0 || fields[0] > 15 || fields[1] < 0 || fields[1] > 4 ||
+            fields[2] < INT16_MIN || fields[2] > INT16_MAX ||
+            fields[3] < -1 || fields[3] > 65 ||
+            fields[4] < -1 || fields[4] > 13 || fields[6] < -1 || fields[6] > 13 ||
+            fields[5] < -1 || fields[5] > 3 || fields[7] < -1 || fields[7] > 3) {
+            SDL_SetError("Invalid SWC campaign series %d", series + 1);
+            goto done;
+        }
+        word = fields[0];
+        memcpy(record, &word, sizeof(word));
+        record[2] = fields[1];
+        word = fields[2];
+        memcpy(record + 3, &word, sizeof(word));
+        /* Retail UpdateSeries 0x01091cbc maps -1 to the system warp,
+         * and 5 to a campaign transition. The host restores this selection
+         * after WC1's different repeated-sequence suppression. */
+        record[5] = fields[3] == -1 ? 4 : fields[3] == 5 ? 64 : fields[3];
+        for (field = 4; field < 8; field++)
+            record[field + 2] = fields[field];
+        for (mission = 0; mission < 4; mission++) {
+            for (field = 0; field < 2; field++) {
+                value = (int32_t)SDL_ReadBE32(reader);
+                if (value < INT16_MIN || value > INT16_MAX ||
+                    (field == 0 && (value < -1 || value > 4))) {
+                    SDL_SetError("Invalid SWC campaign medal");
+                    goto done;
+                }
+                word = value;
+                memcpy(record + 10 + mission * 20 + field * 2, &word, sizeof(word));
+            }
+            SDL_RWread(reader, record + 14 + mission * 20, 1, 16);
+        }
+    }
+    if (campaign->size != sizeof(converted)) {
+        unsigned char *allocation = SDL_realloc(campaign->data, sizeof(converted));
+
+        if (allocation == NULL) {
+            SDL_OutOfMemory();
+            goto done;
+        }
+        campaign->data = allocation;
+        campaign->size = sizeof(converted);
+    }
+    memcpy(campaign->data, converted, sizeof(converted));
+    pMissionCampaignInfo = campaign->data + 90;
+    result = 0;
+done:
+    if (reader != NULL)
+        SDL_RWclose(reader);
+    SDL_free(source.data);
+    SwcCMClose(&cmf);
+    return result;
+}
+
 int SdlLoadSwcMissionData(const char *path, short series, short mission)
 {
     static const size_t blockSizes[6] = {24, 16 * 88, 16 * 68, 32 * 76, 40, 40};

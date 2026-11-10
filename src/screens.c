@@ -958,6 +958,11 @@ short wing_status(short personality)
         return 1;
     if (currentMission > deathMission)
         return 2;
+#ifdef SDL_PORT
+    /* Retail SWC wing_status 0x010339e2 treats deaths carried from an
+     * earlier campaign as old losses. Win32 leaves currentMission in EAX. */
+    return SdlSwcFlightActive() ? 2 : (short)currentMission;
+#endif
 }
 
 /* Function start: 0x438110 */

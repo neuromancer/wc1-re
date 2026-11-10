@@ -63,13 +63,13 @@ msgstr "Archivo de SWC no válido: {}."
 
 #: src/sdl/slint/launcher.slint:62
 msgctxt "LauncherWindow"
-msgid "SWC resources missing: keep the demo application with its resource fork (a MacBinary copy also works) or add SuperWingCommanderDemo.rsrc."
-msgstr "Faltan recursos de SWC: conserva la aplicación de la demo con su archivo de recursos (también sirve una copia MacBinary) o añade SuperWingCommanderDemo.rsrc."
+msgid "SWC resources missing: keep the application with its resource fork (a MacBinary copy also works) beside the CMFs directory."
+msgstr "Faltan recursos de SWC: conserva la aplicación con su archivo de recursos (también sirve una copia MacBinary) junto a la carpeta CMFs."
 
 #: src/sdl/slint/launcher.slint:63
 msgctxt "LauncherWindow"
-msgid "Choose a WC1 directory containing GAMEDAT or the SWC demo directory containing CMFs."
-msgstr "Elige una carpeta de WC1 que contenga GAMEDAT o una carpeta de la demo de SWC que contenga CMFs."
+msgid "Choose a WC1 directory containing GAMEDAT or an SWC directory containing CMFs."
+msgstr "Elige una carpeta de WC1 que contenga GAMEDAT o una carpeta de SWC que contenga CMFs."
 
 #: src/sdl/slint/launcher.slint:64
 msgctxt "LauncherWindow"
@@ -275,3 +275,7 @@ msgstr "Cancelar"
 msgctxt "LauncherWindow"
 msgid "Start game"
 msgstr "Iniciar juego"
+
+msgctxt "LauncherWindow"
+msgid "SWC Mac"
+msgstr "SWC Mac"

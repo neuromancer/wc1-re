@@ -20,6 +20,7 @@ typedef struct SwcMusicTrack {
 } SwcMusicTrack;
 
 static SwcMusicTrack swcMusicTracks[] = {
+    {.name = "ARCADETH.MooV"}, {.name = "MEDALCE1.MooV"},
     {.name = "ARMOR.MooV"}, {.name = "BARRACKS.MooV"},
     {.name = "BEINGTAI.MooV"}, {.name = "BRIEFIN0.MooV"},
     {.name = "DEBRIEF0.MooV"}, {.name = "DEBRIEF1.MooV"},
@@ -289,6 +290,12 @@ void SdlUpdateSwcFlightMusic(void)
     int objective;
     enum ObjectType type;
 
+    /* Retail CODE_03 init_inflight_music +0x0cfa: the arcade track is
+     * independent of navigation and combat music changes. */
+    if (nTrainSimActive) {
+        SdlPlaySwcMusic("ARCADETH.MooV", 25);
+        return;
+    }
     if (swcSynth == NULL || nCurrentNavigationPoint < 0 ||
         nCurrentNavigationPoint >= ACTIVE_MISSION_NAV_POINT_COUNT)
         return;

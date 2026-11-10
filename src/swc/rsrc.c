@@ -538,6 +538,6 @@ int SwcFindApplicationFork(const char *directory, char *path, size_t capacity)
         closedir(listing);
 #endif
     if (!found)
-        SDL_SetError("No SWC demo application resources in %s", directory);
+        SDL_SetError("No SWC application resources in %s", directory);
     return found;
 }

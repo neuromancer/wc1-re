@@ -12,7 +12,7 @@ export enum LauncherMessage {
     invalid-swc-archive, missing-swc-resources, choose-data-directory,
     missing-module, unreadable-module, missing-game-file, needs-streams,
     missing-stream-file, picker-failed, picker-init-failed,
-    cannot-resolve-directory, cannot-open-directory, dos, kilrathi-saga, mac-demo, fm-towns
+    cannot-resolve-directory, cannot-open-directory, dos, kilrathi-saga, mac-demo, mac-retail, fm-towns
 }
 
 export component LauncherWindow inherits Window {
@@ -55,6 +55,7 @@ export component LauncherWindow inherits Window {
     public pure function edition-text(edition: LauncherMessage) -> string {
         if edition == LauncherMessage.fm-towns { return "FM Towns"; }
         if edition == LauncherMessage.mac-demo { return @tr("SWC Mac demo"); }
+        if edition == LauncherMessage.mac-retail { return @tr("SWC Mac"); }
         return edition == LauncherMessage.dos ? "DOS" : "Kilrathi Saga";
     }
 
@@ -65,8 +66,8 @@ export component LauncherWindow inherits Window {
         if message == LauncherMessage.not-directory { return @tr("The selected path is not a directory."); }
         if message == LauncherMessage.missing-swc-file { return @tr("SWC needs CMFs/{}.", detail); }
         if message == LauncherMessage.invalid-swc-archive { return @tr("Invalid SWC archive: {}.", detail); }
-        if message == LauncherMessage.missing-swc-resources { return @tr("SWC resources missing: keep the demo application with its resource fork (a MacBinary copy also works) or add SuperWingCommanderDemo.rsrc."); }
-        if message == LauncherMessage.choose-data-directory { return @tr("Choose a WC1 directory containing GAMEDAT or the SWC demo directory containing CMFs."); }
+        if message == LauncherMessage.missing-swc-resources { return @tr("SWC resources missing: keep the application with its resource fork (a MacBinary copy also works) beside the CMFs directory."); }
+        if message == LauncherMessage.choose-data-directory { return @tr("Choose a WC1 directory containing GAMEDAT or an SWC directory containing CMFs."); }
         if message == LauncherMessage.missing-module { return @tr("GAMEDAT/MODULE.000 is missing. Select a WC1 installation."); }
         if message == LauncherMessage.unreadable-module { return @tr("GAMEDAT/MODULE.000 is unreadable or too small to identify."); }
         if message == LauncherMessage.missing-game-file { return @tr("GAMEDAT/{} is missing or unreadable.", detail); }

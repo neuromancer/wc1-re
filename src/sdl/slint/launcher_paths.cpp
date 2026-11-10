@@ -118,7 +118,8 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
         // MacBinary application such as discmaster serves.
         if (!SdlHasSwcResources(std::string(directoryText).c_str()))
             return {false, LauncherMessage::MissingSwcResources, true};
-        return {true, LauncherMessage::MacDemo, true};
+        return {true, has_readable_file(*cmfs, "Simulator.CMF") ?
+            LauncherMessage::MacRetail : LauncherMessage::MacDemo, true};
     }
     if (!gameData || !fs::is_directory(*gameData, error))
         return {false, LauncherMessage::ChooseDataDirectory};

@@ -281,13 +281,13 @@ int main(int argumentCount, char **arguments)
         SdlSetVideoBackend(SDL_PORT_VIDEO_BACKEND_GL_SHARP_BILINEAR);
     if (launcherOptions.swcDemo) {
         if (!SdlFindSwcMissionData(swcPath, sizeof(swcPath))) {
-            fprintf(stderr, "The SWC demo needs CMFs/Data.CMF.\n");
+            fprintf(stderr, "SWC needs CMFs/Data.CMF.\n");
             return 1;
         }
         gameResult = SdlRunSwcMission(swcPath, launcherOptions.cockpitlessView,
                                      launcherOptions.fullscreen);
         if (gameResult != 0) {
-            fprintf(stderr, "Cannot start SWC Enyo 1: %s\n", SDL_GetError());
+            fprintf(stderr, "Cannot start SWC: %s\n", SDL_GetError());
             if (useLauncherGui)
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Super Wing Commander",
                                          SDL_GetError(), NULL);

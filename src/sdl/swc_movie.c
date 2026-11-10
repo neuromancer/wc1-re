@@ -287,16 +287,16 @@ enum SwcMovieSequence {
 };
 
 static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
-                                   enum SwcMovieSequence sequence, int health)
+                                   enum SwcMovieSequence sequence, int ship, int health)
 {
     static const char *const openingNames[] = {"OPEN0", "OPEN1", "OPEN2", "OPEN3"};
     static const char *const launchNames[] = {
         "ARMOR", "HALL", "LAUNCH01", "LAUNCH02", "LAUNCH03",
-        "LAUNCH04.00", "LAUNCH06.00", "LAUNCH07.00", "LAUNCH08.00"
+        "LAUNCH04.%02d", "LAUNCH06.%02d", "LAUNCH07.%02d", "LAUNCH08.%02d"
     };
     const char *landingNames[] = {
-        "LANDING1.00", "LANDING2.00", "LANDING1", "LANDING4.00",
-        "LANDING5.00", "LANDING6.00", NULL
+        "LANDING1.%02d", "LANDING2.%02d", "LANDING1", "LANDING4.%02d",
+        "LANDING5.%02d", "LANDING6.%02d", NULL
     };
     static const char *const funeralStartNames[] = {"FUNSERV0", "FUNSERVA"};
     static const char *const funeralFarewellNames[] = {"FUNSERVB"};
@@ -306,6 +306,7 @@ static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
     size_t count;
     char paths[SDL_arraysize(launchNames)][PATH_MAX];
     char finalLanding[16];
+    char clip[32];
     char relative[64];
     SDL_RWops *reader;
     size_t index;
@@ -313,6 +314,10 @@ static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
     int cursorVisible;
     int result = SWC_MOVIE_FINISHED;
 
+    if (ship == 10)
+        ship = 5; /* Retail GameFlow 0x010920b8: captured Salthi clips. */
+    if (ship < 0 || ship > 5 || ship == 4)
+        return SDL_SetError("Unsupported SWC cinematic ship %d", ship);
     /* CODE_03 landing +0x447e: damage variant = 2 - health*2/100. */
     SDL_snprintf(finalLanding, sizeof(finalLanding), "LANDING7.%02d",
                  2 - SDL_clamp(health, 0, 100) * 2 / 100);
@@ -358,7 +363,10 @@ static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
      * stay untouched. Malformed present movies still report a decoding error. */
     available = 0;
     for (index = 0; index < count; index++) {
-        SDL_snprintf(relative, sizeof(relative), "Movies/%s.dcMov", names[index]);
+        /* Retail CODE_03 scramble +0x46f8 / landing +0x455a format the
+         * cockpit model, rather than always selecting the demo's Hornet. */
+        SDL_snprintf(clip, sizeof(clip), names[index], ship);
+        SDL_snprintf(relative, sizeof(relative), "Movies/%s.dcMov", clip);
         if (!SdlResolvePath(relative, paths[available], sizeof(paths[available])))
             return SDL_SetError("SWC movie path is too long: %s", relative);
         reader = SDL_RWFromFile(paths[available], "rb");
@@ -399,28 +407,109 @@ static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
     return result;
 }
 
+/* Retail CODE_03 HandleMidGame 0x010351d2 and next_campaign_movie
+ * 0x010344a4. Outcome is the next system for warps, otherwise series failure.
+ * GameFlow handles 64/65 by moving to the next campaign, not by playing
+ * HandleMidGame's otherwise-unreachable victory montage. */
+int SdlPlaySwcCampaignTransition(SDL_Window *window, SDL_Renderer *renderer,
+                                  int sequence, int outcome, int campaign)
+{
+    static const char *const sideWin[] = {"SIDE", "SIDE2", "SINODRATH", "SKK", NULL};
+    static const char *const sideLose[] = {"SIDE", "SIDE2", "SIDEBGS", "SIDEFIN", "SIDEXP", NULL};
+    static const char *const baseWin[] = {
+        "MID3", "MID4", "MID5", "MIDFLY", "SPIN", "VGUN", "VSHOOT", "WMIDFLY2", NULL
+    };
+    static const char *const baseLose[] = {
+        "MID1", "MID2", "MID3", "MID31", "MID4", "MID41", "MID5", "MLIFT", "MYFINAL", NULL
+    };
+    const char *warps[] = {"WARP", NULL, NULL};
+    static const char *const fleet[] = {"LASTCAMP", "LFLEET", NULL};
+    const char *const *names;
+    const char *music;
+    char warp[24];
+    char relative[64];
+    char path[PATH_MAX];
+    int index;
+    int cursor;
+    int result = SWC_MOVIE_FINISHED;
+
+    if (sequence == 64 || sequence == 65 || (sequence == 3 && outcome))
+        return result;
+    music = "FLYBY.MooV";
+    switch (sequence) {
+    case -1:
+        warps[1] = "WARPCLAW";
+        names = campaign == 1 ? fleet : warps;
+        music = "VICTORY.MooV";
+        break;
+    case 0:
+        names = outcome ? sideLose : sideWin;
+        music = outcome ? "MID2LOSE.MooV" : "MID2WIN.MooV";
+        break;
+    case 1:
+        names = outcome ? baseLose : baseWin;
+        music = outcome ? "KILRATHI.MooV" : "KILLBASE.MooV";
+        break;
+    case 2:
+    case 4:
+        if (outcome < 1 || outcome > 13 || campaign < 0 || campaign > 2)
+            return SDL_SetError("Invalid SWC system transition");
+        SDL_snprintf(warp, sizeof(warp), "WARPIN.%02d", outcome + (campaign == 2 ? 20 : campaign == 1 ? 12 : 0));
+        warps[1] = warp;
+        names = warps;
+        break;
+    case 3:
+        names = fleet;
+        music = "SEARCH.MooV";
+        break;
+    default:
+        return SDL_SetError("Unsupported SWC campaign sequence %d", sequence);
+    }
+    cursor = SDL_ShowCursor(SDL_QUERY);
+    SDL_ShowCursor(SDL_DISABLE);
+    SdlPlaySwcMusic(music, 30);
+    for (index = 0; names[index] != NULL; index++) {
+        /* The losing base sequence changes music twice within the montage. */
+        if (sequence == 1 && outcome && index == 2)
+            SdlPlaySwcMusic("FLYBY.MooV", 30);
+        if (sequence == 1 && outcome && index == 5)
+            SdlPlaySwcMusic("ATTACK.MooV", 30);
+        SDL_snprintf(relative, sizeof(relative), "Movies/%s.dcMov", names[index]);
+        if (!SdlResolvePath(relative, path, sizeof(path))) {
+            result = SDL_SetError("Cannot resolve SWC campaign movie %s", relative);
+            break;
+        }
+        result = SdlPlaySwcMovie(window, renderer, path, names[index + 1] == NULL);
+        if (result != SWC_MOVIE_FINISHED)
+            break;
+    }
+    SdlStopSwcMusic();
+    SDL_ShowCursor(cursor);
+    return result;
+}
+
 /* CODE_03 opening_scene +0x4374: four clips before a new campaign. */
 int SdlPlaySwcOpening(SDL_Window *window, SDL_Renderer *renderer)
 {
-    return SdlPlaySwcMovieSequence(window, renderer, SWC_MOVIES_OPENING, 100);
+    return SdlPlaySwcMovieSequence(window, renderer, SWC_MOVIES_OPENING, 0, 100);
 }
 
 /* CODE_14 stranded_sequence +0x0a06: MovieDisplay("BUC", "LASTRITE.Moov"). */
 int SdlPlaySwcStrandedMovie(SDL_Window *window, SDL_Renderer *renderer)
 {
-    return SdlPlaySwcMovieSequence(window, renderer, SWC_MOVIES_STRANDED, 100);
+    return SdlPlaySwcMovieSequence(window, renderer, SWC_MOVIES_STRANDED, 0, 100);
 }
 
-/* CODE_03 scramble +0x45d0: nine clips, Hornet suffix 00. */
-int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer)
+/* Retail CODE_03 scramble +0x4684: nine clips, ship suffix 00..03. */
+int SdlPlaySwcLaunch(SDL_Window *window, SDL_Renderer *renderer, int ship)
 {
-    return SdlPlaySwcMovieSequence(window, renderer, SWC_MOVIES_LAUNCH, 100);
+    return SdlPlaySwcMovieSequence(window, renderer, SWC_MOVIES_LAUNCH, ship, 100);
 }
 
 /* CODE_03 landing +0x447e: seven clips, ending selected by evaluate_damage. */
-int SdlPlaySwcLanding(SDL_Window *window, SDL_Renderer *renderer, int health)
+int SdlPlaySwcLanding(SDL_Window *window, SDL_Renderer *renderer, int ship, int health)
 {
-    return SdlPlaySwcMovieSequence(window, renderer, SWC_MOVIES_LANDING, health);
+    return SdlPlaySwcMovieSequence(window, renderer, SWC_MOVIES_LANDING, ship, health);
 }
 
 /* CODE_03 funeral_sequence +0x4a08: two clips precede the eulogy,
@@ -428,5 +517,5 @@ int SdlPlaySwcLanding(SDL_Window *window, SDL_Renderer *renderer, int health)
 int SdlPlaySwcFuneralMovies(SDL_Window *window, SDL_Renderer *renderer, int farewell)
 {
     return SdlPlaySwcMovieSequence(window, renderer, farewell
-        ? SWC_MOVIES_FUNERAL_FAREWELL : SWC_MOVIES_FUNERAL_START, 100);
+        ? SWC_MOVIES_FUNERAL_FAREWELL : SWC_MOVIES_FUNERAL_START, 0, 100);
 }

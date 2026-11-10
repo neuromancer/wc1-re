@@ -1,4 +1,4 @@
-/* SDL2 first-mission host. Mission state, ship setup, flight dynamics,
+/* SDL2 campaign and retail simulator host. Mission state, ship setup, flight dynamics,
  * navigation and player weapons belong to the existing WC1 core. Mac
  * projection, cinematic cameras and object definitions live at this boundary. */
 #include "wc1.h"
@@ -19,6 +19,8 @@ enum SwcFlightScene {
     SWC_FLIGHT_DEATH,
     SWC_FLIGHT_EJECTION
 };
+
+enum { SWC_TITLE_CONTINUE = 3 };
 
 static int swcFlightActive;
 unsigned char aSwcWeaponAmmo[10][10]; /* Mac loadout byte +9 per slot. */
@@ -522,26 +524,28 @@ static void SwcInitCharacters(void)
 
 static int SwcStartMissionShips(void)
 {
-    short records[10];
+    short records[9];
     short record;
     short count = 1;
     short index;
     short prior;
+    short slot;
 
     records[0] = stCurrentMissionHeader.playerMissionShip;
-    for (index = 0; index < 18; index++) {
-        record = index < 8 ? stCurrentMissionHeader.initialMissionShips[index] :
-            aMissionNavPoints[stCurrentMissionHeader.entryNavPoint].missionShips[index - 8];
+    for (index = 0; index < 8; index++) {
+        record = stCurrentMissionHeader.initialMissionShips[index];
         if (record < 0)
+            continue;
+        if (!is_alive(aMissionShips[record].behaviour.pilot) || find_ships_sphere(record) != -1)
             continue;
         for (prior = 0; prior < count && records[prior] != record; prior++) {
         }
         if (prior != count)
             continue;
-        if (count == (short)SDL_arraysize(records))
-            return SDL_SetError("SWC entry nav exceeds WC1's ten active ships");
         if ((int)aMissionShips[record].type < 0 ||
-            aObjectTypeData[aMissionShips[record].type].objectClass < OBJECT_CLASS_SHIP)
+            (aObjectTypeData[aMissionShips[record].type].objectClass < OBJECT_CLASS_SHIP &&
+             aMissionShips[record].type != OBJECT_TYPE_ASTEROID_FIELD &&
+             aMissionShips[record].type != OBJECT_TYPE_MINE_FIELD))
             return SDL_SetError("Unsupported SWC entry-nav object");
         records[count++] = record;
     }
@@ -563,8 +567,10 @@ static int SwcStartMissionShips(void)
     nCurrentHazardFieldTotal = 0;
     nActiveHazards = 0;
     nYourWingman = -1;
+    nCarrierMissionShipIndexValue = -1;
     nPlayerKillTotal = 0;
     nWingmanKillCount = 0;
+    nMissionMedalScoreValue = stCampaignState.missionScore = 0;
     nCurrentWingmanKilledThisMission = 0;
     /* CODE_09 GameFlow +0x1ba6..+0x1bc6 resets pending postflight events.
      * These globals are outside ResetCampaignData's campaign template. */
@@ -587,24 +593,46 @@ static int SwcStartMissionShips(void)
     bInitialFormationSetup = 1;
     for (index = 0; index < count; index++) {
         record = records[index];
-        if (aMissionShips[record].leaderMissionIndex != -1 &&
-            find_ship_index(aMissionShips[record].leaderMissionIndex) == -1)
-            return SDL_SetError("SWC entry formation needs its leader initialized first");
-        set_objects_data(index, aMissionShips[record].type, -1);
-        Set_up_ship_info(index, record, is_team_member(record) ? -1 :
-                                      (signed char)nCurrentNavigationPoint);
-        if (index != 0) {
-            find_next_ship_turn_slot(index);
+        if (index == 0) {
+            aMissionShips[record].navPoint = nCurrentNavigationPoint;
+            set_objects_data(0, aMissionShips[record].type, -1);
+            Set_up_ship_info(0, record, -1);
+            slot = 0;
+        } else {
+            /* Both originals use init_ship: it registers hazards without
+             * taking a ship slot, checks pilot survival and gracefully stops
+             * spawning when all nine non-player ship slots are occupied. */
+            slot = init_ship(record, nCurrentNavigationPoint);
+            if (slot < 0)
+                continue;
             if (nYourWingman == -1 && is_team_member(record) &&
-                aiPilotLevel[index] > 4 && aiPilotLevel[index] < 14)
-                nYourWingman = index;
+                aiPilotLevel[slot] > 4 && aiPilotLevel[slot] < 14)
+                nYourWingman = slot;
         }
-        asObjectScreenXList[index] = 0x8001;
+        asObjectScreenXList[slot] = 0x8001;
         if (aMissionShips[record].type == OBJECT_TYPE_TIGERS_CLAW)
             nCarrierMissionShipIndexValue = record;
     }
     bInitialFormationSetup = 0;
     Build_objective_list();
+    /* The shared action-sphere setup applies entry triggers, wave selection
+     * and hazards as well as ships. Reuse it for the starting nav too. */
+    set_up_action_sphere(stCurrentMissionHeader.entryNavPoint);
+    count = 1;
+    for (index = 1; index < 10; index++) {
+        if (aeObjectClass[index] != OBJECT_CLASS_NULL) {
+            count = index + 1;
+            if (nYourWingman == -1 && is_team_member(nShipMissionIndices[index]) &&
+                aiPilotLevel[index] > 4 && aiPilotLevel[index] < 14)
+                nYourWingman = index;
+        }
+    }
+    for (index = 0; index < ACTIVE_MISSION_SHIP_COUNT; index++) {
+        if (aMissionShips[index].type == OBJECT_TYPE_TIGERS_CLAW) {
+            nCarrierMissionShipIndexValue = index;
+            break;
+        }
+    }
     initialize_direction_view_frames();
     nNavPointerObject = -1;
     nCameraViewMode = 0;
@@ -614,7 +642,6 @@ static int SwcStartMissionShips(void)
     nCannedSceneMode = 0;
     nCurrentSpaceFrameValue = 0;
     nRenderedSpaceFrame = 0;
-    nCurrentWave = -1;
     bCurrentPlayerDestroyed = 0;
     /* Title combat disables damage; restore the launcher's cheat choice
      * whenever New Game recreates the mission. */
@@ -835,6 +862,26 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
     ReleaseStaleNavTarget();
     check_hazards();
     check_next_wave();
+    /* Retail CODE_09 check_arcade_waves +0x04d6 and Draw_3Space_Frame
+     * +0x0694. Advance on simulation ticks, including in cockpitless views;
+     * redraws and pauses must not consume time or award extra points. */
+    if (nTrainSimActive && nArcadeState == 0 && !bCurrentPlayerDestroyed) {
+        if (nArcadeBonusCountdown > 0) {
+            if (--nArcadeBonusCountdown == 0) {
+                if (Vector_magnitude(&aShipPositionsArray[0]) > 0x271000)
+                    zero_vector(&aShipPositionsArray[0]);
+                nCurrentArcadeScore += nArcadeWaveBonusValue;
+                if (nCurrentWave == -1)
+                    nArcadeState = 1;
+                else
+                    nArcadeWave++;
+            }
+        } else {
+            nCurrentArcadeScore++;
+            if (--nArcadeTimeRemaining <= 0)
+                nArcadeState = 4;
+        }
+    }
     /* CODE_13 update_cockpit checks one objective per frame, including
        unselected objectives; flag_reached owns the escort-wait latch. */
     if (cCurrentObjective >= 0 && cCurrentObjective < cMissionObjectiveCountValue &&
@@ -962,6 +1009,7 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
     SwcRasterImage *image;
     SwcBuffer stars = {0};
     SwcFrame star;
+    char text[80];
     short object;
     short frame;
     short sorted[SPACE_OBJECT_COUNT];
@@ -1066,6 +1114,24 @@ border:
             colors[255].b, 255) != 0 ||
         SDL_RenderFillRects(renderer, frameBorder, SDL_arraysize(frameBorder)) != 0)
         return -1;
+    /* Retail check_arcade_waves owns independent text layers: neither
+     * cockpit banking nor an external camera moves/hides the score. */
+    if (nTrainSimActive) {
+        SDL_snprintf(text, sizeof(text), "Score: %d", nCurrentArcadeScore);
+        if (SdlDrawSwcProportionalText(renderer, &swcPauseFont, 10, 16, colors[0x84], text) != 0)
+            return -1;
+        SDL_snprintf(text, sizeof(text), "Time: %d", nArcadeTimeRemaining);
+        if (SdlDrawSwcProportionalText(renderer, &swcPauseFont, 220, 16, colors[0x84], text) != 0)
+            return -1;
+        if (nArcadeBonusCountdown > 0) {
+            SDL_snprintf(text, sizeof(text), "%s %d complete. Bonus %d",
+                nCurrentWave == -1 ? "Mission" : "Wave",
+                (nCurrentWave == -1 ? nTrainSimMission : nArcadeWave) + 1, nArcadeWaveBonusValue);
+            if (SdlDrawSwcProportionalText(renderer, &swcPauseFont,
+                    (320 - SdlSwcTextWidth(&swcPauseFont, text)) / 2, 32, colors[0x84], text) != 0)
+                return -1;
+        }
+    }
     return 0;
 }
 
@@ -1086,7 +1152,8 @@ static int SwcDrawPauseMessage(SDL_Renderer *renderer, const SDL_Color colors[25
             colors[0x81], !paused ? "Return to the game to continue" :
                 flightControls ? "Press Esc or P to continue" : "Press P to continue") != 0 ||
         SdlDrawSwcProportionalText(renderer, &swcPauseFont, 10, 220,
-            colors[0x81], "playing Super Wing Commander.") != 0)
+            colors[0x81], nTrainSimActive ? "Ctrl+E in flight: leave simulator" :
+                "playing Super Wing Commander.") != 0)
         return -1;
     return 0;
 }
@@ -1305,8 +1372,8 @@ static void SwcUpdateSceneCamera(void)
  * ejection_sequence +0x07c4 share the live space renderer and view 16.
  * The title's return 3 maps to SKIPPED (replay IntroFilm); FINISHED starts
  * a fresh Enyo 1 campaign.
- * Saved-game selection stays disabled until the host has a save loader. */
-static int SwcRunFlightScene(enum SwcFlightScene scene)
+ * Continue resumes an active carrier session; disk save/load is separate. */
+static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
 {
     static const MissionShipRecord titleShips[4] = {
         {.type = OBJECT_TYPE_DRALTHI, .side = SIDE_KILRATHI, .leader = -1,
@@ -1331,9 +1398,9 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
     SwcBuffer menu = {0};
     SwcTextFont font = {0};
     SwcFrame frame;
-    SDL_Texture *menuTextures[2] = {NULL, NULL};
+    SDL_Texture *menuTextures[3] = {NULL, NULL, NULL};
     SDL_Cursor *savedCursor = SDL_GetCursor();
-    SDL_Rect bounds[2];
+    SDL_Rect bounds[3];
     SDL_Event event;
     SDL_Point mouse = {-1, -1};
     char failure[256];
@@ -1349,6 +1416,7 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
     int activate;
     int configured = 0;
     int titleMenu = scene == SWC_FLIGHT_TITLE;
+    int selected = canContinue ? 2 : 1;
     int savedVulnerable = bPlayerVulnerable;
     short pilot = -1;
     int cursorVisible = SDL_ShowCursor(SDL_QUERY);
@@ -1363,7 +1431,7 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
         SDL_SetCursor(SDL_GetDefaultCursor());
         if (SwcCMGetChunk(swcCinemaSpaceCmf, "RCRM", 47, &menu) != 0)
             goto done;
-        for (index = 0; index < 2; index++) {
+        for (index = 0; index < 3; index++) {
             if (SwcGetFramePtr(&menu, index, &frame) != 0)
                 goto done;
             bounds[index] = (SDL_Rect){frame.x, frame.y, frame.width, frame.height};
@@ -1508,7 +1576,12 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
                     (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
                      event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT ||
                      event.key.keysym.sym == SDLK_TAB)) {
+                    if (canContinue)
+                        selected = 3 - selected;
                     SdlPlaySwcSound(30, 255);
+                } else if (titleMenu && !paused && event.key.keysym.sym == SDLK_i) {
+                    result = SWC_MOVIE_SKIPPED;
+                    goto done;
                 }
             }
             if (event.type == SDL_KEYUP && armedKey != SDL_SCANCODE_UNKNOWN &&
@@ -1523,18 +1596,29 @@ static int SwcRunFlightScene(enum SwcFlightScene scene)
             }
             if (paused)
                 continue;
+            if (titleMenu && event.type == SDL_MOUSEMOTION) {
+                mouse = (SDL_Point){event.motion.x, event.motion.y};
+                if (SDL_PointInRect(&mouse, &bounds[1]))
+                    selected = 1;
+                else if (canContinue && SDL_PointInRect(&mouse, &bounds[2]))
+                    selected = 2;
+            }
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
                 mouseDown = 1;
             if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
                 mouse = (SDL_Point){event.button.x, event.button.y};
-                if (mouseDown && (!titleMenu || SDL_PointInRect(&mouse, &bounds[1])))
+                if (mouseDown && (!titleMenu || SDL_PointInRect(&mouse, &bounds[1]) ||
+                    (canContinue && SDL_PointInRect(&mouse, &bounds[2])))) {
+                    if (titleMenu)
+                        selected = SDL_PointInRect(&mouse, &bounds[1]) ? 1 : 2;
                     activate = 1;
+                }
                 mouseDown = 0;
             }
         }
         SdlPauseSwcSound(!focused || paused);
         if (activate && focused && !paused && (titleMenu || ticks > 40)) {
-            result = SWC_MOVIE_FINISHED;
+            result = titleMenu && selected == 2 ? SWC_TITLE_CONTINUE : SWC_MOVIE_FINISHED;
             break;
         }
         if (focused && !paused)
@@ -1586,7 +1670,9 @@ draw_scene:
         if (titleMenu) {
             if (SDL_RenderCopy(swcCinemaRenderer, menuTextures[0], NULL, &bounds[0]) != 0 ||
                 (nRenderedSpaceFrame % 6 < 4 &&
-                 SDL_RenderCopy(swcCinemaRenderer, menuTextures[1], NULL, &bounds[1]) != 0))
+                 SDL_RenderCopy(swcCinemaRenderer, menuTextures[selected], NULL, &bounds[selected]) != 0) ||
+                SdlDrawSwcProportionalText(swcCinemaRenderer, &swcPauseFont, 10, 228,
+                    swcCinemaColors[129], "Enter / A: select   I: replay intro") != 0)
                 goto done;
         } else if (ticks > 40 &&
             SdlDrawSwcProportionalText(swcCinemaRenderer, &font,
@@ -1621,13 +1707,13 @@ done:
     if (titleMenu)
         SdlStopSwcMusic();
     SdlStopSwcSounds();
-    if (titleMenu && result == SWC_MOVIE_FINISHED)
+    if (titleMenu && (result == SWC_MOVIE_FINISHED || result == SWC_TITLE_CONTINUE))
         SdlPlaySwcSound(31, 255);
     if (titleMenu && savedCursor != NULL)
         SDL_SetCursor(savedCursor);
     SDL_ShowCursor(cursorVisible);
     SDL_DestroyTexture(font.texture);
-    for (index = 0; index < 2; index++)
+    for (index = 0; index < 3; index++)
         SDL_DestroyTexture(menuTextures[index]);
     SDL_free(menu.data);
     SwcResetFlightInput();
@@ -1641,8 +1727,33 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
     SwcCmf cockpitCmf = {0};
     SwcCmf spaceCmf = {0};
     SwcBuffer cockpitSet = {0};
+    SwcBuffer campaignData = {0};
+    unsigned char *savedCampaignData = pMissionCampaignInfo;
     SwcFlightImages images[OBJECT_TYPE_COUNT] = {{0}};
     ObjectTypeData savedObjects[OBJECT_TYPE_COUNT];
+    CampaignState simulatorCampaign;
+    PilotRecord simulatorPilots[9];
+    CampaignState titleCampaign;
+    PilotRecord titlePilots[9];
+    int canContinue = 0;
+    int newCampaign;
+    int nextDataSet;
+    short bossmanDeath = 0;
+    int jazzDeath;
+    short flownSeries;
+    short flownMission;
+    short nextSeries;
+    short nextMission;
+    short sequence;
+    short requiredScore;
+    int seriesFailed;
+    unsigned char *seriesData;
+    short simulatorDataSet = 0;
+    int simulatorActive = 0;
+    int simulatorCompleted = 0;
+    int retail = 0;
+    SDL_RWops *retailFile;
+    enum SwcCarrierVisit carrierVisit = SWC_CARRIER_PREFLIGHT;
     SDL_Color colors[256];
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
@@ -1677,6 +1788,14 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
     nCampaignDataSet = 0;
     if (SdlLoadSwcMissionData(missionPath, 1, 0) != 0)
         goto done;
+    if (SdlResolvePath("CMFs/Office.CMF", path, sizeof(path))) {
+        retailFile = SDL_RWFromFile(path, "rb");
+        if (retailFile != NULL) {
+            retail = 1;
+            SDL_RWclose(retailFile);
+        }
+        SDL_ClearError();
+    }
     if (!SdlResolvePath("CMFs/PCShipV00.CMF", path, sizeof(path)) ||
         SwcCMOpen(path, &cockpitCmf) != 0)
         goto done;
@@ -1685,9 +1804,9 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
         goto done;
     if (!SdlFindSwcResources(NULL, path, sizeof(path)) ||
         SwcReadPalette(path, 251, colors) != 0) {
-        SDL_SetError("Cannot read the SWC palette. Keep the demo application with its "
+        SDL_SetError("Cannot read the SWC palette. Keep the application with its "
                      "resource fork (a MacBinary copy also works) or place the raw fork "
-                     "in SuperWingCommanderDemo.rsrc.");
+                     "beside the CMFs directory.");
         goto done;
     }
     SDL_SetMainReady();
@@ -1772,9 +1891,10 @@ title_menu:
     /* Title combat can destroy ships and change pilot/objective state.
      * Recreate the campaign on each menu visit and again on New Game. */
     SwcInitCharacters();
+    nCampaignDataSet = 0;
     if (SdlLoadSwcMissionData(missionPath, 1, 0) != 0 || SwcStartMissionShips() < 0)
         goto done;
-    movieResult = SwcRunFlightScene(SWC_FLIGHT_TITLE);
+    movieResult = SwcRunFlightScene(SWC_FLIGHT_TITLE, canContinue);
     if (movieResult == SWC_MOVIE_ERROR)
         goto done;
     if (movieResult == SWC_MOVIE_SKIPPED) {
@@ -1788,39 +1908,85 @@ title_menu:
         result = 0;
         goto done;
     }
-    SwcInitCharacters();
-    if (SdlLoadSwcMissionData(missionPath, 1, 0) != 0)
+    if (movieResult == SWC_TITLE_CONTINUE) {
+        stCampaignState = titleCampaign;
+        memcpy(aPilotEntriesList, titlePilots, sizeof(titlePilots));
+    } else {
+        canContinue = 0;
+        bossmanDeath = 0;
+        SwcInitCharacters();
+    }
+    nCampaignDataSet = stCampaignState.campaignIndex;
+    newCampaign = !canContinue;
+    if (SdlLoadSwcCampaignData(missionPath, &campaignData) != 0)
+        goto done;
+prepare_mission:
+    if (stCampaignState.currentSeries < 1 || stCampaignState.currentSeries > 13 ||
+        stCampaignState.currentMission < 0 || stCampaignState.currentMission >=
+            pMissionCampaignInfo[(stCampaignState.currentSeries - 1) * 90 + 2]) {
+        SDL_SetError("Invalid SWC campaign mission");
+        goto done;
+    }
+    if (SdlLoadSwcMissionData(missionPath, stCampaignState.currentSeries,
+                            stCampaignState.currentMission) != 0)
         goto done;
     shipCount = SwcStartMissionShips();
     if (shipCount < 0 || SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf,
             colors, swcRasterCanvas) != 0)
         goto done;
     /* CODE_09 squadron +0x84 calls opening_scene before StartNewCampaign
-       and GameFlow. Each host session starts a fresh Enyo 1 campaign. */
-    movieResult = SdlPlaySwcOpening(window, renderer);
+       and GameFlow. Continue skips the opening and restores the session. */
+    movieResult = newCampaign ? SdlPlaySwcOpening(window, renderer) : SWC_MOVIE_FINISHED;
+    newCampaign = 0;
     if (movieResult == SWC_MOVIE_ERROR)
         goto done;
     if (movieResult == SWC_MOVIE_QUIT) {
         result = 0;
         goto done;
     }
-    movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, SWC_CARRIER_PREFLIGHT);
+carrier_room:
+    movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, carrierVisit);
+    carrierVisit = SWC_CARRIER_PREFLIGHT;
     if (movieResult == -1)
         goto done;
     if (movieResult == SWC_MOVIE_QUIT) {
         result = 0;
         goto done;
     }
+    if (movieResult == SWC_CARRIER_TITLE) {
+        titleCampaign = stCampaignState;
+        memcpy(titlePilots, aPilotEntriesList, sizeof(titlePilots));
+        canContinue = 1;
+        goto title_menu;
+    }
+    if (movieResult == SWC_CARRIER_SIMULATOR) {
+        /* Retail CODE_14 ArcadeGame +0x2bbc preserves the campaign and
+         * data set, then runs four missions from the chosen enemy, wrapping
+         * at mission 4. Keep the mission-retry checkpoint untouched. */
+        simulatorCampaign = stCampaignState;
+        memcpy(simulatorPilots, aPilotEntriesList, sizeof(simulatorPilots));
+        simulatorDataSet = nCampaignDataSet;
+        simulatorActive = 1;
+        simulatorCompleted = 0;
+        nCurrentArcadeScore = 0;
+        nCampaignDataSet = 0;
+        stCampaignState.currentSeries = 0;
+        goto simulator_mission;
+    }
+    canContinue = 0;
     SdlCaptureMissionCheckpoint();
 launch_mission:
-    movieResult = SdlPlaySwcLaunch(window, renderer);
+    movieResult = SdlPlaySwcLaunch(window, renderer, stCampaignState.playerShipType);
     if (movieResult == SWC_MOVIE_ERROR)
         goto done;
     if (movieResult == SWC_MOVIE_QUIT) {
         result = 0;
         goto done;
     }
+begin_flight:
     /* Carrier/movie input never advances shared WC1 flight state. */
+    paused = 0;
+    elapsed = 0;
     focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
     SdlUpdateSwcFlightMusic();
     SdlPauseSwcSound(!focused);
@@ -1960,7 +2126,7 @@ launch_mission:
                     }
                     break;
                 case SDLK_a:
-                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0) {
+                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0 && !nTrainSimActive) {
                         FixedVector departure = aShipPositionsArray[0];
 
                         auto_pilot_sequence();
@@ -2116,8 +2282,28 @@ launch_mission:
             FlushInputEvents();
             if (IsCommChoiceMenuOpen())
                 CloseCommChoiceMenu();
+            if (simulatorActive) {
+                if (nArcadeState == 1 && !bCurrentPlayerDestroyed && ++simulatorCompleted < 4) {
+                    nTrainSimMission = (nTrainSimMission + 1) % 4;
+                    goto simulator_mission;
+                }
+                stCampaignState = simulatorCampaign;
+                memcpy(aPilotEntriesList, simulatorPilots, sizeof(simulatorPilots));
+                nCampaignDataSet = simulatorDataSet;
+                simulatorActive = 0;
+                nTrainSimActive = 0;
+                if (SdlLoadSwcMissionData(missionPath, stCampaignState.currentSeries,
+                        stCampaignState.currentMission) != 0)
+                    goto done;
+                shipCount = SwcStartMissionShips();
+                if (shipCount < 0 || SdlInitSwcCockpit(renderer, &cockpitCmf,
+                        &spaceCmf, colors, swcRasterCanvas) != 0)
+                    goto done;
+                carrierVisit = SWC_CARRIER_SIMULATOR_RESULTS;
+                goto carrier_room;
+            }
             if (nArcadeState == 2) {
-                movieResult = SwcRunFlightScene(SWC_FLIGHT_EJECTION);
+                movieResult = SwcRunFlightScene(SWC_FLIGHT_EJECTION, 0);
                 if (movieResult == SWC_MOVIE_ERROR)
                     goto done;
                 if (movieResult == SWC_MOVIE_QUIT) {
@@ -2148,7 +2334,7 @@ launch_mission:
             } else if (nArcadeState == 4 || bCurrentPlayerDestroyed) {
                 /* CODE_09 GameFlow +0x1b8e: death leads to the player's funeral,
                    without landing or PostMission statistics. */
-                movieResult = SwcRunFlightScene(SWC_FLIGHT_DEATH);
+                movieResult = SwcRunFlightScene(SWC_FLIGHT_DEATH, 0);
                 if (movieResult == SWC_MOVIE_ERROR)
                     goto done;
                 if (movieResult != SWC_MOVIE_QUIT) {
@@ -2188,22 +2374,103 @@ launch_mission:
             }
             cleanup_objectives();
             movieResult = bPlayerEjectedThisMission ? SWC_MOVIE_FINISHED :
-                SdlPlaySwcLanding(window, renderer, evaluate_damage(0));
+                SdlPlaySwcLanding(window, renderer, stCampaignState.playerShipType, evaluate_damage(0));
             if (movieResult == SWC_MOVIE_ERROR)
                 goto done;
             if (movieResult != SWC_MOVIE_QUIT) {
                 /* CODE_09 PostMission +0x1672 shares WC1's player/wingman
                    statistics and badges. Keep the flown mission selected. */
                 PostMission();
-                /* GameFlow +0x1f6a..+0x1f70 skips DeBriefing after rescue.
-                 * Enyo 1 cannot finish its two-mission series (CMP0/2 +4),
-                 * so +0x2002..+0x200a also bypasses Office/MedalSequence,
-                 * even when the first ejection has queued medal 3. */
+                flownSeries = stCampaignState.currentSeries;
+                flownMission = stCampaignState.currentMission;
+                nextSeries = flownSeries;
+                nextMission = flownMission;
+                nextDataSet = nCampaignDataSet;
+                seriesFailed = 0;
+                if (retail) {
+                    seriesData = pMissionCampaignInfo + (flownSeries - 1) * 90;
+                    sequence = flownMission + 1 >= seriesData[2] ? (signed char)seriesData[5] : -1;
+                    if (sequence != -1 && (unsigned int)stCampaignState.seriesHistoryCount >=
+                            SDL_arraysize(stCampaignState.seriesHistory)) {
+                        SDL_SetError("SWC campaign series history is full");
+                        goto done;
+                    }
+                    memcpy(&requiredScore, seriesData + 3, sizeof(requiredScore));
+                    seriesFailed = stCampaignState.seriesScore + PlayersMissionScore() < requiredScore;
+                    UpdateSeries();
+                    /* SWC does not suppress repeated warp sequences as WC1
+                     * does. Keep the completed mission for debriefing/tests. */
+                    nPostSeriesSequence = sequence;
+                    nextSeries = stCampaignState.currentSeries;
+                    nextMission = stCampaignState.currentMission;
+                    stCampaignState.currentSeries = flownSeries;
+                    stCampaignState.currentMission = flownMission;
+                }
+                /* Retail GameFlow 0x0109232a skips promotion/debriefing after
+                 * rescue. Random3DO's upper bound is exclusive. */
                 if (!bPlayerEjectedThisMission) {
+                    if (retail && RandomBelowOrEqual(4) + stCampaignState.promotionScore > 7) {
+                        stCampaignState.promotionScore = 0;
+                        bPromotionPending = stCampaignState.currentPilot->rank <
+                            (nCampaignDataSet == 0 ? 3 : 4);
+                        bOfficeVisitPending |= bPromotionPending;
+                    }
+                    /* Retail DeBriefing 0x0103144e uses Bossman's saved
+                     * status in this scene, then restores Jazz's live slot. */
+                    jazzDeath = stCampaignState.personalityDeathMission[2];
+                    if (nCampaignDataSet == 2 && flownSeries == 2 && flownMission == 2)
+                        stCampaignState.personalityDeathMission[2] = bossmanDeath;
                     movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path,
                                                     SWC_CARRIER_DEBRIEFING);
+                    stCampaignState.personalityDeathMission[2] = jazzDeath;
                     if (movieResult == SWC_MOVIE_ERROR)
                         goto done;
+                    if (retail && movieResult != SWC_MOVIE_QUIT && bPromotionPending)
+                        stCampaignState.currentPilot->rank++;
+                }
+                /* Retail GameFlow 0x010923ce handles a series transition
+                 * before the funeral/ordinary awards. Ship-change offices
+                 * precede the warp; campaign completions award the medal first. */
+                if (retail && movieResult != SWC_MOVIE_QUIT && nPostSeriesSequence != -1) {
+                    if (nPostSeriesSequence == 64 && nPendingMedalIndex >= 0) {
+                        nCurrentConversationMedalIndex = nPendingMedalIndex;
+                        movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, SWC_CARRIER_MEDAL);
+                        if (movieResult == SWC_MOVIE_ERROR)
+                            goto done;
+                        nPendingMedalIndex = -1;
+                    }
+                    if (movieResult != SWC_MOVIE_QUIT && bOfficeVisitPending &&
+                        nPostSeriesSequence != 65 && nPostSeriesSequence != 0 && nPostSeriesSequence != 1) {
+                        movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, SWC_CARRIER_OFFICE);
+                        if (movieResult == SWC_MOVIE_ERROR)
+                            goto done;
+                        bOfficeVisitPending = 0;
+                    }
+                    if (movieResult != SWC_MOVIE_QUIT) {
+                        movieResult = SdlPlaySwcCampaignTransition(window, renderer, nPostSeriesSequence,
+                            nPostSeriesSequence == 2 || nPostSeriesSequence == 4 ? nextSeries : seriesFailed,
+                            nCampaignDataSet);
+                        if (movieResult == SWC_MOVIE_ERROR)
+                            goto done;
+                    }
+                    if (movieResult != SWC_MOVIE_QUIT && nextSeries == -1) {
+                        if (nCampaignDataSet == 2) {
+                            movieResult = SdlShowSwcEnding(window, renderer, path, 0);
+                            if (movieResult == SWC_MOVIE_ERROR)
+                                goto done;
+                            if (movieResult != SWC_MOVIE_QUIT)
+                                goto title_menu;
+                        } else {
+                            /* MoveNewCampaign retains career and pilot state,
+                             * reloads CMP data and clears the series history. */
+                            nextDataSet++;
+                            movieResult = SdlPlaySwcCampaignTransition(window, renderer, -1, 0, nextDataSet);
+                            if (movieResult == SWC_MOVIE_ERROR)
+                                goto done;
+                            nextSeries = 1;
+                            nextMission = 0;
+                        }
+                    }
                 }
                 if (movieResult != SWC_MOVIE_QUIT && nCurrentWingmanKilledThisMission) {
                     /* GameFlow +0x218c dispatches the lost-wingman service
@@ -2213,9 +2480,74 @@ launch_mission:
                     if (movieResult == SWC_MOVIE_ERROR)
                         goto done;
                 }
+                /* Retail 0x0109254e..0x0109257c also handles pending office
+                 * visits and medals when no series transition was selected. */
+                if (retail && movieResult != SWC_MOVIE_QUIT && bOfficeVisitPending) {
+                    movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path,
+                                                    SWC_CARRIER_OFFICE);
+                    if (movieResult == SWC_MOVIE_ERROR)
+                        goto done;
+                    if (movieResult != SWC_MOVIE_QUIT)
+                        bOfficeVisitPending = 0;
+                }
+                if (retail && movieResult != SWC_MOVIE_QUIT && nPendingMedalIndex >= 0) {
+                    nCurrentConversationMedalIndex = nPendingMedalIndex;
+                    movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path,
+                                                    SWC_CARRIER_MEDAL);
+                    if (movieResult == SWC_MOVIE_ERROR)
+                        goto done;
+                    if (movieResult != SWC_MOVIE_QUIT)
+                        nPendingMedalIndex = -1;
+                }
             }
-            if (movieResult != SWC_MOVIE_QUIT)
+            if (movieResult != SWC_MOVIE_QUIT) {
+                if (retail) {
+                    if (nextDataSet != nCampaignDataSet) {
+                        nCampaignDataSet = nextDataSet;
+                        stCampaignState.campaignIndex = nCampaignDataSet;
+                        stCampaignState.seriesHistoryCount = 0;
+                        memset(stCampaignState.seriesHistory, 0, sizeof(stCampaignState.seriesHistory));
+                        if (SdlLoadSwcCampaignData(missionPath, &campaignData) != 0)
+                            goto done;
+                        if (nCampaignDataSet == 2) {
+                            /* Retail CorrectPointers 0x010704d8/0x01070536
+                             * restores these records before their replacements join. */
+                            static const PilotRecord bossman = {"CHEN", "BOSSMAN", 1, 2, 73, 94, 2};
+                            static const PilotRecord paladin = {"TAGGART", "PALADIN", 2, 2, 72, 48, 2};
+
+                            aPilotEntriesList[2] = bossman;
+                            aPilotEntriesList[5] = paladin;
+                        }
+                    }
+                    stCampaignState.currentSeries = nextSeries;
+                    stCampaignState.currentMission = nextMission;
+                    /* Retail UpdateDate 0x01091dea advances exactly one day
+                     * within a system, five on arrival (WC1 randomizes it). */
+                    pCurrentCampaignDate->day += nextMission == 0 ? 5 : 1;
+                    if (pCurrentCampaignDate->day >= 366) {
+                        pCurrentCampaignDate->day -= 365;
+                        pCurrentCampaignDate->year++;
+                    }
+                    /* Retail UpdateStoryEvents 0x01091942 introduces the
+                     * replacement pilots at these two mission boundaries. */
+                    if (nCampaignDataSet == 2 && nextMission == 1) {
+                        if (nextSeries == 2) {
+                            static const PilotRecord jazz = {"COLSON", "JAZZ", 1, 0, 4, 5, 2};
+
+                            bossmanDeath = stCampaignState.personalityDeathMission[2];
+                            aPilotEntriesList[2] = jazz;
+                            stCampaignState.personalityDeathMission[2] = 0;
+                        } else if (nextSeries == 3) {
+                            static const PilotRecord doomsday = {"MONTCLAIR", "DOOMSDAY", 0, 0, 7, 11, 2};
+
+                            aPilotEntriesList[5] = doomsday;
+                            stCampaignState.personalityDeathMission[5] = 0;
+                        }
+                    }
+                    goto prepare_mission;
+                }
                 goto title_menu;
+            }
             result = 0;
             goto done;
         }
@@ -2230,6 +2562,22 @@ launch_mission:
     }
     result = 0;
     goto done;
+simulator_mission:
+    stCampaignState.currentMission = nTrainSimMission;
+    if (SdlLoadSwcMissionData(missionPath, 0, nTrainSimMission) != 0)
+        goto done;
+    shipCount = SwcStartMissionShips();
+    if (shipCount < 0 || SdlInitSwcCockpit(renderer, &cockpitCmf, &spaceCmf,
+            colors, swcRasterCanvas) != 0)
+        goto done;
+    /* Retail PCShipV04 is byte-identical to PCShipV00 (PC00 chunks).
+     * SwcStartMissionShips already loads the first action sphere's ships. */
+    nTrainSimActive = 1;
+    nArcadeWave = 0;
+    nArcadeBonusCountdown = 0;
+    nCurrentWave = aMissionNavPoints[nCurrentNavigationPoint + 1].type == 2 ? 2 : -1;
+    FigureArcadeTime();
+    goto begin_flight;
 retry_mission:
     SdlRestoreMissionCheckpoint();
     if (SdlLoadSwcMissionData(missionPath, stCampaignState.currentSeries,
@@ -2246,6 +2594,14 @@ retry_mission:
     goto launch_mission;
 done:
     SDL_strlcpy(failure, SDL_GetError(), sizeof(failure));
+    pMissionCampaignInfo = savedCampaignData;
+    SDL_free(campaignData.data);
+    if (simulatorActive) {
+        stCampaignState = simulatorCampaign;
+        memcpy(aPilotEntriesList, simulatorPilots, sizeof(simulatorPilots));
+        nCampaignDataSet = simulatorDataSet;
+    }
+    nTrainSimActive = 0;
     SdlFreeSwcSound();
     SdlSetKeyboardSnapshot(NULL);
     SwcResetFlightInput();
