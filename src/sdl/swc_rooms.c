@@ -1746,6 +1746,133 @@ static void SwcDrawMedalCase(SwcCarrier *carrier)
     }
 }
 
+/* Retail CODE_03 HandleMidGame 0x010351d2 and next_campaign_movie
+ * 0x010344a4. Outcome is the next system for warps, otherwise series failure.
+ * GameFlow handles 64/65 by moving to the next campaign, not by playing
+ * HandleMidGame's otherwise-unreachable victory montage. */
+int SdlPlaySwcCampaignTransition(SDL_Window *window, SDL_Renderer *renderer,
+                                  int sequence, int outcome, int campaign)
+{
+    static const char *const sideWin[] = {"SIDE", "SIDE2", "SINODRATH", "SKK", NULL};
+    static const char *const sideLose[] = {"SIDE", "SIDE2", "SIDEBGS", "SIDEFIN", "SIDEXP", NULL};
+    static const char *const baseWin[] = {
+        "MID3", "MID4", "MID5", "MIDFLY", "SPIN", "VGUN", "VSHOOT", "WMIDFLY2", NULL
+    };
+    static const char *const baseLose[] = {
+        "MID1", "MID2", "MID3", "MID31", "MID4", "MID41", "MID5", "MLIFT", "MYFINAL", NULL
+    };
+    const char *warps[] = {"WARP", NULL, NULL};
+    static const char *const fleet[] = {"LASTCAMP", "LFLEET", NULL};
+    const char *const *names;
+    const char *music;
+    SwcCarrier carrier = {0};
+    SwcRoomInput input;
+    SDL_Color colors[256];
+    Uint32 previous;
+    Uint32 now;
+    Uint32 elapsed = 0;
+    char warp[24];
+    char relative[64];
+    char path[PATH_MAX];
+    char failure[256];
+    int index;
+    int cursor;
+    int result = SWC_MOVIE_FINISHED;
+
+    if (sequence == 64 || sequence == 65 || (sequence == 3 && outcome))
+        return result;
+    music = "FLYBY.MooV";
+    switch (sequence) {
+    case -1:
+        warps[1] = "WARPCLAW";
+        names = campaign == 1 ? fleet : warps;
+        music = "VICTORY.MooV";
+        break;
+    case 0:
+        names = outcome ? sideLose : sideWin;
+        music = outcome ? "MID2LOSE.MooV" : "MID2WIN.MooV";
+        break;
+    case 1:
+        names = outcome ? baseLose : baseWin;
+        music = outcome ? "KILRATHI.MooV" : "KILLBASE.MooV";
+        break;
+    case 2:
+    case 4:
+        if (outcome < 1 || outcome > 13 || campaign < 0 || campaign > 2)
+            return SDL_SetError("Invalid SWC system transition");
+        SDL_snprintf(warp, sizeof(warp), "WARPIN.%02d", outcome + (campaign == 2 ? 20 : campaign == 1 ? 12 : 0));
+        warps[1] = warp;
+        names = warps;
+        break;
+    case 3:
+        names = fleet;
+        music = "SEARCH.MooV";
+        break;
+    default:
+        return SDL_SetError("Unsupported SWC campaign sequence %d", sequence);
+    }
+    cursor = SDL_ShowCursor(SDL_QUERY);
+    SDL_ShowCursor(SDL_DISABLE);
+    if (sequence == 0 || sequence == 1) {
+        /* HandleMidGame 0x010351ee: clut 135, Helvetica 14, color 4,
+         * centered at baseline 120 for 120 Mac ticks before the movies. */
+        result = SWC_MOVIE_ERROR;
+        if (!SdlFindSwcResources(NULL, path, sizeof(path)) ||
+            SwcReadPalette(path, 135, colors) != 0 ||
+            SdlCreateSwcTextFont(renderer, &carrier.roomFont, 14) != 0)
+            goto done;
+        carrier.window = window;
+        carrier.focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+        previous = SDL_GetTicks();
+        for (;;) {
+            now = SDL_GetTicks();
+            if (carrier.focused && !carrier.paused)
+                elapsed += SDL_min(now - previous, 250);
+            previous = now;
+            input = SwcPollCarrier(&carrier);
+            if (input.quit || input.back || input.activate || input.clicked) {
+                result = input.quit ? SWC_MOVIE_QUIT : SWC_MOVIE_SKIPPED;
+                goto done;
+            }
+            if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) != 0 ||
+                SDL_RenderClear(renderer) != 0 ||
+                SdlDrawSwcProportionalText(renderer, &carrier.roomFont,
+                    (320 - SdlSwcTextWidth(&carrier.roomFont, "Meanwhile...")) / 2,
+                    120, colors[4], "Meanwhile...") != 0)
+                goto done;
+            SdlDrawSwcOptionNotice(renderer);
+            SDL_RenderPresent(renderer);
+            if (elapsed >= 2000 && carrier.armedKey == SDL_SCANCODE_UNKNOWN && !carrier.mouseDown)
+                break;
+            SDL_Delay(20);
+        }
+    }
+    SdlPlaySwcMusic(music, 30);
+    for (index = 0; names[index] != NULL; index++) {
+        /* The losing base sequence changes music twice within the montage. */
+        if (sequence == 1 && outcome && index == 2)
+            SdlPlaySwcMusic("FLYBY.MooV", 30);
+        if (sequence == 1 && outcome && index == 5)
+            SdlPlaySwcMusic("ATTACK.MooV", 30);
+        SDL_snprintf(relative, sizeof(relative), "Movies/%s.dcMov", names[index]);
+        if (!SdlResolvePath(relative, path, sizeof(path))) {
+            result = SDL_SetError("Cannot resolve SWC campaign movie %s", relative);
+            break;
+        }
+        result = SdlPlaySwcMovie(window, renderer, path, names[index + 1] == NULL);
+        if (result != SWC_MOVIE_FINISHED)
+            break;
+    }
+done:
+    SDL_strlcpy(failure, SDL_GetError(), sizeof(failure));
+    SDL_DestroyTexture(carrier.roomFont.texture);
+    SdlStopSwcMusic();
+    SDL_ShowCursor(cursor);
+    if (result == SWC_MOVIE_ERROR)
+        SDL_SetError("%s", failure);
+    return result;
+}
+
 typedef struct SwcEndShards {
     FixedVector positions[63];
     FixedVector eye;
@@ -1778,7 +1905,7 @@ static void SwcGenerateEndShard(SwcEndShards *shards, int index)
 
 /* CODE_05 update_3d_shards +0x4598: 63 fixed-size PLNT/1 sprites,
  * moving through a Q8 camera. Age gates retirement; it is not a frame offset. */
-static void SwcUpdateEndShards(SwcEndShards *shards)
+static void SwcUpdateEndShards(SwcEndShards *shards, int turn)
 {
     FixedVector delta;
     int distance;
@@ -1787,7 +1914,7 @@ static void SwcUpdateEndShards(SwcEndShards *shards)
     int z;
     int index;
 
-    rotate_about_j(1, &shards->right, &shards->forward);
+    rotate_about_j(turn, &shards->right, &shards->forward);
     vector_cross_product(&shards->up, &shards->forward, &shards->right);
     vector_cross_product(&shards->forward, &shards->right, &shards->up);
     NormalizeFixedVector(&shards->right);
@@ -1832,11 +1959,12 @@ static void SwcUpdateEndShards(SwcEndShards *shards)
     }
 }
 
-/* CODE_03 the_end +0x4b1e and CODE_14 stranded_sequence +0x0a06.
- * Both use GameMode(1)'s RecRoomScene PLNT/1 and clut 135. SDL owns the
- * presentation clock; neither sequence advances the mission simulation. */
+/* CODE_03 the_end, CODE_14 stranded_sequence and retail TheEndFireWorks
+ * 0x010e2d96 share GameMode(1)'s RecRoomScene PLNT/1 and clut 135.
+ * Campaign completion uses GAME OVER and no camera turn; the funeral
+ * uses THE END and a rotating field. These never advance the mission. */
 int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
-                       const char *resourceFork, int stranded)
+                       const char *resourceFork, enum SwcEnding ending)
 {
     SwcCarrier carrier = {0};
     SwcEndShards shards = {0};
@@ -1846,6 +1974,7 @@ int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
     SDL_RWops *reader;
     SDL_Color ink;
     const char *line;
+    const char *title = ending == SWC_ENDING_CAMPAIGN ? "GAME OVER" : "THE END";
     char path[PATH_MAX];
     char failure[256];
     Uint32 previous;
@@ -1863,7 +1992,7 @@ int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
     carrier.resourceFork = resourceFork;
     SDL_SetWindowMouseGrab(window, SDL_FALSE);
     SDL_ShowCursor(SDL_DISABLE);
-    if (stranded) {
+    if (ending == SWC_ENDING_STRANDED) {
         result = SdlPlaySwcStrandedMovie(window, renderer);
         if (result == SWC_MOVIE_QUIT || result == SWC_MOVIE_ERROR)
             goto done;
@@ -1874,7 +2003,7 @@ int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
     art = SwcGetRoomArt(&carrier, SWC_RECROOM, "PLNT", 1);
     if (art == NULL || SdlCreateSwcTextFont(renderer, &carrier.roomFont, 14) != 0)
         goto done;
-    if (stranded) {
+    if (ending == SWC_ENDING_STRANDED) {
         SdlPlaySwcMusic("LASTRITE.MooV", 20);
         if (!SdlResolvePath("AIFF/Stranded.aif", path, sizeof(path))) {
             SDL_SetError("SWC stranded speech path is too long");
@@ -1925,12 +2054,17 @@ int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
             SdlPlaySwcMusic("LASTRITE.MooV", 50);
             speech = 0;
         }
-        SwcUpdateEndShards(&shards);
+        SwcUpdateEndShards(&shards, ending != SWC_ENDING_CAMPAIGN);
         if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) != 0 ||
             SDL_RenderClear(renderer) != 0)
             break;
-        /* Stranded prints before the particles; the_end prints after them. */
-        if (stranded) {
+        /* Stranded and campaign completion print before the particles. */
+        if (ending == SWC_ENDING_CAMPAIGN &&
+            SdlDrawSwcProportionalText(renderer, &carrier.roomFont,
+                160 - SdlSwcTextWidth(&carrier.roomFont, title) / 2,
+                120, ink, title) != 0)
+            break;
+        if (ending == SWC_ENDING_STRANDED) {
             line = ticks < 127 ? "With your carrier destroyed..." : "THE END";
             if (SdlDrawSwcProportionalText(renderer, &carrier.roomFont,
                     160 - SdlSwcTextWidth(&carrier.roomFont, line) / 2,
@@ -1949,10 +2083,10 @@ int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
                 SwcDrawRoomArt(&carrier, SWC_RECROOM, "PLNT", 1,
                     shards.frame[index], 160 + shards.x[index], 120 + shards.y[index]);
         }
-        if (carrier.drawResult != 0 || (!stranded &&
+        if (carrier.drawResult != 0 || (ending == SWC_ENDING_FUNERAL &&
             SdlDrawSwcProportionalText(renderer, &carrier.roomFont,
-                160 - SdlSwcTextWidth(&carrier.roomFont, "THE END") / 2,
-                110, ink, "THE END") != 0))
+                160 - SdlSwcTextWidth(&carrier.roomFont, title) / 2,
+                110, ink, title) != 0))
             break;
         SdlDrawSwcOptionNotice(renderer);
         SDL_RenderPresent(renderer);
@@ -2473,7 +2607,7 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
         if (result != SWC_MOVIE_FINISHED || visit == SWC_CARRIER_WINGMAN_FUNERAL)
             goto done;
         SDL_SetRenderTarget(renderer, NULL);
-        result = SdlShowSwcEnding(window, renderer, resourceFork, 0);
+        result = SdlShowSwcEnding(window, renderer, resourceFork, SWC_ENDING_FUNERAL);
         goto done;
     }
     if (visit == SWC_CARRIER_DEBRIEFING) {

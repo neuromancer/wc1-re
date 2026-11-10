@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-static int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
+int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
                            const char *path, int dimOnFinish)
 {
     SwcMovie movie = {0};
@@ -404,87 +404,6 @@ static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
     SDL_ShowCursor(cursorVisible);
     if (sequence <= SWC_MOVIES_LANDING)
         SdlStopSwcMusic();
-    return result;
-}
-
-/* Retail CODE_03 HandleMidGame 0x010351d2 and next_campaign_movie
- * 0x010344a4. Outcome is the next system for warps, otherwise series failure.
- * GameFlow handles 64/65 by moving to the next campaign, not by playing
- * HandleMidGame's otherwise-unreachable victory montage. */
-int SdlPlaySwcCampaignTransition(SDL_Window *window, SDL_Renderer *renderer,
-                                  int sequence, int outcome, int campaign)
-{
-    static const char *const sideWin[] = {"SIDE", "SIDE2", "SINODRATH", "SKK", NULL};
-    static const char *const sideLose[] = {"SIDE", "SIDE2", "SIDEBGS", "SIDEFIN", "SIDEXP", NULL};
-    static const char *const baseWin[] = {
-        "MID3", "MID4", "MID5", "MIDFLY", "SPIN", "VGUN", "VSHOOT", "WMIDFLY2", NULL
-    };
-    static const char *const baseLose[] = {
-        "MID1", "MID2", "MID3", "MID31", "MID4", "MID41", "MID5", "MLIFT", "MYFINAL", NULL
-    };
-    const char *warps[] = {"WARP", NULL, NULL};
-    static const char *const fleet[] = {"LASTCAMP", "LFLEET", NULL};
-    const char *const *names;
-    const char *music;
-    char warp[24];
-    char relative[64];
-    char path[PATH_MAX];
-    int index;
-    int cursor;
-    int result = SWC_MOVIE_FINISHED;
-
-    if (sequence == 64 || sequence == 65 || (sequence == 3 && outcome))
-        return result;
-    music = "FLYBY.MooV";
-    switch (sequence) {
-    case -1:
-        warps[1] = "WARPCLAW";
-        names = campaign == 1 ? fleet : warps;
-        music = "VICTORY.MooV";
-        break;
-    case 0:
-        names = outcome ? sideLose : sideWin;
-        music = outcome ? "MID2LOSE.MooV" : "MID2WIN.MooV";
-        break;
-    case 1:
-        names = outcome ? baseLose : baseWin;
-        music = outcome ? "KILRATHI.MooV" : "KILLBASE.MooV";
-        break;
-    case 2:
-    case 4:
-        if (outcome < 1 || outcome > 13 || campaign < 0 || campaign > 2)
-            return SDL_SetError("Invalid SWC system transition");
-        SDL_snprintf(warp, sizeof(warp), "WARPIN.%02d", outcome + (campaign == 2 ? 20 : campaign == 1 ? 12 : 0));
-        warps[1] = warp;
-        names = warps;
-        break;
-    case 3:
-        names = fleet;
-        music = "SEARCH.MooV";
-        break;
-    default:
-        return SDL_SetError("Unsupported SWC campaign sequence %d", sequence);
-    }
-    cursor = SDL_ShowCursor(SDL_QUERY);
-    SDL_ShowCursor(SDL_DISABLE);
-    SdlPlaySwcMusic(music, 30);
-    for (index = 0; names[index] != NULL; index++) {
-        /* The losing base sequence changes music twice within the montage. */
-        if (sequence == 1 && outcome && index == 2)
-            SdlPlaySwcMusic("FLYBY.MooV", 30);
-        if (sequence == 1 && outcome && index == 5)
-            SdlPlaySwcMusic("ATTACK.MooV", 30);
-        SDL_snprintf(relative, sizeof(relative), "Movies/%s.dcMov", names[index]);
-        if (!SdlResolvePath(relative, path, sizeof(path))) {
-            result = SDL_SetError("Cannot resolve SWC campaign movie %s", relative);
-            break;
-        }
-        result = SdlPlaySwcMovie(window, renderer, path, names[index + 1] == NULL);
-        if (result != SWC_MOVIE_FINISHED)
-            break;
-    }
-    SdlStopSwcMusic();
-    SDL_ShowCursor(cursor);
     return result;
 }
 

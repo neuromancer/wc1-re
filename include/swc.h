@@ -90,6 +90,12 @@ enum SwcMovieResult {
     SWC_MOVIE_QUIT = 2
 };
 
+enum SwcEnding {
+    SWC_ENDING_FUNERAL,
+    SWC_ENDING_STRANDED,
+    SWC_ENDING_CAMPAIGN
+};
+
 int SwcCMOpen(const char *path, SwcCmf *cmf);
 void SwcCMClose(SwcCmf *cmf);
 int SwcCMGetChunk(const SwcCmf *cmf, const char type[4], uint32_t id,
@@ -194,6 +200,8 @@ void SwcMovieClose(SwcMovie *movie);
 /* Advances the retained indexed image: 1 = frame (damaged ones count in
  * damagedFrames and keep what they drew), 0 = end. */
 int SwcMovieNextFrame(SwcMovie *movie);
+int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
+                       const char *path, int dimOnFinish);
 /* Splash, logo and prologue before the title menu; replayIntro omits splash/logo. */
 int SdlPlaySwcStartup(SDL_Window *window, SDL_Renderer *renderer,
                         const char *resourceFork, int replayIntro);
@@ -212,7 +220,7 @@ int SdlPlaySwcLanding(SDL_Window *window, SDL_Renderer *renderer, int ship, int 
 int SdlPlaySwcFuneralMovies(SDL_Window *window, SDL_Renderer *renderer, int farewell);
 int SdlPlaySwcStrandedMovie(SDL_Window *window, SDL_Renderer *renderer);
 int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
-                       const char *resourceFork, int stranded);
+                       const char *resourceFork, enum SwcEnding ending);
 
 enum SwcCarrierVisit {
     SWC_CARRIER_PREFLIGHT,

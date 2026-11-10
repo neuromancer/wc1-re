@@ -2396,7 +2396,7 @@ begin_flight:
                 goto done;
             }
             if (nArcadeState == 3) {
-                movieResult = SdlShowSwcEnding(window, renderer, path, 1);
+                movieResult = SdlShowSwcEnding(window, renderer, path, SWC_ENDING_STRANDED);
                 if (movieResult == SWC_MOVIE_ERROR)
                     goto done;
                 if (movieResult != SWC_MOVIE_QUIT) {
@@ -2495,7 +2495,7 @@ begin_flight:
                     }
                     if (movieResult != SWC_MOVIE_QUIT && nextSeries == -1) {
                         if (nCampaignDataSet == 2) {
-                            movieResult = SdlShowSwcEnding(window, renderer, path, 0);
+                            movieResult = SdlShowSwcEnding(window, renderer, path, SWC_ENDING_CAMPAIGN);
                             if (movieResult == SWC_MOVIE_ERROR)
                                 goto done;
                             if (movieResult != SWC_MOVIE_QUIT)
