@@ -420,7 +420,10 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
     short file;
     int written;
 
-    PromptInsertNumberedDisk(0x10);
+#ifdef SDL_PORT
+    if (!SdlSwcFlightActive())
+#endif
+        PromptInsertNumberedDisk(0x10);
     diskBytes = (unsigned char *)diskRecord.description;
     memcpy(diskBytes, gameRecord->description,
            sizeof(diskRecord.description));
@@ -495,6 +498,10 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
         diskObjective->position = gameObjective->position;
     }
 
+#ifdef SDL_PORT
+    if (SdlSwcFlightActive())
+        return SdlWriteSwcSaveGame(slot, &diskRecord);
+#endif
     file = OpenDataFileOrDie("SAVEGAME.WLD");
 #ifdef SDL_PORT
     /* An automatic checkpoint must not report a short write as a success. */
@@ -629,12 +636,23 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     int read;
     SaveGameDiskCampaignState *diskCampaign = &diskRecord.campaign;
 
-    PromptInsertNumberedDisk(0x10);
-    file = OpenDataFileOrDie("SAVEGAME.WLD");
-    fileOpen = (file >= 0) & 1;
-    read = ReadDataFileAtOffset(file,
-                                slot * 0x33c, 0x33c,
-                                &diskRecord);
+#ifdef SDL_PORT
+    if (SdlSwcFlightActive()) {
+        if (!SdlReadSwcSaveGame(slot, &diskRecord))
+            return 0;
+        fileOpen = 1;
+        read = 1;
+        file = -1;
+    } else
+#endif
+    {
+        PromptInsertNumberedDisk(0x10);
+        file = OpenDataFileOrDie("SAVEGAME.WLD");
+        fileOpen = (file >= 0) & 1;
+        read = ReadDataFileAtOffset(file,
+                                    slot * 0x33c, 0x33c,
+                                    &diskRecord);
+    }
     diskBytes = (unsigned char *)diskRecord.description;
     memcpy(gameRecord->description, diskBytes,
            sizeof(gameRecord->description));
@@ -709,7 +727,10 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
     }
 
     fileOpen &= read != 0;
-    CloseDataFile(file);
+#ifdef SDL_PORT
+    if (!SdlSwcFlightActive())
+#endif
+        CloseDataFile(file);
     if (fileOpen != 0 && gameRecord->occupied != 0)
         return 1;
     return 0;

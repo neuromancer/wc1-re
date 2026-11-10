@@ -218,8 +218,7 @@ export component LauncherWindow inherits Window {
 
                     CheckBox {
                         height: 26px;
-                        text: root.swc-demo ? @tr("Autosave (WC1 only)") : @tr("Autosave (slot 8)");
-                        enabled: !root.swc-demo;
+                        text: @tr("Autosave (slot 8)");
                         checked <=> root.autosave;
                     }
 

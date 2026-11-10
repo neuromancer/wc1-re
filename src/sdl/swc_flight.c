@@ -1738,7 +1738,6 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
     int canContinue = 0;
     int newCampaign;
     int nextDataSet;
-    short bossmanDeath = 0;
     int jazzDeath;
     short flownSeries;
     short flownMission;
@@ -1785,6 +1784,7 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
     int result = -1;
 
     SwcInitCharacters();
+    nSwcBossmanDeath = 0;
     nCampaignDataSet = 0;
     if (SdlLoadSwcMissionData(missionPath, 1, 0) != 0)
         goto done;
@@ -1861,6 +1861,10 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
         goto done;
     /* CODE_12 SetupSWStuff +0x4926 loads preferences before sound starts. */
     SdlLoadSwcOptions(path);
+    if (SdlLoadSwcSaves(missionPath, retail) != 0) {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SWC saves unavailable", SDL_GetError(), window);
+        SDL_ClearError();
+    }
     if (SdlInitSwcSound(path) != 0)
         goto done;
     SetEventManagerPump(NULL);
@@ -1880,6 +1884,7 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
         goto done;
     }
 title_menu:
+    SdlResetAutosave();
     SdlStopSwcSounds();
     SdlStopSwcMusic();
     SwcResetFlightInput();
@@ -1894,7 +1899,7 @@ title_menu:
     nCampaignDataSet = 0;
     if (SdlLoadSwcMissionData(missionPath, 1, 0) != 0 || SwcStartMissionShips() < 0)
         goto done;
-    movieResult = SwcRunFlightScene(SWC_FLIGHT_TITLE, canContinue);
+    movieResult = SwcRunFlightScene(SWC_FLIGHT_TITLE, canContinue || nSwcContinueSlot >= 0);
     if (movieResult == SWC_MOVIE_ERROR)
         goto done;
     if (movieResult == SWC_MOVIE_SKIPPED) {
@@ -1909,15 +1914,22 @@ title_menu:
         goto done;
     }
     if (movieResult == SWC_TITLE_CONTINUE) {
-        stCampaignState = titleCampaign;
-        memcpy(aPilotEntriesList, titlePilots, sizeof(titlePilots));
+        if (canContinue) {
+            stCampaignState = titleCampaign;
+            memcpy(aPilotEntriesList, titlePilots, sizeof(titlePilots));
+            CorrectPointers();
+        } else if (SdlLoadSwcGame(nSwcContinueSlot) != 0) {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Cannot continue", SDL_GetError(), window);
+            goto title_menu;
+        }
     } else {
         canContinue = 0;
-        bossmanDeath = 0;
+        nSwcBossmanDeath = 0;
         SwcInitCharacters();
     }
     nCampaignDataSet = stCampaignState.campaignIndex;
-    newCampaign = !canContinue;
+    newCampaign = movieResult != SWC_TITLE_CONTINUE;
+    bCampaignActive = 1;
     if (SdlLoadSwcCampaignData(missionPath, &campaignData) != 0)
         goto done;
 prepare_mission:
@@ -1944,6 +1956,7 @@ prepare_mission:
         result = 0;
         goto done;
     }
+    SdlAutosaveCampaign();
 carrier_room:
     movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path, carrierVisit);
     carrierVisit = SWC_CARRIER_PREFLIGHT;
@@ -1952,6 +1965,13 @@ carrier_room:
     if (movieResult == SWC_MOVIE_QUIT) {
         result = 0;
         goto done;
+    }
+    if (movieResult == SWC_CARRIER_LOADED) {
+        canContinue = 0;
+        newCampaign = 0;
+        if (SdlLoadSwcCampaignData(missionPath, &campaignData) != 0)
+            goto done;
+        goto prepare_mission;
     }
     if (movieResult == SWC_CARRIER_TITLE) {
         titleCampaign = stCampaignState;
@@ -2419,7 +2439,7 @@ begin_flight:
                      * status in this scene, then restores Jazz's live slot. */
                     jazzDeath = stCampaignState.personalityDeathMission[2];
                     if (nCampaignDataSet == 2 && flownSeries == 2 && flownMission == 2)
-                        stCampaignState.personalityDeathMission[2] = bossmanDeath;
+                        stCampaignState.personalityDeathMission[2] = nSwcBossmanDeath;
                     movieResult = SdlRunSwcCarrier(window, renderer, missionPath, path,
                                                     SWC_CARRIER_DEBRIEFING);
                     stCampaignState.personalityDeathMission[2] = jazzDeath;
@@ -2534,7 +2554,7 @@ begin_flight:
                         if (nextSeries == 2) {
                             static const PilotRecord jazz = {"COLSON", "JAZZ", 1, 0, 4, 5, 2};
 
-                            bossmanDeath = stCampaignState.personalityDeathMission[2];
+                            nSwcBossmanDeath = stCampaignState.personalityDeathMission[2];
                             aPilotEntriesList[2] = jazz;
                             stCampaignState.personalityDeathMission[2] = 0;
                         } else if (nextSeries == 3) {
@@ -2615,6 +2635,7 @@ done:
     SetEventManagerPump(savedInputPump);
     bCockpitlessView = savedCockpitlessView;
     swcFlightActive = 0;
+    bCampaignActive = 0;
     swcCinemaWindow = NULL;
     swcCinemaRenderer = NULL;
     swcCinemaCockpitCmf = NULL;

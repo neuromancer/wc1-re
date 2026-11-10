@@ -541,6 +541,7 @@ MODERN_GAME_HOST_SRCS = \
 	src/sdl/fmtowns.c \
 	src/sdl/towns_text.c \
 	src/sdl/autosave.c \
+	src/sdl/swc_save.c \
 	src/sdl/swc_flight.c \
 	src/sdl/swc_raster.c \
 	src/sdl/swc_cockpit.c \

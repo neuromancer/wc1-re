@@ -106,6 +106,34 @@ void SdlAutosaveCampaign(void)
         nTrainSimActive || stCampaignState.currentSeries <= 0)
         return;
 
+    if (SdlSwcFlightActive()) {
+        /* The SWC host has its own renderer and slot file. Keep the same
+         * permission policy and use SaveGame's shared record conversion. */
+        if (autosavePermission == 0 && LoadGame(SDL_AUTOSAVE_SLOT, &checkpoint)) {
+            const SDL_MessageBoxButtonData buttons[] = {
+                {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT | SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 0, "Keep saved game"},
+                {0, 1, "Replace autosave"}
+            };
+            SDL_MessageBoxData dialog = {SDL_MESSAGEBOX_WARNING, SDL_GetKeyboardFocus(),
+                "SWC autosave", "Replace the previous campaign's autosave?",
+                2, buttons, NULL};
+            int answer = 0;
+
+            if (SDL_ShowMessageBox(&dialog, &answer) != 0 || answer != 1) {
+                autosavePermission = -1;
+                return;
+            }
+        }
+        if (SdlSaveSwcGame(SDL_AUTOSAVE_SLOT) == 0) {
+            autosavePermission = 1;
+            return;
+        }
+        autosavePermission = -1;
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SWC autosave failed",
+            SDL_GetError(), SDL_GetKeyboardFocus());
+        return;
+    }
+
     PromptInsertNumberedDisk(0x10);
     file = OpenDataFileOrDie("SAVEGAME.WLD");
     if (file < 0 && errno == ENOENT) {

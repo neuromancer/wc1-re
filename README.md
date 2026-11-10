@@ -94,8 +94,10 @@ bunk. Declining **Overwrite autosave?** preserves that save and disables autosav
 until returning to the title screen or restarting. Use `--autosave` or
 `--no-autosave` to override the setting.
 
-The Super Wing Commander Mac demo supports the same options except EGA
-dithering and autosave (SWC saving/loading is not implemented yet). To play it,
+Super Wing Commander supports the same options except EGA dithering. Its
+barracks offer Load, Save and Delete; Continue resumes the latest save after a
+restart. SWC saves are stored separately from WC1 and original Mac preferences.
+To play the Mac demo,
 download the zip from
 [archive.org](https://archive.org/details/super-wing-commander-demo-1.0.2-mac), unzip it,
 and select its `SuperWing DEMO` folder in the launcher. Its Options commands keep

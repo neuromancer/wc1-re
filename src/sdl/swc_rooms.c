@@ -109,29 +109,14 @@ typedef struct SwcBunkAnimation {
     int delay;
 } SwcBunkAnimation;
 
-/* CODE_12 LoadPreferences +0x3888 and CODE_03 CheckValidZones +0x56a0.
- * An optional copy of the Mac preferences data fork supplies occupancy;
- * importing campaign state or writing these saved games is separate work. */
+/* CheckValidZones 0x010356e0; use the same slot reader as Continue. */
 static void SwcReadBunkOccupants(unsigned char occupied[8])
 {
-    char path[PATH_MAX];
-    unsigned char preferences[0x2372];
-    SDL_RWops *file;
+    SaveGameRecord save;
     int index;
 
-    if (!SdlResolvePath("SuperWing Preferences", path, sizeof(path)))
-        return;
-    file = SDL_RWFromFile(path, "rb");
-    if (file == NULL) {
-        SDL_ClearError();
-        return;
-    }
-    if (SDL_RWsize(file) == sizeof(preferences) &&
-        SDL_RWread(file, preferences, 1, sizeof(preferences)) == sizeof(preferences)) {
-        for (index = 0; index < 8; index++)
-            occupied[index] = preferences[10 + index * 0x458] != 0;
-    }
-    SDL_RWclose(file);
+    for (index = 0; index < 8; index++)
+        occupied[index] = LoadGame(index, &save) != 0;
 }
 
 /* BarracksScreen +0x6144: DATA/0 +0x40c2/+0x40e2 point at programs
@@ -2167,6 +2152,121 @@ static int SwcChooseArcadeMission(SwcCarrier *carrier)
     }
 }
 
+/* Retail BarracksScreen 0x01036a56 dispatches LoadGame, SaveGame and
+ * DeleteGame. Keep its slot actions while using the shared SDL room input. */
+static int SwcManageBunk(SwcCarrier *carrier, int slot)
+{
+    static const char *const actions[] = {"Load", "Save", "Delete", "Back"};
+    SaveGameRecord save = {0};
+    SaveGameRecord empty = {0};
+    SDL_Renderer *renderer = carrier->renderer;
+    SDL_Rect panel = {10, 60, 300, 135};
+    SDL_Rect button;
+    SwcRoomInput input;
+    SDL_Color ink = {245, 225, 135, 255};
+    char heading[64];
+    char error[160] = {0};
+    int occupied = LoadGame(slot, &save) != 0;
+    int enabled[4] = {occupied, slot != SDL_AUTOSAVE_SLOT, occupied, 1};
+    int selected = occupied ? 0 : slot == SDL_AUTOSAVE_SLOT ? 3 : 1;
+    int confirm = -1;
+    int count;
+    int index;
+    int action;
+    int result;
+
+    SDL_zero(carrier->pendingInput);
+    for (;;) {
+        input = SwcPollCarrier(carrier);
+        if (input.quit)
+            return SWC_MOVIE_QUIT;
+        count = error[0] ? 1 : confirm >= 0 ? 2 : 4;
+        if (carrier->focused && !carrier->paused) {
+            if (input.back) {
+                if (confirm < 0 || error[0])
+                    return SWC_MOVIE_FINISHED;
+                confirm = -1;
+                selected = 3;
+                continue;
+            }
+            if (input.step) {
+                do {
+                    selected = selected < 0 ? (input.step > 0 ? 0 : count - 1) :
+                        (selected + input.step + count) % count;
+                } while (count == 4 && !enabled[selected]);
+            }
+            if (input.moved || input.clicked) {
+                selected = -1;
+                for (index = 0; index < count; index++) {
+                    button = (SDL_Rect){16 + index * 72, 144, 68, 26};
+                    if ((count != 4 || enabled[index]) &&
+                        carrier->mouseX >= button.x && carrier->mouseX < button.x + button.w &&
+                        carrier->mouseY >= button.y && carrier->mouseY < button.y + button.h)
+                        selected = index;
+                }
+            }
+            if ((input.activate || input.clicked) && selected >= 0) {
+                if (error[0] || (confirm < 0 && selected == 3))
+                    return SWC_MOVIE_FINISHED;
+                if (confirm >= 0 && selected == 1) {
+                    confirm = -1;
+                    selected = 3;
+                    continue;
+                }
+                action = confirm >= 0 ? confirm : selected;
+                if (confirm < 0 && occupied && action != 0) {
+                    confirm = action;
+                    selected = 1; /* Default to keeping the existing save. */
+                    continue;
+                }
+                result = action == 0 ? SdlLoadSwcGame(slot) : action == 1 ?
+                    SdlSaveSwcGame(slot) : SaveGame(slot, &empty) ? 0 : -1;
+                if (result == 0)
+                    return action == 0 ? SWC_CARRIER_LOADED : SWC_MOVIE_FINISHED;
+                SDL_strlcpy(error, SDL_GetError(), sizeof(error));
+                selected = 0;
+                confirm = -1;
+                count = 1;
+            }
+        }
+        if (SDL_SetRenderTarget(renderer, NULL) != 0 ||
+            SDL_RenderCopy(renderer, carrier->picture, NULL, NULL) != 0 ||
+            SDL_SetRenderDrawColor(renderer, 8, 12, 16, 255) != 0 ||
+            SDL_RenderFillRect(renderer, &panel) != 0 ||
+            SDL_SetRenderDrawColor(renderer, ink.r, ink.g, ink.b, 255) != 0 ||
+            SDL_RenderDrawRect(renderer, &panel) != 0)
+            return SWC_MOVIE_ERROR;
+        SDL_snprintf(heading, sizeof(heading), slot == SDL_AUTOSAVE_SLOT ? "AUTOSAVE" : "BUNK %d", slot + 1);
+        if (SdlDrawSwcProportionalText(renderer, &carrier->roomFont, 22, 82, ink, heading) != 0)
+            return SWC_MOVIE_ERROR;
+        if (error[0])
+            SDL_strlcpy(heading, "Save operation failed.", sizeof(heading));
+        else if (confirm >= 0)
+            SDL_strlcpy(heading, confirm == 1 ? "Replace this saved game?" : "Delete this saved game?", sizeof(heading));
+        else if (occupied)
+            SDL_snprintf(heading, sizeof(heading), "%s: %s", save.pilots[8].callsign, save.description);
+        else
+            SDL_strlcpy(heading, "Empty", sizeof(heading));
+        if (SdlDrawSwcProportionalText(renderer, &carrier->roomFont, 22, 108, ink, heading) != 0)
+            return SWC_MOVIE_ERROR;
+        for (index = 0; index < count; index++) {
+            SDL_Color color = count == 4 && !enabled[index] ? (SDL_Color){95, 100, 105, 255} : ink;
+
+            button = (SDL_Rect){16 + index * 72, 144, 68, 26};
+            if (SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255) != 0 ||
+                (selected == index && SDL_RenderDrawRect(renderer, &button) != 0) ||
+                SdlDrawSwcProportionalText(renderer, &carrier->roomFont, button.x + 8, 163,
+                    color, error[0] ? "OK" : confirm >= 0 ? index == 0 ? "Yes" : "No" : actions[index]) != 0)
+                return SWC_MOVIE_ERROR;
+        }
+        if (SdlDrawSwcRoomSubtitle(renderer, &carrier->roomFont,
+                error[0] ? error : "Enter / A: select   Esc / B: back") != 0)
+            return SWC_MOVIE_ERROR;
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
+    }
+}
+
 int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                       const char *missionPath, const char *resourceFork, enum SwcCarrierVisit visit)
 {
@@ -2497,7 +2597,13 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
                     } else if (selected == 2) {
                         room = 3;
                     } else {
-                        notice = "Bunks hold saved games. SWC saving and loading are not implemented yet.";
+                        sceneResult = SwcManageBunk(&carrier, selected - 3);
+                        if (sceneResult != SWC_MOVIE_FINISHED) {
+                            result = sceneResult;
+                            break;
+                        }
+                        SwcReadBunkOccupants(bunkOccupied);
+                        previous = SDL_GetTicks();
                     }
                     selected = -1;
                 }

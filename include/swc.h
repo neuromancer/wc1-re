@@ -24,6 +24,11 @@ typedef struct SwcBuffer {
 /* Owns a converted WC1 campaign packet, with one leading guard record;
  * publishes pMissionCampaignInfo on success. Restore that pointer on exit. */
 int SdlLoadSwcCampaignData(const char *path, SwcBuffer *campaign);
+/* SDL-created SWC saves; original Mac preferences are not modified. */
+int SdlLoadSwcSaves(const char *missionPath, int retail);
+int SdlLoadSwcGame(short slot);
+extern int nSwcContinueSlot;
+extern short nSwcBossmanDeath;
 
 typedef struct SwcChunkInfo {
     char type[4];
@@ -221,7 +226,7 @@ enum SwcCarrierVisit {
 };
 
 /* Carrier action, distinct from the movie results used by room scenes. */
-enum { SWC_CARRIER_SIMULATOR = 3, SWC_CARRIER_TITLE = 4 };
+enum { SWC_CARRIER_SIMULATOR = 3, SWC_CARRIER_TITLE = 4, SWC_CARRIER_LOADED = 5 };
 /* Carrier/story visit; returns a SwcMovieResult or carrier action.
  * Medal visits use nCurrentConversationMedalIndex and award it on completion/skip. */
 int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,

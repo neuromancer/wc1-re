@@ -208,6 +208,11 @@ void SdlConfigureAutosave(int enabled);
 void SdlResetAutosave(void);
 void SdlResumeAutosave(int resumeAutosave);
 void SdlAutosaveCampaign(void);
+/* SWC storage uses the original SaveGame/LoadGame record conversion. */
+struct SaveGameDiskRecord;
+int SdlReadSwcSaveGame(short slot, struct SaveGameDiskRecord *record);
+int SdlWriteSwcSaveGame(short slot, const struct SaveGameDiskRecord *record);
+int SdlSaveSwcGame(short slot);
 void SdlCaptureMissionCheckpoint(void);
 void SdlRestoreMissionCheckpoint(void);
 int SdlRetryMission(void);
