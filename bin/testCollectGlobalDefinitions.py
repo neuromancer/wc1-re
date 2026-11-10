@@ -5,10 +5,31 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from collectGlobalDefinitions import definition_block
+from collectGlobalDefinitions import definition_block, header_constants
 
 
 class DefinitionBlockTests(unittest.TestCase):
+    def test_native_constants_exclude_sdl_branches(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "constants.h"
+            path.write_text('''enum ObjectType {
+    OBJECT_TYPES = 58,
+#ifdef SDL_PORT
+    OBJECT_COUNT = 83,
+#else
+    OBJECT_COUNT = OBJECT_TYPES,
+#endif
+};
+#ifdef SDL_PORT
+#define COCKPIT_COUNT 11
+#else
+#define COCKPIT_COUNT 5
+#endif
+''', encoding="utf-8")
+            constants = header_constants([path])
+        self.assertEqual(constants["OBJECT_COUNT"], 58)
+        self.assertEqual(constants["COCKPIT_COUNT"], 5)
+
     def collect(self, source: str) -> str:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "owner.c"

@@ -106,7 +106,7 @@ extern int nArcadeState; /* 0x00469fb0 */
 extern short nFrameSkipCounter; /* 0x00469fb4 */
 extern short nFrameSkip; /* 0x00469fb8 */
 extern InputDeviceSample aInputDevSamples[2]; /* 0x005a81f0 */
-extern ShortPoint aWeaponDisplayOrigins[5]; /* 0x004684c0 */
+extern ShortPoint aWeaponDisplayOrigins[COCKPIT_VIEW_COUNT]; /* 0x004684c0 */
 extern unsigned char bMessageSpeed; /* 0x0046af68 */
 extern ShortVector aShipFormationDeltaList[10]; /* 0x0059b520 */
 extern int bViewBufferEnabled; /* 0x0046a004 */
@@ -143,11 +143,11 @@ extern short nVideoMode; /* 0x0046b168 */
 extern signed char acGraphicsModeByAnimationSpeed[8]; /* 0x0046b178 */
 extern CockpitLayout stCockpitLayout; /* 0x0046e008 */
 extern short nCommSpeakerObject; /* 0x0046afc8 */
-extern short aasCockpitLightX[5][7]; /* 0x0046dca8 */
-extern short aasCockpitLightY[5][7]; /* 0x0046dcf0 */
-extern signed char aacCockpitLightOffFrame[5][7]; /* 0x0046dd38 */
-extern signed char aacCockpitLightOnFrame[5][7]; /* 0x0046dd60 */
-extern CockpitBarDefinition aaCockpitBars[5][8]; /* 0x0046dd88 */
+extern short aasCockpitLightX[COCKPIT_VIEW_COUNT][7]; /* 0x0046dca8 */
+extern short aasCockpitLightY[COCKPIT_VIEW_COUNT][7]; /* 0x0046dcf0 */
+extern signed char aacCockpitLightOffFrame[COCKPIT_VIEW_COUNT][7]; /* 0x0046dd38 */
+extern signed char aacCockpitLightOnFrame[COCKPIT_VIEW_COUNT][7]; /* 0x0046dd60 */
+extern CockpitBarDefinition aaCockpitBars[COCKPIT_VIEW_COUNT][8]; /* 0x0046dd88 */
 extern const GUID guidDirectDraw2; /* 0x00463118 */
 extern signed char bCurrentKey; /* 0x0046c014 */
 extern volatile signed char cPreviousKey; /* 0x0046c018 */
@@ -210,7 +210,7 @@ extern signed char acPilotAggression[24]; /* 0x0046d9a0 */
 extern signed char acPilotRecovery[20]; /* 0x0046d9b8 */
 extern struct Shape *pDrawnMouseCursorShape; /* 0x0046da9c */
 extern int nMouseCursorShowCount; /* 0x0046daa0 */
-extern short asPilotHandOrigins[10]; /* 0x0046e120 */
+extern short asPilotHandOrigins[COCKPIT_VIEW_COUNT * 2]; /* 0x0046e120 */
 extern CampaignDate stSavedCampaignDate; /* 0x0046e188 */
 extern TalkingHeadOrigin aTalkingHeadOrigins[11]; /* 0x0046e190 */
 extern BriefingCharacterLayout aBriefingCharacters[10]; /* 0x0046e218 */
@@ -675,7 +675,7 @@ extern short nCutsceneFuneralBaseX; /* 0x005a8720 */
 extern short nCutsceneFuneralBasePosY; /* 0x005a8722 */
 extern short nScrambleCockpitAngle; /* 0x005a86c0 */
 extern signed char cScrambleWalkerPair; /* 0x005a8748 */
-extern ShortVector aChildOffsets[56]; /* 0x004682f0 */
+extern ShortVector aChildOffsets[CHILD_OFFSET_COUNT]; /* 0x004682f0 */
 extern short nFuneralParticleScale; /* 0x005a8728 */
 extern struct Shape *pCurrentScrambleHangarShape; /* 0x005a872c */
 extern struct Shape *pScrambleCockpitShapePtr; /* 0x005a8730 */
@@ -707,7 +707,7 @@ extern struct GuardedAllocation *pGuardedAllocationTail; /* 0x005a89ac */
 extern char szMemoryUsage[0x80]; /* 0x005a89b0 */
 extern HWND hMainWindow; /* 0x005a89a0 */
 extern HANDLE hSingleInstanceSemaphore; /* 0x005a89a4 */
-extern ShortPoint aWeaponDisplayPositions[32]; /* 0x00468440 */
+extern ShortPoint aWeaponDisplayPositions[WEAPON_DISPLAY_POSITION_COUNT]; /* 0x00468440 */
 extern HCURSOR hPrevPointer; /* 0x005a8a34 */
 extern unsigned int nSessionEndTime; /* 0x005a8a38 */
 extern int bMainWindowAlive; /* 0x005a8a3c */

@@ -5,7 +5,10 @@ from __future__ import annotations
 
 import argparse
 import ast
+import os
 import re
+import shlex
+import subprocess
 from pathlib import Path
 
 
@@ -78,7 +81,14 @@ def header_constants(paths: list[Path]) -> dict[str, int]:
     pending: list[tuple[str, str]] = []
 
     for path in paths:
-        text = BLOCK_COMMENT_RE.sub("", path.read_text(encoding="utf-8"))
+        # Evaluate native branches before resolving enum values and dimensions.
+        # Reading both branches can select SDL-only counts (e.g. SWC wrecks).
+        text = subprocess.run(
+            shlex.split(os.environ.get("CC", "cc")) +
+            ["-E", "-dD", "-P", "-USDL_PORT", "-x", "c", str(path)],
+            check=True, capture_output=True, text=True,
+        ).stdout
+        text = BLOCK_COMMENT_RE.sub("", text)
         text = LINE_COMMENT_RE.sub("", text)
         pending.extend(DEFINE_RE.findall(text))
         for enum_body in ENUM_RE.findall(text):

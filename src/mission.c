@@ -109,6 +109,7 @@ unsigned int init_mission(short series, short mission)
 #ifdef SDL_PORT
     if (LoadMissionData(series, mission) != 0)
         return 1;
+    SdlSetCampaignShips();
 #else
     LoadMissionData(series, mission);
 #endif
@@ -654,11 +655,16 @@ void get_pilot_talk(short personality)
     short file;
     short line;
     short loaded;
+#ifdef SDL_PORT
+    short logicalFile = SdlUsingSm2Data() ? 82 : 13;
+#else
+    enum { logicalFile = 13 };
+#endif
 
     free_pilot_talk(personality);
-    PromptInsertNumberedDisk(13);
+    PromptInsertNumberedDisk(logicalFile);
     loaded = 1;
-    file = OpenDataFileOrDie(pDiskFileRecords[13].name);
+    file = OpenDataFileOrDie(pDiskFileRecords[logicalFile].name);
     loaded &= (file >= 0);
     for (line = 0; line < 11; line++) {
         loaded &= (ReadDataFileAtOffset(file,
@@ -666,7 +672,7 @@ void get_pilot_talk(short personality)
                                         80, speech) != 0);
         if (loaded != 0) {
 #ifdef SDL_PORT
-            SdlTranslateRadio(pDiskFileRecords[13].name, personality, line,
+            SdlTranslateRadio(pDiskFileRecords[logicalFile].name, personality, line,
                               speech, sizeof(speech));
 #endif
             aapszPilotSpeeches[personality][line] =

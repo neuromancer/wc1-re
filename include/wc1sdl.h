@@ -305,6 +305,8 @@ int SdlTranslateScanCode(SDL_Scancode scanCode);
 void SdlWaitForVerticalBlank(void);
 int SdlUsingDosData(void);
 int SdlHasSecretMissions1(void);
+int SdlUsingSm2Data(void);
+void SdlSetCampaignShips(void);
 extern int nSm1TransferState;
 int SdlTransferSm1Pilot(short slot);
 struct CampaignState;

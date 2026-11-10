@@ -556,7 +556,7 @@ ObjectTypeData aObjectTypeData[OBJECT_TYPE_COUNT] = {
 
 /* Child/hardpoint offsets. */
 /* 0x004682f0 */
-ShortVector aChildOffsets[56] = {
+ShortVector aChildOffsets[CHILD_OFFSET_COUNT] = {
     { 120, 10, 20 }, { -120, 10, 20 }, { 75, 45, -30 },
     { -75, 45, -30 }, { 0, 50, 10 }, { -100, 10, -40 },
     { -90, 0, 30 }, { -30, -40, -30 }, { 0, 0, 0 },
@@ -576,10 +576,15 @@ ShortVector aChildOffsets[56] = {
     { -50, -20, 350 }, { 50, 20, 350 }, { -150, 20, 0 },
     { 150, -20, 0 }, { -75, -20, -350 }, { 75, 20, -350 },
     { 0, 100, 350 }, { 0, 0, -300 }
+#ifdef SDL_PORT
+    /* SM2.EXE 0x4a8dd0, hardpoints 56..62. */
+    , {-100, 35, -20}, {0, 0, 0}, {100, 35, -20},
+    {-120, 38, -20}, {120, 38, -20}, {-50, 24, 40}, {50, 24, 40}
+#endif
 };
 
 /* 0x00468440 */
-ShortPoint aWeaponDisplayPositions[32] = {
+ShortPoint aWeaponDisplayPositions[WEAPON_DISPLAY_POSITION_COUNT] = {
     {64, 28}, {8, 28}, {45, 25}, {27, 25}, {36, 23},
     {20, 32}, {27, 24}, {31, 31}, {36, 22}, {41, 31},
     {51, 32}, {45, 24}, {8, 32}, {18, 32}, {25, 11},
@@ -587,11 +592,19 @@ ShortPoint aWeaponDisplayPositions[32] = {
     {64, 32}, {12, 35}, {17, 37}, {26, 16}, {28, 31},
     {37, 41}, {37, 29}, {45, 31}, {47, 16}, {56, 37},
     {61, 35}, {0, 0}
+#ifdef SDL_PORT
+    /* SM2.EXE 0x4a8f50, Dralthi weapon-diagram positions. */
+    , [56] = {26, 27}, {20, 20}, {44, 27}, {18, 24},
+    {52, 24}, {29, 22}, {41, 22}
+#endif
 };
 
 /* 0x004684c0 */
-ShortPoint aWeaponDisplayOrigins[5] = {
+ShortPoint aWeaponDisplayOrigins[COCKPIT_VIEW_COUNT] = {
     {0, 16}, {0, 16}, {0, 16}, {0, 16}, {0, 16}
+#ifdef SDL_PORT
+    , [OBJECT_TYPE_DRALTHI] = {0, 16}
+#endif
 };
 /* Linker commons defined here; LINK orders them by identifier hash. */
 short nMenuInputRepeatDelay; /* 0x005a8208 */

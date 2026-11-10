@@ -1522,6 +1522,10 @@ unsigned int initialize_cockpit(int requestedMode)
 
     cCockpitLogicalFile =
         (cCurrentCockpitView + 17);
+#ifdef SDL_PORT
+    if (cCurrentCockpitView == OBJECT_TYPE_DRALTHI)
+        cCockpitLogicalFile = 81;
+#endif
     cScreenViewMode = mode;
     switch (mode) {
     case 0:
@@ -1769,6 +1773,10 @@ unsigned int InitializeCockpitResources(signed char mode)
     bCockpitResourcesActive = 1;
     cCurrentCockpitView = mode;
     cCockpitLogicalFile = (mode + 17);
+#ifdef SDL_PORT
+    if (cCurrentCockpitView == OBJECT_TYPE_DRALTHI)
+        cCockpitLogicalFile = 81;
+#endif
     clear_cockpit_damage();
     ClearHudGunReadouts();
     reset_cockpit();
@@ -1904,6 +1912,10 @@ unsigned int free_cockpit(void)
     }
     cCockpitLogicalFile =
         (cCurrentCockpitView + 17);
+#ifdef SDL_PORT
+    if (cCurrentCockpitView == OBJECT_TYPE_DRALTHI)
+        cCockpitLogicalFile = 81;
+#endif
     FreeShapeSet(aCockpitPrimaryResources, 4);
     FreeShapeSet(aCockpitSecondaryResources, 0);
     FreePacketAndClear(&pCockpitPilotShape, 0);

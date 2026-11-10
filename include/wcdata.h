@@ -466,13 +466,25 @@ typedef struct CockpitScannerGeometry {
 /* The 140-word cockpit table at 0x0046E008.  Five ship cockpits use the
  * viewport/scanner/hand rectangles; the four readout origins also contain a
  * sixth sentinel entry used by the original table indexing. */
+#ifdef SDL_PORT
+/* SM2 indexes its Dralthi cockpit with the ship type (10). */
+#define COCKPIT_VIEW_COUNT 11
+#define COCKPIT_READOUT_COUNT 11
+#define CHILD_OFFSET_COUNT 63
+#define WEAPON_DISPLAY_POSITION_COUNT 63
+#else
+#define COCKPIT_VIEW_COUNT 5
+#define COCKPIT_READOUT_COUNT 6
+#define CHILD_OFFSET_COUNT 56
+#define WEAPON_DISPLAY_POSITION_COUNT 32
+#endif
 typedef struct CockpitLayout {
-    ShortPoint readoutOrigins[4][6];
-    ShortRect leftVduBounds[5];
-    ShortRect rightVduBounds[5];
-    CockpitScannerGeometry scanner[5];
+    ShortPoint readoutOrigins[4][COCKPIT_READOUT_COUNT];
+    ShortRect leftVduBounds[COCKPIT_VIEW_COUNT];
+    ShortRect rightVduBounds[COCKPIT_VIEW_COUNT];
+    CockpitScannerGeometry scanner[COCKPIT_VIEW_COUNT];
     short scannerPadding[2];
-    ShortRect pilotHandBounds[5];
+    ShortRect pilotHandBounds[COCKPIT_VIEW_COUNT];
 } CockpitLayout;
 
 /* Header shared by the static and packet-backed view geometries.  fadeData is
@@ -524,8 +536,10 @@ typedef struct PacketDecompressionWorkspace {
     unsigned char input[0x400];
 } PacketDecompressionWorkspace;
 
+#ifndef SDL_PORT
 typedef char CockpitLayout_size_must_be_0x118[
     sizeof(CockpitLayout) == 0x118 ? 1 : -1];
+#endif
 typedef char ScreenViewportGeometry_size_must_be_0x10[
     sizeof(ScreenViewportGeometry) == 0x10 ? 1 : -1];
 typedef char DiskFileRecord_size_must_be_0x10[

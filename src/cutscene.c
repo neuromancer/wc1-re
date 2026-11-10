@@ -554,9 +554,28 @@ unsigned int DrawScrambleFrame(void)
                               stScrambleCockpitDetail.y,
                               pScrambleCockpitShapePtr, 1);
             break;
+#ifdef SDL_PORT
+        case OBJECT_TYPE_DRALTHI:
+            /* SM2.EXE 0x40ab9c. */
+            DrawSpriteDefault(&stSceneBuffer,
+                              stScramblePlayerShipPos.x + 10,
+                              stScramblePlayerShipPos.y + 20,
+                              pScrambleShipShape,
+                              nSceneScrambleCanopyFrameValue);
+            DrawSpriteDefault(&stSceneBuffer,
+                              stScramblePlayerShipPos.x - 110,
+                              stScramblePlayerShipPos.y - 10,
+                              pScrambleCockpitShapePtr, 0);
+            break;
+#endif
         }
 
-        if (nSceneScrambleShipDetailCountValue > 0) {
+        if (nSceneScrambleShipDetailCountValue > 0
+#ifdef SDL_PORT
+            /* SM2 has no Dralthi row for these landing damage decals. */
+            && stCampaignState.playerShipType <= OBJECT_TYPE_RAPTOR
+#endif
+        ) {
             detailIndex = 0;
             do {
                 detailSlot = acScrambleShipDetailSlots[detailIndex];
@@ -617,6 +636,10 @@ unsigned int scramble(void)
         InitializeConversationViewport();
         cCockpitLogicalFile =
             (stCampaignState.playerShipType + 17);
+#ifdef SDL_PORT
+        if (stCampaignState.playerShipType == OBJECT_TYPE_DRALTHI)
+            cCockpitLogicalFile = 81;
+#endif
         pScrambleCockpitShapePtr = FetchDiskPacketRetrying(
             cCockpitLogicalFile, 8, 0);
         pSceneScrambleBgShapePtr =
@@ -668,6 +691,14 @@ unsigned int scramble(void)
             stScrambleCockpitDetail.x = stScramblePlayerShipPos.x + 18;
             stScrambleCockpitDetail.y = stScramblePlayerShipPos.y - 13;
             break;
+#ifdef SDL_PORT
+        case OBJECT_TYPE_DRALTHI:
+            stScramblePlayerShipPos.x = -40;
+            stScramblePlayerShipPos.y = 96;
+            stScrambleCockpitDetail.x = 4;
+            stScrambleCockpitDetail.y = 96;
+            break;
+#endif
         }
 
         nFrameSkipCounter = 1;
@@ -802,6 +833,10 @@ unsigned int landing(signed char damageLevel)
 
     cCockpitLogicalFile =
         (stCampaignState.playerShipType + 17);
+#ifdef SDL_PORT
+    if (stCampaignState.playerShipType == OBJECT_TYPE_DRALTHI)
+        cCockpitLogicalFile = 81;
+#endif
     pScrambleCockpitShapePtr =
         FetchDiskPacketRetrying(
             cCockpitLogicalFile, 8, 0);
@@ -854,6 +889,9 @@ unsigned int landing(signed char damageLevel)
         stScrambleCockpitDetail.x = 124;
         break;
     case OBJECT_TYPE_RAPTOR:
+#ifdef SDL_PORT
+    case OBJECT_TYPE_DRALTHI:
+#endif
         stScramblePlayerShipPos.x = 124;
         stScramblePlayerShipPos.y = 126;
         stScrambleCockpitDetail.x = 96;
@@ -903,6 +941,9 @@ unsigned int landing(signed char damageLevel)
                 break;
             case OBJECT_TYPE_RAPIER:
             case OBJECT_TYPE_RAPTOR:
+#ifdef SDL_PORT
+            case OBJECT_TYPE_DRALTHI:
+#endif
                 stScrambleCockpitDetail.x =
                     (stScrambleCockpitDetail.x + 2);
                 break;

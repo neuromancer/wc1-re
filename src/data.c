@@ -100,43 +100,55 @@ signed char acDirectionShapeFlip[DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_CO
 };
 
 /* 0x0046dca8 */
-short aasCockpitLightX[5][7] = {
+short aasCockpitLightX[COCKPIT_VIEW_COUNT][7] = {
     {101, 101, 189, 137, 265, -99, 203},
     {198, 198, 133, 145, 234, 234, -99},
     {76, 76, 139, 257, 20, 20, -99},
     {194, 194, 96, 137, 96, 96, -99},
     {-99, -99, 179, 133, -99, -99, -99}
+#ifdef SDL_PORT
+    , [OBJECT_TYPE_DRALTHI] = {-99, -99, -99, -99, 113, -99, -99}
+#endif
 };
 
 /* 0x0046dcf0 */
-short aasCockpitLightY[5][7] = {
+short aasCockpitLightY[COCKPIT_VIEW_COUNT][7] = {
     {122, 145, 121, 7, 121, -99, 147},
     {120, 139, 114, 114, 179, 188, -99},
     {164, 183, 22, 181, 162, 178, -99},
     {119, 142, 136, 15, 126, 116, -99},
     {-99, -99, 115, 114, -99, -99, -99}
+#ifdef SDL_PORT
+    , [OBJECT_TYPE_DRALTHI] = {-99, -99, -99, -99, 136, -99, -99}
+#endif
 };
 
 /* 0x0046dd38 */
-signed char aacCockpitLightOffFrame[5][7] = {
+signed char aacCockpitLightOffFrame[COCKPIT_VIEW_COUNT][7] = {
     {14, 14, 14, 11, 13, 14, 14},
     {12, 12, 12, 13, 12, 12, 12},
     {9, 9, 9, 14, 9, 9, 9},
     {15, 15, 13, 11, 13, 13, 13},
     {5, 5, 5, 5, 5, 5, 5}
+#ifdef SDL_PORT
+    , [OBJECT_TYPE_DRALTHI] = {14, 14, 14, 11, 98, 14, 14}
+#endif
 };
 
 /* 0x0046dd60 */
-signed char aacCockpitLightOnFrame[5][7] = {
+signed char aacCockpitLightOnFrame[COCKPIT_VIEW_COUNT][7] = {
     {3, 3, 3, 0, 2, 3, 3},
     {2, 2, 2, 3, 2, 2, 2},
     {1, 1, 1, 6, 1, 1, 1},
     {4, 4, 2, 0, 2, 2, 2},
     {1, 1, 1, 1, 1, 1, 1}
+#ifdef SDL_PORT
+    , [OBJECT_TYPE_DRALTHI] = {3, 3, 3, 0, 99, 3, 3}
+#endif
 };
 
 /* 0x0046dd88 */
-CockpitBarDefinition aaCockpitBars[5][8] = {
+CockpitBarDefinition aaCockpitBars[COCKPIT_VIEW_COUNT][8] = {
     {
         {0, 215, 122, 219, 152, 31, 16, 5},
         {2, 143, 97, 175, 99, 33, 12, 1},
@@ -187,28 +199,62 @@ CockpitBarDefinition aaCockpitBars[5][8] = {
         {0, 134, 124, 138, 146, 32, 7, 3},
         {0, -99, -99, 0, 0, 0, 0, 0}
     }
+#ifdef SDL_PORT
+    , [OBJECT_TYPE_DRALTHI] = {
+        {2, 210, 6, 250, 14, 40, 12, 1},
+        {2, 70, 6, 110, 14, 40, 12, 1},
+        {0, 274, 11, 288, 14, 4, -1, 6},
+        {1, 274, 27, 288, 31, 4, -1, 6},
+        {2, 261, 19, 275, 23, 40, -1, 6},
+        {3, 286, 19, 297, 23, 40, -1, 6},
+        {2, 269, 5, 289, 10, 40, -1, 0},
+        {2, 269, 32, 289, 37, 40, -1, 0}
+    }
+#endif
 };
 
 /* 0x0046e008 */
 CockpitLayout stCockpitLayout = {
     {
         {{99, 130}, {227, 122}, {38, 164}, {192, 126},
-         {-99, -99}, {0, 0}},
+         {-99, -99}, {0, 0},
+#ifdef SDL_PORT
+         [OBJECT_TYPE_DRALTHI] = {-99, -99}
+#endif
+        },
         {{99, 140}, {227, 140}, {38, 184}, {192, 136},
-         {-99, -99}, {0, 0}},
+         {-99, -99}, {0, 0},
+#ifdef SDL_PORT
+         [OBJECT_TYPE_DRALTHI] = {-99, -99}
+#endif
+        },
         {{201, 105}, {156, 14}, {197, 145}, {262, 102},
-         {219, 115}, {0, 0}},
+         {219, 115}, {0, 0},
+#ifdef SDL_PORT
+         [OBJECT_TYPE_DRALTHI] = {-99, -99}
+#endif
+        },
         {{112, 105}, {156, 19}, {105, 145}, {38, 102},
-         {71, 115}, {0, 0}}
+         {71, 115}, {0, 0},
+#ifdef SDL_PORT
+         [OBJECT_TYPE_DRALTHI] = {57, 98}
+#endif
+        }
     },
     {
         {10, 133, 82, 198}, {0, 99, 73, 165}, {6, 1, 78, 66},
         {11, 111, 84, 176}, {48, 126, 120, 191}
+#ifdef SDL_PORT
+        , [OBJECT_TYPE_DRALTHI] = {2, 123, 74, 188}
+#endif
     },
     {
         {236, 133, 309, 198}, {246, 97, 319, 165},
         {241, 1, 313, 66}, {235, 111, 308, 176},
         {198, 126, 270, 191}
+#ifdef SDL_PORT
+        , [OBJECT_TYPE_DRALTHI] = {243, 123, 316, 188}
+#endif
     },
     {
         {159, 126, 145, 113, 173, 139},
@@ -216,18 +262,27 @@ CockpitLayout stCockpitLayout = {
         {160, 39, 146, 26, 174, 52},
         {159, 129, 145, 116, 173, 142},
         {159, 130, 145, 117, 173, 143}
+#ifdef SDL_PORT
+        , [OBJECT_TYPE_DRALTHI] = {159, 20, 145, 7, 173, 33}
+#endif
     },
     {0, 0},
     {
         {120, 152, 203, 199}, {120, 152, 205, 199},
         {120, 151, 213, 199}, {120, 152, 205, 199},
         {120, 152, 203, 199}
+#ifdef SDL_PORT
+        , [OBJECT_TYPE_DRALTHI] = {120, 152, 203, 199}
+#endif
     }
 };
 
 /* 0x0046e120 */
-short asPilotHandOrigins[10] = {
+short asPilotHandOrigins[COCKPIT_VIEW_COUNT * 2] = {
     154, 187, 154, 187, 154, 187, 154, 187, 154, 187
+#ifdef SDL_PORT
+    , [OBJECT_TYPE_DRALTHI * 2] = 154, 187
+#endif
 };
 
 /* The original contains ten initialized signed words here. Their

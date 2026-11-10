@@ -66,8 +66,12 @@ static int aiScannerGridRows[79] = {
 static const char *pszMissileLockedMessage = N_("MISSILE LOCKED ");
 static unsigned char bTargetBracketVisible = 1; /* 0x004691d8 */
 /* 0x004691e0 */
-static short asHudMessageOrigins[10] = {
+static short asHudMessageOrigins[COCKPIT_VIEW_COUNT * 2] = {
     18, 14, 71, 5, 80, 29, 49, 27, 14, 13
+#ifdef SDL_PORT
+    /* SM2 reads past its five-entry table; use the screen edge explicitly. */
+    , [OBJECT_TYPE_DRALTHI * 2] = 0, 0
+#endif
 };
 static short nTargetLockMarkerX = -0x7fff; /* 0x004691f4 */
 static ShortRect stTargetBracketBounds = {-0x7fff, 0, 0, 0}; /* 0x004691f8 */
@@ -2042,6 +2046,9 @@ void print_message_text(char *text, unsigned short colour)
                        wrapped, 2);
             break;
         case 2:
+#ifdef SDL_PORT
+        case OBJECT_TYPE_DRALTHI:
+#endif
             DrawTextAt(&context,
                        asHudMessageOrigins[cCurrentCockpitView * 2],
                        (asHudMessageOrigins[
@@ -2058,6 +2065,12 @@ void print_message_text(char *text, unsigned short colour)
             break;
         }
     } else {
+#ifdef SDL_PORT
+        if (cCurrentCockpitView == OBJECT_TYPE_DRALTHI) {
+            /* SM2 0x4226f2 places messages below the upper instrument panel. */
+            DrawTextAt(&context, 0, 40, wrapped, 2);
+        } else
+#endif
         DrawTextAt(&context,
                    asHudMessageOrigins[cCurrentCockpitView * 2],
                    asHudMessageOrigins[cCurrentCockpitView * 2 + 1],
@@ -2766,6 +2779,11 @@ void explosion_draw(void)
 {
     short damage;
 
+#ifdef SDL_PORT
+    /* SM2 has no Dralthi row in its cockpit-scar coordinate table. */
+    if (cCurrentCockpitView == OBJECT_TYPE_DRALTHI)
+        return;
+#endif
     if (pCockpitPilotShape == 0)
         pCockpitPilotShape =
             FetchDiskPacketRetrying(
@@ -2878,6 +2896,8 @@ void place_damage_on_cockpit(short damage)
         SdlSwcCockpitDamage(damage);
         return;
     }
+    if (cCurrentCockpitView == OBJECT_TYPE_DRALTHI)
+        return;
 #endif
     if (nCameraViewMode == 0 && nTrainSimActive == 0 &&
         *(state = &anCockpitDamageState[damage]) == 0) {
