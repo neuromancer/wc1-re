@@ -893,6 +893,13 @@ unsigned int house_keep_objects(void)
             break;
         case OBJECT_CLASS_PROJECTILE:
             if (count_down(obj) == 0) {
+#ifdef SDL_PORT
+                /* Mac house_keep_objects +0x3dd6: the large DBRS wrecks
+                   retain a secondary explosion when their lifetime ends. */
+                if (SdlSwcFlightActive() && aeObjectTypeList[obj] >= OBJECT_TYPE_SWC_WRECKAGE_BASE)
+                    explode(-1, obj);
+                else
+#endif
                 if (aeObjectTypeList[obj] == OBJECT_TYPE_TURRET)
                     explode(acObjOwnersTable[obj], obj);
                 else
@@ -1271,6 +1278,13 @@ unsigned int animate_object(short obj)
     short effect;
 
     switch (aeObjectClass[obj]) {
+#ifdef SDL_PORT
+    case OBJECT_CLASS_PROJECTILE:
+        /* Mac animate_object +0x49a4 also animates projectile-class wrecks. */
+        if (SdlSwcFlightActive())
+            animate_shape(obj);
+        break;
+#endif
     case OBJECT_CLASS_EXPLOSION:
         animate_shape(obj);
         break;

@@ -838,6 +838,26 @@ void revise_shields(short obj)
                 aeObjectTypeList[obj]].shieldAft >> 2)));
 }
 
+#ifdef SDL_PORT
+/* Mac last_gun, CODE_05 +0x16e6: missiles do not count as spare guns. */
+static short SwcIsOnlyShipGun(short ship, short weapon)
+{
+    ShipWeaponSlot *weapons = (ShipWeaponSlot *)&aShipWeaponsTable[ship][1];
+    short candidate;
+
+    if (aObjectTypeData[weapons[weapon].type].objectClass !=
+        OBJECT_CLASS_PROJECTILE)
+        return 0;
+    for (candidate = 0; candidate < aShipWeaponsTable[ship][0]; candidate++) {
+        if (candidate != weapon &&
+            aObjectTypeData[weapons[candidate].type].objectClass ==
+                OBJECT_CLASS_PROJECTILE)
+            return 0;
+    }
+    return 1;
+}
+#endif
+
 /* Function start: 0x41F220 */
 int your_internal_damage(short attacker, short damage, short quadrant)
 {
@@ -858,7 +878,12 @@ int your_internal_damage(short attacker, short damage, short quadrant)
         events = MaxShort(1, (damage >> 5));
     }
     playerType = aeObjectTypeList[0];
-    severity = RandomBelowOrEqual(10);
+    /* Mac CODE_05 +0x179e uses exclusive random_number bounds. */
+    severity = RandomBelowOrEqual(
+#ifdef SDL_PORT
+        SdlSwcFlightActive() ? 9 :
+#endif
+        10);
     asShipAccumulatedDmg[0] = (
         asShipAccumulatedDmg[0] + events);
     if (events > 1)
@@ -874,7 +899,11 @@ int your_internal_damage(short attacker, short damage, short quadrant)
     while (events > 0) {
         events--;
         switch ((short)(signed char)asPlayerDamageSystemTable[
-                tableGroup * 10 + RandomBelowOrEqual(9)]) {
+                tableGroup * 10 + RandomBelowOrEqual(
+#ifdef SDL_PORT
+                    SdlSwcFlightActive() ? 8 :
+#endif
+                    9)]) {
         case 0:
             if (severity < 4)
                 pilot_hit(0);
@@ -896,7 +925,11 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                 events++;
                 break;
             }
-            if (RandomBelowOrEqual(3) == 0)
+            if (RandomBelowOrEqual(
+#ifdef SDL_PORT
+                SdlSwcFlightActive() ? 2 :
+#endif
+                3) == 0)
                 return explode(attacker, 0);
             if (damage_your_component(1, 1, 4) == 4)
                 return explode(attacker, 0);
@@ -924,6 +957,16 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                 events++;
             } else {
                 if (aShipWeaponsTable[0][0] > 0) {
+#ifdef SDL_PORT
+                    if (SdlSwcFlightActive()) {
+                        short weapon = RandomBelowOrEqual(
+                            MaxShort(0, aShipWeaponsTable[0][0] - 2));
+
+                        if (SwcIsOnlyShipGun(0, weapon))
+                            break;
+                        remove_weapon(0, weapon);
+                    } else
+#endif
                     remove_weapon(0,
                         (signed char)RandomBelowOrEqual(
                             (aShipWeaponsTable[0][0] - 1)));
@@ -945,7 +988,11 @@ int your_internal_damage(short attacker, short damage, short quadrant)
             drain_fuel(0,
                        (aObjectTypeData[
                                    playerType].lifetime / 4));
-            if (RandomBelowOrEqual(1) != 0 ||
+            if (RandomBelowOrEqual(
+#ifdef SDL_PORT
+                SdlSwcFlightActive() ? 0 :
+#endif
+                1) != 0 ||
                 anShipFuelsTable[0] < 0)
                 return explode(attacker, 0);
             ShowComponentHitHudMessage(_("Fuel tanks hit"),
@@ -1003,9 +1050,17 @@ void repair_internal_damage(void)
     if ((short)acPlayerComponentDamageList[component] >= 4)
         return;
 #endif
-    if (RandomBelowOrEqual(500) >= 2)
+    if (RandomBelowOrEqual(
+#ifdef SDL_PORT
+        SdlSwcFlightActive() ? 499 :
+#endif
+        500) >= 2)
         return;
-    repair = RandomBelowOrEqual(2);
+    repair = RandomBelowOrEqual(
+#ifdef SDL_PORT
+        SdlSwcFlightActive() ? 1 :
+#endif
+        2);
     switch (repair) {
     case 0:
 #ifdef SDL_PORT
@@ -1082,10 +1137,34 @@ unsigned int Create_explosion_debris(short obj)
     short debris;
     short index;
     short set;
+#ifdef SDL_PORT
+    enum ObjectType wreckage = (enum ObjectType)(OBJECT_TYPE_SWC_WRECKAGE_BASE + aeObjectTypeList[obj]);
+#endif
 
     remove_object(obj);
     check_next_wave();
-    set = RandomBelowOrEqual(3);
+#ifdef SDL_PORT
+    /* Mac Create_explosion_debris +0x1dde emits the ship's DBRS wreck
+       before the common debris and dust. */
+    if (SdlSwcFlightActive() && wreckage >= OBJECT_TYPE_SWC_WRECKAGE_BASE &&
+        wreckage < OBJECT_TYPE_COUNT) {
+        debris = find_vacant_3d_object();
+        if (debris != -1) {
+            set_objects_data(debris, wreckage, -1);
+            asObjectCounterArray[debris] = 40;
+            FillFixedVectorWithRandomComponents(1, &vector);
+            AddFixedVectors(&aShipPositionsArray[obj], &vector, &aShipPositionsArray[debris]);
+            FillFixedVectorWithRandomComponents(5, &aShipVelocity[debris]);
+            ScaleFixedVector(&aShipVelocity[obj], 435, &vector);
+            AddFixedVectors(&vector, &aShipVelocity[debris], &aShipVelocity[debris]);
+        }
+    }
+#endif
+    set = RandomBelowOrEqual(
+#ifdef SDL_PORT
+        SdlSwcFlightActive() ? 2 :
+#endif
+        3);
     for (index = 0; index < 7; index++) {
         debris = find_vacant_3d_object();
         if (debris == -1)
@@ -1117,7 +1196,11 @@ unsigned int Create_explosion_debris(short obj)
                         &aShipVelocity[debris],
                         &aShipVelocity[debris]);
         asObjScreenAngles[debris] =
-            (RandomBelowOrEqual(3) + 0x10);
+            (RandomBelowOrEqual(
+#ifdef SDL_PORT
+                SdlSwcFlightActive() ? 2 :
+#endif
+                3) + 0x10);
         asObjectCounterArray[debris] = 40;
         aeObjectClass[debris] = OBJECT_CLASS_DUST;
         aeObjectTypeList[debris] = OBJECT_TYPE_DEBRIS_DUST;
@@ -1330,6 +1413,17 @@ short Explosion(short obj)
                     aeObjectTypeList[obj]].explosionDamage);
         }
     } else {
+#ifdef SDL_PORT
+        /* Mac Explosion +0x2564: substantial wreckage explodes at its
+           squared Q8 scale; the smaller DBRS fragments simply expire. */
+        if (SdlSwcFlightActive() && aeObjectTypeList[obj] >= OBJECT_TYPE_SWC_WRECKAGE_BASE) {
+            unsigned int scale = awObjectScales[obj];
+
+            explosion = obj;
+            set_objects_data(obj, OBJECT_TYPE_EXPLOSION0, acObjOwnersTable[obj]);
+            awObjectScales[obj] = (scale * scale) >> 8;
+        } else {
+#endif
         if (aeObjectTypeList[obj] == OBJECT_TYPE_TURRET ||
             objectClass == OBJECT_CLASS_ASTEROID)
             explosionType = OBJECT_TYPE_EXPLOSION0;
@@ -1340,6 +1434,9 @@ short Explosion(short obj)
                          acObjOwnersTable[obj]);
         if (aeObjectClass[obj] == OBJECT_CLASS_ASTEROID)
             awObjectScales[obj] = 0x380;
+#ifdef SDL_PORT
+        }
+#endif
         explosion_shock_wave(
             obj, aObjectTypeData[
                 aeObjectTypeList[obj]].explosionDamage);
@@ -2139,7 +2236,11 @@ unsigned int place_exhaust_on_ships(void)
 
     for (ship = 0; ship < 10; ship++) {
         if (aeObjectClass[ship] >= OBJECT_CLASS_MISSILE &&
-            anShipSpeed[ship] != 0 &&
+            (anShipSpeed[ship] != 0
+#ifdef SDL_PORT
+             || (SdlSwcFlightActive() && aeSpecialManeuvers[ship] == SPECIAL_MANEUVER_AFTERBURNER)
+#endif
+            ) &&
             aeSpecialManeuvers[ship] !=
                 SPECIAL_MANEUVER_KILL_ENGINES &&
             asObjectScreenXList[ship] != (short)0x8001) {
@@ -2157,7 +2258,11 @@ unsigned int place_exhaust_on_ships(void)
                                          ship);
                         frame = *animation++;
                         scale = *animation++;
-                        scale -= RandomInRange(0, 32);
+                        scale -= RandomInRange(0,
+#ifdef SDL_PORT
+                            SdlSwcFlightActive() ? 31 :
+#endif
+                            32);
                         if (abShipExhaustHeatList[ship] == 0)
                             scale = (scale - 32);
                         awObjectScales[object] = scale;
@@ -2168,14 +2273,29 @@ unsigned int place_exhaust_on_ships(void)
                         asObjectScreenXList[object] = *animation++;
                         asObjectScreenYArray[object] = *animation++;
                         if (aeSpecialManeuvers[ship] ==
-                                SPECIAL_MANEUVER_AFTERBURNER) {
+                                SPECIAL_MANEUVER_AFTERBURNER
+#ifdef SDL_PORT
+                            || (SdlSwcFlightActive() && aeObjectClass[ship] == OBJECT_CLASS_MISSILE &&
+                                acObjOwnersTable[ship] >= 0 && acObjOwnersTable[ship] < 10 &&
+                                aeShipSide[acObjOwnersTable[ship]] == SIDE_KILRATHI)
+#endif
+                        ) {
                             asObjectViewFrames[object] =
                                 (frame * 3 +
-                                        RandomInRange(0, 2));
+                                        RandomInRange(0,
+#ifdef SDL_PORT
+                                            SdlSwcFlightActive() ? 1 :
+#endif
+                                            2));
                         } else {
                             asObjectViewFrames[object] =
-                                (frame * 2 + 12 +
-                                        RandomInRange(0, 1));
+                                (frame * 2 + 12
+#ifdef SDL_PORT
+                                 + (SdlSwcFlightActive() ? 0 : RandomInRange(0, 1))
+#else
+                                 + RandomInRange(0, 1)
+#endif
+                                );
                         }
                     }
                 }
@@ -2217,6 +2337,12 @@ unsigned int reposition_fixed_child_objects(void)
                 angle = asObjScreenAngles[parent];
                 sine = SinFixed(angle);
                 cosine = CosFixed(angle);
+#ifdef SDL_PORT
+                if (SdlSwcFlightActive()) {
+                    sine = SdlSwcCos(90 - angle);
+                    cosine = SdlSwcCos(angle);
+                }
+#endif
                 right = asObjectScreenXList[object] *
                         (unsigned short)asObjScreenScalesArray[parent];
                 asObjDistancesTable[object] +=
@@ -2227,19 +2353,32 @@ unsigned int reposition_fixed_child_objects(void)
                      (unsigned short)asObjScreenScalesArray[parent];
                 if ((asObjectFlipArray[parent] & 0x20) != 0)
                     up = -up;
+#ifdef SDL_PORT
+                if (SdlSwcFlightActive()) {
+                    /* Mac keeps both signed 64-bit products through each
+                       Q8 shift; rounding toward zero moves some anchors. */
+                    asObjectScreenXList[object] =
+                        ((((int64_t)right * cosine >> 8) - ((int64_t)up * sine >> 8)) >> 8);
+                    asObjectScreenYArray[object] =
+                        ((((int64_t)up * cosine >> 8) + ((int64_t)right * sine >> 8)) >> 8);
+                } else {
+#endif
                 asObjectScreenXList[object] = (
                     (MultiplyFixed(right, cosine) -
                      MultiplyFixed(up, sine)) >> 8);
                 asObjectScreenYArray[object] = (
                     (MultiplyFixed(up, cosine) +
                      MultiplyFixed(right, sine)) >> 8);
+#ifdef SDL_PORT
+                }
+#endif
                 asObjectScreenXList[object] +=
                     asObjectScreenXList[parent];
                 asObjectScreenYArray[object] +=
                     asObjectScreenYArray[parent];
 #ifdef SDL_PORT
                 if (aeObjectTypeList[object] ==
-                        OBJECT_TYPE_THRUSTERS) {
+                        OBJECT_TYPE_THRUSTERS && !SdlSwcFlightActive()) {
                     /* Match the anchor to the enhanced parent transform. */
                     parentScreenX =
                         (float)nCurrentViewCenterPosX +

@@ -335,6 +335,7 @@ int SdlFindSwcResources(const char *directory, char *path, unsigned long capacit
 int SdlLoadSwcMissionData(const char *path, short series, short mission);
 int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen);
 int SdlSwcFlightActive(void);
+int SdlSwcCos(int angle);
 int SdlSwcSoundEffect(int sound, int object);
 short SdlSwcMessageShowing(void);
 void SdlSwcTransmit(short object, short message);

@@ -237,7 +237,7 @@ int SdlLoadSwcMissionData(const char *path, short series, short mission)
         }
         for (item = 0; item < 2; item++) {
             value = SDL_ReadBE32(reader);
-            if (value < -1 || value >= OBJECT_TYPE_COUNT) {
+            if (value < -1 || value >= OBJECT_TYPE_TYPES) {
                 SDL_SetError("SWC nav %d uses an unsupported object type %d", index, value);
                 goto done;
             }
@@ -326,7 +326,7 @@ int SdlLoadSwcMissionData(const char *path, short series, short mission)
         SDL_RWread(reader, &ships[index].leaderMissionIndex, 1, 1);
         SDL_RWread(reader, &ships[index].formationIndex, 1, 1);
         SDL_RWread(reader, &ships[index].targetMissionIndex, 1, 1);
-        if (values[0] < -1 || values[0] >= OBJECT_TYPE_COUNT ||
+        if (values[0] < -1 || values[0] >= OBJECT_TYPE_TYPES ||
             (values[0] != -1 &&
              (values[1] < SIDE_IMPERIAL || values[1] > SIDE_NEUTRAL ||
               values[5] < 0 || values[5] >= ACTIVE_MISSION_NAV_POINT_COUNT ||

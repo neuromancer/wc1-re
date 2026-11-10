@@ -10,6 +10,7 @@
 
 typedef struct SwcFlightImages {
     SwcRasterImage *views;
+    SwcBuffer exhaust;
     uint32_t count;
     int unavailable;
 } SwcFlightImages;
@@ -50,6 +51,8 @@ static SwcTextFont swcPauseFont;
 static SDL_Texture *swcStarTextures[10];
 static SDL_Rect swcStarBounds[10];
 static int swcObjectDistances[SPACE_OBJECT_COUNT];
+static int swcExhaustFrame = -1;
+static short swcExhaustOffsets[SPACE_OBJECT_COUNT][3];
 int nSwcCinemaResult;
 
 static void SwcTransformObjectsToView(void);
@@ -298,6 +301,7 @@ static void SwcSelectFlightView(int view)
     zero_vector(&aShipVelocity[EYE_OBJECT]);
     remove_nav_pointer();
     SdlUpdateSwcFlightCamera();
+    swcExhaustFrame = -1;
     SwcGenerateStars();
 }
 
@@ -394,6 +398,7 @@ static int SwcLoadFlightImages(const SwcCmf *cockpit, const SwcCmf *space,
     /* CODE_08 get_Mac_mem +0x0050..+0x022c, followed by CODE_03
        init_3Space_objects aliases. Mac OBJT IDs differ from WC1 packets. */
     switch (type) {
+    case OBJECT_TYPE_THRUSTERS: chunk = 1; expected = 20; break;
     case OBJECT_TYPE_LASER_CANNON: chunk = 7; expected = 4; break;
     case OBJECT_TYPE_NEUTRON_PARTICLE_GUN:
         cmf = cockpit; chunk = 9; expected = 6; break;
@@ -450,7 +455,11 @@ static int SwcLoadFlightImages(const SwcCmf *cockpit, const SwcCmf *space,
     case OBJECT_TYPE_ASTEROID4:
     case OBJECT_TYPE_ASTEROID6: chunk = 18; expected = 12; break;
     default:
-        if (type >= OBJECT_TYPE_DUMB_FIRE_MISSILE &&
+        if (type >= OBJECT_TYPE_SWC_WRECKAGE_BASE && type < OBJECT_TYPE_COUNT) {
+            SDL_strlcpy(chunkType, "DBRS", sizeof(chunkType));
+            chunk = type - OBJECT_TYPE_SWC_WRECKAGE_BASE + 1;
+            expected = 12;
+        } else if (type >= OBJECT_TYPE_DUMB_FIRE_MISSILE &&
             type <= OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE) {
             SDL_snprintf(chunkType, sizeof(chunkType), "MS%02d",
                          type - OBJECT_TYPE_DUMB_FIRE_MISSILE);
@@ -473,7 +482,8 @@ static int SwcLoadFlightImages(const SwcCmf *cockpit, const SwcCmf *space,
     /* PCShipV01 carries an extra frame for the Krant and Gratha. Retail
      * load_ship uses the shape set directly; the 37 directional views stay
      * at the same indices. Keep validating every decoded frame. */
-    if (count != expected && !(cmf == cockpit && expected == 37 && count == 38)) {
+    if (count != expected && !(cmf == cockpit && expected == 37 && count == 38) &&
+        !(type == OBJECT_TYPE_SWC_WRECKAGE_BASE + 1 && count == 15)) {
         SDL_SetError("Unexpected SWC frame count in %s/%u", chunkType, chunk);
         goto done;
     }
@@ -492,10 +502,53 @@ static int SwcLoadFlightImages(const SwcCmf *cockpit, const SwcCmf *space,
         if (SdlLoadSwcRasterImage(&set, index, &images->views[index]) != 0)
             goto done;
     }
+    /* load_ship +0x0638 loads STxx/MSxx chunk 3 from Spaceflight.CMF.
+       Its offsets and six-word exhaust records remain little endian on Mac. */
+    if (aObjectTypeData[type].objectClass == OBJECT_CLASS_SHIP ||
+        aObjectTypeData[type].objectClass == OBJECT_CLASS_MISSILE) {
+        short *words;
+        size_t word;
+        size_t cursor;
+        size_t views = SDL_min(count, 37);
+
+        if (SwcCMGetChunk(space, chunkType, 3, &images->exhaust) != 0)
+            goto done;
+        if (images->exhaust.size % 2 != 0 || images->exhaust.size < views * 2) {
+            SDL_SetError("Truncated SWC exhaust table %.4s", chunkType);
+            goto done;
+        }
+        words = (short *)images->exhaust.data;
+        for (word = 0; word < images->exhaust.size / 2; word++) {
+            unsigned short value = images->exhaust.data[word * 2] |
+                (unsigned short)images->exhaust.data[word * 2 + 1] << 8;
+            words[word] = (short)value;
+        }
+        for (index = 0; index < views; index++) {
+            if (words[index] == -1)
+                continue;
+            if (words[index] < (short)(views * 2) || (words[index] & 1) != 0)
+                goto invalidExhaust;
+            cursor = (unsigned short)words[index] / 2;
+            for (;;) {
+                if (cursor >= images->exhaust.size / 2)
+                    goto invalidExhaust;
+                if (words[cursor] == -1)
+                    break;
+                if (images->exhaust.size / 2 - cursor < 6 ||
+                    words[cursor] < 0 || words[cursor] > 3 || words[cursor + 1] < 0)
+                    goto invalidExhaust;
+                cursor += 6;
+            }
+        }
+        aObjectTypeData[type].animation = images->exhaust.data;
+    }
     result = 0;
 done:
     SDL_free(set.data);
     return result;
+invalidExhaust:
+    SDL_SetError("Invalid SWC exhaust record %.4s", chunkType);
+    goto done;
 }
 
 /* Retail initialize_cockpit 0x01030964 and GameMode 0x01037046:
@@ -519,11 +572,16 @@ static int SwcInitializeCockpit(int model, const char *resourceFork)
         SDL_DestroyTexture(swcCockpitTexture);
         swcCockpitTexture = NULL;
         swcFlightCockpitModel = -1;
+        swcExhaustFrame = -1;
         SwcCMClose(swcCinemaCockpitCmf);
         for (object = 0; object < OBJECT_TYPE_COUNT; object++) {
             for (frame = 0; frame < swcCinemaImages[object].count; frame++)
                 SdlFreeSwcRasterImage(&swcCinemaImages[object].views[frame]);
             SDL_free(swcCinemaImages[object].views);
+            if (swcCinemaImages[object].exhaust.data != NULL) {
+                aObjectTypeData[object].animation = NULL;
+                SDL_free(swcCinemaImages[object].exhaust.data);
+            }
             SDL_zero(swcCinemaImages[object]);
         }
         for (frame = 0; frame < SDL_arraysize(swcStarTextures); frame++) {
@@ -679,6 +737,7 @@ static int SwcStartMissionShips(void)
     cCurrentCockpitView = 0;
     nCannedSceneMode = 0;
     nCurrentSpaceFrameValue = 0;
+    swcExhaustFrame = -1;
     nRenderedSpaceFrame = 0;
     bCurrentPlayerDestroyed = 0;
     /* Title combat disables damage; restore the launcher's cheat choice
@@ -1046,6 +1105,47 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
     int centreY = !cockpitless && nCameraViewMode <= 3 ? swcCockpitViewCenter.y : 100;
 
     SwcTransformObjectsToView();
+    /* Draw_3Space_Frame creates transient attachments after projection.
+       Redraws retain their local offsets and consume no further randomness. */
+    if (swcExhaustFrame != nCurrentSpaceFrameValue) {
+        for (object = 10; object <= SPACE_LAST_MOVING_OBJECT; object++) {
+            if (aeObjectClass[object] == OBJECT_CLASS_FIXED_OBJECT &&
+                aeObjectTypeList[object] == OBJECT_TYPE_THRUSTERS)
+                remove_object(object);
+        }
+    }
+    for (object = 0; object < 10; object++) {
+        if ((aeObjectClass[object] == OBJECT_CLASS_SHIP ||
+             aeObjectClass[object] == OBJECT_CLASS_MISSILE) &&
+            asObjectScreenXList[object] != (short)0x8001 &&
+            SwcLoadFlightImages(cockpitCmf, spaceCmf,
+                aeObjectTypeList[object], &images[aeObjectTypeList[object]]) != 0)
+            return -1;
+    }
+    if (swcExhaustFrame != nCurrentSpaceFrameValue)
+        place_exhaust_on_ships();
+    for (object = 10; object <= SPACE_LAST_MOVING_OBJECT; object++) {
+        if (aeObjectClass[object] == OBJECT_CLASS_FIXED_OBJECT) {
+            short parent = acObjOwnersTable[object];
+
+            if (parent < 0 || parent >= 10 || asObjectScreenXList[parent] == (short)0x8001) {
+                remove_object(object);
+                continue;
+            }
+            if (swcExhaustFrame != nCurrentSpaceFrameValue) {
+                swcExhaustOffsets[object][0] = asObjectScreenXList[object];
+                swcExhaustOffsets[object][1] = asObjectScreenYArray[object];
+                swcExhaustOffsets[object][2] = asObjDistancesTable[object];
+            } else {
+                asObjectScreenXList[object] = swcExhaustOffsets[object][0];
+                asObjectScreenYArray[object] = swcExhaustOffsets[object][1];
+                asObjDistancesTable[object] = swcExhaustOffsets[object][2];
+            }
+            swcObjectDistances[object] = swcObjectDistances[parent] + (short)asObjDistancesTable[object];
+        }
+    }
+    reposition_fixed_child_objects();
+    swcExhaustFrame = nCurrentSpaceFrameValue;
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     if (SDL_RenderClear(renderer) != 0)
         return -1;
@@ -1055,7 +1155,10 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
          object <= SPACE_LAST_MOVING_OBJECT; object++) {
         if ((aeObjectClass[object] < OBJECT_CLASS_EXPLOSION &&
              aeObjectClass[object] != OBJECT_CLASS_STAR && aeObjectClass[object] != OBJECT_CLASS_DUST) ||
-            aeObjectClass[object] == OBJECT_CLASS_FIXED_OBJECT ||
+            (aeObjectClass[object] == OBJECT_CLASS_FIXED_OBJECT &&
+             (acObjOwnersTable[object] < 0 || acObjOwnersTable[object] >= 10 ||
+              asObjectScreenXList[acObjOwnersTable[object]] == (short)0x8001 ||
+              (acObjOwnersTable[object] == 0 && nCameraViewMode <= 3))) ||
             asObjectScreenXList[object] == (short)0x8001 || object == nNavPointerObject)
             continue;
         index = count++;
@@ -2071,6 +2174,7 @@ begin_flight:
     bHostPrimaryMouseButton = 0;
     bHostSecondaryMouseButton = 0;
     nCurrentSpaceFrameValue = 0;
+    swcExhaustFrame = -1;
     nRenderedSpaceFrame = 0;
     SwcTransformObjectsToView();
     SdlUpdateSwcCockpit();
@@ -2716,6 +2820,7 @@ done:
         for (view = 0; (uint32_t)view < images[object].count; view++)
             SdlFreeSwcRasterImage(&images[object].views[view]);
         SDL_free(images[object].views);
+        SDL_free(images[object].exhaust.data);
     }
     SdlFreeSwcCockpit();
     SDL_DestroyTexture(swcCockpitTexture);

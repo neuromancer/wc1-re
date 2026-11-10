@@ -85,7 +85,7 @@ def generate(code, data, negative):
         f" * DATA/0 SHA-256: {hashlib.sha256(data).hexdigest()}",
         f" * Negative A5 SHA-256: {hashlib.sha256(negative).hexdigest()}",
         " * Original entries: init_data_struct1 +0x0286, init_data_struct2 +0x47cc.",
-        " * Common WC1/SWC object IDs 0..57; the other Mac IDs remain unsupported.",
+        " * Object IDs 58..60 are reserved; 61..82 are ship-specific wreckage.",
         " * DATA/0 animation words are converted from big endian to host integers. */",
     ]
     records = []
@@ -97,7 +97,7 @@ def generate(code, data, negative):
         "afterburnerVelocity": 64, "shieldFore": 170, "shieldAft": 174,
         "armorFront": 178, "armorRear": 182, "armorLeft": 186, "armorRight": 190,
     }
-    for index in range(58):
+    for index in range(83):
         record = table[index * 204:(index + 1) * 204]
         number = lambda offset: struct.unpack_from(">i", record, offset)[0]
         name_at = number(0)
@@ -126,15 +126,19 @@ def generate(code, data, negative):
     lines.append("\nstatic const ObjectTypeData swcObjectDefinitions[OBJECT_TYPE_COUNT] = {")
     for index, (name, values, lifetime, animation, _) in enumerate(records):
         lines.append(f"    {{ /* {index}: {name} */")
-        lines.append(f"        .displayName = {json.dumps(name)},")
+        if index < 58 or name:
+            lines.append(f"        .displayName = {json.dumps(name)},")
         for field, value in values.items():
-            lines.append(f"        .{field} = {value},")
-        if values["objectClass"] < 12:
+            if index < 58 or value:
+                lines.append(f"        .{field} = {value},")
+        if values["objectClass"] < 12 and (index < 58 or lifetime):
             if not -32768 <= lifetime <= 32767:
                 raise ValueError("Non-ship lifetime exceeds shared storage")
             lines.append(f"        .lifetime = {lifetime},")
         if animation:
             lines.append(f"        .animation = (unsigned char *)swcAnimation{index},")
+        if 58 <= index <= 60:
+            lines.append("        .objectClass = 0,")
         lines.append("    },")
     lines.append("};\n")
     lines.append("static const int swcShipFuel[22] = {" +

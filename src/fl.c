@@ -117,14 +117,22 @@ void Mwabble(short ship)
     short choice;
 
     asShipTotal[ship]++;
-    if (asShipTotal[ship] > 20) {
+    if (
+#ifdef SDL_PORT
+        SdlSwcFlightActive() ? asShipTotal[ship] < 20 :
+#endif
+        asShipTotal[ship] > 20) {
         maneuver_complete(ship);
         return;
     }
 
     approach_full_speed(ship);
     if (no_goal(ship) != 0) {
-        choice = RandomBelowOrEqual(2);
+        choice = RandomBelowOrEqual(
+#ifdef SDL_PORT
+            SdlSwcFlightActive() ? 1 :
+#endif
+            2);
         switch (choice) {
         case 0:
             anYawTarget[ship] = signed_random(6) * 5;
@@ -153,6 +161,17 @@ void ShipAiState35(short ship, short target)
 
     switch (acShipSequence[ship]) {
     case 0:
+#ifdef SDL_PORT
+        /* Mac Msafe_break +0x29c4 advances while the distant-ship
+           counter is below ten; the Win32 condition is reversed. */
+        if (SdlSwcFlightActive()) {
+            if (nTgtRange < 750 || ++asShipTotal[ship] < 10) {
+                advance(ship);
+                asShipTotal[ship] = 0;
+            }
+            break;
+        }
+#endif
         if (nTgtRange < 750 ||
             ++asShipTotal[ship] > 10) {
             advance(ship);
@@ -164,6 +183,14 @@ void ShipAiState35(short ship, short target)
         advance(ship);
         break;
     case 2:
+#ifdef SDL_PORT
+        if (SdlSwcFlightActive()) {
+            if (++asShipTotal[ship] < 5) {
+                acShipSequence[ship] = 0;
+                asShipTotal[ship] = 0;
+            }
+        } else
+#endif
         if (++asShipTotal[ship] > 5) {
             acShipSequence[ship] = 0;
             asShipTotal[ship] = 0;
@@ -456,7 +483,11 @@ void Mroll_over(short ship)
     if (acShipSequence[ship] == 0) {
         advance(ship);
         anRollGoal[ship] =
-            RandomBelowOrEqual(2) * 360 - 180;
+            RandomBelowOrEqual(
+#ifdef SDL_PORT
+                SdlSwcFlightActive() ? 1 :
+#endif
+                2) * 360 - 180;
     } else if (anRollGoal[ship] == 0) {
         maneuver_complete(ship);
     } else {
@@ -471,7 +502,11 @@ void Mhard_turn(short ship)
     switch (acShipSequence[ship]) {
     case 0:
         anYawTarget[ship] =
-            RandomBelowOrEqual(2) * 360 - 180;
+            RandomBelowOrEqual(
+#ifdef SDL_PORT
+                SdlSwcFlightActive() ? 1 :
+#endif
+                2) * 360 - 180;
         advance(ship);
         break;
     default:
@@ -490,7 +525,11 @@ void Mfish_hook(short ship, short target)
     switch (acShipSequence[ship]) {
     case 0:
         anYawTarget[ship] =
-            RandomBelowOrEqual(2) * 240 - 120;
+            RandomBelowOrEqual(
+#ifdef SDL_PORT
+                SdlSwcFlightActive() ? 1 :
+#endif
+                2) * 240 - 120;
         fire_afterburner(ship, 5);
         break;
     case 1:
@@ -500,7 +539,11 @@ void Mfish_hook(short ship, short target)
     case 2:
         fire_super_brake(ship);
         anYawTarget[ship] =
-            RandomBelowOrEqual(2) * 90 - 45;
+            RandomBelowOrEqual(
+#ifdef SDL_PORT
+                SdlSwcFlightActive() ? 1 :
+#endif
+                2) * 90 - 45;
         break;
     case 3:
         advanceSequence =
@@ -527,10 +570,19 @@ void Mfish_hook(short ship, short target)
 void Mtry2tail(short ship, short target)
 {
     if (unactive(target) == 0) {
+#ifdef SDL_PORT
+        /* This shared body is Mac Mintercept, slot 39 (+0x346e). */
+        if (SdlSwcFlightActive() && aeSpecialManeuvers[ship] == SPECIAL_MANEUVER_KILL_ENGINES)
+            aeSpecialManeuvers[ship] = SPECIAL_MANEUVER_NONE;
+#endif
         approach_full_speed(ship);
         if (no_goal(ship) != 0)
             point_ship_at_object(ship, target);
-        if (RandomBelowOrEqual(100) < 4)
+        if (RandomBelowOrEqual(
+#ifdef SDL_PORT
+            SdlSwcFlightActive() ? 99 :
+#endif
+            100) < 4)
             veer_random(ship, 5);
     } else {
         maneuver_complete(ship);
@@ -607,6 +659,11 @@ void Mtail_fire(short ship, short target)
 void Mzip_past(short ship, short target)
 {
     if (unactive(target) == 0) {
+#ifdef SDL_PORT
+        /* This shared body is Mac Mtry2tail, slot 40 (+0x36b4). */
+        if (SdlSwcFlightActive() && aeSpecialManeuvers[ship] == SPECIAL_MANEUVER_KILL_ENGINES)
+            aeSpecialManeuvers[ship] = SPECIAL_MANEUVER_NONE;
+#endif
         if (close_behind(
                 asObjectCollisionRadius[target] + 2000) != 0) {
             Mtail_fire(ship, target);
@@ -647,7 +704,11 @@ void Mtarget_missile(short ship, short target)
         nTgtRange < 6000 &&
         (nTargetFacingValue > 80 ||
          nTargetFacingValue < -80) &&
-        RandomBelowOrEqual(5) == 0) {
+        RandomBelowOrEqual(
+#ifdef SDL_PORT
+            SdlSwcFlightActive() ? 4 :
+#endif
+            5) == 0) {
         fire_missile(ship);
         maneuver_complete(ship);
     }
@@ -893,12 +954,20 @@ void Mveer_away(short ship, short target)
         if (nFacingToTargetValue > 80) {
             steer_away_from_object(ship, target, 40);
         } else if (nFacingToTargetValue < -65 ||
-                   RandomBelowOrEqual(100) < 4) {
+                   RandomBelowOrEqual(
+#ifdef SDL_PORT
+                       SdlSwcFlightActive() ? 99 :
+#endif
+                       100) < 4) {
             veer_random(ship, 16);
         }
     }
     if ((nManeuverProximityRange >= nTgtRange ||
-         RandomBelowOrEqual(100) < 10) &&
+         RandomBelowOrEqual(
+#ifdef SDL_PORT
+             SdlSwcFlightActive() ? 99 :
+#endif
+             100) < 10) &&
         normal_speed(ship) != 0) {
         fire_afterburner(ship, 10);
         return;
@@ -1072,7 +1141,11 @@ void perform_maneuver(short obj)
     if (range < nManeuverProximityRange) {
         try2reset_maneuver(obj, 2);
     } else if (aeShipManeuversTable[obj] == previous &&
-               RandomBelowOrEqual(100) <
+               RandomBelowOrEqual(
+#ifdef SDL_PORT
+                   SdlSwcFlightActive() ? 99 :
+#endif
+                   100) <
                    bCurrentManeuverReroll) {
         maneuver_complete(obj);
     }

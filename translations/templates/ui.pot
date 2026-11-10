@@ -820,7 +820,7 @@ msgctxt "intro"
 msgid "wc1:ae517f2f44c29baf"
 msgstr ""
 
-#: src/sdl/autosave.c:56 src/sdl/swc_flight.c:1191
+#: src/sdl/autosave.c:56 src/sdl/swc_flight.c:1294
 msgctxt "font0"
 msgid "wc1:c49c1b105b4018ae"
 msgstr ""
@@ -830,20 +830,20 @@ msgctxt "font0"
 msgid "wc1:33a94eaf14393f50 (Y/N)"
 msgstr ""
 
-#: src/ship.c:931
+#: src/ship.c:974
 msgid "wc1:4a6f83d15b2d33ea"
 msgstr ""
 
-#: src/ship.c:951
+#: src/ship.c:998
 msgid "wc1:2fb234bf5051ca4d"
 msgstr ""
 
-#: src/ship.c:986
+#: src/ship.c:1033
 #, c-format
 msgid "wc1:c40a7fcd3dcd0fe6 %s"
 msgstr ""
 
-#: src/ship.c:2038
+#: src/ship.c:2135
 msgid "wc1:0ae715aa6be3d120"
 msgstr ""
 

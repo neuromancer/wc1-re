@@ -103,6 +103,16 @@ void PostMission(void)
             add_statistics(pilot, 1, nWingmanKillCount);
         } else if (stCampaignState.personalityDeathMission[
                        pilot] == 0) {
+#ifdef SDL_PORT
+            /* Mac PostMission +0x19ec: Random3DO has an exclusive upper
+               bound and returns zero for equal bounds. */
+            if (SdlSwcFlightActive()) {
+                missions = RandomBelowOrEqual(1);
+                add_statistics(pilot, missions, missions == 0 ? 0 :
+                    RandomBelowOrEqual(MaxShort(0, nPlayerKillTotal - 1)));
+                continue;
+            }
+#endif
             missions = RandomInRange(0, 2);
             add_statistics(pilot, missions,
                            missions == 0 ? 0 :

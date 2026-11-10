@@ -297,7 +297,7 @@ int SdlDrawSwcPolygon(SDL_Renderer *renderer, SDL_Texture *canvas,
 
 /* CODE_02 Cos +0x557c, Sin +0x5608 and DATA/0 +0x4550. These short
  * MacsBug names are absent from the older exported symbol list. */
-static int SwcCos(int angle)
+int SdlSwcCos(int angle)
 {
     static const unsigned short quadrant[91] = {
         256, 255, 255, 255, 255, 255, 254, 254, 253, 252, 252, 251, 250,
@@ -369,8 +369,8 @@ int SdlDrawSwcRotatedImage(SDL_Renderer *renderer, SDL_Texture *canvas,
                             int x, int y, int angle, int scale, int flip, SDL_Rect *bounds)
 {
     SDL_Point corners[4];
-    int cosine = SwcCos(360 - angle);
-    int sine = SwcCos(270 - angle);
+    int cosine = SdlSwcCos(360 - angle);
+    int sine = SdlSwcCos(270 - angle);
     int halfWidth = image->width * (scale >> 1);
     int halfHeight = image->height * (scale >> 1);
     int dx;

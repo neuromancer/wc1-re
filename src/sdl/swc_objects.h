@@ -3,7 +3,7 @@
  * DATA/0 SHA-256: 8373edcff90ab35cda5663c1b0cc5112d00ed8c6c35ab14a45a0577a23a54faa
  * Negative A5 SHA-256: 15338836d634310d80e725c8254c6ee2589917d610515e44f2dd33c3cd7f62ec
  * Original entries: init_data_struct1 +0x0286, init_data_struct2 +0x47cc.
- * Common WC1/SWC object IDs 0..57; the other Mac IDs remain unsupported.
+ * Object IDs 58..60 are reserved; 61..82 are ship-specific wreckage.
  * DATA/0 animation words are converted from big endian to host integers. */
 static unsigned int swcAnimation24[] = {0x0, 0x1, 0x2, 0x3, 0x9000};
 static unsigned int swcAnimation25[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x9000};
@@ -32,6 +32,28 @@ static unsigned int swcAnimation53[] = {0x0, 0x1, 0x2, 0x3, 0xa000};
 static unsigned int swcAnimation54[] = {0x0, 0x1, 0x2, 0x3, 0xa000};
 static unsigned int swcAnimation56[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0x9000};
 static unsigned int swcAnimation57[] = {0x0, 0x0, 0x1, 0x1, 0x2, 0x2, 0x3, 0x3, 0x4, 0x4, 0x5, 0x5, 0x6, 0x6, 0x7, 0x7, 0x8, 0x8, 0x9, 0x9, 0xa000};
+static unsigned int swcAnimation61[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation62[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation63[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation64[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation65[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation66[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation67[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation68[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation69[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation70[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation71[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation72[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation73[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation74[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation75[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation76[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation77[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation78[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation79[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation80[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation81[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
+static unsigned int swcAnimation82[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x9000};
 
 static const ObjectTypeData swcObjectDefinitions[OBJECT_TYPE_COUNT] = {
     { /* 0: Hornet */
@@ -1430,6 +1452,228 @@ static const ObjectTypeData swcObjectDefinitions[OBJECT_TYPE_COUNT] = {
         .armorRight = 0,
         .lifetime = 0,
         .animation = (unsigned char *)swcAnimation57,
+    },
+    { /* 58:  */
+        .objectClass = 0,
+    },
+    { /* 59:  */
+        .objectClass = 0,
+    },
+    { /* 60:  */
+        .objectClass = 0,
+    },
+    { /* 61:  */
+        .objectClass = 8,
+        .collisionRadius = 150,
+        .mass = 100,
+        .scale = 2048,
+        .damageCapacity = 10,
+        .explosionDamage = 20000,
+        .yawRate = 1,
+        .rollRate = 12,
+        .lifetime = 160,
+        .animation = (unsigned char *)swcAnimation61,
+    },
+    { /* 62:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation62,
+    },
+    { /* 63:  */
+        .objectClass = 8,
+        .collisionRadius = 150,
+        .mass = 100,
+        .scale = 1152,
+        .damageCapacity = 10,
+        .explosionDamage = 20000,
+        .yawRate = 1,
+        .rollRate = 15,
+        .lifetime = 160,
+        .animation = (unsigned char *)swcAnimation63,
+    },
+    { /* 64:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation64,
+    },
+    { /* 65:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation65,
+    },
+    { /* 66:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation66,
+    },
+    { /* 67:  */
+        .objectClass = 8,
+        .collisionRadius = 150,
+        .mass = 100,
+        .scale = 1792,
+        .damageCapacity = 10,
+        .explosionDamage = 20000,
+        .yawRate = 1,
+        .rollRate = 12,
+        .lifetime = 160,
+        .animation = (unsigned char *)swcAnimation67,
+    },
+    { /* 68:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation68,
+    },
+    { /* 69:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation69,
+    },
+    { /* 70:  */
+        .objectClass = 8,
+        .collisionRadius = 150,
+        .mass = 100,
+        .scale = 1024,
+        .damageCapacity = 10,
+        .explosionDamage = 10000,
+        .yawRate = 1,
+        .rollRate = 12,
+        .lifetime = 160,
+        .animation = (unsigned char *)swcAnimation70,
+    },
+    { /* 71:  */
+        .objectClass = 8,
+        .collisionRadius = 150,
+        .mass = 100,
+        .scale = 1024,
+        .damageCapacity = 10,
+        .explosionDamage = 10000,
+        .yawRate = 1,
+        .rollRate = 12,
+        .lifetime = 160,
+        .animation = (unsigned char *)swcAnimation71,
+    },
+    { /* 72:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation72,
+    },
+    { /* 73:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation73,
+    },
+    { /* 74:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation74,
+    },
+    { /* 75:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation75,
+    },
+    { /* 76:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation76,
+    },
+    { /* 77:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation77,
+    },
+    { /* 78:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation78,
+    },
+    { /* 79:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation79,
+    },
+    { /* 80:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation80,
+    },
+    { /* 81:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation81,
+    },
+    { /* 82:  */
+        .objectClass = 6,
+        .collisionRadius = 10,
+        .mass = 1,
+        .scale = 2048,
+        .yawRate = 1,
+        .rollRate = 12,
+        .animation = (unsigned char *)swcAnimation82,
     },
 };
 

@@ -13,6 +13,22 @@
 #include <process.h>
 #endif
 
+#ifdef SDL_PORT
+/* Retail DATA/0 +0x35b4: the sixth enemy-type row, absent from WC1's
+   five skill-level rows. The first five and all rated rows are identical. */
+static const ManeuverChoice aSwcHhrissManeuvers[9][3] = {
+    {{60, 40, 29}, {60, 40, 29}, {100, 21, -1}},
+    {{80, 29, 37}, {50, 29, 40}, {100, 21, -1}},
+    {{100, 39, -1}, {100, 39, -1}, {100, 21, -1}},
+    {{50, 16, 38}, {75, 7, 20}, {100, 21, -1}},
+    {{60, 41, 31}, {60, 41, 31}, {100, 21, -1}},
+    {{100, 26, -1}, {100, 26, -1}, {100, 26, -1}},
+    {{50, 32, 20}, {50, 32, 20}, {100, 21, -1}},
+    {{50, 19, 20}, {50, 9, 20}, {100, 21, -1}},
+    {{100, 25, -1}, {100, 2, -1}, {100, 2, -1}}
+};
+#endif
+
 /* Linker commons defined here; LINK orders them by identifier hash. */
 FixedVector aShipRightVector[64]; /* 0x0059b6e0 */
 FixedVector aShipUpVector[64]; /* 0x0059b9e0 */
@@ -423,6 +439,11 @@ enum ShipManeuver any_defense(short obj)
         aiPilotLevel[obj]];
     while (maneuvers[count] != -1)
         count++;
+#ifdef SDL_PORT
+    /* Mac any_defense +0x5494 never selects the list terminator. */
+    if (SdlSwcFlightActive())
+        count--;
+#endif
     return (enum ShipManeuver)maneuvers[RandomBelowOrEqual(count)];
 }
 
@@ -432,13 +453,21 @@ enum ShipManeuver pick_regular_maneuver(short obj, int event)
     short reroll;
     short morale;
 
-    reroll = RandomBelowOrEqual(100) < 3 ||
+    reroll = RandomBelowOrEqual(
+#ifdef SDL_PORT
+        SdlSwcFlightActive() ? 99 :
+#endif
+        100) < 3 ||
              aeShipManeuversTable[obj] == MANEUVER_NONE;
     morale = stress_morale(obj);
     if (morale == 2)
         return MANEUVER_OUTA_HERE;
     if ((aiIntelligenceEvent[obj] == event ||
-         RandomBelowOrEqual(100) < 20) &&
+         RandomBelowOrEqual(
+#ifdef SDL_PORT
+             SdlSwcFlightActive() ? 99 :
+#endif
+             100) < 20) &&
         (event == 0 || event == 3 || event == 4 || event == 7) &&
         reroll == 0)
         return aeShipManeuversTable[obj];
@@ -460,7 +489,11 @@ enum ShipManeuver pick_regular_maneuver(short obj, int event)
             return MANEUVER_DROP_A_MINE;
         return any_defense(obj);
     case 4:
-        if (RandomBelowOrEqual(100) >=
+        if (RandomBelowOrEqual(
+#ifdef SDL_PORT
+            SdlSwcFlightActive() ? 99 :
+#endif
+            100) >=
             aiPilotLevel[obj] * 20 + 30)
             return any_defense(obj);
         return MANEUVER_STRAFE_ENEMY;
@@ -493,11 +526,19 @@ enum ShipManeuver pick_from_list(const ManeuverChoice *choice, short obj)
         choice->secondary < MANEUVER_UNKNOWN_45)
         chooseAgain = 1;
     if (chooseAgain == 0) {
-        if (RandomBelowOrEqual(100) < 5)
+        if (RandomBelowOrEqual(
+#ifdef SDL_PORT
+            SdlSwcFlightActive() ? 99 :
+#endif
+            100) < 5)
             chooseAgain = 1;
     }
     if (chooseAgain != 0) {
-        if (RandomBelowOrEqual(100) >= choice->threshold)
+        if (RandomBelowOrEqual(
+#ifdef SDL_PORT
+            SdlSwcFlightActive() ? 99 :
+#endif
+            100) >= choice->threshold)
             maneuver = (enum ShipManeuver)choice->secondary;
         else
             maneuver = (enum ShipManeuver)choice->primary;
@@ -514,7 +555,33 @@ enum ShipManeuver pick_kilrathi_maneuver(short obj, int event)
     choice =
         &aKilrathiManeuverChoices[
             aiPilotLevel[obj]][event][stress_morale(obj)];
+#ifdef SDL_PORT
+    /* Mac pick_kilrathi_maneuver +0x5758 selects by fighter type.
+       SWC uses WC1's Spikeri ID for the Hhriss. */
+    if (SdlSwcFlightActive() && aeObjectTypeList[obj] >= OBJECT_TYPE_SALTHI &&
+        aeObjectTypeList[obj] <= OBJECT_TYPE_SPIKERI) {
+        short type = aeObjectTypeList[obj] - OBJECT_TYPE_SALTHI;
+
+        choice = type == 5 ? &aSwcHhrissManeuvers[event][stress_morale(obj)] :
+            &aKilrathiManeuverChoices[type][event][stress_morale(obj)];
+    }
+#endif
     maneuver = pick_from_list(choice, obj);
+#ifdef SDL_PORT
+    /* +0x57c4: release a mine at a close pursuer only without an existing
+       child mine. Resolve special choices before consuming the mine roll. */
+    if (SdlSwcFlightActive()) {
+        if (maneuver == MANEUVER_UNKNOWN_45)
+            maneuver = MANEUVER_STRAFE_ENEMY;
+        else if (maneuver == MANEUVER_UNKNOWN_46)
+            maneuver = any_defense(obj);
+        if (event == 3 && find_child_object(obj, OBJECT_CLASS_MINE) == -1 &&
+            mine_available(obj) != -1 && RandomBelowOrEqual(99) < 30 &&
+            nTgtRange < 1800 && nFacingToTargetValue < -70 && nTargetFacingValue > 90)
+            return MANEUVER_DROP_A_MINE;
+        return maneuver;
+    }
+#endif
     switch (maneuver) {
     case MANEUVER_UNKNOWN_45:
         return MANEUVER_STRAFE_ENEMY;

@@ -111,7 +111,12 @@ enum ObjectType {
     OBJECT_TYPE_EJECTED_PILOT             = 56,
     OBJECT_TYPE_HYPERSPACE_JUMP_FLASH     = 57,
     OBJECT_TYPE_TYPES                     = 58, /* original enum terminator */
+#ifdef SDL_PORT
+    OBJECT_TYPE_SWC_WRECKAGE_BASE         = 61,
+    OBJECT_TYPE_COUNT                     = 83, /* SWC: one wreck per ship type. */
+#else
     OBJECT_TYPE_COUNT                     = OBJECT_TYPE_TYPES,
+#endif
     OBJECT_TYPE_SPACE_DUST                = 59,
     OBJECT_TYPE_DEBRIS_DUST               = 60
 };
