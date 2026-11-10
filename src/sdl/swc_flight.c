@@ -20,7 +20,7 @@ enum SwcFlightScene {
     SWC_FLIGHT_EJECTION
 };
 
-enum { SWC_TITLE_CONTINUE = 3 };
+enum { SWC_TITLE_CONTINUE = 3, SWC_TITLE_CREDITS = 4 };
 
 static int swcFlightActive;
 unsigned char aSwcWeaponAmmo[10][10]; /* Mac loadout byte +9 per slot. */
@@ -1178,8 +1178,7 @@ static int SwcDrawPauseMessage(SDL_Renderer *renderer, const SDL_Color colors[25
             colors[0x81], !paused ? "Return to the game to continue" :
                 flightControls ? "Press Esc or P to continue" : "Press P to continue") != 0 ||
         SdlDrawSwcProportionalText(renderer, &swcPauseFont, 10, 220,
-            colors[0x81], nTrainSimActive ? "Ctrl+E in flight: leave simulator" :
-                "playing Super Wing Commander.") != 0)
+            colors[0x81], "playing Super Wing Commander.") != 0)
         return -1;
     return 0;
 }
@@ -1426,10 +1425,12 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
     SwcFrame frame;
     SDL_Texture *menuTextures[3] = {NULL, NULL, NULL};
     SDL_Cursor *savedCursor = SDL_GetCursor();
-    SDL_Rect bounds[3];
+    SDL_Rect bounds[4];
+    SDL_RWops *reader;
     SDL_Event event;
     SDL_Point mouse = {-1, -1};
     char failure[256];
+    char creditsPath[PATH_MAX];
     SDL_Scancode armedKey = SDL_SCANCODE_UNKNOWN;
     Uint32 previous;
     Uint32 now;
@@ -1443,6 +1444,8 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
     int configured = 0;
     int titleMenu = scene == SWC_FLIGHT_TITLE;
     int selected = canContinue ? 2 : 1;
+    int hasCredits = 0;
+    int step;
     int savedVulnerable = bPlayerVulnerable;
     short pilot = -1;
     int cursorVisible = SDL_ShowCursor(SDL_QUERY);
@@ -1466,6 +1469,15 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
             if (menuTextures[index] == NULL)
                 goto done;
         }
+        if (SdlResolvePath("CMFs/credits.swc", creditsPath, sizeof(creditsPath))) {
+            reader = SDL_RWFromFile(creditsPath, "rb");
+            if (reader != NULL) {
+                hasCredits = 1;
+                SDL_RWclose(reader);
+            }
+        }
+        SDL_ClearError();
+        bounds[3] = (SDL_Rect){250, 216, 62, 18};
         /* Expanded DATA/0 mission records 32..35 (+0xa0a + index*76),
          * nav 16 (+0x14ba + 16*88). No campaign mission is borrowed. */
         memcpy(savedShips, &aMissionShips[32], sizeof(savedShips));
@@ -1602,8 +1614,11 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
                     (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
                      event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT ||
                      event.key.keysym.sym == SDLK_TAB)) {
-                    if (canContinue)
-                        selected = 3 - selected;
+                    step = event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_LEFT ||
+                        (event.key.keysym.sym == SDLK_TAB && (event.key.keysym.mod & KMOD_SHIFT)) ? -1 : 1;
+                    do {
+                        selected = (selected + step + 2) % 3 + 1;
+                    } while ((selected == 2 && !canContinue) || (selected == 3 && !hasCredits));
                     SdlPlaySwcSound(30, 255);
                 } else if (titleMenu && !paused && event.key.keysym.sym == SDLK_i) {
                     result = SWC_MOVIE_SKIPPED;
@@ -1624,27 +1639,36 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
                 continue;
             if (titleMenu && event.type == SDL_MOUSEMOTION) {
                 mouse = (SDL_Point){event.motion.x, event.motion.y};
-                if (SDL_PointInRect(&mouse, &bounds[1]))
-                    selected = 1;
-                else if (canContinue && SDL_PointInRect(&mouse, &bounds[2]))
-                    selected = 2;
+                for (index = 1; index <= 3; index++) {
+                    if ((index != 2 || canContinue) && (index != 3 || hasCredits) &&
+                        SDL_PointInRect(&mouse, &bounds[index]))
+                        selected = index;
+                }
             }
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
                 mouseDown = 1;
             if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
                 mouse = (SDL_Point){event.button.x, event.button.y};
-                if (mouseDown && (!titleMenu || SDL_PointInRect(&mouse, &bounds[1]) ||
-                    (canContinue && SDL_PointInRect(&mouse, &bounds[2])))) {
-                    if (titleMenu)
-                        selected = SDL_PointInRect(&mouse, &bounds[1]) ? 1 : 2;
-                    activate = 1;
+                if (mouseDown) {
+                    if (!titleMenu) {
+                        activate = 1;
+                    } else {
+                        for (index = 1; index <= 3; index++) {
+                            if ((index != 2 || canContinue) && (index != 3 || hasCredits) &&
+                                SDL_PointInRect(&mouse, &bounds[index])) {
+                                selected = index;
+                                activate = 1;
+                            }
+                        }
+                    }
                 }
                 mouseDown = 0;
             }
         }
         SdlPauseSwcSound(!focused || paused);
         if (activate && focused && !paused && (titleMenu || ticks > 40)) {
-            result = titleMenu && selected == 2 ? SWC_TITLE_CONTINUE : SWC_MOVIE_FINISHED;
+            result = titleMenu && selected == 3 ? SWC_TITLE_CREDITS :
+                titleMenu && selected == 2 ? SWC_TITLE_CONTINUE : SWC_MOVIE_FINISHED;
             break;
         }
         if (focused && !paused)
@@ -1695,10 +1719,13 @@ draw_scene:
             goto done;
         if (titleMenu) {
             if (SDL_RenderCopy(swcCinemaRenderer, menuTextures[0], NULL, &bounds[0]) != 0 ||
-                (nRenderedSpaceFrame % 6 < 4 &&
-                 SDL_RenderCopy(swcCinemaRenderer, menuTextures[selected], NULL, &bounds[selected]) != 0) ||
-                SdlDrawSwcProportionalText(swcCinemaRenderer, &swcPauseFont, 10, 228,
-                    swcCinemaColors[129], "Enter / A: select   I: replay intro") != 0)
+                (selected < 3 && nRenderedSpaceFrame % 6 < 4 &&
+                 SDL_RenderCopy(swcCinemaRenderer, menuTextures[selected], NULL, &bounds[selected]) != 0))
+                goto done;
+            if (hasCredits && SdlDrawSwcProportionalText(swcCinemaRenderer, &swcPauseFont,
+                    bounds[3].x + (bounds[3].w - SdlSwcTextWidth(&swcPauseFont, "Credits")) / 2,
+                    228, swcCinemaColors[selected == 3 && nRenderedSpaceFrame % 6 < 4 ? 0xd4 : 129],
+                    "Credits") != 0)
                 goto done;
         } else if (ticks > 40 &&
             SdlDrawSwcProportionalText(swcCinemaRenderer, &font,
@@ -1733,7 +1760,8 @@ done:
     if (titleMenu)
         SdlStopSwcMusic();
     SdlStopSwcSounds();
-    if (titleMenu && (result == SWC_MOVIE_FINISHED || result == SWC_TITLE_CONTINUE))
+    if (titleMenu && (result == SWC_MOVIE_FINISHED || result == SWC_TITLE_CONTINUE ||
+                     result == SWC_TITLE_CREDITS))
         SdlPlaySwcSound(31, 255);
     if (titleMenu && savedCursor != NULL)
         SDL_SetCursor(savedCursor);
@@ -1919,6 +1947,13 @@ title_menu:
     movieResult = SwcRunFlightScene(SWC_FLIGHT_TITLE, canContinue || nSwcContinueSlot >= 0);
     if (movieResult == SWC_MOVIE_ERROR)
         goto done;
+    if (movieResult == SWC_TITLE_CREDITS) {
+        movieResult = SdlShowSwcCredits(window, renderer, path);
+        if (movieResult == SWC_MOVIE_ERROR)
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Credits unavailable", SDL_GetError(), window);
+        if (movieResult != SWC_MOVIE_QUIT)
+            goto title_menu;
+    }
     if (movieResult == SWC_MOVIE_SKIPPED) {
         movieResult = SdlPlaySwcStartup(window, renderer, path, 1);
         if (movieResult == SWC_MOVIE_ERROR)

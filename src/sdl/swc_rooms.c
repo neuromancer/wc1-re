@@ -2119,6 +2119,156 @@ done:
     return result;
 }
 
+/* Retail CODE_03 credits 0x01034cbe: 18 lines, # followed by a heading,
+ * 20-pixel baselines plus 40 before headings, repeating after the last line.
+ * Read the user's data fork; the credits text is not part of the port. */
+int SdlShowSwcCredits(SDL_Window *window, SDL_Renderer *renderer,
+                        const char *resourceFork)
+{
+    struct SwcCreditLine {
+        char text[60];
+        int y;
+        int heading;
+    } lines[18];
+    SwcCarrier carrier = {0};
+    SwcEndShards shards = {0};
+    SwcRoomInput input;
+    SwcRoomArt *art;
+    SwcBuffer credits = {0};
+    SDL_Color ink;
+    char path[PATH_MAX];
+    char failure[256];
+    size_t cursor = 0;
+    size_t length;
+    Uint32 previous;
+    Uint32 now;
+    Uint32 elapsed = 50;
+    int count = 0;
+    int index;
+    int part;
+    int y;
+    int cursorVisible = SDL_ShowCursor(SDL_QUERY);
+    int result = SWC_MOVIE_ERROR;
+
+    carrier.window = window;
+    carrier.renderer = renderer;
+    carrier.resourceFork = resourceFork;
+    if (!SdlResolvePath("CMFs/credits.swc", path, sizeof(path)) ||
+        SwcLoadDataFork(path, &credits) != 0)
+        goto done;
+    if (credits.size == 0 || memchr(credits.data, 0, credits.size) != NULL) {
+        SDL_SetError("Invalid SWC credits text");
+        goto done;
+    }
+    if (SwcGetRoomArt(&carrier, SWC_RECROOM, "PLNT", 1) == NULL ||
+        SdlCreateSwcTextFont(renderer, &carrier.roomFont, 14) != 0)
+        goto done;
+    SDL_ShowCursor(SDL_DISABLE);
+    carrier.focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+    SdlPlaySwcMusic("REVIEW.MooV", 50);
+    shards.right.x = shards.up.y = shards.forward.z = 256;
+    shards.velocity.z = 0x9000;
+    for (index = 0; index < 63; index++)
+        SwcGenerateEndShard(&shards, index);
+    previous = SDL_GetTicks();
+    for (;;) {
+        now = SDL_GetTicks();
+        input = SwcPollCarrier(&carrier);
+        if (input.quit || input.back || (carrier.focused && !carrier.paused &&
+            (input.activate || input.clicked))) {
+            result = input.quit ? SWC_MOVIE_QUIT : SWC_MOVIE_FINISHED;
+            break;
+        }
+        if (carrier.focused && !carrier.paused)
+            elapsed += SDL_min(now - previous, 250);
+        else
+            elapsed = 0;
+        previous = now;
+        if (elapsed < 50) {
+            SDL_Delay(8);
+            continue;
+        }
+        elapsed %= 50;
+        while (count > 0 && lines[0].y <= 5) {
+            count--;
+            memmove(lines, lines + 1, count * sizeof(*lines));
+        }
+        if (count == 0 && cursor == credits.size)
+            cursor = 0;
+        while (count < (int)SDL_arraysize(lines) && cursor < credits.size) {
+            y = count == 0 ? 195 : lines[count - 1].y + 20;
+            lines[count].heading = 0;
+            for (part = 0; part < 2; part++) {
+                length = 0;
+                while (cursor < credits.size && credits.data[cursor] != '\r' &&
+                       credits.data[cursor] != '\n' && length < sizeof(lines[count].text) - 1)
+                    lines[count].text[length++] = credits.data[cursor++];
+                lines[count].text[length] = 0;
+                if (cursor < credits.size && credits.data[cursor] == '\r') {
+                    cursor++;
+                    if (cursor < credits.size && credits.data[cursor] == '\n')
+                        cursor++;
+                } else if (cursor < credits.size && credits.data[cursor] == '\n') {
+                    cursor++;
+                }
+                if (part != 0 || lines[count].text[0] != '#')
+                    break;
+                if (cursor == credits.size) {
+                    SDL_SetError("SWC credits heading has no text");
+                    goto done;
+                }
+                lines[count].heading = 1;
+                y += 40;
+            }
+            lines[count++].y = y;
+        }
+        if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) != 0 || SDL_RenderClear(renderer) != 0)
+            goto done;
+        for (index = 0; index < count; index++) {
+            if (lines[index].y < 239) {
+                ink = carrier.packs[SWC_RECROOM].colors[lines[index].heading ? 4 : 25];
+                if (SdlDrawSwcProportionalText(renderer, &carrier.roomFont,
+                        (320 - SdlSwcTextWidth(&carrier.roomFont, lines[index].text)) / 2,
+                        lines[index].y, ink, lines[index].text) != 0)
+                    goto done;
+            }
+            lines[index].y--;
+        }
+        SwcUpdateEndShards(&shards, 1);
+        for (index = 0; index < 63; index++) {
+            if (shards.x[index] != -32767)
+                SwcDrawRoomArt(&carrier, SWC_RECROOM, "PLNT", 1,
+                    shards.frame[index], 160 + shards.x[index], 120 + shards.y[index]);
+        }
+        if (carrier.drawResult != 0)
+            goto done;
+        SdlDrawSwcOptionNotice(renderer);
+        SDL_RenderPresent(renderer);
+    }
+done:
+    SDL_strlcpy(failure, SDL_GetError(), sizeof(failure));
+    SdlStopSwcMusic();
+    SDL_ShowCursor(cursorVisible);
+    SDL_free(credits.data);
+    SDL_DestroyTexture(carrier.roomFont.texture);
+    for (index = 0; index < carrier.packs[SWC_RECROOM].count; index++) {
+        uint32_t frame;
+
+        art = &carrier.packs[SWC_RECROOM].art[index];
+        if (art->textures != NULL) {
+            for (frame = 0; frame < art->count; frame++)
+                SDL_DestroyTexture(art->textures[frame]);
+        }
+        SDL_free(art->textures);
+        SDL_free(art->bounds);
+        SDL_free(art->shape.data);
+    }
+    SwcCMClose(&carrier.packs[SWC_RECROOM].cmf);
+    if (result == SWC_MOVIE_ERROR)
+        SDL_SetError("%s", failure);
+    return result;
+}
+
 /* Retail CODE_14 DisplayGameScores +0x248a / PrintGameScores +0x23d2.
  * Keep six name[24]/big-endian score records in the SDL preferences folder;
  * never overwrite the original Mac preferences or WC1's pilot-index table. */
@@ -2192,9 +2342,6 @@ static int SwcDisplayGameScores(SwcCarrier *carrier, int recordScore)
                 210, 66 + index * 20, ink, text) != 0)
             return SWC_MOVIE_ERROR;
     }
-    if (SdlDrawSwcText(carrier->renderer, carrier->font, 40, 222, ink,
-            "Enter / Space / A to continue") != 0)
-        return SWC_MOVIE_ERROR;
     for (;;) {
         input = SwcPollCarrier(carrier);
         if (input.quit)
@@ -2275,10 +2422,8 @@ static int SwcChooseArcadeMission(SwcCarrier *carrier)
         }
         if (details)
             SwcDrawRoomArt(carrier, SWC_SIMULATOR, "RCRM", 41 + selected, 0, selected < 2 ? 170 : 20, 15);
-        if (!details && (SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
-                (320 - SdlSwcTextWidth(&carrier->roomFont, "CHOOSE ENEMY")) / 2, 205, ink, "CHOOSE ENEMY") != 0 ||
-            SdlDrawSwcText(carrier->renderer, carrier->font, 75, 228, ink,
-                "Enter / A: select   Esc / B: cancel") != 0))
+        if (!details && SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
+                (320 - SdlSwcTextWidth(&carrier->roomFont, "CHOOSE ENEMY")) / 2, 205, ink, "CHOOSE ENEMY") != 0)
             return SWC_MOVIE_ERROR;
         if (carrier->drawResult != 0 || SwcPresentRoom(carrier, 255) != 0)
             return SWC_MOVIE_ERROR;
@@ -2393,8 +2538,7 @@ static int SwcManageBunk(SwcCarrier *carrier, int slot)
                     color, error[0] ? "OK" : confirm >= 0 ? index == 0 ? "Yes" : "No" : actions[index]) != 0)
                 return SWC_MOVIE_ERROR;
         }
-        if (SdlDrawSwcRoomSubtitle(renderer, &carrier->roomFont,
-                error[0] ? error : "Enter / A: select   Esc / B: back") != 0)
+        if (error[0] && SdlDrawSwcRoomSubtitle(renderer, &carrier->roomFont, error) != 0)
             return SWC_MOVIE_ERROR;
         SDL_RenderPresent(renderer);
         SDL_Delay(16);

@@ -221,6 +221,8 @@ int SdlPlaySwcFuneralMovies(SDL_Window *window, SDL_Renderer *renderer, int fare
 int SdlPlaySwcStrandedMovie(SDL_Window *window, SDL_Renderer *renderer);
 int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
                        const char *resourceFork, enum SwcEnding ending);
+int SdlShowSwcCredits(SDL_Window *window, SDL_Renderer *renderer,
+                        const char *resourceFork);
 
 enum SwcCarrierVisit {
     SWC_CARRIER_PREFLIGHT,
