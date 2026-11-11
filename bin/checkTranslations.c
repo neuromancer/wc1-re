@@ -44,6 +44,36 @@ static void SilentAudio(void *stream, unsigned int size)
     memset(stream, 0, size);
 }
 
+static void CheckSm1Debriefing(const char *root, int translated, TextContext *context)
+{
+    char path[4096];
+    size_t archiveSize, size;
+    unsigned char *archive = ReadResource(root, "BRIEFING.001", &archiveSize);
+    unsigned char *original, *loaded;
+    const unsigned char *record;
+    const char *source, *expected, *actual;
+    size_t text;
+    Require(SdlExtractOriginPacketSection(archive, archiveSize, 24, &original, &size), "decode malformed SM1 record");
+    record = original + Read32(original + 8) + 9 * 13;
+    source = (const char *)original + Read32(original + 12) + Read16(record + 5);
+    expected = SdlTranslateText("sm1/BRIEFING.001/packet/24/scene/1/record/9", source);
+    Require((strcmp(source, expected) != 0) == (translated && french), "French translation of restored SM1 record");
+    SDL_snprintf(path, sizeof(path), "%s/BRIEFING.001", root);
+    loaded = PacketLoad(path, 24, 0, 0, 0);
+    Require(loaded != 0, "SM1 repair through game packet loader");
+    record = loaded + Read32(loaded + 8) + 9 * 13;
+    text = Read32(loaded + 12);
+    Require(Read16(record + 5) == 0 && loaded[text] == 0, "SM1 dialogue is never interpreted as test commands");
+    actual = (const char *)loaded + text + Read16(record + 7);
+    Require(strcmp(actual, expected) == 0, "SM1 repair precedes translation lookup");
+    Require(Read16(record + 9) == 895, "SM1 mouth animation restored");
+    DrawTextAt(context, 0, 0, AddPCName(actual), 2);
+    Require(context->cursorY + Read16(context->font) <= 40, "restored SM1 subtitle fits");
+    ReleasePacketHandle(loaded);
+    free(original);
+    SDL_free(archive);
+}
+
 static void CheckVoicePacketLoad(const char *root)
 {
     char path[4096];
@@ -212,7 +242,7 @@ static void CheckExtraResources(const char *root,
 {
     static const char *files[] = {"TITLE.VGA", "TITLE.VGA", "TITLE1.VGA", "COCKPIT.VGA", "RECROOM.VGA", "SERIES.VGA"};
     static const short sections[] = {1, 4, 0, 7, 0, 0};
-    unsigned int i, translatedLines = 0;
+    unsigned int i, translatedLines = 0, tallCount = 0;
     char path[4096];
 
     apViewportAllocations[0] = surface->pixels;
@@ -275,10 +305,6 @@ static void CheckExtraResources(const char *root,
         free(original);
         SDL_free(archive);
     }
-    if (french) {
-        printf("PASS: French main-menu artwork, game packet loader, CRC fallback and original intro alphabet.\n");
-        return;
-    }
     for (i = 0; i < 9; i++) {
         char name[20];
         size_t archiveSize;
@@ -315,19 +341,23 @@ static void CheckExtraResources(const char *root,
                 if (strcmp(en, es) == 0)
                     continue;
                 translatedLines++;
+                for (const unsigned char *glyph = (const unsigned char *)es; *glyph; glyph++)
+                    Require(*glyph == '\n' || *glyph == '\r' || context->font[4 + *glyph] != 0, "midgame glyph exists");
                 SDL_memset(surface->pixels, 0, 64000);
                 DrawTextAt(context, 0, 0, AddPCName(es), 2);
-                if (context->cursorY + Read16(context->font) > 40)
+                if (context->cursorY + Read16(context->font) > 40) {
                     fprintf(stderr, "MIDGAME OVERFLOW %s/%d/%zu: %s\n", name, section, record, es);
-                Require(context->cursorY + Read16(context->font) <= 40, "midgame caption fits");
+                    tallCount++;
+                }
             }
             free(original);
             free(translated);
         }
         SDL_free(archive);
     }
-    Require(translatedLines >= 80, "midgame coverage");
-    printf("PASS: 6 artwork packets, CRC fallback, title alphabet and %u midgame captions.\n", translatedLines);
+    Require(translatedLines == 86, "complete midgame coverage");
+    Require(tallCount == 0, "midgame captions fit");
+    printf("PASS: %u artwork packets, CRC fallback, title alphabet and %u midgame captions.\n", french ? 1 : 6, translatedLines);
 }
 
 static void CheckSimulatorDisplays(TextContext *context, unsigned char **fontData,
@@ -494,9 +524,10 @@ int main(int argc, char **argv)
                 "same Spanish accent glyph in shared font encoding");
     }
     context.font = fontData[0];
-    for (campaign = 0; campaign < (french ? 1 : 3); campaign++) {
+    for (campaign = 0; campaign < 3; campaign++) {
         char name[32];
         unsigned int count;
+        unsigned int before = translatedCount;
         SDL_snprintf(name, sizeof(name), "BRIEFING.00%u", campaign);
         archive = ReadResource(argv[2], name, &archiveSize);
         count = (Read32(archive + 4) & 0xffffff) / 4 - 1;
@@ -577,6 +608,7 @@ int main(int argc, char **argv)
             free(original);
         }
         SDL_free(archive);
+        Require(translatedCount - before > (campaign ? 1200 : 2500), "dialogue coverage in each campaign");
         SDL_snprintf(name, sizeof(name), "MODULE.00%u", campaign);
         archive = ReadResource(argv[2], name, &archiveSize);
         for (section = 0; section < 6; section++) {
@@ -592,7 +624,7 @@ int main(int argc, char **argv)
         SDL_free(archive);
     }
     bInflightComputerActive = 1; /* Exercise message storage without a game timer. */
-    for (campaign = 0; campaign < (french ? 1 : 2); campaign++) {
+    for (campaign = 0; campaign < 2; campaign++) {
         const char *radioName = campaign ? "COMMSM2.DAT" : "COMMUNIC.DAT";
         archive = ReadResource(argv[2], radioName, &archiveSize);
         for (index = 0; index < archiveSize / 80; index++) {
@@ -644,7 +676,7 @@ int main(int argc, char **argv)
     SavePreview(argv[3], surface);
     printf("PASS: %u packets; %u translated dialogue lines rendered; max height %u; %u exceed 40px.\n", packetsChecked, translatedCount, maxHeight, tallCount);
     printf("Preview: %s\n", argv[3]);
-    Require(translatedCount > (french ? 2500 : 5000) && sample[0] && radio[0], "substantial dialogue coverage");
+    Require(translatedCount > 5000 && sample[0] && radio[0], "substantial dialogue coverage");
     Require(tallCount == 0, "dialogue fits with maximum-width pilot names");
     context.font = fontData[0];
     CheckExtraResources(argv[2], &context, surface);
@@ -656,7 +688,11 @@ int main(int argc, char **argv)
     pIntroFont = 0;
     if (voices)
         CheckVoicePacketLoad(argv[2]);
+    context.font = fontData[0];
+    CheckSm1Debriefing(argv[2], 1, &context);
     SdlSetLanguage(0);
+    CheckSm1Debriefing(argv[2], 0, &context);
+    printf("PASS: restored SM1 debriefing offsets, translation lookup and rendering; English fallback.\n");
     if (voices)
         CheckVoicePacketLoad(argv[2]);
     Require(strcmp(_("GAME PAUSED"), "GAME PAUSED") == 0, "English macro bypass");

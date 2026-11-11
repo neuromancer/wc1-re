@@ -1,6 +1,6 @@
 {
   "language": "fr",
-  "scope": "WC1 base game",
+  "scope": "WC1, SM1 and SM2",
   "authors": [
     "Greg14"
   ],
@@ -9,6 +9,8 @@
   "encoding": "cp437",
   "domains": {
     "wc1": 3124,
+    "sm1": 1435,
+    "sm2": 1572,
     "common": 148
   },
   "sources": {
@@ -34,6 +36,62 @@
     "TITLE.VGA": {
       "english_sha256": "3312707060db343eb60b1504f0dd485a11201f11362c279816df92ee0da5501f",
       "french_sha256": "7f3a45430da38791cacefc24a3f9bd57b377dcf1d2461d0a074a6746cfc6b629"
+    },
+    "BRIEFING.001": {
+      "english_sha256": "105b08f08c8ca4cf013513a6d09d2f2c1f63c264e1bdf5f0c65b8075c97b6802",
+      "french_sha256": "394a57eaa58b6e54e84c68ff830e0c761d6f57651cd0579bfc2913f065bcd8dc"
+    },
+    "MODULE.001": {
+      "english_sha256": "24db96ae4741abd9ebd5d29d025d9f73f9c3a32701f048d422584e78744a4e97",
+      "french_sha256": "38e1eb94bbf9e5a8d39ee80ce9f892664c5ae0506ef51defd7c3c4cad60416e1"
+    },
+    "BRIEFING.002": {
+      "english_sha256": "83b194074a8af0c3ff4226a87e5f973d5bb1fbfbff4ec484bb01004ede2af64c",
+      "french_sha256": "538c93a44c3684158a322df1e1d6c3e3472ecd1e62cf7d38cc3e92801ccd4c36"
+    },
+    "MODULE.002": {
+      "english_sha256": "ccfd628591690475710f6360a9bd75f15e627d18eae8590b0c2380c3da072f46",
+      "french_sha256": "508843959bba21c3f105f4663de518cfbe0ba65bd0f2702d248a45a5fe4b252e"
+    },
+    "COMMSM2.DAT": {
+      "english_sha256": "b1e4768653ed5d87af73e5b1ea27bcc6de322abb3bbda18b910d58108159ee5e",
+      "french_sha256": "f1f53d351f37b386f9987b82f798365aa07d2db8e1945b6d6ebf15c78779a8c2"
+    },
+    "MIDGAME.V00": {
+      "english_sha256": "4ead7142d5917966acecaf91596cf09620e54ab7902958a29fce6dde44239930",
+      "french_sha256": "737b61ac56d4c55295b098cf105fdc679b7b8ed10399133f9314f8404ebda4c0"
+    },
+    "MIDGAME.V01": {
+      "english_sha256": "9eaddf3d00fca27232be1efd713d1f7f388e9d1025a9818e96bfe3b8a62d0027",
+      "french_sha256": "969536c2f487755086d905e02c542423d40f5fee21f2e3f5e1eff87f08dde34b"
+    },
+    "MIDGAME.V02": {
+      "english_sha256": "ad6ebf6ee15a60afce7295ef88ce3de3f6de8ffad7d82f1920dd5017f834bbe9",
+      "french_sha256": "fd656d78a6cc2f8e8bc0851d8431708cf761c06982aa172f403a4b208bb074fc"
+    },
+    "MIDGAME.V03": {
+      "english_sha256": "1cf7720ccb2f8e25c06ac9ee3d929198b9ceaf95d35ae6c3df59b6661ccb0763",
+      "french_sha256": "ab17bd40749849ca92f6c13f8cec7822ccecb5b6ec00ba6eea922bf14f981d3c"
+    },
+    "MIDGAME.V04": {
+      "english_sha256": "4f6c4b940feb172fb4e0ec5e024540678950e0e3f0f7790b88911930b8f19c8c",
+      "french_sha256": "7dba6a3c533f40aa2af637bf66a2513a852c28a954587670cd661c951049da26"
+    },
+    "MIDGAME.V05": {
+      "english_sha256": "4d52d5b4b67c1f0df68ca0245e8518228c531d9ca9689087431a0fda34ccd2b3",
+      "french_sha256": "f56ad11274f71995a3802f2c1833b739bf0bbd152cdf0793856fc85a741d854c"
+    },
+    "MIDGAME.V06": {
+      "english_sha256": "03c52961ddd71ac6a8cfa2b2bd9c59b6fae6134348c02983a79ed9961c27b19e",
+      "french_sha256": "2103c077fb805087b386f2e3c1605764ec5a6ccfa87d2e2db034260e6d18cc8a"
+    },
+    "MIDGAME.V07": {
+      "english_sha256": "c96d5f4d3df573f7ffb11c34e24ba4ccabc843ba83afdef38cc3205977cb8190",
+      "french_sha256": "e2048283c71f1ac9683d730679a6ebc2b9baa47677aa7c5eb46b628e93a5e3a2"
+    },
+    "MIDGAME.V08": {
+      "english_sha256": "a78a84d16dd4e318bc166712685f7b076f0b3462444b5cd2ad7336be072f99ab",
+      "french_sha256": "f18626bd35e866f12cd2f32c20cc76fbfc98e5db7bc1c990824a65e69ff2ddc3"
     }
   },
   "issues": [
@@ -62,13 +120,38 @@
       "warning": "Scene conditions differ between editions; text pairing requires review",
       "english_condition": "\u00053,3,",
       "french_condition": "\u00055,3,"
+    },
+    {
+      "context": "sm1/BRIEFING.001/packet/18/scene/0/record/7",
+      "warning": "Campaign substitution tokens differ; review before use",
+      "resolution": "Reviewed and corrected in the published catalog."
+    },
+    {
+      "context": "sm1/BRIEFING.001/packet/24/scene/1/record/9",
+      "warning": "English data has misplaced text/test offsets; source taken from testsOffset",
+      "resolution": "Original test/text/mouth offsets repaired by a checksum-guarded SDL data patch; French entry reviewed and enabled."
+    },
+    {
+      "context": "sm1/BRIEFING.001/packet/28/scene/1/record/12",
+      "warning": "Campaign substitution tokens differ; review before use",
+      "resolution": "Reviewed and corrected in the published catalog."
+    },
+    {
+      "context": "sm2/BRIEFING.002/packet/16/scene/3/record/1",
+      "warning": "Campaign substitution tokens differ; review before use",
+      "resolution": "Reviewed and corrected in the published catalog."
+    },
+    {
+      "context": "sm2/COMMSM2.DAT/speaker/2/record/3",
+      "warning": "Campaign substitution tokens differ; review before use",
+      "resolution": "Reviewed and corrected in the published catalog."
     }
   ],
   "not_imported": [
-    "Secret Missions",
     "original English prose",
     "game binaries",
     "artwork other than base-game menu-label deltas"
   ],
-  "review_note": "Initial findings retained above. Published catalogs repair campaign placeholders, verify the changed-condition text pairing, and shorten one subtitle. Executable UI is reviewed and supplemented by wc1-re contributors. Intro captions use the existing ASCII alphabet; main-menu Start/Continue frames use sparse deltas from Greg14; other artwork is not imported."
+  "review_note": "Initial findings retained above. Published catalogs repair campaign placeholders, verify the changed-condition text pairing, and shorten one subtitle. Executable UI is reviewed and supplemented by wc1-re contributors. Intro captions use the existing ASCII alphabet; main-menu Start/Continue frames use sparse deltas from Greg14; other artwork is not imported. SM1/SM2 text and all 86 cinematic captions imported from the same installation; four expansion placeholder mismatches corrected and the malformed SM1 debriefing record restored. Reviewed WC1/UI catalogs and artwork are retained. Seven expansion subtitles shortened to fit the renderer with maximum-width pilot names; no cinematic caption shortening was needed.",
+  "cinematic_captions": 86
 }

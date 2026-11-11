@@ -93,8 +93,8 @@ cd /path/to/WC1
 For Spanish, choose **Language → Español** or use `--language=es`. The launcher
 switches immediately; WC1 and Secret Missions support Spanish with DOS or
 Kilrathi Saga data. Super Wing Commander remains English.
-For French, choose **Français** or `--language=fr`. The WC1 base-game text, main menu
-and launcher are translated; Secret Missions and other artwork are not included yet.
+For French, choose **Français** or `--language=fr`. WC1 and Secret Missions text,
+cinematic captions, the main menu and launcher are translated; other artwork is unchanged.
 
 **Sega CD voices:** supply your own recordings in `Data/Voice` beside `GAMEDAT`,
 or keep WingLoader's original `Games/WC1/GAMEDAT` and `Data/Voice` layout. A

@@ -463,7 +463,7 @@ def delta(source, target):
     return edits
 
 
-def cinematic_entries(english, spanish=None):
+def cinematic_entries(english, spanish=None, decoder=decode_text):
     entries, issues, sources = [], [], {}
     for i in range(9):
         name = f'MIDGAME.V0{i}'
@@ -474,7 +474,7 @@ def cinematic_entries(english, spanish=None):
         for section in (5, 6):
             if original[section]:
                 scene_entries(entries, issues, f'common/{name}/packet/{section}',
-                              original[section], translated[section] if spanish is not None else None, 1)
+                              original[section], translated[section] if spanish is not None else None, 1, decoder=decoder)
     return entries, sources
 
 

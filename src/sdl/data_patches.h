@@ -602,6 +602,15 @@ static const SdlDataEdit camp_000_1Edits[] = {
     { 0x0480, 2, 2, 4 },
 };
 
+/* SM1 debriefing, scene 1 record 9: restore test, text and mouth offsets. */
+static const unsigned char briefing_001_24Bytes[] = {
+    0x00, 0x00, 0x38, 0x03, 0x7f, 0x03,
+};
+static const SdlDataEdit briefing_001_24Edits[] = {
+    /* SM1 debriefing, scene 1 record 9: restore test, text and mouth offsets. */
+    { 0x126e, 6, 6, 0 },
+};
+
 static const SdlDataPatch packetPatches[] = {
     { "BRIEFING.VGA", 8, 94847, 0x46e882c5U,
       94861, 0xb477b4b7U,
@@ -647,6 +656,10 @@ static const SdlDataPatch packetPatches[] = {
       1170, 0x1b75a806U,
       camp_000_1Edits, SDL_arraysize(camp_000_1Edits),
       camp_000_1Bytes, sizeof(camp_000_1Bytes) },
+    { "BRIEFING.001", 24, 11193, 0xbe94a1f3U,
+      11193, 0xebf5ea42U,
+      briefing_001_24Edits, SDL_arraysize(briefing_001_24Edits),
+      briefing_001_24Bytes, sizeof(briefing_001_24Bytes) },
 };
 
 /* MISSION.STR, file offset 0x03a1c7bc. Stop the first victory fanfare (audio chunk 311) from looping. */

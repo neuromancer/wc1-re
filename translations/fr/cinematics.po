@@ -1,0 +1,357 @@
+# WC1 French text based on Greg14's translation.
+# Conversion authorized by Greg14, as confirmed by the project maintainer.
+msgid ""
+msgstr ""
+"Project-Id-Version: wc1-re\n"
+"Language: fr\n"
+"Last-Translator: Greg14; wc1-re contributors\n"
+"Language-Team: French\n"
+"PO-Revision-Date: 2026-11-09 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgctxt "common/MIDGAME.V00/packet/5/scene/0/record/0"
+msgid "wc1:891bd141bc4b046b"
+msgstr "Colonie de recherche,\nMcAuliffe VI."
+
+msgctxt "common/MIDGAME.V00/packet/5/scene/0/record/1"
+msgid "wc1:f2304ec0906cd6ee"
+msgstr "Les marines Kilrathis envahissent l'installation de recherche civile de McAuliffe..."
+
+msgctxt "common/MIDGAME.V00/packet/5/scene/0/record/2"
+msgid "wc1:b4285b37be6bf4f4"
+msgstr "...et rencontrent des scientifiques humains désespérés mais ingénieux."
+
+msgctxt "common/MIDGAME.V00/packet/5/scene/0/record/3"
+msgid "wc1:457b11e80a9d97fe"
+msgstr "Armés d'armes improvisées et d'un courage remarquable..."
+
+msgctxt "common/MIDGAME.V00/packet/5/scene/0/record/4"
+msgid "wc1:2e8936b71241c2a3"
+msgstr "Les chercheurs parviennent à tuer et capturer tout le peloton kilrathi."
+
+msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/0"
+msgid "wc1:891bd141bc4b046b"
+msgstr "Colonie de recherche,\nMcAuliffe VI."
+
+msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/1"
+msgid "wc1:891bd141bc4b046b"
+msgstr "Colonie de recherche,\nMcAuliffe VI."
+
+msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/2"
+msgid "wc1:69cc45a689fa561f"
+msgstr "Alors que le Tiger's Claw et les autres vaisseaux terriens sont défaits dans l'espace..."
+
+msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/3"
+msgid "wc1:d7285f0e0c78695b"
+msgstr "...Les marines kilrathis envahissent la colonie scientifique sur McAuliffe VI."
+
+msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/4"
+msgid "wc1:6d2e1760ef7708f1"
+msgstr "Des dizaines de scientifiques les plus brillants de l'humanité sont assassinés..."
+
+msgctxt "common/MIDGAME.V00/packet/6/scene/0/record/5"
+msgid "wc1:386b4af4ed43f84a"
+msgstr "...avec brutalité dans cette installation pacifique et inoffensive."
+
+msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/0"
+msgid "wc1:7c570e395fcb9ad4"
+msgstr "A l'extérieur d'une installation kilrathie,\nSystème Brimstone."
+
+msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/1"
+msgid "wc1:ba745a78a8dc474c"
+msgstr "Les chasseurs terriens ayant pris le contrôle spatiale à Brimstone..."
+
+msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/2"
+msgid "wc1:db3796ac75bd2912"
+msgstr "...un audacieux groupe de commandos humains frappe une base principale kilrathie."
+
+msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/3"
+msgid "wc1:45204e90c936ba9c"
+msgstr "...un audacieux groupe de commandos humains frappe une base principale kilrathie."
+
+msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/4"
+msgid "wc1:3b1be60ac6957533"
+msgstr "Avec la destruction de cette installation..."
+
+msgctxt "common/MIDGAME.V01/packet/5/scene/0/record/5"
+msgid "wc1:a0235e55e751d5aa"
+msgstr "...l'emprise Kilrathie sur le système stratégique Brimstone est rompue."
+
+msgctxt "common/MIDGAME.V01/packet/6/scene/0/record/0"
+msgid "wc1:7c570e395fcb9ad4"
+msgstr "A l'extérieur d'une installation kilrathie,\nSystème Brimstone."
+
+msgctxt "common/MIDGAME.V01/packet/6/scene/0/record/1"
+msgid "wc1:652bb799d8f61d71"
+msgstr "Les vaisseaux kilrathis ayant repoussés la flotte terrienne dans l'espace..."
+
+msgctxt "common/MIDGAME.V01/packet/6/scene/0/record/2"
+msgid "wc1:d31d5cc8999c7ea3"
+msgstr "...des commandos humains font un raid audacieux pour saboter la base kilrathie."
+
+msgctxt "common/MIDGAME.V01/packet/6/scene/0/record/3"
+msgid "wc1:ad9d982db83da3d0"
+msgstr "Mais leur mission désespérée échoue..."
+
+msgctxt "common/MIDGAME.V01/packet/6/scene/0/record/4"
+msgid "wc1:80a01736077bf90a"
+msgstr "...quand ils sont découverts par une patrouille de soldats kilrathis!"
+
+msgctxt "common/MIDGAME.V02/packet/5/scene/0/record/0"
+msgid "wc1:fccfa5fae7f43c5a"
+msgstr "La colonie humaine Hurricane sur la planète aquatique\nSytème Port Hedland,"
+
+msgctxt "common/MIDGAME.V02/packet/5/scene/0/record/1"
+msgid "wc1:07150131b6ad58b9"
+msgstr "Après que la flotte terrienne ait défaits les Kilrathis à Port Hedland..."
+
+msgctxt "common/MIDGAME.V02/packet/5/scene/0/record/2"
+msgid "wc1:2b1e2e114eec9521"
+msgstr "... Les défenses planétaires de la planète repoussent l'ultime assaut kilrahi."
+
+msgctxt "common/MIDGAME.V02/packet/5/scene/0/record/3"
+msgid "wc1:2b1e2e114eec9521"
+msgstr "... Les défenses planétaires de la planète repoussent l'ultime assaut kilrahi."
+
+msgctxt "common/MIDGAME.V02/packet/6/scene/0/record/0"
+msgid "wc1:fccfa5fae7f43c5a"
+msgstr "La colonie humaine Hurricane sur la planète aquatique\nSytème Port Hedland,"
+
+msgctxt "common/MIDGAME.V02/packet/6/scene/0/record/1"
+msgid "wc1:94c7837c07c452a8"
+msgstr "Alors que les vaisseaux Kilrathis au-dessus de Hurricane prennent le contrôle de l'espace à Port Hedland..."
+
+msgctxt "common/MIDGAME.V02/packet/6/scene/0/record/2"
+msgid "wc1:089c921fd36d83b8"
+msgstr "...une escadre de chasseurs Dralthis descend pour attaquer la colonie à la surface "
+
+msgctxt "common/MIDGAME.V02/packet/6/scene/0/record/3"
+msgid "wc1:089c921fd36d83b8"
+msgstr "...une escadre de chasseurs Dralthis descend pour attaquer la colonie à la surface."
+
+msgctxt "common/MIDGAME.V02/packet/6/scene/0/record/4"
+msgid "wc1:0b8149d2a15ea600"
+msgstr "La défaite des colons de Hurricane est rapide et complète."
+
+msgctxt "common/MIDGAME.V03/packet/5/scene/0/record/0"
+msgid "wc1:d315b4e9a794cb07"
+msgstr "Village alien primitif,\nSystème Rostov."
+
+msgctxt "common/MIDGAME.V03/packet/5/scene/0/record/1"
+msgid "wc1:0e26ab85d12e6aa9"
+msgstr "La flotte kilrathie fuyant l'avancé des vaisseaux terriens..."
+
+msgctxt "common/MIDGAME.V03/packet/5/scene/0/record/2"
+msgid "wc1:fec45e7cffee52ae"
+msgstr "...une poignée de marines kilrathis sont abandonnés sur le monde de Rostov..."
+
+msgctxt "common/MIDGAME.V03/packet/5/scene/0/record/3"
+msgid "wc1:52d384f5675afe5c"
+msgstr "...où ils sont capturés par les natifs, les Mopoks."
+
+msgctxt "common/MIDGAME.V03/packet/6/scene/0/record/0"
+msgid "wc1:d315b4e9a794cb07"
+msgstr "Village alien primitif,\nSystème Rostov."
+
+msgctxt "common/MIDGAME.V03/packet/6/scene/0/record/1"
+msgid "wc1:8000a4b43f7c66c9"
+msgstr "Alors que les vaisseaux kilrathis repoussent la flotte humaine à Rostov..."
+
+msgctxt "common/MIDGAME.V03/packet/6/scene/0/record/2"
+msgid "wc1:052d4e55cd847db8"
+msgstr "...Les marines kilrathis rassemblent les indigènes, les Mopoks..."
+
+msgctxt "common/MIDGAME.V03/packet/6/scene/0/record/3"
+msgid "wc1:0d516015a35c116f"
+msgstr "...pour exécuter les scientifiques humains et les soldats qui les avaient défendus."
+
+msgctxt "common/MIDGAME.V04/packet/6/scene/0/record/0"
+msgid "wc1:23e1d63dc24c896f $D $T"
+msgstr "Colonie Goddard : $D $T"
+
+msgctxt "common/MIDGAME.V04/packet/6/scene/0/record/1"
+msgid "wc1:c5957c4ea858543a"
+msgstr "Après l'attaque dévastatrice de l'arme secrète kilrathi..."
+
+msgctxt "common/MIDGAME.V04/packet/6/scene/0/record/2"
+msgid "wc1:c0ae953d19129af6"
+msgstr "...tout ce qui reste de la fière colonie humaine ne sont que les squelettes de bâtiments."
+
+msgctxt "common/MIDGAME.V04/packet/6/scene/0/record/3"
+msgid "wc1:e13de607ba683590"
+msgstr "Il n'y a pas de survivants sur Goddard...seulement des épaves et des ruines."
+
+msgctxt "common/MIDGAME.V04/packet/6/scene/0/record/4"
+msgid "wc1:b16291994c5c88a7"
+msgstr "Témoignage de l'avance dans l'équilibre des pouvoirs maintenant détenue par les Kilrathis."
+
+msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/0"
+msgid "wc1:707c02bea692bcf3"
+msgstr "Dans la chambre du Trône de l'empereur de Kilrah..."
+
+msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/1"
+msgid "wc1:c284cce0d93583d5"
+msgstr "...l'ancien Grand Amiral de l'Empire kilrathi se tient devant son maître."
+
+msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/2"
+msgid "wc1:c951052d40384421"
+msgstr "Il n'a rien à dire.  L'amiral est loyal à Kilrah et son empereur---"
+
+msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/3"
+msgid "wc1:bde9c4ee2cdaae2f"
+msgstr "---il connaît le prix de son échec."
+
+msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/4"
+msgid "wc1:29f5405e4fcba17a"
+msgstr "L'empereur a exigé des excuses pour la défaite de la flotte kilrathie..."
+
+msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/5"
+msgid "wc1:bfc914f7791ba2dd"
+msgstr "...Et des excuses doivent être données."
+
+msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/6"
+msgid "wc1:cfe9e73960b4d5f5"
+msgstr "Un écho du cri mourant de l'amiral persiste dans les airs..."
+
+msgctxt "common/MIDGAME.V05/packet/5/scene/0/record/7"
+msgid "wc1:fb0932275f61302d"
+msgstr "...puis le silence."
+
+msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/0"
+msgid "wc1:f927d833f3773d9b $D $T"
+msgstr "Mines d'esclaves kilrathies: $D $T"
+
+msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/1"
+msgid "wc1:a5a07272e41abe1d"
+msgstr "Avec la retraite du Griffe du Tigre et l'échec de sa mission..."
+
+msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/2"
+msgid "wc1:db10ef2a7d835ecf"
+msgstr "...les Kilrathis utilisent leur nouvelle arme pour dominer les défenseurs confédérés."
+
+msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/3"
+msgid "wc1:7a5b7d9e2469de3c"
+msgstr "Des milliers d'humains sont réduits en esclavage et emmenés dans les mines d'Illudium kilrathies..."
+
+msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/4"
+msgid "wc1:75e8763038d964ad"
+msgstr "...forcé de travailler dans la misère jusqu'à mourir par les radiations du minerai..."
+
+msgctxt "common/MIDGAME.V05/packet/6/scene/0/record/5"
+msgid "wc1:6991656151056fbd"
+msgstr "...leur labeur alimentant l'avance kilrathie vers les mondes humains."
+
+msgctxt "common/MIDGAME.V06/packet/5/scene/0/record/0"
+msgid "wc1:5f8cc874b48eb367"
+msgstr "Colonie Fnchirr, Continent du Nord, Firekka."
+
+msgctxt "common/MIDGAME.V06/packet/5/scene/0/record/1"
+msgid "wc1:0b187de924c5d4ee"
+msgstr "Après avoir escorté les diplomates sur la planète---"
+
+msgctxt "common/MIDGAME.V06/packet/5/scene/0/record/2"
+msgid "wc1:dc347461abe7e1c9"
+msgstr "---vous regardez le chef alien et l'ambassadeur humain signer le traité Terrien-Firekka."
+
+msgctxt "common/MIDGAME.V06/packet/5/scene/0/record/3"
+msgid "wc1:646b5b6984005ce0"
+msgstr "C'est un moment de joie et d'espoir pour Firekka et les hommes..."
+
+msgctxt "common/MIDGAME.V06/packet/5/scene/0/record/4"
+msgid "wc1:4301483be42bf1b5"
+msgstr "...au milieu cette guerre désespérée contre\n les Kilrathis."
+
+msgctxt "common/MIDGAME.V07/packet/5/scene/0/record/0"
+msgid "wc1:11fd4db8e475ce02"
+msgstr "Colonie Sharrhi, Hémisphère sud, Firekka."
+
+msgctxt "common/MIDGAME.V07/packet/5/scene/0/record/1"
+msgid "wc1:4b22bc0f1ccaf73d"
+msgstr "Les soldats humains et firekkans lancent leur assaut---"
+
+msgctxt "common/MIDGAME.V07/packet/5/scene/0/record/2"
+msgid "wc1:e0fde150733f67e9"
+msgstr "---contre les prêtresses guerrieres de la cérémonie religieuse kilrathie."
+
+msgctxt "common/MIDGAME.V07/packet/5/scene/0/record/3"
+msgid "wc1:51e1afb9b2445bb1"
+msgstr "L'équipe d'assaut accomplit sa mission..."
+
+msgctxt "common/MIDGAME.V07/packet/5/scene/0/record/4"
+msgid "wc1:a74460d53f5d289a"
+msgstr "...mais seulement à un prix terrible."
+
+msgctxt "common/MIDGAME.V07/packet/6/scene/0/record/0"
+msgid "wc1:11fd4db8e475ce02"
+msgstr "Colonie Sharrhi, Hémisphère sud, Firekka."
+
+msgctxt "common/MIDGAME.V07/packet/6/scene/0/record/1"
+msgid "wc1:6aaea6e536a738bf"
+msgstr "Les soldats humains et firekkans lancent leur assaut contre la cérémonie religieuse kilrathie---"
+
+msgctxt "common/MIDGAME.V07/packet/6/scene/0/record/2"
+msgid "wc1:903a1acd2a93fd7e"
+msgstr "---même s'ils savent qu'ils sont en infériorité numérique."
+
+msgctxt "common/MIDGAME.V07/packet/6/scene/0/record/3"
+msgid "wc1:939c044ce499ecea"
+msgstr "Leur tentative désespérée se termine par un échec..."
+
+msgctxt "common/MIDGAME.V07/packet/6/scene/0/record/4"
+msgid "wc1:7a6f35e64eae7069"
+msgstr "...et leur mort."
+
+msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/0"
+msgid "wc1:b9feac2054544219"
+msgstr "Colonie Lkhi, Hémisphère nord, Firekka."
+
+msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/1"
+msgid "wc1:ebc8afef89f9da9f"
+msgstr "Les Firekkans célèbrent leur triomphe --"
+
+msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/2"
+msgid "wc1:353d920ebd752220"
+msgstr "-- car les vaisseaux kilrathis quittent leur planète."
+
+msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/3"
+msgid "wc1:cdcea8889cf916ea"
+msgstr "Les pilotes du Griffe du Tigre leur ont infligé trop de dégâts..."
+
+msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/4"
+msgid "wc1:d4666296fe1c36a2"
+msgstr "...et les Kilrathis doivent abandonner le secteur Antares."
+
+msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/5"
+msgid "wc1:ea5ccabf49688f66"
+msgstr "Les Firekkans lèvent leurs armes comme --"
+
+msgctxt "common/MIDGAME.V08/packet/5/scene/0/record/6"
+msgid "wc1:c403bf07be248f7b"
+msgstr "-- un nouvel allié fier et courageux de la Confédération terrienne."
+
+msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/0"
+msgid "wc1:b9feac2054544219"
+msgstr "Colonie Lkhi, Hémisphère nord, Firekka."
+
+msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/1"
+msgid "wc1:a71175af8fb27242"
+msgstr "Les Firekkas se tiennent devant les Kilrathis\ncomme captifs --"
+
+msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/2"
+msgid "wc1:4b0101b518aed49b"
+msgstr "-- les premiers transports d'esclaves partent avec leur cargaison vivante."
+
+msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/3"
+msgid "wc1:17d4a3a2778e8205"
+msgstr "Les forces de la Confédération ont été impuissantes pour les sauver..."
+
+msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/4"
+msgid "wc1:1b58eadba7a8a108"
+msgstr "...et maintenant une autre race a été asservie..."
+
+msgctxt "common/MIDGAME.V08/packet/6/scene/0/record/5"
+msgid "wc1:c19617aaa48d8105"
+msgstr "...destinée à mourir au service de Kilrah."

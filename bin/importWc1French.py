@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import Greg14's base-game translation from a local installation.
+"""Import Greg14's WC1 and Secret Missions translation from a local installation.
 
 Only text, changed font glyphs and menu-label deltas are exported. English IDs are opaque;
 use importWc1Spanish.py --debug-english for the ignored debugging inventory.
@@ -13,7 +13,7 @@ import tempfile
 import zlib
 
 from compileTranslations import read_po
-from importWc1Spanish import (decode_text, delta, digest, font_changes, import_resources,
+from importWc1Spanish import (cinematic_entries, decode_text, delta, digest, font_changes, import_resources,
                              packets, po_document, shape_with_frames, string_at)
 from updateUiTranslations import extract
 
@@ -92,9 +92,13 @@ def main():
         if args.output.exists():
             raise ValueError("Output already exists; preserve reviewed catalogs")
         root = args.english / "GAMEDAT" if (args.english / "GAMEDAT").is_dir() else args.english
-        names = ("BRIEFING.000", "MODULE.000", "COMMUNIC.DAT", "FONTS.FNT", "TITLE.VGA")
+        names = ([f"{kind}.00{i}" for kind in ("BRIEFING", "MODULE") for i in range(3)]
+                 + [f"MIDGAME.V0{i}" for i in range(9)]
+                 + ["COMMUNIC.DAT", "COMMSM2.DAT", "FONTS.FNT", "TITLE.VGA"])
         french = {"GAMEDAT/" + name: (args.french / "GAMEDAT" / name).read_bytes() for name in names}
-        entries, issues, sources = import_resources(root, french, campaigns=("wc1",), decoder=french_text)
+        entries, issues, sources = import_resources(root, french, decoder=french_text)
+        captions, caption_sources = cinematic_entries(root, french, decoder=french_text)
+        sources.update(caption_sources)
         # Unchanged proper names/labels need no translation entry.
         entries = [entry for entry in entries if entry["translation"] != entry["source"]]
         with tempfile.TemporaryDirectory() as directory:
@@ -102,7 +106,7 @@ def main():
             template.write_text(extract(Path(__file__).resolve().parent.parent, plain=True), encoding="utf-8")
             ui = executable_ui(args.english_exe.read_bytes(), (args.french / "WC.EXE").read_bytes(), template)
         fonts = font_changes((root / "FONTS.FNT").read_bytes(), french["GAMEDAT/FONTS.FNT"])
-        used = set("".join(e["translation"] for e in entries + ui).encode("cp437"))
+        used = set("".join(e["translation"] for e in entries + captions + ui).encode("cp437"))
         for font in fonts["fonts"]:
             font["glyphs"] = [g for g in font["glyphs"] if g["character"] in used]
         fonts["fonts"] = [f for f in fonts["fonts"] if f["glyphs"]]
@@ -111,19 +115,21 @@ def main():
         sources["TITLE.VGA"] = {"english_sha256": digest(title),
                                 "french_sha256": digest(french["GAMEDAT/TITLE.VGA"])}
         report = {
-            "language": "fr", "scope": "WC1 base game", "authors": ["Greg14"],
+            "language": "fr", "scope": "WC1, SM1 and SM2", "authors": ["Greg14"],
             "author_url": "https://www.wcnews.com/chatzone/members/greg14.11738/",
             "permission": "Maintainer confirmed Greg14's permission to convert and use this translation on 2026-11-09.",
             "encoding": "cp437", "domains": dict(Counter(e["context"].split("/")[0] for e in entries)),
+            "cinematic_captions": len(captions),
             "sources": {name: {k.replace("spanish", "french"): v for k, v in hashes.items()}
                         for name, hashes in sources.items()},
             "issues": [{k.replace("spanish", "french"): v for k, v in issue.items()} for issue in issues],
-            "not_imported": ["Secret Missions", "original English prose", "game binaries", "artwork other than base-game menu-label deltas"],
+            "not_imported": ["original English prose", "game binaries", "artwork other than base-game menu-label deltas"],
         }
         for name in ("WC.EXE", "GAMEDAT/FONTS.FNT"):
             report["sources"][name] = {"french_sha256": digest((args.french / name).read_bytes())}
         documents = {domain + ".po": po_document([e for e in entries if e["context"].startswith(domain + "/")], language="fr")
-                     for domain in ("wc1", "common")}
+                     for domain in ("wc1", "sm1", "sm2", "common")}
+        documents["cinematics.po"] = po_document(captions, language="fr")
         documents["ui.po"] = po_document(ui, language="fr")
         documents["glyphs.json"] = json.dumps(fonts, separators=(",", ":")) + "\n"
         documents["artwork.json"] = json.dumps(artwork, separators=(",", ":")) + "\n"
@@ -131,7 +137,7 @@ def main():
         args.output.mkdir(parents=True)
         for name, text in documents.items():
             (args.output / name).write_text(text, encoding="utf-8")
-        print(f"Imported {len(entries)} base-game entries and {len(ui)} UI candidates; review warnings before compiling.")
+        print(f"Imported {len(entries)} campaign entries, {len(captions)} captions and {len(ui)} UI candidates; review warnings before compiling.")
     except (OSError, ValueError, KeyError) as error:
         parser.exit(1, f"Import failed: {error}\n")
 

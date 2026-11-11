@@ -369,13 +369,17 @@ class CompileSpanishTests(unittest.TestCase):
     def test_french_catalog_scope_and_opaque_source_ids(self):
         root = Path(__file__).resolve().parent.parent / 'translations/fr'
         data, count, skipped = self.compiler.build_catalog(root, 'cp437')
-        self.assertGreater(count, 3400)
+        self.assertGreater(count, 6500)
         self.assertLess(skipped, 20)
         for path in root.glob('*.po'):
             for entry, _, _, _ in self.compiler.read_po(path):
                 self.assertTrue(self.compiler.MESSAGE_ID.fullmatch(entry['msgid']))
-                self.assertNotIn('sm1/', entry.get('msgctxt', ''))
-                self.assertNotIn('sm2/', entry.get('msgctxt', ''))
+        for name, expected in (('sm1.po', 1435), ('sm2.po', 1572), ('cinematics.po', 86)):
+            entries = self.compiler.read_po(root / name)
+            self.assertEqual(len(entries), expected)
+            for entry, fuzzy, _, _ in entries:
+                self.assertTrue(entry['msgstr'], entry['msgctxt'])
+                self.assertFalse(fuzzy, entry['msgctxt'])
 
     def test_artwork_splices_are_bounded_and_size_checked(self):
         packet = {'file': 'TITLE.VGA', 'section': 1, 'source_size': 8,
