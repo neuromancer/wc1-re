@@ -55,7 +55,7 @@ Download the package for your platform from
 Game data is not included. Open the app to choose a detected installation, or
 use **Add path…** to select a Kilrathi Saga, DOS, or FM Towns Wing Commander
 directory containing `GAMEDAT`. Choose the graphics and joystick options, then select
-**Start game**. Kilrathi Saga installations
+**Start WC1**. Kilrathi Saga installations
 also need `STREAMS/PREFLITE.STR`, `POSFLITE.STR`, and `MISSION.STR`. With DOS
 data, compressed resources, OriginFX/AdLib music, and synthesized sound effects
 work; other DOS-specific data or behavior may not. Starting the game saves the
@@ -64,9 +64,17 @@ directory and options for the next session. Enable **Start in fullscreen** under
 
 **Secret Missions 1 (Kilrathi Saga):** add `CAMP.001`, `MODULE.001`,
 `BRIEFING.001`, `MIDGAME.V04` and `MIDGAME.V05` to the base game's `GAMEDAT`.
-Choose **Secret Missions** on the title screen. New pilots begin with the original
-simulator prologue; **Transfer pilot to SM1** uses an existing WC1 save and retains
-the pilot's statistics and awards. Secret Missions 2 is not required or supported.
+Choose **Start SM1** or **Transfer pilot to SM1…** in the launcher. New pilots begin
+with the original simulator prologue; transfer uses an existing WC1 save and retains
+the pilot's statistics and awards.
+
+**Secret Missions 2 (Kilrathi Saga):** add `CAMP.002`, `MODULE.002`,
+`BRIEFING.002`, `MIDGAME.V06`–`V08`, `TALKING1.VGA`, `WINGMEN1.VGA`,
+`PCSHIP.V05`, `COMMSM2.DAT` and `TITLE1.VGA` to `GAMEDAT`. Choose **Start SM2** or
+**Transfer pilot to SM2…** in the launcher (from a WC1 or
+SM1 save). Expansion buttons appear only when their data is detected; SM1 is
+not required for SM2. Without the launcher, use `--campaign=sm1` or `--campaign=sm2`;
+add `--transfer-pilot` to open pilot transfer.
 
 With command-line arguments the game starts directly from the working
 directory; add `--gui` to review the options in the launcher first:
@@ -208,7 +216,8 @@ The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
 development packages. It produces `out-modern/wc1-modern-gui`, which release
 archives ship as `wc1-modern`.
 
-Run the SM1 integration checks with `make check-sm1 SM1_DATA=/path/to/WC1`.
+Run expansion checks with `make check-sm1 SM1_DATA=/path/to/WC1` or
+`make check-sm2 SM2_DATA=/path/to/WC1`.
 They use temporary copies of your game data and leave existing saves untouched.
 
 ### Translation and voice mappings

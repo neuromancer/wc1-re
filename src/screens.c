@@ -1334,6 +1334,10 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         case 28:
         case 29:
         case 30:
+#ifdef SDL_PORT
+        case 31:
+        case 32:
+#endif
             if (previousShot != shot) {
                 LoadFace((shot - 20));
                 previousShot = shot;
@@ -1362,6 +1366,9 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                  * only the last three differ from the PC table. */
                 static const short townsColours[] = {0x07, 0x50, 0x0b};
                 nConvTextColorValue = townsColours[previousColour - 11];
+            } else if (SdlUsingSm2Data() && previousColour >= 12 && previousColour <= 13) {
+                /* SM2.EXE 0x4b3378: the two additional speaker colours. */
+                nConvTextColorValue = previousColour == 12 ? 9 : 13;
             } else if ((unsigned short)previousColour < SDL_arraysize(asConversationTextColours))
 #endif
             nConvTextColorValue =

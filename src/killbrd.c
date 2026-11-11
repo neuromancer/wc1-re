@@ -428,6 +428,43 @@ short RecRoom(void)
                         aRecRoomCharacterOrigins[0].y,
                         apRecRoomFigureShapes[0], 0);
 
+#ifdef SDL_PORT
+    for (index = 1; index <= 2; index++) {
+        short logicalFile = 5;
+        short section;
+        const char *callsign;
+
+        personality = (signed char)pRecRoomRoster[
+            (stCampaignState.currentSeries * 4 + stCampaignState.currentMission) * 2 - 9 + index];
+        animationIds[index] = personality;
+        if (personality < 0)
+            continue;
+        section = personality + 3;
+        if (SdlUsingSm2Data() && personality >= 11) {
+            /* SM2.EXE 0x439663: new bar figures in TALKING1.VGA.
+             * Its animation table mistakenly selects Shotglass's >5 frames;
+             * reuse the replaced pilot's six-frame animation instead. */
+            logicalFile = 80;
+            section = personality - 9;
+            animationIds[index] = personality == 11 ? 5 : 2;
+            callsign = apWingmanPilotsList[animationIds[index]]->callsign;
+        } else {
+            /* Paladin/Bossman still appear in SM2's early conversations. */
+            callsign = SdlUsingSm2Data() ? aInitialPilotRecords[personality].callsign :
+                apWingmanPilotsList[personality]->callsign;
+        }
+        if (stCampaignState.personalityDeathMission[personality] != 0) {
+            apszRecRoomBaseLabels[index][0] = '\0';
+            continue;
+        }
+        apRecRoomFigureShapes[index] = FetchDiskPacketRetrying(logicalFile, section, 0);
+        GetShapeFrameBounds(&aRecRoomMenuRegions[index].left,
+                            aRecRoomCharacterOrigins[index].x,
+                            aRecRoomCharacterOrigins[index].y,
+                            apRecRoomFigureShapes[index], 0);
+        sprintf(apszRecRoomBaseLabels[index], C_("font0", "Talk to %s."), callsign);
+    }
+#else
     animationIds[1] = pRecRoomRoster[
         (stCampaignState.currentSeries * 4 +
          stCampaignState.currentMission) * 2 - 8];
@@ -455,12 +492,7 @@ short RecRoom(void)
     animationIds[2] = pRecRoomRoster[
         (stCampaignState.currentSeries * 4 +
          stCampaignState.currentMission) * 2 - 7];
-    /* The original tests the first pilot's sentinel here too. */
-#ifdef SDL_PORT
-    if (animationIds[2] != -1) {
-#else
     if (animationIds[1] != -1) {
-#endif
         personality = animationIds[2];
         if (stCampaignState
                 .personalityDeathMission[personality] == 0) {
@@ -480,6 +512,8 @@ short RecRoom(void)
                     "");
         }
     }
+
+#endif
 
     characterMask = 0;
     ReleasePacketHandle(pRecRoomRoster);

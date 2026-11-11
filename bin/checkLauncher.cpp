@@ -3,6 +3,7 @@
 #include "../src/sdl/slint/launcher.cpp"
 #include <slint-platform.h>
 #include <SDL.h>
+#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -193,6 +194,91 @@ int main(int argc, char **argv)
     fs::remove(gameData / "COMMUNIC.JAT");
     require(validate_game_directory(path_to_utf8(fixture)).message != LauncherMessage::FmTowns,
             "raw packet flag alone does not identify Towns");
+
+    const auto saga = fixture / "saga";
+    const auto expansionData = saga / "GAMEDAT";
+    const std::array<const char *, 5> sm1Files = {
+        "CAMP.001", "MODULE.001", "BRIEFING.001", "MIDGAME.V04", "MIDGAME.V05"
+    };
+    const std::array<const char *, 11> sm2Files = {
+        "CAMP.002", "MODULE.002", "BRIEFING.002", "MIDGAME.V06", "MIDGAME.V07",
+        "MIDGAME.V08", "TALKING1.VGA", "WINGMEN1.VGA", "PCSHIP.V05", "COMMSM2.DAT", "TITLE1.VGA"
+    };
+    int launched = 0, transferred = 0;
+    window->on_launch_requested([&](int campaign, bool transfer) {
+        (transfer ? transferred : launched) |= 1 << campaign;
+    });
+    window->show();
+    platform->view->dimensions = slint::PhysicalSize {{760, 660}};
+    window->window().dispatch_resize_event(slint::LogicalSize {{760, 660}});
+    int launcherHeight = 660;
+    auto checkLaunchButtons = [&](const fs::path &directory, int expected) {
+        window->set_game_directory(slint::SharedString(path_to_utf8(directory)));
+        refresh_window(*window, installations);
+        window->show(); // Refresh native size constraints without an event loop.
+        platform->view->pixels.render(english, 760);
+        launcherHeight = std::max(660, static_cast<int>(std::ceil(platform->view->minimum.height)));
+        platform->view->dimensions = slint::PhysicalSize {{760, static_cast<unsigned>(launcherHeight)}};
+        window->window().dispatch_resize_event(slint::LogicalSize {{760, static_cast<float>(launcherHeight)}});
+        english.resize(760 * launcherHeight);
+        platform->view->pixels.render(english, 760);
+        launched = transferred = 0;
+        // Hit the launch and transfer rows through Slint's real input dispatch.
+        for (const float y : {launcherHeight - 81.f, launcherHeight - 35.f}) {
+            for (float x = 8; x < 760; x += 8) {
+                window->window().dispatch_pointer_press_event(slint::LogicalPosition {{x, y}}, slint::PointerEventButton::Left);
+                window->window().dispatch_pointer_release_event(slint::LogicalPosition {{x, y}}, slint::PointerEventButton::Left);
+            }
+        }
+        if (launched != expected || transferred != (expected & 6))
+            std::fprintf(stderr, "Launch %d / transfer %d, expected %d / %d; minimum height %.0f\n",
+                         launched, transferred, expected, expected & 6, platform->view->minimum.height);
+        require(launched == expected, "launcher buttons match detected campaigns and route clicks");
+        require(transferred == (expected & 6), "transfer buttons only target detected expansions");
+    };
+    checkLaunchButtons(saga, 1);
+    for (const auto name : sm1Files)
+        std::ofstream(expansionData / name).put('x');
+    checkLaunchButtons(saga, 3);
+    for (const auto name : sm2Files)
+        std::ofstream(expansionData / name).put('x');
+    checkLaunchButtons(saga, 7);
+    if (argc > 1) {
+        platform->view->pixels.render(english, 760);
+        SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormatFrom(english.data(), 760, launcherHeight, 24, 760 * 3, SDL_PIXELFORMAT_RGB24);
+        const std::string path = std::string(argv[1]) + ".expansions.bmp";
+        require(surface && SDL_SaveBMP(surface, path.c_str()) == 0, "save expansion button preview");
+        SDL_FreeSurface(surface);
+    }
+    for (const auto name : sm1Files) {
+        fs::remove(expansionData / name);
+        checkLaunchButtons(saga, 5);
+        std::ofstream(expansionData / name).put('x');
+    }
+    for (const auto name : sm2Files) {
+        // An empty or missing required file must hide only that expansion.
+        std::ofstream(expansionData / name, std::ios::trunc);
+        checkLaunchButtons(saga, 3);
+        fs::remove(expansionData / name);
+        checkLaunchButtons(saga, 3);
+        std::ofstream(expansionData / name).put('x');
+    }
+    fs::rename(expansionData / "CAMP.001", expansionData / "camp.001");
+    checkLaunchButtons(saga, 7);
+    for (const auto name : sm1Files)
+        std::ofstream(fixture / "dos/GAMEDAT" / name).put('x');
+    for (const auto name : sm2Files)
+        std::ofstream(fixture / "dos/GAMEDAT" / name).put('x');
+    checkLaunchButtons(fixture / "dos", 1);
+    checkLaunchButtons(fixture / "missing", 0);
+    saved.campaign = 2;
+    saved.transferPilot = 1;
+    loaded.campaign = 0;
+    require(save_launcher_config(fixture / "launcher.ini", saved), "save settings after SM2 selection");
+    load_launcher_config(fixture / "launcher.ini", loaded);
+    require(loaded.campaign == 0 && !loaded.transferPilot, "campaign and transfer choices are per launch");
+    window->hide();
     fs::remove_all(fixture);
+    std::puts("PASS: WC1/SM1/SM2 buttons, independent detection, missing data, edition switching and click routing.");
     std::puts("PASS: live English/Spanish/French switching, redraw, errors, installation labels and language settings.");
 }

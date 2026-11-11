@@ -803,6 +803,16 @@ unsigned int set_formation_position(short obj,
             &aShipFormationDeltaList[obj]);
         if (source == 0 && bInitialFormationSetup == 0)
             return 0;
+#ifdef SDL_PORT
+        if (source == -1) {
+            /* The leader may have left the active sphere. Use its mission
+               orientation, as Set_up_ship_info does when spawning it. */
+            init_ijk(obj);
+            alter_yaw(-leaderRecord->pitch, obj);
+            alter_pitch(-leaderRecord->yaw, obj);
+            alter_roll(leaderRecord->roll, obj);
+        } else
+#endif
         copy_frame(source, obj);
         set_sphere_point(leaderRecord, &aShipPositionsArray[obj]);
         offset_location(obj, &aShipFormationDeltaList[obj],

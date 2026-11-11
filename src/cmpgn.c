@@ -208,6 +208,10 @@ char *AddPCName(const char *text)
 /* Function start: 0x4050B0 */
 unsigned int LoadFace(short face)
 {
+#ifdef SDL_PORT
+    short logicalFile = SdlUsingSm2Data() && face >= 11 ? 80 : 6;
+    short section = logicalFile == 80 ? face - 11 : face;
+#endif
     switch (nConversationCharacter) {
     case 0:
         nConversationBackdropFrame = 4;
@@ -255,14 +259,31 @@ unsigned int LoadFace(short face)
         if (pTalkHeadShape != 0)
             FreePacketAndClear(&pTalkHeadShape, 0);
         pTalkHeadShape =
+#ifdef SDL_PORT
+            FetchDiskPacketRetrying(logicalFile, section, 0);
+#else
             FetchDiskPacketRetrying(6, face, 0);
+#endif
     } else if (pTalkHeadShape == 0)
         pTalkHeadShape =
+#ifdef SDL_PORT
+            FetchDiskPacketRetrying(logicalFile, section, 0);
+#else
             FetchDiskPacketRetrying(6, face, 0);
+#endif
     nTalkingHeadFace = face;
     if (pConvOverlayShapePtr == 0)
         pConvOverlayShapePtr =
             FetchDiskPacketRetrying(6, 11, 0);
+#ifdef SDL_PORT
+    if (logicalFile == 80) {
+        /* SM2.EXE 0x4a5db8/0x4a5dc0: Doomsday and Jazz origins. */
+        nTalkingHeadFaceX = face == 11 ? 161 : 160;
+        nTalkingHeadFaceCoordY = 60;
+        nTalkingHeadMouthX = 160;
+        nTalkingHeadMouthY = 90;
+    } else {
+#endif
     nTalkingHeadFaceX =
         aTalkingHeadOrigins[face].faceX;
     nTalkingHeadFaceCoordY =
@@ -271,6 +292,9 @@ unsigned int LoadFace(short face)
         aTalkingHeadOrigins[face].mouthX;
     nTalkingHeadMouthY =
         aTalkingHeadOrigins[face].mouthY;
+#ifdef SDL_PORT
+    }
+#endif
     CloseTalk(pTalkHeadShape, -1, -1);
     return 0;
 }

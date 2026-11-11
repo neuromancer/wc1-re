@@ -42,7 +42,7 @@ msgctxt "font0"
 msgid "wc1:3863f9e780087cc8"
 msgstr ""
 
-#: src/barracks.c:586 src/barracks.c:1068
+#: src/barracks.c:586 src/barracks.c:1080
 msgid "wc1:e16e1695deccb9d6"
 msgstr ""
 
@@ -55,75 +55,92 @@ msgstr ""
 msgid "wc1:216b48db726c99b5 %s"
 msgstr ""
 
-#: src/barracks.c:760
+#: src/barracks.c:768
 msgctxt "font0"
 msgid "wc1:df2ce16b45edf2f3"
 msgstr ""
 
-#: src/barracks.c:782
+#: src/barracks.c:790
 #, c-format
 msgid "wc1:f692ea4044771586 %d"
 msgstr ""
 
-#: src/barracks.c:805
+#: src/barracks.c:813
+#, c-format
+msgctxt "font0"
+msgid "wc1:ddb9f847ef8227b5 %s"
+msgstr ""
+
+#: src/barracks.c:814
 #, c-format
 msgctxt "font0"
 msgid "wc1:ddafd647ef79996a %s"
 msgstr ""
 
-#: src/barracks.c:807
+#: src/barracks.c:816
+msgctxt "font0"
+msgid "wc1:7e19b89746c24a21"
+msgstr ""
+
+#: src/barracks.c:817
 msgctxt "font0"
 msgid "wc1:7d0c315b2543514d"
 msgstr ""
 
-#: src/barracks.c:856 src/barracks.c:857
+#: src/barracks.c:866 src/barracks.c:867
 msgctxt "font0"
 msgid "wc1:cc95bfcae21f576b"
 msgstr ""
 
-#: src/barracks.c:860 src/barracks.c:861
+#: src/barracks.c:870 src/barracks.c:871
 msgctxt "font0"
 msgid "wc1:57220d1bf60bc37c"
 msgstr ""
 
-#: src/barracks.c:993
+#: src/barracks.c:1003
 msgctxt "font0"
 msgid "wc1:3cff74eed5b4a445 (Y/N)"
 msgstr ""
 
-#: src/barracks.c:1010
+#: src/barracks.c:1020
 msgid "wc1:851dada7b265d8ee"
 msgstr ""
 
-#: src/barracks.c:1012
+#: src/barracks.c:1022
 #, c-format
 msgctxt "font0"
 msgid "wc1:b83a6a252a86f05e %s (Y/N)"
 msgstr ""
 
-#: src/barracks.c:1034
+#: src/barracks.c:1044
 msgctxt "font0"
 msgid "wc1:cd7de0d2d7c2bf56"
 msgstr ""
 
-#: src/barracks.c:1036
+#: src/barracks.c:1046
 #, c-format
 msgctxt "font0"
 msgid "wc1:04feff32b592afa3 %s (Y/N)"
 msgstr ""
 
-#: src/barracks.c:1057
+#: src/barracks.c:1068
+#, c-format
+msgctxt "font0"
+msgid "wc1:b36cbc4389a6ab77 %s (Y/N)"
+msgstr ""
+
+#: src/barracks.c:1069
 #, c-format
 msgctxt "font0"
 msgid "wc1:938bc952b5cf66c4 %s (Y/N)"
 msgstr ""
 
-#: src/barracks.c:1121
+#: src/barracks.c:1133
 msgctxt "font0"
 msgid "wc1:14ca20954376880d"
 msgstr ""
 
-#: src/barracks.c:1221
+#: src/barracks.c:1233
 msgid "wc1:5767bc1abd18e93e"
 msgstr ""
 
@@ -560,86 +577,86 @@ msgctxt "font0"
 msgid "wc1:83f42060a593f638"
 msgstr ""
 
-#: src/killbrd.c:447 src/killbrd.c:476
+#: src/killbrd.c:465 src/killbrd.c:484 src/killbrd.c:508
 #, c-format
 msgctxt "font0"
 msgid "wc1:89bef5d023e6b84a %s"
 msgstr ""
 
-#: src/killbrd.c:900
+#: src/killbrd.c:934
 msgctxt "font3"
 msgid "wc1:8afe202d83fefd4e %X %Y %P"
 msgstr ""
 
-#: src/killbrd.c:902
+#: src/killbrd.c:936
 msgctxt "font3"
 msgid "wc1:6d0dd43d80468628 %X %Y"
 msgstr ""
 
-#: src/killbrd.c:904
+#: src/killbrd.c:938
 msgctxt "font3"
 msgid "wc1:0090ce0efffa0a04 %X %Y"
 msgstr ""
 
-#: src/killbrd.c:931
+#: src/killbrd.c:965
 msgctxt "font3"
 msgid "wc1:50af9a19d1695fa8"
 msgstr ""
 
-#: src/main.c:783 src/main.c:807 src/main.c:1909
+#: src/main.c:800 src/main.c:824 src/main.c:1926
 #, c-format
 msgid "wc1:216c83b2ec0fd159 %d"
 msgstr ""
 
-#: src/main.c:829 src/main.c:856 src/main.c:1895
+#: src/main.c:846 src/main.c:873 src/main.c:1912
 #, c-format
 msgid "wc1:e4679c2e5587e161 %d"
 msgstr ""
 
-#: src/main.c:1449
+#: src/main.c:1466
 msgid "wc1:80c2f43f7c22212b"
 msgstr ""
 
-#: src/main.c:1458
+#: src/main.c:1475
 #, c-format
 msgid "wc1:9292cae61e079007 %s"
 msgstr ""
 
-#: src/main.c:1467
+#: src/main.c:1484
 #, c-format
 msgid "wc1:78b9576c7ab1a847 %d"
 msgstr ""
 
-#: src/main.c:1476
+#: src/main.c:1493
 #, c-format
 msgid "wc1:d5445962e13677dc %d"
 msgstr ""
 
-#: src/main.c:1591
+#: src/main.c:1608
 msgid "wc1:5e2c649b7ce98d28"
 msgstr ""
 
-#: src/main.c:1594
+#: src/main.c:1611
 msgid "wc1:c4a0a904e2dd287f"
 msgstr ""
 
-#: src/main.c:1780
+#: src/main.c:1797
 msgid "wc1:6e03d9124173780f"
 msgstr ""
 
-#: src/main.c:1783
+#: src/main.c:1800
 msgid "wc1:641d5305374c7d53"
 msgstr ""
 
-#: src/main.c:2012
+#: src/main.c:2029
 msgid "wc1:ca81a1bc5093cfbf %X %Y %s %X %u %X"
 msgstr ""
 
-#: src/main.c:2039
+#: src/main.c:2056
 msgid "wc1:5b93a2eb152856a7 %d %s %P"
 msgstr ""
 
-#: src/main.c:2044
+#: src/main.c:2061
 msgid "wc1:52192f5029385626 %d %s %P"
 msgstr ""
 
@@ -805,17 +822,17 @@ msgctxt "font0"
 msgid "wc1:ddc5643a1d5c4c0f $R $N $C $S $D"
 msgstr ""
 
-#: src/screens.c:1775
+#: src/screens.c:1782
 msgctxt "intro"
 msgid "wc1:b997643f68ab8e84"
 msgstr ""
 
-#: src/screens.c:1832
+#: src/screens.c:1839
 msgctxt "intro"
 msgid "wc1:78589f6aa7482f15"
 msgstr ""
 
-#: src/screens.c:1885
+#: src/screens.c:1892
 msgctxt "intro"
 msgid "wc1:ae517f2f44c29baf"
 msgstr ""
@@ -945,11 +962,6 @@ msgstr ""
 #: src/title.c:43
 msgctxt "intro"
 msgid "wc1:3dd873aad6ee67e1"
-msgstr ""
-
-#: src/title.c:398
-msgctxt "font0"
-msgid "wc1:0ddf30d9bb4b263a"
 msgstr ""
 
 #: src/trainsim.c:20

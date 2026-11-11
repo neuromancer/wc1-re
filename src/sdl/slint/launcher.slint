@@ -45,6 +45,8 @@ export component LauncherWindow inherits Window {
     in property <bool> path-valid: false;
     in property <bool> picker-error: false;
     in property <bool> swc-demo: false;
+    in property <bool> sm1-data: false;
+    in property <bool> sm2-data: false;
     in property <LauncherMessage> status;
     in property <string> status-detail;
     out property <string> status-text: message-text(root.status, root.status-detail);
@@ -84,7 +86,7 @@ export component LauncherWindow inherits Window {
     callback browse-requested();
     callback installation-selected(int);
     callback language-selected(int);
-    callback launch-requested();
+    callback launch-requested(int, bool);
     callback cancel-requested();
 
     VerticalBox {
@@ -317,6 +319,24 @@ export component LauncherWindow inherits Window {
             vertical-stretch: 1;
         }
 
+        if root.path-valid && (root.sm1-data || root.sm2-data): HorizontalLayout {
+            spacing: 8px;
+            height: 34px;
+            vertical-stretch: 0;
+
+            Rectangle { horizontal-stretch: 1; }
+
+            if root.path-valid && root.sm1-data: Button {
+                text: @tr("Transfer pilot to SM1…");
+                clicked => { root.launch-requested(1, true); }
+            }
+
+            if root.path-valid && root.sm2-data: Button {
+                text: @tr("Transfer pilot to SM2…");
+                clicked => { root.launch-requested(2, true); }
+            }
+        }
+
         HorizontalLayout {
             spacing: 8px;
             height: 34px;
@@ -339,11 +359,25 @@ export component LauncherWindow inherits Window {
             }
 
             Button {
-                text: @tr("Start game");
+                text: root.swc-demo ? @tr("Start SWC") : @tr("Start WC1");
                 enabled: root.path-valid;
                 primary: true;
                 clicked => {
-                    root.launch-requested();
+                    root.launch-requested(0, false);
+                }
+            }
+
+            if root.path-valid && root.sm1-data: Button {
+                text: @tr("Start SM1");
+                clicked => {
+                    root.launch-requested(1, false);
+                }
+            }
+
+            if root.path-valid && root.sm2-data: Button {
+                text: @tr("Start SM2");
+                clicked => {
+                    root.launch-requested(2, false);
                 }
             }
         }

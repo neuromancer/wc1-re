@@ -273,9 +273,29 @@ msgstr "Cancelar"
 
 #: src/sdl/slint/launcher.slint:336
 msgctxt "LauncherWindow"
-msgid "Start game"
-msgstr "Iniciar juego"
+msgid "Start WC1"
+msgstr "Iniciar WC1"
 
 msgctxt "LauncherWindow"
 msgid "SWC Mac"
 msgstr "SWC Mac"
+
+msgctxt "LauncherWindow"
+msgid "Start SM1"
+msgstr "Iniciar SM1"
+
+msgctxt "LauncherWindow"
+msgid "Start SM2"
+msgstr "Iniciar SM2"
+
+msgctxt "LauncherWindow"
+msgid "Start SWC"
+msgstr "Iniciar SWC"
+
+msgctxt "LauncherWindow"
+msgid "Transfer pilot to SM1…"
+msgstr "Transferir piloto a SM1…"
+
+msgctxt "LauncherWindow"
+msgid "Transfer pilot to SM2…"
+msgstr "Transferir piloto a SM2…"

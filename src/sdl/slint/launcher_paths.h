@@ -15,6 +15,8 @@ struct DirectoryStatus {
     LauncherMessage message;
     bool swcDemo = false;
     std::string detail = {};
+    bool sm1 = false;
+    bool sm2 = false;
 };
 
 struct GameInstallation {

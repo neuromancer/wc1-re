@@ -220,9 +220,29 @@ msgid "Cancel"
 msgstr "Annuler"
 
 msgctxt "LauncherWindow"
-msgid "Start game"
-msgstr "Lancer le jeu"
+msgid "Start WC1"
+msgstr "Lancer WC1"
 
 msgctxt "LauncherWindow"
 msgid "SWC Mac"
 msgstr "SWC Mac"
+
+msgctxt "LauncherWindow"
+msgid "Start SM1"
+msgstr "Lancer SM1"
+
+msgctxt "LauncherWindow"
+msgid "Start SM2"
+msgstr "Lancer SM2"
+
+msgctxt "LauncherWindow"
+msgid "Start SWC"
+msgstr "Lancer SWC"
+
+msgctxt "LauncherWindow"
+msgid "Transfer pilot to SM1…"
+msgstr "Transférer le pilote vers SM1…"
+
+msgctxt "LauncherWindow"
+msgid "Transfer pilot to SM2…"
+msgstr "Transférer le pilote vers SM2…"

@@ -695,6 +695,10 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
          diskDeathMission++, gameDeathMission++) {
         *gameDeathMission = *diskDeathMission;
     }
+#ifdef SDL_PORT
+    for (index = 8; index < SDL_arraysize(gameRecord->campaign.personalityDeathMission); index++)
+        gameRecord->campaign.personalityDeathMission[index] = 0;
+#endif
 
     diskBytes = diskCampaign->aceFlags;
     for (index = 0; index < 4; index++) {
@@ -714,6 +718,10 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
         diskCampaign->seriesScore;
     gameRecord->campaign.campaignIndex =
         diskCampaign->campaignIndex;
+#ifdef SDL_PORT
+    if (!SdlSwcFlightActive() && gameRecord->campaign.campaignIndex == 2)
+        SdlSetSm2Pilots(gameRecord->pilots, 0);
+#endif
 
     diskObjective = diskRecord.objectives;
     gameObjective = gameRecord->objectives;
@@ -739,8 +747,8 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
 #ifdef SDL_PORT
     if (gameRecord->campaign.campaignIndex < 0 ||
         gameRecord->campaign.campaignIndex >= 3 ||
-        (!SdlSwcFlightActive() && gameRecord->campaign.campaignIndex == 1 &&
-         !SdlValidateSm1Save(&gameRecord->campaign)))
+        (!SdlSwcFlightActive() && gameRecord->campaign.campaignIndex != 0 &&
+         !SdlValidateExpansionSave(&gameRecord->campaign)))
         return 0;
 #endif
     if (fileOpen != 0 && gameRecord->occupied != 0)
@@ -799,12 +807,14 @@ void SetBunkMenuLabel(short occupied, short side, char **label,
                       short series, short mission, char *description)
 {
 #ifdef SDL_PORT
-    if (nSm1TransferState) {
+    if (nPilotTransferState) {
         char text[84];
         if (occupied)
-            snprintf(text, sizeof(text), C_("font0", "Transfer %s to SM1."), description);
+            snprintf(text, sizeof(text), (nPilotTransferCampaign == 2 ? C_("font0", "Transfer %s to SM2.") :
+                     C_("font0", "Transfer %s to SM1.")), description);
         else
-            snprintf(text, sizeof(text), "%s", C_("font0", "No WC1 pilot here."));
+            snprintf(text, sizeof(text), "%s", (nPilotTransferCampaign == 2 ? C_("font0", "No WC1 or SM1 pilot here.") :
+                     C_("font0", "No WC1 pilot here.")));
         *label = AllocateTaggedMemory(strlen(text) + 1, 0);
         strcpy(*label, text);
         return;
@@ -832,7 +842,7 @@ void GetBunkInfo(BarracksAnimationState *state)
         state->bunks[bunk].occupied =
             LoadGame(bunk, &gameRecord);
 #ifdef SDL_PORT
-        if (nSm1TransferState && gameRecord.campaign.campaignIndex != 0)
+        if (nPilotTransferState && gameRecord.campaign.campaignIndex >= nPilotTransferCampaign)
             state->bunks[bunk].occupied = 0;
 #endif
         SetBunkMenuLabel(
@@ -848,7 +858,7 @@ void GetBunkInfo(BarracksAnimationState *state)
             gameRecord.campaign.currentMission,
             gameRecord.description);
 #ifdef SDL_PORT
-        if (bunk == SDL_AUTOSAVE_SLOT && !nSm1TransferState) {
+        if (bunk == SDL_AUTOSAVE_SLOT && !nPilotTransferState) {
             /* Both overwritten labels are shared save-action strings, not
              * allocations. FreeBarracksMenuLabels owns the replacements. */
             if (state->bunks[bunk].occupied == 0) {
@@ -1051,14 +1061,16 @@ void HandleBarracksBunkSelection(Viewport *viewport,
 {
     LeaveAllocationScope();
 #ifdef SDL_PORT
-    if (nSm1TransferState) {
+    if (nPilotTransferState) {
         SaveGameRecord source;
-        if (LoadGame(region / 2, &source) && source.campaign.campaignIndex == 0 &&
-            ShowModalTextPanel(0, C_("font0", "Transfer %s to SM1? (Y/N)"), source.description)) {
+        if (LoadGame(region / 2, &source) && source.campaign.campaignIndex < nPilotTransferCampaign &&
+            ShowModalTextPanel(0, nPilotTransferCampaign == 2 ?
+                              C_("font0", "Transfer %s to SM2? (Y/N)") :
+                              C_("font0", "Transfer %s to SM1? (Y/N)"), source.description)) {
             int confirmed = toupper((unsigned char)WaitForStreamInputKey()) == 'Y';
             ReleaseModalTextPanel();
-            if (confirmed && SdlTransferSm1Pilot(region / 2))
-                nSm1TransferState = 2;
+            if (confirmed && SdlTransferPilot(region / 2, nPilotTransferCampaign))
+                nPilotTransferState = 2;
         }
         EnterAllocationScope();
         return;
@@ -1115,7 +1127,7 @@ short BarracksScreen(void)
 #ifdef SDL_PORT
     char *savedLabels[4];
 
-    if (nSm1TransferState) {
+    if (nPilotTransferState) {
         memcpy(savedLabels, apszBarracksMenuLabels + 16, sizeof(savedLabels));
         for (region = 16; region < 20; region++)
             apszBarracksMenuLabels[region] = (char *)C_("font0", "Back to title");
@@ -1133,7 +1145,7 @@ short BarracksScreen(void)
                        &stRoomScreenViewport,
                        szDefaultTxtBuf, 2);
 #ifdef SDL_PORT
-    if (!nSm1TransferState)
+    if (!nPilotTransferState)
 #endif
         EnsureSaveGameFile();
     InitializeBarracksAnimation(&animation);
@@ -1165,7 +1177,7 @@ short BarracksScreen(void)
             switch ((short)event.value) {
 #ifdef SDL_PORT
             case SCAN_ESCAPE:
-                if (nSm1TransferState)
+                if (nPilotTransferState)
                     result = 6;
                 break;
 #endif
@@ -1191,12 +1203,12 @@ short BarracksScreen(void)
                 HandleBarracksBunkSelection(
                     &stSceneBuffer, background, &animation, region);
 #ifdef SDL_PORT
-                if (nSm1TransferState == 2)
+                if (nPilotTransferState == 2)
                     result = 7;
 #endif
             } else {
 #ifdef SDL_PORT
-                if (nSm1TransferState && region >= 16 && region < 20) {
+                if (nPilotTransferState && region >= 16 && region < 20) {
                     result = 6;
                     break;
                 }
@@ -1277,7 +1289,7 @@ short BarracksScreen(void)
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(35);
 #ifdef SDL_PORT
-    if (nSm1TransferState)
+    if (nPilotTransferState)
         memcpy(apszBarracksMenuLabels + 16, savedLabels, sizeof(savedLabels));
 #endif
     return result;

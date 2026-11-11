@@ -169,9 +169,9 @@ unsigned int remove_weapon(short obj, short weapon)
                 ((ShipWeaponSlot *)(entry + 1))[1].disabled;
         }
 #ifdef SDL_PORT
-        /* Mac +0x0250 guards this spare-slot write for full ten-slot
-           loadouts. */
-        if (!SdlSwcFlightActive() || loadout[0] < 10)
+        /* The original spare-slot write corrupts the next ship's first
+           hardpoint when all ten slots are occupied. SWC also guards it. */
+        if (loadout[0] < 10)
 #endif
             loadout[loadout[0] * 7 + 7] = 1;
     }

@@ -46,6 +46,8 @@ void refresh_window(LauncherWindow &window,
     window.set_picker_error(false);
     window.set_path_valid(status.valid);
     window.set_swc_demo(status.swcDemo);
+    window.set_sm1_data(status.sm1);
+    window.set_sm2_data(status.sm2);
     window.set_towns_data(status.valid && status.message == LauncherMessage::FmTowns);
     if (!window.get_towns_data() && window.get_language_index() == 2)
         window.set_language_index(0);
@@ -158,9 +160,11 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
             window->set_game_directory(slint::SharedString(installations[index - 1].directory));
         refresh_window(*window, installations);
     });
-    window->on_launch_requested([&window, &accepted, &installations]() {
+    window->on_launch_requested([&window, &accepted, &installations, options](int campaign, bool transfer) {
         refresh_window(*window, installations);
-        if (!window->get_path_valid())
+        if (!window->get_path_valid() || campaign < 0 || campaign > 2 || (transfer && !campaign) ||
+            (campaign == 1 && !window->get_sm1_data()) ||
+            (campaign == 2 && !window->get_sm2_data()))
             return;
         std::error_code error;
         const std::string directory(window->get_game_directory());
@@ -182,6 +186,8 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
             return;
         }
         window->set_game_directory(slint::SharedString(absoluteText));
+        options->campaign = campaign;
+        options->transferPilot = transfer;
         accepted = true;
         /* Hide while the event loop still runs: on Linux the request takes
            effect only when the loop processes it, so hiding after the loop

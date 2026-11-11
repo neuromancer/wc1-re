@@ -1132,10 +1132,6 @@ msgid "wc1:c49c1b105b4018ae"
 msgstr "Entrée/A/1: Rejouer  Échap/B/2: Voir la suite"
 
 msgctxt "font0"
-msgid "wc1:0ddf30d9bb4b263a"
-msgstr "Transférer un pilote vers SM1"
-
-msgctxt "font0"
 msgid "wc1:ddafd647ef79996a %s"
 msgstr "Transférer %s vers SM1."
 
@@ -1150,3 +1146,15 @@ msgstr "Aucun pilote WC1 ici."
 msgctxt "font0"
 msgid "wc1:14ca20954376880d"
 msgstr "Retour au titre"
+
+msgctxt "font0"
+msgid "wc1:ddb9f847ef8227b5 %s"
+msgstr "Transférer %s vers SM2."
+
+msgctxt "font0"
+msgid "wc1:b36cbc4389a6ab77 %s (Y/N)"
+msgstr "Transférer %s vers SM2 ? (Y/N)"
+
+msgctxt "font0"
+msgid "wc1:7e19b89746c24a21"
+msgstr "Aucun pilote WC1 ou SM1 ici."

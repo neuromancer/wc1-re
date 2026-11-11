@@ -53,6 +53,8 @@ typedef struct SdlLauncherOptions {
     int joystickMode;
     int joystickAxes;
     int swcDemo;
+    int campaign; /* This launch: 0 WC1, 1 SM1, 2 SM2. Not a saved preference. */
+    int transferPilot; /* Open the transfer barracks for this launch only. */
     /* Command-line values take precedence over saved GUI settings. */
     unsigned int explicitOptions;
 } SdlLauncherOptions;

@@ -25,6 +25,10 @@ with tempfile.TemporaryDirectory(prefix="wc1-sm2-" if sm2 else "wc1-sm1-") as sc
     ])
     streams = next(path for path in installation.iterdir() if path.name.upper() == "STREAMS")
     shutil.copytree(streams, Path(scratch) / "STREAMS")
-    subprocess.run([str(probe.resolve()), scratch], check=True, timeout=600,
+    subprocess.run([str(probe.resolve()), scratch, *sys.argv[3:]], check=True,
+                   timeout=1800 if os.environ.get("WC1_CAMPAIGN_FULL_SCENES") else 600,
                    env=dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy",
                             ASAN_OPTIONS="detect_leaks=0", UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"))
+    # Original fatal game errors can call exit(0); require the final check too.
+    if not (Path(scratch) / "GAMEDAT" / "probe-complete").is_file():
+        raise SystemExit("Expansion probe exited before completing its checks")

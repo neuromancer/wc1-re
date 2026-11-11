@@ -774,7 +774,12 @@ typedef struct CampaignState {
     signed char currentSeries;        /* +0x1A */
     signed char seriesHistoryCount;   /* +0x1B */
     signed char seriesHistory[8];     /* +0x1C */
+#ifdef SDL_PORT
+    /* SM2 story scripts also address characters 8–12. Disk saves retain eight. */
+    int personalityDeathMission[13];
+#else
     int personalityDeathMission[8];   /* +0x24 */
+#endif
     unsigned char aceFlags[4];        /* +0x44 */
     CampaignDate currentDate;         /* +0x48 */
     CampaignDate elapsedDate;         /* +0x4C */

@@ -155,7 +155,15 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
         if (!has_readable_file(*streams, name))
             return {false, LauncherMessage::MissingStreamFile, false, name};
     }
-    return {true, LauncherMessage::KilrathiSaga};
+    DirectoryStatus status {true, LauncherMessage::KilrathiSaga};
+    status.sm1 = true;
+    for (const auto name : {"CAMP.001", "MODULE.001", "BRIEFING.001", "MIDGAME.V04", "MIDGAME.V05"})
+        status.sm1 &= has_readable_file(*gameData, name);
+    status.sm2 = true;
+    for (const auto name : {"CAMP.002", "MODULE.002", "BRIEFING.002", "MIDGAME.V06", "MIDGAME.V07",
+                            "MIDGAME.V08", "TALKING1.VGA", "WINGMEN1.VGA", "PCSHIP.V05", "COMMSM2.DAT", "TITLE1.VGA"})
+        status.sm2 &= has_readable_file(*gameData, name);
+    return status;
 }
 
 int add_game_installation(std::vector<GameInstallation> &installations,

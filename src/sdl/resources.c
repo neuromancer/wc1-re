@@ -25,24 +25,39 @@ typedef struct SdlOriginLzwBitReader {
 
 static int g_nSdlDosData = -1;
 
-int SdlHasSecretMissions1(void)
+int SdlHasSecretMissions(short campaign)
 {
-    /* Kilrathi Saga SM1 uses these five additional archives. Empty final
+    /* Validate the last needed section in each archive. Empty animation
      * sections are valid; a missing archive/section returns -1. */
-    static const short files[] = {61, 62, 52, 67, 68};
-    static const short sections[] = {2, 35, 5, 6, 6};
+    static const short files[2][11] = {
+        {61, 62, 52, 67, 68, -1},
+        {74, 73, 72, 69, 70, 84, 80, 81, 83, 75, -1}
+    };
+    static const short sections[2][10] = {
+        {2, 35, 5, 6, 6},
+        {2, 37, 5, 6, 6, 6, 3, 9, 1, 0}
+    };
     short savedError = nPacketError;
-    int index;
+    int index, valid = 1;
 
-    if (!pDiskFileRecords || SdlUsingDosData() || SdlUsingTownsData())
+    if (campaign < 1 || campaign > 2 || !pDiskFileRecords ||
+        SdlUsingDosData() || SdlUsingTownsData())
         return 0;
-    for (index = 0; index < SDL_arraysize(files); index++) {
-        if (GetPacketSize(pDiskFileRecords[files[index]].name,
-                          sections[index]) == (unsigned int)-1)
+    for (index = 0; files[campaign - 1][index] != -1; index++) {
+        if (GetPacketSize(pDiskFileRecords[files[campaign - 1][index]].name,
+                          sections[campaign - 1][index]) == (unsigned int)-1) {
+            valid = 0;
             break;
+        }
+    }
+    if (valid && campaign == 2) {
+        int file = _open(pDiskFileRecords[82].name, 0x8000);
+        valid = file >= 0 && _filelength(file) >= 14 * 11 * 80;
+        if (file >= 0)
+            _close(file);
     }
     nPacketError = savedError;
-    return index == SDL_arraysize(files);
+    return valid;
 }
 
 static uint32_t SdlReadLittleEndian32(const unsigned char *bytes)

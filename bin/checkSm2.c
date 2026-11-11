@@ -1,6 +1,5 @@
 /* Win32 SM2 flight integration; run with disposable user-supplied assets. */
 #include "wc1.h"
-
 static void Require(int condition, const char *message)
 {
     if (!condition) {
@@ -32,9 +31,13 @@ int main(int argc, char **argv)
     short file;
     char speech[80];
     SDL_TimerID skip;
+    FILE *completion;
+    int flightTicks = getenv("WC1_CAMPAIGN_FLIGHT_TICKS") ?
+        atoi(getenv("WC1_CAMPAIGN_FLIGHT_TICKS")) : 30;
 
     setvbuf(stdout, NULL, _IONBF, 0);
-    Require(argc == 2 && chdir(argv[1]) == 0, "enter scratch installation");
+    Require(flightTicks > 0 && flightTicks <= 3600, "flight tick count in 1..3600");
+    Require(argc >= 2 && chdir(argv[1]) == 0, "enter scratch installation");
     SDL_SetMainReady();
     Require(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS) == 0, "SDL init");
     window = SDL_CreateWindow("SM2 flight test", 0, 0, 640, 400, 0);
@@ -54,13 +57,24 @@ int main(int argc, char **argv)
     nVideoMode = 0x13;
     LoadOriginFxDrivers();
     nFrameIntervalMs = 0;
+    memcpy(aShipWeaponsTable[8], aObjectTypeData[OBJECT_TYPE_RAPTOR].weaponLoadout,
+           sizeof(aShipWeaponsTable[8]));
+    memcpy(aShipWeaponsTable[9], aObjectTypeData[OBJECT_TYPE_HORNET].weaponLoadout,
+           sizeof(aShipWeaponsTable[9]));
+    remove_weapon(8, 4);
+    Require(aShipWeaponsTable[8][0] == 9 &&
+            !memcmp(aShipWeaponsTable[9], aObjectTypeData[OBJECT_TYPE_HORNET].weaponLoadout,
+                    sizeof(aShipWeaponsTable[9])),
+            "firing from a full Raptor loadout preserves the neighboring ship's weapons");
     stCampaignState.campaignIndex = nCampaignDataSet = 2;
+    SdlSetSm2Pilots(aPilotEntriesList, 1);
     LoadPacketIntoBuffer(asCampaignPilotFiles[2], 0, pConstellationDefinitionsPtr);
     LoadPacketIntoBuffer(asCampaignPilotFiles[2], 1, pMissionCampaignInfo);
     for (series = 1; series <= 9; series++) {
         for (mission = 0; mission < pMissionCampaignInfo[(series - 1) * 90 + 2]; mission++) {
             stCampaignState.currentSeries = series;
             stCampaignState.currentMission = mission;
+            nArcadeState = 0;
             Require(init_mission(series, mission) == 0, "initialize SM2 flight");
             set_up_action_sphere(stCurrentMissionHeader.entryNavPoint);
             bEscapePressedFlag = 0;
@@ -130,11 +144,19 @@ int main(int argc, char **argv)
                 dralthi++;
             }
             for (nav = 0; nav < ACTIVE_MISSION_NAV_POINT_COUNT; nav++) {
+                if (nArcadeState) {
+                    free_cockpit();
+                    free_all_slots();
+                    free_3Space();
+                    nArcadeState = 0;
+                    Require(init_mission(series, mission) == 0, "restart before next nav after flight ends");
+                    LaunchPlayerShip();
+                }
                 if (aMissionNavPoints[nav].type < 0 || aMissionNavPoints[nav].type == 2)
                     continue;
                 aShipPositionsArray[0] = aMissionNavPoints[nav].position;
                 set_up_action_sphere(nav);
-                for (tick = 0; tick < 30; tick++) {
+                for (tick = 0; tick < flightTicks && !nArcadeState; tick++) {
                     Update_3Space();
                     RenderSpaceViewFrame();
                     update_cockpit();
@@ -149,6 +171,7 @@ int main(int argc, char **argv)
         }
     }
     Require(count == 18 && dralthi == 4 && hriss > 0, "18 missions, four Dralthi flights, Hriss encounters");
+    printf("PASS: up to %d flight ticks per nav point\n", flightTicks);
     file = OpenDataFileOrDie(pDiskFileRecords[82].name);
     for (personality = 0; personality < 14; personality++) {
         get_pilot_talk(personality);
@@ -194,5 +217,7 @@ int main(int argc, char **argv)
         free_3Space();
     }
     puts("PASS: campaign isolation");
+    completion = fopen("probe-complete", "w");
+    Require(completion != NULL && fclose(completion) == 0, "record completed probe");
     return 0;
 }

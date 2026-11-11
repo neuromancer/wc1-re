@@ -1340,7 +1340,7 @@ clean-modern:
 	verify-values-stack-locals \
 
 # Uses the real WC1 formatter/rasterizer and a caller-supplied installation.
-$(MODERN_OUT_DIR)/obj/translation_probe.o: bin/checkTranslations.c | modern-check-sdl
+$(MODERN_OUT_DIR)/obj/translation_probe.o: bin/checkTranslations.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 
@@ -1361,7 +1361,7 @@ check-french: $(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations
 	$(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations/fr.dat \
 		"$(MODERN_RUN_DIR)/GAMEDAT" $(MODERN_OUT_DIR)/french-preview.bmp fr
 
-$(MODERN_OUT_DIR)/obj/retry_probe.o: bin/checkMissionRetry.c src/sdl/autosave.c | modern-check-sdl
+$(MODERN_OUT_DIR)/obj/retry_probe.o: bin/checkMissionRetry.c src/sdl/autosave.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 
@@ -1376,13 +1376,13 @@ $(MODERN_OUT_DIR)/retry-probe: $(MODERN_OUT_DIR)/obj/retry_probe.o \
 check-mission-retry: $(MODERN_OUT_DIR)/retry-probe
 	$(MODERN_OUT_DIR)/retry-probe
 
-$(MODERN_OUT_DIR)/obj/sm1_probe.o: bin/checkSm1.c src/gameflow.c src/title.c src/barracks.c src/killbrd.c | modern-check-sdl
+$(MODERN_OUT_DIR)/obj/sm1_probe.o: bin/checkSm1.c src/gameflow.c src/title.c src/barracks.c src/killbrd.c src/timer.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 
 $(MODERN_OUT_DIR)/sm1-probe: $(MODERN_OUT_DIR)/obj/sm1_probe.o \
 		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
-		$(filter-out $(addprefix $(MODERN_OUT_DIR)/obj/,gameflow.o title.o barracks.o killbrd.o),$(MODERN_GAMEPLAY_OBJS)) $(MODERN_IX_OBJS)
+		$(filter-out $(addprefix $(MODERN_OUT_DIR)/obj/,gameflow.o title.o barracks.o killbrd.o timer.o),$(MODERN_GAMEPLAY_OBJS)) $(MODERN_IX_OBJS)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
 		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
@@ -1391,7 +1391,7 @@ $(MODERN_OUT_DIR)/sm1-probe: $(MODERN_OUT_DIR)/obj/sm1_probe.o \
 check-sm1: $(MODERN_OUT_DIR)/sm1-probe
 	python3 bin/checkSm1.py $(MODERN_OUT_DIR)/sm1-probe "$(if $(SM1_DATA),$(SM1_DATA),$(MODERN_RUN_DIR))"
 
-$(MODERN_OUT_DIR)/obj/sm2_probe.o: bin/checkSm2.c | modern-check-sdl
+$(MODERN_OUT_DIR)/obj/sm2_probe.o: bin/checkSm2.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 
@@ -1402,7 +1402,8 @@ $(MODERN_OUT_DIR)/sm2-probe: $(MODERN_OUT_DIR)/obj/sm2_probe.o \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
 .PHONY: check-sm2
-check-sm2: $(MODERN_OUT_DIR)/sm2-probe
+check-sm2: $(MODERN_OUT_DIR)/sm2-probe $(MODERN_OUT_DIR)/sm1-probe
+	python3 bin/checkSm1.py $(MODERN_OUT_DIR)/sm1-probe "$(if $(SM2_DATA),$(SM2_DATA),$(MODERN_RUN_DIR))" sm2
 	python3 bin/checkSm1.py $(MODERN_OUT_DIR)/sm2-probe "$(if $(SM2_DATA),$(SM2_DATA),$(MODERN_RUN_DIR))" sm2
 
 $(MODERN_OUT_DIR)/voice-probe: bin/checkVoices.c src/sdl/audio.c src/sdl/speech.c src/sdl/compat.c include/wc1sdl.h | modern-check-sdl $(MODERN_VOICES)
@@ -1413,7 +1414,7 @@ $(MODERN_OUT_DIR)/voice-probe: bin/checkVoices.c src/sdl/audio.c src/sdl/speech.
 check-voices: $(MODERN_OUT_DIR)/voice-probe
 	WC1_VOICE_PROBE="$(abspath $(MODERN_OUT_DIR)/voice-probe)" python3 bin/testVoices.py
 
-$(MODERN_OUT_DIR)/obj/towns_probe.o: bin/checkTowns.c src/sdl/fmtowns.c | modern-check-sdl
+$(MODERN_OUT_DIR)/obj/towns_probe.o: bin/checkTowns.c src/sdl/fmtowns.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 
@@ -1428,7 +1429,7 @@ $(MODERN_OUT_DIR)/towns-probe: $(MODERN_OUT_DIR)/obj/towns_probe.o \
 check-towns: $(MODERN_OUT_DIR)/towns-probe
 	SDL_AUDIODRIVER=dummy $(MODERN_OUT_DIR)/towns-probe $(if $(TOWNS_DATA),"$(TOWNS_DATA)")
 
-$(MODERN_OUT_DIR)/obj/towns_input_probe.o: bin/checkTownsInput.c src/sdl/towns_text.c | modern-check-sdl
+$(MODERN_OUT_DIR)/obj/towns_input_probe.o: bin/checkTownsInput.c src/sdl/towns_text.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 

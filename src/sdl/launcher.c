@@ -47,6 +47,19 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         argument = arguments[argumentIndex];
         if (strcmp(argument, "--gui") == 0) {
             *useLauncherGui = 1;
+        } else if (strcmp(argument, "--transfer-pilot") == 0) {
+            options->transferPilot = 1;
+        } else if (strncmp(argument, "--campaign=", 11) == 0) {
+            if (strcmp(argument + 11, "wc1") == 0)
+                options->campaign = 0;
+            else if (strcmp(argument + 11, "sm1") == 0)
+                options->campaign = 1;
+            else if (strcmp(argument + 11, "sm2") == 0)
+                options->campaign = 2;
+            else {
+                fprintf(stderr, "Unknown campaign: %s (use wc1, sm1 or sm2).\n", argument + 11);
+                return 0;
+            }
         } else if (strncmp(argument, "--voices=", 9) == 0) {
             if (!argument[9] || SDL_strlcpy(options->voiceCatalog, argument + 9,
                                            sizeof(options->voiceCatalog)) >= sizeof(options->voiceCatalog)) {
@@ -170,6 +183,14 @@ static int SdlOpenLauncherGui(SdlLauncherOptions *options)
 static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
 {
     char directory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
+    if (options->campaign < 0 || options->campaign > 2 ||
+        (options->swcDemo && options->campaign != 0) ||
+        (options->transferPilot && !options->campaign)) {
+        fprintf(stderr, "Invalid campaign for the selected game.\n");
+        return 0;
+    }
+    nLaunchCampaign = options->campaign;
+    nPilotTransferState = options->transferPilot != 0;
     if (options->joystickMode < SDL_LAUNCHER_JOYSTICK_ORIGINAL ||
         options->joystickMode > SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS ||
         options->joystickAxes < SDL_LAUNCHER_AXES_TWIN_STICK_ROLL ||

@@ -1,12 +1,26 @@
 /* SDL campaign selection and Win32 Secret Missions compatibility. */
 #include "wc1.h"
 
-int nSm1TransferState;
+int nPilotTransferState;
+int nPilotTransferCampaign = 1;
+int nLaunchCampaign;
 
 int SdlUsingSm2Data(void)
 {
     return nCampaignDataSet == 2 && !SdlSwcFlightActive() &&
         !SdlUsingDosData() && !SdlUsingTownsData();
+}
+
+void SdlSetSm2Pilots(PilotRecord *pilots, int fresh)
+{
+    /* SM2.EXE initial roster (0x4a92d8); LoadGame (0x4686bc) changes
+     * only names, retaining the statistics of transferred/saved pilots. */
+    static const PilotRecord jazz = {"COLSON", "JAZZ", 3, 2, 18, 23, 3};
+    static const PilotRecord doomsday = {"MONTCLAIR", "DOOMSDAY", 3, 2, 18, 23, 3};
+    size_t size = fresh ? sizeof(PilotRecord) : offsetof(PilotRecord, portrait);
+
+    memcpy(&pilots[2], &jazz, size);
+    memcpy(&pilots[5], &doomsday, size);
 }
 
 void SdlSetCampaignShips(void)
@@ -47,19 +61,26 @@ void SdlSetCampaignShips(void)
     active = sm2;
 }
 
-int SdlValidateSm1Save(const CampaignState *campaign)
+int SdlValidateExpansionSave(const CampaignState *campaign)
 {
     unsigned char *series;
     int valid;
+    int sm2 = campaign->campaignIndex == 2;
+    short logicalFile;
 
-    if (!SdlHasSecretMissions1() || campaign->currentSeries < 1 ||
-        campaign->currentSeries > 8 || campaign->currentMission < 0 ||
+    if (campaign->campaignIndex < 1 || campaign->campaignIndex > 2)
+        return 0;
+    logicalFile = asCampaignPilotFiles[campaign->campaignIndex];
+
+    if (!SdlHasSecretMissions(campaign->campaignIndex) || campaign->currentSeries < 1 ||
+        campaign->currentSeries > (sm2 ? 9 : 8) || campaign->currentMission < 0 ||
         campaign->seriesHistoryCount < 0 || campaign->seriesHistoryCount >= 8 ||
         campaign->playerShipType < OBJECT_TYPE_HORNET ||
-        campaign->playerShipType > OBJECT_TYPE_RAPTOR ||
-        GetPacketSize(pDiskFileRecords[61].name, 1) != 1170)
+        (campaign->playerShipType > OBJECT_TYPE_RAPTOR &&
+         !(sm2 && campaign->playerShipType == OBJECT_TYPE_DRALTHI)) ||
+        GetPacketSize(pDiskFileRecords[logicalFile].name, 1) != 1170)
         return 0;
-    series = PacketLoad(pDiskFileRecords[61].name, 1, NULL, 0, 0);
+    series = PacketLoad(pDiskFileRecords[logicalFile].name, 1, NULL, 0, 0);
     if (!series)
         return 0;
     valid = campaign->currentMission < series[(campaign->currentSeries - 1) * 90 + 2];
@@ -67,12 +88,12 @@ int SdlValidateSm1Save(const CampaignState *campaign)
     return valid;
 }
 
-int SdlTransferSm1Pilot(short slot)
+int SdlTransferPilot(short slot, short campaign)
 {
     SaveGameRecord source;
 
-    if (!SdlHasSecretMissions1() || !LoadGame(slot, &source) ||
-        source.campaign.campaignIndex != 0)
+    if (!SdlHasSecretMissions(campaign) || !LoadGame(slot, &source) ||
+        source.campaign.campaignIndex >= campaign)
         return 0;
     /* TRANSFER.EXE 0x417bc7: initial campaign + all nine pilots, medals and
      * badges. Deaths, aces, dates and mission progress use the initial state.
@@ -81,10 +102,12 @@ int SdlTransferSm1Pilot(short slot)
     memcpy(aPilotEntriesList, source.pilots, sizeof(source.pilots));
     memcpy(stCampaignState.medals, source.campaign.medals, sizeof(stCampaignState.medals));
     memcpy(stCampaignState.badges, source.campaign.badges, sizeof(stCampaignState.badges));
-    stCampaignState.campaignIndex = nCampaignDataSet = 1;
+    stCampaignState.campaignIndex = nCampaignDataSet = campaign;
+    if (campaign == 2)
+        SdlSetSm2Pilots(aPilotEntriesList, 0);
     CorrectPointers();
-    LoadPacketIntoBuffer(asCampaignPilotFiles[1], 0, pConstellationDefinitionsPtr);
-    LoadPacketIntoBuffer(asCampaignPilotFiles[1], 1, pMissionCampaignInfo);
+    LoadPacketIntoBuffer(asCampaignPilotFiles[campaign], 0, pConstellationDefinitionsPtr);
+    LoadPacketIntoBuffer(asCampaignPilotFiles[campaign], 1, pMissionCampaignInfo);
     LoadMissionData(1, 0);
     Build_objective_list();
     bCampaignActive = 1;

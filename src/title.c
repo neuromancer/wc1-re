@@ -149,8 +149,7 @@ int Title_Sequence(void)
     signed char state;
     signed char selectedIndex;
 #ifdef SDL_PORT
-    SaveGameRecord transferSave;
-    TextContext transferText;
+    short startFrame;
 #endif
 
     state = 0;
@@ -322,10 +321,13 @@ int Title_Sequence(void)
         SceneEnterHook();
         bTitleMenuSceneInitialized = 1;
     }
-    menuShape = FetchDiskPacketRetrying(9, 4, 0);
 #ifdef SDL_PORT
     alternateMenuShape = 0;
+    menuShape = nLaunchCampaign == 2 ? FetchDiskPacketRetrying(75, 0, 0) :
+                                     FetchDiskPacketRetrying(9, 4, 0);
+    startFrame = nLaunchCampaign == 1 ? 2 : 0;
 #else
+    menuShape = FetchDiskPacketRetrying(9, 4, 0);
     alternateMenuShape =
         FetchDiskPacketRetrying(0x4b, 0, 0);
 #endif
@@ -335,22 +337,14 @@ int Title_Sequence(void)
         optionCount = 2;
         menuOptions[1] = 1;
     }
-#ifdef SDL_PORT
-    if (SdlHasSecretMissions1()) {
-        menuOptions[optionCount++] = 2;
-        for (menuIndex = 0; menuIndex < 8; menuIndex++) {
-            if (LoadGame(menuIndex, &transferSave) &&
-                transferSave.campaign.campaignIndex == 0) {
-                menuOptions[optionCount++] = 3;
-                break;
-            }
-        }
-    }
-#endif
     for (; optionCount < 4; optionCount++)
         menuOptions[optionCount] = -1;
 
     for (menuIndex = 0; menuIndex < 4; menuIndex++) {
+#ifdef SDL_PORT
+        aTitleMenuRegions[menuIndex].left = 49;
+        aTitleMenuRegions[menuIndex].top = 48 + menuIndex * 43;
+#endif
         if (menuOptions[menuIndex] != -1) {
             aTitleMenuRegions[menuIndex].frame = 1;
             if (menuOptions[menuIndex] < 3) {
@@ -358,19 +352,18 @@ int Title_Sequence(void)
                     &aTitleMenuRegions[menuIndex].left,
                     aTitleMenuRegions[menuIndex].left,
                     aTitleMenuRegions[menuIndex].top,
-                    menuShape, menuOptions[menuIndex]);
-            } else {
+                    menuShape,
 #ifdef SDL_PORT
-                aTitleMenuRegions[menuIndex].right = 283;
-                aTitleMenuRegions[menuIndex].bottom =
-                    aTitleMenuRegions[menuIndex].top + 18;
+                    menuOptions[menuIndex] == 0 ? startFrame : menuOptions[menuIndex]);
 #else
+                    menuOptions[menuIndex]);
+#endif
+            } else {
                 GetShapeFrameBounds(
                     &aTitleMenuRegions[menuIndex].left,
                     aTitleMenuRegions[menuIndex].left,
                     aTitleMenuRegions[menuIndex].top,
                     alternateMenuShape, 0);
-#endif
             }
         } else {
             aTitleMenuRegions[menuIndex].frame = -1;
@@ -384,25 +377,17 @@ int Title_Sequence(void)
                 DrawSpriteDefault(&stScreenView,
                     aTitleMenuRegions[menuIndex].left,
                     aTitleMenuRegions[menuIndex].top,
-                    menuShape, menuOptions[menuIndex]);
-            } else {
+                    menuShape,
 #ifdef SDL_PORT
-                TextContext *previousContext = pCurTextContext;
-                transferText = stDefaultTxtContext;
-                transferText.viewport = &stScreenView;
-                InitializeTextContextFromFont(&transferText, 0, cPrimaryTextColour, cBlackColour);
-                DrawViewportBorder(&stScreenView, aTitleMenuRegions[menuIndex].left,
-                    aTitleMenuRegions[menuIndex].top, aTitleMenuRegions[menuIndex].right,
-                    aTitleMenuRegions[menuIndex].bottom, cPrimaryTextColour);
-                DrawTextAt(&transferText, 166, aTitleMenuRegions[menuIndex].top + 5,
-                           C_("font0", "Transfer pilot to SM1"), 2);
-                SetTextContext(previousContext);
+                    menuOptions[menuIndex] == 0 ? startFrame : menuOptions[menuIndex]);
 #else
+                    menuOptions[menuIndex]);
+#endif
+            } else {
                 DrawSpriteDefault(&stScreenView,
                     aTitleMenuRegions[menuIndex].left,
                     aTitleMenuRegions[menuIndex].top,
                     alternateMenuShape, 0);
-#endif
             }
         }
     }
@@ -431,15 +416,9 @@ int Title_Sequence(void)
             case SCAN_C:
             case SCAN_SPACE:
 #ifdef SDL_PORT
-            case SCAN_M:
-            case SCAN_T:
                 if ((short)event.value == SCAN_S ||
-                    (short)event.value == SCAN_C ||
-                    (short)event.value == SCAN_M ||
-                    (short)event.value == SCAN_T) {
-                    int option = (short)event.value == SCAN_S ? 0 :
-                        (short)event.value == SCAN_C ? 1 :
-                        (short)event.value == SCAN_M ? 2 : 3;
+                    (short)event.value == SCAN_C) {
+                    int option = (short)event.value == SCAN_S ? 0 : 1;
                     for (menuIndex = 0; menuIndex < 4; menuIndex++) {
                         if (menuOptions[menuIndex] == option)
                             selectedIndex = menuIndex;

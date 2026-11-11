@@ -388,6 +388,12 @@ unsigned int maintain_formation(short obj)
     FixedVector destination;
 
     leader = asShipWingLeaderArray[obj];
+#ifdef SDL_PORT
+    /* imperial_formation permits a missing leader; there is no formation
+       destination to follow until one is available. */
+    if (leader == -1)
+        return 0;
+#endif
     compute_formation_destination(leader,
                                   &aShipFormationDeltaList[obj],
                                   &destination);

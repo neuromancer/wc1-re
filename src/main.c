@@ -351,6 +351,12 @@ int main(short argc, char **argv)
     SetMusicStreamVolume(anVolumeLevels[
         nMusicVolumeSetting / 2]);
 
+#ifdef SDL_PORT
+    if (nLaunchCampaign && !SdlHasSecretMissions(nLaunchCampaign)) {
+        fprintf(stderr, "Secret Missions %d data is missing or unsupported.\n", nLaunchCampaign);
+        return 1;
+    }
+#endif
     if (launchMission == 0) {
 #ifdef SDL_PORT
         SdlPlayDosStartupIntro();
@@ -364,19 +370,30 @@ int main(short argc, char **argv)
 #endif
             FrameStartHook(0);
             bCampaignStartupMode = 1;
+#ifdef SDL_PORT
+            /* The original transfer utility opens the barracks directly. */
+            selection = nPilotTransferState ? 3 : Title_Sequence();
+#else
             selection = Title_Sequence();
+#endif
             switch (selection) {
             case 0:
+#ifdef SDL_PORT
+                StartNewCampaign(nLaunchCampaign);
+#else
                 StartNewCampaign(0);
+#endif
                 break;
             case 2:
                 StartNewCampaign(1);
                 break;
             case 3:
 #ifdef SDL_PORT
-                nSm1TransferState = 1;
+                nPilotTransferCampaign = nLaunchCampaign;
+                nPilotTransferState = 1;
                 selection = BarracksScreen();
-                nSm1TransferState = 0;
+                nPilotTransferState = 0;
+                bEscapePressedFlag = 1;
                 if (selection != 7)
                     continue;
 #else
