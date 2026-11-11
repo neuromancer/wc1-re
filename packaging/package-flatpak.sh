@@ -35,7 +35,12 @@ exec /app/lib/wc1/wc1-modern "$@"
 EOF
 chmod +x "$files/bin/wc1-modern"
 install -Dm644 packaging/flatpak/app.desktop "$files/share/applications/$app_id.desktop"
-install -Dm644 packaging/flatpak/icon.svg "$files/share/icons/hicolor/scalable/apps/$app_id.svg"
+# Export PNGs so Flatpak's validator does not depend on an SVG pixbuf loader.
+for size in 64 128; do
+    icon_dir="$files/share/icons/hicolor/${size}x${size}/apps"
+    mkdir -p "$icon_dir"
+    rsvg-convert -w "$size" -h "$size" packaging/flatpak/icon.svg -o "$icon_dir/$app_id.png"
+done
 mkdir -p "$files/share/metainfo"
 sed -e "s/@VERSION@/${version#v}/g" -e "s/@DATE@/$(date -u +%F)/g" \
     packaging/flatpak/metainfo.xml > "$files/share/metainfo/$app_id.metainfo.xml"

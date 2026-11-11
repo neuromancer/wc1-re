@@ -217,7 +217,7 @@ jobs:
       - name: Install Flatpak packaging tools
         run: |
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends flatpak unzip
+          sudo apt-get install --yes --no-install-recommends flatpak librsvg2-bin unzip
       - name: Package experimental Steam Deck and Linux Flatpak
         env:
           RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
