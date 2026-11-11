@@ -860,7 +860,7 @@ msgstr ""
 msgid "wc1:c40a7fcd3dcd0fe6 %s"
 msgstr ""
 
-#: src/ship.c:2135
+#: src/ship.c:2140
 msgid "wc1:0ae715aa6be3d120"
 msgstr ""
 
@@ -998,26 +998,26 @@ msgstr ""
 msgid "wc1:f73da679ed0323ae %P"
 msgstr ""
 
-#: src/view.c:636
+#: src/view.c:640
 msgid "wc1:07a035d723c0a256"
 msgstr ""
 
-#: src/view.c:641
+#: src/view.c:645
 msgid "wc1:215bf7c9a8268573"
 msgstr ""
 
-#: src/view.c:652
+#: src/view.c:656
 msgid "\nwc1:72185237b1eb2dae"
 msgstr ""
 
-#: src/view.c:654
+#: src/view.c:658
 msgid "wc1:c8ecf3fec5bbf9c1"
 msgstr ""
 
-#: src/view.c:672
+#: src/view.c:676
 msgid "\nwc1:76b0a402b4b69fa4"
 msgstr ""
 
-#: src/view.c:757
+#: src/view.c:769
 msgid "wc1:b348d97fa79f7ad8"
 msgstr ""

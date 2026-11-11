@@ -569,8 +569,13 @@ int missile_on_tail(short obj)
 
     for (other = 0; other < 10; other++) {
         if (aeObjectClass[other] == OBJECT_CLASS_MISSILE &&
-            acShipTargetTable[other] == obj)
+            acShipTargetTable[other] == obj) {
+#ifdef SDL_PORT
+            /* Mkill_missile consumes this target; the original leaves it stale. */
+            nTargetShip = other;
+#endif
             return 1;
+        }
     }
     return 0;
 }

@@ -219,6 +219,10 @@ archives ship as `wc1-modern`.
 Run expansion checks with `make check-sm1 SM1_DATA=/path/to/WC1` or
 `make check-sm2 SM2_DATA=/path/to/WC1`.
 They use temporary copies of your game data and leave existing saves untouched.
+`make check-random GAME_DATA=/path/to/WC1 RANDOM_ARGS="--seed 123 --runs 3"`
+tests random flight controls across Kilrathi Saga WC1 and detected expansions. Failures retain
+an input log and a replay command; use the same build and data to reproduce them.
+Add `--campaign wc1`, `--case wc1:1:0`, or `--ticks 1200` to narrow or extend a run.
 
 ### Translation and voice mappings
 

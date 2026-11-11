@@ -1,4 +1,4 @@
-/* Run through checkSm1.py, which provides a disposable installation.
+/* Run through runGameTests.py, which provides a disposable installation.
  * Script menu input and mission outcomes; exercise the real campaign, flight
  * encounters, scenes, save/load, autosave and retry implementations. */
 #include "wc1.h"
@@ -298,9 +298,12 @@ int main(int argc, char **argv)
                         if (aeObjectClass[object] >= OBJECT_CLASS_SHIP &&
                             aeObjectTypeList[object] == OBJECT_TYPE_SIVAR) {
                             int record = nShipMissionIndices[object];
-                            Require(explode(0, object) && dead_ship(record), "Sivar destruction uses shared combat");
-                            cleanup_objectives();
-                            sivar++;
+                            /* The ship can still be invulnerable while arriving. */
+                            if (explode(0, object)) {
+                                Require(dead_ship(record), "Sivar destruction uses shared combat");
+                                cleanup_objectives();
+                                sivar++;
+                            }
                         }
                     }
                     for (tick = 0; tick < flightTicks && !nArcadeState; tick++) {

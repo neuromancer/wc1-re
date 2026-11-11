@@ -1563,7 +1563,12 @@ int explode(short attacker, short victim)
     if (nExternalViewShip == victim)
         nExternalViewShip = -1;
     attacker = the_creator(attacker);
+#ifdef SDL_PORT
+    /* Unowned hazards have object IDs beyond the ten pilot/ship slots. */
+    if (attacker >= 0 && attacker < 10 &&
+#else
     if (attacker != -1 &&
+#endif
         aeObjectClass[victim] >= OBJECT_CLASS_SHIP)
         analyze_kill(attacker, victim);
     Explosion(victim);

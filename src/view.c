@@ -623,7 +623,11 @@ void show_target_disp(void)
     short x;
     short y;
     short frame;
+#ifdef SDL_PORT
+    short maximumArmor[4];
+#else
     short *maximumArmor;
+#endif
     short armor;
     Viewport targetViewport;
 
@@ -686,7 +690,15 @@ void show_target_disp(void)
                           pCockpitIndicatorShape, frame);
 
     targetViewport = stRightVduViewport;
+#ifdef SDL_PORT
+    /* ObjectTypeData is packed; a short pointer loses that alignment. */
+    maximumArmor[0] = typeData->armorFront;
+    maximumArmor[1] = typeData->armorRear;
+    maximumArmor[2] = typeData->armorLeft;
+    maximumArmor[3] = typeData->armorRight;
+#else
     maximumArmor = &typeData->armorFront;
+#endif
     for (armor = 0; armor < 4; armor++) {
         targetViewport.left =
             (aTargetArmorClipRects[armor].left + x);
