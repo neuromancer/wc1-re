@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.neuromancer.wc1</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <name>Wing Commander (Experimental)</name>
+  <summary>Experimental SDL2 port of Wing Commander</summary>
+  <description>
+    <p>Play Wing Commander using your own original game files. Supports Kilrathi
+    Saga, DOS and FM Towns data, and Super Wing Commander for Macintosh.</p>
+    <p>This Flatpak is experimental and has not been validated on Steam Deck.
+    Please report installation, controls, saving and suspend/resume results.</p>
+    <p>Original game archives and Sega CD voice recordings are not included.</p>
+  </description>
+  <launchable type="desktop-id">io.github.neuromancer.wc1.desktop</launchable>
+  <url type="homepage">https://github.com/neuromancer/wc1-re</url>
+  <url type="bugtracker">https://github.com/neuromancer/wc1-re/issues</url>
+  <releases>
+    <release version="@VERSION@" date="@DATE@" type="development"/>
+  </releases>
+</component>

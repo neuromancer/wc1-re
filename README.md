@@ -48,6 +48,12 @@ Download the package for your platform from
 - **Windows:** run the `-setup.exe` installer, then open **Wing Commander**
   from the Start Menu. It installs for the current user without administrator
   privileges and includes an uninstaller in Windows Settings.
+- **Steam Deck / Linux (experimental):** install the `.flatpak` in Desktop Mode
+  with `flatpak install --user ./downloaded.flatpak` (replace the filename), then
+  add **Wing Commander (Experimental)** to Steam as a non-Steam game. These
+  packages have not been tested on Steam Deck; please report controls, saving and
+  suspend/resume results in [Issues](https://github.com/neuromancer/wc1-re/issues).
+  Install newer bundles the same way; automatic app updates are not configured.
 - **Portable ZIPs:** available for Windows, macOS, and Linux. Extract the
   archive and keep the bundled libraries, sound bank, `translations/`, and
   `voices/` mapping beside the executable.
