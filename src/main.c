@@ -1288,7 +1288,11 @@ unsigned int HandleFleetOverviewInput(void)
         bCurrentKey = SCAN_NONE;
         switch (key) {
         case SCAN_RETURN:
-            cViewObject--;
+#ifdef SDL_PORT
+            /* The original steps below object 0 and reads before the ship arrays. */
+            if (cViewObject > 0)
+#endif
+                cViewObject--;
             bCurrentKey = SCAN_GRAVE;
             break;
         case SCAN_HOME:

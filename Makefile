@@ -185,7 +185,10 @@ MODERN_DEPFLAGS = -MMD -MP
 MODERN_SECTION_FLAGS = -ffunction-sections -fdata-sections
 # Developer builds retain runtime diagnostics.  Tagged release jobs
 # explicitly select the optimized, uninstrumented host build.
-ifeq ($(MODERN_RELEASE),1)
+ifeq ($(MODERN_FUZZING),1)
+override MODERN_SANITIZER_FLAGS = -g -O1 -fsanitize=fuzzer-no-link,address,undefined \
+	-fsanitize-recover=undefined -fno-omit-frame-pointer
+else ifeq ($(MODERN_RELEASE),1)
 override MODERN_SANITIZER_FLAGS =
 else
 override MODERN_SANITIZER_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
@@ -1406,19 +1409,40 @@ check-sm2: $(MODERN_OUT_DIR)/sm2-probe $(MODERN_OUT_DIR)/sm1-probe
 	python3 bin/runGameTests.py $(MODERN_OUT_DIR)/sm1-probe "$(if $(SM2_DATA),$(SM2_DATA),$(MODERN_RUN_DIR))" --campaign sm2
 	python3 bin/runGameTests.py $(MODERN_OUT_DIR)/sm2-probe "$(if $(SM2_DATA),$(SM2_DATA),$(MODERN_RUN_DIR))" --campaign sm2
 
-$(MODERN_OUT_DIR)/obj/flight_probe.o: bin/checkFlight.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
+FUZZ_CC ?= clang
+FUZZ_CXX ?= clang++
+FUZZ_OUT_DIR ?= out-modern/fuzz
+
+# Compile every game object with coverage, separately from normal SDL builds.
+.PHONY: fuzz-flight check-fuzz check-fuzz-sm1 check-fuzz-sm2
+fuzz-flight:
+	$(MAKE) MODERN_OUT_DIR="$(FUZZ_OUT_DIR)" MODERN_CC="$(FUZZ_CC)" \
+		MODERN_CXX="$(FUZZ_CXX)" MODERN_FUZZING=1 "$(FUZZ_OUT_DIR)/flight-fuzzer"
+
+check-fuzz: fuzz-flight
+	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(GAME_DATA),$(GAME_DATA),$(MODERN_RUN_DIR))" --fuzz $(FUZZ_ARGS)
+
+check-fuzz-sm1: fuzz-flight
+	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(SM1_DATA),$(SM1_DATA),$(MODERN_RUN_DIR))" --fuzz --campaign sm1 $(FUZZ_ARGS)
+
+check-fuzz-sm2: fuzz-flight
+	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(SM2_DATA),$(SM2_DATA),$(MODERN_RUN_DIR))" --fuzz --campaign sm2 $(FUZZ_ARGS)
+
+ifeq ($(MODERN_FUZZING),1)
+$(MODERN_OUT_DIR)/obj/flight_fuzzer.o: bin/checkFlight.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 
-$(MODERN_OUT_DIR)/flight-probe: $(MODERN_OUT_DIR)/obj/flight_probe.o \
+$(MODERN_OUT_DIR)/flight-fuzzer: $(MODERN_OUT_DIR)/obj/flight_fuzzer.o \
 		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) $(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
 		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+		$(MODERN_DEAD_STRIP_FLAGS) -fsanitize=fuzzer -o $@
 
-.PHONY: check-random
-check-random: $(MODERN_OUT_DIR)/flight-probe
-	python3 bin/runGameTests.py $(MODERN_OUT_DIR)/flight-probe "$(if $(GAME_DATA),$(GAME_DATA),$(MODERN_RUN_DIR))" --random $(RANDOM_ARGS)
+# Sanitizer flag changes must not leave fatal handlers in cached objects.
+$(MODERN_OUT_DIR)/obj/flight_fuzzer.o $(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS): Makefile
+endif
 
 $(MODERN_OUT_DIR)/voice-probe: bin/checkVoices.c src/sdl/audio.c src/sdl/speech.c src/sdl/compat.c include/wc1sdl.h | modern-check-sdl $(MODERN_VOICES)
 	@mkdir -p $(dir $@)

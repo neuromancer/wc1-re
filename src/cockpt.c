@@ -657,6 +657,12 @@ short auto_pilot_valid(short showReason)
 /* Function start: 0x414410 */
 void *reset_cockpit(void)
 {
+#ifdef SDL_PORT
+    /* The previous cockpit's release-weapon background was freed; the original
+       resumes its launch icon in the next ship's buffer, which may be smaller. */
+    if (pReleaseWeaponDisplayBackground == 0)
+        cReleaseWeaponDisplayFrame = -1;
+#endif
     memset(abCockpitLightGoalArray, 0,
            sizeof(abCockpitLightGoalArray));
     memset(abCockpitIndicatorStatesArray, 0,
